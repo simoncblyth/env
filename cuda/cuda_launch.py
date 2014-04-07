@@ -19,9 +19,13 @@ Simple Tool to plan CUDA launch sequence
 
 
 """
-import argparse
+import os, logging, argparse
+log = logging.getLogger(__name__)
 from operator import mul
 from collections import OrderedDict
+
+from env.cuda.cuda_profile_parse import Parser
+
 
 def chunk_iterator(nelements, nthreads_per_block=64, max_blocks=1024):
     """
@@ -51,6 +55,26 @@ def chunk_iterator(nelements, nthreads_per_block=64, max_blocks=1024):
 
 
 
+
+class CUDACheck(object):
+    log = "cuda_profile_0.log"
+    def __init__(self, config):
+        if config.args.cuda_profile:
+            log.info("setting CUDA_PROFILE envvar, will write logs such as %s " % self.log )
+            os.environ['CUDA_PROFILE'] = "1"
+        self.config = config
+        self.parser = Parser()
+
+    def tail(self):
+        if self.config.args.cuda_profile:
+            #cmd = "ls -l %(log)s ; tail -20 %(log)s " % {'log':self.log}
+            #for line in os.popen(cmd).readlines():
+            for d in self.parser(self.log):
+                print d
+
+
+
+
 class Launch(object):
     def __init__(self, worksize, max_blocks=1024, threads_per_block=64 ):
         self.worksize = worksize
@@ -73,7 +97,8 @@ class Launch(object):
     def _get_smry(self):
         counts = self.counts
         assert sum(counts) == self.worksize
-        return "%s worksize %s max_blocks %s threads_per_block %s launches %s " % (self.__class__.__name__, self.worksize, self.max_blocks, self.threads_per_block, len(counts))
+        return "%s worksize %s max_blocks %s threads_per_block %s launches %s block %s " % (self.__class__.__name__, self.worksize, \
+                     self.max_blocks, self.threads_per_block, len(counts), repr(self.block) )
     smry = property(_get_smry)
 
     def __repr__(self):

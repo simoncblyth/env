@@ -15,31 +15,9 @@ have vertices duplicated for OpenGL and CUDA/Chroma::
     device used              1.6G
     device free            516.1M
 
-
 #. can Chroma be made to use the OpenGL vertices/faces VBO ?
 
-Raycaster kernel spec
-----------------------
-
-#. chroma geometry intersection from chroma camera `render.cu`:
-#. do not pass arrays of positions and rays to the kernel
-#. pixel data lives on PBO
-#. inputs to raycaster: 
-
-   * eye, look, up
-   * yfov, nx, ny, near  
-   * or maybe the MVP matrix ?
-
-
-#. need to fork chroma as easiest to modify render.cu in place
-
-
-#. Ray directions for each pixel are trivial in eye space
-
-
-
 """
-
 
 import logging
 log = logging.getLogger(__name__)
@@ -97,53 +75,6 @@ class DAERaycaster(object):
         self.renderer.set_constants( self.pixels.size, eye, pixel2world )  # hmm changing size will cause problems
         self.renderer.render()
         self.pixels.draw()
-
-
-    def illustrate(self, pixel2world, eye, camera ):
-        """
-        :param pixel2world: matrix represented by 4x4 numpy array 
-        :param eye: world frame eye coordinates, typically from view.eye
-        :param camera: DAECamera instance, used to get pixel counts, corner pixel coordinates
-                       and to provide pixel coordinates for pixel indices 
-        """
-        corners = np.array(camera.pixel_corners.values())
-        wcorners = np.dot( corners, pixel2world.T )           # world frame corners
-
-        #wcorners2 = np.dot( pixel2world, corners.T ).T    pre/post matrix multiplication equivalent when transpose appropriately
-        #assert np.allclose( wcorners, wcorners2 )
-
-        indices = np.random.randint(0, camera.npixel,1000)    # random pixel indices 
-        pixels = np.array(map(camera.pixel_xyzw, indices ))   # find a numpy way to map, if want to deal with all pixels
-        wpoints = np.dot( pixels, pixel2world.T )             # world frame random pixels
-
-
-        gl.glDisable( gl.GL_LIGHTING )
-        gl.glDisable( gl.GL_DEPTH_TEST )
-        gl.glColor3f( 0.,0.,1. ) 
-
-        gl.glPointSize(10)
-        gl.glBegin( gl.GL_POINTS )
-        for wcorner in wcorners:
-            gl.glVertex3f( *wcorner[:3] )
-            pass 
-        gl.glEnd()
-
-        for wcorner in wcorners:
-            gl.glBegin( gl.GL_LINES )
-            gl.glVertex3f( *eye[:3] )
-            gl.glVertex3f( *wcorner[:3] )
-            gl.glEnd()
-            pass 
-
-        for wpoint in wpoints:
-            gl.glBegin( gl.GL_LINES )
-            gl.glVertex3f( *eye[:3] )
-            gl.glVertex3f( *wpoint[:3] )
-            gl.glEnd()
-            pass 
-
-        gl.glEnable( gl.GL_LIGHTING )
-        gl.glEnable( gl.GL_DEPTH_TEST )
 
 
 

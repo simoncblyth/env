@@ -178,11 +178,17 @@ class DAEViewpoint(object):
         if target == ".": 
             if prior is None: 
                 target = ".."
-                log.info("target spec of . but no prior.index fallback to entire mesh ")
+                log.info("make_view:target spec of . but no prior.index fallback to entire mesh ")
             else:
                 target = str(prior.index) 
-                log.info("target spec of . interpreted as prior.index %s  " % target )
+                log.info("make_view:target spec of . interpreted as prior.index %s  " % target )
             pass
+        elif target is None:
+            log.info("make_view:target is None, defaulting to entire mesh ")
+            target = ".."
+        else:
+            pass
+
 
         solid = geometry.find_solid(target) 
         if solid is None:

@@ -139,13 +139,13 @@ class ColladaToChroma(object):
                 key = None 
             pass
             assert key is not None
-            log.info("setting prop %s for surface %s " % (key, surface.name))
+            log.debug("setting prop %s for surface %s " % (key, surface.name))
             surface.set(key, REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
             pass
             self.surfaces[surface.name] = surface
         pass 
         assert len(self.surfaces) == len(self.nodecls.extra.opticalsurface), "opticalsurface with duplicate names ? "
-        log.info("convert_opticalsurfaces creates %s from %s  " % (len(self.surfaces),len(self.nodecls.extra.opticalsurface))  )
+        log.debug("convert_opticalsurfaces creates %s from %s  " % (len(self.surfaces),len(self.nodecls.extra.opticalsurface))  )
 
 
     def convert_materials(self, debug=False):
@@ -244,7 +244,7 @@ class ColladaToChroma(object):
             pass 
             self.materials[material.name] = material
         pass
-        log.info("convert_materials G4DAE keys encountered : %s " % len(keymat))
+        log.debug("convert_materials G4DAE keys encountered : %s " % len(keymat))
         if debug: 
             for dkey in sorted(keymat,key=lambda _:len(keymat[_])): 
                 mats = keymat[dkey]
@@ -346,7 +346,7 @@ class ColladaToChroma(object):
         """
         self.vcount += 1
         if self.vcount < 10:
-            log.info("visit : vcount %s node.index %s node.id %s " % ( self.vcount, node.index, node.id ))
+            log.debug("visit : vcount %s node.index %s node.id %s " % ( self.vcount, node.index, node.id ))
 
         # this was the cause of the black window issue, somehow cannot skip overly large Universe/top.0 node like this ??
         #if node.index < self.root_index:
@@ -400,7 +400,7 @@ def daeload(path=None, root_index=None):
    log.info("daeload path %s root_index %s " % (path, root_index))
 
    if len(DAENode.registry) > 0:
-       log.info("skipping parse as already have %s nodes " % len(DAENode.registry))
+       log.debug("skipping parse as already have %s nodes " % len(DAENode.registry))
    else:
        DAENode.parse(path)
 

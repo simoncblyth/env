@@ -96,6 +96,8 @@ Division of concerns
 import os, logging, socket
 log = logging.getLogger(__name__)
 
+#os.environ['CUDA_PROFILE'] = "1"
+
 import glumpy as gp  
 
 from daeconfig import DAEConfig
@@ -104,16 +106,16 @@ from daescene import DAEScene
 from daeinteractivityhandler import DAEInteractivityHandler
 from daeframehandler import DAEFrameHandler
 
+from env.cuda.cuda_launch import CUDACheck
 
 
 def main():
 
     config = DAEConfig(__doc__)
     config.init_parse()
-    print "changed settings\n", config.changed_settings()
-    print "all settings\n",config.all_settings()
+    config.report()
 
-
+    cudacheck = CUDACheck(config)
 
     geometry = DAEGeometry(config.args.nodes, path=config.args.path)
     geometry.flatten()
@@ -132,6 +134,8 @@ def main():
 
 
     gp.show()
+
+    cudacheck.tail()
 
 
 if __name__ == '__main__':

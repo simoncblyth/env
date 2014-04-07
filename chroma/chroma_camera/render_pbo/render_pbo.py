@@ -2,7 +2,8 @@
 """
 ::
 
-    python render_pbo.py -s 1024,768 -k render_pbo_debug
+    ./render_pbo.py -s 1024,768 -k render_pbo_debug
+    ./render_pbo.py --cuda-profile --alpha-depth 10
 
 
 """
@@ -12,8 +13,7 @@ log = logging.getLogger(__name__)
 import glumpy as gp
 
 from render_pbo_config import Config
-from render_pbo_scene import Scene
-
+from env.cuda.cuda_launch import CUDACheck
 
 class FigHandler(object):
     """glumpy event handler"""
@@ -44,8 +44,12 @@ class FrameHandler(object):
 
 def main():
     config = Config(__doc__)
+    print config
+    cudacheck = CUDACheck(config)
 
     log.info("render_pbo main")
+    from render_pbo_scene import Scene
+
 
     fig = gp.figure(config.size)  # glumpy glut setup
     frame = fig.add_frame()
@@ -57,6 +61,8 @@ def main():
     framehandler = FrameHandler(frame, scene)
 
     gp.show()
+
+    cudacheck.tail()
 
 
 if __name__ == '__main__':

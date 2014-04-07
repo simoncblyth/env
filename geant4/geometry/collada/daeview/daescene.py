@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 """
 """
-import logging
+import os, logging
 log = logging.getLogger(__name__)
 import numpy as np
+
 from daetrackball import DAETrackball
 from daecamera import DAECamera
 from daeinterpolateview import DAEInterpolateView
 from daeviewpoint import DAEViewpoint
 from daeutil import Transform
 from daelights import DAELights
-from daeraycaster import DAERaycaster
 
+# do not import anything that would initialize CUDA context here, for CUDA_PROFILE control from config
+ 
 
 ivec_ = lambda _:map(int,_.split(","))
 fvec_ = lambda _:map(float,_.split(","))
@@ -22,15 +24,14 @@ class DAEScene(object):
     """
     def __init__(self, geometry, config ):
         self.geometry = geometry  
+
         self.config = config
-        pass
         args = config.args
         self.set_toggles(args)
         self.speed = args.speed
-        self.scaled_mode = args.target is None  
 
-        # CUDA processor
-        self.processor = self.make_processor( config )
+        # nasty modal switch
+        self.scaled_mode = args.scaled_mode  
 
         # trackball
         xyz = args.xyz if self.scaled_mode else (0,0,0)
@@ -41,7 +42,7 @@ class DAEScene(object):
         self.view = self.change_view( args.target , prior=None)
         if args.jump:
             self.view = self.interpolate_view(args.jump)
-        print self.view.smry()
+        log.info("DAEScene ctor view\n%s" % self.view.smry())
 
         # camera
         camera = DAECamera( size=config.size, near=args.near, far=args.far, yfov=args.yfov, nearclip=config.nearclip, farclip=config.farclip, yfovclip=config.yfovclip )
@@ -55,8 +56,11 @@ class DAEScene(object):
         kscale = 1. if self.scaled_mode else config.args.kscale
         self.kscale = kscale
 
-        # raycaster
-        self.raycaster = DAERaycaster( config, geometry )
+        # Chroma raycaster, None if not --with-chroma
+        self.raycaster = self.make_raycaster( config, geometry ) 
+
+        # Image processor, None if not --with-cuda-image-processor
+        self.processor = self.make_processor( config ) 
 
         # selected solids
         self.solids = []
@@ -85,11 +89,18 @@ class DAEScene(object):
         return pixel2world
     pixel2world = property(_get_pixel2world)
 
+    def make_raycaster(self, config, geometry ):
+        if not config.args.with_chroma:return None
+        log.info("creating Chroma raycaster processor, CUDA_PROFILE %s " % os.environ['CUDA_PROFILE'] )
+        import pycuda.gl.autoinit
+        from daeraycaster import DAERaycaster     
+        raycaster = DAERaycaster( config, geometry )
+        return raycaster
  
     def make_processor( self, config ):
-        if not config.args.with_cuda:return None
+        if not config.args.with_cuda_image_processor:return None
         size = config.size
-        procname = config.args.processor
+        procname = config.args.cuda_image_processor
         log.info("creating CUDA processor : %s " % procname )
         import pycuda.gl.autoinit
         from env.pycuda.pycuda_pyopengl_interop import Invert, Generate
@@ -109,15 +120,33 @@ class DAEScene(object):
         self.transparent = args.transparent
         self.parallel = args.parallel
         self.drawsolid = False
-        self.cuda = args.cuda
+        self.cuda = args.cuda and args.with_cuda_image_processor
         self.animate = False
         self.markers = args.markers
-        self.raycast = args.raycast
+        self.raycast = args.raycast and args.with_chroma 
         # 
-        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","cuda","animate","markers","raycast")
+        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","markers")  # animate raycast, cuda have separate handling
 
-    def toggle_attr(self, name):
+    def toggle(self, name):
         setattr( self, name , not getattr(self, name)) 
+
+    def toggle_animate(self):
+        if self.view.interpolate:
+            self.toggle('animate')
+        else:
+            log.warn("cannot toggle animate as current view not interpolatable")
+
+    def toggle_raycast(self):
+        if self.config.args.with_chroma:
+            self.toggle("raycast") 
+        else:
+            log.warn("cannot toggle --raycast unless launched --with-chroma")
+
+    def toggle_cuda(self):
+        if self.config.args.with_cuda_image_processor:
+            self.toggle(k) 
+        else:
+            log.warn("cannot toggle --cuda unless launched --with-cuda-image-processor")
 
     def animation_speed(self, factor ):   
         self.speed *= factor
@@ -162,8 +191,12 @@ class DAEScene(object):
                 newview = self.interpolate_view(v) 
             elif k == "ajump":
                 newview = self.interpolate_view(v, append=True) 
+            elif k == "raycast":
+                self.toggle_raycast() 
+            elif k == "cuda":
+                self.toggle_cuda() 
             elif k in self.toggles:
-                self.toggle_attr(k)
+                self.toggle(k)
             elif k in ("eye","look","up") :
                 elu[k] = v
             elif k == "kscale":

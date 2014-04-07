@@ -11,7 +11,7 @@ import OpenGL.GLUT as glut
 
 
 from daetext import DAEText
-from daefrustum import DAEFrustum
+from daeillustrate import DAEIllustrate
 
 
 def gl_modelview_matrix():
@@ -38,7 +38,7 @@ class DAEFrameHandler(object):
         self.scene = scene
         pass
         self.text = DAEText()
-        self.frustum = DAEFrustum()
+        self.illustrate = DAEIllustrate()
         self.annotate = []
         pass
         frame.push(self)  # get frame to invoke on_init and on_draw handlers
@@ -147,10 +147,9 @@ class DAEFrameHandler(object):
         lrbtnf = self.scene.camera.lrbtnf
         kscale = self.scene.kscale
 
-        #if not view.interpolate:
         if self.scene.markers:
-            self.frustum( view, lrbtnf*kscale )
-            self.scene.raycaster.illustrate( self.scene.pixel2world, view.eye, self.scene.camera ) 
+            self.illustrate.frustum( view, lrbtnf*kscale )
+            self.illustrate.raycast( self.scene.pixel2world, view.eye, self.scene.camera ) 
 
         if self.scene.light:
             lights.position()   # reset positions following changes to MODELVIEW matrix ?

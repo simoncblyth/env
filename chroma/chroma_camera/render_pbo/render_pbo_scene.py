@@ -13,7 +13,7 @@ from render_pbo_config import Config
 class Scene(object):
     """coordinator"""
     def __init__(self, config, trackball ):
-        print config
+        log.info("scene ctor")
         self.geometry = load_geometry_from_string(config.args.geometry)
         log.info("completed loading geometry from %s " % config.args.geometry)
         self.pixels = PixelBuffer(config.size, texture=True)

@@ -59,7 +59,6 @@ class Config(object):
     def parse(self):
         args = self.parser.parse_args()
         logging.basicConfig(level=getattr(logging, args.loglevel), format="%(asctime)-15s %(message)s")
-        log.info("setup logging")
         np.set_printoptions(precision=4, suppress=True)
         self.args = args
  
@@ -71,23 +70,25 @@ class Config(object):
         defaults['geometry'] = os.environ.get('DAE_NAME',None)
         defaults['threads_per_block'] = 64
         defaults['max_blocks'] = 1024     # larger max_blocks reduces the number of separate launches, and increasing launch time (BEWARE TIMEOUT)
-        defaults['max_alpha_depth'] = 3
+        defaults['max_alpha_depth'] = 10
+        defaults['alpha_depth'] = 3
         defaults['size'] = "1024,768"
         defaults['kernel'] = "render_pbo"
         defaults['allsync'] = True
+        defaults['cuda_profile'] = True
         defaults['view'] = "A"
-        #defaults['profile'] = False
 
         parser.add_argument( "-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "-g","--geometry", help="Path to geometry file", type=str  )
         parser.add_argument( "-t","--threads-per-block", help="", type=int  )
-        parser.add_argument( "-a","--max-alpha-depth", help="", type=int  )
+        parser.add_argument(      "--max-alpha-depth", help="", type=int  )
+        parser.add_argument( "-a","--alpha-depth", help="", type=int  )
         parser.add_argument( "-b","--max-blocks", help="", type=int  )
         parser.add_argument( "-s","--size", help="", type=str  )
         parser.add_argument( "-k","--kernel", help="", type=str  )
         parser.add_argument( "-c","--allsync", help="Sync after every launch, to catch errors earlier.", action="store_true"  )
+        parser.add_argument(      "--cuda-profile", help="", action="store_true"  )
         parser.add_argument(       "--view", help="", type=str  )
-        #parser.add_argument( "-p","--profile", help="Writes profile to file", action="store_true"  )
 
         parser.set_defaults(**defaults)
         return parser, defaults
@@ -135,5 +136,7 @@ class Config(object):
 
 if __name__ == '__main__':
     pass
+    config = Config(__doc__)
+    print config
 
 

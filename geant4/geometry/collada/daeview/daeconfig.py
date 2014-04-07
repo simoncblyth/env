@@ -76,7 +76,7 @@ class DAEConfig(object):
             print "ArgumentParserError %s %s " % (e, repr(sys.argv)) 
             return
         
-        logging.basicConfig(level=getattr(logging, args.loglevel), format="%(asctime)-15s %(message)s")
+        logging.basicConfig(level=getattr(logging, args.loglevel), format=args.logformat )
         np.set_printoptions(precision=4, suppress=True)
         self.args = args
 
@@ -100,14 +100,20 @@ class DAEConfig(object):
             filter_ = lambda kv:kv[1] != getattr(args,kv[0]) 
         pass
         wid = 20
-        fmt = " %-15s : %20s : %20s "
-        return "\n".join([ fmt % (k,str(v)[:wid],str(getattr(args,k))[:wid]) for k,v in filter(filter_,defaults.items()) ])
+        fmt = " %-30s : %20s : %s %20s %s "
+        mkr_ = lambda k:"**" if getattr(args,k) != defaults.get(k) else "  "
+        return "\n".join([ fmt % (k,str(v)[:wid],mkr_(k),str(getattr(args,k))[:wid],mkr_(k)) for k,v in filter(filter_,defaults.items()) ])
 
     def base_settings(self, all_=False):
         return self._settings( self.args, self.base_defaults, all_ )
 
     def live_settings(self, all_=False):
         return self._settings( self.args, self.live_defaults, all_ )
+
+
+    def report(self):
+        #print "changed settings\n", self.changed_settings()
+        print "all settings\n",self.all_settings()
 
     def all_settings(self):
         return "\n".join(filter(None,[
@@ -138,43 +144,44 @@ class DAEConfig(object):
         parser = argparse.ArgumentParser(doc, add_help=False)
 
         defaults = OrderedDict()
+
         defaults['loglevel'] = "INFO"
+        defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
-        defaults['with_cuda'] = True
-        defaults['with_chroma'] = False
-        defaults['processor'] = "Invert"
+
+        parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
+        parser.add_argument( "--logformat", help="%(default)s")  
+        parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )
+        parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
+
         defaults['deviceid'] = None
+        defaults['cuda_profile'] = False
+        parser.add_argument(      "--device-id", help="CUDA device id.", type=str )
+        parser.add_argument(      "--cuda-profile", help="Sets CUDA_PROFILE envvar.", action="store_true" )
+
+        defaults['with_cuda_image_processor'] = False
+        defaults['cuda_image_processor'] = "Invert"
+        parser.add_argument( "-I","--with-cuda-image-processor", help="Enable CUDA image processors ", action="store_true"  )
+        parser.add_argument(      "--cuda-image-processor", help="Name of the CUDA image processor to use.", type=str )
+
+        defaults['with_chroma'] = False
         defaults['max_alpha_depth'] = 10
-
-        parser.add_argument("-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
-        parser.add_argument( "-C","--no-with-cuda", dest="with_cuda", help="Inhibit use of cuda ", action="store_true"  )
-        parser.add_argument(     "--with-chroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_true" )
-        parser.add_argument(     "--processor", help="Name of the cuda processor to use.", type=str )
-        parser.add_argument(     "--device-id", help="CUDA device id.", type=str )
-        parser.add_argument(     "--max-alpha-depth", help="Chroma Raycaster alpha_max", type=int )
-
-        parser.add_argument(   "--host", help="Hostname to bind to for UDP messages ", type=str  )
-        parser.add_argument(   "--port", help="Port to bind to for UDP messages ", type=str  )
-
+        parser.add_argument( "-C","--with-chroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_true" )
+        parser.add_argument(      "--max-alpha-depth", help="Chroma Raycaster alpha_max", type=int )
 
         defaults['path'] = os.environ['DAE_NAME']
-        #defaults['nodes']="5000:5100"   # some PMTs for quick testing
         defaults['nodes']="3153:12230"
-
         parser.add_argument(     "--path",    help="Path of geometry file  %(default)s",type=str)
-        parser.add_argument("-n","--nodes",   help="DAENode.getall node(s) specifier %(default)s",type=str)
+        parser.add_argument("-n","--nodes",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
 
         defaults['size']="1440,852"
-        #defaults['size']="640,480"
         defaults['frame'] = "1,1"
-
-        parser.add_argument(     "--size",    help="Pixel size  %(default)s", type=str)
+        parser.add_argument(     "--size",    help="Pixel size  %(default)s  small size 640,480", type=str)
         parser.add_argument(     "--frame",   help="Viewport framing  %(default)s",type=str)
 
         defaults['rgba'] = ".7,.7,.7,.5"
         defaults['vscale'] = 1.
-
         parser.add_argument(     "--rgba",     help="RGBA color of geometry, the alpha has a dramatic effect  %(default)s",type=str)
         parser.add_argument(     "--vscale",   help="Vertex scale, changing coordinate values stored in VBO. %(default)s", type=float)
 
@@ -188,7 +195,8 @@ class DAEConfig(object):
 
         # target based positioning mode switched on by presence of target 
 
-        defaults['target'] = None
+        defaults['scaled_mode'] = False
+        defaults['target'] = ".."
         defaults['jump'] = None
         defaults['ajump'] = None
         defaults['speed'] = 1e-3
@@ -196,27 +204,29 @@ class DAEConfig(object):
         defaults['look'] = "0,0,0"
         defaults['up'] = "0,0,1"
         defaults['fullscreen'] = False
-        defaults['cuda'] = False
         defaults['markers'] = False
+
+        parser.add_argument( "--scaled-mode", action="store_true", help="In scaled mode the actual VBO vertex coordinates are scaled into -1:1, ie shrink world into unit cube. **FOR DEBUG ONLY** " )
+        parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
+        parser.add_argument("-j","--jump",    help="[I] Animated transition to another node.")  
+        parser.add_argument(     "--ajump",   help="[I] Append jump specs provided onto any existing ones.")  
+        parser.add_argument(     "--speed",   help="Animation interpolatiom speed, %(default)s", type=float)  
+        parser.add_argument("-e","--eye",     help="[I] Eye position ",type=str)
+        parser.add_argument("-a","--look",    help="[I] Lookat position ",type=str)
+        parser.add_argument("-u","--up",      help="[I] Up direction ",type=str)
+        parser.add_argument( "--fullscreen", action="store_true", help="Start in fullscreen mode." )
+        parser.add_argument( "--markers",   action="store_true", help="[I] Frustum and light markers." )
+ 
+
+        defaults['cuda'] = False
         defaults['raycast'] = False
         defaults['threads_per_block'] = 64
         defaults['max_blocks'] = 1024
         defaults['kernel'] = "render_pbo"
         defaults['allsync'] = True
 
-        parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
-        parser.add_argument("-j","--jump",    help="[I] Animated transition to another node.")  
-        parser.add_argument(     "--ajump",   help="[I] Append jump specs provided onto any existing ones.")  
-        parser.add_argument(     "--speed",   help="Animation interpolatiom speed, %(default)s", type=float)  
-
-        parser.add_argument("-e","--eye",     help="[I] Eye position ",type=str)
-        parser.add_argument("-a","--look",    help="[I] Lookat position ",type=str)
-        parser.add_argument("-u","--up",      help="[I] Up direction ",type=str)
-
-        parser.add_argument(     "--fullscreen", action="store_true", help="Start in fullscreen mode." )
-        parser.add_argument(     "--cuda",      action="store_true", help="[I] Start in cuda mode." )
-        parser.add_argument(     "--markers",   action="store_true", help="[I] Frustum and light markers." )
-        parser.add_argument(     "--raycast",   action="store_true", help="[I] Raycast" )
+        parser.add_argument( "--cuda",      action="store_true", help="[I] Start in cuda mode." )
+        parser.add_argument( "--raycast",   action="store_true", help="[I] Raycast" )
         parser.add_argument( "--threads-per-block", help="", type=int )
         parser.add_argument( "--max-blocks", help="", type=int )
         parser.add_argument( "--kernel", help="", type=str )

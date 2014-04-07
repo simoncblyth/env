@@ -20,34 +20,27 @@ from chroma.gpu.tools import get_cu_module, cuda_options
 class PBORenderer(object):
     def __init__(self, pixels, chroma_geometry, config ):
         pass
-        self.config = config
-
-        npixels = pixels.npixels
-        size = pixels.size
         self.pixels = pixels
-        self.npixels = npixels
-
-        #chroma_geometry.flatten()
+        self.config = config
         self.gpu_geometry = GPUGeometry( chroma_geometry )
 
-        self.launch = Launch(npixels, threads_per_block=config.args.threads_per_block, max_blocks=config.args.max_blocks )
+        self.compile_kernel()
+        self.launch = Launch( pixels.npixels, threads_per_block=config.args.threads_per_block, max_blocks=config.args.max_blocks )
 
-        #self.dxlen = ga.zeros(npixels, dtype=np.uint32)
-        #dx_size = config.args.max_alpha_depth*npixels
-        #self.dx    = ga.empty(dx_size, dtype=np.float32)
-        #self.color = ga.empty(dx_size, dtype=ga.vec.float4)
-
-        self.compile_()
+        self._size = None
+        self._origin = None
+        self._pixel2world = None
 
         if hasattr(config, 'eye'): 
-            self.set_constants(size, config.eye, config.pixel2world)
+            self.size = pixels.size
+            self.origin = config.eye
+            self.pixel2world = config.pixel2world
 
-    def compile_(self):
+    def compile_kernel(self):
         """
         #. compile kernel and extract __constant__ symbol addresses
         """
         module = get_cu_module('render_pbo.cu', options=cuda_options)
-        #self.arg_format = "iiPPPPP"
         self.arg_format = "iiPP"
 
         self.g_size   = module.get_global("g_size")[0]  
@@ -58,27 +51,28 @@ class PBORenderer(object):
         kernel.prepare(self.arg_format)
         self.kernel = kernel
 
-    def set_constants(self, size, origin, pixel2world ):
-        """ copy constant values to GPU """
-
-        log.info("set_constants")
-        log.info("size %s " % repr(size))
-        log.info("origin %s " % repr(origin))
-        log.info("pixel2world %s " % repr(pixel2world))
-
+    def _get_size(self):
+        return self._size 
+    def _set_size(self, size):
+        self._size = size
         cuda.memcpy_htod(self.g_size,         ga.vec.make_int2(*size))
+    size = property(_get_size, _set_size) 
+      
+    def _get_origin(self):
+        return self._origin
+    def _set_origin(self, origin):
+        self._origin = origin
         cuda.memcpy_htod(self.g_origin,       ga.vec.make_float4(*origin))
+    origin = property(_get_origin, _set_origin) 
+ 
+    def _get_pixel2world(self):
+        return self._pixel2world
+    def _set_pixel2world(self, pixel2world):
+        self._pixel2world = pixel2world
         cuda.memcpy_htod(self.g_pixel2world,  np.float32(pixel2world))
-
-    def check_args(self, arg_format, *args ):
-        from pycuda._pvt_struct import pack
-        i = 0
-        for fmt,arg in zip(arg_format,args):
-            print "checking arg %s %s %s " % (i,fmt, arg) 
-            arg_buf = pack(fmt,arg)
-            i += 1
-
-    def render(self, alpha_depth=3, check_args=False):
+    pixel2world = property(_get_pixel2world, _set_pixel2world) 
+ 
+    def render(self, alpha_depth=3):
         """
         :param alpha_depth:
 
@@ -86,38 +80,32 @@ class PBORenderer(object):
 
         """
         assert alpha_depth <= self.config.args.max_alpha_depth
-        #if not keep_last_render:
-        #    self.dxlen.fill(0)   # this is calling a gpuarray.fill kernel 
 
         pbo_mapping = self.pixels.cuda_pbo.map()
 
         args = [ np.uint32(alpha_depth), 
                  pbo_mapping.device_ptr(),
                  self.gpu_geometry.gpudata ]
-        
-        #         self.dx.gpudata, 
-        #         self.dxlen.gpudata, 
-        #         self.color.gpudata ]
 
-        if check_args:
-            self.check_args( self.arg_format[1:], *args)  # skip offset arg
+        log.info("render pixels %s launch %s " % (repr(self.pixels.size), repr(self.launch)))
 
         block = self.launch.block
         calls = 0 
-        print "pixels %s launch %s " % (repr(self.pixels.size), repr(self.launch))
+        times = []
         for offset, count, blocks_per_grid in self.launch.chunker:
+
             grid=(blocks_per_grid, 1)
-            print "[%s] offset %s grid %s block %s " % (calls, offset, repr(grid),repr(block))
-            self.kernel.prepared_call( grid, block, np.uint32(offset), *args )
+            get_time = self.kernel.prepared_timed_call( grid, block, np.uint32(offset), *args )
+            t = get_time()
+            times.append(t)
+ 
+            log.info("[%s] offset %s grid %s took %s " % (calls, offset, repr(grid), t ))
             if self.config.args.allsync:
-                try:
-                    cuda.Context.synchronize()  
-                except:
-                    print "sync exception" 
+                cuda.Context.synchronize()  
             pass
             calls += 1
         pass
-        cuda.Context.synchronize()  # OMITTING THIS SYNC CAUSES AN UNRECOVERABLE GUI FREEZE
+        cuda.Context.synchronize()  # OMITTING THIS SYNC CAN CAUSE AN IRRECOVERABLE GUI FREEZE
         pbo_mapping.unmap()
 
 

@@ -7,15 +7,14 @@ import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
 
-class DAEFrustum(object):
+class DAEIllustrate(object):
     def __init__(self):
         pass 
 
-    def __call__(self, view, lrbtnf ):
+    def frustum(self, view, lrbtnf ):
         if not hasattr(view, 'camera2world'):
             log.warn("skipping Frustum for interpolated views")
             return
-
 
         eye, look, up = np.split( view.eye_look_up, 3 )
         distance = np.linalg.norm( look - eye )
@@ -100,6 +99,53 @@ class DAEFrustum(object):
             gl.glVertex3f( *cf )
             gl.glEnd()
         pass
+
+
+    def raycast(self, pixel2world, eye, camera ):
+        """
+        :param pixel2world: matrix represented by 4x4 numpy array 
+        :param eye: world frame eye coordinates, typically from view.eye
+        :param camera: DAECamera instance, used to get pixel counts, corner pixel coordinates
+                       and to provide pixel coordinates for pixel indices 
+        """
+        corners = np.array(camera.pixel_corners.values())
+        wcorners = np.dot( corners, pixel2world.T )           # world frame corners
+
+        #wcorners2 = np.dot( pixel2world, corners.T ).T    pre/post matrix multiplication equivalent when transpose appropriately
+        #assert np.allclose( wcorners, wcorners2 )
+
+        indices = np.random.randint(0, camera.npixel,1000)    # random pixel indices 
+        pixels = np.array(map(camera.pixel_xyzw, indices ))   # find a numpy way to map, if want to deal with all pixels
+        wpoints = np.dot( pixels, pixel2world.T )             # world frame random pixels
+
+
+        gl.glDisable( gl.GL_LIGHTING )
+        gl.glDisable( gl.GL_DEPTH_TEST )
+        gl.glColor3f( 0.,0.,1. ) 
+
+        gl.glPointSize(10)
+        gl.glBegin( gl.GL_POINTS )
+        for wcorner in wcorners:
+            gl.glVertex3f( *wcorner[:3] )
+            pass 
+        gl.glEnd()
+
+        for wcorner in wcorners:
+            gl.glBegin( gl.GL_LINES )
+            gl.glVertex3f( *eye[:3] )
+            gl.glVertex3f( *wcorner[:3] )
+            gl.glEnd()
+            pass 
+
+        for wpoint in wpoints:
+            gl.glBegin( gl.GL_LINES )
+            gl.glVertex3f( *eye[:3] )
+            gl.glVertex3f( *wpoint[:3] )
+            gl.glEnd()
+            pass 
+
+        gl.glEnable( gl.GL_LIGHTING )
+        gl.glEnable( gl.GL_DEPTH_TEST )
 
 
 
