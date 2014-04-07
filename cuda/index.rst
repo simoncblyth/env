@@ -21,6 +21,11 @@ cuda
     cuda_timeouts
     cuda_envvar
     osx_gpu_panic
+    cuda_memory_types
+    cuda_math
+
+
+
 
 
 

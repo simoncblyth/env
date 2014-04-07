@@ -15,6 +15,9 @@ Graphics
     pipeline/index
     math/index
     glumpy/index
+    scenekit/index
+
+
 
 
 
