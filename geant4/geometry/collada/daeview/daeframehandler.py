@@ -118,8 +118,11 @@ class DAEFrameHandler(object):
         # temporarily shunt origin to the "look" rather than the "eye", for applying rotation and markers
         gl.glTranslate ( 0, 0, -distance )                         
         gl.glMultMatrixf (trackball._matrix )                        # rotation around "look" point
-        glut.glutWireSphere( kscale*trackball.trackballradius,10,10)  # what size trackball ?
-        gl.glTranslate ( 0, 0, +distance )                           # look is at (0,0,-distance) in eye frame, 
+
+        if self.scene.markers:
+            glut.glutWireSphere( kscale*trackball.trackballradius,10,10)  # what size trackball ?
+
+        gl.glTranslate ( 0, 0, +distance )                           # look is at (0,0,-distance) in eye frame, so here we shunt to the look
 
         if not scene.scaled_mode:
             glu.gluLookAt( *view.eye_look_up )   # NB no scaling, still world distances, eye at origin and point -Z at look
@@ -240,6 +243,12 @@ class DAEFrameHandler(object):
         pixels = gl.glReadPixelsf(x, y, 1, 1, gl.GL_DEPTH_COMPONENT ) # width,height 1,1  
         z = pixels[0][0]
         click_xyz = glu.gluUnProject( x,y,z ) # click point in world frame       
+
+
+        self.scene.where()
+
+        gl_modelview = np.array( gl_modelview_matrix() ).reshape(4,4).T
+        print "unproject gl_modelview.T \n%s" % gl_modelview 
 
         self.pop()
         return click_xyz

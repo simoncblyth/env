@@ -3,7 +3,7 @@
 import logging, math
 log = logging.getLogger(__name__)
 import numpy as np
-from daeutil import printoptions, WorldToCamera, CameraToWorld, Transform
+from daeutil import printoptions, WorldToCamera, CameraToWorld, Transform, translate_matrix, scale_matrix
 
 
 def rotate( th , axis="x"):
@@ -33,13 +33,18 @@ def ensure_not_collinear( eye, look, up):
 
 def pfvec_( svec, prior ):
     """
+    :param svec: input parameter
+
     Allow specification of a prior vec element value with "." thus::
        
-    2000_.,.,10   # means take a look from 10 units above current position  
+         2000_.,.,10   # means take a look from 10 units above current position  
+         # no it doesnt this means, same xy but move to 10
+       
 
     """
     if svec is None:
         return prior
+
     float_or_prior_ = lambda _:sp[1] if sp[0] == "." else float(sp[0])
     return [float_or_prior_(sp) for sp in zip(svec.split(","),prior)]
 
@@ -88,23 +93,190 @@ class DAEViewpoint(object):
     world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
     camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
 
-
-    def offset_eye_position(self, camera ):
+    def modelview_matrix(self, trackball, kscale ):
         """
-        :param camera: camera frame offset position, eg from trackball.xyz translation
+        Objects are transformed from world space to eye space using GL_MODELVIEW matrix, 
+        as daeviewgl regards model spaces as just an input parameter convenience, 
+        OpenGL never gets to know about those.  
+
+        So need to invert MODELVIEW and apply it to the origin (eye position in eye space)
+        to get world position of eye.  Can then convert that into model position.  
+
+        Whats the motivation ?
+
+           *  need to know where is the effective eye point after trackballing around
+
+        Think about the MODELVIEW sequence of transformations in daeframehandler 
+        in OpenGL reverse order, this defines exactly what the trackball output means::
+
+            kscale = self.scene.kscale
+            distance = view.distance
+            gl.glScalef(1./kscale, 1./kscale, 1./kscale)   
+            gl.glTranslate ( *trackball.xyz )       # former adhoc 1000. now done internally in trackball.translatefactor
+            gl.glTranslate ( 0, 0, -distance )      # shunt back, eye back to origin                   
+            gl.glMultMatrixf (trackball._matrix )   # rotation around "look" point
+            gl.glTranslate ( 0, 0, +distance )      # look is at (0,0,-distance) in eye frame, so here we shunt to the look
+            glu.gluLookAt( *view.eye_look_up )      # NB no scaling, still world distances, eye at origin and point -Z at look
+
+        To get the unproject to dump OpenGL modelview matrix, touch a pixel.
+
+        At views with no trackball action the matrices agree, stay in agreement 
+        after trackball xyz panning::
+
+            modelview
+            [[    0.         0.01       0.      8000.8075]
+             [    0.         0.         0.01      26.122 ]
+             [    0.01       0.         0.       125.3347]
+             [    0.         0.         0.         1.    ]] 
+            unproject gl_modelview.T 
+            [[    0.         0.01       0.      8000.8071]
+             [    0.         0.         0.01      26.122 ]
+             [    0.01       0.         0.       125.3347]
+             [    0.         0.         0.         1.    ]]
+
+        Agreement lost on rotating::
+
+            modelview
+            [[   -0.0042     0.0088     0.0024  6968.7239]
+             [    0.001     -0.0022     0.0097 -1689.1084]
+             [    0.009      0.0043     0.      3542.0405]
+             [    0.         0.         0.         1.    ]] 
+            unproject gl_modelview.T 
+            [[    0.0043     0.0088    -0.0022  7071.0352]
+             [    0.         0.0024     0.0097  1937.6289]
+             [    0.009     -0.0042     0.001  -3215.7358]
+             [    0.         0.         0.         1.    ]]
+
+        Regained when transpose the rotation matrix::
+
+            modelview
+            [[   -0.007      0.007      0.0015  5477.3197]
+             [    0.0004    -0.0017     0.0098 -1315.6118]
+             [    0.0071     0.007      0.001   5683.874 ]
+             [    0.         0.         0.         1.    ]] 
+            unproject gl_modelview.T 
+            [[   -0.007      0.007      0.0015  5477.3193]
+             [    0.0004    -0.0017     0.0098 -1315.6117]
+             [    0.0071     0.007      0.001   5683.874 ]
+             [    0.         0.         0.         1.    ]]
+
+
+        """
+        distance = self.distance       # eye frame translation along -Z
+
+        world2camera = self.world2camera.matrix
+
+        to_look   = translate_matrix((0,0, distance)) 
+
+        trackball_rot = np.array( trackball._matrix, dtype=float).reshape(4,4).T
+
+        from_look = translate_matrix((0,0,  -distance)) 
+
+        trackball_tra = translate_matrix(trackball.xyz) 
+
+        scale = scale_matrix( 1./kscale )
+
+        modelview = scale.dot(trackball_tra).dot(from_look).dot(trackball_rot).dot(to_look).dot(world2camera)
+
+        print "modelview\n%s " % modelview 
+
+        return modelview
+
+
+    def offset_eye_position(self, trackball, kscale ):
+        """
+        :param trackball: DAETrackball instance
         :return: model frame coordinates of offset eye position
 
         Original eye of the view is semi-fixed.
         Trackball translations do not change the view instance eye.
 
-        TODO: debug this further, getting unexpected factor of two from somewhere 
+        Standard position to debug from with a wide view 
+        and remote command to move view around numerically::
+
+            daeviewgl.py -t 8005 --with-chroma --cuda-profile --near 0.5 --size 640,480
+            udp.py --eye=10,10,10
+            udp.py --eye=15.5,-6.5,30.2   
+            # remote commands change the base view, 
+            # so must home the trackball for correspondence with what you see
+
+        Default eye coordinates -2,-2,0 now correctly reported. Former factor
+        of two from considering offsets where should be considering absolutes.
+        **Do not think about offsets, think about absolute positions**. 
+        The trackball is defining an absolute position in eye space. 
+
+        The distance is from eye to look and trackball._matrix is expressing 
+        rotation about the look.
+
+        Testing trackball pan conversion to model position
+        
+        #. use remote command to set position `udp.py --eye=10,0,0` (this will home the trackball and change the view)
+        #. check the scene "where" position in title bar (after "SC") and eye position (after "e") are the same   
+        #. use trackball pan controls (eg spacebar drag down) to move in +Z_eye direction, the SC position should 
+           update while the base e position stays fixed, for example ending at SC 20,0,0 and e 10,0,0
+        #. issue another remote command, which homes the trackball and sets the view to the 
+           SC position `udp.py --eye=20,0,0` there should be no visual jump and the
+           base view position  `e 20,0,0` should now match, as have homed
+
+        For Z panning backwards (ie movement in line with the gaze) can duplicate eye positions
+        with remote command sequences like::
+
+            udp.py --eye=10,0,0
+            udp.py --eye=20,0,0
+            udp.py --eye=30,0,0  
+
+            udp.py --eye=10,10,0
+            udp.py --eye=20,20,0
+            udp.py --eye=30,30,0  
+
+        For X panning (tab-drag left/right) start at::
+
+            udp.py --eye=10,10,0        # start here 
+            udp.py --eye=7.5,12.2,0     # get a visual jump 
+
+        Hmm this is too difficult try to cheat and use GL_MODELVIEW directly ? That transforms
+        from world coordinates to eye ones.
         """
-        world = self.camera2world( -camera )
-        offset = self.world2model( world[:3] )   # model frame
-        effective = self._eye + offset[:3]
-        #log.info("whereami : camera %s world %s offset %s effective %s " % (camera, world, offset, effective  ) ) 
-        return effective
- 
+
+        """
+        trackball_eye = np.append( -trackball.xyz, 1 )                              # eye/camera frame **position** 
+        
+        rot = False
+        if rot:
+            distance = self.distance                        # eye frame translation along -Z
+            trackball_rot = np.array( trackball._matrix, dtype=float).reshape(4,4)
+            to_look   = translate_matrix((0,0, -distance)) 
+            from_look = translate_matrix((0,0,  distance)) 
+            trackball_matrix = np.dot( to_look, np.dot( trackball_rot.T, from_look ))
+            #
+            trackball_eye_prime = np.dot( trackball_matrix, trackball_eye.T )
+            pass
+            log.info("trackball_rot         \n%s ", trackball_rot )
+            log.info("to_look               \n%s ", to_look )
+            log.info("from_look             \n%s ", from_look )
+            log.info("trackball_matrix      \n%s ", trackball_matrix )
+        else:
+            trackball_eye_prime = trackball_eye
+        pass
+
+        trackball_world = self.camera2world( trackball_eye_prime[:3] )
+        trackball_model = self.world2model( trackball_world[:3] )  # model frame **position**
+        
+        log.info("trackball_eye           %s ", trackball_eye )
+        log.info("trackball_eye_prime     %s ", trackball_eye_prime )
+        #log.info("camera2world          \n%s ", self.camera2world.matrix )
+        log.info("trackball_world         %s ", trackball_world )
+        log.info("trackball_model         %s ", trackball_model )
+
+        """
+        world2eye = self.modelview_matrix( trackball, kscale ) 
+        eye2world = np.linalg.inv(world2eye)
+
+        eye_eye   = np.array([0,0,0,1])                # eye position in eye frame
+        eye_world = eye2world.dot(eye_eye.T)           # eye position in world frame
+        eye_model = self.world2model( eye_world[:3] )  # eye position in model frame        
+
+        return eye_model
 
     def change_eye_look_up(self, eye=None, look=None, up=None):
         """ 

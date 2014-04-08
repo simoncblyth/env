@@ -157,14 +157,25 @@ class DAEScene(object):
     def set_raycast_flags(self, flags):   
         self.raycast_flags = flags
 
-
     def where(self):
-        model_xyz = self.view.offset_eye_position( self.trackball.xyz ) 
+        """
+        Attempting to convert the trackball offset position 
+        into model frame coordinates, in order to be able to 
+        create a view after trackballing around.
+
+        The model coordinates are reported in the title bar
+        """
+        model_xyz = self.view.offset_eye_position( self.trackball, self.kscale ) 
+
+        modelview_matrix = self.view.modelview_matrix( self.trackball, self.kscale )
+
+
         return model_xyz
 
     def __repr__(self):
         w = self.where()
-        return "SC %5.1f %5.1f %5.1f " % (w[0],w[1],w[2])
+        d = np.linalg.norm(w[:3])
+        return "SC %5.1f %5.1f %5.1f [%5.1f] " % (w[0],w[1],w[2],d)
 
     def clicked_point(self, click ):
         """
@@ -224,7 +235,8 @@ class DAEScene(object):
             self.view = newview
 
         if len(elu) > 0:
-            log.info("changing parameters of existing view %s " % repr(elu)) 
+            log.info("home-ing trackball and changing parameters of existing view %s " % repr(elu)) 
+            self.trackball.home()
             self.view.current_view.change_eye_look_up( **elu )
  
 

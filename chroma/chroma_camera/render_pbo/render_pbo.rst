@@ -4,8 +4,8 @@ Render PBO
 next
 -----
 
-#. get chroma to accept partial geometries, currently the entire geometry is there RPC included
 #. is a near/far restricted raycast possible ? 
+
 #. add switch target feature to daeviewgl : to enable easily doing raycasts wherever
 
 #. avoid duplicated vertices/faces between chroma/cuda and opengl 
@@ -58,6 +58,21 @@ Avoid wide view, and keep screen size small. As absolutely everything in the vie
 
 
 
+CUDA Device Reset
+-------------------
+
+* http://stackoverflow.com/questions/7144195/cudadevicereset-for-multiple-gpus
+* :google:`cudaDeviceReset driver API equivalent`
+
+  * https://devtalk.nvidia.com/default/topic/686313/how-to-reset-cuda-error-in-driver-api/
+  * need to destroy the context to recover, perhaps an atexit context.pop ?
+
+  * http://lists.tiker.net/pipermail/pycuda/2011-June/003247.html
+
+  * see `~/e/cuda` `cuda_info.sh` `cuda_info.py` for monitoring memory usage 
+
+
+
 render_pbo kernel launch observations
 ---------------------------------------
 
@@ -70,6 +85,7 @@ render_pbo kernel launch observations
 
    * reducing activity on the machine clears it (closing tabs, windows)
    * maybe if anything goes wrong the GPU memory is not being properly cleaned up ? 
+
 
 
 ::

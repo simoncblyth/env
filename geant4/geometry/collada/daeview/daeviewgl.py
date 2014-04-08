@@ -96,8 +96,6 @@ Division of concerns
 import os, logging, socket
 log = logging.getLogger(__name__)
 
-#os.environ['CUDA_PROFILE'] = "1"
-
 import glumpy as gp  
 
 from daeconfig import DAEConfig

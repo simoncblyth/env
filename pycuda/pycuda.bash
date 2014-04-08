@@ -171,7 +171,7 @@ EOU
 }
 #pycuda-dir(){ echo $VIRTUAL_ENV/lib/python2.7/site-packages/pycuda ; }
 pycuda-dir(){ echo $VIRTUAL_ENV/build/build_pycuda/pycuda ; }
-pycuda-cd(){  cd $(pycuda-dir); }
+pycuda-cd(){  cd $(pycuda-dir)/$1; }
 pycuda-mate(){ mate $(pycuda-dir) ; }
 pycuda-get(){
    local dir=$(dirname $(pycuda-dir)) &&  mkdir -p $dir && cd $dir
@@ -181,4 +181,6 @@ pycuda-get(){
 }
 
 
-
+pycuda-examples-cd(){
+   pycuda-cd examples/wiki-examples
+}

@@ -87,6 +87,9 @@ class DAEInteractivityHandler(object):
         self.fig.window.set_title(self.title)
         self.fig.redraw()
 
+    def retitle(self):
+        self.fig.window.set_title(self.title)
+ 
     def toggle_fullscreen(self):
         if self.fig.window.get_fullscreen():
             self.fig.window.set_fullscreen(0)

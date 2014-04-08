@@ -291,8 +291,8 @@ class DAEGeometry(object):
         """
         This was formerly converting the entire geometry, not the 
         selection of solids that are used to create the VBO.
-        As the former use of root_index in attempt to skip the top.0 node, 
-        as the universe is too big was being ignored.
+        As the former root_index based attempt to skip nodes
+        was being ignored, resulting in huge universe.
 
         Potentially the huge universe may have bad impact on chroma BVH morton codes, 
         as most of the morton space was empty.

@@ -137,31 +137,48 @@ class DAETrackball(gp.Trackball):
 
 
     def _project(self, r, x, y):
-        ''' Project an x,y pair onto a sphere of radius r OR a hyperbolic sheet
-            if we are away from the center of the sphere.
-        '''
+        """ 
+        Project an x,y pair onto a sphere of radius r OR a hyperbolic sheet
+        if we are away from the center of the sphere.
 
+        For points inside xy circle::
+
+                  d^2 = x^2 + y^2
+
+                    d < r / sqrt(2)   
+
+                  d^2 < r^2 / 2 
+
+            x^2 + y^2 < r^2 / 2 
+   
+
+        determine z from::
+
+                z^2 + d^2 = r^2 
+
+        So are projecting onto sphere the center of which is on the screen plane.
+        """
         d = math.sqrt(x*x + y*y)
-        if (d < r * 0.70710678118654752440):    # Inside sphere
-            z = math.sqrt(r*r - d*d)
-        else:                                   # On hyperbola
+        if (d < r * 0.70710678118654752440):    
+            z = math.sqrt(r*r - d*d)            
+        else:                                  
             t = r / 1.41421356237309504880
             z = t*t / d
         return z
 
 
     def _rotate(self, x, y, dx, dy):
-        ''' Simulate a track-ball.
+        """
+        Simulate a track-ball.
 
-            Project the points onto the virtual trackball, then figure out the
-            axis of rotation, which is the cross product of x,y and x+dx,y+dy.
+        Project the points onto the virtual trackball, then figure out the
+        axis of rotation, which is the cross product of x,y and x+dx,y+dy.
 
-            Note: This is a deformed trackball-- this is a trackball in the
-            center, but is deformed into a hyperbolic sheet of rotation away
-            from the center.  This particular function was chosen after trying
-            out several variations.
-        '''
-
+        Note: This is a deformed trackball-- this is a trackball in the
+        center, but is deformed into a hyperbolic sheet of rotation away
+        from the center.  This particular function was chosen after trying
+        out several variations.
+        """
         if not dx and not dy:
             return [ 0.0, 0.0, 0.0, 1.0]
         last = [x, y,       self._project(self.trackballradius, x, y)]
