@@ -18,6 +18,97 @@ Simple Tool to plan CUDA launch sequence
     offset     655360 count 131072 grid (512, 1) block (256, 1, 1) 
 
 
+CUDA Launch config basics
+--------------------------
+
+* http://cs.nyu.edu/courses/spring12/CSCI-GA.3033-012/lecture5.pdf
+* http://stackoverflow.com/questions/16619274/cuda-griddim-and-blockdim
+
+
+* grid of blocks (blocks per grid limits are very high, BUT see below practical limits) 
+
+  * grid dimension gridDim.x/y/z 
+  * within each block (ie for all the threads in the block), must calc gridIdx.x/y/z to identify the block  
+
+* block of threads (threads per block limited to 1024=32*32)
+
+  * block dimension blockDim.x/y/z 
+  * within each thread, threadIdx.x/y/z identify the thread 
+
+1D::
+
+    int threadID = blockIdx.x * blockDim.x + threadIdx.x  // unique within block 
+
+
+extend the model upwards
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* sequence of launch grids
+
+  * seqDim.x/y/z
+  * within each launch, seqIdx.x/y/z identifies the launch  
+
+* rather than specifying a max-blocks to stay within launch timeouts, instead specify a sequence
+  
+
+pycuda realisation
+~~~~~~~~~~~~~~~~~~~
+
+::
+
+     sequence=(grids_per_sequence, 1)
+     grid=(blocks_per_grid, 1)
+     block=(threads_per_block,1,1)
+
+
+2D grid of 2D blocks
+~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.martinpeniak.com/index.php?option=com_content&view=article&catid=17:updates&id=288:cuda-thread-indexing-explained
+
+::
+
+    2D grid of 2D blocks  
+     __device__ int getGlobalIdx_2D_2D()
+    {
+        int blockId = blockIdx.x + blockIdx.y * gridDim.x; 
+        int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
+        return threadId;
+    }
+
+
+ 
+limits
+~~~~~~~
+
+From deviceQuery::
+
+    Device 0: "GeForce GT 750M"
+      CUDA Driver Version / Runtime Version          5.5 / 5.5
+      CUDA Capability Major/Minor version number:    3.0
+      ...
+      Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+      Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+      Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+      Total amount of constant memory:               65536 bytes
+      Total amount of shared memory per block:       49152 bytes
+      Total number of registers available per block: 65536
+      Warp size:                                     32
+      Maximum number of threads per multiprocessor:  2048
+      Maximum number of threads per block:           1024
+      Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+      Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+      ...
+
+practical limits
+~~~~~~~~~~~~~~~~
+
+On OSX, need to restrict kernel launch times to less than 5 seconds, otherwise they get 
+killed, GPU panics and hard system crashes result. Upshot is must restrict the 
+number of blocks within the grid and split expensive processing into multiple launches 
+to keep each launch within the timeout.
+ 
+
 """
 import os, logging, argparse
 log = logging.getLogger(__name__)
@@ -52,6 +143,7 @@ def chunk_iterator(nelements, nthreads_per_block=64, max_blocks=1024):
 
         yield (first, elements_this_round, blocks)
         first += elements_this_round
+
 
 
 
