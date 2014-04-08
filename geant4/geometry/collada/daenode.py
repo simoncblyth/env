@@ -322,6 +322,14 @@ class DAENode(object):
         log.info("root %s " % cls.root )
 
     @classmethod
+    def dump(cls):
+        cls.extra.dump_skinsurface()
+        cls.extra.dump_skinmap()
+        cls.extra.dump_bordersurface()
+        cls.extra.dump_bordermap()
+        cls.dump_extra_material()
+
+    @classmethod
     def parse( cls, path ):
         """
         :param path: to collada file
@@ -474,22 +482,19 @@ class DAENode(object):
         return arg, maxdepth
 
     @classmethod
-    def interpret_ids(cls, arg):
+    def interpret_ids(cls, arg_):
         """
-        Interpret an arg like 0:10,400:410,300,40,top.0
+        Interprets an arg like 0:10,400:410,300,40,top.0
         into a list of integer DAENode indices 
 
-
+        #. an argument ending with ":" is interpreted to mean 
+           everything til the end of the registry, this only makes sense
+           when used singly eg "3152:" rather than "3152:,8000:" which 
+           would yield duplicated indices
 
         """
-        if "," in arg:
-            args = arg.split(",")
-        else:
-            args = [arg]
-        pass
         ids = []
-        for arg in args:
-            # an argument ending with : is interpreted to mean everything til the end of the registry 
+        for arg in arg_.split(","):
             if arg[-1] == ":":
                 arg = "%s:%s" % (arg[:-1], len(cls.registry)-1) 
 

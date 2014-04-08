@@ -50,8 +50,8 @@ class PBORenderer(object):
         self.flags = self.config.kernel_flags
 
         if hasattr(self.config, 'eye'): 
-            self.origin = config.eye
-            self.pixel2world = config.pixel2world
+            self.origin = self.config.eye
+            self.pixel2world = self.config.pixel2world
         else:
             log.warn("initializing GPU constants origin/pixel2world to defaults, need to be set appropriately for geometry to see anything  ") 
             self.origin = (0,0,0,1)

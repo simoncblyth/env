@@ -16,6 +16,8 @@ logging.basicConfig(level=logging.INFO)   # chroma has weird logging, forcing th
 
 from env.geant4.geometry.collada.daenode import DAENode
 from chroma.geometry import Mesh, Solid, Material, Surface, Geometry
+from chroma.loader import load_bvh
+
 
 
 matptn = re.compile("^__dd__Materials__(\S*)0x\S{7}$")
@@ -80,14 +82,14 @@ class SurfaceType(object):
 
 
 class ColladaToChroma(object):
-    def __init__(self, nodecls, root_index=0):
+    def __init__(self, nodecls, bvh=False):
         """
         :param nodecls: typically DAENode
-        :param root_index: tree index of the first node to convert
         """ 
-        self.geo = Geometry(detector_material=None)    # bialkali ?
         self.nodecls = nodecls
-        self.root_index = root_index
+        self.bvh = bvh
+        self.chroma_geometry = Geometry(detector_material=None)    # bialkali ?
+        pass
         self.vcount = 0
         self.surfaces = {}
         self.materials = {}
@@ -251,18 +253,48 @@ class ColladaToChroma(object):
                 print " %-30s [%-2s] %s " % ( dkey, len(mats), ",".join(map(matshorten,mats)) )
     
 
+    def convert_geometry(self, nodes=None):
+        """
+        :param nodes: list of DAENode instances or None
 
-    def convert_geometry(self):
+        Converts DAENode/pycollada geometry into Chroma geometry.
+
+        When `nodes=None` the entire DAENode tree is visited and converted, 
+        otherwise just the listed nodes.
+        """ 
         self.convert_materials() 
         self.convert_opticalsurfaces() 
-        self.nodecls.vwalk(self.visit)
-        log.info("flattening %s " % len(self.geo.solids))
-        self.geo.flatten()
 
+        if nodes is None:  
+            self.nodecls.vwalk(self.visit)
+        else:
+            for node in nodes:
+                self.visit(node)
+        pass
+
+        log.info("ColladaToChroma convert_geometry flattening %s " % len(self.chroma_geometry.solids))
+
+        self.chroma_geometry.flatten()
+        if self.bvh:
+            self.add_bvh()
+
+    def add_bvh( self, bvh_name="default", auto_build_bvh=True, read_bvh_cache=True, update_bvh_cache=True, cache_dir=None, cuda_device=None):
+        """
+        As done by chroma.loader
+        """
+        log.info("ColladaToChroma adding BVH")
+        self.chroma_geometry.bvh = load_bvh(self.chroma_geometry, 
+                                            bvh_name=bvh_name,
+                                            auto_build_bvh=auto_build_bvh,
+                                            read_bvh_cache=read_bvh_cache,
+                                            update_bvh_cache=update_bvh_cache,
+                                            cache_dir=cache_dir,
+                                            cuda_device=cuda_device)
+        log.info("completed adding BVH")
 
     def find_outer_inner_materials(self, node ):
         """
-        :param node: G4DAE node
+        :param node: DAENode instance
         :return: Chroma Material instances for outer and inner materials
 
         #. Parent node material regarded as outside
@@ -274,6 +306,7 @@ class ColladaToChroma(object):
         the orientation of the triangles that make up the surface...  
         So just adopt a convention and try to verify it later.
         """
+        assert node.__class__.__name__ == 'DAENode'
         this_material = self.materials[node.matid]
         if node.parent is None:
             parent_material = this_material
@@ -286,9 +319,10 @@ class ColladaToChroma(object):
         
     def find_skinsurface(self, node):
         """
-        :param node: G4DAE node
+        :param node: DAENode instance
         :return: G4DAE Surface instance corresponding to G4LogicalSkinSurface if one is available for the LV of the current node
         """
+        assert node.__class__.__name__ == 'DAENode'
         lvid = node.lv.id
         skin = self.nodecls.extra.skinmap.get(lvid, None)
         if skin is not None:
@@ -299,12 +333,13 @@ class ColladaToChroma(object):
            
     def find_bordersurface(self, node):
         """
-        :param node: G4DAE node
+        :param node: DAENode instance
         :return: G4DAE Surface instance corresponding to G4LogicalBorderSurface 
                  if one is available for the PVs of the current node and its parent
 
         Ambiguity bug makes this difficult
         """
+        assert node.__class__.__name__ == 'DAENode'
         pass
         #pvid = node.pv.id
         #ppvid = node.parent.pv.id
@@ -314,7 +349,7 @@ class ColladaToChroma(object):
 
     def find_surface(self, node):
         """
-        :param node: G4DAE node instance
+        :param node: DAENode instance
         :return Chroma Surface instance or None:
 
         G4DAE persists the below surface elements which 
@@ -326,6 +361,7 @@ class ColladaToChroma(object):
         The boundary pairs are always parent/child nodes in dyb Near geometry, 
         they could in principal be siblings.
         """
+        assert node.__class__.__name__ == 'DAENode'
         skin = self.find_skinsurface( node )
         border = self.find_bordersurface( node )
         dsurf = filter(None,[skin, border])
@@ -343,22 +379,20 @@ class ColladaToChroma(object):
 
     def visit(self, node, debug=False):
         """
+        :param node: DAENode instance
+
+        DAENode instances and their pycollada underpinnings meet chroma here
         """
+        assert node.__class__.__name__ == 'DAENode'
         self.vcount += 1
         if self.vcount < 10:
             log.debug("visit : vcount %s node.index %s node.id %s " % ( self.vcount, node.index, node.id ))
-
-        # this was the cause of the black window issue, somehow cannot skip overly large Universe/top.0 node like this ??
-        #if node.index < self.root_index:
-        #    log.info("not converting node.index %s as less than desired root_index %s" % ( node.index, self.root_index ))
-        #    return   
 
         bps = list(node.boundgeom.primitives())
         bpl = bps[0]
         assert len(bps) == 1 and bpl.__class__.__name__ == 'BoundPolylist'
         tris = bpl.triangleset()
 
-        # collada meets chroma
         vertices = tris._vertex
 
         triangles = tris._vertex_index
@@ -372,7 +406,7 @@ class ColladaToChroma(object):
         color = 0x33ffffff 
 
         solid = Solid( mesh, material1, material2, surface, color )
-        self.geo.add_solid( solid )
+        self.chroma_geometry.add_solid( solid )
 
 
         if debug and self.vcount % 1000 == 0:
@@ -386,34 +420,32 @@ class ColladaToChroma(object):
 
 
 
-def daeload(path=None, root_index=None):
+def daeload(path=None, bvh=False ):
    """
    :param path:
    :return Chroma Geometry instance:
+
+   This is invoked by chroma.loader.load_geometry_from_string when
+   the string ends with ".dae".  This allows the standard chroma-cam 
+   to be used with COLLADA geometries.
+
+   TODO: add nodespec capabilities here to allow loading partial geometries from chroma-cam 
    """
    if path is None:
        path = os.environ['DAE_NAME']
 
-   if root_index is None:
-       root_index = int(os.environ.get('DAE_ROOT',0))
-
-   log.info("daeload path %s root_index %s " % (path, root_index))
+   log.info("daeload path %s " % (path))
 
    if len(DAENode.registry) > 0:
        log.debug("skipping parse as already have %s nodes " % len(DAENode.registry))
    else:
        DAENode.parse(path)
+   pass
 
-   #DAENode.extra.dump_skinsurface()
-   #DAENode.extra.dump_skinmap()
-   #DAENode.extra.dump_bordersurface()
-   #DAENode.extra.dump_bordermap()
-   #DAENode.dump_extra_material()
-  
-   cc = ColladaToChroma(DAENode, root_index=root_index )   # skip the top.0 node, that universe is too big 
+   cc = ColladaToChroma(DAENode, bvh=bvh )  
    cc.convert_geometry()
 
-   return cc.geo
+   return cc.chroma_geometry
 
 
 

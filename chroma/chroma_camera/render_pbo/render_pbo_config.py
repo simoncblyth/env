@@ -68,6 +68,7 @@ class Config(object):
         defaults = OrderedDict()
         defaults['loglevel'] = "INFO"
         defaults['geometry'] = os.environ.get('DAE_NAME',None)
+        defaults['nodes'] = "0:"
         defaults['threads_per_block'] = 64
         defaults['max_blocks'] = 1024     # larger max_blocks reduces the number of separate launches, and increasing launch time (BEWARE TIMEOUT)
         defaults['max_alpha_depth'] = 10
@@ -81,6 +82,7 @@ class Config(object):
 
         parser.add_argument( "-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "-g","--geometry", help="Path to geometry file", type=str  )
+        parser.add_argument( "-n","--nodes", help="Specification of geometry nodes", type=str  )
         parser.add_argument( "-t","--threads-per-block", help="", type=int  )
         parser.add_argument(      "--max-alpha-depth", help="", type=int  )
         parser.add_argument( "-a","--alpha-depth", help="", type=int  )

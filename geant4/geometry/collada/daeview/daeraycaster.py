@@ -33,6 +33,7 @@ from chroma.loader import load_geometry_from_string
 from chroma.gpu.geometry import GPUGeometry
 from env.pycuda.pycuda_pyopengl_interop.pixel_buffer import PixelBuffer
 from env.chroma.chroma_camera.pbo_renderer import PBORenderer
+#from env.geant4.geometry.collada.collada_to_chroma import daeload
 
 
 class DAERaycaster(object):
@@ -50,11 +51,8 @@ class DAERaycaster(object):
         self.max_alpha_depth = config.args.max_alpha_depth
         self.alpha_depth = self.max_alpha_depth
 
-        #self.chroma_geometry = self.geometry.make_chroma_geometry()   # this misses the bvh
-        self.chroma_geometry = load_geometry_from_string(config.args.path)
-        log.info("completed loading geometry from %s " % config.args.path)
-
         self.size = config.size 
+        self.chroma_geometry = self.geometry.make_chroma_geometry()  
 
         self.pixels = PixelBuffer( self.size, texture=True)
         log.info("created PixelBuffer %s  " % repr(config.size) )

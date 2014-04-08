@@ -138,20 +138,21 @@ class DAESolid(DAEMesh):
     DAEMesh vertex 466  triangles 884  normals 584 
     """
     def __init__(self, node, bound=True, generateNormals=True):
-        if bound:
-            pl = list(node.boundgeom.primitives())[0] 
-        else:
-            pl = node.geo.geometry.primitives[0]
-
+        """
+        :param node: DAENode instance 
+        """
+        assert node.__class__.__name__ == 'DAENode'
+        pl = list(node.boundgeom.primitives())[0] if bound else node.geo.geometry.primitives[0]
         tris = pl.triangleset()
         if generateNormals:
             tris.generateNormals()
        
         DAEMesh.__init__(self, tris._vertex, tris._vertex_index, tris._normal )
 
-        #self.tris = tris
         self.index = node.index
         self.id = node.id
+        self.node = node   
+
         if not self.check():
             log.debug("DAESolid Meshcheck failure %s " % self)
 
@@ -161,7 +162,11 @@ class DAESolid(DAEMesh):
 
 class DAEGeometry(object):
     def __init__(self, arg, path=None, bound=True):
-
+        """
+        :param arg:  specifications of the DAE nodes to load, via index or id
+        :param path: to the dae file
+        :param bound: use world space coordinates
+        """
         if path is None:
             path = os.environ['DAE_NAME']
         if len(DAENode.registry) == 0:
@@ -171,8 +176,16 @@ class DAEGeometry(object):
         self.mesh = None
         self.bbox_cache = None
 
+    def nodes(self):
+        """
+        :return: list of DAENode instances
+        """
+        return [solid.node for solid in self.solids] 
+
     def find_solid(self, target ):
         """
+        :param target:
+
         Find by solid by relative indexing into the list of solids loaded 
         where the target argument begins with "-" or "+". Otherwise
         find by the absolute geometry index of the target.
@@ -186,11 +199,11 @@ class DAEGeometry(object):
             return self.find_solid_by_index(target)
             
     def find_solid_by_index(self, index):
+        """
+        :para index:
+        """
         selection = filter(lambda _:str(_.index) == index, self.solids)
-        if len(selection) == 1:
-            focus = selection[0]
-        else:
-            focus = None
+        focus = selection[0] if len(selection) == 1 else None
         return focus
 
     def flatten(self):
@@ -220,6 +233,8 @@ class DAEGeometry(object):
         self.mesh = mesh 
 
     def make_bbox_cache(self):
+        """
+        """
         bbox_cache = np.empty((len(self.solids),6))    
         for i, solid in enumerate(self.solids):
             bbox_cache[i] = solid.lower_upper
@@ -272,15 +287,24 @@ class DAEGeometry(object):
             vertices = self.mesh.vertices
         return DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )
       
-    def make_chroma_geometry(self, root_index=None):
-        if root_index is None:
-            root_index = int(os.environ.get('DAE_ROOT',0))
+    def make_chroma_geometry(self, bvh=True):
+        """
+        This was formerly converting the entire geometry, not the 
+        selection of solids that are used to create the VBO.
+        As the former use of root_index in attempt to skip the top.0 node, 
+        as the universe is too big was being ignored.
 
-        log.info("make_chroma_geometry root_index %s " % root_index )
+        Potentially the huge universe may have bad impact on chroma BVH morton codes, 
+        as most of the morton space was empty.
+        """
+        log.info("make_chroma_geometry bvh %s " % (bvh) )
         from env.geant4.geometry.collada.collada_to_chroma  import ColladaToChroma 
-        cc = ColladaToChroma(DAENode, root_index=root_index )     # skip the top.0 node, that universe is too big 
-        cc.convert_geometry()
-        return cc.geo
+
+        cc = ColladaToChroma(DAENode, bvh=bvh )     
+        cc.convert_geometry(nodes=self.nodes())
+        return cc.chroma_geometry
+
+
  
 
 class DAEVertexBufferObject(object):
