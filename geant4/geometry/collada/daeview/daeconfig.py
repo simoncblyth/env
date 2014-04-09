@@ -204,6 +204,7 @@ class DAEConfig(object):
         defaults['eye'] = "-2,-2,0"
         defaults['look'] = "0,0,0"
         defaults['up'] = "0,0,1"
+        defaults['norm'] = "0,0,0"
         defaults['fullscreen'] = False
         defaults['markers'] = False
 
@@ -215,6 +216,7 @@ class DAEConfig(object):
         parser.add_argument("-e","--eye",     help="[I] Eye position ",type=str)
         parser.add_argument("-a","--look",    help="[I] Lookat position ",type=str)
         parser.add_argument("-u","--up",      help="[I] Up direction ",type=str)
+        parser.add_argument(     "--norm",    help="Dummy argument, used for informational output.",type=str)
         parser.add_argument( "--fullscreen", action="store_true", help="Start in fullscreen mode." )
         parser.add_argument( "--markers",   action="store_true", help="[I] Frustum and light markers." )
  

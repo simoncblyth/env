@@ -22,7 +22,7 @@ Controls
 
 
 """
-import sys, logging
+import os, sys, logging
 log = logging.getLogger(__name__)
 from glumpy.window import key
 
@@ -110,8 +110,15 @@ class DAEInteractivityHandler(object):
     def on_draw(self):
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
 
+    def exit(self):
+        """
+        Print commandline to regain the scene before exit 
+        """
+        print "%s %s " % (os.path.basename(sys.argv[0]), str(self.scene))
+        sys.exit() 
+
     def on_key_press(self, symbol, modifiers):
-        if   symbol == key.ESCAPE: sys.exit();
+        if   symbol == key.ESCAPE: self.exit()
         elif symbol == key.SPACE: self.zoom_mode = True
         elif symbol == key.TAB: self.pan_mode = True
         elif symbol == key.N: self.near_mode = True

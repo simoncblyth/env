@@ -95,19 +95,19 @@ class DAEViewpoint(object):
 
     def modelview_matrix(self, trackball, kscale ):
         """
-        Objects are transformed from world space to eye space using GL_MODELVIEW matrix, 
-        as daeviewgl regards model spaces as just an input parameter convenience, 
-        OpenGL never gets to know about those.  
+        Objects are transformed from **world** space to **eye** space using GL_MODELVIEW matrix, 
+        as daeviewgl regards model spaces as just input parameter conveniences
+        that OpenGL never gets to know about those.  
 
         So need to invert MODELVIEW and apply it to the origin (eye position in eye space)
         to get world position of eye.  Can then convert that into model position.  
 
-        Whats the motivation ?
+        Motivation:
 
-           *  need to know where is the effective eye point after trackballing around
+           * determine effective view point (eye,look,up) after trackballing around
 
-        Think about the MODELVIEW sequence of transformations in daeframehandler 
-        in OpenGL reverse order, this defines exactly what the trackball output means::
+        The MODELVIEW sequence of transformations in daeframehandler in OpenGL reverse order, 
+        defines exactly what the trackball output means::
 
             kscale = self.scene.kscale
             distance = view.distance
@@ -120,46 +120,7 @@ class DAEViewpoint(object):
 
         To get the unproject to dump OpenGL modelview matrix, touch a pixel.
 
-        At views with no trackball action the matrices agree, stay in agreement 
-        after trackball xyz panning::
-
-            modelview
-            [[    0.         0.01       0.      8000.8075]
-             [    0.         0.         0.01      26.122 ]
-             [    0.01       0.         0.       125.3347]
-             [    0.         0.         0.         1.    ]] 
-            unproject gl_modelview.T 
-            [[    0.         0.01       0.      8000.8071]
-             [    0.         0.         0.01      26.122 ]
-             [    0.01       0.         0.       125.3347]
-             [    0.         0.         0.         1.    ]]
-
-        Agreement lost on rotating::
-
-            modelview
-            [[   -0.0042     0.0088     0.0024  6968.7239]
-             [    0.001     -0.0022     0.0097 -1689.1084]
-             [    0.009      0.0043     0.      3542.0405]
-             [    0.         0.         0.         1.    ]] 
-            unproject gl_modelview.T 
-            [[    0.0043     0.0088    -0.0022  7071.0352]
-             [    0.         0.0024     0.0097  1937.6289]
-             [    0.009     -0.0042     0.001  -3215.7358]
-             [    0.         0.         0.         1.    ]]
-
-        Regained when transpose the rotation matrix::
-
-            modelview
-            [[   -0.007      0.007      0.0015  5477.3197]
-             [    0.0004    -0.0017     0.0098 -1315.6118]
-             [    0.0071     0.007      0.001   5683.874 ]
-             [    0.         0.         0.         1.    ]] 
-            unproject gl_modelview.T 
-            [[   -0.007      0.007      0.0015  5477.3193]
-             [    0.0004    -0.0017     0.0098 -1315.6117]
-             [    0.0071     0.007      0.001   5683.874 ]
-             [    0.         0.         0.         1.    ]]
-
+        * http://stackoverflow.com/questions/4964101/pep-3118-warning-when-using-ctypes-array-as-numpy-array
 
         """
         distance = self.distance       # eye frame translation along -Z
@@ -168,29 +129,62 @@ class DAEViewpoint(object):
 
         to_look   = translate_matrix((0,0, distance)) 
 
-        trackball_rot = np.array( trackball._matrix, dtype=float).reshape(4,4).T
-
+        # RuntimeWarning: Item size computed from the PEP 3118 buffer format string does not match the actual item size
+        trackball_rot = np.array( trackball._matrix, dtype=float).reshape(4,4).T   # transposing to match GL_MODELVIEW
         from_look = translate_matrix((0,0,  -distance)) 
-
-        trackball_tra = translate_matrix(trackball.xyz) 
+        trackball_tra = translate_matrix(trackball.xyz)   # trackball.xyz 3-element np array
 
         scale = scale_matrix( 1./kscale )
 
-        modelview = scale.dot(trackball_tra).dot(from_look).dot(trackball_rot).dot(to_look).dot(world2camera)
+        transforms = [scale, trackball_tra, from_look, trackball_rot, to_look, world2camera ]
+        world2eye = reduce(np.dot, transforms)
 
-        print "modelview\n%s " % modelview 
+        iscale = scale_matrix( kscale )
+        camera2world = self.camera2world.matrix
+        trackball_itra = translate_matrix(-trackball.xyz) 
+ 
+        itransforms = [  camera2world, from_look, trackball_rot.T, to_look, trackball_itra, iscale ]
+        eye2world = reduce(np.dot, itransforms )
 
-        return modelview
+        #check = np.dot( eye2world, world2eye )
+        #assert np.allclose( check, np.identity(4) ), check   # close, but not close enough in translate column
+
+        #if 0:
+        #    print "world2eye\n%s " % world2eye 
+        #    print "eye2world\n%s " % eye2world 
+        #    print "check \n%s" % check
+
+        return world2eye, eye2world
 
 
-    def offset_eye_position(self, trackball, kscale ):
+    def offset_eye_look_up(self, trackball, kscale ):
         """
         :param trackball: DAETrackball instance
-        :return: model frame coordinates of offset eye position
+        :return: model frame coordinates of offset eye, look, up  position
 
         Original eye of the view is semi-fixed.
         Trackball translations do not change the view instance eye.
 
+        Prior approaches to trackball handling that caused confusion
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        #. treating trackball.xyz as an offset
+        #. treating trackball.xyz as an absolute position to be transformed
+     
+        Testing using only the simple special case of translations in the gaze line
+        (Z panning backwards) was highly misleading as several incorrect treatments 
+        worked for this case but not in general.
+
+        Successful treatment:
+
+        #. consider trackball as a source of translation and rotation transforms
+           NOT as providing a coordinate to be transformed 
+        #. work with entire MODELVIEW transform sequence at once rather than 
+           attempting to operate with partial sequences
+
+        Testing trackball pan conversion to model position
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
         Standard position to debug from with a wide view 
         and remote command to move view around numerically::
 
@@ -199,17 +193,7 @@ class DAEViewpoint(object):
             udp.py --eye=15.5,-6.5,30.2   
             # remote commands change the base view, 
             # so must home the trackball for correspondence with what you see
-
-        Default eye coordinates -2,-2,0 now correctly reported. Former factor
-        of two from considering offsets where should be considering absolutes.
-        **Do not think about offsets, think about absolute positions**. 
-        The trackball is defining an absolute position in eye space. 
-
-        The distance is from eye to look and trackball._matrix is expressing 
-        rotation about the look.
-
-        Testing trackball pan conversion to model position
-        
+                 
         #. use remote command to set position `udp.py --eye=10,0,0` (this will home the trackball and change the view)
         #. check the scene "where" position in title bar (after "SC") and eye position (after "e") are the same   
         #. use trackball pan controls (eg spacebar drag down) to move in +Z_eye direction, the SC position should 
@@ -218,65 +202,45 @@ class DAEViewpoint(object):
            SC position `udp.py --eye=20,0,0` there should be no visual jump and the
            base view position  `e 20,0,0` should now match, as have homed
 
-        For Z panning backwards (ie movement in line with the gaze) can duplicate eye positions
-        with remote command sequences like::
 
-            udp.py --eye=10,0,0
-            udp.py --eye=20,0,0
-            udp.py --eye=30,0,0  
+        Remaining mysteries
+        ~~~~~~~~~~~~~~~~~~~~ 
 
-            udp.py --eye=10,10,0
-            udp.py --eye=20,20,0
-            udp.py --eye=30,30,0  
+        #. Using (0,0,-d,1) with `d=self.distance` for the look point 
+           leads to crazy look positions after trackballing around, 
+           whereas just using (0,0,-1,1) doesnt
 
-        For X panning (tab-drag left/right) start at::
-
-            udp.py --eye=10,10,0        # start here 
-            udp.py --eye=7.5,12.2,0     # get a visual jump 
-
-        Hmm this is too difficult try to cheat and use GL_MODELVIEW directly ? That transforms
-        from world coordinates to eye ones.
-        """
 
         """
-        trackball_eye = np.append( -trackball.xyz, 1 )                              # eye/camera frame **position** 
-        
-        rot = False
-        if rot:
-            distance = self.distance                        # eye frame translation along -Z
-            trackball_rot = np.array( trackball._matrix, dtype=float).reshape(4,4)
-            to_look   = translate_matrix((0,0, -distance)) 
-            from_look = translate_matrix((0,0,  distance)) 
-            trackball_matrix = np.dot( to_look, np.dot( trackball_rot.T, from_look ))
-            #
-            trackball_eye_prime = np.dot( trackball_matrix, trackball_eye.T )
-            pass
-            log.info("trackball_rot         \n%s ", trackball_rot )
-            log.info("to_look               \n%s ", to_look )
-            log.info("from_look             \n%s ", from_look )
-            log.info("trackball_matrix      \n%s ", trackball_matrix )
-        else:
-            trackball_eye_prime = trackball_eye
-        pass
+        world2eye, eye2world = self.modelview_matrix( trackball, kscale ) 
 
-        trackball_world = self.camera2world( trackball_eye_prime[:3] )
-        trackball_model = self.world2model( trackball_world[:3] )  # model frame **position**
-        
-        log.info("trackball_eye           %s ", trackball_eye )
-        log.info("trackball_eye_prime     %s ", trackball_eye_prime )
-        #log.info("camera2world          \n%s ", self.camera2world.matrix )
-        log.info("trackball_world         %s ", trackball_world )
-        log.info("trackball_model         %s ", trackball_model )
+        #eye2world_1 = np.linalg.inv(world2eye)
+        #assert np.allclose( eye2world_1, eye2world )
 
-        """
-        world2eye = self.modelview_matrix( trackball, kscale ) 
-        eye2world = np.linalg.inv(world2eye)
+        eye2model = np.dot( self.world2model.matrix, eye2world ) 
 
-        eye_eye   = np.array([0,0,0,1])                # eye position in eye frame
-        eye_world = eye2world.dot(eye_eye.T)           # eye position in world frame
-        eye_model = self.world2model( eye_world[:3] )  # eye position in model frame        
+        eye_look_up_eye = np.concatenate([[0,0,0,1],[0,0,-1,1],[0,1,0,0]]).reshape(3,4).T  # eye frame
+        eye_look_up_model = eye2model.dot(eye_look_up_eye)                                        # model frame
 
-        return eye_model
+        return np.split( eye_look_up_model.T.flatten(), 3 )
+
+
+    def offset_where(self, trackball, kscale ):
+
+        eye, look, up = self.offset_eye_look_up( trackball, kscale ) 
+
+        i_ = lambda name:"--%(name)s=%(fmt)s" % dict(fmt="%d",name=name) 
+        fff_ = lambda name:"--%(name)s=\"%(fmt)s,%(fmt)s,%(fmt)s\"" % dict(fmt="%5.1f",name=name) 
+
+        return   " ".join(map(lambda _:_.replace(" ",""),[
+                         i_("target") % self.index,
+                         fff_("eye")  % tuple(eye[:3]), 
+                         fff_("look") % tuple(look[:3]), 
+                         fff_("up")   % tuple(up[:3]),
+                         fff_("norm") % tuple([np.linalg.norm(eye[:3]), np.linalg.norm(look[:3]), np.linalg.norm(up[:3])]),
+                          ])) 
+
+
 
     def change_eye_look_up(self, eye=None, look=None, up=None):
         """ 

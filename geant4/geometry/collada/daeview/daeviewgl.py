@@ -5,6 +5,16 @@ DAEVIEWGL
 
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/daeview/daeviewgl_usage`
 
+
+Features
+---------
+
+placemarks
+~~~~~~~~~~~
+
+The commandline to return to a viewpoint and camera configuration
+is written to stdout on exiting or on pressing "W".
+
 Issues
 --------
 
@@ -12,46 +22,55 @@ near/far wierdness
 ~~~~~~~~~~~~~~~~~~~~
 
 Changing near can somehow change far clipping. Maybe depth buffer issue.
-Seems less prevalent now that have less extreme near and far.
-
-trackball coordinates
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Trackball xyz apply offsets to "eye" in eye space, with an
-adhoc scaling.
- 
-* What is the world space coordinate of the offset "eye" ?
-
-  * knowing this would allow creation of "placemarks"
-
-* Which matrix to use exactly  ? 
-
-  * original MODELVIEW of the target "view"
-  * continuously updating one as move around 
-    (eye is always at origin in eye frame of that one)
-
+Seems less prevalent with less extreme near and far.
 
 Next
 -----
 
-#. using CUDA processor to add Chroma simplecamera functionality
+#. interactive target switching using solid picking 
+
+   * switch coordinate frame to adopt that of the target, ie switching view
+   * changes "look" rotation point to the center of the clicked solid
+   * allows to raycast for any viewpoint without relying on raycasting 
+     being fast enough to be interactive 
+
+#. raycast launch control, to avoid GPU panics/system crashes
+
+   * abort subsequent raycast launches when launch times exceed cutoff : 4 seconds
+   * add launchdim rather than max_blocks control
+
+#. raycast modifier key to control kernel-flags allowing to 
+   interactively switch from image pixels to the
+   "time" "tri_count" "node_count" pixels
+
+#. adopt 2D pixel thread blocks, rather than current 1D
+
+   * potential for significant sqrt(32)? speed up, 
+     as current 1D block lines of pixels means that many 
+     more pixels in a warp of 32 are being held back
+   
+#. calculate what the trackball translate factor should actually be based on the 
+   camera nearsize/farsize, and size of the virtual trackball 
+   rather than using adhoc factor
+
+   * will probably need to scale it up anyhow, but would be better not
+     to require user tweaking all the time when move between scales
 
 #. take control of lighting, add headlamp (for inside AD)
 
-#. calculate what the trackball translate factor should actually be based on the 
-   camera nearsize/farsize, rather than using adhoc factor
+#. chroma hybrid mode
+
 
 
 Ideas
 ------
 
-#. placemarks, write the commandline to return to a viewpoint and camera configuration
-   in response to a key press, this will entail world2model transforms to get the 
-   parameters in model frame of the current target volume
+#. help text, describing the keys
 
-#. more use of solid picking
+#. improve screen text flexibility, columns, matrices, ...
+
+#. more use of solid picking, perhaps modal
    
-   * interactive target switching, so can rotate around what you click 
    * present material/surface properties, position in heirarchy 
 
 #. clipping plane controls, that are fixed in world coordinates
@@ -64,6 +83,7 @@ Ideas
    * make changing speed not cause jumps in the interpolation
 
 #. parametric eye movement  
+
 
 
 Division of concerns

@@ -8,6 +8,7 @@ import numpy as np
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
 import OpenGL.GLUT as glut
+from OpenGL.GL import GLfloat
 
 
 from daetext import DAEText
@@ -117,7 +118,7 @@ class DAEFrameHandler(object):
 
         # temporarily shunt origin to the "look" rather than the "eye", for applying rotation and markers
         gl.glTranslate ( 0, 0, -distance )                         
-        gl.glMultMatrixf (trackball._matrix )                        # rotation around "look" point
+        gl.glMultMatrixf( (GLfloat*16)(*trackball._matrix) )
 
         if self.scene.markers:
             glut.glutWireSphere( kscale*trackball.trackballradius,10,10)  # what size trackball ?
@@ -244,11 +245,9 @@ class DAEFrameHandler(object):
         z = pixels[0][0]
         click_xyz = glu.gluUnProject( x,y,z ) # click point in world frame       
 
-
-        self.scene.where()
-
-        gl_modelview = np.array( gl_modelview_matrix() ).reshape(4,4).T
-        print "unproject gl_modelview.T \n%s" % gl_modelview 
+        #self.scene.where()
+        #gl_modelview = np.array( gl_modelview_matrix() ).reshape(4,4).T
+        #print "unproject gl_modelview.T \n%s" % gl_modelview 
 
         self.pop()
         return click_xyz

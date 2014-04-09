@@ -94,7 +94,7 @@ class DAEScene(object):
 
     def make_raycaster(self, config, geometry ):
         if not config.args.with_chroma:return None
-        log.info("creating Chroma raycaster processor, CUDA_PROFILE %s " % os.environ['CUDA_PROFILE'] )
+        log.info("creating Chroma raycaster processor, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
         import pycuda.gl.autoinit
         from daeraycaster import DAERaycaster     
         raycaster = DAERaycaster( config, geometry )
@@ -157,25 +157,18 @@ class DAEScene(object):
     def set_raycast_flags(self, flags):   
         self.raycast_flags = flags
 
-    def where(self):
-        """
-        Attempting to convert the trackball offset position 
-        into model frame coordinates, in order to be able to 
-        create a view after trackballing around.
-
-        The model coordinates are reported in the title bar
-        """
-        model_xyz = self.view.offset_eye_position( self.trackball, self.kscale ) 
-
-        modelview_matrix = self.view.modelview_matrix( self.trackball, self.kscale )
-
-
-        return model_xyz
-
     def __repr__(self):
-        w = self.where()
-        d = np.linalg.norm(w[:3])
-        return "SC %5.1f %5.1f %5.1f [%5.1f] " % (w[0],w[1],w[2],d)
+        return "SC " + self.view_state
+
+    view_state = property(lambda self:self.view.offset_where( self.trackball, self.kscale ))
+    camera_state = property(lambda self:str(self.camera))
+
+    def __str__(self):
+        return " ".join([self.view_state, self.camera_state]) 
+
+    def where(self):
+        print repr(self)
+        print str(self)
 
     def clicked_point(self, click ):
         """

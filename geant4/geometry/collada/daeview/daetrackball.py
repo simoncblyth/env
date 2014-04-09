@@ -4,7 +4,7 @@ import math
 import numpy as np
 import glumpy as gp  
 from glumpy.trackball import _q_add, _q_normalize, _q_rotmatrix, _v_cross, _v_sub, _v_length, _q_from_axis_angle
-from OpenGL.GL import GLfloat
+#from OpenGL.GL import GLfloat
 
 # **Keep this for maintaining attitude, avoid anymore OpenGL usage**
 
@@ -125,7 +125,13 @@ class DAETrackball(gp.Trackball):
 
 
     def drag_to (self, x, y, dx, dy):
-        ''' Move trackball view from x,y to x+dx,y+dy. '''
+        """
+        Move trackball view from x,y to x+dx,y+dy. 
+
+        Removed ctypes diddling the _matrix as on converting to numpy array get::
+ 
+            RuntimeWarning: Item size computed from the PEP 3118 buffer format string does not match the actual item size.
+        """
         q = self._rotate(x,y,dx,dy)
         self._rotation = _q_add(q,self._rotation)
         self._count += 1
@@ -133,7 +139,27 @@ class DAETrackball(gp.Trackball):
             self._rotation = _q_normalize(self._rotation)
             self._count = 0 
         m = _q_rotmatrix(self._rotation)
-        self._matrix = (GLfloat*len(m))(*m)
+        #self._matrix = (GLfloat*len(m))(*m)   # ctyles diddling moved to daeframehandler
+        self._matrix = m
+
+
+    def _set_orientation(self, theta, phi):
+        ''' Computes rotation corresponding to theta and phi. ''' 
+
+        self._theta = theta
+        self._phi = phi 
+        angle = self._theta*(math.pi/180.0)
+        sine = math.sin(0.5*angle)
+        xrot = [1*sine, 0, 0, math.cos(0.5*angle)]
+        angle = self._phi*(math.pi/180.0)
+        sine = math.sin(0.5*angle);
+        zrot = [0, 0, sine, math.cos(0.5*angle)]
+        self._rotation = _q_add(xrot, zrot)
+        m = _q_rotmatrix(self._rotation)
+        #self._matrix = (GLfloat*len(m))(*m)
+        self._matrix = m
+
+
 
 
     def _project(self, r, x, y):

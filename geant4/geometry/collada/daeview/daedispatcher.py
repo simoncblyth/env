@@ -18,7 +18,7 @@ class DAEDispatcher(event.EventDispatcher):
             host = socket.gethostname()
             log.warn("%s binding to potentially externally accessible ip:port %s:%s for UDP " % ( self.__class__.__name__, host, port )) 
         else:
-            log.info("%s binding to host:port %s:%s for UDP " % ( self.__class__.__name__, host, port ))
+            log.debug("%s binding to host:port %s:%s for UDP " % ( self.__class__.__name__, host, port ))
 
         self.port = port
         self.host = host

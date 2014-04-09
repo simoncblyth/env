@@ -21,6 +21,7 @@ class DAECamera(object):
     def resize(self, size):
         self.size = size
         log.info("%s resize %s " % (self.__class__.__name__, str(size) ))
+
     aspect = property(lambda self:float(self.size[0])/float(self.size[1]))
 
     def smry(self):
@@ -39,8 +40,16 @@ class DAECamera(object):
 
     def __repr__(self):
         return "C %3.1f/%10.5f/%4.1f " % ( self._yfov, self._near, self._far )
-    __str__ = __repr__
 
+    def __str__(self):
+        ii_ = lambda name:"--%(name)s=%(fmt)s,%(fmt)s" % dict(fmt="%d",name=name) 
+        f_ = lambda name,fmt:"--%(name)s=%(fmt)s" % dict(fmt=fmt,name=name) 
+        return   " ".join(map(lambda _:_.replace(" ",""),[
+                         ii_("size")  % self.size,
+                         f_("near","%10.5f")  % self.near,
+                         f_("far","%4.1f")  % self.far,
+                         f_("yfov","%3.1f")  % self.yfov,
+                          ])) 
 
     def near_to (self, x, y, dx, dy):
         ''' Change near clipping '''
