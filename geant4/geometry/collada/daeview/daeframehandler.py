@@ -101,7 +101,7 @@ class DAEFrameHandler(object):
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
-        if self.scene.parallel:
+        if self.scene.parallel:    # parallel should be property of camera, not scene ?
             gl.glOrtho ( *camera.lrbtnf )
         else:
             gl.glFrustum ( *camera.lrbtnf )

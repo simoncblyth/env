@@ -45,11 +45,14 @@ extend the model upwards
 
 * sequence of launch grids
 
-  * seqDim.x/y/z
-  * within each launch, seqIdx.x/y/z identifies the launch  
+  * launchDim.x/y/z
+  * within each launch sequence, launchIdx.x/y/z identifies the launch and from launchDim.x/y/z can determine appropriate offset  
 
-* rather than specifying a max-blocks to stay within launch timeouts, instead specify a sequence
+* rather than specifying a max-blocks to stay within launch timeouts, instead specify a launchDim
+
+  * why not max-blocks, its unclear how to structure 2D work otherwise 
   
+
 
 pycuda realisation
 ~~~~~~~~~~~~~~~~~~~
@@ -77,7 +80,79 @@ pycuda realisation
     }
 
 
- 
+
+1D launch
+~~~~~~~~~~
+
+::
+
+     0000001111111122222222333333333444444444
+
+
+
+2D launch
+~~~~~~~~~~~
+
+* :google:`mapping cuda thread index to pixel`
+* http://stackoverflow.com/questions/9099749/using-cuda-to-find-the-pixel-wise-average-value-of-a-bunch-of-images
+* https://devtalk.nvidia.com/default/topic/400713/simple-question-about-blockidx-griddim/
+
+
+::
+
+    work        (width, height )  1024x768   = 786432
+
+    block_dim  (16,16,1) = 256             
+
+
+    NOPE TOO MANY BLOCK WITH   grid_dim    (64,48)  = 3072      [ 1024/16 x 768/16 ]   [ 3072*256 = 786432 ] 3072 
+       
+
+    INTRODUCE LAUNCH DIM  2 x 2  
+      => 4 launches each with  grid_dim  (32,24)  62/2 x 48/2 = 32 x 24 = 768      
+
+                (32,24)  (32,24)
+                (32,24)  (32,24)
+
+
+    Will this indexing suffice ?
+
+
+                     0:511                                  
+            ......................................
+             0:31            16          0:15
+    int x = blockIdx.x * blockDim.x + threadIdx.x     + launch_offset_x ;
+
+            gridDim.x = 32                                0:1            32          16     
+                                                        launchIdx.x * gridDim.x * blockDim.x    =    0/512 
+
+                                                        launchDim.x = 2
+
+             
+             0:23            16          0:15                0/384
+    int y = blockIdx.y * blockDim.y + threadIdx.y     + launch_offset_y ; 
+                          
+                                                           0:1           24         16    
+            gridDim.y = 24                              launchIdx.y * gridDim.y * blockDim.y    =   0/384  
+
+                                                        launchDim.y = 2
+
+         launchDim = 2,2
+         launchIdx.x = 0:1
+         launchIdx.y = 0:1
+
+
+    What about 1440,852    need to provide offsets for the straggler pixels
+          /16    90,53
+
+        In [144]: np.array([1440,852])/np.array([16,16])
+        Out[144]: array([90, 53])
+
+        In [148]: np.prod(a)
+        Out[148]: 4770             
+
+
+   
 limits
 ~~~~~~~
 
@@ -113,6 +188,8 @@ to keep each launch within the timeout.
 import os, logging, argparse
 log = logging.getLogger(__name__)
 from operator import mul
+mul_ = lambda _:reduce(mul, _)
+
 from collections import OrderedDict
 
 from env.cuda.cuda_profile_parse import Parser
@@ -143,6 +220,40 @@ def chunk_iterator(nelements, nthreads_per_block=64, max_blocks=1024):
 
         yield (first, elements_this_round, blocks)
         first += elements_this_round
+
+
+def launch_iterator_1d( work, block_dim=(64,1,1), max_blocks_per_grid=1024):
+    work = mul_(work)   # express as tuple/list even when 1d please
+
+    threads_per_block = mul_(block_dim)
+
+    offset = 0
+    launch = 0
+    while offset < work:
+        left = work - offset
+        #
+        blocks_per_grid = int( left // threads_per_block )
+        #
+        if not left % threads_per_block == 0:
+            blocks_per_grid += 1 
+
+        blocks_per_grid = min(max_blocks_per_grid, blocks_per_grid)
+        grid = (blocks_per_grid, 1)
+        #
+        done_this_launch = min(left, mul_(grid)*threads_per_block )
+ 
+        yield launch, offset, grid, block_dim
+
+        offset += done_this_launch
+        launch += 1
+
+
+def launch_iterator_2d( work, block_dim=(8,8,1), launch_dim=(2,2)):
+    """
+
+    """
+    pass
+
 
 
 
@@ -272,7 +383,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+
+    for launch, offset, grid, block in launch_iterator_1d( (1024,768,) ):
+        print "launch %s offset %s grid %s block %s " % ( launch, offset, repr(grid), repr(block))     
+        
+
 
 
 

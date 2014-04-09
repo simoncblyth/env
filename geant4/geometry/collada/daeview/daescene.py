@@ -80,6 +80,12 @@ class DAEScene(object):
         into corresponding world space locations at the near plane for the current camera and view. 
 
         Unclear where best to implement this : needs camera, view  and kscale
+
+        TODO: 
+
+        * move to viewpoint 
+        * accomodate trackball offsets, so can raycast without being homed on a view
+
         """
         scale = np.identity(4)   # it will be getting scaled down so have to scale it up, annoyingly 
         scale[0,0] = self.kscale
@@ -167,10 +173,9 @@ class DAEScene(object):
         return " ".join([self.view_state, self.camera_state]) 
 
     def where(self):
-        print repr(self)
         print str(self)
 
-    def clicked_point(self, click ):
+    def clicked_point(self, click, target_mode ):
         """
         :param click: world frame xyz 
 
@@ -181,11 +186,28 @@ class DAEScene(object):
         solids = sorted([self.geometry.solids[_] for _ in indices],key=lambda _:_.extent) 
         self.solids = solids
 
-    def bookmark(self):
-        log.info("bookmark") 
-        print self.view.current_view
+        if len(solids) == 0:
+            log.warn("clicked_point %s found no containing solids : how did you manage that ?" % repr(click) )
+            return
+
+        picked_solid = solids[0]
+        log.info("clicked_point (target_mode %s) selects %s solids smallest \n%s" % ( target_mode, len(self.solids), picked_solid ))
+
+        newview = None
+        if target_mode:
+            log.info("as target mode changing view to the new solid, index %s " % picked_solid.index )
+            newview = self.change_view( picked_solid.index , prior=None )
+
+        if newview is None:
+            log.debug("view unchanged by clicked_point")
+        else:
+            log.info("view changed by clicked_point")
+            self.view = newview
+
 
     def external_message(self, msg ):
+        """
+        """ 
         live_args = self.config( msg )
         if live_args is None:
             log.warn("external_message [%s] PARSE ERROR : IGNORING " % str(msg)) 
@@ -255,6 +277,10 @@ class DAEScene(object):
     def dump(self):
         print "view\n", self.view
         print "trackball\n", self.trackball
+
+    def bookmark(self):
+        log.info("bookmark") 
+        print self.view.current_view
 
 
 if __name__ == '__main__':

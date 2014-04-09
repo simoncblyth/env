@@ -15,6 +15,44 @@ placemarks
 The commandline to return to a viewpoint and camera configuration
 is written to stdout on exiting or on pressing "W".
 
+solid picking
+~~~~~~~~~~~~~~
+
+#. Clicking pixels with mouse/trackpad, yields an (x,y,z) screen position 
+   the z value comes from the depth buffer representing the  position of nearest surface.
+#. An unprojection transforms the screen space coordinate into world space.
+#. This coordinate is then used to determine the list of solids which 
+   contain the point within their bounding box. The solid indices, names and 
+   extents in mm are written to the screen.
+#. The smallest solid is regarded as "picked". Key "O" toggles high-lighting 
+   of picked solids with wireframe spheres.
+
+remote control
+~~~~~~~~~~~~~~~
+
+A subset of the commandline launch options can be sent over the network to the running 
+application. This allows numerical control of viewpoint and camera parameters.::
+
+   udp.py -t 7000 --eye=10,0,0 --look=0,0,0 --up=0,0,1
+   udp.py -t 7000_10,0,0_0,0,0_0,0,1                    # equivalent short form
+
+The viewpoint is defined by the `eye` and `look` positions and the `up` direction, which 
+are provided in the coordinate frame of the target solid. NB rotations are performed about the 
+look position, that is often set to 0,0,0 corresponding to the center of the solid. 
+The "K" key toggle markers indicating the eye and look position. 
+
+The options that are accepted interactively are marked with "I" in the options list::
+
+    daeview.sh --help
+
+
+Small things 
+-------------
+
+#. home-ing trackball should home camera too, so return to initial near/far/yfov ? not just position 
+#. parallel projection not reflected in the where, move property from scene to camera ?
+
+
 Issues
 --------
 
@@ -24,15 +62,31 @@ near/far wierdness
 Changing near can somehow change far clipping. Maybe depth buffer issue.
 Seems less prevalent with less extreme near and far.
 
+
+In Progress
+------------
+
+interactive target switching  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+While pressing "Q" clicking a solid swiches target to that solid.
+
+* currently the launch eye,look,up parameters are adopted, which is jarring 
+* adopting the parameters of the prior view is also jarring 
+* need to transform transient/offset eye/look/up to world 
+
+* unclear how best to do this : maybe interpolate views 
+
+Intend:
+
+* switch coordinate frame to adopt that of the target, ie switching view
+* changes "look" rotation point to the center of the clicked solid
+* allows to raycast for any viewpoint without relying on raycasting 
+  being fast enough to be interactive 
+
+
 Next
 -----
-
-#. interactive target switching using solid picking 
-
-   * switch coordinate frame to adopt that of the target, ie switching view
-   * changes "look" rotation point to the center of the clicked solid
-   * allows to raycast for any viewpoint without relying on raycasting 
-     being fast enough to be interactive 
 
 #. raycast launch control, to avoid GPU panics/system crashes
 
@@ -59,6 +113,12 @@ Next
 #. take control of lighting, add headlamp (for inside AD)
 
 #. chroma hybrid mode
+
+
+
+
+
+
 
 
 

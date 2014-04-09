@@ -1,33 +1,62 @@
 #!/usr/bin/env python
 """
 
-Controls
----------
-
-* SPACE and mouse/trackpad up/down to translate z (in-out of direction of view)
-* click+two-finger draw, a non-modal alternative for z translation
-* TAB and mouse/trackpad to translate x,y (left-right,up-down)
-* **S** toggle fullscreen 
-* **F** toggle fill
-* **L** toggle line
-* **T** toggle transparent
-* **P** toggle parallel projection (aka orthographic)
-* **N** toggle near mode, where mouse/trackpad changes near clipping plane 
-* **A** toggle far mode, where mouse/trackpad changes far clipping plane 
-* **Y** toggle yfov mode, where mouse/trackpad changes field of view 
-* **O** toggle clicked solid marker
-* **UP** and **DOWN** arrow changes trackball translation scale factor
-* **H** trackball home, reset trackball translation and rotation offsets to zero
-* **M** start interpolation
-
 
 """
 import os, sys, logging
+from collections import OrderedDict 
 log = logging.getLogger(__name__)
 from glumpy.window import key
 
 from daedispatcher import DAEDispatcher
 from daeviewport import DAEViewport
+
+
+class DAEKeys(object):
+    def __init__(self):
+        key = OrderedDict()
+
+        key["ESCAPE"] = "exit "
+
+        key["*"] = "--- toggles ---"
+        key["S"] = "toggle fullscreen "
+        key["F"] = "toggle fill triangles"
+        key["L"] = "toggle line"
+        key["T"] = "toggle transparent"
+        key["P"] = "toggle parallel projection (aka orthographic)"
+        key["K"] = "toggle drawing illustration markers for: view frustum, lights, raycast rays, eye and look positions "
+        key["O"] = "toggle drawing wireframe spheres to mark mouse/trackpad picked solids  "
+        key["M"] = "toggle animation: ie interpolation between views, requires view to be interpolatable, setup using --jump launch or live options "
+        key["C"] = "toggle CUDA image processor, requires launch --with-cuda-image-processor "
+        key["R"] = "toggle Chroma raycasting for the current view, requires launch --with-chroma "
+        
+        key["**"] = "--- viewing ---"
+        key[""] = "default action without any key pressed, mouse/trackpad movement rotates around the *look* position" 
+        key["SPACE"] = "z-translate, while pressed mouse/trackpad movement translates in screen Z in/out direction" 
+        key["2finger"] = "2-finger click trackpad and drag, a non-modal alternative for SPACE z translation"
+        key["TAB"] = "xy-translate, while pressed mouse/trackpad movement translates x,y (left-right,up-down)"
+        key["N"] = "near, while pressed, mouse/trackpad movement changes near clipping plane "
+        key["A"] = "far,while pressed, mouse/trackpad movement changes far clipping plane "
+        key["Y"] = "yfov, while pressed, mouse/trackpad movement changes field of view angle "
+        key["Q"] = "target mode, while pressed, picking a solid changes target to the solid "
+
+        key["***"] = "--- factors ---"
+        key["UP"] = "increase mouse/trackpad drag factor *2"
+        key["DOWN"] = "decrease mouse/trackpad drag factor *0.5"
+        key["RIGHT"] = "increase animation speed *2"
+        key["LEFT"] = "decrease animation speed *0.5"
+
+        key["****"] = "--- misc ---"
+        key["H"] = "home, resets trackball translation and rotation offsets to zero "
+        key["W"] = "where: write to stdout the commandline to recreate the current state of view and camera "
+        key["U"] = "usage, write help text to stdout "
+        key["B"] = "bookmark: NOT YET IMPLEMENTED "
+        key["G"] = "light: NOT YET IMPLEMENTED "
+
+        self.key = key
+
+    def __str__(self):
+        return "\n".join(["%-10s : %s " % (k,v) for k,v in self.key.items()])   
 
 
 class DAEInteractivityHandler(object):
@@ -41,12 +70,14 @@ class DAEInteractivityHandler(object):
         self.dragfactor = config.args.dragfactor
         self.scene = scene
         self.viewport = DAEViewport(map(int,config.args.size.split(",")))
+        self.keys = DAEKeys()
         #
         self.zoom_mode = False
         self.pan_mode = False
         self.near_mode = False
         self.far_mode = False
         self.yfov_mode = False
+        self.target_mode = False
         #
         if config.args.fullscreen:
             self.toggle_fullscreen()
@@ -111,11 +142,11 @@ class DAEInteractivityHandler(object):
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
 
     def exit(self):
-        """
-        Print commandline to regain the scene before exit 
-        """
         print "%s %s " % (os.path.basename(sys.argv[0]), str(self.scene))
         sys.exit() 
+
+    def usage(self):
+        print str(self.keys)
 
     def on_key_press(self, symbol, modifiers):
         if   symbol == key.ESCAPE: self.exit()
@@ -124,6 +155,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.N: self.near_mode = True
         elif symbol == key.A: self.far_mode = True
         elif symbol == key.Y: self.yfov_mode = True
+        elif symbol == key.Q: self.target_mode = True
         elif symbol == key.UP: self.dragfactor *= 2.
         elif symbol == key.DOWN: self.dragfactor *= 0.5
         elif symbol == key.S: self.toggle_fullscreen()
@@ -131,6 +163,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.RIGHT: self.scene.animation_speed(2.0)
         elif symbol == key.H: self.scene.trackball.home()
         elif symbol == key.W: self.scene.where()
+        elif symbol == key.U: self.usage()
         elif symbol == key.B: self.scene.bookmark()
         elif symbol == key.L: self.scene.toggle("line")
         elif symbol == key.F: self.scene.toggle("fill")
@@ -144,7 +177,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.R: self.scene.toggle_raycast()
         else:
             pass
-            #print "no action for on_key_press with symbol 0x%x " % symbol
+            print "no action for on_key_press with symbol 0x%x modifiers %s " % ( symbol, modifiers )
         pass 
         self.redraw()
 
@@ -154,6 +187,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.N: self.near_mode = False
         elif symbol == key.A: self.far_mode = False
         elif symbol == key.Y: self.yfov_mode = False
+        elif symbol == key.Q: self.target_mode = False
         else:
             pass
             #print "no action for on_key_release with symbol 0x%x " % symbol
@@ -188,7 +222,7 @@ class DAEInteractivityHandler(object):
     def on_mouse_press(self, x, y, button):
         if button != 2:print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
         xyz = self.frame_handler.unproject(x,y)
-        self.scene.clicked_point( xyz )
+        self.scene.clicked_point( xyz, self.target_mode )
         self.redraw()
 
     def on_mouse_release(self, x, y, button):

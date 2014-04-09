@@ -288,7 +288,7 @@ class DAEViewpoint(object):
         look = fvec_(args.look)
         up = fvec_(args.up)
    
-        velem = vspec.split("_") if not vspec is None else [] 
+        velem = str(vspec).split("_") if not vspec is None else [] 
 
         nelem = len(velem)
         if nelem > 0: 
