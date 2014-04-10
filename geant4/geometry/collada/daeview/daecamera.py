@@ -7,9 +7,11 @@ import numpy as np
 
 
 class DAECamera(object):
-    def __init__(self, size=(640,480), yfov=50., near=10., far=20000. , nearclip=(1e-6,1e6), farclip=(1e-6,1e6), yfovclip=(1.,179)): 
+    def __init__(self, size=(640,480), kscale=1., yfov=50., near=10., far=20000. , nearclip=(1e-6,1e6), farclip=(1e-6,1e6), yfovclip=(1.,179)): 
 
         self.size = np.array(size, dtype=int )
+        self.kscale = kscale   # i dont like it, but better that putting in the view or scene
+
         self._yfov = yfov
         self._near = near
         self._far = far
@@ -27,6 +29,7 @@ class DAECamera(object):
     def smry(self):
         return "\n".join([
                       "size        %s " % self.size, 
+                      "kscale      %s " % self.kscale, 
                       "aspect      %s " % self.aspect, 
                       "yfov        %s " % self.yfov, 
                       "near        %s " % self.near, 

@@ -49,6 +49,8 @@ The options that are accepted interactively are marked with "I" in the options l
 Small things 
 -------------
 
+#. where the current effective "eye" (and maybe "look") points are, 
+   just like can touch a solid and see where that is
 #. home-ing trackball should home camera too, so return to initial near/far/yfov ? not just position 
 #. parallel projection not reflected in the where, move property from scene to camera ?
 

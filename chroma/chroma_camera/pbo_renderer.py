@@ -176,6 +176,7 @@ class PBORenderer(object):
         :param alpha_depth:
         """
         assert alpha_depth <= self.config.args.max_alpha_depth
+        assert max_time <= 4.5
         log.info("render %s " % repr(self.launch))
 
         pbo_mapping = self.pixels.cuda_pbo.map()

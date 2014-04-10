@@ -70,48 +70,53 @@ class Config(object):
         parser = argparse.ArgumentParser(doc)
 
         defaults = OrderedDict()
+
         defaults['loglevel'] = "INFO"
         defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
+
+        parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
+        parser.add_argument( "--logformat",help="%(default)s")  
+
+
         defaults['geometry'] = os.environ.get('DAE_NAME',None)
         defaults['nodes'] = "0:"
+        defaults['size'] = "1024,768"
+        defaults['view'] = "A"
+
+        parser.add_argument( "--geometry", help="Path to geometry file", type=str  )
+        parser.add_argument( "--nodes", help="Specification of geometry nodes", type=str  )
+        parser.add_argument( "--size", help="", type=str  )
+        parser.add_argument( "--view", help="", type=str  )
+
         defaults['threads_per_block'] = 64
         defaults['max_blocks'] = 1024     # larger max_blocks reduces the number of separate launches, and increasing launch time (BEWARE TIMEOUT)
-
         defaults['block'] = "16,16,1"
         defaults['launch'] = "3,2,1"
-        defaults['max_time'] = 2
-        defaults['metric'] = None
+        defaults['max_time'] = 2 ; MAX_TIME_WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
+
+        parser.add_argument( "--threads-per-block", help="", type=int  )
+        parser.add_argument( "--max-blocks", help="", type=int  )
+        parser.add_argument( "--block", help="String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
+        parser.add_argument( "--launch", help="String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
+        parser.add_argument( "--max-time", help="Maximum time in seconds for kernel launch, if exceeded subsequent launches are ABORTed " + MAX_TIME_WARN , type=float )
+
 
         defaults['max_alpha_depth'] = 10
         defaults['alpha_depth'] = 10
-        defaults['size'] = "1024,768"
         defaults['kernel'] = "render_pbo"
         defaults['kernel_flags'] = "0,0"
+        defaults['metric'] = None
         defaults['allsync'] = True
         defaults['cuda_profile'] = True
-        defaults['view'] = "A"
 
-        parser.add_argument( "-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
-        parser.add_argument(      "--logformat",help="%(default)s")  
-        parser.add_argument( "-g","--geometry", help="Path to geometry file", type=str  )
-        parser.add_argument( "-n","--nodes", help="Specification of geometry nodes", type=str  )
-        parser.add_argument( "-t","--threads-per-block", help="", type=int  )
+        parser.add_argument( "--max-alpha-depth", help="", type=int  )
+        parser.add_argument( "--alpha-depth", help="", type=int  )
+        parser.add_argument( "--kernel", help="", type=str  )
+        parser.add_argument( "--kernel-flags", help="g_flags constant provided to kernel, used for thread time presentation eg try 20,0  ", type=str  )
+        parser.add_argument( "--metric", help="One of time/node/intersect/tri or default None", type=str  )
+        parser.add_argument( "--allsync", help="Sync after every launch, to catch errors earlier.", action="store_true"  )
+        parser.add_argument( "--cuda-profile", help="", action="store_true"  )
 
-        parser.add_argument(      "--block", help="String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
-        parser.add_argument(      "--launch", help="String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
-        warn = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
-        parser.add_argument(      "--max-time", help="Maximum time in seconds for kernel launch, if exceeded subsequent launches are ABORTed " + warn , type=float )
-        parser.add_argument(      "--metric", help="One of time/node/intersect/tri or default None", type=str  )
-
-        parser.add_argument(      "--max-alpha-depth", help="", type=int  )
-        parser.add_argument( "-a","--alpha-depth", help="", type=int  )
-        parser.add_argument( "-b","--max-blocks", help="", type=int  )
-        parser.add_argument( "-s","--size", help="", type=str  )
-        parser.add_argument( "-k","--kernel", help="", type=str  )
-        parser.add_argument(      "--kernel-flags", help="g_flags constant provided to kernel, used for thread time presentation eg try 20,0  ", type=str  )
-        parser.add_argument( "-c","--allsync", help="Sync after every launch, to catch errors earlier.", action="store_true"  )
-        parser.add_argument(      "--cuda-profile", help="", action="store_true"  )
-        parser.add_argument(       "--view", help="", type=str  )
 
         parser.set_defaults(**defaults)
         return parser, defaults

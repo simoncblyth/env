@@ -93,7 +93,7 @@ class DAEFrameHandler(object):
         trackball = self.scene.trackball
         camera = self.scene.camera
         view = self.scene.view
-        kscale = self.scene.kscale
+        kscale = camera.kscale
         distance = view.distance
 
 
@@ -148,12 +148,14 @@ class DAEFrameHandler(object):
         view = self.scene.view
         lights = self.scene.lights
         distance = self.scene.view.distance
-        lrbtnf = self.scene.camera.lrbtnf
-        kscale = self.scene.kscale
+        camera = self.scene.camera
+        lrbtnf = camera.lrbtnf
+        kscale = camera.kscale          
 
         if self.scene.markers:
             self.illustrate.frustum( view, lrbtnf*kscale )
-            self.illustrate.raycast( self.scene.pixel2world, view.eye, self.scene.camera ) 
+            pixel2world = view.pixel2world_matrix( camera )
+            self.illustrate.raycast( pixel2world, view.eye, camera ) 
 
         if self.scene.light:
             lights.position()   # reset positions following changes to MODELVIEW matrix ?
@@ -220,7 +222,7 @@ class DAEFrameHandler(object):
                 self.scene.processor.display() 
 
         if self.scene.raycast:
-            self.scene.raycaster.render(self.scene.pixel2world, view.eye, self.scene.raycast_flags) 
+            self.scene.raycaster.render( view, camera, self.scene.raycast_flags ) 
  
         self.frame.unlock()
 

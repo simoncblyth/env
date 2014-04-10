@@ -41,6 +41,8 @@ fvec_ = lambda _:map(float,_.split(","))
 class DAEConfig(object):
 
     size = property(lambda self:ivec_(self.args.size))
+    block=property(lambda self:ivec_(self.args.block))
+    launch=property(lambda self:ivec_(self.args.launch))
     kernel_flags=property(lambda self:ivec_(self.args.kernel_flags))
 
     frame = property(lambda self:fvec_(self.args.frame))
@@ -168,8 +170,9 @@ class DAEConfig(object):
 
         defaults['with_chroma'] = False
         defaults['max_alpha_depth'] = 10
+        defaults['max_time'] = 4 ; WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
         parser.add_argument( "-C","--with-chroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_true" )
-        parser.add_argument(      "--max-alpha-depth", help="Chroma Raycaster alpha_max", type=int )
+        parser.add_argument(      "--max-alpha-depth", help="Chroma Raycaster max_alpha_depth", type=int )
 
         defaults['path'] = os.environ['DAE_NAME']
         defaults['nodes']="3153:12230"
@@ -216,60 +219,81 @@ class DAEConfig(object):
         parser.add_argument("-e","--eye",     help="[I] Eye position ",type=str)
         parser.add_argument("-a","--look",    help="[I] Lookat position ",type=str)
         parser.add_argument("-u","--up",      help="[I] Up direction ",type=str)
-        parser.add_argument(     "--norm",    help="Dummy argument, used for informational output.",type=str)
+        parser.add_argument( "--norm",    help="Dummy argument, used for informational output.",type=str)
         parser.add_argument( "--fullscreen", action="store_true", help="Start in fullscreen mode." )
         parser.add_argument( "--markers",   action="store_true", help="[I] Frustum and light markers." )
  
-
+        # kernel switches
         defaults['cuda'] = False
         defaults['raycast'] = False
-        defaults['threads_per_block'] = 64
-        defaults['max_blocks'] = 1024
-        defaults['kernel'] = "render_pbo"
-        defaults['kernel_flags'] = "0,0"
-        defaults['allsync'] = True
-
         parser.add_argument( "--cuda",      action="store_true", help="[I] Start in cuda mode." )
         parser.add_argument( "--raycast",   action="store_true", help="[I] Raycast" )
-        parser.add_argument( "--threads-per-block", help="", type=int )
-        parser.add_argument( "--max-blocks", help="", type=int )
+
+        # kernel code
+        defaults['kernel'] = "render_pbo"
+        defaults['kernel_flags'] = "0,0"
+        defaults['metric'] = None
         parser.add_argument( "--kernel", help="", type=str )
         parser.add_argument( "--kernel-flags", help="g_flags constant provided to kernel, used for thread time presentation eg try 20,0  ", type=str  )
+        parser.add_argument( "--metric", help="One of time/node/intersect/tri or default None", type=str  )
+
+        # kernel launch config, transitioning from 1D to 2D
+        defaults['threads_per_block'] = 64  # 1D
+        defaults['max_blocks'] = 1024       # 1D
+        defaults['block'] = "16,16,1"       # 2D
+        defaults['launch'] = "3,2,1"        # 2D
+        parser.add_argument( "--threads-per-block", help="", type=int )
+        parser.add_argument( "--max-blocks", help="", type=int )
+        parser.add_argument( "--block", help="String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
+        parser.add_argument( "--launch", help="String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
+
+        # kernel params and how launched
+        defaults['max_time'] = 2  ; MAX_TIME_WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
+        defaults['allsync'] = True
+        defaults['alpha_depth'] = 10
         parser.add_argument( "--allsync",   action="store_true", help="" )
+        parser.add_argument( "--alpha-depth", help="Chroma Raycaster alpha_depth", type=int )
+        parser.add_argument( "--max-time", help="Maximum time in seconds for kernel launch, if exceeded subsequent launches are ABORTed " + MAX_TIME_WARN , type=float )
 
-
-        defaults['kscale'] = 100.
-        defaults['near'] =   30.     
+        # camera
+        defaults['near'] = 30.     
         defaults['far'] = 10000.  
         defaults['yfov'] = 50.
         defaults['nearclip'] = "0.0001,1000."
         defaults['farclip'] = "1,100000."
         defaults['yfovclip'] = "1.,179."
-        defaults['parallel'] = False
-        defaults['line'] = False
-        defaults['fill'] = True
-        defaults['transparent'] = True
-
-        parser.add_argument("--kscale",    help="[I] Kludge scaling applied to MVP matrix. %(default)s", type=float)
         parser.add_argument("--near",      help="[I] Initial near in mm. %(default)s", type=float)
         parser.add_argument("--far",       help="[I] Initial far in mm. %(default)s", type=float)
         parser.add_argument("--yfov",      help="[I] Initial vertical field of view in degrees. %(default)s", type=float)
         parser.add_argument("--nearclip",  help="[I] Allowed range for near. %(default)s", type=str )
         parser.add_argument("--farclip",   help="[I] Allowed range for far. %(default)s", type=str )
         parser.add_argument("--yfovclip",  help="[I] Allowed range for yfov. %(default)s", type=str )
+
+        # scene
+        defaults['kscale'] = 100.
+        defaults['parallel'] = False
+        defaults['line'] = False
+        defaults['fill'] = True
+        defaults['transparent'] = True
+        parser.add_argument("--kscale",    help="[I] Kludge scaling applied to MVP matrix. %(default)s", type=float)
         parser.add_argument("--parallel",                         action="store_true", help="Parallel projection, aka orthographic." )
         parser.add_argument("--line",         dest="line",        action="store_true",  help="Switch on line mode polygons  %(default)s" )
         parser.add_argument("--nofill",       dest="fill",        action="store_false", help="Inhibit fill mode polygons  %(default)s" )
         parser.add_argument("--notransparent",dest="transparent", action="store_false", help="Inhibit transparent fill  %(default)s" )
 
-        
+        # trackball  
         defaults['thetaphi'] = "0,0."
         defaults['xyz'] = "0,0,0"
+        defaults['dragfactor'] = 1.
+        defaults['trackballradius'] = 0.8
+        defaults['translatefactor'] = 4000.
+        parser.add_argument( "--thetaphi", help="Initial theta,phi. %(default)s", type=str)
+        parser.add_argument( "--xyz", help="Initial viewpoint in canonical -1:1 cube coordinates %(default)s", type=str)
+        parser.add_argument( "--dragfactor", help="Mouse/trackpad drag speed", type=float  )
+        parser.add_argument( "--trackballradius", help="Trackball radius", type=float  )
+        parser.add_argument( "--translatefactor", help="Scaling applied to trackball offset translations to conjure a trackball.xyz offset in camera frame.", type=float  )
 
-        parser.add_argument(     "--thetaphi", help="Initial theta,phi. %(default)s", type=str)
-        parser.add_argument(     "--xyz", help="Initial viewpoint in canonical -1:1 cube coordinates %(default)s", type=str)
-
-
+        # lights
         defaults['light'] = True
         defaults['rlight'] = "-1,1,1"
         defaults['glight'] = "1,1,1"
@@ -277,7 +301,6 @@ class DAEConfig(object):
         defaults['flight'] = 1.
         defaults['wlight'] = 1.
         defaults['lights'] = "rgb"
-
         parser.add_argument("--nolight",      dest="light",       action="store_false", help="Inhibit light setup  %(default)s" )
         parser.add_argument("--rlight",  help="Red light position",type=str)
         parser.add_argument("--glight",  help="Green light position",type=str)
@@ -286,15 +309,6 @@ class DAEConfig(object):
         parser.add_argument("--wlight",  help="Homogeonous 4th coordinate, 0 for infinity",type=float)
         parser.add_argument("--lights",  help="Enable rgb lights",type=str)
        
-     
-        defaults['dragfactor'] = 1.
-        defaults['trackballradius'] = 0.8
-        defaults['translatefactor'] = 1000.
-
-        parser.add_argument(   "--dragfactor", help="Mouse/trackpad drag speed", type=float  )
-        parser.add_argument(   "--trackballradius", help="Trackball radius", type=float  )
-        parser.add_argument(   "--translatefactor", help="Scaling applied to trackball offset translations to conjure a trackball.xyz offset in camera frame.", type=float  )
-
         if with_defaults:
             parser.set_defaults(**defaults)
 

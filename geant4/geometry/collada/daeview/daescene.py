@@ -45,7 +45,8 @@ class DAEScene(object):
         log.info("DAEScene ctor view\n%s" % self.view.smry())
 
         # camera
-        camera = DAECamera( size=config.size, near=args.near, far=args.far, yfov=args.yfov, nearclip=config.nearclip, farclip=config.farclip, yfovclip=config.yfovclip )
+        kscale = 1. if self.scaled_mode else config.args.kscale
+        camera = DAECamera( size=config.size, kscale=kscale, near=args.near, far=args.far, yfov=args.yfov, nearclip=config.nearclip, farclip=config.farclip, yfovclip=config.yfovclip )
         self.camera = camera 
 
         # lights
@@ -53,8 +54,7 @@ class DAEScene(object):
         self.lights = DAELights( light_transform, config )
 
         # kludge scaling  
-        kscale = 1. if self.scaled_mode else config.args.kscale
-        self.kscale = kscale
+        #self.kscale = kscale
 
         # Chroma raycaster, None if not --with-chroma
         self.raycaster = self.make_raycaster( config, geometry ) 
@@ -74,29 +74,6 @@ class DAEScene(object):
         if self.raycaster is not None:
             self.raycaster.resize(size)
 
-    def _get_pixel2world(self):
-        """ 
-        Provides pixel2world matrix that transforms pixel coordinates like (0,0,0,1) or (1023,767,0,1)
-        into corresponding world space locations at the near plane for the current camera and view. 
-
-        Unclear where best to implement this : needs camera, view  and kscale
-
-        TODO: 
-
-        * move to viewpoint 
-        * accomodate trackball offsets, so can raycast without being homed on a view
-
-        """
-        scale = np.identity(4)   # it will be getting scaled down so have to scale it up, annoyingly 
-        scale[0,0] = self.kscale
-        scale[1,1] = self.kscale
-        scale[2,2] = self.kscale
-
-        pixel2camera_scaled = np.dot( scale, self.camera.pixel2camera ) # order matters, have to scale pixel2camera, not after camera2world
-        camera2world = self.view.camera2world.matrix
-        pixel2world = np.dot( camera2world, pixel2camera_scaled )   
-        return pixel2world
-    pixel2world = property(_get_pixel2world)
 
     def make_raycaster(self, config, geometry ):
         if not config.args.with_chroma:return None
@@ -166,7 +143,7 @@ class DAEScene(object):
     def __repr__(self):
         return "SC " + self.view_state
 
-    view_state = property(lambda self:self.view.offset_where( self.trackball, self.kscale ))
+    view_state = property(lambda self:self.view.offset_where( self.trackball, self.camera.kscale ))
     camera_state = property(lambda self:str(self.camera))
 
     def __str__(self):
@@ -232,9 +209,9 @@ class DAEScene(object):
                 self.toggle(k)
             elif k in ("eye","look","up") :
                 elu[k] = v
-            elif k == "kscale":
-                self.kscale = kscale
-            elif k in ("near","far","yfov","nearclip","farclip","yfovclip"):
+            #elif k == "kscale":
+            #    self.kscale = kscale
+            elif k in ("kscale","near","far","yfov","nearclip","farclip","yfovclip"):
                 setattr(self.camera, k, v )
             elif k in ("translatefactor","trackballradius"):
                 setattr(self.trackball, k, v )

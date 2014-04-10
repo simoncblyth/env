@@ -93,6 +93,19 @@ class DAEViewpoint(object):
     world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
     camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
 
+    def pixel2world_matrix(self, camera ):
+        """ 
+        Provides pixel2world matrix that transforms pixel coordinates like (0,0,0,1) or (1023,767,0,1)
+        into corresponding world space locations at the near plane for the current camera and view. 
+
+        Unclear where best to implement this : needs camera, view  and kscale
+
+        TODO: accomodate trackball offsets, so can raycast without being homed on a view
+        """
+        iscale = scale_matrix( camera.kscale )        # it will be getting scaled down so have to scale it up, annoyingly 
+        return reduce(np.dot, [ self.camera2world.matrix, iscale, camera.pixel2camera ])
+
+
     def modelview_matrix(self, trackball, kscale ):
         """
         Objects are transformed from **world** space to **eye** space using GL_MODELVIEW matrix, 
@@ -109,7 +122,7 @@ class DAEViewpoint(object):
         The MODELVIEW sequence of transformations in daeframehandler in OpenGL reverse order, 
         defines exactly what the trackball output means::
 
-            kscale = self.scene.kscale
+            kscale = self.camera.kscale
             distance = view.distance
             gl.glScalef(1./kscale, 1./kscale, 1./kscale)   
             gl.glTranslate ( *trackball.xyz )       # former adhoc 1000. now done internally in trackball.translatefactor

@@ -66,7 +66,25 @@ class DAERaycaster(object):
         self.pixels.resize(size)           
         self.renderer.resize(size)
 
-    def render(self, pixel2world, eye, flags):
+    def render(self, view, camera, flags):
+        if not self.config.args.with_chroma:
+            log.warn("chroma raycast rendering requires launch option: --with-chroma ")
+            return 
+
+        log.info("DAERaycaster view %s camera %s flags %s " % (view, camera, flags))
+
+        renderer = self.renderer
+
+        renderer.origin = view.eye
+        renderer.pixel2world = view.pixel2world_matrix( camera )
+        renderer.flags = flags
+
+        renderer.render(alpha_depth=self.config.args.alpha_depth, max_time=self.config.args.max_time)
+
+        self.pixels.draw()
+
+
+    def render_old(self, pixel2world, eye, flags):
         """
         """
         print "DAERaycaster"
@@ -83,7 +101,7 @@ class DAERaycaster(object):
         renderer.pixel2world = pixel2world 
         renderer.flags = flags
 
-        renderer.render()
+        renderer.render(alpha_depth=self.config.args.alpha_depth, max_time=self.config.args.max_time)
 
 
         self.pixels.draw()
