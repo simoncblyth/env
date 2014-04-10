@@ -6,6 +6,8 @@ import argparse
 from collections import OrderedDict
 import numpy as np
 
+ivec_=lambda _:map(int,_.split(","))
+
 
 class View(object):
     registry = {}
@@ -49,6 +51,7 @@ class C(View):
        """
 c = C()
 
+
 class Config(object):
     def __init__(self, doc):
         parser, defaults = self._make_parser(doc)
@@ -71,6 +74,10 @@ class Config(object):
         defaults['nodes'] = "0:"
         defaults['threads_per_block'] = 64
         defaults['max_blocks'] = 1024     # larger max_blocks reduces the number of separate launches, and increasing launch time (BEWARE TIMEOUT)
+
+        defaults['block'] = "16,16,1"
+        defaults['launch'] = "2,3,1"
+
         defaults['max_alpha_depth'] = 10
         defaults['alpha_depth'] = 3
         defaults['size'] = "1024,768"
@@ -84,6 +91,10 @@ class Config(object):
         parser.add_argument( "-g","--geometry", help="Path to geometry file", type=str  )
         parser.add_argument( "-n","--nodes", help="Specification of geometry nodes", type=str  )
         parser.add_argument( "-t","--threads-per-block", help="", type=int  )
+
+        parser.add_argument(      "--block", help="String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
+        parser.add_argument(      "--launch", help="String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
+
         parser.add_argument(      "--max-alpha-depth", help="", type=int  )
         parser.add_argument( "-a","--alpha-depth", help="", type=int  )
         parser.add_argument( "-b","--max-blocks", help="", type=int  )
@@ -97,8 +108,11 @@ class Config(object):
         parser.set_defaults(**defaults)
         return parser, defaults
 
-    size=property(lambda self:map(int,self.args.size.split(",")))
-    kernel_flags=property(lambda self:map(int,self.args.kernel_flags.split(",")))
+    size=property(lambda self:ivec_(self.args.size))
+    block=property(lambda self:ivec_(self.args.block))
+    launch=property(lambda self:ivec_(self.args.launch))
+
+    kernel_flags=property(lambda self:ivec_(self.args.kernel_flags))
 
     def _get_view(self):
         return View.get(self.args.view)

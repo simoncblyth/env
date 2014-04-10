@@ -6,7 +6,8 @@ log = logging.getLogger(__name__)
 
 import numpy as np
 
-from env.cuda.cuda_launch import Launch
+#from env.cuda.cuda_launch import Launch
+from env.cuda.cuda_launch_2d import Launch2D
 
 import pycuda.gl as cuda_gl
 import pycuda.driver as cuda
@@ -23,11 +24,13 @@ class PBORenderer(object):
         self.pixels = pixels
         self.config = config
 
-        self.launch = Launch( pixels.size, threads_per_block=config.args.threads_per_block, max_blocks=config.args.max_blocks )
+        #self.launch = Launch( pixels.size, threads_per_block=config.args.threads_per_block, max_blocks=config.args.max_blocks )
+        self.launch = Launch2D( work=pixels.size, launch=config.launch, block=config.block )
         self.cudacheck = getattr(config, 'cudacheck', None)
 
         self.gpu_geometry = GPUGeometry( chroma_geometry )
 
+        self._offset = None
         self._flags = None
         self._size = None
         self._origin = None
@@ -46,6 +49,7 @@ class PBORenderer(object):
         """
         # these setters copy to GPU device __constant__ memory
         """
+        self.offset = (0,0)
         self.size = self.pixels.size
         self.flags = self.config.kernel_flags
 
@@ -62,18 +66,25 @@ class PBORenderer(object):
         #. compile kernel and extract __constant__ symbol addresses
         """
         module = get_cu_module('render_pbo.cu', options=cuda_options)
-        self.arg_format = "iiPP"
 
+        self.g_offset  = module.get_global("g_offset")[0]  
         self.g_flags   = module.get_global("g_flags")[0]  
         self.g_size   = module.get_global("g_size")[0]  
         self.g_origin = module.get_global("g_origin")[0]
         self.g_pixel2world = module.get_global("g_pixel2world")[0]  
 
         kernel = module.get_function(self.config.args.kernel)
-        kernel.prepare(self.arg_format)
+        kernel.prepare("iPP")
 
         self.kernel = kernel
 
+
+    def _get_offset(self):
+        return self._offset 
+    def _set_offset(self, offset):
+        self._offset = offset
+        cuda.memcpy_htod(self.g_offset,         ga.vec.make_int2(*offset))
+    offset = property(_get_offset, _set_offset) 
 
     def _get_flags(self):
         return self._flags 
@@ -81,7 +92,7 @@ class PBORenderer(object):
         self._flags = flags
         cuda.memcpy_htod(self.g_flags,         ga.vec.make_int2(*flags))
     flags = property(_get_flags, _set_flags) 
- 
+
     def _get_size(self):
         return self._size 
     def _set_size(self, size):
@@ -118,12 +129,11 @@ class PBORenderer(object):
                  pbo_mapping.device_ptr(),
                  self.gpu_geometry.gpudata ]
 
-        block = self.launch.block
         times = []
-        for offset, count, blocks_per_grid in self.launch.chunker:
-
-            grid=(blocks_per_grid, 1)
-            get_time = self.kernel.prepared_timed_call( grid, block, np.uint32(offset), *args )
+        for launch, work, offset, grid, block in self.launch.iterator_2d:
+            print "launch %s work %s offset %s grid %s block %s " % (launch, work, str(offset), str(grid), str(block))
+            self.offset = offset 
+            get_time = self.kernel.prepared_timed_call( grid, block, *args )
             times.append(get_time())
 
             if self.config.args.allsync:
@@ -135,9 +145,12 @@ class PBORenderer(object):
 
         if self.cudacheck is not None:
             self.cudacheck.parse_profile()
-            self.cudacheck.compare_with_launch_times(times, self.launch)
+            #self.cudacheck.compare_with_launch_times(times, self.launch)
         else:
             log.info("launch times %s " % " ".join(map(lambda _:"%8.4f" % _, times )))
 
+
+if __name__ == '__main__':
+    pass
 
 

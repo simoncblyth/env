@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 import glumpy as gp
 
 from env.cuda.cuda_launch import CUDACheck
+from env.cuda.cuda_launch_2d import launch_iterator_2d
 from render_pbo_config import Config
 
 class FigHandler(object):

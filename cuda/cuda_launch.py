@@ -190,6 +190,7 @@ log = logging.getLogger(__name__)
 from operator import mul
 mul_ = lambda _:reduce(mul, _)
 
+import numpy as np
 from collections import OrderedDict
 
 from env.cuda.cuda_profile_parse import Parser
@@ -246,16 +247,6 @@ def launch_iterator_1d( work, block_dim=(64,1,1), max_blocks_per_grid=1024):
 
         offset += done_this_launch
         launch += 1
-
-
-def launch_iterator_2d( work, block_dim=(8,8,1), launch_dim=(2,2)):
-    """
-
-    """
-    pass
-
-
-
 
 
 
@@ -385,10 +376,12 @@ def main():
 if __name__ == '__main__':
     #main()
 
-    for launch, offset, grid, block in launch_iterator_1d( (1024,768,) ):
-        print "launch %s offset %s grid %s block %s " % ( launch, offset, repr(grid), repr(block))     
+    #for launch, launch_offset, grid, block in launch_iterator_1d( (1024,768,) ):
+    #    print "launch %s launch_offset %s grid %s block %s " % ( launch, offset, repr(grid), repr(block))     
         
-
+    for launch, launch_offset, grid, block in launch_iterator_2d( (1024,768,1) ):
+        print "launch %s launch_offset %s grid %s block %s " % ( launch, launch_offset, repr(grid), repr(block))     
+ 
 
 
 
