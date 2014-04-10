@@ -20,6 +20,7 @@ class Scene(object):
         log.info("created PixelBuffer %s  " % repr(config.size) )
         self.renderer = PBORenderer(self.pixels, self.chroma_geometry, config )
         self.trackball = trackball
+        self.config = config
 
     def load_chroma_geometry(self, config):
         #chroma_geometry = load_geometry_from_string(config.args.geometry)
@@ -34,7 +35,7 @@ class Scene(object):
         log.info("scene draw")
         self.trackball.push()
 
-        self.renderer.render()
+        self.renderer.render(alpha_depth=self.config.args.alpha_depth, max_time=self.config.args.max_time)
         self.pixels.draw()
 
         self.trackball.pop()

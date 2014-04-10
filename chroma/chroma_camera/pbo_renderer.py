@@ -6,8 +6,7 @@ log = logging.getLogger(__name__)
 
 import numpy as np
 
-#from env.cuda.cuda_launch import Launch
-from env.cuda.cuda_launch_2d import Launch2D
+from env.cuda.cuda_launch import Launch2D
 
 import pycuda.gl as cuda_gl
 import pycuda.driver as cuda
@@ -15,7 +14,62 @@ import pycuda.gpuarray as ga
 import pycuda.gl.autoinit      # excludes use of non-gl autoinit
 
 from chroma.gpu.geometry import GPUGeometry
-from chroma.gpu.tools import get_cu_module, cuda_options
+from chroma.gpu.tools import cuda_options
+
+from chroma.cuda import srcdir
+import pycuda.tools
+import pycuda.compiler
+
+
+def template_substitute( source, template_vars ):
+    """
+    Substitution is done by removing the instrumented comment:: 
+
+        //metric{time}       int64_t metric = clock64() - start ;
+        //metric{node}       int     metric = node_count ; 
+        //metric{intersect}  int     metric = intersect_count ; 
+        //metric{tri}        int     metric = tri_count ; 
+
+    So to use metric=time to get the time line
+    """
+    for k, v in template_vars: 
+        marker = "//%s{%s}" % ( k,v )      # eg looking for //metric{time}
+        spacer = " " * len(marker)
+        source = source.replace(marker, spacer)
+        log.info("replacing marker %s " % marker ) 
+    pass
+    return source
+
+
+@pycuda.tools.context_dependent_memoize   #not with dict argument
+def get_cu_module(name, options=None, include_source_directory=True, template_vars=None):
+    """
+    Returns a pycuda.compiler.SourceModule object from a CUDA source file
+    located in the chroma cuda directory at cuda/[name].
+
+    Slight extension of chroma.gpu.tools version with 
+    with template_kwa argument for templated changes to the kernel, useful 
+    for debugging: eg changing metrics without iffing.
+    """
+    if options is None:
+        options = []
+    elif isinstance(options, tuple):
+        options = list(options)
+    else:
+        raise TypeError('`options` must be a tuple.')
+
+    if include_source_directory:
+        options += ['-I' + srcdir]
+
+    with open('%s/%s' % (srcdir, name)) as f:
+        source = f.read()
+
+    if template_vars is not None:
+        source = template_substitute( source, template_vars )
+
+    return pycuda.compiler.SourceModule(source, options=options, no_extern_c=True)
+
+
 
 
 class PBORenderer(object):
@@ -24,8 +78,9 @@ class PBORenderer(object):
         self.pixels = pixels
         self.config = config
 
-        #self.launch = Launch( pixels.size, threads_per_block=config.args.threads_per_block, max_blocks=config.args.max_blocks )
-        self.launch = Launch2D( work=pixels.size, launch=config.launch, block=config.block )
+        #launch = Launch1D( pixels.size, threads_per_block=config.args.threads_per_block, max_blocks=config.args.max_blocks )
+        launch = Launch2D( work=pixels.size, launch=config.launch, block=config.block )
+        self.launch = launch
         self.cudacheck = getattr(config, 'cudacheck', None)
 
         self.gpu_geometry = GPUGeometry( chroma_geometry )
@@ -36,7 +91,8 @@ class PBORenderer(object):
         self._origin = None
         self._pixel2world = None
 
-        self.compile_kernel()
+        template_vars = None if config.args.metric is None else (('metric',config.args.metric),) 
+        self.compile_kernel(template_vars=template_vars)
         self.initialize_constants()
 
     def resize(self, size):
@@ -61,11 +117,11 @@ class PBORenderer(object):
             self.origin = (0,0,0,1)
             self.pixel2world = np.identity(4)
 
-    def compile_kernel(self):
+    def compile_kernel(self, template_vars = None):
         """
         #. compile kernel and extract __constant__ symbol addresses
         """
-        module = get_cu_module('render_pbo.cu', options=cuda_options)
+        module = get_cu_module('render_pbo.cu', options=cuda_options, template_vars=template_vars)
 
         self.g_offset  = module.get_global("g_offset")[0]  
         self.g_flags   = module.get_global("g_flags")[0]  
@@ -115,12 +171,11 @@ class PBORenderer(object):
     pixel2world = property(_get_pixel2world, _set_pixel2world) 
 
  
-    def render(self, alpha_depth=3):
+    def render(self, alpha_depth=3, max_time=2):
         """
         :param alpha_depth:
         """
         assert alpha_depth <= self.config.args.max_alpha_depth
-
         log.info("render %s " % repr(self.launch))
 
         pbo_mapping = self.pixels.cuda_pbo.map()
@@ -130,12 +185,19 @@ class PBORenderer(object):
                  self.gpu_geometry.gpudata ]
 
         times = []
-        for launch, work, offset, grid, block in self.launch.iterator_2d:
-            print "launch %s work %s offset %s grid %s block %s " % (launch, work, str(offset), str(grid), str(block))
+        abort = False
+        for launch, work, offset, grid, block in self.launch.iterator:
+            #print "launch %s work %s offset %s grid %s block %s " % (launch, work, str(offset), str(grid), str(block))
             self.offset = offset 
-            get_time = self.kernel.prepared_timed_call( grid, block, *args )
-            times.append(get_time())
-
+            if abort:
+                t = -1
+            else:
+                get_time = self.kernel.prepared_timed_call( grid, block, *args )
+                t = get_time()
+                if t > max_time:
+                    abort=True
+                    log.warn("kernel launch time %s > max_time %s  , ABORTING RENDER " % (t, max_time) )
+            times.append(t)
             if self.config.args.allsync:
                 cuda.Context.synchronize()  
             pass
@@ -145,8 +207,8 @@ class PBORenderer(object):
 
         if self.cudacheck is not None:
             self.cudacheck.parse_profile()
-            #self.cudacheck.compare_with_launch_times(times, self.launch)
-        else:
+            self.cudacheck.compare_with_launch_times(times, self.launch)
+        else:  
             log.info("launch times %s " % " ".join(map(lambda _:"%8.4f" % _, times )))
 
 

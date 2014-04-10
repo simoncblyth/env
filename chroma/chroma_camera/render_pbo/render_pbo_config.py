@@ -61,25 +61,29 @@ class Config(object):
 
     def parse(self):
         args = self.parser.parse_args()
-        logging.basicConfig(level=getattr(logging, args.loglevel), format="%(asctime)-15s %(message)s")
+        logging.basicConfig(level=getattr(logging, args.loglevel), format=args.logformat )
         np.set_printoptions(precision=4, suppress=True)
         self.args = args
- 
+
+
     def _make_parser(self, doc):
         parser = argparse.ArgumentParser(doc)
 
         defaults = OrderedDict()
         defaults['loglevel'] = "INFO"
+        defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
         defaults['geometry'] = os.environ.get('DAE_NAME',None)
         defaults['nodes'] = "0:"
         defaults['threads_per_block'] = 64
         defaults['max_blocks'] = 1024     # larger max_blocks reduces the number of separate launches, and increasing launch time (BEWARE TIMEOUT)
 
         defaults['block'] = "16,16,1"
-        defaults['launch'] = "2,3,1"
+        defaults['launch'] = "3,2,1"
+        defaults['max_time'] = 2
+        defaults['metric'] = None
 
         defaults['max_alpha_depth'] = 10
-        defaults['alpha_depth'] = 3
+        defaults['alpha_depth'] = 10
         defaults['size'] = "1024,768"
         defaults['kernel'] = "render_pbo"
         defaults['kernel_flags'] = "0,0"
@@ -88,12 +92,16 @@ class Config(object):
         defaults['view'] = "A"
 
         parser.add_argument( "-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
+        parser.add_argument(      "--logformat",help="%(default)s")  
         parser.add_argument( "-g","--geometry", help="Path to geometry file", type=str  )
         parser.add_argument( "-n","--nodes", help="Specification of geometry nodes", type=str  )
         parser.add_argument( "-t","--threads-per-block", help="", type=int  )
 
         parser.add_argument(      "--block", help="String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
         parser.add_argument(      "--launch", help="String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
+        warn = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
+        parser.add_argument(      "--max-time", help="Maximum time in seconds for kernel launch, if exceeded subsequent launches are ABORTed " + warn , type=float )
+        parser.add_argument(      "--metric", help="One of time/node/intersect/tri or default None", type=str  )
 
         parser.add_argument(      "--max-alpha-depth", help="", type=int  )
         parser.add_argument( "-a","--alpha-depth", help="", type=int  )
