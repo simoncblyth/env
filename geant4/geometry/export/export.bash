@@ -23,7 +23,14 @@ Notable Exports
   * N:/data1/env/local/env/geant4/geometry/export/VGDX_20140414-1149/g4_00.dae
   * http://dayabay.phys.ntu.edu.tw/downloads/VGDX_20140414-1149-g4_00.dae
 
+Export Environment Setup
+--------------------------
 
+Following nuwa integration changes need to use DYBX installation "geant4_with_dae" for this
+otherwise the export runs without error but no exports happen, as preprocessor not enabled in the 
+compile of standard installation
+
+ 
 ACTION CONTROLLED BY ENVVARS
 ------------------------------
 
@@ -123,14 +130,25 @@ export-prep(){
    # controlling argument quoting is tedious, so slip in the arguments via envvar 
    export G4DAE_EXPORT_SITE="$site"
    export G4DAE_EXPORT_SEQUENCE="$arg"
-   export G4DAE_EXPORT_DIR=$(export-dir $G4DAE_EXPORT_SEQUENCE)
+   export G4DAE_EXPORT_DIR=$(export-dir ${G4DAE_EXPORT_SITE}_${G4DAE_EXPORT_SEQUENCE})
    export G4DAE_EXPORT_LOG=$G4DAE_EXPORT_DIR/export.log
    env | grep G4DAE
 }
 
-export-run(){
 
-   # first arg to -prep the rest to -args
+export-pull(){
+   [ "$NODE_TAG" != "C2R" ] && echo $msg RUN THIS ON WEBSERVER AS C2R && return
+
+   local name=${1:-DayaBay_VGDX_20140414-1149}
+   apache-
+   cd $(apache-htdocs)/downloads
+
+   mkdir -p $name
+   scp N:/data1/env/local/env/geant4/geometry/export/$name/g4_00.dae $name/g4_00.dae
+}
+
+
+export-run(){
 
    export-prep $*
    local log=$G4DAE_EXPORT_LOG
@@ -163,10 +181,10 @@ export-post(){
 }
 
 export-setup(){
-   #fenv
-   #. $DYBX/NuWa-trunk/setup.sh
-   dyb-- dybdbi   # some random pkg 
-
+  #
+   # fenv   nope these are from the standard installation
+   #
+   dyb-- dybdbi   # after setting DYB to DYBX, some random pkg 
 }
 
 
