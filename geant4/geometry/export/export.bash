@@ -10,18 +10,37 @@ EXPORT GEANT4 GEOMETRY INTO VRML, GDML AND DAE
 
 From script usage::
 
-   export.sh VGD 
-   export.sh DGV
-   export.sh VGD gdb
+   export.sh VGDX DayaBay
+   export.sh VGDX Lingao
+   export.sh VGDX Far
+
+   GDB=1 export.sh VGDX Far
 
 
 Notable Exports
 -------------------
 
-* First Far site export.
+To make exports easily accessible from multiple machines, 
+they are stored on cms02 webserver. Grab the g4_00.dae 
+from the export directory on N with::
 
-  * N:/data1/env/local/env/geant4/geometry/export/VGDX_20140414-1149/g4_00.dae
-  * http://dayabay.phys.ntu.edu.tw/downloads/VGDX_20140414-1149-g4_00.dae
+    [root@cms02 downloads]# export-pull Lingao_VGDX_20140414-1247
+
+
+Getting Exports
+-----------------
+
+Browse available exports at 
+
+* http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export/
+
+Grab with::
+
+   export-
+   export-get 
+
+
+
 
 Export Environment Setup
 --------------------------
@@ -93,14 +112,21 @@ export-dir(){
    mkdir -p $xdir
    echo $xdir
 }
-export-home(){ echo $(env-home)/geant4/geometry/export ; }
+export-home(){ echo $LOCAL_BASE/env/geant4/geometry/export ; }
 export-cd(){  cd $(export-home); }
 export-mate(){ mate $(export-dir) ; }
+export-url(){ echo http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export ; }
 export-get(){
-   local dir=$(dirname $(export-dir)) &&  mkdir -p $dir && cd $dir
+   local tag=${1:-DayaBay_VGDX_20140414-1300}
+   local tagdir=$(export-home)/$tag
+   local url=$(export-url)/$tag/$name
+   local name=g4_00.dae
 
+   [ ! -d "$tagdir" ] && mkdir -p $tagdir
+   [ -f "$tagdir/$name" ] && echo $url already downloaded to $tagdir  && return 
+
+   curl $url -o $tagdir/$name
 }
-
 
 export-grep(){ pgrep -f $(export-module) ; }
 export-kill(){ pkill -f $(export-module) ; }
