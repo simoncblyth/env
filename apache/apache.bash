@@ -128,6 +128,15 @@ Suspect maybe something hard coded wrt user nobody uid 99.  I have attempted to 
 out before, always turns out to be less effort to rsync directories to publish under htdocs.
 
 
+Long names in autoindex
+------------------------
+
+The NameWidth setting avoids truncated file/directory names in the autoindex::
+
+    IndexOptions FancyIndexing VersionSort NameWidth=* 
+
+
+
 OSX G 
 -------
 
