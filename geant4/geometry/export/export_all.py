@@ -35,8 +35,9 @@ def configure(argv=None):
     #da.Paths = [path]
 
     sitevol = dict(DayaBay="/dd/Structure/Pool/db-ows", Lingao="/dd/Structure/Pool/la-ows", Far="/dd/Structure/Pool/far-ows",)
-    site = 'DayaBay'
+    site = os.environ.get('G4DAE_EXPORT_SITE','DayaBay')
     volume = sitevol[site]
+    log.info("export_all.configure site %s volume %s " % (repr(site),repr(volume)))
 
     import GaudiKernel.SystemOfUnits as units
 

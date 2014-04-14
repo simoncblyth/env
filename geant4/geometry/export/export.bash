@@ -15,6 +15,15 @@ From script usage::
    export.sh VGD gdb
 
 
+Notable Exports
+-------------------
+
+* First Far site export.
+
+  * N:/data1/env/local/env/geant4/geometry/export/VGDX_20140414-1149/g4_00.dae
+  * http://dayabay.phys.ntu.edu.tw/downloads/VGDX_20140414-1149-g4_00.dae
+
+
 ACTION CONTROLLED BY ENVVARS
 ------------------------------
 
@@ -104,6 +113,15 @@ EOA
 
 export-prep(){
    local arg=${1:-VX}
+   shift
+   local site=${1:-DayaBay}
+   case $site in 
+     DayaBay|Dayabay|dayabay|dyb) site=DayaBay ;;
+                   Lingao|lingao) site=Lingao ;; 
+                         Far|far) site=Far ;; 
+   esac
+   # controlling argument quoting is tedious, so slip in the arguments via envvar 
+   export G4DAE_EXPORT_SITE="$site"
    export G4DAE_EXPORT_SEQUENCE="$arg"
    export G4DAE_EXPORT_DIR=$(export-dir $G4DAE_EXPORT_SEQUENCE)
    export G4DAE_EXPORT_LOG=$G4DAE_EXPORT_DIR/export.log
@@ -111,11 +129,17 @@ export-prep(){
 }
 
 export-run(){
+
+   # first arg to -prep the rest to -args
+
    export-prep $*
    local log=$G4DAE_EXPORT_LOG
    export-banner $msg writing nuwa.py output to $log
 
-   LIBC_FATAL_STDERR_=1 MALLOC_CHECK_=1 nuwa.py $(export-args)  > $log 2>&1
+   #LIBC_FATAL_STDERR_=1 MALLOC_CHECK_=1 nuwa.py $(export-args $*)  > $log 2>&1 
+
+   nuwa.py $(export-args)  > $log 2>&1
+     
 
    export-banner $msg wrote nuwa.py output to $log
    export-banner G4DAE
@@ -125,7 +149,9 @@ export-run(){
 }
 
 export-gdb(){
+
    export-prep $*
+
    local cmd="gdb $(which python) --args $(which python) $(which nuwa.py) $(export-args)"
    echo $cmd
    eval $cmd 
@@ -136,16 +162,24 @@ export-post(){
    pwd
 }
 
+export-setup(){
+   #fenv
+   #. $DYBX/NuWa-trunk/setup.sh
+   dyb-- dybdbi   # some random pkg 
+
+}
+
+
 export-main(){
-   local arg=$1
-   shift
-   local cmd=$1
-   fenv
+   export-setup
    export-cd
-   case $cmd in 
-       gdb) export-gdb $arg ;;
-         *) export-run $arg  ;;
-   esac
+
+   if [ -z "$GDB" ]; then 
+      export-run $*
+   else
+      export-gdb $*
+   fi
+
    export-post
 }
 

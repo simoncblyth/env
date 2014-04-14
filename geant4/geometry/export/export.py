@@ -16,7 +16,9 @@ Based on opw/fmcpmuon.py from David Jaffe,
 
 
 """
-import os
+import os, logging
+log = logging.getLogger(__name__)
+
 def configure(argv=None):
     
     #if argv:
@@ -27,6 +29,8 @@ def configure(argv=None):
     #from XmlDetDescChecks.XmlDetDescChecksConf import XddDumpAlg
     #da = XddDumpAlg()
     #da.Paths = [path]
+
+    log.info("export.configure %s " % repr(argv))
 
     sitevol = dict(DayaBay="/dd/Structure/Pool/db-ows", Lingao="/dd/Structure/Pool/la-ows", Far="/dd/Structure/Pool/far-ows",)
     site = 'DayaBay'
