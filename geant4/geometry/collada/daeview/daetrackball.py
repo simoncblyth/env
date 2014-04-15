@@ -4,6 +4,9 @@ import math
 import numpy as np
 import glumpy as gp  
 from glumpy.trackball import _q_add, _q_normalize, _q_rotmatrix, _v_cross, _v_sub, _v_length, _q_from_axis_angle
+from daeutil import translate_matrix
+
+
 #from OpenGL.GL import GLfloat
 
 # **Keep this for maintaining attitude, avoid anymore OpenGL usage**
@@ -120,8 +123,20 @@ class DAETrackball(gp.Trackball):
 
 
     def _get_xyz(self):
-        return np.array([self._x, self._y, self._z])    # remove z sign flip
+        return np.array([self._x, self._y, self._z])   
     xyz = property(_get_xyz)
+
+    def _get_translate(self):
+        return translate_matrix(self.xyz)   
+    translate = property(_get_translate)
+
+    def _get_untranslate(self):
+        return translate_matrix(-self.xyz) 
+    untranslate = property(_get_untranslate)
+
+    def _get_rotation(self):
+        return np.array( self._matrix, dtype=float).reshape(4,4).T   # transposing to match GL_MODELVIEW
+    rotation = property(_get_rotation)
 
 
     def drag_to (self, x, y, dx, dy):

@@ -106,80 +106,6 @@ class DAEViewpoint(object):
         return reduce(np.dot, [ self.camera2world.matrix, iscale, camera.pixel2camera ])
 
 
-    def modelview_matrix(self, trackball, kscale ):
-        """
-        Objects are transformed from **world** space to **eye** space using GL_MODELVIEW matrix, 
-        as daeviewgl regards model spaces as just input parameter conveniences
-        that OpenGL never gets to know about those.  
-
-        So need to invert MODELVIEW and apply it to the origin (eye position in eye space)
-        to get world position of eye.  Can then convert that into model position.  
-
-        Motivation:
-
-           * determine effective view point (eye,look,up) after trackballing around
-
-        The MODELVIEW sequence of transformations in daeframehandler in OpenGL reverse order, 
-        defines exactly what the trackball output means::
-
-            kscale = self.camera.kscale
-            distance = view.distance
-            gl.glScalef(1./kscale, 1./kscale, 1./kscale)   
-            gl.glTranslate ( *trackball.xyz )       # former adhoc 1000. now done internally in trackball.translatefactor
-            gl.glTranslate ( 0, 0, -distance )      # shunt back, eye back to origin                   
-            gl.glMultMatrixf (trackball._matrix )   # rotation around "look" point
-            gl.glTranslate ( 0, 0, +distance )      # look is at (0,0,-distance) in eye frame, so here we shunt to the look
-            glu.gluLookAt( *view.eye_look_up )      # NB no scaling, still world distances, eye at origin and point -Z at look
-
-        To get the unproject to dump OpenGL modelview matrix, touch a pixel.
-
-        * http://stackoverflow.com/questions/4964101/pep-3118-warning-when-using-ctypes-array-as-numpy-array
-
-
-        Using nomenclature
-
-        #. **eye frame** is trackballed and **down scaled** and corresponds to GL_MODELVIEW 
-        #. **camera frame** is just from eye, look, up
-
-        #. this means eye frame distance between eye and look needs to be down scaled
-
-        """
-        distance = self.distance       # eye frame translation along -Z
-
-        world2camera = self.world2camera.matrix
-
-        to_look   = translate_matrix((0,0, distance)) 
-
-        # RuntimeWarning: Item size computed from the PEP 3118 buffer format string does not match the actual item size
-        trackball_rot = np.array( trackball._matrix, dtype=float).reshape(4,4).T   # transposing to match GL_MODELVIEW
-        from_look = translate_matrix((0,0,  -distance)) 
-        trackball_tra = translate_matrix(trackball.xyz)   # trackball.xyz 3-element np array
-
-        down_scale = scale_matrix( 1./kscale )
-
-        transforms = [down_scale, trackball_tra, from_look, trackball_rot, to_look, world2camera ]
-        world2eye = reduce(np.dot, transforms)
-
-
-
-        up_scale = scale_matrix( kscale )
-        camera2world = self.camera2world.matrix
-        trackball_itra = translate_matrix(-trackball.xyz) 
- 
-        itransforms = [  camera2world, from_look, trackball_rot.T, to_look, trackball_itra, up_scale ]
-        eye2world = reduce(np.dot, itransforms )
-
-        #check = np.dot( eye2world, world2eye )
-        #assert np.allclose( check, np.identity(4) ), check   # close, but not close enough in translate column
-
-        #if 0:
-        #    print "world2eye\n%s " % world2eye 
-        #    print "eye2world\n%s " % eye2world 
-        #    print "check \n%s" % check
-
-        return world2eye, eye2world
-
-
     def offset_eye_look_up(self, trackball, kscale ):
         """
         :param trackball: DAETrackball instance
@@ -238,7 +164,13 @@ class DAEViewpoint(object):
         needs some scaling to be usable in model frame.
 
         """
-        world2eye, eye2world = self.modelview_matrix( trackball, kscale ) 
+
+        world2eye = self.transform.world2eye
+        eye2world = self.transform.eye2world
+
+        assert np.allclose(world2eye, world2eye_1) 
+        assert np.allclose(eye2world, eye2world_1) 
+ 
 
         log.info("world2eye \n%s" % str(world2eye))
         log.info("eye2world \n%s" % str(eye2world))
@@ -376,7 +308,17 @@ class DAEViewpoint(object):
     next_view = property(lambda self:None)      
 
 
-    def _get_distance(self):
+    def _get_translate_eye2look(self):
+        """eye frame translation from eye to look position"""
+        return translate_matrix((0,0,   self.distance)) 
+    translate_eye2look = property(_get_translate_eye2look)
+
+    def _get_translate_look2eye(self):
+        """eye frame translation from look to eye position"""
+        return translate_matrix((0,0,  -self.distance)) 
+    translate_look2eye = property(_get_translate_look2eye)
+
+    def _get_distance(self):   # hmm could use invariant here 
         model2world = self.model2world
         eye = model2world(self._eye)
         look = model2world(self._look)

@@ -11,6 +11,7 @@ from daeinterpolateview import DAEInterpolateView
 from daeviewpoint import DAEViewpoint
 from daeutil import Transform
 from daelights import DAELights
+from daetransform import DAETransform
 
 # do not import anything that would initialize CUDA context here, for CUDA_PROFILE control from config
  
@@ -62,6 +63,17 @@ class DAEScene(object):
 
         # Image processor, None if not --with-cuda-image-processor
         self.processor = self.make_processor( config ) 
+
+        # transform holds references to all relevant state-holders and is available to all
+        transform = DAETransform( self ) 
+        self.camera.transform = transform
+        self.trackball.transform = transform
+        self.view.transform = transform
+
+        if not self.raycaster is None:
+            self.raycaster.transform = transform
+
+        self.transform = transform
 
         # selected solids
         self.solids = []
