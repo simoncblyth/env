@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 import logging, math
 log = logging.getLogger(__name__)
@@ -92,121 +91,6 @@ class DAEViewpoint(object):
     # NB the input parameters to the transforms are world coordinates
     world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
     camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
-
-    def pixel2world_matrix(self, camera ):
-        """ 
-        Provides pixel2world matrix that transforms pixel coordinates like (0,0,0,1) or (1023,767,0,1)
-        into corresponding world space locations at the near plane for the current camera and view. 
-
-        Unclear where best to implement this : needs camera, view  and kscale
-
-        TODO: accomodate trackball offsets, so can raycast without being homed on a view
-        """
-        iscale = scale_matrix( camera.kscale )        # it will be getting scaled down so have to scale it up, annoyingly 
-        return reduce(np.dot, [ self.camera2world.matrix, iscale, camera.pixel2camera ])
-
-
-    def offset_eye_look_up(self, trackball, kscale ):
-        """
-        :param trackball: DAETrackball instance
-        :return: model frame coordinates of offset eye, look, up  position
-
-        Original eye of the view is semi-fixed.
-        Trackball translations do not change the view instance eye.
-
-        Prior approaches to trackball handling that caused confusion
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        #. treating trackball.xyz as an offset
-        #. treating trackball.xyz as an absolute position to be transformed
-     
-        Testing using only the simple special case of translations in the gaze line
-        (Z panning backwards) was highly misleading as several incorrect treatments 
-        worked for this case but not in general.
-
-        Successful treatment:
-
-        #. consider trackball as a source of translation and rotation transforms
-           NOT as providing a coordinate to be transformed 
-        #. work with entire MODELVIEW transform sequence at once rather than 
-           attempting to operate with partial sequences
-
-        Testing trackball pan conversion to model position
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
-        Standard position to debug from with a wide view 
-        and remote command to move view around numerically::
-
-            daeviewgl.py -t 8005 --with-chroma --cuda-profile --near 0.5 --size 640,480
-            udp.py --eye=10,10,10
-            udp.py --eye=15.5,-6.5,30.2   
-            # remote commands change the base view, 
-            # so must home the trackball for correspondence with what you see
-                 
-        #. use remote command to set position `udp.py --eye=10,0,0` (this will home the trackball and change the view)
-        #. check the scene "where" position in title bar (after "SC") and eye position (after "e") are the same   
-        #. use trackball pan controls (eg spacebar drag down) to move in +Z_eye direction, the SC position should 
-           update while the base e position stays fixed, for example ending at SC 20,0,0 and e 10,0,0
-        #. issue another remote command, which homes the trackball and sets the view to the 
-           SC position `udp.py --eye=20,0,0` there should be no visual jump and the
-           base view position  `e 20,0,0` should now match, as have homed
-
-
-        Remaining mysteries
-        ~~~~~~~~~~~~~~~~~~~~ 
-
-        #. Using (0,0,-d,1) with `d=self.distance` for the look point 
-           leads to crazy look positions after trackballing around, 
-           whereas just using (0,0,-1,1) doesnt
-
-
-        Confusion between frames. distance is expressed in world frame units, it
-        needs some scaling to be usable in model frame.
-
-        """
-
-        world2eye = self.transform.world2eye
-        eye2world = self.transform.eye2world
-
-        assert np.allclose(world2eye, world2eye_1) 
-        assert np.allclose(eye2world, eye2world_1) 
- 
-
-        log.info("world2eye \n%s" % str(world2eye))
-        log.info("eye2world \n%s" % str(eye2world))
-
-        #eye2world_1 = np.linalg.inv(world2eye)
-        #assert np.allclose( eye2world_1, eye2world )
-
-        eye2model = np.dot( self.world2model.matrix, eye2world ) 
-
-        eye_distance = self.distance / kscale
-        # canonical eye/look/up in the eye frame, which stays valid by definition
-        eye_look_up_eye = np.vstack([[0,0,0,1],[0,0,-eye_distance,1],[0,eye_distance,0,0]]).T  # eye frame
-        log.info("eye_look_up_eye \n%s" % str(eye_look_up_eye))
-
-        eye_look_up_model = eye2model.dot(eye_look_up_eye)                                        # model frame
-
-        log.info("eye_look_up_model \n%s" % str(eye_look_up_model))
-
-        return np.split( eye_look_up_model.T.flatten(), 3 )
-
-
-    def offset_where(self, trackball, kscale ):
-
-        eye, look, up = self.offset_eye_look_up( trackball, kscale ) 
-
-        s_ = lambda name:"--%(name)s=%(fmt)s" % dict(fmt="%s",name=name) 
-        fff_ = lambda name:"--%(name)s=\"%(fmt)s,%(fmt)s,%(fmt)s\"" % dict(fmt="%5.1f",name=name) 
-
-        return   " ".join(map(lambda _:_.replace(" ",""),[
-                         s_("target") % self.target,
-                         fff_("eye")  % tuple(eye[:3]), 
-                         fff_("look") % tuple(look[:3]), 
-                         fff_("up")   % tuple(up[:3]),
-                         fff_("norm") % tuple([np.linalg.norm(eye[:3]), np.linalg.norm(look[:3]), np.linalg.norm(up[:3])]),
-                          ])) 
-
 
 
     def change_eye_look_up(self, eye=None, look=None, up=None):
@@ -327,6 +211,9 @@ class DAEViewpoint(object):
     distance = property(_get_distance, doc="distance from eye to look" )
 
     def _get_eye_look_up(self):
+        """
+        NB this is viewpoint initial eye, look, up not the dynamically updating one as trackball around
+        """
         model2world = self.model2world
         eye = model2world(self._eye)
         look = model2world(self._look)
@@ -335,6 +222,9 @@ class DAEViewpoint(object):
     eye_look_up = property(_get_eye_look_up, doc="9 element array containing eye, look, up in world frame coordinates" )
 
     def _get_eye_look_up_model(self):
+        """
+        NB this is viewpoint initial eye, look, up not the dynamically updating one as trackball around
+        """
         return np.vstack([np.append(self._eye,1),np.append(self._look,1),np.append(self._up,0)])
     eye_look_up_model = property(_get_eye_look_up_model, doc="3x4 element array containing eye, look, up in homogenous model frame coordinates" )
 
@@ -413,19 +303,6 @@ class DummySolid(object):
     extent = 100.
     index = 1
 
-
-
-def test_0():
-
-    pixel2camera = camera.pixel2camera
-    camera2world = view.camera2world.matrix
-    pixel2world = np.dot( camera2world, pixel2camera )
-
-    corners = np.array(camera.pixel_corners.values())
-
-    worlds  = np.dot( corners, pixel2world.T )
-    worlds2 = np.dot( pixel2world, corners.T ).T   
-    assert np.allclose( worlds, worlds2 )
 
 
 

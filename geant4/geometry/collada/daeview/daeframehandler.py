@@ -149,13 +149,13 @@ class DAEFrameHandler(object):
         lights = self.scene.lights
         distance = self.scene.view.distance
         camera = self.scene.camera
+        transform = self.scene.transform
         lrbtnf = camera.lrbtnf
         kscale = camera.kscale          
 
         if self.scene.markers:
             self.illustrate.frustum( view, lrbtnf*kscale )
-            pixel2world = view.pixel2world_matrix( camera )
-            self.illustrate.raycast( pixel2world, view.eye, camera ) 
+            self.illustrate.raycast( transform.pixel2world, view.eye, camera ) 
 
         if self.scene.light:
             lights.position()   # reset positions following changes to MODELVIEW matrix ?

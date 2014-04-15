@@ -153,13 +153,10 @@ class DAEScene(object):
         self.raycast_flags = flags
 
     def __repr__(self):
-        return "SC " + self.view_state
-
-    view_state = property(lambda self:self.view.offset_where( self.trackball, self.camera.kscale ))
-    camera_state = property(lambda self:str(self.camera))
+        return "SC " + str(self.transform) 
 
     def __str__(self):
-        return " ".join([self.view_state, self.camera_state]) 
+        return " ".join(map(str,[self.transform, self.camera])) 
 
     def where(self):
         print str(self)

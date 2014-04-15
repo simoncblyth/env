@@ -75,8 +75,8 @@ class DAERaycaster(object):
 
         renderer = self.renderer
 
-        renderer.origin = view.eye
-        renderer.pixel2world = view.pixel2world_matrix( camera )
+        renderer.origin = self.transform.eye
+        renderer.pixel2world = self.transform.pixel2world
         renderer.flags = flags
 
         renderer.render(alpha_depth=self.config.args.alpha_depth, max_time=self.config.args.max_time)
