@@ -135,6 +135,14 @@ class DAEViewpoint(object):
 
         * http://stackoverflow.com/questions/4964101/pep-3118-warning-when-using-ctypes-array-as-numpy-array
 
+
+        Using nomenclature
+
+        #. **eye frame** is trackballed and **down scaled** and corresponds to GL_MODELVIEW 
+        #. **camera frame** is just from eye, look, up
+
+        #. this means eye frame distance between eye and look needs to be down scaled
+
         """
         distance = self.distance       # eye frame translation along -Z
 
@@ -147,16 +155,18 @@ class DAEViewpoint(object):
         from_look = translate_matrix((0,0,  -distance)) 
         trackball_tra = translate_matrix(trackball.xyz)   # trackball.xyz 3-element np array
 
-        scale = scale_matrix( 1./kscale )
+        down_scale = scale_matrix( 1./kscale )
 
-        transforms = [scale, trackball_tra, from_look, trackball_rot, to_look, world2camera ]
+        transforms = [down_scale, trackball_tra, from_look, trackball_rot, to_look, world2camera ]
         world2eye = reduce(np.dot, transforms)
 
-        iscale = scale_matrix( kscale )
+
+
+        up_scale = scale_matrix( kscale )
         camera2world = self.camera2world.matrix
         trackball_itra = translate_matrix(-trackball.xyz) 
  
-        itransforms = [  camera2world, from_look, trackball_rot.T, to_look, trackball_itra, iscale ]
+        itransforms = [  camera2world, from_look, trackball_rot.T, to_look, trackball_itra, up_scale ]
         eye2world = reduce(np.dot, itransforms )
 
         #check = np.dot( eye2world, world2eye )
@@ -224,16 +234,28 @@ class DAEViewpoint(object):
            whereas just using (0,0,-1,1) doesnt
 
 
+        Confusion between frames. distance is expressed in world frame units, it
+        needs some scaling to be usable in model frame.
+
         """
         world2eye, eye2world = self.modelview_matrix( trackball, kscale ) 
+
+        log.info("world2eye \n%s" % str(world2eye))
+        log.info("eye2world \n%s" % str(eye2world))
 
         #eye2world_1 = np.linalg.inv(world2eye)
         #assert np.allclose( eye2world_1, eye2world )
 
         eye2model = np.dot( self.world2model.matrix, eye2world ) 
 
-        eye_look_up_eye = np.concatenate([[0,0,0,1],[0,0,-1,1],[0,1,0,0]]).reshape(3,4).T  # eye frame
+        eye_distance = self.distance / kscale
+        # canonical eye/look/up in the eye frame, which stays valid by definition
+        eye_look_up_eye = np.vstack([[0,0,0,1],[0,0,-eye_distance,1],[0,eye_distance,0,0]]).T  # eye frame
+        log.info("eye_look_up_eye \n%s" % str(eye_look_up_eye))
+
         eye_look_up_model = eye2model.dot(eye_look_up_eye)                                        # model frame
+
+        log.info("eye_look_up_model \n%s" % str(eye_look_up_model))
 
         return np.split( eye_look_up_model.T.flatten(), 3 )
 
@@ -242,11 +264,11 @@ class DAEViewpoint(object):
 
         eye, look, up = self.offset_eye_look_up( trackball, kscale ) 
 
-        i_ = lambda name:"--%(name)s=%(fmt)s" % dict(fmt="%d",name=name) 
+        s_ = lambda name:"--%(name)s=%(fmt)s" % dict(fmt="%s",name=name) 
         fff_ = lambda name:"--%(name)s=\"%(fmt)s,%(fmt)s,%(fmt)s\"" % dict(fmt="%5.1f",name=name) 
 
         return   " ".join(map(lambda _:_.replace(" ",""),[
-                         i_("target") % self.index,
+                         s_("target") % self.target,
                          fff_("eye")  % tuple(eye[:3]), 
                          fff_("look") % tuple(look[:3]), 
                          fff_("up")   % tuple(up[:3]),
@@ -370,6 +392,15 @@ class DAEViewpoint(object):
         return np.concatenate([eye[:3],look[:3],up[:3]])
     eye_look_up = property(_get_eye_look_up, doc="9 element array containing eye, look, up in world frame coordinates" )
 
+    def _get_eye_look_up_model(self):
+        return np.vstack([np.append(self._eye,1),np.append(self._look,1),np.append(self._up,0)])
+    eye_look_up_model = property(_get_eye_look_up_model, doc="3x4 element array containing eye, look, up in homogenous model frame coordinates" )
+
+    def _get_eye_look_up_world(self):
+        return self.model2world.matrix.dot( self.eye_look_up_model.T ).T 
+    eye_look_up_world = property(_get_eye_look_up_world, doc="3x4 element array containing eye, look, up in homogenous world frame coordinates" )
+
+
     def __repr__(self):
         """
         Express vecs in the shortest form, similar to human input style
@@ -441,16 +472,8 @@ class DummySolid(object):
     index = 1
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    #check_solid()
 
-    from daecamera import DAECamera  
-    camera = DAECamera()
-
-    solid = DummySolid()
-    view = DAEViewpoint( (0,2,0), (0,0,0), (0,0,1), solid, "")  
-    print view
+def test_0():
 
     pixel2camera = camera.pixel2camera
     camera2world = view.camera2world.matrix
@@ -461,6 +484,21 @@ if __name__ == '__main__':
     worlds  = np.dot( corners, pixel2world.T )
     worlds2 = np.dot( pixel2world, corners.T ).T   
     assert np.allclose( worlds, worlds2 )
+
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    #check_solid()
+
+    from daecamera import DAECamera  
+    camera = DAECamera()
+
+    solid = DummySolid()
+    view = DAEViewpoint( (-2,0,0), (0,0,0), (0,0,1), solid, "")  
+    print view
+    print view.eye_look_up_model
+    print view.eye_look_up_world
 
 
 
