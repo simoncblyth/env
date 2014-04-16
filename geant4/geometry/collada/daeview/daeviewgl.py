@@ -175,7 +175,7 @@ Division of concerns
 
 
 """
-import os, logging, socket
+import os, sys, logging
 log = logging.getLogger(__name__)
 
 import glumpy as gp  
@@ -186,13 +186,15 @@ from daescene import DAEScene
 from daeinteractivityhandler import DAEInteractivityHandler
 from daeframehandler import DAEFrameHandler
 
+
 from env.cuda.cuda_launch import CUDACheck
 
 
 def main():
-
     config = DAEConfig(__doc__)
     config.init_parse()
+    #log.info("%s" % " ".join(sys.argv))
+    print config.address_info()
     config.report()
    
     if config.args.cuda_profile: 
@@ -209,13 +211,13 @@ def main():
     frame = figure.add_frame(size=config.frame)
 
     scene = DAEScene(geometry, config )
-    scene.dump() 
 
     vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=config.rgba)
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
 
     frame_handler = DAEFrameHandler( frame, mesh, scene )
     fig_handler = DAEInteractivityHandler(figure, frame_handler, scene, config  )
+    frame_handler.fig_handler = fig_handler
 
 
     gp.show()

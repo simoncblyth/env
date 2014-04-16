@@ -40,10 +40,10 @@ class DAEScene(object):
         self.trackball = trackball
   
         # view
-        self.view = self.change_view( args.target , prior=None)
+        self.view = self.target_view( args.target , prior=None)
         if args.jump:
             self.view = self.interpolate_view(args.jump)
-        log.info("DAEScene ctor view\n%s" % self.view.smry())
+        log.debug("DAEScene ctor view\n%s" % self.view.smry())
 
         # camera
         kscale = 1. if self.scaled_mode else config.args.kscale
@@ -59,7 +59,6 @@ class DAEScene(object):
 
         # Chroma raycaster, None if not --with-chroma
         self.raycaster = self.make_raycaster( config, geometry ) 
-        self.raycast_flags = (0,0)
 
         # Image processor, None if not --with-cuda-image-processor
         self.processor = self.make_processor( config ) 
@@ -75,9 +74,8 @@ class DAEScene(object):
 
         self.transform = transform
 
-        # selected solids
-        self.solids = []
-
+        self.solids = []    # selected solids
+        self.bookmarks = {} # bookmarked viewpoints
 
     def resize(self, size):
         self.camera.resize(size)
@@ -85,7 +83,6 @@ class DAEScene(object):
             self.processor.resize(size)
         if self.raycaster is not None:
             self.raycaster.resize(size)
-
 
     def make_raycaster(self, config, geometry ):
         if not config.args.with_chroma:return None
@@ -123,7 +120,7 @@ class DAEScene(object):
         self.markers = args.markers
         self.raycast = args.raycast and args.with_chroma 
         # 
-        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","markers")  # animate raycast, cuda have separate handling
+        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","markers")  # animate, raycast, cuda have separate handling
 
     def toggle(self, name):
         setattr( self, name , not getattr(self, name)) 
@@ -149,29 +146,34 @@ class DAEScene(object):
     def animation_speed(self, factor ):   
         self.speed *= factor
 
-    def set_raycast_flags(self, flags):   
-        self.raycast_flags = flags
-
     def __repr__(self):
         return "SC " + str(self.transform) 
-        #return "SC " 
 
     def __str__(self):
         return " ".join(map(str,[self.transform, self.camera])) 
 
     def where(self):
         print str(self)
-        self.clicked_point( self.transform.eye )
+        eye = self.transform.eye[:3] 
+        solids = self.containing_solids( eye )
+        log.info("solids containing eye point %s " % repr(eye))   
+        print "\n".join(map(repr,solids))
+
+    def containing_solids(self, xyz ):
+        """
+        Find solids that contain the world frame coordinates argument,  
+        sorted by extent.
+        """
+        indices = self.geometry.find_bbox_solid( xyz )
+        solids = sorted([self.geometry.solids[_] for _ in indices],key=lambda _:_.extent) 
+        return solids
 
     def clicked_point(self, click, target_mode ):
         """
         :param click: world frame xyz 
 
-        Find solids that contain the click coordinates,  
-        sorted by extent.
         """ 
-        indices = self.geometry.find_bbox_solid( click )
-        solids = sorted([self.geometry.solids[_] for _ in indices],key=lambda _:_.extent) 
+        solids = self.containing_solids( click )
         self.solids = solids
 
         if len(solids) == 0:
@@ -184,7 +186,8 @@ class DAEScene(object):
         newview = None
         if target_mode:
             log.info("as target mode changing view to the new solid, index %s " % picked_solid.index )
-            newview = self.change_view( picked_solid.index , prior=None )
+            newview = self.target_view( picked_solid.index , prior=None )
+            self.transform.equivalent_eye_look_up( picked_solid )
 
         if newview is None:
             log.debug("view unchanged by clicked_point")
@@ -205,9 +208,10 @@ class DAEScene(object):
 
         newview = None
         elu = {}
+        raycast_config = {}
         for k,v in vars(live_args).items():
             if k == "target":
-                newview = self.change_view(v, prior=self.view ) 
+                newview = self.target_view(v, prior=self.view ) 
             elif k == "jump":
                 newview = self.interpolate_view(v) 
             elif k == "ajump":
@@ -218,10 +222,12 @@ class DAEScene(object):
                 self.toggle_cuda() 
             elif k in self.toggles:
                 self.toggle(k)
-            elif k in ("eye","look","up") :
+            elif k in ("launch","block","flags",):
+                raycast_config[k] = ivec_(v)
+            elif k in ("max_time","alpha_depth","allsync",):
+                raycast_config[k] = v
+            elif k in ("eye","look","up"):
                 elu[k] = v
-            #elif k == "kscale":
-            #    self.kscale = kscale
             elif k in ("kscale","near","far","yfov","nearclip","farclip","yfovclip"):
                 setattr(self.camera, k, v )
             elif k in ("translatefactor","trackballradius"):
@@ -235,19 +241,29 @@ class DAEScene(object):
             log.debug("view unchanged by external message")
         else:
             log.info("view changed by external message")
-            self.view = newview
+            self.update_view(newview)
+
+        if len(raycast_config)>0:
+            if self.raycast:
+                self.raycaster.reconfig(**raycast_config)
+            else:
+                log.warn("cannot reconfig raycaster without init option --with-chroma ")
+            pass
 
         if len(elu) > 0:
             log.info("home-ing trackball and changing parameters of existing view %s " % repr(elu)) 
             self.trackball.home()
             self.view.current_view.change_eye_look_up( **elu )
- 
 
-    def change_view(self, tspec, prior=None):
-        log.info("change_view tspec[%s]" % tspec  )
+
+    def update_view(self, newview ):
         self.trackball.home()
+        self.view = newview
+
+    def target_view(self, tspec, prior=None):
+        log.info("target_view tspec[%s]" % tspec  )
         return DAEViewpoint.make_view( self.geometry, tspec, self.config.args, prior=prior )
-     
+
     def interpolate_view(self, jspec, append=False):
         self.trackball.home()
         views  = self.view.views if append else [self.view.current_view]
@@ -262,13 +278,22 @@ class DAEScene(object):
         pass
         return interpolateview
 
+    def bookmark(self, numkey):
+        viewmark = self.bookmarks.get(numkey,None)
+        if viewmark is None:
+            log.info("storing bookmark for key %s " % numkey )
+            viewmark = self.transform.spawn_view()
+            print str(self.transform)
+            self.bookmarks[numkey] = viewmark
+        else:
+            log.info("retrieving bookmark for key %s " % numkey )
+            self.update_view(viewmark) 
+         
     def dump(self):
         print "view\n", self.view
         print "trackball\n", self.trackball
 
-    def bookmark(self):
-        log.info("bookmark") 
-        print self.view.current_view
+
 
 
 if __name__ == '__main__':

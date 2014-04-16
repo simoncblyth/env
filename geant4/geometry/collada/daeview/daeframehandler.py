@@ -222,7 +222,8 @@ class DAEFrameHandler(object):
                 self.scene.processor.display() 
 
         if self.scene.raycast:
-            self.scene.raycaster.render( view, camera, self.scene.raycast_flags ) 
+            self.scene.raycaster.render() 
+            self.fig_handler.retitle()   # for raycast times to appear in title immediately 
  
         self.frame.unlock()
 

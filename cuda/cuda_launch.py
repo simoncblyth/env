@@ -261,13 +261,21 @@ class Launch2D(Launch):
 
     iterator = property(lambda self:launch_iterator_2d(self.work, self.launch, self.block))
 
+    def reconfig(self, **kwa):
+        for qty in ('launch','block',):
+            if qty in kwa:
+                setattr(self, qty, kwa[qty])
+            pass 
+        pass
+        # work can be changed with resize
+
     def _present(self):
         def present_launch( (launch_index, work_count, offset, grid, block)):
             return "launch_index %s work_count %s offset %-20s " % ( launch_index, work_count, offset,  ) + "    ".join(["grid",rep_(grid), "block",rep_(block)])
         return map(present_launch, self.iterator)
     present = property(_present) 
 
-    __repr__ = lambda self:self.__class__.__name__ + " " + " ".join(["%s %s" % _ for _ in zip("work launch block".split(),map(rep_,(self.work,self.launch,self.block)))])
+    __repr__ = lambda self:" ".join(["%s %s" % _ for _ in zip("wrk lch blk".split(),map(rep_,(self.work,self.launch,self.block)))])
 
 
 

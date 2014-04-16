@@ -78,22 +78,30 @@ class PBORenderer(object):
         self.pixels = pixels
         self.config = config
 
-        #launch = Launch1D( pixels.size, threads_per_block=config.args.threads_per_block, max_blocks=config.args.max_blocks )
         launch = Launch2D( work=pixels.size, launch=config.launch, block=config.block )
         self.launch = launch
         self.cudacheck = getattr(config, 'cudacheck', None)
+        self.times = []
 
         self.gpu_geometry = GPUGeometry( chroma_geometry )
 
+        self._alpha_depth = None
         self._offset = None
         self._flags = None
         self._size = None
         self._origin = None
         self._pixel2world = None
 
+        # non-GPU resident constants  
+        self.max_time = config.args.max_time
+        self.allsync = config.args.allsync
+
         template_vars = None if config.args.metric is None else (('metric',config.args.metric),) 
         self.compile_kernel(template_vars=template_vars)
-        self.initialize_constants()
+        self.initialize_gpu_constants()
+
+    def __repr__(self):
+        return repr(self.launch) + " " + ",".join(map(lambda _:"%.2f" % _, self.times))  
 
     def resize(self, size):
         log.debug("PBORenderer resize %s " % repr(size))
@@ -101,13 +109,22 @@ class PBORenderer(object):
         self.size = size              # setter copies to device
         self.launch.resize(size)
 
-    def initialize_constants(self):
+    def reconfig(self, **kwa):
+        self.launch.reconfig(**kwa) 
+
+        # mix of non-gpu and gpu residents 
+        for qty in ("max_time","allsync","flags","alpha_depth",):
+            if qty in kwa:
+                setattr(self,qty,kwa[qty])
+
+    def initialize_gpu_constants(self):
         """
         # these setters copy to GPU device __constant__ memory
         """
         self.offset = (0,0)
         self.size = self.pixels.size
-        self.flags = self.config.kernel_flags
+        self.flags = self.config.flags
+        self.alpha_depth = self.config.args.alpha_depth
 
         if hasattr(self.config, 'eye'): 
             self.origin = self.config.eye
@@ -123,6 +140,7 @@ class PBORenderer(object):
         """
         module = get_cu_module('render_pbo.cu', options=cuda_options, template_vars=template_vars)
 
+        self.g_alpha_depth  = module.get_global("g_alpha_depth")[0]  
         self.g_offset  = module.get_global("g_offset")[0]  
         self.g_flags   = module.get_global("g_flags")[0]  
         self.g_size   = module.get_global("g_size")[0]  
@@ -130,14 +148,32 @@ class PBORenderer(object):
         self.g_pixel2world = module.get_global("g_pixel2world")[0]  
 
         kernel = module.get_function(self.config.args.kernel)
-        kernel.prepare("iPP")
+        kernel.prepare("PP")
 
         self.kernel = kernel
 
 
+    def _get_max_time(self):
+        return self._max_time
+    def _set_max_time(self, max_time):
+        assert max_time <= 4.5
+        self._max_time = max_time
+    max_time = property(_get_max_time, _set_max_time)
+
+
+    def _get_alpha_depth(self):
+        return self._alpha_depth
+    def _set_alpha_depth(self, alpha_depth):
+        if alpha_depth == self._alpha_depth:return
+        assert alpha_depth <= self.config.args.max_alpha_depth
+        self._alpha_depth = alpha_depth
+        cuda.memcpy_htod(self.g_alpha_depth, np.uint32(alpha_depth))
+    alpha_depth = property(_get_alpha_depth, _set_alpha_depth) 
+
     def _get_offset(self):
         return self._offset 
     def _set_offset(self, offset):
+        if offset == self._offset:return
         self._offset = offset
         cuda.memcpy_htod(self.g_offset,         ga.vec.make_int2(*offset))
     offset = property(_get_offset, _set_offset) 
@@ -145,6 +181,7 @@ class PBORenderer(object):
     def _get_flags(self):
         return self._flags 
     def _set_flags(self, flags):
+        if flags == self._flags:return
         self._flags = flags
         cuda.memcpy_htod(self.g_flags,         ga.vec.make_int2(*flags))
     flags = property(_get_flags, _set_flags) 
@@ -152,6 +189,7 @@ class PBORenderer(object):
     def _get_size(self):
         return self._size 
     def _set_size(self, size):
+        if size == self._size:return
         self._size = size
         cuda.memcpy_htod(self.g_size,         ga.vec.make_int2(*size))
     size = property(_get_size, _set_size) 
@@ -159,6 +197,7 @@ class PBORenderer(object):
     def _get_origin(self):
         return self._origin
     def _set_origin(self, origin):
+        #if origin == self._origin:return
         self._origin = origin
         cuda.memcpy_htod(self.g_origin,       ga.vec.make_float4(*origin))
     origin = property(_get_origin, _set_origin) 
@@ -166,51 +205,48 @@ class PBORenderer(object):
     def _get_pixel2world(self):
         return self._pixel2world
     def _set_pixel2world(self, pixel2world):
+        #if pixel2world == self._pixel2world:return
         self._pixel2world = pixel2world
         cuda.memcpy_htod(self.g_pixel2world,  np.float32(pixel2world))
     pixel2world = property(_get_pixel2world, _set_pixel2world) 
 
- 
-    def render(self, alpha_depth=3, max_time=2):
-        """
-        :param alpha_depth:
-        """
-        assert alpha_depth <= self.config.args.max_alpha_depth
-        assert max_time <= 4.5
-        log.info("render %s " % repr(self.launch))
 
+
+    def render(self):
+        #log.info("render %s " % repr(self.launch))
         pbo_mapping = self.pixels.cuda_pbo.map()
 
-        args = [ np.uint32(alpha_depth), 
-                 pbo_mapping.device_ptr(),
-                 self.gpu_geometry.gpudata ]
+        args = [ pbo_mapping.device_ptr(), self.gpu_geometry.gpudata ]
 
         times = []
         abort = False
         for launch, work, offset, grid, block in self.launch.iterator:
-            #print "launch %s work %s offset %s grid %s block %s " % (launch, work, str(offset), str(grid), str(block))
             self.offset = offset 
             if abort:
                 t = -1
             else:
                 get_time = self.kernel.prepared_timed_call( grid, block, *args )
                 t = get_time()
-                if t > max_time:
+                if t > self.max_time:
                     abort=True
-                    log.warn("kernel launch time %s > max_time %s  , ABORTING RENDER " % (t, max_time) )
+                    log.warn("kernel launch time %s > max_time %s  , ABORTING RENDER " % (t, self.max_time) )
             times.append(t)
-            if self.config.args.allsync:
+            if self.allsync:
                 cuda.Context.synchronize()  
             pass
         pass
+
         cuda.Context.synchronize()  # OMITTING THIS SYNC CAN CAUSE AN IRRECOVERABLE GUI FREEZE
         pbo_mapping.unmap()
+
+        times.append(sum(times))
+        self.times = times
 
         if self.cudacheck is not None:
             self.cudacheck.parse_profile()
             self.cudacheck.compare_with_launch_times(times, self.launch)
         else:  
-            log.info("launch times %s " % " ".join(map(lambda _:"%8.4f" % _, times )))
+            log.info(repr(self))
 
 
 if __name__ == '__main__':

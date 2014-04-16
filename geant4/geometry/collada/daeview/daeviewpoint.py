@@ -61,7 +61,7 @@ class DAEViewpoint(object):
     eye  = property(lambda self:self.model2world(self._eye))
     look = property(lambda self:self.model2world(self._look))
     up   = property(lambda self:self.model2world(self._up,w=0.))
- 
+
     def __init__(self, _eye, _look, _up, solid, target ):
         """
         :param eye: model frame camera position, typically (1,1,0) or similar
@@ -69,6 +69,8 @@ class DAEViewpoint(object):
         :param up: model frame up, often (0,0,1)
         :param solid: DAESolid(DAEMesh) instance, a set of fixed vertices (world frame)
         :param target: string identifier for the solid
+
+        The solid defines the coordinate frame in which eye,look,up are expressed
         """
         _eye, _look, _up = ensure_not_collinear( _eye, _look, _up )
         pass  
@@ -79,16 +81,17 @@ class DAEViewpoint(object):
 
         pass
         # the below are fixed for the view, cannot change the solid associated with a Viewpoint
-        self.model2world = solid.model2world
-        self.world2model = solid.world2model
-
-        self.extent = solid.extent  
-        self.index = solid.index
         self.solid = solid
         self.target = target  # informational
         pass
 
     # NB the input parameters to the transforms are world coordinates
+    index = property(lambda self:self.solid.index)
+    extent = property(lambda self:self.solid.extent)
+    model2world = property(lambda self:self.solid.model2world)
+    world2model = property(lambda self:self.solid.world2model)
+
+
     world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
     camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
 
@@ -152,6 +155,10 @@ class DAEViewpoint(object):
             up = pfvec_(velem[3], up )
 
         return target, eye, look, up
+
+
+
+
 
     @classmethod
     def make_view(cls, geometry, vspec, args, prior=None ):

@@ -7,6 +7,7 @@ import os, sys, logging
 from collections import OrderedDict 
 log = logging.getLogger(__name__)
 from glumpy.window import key
+number_keys = (key._0,key._1,key._2,key._3,key._4,key._5,key._6,key._7,key._8,key._9,)
 
 from daedispatcher import DAEDispatcher
 from daeviewport import DAEViewport
@@ -34,9 +35,9 @@ class DAEKeys(object):
         
         key["**"] = "--- viewing ---"
         key[""] = "default action without any key pressed, mouse/trackpad movement rotates around the *look* position" 
-        key["SPACE"] = "z-translate, while pressed mouse/trackpad movement translates in screen Z in/out direction" 
-        key["2finger"] = "2-finger click trackpad and drag, a non-modal alternative for SPACE z translation"
-        key["TAB"] = "xy-translate, while pressed mouse/trackpad movement translates x,y (left-right,up-down)"
+        key["Z"] = "z-translate, while pressed mouse/trackpad movement translates in screen Z in/out direction, modifiers SHIFT and/or OPTION speed up movement " 
+        key["2finger"] = "2-finger click trackpad and drag, a non-modal alternative for Z translation"
+        key["X"] = "xy-translate, while pressed mouse/trackpad movement translates x,y (left-right,up-down), modifiers SHIFT and/or OPTION speed up movement "
         key["N"] = "near, while pressed, mouse/trackpad movement changes near clipping plane "
         key["A"] = "far,while pressed, mouse/trackpad movement changes far clipping plane "
         key["Y"] = "yfov, while pressed, mouse/trackpad movement changes field of view angle "
@@ -70,6 +71,7 @@ class DAEInteractivityHandler(object):
         self.fig = fig
         self.frame_handler = frame_handler
         self.dragfactor = config.args.dragfactor
+        self.modfactor = 1
         self.fps = 0
         self.scene = scene
         self.viewport = DAEViewport(map(int,config.args.size.split(",")))
@@ -107,14 +109,16 @@ class DAEInteractivityHandler(object):
         dispatcher.push_handlers(self)   # get event notification from dispatcher
 
     def _get_title(self):
-        return " ".join(map(repr,[
+        rdr = self.scene.raycaster.renderer if self.scene.raycast else None
+        return " ".join(map(repr,filter(None,[
+                     rdr,
                      self.scene.transform,
                      self.scene.view,
                      self.scene.camera,
              #       self.frame_handler,
              #       self.scene.trackball,
                      self,
-                     ]))
+                     ])))
     title = property(_get_title)     
 
     def redraw(self):
@@ -142,6 +146,7 @@ class DAEInteractivityHandler(object):
         self.scene.resize((width, height))
 
     def on_draw(self):
+        #log.info("interactivity on_draw")
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
 
     def exit(self):
@@ -151,10 +156,16 @@ class DAEInteractivityHandler(object):
     def usage(self):
         print str(self.keys)
 
+
+    dragmode = property(lambda self:self.zoom_mode or self.pan_mode or self.near_mode or self.far_mode or self.yfov_mode) 
+
+
     def on_key_press(self, symbol, modifiers):
+        """
+        """
         if   symbol == key.ESCAPE: self.exit()
-        elif symbol == key.SPACE: self.zoom_mode = True
-        elif symbol == key.TAB: self.pan_mode = True
+        elif symbol == key.Z: self.zoom_mode = True
+        elif symbol == key.X: self.pan_mode = True
         elif symbol == key.N: self.near_mode = True
         elif symbol == key.A: self.far_mode = True
         elif symbol == key.Y: self.yfov_mode = True
@@ -167,7 +178,6 @@ class DAEInteractivityHandler(object):
         elif symbol == key.H: self.scene.trackball.home()
         elif symbol == key.W: self.scene.where()
         elif symbol == key.U: self.usage()
-        elif symbol == key.B: self.scene.bookmark()
         elif symbol == key.L: self.scene.toggle("line")
         elif symbol == key.F: self.scene.toggle("fill")
         elif symbol == key.T: self.scene.toggle("transparent")
@@ -178,15 +188,28 @@ class DAEInteractivityHandler(object):
         elif symbol == key.M: self.scene.toggle_animate()
         elif symbol == key.C: self.scene.toggle_cuda()
         elif symbol == key.R: self.scene.toggle_raycast()
+        elif symbol in number_keys:self.scene.bookmark(symbol-key._0)
+        elif symbol is None:
+            log.warn("on_key_press getting None symbol modifiers %s " % modifiers )
         else:
-            pass
             print "no action for on_key_press with symbol 0x%x modifiers %s " % ( symbol, modifiers )
-        pass 
+        pass
+        if self.dragmode:
+
+            modfactor = 1
+            if modifiers & key.MOD_SHIFT:
+               modfactor *= 2
+            if modifiers & key.MOD_ALT:
+               modfactor *= 2
+
+            self.modfactor = modfactor
+            #print "dragmode modifiers %s modfactor %s " % (key.modifiers_string(modifiers), self.modfactor)
+ 
         self.redraw()
 
     def on_key_release(self,symbol, modifiers):
-        if   symbol == key.SPACE: self.zoom_mode = False
-        elif symbol == key.TAB: self.pan_mode = False
+        if   symbol == key.Z: self.zoom_mode = False
+        elif symbol == key.X: self.pan_mode = False
         elif symbol == key.N: self.near_mode = False
         elif symbol == key.A: self.far_mode = False
         elif symbol == key.Y: self.yfov_mode = False
@@ -195,13 +218,14 @@ class DAEInteractivityHandler(object):
             pass
             #print "no action for on_key_release with symbol 0x%x " % symbol
         pass
+        self.modfactor = 1
         self.redraw()
 
     def on_mouse_drag(self,_x,_y,_dx,_dy,button):
 
         width = float(self.viewport.width)
         height = float(self.viewport.height)
-        dragfactor = self.dragfactor 
+        dragfactor = self.modfactor * self.dragfactor 
 
         x  = dragfactor*(_x*2.0 - width)/width
         dx = dragfactor*(2.*_dx)/width
@@ -248,7 +272,7 @@ class DAEInteractivityHandler(object):
         if t-t0 > 5.0:
             fps = float(frames)/(t-t0)
             self.fps = fps
-            print 'FPS: %.2f (%d frames in %.2f seconds)' % (fps, frames, t-t0)
+            #print 'FPS: %.2f (%d frames in %.2f seconds)' % (fps, frames, t-t0)
             frames,t0 = 0, t
         pass
         self.frame_handler.tick(dt)

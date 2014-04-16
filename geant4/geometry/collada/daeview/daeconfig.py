@@ -23,12 +23,22 @@ TODO: live parsing of negative toggles is non-intuitive, maybe add reverse ones 
 
 
 """
-import os, sys, logging, math
+import os, sys, logging, math, socket
 import argparse
 from collections import OrderedDict
 import numpy as np
 
 log = logging.getLogger(__name__)
+
+
+def address():
+    """
+    Not a general solution, but working for me 
+
+    http://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
+    """
+    return socket.gethostbyname(socket.gethostname())
+
 
 class ArgumentParserError(Exception): pass
 class ThrowingArgumentParser(argparse.ArgumentParser):
@@ -43,7 +53,7 @@ class DAEConfig(object):
     size = property(lambda self:ivec_(self.args.size))
     block=property(lambda self:ivec_(self.args.block))
     launch=property(lambda self:ivec_(self.args.launch))
-    kernel_flags=property(lambda self:ivec_(self.args.kernel_flags))
+    flags=property(lambda self:ivec_(self.args.flags))
 
     frame = property(lambda self:fvec_(self.args.frame))
     rgba = property(lambda self:fvec_(self.args.rgba))
@@ -86,7 +96,7 @@ class DAEConfig(object):
     def live_parse(self, cmdline):
         live_args = None           
         try:
-            live_args = self.live_parser.parse_args(cmdline.split(" "))
+            live_args = self.live_parser.parse_args(cmdline.lstrip().rstrip().split(" "))
         except ArgumentParserError, e:
             log.info("ArgumentParserError %s while parsing %s " % (e, cmdline)) 
         pass
@@ -137,6 +147,10 @@ class DAEConfig(object):
         args = self.args
         return "--nodes %s --near %s --far %s --yfov %s --target %s --eye %s --look %s --up %s" % (args.nodes, args.near, args.far, args.yfov, args.target, args.eye, args.look, args.up )
 
+    def address_info(self):
+        return "\n".join(["address %s " % address(),
+                          "UDP host:port %s:%s " % (self.args.host, self.args.port)])
+
     def _make_base_parser(self, doc):
         """
         Base parser handles arguments/options that 
@@ -177,7 +191,7 @@ class DAEConfig(object):
         defaults['path'] = os.environ['DAE_NAME']
         defaults['nodes']="3153:12230"
         parser.add_argument(     "--path",    help="Path of geometry file  %(default)s",type=str)
-        parser.add_argument("-n","--nodes",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
+        parser.add_argument("-g","--nodes",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
 
         defaults['size']="1440,852"
         defaults['frame'] = "1,1"
@@ -227,14 +241,14 @@ class DAEConfig(object):
         defaults['cuda'] = False
         defaults['raycast'] = False
         parser.add_argument( "--cuda",      action="store_true", help="[I] Start in cuda mode." )
-        parser.add_argument( "--raycast",   action="store_true", help="[I] Raycast" )
+        parser.add_argument( "-r","--raycast",   action="store_true", help="[I] Raycast" )
 
         # kernel code
         defaults['kernel'] = "render_pbo"
-        defaults['kernel_flags'] = "0,0"
-        defaults['metric'] = None
+        defaults['flags'] = "0,0"
+        defaults['metric'] = "time"
         parser.add_argument( "--kernel", help="", type=str )
-        parser.add_argument( "--kernel-flags", help="g_flags constant provided to kernel, used for thread time presentation eg try 20,0  ", type=str  )
+        parser.add_argument( "--flags", help="[I] g_flags constant provided to kernel, used for thread time presentation eg try 20,0  ", type=str  )
         parser.add_argument( "--metric", help="One of time/node/intersect/tri or default None", type=str  )
 
         # kernel launch config, transitioning from 1D to 2D
@@ -244,16 +258,16 @@ class DAEConfig(object):
         defaults['launch'] = "3,2,1"        # 2D
         parser.add_argument( "--threads-per-block", help="", type=int )
         parser.add_argument( "--max-blocks", help="", type=int )
-        parser.add_argument( "--block", help="String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
-        parser.add_argument( "--launch", help="String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
+        parser.add_argument( "--block", help="[I] String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
+        parser.add_argument( "--launch", help="[I] String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
 
         # kernel params and how launched
         defaults['max_time'] = 2  ; MAX_TIME_WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
         defaults['allsync'] = True
         defaults['alpha_depth'] = 10
-        parser.add_argument( "--allsync",   action="store_true", help="" )
-        parser.add_argument( "--alpha-depth", help="Chroma Raycaster alpha_depth", type=int )
-        parser.add_argument( "--max-time", help="Maximum time in seconds for kernel launch, if exceeded subsequent launches are ABORTed " + MAX_TIME_WARN , type=float )
+        parser.add_argument( "--allsync",   help="[I] always CUDA sync after each launch", action="store_true" )
+        parser.add_argument( "--alpha-depth", help="[I] Chroma Raycaster alpha_depth", type=int )
+        parser.add_argument( "--max-time", help="[I] Maximum time in seconds for kernel launch, if exceeded subsequent launches are ABORTed " + MAX_TIME_WARN , type=float )
 
         # camera
         defaults['near'] = 30.     
@@ -262,7 +276,7 @@ class DAEConfig(object):
         defaults['nearclip'] = "0.0001,1000."
         defaults['farclip'] = "1,100000."
         defaults['yfovclip'] = "1.,179."
-        parser.add_argument("--near",      help="[I] Initial near in mm. %(default)s", type=float)
+        parser.add_argument("-n","--near",      help="[I] Initial near in mm. %(default)s", type=float)
         parser.add_argument("--far",       help="[I] Initial far in mm. %(default)s", type=float)
         parser.add_argument("--yfov",      help="[I] Initial vertical field of view in degrees. %(default)s", type=float)
         parser.add_argument("--nearclip",  help="[I] Allowed range for near. %(default)s", type=str )

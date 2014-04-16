@@ -5,6 +5,7 @@ import logging
 log = logging.getLogger(__name__)
 from glumpy.window import event
 
+
 class DAEDispatcher(event.EventDispatcher):
     """
     http://www.pyglet.org/doc/programming_guide/creating_your_own_event_dispatcher.html
@@ -27,7 +28,7 @@ class DAEDispatcher(event.EventDispatcher):
         self.sock.bind((host,int(port)))
 
     def __repr__(self):
-        return "%s %s:%s" % ( self.__class__.__name__, self.host, self.port )
+        return "%s %s:%s " % ( self.__class__.__name__, self.host, self.port )
 
     def update(self):
         try:

@@ -13,7 +13,7 @@ import logging, math
 log = logging.getLogger(__name__)
 import numpy as np
 from daeutil import printoptions, WorldToCamera, CameraToWorld, Transform, translate_matrix, scale_matrix
-
+from daeviewpoint import DAEViewpoint
 
 
 class DAETransform(object):
@@ -199,6 +199,21 @@ class DAETransform(object):
         elu_model = self.eye2model.dot(self.eye_look_up_eye)
         return np.split( elu_model.T.flatten(), 3 )
     eye_look_up_model = property(_get_eye_look_up_model) 
+
+
+    def _get_eye_look_up_world(self):
+        return self.eye2world.dot(self.eye_look_up_eye)
+    eye_look_up_world = property(_get_eye_look_up_world) 
+
+    def equivalent_eye_look_up(self, other ):
+        pass
+        elu = self.eye_look_up_world
+        other_elu = other.world2model.matrix.dot(elu)
+        log.info("equivalent_eye_look_up %s\n%s\n" % (str(other),str(other_elu)))
+
+    def spawn_view(self):
+        eye, look, up = self.eye_look_up_model
+        return DAEViewpoint( eye[:3], look[:3], up[:3], self.scene.view.solid, self.scene.view.target )
 
     def __str__(self):
 
