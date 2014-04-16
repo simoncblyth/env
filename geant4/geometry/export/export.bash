@@ -119,13 +119,17 @@ export-url(){ echo http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export ; }
 export-get(){
    local tag=${1:-DayaBay_VGDX_20140414-1300}
    local tagdir=$(export-home)/$tag
-   local url=$(export-url)/$tag/$name
    local name=g4_00.dae
+   local url=$(export-url)/$tag/$name
 
    [ ! -d "$tagdir" ] && mkdir -p $tagdir
    [ -f "$tagdir/$name" ] && echo $url already downloaded to $tagdir  && return 
 
-   curl $url -o $tagdir/$name
+   local cmd="curl $url -o $tagdir/$name"
+   echo $msg $cmd
+   eval $cmd
+
+   ls -l $tagdir
 }
 
 export-grep(){ pgrep -f $(export-module) ; }

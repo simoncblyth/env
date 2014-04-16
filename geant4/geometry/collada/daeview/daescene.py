@@ -154,12 +154,14 @@ class DAEScene(object):
 
     def __repr__(self):
         return "SC " + str(self.transform) 
+        #return "SC " 
 
     def __str__(self):
         return " ".join(map(str,[self.transform, self.camera])) 
 
     def where(self):
         print str(self)
+        self.clicked_point( self.transform.eye )
 
     def clicked_point(self, click, target_mode ):
         """

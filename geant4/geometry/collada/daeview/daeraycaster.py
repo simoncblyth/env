@@ -61,7 +61,7 @@ class DAERaycaster(object):
         log.info("created PBORenderer " )
 
     def resize(self, size ):
-        log.info("DAERaycaster resize %s " % repr(size))
+        log.debug("DAERaycaster resize %s " % repr(size))
         if self.size == size:return
         self.pixels.resize(size)           
         self.renderer.resize(size)

@@ -233,7 +233,7 @@ class DAEViewpoint(object):
     eye_look_up_world = property(_get_eye_look_up_world, doc="3x4 element array containing eye, look, up in homogenous world frame coordinates" )
 
 
-    def __repr__(self):
+    def elu(self):
         """
         Express vecs in the shortest form, similar to human input style
         """
@@ -246,8 +246,10 @@ class DAEViewpoint(object):
                 return fmt % _
         def brief_(v):
             return ",".join(map(nfmt,v[0:3]))
+        return "e %s l %s d %.2f" % (brief_(self._eye), brief_(self._look), self.distance  )  
 
-        return "V %s/%s %.2f e %s l %s d %.2f" % (self.target, self.index, self.extent, brief_(self._eye), brief_(self._look), self.distance  )  
+    def __repr__(self):
+        return "V %s/%s x %.2f d %.2f" % (self.target, self.index, self.extent, self.distance  )  
 
     def smry(self):
         eye, look, up = np.split(self.eye_look_up,3)

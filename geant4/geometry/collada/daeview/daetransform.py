@@ -18,7 +18,7 @@ from daeutil import printoptions, WorldToCamera, CameraToWorld, Transform, trans
 
 class DAETransform(object):
     def __init__(self, scene ):
-        self.view = scene.view
+        self.scene = scene       # NB do not make a copy of view instance reference, as it may change, always grab via scene.view 
         self.camera = scene.camera
         self.trackball = scene.trackball
         self.kscale = scene.camera.kscale 
@@ -72,17 +72,17 @@ class DAETransform(object):
         """
         return reduce(np.dot, [self.downscale, 
                                self.trackball.translate, 
-                               self.view.translate_look2eye,   # (0,0,-distance)
+                               self.scene.view.translate_look2eye,   # (0,0,-distance)
                                self.trackball.rotation, 
-                               self.view.translate_eye2look,   # (0,0,+distance)
-                               self.view.world2camera.matrix ])
+                               self.scene.view.translate_eye2look,   # (0,0,+distance)
+                               self.scene.view.world2camera.matrix ])
     world2eye = property(_get_world2eye)   # this matches GL_MODELVIEW
   
     def _get_eye2world(self):
-        return reduce(np.dot, [self.view.camera2world.matrix, 
-                               self.view.translate_look2eye, 
+        return reduce(np.dot, [self.scene.view.camera2world.matrix, 
+                               self.scene.view.translate_look2eye, 
                                self.trackball.rotation.T, 
-                               self.view.translate_eye2look, 
+                               self.scene.view.translate_eye2look, 
                                self.trackball.untranslate, 
                                self.upscale])
     eye2world = property(_get_eye2world)
@@ -92,11 +92,11 @@ class DAETransform(object):
     eye = property(_get_eye)
 
     def _get_eye2model(self):
-        return reduce(np.dot, [self.view.world2model.matrix,
-                               self.view.camera2world.matrix, 
-                               self.view.translate_look2eye, 
+        return reduce(np.dot, [self.scene.view.world2model.matrix,
+                               self.scene.view.camera2world.matrix, 
+                               self.scene.view.translate_look2eye, 
                                self.trackball.rotation.T, 
-                               self.view.translate_eye2look, 
+                               self.scene.view.translate_eye2look, 
                                self.trackball.untranslate, 
                                self.upscale])
     eye2model = property(_get_eye2model)
@@ -105,7 +105,7 @@ class DAETransform(object):
         """
         #. it will be getting scaled down so have to scale it up, annoyingly 
         """
-        return reduce(np.dot, [self.view.camera2world.matrix, 
+        return reduce(np.dot, [self.scene.view.camera2world.matrix, 
                                self.upscale, 
                                self.camera.pixel2camera])
     pixel2world_notrackball = property(_get_pixel2world_notrackball)
@@ -115,10 +115,10 @@ class DAETransform(object):
         Provides pixel2world matrix that transforms pixel coordinates like (0,0,0,1) or (1023,767,0,1)
         into corresponding world space locations at the near plane for the current camera and view. 
         """
-        return reduce(np.dot, [self.view.camera2world.matrix, 
-                               self.view.translate_look2eye, 
+        return reduce(np.dot, [self.scene.view.camera2world.matrix, 
+                               self.scene.view.translate_look2eye, 
                                self.trackball.rotation.T, 
-                               self.view.translate_eye2look, 
+                               self.scene.view.translate_eye2look, 
                                self.trackball.untranslate, 
                                self.upscale, 
                                self.camera.pixel2camera])
@@ -135,7 +135,7 @@ class DAETransform(object):
            * only the distance between `eye` and `look` can change
 
         """
-        eye_distance = self.view.distance / self.kscale
+        eye_distance = self.scene.view.distance / self.kscale
         return np.vstack([[0,0,0,1], [0,0,-eye_distance,1], [0,eye_distance,0,0]]).T  # eye frame
     eye_look_up_eye = property(_get_eye_look_up_eye) 
 
@@ -208,13 +208,15 @@ class DAETransform(object):
         fff_ = lambda name:"--%(name)s=\"%(fmt)s,%(fmt)s,%(fmt)s\"" % dict(fmt="%5.1f",name=name) 
 
         return   " ".join(map(lambda _:_.replace(" ",""),[
-                         s_("target") % self.view.target,
+                         s_("target") % self.scene.view.target,
                          fff_("eye")  % tuple(eye[:3]), 
                          fff_("look") % tuple(look[:3]), 
                          fff_("up")   % tuple(up[:3]),
-                         fff_("norm") % tuple([np.linalg.norm(eye[:3]), np.linalg.norm(look[:3]), np.linalg.norm(up[:3])]),
+                    #     fff_("norm") % tuple([np.linalg.norm(eye[:3]), np.linalg.norm(look[:3]), np.linalg.norm(up[:3])]),
                           ])) 
 
+
+    __repr__ = __str__
 
     def check_modelview(self):
         eye2world = self.eye2world        

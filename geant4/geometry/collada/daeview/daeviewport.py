@@ -21,7 +21,7 @@ class DAEViewport(object):
 
     def resize(self, size ):
         self.width, self.height = size 
-        log.info("resize %s " % self  )
+        log.debug("resize %s " % self  )
   
     #def _get_height(self):
     #    viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)

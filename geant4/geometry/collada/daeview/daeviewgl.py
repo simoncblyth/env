@@ -194,7 +194,13 @@ def main():
     config = DAEConfig(__doc__)
     config.init_parse()
     config.report()
-    config.cudacheck = CUDACheck(config)  # MUST be done before CUDA init, for setting of CUDA_PROFILE envvar 
+   
+    if config.args.cuda_profile: 
+        cudacheck = CUDACheck(config)  # MUST be done before pycuda autoinit, for setting of CUDA_PROFILE envvar 
+    else:
+        cudacheck = None
+    config.cudacheck = cudacheck
+
 
     geometry = DAEGeometry(config.args.nodes, path=config.args.path)
     geometry.flatten()

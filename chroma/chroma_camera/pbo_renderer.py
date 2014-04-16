@@ -96,7 +96,7 @@ class PBORenderer(object):
         self.initialize_constants()
 
     def resize(self, size):
-        log.info("PBORenderer resize %s " % repr(size))
+        log.debug("PBORenderer resize %s " % repr(size))
         if self.size == size:return   # getter returns cached local value
         self.size = size              # setter copies to device
         self.launch.resize(size)

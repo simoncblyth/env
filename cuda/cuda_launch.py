@@ -196,7 +196,6 @@ class CUDACheck(object):
             profile = self.profile
         else:
             log.info("times : %s " % repr(times))
-            log.warn("unexpected")
             return  
 
         assert len(profile) == nlaunch, (len(profile), nlaunch)

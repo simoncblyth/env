@@ -22,7 +22,7 @@ class DAECamera(object):
 
     def resize(self, size):
         self.size = size
-        log.info("%s resize %s " % (self.__class__.__name__, str(size) ))
+        log.debug("%s resize %s " % (self.__class__.__name__, str(size) ))
 
     aspect = property(lambda self:float(self.size[0])/float(self.size[1]))
 

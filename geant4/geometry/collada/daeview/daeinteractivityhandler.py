@@ -11,6 +11,8 @@ from glumpy.window import key
 from daedispatcher import DAEDispatcher
 from daeviewport import DAEViewport
 
+t0, frames, t = 0,0,0
+
 
 class DAEKeys(object):
     def __init__(self):
@@ -68,6 +70,7 @@ class DAEInteractivityHandler(object):
         self.fig = fig
         self.frame_handler = frame_handler
         self.dragfactor = config.args.dragfactor
+        self.fps = 0
         self.scene = scene
         self.viewport = DAEViewport(map(int,config.args.size.split(",")))
         self.keys = DAEKeys()
@@ -88,7 +91,7 @@ class DAEInteractivityHandler(object):
 
 
     def __repr__(self):
-        return "H %5.2f " % self.dragfactor
+        return "H %5.2f %5.2f " % ( self.dragfactor, self.fps )
 
     def hookup_dispatcher(self, config):
         """
@@ -105,11 +108,11 @@ class DAEInteractivityHandler(object):
 
     def _get_title(self):
         return " ".join(map(repr,[
-                     self.scene,
+                     self.scene.transform,
                      self.scene.view,
                      self.scene.camera,
-                     self.frame_handler,
-                     self.scene.trackball,
+             #       self.frame_handler,
+             #       self.scene.trackball,
                      self,
                      ]))
     title = property(_get_title)     
@@ -236,8 +239,19 @@ class DAEInteractivityHandler(object):
         print 'Mouse scroll (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)   # none of these
 
     def on_idle(self, dt):
+        """
+        Hmm giving crazy high fps, because normally no updates/redrawing happen
+        """
+        global t, t0, frames
+        t += dt
+        frames = frames + 1 
+        if t-t0 > 5.0:
+            fps = float(frames)/(t-t0)
+            self.fps = fps
+            print 'FPS: %.2f (%d frames in %.2f seconds)' % (fps, frames, t-t0)
+            frames,t0 = 0, t
+        pass
         self.frame_handler.tick(dt)
-
 
 
 if __name__ == '__main__':
