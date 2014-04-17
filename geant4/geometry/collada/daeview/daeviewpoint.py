@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 import logging, math
 log = logging.getLogger(__name__)
 import numpy as np
@@ -94,6 +94,19 @@ class DAEViewpoint(object):
 
     world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
     camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
+
+
+    def change_solid(self, solid ):
+        """
+        :param solid: DAESolid instance
+
+        Changing solid is a drastic action for a DAEViewpoint, it means a jump
+        of frames of reference from the old to the new solid entailing a change
+        to every item of state of the viewpoint, while retaining the same 
+        visual impression.
+        """
+        pass
+        raise Exception("using transform from Viewpoint would be confusing")
 
 
     def change_eye_look_up(self, eye=None, look=None, up=None):
@@ -258,15 +271,15 @@ class DAEViewpoint(object):
     def __repr__(self):
         return "V %s/%s x %.2f d %.2f" % (self.target, self.index, self.extent, self.distance  )  
 
-    def smry(self):
+    def __str__(self):
         eye, look, up = np.split(self.eye_look_up,3)
         with printoptions(precision=3, suppress=True, strip_zeros=False):
             return "\n".join([
-                    "%s " % self.__class__.__name__,
-                    "p_eye  %s eye  %s " % (eye,  self._eye),
-                    "p_look %s look %s " % (look, self._look),
-                    "p_up   %s up   %s " % (up,   self._up),
-                     self.solid.smry(),
+                    "%s (non-trackballed world elu)" % self.__class__.__name__,
+                    "eye  %s _eye  %s " % (eye,  self._eye),
+                    "look %s _look %s " % (look, self._look),
+                    "up   %s _up   %s " % (up,   self._up),
+            #         self.solid.smry(),
                       ])
 
 

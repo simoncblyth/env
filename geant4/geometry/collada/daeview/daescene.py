@@ -43,7 +43,6 @@ class DAEScene(object):
         self.view = self.target_view( args.target , prior=None)
         if args.jump:
             self.view = self.interpolate_view(args.jump)
-        log.debug("DAEScene ctor view\n%s" % self.view.smry())
 
         # camera
         kscale = 1. if self.scaled_mode else config.args.kscale
@@ -168,26 +167,30 @@ class DAEScene(object):
         solids = sorted([self.geometry.solids[_] for _ in indices],key=lambda _:_.extent) 
         return solids
 
+
+    def pick_solid(self, click):
+        solids = self.containing_solids( click )
+        self.solids = solids
+        if len(solids) == 0:
+            log.warn("clicked_point %s found no containing solids : how did you manage that ?" % repr(click) )
+            return None
+        pass
+        log.info("pick_solid selects %s solids smallest \n%s" % ( len(self.solids), solids[0] ))
+        return solids[0]
+
     def clicked_point(self, click, target_mode ):
         """
         :param click: world frame xyz 
 
+        In target mode this jumps to a new view of clicked solid, from a default viewpoint.  
+        This is jarring as usually does not match the viewpoint from which the click was made.
         """ 
-        solids = self.containing_solids( click )
-        self.solids = solids
-
-        if len(solids) == 0:
-            log.warn("clicked_point %s found no containing solids : how did you manage that ?" % repr(click) )
-            return
-
-        picked_solid = solids[0]
-        log.info("clicked_point (target_mode %s) selects %s solids smallest \n%s" % ( target_mode, len(self.solids), picked_solid ))
-
+        solid = self.pick_solid(click)
         newview = None
         if target_mode:
-            log.info("as target mode changing view to the new solid, index %s " % picked_solid.index )
-            newview = self.target_view( picked_solid.index , prior=None )
-            self.transform.equivalent_eye_look_up( picked_solid )
+            log.info("as target mode changing view to the new solid, index %s " % solid.index )
+            newview = self.target_view( solid.index , prior=None )
+            self.transform.equivalent_eye_look_up( solid )
 
         if newview is None:
             log.debug("view unchanged by clicked_point")
@@ -195,7 +198,26 @@ class DAEScene(object):
             log.info("view changed by clicked_point")
             self.view = newview
 
-
+    def create_bookmark(self, click, numkey ):
+        """
+        :param click: world frame xyz 
+        """ 
+        solid = self.pick_solid(click)
+        if solid is None:
+            log.warn("create_bookmark: key %s failed as a solid was not clicked" % numkey )
+            return
+        log.info("create_bookmark: key %s solid %s" % (numkey,solid) )
+        view = self.transform.spawn_view_jumping_frame(solid)
+        self.bookmarks[numkey] = view
+ 
+    def visit_bookmark(self, numkey):
+        view = self.bookmarks.get(numkey,None)
+        if view is None:
+            log.warn("visit_bookmark: no such bookmark %s " % numkey)
+            return
+        self.update_view(view) 
+        
+  
     def external_message(self, msg ):
         """
         """ 
@@ -278,17 +300,7 @@ class DAEScene(object):
         pass
         return interpolateview
 
-    def bookmark(self, numkey):
-        viewmark = self.bookmarks.get(numkey,None)
-        if viewmark is None:
-            log.info("storing bookmark for key %s " % numkey )
-            viewmark = self.transform.spawn_view()
-            print str(self.transform)
-            self.bookmarks[numkey] = viewmark
-        else:
-            log.info("retrieving bookmark for key %s " % numkey )
-            self.update_view(viewmark) 
-         
+        
     def dump(self):
         print "view\n", self.view
         print "trackball\n", self.trackball

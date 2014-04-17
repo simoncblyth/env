@@ -106,7 +106,7 @@ class DAEMesh(object):
         return WorldToModel(extent, center)
     world2model = property(_get_world2model)
  
-    def smry(self):
+    def __str__(self):
         lower, upper = self.bounds
         dimensions = upper - lower
         return "\n".join([
@@ -159,6 +159,7 @@ class DAESolid(DAEMesh):
     def __repr__(self):
         return "{0:6.1f} {1:-5d}  {2:s}".format(self.extent, self.index, self.id)    # py26 needs the positional indices 0,1,2    py27 doesnt 
 
+    __str__ = __repr__
        
 
 class DAEGeometry(object):

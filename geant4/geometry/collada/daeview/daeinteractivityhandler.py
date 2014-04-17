@@ -88,6 +88,8 @@ class DAEInteractivityHandler(object):
         self.far_mode = False
         self.yfov_mode = False
         self.target_mode = False
+        self.bookmark_mode = False
+        self.bookmark_key = None
         #
         if config.args.fullscreen:
             self.toggle_fullscreen()
@@ -193,11 +195,14 @@ class DAEInteractivityHandler(object):
         elif symbol == key.M: self.scene.toggle_animate()
         elif symbol == key.C: self.scene.toggle_cuda()
         elif symbol == key.R: self.scene.toggle_raycast()
-        elif symbol in number_keys:self.scene.bookmark(symbol-key._0)
+        elif symbol in number_keys:
+            self.bookmark_mode = True
+            self.bookmark_key = symbol - key._0
         elif symbol is None:
             log.warn("on_key_press getting None symbol modifiers %s " % modifiers )
         else:
-            print "no action for on_key_press with symbol 0x%x modifiers %s " % ( symbol, modifiers )
+            pass
+            print "no action for on_key_press with symbol 0x%x %s modifiers %s " % ( symbol, key.symbol_string(symbol), modifiers )
         pass
         if self.dragmode:
 
@@ -219,6 +224,13 @@ class DAEInteractivityHandler(object):
         elif symbol == key.A: self.far_mode = False
         elif symbol == key.Y: self.yfov_mode = False
         elif symbol == key.Q: self.target_mode = False
+        elif symbol in number_keys:
+            self.bookmark_mode = False
+            if self.bookmark_key is None: 
+                pass  # means just created a bookmark by virtue of mouse press, not jumping to it 
+            else:
+                self.scene.visit_bookmark(self.bookmark_key)
+            pass
         else:
             pass
             #print "no action for on_key_release with symbol 0x%x " % symbol
@@ -254,7 +266,12 @@ class DAEInteractivityHandler(object):
     def on_mouse_press(self, x, y, button):
         if button != 2:print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
         xyz = self.frame_handler.unproject(x,y)
-        self.scene.clicked_point( xyz, self.target_mode )
+        if self.bookmark_mode:
+            self.scene.create_bookmark( xyz, self.bookmark_key )
+            self.bookmark_key = None # signal that bookmark was created, thanks to the mouse press 
+        else:
+            self.scene.clicked_point( xyz, self.target_mode )
+        pass
         self.redraw()
 
     def on_mouse_release(self, x, y, button):

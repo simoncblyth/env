@@ -124,7 +124,9 @@ class DAETrackball(gp.Trackball):
 
     def _get_xyz(self):
         return np.array([self._x, self._y, self._z])   
-    xyz = property(_get_xyz)
+    def _set_xyz(self, xyz):
+        self._x, self._y, self._z = xyz
+    xyz = property(_get_xyz, _set_xyz)
 
     def _get_translate(self):
         return translate_matrix(self.xyz)   

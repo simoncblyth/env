@@ -58,6 +58,50 @@ Small things
 Issues
 --------
 
+bookmark rotation/look point
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bookmarks not capturing desired rotation "look" point. 
+It ends up in non-useful Z locations making rotation around difficult. 
+
+Steps to reproduce:
+
+#. view some simple geometry, eg a few PMTs::
+
+    daeviewgl.py -g 5000:5010 --eye=-2,-2,0 --look=0,0,0 --up=0,0,1 -n5   # defaults other than near and geometry selection
+
+#. switch on markers with "K", the look point (wireframe cube with wireframe sphere inside) 
+   will be in the middle of the geometry 
+
+#. trackball rotation will be around the look point
+
+#. trackball translate will move around independant of the look point, 
+   but subsequent rotations will still be about the look point
+   (can return home with H, zeroing trackball rotation and translation)
+
+#. rotate/translate as desired to line up some geometry of interest in the view
+
+#. create bookmark view by hitting an unused number key
+ 
+   * no change in markers yet
+
+#. press that number key again, to adopt the view
+
+   * markers shift, lining up with the geometry
+
+#. rotate around, reveals that the z of the look rotation point is not as desired
+   often ending up behind the geometry of interest (because often start with a more 
+   distant view and zero in on something of interest)
+
+Why/solution/ideas:
+
+#. "look" point using the distance from the initial view ?
+
+   * solution: combine bookmark number key press with 3D clicking as used by Q jump feature, using depth buffer
+   * this means jumping frames, need to convert eye,look,up from the originating frame into the target solid frame
+
+
+
 near/far wierdness
 ~~~~~~~~~~~~~~~~~~~~
 
