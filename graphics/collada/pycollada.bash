@@ -20,7 +20,6 @@ REQUIREMENTS
 * unittest2
 * python-dateutil 1.5(py26+)  2.0(py3)
 
-
 INSTALLS
 ---------
 
@@ -30,8 +29,6 @@ history
 #. installed on G first using "git clone" from github, made py25 backport in py25compat git branch
 #. install on N clones from local bare repo at /var/scm/git/pycollada.git  
 
-
-
 D
 ~~
 
@@ -40,8 +37,6 @@ Plain vanilla pycollada from git into chroma virtual python, with a non-sudo ins
    pycollada-get
    pycollada-build
    pycollada-install
-
-
 
 N
 ~~
@@ -61,8 +56,8 @@ C2
 #. system python 2.3.4 to old to attempt, source python 2.5.6, would need access to my py25compat git branch
 #. machine is currently network blocked, have to access via H
 
-G
-~~
+G macports python
+~~~~~~~~~~~~~~~~~~~
 
 With py25 many errors at install, but build seemed ok.  Select py26 and try again::
 
@@ -82,6 +77,12 @@ With py25 many errors at install, but build seemed ok.  Select py26 and try agai
 
     simon:~ blyth$ python -V
     Python 2.6.8
+
+::
+
+    g4pb:~ blyth$ python -c "import collada ; print collada.__file__"
+    /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pycollada-0.4-py2.6.egg/collada/__init__.pyc
+
 
 
 G system python
@@ -105,8 +106,6 @@ succeeds to get pycollada to install into system py25
      perl -pi -e 's,(except )(\S*)( as )(ex:),$1$2\,$4,' *.py 
 
      sudo ppython setup.py install
-
-
 
 
 EOU

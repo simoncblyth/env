@@ -4,7 +4,12 @@
 
 """
 import os, sys, logging
-from collections import OrderedDict 
+
+try:
+    from collections import OrderedDict 
+except ImportError:
+    OrderedDict = dict
+
 log = logging.getLogger(__name__)
 from glumpy.window import key
 number_keys = (key._0,key._1,key._2,key._3,key._4,key._5,key._6,key._7,key._8,key._9,)

@@ -25,7 +25,12 @@ TODO: live parsing of negative toggles is non-intuitive, maybe add reverse ones 
 """
 import os, sys, logging, math, socket
 import argparse
-from collections import OrderedDict
+
+try: 
+    from collections import OrderedDict
+except ImportError:
+    OrderedDict = dict
+
 import numpy as np
 
 log = logging.getLogger(__name__)
@@ -184,7 +189,6 @@ class DAEConfig(object):
 
         defaults['with_chroma'] = False
         defaults['max_alpha_depth'] = 10
-        defaults['max_time'] = 4 ; WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
         parser.add_argument( "-C","--with-chroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_true" )
         parser.add_argument(      "--max-alpha-depth", help="Chroma Raycaster max_alpha_depth", type=int )
 
@@ -262,7 +266,7 @@ class DAEConfig(object):
         parser.add_argument( "--launch", help="[I] String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
 
         # kernel params and how launched
-        defaults['max_time'] = 2  ; MAX_TIME_WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
+        defaults['max_time'] = 3.0  ; MAX_TIME_WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
         defaults['allsync'] = True
         defaults['alpha_depth'] = 10
         parser.add_argument( "--allsync",   help="[I] always CUDA sync after each launch", action="store_true" )

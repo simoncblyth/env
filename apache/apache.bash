@@ -164,6 +164,7 @@ Are back to situation where the below works::
 
    sudo apachectl stop
    sudo apachectl start
+   curl http://localhost
 
  
 EOU

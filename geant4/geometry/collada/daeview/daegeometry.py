@@ -157,8 +157,9 @@ class DAESolid(DAEMesh):
             log.debug("DAESolid Meshcheck failure %s " % self)
 
     def __repr__(self):
-        return "{:6.1f} {:-5d}  {:s}".format(self.extent, self.index, self.id)
+        return "{0:6.1f} {1:-5d}  {2:s}".format(self.extent, self.index, self.id)    # py26 needs the positional indices 0,1,2    py27 doesnt 
 
+       
 
 class DAEGeometry(object):
     def __init__(self, arg, path=None, bound=True):

@@ -20,7 +20,6 @@ simulation while it is running, then maybe glumpy can help you.
 glumpy is made on top of PyOpenGL (http://pyopengl.sourceforge.net/) 
 
 
-
 forks
 -----
 
@@ -37,7 +36,6 @@ alternatives
 #. http://www.pyqtgraph.org/
 
 
-
 installations
 --------------
 
@@ -46,9 +44,83 @@ Delta
 
 Into chroma virtualenv python (based on macports python 2.7.6)::
 
+    glumpy-get
+    cd glumpy
     python setup.py install
     ...
     Writing /usr/local/env/chroma_env/lib/python2.7/site-packages/glumpy-0.2.1-py2.7.egg-info
+
+
+G4PB
+~~~~~
+
+Into macports py26::
+
+    g4pb:~ blyth$ glumpy-
+    g4pb:~ blyth$ glumpy-get
+    Cloning into 'glumpy'...
+    remote: Counting objects: 1026, done.
+    Receiving objects: 100% (1026/1026), 4.26 MiB | 899 KiB/s, done.
+    Resolving deltas: 100% (699/699), done.
+    g4pb:glumpy blyth$ pwd
+    /usr/local/env/graphics/glumpy
+    g4pb:glumpy blyth$ cd glumpy/
+    g4pb:glumpy blyth$ which python
+    /opt/local/bin/python
+    g4pb:glumpy blyth$ sudo python setup.py install
+    ...
+    Writing /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/glumpy-0.2.1-py2.6.egg-info
+    g4pb:glumpy blyth$ 
+
+
+issue1 : undefined function glutMainLoopEvent (OSX 10.5.8 macports py26)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Kludge fix via edit to backend_glut.py
+
+::
+
+    Traceback (most recent call last):
+      File "/Users/blyth/env/bin/daeviewgl.py", line 4, in <module>
+        main()
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/env/geant4/geometry/collada/daeview/daeviewgl.py", line 223, in main
+        gp.show()
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/glumpy/window/backend_glut.py", line 58, in show
+        _window.start()
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/glumpy/window/backend_glut.py", line 591, in start
+        glut.glutMainLoopEvent()
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/OpenGL/platform/baseplatform.py", line 340, in __call__
+        self.__name__, self.__name__,
+    OpenGL.error.NullFunctionError: Attempt to call an undefined function glutMainLoopEvent, check for bool(glutMainLoopEvent) before calling
+    g4pb:~ blyth$ 
+
+glumpy/window/backend_glut.py failing in start::
+
+    585         if not self._interactive:
+    586             #glut.glutMainLoop()
+    587             while not self._stop_mainloop:
+    588                 try:
+    589                     glut.glutCheckLoop()
+    590                 except:
+    591                     glut.glutMainLoopEvent()
+    592 
+
+Uncommenting the *glut.glutMainLook()* on line 586 succeeds to get graphical view to appear::
+
+    g4pb:~ blyth$ sudo vi /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/glumpy/window/backend_glut.py +586
+
+Similar to http://code.google.com/p/glumpy/issues/detail?id=22
+
+
+issue2 : key/trackpad binding (OSX 10.5.8 macports py26)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Unable to Z/XY pan (key binding/scroll wheel?)
+
+
+
+
+
 
 
 demos

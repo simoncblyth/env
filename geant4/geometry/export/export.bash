@@ -132,6 +132,18 @@ export-get(){
    ls -l $tagdir
 }
 
+export-names-(){
+  curl -s $(export-url)/ | perl -n -e 'm,href="([-\w]*)/", && print "$1\n"' -
+}
+
+export-get-all(){
+  local name
+  export-names- | while read name ; do
+     echo name $name
+     export-get $name
+  done
+}
+
 export-grep(){ pgrep -f $(export-module) ; }
 export-kill(){ pkill -f $(export-module) ; }
 

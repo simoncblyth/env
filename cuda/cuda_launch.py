@@ -101,7 +101,12 @@ import os, logging, argparse
 log = logging.getLogger(__name__)
 
 from env.cuda.cuda_profile_parse import Parser
-from collections import OrderedDict
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    OrderedDict = dict
+
 from operator import mul
 import numpy as np
 
