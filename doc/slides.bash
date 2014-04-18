@@ -146,36 +146,50 @@ Note:
 
        <style type="text/css">
 
-          div#full-screen{
-             height: 1024px;
-             background-color: #FFF;
+         /* 
+              1282 × 960  pixels    143.99 pixels/inch  237.1 KB (242,821 bytes)     chroma_dayabay_adlid.png
+              1278 × 962  pixels    143.99 pixels/inch  433.5 KB (443,928 bytes)     chroma_dayabay_pool_pmts.png      
+
+              With "background-size: contain" and not specifying a size for the div leads 
+              to scaling being dependant on the dimensions of the div, which depend on the amount 
+              of content lines on the page, also this changes resize browser window. When
+              little content the image is scaled up into top left corner.
+
+              With "background-size: cover" and not specifying a size for the div leads 
+              to scaling to fill horizontally, but vertical chop when the content ends.
+
+              Omitting "background-size" and not specifying a size for the div get 
+              no image scaling, it appears as-is but chopped according to size of the div. 
+
+              Omitting "background-size" and specifying "div.slide { height: 100%; }"
+              gets no image scaling and image presented as-is without any chopping.  This
+              is a better approach as the per slide config is minimised to just 
+              specifying the url. 
+
+         */
+
+          div.slide { 
+             background-clip: border-box;
              background-repeat: no-repeat;
-             background-clip: border-box;
+             height: 100%;
+          }
+          div.slide#full-screen{
              background-image: url(images/chroma/chroma_dayabay_adlid.png);
-          }
-
-          div#full-screen-2{
-             height: 1024px;
+          }  
+          div.slide#full-screen-2{
              background-image: url(images/chroma/chroma_dayabay_pool_pmts.png);
-             background-clip: border-box;
-          }
-
-          div#test-server-relative-link{
-             height: 1024px;
+          }  
+          div.slide#test-server-relative-link{
              background-image: url(/env/test/LANS_AD3_CoverGas_Humidity.png);
-             background-clip: border-box;
-          }
-
-          div#test-protocol-relative-link{
-             height: 1024px;
+          }  
+          div.slide#test-protocol-relative-link{
              background-image: url(//localhost/env/test/LANS_AD3_CoverGas_Humidity.png);
-             background-clip: border-box;
-          }
-
-
+          }  
 
 
        </style>
+
+
 
        ...bulk of slides omitted...
 
