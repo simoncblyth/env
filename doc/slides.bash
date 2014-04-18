@@ -41,7 +41,7 @@ Update S5 source, regenerate html and view local html in browser::
 
     simon:presentation blyth$ open gpu_optical_photon_simulation.html
 
-To update a particular page use links like:
+To check a particular page use links like:
 
 * file:///Users/blyth/env/muon_simulation/presentation/gpu_optical_photon_simulation.html?p=18
 
@@ -86,7 +86,18 @@ Hmm, also needed to::
    cd ~/env
    make rsync 
 
-* TODO: streamline this, to many steps that have to be done in the correct order, see **eup** func on C2R
+* TODO: streamline this, too many steps that have to be done in the correct order, see **eup** func on C2R
+
+
+Streamlined Publish Approach 
+------------------------------
+
+Avoid integration with Sphinx build docs which causes the complications
+using
+
+#. *slides-apache-prepare*
+#. *slides-apache-publish*
+
 
 
 Integrate URLs of presentation HTML with Sphinx
@@ -108,6 +119,78 @@ than Sphinx RST.
 The generated S5 html and pdf are placed within the Sphinx
 build directory at the appropriate place in the tree
 corresponding to the RST sources
+
+
+Include Fullscreen Image in S5 slides ?
+----------------------------------------
+
+* https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Scaling_background_images
+* https://developer.mozilla.org/en-US/docs/Web/CSS/background
+* https://developer.mozilla.org/en-US/docs/Web/CSS/background-repeat
+
+Use raw html directive at the head of the RST source, identifying slides
+to receive background images via div#id css selectors where the id are 
+a somewhat mangled slide titles.
+
+Note:
+
+#. document relative and server relative links are usable from css
+#. protocol relative, starting "//" also works but that would mean 
+   hardcoding the sever hostname
+
+::
+
+    .. include:: <s5defs.txt>
+
+    .. raw:: html
+
+       <style type="text/css">
+
+          div#full-screen{
+             height: 1024px;
+             background-color: #FFF;
+             background-repeat: no-repeat;
+             background-clip: border-box;
+             background-image: url(images/chroma/chroma_dayabay_adlid.png);
+          }
+
+          div#full-screen-2{
+             height: 1024px;
+             background-image: url(images/chroma/chroma_dayabay_pool_pmts.png);
+             background-clip: border-box;
+          }
+
+          div#test-server-relative-link{
+             height: 1024px;
+             background-image: url(/env/test/LANS_AD3_CoverGas_Humidity.png);
+             background-clip: border-box;
+          }
+
+          div#test-protocol-relative-link{
+             height: 1024px;
+             background-image: url(//localhost/env/test/LANS_AD3_CoverGas_Humidity.png);
+             background-clip: border-box;
+          }
+
+
+
+
+       </style>
+
+       ...bulk of slides omitted...
+
+
+       Full Screen
+       ------------
+
+       Full Screen 2
+       ---------------
+
+       Content appears on top of the image, that can be difficult to read.
+
+      
+
+
 
 Convert .html pages to .pdf 
 ------------------------------
@@ -330,5 +413,40 @@ slides-rst2pdf-convert(){
   #slides-rst2pdf $name.txt -o $name.pdf
   slides-rst2pdf $name.txt -b1 -s slides.style -o $name.pdf
 }
+
+
+
+
+
+slides-apache-prepare(){
+   apache- 
+   sudo mkdir -p $(apache-htdocs)/env/$(slides-branch)
+   sudo chown -R $USER:admin $(apache-htdocs)/env
+}
+
+slides-apache-publish(){
+   local iwd=$PWD
+   local target=$(apache-htdocs)/env/$(slides-branch)
+
+   cd $(env-home)/$(slides-branch)
+
+   local cmd="cp $(slides-name).html $target/"
+   echo $cmd
+   eval $cmd
+
+   local dirs="ui images"
+   for dir in $dirs ; do 
+       cmd="cp -r $dir $target/"
+       echo $cmd
+       eval $cmd
+   done
+
+   cd $iwd
+   cmd="open http://localhost/env/$(slides-branch)/$(slides-name).html"
+   echo $cmd
+   eval $cmd
+
+}
+
 
 

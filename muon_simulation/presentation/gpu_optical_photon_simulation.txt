@@ -1,4 +1,56 @@
+
+
 .. include:: <s5defs.txt>
+
+.. raw:: html
+
+   <style type="text/css">
+
+      .slide { 
+         background-clip: border-box;
+         background-repeat: no-repeat;
+      }
+
+     /* 
+
+          1282 × 960  pixels    143.99 pixels/inch  237.1 KB (242,821 bytes)     chroma_dayabay_adlid.png
+
+          1278 × 962  pixels    143.99 pixels/inch  433.5 KB (443,928 bytes)     chroma_dayabay_pool_pmts.png      
+          
+
+          With "background-size: contain" and not specifying a size for the div leads 
+          to scaling being dependant on the dimensions of the div, which depend on the amount 
+          of content lines on the page, also this changes resize browser window. When
+          little content the image is scaled up into top left corner.
+
+          With "background-size: cover" and not specifying a size for the div leads 
+          to scaling to fill horizontally, but vertical chop when the content ends.
+
+          Omitting "background-size" and not specifying a size for the div get 
+          no image scaling, it appears as-is but chopped according to size of the div. 
+
+
+     */
+
+      div#full-screen{
+         background-image: url(images/chroma/chroma_dayabay_adlid.png);
+      }  
+
+      div#full-screen-2{
+         background-image: url(images/chroma/chroma_dayabay_pool_pmts.png);
+      }  
+
+      div#test-server-relative-link{
+         background-image: url(/env/test/LANS_AD3_CoverGas_Humidity.png);
+      }  
+
+      div#test-protocol-relative-link{
+         background-image: url(//localhost/env/test/LANS_AD3_CoverGas_Humidity.png);
+      }  
+
+
+   </style>
+
 
 ======================================================================
 200x Faster Optical Photon Propagation with NuWa + Chroma ?
@@ -329,6 +381,15 @@ GPU Access Options
       have made enquiry to Craig Tull
 
 
+Test Server Relative Link
+--------------------------
+
+
+Test Protocol Relative Link
+----------------------------
+
+
+
 NuWa + Chroma : Status along Fivefold path 
 -------------------------------------------
 
@@ -412,7 +473,29 @@ Chroma Ray Tracing Dayabay Geometry (4)
    :align: center
 
 
+Full screen
+-------------
+    
+Content of full screen slide.
 
+
+Full screen 2
+--------------
+    
+Content of full screen 2 slide.
+
+
+``NTUCC``
+      current cluster (10 nodes, 20 GPUs) CCC 1.3, upgrade to 3.0
+      scheduled for next ~Feb
+``NUU``
+      Chung Hsiang may be able to purchase a GPU card
+``NCTU``
+      Node is CCC 1.3 
+``BNL``
+      available GPU nodes are too old
+``LBNL``
+      have made enquiry to Craig Tull
 
 
 
