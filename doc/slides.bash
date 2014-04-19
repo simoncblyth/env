@@ -430,12 +430,16 @@ slides-rst2pdf-convert(){
 
 
 
-
-
 slides-apache-prepare(){
+   local msg="=== $FUNCNAME "
    apache- 
-   sudo mkdir -p $(apache-htdocs)/env/$(slides-branch)
-   sudo chown -R $USER:admin $(apache-htdocs)/env
+   local cmd="sudo mkdir -p $(apache-htdocs)/env/$(slides-branch)"
+   echo $msg $cmd
+   eval $cmd
+   local GROUP=$(id -gn)
+   cmd="sudo chown -R $USER:$GROUP $(apache-htdocs)/env"
+   echo $msg $cmd
+   eval $cmd
 }
 
 slides-apache-publish(){

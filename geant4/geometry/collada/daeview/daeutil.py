@@ -106,6 +106,7 @@ class WorldToCamera(Transform):
 class CameraToWorld(Transform):
     def __init__(self, eye, look, up):
          self.matrix = view_transform( eye, look, up, inverse=True )
+
  
 
 def view_transform( eye, look, up, inverse=False ):

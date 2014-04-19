@@ -2,6 +2,8 @@
 """
 """
 import logging, math
+from daeutil import WorldToCamera, CameraToWorld, view_transform
+
 log = logging.getLogger(__name__)
 import numpy as np
 
@@ -30,6 +32,13 @@ class DAEInterpolateView(object):
     How to change animation speed without changing position 
     in the interpolation ?
 
+
+    Chroma Raycaster is not feeling the interpolation, but OpenGL does ?
+
+    * OpenGL feels it via view.eye_look_up which is passed to gluLookAt 
+    * Raycaster only has transform.eye and transform.pixel2world which
+      depends on view.camera2world.matrix
+
     """
     interpolate = True
     def __init__(self, views):
@@ -52,6 +61,25 @@ class DAEInterpolateView(object):
     model2world = property(lambda self:self.current_view.model2world)
     world2model = property(lambda self:self.current_view.world2model)
 
+    translate_look2eye = property(lambda self:self.current_view.translate_look2eye)
+    translate_eye2look = property(lambda self:self.current_view.translate_eye2look)
+
+
+    # this fails to get raycaster to feel the interpolation
+    #camera2world = property(lambda self:self.current_view.camera2world)
+    #world2camera = property(lambda self:self.current_view.world2camera)
+
+    def _get_world2camera(self): 
+        eye,look,up = np.split(self.eye_look_up,3)
+        return view_transform( eye, look, up, inverse=False ) 
+    world2camera = property(_get_world2camera)
+
+    def _get_camera2world(self): 
+        eye,look,up = np.split(self.eye_look_up,3)
+        return view_transform( eye, look, up, inverse=True ) 
+    camera2world = property(_get_camera2world)
+
+
     def smry(self):
         return "%s klop" % (self.__class__.__name__ )
 
@@ -60,11 +88,15 @@ class DAEInterpolateView(object):
         return np.linalg.norm( look-eye)
     distance = property(_get_distance)
 
-
     def _get_eye_look_up(self):
         """Linear interpolation of two 9 element arrays """
         return (1.-self.f)*self.a + self.f*self.b
     eye_look_up = property(_get_eye_look_up)     
+
+    eye  = property(lambda self:self.eye_look_up[0:3])
+    look = property(lambda self:self.eye_look_up[3:6])
+    up  =  property(lambda self:self.eye_look_up[6:9])
+
 
     def __repr__(self):
         return " ".join([

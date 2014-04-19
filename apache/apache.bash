@@ -137,7 +137,17 @@ The NameWidth setting avoids truncated file/directory names in the autoindex::
 
 
 
-OSX G 
+OSX Mavericks 10.9.2 : D
+-------------------------
+
+* http://brianflove.com/2013/10/23/os-x-mavericks-and-apache/
+
+
+
+
+
+
+OSX : G 
 -------
 
 Claims to be loaded, but its not serving html::
@@ -385,7 +395,7 @@ EOI
 
 apache-mode-default(){
    case ${1:-$NODE_TAG} in
-         G) echo systemapple      ;;
+       G|D) echo systemapple      ;;
          K) echo systemapple      ;;
 C|N|ZZ|WW|Y1|Y2) echo system      ;;
         C2) echo source      ;;

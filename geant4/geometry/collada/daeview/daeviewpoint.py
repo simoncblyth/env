@@ -2,7 +2,8 @@
 import logging, math
 log = logging.getLogger(__name__)
 import numpy as np
-from daeutil import printoptions, WorldToCamera, CameraToWorld, Transform, translate_matrix, scale_matrix
+from daeutil import printoptions, Transform, translate_matrix, scale_matrix
+from daeutil import WorldToCamera, CameraToWorld, view_transform
 
 
 def rotate( th , axis="x"):
@@ -92,8 +93,17 @@ class DAEViewpoint(object):
     world2model = property(lambda self:self.solid.world2model)
 
 
-    world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
-    camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
+    #world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
+    #camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
+
+    def _get_world2camera(self): 
+        return view_transform( self.eye, self.look, self.up, inverse=False ) 
+    world2camera = property(_get_world2camera)
+
+    def _get_camera2world(self): 
+        return view_transform( self.eye, self.look, self.up, inverse=True ) 
+    camera2world = property(_get_camera2world)
+
 
 
     def change_solid(self, solid ):

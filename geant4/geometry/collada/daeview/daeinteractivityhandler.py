@@ -56,9 +56,12 @@ class DAEKeys(object):
 
         key["****"] = "--- misc ---"
         key["H"] = "home, resets trackball translation and rotation offsets to zero "
+        key["1-9"] = "create/visit bookmark: while pressing number key click solid to create bookmark, subsequently press number key to visit bookmark" 
+        key["0"] = "bookmark zero is added at startup for the initial viewpoint/solid "
+        key["SPACE"] = "update current bookmark: the last visited/created bookmark is updated to accomodate changed viewpoint from trackballing around "
         key["W"] = "where: write to stdout the commandline to recreate the current state of view and camera "
         key["U"] = "usage, write help text to stdout "
-        key["B"] = "bookmark: NOT YET IMPLEMENTED "
+        key["B"] = "setup bookmark interpolation view, to toggle animation use M  "
         key["G"] = "light: NOT YET IMPLEMENTED "
 
         self.key = key
@@ -119,6 +122,7 @@ class DAEInteractivityHandler(object):
         rdr = self.scene.raycaster.renderer if self.scene.raycast else None
         return " ".join(map(repr,filter(None,[
                      rdr,
+                     self.scene.bookmarks,
                      self.scene.transform,
                      self.scene.view,
                      self.scene.camera,
@@ -183,6 +187,8 @@ class DAEInteractivityHandler(object):
         elif symbol == key.LEFT: self.scene.animation_speed(0.5)
         elif symbol == key.RIGHT: self.scene.animation_speed(2.0)
         elif symbol == key.H: self.scene.trackball.home()
+        elif symbol == key.SPACE: self.scene.update_current_bookmark()
+        elif symbol == key.B: self.scene.setup_bookmark_interpolation()
         elif symbol == key.W: self.scene.where()
         elif symbol == key.U: self.usage()
         elif symbol == key.L: self.scene.toggle("line")

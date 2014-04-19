@@ -101,7 +101,8 @@ class PBORenderer(object):
         self.initialize_gpu_constants()
 
     def __repr__(self):
-        return repr(self.launch) + " " + ",".join(map(lambda _:"%.2f" % _, self.times))  
+        eye =  "%.2f,%.2f,%.2f" % tuple(self.origin[:3])
+        return eye + " " + repr(self.launch) + " " + ",".join(map(lambda _:"%.2f" % _, self.times))  
 
     def resize(self, size):
         log.debug("PBORenderer resize %s " % repr(size))

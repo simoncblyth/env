@@ -21,11 +21,11 @@ class DAEIllustrate(object):
 
         c2w = view.camera2world
 
-        eye2 = c2w([0,0,0])[:3]
+        eye2 = c2w.dot([0,0,0,1])[:3]
         if not np.allclose( eye2, eye ):
            log.warn("eye2 %s eye %s " % (str(eye2), str(eye)))
 
-        look2 = c2w([0,0,-distance])[:3]
+        look2 = c2w.dot([0,0,-distance,1])[:3]
         if not np.allclose( look2, look ):
            log.warn("look2 %s look %s " % (str(look2), str(look)))
 
@@ -81,11 +81,11 @@ class DAEIllustrate(object):
 
         def corners( z ):
             l,r,b,t = lrbtnf[:4] * z / n     # z/n ie n/n -> f/n 
-            lbz = c2w([l,b,z])[:3] 
-            rbz = c2w([r,b,z])[:3] 
-            rtz = c2w([r,t,z])[:3] 
-            ltz = c2w([l,t,z])[:3] 
-            mmz = c2w([0,0,z])[:3]  # symmetric assumption
+            lbz = c2w.dot([l,b,z,1])[:3] 
+            rbz = c2w.dot([r,b,z,1])[:3] 
+            rtz = c2w.dot([r,t,z,1])[:3] 
+            ltz = c2w.dot([l,t,z,1])[:3] 
+            mmz = c2w.dot([0,0,z,1])[:3]  # symmetric assumption
             return lbz, rbz, rtz, ltz, mmz 
 
         for z in np.linspace(n, f, num=num):

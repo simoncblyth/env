@@ -211,11 +211,6 @@ class DAEFrameHandler(object):
             gl.glDisable( gl.GL_LINE_SMOOTH )
 
 
-        self.pop() # matrices
-
-        if len(self.annotate) > 0:
-            self.text(self.annotate)
-
         if self.scene.cuda:
             if self.scene.processor is not None:
                 self.scene.processor.process() 
@@ -224,7 +219,13 @@ class DAEFrameHandler(object):
         if self.scene.raycast:
             self.scene.raycaster.render() 
             self.fig_handler.retitle()   # for raycast times to appear in title immediately 
- 
+            #self.fig_handler.redraw()   # cannot do this, leads to infinite loop/stack overflow  
+
+        self.pop() # matrices
+
+        if len(self.annotate) > 0:
+            self.text(self.annotate)
+
         self.frame.unlock()
 
 

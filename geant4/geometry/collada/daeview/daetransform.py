@@ -90,11 +90,11 @@ class DAETransform(object):
                                self.view.translate_look2eye,   # (0,0,-distance)
                                self.trackball.rotation, 
                                self.view.translate_eye2look,   # (0,0,+distance)
-                               self.view.world2camera.matrix ])
+                               self.view.world2camera ])
     world2eye = property(_get_world2eye)   # this matches GL_MODELVIEW
   
     def _get_eye2world(self):
-        return reduce(np.dot, [self.view.camera2world.matrix, 
+        return reduce(np.dot, [self.view.camera2world, 
                                self.view.translate_look2eye, 
                                self.trackball.rotation.T, 
                                self.view.translate_eye2look, 
@@ -108,7 +108,7 @@ class DAETransform(object):
 
     def _get_eye2model(self):
         return reduce(np.dot, [self.view.world2model.matrix,
-                               self.view.camera2world.matrix, 
+                               self.view.camera2world, 
                                self.view.translate_look2eye, 
                                self.trackball.rotation.T, 
                                self.view.translate_eye2look, 
@@ -120,7 +120,7 @@ class DAETransform(object):
         """
         #. it will be getting scaled down so have to scale it up, annoyingly 
         """
-        return reduce(np.dot, [self.view.camera2world.matrix, 
+        return reduce(np.dot, [self.view.camera2world, 
                                self.upscale, 
                                self.camera.pixel2camera])
     pixel2world_notrackball = property(_get_pixel2world_notrackball)
@@ -130,7 +130,7 @@ class DAETransform(object):
         Provides pixel2world matrix that transforms pixel coordinates like (0,0,0,1) or (1023,767,0,1)
         into corresponding world space locations at the near plane for the current camera and view. 
         """
-        return reduce(np.dot, [self.view.camera2world.matrix, 
+        return reduce(np.dot, [self.view.camera2world, 
                                self.view.translate_look2eye, 
                                self.trackball.rotation.T, 
                                self.view.translate_eye2look, 

@@ -19,6 +19,47 @@ from daetransform import DAETransform
 ivec_ = lambda _:map(int,_.split(","))
 fvec_ = lambda _:map(float,_.split(","))
 
+
+
+
+class DAEBookmarks(dict):
+    def __init__(self):
+        dict.__init__(self)
+        self.current = None
+
+    def __repr__(self):
+        return "".join(map(str,self.keys()))
+
+    def create_for_solid(self, solid, numkey ):
+        log.info("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
+        view = self.transform.spawn_view_jumping_frame(solid)
+        self[numkey] = view
+        self.current = numkey
+
+    def update_current(self):
+        numkey = self.current
+        if numkey is None:
+            low.warn("no current bookmark")
+            return
+        view = self.get(numkey, None)
+        if view is None:
+            log.warn("no such bookmark %s cannot update " % numkey )
+            return  
+        log.info("updating bookmark %s view.solid.id %s " % (numkey, view.solid.id))
+        self[numkey] = self.transform.spawn_view_jumping_frame(view.solid)
+
+    def visit(self, numkey):
+        view = self.get(numkey, None)
+        if not view is None:
+            self.current = numkey  
+        return view
+
+    def make_interpolate_view(self):
+        views = [self[k] for k in sorted(self,key=lambda _:_)]
+        log.info("make_interpolate_view sequence with %s views " % (len(views)))
+        return DAEInterpolateView(views)
+
+
 class DAEScene(object):
     """
     Keep this for handling state, **NOT interactivity**, **NOT graphics**     
@@ -53,8 +94,9 @@ class DAEScene(object):
         light_transform = Transform() if self.scaled_mode else geometry.mesh.model2world 
         self.lights = DAELights( light_transform, config )
 
-        # kludge scaling  
-        #self.kscale = kscale
+        # bookmarked viewpoints
+        self.bookmarks = DAEBookmarks() 
+
 
         # Chroma raycaster, None if not --with-chroma
         self.raycaster = self.make_raycaster( config, geometry ) 
@@ -62,19 +104,24 @@ class DAEScene(object):
         # Image processor, None if not --with-cuda-image-processor
         self.processor = self.make_processor( config ) 
 
-        # transform holds references to all relevant state-holders and is available to all
+        # transform holds references to all relevant state-holders 
         transform = DAETransform( self ) 
+
+        # make transfrom available to all, it represents the trackballing actions of the user 
+        self.transform = transform
         self.camera.transform = transform
         self.trackball.transform = transform
         self.view.transform = transform
+        self.bookmarks.transform = transform
 
         if not self.raycaster is None:
             self.raycaster.transform = transform
 
-        self.transform = transform
-
         self.solids = []    # selected solids
-        self.bookmarks = {} # bookmarked viewpoints
+
+        # bookmark 0 : corresponding to launch viewpoint 
+        self.bookmarks.create_for_solid(self.view.solid, 0)
+
 
     def resize(self, size):
         self.camera.resize(size)
@@ -151,11 +198,14 @@ class DAEScene(object):
     def __str__(self):
         return " ".join(map(str,[self.transform, self.camera])) 
 
+
+    here = property(lambda self:self.transform.eye[:3])
+
     def where(self):
         print str(self)
-        eye = self.transform.eye[:3] 
-        solids = self.containing_solids( eye )
-        log.info("solids containing eye point %s " % repr(eye))   
+        here = self.here
+        solids = self.containing_solids( here )
+        log.info("solids containing eye point %s " % repr(here))   
         print "\n".join(map(repr,solids))
 
     def containing_solids(self, xyz ):
@@ -166,7 +216,6 @@ class DAEScene(object):
         indices = self.geometry.find_bbox_solid( xyz )
         solids = sorted([self.geometry.solids[_] for _ in indices],key=lambda _:_.extent) 
         return solids
-
 
     def pick_solid(self, click):
         solids = self.containing_solids( click )
@@ -186,19 +235,18 @@ class DAEScene(object):
         This is jarring as usually does not match the viewpoint from which the click was made.
         """ 
         solid = self.pick_solid(click)
-        newview = None
+        view = None
         if target_mode:
             log.info("as target mode changing view to the new solid, index %s " % solid.index )
-            newview = self.target_view( solid.index , prior=None )
-            self.transform.equivalent_eye_look_up( solid )
-
-        if newview is None:
+            view = self.target_view( solid.index , prior=None )
+        pass
+        if view is None:
             log.debug("view unchanged by clicked_point")
         else:
             log.info("view changed by clicked_point")
-            self.view = newview
+            self.update_view(view)
 
-    def create_bookmark(self, click, numkey ):
+    def create_bookmark(self, click, numkey):
         """
         :param click: world frame xyz 
         """ 
@@ -206,18 +254,29 @@ class DAEScene(object):
         if solid is None:
             log.warn("create_bookmark: key %s failed as a solid was not clicked" % numkey )
             return
-        log.info("create_bookmark: key %s solid %s" % (numkey,solid) )
-        view = self.transform.spawn_view_jumping_frame(solid)
-        self.bookmarks[numkey] = view
+        pass
+        self.bookmarks.create_for_solid( solid, numkey )
  
-    def visit_bookmark(self, numkey):
-        view = self.bookmarks.get(numkey,None)
+    def visit_bookmark(self, numkey ):
+        view = self.bookmarks.visit(numkey)
         if view is None:
             log.warn("visit_bookmark: no such bookmark %s " % numkey)
-            return
+            return 
         self.update_view(view) 
-        
-  
+
+    def update_current_bookmark(self):
+        log.info("update_current_bookmark")
+        self.bookmarks.update_current()
+
+    def setup_bookmark_interpolation(self):
+        """
+        Maybe should start from current bookmark ?
+        """ 
+        log.info("setup bookmark interpolation")
+        view = self.bookmarks.make_interpolate_view()
+        self.update_view(view)
+
+
     def external_message(self, msg ):
         """
         """ 

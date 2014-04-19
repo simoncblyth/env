@@ -46,15 +46,48 @@ The options that are accepted interactively are marked with "I" in the options l
     daeview.sh --help
 
 
-Small things 
--------------
 
-#. where the current effective "eye" (and maybe "look") points are, 
-   just like can touch a solid and see where that is
-#. home-ing trackball should home camera too, so return to initial near/far/yfov ? not just position 
-#. parallel projection not reflected in the where, move property from scene to camera ?
+raycast launch control
+~~~~~~~~~~~~~~~~~~~~~~~~
 
+To avoid GPU panics/system crashes
 
+* subsequent raycast launches are aborted when launch times exceed *max-time* cutoff 
+* launch configuration is controlled by eg *launch=3,2,1* and *block=8,8,1* 
+  options which configure 2D launch 
+ 
+* raycast launches tyically use 2D pixel thread blocks, 
+  some speedups achieved by moving from line of pixels to 2D regions
+  in order for the work within a warp of 32 threads to be more uniform 
+
+ 
+interactive switch to metric pixels presentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The metric available for display must be defined at 
+launch with eg::
+
+   daeviewgl.py --metric time/tri/node  
+
+The restricted flexibility is due to needing to compile
+the kernel to change the metric. This is to avoid little 
+used branching in the kernel.
+
+Kernel flags can be controlled by remote control, eg::
+
+   udp.py --flags 15,0    # does 15 controls bit shift, here "metric >> 15"  
+
+bookmarks
+~~~~~~~~~~~
+
+Number keys are used to create and visit bookmarks. While pressing number key 1-9 
+click on a solid to create a bookmark, the view adopts the coordinate frame
+corresponding to the solid clicked. Subsequently press number keys 0-9 to 
+visit bookmarks, and press space to update the current bookmark (last one
+created or visited) to accomodate any change in the viewpoint. Bookmark 0
+is created at startup for the initial viewpoint.
+
+ 
 Issues
 --------
 
@@ -134,21 +167,10 @@ Intend:
 Next
 -----
 
-#. raycast launch control, to avoid GPU panics/system crashes
+#. screen capture, saving PBO pixels to PNGs : for more control than OS screen grabs
 
-   * abort subsequent raycast launches when launch times exceed cutoff : 4 seconds
-   * add launchdim rather than max_blocks control
-
-#. raycast modifier key to control kernel-flags allowing to 
-   interactively switch from image pixels to the
-   "time" "tri_count" "node_count" pixels
-
-#. adopt 2D pixel thread blocks, rather than current 1D
-
-   * potential for significant sqrt(32)? speed up, 
-     as current 1D block lines of pixels means that many 
-     more pixels in a warp of 32 are being held back
-   
+#. movie capture, encoding movies from screen captures ? 
+ 
 #. calculate what the trackball translate factor should actually be based on the 
    camera nearsize/farsize, and size of the virtual trackball 
    rather than using adhoc factor
@@ -158,14 +180,8 @@ Next
 
 #. take control of lighting, add headlamp (for inside AD)
 
-#. chroma hybrid mode
-
-
-
-
-
-
-
+#. chroma hybrid mode, record propagation progress in VBO, provide 
+   OpenGL representation of that 
 
 
 Ideas
