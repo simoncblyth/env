@@ -257,6 +257,22 @@ class DAEFrameHandler(object):
         return click_xyz
 
 
+    def write_to_file(self, name, x,y,w,h):
+        self.push()
+
+        #format_, type_, pil_format = gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, 'RGBA'
+        format_, type_, pil_format = gl.GL_RGB, gl.GL_UNSIGNED_BYTE, 'RGB'
+
+        data = gl.glReadPixels (x,y,w,h, format_, type_)
+        from PIL import Image
+        image = Image.fromstring( pil_format , (w,h), data)
+        image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        image.save ("%s.png" % name)
+
+        self.pop()
+
+
+
 if __name__ == '__main__':
     pass
 

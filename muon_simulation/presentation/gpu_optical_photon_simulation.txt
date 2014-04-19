@@ -19,7 +19,18 @@
 
     Chroma : Ultra-fast Photon MC
     //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
-    
+
+    G4DAE viewer : Near Site 
+    /env/geant4/geometry/collada/daeview/20140419-170713.png
+
+    G4DAE viewer : Pool Bottom
+    /env/geant4/geometry/collada/daeview/20140419-170957.png
+
+    G4DAE viewer : Pool Bottom, Chroma Raycast 
+    /env/geant4/geometry/collada/daeview/20140419-171014.png
+ 
+
+     
 
 ======================================================================
 200x Faster Optical Photon Propagation with NuWa + Chroma ?
@@ -442,31 +453,31 @@ Chroma Ray Tracing Dayabay Geometry (4)
    :align: center
 
 
-Full screen
--------------
-    
-Content of full screen slide.
+
+``G4DAE viewer : Near Site`` 
+----------------------------
+
+``G4DAE viewer : Pool Bottom``
+-------------------------------
+
+.. sidebar:: Comparison in progress
+
+   Developing more systematic comparison,
+   extending sqlite3 DB with the VRML2 data to add G4DAE.
 
 
-Full screen 2
---------------
-    
-Content of full screen 2 slide.
-
-
-``NTUCC``
-      current cluster (10 nodes, 20 GPUs) CCC 1.3, upgrade to 3.0
-      scheduled for next ~Feb
-``NUU``
-      Chung Hsiang may be able to purchase a GPU card
-``NCTU``
-      Node is CCC 1.3 
-``BNL``
-      available GPU nodes are too old
-``LBNL``
-      have made enquiry to Craig Tull
+``G4DAE viewer : Pool Bottom, Chroma Raycast`` 
+-----------------------------------------------
 
 
 
+Try Video 
+----------
+
+.. s5_video:: /env/daeview_Movie_ipad.m4v
+   :poster: /env/geant4/geometry/collada/daeview/20140419-170713.png
+   :width: 1024
 
 
+
+ 

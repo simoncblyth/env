@@ -118,6 +118,24 @@ issue2 : key/trackpad binding (OSX 10.5.8 macports py26)
 Unable to Z/XY pan (key binding/scroll wheel?)
 
 
+issue3 : fig.save via FBO fails
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+My workaround is to avoid FBO and simply glReadPixels from the framebuffer::
+
+     12   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/daeview/daeinteractivityhandler.py", line 171, in save_to_file
+     13     self.fig.save("%s.png" % name )
+     14   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/glumpy/figure.py", line 293, in save
+     15     fbo.glRenderbufferStorageEXT( fbo.GL_RENDERBUFFER_EXT, fbo.GL_DEPTH_COMPONENT, w, h)
+     16 AttributeError: 'module' object has no attribute 'GL_DEPTH_COMPONENT'
+
+Attempted to fix on Delta by commenting depthbuffer, this succeeds to write a file, 
+but checking in Preview its distinctly odd looking. Code changes remain::
+
+    (chroma_env)delta:glumpy blyth$ pwd 
+    /usr/local/env/chroma_env/lib/python2.7/site-packages/glumpy
+    (chroma_env)delta:glumpy blyth$ vi figure.py
+
 
 
 

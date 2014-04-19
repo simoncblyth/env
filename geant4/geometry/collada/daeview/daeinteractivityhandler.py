@@ -4,6 +4,7 @@
 
 """
 import os, sys, logging
+from datetime import datetime
 
 try:
     from collections import OrderedDict 
@@ -164,8 +165,16 @@ class DAEInteractivityHandler(object):
         print "%s %s " % (os.path.basename(sys.argv[0]), str(self.scene))
         sys.exit() 
 
+    def save_to_file(self):
+        x,y,w,h = self.fig.viewport
+        name = datetime.now().strftime("%Y%m%d-%H%M%S")
+        log.info("save_to_file %s.png" % name)
+        self.frame_handler.write_to_file( name, x,y,w,h )
+        #self.fig.save("%s.png" % name )
+
     def usage(self):
         print str(self.keys)
+
 
 
     dragmode = property(lambda self:self.zoom_mode or self.pan_mode or self.near_mode or self.far_mode or self.yfov_mode) 
@@ -173,6 +182,8 @@ class DAEInteractivityHandler(object):
 
     def on_key_press(self, symbol, modifiers):
         """
+        ABCDEFGHIJKLMNOPQRSTUVWXYZ
+        ***  ***  *********** ** *
         """
         if   symbol == key.ESCAPE: self.exit()
         elif symbol == key.Z: self.zoom_mode = True
@@ -201,6 +212,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.M: self.scene.toggle_animate()
         elif symbol == key.C: self.scene.toggle_cuda()
         elif symbol == key.R: self.scene.toggle_raycast()
+        elif symbol == key.E: self.save_to_file()
         elif symbol in number_keys:
             self.bookmark_mode = True
             self.bookmark_key = symbol - key._0

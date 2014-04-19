@@ -57,6 +57,63 @@ def id_mangle(title):
     return title.lower().replace(" ","-")
 
 
+
+class S5Video(Directive):
+    """
+    Usage::
+
+      .. s5_video:: /env/daeview_Movie_ipad.m4v
+          :height:480
+          :width:640
+          :poster: 
+
+    """
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 1 
+    final_argument_whitespace = True
+    option_spec = {
+       'height':str,
+       'width':str,
+       'poster':str,
+    }
+
+    video_tmpl = r"""
+        <style type="text/css">
+           video.flic {
+              display: box;
+              box-align: center;
+              box-pack: center;
+              margin-left: auto;
+              margin-right: auto;
+
+              display: -webkit-box;
+              -webkit-box-pack: center;
+              -webkit-box-align: center;
+           }
+        </style>
+        <video class="flic" src="%(src)s" controls height="%(height)s" width="%(width)s" %(poster)s >
+            <p> Your Browser does not support HTML5 Video </p>
+        </video>
+    """
+
+    def run(self):
+        src = self.arguments[0]
+        height = self.options.get('height','480')
+        width = self.options.get('width','640')
+        poster = self.options.get('poster','')
+        if len(poster) > 0:
+            poster = 'poster="%s"' % poster
+
+        html = self.video_tmpl % dict(src=src,height=height,width=width,poster=poster)
+        raw = nodes.raw('', html, format = 'html')
+        raw.document = self.state.document
+        return [raw]
+   
+directives.register_directive('s5_video',S5Video)
+
+
+
 class S5BackgroundImage(Directive):
     """ 
     Usage::
