@@ -29,7 +29,7 @@ class DAEKeys(object):
 
         key["*"] = "--- toggles ---"
         key["S"] = "toggle fullscreen "
-        key["F"] = "toggle fill triangles"
+        key["I"] = "toggle fill triangles"
         key["L"] = "toggle line"
         key["T"] = "toggle transparent"
         key["P"] = "toggle parallel projection (aka orthographic)"
@@ -45,7 +45,7 @@ class DAEKeys(object):
         key["2finger"] = "2-finger click trackpad and drag, a non-modal alternative for Z translation"
         key["X"] = "xy-translate, while pressed mouse/trackpad movement translates x,y (left-right,up-down), modifiers SHIFT and/or OPTION speed up movement "
         key["N"] = "near, while pressed, mouse/trackpad movement changes near clipping plane "
-        key["A"] = "far,while pressed, mouse/trackpad movement changes far clipping plane "
+        key["F"] = "far,while pressed, mouse/trackpad movement changes far clipping plane "
         key["Y"] = "yfov, while pressed, mouse/trackpad movement changes field of view angle "
         key["Q"] = "target mode, while pressed, picking a solid changes target to the solid "
 
@@ -63,6 +63,8 @@ class DAEKeys(object):
         key["W"] = "where: write to stdout the commandline to recreate the current state of view and camera "
         key["U"] = "usage, write help text to stdout "
         key["B"] = "setup bookmark interpolation view, to toggle animation use M  "
+        key["V"] = "setup parametric orbiting view based on current bookmark, to toggle animation use M  "
+        key["E"] = "screen capture and write to timestamp dated .png file in current directory"
         key["G"] = "light: NOT YET IMPLEMENTED "
 
         self.key = key
@@ -183,13 +185,14 @@ class DAEInteractivityHandler(object):
     def on_key_press(self, symbol, modifiers):
         """
         ABCDEFGHIJKLMNOPQRSTUVWXYZ
-        ***  ***  *********** ** *
+        *** ***** ************** *
+           D     J              Y
         """
         if   symbol == key.ESCAPE: self.exit()
         elif symbol == key.Z: self.zoom_mode = True
         elif symbol == key.X: self.pan_mode = True
         elif symbol == key.N: self.near_mode = True
-        elif symbol == key.A: self.far_mode = True
+        elif symbol == key.F: self.far_mode = True
         elif symbol == key.Y: self.yfov_mode = True
         elif symbol == key.Q: self.target_mode = True
         elif symbol == key.UP: self.dragfactor *= 2.
@@ -200,10 +203,11 @@ class DAEInteractivityHandler(object):
         elif symbol == key.H: self.scene.trackball.home()
         elif symbol == key.SPACE: self.scene.update_current_bookmark()
         elif symbol == key.B: self.scene.setup_bookmark_interpolation()
+        elif symbol == key.V: self.scene.setup_parametric_interpolation()
         elif symbol == key.W: self.scene.where()
         elif symbol == key.U: self.usage()
         elif symbol == key.L: self.scene.toggle("line")
-        elif symbol == key.F: self.scene.toggle("fill")
+        elif symbol == key.I: self.scene.toggle("fill")
         elif symbol == key.T: self.scene.toggle("transparent")
         elif symbol == key.P: self.scene.toggle("parallel")
         elif symbol == key.G: self.scene.toggle("light")
@@ -239,7 +243,7 @@ class DAEInteractivityHandler(object):
         if   symbol == key.Z: self.zoom_mode = False
         elif symbol == key.X: self.pan_mode = False
         elif symbol == key.N: self.near_mode = False
-        elif symbol == key.A: self.far_mode = False
+        elif symbol == key.F: self.far_mode = False
         elif symbol == key.Y: self.yfov_mode = False
         elif symbol == key.Q: self.target_mode = False
         elif symbol in number_keys:

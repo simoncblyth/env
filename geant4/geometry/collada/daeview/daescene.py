@@ -12,6 +12,7 @@ from daeviewpoint import DAEViewpoint
 from daeutil import Transform
 from daelights import DAELights
 from daetransform import DAETransform
+from daebookmarks import DAEBookmarks
 
 # do not import anything that would initialize CUDA context here, for CUDA_PROFILE control from config
  
@@ -19,45 +20,6 @@ from daetransform import DAETransform
 ivec_ = lambda _:map(int,_.split(","))
 fvec_ = lambda _:map(float,_.split(","))
 
-
-
-
-class DAEBookmarks(dict):
-    def __init__(self):
-        dict.__init__(self)
-        self.current = None
-
-    def __repr__(self):
-        return "".join(map(str,self.keys()))
-
-    def create_for_solid(self, solid, numkey ):
-        log.info("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
-        view = self.transform.spawn_view_jumping_frame(solid)
-        self[numkey] = view
-        self.current = numkey
-
-    def update_current(self):
-        numkey = self.current
-        if numkey is None:
-            low.warn("no current bookmark")
-            return
-        view = self.get(numkey, None)
-        if view is None:
-            log.warn("no such bookmark %s cannot update " % numkey )
-            return  
-        log.info("updating bookmark %s view.solid.id %s " % (numkey, view.solid.id))
-        self[numkey] = self.transform.spawn_view_jumping_frame(view.solid)
-
-    def visit(self, numkey):
-        view = self.get(numkey, None)
-        if not view is None:
-            self.current = numkey  
-        return view
-
-    def make_interpolate_view(self):
-        views = [self[k] for k in sorted(self,key=lambda _:_)]
-        log.info("make_interpolate_view sequence with %s views " % (len(views)))
-        return DAEInterpolateView(views)
 
 
 class DAEScene(object):
@@ -276,6 +238,13 @@ class DAEScene(object):
         view = self.bookmarks.make_interpolate_view()
         self.update_view(view)
 
+    def setup_parametric_interpolation(self):
+        """
+        Maybe should start from current bookmark ?
+        """ 
+        log.info("setup parametric interpolation")
+        view = self.bookmarks.make_parametric_view()
+        self.update_view(view)
 
     def external_message(self, msg ):
         """

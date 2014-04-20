@@ -80,11 +80,17 @@ class DAEViewpoint(object):
         self._look = _look  
         self._up = _up   # a direction 
 
+        assert len(_eye) == 3
+        assert len(_look) == 3
+        assert len(_up) == 3
+
         pass
         # the below are fixed for the view, cannot change the solid associated with a Viewpoint
         self.solid = solid
         self.target = target  # informational
         pass
+
+    _gaze = property(lambda self:self._look - self._eye, doc="model frame 3, array of gaze vector  _look - _eye")
 
     # NB the input parameters to the transforms are world coordinates
     index = property(lambda self:self.solid.index)
@@ -238,7 +244,8 @@ class DAEViewpoint(object):
         look = model2world(self._look)
         gaze = look - eye
         return np.linalg.norm(gaze) 
-    distance = property(_get_distance, doc="distance from eye to look" )
+    distance = property(_get_distance, doc="world frame distance from eye to look" )
+
 
     def _get_eye_look_up(self):
         """
@@ -259,6 +266,9 @@ class DAEViewpoint(object):
     eye_look_up_model = property(_get_eye_look_up_model, doc="3x4 element array containing eye, look, up in homogenous model frame coordinates" )
 
     def _get_eye_look_up_world(self):
+        """
+        TODO: verify equivalence of eye_look_up and eye_look_up_world and get rid of duplication
+        """ 
         return self.model2world.matrix.dot( self.eye_look_up_model.T ).T 
     eye_look_up_world = property(_get_eye_look_up_world, doc="3x4 element array containing eye, look, up in homogenous world frame coordinates" )
 

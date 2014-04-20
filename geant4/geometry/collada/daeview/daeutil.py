@@ -141,10 +141,20 @@ def view_transform( eye, look, up, inverse=False ):
     gaze = look - eye
     distance = np.linalg.norm(gaze)
 
+    #assert len(eye) == 3, eye
+    #assert len(look) == 3, look
+    #assert len(up) == 3, up
+    #assert len(gaze) == 3, gaze
+
     # orthonormal unit vectors for the camera
     forward = normalize_(gaze)                     # -Z
+    #assert len(forward) == 3, forward
+
     right   = normalize_(np.cross(forward, up))    # +X 
+    #assert len(right) == 3, right
+
     top     = normalize_(np.cross(right,forward)) # +Y 
+    #assert len(top) == 3, top
  
     r = np.identity(4)
     r[:3,0] = right

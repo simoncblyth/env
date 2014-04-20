@@ -152,10 +152,6 @@ class DAEConfig(object):
         args = self.args
         return "--nodes %s --near %s --far %s --yfov %s --target %s --eye %s --look %s --up %s" % (args.nodes, args.near, args.far, args.yfov, args.target, args.eye, args.look, args.up )
 
-    def address_info(self):
-        return "\n".join(["address %s " % address(),
-                          "UDP host:port %s:%s " % (self.args.host, self.args.port)])
-
     def _make_base_parser(self, doc):
         """
         Base parser handles arguments/options that 
@@ -171,11 +167,13 @@ class DAEConfig(object):
         defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
+        defaults['address'] = address()
 
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
         parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
+        parser.add_argument( "--address", help="IP address %(default)s", type=str  )
 
         defaults['deviceid'] = None
         defaults['cuda_profile'] = False
