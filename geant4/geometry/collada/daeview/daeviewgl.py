@@ -47,10 +47,20 @@ parallel projection
 ~~~~~~~~~~~~~~~~~~~~
 
 Press "P" to toggle between orthographic/parallel projection and the default
-perspective projection.
+perspective projection. 
 
-TODO: Get chroma raycast to work in parallel projection mode
+* "Z" to translate eye point in/out
 
+  As parallel projection corresponds to the view from infinity it is
+  somewhat paradoxical that translating in Z has any effect, however
+  it is does, indirectly via changing where the near clipping plane falls 
+
+* "N" to change near
+* "Y" to change yfov 
+* "F" to change far 
+
+TODO: Get chroma raycast to work in parallel projection mode, need to 
+      come up with the 
 
 placemarks
 ~~~~~~~~~~~
@@ -95,8 +105,6 @@ TODO
 
 Make more use of this, eg to display material/surface properties, 
 position in heirarchy 
-
-
 
 remote control
 ~~~~~~~~~~~~~~~
@@ -207,6 +215,10 @@ Intend:
 
 Next
 -----
+
+#. persist bookmarks to file and provide loading capability 
+
+#. key to temporarily allow about-eye-point rather than about-look-point trackball rotation ? 
  
 #. calculate what the trackball translate factor should actually be based on the 
    camera nearsize/farsize, and size of the virtual trackball 
@@ -234,7 +246,6 @@ Ideas
 
    * speed dependant on distance
    * make changing speed not cause jumps in the interpolation
-
 
 
 
