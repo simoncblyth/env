@@ -38,6 +38,7 @@ class DAEKeys(object):
         key["M"] = "toggle animation: ie interpolation between views, requires view to be interpolatable, setup using --jump launch or live options "
         key["C"] = "toggle CUDA image processor, requires launch --with-cuda-image-processor "
         key["R"] = "toggle Chroma raycasting for the current view, requires launch --with-chroma "
+        key["J"] = "toggle Chroma raycasting metric display eg pixel processing time, requires launch --with-chroma, reconfig bitshifts with eg --flags 15,0 "
         
         key["**"] = "--- viewing ---"
         key[""] = "default action without any key pressed, mouse/trackpad movement rotates around the *look* position" 
@@ -185,8 +186,8 @@ class DAEInteractivityHandler(object):
     def on_key_press(self, symbol, modifiers):
         """
         ABCDEFGHIJKLMNOPQRSTUVWXYZ
-        *** ***** ************** *
-           D     J              Y
+        *** ******************** *
+           D                    Y
         """
         if   symbol == key.ESCAPE: self.exit()
         elif symbol == key.Z: self.zoom_mode = True
@@ -216,6 +217,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.M: self.scene.toggle_animate()
         elif symbol == key.C: self.scene.toggle_cuda()
         elif symbol == key.R: self.scene.toggle_raycast()
+        elif symbol == key.J: self.scene.toggle_showmetric()
         elif symbol == key.E: self.save_to_file()
         elif symbol in number_keys:
             self.bookmark_mode = True
@@ -288,6 +290,10 @@ class DAEInteractivityHandler(object):
     def on_mouse_press(self, x, y, button):
         if button != 2:print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
         xyz = self.frame_handler.unproject(x,y)
+        if xyz is None:
+            log.warn("on_mouse_press unprojection failed ") 
+            return
+
         if self.bookmark_mode:
             self.scene.create_bookmark( xyz, self.bookmark_key )
             self.bookmark_key = None # signal that bookmark was created, thanks to the mouse press 

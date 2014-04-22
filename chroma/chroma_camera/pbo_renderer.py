@@ -95,10 +95,13 @@ class PBORenderer(object):
         # non-GPU resident constants  
         self.max_time = config.args.max_time
         self.allsync = config.args.allsync
+        self.showmetric = config.args.showmetric
+        self._prior_flags = None
 
         template_vars = None if config.args.metric is None else (('metric',config.args.metric),) 
         self.compile_kernel(template_vars=template_vars)
         self.initialize_gpu_constants()
+        self.config_showmetric()
 
     def __repr__(self):
         eye =  "%.2f,%.2f,%.2f" % tuple(self.origin[:3])
@@ -110,13 +113,40 @@ class PBORenderer(object):
         self.size = size              # setter copies to device
         self.launch.resize(size)
 
+
+    def config_showmetric(self):
+        """
+        TODO: tidy up this mess of flags 
+
+        Maybe eliminate some moving parts by regarding external message 
+        re-config as changing the DAEConfig ?
+        """
+        if not self.showmetric:
+            if not self.flags == (0,0):
+                self._prior_flags = self.flags
+            pass
+            self.flags = 0,0
+            log.info("switch OFF showmetric, but retain any flag settings aleady configured" ) 
+        else:
+            if self.flags != (0,0):
+                log.info("switch ON showmetric using already set self.flags %s " % repr(self.flags))
+            elif self._prior_flags is None: 
+                self.flags = self.config.flags 
+                log.info("switch ON showmetric using self.config.flags %s " % repr(self.config.flags))
+            else:
+                self.flags = self._prior_flags 
+                log.info("switch ON showmetric using self._prior_flags %s " % repr(self._prior_flags))
+        pass
+
     def reconfig(self, **kwa):
         self.launch.reconfig(**kwa) 
 
         # mix of non-gpu and gpu residents 
-        for qty in ("max_time","allsync","flags","alpha_depth",):
+        for qty in ("max_time","allsync","flags","alpha_depth","showmetric",):
             if qty in kwa:
                 setattr(self,qty,kwa[qty])
+        pass 
+        self.config_showmetric()
 
     def initialize_gpu_constants(self):
         """
@@ -124,7 +154,7 @@ class PBORenderer(object):
         """
         self.offset = (0,0)
         self.size = self.pixels.size
-        self.flags = self.config.flags
+        self.flags = 0,0
         self.alpha_depth = self.config.args.alpha_depth
 
         if hasattr(self.config, 'eye'): 

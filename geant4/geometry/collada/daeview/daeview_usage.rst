@@ -247,3 +247,31 @@ Presentation
        # long form --eye="..." is needed as the value starts with "-"
 
 
+
+
+Near Site One AD
+------------------
+
+::
+
+    daeview.sh -g 3154:4813 --with-chroma --launch 2,2,1 --near 1
+
+
+
+Far Site
+----------
+
+::
+
+    daeview.sh -g 3:     
+    # skip universe and rock for more reasonably sized scene, but with RPC on top its dark in the pool
+
+
+
+
+
+
+
+
+
+

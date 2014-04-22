@@ -219,7 +219,6 @@ class DAEFrameHandler(object):
         if self.scene.raycast:
             self.scene.raycaster.render() 
             self.fig_handler.retitle()   # for raycast times to appear in title immediately 
-            #self.fig_handler.redraw()   # cannot do this, leads to infinite loop/stack overflow  
 
         self.pop() # matrices
 
@@ -240,18 +239,14 @@ class DAEFrameHandler(object):
         """
         self.push()
 
-        #ipixels = gl.glReadPixelsi(x, y, 1, 1, gl.GL_DEPTH_COMPONENT ) # width,height 1,1  
-        #ipixel = ipixels[0][0]
-        #smry = " ipixel 0x%x z %s " % ( ipixel,  z )
-        #self.annotate.insert(0,smry)
-
         pixels = gl.glReadPixelsf(x, y, 1, 1, gl.GL_DEPTH_COMPONENT ) # width,height 1,1  
         z = pixels[0][0]
-        click_xyz = glu.gluUnProject( x,y,z ) # click point in world frame       
-
-        #self.scene.where()
-        #gl_modelview = np.array( gl_modelview_matrix() ).reshape(4,4).T
-        #print "unproject gl_modelview.T \n%s" % gl_modelview 
+        click_xyz = None 
+        try:
+            click_xyz = glu.gluUnProject( x,y,z ) # click point in world frame       
+        except ValueError:
+            log.warn("gluUnProject FAILED for x,y,z %s %s %s" % (x,y,z)) 
+        pass
 
         self.pop()
         return click_xyz

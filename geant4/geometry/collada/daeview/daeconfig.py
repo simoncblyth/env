@@ -247,11 +247,13 @@ class DAEConfig(object):
 
         # kernel code
         defaults['kernel'] = "render_pbo"
-        defaults['flags'] = "0,0"
+        defaults['flags'] = "16,0"
         defaults['metric'] = "time"
+        defaults['showmetric'] = False
         parser.add_argument( "--kernel", help="", type=str )
         parser.add_argument( "--flags", help="[I] g_flags constant provided to kernel, used for thread time presentation eg try 20,0  ", type=str  )
         parser.add_argument( "--metric", help="One of time/node/intersect/tri or default None", type=str  )
+        parser.add_argument( "--showmetric", action="store_true", help="Switch on display of the metric and flags configured.")
 
         # kernel launch config, transitioning from 1D to 2D
         defaults['threads_per_block'] = 64  # 1D

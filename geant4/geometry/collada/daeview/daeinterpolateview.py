@@ -120,6 +120,10 @@ class DAEParametricView(DAEViewpointBase):
     interpolated parametric viewpoint, and it is at least possible to 
     navigate now while parametrically orbiting a target.
 
+
+    Hmm, looks like the rotate about self is not updating as trackball
+    around
+
     """
     interpolate = True
     def __init__(self, view):
@@ -183,7 +187,7 @@ class DAEParametricView(DAEViewpointBase):
 
     def __call__(self, count, speed):
         f = sawtooth( count, 0., 1., speed )
-        log.info("count %s f %s speed %s " % ( count, f, speed ))
+        log.debug("count %s f %s speed %s " % ( count, f, speed ))
         self.f = f
 
     def __repr__(self):

@@ -127,8 +127,9 @@ class DAEScene(object):
         self.animate = False
         self.markers = args.markers
         self.raycast = args.raycast and args.with_chroma 
+        self.showmetric = False
         # 
-        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","markers")  # animate, raycast, cuda have separate handling
+        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","markers",)  # animate, raycast, cuda have separate handling
 
     def toggle(self, name):
         setattr( self, name , not getattr(self, name)) 
@@ -150,6 +151,13 @@ class DAEScene(object):
             self.toggle(k) 
         else:
             log.warn("cannot toggle --cuda unless launched --with-cuda-image-processor")
+
+    def toggle_showmetric(self):
+        if self.config.args.with_chroma:
+            self.toggle("showmetric") 
+            self.raycaster_reconfig( showmetric=self.showmetric )
+        else:
+            log.warn("cannot toggle --showmetric unless launched --with-chroma")
 
     def animation_speed(self, factor ):   
         self.speed *= factor
@@ -240,8 +248,8 @@ class DAEScene(object):
 
     def setup_parametric_interpolation(self):
         """
-        Maybe should start from current bookmark ?
-        """ 
+        Orbiting/Flyaround mode
+        """
         log.info("setup parametric interpolation")
         view = self.bookmarks.make_parametric_view()
         self.update_view(view)
@@ -276,6 +284,9 @@ class DAEScene(object):
                 raycast_config[k] = ivec_(v)
             elif k in ("max_time","alpha_depth","allsync",):
                 raycast_config[k] = v
+            elif k == "showmetric":
+                raycast_config[k] = v
+                self.toggle_showmetric() 
             elif k in ("eye","look","up"):
                 elu[k] = v
             elif k in ("kscale","near","far","yfov","nearclip","farclip","yfovclip"):
@@ -294,17 +305,18 @@ class DAEScene(object):
             self.update_view(newview)
 
         if len(raycast_config)>0:
-            if self.raycast:
-                self.raycaster.reconfig(**raycast_config)
-            else:
-                log.warn("cannot reconfig raycaster without init option --with-chroma ")
-            pass
+            self.raycaster_reconfig(**raycast_config)
 
         if len(elu) > 0:
             log.info("home-ing trackball and changing parameters of existing view %s " % repr(elu)) 
             self.trackball.home()
             self.view.current_view.change_eye_look_up( **elu )
 
+    def raycaster_reconfig(self, **raycast_config ):
+        if not self.raycast:
+            log.warn("cannot reconfig raycaster without init option --with-chroma ")
+            return
+        self.raycaster.reconfig(**raycast_config)
 
     def update_view(self, newview ):
         self.trackball.home()
