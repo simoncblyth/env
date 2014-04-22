@@ -19,8 +19,7 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 import docutils.writers.s5_html as s5
-from docutils.parsers.rst import Directive, directives
-from docutils import nodes
+from docutils.parsers.rst import directives
 
 class MonkeyWriter(s5.Writer):
     pass
@@ -46,132 +45,13 @@ class MonkeyS5HTMLTranslator(s5.S5HTMLTranslator):
 s5.Writer = MonkeyWriter
 s5.S5HTMLTranslator = MonkeyS5HTMLTranslator
 
-
-def id_mangle(title):
-    """
-    Cannot find where docutils comes up with the id,  there is more to it 
-    than this... removing non word characters.
-
-    Found it nodes.make_id 
-    """  
-    return title.lower().replace(" ","-")
+from s5_video_raw import S5VideoRaw
+directives.register_directive('s5_video',S5VideoRaw)
+#from s5_video import S5VideoDirective
+#directives.register_directive('s5_video',S5VideoDirective)
 
 
-
-class S5Video(Directive):
-    """
-    Usage::
-
-      .. s5_video:: /env/daeview_Movie_ipad.m4v
-          :height:480
-          :width:640
-          :poster: 
-
-    """
-    has_content = False
-    required_arguments = 1
-    optional_arguments = 1 
-    final_argument_whitespace = True
-    option_spec = {
-       'height':str,
-       'width':str,
-       'poster':str,
-    }
-
-    video_tmpl = r"""
-        <style type="text/css">
-           video.flic {
-              display: box;
-              box-align: center;
-              box-pack: center;
-              margin-left: auto;
-              margin-right: auto;
-
-              display: -webkit-box;
-              -webkit-box-pack: center;
-              -webkit-box-align: center;
-           }
-        </style>
-        <video class="flic" src="%(src)s" controls height="%(height)s" width="%(width)s" %(poster)s >
-            <p> Your Browser does not support HTML5 Video </p>
-        </video>
-    """
-
-    def run(self):
-        src = self.arguments[0]
-        height = self.options.get('height','480')
-        width = self.options.get('width','640')
-        poster = self.options.get('poster','')
-        if len(poster) > 0:
-            poster = 'poster="%s"' % poster
-
-        html = self.video_tmpl % dict(src=src,height=height,width=width,poster=poster)
-        raw = nodes.raw('', html, format = 'html')
-        raw.document = self.state.document
-        return [raw]
-   
-directives.register_directive('s5_video',S5Video)
-
-
-
-class S5BackgroundImage(Directive):
-    """ 
-    Usage::
-
-        .. s5_background_image::
-
-            Full Screen
-            images/chroma/chroma_dayabay_adlid.png
-         
-            Full Screen 2
-            images/chroma/chroma_dayabay_pool_pmts.png
-
-            Test Server Relative Link  
-            /env/test/LANS_AD3_CoverGas_Humidity.png
-
-            Test Protocol Relative Link
-            //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
-           
-    """
-    has_content = True
-    required_arguments = 0
-    optional_arguments = 0 
-    final_argument_whitespace = False
-    option_spec = { 
-        'linenos': directives.flag,
-    }   
-
-    div_tmpl = r"""div.slide#%(tid)s{
-             background-image: url(%(url)s);
-          }"""
-
-    style_tmpl = r"""
-       <style type="text/css">
-
-          div.slide { 
-             background-clip: border-box;
-             background-repeat: no-repeat;
-             height: 100%%;
-          }
-          %(divs)s 
-
-       </style>
-    """
-
-    def run(self):
-        content = filter(lambda _:_[0] != '#',filter(lambda _:len(_) > 0, self.content))
-        assert len(content) % 2 == 0  
-        divs = []
-        for pair in [content[i:i+2] for i in range(0, len(content), 2)]:
-            title, url = pair
-            divs.append( self.div_tmpl % dict(tid=nodes.make_id(title), url=url) )
-        pass
-        html = self.style_tmpl % dict(divs="\n          ".join(divs))
-        raw = nodes.raw('', html, format = 'html')
-        raw.document = self.state.document
-        return [raw]
-   
-
+from s5_background_image import S5BackgroundImage
 directives.register_directive('s5_background_image',S5BackgroundImage)
 
 
