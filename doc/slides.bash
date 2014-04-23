@@ -89,14 +89,20 @@ Hmm, also needed to::
 * TODO: streamline this, too many steps that have to be done in the correct order, see **eup** func on C2R
 
 
-Streamlined Publish Approach 
+Publish to local apache
 ------------------------------
 
-Avoid integration with Sphinx build docs which causes the complications
-using
+Avoid integration with Sphinx build docs which causes the complications.
+Publish to local apache using:
 
 #. *slides-apache-prepare*
 #. *slides-apache-publish*
+
+
+Publish to remote apache
+---------------------------
+
+#. *env-htdocs-rsync C2*
 
 
 
@@ -448,10 +454,12 @@ slides-apache-publish(){
 
    cd $(env-home)/$(slides-branch)
 
-   local cmd="cp $(slides-name).html $target/"
-   echo $cmd
-   eval $cmd
+   # THIS IS NOW DONE IN THE MAKEFILE
+   #local cmd="cp $(slides-name).html $target/"
+   #echo $cmd
+   #eval $cmd
 
+   local cmd
    local dirs="ui images"
    for dir in $dirs ; do 
        cmd="cp -r $dir $target/"

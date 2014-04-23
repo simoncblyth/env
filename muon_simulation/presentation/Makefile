@@ -18,6 +18,8 @@ NAMES=$(subst .txt,,$(SOURCES))
 SLIDES_HTML=$(subst .txt,.html,$(SOURCES))
 SLIDES=$(addprefix $(NEWPUBDIR)/,$(SLIDES_HTML))
 PDFS=$(addprefix $(NEWPUBDIR)/,$(subst .txt,.pdf,$(SOURCES)))
+TXTS=$(addprefix $(NEWPUBDIR)/,$(SOURCES))
+
 SLIDES_URL=$(addsuffix ?page=$(PAGE),$(addprefix $(NEWPUBURL)/,$(SLIDES_HTML)))
 
 
@@ -29,7 +31,7 @@ OUTDIR=$(LOCAL_BASE)/env/muon_simulation/presentation/name-of-presentation   # t
 
 .PHONY: rsync clean slides touch info ls open
 
-slides: $(SLIDES)
+slides: $(SLIDES) $(TXTS)
 	@echo created $< NAMES $(NAMES)
 
 info:
@@ -37,6 +39,7 @@ info:
 	@echo NEWPUBDIR $(NEWPUBDIR)
 	@echo SLIDES $(SLIDES)
 	@echo SLIDES_URL $(SLIDES_URL)
+	@echo TXTS $(TXTS)
 
 ls:
 	@echo NEWPUBDIR $(NEWPUBDIR)
@@ -47,6 +50,9 @@ open: $(SLIDES)
 
 touch: 
 	touch $(SOURCES)
+
+$(TXTS): $(SOURCES)
+	cp $< $@
 
 $(SLIDES): $(SOURCES)
 	$(PYTHON) ./rst2s5-2.6.py --traceback --theme-url ui/my-small-white --current-slide --visible-controls --language=en $< $@

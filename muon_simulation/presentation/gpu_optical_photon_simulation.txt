@@ -36,6 +36,16 @@
 200x Faster Optical Photon Propagation with NuWa + Chroma ?
 ======================================================================
 
+
+
+.. class:: small
+
+    http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.html
+    http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf
+    http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.txt
+
+
+
 .. sidebar:: Objective 
 
    Make GPU accelerated Optical Photon Propagation **routine**
@@ -51,13 +61,6 @@ Fivefold path:
 #. :red:`GPU Hardware access`
 #. :blue:`Geant4/Chroma Integration`
 #. :blue:`Validation`
-
-.. class:: small
-
-    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.txt
-    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.pdf
-    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.html
-
 
 Chroma : Ultra-fast Photon MC
 ------------------------------

@@ -228,8 +228,8 @@ Intend:
 Next
 -----
 
-#. there is no point proceeding when Chroma is forced into "splitting" geometry 
-   due to congested GPU memory. Chroma renders will not succeed. 
+#. there is no point proceeding when Chroma is forced into "splitting" 
+   geometry due to congested GPU memory. Chroma renders will not succeed. 
    Detect when this happens and assert at launch. 
    Better to do this independantly of chroma with env.cuda.cuda_info 
    and have a configurable minimum required GPU memory free to proceed. 

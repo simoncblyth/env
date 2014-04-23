@@ -26,6 +26,16 @@ env-anewer(){
    find . -anewer $path  -type f | grep -v _build | grep -v .svn
 }
 
+env-htdocs-rsync(){
+   local target=${1:-C2}
+   local msg="=== $FUNCNAME :"
+   [ "$target" == "$NODE_TAG" ] && echo $msg ABORT : CANNOT RSYNC TO SELF && return 1
+
+   apache-
+   local cmd="rsync -avz --exclude '*.mov' $(apache-htdocs)/env/ $target:$(apache-htdocs $target)/env/"
+   echo $msg $cmd
+   eval $cmd
+}
 
 env-usage(){ cat << EOU
 
