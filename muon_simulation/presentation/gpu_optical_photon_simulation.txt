@@ -24,7 +24,10 @@
     G4DAE viewer : Pool Bottom, Chroma Raycast 
     /env/geant4/geometry/collada/daeview/20140419-171014.png
  
-     
+    # the image is too big to be shown as is 
+    G4DAE Dayabay Near Site 
+    images/osx_preview/osx_preview_g4dae_dayabay.png 
+    
 
 ======================================================================
 200x Faster Optical Photon Propagation with NuWa + Chroma ?
@@ -97,8 +100,8 @@ G4DAE capable NuWa: ``./dybinst -X geant4_with_dae trunk all``
 G4DAE Export Compared to VRML2(WRL)
 ---------------------------------------
 
-Comparison of all vertices/faces reveals :red:`subtraction solids are discrepant`. 
-Perfect agreement only achieved by *cheating* : :blue:`perform triangulation once and reuse`.
+Comparison of all vertices/faces reveals :red:`boolean solids are discrepant`. 
+Perfect[1]_ agreement only achieved by *cheating* : :blue:`perform triangulation once and reuse`.
 
 ====================  ==============  ===========  ===============
  Qty                    DayaBay         Lingao          Far
@@ -106,23 +109,27 @@ Perfect agreement only achieved by *cheating* : :blue:`perform triangulation onc
 Volumes                     12,229        12,229          18,903 
 Triangles                2,448,064     2,448,064       4,189,680
 Vertices                 1,245,996     1,245,996       2,128,208
-DAE bytes                      6.9M         6.9M            8.6M                    
-GDML bytes                     4.0M         4.0M            6.0M
-WRL bytes                       98M          96M            167M 
+DAE/GDML/WRL (MB)        6.9/4.0/98   6.9/4.0/96     8.6/6.0/167                    
 ====================  ==============  ===========  ===============
 
 .. class:: tiny
 
     ``VGDX_20140414`` counts using ``daeview.sh -g 0: --with-chroma``
 
-Impact of subtraction solid triangulation sensitivity, :red:`needs to be checked`
-once have numerical results. Expect little impact. 
+* Triangulation sensitivity impact :red:`needs checking`
+* DAE not much bigger than GDML, but includes all triangles/vertices
+
+.. class:: tiny
+
+    .. [1] Maximum DAE WRL offset of < 0.13 mm, after patching VRML2 export precision bug. 
+           Details: http://dayabay.phys.ntu.edu.tw/e/geant4/geometry/collada/dae_cf_wrl/ 
 
 
 Triangular Advantage 
 -----------------------
 
-Surface representation simplicity (vertices+triangles) means many tools/libraries, eg:
+Surface representation simplicity (vertices+triangles) means many tools/libraries.
+Using:
 
 * https://github.com/pycollada/pycollada  numpy based DAE parsing 
 * https://github.com/mrdoob/three.js/  Javascript 3D using WebGL
@@ -132,10 +139,11 @@ Surface representation simplicity (vertices+triangles) means many tools/librarie
 * OSX Snow Leopard 10.6+ : Preview, Quicklook, Xcode
 
 
-daenode.py : reads G4DAE, creates Chroma geometry 
----------------------------------------------------
+daenode.py : G4DAE => Chroma geometry 
+---------------------------------------
  
-* recreates Geant4 volume tree from G4DAE files
+* parses G4DAE using pycollada
+* recreates Geant4 volume tree from pycollada tree
 * converts into Chroma geometry, including materials/surfaces/properties(wavelength)
 * ``daeserver.py`` exposes ``daenode.py`` as WebGL + three.js based 
   3D web interface http://belle7.nuu.edu.tw/dae/tree/3148.html
@@ -152,8 +160,10 @@ daeviewgl.py : 3D interface to G4DAE files
 * Fast OpenGL 3D visualization/navigation, Chroma interactive raycasting 
 
 .. s5_video:: /env/daeview_Movie_ipad.m4v
-   :poster: /env/geant4/geometry/collada/daeview/20140419-170713.png
-   :width: 640
+    :poster: /env/geant4/geometry/collada/daeview/20140419-170713.png
+    :width: 640
+
+
 
 Chroma Raycasting
 --------------------
@@ -172,38 +182,25 @@ OpenGL CUDA interop used to share pixels between OpenGL and Chroma,
 
 
 
-
-Chroma : Hardware requirements 
---------------------------------
-
-Develop with Retina MacBook Pro (late 2013), NVIDIA GeForce GT 750M 2048 MB
-
-.. sidebar:: Suitable GPUs only ~250-350 USD
-
-   eg NVIDIA GeForce GTX 680 (1536 CUDA cores, 2048 MB, Compute Capability 3.0) ~ 330 USD
-
-* NVIDIA GPU with CUDA Compute Capability (CCC) 2.0 at least 
-* 1.5G of GPU memory (estimated minimum for Dayabay geometry)
-
-
-
-
-
-NuWa + Chroma : Status along Fivefold path 
+NuWa + Chroma : Issues along Fivefold path 
 -------------------------------------------
 
 .. class:: small
 
-    #. :blue:`Geometry Conversion` progress:
+    #. :blue:`Geometry Export` by G4DAE
 
-       * G4DAE exports triangles into DAE files
-       * DAENODE reads G4DAE, creates Chroma geometry 
+       * boolean solid triangulation sensitivity
+       * GDML/G4DAE bug omits some ``G4LogicalBorderSurface`` :red:`need confirmation/fix`
+       * GDML/G4DAE ugly pointer addresses used in identifiers (change for each export)
 
-    #. :blue:`Software Installation` plan:
+    #. :blue:`Geant4 to Chroma` mapping by DAENODE 
 
-       * extend NuWA installer to cover Chroma and its dependency tree
+       * :red:`material/surface property mapping choices need validation`
+       * Chroma needs : :red:`double sided surfaces` to represent ``G4LogicalBorderSurface``
 
-    #. :red:`GPU Hardware access : **uncertain**`
+    #. :red:`Chroma Camera` Geometry checking
+
+       * GPU Panic, GUI freeze, system crash 
 
     #. :blue:`Geant4/Chroma Integration` questions:
 
@@ -218,13 +215,13 @@ NuWa + Chroma : Status along Fivefold path
        * comparison against conventional simulation production runs
 
 
-
 G4DAE Dayabay Near Site 
 ---------------------------------------------------
 
 .. image:: images/osx_preview/osx_preview_g4dae_dayabay.png 
    :height: 700px
    :align: center
+
 
 .. class:: small
 
@@ -270,6 +267,19 @@ Chroma Ray Tracing Dayabay Geometry (4)
 .. image:: images/chroma/chroma_dayabay_adlid.png
    :width: 800px
    :align: center
+
+
+Chroma : Hardware requirements 
+--------------------------------
+
+Develop with Retina MacBook Pro (late 2013), NVIDIA GeForce GT 750M 2048 MB
+
+.. sidebar:: Suitable GPUs only ~250-350 USD
+
+   eg NVIDIA GeForce GTX 680 (1536 CUDA cores, 2048 MB, Compute Capability 3.0) ~ 330 USD
+
+* NVIDIA GPU with CUDA Compute Capability (CCC) 2.0 at least 
+* 1.5G of GPU memory (estimated minimum for Dayabay geometry)
 
 
 

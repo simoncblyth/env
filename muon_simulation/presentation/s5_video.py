@@ -21,14 +21,11 @@ class s5video(nodes.General, nodes.Inline, nodes.Element):
 
 def render_s5video( n ):
     video_tmpl = r"""
-        <style type="text/css">
-           video.flic {
-              text-align: center;
-          }
-        </style>
-        <video id="%(id)s" class="flic" src="%(src)s" controls %(height)s %(width)s %(poster)s >
+        <div style="text-align: center;" >
+        <video id="%(id)s" src="%(src)s" controls %(height)s %(width)s %(poster)s >
             <p> Your Browser does not support HTML5 Video </p>
         </video>
+        </div>
     """
     global count
     count += 1 
@@ -45,7 +42,7 @@ def render_s5video( n ):
     ctx['width'] = att_('width',width)
     ctx['poster'] = att_('poster',poster) if len(poster) > 0 else ''
 
-    return self.video_tmpl % ctx
+    return video_tmpl % ctx
 
 def visit_s5video_html(self, n ):
     html = render_s5video( n )
