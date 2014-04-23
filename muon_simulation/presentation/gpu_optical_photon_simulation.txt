@@ -25,8 +25,8 @@
     /env/geant4/geometry/collada/daeview/20140419-171014.png
  
     # the image is too big to be shown as is 
-    G4DAE Dayabay Near Site 
-    images/osx_preview/osx_preview_g4dae_dayabay.png 
+    #G4DAE Dayabay Near Site 
+    #images/osx_preview/osx_preview_g4dae_dayabay.png 
     
 
 ======================================================================
@@ -187,22 +187,23 @@ NuWa + Chroma : Issues along Fivefold path
 
 .. class:: small
 
-    #. :blue:`Geometry Export` by G4DAE
+    #. :blue:`Geant4 to DAE` by G4DAE
 
        * boolean solid triangulation sensitivity
        * GDML/G4DAE bug omits some ``G4LogicalBorderSurface`` :red:`need confirmation/fix`
        * GDML/G4DAE ugly pointer addresses used in identifiers (change for each export)
+       * rehome G4DAE from env repo into bitbucket for greater visibility
 
-    #. :blue:`Geant4 to Chroma` mapping by DAENODE 
+    #. :blue:`DAE to Chroma` mapping by DAENODE 
 
        * :red:`material/surface property mapping choices need validation`
        * Chroma needs : :red:`double sided surfaces` to represent ``G4LogicalBorderSurface``
 
-    #. :red:`Chroma Camera` Geometry checking
+    #. Chroma fork testing, https://bitbucket.org/scb-/chroma 
 
-       * GPU Panic, GUI freeze, system crash 
+       * raycasting: :red:`GPU Panic, GUI freeze, system crash` when kernels run >5 seconds
 
-    #. :blue:`Geant4/Chroma Integration` questions:
+    #. :blue:`Geant4/Chroma live Integration` questions:
 
        * where to take the photons from Geant4 
        * whether to give back to Geant4 OR form hits on GPU
@@ -213,6 +214,8 @@ NuWa + Chroma : Issues along Fivefold path
     #. :blue:`Validation` plan:
 
        * comparison against conventional simulation production runs
+
+
 
 
 G4DAE Dayabay Near Site 
