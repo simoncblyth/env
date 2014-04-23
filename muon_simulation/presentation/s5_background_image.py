@@ -19,7 +19,7 @@ class S5BackgroundImage(Directive):
             /env/test/LANS_AD3_CoverGas_Humidity.png
 
             Test Protocol Relative Link
-            //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+            //localhost/env/test/LANS_AD3_CoverGas_Humidity.png 50%_auto
            
     """
     has_content = True
@@ -32,6 +32,8 @@ class S5BackgroundImage(Directive):
 
     div_tmpl = r"""div.slide#%(tid)s{
              background-image: url(%(url)s);
+             background-size: %(size)s;
+             background-position: %(position)s;
           }"""
 
     style_tmpl = r"""
@@ -52,8 +54,16 @@ class S5BackgroundImage(Directive):
         assert len(content) % 2 == 0  
         divs = []
         for pair in [content[i:i+2] for i in range(0, len(content), 2)]:
-            title, url = pair
-            divs.append( self.div_tmpl % dict(tid=nodes.make_id(title), url=url) )
+            title, spec_line = pair
+            spec_elem = spec_line.split()
+            nelem = len(spec_elem)
+            size, position = "auto_auto", "0px_0px"
+            if nelem > 0:url = spec_elem[0] 
+            if nelem > 1:size = spec_elem[1]
+            if nelem > 2:position = spec_elem[2]
+            pass
+            _ = lambda _:_.replace("_"," ")
+            divs.append( self.div_tmpl % dict(tid=nodes.make_id(title), url=url, size=_(size),position=_(position))) 
         pass
         html = self.style_tmpl % dict(divs="\n          ".join(divs))
         raw = nodes.raw('', html, format = 'html')

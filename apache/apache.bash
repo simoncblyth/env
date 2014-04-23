@@ -748,7 +748,7 @@ ProxyPassReverse /   http://picasaweb.google.com
 EOC
 }
 
-apache-cd(){ cd $(apache-htdocs); }
+apache-cd(){ cd $(apache-htdocs)/$1; }
 
 apache-ln(){
    base-

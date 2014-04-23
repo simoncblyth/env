@@ -2,9 +2,9 @@
 # Convert RST .txt into .html within $(APACHE_HTDOCS) and 
 # open a page of the presentation in Safari:
 # 
-#    make ; PAGE=10 make open
+#    make open PAGE=6
 # 
-#    make touch ; make ; PAGE=10 make open    # if modifying smth not detected by this Makefile
+#    make touch ; make open PAGE=6    # if modifying smth not detected by this Makefile
 #
 #
 PYTHON?=python
@@ -42,7 +42,7 @@ ls:
 	@echo NEWPUBDIR $(NEWPUBDIR)
 	@ls -l $(NEWPUBDIR)
 
-open:
+open: $(SLIDES)
 	@open $(SLIDES_URL)
 
 touch: 

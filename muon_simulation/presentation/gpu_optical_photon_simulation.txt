@@ -28,6 +28,9 @@
     #G4DAE Dayabay Near Site 
     #images/osx_preview/osx_preview_g4dae_dayabay.png 
     
+    #Chroma Raycast Illustration
+    #/env/chroma/chroma_camera/chroma_raycast_illustration.png 1000px_auto 200px_100px
+
 
 ======================================================================
 200x Faster Optical Photon Propagation with NuWa + Chroma ?
@@ -79,106 +82,210 @@ eliminate geometry code as :red:`just one code path`.
    http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
 
 
-G4DAE : Export Geant4 Geometry into DAE files
--------------------------------------------------
+:small:`G4DAE : Export Geant4 Geometry into DAE files`
+-------------------------------------------------------
 
-Geant4 addition (C++) based on GDML+VRML2 exporters, writes volume tree, materials, surfaces, 
-properties(wavelength) into COLLADA DAE files.
+.. class:: small
+
+    General Geant4 geometry exporter based on GDML+VRML2 exporters, writes COLLADA DAE, including:
+
+    * volume tree: PV/LV hierarchy 
+    * geometry: vertices, triangles+quads 
+    * materials 
+    * surfaces (skin and border surfaces)
+    * material/surface properties as function of wavelength 
 
 .. class:: small
 
    * http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/DAE 
+   * http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/export
    * http://www.khronos.org/collada/
 
-G4DAE capable NuWa: ``./dybinst -X geant4_with_dae trunk all``
+:small:`G4DAE capable NuWa`: ``./dybinst -X geant4_with_dae trunk all``
 
 .. image:: images/G4DAEWrite.png 
    :height: 700px
    :align: center
 
 
-G4DAE Export Compared to VRML2(WRL)
----------------------------------------
+:small:`G4DAE : Export Compared to VRML2(WRL)`
+-----------------------------------------------
 
-Comparison of all vertices/faces reveals :red:`boolean solids are discrepant`. 
-Perfect[1]_ agreement only achieved by *cheating* : :blue:`perform triangulation once and reuse`.
+.. class:: small
 
-====================  ==============  ===========  ===============
- Qty                    DayaBay         Lingao          Far
-====================  ==============  ===========  ===============
-Volumes                     12,229        12,229          18,903 
-Triangles                2,448,064     2,448,064       4,189,680
-Vertices                 1,245,996     1,245,996       2,128,208
-DAE/GDML/WRL (MB)        6.9/4.0/98   6.9/4.0/96     8.6/6.0/167                    
-====================  ==============  ===========  ===============
+    * Comparison of all vertices/faces reveals :red:`boolean solids are discrepant`. 
+    * Perfect[1]_ agreement only achieved by *cheating* : :blue:`perform triangulation once and reuse`.
 
-.. class:: tiny
+.. class:: small
 
-    ``VGDX_20140414`` counts using ``daeview.sh -g 0: --with-chroma``
-
-* Triangulation sensitivity impact :red:`needs checking`
-* DAE not much bigger than GDML, but includes all triangles/vertices
+    ====================  ==============  ===========  ===============
+     Qty                    DayaBay         Lingao          Far
+    ====================  ==============  ===========  ===============
+    Volumes                     12,229        12,229          18,903 
+    Triangles                2,448,064     2,448,064       4,189,680
+    Vertices                 1,245,996     1,245,996       2,128,208
+    DAE/GDML/WRL (MB)        6.9/4.0/98   6.9/4.0/96     8.6/6.0/167                    
+    ====================  ==============  ===========  ===============
 
 .. class:: tiny
 
-    .. [1] Maximum DAE WRL offset of < 0.13 mm, after patching VRML2 export precision bug. 
+    ``VGDX_20140414`` counts using ``daeviewgl.py -g 0: --with-chroma``
+
+.. class:: small
+
+    * Triangulation sensitivity impact :red:`needs checking`
+    * DAE not much bigger than GDML, but includes all triangles/vertices
+
+.. class:: tiny
+
+    .. [1] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug. 
            Details: http://dayabay.phys.ntu.edu.tw/e/geant4/geometry/collada/dae_cf_wrl/ 
 
 
-Triangular Advantage 
------------------------
+:small:`G4DAE : Triangular Advantage` 
+--------------------------------------
 
-Surface representation simplicity (vertices+triangles) means many tools/libraries.
-Using:
+.. class:: small
 
-* https://github.com/pycollada/pycollada  numpy based DAE parsing 
-* https://github.com/mrdoob/three.js/  Javascript 3D using WebGL
-* http://pyopengl.sourceforge.net   OpenGL from python 
-* https://code.google.com/p/glumpy/  pyopengl+numpy integration
+    Surface representation simplicity (vertices+triangles) and COLLADA standard 
+    file format means many tools/libraries available, allowing high level development.
+    Basis libraries used for developments:
 
-* OSX Snow Leopard 10.6+ : Preview, Quicklook, Xcode
+    * ``daenode.py`` : G4DAE => Chroma geometry
 
+       * https://github.com/pycollada/pycollada  numpy based DAE parsing
+       * http://www.numpy.org
 
-daenode.py : G4DAE => Chroma geometry 
----------------------------------------
- 
-* parses G4DAE using pycollada
-* recreates Geant4 volume tree from pycollada tree
-* converts into Chroma geometry, including materials/surfaces/properties(wavelength)
-* ``daeserver.py`` exposes ``daenode.py`` as WebGL + three.js based 
-  3D web interface http://belle7.nuu.edu.tw/dae/tree/3148.html
+    * ``daeserver.py`` : 3D WebGL interface to G4DAE geometry
 
+       * https://github.com/mrdoob/three.js/  Javascript 3D 
+
+    * ``daeviewgl.py`` : Fast OpenGL 3D viewer/navigator
+
+       * http://pyopengl.sourceforge.net   OpenGL from python 
+       * https://code.google.com/p/glumpy/  pyopengl+numpy integration
 
 .. class:: small
 
    http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/collada/daenode.py
-
-
-daeviewgl.py : 3D interface to G4DAE files  
----------------------------------------------
-
-* Fast OpenGL 3D visualization/navigation, Chroma interactive raycasting 
-
-.. s5_video:: /env/daeview_Movie_ipad.m4v
-    :poster: /env/geant4/geometry/collada/daeview/20140419-170713.png
-    :width: 640
+   http://belle7.nuu.edu.tw/dae/tree/3148.html
 
 
 
-Chroma Raycasting
---------------------
-
-OpenGL CUDA interop used to share pixels between OpenGL and Chroma, 
-
-
+https://bitbucket.org/scb-/chroma :small:`Fork, so far:` 
+-------------------------------------------------------------------
 
 .. class:: small
+
+    * Mostly small changes, to get operational
+    * Raycaster stability + efficiency improvements
+    * Developed using Retina MacBook Pro (late 2013), NVIDIA GeForce GT 750M 2048 MB
+
+.. image:: /env/chroma/chroma_fork.png 
+   :width: 700px
+   :align: center
+
+:small:`Chroma Raycasting : exercises geometry intersection`
+-------------------------------------------------------------
+
+.. class:: small
+
+    Raycasting exercises slowest part of photon propagation: :red:`geometry intersection`. 
+ 
+.. image:: /env/chroma/chroma_camera/chroma_raycast_illustration.png 
+   :width: 600px
+   :align: center
+
+.. class:: small
+
+    * Shoot rays thru every pixel out into geometry, typically >1M rays
+    * Find triangle intersections using BVH[2]_ acceleration structure
+    * Determine color based on angle to surface normal 
+    * Alpha blend nearest 10 surfaces, providing transparency effect  
+
+.. class:: tiny
+
+    .. [2] Boundary Volume Heirarchy, a tree of bounding boxes with triangles inside leaf nodes
+
+
+
+:small:`Chroma Raycast Worst Case (~entire geometry) Example` 
+---------------------------------------------------------------- 
+
+.. class:: small
+
+    Render Split into 3x3 CUDA kernel launches, 1 thread per pixel, ~1.8s for 1.23M pixels, 2.4M tris.
+
+.. image:: /env/chroma/chroma_camera/20140423-162109.png
+   :width: 800px
+   :align: center
+
+.. class:: tiny 
+
+    http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/
+
+    daeviewgl.py --target=.. --eye="-0.3,-1.1,1.7" --look="0.1,0.4,-0.6" --up="1.2,2.0,1.6" --size=1440,852 --near=30.00000 --far=10000.0 --yfov=50.0 --with-chroma
+
+    wrk (1440, 852) [1226880]  lch  [3, 3, 1] [9]  blk [16, 16, 1] [256]  0.03,0.26,0.12,0.15,0.79,0.20,0.06,0.20,0.04 TOT 1.84
+
+
+:small:`Chroma Raycast Triangle count (Dyb with RPC)`
+----------------------------------------------------------------
+
+.. class:: tiny
+
+    daeviewgl.py --with-chroma --metric tri --flags 1,0    # tri/time/intersect
+
+.. image:: /env/chroma/chroma_camera/pmt-tri-count-hotspots.png
+   :height: 500px
+   :align: center
+
+:small:`All triangle intersections made, even when no visible contribution to render. (Potential for optimisation?)`
+
+
+:small:`Chroma Raycast Improvements`
+--------------------------------------
+
+.. class:: small
+
+    Stability and performance improvements:
+
+    * split work into 2D CUDA kernel launch pattern (eg ``--launch 3,3,1``)
+
+       * avoids overtime launches, which :red:`get killed and cause GPU Panic, GUI freeze, hard system crash`
+       * 2D pattern means each of the 32 threads in a CUDA warp has a more equal workload
+
+    * adopt OpenGL pixel buffer objects (PBO) shared with CUDA/Chroma
+
+       * pixels created and stay on GPU
+       * avoid device->host->device pixel transfers (which cause :red:`burning CPU` errors)
+       * pixels only transferred to host for writing screenshot files
+
+    * ``daeviewgl.py`` : very fast OpenGL 3D viewer, with optional Chroma/CUDA integration 
+
+       * single OpenGL Vertex Buffer Object (VBO) for entire geometry  
+       * GPUs designed to provide fast OpenGL rasterisation, not Raycasting,
+         profit from this as basis from which to launch Chroma renders
+
+.. class:: tiny
 
    http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/collada/daeview/
    
+
+:small:`daeviewgl.py : 3D interface to G4DAE files`  
+-----------------------------------------------------
+
 .. class:: small
 
-   Implemented using glumpy, pyopengl, daenode, numpy, Chroma (optional) 
+    Fast OpenGL 3D visualization/navigation, Chroma interactive raycasting 
+
+.. s5_video:: /env/daeview_Movie_ipad.m4v
+    #:poster: /env/geant4/geometry/collada/daeview/20140419-170713.png
+    #:width: 640
+
+
+``G4DAE viewer : Near Site`` 
+----------------------------
 
 
 
@@ -214,7 +321,6 @@ NuWa + Chroma : Issues along Fivefold path
     #. :blue:`Validation` plan:
 
        * comparison against conventional simulation production runs
-
 
 
 
@@ -284,10 +390,6 @@ Develop with Retina MacBook Pro (late 2013), NVIDIA GeForce GT 750M 2048 MB
 * NVIDIA GPU with CUDA Compute Capability (CCC) 2.0 at least 
 * 1.5G of GPU memory (estimated minimum for Dayabay geometry)
 
-
-
-``G4DAE viewer : Near Site`` 
-----------------------------
 
 ``G4DAE viewer : Pool Bottom``
 -------------------------------
