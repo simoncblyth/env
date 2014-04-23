@@ -182,11 +182,6 @@ Perform Export creating 3.2M file
     giga.RunAction = grag    
 
 
-.. literalinclude:: export.sh
-
-.. literalinclude:: export.py
-
-
 ::
 
     GiGaRunActionGDML::BeginOfRunAction writing to 

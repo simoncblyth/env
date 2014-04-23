@@ -2,7 +2,9 @@
 ccgpu
 =========================
 
-.. toctree::
+::
 
-   intro
+   .. toctree::
+
+       intro
 

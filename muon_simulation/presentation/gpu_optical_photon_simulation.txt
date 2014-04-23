@@ -3,22 +3,17 @@
 
 .. s5_background_image::
 
-    # slide titles and background image urls, including server and protocol relative urls
+    #
+    # slide titles and background image urls, 
+    # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    #
 
     Full Screen
     images/chroma/chroma_dayabay_adlid.png
  
     Full Screen 2
     images/chroma/chroma_dayabay_pool_pmts.png
-
-    Test Server Relative Link  
-    /env/test/LANS_AD3_CoverGas_Humidity.png
-
-    Test Protocol Relative Link
-    //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
-
-    Chroma : Ultra-fast Photon MC
-    //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
 
     G4DAE viewer : Near Site 
     /env/geant4/geometry/collada/daeview/20140419-170713.png
@@ -29,9 +24,6 @@
     G4DAE viewer : Pool Bottom, Chroma Raycast 
     /env/geant4/geometry/collada/daeview/20140419-171014.png
  
-    #G4DAE : Exports Geant4 Geometry into DAE files
-    #images/G4DAEWrite.png 
-
      
 
 ======================================================================

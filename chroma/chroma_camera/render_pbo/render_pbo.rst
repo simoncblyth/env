@@ -207,7 +207,7 @@ PMT tri count hotspots very evident, despite the render only showing the plain o
 
 
 profile shows first launch much more expensive
----------------------------------------------
+-------------------------------------------------
 
 #. not seeing this anymore ?
 

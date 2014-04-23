@@ -31,7 +31,7 @@ In short
 Interface description XML
 --------------------------
 
-.. include:: com.nokia.Demo.xml
+.. literalinclude:: com.nokia.Demo.xml
 
 
 Generate code from description with qtdbusxml2cpp
@@ -126,7 +126,7 @@ Note ``-a`` rather than ``-p``::
 Put the above in a script
 ---------------------------
 
-.. include:: qdbusxml2cpp.sh
+.. literalinclude:: qdbusxml2cpp.sh
 
 
 Make a project 
