@@ -304,6 +304,8 @@ class DAEGeometry(object):
 
         cc = ColladaToChroma(DAENode, bvh=bvh )     
         cc.convert_geometry(nodes=self.nodes())
+
+        log.info("completed make_chroma_geometry")
         return cc.chroma_geometry
 
 

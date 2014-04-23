@@ -5,6 +5,18 @@ DAEVIEWGL
 
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/daeview/daeviewgl_usage`
 
+
+Usage Tips
+------------
+
+#. Exit other apps that make heavy use of GPU acceleration whilst running
+   daeviewgl.py (and especially when launching Chroma raycasts)
+
+   * Google Chrome snags GPU resources far more that Safari, 
+   * Uncheck `Use hardware acceleration when available` in `Chrome > Settings > Advanced Settings [System]`
+   * and restart Chrome for it to take effect
+
+
 Features
 ---------
 
@@ -215,6 +227,12 @@ Intend:
 
 Next
 -----
+
+#. there is no point proceeding when Chroma is forced into "splitting" geometry 
+   due to congested GPU memory. Chroma renders will not succeed. 
+   Detect when this happens and assert at launch. 
+   Better to do this independantly of chroma with env.cuda.cuda_info 
+   and have a configurable minimum required GPU memory free to proceed. 
 
 #. persist bookmarks to file and provide loading capability 
 
