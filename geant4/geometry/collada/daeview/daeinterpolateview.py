@@ -23,7 +23,6 @@ def sawtooth( frame, low, high, speed ):
 
 
 
-
 class DAEViewpointBase(object):
     """
     Subclasses **MUST** define properties:
@@ -66,6 +65,9 @@ class DAEViewpointBase(object):
     eye  = property(lambda self:self.eye_look_up[0:3])
     look = property(lambda self:self.eye_look_up[3:6])
     up  =  property(lambda self:self.eye_look_up[6:9])
+
+    def __repr__(self):
+        return "%s" % self.__class__.__name__
 
 
 class DAEParametricView(DAEViewpointBase):
@@ -190,9 +192,6 @@ class DAEParametricView(DAEViewpointBase):
         log.debug("count %s f %s speed %s " % ( count, f, speed ))
         self.f = f
 
-    def __repr__(self):
-        return "%s" % self.__class__.__name__
-
 
  
 class DAEInterpolateView(DAEViewpointBase):
@@ -226,7 +225,7 @@ class DAEInterpolateView(DAEViewpointBase):
         return (1.-self.f)*self.a + self.f*self.b
     eye_look_up = property(_get_eye_look_up)     
 
-    def __repr__(self):
+    def smry(self):
         return " ".join([
                          "IV(%d->%d[%s] %d)" % (self.i,self.j,self.f,self.nviews), 
                          "A %s" % self.views[self.i],

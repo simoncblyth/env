@@ -46,18 +46,24 @@ class DAEBookmarks(dict):
                 self.assign(k, view)
 
     def __repr__(self):
-        return "".join(map(str,self.keys()))
+        def fmt_(k):
+            return "[%s]" if self.is_current(k) else "%s"  
+        return "".join(map(lambda k:fmt_(k) % k,sorted(self.keys())))
 
     def create_for_solid(self, solid, numkey ):
         log.info("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
         view = self.transform.spawn_view_jumping_frame(solid)
         self.assign(numkey, view)
-        self.current = numkey
+        self.set_current(numkey)
 
     def assign(self, key, view):
         self[str(key)] = view
     def lookup(self, key, default=None):
         return self.get(str(key),default)
+    def set_current(self, key):
+        self.current = str(key)  
+    def is_current(self, key):
+        return str(key) == self.current
  
     current_view = property(lambda self:self.lookup(self.current,None))
 
@@ -74,15 +80,17 @@ class DAEBookmarks(dict):
         view = self.transform.spawn_view_jumping_frame(view.solid)
         self.assign(numkey, view) 
 
-
     def visit(self, numkey):
         view = self.lookup(numkey, None)
         if not view is None:
-            self.current = numkey  
+            self.set_current(numkey)
         return view
 
     def make_interpolate_view(self):
-        views = [self[k] for k in sorted(self,key=lambda _:_)]
+        keys = sorted(self, key=lambda _:_)
+        idx = keys.index(self.current)
+        keys_starting_with_current = keys[idx:] + keys[:idx] 
+        views = [self[k] for k in keys_starting_with_current]
         log.info("make_interpolate_view sequence with %s views " % (len(views)))
         return DAEInterpolateView(views)
 

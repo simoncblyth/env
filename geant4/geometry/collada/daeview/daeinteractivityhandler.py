@@ -161,7 +161,6 @@ class DAEInteractivityHandler(object):
         self.scene.resize((width, height))
 
     def on_draw(self):
-        #log.info("interactivity on_draw")
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
 
     def exit(self):
@@ -186,8 +185,8 @@ class DAEInteractivityHandler(object):
     def on_key_press(self, symbol, modifiers):
         """
         ABCDEFGHIJKLMNOPQRSTUVWXYZ
-        *** ******************** *
-           D                    Y
+         ** **********************
+        A  D                    
         """
         if   symbol == key.ESCAPE: self.exit()
         elif symbol == key.Z: self.zoom_mode = True

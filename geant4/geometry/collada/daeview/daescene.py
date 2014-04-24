@@ -322,7 +322,19 @@ class DAEScene(object):
         self.raycaster.reconfig(**raycast_config)
 
     def update_view(self, newview ):
+        """
+        Replaces scene.view instance with another view instance, which 
+        can be of any view type:
+
+        #. DAEViewpoint
+        #. DAEInterpolatedView
+        #. DAEParametricView
+
+        """
         self.trackball.home()
+        if not newview.interpolate and self.animate:
+            log.info("update_view switch off animation as new view not interpolat-able")
+            self.animate = False
         self.view = newview
 
     def target_view(self, tspec, prior=None):
@@ -330,6 +342,9 @@ class DAEScene(object):
         return DAEViewpoint.make_view( self.geometry, tspec, self.config.args, prior=prior )
 
     def interpolate_view(self, jspec, append=False):
+        """
+        TODO: Maybe get rid of this, interpolation based on bookmarks is much better 
+        """
         self.trackball.home()
         views  = self.view.views if append else [self.view.current_view]
         views += [DAEViewpoint.make_view( self.geometry, j, self.config.args, prior=views[-1] ) for j in jspec.split(":")]

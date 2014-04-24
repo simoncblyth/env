@@ -287,7 +287,7 @@ class DAEViewpoint(object):
         return "e %s l %s d %.2f" % (brief_(self._eye), brief_(self._look), self.distance  )  
 
     def __repr__(self):
-        return "V %s/%s x %.2f d %.2f" % (self.target, self.index, self.extent, self.distance  )  
+        return "extent %.2f distance %.2f" % (self.extent, self.distance )  
 
     def __str__(self):
         eye, look, up = np.split(self.eye_look_up,3)
@@ -335,7 +335,7 @@ class DAEViewpoint(object):
             pass
         assert len(kwa) == 5, "missing argument(s) %s " % repr(kwa) 
 
-        log.info("DAEViewpoint.fromini %s " % repr(cfg))
+        log.debug("DAEViewpoint.fromini %s " % repr(cfg))
         return cls(**kwa)
 
 
