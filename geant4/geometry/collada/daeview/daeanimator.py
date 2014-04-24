@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 """
 
-Issues
+Former issues, now seemingly resolved:
 
-#. speed changes at some points in interpolation still causing jumps
-#. still getting flashes at sawtooth bump points, likely a problem with DAEInterpolatedView rather than here
-
+#. speed changes at some points in interpolation causing jumps
+#. view flashes at sawtooth bump points
 
 """
 import logging
@@ -35,7 +34,7 @@ class DAEAnimator(object):
     nfrac = property(lambda self:len(self.fractions))
 
     def _get_index(self):
-        self._index = self.count % self._period
+        self._index = self.count % self._period   # modulo, responsible for the sawtooth
         return self._index
     index = property(_get_index)
 

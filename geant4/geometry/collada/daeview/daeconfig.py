@@ -195,9 +195,9 @@ class DAEConfig(object):
         parser.add_argument(      "--max-alpha-depth", help="Chroma Raycaster max_alpha_depth", type=int )
 
         defaults['path'] = os.environ['DAE_NAME']
-        defaults['nodes']="3153:12230"
+        defaults['geometry']="3153:"
         parser.add_argument(     "--path",    help="Path of geometry file  %(default)s",type=str)
-        parser.add_argument("-g","--nodes",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
+        parser.add_argument("-g","--geometry",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
 
         defaults['size']="1440,852"
         defaults['frame'] = "1,1"

@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 """
+TODO
+=====
+
+#. split this up and tidy 
+
+
 Geant4 level interpretation of G4DAEWrite exported pycollada geometry
 =======================================================================
 
@@ -434,7 +440,7 @@ class DAENode(object):
         #log.info("xtras: %s " % xtras )
         #log.info("extras: %s " % extras )
 
-        if len(children) == 0:# leaf
+        if len(children) == 0: #leaf formation, gets full ancestry to go on
             cls.make( ancestors + [node], extras + xtras )
         else:
             for child in children:
@@ -443,6 +449,10 @@ class DAENode(object):
     @classmethod
     def indexget(cls, index):
         return cls.registry[index]
+
+    @classmethod
+    def indexgets(cls, indices):
+        return [cls.registry[index] for index in indices]
 
     @classmethod
     def idget(cls, id):
@@ -617,6 +627,15 @@ class DAENode(object):
             cls.vwalk(visit_=visit_, node=subnode, depth=depth+1)
 
     @classmethod
+    def dwalk(cls, visit_=lambda node:None, node=None, depth=0):
+        if node is None:
+            node=cls.root
+        visit_(node, depth) 
+        for subnode in node.children:
+            cls.dwalk(visit_=visit_, node=subnode, depth=depth+1)
+
+
+    @classmethod
     def vwalks(cls, visits=[], node=None, depth=0):
         if node is None:
             node=cls.root
@@ -624,6 +643,25 @@ class DAENode(object):
             visit_(node) 
         for subnode in node.children:
             cls.vwalks(visits=visits, node=subnode, depth=depth+1)
+
+
+    @classmethod
+    def progeny(cls, index=None, maxdepth=100):
+        """
+        :param index: of base node of interest within the tree
+        :return: all nodes in the tree below and including the base node
+        """ 
+        nodes = []
+        basenode = cls.root if index is None else cls.get(str(index))
+        nodes.append(basenode) 
+        pass
+        def visit_(node, depth):
+            if depth < maxdepth:
+                nodes.append(node)
+            pass
+        pass
+        cls.dwalk(visit_=visit_, node=basenode )  # recursive walk 
+        return nodes
 
     @classmethod
     def md5digest(cls, nodepath ):
@@ -674,6 +712,8 @@ class DAENode(object):
                 tag = elem.tag[len(COLLADA_NS)+2:]
                 d[tag] = elem.text 
         return d
+
+
 
     def ancestors(self,andself=False):
         """

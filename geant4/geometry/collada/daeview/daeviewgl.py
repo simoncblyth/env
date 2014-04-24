@@ -5,7 +5,6 @@ DAEVIEWGL
 
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/daeview/daeviewgl_usage`
 
-
 Usage Tips
 ------------
 
@@ -16,7 +15,6 @@ Usage Tips
    * Uncheck `Use hardware acceleration when available` in `Chrome > Settings > Advanced Settings [System]`
    * and restart Chrome for it to take effect
 
-
 Features
 ---------
 
@@ -25,6 +23,22 @@ usage text
 
 On pressing "U" usage text describing the actions of each key 
 are written to stdout.  (TODO: display to screen)
+
+partial geometry
+~~~~~~~~~~~~~~~~~
+
+Partial geometry can be loaded using::
+
+    daeviewgl.py -g 3153:    # for Dayabay site this skips Universe, rock and RPC, but includes everything in the pool  
+    daeviewgl.py -g 3154-    # for Dayabay site includes only SST and nodes beneath that in the tree, ie the contents of SST
+    daeviewgl.py -g 4:3146   # for Dayabay site: RPC
+  
+
+The partial geometry specified is also used for Chroma raycasting, which 
+is a simple way to make raycast rendering faster.
+
+TODO: combining tree aware node spec with lists, so can show multiple trees 
+
 
 bookmarks
 ~~~~~~~~~~~
@@ -55,6 +69,43 @@ offsets into the current view press SPACE.
 * press "X" while dragging around to translate in screen XY direction 
 * press "Z" while dragging up/down to tranlate in screen Z direction (in/out)
 
+All bookmarks other than bookmark zero which corresponds to the launch viewpoint 
+are persisted at exit into a "bookmarks.cfg" file in the working directory. 
+A subsequent session from the same directory re-loads the bookmarks.
+
+TODO: perhaps persist the exiting viewpoint into bookmark-0 ? 
+
+
+interpolate between bookmarks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Press "B" to setup an animation that linearly interpolates between the 
+bookmarked views starting at the current bookmark. Two or more bookmarks
+are required.  To change the animation first update the bookmarks 
+and then press "B" again.
+
+orbiting mode
+~~~~~~~~~~~~~~
+
+Press "V" to setup a flyaround or orbit mode for the current bookmark.
+The initial "look" direction is tangential, so you might need to turn inwards 
+using the trackball controls to see the geometry. 
+
+animation control
+~~~~~~~~~~~~~~~~~
+
+Following setup of bookmark or orbit animations, pressing "M" will toggle 
+the animation. Speed of animation can be adjusted using the right/left arrow keys.
+During animation trackball translation/rotation can still be used to adjust the effective viewpoint. 
+Also most other controls can still be used during the animation, such as near/far clipping or 
+switching to Chroma raycast rendering.
+
+placemarks
+~~~~~~~~~~~
+
+The commandline to return to a viewpoint and camera configuration
+is written to stdout on exiting or on pressing "W".
+
 parallel projection
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -72,13 +123,8 @@ perspective projection.
 * "F" to change far 
 
 TODO: Get chroma raycast to work in parallel projection mode, need to 
-      come up with the 
+      come up with the matrix and probably change the kernel.
 
-placemarks
-~~~~~~~~~~~
-
-The commandline to return to a viewpoint and camera configuration
-is written to stdout on exiting or on pressing "W".
 
 near/far controls (and some wierdness)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -188,18 +234,6 @@ Not implemented, as find that on OSX can simply use `QuickTime Player.app`
 
 * `File > New Screen Recording` to create a very large .mov (~1GB for ~2min) 
 * `File > Export ...` to compress .mov to .m4v 
-
-orbiting mode
-~~~~~~~~~~~~~~
-
-Press "V" to setup a flyaround or orbit mode for the current bookmark view.
-Following this setup, pressing "M" will toggle interpolation animation.
-During the animation trackball translation/rotation can still be used to 
-adjust the effective viewpoint.  The initial "look" direction is tangential, 
-so you might need to turn inwards to see the target. Switching to Chroma Raycast
-mode can also be used.
-
-TODO: auto switch off animation, when jumping bookmarks to non-interpolatable view.
 
 
 
@@ -321,7 +355,7 @@ def main():
     config.cudacheck = cudacheck
 
 
-    geometry = DAEGeometry(config.args.nodes, path=config.args.path)
+    geometry = DAEGeometry(config.args.geometry, path=config.args.path)
     geometry.flatten()
 
     figure = gp.Figure(size=config.size)

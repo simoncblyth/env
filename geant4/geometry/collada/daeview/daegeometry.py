@@ -174,7 +174,13 @@ class DAEGeometry(object):
         if len(DAENode.registry) == 0:
             DAENode.parse(path)
 
-        self.solids = [DAESolid(node, bound) for node in DAENode.getall(arg)]
+        if arg[-1] == "-":
+            nodes = DAENode.progeny(arg[:-1])
+        else:
+            nodes = DAENode.getall(arg)
+        pass
+
+        self.solids = [DAESolid(node, bound) for node in nodes]
         self.mesh = None
         self.bbox_cache = None
 

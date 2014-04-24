@@ -321,6 +321,7 @@ class DAEViewpoint(object):
         """
         :param cfg:  List of key value pairs, like that supplied by ConfigParser
         """
+        solid = None
         kwa = {}
         for k,v in cfg:
             if k in ("eye","look","up"):
@@ -334,8 +335,10 @@ class DAEViewpoint(object):
                 log.warn("ignoring bookmark key %s " % k )
             pass
         assert len(kwa) == 5, "missing argument(s) %s " % repr(kwa) 
-
-        log.debug("DAEViewpoint.fromini %s " % repr(cfg))
+        if solid is None:
+            log.warn("bookmark invalid for current geometry as solid not present ")
+            return None
+        pass 
         return cls(**kwa)
 
 

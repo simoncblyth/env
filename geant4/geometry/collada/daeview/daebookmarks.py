@@ -43,7 +43,10 @@ class DAEBookmarks(dict):
                 k = sect[len(self.ini_prefix):]
                 cfg = cfp.items(sect)
                 view = DAEViewpoint.fromini( cfg, geometry ) 
-                self.assign(k, view)
+                if view is None:
+                    log.info("failed to load bookmark %s " % k )
+                else:   
+                    self.assign(k, view)
 
     def __repr__(self):
         def fmt_(k):
