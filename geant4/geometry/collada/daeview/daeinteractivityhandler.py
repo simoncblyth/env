@@ -165,7 +165,7 @@ class DAEInteractivityHandler(object):
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
 
     def exit(self):
-        print "%s %s " % (os.path.basename(sys.argv[0]), str(self.scene))
+        self.scene.exit()
         sys.exit() 
 
     def save_to_file(self):

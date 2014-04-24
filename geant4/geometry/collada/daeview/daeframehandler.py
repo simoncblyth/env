@@ -65,7 +65,7 @@ class DAEFrameHandler(object):
         """
         if self.scene.light:
             self.scene.lights.setup()
-            log.info("on_init lights\n%s" % str(self.scene.lights))
+            log.debug("on_init lights\n%s" % str(self.scene.lights))
         pass
 
 

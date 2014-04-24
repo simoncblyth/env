@@ -231,7 +231,7 @@ class DAEGeometry(object):
 
         log.info('Flattening %s DAESolid into one DAEMesh...' % len(self.solids))
         mesh = DAEMesh(vertices, triangles, normals)
-        log.info(mesh)
+        log.debug(mesh)
         self.mesh = mesh 
 
     def make_bbox_cache(self):

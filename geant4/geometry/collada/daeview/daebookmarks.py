@@ -1,12 +1,49 @@
 #!/usr/bin/env python
 import os, logging
 log = logging.getLogger(__name__)
+
+from ConfigParser import ConfigParser
 from daeinterpolateview import DAEInterpolateView, DAEParametricView
+from daeviewpoint import DAEViewpoint
 
 class DAEBookmarks(dict):
-    def __init__(self):
+    def __init__(self, path, geometry):
         dict.__init__(self)
+        self.path = path
         self.current = None
+        if os.path.exists(path):
+            self.load(geometry)  
+
+    ini_prefix = "bookmark_"
+    ini_exclude = ("0",)
+
+    def _get_asini(self):
+        keys = filter(lambda k:k not in self.ini_exclude, sorted(self))  # bookmark_0 excluded
+        keys = filter(lambda k:not self[k].solid is None,keys)  
+        if len(self) != len(keys):
+            log.warn("some bookmarks for views without solids not saved")
+        return "\n".join(["[%s%s]\n%s" % (self.ini_prefix, k, self[k].asini) for k in keys])
+    asini = property(_get_asini)
+
+    def save(self):
+        log.info("save bookmarks to %s " % self.path )
+        with open(self.path,"w") as w:
+            w.write(self.asini + "\n")
+
+    def load(self, geometry):
+        """
+        :param geometry: DAEGeometry instance
+        """
+        log.info("load bookmarks from %s " % self.path )
+        cfp = ConfigParser()
+        cfp.read([self.path])        
+
+        for sect in cfp.sections():
+            if sect.startswith(self.ini_prefix):
+                k = sect[len(self.ini_prefix):]
+                cfg = cfp.items(sect)
+                view = DAEViewpoint.fromini( cfg, geometry ) 
+                self.assign(k, view)
 
     def __repr__(self):
         return "".join(map(str,self.keys()))
@@ -14,26 +51,32 @@ class DAEBookmarks(dict):
     def create_for_solid(self, solid, numkey ):
         log.info("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
         view = self.transform.spawn_view_jumping_frame(solid)
-        self[numkey] = view
+        self.assign(numkey, view)
         self.current = numkey
 
-    current_view = property(lambda self:self.get(self.current,None))
+    def assign(self, key, view):
+        self[str(key)] = view
+    def lookup(self, key, default=None):
+        return self.get(str(key),default)
+ 
+    current_view = property(lambda self:self.lookup(self.current,None))
 
     def update_current(self):
         numkey = self.current
         if numkey is None:
             log.warn("no current bookmark")
             return
-        view = self.get(numkey, None)
+        view = self.lookup(numkey, None)
         if view is None:
             log.warn("no such bookmark %s cannot update " % numkey )
             return  
         log.info("updating bookmark %s view.solid.id %s " % (numkey, view.solid.id))
-        self[numkey] = self.transform.spawn_view_jumping_frame(view.solid)
+        view = self.transform.spawn_view_jumping_frame(view.solid)
+        self.assign(numkey, view) 
 
 
     def visit(self, numkey):
-        view = self.get(numkey, None)
+        view = self.lookup(numkey, None)
         if not view is None:
             self.current = numkey  
         return view
@@ -46,9 +89,6 @@ class DAEBookmarks(dict):
     def make_parametric_view(self):
         log.info("make_parametric_view for current view %s " % (self.current))
         return DAEParametricView(self.current_view)
-
-
-
 if __name__ == '__main__':
     pass
 

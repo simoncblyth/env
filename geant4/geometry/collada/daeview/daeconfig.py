@@ -130,8 +130,10 @@ class DAEConfig(object):
 
 
     def report(self):
-        #print "changed settings\n", self.changed_settings()
-        print "all settings\n",self.all_settings()
+        changed = self.changed_settings()
+        if len(changed.split("\n")) > 1:
+            print "changed settings\n", changed
+        #print "all settings\n",self.all_settings()
 
     def all_settings(self):
         return "\n".join(filter(None,[
@@ -168,12 +170,14 @@ class DAEConfig(object):
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
+        defaults['bookmarks'] = "bookmarks.cfg"
 
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
         parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )
+        parser.add_argument( "--bookmarks", help="Path to persisted bookmarks  %(default)s", type=str  )
 
         defaults['deviceid'] = None
         defaults['cuda_profile'] = False

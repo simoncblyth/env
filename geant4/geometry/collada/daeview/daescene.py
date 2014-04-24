@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 """
-import os, logging
+import os, sys, logging
 log = logging.getLogger(__name__)
 import numpy as np
 
@@ -57,7 +57,7 @@ class DAEScene(object):
         self.lights = DAELights( light_transform, config )
 
         # bookmarked viewpoints
-        self.bookmarks = DAEBookmarks() 
+        self.bookmarks = DAEBookmarks(config.args.bookmarks, geometry) 
 
 
         # Chroma raycaster, None if not --with-chroma
@@ -168,6 +168,9 @@ class DAEScene(object):
     def __str__(self):
         return " ".join(map(str,[self.transform, self.camera])) 
 
+    def exit(self):
+        self.bookmarks.save()
+        print "%s %s " % (os.path.basename(sys.argv[0]), str(self))
 
     here = property(lambda self:self.transform.eye[:3])
 

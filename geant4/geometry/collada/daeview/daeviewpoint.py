@@ -72,6 +72,8 @@ class DAEViewpoint(object):
         :param target: string identifier for the solid
 
         The solid defines the coordinate frame in which eye,look,up are expressed
+
+        TODO: eliminate solid or target, duplication is evil
         """
         _eye, _look, _up = ensure_not_collinear( _eye, _look, _up )
         pass  
@@ -99,9 +101,6 @@ class DAEViewpoint(object):
     world2model = property(lambda self:self.solid.world2model)
 
 
-    #world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
-    #camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
-
     def _get_world2camera(self): 
         return view_transform( self.eye, self.look, self.up, inverse=False ) 
     world2camera = property(_get_world2camera)
@@ -109,7 +108,6 @@ class DAEViewpoint(object):
     def _get_camera2world(self): 
         return view_transform( self.eye, self.look, self.up, inverse=True ) 
     camera2world = property(_get_camera2world)
-
 
 
     def change_solid(self, solid ):
@@ -302,7 +300,43 @@ class DAEViewpoint(object):
             #         self.solid.smry(),
                       ])
 
+    def _get_asini(self):
+        kvf_ = lambda k,v,f_:"%s = " % k + f_(v).replace(" ","")
 
+        v_ = lambda v:("%(fmt)s,%(fmt)s,%(fmt)s " % dict(fmt="%5.1f")) % tuple(v) 
+        i_ = lambda v:"%d" % v
+        s_ = lambda v:"%s" % v
+
+        return "\n".join([
+                  kvf_("solid",  self.index, i_),
+                  kvf_("target", self.target,s_),
+                  kvf_("eye",    self._eye,  v_),
+                  kvf_("look",   self._look, v_),
+                  kvf_("up",     self._up,   v_),
+                  ])
+    asini = property(_get_asini)
+
+    @classmethod
+    def fromini(cls, cfg, geometry ):
+        """
+        :param cfg:  List of key value pairs, like that supplied by ConfigParser
+        """
+        kwa = {}
+        for k,v in cfg:
+            if k in ("eye","look","up"):
+               kwa["_%s" % k] = map(float,v.split(","))
+            elif k == "target":
+               kwa['target'] = v
+            elif k == "solid":
+               solid = geometry.find_solid_by_index(v) 
+               kwa['solid'] = solid 
+            else:
+                log.warn("ignoring bookmark key %s " % k )
+            pass
+        assert len(kwa) == 5, "missing argument(s) %s " % repr(kwa) 
+
+        log.info("DAEViewpoint.fromini %s " % repr(cfg))
+        return cls(**kwa)
 
 
 
@@ -336,6 +370,18 @@ def check_view(geometry):
     print view 
 
 
+def check_elu():
+    from daecamera import DAECamera  
+    camera = DAECamera()
+
+    solid = DummySolid()
+    view = DAEViewpoint( (-2,0,0), (0,0,0), (0,0,1), solid, "dummy")  
+    print view
+    print view.eye_look_up_model
+    print view.eye_look_up_world
+
+    print view.asini
+
 
 
 
@@ -344,7 +390,7 @@ class DummySolid(object):
     world2model = Transform()
     extent = 100.
     index = 1
-
+    
 
 
 
@@ -352,14 +398,16 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     #check_solid()
 
-    from daecamera import DAECamera  
-    camera = DAECamera()
+    from daegeometry import DAEGeometry
+    dg = DAEGeometry("3153:12230")
+    dg.flatten()
 
-    solid = DummySolid()
-    view = DAEViewpoint( (-2,0,0), (0,0,0), (0,0,1), solid, "")  
-    print view
-    print view.eye_look_up_model
-    print view.eye_look_up_world
+    target = "3153"
+    solid = dg.find_solid(target)
+    view = DAEViewpoint( (-2,0,0), (0,0,0), (0,0,1), solid, target)  
+
+    print "view\n",view 
+    print "view.asini\n",view.asini
 
 
 
