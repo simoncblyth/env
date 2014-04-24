@@ -223,7 +223,7 @@ class DAEConfig(object):
         defaults['target'] = ".."
         defaults['jump'] = None
         defaults['ajump'] = None
-        defaults['speed'] = 1e-3
+        defaults['period'] = 1000
         defaults['eye'] = "-2,-2,0"
         defaults['look'] = "0,0,0"
         defaults['up'] = "0,0,1"
@@ -235,7 +235,7 @@ class DAEConfig(object):
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
         parser.add_argument("-j","--jump",    help="[I] Animated transition to another node.")  
         parser.add_argument(     "--ajump",   help="[I] Append jump specs provided onto any existing ones.")  
-        parser.add_argument(     "--speed",   help="Animation interpolatiom speed, %(default)s", type=float)  
+        parser.add_argument(     "--period",   help="Animation interpolation frames to go from 0. to 1., %(default)s", type=float)  
         parser.add_argument("-e","--eye",     help="[I] Eye position ",type=str)
         parser.add_argument("-a","--look",    help="[I] Lookat position ",type=str)
         parser.add_argument("-u","--up",      help="[I] Up direction ",type=str)

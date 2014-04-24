@@ -21,7 +21,7 @@ def sawtooth( frame, low, high, speed ):
     p = int(1./speed)
     return low + (high-low)* float(frame%(p+1))/float(p) 
 
-
+   
 
 class DAEViewpointBase(object):
     """
@@ -187,10 +187,8 @@ class DAEParametricView(DAEViewpointBase):
     eye_look_up = property(_get_eye_look_up)     
 
 
-    def __call__(self, count, speed):
-        f = sawtooth( count, 0., 1., speed )
-        log.debug("count %s f %s speed %s " % ( count, f, speed ))
-        self.f = f
+    def __call__(self, fraction, bump=False):
+        self.f = fraction
 
 
  
@@ -245,30 +243,18 @@ class DAEInterpolateView(DAEViewpointBase):
         j = (self.j + 1) % self.nviews            
         self.define_pair(i,j )
 
-    def __call__(self, count, speed):
+    def __call__(self, fraction, bump=False):
         """
-        For i = 0, as f reaches 1, 
-        the interpolation A->B is complete and reach v1. 
+        Consider sequence of view  A, B, C, D
 
-             A->B    v0->v1
-             0  1
+        i,j = 0,1    a,b = A, B      as f approaches 1 are approaching B, bump sets the next pair 
+              1,2          B, C      sawtooth plunges f to 0, so still at B and head off towards C 
 
-        The sawtooth is about to plunge f back to 0, so 
-        next cycle changes A and B to become v1->v2
-
-        i = 1
-             A->B    v1->v2 
-             1  2  
-   
+        Getting flashbacks 
         """
-        f = sawtooth( count, 0., 1., speed )
-        bump = np.allclose(f,1.)
-        #log.info("count %s f %s speed %s bump %s " % ( count, f, speed, bump ))
-        self.f = f
         if bump:self.next_cycle()
+        self.f = fraction         
             
-
-
 
 
 if __name__ == '__main__':

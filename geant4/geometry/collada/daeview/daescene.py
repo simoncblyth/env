@@ -13,13 +13,13 @@ from daeutil import Transform
 from daelights import DAELights
 from daetransform import DAETransform
 from daebookmarks import DAEBookmarks
+from daeanimator import DAEAnimator
 
 # do not import anything that would initialize CUDA context here, for CUDA_PROFILE control from config
  
 
 ivec_ = lambda _:map(int,_.split(","))
 fvec_ = lambda _:map(float,_.split(","))
-
 
 
 class DAEScene(object):
@@ -32,7 +32,6 @@ class DAEScene(object):
         self.config = config
         args = config.args
         self.set_toggles(args)
-        self.speed = args.speed
 
         # nasty modal switch
         self.scaled_mode = args.scaled_mode  
@@ -84,6 +83,18 @@ class DAEScene(object):
         # bookmark 0 : corresponding to launch viewpoint 
         self.bookmarks.create_for_solid(self.view.solid, 0)
 
+        # animation frame count
+        self.animator = DAEAnimator(args.period)
+
+    def reset_count(self):
+        self.animator.reset()
+
+    def animation_period(self, factor ):   
+        self.animator.change_period(factor)
+
+    def tick(self, dt):
+        fraction, bump = self.animator() 
+        self.view(fraction, bump)
 
     def resize(self, size):
         self.camera.resize(size)
@@ -332,9 +343,11 @@ class DAEScene(object):
 
         """
         self.trackball.home()
-        if not newview.interpolate and self.animate:
-            log.info("update_view switch off animation as new view not interpolat-able")
+        if newview.interpolate:
+            self.reset_count()
+        else:
             self.animate = False
+        pass
         self.view = newview
 
     def target_view(self, tspec, prior=None):

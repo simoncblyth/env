@@ -25,7 +25,6 @@ def oscillate( count, low, high, speed ):
     return low + (high-low)*(math.sin(count*math.pi*speed)+1.)/2.
 
 
-count = 0 
 
 class DAEFrameHandler(object):
     """
@@ -47,10 +46,6 @@ class DAEFrameHandler(object):
     def __repr__(self):
         return "FH "
 
-    def reset_count(self):
-        global count
-        count = 0
-
     def tick(self, dt):
         """
         invoked from Interactivity handlers on_idle as this is not getting those notifications
@@ -58,9 +53,7 @@ class DAEFrameHandler(object):
         hmm better way to prevent this being called too often ?
         """
         if not self.scene.animate:return
-        global count
-        count += 1  
-        self.scene.view(count, self.scene.speed)
+        self.scene.tick(dt)
         self.frame.redraw() 
 
     def on_init(self):

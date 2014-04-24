@@ -198,16 +198,12 @@ class DAEInteractivityHandler(object):
         elif symbol == key.UP: self.dragfactor *= 2.
         elif symbol == key.DOWN: self.dragfactor *= 0.5
         elif symbol == key.S: self.toggle_fullscreen()
-        elif symbol == key.LEFT: self.scene.animation_speed(0.5)
-        elif symbol == key.RIGHT: self.scene.animation_speed(2.0)
+        elif symbol == key.LEFT: self.scene.animation_period(2.0)
+        elif symbol == key.RIGHT: self.scene.animation_period(0.5)
         elif symbol == key.H: self.scene.trackball.home()
         elif symbol == key.SPACE: self.scene.update_current_bookmark()
-        elif symbol == key.B: 
-            self.frame_handler.reset_count()
-            self.scene.setup_bookmark_interpolation()
-        elif symbol == key.V: 
-            self.frame_handler.reset_count()
-            self.scene.setup_parametric_interpolation()
+        elif symbol == key.B: self.scene.setup_bookmark_interpolation()
+        elif symbol == key.V: self.scene.setup_parametric_interpolation()
         elif symbol == key.W: self.scene.where()
         elif symbol == key.U: self.usage()
         elif symbol == key.L: self.scene.toggle("line")
