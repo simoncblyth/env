@@ -37,7 +37,10 @@ Partial geometry can be loaded using::
 The partial geometry specified is also used for Chroma raycasting, which 
 is a simple way to make raycast rendering faster.
 
-TODO: combining tree aware node spec with lists, so can show multiple trees 
+TODO: 
+
+#. add `-g 4535+` meaning children, not self 
+#. combining tree aware node spec with lists, so can show multiple trees 
 
 
 bookmarks

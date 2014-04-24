@@ -170,9 +170,6 @@ class DAEScene(object):
         else:
             log.warn("cannot toggle --showmetric unless launched --with-chroma")
 
-    def animation_speed(self, factor ):   
-        self.speed *= factor
-
     def __repr__(self):
         return "SC " + str(self.transform) 
 
@@ -258,7 +255,10 @@ class DAEScene(object):
         """ 
         log.info("setup bookmark interpolation")
         view = self.bookmarks.make_interpolate_view()
-        self.update_view(view)
+        if view is None:
+            log.warn("failed to make_interpolate_view")
+        else:
+            self.update_view(view)
 
     def setup_parametric_interpolation(self):
         """
@@ -342,6 +342,10 @@ class DAEScene(object):
         #. DAEParametricView
 
         """
+        if newview is None:
+            log.warn("update_view received newview None")
+            return 
+
         self.trackball.home()
         if newview.interpolate:
             self.reset_count()

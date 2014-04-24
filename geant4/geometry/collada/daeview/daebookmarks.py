@@ -90,6 +90,9 @@ class DAEBookmarks(dict):
         return view
 
     def make_interpolate_view(self):
+        if len(self) < 2:
+            return None
+        pass
         keys = sorted(self, key=lambda _:_)
         idx = keys.index(self.current)
         keys_starting_with_current = keys[idx:] + keys[:idx] 
