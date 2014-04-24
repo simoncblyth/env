@@ -235,7 +235,7 @@ class DAEInterpolateView(DAEViewpointBase):
     def define_pair(self, i , j ):
         self.i = i  
         self.j = j
-        log.info("define_pair cycle %s i %s j %s : %s %s " % (self.cycle, i,j,  self.views[i], self.views[j])  )
+        log.debug("define_pair cycle %s i %s j %s : %s %s " % (self.cycle, i,j,  self.views[i], self.views[j])  )
         self.a = self.views[i].eye_look_up
         self.b = self.views[j].eye_look_up 
         self.cycle += 1

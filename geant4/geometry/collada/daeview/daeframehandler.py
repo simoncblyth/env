@@ -47,6 +47,10 @@ class DAEFrameHandler(object):
     def __repr__(self):
         return "FH "
 
+    def reset_count(self):
+        global count
+        count = 0
+
     def tick(self, dt):
         """
         invoked from Interactivity handlers on_idle as this is not getting those notifications
