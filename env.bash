@@ -37,6 +37,31 @@ env-htdocs-rsync(){
    eval $cmd
 }
 
+
+u_(){ 
+   local dir=${1:-$PWD}
+   # need to canonicalize the path in order to match the standard homes  
+   #local abs=$(readlink -f $path)   ## BSD/OSX means smth else by -f
+   local abs=$(realpath $dir)   # see ~/e/tools/realpath/
+   case $abs in
+        #  ${ENV_HOME}*) echo http://dayabay.phys.ntu.edu.tw/e/${abs/$ENV_HOME\/}/ ;; 
+          ${ENV_HOME}*) echo http://localhost/e/${abs/$ENV_HOME\/}/ ;; 
+       ${HEPREZ_HOME}*) echo http://dayabay.phys.ntu.edu.tw/h/${abs/$HEPREZ_HOME\/}/ ;; 
+      ${DYBGAUDI_HOME}*) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/${abs/$DYBGAUDI_HOME\/}/ ;; 
+     ${WORKFLOW_HOME}*) echo http://localhost/w/${abs/$WORKFLOW_HOME\/}/ ;; 
+                     *) echo http://www.google.com ;;
+   esac
+}
+u(){ 
+   local url=$(u_ $*)
+   echo $msg open URL corresponding to PWD $PWD : $url
+   open $(u_ $*) ; 
+}
+
+
+
+
+
 env-usage(){ cat << EOU
 
 ===================
