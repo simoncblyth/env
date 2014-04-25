@@ -23,18 +23,16 @@ TODO: live parsing of negative toggles is non-intuitive, maybe add reverse ones 
 
 
 """
-import os, sys, logging, math, socket
-import argparse
+import os, logging, argparse, socket
+import numpy as np
+from configbase import ConfigBase, ThrowingArgumentParser
 
 try: 
     from collections import OrderedDict
 except ImportError:
     OrderedDict = dict
 
-import numpy as np
-
 log = logging.getLogger(__name__)
-
 
 def address():
     """
@@ -45,15 +43,10 @@ def address():
     return socket.gethostbyname(socket.gethostname())
 
 
-class ArgumentParserError(Exception): pass
-class ThrowingArgumentParser(argparse.ArgumentParser):
-    def error(self, message):
-        raise ArgumentParserError(message)
-
 ivec_ = lambda _:map(int,_.split(","))
 fvec_ = lambda _:map(float,_.split(","))
 
-class DAEConfig(object):
+class DAEConfig(ConfigBase):
 
     size = property(lambda self:ivec_(self.args.size))
     block=property(lambda self:ivec_(self.args.block))
@@ -67,92 +60,32 @@ class DAEConfig(object):
     yfovclip = property(lambda self:fvec_(self.args.yfovclip))
     thetaphi = property(lambda self:fvec_(self.args.thetaphi))
 
-
     def __init__(self, doc):
-      
-        base_parser, base_defaults = self._make_base_parser(doc)
-        init_parser, live_defaults = self._make_live_parser(parents=[base_parser]) 
+        ConfigBase.__init__(self, doc) 
+        self._path = None
 
-        self.init_parser = init_parser
+    def resolve_path(self, path_):
+        pvar = "_".join(filter(None,["DAE_NAME",path_,]))
+        pvar = pvar.upper()
+        log.info("Using pvar %s to resolve path " % pvar)
+        path = os.environ.get(pvar,None)
+        assert not path is None, "Need to define envvar pointing to geometry file"
+        assert os.path.exists(path), path
+        return path
 
-        defaults = OrderedDict()
-        defaults.update(base_defaults)
-        defaults.update(live_defaults)
+    def _get_path(self):
+        if self._path is None:
+            self._path = self.resolve_path(self.args.path)
+        return self._path
+    path = property(_get_path)
 
-        self.base_defaults = base_defaults
-        self.live_defaults = live_defaults
-        self.defaults = defaults
-
-        live_parser, dummy         = self._make_live_parser(argument_default=argparse.SUPPRESS, parents=[], with_defaults=False) 
-        self.live_parser = live_parser
-        self.args = None
-
-    def init_parse(self):
-        try:
-            args = self.init_parser.parse_args()
-        except ArgumentParserError, e:
-            print "ArgumentParserError %s %s " % (e, repr(sys.argv)) 
-            return
-        
-        logging.basicConfig(level=getattr(logging, args.loglevel), format=args.logformat )
-        np.set_printoptions(precision=4, suppress=True)
-        self.args = args
-
-    def live_parse(self, cmdline):
-        live_args = None           
-        try:
-            live_args = self.live_parser.parse_args(cmdline.lstrip().rstrip().split(" "))
-        except ArgumentParserError, e:
-            log.info("ArgumentParserError %s while parsing %s " % (e, cmdline)) 
+    def _get_bookmarks(self):
+        path_ = self.args.path
+        if path_ is None:
+            path_ = ""
         pass
-        return live_args
-
-    def __call__(self, cmdline):
-        return self.live_parse(cmdline)
-
-    def _settings(self, args, defaults, all=False):
-        if args is None:return "PARSE ERROR"
-        if all:
-            filter_ = lambda kv:True
-        else:
-            filter_ = lambda kv:kv[1] != getattr(args,kv[0]) 
-        pass
-        wid = 20
-        fmt = " %-30s : %20s : %s %20s %s "
-        mkr_ = lambda k:"**" if getattr(args,k) != defaults.get(k) else "  "
-        return "\n".join([ fmt % (k,str(v)[:wid],mkr_(k),str(getattr(args,k))[:wid],mkr_(k)) for k,v in filter(filter_,defaults.items()) ])
-
-    def base_settings(self, all_=False):
-        return self._settings( self.args, self.base_defaults, all_ )
-
-    def live_settings(self, all_=False):
-        return self._settings( self.args, self.live_defaults, all_ )
-
-
-    def report(self):
-        changed = self.changed_settings()
-        if len(changed.split("\n")) > 1:
-            print "changed settings\n", changed
-        #print "all settings\n",self.all_settings()
-
-    def all_settings(self):
-        return "\n".join(filter(None,[
-                      self.base_settings(True) ,
-                      "---", 
-                      self.live_settings(True) 
-                         ]))
-    def changed_settings(self):
-        return "\n".join(filter(None,[
-                      self.base_settings(False) ,
-                      "---", 
-                      self.live_settings(False) 
-                         ]))
-
-    def __repr__(self):
-        return self.changed_settings() 
-    def commandline(self):
-        args = self.args
-        return "--nodes %s --near %s --far %s --yfov %s --target %s --eye %s --look %s --up %s" % (args.nodes, args.near, args.far, args.yfov, args.target, args.eye, args.look, args.up )
+        return self.args.bookmarks % dict(path=path_)
+    bookmarks = property(_get_bookmarks, doc="bookmark file name incorporating the geometry file shortname")  
 
     def _make_base_parser(self, doc):
         """
@@ -170,7 +103,7 @@ class DAEConfig(object):
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
-        defaults['bookmarks'] = "bookmarks.cfg"
+        defaults['bookmarks'] = "bookmarks_%(path)s.cfg"
 
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
@@ -194,9 +127,9 @@ class DAEConfig(object):
         parser.add_argument( "-C","--with-chroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_true" )
         parser.add_argument(      "--max-alpha-depth", help="Chroma Raycaster max_alpha_depth", type=int )
 
-        defaults['path'] = os.environ['DAE_NAME']
+        defaults['path'] = None
         defaults['geometry']="3153:"
-        parser.add_argument(     "--path",    help="Path of geometry file  %(default)s",type=str)
+        parser.add_argument("-p","--path",    help="Shortname indicating envvar DAE_NAME_SHORTNAME (or None indicating  DAE_NAME) that provides path to the G4DAE geometry file  %(default)s",type=str)
         parser.add_argument("-g","--geometry",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
 
         defaults['size']="1440,852"
@@ -351,6 +284,8 @@ if __name__ == '__main__':
 
     print "changed settings\n", cfg.changed_settings()
     print "all settings\n",cfg.all_settings()
+    
 
+    print cfg.path
 
  

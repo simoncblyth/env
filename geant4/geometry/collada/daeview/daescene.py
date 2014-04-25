@@ -56,7 +56,7 @@ class DAEScene(object):
         self.lights = DAELights( light_transform, config )
 
         # bookmarked viewpoints
-        self.bookmarks = DAEBookmarks(config.args.bookmarks, geometry) 
+        self.bookmarks = DAEBookmarks(config.bookmarks, geometry) 
 
 
         # Chroma raycaster, None if not --with-chroma
