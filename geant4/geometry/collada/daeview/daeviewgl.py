@@ -15,6 +15,7 @@ Usage Tips
    * Uncheck `Use hardware acceleration when available` in `Chrome > Settings > Advanced Settings [System]`
    * and restart Chrome for it to take effect
 
+
 Features
 ---------
 
@@ -27,20 +28,39 @@ are written to stdout.  (TODO: display to screen)
 partial geometry
 ~~~~~~~~~~~~~~~~~
 
-Partial geometry can be loaded using::
+Partial geometry can be specified listwise or treewise, for example::
 
-    daeviewgl.py -g 3153:    # for Dayabay site this skips Universe, rock and RPC, but includes everything in the pool  
-    daeviewgl.py -g 3154-    # for Dayabay site includes only SST and nodes beneath that in the tree, ie the contents of SST
-    daeviewgl.py -g 4:3146   # for Dayabay site: RPC
+    # listwise
+    daeviewgl.py -p dyb -g 3153:      # skips Universe, rock and RPC, but includes everything in the pool  
+    daeviewgl.py -p dyb -g 6473:      # skips the ADs 
+    daeviewgl.py -p dyb -g 4:3146     # RPC
+
+    # treewise shortform
+    daeviewgl.py -p dyb -g 3147+      # 
+    daeviewgl.py -p dyb -g 3152+      # without radslabs
+    daeviewgl.py -p dyb -g 3154-      # includes only SST and nodes beneath that in the tree, ie the contents of SST
+    daeviewgl.py -p dyb -g 4536+ -n2  # children of a volume (calibration dome) excluding the volume itself, near is specified to avoid near clipping
   
+    # treewise longform
+    daeviewgl.py -p dyb -g 3154_1.5   # specify min/max recursion depth from the basenode
+    daeviewgl.py -p dyb -g 2_0.0        # just volume 2
+    daeviewgl.py -p dyb -g 2_1.1        # just immediate children of volume 2 
+
+    # combination form 
+    daeviewgl.py -p dyb -g 3153+,4813+
+    daeviewgl.py -p dyb -g 3153_1.2,4813_1.2
+    daeviewgl.py -p dyb -g 3153_0.2,4813_0.2,6473: --with-chroma    # smoke and mirrors, looks like default "3153:" but with much fewer volumes
+
+    daeviewgl.py -p dyb -g 3153_0.2,4813_0.2,6473: --with-chroma --size 640,480 --launch 1,1,1
+
+
+TIP: to determine node tree indices click on the solids in the viewer and
+use daeserver urls like the below to list the tree::
+
+    http://belle7.nuu.edu.tw/dae/tree/4813___2.txt?ancestors=1
 
 The partial geometry specified is also used for Chroma raycasting, which 
 is a simple way to make raycast rendering faster.
-
-TODO: 
-
-#. add `-g 4535+` meaning children, not self 
-#. combining tree aware node spec with lists, so can show multiple trees 
 
 
 bookmarks
@@ -73,10 +93,21 @@ offsets into the current view press SPACE.
 * press "Z" while dragging up/down to tranlate in screen Z direction (in/out)
 
 All bookmarks other than bookmark zero which corresponds to the launch viewpoint 
-are persisted at exit into a "bookmarks.cfg" file in the working directory. 
+are persisted at exit into a "bookmarks_%(path)s.cfg" file in the working directory, 
+where the path is filled in with in launch path argument. This allows separate 
+bookmarks to be maintained per site. 
 A subsequent session from the same directory re-loads the bookmarks.
 
-TODO: perhaps persist the exiting viewpoint into bookmark-0 ? 
+ISSUES
+^^^^^^^
+
+#. when viewing partial geometry bookmarks which refer to volumes that are not present 
+   are not loaded, so bookmarks set when using more complete geometry will be lost.
+   Workaround is to launch from a different directories for different
+   geometries or use `--bookmarks path` option.
+   Solution of incorporating geometry spec into the bookmarks name, seems clumsy.
+
+#. perhaps persist the exiting viewpoint into bookmark-0 ? 
 
 
 interpolate between bookmarks
@@ -94,6 +125,9 @@ Press "V" to setup a flyaround or orbit mode for the current bookmark.
 The initial "look" direction is tangential, so you might need to turn inwards 
 using the trackball controls to see the geometry. 
 
+ISSUES: rotation point not where intended, makes difficult to use
+
+
 animation control
 ~~~~~~~~~~~~~~~~~
 
@@ -102,6 +136,9 @@ the animation. Speed of animation can be adjusted using the right/left arrow key
 During animation trackball translation/rotation can still be used to adjust the effective viewpoint. 
 Also most other controls can still be used during the animation, such as near/far clipping or 
 switching to Chroma raycast rendering.
+
+TODO: key to reverse animation 
+
 
 placemarks
 ~~~~~~~~~~~

@@ -168,21 +168,13 @@ class DAEGeometry(object):
         :param arg:  specifications of the DAE nodes to load, via index or id
         :param path: to the dae file
         :param bound: use world space coordinates
+
         """
-        if path is None:
-            path = os.environ['DAE_NAME']
-        if len(DAENode.registry) == 0:
-            DAENode.parse(path)
-
-        if arg[-1] == "-":
-            nodes = DAENode.progeny(arg[:-1])
-        else:
-            nodes = DAENode.getall(arg)
-        pass
-
+        nodes = DAENode.getall(arg, path)
         self.solids = [DAESolid(node, bound) for node in nodes]
         self.mesh = None
         self.bbox_cache = None
+       
 
     def nodes(self):
         """

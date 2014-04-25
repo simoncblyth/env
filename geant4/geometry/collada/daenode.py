@@ -3,7 +3,7 @@
 TODO
 =====
 
-#. split this up and tidy 
+#. split DAENode up into creation and querying portions
 
 
 Geant4 level interpretation of G4DAEWrite exported pycollada geometry
@@ -467,7 +467,10 @@ class DAENode(object):
         return node
 
     @classmethod
-    def getall(cls, arg ):
+    def getall(cls, arg, path=None):
+        if not path is None:
+            cls.init(path)
+        pass
         indices = cls.interpret_ids(arg)
         return [cls.registry[index] for index in indices]
 
@@ -492,38 +495,99 @@ class DAENode(object):
         return arg, maxdepth
 
     @classmethod
-    def interpret_ids(cls, arg_):
+    def interpret_ids(cls, arg_, dedupe=True):
         """
-        Interprets an arg like 0:10,400:410,300,40,top.0
-        into a list of integer DAENode indices 
+        Interprets an "," delimited string like 0:10,400:410,300,40,top.0
+        into a list of integer DAENode indices. Where each element
+        can use one of the below forms. 
 
-        #. an argument ending with ":" is interpreted to mean 
-           everything til the end of the registry, this only makes sense
-           when used singly eg "3152:" rather than "3152:,8000:" which 
-           would yield duplicated indices
+        Listwise::
+
+              3153:3160
+              3153:        # means til the end of the registry 
+
+        Shortform treewise, only allows setting mindepth to 0,1::
+
+              3153-     # mindepth 0
+              3153+     # mindepth 1 
+
+        Longform treewise, allows mindepth/maxdepth spec::
+
+              3153_1.5  # mindepth 1, maxdepth 5
+
+        Intwise::
+
+              0
+
+        Identifier::
+
+              top.0
 
         """
-        ids = []
+        indices = []
         for arg in arg_.split(","):
-            if arg[-1] == ":":
-                arg = "%s:%s" % (arg[:-1], len(cls.registry)-1) 
+            prelast, last = arg[:-1], arg[-1]
 
-            if ":" in arg:
-                iarg=range(*map(int,arg.split(":")))
-                ids.extend(iarg)
+            listwise = ":" in arg
+            treewise_short = last in ("-","+") 
+            treewise_long  = arg.count("_") == 1
+            intwise = arg.isdigit()
+
+            assert len(filter(None,[listwise,treewise_short,treewise_long,intwise]))<=1, "mixing forms not allowed" 
+
+            if treewise_short or treewise_long:
+                pass
+                if treewise_short:
+                    pass
+                    baseindex= prelast
+                    mindepth = 0 if last == "-" else 1
+                    maxdepth = 100
+                    pass
+                elif treewise_long:
+                    pass
+                    elem = arg.split("_")
+                    assert len(elem) == 2
+                    baseindex = elem[0]
+                    mindepth, maxdepth = map(int,elem[1].split(".")) 
+                else:
+                    assert 0
+                treewise_indices = cls.progeny_indices(baseindex, mindepth=mindepth, maxdepth=maxdepth )
+                indices.extend(treewise_indices) 
+
+            elif listwise:
+                pass
+                if last == ":":
+                    arg = "%s:%s" % (prelast, len(cls.registry)-1) 
+                pass
+                listwise_indices=range(*map(int,arg.split(":")))
+                indices.extend(listwise_indices)
+                pass
+
+            elif intwise:
+
+                indices.append(int(arg))
+
             else:
+                # node lookup by identifier like top.0
                 if "___" in arg:
                     arg = arg.split("___")[0]   # get rid of the maxdepth indicator eg "___0"
-                try:
-                    int(arg)
-                    ids.append(int(arg))
-                except ValueError:
-                    node = cls.idlookup.get(arg,None)
-                    if node:
-                        ids.append(node.index)
-                    else:
-                        log.warn("failed to lookup DAENode for arg %s " % arg)
-        return ids
+                node = cls.idlookup.get(arg,None)
+                if node:
+                    indices.append(node.index)
+                else:
+                    log.warn("failed to lookup DAENode for arg %s " % arg)
+                pass
+            pass
+        return list(set(indices)) if dedupe else indices
+
+
+    @classmethod
+    def init(cls, path ):
+        if path is None:
+            path = os.environ['DAE_NAME']
+         
+        if len(cls.registry) == 0:
+            cls.parse(path)
 
 
     @classmethod
@@ -644,24 +708,46 @@ class DAENode(object):
         for subnode in node.children:
             cls.vwalks(visits=visits, node=subnode, depth=depth+1)
 
-
     @classmethod
-    def progeny(cls, index=None, maxdepth=100):
+    def progeny_nodes(cls, baseindex=None, mindepth=0, maxdepth=100):
         """
-        :param index: of base node of interest within the tree
+        :param baseindex: of base node of interest within the tree
+        :param mindepth:  0 includes basenode, 1 will start from children of basenode
+        :param maxdepth:  0 includes basenode, 1 will start from children of basenode
         :return: all nodes in the tree below and including the base node
         """ 
         nodes = []
-        basenode = cls.root if index is None else cls.get(str(index))
-        nodes.append(basenode) 
+        basenode = cls.root if baseindex is None else cls.get(str(baseindex))
         pass
         def visit_(node, depth):
-            if depth < maxdepth:
+            if mindepth <= depth <= maxdepth:
                 nodes.append(node)
             pass
         pass
         cls.dwalk(visit_=visit_, node=basenode )  # recursive walk 
         return nodes
+
+    @classmethod
+    def progeny_indices(cls, baseindex=None, mindepth=0, maxdepth=100):
+        """
+        :param baseindex: of base node of interest within the tree
+        :param mindepth:  0 includes basenode, 1 will start from children of basenode
+        :param maxdepth:  0 includes basenode, 1 will start from children of basenode
+        :return: all nodes in the tree below and including the base node
+        """ 
+        indices = []
+        basenode = cls.root if baseindex is None else cls.get(str(baseindex))
+        pass
+        def visit_(node, depth):
+            if mindepth <= depth <= maxdepth:
+                indices.append(node.index)
+            pass
+        pass
+        cls.dwalk(visit_=visit_, node=basenode )  # recursive walk 
+        return indices
+
+
+
 
     @classmethod
     def md5digest(cls, nodepath ):
