@@ -3,271 +3,365 @@ daeviewgl.py
 
 .. contents:: :local:
 
-Parallel/Orthographic projection
-----------------------------------
+Usage Tips
+------------
 
-In parallel projection, there is effectively no z direction (its
-as if viewing from infinity) so varying z has no effect.  Instead
-to control view change near and yfov.  It can be difficult 
-to "enter" geometry while in parallel, to do so try very small yfov (5 degrees) 
-and vary near in order to clip the volumes.
+#. Exit other apps that make heavy use of GPU acceleration whilst running
+   daeviewgl.py (and especially when launching Chroma raycasts)
 
-Observations
---------------
+   * Google Chrome snags GPU resources far more that Safari, 
+   * Uncheck `Use hardware acceleration when available` in `Chrome > Settings > Advanced Settings [System]`
+   * and restart Chrome for it to take effect
 
-#. toggling between parallel/perspective can be dis-orienting, change near/yfov to get the desired view  
+Usage text
+-------------
 
-   * perhaps can automate the appropriate changes to maintain constant screen size for extent of current view ?
+On pressing "U" usage text describing the actions of each key 
+are written to stdout.  (TODO: display to screen)
 
+Partial geometry
+------------------
 
-Up/down views are problematic
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Partial geometry can be specified listwise or treewise, for example::
 
-When `look-eye` and `up` are in same direction see nothing::
+    # listwise
+    daeviewgl.py -p dyb -g 3153:      # skips Universe, rock and RPC, but includes everything in the pool  
+    daeviewgl.py -p dyb -g 6473:      # skips the ADs 
+    daeviewgl.py -p dyb -g 4:3146     # RPC
 
-    daeviewgl.py -n 5000:6000 -t "" --eye="0,0,-2" --look="0,0,0" --up="0,0,1"        # nowt
-    daeviewgl.py -n 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0,1" 
+    # treewise shortform
+    daeviewgl.py -p dyb -g 3147+      # 
+    daeviewgl.py -p dyb -g 3152+      # without radslabs
+    daeviewgl.py -p dyb -g 3154-      # includes only SST and nodes beneath that in the tree, ie the contents of SST
+    daeviewgl.py -p dyb -g 4536+ -n2  # children of a volume (calibration dome) excluding the volume itself, near is specified to avoid near clipping
 
-Tweaking eye or up regain the geometry::
+    # treewise longform
+    daeviewgl.py -p dyb -g 3154_1.5   # specify min/max recursion depth from the basenode
+    daeviewgl.py -p dyb -g 2_0.0        # just volume 2
+    daeviewgl.py -p dyb -g 2_1.1        # just immediate children of volume 2 
 
-    daeviewgl.py -n 5000:6000 -t "" --eye="0,0,-2" --look="0,0,0" --up="0,0.001,1"   
-    daeviewgl.py -n 5000:6000 -t "" --eye="0,0.001,-2" --look="0,0,0" --up="0,0,1"    
+    # combination form 
+    daeviewgl.py -p dyb -g 3153+,4813+
+    daeviewgl.py -p dyb -g 3153_1.2,4813_1.2
+    daeviewgl.py -p dyb -g 3153_0.2,4813_0.2,6473: --with-chroma    # smoke and mirrors, looks like default "3153:" but with much fewer volumes
 
-    # nodes 5000:6000 corresponds to several rings of PMTs, making for a good simple test geometry 
-    # the view is of circles of PMTs from above/below
-
-* TODO: automate the tweaking, done at argument level, needs to be done deeper
-
-
-
-More Bizarrness
----------------
-
-Off into outerspace and back::
-
-    (chroma_env)delta:daeview blyth$ grep ESR solids.txt
-    1274  DAESolid v 578  t 1188  n 578   : 4427 __dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xab4bd50.0   
-    1277  DAESolid v 330  t 688  n 330   : 4430 __dd__Geometry__AdDetails__lvBotRefGap--pvBotESR0xae4eda0.0   
-    2934  DAESolid v 578  t 1188  n 578   : 6087 __dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xab4bd50.1   
-    2937  DAESolid v 330  t 688  n 330   : 6090 __dd__Geometry__AdDetails__lvBotRefGap--pvBotESR0xae4eda0.1   
-    (chroma_env)delta:daeview blyth$ 
-    (chroma_env)delta:daeview blyth$ ./udp.py "-j 4427_-5,2,2:"
-    sending -j 4427_-5,2,2: 
-
-Its because its a 4.5 disk shape, look from above::
-
-    udp.py "-t 4427_0,0.001,-2"
-    udp.py "-t 4427_0,0.001,5"
-
-    ./udp.py "-t 4427_0,0.001,-5"   # view upwards from bottom of AD 
+    daeviewgl.py -p dyb -g 3153_0.2,4813_0.2,6473: --with-chroma --size 640,480 --launch 1,1,1
 
 
+TIP: to determine node tree indices click on the solids in the viewer and
+use daeserver urls like the below to list the tree::
 
-Usage Examples
----------------
+    http://belle7.nuu.edu.tw/dae/tree/4813___2.txt?ancestors=1
+
+The partial geometry specified is also used for Chroma raycasting, which 
+is a simple way to make raycast rendering faster.
 
 Target Mode
-~~~~~~~~~~~~~
+-------------
+
+Target mode presents many volumes but targets one by 
+orienting the initial viewpoint with respect to the target using 
+units based on the extent of the target and axis directions
 
 Identify target via relative to node list (starting with `+` or `-`) or absolute addressing::
 
-    daeviewgl.py -n 3153:12230 -t -300 
-    daeviewgl.py -n 3153:12230 -t +10
+    daeviewgl.py -g 3153:12230 -t -300 
+    daeviewgl.py -g 3153:12230 -t +10
        
        # target relative to the node list 
 
-    daeviewgl.py -n 3153:12230 -t +0       # relative 
-    daeviewgl.py -n 3153:12230 -t 3153     # absolute equivalent 
+    daeviewgl.py -g 3153:12230 -t +0       # relative 
+    daeviewgl.py -g 3153:12230 -t 3153     # absolute equivalent 
 
     daeviewgl.py -t +0      
 
-      # when using a sensible default node list, this is convenient 
+       # when using a sensible default node list, this is convenient 
+
+    daeviewgl.py -g 3153:12230 -t 5000 --eye="-2,-2,-2"
+
+       # control the starting eyepoint relative to the target 
+
+
+near/far clipping controls
+-----------------------------
+
+When you approach too closely to some geometry it will disappear due to 
+near clipping. Similarly distant geometry can disappear from far clipping.
+To control the near/far clipping planes:
+
+* press "N" while dragging up/down to change "near" distance
+* press "F" while dragging up/down to change "far" distance
+
+To illustrate the viewing frustum (square pyramid chopped at near/far planes
+with "eye" at the apex) and near/far planes press "K" to switch on 
+markers and trackball away from the view into order to look back 
+at its frustum. Also change "near" and "far" to see how that 
+changes the depth planes.
+
+ISSUES
+~~~~~~~~~
+ 
+Somehow changing "near" sometimes acts to change "far" clipping. 
+Possibly this is due to limited depth buffering, the issue 
+seems less prevalent with less extreme "near" and "far" values.
+
+solid picking
+---------------
+
+#. Clicking pixels with mouse/trackpad, yields an (x,y,z) screen position 
+   the z value comes from the depth buffer representing the  position of nearest surface.
+#. An unprojection transforms the screen space coordinate into world space.
+#. This coordinate is then used to determine the list of solids which 
+   contain the point within their bounding box. The solid indices, names and 
+   extents in mm are written to the screen.
+#. The smallest solid is regarded as "picked". Key "O" toggles high-lighting 
+   of picked solids with wireframe spheres.
+
+TODO
+~~~~~
+
+Make more use of this, eg to display material/surface properties, 
+position in heirarchy 
+
+
+placemarks
+-------------
+
+The commandline to return to a viewpoint and camera configuration
+is written to stdout on exiting or on pressing "W".
+
+markers
+----------
+
+Switch on markers with "K", the look point is illustrated with a 
+wireframe cube with wireframe sphere inside. Also the frustum of the current view 
+excluding any offset trackball rotation + translation and raycast direction/origin
+are illustrated.
+
+ 
+Viewpoint Bookmarks
+---------------------
+
+Number keys are used to create and visit bookmarks. 
+While pressing a number key 1-9 click on a solid to create a bookmark, 
+the view adopts the coordinate frame corresponding to the solid clicked. 
+Subsequently pressing number keys 0-9 visit the bookmarks created, 
+and pressing SPACE updates the current bookmark (last one created/visited) 
+to bake any offsets made from the view into the view. 
+Bookmark 0 is created at startup for the initial viewpoint.
+
+A bookmark comprises: 
+
+* a solid (or the entiremesh), which defines the view coordinate system. 
+  Unit of length is the extent of the solid 
+* "eye" position, eg -2,-2,0  
+* "look" position, eg 0,0,0 : about which trackball rotations are applied
+* "up" direction, eg 0,0,1 
+
+Note that trackball translations/rotations do not update the "view", 
+although they do of course update what you see. To solidify trackballing
+offsets into the current view press SPACE. 
+
+* drag around to rotate about the "look" point using a virtual trackball,
+  XY positions are projected onto virtual sphere trackball, which allow
+  offset rotations to be obtained via some Quaternion math   
+* press "X" while dragging around to translate in screen XY direction 
+* press "Z" while dragging up/down to tranlate in screen Z direction (in/out)
+
+All bookmarks other than bookmark zero which corresponds to the launch viewpoint 
+are persisted at exit into a "bookmarks_%(path)s.cfg" file in the working directory, 
+where the path is filled in with in launch path argument. This allows separate 
+bookmarks to be maintained per site. 
+A subsequent session from the same directory re-loads the bookmarks.
+
+ISSUES
+~~~~~~~
+
+#. when viewing partial geometry bookmarks which refer to volumes that are not present 
+   are not loaded, so bookmarks set when using more complete geometry will be lost.
+   Workaround is to launch from a different directories for different
+   geometries or use `--bookmarks path` option.
+   Solution of incorporating geometry spec into the bookmarks name, seems clumsy.
+
+#. perhaps persist the exiting viewpoint into bookmark-0 ? 
 
 
 
 Animation
-~~~~~~~~~~~
+----------
 
-::
+interpolate between bookmarks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    (chroma_env)delta:daeview blyth$ ./daegeometry.py > solids.txt
-    INFO:env.geant4.geometry.collada.daenode:DAENode.parse pycollada parse /Users/blyth/env/geant4/geometry/materials/g4_00.dae 
-    INFO:__main__:Flattening 9077 DAESolid into one DAEMesh...
-    INFO:__main__:DAEMesh v 1234834  t 2438640  n 1234834 
-    (chroma_env)delta:daeview blyth$ vi solids.txt 
-    (chroma_env)delta:daeview blyth$ grep ball solids.txt
-    (chroma_env)delta:daeview blyth$ grep Ball solids.txt
-    1369  DAESolid v 267  t 528  n 267   : 4522 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.0   
-    1372  DAESolid v 267  t 528  n 267   : 4525 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.1   
-    1375  DAESolid v 267  t 528  n 267   : 4528 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.2   
-    1389  DAESolid v 267  t 528  n 267   : 4542 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.0   
-    1477  DAESolid v 267  t 528  n 267   : 4630 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.1   
-    1559  DAESolid v 267  t 528  n 267   : 4712 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.2   
-    3029  DAESolid v 267  t 528  n 267   : 6182 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.3   
-    3032  DAESolid v 267  t 528  n 267   : 6185 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.4   
-    3035  DAESolid v 267  t 528  n 267   : 6188 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.5   
-    3049  DAESolid v 267  t 528  n 267   : 6202 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.3   
-    3137  DAESolid v 267  t 528  n 267   : 6290 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.4   
-    3219  DAESolid v 267  t 528  n 267   : 6372 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.5   
-    (chroma_env)delta:daeview blyth$ 
-    (chroma_env)delta:daeview blyth$ daeviewgl.py -t +0 -j +1369,+1372,+1375,+1389,+1477,+1559,+3029,+3032,+3035,+3049,+3137,+3219 --near 1e-5
+Press "B" to setup an animation that linearly interpolates between the 
+bookmarked views starting at the current bookmark. Two or more bookmarks
+are required.  To change the animation first update the bookmarks 
+and then press "B" again.
 
+orbiting mode
+~~~~~~~~~~~~~~
 
-Reflectors
-------------
+Press "V" to setup a flyaround or orbit mode for the current bookmark.
+The initial "look" direction is tangential, so you might need to turn inwards 
+using the trackball controls to see the geometry. 
 
-::
+ISSUES: rotation point not where intended, makes difficult to use
 
-    (chroma_env)delta:daeview blyth$ grep TopReflector solids.txt
-    1272  DAESolid v 296  t 608  n 296   : 4425 __dd__Geometry__AD__lvOIL--pvTopReflector0xab22490.0   
-    1273  DAESolid v 296  t 608  n 296   : 4426 __dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xabcc228.0   
-    2932  DAESolid v 296  t 608  n 296   : 6085 __dd__Geometry__AD__lvOIL--pvTopReflector0xab22490.1   
-    2933  DAESolid v 296  t 608  n 296   : 6086 __dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xabcc228.1   
-    (chroma_env)delta:daeview blyth$ 
+animation control
+~~~~~~~~~~~~~~~~~
 
-    ./udp.py "-t 4425_0,0.001,-2_-2,-2,0
-    # looking up at top reflector
+Following setup of bookmark or orbit animations, pressing "M" will toggle 
+the animation. Speed of animation can be adjusted using the right/left arrow keys.
+During animation trackball translation/rotation can still be used to adjust the effective viewpoint. 
+Also most other controls can still be used during the animation, such as near/far clipping or 
+switching to Chroma raycast rendering.
+
+TODO: key to reverse animation 
 
 
-Bizarre
-~~~~~~~~
+remote control
+---------------
 
-Issues when small extent ?
+A subset of the commandline launch options can be sent over the network to the running 
+application. This allows numerical control of viewpoint and camera parameters.::
 
-::
+   udp.py -t 7000 --eye=10,0,0 --look=0,0,0 --up=0,0,1
+   udp.py -t 7000_10,0,0_0,0,0_0,0,1                    # equivalent short form
 
-    daeviewgl.py -t +1369
+The viewpoint is defined by the `eye` and `look` positions and the `up` direction, which 
+are provided in the coordinate frame of the target solid. NB rotations are performed about the 
+look position, that is often set to 0,0,0 corresponding to the center of the solid. 
+The "K" key toggle markers indicating the eye and look position. 
 
-    daeviewgl.py -t +1369 --eye=0,0.001,20    # small ball and cylinder
+The options that are accepted interactively are marked with "I" in the options list::
 
-
-
-Interpolation
-~~~~~~~~~~~~~~~~
-
-
-Expected yoyo, just get fall::
-
-    daeviewgl.py -t 8153 --eye="2,2,40" --look="2,2.001,0" -j +0_2,2,-40:+0_2,2,40    
+    daeview.sh --help
 
 
+raycast launch control
+------------------------
 
-Very long shapes are problematic::
+Press "R" to toggle raycast mode.
 
-    daeviewgl.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5 --near 1e-6 --far 1e6
+To avoid GPU panics/system crashes
 
-    daeviewgl.py -n 4522,4525,4528,4542,4630,4712
-
-    daeviewgl.py -n 4522,4525,4528,4542,4630,4712 -t "" -j 4522:4525:4528:4542:4630:4712
-
-    daeviewgl.py -n 4522:4712 -t 4522
-
-    daeviewgl.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5 --near 0.01
-
-    daeviewgl.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5 
-
-
-
-Interpolation Jumps
-~~~~~~~~~~~~~~~~~~~
+* subsequent raycast launches are aborted when launch times exceed *max-time* cutoff 
+* launch configuration is controlled by eg *launch=3,2,1* and *block=8,8,1* 
+  options which configure 2D launch 
+ 
+* raycast launches tyically use 2D pixel thread blocks, 
+  some speedups achieved by moving from line of pixels to 2D regions
+  in order for the work within a warp of 32 threads to be more uniform 
 
 
-::
+interactive switch to metric pixels presentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    daeviewgl.py -t +1000 -j +1000_2,2,2:+1000_2,2,10
+The chroma raycast metrics available for display must be defined at 
+launch with eg::
 
-    daeviewgl.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5
+   daeviewgl.py --metric time/tri/node  
+
+The restricted flexibility is due to needing to compile
+the kernel to change the metric. This is to avoid little 
+used branching in the kernel.
+
+Kernel flags can be controlled by remote control, eg::
+
+   udp.py --flags 15,0    # does 15 controls bit shift, here "metric >> 15"  
 
 
+screen capture
+----------------
+
+Pressing "E" will create a screen capture and write a timestamp dated .png 
+to the current directory.
+
+movie capture
+--------------
+
+Not implemented, as find that on OSX can simply use `QuickTime Player.app` 
+
+* `File > New Screen Recording` to create a very large .mov (~1GB for ~2min) 
+* `File > Export ...` to compress .mov to .m4v 
+
+
+Parallel/Orthographic projection
+----------------------------------
+
+Press "P" to toggle between orthographic/parallel projection and the default
+perspective projection. 
+
+* "Z" to translate eye point in/out
+
+  As parallel projection corresponds to the view from infinity it is
+  somewhat paradoxical that translating in Z has any effect, however
+  it does so indirectly via changing where the near clipping plane falls 
+
+* "N" to change near
+* "Y" to change yfov 
+* "F" to change far 
+
+To "enter" geometry while in parallel, use small FOV (eg 5 degrees) 
+and vary near and Z in order to clip the volumes.
+
+
+TODO: Get Chroma raycast to work in parallel projection mode, need to 
+      come up with the matrix and probably change the kernel.
+ 
 
 Presentation
-~~~~~~~~~~~~~
-
+--------------
 
 ::
 
-    daeviewgl.py -n 4998:6000
+    daeviewgl.py -g 4998:6000
 
       # default includes lights, fill with transparency 
 
-    daeviewgl.py -n 4998:6000 --line
+    daeviewgl.py -g 4998:6000 --line
 
-      # adding wireframe lines slows rendering significantly
+      # adding wireframe lines slows rendering significantly,toggle lines with "L"
 
-    daeviewgl.py -n 4998 --nofill
+    daeviewgl.py -g 4998 --nofill
 
-       # without polygon fill the lighting/transparency has no effect
+       # without polygon fill the lighting/transparency has no effect, toggle face fill with "A"
 
-    daeviewgl.py -n 4998 --nofill 
+    daeviewgl.py -g 4998 --nofill 
 
        # blank white 
 
-    daeviewgl.py -n 4900:5000,4815 --notransparent
+    daeviewgl.py -g 4900:5000,4815 --notransparent
 
        # see the base of the PMTs poking out of the cylinder when transparency off
 
-    daeviewgl.py -n 4900:5000,4815 --rgba .7,.7,.7,0.5
+    daeviewgl.py -g 4900:5000,4815 --rgba .7,.7,.7,0.5
 
        # changing colors, especially alpha has a drastic effect on output
 
-    daeviewgl.py -n 4900:5000,4815 --ball 90,0,2,3
-
-       # primitive initial position control using trackball arguments, theta,phi,zoom,distance
-
-    daeviewgl.py -n 3153:6000
+    daeviewgl.py -g 3153:6000
 
        # inside the pool, 2 ADs : navigation is a challenge, its dark inside
 
-    daeviewgl.py -n 6070:6450
+    daeviewgl.py -g 6070:6450
 
        # AD structure, shows partial radial shield
 
-    daeviewgl.py -n 6480:12230 
+    daeviewgl.py -g 6480:12230 
 
        # pool PMTs, AD support, scaffold?    when including lots of volumes switching off lines is a speedup
 
-    daeviewgl.py -n 12221:12230 
+    daeviewgl.py -g 12221:12230 
 
        # rad slabs
 
-    daeviewgl.py -n 2:12230 
+    daeviewgl.py -g 2:12230 
 
        # full geometry, excluding only boring (and large) universe and rock 
 
-    daeviewgl.py -n 3153:12230
+    daeviewgl.py -g 3153:12230
 
        # skipping universe, rock and RPC makes for easier inspection inside the pool
-
-    daeviewgl.py  -n 3153:12230 -t 5000 --eye="-2,-2,-2"
-
-       # target mode, presenting many volumes but targeting one and orienting viewpoint with 
-       # respect to the target using units based on the extent of the target and axis directions
-       # from the world frame
-       #
-       # long form --eye="..." is needed as the value starts with "-"
-
-
-
-
-Near Site One AD
-------------------
-
-::
-
-    daeview.sh -g 3154:4813 --with-chroma --launch 2,2,1 --near 1
-
-
-
-Far Site
-----------
-
-::
-
-    daeview.sh -g 3:     
-    # skip universe and rock for more reasonably sized scene, but with RPC on top its dark in the pool
-
-
-
 
 
 

@@ -1,4 +1,4 @@
-#!/opt/local/Library/Frameworks/Python.framework/Versions/2.6/Resources/Python.app/Contents/MacOS/Python
+#!/usr/bin/env python
 """
 Adapted from the docutils rst2s5.py tool 
 
@@ -6,6 +6,12 @@ A minimal front end to the Docutils Publisher, producing HTML slides using
 the S5 template system.
 
 * http://docutils.sourceforge.net/docs/howto/rst-roles.html
+
+TODO:
+
+#. vanilla RST extlinks, similar to sphinx.ext.extlinks
+   /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx/ext/extlinks.py
+
 
 """
 try:

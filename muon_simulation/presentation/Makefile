@@ -9,6 +9,10 @@
 #
 PYTHON?=python
 
+#FOOTNOTE_REFERENCES="superscript"
+FOOTNOTE_REFERENCES="brackets"
+
+
 RELDIR=$(subst $(ENV_HOME),,$(PWD))   # hmm relies on being at ~/env/wherever rather than symbolically linked ~/e/wherever
 NEWPUBDIR=$(addprefix $(APACHE_HTDOCS)/env,$(RELDIR))
 NEWPUBURL=$(addprefix http://localhost/env,$(RELDIR))
@@ -29,7 +33,7 @@ PUBDIR=$(ENV_HOME)/_build/dirhtml/muon_simulation/presentation
 OUTDIR=$(LOCAL_BASE)/env/muon_simulation/presentation/name-of-presentation   # this is set exterally in slides-make, used for rsync step only
 
 
-.PHONY: rsync clean slides touch info ls open
+.PHONY: rsync clean slides touch info ls open help
 
 slides: $(SLIDES) $(TXTS)
 	@echo created $< NAMES $(NAMES)
@@ -55,7 +59,10 @@ $(TXTS): $(SOURCES)
 	cp $< $@
 
 $(SLIDES): $(SOURCES)
-	$(PYTHON) ./rst2s5-2.6.py --traceback --theme-url ui/my-small-white --current-slide --visible-controls --language=en $< $@
+	$(PYTHON) ./rst2s5-2.6.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --visible-controls --language=en $< $@
+
+help:
+	$(PYTHON) ./rst2s5-2.6.py --help
 
 rsync:
 	rsync -av $(SLIDES) $(OUTDIR)/

@@ -5,10 +5,11 @@ daeview
 .. toctree::
 
    daeview
-   daeview_debug
    daeview_usage
-   daeview_lights
    daeview_chroma
+   daeview_debug
+   daeview_lights
+   daeview_devnotes
 
 
 

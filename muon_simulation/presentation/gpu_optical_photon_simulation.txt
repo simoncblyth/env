@@ -1,6 +1,11 @@
 
 .. include:: <s5defs.txt>
 
+.. |e| replace:: http://dayabay.phys.ntu.edu.tw/e
+.. |env| replace:: http://dayabay.phys.ntu.edu.tw/env
+.. |envtrac| replace:: http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk
+
+
 .. s5_background_image::
 
     #
@@ -8,6 +13,9 @@
     # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
     # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
     #
+    # first slide id is exceptionally: slide0, not the mangled title
+    slide0
+    /env/geant4/geometry/collada/daeview/20140419-170713.png auto_auto 0px_0px
 
     Full Screen
     images/chroma/chroma_dayabay_adlid.png
@@ -15,7 +23,7 @@
     Full Screen 2
     images/chroma/chroma_dayabay_pool_pmts.png
 
-    G4DAE viewer : Near Site 
+    daeviewgl.py : Fast OpenGL 3D viewer for G4DAE files
     /env/geant4/geometry/collada/daeview/20140419-170713.png
 
     G4DAE viewer : Pool Bottom
@@ -36,15 +44,11 @@
 200x Faster Optical Photon Propagation with NuWa + Chroma ?
 ======================================================================
 
-
-
 .. class:: small
 
     http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.html
     http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf
     http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.txt
-
-
 
 .. sidebar:: Objective 
 
@@ -56,11 +60,11 @@ Introducing Chroma
 
 Fivefold path:
 
-#. :green:`Geometry Conversion`
-#. :green:`Software Installation` 
-#. :red:`GPU Hardware access`
-#. :blue:`Geant4/Chroma Integration`
-#. :blue:`Validation`
+#. :green:`Export G4 Geometry as DAE`
+#. :green:`Convert DAE to Chroma` 
+#. :blue:`Chroma Validation, raycasting`
+#. :red:`G4/Chroma Integration`
+#. :red:`Chroma vs G4 Validation`
 
 Chroma : Ultra-fast Photon MC
 ------------------------------
@@ -117,7 +121,7 @@ eliminate geometry code as :red:`just one code path`.
 .. class:: small
 
     * Comparison of all vertices/faces reveals :red:`boolean solids are discrepant`. 
-    * Perfect[1]_ agreement only achieved by *cheating* : :blue:`perform triangulation once and reuse`.
+    * Perfect [#perfect]_ agreement only achieved by *cheating* : :blue:`perform triangulation once and reuse`.
 
 .. class:: small
 
@@ -141,8 +145,8 @@ eliminate geometry code as :red:`just one code path`.
 
 .. class:: tiny
 
-    .. [1] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug. 
-           Details: http://dayabay.phys.ntu.edu.tw/e/geant4/geometry/collada/dae_cf_wrl/ 
+    .. [#perfect] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug. 
+                  Details: http://dayabay.phys.ntu.edu.tw/e/geant4/geometry/collada/dae_cf_wrl/ 
 
 
 :small:`G4DAE : Triangular Advantage` 
@@ -175,25 +179,30 @@ eliminate geometry code as :red:`just one code path`.
 
 
 
-https://bitbucket.org/scb-/chroma :small:`Fork, so far:` 
+https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:` 
 -------------------------------------------------------------------
 
 .. class:: small
 
-    * Mostly small changes, to get operational
-    * Raycaster stability + efficiency improvements
-    * Developed using Retina MacBook Pro (late 2013), NVIDIA GeForce GT 750M 2048 MB
+    * Minor changes to get operational 
+    * Stability + efficiency improvements, enabling mobile development [#hw]_
+
+.. class:: tiny
+
+   .. [#hw] MacBook Pro (2013), NVIDIA GeForce GT 750M 2048 MB ; 
+            Workstation GPUs such as NVIDIA Kepler K20 expected at least ~3x faster
 
 .. image:: /env/chroma/chroma_fork.png 
    :width: 700px
    :align: center
+
 
 :small:`Chroma Raycasting : exercises geometry intersection`
 -------------------------------------------------------------
 
 .. class:: small
 
-    Raycasting exercises slowest part of photon propagation: :red:`geometry intersection`. 
+    Raycasting exercises slowest part of optical photon propagation: :red:`geometry intersection`. 
  
 .. image:: /env/chroma/chroma_camera/chroma_raycast_illustration.png 
    :width: 600px
@@ -201,14 +210,14 @@ https://bitbucket.org/scb-/chroma :small:`Fork, so far:`
 
 .. class:: small
 
-    * Shoot rays thru every pixel out into geometry, typically >1M rays
-    * Find triangle intersections using BVH[2]_ acceleration structure
-    * Determine color based on angle to surface normal 
+    * Shoot rays thru every pixel out into geometry, 1 CUDA thread for each, typically >1M rays
+    * Find triangle intersections using BVH [#bvh]_ acceleration structure
+    * Determine color based on the ray angle to surface normal 
     * Alpha blend nearest 10 surfaces, providing transparency effect  
 
 .. class:: tiny
 
-    .. [2] Boundary Volume Heirarchy, a tree of bounding boxes with triangles inside leaf nodes
+    .. [#bvh] Boundary Volume Heirarchy, a tree of bounding boxes with triangles inside leaf nodes
 
 
 
@@ -225,11 +234,13 @@ https://bitbucket.org/scb-/chroma :small:`Fork, so far:`
 
 .. class:: tiny 
 
-    http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/
 
     daeviewgl.py --target=.. --eye="-0.3,-1.1,1.7" --look="0.1,0.4,-0.6" --up="1.2,2.0,1.6" --size=1440,852 --near=30.00000 --far=10000.0 --yfov=50.0 --with-chroma
 
-    wrk (1440, 852) [1226880]  lch  [3, 3, 1] [9]  blk [16, 16, 1] [256]  0.03,0.26,0.12,0.15,0.79,0.20,0.06,0.20,0.04 TOT 1.84
+
+.. wrk (1440, 852) [1226880]  lch  [3, 3, 1] [9]  blk [16, 16, 1] [256]  0.03,0.26,0.12,0.15,0.79,0.20,0.06,0.20,0.04 TOT 1.84
+
+.. http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/
 
 
 :small:`Chroma Raycast Triangle count (Dyb with RPC)`
@@ -246,36 +257,77 @@ https://bitbucket.org/scb-/chroma :small:`Fork, so far:`
 :small:`All triangle intersections made, even when no visible contribution to render. (Potential for optimisation?)`
 
 
-:small:`Chroma Raycast Improvements`
---------------------------------------
+:small:`Chroma Stability/Efficiency Improvements Made`
+------------------------------------------------------
 
 .. class:: small
 
-    Stability and performance improvements:
+    :green:`Split work into multiple CUDA kernel launch, arranged in 2D pattern` [#cuda2d]_ 
 
-    * split work into 2D CUDA kernel launch pattern (eg ``--launch 3,3,1``)
+    * avoids kernel launch times exceeding 5 seconds 
+    * 2D equalizes thread workload across CUDA warp(32 threads)  
 
-       * avoids overtime launches, which :red:`get killed and cause GPU Panic, GUI freeze, hard system crash`
-       * 2D pattern means each of the 32 threads in a CUDA warp has a more equal workload
+    :green:`Reduced CPU load by reducing transfers`
 
-    * adopt OpenGL pixel buffer objects (PBO) shared with CUDA/Chroma
+    * create pixels on GPU, share between OpenGL and CUDA/Chroma [#pbo]_ 
+    * compute photon directions via 4x4 uniform matrix rather than passing arrays 
+    * change matrix to navigate, rather than array manipulating kernel launches 
 
-       * pixels created and stay on GPU
-       * avoid device->host->device pixel transfers (which cause :red:`burning CPU` errors)
-       * pixels only transferred to host for writing screenshot files
+    These improvements were necessary as *Chroma Camera* [#presume]_ with Dayabay geometry had
+    
+    * very heavy CPU load [#burn]_ and unusably laggy GUI 
+    * frequent GPU panic, GUI freeze, hard system crash forcing reboot
 
-    * ``daeviewgl.py`` : very fast OpenGL 3D viewer, with optional Chroma/CUDA integration 
+ 
+.. class:: tiny
 
-       * single OpenGL Vertex Buffer Object (VBO) for entire geometry  
-       * GPUs designed to provide fast OpenGL rasterisation, not Raycasting,
-         profit from this as basis from which to launch Chroma renders
+    .. [#cuda2d] http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/cuda/cuda_launch.py 
+
+    .. [#pbo] Using OpenGL pixel buffer objects (PBO) and CUDA-OpenGL interoperability techniques, 
+              http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/pycuda/pycuda_pyopengl_interop/pixel_buffer.py
+              http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/chroma/chroma_camera/pbo_renderer.py
+
+    .. [#presume] Presumably Chroma was developed using fast Linux desktop GPUs where the kernel time limit can be avoided. 
+
+    .. [#burn] :red:`burning CPU errors` in system log
+
+
+:small:`daeviewgl.py : Fast OpenGL 3D viewer for G4DAE files` [#daeviewgl]_ 
+-----------------------------------------------------------------------------   
+
+.. class:: small
+
+   Objectives:
+
+   #. fast 3D interface to validate/inspect G4DAE geometry [#vbo]_
+   #. "backbone" application from which to:
+
+      * :green:`launch Chroma CUDA kernels`
+      * :red:`in future, visualize photon propagation`
+
+   Features:
+
+   * flexible tree/list based partial geometry loading 
+   * parallel or perspective projections 
+   * virtual trackball translate/rotate 
+   * interactive FOV and near/far plane clipping 
+   * persistent viewpoint bookmarks 
+   * animation by interpolation between bookmarks or orbiting 
+   * Chroma raycasting, including animated 
+   * numerical control via UDP remote messaging 
+   * screen capture
+
 
 .. class:: tiny
 
-   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/collada/daeview/
-   
+   .. [#daeviewgl] http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/collada/daeview/
+                   http://dayabay.phys.ntu.edu.tw/e/geant4/geometry/collada/daeview/daeview_usage/
 
-:small:`daeviewgl.py : 3D interface to G4DAE files`  
+   .. [#vbo] Implemented with single OpenGL Vertex Buffer Object (VBO) for entire geometry  
+
+
+
+:small:`daeviewgl.py : Screencast video`  
 -----------------------------------------------------
 
 .. class:: small
@@ -283,17 +335,13 @@ https://bitbucket.org/scb-/chroma :small:`Fork, so far:`
     Fast OpenGL 3D visualization/navigation, Chroma interactive raycasting 
 
 .. s5_video:: /env/daeview_Movie_ipad.m4v
-    #:poster: /env/geant4/geometry/collada/daeview/20140419-170713.png
-    #:width: 640
-
-
-``G4DAE viewer : Near Site`` 
-----------------------------
+    :poster: /env/geant4/geometry/collada/daeview/20140419-170713.png
+    :width: 640
 
 
 
-NuWa + Chroma : Issues along Fivefold path 
--------------------------------------------
+NuWa + Chroma : Progress along Fivefold path 
+----------------------------------------------
 
 .. class:: small
 
