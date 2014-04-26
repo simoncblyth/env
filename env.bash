@@ -46,9 +46,9 @@ u_(){
    case $abs in
         #  ${ENV_HOME}*) echo http://dayabay.phys.ntu.edu.tw/e/${abs/$ENV_HOME\/}/ ;; 
           ${ENV_HOME}*) echo http://localhost/e/${abs/$ENV_HOME\/}/ ;; 
-       ${HEPREZ_HOME}*) echo http://dayabay.phys.ntu.edu.tw/h/${abs/$HEPREZ_HOME\/}/ ;; 
-      ${DYBGAUDI_HOME}*) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/${abs/$DYBGAUDI_HOME\/}/ ;; 
      ${WORKFLOW_HOME}*) echo http://localhost/w/${abs/$WORKFLOW_HOME\/}/ ;; 
+       ${HEPREZ_HOME}*) echo http://dayabay.phys.ntu.edu.tw/h/${abs/$HEPREZ_HOME\/}/ ;; 
+     ${DYBGAUDI_HOME}*) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/${abs/$DYBGAUDI_HOME\/}/ ;; 
                      *) echo http://www.google.com ;;
    esac
 }

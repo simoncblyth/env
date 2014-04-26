@@ -24,7 +24,10 @@ chroma
    chroma_detector
    chroma_server
    chroma_zeromq
+
    chroma_camera/index
+   chroma_sim/index
+
    chroma_cuda_freeze
    chroma_cuda
    chroma_visualisation

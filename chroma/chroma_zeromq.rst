@@ -18,6 +18,13 @@ Its communication glue between processes.::
     ./setup.py:    install_requires = ['uncertainties','pyzmq-static','spnav', 'pycuda', 
     simon:chroma blyth$ 
 
+That misses **chroma_server**, which provides propagation on demand to remote clients::
+
+    (chroma_env)delta:chroma blyth$ grep zmq ../bin/* 
+    ../bin/chroma-server:import zmq
+    ../bin/chroma-server:        self.context = zmq.Context()
+    ../bin/chroma-server:        self.socket = self.context.socket(zmq.REP)
+
 
 chroma/generator/photon.py
 ---------------------------
@@ -86,8 +93,11 @@ chroma/io/root.py
 -------------------
 
 
-bin/chroma-server
+bin/chroma-server 
 -----------------
+
+* elegant simplicity, should be easy to integrate against 
+
 
 #. loads geometry from STL file specified by cmdline arg
 #. bind zmq server to address eg `tcp://*:5024` that:

@@ -14,7 +14,6 @@ This appears to now be integrated with chroma implemented
 in chroma/bin/chroma-server
 
 
-
 ZMQ
 ----
 

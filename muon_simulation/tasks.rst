@@ -58,8 +58,8 @@ G4DAE Improvements
 #. avoid pointers in volume id 
 #. workout how to visually distinguish surface types in COLLADA
 
-Meshlab COLLADA loading 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Meshlab COLLADA loading [ABANDONED]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. added bbox caching in order to allow node navigation with external control via DBUS 
 
@@ -68,14 +68,16 @@ Meshlab COLLADA loading
    * you might think that relative indexing from the index of the subroot would 
      allow this, but that only works if full depth is used 
 
-
-Web Visualisation Improvements [ON HOLD]
+Web Visualisation Improvements [ABANDONED]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. need development machine that supports WebGL to make progress on this
 
-Alternatives [ON HOLD] 
-~~~~~~~~~~~~~~~~~~~~~~~~
+#. Abandoned, as pyopengl/glumpy provides a nicer environment in which to proceed
+   and especially as its then easy to integrate with Chroma/pycuda
+
+Alternatives [ABANDONED] 
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Alternate workflows for G4 export and mesh conversion
 
@@ -85,13 +87,11 @@ Alternate workflows for G4 export and mesh conversion
 Decided that best to start from Geant4 and develop in that 
 context initially.
 
-Meshlab Visualisation [ONGOING]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Meshlab Visualisation [ABANDONED]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. added external numerical control via DBUS 
-#. TODO: add interpolated transitions, otherwise difficult to know where you are
-
-
+#. operating inside messy student developed code, can only go so far
 
 
 
@@ -129,8 +129,6 @@ Chroma surface property handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * surface properties, retaining volume/surface identity into a mesh representation 
-
-
 
 
 Chroma Installation
@@ -184,8 +182,6 @@ Perhaps:
 Usual Geant4 API approach of eg providing UserStackingAction
 requires custom handling. Complications: geometry conversion.
 
-
-
 CUDA/Chroma testing
 -----------------------------------
 
@@ -197,8 +193,6 @@ Chroma vs G4 Optical Process Validation
 
 * establish statistical equivalence between Chroma and G4
 * NuWa settings http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/1397#comment:7
-
-
 
 
 Glossary

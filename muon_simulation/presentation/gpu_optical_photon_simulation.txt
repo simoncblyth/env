@@ -221,6 +221,42 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
 
 
 
+:small:`Chroma Stability/Efficiency Improvements Made`
+------------------------------------------------------
+
+.. class:: small
+
+    :green:`Split work into multiple CUDA kernel launch, arranged in 2D pattern` [#cuda2d]_ 
+
+    * avoids kernel launch times exceeding 5 seconds 
+    * 2D equalizes thread workload across CUDA warp(32 threads)  
+
+    :green:`Reduced CPU load by reducing transfers`
+
+    * create pixels on GPU, share between OpenGL and CUDA/Chroma [#pbo]_ 
+    * compute photon directions via 4x4 uniform matrix rather than passing arrays 
+    * change matrix to navigate, rather than array manipulating kernel launches 
+
+    These improvements were necessary as *Chroma Camera* [#presume]_ with Dayabay geometry had
+    
+    * very heavy CPU load [#burn]_ and unusably laggy GUI 
+    * frequent GPU panic, GUI freeze, hard system crash forcing reboot
+
+ 
+.. class:: tiny
+
+    .. [#cuda2d] http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/cuda/cuda_launch.py 
+
+    .. [#pbo] Using OpenGL pixel buffer objects (PBO) and CUDA-OpenGL interoperability techniques, 
+              http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/pycuda/pycuda_pyopengl_interop/pixel_buffer.py
+              http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/chroma/chroma_camera/pbo_renderer.py
+
+    .. [#presume] Presumably Chroma was developed using fast Linux desktop GPUs where the kernel time limit can be avoided. 
+
+    .. [#burn] :red:`burning CPU errors` in system log
+
+
+
 :small:`Chroma Raycast Worst Case (~entire geometry) Example` 
 ---------------------------------------------------------------- 
 
@@ -255,41 +291,6 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
    :align: center
 
 :small:`All triangle intersections made, even when no visible contribution to render. (Potential for optimisation?)`
-
-
-:small:`Chroma Stability/Efficiency Improvements Made`
-------------------------------------------------------
-
-.. class:: small
-
-    :green:`Split work into multiple CUDA kernel launch, arranged in 2D pattern` [#cuda2d]_ 
-
-    * avoids kernel launch times exceeding 5 seconds 
-    * 2D equalizes thread workload across CUDA warp(32 threads)  
-
-    :green:`Reduced CPU load by reducing transfers`
-
-    * create pixels on GPU, share between OpenGL and CUDA/Chroma [#pbo]_ 
-    * compute photon directions via 4x4 uniform matrix rather than passing arrays 
-    * change matrix to navigate, rather than array manipulating kernel launches 
-
-    These improvements were necessary as *Chroma Camera* [#presume]_ with Dayabay geometry had
-    
-    * very heavy CPU load [#burn]_ and unusably laggy GUI 
-    * frequent GPU panic, GUI freeze, hard system crash forcing reboot
-
- 
-.. class:: tiny
-
-    .. [#cuda2d] http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/cuda/cuda_launch.py 
-
-    .. [#pbo] Using OpenGL pixel buffer objects (PBO) and CUDA-OpenGL interoperability techniques, 
-              http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/pycuda/pycuda_pyopengl_interop/pixel_buffer.py
-              http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/chroma/chroma_camera/pbo_renderer.py
-
-    .. [#presume] Presumably Chroma was developed using fast Linux desktop GPUs where the kernel time limit can be avoided. 
-
-    .. [#burn] :red:`burning CPU errors` in system log
 
 
 :small:`daeviewgl.py : Fast OpenGL 3D viewer for G4DAE files`  
@@ -329,40 +330,37 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
     :width: 60%
 
 
-NuWa + Chroma : Progress along Fivefold path 
-----------------------------------------------
+:small:`Status/Issues Along Fivefold path` 
+---------------------------------------------
 
 .. class:: small
 
-    :green:`Export G4 Geometry as DAE`  with G4DAE
+    :green:`Export G4 Geometry as DAE`  
 
-    * boolean solid triangulation sensitivity
-    * GDML/G4DAE bug omits some ``G4LogicalBorderSurface`` :red:`need confirmation/fix`
-    * GDML/G4DAE ugly pointer addresses used in identifiers (change for each export)
-    * :red:`rehome G4DAE from env repo into bitbucket for greater visibility`
+    * boolean solid triangulation sensitivity :blue:`a future systematic`
+    * pointer addresses used in identifiers :red:`need to remove this crutch (problem avoidance measure)`
+    * edge case bug omits a few surfaces (ESR mirrors) :red:`need confirmation/fix`
 
-    :green:`DAE to Chroma` mapping by DAENODE 
+    :green:`DAE to Chroma` 
 
-    * :red:`material/surface property mapping choices need validation`
-    * Chroma needs : :red:`double sided surfaces` to represent ``G4LogicalBorderSurface``
+    * material/surface properties, :red:`mapping choices validation`
+    * double sided surfaces  :red:`add to Chroma model` [#g4logicalbordersurface]_
 
-    Chroma Validation: :green:`raycasting`, :blue:`hybrid`, :red:`propagation` 
+    :blue:`Chroma Validation`
 
-    * raycasting: :green:`stability issues resolved` 
-    * :blue:`hybrid raycasting` adds some parts of propagation, to be investigated
-    * :red:`propagation tests`, to be investigated 
+    * raycasting: :green:`stability issue resolved` 
+    * :red:`hybrid raycasting, full propagation` to be investigated
 
-    :red:`Geant4/Chroma live Integration`, try Chroma server [#zeromq]_ requires Geant4 glue code:
+    :red:`Geant4/Chroma Integration` via Chroma Server [#zeromq]_ needs glue code:
 
-    * :red:`collect optical photons and send to server` 
-    * :red:`handle results`  either photons about to hit PMTs or hits 
+    * :red:`collect optical photons, send to server, handle results (photons/hits?)` 
 
-    :red:`Chroma vs Geant4 Validation` plan:
-
-    * comparison against conventional simulation production runs
+    :red:`Chroma vs Geant4 Validation` (:red:`comparison against productions`)
 
 
 .. class:: tiny
+
+   .. [#g4logicalbordersurface] G4LogicalBorderSurface class comprises an **ordered pair of volume references** and surface properties 
 
    .. [#zeromq] Based on ZeroMQ, a widely used open source message queue 
 
