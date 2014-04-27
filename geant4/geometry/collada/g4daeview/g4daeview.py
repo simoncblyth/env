@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
-DAEVIEWGL
+G4DAEVIEW
 ==========
 
-.. seealso:: User instructions :doc:`/geant4/geometry/collada/daeview/daeviewgl_usage`
+.. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
 Next

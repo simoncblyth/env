@@ -1,20 +1,20 @@
-# === func-gen- : geant4/geometry/collada/daeview/daeview fgp geant4/geometry/collada/daeview/daeview.bash fgn daeview fgh geant4/geometry/collada/daeview
-daeview-src(){      echo geant4/geometry/collada/daeview/daeview.bash ; }
-daeview-source(){   echo ${BASH_SOURCE:-$(env-home)/$(daeview-src)} ; }
-daeview-vi(){       vi $(daeview-source) ; }
-daeview-env(){      
+# === func-gen- : geant4/geometry/collada/g4daeview/g4daeview fgp geant4/geometry/collada/g4daeview/g4daeview.bash fgn g4daeview fgh geant4/geometry/collada/g4daeview
+g4daeview-src(){      echo geant4/geometry/collada/g4daeview/g4daeview.bash ; }
+g4daeview-source(){   echo ${BASH_SOURCE:-$(env-home)/$(g4daeview-src)} ; }
+g4daeview-vi(){       vi $(g4daeview-source) ; }
+g4daeview-env(){      
     elocal- 
     chroma-
 }
-daeview-usage(){ cat << EOU
+g4daeview-usage(){ cat << EOU
 
 DAEVIEW FUNCTIONS
 ==================
 
-*daeview*
+*g4daeview*
          launch app
 
-*daeview-ctl*
+*g4daeview-ctl*
          send UDP message to app
 
 
@@ -64,14 +64,14 @@ G4PB : OSX 10.5.8 macports py26
 
 EOU
 }
-daeview-dir(){ echo $(env-home)/geant4/geometry/collada/daeview; }
-daeview-cd(){  cd $(daeview-dir); }
-daeview-mate(){ mate $(daeview-dir) ; }
+g4daeview-dir(){ echo $(env-home)/geant4/geometry/collada/g4daeview; }
+g4daeview-cd(){  cd $(g4daeview-dir); }
+g4daeview-mate(){ mate $(g4daeview-dir) ; }
 
-daeview(){
-    daeviewgl.py $*   
+g4daeview(){
+    g4daeview.py $*   
 }
-daeview-ctl(){
+g4daeview-ctl(){
     udp.py "$*"
 }
 

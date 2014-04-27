@@ -2,6 +2,6 @@
 
 chroma-
 
-daeviewgl.py $*
+g4daeview.py $*
 
 

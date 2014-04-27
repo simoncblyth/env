@@ -1403,5 +1403,5 @@ pyopengl-(){      . $(env-home)/graphics/pyopengl/pyopengl.bash && pyopengl-env 
 fcollada-(){      . $(env-home)/graphics/collada/fcollada/fcollada.bash && fcollada-env $* ; }
 glumpy-(){      . $(env-home)/graphics/glumpy/glumpy.bash && glumpy-env $* ; }
 freeglut-(){      . $(env-home)/graphics/opengl/freeglut/freeglut.bash && freeglut-env $* ; }
-daeview-(){      . $(env-home)/geant4/geometry/collada/daeview/daeview.bash && daeview-env $* ; }
+g4daeview-(){     . $(env-home)/geant4/geometry/collada/g4daeview/g4daeview.bash && g4daeview-env $* ; }
 pytools-(){      . $(env-home)/python/pytools.bash && pytools-env $* ; }
