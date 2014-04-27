@@ -1,4 +1,4 @@
-daeviewgl debugging
+g4daeview debugging
 ====================
 
 Often loose geometry, ie after making some changes 
@@ -7,11 +7,11 @@ find that only get blank screens.
 Tricks to work out whats gone wrong
 ------------------------------------
 
-#. switch to line mode with `--nolight --line`
+#. switch to line mode with `--golight --line`
 #. vary near, far, yfov
 #. check scaled mode
 
-    daeviewgl.py -t +0 --eye "2,2,2"
+    g4daeview.py -t +0 --eye "2,2,2"
 
 
 Issue
@@ -22,7 +22,7 @@ Near behaving like far
 
 To see the lower parts of the geometry with::
 
-   daeviewgl.py -n 3153:12230 -t +5000 --eye=0,0,10 
+   g4daeview.py -g 3153:12230 -t +5000 --eye=0,0,10 
 
 Have to increase near to 1.01 from initial 0.1.  Why is near doing that ?
 
@@ -33,28 +33,28 @@ Removing the scale kludge
 
 ::
 
-     0994  daeviewgl.py -n 3153:12230 -t +0
-     0995  daeviewgl.py -n 3153:12230 -t +0
-     0996  daeviewgl.py -n 3153:12230 -t +0 --scale=8094.
-     0997  daeviewgl.py -n 3153:12230 -t +0 --scale=4094.
-     0998  daeviewgl.py -n 3153:12230 -t +0 --scale=1094.
-     0999  daeviewgl.py -n 3153:12230 -t +0 --scale=1094.
-     1000  daeviewgl.py -n 3153:12230 -t +0 --scale=1.
-     1001  daeviewgl.py -n 3153:12230 -t +0 --scale=100.
-     1002  daeviewgl.py -n 3153:12230 -t +0 --scale=1.
-     1003  daeviewgl.py -n 3153:12230 -t +0 --scale=10.
-     1004  daeviewgl.py -n 3153:12230 -t +0 --scale=10. --flight=10
-     1005  daeviewgl.py -n 3153:12230 -t +0 --scale=10. --flight=10 --near=10
+     0994  g4daeview.py -g 3153:12230 -t +0
+     0995  g4daeview.py -g 3153:12230 -t +0
+     0996  g4daeview.py -g 3153:12230 -t +0 --scale=8094.
+     0997  g4daeview.py -g 3153:12230 -t +0 --scale=4094.
+     0998  g4daeview.py -g 3153:12230 -t +0 --scale=1094.
+     0999  g4daeview.py -g 3153:12230 -t +0 --scale=1094.
+     1000  g4daeview.py -g 3153:12230 -t +0 --scale=1.
+     1001  g4daeview.py -g 3153:12230 -t +0 --scale=100.
+     1002  g4daeview.py -g 3153:12230 -t +0 --scale=1.
+     1003  g4daeview.py -g 3153:12230 -t +0 --scale=10.
+     1004  g4daeview.py -g 3153:12230 -t +0 --scale=10. --flight=10
+     1005  g4daeview.py -g 3153:12230 -t +0 --scale=10. --flight=10 --near=10
 
 ::
 
-     1043  daeviewgl.py -n 3153:12230 -t +5000 --scale=100. --near=30 --flight=20 
-     1044  daeviewgl.py -n 3153:12230 -t +5000 --scale=100. --near=30 --flight=20 
-     1045  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
-     1046  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
-     1047  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
-     1048  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
-     1049  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+     1043  g4daeview.py -g 3153:12230 -t +5000 --scale=100. --near=30 --flight=20 
+     1044  g4daeview.py -g 3153:12230 -t +5000 --scale=100. --near=30 --flight=20 
+     1045  g4daeview.py -g 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+     1046  g4daeview.py -g 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+     1047  g4daeview.py -g 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+     1048  g4daeview.py -g 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+     1049  g4daeview.py -g 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
 
 
 
@@ -64,19 +64,19 @@ Targetting outer volumes draw blanks
 
 ::
 
-    daeviewgl.py -n 3153:12230 -t "" --nolight --line     #  blank
-    daeviewgl.py -n 3153:12230 -t +0 --nolight --line     # 
-    daeviewgl.py -n 3153:12230 -t +6 --nolight --line     #  +0 to +6 all draw blanks
-    daeviewgl.py -n 3153:12230 -t 3159 --nolight --line   # absolute equivalent matches
+    g4daeview.py -g 3153:12230 -t "" --nolight --line     #  blank
+    g4daeview.py -g 3153:12230 -t +0 --nolight --line     # 
+    g4daeview.py -g 3153:12230 -t +6 --nolight --line     #  +0 to +6 all draw blanks
+    g4daeview.py -g 3153:12230 -t 3159 --nolight --line   # absolute equivalent matches
 
-    daeviewgl.py -n 3153:12230 -t +7 --nolight --line     #  first visible volume 
-    daeviewgl.py -n 3153:12230 -t 3160 --nolight --line      
+    g4daeview.py -g 3153:12230 -t +7 --nolight --line     #  first visible volume 
+    g4daeview.py -g 3153:12230 -t 3160 --nolight --line      
 
-    daeviewgl.py -n 3153:12230 -t -10                     # last visible
-    daeviewgl.py -n 3153:12230 -t -9                      # same issue at end of volume list 
-    daeviewgl.py -n 3153:12230 -t -1       
+    g4daeview.py -g 3153:12230 -t -10                     # last visible
+    g4daeview.py -g 3153:12230 -t -9                      # same issue at end of volume list 
+    g4daeview.py -g 3153:12230 -t -1       
 
-    daeviewgl.py -n 3153:12230 -t -9 --wlight 0           # lights at infinity dont help 
+    g4daeview.py -g 3153:12230 -t -9 --wlight 0           # lights at infinity dont help 
 
 
 #. maybe lights contained inside some geometry, so cannot see anything when go outside that volume ? 
@@ -95,28 +95,28 @@ Near
 
 Need crazy small near in many situations, why? a scaling problem still::
 
-    daeviewgl.py -n 3153:12230 -t "+0" --nearclip 1e-6,1e6
-    daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6
+    g4daeview.py -g 3153:12230 -t "+0" --nearclip 1e-6,1e6
+    g4daeview.py -g 3153:12230 -t "" --nearclip 1e-6,1e6
 
 
 A reasonable near of 10mm gives a blank screen::
 
-    daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near 10
+    g4daeview.py -g 3153:12230 -t "" --nearclip 1e-6,1e6 --near 10
 
 What near is needed for geometry to show up::
 
-    daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near .00029        # extent 8094.19   8 meters
-    daeviewgl.py -n 3153:12230 -t 5000 --nearclip 1e-6,1e6 --near 0.46       # extent  98.14  
+    g4daeview.py -g 3153:12230 -t "" --nearclip 1e-6,1e6 --near .00029        # extent 8094.19   8 meters
+    g4daeview.py -g 3153:12230 -t 5000 --nearclip 1e-6,1e6 --near 0.46       # extent  98.14  
 
 
 Removed some scaling, now a more reasonble near of 0.1mm can show large scale and small scale::
 
-    daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near 0.1
+    g4daeview.py -g 3153:12230 -t "" --nearclip 1e-6,1e6 --near 0.1
 
 
 Currently working::
 
-   daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near 0.2 --flight 100
+   g4daeview.py -g 3153:12230 -t "" --nearclip 1e-6,1e6 --near 0.2 --flight 100
 
 
 Light control
@@ -124,7 +124,7 @@ Light control
 
 Moving scaling into MODELVIEW enables light control::
 
-    daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near 0.2 --flight 1e-6 --eye 2,2,0
+    g4daeview.py -g 3153:12230 -t "" --nearclip 1e-6,1e6 --near 0.2 --flight 1e-6 --eye 2,2,0
 
 
 Unproject
@@ -187,7 +187,7 @@ scaled mode
 
 ::
 
-    daeviewgl.py
+    g4daeview.py
 
 
 target mode
@@ -195,13 +195,13 @@ target mode
 
 ::
 
-    daeviewgl.py -t "" 
-    daeviewgl.py -t "" --nolight --line
+    g4daeview.py -t "" 
+    g4daeview.py -t "" --nolight --line
 
-    daeviewgl.py -t +0
-    daeviewgl.py -t +0    --nolight --line
+    g4daeview.py -t +0
+    g4daeview.py -t +0    --nolight --line
 
-    daeviewgl.py -t +1000 --nolight --line   
+    g4daeview.py -t +1000 --nolight --line   
  
 
 Scenarios
@@ -215,16 +215,16 @@ of many other such pieces of geometry all within containing geometry (eg the AD)
 
 ::
 
-    daeviewgl.py -n 3153:6000 -t 5000
-    daeviewgl.py -n 3153:6000 -t 5000 --nolight --line      # linemode
+    g4daeview.py -g 3153:6000 -t 5000
+    g4daeview.py -g 3153:6000 -t 5000 --nolight --line      # linemode
 
 outside view
 ~~~~~~~~~~~~~~
 
 ::
 
-    daeviewgl.py -n 3153:6000 -t ""
-    daeviewgl.py -n 3153:6000 -t 3153 --nolight --line  
+    g4daeview.py -g 3153:6000 -t ""
+    g4daeview.py -g 3153:6000 -t 3153 --nolight --line  
 
 
 
@@ -235,12 +235,12 @@ Lighting
 
 In glumpy original scaled geometry mode the lighting is acceptable with false directional RGB and white background::
 
-    daeviewgl.py -n 5000:6000  
-    daeviewgl.py -n 5000:6000 --lights="rgb" --rlight="-1,1,1" --glight="1,1,1" --blight="0,-1,1" --xyz=0,0,3   # the original defaults, giving same appearance
+    g4daeview.py -g 5000:6000  
+    g4daeview.py -g 5000:6000 --lights="rgb" --rlight="-1,1,1" --glight="1,1,1" --blight="0,-1,1" --xyz=0,0,3   # the original defaults, giving same appearance
 
-    daeviewgl.py -n 5000:6000 --lights="rgb" --rlight="-1,1,-5" --glight="1,1,-5" --blight="0,-1,-5" --xyz=0,0,-3  # white screen, due to position
+    g4daeview.py -g 5000:6000 --lights="rgb" --rlight="-1,1,-5" --glight="1,1,-5" --blight="0,-1,-5" --xyz=0,0,-3  # white screen, due to position
 
-    daeviewgl.py -n 5000:6000 --lights="rgb" --rlight="-1,1,-1" --glight="1,1,-1" --blight="0,-1,-1"   # flipping z does not mess up just makes a bit dimmer
+    g4daeview.py -g 5000:6000 --lights="rgb" --rlight="-1,1,-1" --glight="1,1,-1" --blight="0,-1,-1"   # flipping z does not mess up just makes a bit dimmer
 
 
 Reproducing that lighting with world coordinate geometry is being problematic.

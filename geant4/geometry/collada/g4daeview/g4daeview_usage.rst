@@ -1,4 +1,4 @@
-daeviewgl.py
+g4daeview.py
 =============
 
 .. contents:: :local:
@@ -7,7 +7,7 @@ Usage Tips
 ------------
 
 #. Exit other apps that make heavy use of GPU acceleration whilst running
-   daeviewgl.py (and especially when launching Chroma raycasts)
+   g4daeview.py (and especially when launching Chroma raycasts)
 
    * Google Chrome snags GPU resources far more that Safari, 
    * Uncheck `Use hardware acceleration when available` in `Chrome > Settings > Advanced Settings [System]`
@@ -25,27 +25,27 @@ Partial geometry
 Partial geometry can be specified listwise or treewise, for example::
 
     # listwise
-    daeviewgl.py -p dyb -g 3153:      # skips Universe, rock and RPC, but includes everything in the pool  
-    daeviewgl.py -p dyb -g 6473:      # skips the ADs 
-    daeviewgl.py -p dyb -g 4:3146     # RPC
+    g4daeview.py -p dyb -g 3153:      # skips Universe, rock and RPC, but includes everything in the pool  
+    g4daeview.py -p dyb -g 6473:      # skips the ADs 
+    g4daeview.py -p dyb -g 4:3146     # RPC
 
     # treewise shortform
-    daeviewgl.py -p dyb -g 3147+      # 
-    daeviewgl.py -p dyb -g 3152+      # without radslabs
-    daeviewgl.py -p dyb -g 3154-      # includes only SST and nodes beneath that in the tree, ie the contents of SST
-    daeviewgl.py -p dyb -g 4536+ -n2  # children of a volume (calibration dome) excluding the volume itself, near is specified to avoid near clipping
+    g4daeview.py -p dyb -g 3147+      # 
+    g4daeview.py -p dyb -g 3152+      # without radslabs
+    g4daeview.py -p dyb -g 3154-      # includes only SST and nodes beneath that in the tree, ie the contents of SST
+    g4daeview.py -p dyb -g 4536+ -n2  # children of a volume (calibration dome) excluding the volume itself, near is specified to avoid near clipping
 
     # treewise longform
-    daeviewgl.py -p dyb -g 3154_1.5   # specify min/max recursion depth from the basenode
-    daeviewgl.py -p dyb -g 2_0.0        # just volume 2
-    daeviewgl.py -p dyb -g 2_1.1        # just immediate children of volume 2 
+    g4daeview.py -p dyb -g 3154_1.5   # specify min/max recursion depth from the basenode
+    g4daeview.py -p dyb -g 2_0.0        # just volume 2
+    g4daeview.py -p dyb -g 2_1.1        # just immediate children of volume 2 
 
     # combination form 
-    daeviewgl.py -p dyb -g 3153+,4813+
-    daeviewgl.py -p dyb -g 3153_1.2,4813_1.2
-    daeviewgl.py -p dyb -g 3153_0.2,4813_0.2,6473: --with-chroma    # smoke and mirrors, looks like default "3153:" but with much fewer volumes
+    g4daeview.py -p dyb -g 3153+,4813+
+    g4daeview.py -p dyb -g 3153_1.2,4813_1.2
+    g4daeview.py -p dyb -g 3153_0.2,4813_0.2,6473: --with-chroma    # smoke and mirrors, looks like default "3153:" but with much fewer volumes
 
-    daeviewgl.py -p dyb -g 3153_0.2,4813_0.2,6473: --with-chroma --size 640,480 --launch 1,1,1
+    g4daeview.py -p dyb -g 3153_0.2,4813_0.2,6473: --with-chroma --size 640,480 --launch 1,1,1
 
 
 TIP: to determine node tree indices click on the solids in the viewer and
@@ -65,19 +65,19 @@ units based on the extent of the target and axis directions
 
 Identify target via relative to node list (starting with `+` or `-`) or absolute addressing::
 
-    daeviewgl.py -g 3153:12230 -t -300 
-    daeviewgl.py -g 3153:12230 -t +10
+    g4daeview.py -g 3153:12230 -t -300 
+    g4daeview.py -g 3153:12230 -t +10
        
        # target relative to the node list 
 
-    daeviewgl.py -g 3153:12230 -t +0       # relative 
-    daeviewgl.py -g 3153:12230 -t 3153     # absolute equivalent 
+    g4daeview.py -g 3153:12230 -t +0       # relative 
+    g4daeview.py -g 3153:12230 -t 3153     # absolute equivalent 
 
-    daeviewgl.py -t +0      
+    g4daeview.py -t +0      
 
        # when using a sensible default node list, this is convenient 
 
-    daeviewgl.py -g 3153:12230 -t 5000 --eye="-2,-2,-2"
+    g4daeview.py -g 3153:12230 -t 5000 --eye="-2,-2,-2"
 
        # control the starting eyepoint relative to the target 
 
@@ -260,7 +260,7 @@ interactive switch to metric pixels presentation
 The chroma raycast metrics available for display must be defined at 
 launch with eg::
 
-   daeviewgl.py --metric time/tri/node  
+   g4daeview.py --metric time/tri/node  
 
 The restricted flexibility is due to needing to compile
 the kernel to change the metric. This is to avoid little 
@@ -315,51 +315,51 @@ Presentation
 
 ::
 
-    daeviewgl.py -g 4998:6000
+    g4daeview.py -g 4998:6000
 
       # default includes lights, fill with transparency 
 
-    daeviewgl.py -g 4998:6000 --line
+    g4daeview.py -g 4998:6000 --line
 
       # adding wireframe lines slows rendering significantly,toggle lines with "L"
 
-    daeviewgl.py -g 4998 --nofill
+    g4daeview.py -g 4998 --nofill
 
        # without polygon fill the lighting/transparency has no effect, toggle face fill with "A"
 
-    daeviewgl.py -g 4998 --nofill 
+    g4daeview.py -g 4998 --nofill 
 
        # blank white 
 
-    daeviewgl.py -g 4900:5000,4815 --notransparent
+    g4daeview.py -g 4900:5000,4815 --notransparent
 
        # see the base of the PMTs poking out of the cylinder when transparency off
 
-    daeviewgl.py -g 4900:5000,4815 --rgba .7,.7,.7,0.5
+    g4daeview.py -g 4900:5000,4815 --rgba .7,.7,.7,0.5
 
        # changing colors, especially alpha has a drastic effect on output
 
-    daeviewgl.py -g 3153:6000
+    g4daeview.py -g 3153:6000
 
        # inside the pool, 2 ADs : navigation is a challenge, its dark inside
 
-    daeviewgl.py -g 6070:6450
+    g4daeview.py -g 6070:6450
 
        # AD structure, shows partial radial shield
 
-    daeviewgl.py -g 6480:12230 
+    g4daeview.py -g 6480:12230 
 
        # pool PMTs, AD support, scaffold?    when including lots of volumes switching off lines is a speedup
 
-    daeviewgl.py -g 12221:12230 
+    g4daeview.py -g 12221:12230 
 
        # rad slabs
 
-    daeviewgl.py -g 2:12230 
+    g4daeview.py -g 2:12230 
 
        # full geometry, excluding only boring (and large) universe and rock 
 
-    daeviewgl.py -g 3153:12230
+    g4daeview.py -g 3153:12230
 
        # skipping universe, rock and RPC makes for easier inspection inside the pool
 

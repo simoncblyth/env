@@ -1,5 +1,5 @@
 
-DAEVIEW Lights
+G4DAEVIEW Lights
 ================
 
 reference
@@ -76,21 +76,21 @@ Moving the red light along z while looking down z::
 
 ::
 
-    daeviewgl.py -n 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="r" --rlight="0,0,1"  
+    g4daeview.py -g 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="r" --rlight="0,0,1"  
 
         # only PMTs lit red, not background
 
-    daeviewgl.py -n 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="r" --rlight="0,0,2"  
+    g4daeview.py -g 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="r" --rlight="0,0,2"  
 
         # light at eye position, PMTs and background lit red
         # perturbing z offset, makes background fade to grey around zoffset 0.4, 
         # light must be behind you to light the background  
 
-    daeviewgl.py -n 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="r" --rlight="0,0,3"
+    g4daeview.py -g 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="r" --rlight="0,0,3"
 
         # bright red background, fading to grey at zoffset 1.4
 
-    daeviewgl.py -n 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="r" --rlight="-1,1,2"
+    g4daeview.py -g 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="r" --rlight="-1,1,2"
 
 
 Original glumpy trackball constrained distance to be greater than 1::
@@ -107,10 +107,10 @@ Original glumpy trackball constrained distance to be greater than 1::
 
 ::
 
-    daeviewgl.py -n 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="rgb" --rlight="-1,1,1" --glight="1,1,1" --blight="0,-1,1" --flight 10
+    g4daeview.py -g 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0.001,1" --lights="rgb" --rlight="-1,1,1" --glight="1,1,1" --blight="0,-1,1" --flight 10
 
 
-    daeviewgl.py -n 5000:6000 --lights="rgb" --rlight="-1,1,-3" --glight="1,1,-3" --blight="0,-1,-3"   -t "" --eye="0,0.001,-3"  --wlight=0.
+    g4daeview.py -g 5000:6000 --lights="rgb" --rlight="-1,1,-3" --glight="1,1,-3" --blight="0,-1,-3"   -t "" --eye="0,0.001,-3"  --wlight=0.
   
 
 

@@ -51,7 +51,7 @@ Animation
     3137  DAESolid v 267  t 528  n 267   : 6290 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.4   
     3219  DAESolid v 267  t 528  n 267   : 6372 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.5   
     (chroma_env)delta:daeview blyth$ 
-    (chroma_env)delta:daeview blyth$ daeviewgl.py -t +0 -j +1369,+1372,+1375,+1389,+1477,+1559,+3029,+3032,+3035,+3049,+3137,+3219 --near 1e-5
+    (chroma_env)delta:daeview blyth$ g4daeview.py -t +0 -j +1369,+1372,+1375,+1389,+1477,+1559,+3029,+3032,+3035,+3049,+3137,+3219 --near 1e-5
 
 
 Reflectors
@@ -77,9 +77,9 @@ Issues when small extent ?
 
 ::
 
-    daeviewgl.py -t +1369
+    g4daeview.py -t +1369
 
-    daeviewgl.py -t +1369 --eye=0,0.001,20    # small ball and cylinder
+    g4daeview.py -t +1369 --eye=0,0.001,20    # small ball and cylinder
 
 
 
@@ -89,23 +89,23 @@ Interpolation
 
 Expected yoyo, just get fall::
 
-    daeviewgl.py -t 8153 --eye="2,2,40" --look="2,2.001,0" -j +0_2,2,-40:+0_2,2,40    
+    g4daeview.py -t 8153 --eye="2,2,40" --look="2,2.001,0" -j +0_2,2,-40:+0_2,2,40    
 
 
 
 Very long shapes are problematic::
 
-    daeviewgl.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5 --near 1e-6 --far 1e6
+    g4daeview.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5 --near 1e-6 --far 1e6
 
-    daeviewgl.py -n 4522,4525,4528,4542,4630,4712
+    g4daeview.py -g 4522,4525,4528,4542,4630,4712
 
-    daeviewgl.py -n 4522,4525,4528,4542,4630,4712 -t "" -j 4522:4525:4528:4542:4630:4712
+    g4daeview.py -g 4522,4525,4528,4542,4630,4712 -t "" -j 4522:4525:4528:4542:4630:4712
 
-    daeviewgl.py -n 4522:4712 -t 4522
+    g4daeview.py -g 4522:4712 -t 4522
 
-    daeviewgl.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5 --near 0.01
+    g4daeview.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5 --near 0.01
 
-    daeviewgl.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5 
+    g4daeview.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5 
 
 
 
@@ -115,9 +115,9 @@ Interpolation Jumps
 
 ::
 
-    daeviewgl.py -t +1000 -j +1000_2,2,2:+1000_2,2,10
+    g4daeview.py -t +1000 -j +1000_2,2,2:+1000_2,2,10
 
-    daeviewgl.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5
+    g4daeview.py -t 4522 -j 4522_0,5,0:4522_5,0,0:4522_0,0.001,5
 
 
 
