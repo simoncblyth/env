@@ -15,7 +15,7 @@
     #
     # first slide id is exceptionally: slide0, not the mangled title
     slide0
-    /env/geant4/geometry/collada/daeview/20140419-170713.png auto_auto 0px_0px
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
 
     Full Screen
     images/chroma/chroma_dayabay_adlid.png
@@ -23,14 +23,14 @@
     Full Screen 2
     images/chroma/chroma_dayabay_pool_pmts.png
 
-    daeviewgl.py : Fast OpenGL 3D viewer for G4DAE files
-    /env/geant4/geometry/collada/daeview/20140419-170713.png
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
 
     G4DAE viewer : Pool Bottom
-    /env/geant4/geometry/collada/daeview/20140419-170957.png
+    /env/geant4/geometry/collada/g4daeview/20140419-170957.png
 
     G4DAE viewer : Pool Bottom, Chroma Raycast 
-    /env/geant4/geometry/collada/daeview/20140419-171014.png
+    /env/geant4/geometry/collada/g4daeview/20140419-171014.png
  
     # the image is too big to be shown as is 
     #G4DAE Dayabay Near Site 
@@ -38,7 +38,10 @@
     
     #Chroma Raycast Illustration
     #/env/chroma/chroma_camera/chroma_raycast_illustration.png 1000px_auto 200px_100px
-
+    #
+    #g4daeview.py : Near Site parallel projection with near plane clipping
+    #/env/geant4/geometry/collada/g4daeview/20140427-115528.png
+    
 
 ======================================================================
 200x Faster Optical Photon Propagation with NuWa + Chroma ?
@@ -136,7 +139,7 @@ eliminate geometry code as :red:`just one code path`.
 
 .. class:: tiny
 
-    ``VGDX_20140414`` counts using ``daeviewgl.py -g 0: --with-chroma``
+    ``VGDX_20140414`` counts using ``g4daeview.py -g 0: --with-chroma``
 
 .. class:: small
 
@@ -167,7 +170,7 @@ eliminate geometry code as :red:`just one code path`.
 
        * https://github.com/mrdoob/three.js/  Javascript 3D 
 
-    * ``daeviewgl.py`` : Fast OpenGL 3D viewer/navigator
+    * ``g4daeview.py`` : Fast OpenGL 3D viewer/navigator
 
        * http://pyopengl.sourceforge.net   OpenGL from python 
        * https://code.google.com/p/glumpy/  pyopengl+numpy integration
@@ -271,7 +274,7 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
 .. class:: tiny 
 
 
-    daeviewgl.py --target=.. --eye="-0.3,-1.1,1.7" --look="0.1,0.4,-0.6" --up="1.2,2.0,1.6" --size=1440,852 --near=30.00000 --far=10000.0 --yfov=50.0 --with-chroma
+    g4daeview.py --target=.. --eye="-0.3,-1.1,1.7" --look="0.1,0.4,-0.6" --up="1.2,2.0,1.6" --size=1440,852 --near=30.00000 --far=10000.0 --yfov=50.0 --with-chroma
 
 
 .. wrk (1440, 852) [1226880]  lch  [3, 3, 1] [9]  blk [16, 16, 1] [256]  0.03,0.26,0.12,0.15,0.79,0.20,0.06,0.20,0.04 TOT 1.84
@@ -284,7 +287,7 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
 
 .. class:: tiny
 
-    daeviewgl.py --with-chroma --metric tri --flags 1,0    # tri/time/intersect
+    g4daeview.py --with-chroma --metric tri --flags 1,0    # tri/time/intersect
 
 .. image:: /env/chroma/chroma_camera/pmt-tri-count-hotspots.png
    :height: 500px
@@ -293,12 +296,12 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
 :small:`All triangle intersections made, even when no visible contribution to render. (Potential for optimisation?)`
 
 
-:small:`daeviewgl.py : Fast OpenGL 3D viewer for G4DAE files`  
+:small:`g4daeview.py : Fast OpenGL 3D viewer for G4DAE files`  
 -----------------------------------------------------------------------------   
 
 .. class:: small
 
-   G4DAE visualization [#daeviewgl_usage]_ and "backbone" application for Chroma testing.
+   G4DAE visualization [#g4daeview_usage]_ and "backbone" application for Chroma testing.
 
    * flexible tree/list based partial geometry loading 
    * very fast/responsive 3D OpenGL visualization [#vbo]_
@@ -311,22 +314,38 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
    * numerical control via UDP remote messaging 
    * screen capture
 
-   Implementation [#daeviewgl_code]_ 
+   Implementation [#g4daeview_code]_ 
 
 .. class:: tiny
 
-   .. [#daeviewgl_usage] http://dayabay.phys.ntu.edu.tw/e/geant4/geometry/collada/daeview/daeview_usage/
+   .. [#g4daeview_usage] http://dayabay.phys.ntu.edu.tw/e/geant4/geometry/collada/g4daeview/g4daeview_usage/
 
    .. [#vbo] Implemented with single OpenGL Vertex Buffer Object (VBO) for entire geometry  
 
-   .. [#daeviewgl_code] http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/collada/daeview/
+   .. [#g4daeview_code] http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/collada/g4daeview/
 
 
-:small:`daeviewgl.py : Video Tour`  
+
+:small:`g4daeview.py : Dayabay Near Site Perspective Projection` 
+-------------------------------------------------------------------------------
+
+.. image:: /env/geant4/geometry/collada/g4daeview/20140427-122131.png
+   :height: 650px
+   :align: center
+
+.. class:: tiny
+
+   .. [#cli] g4daeview.py -p dyb -t .. --eye="-1.4,-1.0,0.3" --look="0.9,0.6,-0.1" --up="0.3,0.2,2.8" --size=1440,900 --near=125.00966 --far=10000.0 --yfov=49.8 
+
+
+
+
+
+:small:`g4daeview.py : Video Tour`  
 -----------------------------------------------------
 
-.. s5_video:: /env/daeview_Movie_ipad.m4v
-    :poster: /env/geant4/geometry/collada/daeview/20140419-170713.png
+.. s5_video:: /env/g4daeview_Movie_ipad.m4v
+    :poster: /env/geant4/geometry/collada/g4daeview/20140419-170713.png
     :width: 60%
 
 
@@ -338,7 +357,7 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
     :green:`Export G4 Geometry as DAE`  
 
     * boolean solid triangulation sensitivity :blue:`a future systematic`
-    * pointer addresses used in identifiers :red:`need to remove this crutch (problem avoidance measure)`
+    * pointer addresses used in identifiers :red:`remove this ugly problem avoidance`
     * edge case bug omits a few surfaces (ESR mirrors) :red:`need confirmation/fix`
 
     :green:`DAE to Chroma` 
@@ -354,9 +373,7 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
     :red:`Geant4/Chroma Integration` via Chroma Server [#zeromq]_ needs glue code:
 
     * :red:`collect optical photons, send to server, handle results (photons/hits?)` 
-
-    :red:`Chroma vs Geant4 Validation` (:red:`comparison against productions`)
-
+    * :red:`Chroma vs Geant4 Validation` (:red:`comparison against productions`)
 
 .. class:: tiny
 

@@ -1,15 +1,15 @@
 
-daeview
+g4daeview
 =========================
 
 .. toctree::
 
-   daeview
-   daeview_usage
-   daeview_chroma
-   daeview_debug
-   daeview_lights
-   daeview_devnotes
+   g4daeview
+   g4daeview_usage
+   g4daeview_chroma
+   g4daeview_debug
+   g4daeview_lights
+   g4daeview_devnotes
 
 
 
