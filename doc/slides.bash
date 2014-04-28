@@ -14,6 +14,9 @@ Checking configured settings
 *slides-info*
            echos the paths/names in use
 
+*slides-get 0 15*
+           capture PNGs per page, crop the chrome, convert PNGs into PDF
+
 
 Creating HTML slides from S5 Restructured Text Sources
 --------------------------------------------------------
@@ -260,7 +263,12 @@ PDF CREATION FUNCTIONS
 *slides-crop*
               runs python cropper on all NN.png, creating NN_crop.png
 *slides-convert*
-              uses convert to concatenate NN_crop.png into name.pdf
+              uses convert to concatenate NN_crop.png into name.pdf , this 
+              is using ImageMagick (a very heavy dependency). 
+
+              Used Automator. It has an action that does precisely this. 
+              
+              
 
 
 *slides-rst2pdf-convert*
@@ -271,7 +279,7 @@ EOU
 }
 
 slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
-slides-dir(){   echo $(local-base)/env/$(slides-fold) ; }
+slides-dir(){   echo $(apache-htdocs)/env/$(slides-fold) ; }
 slides-sdir(){  echo $(env-home)/$(slides-branch) ; } 
 slides-pdir(){  echo $(env-home)/_build/dirhtml/$(slides-fold) ; }
 slides-path(){  echo $(slides-dir)/$(slides-name).${1:-pdf} ; }
@@ -301,8 +309,6 @@ slides-mate(){ mate $(slides-dir) ; }
 slides-mkdir(){ mkdir -p $(slides-dir) ; }
 slides-get(){
 
-   slides-mkdir
-   slides-cd
    slides-capture $*
    slides-crop
    slides-convert
@@ -312,8 +318,13 @@ slides-get(){
 slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
 slides-branch(){    echo ${SLIDES_BRANCH:-muon_simulation/presentation} ; }        # env relative path to where .txt sources reside
 slides-host(){      echo ${SLIDES_HOST:-dayabay.phys.ntu.edu.tw} ; }   
-slides-url(){       echo ${SLIDES_URL:-http://$(slides-host)/e/$(slides-fold)/$(slides-name).html} ; }
-slides-ppath(){     echo $(apache-htdocs $1)/e/$(slides-fold)/$(slides-name).${2:-pdf} ; }   
+
+slides-url-prior(){ echo ${SLIDES_URL:-http://$(slides-host)/e/$(slides-fold)/$(slides-name).html} ; }
+slides-ppath-prior(){ echo $(apache-htdocs $1)/e/$(slides-fold)/$(slides-name).${2:-pdf} ; }   
+
+slides-url(){       echo ${SLIDES_URL:-http://$(slides-host)/env/$(slides-branch)/$(slides-name).html} ; }
+slides-ppath(){     echo $(apache-htdocs $1)/env/$(slides-branch)/$(slides-name).${2:-pdf} ; }   
+
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
 
 slides-pages(){
@@ -368,9 +379,16 @@ slides-publish-rsync(){
    rsync -av $(slides-dir)/ $pdir/
 }
 
+#slides-fmt(){ echo pdf ; }  # PIL cannot crop PDF
+slides-fmt(){ echo png ; }   
+
 slides-capture(){
    local msg="=== $FUNCNAME "
+
+   slides-mkdir
    slides-cd
+
+   local fmt=$(slides-fmt)
    local pages=$(slides-pages $1 $2)
    local page
    local url
@@ -380,23 +398,24 @@ slides-capture(){
       zpage=$(printf "%0.2d" $page)
       echo $msg opening url "$url" 
       open "$url"
-      cmd="screencapture -T0 -w -i -o $zpage.png"
+      cmd="screencapture -T0 -t$fmt -w -i -o $zpage.$fmt"
       #
       #    -T<seconds>  Take the picture after a delay of <seconds>, default is 5 
       #    -w           only allow window selection mode
       #    -i           capture screen interactively, by selection or window
       #    -o           in window capture mode, do not capture the shadow of the window
+      #    -t<format>   image format to create, default is png (other options include pdf, jpg, tiff and other formats)      
       #
       echo $msg about to do $cmd : tap browser window once loaded and highlighted blue
-      sleep 3
+      sleep 1
       eval $cmd
    done
 }
 slides-crop(){
    local msg="=== $FUNCNAME "
    slides-cd
-   echo $msg cropping PNG 
-   crop.py ??.png   
+   echo $msg cropping png
+   crop.py ??.png
 }
 slides-convert(){
    local msg="=== $FUNCNAME "

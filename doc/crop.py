@@ -10,10 +10,17 @@ from PIL import Image
 
 class Crop(object):
     style = { 
+          'safari_headtail_old':{
+                                 'description':"vertically chop the head by param[0] and tail by param[1]",
+                                 'param':(120, 20 ),  
+                            },
+
           'safari_headtail':{
                                  'description':"vertically chop the head by param[0] and tail by param[1]",
-                                 'param':(120, 20 ),
+                                 'param':(190, 30 ),  # use Preview.app measurement tool to count the pixels
                             },
+
+
             }
 
     def __init__(self, style_ ):
@@ -61,8 +68,13 @@ def main():
     crop = Crop("safari_headtail")
     log.info(crop)
     for path in sys.argv[1:]:
-        if os.path.exists(path) and path[-4:] == '.png':
-            crop(path)
+        if os.path.exists(path):
+            if path[-4:] == '.png':
+                crop(path)
+            elif path[-4:] == '.pdf':
+                log.info("PIL cannot handle cropping PDF ")
+            else:
+                pass
 
 
 if __name__ == '__main__':
