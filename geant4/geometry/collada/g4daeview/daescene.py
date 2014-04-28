@@ -174,11 +174,13 @@ class DAEScene(object):
         return "SC " + str(self.transform) 
 
     def __str__(self):
-        return " ".join(map(str,[self.transform, self.camera])) 
+        return " ".join(map(str,[self.geometry, self.transform, self.camera])) 
 
     def exit(self):
         self.bookmarks.save()
-        print "%s %s " % (os.path.basename(sys.argv[0]), str(self))
+        if not self.raycaster is None:
+            self.raycaster.exit() 
+        print "\n%s %s\n" % (os.path.basename(sys.argv[0]).replace(".py",".sh"), str(self))
 
     here = property(lambda self:self.transform.eye[:3])
 
@@ -205,7 +207,7 @@ class DAEScene(object):
             log.warn("clicked_point %s found no containing solids : how did you manage that ?" % repr(click) )
             return None
         pass
-        log.info("pick_solid selects %s solids smallest \n%s" % ( len(self.solids), solids[0] ))
+        log.debug("pick_solid selects %s solids smallest \n%s" % ( len(self.solids), solids[0] ))
         return solids[0]
 
     def clicked_point(self, click, target_mode ):
@@ -355,7 +357,7 @@ class DAEScene(object):
         self.view = newview
 
     def target_view(self, tspec, prior=None):
-        log.info("target_view tspec[%s]" % tspec  )
+        log.debug("target_view tspec[%s]" % tspec  )
         return DAEViewpoint.make_view( self.geometry, tspec, self.config.args, prior=prior )
 
     def interpolate_view(self, jspec, append=False):

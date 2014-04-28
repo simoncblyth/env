@@ -114,7 +114,7 @@ class DAEInteractivityHandler(object):
         dispatcher collect messages over UDP, allowing remote control
         """
         dispatcher = DAEDispatcher(port=config.args.port, host=config.args.host)
-        log.info(dispatcher)        
+        log.debug(dispatcher)        
 
         def _check_dispatcher(dt):
             dispatcher.update()

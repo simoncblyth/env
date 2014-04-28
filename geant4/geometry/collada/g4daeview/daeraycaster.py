@@ -6,6 +6,8 @@ import logging
 log = logging.getLogger(__name__)
 from env.pycuda.pycuda_pyopengl_interop.pixel_buffer import PixelBuffer
 from env.chroma.chroma_camera.pbo_renderer import PBORenderer
+from env.cuda.cuda_state import DriverState
+
 
 class DAERaycaster(object):
     def __init__(self, config, geometry ):
@@ -30,6 +32,13 @@ class DAERaycaster(object):
         self.renderer.pixel2world = self.transform.pixel2world
         self.renderer.render()
         self.pixels.draw()
+
+    def exit(self):
+        import pycuda.driver as drv
+        ds = DriverState(drv)
+        log.info("DAERaycaster.exit : cuDriverState\n %s" % repr(ds) )
+
+
 
 
 if __name__ == '__main__':

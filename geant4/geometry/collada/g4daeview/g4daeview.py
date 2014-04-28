@@ -116,7 +116,7 @@ def main():
     config.cudacheck = cudacheck
 
 
-    geometry = DAEGeometry(config.args.geometry, path=config.path)
+    geometry = DAEGeometry(config.args.geometry, config)
     geometry.flatten()
 
     figure = gp.Figure(size=config.size)

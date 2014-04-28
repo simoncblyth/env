@@ -17,16 +17,18 @@ class DAEBookmarks(dict):
     ini_prefix = "bookmark_"
     ini_exclude = ("0",)
 
+    def _get_marks(self):
+        marks = filter(lambda k:k not in self.ini_exclude, sorted(self))  # bookmark_0 excluded
+        marks = filter(lambda k:not self[k].solid is None,marks)  
+        return marks
+    marks = property(_get_marks)
+
     def _get_asini(self):
-        keys = filter(lambda k:k not in self.ini_exclude, sorted(self))  # bookmark_0 excluded
-        keys = filter(lambda k:not self[k].solid is None,keys)  
-        if len(self) != len(keys):
-            log.warn("some bookmarks for views without solids not saved")
-        return "\n".join(["[%s%s]\n%s" % (self.ini_prefix, k, self[k].asini) for k in keys])
+        return "\n".join(["[%s%s]\n%s" % (self.ini_prefix, k, self[k].asini) for k in self.marks])
     asini = property(_get_asini)
 
     def save(self):
-        log.info("save bookmarks to %s " % self.path )
+        log.info("save %s bookmarks to %s " % (len(self.marks),self.path ))
         with open(self.path,"w") as w:
             w.write(self.asini + "\n")
 

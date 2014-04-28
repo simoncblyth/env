@@ -163,18 +163,22 @@ class DAESolid(DAEMesh):
        
 
 class DAEGeometry(object):
-    def __init__(self, arg, path=None, bound=True):
+    def __init__(self, arg, config ):
         """
         :param arg:  specifications of the DAE nodes to load, via index or id
-        :param path: to the dae file
-        :param bound: use world space coordinates
+        :param config: 
 
         """
+        path = config.path
+        bound = config.args.bound
         nodes = DAENode.getall(arg, path)
         self.solids = [DAESolid(node, bound) for node in nodes]
         self.mesh = None
         self.bbox_cache = None
+        self.config = config
        
+    def __str__(self):
+        return "-p %s -g %s " % ( self.config.args.path, self.config.args.geometry )
 
     def nodes(self):
         """

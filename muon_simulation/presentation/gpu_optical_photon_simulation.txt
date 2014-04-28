@@ -303,18 +303,16 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
 
    G4DAE visualization [#g4daeview_usage]_ and "backbone" application for Chroma testing.
 
-   * flexible tree/list based partial geometry loading 
    * very fast/responsive 3D OpenGL visualization [#vbo]_
-   * virtual trackball translate/rotate 
+   * flexible tree/list based partial geometry loading 
+   * intuitive virtual trackball translate/rotate 
    * parallel or perspective projections 
-   * interactive FOV and near/far plane clipping 
+   * interactive fov and near/far plane clipping 
    * persistent viewpoint bookmarks 
    * animation by interpolation between bookmarks or orbiting 
-   * Chroma interactive raycasting, including animated 
    * numerical control via UDP remote messaging 
-   * screen capture
-
-   Implementation [#g4daeview_code]_ 
+   * Chroma interactive raycasting, including animated 
+   * easily extensible python implementation [#g4daeview_code]_ 
 
 .. class:: tiny
 
@@ -335,8 +333,20 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
 
 .. class:: tiny
 
-   .. [#cli] g4daeview.py -p dyb -t .. --eye="-1.4,-1.0,0.3" --look="0.9,0.6,-0.1" --up="0.3,0.2,2.8" --size=1440,900 --near=125.00966 --far=10000.0 --yfov=49.8 
+   .. [#near] g4daeview.py -p dyb -t .. --eye="-1.4,-1.0,0.3" --look="0.9,0.6,-0.1" --up="0.3,0.2,2.8" --size=1440,900 --near=125.00966 --far=10000.0 --yfov=49.8 
 
+
+
+:small:`g4daeview.py : Dayabay Far Site Parallel Projection` 
+-------------------------------------------------------------------------------
+
+.. image:: /env/geant4/geometry/collada/g4daeview/20140427-130302.png
+   :height: 650px
+   :align: center
+
+.. class:: tiny
+
+   .. [#far] g4daeview.py -p far -t .. --eye="-0.3,-1.0,0.2" --look="0.4,1.7,-0.3" --up="0.1,0.5,2.8" --size=1440,900 --near=114.27833 --far=10000.0 --yfov=48.9 
 
 
 
@@ -344,7 +354,7 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
 :small:`g4daeview.py : Video Tour`  
 -----------------------------------------------------
 
-.. s5_video:: /env/g4daeview_Movie_ipad.m4v
+.. s5_video:: /env/g4daeview_001.m4v
     :poster: /env/geant4/geometry/collada/g4daeview/20140419-170713.png
     :width: 60%
 
@@ -445,17 +455,18 @@ Chroma Ray Tracing Dayabay Geometry (4)
 
 
 
-Chroma : Hardware requirements 
---------------------------------
+:small:`Chroma : Hardware requirements` 
+-----------------------------------------
 
-Develop with Retina MacBook Pro (late 2013), NVIDIA GeForce GT 750M 2048 MB
 
 .. sidebar:: Suitable GPUs only ~250-350 USD
 
    eg NVIDIA GeForce GTX 680 (1536 CUDA cores, 2048 MB, Compute Capability 3.0) ~ 330 USD
 
-* NVIDIA GPU with CUDA Compute Capability (CCC) 2.0 at least 
-* 1.5G of GPU memory (estimated minimum for Dayabay geometry)
+.. class:: small
+
+    * NVIDIA GPU with CUDA Compute Capability (CCC) 2.0 at least 
+    * 1.5G of GPU memory (estimated minimum for Dayabay geometry)
 
 
 
