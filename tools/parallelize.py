@@ -2,10 +2,28 @@
 """
 Usage::
 
-    python tools/parallizer.py -h
-    python tools/parallizer.py        # check 
-    python tools/parallizer.py | sh   # do
+    python tools/parallelize.py -h
+    python tools/parallelize.py        # check 
+    python tools/parallelize.py | sh   # do
 
+Source and target directories are specified in config ini files, for example::
+
+    [html2wdocs]
+    object = propagate generated html from the Sphinx build into the wdocs where is can be made mobile 
+    argv0 = parallelize.py
+    source = ~/workflow/_build/html
+    target = ~/DELTA/wdocs
+
+An example application is propagation of Sphinx html build products
+from emphemeral Sphinx build directories (that are deleted by doing "make clean")
+into a more permanent directory structures, allowing derived html 
+docs to be synced to mobile devices, and accessed offline.
+
+#. This is a simple migrator between directory heirarchies, with digest checking 
+   of whether files have been changed. There is no regard for SVN status.
+
+#. The script does not actually do anything, just suggests shell commands to run 
+   to be checked by user before piping them to sh 
 
 """
 from __future__ import with_statement

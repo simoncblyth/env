@@ -20,6 +20,17 @@ env-cache-update(){
 }
 
 
+env-touch-index(){
+   # recursivly touch existing index.rst going up the directory tree from PWD
+   # for pursuading sphinx to rebuild a deep page
+   local dir=${1:-$PWD}
+   [ "$dir" == "/" ] && return 
+   local idx=$dir/index.rst
+   [ -f "$idx" ] && echo $idx && touch $idx 
+   $FUNCNAME $(dirname $dir)
+}
+
+
 env-anewer(){
    cd $(env-home)
    local path=${1:-graphics/openscenegraph/osg.bash}

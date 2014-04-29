@@ -1,13 +1,25 @@
 #!/usr/bin/env python
 """
-Getting PDFs and other binaries out of a source tree and into
-a parallel hierarcy, typically for local webserver presentation from there.
+SWEEPS SVN WORKING COPY INTO INTO PARALLEL DIRECTORY STRUCTURE
+================================================================
+
+Typical usage is to get PDF/PNGs etc.. and other binaries out 
+of a source tree and into a parallel hierarcy, typically 
+for local webserver presentation from there.
+
 The veracity of the copy is checked via digests.  
 
 .. note:: the advantage is organization within single tree heirarchy tree, without clutering repo with binaries
 
 .. warn:: deletes questionmarked directories from working copy, so cleanup svn status manually before using this to complete the task
           potentially loosing files if their extensions do not correspond to the selected ones
+
+
+
+Specifying exts changes behaviour to less efficient dir_walk 
+and sweeping no-matter what the svn status 
+ie here all .txt not already sweeped will be sweeped
+
 
 
 Avoid copying around trash like .aux .log and _build
@@ -63,7 +75,7 @@ TODO:
 
 """
 from __future__ import with_statement
-import os, hashlib, logging, re
+import os, hashlib, logging, re, sys
 log = logging.getLogger(__name__)
 
 def digest_(path):
@@ -247,7 +259,52 @@ class Sweeper(list):
         return "\n".join(self.cmds)
         
 
+
+def parse_args_(doc):
+    from optparse import OptionParser
+    op = OptionParser(usage=doc)
+    op.add_option("-c", "--cnfpath", default=os.environ['SVNSWEEP_CNFPATH'], help="Path to config file, default %default " )
+    op.add_option("-s", "--cnfsect", default=os.environ['SVNSWEEP_CNFSECT'], help="Comma delimeted list of config file sections to read, default %default " )
+    op.add_option("-g", "--logpath", default=None )
+    op.add_option(      "--PROCEED", action="store_true", default=False, help="Proceed to run the commands, default %default " )
+    op.add_option("-t", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
+    op.add_option("-l", "--loglevel", default="INFO", help=" default %default " )
+    opts, args = op.parse_args()
+    opts.cnf = read_cnf_( opts.cnfpath )
+
+    level=getattr(logging,opts.loglevel.upper()) 
+    if opts.logpath:
+        logging.basicConfig(format=opts.logformat,level=level,filename=opts.logpath)
+    else:
+        logging.basicConfig(format=opts.logformat,level=level)
+
+    return opts, args
+
+
+def read_cnf_( path ):
+    from ConfigParser import SafeConfigParser
+    path = os.path.expanduser(path)
+    assert os.path.exists(path), path
+    log.debug("reading %s " % ( path ) )
+    cnf = SafeConfigParser()
+    cnf.read(path)
+    return cnf
+
+
+def main():
+    opts, args = parse_args_(__doc__)
+
+    for sect in opts.cnfsect.split(","):
+        cfg = dict(opts.cnf.items(sect))
+        argv0 = os.path.basename(sys.argv[0])
+        assert argv0 == cfg['argv0'], ( argv0, cfg, "config argv0 mismatch with script" )
+        log.info(cfg)
+        swp = Sweeper( cfg['source'], cfg['target'], exts=cfg.get('exts',None), skipd=cfg.get('skipd',None) )     
+        print swp
+
+
+
 if __name__ == '__main__':
-    pass
+    main()
 
 
