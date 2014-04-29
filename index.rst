@@ -83,8 +83,9 @@ Contents:
    ccgpu/index
    pygame/index
    zeromq/index
-   pycuda/index
    doc/index
+   python/index
+
 
 
 
