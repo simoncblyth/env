@@ -1416,3 +1416,4 @@ glumpy-(){      . $(env-home)/graphics/glumpy/glumpy.bash && glumpy-env $* ; }
 freeglut-(){      . $(env-home)/graphics/opengl/freeglut/freeglut.bash && freeglut-env $* ; }
 g4daeview-(){     . $(env-home)/geant4/geometry/collada/g4daeview/g4daeview.bash && g4daeview-env $* ; }
 pytools-(){      . $(env-home)/python/pytools.bash && pytools-env $* ; }
+numbers-(){      . $(env-home)/osx/numbers/numbers.bash && numbers-env $* ; }

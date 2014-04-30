@@ -10,6 +10,7 @@ opened in OSX Numbers.app
 
 The third argument is the 1-based row number above which entries are inserted
 one by one.  
+   
 
 PERHAPS:
 
@@ -34,7 +35,7 @@ on add_rows_( the_sheetname, the_items, the_toprow)
            set the_row to (add row above row the_toprow)
            repeat with the_index from 1 to  (count of the the_items)
                set the_value to item the_index of the_items
-               if (the_value is not missing value and the_value is not "") then
+               if (the_value is not missing value and the_value is not "missing value") then
                    tell cell the_index of the_row 
                        set value to the_value as text
                    end tell                 
@@ -45,13 +46,20 @@ on add_rows_( the_sheetname, the_items, the_toprow)
 end add_rows_
 
 
-on add_rows(the_csvpath, the_sheetname, the_toprow, the_delimiter )
+on add_rows(the_csvpath, the_sheetname, the_toprow, the_delimiter, the_reverse )
 
     set the_lf to ASCII character 10
     set the_lines to (read the_csvpath using delimiter the_lf )
+
+    if (the_reverse is true) then
+        set the_lines_used to reverse of the_lines
+    else
+        set the_lines_used to the_lines
+    end if
+
     repeat with the_line_index from 1 to (count of the_lines)
 
-       set the_line to item the_line_index of the_lines
+       set the_line to item the_line_index of the_lines_used
        set the_items to split_csvline(the_line, the_delimiter) 
        add_rows_( the_sheetname, the_items, the_toprow )
 
@@ -71,7 +79,8 @@ on run argv
         set the_toprow to "3"
     end try
     set the_delimiter to "|"
-    add_rows( the_csvpath, the_sheetname, the_toprow, the_delimiter )
+    set the_reverse to true
+    add_rows( the_csvpath, the_sheetname, the_toprow, the_delimiter, the_reverse )
 
 end run
 

@@ -1,6 +1,13 @@
 Python Excel Packages
 ======================
 
+DISADVANTAGE
+-------------
+
+* **FULL FORMATTING OF SPREADSHEET NOT RETAINED INTO COPIES**
+
+
+
 xlrd
 -----
 

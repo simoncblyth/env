@@ -11,7 +11,6 @@ Applescript Editor Pref for Script Menu
 * http://macosxautomation.com/applescript/iwork/numbers/script-menu.html
 
 
-
 Adding a row
 ---------------
 
