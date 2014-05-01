@@ -139,6 +139,11 @@ bin/chroma-server
      40 
 
 
+BUT: its expecting python objects
+
+
+
+
 client usage of this server 
 ---------------------------
 

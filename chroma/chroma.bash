@@ -178,7 +178,7 @@ Also some funny warnings::
 pyzmq
 ~~~~~
 
-Claims to complete OK despite this fatality::
+Claims to complete OK despite issue with underlying ZMQ which gave fatality::
 
         build/temp.macosx-10.9-x86_64-2.7/scratch/vers.c:4:10: fatal error: 'zmq.h' file not found
         #include "zmq.h"
@@ -218,6 +218,16 @@ Claims to complete OK despite this fatality::
         Warning: failed to configure libzmq:
         /bin/sh: ./configure: No such file or directory
 
+
+* https://github.com/zeromq/pyzmq/wiki/Building-and-Installing-PyZMQ
+
+ZMQ
+~~~~
+
+As now interested in ZMQ from C++ need the zmq.h header, so install
+that with *zeromq-;zeromq-make*
+
+* https://github.com/zeromq/pyzmq/issues/500
 
 
 

@@ -3,6 +3,22 @@ Chroma Geant4 Integration
 
 See also :doc:`geant4_background`
 
+
+
+NuWa/Geant4 Integration
+-------------------------
+
+* `/data1/env/local/dybx/NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsOpStackAction.cc`
+
+
+How to make ZMQ call from inside C++ code ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+
 Boost python C++ `_g4chroma`
 -----------------------------
 
