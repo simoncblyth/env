@@ -43,9 +43,8 @@ HELLOWORLD SERVER
     zmq_send ...... after zmq_send [hello1]
     zmq_recv ...... after zmq_recv [hello2]
 
-
-
-
+    ...
+    [blyth@belle7 e]$ IPTABLES_PORT=5555 iptables-webclose
 
 
 
