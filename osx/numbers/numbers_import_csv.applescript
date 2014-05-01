@@ -37,6 +37,7 @@ on add_rows_( the_sheetname, the_items, the_toprow)
                set the_value to item the_index of the_items
                if (the_value is not missing value and the_value is not "missing value") then
                    tell cell the_index of the_row 
+                       set format to text
                        set value to the_value as text
                    end tell                 
                end if 
@@ -73,12 +74,16 @@ on run argv
         set the_csvpath to (item 1 of argv)
         set the_sheetname to (item 2 of argv)
         set the_toprow  to (item 3 of argv)
+        set the_delimiter to (item 4 of argv)
     on error
         set the_csvpath to "/Users/blyth/e/osx/numbers/demo.csv"
         set the_sheetname to "Journal paper"
         set the_toprow to "3"
+        set the_delimiter to "|"
     end try
-    set the_delimiter to "|"
+    if (the_delimiter is "TAB") then
+        set the_delimiter to tab
+    end if
     set the_reverse to true
     add_rows( the_csvpath, the_sheetname, the_toprow, the_delimiter, the_reverse )
 

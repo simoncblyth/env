@@ -28,6 +28,9 @@ Usage Steps
 
      numbers-export out.csv
 
+#. To import into the current spreadsheet::
+
+     numbers-export in.csv
 
 Example::
 
@@ -40,10 +43,10 @@ Example::
 Issues
 -------
 
-#. "volume and page number" fields giving zeros when look 
-   like mathematical expression 99/10000. This only happens when importing into 
-   the empty template spreadsheet, not when adding to an existing one.
-
+#. "volume and page number" fields giving "0" when look 
+   like mathematical expression eg "99/10000". 
+   This only happens when importing into the empty template spreadsheet, 
+   not when adding rows to a spreadsheet existing entries.
 
 **NB**
 -------
@@ -55,7 +58,6 @@ TODO
 -----
 
 #. check for presense of the delimiter character in fields and refuse to export 
-
 
 RANT
 ----
@@ -86,8 +88,9 @@ numbers-cd(){  cd $(numbers-dir); }
 numbers-scd(){  cd $(numbers-sdir); }
 numbers-mate(){ mate $(numbers-dir) ; }
 
-numbers-sheetname(){ echo ${NUMBERS_SHEETNAME:-"Journal paper"} ; }
+numbers-sheetname(){ echo ${NUMBERS_SHEETNAME:-"Sheet 1"} ; }
 numbers-toprow(){    echo ${NUMBERS_TOPROW:-3} ; }
+numbers-delimiter(){ echo ${NUMBERS_DELIMITER:-TAB} ; }   # TAB is special cased in the scripts
 numbers-context(){   cat << EOC
 sheetname $(numbers-sheetname) toprow $(numbers-toprow)
 EOC
@@ -99,7 +102,7 @@ numbers-import(){
    path=$(realpath $path)    # must exist for realpath to work
    echo $msg path $path
    numbers-context
-   osascript $(numbers-sdir)/numbers_import_csv.applescript $path "$(numbers-sheetname)" $(numbers-toprow)
+   osascript $(numbers-sdir)/numbers_import_csv.applescript $path "$(numbers-sheetname)" $(numbers-toprow) $(numbers-delimiter)
 }
 
 numbers-absolute-path(){
@@ -115,7 +118,7 @@ numbers-export(){
    path=$(numbers-absolute-path $path)
    echo $msg path $path
    numbers-context
-   osascript $(numbers-sdir)/numbers_export_csv.applescript $path "$(numbers-sheetname)" $(numbers-toprow)
+   osascript $(numbers-sdir)/numbers_export_csv.applescript $path "$(numbers-sheetname)" $(numbers-toprow) $(numbers-delimiter)
 }
 
 

@@ -58,13 +58,16 @@ on run argv
         set the_csvpath to (item 1 of argv)
         set the_sheetname to (item 2 of argv)
         set the_toprow  to (item 3 of argv)
+        set the_delimiter to (item 4 of argv)
     on error
         set the_csvpath to "/Users/blyth/e/osx/numbers/out.csv"
         set the_sheetname to "Journal paper"
         set the_toprow to "3"
+        set the_delimiter to "|"
     end try
-
-    set the_delimiter to "|"
+    if (the_delimiter is "TAB") then
+        set the_delimiter to tab
+    end if
     my export_csv( the_csvpath, the_sheetname, the_toprow, the_delimiter )
 
 end run
