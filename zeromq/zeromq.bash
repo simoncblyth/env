@@ -34,7 +34,9 @@ Below headers refernce zmq.h but cannot find it::
 EOU
 }
 zeromq-dir(){ echo $(local-base)/env/zeromq/$(zeromq-name) ; }
-zeromq-cd(){  cd $(zeromq-dir); }
+zeromq-sdir(){ echo $(env-home)/zeromq ; }
+zeromq-cd(){  cd $(zeromq-dir)/$1; }
+zeromq-scd(){ cd $(zeromq-sdir)/$1; }
 zeromq-mate(){ mate $(zeromq-dir) ; }
 
 zeromq-name(){ echo zeromq-4.0.4 ; }
@@ -47,6 +49,16 @@ zeromq-get(){
     [ ! -f "$tgz" ] && curl -O $url
     [ ! -d "$nam" ] && tar zxvf $nam
 }
+
+
+zeromq-hello-config(){
+    export HELLO_SERVER_CONFIG="tcp://*:5555" 
+    export HELLO_CLIENT_CONFIG="tcp://localhost:5555" 
+}
+zeromq-hello-make(){  cd $(zeromq-sdir)/zeromq_hello_c && ./make.sh ; }
+zeromq-hello-server(){ zeromq-hello-config ; /tmp/hwserver ; }
+zeromq-hello-client(){ zeromq-hello-config ; /tmp/hwclient ; }
+
 
 
 zeromq-make(){
