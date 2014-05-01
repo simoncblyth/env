@@ -33,7 +33,8 @@ Below headers refernce zmq.h but cannot find it::
 
 EOU
 }
-zeromq-dir(){ echo $(local-base)/env/zeromq/$(zeromq-name) ; }
+zeromq-fold(){ echo $(local-base)/env/zeromq ; }
+zeromq-dir(){ echo $(zeromq-fold)/$(zeromq-name) ; }
 zeromq-sdir(){ echo $(env-home)/zeromq ; }
 zeromq-cd(){  cd $(zeromq-dir)/$1; }
 zeromq-scd(){ cd $(zeromq-sdir)/$1; }
@@ -46,8 +47,10 @@ zeromq-get(){
     local url=$(zeromq-url)
     local tgz=$(basename $url)
     local nam=${tgz/.tar.gz}
+    echo url $url tgz $tgz nam $nam
+
     [ ! -f "$tgz" ] && curl -O $url
-    [ ! -d "$nam" ] && tar zxvf $nam
+    [ ! -d "$nam" ] && tar zxvf $tgz
 }
 
 
@@ -59,11 +62,17 @@ zeromq-hello-make(){  cd $(zeromq-sdir)/zeromq_hello_c && ./make.sh ; }
 zeromq-hello-server(){ zeromq-hello-config ; /tmp/hwserver ; }
 zeromq-hello-client(){ zeromq-hello-config ; /tmp/hwclient ; }
 
-
+zeromq-prefix(){ 
+  case $NODE_TAG in 
+    D) echo $VIRTUAL_ENV ;; 
+    G) echo $(zeromq-fold) ;;
+    *) echo $(zeromq-fold) ;;
+  esac
+}
 
 zeromq-make(){
   zeromq-cd
-  ./configure --prefix=$VIRTUAL_ENV
+  ./configure --prefix=$(zeromq-prefix)
   make 
   make install
 }
