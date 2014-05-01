@@ -30,6 +30,25 @@ Below headers refernce zmq.h but cannot find it::
 
 
 
+HELLOWORLD SERVER
+-------------------
+
+::
+
+    [blyth@belle7 zeromq_hello_c]$ IPTABLES_PORT=5555 iptables-webopen
+    [blyth@belle7 zeromq_hello_c]$ LD_LIBRARY_PATH=$(zeromq-prefix)/lib zeromq-hello-server
+    zmq_recv ...... after zmq_recv [hello0]
+    zmq_send ...... after zmq_send [hello0]
+    zmq_recv ...... after zmq_recv [hello1]
+    zmq_send ...... after zmq_send [hello1]
+    zmq_recv ...... after zmq_recv [hello2]
+
+
+
+
+
+
+
 
 EOU
 }
@@ -52,16 +71,6 @@ zeromq-get(){
     [ ! -f "$tgz" ] && curl -O $url
     [ ! -d "$nam" ] && tar zxvf $tgz
 }
-
-
-zeromq-hello-config(){
-    export HELLO_SERVER_CONFIG="tcp://*:5555" 
-    export HELLO_CLIENT_CONFIG="tcp://localhost:5555" 
-}
-zeromq-hello-make(){  cd $(zeromq-sdir)/zeromq_hello_c && ./make.sh ; }
-zeromq-hello-server(){ zeromq-hello-config ; /tmp/hwserver ; }
-zeromq-hello-client(){ zeromq-hello-config ; /tmp/hwclient ; }
-
 zeromq-prefix(){ 
   case $NODE_TAG in 
     D) echo $VIRTUAL_ENV ;; 
@@ -69,7 +78,6 @@ zeromq-prefix(){
     *) echo $(zeromq-fold) ;;
   esac
 }
-
 zeromq-make(){
   zeromq-cd
   ./configure --prefix=$(zeromq-prefix)
@@ -78,11 +86,33 @@ zeromq-make(){
 }
 
 
+
+
 zeromq-zguide-get(){
   git clone --depth=1 git://github.com/imatix/zguide.git
 }
-
 zeromq-versions(){
    python -c "import zmq, socket ; print socket.gethostname(), zmq.__file__, zmq.zmq_version(), zmq.pyzmq_version() "
 }
+
+
+
+
+zeromq-hello-server-host(){  echo ${HELLO_SERVER_HOST:-belle7.nuu.edu.tw} ; }
+zeromq-hello-server-port(){  echo ${HELLO_SERVER_PORT:-5555} ; }
+
+zeromq-hello-config(){
+    local host=$(zeromq-hello-server-host)
+    local port=$(zeromq-hello-server-port)
+    export HELLO_SERVER_CONFIG="tcp://*:$port" 
+    export HELLO_CLIENT_CONFIG="tcp://$host:$port" 
+    env | grep HELLO
+}
+zeromq-hello-make(){  cd $(zeromq-sdir)/zeromq_hello_c && ./make.sh ; }
+zeromq-hello-server-Darwin(){ zeromq-hello-config ;                                      /tmp/hwserver ; }      ## OSX default linking bakes in path to the lib ?
+zeromq-hello-server-Linux(){  zeromq-hello-config ; LD_LIBRARY_PATH=$(zeromq-prefix)/lib /tmp/hwserver ; }   
+zeromq-hello-server(){ $FUNCNAME-$(uname) ; }
+
+zeromq-hello-client(){ zeromq-hello-config ; /tmp/hwclient ; }
+
 
