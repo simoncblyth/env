@@ -135,31 +135,45 @@ class DAEParametricView(DAEViewpointBase):
         DAEViewpointBase.__init__(self) 
         self.basis_view = view 
         self.current_view = view 
+
+        x,y,z = view._eye[0:3]
+        phase = np.arctan2(y,x)    # to prevent a jump when switching to orbting 
+
+        log.info("basis_view._eye %s phase %s " % ( repr(view._eye), phase )) 
+        self.z = z
         self.f = 0.
+        self.phase = phase
+        log.info("  initial._eye %s " % repr(self._eye) ) 
 
-    sincosf = property(lambda self:tuple([math.sin(2.*math.pi*self.f),math.cos(2.*math.pi*self.f)]))
+    sincosf = property(lambda self:tuple([
+             math.sin(self.phase+(2.*math.pi*self.f)),
+             math.cos(self.phase+(2.*math.pi*self.f))
+             ]))
 
-
-    distance = property(lambda self:0)
-    translate_look2eye = property(lambda self:np.identity(4))
-    translate_eye2look = property(lambda self:np.identity(4))
-    
+    # override attempt, to make rotations act about eye point : but not working as hoped
+    #distance = property(lambda self:0)
+    #translate_look2eye = property(lambda self:np.identity(4))
+    #translate_eye2look = property(lambda self:np.identity(4))
 
     def _get__radius(self):
-        return np.linalg.norm(self.basis_view._gaze)
+        return np.linalg.norm(self.basis_view._gaze[:2])
     _radius = property(_get__radius)   
 
     def _get__eye(self):
         s,c = self.sincosf
-        return self._radius*np.array([c, s, 0])
+        return self._radius*np.array([c, s, 0]) + np.array([0,0,self.z])
     _eye = property(_get__eye)
 
-    def _get__look(self):
+    def _get__look_tangential(self):
         s,c = self.sincosf
         return self._radius*np.array([-s, c, 0])
+
+    def _get__look(self):
+        return self.basis_view._look
     _look = property(_get__look)
 
     def _get__up(self):
+        #return self.basis_view._up
         return np.array([0,0,1])
     _up = property(_get__up)
 
