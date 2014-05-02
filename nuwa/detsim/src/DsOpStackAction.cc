@@ -18,7 +18,6 @@
 
 DECLARE_TOOL_FACTORY(DsOpStackAction);
 
-
 DsOpStackAction::DsOpStackAction ( const std::string& type   , 
 				   const std::string& name   , 
 				   const IInterface*  parent ) 
@@ -41,7 +40,6 @@ StatusCode DsOpStackAction::initialize()
   
   StatusCode sc = GiGaStackActionBase::initialize();
   if (sc.isFailure()) return sc;
-
  
   if ( service("CoordSysSvc", m_csvc).isFailure()) {
     error() << " No CoordSysSvc available." << endreq;
@@ -54,107 +52,90 @@ StatusCode DsOpStackAction::initialize()
 StatusCode DsOpStackAction::finalize() 
 {
   info() << "DsOpStackAction::finalize()" << endreq;
-  neutronList.clear();
+  neutronList.clear();  
   return  GiGaStackActionBase::finalize();
 }
 
 //--------------------------------------------------------------------------
 
-G4ClassificationOfNewTrack DsOpStackAction::ClassifyNewTrack (const G4Track* aTrack) {
-  
-  //  info() << "DsOpStackAction::ClassifyNewTrack: " << endreq;
-  
+G4ClassificationOfNewTrack DsOpStackAction::ClassifyNewTrack (const G4Track* aTrack) 
+{
   G4ClassificationOfNewTrack classification = fUrgent;
-  //info()<< " ParentID: "<< aTrack->GetParentID()<< " CurrentID: "<<aTrack->GetTrackID()<<endreq;
-  
+
+  G4ParticleDefinition* definition = aTrack->GetDefinition() ;
+  G4bool is_optical = definition == G4OpticalPhoton::OpticalPhotonDefinition() ;
+  G4bool is_neutron = definition == G4Neutron::NeutronDefinition() ;
+  G4bool is_gamma   = definition == G4Gamma::GammaDefinition() ;
+
+  G4int trackid = aTrack->GetTrackID() ;
+  G4int parentid = aTrack->GetParentID() ;
+  G4bool is_direct  = trackid - parentid == 1 ;
+  G4bool is_secondary = parentid > 0 ; 
 
   switch(stage)
     {
-    case 0: // if optical photon is the the secondary particles and below memory threshold,
-      // put them in waiting.
-      
-      // tightcut selection here.
-      if(aTrack->GetDefinition()  != G4OpticalPhoton::OpticalPhotonDefinition()){
-	if(m_tightCut){
-	  if( aTrack->GetDefinition()==G4Neutron::NeutronDefinition())
-	    {
-	      info()<<" It is a neutron event! " <<endreq;
-	      NeutronNumbers++;
-	      neutronList.push_back(aTrack->GetTrackID()); //save neutron's trackID for later use.
-	      break;
-	    }
-	  
-	  
-	  if( aTrack->GetDefinition()==G4Gamma::GammaDefinition()
-	      && (aTrack->GetTrackID()-aTrack->GetParentID())==1)  //only if the gamma has a direct parent.
-	    {
-	      if(!interestingEvt){
-		interestingEvt=this->IsAInterestingTrack(aTrack);
-		//info()<< "Particle: "<<aTrack->GetDefinition()->GetParticleName() <<endreq;
-	      }
-	      break;	    
-	    }
-	}
-	else {
-	  if( aTrack->GetDefinition()==G4Neutron::NeutronDefinition())
-	    {
-	      NeutronNumbers++;
-	      break;
-	    }
-	  if (aTrack->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition()) {
-	    if(!interestingEvt){
-	      interestingEvt=this->PossibleInterestingTrack(aTrack);
-	    }
-	    break;
-	  }
-	}
-      }
-      else{
+    case 0: 
+
+          if(!is_optical){
+
+              if(m_tightCut){
+
+                  if(is_neutron)
+                  {
+                      NeutronNumbers++;
+                      neutronList.push_back(trackid); 
+                      break ;
+                  }
+
+	              if( is_gamma && is_direct )
+                  {
+                      if(!interestingEvt){
+                          interestingEvt=this->IsRelevantNeutronDaughter(aTrack);
+                      }
+                      break ;
+                  }
+
+	          } else {  // not tight 
+
+                  if(is_neutron){
+                      NeutronNumbers++;
+                      break
+                  }
+
+                  if( !is_optical ) 
+                  {
+                      if(!interestingEvt){
+                          interestingEvt=this->IsRelevant(aTrack);
+                      }
+                      break ;
+	              }
+              }
+
+
+          } else {         // optical  
 	
-	PhotonNumbers++;
-	
-	
-	// ------unother way of doing this is to use the processname to select events--
-	//  if(aTrack->GetCreatorProcess()){
-	//    G4String ProcessName=aTrack->GetCreatorProcess()->GetProcessName();
-	//    info()<< " Proccess Name: "<< ProcessName<<endreq;
-	//  }
-	
-	
-	//// if m_photonCut selected, don't propogate any photon
-	if (m_photonCut) {
-	  classification=fKill;
-	  break;
-	}
-	else if(aTrack->GetParentID()>0 && PhotonNumbers<=m_maxPhoton && !interestingEvt)
-	  {
-	    //if too many optical photons been generated and  too many optical photons hold
-	    //in the stack, may cause 'out of memory' problem
-	    
-	    // only hold optical photon if it is secondary
-	    
-	    //	G4ThreeVector position  = aTrack->GetPosition();
-	    //	G4ThreeVector direction = aTrack->GetMomentumDirection();
-	    //	G4ThreeVector polarization = aTrack->GetPolarization();
-	    //	G4double energy = aTrack->GetKineticEnergy();
-	    //	G4double time  = aTrack->GetGlobalTime();
-	    //	info()<<  "  Position  " << position.x()<< " time: " <<time<<endreq;
-	    classification=fWaiting;
-	    break;
-	  }
-      }
-      
-      classification = fUrgent;
-      break;
-      
+	          PhotonNumbers++;
+	          if (m_photonCut) 
+              {
+	              classification=fKill;
+                  break;
+	          }
+	          else if( is_secondary && PhotonNumbers <= m_maxPhoton && !interestingEvt )  
+              // keep em waiting, until interesting is flagged
+	          {
+                  classification=fWaiting;
+                  break;
+	          }
+          }
+
+          classification = fUrgent;
+          break;
     case 1:
-      //      info()<<" In Stage 1, propogating all the stacked optical photons! "<<endreq;
-      classification = fUrgent;
-      break;
-      
+          classification = fUrgent;
+          break;
     default:
-      classification = fUrgent;
-    } 
+          classification = fUrgent;
+  } 
   return classification;
 }
 
@@ -214,7 +195,6 @@ void DsOpStackAction::PrepareNewEvent()
 
 G4bool DsOpStackAction::IsNeutronDaughter(const G4int id, const vector<G4int> aList)
 {
-  
   //check if the gamma is the daughter of neutrons.
   G4bool isDaughter(false);
   for(size_t ii=0;ii<aList.size();ii++){
@@ -229,90 +209,36 @@ G4bool DsOpStackAction::IsNeutronDaughter(const G4int id, const vector<G4int> aL
 
 // ------------- If the neutron been captured in the AD ? -------------------
 
-G4bool DsOpStackAction::IsAInterestingTrack(const G4Track* aTrack)
+G4bool DsOpStackAction::IsRelevantNeutronDaughter(const G4Track* aTrack)
 {
-  
-  //  info()<< " Am I an interesting event???" <<endreq;
-  
-  G4int trkID=aTrack->GetParentID();  //get Gamma's parentID
-  
-  IDetectorElement *de;
-  Gaudi::XYZPoint gp(aTrack->GetPosition().x(),aTrack->GetPosition().y(),aTrack->GetPosition().z());
-  
-  //Get DetectorElement from the global postion.
-  de = m_csvc->coordSysDE(gp);
-  if(!de){
-    debug()<<" Particle Name: "<<aTrack->GetDefinition()->GetParticleName()<< " at position: "<<gp
-	   <<" with Process Name: "<<aTrack->GetCreatorProcess()->GetProcessName()<<endreq;
-  }
-  
-  //Ignore the track outside of our global volumes.
-  if(de){
-    IGeometryInfo *ginfo=de->geometry();
-    if(ginfo){
-      if( IsNeutronDaughter(trkID, neutronList))
-	//if Gamma's parent is neutron, check if they are in the AD.
-	{
-	  //      G4String ProcessName=aTrack->GetCreatorProcess()->GetProcessName();
-	  const ILVolume *lv=ginfo->lvolume();
-	  if(lv){
-	    G4String MaterialName = lv->materialName();
-	    
-	    //	    info() << " materialName: "<< MaterialName <<endreq;
-	    
-	    if( MaterialName=="/dd/Materials/MineralOil"
-		|| MaterialName== "/dd/Materials/GdDopedLS"
-		|| MaterialName== "/dd/Materials/LiquidScintillator" 
-		|| MaterialName== "/dd/Materials/Acrylic") {
-	      
-	      info()<< "Find a Interesting Event in %s !!!" << MaterialName<<endreq; 
-	      return true;
-	    }
-	  }
-	}
-    }
-  }
-  return false;
+  G4int trkID=aTrack->GetParentID(); 
+  return IsNeutronDaughter(trkID, neutronList) && IsRelevant(aTrack) ;
 }
 
 
-// ------------- If any new particles generated in the AD --------------------
-
-G4bool DsOpStackAction::PossibleInterestingTrack(const G4Track* aTrack)
+G4bool DsOpStackAction::IsRelevant(const G4Track* aTrack)  // original PossibleInterestingTrack
 {
-  
-  //info()<< " Am I an possible interesting event???" <<endreq;
-  
   IDetectorElement *de;
   Gaudi::XYZPoint gp(aTrack->GetPosition().x(),aTrack->GetPosition().y(),aTrack->GetPosition().z());
-  
-  //Get DetectorElement from the global postion.
   de = m_csvc->coordSysDE(gp);
-  
-  // If the new particle generated inside of the AD, accept it
   if(de){
-    IGeometryInfo *ginfo=de->geometry();
-    if(ginfo){
-      {
-	const ILVolume *lv=ginfo->lvolume();
-	if(lv){
-	  G4String MaterialName = lv->materialName();
+      IGeometryInfo *ginfo=de->geometry();
+      if(ginfo){
+	      const ILVolume *lv=ginfo->lvolume();
+	      if(lv){
+	           G4String MaterialName = lv->materialName();
 	  
-	  if( MaterialName=="/dd/Materials/MineralOil"
-	      || MaterialName== "/dd/Materials/GdDopedLS"
-	      || MaterialName== "/dd/Materials/LiquidScintillator" 
-	      || MaterialName== "/dd/Materials/Acrylic") {
+	           if( MaterialName=="/dd/Materials/MineralOil"
+	            || MaterialName== "/dd/Materials/GdDopedLS"
+	            || MaterialName== "/dd/Materials/LiquidScintillator" 
+	            || MaterialName== "/dd/Materials/Acrylic") {
 	    
-	    info()<< "Find a good Event in AD in "<<  MaterialName<< " !! "<< endreq; 
-	    return true;
-	  }
-	}
+	               return true;
+	            }
+	      }
       }
-    }
   }
   return false;
 }
 
 
-
-//-----------------------END----------------------------------
