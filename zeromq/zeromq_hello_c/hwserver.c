@@ -1,6 +1,9 @@
 /*
   name=hwserver && cc -I$VIRTUAL_ENV/include -c $name.c && cc -L$VIRTUAL_ENV/lib -lzmq $name.o -o /tmp/$name && rm $name.o 
 
+  #. server binds to ZMQ_REP socket  : RE**P**
+  #. client connects to ZMQ_REQ socket : RE**Q** 
+  #. important to get the **P** and **Q** straight 
   
 
 */

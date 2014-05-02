@@ -18,6 +18,7 @@ geant4
    geometry/index
    g4py/index
    nuwa/index 
+   event/index 
 
 
 

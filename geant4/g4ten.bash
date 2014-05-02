@@ -10,6 +10,7 @@ Geant4 Ten
 
 See also *g4beta-*
 
+* http://geant4.cern.ch
 * http://geant4.web.cern.ch/geant4/support/download.shtml
 
 INSTALLS 
@@ -24,7 +25,10 @@ g4ten-bdir(){ echo $(g4ten-dir).build ; }
 g4ten-idir(){ echo $(g4ten-dir).local ; }
 g4ten-cd(){  cd $(g4ten-dir); }
 g4ten-bcd(){  cd $(g4ten-bdir); }
-g4ten-name(){ echo geant4.10.00 ; }
+
+#g4ten-name(){ echo geant4.10.00 ; }
+g4ten-name(){ echo geant4.10.00.p01 ; }
+
 g4ten-url(){ echo http://geant4.cern.ch/support/source/$(g4ten-name).tar.gz ; }
 g4ten-get(){
    local dir=$(dirname $(g4ten-dir)) &&  mkdir -p $dir && cd $dir

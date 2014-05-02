@@ -1,9 +1,8 @@
 
-nuwa
+detsim
 =========================
 
 .. toctree::
 
-   dybinst_mavericks
-   detsim/index
+   detsim_dsopstackaction
 
