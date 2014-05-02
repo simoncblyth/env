@@ -9,6 +9,26 @@ NuWa DetSim DsOpStackAction
    * are the G4 stacks accessible without patching ? **NO** can access stackManager but no access to stacks 
    * convert that into `ChromaPhotonList`
 
+Related
+--------
+
+* :doc:`/chroma/chroma_geant4_integration`
+* :doc:`/chroma/chroma_nuwa_geant4_integration`
+* :doc:`/geant4/event/geant4_stackingaction`
+* :doc:`/geant4/event/geant4_stackmanager`
+
+
+
+ClassifyNewTrack
+-----------------
+
+::
+
+    63 G4ClassificationOfNewTrack DsOpStackAction::ClassifyNewTrack (const G4Track* aTrack) {
+
+
+
+
 
 DsOpStackAction Basis
 ----------------------
@@ -18,8 +38,6 @@ DsOpStackAction Basis
      26 
      27 class DsOpStackAction :  public GiGaStackActionBase
      28 {   
-
-
 
 G4UserStackingAction
 -----------------------
@@ -47,7 +65,6 @@ G4UserStackingAction
      59 //
      60       virtual G4ClassificationOfNewTrack
      61         ClassifyNewTrack(const G4Track* aTrack);
-
 
 
 GiGaStackActionBase

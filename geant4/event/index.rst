@@ -6,6 +6,9 @@ Geant4 Event
 
    geant4_stackingaction
    geant4_stackmanager
+   geant4_trackingaction
+
+
 
 
 

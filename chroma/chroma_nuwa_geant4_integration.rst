@@ -1,6 +1,16 @@
 Chroma/NuWa/Geant4 Integration with ZeroMQ
 ============================================
 
+Related
+-------
+
+* :doc:`/nuwa/detsim/detsim_dsopstackaction`
+* :doc:`/chroma/chroma_geant4_integration`
+* :doc:`/chroma/chroma_nuwa_geant4_integration`
+* :doc:`/geant4/event/geant4_stackingaction`
+* :doc:`/geant4/event/geant4_stackmanager`
+
+
 Thoughts
 ---------
 
@@ -15,22 +25,15 @@ Photon Collection
    * are the G4 stacks accessible without patching ? 
    * convert that into `ChromaPhotonList`
 
-
-
 Send to server 
 ~~~~~~~~~~~~~~~~
 
 #. where to put the ZMQ context ? config via envvar 
 
-
 Handle Results from server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
-
-
-
+#. 1st try dealing pulling back the propagated `ChromaPhotonList`
 
 
 
@@ -41,7 +44,6 @@ NuWa/Geant4 Integration
 
 
 * :doc:`/geant4/event/geant4_stackingaction`
-
 
 
 Where is DsOpStackAction hooked up in NuWa ?
@@ -75,8 +77,6 @@ GiGa hookup, `Simulation/DetSim/python/DetSim/OpStack.py`::
 
 How to make ZMQ call from inside C++ code ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 
 
 

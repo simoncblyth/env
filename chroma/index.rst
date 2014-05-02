@@ -11,10 +11,13 @@ chroma
    refs
 
    chroma_prerequisites
+
    chroma_geant4_integration
+   chroma_nuwa_geant4_integration
+   chroma_nuwa_integration
+
    chroma_cuda_photon
    chroma_collada
-   chroma_nuwa_integration
 
    chroma_pycuda
    chroma_geometry

@@ -85,6 +85,7 @@ Contents:
    zeromq/index
    doc/index
    python/index
+   osx/index
 
 
 

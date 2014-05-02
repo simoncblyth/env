@@ -50,15 +50,17 @@ env-htdocs-rsync(){
 
 
 u_(){ 
+   # mapping directory to url 
    local dir=${1:-$PWD}
-   # need to canonicalize the path in order to match the standard homes  
-   #local abs=$(readlink -f $path)   ## BSD/OSX means smth else by -f
    local abs=$(realpath $dir)   # see ~/e/tools/realpath/
    case $abs in
-        #  ${ENV_HOME}*) echo http://dayabay.phys.ntu.edu.tw/e/${abs/$ENV_HOME\/}/ ;; 
+           ${ENV_HOME}) echo http://localhost/e/ ;; 
           ${ENV_HOME}*) echo http://localhost/e/${abs/$ENV_HOME\/}/ ;; 
+      ${WORKFLOW_HOME}) echo http://localhost/w/ ;; 
      ${WORKFLOW_HOME}*) echo http://localhost/w/${abs/$WORKFLOW_HOME\/}/ ;; 
+        ${HEPREZ_HOME}) echo http://dayabay.phys.ntu.edu.tw/h/ ;; 
        ${HEPREZ_HOME}*) echo http://dayabay.phys.ntu.edu.tw/h/${abs/$HEPREZ_HOME\/}/ ;; 
+      ${DYBGAUDI_HOME}) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/ ;; 
      ${DYBGAUDI_HOME}*) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/${abs/$DYBGAUDI_HOME\/}/ ;; 
                      *) echo http://www.google.com ;;
    esac
