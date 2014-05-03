@@ -1,0 +1,15 @@
+# create empty scene
+/vis/scene/create
+
+# writing Geometry in GDML file
+/mydet/writeFile wtest.gdml
+/run/initialize
+
+# Create a scene handler for a specific graphics system
+/vis/open VRML2FILE
+/vis/geometry/list all
+/vis/viewer/set/culling global false
+/vis/viewer/set/culling coveredDaughters false
+/vis/drawVolume
+/vis/viewer/flush
+
