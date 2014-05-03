@@ -39,6 +39,49 @@ Trying to recive PUTs from shift gives::
     2013-12-12 08:44:05 : Protocol error 'invalid netstring length'
     2013-12-12 08:44:05,194 scgi-wsgi ERROR    Protocol error 'invalid netstring length'
 
+::
+
+    [blyth@belle7 site-packages]$ pwd
+    /data1/env/system/python/Python-2.5.1/lib/python2.5/site-packages
+    [blyth@belle7 site-packages]$ unzip -p flup-1.0.3.dev_20110405-py2.5.egg flup/server/scgi_base.py  | more
+
+::
+
+
+    def readNetstring(sock):
+        # Attempt to read a netstring from a socket.
+        # First attempt to read the length.
+        size = ''
+
+        while True:
+            try:
+                c = sock.recv(1)
+            except socket.error, e:
+                if e[0] == errno.EAGAIN:
+                    select.select([sock], [], [])
+                    continue
+                else:
+                    raise
+            if c == ':':
+                break
+            if not c:
+                raise EOFError
+            size += c
+
+        # Try to decode the length.
+        try:
+            size = int(size)
+            if size < 0:
+                raise ValueError
+        except ValueError:
+            raise ProtocolError, 'invalid netstring length'
+
+        # Now read the string.
+        s, length = recvall(sock, size)
+
+
+* https://github.com/joelburget/benchmarks/blob/master/flup/server/scgi_base.py
+
 
 
 """
