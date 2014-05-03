@@ -35,44 +35,51 @@
 #include "G4Event.hh"
 #include "G4EventManager.hh"
 
-//_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+#include "ChromaPhotonList.hh"
+
+
 LXeStackingAction::LXeStackingAction()
 {}
 
-//_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 LXeStackingAction::~LXeStackingAction()
 {}
 
-//_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 G4ClassificationOfNewTrack
 LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
-  
-  LXeUserEventInformation* eventInformation=
-    (LXeUserEventInformation*)G4EventManager::GetEventManager()
-    ->GetConstCurrentEvent()->GetUserInformation();
+ 
+  G4cout << "LXeStackingAction::ClassifyNewTrack TrackID " << aTrack->GetTrackID() << " ParentID " << aTrack->GetParentID() <<  G4endl;   
+
+  G4bool is_op = aTrack->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition() ; 
+  G4bool is_secondary = aTrack->GetParentID()>0 ; 
+
+  G4EventManager* evtmgr = G4EventManager::GetEventManager();
+  const G4Event* event = evtmgr->GetConstCurrentEvent() ; 
+  LXeUserEventInformation* eventInformation = (LXeUserEventInformation*)event->GetUserInformation();
   
   //Count what process generated the optical photons
-  if(aTrack->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition()){ 
-    // particle is optical photon
-    if(aTrack->GetParentID()>0){
-      // particle is secondary
-      if(aTrack->GetCreatorProcess()->GetProcessName()=="Scintillation")
-	eventInformation->IncPhotonCount_Scint();
-      else if(aTrack->GetCreatorProcess()->GetProcessName()=="Cerenkov")
-	eventInformation->IncPhotonCount_Ceren();
-    }
-  }
-  else{
+  if(is_op){ 
+      if(is_secondary){
+         G4String procname = aTrack->GetCreatorProcess()->GetProcessName() ;
+         G4cout << "LXeStackingAction::ClassifyNewTrack OP Secondary from " << procname << G4endl;  
+
+         if(procname=="Scintillation") eventInformation->IncPhotonCount_Scint();
+         else if(procname=="Cerenkov") eventInformation->IncPhotonCount_Ceren();
+      }
   }
   return fUrgent;
 }
 
-//_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 void LXeStackingAction::NewStage(){
+
+  G4cout << "LXeStackingAction::NewStage" << G4endl;   
+
 }
 
-//_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 void LXeStackingAction::PrepareNewEvent(){ 
+
+  G4cout << "LXeStackingAction::PrepareNewEvent" << G4endl;   
+
+
 }
 
 
