@@ -1419,3 +1419,5 @@ freeglut-(){      . $(env-home)/graphics/opengl/freeglut/freeglut.bash && freegl
 g4daeview-(){     . $(env-home)/geant4/geometry/collada/g4daeview/g4daeview.bash && g4daeview-env $* ; }
 pytools-(){      . $(env-home)/python/pytools.bash && pytools-env $* ; }
 numbers-(){      . $(env-home)/osx/numbers/numbers.bash && numbers-env $* ; }
+lxe-(){          . $(env-home)/geant4/examples/lxe/lxe.bash && lxe-env $* ; }
+
