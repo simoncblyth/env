@@ -4,6 +4,78 @@ Geant4 TrackingAction
 * http://geant4.web.cern.ch/geant4/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/UserActions/OptionalActions.html
 
 
+Chroma PhotonTrackingAction::PreUserTrackingAction 
+----------------------------------------------------
+
+* collects OP tracks and sets their status to  `fStopAndKill`
+* Can I somehow revive them later, after Chroma transport ?
+
+
+`chroma/src/G4chroma.cc`::
+
+    105 void PhotonTrackingAction::PreUserTrackingAction(const G4Track *track)
+    106 {
+    107   G4ParticleDefinition *particle = track->GetDefinition();
+    108   if (particle->GetParticleName() == "opticalphoton") {
+    109     pos.push_back(track->GetPosition()/mm);
+    110     dir.push_back(track->GetMomentumDirection());
+    111     pol.push_back(track->GetPolarization());
+    112     wavelength.push_back( (h_Planck * c_light / track->GetKineticEnergy()) / nanometer );
+    113     t0.push_back(track->GetGlobalTime() / ns);
+    114     const_cast<G4Track *>(track)->SetTrackStatus(fStopAndKill);   // GETS RID OF CONST TO ALLOW STATUS CHANGE 
+    115   }
+    116 }
+
+PreUserTrackingAction examples
+--------------------------------
+
+Casting away const in `PreUserTrackingAction` is standard practice in seems.::
+
+    delta:geant4.10.00.p01 blyth$ find examples -name '*.cc' -exec grep -l PreUserTrackingAction {} \;
+    examples/advanced/amsEcal/src/TrackingAction.cc
+    examples/advanced/ChargeExchangeMC/src/CexmcTrackingAction.cc
+    examples/advanced/medical_linac/src/ML2TrackingAction.cc
+    examples/advanced/microdosimetry/src/TrackingAction.cc
+    examples/advanced/microelectronics/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm1/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm10/src/Em10TrackingAction.cc
+    examples/extended/electromagnetic/TestEm3/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm5/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm9/src/TrackingAction.cc
+    examples/extended/eventgenerator/HepMC/HepMCEx01/src/ExN04TrackingAction.cc
+    examples/extended/eventgenerator/HepMC/MCTruth/src/MCTruthTrackingAction.cc
+    examples/extended/eventgenerator/particleGun/src/TrackingAction.cc
+    examples/extended/field/field04/src/F04TrackingAction.cc
+    examples/extended/hadronic/Hadr04/src/TrackingAction.cc
+    examples/extended/medical/electronScattering/src/TrackingAction.cc
+    examples/extended/medical/fanoCavity/src/TrackingAction.cc
+    examples/extended/medical/fanoCavity2/src/TrackingAction.cc
+    examples/extended/medical/GammaTherapy/src/TrackingAction.cc
+    examples/extended/optical/LXe/src/LXeTrackingAction.cc
+    examples/extended/optical/wls/src/WLSTrackingAction.cc
+    examples/extended/parallel/TopC/ParN04/src/ExN04TrackingAction.cc
+    examples/extended/radioactivedecay/rdecay01/src/TrackingAction.cc
+    examples/extended/runAndEvent/RE01/src/RE01TrackingAction.cc
+    examples/extended/runAndEvent/RE04/src/RE04TrackingAction.cc
+    examples/extended/runAndEvent/RE05/src/RE05TrackingAction.cc
+
+
+`examples/advanced/ChargeExchangeMC/src/CexmcTrackingAction.cc`::
+
+    091 
+    092     G4Track *  theTrack( const_cast< G4Track * >( track ) );
+    093 
+    ...
+    154     if ( ! track->GetUserInformation() )
+    155         theTrack->SetUserInformation( trackInfo );
+
+
+
+
+
+G4UserTrackingAction
+-----------------------
+
 
 `source/tracking/include/G4UserTrackingAction.hh`::
 
@@ -95,208 +167,67 @@ Geant4 TrackingAction
 
 
 
-
-
-G4EventManager::DoProcessing
--------------------------------
+Examples
+-----------
 
 ::
 
-    099 void G4EventManager::DoProcessing(G4Event* anEvent)
-    100 {
-    ...
-    122   G4ThreeVector center(0,0,0);
-    123   G4Navigator* navigator =
-    124       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-    125   navigator->LocateGlobalPointAndSetup(center,0,false);
-    126 
-    127   G4Track * track;
-    128   G4TrackStatus istop;
-    ...
-    139   trackContainer->PrepareNewEvent();
-    ///   G4StackManager  
-    ...
-    145   sdManager = G4SDManager::GetSDMpointerIfExist();
-    ///   G4SDManager 
-    146   if(sdManager)
-    147   { currentEvent->SetHCofThisEvent(sdManager->PrepareNewEvent()); }
-    148 
-    149   if(userEventAction) userEventAction->BeginOfEventAction(currentEvent);
-    ...
-    159   if(!abortRequested)
-    160   { StackTracks( transformer->GimmePrimaries( currentEvent, trackIDCounter ),true ); }
-    ...
-    171   G4VTrajectory* previousTrajectory;
-    172   while( ( track = trackContainer->PopNextTrack(&previousTrajectory) ) != 0 )
-    173   {
-    ...
-    184     tracking = true;
-    185     trackManager->ProcessOneTrack( track );
-    ///     G4TrackingManager
-    186     istop = track->GetTrackStatus();
-    187     tracking = false;
-    ...
-    198     G4VTrajectory * aTrajectory = 0;
-    ...
-    216 
-    217     G4TrackVector * secondaries = trackManager->GimmeSecondaries();
-    218     switch (istop)
-    219     {
-    220       case fStopButAlive:
-    221       case fSuspend:
-    222         trackContainer->PushOneTrack( track, aTrajectory );
-    223         StackTracks( secondaries );
-    224         break;
-    225 
-    226       case fPostponeToNextEvent:
-    227         trackContainer->PushOneTrack( track );
-    228         StackTracks( secondaries );
-    229         break;
-    230 
-    231       case fStopAndKill:
-    232         StackTracks( secondaries );
-    233         delete track;
-    234         break;
-    235 
-    236       case fAlive:
-    237         G4cout << "Illeagal TrackStatus returned from G4TrackingManager!"
-    238              << G4endl;
-    239       case fKillTrackAndSecondaries:
-    240         //if( secondaries ) secondaries->clearAndDestroy();
-    241         if( secondaries )
-    242         {
-    243           for(size_t i=0;i<secondaries->size();i++)
-    244           { delete (*secondaries)[i]; }
-    245           secondaries->clear();
-    246         }
-    247         delete track;
-    248         break;
-    249     }
-    250   }
-    ...
-    260   if(sdManager)
-    261   { sdManager->TerminateCurrentEvent(currentEvent->GetHCofThisEvent()); }
-    262 
-    263   if(userEventAction) userEventAction->EndOfEventAction(currentEvent);
-    264 
-    265   stateManager->SetNewState(G4State_GeomClosed);
-    266   currentEvent = 0;
-    267   abortRequested = false;
-    268 }
+    delta:geant4.10.00.p01 blyth$ find examples -name '*.cc' -exec grep -l G4UserTrackingAction {} \;
+    examples/advanced/amsEcal/src/TrackingAction.cc
+    examples/advanced/ChargeExchangeMC/src/CexmcEventAction.cc
+    examples/extended/electromagnetic/TestEm1/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm10/src/Em10TrackingAction.cc
+    examples/extended/electromagnetic/TestEm11/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm12/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm2/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm3/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm5/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm7/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm9/src/TrackingAction.cc
+    examples/extended/eventgenerator/HepMC/HepMCEx01/HepMCEx01.cc
+    examples/extended/eventgenerator/particleGun/src/TrackingAction.cc
+    examples/extended/exoticphysics/monopole/src/TrackingAction.cc
+    examples/extended/field/BlineTracer/src/G4BlineTracer.cc
+    examples/extended/hadronic/Hadr04/src/TrackingAction.cc
+    examples/extended/parallel/TopC/ParN04/ParN04.cc
+    examples/extended/radioactivedecay/rdecay01/src/TrackingAction.cc
+    examples/extended/runAndEvent/RE01/src/RE01TrackingAction.cc
+    examples/extended/runAndEvent/RE05/src/RE05ActionInitialization.cc
+    delta:geant4.10.00.p01 blyth$ 
 
 
-
-G4TrackingManager
--------------------
-
-`source/tracking/include/G4TrackingManager.hh`::
-
-    113 // Other member functions
-    114 
-    115    void ProcessOneTrack(G4Track* apValueG4Track);
-    116       // Invoking this function, a G4Track given by the argument
-    117       // will be tracked.  
-    118 
-    119    void EventAborted();
-    120       // Invoking this function, the current tracking will be
-    121       // aborted immediately. The tracking will return the 
-    122       // G4TrackStatus in 'fUserKillTrackAndSecondaries'.
-    123       // By this the EventManager deletes the current track and all 
-    124       // its accoicated csecondaries.
-
+PostUserTrackingAction examples
+--------------------------------
 
 ::
 
-    066 ////////////////////////////////////////////////////////////////
-    067 void G4TrackingManager::ProcessOneTrack(G4Track* apValueG4Track)
-    068 ////////////////////////////////////////////////////////////////
-    069 {
-    070 
-    071   // Receiving a G4Track from the EventManager, this funciton has the
-    072   // responsibility to trace the track till it stops.
-    073   fpTrack = apValueG4Track;
-    074   EventIsAborted = false;
-    075 
-    076   // Clear 2ndary particle vector
-    077   //  GimmeSecondaries()->clearAndDestroy();    
-    078   //  std::vector<G4Track*>::iterator itr;
-    079   size_t itr;
-    080   //  for(itr=GimmeSecondaries()->begin();itr=GimmeSecondaries()->end();itr++){ 
-    081   for(itr=0;itr<GimmeSecondaries()->size();itr++){
-    082      delete (*GimmeSecondaries())[itr];
-    083   }
-    084   GimmeSecondaries()->clear();
-    085 
-    086   if(verboseLevel>0 && (G4VSteppingVerbose::GetSilent()!=1) ) TrackBanner();
-    087 
-    088   // Give SteppingManger the pointer to the track which will be tracked 
-    089   fpSteppingManager->SetInitialStep(fpTrack);
-    090 
-    091   // Pre tracking user intervention process.
-    092   fpTrajectory = 0;
-    093   if( fpUserTrackingAction != 0 ) {
-    094      fpUserTrackingAction->PreUserTrackingAction(fpTrack);
-    095   }
-    096 #ifdef G4_STORE_TRAJECTORY
-    097   // Construct a trajectory if it is requested
-    098   if(StoreTrajectory&&(!fpTrajectory)) {
-    099     // default trajectory concrete class object
-    100     switch (StoreTrajectory) {
-    101     default:
-    102     case 1: fpTrajectory = new G4Trajectory(fpTrack); break;
-    103     case 2: fpTrajectory = new G4SmoothTrajectory(fpTrack); break;
-    104     case 3: fpTrajectory = new G4RichTrajectory(fpTrack); break;
-    105     case 4: fpTrajectory = new G4RichTrajectory(fpTrack); break;
-    106     }
-    107   }
-    108 #endif
-    109 
-    110   // Give SteppingManger the maxmimum number of processes 
-    111   fpSteppingManager->GetProcessNumber();
-    112 
-    113   // Give track the pointer to the Step
-    114   fpTrack->SetStep(fpSteppingManager->GetStep());
-    115 
-    116   // Inform beginning of tracking to physics processes 
-    117   fpTrack->GetDefinition()->GetProcessManager()->StartTracking(fpTrack);
-    118 
-    119   // Track the particle Step-by-Step while it is alive
-    120   //  G4StepStatus stepStatus;
-    121 
-    122   while( (fpTrack->GetTrackStatus() == fAlive) ||
-    123          (fpTrack->GetTrackStatus() == fStopButAlive) ){
-    124 
-    125     fpTrack->IncrementCurrentStepNumber();
-    126     fpSteppingManager->Stepping();
-    127 #ifdef G4_STORE_TRAJECTORY
-    128     if(StoreTrajectory) fpTrajectory->
-    129                         AppendStep(fpSteppingManager->GetStep());
-    130 #endif
-    131     if(EventIsAborted) {
-    132       fpTrack->SetTrackStatus( fKillTrackAndSecondaries );
-    133     }
-    134   }
-    135   // Inform end of tracking to physics processes 
-    136   fpTrack->GetDefinition()->GetProcessManager()->EndTracking();
-    137 
-    138   // Post tracking user intervention process.
-    139   if( fpUserTrackingAction != 0 ) {
-    140      fpUserTrackingAction->PostUserTrackingAction(fpTrack);
-    141   }
-    142 
-    143   // Destruct the trajectory if it was created
-    144 #ifdef G4VERBOSE
-    145   if(StoreTrajectory&&verboseLevel>10) fpTrajectory->ShowTrajectory();
-    146 #endif
-    147   if( (!StoreTrajectory)&&fpTrajectory ) {
-    148       delete fpTrajectory;
-    149       fpTrajectory = 0;
-    150   }
-    151 }
-    152 
-
-
-
+    delta:geant4.10.00.p01 blyth$ find examples -name '*.cc' -exec grep -l PostUserTrackingAction {} \;
+    examples/advanced/amsEcal/src/TrackingAction.cc
+    examples/advanced/purging_magnet/src/PurgMagTrackingAction.cc
+    examples/extended/electromagnetic/TestEm1/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm11/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm12/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm2/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm3/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm5/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm7/src/TrackingAction.cc
+    examples/extended/electromagnetic/TestEm9/src/TrackingAction.cc
+    examples/extended/errorpropagation/errprop.cc
+    examples/extended/eventgenerator/HepMC/MCTruth/src/MCTruthTrackingAction.cc
+    examples/extended/eventgenerator/particleGun/src/TrackingAction.cc
+    examples/extended/exoticphysics/monopole/src/TrackingAction.cc
+    examples/extended/field/field04/src/F04TrackingAction.cc
+    examples/extended/hadronic/Hadr04/src/TrackingAction.cc
+    examples/extended/medical/electronScattering/src/TrackingAction.cc
+    examples/extended/medical/fanoCavity/src/TrackingAction.cc
+    examples/extended/medical/fanoCavity2/src/TrackingAction.cc
+    examples/extended/medical/GammaTherapy/src/TrackingAction.cc
+    examples/extended/optical/LXe/src/LXeTrackingAction.cc
+    examples/extended/optical/wls/src/WLSTrackingAction.cc
+    examples/extended/radioactivedecay/rdecay01/src/TrackingAction.cc
+    examples/extended/runAndEvent/RE01/src/RE01TrackingAction.cc
+    examples/extended/runAndEvent/RE04/src/RE04TrackingAction.cc
+    delta:geant4.10.00.p01 blyth$ 
 
 
 

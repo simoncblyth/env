@@ -75,75 +75,6 @@ StackingAction Source
 
 
 
-::
-
-    39 G4StackManager::G4StackManager()
-    40 :userStackingAction(0),verboseLevel(0),numberOfAdditionalWaitingStacks(0)
-    41 {
-    42   theMessenger = new G4StackingMessenger(this);
-    43 #ifdef G4_USESMARTSTACK
-    44   urgentStack = new G4SmartTrackStack;
-    45  // G4cout<<"+++ G4StackManager uses G4SmartTrackStack. +++"<<G4endl;
-    46 #else
-    47   urgentStack = new G4TrackStack(5000);
-    48 //  G4cout<<"+++ G4StackManager uses ordinary G4TrackStack. +++"<<G4endl;
-    49 #endif
-    50   waitingStack = new G4TrackStack(1000);
-    51   postponeStack = new G4TrackStack(1000);
-    52 }
-    ..
-    92 G4int G4StackManager::PushOneTrack(G4Track *newTrack,G4VTrajectory *newTrajectory)
-    93 {
-    ...
-    166   G4ClassificationOfNewTrack classification = DefaultClassification( newTrack );
-    167   if(userStackingAction)
-    168   { classification = userStackingAction->ClassifyNewTrack( newTrack ); }
-    169 
-    170   if(classification==fKill)   // delete newTrack without stacking
-    171   {
-    172 #ifdef G4VERBOSE
-    173     if( verboseLevel > 1 )
-    174     {
-    175       G4cout << "   ---> G4Track " << newTrack << " (trackID "
-    176      << newTrack->GetTrackID() << ", parentID "
-    177      << newTrack->GetParentID() << ") is not to be stored." << G4endl;
-    178     }
-    179 #endif
-    180     delete newTrack;
-    181     delete newTrajectory;
-    182   }
-    183   else
-    184   {
-    185     G4StackedTrack newStackedTrack( newTrack, newTrajectory );
-    186     switch (classification)
-    187     {
-    188       case fUrgent:
-    189         urgentStack->PushToStack( newStackedTrack );
-    190         break;
-    191       case fWaiting:
-    192         waitingStack->PushToStack( newStackedTrack );
-    193         break;
-    194       case fPostpone:
-    195         postponeStack->PushToStack( newStackedTrack );
-    196         break;
-    197       default:
-    198         G4int i = classification - 10;
-    199         if(i<1||i>numberOfAdditionalWaitingStacks) {
-    200           G4ExceptionDescription ED;
-    201           ED << "invalid classification " << classification << G4endl;
-    202           G4Exception("G4StackManager::PushOneTrack","Event0051",
-    203           FatalException,ED);
-    204         } else {
-    205           additionalWaitingStacks[i-1]->PushToStack( newStackedTrack );
-    206         }
-    207         break;
-    208     }
-    209   }
-    210 
-    211   return GetNUrgentTrack();
-    212 }
-
-
 
 ::
 
@@ -159,6 +90,40 @@ StackingAction Source
      66 void G4UserStackingAction::PrepareNewEvent()
      67 {;}
      68 
+
+
+
+
+StackingAction examples
+-------------------------
+
+::
+
+    delta:geant4.10.00.p01 blyth$ find examples -name '*.cc' -exec grep -l ClassifyNewTrack {} \;
+    examples/advanced/composite_calorimeter/src/CCalStackingAction.cc
+    examples/advanced/underground_physics/src/DMXStackingAction.cc
+    examples/basic/B3/src/B3StackingAction.cc
+    examples/extended/electromagnetic/TestEm1/src/StackingAction.cc
+    examples/extended/electromagnetic/TestEm17/src/StackingAction.cc
+    examples/extended/electromagnetic/TestEm18/src/StackingAction.cc
+    examples/extended/electromagnetic/TestEm5/src/StackingAction.cc
+    examples/extended/electromagnetic/TestEm6/src/StackingAction.cc
+    examples/extended/electromagnetic/TestEm8/src/StackingAction.cc
+    examples/extended/eventgenerator/HepMC/HepMCEx01/src/ExN04StackingAction.cc
+    examples/extended/exoticphysics/phonon/src/XPhononStackingAction.cc
+    examples/extended/exoticphysics/phonon/src/XPrimaryGeneratorAction.cc
+    examples/extended/field/field04/src/F04StackingAction.cc
+    examples/extended/hadronic/Hadr01/src/StackingAction.cc
+    examples/extended/hadronic/Hadr02/src/StackingAction.cc
+    examples/extended/hadronic/Hadr04/src/StackingAction.cc
+    examples/extended/medical/fanoCavity/src/StackingAction.cc
+    examples/extended/optical/LXe/src/LXeStackingAction.cc
+    examples/extended/optical/OpNovice/src/OpNoviceStackingAction.cc
+    examples/extended/optical/wls/src/WLSStackingAction.cc
+    examples/extended/parallel/TopC/ParN04/src/ExN04StackingAction.cc
+    examples/extended/runAndEvent/RE01/src/RE01StackingAction.cc
+    examples/extended/runAndEvent/RE05/src/RE05StackingAction.cc
+    delta:geant4.10.00.p01 blyth$ 
 
 
 

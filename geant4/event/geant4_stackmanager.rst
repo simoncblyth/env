@@ -1,13 +1,8 @@
 Geant4 StackManager
 ====================
 
-
-::
-
-    084       // when the urgent stack becomes empty, all tracks in the waiting
-    085       // stack are send to the urgent stack and then the user's NewStage()
-    086       // method is invoked.
- 
+Comments below aim at developing an external 
+Optical Photon Propagation Stategy 
 
 
 
@@ -15,6 +10,8 @@ G4StackManager.hh
 --------------------
 
 #. the stacks are private, with no accessors
+#. can setup multiple waiting stacks : that could be useful if need to multipart ZMQ message
+
 
 `source/event/include/G4StackManager.hh`::
 
@@ -113,25 +110,313 @@ G4StackManager.hh
 
 
 
+G4StackManager::G4StackManager
+-------------------------------
+
 `source/event/src/G4StackManager.cc`::
 
+    39 G4StackManager::G4StackManager()
+    40 :userStackingAction(0),verboseLevel(0),numberOfAdditionalWaitingStacks(0)
+    41 {
+    42   theMessenger = new G4StackingMessenger(this);
+    43 #ifdef G4_USESMARTSTACK
+    44   urgentStack = new G4SmartTrackStack;
+    45  // G4cout<<"+++ G4StackManager uses G4SmartTrackStack. +++"<<G4endl;
+    46 #else
+    47   urgentStack = new G4TrackStack(5000);
+    48 //  G4cout<<"+++ G4StackManager uses ordinary G4TrackStack. +++"<<G4endl;
+    49 #endif
+    50   waitingStack = new G4TrackStack(1000);
+    51   postponeStack = new G4TrackStack(1000);
+    52 }
+    ..
 
- 39 G4StackManager::G4StackManager()
- 40 :userStackingAction(0),verboseLevel(0),numberOfAdditionalWaitingStacks(0)
- 41 {
- 42   theMessenger = new G4StackingMessenger(this);
- 43 #ifdef G4_USESMARTSTACK
- 44   urgentStack = new G4SmartTrackStack;
- 45  // G4cout<<"+++ G4StackManager uses G4SmartTrackStack. +++"<<G4endl;
- 46 #else
- 47   urgentStack = new G4TrackStack(5000);
- 48 //  G4cout<<"+++ G4StackManager uses ordinary G4TrackStack. +++"<<G4endl;
- 49 #endif
- 50   waitingStack = new G4TrackStack(1000);
- 51   postponeStack = new G4TrackStack(1000);
- 52 }
- 53 
 
+G4TrackStack
+~~~~~~~~~~~~~
+
+::
+
+     45 // This is a stack class used by G4StackManager. This class object
+     46 // stores G4StackedTrack class objects in the form of bi-directional
+     47 // linked list.
+     48 
+     49 class G4TrackStack : public std::vector<G4StackedTrack>
+     50 {
+     51 public:
+     52     G4TrackStack() : safetyValve1(0), safetyValve2(0), nstick(0) {}
+     53   G4TrackStack(size_t n) : safetyValve1(4*n/5), safetyValve2(4*n/5-100), nstick(100) { reserve(n);}
+     54   ~G4TrackStack();
+     55 
+
+
+G4StackedTrack
+~~~~~~~~~~~~~~~~~
+
+* **simple** holder for track and trajectory pointers 
+
+  * this might provide an opportunity to avoid keeping huge wait stacks of photons 
+    waiting around, whilst there Chroma copies are externally propagated 
+  * maybe can get away with deleting the track (and not creating the trajectory) 
+    and just keeping the G4StackedTrack alive as a placeholder 
+  * the place holder can then be repopulated with tracks created from the 
+    results of the external propagation 
+     
+
+`source/event/include/G4StackedTrack.hh`::
+
+     41 //
+     42 // This class is exclusively used by G4StackManager and G4TrackStack
+     43 // classes for storing a G4Track object.
+     44 
+     45 class G4StackedTrack
+     46 {
+     47 public:
+     48   G4StackedTrack() : track(0), trajectory(0) {}
+     49   G4StackedTrack(G4Track* aTrack, G4VTrajectory* aTraj = 0) : track(aTrack), trajectory(aTraj) {}
+     50   ~G4StackedTrack() {}
+     51 
+     52 private:
+     53   G4Track* track;
+     54   G4VTrajectory* trajectory;
+     55 
+     56 public:
+     57   G4Track* GetTrack() const { return track; }
+     58   G4VTrajectory* GetTrajectory() const { return trajectory; }
+     59 };
+     60 
+     61 #endif
+
+
+G4Track
+~~~~~~~~~~
+
+* its fat
+
+
+`source/track/include/G4Track.hh`::
+
+    072 //////////////
+    073 class G4Track
+    074 ////////////// 
+    075 {
+    076 
+    077 //--------
+    078 public: // With description
+    079 
+    080 // Constructor
+    081    G4Track();
+    082    G4Track(G4DynamicParticle* apValueDynamicParticle,
+    083            G4double aValueTime,
+    084            const G4ThreeVector& aValuePosition);
+    085       // aValueTime is a global time
+    086    G4Track(const G4Track&);
+    087    // Copy Constructor copys members other than tracking information
+    088 
+    ...
+    114    G4int GetTrackID() const;
+    115    void SetTrackID(const G4int aValue);
+    116 
+    117    G4int GetParentID() const;
+    118    void SetParentID(const G4int aValue);
+    119 
+    120   // dynamic particle 
+    121    const G4DynamicParticle* GetDynamicParticle() const;
+
+
+
+`source/track/src/G4Track.cc`::
+
+    094 //////////////////
+    095 G4Track::G4Track()
+    096 //////////////////
+    097   : fCurrentStepNumber(0),
+    098     fGlobalTime(0),           fLocalTime(0.),
+    099     fTrackLength(0.),
+    100     fParentID(0),             fTrackID(0),
+    101     fVelocity(c_light),
+    102     fpDynamicParticle(0),
+    103     fTrackStatus(fAlive),
+    104     fBelowThreshold(false),   fGoodForTracking(false),
+    105     fStepLength(0.0),         fWeight(1.0),
+    106     fpStep(0),
+    107     fVtxKineticEnergy(0.0),
+    108     fpLVAtVertex(0),          fpCreatorProcess(0),
+    109     fCreatorModelIndex(-1),
+    110     fpUserInformation(0),
+    111     prev_mat(0),  groupvel(0),
+    112     prev_velocity(0.0), prev_momentum(0.0),
+    113     is_OpticalPhoton(false),
+    114     useGivenVelocity(false)
+    115 {
+    116 }
+
+    /// default ctor : not so fat
+
+
+G4DynamicParticle
+~~~~~~~~~~~~~~~~~~
+               
+`source/particles/management/include/G4DynamicParticle.hh`::
+
+     73 class G4DynamicParticle
+     74 {
+     75   // Class Description
+     76   //  The dynamic particle is a class which contains the purely
+     77   //  dynamic aspects of a moving particle. It also has a
+     78   //  pointer to a G4ParticleDefinition object, which holds
+     79   //  all the static information.
+     80   //
+
+
+
+
+G4StackManager::PushOneTrack
+-------------------------------
+
+
+::
+
+    92 G4int G4StackManager::PushOneTrack(G4Track *newTrack,G4VTrajectory *newTrajectory)
+    93 {
+    ...
+    166   G4ClassificationOfNewTrack classification = DefaultClassification( newTrack );
+    167   if(userStackingAction)
+    168   { classification = userStackingAction->ClassifyNewTrack( newTrack ); }
+
+    ///     Maybe could in ClassifyNewTrack:
+    ///
+    ///          * collect OP trackinfo into ChromaPhotonList  
+    ///          * delete the OP track, set pointer to NULL   (hmm its called `const G4Track*`, maybe need some patching)
+    ///            [this would avoid pointlessly holding large memory expensive stacks of OPs ] 
+    ///          * return fWaiting for OPs
+    ///
+
+    169 
+    170   if(classification==fKill)   // delete newTrack without stacking
+    171   {
+    ...
+    180     delete newTrack;
+    181     delete newTrajectory;
+    182   }
+    183   else
+    184   {
+    185     G4StackedTrack newStackedTrack( newTrack, newTrajectory );
+    186     switch (classification)
+    187     {
+    188       case fUrgent:
+    189         urgentStack->PushToStack( newStackedTrack );
+    190         break;
+    191       case fWaiting:
+    192         waitingStack->PushToStack( newStackedTrack );    
+    ///                  newTrack could be NULL here without harm
+    193         break;
+    194       case fPostpone:
+    195         postponeStack->PushToStack( newStackedTrack );
+    196         break;
+    197       default:
+    198         G4int i = classification - 10;
+    199         if(i<1||i>numberOfAdditionalWaitingStacks) {
+    200           G4ExceptionDescription ED;
+    201           ED << "invalid classification " << classification << G4endl;
+    202           G4Exception("G4StackManager::PushOneTrack","Event0051",
+    203           FatalException,ED);
+    204         } else {
+    205           additionalWaitingStacks[i-1]->PushToStack( newStackedTrack );
+    206         }
+    207         break;
+    208     }
+    209   }
+    210 
+    211   return GetNUrgentTrack();
+    212 }
+
+
+G4StackManager::PopNextTrack
+-------------------------------
+
+External Propagation Intervention Possibilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+At `NewStage`:
+
+* have collected all the OPs
+* have also seen all other tracks, so can judge whether the event is interesting to proceed with 
+
+Thus within `NewStage` for interesting events:
+
+* send ZMQ REQ message with serialized ChromaPhotonList  to Chroma server, 
+* block until get REP, in the form of propagated ChromaPhotonList 
+
+  * propagated till where ? OP subset ? enter PMT/hit Bialkali 
+ 
+* then call `ReClassify` to revisit the track placeholders 
+
+  * when receive NULL tracks, switch them for propagated tracks and classify `fUrgent`
+  * for the extra NULLs (as only a subset of photons will come back) create a 
+    sacrificial track and classify `fKill`
+
+Maybe:
+
+* do i need to match `trackID,parentID`  to keep G4 fooled ?  
+
+  * probably not useful 
+   
+* how involved is creating tracks ?
+
+
+Standard Operation
+~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    084       // when the urgent stack becomes empty, all tracks in the waiting
+    085       // stack are send to the urgent stack and then the user's NewStage()
+    086       // method is invoked.
+ 
+
+* pops from urgent until thats empty 
+* then waiting stack transferred to urgent
+* additional waiting stacks are shunted to one higher priority notch 
+* `userStackingAction::NewStage` then gives opportunity to 
+
+   * `ReClassify` OR `clear`
+   * the `ReClassify` calls `ClassifyNewTrack` for each track that has been waiting 
+
+
+::
+
+    215 G4Track * G4StackManager::PopNextTrack(G4VTrajectory**newTrajectory)
+    216 {
+    225   while( GetNUrgentTrack() == 0 )
+    226   {
+    ...
+    231     waitingStack->TransferTo(urgentStack);
+    232     if(numberOfAdditionalWaitingStacks>0) {
+    233       for(int i=0;i<numberOfAdditionalWaitingStacks;i++) {
+    234         if(i==0) {
+    235           additionalWaitingStacks[0]->TransferTo(waitingStack);
+    236         } else {
+    237           additionalWaitingStacks[i]->TransferTo(additionalWaitingStacks[i-1]);
+    238         }
+    239       }
+    240     }
+    241     if(userStackingAction) userStackingAction->NewStage();
+    ...
+    247     if( ( GetNUrgentTrack()==0 ) && ( GetNWaitingTrack()==0 ) ) return 0;
+    248   }
+    249 
+    250   G4StackedTrack selectedStackedTrack = urgentStack->PopFromStack();
+    251   G4Track * selectedTrack = selectedStackedTrack.GetTrack();
+    252   *newTrajectory = selectedStackedTrack.GetTrajectory();
+    ...
+    265   return selectedTrack;
+    266 }
+
+
+
+G4StackManager::ReClassify
+----------------------------
 
 ::
 
