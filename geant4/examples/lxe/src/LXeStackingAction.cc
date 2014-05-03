@@ -44,6 +44,24 @@ LXeStackingAction::LXeStackingAction()
 LXeStackingAction::~LXeStackingAction()
 {}
 
+
+/*
+
+ G4ParticleDefinition *particle = track->GetDefinition();
+  if (particle->GetParticleName() == "opticalphoton") {
+    pos.push_back(track->GetPosition()/mm);
+    dir.push_back(track->GetMomentumDirection());
+    pol.push_back(track->GetPolarization());
+    wavelength.push_back( (h_Planck * c_light / track->GetKineticEnergy()) / nanometer );
+    t0.push_back(track->GetGlobalTime() / ns);
+    const_cast<G4Track *>(track)->SetTrackStatus(fStopAndKill);
+  }
+
+
+*/
+
+
+
 G4ClassificationOfNewTrack
 LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
  

@@ -14,6 +14,21 @@ This appears to now be integrated with chroma implemented
 in chroma/bin/chroma-server
 
 
+git issue from belle7
+------------------------
+
+Smth funny with belle7 or its network, I can clone it from elsewhere::
+
+    blyth@belle7 chroma]$ git clone https://github.com/mastbaum/chroma-server
+    Initialized empty Git repository in /data1/env/local/env/chroma/chroma-server/.git/
+    Cannot get remote repository information.
+    Perhaps git-update-server-info needs to be run there?
+
+So scp from D::
+
+    delta:chroma blyth$ scp -r chroma-server N:/data1/env/local/env/chroma/
+
+
 ZMQ
 ----
 

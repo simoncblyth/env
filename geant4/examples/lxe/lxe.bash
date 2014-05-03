@@ -43,7 +43,7 @@ lxe-scd(){ cd $(lxe-sdir); }
 
 lxe-make(){
    lxe-cd
-   lxe-place
+   lxe-customize
    make CPPVERBOSE=1 CLHEP_BASE_DIR=$(nuwa-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 XERCESCROOT=$(nuwa-xercesc-idir) $*
 }
 
@@ -69,6 +69,11 @@ lxe-place(){
    local name=${1:-LXeStackingAction}
    cp $(lxe-sdir)/include/$name.hh $(lxe-dir)/include/
    cp $(lxe-sdir)/src/$name.cc     $(lxe-dir)/src/
+}
+
+lxe-customize(){
+  lxe-place LXeStackingAction
+  cp $(lxe-sdir)/GNUmakefile $(lxe-dir)/  
 }
 
 lxe-grab-chromaphotonlist(){

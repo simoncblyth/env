@@ -17,3 +17,12 @@ all: lib bin
 include $(G4INSTALL)/config/architecture.gmk
 
 include $(G4INSTALL)/config/binmake.gmk
+
+
+# for ROOT TObject that is used by ChromaPhotonList.hh for serialisation 
+INCFLAGS += -I$(ROOTSYS)/include
+LDFLAGS += -L$(ROOTSYS)/lib -lCore -pthread -lm -ldl -rdynamic 
+
+
+
+
