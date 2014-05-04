@@ -21,7 +21,11 @@ include $(G4INSTALL)/config/binmake.gmk
 
 # for ROOT TObject that is used by ChromaPhotonList.hh for serialisation 
 INCFLAGS += -I$(ROOTSYS)/include
-LDFLAGS += -L$(ROOTSYS)/lib -lCore -pthread -lm -ldl -rdynamic 
+LDFLAGS += -L$(ROOTSYS)/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic
+
+
+INCFLAGS += -I$(ZEROMQ_PREFIX)/include
+LDFLAGS += -L$(ZEROMQ_PREFIX)/lib -lzmq
 
 
 

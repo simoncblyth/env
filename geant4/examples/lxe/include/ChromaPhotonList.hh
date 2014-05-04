@@ -20,7 +20,9 @@
 
 class ChromaPhotonList : public TObject {
 public:
-  ChromaPhotonList() : TObject() {};
+  ChromaPhotonList();
+
+  virtual ~ChromaPhotonList();
 
   inline void AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid=-1) {
     x.push_back(pos.x());
@@ -36,6 +38,11 @@ public:
     wavelength.push_back(_wavelength);
     pmtid.push_back(_pmtid);
   }
+
+
+  void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const;
+
+
 
   void ClearAll() {
     x.clear();
@@ -85,6 +92,11 @@ public:
   std::vector<float> t;
   std::vector<float> wavelength;
   std::vector<int> pmtid;
+
+
+  void Print(Option_t* option = "") const ; 
+  void Details() const ;
+
 
   ClassDef(ChromaPhotonList, 1);
 };

@@ -35,22 +35,124 @@
 #include "G4Event.hh"
 #include "G4EventManager.hh"
 
+#include "TMessage.h"
+
 #include "ChromaPhotonList.hh"
+#include "MyTMessage.hh"
 
 
-LXeStackingAction::LXeStackingAction()
+#include <stdlib.h>
+#include <zmq.h>
+#include <assert.h>
+
+
+LXeStackingAction::LXeStackingAction() : fPhotonList(NULL), fPhotonList2(NULL), fContext(NULL), fRequester(NULL) 
 {
   G4cout << "LXeStackingAction::LXeStackingAction " <<  G4endl;   
   
   fPhotonList = new ChromaPhotonList ;   
+
+  char* CONFIG = getenv("LXE_CLIENT_CONFIG") ;
+  if(!CONFIG) return ; 
+
+  G4cout << "LXeStackingAction::LXeStackingAction CONFIG " << CONFIG << G4endl;   
+
+  fContext = zmq_ctx_new ();
+  fRequester = zmq_socket (fContext, ZMQ_REQ);
+
+  int rc = zmq_connect (fRequester, CONFIG );
+  assert( rc == 0); 
 }
+
+
 
 LXeStackingAction::~LXeStackingAction()
 {
   G4cout << "LXeStackingAction::~LXeStackingAction " <<  G4endl;   
 
   delete fPhotonList ;  
+
+  if(fRequester != NULL){
+      G4cout << "Close fRequester " <<  G4endl;   
+      zmq_close (fRequester);
+  }
+  if(fContext != NULL){
+       G4cout << "Destroy fContext " <<  G4endl;   
+       zmq_ctx_destroy(fContext); 
+  }
+
 }
+
+void LXeStackingAction::SendPhotonList()
+{
+   /*
+   http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/RootMQ
+   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/rootmq/src/MQ.cc
+   */
+   G4cout << "SendPhotonList " <<  G4endl;   
+
+   TMessage* tmsg = new TMessage(kMESS_OBJECT);
+   tmsg->WriteObject(fPhotonList);
+   char *buf     = tmsg->Buffer();
+   int   bufLen = tmsg->Length();  
+
+   int rc ; 
+   zmq_msg_t zmsg;
+
+   rc = zmq_msg_init_size (&zmsg, bufLen);
+   assert (rc == 0);
+   memcpy(zmq_msg_data (&zmsg), buf, bufLen );   // TODO : check for zero copy approaches
+
+   rc = zmq_msg_send (&zmsg, fRequester, 0);
+   if (rc == -1) {
+       int err = zmq_errno();
+       printf ("Error occurred during zmq_msg_send : %s\n", zmq_strerror(err));
+       abort (); 
+   }
+
+   G4cout << "SendPhotonList sent bytes: " << rc <<  G4endl;   
+
+}
+
+void LXeStackingAction::ReceivePhotonList()
+{
+    G4cout << "ReceivePhotonList waiting..." <<  G4endl;   
+    zmq_msg_t msg;
+
+    int rc = zmq_msg_init (&msg); 
+    assert (rc == 0);
+
+    rc = zmq_msg_recv (&msg, fRequester, 0);   
+    assert (rc != -1);
+
+    size_t size = zmq_msg_size(&msg); 
+    void* data = zmq_msg_data(&msg) ;
+
+    G4cout << "ReceivePhotonList received bytes: " << size <<  G4endl;   
+
+    TObject* obj = NULL ; 
+
+    MyTMessage* tmsg = new MyTMessage( data , size ); 
+    assert( tmsg->What() == kMESS_OBJECT ); 
+
+    TClass* kls = tmsg->GetClass();
+    obj = tmsg->ReadObject(kls);
+
+    fPhotonList2 = (ChromaPhotonList*)obj ; 
+
+
+    zmq_msg_close (&msg);
+}
+
+void LXeStackingAction::ComparePhotonLists(ChromaPhotonList* a, ChromaPhotonList* b)
+{
+    
+    a->Details();
+    b->Details();
+}
+
+
+
 
 void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
 {
@@ -63,11 +165,8 @@ void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
    float time = aPhoton->GetGlobalTime()/ns ;
    float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
 
-   //fPhotonList->AddPhoton( pos, dir, pol, time, wavelength );
+   fPhotonList->AddPhoton( pos, dir, pol, time, wavelength );
 
-   /*
-      const_cast<G4Track *>(track)->SetTrackStatus(fStopAndKill);
-   */
 }
 
 G4ClassificationOfNewTrack
@@ -82,15 +181,16 @@ LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
   const G4Event* event = evtmgr->GetConstCurrentEvent() ; 
   LXeUserEventInformation* eventInformation = (LXeUserEventInformation*)event->GetUserInformation();
   
-  //Count what process generated the optical photons
   if(is_op){ 
 
-      //CollectPhoton( aTrack );
+      CollectPhoton( aTrack );
+      fPhotonList->Print();
 
       if(is_secondary){
          G4String procname = aTrack->GetCreatorProcess()->GetProcessName() ;
          G4cout << "LXeStackingAction::ClassifyNewTrack OP Secondary from " << procname << G4endl;  
 
+         //Count what process generated the optical photons
          if(procname=="Scintillation") eventInformation->IncPhotonCount_Scint();
          else if(procname=="Cerenkov") eventInformation->IncPhotonCount_Ceren();
       }
@@ -101,13 +201,15 @@ LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
 void LXeStackingAction::NewStage(){
 
   G4cout << "LXeStackingAction::NewStage" << G4endl;   
+  SendPhotonList();
+  ReceivePhotonList();
+  ComparePhotonLists( fPhotonList, fPhotonList2 );
 
 }
 
 void LXeStackingAction::PrepareNewEvent(){ 
 
   G4cout << "LXeStackingAction::PrepareNewEvent" << G4endl;   
-
 
 }
 

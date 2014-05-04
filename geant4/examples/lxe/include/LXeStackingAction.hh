@@ -43,9 +43,16 @@ public:
   virtual void PrepareNewEvent();
  
   void CollectPhoton(const G4Track* aPhoton );
+  void SendPhotonList();
+  void ReceivePhotonList();
+  void ComparePhotonLists(ChromaPhotonList* a, ChromaPhotonList* b);
  
 private:
   ChromaPhotonList* fPhotonList ; 
+  ChromaPhotonList* fPhotonList2 ; 
+
+  void* fContext ;  
+  void* fRequester ;  
 
 
 };
