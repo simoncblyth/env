@@ -67,27 +67,22 @@ lxe-grab(){
 
 lxe-place(){
    local name=${1:-LXeStackingAction}
-   cp $(lxe-sdir)/include/$name.hh $(lxe-dir)/include/
-   cp $(lxe-sdir)/src/$name.cc     $(lxe-dir)/src/
+
+   local hdr=$(lxe-sdir)/include/$name.hh 
+   local imp=$(lxe-sdir)/src/$name.cc 
+
+   cp $hdr $(lxe-dir)/include/
+   [ -f "$imp" ] && cp $imp $(lxe-dir)/src/
 }
 
 lxe-customize(){
   lxe-place LXeStackingAction
+  lxe-place ChromaPhotonList
   cp $(lxe-sdir)/GNUmakefile $(lxe-dir)/  
 }
 
 lxe-grab-chromaphotonlist(){
    chromaserver-
-   cp $(chromaserver-dir)/src/ChromaPhotonList.hh $(lxe-dir)/include/
+   cp $(chromaserver-dir)/src/ChromaPhotonList.hh $(lxe-sdir)/include/
 }
-
-
-lxe-make-N(){
-  lxe-cd
-   local add="-I$ROOTSYS/include"
-  g++ -W -Wall -ansi -pedantic -Wno-non-virtual-dtor -Wno-long-long -Wwrite-strings -Wpointer-arith -Woverloaded-virtual -pipe -O2 -fPIC -DG4OPTIMISE -Iinclude $add  -I/data1/env/local/dyb/external/clhep/2.0.4.2/i686-slc5-gcc41-dbg/include -DG4VERBOSE -DG4_STORE_TRAJECTORY -DG4UI_USE_TERMINAL -DG4UI_USE -DG4VIS_USE_DAWNFILE -DG4VIS_USE_HEPREPFILE -DG4VIS_USE_RAYTRACER -DG4VIS_USE_VRMLFILE -DG4VIS_USE_ASCIITREE -DG4VIS_USE_GAGTREE -DG4VIS_USE -I../../../../include -c -o ../../../../tmp/Linux-g++/LXe/LXeStackingAction.o src/LXeStackingAction.cc
-
-}
-
-
 

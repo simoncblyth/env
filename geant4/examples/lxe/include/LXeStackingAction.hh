@@ -26,6 +26,9 @@
 #ifndef LXeStackingAction_H
 #define LXeStackingAction_H 1
 
+
+class ChromaPhotonList ;
+
 #include "globals.hh"
 #include "G4UserStackingAction.hh"
 
@@ -38,8 +41,13 @@ public:
   virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack);
   virtual void NewStage();
   virtual void PrepareNewEvent();
-  
+ 
+  void CollectPhoton(const G4Track* aPhoton );
+ 
 private:
+  ChromaPhotonList* fPhotonList ; 
+
+
 };
 
 #endif

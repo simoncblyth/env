@@ -39,28 +39,36 @@
 
 
 LXeStackingAction::LXeStackingAction()
-{}
+{
+  G4cout << "LXeStackingAction::LXeStackingAction " <<  G4endl;   
+  
+  fPhotonList = new ChromaPhotonList ;   
+}
 
 LXeStackingAction::~LXeStackingAction()
-{}
+{
+  G4cout << "LXeStackingAction::~LXeStackingAction " <<  G4endl;   
 
+  delete fPhotonList ;  
+}
 
-/*
+void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
+{
+   G4ParticleDefinition* pd = aPhoton->GetDefinition();
+   assert( pd->GetParticleName() == "opticalphoton" );
 
- G4ParticleDefinition *particle = track->GetDefinition();
-  if (particle->GetParticleName() == "opticalphoton") {
-    pos.push_back(track->GetPosition()/mm);
-    dir.push_back(track->GetMomentumDirection());
-    pol.push_back(track->GetPolarization());
-    wavelength.push_back( (h_Planck * c_light / track->GetKineticEnergy()) / nanometer );
-    t0.push_back(track->GetGlobalTime() / ns);
-    const_cast<G4Track *>(track)->SetTrackStatus(fStopAndKill);
-  }
+   G4ThreeVector pos = aPhoton->GetPosition()/mm ; 
+   G4ThreeVector dir = aPhoton->GetMomentumDirection() ; 
+   G4ThreeVector pol = aPhoton->GetPolarization() ;
+   float time = aPhoton->GetGlobalTime()/ns ;
+   float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
 
+   //fPhotonList->AddPhoton( pos, dir, pol, time, wavelength );
 
-*/
-
-
+   /*
+      const_cast<G4Track *>(track)->SetTrackStatus(fStopAndKill);
+   */
+}
 
 G4ClassificationOfNewTrack
 LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
@@ -76,6 +84,9 @@ LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
   
   //Count what process generated the optical photons
   if(is_op){ 
+
+      //CollectPhoton( aTrack );
+
       if(is_secondary){
          G4String procname = aTrack->GetCreatorProcess()->GetProcessName() ;
          G4cout << "LXeStackingAction::ClassifyNewTrack OP Secondary from " << procname << G4endl;  
