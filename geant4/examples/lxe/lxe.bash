@@ -2,15 +2,6 @@
 lxe-src(){      echo geant4/examples/lxe/lxe.bash ; }
 lxe-source(){   echo ${BASH_SOURCE:-$(env-home)/$(lxe-src)} ; }
 lxe-vi(){       local dir=$(dirname $(lxe-source)); cd $dir ; vi lxe.bash; }
-lxe-env(){      
-
-    nuwa-;
-    elocal- ; 
-    fenv ;   ## CRUCIAL STEP OF SETTING UP ENV CORRESPONDING TO DYB INSTALL ARE USING 
-
-    zeromq-
-
-}
 lxe-usage(){ cat << EOU
 
 GEANT4 LXE EXAMPLE
@@ -26,10 +17,49 @@ BUILDING
     lxe-make bin -n    # to see the commands and locate the binary 
 
 
+DYBX xercesc
+~~~~~~~~~~~~~~
+
+Trying to build the example with DYBX geant4 in order to export LXe geometry with G4DAE.
+
+Before adding XERCECS hookup to GNUmakefile link errors from both xercesc_2_8 for G4DAE and xercesc_2_7 for G4gdml::
+
+    man     -lCLHEP -lm
+    ../../../../lib/Linux-g++/libG4DAE.so: undefined reference to `xercesc_2_8::XMLEntityDecl::~XMLEntityDecl()'
+    ../../../../lib/Linux-g++/libG4DAE.so: undefined reference to `xercesc_2_8::XMLString::release(unsigned short**)'
+    ../../../../lib/Linux-g++/libG4gdml.so: undefined reference to `xercesc_2_7::XMLString::transcode(char const*, unsigned short*, unsigned int, xercesc_2_7::MemoryManager*)'
+    ../../../../lib/Linux-g++/libG4DAE.so: undefined reference to `xercesc_2_8::XMemory::operator new(unsigned int)'
+    ../../../../lib/Linux-g++/libG4gdml.so: undefined reference to `xercesc_2_7::XMLString::transcode(unsigned short const*)'
+    ../../../../lib/Linux-g++/libG4gdml.so: undefined reference to `xercesc_2_7::XercesDOMParser::setErrorHandler(xercesc_2_7::ErrorHandler*)'
+
+After, only get link error with xercesc_2_7 G4gdml::
+
+    pecsolids -lG4digits -lG4csg -lG4hepnumerics -lG4bosons -lG4cuts -lG4navigation -lG4volumes -lG4procman -lG4track -lG4magneticfield -lG4geometrymng -lG4materials -lG4partman -lG4graphics_reps -lG4intercoms -lG4globman     -lCLHEP -lm
+    ../../../../lib/Linux-g++/libG4gdml.so: undefined reference to `xercesc_2_7::XMLString::transcode(char const*, unsigned short*, unsigned int, xercesc_2_7::MemoryManager*)'
+    ../../../../lib/Linux-g++/libG4gdml.so: undefined reference to `xercesc_2_7::XMLString::transcode(unsigned short const*)'
+    ../../../../lib/Linux-g++/libG4gdml.so: undefined reference to `xercesc_2_7::XercesDOMParser::setErrorHandler(xercesc_2_7::ErrorHandler*)'
+
+Why two versions  ?::
+
+    [blyth@belle7 LXe]$ ll ../../../../lib/Linux-g++/libG4gdml.so
+    -rwxrwxr-x 1 blyth blyth 6663749 Mar  6 14:36 ../../../../lib/Linux-g++/libG4gdml.so
+    [blyth@belle7 LXe]$ ll ../../../../lib/Linux-g++/libG4DAE.so
+    -rwxrwxr-x 1 blyth blyth 669175 Mar  7 19:24 ../../../../lib/Linux-g++/libG4DAE.so
+    [blyth@belle7 LXe]$ 
+
+Interference from system libxercesc-c ?::
+
+    [blyth@belle7 LXe]$ ll /usr/lib/libxerces-c.so.27
+    lrwxrwxrwx 1 root root 19 Sep 30  2013 /usr/lib/libxerces-c.so.27 -> libxerces-c.so.27.0
+
+
+
+
 RUNNING
 ----------
 
-Issues:
+vis drivers
+~~~~~~~~~~~~~~~~
 
 #. vis drivers not built ? OGLSX fails
 
@@ -45,6 +75,28 @@ lxe-dir(){  echo $(nuwa-g4-bdir)/examples/extended/optical/LXe ; }
 lxe-sdir(){ echo $(env-home)/geant4/examples/lxe ; }
 lxe-cd(){  cd $(lxe-dir)/$1; }
 lxe-scd(){ cd $(lxe-sdir); }
+
+
+lxe-env(){      
+
+    nuwa-
+    nuwa-export-prefix
+
+    elocal- ; 
+
+    ## CRUCIAL STEP OF SETTING UP ENV CORRESPONDING TO DYB INSTALL ARE USING 
+    if [ "$DYB" == "$DYBX" ]; then 
+        dyb-- dybdbi
+    else 
+        fenv ;      # fast way only applicable for standard DYB
+    fi 
+
+
+    zeromq-
+
+}
+
+
 
 lxe-make(){
    lxe-cd

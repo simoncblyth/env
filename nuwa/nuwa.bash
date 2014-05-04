@@ -168,6 +168,10 @@ nuwa-export(){
  
 }
 
+nuwa-export-prefix(){
+
+  export XERCESC_PREFIX=$(nuwa-xercesc-idir)
+}
 
 
 nuwa-env-deprecated(){ 

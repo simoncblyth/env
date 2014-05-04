@@ -28,5 +28,7 @@ INCFLAGS += -I$(ZEROMQ_PREFIX)/include
 LDFLAGS += -L$(ZEROMQ_PREFIX)/lib -lzmq
 
 
+LDFLAGS += -L$(XERCESC_PREFIX)/lib -lxerces-c
+
 
 
