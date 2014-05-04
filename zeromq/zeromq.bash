@@ -2,7 +2,10 @@
 zeromq-src(){      echo zeromq/zeromq.bash ; }
 zeromq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(zeromq-src)} ; }
 zeromq-vi(){       vi $(zeromq-source) ; }
-zeromq-env(){      elocal- ; }
+zeromq-env(){      
+   elocal- ; 
+   export ZEROMQ_PREFIX=$(zeromq-prefix)
+}
 zeromq-usage(){ cat << EOU
 
 ZEROMQ
@@ -113,5 +116,25 @@ zeromq-hello-server-Linux(){  zeromq-hello-config ; LD_LIBRARY_PATH=$(zeromq-pre
 zeromq-hello-server(){ $FUNCNAME-$(uname) ; }
 
 zeromq-hello-client(){ zeromq-hello-config ; /tmp/hwclient ; }
+
+
+zeromq-echoserver-make(){
+  local iwd=$PWD
+  zeromq-scd zeromq_echoserver
+  local name=echoserver 
+  local bin=/tmp/$name
+  cc -I$ZEROMQ_PREFIX/include -c $name.c && cc -L$ZEROMQ_PREFIX/lib -lzmq $name.o -o $bin && rm $name.o 
+  ls -l $bin
+  cd $iwd
+}
+zeromq-echoserver-config(){ echo "tcp://*:5555" ; }
+zeromq-echoserver-run(){
+  LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver 
+}
+zeromq-echoserver-gdb(){
+  LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) gdb /tmp/echoserver 
+}
+
+
 
 
