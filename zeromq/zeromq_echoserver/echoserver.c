@@ -48,7 +48,7 @@ void do_receive(zmq_msg_t* zmsg, void* socket)
 void do_send( zmq_msg_t* zmsg, void* socket)
 {
     size_t size = zmq_msg_size(zmsg);
-    printf ("do_send... sending msg of  %d bytes \n", size );
+    printf ("do_send... sending msg of  %zu bytes \n", size );
   
     int rc = zmq_msg_send (zmsg, socket, 0); 
 

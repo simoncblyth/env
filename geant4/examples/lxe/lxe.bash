@@ -2,6 +2,13 @@
 lxe-src(){      echo geant4/examples/lxe/lxe.bash ; }
 lxe-source(){   echo ${BASH_SOURCE:-$(env-home)/$(lxe-src)} ; }
 lxe-vi(){       local dir=$(dirname $(lxe-source)); cd $dir ; vi lxe.bash; }
+lxe-builder(){
+  case $NODE_TAG in 
+     N) echo gmake ;; 
+     D) echo cmake ;; 
+  esac
+}
+
 lxe-usage(){ cat << EOU
 
 GEANT4 LXE EXAMPLE
@@ -22,17 +29,6 @@ CMAKE BUILDING AGAINST CHROMA G4
 
 * http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/html/ch03s02.html
 * http://geant4.web.cern.ch/geant4/UserDocumentation/Doxygen/examples_doc/html/README_HowToRun.html
-
-
-::
-
-    (chroma_env)delta:optical blyth$ lxe-cmake
-    === lxe-cmake : /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe-build
-    === lxe-cmake : cmake -DGeant4_DIR=/usr/local/env/chroma_env/lib/Geant4-9.5.1 /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe
-    -- The C compiler identification is Clang 5.1.0
-    -- The CXX compiler identification is Clang 5.1.0
-    ...
-    -- Build files have been written to: /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe-build
 
 
 DYBX xercesc issue on N
@@ -109,8 +105,9 @@ lxe-cd(){  cd $(lxe-dir)/$1; }
 lxe-scd(){ cd $(lxe-sdir); }
 
 # cmake build dir
-lxe-bdir(){ echo $(lxe-dir)-build ; }    
-lxe-bcd(){ cd $(lxe-bdir); }
+lxe-bdir(){  echo $(lxe-dir)-build ; }    
+lxe-bcd(){   cd $(lxe-bdir); }
+lxe-bwipe(){ rm -rf $(lxe-bdir); }
 
 
 lxe-env(){      
@@ -184,32 +181,42 @@ lxe-rootcint(){
    cd $iwd
 }
 
-lxe-make(){
+lxe-gmake(){
    lxe-cd
-
-
    lxe-customize
    lxe-rootcint
-
    make CPPVERBOSE=1 CLHEP_BASE_DIR=$(lxe-clhep-idir) G4SYSTEM=$(lxe-system) G4LIB_BUILD_SHARED=1 XERCESCROOT=$(lxe-xercesc-idir) $*
 }
 
-
 lxe-cmake-(){
    local msg="=== $FUNCNAME :"
-   mkdir -p $(lxe-bdir)
    lxe-bcd
+
+   chroma-geant4-export
+   lxe-customize
+
    echo $msg $PWD
-   
-   local cmd="cmake -DGeant4_DIR=$(chroma-geant4-dir) $(lxe-dir) "
+   local cmd="cmake  -DGeant4_DIR=$(chroma-geant4-dir) $(lxe-dir) "
+   # --trace 
+   # -DCMAKE_BUILD_TYPE:STRING=Debug 
    echo $msg $cmd
    eval $cmd
 }
 
 lxe-cmake(){
+   #lxe-bwipe   # DELETE BUILDDIR TO FORCE FULL BUILD
+   mkdir -p $(lxe-bdir)
    lxe-bcd
    [ ! -f Makefile ] && $FUNCNAME-
-   make $(lxe-name) 
+   make $(lxe-name) VERBOSE=1
+}
+
+lxe-make(){
+  case $(lxe-builder) in 
+   gmake) lxe-gmake ;;
+   cmake) lxe-cmake ;;
+       *) echo NO BUILDER && sleep 1000000000 ;;
+  esac
 }
 
 
@@ -217,22 +224,67 @@ lxe-host(){ echo localhost ; }
 lxe-port(){ echo 5555 ; }
 lxe-config(){
    export LXE_CLIENT_CONFIG="tcp://$(lxe-host):$(lxe-port)"
+   env | grep LXE
 }
 
-lxe-bin(){ echo $(lxe-dir)/../../../../bin/Linux-g++/LXe ; }
+lxe-bin(){ 
+   case $NODE_TAG in 
+     N) echo $(lxe-dir)/../../../../bin/Linux-g++/LXe ;;
+     D) echo $(lxe-bdir)/LXe ;;
+   esac
+}
 
-lxe-run(){
-   lxe-cd
-
-   lxe-config
-   env | grep LXE
-
+lxe-run-N(){
    local cmd="LD_LIBRARY_PATH=${ZEROMQ_PREFIX}/lib:$LD_LIBRARY_PATH $(lxe-bin) $*"
    echo $cmd
    eval $cmd 
 }
 
+lxe-run-D(){
+   local cmd="$(lxe-bin) $*"
+   echo $cmd
+   eval $cmd 
+}
+
+lxe-run(){ 
+   lxe-cd
+   lxe-config
+   lxe-run-$NODE_TAG $* 
+}
+
+
 lxe-test(){ lxe-run $(lxe-sdir)/test.mac ; }
+
+
+lxe-cp(){
+   local msg="=== $FUNCNAME :"
+   local nam
+   for nam in $* ; do
+      local src=$(lxe-sdir)/$nam
+      local tgt=$(lxe-dir)/$nam
+      [ "$src" -nt "$tgt" ] && echo $msg $src $tgt && cp $src $tgt 
+      #[ "$tgt" -nt "$src" ] && echo $msg $src $tgt SKIP
+   done
+}
+
+lxe-customize(){
+  case $(lxe-builder) in 
+   gmake) lxe-customize-gmake ;;
+   cmake) lxe-customize-cmake ;;
+       *) echo NO BUILDER && sleep 1000000000 ;;
+  esac
+
+  local klss="LXeStackingAction ChromaPhotonList MyTMessage"
+  local kls
+  for kls in $klss ; do 
+     lxe-cp include/$kls.hh src/$kls.cc
+  done
+  lxe-cp LXe.cc test.mac include/ChromaPhotonList_LinkDef.h include/MyTMessage_LinkDef.h     
+}
+
+lxe-customize-cmake(){ lxe-cp CMakeLists.txt ;}
+lxe-customize-make(){  lxe-cp GNUmakefile    ;}
+
 
 lxe-grab(){
    local name=${1:-LXeStackingAction}
@@ -241,34 +293,10 @@ lxe-grab(){
    cp $(lxe-dir)/src/$name.cc src/
 }
 
-lxe-place(){
-   local msg="=== $FUNCNAME :"
-   local name=${1:-LXeStackingAction}
-
-   echo $msg $name
-
-   local hdr=$(lxe-sdir)/include/$name.hh 
-   local imp=$(lxe-sdir)/src/$name.cc 
-
-   cp $hdr $(lxe-dir)/include/
-   [ -f "$imp" ] && cp $imp $(lxe-dir)/src/
-}
-
-lxe-customize(){
-  lxe-place LXeStackingAction
-  lxe-place ChromaPhotonList
-  lxe-place MyTMessage
-
-  cp $(lxe-sdir)/LXe.cc $(lxe-dir)/  
-  cp $(lxe-sdir)/GNUmakefile $(lxe-dir)/  
-  cp $(lxe-sdir)/include/ChromaPhotonList_LinkDef.h $(lxe-dir)/include/
-  cp $(lxe-sdir)/include/MyTMessage_LinkDef.h $(lxe-dir)/include/
-
-}
-
 
 lxe-grab-chromaphotonlist(){
    chromaserver-
    cp $(chromaserver-dir)/src/ChromaPhotonList.hh $(lxe-sdir)/include/
 }
+
 

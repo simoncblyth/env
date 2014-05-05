@@ -564,7 +564,6 @@ chroma-deps-rebuild(){
 }
 
 
-
 chroma-kludge-root(){
    chroma-
 
@@ -600,5 +599,32 @@ chroma-build(){
    cd chroma
    python setup.py develop
 }
+
+
+
+
+### TRYING TO BUILD GEANT4 EXAMPLES AGAINST THE CHROMA GEANT4
+
+chroma-geant4-name(){ echo geant4.9.5.p01 ;}
+chroma-geant4-dir(){  echo $VIRTUAL_ENV/lib/Geant4-9.5.1 ; }
+chroma-geant4-sdir(){ echo $VIRTUAL_ENV/src/$(chroma-geant4-name) ; }
+chroma-geant4-dir-check(){  
+   [ -f "$(chroma-geant4-dir)/Geant4Config.cmake" ] && echo $FUNCNAME OK || echo $FUNCNAME ERROR 
+}
+chroma-geant4-cd(){ cd  $(chroma-geant4-dir) ; }
+chroma-geant4-scd(){ cd $(chroma-geant4-sdir) ; }
+
+chroma-geant4-export(){
+   export CHROMA_GEANT4_SDIR=$(chroma-geant4-sdir)
+   env | grep CHROMA_GEANT4
+}
+
+chroma-geant4-findroot(){ echo $(chroma-geant4-sdir)/cmake/Modules/FindROOT.cmake ; }
+chroma-geant4-findroot-vi(){ vi $(chroma-geant4-findroot) ; }
+
+chroma-clhep-prefix(){
+   echo $VIRTUAL_ENV/src/$(chroma-geant4-name)/source/externals/clhep 
+}
+
 
 

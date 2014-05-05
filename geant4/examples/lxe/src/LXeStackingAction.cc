@@ -100,6 +100,9 @@ void LXeStackingAction::SendPhotonList()
    G4cout << "SendPhotonList " <<  G4endl;   
 
 #ifdef WITH_CHROMA_ZMQ
+
+   assert( fRequester != NULL );
+
    TMessage* tmsg = new TMessage(kMESS_OBJECT);
    tmsg->WriteObject(fPhotonList);
    char *buf     = tmsg->Buffer();
@@ -153,6 +156,8 @@ void LXeStackingAction::ReceivePhotonList()
 
 
     zmq_msg_close (&msg);
+
+
 #endif
 }
 
@@ -210,6 +215,10 @@ void LXeStackingAction::NewStage(){
 
   SendPhotonList();
   ReceivePhotonList();
+
+  fPhotonList->Details();
+  fPhotonList2->Details();
+
 
 }
 

@@ -36,7 +36,6 @@ Random Projects with good cmake usage docs
 
 
 
-
 Versions
 ---------
 
@@ -145,6 +144,24 @@ Geant4.cmake
 
 * http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/html/ch03s02.html
 
+
+Finding Root
+~~~~~~~~~~~~~~
+
+Nope::
+
+    (chroma_env)delta:LXe blyth$ cmake --help-module-list | grep ROOT
+    (chroma_env)delta:LXe blyth$ 
+
+::
+
+    (chroma_env)delta:LXe blyth$ mdfind FindROOT.cmake
+    /usr/local/env/geant4/geant4.10.00.p01/cmake/Modules/FindROOT.cmake
+    /usr/local/env/geant4/geant4.10.00.p01/environments/g4py/cmake/Modules/FindROOT.cmake
+    /usr/local/env/chroma_env/src/geant4.9.5.p01/cmake/Modules/FindROOT.cmake
+    /usr/local/env/chroma_env/src/root-v5.34.11/etc/cmake/FindROOT.cmake
+    /usr/local/env/chroma_env/src/root-v5.34.14/etc/cmake/FindROOT.cmake
+    /usr/local/env/chroma_env/src/root-v5.34.14.patch01/etc/cmake/FindROOT.cmake
 
 
 

@@ -75,7 +75,7 @@ zeromq-get(){
 }
 zeromq-prefix(){ 
   case $NODE_TAG in 
-    D) echo $VIRTUAL_ENV ;; 
+    D) echo /usr/local/env/chroma_env ;;   ## happens to be VIRTUAL_ENV 
     G) echo $(zeromq-fold) ;;
     *) echo $(zeromq-fold) ;;
   esac
@@ -118,9 +118,10 @@ zeromq-hello-server(){ $FUNCNAME-$(uname) ; }
 zeromq-hello-client(){ zeromq-hello-config ; /tmp/hwclient ; }
 
 
+zeromq-echoserver-cd(){ zeromq-scd zeromq_echoserver ; }
 zeromq-echoserver-make(){
   local iwd=$PWD
-  zeromq-scd zeromq_echoserver
+  zeromq-echoserver-cd 
   local name=echoserver 
   local bin=/tmp/$name
   cc -I$ZEROMQ_PREFIX/include -c $name.c && cc -L$ZEROMQ_PREFIX/lib -lzmq $name.o -o $bin && rm $name.o 
@@ -128,9 +129,11 @@ zeromq-echoserver-make(){
   cd $iwd
 }
 zeromq-echoserver-config(){ echo "tcp://*:5555" ; }
-zeromq-echoserver-run(){
-  LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver 
-}
+zeromq-echoserver-run-Linux(){ LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver ; }
+zeromq-echoserver-run-Darwin(){  ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver ; }
+zeromq-echoserver-run(){ $FUNCNAME-$(uname) ; }
+
+
 zeromq-echoserver-gdb(){
   LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) gdb /tmp/echoserver 
 }
