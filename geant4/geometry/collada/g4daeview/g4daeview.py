@@ -6,6 +6,14 @@ G4DAEVIEW
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
+NB default node selection only applies to to dyb
+-------------------------------------------------
+
+For viewing Geant4 LXe example::
+
+    g4daeview.sh -p lxe -g 1: 
+
+
 Next
 -----
 

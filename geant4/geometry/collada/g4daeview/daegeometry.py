@@ -232,6 +232,9 @@ class DAEGeometry(object):
             normals[nn[i]:nn[i+1]] = solid.normals
 
         log.info('Flattening %s DAESolid into one DAEMesh...' % len(self.solids))
+
+        assert len(self.solids) > 0, "failed to find solids, MAYBE EXCLUDED BY -g/--geometry option ? try \"-g 0:\" or \"-g 1:\" "
+
         mesh = DAEMesh(vertices, triangles, normals)
         log.debug(mesh)
         self.mesh = mesh 
@@ -346,7 +349,11 @@ if __name__ == '__main__':
     nodes = "3153:12230"
     #nodes = "3153:3200"
 
-    dg = DAEGeometry(nodes)
+    class Config(object):
+        path = "/tmp/g4_00.dae" 
+    config = Config()
+
+    dg = DAEGeometry(nodes, config)
     dg.flatten()
        
     xyz = (-16632.046096412007, -796063.5921605631, -2716.5372465302394 ) 

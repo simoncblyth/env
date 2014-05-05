@@ -995,8 +995,12 @@ def read_properties( xmlnode ):
     for property_ in xmlnode.findall(tag("property")):
         prop = property_.attrib['name']
         xref = property_.attrib['ref']
-        assert xref in data
-        properties[prop] = data[xref] 
+        #assert xref in data   # failing for LXe 
+        if xref in data:
+            properties[prop] = data[xref] 
+        else:
+            log.warn("xref not in data for property_ %s " % repr(property_))
+        pass
     return properties
 
 
@@ -1693,6 +1697,17 @@ class Defaults(object):
     faces = True
     insertsize = 0
 
+
+def resolve_path(path_):
+    pvar = "_".join(filter(None,["DAE_NAME",path_,]))
+    pvar = pvar.upper()
+    log.info("Using pvar %s to resolve path " % pvar)
+    path = os.environ.get(pvar,None)
+    assert not path is None, "Need to define envvar pointing to geometry file"
+    assert os.path.exists(path), path
+    return path
+
+
 def parse_args(doc):
     from optparse import OptionParser
     defopts = Defaults()
@@ -1739,7 +1754,8 @@ def parse_args(doc):
     pass
     log.info(" ".join(sys.argv))
 
-    daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
+    #daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
+    daepath = resolve_path(opts.daepath)
     if not daepath[0] == '/':
         daepath = os.path.abspath(daepath)
     assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, please create the directory and move the .dae  there, please")

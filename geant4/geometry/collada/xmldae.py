@@ -41,7 +41,6 @@ Questions
     * add checkxml.py collection of all id characters to see if "." is used 
 
 
-
 Reversible Char Swaps
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -57,10 +56,6 @@ The only '-' containg names that beings with '/'::
     /dd/Structure/Sites/db-rock0xc633af8
     /dd/Structure/Sites/db-rock0xc633af8_pos
     /dd/Structure/Sites/db-rock0xc633af8_rot
-
-
-
-
 
 Usage
 ------
@@ -585,9 +580,22 @@ class Defaults(object):
     parent = False 
     depthmax = 100 
     indexminmax = "0,100000"
-    daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+    #daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+    daepath = "lxe"
     voltype = None
     names = False
+
+
+
+def resolve_path(path_):
+    pvar = "_".join(filter(None,["DAE_NAME",path_,]))
+    pvar = pvar.upper()
+    log.info("Using pvar %s to resolve path " % pvar)
+    path = os.environ.get(pvar,None)
+    assert not path is None, "Need to define envvar pointing to geometry file"
+    assert os.path.exists(path), path
+    return path
+
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -631,11 +639,16 @@ def parse_args(doc):
         pass
     pass
     log.info(" ".join(sys.argv))
-    daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
+
+    #daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
+    daepath = resolve_path(opts.daepath)
+
     if not daepath[0] == '/':
         opts.daepath = os.path.join(os.path.dirname(__file__),daepath)
     else:
         opts.daepath = daepath 
+
+
 
     base, ext = os.path.splitext(os.path.abspath(daepath))
     dbpath = base + ".dae.db"
