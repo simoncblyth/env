@@ -207,7 +207,7 @@ lxe-cmake(){
    #lxe-bwipe   # DELETE BUILDDIR TO FORCE FULL BUILD
    mkdir -p $(lxe-bdir)
    lxe-bcd
-   [ ! -f Makefile ] && $FUNCNAME-
+   $FUNCNAME-
    make $(lxe-name) VERBOSE=1
 }
 
@@ -262,6 +262,8 @@ lxe-cp(){
    for nam in $* ; do
       local src=$(lxe-sdir)/$nam
       local tgt=$(lxe-dir)/$nam
+
+      [ ! -f "$tgt" ] && cp $src $tgt 
       [ "$src" -nt "$tgt" ] && echo $msg $src $tgt && cp $src $tgt 
       #[ "$tgt" -nt "$src" ] && echo $msg $src $tgt SKIP
    done
@@ -274,7 +276,7 @@ lxe-customize(){
        *) echo NO BUILDER && sleep 1000000000 ;;
   esac
 
-  local klss="LXeStackingAction ChromaPhotonList MyTMessage"
+  local klss="LXeStackingAction ChromaPhotonList MyTMessage ZMQRoot"
   local kls
   for kls in $klss ; do 
      lxe-cp include/$kls.hh src/$kls.cc

@@ -118,7 +118,8 @@ zeromq-hello-server(){ $FUNCNAME-$(uname) ; }
 zeromq-hello-client(){ zeromq-hello-config ; /tmp/hwclient ; }
 
 
-zeromq-echoserver-cd(){ zeromq-scd zeromq_echoserver ; }
+zeromq-echoserver-dir(){ echo $(zeromq-sdir)/zeromq_echoserver ; }
+zeromq-echoserver-cd(){  cd $(zeromq-echoserver-dir) ; }
 zeromq-echoserver-make(){
   local iwd=$PWD
   zeromq-echoserver-cd 
@@ -132,6 +133,7 @@ zeromq-echoserver-config(){ echo "tcp://*:5555" ; }
 zeromq-echoserver-run-Linux(){ LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver ; }
 zeromq-echoserver-run-Darwin(){  ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver ; }
 zeromq-echoserver-run(){ $FUNCNAME-$(uname) ; }
+zeromq-echoserver-run-py(){ ECHO_SERVER_CONFIG=$(zeromq-echoserver-config)  python $(zeromq-echoserver-dir)/echoserver.py ; }
 
 
 zeromq-echoserver-gdb(){

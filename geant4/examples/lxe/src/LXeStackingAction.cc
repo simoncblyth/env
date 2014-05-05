@@ -36,93 +36,38 @@
 #include "G4EventManager.hh"
 
 #ifdef WITH_CHROMA_ZMQ
-
-#include "TMessage.h"
 #include "ChromaPhotonList.hh"
-#include "MyTMessage.hh"
-
-#include <stdlib.h>
-#include <zmq.h>
-#include <assert.h>
-
+#include "ZMQRoot.hh"
 #endif
 
 
-LXeStackingAction::LXeStackingAction() : fPhotonList(NULL), fPhotonList2(NULL), fContext(NULL), fRequester(NULL) 
+LXeStackingAction::LXeStackingAction() :  fZMQRoot(NULL), fPhotonList(NULL), fPhotonList2(NULL)
 {
+  G4cout << "LXeStackingAction::LXeStackingAction " <<  G4endl;   
 
 #ifdef WITH_CHROMA_ZMQ
-  G4cout << "LXeStackingAction::LXeStackingAction " <<  G4endl;   
-  
+  fZMQRoot = new ZMQRoot("LXE_CLIENT_CONFIG") ; 
   fPhotonList = new ChromaPhotonList ;   
-
-  char* CONFIG = getenv("LXE_CLIENT_CONFIG") ;
-  if(!CONFIG) return ; 
-
-  G4cout << "LXeStackingAction::LXeStackingAction CONFIG " << CONFIG << G4endl;   
-
-  fContext = zmq_ctx_new ();
-  fRequester = zmq_socket (fContext, ZMQ_REQ);
-
-  int rc = zmq_connect (fRequester, CONFIG );
-  assert( rc == 0); 
-
 #endif
 }
-
-
 
 LXeStackingAction::~LXeStackingAction()
 {
   G4cout << "LXeStackingAction::~LXeStackingAction " <<  G4endl;   
 
 #ifdef WITH_CHROMA_ZMQ
+  if(fPhotonList2) delete fPhotonList2 ;  
   delete fPhotonList ;  
-
-  if(fRequester != NULL){
-      G4cout << "Close fRequester " <<  G4endl;   
-      zmq_close (fRequester);
-  }
-  if(fContext != NULL){
-       G4cout << "Destroy fContext " <<  G4endl;   
-       zmq_ctx_destroy(fContext); 
-  }
+  delete fZMQRoot ; 
 #endif
-
 }
 
 void LXeStackingAction::SendPhotonList()
 {
-   /*
-   http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/RootMQ
-   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/rootmq/src/MQ.cc
-   */
    G4cout << "SendPhotonList " <<  G4endl;   
 
 #ifdef WITH_CHROMA_ZMQ
-
-   assert( fRequester != NULL );
-
-   TMessage* tmsg = new TMessage(kMESS_OBJECT);
-   tmsg->WriteObject(fPhotonList);
-   char *buf     = tmsg->Buffer();
-   int   bufLen = tmsg->Length();  
-
-   int rc ; 
-   zmq_msg_t zmsg;
-
-   rc = zmq_msg_init_size (&zmsg, bufLen);
-   assert (rc == 0);
-   memcpy(zmq_msg_data (&zmsg), buf, bufLen );   // TODO : check for zero copy approaches
-
-   rc = zmq_msg_send (&zmsg, fRequester, 0);
-   if (rc == -1) {
-       int err = zmq_errno();
-       printf ("Error occurred during zmq_msg_send : %s\n", zmq_strerror(err));
-       abort (); 
-   }
-
-   G4cout << "SendPhotonList sent bytes: " << rc <<  G4endl;   
+   fZMQRoot->SendObject(fPhotonList);
 #endif
 
 }
@@ -131,36 +76,9 @@ void LXeStackingAction::ReceivePhotonList()
 {
     G4cout << "ReceivePhotonList waiting..." <<  G4endl;   
 #ifdef WITH_CHROMA_ZMQ
-    zmq_msg_t msg;
-
-    int rc = zmq_msg_init (&msg); 
-    assert (rc == 0);
-
-    rc = zmq_msg_recv (&msg, fRequester, 0);   
-    assert (rc != -1);
-
-    size_t size = zmq_msg_size(&msg); 
-    void* data = zmq_msg_data(&msg) ;
-
-    G4cout << "ReceivePhotonList received bytes: " << size <<  G4endl;   
-
-    TObject* obj = NULL ; 
-
-    MyTMessage* tmsg = new MyTMessage( data , size ); 
-    assert( tmsg->What() == kMESS_OBJECT ); 
-
-    TClass* kls = tmsg->GetClass();
-    obj = tmsg->ReadObject(kls);
-
-    fPhotonList2 = (ChromaPhotonList*)obj ; 
-
-
-    zmq_msg_close (&msg);
-
-
+   fPhotonList2 = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
 #endif
 }
-
 
 
 void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
@@ -177,7 +95,6 @@ void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
 
    fPhotonList->AddPhoton( pos, dir, pol, time, wavelength );
    fPhotonList->Print();
-
 #endif
 }
 

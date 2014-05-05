@@ -26,7 +26,7 @@
 #ifndef LXeStackingAction_H
 #define LXeStackingAction_H 1
 
-
+class ZMQRoot ; 
 class ChromaPhotonList ;
 
 #include "globals.hh"
@@ -47,11 +47,10 @@ public:
   void ReceivePhotonList();
  
 private:
+  ZMQRoot* fZMQRoot ; 
   ChromaPhotonList* fPhotonList ; 
   ChromaPhotonList* fPhotonList2 ; 
 
-  void* fContext ;  
-  void* fRequester ;  
 
 
 };
