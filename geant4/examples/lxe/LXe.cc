@@ -45,6 +45,18 @@
 #include "G4VisExecutive.hh"
 #endif
 
+
+
+#ifdef EXPORT_G4DAE
+
+#include "G4DAEParser.hh"
+#include "G4TransportationManager.hh"
+#include "G4VPhysicalVolume.hh"
+
+#endif
+
+
+
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 int main(int argc, char** argv)
 {
@@ -71,6 +83,24 @@ int main(int argc, char** argv)
   runManager->SetUserAction(new LXeSteppingAction(recorder));
 
   runManager->Initialize();
+
+#ifdef EXPORT_G4DAE
+  G4cout << "Exporting geometry due to  -DEXPORT_G4DAE  " << G4endl ; 
+  G4VPhysicalVolume* wpv = G4TransportationManager::GetTransportationManager()->
+      GetNavigatorForTracking()->GetWorldVolume();
+
+  G4DAEParser dae ; 
+
+  G4String path = "g4_00.dae" ; 
+  G4bool refs = true ;
+  G4bool recreatePoly = false ; 
+  G4int nodeIndex = -1 ;            // so World is volume 0 
+
+  dae.Write(path, wpv, refs, recreatePoly, nodeIndex );
+
+#else
+  G4cout << "compile with -DEXPORT_G4DAE to export geometry " << G4endl ; 
+#endif
  
   // get the pointer to the UI manager and set verbosities
   G4UImanager* UI = G4UImanager::GetUIpointer();

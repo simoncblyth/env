@@ -37,3 +37,8 @@ LDFLAGS += -L$(XERCESC_PREFIX)/lib -lxerces-c
 # but explicitly providing the path to system 2_7 works
 #
 LDFLAGS += /usr/lib/libxerces-c.so.27
+
+
+INCFLAGS += -DEXPORT_G4DAE
+
+
