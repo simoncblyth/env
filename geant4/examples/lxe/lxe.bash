@@ -7,14 +7,32 @@ lxe-usage(){ cat << EOU
 GEANT4 LXE EXAMPLE
 ===================
 
-BUILDING
-----------
+MAKE BUILDING
+-------------
 
 ::
 
     lxe-make
     lxe-make clean
     lxe-make bin -n    # to see the commands and locate the binary 
+
+
+CMAKE BUILDING AGAINST CHROMA G4
+----------------------------------
+
+* http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/html/ch03s02.html
+* http://geant4.web.cern.ch/geant4/UserDocumentation/Doxygen/examples_doc/html/README_HowToRun.html
+
+
+::
+
+    (chroma_env)delta:optical blyth$ lxe-cmake
+    === lxe-cmake : /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe-build
+    === lxe-cmake : cmake -DGeant4_DIR=/usr/local/env/chroma_env/lib/Geant4-9.5.1 /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe
+    -- The C compiler identification is Clang 5.1.0
+    -- The CXX compiler identification is Clang 5.1.0
+    ...
+    -- Build files have been written to: /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe-build
 
 
 DYBX xercesc issue on N
@@ -78,40 +96,122 @@ ChromaPhotonList
 
 EOU
 }
-lxe-dir(){  echo $(nuwa-g4-bdir)/examples/extended/optical/LXe ; }
+lxe-name(){ echo LXe ; }
+lxe-dir(){  
+  case $NODE_TAG in 
+    N) echo $(nuwa-g4-bdir)/examples/extended/optical/LXe ;;
+    D) echo $VIRTUAL_ENV/src/geant4.9.5.p01/examples/extended/optical/LXe
+  esac
+}
+
 lxe-sdir(){ echo $(env-home)/geant4/examples/lxe ; }
 lxe-cd(){  cd $(lxe-dir)/$1; }
 lxe-scd(){ cd $(lxe-sdir); }
 
+# cmake build dir
+lxe-bdir(){ echo $(lxe-dir)-build ; }    
+lxe-bcd(){ cd $(lxe-bdir); }
+
 
 lxe-env(){      
+    elocal- ; 
+    case $NODE_TAG in 
+       N) lxe-env-N ;;
+       D) lxe-env-D ;;
+       *) echo NO Geant4 INSTALL on $NODE_TAG ;; 
+    esac
+    zeromq-
+}
+
+
+lxe-env-N(){
+    ## CRUCIAL STEP OF SETTING UP ENV CORRESPONDING TO DYB INSTALL ARE USING 
 
     nuwa-
     nuwa-export-prefix
 
-    elocal- ; 
-
-    ## CRUCIAL STEP OF SETTING UP ENV CORRESPONDING TO DYB INSTALL ARE USING 
     if [ "$DYB" == "$DYBX" ]; then 
         dyb-- dybdbi
     else 
         fenv ;      # fast way only applicable for standard DYB
     fi 
-
-
-    zeromq-
-
+}
+lxe-env-D(){
+    chroma-
 }
 
+lxe-clhep-idir(){
+   case $NODE_TAG in 
+     N) echo $(nuwa-clhep-idir) ;; 
+     D) echo $(chroma-clhep-prefix)/include ;; 
+   esac
+}
+lxe-xercesc-idir(){
+   case $NODE_TAG in 
+     N) echo $(nuwa-xercesc-idir) ;; 
+     D) echo $(xercesc-prefix)/include ;; 
+   esac
+}
+lxe-system(){
+   case $NODE_TAG in 
+     N) echo Linux-g++ ;;
+     D) echo Darwin-clang ;;
+  esac
+}
+lxe-g4-bdir(){
+   case $NODE_TAG in 
+     D) echo  ;;
+     *) echo $(nuwa-g4-bdir) ;; 
+   esac
+}
 
+lxe-rootcint(){
+   local msg="=== $FUNCNAME :"
+   local iwd=$PWD
+   lxe-cd include
+   echo $msg from $PWD
+
+   local line
+   local kls
+   local cmd
+   ls -1 *_LinkDef.h | while read line ; do
+      kls=${line/_LinkDef.h}
+      cmd="rootcint -v -f ../src/${kls}Dict.cc -c -p -I$(lxe-g4-bdir)/include -I$(lxe-clhep-idir)/include ${kls}.hh ${kls}_LinkDef.h"
+      echo $msg $cmd 
+      eval $cmd
+   done  
+
+   cd $iwd
+}
 
 lxe-make(){
    lxe-cd
+
+
    lxe-customize
    lxe-rootcint
 
-   make CPPVERBOSE=1 CLHEP_BASE_DIR=$(nuwa-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 XERCESCROOT=$(nuwa-xercesc-idir) $*
+   make CPPVERBOSE=1 CLHEP_BASE_DIR=$(lxe-clhep-idir) G4SYSTEM=$(lxe-system) G4LIB_BUILD_SHARED=1 XERCESCROOT=$(lxe-xercesc-idir) $*
 }
+
+
+lxe-cmake-(){
+   local msg="=== $FUNCNAME :"
+   mkdir -p $(lxe-bdir)
+   lxe-bcd
+   echo $msg $PWD
+   
+   local cmd="cmake -DGeant4_DIR=$(chroma-geant4-dir) $(lxe-dir) "
+   echo $msg $cmd
+   eval $cmd
+}
+
+lxe-cmake(){
+   lxe-bcd
+   [ ! -f Makefile ] && $FUNCNAME-
+   make $(lxe-name) 
+}
+
 
 lxe-host(){ echo localhost ; }
 lxe-port(){ echo 5555 ; }
@@ -164,25 +264,6 @@ lxe-customize(){
   cp $(lxe-sdir)/include/ChromaPhotonList_LinkDef.h $(lxe-dir)/include/
   cp $(lxe-sdir)/include/MyTMessage_LinkDef.h $(lxe-dir)/include/
 
-}
-
-lxe-rootcint(){
-   local msg="=== $FUNCNAME :"
-   local iwd=$PWD
-   lxe-cd include
-   echo $msg from $PWD
-
-   local line
-   local kls
-   local cmd
-   ls -1 *_LinkDef.h | while read line ; do
-      kls=${line/_LinkDef.h}
-      cmd="rootcint -v -f ../src/${kls}Dict.cc -c -p -I../../../../../include -I$(nuwa-clhep-idir)/include ${kls}.hh ${kls}_LinkDef.h"
-      echo $msg $cmd 
-      eval $cmd
-   done  
-
-   cd $iwd
 }
 
 

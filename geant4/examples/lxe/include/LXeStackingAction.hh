@@ -45,7 +45,6 @@ public:
   void CollectPhoton(const G4Track* aPhoton );
   void SendPhotonList();
   void ReceivePhotonList();
-  void ComparePhotonLists(ChromaPhotonList* a, ChromaPhotonList* b);
  
 private:
   ChromaPhotonList* fPhotonList ; 

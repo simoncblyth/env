@@ -35,19 +35,23 @@
 #include "G4Event.hh"
 #include "G4EventManager.hh"
 
-#include "TMessage.h"
+#ifdef WITH_CHROMA_ZMQ
 
+#include "TMessage.h"
 #include "ChromaPhotonList.hh"
 #include "MyTMessage.hh"
-
 
 #include <stdlib.h>
 #include <zmq.h>
 #include <assert.h>
 
+#endif
+
 
 LXeStackingAction::LXeStackingAction() : fPhotonList(NULL), fPhotonList2(NULL), fContext(NULL), fRequester(NULL) 
 {
+
+#ifdef WITH_CHROMA_ZMQ
   G4cout << "LXeStackingAction::LXeStackingAction " <<  G4endl;   
   
   fPhotonList = new ChromaPhotonList ;   
@@ -62,6 +66,8 @@ LXeStackingAction::LXeStackingAction() : fPhotonList(NULL), fPhotonList2(NULL), 
 
   int rc = zmq_connect (fRequester, CONFIG );
   assert( rc == 0); 
+
+#endif
 }
 
 
@@ -70,6 +76,7 @@ LXeStackingAction::~LXeStackingAction()
 {
   G4cout << "LXeStackingAction::~LXeStackingAction " <<  G4endl;   
 
+#ifdef WITH_CHROMA_ZMQ
   delete fPhotonList ;  
 
   if(fRequester != NULL){
@@ -80,6 +87,7 @@ LXeStackingAction::~LXeStackingAction()
        G4cout << "Destroy fContext " <<  G4endl;   
        zmq_ctx_destroy(fContext); 
   }
+#endif
 
 }
 
@@ -91,6 +99,7 @@ void LXeStackingAction::SendPhotonList()
    */
    G4cout << "SendPhotonList " <<  G4endl;   
 
+#ifdef WITH_CHROMA_ZMQ
    TMessage* tmsg = new TMessage(kMESS_OBJECT);
    tmsg->WriteObject(fPhotonList);
    char *buf     = tmsg->Buffer();
@@ -111,12 +120,14 @@ void LXeStackingAction::SendPhotonList()
    }
 
    G4cout << "SendPhotonList sent bytes: " << rc <<  G4endl;   
+#endif
 
 }
 
 void LXeStackingAction::ReceivePhotonList()
 {
     G4cout << "ReceivePhotonList waiting..." <<  G4endl;   
+#ifdef WITH_CHROMA_ZMQ
     zmq_msg_t msg;
 
     int rc = zmq_msg_init (&msg); 
@@ -142,20 +153,14 @@ void LXeStackingAction::ReceivePhotonList()
 
 
     zmq_msg_close (&msg);
+#endif
 }
-
-void LXeStackingAction::ComparePhotonLists(ChromaPhotonList* a, ChromaPhotonList* b)
-{
-    
-    a->Details();
-    b->Details();
-}
-
 
 
 
 void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
 {
+#ifdef WITH_CHROMA_ZMQ
    G4ParticleDefinition* pd = aPhoton->GetDefinition();
    assert( pd->GetParticleName() == "opticalphoton" );
 
@@ -166,7 +171,9 @@ void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
    float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
 
    fPhotonList->AddPhoton( pos, dir, pol, time, wavelength );
+   fPhotonList->Print();
 
+#endif
 }
 
 G4ClassificationOfNewTrack
@@ -184,7 +191,6 @@ LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
   if(is_op){ 
 
       CollectPhoton( aTrack );
-      fPhotonList->Print();
 
       if(is_secondary){
          G4String procname = aTrack->GetCreatorProcess()->GetProcessName() ;
@@ -201,9 +207,9 @@ LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
 void LXeStackingAction::NewStage(){
 
   G4cout << "LXeStackingAction::NewStage" << G4endl;   
+
   SendPhotonList();
   ReceivePhotonList();
-  ComparePhotonLists( fPhotonList, fPhotonList2 );
 
 }
 
