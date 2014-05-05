@@ -17,8 +17,8 @@ BUILDING
     lxe-make bin -n    # to see the commands and locate the binary 
 
 
-DYBX xercesc
-~~~~~~~~~~~~~~
+DYBX xercesc issue on N
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Trying to build the example with DYBX geant4 in order to export LXe geometry with G4DAE.
 
@@ -51,6 +51,13 @@ Interference from system libxercesc-c ?::
 
     [blyth@belle7 LXe]$ ll /usr/lib/libxerces-c.so.27
     lrwxrwxrwx 1 root root 19 Sep 30  2013 /usr/lib/libxerces-c.so.27 -> libxerces-c.so.27.0
+
+Opening can of worms with -L/usr/lib -lxercec-c fails to work 
+(maybe because the 2_8 lib of that name was already loaded)
+but explicitly providing the path to system 2_7 lib works::
+
+     LDFLAGS += /usr/lib/libxerces-c.so.27
+
 
 
 
@@ -152,6 +159,7 @@ lxe-customize(){
   lxe-place ChromaPhotonList
   lxe-place MyTMessage
 
+  cp $(lxe-sdir)/LXe.cc $(lxe-dir)/  
   cp $(lxe-sdir)/GNUmakefile $(lxe-dir)/  
   cp $(lxe-sdir)/include/ChromaPhotonList_LinkDef.h $(lxe-dir)/include/
   cp $(lxe-sdir)/include/MyTMessage_LinkDef.h $(lxe-dir)/include/

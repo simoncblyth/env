@@ -31,4 +31,9 @@ LDFLAGS += -L$(ZEROMQ_PREFIX)/lib -lzmq
 LDFLAGS += -L$(XERCESC_PREFIX)/lib -lxerces-c
 
 
-
+# hmm libGDML.so was compiled against the system xercesc 2_7, 
+# opening can of worms with -L/usr/lib -lxercec-c fails to work 
+# (maybe because the 2_8 lib of that name was already loaded)
+# but explicitly providing the path to system 2_7 works
+#
+LDFLAGS += /usr/lib/libxerces-c.so.27
