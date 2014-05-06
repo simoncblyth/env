@@ -206,8 +206,6 @@ Nope::
 CMAKE OSX RPATH INSTALL_NAME_TOOL ISSUE
 -----------------------------------------
 
-* http://www.kitware.com/blog/home/post/510
-
 * :google:`cmake linking rpath install_name_tool`
 
 ::
@@ -225,7 +223,7 @@ CMAKE OSX RPATH INSTALL_NAME_TOOL ISSUE
     (chroma_env)delta:zmqroot-build blyth$ 
 
 
-Linking::
+Linking repeats rpath::
 
      /usr/bin/c++   
        -dynamiclib -Wl,-headerpad_max_install_names 
@@ -248,8 +246,13 @@ Below ticket suggests repetition of rpath passed to linker is the cause of the i
 
 * https://github.com/SimTk/openmm/issues/295
 
+Full details/workaround in below ticket (removing link_directories) 
+
 * http://public.kitware.com/Bug/view.php?id=14707
 
+Background on cmake rpath handling 
+
+* http://www.kitware.com/blog/home/post/510
 
 
 

@@ -20,8 +20,36 @@ FUNCTIONS
     zmqroot-fullbuild   # deletes build directory first 
 
 
-INSTALL ISSUE
---------------
+LIBRARY USAGE ISSUE
+--------------------
+
+::
+
+    (chroma_env)delta:LXe-build blyth$ ./LXe 
+    dyld: Library not loaded: libZMQRoot.dylib
+      Referenced from: /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe-build/./LXe
+      Reason: image not found
+
+OSX 10.9.2 LD_LIBRARY_PATH not working::
+
+    (chroma_env)delta:LXe-build blyth$ LD_LIBRARY_PATH=/usr/local/env/zmqroot/lib ./LXe
+    dyld: Library not loaded: libZMQRoot.dylib
+      Referenced from: /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe-build/./LXe
+      Reason: image not found
+    Trace/BPT trap: 5
+
+Need DYLD_LIBRARY_PATH::
+
+    (chroma_env)delta:LXe-build blyth$ DYLD_LIBRARY_PATH=/usr/local/env/zmqroot/lib ./LXe
+
+    *************************************************************
+     Geant4 version Name: geant4-09-05-patch-01    (20-March-2012)
+    ...
+
+All other libs have a path, rather than just a name::
+
+    (chroma_env)delta:LXe-build blyth$ otool -L LXe | grep libZMQRoot
+        libZMQRoot.dylib (compatibility version 0.0.0, current version 0.0.0)
 
 
 
@@ -36,7 +64,6 @@ zmqroot-cd(){   cd $(zmqroot-dir); }
 zmqroot-scd(){  cd $(zmqroot-sdir); }
 zmqroot-bcd(){  cd $(zmqroot-bdir); }
 
-
 zmqroot-env(){      
    elocal-
 
@@ -45,6 +72,16 @@ zmqroot-env(){
    chroma-
    chroma-geant4-export  
 }
+
+zmqroot-prefix(){ echo $(zmqroot-dir) ; }
+zmqroot-libraries(){    echo ZMQRoot ; }
+zmqroot-export(){
+  export ZMQROOT_PREFIX=$(zmqroot-prefix)
+  export ZMQROOT_LIBRARIES="$(zmqroot-libraries)"
+}
+
+
+
 
 zmqroot-cmake(){
    mkdir -p $(zmqroot-bdir)   

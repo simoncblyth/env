@@ -117,7 +117,8 @@ lxe-env(){
        D) lxe-env-D ;;
        *) echo NO Geant4 INSTALL on $NODE_TAG ;; 
     esac
-    zeromq-
+    zmqroot-
+    zmqroot-export
 }
 
 
@@ -197,14 +198,12 @@ lxe-cmake-(){
 
    echo $msg $PWD
    local cmd="cmake  -DGeant4_DIR=$(chroma-geant4-dir) $(lxe-dir) "
-   # --trace 
-   # -DCMAKE_BUILD_TYPE:STRING=Debug 
    echo $msg $cmd
    eval $cmd
 }
 
 lxe-cmake(){
-   #lxe-bwipe   # DELETE BUILDDIR TO FORCE FULL BUILD
+   lxe-bwipe   # DELETE BUILDDIR TO FORCE FULL BUILD
    mkdir -p $(lxe-bdir)
    lxe-bcd
    $FUNCNAME-
@@ -276,12 +275,13 @@ lxe-customize(){
        *) echo NO BUILDER && sleep 1000000000 ;;
   esac
 
-  local klss="LXeStackingAction ChromaPhotonList MyTMessage ZMQRoot"
+  #local klss="LXeStackingAction ChromaPhotonList MyTMessage ZMQRoot"
+  local klss="LXeStackingAction ChromaPhotonList"
   local kls
   for kls in $klss ; do 
      lxe-cp include/$kls.hh src/$kls.cc
   done
-  lxe-cp LXe.cc test.mac include/ChromaPhotonList_LinkDef.h include/MyTMessage_LinkDef.h     
+  lxe-cp LXe.cc test.mac include/ChromaPhotonList_LinkDef.h 
 }
 
 lxe-customize-cmake(){ lxe-cp CMakeLists.txt ;}
