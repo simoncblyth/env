@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 """
+TODO:
+
+Divvy up into 
+
+  env.zmqroot....
+  env.chroma.ChromaPhotonList 
+
 """
 import os, time, zmq, logging
 import array
@@ -26,6 +33,25 @@ def deserialize_tbufferfile(s, cls=ROOT.ChromaPhotonList.Class()):
     return o
 
 
+def serialize_tbufferfile(o, cls=ROOT.ChromaPhotonList.Class()):
+    """
+    From chromaserver
+
+    serializes ROOT object `o` via a ROOT.TBufferFile, returns a character
+    array.array of `o`'s contents
+    """
+    buf = ROOT.TBufferFile(ROOT.TBuffer.kWrite)
+    buf.Reset()
+    buf.WriteObjectAny(o, cls)
+
+    mv = memoryview(bytearray(buf.Length())).tobytes()
+    a = array.array('c', mv) 
+
+    return a
+
+
+
+
 def deserialize( s ):
     """
     TMessage knows the class that its carrying 
@@ -45,31 +71,22 @@ def deserialize( s ):
     log.info("obj %s " % repr(obj))
     return obj
 
-
-def serialize_tbufferfile(o, cls=ROOT.ChromaPhotonList.Class()):
-    """
-    From chromaserver
-
-    serializes ROOT object `o` via a ROOT.TBufferFile, returns a character
-    array.array of `o`'s contents
-    """
-    buf = ROOT.TBufferFile(ROOT.TBuffer.kWrite)
-    buf.Reset()
-    buf.WriteObjectAny(o, cls)
-
-    mv = memoryview(bytearray(buf.Length())).tobytes()
-    a = array.array('c', mv) 
-
-    return a
-
-
 def serialize( obj ):
+    """
+    #. https://docs.python.org/dev/library/stdtypes.html#typememoryview
+    """
     tmsg = ROOT.MyTMessage( ROOT.MyTMessage.kMESS_OBJECT )
     tmsg.WriteObject(obj)
-    bufLen = tmsg.Length() 
+    msgLen = tmsg.Length() 
 
-    mv = memoryview(bytearray(bufLen)).tobytes()
-    a = array.array('c', mv) 
+    #
+    #  a = new char[bufLen]
+    #
+    # bytearray(integer) allocates bufLen NULL-ified bytes, 
+    # memoryview references that and tobytes provides the buffer as a bytestring 
+    #
+    bytestring = memoryview(bytearray(msgLen)).tobytes()
+    a = array.array('c', bytestring )    # typecode char
 
     tmsg.SerializeIntoArray(a)
     return a
