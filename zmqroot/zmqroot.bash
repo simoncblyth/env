@@ -75,9 +75,11 @@ zmqroot-env(){
 
 zmqroot-prefix(){ echo $(zmqroot-dir) ; }
 zmqroot-libraries(){    echo ZMQRoot ; }
+zmqroot-lib(){  echo $(zmqroot-prefix)/lib/libZMQRoot.dylib ;}
 zmqroot-export(){
   export ZMQROOT_PREFIX=$(zmqroot-prefix)
   export ZMQROOT_LIBRARIES="$(zmqroot-libraries)"
+  export ZMQROOT_LIB="$(zmqroot-lib)"
 }
 
 
@@ -112,7 +114,7 @@ zmqroot-build(){
   zmqroot-install
 }
 
-zmqroot-fullbuild(){
+zmqroot-build-full(){
   zmqroot-wipe
   zmqroot-build
 }

@@ -4,7 +4,6 @@
 #include "TMessage.h"
 #include "MyTMessage.hh"
 
-#include <stdlib.h>
 #include <zmq.h>
 #include <assert.h>
 
@@ -69,15 +68,26 @@ TObject* ZMQRoot::ReceiveObject()
 
     printf("ZMQRoot::ReceiveObject received bytes: %zu \n", size );   
 
-    TObject* obj = NULL ; 
+    TObject* obj = DeSerialize( data, size ); 
 
+    zmq_msg_close (&msg);
+    
+    return obj ;
+}
+
+
+// As ZMQRoot is not a TObject and has no dictionary cannot access from root/pyroot ?
+// so do this in MyTMessage instead
+
+TObject* ZMQRoot::DeSerialize( void* data, size_t size )
+{
     MyTMessage* tmsg = new MyTMessage( data , size ); 
     assert( tmsg->What() == kMESS_OBJECT ); 
 
     TClass* kls = tmsg->GetClass();
-    obj = tmsg->ReadObject(kls);
+    TObject* obj = tmsg->ReadObject(kls);
 
-    zmq_msg_close (&msg);
+    // ? delete tmsg 
 
     return obj ;
 }

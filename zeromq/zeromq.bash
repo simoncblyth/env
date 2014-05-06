@@ -142,11 +142,15 @@ zeromq-echoserver-make(){
   cd $iwd
 }
 zeromq-echoserver-config(){ echo "tcp://*:5555" ; }
-zeromq-echoserver-run-Linux(){ LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver ; }
-zeromq-echoserver-run-Darwin(){  ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver ; }
-zeromq-echoserver-run(){ $FUNCNAME-$(uname) ; }
-zeromq-echoserver-run-py(){ ECHO_SERVER_CONFIG=$(zeromq-echoserver-config)  python $(zeromq-echoserver-dir)/echoserver.py ; }
+zeromq-echoserver-export(){ 
+   export ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) 
+   
 
+}
+zeromq-echoserver-run-Linux(){ LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver ; }
+zeromq-echoserver-run-Darwin(){  zeromq-echoserver-export ; /tmp/echoserver ; }
+zeromq-echoserver-run(){ $FUNCNAME-$(uname) ; }
+zeromq-echoserver-run-py(){      zeromq-echoserver-export ;  python $(zeromq-echoserver-dir)/echoserver.py ; }
 
 zeromq-echoserver-gdb(){
   LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) gdb /tmp/echoserver 

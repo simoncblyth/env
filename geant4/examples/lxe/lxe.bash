@@ -136,7 +136,7 @@ lxe-env(){
        *) echo NO Geant4 INSTALL on $NODE_TAG ;; 
     esac
     zmqroot-
-   # zmqroot-export
+    chromaphotonlist-
 }
 
 lxe-env-D(){
@@ -261,8 +261,9 @@ lxe-run-N(){
 lxe-run-D(){
 
    zmqroot-export
+   chromaphotonlist-export
 
-   local cmd="DYLD_LIBRARY_PATH=${ZMQROOT_PREFIX}/lib:$DYLD_LIBRARY_PATH $(lxe-bin) $*"
+   local cmd="DYLD_LIBRARY_PATH=${ZMQROOT_PREFIX}/lib:${CHROMAPHOTONLIST_PREFIX}/lib:$DYLD_LIBRARY_PATH $(lxe-bin) $*"
    echo $cmd
    eval $cmd 
 }

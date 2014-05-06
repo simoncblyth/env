@@ -12,6 +12,35 @@ CHROMAPHOTONLIST
 #. ROOT dependency more difficult, due to need for TObject serialization
 
 
+PyROOT/numpy interfacing
+----------------------------------
+
+* https://github.com/rootpy/rootpy
+* http://rootpy.github.io/root_numpy/
+
+From PyROOT
+------------
+
+::
+
+    In [3]: ROOT.gSystem.Load("/usr/local/env/chroma/ChromaPhotonList/lib/libChromaPhotonList.dylib")
+    Out[3]: 0
+
+    In [4]: cpl = ROOT.ChromaPhotonList()
+
+    In [5]: cpl
+    Out[5]: <ROOT.ChromaPhotonList object ("ChromaPhotonList") at 0x7ffa059c0ed0>
+
+    In [6]: cpl.x
+    Out[6]: <ROOT.vector<float> object at 0x7ffa059c0ee0>
+
+    In [7]: cpl.x.push_back(1)
+
+    In [8]: cpl.x.size()
+    Out[8]: 1L
+
+
+
 EOU
 }
 chromaphotonlist-dir(){  echo $(local-base)/env/chroma/ChromaPhotonList ; }
@@ -48,6 +77,12 @@ chromaphotonlist-env(){
    export GEANT4_HOME=$(chromaphotonlist-geant4-home)
    export ROOTSYS=$(chromaphotonlist-rootsys)   # needed to find rootcint for dictionary creation
 }
+
+chromaphotonlist-export(){
+   export CHROMAPHOTONLIST_LIB=$(chromaphotonlist-lib)
+   export CHROMAPHOTONLIST_PREFIX=$(chromaphotonlist-dir)
+}
+
 
 chromaphotonlist-wipe(){
    local msg="=== $FUNCNAME :"

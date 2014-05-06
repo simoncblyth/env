@@ -40,6 +40,23 @@ public:
   }
 
 
+  inline void AddPhoton(float _x, float _y, float _z,  float _momx, float _momy, float _momz, float _polx, float _poly, float _polz, float _t, float _wavelength, int _pmtid=-1) {
+    x.push_back(_x);
+    y.push_back(_y);
+    z.push_back(_z);
+    px.push_back(_momx);
+    py.push_back(_momy);
+    pz.push_back(_momz);
+    polx.push_back(_polx);
+    poly.push_back(_poly);
+    polz.push_back(_polz);
+    t.push_back(_t);
+    wavelength.push_back(_wavelength);
+    pmtid.push_back(_pmtid);
+  }
+
+
+
   void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const;
 
 
