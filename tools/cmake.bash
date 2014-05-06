@@ -16,6 +16,17 @@ Best Docs encountered
 * http://www.cmake.org/cmake/help/git-master/command/find_path.html
 * http://www.cmake.org/cmake/help/git-master/command/find_package.html
 
+
+Other
+------
+
+rule for generated header files in sub directories
+
+* http://www.cmake.org/pipermail/cmake/2012-November/052775.html
+
+
+
+
 Tips 
 -----
 
