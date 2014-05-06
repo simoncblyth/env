@@ -1421,3 +1421,4 @@ pytools-(){      . $(env-home)/python/pytools.bash && pytools-env $* ; }
 numbers-(){      . $(env-home)/osx/numbers/numbers.bash && numbers-env $* ; }
 lxe-(){          . $(env-home)/geant4/examples/lxe/lxe.bash && lxe-env $* ; }
 
+zmqroot-(){      . $(env-home)/zmqroot/zmqroot.bash && zmqroot-env $* ; }

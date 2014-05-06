@@ -16,16 +16,12 @@ Best Docs encountered
 * http://www.cmake.org/cmake/help/git-master/command/find_path.html
 * http://www.cmake.org/cmake/help/git-master/command/find_package.html
 
-
 Other
 ------
 
 rule for generated header files in sub directories
 
 * http://www.cmake.org/pipermail/cmake/2012-November/052775.html
-
-
-
 
 Tips 
 -----
@@ -46,7 +42,6 @@ Random Projects with good cmake usage docs
 * https://software.sandia.gov/trac/dakota/wiki/CMakeFAQ
 
 
-
 Versions
 ---------
 
@@ -57,6 +52,38 @@ Versions
 
     [blyth@belle7 ~]$ cmake -version
     cmake version 2.6-patch 4
+
+    delta:~ blyth$ cmake -version
+    cmake version 2.8.12
+
+    delta:~ blyth$ which cmake
+    /opt/local/bin/cmake
+
+
+macports cmake
+---------------
+
+* https://trac.macports.org/browser/trunk/dports/devel/cmake/Portfile
+
+
+::
+
+    delta:~ blyth$ port info cmake
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+    cmake @2.8.12.2 (devel)
+    Variants:             gui, universal
+
+    Description:          An extensible, open-source system that manages the build process in an operating system and compiler independent manner. Unlike many cross-platform systems, CMake is designed to be used in
+                          conjunction with the native build environment.
+    Homepage:             http://www.cmake.org/
+
+    Library Dependencies: libidn, openssl
+    Platforms:            darwin, freebsd
+    License:              BSD
+    Maintainers:          css@macports.org
+    delta:~ blyth$ 
+
+
 
 
 Debugging
@@ -173,6 +200,58 @@ Nope::
     /usr/local/env/chroma_env/src/root-v5.34.11/etc/cmake/FindROOT.cmake
     /usr/local/env/chroma_env/src/root-v5.34.14/etc/cmake/FindROOT.cmake
     /usr/local/env/chroma_env/src/root-v5.34.14.patch01/etc/cmake/FindROOT.cmake
+
+
+
+CMAKE OSX RPATH INSTALL_NAME_TOOL ISSUE
+-----------------------------------------
+
+* http://www.kitware.com/blog/home/post/510
+
+* :google:`cmake linking rpath install_name_tool`
+
+::
+
+    (chroma_env)delta:zmqroot-build blyth$ cmake -version
+    cmake version 2.8.12
+
+    Install the project...
+    /opt/local/bin/cmake -P cmake_install.cmake
+    -- Install configuration: ""
+    -- Up-to-date: /usr/local/env/zmqroot/include/ZMQRoot.hh
+    -- Installing: /usr/local/env/zmqroot/lib/libZMQRoot.dylib
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool: 
+            object: /usr/local/env/zmqroot/lib/libZMQRoot.dylib malformed object (load command 32 cmdsize is zero)
+    (chroma_env)delta:zmqroot-build blyth$ 
+
+
+Linking::
+
+     /usr/bin/c++   
+       -dynamiclib -Wl,-headerpad_max_install_names 
+       -o libZMQRoot.dylib 
+       -install_name /tmp/env/zmqroot-build/libZMQRoot.dylib 
+            CMakeFiles/ZMQRoot.dir/src/MyTMessage.cc.o 
+            CMakeFiles/ZMQRoot.dir/src/ZMQRoot.cc.o 
+            CMakeFiles/ZMQRoot.dir/MyTMessageDict.cxx.o 
+       -L/usr/local/env/chroma_env/src/root-v5.34.14/lib 
+       -L/usr/local/env/chroma_env/lib 
+       -L/usr/local/env/chroma_env/src/root-v5.34.14/lib
+              -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lpthread
+        -Wl,-rpath,/usr/local/env/chroma_env/src/root-v5.34.14/lib
+        -stdlib=libc++ -lm -ldl -lzmq
+        -Wl,-rpath,/usr/local/env/chroma_env/src/root-v5.34.14/lib
+        -Wl,-rpath,/usr/local/env/chroma_env/lib 
+
+
+Below ticket suggests repetition of rpath passed to linker is the cause of the issue
+
+* https://github.com/SimTk/openmm/issues/295
+
+* http://public.kitware.com/Bug/view.php?id=14707
+
+
+
 
 
 

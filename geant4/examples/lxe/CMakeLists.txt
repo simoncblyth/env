@@ -47,6 +47,9 @@ file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc  )   # sets the variable 
 list( APPEND sources src/ChromaPhotonListDict.cxx src/MyTMessageDict.cxx )
 
 
+
+
+
 add_executable(${name} EXCLUDE_FROM_ALL ${name}.cc ${sources})
 
 target_link_libraries( ${name} 
