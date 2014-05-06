@@ -75,13 +75,16 @@ zeromq-get(){
 }
 zeromq-prefix(){ 
   case $NODE_TAG in 
-    D) echo /usr/local/env/chroma_env ;;   ## happens to be VIRTUAL_ENV 
+    D_original) echo /usr/local/env/chroma_env ;;   ## happens to be VIRTUAL_ENV 
+    D) echo $(zeromq-fold) ;; 
     G) echo $(zeromq-fold) ;;
     *) echo $(zeromq-fold) ;;
   esac
 }
 zeromq-make(){
   zeromq-cd
+  env-llp
+
   ./configure --prefix=$(zeromq-prefix)
   make 
   make install
@@ -96,6 +99,10 @@ zeromq-zguide-get(){
 zeromq-versions(){
    python -c "import zmq, socket ; print socket.gethostname(), zmq.__file__, zmq.zmq_version(), zmq.pyzmq_version() "
 }
+
+
+
+
 
 
 
@@ -118,6 +125,10 @@ zeromq-hello-server(){ $FUNCNAME-$(uname) ; }
 zeromq-hello-client(){ zeromq-hello-config ; /tmp/hwclient ; }
 
 
+
+
+
+
 zeromq-echoserver-dir(){ echo $(zeromq-sdir)/zeromq_echoserver ; }
 zeromq-echoserver-cd(){  cd $(zeromq-echoserver-dir) ; }
 zeromq-echoserver-make(){
@@ -127,6 +138,7 @@ zeromq-echoserver-make(){
   local bin=/tmp/$name
   cc -I$ZEROMQ_PREFIX/include -c $name.c && cc -L$ZEROMQ_PREFIX/lib -lzmq $name.o -o $bin && rm $name.o 
   ls -l $bin
+  otool -L $bin
   cd $iwd
 }
 zeromq-echoserver-config(){ echo "tcp://*:5555" ; }

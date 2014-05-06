@@ -10,17 +10,17 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 #
 
 # TODO: eliminate need for envvar to access FindROOT.cmake
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "$ENV{CHROMA_GEANT4_SDIR}/cmake/Modules/")  
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
+                      "$ENV{CHROMA_GEANT4_SDIR}/cmake/Modules"
+                      "$ENV{ENV_HOME}/cmake/Modules"
+                   )  
+#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 set(name ZMQRoot)
 project(${name})
 
 find_package(Root REQUIRED)
-
-# TODO: find/create FindZMQ.cmake 
-set( ZMQ_INCLUDE_DIR "$ENV{ZEROMQ_PREFIX}/include" )
-set( ZMQ_LIBRARY_DIR "$ENV{ZEROMQ_PREFIX}/lib" )
-set( ZMQ_LIBRARIES   "-lzmq" )
-
+find_package(ZMQ REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include 
                     ${ROOT_INCLUDE_DIR}
@@ -32,9 +32,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
 # with ROOT_LIBRARY_DIR present results in a cmake rpath bug, 
 # causing install_name_tool corruption at install, see `cmake-`
 #
-link_directories( 
-                 ${ZMQ_LIBRARY_DIR} 
-                )
+#link_directories( 
+#                 ${ZMQ_LIBRARY_DIR} 
+#                )
 
 
 # Generates MyTMessageDict.cxx, MyTMessageDict.h into build dir CMAKE_CURRENT_BINARY_DIR  

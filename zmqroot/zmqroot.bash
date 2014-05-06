@@ -82,7 +82,6 @@ zmqroot-export(){
 
 
 
-
 zmqroot-cmake(){
    mkdir -p $(zmqroot-bdir)   
    zmqroot-bcd

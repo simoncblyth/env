@@ -14,6 +14,13 @@ lxe-usage(){ cat << EOU
 GEANT4 LXE EXAMPLE
 ===================
 
+TODO:
+-----
+
+#. RPATH setup for executable to avoid setting envvars to find libZMQRoot.dylib
+
+
+
 MAKE BUILDING
 -------------
 
@@ -74,6 +81,17 @@ but explicitly providing the path to system 2_7 lib works::
 
 
 
+cmake RPATH ISSUE 
+------------------
+
+
+
+::
+
+    (chroma_env)delta:LXe-build blyth$ ln -s /usr/local/env/zmqroot/lib/libZMQRoot.dylib libZMQRoot.dylib
+    (chroma_env)delta:LXe-build blyth$ ./LXe 
+
+
 
 
 RUNNING
@@ -118,7 +136,11 @@ lxe-env(){
        *) echo NO Geant4 INSTALL on $NODE_TAG ;; 
     esac
     zmqroot-
-    zmqroot-export
+   # zmqroot-export
+}
+
+lxe-env-D(){
+    chroma-
 }
 
 
@@ -133,9 +155,6 @@ lxe-env-N(){
     else 
         fenv ;      # fast way only applicable for standard DYB
     fi 
-}
-lxe-env-D(){
-    chroma-
 }
 
 lxe-clhep-idir(){
@@ -234,13 +253,16 @@ lxe-bin(){
 }
 
 lxe-run-N(){
-   local cmd="LD_LIBRARY_PATH=${ZEROMQ_PREFIX}/lib:$LD_LIBRARY_PATH $(lxe-bin) $*"
+   local cmd="LD_LIBRARY_PATH=${ZMQROOT_PREFIX}/lib:$LD_LIBRARY_PATH $(lxe-bin) $*"
    echo $cmd
    eval $cmd 
 }
 
 lxe-run-D(){
-   local cmd="$(lxe-bin) $*"
+
+   zmqroot-export
+
+   local cmd="DYLD_LIBRARY_PATH=${ZMQROOT_PREFIX}/lib:$DYLD_LIBRARY_PATH $(lxe-bin) $*"
    echo $cmd
    eval $cmd 
 }
@@ -275,7 +297,6 @@ lxe-customize(){
        *) echo NO BUILDER && sleep 1000000000 ;;
   esac
 
-  #local klss="LXeStackingAction ChromaPhotonList MyTMessage ZMQRoot"
   local klss="LXeStackingAction ChromaPhotonList"
   local kls
   for kls in $klss ; do 
@@ -286,6 +307,10 @@ lxe-customize(){
 
 lxe-customize-cmake(){ lxe-cp CMakeLists.txt ;}
 lxe-customize-make(){  lxe-cp GNUmakefile    ;}
+
+
+
+
 
 
 lxe-grab(){

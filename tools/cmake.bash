@@ -41,6 +41,19 @@ Random Projects with good cmake usage docs
 
 * https://software.sandia.gov/trac/dakota/wiki/CMakeFAQ
 
+Finding Libs
+------------
+
+* http://www.cmake.org/Wiki/CMake:How_To_Find_Libraries
+* http://hypernews.slac.stanford.edu/HyperNews/geant4/get/installconfig/1467.html?inline=-1
+
+
+Macros
+-------
+
+* /usr/local/env/chroma_env/src/root-v5.34.14/cmake/modules/RootNewMacros.cmake
+
+
 
 Versions
 ---------

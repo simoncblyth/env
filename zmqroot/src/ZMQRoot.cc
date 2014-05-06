@@ -13,9 +13,8 @@ ZMQRoot::ZMQRoot(const char* envvar) : fContext(NULL), fRequester(NULL)
 {
 
   char* config = getenv(envvar) ;
+  printf( "ZMQRoot::ZMQRoot envvar [%s] config [%s] \n", envvar, config );   
   assert( config != NULL );
-
-  printf( "ZMQRoot::ZMQRoot config  %s \n", config );   
 
   fContext = zmq_ctx_new ();
   fRequester = zmq_socket (fContext, ZMQ_REQ);
