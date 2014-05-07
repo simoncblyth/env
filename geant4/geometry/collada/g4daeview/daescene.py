@@ -270,6 +270,10 @@ class DAEScene(object):
         view = self.bookmarks.make_parametric_view()
         self.update_view(view)
 
+    def external_cpl(self, cpl ):
+        log.info("external_cpl")
+
+
     def external_message(self, msg ):
         """
         """ 

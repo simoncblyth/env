@@ -1,11 +1,1 @@
-#!/bin/bash -l
-
-chroma-
-
-#cuda_info.py
-
-g4daeview.py $*
-
-#cuda_info.py
-
-
+../geant4/geometry/collada/g4daeview/g4daeview.sh

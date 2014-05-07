@@ -104,6 +104,7 @@ class DAEConfig(ConfigBase):
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
         defaults['bookmarks'] = "bookmarks_%(path)s.cfg"
+        defaults['zmqbind'] = os.environ.get("DAEVIEW_ZMQ_CONFIG","tcp://*:5555")
 
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
@@ -111,6 +112,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )
         parser.add_argument( "--bookmarks", help="Path to persisted bookmarks  %(default)s", type=str  )
+        parser.add_argument( "--zmqbind", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
 
         defaults['deviceid'] = None
         defaults['cuda_profile'] = False

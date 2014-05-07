@@ -16,6 +16,7 @@ from glumpy.window import key
 number_keys = (key._0,key._1,key._2,key._3,key._4,key._5,key._6,key._7,key._8,key._9,)
 
 from daedispatcher import DAEDispatcher
+from daeresponder import DAEResponder
 from daeviewport import DAEViewport
 
 t0, frames, t = 0,0,0
@@ -103,13 +104,14 @@ class DAEInteractivityHandler(object):
         pass
 
         fig.push(self)                     # event notification from fig 
-        self.hookup_dispatcher(config)     # event notification from dispatcher
+        self.hookup_udp_dispatcher(config)     # event notification from dispatcher
+        self.hookup_zmq_responder(config)
 
 
     def __repr__(self):
         return "H %5.2f %5.2f " % ( self.dragfactor, self.fps )
 
-    def hookup_dispatcher(self, config):
+    def hookup_udp_dispatcher(self, config):
         """
         dispatcher collect messages over UDP, allowing remote control
         """
@@ -121,6 +123,20 @@ class DAEInteractivityHandler(object):
         timer = self.fig.timer(30.)  # fps
         timer(_check_dispatcher) 
         dispatcher.push_handlers(self)   # get event notification from dispatcher
+
+
+    def hookup_zmq_responder(self, config):
+        responder = DAEResponder(config)
+        log.info(responder)        
+
+        def _check_responder(dt):
+            responder.update()
+
+        timer = self.fig.timer(30.)  # fps
+        timer(_check_responder) 
+
+        responder.push_handlers(self)   # get event notification from responder
+
 
     def _get_title(self):
         rdr = self.scene.raycaster.renderer if self.scene.raycast else None
@@ -155,6 +171,11 @@ class DAEInteractivityHandler(object):
     def on_external_message(self, msg ):
         self.scene.external_message(msg)
         self.redraw()
+
+    def on_external_cpl(self, cpl ):
+        self.scene.external_cpl(cpl)
+        self.redraw()
+        return True   # prevent other handlers
 
     def on_resize(self, width, height, x=0, y=0):
         self.viewport.resize((width, height))
