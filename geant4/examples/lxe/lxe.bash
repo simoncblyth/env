@@ -14,20 +14,24 @@ lxe-usage(){ cat << EOU
 GEANT4 LXE EXAMPLE
 ===================
 
-TODO:
------
+Docs
+----
 
-#. RPATH setup for executable to avoid setting envvars to find libZMQRoot.dylib
+* http://geant4.web.cern.ch/geant4/UserDocumentation/Doxygen/examples_doc/html/ExampleLXe.html
 
+Unusual SD:
 
-MAKE BUILDING
--------------
+    The PMT sensitive detector cannot be triggered like a normal sensitive detector
+    because the sensitive volume does not allow photons to pass through it. Rather,
+    it detects them in the OpBoundary process based on an efficiency set on the
+    skin of the volume.
 
-::
-
-    lxe-make
-    lxe-make clean
-    lxe-make bin -n    # to see the commands and locate the binary 
+    A normal sensitive detector would have its ProcessHits function called for each
+    step by a particle inside the volume. So, to record these hits with a sensitive
+    detector we watched the status of the OpBoundary process from the stepping
+    manager whenever a photon hit the sensitive volume of the pmt. If the status
+    was 'Detection', we retrieve the sensitive detector from G4SDManager and call
+    its ProcessHits function.
 
 
 CMAKE BUILDING AGAINST CHROMA G4

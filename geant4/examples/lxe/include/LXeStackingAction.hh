@@ -43,8 +43,6 @@ public:
   virtual void PrepareNewEvent();
  
   void CollectPhoton(const G4Track* aPhoton );
-  void SendPhotonList();
-  void ReceivePhotonList();
  
 private:
   ZMQRoot* fZMQRoot ; 

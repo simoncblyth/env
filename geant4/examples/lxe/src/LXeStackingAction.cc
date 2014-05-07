@@ -62,24 +62,6 @@ LXeStackingAction::~LXeStackingAction()
 #endif
 }
 
-void LXeStackingAction::SendPhotonList()
-{
-   G4cout << "SendPhotonList " <<  G4endl;   
-
-#ifdef WITH_CHROMA_ZMQ
-   fZMQRoot->SendObject(fPhotonList);
-#endif
-
-}
-
-void LXeStackingAction::ReceivePhotonList()
-{
-    G4cout << "ReceivePhotonList waiting..." <<  G4endl;   
-#ifdef WITH_CHROMA_ZMQ
-   fPhotonList2 = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
-#endif
-}
-
 
 void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
 {
@@ -98,8 +80,7 @@ void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
 #endif
 }
 
-G4ClassificationOfNewTrack
-LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
+G4ClassificationOfNewTrack LXeStackingAction::ClassifyNewTrack(const G4Track * aTrack){
  
   G4cout << "LXeStackingAction::ClassifyNewTrack TrackID " << aTrack->GetTrackID() << " ParentID " << aTrack->GetParentID() <<  G4endl;   
 
@@ -130,12 +111,17 @@ void LXeStackingAction::NewStage(){
 
   G4cout << "LXeStackingAction::NewStage" << G4endl;   
 
-  SendPhotonList();
-  ReceivePhotonList();
+#ifdef WITH_CHROMA_ZMQ
+
+  G4cout << "::NewStage SendObject " <<  G4endl;   
+  fZMQRoot->SendObject(fPhotonList);
+
+  G4cout << "::NewStage ReceiveObject, waiting... " <<  G4endl;   
+  fPhotonList2 = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
 
   fPhotonList->Details();
   fPhotonList2->Details();
-
+#endif
 
 }
 
