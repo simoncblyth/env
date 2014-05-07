@@ -9,15 +9,15 @@ TObject* MyTMessage::MyReadObject()
 }
 
 
-void MyTMessage::SerializeIntoArray( char* msg )
+void MyTMessage::CopyIntoArray( char* arr )
 {
-   // adapted from Chromaserver
-
-  // Copy the serialized buffer from a TBufferFile into char* msg, which is
-  // really a Python string. If we return a char*, PyROOT casts it to a str
+  // adapted from Chromaserver
+  //
+  // Copy the serialized buffer from a TMessage into char* arr, 
+  // If we return a char*, PyROOT casts it to a str
   // and cuts it off at the first null character.
 
-    memcpy(msg, this->Buffer(), this->Length());
+    memcpy(arr, this->Buffer(), this->Length());
 }
 
 

@@ -125,37 +125,3 @@ zeromq-hello-server(){ $FUNCNAME-$(uname) ; }
 zeromq-hello-client(){ zeromq-hello-config ; /tmp/hwclient ; }
 
 
-
-
-
-
-zeromq-echoserver-dir(){ echo $(zeromq-sdir)/zeromq_echoserver ; }
-zeromq-echoserver-cd(){  cd $(zeromq-echoserver-dir) ; }
-zeromq-echoserver-make(){
-  local iwd=$PWD
-  zeromq-echoserver-cd 
-  local name=echoserver 
-  local bin=/tmp/$name
-  cc -I$ZEROMQ_PREFIX/include -c $name.c && cc -L$ZEROMQ_PREFIX/lib -lzmq $name.o -o $bin && rm $name.o 
-  ls -l $bin
-  otool -L $bin
-  cd $iwd
-}
-zeromq-echoserver-config(){ echo "tcp://*:5555" ; }
-zeromq-echoserver-export(){ 
-   export ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) 
-   
-
-}
-zeromq-echoserver-run-Linux(){ LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) /tmp/echoserver ; }
-zeromq-echoserver-run-Darwin(){  zeromq-echoserver-export ; /tmp/echoserver ; }
-zeromq-echoserver-run(){ $FUNCNAME-$(uname) ; }
-zeromq-echoserver-run-py(){      zeromq-echoserver-export ;  python $(zeromq-echoserver-dir)/echoserver.py ; }
-
-zeromq-echoserver-gdb(){
-  LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) gdb /tmp/echoserver 
-}
-
-
-
-

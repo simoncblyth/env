@@ -22,7 +22,7 @@ public:
    MyTMessage(void *buf, Int_t len) : TMessage(buf, len) { }
    virtual ~MyTMessage();
 
-   void SerializeIntoArray( char* arr );
+   void CopyIntoArray( char* arr );
 
    TObject* MyReadObject();
    ClassDef( MyTMessage , 1 ) // TMessage with from buffer constructor exposed 
