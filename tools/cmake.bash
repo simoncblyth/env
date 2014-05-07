@@ -263,13 +263,15 @@ Full details/workaround in below ticket (removing link_directories)
 
 * http://public.kitware.com/Bug/view.php?id=14707
 
-Background on cmake rpath handling 
+cmake rpath handling 
+----------------------
 
 * http://www.kitware.com/blog/home/post/510
-
-
-
-
+* http://www.cmake.org/Wiki/CMake_RPATH_handling
+* http://stackoverflow.com/questions/9263256/can-you-please-help-me-understand-how-mach-o-libraries-work-in-mac-os-x
+* http://www.dribin.org/dave/blog/archives/2009/11/15/rpath/
+* https://mikeash.com/pyblog/friday-qa-2009-11-06-linking-and-install-names.html
+* http://matthew-brett.github.io/pydagogue/mac_runtime_link.html
 
 
 
