@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
                       "$ENV{CHROMA_GEANT4_SDIR}/cmake/Modules" 
                       "$ENV{ENV_HOME}/cmake/Modules"
           ) 
-#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 
 set(name LXe)
 project(${name})
@@ -15,6 +15,7 @@ find_package(Root REQUIRED)
 find_package(ZMQRoot REQUIRED)
 find_package(ChromaPhotonList REQUIRED)
 
+include(EnvBuildOptions)
 include(${Geant4_USE_FILE})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include 

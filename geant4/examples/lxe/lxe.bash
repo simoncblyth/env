@@ -20,7 +20,6 @@ TODO:
 #. RPATH setup for executable to avoid setting envvars to find libZMQRoot.dylib
 
 
-
 MAKE BUILDING
 -------------
 
@@ -103,10 +102,6 @@ vis drivers
 #. vis drivers not built ? OGLSX fails
 
 
-ChromaPhotonList 
-------------------
-
-
 
 EOU
 }
@@ -124,7 +119,7 @@ lxe-scd(){ cd $(lxe-sdir); }
 
 # cmake build dir
 lxe-bdir(){  echo $(lxe-dir)-build ; }    
-lxe-bcd(){   cd $(lxe-bdir); }
+lxe-bcd(){   mkdir -p $(lxe-bdir) && cd $(lxe-bdir); }
 lxe-bwipe(){ rm -rf $(lxe-bdir); }
 
 
@@ -138,15 +133,10 @@ lxe-env(){
     zmqroot-
     chromaphotonlist-
 }
-
 lxe-env-D(){
     chroma-
 }
-
-
 lxe-env-N(){
-    ## CRUCIAL STEP OF SETTING UP ENV CORRESPONDING TO DYB INSTALL ARE USING 
-
     nuwa-
     nuwa-export-prefix
 
@@ -157,86 +147,40 @@ lxe-env-N(){
     fi 
 }
 
-lxe-clhep-idir(){
-   case $NODE_TAG in 
-     N) echo $(nuwa-clhep-idir) ;; 
-     D) echo $(chroma-clhep-prefix)/include ;; 
-   esac
-}
-lxe-xercesc-idir(){
-   case $NODE_TAG in 
-     N) echo $(nuwa-xercesc-idir) ;; 
-     D) echo $(xercesc-prefix)/include ;; 
-   esac
-}
-lxe-system(){
-   case $NODE_TAG in 
-     N) echo Linux-g++ ;;
-     D) echo Darwin-clang ;;
-  esac
-}
-lxe-g4-bdir(){
-   case $NODE_TAG in 
-     D) echo  ;;
-     *) echo $(nuwa-g4-bdir) ;; 
-   esac
-}
 
-lxe-rootcint(){
+
+
+lxe-cmake(){
    local msg="=== $FUNCNAME :"
-   local iwd=$PWD
-   lxe-cd include
-   echo $msg from $PWD
-
-   local line
-   local kls
-   local cmd
-   ls -1 *_LinkDef.h | while read line ; do
-      kls=${line/_LinkDef.h}
-      cmd="rootcint -v -f ../src/${kls}Dict.cc -c -p -I$(lxe-g4-bdir)/include -I$(lxe-clhep-idir)/include ${kls}.hh ${kls}_LinkDef.h"
-      echo $msg $cmd 
-      eval $cmd
-   done  
-
-   cd $iwd
-}
-
-lxe-gmake(){
-   lxe-cd
-   lxe-customize
-   lxe-rootcint
-   make CPPVERBOSE=1 CLHEP_BASE_DIR=$(lxe-clhep-idir) G4SYSTEM=$(lxe-system) G4LIB_BUILD_SHARED=1 XERCESCROOT=$(lxe-xercesc-idir) $*
-}
-
-lxe-cmake-(){
-   local msg="=== $FUNCNAME :"
-   lxe-bcd
 
    chroma-geant4-export
    lxe-customize
 
+   lxe-bcd
    echo $msg $PWD
    local cmd="cmake  -DGeant4_DIR=$(chroma-geant4-dir) $(lxe-dir) "
    echo $msg $cmd
    eval $cmd
 }
-
-lxe-cmake(){
-   lxe-bwipe   # DELETE BUILDDIR TO FORCE FULL BUILD
-   mkdir -p $(lxe-bdir)
+lxe-make(){
    lxe-bcd
-   $FUNCNAME-
    make $(lxe-name) VERBOSE=1
 }
-
-lxe-make(){
-  case $(lxe-builder) in 
-   gmake) lxe-gmake ;;
-   cmake) lxe-cmake ;;
-       *) echo NO BUILDER && sleep 1000000000 ;;
-  esac
+lxe-build(){
+   lxe-cmake 
+   lxe-make 
+}
+lxe-build-full(){
+   lxe-bwipe   # DELETE BUILDDIR TO FORCE FULL BUILD
+   lxe-build
+}
+lxe-otool(){
+   otool-
+   otool-info $(lxe-bin)
 }
 
+
+############################################
 
 lxe-host(){ echo localhost ; }
 lxe-port(){ echo 5555 ; }
@@ -252,18 +196,23 @@ lxe-bin(){
    esac
 }
 
-lxe-run-N(){
-   local cmd="LD_LIBRARY_PATH=${ZMQROOT_PREFIX}/lib:$LD_LIBRARY_PATH $(lxe-bin) $*"
+lxe-libpathvar(){
+   case $(uname) in 
+     Linux)  echo LD_LIBRARY_PATH ;;
+     Darwin) echo DYLD_LIBRARY_PATH ;;
+   esac
+}
+
+lxe-run-manual(){
+   zmqroot-export
+   chromaphotonlist-export
+   local libpathvar=$(lxe-libpathvar)
+   local cmd="$libpathvar=${ZMQROOT_PREFIX}/lib:${CHROMAPHOTONLIST_PREFIX}/lib $(lxe-bin) $*"
    echo $cmd
    eval $cmd 
 }
-
-lxe-run-D(){
-
-   zmqroot-export
-   chromaphotonlist-export
-
-   local cmd="DYLD_LIBRARY_PATH=${ZMQROOT_PREFIX}/lib:${CHROMAPHOTONLIST_PREFIX}/lib:$DYLD_LIBRARY_PATH $(lxe-bin) $*"
+lxe-run-rpath(){
+   local cmd="$(lxe-bin) $*"
    echo $cmd
    eval $cmd 
 }
@@ -271,12 +220,17 @@ lxe-run-D(){
 lxe-run(){ 
    lxe-cd
    lxe-config
-   lxe-run-$NODE_TAG $* 
+   case $NODE_TAG in 
+     N) lxe-run-manual $* ;;
+     D) lxe-run-rpath $* ;;
+     *) lxe-run-rpath $* ;;
+   esac
 }
-
 
 lxe-test(){ lxe-run $(lxe-sdir)/test.mac ; }
 
+
+########### copy code from SVN into the geant4 example source directory #########
 
 lxe-cp(){
    local msg="=== $FUNCNAME :"
@@ -308,6 +262,9 @@ lxe-customize(){
 
 lxe-customize-cmake(){ lxe-cp CMakeLists.txt ;}
 lxe-customize-make(){  lxe-cp GNUmakefile    ;}
+
+
+########################################
 
 
 

@@ -274,6 +274,10 @@ cmake rpath handling
 * http://matthew-brett.github.io/pydagogue/mac_runtime_link.html
 
 
+root example
+------------
+
+/usr/local/env/chroma_env/src/root-v5.34.14/cmake/modules/RootBuildOptions.cmake
 
 
 EOU

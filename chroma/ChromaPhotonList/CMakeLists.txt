@@ -11,6 +11,7 @@ project(${name})
 find_package(Geant4 REQUIRED)
 find_package(Root REQUIRED)
 
+include(EnvBuildOptions)
 include(${Geant4_USE_FILE})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}

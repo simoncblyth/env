@@ -115,7 +115,10 @@ chromaphotonlist-build-full(){
    chromaphotonlist-wipe
    chromaphotonlist-build
 }
-
+chromaphotonlist-otool(){
+   otool-
+   otool-info $(chromaphotonlist-lib)
+}
 
 
 

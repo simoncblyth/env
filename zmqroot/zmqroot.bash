@@ -17,7 +17,7 @@ FUNCTIONS
 ::
 
     zmqroot-build
-    zmqroot-fullbuild   # deletes build directory first 
+    zmqroot-build-full   # deletes build directory first 
 
 
 LIBRARY USAGE ISSUE
@@ -82,41 +82,39 @@ zmqroot-export(){
   export ZMQROOT_LIB="$(zmqroot-lib)"
 }
 
-
+zmqroot-verbose(){ echo 1 ; }
 
 zmqroot-cmake(){
    mkdir -p $(zmqroot-bdir)   
    zmqroot-bcd
    cmake -DCMAKE_INSTALL_PREFIX=$(zmqroot-dir) $(zmqroot-sdir) 
 }
-
 zmqroot-make(){
    zmqroot-bcd
-   make VERBOSE=1 
+   make VERBOSE=$(zmqroot-verbose) 
 }
-
 zmqroot-install(){
    zmqroot-bcd
-   #make install DESTDIR=$(zmqroot-dir)
-   make install VERBOSE=1
+   make install VERBOSE=$(zmqroot-verbose)
 }
-
 zmqroot-wipe(){
    local msg="=== $FUNCNAME :"
    local bdir="$(zmqroot-bdir)"
    echo $msg deleting bdir $bdir
    rm -rf "$bdir"
 }
-
 zmqroot-build(){
   zmqroot-cmake
   zmqroot-make
   zmqroot-install
 }
-
 zmqroot-build-full(){
   zmqroot-wipe
   zmqroot-build
 }
 
+zmqroot-otool(){
+  otool-
+  otool-info $(zmqroot-lib)
+}
 

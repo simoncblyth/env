@@ -9,12 +9,11 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 #    zeromq-
 #
 
-# TODO: eliminate need for envvar to access FindROOT.cmake
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
-                      "$ENV{CHROMA_GEANT4_SDIR}/cmake/Modules"
-                      "$ENV{ENV_HOME}/cmake/Modules"
+                      "$ENV{CHROMA_GEANT4_SDIR}/cmake/Modules"   # for FindROOT.cmake
+                      "$ENV{ENV_HOME}/cmake/Modules"             # for FindZMQ.cmake 
                    )  
-#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 
 set(name ZMQRoot)
 project(${name})
@@ -27,6 +26,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${ZMQ_INCLUDE_DIR}
                    )
 
+
+include(EnvBuildOptions)   # RPATH settings
 
 # do not "link_directories" more that necessary,
 # with ROOT_LIBRARY_DIR present results in a cmake rpath bug, 
