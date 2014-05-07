@@ -14,6 +14,7 @@ from daelights import DAELights
 from daetransform import DAETransform
 from daebookmarks import DAEBookmarks
 from daeanimator import DAEAnimator
+from daechromaphotonlist import DAEChromaPhotonList
 
 # do not import anything that would initialize CUDA context here, for CUDA_PROFILE control from config
  
@@ -64,6 +65,9 @@ class DAEScene(object):
 
         # Image processor, None if not --with-cuda-image-processor
         self.processor = self.make_processor( config ) 
+
+        # ChromaPhotonList, on_external_cpl event 
+        self.cpl = None 
 
         # transform holds references to all relevant state-holders 
         transform = DAETransform( self ) 
@@ -272,7 +276,8 @@ class DAEScene(object):
 
     def external_cpl(self, cpl ):
         log.info("external_cpl")
-
+        cpl = DAEChromaPhotonList(cpl)
+        self.cpl = cpl
 
     def external_message(self, msg ):
         """

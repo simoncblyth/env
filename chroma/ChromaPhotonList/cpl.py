@@ -6,11 +6,26 @@ Usage::
     chromaphotonlist-
     chromaphotonlist-export  # _LIB envvar 
 
+
+TODO
+
+#. lookinto rootmap with pyroot to automate finding libs ?
+
+::
+
+    (chroma_env)delta:e blyth$ cat $ROOTSYS/lib/libCore.rootmap
+    Library.Atom_t:                             libCore.so
+    Library.Colormap_t:                         libCore.so
+
+
+
 """
 import os, logging
 import numpy as np
 from env.root.import_ROOT import ROOT     # avoids sys.argv kidnap
-if ROOT.gSystem.Load(os.environ["CHROMAPHOTONLIST_LIB"]) < 0:ROOT.gSystem.Exit(10)
+
+if not hasattr(ROOT, 'ChromaPhotonList'):
+    if ROOT.gSystem.Load(os.environ["CHROMAPHOTONLIST_LIB"]) < 0:ROOT.gSystem.Exit(10)
 
 log = logging.getLogger(__name__)
 

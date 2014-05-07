@@ -150,7 +150,14 @@ pyopengl-get(){
 
 }
 
-pyopengl-demo-dir(){ echo $VIRTUAL_ENV/lib/python2.7/site-packages/PyOpenGL-Demo ; }
+pyopengl-base(){
+   case $NODE_TAG in 
+     D) echo /usr/local/env/chroma_env ;;
+     *) echo $VIRTUAL_ENV ;;
+   esac
+}
+
+pyopengl-demo-dir(){ echo $(pyopengl-base)/lib/python2.7/site-packages/PyOpenGL-Demo ; }
 pyopengl-demo-cd(){  cd $(pyopengl-demo-dir) ; }
 
 

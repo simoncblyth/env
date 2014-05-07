@@ -9,6 +9,14 @@ from env.chroma.ChromaPhotonList.responder import CPLResponder
 
 class DAEResponder(event.EventDispatcher, CPLResponder):
     """
+    Glue between ZMQRoot/ChromaPhotonList and glumpy event dispatch. 
+    Allows TObject subclass instances to be received from a remote 
+    Geant4 application that invokes::
+
+        fZMQRoot->SendObject(fPhotonList)
+
+    See the LXe example `lxe-`
+
     http://www.pyglet.org/doc/programming_guide/creating_your_own_event_dispatcher.html
     """
     def __init__(self, config):
@@ -16,8 +24,6 @@ class DAEResponder(event.EventDispatcher, CPLResponder):
             bind = config.args.zmqbind
             timeout = 100  # millisecond
             sleep = 0.5
-            random = False
-            dump = True
         pass
         cfg = Cfg()
         CPLResponder.__init__(self, cfg )
@@ -30,13 +36,19 @@ class DAEResponder(event.EventDispatcher, CPLResponder):
         self.poll()
 
     def reply(self, cpl ):
+        """
+        Overrides CPLResponder.reply method that dumps and creates random CPL
+        Instead of doing that just pass the cpl to the scene.
+        """
         log.info("responder reply %s " % repr(cpl) )
         self.dispatch_event('on_external_cpl', cpl)
         return cpl
 
     def on_external_cpl(self, cpl):
-        pass
-        log.info("default on_external_cpl %s " % cpl )   # huh both this 
+        """
+        To prevent this being called ensure that the other handler returns True
+        """
+        log.info("default on_external_cpl %s " % cpl )    
 
 
 DAEResponder.register_event_type('on_external_cpl')

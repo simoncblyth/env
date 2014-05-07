@@ -37,6 +37,10 @@ class DAEFrameHandler(object):
         self.mesh = mesh
         self.scene = scene
         pass
+        self.count = 0 
+        self.fps = 0 
+        self.timebase = 0 
+        pass
         self.text = DAEText()
         self.illustrate = DAEIllustrate()
         self.annotate = []
@@ -44,7 +48,7 @@ class DAEFrameHandler(object):
         frame.push(self)  # get frame to invoke on_init and on_draw handlers
 
     def __repr__(self):
-        return "FH "
+        return "FH %s " % self.fps
 
     def tick(self, dt):
         """
@@ -135,6 +139,19 @@ class DAEFrameHandler(object):
 
 
     def on_draw(self):
+
+        self.count += 1
+        time = glut.glutGet( glut.GLUT_ELAPSED_TIME )
+        if (time - self.timebase > 1000):
+            fps = self.count*1000.0/(time-self.timebase)
+            pass
+            #log.info("fps %s " % fps )
+            self.fps = fps
+            self.timebase = time;    
+            self.count = 0;
+        pass
+
+
         self.frame.lock()
         self.frame.draw()
 
@@ -153,6 +170,9 @@ class DAEFrameHandler(object):
         if self.scene.markers:
             self.illustrate.frustum( view, lrbtnf*kscale )
             self.illustrate.raycast( transform.pixel2world_notrackball , view.eye, camera ) 
+
+        if self.scene.cpl:
+            self.scene.cpl.draw() 
 
         if self.scene.light:
             lights.position()   # reset positions following changes to MODELVIEW matrix ?

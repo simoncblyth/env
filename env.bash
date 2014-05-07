@@ -1425,3 +1425,4 @@ zmqroot-(){      . $(env-home)/zmqroot/zmqroot.bash && zmqroot-env $* ; }
 chromaphotonlist-(){      . $(env-home)/chroma/ChromaPhotonList/chromaphotonlist.bash && chromaphotonlist-env $* ; }
 otool-(){      . $(env-home)/tools/otool.bash && otool-env $* ; }
 echoserver-(){      . $(env-home)/chroma/echoserver/echoserver.bash && echoserver-env $* ; }
+specrend-(){      . $(env-home)/graphics/color/specrend/specrend.bash && specrend-env $* ; }
