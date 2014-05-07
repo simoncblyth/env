@@ -32,7 +32,6 @@ Below headers refernce zmq.h but cannot find it::
     /usr/local/env/chroma_env/lib/python2.7/site-packages/zmq/utils/zmq_constants.h
 
 
-
 HELLOWORLD SERVER
 -------------------
 
@@ -48,6 +47,18 @@ HELLOWORLD SERVER
 
     ...
     [blyth@belle7 e]$ IPTABLES_PORT=5555 iptables-webclose
+
+
+GUI EVENTLOOP INTEGRATION
+---------------------------
+
+* :google:`zeromq integrate gui event loop`
+
+http://zeromq.org/area:faq
+
+    The zmq_poll() function accepts a timeout so if you need to poll and process
+    GUI events in the same application thread you can set a timeout and
+    periodically poll for GUI events. 
 
 
 

@@ -50,11 +50,10 @@ def deserialize( s ):
     b = array.array('c', s)
         
     tmsg = ROOT.MyTMessage( b, len(b) )
-    print repr(tmsg)
     ROOT.SetOwnership(tmsg, False)  
 
     obj = tmsg.MyReadObject()
-    log.info("obj %s " % repr(obj))
+    #log.info("obj %s " % repr(obj))
     return obj
 
 def serialize( obj ):
@@ -72,7 +71,6 @@ def serialize( obj ):
     a = (ctypes.c_char * msgLen)()
 
     tmsg.CopyIntoArray(a)
-
     return a
 
 
