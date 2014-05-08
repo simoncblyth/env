@@ -4,6 +4,9 @@
 #include <assert.h>
 
 
+MyTMessage::MyTMessage( UInt_t what ) : TMessage( what ) { }
+MyTMessage::MyTMessage( void *buf, Int_t len) : TMessage( buf, len) { }
+
 TObject* MyTMessage::MyReadObject()
 {
    // reconstruct original object 

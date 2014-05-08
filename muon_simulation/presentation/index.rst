@@ -25,9 +25,9 @@ Muon Simulation Presentation
    <li>
          GPU Optical Photon Simulation 
         <ul>  
-           <li> <a href="gpu_optical_photon_simulation/gpu_optical_photon_simulation.html" > gpu_optical_photon_simulation/gpu_optical_photon_simulation.html </a> </li>
-           <li> <a href="gpu_optical_photon_simulation/gpu_optical_photon_simulation.txt" > gpu_optical_photon_simulation/gpu_optical_photon_simulation.txt </a> </li>
-           <li> <a href="gpu_optical_photon_simulation/gpu_optical_photon_simulation.pdf" > gpu_optical_photon_simulation/gpu_optical_photon_simulation.pdf </a> </li>
+           <li> <a href="/env/muon_simulation/presentation/gpu_optical_photon_simulation.html" > gpu_optical_photon_simulation.html </a> </li>
+           <li> <a href="/env/muon_simulation/presentation/gpu_optical_photon_simulation.txt" > gpu_optical_photon_simulation.txt </a> </li>
+           <li> <a href="/env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf" > gpu_optical_photon_simulation.pdf </a> </li>
         </ul>
    </li>
    </ul>

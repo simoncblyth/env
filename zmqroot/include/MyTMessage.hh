@@ -6,14 +6,13 @@
 
 // http://www.jlab.org/Hall-D/software/wiki/index.php/Serializing_and_deserializing_root_objects
 
-
 class MyTMessage : public TMessage {
 
 public:
-   MyTMessage( UInt_t what = kMESS_ANY ) : TMessage( what ) { }
-   MyTMessage(void *buf, Int_t len) : TMessage(buf, len) { }
-   virtual ~MyTMessage();
+   MyTMessage( UInt_t what = kMESS_ANY );
+   MyTMessage(void *buf, Int_t len);
 
+   virtual ~MyTMessage();
    void CopyIntoArray( char* arr );
 
    TObject* MyReadObject();
