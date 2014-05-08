@@ -21,13 +21,24 @@ FUNCTIONS
         [blyth@belle7 OPW]$ diff  tenthousandmuons tenthousandmuons.1 
         [blyth@belle7 OPW]$ 
 
+
+*opw-prof*
+    Profile running using Google perftools 
+    http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html
+
+
+
+
 EOU
 }
 opw-dir(){ echo $(local-base)/env/muon_simulation/optical_photon_weighting/OPW ; }
 
 opw-env(){     
     elocal- ; 
-    . ~/env-fast.sh   ; # NuWa dbg env
+
+    local fast=$HOME/env-fast.sh
+    [ -f "$fast" ] && . $fast       # NuWa dbg env
+    [ ! -f "$fast" ] && echo $msg WARNING no fast $fast
     fast- ;             # for FAST profiling, profrun etc..
     export PYTHONPATH=$(opw-dir):$PYTHONPATH
 }

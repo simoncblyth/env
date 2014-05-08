@@ -12,8 +12,8 @@ PYTHON?=python
 #FOOTNOTE_REFERENCES="superscript"
 FOOTNOTE_REFERENCES="brackets"
 
-
-RELDIR=$(subst $(ENV_HOME),,$(PWD))   # hmm relies on being at ~/env/wherever rather than symbolically linked ~/e/wherever
+REALPWD=$(realpath $(PWD))   # avoids requirement to be at ~/env/wherever rather than symbolically linked ~/e/wherever
+RELDIR=$(subst $(ENV_HOME),,$(REALPWD)) 
 NEWPUBDIR=$(addprefix $(APACHE_HTDOCS)/env,$(RELDIR))
 NEWPUBURL=$(addprefix http://localhost/env,$(RELDIR))
 

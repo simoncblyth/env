@@ -1,16 +1,17 @@
 #include "ZMQRoot.hh"
 
-
 #include "TMessage.h"
-#include "MyTMessage.hh"
-
-#include <zmq.h>
 #include <assert.h>
+
+#ifdef WITH_ZMQ
+#include <zmq.h>
+#endif
 
 
 ZMQRoot::ZMQRoot(const char* envvar) : fContext(NULL), fRequester(NULL) 
 {
 
+#ifdef WITH_ZMQ
   char* config = getenv(envvar) ;
   printf( "ZMQRoot::ZMQRoot envvar [%s] config [%s] \n", envvar, config );   
   assert( config != NULL );
@@ -20,12 +21,17 @@ ZMQRoot::ZMQRoot(const char* envvar) : fContext(NULL), fRequester(NULL)
 
   int rc = zmq_connect (fRequester, config );
   assert( rc == 0); 
+#else
+  printf( "ZMQRoot::ZMQRoot need to compile -DWITH_ZMQ and have ZMQ external \n");   
+#endif
 
 }
 
 void ZMQRoot::SendObject(TObject* obj)
 {
+   if(!obj) return ; 
 
+#ifdef WITH_ZMQ
    assert( fRequester != NULL );
 
    TMessage* tmsg = new TMessage(kMESS_OBJECT);
@@ -49,11 +55,20 @@ void ZMQRoot::SendObject(TObject* obj)
    }
 
    printf( "ZMQRoot::SendObject sent bytes: %d \n", rc );   
+
+
+#else
+  printf( "ZMQRoot::SendObject need to compile -DWITH_ZMQ and have ZMQ external \n");   
+#endif
+
 }
 
 
 TObject* ZMQRoot::ReceiveObject()
 {
+    TObject* obj = NULL ;
+
+#ifdef WITH_ZMQ
 
     zmq_msg_t msg;
 
@@ -68,38 +83,33 @@ TObject* ZMQRoot::ReceiveObject()
 
     printf("ZMQRoot::ReceiveObject received bytes: %zu \n", size );   
 
-    TObject* obj = DeSerialize( data, size ); 
+    obj = DeSerialize( data, size ); 
 
     zmq_msg_close (&msg);
+
+#else
+  printf( "ZMQRoot::SendObject need to compile -DWITH_ZMQ and have ZMQ external \n");   
+#endif
     
     return obj ;
 }
 
 
-// As ZMQRoot is not a TObject and has no dictionary cannot access from root/pyroot ?
-// so do this in MyTMessage instead
-
-TObject* ZMQRoot::DeSerialize( void* data, size_t size )
-{
-    MyTMessage* tmsg = new MyTMessage( data , size ); 
-    assert( tmsg->What() == kMESS_OBJECT ); 
-
-    TClass* kls = tmsg->GetClass();
-    TObject* obj = tmsg->ReadObject(kls);
-
-    // ? delete tmsg 
-
-    return obj ;
-}
-
 
 ZMQRoot::~ZMQRoot()
 {
+#ifdef WITH_ZMQ
   if(fRequester != NULL){
       zmq_close (fRequester);
   }
   if(fContext != NULL){
        zmq_ctx_destroy(fContext); 
   }
+
+#else
+  printf( "ZMQRoot::~ZMQROOT need to compile -DWITH_ZMQ and have ZMQ external \n");   
+#endif
+ 
+
 }
 

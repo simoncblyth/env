@@ -7,14 +7,6 @@
 // http://www.jlab.org/Hall-D/software/wiki/index.php/Serializing_and_deserializing_root_objects
 
 
-/*
-Use from pyroot with::
-
-
-
-*/
-
-
 class MyTMessage : public TMessage {
 
 public:

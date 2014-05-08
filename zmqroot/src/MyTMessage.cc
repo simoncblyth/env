@@ -1,10 +1,13 @@
 #include "MyTMessage.hh"
+
 #include <stdlib.h>
+#include <assert.h>
 
 
 TObject* MyTMessage::MyReadObject()
 {
    // reconstruct original object 
+   assert( this->What() == kMESS_OBJECT ); 
    return this->ReadObject(this->GetClass());
 }
 
@@ -24,4 +27,5 @@ void MyTMessage::CopyIntoArray( char* arr )
 
 MyTMessage::~MyTMessage()
 {
+   // no need to call base class dtor
 }

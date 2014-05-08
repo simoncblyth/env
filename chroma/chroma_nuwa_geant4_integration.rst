@@ -36,7 +36,6 @@ Handle Results from server
 #. 1st try dealing pulling back the propagated `ChromaPhotonList`
 
 
-
 NuWa/Geant4 Integration
 -------------------------
 
@@ -44,6 +43,12 @@ NuWa/Geant4 Integration
 
 
 * :doc:`/geant4/event/geant4_stackingaction`
+
+NuWa DetSim
+~~~~~~~~~~~~~
+
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Simulation/DetSim/src
+
 
 
 Where is DsOpStackAction hooked up in NuWa ?
@@ -72,6 +77,10 @@ GiGa hookup, `Simulation/DetSim/python/DetSim/OpStack.py`::
      90     opstack.TightCut = False
      91     opstack.PhotonCut = False
      92     opstack.MaxPhoton = 1e6
+
+
+
+
 
 
 
