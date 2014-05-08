@@ -20,36 +20,14 @@ FUNCTIONS
     zmqroot-build-full   # deletes build directory first 
 
 
-LIBRARY USAGE ISSUE
---------------------
+NuWa/CMT Integration
+-----------------------
 
-::
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/3734
 
-    (chroma_env)delta:LXe-build blyth$ ./LXe 
-    dyld: Library not loaded: libZMQRoot.dylib
-      Referenced from: /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe-build/./LXe
-      Reason: image not found
+Dictionary creation problems
 
-OSX 10.9.2 LD_LIBRARY_PATH not working::
-
-    (chroma_env)delta:LXe-build blyth$ LD_LIBRARY_PATH=/usr/local/env/zmqroot/lib ./LXe
-    dyld: Library not loaded: libZMQRoot.dylib
-      Referenced from: /usr/local/env/chroma_env/src/geant4.9.5.p01/examples/extended/optical/LXe-build/./LXe
-      Reason: image not found
-    Trace/BPT trap: 5
-
-Need DYLD_LIBRARY_PATH::
-
-    (chroma_env)delta:LXe-build blyth$ DYLD_LIBRARY_PATH=/usr/local/env/zmqroot/lib ./LXe
-
-    *************************************************************
-     Geant4 version Name: geant4-09-05-patch-01    (20-March-2012)
-    ...
-
-All other libs have a path, rather than just a name::
-
-    (chroma_env)delta:LXe-build blyth$ otool -L LXe | grep libZMQRoot
-        libZMQRoot.dylib (compatibility version 0.0.0, current version 0.0.0)
+TObject 
 
 
 
