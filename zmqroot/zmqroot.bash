@@ -118,3 +118,30 @@ zmqroot-otool(){
   otool-info $(zmqroot-lib)
 }
 
+
+
+
+
+zmqroot-nuwapkg(){    echo $DYB/NuWa-trunk/dybgaudi/Utilities/ZMQRoot ; }
+zmqroot-nuwapkg-cd(){ cd $(zmqroot-nuwapkg) ; }
+zmqroot-nuwapkg-copy-to(){
+
+   local pkg=$(zmqroot-nuwapkg) 
+   local nam=$(basename $pkg)
+   local inc=$pkg/$nam
+   local src=$pkg/src
+   
+   zmqroot-scd
+
+   cp include/ZMQRoot.hh    $inc/
+   cp include/MyTMessage.hh $inc/
+
+   cp src/ZMQRoot.cc        $src/
+   perl -pi -e 's,ZMQRoot.hh,ZMQRoot/ZMQRoot.hh,' $src/ZMQRoot.cc 
+   perl -pi -e 's,MyTMessage.hh,ZMQRoot/MyTMessage.hh,' $src/ZMQRoot.cc 
+
+   cp src/MyTMessage.cc     $src/
+   perl -pi -e 's,MyTMessage.hh,ZMQRoot/MyTMessage.hh,' $src/MyTMessage.cc 
+}
+
+

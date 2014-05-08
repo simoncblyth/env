@@ -1,6 +1,7 @@
 #include "ZMQRoot.hh"
 
 #include "TMessage.h"
+#include "MyTMessage.hh"
 #include <assert.h>
 
 #ifdef WITH_ZMQ
@@ -34,25 +35,28 @@ void ZMQRoot::SendObject(TObject* obj)
 #ifdef WITH_ZMQ
    assert( fRequester != NULL );
 
-   TMessage* tmsg = new TMessage(kMESS_OBJECT);
-   tmsg->WriteObject(obj);
+   TMessage tmsg(kMESS_OBJECT);
+   tmsg.WriteObject(obj);
 
-   char *buf     = tmsg->Buffer();
-   int   bufLen = tmsg->Length();  
+   char *buf     = tmsg.Buffer();
+   int   bufLen = tmsg.Length();  
 
-   int rc ; 
    zmq_msg_t zmsg;
-
+   int rc ; 
    rc = zmq_msg_init_size (&zmsg, bufLen);
    assert (rc == 0);
+   
    memcpy(zmq_msg_data (&zmsg), buf, bufLen );   // TODO : check for zero copy approaches
 
    rc = zmq_msg_send (&zmsg, fRequester, 0);
+   
    if (rc == -1) {
        int err = zmq_errno();
        printf ("Error occurred during zmq_msg_send : %s\n", zmq_strerror(err));
        abort (); 
    }
+  
+   zmq_msg_close (&zmsg); 
 
    printf( "ZMQRoot::SendObject sent bytes: %d \n", rc );   
 
@@ -83,9 +87,11 @@ TObject* ZMQRoot::ReceiveObject()
 
     printf("ZMQRoot::ReceiveObject received bytes: %zu \n", size );   
 
-    obj = DeSerialize( data, size ); 
+    MyTMessage tmsg( data , size ); 
 
-    zmq_msg_close (&msg);
+    zmq_msg_close (&msg);  
+
+    obj = tmsg.MyReadObject(); 
 
 #else
   printf( "ZMQRoot::SendObject need to compile -DWITH_ZMQ and have ZMQ external \n");   
