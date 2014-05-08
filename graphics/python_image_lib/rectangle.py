@@ -10,7 +10,7 @@ if __name__ == '__main__':
     img = Image.new('RGBA', (size[0], size[1]), (0, 0, 0, 0)) 
     draw = ImageDraw.Draw(img)
     draw.rectangle( [0,0] + size, fill=fill) 
-    img.save("rectangle.png")
+    img.save("/tmp/rectangle.png")
 
 
 

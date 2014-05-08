@@ -1426,3 +1426,4 @@ chromaphotonlist-(){      . $(env-home)/chroma/ChromaPhotonList/chromaphotonlist
 otool-(){      . $(env-home)/tools/otool.bash && otool-env $* ; }
 echoserver-(){      . $(env-home)/chroma/echoserver/echoserver.bash && echoserver-env $* ; }
 specrend-(){      . $(env-home)/graphics/color/specrend/specrend.bash && specrend-env $* ; }
+g4view-(){      . $(env-home)/geant4/g4view.bash && g4view-env $* ; }

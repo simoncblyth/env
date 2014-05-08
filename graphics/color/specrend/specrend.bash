@@ -12,6 +12,11 @@ From wavelength to RGB values
 
 * http://www.fourmilab.ch/documents/specrend/
 
+Others
+-------
+
+* http://codingmess.blogspot.tw/2009/05/conversion-of-wavelength-in-nanometers.html
+
 
 EOU
 }

@@ -13,8 +13,16 @@ See also *g4beta-*
 * http://geant4.cern.ch
 * http://geant4.web.cern.ch/geant4/support/download.shtml
 
+OSX Install Refs
+-----------------
+
+* https://halldweb1.jlab.org/wiki/index.php/HOWTO_build_and_install_GEANT4.10.00_on_OS_X
+* http://hypernews.slac.stanford.edu/HyperNews/geant4/get/installconfig/1607/1/1/1/1.html
+
+
 INSTALLS 
 ----------
+
 
 
 

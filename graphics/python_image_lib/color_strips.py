@@ -53,7 +53,7 @@ if __name__ == '__main__':
     pass
     cols = "lightblue red green blue cyan magenta yellow grey black white".split() 
     img = color_strips( cols, (400, 800))
-    img.save("color_strips.png")
+    img.save("/tmp/color_strips.png")
 
 
 
