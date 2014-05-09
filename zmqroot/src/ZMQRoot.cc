@@ -87,16 +87,23 @@ TObject* ZMQRoot::ReceiveObject()
 
     printf("ZMQRoot::ReceiveObject received bytes: %zu \n", size );   
 
-    MyTMessage tmsg( data , size ); 
+    
+   // looks like leaking a MyTMessage, but doing on stack gives 
+   // malloc: ... pointer being freed was not allocated
+   // at the end of this scope
+   //
+   MyTMessage* tmsg = new MyTMessage( data , size ); 
+
+    printf("ZMQRoot::ReceiveObject reading TObject from the TMessage \n");   
+    obj = tmsg->MyReadObject(); 
 
     zmq_msg_close (&msg);  
 
-    obj = tmsg.MyReadObject(); 
-
 #else
-  printf( "ZMQRoot::SendObject need to compile -DWITH_ZMQ and have ZMQ external \n");   
+    printf( "ZMQRoot::SendObject need to compile -DWITH_ZMQ and have ZMQ external \n");   
 #endif
     
+    printf("ZMQRoot::ReceiveObject returning TObject \n");   
     return obj ;
 }
 

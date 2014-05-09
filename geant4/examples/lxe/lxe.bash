@@ -135,7 +135,7 @@ lxe-env(){
        *) echo NO Geant4 INSTALL on $NODE_TAG ;; 
     esac
     zmqroot-
-    chromaphotonlist-
+    cpl-
 }
 lxe-env-D(){
     chroma-
@@ -209,7 +209,7 @@ lxe-libpathvar(){
 
 lxe-run-manual(){
    zmqroot-export
-   chromaphotonlist-export
+   cpl-export
    local libpathvar=$(lxe-libpathvar)
    local cmd="$libpathvar=${ZMQROOT_PREFIX}/lib:${CHROMAPHOTONLIST_PREFIX}/lib $(lxe-bin) $*"
    echo $cmd

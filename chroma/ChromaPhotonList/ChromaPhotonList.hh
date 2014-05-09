@@ -32,18 +32,25 @@ public:
 #ifdef WITH_GEANT4
   inline void AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid=-1); 
   void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const;
-  void Details() const ;
 #endif
+
+  void Details() const ;
+  void GetPhoton(size_t index, 
+                 float& _x,    float& _y, float& _z, 
+                 float& _px, float& _py, float& _pz, 
+                 float& _polx, float& _poly ,float& _polz, 
+                 float& _t, float& _wavelength, int& _pmtid ) const ;
 
   void ClearAll();
   void AddPhoton(float _x, float _y, float _z,  
-                        float _momx, float _momy, float _momz, 
+                        float _px, float _py, float _pz, 
                         float _polx, float _poly, float _polz, float _t, 
                         float _wavelength, int _pmtid=-1);
-  void FromArrays(float* _x,    float* _y,    float* _z,
-                  float* _px,   float* _py,   float* _pz,
-                  float* _polx, float* _poly, float* _polz,
-                  float* _t, float* _wavelength, int* _pmtid, int nphotons);
+
+  void FromArrays(float* __x,    float* __y,    float* __z,
+                  float* __px,   float* __py,   float* __pz,
+                  float* __polx, float* __poly, float* __polz,
+                  float* __t, float* __wavelength, int* __pmtid, int nphotons);
 
 
   std::vector<float> x;

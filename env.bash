@@ -1422,8 +1422,9 @@ numbers-(){      . $(env-home)/osx/numbers/numbers.bash && numbers-env $* ; }
 lxe-(){          . $(env-home)/geant4/examples/lxe/lxe.bash && lxe-env $* ; }
 
 zmqroot-(){      . $(env-home)/zmqroot/zmqroot.bash && zmqroot-env $* ; }
-chromaphotonlist-(){      . $(env-home)/chroma/ChromaPhotonList/chromaphotonlist.bash && chromaphotonlist-env $* ; }
+cpl-(){      . $(env-home)/chroma/ChromaPhotonList/cpl.bash && cpl-env $* ; }
 otool-(){      . $(env-home)/tools/otool.bash && otool-env $* ; }
 echoserver-(){      . $(env-home)/chroma/echoserver/echoserver.bash && echoserver-env $* ; }
 specrend-(){      . $(env-home)/graphics/color/specrend/specrend.bash && specrend-env $* ; }
 g4view-(){      . $(env-home)/geant4/g4view.bash && g4view-env $* ; }
+czrt-(){      . $(env-home)/chroma/ChromaZMQRootTest/czrt.bash && czrt-env $* ; }

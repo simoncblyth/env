@@ -171,3 +171,113 @@ Notable fragments::
 
 
 
+Code In Question
+------------------
+
+#. ZMQRoot,  simple SendObject/ReceiveObject API using TObject, but does not inherit from TObject
+#. MyTMessage, inherits from TMessage, has `ClassDef`, crucially needs introspection  
+
+
+
+
+
+
+CMT : Dict not being generated first 
+----------------------------------------------
+
+
+::
+
+    blyth@belle7 cmt]$ cmt show pattern reflex_dictionary          
+    # Reflex v1 defines pattern reflex_dictionary as
+      private 
+       document reflex_dictionary_generator "<dictionary>Gen" "<headerfiles>" "dictionary=<dictionary>" "libdirname=lib" 
+       library <dictionary>Dict "-import=<imports>" "-import=Reflex" "-s=../$(tag)/dict/<dictionary>" "*.cpp" 
+       macro <dictionary>_reflex_selection_file " <selectionfile> " 
+       macro <dictionary>_rootmap "$(<PACKAGE>ROOT)/$(tag)/<dictionary>Dict.rootmap" "<project>_with_installarea" "$(CMTINSTALLAREA)/$(tag)/lib/<project>Dict.rootmap" 
+       macro <dictionary>_reflex_options " <options> $(gccxmlopts) --select=<selectionfile>  --gccxmlpath=$(GCCXML_home)/bin" 
+       macro <dictionary>Dict_dependencies "$(<package>_linker_library) <dictionary>Gen" 
+       macro <dictionary>Dict_shlibflags "$(libraryshr_linkopts) $(cmt_installarea_linkopts) $(<package>_linkopts) $(<dictionary>Dict_use_linkopts) " 
+       end_private
+    # ZMQRoot v1 applies pattern reflex_dictionary => 
+    private 
+       document reflex_dictionary_generator ZMQRootGen ${ZMQROOTROOT}/dict/headers.h dictionary=ZMQRoot libdirname=lib 
+       library ZMQRootDict -import= -import=Reflex -s=../$(tag)/dict/ZMQRoot *.cpp 
+       macro ZMQRoot_reflex_selection_file  ${ZMQROOTROOT}/dict/classes.xml  
+       macro ZMQRoot_rootmap $(ZMQROOTROOT)/$(tag)/ZMQRootDict.rootmap dybgaudi_with_installarea $(CMTINSTALLAREA)/$(tag)/lib/dybgaudiDict.rootmap 
+       macro ZMQRoot_reflex_options   $(gccxmlopts) --select=${ZMQROOTROOT}/dict/classes.xml  --gccxmlpath=$(GCCXML_home)/bin 
+       macro ZMQRootDict_dependencies $(ZMQRoot_linker_library) ZMQRootGen 
+       macro ZMQRootDict_shlibflags $(libraryshr_linkopts) $(cmt_installarea_linkopts) $(ZMQRoot_linkopts) $(ZMQRootDict_use_linkopts)  
+       end_private
+    [blyth@belle7 cmt]$ 
+
+
+
+::
+
+ g++ \
+     -L/data1/env/local/dybx/NuWa-trunk/dybgaudi/InstallArea/i686-slc5-gcc41-dbg/lib \
+     -L/data1/env/local/dybx/NuWa-trunk/gaudi/InstallArea/i686-slc5-gcc41-dbg/lib \
+     -L/data1/env/local/dybx/NuWa-trunk/lhcb/InstallArea/i686-slc5-gcc41-dbg/lib  \
+      -L/data1/env/local/dybx/NuWa-trunk/relax/InstallArea/i686-slc5-gcc41-dbg/lib  \
+           -shared -m32 -o libZMQRootDict.so \
+          "headers_dict.o" -fPIC -ldl -Wl,--no-undefined -m32 \ 
+     -L/data1/env/local/dybx/NuWa-trunk/dybgaudi/InstallArea/i686-slc5-gcc41-dbg/lib \
+      -L/data1/env/local/dybx/NuWa-trunk/gaudi/InstallArea/i686-slc5-gcc41-dbg/lib \
+      -L/data1/env/local/dybx/NuWa-trunk/lhcb/InstallArea/i686-slc5-gcc41-dbg/lib \
+      -L/data1/env/local/dybx/NuWa-trunk/relax/InstallArea/i686-slc5-gcc41-dbg/lib \
+      -L/data1/env/local/dybx/NuWa-trunk/../external/ROOT/5.26.00e_python2.7/i686-slc5-gcc41-dbg/root/lib -lReflex \
+      -L/data1/env/local/dybx/NuWa-trunk/../external/ROOT/5.26.00e_python2.7/i686-slc5-gcc41-dbg/root/lib -lCore -lCint -lTree -lpthread -lRIO -lNet -lrt -lGpad -lHist -lPhysics -lGeom -lGraf -lGenVector -lMathCore -lNet \
+       -L/data1/env/local/dybx/NuWa-trunk/../external/ROOT/5.26.00e_python2.7/i686-slc5-gcc41-dbg/root/lib -lCore -lCint -lTree -lpthread -lRIO -lNet -lrt \
+        -L/data1/env/local/dybx/NuWa-trunk/../external/zmq/4.0.4/i686-slc5-gcc41-dbg/lib -lzmq
+
+
+
+
+
+::
+
+    [blyth@belle7 cmt]$ cmt show pattern rootcint_dictionary
+    # DybPolicy v0 defines pattern rootcint_dictionary as
+      public 
+       apply_pattern ld_library_path 
+       apply_pattern public_package_include 
+       private 
+       apply_pattern private_package_include 
+       macro <package>_rootmap "$(<PACKAGE>ROOT)/$(tag)/$(rootmap_name)" "<project>_with_installarea" "$(CMTINSTALLAREA)/$(tag)/lib/$(rootmap_name)" 
+       macro_append <package>_rootcint_source "../$(tag)/rootcint/*Dict.cc" 
+       macro rootcint_dict_suffix "Dict" 
+       macro <package>_rootcint_linkdef_file "<linkdeffile>" 
+       document rootcint_dictionary "<package>_cint" "<headerfiles>" 
+       document rootmap "<package>_rootmap" 
+       public 
+
+    [blyth@belle7 cmt]$ cmt show fragment rootcint_dictionary
+    ${DYBPOLICYROOT}/cmt/fragments/rootcint_dictionary
+
+    [blyth@belle7 cmt]$ cat ${DYBPOLICYROOT}/cmt/fragments/rootcint_dictionary
+    $(dictdir)/${CONSTITUENT}.rootcint_dictionary : $(dictdir)/${CONSTITUENT}Dict.cpp
+        @echo $@
+
+    gensrcdict=$(dictdir)/${CONSTITUENT}Dict.cc
+
+
+    ${CONSTITUENT} ::  $(gensrcdict)
+        @:
+
+
+    $(gensrcdict) : ${FULLNAME}
+        @echo Generating ROOT Dictionary $@ 
+        @-mkdir -p $(dictdir) 
+        $(rootcint) -f $(dictdir)/${CONSTITUENT}Dict.cc -c \
+                       ${${package}_cintflags} $(pp_cppflags) \
+               $(includes) $(use_pp_cppflags) ${FULLNAME} \
+               $(${package}_rootcint_linkdef_file)
+
+
+
+    [blyth@belle7 cmt]$ 
+
+
+
+

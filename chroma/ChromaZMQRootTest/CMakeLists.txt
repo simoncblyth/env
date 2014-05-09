@@ -32,5 +32,5 @@ target_link_libraries( ${name}
                        ${ROOT_LIBRARIES}
                       )
 
-
+install(TARGETS ${name} DESTINATION bin)
 

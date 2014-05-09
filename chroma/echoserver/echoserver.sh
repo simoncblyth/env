@@ -5,8 +5,8 @@ chroma-
 zmqroot-
 zmqroot-export
 
-chromaphotonlist-
-chromaphotonlist-export
+cpl-
+cpl-export
 
 echoserver-
 echoserver-export

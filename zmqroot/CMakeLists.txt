@@ -29,6 +29,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
 
 include(EnvBuildOptions)   # RPATH settings
 
+
+add_definitions( "-DWITH_ZMQ" )
+
 # do not "link_directories" more that necessary,
 # with ROOT_LIBRARY_DIR present results in a cmake rpath bug, 
 # causing install_name_tool corruption at install, see `cmake-`
@@ -44,6 +47,16 @@ ROOT_GENERATE_DICTIONARY( "MyTMessageDict"
                           LINKDEF 
                           "${CMAKE_CURRENT_SOURCE_DIR}/include/MyTMessage_LinkDef.h"       
                           OPTIONS -p )
+
+
+#  needs gccxml
+#REFLEX_GENERATE_DICTIONARY( "MyTMessageDict"
+#                            "${CMAKE_CURRENT_SOURCE_DIR}/include/MyTMessage.hh"      
+#                            SELECTION
+#                            "${CMAKE_CURRENT_SOURCE_DIR}/dict/classes.xml"      
+#                         )
+
+
 
 file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc  ) 
 list(APPEND sources MyTMessageDict.cxx )  
