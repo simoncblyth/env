@@ -1,4 +1,4 @@
-#include "DsOpStackAction.h"
+#include "DsChromaStackAction.h"
 
 #include "DetDesc/IPVolume.h"
 #include "DetHelpers/ICoordSysSvc.h"
@@ -16,9 +16,9 @@
 #include <G4ParticleTypes.hh>
 #include <G4Track.hh>
 
-DECLARE_TOOL_FACTORY(DsOpStackAction);
+DECLARE_TOOL_FACTORY(DsChromaStackAction);
 
-DsOpStackAction::DsOpStackAction ( const std::string& type   , 
+DsChromaStackAction::DsChromaStackAction ( const std::string& type   , 
 				   const std::string& name   , 
 				   const IInterface*  parent ) 
   : GiGaStackActionBase( type, name, parent ) ,
@@ -34,9 +34,9 @@ DsOpStackAction::DsOpStackAction ( const std::string& type   ,
 }
 
 
-StatusCode DsOpStackAction::initialize() 
+StatusCode DsChromaStackAction::initialize() 
 {
-  info() << "DsOpStackAction::initialize()" << endreq;
+  info() << "DsChromaStackAction::initialize()" << endreq;
   
   StatusCode sc = GiGaStackActionBase::initialize();
   if (sc.isFailure()) return sc;
@@ -49,16 +49,16 @@ StatusCode DsOpStackAction::initialize()
   return StatusCode::SUCCESS; 
 }
 
-StatusCode DsOpStackAction::finalize() 
+StatusCode DsChromaStackAction::finalize() 
 {
-  info() << "DsOpStackAction::finalize()" << endreq;
+  info() << "DsChromaStackAction::finalize()" << endreq;
   neutronList.clear();  
   return  GiGaStackActionBase::finalize();
 }
 
 //--------------------------------------------------------------------------
 
-G4ClassificationOfNewTrack DsOpStackAction::ClassifyNewTrack (const G4Track* aTrack) 
+G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track* aTrack) 
 {
   G4ClassificationOfNewTrack classification = fUrgent;
 
@@ -99,7 +99,7 @@ G4ClassificationOfNewTrack DsOpStackAction::ClassifyNewTrack (const G4Track* aTr
 
                   if(is_neutron){
                       NeutronNumbers++;
-                      break
+                      break ;
                   }
 
                   if( !is_optical ) 
@@ -144,7 +144,7 @@ G4ClassificationOfNewTrack DsOpStackAction::ClassifyNewTrack (const G4Track* aTr
 //------------propogate optical photons otherwise ------------------
 //-------------------------------------------------------------------
 
-void DsOpStackAction::NewStage()
+void DsChromaStackAction::NewStage()
 {
 
   info()<< " StackingAction::NewStage! "<<endreq;
@@ -181,7 +181,7 @@ void DsOpStackAction::NewStage()
 
 
 //----------------------Reset -----------------------------------
-void DsOpStackAction::PrepareNewEvent()
+void DsChromaStackAction::PrepareNewEvent()
 {
   info()<< " StackingAction::PrepareNewEvent! "<<endreq;
   interestingEvt=false;
@@ -193,7 +193,7 @@ void DsOpStackAction::PrepareNewEvent()
 
 //-----------------If the Gamma neutron's daughter ? ---------------------
 
-G4bool DsOpStackAction::IsNeutronDaughter(const G4int id, const vector<G4int> aList)
+G4bool DsChromaStackAction::IsNeutronDaughter(const G4int id, const vector<G4int> aList)
 {
   //check if the gamma is the daughter of neutrons.
   G4bool isDaughter(false);
@@ -209,14 +209,14 @@ G4bool DsOpStackAction::IsNeutronDaughter(const G4int id, const vector<G4int> aL
 
 // ------------- If the neutron been captured in the AD ? -------------------
 
-G4bool DsOpStackAction::IsRelevantNeutronDaughter(const G4Track* aTrack)
+G4bool DsChromaStackAction::IsRelevantNeutronDaughter(const G4Track* aTrack)
 {
   G4int trkID=aTrack->GetParentID(); 
   return IsNeutronDaughter(trkID, neutronList) && IsRelevant(aTrack) ;
 }
 
 
-G4bool DsOpStackAction::IsRelevant(const G4Track* aTrack)  // original PossibleInterestingTrack
+G4bool DsChromaStackAction::IsRelevant(const G4Track* aTrack)  // original PossibleInterestingTrack
 {
   IDetectorElement *de;
   Gaudi::XYZPoint gp(aTrack->GetPosition().x(),aTrack->GetPosition().y(),aTrack->GetPosition().z());

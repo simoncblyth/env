@@ -126,6 +126,7 @@ cpl-otool(){
 
 
 cpl-nuwapkg(){    echo $DYB/NuWa-trunk/dybgaudi/Utilities/Chroma ; }  
+cpl-nuwapkg-cd(){ cd $(cpl-nuwapkg) ; }
 cpl-nuwapkg-cpto(){
 
    local pkg=$(cpl-nuwapkg)   

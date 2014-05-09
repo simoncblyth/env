@@ -140,12 +140,16 @@ czrt-otool(){
 }
 
 czrt-nuwapkg(){    echo $DYB/NuWa-trunk/dybgaudi/Utilities/$(czrt-name) ; }  
+czrt-nuwapkg-cd(){ cd $(czrt-nuwapkg) ; }
 czrt-nuwapkg-cpto(){
 
    local pkg=$(czrt-nuwapkg)   
    local nam=$(basename $pkg)
    local inc=$pkg/$nam
    local src=$pkg/src
+
+   mkdir -p $pkg
+   mkdir -p $pkg/src
   
    local iwd=$PWD 
    czrt-scd

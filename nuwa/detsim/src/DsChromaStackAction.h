@@ -1,5 +1,5 @@
-#ifndef DSCHROMAOPSTACKACTION_H
-#define DSCHROMAOPSTACKACTION_H 1
+#ifndef DSCHROMASTACKACTION_H
+#define DSCHROMASTACKACTION_H 1
 
 #include "globals.hh"
 #include <iostream>
@@ -25,12 +25,12 @@ class ICoordSysSvc;
 
 using namespace std;
 
-class DsChromaOpStackAction :  public GiGaStackActionBase
+class DsChromaStackAction :  public GiGaStackActionBase
 {
   public:
 
-  DsChromaOpStackAction( const std::string& type ,  const std::string& name , const IInterface*  parent ) ;
-  virtual ~DsChromaOpStackAction() {};
+  DsChromaStackAction( const std::string& type ,  const std::string& name , const IInterface*  parent ) ;
+  virtual ~DsChromaStackAction() {};
   
   virtual StatusCode         initialize () ; 
   virtual StatusCode         finalize   () ;

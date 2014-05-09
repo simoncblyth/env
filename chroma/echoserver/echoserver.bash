@@ -17,7 +17,7 @@ echoserver-sdir(){ echo $(env-home)/chroma/echoserver ; }
 echoserver-cd(){  cd $(echoserver-dir); }
 echoserver-scd(){  cd $(echoserver-sdir); }
 
-echoserver-name(){ echo echoserver ; }
+echoserver-name(){ echo ZMQEchoServer ; }
 echoserver-bin(){ echo /tmp/$(echoserver-name) ; }
 
 echoserver-make(){
@@ -39,7 +39,7 @@ echoserver-export(){
    export ECHO_SERVER_CONFIG=$(echoserver-config) 
 }
 
-echoserver-run-Linux(){ LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(zeromq-echoserver-config) $(echoserver-bin) ; } 
+echoserver-run-Linux(){ LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib ECHO_SERVER_CONFIG=$(echoserver-config) $(echoserver-bin) ; } 
 echoserver-run-Darwin(){  echoserver-export ; $(echoserver-bin) ; } 
 echoserver-run(){ $FUNCNAME-$(uname) ; } 
 
@@ -51,6 +51,15 @@ echoserver-gdb(){
   LD_LIBRARY_PATH=$ZEROMQ_PREFIX/lib gdb /tmp/echoserver 
 }
 
+echoserver-nuwapkg(){ echo $DYB/NuWa-trunk/dybgaudi/Utilities/ChromaZMQRootTest ; }  
+echoserver-nuwapkg-cd(){ cd $(echoserver-nuwapkg) ; }
+echoserver-nuwapkg-cpto(){
+   local iwd=$PWD
 
+   local src=$(echoserver-nuwapkg)/src 
+   cp $(echoserver-name).c $src/
+
+   cd $iwd 
+}
 
 

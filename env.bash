@@ -1428,3 +1428,4 @@ echoserver-(){      . $(env-home)/chroma/echoserver/echoserver.bash && echoserve
 specrend-(){      . $(env-home)/graphics/color/specrend/specrend.bash && specrend-env $* ; }
 g4view-(){      . $(env-home)/geant4/g4view.bash && g4view-env $* ; }
 czrt-(){      . $(env-home)/chroma/ChromaZMQRootTest/czrt.bash && czrt-env $* ; }
+csa-(){      . $(env-home)/nuwa/detsim/csa.bash && csa-env $* ; }
