@@ -1,6 +1,29 @@
 NuWa CMT Debugging
 ====================
 
+CMT refs : for rootcint/reflex woes 
+--------------------------------------------
+
+* https://savannah.cern.ch/bugs/index.php?52581
+* http://root.cern.ch/root/roottalk/roottalk09/1130.html
+* http://root.cern.ch/root/roottalk/roottalk10/1259.html
+* http://lhcb-comp.web.cern.ch/lhcb-comp/support/CMT/CMT_SCRAM_21.htm
+* http://cms02.phys.ntu.edu.tw/tracs/env/browser/trunk/eve/SplitGLView/cmt/requirements?rev=1612
+* https://wiki.bnl.gov/dayabay/index.php?title=Component_and_Linker_Libraries
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/562
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/771 DBI from rootcint to reflex
+* https://wiki.bnl.gov/dayabay/index.php?title=Installing_Optional_External_Packages
+* https://wiki.bnl.gov/dayabay/index.php?title=GaudiObjDesc  tip about linking to generated Dict libs
+
+
+
+
+
+Fragment Analysis
+-------------------
+
+
+
 * https://halldweb1.jlab.org/wiki/index.php/Serializing_and_deserializing_root_objects
 
 ::
