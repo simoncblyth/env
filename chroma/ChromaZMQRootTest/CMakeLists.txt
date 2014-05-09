@@ -14,7 +14,7 @@ find_package(Root REQUIRED)
 
 include(EnvBuildOptions)
 
-add_definitions( "-DWITH_ZMQ" )
+#add_definitions( "-DWITH_ZMQ" )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CHROMAPHOTONLIST_INCLUDE_DIR}

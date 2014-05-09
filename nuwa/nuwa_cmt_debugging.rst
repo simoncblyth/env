@@ -12,10 +12,14 @@ CMT refs : for rootcint/reflex woes
 * https://wiki.bnl.gov/dayabay/index.php?title=Component_and_Linker_Libraries
 * http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/562
 * http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/771 DBI from rootcint to reflex
-* https://wiki.bnl.gov/dayabay/index.php?title=Installing_Optional_External_Packages
 * https://wiki.bnl.gov/dayabay/index.php?title=GaudiObjDesc  tip about linking to generated Dict libs
 
 
+CMT Optional Dependencies, env setup
+--------------------------------------
+
+* https://wiki.bnl.gov/dayabay/index.php?title=Installing_Optional_External_Packages
+* https://wiki.bnl.gov/dayabay/index.php?title=CMTHOME_and_CMTUSERCONTEXT
 
 
 
