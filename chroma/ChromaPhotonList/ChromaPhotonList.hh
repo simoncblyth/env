@@ -15,87 +15,36 @@
 #define __ChromaPhotonList__
 
 #include <TObject.h>
-#include <G4ThreeVector.hh>
 #include <vector>
 
+#ifdef WITH_GEANT4
+#include <G4ThreeVector.hh>
+#endif
+
+
 class ChromaPhotonList : public TObject {
+
 public:
   ChromaPhotonList();
-
   virtual ~ChromaPhotonList();
+  void Print(Option_t* option = "") const ; 
 
-  inline void AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid=-1) {
-    x.push_back(pos.x());
-    y.push_back(pos.y());
-    z.push_back(pos.z());
-    px.push_back(mom.x());
-    py.push_back(mom.y());
-    pz.push_back(mom.z());
-    polx.push_back(pol.x());
-    poly.push_back(pol.y());
-    polz.push_back(pol.z());
-    t.push_back(_t);
-    wavelength.push_back(_wavelength);
-    pmtid.push_back(_pmtid);
-  }
-
-
-  inline void AddPhoton(float _x, float _y, float _z,  float _momx, float _momy, float _momz, float _polx, float _poly, float _polz, float _t, float _wavelength, int _pmtid=-1) {
-    x.push_back(_x);
-    y.push_back(_y);
-    z.push_back(_z);
-    px.push_back(_momx);
-    py.push_back(_momy);
-    pz.push_back(_momz);
-    polx.push_back(_polx);
-    poly.push_back(_poly);
-    polz.push_back(_polz);
-    t.push_back(_t);
-    wavelength.push_back(_wavelength);
-    pmtid.push_back(_pmtid);
-  }
-
-
-
+#ifdef WITH_GEANT4
+  inline void AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid=-1); 
   void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const;
+  void Details() const ;
+#endif
 
-
-
-  void ClearAll() {
-    x.clear();
-    y.clear();
-    z.clear();
-    px.clear();
-    py.clear();
-    pz.clear();
-    polx.clear();
-    poly.clear();
-    polz.clear();
-    t.clear();
-    wavelength.clear();
-    pmtid.clear();
-  }
-
-  // Build a ChromaPhotonList object from C arrays
+  void ClearAll();
+  inline void AddPhoton(float _x, float _y, float _z,  
+                        float _momx, float _momy, float _momz, 
+                        float _polx, float _poly, float _polz, float _t, 
+                        float _wavelength, int _pmtid=-1);
   void FromArrays(float* _x,    float* _y,    float* _z,
                   float* _px,   float* _py,   float* _pz,
                   float* _polx, float* _poly, float* _polz,
-                  float* _t, float* _wavelength, int* _pmtid, int nphotons) {
-    for (int i=0; i<nphotons; i++) { 
-      x.push_back(_x[i]);
-      y.push_back(_y[i]);
-      z.push_back(_z[i]);
-      px.push_back(_px[i]);
-      py.push_back(_py[i]);
-      pz.push_back(_pz[i]);
-      polx.push_back(_polx[i]);
-      poly.push_back(_poly[i]);
-      polz.push_back(_polz[i]);
-      t.push_back(_t[i]);
-      wavelength.push_back(_wavelength[i]);
-      pmtid.push_back(_pmtid[i]);
-    }
-  }
+                  float* _t, float* _wavelength, int* _pmtid, int nphotons);
+
 
   std::vector<float> x;
   std::vector<float> y;
@@ -109,10 +58,6 @@ public:
   std::vector<float> t;
   std::vector<float> wavelength;
   std::vector<int> pmtid;
-
-
-  void Print(Option_t* option = "") const ; 
-  void Details() const ;
 
 
   ClassDef(ChromaPhotonList, 1);

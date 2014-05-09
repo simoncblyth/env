@@ -121,8 +121,28 @@ chromaphotonlist-otool(){
 }
 
 
+chromaphotonlist-nuwapkg(){    echo $DYB/NuWa-trunk/dybgaudi/Utilities/Chroma ; }  
+chromaphotonlist-nuwapkg-cpto(){
+
+   local pkg=$(chromaphotonlist-nuwapkg)   
+   local nam=$(basename $pkg)
+   local inc=$pkg/$nam
+   local src=$pkg/src
+   local dict=$pkg/dict
+  
+   local iwd=$PWD 
+   chromaphotonlist-scd
+
+   cp ChromaPhotonList.hh    $inc/
+   cp ChromaPhotonList.cc    $src/
+   cp ChromaPhotonList_LinkDef.h $dict/
+
+   perl -pi -e 's,ChromaPhotonList.hh,Chroma/ChromaPhotonList.hh,' $src/ChromaPhotonList.cc 
 
 
+   cd $iwd
+
+}
 
 
 
