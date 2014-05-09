@@ -1,6 +1,6 @@
 #include "ChromaPhotonList.hh"
 #include "assert.h"
-
+#include <iostream>
 
 ChromaPhotonList::ChromaPhotonList() : TObject() {
 }
@@ -11,12 +11,12 @@ ChromaPhotonList::~ChromaPhotonList() {
 
 void ChromaPhotonList::Print(Option_t* option) const 
 {
-    std::cout <<  "ChromaPhotonList::Print [" << x.size() << "]" << std::endl ;    
+    std::cout <<  "ChromaPhotonList::Print " << option << " [" << x.size() << "]" << std::endl ;    
 } 
 
 
 #ifdef WITH_GEANT4
-void ChromaPhotonList::AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid=-1) 
+void ChromaPhotonList::AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid) 
 {
     x.push_back(pos.x());
     y.push_back(pos.y());
@@ -34,7 +34,7 @@ void ChromaPhotonList::AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVe
 #endif
 
 
-void ChromaPhotonList::AddPhoton(float _x, float _y, float _z,  float _momx, float _momy, float _momz, float _polx, float _poly, float _polz, float _t, float _wavelength, int _pmtid=-1) 
+void ChromaPhotonList::AddPhoton(float _x, float _y, float _z,  float _momx, float _momy, float _momz, float _polx, float _poly, float _polz, float _t, float _wavelength, int _pmtid) 
 {
     x.push_back(_x);
     y.push_back(_y);
