@@ -92,16 +92,20 @@ chromaphotonlist-wipe(){
 }
 chromaphotonlist-cmake(){
    type $FUNCNAME
+   local iwd=$PWD
    mkdir -p $(chromaphotonlist-bdir)   
    chromaphotonlist-bcd
    cmake -DGeant4_DIR=$(chromaphotonlist-geant4-dir) \
          -DCMAKE_INSTALL_PREFIX=$(chromaphotonlist-prefix) \
          $(chromaphotonlist-sdir) 
 
+   cd $iwd
 }
 chromaphotonlist-make(){
+   local iwd=$PWD
    chromaphotonlist-bcd
    make $* VERBOSE=$(chromaphotonlist-verbose) 
+   cd $iwd
 }
 chromaphotonlist-install(){
    chromaphotonlist-make install
@@ -141,7 +145,6 @@ chromaphotonlist-nuwapkg-cpto(){
 
 
    cd $iwd
-
 }
 
 

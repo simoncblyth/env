@@ -36,7 +36,7 @@ public:
 #endif
 
   void ClearAll();
-  inline void AddPhoton(float _x, float _y, float _z,  
+  void AddPhoton(float _x, float _y, float _z,  
                         float _momx, float _momy, float _momz, 
                         float _polx, float _poly, float _polz, float _t, 
                         float _wavelength, int _pmtid=-1);
