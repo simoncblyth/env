@@ -93,7 +93,7 @@ zmq-cc-build(){
 
 zmq-frontend-port(){ echo 5001 ; }
 zmq-backend-port(){  echo 5002 ; }
-zmq-broker-host(){ echo localhost ; }
+zmq-broker-host(){ echo ${ZMQ_BROKER_HOST:-localhost} ; }
 
 zmq-broker(){ FRONTEND=tcp://*:$(zmq-frontend-port) BACKEND=tcp://*:$(zmq-backend-port) $(zmq-bin zmq_broker) ; }
 zmq-client(){ FRONTEND=tcp://$(zmq-broker-host):$(zmq-frontend-port) $(zmq-bin zmq_client) ; }
