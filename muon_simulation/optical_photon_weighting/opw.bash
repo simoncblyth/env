@@ -26,12 +26,16 @@ FUNCTIONS
     Profile running using Google perftools 
     http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html
 
-
+*opw-sim*
+    Create output directory structure and generate no argument opw-sim.py 
+    script into it 
 
 
 EOU
 }
 opw-dir(){ echo $(local-base)/env/muon_simulation/optical_photon_weighting/OPW ; }
+opw-cd(){  cd $(opw-dir); }
+opw-mate(){ mate $(opw-dir) ; }
 
 opw-env(){     
     elocal- ; 
@@ -43,8 +47,6 @@ opw-env(){
     export PYTHONPATH=$(opw-dir):$PYTHONPATH
 }
 
-opw-cd(){  cd $(opw-dir); }
-opw-mate(){ mate $(opw-dir) ; }
 opw-get(){
     local dir=$(dirname $(opw-dir)) &&  mkdir -p $dir && cd $dir
     local nam=$(basename $(opw-dir))
@@ -195,6 +197,11 @@ opw-sim-args(){ cat << EOA
         --adWeights=[1,100,100]
 
 EOA
+}
+
+
+opw-chroma(){
+    nuwa.py -n 1 -m "fmcpmuon --chroma"
 }
 
 

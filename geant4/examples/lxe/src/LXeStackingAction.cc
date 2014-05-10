@@ -75,7 +75,14 @@ void LXeStackingAction::CollectPhoton(const G4Track* aPhoton )
    float time = aPhoton->GetGlobalTime()/ns ;
    float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
 
-   fPhotonList->AddPhoton( pos, dir, pol, time, wavelength );
+   //fPhotonList->AddPhoton( pos, dir, pol, time, wavelength );
+   fPhotonList->AddPhoton( 
+              pos.x(), pos.y(), pos.z(), 
+              dir.x(), dir.y(), dir.z(), 
+              pol.x(), pol.y(), pol.z(), 
+              time, 
+              wavelength );
+
    fPhotonList->Print();
 #endif
 }

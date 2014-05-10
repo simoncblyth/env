@@ -23,6 +23,10 @@ class G4Track;
 class IGeometryInfo;
 class ICoordSysSvc;
 
+class ZMQRoot ; 
+class ChromaPhotonList ;
+
+
 using namespace std;
 
 class DsChromaStackAction :  public GiGaStackActionBase
@@ -41,6 +45,8 @@ class DsChromaStackAction :  public GiGaStackActionBase
     virtual void NewStage();
     virtual void PrepareNewEvent();
 
+    virtual void CollectPhoton(const G4Track* aPhoton );
+
     virtual G4bool    IsNeutronDaughter(const G4int id, const vector<G4int> aList);
     virtual G4bool    IsRelevantNeutronDaughter(const G4Track* aTrack);
     virtual G4bool    IsRelevant(const G4Track* aTrack);
@@ -53,7 +59,6 @@ class DsChromaStackAction :  public GiGaStackActionBase
     G4bool interestingEvt;    //    Is this event a possible background event? 
 
     std::vector<G4int> neutronList;
-
 
     // background selection property.
     G4bool m_tightCut;
@@ -70,6 +75,17 @@ class DsChromaStackAction :  public GiGaStackActionBase
     ICoordSysSvc* m_csvc;
     
     //    std::string              m_VertexSelection;
+
+    // ZeroMQ network socket utility 
+    ZMQRoot* fZMQRoot ; 
+
+    // transport ready TObject 
+    ChromaPhotonList* fPhotonList ; 
+
+    // test receiving object from remote zmq server
+    ChromaPhotonList* fPhotonList2 ; 
+
+
   
 };
 

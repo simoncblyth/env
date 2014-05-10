@@ -20,7 +20,7 @@ csa-get(){
 }
 
 csa-nuwapkg(){ echo $DYB/NuWa-trunk/dybgaudi/Simulation/DetSimChroma ; }
-csa-nuwapkg-cd(){ cd $(csa-nuwapkg) ; }
+csa-nuwapkg-cd(){ cd $(csa-nuwapkg)/$1 ; }
 csa-nuwapkg-cpto(){ 
    local iwd=$PWD 
    local pkg=$(csa-nuwapkg)
@@ -31,7 +31,44 @@ csa-nuwapkg-cpto(){
    cp src/$nam.h  $pkg/src/
    cp src/$nam.cc $pkg/src/
 
+   perl -pi -e 's,ChromaPhotonList.hh,Chroma/ChromaPhotonList.hh,' $pkg/src/$nam.cc
+   perl -pi -e 's,ZMQRoot.hh,ZMQRoot/ZMQRoot.hh,'                  $pkg/src/$nam.cc
+
    cd $iwd
 }   
 
+csa-nuwacfg(){
+   local msg="=== $FUNCNAME :"
+   local pkg=$1
+   [ ! -d "$pkg/cmt" ] && echo ERROR NO cmt SUBDIR && sleep 1000000
+   local iwd=$PWD
+
+   echo $msg for pkg $pkg
+   cd $pkg/cmt
+
+   cmt config
+   . setup.sh 
+
+   cd $iwd
+}
+
+csa-nuwaenv(){
+
+   zmqroot-
+   csa-nuwacfg $(zmqroot-nuwapkg)
+
+   cpl- 
+   csa-nuwacfg $(cpl-nuwapkg)
+
+   csa-
+   csa-nuwacfg $(csa-nuwapkg)
+
+}
+
+csa-nuwarun(){
+
+   #nuwa.py -n 1 -m "fmcpmuon --chroma --machinerytest"
+   nuwa.py -n 1 -m "fmcpmuon --chroma"
+
+}
 

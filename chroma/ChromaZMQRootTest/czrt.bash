@@ -53,6 +53,35 @@ get **pointer being freed was not allocated**
 
 
 
+Running Echoserver
+-------------------
+
+::
+
+    [blyth@belle7 cmt]$ czrt-nuwapkg-testserver
+    === nuwacmt-config : for pkg /data1/env/local/dyb/NuWa-trunk/dybgaudi/Utilities/ChromaZMQRootTest
+    Removing all previous make fragments from i686-slc5-gcc41-dbg
+    Creating setup scripts.
+    Creating cleanup scripts.
+    ZMQEchoServer.exe
+    do_bind tcp://*:5555 
+    do_receive zmq_msg_recv waiting... 
+    do_receive got bytes:5947945 
+    do_send... sending msg of  5947945 bytes 
+    do_send... queued  5947945 bytes 
+    do_receive zmq_msg_recv waiting... 
+    do_receive got bytes:5947945 
+    do_send... sending msg of  5947945 bytes 
+    do_send... queued  5947945 bytes 
+    do_receive zmq_msg_recv waiting... 
+
+
+
+
+
+
+
+
 EOU
 }
 czrt-cd(){  cd $(czrt-dir); }
@@ -140,7 +169,7 @@ czrt-otool(){
 }
 
 czrt-nuwapkg(){    echo $DYB/NuWa-trunk/dybgaudi/Utilities/$(czrt-name) ; }  
-czrt-nuwapkg-cd(){ cd $(czrt-nuwapkg) ; }
+czrt-nuwapkg-cd(){ cd $(czrt-nuwapkg)/$1 ; }
 czrt-nuwapkg-cpto(){
 
    local pkg=$(czrt-nuwapkg)   
@@ -164,8 +193,36 @@ czrt-nuwapkg-cpto(){
    cd $iwd
 }
 
+czrt-nuwapkg-env(){
+   local iwd=$PWD
+
+   fenv            # implicit assumption that fast env matches the DYB-installation
+   nuwacmt-
+   nuwacmt-config $(czrt-nuwapkg)
+
+   cd $iwd 
+}
+
+czrt-nuwapkg-build(){
+
+   czrt-nuwapkg-env 
+   czrt-nuwapkg-cd cmt
+   
+   cmt make  
+}
 
 
+# TODO bring echoserver code into czrt folder
+czrt-nuwapkg-testserver(){ echoserver- ; czrt-nuwapkg-run $(echoserver-name) $* ; }
+czrt-nuwapkg-testclient(){               czrt-nuwapkg-run $(czrt-name)       $* ; }
+czrt-nuwapkg-run(){
+   local app=$1
+   shift
+   czrt-nuwapkg-env
+   local cmd="$* $app.exe"    # allow environment override 
+   echo $cmd
+   eval $cmd
+}
 
 
 

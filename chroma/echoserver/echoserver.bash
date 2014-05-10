@@ -62,4 +62,22 @@ echoserver-nuwapkg-cpto(){
    cd $iwd 
 }
 
+echoserver-nuwaenv(){
+   local iwd=$PWD
+
+   fenv            # implicit assumption that fast env matches the DYB-installation
+   nuwacmt-
+   nuwacmt-config $(echoserver-nuwapkg)
+
+   cd $iwd 
+}
+
+
+echoserver-nuwarun(){
+   echoserver-nuwaenv
+
+   local cmd="$(echoserver-name).exe"
+   echo $cmd
+   eval $cmd
+}
 

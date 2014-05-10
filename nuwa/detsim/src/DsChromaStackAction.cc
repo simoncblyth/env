@@ -16,6 +16,12 @@
 #include <G4ParticleTypes.hh>
 #include <G4Track.hh>
 
+#ifdef WITH_CHROMA_ZMQ
+#include "ChromaPhotonList.hh"
+#include "ZMQRoot.hh"
+#endif
+
+
 DECLARE_TOOL_FACTORY(DsChromaStackAction);
 
 DsChromaStackAction::DsChromaStackAction ( const std::string& type   , 
@@ -26,11 +32,15 @@ DsChromaStackAction::DsChromaStackAction ( const std::string& type   ,
     PhotonNumbers(0),
     NeutronNumbers(0),
     interestingEvt(false),
-    m_csvc(0)
+    m_csvc(0),
+    fZMQRoot(0),
+    fPhotonList(0),
+    fPhotonList2(0)
 { 
     declareProperty("TightCut",m_tightCut = false, " cut to select Neutron only event in the AD.");
     declareProperty("PhotonCut",m_photonCut = false, " Kill all the optical photons in the process.");
     declareProperty("MaxPhoton",m_maxPhoton = 1e6, " Max number of photons to be hold.");
+
 }
 
 
@@ -40,11 +50,17 @@ StatusCode DsChromaStackAction::initialize()
   
   StatusCode sc = GiGaStackActionBase::initialize();
   if (sc.isFailure()) return sc;
- 
+
+
   if ( service("CoordSysSvc", m_csvc).isFailure()) {
     error() << " No CoordSysSvc available." << endreq;
     return StatusCode::FAILURE;
   }
+
+#ifdef WITH_CHROMA_ZMQ
+  fPhotonList = new ChromaPhotonList ;   
+  fZMQRoot = new ZMQRoot("CSA_CLIENT_CONFIG") ; 
+#endif
   
   return StatusCode::SUCCESS; 
 }
@@ -53,8 +69,42 @@ StatusCode DsChromaStackAction::finalize()
 {
   info() << "DsChromaStackAction::finalize()" << endreq;
   neutronList.clear();  
+
+#ifdef WITH_CHROMA_ZMQ
+  if(fPhotonList2) delete fPhotonList2 ; 
+  delete fPhotonList ;
+  delete fZMQRoot ;
+#endif
+
   return  GiGaStackActionBase::finalize();
 }
+
+
+void DsChromaStackAction::CollectPhoton(const G4Track* aPhoton )
+{
+#ifdef WITH_CHROMA_ZMQ
+   G4ParticleDefinition* pd = aPhoton->GetDefinition();
+   assert( pd->GetParticleName() == "opticalphoton" );
+
+   G4ThreeVector pos = aPhoton->GetPosition()/mm ;
+   G4ThreeVector dir = aPhoton->GetMomentumDirection() ;
+   G4ThreeVector pol = aPhoton->GetPolarization() ;
+   float time = aPhoton->GetGlobalTime()/ns ;
+   float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
+
+   //fPhotonList->AddPhoton( pos, dir, pol, time, wavelength );
+   // more appropriate for transport class to have a minimum of dependencies
+   fPhotonList->AddPhoton( 
+              pos.x(), pos.y(), pos.z(),
+              dir.x(), dir.y(), dir.z(),
+              pol.x(), pol.y(), pol.z(), 
+              time, 
+              wavelength );
+
+   fPhotonList->Print();
+#endif
+}
+
 
 //--------------------------------------------------------------------------
 
@@ -72,6 +122,13 @@ G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track*
   G4bool is_direct  = trackid - parentid == 1 ;
   G4bool is_secondary = parentid > 0 ; 
 
+  //
+  // below "logic" (including repetitions) is a slavish copy of predecessor code
+  // but expressed in a much more compact manner
+  //
+  // TODO: translate below highly break-able code into something more reasonable
+  //
+  
   switch(stage)
     {
     case 0: 
@@ -115,6 +172,9 @@ G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track*
           } else {         // optical  
 	
 	          PhotonNumbers++;
+
+              CollectPhoton( aTrack );
+
 	          if (m_photonCut) 
               {
 	              classification=fKill;
@@ -150,6 +210,22 @@ void DsChromaStackAction::NewStage()
   info()<< " StackingAction::NewStage! "<<endreq;
   info()<< " Number of Optical Photons generated:  "<< PhotonNumbers<<endreq;
   info()<< " Number of Neutron generated:  "<< NeutronNumbers<<endreq;
+
+
+#ifdef WITH_CHROMA_ZMQ
+
+  info() << "::NewStage SendObject " <<  endreq ;   
+  fZMQRoot->SendObject(fPhotonList);
+
+  info() << "::NewStage ReceiveObject, waiting... " <<  endreq;   
+  fPhotonList2 = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
+
+  fPhotonList->Details();
+  fPhotonList2->Details();
+#endif
+
+
+
   
   if(m_tightCut){
     info() << "Tight Cut selected: only select AD gamma events from neutrons! " <<endreq;

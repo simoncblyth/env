@@ -1429,3 +1429,6 @@ specrend-(){      . $(env-home)/graphics/color/specrend/specrend.bash && specren
 g4view-(){      . $(env-home)/geant4/g4view.bash && g4view-env $* ; }
 czrt-(){      . $(env-home)/chroma/ChromaZMQRootTest/czrt.bash && czrt-env $* ; }
 csa-(){      . $(env-home)/nuwa/detsim/csa.bash && csa-env $* ; }
+nuwacmt-(){      . $(env-home)/nuwa/nuwacmt.bash && nuwacmt-env $* ; }
+pyzmq-(){      . $(env-home)/zeromq/pyzmq/pyzmq.bash && pyzmq-env $* ; }
+czmq-(){      . $(env-home)/zeromq/czmq/czmq.bash && czmq-env $* ; }
