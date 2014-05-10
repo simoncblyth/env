@@ -103,10 +103,17 @@ zeromq-make(){
 
 
 
-
+zeromq-zguide-dir(){ echo $(zeromq-fold)/zguide ; }
+zeromq-zguide-cd(){ cd $(zeromq-zguide-dir) ; }
 zeromq-zguide-get(){
-  git clone --depth=1 git://github.com/imatix/zguide.git
+  cd $(dirname $(zeromq-zguide-dir)) 
+  [ ! -d zguide ] && git clone git://github.com/imatix/zguide.git
 }
+zeromq-zguide-find(){
+   zeromq-zguide-cd
+   find . -name '*.c' -exec grep -l ${1:-czmq} {} \;
+}
+
 zeromq-versions(){
    python -c "import zmq, socket ; print socket.gethostname(), zmq.__file__, zmq.zmq_version(), zmq.pyzmq_version() "
 }

@@ -54,6 +54,17 @@ czmq-make(){
    make  $*
 }
 czmq-install(){ czmq-make install ; }
+
+czmq-build(){
+
+   czmq-get
+   czmq-configure
+   czmq-make
+   czmq-install
+
+}
+
+
 czmq-ls(){
    ls $(czmq-prefix)/include $(czmq-prefix)/lib
 }
@@ -70,10 +81,19 @@ czmq-cc(){
          -I$(czmq-prefix)/include \
          -L$(zeromq-prefix)/lib -lzmq \
          -L$(czmq-prefix)/lib -lczmq \
-         -Wl,-rpath=$(czmq-prefix)/lib \
-         -Wl,-rpath=$(zeromq-prefix)/lib
+         -Wl,-rpath,$(czmq-prefix)/lib \
+         -Wl,-rpath,$(zeromq-prefix)/lib
 }
 
 
+czmq-cc-build(){
+  echo $msg building examples
+  czmq-scd
+  local line
+  ls -1 *.c | while read line ; do 
+     local name=${line/.c}
+     czmq-cc $name
+  done
 
+}
 
