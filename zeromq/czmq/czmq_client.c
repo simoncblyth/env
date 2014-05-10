@@ -2,24 +2,25 @@
 
 int main (int argc, char *argv [])
 {
-    if (argc < 3) {
-        printf ("INFO: syntax: %s <client-REQ-endpoint> <message-string> \n", argv [0]);
-        return 0;
-    }
+    char* frontend = getenv("FRONTEND");
+    printf ("I: %s starting \n", argv[0] );
+    printf ("I: connect REQ socket to frontend [%s]\n", frontend);
 
     zctx_t* ctx = zctx_new ();
-    void* client = zsocket_new (ctx, ZMQ_REQ);
-    zsocket_connect (client, argv[1]);
+    void* requester = zsocket_new (ctx, ZMQ_REQ);
+    zsocket_connect (requester, frontend);
 
-    printf ("INFO: %s client connecting to:[%s] message string [%s] \n", argv[0],argv[1],argv[2]);
     while (true) {
-        zstr_send (client, argv[2]);
-        char *reply = zstr_recv (client);
-        if (!reply)
-            break;              //  Interrupted
-        printf ("Client got reply: %s\n", reply);
-        free (reply);
+        char* req = "REQ HELLO CZMQ" ;
+        printf ("send req: %s\n", req);
+        zstr_send (requester, req );
+
         sleep (1);
+
+        char *rep = zstr_recv (requester);
+        if (!rep) break;              //  Interrupted
+        printf ("recv rep: %s\n", rep);
+        free (rep);
     }   
     zctx_destroy (&ctx);
     return 0;

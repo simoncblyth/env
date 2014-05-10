@@ -2,7 +2,6 @@
 pyzmq-src(){      echo zeromq/pyzmq/pyzmq.bash ; }
 pyzmq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(pyzmq-src)} ; }
 pyzmq-vi(){       vi $(pyzmq-source) ; }
-pyzmq-env(){      elocal- ; }
 pyzmq-usage(){ cat << EOU
 
 PYZMQ
@@ -16,10 +15,19 @@ PYZMQ
 
 EOU
 }
-pyzmq-dir(){ echo $(local-base)/env/zeromq/pyzmq/zeromq/pyzmq-pyzmq ; }
+pyzmq-dir(){ echo $(env-home)/zeromq/pyzmq ; }
 pyzmq-cd(){  cd $(pyzmq-dir); }
 pyzmq-mate(){ mate $(pyzmq-dir) ; }
-pyzmq-get(){
-   local dir=$(dirname $(pyzmq-dir)) &&  mkdir -p $dir && cd $dir
 
+pyzmq-env(){    
+    elocal- 
+    chroma-   # for the right python
+    zmq-  # client/broker/worker config
 }
+
+pyzmq-operator(){ python $(pyzmq-dir)/zmq_operator.py $* ; }
+
+pyzmq-broker(){ FRONTEND=tcp://*:$(zmq-frontend-port) BACKEND=tcp://*:$(zmq-backend-port) pyzmq-operator broker ; }
+pyzmq-client(){ FRONTEND=tcp://$(zmq-broker-host):$(zmq-frontend-port) pyzmq-operator client ; }
+pyzmq-worker(){ BACKEND=tcp://$(zmq-broker-host):$(zmq-backend-port)   pyzmq-operator worker ; }
+

@@ -2,7 +2,6 @@
 czmq-src(){      echo zeromq/czmq/czmq.bash ; }
 czmq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(czmq-src)} ; }
 czmq-vi(){       vi $(czmq-source) ; }
-czmq-env(){      elocal- ; }
 czmq-usage(){ cat << EOU
 
 CZMQ : High-level C Binding for 0MQ
@@ -14,6 +13,15 @@ CZMQ : High-level C Binding for 0MQ
 
 * https://github.com/zeromq/pyczmq
 
+
+WARNING
+---------
+
+The broker/client/proxy/worker examples are not working well
+had better luck over in *zmq-* with the low level C API
+due to finding better examples using that API.
+
+
 Dependencies
 -------------
 
@@ -22,6 +30,10 @@ Dependencies
 
 
 EOU
+}
+czmq-env(){    
+    elocal- 
+    zmq-   # for client/broker/worker config
 }
 czmq-fold(){ echo $(local-base)/env/zeromq/czmq ; }
 czmq-dir(){ echo $(czmq-fold)/$(czmq-name) ; }
@@ -96,4 +108,12 @@ czmq-cc-build(){
   done
 
 }
+
+# NB using config from zmq- for interopability 
+czmq-broker(){ type $FUNCNAME ; FRONTEND=tcp://*:$(zmq-frontend-port) BACKEND=tcp://*:$(zmq-backend-port) $(czmq-bin czmq_broker) ; }
+czmq-client(){ type $FUNCNAME ; FRONTEND=tcp://$(zmq-broker-host):$(zmq-frontend-port) $(czmq-bin czmq_client) ; }
+czmq-worker(){ type $FUNCNAME ;  BACKEND=tcp://$(zmq-broker-host):$(zmq-backend-port)  $(czmq-bin czmq_worker) ; }
+
+
+
 

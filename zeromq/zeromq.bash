@@ -100,7 +100,12 @@ zeromq-make(){
   make 
   make install
 }
+zeromq-ls(){ ls $(zeromq-prefix)/include $(zeromq-prefix)/lib ; }
 
+zeromq-zguide-install-zhelpers(){
+   #cp $(zeromq-zguide-dir)/examples/C/zhelpers.h $(zeromq-prefix)/include/
+   cp $(zeromq-zguide-dir)/examples/C/zhelpers.h $(zmq-dir)/  # better to keep this with sources to avoid extra install step
+}
 
 
 zeromq-zguide-dir(){ echo $(zeromq-fold)/zguide ; }
@@ -114,10 +119,10 @@ zeromq-zguide-find(){
    find . -name '*.c' -exec grep -l ${1:-czmq} {} \;
 }
 
+
 zeromq-versions(){
    python -c "import zmq, socket ; print socket.gethostname(), zmq.__file__, zmq.zmq_version(), zmq.pyzmq_version() "
 }
-
 
 
 

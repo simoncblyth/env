@@ -10,7 +10,7 @@ http://zeromq.github.io/pyzmq/api/zmq.devices.html#zmq.device
    replace devices for proxy 
 
 """
-import logging
+import logging, os
 log = logging.getLogger(__name__)
 import time
 import zmq
@@ -34,14 +34,14 @@ def queue(cfg):
     queuedevice.start()
     time.sleep (2)  
     
-def proxy(cfg):
+def broker(cfg):
     context = zmq.Context()
     frontend = cfg.frontend
     backend = cfg.backend
     log.info("proxy bind frontend %s and backend %s " % (frontend, backend)) 
 
-    front = context.socket(zmq.XREP)
-    back = context.socket(zmq.XREQ)
+    front = context.socket(zmq.ROUTER)
+    back = context.socket(zmq.DEALER)
 
     front.bind(frontend)
     back.bind(backend)
@@ -50,8 +50,19 @@ def proxy(cfg):
 
 
 def server(cfg):
-    context = zmq.Context()
-    socket = context.socket(zmq.REP)
+    ctx = zmq.Context()
+    socket = ctx.socket(zmq.REP)
+    log.info("connect REP socket to backend %s " % cfg.backend )
+    socket.connect(cfg.backend)
+    server_id = random.randrange(1,10005)
+    while True:
+        msg = socket.recv()
+        log.info("recv %s " % msg )
+        socket.send("send %s" % server_id)
+
+def worker(cfg):
+    ctx = zmq.Context()
+    socket = ctx.socket(zmq.REP)
     backend = cfg.backend
     log.info("server connecting REP socket to backend  %s " % backend )
     socket.connect(backend)
@@ -62,17 +73,16 @@ def server(cfg):
         socket.send("Response from %s" % server_id)
 
 def client(cfg):
-    context = zmq.Context()
-    socket = context.socket(zmq.REQ)
-    frontend = cfg.frontend
+    ctx = zmq.Context()
+    socket = ctx.socket(zmq.REQ)
     client_id = cfg.opts.client_id
-    log.info("client %s connecting REQ socket to frontend %s " % (client_id, frontend) )
-    socket.connect(frontend)
+    log.info("connect REQ socket %s to frontend %s " % (client_id, cfg.frontend) )
+    socket.connect(cfg.frontend)
     for request in range (1,5):
-        print "Sending request #%s" % request
-        socket.send ("Request fron client: %s" % client_id)
+        print "send req #%s" % request
+        socket.send ("req from : %s" % client_id)
         message = socket.recv()
-        print "Received reply ", request, "[", message, "]"
+        print "recv rep ", request, "[", message, "]"
 
 
 class Config(object):
@@ -81,18 +91,18 @@ class Config(object):
         self.opts = opts
         self.args = args
 
-    frontend = property(lambda self:endpoint(self.opts.frontend_host,self.opts.frontend_port))
-    backend  = property(lambda self:endpoint(self.opts.backend_host,self.opts.backend_port))
+    #frontend = property(lambda self:endpoint(self.opts.frontend_host,self.opts.frontend_port))
+    #backend  = property(lambda self:endpoint(self.opts.backend_host,self.opts.backend_port))
+    frontend = property(lambda self:self.opts.frontend)
+    backend  = property(lambda self:self.opts.backend)
     mode = property(lambda self:self.args[0])
 
     def parse_arguments(self,doc):
         from optparse import OptionParser
         parser = OptionParser(doc)
         parser.add_option("--level", default="INFO")
-        parser.add_option("--frontend-port", default="5001")
-        parser.add_option("--backend-port",  default="5002")
-        parser.add_option("--frontend-host", default="127.0.0.1")
-        parser.add_option("--backend-host",  default="127.0.0.1")
+        parser.add_option("--frontend", default=os.environ.get('FRONTEND',None))
+        parser.add_option("--backend",  default=os.environ.get('BACKEND',None))
         parser.add_option("--client-id",     default="1")
         (opts, args) = parser.parse_args()
         logging.basicConfig(level=getattr(logging,opts.level.upper()))
@@ -102,16 +112,13 @@ class Config(object):
 def main():
    cfg = Config(__doc__)
    mode = cfg.mode
-   if mode == "server":
-       server(cfg)
-   elif mode == "client":
-       client(cfg)
-   elif mode== "queue":
-       queue(cfg)
-   elif mode== "proxy":
-       proxy(cfg)
+   if   mode == "server": server(cfg)
+   elif mode == "client": client(cfg)
+   elif mode == "worker": worker(cfg)
+   elif mode == "queue": queue(cfg)
+   elif mode == "broker": broker(cfg)
    else:
-       assert 0 
+       assert 0, mode
 
 if __name__ == '__main__':
    main()
