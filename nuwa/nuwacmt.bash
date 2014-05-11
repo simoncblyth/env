@@ -54,6 +54,8 @@ nuwacmt-info(){
 
 
 
-
+nuwacmt-lslib(){
+   ls -l $DYB/NuWa-trunk/dybgaudi/InstallArea/$CMTCONFIG/lib
+}
 
 

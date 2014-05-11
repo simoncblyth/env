@@ -40,7 +40,7 @@ DsChromaStackAction::DsChromaStackAction ( const std::string& type   ,
     declareProperty("TightCut",m_tightCut = false, " cut to select Neutron only event in the AD.");
     declareProperty("PhotonCut",m_photonCut = false, " Kill all the optical photons in the process.");
     declareProperty("MaxPhoton",m_maxPhoton = 1e6, " Max number of photons to be hold.");
-
+    declareProperty("ModuloPhoton",m_moduloPhoton = 100, "Modulo scale down photons collected.");
 }
 
 
@@ -101,7 +101,6 @@ void DsChromaStackAction::CollectPhoton(const G4Track* aPhoton )
               time, 
               wavelength );
 
-   fPhotonList->Print();
 #endif
 }
 
@@ -172,8 +171,9 @@ G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track*
           } else {         // optical  
 	
 	          PhotonNumbers++;
-
-              CollectPhoton( aTrack );
+              if(PhotonNumbers % m_moduloPhoton == 0){
+                  CollectPhoton( aTrack );
+              }
 
 	          if (m_photonCut) 
               {
@@ -215,15 +215,16 @@ void DsChromaStackAction::NewStage()
 #ifdef WITH_CHROMA_ZMQ
 
   info() << "::NewStage SendObject " <<  endreq ;   
+  info() << "::NewStage fPhotonList " <<  endreq ;   
+  fPhotonList->Print(); 
   fZMQRoot->SendObject(fPhotonList);
 
   info() << "::NewStage ReceiveObject, waiting... " <<  endreq;   
   fPhotonList2 = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
 
-  fPhotonList->Details();
-  fPhotonList2->Details();
+  info() << "::NewStage fPhotonList2 " <<  endreq ;   
+  fPhotonList2->Print();
 #endif
-
 
 
   
@@ -259,12 +260,23 @@ void DsChromaStackAction::NewStage()
 //----------------------Reset -----------------------------------
 void DsChromaStackAction::PrepareNewEvent()
 {
-  info()<< " StackingAction::PrepareNewEvent! "<<endreq;
+  info()<< " StackingAction::PrepareNewEvent "<<endreq;
   interestingEvt=false;
   stage=0;
   PhotonNumbers=0;
   NeutronNumbers=0;
   neutronList.clear();
+
+  if(fPhotonList){ 
+      info()<< " StackingAction::PrepareNewEvent fPhotonList ClearAll  "<<endreq;
+      fPhotonList->ClearAll(); 
+  }
+
+  if(fPhotonList2){ 
+      info()<< " StackingAction::PrepareNewEvent fPhotonList2 ClearAll  "<<endreq;
+      fPhotonList2->ClearAll(); 
+  } 
+
 }
 
 //-----------------If the Gamma neutron's daughter ? ---------------------

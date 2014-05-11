@@ -68,6 +68,10 @@ class DsChromaStackAction :  public GiGaStackActionBase
 
     // Maximum Number of optical photons been hold..
     G4double m_maxPhoton;
+
+    // Modulo scale down photons collected
+    G4int m_moduloPhoton;
+
     
     //    IGeometryInfo* m_geo;
     
