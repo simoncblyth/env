@@ -21,7 +21,8 @@ class DAEResponder(event.EventDispatcher, CPLResponder):
     """
     def __init__(self, config):
         class Cfg(object):
-            bind = config.args.zmqbind
+            mode = 'connect' # worker, as opposed to 'bind' for server
+            endpoint = config.args.zmqendpoint
             timeout = 100  # millisecond
             sleep = 0.5
         pass
@@ -30,7 +31,7 @@ class DAEResponder(event.EventDispatcher, CPLResponder):
         self.cfg = cfg 
 
     def __repr__(self):
-        return "%s %s " % ( self.__class__.__name__, self.cfg.bind )
+        return "%s %s %s" % ( self.__class__.__name__, self.cfg.mode, self.cfg.endpoint )
 
     def update(self):
         self.poll()

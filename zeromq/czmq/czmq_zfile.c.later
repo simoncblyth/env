@@ -1,0 +1,21 @@
+
+/*
+#include <libgen.h>
+    zfile_t * file = zfile_new( dirname(argv[1]) , basename(argv[1]) );
+    assert (zfile_is_readable (file));
+
+    off_t size = zfile_cursize (file);
+
+    printf ("I: filesize [%lld]\n", size);
+
+    int rc = zfile_input (file);
+    assert( rc == 0);
+
+    size_t bytes = 2 ;  
+    off_t offset = 0 ;
+
+    
+    zchunk_t* chunk = zfile_read ( file, bytes, offset); 
+    zfile_destroy (&file);
+
+*/

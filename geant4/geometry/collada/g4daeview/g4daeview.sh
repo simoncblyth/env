@@ -7,9 +7,11 @@ chroma-
 zmqroot-
 zmqroot-export 
 
-chromaphotonlist-
-chromaphotonlist-export
+cpl-
+cpl-export
 
+zmq-
+zmq-broker-export
 
 g4daeview.py $*
 

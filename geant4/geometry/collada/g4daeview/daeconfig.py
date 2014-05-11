@@ -104,7 +104,7 @@ class DAEConfig(ConfigBase):
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
         defaults['bookmarks'] = "bookmarks_%(path)s.cfg"
-        defaults['zmqbind'] = os.environ.get("DAEVIEW_ZMQ_CONFIG","tcp://*:5555")
+        defaults['zmqendpoint'] = os.environ.get("ZMQ_BROKER_URL_BACKEND","tcp://localhost:5002")
 
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
