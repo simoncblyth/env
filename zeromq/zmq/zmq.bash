@@ -56,6 +56,45 @@ need for reconfiguration.
 Only the "stable" broker IP address and relevant frontend/backend port 
 needs be known by clients/workers.
 
+dodgy outgoing network workaround
+-----------------------------------
+
+belle7 refuses to operate as client or worker talking to remote broker on ports 5001, 5002
+
+* it seems that outgoing connections on "unusual" ports are blocked for belle7
+* workaround is to open a tcp connection from remote client and get belle7 to 
+  reply within that open connection  
+
+Topology that works:
+
+#. put broker on belle7::
+
+   [blyth@belle7 ~]$ zmq-;zmq-broker
+ 
+#. worker and client elsewhere (or on belle7 too):: 
+
+   [blyth@cms02 ~]$ czmq-; ZMQ_BROKER_HOST=$(local-tag2ip N) czmq-worker
+   delta:~ blyth$ zmq-; ZMQ_BROKER_HOST=$(local-tag2ip N) zmq-client
+
+
+Connecting nuwa.py/Geant4 and g4daeview.py/Chroma
+---------------------------------------------------
+
+Configure nuwa.py/Geant4 as client sending REQ with ChromaPhotonList 
+objects to the broker with *CSA_CLIENT_CONFIG* envvar::
+
+     68 csa-nuwarun(){
+     69 
+     70    zmq-
+     71    export CSA_CLIENT_CONFIG=$(zmq-broker-url)   
+     72    nuwa.py -n 1 -m "fmcpmuon --chroma"
+     73 
+     74 }
+
+Configure g4daeview.py/Chroma as worker receiving REP
+
+
+
 
 
 EOU
@@ -91,12 +130,32 @@ zmq-cc-build(){
 }
 
 
+zmq-broker-info(){  cat << EOI
+
+   zmq-broker-url          : $(zmq-broker-url)
+   zmq-broker-url-frontend : $(zmq-broker-url-frontend)
+   zmq-broker-url-backend  : $(zmq-broker-url-backend)
+
+   zmq-broker-host         : $(zmq-broker-host)
+
+EOI
+}
 zmq-frontend-port(){ echo 5001 ; }
 zmq-backend-port(){  echo 5002 ; }
-zmq-broker-host(){ echo ${ZMQ_BROKER_HOST:-localhost} ; }
+zmq-broker-tag(){ echo ${ZMQ_BROKER_TAG:-N} ; }
+zmq-broker-host(){ local-tag2ip $(zmq-broker-tag) ; }
+
+zmq-broker-url(){ zmq-broker-url-frontend ; }
+zmq-broker-url-frontend(){ echo tcp://$(zmq-broker-host):$(zmq-frontend-port) ;}
+zmq-broker-url-backend(){  echo tcp://$(zmq-broker-host):$(zmq-backend-port) ;}
+
+zmq-broker-export(){
+   export ZMQ_BROKER_URL_FRONTEND=$(zmq-broker-url-frontend)
+   export ZMQ_BROKER_URL_BACKEND=$(zmq-broker-url-backend)
+}
 
 zmq-broker(){ FRONTEND=tcp://*:$(zmq-frontend-port) BACKEND=tcp://*:$(zmq-backend-port) $(zmq-bin zmq_broker) ; }
-zmq-client(){ FRONTEND=tcp://$(zmq-broker-host):$(zmq-frontend-port) $(zmq-bin zmq_client) ; }
-zmq-worker(){ BACKEND=tcp://$(zmq-broker-host):$(zmq-backend-port)  $(zmq-bin zmq_worker) ; }
+zmq-client(){ FRONTEND=$(zmq-broker-url-frontend) $(zmq-bin zmq_client) ; }
+zmq-worker(){  BACKEND=$(zmq-broker-url-backend)  $(zmq-bin zmq_worker) ; }
 
 

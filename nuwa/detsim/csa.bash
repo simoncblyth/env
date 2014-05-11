@@ -67,7 +67,8 @@ csa-nuwaenv(){
 
 csa-nuwarun(){
 
-   #nuwa.py -n 1 -m "fmcpmuon --chroma --machinerytest"
+   zmq-
+   export CSA_CLIENT_CONFIG=$(zmq-broker-url)   
    nuwa.py -n 1 -m "fmcpmuon --chroma"
 
 }
