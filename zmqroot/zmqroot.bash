@@ -20,6 +20,13 @@ FUNCTIONS
     zmqroot-build-full   # deletes build directory first 
 
 
+ROOT TObject Serialize/Deserialize
+-----------------------------------
+
+* https://halldweb1.jlab.org/wiki/index.php/CMsgRootConsumer.cc
+
+
+
 NuWa/CMT Integration
 -----------------------
 
