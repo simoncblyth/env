@@ -52,12 +52,14 @@ class ZMQRootResponder(object):
         req = self.socket.recv(copy=False)
         log.info("recv_object req of length %s %s " % (len(req), repr(req)))
 
-        if not self.config.filename is None:
-            filename = self.config.filename
-            log.info("writing message to file %s " % filename )
-            with open(filename, 'wb') as f:
-                f.write(req.bytes)
-            pass
+        # suspect this leads to files that are unreadable by zmsg_load
+        #
+        #if not self.config.filename is None:
+        #    filename = self.config.filename
+        #    log.info("writing message to file %s " % filename )
+        #    with open(filename, 'wb') as f:
+        #        f.write(req.bytes)
+        #    pass
         pass
         obj = deserialize( req.bytes )
         return obj 
