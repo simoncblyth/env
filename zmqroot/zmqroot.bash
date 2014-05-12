@@ -25,6 +25,14 @@ ROOT TObject Serialize/Deserialize
 
 * https://halldweb1.jlab.org/wiki/index.php/CMsgRootConsumer.cc
 
+TMessage Compression
+----------------------
+
+* http://personalpages.to.infn.it/~puccio/htmldoc/AliHLTMessage.h
+* http://web.ift.uib.no/~kjeks/doc/alice-hlt-current/AliHLTMessage_8cxx_source.html
+* http://root.cern.ch/root/html/TSocket.html
+* http://root.cern.ch/root/html/src/TSocket.cxx.html#zXkgI
+
 
 
 NuWa/CMT Integration
