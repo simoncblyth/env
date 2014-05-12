@@ -16,6 +16,9 @@ from daebookmarks import DAEBookmarks
 from daeanimator import DAEAnimator
 from daechromaphotonlist import DAEChromaPhotonList
 
+# hmm this is using ROOT, might be a slow import 
+from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl
+
 # do not import anything that would initialize CUDA context here, for CUDA_PROFILE control from config
  
 
@@ -59,7 +62,6 @@ class DAEScene(object):
         # bookmarked viewpoints
         self.bookmarks = DAEBookmarks(config.bookmarks, geometry) 
 
-
         # Chroma raycaster, None if not --with-chroma
         self.raycaster = self.make_raycaster( config, geometry ) 
 
@@ -68,6 +70,10 @@ class DAEScene(object):
 
         # ChromaPhotonList, on_external_cpl event 
         self.cpl = None 
+
+        if not self.config.args.load is None:
+            self.load(self.config.args.load, self.config.args.key)    # handle launch argument load
+
 
         # transform holds references to all relevant state-holders 
         transform = DAETransform( self ) 
@@ -89,6 +95,27 @@ class DAEScene(object):
 
         # animation frame count
         self.animator = DAEAnimator(args.period)
+
+    def save(self, path, key ):
+        if self.cpl is None:
+            log.warn("no cpl, nothing to save ") 
+            return
+        pass
+        save_cpl( path, key, self.cpl.cpl )   
+
+    def load(self, path, key ):
+        log.info("load cpl from  %s " % path)
+        cpl = load_cpl(path, key )
+        if cpl is None:
+            log.warn("load_cpl failed ")
+            return
+        pass
+        self.external_cpl( cpl )
+
+    def external_cpl(self, cpl ):
+        log.info("external_cpl")
+        cpl = DAEChromaPhotonList(cpl)
+        self.cpl = cpl
 
     def reset_count(self):
         self.animator.reset()
@@ -274,11 +301,6 @@ class DAEScene(object):
         view = self.bookmarks.make_parametric_view()
         self.update_view(view)
 
-    def external_cpl(self, cpl ):
-        log.info("external_cpl")
-        cpl = DAEChromaPhotonList(cpl)
-        self.cpl = cpl
-
     def external_message(self, msg ):
         """
         """ 
@@ -292,6 +314,7 @@ class DAEScene(object):
         newview = None
         elu = {}
         raycast_config = {}
+        root_config = []
         for k,v in vars(live_args).items():
             if k == "target":
                 newview = self.target_view(v, prior=self.view ) 
@@ -312,6 +335,8 @@ class DAEScene(object):
             elif k == "showmetric":
                 raycast_config[k] = v
                 self.toggle_showmetric() 
+            elif k in ("save","load","key"):
+                root_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v
             elif k in ("kscale","near","far","yfov","nearclip","farclip","yfovclip"):
@@ -329,6 +354,9 @@ class DAEScene(object):
             log.info("view changed by external message")
             self.update_view(newview)
 
+        if len(root_config) > 0:
+            self.handle_loadsave(root_config)
+            
         if len(raycast_config)>0:
             self.raycaster_reconfig(**raycast_config)
 
@@ -336,6 +364,26 @@ class DAEScene(object):
             log.info("home-ing trackball and changing parameters of existing view %s " % repr(elu)) 
             self.trackball.home()
             self.view.current_view.change_eye_look_up( **elu )
+
+    def handle_loadsave(self, root_config ):
+        """
+        Handle argument sequences like::
+
+            --key CPL --load /tmp/1.root --key OBJ --load /tmp/2.root 
+
+        """ 
+        key = self.config.args.key
+        for k,v in root_config:
+            if k == 'key':
+                key = v
+            if k == 'save':
+                self.save(v, key)
+            elif k == 'load':
+                self.load(v, key)
+            else:
+                assert 0
+            pass
+        pass
 
     def raycaster_reconfig(self, **raycast_config ):
         if not self.raycast:

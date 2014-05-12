@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from glumpy.window import event
-from env.chroma.ChromaPhotonList.responder import CPLResponder
+from env.chroma.ChromaPhotonList.cpl_responder import CPLResponder
 
 
 class DAEResponder(event.EventDispatcher, CPLResponder):

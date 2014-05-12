@@ -68,7 +68,8 @@ zmqroot-dir(){  echo $(local-base)/env/zmqroot ; }
 zmqroot-bdir(){ echo /tmp/env/zmqroot-build ; }
 zmqroot-sdir(){ echo $(env-home)/zmqroot ; }
 
-zmqroot-cd(){   cd $(zmqroot-dir); }
+zmqroot-icd(){   cd $(zmqroot-dir); }
+zmqroot-cd(){   cd $(zmqroot-sdir); }
 zmqroot-scd(){  cd $(zmqroot-sdir); }
 zmqroot-bcd(){  cd $(zmqroot-bdir); }
 

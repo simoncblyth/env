@@ -167,6 +167,9 @@ class DAEConfig(ConfigBase):
         defaults['norm'] = "0,0,0"
         defaults['fullscreen'] = False
         defaults['markers'] = False
+        defaults['load'] = None
+        defaults['save'] = None
+        defaults['key'] = 'CPL'
 
         parser.add_argument( "--scaled-mode", action="store_true", help="In scaled mode the actual VBO vertex coordinates are scaled into -1:1, ie shrink world into unit cube. **FOR DEBUG ONLY** " )
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
@@ -179,6 +182,9 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--norm",    help="Dummy argument, used for informational output.",type=str)
         parser.add_argument( "--fullscreen", action="store_true", help="Start in fullscreen mode." )
         parser.add_argument( "--markers",   action="store_true", help="[I] Frustum and light markers." )
+        parser.add_argument( "--load",  help="[I] Path to .root file to read, eg containing ChromaPhotonList instances. Default %(default)s.",type=str)
+        parser.add_argument( "--save",  help="[I] Path to .root file to write. Default %(default)s.",type=str)
+        parser.add_argument( "--key",   help="[I] ROOT Object Key to use with load/save. Default %(default)s.",type=str)
  
         # kernel switches
         defaults['cuda'] = False

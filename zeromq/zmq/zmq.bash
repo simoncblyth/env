@@ -21,6 +21,14 @@ See also:
 *pyzmq-*
     python binding
 
+TODO
+-----
+
+#. add monitoring to zmq_broker.c so message activity is logged, 
+   using the third *capture* argument of the *zmq_proxy* call
+
+#. configure zmq_broker to run continuously beneath supervisord on N 
+
 
 client/broker/worker topology
 -----------------------------

@@ -13,8 +13,12 @@ class DAEMesh(object):
     """
     TODO: remove use of duplicating pair properties, 
           now that caching in place these is no need for them
+
+    Note that most of the useful features of DAEMesh only 
+    requires a numpy array of vertices, so a ChromaPhotonList 
+    can be treated as a DAEMesh for navigation purposes.
     """
-    def __init__(self, vertices, triangles, normals=[] ):
+    def __init__(self, vertices, triangles=[], normals=[] ):
         self.vertices = vertices
         self.triangles = triangles
         self.normals = normals

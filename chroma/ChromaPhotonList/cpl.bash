@@ -47,7 +47,8 @@ cpl-dir(){  echo $(local-base)/env/chroma/ChromaPhotonList ; }
 cpl-sdir(){ echo $(env-home)/chroma/ChromaPhotonList ; }
 cpl-bdir(){ echo /tmp/env/chroma/ChromaPhotonList ; }
 
-cpl-cd(){   cd $(cpl-dir); }
+cpl-cd(){   cd $(cpl-sdir); }
+cpl-icd(){  cd $(cpl-dir); }
 cpl-scd(){  cd $(cpl-sdir); }
 cpl-bcd(){  cd $(cpl-bdir); }
 

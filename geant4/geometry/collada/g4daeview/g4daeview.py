@@ -13,9 +13,30 @@ For viewing Geant4 LXe example::
 
     g4daeview.sh -p lxe -g 1: 
 
-
 Next
 -----
+
+ChromaPhotonList Visualization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. efficent GPU resident (and shared with Chroma) CPL handling, 
+
+   * current direct approach is CPU hog, not appropriate for large numbers of photons
+   * look into OpenGL PointSet or volume field representations of photon clouds
+
+#. color by wavelength, current black is difficult to see inside the AD
+#. time sliders, to allow interactive application of a time cut to visualize the progression
+#. treat the CPL as a "solid" to allow navigation relative to it, rotate around it etc..
+#. other particle communication and representation, primaries 
+#. add axes, for checking whilst testing with Geant4 particle guns   
+
+
+Avoid Geometry Duplication
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. currently geometry info is on GPU twice, once for OpenGL once for Chroma
+   investigate getting them to share the same arrays (similar to whats done with pixels)
+
 
 interactive target switching  **NEEDS OVERHAUL**
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

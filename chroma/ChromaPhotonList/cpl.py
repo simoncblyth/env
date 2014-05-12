@@ -3,21 +3,11 @@
 
 Usage::
 
-    chromaphotonlist-
-    chromaphotonlist-export  # _LIB envvar 
+    cpl-
+    cpl-export  # _LIB envvar 
 
 
-TODO
-
-#. lookinto rootmap with pyroot to automate finding libs ?
-
-::
-
-    (chroma_env)delta:e blyth$ cat $ROOTSYS/lib/libCore.rootmap
-    Library.Atom_t:                             libCore.so
-    Library.Colormap_t:                         libCore.so
-
-
+#. TODO: lookinto rootmap with pyroot to automate finding libs ?
 
 """
 import os, logging
@@ -53,16 +43,52 @@ def random_cpl(n=100):
          cpl.AddPhoton( *np.random.random(11) )
      return cpl 
 
+def save_cpl( path, key, obj, compress=1 ):
+    log.info("save_cpl to %s with key %s " % (path,key) )
+    title = key  
+    f = ROOT.TFile( path, 'RECREATE', title, compress ) 
+    if f.IsZombie():
+        log.warn("save_cpl: failed open for writing path %s " % path )
+        return None
+    pass
+    obj.Write(key)
+    f.Close()
+    return 0
+
+def load_cpl( path, key ):
+    log.info("load_cpl from %s " % path )
+    if not os.path.exists(path):
+        log.warn("path %s does not exist " % path )
+        return None
+    pass
+    f = ROOT.TFile( path, 'READ' ) 
+    if f.IsZombie():
+        log.warn("path %s exists but open failed  " % path )
+        return None
+    pass
+    obj = f.Get(key)
+    f.Close()
+    return obj
+
+def check_creation():
+    cpl = random_cpl()
+    cpl.Details()
+    cpl.Print()
+    examine_cpl(cpl)
+
+def check_save_load():
+    cpl = random_cpl(10)
+    path = "/tmp/cpl.root"
+    save_cpl( path,cpl )
+    obj = load_cpl(path)
+    print obj
+    obj.Details() 
 
 if __name__ == '__main__':
     pass
     logging.basicConfig(level=logging.INFO)
+    check_creation()
 
-    cpl = random_cpl()
-    cpl.Details()
-    cpl.Print()
-
-    examine_cpl(cpl)
 
 
 

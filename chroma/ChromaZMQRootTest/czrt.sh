@@ -2,5 +2,9 @@
 
 czrt-
 
-CHROMA_CLIENT_CONFIG=tcp://localhost:5555 $(czrt-bin)
+zmq-
+zmq-broker-export
+zmq-broker-info
+
+CHROMA_CLIENT_CONFIG=$(zmq-broker-url-frontend) $(czrt-bin)
 

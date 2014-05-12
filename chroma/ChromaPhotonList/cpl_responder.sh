@@ -5,12 +5,13 @@ zmqroot-export
 
 zmq-
 zmq-broker-export
+zmq-broker-info
 
 cpl-
 cpl-export
 
 chroma-
 
-python ./responder.py
+python $(cpl-sdir)/cpl_responder.py
 
 

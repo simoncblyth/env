@@ -19,6 +19,32 @@ Usage text
 On pressing "U" usage text describing the actions of each key 
 are written to stdout.  (TODO: display to screen)
 
+
+Load/Save ChromaPhotonList instances
+-------------------------------------
+
+Once a CPL has arrived via ZMQ, it can be saved to file with::
+
+    delta:~ blyth$ udp.py --save /usr/local/env/tmp/1.root
+
+Subsequently can load the root file at launch with::
+
+    delta:g4daeview blyth$ g4daeview.sh --load /usr/local/env/tmp/1.root
+
+Or loading can be done interactively with `udp.py` to change or set the loaded event::
+
+    delta:~ blyth$ udp.py --load /usr/local/env/tmp/1.root 
+
+The objects loaded or saved from root files can also have an associated *key* using 
+option `--key WHATEVER` the default key is **CPL**.
+
+Launch arguments only support a single `--load`, but interactive arguments 
+support multiple loads allowing multiple objects to be loaded.
+
+* TODO: dont replace but concatenate drawing of multiple loaded objects   
+
+
+
 Partial geometry
 ------------------
 
