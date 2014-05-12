@@ -43,4 +43,5 @@ chroma
 
    chroma_install/index
    chroma_tests/index
+   ChromaZMQRootTest/index
 
