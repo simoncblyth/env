@@ -39,7 +39,7 @@ class ZMQRootResponder(object):
         log.info("socket mode: %s to %s hwm %s timeout %s sleep %s " % ( config.mode, config.endpoint, socket.hwm, config.timeout, config.sleep ))
 
     def __repr__(self):
-        return "%s %s %s %s" % (self.__class__.__name__, self.config.mode, self.config.endpoint, self.config.filename )
+        return "%s %s %s " % (self.__class__.__name__, self.config.mode, self.config.endpoint )
 
     def poll(self):
         events = self.socket.poll(timeout=self.config.timeout, flags=self.config.flags )
@@ -107,7 +107,7 @@ def check_responder():
     class Config(object):
         mode = 'connect'
         endpoint = os.environ['ZMQ_BROKER_URL_BACKEND']
-        filename = '/tmp/lastmsg.zmq'
+        #filename = '/tmp/lastmsg.zmq'
         timeout = None # milliseconds  (None means dont timeout, just block)
         sleep = 0.5  # seconds
     pass

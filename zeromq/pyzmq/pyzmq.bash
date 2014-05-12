@@ -13,6 +13,11 @@ PYZMQ
 * http://zeromq.github.io/pyzmq/
 
 
+fix memory leak in zero-copy allocation 
+https://github.com/zeromq/pyzmq/pull/517
+
+
+
 EOU
 }
 pyzmq-dir(){ echo $(env-home)/zeromq/pyzmq ; }

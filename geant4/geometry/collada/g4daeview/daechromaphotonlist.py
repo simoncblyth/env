@@ -25,11 +25,16 @@ Interactive probing::
 import logging
 log = logging.getLogger(__name__)
 
+
+import glumpy as gp
 import numpy as np
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
 xyz_ = lambda x,y,z,dtype:np.column_stack((np.array(x,dtype=dtype),np.array(y,dtype=dtype),np.array(z,dtype=dtype))) 
+
+
+
 
 class DAEChromaPhotonList(object):
     def __init__(self, cpl):
@@ -37,6 +42,7 @@ class DAEChromaPhotonList(object):
         self.nphotons = cpl.x.size()
         cpl.Print()
         self.copy_from_cpl(cpl)
+        self.create_vbo()
 
     def copy_from_cpl(self, cpl):
         self.pos = xyz_(cpl.x,cpl.y,cpl.z,np.float32)
@@ -46,7 +52,62 @@ class DAEChromaPhotonList(object):
         self.t = np.array(cpl.t, dtype=np.float32)
         self.pmtid = np.array(cpl.pmtid, dtype=np.int32)
 
+    def create_vbo(self):
+        """
+        For time sliding try enhancing glumpy VBO
+        to support: glDrawRangeElements
+
+        Then by sorting photons by time at VBO creation and recording 
+        appropriate offsets can make an interactive time cut.
+
+        """
+        log.info("create_vbo")
+        data = np.zeros( self.nphotons, [('position', np.float32, 3)])
+        data['position'] = self.pos
+
+        self.data = data
+        self.indices = np.arange(data.size,dtype=np.uint32)  # the default used by VertexBuffer if no were indices given
+
+        self.vbo = gp.graphics.VertexBuffer( self.data, self.indices  )
+
     def draw(self):
+        """
+        ===================   ====================================
+           mode 
+        ===================   ====================================
+          GL_POINTS
+          GL_LINE_STRIP
+          GL_LINE_LOOP
+          GL_LINES
+          GL_TRIANGLE_STRIP
+          GL_TRIANGLE_FAN
+          GL_TRIANGLES
+          GL_QUAD_STRIP
+          GL_QUADS
+          GL_POLYGON
+        ===================   ====================================
+
+
+        The what letters, 'pnctesf' define the meaning of the arrays via 
+        enabling appropriate attributes.
+
+        ==================  ==================   ================   =====
+        gl***Pointer          GL_***_ARRAY          Att names         *
+        ==================  ==================   ================   =====
+         Color                COLOR                color              c
+         EdgeFlag             EDGE_FLAG            edge_flag          e
+         FogCoord             FOG_COORD            fog_coord          f
+         Normal               NORMAL               normal             n
+         SecondaryColor       SECONDARY_COLOR      secondary_color    s
+         TexCoord             TEXTURE_COORD        tex_coord          t 
+         Vertex               VERTEX               position           p
+         VertexAttrib         N/A             
+        ==================  ==================   ================   =====
+
+        """ 
+        self.vbo.draw(mode=gl.GL_POINTS, what='p' )
+
+    def draw_slowly(self):
         """
         TODO: 
 
@@ -71,6 +132,7 @@ class DAEChromaPhotonList(object):
 
         gl.glEnable( gl.GL_LIGHTING )
         gl.glEnable( gl.GL_DEPTH_TEST )
+
 
 
 

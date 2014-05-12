@@ -31,6 +31,14 @@ ChromaPhotonList Visualization
 #. add axes, for checking whilst testing with Geant4 particle guns   
 
 
+issues
+^^^^^^^^
+
+* resizing terminal window kills the ZMQ responder, with `interrupted system call`
+* fmcpmuon.py refers to volumes with DE names like `/dd/Structure/Pool/db-ows`  geometry 
+  nodes available via daenode are all `/dd/Geometry/..`
+
+
 Avoid Geometry Duplication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -321,6 +321,33 @@ class DAEGeometry(object):
  
 
 class DAEVertexBufferObject(object):
+    """
+    Used in g4daeview.py main::
+
+        vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=config.rgba)
+        mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
+
+    The glumpy VertexBuffer looks for below att names in
+    the dtype of the vertices passed in first argument.
+
+        ==================  ==================   ========================
+         gl***Pointer          GL_***_ARRAY        VertexAttribute_***
+        ==================  ==================   ========================
+         Color                COLOR                color  
+         EdgeFlag             EDGE_FLAG            edge_flag
+         FogCoord             FOG_COORD            fog_coord
+         Normal               NORMAL               normal
+         SecondaryColor       SECONDARY_COLOR      secondary_color
+         TexCoord             TEXTURE_COORD        tex_coord
+         Vertex               VERTEX               position
+         VertexAttrib         N/A             
+        ==================  ==================   ========================
+
+
+    These are then converted into VertexAttribute_*** instances with 
+    appropriate counts and types converted from the numpy dtype.
+
+    """
     def __init__(self, vertices, normals, faces, rgba ):
         nvert = len(vertices)
         data = np.zeros(nvert, [('position', np.float32, 3), 

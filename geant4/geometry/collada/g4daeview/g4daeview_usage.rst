@@ -20,7 +20,55 @@ On pressing "U" usage text describing the actions of each key
 are written to stdout.  (TODO: display to screen)
 
 
-Load/Save ChromaPhotonList instances
+Receive ChromaPhotonList from Remote Geant4 
+--------------------------------------------- 
+
+ChromaPhotonList instances are transported using ZMQRoot 
+
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Utilities/ZMQRoot
+
+`ZMQRoot` package uses ROOT TMessage (de)serialization 
+and ZeroMQ messaging to implement a simple API::
+
+   class ZMQRoot {
+   public:
+         ZMQRoot(const char* envvar);
+         void SendObject(TObject* obj);
+         TObject* ReceiveObject();
+
+A three node network topology is currently used:
+
+*client*
+     `nuwa.py/Geant4` process
+*worker*
+     `g4daeview.py/Chroma` process 
+*broker*
+     `zmq_broker.sh` process
+
+Usage steps:
+
+* check if the ZMQ broker is running on belle7, if not launch it::
+
+    delta:~ blyth$ ssh N
+    [blyth@belle7 ~]$ pgrep zmq_broker
+    [blyth@belle7 ~]$ zmq_broker.sh
+
+* launch the worker, envvar defaults configure connection to broker on belle7::
+
+    delta:~ blyth$ g4daeview.sh
+
+* launch the client on belle7::
+
+    [blyth@belle7 ~]$ which csa.sh   # CSA for ChromaStackAction
+    ~/env/bin/csa.sh
+    [blyth@belle7 ~]$ csa.sh 
+
+
+The `csa.sh` job within its ChromaStackAction collects photons 
+into a `ChromaPhotonList` and ready for transport with `ZMQRoot`.
+
+
+Load/Save ChromaPhotonList 
 -------------------------------------
 
 Once a CPL has arrived via ZMQ, it can be saved to file with::

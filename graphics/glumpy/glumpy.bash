@@ -152,6 +152,169 @@ Nice trackball operation
 /usr/local/env/graphics/glumpy/glumpy/demos/obj-viewer.py
 
 
+interesting code
+-------------------
+
+graphics/vertex_buffer.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Attributes describe the meaning of VBO arrays.
+
+Base class: `VertexAttribute(count,gltype,stride,offset)`
+with sub classes that check ctor arguments and provide enable methods eg:
+
+VertexAttribute_color
+    gl.glColorPointer(self.count, self.gltype, self.stride, self.offset)
+    gl.glEnableClientState(gl.GL_COLOR_ARRAY)
+
+VertexAttribute_edge_flag
+    gl.glEdgeFlagPointer(self.stride, self.offset)
+    gl.glEnableClientState(gl.GL_EDGE_FLAG_ARRAY)
+
+VertexAttribute_fog_coord
+    gl.glFogCoordPointer(self.count, self.gltype, self.stride, self.offset)
+    gl.glEnableClientState(gl.GL_FOG_COORD_ARRAY)
+
+VertexAttribute_normal
+    gl.glNormalPointer(self.gltype, self.stride, self.offset)
+    gl.glEnableClientState(gl.GL_NORMAL_ARRAY)
+
+VertexAttribute_secondary_color
+    gl.glSecondaryColorPointer(3, self.gltype, self.stride, self.offset)
+    gl.glEnableClientState(gl.GL_SECONDARY_COLOR_ARRAY)
+
+VertexAttribute_tex_coord
+    gl.glTexCoordPointer(self.count, self.gltype, self.stride, self.offset)
+    gl.glEnableClientState(gl.GL_TEXTURE_COORD_ARRAY)
+
+VertexAttribute_position
+    gl.glVertexPointer(self.count, self.gltype, self.stride, self.offset)
+    gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
+
+VertexAttribute_generic
+    gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset );
+    gl.glEnableVertexAttribArray( self.index )
+
+
+==================  ==================   ================   =====
+gl***Pointer          GL_***_ARRAY          Att names         *
+==================  ==================   ================   =====
+ Color                COLOR                color              c
+ EdgeFlag             EDGE_FLAG            edge_flag          e
+ FogCoord             FOG_COORD            fog_coord          f
+ Normal               NORMAL               normal             n
+ SecondaryColor       SECONDARY_COLOR      secondary_color    s
+ TexCoord             TEXTURE_COORD        tex_coord          t 
+ Vertex               VERTEX               position           p
+ VertexAttrib         N/A             
+==================  ==================   ================   =====
+
+
+#. clear pattern followed by all apart from `_generic`.
+#. some pointer calls take not all of count/gltype/stride/offset
+
+
+Buffer identifiers vertices_id and indices_id are generated
+and bound to GL_ARRAY_BUFFER and GL_ELEMENT_ARRAY_BUFFER
+and the buffer data is passed, causing once only upload to the GPU 
+in the ctor.
+
+::
+
+        self.vertices_id = gl.glGenBuffers(1)
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
+        gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_STATIC_DRAW )
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 )
+
+        self.indices_id = gl.glGenBuffers(1)
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
+        gl.glBufferData( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices, gl.GL_STATIC_DRAW )
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 )
+
+
+Thence at VBO draw:
+
+#. GL_ARRAY_BUFFER bound using vertices_id 
+#. GL_ELEMENT_ARRAY_BUFFER bound using indices_id
+#. any generic attributes are enabled
+#. attributes chosen by `what` argument first letters are enabled
+   which switch the meanings of the array data
+
+#. gl.glDrawElements( mode, self.indices.size, gl.gl_UNSIGNED_INT, None )
+#. GL_ARRAY_BUFFER and GL_ELEMENT_ARRAY_BUFFER are unbound
+
+
+::
+
+    def draw( self, mode=gl.GL_QUADS, what='pnctesf' ):
+        gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
+
+        for attribute in self.generic_attributes:
+            attribute.enable()
+
+        for c in self.attributes.keys():
+            if c in what:
+                self.attributes[c].enable()
+        gl.glDrawElements( mode, self.indices.size, gl.GL_UNSIGNED_INT, None)
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 )
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 )
+        gl.glPopClientAttrib( )
+
+
+
+* http://www.opengl.org/sdk/docs/man2/xhtml/glDrawElements.xml
+
+::
+
+  glDrawElements( GLenum      mode,
+                  GLsizei     count,      # Specifies the number of elements to be rendered
+                  GLenum      type,       # Specifies the type of the values in indices. 
+                                            Must be one of GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, or GL_UNSIGNED_INT.
+                  const GLvoid *indices); # Specifies a pointer to the location where the indices are stored 
+
+
+When glDrawElements is called, it uses *count* sequential elements from an
+enabled array, starting at *indices* to construct a sequence of geometric
+primitives. *mode* specifies what kind of primitives are constructed and how the
+array elements construct these primitives. If more than one array is enabled,
+each is used. If GL_VERTEX_ARRAY is not enabled, no geometric primitives are
+constructed.
+
+===================   ====================================
+   mode 
+===================   ====================================
+  GL_POINTS
+  GL_LINE_STRIP
+  GL_LINE_LOOP
+  GL_LINES
+  GL_TRIANGLE_STRIP
+  GL_TRIANGLE_FAN
+  GL_TRIANGLES
+  GL_QUAD_STRIP
+  GL_QUADS
+  GL_POLYGON
+===================   ====================================
+
+
+
+* http://www.opengl.org/sdk/docs/man2/xhtml/glDrawRangeElements.xml
+
+::
+
+    void glDrawRangeElements(   GLenum      mode,
+                                GLuint      start,
+                                GLuint      end,
+                                GLsizei     count,
+                                GLenum      type,
+                                const GLvoid *      indices);
+
+
+glDrawRangeElements is available only if the GL version is 1.2 or greater.
+
+ 
+
 
 
 
