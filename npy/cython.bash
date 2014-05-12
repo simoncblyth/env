@@ -12,12 +12,17 @@ CYTHON OVERVIEW
 
 #. Cython is Python with C data types.
 
+Interesting Uses
+------------------
 
+* https://gist.github.com/GaelVaroquaux/1249305
+
+  Copy-less binding of C-generated arrays with Cython
 
 
 
 CYTHON REFERENCES
-~~~~~~~~~~~~~~~~~~~
+--------------------
 
 * http://cython.org/
 
@@ -61,7 +66,9 @@ CYTHON REFERENCES
 
 
 PIP INSTALL ON C
-~~~~~~~~~~~~~~~~~~
+-------------------
+
+::
 
     [blyth@cms01 db]$ cython -V
     Cython version 0.13
@@ -71,7 +78,7 @@ PIP INSTALL ON C
 
 
 MACPORTS ON G
-~~~~~~~~~~~~~~~
+----------------
 
 Arghh,  tis getting python 2.5.6  (currently have 2.5.5)
 fortunately this did not stomp on /opt/local/lib/python2.5/site-packages/
@@ -108,18 +115,14 @@ fortunately this did not stomp on /opt/local/lib/python2.5/site-packages/
 
 
 MACPORTS py26 ON G
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 
 
 CYTHON C++
-~~~~~~~~~~~
+------------
 
-
-
-
-
-http://docs.cython.org/src/userguide/wrapping_CPlusPlus.html
+* http://docs.cython.org/src/userguide/wrapping_CPlusPlus.html
 
 
 
