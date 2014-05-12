@@ -223,7 +223,7 @@ DAELOAD = function(){
 
         function param_table(){
              var table = document.createElement('table') ;
-             param_table_add( table, "background", "../../e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.html" , true );
+             param_table_add( table, "background", "http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.html" , true );
              param_table_add( table, "samples", "../../muon_simulation/samples/" , true );
              param_table_add( table, "location", window.location , true );
              for (var k in param) {
