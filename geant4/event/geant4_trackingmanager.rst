@@ -1,14 +1,11 @@
 Geant4 TrackingManager
 ========================
 
-`source/tracking/include/G4TrackingManager.hh`::
-
 
 G4TrackingManager.hh
 ----------------------
 
 `source/tracking/include/G4TrackingManager.hh`::
-
 
     031 // G4TrackingManager.hh
     032 //

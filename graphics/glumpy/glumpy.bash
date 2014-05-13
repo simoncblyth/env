@@ -196,18 +196,18 @@ VertexAttribute_generic
     gl.glEnableVertexAttribArray( self.index )
 
 
-==================  ==================   ================   =====
-gl***Pointer          GL_***_ARRAY          Att names         *
-==================  ==================   ================   =====
- Color                COLOR                color              c
- EdgeFlag             EDGE_FLAG            edge_flag          e
- FogCoord             FOG_COORD            fog_coord          f
- Normal               NORMAL               normal             n
- SecondaryColor       SECONDARY_COLOR      secondary_color    s
- TexCoord             TEXTURE_COORD        tex_coord          t 
- Vertex               VERTEX               position           p
+==================  ==================   ===================   =====
+gl***Pointer          GL_***_ARRAY          Att names            *
+==================  ==================   ===================   =====
+ Color                COLOR                color                 c
+ EdgeFlag             EDGE_FLAG            edge_flag             e
+ FogCoord             FOG_COORD            fog_coord             f
+ Normal               NORMAL               normal                n
+ SecondaryColor       SECONDARY_COLOR      secondary_color       s
+ TexCoord             TEXTURE_COORD        tex_coord             t 
+ Vertex               VERTEX               position              p
  VertexAttrib         N/A             
-==================  ==================   ================   =====
+==================  ==================   ===================   =====
 
 
 #. clear pattern followed by all apart from `_generic`.

@@ -266,9 +266,10 @@ PDF CREATION FUNCTIONS
               uses convert to concatenate NN_crop.png into name.pdf , this 
               is using ImageMagick (a very heavy dependency). 
 
-              Used Automator. It has an action that does precisely this. 
-              
-              
+              Used Automator action, see 
+              /Library/WebServer/Documents/env/muon_simulation/presentation/pngs2pdf.workflow
+
+              TODO: generalize to an Automator Service, document at :env:`osx/osx_automator_workflows`
 
 
 *slides-rst2pdf-convert*
