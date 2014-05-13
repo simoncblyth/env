@@ -7,24 +7,30 @@ For checking using LXe example::
     lxe-
     lxe-test   # sling some photons via RootZMQ
 
-
 Interactive probing::
 
    (chroma_env)delta:g4daeview blyth$ ipython daechromaphotonlist.py -i
 
     In [12]: ddir = map(lambda _:np.linalg.norm(_), cpl.dir )
 
+
+Hmm comingling gl code with pure numpy code 
+is inconvenient as needs context to run. 
+
 """
-import logging, ctypes
+import logging
+import numpy as np
 log = logging.getLogger(__name__)
 
 
+import ctypes
 import glumpy as gp
-import numpy as np
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
-xyz_ = lambda x,y,z,dtype:np.column_stack((np.array(x,dtype=dtype),np.array(y,dtype=dtype),np.array(z,dtype=dtype))) 
+
+from daechromaphotonlistbase import DAEChromaPhotonListBase
+
 
 class MyVertexBuffer(gp.graphics.VertexBuffer):
     """
@@ -49,6 +55,15 @@ class MyVertexBuffer(gp.graphics.VertexBuffer):
         * http://stackoverflow.com/questions/11132716/how-to-specify-buffer-offset-with-pyopengl
         * http://pyopengl.sourceforge.net/documentation/pydoc/OpenGL.arrays.vbo.html
 
+
+        ====================  ==============
+        type
+        ====================  ==============
+        GL_UNSIGNED_BYTE        0:255
+        GL_UNSIGNED_SHORT,      0:65535
+        GL_UNSIGNED_INT         0:4.295B
+        ====================  ==============
+
         """
         if count is None:
            count = self.indices.size   # this is what the glumpy original does
@@ -71,22 +86,11 @@ class MyVertexBuffer(gp.graphics.VertexBuffer):
         gl.glPopClientAttrib( )
 
     
-
-class DAEChromaPhotonList(object):
-    def __init__(self, cpl):
-        self.cpl = cpl
-        self.nphotons = cpl.x.size()
-        cpl.Print()
-        self.copy_from_cpl(cpl)
+class DAEChromaPhotonList(DAEChromaPhotonListBase):
+    def __init__(self, cpl, event ):
+        DAEChromaPhotonListBase.__init__(self, cpl, timesort=True )
         self.create_vbo()
-
-    def copy_from_cpl(self, cpl):
-        self.pos = xyz_(cpl.x,cpl.y,cpl.z,np.float32)
-        self.dir = xyz_(cpl.px,cpl.py,cpl.pz,np.float32)
-        self.pol = xyz_(cpl.polx,cpl.poly,cpl.polz,np.float32)
-        self.wavelength = np.array(cpl.wavelength, dtype=np.float32)
-        self.t = np.array(cpl.t, dtype=np.float32)
-        self.pmtid = np.array(cpl.pmtid, dtype=np.int32)
+        self.event = event
 
     def create_vbo(self):
         """
@@ -95,15 +99,19 @@ class DAEChromaPhotonList(object):
 
         Then by sorting photons by time at VBO creation and recording 
         appropriate offsets can make an interactive time cut.
+        
+        #. creates structure of nphoton elements populated with zeros
+           the populates the 'position' slot with pos
 
+        #. indices provides element array from 0:nphotons-1
         """
-        log.info("create_vbo")
-        data = np.zeros( self.nphotons, [('position', np.float32, 3)])
+        log.info("create_vbo for %s photons" % self.nphotons)
+
+        data = np.zeros( self.nphotons , [('position', np.float32, 3)]) 
         data['position'] = self.pos
 
         self.data = data
-        self.indices = np.arange(data.size,dtype=np.uint32)  # the default used by VertexBuffer if no were indices given
-
+        self.indices = np.arange(self.nphotons, dtype=np.uint32)  
         self.vbo = MyVertexBuffer( self.data, self.indices  )
 
     def draw(self):
@@ -140,9 +148,26 @@ class DAEChromaPhotonList(object):
          VertexAttrib         N/A             
         ==================  ==================   ================   =====
 
+
+        The qcut cuts away at the elements to be presented,     
+        the default of 1 corresponds to all
+
+
         """ 
         #self.vbo.draw(mode=gl.GL_POINTS, what='p' )
-        self.vbo.draw(mode=gl.GL_POINTS, what='p', count=100, offset=4000 )
+
+        qcut = self.event.qcut
+        tot = self.nphotons
+
+        # initially tried changing both count and offset, 
+        # it works but gives SIGABRTs after a short while
+        # just changing the count has not given trouble yet 
+        #
+        qoffset, qcount = 0, int(tot*qcut)
+        assert qcount <= tot
+
+        log.info("tot %d qcut %s qcount %d qoffset %d " % (tot, qcut, qcount, qoffset ))  
+        self.vbo.draw(mode=gl.GL_POINTS, what='p', count=qcount, offset=qoffset )
 
     def draw_slowly(self):
         """
@@ -174,15 +199,7 @@ class DAEChromaPhotonList(object):
 
 
 if __name__ == '__main__':
-
-    import ROOT
-    ROOT.gSystem.Load("$LOCAL_BASE/env/chroma/ChromaPhotonList/lib/libChromaPhotonList")
-
-    from env.chroma.ChromaPhotonList.cpl import random_cpl
-    cpl = DAEChromaPhotonList(random_cpl())
-
-    print cpl.dir
-
+    pass
 
 
 

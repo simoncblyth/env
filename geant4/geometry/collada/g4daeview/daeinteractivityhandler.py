@@ -301,7 +301,7 @@ class DAEInteractivityHandler(object):
 
         two_finger_zoom = button == 8    # NB zoom is a misnomer, this is translating eye coordinate z
         if   self.zoom_mode or two_finger_zoom: self.scene.trackball.zoom_to(x,y,dx,dy)
-        elif self.scan_mode: self.scene.scan_to(x,y,dx,dy)
+        elif self.scan_mode: self.scene.event.scan_to(x,y,dx,dy)
         elif self.pan_mode: self.scene.trackball.pan_to(x,y,dx,dy)
         elif self.near_mode: self.scene.camera.near_to(x,y,dx,dy)
         elif self.far_mode: self.scene.camera.far_to(x,y,dx,dy)
