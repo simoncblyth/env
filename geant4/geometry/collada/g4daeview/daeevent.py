@@ -51,6 +51,9 @@ class DAEEvent(object):
 
         """ 
         key = self.config.args.key
+
+        cpl_config = []
+
         for k,v in event_config:
             if k == 'key':
                 key = v
@@ -60,14 +63,15 @@ class DAEEvent(object):
                 self.load(v, key)
             elif k == 'tcut':
                 self.qcut = v 
-            elif k == 'fpho':   # hmm, has no effect unless recreate the VBO
-                self.cpl.fpho = v
-            elif k == 'pholine':
-                self.cpl.toggle_pholine()
+            elif k in ('fpho','pholine'):   
+                cpl_config.append([k,v])
             else:
                 assert 0, (k,v)
             pass
         pass
+        if len(cpl_config)>0:
+            self.cpl.reconfig(cpl_config)
+        pass 
 
     def external_cpl(self, cpl ):
         log.info("external_cpl")

@@ -86,30 +86,42 @@ class MyVertexBuffer(gp.graphics.VertexBuffer):
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
         gl.glPopClientAttrib( )
 
-    
+DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
+   
+ 
 class DAEChromaPhotonList(DAEChromaPhotonListBase):
     def __init__(self, cpl, event ):
+        self.event = event
         DAEChromaPhotonListBase.__init__(self, cpl, timesort=True )
 
-        pholine = event.config.args.pholine
-        self.fpho = event.config.args.fpho
-        mode = 'lines' if pholine else 'points' 
-
-        self.mode = mode
-        DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
-        self.drawmode = DRAWMODE[mode]
-
-        log.info("DAEChromaPhotonList %s " % repr(self))
-
-        self.create_vbo()
-        self.event = event
+        self.reconfig([
+                       ['fpho',event.config.args.fpho],
+                       ['pholine',event.config.args.pholine],
+                      ])
 
     def __repr__(self):
         return "%s %s " % (self.mode, self.fpho)
 
-    def toggle_pholine():
-        log.info("live toggle_pholine not implemented yet, set --pholine at launch  ")
+    def reconfig(self, conf):
+        update = False
+        for k, v in conf:
+            if k == 'fpho':
+                self.fpho = v
+                update = True
+            elif k == 'pholine':
+                self.set_pholine(v)
+                update = True
+            else:
+                log.info("DCPL ignoring %s %s " % (k,v))
+            pass 
+        pass
+        if update:
+            self.create_vbo()
 
+    def set_pholine(self, pholine):
+        self.pholine = pholine
+        self.mode = 'lines' if pholine else 'points' 
+        self.drawmode = DRAWMODE[self.mode]
 
     def create_vbo(self):
         """
@@ -119,7 +131,7 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
         #. indices provides element array from 0:nphotons-1
         """
         log.info("create_vbo for %s photons" % self.nphotons)
-
+        self.dirty = False
         if self.mode == 'points':
             data = np.zeros(self.nphotons, [('position', np.float32, 3), 
                                             ('color',    np.float32, 4)]) 

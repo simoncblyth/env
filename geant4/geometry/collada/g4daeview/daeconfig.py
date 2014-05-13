@@ -196,6 +196,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--path-template", help="Path template that load/save arguments fill in. Default %(default)s.",type=str)
         parser.add_argument( "--fpho", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)
         parser.add_argument( "--pholine", help="Present photons as lines from position to position + momdirection*fpho. Default %(default)s.",action="store_true")
+        parser.add_argument( "--nopholine", dest="pholine", help="Switch off line representation, returning to point. %(default)s.",action="store_false")
         parser.add_argument( "--tcut", help="Select photons to present based on their global time, in range 0. to 1., where 1. means all. Default %(default)s.",type=float)
 
         # kernel switches
