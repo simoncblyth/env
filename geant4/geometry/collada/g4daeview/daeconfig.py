@@ -167,10 +167,6 @@ class DAEConfig(ConfigBase):
         defaults['norm'] = "0,0,0"
         defaults['fullscreen'] = False
         defaults['markers'] = False
-        defaults['load'] = None
-        defaults['save'] = None
-        defaults['key'] = 'CPL'
-        defaults['path_template'] = os.environ.get('DAE_PATH_TEMPLATE',None)
 
         parser.add_argument( "--scaled-mode", action="store_true", help="In scaled mode the actual VBO vertex coordinates are scaled into -1:1, ie shrink world into unit cube. **FOR DEBUG ONLY** " )
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
@@ -183,12 +179,24 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--norm",    help="Dummy argument, used for informational output.",type=str)
         parser.add_argument( "--fullscreen", action="store_true", help="Start in fullscreen mode." )
         parser.add_argument( "--markers",   action="store_true", help="[I] Frustum and light markers." )
+
+
+        # event
+        defaults['load'] = None
+        defaults['save'] = None
+        defaults['key'] = 'CPL'
+        defaults['path_template'] = os.environ.get('DAE_PATH_TEMPLATE',None)
+        defaults['fpho'] = 100.
+        defaults['pholine']  = False
+        defaults['tcut'] = 1.
+
         parser.add_argument( "--load",  help="[I] Path to .root file to read, eg containing ChromaPhotonList instances. Default %(default)s.",type=str)
         parser.add_argument( "--save",  help="[I] Path to .root file to write. Default %(default)s.",type=str)
         parser.add_argument( "--key",   help="[I] ROOT Object Key to use with load/save. Default %(default)s.",type=str)
         parser.add_argument( "--path-template", help="Path template that load/save arguments fill in. Default %(default)s.",type=str)
-         
-
+        parser.add_argument( "--fpho", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)
+        parser.add_argument( "--pholine", help="Present photons as lines from position to position + momdirection*fpho. Default %(default)s.",action="store_true")
+        parser.add_argument( "--tcut", help="Select photons to present based on their global time, in range 0. to 1., where 1. means all. Default %(default)s.",type=float)
 
         # kernel switches
         defaults['cuda'] = False

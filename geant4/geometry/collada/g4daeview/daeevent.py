@@ -11,7 +11,7 @@ class DAEEvent(object):
     def __init__(self, config ):
         self.config = config
         self.cpl = None 
-        self._qcut = 1. 
+        self.qcut = config.args.tcut 
 
         launch_config = [] 
         if not self.config.args.load is None:
@@ -28,7 +28,7 @@ class DAEEvent(object):
     def _get_qcut(self):
         return self._qcut
     def _set_qcut(self, qcut):
-        self._qcut = np.clip(qcut, 0., 1.)
+        self._qcut = np.clip(qcut, 0.00001, 1.) # dont go all the way to zero as cannot then recover
     qcut = property(_get_qcut, _set_qcut)
 
 
@@ -58,6 +58,12 @@ class DAEEvent(object):
                 self.save(v, key)
             elif k == 'load':
                 self.load(v, key)
+            elif k == 'tcut':
+                self.qcut = v 
+            elif k == 'fpho':   # hmm, has no effect unless recreate the VBO
+                self.cpl.fpho = v
+            elif k == 'pholine':
+                self.cpl.toggle_pholine()
             else:
                 assert 0, (k,v)
             pass

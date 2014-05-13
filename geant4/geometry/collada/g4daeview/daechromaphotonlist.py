@@ -29,6 +29,7 @@ import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
 
+
 from daechromaphotonlistbase import DAEChromaPhotonListBase
 
 
@@ -89,17 +90,29 @@ class MyVertexBuffer(gp.graphics.VertexBuffer):
 class DAEChromaPhotonList(DAEChromaPhotonListBase):
     def __init__(self, cpl, event ):
         DAEChromaPhotonListBase.__init__(self, cpl, timesort=True )
+
+        pholine = event.config.args.pholine
+        self.fpho = event.config.args.fpho
+        mode = 'lines' if pholine else 'points' 
+
+        self.mode = mode
+        DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
+        self.drawmode = DRAWMODE[mode]
+
+        log.info("DAEChromaPhotonList %s " % repr(self))
+
         self.create_vbo()
         self.event = event
 
+    def __repr__(self):
+        return "%s %s " % (self.mode, self.fpho)
+
+    def toggle_pholine():
+        log.info("live toggle_pholine not implemented yet, set --pholine at launch  ")
+
+
     def create_vbo(self):
         """
-        For time sliding try enhancing glumpy VBO
-        to support: glDrawRangeElements
-
-        Then by sorting photons by time at VBO creation and recording 
-        appropriate offsets can make an interactive time cut.
-        
         #. creates structure of nphoton elements populated with zeros
            the populates the 'position' slot with pos
 
@@ -107,13 +120,35 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
         """
         log.info("create_vbo for %s photons" % self.nphotons)
 
-        data = np.zeros(self.nphotons, [('position', np.float32, 3), 
-                                        ('color',    np.float32, 4)]) 
-        data['position'] = self.pos
-        data['color']    = self.color
+        if self.mode == 'points':
+            data = np.zeros(self.nphotons, [('position', np.float32, 3), 
+                                            ('color',    np.float32, 4)]) 
+            data['position'] = self.pos
+            data['color']    = self.color
+
+        elif self.mode == 'lines': 
+            data = np.zeros(2*self.nphotons, [('position', np.float32, 3), 
+                                              ('color',    np.float32, 4)]) 
+
+            # interleave the photon positions with sum of photon position and direction
+            vertices = np.empty((len(self.pos)*2,3), dtype=self.pos.dtype )
+            vertices[0::2] = self.pos
+            vertices[1::2] = self.pos + self.dir*self.fpho
+
+            # interleaved double up the colors 
+            colors = np.empty((len(self.color)*2,4), dtype=self.color.dtype )
+            colors[0::2] = self.color
+            colors[1::2] = self.color
+
+            data['position'] = vertices
+            data['color']    = colors
+
+        else:
+            assert 0
+
 
         self.data = data
-        self.indices = np.arange(self.nphotons, dtype=np.uint32)  
+        self.indices = np.arange( data.size, dtype=np.uint32)  
         self.vbo = MyVertexBuffer( self.data, self.indices  )
 
     def draw(self):
@@ -156,10 +191,9 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
 
 
         """ 
-        #self.vbo.draw(mode=gl.GL_POINTS, what='p' )
 
         qcut = self.event.qcut
-        tot = self.nphotons
+        tot = len(self.data)
 
         # initially tried changing both count and offset, 
         # it works but gives SIGABRTs after a short while
@@ -169,7 +203,9 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
         assert qcount <= tot
 
         #log.info("tot %d qcut %s qcount %d qoffset %d " % (tot, qcut, qcount, qoffset ))  
-        self.vbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount, offset=qoffset )
+
+      
+        self.vbo.draw(mode=self.drawmode, what='pc', count=qcount, offset=qoffset )
 
     def draw_slowly(self):
         """
