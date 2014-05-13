@@ -12,6 +12,8 @@ log = logging.getLogger(__name__)
 
 xyz_ = lambda x,y,z,dtype:np.column_stack((np.array(x,dtype=dtype),np.array(y,dtype=dtype),np.array(z,dtype=dtype))) 
 
+from env.graphics.color.wav2RGB import wav2RGB
+
 
 class DAEChromaPhotonListBase(object):
     def __init__(self, cpl, timesort=True ):
@@ -34,6 +36,8 @@ class DAEChromaPhotonListBase(object):
         t = np.array(cpl.t, dtype=np.float32)
         pmtid = np.array(cpl.pmtid, dtype=np.int32)
 
+
+
         if not timesort:
             self.pos = pos 
             self.dir = dir 
@@ -50,6 +54,15 @@ class DAEChromaPhotonListBase(object):
             self.t = t[order]
             self.pmtid = pmtid[order]
         pass
+
+        color = np.zeros(self.nphotons, dtype=(np.float32, 4))
+        # hmm, a more numpy way of doing this ?
+        for i,wl in enumerate(self.wavelength):
+            color[i] = wav2RGB(wl)
+        pass
+        self.color = color
+
+
     def dump(self):
         print "pos\n",self.pos
         print "dir\n",self.dir
@@ -57,6 +70,7 @@ class DAEChromaPhotonListBase(object):
         print "wavelength\n",self.wavelength
         print "t\n",self.t
         print "pmtid\n",self.pmtid
+        print "color\n",self.color
       
 
 if __name__ == '__main__':

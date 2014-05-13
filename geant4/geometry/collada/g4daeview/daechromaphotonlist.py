@@ -107,8 +107,10 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
         """
         log.info("create_vbo for %s photons" % self.nphotons)
 
-        data = np.zeros( self.nphotons , [('position', np.float32, 3)]) 
+        data = np.zeros(self.nphotons, [('position', np.float32, 3), 
+                                        ('color',    np.float32, 4)]) 
         data['position'] = self.pos
+        data['color']    = self.color
 
         self.data = data
         self.indices = np.arange(self.nphotons, dtype=np.uint32)  
@@ -166,8 +168,8 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
         qoffset, qcount = 0, int(tot*qcut)
         assert qcount <= tot
 
-        log.info("tot %d qcut %s qcount %d qoffset %d " % (tot, qcut, qcount, qoffset ))  
-        self.vbo.draw(mode=gl.GL_POINTS, what='p', count=qcount, offset=qoffset )
+        #log.info("tot %d qcut %s qcount %d qoffset %d " % (tot, qcut, qcount, qoffset ))  
+        self.vbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount, offset=qoffset )
 
     def draw_slowly(self):
         """
