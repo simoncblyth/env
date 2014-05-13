@@ -170,6 +170,7 @@ class DAEConfig(ConfigBase):
         defaults['load'] = None
         defaults['save'] = None
         defaults['key'] = 'CPL'
+        defaults['path_template'] = os.environ.get('DAE_PATH_TEMPLATE',None)
 
         parser.add_argument( "--scaled-mode", action="store_true", help="In scaled mode the actual VBO vertex coordinates are scaled into -1:1, ie shrink world into unit cube. **FOR DEBUG ONLY** " )
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
@@ -185,7 +186,10 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--load",  help="[I] Path to .root file to read, eg containing ChromaPhotonList instances. Default %(default)s.",type=str)
         parser.add_argument( "--save",  help="[I] Path to .root file to write. Default %(default)s.",type=str)
         parser.add_argument( "--key",   help="[I] ROOT Object Key to use with load/save. Default %(default)s.",type=str)
- 
+        parser.add_argument( "--path-template", help="Path template that load/save arguments fill in. Default %(default)s.",type=str)
+         
+
+
         # kernel switches
         defaults['cuda'] = False
         defaults['raycast'] = False

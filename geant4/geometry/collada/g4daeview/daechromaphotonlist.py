@@ -14,15 +14,8 @@ Interactive probing::
 
     In [12]: ddir = map(lambda _:np.linalg.norm(_), cpl.dir )
 
-    In [14]: print ddir
-    [1.4209839, 1.0561398, 1.1840367, 0.94664037, 1.0857934, 1.4024338, 1.2497476, 0.96031791, 0.92489851, 1.2788764, 1.2204158, 1.2413212, 0.33396932, 1.0090759, 1.3084445, 0.96862358, 1.1485049, 0.8632732, 1.1312609, 0.65599948, 1.1350429, 0.64752048, 0.83116335, 1.3650827, 0.11439443, 0.58249426, 1.2186502, 1.1817784, 1.1500614, 0.88921714, 0.78321654, 0.55772144, 0.97450805, 0.5246563, 0.64278752, 0.17736676, 1.0694224, 0.93206048, 0.9899205, 1.0367258, 1.1141851, 1.1176836, 1.3933165, 0.76192909, 1.2836145, 1.1873106, 0.93039864, 0.98263144, 1.1388388, 0.65394604, 0.73478901, 1.0558159, 0.77594322, 0.87060881, 0.78373843, 1.2936558, 1.2129512, 1.2595264, 1.2817491, 0.99562281, 1.2855144, 1.1620266, 1.1792105, 1.3162464, 1.4996835, 0.9008953, 1.0214221, 1.0381697, 1.2537543, 1.0436105, 0.89909387, 0.85806465, 1.2673098, 0.81995475, 1.24819, 1.2298234, 0.81444257, 1.2929296, 1.3538636, 1.2676951, 0.91203678, 1.1772467, 1.191206, 0.95119107, 1.1960018, 0.49314541, 0.92237413, 0.70844412, 1.3627962, 1.1306297, 1.0215813, 0.67949617, 0.94199985, 0.77324378, 1.3687329, 0.98732764, 1.1357194, 0.88006437, 0.6298191, 1.1748897]
-
-
-
-
-
 """
-import logging
+import logging, ctypes
 log = logging.getLogger(__name__)
 
 
@@ -33,8 +26,51 @@ import OpenGL.GLUT as glut
 
 xyz_ = lambda x,y,z,dtype:np.column_stack((np.array(x,dtype=dtype),np.array(y,dtype=dtype),np.array(z,dtype=dtype))) 
 
+class MyVertexBuffer(gp.graphics.VertexBuffer):
+    """
+    Inherit from glumpy VertexBuffer in order to experiment with the DrawElements 
+    call : attempting for partial draws.
+    """
+    def __init__(self, *args ):
+        gp.graphics.VertexBuffer.__init__(self, *args )
 
+    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None ):
+        """ 
+        :param mode: primitive to draw
+        :param what: attribute multiple choice by first letter
+        :param offset: integer element array buffer offset, default 0
+        :param count: number of elements, default None corresponds to all in self.indices
 
+        Buffer offset default of 0 corresponds to glumpy original None, (ie (void*)0 )
+        the integet value is converted with `ctypes.c_void_p(offset)`   
+        allowing partial buffer drawing.
+
+        * http://pyopengl.sourceforge.net/documentation/manual-3.0/glDrawElements.html
+        * http://stackoverflow.com/questions/11132716/how-to-specify-buffer-offset-with-pyopengl
+        * http://pyopengl.sourceforge.net/documentation/pydoc/OpenGL.arrays.vbo.html
+
+        """
+        if count is None:
+           count = self.indices.size   # this is what the glumpy original does
+        pass
+
+        gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
+
+        for attribute in self.generic_attributes:
+            attribute.enable()
+        for c in self.attributes.keys():
+            if c in what:
+                self.attributes[c].enable()
+
+        gl.glDrawElements( mode, count, gl.GL_UNSIGNED_INT, ctypes.c_void_p(offset) )
+
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 ) 
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
+        gl.glPopClientAttrib( )
+
+    
 
 class DAEChromaPhotonList(object):
     def __init__(self, cpl):
@@ -68,7 +104,7 @@ class DAEChromaPhotonList(object):
         self.data = data
         self.indices = np.arange(data.size,dtype=np.uint32)  # the default used by VertexBuffer if no were indices given
 
-        self.vbo = gp.graphics.VertexBuffer( self.data, self.indices  )
+        self.vbo = MyVertexBuffer( self.data, self.indices  )
 
     def draw(self):
         """
@@ -105,7 +141,8 @@ class DAEChromaPhotonList(object):
         ==================  ==================   ================   =====
 
         """ 
-        self.vbo.draw(mode=gl.GL_POINTS, what='p' )
+        #self.vbo.draw(mode=gl.GL_POINTS, what='p' )
+        self.vbo.draw(mode=gl.GL_POINTS, what='p', count=100, offset=4000 )
 
     def draw_slowly(self):
         """

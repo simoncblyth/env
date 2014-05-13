@@ -96,15 +96,35 @@ class DAEScene(object):
         # animation frame count
         self.animator = DAEAnimator(args.period)
 
-    def save(self, path, key ):
+
+    def resolve(self, path_, path_template ):
+        """
+        Using a path_template allows referencing paths in a
+        very brief manner, ie with::
+ 
+            export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%(arg)s.root"
+
+        Can use args `--load 1` 
+
+        """
+        if path_template is None:
+            return path_
+        log.info("resolve path_template %s path_ %s " % (path_template, path_ )) 
+        path = path_template % { 'arg':path_ }
+        return path 
+
+    def save(self, path_, key ):
+        path = self.resolve(path_, self.config.args.path_template)
         if self.cpl is None:
             log.warn("no cpl, nothing to save ") 
             return
         pass
+        log.info("save cpl into  %s : %s " % (path_, path) )
         save_cpl( path, key, self.cpl.cpl )   
 
-    def load(self, path, key ):
-        log.info("load cpl from  %s " % path)
+    def load(self, path_, key ):
+        path = self.resolve(path_, self.config.args.path_template)
+        log.info("load cpl from  %s : %s " % (path_, path) )
         cpl = load_cpl(path, key )
         if cpl is None:
             log.warn("load_cpl failed ")
