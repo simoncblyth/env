@@ -14,10 +14,7 @@ from daelights import DAELights
 from daetransform import DAETransform
 from daebookmarks import DAEBookmarks
 from daeanimator import DAEAnimator
-from daechromaphotonlist import DAEChromaPhotonList
-
-# hmm this is using ROOT, might be a slow import 
-from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl
+from daeevent import DAEEvent
 
 # do not import anything that would initialize CUDA context here, for CUDA_PROFILE control from config
  
@@ -68,12 +65,8 @@ class DAEScene(object):
         # Image processor, None if not --with-cuda-image-processor
         self.processor = self.make_processor( config ) 
 
-        # ChromaPhotonList, on_external_cpl event 
-        self.cpl = None 
-
-        if not self.config.args.load is None:
-            self.load(self.config.args.load, self.config.args.key)    # handle launch argument load
-
+        # Event handling, either root file load/save or network messages 
+        self.event = DAEEvent(config) 
 
         # transform holds references to all relevant state-holders 
         transform = DAETransform( self ) 
@@ -96,46 +89,9 @@ class DAEScene(object):
         # animation frame count
         self.animator = DAEAnimator(args.period)
 
-
-    def resolve(self, path_, path_template ):
-        """
-        Using a path_template allows referencing paths in a
-        very brief manner, ie with::
- 
-            export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%(arg)s.root"
-
-        Can use args `--load 1` 
-
-        """
-        if path_template is None:
-            return path_
-        log.info("resolve path_template %s path_ %s " % (path_template, path_ )) 
-        path = path_template % { 'arg':path_ }
-        return path 
-
-    def save(self, path_, key ):
-        path = self.resolve(path_, self.config.args.path_template)
-        if self.cpl is None:
-            log.warn("no cpl, nothing to save ") 
-            return
-        pass
-        log.info("save cpl into  %s : %s " % (path_, path) )
-        save_cpl( path, key, self.cpl.cpl )   
-
-    def load(self, path_, key ):
-        path = self.resolve(path_, self.config.args.path_template)
-        log.info("load cpl from  %s : %s " % (path_, path) )
-        cpl = load_cpl(path, key )
-        if cpl is None:
-            log.warn("load_cpl failed ")
-            return
-        pass
-        self.external_cpl( cpl )
-
     def external_cpl(self, cpl ):
-        log.info("external_cpl")
-        cpl = DAEChromaPhotonList(cpl)
-        self.cpl = cpl
+        log.info("external_cpl ChromaPhotonList ")
+        self.event.external_cpl( cpl )
 
     def reset_count(self):
         self.animator.reset()
@@ -334,7 +290,7 @@ class DAEScene(object):
         newview = None
         elu = {}
         raycast_config = {}
-        root_config = []
+        event_config = []
         for k,v in vars(live_args).items():
             if k == "target":
                 newview = self.target_view(v, prior=self.view ) 
@@ -356,7 +312,7 @@ class DAEScene(object):
                 raycast_config[k] = v
                 self.toggle_showmetric() 
             elif k in ("save","load","key"):
-                root_config.append( (k,v,) )   
+                event_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v
             elif k in ("kscale","near","far","yfov","nearclip","farclip","yfovclip"):
@@ -374,8 +330,8 @@ class DAEScene(object):
             log.info("view changed by external message")
             self.update_view(newview)
 
-        if len(root_config) > 0:
-            self.handle_loadsave(root_config)
+        if len(event_config) > 0:
+            self.event.reconfig(event_config)
             
         if len(raycast_config)>0:
             self.raycaster_reconfig(**raycast_config)
@@ -384,26 +340,6 @@ class DAEScene(object):
             log.info("home-ing trackball and changing parameters of existing view %s " % repr(elu)) 
             self.trackball.home()
             self.view.current_view.change_eye_look_up( **elu )
-
-    def handle_loadsave(self, root_config ):
-        """
-        Handle argument sequences like::
-
-            --key CPL --load /tmp/1.root --key OBJ --load /tmp/2.root 
-
-        """ 
-        key = self.config.args.key
-        for k,v in root_config:
-            if k == 'key':
-                key = v
-            if k == 'save':
-                self.save(v, key)
-            elif k == 'load':
-                self.load(v, key)
-            else:
-                assert 0
-            pass
-        pass
 
     def raycaster_reconfig(self, **raycast_config ):
         if not self.raycast:

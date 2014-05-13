@@ -171,8 +171,8 @@ class DAEFrameHandler(object):
             self.illustrate.frustum( view, lrbtnf*kscale )
             self.illustrate.raycast( transform.pixel2world_notrackball , view.eye, camera ) 
 
-        if self.scene.cpl:
-            self.scene.cpl.draw() 
+        if self.scene.event:
+            self.scene.event.draw() 
 
         if self.scene.light:
             lights.position()   # reset positions following changes to MODELVIEW matrix ?
