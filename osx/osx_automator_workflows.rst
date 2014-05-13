@@ -3,6 +3,38 @@ OSX Automator Workflows
 
 .. contents:: :local:
 
+
+Automator Service to Make PDF from Multiple PNGs
+-------------------------------------------------
+
+Using *Make PDF from PNGs* Automator Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+#. Open folder containing PNGs to combine in Finder.app
+#. Arrange the order and then select PNGs
+#. `ctrl-click` the selection to get contextual menu, choose `Make PDF from PNGs`
+#. After a second or so (depending on number of PNGs) a dialog will appear to enter the 
+   basename (without .pdf) of the output PDF. 
+#. After entering the name the new PDF will appear on the Desktop
+
+
+Creating *Make PDF from PNGs* Automator Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+#. Open Automator, choose *Service* 
+
+   * Select `Service receives: image files` in `any application`
+   * Drag `Library > PDFs > New PDF from Images` action from 2nd column into empty 3rd column
+   * Drag `Library > Files & Folders > Rename Finder Items` 
+
+     * click through the warning as this is a new file 
+     * select `Name Single Item` from the list and in `Options` tab select `Show this action when the workflow runs`
+
+   * Save workflow as `Make PDF from PNGs` and exit Automator.app
+
+
 Automator Service to Combine Multiple PDFs 
 --------------------------------------------
 
@@ -27,9 +59,9 @@ Follow along:
 * http://www.documentsnap.com/how-to-combine-pdf-files-in-mac-osx-using-automator-to-make-a-service/
 
 
-#. Open Automator, Choose *Service*, 
+#. Open Automator, choose *Service*, 
 
-   * Select `Service received: PDF files`  in `any application`
+   * Select `Service receives: PDF files`  in `any application`
    * Drag `Library > PDFs > Combine PDF Pages` action from 2nd column into the empty 3rd column
    * Drag `Library > Files & Folders > Rename Finder Items`
 
