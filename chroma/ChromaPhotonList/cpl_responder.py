@@ -85,6 +85,16 @@ Some EINTR error handling is needed presumably.
 * http://stackoverflow.com/questions/1674162/how-to-handle-eintr-interrupted-system-call
 
 
+Search Refs
+~~~~~~~~~~~~~
+
+* http://gerg.ca/blog/post/2013/zmq-child-process/
+* https://github.com/zeromq/pyzmq/issues/348
+* https://gist.github.com/minrk/5258909
+
+
+
+
 
 Usage Examples
 ----------------
