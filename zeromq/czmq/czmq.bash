@@ -41,7 +41,8 @@ czmq-sdir(){ echo $(env-home)/zeromq/czmq ; }
 
 czmq-bindir(){ echo $(local-base)/env/bin ; }
 
-czmq-cd(){  cd $(czmq-dir); }
+czmq-cd(){  cd $(czmq-sdir); }
+czmq-icd(){  cd $(czmq-dir); }
 czmq-scd(){  cd $(czmq-sdir); }
 czmq-mate(){ mate $(czmq-dir) ; }
 czmq-name(){  echo czmq-2.0.3 ; }
@@ -57,12 +58,12 @@ czmq-get(){
 
 czmq-prefix(){   echo $(czmq-fold) ; }
 czmq-configure(){
-   czmq-cd
+   czmq-icd
    zeromq-
    ./configure --with-libzmq=$(zeromq-prefix) --prefix=$(czmq-prefix)
 }
 czmq-make(){
-   czmq-cd
+   czmq-icd
    make  $*
 }
 czmq-install(){ czmq-make install ; }

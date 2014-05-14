@@ -1,10 +1,12 @@
 /*
-   Based on zguide examples: rrbroker.c, msgqueue.c
+Based on zguide examples: rrbroker.c, msgqueue.c
+
+Apart from the zmq_proxy call this is implemented in CZMQ lingo (higher level C dialect).
+
 
 */
 
 #include "czmq.h"
-#include "zmq.h"
 
 int main (int argc, char *argv [])
 {
