@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
 chroma-
-ipython
+ipython $* -i 
 
 
 

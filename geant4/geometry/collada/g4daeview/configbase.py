@@ -45,10 +45,12 @@ class ConfigBase(object):
         try:
             args = self.init_parser.parse_args()
         except ArgumentParserError, e:
-            print "ArgumentParserError %s %s " % (e, repr(sys.argv)) 
-            return
+            print "FATAL : ArgumentParserError %s %s " % (e, repr(sys.argv)) 
+            self.init_parser.print_help()
+            print "FATAL : ArgumentParserError %s %s " % (e, repr(sys.argv)) 
+            sys.exit(1)
         
-        logging.basicConfig(level=getattr(logging, args.loglevel), format=args.logformat )
+        logging.basicConfig(level=getattr(logging, args.loglevel.upper()), format=args.logformat )
         np.set_printoptions(precision=4, suppress=True)
         self.args = args
 

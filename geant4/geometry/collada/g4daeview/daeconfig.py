@@ -182,6 +182,7 @@ class DAEConfig(ConfigBase):
 
 
         # event
+        defaults['live'] = True
         defaults['load'] = None
         defaults['save'] = None
         defaults['key'] = 'CPL'
@@ -190,6 +191,8 @@ class DAEConfig(ConfigBase):
         defaults['pholine']  = False
         defaults['tcut'] = 1.
 
+        parser.add_argument( "--nolive",  dest="live", help="[I] Disable live updating via ZMQRoot messages. Default %(default)s.", action="store_false")
+        parser.add_argument( "--live",    dest="live", help="[I] Enable live updating via ZMQRoot messages. Default %(default)s.", action="store_true")
         parser.add_argument( "--load",  help="[I] Path to .root file to read, eg containing ChromaPhotonList instances. Default %(default)s.",type=str)
         parser.add_argument( "--save",  help="[I] Path to .root file to write. Default %(default)s.",type=str)
         parser.add_argument( "--key",   help="[I] ROOT Object Key to use with load/save. Default %(default)s.",type=str)

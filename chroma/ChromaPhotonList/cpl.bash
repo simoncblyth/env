@@ -84,6 +84,10 @@ cpl-export(){
    export CHROMAPHOTONLIST_PREFIX=$(cpl-dir)
 }
 
+cpl-ipython(){
+   CHROMAPHOTONLIST_LIB=$(cpl-lib) ipython.sh $(cpl-sdir)/cpl.py 
+}
+
 
 cpl-wipe(){
    local msg="=== $FUNCNAME :"

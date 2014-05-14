@@ -313,7 +313,48 @@ constructed.
 
 glDrawRangeElements is available only if the GL version is 1.2 or greater.
 
- 
+
+
+glumpy timers
+---------------
+
+TODO: work out way to switch off timers
+
+/usr/local/env/graphics/glumpy/glumpy/glumpy/window/backend_glut.py::
+
+    560     def start(self):
+    561         ''' Starts main loop. '''
+    562 
+    563         # Start timers
+    564         for i in range(len(self._timer_stack)):
+    565             def func(index):
+    566                 handler, fps = self._timer_stack[index]
+    567                 t = glut.glutGet(glut.GLUT_ELAPSED_TIME)
+    568                 dt = (t - self._timer_date[index])/1000.0
+    569                 self._timer_date[index] = t
+    570                 handler(dt)
+    571                 glut.glutTimerFunc(int(1000./fps), func, index)
+    572                 self._timer_date[index] = glut.glutGet(glut.GLUT_ELAPSED_TIME)
+    573             fps = self._timer_stack[i][1]
+    574             glut.glutTimerFunc(int(1000./fps), func, i)
+     
+::
+
+    delta:glumpy blyth$ find . -name '*.py' -exec grep -H _timer {} \;
+    ./graphics/vertex_buffer.py:def on_timer(value):
+    ./graphics/vertex_buffer.py:    glut.glutTimerFunc(10, on_timer, 0)
+    ./graphics/vertex_buffer.py:    glut.glutTimerFunc(10, on_timer, 0)
+    ./window/backend_glut.py:        self._timer_stack = []
+    ./window/backend_glut.py:        self._timer_date = []
+    ./window/backend_glut.py:        for i in range(len(self._timer_stack)):
+    ./window/backend_glut.py:                handler, fps = self._timer_stack[index]
+    ./window/backend_glut.py:                dt = (t - self._timer_date[index])/1000.0
+    ./window/backend_glut.py:                self._timer_date[index] = t
+    ./window/backend_glut.py:                self._timer_date[index] = glut.glutGet(glut.GLUT_ELAPSED_TIME)
+    ./window/backend_glut.py:            fps = self._timer_stack[i][1]
+    ./window/window.py:            self._timer_stack.append((func, fps))
+    ./window/window.py:            self._timer_date.append(0)
+    delta:glumpy blyth$ 
 
 
 

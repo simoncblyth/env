@@ -83,10 +83,12 @@ class DAEInteractivityHandler(object):
         #
         self.fig = fig
         self.frame_handler = frame_handler
+        self.scene = scene
+        self.config = config
+        pass
         self.dragfactor = config.args.dragfactor
         self.modfactor = 1
         self.fps = 0
-        self.scene = scene
         self.viewport = DAEViewport(map(int,config.args.size.split(",")))
         self.keys = DAEKeys()
         #
@@ -106,7 +108,7 @@ class DAEInteractivityHandler(object):
 
         fig.push(self)                     # event notification from fig 
         self.hookup_udp_dispatcher(config)     # event notification from dispatcher
-        self.hookup_zmq_responder(config)
+        self.hookup_zmq_responder()
 
 
     def __repr__(self):
@@ -121,22 +123,27 @@ class DAEInteractivityHandler(object):
 
         def _check_dispatcher(dt):
             dispatcher.update()
-        timer = self.fig.timer(30.)  # fps
+        timer = self.fig.timer(5.)  # fps
         timer(_check_dispatcher) 
         dispatcher.push_handlers(self)   # get event notification from dispatcher
 
 
-    def hookup_zmq_responder(self, config):
-        responder = DAEResponder(config)
-        log.info(responder)        
+    def hookup_zmq_responder(self):
+        """
+        TODO: workout how to switch off timers, see *glumpy-* on timers
+        """
+        zmq_responder = DAEResponder(self.config)
+        log.info(zmq_responder)        
 
-        def _check_responder(dt):
-            responder.update()
+        def _check_zmq_responder(dt):
+            zmq_responder.update()
 
-        timer = self.fig.timer(30.)  # fps
-        timer(_check_responder) 
+        zmq_timer = self.fig.timer(5.)  # fps
+        zmq_timer(_check_zmq_responder) 
 
-        responder.push_handlers(self)   # get event notification from responder
+        self.zmq_timer = zmq_timer
+
+        zmq_responder.push_handlers(self)      # get event notification from responder
 
 
     def _get_title(self):

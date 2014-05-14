@@ -107,21 +107,20 @@ class ZMQRootResponder(object):
         https://gist.github.com/minrk/5258909
         """
         events = None
-        while True:
-            try:
-                events = self.socket.poll(timeout=self.config.timeout, flags=self.config.flags )
-            except zmq.ZMQError as e:
-                if e.errno == errno.EINTR:
-                    log.debug("got zmq.ZMQError : Interrupted System Call, proceed regardless ")
-                    continue
-                else:
-                    raise
+        try:
+            events = self.socket.poll(timeout=self.config.timeout, flags=self.config.flags )
+        except zmq.ZMQError as e:
+            if e.errno == errno.EINTR:
+                log.debug("got zmq.ZMQError : Interrupted System Call, return to poll again sometime")
+                return 
+            else:
+                raise
             pass
-            if events:
-                req = self.recv_object()
-                rep = self.reply( req ) 
-                time.sleep(self.config.sleep)
-                self.send_object(rep)    
+        if events:
+            req = self.recv_object()
+            rep = self.reply( req ) 
+            time.sleep(self.config.sleep)
+            self.send_object(rep)    
 
     def recv_object(self):
         """

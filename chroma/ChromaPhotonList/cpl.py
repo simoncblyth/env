@@ -75,6 +75,7 @@ def check_creation():
     cpl.Details()
     cpl.Print()
     examine_cpl(cpl)
+    return cpl
 
 def check_save_load():
     cpl = random_cpl(10)
@@ -87,7 +88,7 @@ def check_save_load():
 if __name__ == '__main__':
     pass
     logging.basicConfig(level=logging.INFO)
-    check_creation()
+    cpl = check_creation()
 
 
 
