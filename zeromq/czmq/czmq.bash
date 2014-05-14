@@ -111,10 +111,47 @@ czmq-cc-build(){
 }
 
 # NB using config from zmq- for interopability 
-czmq-broker(){ type $FUNCNAME ; FRONTEND=tcp://*:$(zmq-frontend-port) BACKEND=tcp://*:$(zmq-backend-port) $(czmq-bin czmq_broker) ; }
+czmq-broker-env(){ echo FRONTEND=tcp://*:$(zmq-frontend-port) BACKEND=tcp://*:$(zmq-backend-port) ; }
+
 czmq-client(){ type $FUNCNAME ; FRONTEND=tcp://$(zmq-broker-host):$(zmq-frontend-port) $(czmq-bin czmq_client) ; }
 czmq-worker(){ type $FUNCNAME ;  BACKEND=tcp://$(zmq-broker-host):$(zmq-backend-port)  $(czmq-bin czmq_worker) ; }
 
+czmq-broker(){ 
+   local cmd="$(czmq-broker-env) $(czmq-bin czmq_broker)"  
+   echo $cmd
+   eval $cmd
+}
 
 
+czmq-broker-env-sv(){ czmq-broker-env | tr " " "," ; }
+czmq-broker-start-cmd(){
+  cat << EOC
+$(czmq-bin czmq_broker) 
+EOC
+}
+
+czmq-broker-log(){ echo /tmp/env/zeromq/czmq/cmzq_broker.log ; }
+czmq-broker-tail(){ tail -f $(czmq-broker-log) ; }
+czmq-broker-sv-(){ 
+
+mkdir -p $(dirname $(czmq-broker-log))
+cat << EOX
+[program:czmq_broker]
+environment=$(czmq-broker-env-sv)
+command=$(czmq-broker-start-cmd)
+process_name=%(program_name)s
+autostart=true
+autorestart=true
+
+redirect_stderr=true
+stdout_logfile=$(czmq-broker-log)
+stdout_logfile_maxbytes=5MB
+stdout_logfile_backups=10
+
+EOX
+}
+czmq-broker-sv(){
+  sv- 
+  $FUNCNAME- | sv-plus czmq_broker.ini
+}
 

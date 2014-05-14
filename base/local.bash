@@ -237,6 +237,7 @@ local-ping(){
 local-tag2ip(){
   case ${1:-$NODE_TAG} in
        AB|AR) echo aberdeentunnel.dyndns.org ;;
+        SELF) echo 127.0.0.1 ;; 
          C|S) echo 140.112.101.190 ;; 
   C2|SC2|C2R) echo 140.112.101.191 ;;
      S2|G1|P) echo 140.112.102.250 ;;
