@@ -1,9 +1,69 @@
 #!/usr/bin/env python
 """
+ZMQRoot Responder
+==================
+
+ISSUE: Terminal Window resize causes Interrupted system call
+---------------------------------------------------------------
+
+Changing terminal window size whilst the responder is polling
+results in `zmq.error.ZMQError: Interrupted system call`
+and death of the responder : so arrange terminal window size
+before starting
+
+Same problem happening from inside g4daeview.py DAEResponder::
+
+
+    2014-05-12 19:06:17,857 env.geant4.geometry.collada.g4daeview.daeinteractivityhandler:130 DAEResponder connect tcp://203.64.184.126:5002
+    Traceback (most recent call last):
+      File "_ctypes/callbacks.c", line 314, in 'calling callback function'
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/OpenGL/GLUT/special.py", line 155, in deregister
+        function( value )
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/glumpy/window/backend_glut.py", line 571, in func
+        handler(dt)
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daeinteractivityhandler.py", line 133, in _check_responder
+        responder.update()
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daeresponder.py", line 37, in update
+        self.poll()
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/zmqroot/responder.py", line 45, in poll
+        events = self.socket.poll(timeout=self.config.timeout, flags=self.config.flags )
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/zmq/sugar/socket.py", line 411, in poll
+        evts = dict(p.poll(timeout))
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/zmq/sugar/poll.py", line 110, in poll
+        return zmq_poll(self.sockets, timeout=timeout)
+      File "_poll.pyx", line 115, in zmq.backend.cython._poll.zmq_poll (zmq/backend/cython/_poll.c:1640)
+      File "checkrc.pxd", line 21, in zmq.backend.cython.checkrc._check_rc (zmq/backend/cython/_poll.c:2003)
+    zmq.error.ZMQError: Interrupted system call
+
+
+How to reproduce
+~~~~~~~~~~~~~~~~~~~
+
+Simply launch `cpl_responder.sh` and resize the terminal window (happens with both Terminal.app and iTerm.app).
+
+TODO 
+~~~~~
+
+
+* check if this also happens with bare C ZMQ, seemingly not with zmq_broker.c (which uses zmq_proxy call) 
+
+* investigate `pyzmq/zmq/eventloop/minitornado/ioloop.py` rather than manual poll from a timer
+
+Some EINTR error handling is needed presumably.
+
+* http://stackoverflow.com/questions/1674162/how-to-handle-eintr-interrupted-system-call
+
+
+Search Refs
+~~~~~~~~~~~~~
+
+* http://gerg.ca/blog/post/2013/zmq-child-process/
+* https://github.com/zeromq/pyzmq/issues/348
+* https://gist.github.com/minrk/5258909
 
 
 """
-import logging, time
+import logging, time, errno
 log = logging.getLogger(__name__)
 
 import zmq     
@@ -42,12 +102,26 @@ class ZMQRootResponder(object):
         return "%s %s %s " % (self.__class__.__name__, self.config.mode, self.config.endpoint )
 
     def poll(self):
-        events = self.socket.poll(timeout=self.config.timeout, flags=self.config.flags )
-        if events:
-            req = self.recv_object()
-            rep = self.reply( req ) 
-            time.sleep(self.config.sleep)
-            self.send_object(rep)    
+        """
+        https://github.com/zeromq/pyzmq/issues/348
+        https://gist.github.com/minrk/5258909
+        """
+        events = None
+        while True:
+            try:
+                events = self.socket.poll(timeout=self.config.timeout, flags=self.config.flags )
+            except zmq.ZMQError as e:
+                if e.errno == errno.EINTR:
+                    log.debug("got zmq.ZMQError : Interrupted System Call, proceed regardless ")
+                    continue
+                else:
+                    raise
+            pass
+            if events:
+                req = self.recv_object()
+                rep = self.reply( req ) 
+                time.sleep(self.config.sleep)
+                self.send_object(rep)    
 
     def recv_object(self):
         """
