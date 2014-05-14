@@ -13,20 +13,45 @@ CZMQ : High-level C Binding for 0MQ
 
 * https://github.com/zeromq/pyczmq
 
-
-WARNING
----------
-
-The broker/client/proxy/worker examples are not working well
-had better luck over in *zmq-* with the low level C API
-due to finding better examples using that API.
-
-
 Dependencies
 -------------
 
 * libzmq
 * optionally : uuid-devel pkg
+
+
+czmq_broker supervisord hookup on N
+-------------------------------------
+
+#. *reread* then *update* to get the new process going  
+
+::
+
+    [blyth@belle7 env]$ czmq-
+    [blyth@belle7 env]$ czmq-broker-sv 
+    ...
+    [blyth@belle7 env]$ sv
+    N> reread
+    czmq_broker: available
+    N> start czmq_broker
+    czmq_broker: ERROR (no such process)
+    N> help reload
+    reload      Restart the remote supervisord.
+    N> help update
+    update      Reload config and add/remove as necessary
+    N> update
+    czmq_broker: added process group
+    N> status           
+    czmq_broker                      RUNNING    pid 8651, uptime 0:00:40
+    daeserver                        RUNNING    pid 10122, uptime 21 days, 3:12:51
+    ...
+    nginx                            RUNNING    pid 2285, uptime 86 days, 0:23:32
+    N> 
+    N> tail -f czmq_broker
+    ==> Press Ctrl-C to exit <==
+    14-05-14 14:55:40 I: /data1/env/local/env/bin/czmq_broker starting 
+    14-05-14 14:55:40 I: binding frontend ROUTER:[tcp://*:5001]
+    14-05-14 14:55:40 I: binding backend DEALER:[tcp://*:5002]
 
 
 EOU

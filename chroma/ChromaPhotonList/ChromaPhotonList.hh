@@ -34,6 +34,8 @@ public:
   void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const;
 #endif
 
+  std::size_t GetSize() const;
+
   void Details() const ;
   void GetPhoton(size_t index, 
                  float& _x,    float& _y, float& _z, 

@@ -108,6 +108,7 @@ csa-nuwapkg-diff(){
 
 
 csa-nuwapkg-make(){
+   local iwd=$PWD
 
    csa-nuwaenv
 
@@ -115,7 +116,9 @@ csa-nuwapkg-make(){
    cmt config
    cmt make 
 
+   cd $iwd
 }
+
 
 
 csa-nuwacfg(){
@@ -166,7 +169,8 @@ csa-nuwarun(){
    zmq-
    export CSA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
 
-   nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
+   #nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
+   nuwa.py -n 10 -m "fmcpmuon --use-basic-physics --chroma "
 
 }
 

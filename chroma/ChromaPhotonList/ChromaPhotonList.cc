@@ -11,8 +11,17 @@ ChromaPhotonList::~ChromaPhotonList() {
 
 void ChromaPhotonList::Print(Option_t* option) const 
 {
-    std::cout <<  "ChromaPhotonList::Print " << option << " [" << x.size() << "]" << std::endl ;    
+    //  http://root.cern.ch/phpBB3/viewtopic.php?t=9837
+    //  Rene: If you do not use TRef, TRefArray, you can freely use the TObject UniqueID.  
+    //
+    std::cout <<  "ChromaPhotonList::Print UID [" << GetUniqueID() << "]" << option << " [" << GetSize() << "]" << std::endl ;    
 } 
+
+std::size_t ChromaPhotonList::GetSize() const
+{
+   return x.size() ;  
+}
+
 
 
 #ifdef WITH_GEANT4

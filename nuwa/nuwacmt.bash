@@ -33,7 +33,6 @@ nuwacmt-config(){
    cmt config
 
    . setup.sh 
-   . setup.sh 
 
    cd $iwd
 }

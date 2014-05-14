@@ -131,7 +131,7 @@ cpl-otool(){
 
 
 cpl-nuwapkg(){    echo $DYB/NuWa-trunk/dybgaudi/Utilities/Chroma ; }  
-cpl-nuwapkg-cd(){ cd $(cpl-nuwapkg) ; }
+cpl-nuwapkg-cd(){ cd $(cpl-nuwapkg)/$1 ; }
 cpl-nuwapkg-cpto(){
 
    local pkg=$(cpl-nuwapkg)   
@@ -151,6 +151,59 @@ cpl-nuwapkg-cpto(){
 
 
    cd $iwd
+}
+
+cpl-nuwapkg-diff(){
+   local pkg=$(cpl-nuwapkg)
+   local pkn=$(basename $pkg)
+   local nam=ChromaPhotonList
+
+   diff $(cpl-sdir)/$nam.hh $pkg/$pkn/$nam.hh
+   diff $(cpl-sdir)/$nam.cc $pkg/src/$nam.cc
+   diff $(cpl-sdir)/${nam}_LinkDef.h $pkg/dict/${nam}_LinkDef.h
+}
+
+cpl-nuwapkg-make(){
+   local iwd=$PWD
+  
+   cpl-nuwaenv
+   cpl-nuwapkg-cd cmt 
+
+   cmt config
+   cmt make 
+ 
+   cd $iwd
+}
+
+
+
+cpl-nuwacfg(){
+   local msg="=== $FUNCNAME :"
+   local pkg=$1
+   shift  # protect cmt from args
+   [ ! -d "$pkg/cmt" ] && echo ERROR NO cmt SUBDIR && sleep 1000000
+   local iwd=$PWD
+
+   echo $msg for pkg $pkg
+   cd $pkg/cmt
+
+   cmt config
+   . setup.sh
+
+   cd $iwd
+}
+
+
+cpl-nuwaenv(){
+
+   opw-       # opw-env sets up NuWa env 
+
+   zmqroot-
+   cpl-nuwacfg $(zmqroot-nuwapkg)
+
+   cpl-
+   cpl-nuwacfg $(cpl-nuwapkg)
+
 }
 
 

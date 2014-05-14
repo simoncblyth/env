@@ -214,16 +214,29 @@ void DsChromaStackAction::NewStage()
 
 #ifdef WITH_CHROMA_ZMQ
 
-  info() << "::NewStage SendObject " <<  endreq ;   
+  G4RunManager* runMan = G4RunManager::GetRunManager(); 
+  const G4Event* currentEvent = runMan->GetCurrentEvent(); 
+  G4int eventID = currentEvent->GetEventID();
+
+  fPhotonList->SetUniqueID(eventID);
   info() << "::NewStage fPhotonList " <<  endreq ;   
   fPhotonList->Print(); 
-  fZMQRoot->SendObject(fPhotonList);
+  std::size_t size = fPhotonList->GetSize(); 
 
-  info() << "::NewStage ReceiveObject, waiting... " <<  endreq;   
-  fPhotonList2 = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
+  if(size > 0)
+  {
+      info() << "::NewStage SendObject " <<  endreq ;   
+      fZMQRoot->SendObject(fPhotonList);
+      info() << "::NewStage ReceiveObject, waiting... " <<  endreq;   
+      fPhotonList2 = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
+      info() << "::NewStage fPhotonList2 " <<  endreq ;   
+      fPhotonList2->Print();
+  } 
+  else 
+  { 
+      info() << "::NewStage Skip send/recv for empty CPL " <<  endreq;   
+  }
 
-  info() << "::NewStage fPhotonList2 " <<  endreq ;   
-  fPhotonList2->Print();
 #endif
 
 
