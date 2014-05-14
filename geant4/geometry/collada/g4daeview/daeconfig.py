@@ -158,6 +158,7 @@ class DAEConfig(ConfigBase):
 
         defaults['scaled_mode'] = False
         defaults['target'] = ".."
+        defaults['object'] = None
         defaults['jump'] = None
         defaults['ajump'] = None
         defaults['period'] = 1000
@@ -170,6 +171,7 @@ class DAEConfig(ConfigBase):
 
         parser.add_argument( "--scaled-mode", action="store_true", help="In scaled mode the actual VBO vertex coordinates are scaled into -1:1, ie shrink world into unit cube. **FOR DEBUG ONLY** " )
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
+        parser.add_argument(     "--object",  help="[I] Specification of event object on which to focus",type=str)
         parser.add_argument("-j","--jump",    help="[I] Animated transition to another node.")  
         parser.add_argument(     "--ajump",   help="[I] Append jump specs provided onto any existing ones.")  
         parser.add_argument(     "--period",   help="Animation interpolation frames to go from 0. to 1., %(default)s", type=float)  
@@ -185,21 +187,27 @@ class DAEConfig(ConfigBase):
         defaults['live'] = True
         defaults['load'] = None
         defaults['save'] = None
+        defaults['saveall'] = False
         defaults['key'] = 'CPL'
         defaults['path_template'] = os.environ.get('DAE_PATH_TEMPLATE',None)
-        defaults['fpho'] = 100.
         defaults['pholine']  = False
+        defaults['fpholine'] = 100.
+        defaults['phopoint']  = True
+        defaults['fphopoint'] = 2
         defaults['tcut'] = 1.
 
         parser.add_argument( "--nolive",  dest="live", help="[I] Disable live updating via ZMQRoot messages. Default %(default)s.", action="store_false")
         parser.add_argument( "--live",    dest="live", help="[I] Enable live updating via ZMQRoot messages. Default %(default)s.", action="store_true")
         parser.add_argument( "--load",  help="[I] Path to .root file to read, eg containing ChromaPhotonList instances. Default %(default)s.",type=str)
         parser.add_argument( "--save",  help="[I] Path to .root file to write. Default %(default)s.",type=str)
+        parser.add_argument( "--saveall",  help="[I] Save all CPL received. Default %(default)s.", action="store_true")
         parser.add_argument( "--key",   help="[I] ROOT Object Key to use with load/save. Default %(default)s.",type=str)
         parser.add_argument( "--path-template", help="Path template that load/save arguments fill in. Default %(default)s.",type=str)
-        parser.add_argument( "--fpho", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)
+        parser.add_argument( "--fpholine", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)
         parser.add_argument( "--pholine", help="Present photons as lines from position to position + momdirection*fpho. Default %(default)s.",action="store_true")
         parser.add_argument( "--nopholine", dest="pholine", help="Switch off line representation, returning to point. %(default)s.",action="store_false")
+        parser.add_argument( "--phopoint", help="Present photons as points of size fphopoint. Default %(default)s.",action="store_true")
+        parser.add_argument( "--fphopoint", help="Present photons as points of size fphopoint. Default %(default)s.",type=float)
         parser.add_argument( "--tcut", help="Select photons to present based on their global time, in range 0. to 1., where 1. means all. Default %(default)s.",type=float)
 
         # kernel switches

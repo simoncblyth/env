@@ -4,7 +4,13 @@ import logging
 log = logging.getLogger(__name__)
 import numpy as np
 from daechromaphotonlist import DAEChromaPhotonList
+from daegeometry import DAEMesh 
 from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # uses ROOT
+from datetime import datetime
+from daeeventlist import DAEEventList 
+
+def timestamp():
+    return datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
 class DAEEvent(object):
@@ -12,6 +18,9 @@ class DAEEvent(object):
         self.config = config
         self.cpl = None 
         self.qcut = config.args.tcut 
+        self.eventlist = DAEEventList(config.args.path_template)
+        self.bbox_cache = None
+        self.objects = []
 
         launch_config = [] 
         if not self.config.args.load is None:
@@ -32,6 +41,36 @@ class DAEEvent(object):
     qcut = property(_get_qcut, _set_qcut)
 
 
+    def make_bbox_cache(self):
+        """
+        """
+        bbox_cache = np.empty((len(self.objects),6))    
+        for i, obj in enumerate(self.objects):
+            bbox_cache[i] = obj.lower_upper
+        pass
+        self.bbox_cache = bbox_cache
+
+    def find_bbox_object(self, xyz):
+        """
+        :param xyz: world frame coordinate
+
+        Find indices of all objects that contain the world frame coordinate provided  
+        """
+        if self.bbox_cache is None:
+            self.make_bbox_cache() 
+        x,y,z = xyz 
+        b = self.bbox_cache
+        f = np.where(
+              np.logical_and(
+                np.logical_and( 
+                  np.logical_and(x > b[:,0], x < b[:,3]),
+                  np.logical_and(y > b[:,1], y < b[:,4]) 
+                              ),  
+                  np.logical_and(z > b[:,2], z < b[:,5])
+                            )   
+                    )[0]
+        return f
+
     def scan_to (self, x, y, dx, dy):
         """
         Change qcut, a value clipped to in range 0 to 1 
@@ -41,7 +80,7 @@ class DAEEvent(object):
         This can for example be used for an interactive time slider
         """
         self.qcut += self.qcut*dy
-        log.info("DAEevent.scan_to %s " % repr(self)) 
+        #log.info("DAEevent.scan_to %s " % repr(self)) 
 
     def reconfig(self, event_config ):
         """
@@ -63,7 +102,7 @@ class DAEEvent(object):
                 self.load(v, key)
             elif k == 'tcut':
                 self.qcut = v 
-            elif k in ('fpho','pholine'):   
+            elif k in ('fpholine','pholine','fphopoint','phopoint'):   
                 cpl_config.append([k,v])
             else:
                 assert 0, (k,v)
@@ -74,9 +113,36 @@ class DAEEvent(object):
         pass 
 
     def external_cpl(self, cpl ):
-        log.info("external_cpl")
-        cpl = DAEChromaPhotonList(cpl, self)
-        self.cpl = cpl
+        if self.config.args.saveall:
+            log.info("external_cpl timestamp_save due to --saveall option")
+            self.timestamped_save(cpl)
+        else:
+            log.info("external_cpl not saving ")
+        pass
+        self.setup_cpl(cpl) 
+
+    def timestamped_save(self, cpl):
+        path_ = timestamp()
+        path = self.resolve(path_, self.config.args.path_template)
+        key = self.config.args.key 
+        save_cpl( path, key, cpl )   
+ 
+    def setup_cpl(self, cpl):
+        dcpl = DAEChromaPhotonList(cpl, self)
+        self.cpl = dcpl
+        mesh = DAEMesh(self.cpl.pos)
+        log.info("setup_cpl mesh\n%s\n" % str(mesh))
+        self.objects = [mesh]
+
+    def find_object(self, ospec):
+        try:
+            index = int(ospec)
+        except ValueError:
+            return None
+        try:
+            return self.objects[index]    
+        except IndexError:
+            return None
 
     def draw(self):
         if self.cpl is None:return
@@ -93,6 +159,7 @@ class DAEEvent(object):
         Can use args `--load 1` 
 
         """
+        if path_[0] == '/':return path_
         if path_template is None:
             return path_
         log.info("resolve path_template %s path_ %s " % (path_template, path_ )) 
@@ -100,11 +167,10 @@ class DAEEvent(object):
         return path 
 
     def save(self, path_, key ):
-        path = cls.resolve(path_, self.config.args.path_template)
         if self.cpl is None:
             log.warn("no cpl, nothing to save ") 
             return
-        pass
+        path = self.resolve(path_, self.config.args.path_template)
         log.info("save cpl into  %s : %s " % (path_, path) )
         save_cpl( path, key, self.cpl.cpl )   
 
@@ -116,7 +182,24 @@ class DAEEvent(object):
             log.warn("load_cpl failed ")
             return
         pass
-        self.external_cpl( cpl )
+        self.eventlist.path = path   # let eventlist know where we are, to allow loadnext loadprev
+        self.setup_cpl( cpl )
+
+    def loadnext(self):
+        log.info("loadnext")
+        next_ = self.eventlist.next_  # using next_ bumps the cursor forwards
+        key = self.config.args.key
+        if not next_ is None:
+            self.load(next_, key) 
+
+    def loadprev(self):
+        log.info("loadprev")
+        prev = self.eventlist.prev  # using prev bumps the cursor backwards
+        key = self.config.args.key
+        if not prev is None:
+            self.load(prev, key) 
+
+
 
 
 if __name__ == '__main__':

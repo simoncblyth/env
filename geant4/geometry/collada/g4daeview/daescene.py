@@ -294,6 +294,8 @@ class DAEScene(object):
         for k,v in vars(live_args).items():
             if k == "target":
                 newview = self.target_view(v, prior=self.view ) 
+            elif k == "object":
+                newview = self.object_view(v, prior=self.view ) 
             elif k == "jump":
                 newview = self.interpolate_view(v) 
             elif k == "ajump":
@@ -311,7 +313,7 @@ class DAEScene(object):
             elif k == "showmetric":
                 raycast_config[k] = v
                 self.toggle_showmetric() 
-            elif k in ("save","load","key","fpho","pholine","tcut"):
+            elif k in ("save","load","key","fpholine","pholine","fphopoint","phopoint","tcut"):
                 event_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v
@@ -372,6 +374,16 @@ class DAEScene(object):
     def target_view(self, tspec, prior=None):
         log.debug("target_view tspec[%s]" % tspec  )
         return DAEViewpoint.make_view( self.geometry, tspec, self.config.args, prior=prior )
+
+    def object_view(self, ospec="0", prior=None):
+        log.debug("object_view ospec[%s]" % ospec  )
+        return DAEViewpoint.make_object_view( self.event, ospec, self.config.args, prior=prior )
+
+    def loadnext(self):
+        self.event.loadnext()
+
+    def loadprev(self):
+        self.event.loadprev()
 
     def interpolate_view(self, jspec, append=False):
         """

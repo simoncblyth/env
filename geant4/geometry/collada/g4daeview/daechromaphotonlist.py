@@ -95,8 +95,10 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
         DAEChromaPhotonListBase.__init__(self, cpl, timesort=True )
 
         self.reconfig([
-                       ['fpho',event.config.args.fpho],
+                       ['fpholine',event.config.args.fpholine],
                        ['pholine',event.config.args.pholine],
+                       ['fphopoint',event.config.args.fphopoint],
+                       ['phopoint',event.config.args.phopoint],
                       ])
 
     def __repr__(self):
@@ -105,12 +107,17 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
     def reconfig(self, conf):
         update = False
         for k, v in conf:
-            if k == 'fpho':
-                self.fpho = v
+            if k == 'fpholine':
+                self.fpholine = v
                 update = True
+            elif k == 'fphopoint':
+                self.fphopoint = v
+                gl.glPointSize(self.fphopoint)
             elif k == 'pholine':
                 self.set_pholine(v)
                 update = True
+            elif k == 'phopoint':
+                log.warn("not implemented")
             else:
                 log.info("DCPL ignoring %s %s " % (k,v))
             pass 
@@ -145,7 +152,7 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
             # interleave the photon positions with sum of photon position and direction
             vertices = np.empty((len(self.pos)*2,3), dtype=self.pos.dtype )
             vertices[0::2] = self.pos
-            vertices[1::2] = self.pos + self.dir*self.fpho
+            vertices[1::2] = self.pos + self.dir*self.fpholine
 
             # interleaved double up the colors 
             colors = np.empty((len(self.color)*2,4), dtype=self.color.dtype )

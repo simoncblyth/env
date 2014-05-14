@@ -248,6 +248,8 @@ class DAEInteractivityHandler(object):
         elif symbol == key.R: self.scene.toggle_raycast()
         elif symbol == key.J: self.scene.toggle_showmetric()
         elif symbol == key.E: self.save_to_file()
+        elif symbol == key.BRACKETRIGHT: self.scene.loadnext()
+        elif symbol == key.BRACKETLEFT: self.scene.loadprev()
         elif symbol in number_keys:
             self.bookmark_mode = True
             self.bookmark_key = symbol - key._0

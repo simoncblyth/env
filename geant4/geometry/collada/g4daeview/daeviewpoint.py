@@ -5,6 +5,7 @@ import numpy as np
 from daeutil import printoptions, Transform, translate_matrix, scale_matrix
 from daeutil import WorldToCamera, CameraToWorld, view_transform
 
+fvec_ = lambda _:map(float,_.split(","))
 
 def rotate( th , axis="x"):
     c = math.cos(th)
@@ -183,8 +184,22 @@ class DAEViewpoint(object):
 
         return target, eye, look, up
 
+    @classmethod
+    def make_object_view(cls, event, ospec, args, prior=None ):
+        """
+        """
+        obj = event.find_object(ospec)
+        if obj is None:
+            log.warn("make_object_view failed to find obj for ospec %s : not loaded ? " % ospec )
+            return None
+        log.info(obj)
 
+        eye = fvec_(args.eye)
+        look = fvec_(args.look)
+        up = fvec_(args.up)
 
+        log.info("make_object_view for ospec %s " % ospec)
+        return cls(eye, look, up, obj, ospec )   
 
 
     @classmethod

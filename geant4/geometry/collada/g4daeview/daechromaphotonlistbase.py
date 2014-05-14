@@ -22,6 +22,8 @@ class DAEChromaPhotonListBase(object):
         cpl.Print()
         self.copy_from_cpl(cpl, timesort=timesort)
 
+    vertices = property(lambda self:self.pos )  # allow to be treated like a solid
+
     def copy_from_cpl(self, cpl, timesort):
         """
         Q:
@@ -73,14 +75,8 @@ class DAEChromaPhotonListBase(object):
         print "color\n",self.color
       
 
-if __name__ == '__main__':
-    import os
-    import ROOT
-    ROOT.gSystem.Load("$LOCAL_BASE/env/chroma/ChromaPhotonList/lib/libChromaPhotonList")
 
-    from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl, random_cpl
-
-    path = os.environ['DAE_PATH_TEMPLATE'] % {'arg':"1"} 
+def check_load(path):
 
     cpl = load_cpl(path,'CPL')
 
@@ -91,6 +87,20 @@ if __name__ == '__main__':
     print "timesorted order"
     dcpl = DAEChromaPhotonListBase(cpl, timesort=True)
     dcpl.dump()
+
+
+
+
+if __name__ == '__main__':
+    import os
+    import ROOT
+    ROOT.gSystem.Load("$LOCAL_BASE/env/chroma/ChromaPhotonList/lib/libChromaPhotonList")
+    from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl, random_cpl
+    path = os.environ['DAE_PATH_TEMPLATE'] % {'arg':"1"} 
+
+
+
+
 
 
 
