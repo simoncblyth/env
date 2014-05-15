@@ -16,11 +16,23 @@ from env.graphics.color.wav2RGB import wav2RGB
 
 
 class DAEChromaPhotonListBase(object):
-    def __init__(self, cpl, timesort=True ):
+    atts = 'pos dir pol wavelengths t pmtid color weights flags last_hit_triangle'.split()
+    def __init__(self, cpl, timesort=True, chroma=False):
         self.cpl = cpl
-        self.nphotons = cpl.x.size()
+        nphotons = cpl.x.size()
         cpl.Print()
+        self.nphotons = nphotons
+        pass
+        self.color = None
+        self.last_hit_triangles = None
+        self.flags = None
+        self.weights = None 
+        pass
         self.copy_from_cpl(cpl, timesort=timesort)
+        self.color_setup(nphotons)
+        if chroma:
+            self.chroma_setup(nphotons)
+        pass
 
     vertices = property(lambda self:self.pos )  # allow to be treated like a solid
 
@@ -34,17 +46,15 @@ class DAEChromaPhotonListBase(object):
         pos = xyz_(cpl.x,cpl.y,cpl.z,np.float32)
         dir = xyz_(cpl.px,cpl.py,cpl.pz,np.float32)
         pol = xyz_(cpl.polx,cpl.poly,cpl.polz,np.float32)
-        wavelength = np.array(cpl.wavelength, dtype=np.float32)
+        wavelengths = np.array(cpl.wavelength, dtype=np.float32)
         t = np.array(cpl.t, dtype=np.float32)
         pmtid = np.array(cpl.pmtid, dtype=np.int32)
-
-
 
         if not timesort:
             self.pos = pos 
             self.dir = dir 
             self.pol = pol 
-            self.wavelength = wavelength
+            self.wavelengths = wavelengths
             self.t = t
             self.pmtid = pmtid
         else:
@@ -52,28 +62,52 @@ class DAEChromaPhotonListBase(object):
             self.pos = pos[order]
             self.dir = dir[order] 
             self.pol = pol[order] 
-            self.wavelength = wavelength[order]
+            self.wavelengths = wavelengths[order]
             self.t = t[order]
             self.pmtid = pmtid[order]
         pass
 
-        color = np.zeros(self.nphotons, dtype=(np.float32, 4))
-        # hmm, a more numpy way of doing this ?
-        for i,wl in enumerate(self.wavelength):
+    def color_setup(self, nphotons):
+        """
+        #. hmm, a more numpy way ?
+        """
+        color = np.zeros(nphotons, dtype=(np.float32, 4))
+        for i,wl in enumerate(self.wavelengths):
             color[i] = wav2RGB(wl)
         pass
         self.color = color
+    def chroma_setup(self, nphotons, last_hit_triangles=None, flags=None, weights=None):
+        """
+        Allows DAEChromaPhotonListBase instances to act like chroma.event.Photons instances
+        """
+        if last_hit_triangles is None:
+            self.last_hit_triangles = np.empty(nphotons, dtype=np.int32)
+            self.last_hit_triangles.fill(-1)
+        else:
+            self.last_hit_triangles = np.asarray(last_hit_triangles,
+                                                 dtype=np.int32)
 
+        if flags is None:
+            self.flags = np.zeros(nphotons, dtype=np.uint32)
+        else:
+            self.flags = np.asarray(flags, dtype=np.uint32)
+
+        if weights is None:
+            self.weights = np.ones(nphotons, dtype=np.float32)
+        else:
+            self.weights = np.asarray(weights, dtype=np.float32)
+
+    def __len__(self):
+        '''Returns the number of photons in self.'''
+        return len(self.pos)
 
     def dump(self):
-        print "pos\n",self.pos
-        print "dir\n",self.dir
-        print "pol\n",self.pol
-        print "wavelength\n",self.wavelength
-        print "t\n",self.t
-        print "pmtid\n",self.pmtid
-        print "color\n",self.color
-      
+        self.dump_(self)
+
+    @classmethod
+    def dump_(cls,obj):
+        for att in cls.atts:
+            print "%s\n%s" % (att,getattr(obj,att) if hasattr(obj,att) else "-")
 
 
 def check_load(path):

@@ -23,14 +23,27 @@ ivec_ = lambda _:map(int,_.split(","))
 fvec_ = lambda _:map(float,_.split(","))
 
 
+class DAEChromaContextDummy(object):
+    raycaster = None
+    propagator = None
+
+
 class DAEScene(object):
     """
     Keep this for handling state, **NOT interactivity**, **NOT graphics**     
     """
     def __init__(self, geometry, config ):
         self.geometry = geometry  
-
         self.config = config
+
+        if self.config.args.with_chroma:
+            from daechromacontext import DAEChromaContext     
+            chroma_geometry = geometry.make_chroma_geometry() 
+            self.chroma = DAEChromaContext( config, chroma_geometry )
+        else:
+            self.chroma = DAEChromaContextDummy()
+        pass
+
         args = config.args
         self.set_toggles(args)
 
@@ -59,8 +72,9 @@ class DAEScene(object):
         # bookmarked viewpoints
         self.bookmarks = DAEBookmarks(config.bookmarks, geometry) 
 
-        # Chroma raycaster, None if not --with-chroma
-        self.raycaster = self.make_raycaster( config, geometry ) 
+        # Chroma raycaster and propagator, None if not --with-chroma
+        self.raycaster = self.chroma.raycaster
+        self.propagator = self.chroma.propagator 
 
         # Image processor, None if not --with-cuda-image-processor
         self.processor = self.make_processor( config ) 
@@ -110,14 +124,6 @@ class DAEScene(object):
         if self.raycaster is not None:
             self.raycaster.resize(size)
 
-    def make_raycaster(self, config, geometry ):
-        if not config.args.with_chroma:return None
-        log.info("creating Chroma raycaster processor, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
-        import pycuda.gl.autoinit
-        from daeraycaster import DAERaycaster     
-        raycaster = DAERaycaster( config, geometry )
-        return raycaster
- 
     def make_processor( self, config ):
         if not config.args.with_cuda_image_processor:return None
         size = config.size

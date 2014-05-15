@@ -43,6 +43,7 @@ class DAEEvent(object):
 
     def make_bbox_cache(self):
         """
+        Hmm problem with a photons bbox is that its often too big to be useful
         """
         bbox_cache = np.empty((len(self.objects),6))    
         for i, obj in enumerate(self.objects):
@@ -148,34 +149,20 @@ class DAEEvent(object):
         if self.cpl is None:return
         self.cpl.draw()
 
-    @classmethod
-    def resolve(cls, path_, path_template ):
-        """
-        Using a path_template allows referencing paths in a
-        very brief manner, ie with::
- 
-            export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%(arg)s.root"
-
-        Can use args `--load 1` 
-
-        """
-        if path_[0] == '/':return path_
-        if path_template is None:
-            return path_
-        log.info("resolve path_template %s path_ %s " % (path_template, path_ )) 
-        path = path_template % { 'arg':path_ }
-        return path 
-
-    def save(self, path_, key ):
+    def save(self, path_, key=None ):
+        if key is None:
+            key = self.config.args.key
         if self.cpl is None:
             log.warn("no cpl, nothing to save ") 
             return
-        path = self.resolve(path_, self.config.args.path_template)
+        path = self.config.resolve_event_path(path_)
         log.info("save cpl into  %s : %s " % (path_, path) )
         save_cpl( path, key, self.cpl.cpl )   
 
-    def load(self, path_, key ):
-        path = self.resolve(path_, self.config.args.path_template)
+    def load(self, path_, key=None ):
+        if key is None:
+            key = self.config.args.key
+        path = self.config.resolve_event_path(path_)
         log.info("load cpl from  %s : %s " % (path_, path) )
         cpl = load_cpl(path, key )
         if cpl is None:
@@ -188,16 +175,14 @@ class DAEEvent(object):
     def loadnext(self):
         log.info("loadnext")
         next_ = self.eventlist.next_  # using next_ bumps the cursor forwards
-        key = self.config.args.key
         if not next_ is None:
-            self.load(next_, key) 
+            self.load(next_) 
 
     def loadprev(self):
         log.info("loadprev")
         prev = self.eventlist.prev  # using prev bumps the cursor backwards
-        key = self.config.args.key
         if not prev is None:
-            self.load(prev, key) 
+            self.load(prev) 
 
 
 

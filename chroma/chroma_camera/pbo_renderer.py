@@ -73,7 +73,7 @@ def get_cu_module(name, options=None, include_source_directory=True, template_va
 
 
 class PBORenderer(object):
-    def __init__(self, pixels, chroma_geometry, config ):
+    def __init__(self, pixels, gpu_geometry, config ):
         pass
         self.pixels = pixels
         self.config = config
@@ -83,7 +83,9 @@ class PBORenderer(object):
         self.cudacheck = getattr(config, 'cudacheck', None)
         self.times = []
 
-        self.gpu_geometry = GPUGeometry( chroma_geometry )
+        #self.gpu_geometry = GPUGeometry( chroma_geometry )
+        self.gpu_geometry = gpu_geometry 
+
 
         self._alpha_depth = None
         self._offset = None

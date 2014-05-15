@@ -10,12 +10,11 @@ from env.cuda.cuda_state import DriverState
 
 
 class DAERaycaster(object):
-    def __init__(self, config, geometry ):
-        self.config = config
-        self.size = config.size 
-        chroma_geometry = geometry.make_chroma_geometry()  
+    def __init__(self, ctx ):
+        self.config = ctx.config
+        self.size = self.config.size 
         self.pixels = PixelBuffer( self.size, texture=True)
-        self.renderer = PBORenderer( self.pixels, chroma_geometry, config )
+        self.renderer = PBORenderer( self.pixels, ctx.gpu_geometry, ctx.config )
 
     def resize(self, size ):
         log.debug("DAERaycaster resize %s " % repr(size))

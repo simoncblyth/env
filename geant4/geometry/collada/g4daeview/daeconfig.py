@@ -64,7 +64,30 @@ class DAEConfig(ConfigBase):
         ConfigBase.__init__(self, doc) 
         self._path = None
 
+    def resolve_event_path(self, path_ ):
+        """ 
+        Resolves paths to event files
+
+        Using a path_template allows referencing paths in a
+        very brief manner, ie with::
+ 
+            export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%(arg)s.root"
+
+        Can use args `--load 1` 
+
+        """
+        if path_[0] == '/':return path_
+        path_template = self.args.path_template
+        if path_template is None:
+            return path_
+        log.info("resolve_event_path path_template %s path_ %s " % (path_template, path_ ))  
+        path = path_template % { 'arg':path_ }
+        return path 
+
     def resolve_path(self, path_):
+        """
+        Resolves paths to geometry files
+        """
         pvar = "_".join(filter(None,["DAE_NAME",path_,]))
         pvar = pvar.upper()
         log.info("Using pvar %s to resolve path " % pvar)

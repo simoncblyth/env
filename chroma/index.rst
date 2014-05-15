@@ -30,6 +30,7 @@ chroma
 
    chroma_camera/index
    chroma_sim/index
+   chroma_propagate/index
 
    chroma_cuda_freeze
    chroma_cuda
