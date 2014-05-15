@@ -14,9 +14,6 @@ Interactive probing::
     In [12]: ddir = map(lambda _:np.linalg.norm(_), cpl.dir )
 
 
-Hmm comingling gl code with pure numpy code 
-is inconvenient as needs context to run. 
-
 """
 import logging
 import numpy as np
@@ -27,6 +24,8 @@ import ctypes
 import glumpy as gp
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
+
+DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
 
 from env.graphics.color.wav2RGB import wav2RGB
 from photons import Photons   # TODO: merge photons.Photons into my forked chroma.event.Photons
@@ -119,7 +118,6 @@ class MyVertexBuffer(gp.graphics.VertexBuffer):
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
         gl.glPopClientAttrib( )
 
-DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
    
 
 
@@ -281,6 +279,10 @@ class DAEPhotons(object):
     def draw(self):
         """
         qcut restricts elements drawn, the default of 1 corresponds to all
+
+        Note that the VBO vertices are duplicated once for the line and once for
+        the points, presumably there is some clever way to control the strides to
+        avoid that ?
         """ 
         qcount = int(len(self.pdata)*self.event.qcut)
         self.lvbo.draw(mode=gl.GL_LINES,  what='pc', count=2*qcount, offset=0 )

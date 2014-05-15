@@ -10,7 +10,11 @@ xyz_ = lambda x,y,z,dtype:np.column_stack((np.array(x,dtype=dtype),np.array(y,dt
 
 class Photons(object):
     """
-    Same as chroma.event.Photons but with from_cpl classmethod and sorting additions.
+    Same as chroma.event.Photons but with a few additions:
+
+    #. from_cpl classmethod 
+    #. timesorting
+    #. dump
     """
     @classmethod
     def from_cpl(cls, cpl, extend=True ):
