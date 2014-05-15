@@ -30,6 +30,7 @@ import OpenGL.GLUT as glut
 
 from env.graphics.color.wav2RGB import wav2RGB
 from photons import Photons   # TODO: merge photons.Photons into my forked chroma.event.Photons
+from daegeometry import DAEMesh 
 
 
 class MyVertexBuffer(gp.graphics.VertexBuffer):
@@ -64,142 +65,6 @@ class MyVertexBuffer(gp.graphics.VertexBuffer):
         GL_UNSIGNED_INT         0:4.295B
         ====================  ==============
 
-        """
-        if count is None:
-           count = self.indices.size   # this is what the glumpy original does
-        pass
-
-        gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
-        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
-        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
-
-        for attribute in self.generic_attributes:
-            attribute.enable()
-        for c in self.attributes.keys():
-            if c in what:
-                self.attributes[c].enable()
-
-        gl.glDrawElements( mode, count, gl.GL_UNSIGNED_INT, ctypes.c_void_p(offset) )
-
-        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 ) 
-        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
-        gl.glPopClientAttrib( )
-
-DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
-   
-
-
- 
-class DAEPhotons(object):
-    """
-    A wrapper around the underlying `photons` instance that 
-    handles presentation.
-    """ 
-    def __init__(self, photons, event, pmtid=None ):
-        self.photons = photons
-        self.event = event
-        self.pmtid = pmtid
-        pass
-        self.nphotons = len(self.photons)
-        self.vertices = self.photons.pos      # allows to be treated like a DAEMesh
-        self.momdir = self.photons.dir
-        self._color = None
-
-        if not event is None:
-            self.reconfig([
-                       ['fpholine',event.config.args.fpholine],
-                       ['pholine',event.config.args.pholine],
-                       ['fphopoint',event.config.args.fphopoint],
-                       ['phopoint',event.config.args.phopoint],
-                      ])
-
-    def __repr__(self):
-        return "%s %s " % (self.__class__.__name__, self.nphotons)
-
-    def reconfig(self, conf):
-        """
-        TODO: avoid duplication of config between here and primary DAEConfig
-        """
-        update = False
-        for k, v in conf:
-            if k == 'fpholine':
-                self.fpholine = v
-                update = True
-            elif k == 'fphopoint':
-                self.fphopoint = v
-                gl.glPointSize(self.fphopoint)
-            elif k == 'pholine':
-                self.set_pholine(v)
-                update = True
-            elif k == 'phopoint':
-                log.warn("not implemented")
-            else:
-                log.info("DCPL ignoring %s %s " % (k,v))
-            pass 
-        pass
-        if update:
-            self.create_vbo()
-
-    def set_pholine(self, pholine):
-        self.pholine = pholine
-        self.mode = 'lines' if pholine else 'points' 
-        self.drawmode = DRAWMODE[self.mode]
-
-    def wavelengths2rgb(self):
-        color = np.zeros(self.nphotons, dtype=(np.float32, 4))
-        for i,wl in enumerate(self.photons.wavelengths):
-            color[i] = wav2RGB(wl)
-        pass 
-        return color
-
-    def _get_color(self):
-        if self._color is None:
-            self._color = self.wavelengths2rgb()
-        return self._color
-    color = property(_get_color)
-
-
-    def create_vbo(self):
-        """
-        #. creates structure of nphoton elements populated with zeros
-           the populates the 'position' slot with pos
-
-        #. indices provides element array from 0:nphotons-1
-        """
-        log.info("create_vbo for %s photons" % self.nphotons)
-        self.dirty = False
-        if self.mode == 'points':
-            data = np.zeros(self.nphotons, [('position', np.float32, 3), 
-                                            ('color',    np.float32, 4)]) 
-            data['position'] = self.vertices
-            data['color']    = self.color
-
-        elif self.mode == 'lines': 
-            data = np.zeros(2*self.nphotons, [('position', np.float32, 3), 
-                                              ('color',    np.float32, 4)]) 
-
-            # interleave the photon positions with sum of photon position and direction
-            vertices = np.empty((len(self.vertices)*2,3), dtype=self.vertices.dtype )
-            vertices[0::2] = self.vertices
-            vertices[1::2] = self.vertices + self.momdir*self.fpholine
-
-            # interleaved double up the colors 
-            colors = np.empty((len(self.color)*2,4), dtype=self.color.dtype )
-            colors[0::2] = self.color
-            colors[1::2] = self.color
-
-            data['position'] = vertices
-            data['color']    = colors
-
-        else:
-            assert 0
-        pass
-        self.data = data
-        self.indices = np.arange( data.size, dtype=np.uint32)  
-        self.vbo = MyVertexBuffer( self.data, self.indices  )
-
-    def draw(self):
-        """
         ===================   ====================================
            mode 
         ===================   ====================================
@@ -233,21 +98,216 @@ class DAEPhotons(object):
         ==================  ==================   ================   =====
 
 
-        The qcut cuts away at the elements to be presented,     
-        the default of 1 corresponds to all
+        """
+        if count is None:
+           count = self.indices.size   # this is what the glumpy original does
+        pass
 
+        gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
+
+        for attribute in self.generic_attributes:
+            attribute.enable()
+        for c in self.attributes.keys():
+            if c in what:
+                self.attributes[c].enable()
+
+        gl.glDrawElements( mode, count, gl.GL_UNSIGNED_INT, ctypes.c_void_p(offset) )
+
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 ) 
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
+        gl.glPopClientAttrib( )
+
+DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
+   
+
+
+ 
+class DAEPhotons(object):
+    """
+    A wrapper around the underlying `photons` instance that 
+    handles presentation.
+    """ 
+    def __init__(self, photons, event, pmtid=None ):
+
+        self.invalidate_photons()
+        self._photons = photons  
+        pass
+        self.event = event        # for access to qcut
+        config = event.config
+        self.config = config
+        self.pmtid = pmtid        # unused
+        pass
+        if not event is None:
+            self.reconfig([
+                       ['fpholine', config.args.fpholine],
+                       ['pholine',  config.args.pholine],
+                       ['fphopoint',config.args.fphopoint],
+                       ['phopoint', config.args.phopoint],
+                      ])
+
+    def __repr__(self):
+        return "%s %s " % (self.__class__.__name__, self.nphotons)
+    
+
+    nphotons = property(lambda self:len(self._photons))
+    vertices = property(lambda self:self._photons.pos)   # allows to be treated like DAEMesh 
+    momdir = property(lambda self:self._photons.dir)
+
+    def invalidate_photons(self):
+        """
+        When changing photons everything is invalidated
         """ 
-        qcut = self.event.qcut
-        tot = len(self.data)
+        self._photons = None
+        self._mesh = None
+        self._color = None
+        self._mode = None
+        self._ldata = None   
+        self._pdata = None   
+        self._drawmode = None
+        self._lvbo = None   
+        self._pvbo = None   
 
-        # initially tried changing both count and offset, 
-        # it works but gives SIGABRTs after a short while
-        # just changing the count has not given trouble yet 
-        #
-        qoffset, qcount = 0, int(tot*qcut)
-        assert qcount <= tot
-        self.vbo.draw(mode=self.drawmode, what='pc', count=qcount, offset=qoffset )
+    def invalidate_vbo(self):
+        """
+        When reconfiguring presentation just these are invalidated
+        """
+        self._mode = None
+        self._ldata = None   
+        self._pdata = None   
+        self._drawmode = None
+        self._lvbo = None   
+        self._pvbo = None   
 
+    def _set_photons(self, photons):
+        """
+        photons setter invalidates everything
+        """
+        self.invalidate_photons()
+        self._photons = photons
+    def _get_photons(self):
+        return self._photons    
+    photons = property(_get_photons, _set_photons)
+
+
+    def _get_color(self):
+        if self._color is None:
+            self._color = self.wavelengths2rgb()
+        return self._color
+    color = property(_get_color)
+
+    def _get_pdata(self):
+        if self._pdata is None:
+            self._pdata = self.create_pdata()
+        return self._pdata
+    pdata = property(_get_pdata)         
+
+    def _get_ldata(self):
+        if self._ldata is None:
+            self._ldata = self.create_ldata()
+        return self._ldata
+    ldata = property(_get_ldata)         
+
+    def _get_pvbo(self):
+        if self._pvbo is None:
+           self._pvbo = self.create_vbo(self.pdata)  
+        return self._pvbo
+    pvbo = property(_get_pvbo)  
+
+    def _get_lvbo(self):
+        if self._lvbo is None:
+           self._lvbo = self.create_vbo(self.ldata)  
+        return self._lvbo
+    lvbo = property(_get_lvbo)  
+
+    def _get_mesh(self):
+        if self._mesh is None:
+            self._mesh = DAEMesh(self.vertices)
+        return self._mesh
+    mesh = property(_get_mesh)
+
+    def _get_mode(self):
+        if self._mode is None:
+            self._mode = 'lines' if self.config.args.pholine else 'points'
+        return self._mode
+    mode = property(_get_mode)
+
+    def _get_drawmode(self):
+        if self._drawmode is None:
+            self._drawmode = DRAWMODE[self.mode]
+        return self._drawmode
+    drawmode = property(_get_drawmode)
+
+
+    def wavelengths2rgb(self):
+        color = np.zeros(self.nphotons, dtype=(np.float32, 4))
+        for i,wl in enumerate(self.photons.wavelengths):
+            color[i] = wav2RGB(wl)
+        return color
+
+    def create_pdata(self):
+        data = np.zeros(self.nphotons, [('position', np.float32, 3), 
+                                        ('color',    np.float32, 4)]) 
+        data['position'] = self.vertices
+        data['color']    = self.color
+        return data
+
+    def create_ldata(self):
+        """
+        #. interleave the photon positions with sum of photon position and direction
+        #. interleaved double up the colors 
+        """
+        data = np.zeros(2*self.nphotons, [('position', np.float32, 3), 
+                                          ('color',    np.float32, 4)]) 
+
+        vertices = np.empty((len(self.vertices)*2,3), dtype=self.vertices.dtype )
+        vertices[0::2] = self.vertices
+        vertices[1::2] = self.vertices + self.momdir*self.config.args.fpholine
+
+        colors = np.empty((len(self.color)*2,4), dtype=self.color.dtype )
+        colors[0::2] = self.color
+        colors[1::2] = self.color
+
+        data['position'] = vertices
+        data['color']    = colors
+        return data 
+
+    def create_vbo(self, data):
+        log.info("create_vbo for %s photons" % self.nphotons)
+        indices = np.arange( data.size, dtype=np.uint32)  
+        return MyVertexBuffer( data, indices  )
+
+    def draw(self):
+        """
+        qcut restricts elements drawn, the default of 1 corresponds to all
+        """ 
+        qcount = int(len(self.pdata)*self.event.qcut)
+        self.lvbo.draw(mode=gl.GL_LINES,  what='pc', count=2*qcount, offset=0 )
+        self.pvbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount  , offset=0 )
+
+
+    def reconfig(self, conf):
+        update = False
+        for k, v in conf:
+            if k == 'fpholine':
+                self.config.args.fpholine = v
+                update = True
+            elif k == 'fphopoint':
+                self.config.args.fphopoint = v
+                gl.glPointSize(self.config.args.fphopoint)
+            elif k == 'pholine':
+                self.config.args.pholine = True
+                update = True
+            elif k == 'phopoint':
+                self.config.args.pholine = False
+                update = True
+            else:
+                log.info("ignoring %s %s " % (k,v))
+            pass 
+        pass
+        if update:
+            self.invalidate_vbo()
 
     def draw_extremely_slowly(self):
         """

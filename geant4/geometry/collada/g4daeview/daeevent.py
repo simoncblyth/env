@@ -8,7 +8,6 @@ from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # ROOT transpor
 from photons import Photons                                      # numpy operations level 
 from daephotons import DAEPhotons                                # OpenGL presentation level
 
-from daegeometry import DAEMesh 
 from datetime import datetime
 from daeeventlist import DAEEventList 
 
@@ -142,9 +141,12 @@ class DAEEvent(object):
         """
         Convert operations level Photons into presentation level DAEPhotons 
         """
-        dphotons = DAEPhotons( photons, self )
-        self.dphotons = dphotons
-        mesh = DAEMesh(dphotons.vertices)
+        if self.dphotons is None:
+            self.dphotons = DAEPhotons( photons, self )
+        else:
+            self.dphotons.photons = photons   # setter invalidates _vbo, _color, _mesh 
+        pass
+        mesh = self.dphotons.mesh
         log.info("setup_photons mesh\n%s\n" % str(mesh))
         self.objects = [mesh]
 
@@ -159,7 +161,6 @@ class DAEEvent(object):
         log.info("step")
         photons = chroma.step( self.dphotons.photons )
         self.setup_photons( photons )
-
 
     def find_object(self, ospec):
         try:
