@@ -29,7 +29,7 @@ import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
 from env.graphics.color.wav2RGB import wav2RGB
-from photons import Photons
+from photons import Photons   # TODO: merge photons.Photons into my forked chroma.event.Photons
 
 
 class MyVertexBuffer(gp.graphics.VertexBuffer):
@@ -90,36 +90,23 @@ DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
 
 
  
-class DAEChromaPhotonList(object):
+class DAEPhotons(object):
     """
-    Handles the presentation of photon lists, for the
-    nitty gritty see the base class.
-
-    Can i switch to composition rather than inheritance here ?
-    It would ease testing, with less requirement for OpenGL and CUDA contexts
-    to be alive.
+    A wrapper around the underlying `photons` instance that 
+    handles presentation.
     """ 
-
-    @classmethod
-    def from_cpl( cls, cpl, event, timesort=True ):
-        photons = Photons.from_cpl(cpl)
-        pmtid = np.array(cpl.pmtid, dtype=np.int32)
-        if timesort:
-            order = np.argsort(photons.t)
-            photons.sort(order)        
-            pmtid = pmtid[order]
-        return cls( photons, event, pmtid )
-
-
     def __init__(self, photons, event, pmtid=None ):
         self.photons = photons
         self.event = event
         self.pmtid = pmtid
+        pass
         self.nphotons = len(self.photons)
         self.vertices = self.photons.pos      # allows to be treated like a DAEMesh
+        self.momdir = self.photons.dir
         self._color = None
 
-        self.reconfig([
+        if not event is None:
+            self.reconfig([
                        ['fpholine',event.config.args.fpholine],
                        ['pholine',event.config.args.pholine],
                        ['fphopoint',event.config.args.fphopoint],
@@ -127,9 +114,12 @@ class DAEChromaPhotonList(object):
                       ])
 
     def __repr__(self):
-        return "%s %s " % (self.mode, self.fpho)
+        return "%s %s " % (self.__class__.__name__, self.nphotons)
 
     def reconfig(self, conf):
+        """
+        TODO: avoid duplication of config between here and primary DAEConfig
+        """
         update = False
         for k, v in conf:
             if k == 'fpholine':
@@ -154,7 +144,6 @@ class DAEChromaPhotonList(object):
         self.pholine = pholine
         self.mode = 'lines' if pholine else 'points' 
         self.drawmode = DRAWMODE[self.mode]
-
 
     def wavelengths2rgb(self):
         color = np.zeros(self.nphotons, dtype=(np.float32, 4))
@@ -182,7 +171,7 @@ class DAEChromaPhotonList(object):
         if self.mode == 'points':
             data = np.zeros(self.nphotons, [('position', np.float32, 3), 
                                             ('color',    np.float32, 4)]) 
-            data['position'] = self.pos
+            data['position'] = self.vertices
             data['color']    = self.color
 
         elif self.mode == 'lines': 
@@ -190,9 +179,9 @@ class DAEChromaPhotonList(object):
                                               ('color',    np.float32, 4)]) 
 
             # interleave the photon positions with sum of photon position and direction
-            vertices = np.empty((len(self.pos)*2,3), dtype=self.pos.dtype )
-            vertices[0::2] = self.pos
-            vertices[1::2] = self.pos + self.dir*self.fpholine
+            vertices = np.empty((len(self.vertices)*2,3), dtype=self.vertices.dtype )
+            vertices[0::2] = self.vertices
+            vertices[1::2] = self.vertices + self.momdir*self.fpholine
 
             # interleaved double up the colors 
             colors = np.empty((len(self.color)*2,4), dtype=self.color.dtype )
@@ -204,8 +193,7 @@ class DAEChromaPhotonList(object):
 
         else:
             assert 0
-
-
+        pass
         self.data = data
         self.indices = np.arange( data.size, dtype=np.uint32)  
         self.vbo = MyVertexBuffer( self.data, self.indices  )
@@ -248,9 +236,7 @@ class DAEChromaPhotonList(object):
         The qcut cuts away at the elements to be presented,     
         the default of 1 corresponds to all
 
-
         """ 
-
         qcut = self.event.qcut
         tot = len(self.data)
 
@@ -260,28 +246,18 @@ class DAEChromaPhotonList(object):
         #
         qoffset, qcount = 0, int(tot*qcut)
         assert qcount <= tot
-
-        #log.info("tot %d qcut %s qcount %d qoffset %d " % (tot, qcut, qcount, qoffset ))  
-
-      
         self.vbo.draw(mode=self.drawmode, what='pc', count=qcount, offset=qoffset )
 
-    def draw_slowly(self):
+
+    def draw_extremely_slowly(self):
         """
-        TODO: 
-
-        #. assign line color based on wavelength, see `specrend-`
-        #. howabout pol/t/pmtid ?
-
-        #. investigate using VBO or sprite based particle systems for photon "visualization"
-
         """
         gl.glDisable( gl.GL_LIGHTING )
         gl.glDisable( gl.GL_DEPTH_TEST )
 
         for i in range(self.nphotons):
-            a = self.pos[i]
-            b = a + self.dir[i]*100
+            a = self.vertices[i]
+            b = a + self.momdir[i]*100
 
             gl.glBegin( gl.GL_LINES)
             gl.glVertex3f( *a )

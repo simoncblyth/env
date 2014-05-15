@@ -3,10 +3,12 @@
 import logging
 log = logging.getLogger(__name__)
 import numpy as np
-from daechromaphotonlistbase import DAEChromaPhotonListBase
-from daechromaphotonlist import DAEChromaPhotonList
+
+from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # ROOT transport level 
+from photons import Photons                                      # numpy operations level 
+from daephotons import DAEPhotons                                # OpenGL presentation level
+
 from daegeometry import DAEMesh 
-from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # uses ROOT
 from datetime import datetime
 from daeeventlist import DAEEventList 
 
@@ -17,7 +19,7 @@ def timestamp():
 class DAEEvent(object):
     def __init__(self, config ):
         self.config = config
-        self.cpl = None 
+        self.dphotons = None 
         self.qcut = config.args.tcut 
         self.eventlist = DAEEventList(config.args.path_template)
         self.bbox_cache = None
@@ -93,7 +95,7 @@ class DAEEvent(object):
         """ 
         key = self.config.args.key
 
-        cpl_config = []
+        photons_config = []
 
         for k,v in event_config:
             if k == 'key':
@@ -105,13 +107,13 @@ class DAEEvent(object):
             elif k == 'tcut':
                 self.qcut = v 
             elif k in ('fpholine','pholine','fphopoint','phopoint'):   
-                cpl_config.append([k,v])
+                photons_config.append([k,v])
             else:
                 assert 0, (k,v)
             pass
         pass
-        if len(cpl_config)>0:
-            self.cpl.reconfig(cpl_config)
+        if len(photons_config)>0:
+            self.dphotons.reconfig(photons_config)
         pass 
 
     def external_cpl(self, cpl ):
@@ -130,18 +132,34 @@ class DAEEvent(object):
         save_cpl( path, key, cpl )   
  
     def setup_cpl(self, cpl):
-        dcpl = DAEChromaPhotonList.from_cpl(cpl, self, timesort=True)
-        self.cpl = dcpl
-        mesh = DAEMesh(self.cpl.pos)
-        log.info("setup_cpl mesh\n%s\n" % str(mesh))
+        """
+        Convert serialization level ChromaPhotonList into operation level Photons
+        """
+        photons = Photons.from_cpl(cpl, extend=True)   
+        self.setup_photons( photons ) 
+
+    def setup_photons(self, photons ):
+        """
+        Convert operations level Photons into presentation level DAEPhotons 
+        """
+        dphotons = DAEPhotons( photons, self )
+        self.dphotons = dphotons
+        mesh = DAEMesh(dphotons.vertices)
+        log.info("setup_photons mesh\n%s\n" % str(mesh))
         self.objects = [mesh]
 
-    def step(self, chroma_ctx):
-        if self.cpl is None:
-            log.warn("cannot step without loaded CPL")
+    def step(self, chroma):
+        """
+        Use Chroma propagation to step the photons 
+        """
+        if self.dphotons is None:
+            log.warn("cannot step without loaded dphotons")
             return
+        pass
         log.info("step")
-        photons = chroma_ctx.step( self.cpl )
+        photons = chroma.step( self.dphotons.photons )
+        self.setup_photons( photons )
+
 
     def find_object(self, ospec):
         try:
@@ -154,8 +172,8 @@ class DAEEvent(object):
             return None
 
     def draw(self):
-        if self.cpl is None:return
-        self.cpl.draw()
+        if self.dphotons is None:return
+        self.dphotons.draw()
 
     def save(self, path_, key=None ):
         if key is None:

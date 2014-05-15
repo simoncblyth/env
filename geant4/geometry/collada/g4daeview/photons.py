@@ -13,14 +13,26 @@ class Photons(object):
     Same as chroma.event.Photons but with from_cpl classmethod and sorting additions.
     """
     @classmethod
-    def from_cpl(cls, cpl ):
+    def from_cpl(cls, cpl, extend=True ):
+        """
+        :param cpl: ChromaPhotonList instance, as obtained from file or MQ
+        :param extend: when True add pmtid attribute and sort by time
+        """ 
         pos = xyz_(cpl.x,cpl.y,cpl.z,np.float32)
         dir = xyz_(cpl.px,cpl.py,cpl.pz,np.float32)
         pol = xyz_(cpl.polx,cpl.poly,cpl.polz,np.float32)
         wavelengths = np.array(cpl.wavelength, dtype=np.float32)
         t = np.array(cpl.t, dtype=np.float32)
         pass
-        return cls(pos,dir,pol,wavelengths,t)   # huh pmtid ignored ?
+        obj = cls(pos,dir,pol,wavelengths,t)   
+       
+        if extend:
+            order = np.argsort(obj.t)
+            pmtid = np.array(cpl.pmtid, dtype=np.int32)
+            obj.sort(order)        
+            obj.pmtid = pmtid[order]
+        pass
+        return obj
 
     atts = "pos dir pol wavelengths t last_hit_triangles flags weights".split()
 

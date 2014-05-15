@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-Treating a DAEChromaPhotonListBase like a geometrical mesh 
+Treating a DAEPhotons like a DAEMesh 
 """
-from daechromaphotonlistbase import DAEChromaPhotonListBase
+from daephotons import DAEPhotons
 from daegeometry import DAEMesh 
 
 if __name__ == '__main__':
@@ -11,11 +11,11 @@ if __name__ == '__main__':
     ROOT.gSystem.Load("$LOCAL_BASE/env/chroma/ChromaPhotonList/lib/libChromaPhotonList")
     from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl, random_cpl
     path = os.environ['DAE_PATH_TEMPLATE'] % {'arg':"1"} 
-    cpl = load_cpl(path,'CPL')
 
-    dcpl = DAEChromaPhotonListBase(cpl)
-    mdcpl = DAEMesh(dcpl.pos)
-    print mdcpl
+    cpl = load_cpl(path,'CPL')
+    photons = DAEPhotons.from_cpl(cpl)
+    mesh = DAEMesh(photons.vertices)
+    print mesh
 
 
     

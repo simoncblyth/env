@@ -6,7 +6,10 @@ http://codingmess.blogspot.tw/2009/05/conversion-of-wavelength-in-nanometers.htm
 
 
 def wav2RGB(wavelength):
-    w = int(wavelength)
+    try:
+        w = int(wavelength)
+    except OverflowError:    # getting some float infinities
+        w = 1000 
 
     # colour
     if w >= 380 and w < 440:
