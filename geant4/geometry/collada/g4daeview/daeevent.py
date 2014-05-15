@@ -130,7 +130,7 @@ class DAEEvent(object):
         save_cpl( path, key, cpl )   
  
     def setup_cpl(self, cpl):
-        dcpl = DAEChromaPhotonList(cpl, self, timesort=True, chroma=self.config.args.with_chroma)
+        dcpl = DAEChromaPhotonList.from_cpl(cpl, self, timesort=True)
         self.cpl = dcpl
         mesh = DAEMesh(self.cpl.pos)
         log.info("setup_cpl mesh\n%s\n" % str(mesh))
@@ -141,10 +141,7 @@ class DAEEvent(object):
             log.warn("cannot step without loaded CPL")
             return
         log.info("step")
-        photons2 = chroma_ctx.step( self.cpl )
-        DAEChromaPhotonListBase.dump_(photons2) 
-
-
+        photons = chroma_ctx.step( self.cpl )
 
     def find_object(self, ospec):
         try:

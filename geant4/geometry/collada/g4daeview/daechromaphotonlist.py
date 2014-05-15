@@ -28,9 +28,8 @@ import glumpy as gp
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
-
-
-from daechromaphotonlistbase import DAEChromaPhotonListBase
+from env.graphics.color.wav2RGB import wav2RGB
+from photons import Photons
 
 
 class MyVertexBuffer(gp.graphics.VertexBuffer):
@@ -88,8 +87,10 @@ class MyVertexBuffer(gp.graphics.VertexBuffer):
 
 DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
    
+
+
  
-class DAEChromaPhotonList(DAEChromaPhotonListBase):
+class DAEChromaPhotonList(object):
     """
     Handles the presentation of photon lists, for the
     nitty gritty see the base class.
@@ -98,9 +99,25 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
     It would ease testing, with less requirement for OpenGL and CUDA contexts
     to be alive.
     """ 
-    def __init__(self, cpl, event, timesort=True, chroma=False ):
+
+    @classmethod
+    def from_cpl( cls, cpl, event, timesort=True ):
+        photons = Photons.from_cpl(cpl)
+        pmtid = np.array(cpl.pmtid, dtype=np.int32)
+        if timesort:
+            order = np.argsort(photons.t)
+            photons.sort(order)        
+            pmtid = pmtid[order]
+        return cls( photons, event, pmtid )
+
+
+    def __init__(self, photons, event, pmtid=None ):
+        self.photons = photons
         self.event = event
-        DAEChromaPhotonListBase.__init__(self, cpl, timesort=timesort, chroma=chroma )
+        self.pmtid = pmtid
+        self.nphotons = len(self.photons)
+        self.vertices = self.photons.pos      # allows to be treated like a DAEMesh
+        self._color = None
 
         self.reconfig([
                        ['fpholine',event.config.args.fpholine],
@@ -137,6 +154,21 @@ class DAEChromaPhotonList(DAEChromaPhotonListBase):
         self.pholine = pholine
         self.mode = 'lines' if pholine else 'points' 
         self.drawmode = DRAWMODE[self.mode]
+
+
+    def wavelengths2rgb(self):
+        color = np.zeros(self.nphotons, dtype=(np.float32, 4))
+        for i,wl in enumerate(self.photons.wavelengths):
+            color[i] = wav2RGB(wl)
+        pass 
+        return color
+
+    def _get_color(self):
+        if self._color is None:
+            self._color = self.wavelengths2rgb()
+        return self._color
+    color = property(_get_color)
+
 
     def create_vbo(self):
         """

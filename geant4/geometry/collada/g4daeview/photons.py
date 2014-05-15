@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 """
-For interactive inspection::
-
-    ipython daechromaphotonlistbase.py -i
-
 """
 import logging
 import numpy as np
@@ -11,12 +7,10 @@ log = logging.getLogger(__name__)
 
 xyz_ = lambda x,y,z,dtype:np.column_stack((np.array(x,dtype=dtype),np.array(y,dtype=dtype),np.array(z,dtype=dtype))) 
 
-from env.graphics.color.wav2RGB import wav2RGB
 
 class Photons(object):
     """
-    Copy of chroma.event.Photons as this is too fundamental to require chroma for
-    but want to be compatible with instances of this provided by chroma.
+    Same as chroma.event.Photons but with from_cpl classmethod and sorting additions.
     """
     @classmethod
     def from_cpl(cls, cpl ):
@@ -28,13 +22,18 @@ class Photons(object):
         pass
         return cls(pos,dir,pol,wavelengths,t)   # huh pmtid ignored ?
 
+    atts = "pos dir pol wavelengths t last_hit_triangles flags weights".split()
+
+    def dump(self):
+        for att in self.atts:
+            print "%s\n%s" % ( att, getattr(self, att))
+
     def sort(self, order):
         self.pos = self.pos[order]
         self.dir = self.dir[order] 
         self.pol = self.pol[order] 
         self.wavelengths = self.wavelengths[order]
         self.t = self.t[order]
-        #self.pmtid = self.pmtid[order]
 
     def __init__(self, pos, dir, pol, wavelengths, t=None, last_hit_triangles=None, flags=None, weights=None ):
         '''Create a new list of n photons.
@@ -131,60 +130,10 @@ class Photons(object):
         return self[choice]
 
 
-
-class DAEPhotons(object):
-    atts = 'pos dir pol wavelengths t pmtid color weights flags last_hit_triangle'.split()
-    """
-    #. Q: how to get smth drawable and sharable between Chroma and OpenGL ? 
-          and avoid all the copying 
-    """
-
-    @classmethod
-    def from_cpl(cls, cpl):
-        photons = Photons.from_cpl(cpl)
-        pmtid = np.array(cpl.pmtid, dtype=np.int32)
-        order = np.argsort(photons.t)
-        photons.sort(order)        
-        pmtid = pmtid[order]
-        return cls(photons, pmtid)
-
-    def __init__(self, photons, pmtid=None ):
-        self.photons = photons
-        self.pmtid = pmtid
-        self.nphotons = len(self.photons)
-        self.vertices = self.photons.pos      # allows to be treated like a DAEMesh
-        self._color = None
-
-    def wavelengths2rgb(self):
-        color = np.zeros(self.nphotons, dtype=(np.float32, 4))
-        for i,wl in enumerate(self.photons.wavelengths):
-            color[i] = wav2RGB(wl)
-        pass 
-        return color
-
-    def _get_color(self):
-        if self._color is None:
-            self._color = self.wavelengths2rgb()
-        return self._color
-    color = property(_get_color)
-
-    def dump(self):
-        for att in cls.atts:
-            print "%s\n%s" % (att,getattr(self.photons,att) if hasattr(self.photons,att) else "-")
-
-
 def check_load(path):
-
     cpl = load_cpl(path,'CPL')
-
-    print "g4 stack action track order"
-    dpho = DAEPhotons.from_cpl(cpl, timesort=False)
-    dpho.dump()
-
-    print "timesorted order"
-    dpho = DAEPhotons.from_cpl(cpl, timesort=True)
-    dpho.dump()
-
+    pho = Photons.from_cpl(cpl)
+    pho.dump()
 
 
 if __name__ == '__main__':
