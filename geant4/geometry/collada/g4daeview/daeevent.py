@@ -5,7 +5,9 @@ log = logging.getLogger(__name__)
 import numpy as np
 
 from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # ROOT transport level 
-from photons import Photons                                      # numpy operations level 
+
+#from photons import Photons                                      # numpy operations level 
+from chroma.event import Photons
 from daephotons import DAEPhotons                                # OpenGL presentation level
 
 from datetime import datetime
@@ -105,7 +107,7 @@ class DAEEvent(object):
                 self.load(v, key)
             elif k == 'tcut':
                 self.qcut = v 
-            elif k in ('fpholine','pholine','fphopoint','phopoint'):   
+            elif k in ('fpholine','pholine','fphopoint','phopoint','mask'):   
                 photons_config.append([k,v])
             else:
                 assert 0, (k,v)
@@ -160,6 +162,7 @@ class DAEEvent(object):
         pass
         log.info("step")
         photons = chroma.step( self.dphotons.photons )
+        photons.dump()
         self.setup_photons( photons )
 
     def find_object(self, ospec):

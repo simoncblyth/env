@@ -28,7 +28,9 @@ import OpenGL.GLUT as glut
 DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
 
 from env.graphics.color.wav2RGB import wav2RGB
-from photons import Photons   # TODO: merge photons.Photons into my forked chroma.event.Photons
+
+#from photons import Photons   # TODO: merge photons.Photons into my forked chroma.event.Photons
+from chroma.event import Photons
 from daegeometry import DAEMesh 
 
 
@@ -272,8 +274,17 @@ class DAEPhotons(object):
         return data 
 
     def create_vbo(self, data):
+        """
+        np.where(flags & 0x6)[0]
+        """
         log.info("create_vbo for %s photons" % self.nphotons)
-        indices = np.arange( data.size, dtype=np.uint32)  
+
+        if self.config.args.mask is None:
+            indices = np.arange( data.size, dtype=np.uint32)  
+        else:
+            mask = self.config.args.mask
+            indices = np.where( self.photons.flags & mask )[0]
+        pass
         return MyVertexBuffer( data, indices  )
 
     def draw(self):
@@ -303,6 +314,9 @@ class DAEPhotons(object):
                 update = True
             elif k == 'phopoint':
                 self.config.args.pholine = False
+                update = True
+            elif k == 'mask':
+                self.config.args.mask = v
                 update = True
             else:
                 log.info("ignoring %s %s " % (k,v))
