@@ -36,7 +36,7 @@ class Propagator(object):
         gpu_photons = gpu.GPUPhotons(photons)
         gpu_photons.propagate(self.ctx.gpu_geometry, 
                               self.ctx.rng_states,
-                              nthreads_per_block=ctx.self.nthreads_per_block,
+                              nthreads_per_block=self.ctx.nthreads_per_block,
                               max_blocks=self.ctx.max_blocks,
                               max_steps=max_steps)
 
@@ -54,6 +54,7 @@ if __name__ == '__main__':
     from env.geant4.geometry.collada.g4daeview.daechromaphotonlistbase import DAEChromaPhotonListBase
     from env.geant4.geometry.collada.g4daeview.daeconfig import DAEConfig
     from env.geant4.geometry.collada.g4daeview.daegeometry import DAEGeometry
+    from env.geant4.geometry.collada.g4daeview.daechromacontext import DAEChromaContext
 
     config = DAEConfig(__doc__)
     config.init_parse()
@@ -65,14 +66,19 @@ if __name__ == '__main__':
     geometry.flatten()
     chroma_geometry = geometry.make_chroma_geometry() 
 
+
+    ctx = DAEChromaContext( config, chroma_geometry )
+
     path = config.resolve_event_path("1")
     cpl = load_cpl(path,config.args.key)
 
     photons = DAEChromaPhotonListBase(cpl, chroma=config.args.with_chroma)
     DAEChromaPhotonListBase.dump_(photons)  # contortion 
- 
-    propagator = Propagator(chroma_geometry, config )
-    photons2 = propagator.propagate( photons, max_steps=1 )    # chroma.event.Photons instance
+
+    photons2 = ctx.step( photons )
+
+    #propagator = Propagator(chroma_geometry, config )
+    #photons2 = propagator.propagate( photons, max_steps=1 )    # chroma.event.Photons instance
 
     DAEChromaPhotonListBase.dump_(photons2)  # contortion
 

@@ -391,6 +391,9 @@ class DAEScene(object):
     def loadprev(self):
         self.event.loadprev()
 
+    def step(self):
+        self.event.step(self.chroma)
+
     def interpolate_view(self, jspec, append=False):
         """
         TODO: Maybe get rid of this, interpolation based on bookmarks is much better 

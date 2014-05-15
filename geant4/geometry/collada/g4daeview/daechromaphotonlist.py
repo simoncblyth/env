@@ -90,9 +90,17 @@ DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
    
  
 class DAEChromaPhotonList(DAEChromaPhotonListBase):
-    def __init__(self, cpl, event ):
+    """
+    Handles the presentation of photon lists, for the
+    nitty gritty see the base class.
+
+    Can i switch to composition rather than inheritance here ?
+    It would ease testing, with less requirement for OpenGL and CUDA contexts
+    to be alive.
+    """ 
+    def __init__(self, cpl, event, timesort=True, chroma=False ):
         self.event = event
-        DAEChromaPhotonListBase.__init__(self, cpl, timesort=True )
+        DAEChromaPhotonListBase.__init__(self, cpl, timesort=timesort, chroma=chroma )
 
         self.reconfig([
                        ['fpholine',event.config.args.fpholine],

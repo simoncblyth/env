@@ -4,6 +4,7 @@
 
 import logging
 log = logging.getLogger(__name__)
+
 from env.pycuda.pycuda_pyopengl_interop.pixel_buffer import PixelBuffer
 from env.chroma.chroma_camera.pbo_renderer import PBORenderer
 from env.cuda.cuda_state import DriverState

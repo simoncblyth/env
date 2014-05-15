@@ -3,6 +3,7 @@
 import logging
 log = logging.getLogger(__name__)
 import numpy as np
+from daechromaphotonlistbase import DAEChromaPhotonListBase
 from daechromaphotonlist import DAEChromaPhotonList
 from daegeometry import DAEMesh 
 from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # uses ROOT
@@ -129,11 +130,21 @@ class DAEEvent(object):
         save_cpl( path, key, cpl )   
  
     def setup_cpl(self, cpl):
-        dcpl = DAEChromaPhotonList(cpl, self)
+        dcpl = DAEChromaPhotonList(cpl, self, timesort=True, chroma=self.config.args.with_chroma)
         self.cpl = dcpl
         mesh = DAEMesh(self.cpl.pos)
         log.info("setup_cpl mesh\n%s\n" % str(mesh))
         self.objects = [mesh]
+
+    def step(self, chroma_ctx):
+        if self.cpl is None:
+            log.warn("cannot step without loaded CPL")
+            return
+        log.info("step")
+        photons2 = chroma_ctx.step( self.cpl )
+        DAEChromaPhotonListBase.dump_(photons2) 
+
+
 
     def find_object(self, ospec):
         try:

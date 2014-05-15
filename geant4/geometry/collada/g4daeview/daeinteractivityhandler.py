@@ -214,8 +214,7 @@ class DAEInteractivityHandler(object):
     def on_key_press(self, symbol, modifiers):
         """
         ABCDEFGHIJKLMNOPQRSTUVWXYZ
-        *** **********************
-           D                    
+        **************************
         """
         if   symbol == key.ESCAPE: self.exit()
         elif symbol == key.A: self.scan_mode = True
@@ -248,6 +247,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.R: self.scene.toggle_raycast()
         elif symbol == key.J: self.scene.toggle_showmetric()
         elif symbol == key.E: self.save_to_file()
+        elif symbol == key.D: self.scene.step()
         elif symbol == key.BRACKETRIGHT: self.scene.loadnext()
         elif symbol == key.BRACKETLEFT: self.scene.loadprev()
         elif symbol in number_keys:
