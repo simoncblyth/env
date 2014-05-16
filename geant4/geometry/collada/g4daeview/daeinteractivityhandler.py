@@ -62,7 +62,7 @@ class DAEKeys(object):
         key["1-9"] = "create/visit bookmark: while pressing number key click solid to create bookmark, subsequently press number key to visit bookmark" 
         key["0"] = "bookmark zero is added at startup for the initial viewpoint/solid "
         key["SPACE"] = "update current bookmark: the last visited/created bookmark is updated to accomodate changed viewpoint from trackballing around "
-        key["W"] = "where: write to stdout the commandline to recreate the current state of view and camera "
+        key["W"] = "where: write to stdout the commandline to recreate the current state of view and camera and make current near clipping plane into a fixed clipping plane "
         key["U"] = "usage, write help text to stdout "
         key["B"] = "setup bookmark interpolation view, to toggle animation use M  "
         key["V"] = "setup parametric orbiting view based on current bookmark, to toggle animation use M  "

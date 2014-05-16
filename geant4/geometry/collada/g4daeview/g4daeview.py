@@ -6,8 +6,6 @@ G4DAEVIEW
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
-
-
 NB default node selection only applies to to dyb
 -------------------------------------------------
 
@@ -38,8 +36,6 @@ Next
 -----
 
 
-
-
 ChromaPhotonList Visualization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -53,7 +49,6 @@ ChromaPhotonList Visualization
 #. treat the CPL as a "solid" to allow navigation relative to it, rotate around it etc..
 #. other particle communication and representation, primaries 
 #. add axes, for checking whilst testing with Geant4 particle guns   
-#. viewpoint independant clipping planes
 
 issues
 ^^^^^^^^

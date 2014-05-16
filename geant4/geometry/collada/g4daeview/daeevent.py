@@ -18,8 +18,10 @@ def timestamp():
 
 
 class DAEEvent(object):
-    def __init__(self, config ):
+    def __init__(self, config, scene ):
         self.config = config
+        self.scene = scene
+        pass
         self.dphotons = None 
         self.qcut = config.args.tcut 
         self.eventlist = DAEEventList(config.args.path_template)
@@ -152,6 +154,8 @@ class DAEEvent(object):
         pass
         mesh = self.dphotons.mesh
         log.info("setup_photons mesh\n%s\n" % str(mesh))
+
+        self.scene.bookmarks.create_for_object( mesh, 9 )
         self.objects = [mesh]
 
     def step(self, chroma):

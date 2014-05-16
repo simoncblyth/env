@@ -84,7 +84,7 @@ class DAEScene(object):
         self.processor = self.make_processor( config ) 
 
         # Event handling, either root file load/save or network messages 
-        self.event = DAEEvent(config) 
+        self.event = DAEEvent(config, self) 
 
         # transform holds references to all relevant state-holders 
         transform = DAETransform( self ) 

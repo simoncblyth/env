@@ -123,7 +123,7 @@ class DAEIllustrate(object):
         gl.glDisable( gl.GL_DEPTH_TEST )
         gl.glColor3f( 0.,0.,1. ) 
 
-        gl.glPointSize(10)
+        #gl.glPointSize(10)
         gl.glBegin( gl.GL_POINTS )
         for wcorner in wcorners:
             gl.glVertex3f( *wcorner[:3] )
