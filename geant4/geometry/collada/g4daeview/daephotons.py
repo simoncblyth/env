@@ -14,6 +14,20 @@ Interactive probing::
     In [12]: ddir = map(lambda _:np.linalg.norm(_), cpl.dir )
 
 
+
+NO_HIT                                     1   0x1      
+BULK_ABSORB                                2   0x2      
+SURFACE_DETECT                             4   0x4      
+SURFACE_ABSORB                             8   0x8      
+RAYLEIGH_SCATTER                          16   0x10      
+REFLECT_DIFFUSE                           32   0x20      
+REFLECT_SPECULAR                          64   0x40      
+SURFACE_REEMIT                           128   0x80      
+SURFACE_TRANSMIT                         256   0x100      
+BULK_REEMIT                              512   0x200      
+NAN_ABORT                         2147483648   0x80000000      
+
+
 """
 import logging
 import numpy as np
@@ -25,13 +39,29 @@ import glumpy as gp
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
+
 DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
 
 from env.graphics.color.wav2RGB import wav2RGB
 
 #from photons import Photons   # TODO: merge photons.Photons into my forked chroma.event.Photons
-from chroma.event import Photons
+from chroma.event import Photons, arg2mask_
 from daegeometry import DAEMesh 
+
+
+def arg2mask( argl ):
+    """ 
+    Return strings representing integers as integers
+    otherwise perform enum name to mask conversion.
+    """
+    if argl is None or argl == "NONE":return None
+    mask = 0 
+    try:
+        mask = int(argl)
+    except ValueError:
+        mask = arg2mask_(argl)
+    pass
+    return mask
 
 
 class MyVertexBuffer(gp.graphics.VertexBuffer):
@@ -277,15 +307,45 @@ class DAEPhotons(object):
         """
         np.where(flags & 0x6)[0]
         """
-        log.info("create_vbo for %s photons" % self.nphotons)
 
-        if self.config.args.mask is None:
-            indices = np.arange( data.size, dtype=np.uint32)  
+        nvtx = data.size
+        npho = self.nphotons
+        flags = self.photons.flags
+        nflg = len(flags)
+        arg = self.config.args.mask 
+        mask = arg2mask(arg)
+        log.info("arg %s mask %s " % (arg, mask))
+
+        log.info("create_vbo npho %s nvtx %s nflg %s mask %s " % (npho,nvtx,nflg,mask))
+
+        assert nflg == npho, (len(flags), npho)
+        assert nvtx == npho or nvtx == 2*npho, (nvtx,npho)
+
+        if mask is None:
+            vindices = np.arange( nvtx, dtype=np.uint32)  
         else:
-            mask = self.config.args.mask
-            indices = np.where( self.photons.flags & mask )[0]
+            pindices = np.where( flags & mask )[0]
+            log.info("flags & mask : %s " % len(pindices) )
+            #print pindices
+ 
+            if len(pindices) == 0:
+                vindices = np.arange( 1, dtype=np.uint32 ) # token 1 indice when mask kills all
+            else:
+                if nvtx == npho:
+                    # pvbo its 1-1 between vertices and photons
+                    vindices = pindices
+                elif nvtx == npho*2:
+                    # lvbo is 2-1 between vertices and photons, so double up the pindices to form vindices
+                    vindices = np.empty(2*len(pindices), dtype=np.uint32)
+                    vindices[0::2] = 2*pindices
+                    vindices[1::2] = 2*pindices + 1
+                    log.info(" lvbo vindices %s " % len(vindices))
+                    #print vindices
+                else:
+                    assert 0, (nvtx,npho)
+            pass
         pass
-        return MyVertexBuffer( data, indices  )
+        return MyVertexBuffer( data, vindices  )
 
     def draw(self):
         """

@@ -6,12 +6,35 @@ G4DAEVIEW
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
+
+
+
+
 NB default node selection only applies to to dyb
 -------------------------------------------------
 
 For viewing Geant4 LXe example::
 
     g4daeview.sh -p lxe -g 1: 
+
+
+Photon History Flags
+---------------------
+
+::
+
+    NO_HIT                                     1   0x1      
+    BULK_ABSORB                                2   0x2      
+    SURFACE_DETECT                             4   0x4      
+    SURFACE_ABSORB                             8   0x8      
+    RAYLEIGH_SCATTER                          16   0x10      
+    REFLECT_DIFFUSE                           32   0x20      
+    REFLECT_SPECULAR                          64   0x40      
+    SURFACE_REEMIT                           128   0x80      
+    SURFACE_TRANSMIT                         256   0x100      
+    BULK_REEMIT                              512   0x200      
+    NAN_ABORT                         2147483648   0x80000000      
+
 
 Next
 -----

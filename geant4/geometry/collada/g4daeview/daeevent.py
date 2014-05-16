@@ -107,6 +107,8 @@ class DAEEvent(object):
                 self.load(v, key)
             elif k == 'tcut':
                 self.qcut = v 
+            elif k == 'reload':
+                self.reload_()
             elif k in ('fpholine','pholine','fphopoint','phopoint','mask'):   
                 photons_config.append([k,v])
             else:
@@ -201,6 +203,14 @@ class DAEEvent(object):
         pass
         self.eventlist.path = path   # let eventlist know where we are, to allow loadnext loadprev
         self.setup_cpl( cpl )
+
+    def reload_(self):
+        path = self.eventlist.path 
+        if not path is None:
+            log.info("reload_ %s " % path )
+            self.load(path) 
+        else:
+            log.warn("cannot reload as no current path")
 
     def loadnext(self):
         log.info("loadnext")

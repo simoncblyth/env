@@ -219,6 +219,7 @@ class DAEConfig(ConfigBase):
         defaults['fphopoint'] = 2
         defaults['tcut'] = 1.
         defaults['mask'] = None
+        defaults['reload']  = False
 
         parser.add_argument( "--nolive",  dest="live", help="[I] Disable live updating via ZMQRoot messages. Default %(default)s.", action="store_false")
         parser.add_argument( "--live",    dest="live", help="[I] Enable live updating via ZMQRoot messages. Default %(default)s.", action="store_true")
@@ -234,7 +235,8 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--fphopoint", help="Present photons as points of size fphopoint. Default %(default)s.",type=float)
         parser.add_argument( "--tcut", help="Select photons to present based on their global time, in range 0. to 1., where 1. means all. Default %(default)s.",type=float)
 
-        parser.add_argument( "--mask", help="Apply the mask selection to status flags of Chroma stepped photons. Default %(default)s", type=int )  
+        parser.add_argument( "--mask", help="Apply the mask selection to status flags of Chroma stepped photons. Default %(default)s", type=str )  
+        parser.add_argument( "--reload",  help="[I] Reload current loaded event, useful after stepping. Default %(default)s.", action="store_true")
 
 
         # kernel switches

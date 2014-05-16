@@ -319,7 +319,7 @@ class DAEScene(object):
             elif k == "showmetric":
                 raycast_config[k] = v
                 self.toggle_showmetric() 
-            elif k in ("save","load","key","fpholine","pholine","fphopoint","phopoint","tcut","mask"):
+            elif k in ("save","load","key","fpholine","pholine","fphopoint","phopoint","tcut","mask","reload"):
                 event_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v
