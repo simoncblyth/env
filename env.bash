@@ -1435,3 +1435,4 @@ czmq-(){      . $(env-home)/zeromq/czmq/czmq.bash && czmq-env $* ; }
 zmq-(){       . $(env-home)/zeromq/zmq/zmq.bash && zmq-env $* ; }
 
 opengl-(){      . $(env-home)/graphics/opengl/opengl.bash && opengl-env $* ; }
+atb-(){      . $(env-home)/graphics/atb/atb.bash && atb-env $* ; }

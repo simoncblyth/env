@@ -20,6 +20,16 @@ simulation while it is running, then maybe glumpy can help you.
 glumpy is made on top of PyOpenGL (http://pyopengl.sourceforge.net/) 
 
 
+
+glumpy.atb
+-------------
+
+Glumpy provides bindings and demos to use AntTweakBar 
+http://anttweakbar.sourceforge.net/doc/
+
+
+
+
 forks
 -----
 

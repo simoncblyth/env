@@ -17,6 +17,15 @@ OPENGL
 * http://www.opengl.org/wiki/Vertex_Buffer_Object#Vertex_Buffer_Object
 
 
+Lightweight GUI ?
+-------------------
+
+* :google:`OpenGL Lightweight GUI`
+
+  * https://code.google.com/p/glui2/wiki/Screenshots  its C++ 
+
+
+
 EOU
 }
 opengl-dir(){ echo $(local-base)/env/graphics/opengl/graphics/opengl-opengl ; }
