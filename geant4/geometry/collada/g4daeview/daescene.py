@@ -15,6 +15,7 @@ from daetransform import DAETransform
 from daebookmarks import DAEBookmarks
 from daeanimator import DAEAnimator
 from daeevent import DAEEvent
+from daeclipper import DAEClipper
 
 # do not import anything that would initialize CUDA context here, for CUDA_PROFILE control from config
  
@@ -71,6 +72,9 @@ class DAEScene(object):
 
         # bookmarked viewpoints
         self.bookmarks = DAEBookmarks(config.bookmarks, geometry) 
+
+        # clipping plane control
+        self.clipper = DAEClipper() 
 
         # Chroma raycaster and propagator, None if not --with-chroma
         self.raycaster = self.chroma.raycaster
@@ -201,6 +205,11 @@ class DAEScene(object):
         print str(self)
         here = self.here
         solids = self.containing_solids( here )
+
+
+        self.clipper.add( self.transform.plane )
+
+
         log.info("solids containing eye point %s " % repr(here))   
         print "\n".join(map(repr,solids))
 

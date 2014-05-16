@@ -44,8 +44,21 @@ DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
 
 from env.graphics.color.wav2RGB import wav2RGB
 
-#from photons import Photons   # TODO: merge photons.Photons into my forked chroma.event.Photons
-from chroma.event import Photons, arg2mask_
+
+# Classes `chroma.event.Photons` and `photons.Photons` 
+# should be identical, doing fallback import as want to support installations
+# without chroma
+#
+# TODO: test without chroma running
+#
+try:
+    from chroma.event import Photons, arg2mask_
+except ImportError:
+    from photons import Photons   
+
+
+
+
 from daegeometry import DAEMesh 
 
 

@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 """
+**WARNING** : This class `photons.Photons` duplicates `chroma.event.Photons` (in my forked chroma)
+
+Duplication as wish to provide a fallback for installations without Chroma
+
 """
 import logging
 import numpy as np

@@ -106,6 +106,27 @@ class DAETransform(object):
         return self.eye2world.dot([0,0,0,1])
     eye = property(_get_eye)
 
+
+    def _get_nearpoint(self):
+        return self.eye2world.dot([0,0,-self.camera.near,1])
+    nearpoint = property(_get_nearpoint)
+
+    def _get_gaze(self):
+        return self.eye2world.dot([0,0,-1,0])
+    gaze = property(_get_gaze)
+
+    def _get_plane(self):
+        """
+        4 element array containing coefficents of near clipping 
+        plane equation (world coordinates)
+        """
+        normal = self.gaze
+        point = self.nearpoint
+        eqn = normal 
+        eqn[3] = -np.dot(normal, point)
+        return eqn 
+    plane = property(_get_plane)
+
     def _get_eye2model(self):
         return reduce(np.dot, [self.view.world2model.matrix,
                                self.view.camera2world, 

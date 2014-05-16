@@ -167,6 +167,8 @@ class DAEFrameHandler(object):
         lrbtnf = camera.lrbtnf
         kscale = camera.kscale          
 
+        self.scene.clipper.draw()
+
         if self.scene.markers:
             self.illustrate.frustum( view, lrbtnf*kscale )
             self.illustrate.raycast( transform.pixel2world_notrackball , view.eye, camera ) 

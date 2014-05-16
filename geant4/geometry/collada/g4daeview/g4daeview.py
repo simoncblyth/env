@@ -8,8 +8,6 @@ G4DAEVIEW
 
 
 
-
-
 NB default node selection only applies to to dyb
 -------------------------------------------------
 
@@ -39,6 +37,9 @@ Photon History Flags
 Next
 -----
 
+
+
+
 ChromaPhotonList Visualization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -52,12 +53,11 @@ ChromaPhotonList Visualization
 #. treat the CPL as a "solid" to allow navigation relative to it, rotate around it etc..
 #. other particle communication and representation, primaries 
 #. add axes, for checking whilst testing with Geant4 particle guns   
-
+#. viewpoint independant clipping planes
 
 issues
 ^^^^^^^^
 
-* resizing terminal window kills the ZMQ responder, with `interrupted system call`
 * fmcpmuon.py refers to volumes with DE names like `/dd/Structure/Pool/db-ows`  geometry 
   nodes available via daenode are all `/dd/Geometry/..`
 
