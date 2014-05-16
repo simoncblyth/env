@@ -12,6 +12,9 @@ OPENGL
 * http://www.openglsuperbible.com/2013/12/09/vertex-array-performance/
 
 
+* http://stackoverflow.com/questions/18814977/using-a-vbo-to-draw-lines-from-a-vector-of-points-in-opengl
+* https://www.opengl.org/discussion_boards/showthread.php/176296-glDrawElements-multiple-calls-one-index-array
+* http://www.opengl.org/wiki/Vertex_Buffer_Object#Vertex_Buffer_Object
 
 
 EOU
