@@ -63,6 +63,9 @@ PLANE=(gl.GL_CLIP_PLANE0,
 
 class DAEClipper(object):
     def __init__(self):
+        self.clear()
+
+    def clear(self):
         self.nplane = 0
         self.planes = {}
 
@@ -94,13 +97,17 @@ class DAEClipper(object):
     def draw(self):
         self.enable()
 
+    def reset(self):
+        self.disable()
+        self.clear()
+
     def enable(self):
         for n in range(self.nplane):
             self.enable_one(n)
  
     def disable(self):
         for n in range(self.nplane):
-            self.disble_one(n)
+            self.disable_one(n)
  
 
 if __name__ == '__main__':

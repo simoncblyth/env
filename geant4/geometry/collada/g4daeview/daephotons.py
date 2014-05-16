@@ -367,10 +367,25 @@ class DAEPhotons(object):
         Note that the VBO vertices are duplicated once for the line and once for
         the points, presumably there is some clever way to control the strides to
         avoid that ?
+
+        Changing presentation must account for the OpenGL state when this
+        gets called from daeframeghandler
         """ 
         qcount = int(len(self.pdata)*self.event.qcut)
+
+        #gl.glDisable( gl.GL_LIGHTING )
+        # 
+        #if self.event.scene.photonmagic: 
+        #    gl.glDisable( gl.GL_DEPTH_TEST )
+        #else:
+        #    gl.glEnable( gl.GL_DEPTH_TEST )
+
         self.lvbo.draw(mode=gl.GL_LINES,  what='pc', count=2*qcount, offset=0 )
         self.pvbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount  , offset=0 )
+
+        #gl.glEnable( gl.GL_LIGHTING )
+        #gl.glEnable( gl.GL_DEPTH_TEST )
+
 
 
     def reconfig(self, conf):

@@ -56,6 +56,9 @@ class DAEKeys(object):
         key["DOWN"] = "decrease mouse/trackpad drag factor *0.5"
         key["RIGHT"] = "increase animation speed *2"
         key["LEFT"] = "decrease animation speed *0.5"
+        key["]"] = "load next event"
+        key["["] = "load previous event"
+
 
         key["****"] = "--- misc ---"
         key["H"] = "home, resets trackball translation and rotation offsets to zero "
@@ -63,6 +66,9 @@ class DAEKeys(object):
         key["0"] = "bookmark zero is added at startup for the initial viewpoint/solid "
         key["SPACE"] = "update current bookmark: the last visited/created bookmark is updated to accomodate changed viewpoint from trackballing around "
         key["W"] = "where: write to stdout the commandline to recreate the current state of view and camera and make current near clipping plane into a fixed clipping plane "
+        key["@"] = "shift-2: clear all fixed clipping planes "
+        key["A"] = "timecut, while presses mouse/trackpad movement scans a globaltime cut applied to any loaded event objects"
+        key["D"] = "single step chroma optical photon propagation, moving photon positions and directions to the next step of their simulation "
         key["U"] = "usage, write help text to stdout "
         key["B"] = "setup bookmark interpolation view, to toggle animation use M  "
         key["V"] = "setup parametric orbiting view based on current bookmark, to toggle animation use M  "
@@ -242,12 +248,15 @@ class DAEInteractivityHandler(object):
         elif symbol == key.G: self.scene.toggle("light")
         elif symbol == key.O: self.scene.toggle("drawsolid")
         elif symbol == key.K: self.scene.toggle("markers")
+        elif symbol == key.EXCLAMATION: self.scene.toggle("photonmagic")
         elif symbol == key.M: self.scene.toggle_animate()
         elif symbol == key.C: self.scene.toggle_cuda()
         elif symbol == key.R: self.scene.toggle_raycast()
         elif symbol == key.J: self.scene.toggle_showmetric()
         elif symbol == key.E: self.save_to_file()
         elif symbol == key.D: self.scene.step()
+        elif symbol == key.AT: self.scene.clipper.reset()
+        elif symbol == key.POUND: self.scene.reload_()
         elif symbol == key.BRACKETRIGHT: self.scene.loadnext()
         elif symbol == key.BRACKETLEFT: self.scene.loadprev()
         elif symbol in number_keys:

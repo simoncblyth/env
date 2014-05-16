@@ -151,6 +151,7 @@ class DAEScene(object):
         self.transparent = args.transparent
         self.parallel = args.parallel
         self.drawsolid = False
+        self.photonmagic = True
         self.cuda = args.cuda and args.with_cuda_image_processor
         self.animate = False
         self.markers = args.markers
@@ -396,6 +397,9 @@ class DAEScene(object):
 
     def loadnext(self):
         self.event.loadnext()
+
+    def reload_(self):
+        self.event.reload_()
 
     def loadprev(self):
         self.event.loadprev()
