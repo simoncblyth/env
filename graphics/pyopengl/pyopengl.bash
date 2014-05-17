@@ -142,7 +142,7 @@ Demo::
 
 EOU
 }
-pyopengl-dir(){ echo $(local-base)/env/graphics/pyopengl/graphics/pyopengl-pyopengl ; }
+pyopengl-dir(){ echo $(env-home)/graphics/pyopengl ; }
 pyopengl-cd(){  cd $(pyopengl-dir); }
 pyopengl-mate(){ mate $(pyopengl-dir) ; }
 pyopengl-get(){

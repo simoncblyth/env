@@ -16,6 +16,7 @@ Graphics
     math/index
     glumpy/index
     scenekit/index
+    pyopengl/index
 
 
 
