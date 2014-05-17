@@ -28,6 +28,42 @@ from the GLUT calls and using a depth first recursive traverse to ensure child m
 are created before their parents need to "AddSubMenu" to them. This 
 creation only happens when `create("LEFT/MIDDLE/RIGHT")` is called.
 
+Refs regarding changing menus
+-------------------------------
+
+Details on changing menus
+
+http://csclab.murraystate.edu/bob.pilgrim/515/lectures_03.html
+
+::
+  
+    void glutChangeToMenuEntry(int entry, char *name, int value); 
+    void glutChangeToSubMenu(int entry, char *name, int menu); 
+    void glutRemoveMenuItem(int entry);  
+
+    void glutSetMenu(int menu); 
+    int glutGetMenu(void);  
+
+    void glutMenuStatusFunc(void (*func)(int status, int x, int y); 
+          status - one of GLUT_MENU_IN_USE or GLUT_MENU_NOT_IN_USE
+
+::
+
+    Note that we changed the menu in the keyboard callback function as opposed to
+    the menu callback function. This is because we shouldn't do any changes to a
+    menu while it is in use. A menu is in use until the callback is over, so we
+    couldn't change the menu's structure inside the menu's own callback.
+
+    As mentioned before, when a menu is in use it can't, or at least it shouldn't,
+    be altered. In order to prevent messing up we must make sure if a menu is not
+    in use before we change the menu entries. GLUT allows us to register a callback
+    function that will ba called whenever a menu pops-up, and when it goes away.
+    The function to register the callback is glutMenuStatusFunc.
+
+
+
+
+
 """
 import logging, inspect
 import OpenGL.GLUT as glut
