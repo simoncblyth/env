@@ -151,7 +151,7 @@ from daegeometry import DAEGeometry
 from daescene import DAEScene
 from daeinteractivityhandler import DAEInteractivityHandler
 from daeframehandler import DAEFrameHandler
-
+from daemenu import DAEMenu
 
 from env.cuda.cuda_launch import CUDACheck
 
@@ -167,6 +167,8 @@ def main():
         cudacheck = None
     config.cudacheck = cudacheck
 
+    rmenu = DAEMenu("rtop")
+    config.rmenu = rmenu
 
     geometry = DAEGeometry(config.args.geometry, config)
     geometry.flatten()
@@ -183,6 +185,7 @@ def main():
     fig_handler = DAEInteractivityHandler(figure, frame_handler, scene, config  )
     frame_handler.fig_handler = fig_handler
 
+    rmenu.create("RIGHT")
 
     gp.show()
 

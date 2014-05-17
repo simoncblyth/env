@@ -4,6 +4,7 @@
 import os, sys, logging
 log = logging.getLogger(__name__)
 import numpy as np
+from glumpy.window import event as window_event
 
 from daetrackball import DAETrackball
 from daecamera import DAECamera
@@ -17,6 +18,8 @@ from daeanimator import DAEAnimator
 from daeevent import DAEEvent
 from daeclipper import DAEClipper
 
+
+
 # do not import anything that would initialize CUDA context here, for CUDA_PROFILE control from config
  
 
@@ -29,7 +32,7 @@ class DAEChromaContextDummy(object):
     propagator = None
 
 
-class DAEScene(object):
+class DAEScene(window_event.EventDispatcher):
     """
     Keep this for handling state, **NOT interactivity**, **NOT graphics**     
     """
@@ -83,9 +86,6 @@ class DAEScene(object):
         # Image processor, None if not --with-cuda-image-processor
         self.processor = self.make_processor( config ) 
 
-        # Event handling, either root file load/save or network messages 
-        self.event = DAEEvent(config, self) 
-
         # transform holds references to all relevant state-holders 
         transform = DAETransform( self ) 
 
@@ -98,6 +98,11 @@ class DAEScene(object):
 
         if not self.raycaster is None:
             self.raycaster.transform = transform
+
+        # Event handling, either root file load/save or network messages 
+        # needs to be after transform setup as may do a launch load which adds auto-bookmark 9 
+        self.event = DAEEvent(config, self) 
+
 
         self.solids = []    # selected solids
 
@@ -424,12 +429,15 @@ class DAEScene(object):
         pass
         return interpolateview
 
+    def signal_draw(self):
+        log.info("signal_draw")
+        self.dispatch_event('on_draw', None)
         
     def dump(self):
         print "view\n", self.view
         print "trackball\n", self.trackball
 
-
+DAEScene.register_event_type('on_draw')
 
 
 if __name__ == '__main__':

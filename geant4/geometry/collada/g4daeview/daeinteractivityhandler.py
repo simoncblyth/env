@@ -18,14 +18,10 @@ number_keys = (key._0,key._1,key._2,key._3,key._4,key._5,key._6,key._7,key._8,ke
 from daedispatcher import DAEDispatcher
 from daeresponder import DAEResponder
 from daeviewport import DAEViewport
-from daemenu import DAEMenu
+from daemenu import DAEMenu, DAEMenuDemo
 
 
 t0, frames, t = 0,0,0
-
-def demo_red(n):log.info("demo_red %s " % n )
-def demo_green(n):log.info("demo_green %s " % n )
-def demo_blue(n):log.info("demo_blue %s " % n )
 
 
 class DAEKeys(object):
@@ -122,29 +118,15 @@ class DAEInteractivityHandler(object):
         self.hookup_udp_dispatcher(config)     # event notification from dispatcher
         self.hookup_zmq_responder()
 
-        self.menu = self.create_demo_menu()
+        dmd = DAEMenuDemo()
+        rmenu = dmd.make_demo_menu()
+        rmenu.create('RIGHT')  # GLUT calls here
 
-    def demo_cyan(self, n):
-        log.info("demo_cyan %s " % n )
+        mmenu = dmd.make_demo_menu()
+        mmenu.create('MIDDLE')  # GLUT calls here
 
-    def demo_magenta(self, n):
-        log.info("demo_magenta %s " % n )
-
-    def create_demo_menu(self):
-
-        primary = DAEMenu("primary")
-        primary.add( "red", demo_red )
-        primary.add( "green", demo_green )
-        primary.add( "blue", demo_blue )
-
-        secondary = DAEMenu("secondary")
-        secondary.add( "cyan", self.demo_cyan )
-        secondary.add( "magenta", self.demo_magenta )
-
-        top = DAEMenu("top","RIGHT")   # NB create top, after subs otherwise SEGV ? TODO: remove this requirement
-        top.addSubMenu( primary )
-        top.addSubMenu( secondary )
-        return top
+        self.rmenu = rmenu
+        self.mmenu = mmenu
 
     def __repr__(self):
         return "H %5.2f %5.2f " % ( self.dragfactor, self.fps )

@@ -12,6 +12,51 @@ log = logging.getLogger(__name__)
 xyz_ = lambda x,y,z,dtype:np.column_stack((np.array(x,dtype=dtype),np.array(y,dtype=dtype),np.array(z,dtype=dtype))) 
 
 
+# Photon history bits (see photon.h for source)
+NO_HIT           = 0x1 << 0
+BULK_ABSORB      = 0x1 << 1
+SURFACE_DETECT   = 0x1 << 2
+SURFACE_ABSORB   = 0x1 << 3
+RAYLEIGH_SCATTER = 0x1 << 4
+REFLECT_DIFFUSE  = 0x1 << 5
+REFLECT_SPECULAR = 0x1 << 6
+SURFACE_REEMIT   = 0x1 << 7
+SURFACE_TRANSMIT = 0x1 << 8
+BULK_REEMIT      = 0x1 << 9
+NAN_ABORT        = 0x1 << 31
+
+PHOTON_FLAGS =  {
+            'NO_HIT':NO_HIT,
+       'BULK_ABSORB':BULK_ABSORB,
+    'SURFACE_DETECT':SURFACE_DETECT,
+    'SURFACE_ABSORB':SURFACE_ABSORB,
+  'RAYLEIGH_SCATTER':RAYLEIGH_SCATTER,
+   'REFLECT_DIFFUSE':REFLECT_DIFFUSE,
+  'REFLECT_SPECULAR':REFLECT_SPECULAR,
+    'SURFACE_REEMIT':SURFACE_REEMIT,
+  'SURFACE_TRANSMIT':SURFACE_TRANSMIT,
+       'BULK_REEMIT':BULK_REEMIT,
+         'NAN_ABORT':NAN_ABORT,
+            }   
+
+def arg2mask_( argl ):
+    """ 
+    Convert comma delimited strings like the below into OR mask integer:
+
+    #. "BULK_ABSORB,SURFACE_DETECT" 
+    #. "SURFACE_REEMIT" 
+    """
+    mask = 0 
+    for arg in argl.split(","):
+        if arg in PHOTON_FLAGS:
+           mask |= PHOTON_FLAGS[arg]
+        pass 
+    return mask
+
+
+
+
+
 class Photons(object):
     """
     Same as chroma.event.Photons but with a few additions:

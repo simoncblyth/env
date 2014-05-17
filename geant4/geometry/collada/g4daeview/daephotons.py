@@ -52,14 +52,14 @@ from env.graphics.color.wav2RGB import wav2RGB
 # TODO: test without chroma running
 #
 try:
-    from chroma.event import Photons, arg2mask_
+    from chroma.event import Photons, arg2mask_, PHOTON_FLAGS
 except ImportError:
-    from photons import Photons   
-
+    from photons import Photons, arg2mask_, PHOTON_FLAGS
 
 
 
 from daegeometry import DAEMesh 
+from daemenu import DAEMenu
 
 
 def arg2mask( argl ):
@@ -165,8 +165,6 @@ class MyVertexBuffer(gp.graphics.VertexBuffer):
 
    
 
-
- 
 class DAEPhotons(object):
     """
     A wrapper around the underlying `photons` instance that 
@@ -189,6 +187,8 @@ class DAEPhotons(object):
                        ['fphopoint',config.args.fphopoint],
                        ['phopoint', config.args.phopoint],
                       ])
+        pass
+        self.config.rmenu.addSubMenu(self.make_menu()) # RIGHT menu hookup
 
     def __repr__(self):
         return "%s %s " % (self.__class__.__name__, self.nphotons)
@@ -197,6 +197,32 @@ class DAEPhotons(object):
     nphotons = property(lambda self:len(self._photons))
     vertices = property(lambda self:self._photons.pos)   # allows to be treated like DAEMesh 
     momdir = property(lambda self:self._photons.dir)
+
+    def make_menu(self):
+        log.info("make_menu")
+        menu = DAEMenu("photons")
+        menu.add("invalidate_vbo", self.invalidate_vbo )
+        menu.add("hello", self.hello )
+        menu.add("hello_with_arg", self.hello_with_arg )
+        for name in sorted(PHOTON_FLAGS, key=lambda _:PHOTON_FLAGS[_]):
+            menu.add(name, self.flags_callback )
+        pass
+        return menu
+
+    def flags_callback(self, item ):
+        name = item.title
+        assert name in PHOTON_FLAGS, name
+        log.info("flags_callback setting config.args.mask to %s " % name )
+        self.config.args.mask = name 
+        self.invalidate_vbo()
+        # need way to trigger redraw 
+        self.event.scene.signal_draw()
+
+    def hello(self):
+        log.info("hello")
+
+    def hello_with_arg(self, item):
+        log.info("hello %s " % repr(item))
 
     def invalidate_photons(self):
         """
@@ -216,6 +242,7 @@ class DAEPhotons(object):
         """
         When reconfiguring presentation just these are invalidated
         """
+        log.info("invalidate_vbo")
         self._mode = None
         self._ldata = None   
         self._pdata = None   
@@ -323,8 +350,9 @@ class DAEPhotons(object):
 
         nvtx = data.size
         npho = self.nphotons
-        flags = self.photons.flags
+        flags = self.photons.flags   # large array of photon bit fields
         nflg = len(flags)
+
         arg = self.config.args.mask 
         mask = arg2mask(arg)
         log.info("arg %s mask %s " % (arg, mask))

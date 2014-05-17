@@ -141,15 +141,15 @@ class DAEFrameHandler(object):
     def on_draw(self):
 
         self.count += 1
-        time = glut.glutGet( glut.GLUT_ELAPSED_TIME )
-        if (time - self.timebase > 1000):
-            fps = self.count*1000.0/(time-self.timebase)
-            pass
-            #log.info("fps %s " % fps )
-            self.fps = fps
-            self.timebase = time;    
-            self.count = 0;
-        pass
+        #time = glut.glutGet( glut.GLUT_ELAPSED_TIME )
+        #if (time - self.timebase > 1000):
+        #    fps = self.count*1000.0/(time-self.timebase)
+        #    pass
+        #    #log.info("fps %s " % fps )
+        #    self.fps = fps
+        #    self.timebase = time;    
+        #    self.count = 0;
+        #pass
 
 
         self.frame.lock()
