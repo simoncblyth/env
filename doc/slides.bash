@@ -130,6 +130,16 @@ build directory at the appropriate place in the tree
 corresponding to the RST sources
 
 
+Creating screenshots from g4daeview.py
+----------------------------------------
+
+::
+
+    slides-
+    slides-screenshots-dir-cd
+    g4daeview.sh --with-chroma --load 1
+
+
 Include Fullscreen Image in S5 slides ?
 ----------------------------------------
 
@@ -328,6 +338,11 @@ slides-url(){       echo ${SLIDES_URL:-http://$(slides-host)/env/$(slides-branch
 slides-ppath(){     echo $(apache-htdocs $1)/env/$(slides-branch)/$(slides-name).${2:-pdf} ; }   
 
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
+
+
+slides-screenshots-dir(){ echo $(apache-htdocs)/env/geant4/geometry/collada/g4daeview ; }
+slides-screenshots-dir-cd(){ cd $(slides-screenshots-dir) ; }
+
 
 slides-pages(){
   local i

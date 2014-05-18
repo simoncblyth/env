@@ -45,7 +45,12 @@ class DAEEvent(object):
         menu.add("reload",self.reload_)
         menu.add("loadnext",self.loadnext)
         menu.add("loadprev",self.loadprev)
+        menu.addSubMenu( self.eventlist.make_menu(self.eventlist_callback) )
         return menu
+
+    def eventlist_callback(self, item):
+        path = item.extra['path'] 
+        self.load(path)
 
     def __repr__(self):
         return "%5.2f" % self._qcut

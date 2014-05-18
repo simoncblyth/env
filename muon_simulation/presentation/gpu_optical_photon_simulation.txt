@@ -1,10 +1,6 @@
 
 .. include:: <s5defs.txt>
 
-.. |e| replace:: http://dayabay.phys.ntu.edu.tw/e
-.. |env| replace:: http://dayabay.phys.ntu.edu.tw/env
-.. |envtrac| replace:: http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk
-
 
 .. s5_background_image::
 
@@ -312,6 +308,7 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
    * animation by interpolation between bookmarks or orbiting 
    * numerical control via UDP remote messaging 
    * Chroma interactive raycasting, including animated 
+   * live Geant4 connection, photon visualization, single stepping 
    * easily extensible python implementation [#g4daeview_code]_ 
 
 .. class:: tiny
@@ -359,7 +356,49 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
     :width: 60%
 
 
-:small:`Status/Issues Along Fivefold path` 
+:small:`Runtime Geant4/Chroma integration with ZMQRoot` 
+-----------------------------------------------------------
+
+.. class:: small
+
+   ``ZMQRoot`` [#zmqroot]_ sends/receives ``ChromaPhotonList``, 3 node [#topology]_
+
+
+   **client**
+      ``nuwa.py/Geant4`` [#client]_ live collect/send/receive photons
+
+   **broker**
+      ``czmq_broker.sh`` [#broker]_ routes requests, returns replies 
+
+   **worker**
+      ``g4daeview.py/Chroma`` [#worker]_ photon visualization/Chroma stepping 
+
+
+
+.. class:: tiny
+
+   .. [#zmqroot] ROOT+ZeroMQ messaging http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Utilities/ZMQRoot
+
+   .. [#topology] Workaround for a network blockage, server/client or threaded also possible     
+
+   .. [#client] http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Simulation/DetSimChroma/src/DsChromaStackAction.cc
+
+   .. [#broker] http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/zeromq/czmq/czmq_broker.c
+
+   .. [#worker] http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/collada/g4daeview/daeresponder.py
+
+
+:small:`g4daeview.py : Photon Propagation Visualization` 
+-------------------------------------------------------------------------------
+
+.. image:: /env/geant4/geometry/collada/g4daeview/20140518-174941.png
+   :height: 650px
+   :align: center
+
+
+
+
+:small:`Status/Issues for Steps 1,2,3` 
 ---------------------------------------------
 
 .. class:: small
@@ -374,22 +413,37 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
 
     * material/surface properties, :red:`mapping choices validation`
     * double sided surfaces  :red:`add to Chroma model` [#g4logicalbordersurface]_
+    * :red:`remove GPU geometry duplication` between OpenGL and Chroma 
 
     :blue:`Chroma Validation`
 
-    * raycasting: :green:`stability issue resolved` 
-    * :red:`hybrid raycasting, full propagation` to be investigated
-
-    :red:`Geant4/Chroma Integration` via Chroma Server [#zeromq]_ needs glue code:
-
-    * :red:`collect optical photons, send to server, handle results (photons/hits?)` 
-    * :red:`Chroma vs Geant4 Validation` (:red:`comparison against productions`)
+    * raycasting: :green:`stability issue resolved` using OpenGL/CUDA interop 
+    * :red:`hybrid propagation/raycasting` to be investigated
 
 .. class:: tiny
 
    .. [#g4logicalbordersurface] G4LogicalBorderSurface class comprises an **ordered pair of volume references** and surface properties 
 
-   .. [#zeromq] Based on ZeroMQ, a widely used open source message queue 
+
+
+:small:`Status/Issues for Step 4 : G4/Chroma Runtime Integration` 
+------------------------------------------------------------------
+
+.. class:: small
+
+    :blue:`Geant4 -> Chroma` in development, 1/1000 photon scaledown
+
+    * messaging :blue:`operational, needs compression`
+    * photon visualization :blue:`in progress, needs efficient OpenGL/CUDA interop` 
+    * :red:`push to full photon operation`
+
+    :red:`Chroma -> Geant4`
+
+    * returning photons :blue:`technically operational` 
+    * :red:`investigate const_cast changing photons in ChromaStackAction` 
+    * :red:`investigate creating hits on GPU and returning those ?`   
+
+
 
 
 
