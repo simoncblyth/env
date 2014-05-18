@@ -62,10 +62,17 @@ http://csclab.murraystate.edu/bob.pilgrim/515/lectures_03.html
 
 
 
+Menus API
+----------
+
+* http://openglut.sourceforge.net/group__menus.html
+
+
 
 
 """
 import logging, inspect
+from glumpy.window import event
 import OpenGL.GLUT as glut
 
 log = logging.getLogger(__name__)
@@ -75,14 +82,18 @@ try:
 except ImportError:
     OrderedDict = dict
 
+
 class DAEMenuItem(object):
-    def __init__(self, num, title, func_or_method ):
+    def __init__(self, num, title, func_or_method, **extra):
         self.num = num
         self.title = title
         self.func_or_method = func_or_method
         self.children = []
+        self.ipos = None   # position down the items within each menu
+        self.extra = extra
 
-class DAEMenu(object):
+class DAEMenu(event.EventDispatcher):
+
     count = 0   # class level, so all instances use unique identifiers
     def __init__(self, name, cb_argname='item' ):
         """
@@ -115,6 +126,7 @@ class DAEMenu(object):
         self.name = name
         self.cb_argname = cb_argname
         self.items = OrderedDict()
+        self.newitems = OrderedDict()
         self.menu = None
         self.children = []
 
@@ -130,10 +142,25 @@ class DAEMenu(object):
     def glut_CreateMenu(self):
         log.info("glut_CreateMenu %s " % self.name)
         self.menu = glut.glutCreateMenu(self.__call__)
-        for n in self.items:
+        self.glut_AddMenuEntries() 
+
+    def glut_AddMenuEntries(self):
+        curmenu = glut.glutGetMenu()
+        glut.glutSetMenu( self.menu ) 
+        for ipos, n in enumerate(self.items):
             entry = self.items[n]
-            log.info("glut_AddMenuEntry %s %s " % (entry.title, entry.num ))
+            entry.ipos = ipos + 1  # guessing menu position doen list  to be 1-based ? 
+            log.info("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
             glut.glutAddMenuEntry( entry.title, entry.num )
+        pass
+        glut.glutSetMenu( curmenu ) 
+
+    def glut_RemoveMenuItem(self, ipos ):
+        log.info("glut_RemoveMenuItems %s ipos %s " % (self.name, ipos))
+        curmenu = glut.glutGetMenu()
+        glut.glutSetMenu( self.menu ) 
+        glut.glutRemoveMenuItem(ipos) 
+        glut.glutSetMenu( curmenu ) 
 
     def create_MenuTree(self):
         """
@@ -153,15 +180,45 @@ class DAEMenu(object):
         assert isinstance(sub, self.__class__ ), sub
         self.children.append(sub) 
 
-    def add(self, title, func_or_method ):
+    def add(self, title, func_or_method, **extra):
         self.count += 1
-        dmi = DAEMenuItem( self.count, title, func_or_method )
+        dmi = DAEMenuItem( self.count, title, func_or_method, **extra )
         self.items[self.count] = dmi
+
+    def addnew(self, title, func_or_method, **extra):
+        self.count += 1
+        dmi = DAEMenuItem( self.count, title, func_or_method, **extra )
+        self.newitems[self.count] = dmi
+
+    def replace_menu_items(self):
+        """
+        Removes old items and replaces them with newitems
+        collected with addnew
+        """
+        self.remove_menu_items()
+        while len(self.newitems) > 0:
+            n, entry = self.newitems.popitem(last=False)
+            self.items[n] = entry
+        pass       
+        self.glut_AddMenuEntries()
+
+    def remove_menu_items(self):
+        """
+        Removes all menu items 
+        """ 
+        while len(self.items)>0:
+            n, entry = self.items.popitem()
+            ipos = entry.ipos
+            if not ipos is None:
+                self.glut_RemoveMenuItem(ipos)     
+            else:
+                log.info("cannot remove ipos None")
+            pass
 
     def __call__(self, item ):
         if not item in self.items:
             log.warn("item %s not in DAEMenu " % item ) 
-            return
+            return 0
         pass
         dmi = self.items[item]
         f = dmi.func_or_method 
@@ -176,6 +233,13 @@ class DAEMenu(object):
             pass
         return 0     # avoids complaint from _ctypes/callbacks.c
 
+    def dispatch(self, event_name='on_needs_redraw', event_obj=None):
+        log.info("dispatch %s %s " % (event_name, event_obj))
+        self.dispatch_event(event_name, event_obj)
+    pass
+
+
+DAEMenu.register_event_type('on_needs_redraw')
 
 def demo_red(item):log.info("demo_red %s " % item )
 def demo_green(item):log.info("demo_green %s " % item )

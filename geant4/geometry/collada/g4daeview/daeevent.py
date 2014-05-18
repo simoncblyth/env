@@ -12,6 +12,7 @@ from daephotons import DAEPhotons                                # OpenGL presen
 
 from datetime import datetime
 from daeeventlist import DAEEventList 
+from daemenu import DAEMenu
 
 def timestamp():
     return datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -37,6 +38,14 @@ class DAEEvent(object):
         if len(launch_config) > 0:
             self.reconfig(launch_config)
         pass
+        self.config.rmenu.addSubMenu(self.make_submenu()) # RIGHT menu hookup
+
+    def make_submenu(self):
+        menu = DAEMenu("event")
+        menu.add("reload",self.reload_)
+        menu.add("loadnext",self.loadnext)
+        menu.add("loadprev",self.loadprev)
+        return menu
 
     def __repr__(self):
         return "%5.2f" % self._qcut
@@ -45,7 +54,6 @@ class DAEEvent(object):
     def _set_qcut(self, qcut):
         self._qcut = np.clip(qcut, 0.00001, 1.) # dont go all the way to zero as cannot then recover
     qcut = property(_get_qcut, _set_qcut)
-
 
     def make_bbox_cache(self):
         """
@@ -207,6 +215,7 @@ class DAEEvent(object):
         pass
         self.eventlist.path = path   # let eventlist know where we are, to allow loadnext loadprev
         self.setup_cpl( cpl )
+        self.config.rmenu.dispatch('on_needs_redraw')
 
     def reload_(self):
         path = self.eventlist.path 

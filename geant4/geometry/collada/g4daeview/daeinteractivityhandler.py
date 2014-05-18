@@ -134,6 +134,11 @@ class DAEInteractivityHandler(object):
     def hookup_udp_dispatcher(self, config):
         """
         dispatcher collect messages over UDP, allowing remote control
+
+        #. the `dispatcher.push_handlers(self)` identifies this 
+           DAEInteractivityHandler instance as a handler of events 
+           from the DAEDispatcher instance, ie the on_external_message event 
+
         """
         dispatcher = DAEDispatcher(port=config.args.port, host=config.args.host)
         log.debug(dispatcher)        
@@ -142,7 +147,8 @@ class DAEInteractivityHandler(object):
             dispatcher.update()
         timer = self.fig.timer(5.)  # fps
         timer(_check_dispatcher) 
-        dispatcher.push_handlers(self)   # get event notification from dispatcher
+
+        dispatcher.push_handlers(self)   
 
 
     def hookup_zmq_responder(self):
@@ -201,6 +207,10 @@ class DAEInteractivityHandler(object):
         self.scene.external_cpl(cpl)
         self.redraw()
         return True   # prevent other handlers
+
+    def on_needs_redraw(self, msg ):
+        log.info("on_needs_redraw")
+        self.redraw()
 
     def on_resize(self, width, height, x=0, y=0):
         self.viewport.resize((width, height))

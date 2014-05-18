@@ -53,6 +53,9 @@ def arg2mask_( argl ):
         pass 
     return mask
 
+def mask2arg_( mask ):
+    return ",".join(filter(lambda name:mask & PHOTON_FLAGS[name],PHOTON_FLAGS))
+
 
 
 
@@ -209,6 +212,9 @@ if __name__ == '__main__':
 
     path = os.environ['DAE_PATH_TEMPLATE'] % {'arg':"1"} 
     check_load(path)
+
+    print mask2arg_(0xF)
+
 
 
 

@@ -14,6 +14,12 @@ Interactive probing::
     In [12]: ddir = map(lambda _:np.linalg.norm(_), cpl.dir )
 
 
+Classes `chroma.event.Photons` and `photons.Photons` 
+should be identical, doing fallback import as want to support installations
+without chroma
+
+TODO: test without chroma running
+
 
 NO_HIT                                     1   0x1      
 BULK_ABSORB                                2   0x2      
@@ -34,6 +40,15 @@ import numpy as np
 log = logging.getLogger(__name__)
 
 
+def count_unique(vals):
+    """
+    http://stackoverflow.com/questions/10741346/numpy-frequency-counts-for-unique-values-in-an-array
+    """
+    uniq = np.unique(vals)
+    bins = uniq.searchsorted(vals)
+    return np.vstack((uniq, np.bincount(bins))).T
+
+
 import ctypes
 import glumpy as gp
 import OpenGL.GL as gl
@@ -44,18 +59,10 @@ DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
 
 from env.graphics.color.wav2RGB import wav2RGB
 
-
-# Classes `chroma.event.Photons` and `photons.Photons` 
-# should be identical, doing fallback import as want to support installations
-# without chroma
-#
-# TODO: test without chroma running
-#
 try:
-    from chroma.event import Photons, arg2mask_, PHOTON_FLAGS
+    from chroma.event import Photons, mask2arg_, arg2mask_, PHOTON_FLAGS
 except ImportError:
-    from photons import Photons, arg2mask_, PHOTON_FLAGS
-
+    from photons import Photons, mask2arg_, arg2mask_, PHOTON_FLAGS
 
 
 from daegeometry import DAEMesh 
@@ -188,7 +195,7 @@ class DAEPhotons(object):
                        ['phopoint', config.args.phopoint],
                       ])
         pass
-        self.config.rmenu.addSubMenu(self.make_menu()) # RIGHT menu hookup
+        self.config.rmenu.addSubMenu(self.make_submenu()) # RIGHT menu hookup
 
     def __repr__(self):
         return "%s %s " % (self.__class__.__name__, self.nphotons)
@@ -198,31 +205,58 @@ class DAEPhotons(object):
     vertices = property(lambda self:self._photons.pos)   # allows to be treated like DAEMesh 
     momdir = property(lambda self:self._photons.dir)
 
-    def make_menu(self):
-        log.info("make_menu")
-        menu = DAEMenu("photons")
-        menu.add("invalidate_vbo", self.invalidate_vbo )
-        menu.add("hello", self.hello )
-        menu.add("hello_with_arg", self.hello_with_arg )
+
+    def make_submenu(self):
+        log.info("make_submenu")
+        photons = DAEMenu("photons")
+
+        flags = DAEMenu("flags")
+        flags.add("ANY", self.flags_callback )
         for name in sorted(PHOTON_FLAGS, key=lambda _:PHOTON_FLAGS[_]):
-            menu.add(name, self.flags_callback )
+            flags.add(name, self.flags_callback )
         pass
-        return menu
+        photons.addSubMenu(flags)
+
+        history = DAEMenu("history")
+        self.history = history
+        photons.addSubMenu(history)    # a placeholder menu to be changed once propagation stepping is done
+        return photons
+
+    def change_history_menu(self, flags):
+        """
+        TODO: avoid this being unecessarily called twice, for each create_vbo
+        """
+        pass
+        nflg = len(flags)
+        history = count_unique(flags)
+        log.info("unique flag combinations %s " % len(history))
+        #print "\n".join(["[0x%-10x] %5d (%5.2f): %s " % (_[0],_[1],float(_[1])/nflg, mask2arg_(_[0])) for _ in sorted(history,key=lambda _:_[1])])
+            
+        self.history.addnew( "ANY", self.history_callback, mask=None )
+
+        for mask,count in sorted(history,key=lambda _:_[1], reverse=True):
+            frac = float(count)/nflg
+            title = "[0x%x] %d (%5.2f): %s " % (mask,count,frac,mask2arg_(mask)) 
+            self.history.addnew( title, self.history_callback, mask=mask )
+        pass
+        self.history.replace_menu_items()
+ 
+    def history_callback(self, item):
+        self.config.args.mask = None
+        self.config.args.bits = item.extra['mask']  
+        self.invalidate_vbo()
+        self.config.rmenu.dispatch('on_needs_redraw')
 
     def flags_callback(self, item ):
         name = item.title
-        assert name in PHOTON_FLAGS, name
+        allowed = PHOTON_FLAGS.keys() + ['ANY']
+        assert name in allowed, name
         log.info("flags_callback setting config.args.mask to %s " % name )
+        if name == 'ANY':name = 'NONE'
         self.config.args.mask = name 
+        self.config.args.bits = None 
         self.invalidate_vbo()
-        # need way to trigger redraw 
-        self.event.scene.signal_draw()
-
-    def hello(self):
-        log.info("hello")
-
-    def hello_with_arg(self, item):
-        log.info("hello %s " % repr(item))
+        self.config.rmenu.dispatch('on_needs_redraw')
 
     def invalidate_photons(self):
         """
@@ -345,7 +379,6 @@ class DAEPhotons(object):
 
     def create_vbo(self, data):
         """
-        np.where(flags & 0x6)[0]
         """
 
         nvtx = data.size
@@ -353,37 +386,47 @@ class DAEPhotons(object):
         flags = self.photons.flags   # large array of photon bit fields
         nflg = len(flags)
 
-        arg = self.config.args.mask 
-        mask = arg2mask(arg)
-        log.info("arg %s mask %s " % (arg, mask))
+        self.change_history_menu( flags )
+
+        argm = self.config.args.mask 
+        argb = self.config.args.bits 
+
+
+        mask = arg2mask(argm)
+        bits = arg2mask(argb)
+
+        log.info("argm %s mask %s " % (argm, mask))
+        log.info("argb %s bits %s " % (argm, bits))
 
         log.info("create_vbo npho %s nvtx %s nflg %s mask %s " % (npho,nvtx,nflg,mask))
 
-        assert nflg == npho, (len(flags), npho)
+        assert nflg == npho, (nflg, npho)
         assert nvtx == npho or nvtx == 2*npho, (nvtx,npho)
 
-        if mask is None:
-            vindices = np.arange( nvtx, dtype=np.uint32)  
+        if mask is None and bits is None:
+            pindices = np.arange( nvtx, dtype=np.uint32)  
+        elif not mask is None:
+            pindices = np.where( flags & mask )[0]    # bitwise AND for flags selection
+        elif not bits is None:
+            pindices = np.where( flags == bits )[0]   # equality for history bits selection
         else:
-            pindices = np.where( flags & mask )[0]
-            log.info("flags & mask : %s " % len(pindices) )
-            #print pindices
+            assert 0
+
+        log.info("photon selection : %s " % len(pindices) )
  
-            if len(pindices) == 0:
-                vindices = np.arange( 1, dtype=np.uint32 ) # token 1 indice when mask kills all
+        if len(pindices) == 0:
+            vindices = np.arange( 1, dtype=np.uint32 ) # token 1 indice when mask kills all
+        else:
+            # for points pvbo its 1-1 between vertices and photons, wheras for lines lvbo is 2-1
+            if nvtx == npho:
+                vindices = pindices
+            elif nvtx == npho*2:
+                vindices = np.empty(2*len(pindices), dtype=np.uint32)
+                vindices[0::2] = 2*pindices
+                vindices[1::2] = 2*pindices + 1
+                log.info(" lvbo vindices %s " % len(vindices))
             else:
-                if nvtx == npho:
-                    # pvbo its 1-1 between vertices and photons
-                    vindices = pindices
-                elif nvtx == npho*2:
-                    # lvbo is 2-1 between vertices and photons, so double up the pindices to form vindices
-                    vindices = np.empty(2*len(pindices), dtype=np.uint32)
-                    vindices[0::2] = 2*pindices
-                    vindices[1::2] = 2*pindices + 1
-                    log.info(" lvbo vindices %s " % len(vindices))
-                    #print vindices
-                else:
-                    assert 0, (nvtx,npho)
+                assert 0, (nvtx,npho)
             pass
         pass
         return MyVertexBuffer( data, vindices  )

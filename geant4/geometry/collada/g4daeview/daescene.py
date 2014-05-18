@@ -429,15 +429,15 @@ class DAEScene(window_event.EventDispatcher):
         pass
         return interpolateview
 
-    def signal_draw(self):
-        log.info("signal_draw")
-        self.dispatch_event('on_draw', None)
+    def dispatch(self,event_name='on_needs_redraw',event_obj=None):
+        log.info("dispatch %s %s " % (event_name, event_obj))
+        self.dispatch_event(event_name, event_obj)
         
     def dump(self):
         print "view\n", self.view
         print "trackball\n", self.trackball
 
-DAEScene.register_event_type('on_draw')
+DAEScene.register_event_type('on_needs_redraw')
 
 
 if __name__ == '__main__':
