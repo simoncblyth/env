@@ -126,6 +126,7 @@ class DAEConfig(ConfigBase):
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
+        defaults['seed'] = None
         defaults['bookmarks'] = "bookmarks_%(path)s.cfg"
         defaults['zmqendpoint'] = os.environ.get("ZMQ_BROKER_URL_BACKEND","tcp://localhost:5002")
 
@@ -134,6 +135,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )
+        parser.add_argument( "--seed", help="Random Number seed, used for np.random.seed and curand setup", type=int  )
         parser.add_argument( "--bookmarks", help="Path to persisted bookmarks  %(default)s", type=str  )
         parser.add_argument( "--zmqbind", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
 

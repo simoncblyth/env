@@ -1,58 +1,94 @@
 #!/usr/bin/env python
+"""
+DAEChromaContext
+==================
 
+To keep this usable from different environments, keep top level 
+imports to a minimum. Especially ones that require contexts to be active.
+
+For example DAERaycaster pulls in PixelBuffer which requires 
+an active OpenGL context so defer the import until needed.
+
+"""
 import os, time, logging
 log = logging.getLogger(__name__)
 
 import numpy as np
-
-import pycuda.gl.autoinit
-
-from chroma import gpu
-from chroma.gpu.geometry import GPUGeometry
-
-from env.chroma.chroma_propagator.propagator import Propagator
-from daeraycaster import DAERaycaster     
+import pycuda.gl.autoinit  # after this can use pycuda.gl.BufferObject(unsigned int)
 
 def pick_seed():
     """Returns a seed for a random number generator selected using
     a mixture of the current time and the current process ID."""
     return int(time.time()) ^ (os.getpid() << 16)
 
-
 class DAEChromaContext(object):
-    def __init__(self, config, chroma_geometry, seed=None ):
-        log.info("DAEChroma init, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
+    """
+    DCC is intended as a rack on which to hang objects, 
+    avoid "doing" anything substantial here 
+    (eg do stepping in the propagator not here)
+    """
+    def __init__(self, config, chroma_geometry ):
+        log.info("DAEChromaContext init, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
         self.config = config
-        self.raycaster = None
-        self.propagator = None
-
+        self.chroma_geometry = chroma_geometry
+        pass
         self.deviceid = config.args.deviceid 
         self.nthreads_per_block = config.args.threads_per_block
         self.max_blocks = config.args.max_blocks
-        #
-        # doing gpu_create_cuda_context as well 
-        # as "import pycuda.gl.autoinit" leads to PyCUDA error at exit
-        # self.context = gpu.create_cuda_context(self.deviceid)  
-        #
-        self.context = None
+        self.seed = config.args.seed
+        pass
+        self.setup_random_seed()
+        pass
+        self._gpu_geometry = None
+        self._rng_states = None
+        self._raycaster = None
+        self._propagator = None
 
-        self.seed = pick_seed() if seed is None else seed
+    def setup_random_seed(self):
+        if self.seed is None:
+            self.seed = pick_seed() 
         np.random.seed(self.seed)
-        self.rng_states = gpu.get_rng_states(self.nthreads_per_block*self.max_blocks, seed=self.seed)
 
-        self.gpu_geometry = GPUGeometry( chroma_geometry )
-        self.raycaster = DAERaycaster( self )
-        self.propagator = Propagator( self )
+    def setup_rng_states(self):
+        from chroma.gpu.tools import get_rng_states
+        rng_states = get_rng_states(self.nthreads_per_block*self.max_blocks, seed=self.seed)
+        return rng_states
 
-    def step(self, photons, max_steps=1):
-        """
-        :return: chroma.event.Photons instance
-        """
-        return self.propagator.propagate( photons, max_steps=max_steps )
+    def setup_raycaster(self):
+        from daeraycaster import DAERaycaster
+        return DAERaycaster( self )
 
-    def __del__(self):
-        log.info("DAEChromaContext.__del__ not popping context")
-        #self.context.pop()
+    def setup_propagator(self):
+        from env.chroma.chroma_propagator.propagator import Propagator
+        return Propagator( self )
+
+    def setup_gpu_geometry(self):
+        from chroma.gpu.geometry import GPUGeometry
+        return GPUGeometry( self.chroma_geometry )
+
+    def _get_gpu_geometry(self):
+        if self._gpu_geometry is None:
+            self._gpu_geometry = self.setup_gpu_geometry()
+        return self._gpu_geometry
+    gpu_geometry = property(_get_gpu_geometry)
+
+    def _get_rng_states(self):
+        if self._rng_states is None:
+            self._rng_states = self.setup_rng_states()
+        return self._rng_states
+    rng_states = property(_get_rng_states)
+
+    def _get_raycaster(self):
+        if self._raycaster is None:
+            self._raycaster = self.setup_raycaster()
+        return self._raycaster
+    raycaster = property(_get_raycaster)
+
+    def _get_propagator(self):
+        if self._propagator is None:
+           self._propagator = self.setup_propagator()
+        return self._propagator
+    propagator = property(_get_propagator)  
 
 
 

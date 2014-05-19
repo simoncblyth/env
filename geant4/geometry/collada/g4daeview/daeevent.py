@@ -171,8 +171,9 @@ class DAEEvent(object):
         self.scene.bookmarks.create_for_object( mesh, 9 )
         self.objects = [mesh]
 
-    def step(self, chroma):
+    def step(self, dcc):
         """
+        :param chroma: DAEChromaContext instance
         Use Chroma propagation to step the photons 
         """
         if self.dphotons is None:
@@ -180,9 +181,11 @@ class DAEEvent(object):
             return
         pass
         log.info("step")
-        photons = chroma.step( self.dphotons.photons )
+
+        propagator = dcc.propagator
+        photons = propagator.propagate( self.dphotons.photons, max_steps=1 )
         photons.dump()
-        self.setup_photons( photons )
+        self.setup_photons( photons )   # results in VBO recreation 
 
     def find_object(self, ospec):
         try:

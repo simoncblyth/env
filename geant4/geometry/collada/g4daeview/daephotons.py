@@ -7,19 +7,12 @@ For checking using LXe example::
     lxe-
     lxe-test   # sling some photons via RootZMQ
 
-Interactive probing::
-
-   (chroma_env)delta:g4daeview blyth$ ipython daechromaphotonlist.py -i
-
-    In [12]: ddir = map(lambda _:np.linalg.norm(_), cpl.dir )
-
 
 Classes `chroma.event.Photons` and `photons.Photons` 
 should be identical, doing fallback import as want to support installations
 without chroma
 
 TODO: test without chroma running
-
 
 NO_HIT                                     1   0x1      
 BULK_ABSORB                                2   0x2      
@@ -33,24 +26,12 @@ SURFACE_TRANSMIT                         256   0x100
 BULK_REEMIT                              512   0x200      
 NAN_ABORT                         2147483648   0x80000000      
 
-
 """
 import logging
 import numpy as np
 log = logging.getLogger(__name__)
 
 
-def count_unique(vals):
-    """
-    http://stackoverflow.com/questions/10741346/numpy-frequency-counts-for-unique-values-in-an-array
-    """
-    uniq = np.unique(vals)
-    bins = uniq.searchsorted(vals)
-    return np.vstack((uniq, np.bincount(bins))).T
-
-
-import ctypes
-import glumpy as gp
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
@@ -58,16 +39,14 @@ import OpenGL.GLUT as glut
 DRAWMODE = { 'lines':gl.GL_LINES, 'points':gl.GL_POINTS, }
 
 from env.graphics.color.wav2RGB import wav2RGB
-
 try:
     from chroma.event import Photons, mask2arg_, arg2mask_, PHOTON_FLAGS
 except ImportError:
     from photons import Photons, mask2arg_, arg2mask_, PHOTON_FLAGS
 
-
 from daegeometry import DAEMesh 
 from daemenu import DAEMenu
-
+from daevertexbuffer import DAEVertexBuffer
 
 def arg2mask( argl ):
     """ 
@@ -83,92 +62,6 @@ def arg2mask( argl ):
     pass
     return mask
 
-
-class MyVertexBuffer(gp.graphics.VertexBuffer):
-    """
-    Inherit from glumpy VertexBuffer in order to experiment with the DrawElements 
-    call : attempting for partial draws.
-    """
-    def __init__(self, *args ):
-        gp.graphics.VertexBuffer.__init__(self, *args )
-
-    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None ):
-        """ 
-        :param mode: primitive to draw
-        :param what: attribute multiple choice by first letter
-        :param offset: integer element array buffer offset, default 0
-        :param count: number of elements, default None corresponds to all in self.indices
-
-        Buffer offset default of 0 corresponds to glumpy original None, (ie (void*)0 )
-        the integet value is converted with `ctypes.c_void_p(offset)`   
-        allowing partial buffer drawing.
-
-        * http://pyopengl.sourceforge.net/documentation/manual-3.0/glDrawElements.html
-        * http://stackoverflow.com/questions/11132716/how-to-specify-buffer-offset-with-pyopengl
-        * http://pyopengl.sourceforge.net/documentation/pydoc/OpenGL.arrays.vbo.html
-
-
-        ====================  ==============
-        type
-        ====================  ==============
-        GL_UNSIGNED_BYTE        0:255
-        GL_UNSIGNED_SHORT,      0:65535
-        GL_UNSIGNED_INT         0:4.295B
-        ====================  ==============
-
-        ===================   ====================================
-           mode 
-        ===================   ====================================
-          GL_POINTS
-          GL_LINE_STRIP
-          GL_LINE_LOOP
-          GL_LINES
-          GL_TRIANGLE_STRIP
-          GL_TRIANGLE_FAN
-          GL_TRIANGLES
-          GL_QUAD_STRIP
-          GL_QUADS
-          GL_POLYGON
-        ===================   ====================================
-
-
-        The what letters, 'pnctesf' define the meaning of the arrays via 
-        enabling appropriate attributes.
-
-        ==================  ==================   ================   =====
-        gl***Pointer          GL_***_ARRAY          Att names         *
-        ==================  ==================   ================   =====
-         Color                COLOR                color              c
-         EdgeFlag             EDGE_FLAG            edge_flag          e
-         FogCoord             FOG_COORD            fog_coord          f
-         Normal               NORMAL               normal             n
-         SecondaryColor       SECONDARY_COLOR      secondary_color    s
-         TexCoord             TEXTURE_COORD        tex_coord          t 
-         Vertex               VERTEX               position           p
-         VertexAttrib         N/A             
-        ==================  ==================   ================   =====
-
-
-        """
-        if count is None:
-           count = self.indices.size   # this is what the glumpy original does
-        pass
-
-        gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
-        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
-        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
-
-        for attribute in self.generic_attributes:
-            attribute.enable()
-        for c in self.attributes.keys():
-            if c in what:
-                self.attributes[c].enable()
-
-        gl.glDrawElements( mode, count, gl.GL_UNSIGNED_INT, ctypes.c_void_p(offset) )
-
-        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 ) 
-        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
-        gl.glPopClientAttrib( )
 
    
 
@@ -199,12 +92,10 @@ class DAEPhotons(object):
 
     def __repr__(self):
         return "%s %s " % (self.__class__.__name__, self.nphotons)
-    
 
     nphotons = property(lambda self:len(self._photons))
     vertices = property(lambda self:self._photons.pos)   # allows to be treated like DAEMesh 
     momdir = property(lambda self:self._photons.dir)
-
 
     def make_submenu(self):
         log.info("make_submenu")
@@ -222,21 +113,16 @@ class DAEPhotons(object):
         photons.addSubMenu(history)    # a placeholder menu to be changed once propagation stepping is done
         return photons
 
-    def change_history_menu(self, flags):
+    def change_history_menu(self, photons  ):
         """
-        TODO: avoid this being unecessarily called twice, for each create_vbo
         """
-        pass
-        nflg = len(flags)
-        history = count_unique(flags)
-        log.info("unique flag combinations %s " % len(history))
-        #print "\n".join(["[0x%-10x] %5d (%5.2f): %s " % (_[0],_[1],float(_[1])/nflg, mask2arg_(_[0])) for _ in sorted(history,key=lambda _:_[1])])
-            
-        self.history.addnew( "ANY", self.history_callback, mask=None )
+        nflag, history = photons.history() 
+        log.info("nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
 
+        self.history.addnew( "ANY", self.history_callback, mask=None )
         for mask,count in sorted(history,key=lambda _:_[1], reverse=True):
-            frac = float(count)/nflg
-            title = "[0x%x] %d (%5.2f): %s " % (mask,count,frac,mask2arg_(mask)) 
+            frac = float(count)/nflag
+            title = "[0x%x] %d (%5.2f): %s " % (mask, count, frac, mask2arg_(mask)) 
             self.history.addnew( title, self.history_callback, mask=mask )
         pass
         self.history.replace_menu_items()
@@ -271,6 +157,7 @@ class DAEPhotons(object):
         self._drawmode = None
         self._lvbo = None   
         self._pvbo = None   
+        self._photon_indices = None
 
     def invalidate_vbo(self):
         """
@@ -283,6 +170,7 @@ class DAEPhotons(object):
         self._drawmode = None
         self._lvbo = None   
         self._pvbo = None   
+        self._photon_indices = None
 
     def _set_photons(self, photons):
         """
@@ -343,6 +231,11 @@ class DAEPhotons(object):
         return self._drawmode
     drawmode = property(_get_drawmode)
 
+    def _get_photon_indices(self):
+        if self._photon_indices is None:
+            self._photon_indices = self.select_photon_indices()
+        return self._photon_indices 
+    photon_indices = property(_get_photon_indices)
 
     def wavelengths2rgb(self):
         color = np.zeros(self.nphotons, dtype=(np.float32, 4))
@@ -377,34 +270,32 @@ class DAEPhotons(object):
         data['color']    = colors
         return data 
 
-    def create_vbo(self, data):
-        """
-        """
 
-        nvtx = data.size
+
+    def select_photon_indices(self):
+        """
+        Use the photon history flags (array of bit fields)
+        to make bit mask and history selections
+        """
         npho = self.nphotons
-        flags = self.photons.flags   # large array of photon bit fields
-        nflg = len(flags)
+        flags = self.photons.flags   
+        nflag = len(flags)
+        assert nflag == npho, (nflg, npho)
 
-        self.change_history_menu( flags )
+        self.change_history_menu( self.photons )
 
         argm = self.config.args.mask 
         argb = self.config.args.bits 
-
 
         mask = arg2mask(argm)
         bits = arg2mask(argb)
 
         log.info("argm %s mask %s " % (argm, mask))
         log.info("argb %s bits %s " % (argm, bits))
-
-        log.info("create_vbo npho %s nvtx %s nflg %s mask %s " % (npho,nvtx,nflg,mask))
-
-        assert nflg == npho, (nflg, npho)
-        assert nvtx == npho or nvtx == 2*npho, (nvtx,npho)
+        log.info("photon_indices npho %s nflag %s mask %s bits %s " % (npho,nflag,mask,bits))
 
         if mask is None and bits is None:
-            pindices = np.arange( nvtx, dtype=np.uint32)  
+            pindices = np.arange( npho, dtype=np.uint32)  
         elif not mask is None:
             pindices = np.where( flags & mask )[0]    # bitwise AND for flags selection
         elif not bits is None:
@@ -412,12 +303,24 @@ class DAEPhotons(object):
         else:
             assert 0
 
-        log.info("photon selection : %s " % len(pindices) )
+        log.info("photon_indices selection : %s " % len(pindices) )
  
+        return pindices
+
+    def create_vbo(self, data):
+        """
+        #. when no photons are selected, a token single indice is used that avoids a crash
+        #. for the points pvbo its 1-1 between vertices and photons
+        #. for the lines lvbo is 2-1
+        """
+        nvtx = data.size
+        npho = self.nphotons
+        assert nvtx == npho or nvtx == 2*npho, (nvtx,npho)
+        pindices = self.photon_indices
+
         if len(pindices) == 0:
-            vindices = np.arange( 1, dtype=np.uint32 ) # token 1 indice when mask kills all
+            vindices = np.arange( 1, dtype=np.uint32 ) 
         else:
-            # for points pvbo its 1-1 between vertices and photons, wheras for lines lvbo is 2-1
             if nvtx == npho:
                 vindices = pindices
             elif nvtx == npho*2:
@@ -429,7 +332,7 @@ class DAEPhotons(object):
                 assert 0, (nvtx,npho)
             pass
         pass
-        return MyVertexBuffer( data, vindices  )
+        return DAEVertexBuffer( data, vindices  )
 
     def draw(self):
         """
@@ -443,20 +346,8 @@ class DAEPhotons(object):
         gets called from daeframeghandler
         """ 
         qcount = int(len(self.pdata)*self.event.qcut)
-
-        #gl.glDisable( gl.GL_LIGHTING )
-        # 
-        #if self.event.scene.photonmagic: 
-        #    gl.glDisable( gl.GL_DEPTH_TEST )
-        #else:
-        #    gl.glEnable( gl.GL_DEPTH_TEST )
-
         self.lvbo.draw(mode=gl.GL_LINES,  what='pc', count=2*qcount, offset=0 )
         self.pvbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount  , offset=0 )
-
-        #gl.glEnable( gl.GL_LIGHTING )
-        #gl.glEnable( gl.GL_DEPTH_TEST )
-
 
 
     def reconfig(self, conf):

@@ -5,25 +5,15 @@ that just does propagation.
 
 TODO:
 
-#. adopt chroma.event.Photons as DAEChromaPhotonListBase ? to avoid contortions 
 #. kernel launch timings
 #. convert to prepared launch
 
-#. hmm each call to gpu.GPUGeometry makes its own copy, so with raycaster and propagater get two ??
-
-   * need to pass around a GPU context object ? on which to slot the thangs to avoid duplication  
-
-
 """
-import time
-import os
-import numpy as np
 import logging
 log = logging.getLogger(__name__)
 
-from chroma import gpu
+from chroma.gpu.photon import GPUPhotons
 
-import pycuda.driver as cuda
 
 class Propagator(object):
     def __init__(self, ctx ):
@@ -31,9 +21,12 @@ class Propagator(object):
 
     def propagate(self, photons, max_steps=100):
         """
+        :param photons: 
+
         Reuse gpu_photons allocation ? with eye to ease of OpenGL/CUDA interop mapping/unmapping
+
         """
-        gpu_photons = gpu.GPUPhotons(photons)
+        gpu_photons = GPUPhotons(photons)
         gpu_photons.propagate(self.ctx.gpu_geometry, 
                               self.ctx.rng_states,
                               nthreads_per_block=self.ctx.nthreads_per_block,
@@ -43,46 +36,7 @@ class Propagator(object):
         photons_end = gpu_photons.get()
         return photons_end 
 
-
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-
-    import ROOT
-    ROOT.gSystem.Load("$LOCAL_BASE/env/chroma/ChromaPhotonList/lib/libChromaPhotonList")
-
-    from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl, random_cpl
-    from env.geant4.geometry.collada.g4daeview.daechromaphotonlistbase import DAEChromaPhotonListBase
-    from env.geant4.geometry.collada.g4daeview.daeconfig import DAEConfig
-    from env.geant4.geometry.collada.g4daeview.daegeometry import DAEGeometry
-    from env.geant4.geometry.collada.g4daeview.daechromacontext import DAEChromaContext
-
-    config = DAEConfig(__doc__)
-    config.init_parse()
-    config.report()
-
-    config.args.with_chroma = True 
-
-    geometry = DAEGeometry(config.args.geometry, config)
-    geometry.flatten()
-    chroma_geometry = geometry.make_chroma_geometry() 
-
-
-    ctx = DAEChromaContext( config, chroma_geometry )
-
-    path = config.resolve_event_path("1")
-    cpl = load_cpl(path,config.args.key)
-
-    photons = DAEChromaPhotonListBase(cpl, chroma=config.args.with_chroma)
-    DAEChromaPhotonListBase.dump_(photons)  # contortion 
-
-    photons2 = ctx.step( photons )
-
-    #propagator = Propagator(chroma_geometry, config )
-    #photons2 = propagator.propagate( photons, max_steps=1 )    # chroma.event.Photons instance
-
-    DAEChromaPhotonListBase.dump_(photons2)  # contortion
-
-
-
+    pass
 
 
