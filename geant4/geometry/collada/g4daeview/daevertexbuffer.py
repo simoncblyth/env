@@ -39,6 +39,15 @@ Ruminations
  
 #. need to retain drawing of initial photon positions/directions for non-chroma installs 
 
+
+Interop Refs
+
+Using PrimitiveRestart
+
+#. http://www.drdobbs.com/parallel/cuda-supercomputing-for-the-masses-part/225200412
+
+   
+
 """
 
 import ctypes

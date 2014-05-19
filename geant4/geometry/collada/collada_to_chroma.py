@@ -210,6 +210,13 @@ class ColladaToChroma(object):
  
         #. no RAYLEIGH for water 
 
+
+
+        Infinite wavelength photons in chroma propagation point to lack of 
+        BULK_REEMISSION probability setup. 
+        Need to study NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsG4Scintillation.cc 
+        to make sense of the constants and what is an appropriate translation into Chroma.
+
         """
         keymap = {
                           "RINDEX":'refractive_index',
