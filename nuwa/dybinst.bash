@@ -24,4 +24,8 @@ dybinst-all(){
     ./dybinst trunk all  
 }
 
+dybinst-export(){
+    export DYB=$(dybinst-dir)
+    alias d="cd $DYB"
 
+}
