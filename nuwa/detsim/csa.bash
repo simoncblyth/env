@@ -170,7 +170,7 @@ csa-nuwarun(){
    export CSA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
 
    #nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
-   nuwa.py -n 10 -m "fmcpmuon --use-basic-physics --chroma "
+   nuwa.py -n 100 -m "fmcpmuon --use-basic-physics --chroma "
 
 }
 
