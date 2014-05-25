@@ -132,7 +132,7 @@ class DAEMenu(event.EventDispatcher):
 
     def attach_button(self, attach):
         assert attach in ('LEFT','MIDDLE','RIGHT')
-        log.info("attach")
+        log.debug("attach")
         glut.glutAttachMenu(getattr(glut,"GLUT_%s_BUTTON" % attach ))
 
     def create(self, attach='RIGHT'):
@@ -140,7 +140,7 @@ class DAEMenu(event.EventDispatcher):
         self.attach_button(attach)
 
     def glut_CreateMenu(self):
-        log.info("glut_CreateMenu %s " % self.name)
+        log.debug("glut_CreateMenu %s " % self.name)
         self.menu = glut.glutCreateMenu(self.__call__)
         self.glut_AddMenuEntries() 
 
@@ -150,13 +150,13 @@ class DAEMenu(event.EventDispatcher):
         for ipos, n in enumerate(self.items):
             entry = self.items[n]
             entry.ipos = ipos + 1  # guessing menu position doen list  to be 1-based ? 
-            log.info("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
+            log.debug("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
             glut.glutAddMenuEntry( entry.title, entry.num )
         pass
         glut.glutSetMenu( curmenu ) 
 
     def glut_RemoveMenuItem(self, ipos ):
-        log.info("glut_RemoveMenuItems %s ipos %s " % (self.name, ipos))
+        log.debug("glut_RemoveMenuItems %s ipos %s " % (self.name, ipos))
         curmenu = glut.glutGetMenu()
         glut.glutSetMenu( self.menu ) 
         glut.glutRemoveMenuItem(ipos) 
@@ -172,7 +172,7 @@ class DAEMenu(event.EventDispatcher):
         self.glut_CreateMenu()
         pass
         for sub in self.children:
-            log.info("glut_AddSubMenu %s %s " % (sub.name, sub.menu ))
+            log.debug("glut_AddSubMenu %s %s " % (sub.name, sub.menu ))
             glut.glutAddSubMenu( sub.name, sub.menu ) 
 
 

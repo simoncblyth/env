@@ -7,7 +7,13 @@ import numpy as np
 from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # ROOT transport level 
 
 #from photons import Photons                                      # numpy operations level 
-from chroma.event import Photons
+
+try:
+    from chroma.event import Photons
+except ImportError:
+    Photons = None
+
+
 from daephotons import DAEPhotons                                # OpenGL presentation level
 
 from datetime import datetime
@@ -153,6 +159,10 @@ class DAEEvent(object):
         """
         Convert serialization level ChromaPhotonList into operation level Photons
         """
+        if Photons is None:
+            log.warn("setup_cpl requires chroma ")
+            return
+
         photons = Photons.from_cpl(cpl, extend=True)   
         self.setup_photons( photons ) 
 
@@ -166,7 +176,7 @@ class DAEEvent(object):
             self.dphotons.photons = photons   # setter invalidates _vbo, _color, _mesh 
         pass
         mesh = self.dphotons.mesh
-        log.info("setup_photons mesh\n%s\n" % str(mesh))
+        #log.info("setup_photons mesh\n%s\n" % str(mesh))
 
         self.scene.bookmarks.create_for_object( mesh, 9 )
         self.objects = [mesh]
@@ -184,7 +194,7 @@ class DAEEvent(object):
 
         propagator = dcc.propagator
         photons = propagator.propagate( self.dphotons.photons, max_steps=1 )
-        photons.dump()
+        #photons.dump()
         self.setup_photons( photons )   # results in VBO recreation 
 
     def find_object(self, ospec):

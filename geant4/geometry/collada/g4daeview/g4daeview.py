@@ -14,6 +14,13 @@ For viewing Geant4 LXe example::
     g4daeview.sh -p lxe -g 1: 
 
 
+Observe
+--------
+
+#. sometimes "reload" not working, although stepping does
+
+
+
 Photon History Flags
 ---------------------
 

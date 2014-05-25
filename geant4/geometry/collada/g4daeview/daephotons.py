@@ -290,8 +290,8 @@ class DAEPhotons(object):
         mask = arg2mask(argm)
         bits = arg2mask(argb)
 
-        log.info("argm %s mask %s " % (argm, mask))
-        log.info("argb %s bits %s " % (argm, bits))
+        log.debug("argm %s mask %s " % (argm, mask))
+        log.debug("argb %s bits %s " % (argm, bits))
         log.info("photon_indices npho %s nflag %s mask %s bits %s " % (npho,nflag,mask,bits))
 
         if mask is None and bits is None:

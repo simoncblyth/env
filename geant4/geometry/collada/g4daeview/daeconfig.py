@@ -155,7 +155,9 @@ class DAEConfig(ConfigBase):
         parser.add_argument(      "--max-alpha-depth", help="Chroma Raycaster max_alpha_depth", type=int )
 
         defaults['path'] = "dyb"
-        defaults['geometry']="3153:"
+        #defaults['geometry']="3153:"
+        defaults['geometry']="2+,3153:"
+
         defaults['bound'] = True
         parser.add_argument("-p","--path",    help="Shortname indicating envvar DAE_NAME_SHORTNAME (or None indicating  DAE_NAME) that provides path to the G4DAE geometry file  %(default)s",type=str)
         parser.add_argument("-g","--geometry",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
