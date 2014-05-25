@@ -12,9 +12,14 @@ Usage::
 """
 import os, logging
 import numpy as np
-from env.root.import_ROOT import ROOT     # avoids sys.argv kidnap
 
-if not hasattr(ROOT, 'ChromaPhotonList'):
+try:
+    from env.root.import_ROOT import ROOT     # avoids sys.argv kidnap
+except ImportError:
+    ROOT = None
+
+
+if not ROOT is None and not hasattr(ROOT, 'ChromaPhotonList'):
     if ROOT.gSystem.Load(os.environ["CHROMAPHOTONLIST_LIB"]) < 0:ROOT.gSystem.Exit(10)
 
 log = logging.getLogger(__name__)
@@ -45,6 +50,10 @@ def random_cpl(n=100):
 
 def save_cpl( path, key, obj, compress=1 ):
     log.info("save_cpl to %s with key %s " % (path,key) )
+    if ROOT is None:
+        log.warn("save_cpl requires ROOT " )
+        return
+
     title = key  
     f = ROOT.TFile( path, 'RECREATE', title, compress ) 
     if f.IsZombie():
@@ -57,6 +66,10 @@ def save_cpl( path, key, obj, compress=1 ):
 
 def load_cpl( path, key ):
     log.info("load_cpl from %s " % path )
+    if ROOT is None:
+        log.warn("load_cpl required ROOT " )
+        return
+
     if not os.path.exists(path):
         log.warn("path %s does not exist " % path )
         return None
