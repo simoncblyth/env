@@ -16,7 +16,11 @@ from glumpy.window import key
 number_keys = (key._0,key._1,key._2,key._3,key._4,key._5,key._6,key._7,key._8,key._9,)
 
 from daedispatcher import DAEDispatcher
-from daeresponder import DAEResponder
+try:
+    from daeresponder import DAEResponder
+except ImportError:
+    DAEResponder = None
+
 from daeviewport import DAEViewport
 from daemenu import DAEMenu, DAEMenuDemo
 
@@ -155,6 +159,10 @@ class DAEInteractivityHandler(object):
         """
         TODO: workout how to switch off timers, see *glumpy-* on timers
         """
+        if DAEResponder is None:
+            log.warn("cannot use DAEResponder without ZMQ/pyZMQ " )
+            return 
+
         zmq_responder = DAEResponder(self.config)
         log.info(zmq_responder)        
 
