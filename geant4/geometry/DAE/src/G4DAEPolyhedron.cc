@@ -80,7 +80,11 @@ void G4DAEPolyhedron::Metadata( const G4Polyhedron& polyhedron )
     //
     fMetadata.insert(KV("NumberOfRotationStepsAtTimeOfCreation", IntAsString(polyhedron.GetNumberOfRotationStepsAtTimeOfCreation())));
     fMetadata.insert(KV("NumberOfRotationSteps",                 IntAsString(polyhedron.GetNumberOfRotationSteps())));
+#ifdef _GEANT4_TMP_GEANT94_
+    G4int iebp = 1;
+#else
     G4int iebp = polyhedron.IsErrorBooleanProcess() ? 1 : 0 ; 
+#endif
     fMetadata.insert(KV("ErrorBooleanProcess",                   IntAsString(iebp)));
 
     const G4VisAttributes* visAtt = polyhedron.GetVisAttributes();

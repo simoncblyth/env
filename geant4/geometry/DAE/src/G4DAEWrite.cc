@@ -92,7 +92,10 @@ xercesc::DOMAttr* G4DAEWrite::NewNCNameAttribute(const G4String& name,
    
    xercesc::XMLString::transcode(val,tempStr,tempStrSize-1);
 
-   if(!xercesc::XMLString::isValidNCName(tempStr+offset)){
+   // if(!xercesc::XMLString::isValidNCName(tempStr+offset))
+   // XMLString::isValidNCName is deprecated
+   if(!xercesc::XMLChar1_0::isValidNCName(tempStr+offset, 
+                                          xercesc::XMLString::stringLen(tempStr)-offset)){
       G4cout << "WARNING despite encoding still not a valid NCName " <<  name << " " << val << G4endl; 
    }
 
@@ -407,11 +410,23 @@ void G4DAEWrite::PropertyVectorWrite(const G4String& key,
 {
 
    std::ostringstream pvalues;
+
+#ifdef _GEANT4_TMP_GEANT94_
+   for (G4int i=0; i<pvec->Entries(); i++)                                      
+   {                                                                            
+     G4MPVEntry cval = pvec->GetEntry(i);                                       
+     if (i!=0)  { pvalues << " "; }                                             
+     pvalues << cval.GetPhotonEnergy() << " " << cval.GetProperty();            
+   }        
+#else
    for (size_t i=0; i<pvec->GetVectorLength(); i++)
    {
        if (i!=0)  { pvalues << " "; }
        pvalues << pvec->Energy(i) << " " << (*pvec)[i];
    }
+#endif
+
+
 
    xercesc::DOMElement* matrixElement = NewTextElement("matrix",pvalues.str());
    const G4String matrixref = GenerateName(key, pvec);

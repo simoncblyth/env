@@ -1,0 +1,17 @@
+name := G4DAE
+
+ifndef G4INSTALL
+  G4INSTALL = ../../..
+endif
+
+include $(G4INSTALL)/config/architecture.gmk
+
+CPPFLAGS += -I${G4INCLUDE} -D_GEANT4_TMP_GEANT94_
+ 
+ifdef G4LIB_USE_GDML
+  ifndef XERCESCROOT
+	@echo XERCESCROOT not defined!
+  endif
+endif
+
+include $(G4INSTALL)/config/common.gmk
