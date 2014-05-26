@@ -174,6 +174,7 @@ class DAEGeometry(object):
 
         """
         path = config.path
+        self.cachepath = "%s.npz" % path
         bound = config.args.bound
         nodes = DAENode.getall(arg, path)
         self.solids = [DAESolid(node, bound) for node in nodes]
@@ -214,13 +215,18 @@ class DAEGeometry(object):
         focus = selection[0] if len(selection) == 1 else None
         return focus
 
-    def flatten(self):
+    def flatten(self, usecache=False):
         """  
         Adapted from Chroma geometry flattening 
 
         Converts from pycollada internal numpy storage into contiguous 
         arrays ready to be placed into an OpenGL VBO (Vertex Buffer Object).
         """
+
+        if usecache and os.path.exists(self.cachepath): 
+            log.info("reading from cachepath %s " % self.cachepath )
+       
+
 
         nv = np.cumsum([0] + [len(solid.vertices) for solid in self.solids])
         nt = np.cumsum([0] + [len(solid.triangles) for solid in self.solids])
@@ -238,6 +244,8 @@ class DAEGeometry(object):
         log.info('Flattening %s DAESolid into one DAEMesh...' % len(self.solids))
 
         assert len(self.solids) > 0, "failed to find solids, MAYBE EXCLUDED BY -g/--geometry option ? try \"-g 0:\" or \"-g 1:\" "
+
+        
 
         mesh = DAEMesh(vertices, triangles, normals)
         log.debug(mesh)

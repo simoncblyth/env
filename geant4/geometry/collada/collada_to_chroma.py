@@ -142,10 +142,8 @@ class ColladaToChroma(object):
             else:
                 key = None 
             pass
-            assert key is not None
-
-            if REFLECTIVITY is None:
-                log.warn("not setting REFLECTOVITY for %s " % surface.name )
+            if key is None or REFLECTIVITY is None:
+                log.warn("not setting REFLECTIVITY for %s " % surface.name )
             else: 
                 log.debug("setting prop %s for surface %s " % (key, surface.name))
                 surface.set(key, REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
