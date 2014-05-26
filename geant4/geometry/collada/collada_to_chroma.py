@@ -94,7 +94,7 @@ class ColladaToChroma(object):
         self.surfaces = {}
         self.materials = {}
 
-    def convert_opticalsurfaces(self, debug=False):
+    def convert_opticalsurfaces(self, debug=True):
         """
         Chroma surface 
 
@@ -128,8 +128,10 @@ class ColladaToChroma(object):
             if debug:
                 print "%-75s %s " % (dsurf.name, dsurf )
             surface = Surface(dsurf.name)
-            assert 'REFLECTIVITY' in dsurf.properties
-            REFLECTIVITY = dsurf.properties['REFLECTIVITY'] 
+            if not 'REFLECTIVITY' in dsurf.properties:
+                log.warn(" no REFLECTIVITY in dsurf.properties %s " % repr(dsurf.properties))
+            pass
+            REFLECTIVITY = dsurf.properties.get('REFLECTIVITY',None) 
 
             # guess at how to translate the Geant4 description into Chroma  
             finish = int(dsurf.finish)
@@ -141,12 +143,17 @@ class ColladaToChroma(object):
                 key = None 
             pass
             assert key is not None
-            log.debug("setting prop %s for surface %s " % (key, surface.name))
-            surface.set(key, REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
+
+            if REFLECTIVITY is None:
+                log.warn("not setting REFLECTOVITY for %s " % surface.name )
+            else: 
+                log.debug("setting prop %s for surface %s " % (key, surface.name))
+                surface.set(key, REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
+                pass
+                self.surfaces[surface.name] = surface
             pass
-            self.surfaces[surface.name] = surface
         pass 
-        assert len(self.surfaces) == len(self.nodecls.extra.opticalsurface), "opticalsurface with duplicate names ? "
+        #assert len(self.surfaces) == len(self.nodecls.extra.opticalsurface), "opticalsurface with duplicate names ? "
         log.debug("convert_opticalsurfaces creates %s from %s  " % (len(self.surfaces),len(self.nodecls.extra.opticalsurface))  )
 
 

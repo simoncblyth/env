@@ -973,12 +973,20 @@ def as_optical_property_vector( s, xunit='MeV', yunit=None ):
         
     energy = b[:,0]
     
+    hc_over_x = 0
     if xunit=='MeV':
-        e_nm  = hc_over_MeV/energy
+        hc_over_x  = hc_over_MeV
     elif xunit=='eV':
-        e_nm  = hc_over_eV/energy
+        hc_over_x  = hc_over_eV
     else:       
         assert 0, "unexpected xunit %s " % xunit
+
+
+    try:
+        e_nm = hc_over_x/energy  
+    except RuntimeWarning:
+        e_nm = float('inf')      
+        log.warn("RuntimeWarning in division for %s " % repr(s)) 
 
     vv = np.column_stack([e_nm,val])
     return vv
