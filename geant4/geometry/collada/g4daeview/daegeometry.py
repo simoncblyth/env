@@ -283,10 +283,9 @@ class DAEGeometry(object):
     def make_bbox_cache(self):
         """
         """
-        bbox_cache = np.empty((len(self.solids),7))    
+        bbox_cache = np.empty((len(self.solids),6))    
         for i, solid in enumerate(self.solids):
-            #bbox_cache[i] = solid.lower_upper
-            bbox_cache[i] = solid.bounds_extent
+            bbox_cache[i] = solid.lower_upper
         pass
         self.bbox_cache = bbox_cache
 
