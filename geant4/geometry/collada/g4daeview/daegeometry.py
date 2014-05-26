@@ -173,11 +173,15 @@ class DAEGeometry(object):
         :param config: 
 
         """
-        path = config.path
-        self.cachepath = "%s.npz" % path
-        bound = config.args.bound
-        nodes = DAENode.getall(arg, path)
-        self.solids = [DAESolid(node, bound) for node in nodes]
+        if arg is None:
+            solids = []
+        else:
+            path = config.path
+            bound = config.args.bound
+            nodes = DAENode.getall(arg, path)
+            solids = [DAESolid(node, bound) for node in nodes]
+        pass
+        self.solids = solids
         self.mesh = None
         self.bbox_cache = None
         self.config = config
@@ -215,18 +219,46 @@ class DAEGeometry(object):
         focus = selection[0] if len(selection) == 1 else None
         return focus
 
-    def flatten(self, usecache=False):
+
+    def make_mesh(self, vertices, triangles, normals ):
+        mesh = DAEMesh(vertices, triangles, normals)
+        log.debug(mesh)
+        return mesh
+
+    def save_to_cache(self, cachepath):
+        if self.bbox_cache is None:
+            self.make_bbox_cache()
+        pass
+        if os.path.exists(cachepath):
+            log.info("overwriting preexisting cache file %s " % cachepath ) 
+        else:
+            log.info("writing cache file %s " % cachepath ) 
+        pass
+        np.savez(cachepath, bbox_cache=self.bbox_cache, vertices=self.mesh.vertices, triangles=self.mesh.triangles, normals=self.mesh.normals)
+
+    def populate_from_cache(self, npz):
+        mesh = self.make_mesh( npz['vertices'], npz['triangles'], npz['normals'] )                
+        self.mesh = mesh 
+        self.bbox_cache = npz['bbox_cache']  
+
+    @classmethod
+    def load_from_cache(cls, config):
+        geocachepath = config.geocachepath
+        assert os.path.exists(geocachepath), geocachepath 
+        log.info("load_from_cache %s " % geocachepath )
+        npz = np.load(geocachepath)
+        obj = cls(None, config)
+        obj.populate_from_cache(npz)
+        return obj
+
+
+    def flatten(self):
         """  
         Adapted from Chroma geometry flattening 
 
         Converts from pycollada internal numpy storage into contiguous 
         arrays ready to be placed into an OpenGL VBO (Vertex Buffer Object).
         """
-
-        if usecache and os.path.exists(self.cachepath): 
-            log.info("reading from cachepath %s " % self.cachepath )
-       
-
 
         nv = np.cumsum([0] + [len(solid.vertices) for solid in self.solids])
         nt = np.cumsum([0] + [len(solid.triangles) for solid in self.solids])
@@ -245,18 +277,16 @@ class DAEGeometry(object):
 
         assert len(self.solids) > 0, "failed to find solids, MAYBE EXCLUDED BY -g/--geometry option ? try \"-g 0:\" or \"-g 1:\" "
 
-        
-
-        mesh = DAEMesh(vertices, triangles, normals)
-        log.debug(mesh)
+        mesh = self.make_mesh(vertices, triangles, normals)
         self.mesh = mesh 
 
     def make_bbox_cache(self):
         """
         """
-        bbox_cache = np.empty((len(self.solids),6))    
+        bbox_cache = np.empty((len(self.solids),7))    
         for i, solid in enumerate(self.solids):
-            bbox_cache[i] = solid.lower_upper
+            #bbox_cache[i] = solid.lower_upper
+            bbox_cache[i] = solid.bounds_extent
         pass
         self.bbox_cache = bbox_cache
 

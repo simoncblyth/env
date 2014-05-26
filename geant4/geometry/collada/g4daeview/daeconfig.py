@@ -23,9 +23,13 @@ TODO: live parsing of negative toggles is non-intuitive, maybe add reverse ones 
 
 
 """
-import os, logging, argparse, socket
+import os, logging, argparse, socket, md5
 import numpy as np
 from configbase import ConfigBase, ThrowingArgumentParser
+
+
+digest_ = lambda _:md5.md5(_).hexdigest()
+
 
 try: 
     from collections import OrderedDict
@@ -110,6 +114,14 @@ class DAEConfig(ConfigBase):
         return self.args.bookmarks % dict(path=path_)
     bookmarks = property(_get_bookmarks, doc="bookmark file name incorporating the geometry file shortname")  
 
+    def _get_geocachepath(self):
+        gcp = self.args.geocachepath 
+        if gcp is None:
+            gcp = "%s.%s.npz" % ( self.path, digest_(self.args.geometry) )
+        return gcp
+    geocachepath = property(_get_geocachepath) 
+
+
     def _make_base_parser(self, doc):
         """
         Base parser handles arguments/options that 
@@ -157,10 +169,14 @@ class DAEConfig(ConfigBase):
         defaults['path'] = "dyb"
         #defaults['geometry']="3153:"
         defaults['geometry']="2+,3153:"
+        defaults['geocache'] = False
+        defaults['geocachepath'] = None
 
         defaults['bound'] = True
         parser.add_argument("-p","--path",    help="Shortname indicating envvar DAE_NAME_SHORTNAME (or None indicating  DAE_NAME) that provides path to the G4DAE geometry file  %(default)s",type=str)
         parser.add_argument("-g","--geometry",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
+        parser.add_argument(      "--geocache", help="Save/load flattened geometry to/from binary npz cache. Default %(default)s.", action="store_true" )
+        parser.add_argument(      "--geocachepath", help="Path to geometry cache. Default %(default)s." )
         parser.add_argument(     "--nobound",  dest="bound", action="store_false", help="Load geometry in pycollada unbound (local) coordinates, **FOR DEBUG ONLY** ")
 
         defaults['size']="1440,852"

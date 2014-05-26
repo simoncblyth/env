@@ -177,8 +177,17 @@ def main():
     rmenu = DAEMenu("rtop")
     config.rmenu = rmenu
 
-    geometry = DAEGeometry(config.args.geometry, config)
-    geometry.flatten()
+
+    geocachepath = config.geocachepath
+    if os.path.exists(geocachepath) and config.args.geocache:
+        geometry = DAEGeometry.load_from_cache( config )
+    else:
+        geometry = DAEGeometry(config.args.geometry, config)
+        geometry.flatten()
+        if config.args.geocache:
+            geometry.save_to_cache(geocachepath)
+        pass
+    pass
 
     figure = gp.Figure(size=config.size)
     frame = figure.add_frame(size=config.frame)
