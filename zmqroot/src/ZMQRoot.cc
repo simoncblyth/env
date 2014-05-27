@@ -3,6 +3,7 @@
 #include "TMessage.h"
 #include "MyTMessage.hh"
 #include <assert.h>
+#include <stdlib.h>
 
 #ifdef WITH_ZMQ
 #include <zmq.h>

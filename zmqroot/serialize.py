@@ -4,6 +4,8 @@ import os, logging, array, ctypes
 log = logging.getLogger(__name__)
 
 from env.root.import_ROOT import ROOT     # avoids sys.argv kidnap
+if ROOT is None:
+    raise ImportError
 if ROOT.gSystem.Load(os.environ["ZMQROOT_LIB"]) < 0:ROOT.gSystem.Exit(10)
 
 
