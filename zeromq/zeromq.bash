@@ -84,7 +84,8 @@ zeromq-get(){
     [ ! -f "$tgz" ] && curl -O $url
     [ ! -d "$nam" ] && tar zxvf $tgz
 }
-zeromq-prefix(){ 
+zeromq-prefix(){ echo ${ZEROMQ_PREFIX:-$(zeromq-prefix-default)} ;}
+zeromq-prefix-default(){ 
   case $NODE_TAG in 
     D_original) echo /usr/local/env/chroma_env ;;   ## happens to be VIRTUAL_ENV 
     D) echo $(zeromq-fold) ;; 
