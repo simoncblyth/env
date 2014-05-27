@@ -4,6 +4,7 @@
 #include "MyTMessage.hh"
 #include <assert.h>
 #include <stdlib.h>
+#include <iostream>
 
 #ifdef WITH_ZMQ
 #include <zmq.h>
@@ -81,6 +82,8 @@ TObject* ZMQRoot::ReceiveObject()
     assert (rc == 0);
 
     rc = zmq_msg_recv (&msg, fRequester, 0);   
+    std::cout << __LINE__ << ": " << rc << std::endl;
+    std::cout << __LINE__ << ": " << zmq_strerror(errno) << std::endl;
     assert (rc != -1);
 
     size_t size = zmq_msg_size(&msg); 

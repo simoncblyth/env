@@ -5,9 +5,16 @@
 
 int main() {
 
-    TNamed* ptn;
-    ZMQRoot zmq("ZMQ_TEST_SVR");
+    TNamed* ptn = NULL;
+    ZMQRoot* zmq = new ZMQRoot("ZMQ_TEST_SVR");
 
-    TObject* ptmp = zmq.ReceiveObject();
-    ptmp->Print();
+    TObject* ptmp = NULL;
+    while(true) {
+        ptmp = zmq->ReceiveObject();
+        if (!ptmp) {
+            continue;
+        }
+        ptmp->Print();
+        zmq->SendObject(ptmp);
+    }
 }
