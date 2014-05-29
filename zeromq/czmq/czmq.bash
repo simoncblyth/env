@@ -148,6 +148,13 @@ czmq-broker(){
 }
 
 
+czmq-broker-local(){
+   local cmd="ZMQ_BROKER_TAG=SELF $(czmq-broker-env) $(czmq-bin czmq_broker)"  
+   echo $cmd
+   eval $cmd
+}
+
+
 czmq-broker-env-sv(){ czmq-broker-env | tr " " "," ; }
 czmq-broker-start-cmd(){
   cat << EOC

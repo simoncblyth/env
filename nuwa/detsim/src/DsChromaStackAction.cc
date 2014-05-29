@@ -86,14 +86,18 @@ void DsChromaStackAction::CollectPhoton(const G4Track* aPhoton )
    G4ParticleDefinition* pd = aPhoton->GetDefinition();
    assert( pd->GetParticleName() == "opticalphoton" );
 
+   G4String pname="-";
+   const G4VProcess* process = aPhoton->GetCreatorProcess();
+   if(process) pname = process->GetProcessName();
+   G4cout<<"Optical photon. Process name is " << pname<<G4endl;
+
+
    G4ThreeVector pos = aPhoton->GetPosition()/mm ;
    G4ThreeVector dir = aPhoton->GetMomentumDirection() ;
    G4ThreeVector pol = aPhoton->GetPolarization() ;
    float time = aPhoton->GetGlobalTime()/ns ;
    float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
 
-   //fPhotonList->AddPhoton( pos, dir, pol, time, wavelength );
-   // more appropriate for transport class to have a minimum of dependencies
    fPhotonList->AddPhoton( 
               pos.x(), pos.y(), pos.z(),
               dir.x(), dir.y(), dir.z(),
