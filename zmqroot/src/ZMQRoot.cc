@@ -11,18 +11,29 @@
 #endif
 
 
-ZMQRoot::ZMQRoot(const char* envvar) : fContext(NULL), fRequester(NULL) 
+ZMQRoot::ZMQRoot(const char* envvar, const char mode) : fContext(NULL), fSocket(NULL) 
 {
 
 #ifdef WITH_ZMQ
   char* config = getenv(envvar) ;
-  printf( "ZMQRoot::ZMQRoot envvar [%s] config [%s] \n", envvar, config );   
+  printf( "ZMQRoot::ZMQRoot envvar [%s][%c] config [%s] \n", envvar,mode, config );   
   assert( config != NULL );
 
   fContext = zmq_ctx_new ();
-  fRequester = zmq_socket (fContext, ZMQ_REQ);
 
-  int rc = zmq_connect (fRequester, config );
+  switch (mode)
+  {
+     case 'Q': 
+              fSocket = zmq_socket (fContext, ZMQ_REQ);
+              break ;
+     case 'P': 
+              fSocket = zmq_socket (fContext, ZMQ_REP);
+              break ;
+     default:
+              fSocket = NULL ;
+  }
+
+  int rc = zmq_connect (fSocket, config );
   assert( rc == 0); 
 #else
   printf( "ZMQRoot::ZMQRoot need to compile -DWITH_ZMQ and have ZMQ external \n");   
@@ -35,7 +46,7 @@ void ZMQRoot::SendObject(TObject* obj)
    if(!obj) return ; 
 
 #ifdef WITH_ZMQ
-   assert( fRequester != NULL );
+   assert( fSocket != NULL );
 
    TMessage tmsg(kMESS_OBJECT);
    tmsg.WriteObject(obj);
@@ -50,7 +61,7 @@ void ZMQRoot::SendObject(TObject* obj)
    
    memcpy(zmq_msg_data (&zmsg), buf, bufLen );   // TODO : check for zero copy approaches
 
-   rc = zmq_msg_send (&zmsg, fRequester, 0);
+   rc = zmq_msg_send (&zmsg, fSocket, 0);
    
    if (rc == -1) {
        int err = zmq_errno();
@@ -81,7 +92,7 @@ TObject* ZMQRoot::ReceiveObject()
     int rc = zmq_msg_init (&msg); 
     assert (rc == 0);
 
-    rc = zmq_msg_recv (&msg, fRequester, 0);   
+    rc = zmq_msg_recv (&msg, fSocket, 0);   
     std::cout << __LINE__ << ": " << rc << std::endl;
     std::cout << __LINE__ << ": " << zmq_strerror(errno) << std::endl;
     assert (rc != -1);
@@ -116,8 +127,8 @@ TObject* ZMQRoot::ReceiveObject()
 ZMQRoot::~ZMQRoot()
 {
 #ifdef WITH_ZMQ
-  if(fRequester != NULL){
-      zmq_close (fRequester);
+  if(fSocket != NULL){
+      zmq_close (fSocket);
   }
   if(fContext != NULL){
        zmq_ctx_destroy(fContext); 

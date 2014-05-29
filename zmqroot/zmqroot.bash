@@ -91,6 +91,11 @@ zmqroot-export(){
   export ZMQROOT_LIB="$(zmqroot-lib)"
 }
 
+zmqroot-setup-test(){
+  export PATH=$(zmqroot-dir)/bin:$PATH 
+}
+
+
 zmqroot-verbose(){ echo 1 ; }
 
 zmqroot-cmake(){

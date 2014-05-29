@@ -74,19 +74,25 @@ install(FILES "include/ZMQRoot.hh" DESTINATION include)
 install(TARGETS ${name} LIBRARY DESTINATION lib)
 
 
-add_executable(client tests/client.cc) 
-target_link_libraries(client
+add_executable(zmqroot_test_client tests/client.cc) 
+target_link_libraries(zmqroot_test_client
                        ${ROOT_LIBRARIES}
                        ${ZMQ_LIBRARIES}
-                       /usr/local/env/zmqroot/lib/libZMQRoot.dylib                         
+                       ${name}
                       )
 
-add_executable(worker tests/worker.cc) 
-target_link_libraries(worker
+add_executable(zmqroot_test_worker tests/worker.cc) 
+target_link_libraries(zmqroot_test_worker
                        ${ROOT_LIBRARIES}
                        ${ZMQ_LIBRARIES}
-                       /usr/local/env/zmqroot/lib/libZMQRoot.dylib                         
+                       ${name}
                       )
+
+
+install (TARGETS zmqroot_test_client DESTINATION bin)
+install (TARGETS zmqroot_test_worker DESTINATION bin)
+
+
 
 
 

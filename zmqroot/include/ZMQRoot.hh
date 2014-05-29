@@ -7,7 +7,7 @@ class ZMQRoot
 {
 
 public:
-  ZMQRoot(const char* envvar);
+  ZMQRoot(const char* envvar, const char mode='Q');
   virtual ~ZMQRoot();
 
   void SendObject(TObject* obj);
@@ -16,7 +16,7 @@ public:
   
 private:
   void* fContext ;  
-  void* fRequester ;  
+  void* fSocket ;  
 
 };
 

@@ -1,20 +1,13 @@
-
-
 #include "ZMQRoot.hh"
 #include "TNamed.h"
 
 int main() {
-
-    TNamed* ptn = NULL;
-    ZMQRoot* zmq = new ZMQRoot("ZMQ_TEST_SVR");
-
-    TObject* ptmp = NULL;
+    ZMQRoot* zmq = new ZMQRoot("ZMQROOT_TEST_BACKEND",'P');
+    TObject* obj = NULL;
     while(true) {
-        ptmp = zmq->ReceiveObject();
-        if (!ptmp) {
-            continue;
-        }
-        ptmp->Print();
-        zmq->SendObject(ptmp);
+        obj = zmq->ReceiveObject();
+        if (!obj) continue;
+        obj->Print();
+        zmq->SendObject(obj);
     }
 }
