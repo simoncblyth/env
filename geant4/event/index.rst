@@ -12,4 +12,8 @@ Geant4 Event
    geant4_steppingmanager
    geant4_trackingmanager
    geant4_navigator
+   geant4_process
+
+
+
 

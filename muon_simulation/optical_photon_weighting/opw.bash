@@ -9,6 +9,43 @@ opw-usage(){ cat << EOU
 OPW
 ====
 
+Standard Usage
+---------------
+
+#. Generate no-argument script and output directory with `opw-;opw-sim` 
+#. Run the script `python opw-sim.py`
+
+Checkout what the script is upto::
+
+    fenv    
+    gdb `which python` `pgrep -f opw-sim.py`
+
+
+With Chroma Stack Action
+---------------------------
+
+TODO: Make this have fewer steps
+
+
+#. Generate no-argument script and output directory with `opw-;opw-sim` 
+#. edit script adding `--chroma` option
+#. Build `csa-`::
+
+   csa-
+   csa-nuwapkg-diff  
+   csa-nuwapkg-cpto
+   csa-nuwapkg-make
+
+   # 
+   csa-nuwapkg-cd cmt
+   cmt config
+   . setup.sh 
+
+
+#. Run the edited script `python opw-sim.py`  
+
+
+
 FUNCTIONS
 ---------
 

@@ -164,7 +164,10 @@ csa-nuwarun-gdb(){
 
 csa-nuwarun(){
 
+
+   csa-nuwaenv
    opw-cd     # need to be in OPW to find "fmcpmuon"
+
 
    zmq-
    export CSA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements

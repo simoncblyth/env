@@ -89,8 +89,17 @@ void DsChromaStackAction::CollectPhoton(const G4Track* aPhoton )
    G4String pname="-";
    const G4VProcess* process = aPhoton->GetCreatorProcess();
    if(process) pname = process->GetProcessName();
-   G4cout<<"Optical photon. Process name is " << pname<<G4endl;
+   G4cout << " OP : " 
+          << " ProcessName " << pname 
+          << " ParentID "    << aPhoton->GetParentID() 
+          << " TrackID "     << aPhoton->GetTrackID() 
+          << " KineticEnergy " << aPhoton->GetKineticEnergy() 
+          << " TotalEnergy " << aPhoton->GetTotalEnergy() 
+          << " TrackStatus " << aPhoton->GetTrackStatus() 
+          << " CurrentStepNumber " << aPhoton->GetCurrentStepNumber() 
+          << G4endl;
 
+   assert( pname == "Cerenkov" || pname == "Scintillation" );
 
    G4ThreeVector pos = aPhoton->GetPosition()/mm ;
    G4ThreeVector dir = aPhoton->GetMomentumDirection() ;
