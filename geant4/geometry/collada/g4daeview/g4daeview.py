@@ -42,6 +42,22 @@ Next
 -----
 
 
+Menu Live Updating Issues
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Live updating the displayed event arriving via ZMQ (using ssh tunnel to thwart the network gnomes) 
+leads to messed up partial glut menus and results in segv::
+
+    2014-05-30 20:15:18,890 env.geant4.geometry.collada.g4daeview.daephotons:120 nflag 56 unique flag combinations len(history) 1 
+    2014-05-30 20:15:18,890 env.geant4.geometry.collada.g4daeview.daemenu:163 not calling glut.glutSetMenu as menu is None 
+    2014-05-30 20:15:18.890 python[99235:d07] GLUT Warning: The following is a new check for GLUT 3.0; update your code.
+    2014-05-30 20:15:18.890 python[99235:d07] GLUT Fatal Error: menu manipulation not allowed while menus in use.
+    /Users/blyth/env/bin/g4daeview.sh: line 60: 99235 Segmentation fault: 11  g4daeview.py $*
+     
+Need some protections against menu in use ? And debugging menu creation.
+
+
+
 ChromaPhotonList Visualization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
