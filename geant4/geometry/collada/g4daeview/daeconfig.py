@@ -141,6 +141,7 @@ class DAEConfig(ConfigBase):
         defaults['seed'] = None
         defaults['bookmarks'] = "bookmarks_%(path)s.cfg"
         defaults['zmqendpoint'] = os.environ.get("ZMQ_BROKER_URL_BACKEND","tcp://localhost:5002")
+        defaults['zmqtunnelnode'] = None
 
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
@@ -149,7 +150,8 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )
         parser.add_argument( "--seed", help="Random Number seed, used for np.random.seed and curand setup", type=int  )
         parser.add_argument( "--bookmarks", help="Path to persisted bookmarks  %(default)s", type=str  )
-        parser.add_argument( "--zmqbind", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
+        parser.add_argument( "--zmqendpoint", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
+        parser.add_argument( "--zmqtunnelnode", help="Option interpreted at bash invokation level (not python) to specify remote SSH node to which a tunnel will be opened, strictly requires form `--zmqtunnelnode=N`  where N is an SSH config \"alias\".", type=str  )
 
         defaults['deviceid'] = None
         defaults['cuda_profile'] = False

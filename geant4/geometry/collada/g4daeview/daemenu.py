@@ -146,21 +146,30 @@ class DAEMenu(event.EventDispatcher):
 
     def glut_AddMenuEntries(self):
         curmenu = glut.glutGetMenu()
-        glut.glutSetMenu( self.menu ) 
+        self.glut_SetMenu(self.menu)
         for ipos, n in enumerate(self.items):
             entry = self.items[n]
             entry.ipos = ipos + 1  # guessing menu position doen list  to be 1-based ? 
             log.debug("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
             glut.glutAddMenuEntry( entry.title, entry.num )
         pass
-        glut.glutSetMenu( curmenu ) 
+        self.glut_SetMenu( curmenu ) 
+
+    def glut_SetMenu(self, menu=None):
+        if menu is None:
+            menu = self.menu 
+        pass
+        if menu is None:
+            log.warn("not calling glut.glutSetMenu as menu is None ") 
+        else:
+            glut.glutSetMenu( menu ) 
 
     def glut_RemoveMenuItem(self, ipos ):
         log.debug("glut_RemoveMenuItems %s ipos %s " % (self.name, ipos))
         curmenu = glut.glutGetMenu()
-        glut.glutSetMenu( self.menu ) 
+        self.glut_SetMenu(self.menu)
         glut.glutRemoveMenuItem(ipos) 
-        glut.glutSetMenu( curmenu ) 
+        self.glut_SetMenu( curmenu ) 
 
     def create_MenuTree(self):
         """

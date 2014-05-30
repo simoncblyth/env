@@ -20,6 +20,23 @@ Dependencies
 * optionally : uuid-devel pkg
 
 
+FUNCTIONS
+---------
+
+*czmq_worker_tunneled*
+     opens ssh tunnel to the broker node and forwards a random available local port 
+     to broker BACKEND on the broker node through the tunnel. Subsequently starts the 
+     worker using the local addr rather than the direct remote one in order
+     to route the traffic through the tunnel 
+ 
+*czmq_client_tunneled*
+     opens ssh tunnel to the broker node and forwards a random available local port 
+     to broker FRONTEND on the broker node through the tunnel. Subsequently starts the 
+     client using the local addr rather than the direct remote one in order
+     to route the traffic through the tunnel 
+ 
+
+
 czmq_broker supervisord hookup on N
 -------------------------------------
 
@@ -167,6 +184,10 @@ czmq-tunnel-cmd(){
    local raddr=$2
    local tcmd="ssh -fN -p 22 -L ${laddr}:${raddr} "
    echo $tcmd
+}
+
+czmq-tcp(){
+    lsof | grep TCP
 }
 
 czmq-worker-tunneled(){
