@@ -136,10 +136,68 @@ czmq-cc-build(){
 }
 
 # NB using config from zmq- for interopability 
-czmq-broker-env(){ echo FRONTEND=tcp://*:$(zmq-frontend-port) BACKEND=tcp://*:$(zmq-backend-port) ; }
 
-czmq-client(){ type $FUNCNAME ; FRONTEND=tcp://$(zmq-broker-host):$(zmq-frontend-port) $(czmq-bin czmq_client) ; }
-czmq-worker(){ type $FUNCNAME ;  BACKEND=tcp://$(zmq-broker-host):$(zmq-backend-port)  $(czmq-bin czmq_worker) ; }
+
+czmq-info(){
+  local names="czmq-broker-env czmq-client-addr czmq-worker-addr"
+  for name in $names ; do
+     echo $name $($name)
+  done 
+}
+
+czmq-broker-env(){ echo FRONTEND=tcp://*:$(zmq-frontend-port) BACKEND=tcp://*:$(zmq-backend-port) ; }
+czmq-client-addr(){ echo $(zmq-broker-host):$(zmq-frontend-port) ; }
+czmq-worker-addr(){ echo $(zmq-broker-host):$(zmq-backend-port) ; }
+
+czmq-sshsrv(){ echo N ; }
+
+czmq-client(){ 
+   local cmd="FRONTEND=tcp://$(czmq-client-addr) $(czmq-bin czmq_client)" 
+   echo $cmd 
+   eval $cmd
+}
+czmq-worker(){
+   local cmd="BACKEND=tcp://$(czmq-worker-addr) $(czmq-bin czmq_worker)" 
+   echo $cmd 
+   eval $cmd
+}
+
+czmq-tunnel-cmd(){
+   local laddr=$1
+   local raddr=$2
+   local tcmd="ssh -fN -p 22 -L ${laddr}:${raddr} "
+   echo $tcmd
+}
+
+czmq-worker-tunneled(){
+   local raddr=$(czmq-worker-addr)
+   local laddr="127.0.0.1:$(available_port.py)" 
+
+   local tcmd="$(czmq-tunnel-cmd $laddr $raddr) $(czmq-sshsrv)"
+   echo $tcmd 
+   eval $tcmd
+
+   local cmd="BACKEND=tcp://${laddr} $(czmq-bin czmq_worker)"
+   echo $cmd 
+   eval $cmd
+}
+
+
+czmq-client-tunneled(){
+   local raddr=$(czmq-client-addr)
+   local laddr="127.0.0.1:$(available_port.py)" 
+
+   local tcmd="$(czmq-tunnel-cmd $laddr $raddr) $(czmq-sshsrv)"
+   echo $tcmd 
+   eval $tcmd
+
+   local cmd="FRONTEND=tcp://${laddr} $(czmq-bin czmq_client)"
+   echo $cmd 
+   eval $cmd
+}
+
+
+
 
 czmq-broker(){ 
    local cmd="$(czmq-broker-env) $(czmq-bin czmq_broker)"  
