@@ -108,6 +108,31 @@ class DAEMenuItem(object):
 
 class DAEMenu(event.EventDispatcher):
     """
+    DAEMenu lifecycle controlled from main.  
+
+    #. instantianted very early and tacked onto the config for wide access.
+    #. actual glut menu is created late, after DAEScene instantiation by the `create()` method, 
+       allowing any "DAEScene" component object to add submenus to the tree
+
+    Submenus currently created at instantiation of `DAEEvent` and `DAEPhotons` 
+    and hooked up to top menu with something like::
+
+       self.config.rmenu.addSubMenu(self.make_submenu()) # RIGHT menu hookup
+
+    Submenus are changed (eg the history submenu) by multiple "addnew"
+    (which issue no glut calls) followed by `replace_menu_items()`
+
+        self.history.addnew( "ANY", self.history_callback, mask=None )
+        ...
+        self.history.replace_menu_items()
+
+
+    Handles:
+
+    #. non-glut representation of menu tree, assigning item unique identifiers
+    #. steering callbacks in __call__
+    #. holding future menu entries
+
     NB no use of GLUT allowed in here 
     """
     count = 0   # class level, so all instances use unique identifiers
@@ -195,11 +220,23 @@ class DAEMenu(event.EventDispatcher):
     top = property(_get_top, doc=_get_top.__doc__)
 
     def __call__(self, item ):
+        """
+        :param item: menu item index that GLUT provides to callback 
+
+        Method used to handle all menu callbacks.
+
+        #. returned menu item index is used to identify the corresponding 
+           DAEMenuItem to lookup the appropriate callback method or function
+           
+        #. introspection is used in order to prepare appropriate arguments 
+           for the callback 
+
+        """
         if not item in self.items:
-            log.warn("item %s not in DAEMenu " % item ) 
+            log.warn("menu item index %s not in DAEMenu " % item ) 
             return 0
         pass
-        dmi = self.items[item]
+        dmi = self.items[item]   # items keyed on menu item indices
         f = dmi.func_or_method 
         argspec = inspect.getargspec(f)
         args = argspec.args
@@ -224,45 +261,19 @@ DAEMenu.register_event_type('on_needs_redraw')
 
 class DAEMenuGLUT(object):
     """
-    DAEMenu lifecycle controlled from main.  
+    Handles:
 
-    #. instantianted very early and tacked onto the config for wide access.
-    #. actual glut menu is created late, after DAEScene instantiation by the `create()` method, 
-       allowing any "DAEScene" component object to add submenus to the tree
+    #. creating glut menu from the non-glut representation DAEMenu
+    #. menu in use callback 
+    #. menu updating 
 
-    Submenus currently created at instantiation of `DAEEvent` and `DAEPhotons` 
-    and hooked up to top menu with something like::
+    Delaying a menu update that cannot be performed due
+    to the menu being currently in used is handled via 
+    the pending slot which is checked when the MenuStatus
+    callback indicates that menu is no longer in use.
 
-       self.config.rmenu.addSubMenu(self.make_submenu()) # RIGHT menu hookup
-
-    Submenus are changed (eg the history submenu) by multiple "addnew"
-    (which issue no glut calls) followed by `replace_menu_items()`
-
-        self.history.addnew( "ANY", self.history_callback, mask=None )
-        ...
-        self.history.replace_menu_items()
-
-
-    TODO: split this class up, its doing far too much 
-
-    #. non-glut representation of menu tree
-    #. creating glut menu
-    #. steering callbacks in __call__
-    #. changing menu entries
-    #. handling menu in use
-    #. providing sub-menu representation 
-       (for which the glut methods are not used, those are only used from the top dog menu)
-       NOT TRUE, replace_menu_items (now update) is called on sub-menus
-
-    Hmm how to handle delaying a menu update that cannot be done right 
-    now as the menu is in use ?  What about submenus ?
-    What about multiple menu updates pending ?
-
-    Simple way is to embody the update into an object that can be 
-    passed around, replaced and queued as needed. 
- 
-    Make the intended menu update fill in a slot, during menu_in_use and 
-    then check for needed updates when 
+    In case of multiple menu updates piling up whilst the
+    menu is in used, the intermediates are just skipped. 
 
     """
     def __init__(self):
@@ -287,6 +298,7 @@ class DAEMenuGLUT(object):
            Middle Button Modifier: option
 
         """ 
+        self.pending = None
         self.menu_in_use = False 
 
     def setup_glutMenuStatusFunc(self):
@@ -305,10 +317,18 @@ class DAEMenuGLUT(object):
             self.menu_in_use = True
         elif status == glut.GLUT_MENU_NOT_IN_USE:
             self.menu_in_use = False
+            self.after_menu_usage()
         else:
             assert 0, status 
         pass
         log.info("MenuStatus menu_in_use %s " % self.menu_in_use)
+
+    def after_menu_usage(self):
+        log.info("after_menu_usage")
+        if not self.pending is None:
+            log.info("after_menu_usage proceed with pending update")
+            self.update( self.pending )
+        pass
 
     def glut_AttachMenu(self, button):
         assert button in ('LEFT','MIDDLE','RIGHT')
@@ -382,15 +402,15 @@ class DAEMenuGLUT(object):
         Removes old items and replaces them with newitems
         collected with addnew
 
-        Do I still need the distinction items newitems ? 
-        Now that have split off GLUT ?  
-
-        Probably so as not to interfere with callback 
-        handling which needs the original items ?
+        The distinction between "items" (the live menu) 
+        and their future replacement "newitems" is still
+        needed as the item instances are used to identify the 
+        appropriate callback. 
 
         """
         if self.menu_in_use:
             log.info("cannot update menu now as its in use") 
+            self.pending = dmenu
             return
 
         log.info("update %s " % repr(dmenu))

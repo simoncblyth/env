@@ -14,6 +14,30 @@ For viewing Geant4 LXe example::
     g4daeview.sh -p lxe -g 1: 
 
 
+Live Updating Test
+--------------------
+
+#. start the "worker" with ZMQ tunnel node specified as the SSH config "alias" of the node 
+   on which the broker is running::
+
+   g4daeview.sh --zmqtunnelnode=N       # starts up within a few seconds
+
+#. start the "client" on N::
+ 
+   csa.sh    # takes several minutes to get going, currently only 100 events
+
+   
+The "worker" can be stopped and started whilst the "client" runs and 
+new live ChromaPhotonList are presented as they are simulated and ZMQ
+transported. Use auto-created bookmark 9 to find them.
+
+The Segmentation Violation issue due to changing GLUT menus whilst 
+they are in use appears solved by the improved menu structuring 
+and using a pending update slot. However suspect that menu entries 
+from multiple events may appear together in some difficult to 
+reproduce circumstances.
+
+
 Observe
 --------
 
