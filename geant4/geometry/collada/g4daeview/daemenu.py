@@ -61,6 +61,16 @@ http://csclab.murraystate.edu/bob.pilgrim/515/lectures_03.html
     The function to register the callback is glutMenuStatusFunc.
 
 
+glutMenuStatusFunc
+-------------------
+
+* https://www.opengl.org/resources/libraries/glut/spec3/node62.html
+* http://pyopengl.sourceforge.net/documentation/manual-3.0/glutMenuStatusFunc.html
+
+Glumpy sets other glut callbacks in /usr/local/env/graphics/glumpy/glumpy/glumpy/window/backend_glut.py 
+
+
+
 
 Menus API
 ----------
@@ -92,10 +102,16 @@ class DAEMenuItem(object):
         self.ipos = None   # position down the items within each menu
         self.extra = extra
 
-class DAEMenu(event.EventDispatcher):
+    def __repr__(self):
+        return "DMI %s %s %s %s " % ( self.num, self.title, self.ipos, repr(self.extra) )
 
+
+class DAEMenu(event.EventDispatcher):
+    """
+    NB no use of GLUT allowed in here 
+    """
     count = 0   # class level, so all instances use unique identifiers
-    def __init__(self, name, cb_argname='item' ):
+    def __init__(self, name, cb_argname='item', backend=None ):
         """
         :param name: menu name, only visible when a submenu
         :param cb_argname: argname of single argument callback functions or methods  
@@ -103,91 +119,42 @@ class DAEMenu(event.EventDispatcher):
                            (could be used to have a single function/method handle
                            multiple menu items)
 
-        To trigger GLUT_RIGHT_BUTTON on OSX Trackpad 
-        requires a firm two-finger press that is not very convenient for 
-        rapid menu usage.
+        :param backend: instance of the paired underlying menu system, currently only `DAEMenuGLUT`
 
-        Adjusting preferences to "Enable Button Emulation" can configure
-        key modifiers for the buttons that are a lot easier to use.
-        Just need to tap trackpad whilst holding the modifier key. 
-        This allows easy navigation of multi-level menus.
-
-        To adjust preferences, while running *g4daeview*:
-
-        #. Goto `python > Preferences... [mouse]` tab 
-           and select *Enable Button Emulation* 
-
-           The below defaults are fine:
-
-           Right Button Modifier: control
-           Middle Button Modifier: option
-
-        """ 
+        """
         self.name = name
         self.cb_argname = cb_argname
         self.items = OrderedDict()
         self.newitems = OrderedDict()
-        self.menu = None
         self.children = []
+        self.parent = None
+        self.menu = None   # index of menu, used by backends like glut, just an index so allowable
+        self.backend = backend 
 
-    def attach_button(self, attach):
-        assert attach in ('LEFT','MIDDLE','RIGHT')
-        log.debug("attach")
-        glut.glutAttachMenu(getattr(glut,"GLUT_%s_BUTTON" % attach ))
+    def find_submenu(self, name):
+        return self.find_submenu_fn( lambda _:_.name == name )
 
-    def create(self, attach='RIGHT'):
-        self.create_MenuTree() 
-        self.attach_button(attach)
+    def find_submenu_byindex(self, menu):
+        return self.find_submenu_fn( lambda _:_.menu == menu )
 
-    def glut_CreateMenu(self):
-        log.debug("glut_CreateMenu %s " % self.name)
-        self.menu = glut.glutCreateMenu(self.__call__)
-        self.glut_AddMenuEntries() 
+    def find_submenu_fn(self, select_ ):
+        log.info("find_submenu_fn starting at %s" % repr(self))
+        result = []
+        self._find_submenu( select_, result )
+        assert len(result) == 1
+        return result[0] 
 
-    def glut_AddMenuEntries(self):
-        curmenu = glut.glutGetMenu()
-        self.glut_SetMenu(self.menu)
-        for ipos, n in enumerate(self.items):
-            entry = self.items[n]
-            entry.ipos = ipos + 1  # guessing menu position doen list  to be 1-based ? 
-            log.debug("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
-            glut.glutAddMenuEntry( entry.title, entry.num )
-        pass
-        self.glut_SetMenu( curmenu ) 
+    def _find_submenu(self, select_, result=[]):
+        if select_(self):
+            result.append(self)
+        for child in self.children:
+            child._find_submenu(select_, result) 
 
-    def glut_SetMenu(self, menu=None):
-        if menu is None:
-            menu = self.menu 
-        pass
-        if menu is None:
-            log.warn("not calling glut.glutSetMenu as menu is None ") 
-        else:
-            glut.glutSetMenu( menu ) 
-
-    def glut_RemoveMenuItem(self, ipos ):
-        log.debug("glut_RemoveMenuItems %s ipos %s " % (self.name, ipos))
-        curmenu = glut.glutGetMenu()
-        self.glut_SetMenu(self.menu)
-        glut.glutRemoveMenuItem(ipos) 
-        self.glut_SetMenu( curmenu ) 
-
-    def create_MenuTree(self):
+    def update(self):
         """
-        Recursively creates children(sub menus) before selves
+        Dont like passthoughs like this in general, but its convenient in this case
         """
-        for sub in self.children: 
-            sub.create_MenuTree()
-        pass
-        self.glut_CreateMenu()
-        pass
-        for sub in self.children:
-            log.debug("glut_AddSubMenu %s %s " % (sub.name, sub.menu ))
-            glut.glutAddSubMenu( sub.name, sub.menu ) 
-
-
-    def addSubMenu(self, sub ):
-        assert isinstance(sub, self.__class__ ), sub
-        self.children.append(sub) 
+        self.top.backend.update( self ) 
 
     def add(self, title, func_or_method, **extra):
         self.count += 1
@@ -199,30 +166,33 @@ class DAEMenu(event.EventDispatcher):
         dmi = DAEMenuItem( self.count, title, func_or_method, **extra )
         self.newitems[self.count] = dmi
 
-    def replace_menu_items(self):
-        """
-        Removes old items and replaces them with newitems
-        collected with addnew
-        """
-        self.remove_menu_items()
-        while len(self.newitems) > 0:
-            n, entry = self.newitems.popitem(last=False)
-            self.items[n] = entry
-        pass       
-        self.glut_AddMenuEntries()
+    def addSubMenu(self, sub ):
+        assert isinstance(sub, self.__class__ ), sub
+        assert sub != self, "cannot add menu to self"
+        sub.parent = self
+        self.children.append(sub) 
+        log.info("addSubMenu %s " % repr(sub) )
 
-    def remove_menu_items(self):
+    def __repr__(self):
+        return "DM menu %s name %s items %s children %s " % (self.menu, self.name, len(self.items), len(self.children) )
+
+    def dump(self, items=False):
+        print self
+        if items:
+            for dmi in self.items:
+                print dmi
+        for child in self.children:
+            child.dump(items=items)
+
+
+    def _get_top(self):
         """
-        Removes all menu items 
-        """ 
-        while len(self.items)>0:
-            n, entry = self.items.popitem()
-            ipos = entry.ipos
-            if not ipos is None:
-                self.glut_RemoveMenuItem(ipos)     
-            else:
-                log.info("cannot remove ipos None")
-            pass
+        Recursively trace up the tree to find the root DAEMenu. 
+        """
+        if self.parent is None:
+            return self
+        return self.parent._get_top()
+    top = property(_get_top, doc=_get_top.__doc__)
 
     def __call__(self, item ):
         if not item in self.items:
@@ -250,6 +220,204 @@ class DAEMenu(event.EventDispatcher):
 
 DAEMenu.register_event_type('on_needs_redraw')
 
+
+
+class DAEMenuGLUT(object):
+    """
+    DAEMenu lifecycle controlled from main.  
+
+    #. instantianted very early and tacked onto the config for wide access.
+    #. actual glut menu is created late, after DAEScene instantiation by the `create()` method, 
+       allowing any "DAEScene" component object to add submenus to the tree
+
+    Submenus currently created at instantiation of `DAEEvent` and `DAEPhotons` 
+    and hooked up to top menu with something like::
+
+       self.config.rmenu.addSubMenu(self.make_submenu()) # RIGHT menu hookup
+
+    Submenus are changed (eg the history submenu) by multiple "addnew"
+    (which issue no glut calls) followed by `replace_menu_items()`
+
+        self.history.addnew( "ANY", self.history_callback, mask=None )
+        ...
+        self.history.replace_menu_items()
+
+
+    TODO: split this class up, its doing far too much 
+
+    #. non-glut representation of menu tree
+    #. creating glut menu
+    #. steering callbacks in __call__
+    #. changing menu entries
+    #. handling menu in use
+    #. providing sub-menu representation 
+       (for which the glut methods are not used, those are only used from the top dog menu)
+       NOT TRUE, replace_menu_items (now update) is called on sub-menus
+
+    Hmm how to handle delaying a menu update that cannot be done right 
+    now as the menu is in use ?  What about submenus ?
+    What about multiple menu updates pending ?
+
+    Simple way is to embody the update into an object that can be 
+    passed around, replaced and queued as needed. 
+ 
+    Make the intended menu update fill in a slot, during menu_in_use and 
+    then check for needed updates when 
+
+    """
+    def __init__(self):
+        """
+        To trigger GLUT_RIGHT_BUTTON on OSX Trackpad 
+        requires a firm two-finger press that is not very convenient for 
+        rapid menu usage.
+
+        Adjusting preferences to "Enable Button Emulation" can configure
+        key modifiers for the buttons that are a lot easier to use.
+        Just need to tap trackpad whilst holding the modifier key. 
+        This allows easy navigation of multi-level menus.
+
+        To adjust preferences, while running *g4daeview*:
+
+        #. Goto `python > Preferences... [mouse]` tab 
+           and select *Enable Button Emulation* 
+
+           The below defaults are fine:
+
+           Right Button Modifier: control
+           Middle Button Modifier: option
+
+        """ 
+        self.menu_in_use = False 
+
+    def setup_glutMenuStatusFunc(self):
+        """
+        Invoked from main after glumpy window/Figure creation 
+        """
+        glut.glutMenuStatusFunc(self.MenuStatus)
+
+    def MenuStatus(self,status,x,y):
+        """
+        Callback invoked on starting/ending menu usage
+        that sets the menu_in_use flag. Note that only 
+        the root top menu handles this. 
+        """
+        if status == glut.GLUT_MENU_IN_USE:
+            self.menu_in_use = True
+        elif status == glut.GLUT_MENU_NOT_IN_USE:
+            self.menu_in_use = False
+        else:
+            assert 0, status 
+        pass
+        log.info("MenuStatus menu_in_use %s " % self.menu_in_use)
+
+    def glut_AttachMenu(self, button):
+        assert button in ('LEFT','MIDDLE','RIGHT')
+        log.debug("attach")
+        glut.glutAttachMenu(getattr(glut,"GLUT_%s_BUTTON" % button ))
+
+    def create(self, dmenu, button='RIGHT'):
+        """
+        Creats glut menu from DAEMenu instance 
+        """
+        dmenu.dump()
+
+        self.create_MenuTree(dmenu) 
+        self.glut_AttachMenu(button)
+
+    def glut_CreateMenu(self, dmenu ):
+        log.info("glut_CreateMenu %s " % dmenu.name)
+        self.glut_AddMenuEntries(dmenu) 
+
+    def glut_AddMenuEntries(self, dmenu):
+        """
+        Hmm, can writing the ipos back to the dmenu be avoided ?
+        """
+        #curmenu = glut.glutGetMenu()
+
+        if dmenu.menu is None:
+            log.info("glut_AddMenuEntries creating menu for %s " % repr(dmenu))
+            menu = glut.glutCreateMenu(dmenu.__call__)
+            dmenu.menu = menu    # glut index 
+        pass
+
+        assert dmenu.menu > 0
+        self.glut_SetMenu(dmenu.menu)
+        for ipos, n in enumerate(dmenu.items):
+            entry = dmenu.items[n]
+            entry.ipos = ipos + 1  # guessing menu position doen list  to be 1-based ? 
+            log.info("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
+            glut.glutAddMenuEntry( entry.title, entry.num )
+        pass
+        #self.glut_SetMenu( curmenu ) 
+
+    def glut_SetMenu(self, menu):
+        assert menu > 0 , menu
+        log.info("glut_SetMenu %s " % menu )
+        glut.glutSetMenu( menu ) 
+
+    def glut_RemoveMenuItem(self, ipos, dmenu ):
+        log.debug("glut_RemoveMenuItems %s ipos %s " % (dmenu.name, ipos))
+        #curmenu = glut.glutGetMenu()
+        self.glut_SetMenu(dmenu.menu)
+        glut.glutRemoveMenuItem(ipos) 
+        #self.glut_SetMenu( curmenu ) 
+
+    def create_MenuTree(self, dmenu):
+        """
+        Recursively creates children(sub menus) before selves
+        """
+        for dsub in dmenu.children: 
+            self.create_MenuTree(dsub)
+        pass
+        self.glut_CreateMenu(dmenu)
+        pass
+        for dsub in dmenu.children:
+            log.debug("glut_AddSubMenu %s %s " % (dsub.name, dsub.menu ))
+            glut.glutAddSubMenu( dsub.name, dsub.menu ) 
+
+    def update(self, dmenu):
+        """
+        Formerly `replace_menu_items`
+
+        Removes old items and replaces them with newitems
+        collected with addnew
+
+        Do I still need the distinction items newitems ? 
+        Now that have split off GLUT ?  
+
+        Probably so as not to interfere with callback 
+        handling which needs the original items ?
+
+        """
+        if self.menu_in_use:
+            log.info("cannot update menu now as its in use") 
+            return
+
+        log.info("update %s " % repr(dmenu))
+        self.remove_menu_items(dmenu)
+
+        while len(dmenu.newitems) > 0:
+            n, entry = dmenu.newitems.popitem(last=False)
+            dmenu.items[n] = entry
+        pass       
+        self.glut_AddMenuEntries(dmenu)
+
+    def remove_menu_items(self, dmenu):
+        """
+        Removes all menu items 
+        """ 
+        log.info("remove_menu_items %s " % repr(dmenu))
+        while len(dmenu.items)>0:
+            n, entry = dmenu.items.popitem()
+            ipos = entry.ipos
+            if not ipos is None:
+                self.glut_RemoveMenuItem(ipos, dmenu)     
+            else:
+                log.info("cannot remove ipos None")
+            pass
+
+
+
 def demo_red(item):log.info("demo_red %s " % item )
 def demo_green(item):log.info("demo_green %s " % item )
 def demo_blue(item):log.info("demo_blue %s " % item )
@@ -275,7 +443,7 @@ class DAEMenuDemo(object):
         By splitting the glut code from the requesting code.
 
         Without this leads to Segmentation Violation if the 
-        strictly required GLUT order is followed. 
+        strictly required GLUT order is not followed. 
         """
         top = DAEMenu("top")   
 
@@ -302,6 +470,20 @@ class DAEMenuDemo(object):
 
 if __name__ == '__main__':
     pass
+
+    logging.basicConfig(level=logging.INFO)
+
+    dmd = DAEMenuDemo()
+    top = dmd.menu 
+
+    top.dump()
+
+    m = top.find_submenu("subprime")
+    print m 
+
+    #m = top.find_submenu_byindex(2)
+    #print m 
+
 
 
 

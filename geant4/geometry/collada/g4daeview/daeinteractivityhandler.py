@@ -122,15 +122,13 @@ class DAEInteractivityHandler(object):
         self.hookup_udp_dispatcher(config)     # event notification from dispatcher
         self.hookup_zmq_responder()
 
-        dmd = DAEMenuDemo()
-        rmenu = dmd.make_demo_menu()
-        rmenu.create('RIGHT')  # GLUT calls here
-
-        mmenu = dmd.make_demo_menu()
-        mmenu.create('MIDDLE')  # GLUT calls here
-
-        self.rmenu = rmenu
-        self.mmenu = mmenu
+        #dmd = DAEMenuDemo()
+        #rmenu = dmd.make_demo_menu()
+        #rmenu.create('RIGHT')  # GLUT calls here
+        #mmenu = dmd.make_demo_menu()
+        #mmenu.create('MIDDLE')  # GLUT calls here
+        #self.rmenu = rmenu
+        #self.mmenu = mmenu
 
     def __repr__(self):
         return "H %5.2f %5.2f " % ( self.dragfactor, self.fps )

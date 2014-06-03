@@ -233,7 +233,7 @@ from daegeometry import DAEGeometry
 from daescene import DAEScene
 from daeinteractivityhandler import DAEInteractivityHandler
 from daeframehandler import DAEFrameHandler
-from daemenu import DAEMenu
+from daemenu import DAEMenu, DAEMenuGLUT
 
 from env.cuda.cuda_launch import CUDACheck
 
@@ -249,7 +249,8 @@ def main():
         cudacheck = None
     config.cudacheck = cudacheck
 
-    rmenu = DAEMenu("rtop")
+    rmenu_glut = DAEMenuGLUT()
+    rmenu = DAEMenu("rtop", backend=rmenu_glut)
     config.rmenu = rmenu
 
 
@@ -267,6 +268,8 @@ def main():
     figure = gp.Figure(size=config.size)
     frame = figure.add_frame(size=config.frame)
 
+    rmenu_glut.setup_glutMenuStatusFunc()
+
     scene = DAEScene(geometry, config )
 
     vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=config.rgba)
@@ -277,9 +280,7 @@ def main():
     frame_handler.fig_handler = fig_handler
 
     rmenu.push_handlers(fig_handler)   # so events from rmenu such as on_needs_redraw are routed to the fig_handler
-
-
-    rmenu.create("RIGHT")
+    rmenu_glut.create(rmenu, "RIGHT")
 
     gp.show()
 

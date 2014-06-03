@@ -29,10 +29,13 @@ class DAEEvent(object):
         self.config = config
         self.scene = scene
         pass
-        self.dphotons = None 
+
         self.qcut = config.args.tcut 
         self.eventlist = DAEEventList(config.args.path_template)
         self.bbox_cache = None
+
+        self.dphotons = None
+
         self.objects = []
 
         launch_config = [] 
@@ -45,6 +48,8 @@ class DAEEvent(object):
             self.reconfig(launch_config)
         pass
         self.config.rmenu.addSubMenu(self.make_submenu()) # RIGHT menu hookup
+        self.config.rmenu.addSubMenu(DAEPhotons.make_menutree())
+        
 
     def make_submenu(self):
         menu = DAEMenu("event")
@@ -175,9 +180,9 @@ class DAEEvent(object):
         else:
             self.dphotons.photons = photons   # setter invalidates _vbo, _color, _mesh 
         pass
+
         mesh = self.dphotons.mesh
         #log.info("setup_photons mesh\n%s\n" % str(mesh))
-
         self.scene.bookmarks.create_for_object( mesh, 9 )
         self.objects = [mesh]
 

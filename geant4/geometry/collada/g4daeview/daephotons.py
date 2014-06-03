@@ -88,7 +88,8 @@ class DAEPhotons(object):
                        ['phopoint', config.args.phopoint],
                       ])
         pass
-        self.config.rmenu.addSubMenu(self.make_submenu()) # RIGHT menu hookup
+        self.update_flags_menu()
+
 
     def __repr__(self):
         return "%s %s " % (self.__class__.__name__, self.nphotons)
@@ -97,35 +98,45 @@ class DAEPhotons(object):
     vertices = property(lambda self:self._photons.pos)   # allows to be treated like DAEMesh 
     momdir = property(lambda self:self._photons.dir)
 
-    def make_submenu(self):
-        log.info("make_submenu")
+    @classmethod
+    def make_menutree( cls ):
+        """
+        Having menus coming and going is problematic, so create tree of placeholder submenus
+        """ 
         photons = DAEMenu("photons")
-
         flags = DAEMenu("flags")
-        flags.add("ANY", self.flags_callback )
-        for name in sorted(PHOTON_FLAGS, key=lambda _:PHOTON_FLAGS[_]):
-            flags.add(name, self.flags_callback )
-        pass
-        photons.addSubMenu(flags)
-
         history = DAEMenu("history")
-        self.history = history
-        photons.addSubMenu(history)    # a placeholder menu to be changed once propagation stepping is done
-        return photons
+        photons.addSubMenu(flags)
+        photons.addSubMenu(history) 
+        return photons 
 
-    def change_history_menu(self, photons  ):
+    def update_flags_menu(self):
         """
+        Only needs to be called once at instantiation to populate the placeholder menu 
         """
+        log.info("update_flags_menu")
+        flags_menu = self.config.rmenu.find_submenu("flags")
+        flags_menu.addnew("ANY", self.flags_callback )
+        for name in sorted(PHOTON_FLAGS, key=lambda _:PHOTON_FLAGS[_]):
+            log.info("update_flags_menu %s " % name )
+            flags_menu.addnew(name, self.flags_callback )
+        pass
+        flags_menu.update()
+
+    def update_history_menu(self, photons  ):
+        history_menu = self.config.rmenu.find_submenu("history")
+        assert history_menu
+
         nflag, history = photons.history() 
-        log.info("nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
+        log.info("change_history_menu : nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
 
-        self.history.addnew( "ANY", self.history_callback, mask=None )
+        history_menu.addnew( "ANY", self.history_callback, mask=None )
         for mask,count in sorted(history,key=lambda _:_[1], reverse=True):
             frac = float(count)/nflag
             title = "[0x%x] %d (%5.2f): %s " % (mask, count, frac, mask2arg_(mask)) 
-            self.history.addnew( title, self.history_callback, mask=mask )
+            history_menu.addnew( title, self.history_callback, mask=mask )
         pass
-        self.history.replace_menu_items()
+        history_menu.update()
  
     def history_callback(self, item):
         self.config.args.mask = None
@@ -282,7 +293,7 @@ class DAEPhotons(object):
         nflag = len(flags)
         assert nflag == npho, (nflg, npho)
 
-        self.change_history_menu( self.photons )
+        self.update_history_menu( self.photons )
 
         argm = self.config.args.mask 
         argb = self.config.args.bits 
