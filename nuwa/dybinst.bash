@@ -21,7 +21,8 @@ dybinst-get(){
 }
 dybinst-all(){
     dybinst-cd
-    ./dybinst trunk all  
+    ./dybinst -c -u trunk all  
+    #screen ./dybinst -c -u trunk all  
 }
 
 dybinst-export(){
@@ -29,3 +30,13 @@ dybinst-export(){
     alias d="cd $DYB"
 
 }
+
+
+dybinst-check-bnl(){
+    curl http://dayabay.bnl.gov/software/offline/tarFiles/
+}
+dybinst-check-ihep(){
+    curl http://dayabay.ihep.ac.cn/svn/dybsvn/  --user dayabay:$(cat ~/.dybpass)
+}
+
+

@@ -472,6 +472,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
    C2|C2R) echo         $(local-root $t)/data/env/local ;;
        XT) echo /home/tianxc ;;   
         K) echo /Users/heprez/local ;;
+       G5) echo /home/blyth/local ;;
         *) echo /usr/local ;;
    esac
 }
