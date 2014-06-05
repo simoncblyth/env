@@ -63,15 +63,90 @@ def arg2mask( argl ):
     return mask
 
 
+class DAEPhotonsMenu(DAEMenu):
+    def __init__(self, config):
+        """
+        Having menus coming and going is problematic, so create tree of placeholder submenus
+        """ 
+        self.config = config
+        DAEMenu.__init__(self, "photons")
+        self.flags_menu = DAEMenu("flags")
+        self.history_menu = DAEMenu("history")
+        self.addSubMenu(self.flags_menu)
+        self.addSubMenu(self.history_menu) 
+
+    def update_flags_menu(self):
+        """
+        Only needs to be called once at instantiation to populate the placeholder menu 
+        """
+        log.info("update_flags_menu")
+        flags_menu = self.config.rmenu.find_submenu("flags")
+        assert flags_menu == self.flags_menu
+
+        flags_menu.addnew("ANY", self.flags_callback )
+        for name in sorted(PHOTON_FLAGS, key=lambda _:PHOTON_FLAGS[_]):
+            log.info("update_flags_menu %s " % name )
+            flags_menu.addnew(name, self.flags_callback )
+        pass
+        flags_menu.update()
+
+    def update_history_menu(self, photons  ):
+        history_menu = self.config.rmenu.find_submenu("history")
+        assert history_menu == self.history_menu
+
+        nflag, history = photons.history() 
+        log.info("change_history_menu : nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
+
+        history_menu.addnew( "ANY", self.history_callback, mask=None )
+        for mask,count in sorted(history,key=lambda _:_[1], reverse=True):
+            frac = float(count)/nflag
+            title = "[0x%x] %d (%5.2f): %s " % (mask, count, frac, mask2arg_(mask)) 
+            history_menu.addnew( title, self.history_callback, mask=mask )
+        pass
+        history_menu.update()
+ 
+    def history_callback(self, item):
+        self.config.args.mask = None
+        self.config.args.bits = item.extra['mask']  
+        #self.invalidate_vbo()
+        self.config.rmenu.dispatch('on_needs_redraw')
+
+    def flags_callback(self, item ):
+        name = item.title
+        allowed = PHOTON_FLAGS.keys() + ['ANY']
+        assert name in allowed, name
+        log.info("flags_callback setting config.args.mask to %s " % name )
+        if name == 'ANY':name = 'NONE'
+        self.config.args.mask = name 
+        self.config.args.bits = None 
+        #self.invalidate_vbo()
+        self.config.rmenu.dispatch('on_needs_redraw')
+
+
+
+
    
 
 class DAEPhotons(object):
     """
     A wrapper around the underlying `photons` instance that 
     handles presentation.
+
+    Current implementation recreates the the VBO all the time, which 
+    is an inefficient approach.
+
+    TODO split this class, its handling too much:
+
+    #. photon flags and history glut menus creation and updates
+    #. menu callbacks, that act to set masks for a redraw
+
+    #. photon VBO creation and drawing 
+
     """ 
     def __init__(self, photons, event, pmtid=None ):
-
+        """
+        :param photons:
+        """ 
         self.invalidate_photons()
         self._photons = photons  
         pass
@@ -88,7 +163,7 @@ class DAEPhotons(object):
                        ['phopoint', config.args.phopoint],
                       ])
         pass
-        self.update_flags_menu()
+        #self.event.photons_menu.update_flags_menu()   # hmm  
 
 
     def __repr__(self):
@@ -98,62 +173,6 @@ class DAEPhotons(object):
     vertices = property(lambda self:self._photons.pos)   # allows to be treated like DAEMesh 
     momdir = property(lambda self:self._photons.dir)
 
-    @classmethod
-    def make_menutree( cls ):
-        """
-        Having menus coming and going is problematic, so create tree of placeholder submenus
-        """ 
-        photons = DAEMenu("photons")
-        flags = DAEMenu("flags")
-        history = DAEMenu("history")
-        photons.addSubMenu(flags)
-        photons.addSubMenu(history) 
-        return photons 
-
-    def update_flags_menu(self):
-        """
-        Only needs to be called once at instantiation to populate the placeholder menu 
-        """
-        log.info("update_flags_menu")
-        flags_menu = self.config.rmenu.find_submenu("flags")
-        flags_menu.addnew("ANY", self.flags_callback )
-        for name in sorted(PHOTON_FLAGS, key=lambda _:PHOTON_FLAGS[_]):
-            log.info("update_flags_menu %s " % name )
-            flags_menu.addnew(name, self.flags_callback )
-        pass
-        flags_menu.update()
-
-    def update_history_menu(self, photons  ):
-        history_menu = self.config.rmenu.find_submenu("history")
-        assert history_menu
-
-        nflag, history = photons.history() 
-        log.info("change_history_menu : nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
-
-        history_menu.addnew( "ANY", self.history_callback, mask=None )
-        for mask,count in sorted(history,key=lambda _:_[1], reverse=True):
-            frac = float(count)/nflag
-            title = "[0x%x] %d (%5.2f): %s " % (mask, count, frac, mask2arg_(mask)) 
-            history_menu.addnew( title, self.history_callback, mask=mask )
-        pass
-        history_menu.update()
- 
-    def history_callback(self, item):
-        self.config.args.mask = None
-        self.config.args.bits = item.extra['mask']  
-        self.invalidate_vbo()
-        self.config.rmenu.dispatch('on_needs_redraw')
-
-    def flags_callback(self, item ):
-        name = item.title
-        allowed = PHOTON_FLAGS.keys() + ['ANY']
-        assert name in allowed, name
-        log.info("flags_callback setting config.args.mask to %s " % name )
-        if name == 'ANY':name = 'NONE'
-        self.config.args.mask = name 
-        self.config.args.bits = None 
-        self.invalidate_vbo()
-        self.config.rmenu.dispatch('on_needs_redraw')
 
     def invalidate_photons(self):
         """
@@ -167,7 +186,7 @@ class DAEPhotons(object):
         self._pdata = None   
         self._drawmode = None
         self._lvbo = None   
-        self._pvbo = None   
+        #self._pvbo = None   
         self._photon_indices = None
 
     def invalidate_vbo(self):
@@ -177,10 +196,10 @@ class DAEPhotons(object):
         log.info("invalidate_vbo")
         self._mode = None
         self._ldata = None   
-        self._pdata = None   
+        #self._pdata = None   
         self._drawmode = None
         self._lvbo = None   
-        self._pvbo = None   
+        #self._pvbo = None   
         self._photon_indices = None
 
     def _set_photons(self, photons):
@@ -200,11 +219,11 @@ class DAEPhotons(object):
         return self._color
     color = property(_get_color)
 
-    def _get_pdata(self):
-        if self._pdata is None:
-            self._pdata = self.create_pdata()
-        return self._pdata
-    pdata = property(_get_pdata)         
+    #def _get_pdata(self):
+    #    if self._pdata is None:
+    #        self._pdata = self.create_pdata()
+    #    return self._pdata
+    #pdata = property(_get_pdata)         
 
     def _get_ldata(self):
         if self._ldata is None:
@@ -212,11 +231,11 @@ class DAEPhotons(object):
         return self._ldata
     ldata = property(_get_ldata)         
 
-    def _get_pvbo(self):
-        if self._pvbo is None:
-           self._pvbo = self.create_vbo(self.pdata)  
-        return self._pvbo
-    pvbo = property(_get_pvbo)  
+    #def _get_pvbo(self):
+    #    if self._pvbo is None:
+    #       self._pvbo = self.create_vbo(self.pdata)  
+    #    return self._pvbo
+    #pvbo = property(_get_pvbo)  
 
     def _get_lvbo(self):
         if self._lvbo is None:
@@ -255,6 +274,9 @@ class DAEPhotons(object):
         return color
 
     def create_pdata(self):
+        """
+        #. just photon positions and colors, for the points
+        """
         data = np.zeros(self.nphotons, [('position', np.float32, 3), 
                                         ('color',    np.float32, 4)]) 
         data['position'] = self.vertices
@@ -263,6 +285,8 @@ class DAEPhotons(object):
 
     def create_ldata(self):
         """
+        For line presentation:
+
         #. interleave the photon positions with sum of photon position and direction
         #. interleaved double up the colors 
         """
@@ -281,8 +305,6 @@ class DAEPhotons(object):
         data['color']    = colors
         return data 
 
-
-
     def select_photon_indices(self):
         """
         Use the photon history flags (array of bit fields)
@@ -293,7 +315,7 @@ class DAEPhotons(object):
         nflag = len(flags)
         assert nflag == npho, (nflg, npho)
 
-        self.update_history_menu( self.photons )
+        self.event.photons_menu.update_history_menu( self.photons )  # hmm brittle
 
         argm = self.config.args.mask 
         argb = self.config.args.bits 
@@ -356,9 +378,11 @@ class DAEPhotons(object):
         Changing presentation must account for the OpenGL state when this
         gets called from daeframeghandler
         """ 
-        qcount = int(len(self.pdata)*self.event.qcut)
-        self.lvbo.draw(mode=gl.GL_LINES,  what='pc', count=2*qcount, offset=0 )
-        self.pvbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount  , offset=0 )
+        qcount = int(len(self.ldata)*self.event.qcut/2)
+
+        self.lvbo.draw(mode=gl.GL_LINES,   what='pc', count=2*qcount, offset=0 )
+        self.lvbo.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, step=2 )   # attempt to draw points by 2-stepping in the line VBO
+        #self.pvbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount  , offset=0 )
 
 
     def reconfig(self, conf):

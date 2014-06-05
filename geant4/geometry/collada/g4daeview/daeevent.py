@@ -8,20 +8,30 @@ from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # ROOT transpor
 
 #from photons import Photons                                      # numpy operations level 
 
+
+#TODO: allow non-chroma nodes to load CPL Photons too
 try:
     from chroma.event import Photons
 except ImportError:
     Photons = None
 
 
-from daephotons import DAEPhotons                                # OpenGL presentation level
+from daephotons import DAEPhotons, DAEPhotonsMenu                                # OpenGL presentation level
 
 from datetime import datetime
-from daeeventlist import DAEEventList 
+from daeeventlist import DAEEventList , DAEEventListMenu
 from daemenu import DAEMenu
 
 def timestamp():
     return datetime.now().strftime("%Y%m%d-%H%M%S")
+
+
+class DAEEventMenu(DAEMenu):
+    def __init__(self, config, handler):
+        DAEMenu.__init__(self, "event")
+        self.add("reload",handler.reload_)
+        self.add("loadnext",handler.loadnext)
+        self.add("loadprev",handler.loadprev)
 
 
 class DAEEvent(object):
@@ -29,15 +39,28 @@ class DAEEvent(object):
         self.config = config
         self.scene = scene
         pass
-
         self.qcut = config.args.tcut 
-        self.eventlist = DAEEventList(config.args.path_template)
         self.bbox_cache = None
-
         self.dphotons = None
-
         self.objects = []
+        self.eventlist = DAEEventList(config.args.path_template)
 
+        # dont like this menu setup here 
+
+        event_menu = DAEEventMenu( config, self )
+        self.config.rmenu.addSubMenu(event_menu) 
+
+        eventlist_menu = DAEEventListMenu(self.eventlist, self.eventlist_callback )
+        self.config.rmenu.addSubMenu(eventlist_menu) 
+
+        photons_menu = DAEPhotonsMenu( config )
+        self.config.rmenu.addSubMenu(photons_menu)
+        self.photons_menu = photons_menu 
+
+        self.apply_launch_config()  # maybe better done externally 
+
+
+    def apply_launch_config(self):
         launch_config = [] 
         if not self.config.args.load is None:
             launch_config.append( ['load',self.config.args.load])
@@ -47,17 +70,6 @@ class DAEEvent(object):
         if len(launch_config) > 0:
             self.reconfig(launch_config)
         pass
-        self.config.rmenu.addSubMenu(self.make_submenu()) # RIGHT menu hookup
-        self.config.rmenu.addSubMenu(DAEPhotons.make_menutree())
-        
-
-    def make_submenu(self):
-        menu = DAEMenu("event")
-        menu.add("reload",self.reload_)
-        menu.add("loadnext",self.loadnext)
-        menu.add("loadprev",self.loadprev)
-        menu.addSubMenu( self.eventlist.make_menu(self.eventlist_callback) )
-        return menu
 
     def eventlist_callback(self, item):
         path = item.extra['path'] 
@@ -146,6 +158,12 @@ class DAEEvent(object):
         pass 
 
     def external_cpl(self, cpl ):
+        """
+        :param cpl: ChromaPhotonList instance
+
+        External ZMQ messages containing CPL arrive at DAEResponder and are routed here
+        via glumpy event system.
+        """
         if self.config.args.saveall:
             log.info("external_cpl timestamp_save due to --saveall option")
             self.timestamped_save(cpl)
@@ -162,6 +180,8 @@ class DAEEvent(object):
  
     def setup_cpl(self, cpl):
         """
+        :param cpl: ChromaPhotonList instance
+
         Convert serialization level ChromaPhotonList into operation level Photons
         """
         if Photons is None:
@@ -177,6 +197,7 @@ class DAEEvent(object):
         """
         if self.dphotons is None:
             self.dphotons = DAEPhotons( photons, self )
+            self.photons_menu.update_flags_menu()
         else:
             self.dphotons.photons = photons   # setter invalidates _vbo, _color, _mesh 
         pass

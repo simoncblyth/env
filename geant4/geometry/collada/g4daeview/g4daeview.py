@@ -44,45 +44,35 @@ Observe
 #. sometimes "reload" not working, although stepping does
 
 
-Photon History Flags
----------------------
-
-::
-
-    NO_HIT                                     1   0x1      
-    BULK_ABSORB                                2   0x2      
-    SURFACE_DETECT                             4   0x4      
-    SURFACE_ABSORB                             8   0x8      
-    RAYLEIGH_SCATTER                          16   0x10      
-    REFLECT_DIFFUSE                           32   0x20      
-    REFLECT_SPECULAR                          64   0x40      
-    SURFACE_REEMIT                           128   0x80      
-    SURFACE_TRANSMIT                         256   0x100      
-    BULK_REEMIT                              512   0x200      
-    NAN_ABORT                         2147483648   0x80000000      
-
-
 Next
 -----
 
+load menu assertion
+~~~~~~~~~~~~~~~~~~~~
 
-Menu Live Updating Issues
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+#. loading an event from file at launch `--load 1` trips an assertion, as DAEPhoton 
+   menus are attempting to be changed before being created in first place
 
-Live updating the displayed event arriving via ZMQ (using ssh tunnel to thwart the network gnomes) 
-leads to messed up partial glut menus and results in segv::
-
-    2014-05-30 20:15:18,890 env.geant4.geometry.collada.g4daeview.daephotons:120 nflag 56 unique flag combinations len(history) 1 
-    2014-05-30 20:15:18,890 env.geant4.geometry.collada.g4daeview.daemenu:163 not calling glut.glutSetMenu as menu is None 
-    2014-05-30 20:15:18.890 python[99235:d07] GLUT Warning: The following is a new check for GLUT 3.0; update your code.
-    2014-05-30 20:15:18.890 python[99235:d07] GLUT Fatal Error: menu manipulation not allowed while menus in use.
-    /Users/blyth/env/bin/g4daeview.sh: line 60: 99235 Segmentation fault: 11  g4daeview.py $*
-     
-Need some protections against menu in use ? And debugging menu creation.
+   * symptom of DAEPhotons doing too much, split menu creation elsewhere 
 
 
+Histogramming 
+~~~~~~~~~~~~~~~
 
-ChromaPhotonList Visualization
+* GPU histogramming, eg photon wavelength spectrum
+* how to present ?
+
+  * dump numpy arrays for separate presentation
+  * separate OpenGL window, would allow live updating during propagation 
+  
+
+Reemission Wavelength Debugging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* material property readout interface ?
+
+
+Efficient Photon Drawing 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. efficent GPU resident (and shared with Chroma) CPL handling, to handle 1000x the number of photons
@@ -90,8 +80,8 @@ ChromaPhotonList Visualization
    * current recreate VBO all the time approach might not not be workable
    * look into OpenGL PointSet or volume field representations of photon clouds
 
-#. other particle communication and representation, primaries 
-#. add axes, for checking whilst testing with Geant4 particle guns   
+#. basic sticking point is to get PyCUDA/Chroma propagation to work with OpenGL created VBO, 
+   in the same way as pixel arrays were used from raycasting 
 
 issues
 ^^^^^^^^
@@ -99,6 +89,40 @@ issues
 * fmcpmuon.py refers to volumes with DE names like `/dd/Structure/Pool/db-ows`  geometry 
   nodes available via daenode are all `/dd/Geometry/..`
 
+
+
+OpenGL PointSet, Volume Field, Particle System representations 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Speculative, probably need more control that these approaches allow.
+
+
+Photon provenance
+~~~~~~~~~~~~~~~~~~~
+
+Use the currently unused CPL pmtid as a bitfield for provenance info
+
+#. process: Cerenkov, Scintillation
+#. some compressed generation tree info  (full parentID, trackID not needed ) perhaps
+ 
+   * if parent is primary (trackID 1)
+   * PDG code of parent, look at possibilities counts and compress into 2-3 bits 
+
+#. need some explorations to arrive at an appropriately terse sketch of the tree 
+
+
+ChromaOtherList for transport over ZMQ
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It would be interesting for debugging to visualize other tracks, not just optical photons.
+Do some counting to see how complete want to go, and arrive at a terse representation
+analogous to CPL.
+
+Geant4 Chroma Process
+~~~~~~~~~~~~~~~~~~~~~~
+
+Geant4 frowns on changing track in anything other than a process. So look into 
+when and how a process gets access to OPs compared to a stack action.
 
 Avoid Geometry Duplication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,18 +177,20 @@ smaller things
 
 #. improve screen text flexibility, columns, matrices, ...
 
-#. clipping plane controls, that are fixed in world coordinates
+#. improve clipping plane (W) feature:
+
+   * switch planes on/off
+   * make persistent, stored with bookmarks
 
 #. coloring by material
 
 
-GPU Out-of-memory during BVH construction with full Juno geometry
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GPU Out-of-memory during BVH construction with full Juno geometry (50M nodes?)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-::
+Maybe can reorganize the work to avoid using too much memory ?::
 
     g4daeview.sh -p juno --with-chroma
-
 
     074 2014-05-26 10:51:22,642 env.geant4.geometry.collada.collada_to_chroma:297 ColladaToChroma adding BVH
     075 2014-05-26 10:51:23,879 chroma.loader       :155 Building new BVH using recursive grid algorithm.

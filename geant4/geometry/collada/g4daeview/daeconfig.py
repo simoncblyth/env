@@ -170,7 +170,9 @@ class DAEConfig(ConfigBase):
 
         defaults['path'] = "dyb"
         #defaults['geometry']="3153:"
-        defaults['geometry']="2+,3153:"
+        #defaults['geometry']="2+,3153:"
+        #defaults['geometry']="2+,3153:12221"  # skip the radslabs
+        defaults['geometry']="3153:12221"      # skip RPC and radslabs
         defaults['geocache'] = False
         defaults['geocachepath'] = None
 

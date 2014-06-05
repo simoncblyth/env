@@ -9,6 +9,18 @@ log = logging.getLogger(__name__)
 
 from daemenu import DAEMenu
 
+
+class DAEEventListMenu(DAEMenu):
+    def __init__(self, handler, menu_callback ):
+        DAEMenu.__init__(self, "eventlist")
+        curpath = handler.path
+        for path in handler.paths:
+            title = "*%s*" % path if path == curpath else path
+            self.add( title, menu_callback, path=path )
+        pass
+
+
+
 class DAEEventList(object):
     """
     A list of paths and a "cursor" index pointing at one of them
@@ -17,15 +29,6 @@ class DAEEventList(object):
         self.path_template = path_template
         self._index = 0
         self.paths = self.find_paths()
-
-    def make_menu(self, menu_callback):
-        menu = DAEMenu("eventlist")
-        curpath = self.path
-        for path in self.paths:
-            title = "*%s*" % path if path == curpath else path
-            menu.add( title, menu_callback, path=path )
-        pass
-        return menu
 
     def update(self):
         """

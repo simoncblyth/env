@@ -35,7 +35,9 @@ Ruminations
      * :google:`OpenGL CUDA vertex selection`
      * http://www.opengl.org/wiki/Vertex_Rendering
  
-   * 2nd point of line pair can be calulated in the kernel, with line length being a uniform
+   * 2nd point of line pair can be calculated in the kernel following CUDA propagation, 
+     with line length being a uniform
+     NB need to keep the slot, initially fill it from numpy for the non-CUDA installs 
  
 #. need to retain drawing of initial photon positions/directions for non-chroma installs 
 
@@ -55,27 +57,89 @@ import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 import glumpy as gp
 
-class DAEVertexBuffer(gp.graphics.VertexBuffer):
+from glumpy.graphics.vertex_buffer import VertexBufferException, \
+                                          VertexAttribute, \
+                                          VertexAttribute_color, \
+                                          VertexAttribute_position, \
+                                          VertexAttribute_generic 
+
+
+class DAEVertexBuffer(object):
     """
-    Inherit from glumpy VertexBuffer in order to experiment with the DrawElements 
-    call : attempting for partial draws.
+    Intended changes compared to gp.graphics.VertexBuffer that this used to inherit from
+
+    #. 2x striding, to allow drawing both lines and points from a single VBO 
+    #. partial draw via DrawElements experiments, for selections 
+
     """
-    def __init__(self, *args, **kwa ):
-        interop = kwa.pop('interop',False) 
-        gp.graphics.VertexBuffer.__init__(self, *args )
+    def __init__(self, vertices, indices=None):
+        gltypes = { 'float32': gl.GL_FLOAT,
+                    'float'  : gl.GL_DOUBLE, 'float64': gl.GL_DOUBLE,
+                    'int8'   : gl.GL_BYTE,   'uint8'  : gl.GL_UNSIGNED_BYTE,
+                    'int16'  : gl.GL_SHORT,  'uint16' : gl.GL_UNSIGNED_SHORT,
+                    'int32'  : gl.GL_INT,    'uint32' : gl.GL_UNSIGNED_INT }
+        dtype = vertices.dtype
+        names = dtype.names or []
+        stride = vertices.itemsize
+        offset = 0
+        index = 1 # Generic attribute indices starts at 1
 
-        #if interop:
-        #   import pycuda.gl as cuda_gl   # unclear where to do this
-        #   self.vertices_cuda = cuda_gl.BufferObject(long(self.vertices_id))
-        #
+        self.attributes  = {}
+        self.attributes2 = {}
+        self.generic_attributes = []
+
+        for name in names:
+            if dtype[name].subdtype is not None:
+                gtype = str(dtype[name].subdtype[0])
+                count = reduce(lambda x,y:x*y, dtype[name].shape)
+            else:
+                gtype = str(dtype[name])
+                count = 1
+            if gtype not in gltypes.keys():
+                raise VertexBufferException('Data type not understood')
+            gltype = gltypes[gtype]
+            if name in['position', 'color', 'normal', 'tex_coord',
+                       'fog_coord', 'secondary_color', 'edge_flag']:
+                vclass = 'VertexAttribute_%s' % name
+                attribute = eval(vclass)(count,gltype,stride,offset)
+                self.attributes[name[0]] = attribute
+                attribute2 = eval(vclass)(count,gltype,2*stride,offset)   # attempt to allow 2-stepping thru VBO
+                self.attributes2[name[0]] = attribute2
+            else:
+                attribute = VertexAttribute_generic(count,gltype,stride,offset,index)
+                self.generic_attributes.append(attribute)
+                index += 1
+            offset += dtype[name].itemsize
+
+        pass
+
+        self.vertices = vertices
+        self.vertices_id = gl.glGenBuffers(1)
+
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
+        gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_STATIC_DRAW )
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 )
 
 
-    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None ):
+        if indices is None:
+            indices = np.arange(vertices.size,dtype=np.uint32)
+
+        self.indices = indices
+        self.indices_id = gl.glGenBuffers(1)
+
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
+        gl.glBufferData( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices, gl.GL_STATIC_DRAW )
+        gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 )
+
+
+
+    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, step=1 ):
         """ 
         :param mode: primitive to draw
         :param what: attribute multiple choice by first letter
         :param offset: integer element array buffer offset, default 0
         :param count: number of elements, default None corresponds to all in self.indices
+        :param step:  normally 1, when 2 attempt to 2-step through VBO via doubled attribute stride
 
         Buffer offset default of 0 corresponds to glumpy original None, (ie (void*)0 )
         the integet value is converted with `ctypes.c_void_p(offset)`   
@@ -138,9 +202,12 @@ class DAEVertexBuffer(gp.graphics.VertexBuffer):
 
         for attribute in self.generic_attributes:
             attribute.enable()
-        for c in self.attributes.keys():
+
+        attributes = self.attributes2 if step==2 else self.attributes 
+
+        for c in attributes.keys():
             if c in what:
-                self.attributes[c].enable()
+                attributes[c].enable()
 
         gl.glDrawElements( mode, count, gl.GL_UNSIGNED_INT, ctypes.c_void_p(offset) )
 

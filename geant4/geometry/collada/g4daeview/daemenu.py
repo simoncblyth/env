@@ -166,7 +166,7 @@ class DAEMenu(event.EventDispatcher):
         log.info("find_submenu_fn starting at %s" % repr(self))
         result = []
         self._find_submenu( select_, result )
-        assert len(result) == 1
+        assert len(result) == 1, ( len(result), result )
         return result[0] 
 
     def _find_submenu(self, select_, result=[]):
@@ -192,7 +192,7 @@ class DAEMenu(event.EventDispatcher):
         self.newitems[self.count] = dmi
 
     def addSubMenu(self, sub ):
-        assert isinstance(sub, self.__class__ ), sub
+        assert issubclass(sub.__class__,  DAEMenu ), sub    # same class gives True too
         assert sub != self, "cannot add menu to self"
         sub.parent = self
         self.children.append(sub) 
