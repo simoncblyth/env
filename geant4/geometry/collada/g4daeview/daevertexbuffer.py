@@ -61,8 +61,61 @@ import glumpy as gp
 
 from glumpy.graphics.vertex_buffer import VertexBufferException, \
                                           VertexAttribute, \
-                                          VertexAttribute_color, \
-                                          VertexAttribute_generic 
+                                          VertexAttribute_color
+
+
+class VertexAttribute_generic(VertexAttribute):
+    def __init__(self, count, gltype, stride, offset, index, normalized=False ):
+        assert count in (1, 2, 3, 4), \
+            'Generic attributes must have count of 1, 2, 3 or 4'
+        VertexAttribute.__init__(self, count, gltype, stride, offset)
+        self.index = index
+        self.normalized = normalized
+    def enable(self):
+        """
+        http://www.opengl.org/wiki/GLAPI/glVertexAttribPointer
+        https://www.khronos.org/opengles/sdk/docs/man/xhtml/glVertexAttribPointer.xml
+
+        ::
+
+            void glVertexAttribPointer( GLuint index,
+                                        GLint size,
+                                        GLenum type,
+                                        GLboolean normalized,
+                                        GLsizei stride,
+                                        const GLvoid * pointer);
+             
+        index 
+              Specifies the index of the generic vertex attribute to be modified.
+
+        size 
+              Specifies the number of components per generic vertex attribute. 
+              Must be 1, 2, 3, or 4. The initial value is 4.
+
+        type 
+              Specifies the data type of each component in the array. 
+              Symbolic constants GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, 
+              GL_UNSIGNED_SHORT, GL_FIXED, or GL_FLOAT are accepted. The initial value is GL_FLOAT.
+
+        normalized 
+              Specifies whether fixed-point data values should be normalized
+              (GL_TRUE) or converted directly as fixed-point values (GL_FALSE) when they are
+              accessed.
+
+        stride 
+              Specifies the byte offset between consecutive generic vertex attributes.
+              If stride is 0, the generic vertex attributes are understood to be tightly
+              packed in the array. The initial value is 0.
+
+        pointer 
+              Specifies a pointer to the first component of the first generic vertex
+              attribute in the array. The initial value is 0.
+
+        """
+        gl.glVertexAttribPointer( self.index, self.count, self.gltype,
+                                  self.normalized, self.stride, self.offset );
+        gl.glEnableVertexAttribArray( self.index )
+
 
 
 class VertexAttribute_position(VertexAttribute):
@@ -203,6 +256,8 @@ class DAEVertexBuffer(object):
         :param mode: primitive to draw
         :param what: attribute multiple choice by first letter
         :param offset: integer element array buffer offset, default 0 (now in units of the indices type)
+                       NB this just controls where in the indices array to start getting elements
+                       it does not cause offsets with the vertex items
         :param count: number of elements, default None corresponds to all in self.indices
         :param att:  normally 1, when 2 or 3 use alternate stride/offset attributes allowing 
                      things like 2-stepping through VBO via doubled attribute stride
@@ -275,7 +330,6 @@ class DAEVertexBuffer(object):
 
         for attribute in self.generic_attributes:
             attribute.enable()
-
 
         attributes = self.attmap[att]
 

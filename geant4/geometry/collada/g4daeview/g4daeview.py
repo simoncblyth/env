@@ -56,6 +56,14 @@ load menu assertion
    * symptom of DAEPhotons doing too much, split menu creation elsewhere 
 
 
+improved structuring
+~~~~~~~~~~~~~~~~~~~~~~
+
+Should look into adopting some design patterns to make the code
+more tractable, things are getting unweildy eg Menu-ing.
+
+
+
 Histogramming 
 ~~~~~~~~~~~~~~~
 

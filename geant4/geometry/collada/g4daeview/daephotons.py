@@ -186,7 +186,6 @@ class DAEPhotons(object):
         self._pdata = None   
         self._drawmode = None
         self._lvbo = None   
-        #self._pvbo = None   
         self._photon_indices = None
 
     def invalidate_vbo(self):
@@ -196,10 +195,8 @@ class DAEPhotons(object):
         log.info("invalidate_vbo")
         self._mode = None
         self._ldata = None   
-        #self._pdata = None   
         self._drawmode = None
         self._lvbo = None   
-        #self._pvbo = None   
         self._photon_indices = None
 
     def _set_photons(self, photons):
@@ -219,23 +216,11 @@ class DAEPhotons(object):
         return self._color
     color = property(_get_color)
 
-    #def _get_pdata(self):
-    #    if self._pdata is None:
-    #        self._pdata = self.create_pdata()
-    #    return self._pdata
-    #pdata = property(_get_pdata)         
-
     def _get_ldata(self):
         if self._ldata is None:
             self._ldata = self.create_ldata()
         return self._ldata
     ldata = property(_get_ldata)         
-
-    #def _get_pvbo(self):
-    #    if self._pvbo is None:
-    #       self._pvbo = self.create_vbo(self.pdata)  
-    #    return self._pvbo
-    #pvbo = property(_get_pvbo)  
 
     def _get_lvbo(self):
         if self._lvbo is None:
@@ -289,6 +274,14 @@ class DAEPhotons(object):
 
         #. interleave the photon positions with sum of photon position and direction
         #. interleaved double up the colors 
+
+        Hmm, it seems silly to double up everything (wavelengths, polarization, direction, time)
+        just to draw lines ?  Can I compute the 2nd vertex ?
+  
+        Looks like this can only be done in very recent OpenGL with http://www.opengl.org/wiki/Geometry_Shader
+ 
+        What about a shader ? 
+
         """
         data = np.zeros(2*self.nphotons, [('position', np.float32, 3), 
                                           ('color',    np.float32, 4)]) 
@@ -426,7 +419,8 @@ class DAEPhotons(object):
         or a bug ? 
 
         Its a misunderstanding the glDrawElements offset is offsetting applied to
-        the entire indices array. For offsets within each element have to use VertexAttrib offsets.
+        the entire indices array, ie it controls where to start getting indices from.
+        For offsets within each element have to use VertexAttrib offsets.
 
         """ 
         qcount = int(len(self.ldata)*self.event.qcut/2)

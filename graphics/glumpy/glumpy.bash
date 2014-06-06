@@ -382,3 +382,8 @@ glumpy-get(){
 
 
 }
+
+glumpy-scd(){ cd $(env-home)/graphics/glumpy/$1 ; }
+glumpy-xcd(){ glumpy-scd glumpy_examples ; }
+
+

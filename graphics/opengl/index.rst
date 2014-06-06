@@ -10,6 +10,7 @@ opengl
    opengl_cuda_interop
    opengl_glut
    opengl_transformations
+   shader/index
 
 
 
