@@ -340,6 +340,48 @@ class DAEPhotons(object):
  
         return pindices
 
+    def create_vbo_11(self, data):
+        nvtx = data.size
+        npho = self.nphotons
+        assert nvtx == npho, (nvtx,npho)
+
+        pindices = self.photon_indices
+        if len(pindices) == 0:
+            vindices = np.arange( 1, dtype=np.uint32 )   # token single index to avoid a crash, when no photons are selected
+        else:
+            vindices = pindices
+        return DAEVertexBuffer( data, vindices  )
+
+    def create_vbo_21(self, data): 
+        """
+        Obtuse way to set a range, but it is general to non-contiguous pindices:: 
+
+            pindices = np.arange(10)
+            vindices = np.empty(2*len(pindices), dtype=np.uint32)
+            vindices[0::2] = 2*pindices
+            vindices[1::2] = 2*pindices + 1
+
+            In [15]: vindices
+            Out[15]: 
+            array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16,
+                   17, 18, 19], dtype=uint32)
+
+        """
+        nvtx = data.size
+        npho = self.nphotons
+        assert nvtx == 2*npho, (nvtx,npho)
+        pindices = self.photon_indices
+
+        if len(pindices) == 0:
+            vindices = np.arange( 1, dtype=np.uint32 )   # token single index to avoid a crash, when no photons are selected
+        else:
+            vindices = np.empty(2*len(pindices), dtype=np.uint32)
+            vindices[0::2] = 2*pindices
+            vindices[1::2] = 2*pindices + 1
+        pass
+        return DAEVertexBuffer( data, vindices  )
+
+
     def create_vbo(self, data):
         """
         #. when no photons are selected, a token single indice is used that avoids a crash
@@ -371,18 +413,27 @@ class DAEPhotons(object):
         """
         qcut restricts elements drawn, the default of 1 corresponds to all
 
-        Note that the VBO vertices are duplicated once for the line and once for
-        the points, presumably there is some clever way to control the strides to
-        avoid that ?
+        Formerly used separate point and line VBOs with point drawn with::
 
-        Changing presentation must account for the OpenGL state when this
-        gets called from daeframeghandler
+             self.pvbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount  , offset=0 )
+
+        The below succeeds to draws points at start and end of the lines::
+
+             self.lvbo.draw(mode=gl.GL_POINTS,  what='pc', count=2*qcount, offset=0, att=1 )  
+      
+        Attempts to use `offset=1` to draw the endpoint do not cause error but fail to 
+        draw the end point, seeming just drawing the startpoint.  Is this a misunderstanding 
+        or a bug ? 
+
+        Its a misunderstanding the glDrawElements offset is offsetting applied to
+        the entire indices array. For offsets within each element have to use VertexAttrib offsets.
+
         """ 
         qcount = int(len(self.ldata)*self.event.qcut/2)
 
-        self.lvbo.draw(mode=gl.GL_LINES,   what='pc', count=2*qcount, offset=0 )
-        self.lvbo.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, step=2 )   # attempt to draw points by 2-stepping in the line VBO
-        #self.pvbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount  , offset=0 )
+        self.lvbo.draw(mode=gl.GL_LINES,   what='pc', count=2*qcount, offset=0, att=1 )
+        self.lvbo.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=2 )     # draw start point
+        #self.lvbo.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=3 )    # draw the endpoint 
 
 
     def reconfig(self, conf):

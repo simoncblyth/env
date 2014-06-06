@@ -52,6 +52,8 @@ Using PrimitiveRestart
 
 """
 
+import logging
+log = logging.getLogger(__name__)
 import ctypes
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
@@ -60,8 +62,51 @@ import glumpy as gp
 from glumpy.graphics.vertex_buffer import VertexBufferException, \
                                           VertexAttribute, \
                                           VertexAttribute_color, \
-                                          VertexAttribute_position, \
                                           VertexAttribute_generic 
+
+
+class VertexAttribute_position(VertexAttribute):
+    def __init__(self, count, gltype, stride, offset):
+        assert count > 1, \
+            'Vertex attribute must have count of 2, 3 or 4'
+        assert gltype in (gl.GL_SHORT, gl.GL_INT, gl.GL_FLOAT, gl.GL_DOUBLE), \
+            'Vertex attribute must have signed type larger than byte'
+        VertexAttribute.__init__(self, count, gltype, stride, offset)
+    def enable(self):
+        """
+        http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
+
+        ::
+
+             void glVertexPointer(   
+                GLint               size,
+                GLenum              type,
+                GLsizei             stride,
+                const GLvoid *      pointer);
+
+        size
+             Specifies the number of coordinates per vertex. 
+             Must be 2, 3, or 4. The initial value is 4.
+
+        type
+             Specifies the data type of each coordinate in the array. 
+             Symbolic constants GL_SHORT, GL_INT, GL_FLOAT, or GL_DOUBLE are accepted. 
+             The initial value is GL_FLOAT.
+
+        stride
+             Specifies the byte offset between consecutive vertices. 
+             If stride is 0, the vertices are understood to be tightly packed in the array. 
+             The initial value is 0.
+
+        pointer
+             Specifies a pointer to the first coordinate of the first vertex in the array. 
+             The initial value is 0.
+
+        """
+        gl.glVertexPointer(self.count, self.gltype, self.stride, self.offset)
+        gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
+
+
 
 
 class DAEVertexBuffer(object):
@@ -84,8 +129,13 @@ class DAEVertexBuffer(object):
         offset = 0
         index = 1 # Generic attribute indices starts at 1
 
+        log.info("%s stride %s dtype %s " % (self.__class__.__name__, stride, repr(dtype) ))
+
         self.attributes  = {}
         self.attributes2 = {}
+        self.attributes3 = {}
+        self.attmap = { 1:self.attributes, 2:self.attributes2, 3:self.attributes3 } 
+
         self.generic_attributes = []
 
         for name in names:
@@ -95,21 +145,34 @@ class DAEVertexBuffer(object):
             else:
                 gtype = str(dtype[name])
                 count = 1
+            pass
+            itemsize = dtype[name].itemsize
+
+            log.info("name %s offset %s itemsize %s gtype %s count %s  " % ( name, offset, itemsize, gtype, count )) 
+
             if gtype not in gltypes.keys():
                 raise VertexBufferException('Data type not understood')
+
             gltype = gltypes[gtype]
             if name in['position', 'color', 'normal', 'tex_coord',
                        'fog_coord', 'secondary_color', 'edge_flag']:
                 vclass = 'VertexAttribute_%s' % name
-                attribute = eval(vclass)(count,gltype,stride,offset)
+
+                attribute = eval(vclass)(count,gltype,stride,offset)             # all the vertices 
                 self.attributes[name[0]] = attribute
-                attribute2 = eval(vclass)(count,gltype,2*stride,offset)   # attempt to allow 2-stepping thru VBO
+
+                attribute2 = eval(vclass)(count,gltype,2*stride,offset)          # just first vertex of the pair 
                 self.attributes2[name[0]] = attribute2
+
+                attribute3 = eval(vclass)(count,gltype,2*stride,offset+stride)   # just second vertex of the pair
+                self.attributes3[name[0]] = attribute3
+
             else:
                 attribute = VertexAttribute_generic(count,gltype,stride,offset,index)
                 self.generic_attributes.append(attribute)
                 index += 1
-            offset += dtype[name].itemsize
+            pass
+            offset += itemsize
 
         pass
 
@@ -120,10 +183,12 @@ class DAEVertexBuffer(object):
         gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_STATIC_DRAW )
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 )
 
-
         if indices is None:
             indices = np.arange(vertices.size,dtype=np.uint32)
 
+        # hmm should assert that the passed indices are of appropriate numpy type ?
+        self.indices_type = gl.GL_UNSIGNED_INT
+        self.indices_size = ctypes.sizeof(gl.GLuint) # 4
         self.indices = indices
         self.indices_id = gl.glGenBuffers(1)
 
@@ -133,13 +198,14 @@ class DAEVertexBuffer(object):
 
 
 
-    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, step=1 ):
+    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att=1 ):
         """ 
         :param mode: primitive to draw
         :param what: attribute multiple choice by first letter
-        :param offset: integer element array buffer offset, default 0
+        :param offset: integer element array buffer offset, default 0 (now in units of the indices type)
         :param count: number of elements, default None corresponds to all in self.indices
-        :param step:  normally 1, when 2 attempt to 2-step through VBO via doubled attribute stride
+        :param att:  normally 1, when 2 or 3 use alternate stride/offset attributes allowing 
+                     things like 2-stepping through VBO via doubled attribute stride
 
         Buffer offset default of 0 corresponds to glumpy original None, (ie (void*)0 )
         the integet value is converted with `ctypes.c_void_p(offset)`   
@@ -148,6 +214,13 @@ class DAEVertexBuffer(object):
         * http://pyopengl.sourceforge.net/documentation/manual-3.0/glDrawElements.html
         * http://stackoverflow.com/questions/11132716/how-to-specify-buffer-offset-with-pyopengl
         * http://pyopengl.sourceforge.net/documentation/pydoc/OpenGL.arrays.vbo.html
+        * http://www.opengl.org/discussion_boards/showthread.php/151386-VBO-BUFFER_OFFSET-and-glDrawElements-broken
+
+        A C example of glDrawElements from /Developer/NVIDIA/CUDA-5.5/samples/5_Simulations/smokeParticles/SmokeRenderer.cpp::
+
+             glDrawElements(GL_POINTS, count, GL_UNSIGNED_INT, (void *)(start*sizeof(unsigned int)));    # start is an int 
+
+
 
 
         ====================  ==============
@@ -203,13 +276,14 @@ class DAEVertexBuffer(object):
         for attribute in self.generic_attributes:
             attribute.enable()
 
-        attributes = self.attributes2 if step==2 else self.attributes 
+
+        attributes = self.attmap[att]
 
         for c in attributes.keys():
             if c in what:
                 attributes[c].enable()
 
-        gl.glDrawElements( mode, count, gl.GL_UNSIGNED_INT, ctypes.c_void_p(offset) )
+        gl.glDrawElements( mode, count, self.indices_type, ctypes.c_void_p(self.indices_size*offset) )
 
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 ) 
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 

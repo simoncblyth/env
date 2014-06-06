@@ -196,7 +196,7 @@ class DAEMenu(event.EventDispatcher):
         assert sub != self, "cannot add menu to self"
         sub.parent = self
         self.children.append(sub) 
-        log.info("addSubMenu %s " % repr(sub) )
+        log.debug("addSubMenu %s " % repr(sub) )
 
     def __repr__(self):
         return "DM menu %s name %s items %s children %s " % (self.menu, self.name, len(self.items), len(self.children) )
@@ -250,7 +250,7 @@ class DAEMenu(event.EventDispatcher):
         return 0     # avoids complaint from _ctypes/callbacks.c
 
     def dispatch(self, event_name='on_needs_redraw', event_obj=None):
-        log.info("dispatch %s %s " % (event_name, event_obj))
+        log.debug("dispatch %s %s " % (event_name, event_obj))
         self.dispatch_event(event_name, event_obj)
     pass
 
@@ -339,13 +339,13 @@ class DAEMenuGLUT(object):
         """
         Creats glut menu from DAEMenu instance 
         """
-        dmenu.dump()
+        #dmenu.dump()
 
         self.create_MenuTree(dmenu) 
         self.glut_AttachMenu(button)
 
     def glut_CreateMenu(self, dmenu ):
-        log.info("glut_CreateMenu %s " % dmenu.name)
+        log.debug("glut_CreateMenu %s " % dmenu.name)
         self.glut_AddMenuEntries(dmenu) 
 
     def glut_AddMenuEntries(self, dmenu):
@@ -355,7 +355,7 @@ class DAEMenuGLUT(object):
         #curmenu = glut.glutGetMenu()
 
         if dmenu.menu is None:
-            log.info("glut_AddMenuEntries creating menu for %s " % repr(dmenu))
+            log.debug("glut_AddMenuEntries creating menu for %s " % repr(dmenu))
             menu = glut.glutCreateMenu(dmenu.__call__)
             dmenu.menu = menu    # glut index 
         pass
@@ -365,14 +365,14 @@ class DAEMenuGLUT(object):
         for ipos, n in enumerate(dmenu.items):
             entry = dmenu.items[n]
             entry.ipos = ipos + 1  # guessing menu position doen list  to be 1-based ? 
-            log.info("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
+            log.debug("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
             glut.glutAddMenuEntry( entry.title, entry.num )
         pass
         #self.glut_SetMenu( curmenu ) 
 
     def glut_SetMenu(self, menu):
         assert menu > 0 , menu
-        log.info("glut_SetMenu %s " % menu )
+        log.debug("glut_SetMenu %s " % menu )
         glut.glutSetMenu( menu ) 
 
     def glut_RemoveMenuItem(self, ipos, dmenu ):
@@ -413,7 +413,7 @@ class DAEMenuGLUT(object):
             self.pending = dmenu
             return
 
-        log.info("update %s " % repr(dmenu))
+        log.debug("update %s " % repr(dmenu))
         self.remove_menu_items(dmenu)
 
         while len(dmenu.newitems) > 0:
@@ -426,7 +426,7 @@ class DAEMenuGLUT(object):
         """
         Removes all menu items 
         """ 
-        log.info("remove_menu_items %s " % repr(dmenu))
+        log.debug("remove_menu_items %s " % repr(dmenu))
         while len(dmenu.items)>0:
             n, entry = dmenu.items.popitem()
             ipos = entry.ipos
