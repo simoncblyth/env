@@ -166,8 +166,8 @@ class DAEMenu(event.EventDispatcher):
         log.info("find_submenu_fn starting at %s" % repr(self))
         result = []
         self._find_submenu( select_, result )
-        assert len(result) == 1, ( len(result), result )
-        return result[0] 
+        assert len(result) in (0,1), ( "expecting 0 or 1 menus not:", len(result), result )
+        return result[0] if len(result)>0 else None
 
     def _find_submenu(self, select_, result=[]):
         if select_(self):
@@ -179,6 +179,8 @@ class DAEMenu(event.EventDispatcher):
         """
         Dont like passthoughs like this in general, but its convenient in this case
         """
+        log.info("update")
+        self.dump()
         self.top.backend.update( self ) 
 
     def add(self, title, func_or_method, **extra):
@@ -339,7 +341,8 @@ class DAEMenuGLUT(object):
         """
         Creats glut menu from DAEMenu instance 
         """
-        #dmenu.dump()
+        log.info("create")
+        dmenu.dump(items=True)
 
         self.create_MenuTree(dmenu) 
         self.glut_AttachMenu(button)
@@ -365,7 +368,7 @@ class DAEMenuGLUT(object):
         for ipos, n in enumerate(dmenu.items):
             entry = dmenu.items[n]
             entry.ipos = ipos + 1  # guessing menu position doen list  to be 1-based ? 
-            log.debug("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
+            log.info("glut_AddMenuEntry %s %s %s " % (entry.title, entry.num, entry.ipos))
             glut.glutAddMenuEntry( entry.title, entry.num )
         pass
         #self.glut_SetMenu( curmenu ) 
@@ -392,7 +395,7 @@ class DAEMenuGLUT(object):
         self.glut_CreateMenu(dmenu)
         pass
         for dsub in dmenu.children:
-            log.debug("glut_AddSubMenu %s %s " % (dsub.name, dsub.menu ))
+            log.info("glut_AddSubMenu %s %s " % (dsub.name, dsub.menu ))
             glut.glutAddSubMenu( dsub.name, dsub.menu ) 
 
     def update(self, dmenu):

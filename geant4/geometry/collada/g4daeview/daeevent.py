@@ -8,15 +8,13 @@ from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # ROOT transpor
 
 #from photons import Photons                                      # numpy operations level 
 
-
 #TODO: allow non-chroma nodes to load CPL Photons too
 try:
     from chroma.event import Photons
 except ImportError:
     Photons = None
 
-
-from daephotons import DAEPhotons, DAEPhotonsMenu                                # OpenGL presentation level
+from daephotons import DAEPhotons
 
 from datetime import datetime
 from daeeventlist import DAEEventList , DAEEventListMenu
@@ -25,13 +23,13 @@ from daemenu import DAEMenu
 def timestamp():
     return datetime.now().strftime("%Y%m%d-%H%M%S")
 
-
 class DAEEventMenu(DAEMenu):
     def __init__(self, config, handler):
         DAEMenu.__init__(self, "event")
         self.add("reload",handler.reload_)
         self.add("loadnext",handler.loadnext)
         self.add("loadprev",handler.loadprev)
+
 
 
 class DAEEvent(object):
@@ -44,24 +42,23 @@ class DAEEvent(object):
         pass
         self.qcut = config.args.tcut 
         self.bbox_cache = None
-        self.dphotons = None
+        photons = None
+        self.dphotons = DAEPhotons( photons, self )
         self.objects = []
         self.eventlist = DAEEventList(config.args.path_template)
 
-        # dont like this menu setup here 
+        # dont like this menu setup here, move into constituent controllers
+
+        rmenu = self.config.rmenu 
 
         event_menu = DAEEventMenu( config, self )
-        self.config.rmenu.addSubMenu(event_menu) 
+        rmenu.addSubMenu(event_menu) 
 
         eventlist_menu = DAEEventListMenu(self.eventlist, self.eventlist_callback )
-        self.config.rmenu.addSubMenu(eventlist_menu) 
+        rmenu.addSubMenu(eventlist_menu) 
 
-        photons_menu = DAEPhotonsMenu( config )
-        self.config.rmenu.addSubMenu(photons_menu)
-        self.photons_menu = photons_menu 
 
         self.apply_launch_config()  # maybe better done externally 
-
 
     def apply_launch_config(self):
         launch_config = [] 
@@ -198,15 +195,13 @@ class DAEEvent(object):
         """
         Convert operations level Photons into presentation level DAEPhotons 
         """
-        if self.dphotons is None:
-            self.dphotons = DAEPhotons( photons, self )
-            self.photons_menu.update_flags_menu()
-        else:
-            self.dphotons.photons = photons   # setter invalidates _vbo, _color, _mesh 
-        pass
+        #if self.dphotons is None:
+        #    self.dphotons = DAEPhotons( photons, self )
+        #else:
+        self.dphotons.photons = photons   # setter invalidates _vbo, _color, _mesh 
+        #pass
 
         mesh = self.dphotons.mesh
-        #log.info("setup_photons mesh\n%s\n" % str(mesh))
         self.scene.bookmarks.create_for_object( mesh, 9 )
         self.objects = [mesh]
 
