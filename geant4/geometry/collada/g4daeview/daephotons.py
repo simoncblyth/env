@@ -182,10 +182,14 @@ class DAEPhotons(object):
         """
         if self.nphotons == 0:return None
 
-        data = np.zeros(self.nphotons, [('position', np.float32, 3), 
-                                        ('color',    np.float32, 4)]) 
+        data = np.zeros(self.nphotons, [
+                                        ('position', np.float32, 3), 
+                                        ('momdir',   np.float32, 3), 
+                                        ('color',    np.float32, 4),
+                                       ]) 
         data['position'] = self.vertices
         data['color']    = self.color
+        data['momdir']   = self.momdir*self.param.fpholine
         return data
 
     def create_ldata(self):

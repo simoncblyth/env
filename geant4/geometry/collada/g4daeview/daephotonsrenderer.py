@@ -20,39 +20,56 @@ class DAEPhotonsRenderer(object):
             return None
         return DAEVertexBuffer( data, indices  )
         
-    def draw(self):
+    def former_draw(self):
         """
-        qcut restricts elements drawn, the default of 1 corresponds to all
-
-        Formerly used separate point and line VBOs with point drawn with::
-
-             self.pvbo.draw(mode=gl.GL_POINTS, what='pc', count=qcount  , offset=0 )
-
-        The below succeeds to draws points at start and end of the lines::
-
-             self.lvbo.draw(mode=gl.GL_POINTS,  what='pc', count=2*qcount, offset=0, att=1 )  
-      
-        Attempts to use `offset=1` to draw the endpoint do not cause error but fail to 
-        draw the end point, seeming just drawing the startpoint.  Is this a misunderstanding 
-        or a bug ? 
-
-        Its a misunderstanding the glDrawElements offset is offsetting applied to
-        the entire indices array, ie it controls where to start getting indices from.
-        For offsets within each element have to use VertexAttrib offsets.
-
-        """ 
+        Using single doubled up lbuffer with VertexAttrib offset tricks 
+        (via the att=1,2,3) to pull out lines and points from that  
+        """
         qcount = self.dphotons.qcount
-
         gl.glPointSize(self.dphotons.param.fphopoint)  
 
         self.lbuffer.draw(mode=gl.GL_LINES,   what='pc', count=2*qcount, offset=0, att=1 )
-        self.lbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=2 )     # draw start point
+        self.lbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=2 )     # startpoint
+        #self.lbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=3 )    # endpoint 
+
+        gl.glPointSize(1)  
+
+    def draw(self):
+        """
+        Non-doubled pbuffer with geometry shader is used to generate the 2nd vertex 
+        (based on momdir attribute) and line primitive on the device
+
+        NEXT: 
+
+        #. add line coloring by wavelength computed on device
+        #. add mask/bits uniforms and flags attribute 
+
+           * use these to move selection logic onto GPU, controlled by setting mask/bits uniform
+           * apply selection either by geometry shader omission or color alpha control 
+
+        #. try to generate something for the polarization too ?
+
+           * GL_LINE_STRIP comes out of the geometry shader pipe, 
+             stick polz direction compass on the end ?
+
+        #. aiming towards once only buffer recreation, ie only when a new ChromaPhotonList is loaded
+        #. do the interop dance to get CUDA/Chroma to make propagation changes 
+           inside the one-and-only OpenGL buffer
+
+        """
+        qcount = self.dphotons.qcount
+        gl.glPointSize(self.dphotons.param.fphopoint)  
+
+        self.pbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=1 )    # points
 
         self.shader.bind()
-        self.lbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=3 )    # draw the endpoint 
+        self.pbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=1, program=self.shader.shader.program)    # lines via geometry shader
         self.shader.unbind()
 
         gl.glPointSize(1)  
+
+    
+
 
 if __name__ == '__main__':
     pass

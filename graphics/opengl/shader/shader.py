@@ -93,15 +93,20 @@ class Shader(object):
         self.linked = True
 
     def bind(self):
-        log.info("bind ")
+        #log.info("bind ")
         gl.glUseProgram(self.program)
+
+    #def bindAttrib(self, index, name):
+    #    log.info("bindAttrib %s %s " % (index,name))
+    #    gl.glBindAttribLocation( self.program, index, name )
+
 
     @classmethod
     def unbind(cls):
         """
         Unbinds whichever program currently used
         """
-        log.info("unbind ")
+        #log.info("unbind ")
         gl.glUseProgram(0)
 
     def uniformf(self, name, *vals):

@@ -65,12 +65,17 @@ from glumpy.graphics.vertex_buffer import VertexBufferException, \
 
 
 class VertexAttribute_generic(VertexAttribute):
-    def __init__(self, count, gltype, stride, offset, index, normalized=False ):
+    def __init__(self, count, gltype, stride, offset, index, name, normalized=False):
         assert count in (1, 2, 3, 4), \
             'Generic attributes must have count of 1, 2, 3 or 4'
         VertexAttribute.__init__(self, count, gltype, stride, offset)
         self.index = index
         self.normalized = normalized
+        self.name = name
+
+    def __repr__(self):
+        return "%s %s %s " % (self.__class__.__name__, self.index, self.name )
+
     def enable(self):
         """
         http://www.opengl.org/wiki/GLAPI/glVertexAttribPointer
@@ -221,7 +226,7 @@ class DAEVertexBuffer(object):
                 self.attributes3[name[0]] = attribute3
 
             else:
-                attribute = VertexAttribute_generic(count,gltype,stride,offset,index)
+                attribute = VertexAttribute_generic(count,gltype,stride,offset,index, name)
                 self.generic_attributes.append(attribute)
                 index += 1
             pass
@@ -251,7 +256,7 @@ class DAEVertexBuffer(object):
 
 
 
-    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att=1 ):
+    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att=1, program=None):
         """ 
         :param mode: primitive to draw
         :param what: attribute multiple choice by first letter
@@ -319,6 +324,14 @@ class DAEVertexBuffer(object):
         ==================  ==================   ================   =====
 
 
+        glDrawElements offset
+        ~~~~~~~~~~~~~~~~~~~~~~~~
+
+        #. **glDrawElements offset applies to the entire indices array**, 
+
+           * ie it controls where to start getting indices from.
+           * for offsets within each element have to use VertexAttrib offsets.
+
         """
         if count is None:
            count = self.indices.size   # this is what the glumpy original does
@@ -329,7 +342,12 @@ class DAEVertexBuffer(object):
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
 
         for attribute in self.generic_attributes:
+            log.info("enabling generic attribute %s " % attribute )
             attribute.enable()
+
+            if not program is None:
+                gl.glBindAttribLocation( program, attribute.index, attribute.name )
+
 
         attributes = self.attmap[att]
 
