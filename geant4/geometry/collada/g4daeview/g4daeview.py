@@ -62,6 +62,8 @@ improved structuring
 Should look into adopting some design patterns to make the code
 more tractable, things are getting unweildy eg Menu-ing.
 
+* http://www.songho.ca/opengl/gl_mvc.html
+* 
 
 
 Histogramming 

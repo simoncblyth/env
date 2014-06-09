@@ -35,6 +35,9 @@ class DAEEventMenu(DAEMenu):
 
 
 class DAEEvent(object):
+    """
+    TODO: split this up further, doing too much 
+    """
     def __init__(self, config, scene ):
         self.config = config
         self.scene = scene

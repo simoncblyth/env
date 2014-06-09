@@ -47,6 +47,8 @@ except ImportError:
 from daegeometry import DAEMesh 
 from daemenu import DAEMenu
 from daevertexbuffer import DAEVertexBuffer
+from daephotonsshader import DAEPhotonsShader
+
 
 def arg2mask( argl ):
     """ 
@@ -151,9 +153,13 @@ class DAEPhotons(object):
         self._photons = photons  
         pass
         self.event = event        # for access to qcut
+        self.shader = DAEPhotonsShader()
+
         config = event.config
         self.config = config
         self.pmtid = pmtid        # unused
+
+
         pass
         if not event is None:
             self.reconfig([
@@ -426,8 +432,14 @@ class DAEPhotons(object):
         qcount = int(len(self.ldata)*self.event.qcut/2)
 
         self.lvbo.draw(mode=gl.GL_LINES,   what='pc', count=2*qcount, offset=0, att=1 )
+
         self.lvbo.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=2 )     # draw start point
-        #self.lvbo.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=3 )    # draw the endpoint 
+
+        self.shader.bind()
+        self.lvbo.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=3 )    # draw the endpoint 
+        self.shader.unbind()
+
+
 
 
     def reconfig(self, conf):

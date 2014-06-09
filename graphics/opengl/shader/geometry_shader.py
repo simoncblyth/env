@@ -1,5 +1,9 @@
 #!/usr/bin/python
 """
+
+**DO NOT EDIT THIS : INSTEAD USE geometry_shader_structured.py**
+
+
 http://stackoverflow.com/questions/3936368/geometry-shader-doesnt-do-anything-when-fed-gl-points
 
 Comment `glutMainLoop()` so can check for compile errors reveals::
@@ -33,9 +37,7 @@ from OpenGL.GLUT import *
 from OpenGL.GL.ARB.geometry_shader4 import *
 from OpenGL.GL.EXT.geometry_shader4 import *
 
-#import Image
 import numpy
-import numpy.linalg as linalg
 import random
 from math import sin, cos
 
@@ -97,6 +99,9 @@ def reshape(width, height):
     glLoadIdentity()
 
     glutPostRedisplay()
+
+
+
 
 glutInit([])
 glutInitDisplayString("rgba>=8 depth>16 double")

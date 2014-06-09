@@ -5,8 +5,13 @@ New API
 -----------
 
 * http://www.opengl.org/wiki/Geometry_Shader
+* http://open.gl/geometry
 
 Describes the new Geometry Shader (that are not yet available to me)
+
+Since OpenGL 3.2 there is a third optional type of shader that sits between the
+vertex and fragment shaders, known as the geometry shader. 
+
 
 
 Older API
