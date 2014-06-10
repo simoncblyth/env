@@ -5,16 +5,26 @@ import logging
 log = logging.getLogger(__name__)
 
 vertex = r"""
-attribute vec3 momdir;
-varying vec3 vMomdir;
+// simply pass through to geometry shader 
+
+attribute %(momdir_type)s momdir;
+varying %(momdir_type)s vMomdir;
 
 void main()
 {
     gl_Position = gl_Vertex ; 
     vMomdir = momdir ;
+}
+"""
 
-    //gl_Position.xyz += momdir ; 
-    //gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+vertex_debug = r"""
+// for use without geometry shader 
+attribute %(momdir_type)s momdir;
+void main()
+{
+    gl_Position = gl_Vertex ; 
+    gl_Position.xyz += momdir.xyz ; 
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
 }
 """
 
@@ -24,18 +34,18 @@ geometry = r"""
 
 //  http://www.opengl.org/wiki/Geometry_Shader_Examples
 
-varying in vec3 vMomdir[] ; 
+varying in %(momdir_type)s vMomdir[] ; 
 
 void main()
 {
-    // from a point into a line
+    // amplify primitive point into line
 
     gl_Position = gl_PositionIn[0];
     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
     EmitVertex();
 
     gl_Position = gl_PositionIn[0];
-    gl_Position.xyz += vMomdir[0] ;
+    gl_Position.xyz += vMomdir[0].xyz ;
 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
     EmitVertex();
@@ -52,8 +62,15 @@ void main()
 """
 
 class DAEPhotonsShader(object):
-    def __init__(self):
-        shader = Shader( vertex, fragment, geometry )
+    def __init__(self, **kwa):
+        debug = kwa.pop('debug',False)
+        if debug:
+            log.info("compiling debug shader")
+            shader = Shader( vertex_debug , fragment, None, **kwa )
+        else:
+            log.info("compiling normal shader")
+            shader = Shader( vertex, fragment, geometry, **kwa )
+        pass
         shader.link()
         self.shader = shader
 
@@ -62,6 +79,9 @@ class DAEPhotonsShader(object):
     
     def unbind(self):
         self.shader.unbind()
+
+
+
  
 
 if __name__ == '__main__':

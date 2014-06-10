@@ -49,6 +49,8 @@ Using PrimitiveRestart
 #. http://www.drdobbs.com/parallel/cuda-supercomputing-for-the-masses-part/225200412
 
 
+* http://www.opengl.org/wiki/Vertex_Specification_Best_Practices
+
 
 OpenGL vertex buffer from CUDA 
 -------------------------------
@@ -139,6 +141,37 @@ Ahha, users of OpenGL compute shaders face the same issues
 
 
 
+NVIDIA Example
+~~~~~~~~~~~~~~~~
+
+* /usr/local/env/cuda/NVIDIA_CUDA-5.5_Samples/2_Graphics/simpleGL
+
+
+Targetted googling
+~~~~~~~~~~~~~~~~~~~~~
+
+* :google:`cuda kernel float4* VBO`
+
+andyswarm
+^^^^^^^^^^^
+
+#. color and position both as float4 with colors offset after position
+#. Advantage is can use `float4 *dptr` just like simpleGL example.
+
+* http://www.evl.uic.edu/aej/525/code/andySwarm.cu
+* http://www.evl.uic.edu/aej/525/code/andySwarm_kernel.cu
+
+::
+
+     // render from the vbo
+     glBindBuffer(GL_ARRAY_BUFFER, vbo);
+     glVertexPointer(4, GL_FLOAT, 0, 0);
+     glColorPointer(4, GL_FLOAT, 0, (GLvoid *) (mesh_width * mesh_height * sizeof(float)*4));
+
+
+
+
+
 
 Separate VBO approach (struct-of-arrays)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -185,6 +218,29 @@ The splitting between arrays is done at glBindBuffer::
       glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
       glEnableClientState(GL_COLOR_ARRAY);
      
+
+
+
+glBindBuffer
+~~~~~~~~~~~~~~
+
+* http://www.khronos.org/opengles/sdk/docs/man/xhtml/glBindBuffer.xml
+
+glBindBuffer lets you create or use a named buffer object. Calling glBindBuffer
+with target set to GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER and buffer set to
+the name of the new buffer object binds the buffer object name to the target.
+When a buffer object is bound to a target, the previous binding for that target
+is automatically broken.
+
+When vertex array pointer state is changed by a call to glVertexAttribPointer,
+the current buffer object binding (GL_ARRAY_BUFFER_BINDING) is copied into the
+corresponding client state for the vertex attrib array being changed, one of
+the indexed GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDINGs. While a non-zero buffer
+object is bound to the GL_ARRAY_BUFFER target, the vertex array pointer
+parameter that is traditionally interpreted as a pointer to client-side memory
+is instead interpreted as an offset within the buffer object measured in basic
+machine units.
+
 
 
    
@@ -306,13 +362,60 @@ class VertexAttribute_position(VertexAttribute):
 
 
 
-class DAEVertexData(object):
-    """ 
-    Generalization of DAEVertexBuffer to allow AoS approach, ie modelling 
+class DAEVertexAttributes(object):
     """
-    def __init__(self, vertices, indices=None):
-        pass
+    Convert numpy dtype and stride into VertexAttribute instances
+    representing the layout of the data in the buffer.
+    """ 
+    glnames =  ['position', 'color', 'normal', 'tex_coord',
+                'fog_coord', 'secondary_color', 'edge_flag']
 
+    gltypes = { 'float32': gl.GL_FLOAT,
+                'float'  : gl.GL_DOUBLE, 'float64': gl.GL_DOUBLE,
+                'int8'   : gl.GL_BYTE,   'uint8'  : gl.GL_UNSIGNED_BYTE,
+                'int16'  : gl.GL_SHORT,  'uint16' : gl.GL_UNSIGNED_SHORT,
+                'int32'  : gl.GL_INT,    'uint32' : gl.GL_UNSIGNED_INT }
+
+    def __init__(self, dtype, stride ):
+        names = dtype.names or []
+        offset = 0
+        index = 1 # Generic attribute indices starts at 1
+
+        log.info("%s stride %s dtype %s " % (self.__class__.__name__, stride, repr(dtype) ))
+
+        self.all_  = {}
+        self.first = {}
+        self.second = {}
+        self.generic = []
+        self.attmap = { 1:self.all_, 2:self.first, 3:self.second } 
+
+        for name in names:
+            if dtype[name].subdtype is not None:
+                gtype = str(dtype[name].subdtype[0])
+                count = reduce(lambda x,y:x*y, dtype[name].shape)
+            else:
+                gtype = str(dtype[name])
+                count = 1
+            pass
+            itemsize = dtype[name].itemsize
+            if gtype not in self.gltypes.keys():
+                raise VertexBufferException('Data type not understood')
+            gltype = self.gltypes[gtype]
+
+            log.info("name %s offset %s itemsize %s gtype %s count %s  " % ( name, offset, itemsize, gtype, count )) 
+
+            if name in self.glnames:
+                vclass = 'VertexAttribute_%s' % name
+                self.all_[name[0]] = eval(vclass)(count,gltype,stride,offset)    # all the vertices
+                self.first[name[0]] = eval(vclass)(count,gltype,2*stride,offset) # just first vertex of the pair 
+                self.second[name[0]] = eval(vclass)(count,gltype,2*stride,offset+stride)   # just second vertex of the pair
+            else:
+                attribute = VertexAttribute_generic(count,gltype,stride,offset,index, name)
+                self.generic.append(attribute)
+                index += 1
+            pass
+            offset += itemsize
+        pass
 
 
 
@@ -327,84 +430,27 @@ class DAEVertexBuffer(object):
     start and end points.
 
     For example using 2x striding allow to draw points from a lines VBO 
+    http://pyopengl.sourceforge.net/documentation/manual-3.0/glBufferData.html
     """
-
-    gltypes = { 'float32': gl.GL_FLOAT,
-                'float'  : gl.GL_DOUBLE, 'float64': gl.GL_DOUBLE,
-                'int8'   : gl.GL_BYTE,   'uint8'  : gl.GL_UNSIGNED_BYTE,
-                'int16'  : gl.GL_SHORT,  'uint16' : gl.GL_UNSIGNED_SHORT,
-                'int32'  : gl.GL_INT,    'uint32' : gl.GL_UNSIGNED_INT }
-
     def __init__(self, vertices, indices=None):
-        self.init_vertices_attributes(vertices.dtype, vertices.itemsize)
+        """
+        :param vertices: numpy ndarray with named constituents
+        :param indices: numpy ndarray of element indices
+        """
         self.init_array_buffer(vertices)
 
         if indices is None:
             indices = np.arange(vertices.size,dtype=np.uint32)
         self.init_element_array_buffer(indices)
 
-    def init_vertices_attributes(self, dtype, stride ):
-        """
-        Convert numpy dtype and stride into VertexAttribute instances
-        representing the layout of the data in the buffer.
-        """ 
-        names = dtype.names or []
-        offset = 0
-        index = 1 # Generic attribute indices starts at 1
-
-        log.info("%s stride %s dtype %s " % (self.__class__.__name__, stride, repr(dtype) ))
-
-        self.attributes  = {}
-        self.attributes2 = {}
-        self.attributes3 = {}
-        self.attmap = { 1:self.attributes, 2:self.attributes2, 3:self.attributes3 } 
-
-        self.generic_attributes = []
-
-        for name in names:
-            if dtype[name].subdtype is not None:
-                gtype = str(dtype[name].subdtype[0])
-                count = reduce(lambda x,y:x*y, dtype[name].shape)
-            else:
-                gtype = str(dtype[name])
-                count = 1
-            pass
-            itemsize = dtype[name].itemsize
-
-            log.info("name %s offset %s itemsize %s gtype %s count %s  " % ( name, offset, itemsize, gtype, count )) 
-
-            if gtype not in self.gltypes.keys():
-                raise VertexBufferException('Data type not understood')
-
-            gltype = self.gltypes[gtype]
-            if name in['position', 'color', 'normal', 'tex_coord',
-                       'fog_coord', 'secondary_color', 'edge_flag']:
-                vclass = 'VertexAttribute_%s' % name
-
-                attribute = eval(vclass)(count,gltype,stride,offset)             # all the vertices 
-                self.attributes[name[0]] = attribute
-
-                attribute2 = eval(vclass)(count,gltype,2*stride,offset)          # just first vertex of the pair 
-                self.attributes2[name[0]] = attribute2
-
-                attribute3 = eval(vclass)(count,gltype,2*stride,offset+stride)   # just second vertex of the pair
-                self.attributes3[name[0]] = attribute3
-
-            else:
-                attribute = VertexAttribute_generic(count,gltype,stride,offset,index, name)
-                self.generic_attributes.append(attribute)
-                index += 1
-            pass
-            offset += itemsize
-        pass
-
+    def make_cuda_buffer_object(self, chroma_context):
+        return chroma_context.make_cuda_buffer_object(self.vertices_id)
 
     def init_array_buffer(self, vertices ):
         """
-        http://pyopengl.sourceforge.net/documentation/manual-3.0/glBufferData.html
-
         Upload numpy array into OpenGL array buffer
         """
+        self.attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize)
         self.vertices = vertices
         self.vertices_id = gl.glGenBuffers(1)
 
@@ -437,6 +483,8 @@ class DAEVertexBuffer(object):
         :param att:  normally 1, when 2 or 3 use alternate stride/offset attributes allowing 
                      things like 2-stepping through VBO via doubled attribute stride and picking which 
                      of pairwise vertices to use.
+
+        :param program: shader program instance
 
         Buffer offset default of 0 corresponds to glumpy original None, (ie (void*)0 )
         the integer value is converted with `ctypes.c_void_p(offset)`   
@@ -510,16 +558,12 @@ class DAEVertexBuffer(object):
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
 
-        for attribute in self.generic_attributes:
-            #log.info("enabling generic attribute %s " % attribute )
+        for attribute in self.attrib.generic:
             attribute.enable()
-
             if not program is None:
                 gl.glBindAttribLocation( program, attribute.index, attribute.name )
 
-
-        attributes = self.attmap[att]
-
+        attributes = self.attrib.attmap[att]
         for c in attributes.keys():
             if c in what:
                 attributes[c].enable()

@@ -31,7 +31,6 @@ class DAEEventMenu(DAEMenu):
         self.add("loadprev",handler.loadprev)
 
 
-
 class DAEEvent(object):
     """
     TODO: split this up further, doing too much 
@@ -194,12 +193,11 @@ class DAEEvent(object):
     def setup_photons(self, photons ):
         """
         Convert operations level Photons into presentation level DAEPhotons 
+
+        Formerly instanciated DAEPhotons here only on arrival of CPL, but 
+        thats difficult for manu handling and other things.
         """
-        #if self.dphotons is None:
-        #    self.dphotons = DAEPhotons( photons, self )
-        #else:
         self.dphotons.photons = photons   # setter invalidates _vbo, _color, _mesh 
-        #pass
 
         mesh = self.dphotons.mesh
         self.scene.bookmarks.create_for_object( mesh, 9 )

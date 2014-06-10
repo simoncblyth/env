@@ -39,7 +39,7 @@ class DAEPhotons(object):
 
         self.param = DAEPhotonsParam( event.config)
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
-        self.renderer = DAEPhotonsRenderer(self)
+        self.renderer = DAEPhotonsRenderer(self, event.scene.chroma) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
 
     def draw(self):
         if not self._photons is None:
@@ -175,28 +175,36 @@ class DAEPhotons(object):
     def wavelengths2rgb(self):
         if self.nphotons == 0:return None
         color = np.zeros(self.nphotons, dtype=(np.float32, 4))
-        for i,wl in enumerate(self.wavelengths):
+        for i,wl in enumerate(self.wavelength):
             color[i] = wav2RGB(wl)
         return color
 
     def create_pdata(self):
         """
-        #. just photon positions and colors, for the points
-
         Create numpy structured array (effectively an array of structs).
+
+        #. just photon positions and colors, for the points
+        #. very regular dtype for on device float4 convenience
+
         """
         if self.nphotons == 0:return None
+       
+        nvert = self.nphotons
+        dtype = np.dtype([ 
+            ('position', np.float32, 4 ), 
+            ('momdir',   np.float32, 4 ), 
+            ('color',    np.float32, 4 ), 
+          ])
 
-        data = np.zeros(self.nphotons, [
-                                        ('position', np.float32, 3), 
-                                        ('momdir',   np.float32, 3), 
-                                        ('wavelength', np.float32, 1), 
-                                        ('color',    np.float32, 4),
-                                       ]) 
-        data['position'] = self.vertices
-        data['color']    = self.color
-        data['wavelength'] = self.wavelengths
-        data['momdir']   = self.momdir*self.param.fpholine
+        data = np.zeros(nvert, dtype )
+        data['position'][:,:3] = self.vertices
+        data['position'][:,3] = np.ones( nvert, dtype=np.float32 )  # fill in the w with ones
+
+        data['momdir'][:,:3] = self.momdir*self.param.fpholine
+        data['momdir'][:,3]  = self.wavelength     # stuff the wavelength into 4th slot of momdir
+
+        data['color'] = self.color
+
         return data
 
     def create_ldata(self):

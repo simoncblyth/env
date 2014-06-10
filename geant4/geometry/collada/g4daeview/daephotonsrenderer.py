@@ -1,25 +1,58 @@
 #!/usr/bin/env python
 
+import logging
+log = logging.getLogger(__name__)
+
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
+from daephotonskernel import DAEPhotonsKernel
 from daephotonsshader import DAEPhotonsShader
 from daevertexbuffer import DAEVertexBuffer
 
 
 class DAEPhotonsRenderer(object):
-    def __init__(self, dphotons):
-        self.dphotons = dphotons
-        self.shader = DAEPhotonsShader()
+    """
+    Coordinates presentation of photons with sharing of OpenGL VBO between:
 
+    #. OpenGL buffer drawing 
+    #. OpenGL GLSL shading, including geometry shader to generate 
+       lines primitives from points primitives together with a momentum direction
+    #. PyCUDA modification of the VBO content
+
+    """
+    def __init__(self, dphotons, chroma ):
+        """
+        :param dphotons: DAEPhotons instance
+        :param chroma: chroma context instance
+
+        #. the debug shader skips geometry shader just drawing end-points 
+        """
+        self.dphotons = dphotons
+        self.chroma = chroma
+        self.shader = DAEPhotonsShader(debug=False,momdir_type="vec4") 
+        self.kernel = DAEPhotonsKernel() if self.interop else None
+
+    interop = property(lambda self:not self.chroma.dummy)
     lbuffer = property(lambda self:self.dphotons.lbuffer)
     pbuffer = property(lambda self:self.dphotons.pbuffer)
 
     def create_buffer(self, data, indices ):
         if data is None or indices is None:
             return None
-        return DAEVertexBuffer( data, indices  )
-        
+        pass 
+        vbo = DAEVertexBuffer( data, indices  )
+        self.interop_gl_to_cuda(vbo)
+        return vbo
+
+    def interop_cuda_to_gl(self, buf ):
+        if self.interop:
+            buf.cuda_buffer_object.unregister() 
+
+    def interop_gl_to_cuda(self, buf ):
+        if self.interop:
+            buf.cuda_buffer_object = buf.make_cuda_buffer_object(self.chroma)
+
     def former_draw(self):
         """
         Using single doubled up lbuffer with VertexAttrib offset tricks 
@@ -34,12 +67,29 @@ class DAEPhotonsRenderer(object):
 
         gl.glPointSize(1)  
 
+    def interop_call(self, buf):
+        """
+        NEXT:
+ 
+        #. variable qcount ? avoid that  
+        """ 
+        if self.kernel is None:return
+        import pycuda.driver as cuda_driver
+
+        buf_mapping = buf.cuda_buffer_object.map()
+        self.kernel( buf_mapping.device_ptr(), self.dphotons.qcount )   
+        cuda_driver.Context.synchronize()
+        buf_mapping.unmap()
+
     def draw(self):
         """
         Non-doubled pbuffer with geometry shader is used to generate the 2nd vertex 
         (based on momdir attribute) and line primitive on the device
 
         NEXT: 
+
+        #. modify Chroma propagation to use the VBO, not just 
+           simple DAEPhotonsKernel
 
         #. add line coloring by wavelength computed on device
         #. add mask/bits uniforms and flags attribute 
@@ -53,12 +103,17 @@ class DAEPhotonsRenderer(object):
              stick polz direction compass on the end ?
 
         #. aiming towards once only buffer creation, ie only when a new ChromaPhotonList is loaded
-        #. do the interop dance to get CUDA/Chroma to make propagation changes 
-           inside the one-and-only OpenGL buffer
+
+        DONE:
+
+        #. interop dance to get CUDA to make changes inside the OpenGL VBO 
 
         """
         qcount = self.dphotons.qcount
         gl.glPointSize(self.dphotons.param.fphopoint)  
+        
+        self.interop_call(self.pbuffer)
+        self.interop_cuda_to_gl(self.pbuffer)
 
         self.pbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=1 )    # points
 
@@ -68,7 +123,8 @@ class DAEPhotonsRenderer(object):
 
         gl.glPointSize(1)  
 
-    
+        self.interop_gl_to_cuda(self.pbuffer)
+
 
 
 if __name__ == '__main__':

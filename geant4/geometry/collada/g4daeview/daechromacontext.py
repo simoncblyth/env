@@ -27,6 +27,7 @@ class DAEChromaContext(object):
     avoid "doing" anything substantial here 
     (eg do stepping in the propagator not here)
     """
+    dummy = False
     def __init__(self, config, chroma_geometry ):
         log.info("DAEChromaContext init, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
         self.config = config
@@ -65,6 +66,10 @@ class DAEChromaContext(object):
     def setup_gpu_geometry(self):
         from chroma.gpu.geometry import GPUGeometry
         return GPUGeometry( self.chroma_geometry )
+
+    def make_cuda_buffer_object(self, buffer_id ):
+        import pycuda.gl as cuda_gl
+        return cuda_gl.BufferObject(long(buffer_id))  
 
     def _get_gpu_geometry(self):
         if self._gpu_geometry is None:

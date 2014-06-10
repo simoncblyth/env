@@ -30,7 +30,7 @@ fvec_ = lambda _:map(float,_.split(","))
 class DAEChromaContextDummy(object):
     raycaster = None
     propagator = None
-
+    dummy = True
 
 class DAEScene(window_event.EventDispatcher):
     """

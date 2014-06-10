@@ -39,29 +39,29 @@ except ImportError:
 class Shader(object):
     def __init__(self, vertex=None, fragment=None, geometry=None, **kwa ):
 
+        self.input_type = kwa.pop('geometry_input_type', gl.GL_POINTS )
+        self.output_type = kwa.pop('geometry_output_type', gl.GL_LINE_STRIP )
+        self.vertices_out = kwa.pop('geometry_vertices_out', 200 )
+
         self.program = gl.glCreateProgram()
         self.uniforms = {}
         self.attribs = {}
 
         if not vertex is None:
-            self._compile( vertex , gl.GL_VERTEX_SHADER )
+            self._compile( vertex % kwa , gl.GL_VERTEX_SHADER )
 
         if not fragment is None:
-            self._compile( fragment , gl.GL_FRAGMENT_SHADER )
+            self._compile( fragment % kwa , gl.GL_FRAGMENT_SHADER )
 
         if not geometry is None:
             assert gsa and gsx
-            self._compile( geometry , gl.GL_GEOMETRY_SHADER )
-            self._setup_geometry_shader( **kwa )
+            self._compile( geometry % kwa , gl.GL_GEOMETRY_SHADER )
+            self._setup_geometry_shader()
 
-    def _setup_geometry_shader(self, **kwa):        
-        input_type = kwa.pop('geometry_input_type', gl.GL_POINTS )
-        output_type = kwa.pop('geometry_output_type', gl.GL_LINE_STRIP )
-        vertices_out = kwa.pop('geometry_vertices_out', 200 )
-
-        gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_INPUT_TYPE_ARB, input_type )
-        gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_OUTPUT_TYPE_ARB, output_type )
-        gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_VERTICES_OUT_ARB, vertices_out )
+    def _setup_geometry_shader(self):        
+        gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_INPUT_TYPE_ARB, self.input_type )
+        gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_OUTPUT_TYPE_ARB, self.output_type )
+        gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_VERTICES_OUT_ARB, self.vertices_out )
     
     def _compile(self, source, shader_type):
         if source is None:return
