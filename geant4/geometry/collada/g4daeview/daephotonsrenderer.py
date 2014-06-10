@@ -52,7 +52,7 @@ class DAEPhotonsRenderer(object):
            * GL_LINE_STRIP comes out of the geometry shader pipe, 
              stick polz direction compass on the end ?
 
-        #. aiming towards once only buffer recreation, ie only when a new ChromaPhotonList is loaded
+        #. aiming towards once only buffer creation, ie only when a new ChromaPhotonList is loaded
         #. do the interop dance to get CUDA/Chroma to make propagation changes 
            inside the one-and-only OpenGL buffer
 

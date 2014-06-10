@@ -48,6 +48,145 @@ Using PrimitiveRestart
 
 #. http://www.drdobbs.com/parallel/cuda-supercomputing-for-the-masses-part/225200412
 
+
+
+OpenGL vertex buffer from CUDA 
+-------------------------------
+
+* :google:`OpenGL vertex buffer from CUDA`
+
+
+Motivation
+~~~~~~~~~~~~
+
+To avoid buffer recreation for visualization need to get Chroma/CUDA to 
+use the OpenGL buffers.
+
+Too Many Moving parts
+~~~~~~~~~~~~~~~~~~~~~~
+
+#. OpenGL vertex attributes description of initial numpy ndarray
+#. shader attribute binding to access them from shaders
+#. what is PyCUDA GPUArray actually doing, as using OpenGL buffers
+   direct from PyCUDA replaces this 
+#. visualization gymnastics should not substantially impact 
+   without-vis propagation 
+
+AoS or SoA
+~~~~~~~~~~~~
+
+* http://stackoverflow.com/questions/17924705/structure-of-arrays-vs-array-of-structures-in-cuda
+
+Data flow
+~~~~~~~~~~~
+
+#. ROOT deserializes the ChromaPhotonList bytes arriving from file or ZMQ into a ChromaPhotonList 
+   instance (a collection std::vector<float> and std::vector<int>) 
+
+#. copy `pos`, `dir`, `wavelength`, `t` etc into numpy arrays inside a chroma.event.Photons instance
+
+#. copy subset of those arrays into "pdata" numpy ndarray  
+
+The underlying data is coming from a numpy ndarray. Perhaps pycuda has 
+solved the problem already ? http://documen.tician.de/pycuda/array.html
+Maybe, but for interop need to make pycuda use the OpenGL buffers.
+
+
+What needs to be shared between CUDA and OpenGL ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. position
+#. momdir (for lines)
+#. wavelength
+#. propagation flags, for selection/history 
+
+
+
+Single VBO approach (array-of-structs)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This approach bangs into CUDA alignment/padding complexities device side and arriving 
+at the struct that matches the OpenGL buffer layout.
+
+* http://www.igorsevo.com/Article.aspx?article=Million+particles+in+CUDA+and+OpenGL
+* http://on-demand.gputechconf.com/gtc/2013/presentations/S3477-GPGPU-In-Film-Production.pdf
+
+::
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glVertexPointer(3, GL_FLOAT, 16, 0);
+    glColorPointer(4,GL_UNSIGNED_BYTE,16,(GLvoid*)12);
+
+In CUDA stuffs the colors into a float using a union::
+
+    union Color
+    {
+        float c;
+        uchar4 components;
+    };
+
+    Color temp;
+    temp.components = make_uchar4(128/length,(int)(255/(velocity*51)),255,10);
+    pos[y*width+x].w = temp.c;
+
+
+Ahha, users of OpenGL compute shaders face the same issues
+
+* http://stackoverflow.com/questions/21342814/rendering-data-in-opengl-vertices-and-compute-shaders
+* http://www.opengl.org/registry/doc/glspec43.core.20130214.pdf
+
+  *  7.6.2.2 - Standard Uniform Block Layout 
+
+
+
+
+Separate VBO approach (struct-of-arrays)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This approach avoids the struct problems at expense of high level
+bookkeeping for the multiple VBOs. Potentially an OpenGL draw performance hit 
+too.
+
+
+* http://www.drdobbs.com/parallel/cuda-supercomputing-for-the-masses-part/225200412?pgno=6
+
+Example uses separate VBOs for position and color and does 
+manual linear addressing to change them from CUDA. 
+Then OpenGL draws by binding to the multiple different VBO.
+
+This is nice and simple at expense of lots of VBOs 
+
+::
+
+    __global__ void kernel(float4* pos, uchar4 *colorPos,
+               unsigned int width, unsigned int height, float time)
+    {
+        unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
+        unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
+        ...
+
+        // write output vertex
+        pos[y*width+x] = make_float4(u, w, v, 1.0f);
+        colorPos[y*width+x].w = 0;
+        colorPos[y*width+x].x = 255.f *0.5*(1.f+sinf(w+x));
+        colorPos[y*width+x].y = 255.f *0.5*(1.f+sinf(x)*cosf(y));
+        colorPos[y*width+x].z = 255.f *0.5*(1.f+sinf(w+time/10.f));
+    }
+
+The splitting between arrays is done at glBindBuffer::
+
+    void renderCuda(int drawMode)
+    {
+      glBindBuffer(GL_ARRAY_BUFFER, vertexVBO.vbo);
+      glVertexPointer(4, GL_FLOAT, 0, 0);
+      glEnableClientState(GL_VERTEX_ARRAY);
+       
+      glBindBuffer(GL_ARRAY_BUFFER, colorVBO.vbo);
+      glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
+      glEnableClientState(GL_COLOR_ARRAY);
+     
+
+
    
 
 """
@@ -167,23 +306,49 @@ class VertexAttribute_position(VertexAttribute):
 
 
 
-class DAEVertexBuffer(object):
-    """
-    Intended changes compared to gp.graphics.VertexBuffer that this used to inherit from
-
-    #. 2x striding, to allow drawing both lines and points from a single VBO 
-    #. partial draw via DrawElements experiments, for selections 
-
+class DAEVertexData(object):
+    """ 
+    Generalization of DAEVertexBuffer to allow AoS approach, ie modelling 
     """
     def __init__(self, vertices, indices=None):
-        gltypes = { 'float32': gl.GL_FLOAT,
-                    'float'  : gl.GL_DOUBLE, 'float64': gl.GL_DOUBLE,
-                    'int8'   : gl.GL_BYTE,   'uint8'  : gl.GL_UNSIGNED_BYTE,
-                    'int16'  : gl.GL_SHORT,  'uint16' : gl.GL_UNSIGNED_SHORT,
-                    'int32'  : gl.GL_INT,    'uint32' : gl.GL_UNSIGNED_INT }
-        dtype = vertices.dtype
+        pass
+
+
+
+
+
+class DAEVertexBuffer(object):
+    """
+    Converts numpy vertices and indices arrays into OpenGL buffers, 
+    mapping the numpy dtype into OpenGL vertex attributes.
+
+    Three alternate mappings are done to allow draw time control 
+    of strides, useful for pairwise vertices eg representing line
+    start and end points.
+
+    For example using 2x striding allow to draw points from a lines VBO 
+    """
+
+    gltypes = { 'float32': gl.GL_FLOAT,
+                'float'  : gl.GL_DOUBLE, 'float64': gl.GL_DOUBLE,
+                'int8'   : gl.GL_BYTE,   'uint8'  : gl.GL_UNSIGNED_BYTE,
+                'int16'  : gl.GL_SHORT,  'uint16' : gl.GL_UNSIGNED_SHORT,
+                'int32'  : gl.GL_INT,    'uint32' : gl.GL_UNSIGNED_INT }
+
+    def __init__(self, vertices, indices=None):
+        self.init_vertices_attributes(vertices.dtype, vertices.itemsize)
+        self.init_array_buffer(vertices)
+
+        if indices is None:
+            indices = np.arange(vertices.size,dtype=np.uint32)
+        self.init_element_array_buffer(indices)
+
+    def init_vertices_attributes(self, dtype, stride ):
+        """
+        Convert numpy dtype and stride into VertexAttribute instances
+        representing the layout of the data in the buffer.
+        """ 
         names = dtype.names or []
-        stride = vertices.itemsize
         offset = 0
         index = 1 # Generic attribute indices starts at 1
 
@@ -208,10 +373,10 @@ class DAEVertexBuffer(object):
 
             log.info("name %s offset %s itemsize %s gtype %s count %s  " % ( name, offset, itemsize, gtype, count )) 
 
-            if gtype not in gltypes.keys():
+            if gtype not in self.gltypes.keys():
                 raise VertexBufferException('Data type not understood')
 
-            gltype = gltypes[gtype]
+            gltype = self.gltypes[gtype]
             if name in['position', 'color', 'normal', 'tex_coord',
                        'fog_coord', 'secondary_color', 'edge_flag']:
                 vclass = 'VertexAttribute_%s' % name
@@ -231,9 +396,15 @@ class DAEVertexBuffer(object):
                 index += 1
             pass
             offset += itemsize
-
         pass
 
+
+    def init_array_buffer(self, vertices ):
+        """
+        http://pyopengl.sourceforge.net/documentation/manual-3.0/glBufferData.html
+
+        Upload numpy array into OpenGL array buffer
+        """
         self.vertices = vertices
         self.vertices_id = gl.glGenBuffers(1)
 
@@ -241,10 +412,10 @@ class DAEVertexBuffer(object):
         gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_STATIC_DRAW )
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 )
 
-        if indices is None:
-            indices = np.arange(vertices.size,dtype=np.uint32)
-
-        # hmm should assert that the passed indices are of appropriate numpy type ?
+    def init_element_array_buffer(self, indices ):
+        """
+        Upload numpy array into OpenGL element array buffer
+        """ 
         self.indices_type = gl.GL_UNSIGNED_INT
         self.indices_size = ctypes.sizeof(gl.GLuint) # 4
         self.indices = indices
@@ -253,7 +424,6 @@ class DAEVertexBuffer(object):
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
         gl.glBufferData( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices, gl.GL_STATIC_DRAW )
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 )
-
 
 
     def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att=1, program=None):
@@ -265,10 +435,11 @@ class DAEVertexBuffer(object):
                        it does not cause offsets with the vertex items
         :param count: number of elements, default None corresponds to all in self.indices
         :param att:  normally 1, when 2 or 3 use alternate stride/offset attributes allowing 
-                     things like 2-stepping through VBO via doubled attribute stride
+                     things like 2-stepping through VBO via doubled attribute stride and picking which 
+                     of pairwise vertices to use.
 
         Buffer offset default of 0 corresponds to glumpy original None, (ie (void*)0 )
-        the integet value is converted with `ctypes.c_void_p(offset)`   
+        the integer value is converted with `ctypes.c_void_p(offset)`   
         allowing partial buffer drawing.
 
         * http://pyopengl.sourceforge.net/documentation/manual-3.0/glDrawElements.html
@@ -279,8 +450,6 @@ class DAEVertexBuffer(object):
         A C example of glDrawElements from /Developer/NVIDIA/CUDA-5.5/samples/5_Simulations/smokeParticles/SmokeRenderer.cpp::
 
              glDrawElements(GL_POINTS, count, GL_UNSIGNED_INT, (void *)(start*sizeof(unsigned int)));    # start is an int 
-
-
 
 
         ====================  ==============
@@ -342,7 +511,7 @@ class DAEVertexBuffer(object):
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
 
         for attribute in self.generic_attributes:
-            log.info("enabling generic attribute %s " % attribute )
+            #log.info("enabling generic attribute %s " % attribute )
             attribute.enable()
 
             if not program is None:

@@ -55,6 +55,9 @@ class DAEPhotons(object):
     nphotons = property(lambda self:len(self._photons) if not self._photons is None else 0)
     vertices = property(lambda self:self._photons.pos if not self._photons is None else None)   # allows to be treated like DAEMesh 
     momdir = property(lambda self:self._photons.dir if not self._photons is None else None)
+    wavelength = property(lambda self:self._photons.wavelengths if not self._photons is None else None)
+    polarization = property(lambda self:self._photons.pol if not self._photons is None else None)
+    time = property(lambda self:self._photons.t if not self._photons is None else None)
 
     def reconfig(self, conf):
         update = self.param.reconfig(conf)
@@ -172,23 +175,27 @@ class DAEPhotons(object):
     def wavelengths2rgb(self):
         if self.nphotons == 0:return None
         color = np.zeros(self.nphotons, dtype=(np.float32, 4))
-        for i,wl in enumerate(self.photons.wavelengths):
+        for i,wl in enumerate(self.wavelengths):
             color[i] = wav2RGB(wl)
         return color
 
     def create_pdata(self):
         """
         #. just photon positions and colors, for the points
+
+        Create numpy structured array (effectively an array of structs).
         """
         if self.nphotons == 0:return None
 
         data = np.zeros(self.nphotons, [
                                         ('position', np.float32, 3), 
                                         ('momdir',   np.float32, 3), 
+                                        ('wavelength', np.float32, 1), 
                                         ('color',    np.float32, 4),
                                        ]) 
         data['position'] = self.vertices
         data['color']    = self.color
+        data['wavelength'] = self.wavelengths
         data['momdir']   = self.momdir*self.param.fpholine
         return data
 
