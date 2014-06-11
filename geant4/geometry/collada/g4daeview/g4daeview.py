@@ -286,6 +286,10 @@ Division of concerns
 import os, sys, logging
 log = logging.getLogger(__name__)
 
+import OpenGL
+OpenGL.FORWARD_COMPATIBLE_ONLY = True    
+# surprised this does not cause any errors, glumpy uses lots of fixed pipeline functionality 
+
 import glumpy as gp  
 
 from daeconfig import DAEConfig

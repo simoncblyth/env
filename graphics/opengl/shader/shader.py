@@ -47,16 +47,40 @@ class Shader(object):
         self.uniforms = {}
         self.attribs = {}
 
+
         if not vertex is None:
-            self._compile( vertex % kwa , gl.GL_VERTEX_SHADER )
+            vertex_source = vertex % kwa 
+            self._compile( vertex_source , gl.GL_VERTEX_SHADER )
+        else:
+            vertex_source = ""
+        pass
+        self.vertex_source = vertex_source
 
         if not fragment is None:
-            self._compile( fragment % kwa , gl.GL_FRAGMENT_SHADER )
+            fragment_source = fragment % kwa 
+            self._compile( fragment_source , gl.GL_FRAGMENT_SHADER )
+        else:
+            fragment_source = ""
+        pass
+        self.fragment_source = fragment_source
 
         if not geometry is None:
             assert gsa and gsx
-            self._compile( geometry % kwa , gl.GL_GEOMETRY_SHADER )
+            geometry_source = geometry % kwa 
+            self._compile( geometry_source , gl.GL_GEOMETRY_SHADER )
             self._setup_geometry_shader()
+        else:
+            geometry_source = ""
+        pass
+        self.geometry_source = geometry_source
+
+    def __str__(self):
+        source_ = lambda _:["%2s : %s " % (i, line) for i, line in enumerate(_.split("\n"))]
+        return "\n".join( 
+                       ["#### vertex"]   +  source_(self.vertex_source)  +
+                       ["#### geometry"] +  source_(self.geometry_source) + 
+                       ["#### fragment"] +  source_(self.fragment_source)  
+                        )
 
     def _setup_geometry_shader(self):        
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_INPUT_TYPE_ARB, self.input_type )
@@ -66,7 +90,7 @@ class Shader(object):
     def _compile(self, source, shader_type):
         if source is None:return
 
-        log.info("_compile shader %s " % shader_type )
+        log.debug("_compile shader %s " % shader_type )
 
         shader = gl.glCreateShader(shader_type)
         gl.glShaderSource(shader, [source,])
@@ -80,7 +104,7 @@ class Shader(object):
             gl.glAttachShader(self.program, shader)
 
     def link(self):
-        log.info("link ")
+        log.debug("link ")
         gl.glLinkProgram(self.program)
         ok = ctypes.c_int(0)
         gl.glGetProgramiv(self.program, gl.GL_LINK_STATUS, ctypes.byref(ok))
@@ -93,20 +117,13 @@ class Shader(object):
         self.linked = True
 
     def bind(self):
-        #log.info("bind ")
         gl.glUseProgram(self.program)
-
-    #def bindAttrib(self, index, name):
-    #    log.info("bindAttrib %s %s " % (index,name))
-    #    gl.glBindAttribLocation( self.program, index, name )
-
 
     @classmethod
     def unbind(cls):
         """
         Unbinds whichever program currently used
         """
-        #log.info("unbind ")
         gl.glUseProgram(0)
 
     def uniformf(self, name, *vals):

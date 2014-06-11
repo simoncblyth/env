@@ -24,6 +24,48 @@ OpenGL Releases
 * OpenGL 2.0 (2004)
 
 
+OpenGL ES
+-----------
+
+* http://stackoverflow.com/questions/4784137/choose-opengl-es-1-1-or-opengl-es-2-0
+
+* OpenGL ES 1.1, fixed pipeline
+* OpenGL ES 2.0, transition to shaders : removed the cruft
+
+  * http://glslstudio.com/primer/  (compares ES 1.1 and ES 2.0)
+
+* OpenGL ES 3.0 
+
+
+
+PyOpenGL Deprecations
+-----------------------
+
+* http://pyopengl.sourceforge.net/documentation/deprecations.html
+
+
+::
+
+    import OpenGL
+    OpenGL.FORWARD_COMPATIBLE_ONLY = True
+
+
+::
+
+    (chroma_env)delta:g4daeview blyth$ grep -l import\ OpenGL *.py
+    daeclipper.py
+    daeframehandler.py
+    daeillustrate.py
+    daelights.py
+    daemenu.py
+    daephotonsrenderer.py
+    daetext.py
+    daevertexbuffer.py
+    daeviewport.py
+
+
+
+
 OSX OpenGL capabilites matrix
 -------------------------------
 

@@ -250,6 +250,11 @@ machine units.
 import logging
 log = logging.getLogger(__name__)
 import ctypes
+
+# http://pyopengl.sourceforge.net/documentation/deprecations.html
+import OpenGL
+OpenGL.FORWARD_COMPATIBLE_ONLY = True
+
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 import glumpy as gp
@@ -312,8 +317,7 @@ class VertexAttribute_generic(VertexAttribute):
               attribute in the array. The initial value is 0.
 
         """
-        gl.glVertexAttribPointer( self.index, self.count, self.gltype,
-                                  self.normalized, self.stride, self.offset );
+        gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
         gl.glEnableVertexAttribArray( self.index )
 
 
@@ -354,6 +358,30 @@ class VertexAttribute_position(VertexAttribute):
         pointer
              Specifies a pointer to the first coordinate of the first vertex in the array. 
              The initial value is 0.
+
+
+        http://www.opengl.org/sdk/docs/man2/xhtml/glEnableClientState.xml
+
+        ::
+
+           void glEnableClientState(GLenum capability);
+
+        Specifies the capability to enable. Symbolic constants accepted:
+
+        GL_COLOR_ARRAY,
+        GL_EDGE_FLAG_ARRAY, 
+        GL_FOG_COORD_ARRAY, 
+        GL_INDEX_ARRAY, 
+        GL_NORMAL_ARRAY,
+        GL_SECONDARY_COLOR_ARRAY, 
+        GL_TEXTURE_COORD_ARRAY, 
+        GL_VERTEX_ARRAY 
+
+        GL_VERTEX_ARRAY
+        If enabled, the vertex array is enabled for writing and used during
+        rendering when glArrayElement, glDrawArrays, glDrawElements,
+        glDrawRangeElements glMultiDrawArrays, or glMultiDrawElements is called. 
+        See glVertexPointer.
 
         """
         gl.glVertexPointer(self.count, self.gltype, self.stride, self.offset)
@@ -549,6 +577,27 @@ class DAEVertexBuffer(object):
            * ie it controls where to start getting indices from.
            * for offsets within each element have to use VertexAttrib offsets.
 
+        glPushClientAttrib
+        ~~~~~~~~~~~~~~~~~~~
+
+        http://www.opengl.org/sdk/docs/man2/xhtml/glPushClientAttrib.xml
+
+        ::
+
+             void glPushClientAttrib(GLbitfield mask); 
+
+        glPushClientAttrib takes one argument, a mask that indicates which groups of
+        client-state variables to save on the client attribute stack. Symbolic
+        constants are used to set bits in the mask. mask is typically constructed by
+        specifying the bitwise-or of several of these constants together. The special
+        mask GL_CLIENT_ALL_ATTRIB_BITS can be used to save all stackable client state.
+
+        The symbolic mask constants and their associated GL client state are as follows
+        (the second column lists which attributes are saved):
+
+        GL_CLIENT_PIXEL_STORE_BIT   Pixel storage modes 
+        GL_CLIENT_VERTEX_ARRAY_BIT  Vertex arrays (and enables)
+
         """
         if count is None:
            count = self.indices.size   # this is what the glumpy original does
@@ -561,11 +610,13 @@ class DAEVertexBuffer(object):
         for attribute in self.attrib.generic:
             attribute.enable()
             if not program is None:
-                gl.glBindAttribLocation( program, attribute.index, attribute.name )
+                gl.glBindAttribLocation( program, attribute.index, attribute.name )  # make attrib accessible from shader
+                # this is equivalent to layout qualifier in the shader, http://www.opengl.org/wiki/Layout_Qualifier_(GLSL)
 
         attributes = self.attrib.attmap[att]
         for c in attributes.keys():
             if c in what:
+                #log.info("enabling attribute %s %s " % (c, attributes[c]) )
                 attributes[c].enable()
 
         gl.glDrawElements( mode, count, self.indices_type, ctypes.c_void_p(self.indices_size*offset) )

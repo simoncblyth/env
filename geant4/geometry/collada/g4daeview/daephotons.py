@@ -34,6 +34,8 @@ class DAEPhotons(object):
         :param photons:
         """ 
         self.event = event       
+        self.legacy = event.config.args.legacy
+        log.info("DAEPhotons legacy %s " % self.legacy )
         self.invalidate_photons()
         self._photons = photons  
 
@@ -140,7 +142,11 @@ class DAEPhotons(object):
 
     def _get_pdata(self):
         if self._pdata is None:
-            self._pdata = self.create_pdata()
+            if self.legacy:
+                self._pdata = self.create_pdata_legacy()
+            else:
+                self._pdata = self.create_pdata()
+            pass 
         return self._pdata
     pdata = property(_get_pdata)         
 
@@ -179,7 +185,40 @@ class DAEPhotons(object):
             color[i] = wav2RGB(wl)
         return color
 
+    def _get_pnumfields(self):
+        return len(self.pdata.dtype.fields) if not self.pdata is None else None
+    pnumfields = property(_get_pnumfields)
+
+
+    position_name = property(lambda self:"position") # not using 'position' uses generic attributues
+    num4vec = property(lambda self:"2")
+    debug_shader = property(lambda self:False)  # when True switch off geometry shader for debugging 
+
     def create_pdata(self):
+        """
+        Simplify access from CUDA kernels by adopting quads  
+ 
+        """
+        if self.nphotons == 0:return None
+
+        dtype = np.dtype([ 
+            ( self.position_name, np.float32, 4 ), 
+            ('momdir',   np.float32, 4 ), 
+          ])
+
+        nvert = self.nphotons
+        data = np.zeros(nvert, dtype )
+        data[self.position_name][:,:3] = self.vertices
+        data[self.position_name][:,3] = np.ones( nvert, dtype=np.float32 )  # fill in the w with ones
+
+        data['momdir'][:,:3] = self.momdir*self.param.fpholine
+        #data['momdir'][:,3]  = self.wavelength     # stuff the wavelength into 4th slot of momdir
+        data['momdir'][:,3]  = np.ones( nvert, dtype=np.float32 )  # fill in the w with ones
+
+        return data
+
+
+    def create_pdata_legacy(self):
         """
         Create numpy structured array (effectively an array of structs).
 

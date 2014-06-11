@@ -247,7 +247,7 @@ class DAEEvent(object):
         if key is None:
             key = self.config.args.key
         path = self.config.resolve_event_path(path_)
-        log.info("load cpl from  %s : %s " % (path_, path) )
+        log.debug("load cpl from  %s : %s " % (path_, path) )
         cpl = load_cpl(path, key )
         if cpl is None:
             log.warn("load_cpl failed ")
@@ -266,13 +266,13 @@ class DAEEvent(object):
             log.warn("cannot reload as no current path")
 
     def loadnext(self):
-        log.info("loadnext")
+        log.debug("loadnext")
         next_ = self.eventlist.next_  # using next_ bumps the cursor forwards
         if not next_ is None:
             self.load(next_) 
 
     def loadprev(self):
-        log.info("loadprev")
+        log.debug("loadprev")
         prev = self.eventlist.prev  # using prev bumps the cursor backwards
         if not prev is None:
             self.load(prev) 

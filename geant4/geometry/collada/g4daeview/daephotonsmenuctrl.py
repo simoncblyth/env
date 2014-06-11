@@ -23,7 +23,7 @@ class DAEPhotonsMenuController(object):
         """
         Just structure, not content
         """
-        log.info("setup_menus")
+        log.debug("setup_menus")
         photons_menu = DAEMenu("photons")
         flags_menu = DAEMenu("flags")
         history_menu = DAEMenu("history")
@@ -36,20 +36,20 @@ class DAEPhotonsMenuController(object):
         self.history_menu = history_menu
 
     def update(self, photons):
-        log.info("update")
+        log.debug("update")
         self.update_flags_menu()    
         self.update_history_menu( photons )    
 
     def update_flags_menu(self):
         """
         """
-        log.info("update_flags_menu")
+        log.debug("update_flags_menu")
         flags_menu = self.rootmenu.find_submenu("flags")
         assert flags_menu == self.flags_menu
 
         flags_menu.addnew("ANY", self.flags_callback )
         for name in sorted(PHOTON_FLAGS, key=lambda _:PHOTON_FLAGS[_]):
-            log.info("update_flags_menu %s " % name )
+            log.debug("update_flags_menu %s " % name )
             flags_menu.addnew(name, self.flags_callback )
         pass
         flags_menu.update()
@@ -59,7 +59,7 @@ class DAEPhotonsMenuController(object):
         assert history_menu == self.history_menu
 
         nflag, history = photons.history() 
-        log.info("update_history_menu : nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
+        log.debug("update_history_menu : nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
 
         history_menu.addnew( "ANY", self.history_callback, mask=None )
         for mask,count in sorted(history,key=lambda _:_[1], reverse=True):

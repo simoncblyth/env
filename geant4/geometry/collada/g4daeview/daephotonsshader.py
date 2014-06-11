@@ -1,40 +1,45 @@
 #!/usr/bin/env python
-
+"""
+"""
 from env.graphics.opengl.shader.shader import Shader
 import logging
 log = logging.getLogger(__name__)
 
-vertex = r"""
-// simply pass through to geometry shader 
+vertex = r"""#version 120
+// vertex : that simply passes through to geometry shader 
 
-attribute %(momdir_type)s momdir;
-varying %(momdir_type)s vMomdir;
+attribute vec4 %(position_name)s;
+attribute vec4 momdir;
+varying vec4 vMomdir;
 
 void main()
 {
-    gl_Position = gl_Vertex ; 
-    vMomdir = momdir ;
+    gl_Position = vec4( %(position_name)s.xyz, 1.) ; 
+    //vMomdir = vec4( momdir.xyz, 1.) ;
+    vMomdir = vec4( 100.,100.,100., 1.) ;
 }
 """
 
-vertex_debug = r"""
-// for use without geometry shader 
-attribute %(momdir_type)s momdir;
+vertex_debug = r"""#version 120
+// vertex_debug : for use without geometry shader 
+
+attribute vec4 %(position_name)s;
+attribute vec4 momdir;
+
 void main()
 {
-    gl_Position = gl_Vertex ; 
+    gl_Position = vec4( %(position_name)s.xyz, 1.) ; 
     gl_Position.xyz += momdir.xyz ; 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
 }
 """
 
-geometry = r"""
-#version 120
+geometry = r"""#version 120
 #extension GL_EXT_geometry_shader4 : enable
 
 //  http://www.opengl.org/wiki/Geometry_Shader_Examples
 
-varying in %(momdir_type)s vMomdir[] ; 
+varying in vec4 vMomdir[] ; 
 
 void main()
 {
@@ -57,22 +62,27 @@ void main()
 fragment = r"""
 void main()
 {
-    gl_FragColor = vec4(1.0, 0, 0, 1);
+    gl_FragColor = vec4(.0, 1.0, 0, 1);
 }
 """
 
 class DAEPhotonsShader(object):
-    def __init__(self, **kwa):
-        debug = kwa.pop('debug',False)
+    def __init__(self, dphotons ):
+
+        ctx = { 'position_name':dphotons.position_name } 
+        debug = dphotons.debug_shader
         if debug:
-            log.info("compiling debug shader")
-            shader = Shader( vertex_debug , fragment, None, **kwa )
+            log.debug("compiling debug shader")
+            shader = Shader( vertex_debug , fragment, None, **ctx )
         else:
-            log.info("compiling normal shader")
-            shader = Shader( vertex, fragment, geometry, **kwa )
+            log.debug("compiling normal shader")
+            shader = Shader( vertex, fragment, geometry, **ctx )
         pass
         shader.link()
         self.shader = shader
+
+    def __str__(self):
+        return "%s\n%s " % (self.__class__.__name__, str(self.shader))
 
     def bind(self):
         self.shader.bind()

@@ -3,6 +3,10 @@
 import logging
 log = logging.getLogger(__name__)
 
+import OpenGL
+OpenGL.FORWARD_COMPATIBLE_ONLY = True    
+
+
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
@@ -27,11 +31,21 @@ class DAEPhotonsRenderer(object):
         :param chroma: chroma context instance
 
         #. the debug shader skips geometry shader just drawing end-points 
+
+        The source of the kernel and shaders depends on the data structure, so 
+        use string interpolation to tie these together somewhat.
         """
-        self.dphotons = dphotons
         self.chroma = chroma
-        self.shader = DAEPhotonsShader(debug=False,momdir_type="vec4") 
-        self.kernel = DAEPhotonsKernel() if self.interop else None
+        self.dphotons = dphotons
+
+        shader = DAEPhotonsShader(dphotons) 
+        print shader
+
+        kernel = DAEPhotonsKernel(dphotons) if self.interop else None
+        print kernel
+
+        self.shader = shader
+        self.kernel = kernel
 
     interop = property(lambda self:not self.chroma.dummy)
     lbuffer = property(lambda self:self.dphotons.lbuffer)
@@ -115,6 +129,7 @@ class DAEPhotonsRenderer(object):
         self.interop_call(self.pbuffer)
         self.interop_cuda_to_gl(self.pbuffer)
 
+        # hmm draw without shader, get rid of this
         self.pbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=1 )    # points
 
         self.shader.bind()

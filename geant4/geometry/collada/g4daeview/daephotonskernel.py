@@ -116,6 +116,23 @@ div_ = lambda num,den:(num+den-1)//den  # integer division trick, rounding up wi
 
 from pycuda.compiler import SourceModule
 
+kernel_source_dev = r"""
+
+
+union X4
+{
+   float4 f ;
+   int4   i ;
+   uint4  u ;
+} ;
+
+    union X4 pos ; 
+    pos.f = vbo[id*%(num4vec)s] ; 
+    vbo[id*%(num4vec)s+0] = make_float4( pos.f.x + 10. , pos.f.y , pos.f.z, 1. ); 
+
+"""
+
+
 kernel_source = r"""
 //
 // CUDA kernel checking the modification of OpenGL VBO 
@@ -124,19 +141,25 @@ kernel_source = r"""
 //     created by DAEPhotons.create_pdata 
 //
 
+
 __global__ void jump(float4* vbo, int items )
 {
     int id = blockIdx.x*blockDim.x + threadIdx.x; 
     if (id >= items ) return ;
 
-    float4 pos = vbo[id*3] ;
-    float4 dir = vbo[id*3+1] ;
-    float4 col = vbo[id*3+2] ;
+    float4 pos = vbo[id*%(num4vec)s] ;
+    float4 dir = vbo[id*%(num4vec)s+1] ;
 
-    vbo[id*3+0] = make_float4( pos.x + 10. , pos.y , pos.z, pos.w ); 
+    // modify x of slot0 float4, position 
+    // vbo[id*%(num4vec)s+0] = make_float4( pos.x + 10. , pos.y , pos.z, pos.w );  
     
-    // grows the photon lines lengths generated in shader by increasing the momdir shared between OpenGL/GLSL/CUDA
-    // vbo[id*3+1] = make_float4( dir.x*1.01 , dir.y*1.01 , dir.z*1.01, dir.w ); 
+    // grows xyz of slot1 float4, momdir
+    // photon lines lengths generated in shader by increasing the momdir shared between OpenGL/GLSL/CUDA
+    //vbo[id*%(num4vec)s+1] = make_float4( dir.x*1.01 , dir.y*1.01 , dir.z*1.01, dir.w ); 
+
+    vbo[id*%(num4vec)s+1] = make_float4( 100. , 100. , 100. , 0. ); 
+    
+
 }
 """
 
@@ -147,8 +170,12 @@ class DAEPhotonsKernel(object):
     #. test not-so-simple VBO structure 
     #. adopt ~/e/cuda/cuda_launch approach
     """
-    def __init__(self):
-        module = SourceModule(kernel_source)
+    def __init__(self, dphotons):
+
+        ctx = { 'num4vec':dphotons.num4vec }
+        self.kernel_source = kernel_source % ctx 
+
+        module = SourceModule(self.kernel_source )
         kernel = module.get_function("jump")
         kernel.prepare("Pi")
         self.kernel = kernel
@@ -161,9 +188,14 @@ class DAEPhotonsKernel(object):
         block = (64,1,1)
         threads_per_block = reduce(mul, block)
         grid = ( div_(workitems,threads_per_block), 1 )
-        log.info("grid %s block %s workitems %s " % ( repr(grid), repr(block), workitems ))
+        #log.debug("grid %s block %s workitems %s " % ( repr(grid), repr(block), workitems ))
 
         self.kernel.prepared_call( grid, block, vbo_dev_ptr, workitems  )
+
+
+    def __str__(self):
+        source_ = lambda _:["%2s : %s " % (i, line) for i, line in enumerate(_.split("\n"))]
+        return "%s\n%s" % ( self.__class__.__name__,  "\n".join(source_(self.kernel_source)))
 
 
 if __name__ == '__main__':
