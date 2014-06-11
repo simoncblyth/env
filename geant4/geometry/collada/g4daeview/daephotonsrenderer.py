@@ -131,13 +131,16 @@ class DAEPhotonsRenderer(object):
         self.interop_call(self.pbuffer)
         self.interop_cuda_to_gl(self.pbuffer)
 
+        self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1, shader=self.shader, shader_mode=2 ) # lines via geometry shader
+        #self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1, shader=self.shader, shader_mode=0 ) # points via geometry shader
 
-        self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1, shader=self.shader )    # lines via geometry shader
-
-
-        # hmm draw without shader, get rid of this
-        self.pbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=1 )    # points
-
+        #
+        # self.pbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=1 )    # start points
+        #
+        # no longer using the legacy inducing "position" and "color" fields so need new way of 
+        # drawing the start point, presumably with a separate draw with shader uniform setting
+        # that configs to not generate the 2nd point
+        #
 
         gl.glPointSize(1)  
 

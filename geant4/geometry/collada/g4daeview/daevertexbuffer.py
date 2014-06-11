@@ -384,35 +384,6 @@ class VertexAttribute_generic(VertexAttribute):
               attribute in the array. The initial value is 0.
 
 
-
-        Cannot start at 20::
-
-              File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daevertexbuffer.py", line 466, in enable
-                attribute.enable()
-              File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daevertexbuffer.py", line 388, in enable
-                gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
-              File "latebind.pyx", line 44, in OpenGL_accelerate.latebind.Curry.__call__ (src/latebind.c:832)
-              File "/usr/local/env/chroma_env/lib/python2.7/site-packages/OpenGL/GL/VERSION/GL_2_0.py", line 263, in glVertexAttribPointer
-                ArrayDatatype.voidDataPointer( array )
-              File "errorchecker.pyx", line 50, in OpenGL_accelerate.errorchecker._ErrorChecker.glCheckError (src/errorchecker.c:854)
-            OpenGL.error.GLError: GLError(
-                err = 1281,
-                description = 'invalid value',
-                baseOperation = glVertexAttribPointer,
-                cArguments = (
-                    20,
-                    4,
-                    GL_FLOAT,
-                    False,
-                    32,
-                    c_void_p(16),
-                )
-            )
-
-
-
-
-
         """
         #log.info("enable %s " % repr(self) )
         gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
@@ -423,16 +394,10 @@ class VertexAttribute_generic(VertexAttribute):
         gl.glDisableVertexAttribArray( self.index )
 
 
-
-
-
 class DAEVertexAttributes(object):
     """
     Convert numpy dtype and stride into VertexAttribute instances
     representing the layout of the data in the buffer.
-
-
-
     """ 
     glnames =  ['position', 'color', 'normal', 'tex_coord',
                 'fog_coord', 'secondary_color', 'edge_flag']
@@ -448,11 +413,13 @@ class DAEVertexAttributes(object):
         :param dtype:
         :param stride:
         :param force_attribute_zero: name of generic field to slide into slot 0, "vposition" ? 
+
+        Unsure why but nothing appears unless force the attribute holding "position" 
+        into attribute 0 
         """
         names = dtype.names or []
         offset = 0
-        #index = 1 # Generic attribute indices starts at 1
-        index = 10 # try starting above any possible inbuilt attributes  http://www.opengl.org/sdk/docs/tutorials/ClockworkCoders/attributes.php
+        index = 1 # Generic attribute indices starts at 1
 
         log.info("%s stride %s dtype %s " % (self.__class__.__name__, stride, repr(dtype) ))
 
@@ -591,7 +558,7 @@ class DAEVertexBuffer(object):
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 )
 
 
-    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att=1, shader=None):
+    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att=1, shader=None, shader_mode=0 ):
         """ 
         :param mode: primitive to draw
         :param what: attribute multiple choice by first letter
@@ -701,8 +668,10 @@ class DAEVertexBuffer(object):
         self.attrib.enable( what=what, att=att, program=program )
 
         if not shader is None:
-            shader.link()   # after setting up attribs 
+            shader.link()        # after setting up attribs 
             shader.bind()
+            shader.set_param()
+            shader.set_mode(shader_mode)
 
         gl.glDrawElements( mode, count, self.indices_type, ctypes.c_void_p(self.indices_size*offset) )
 

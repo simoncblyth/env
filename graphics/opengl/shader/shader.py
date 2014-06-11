@@ -83,6 +83,9 @@ class Shader(object):
                         )
 
     def _setup_geometry_shader(self):        
+        """
+        At what juncture can these be changed ? 
+        """
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_INPUT_TYPE_ARB, self.input_type )
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_OUTPUT_TYPE_ARB, self.output_type )
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_VERTICES_OUT_ARB, self.vertices_out )

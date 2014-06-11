@@ -42,6 +42,11 @@ class DAEPhotonsParam(object):
         self.fphopoint = config.args.fphopoint
         self.phopoint = config.args.phopoint
 
+    def _get_shader_uniform_param(self):
+        return [self.fpholine, self.fphopoint, 0., 0.]
+    shader_uniform_param = property(_get_shader_uniform_param)
+
+
     def _get_mask(self):
         return arg2mask(self._mask)
     def _set_mask(self, mask):

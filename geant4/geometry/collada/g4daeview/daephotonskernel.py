@@ -137,27 +137,26 @@ kernel_source = r"""
 //
 // CUDA kernel checking the modification of OpenGL VBO 
 //
-//  #. depends on the simple float4*3 structure of the VBO 
+//  #. depends on the simple quad*N structure of the VBO 
 //     created by DAEPhotons.create_pdata 
 //
-
 
 __global__ void jump(float4* vbo, int items )
 {
     int id = blockIdx.x*blockDim.x + threadIdx.x; 
     if (id >= items ) return ;
 
-    // float4 pos = vbo[id*%(num4vec)s] ;
-    // float4 dir = vbo[id*%(num4vec)s+1] ;
+    float4 posw = vbo[id*%(num4vec)s] ;    // position_weight 
+    float4 dirw = vbo[id*%(num4vec)s+1] ;  // direction_wavelength
 
     // modify x of slot0 float4, position 
-    // vbo[id*%(num4vec)s+0] = make_float4( pos.x + 10. , pos.y , pos.z, pos.w );  
+    // vbo[id*%(num4vec)s+0] = make_float4( posw.x + 10. , posw.y , posw.z, posw.w );  
     
-    // grow the momdir
-    // vbo[id*%(num4vec)s+1] = make_float4( dir.x*1.01 , dir.y*1.01 , dir.z*1.01, dir.w ); 
+    // grow the direction
+    // vbo[id*%(num4vec)s+1] = make_float4( dirw.x*1.01 , dirw.y*1.01 , dirw.z*1.01, dirw.w ); 
 
     // set a constant momdir for all photons
-    //vbo[id*%(num4vec)s+1] = make_float4( 100. , 100. , 100. , 0. ); 
+    // vbo[id*%(num4vec)s+1] = make_float4( 100. , 100. , 100. , 0. ); 
     
 }
 """

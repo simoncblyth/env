@@ -54,12 +54,18 @@ class DAEPhotons(object):
     def __repr__(self):
         return "%s %s " % (self.__class__.__name__, self.nphotons)
 
-    nphotons = property(lambda self:len(self._photons) if not self._photons is None else 0)
-    vertices = property(lambda self:self._photons.pos if not self._photons is None else None)   # allows to be treated like DAEMesh 
-    momdir = property(lambda self:self._photons.dir if not self._photons is None else None)
-    wavelength = property(lambda self:self._photons.wavelengths if not self._photons is None else None)
+
+    position     = property(lambda self:self._photons.pos if not self._photons is None else None)   
+    direction    = property(lambda self:self._photons.dir if not self._photons is None else None)
+    wavelength   = property(lambda self:self._photons.wavelengths if not self._photons is None else None)
+    weight       = property(lambda self:self._photons.weights if not self._photons is None else None)
+    flags        = property(lambda self:self._photons.flags if not self._photons is None else None)
     polarization = property(lambda self:self._photons.pol if not self._photons is None else None)
-    time = property(lambda self:self._photons.t if not self._photons is None else None)
+    time         = property(lambda self:self._photons.t if not self._photons is None else None)
+    last_hit_triangle = property(lambda self:self._photons.last_hit_triangles if not self._photons is None else None)
+
+    nphotons     = property(lambda self:len(self._photons) if not self._photons is None else 0)
+    vertices     = property(lambda self:self.position)  # allows to be treated like DAEMesh 
 
     def reconfig(self, conf):
         update = self.param.reconfig(conf)
@@ -193,31 +199,52 @@ class DAEPhotons(object):
     # using 'position' uses traditional glVertexPointer furnishing gl_Vertex to shader
     # using smth else eg 'vposition' use generic attribute , which requires force_attribute_zero for anythinh to appear
  
-    position_name = property(lambda self:"vposition") 
-    num4vec = property(lambda self:"2")
+    position_name = property(lambda self:"position_weight") 
+    num4vec = property(lambda self:"5")
     debug_shader = property(lambda self:False)  # when True switch off geometry shader for debugging 
 
     def create_pdata(self):
         """
-        Simplify access from CUDA kernels by adopting quads  
- 
+        Simplify access from CUDA kernels by adopting 4*quads::
+
+            struct VPhoton { 
+               float4 position_weight,                 # 4*4 = 16  
+               float4 direction_wavelength,            # 4*4 = 16     
+               float4 polarization_time,               # 4*4 = 16  48
+               uint4  flags                            # 4*4 = 16  64    
+               int4   last_hit_triangle                # 4*4 = 16  80    
+
         """
         if self.nphotons == 0:return None
 
         dtype = np.dtype([ 
-            ( self.position_name, np.float32, 4 ), 
-            ('momdir',   np.float32, 4 ), 
+            ('position_weight'   ,        np.float32, 4 ), 
+            ('direction_wavelength',      np.float32, 4 ), 
+            ('polarization_time',         np.float32, 4 ), 
+            ('flags',                     np.uint32,  4 ), 
+            ('last_hit_triangle',         np.int32,   4 ), 
           ])
 
         nvert = self.nphotons
         data = np.zeros(nvert, dtype )
-        data[self.position_name][:,:3] = self.vertices
-        data[self.position_name][:,3] = np.ones( nvert, dtype=np.float32 )  # fill in the w with ones
 
-        data['momdir'][:,:3] = self.momdir
-        data['momdir'][:,3]  = np.ones( nvert, dtype=np.float32 )  # fill in the w with ones
+        def pack31_( name, a, b ):
+            data[name][:,:3] = a
+            data[name][:,3] = b
 
-        #data['momdir'][:,3]  = self.wavelength     # stuff the wavelength into 4th slot of momdir
+        pack31_( 'position_weight',      self.position ,    self.weight )
+        pack31_( 'direction_wavelength', self.direction,    self.wavelength )
+        pack31_( 'polarization_time',    self.polarization, self.time  )
+
+        def pack1111_( name, a, b, c, d ):
+            data[name][:,0] = a
+            data[name][:,1] = b
+            data[name][:,2] = c
+            data[name][:,3] = d
+
+        ones_ = lambda _:np.ones( nvert, dtype=_ )  
+        pack1111_('flags',             self.flags,             ones_(np.uint32), ones_(np.uint32), ones_(np.uint32) )
+        pack1111_('last_hit_triangle', self.last_hit_triangle, ones_(np.int32),  ones_(np.int32), ones_(np.int32) )
 
         return data
 
@@ -234,17 +261,17 @@ class DAEPhotons(object):
        
         nvert = self.nphotons
         dtype = np.dtype([ 
-            ('position', np.float32, 4 ), 
-            ('momdir',   np.float32, 4 ), 
-            ('color',    np.float32, 4 ), 
+            ('position',  np.float32, 4 ), 
+            ('direction', np.float32, 4 ), 
+            ('color',     np.float32, 4 ), 
           ])
 
         data = np.zeros(nvert, dtype )
         data['position'][:,:3] = self.vertices
         data['position'][:,3] = np.ones( nvert, dtype=np.float32 )  # fill in the w with ones
 
-        data['momdir'][:,:3] = self.momdir*self.param.fpholine
-        data['momdir'][:,3]  = self.wavelength     # stuff the wavelength into 4th slot of momdir
+        data['direction'][:,:3] = self.direction*self.param.fpholine
+        data['direction'][:,3]  = self.wavelength     # stuff the wavelength into 4th slot of momdir
 
         data['color'] = self.color
 
