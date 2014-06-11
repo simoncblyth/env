@@ -6,7 +6,6 @@ log = logging.getLogger(__name__)
 import OpenGL
 OpenGL.FORWARD_COMPATIBLE_ONLY = True    
 
-
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
@@ -51,11 +50,14 @@ class DAEPhotonsRenderer(object):
     lbuffer = property(lambda self:self.dphotons.lbuffer)
     pbuffer = property(lambda self:self.dphotons.pbuffer)
 
-    def create_buffer(self, data, indices ):
+    def create_buffer(self, data, indices, force_attribute_zero ):
         if data is None or indices is None:
             return None
         pass 
-        vbo = DAEVertexBuffer( data, indices  )
+        log.debug("create_buffer ")
+        #print data
+
+        vbo = DAEVertexBuffer( data, indices, force_attribute_zero=force_attribute_zero  )
         self.interop_gl_to_cuda(vbo)
         return vbo
 
@@ -129,12 +131,13 @@ class DAEPhotonsRenderer(object):
         self.interop_call(self.pbuffer)
         self.interop_cuda_to_gl(self.pbuffer)
 
+
+        self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1, shader=self.shader )    # lines via geometry shader
+
+
         # hmm draw without shader, get rid of this
         self.pbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=1 )    # points
 
-        self.shader.bind()
-        self.pbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=1, program=self.shader.shader.program)    # lines via geometry shader
-        self.shader.unbind()
 
         gl.glPointSize(1)  
 

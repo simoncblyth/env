@@ -264,64 +264,6 @@ from glumpy.graphics.vertex_buffer import VertexBufferException, \
                                           VertexAttribute_color
 
 
-class VertexAttribute_generic(VertexAttribute):
-    def __init__(self, count, gltype, stride, offset, index, name, normalized=False):
-        assert count in (1, 2, 3, 4), \
-            'Generic attributes must have count of 1, 2, 3 or 4'
-        VertexAttribute.__init__(self, count, gltype, stride, offset)
-        self.index = index
-        self.normalized = normalized
-        self.name = name
-
-    def __repr__(self):
-        return "%s %s %s " % (self.__class__.__name__, self.index, self.name )
-
-    def enable(self):
-        """
-        http://www.opengl.org/wiki/GLAPI/glVertexAttribPointer
-        https://www.khronos.org/opengles/sdk/docs/man/xhtml/glVertexAttribPointer.xml
-
-        ::
-
-            void glVertexAttribPointer( GLuint index,
-                                        GLint size,
-                                        GLenum type,
-                                        GLboolean normalized,
-                                        GLsizei stride,
-                                        const GLvoid * pointer);
-             
-        index 
-              Specifies the index of the generic vertex attribute to be modified.
-
-        size 
-              Specifies the number of components per generic vertex attribute. 
-              Must be 1, 2, 3, or 4. The initial value is 4.
-
-        type 
-              Specifies the data type of each component in the array. 
-              Symbolic constants GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, 
-              GL_UNSIGNED_SHORT, GL_FIXED, or GL_FLOAT are accepted. The initial value is GL_FLOAT.
-
-        normalized 
-              Specifies whether fixed-point data values should be normalized
-              (GL_TRUE) or converted directly as fixed-point values (GL_FALSE) when they are
-              accessed.
-
-        stride 
-              Specifies the byte offset between consecutive generic vertex attributes.
-              If stride is 0, the generic vertex attributes are understood to be tightly
-              packed in the array. The initial value is 0.
-
-        pointer 
-              Specifies a pointer to the first component of the first generic vertex
-              attribute in the array. The initial value is 0.
-
-        """
-        gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
-        gl.glEnableVertexAttribArray( self.index )
-
-
-
 class VertexAttribute_position(VertexAttribute):
     def __init__(self, count, gltype, stride, offset):
         assert count > 1, \
@@ -389,11 +331,108 @@ class VertexAttribute_position(VertexAttribute):
 
 
 
+class VertexAttribute_generic(VertexAttribute):
+    def __init__(self, count, gltype, stride, offset, index, name, normalized=False):
+        assert count in (1, 2, 3, 4), \
+            'Generic attributes must have count of 1, 2, 3 or 4'
+        VertexAttribute.__init__(self, count, gltype, stride, offset)
+        self.index = index
+        self.normalized = normalized
+        self.name = name
+
+    def __repr__(self):
+        return "%s %s %s " % (self.__class__.__name__, self.index, self.name )
+
+    def enable(self):
+        """
+        http://www.opengl.org/wiki/GLAPI/glVertexAttribPointer
+        https://www.khronos.org/opengles/sdk/docs/man/xhtml/glVertexAttribPointer.xml
+
+        ::
+
+            void glVertexAttribPointer( GLuint index,
+                                        GLint size,
+                                        GLenum type,
+                                        GLboolean normalized,
+                                        GLsizei stride,
+                                        const GLvoid * pointer);
+             
+        index 
+              Specifies the index of the generic vertex attribute to be modified.
+
+        size 
+              Specifies the number of components per generic vertex attribute. 
+              Must be 1, 2, 3, or 4. The initial value is 4.
+
+        type 
+              Specifies the data type of each component in the array. 
+              Symbolic constants GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, 
+              GL_UNSIGNED_SHORT, GL_FIXED, or GL_FLOAT are accepted. The initial value is GL_FLOAT.
+
+        normalized 
+              Specifies whether fixed-point data values should be normalized
+              (GL_TRUE) or converted directly as fixed-point values (GL_FALSE) when they are
+              accessed.
+
+        stride 
+              Specifies the byte offset between consecutive generic vertex attributes.
+              If stride is 0, the generic vertex attributes are understood to be tightly
+              packed in the array. The initial value is 0.
+
+        pointer 
+              Specifies a pointer to the first component of the first generic vertex
+              attribute in the array. The initial value is 0.
+
+
+
+        Cannot start at 20::
+
+              File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daevertexbuffer.py", line 466, in enable
+                attribute.enable()
+              File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daevertexbuffer.py", line 388, in enable
+                gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
+              File "latebind.pyx", line 44, in OpenGL_accelerate.latebind.Curry.__call__ (src/latebind.c:832)
+              File "/usr/local/env/chroma_env/lib/python2.7/site-packages/OpenGL/GL/VERSION/GL_2_0.py", line 263, in glVertexAttribPointer
+                ArrayDatatype.voidDataPointer( array )
+              File "errorchecker.pyx", line 50, in OpenGL_accelerate.errorchecker._ErrorChecker.glCheckError (src/errorchecker.c:854)
+            OpenGL.error.GLError: GLError(
+                err = 1281,
+                description = 'invalid value',
+                baseOperation = glVertexAttribPointer,
+                cArguments = (
+                    20,
+                    4,
+                    GL_FLOAT,
+                    False,
+                    32,
+                    c_void_p(16),
+                )
+            )
+
+
+
+
+
+        """
+        #log.info("enable %s " % repr(self) )
+        gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
+        gl.glEnableVertexAttribArray( self.index )
+
+    def disable(self):
+        #log.info("disable %s " % repr(self) )
+        gl.glDisableVertexAttribArray( self.index )
+
+
+
+
 
 class DAEVertexAttributes(object):
     """
     Convert numpy dtype and stride into VertexAttribute instances
     representing the layout of the data in the buffer.
+
+
+
     """ 
     glnames =  ['position', 'color', 'normal', 'tex_coord',
                 'fog_coord', 'secondary_color', 'edge_flag']
@@ -404,10 +443,16 @@ class DAEVertexAttributes(object):
                 'int16'  : gl.GL_SHORT,  'uint16' : gl.GL_UNSIGNED_SHORT,
                 'int32'  : gl.GL_INT,    'uint32' : gl.GL_UNSIGNED_INT }
 
-    def __init__(self, dtype, stride ):
+    def __init__(self, dtype, stride, force_attribute_zero=None ):
+        """
+        :param dtype:
+        :param stride:
+        :param force_attribute_zero: name of generic field to slide into slot 0, "vposition" ? 
+        """
         names = dtype.names or []
         offset = 0
-        index = 1 # Generic attribute indices starts at 1
+        #index = 1 # Generic attribute indices starts at 1
+        index = 10 # try starting above any possible inbuilt attributes  http://www.opengl.org/sdk/docs/tutorials/ClockworkCoders/attributes.php
 
         log.info("%s stride %s dtype %s " % (self.__class__.__name__, stride, repr(dtype) ))
 
@@ -438,13 +483,58 @@ class DAEVertexAttributes(object):
                 self.first[name[0]] = eval(vclass)(count,gltype,2*stride,offset) # just first vertex of the pair 
                 self.second[name[0]] = eval(vclass)(count,gltype,2*stride,offset+stride)   # just second vertex of the pair
             else:
-                attribute = VertexAttribute_generic(count,gltype,stride,offset,index, name)
+                if name == force_attribute_zero:
+                    attribute = VertexAttribute_generic(count,gltype,stride,offset,0, name)
+                else:
+                    attribute = VertexAttribute_generic(count,gltype,stride,offset,index, name)
+                    index += 1
+                pass
                 self.generic.append(attribute)
-                index += 1
             pass
             offset += itemsize
         pass
 
+
+    def bind_shader_attrib(self, program=None):
+        """
+        * https://www.khronos.org/opengles/sdk/docs/man/xhtml/glBindAttribLocation.xml
+
+        Attribute variable name-to-generic attribute index bindings for a
+        program object can be explicitly assigned at any time by calling
+        glBindAttribLocation. Attribute bindings do not go into effect until
+        glLinkProgram is called. After a program object has been linked successfully,
+        the index values for generic attributes remain fixed (and their values can be
+        queried) until the next link command occurs.
+
+        Applications are not allowed to bind any of the standard OpenGL vertex
+        attributes using this command, as they are bound automatically when needed. Any
+        attribute binding that occurs after the program object has been linked will not
+        take effect until the next time the program object is linked.
+
+        """ 
+        for attribute in self.generic:
+            attribute.enable()
+            if not program is None:
+                gl.glBindAttribLocation( program, attribute.index, attribute.name )  # make attrib accessible from shader
+                # this is equivalent to layout qualifier in the shader, http://www.opengl.org/wiki/Layout_Qualifier_(GLSL)
+
+
+    def enable(self, what, att=1, program=None):
+
+        """ 
+        """
+        self.bind_shader_attrib(program)
+
+        attributes = self.attmap[att]
+        for c in attributes.keys():
+            if c in what:
+                #log.info("enabling attribute %s %s " % (c, attributes[c]) )
+                attributes[c].enable()
+
+    def disable(self, what, att=1, program=None):
+
+        for attribute in self.generic:
+            attribute.disable()
 
 
 
@@ -460,11 +550,12 @@ class DAEVertexBuffer(object):
     For example using 2x striding allow to draw points from a lines VBO 
     http://pyopengl.sourceforge.net/documentation/manual-3.0/glBufferData.html
     """
-    def __init__(self, vertices, indices=None):
+    def __init__(self, vertices, indices=None, force_attribute_zero=None):
         """
         :param vertices: numpy ndarray with named constituents
         :param indices: numpy ndarray of element indices
         """
+        self.force_attribute_zero = force_attribute_zero
         self.init_array_buffer(vertices)
 
         if indices is None:
@@ -478,7 +569,7 @@ class DAEVertexBuffer(object):
         """
         Upload numpy array into OpenGL array buffer
         """
-        self.attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize)
+        self.attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize, force_attribute_zero=self.force_attribute_zero)
         self.vertices = vertices
         self.vertices_id = gl.glGenBuffers(1)
 
@@ -500,7 +591,7 @@ class DAEVertexBuffer(object):
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 )
 
 
-    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att=1, program=None):
+    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att=1, shader=None):
         """ 
         :param mode: primitive to draw
         :param what: attribute multiple choice by first letter
@@ -512,7 +603,7 @@ class DAEVertexBuffer(object):
                      things like 2-stepping through VBO via doubled attribute stride and picking which 
                      of pairwise vertices to use.
 
-        :param program: shader program instance
+        :param shader: DAEShader instance
 
         Buffer offset default of 0 corresponds to glumpy original None, (ie (void*)0 )
         the integer value is converted with `ctypes.c_void_p(offset)`   
@@ -599,31 +690,31 @@ class DAEVertexBuffer(object):
         GL_CLIENT_VERTEX_ARRAY_BIT  Vertex arrays (and enables)
 
         """
-        if count is None:
-           count = self.indices.size   # this is what the glumpy original does
-        pass
+        assert count
 
-        gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
 
-        for attribute in self.attrib.generic:
-            attribute.enable()
-            if not program is None:
-                gl.glBindAttribLocation( program, attribute.index, attribute.name )  # make attrib accessible from shader
-                # this is equivalent to layout qualifier in the shader, http://www.opengl.org/wiki/Layout_Qualifier_(GLSL)
+        program = None if shader is None else shader.shader.program
 
-        attributes = self.attrib.attmap[att]
-        for c in attributes.keys():
-            if c in what:
-                #log.info("enabling attribute %s %s " % (c, attributes[c]) )
-                attributes[c].enable()
+        gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
+        self.attrib.enable( what=what, att=att, program=program )
+
+        if not shader is None:
+            shader.link()   # after setting up attribs 
+            shader.bind()
 
         gl.glDrawElements( mode, count, self.indices_type, ctypes.c_void_p(self.indices_size*offset) )
 
+        self.attrib.disable( what=what, att=att, program=program )
+        gl.glPopClientAttrib( )
+
+        if not shader is None:
+            shader.unbind()
+
+
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 ) 
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
-        gl.glPopClientAttrib( )
 
 
 

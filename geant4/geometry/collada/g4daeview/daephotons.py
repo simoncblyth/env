@@ -158,7 +158,7 @@ class DAEPhotons(object):
 
     def _get_pbuffer(self):
         if self._pbuffer is None:
-           self._pbuffer = self.renderer.create_buffer(self.pdata, self.pindices)  
+           self._pbuffer = self.renderer.create_buffer(self.pdata, self.pindices, self.position_name )  
         return self._pbuffer
     pbuffer = property(_get_pbuffer)  
 
@@ -190,7 +190,10 @@ class DAEPhotons(object):
     pnumfields = property(_get_pnumfields)
 
 
-    position_name = property(lambda self:"position") # not using 'position' uses generic attributues
+    # using 'position' uses traditional glVertexPointer furnishing gl_Vertex to shader
+    # using smth else eg 'vposition' use generic attribute , which requires force_attribute_zero for anythinh to appear
+ 
+    position_name = property(lambda self:"vposition") 
     num4vec = property(lambda self:"2")
     debug_shader = property(lambda self:False)  # when True switch off geometry shader for debugging 
 
@@ -211,9 +214,10 @@ class DAEPhotons(object):
         data[self.position_name][:,:3] = self.vertices
         data[self.position_name][:,3] = np.ones( nvert, dtype=np.float32 )  # fill in the w with ones
 
-        data['momdir'][:,:3] = self.momdir*self.param.fpholine
-        #data['momdir'][:,3]  = self.wavelength     # stuff the wavelength into 4th slot of momdir
+        data['momdir'][:,:3] = self.momdir
         data['momdir'][:,3]  = np.ones( nvert, dtype=np.float32 )  # fill in the w with ones
+
+        #data['momdir'][:,3]  = self.wavelength     # stuff the wavelength into 4th slot of momdir
 
         return data
 

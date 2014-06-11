@@ -147,19 +147,18 @@ __global__ void jump(float4* vbo, int items )
     int id = blockIdx.x*blockDim.x + threadIdx.x; 
     if (id >= items ) return ;
 
-    float4 pos = vbo[id*%(num4vec)s] ;
-    float4 dir = vbo[id*%(num4vec)s+1] ;
+    // float4 pos = vbo[id*%(num4vec)s] ;
+    // float4 dir = vbo[id*%(num4vec)s+1] ;
 
     // modify x of slot0 float4, position 
     // vbo[id*%(num4vec)s+0] = make_float4( pos.x + 10. , pos.y , pos.z, pos.w );  
     
-    // grows xyz of slot1 float4, momdir
-    // photon lines lengths generated in shader by increasing the momdir shared between OpenGL/GLSL/CUDA
-    //vbo[id*%(num4vec)s+1] = make_float4( dir.x*1.01 , dir.y*1.01 , dir.z*1.01, dir.w ); 
+    // grow the momdir
+    // vbo[id*%(num4vec)s+1] = make_float4( dir.x*1.01 , dir.y*1.01 , dir.z*1.01, dir.w ); 
 
-    vbo[id*%(num4vec)s+1] = make_float4( 100. , 100. , 100. , 0. ); 
+    // set a constant momdir for all photons
+    //vbo[id*%(num4vec)s+1] = make_float4( 100. , 100. , 100. , 0. ); 
     
-
 }
 """
 

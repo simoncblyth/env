@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 """
+When using position_name="position" DAEVertexBuffer does
+the traditional glVertexPointer setup that furnishes gl_Vertex
+to the shader. 
+
+
 """
 from env.graphics.opengl.shader.shader import Shader
 import logging
 log = logging.getLogger(__name__)
 
-vertex = r"""#version 120
+vertex = r"""#version 110
 // vertex : that simply passes through to geometry shader 
 
 attribute vec4 %(position_name)s;
@@ -15,12 +20,14 @@ varying vec4 vMomdir;
 void main()
 {
     gl_Position = vec4( %(position_name)s.xyz, 1.) ; 
-    //vMomdir = vec4( momdir.xyz, 1.) ;
-    vMomdir = vec4( 100.,100.,100., 1.) ;
+    //gl_Position = vec4( gl_Vertex.xyz , 1.) ; 
+
+    vMomdir = 1000.*vec4( momdir.xyz, 1.) ;
+    //vMomdir = vec4( 100.,100.,100., 1.) ;
 }
 """
 
-vertex_debug = r"""#version 120
+vertex_debug = r"""#version 110
 // vertex_debug : for use without geometry shader 
 
 attribute vec4 %(position_name)s;
@@ -28,8 +35,10 @@ attribute vec4 momdir;
 
 void main()
 {
+
     gl_Position = vec4( %(position_name)s.xyz, 1.) ; 
-    gl_Position.xyz += momdir.xyz ; 
+    //gl_Position = vec4( gl_Vertex.xyz , 1.) ; 
+    gl_Position.xyz += 100.*momdir.xyz ; 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
 }
 """
@@ -78,17 +87,22 @@ class DAEPhotonsShader(object):
             log.debug("compiling normal shader")
             shader = Shader( vertex, fragment, geometry, **ctx )
         pass
-        shader.link()
         self.shader = shader
 
     def __str__(self):
         return "%s\n%s " % (self.__class__.__name__, str(self.shader))
 
+    def link(self):
+        """
+        Linking must be done after attribute setup
+        """
+        self.shader.link()  ## LinkProgram 
+
     def bind(self):
-        self.shader.bind()
+        self.shader.bind()  ## UseProgram
     
     def unbind(self):
-        self.shader.unbind()
+        self.shader.unbind() ## UseProgram(0)
 
 
 
