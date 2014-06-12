@@ -1,27 +1,16 @@
 #!/usr/bin/env python
 
-import logging
+import logging, datetime
 log = logging.getLogger(__name__)
 import numpy as np
 
-from env.chroma.ChromaPhotonList.cpl import load_cpl, save_cpl   # ROOT transport level 
-
-#from photons import Photons                                      # numpy operations level 
-
-#TODO: allow non-chroma nodes to load CPL Photons too
-try:
-    from chroma.event import Photons
-except ImportError:
-    Photons = None
-
+from photons import Photons
 from daephotons import DAEPhotons
-
-from datetime import datetime
 from daeeventlist import DAEEventList , DAEEventListMenu
 from daemenu import DAEMenu
 
 def timestamp():
-    return datetime.now().strftime("%Y%m%d-%H%M%S")
+    return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 class DAEEventMenu(DAEMenu):
     def __init__(self, config, handler):
@@ -171,11 +160,9 @@ class DAEEvent(object):
         pass
         self.setup_cpl(cpl) 
 
-    def timestamped_save(self, cpl):
+    def timestamped_save(self, cpl, key=None):
         path_ = timestamp()
-        path = self.resolve(path_, self.config.args.path_template)
-        key = self.config.args.key 
-        save_cpl( path, key, cpl )   
+        self.config.save_cpl( path_, key, cpl.cpl)   
  
     def setup_cpl(self, cpl):
         """
@@ -183,10 +170,6 @@ class DAEEvent(object):
 
         Convert serialization level ChromaPhotonList into operation level Photons
         """
-        if Photons is None:
-            log.warn("setup_cpl requires chroma ")
-            return
-
         photons = Photons.from_cpl(cpl, extend=True)   
         self.setup_photons( photons ) 
 
@@ -234,21 +217,14 @@ class DAEEvent(object):
         self.dphotons.draw()
 
     def save(self, path_, key=None ):
-        if key is None:
-            key = self.config.args.key
         if self.cpl is None:
             log.warn("no cpl, nothing to save ") 
             return
-        path = self.config.resolve_event_path(path_)
-        log.info("save cpl into  %s : %s " % (path_, path) )
-        save_cpl( path, key, self.cpl.cpl )   
+        self.config.save_cpl( path_, key, self.cpl.cpl )   
 
     def load(self, path_, key=None ):
-        if key is None:
-            key = self.config.args.key
-        path = self.config.resolve_event_path(path_)
-        log.debug("load cpl from  %s : %s " % (path_, path) )
-        cpl = load_cpl(path, key )
+        path = self.config.resolve_event_path( path_ )
+        cpl = self.config.load_cpl( path, key )
         if cpl is None:
             log.warn("load_cpl failed ")
             return

@@ -41,6 +41,7 @@ class DAEPhotonsParam(object):
         self.pholine = config.args.pholine
         self.fphopoint = config.args.fphopoint
         self.phopoint = config.args.phopoint
+        self.debugshader = config.args.debugshader
 
     def _get_shader_uniform_param(self):
         return [self.fpholine, self.fphopoint, 0., 0.]

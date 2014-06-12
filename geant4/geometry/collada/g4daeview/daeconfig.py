@@ -64,7 +64,7 @@ class DAEConfig(ConfigBase):
     yfovclip = property(lambda self:fvec_(self.args.yfovclip))
     thetaphi = property(lambda self:fvec_(self.args.thetaphi))
 
-    def __init__(self, doc):
+    def __init__(self, doc=""):
         ConfigBase.__init__(self, doc) 
         self._path = None
 
@@ -99,6 +99,26 @@ class DAEConfig(ConfigBase):
         assert not path is None, "Need to define envvar pointing to geometry file"
         assert os.path.exists(path), path
         return path
+
+    def load_cpl(self, name, key=None ):
+        """
+        Requires envvar from cpl-;cpl-export to find the ROOT library 
+        """ 
+        if key is None:
+            key = self.args.key
+        from env.chroma.ChromaPhotonList.cpl import load_cpl
+        cpl = load_cpl(self.resolve_event_path(name), key )
+        return cpl
+
+    def save_cpl(self, cpl, name, key=None ):
+        """
+        Requires envvar from cpl-;cpl-export to find the ROOT library 
+        """ 
+        if key is None:
+            key = self.args.key
+        path = self.resolve_event_path(name)
+        from env.chroma.ChromaPhotonList.cpl import save_cpl
+        save_cpl( path, key, cpl )
 
     def _get_path(self):
         if self._path is None:
@@ -136,6 +156,7 @@ class DAEConfig(ConfigBase):
         defaults['loglevel'] = "INFO"
         defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
         defaults['legacy'] = True
+        defaults['debugshader'] = False
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
@@ -147,6 +168,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
         parser.add_argument( "--nolegacy", dest="legacy", action="store_false", help="Sets `legacy=False` , the flag is used for OpenGL modernization tests, default %(default)s." )
+        parser.add_argument( "--debugshader", dest="debugshader", action="store_true", help="Use debug shader without geometry stage, default %(default)s." )
         parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )

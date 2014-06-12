@@ -529,8 +529,10 @@ class DAEVertexBuffer(object):
             indices = np.arange(vertices.size,dtype=np.uint32)
         self.init_element_array_buffer(indices)
 
-    def make_cuda_buffer_object(self, chroma_context):
-        return chroma_context.make_cuda_buffer_object(self.vertices_id)
+
+    # handle interop at level above DAEVertexBuffer in DAEPhotonsRenderer
+    #def make_cuda_buffer_object(self, chroma_context):
+    #    return chroma_context.make_cuda_buffer_object(self.vertices_id)
 
     def init_array_buffer(self, vertices ):
         """
@@ -665,10 +667,17 @@ class DAEVertexBuffer(object):
         program = None if shader is None else shader.shader.program
 
         gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
+
         self.attrib.enable( what=what, att=att, program=program )
 
+        #
+        # seems crazy to do this for every draw ?
+        # but the link needs to be done after setting up attribs
+        # TRY:
+        # #. move attrib enable to ctor ? 
+        #
         if not shader is None:
-            shader.link()        # after setting up attribs 
+            shader.link()        
             shader.bind()
             shader.set_param()
             shader.set_mode(shader_mode)
@@ -676,6 +685,7 @@ class DAEVertexBuffer(object):
         gl.glDrawElements( mode, count, self.indices_type, ctypes.c_void_p(self.indices_size*offset) )
 
         self.attrib.disable( what=what, att=att, program=program )
+
         gl.glPopClientAttrib( )
 
         if not shader is None:

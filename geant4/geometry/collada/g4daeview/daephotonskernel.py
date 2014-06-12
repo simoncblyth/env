@@ -117,8 +117,6 @@ div_ = lambda num,den:(num+den-1)//den  # integer division trick, rounding up wi
 from pycuda.compiler import SourceModule
 
 kernel_source_dev = r"""
-
-
 union X4
 {
    float4 f ;
@@ -126,10 +124,8 @@ union X4
    uint4  u ;
 } ;
 
-    union X4 pos ; 
-    pos.f = vbo[id*%(num4vec)s] ; 
-    vbo[id*%(num4vec)s+0] = make_float4( pos.f.x + 10. , pos.f.y , pos.f.z, 1. ); 
-
+union X4 pos ; 
+pos.f = vbo[id*%(numquad)s] ; 
 """
 
 
@@ -137,8 +133,8 @@ kernel_source = r"""
 //
 // CUDA kernel checking the modification of OpenGL VBO 
 //
-//  #. depends on the simple quad*N structure of the VBO 
-//     created by DAEPhotons.create_pdata 
+//  #. depends on the simple quad*numquad structure of the VBO 
+//     created by DAEPhotonsData.create_data 
 //
 
 __global__ void jump(float4* vbo, int items )
@@ -146,17 +142,17 @@ __global__ void jump(float4* vbo, int items )
     int id = blockIdx.x*blockDim.x + threadIdx.x; 
     if (id >= items ) return ;
 
-    float4 posw = vbo[id*%(num4vec)s] ;    // position_weight 
-    float4 dirw = vbo[id*%(num4vec)s+1] ;  // direction_wavelength
+    float4 posw = vbo[id*%(numquad)s] ;    // position_weight 
+    float4 dirw = vbo[id*%(numquad)s+1] ;  // direction_wavelength
 
     // modify x of slot0 float4, position 
-    // vbo[id*%(num4vec)s+0] = make_float4( posw.x + 10. , posw.y , posw.z, posw.w );  
+    // vbo[id*%(numquad)s+0] = make_float4( posw.x + 10. , posw.y , posw.z, posw.w );  
     
     // grow the direction
-    // vbo[id*%(num4vec)s+1] = make_float4( dirw.x*1.01 , dirw.y*1.01 , dirw.z*1.01, dirw.w ); 
+    // vbo[id*%(numquad)s+1] = make_float4( dirw.x*1.01 , dirw.y*1.01 , dirw.z*1.01, dirw.w ); 
 
     // set a constant momdir for all photons
-    // vbo[id*%(num4vec)s+1] = make_float4( 100. , 100. , 100. , 0. ); 
+    // vbo[id*%(numquad)s+1] = make_float4( 100. , 100. , 100. , 0. ); 
     
 }
 """
@@ -170,7 +166,7 @@ class DAEPhotonsKernel(object):
     """
     def __init__(self, dphotons):
 
-        ctx = { 'num4vec':dphotons.num4vec }
+        ctx = { 'numquad':dphotons.numquad }
         self.kernel_source = kernel_source % ctx 
 
         module = SourceModule(self.kernel_source )

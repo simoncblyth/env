@@ -34,8 +34,8 @@ class DAEPhotonsRenderer(object):
         The source of the kernel and shaders depends on the data structure, so 
         use string interpolation to tie these together somewhat.
         """
-        self.chroma = chroma
         self.dphotons = dphotons
+        self.chroma = chroma
 
         shader = DAEPhotonsShader(dphotons) 
         print shader
@@ -46,28 +46,46 @@ class DAEPhotonsRenderer(object):
         self.shader = shader
         self.kernel = kernel
 
+        self._pbuffer = None
+        self._lbuffer = None
+
     interop = property(lambda self:not self.chroma.dummy)
-    lbuffer = property(lambda self:self.dphotons.lbuffer)
-    pbuffer = property(lambda self:self.dphotons.pbuffer)
 
-    def create_buffer(self, data, indices, force_attribute_zero ):
-        if data is None or indices is None:
-            return None
-        pass 
+    def _get_pbuffer(self):
+        if self._pbuffer is None:
+           self._pbuffer = self.create_buffer(self.dphotons.data)  
+        return self._pbuffer
+    pbuffer = property(_get_pbuffer, doc="point buffer, without doubling : used with geometry shader to generate 2nd vertices and lines ")  
+
+    def _get_lbuffer(self):
+        if self._lbuffer is None:
+           self._lbuffer = self.create_buffer(self.dphotons.data)  
+        return self._lbuffer
+    lbuffer = property(_get_lbuffer, doc="line buffer, with doubled vertices : not used when geometry shader available")  
+
+
+    def create_buffer(self, data ):
+        """
+        #. buffer creation does not belong in DAEPhotonsData as OpenGL specific
+        """
         log.debug("create_buffer ")
-        #print data
-
-        vbo = DAEVertexBuffer( data, indices, force_attribute_zero=force_attribute_zero  )
+        vbo = DAEVertexBuffer( data.data, data.indices, force_attribute_zero=data.force_attribute_zero  )
         self.interop_gl_to_cuda(vbo)
         return vbo
 
     def interop_cuda_to_gl(self, buf ):
-        if self.interop:
-            buf.cuda_buffer_object.unregister() 
+        """
+        Ends CUDA responsibility, allows OpenGL access for drawing 
+        """
+        if not self.interop:return
+        buf.cuda_buffer_object.unregister() 
 
     def interop_gl_to_cuda(self, buf ):
-        if self.interop:
-            buf.cuda_buffer_object = buf.make_cuda_buffer_object(self.chroma)
+        """ 
+        Registering the VBO with CUDA, by creation of cuda_gl BufferObject 
+        """
+        if not self.interop:return
+        buf.cuda_buffer_object = self.chroma.make_cuda_buffer_object(buf.vertices_id)
 
     def former_draw(self):
         """
@@ -83,7 +101,7 @@ class DAEPhotonsRenderer(object):
 
         gl.glPointSize(1)  
 
-    def interop_call(self, buf):
+    def interop_call_cuda_kernel(self, buf):
         """
         NEXT:
  
@@ -128,7 +146,7 @@ class DAEPhotonsRenderer(object):
         qcount = self.dphotons.qcount
         gl.glPointSize(self.dphotons.param.fphopoint)  
         
-        self.interop_call(self.pbuffer)
+        self.interop_call_cuda_kernel(self.pbuffer)
         self.interop_cuda_to_gl(self.pbuffer)
 
         self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1, shader=self.shader, shader_mode=2 ) # lines via geometry shader

@@ -2,7 +2,7 @@
 """
 Treating a DAEPhotons like a DAEMesh 
 """
-from daephotons import DAEPhotons
+from daephotonsdata import DAEPhotonsData
 from daegeometry import DAEMesh 
 
 if __name__ == '__main__':

@@ -100,7 +100,7 @@ class DAEPhotonsShader(object):
     def __init__(self, dphotons ):
 
         ctx = {}
-        debug = dphotons.debug_shader
+        debug = dphotons.param.debugshader
         if debug:
             log.debug("compiling debug shader")
             shader = Shader( vertex_debug , fragment, None, **ctx )
