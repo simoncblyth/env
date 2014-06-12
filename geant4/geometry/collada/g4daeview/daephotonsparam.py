@@ -13,6 +13,9 @@ def arg2mask( argl ):
     """ 
     Return strings representing integers as integers
     otherwise perform enum name to mask conversion.
+
+    NB returning None here prevents the mask or bits matching
+    from being applied
     """
     if argl is None or argl == "NONE":return None
     mask = 0 
@@ -22,9 +25,6 @@ def arg2mask( argl ):
         mask = arg2mask_(argl)
     pass
     return mask
-
-
-
 
 
 class DAEPhotonsParam(object):
@@ -38,51 +38,53 @@ class DAEPhotonsParam(object):
         self._mask = config.args.mask
         self._bits = config.args.bits
         self.fpholine = config.args.fpholine
-        self.pholine = config.args.pholine
         self.fphopoint = config.args.fphopoint
-        self.phopoint = config.args.phopoint
         self.debugshader = config.args.debugshader
+        self.shadermode = config.args.shadermode
 
-    def _get_shader_uniform_param(self):
+    reconfigurables = ['fpholine','fphopoint','mask','bits','shadermode']
+
+    def reconfig(self, conf):        
+        update = False
+        for k, v in conf:
+            if k in self.reconfigurables:
+                setattr(self, k, v ) 
+                update = True
+            else:
+                log.info("ignoring %s %s " % (k,v))
+            pass 
+        return update
+
+    def _get_shader_fparam(self):
         return [self.fpholine, self.fphopoint, 0., 0.]
-    shader_uniform_param = property(_get_shader_uniform_param)
+    shader_fparam = property(_get_shader_fparam)
+
+    def _get_shader_iparam(self):
+        mask = self.mask
+        bits = self.bits
+        # cannot pass None into a shader uniform 
+        mask = -1 if mask is None else mask 
+        bits = -1 if bits is None else bits 
+        return [self.shadermode, mask, bits, 0]
+    shader_iparam = property(_get_shader_iparam)
 
 
     def _get_mask(self):
         return arg2mask(self._mask)
     def _set_mask(self, mask):
         self._mask = mask
+    mask = property(_get_mask, _set_mask)
 
     def _get_bits(self):
         return arg2mask(self._bits)
     def _set_bits(self, bits):
         self._bits = bits
-
-
-    mask = property(_get_mask, _set_mask)
     bits = property(_get_bits, _set_bits )
 
 
-    def reconfig(self, conf):
-        update = False
-        for k, v in conf:
-            if k == 'fpholine':
-                self.fpholine = v
-                update = True
-            elif k == 'fphopoint':
-                self.fphopoint = v
-            elif k == 'pholine':
-                self.pholine = True   # remove
-                update = True
-            elif k == 'phopoint':
-                self.pholine = False  # remove 
-                update = True
-            elif k == 'mask':
-                self._mask = v
-                update = True
-            else:
-                log.info("ignoring %s %s " % (k,v))
-            pass 
-        return update
+
+
+if __name__ == '__main__':
+    pass
 
 

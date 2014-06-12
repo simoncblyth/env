@@ -4,6 +4,37 @@ http://codingmess.blogspot.tw/2009/05/conversion-of-wavelength-in-nanometers.htm
 
 """
 
+wav2RGB_glsl = r"""
+vec4 wav2color(in float wav)
+{
+    //if (isinf(wav))      w = -1 ;
+    //else if( isnan(wav)) w = -2 ;  
+    //else     
+
+    //if ( w < 0 ) return vec4( 1., 1., 1., 1. ); 
+
+    int w = int(wav) ;
+
+    vec3 col ;
+ 
+    if      (w >= 380 && w < 440)  col = vec3( -(wav - 440.) / (440. - 350.) , 0.0, 1.0 ) ;
+    else if (w >= 440 && w < 490)  col = vec3( 0.0, (wav - 440.) / (490. - 440.), 1.0 ) ;
+    else if (w >= 490 && w < 510)  col = vec3( 0.0, 1.0, -(wav - 510.) / (510. - 490.) ) ;
+    else if (w >= 510 && w < 580)  col = vec3( (wav - 510.) / (580. - 510.), 1.0 , 0.0 ) ;
+    else if (w >= 580 && w < 645)  col = vec3( 1.0,  -(wav - 645.) / (645. - 580.), 0.0 );
+    else if (w >= 645 && w <= 780) col = vec3( 1.0, 0.0, 0.0 ) ;
+    else                           col = vec3( 0.0, 0.0, 0.0 );
+
+    // intensity correction
+    float SSS ;
+    if ( w >= 380 && w < 420 )     SSS = 0.3 + 0.7*(wav - 350.) / (420. - 350.);
+    else if (w >= 420 && w <= 700) SSS = 1.0 ;
+    else if (w > 700 && w <= 780)  SSS = 0.3 + 0.7*(780. - wav) / (780. - 700.);
+    else SSS = 0.0 ;
+
+    return vec4( SSS*col, 1.) ; 
+}
+"""
 
 def wav2RGB(wavelength):
     try:

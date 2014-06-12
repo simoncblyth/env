@@ -71,6 +71,7 @@ class DAEPhotons(object):
     def _set_photons(self, photons):
         self.data.photons = photons
         if not photons is None:
+            self.renderer.invalidate_buffers()
             self.menuctrl.update( photons )    
     photons = property(_get_photons, _set_photons) 
 
@@ -86,12 +87,21 @@ class DAEPhotons(object):
     def __repr__(self):
         return "%s " % (self.__class__.__name__)
 
-    #def reconfig(self, conf):
-    #    update = self.param.reconfig(conf)
-    #    if update:
-    #        self.invalidate_buffer()
-    #
+    def reconfig(self, conf):
+        """
+        This is called to handle external messages such as::
 
+            udp.py --fpholine 100
+
+        This formerly forced buffer invalidation, but following move
+        to shader rendering, can just update uniforms.
+        """
+        log.info("reconfig %s " % repr(conf))
+        update = self.param.reconfig(conf)
+        #
+        #if update:
+        #    self.renderer.invalidate_buffers()
+        #
 
 
 

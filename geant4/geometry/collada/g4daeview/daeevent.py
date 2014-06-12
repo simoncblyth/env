@@ -135,7 +135,7 @@ class DAEEvent(object):
                 self.qcut = v 
             elif k == 'reload':
                 self.reload_()
-            elif k in ('fpholine','pholine','fphopoint','phopoint','mask'):   
+            elif k in ('fpholine','fphopoint','shadermode','mask'):   
                 photons_config.append([k,v])
             else:
                 assert 0, (k,v)

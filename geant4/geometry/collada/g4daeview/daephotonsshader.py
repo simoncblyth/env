@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 """
+
+* http://www.cs.unh.edu/~cs770/docs/glsl-1.20-quickref.pdf
+
 When using position_name="position" DAEVertexBuffer does
 the traditional glVertexPointer setup that furnishes gl_Vertex
 to the shader. 
@@ -14,41 +17,61 @@ from env.graphics.opengl.shader.shader import Shader
 import logging
 log = logging.getLogger(__name__)
 
+from env.graphics.color.wav2RGB import wav2RGB_glsl
+
 import OpenGL.GL as gl
 
 
-vertex = r"""#version 110
+vertex = r"""#version 120
 // vertex : that simply passes through to geometry shader 
 
-uniform vec4 param; 
+uniform vec4  fparam; 
+uniform ivec4 iparam; 
 
 attribute vec4 position_weight;
 attribute vec4 direction_wavelength;
 attribute vec4 polarization_time;
 
+//attribute uvec4 flags;
+//attribute ivec4 last_hit_triangle;
+
 varying vec4 vMomdir;
+varying vec4 vColor ;
+
+%(funcs)s
 
 void main()
 {
     gl_Position = vec4( position_weight.xyz, 1.) ; 
-    vMomdir = param.x*vec4( direction_wavelength.xyz, 1.) ;
+    vMomdir = fparam.x*vec4( direction_wavelength.xyz, 1.) ;
+    vColor = wav2color( direction_wavelength.w );
+    //vColor = vec4( 1.0, 0., 0., 1.);
 }
-"""
 
-vertex_debug = r"""#version 110
+""" % { 'funcs':wav2RGB_glsl }
+
+vertex_debug = r"""#version 120
 // vertex_debug : for use without geometry shader 
 
-uniform vec4 param; 
+uniform vec4  fparam; 
+uniform ivec4 iparam; 
+
 attribute vec4 position_weight;
 attribute vec4 direction_wavelength;
 
+varying vec4 fColor;
+
+%(funcs)s
+
 void main()
 {
     gl_Position = vec4( position_weight.xyz, 1.) ; 
-    gl_Position.xyz += param.x*direction_wavelength.xyz ; 
+    gl_Position.xyz += fparam.x*direction_wavelength.xyz ; 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+    fColor = wav2color( direction_wavelength.w );
 }
-"""
+
+""" % { 'funcs':wav2RGB_glsl }
 
 geometry = r"""#version 120
 #extension GL_EXT_geometry_shader4 : enable
@@ -56,39 +79,38 @@ geometry = r"""#version 120
 //  http://www.opengl.org/wiki/Geometry_Shader_Examples
 
 varying in vec4 vMomdir[] ; 
-uniform int mode ; 
+varying in vec4 vColor[] ; 
+varying out vec4 fColor ;
+
+uniform  vec4 fparam; 
+uniform ivec4 iparam; 
 
 void main()
 {
 
     gl_Position = gl_PositionIn[0];
     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+    fColor = vColor[0] ;
     EmitVertex();
 
-    // amplify primitive point into line
-    if( mode > 0 ){
-        gl_Position = gl_PositionIn[0];
-        gl_Position.xyz += vMomdir[0].xyz ;
-        gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-        EmitVertex();
-    }
-
-    if( mode > 1 ){
-        gl_Position = gl_PositionIn[0];
-        gl_Position.xyz += -2.*vMomdir[0].xyz ;
-        gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-        EmitVertex();
-    }
-
+    gl_Position = gl_PositionIn[0];
+    gl_Position.xyz += vMomdir[0].xyz ;
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+    fColor = vColor[0] ;
+    EmitVertex();
 
     EndPrimitive();
 }
 """
 
 fragment = r"""
+
+varying vec4 fColor ;
+
 void main()
 {
-    gl_FragColor = vec4(.0, 1.0, 0, 1);
+    gl_FragColor = fColor ;
+    //gl_FragColor = vec4(.0, 1.0, 0, 1);
 }
 """
 
@@ -99,11 +121,14 @@ class DAEPhotonsShader(object):
     """
     def __init__(self, dphotons ):
 
-        ctx = {}
-        debug = dphotons.param.debugshader
-        if debug:
+        log.info("%s" % (self.__class__.__name__))
+        for k in (gl.GL_VERSION, gl.GL_SHADING_LANGUAGE_VERSION, gl.GL_EXTENSIONS ):
+            v = gl.glGetString(k)  
+            log.info("%s %s " % (k, "\n".join(v.split())  ))
+
+        if dphotons.param.debugshader:
             log.debug("compiling debug shader")
-            shader = Shader( vertex_debug , fragment, None, **ctx )
+            shader = Shader( vertex_debug , fragment, None )
         else:
             log.debug("compiling normal shader")
             #shader = Shader( vertex, fragment, geometry, geometry_output_type=gl.GL_POINTS )
@@ -112,33 +137,59 @@ class DAEPhotonsShader(object):
         self.shader = shader
         self.dphotons = dphotons
 
-    def set_param(self):
-        """
-        Hmm how to avoid calling this all the time before every draw ?
+        self._iparam = None
+        self._fparam = None
 
-        TODO: try to make this need to be called only on a change 
-        """
-        param = self.dphotons.param.shader_uniform_param
-        #log.info("set_param %s " % repr(param)) 
-        self.shader.uniformf("param", *param)
+    def init_uniforms(self):
+        self.iparam = self.dphotons.param.shader_iparam
+        self.fparam = self.dphotons.param.shader_fparam
 
-    def set_mode(self, mode):
-        self.shader.uniformi("mode", mode )
+
+    def _get_iparam(self):
+        return self._iparam
+    def _set_iparam(self, iparam):
+        """
+        """
+        if iparam == self._iparam:
+            return 
+        self._iparam = iparam
+        self.shader.uniformi("iparam", *self._iparam)
+    iparam = property(_get_iparam, _set_iparam, doc="shader iparam uniform ")
+
+
+    def _get_fparam(self):
+        return self._fparam
+    def _set_fparam(self, fparam):
+        """
+        """
+        if fparam == self._fparam:
+            return 
+        self._fparam = fparam
+        self.shader.uniformf("fparam", *self._fparam)
+    fparam = property(_get_fparam, _set_fparam, doc="shader fparam uniform ")
+
+
+
+
 
     def __str__(self):
         return "%s\n%s " % (self.__class__.__name__, str(self.shader))
+
 
     def link(self):
         """
         Linking must be done after attribute setup
         """
-        self.shader.link()  ## LinkProgram 
+        #log.info("link")
+        self.shader.link()  
 
-    def bind(self):
-        self.shader.bind()  ## UseProgram
+    def use(self):
+        #log.info("use")
+        self.shader.use()  
     
-    def unbind(self):
-        self.shader.unbind() ## UseProgram(0)
+    def unuse(self):
+        #log.info("unuse")
+        self.shader.unuse() 
 
 
 

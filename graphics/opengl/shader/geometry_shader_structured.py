@@ -54,10 +54,11 @@ def display():
                     0,   0,   0,
                     0,   0,   1)
 
-    shader.bind()   # glUseProgram
+    shader.use()   
     shader.uniformf( "mydistance" , rot/10000.0)
+    shader.uniformi( "iparam" ,     1, 1, 1, 1 )
     input_geometry(color_attrib = shader.attrib('color'))
-    shader.unbind()  # glUseProgram(0)
+    shader.unuse()  # glUseProgram(0)
 
 
     glut.glutSwapBuffers()
@@ -82,56 +83,60 @@ def reshape(width, height):
 
 
 vertex = """
-    attribute float color;
-    varying float geom_color;
-    void main(void) {
-      gl_Position = gl_Vertex;
-      geom_color = color;
-    }
-    """
+#version 120
+attribute float color;
+
+varying float geom_color;
+void main(void) {
+   gl_Position = gl_Vertex;
+   geom_color = color;
+}
+"""
 
 geometry = """
-    #version 120
-    #extension GL_EXT_geometry_shader4 : enable
+#version 120
+#extension GL_EXT_geometry_shader4 : enable
 
-    varying in float geom_color[1];
-    varying out float frag_color;
+varying in float geom_color[1];
+varying out float frag_color;
 
-    uniform float mydistance;
+uniform ivec4 iparam; 
+uniform float mydistance;
 
-    void main(void)
-    {
-     int x, y;
+void main(void)
+{
+ int x, y;
 
-     for(x=-1; x<=1; x+=1) {
-       for(y=-1; y<=1; y+=1) {
-         gl_Position = gl_PositionIn[0];
-         gl_Position.x += x * mydistance;
-         gl_Position.y += y * mydistance;
-         gl_Position.z -= 2.0;
-         gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-         frag_color = geom_color[0];
-         EmitVertex();
+ for(x=-iparam.x ; x<=iparam.x; x+=1) {
+   for(y=-iparam.y; y<=iparam.y; y+=1) {
+     gl_Position = gl_PositionIn[0];
+     gl_Position.x += x * mydistance;
+     gl_Position.y += y * mydistance;
+     gl_Position.z -= 2.0;
+     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+     frag_color = geom_color[0];
+     EmitVertex();
 
-         gl_Position = gl_PositionIn[0];
-         gl_Position.x += x * mydistance;
-         gl_Position.y += y * mydistance;
-         gl_Position.z += 2.0;
-         gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-         frag_color = geom_color[0];
-         EmitVertex();
-         EndPrimitive();
-       }
-     }
-    }
-    """
+     gl_Position = gl_PositionIn[0];
+     gl_Position.x += x * mydistance;
+     gl_Position.y += y * mydistance;
+     gl_Position.z += 2.0;
+     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+     frag_color = geom_color[0];
+     EmitVertex();
+     EndPrimitive();
+   }
+ }
+}
+"""
 
 fragment = """
-    varying float frag_color;
-    void main(void) {
-      gl_FragColor = vec4(frag_color,1.0-frag_color,frag_color,1);
-    }
-    """
+#version 120
+varying float frag_color;
+void main(void) {
+   gl_FragColor = vec4(frag_color,1.0-frag_color,frag_color,1);
+}
+"""
 
 
 

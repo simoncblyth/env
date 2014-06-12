@@ -6,6 +6,17 @@ G4DAEVIEW
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
+Migration to Shader Control
+-----------------------------
+
+Running into difficulties, photons not appearing, current cmds::
+
+   g4daeview.sh --with-chroma --nolegacy 
+      ## photon rep appears on right-arrow loading but immediately dissapears 
+
+   g4daeview.sh --with-chroma --nolegacy --debugshader
+
+
 NB default node selection only applies to to dyb
 -------------------------------------------------
 

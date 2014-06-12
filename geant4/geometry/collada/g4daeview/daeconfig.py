@@ -239,6 +239,7 @@ class DAEConfig(ConfigBase):
         defaults['norm'] = "0,0,0"
         defaults['fullscreen'] = False
         defaults['markers'] = False
+        defaults['shadermode'] = 1
 
         parser.add_argument( "--scaled-mode", action="store_true", help="In scaled mode the actual VBO vertex coordinates are scaled into -1:1, ie shrink world into unit cube. **FOR DEBUG ONLY** " )
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
@@ -252,6 +253,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--norm",    help="Dummy argument, used for informational output.",type=str)
         parser.add_argument( "--fullscreen", action="store_true", help="Start in fullscreen mode." )
         parser.add_argument( "--markers",   action="store_true", help="[I] Frustum and light markers." )
+        parser.add_argument( "--shadermode", help="DAEPhotonShader render mode uniform, default %(default)s.", type=int )
 
 
         # event
@@ -261,9 +263,9 @@ class DAEConfig(ConfigBase):
         defaults['saveall'] = False
         defaults['key'] = 'CPL'
         defaults['path_template'] = os.environ.get('DAE_PATH_TEMPLATE',None)
-        defaults['pholine']  = False
+        #defaults['pholine']  = False
+        #defaults['phopoint']  = True
         defaults['fpholine'] = 100.
-        defaults['phopoint']  = True
         defaults['fphopoint'] = 2
         defaults['tcut'] = 1.
         defaults['mask'] = None
@@ -278,10 +280,10 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--key",   help="[I] ROOT Object Key to use with load/save. Default %(default)s.",type=str)
         parser.add_argument( "--path-template", help="Path template that load/save arguments fill in. Default %(default)s.",type=str)
         parser.add_argument( "--fpholine", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)
-        parser.add_argument( "--pholine", help="Present photons as lines from position to position + momdirection*fpho. Default %(default)s.",action="store_true")
-        parser.add_argument( "--nopholine", dest="pholine", help="Switch off line representation, returning to point. %(default)s.",action="store_false")
-        parser.add_argument( "--phopoint", help="Present photons as points of size fphopoint. Default %(default)s.",action="store_true")
         parser.add_argument( "--fphopoint", help="Present photons as points of size fphopoint. Default %(default)s.",type=float)
+        #parser.add_argument( "--pholine", help="Present photons as lines from position to position + momdirection*fpho. Default %(default)s.",action="store_true")
+        #parser.add_argument( "--nopholine", dest="pholine", help="Switch off line representation, returning to point. %(default)s.",action="store_false")
+        #parser.add_argument( "--phopoint", help="Present photons as points of size fphopoint. Default %(default)s.",action="store_true")
         parser.add_argument( "--tcut", help="Select photons to present based on their global time, in range 0. to 1., where 1. means all. Default %(default)s.",type=float)
 
         parser.add_argument( "--mask", help="Apply mask bitwise AND selection to status flags of Chroma stepped photons. Default %(default)s", type=str )  

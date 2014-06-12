@@ -41,7 +41,6 @@ class DAEPhotonsDataBase(object):
         self._data = None   
         self._indices = None   
         self._color = None
-        self._mesh = None
 
     def _get_photons(self):
         return self._photons    
@@ -87,7 +86,6 @@ class DAEPhotonsDataBase(object):
         nflag = len(flags)
         assert nflag == npho, (nflg, npho)
 
-
         mask = self.param.mask 
         bits = self.param.bits 
 
@@ -100,13 +98,15 @@ class DAEPhotonsDataBase(object):
         else:
             assert 0
 
-        log.info("indices_selection : %s " % len(indices) )
-
         if len(indices) == 0:
             log.warn("added token single indice, to avoid empty indices ")
+            log.info("indices_selection npho %s nflag %s " % ( npho, nflag ))
+            log.info("indices_selection : %s mask %s bits %s  " % ( len(indices), mask, bits) )
             indices = np.arange( 1, dtype=np.uint32) 
  
         return indices
+
+
 
     def wavelengths2rgb(self):
         if self.nphotons == 0:return None

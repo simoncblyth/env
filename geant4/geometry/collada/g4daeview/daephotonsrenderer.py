@@ -45,11 +45,18 @@ class DAEPhotonsRenderer(object):
 
         self.shader = shader
         self.kernel = kernel
-
-        self._pbuffer = None
-        self._lbuffer = None
+        self.invalidate_buffers()
 
     interop = property(lambda self:not self.chroma.dummy)
+
+    def invalidate_buffers(self):
+        """
+        Called when changes (eg loading a new event or changing a selection)
+        invalidate the current buffers.  This will force buffer recreation on 
+        next usage (eg when drawing).
+        """
+        self._pbuffer = None
+        self._lbuffer = None
 
     def _get_pbuffer(self):
         if self._pbuffer is None:
@@ -69,7 +76,7 @@ class DAEPhotonsRenderer(object):
         #. buffer creation does not belong in DAEPhotonsData as OpenGL specific
         """
         log.debug("create_buffer ")
-        vbo = DAEVertexBuffer( data.data, data.indices, force_attribute_zero=data.force_attribute_zero  )
+        vbo = DAEVertexBuffer( data.data, data.indices, force_attribute_zero=data.force_attribute_zero, shader=self.shader  )
         self.interop_gl_to_cuda(vbo)
         return vbo
 
@@ -149,17 +156,9 @@ class DAEPhotonsRenderer(object):
         self.interop_call_cuda_kernel(self.pbuffer)
         self.interop_cuda_to_gl(self.pbuffer)
 
-        self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1, shader=self.shader, shader_mode=2 ) # lines via geometry shader
-        #self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1, shader=self.shader, shader_mode=0 ) # points via geometry shader
+        self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1 ) 
 
-        #
-        # self.pbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=1 )    # start points
-        #
-        # no longer using the legacy inducing "position" and "color" fields so need new way of 
-        # drawing the start point, presumably with a separate draw with shader uniform setting
-        # that configs to not generate the 2nd point
-        #
-
+        
         gl.glPointSize(1)  
 
         self.interop_gl_to_cuda(self.pbuffer)

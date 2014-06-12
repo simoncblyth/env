@@ -35,6 +35,13 @@ try:
 except ImportError:
     gsx = None 
 
+lines_ = lambda _:["%-0.3d : %s " % (i+1, line) for i, line in enumerate(_.split("\n"))]
+
+shadertypes = {
+      gl.GL_VERTEX_SHADER:'vertex',
+      gl.GL_FRAGMENT_SHADER:'fragment',
+      gl.GL_GEOMETRY_SHADER:'geometry',
+      }
 
 class Shader(object):
     def __init__(self, vertex=None, fragment=None, geometry=None, **kwa ):
@@ -47,51 +54,35 @@ class Shader(object):
         self.uniforms = {}
         self.attribs = {}
 
-
-        if not vertex is None:
-            vertex_source = vertex % kwa 
-            self._compile( vertex_source , gl.GL_VERTEX_SHADER )
-        else:
-            vertex_source = ""
-        pass
-        self.vertex_source = vertex_source
-
-        if not fragment is None:
-            fragment_source = fragment % kwa 
-            self._compile( fragment_source , gl.GL_FRAGMENT_SHADER )
-        else:
-            fragment_source = ""
-        pass
-        self.fragment_source = fragment_source
-
-        if not geometry is None:
-            assert gsa and gsx
-            geometry_source = geometry % kwa 
-            self._compile( geometry_source , gl.GL_GEOMETRY_SHADER )
-            self._setup_geometry_shader()
-        else:
-            geometry_source = ""
-        pass
-        self.geometry_source = geometry_source
+        self._compile( vertex,   gl.GL_VERTEX_SHADER, kwa  )
+        self._compile( fragment, gl.GL_FRAGMENT_SHADER, kwa  )
+        self._compile( geometry, gl.GL_GEOMETRY_SHADER, kwa )
+        self.linked = False
 
     def __str__(self):
-        source_ = lambda _:["%2s : %s " % (i, line) for i, line in enumerate(_.split("\n"))]
         return "\n".join( 
-                       ["#### vertex"]   +  source_(self.vertex_source)  +
-                       ["#### geometry"] +  source_(self.geometry_source) + 
-                       ["#### fragment"] +  source_(self.fragment_source)  
+                       ["#### vertex"]   +  lines_(self.vertex_source)  +
+                       ["#### geometry"] +  lines_(self.geometry_source) + 
+                       ["#### fragment"] +  lines_(self.fragment_source)  
                         )
 
     def _setup_geometry_shader(self):        
         """
         At what juncture can these be changed ? 
         """
+        log.info("_setup_geometry_shader")
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_INPUT_TYPE_ARB, self.input_type )
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_OUTPUT_TYPE_ARB, self.output_type )
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_VERTICES_OUT_ARB, self.vertices_out )
     
-    def _compile(self, source, shader_type):
-        if source is None:return
+    def _compile(self, source_, shader_type, kwa={} ):
+        
+        typename = shadertypes[shader_type] 
+        setattr( self, '%s_source' % typename,   "")
+        if source_ is None:return
+
+        source = source_ % kwa 
+        setattr( self, '%s_source' % typename,  source)
 
         log.debug("_compile shader %s " % shader_type )
 
@@ -101,13 +92,32 @@ class Shader(object):
         status = gl.glGetShaderiv(shader, gl.GL_COMPILE_STATUS)
 
         if not status:
+            print "\n".join(lines_(source))            
             raise Exception(
                     'Shader compilation error %s : ' % shader_type  + gl.glGetShaderInfoLog(shader))
         else:
             gl.glAttachShader(self.program, shader)
 
+        if typename == 'geometry': 
+            self._setup_geometry_shader()
+
+
     def link(self):
-        log.debug("link ")
+        """
+        #. confirmed observation that when doing this link before every draw 
+           without the already linked check, the photons flash 
+           (appear for a single draw then disappear)
+
+        #. but this seems not to happen 
+           with the simple debug shader (which skips geometry shading)
+           which makes less use of uniforms ?  CHECK THIS
+
+        """
+        if self.linked:
+            #log.info("already linked, skip ")
+            return
+
+        log.info("link ")
         gl.glLinkProgram(self.program)
         ok = ctypes.c_int(0)
         gl.glGetProgramiv(self.program, gl.GL_LINK_STATUS, ctypes.byref(ok))
@@ -119,19 +129,45 @@ class Shader(object):
         pass 
         self.linked = True
 
-    def bind(self):
+    def bind_attribute(self, index , name ):
+        """
+        #. must do this before linking the program
+        #. make attrib accessible from shader
+        #. this is equivalent to layout qualifier more recent GLSL 
+  
+           * http://www.opengl.org/wiki/Layout_Qualifier_(GLSL)
+
+        * https://www.khronos.org/opengles/sdk/docs/man/xhtml/glBindAttribLocation.xml
+
+        Attribute variable name-to-generic attribute index bindings for a
+        program object can be explicitly assigned at any time by calling
+        glBindAttribLocation. Attribute bindings do not go into effect until
+        glLinkProgram is called. After a program object has been linked successfully,
+        the index values for generic attributes remain fixed (and their values can be
+        queried) until the next link command occurs.
+
+        Applications are not allowed to bind any of the standard OpenGL vertex
+        attributes using this command, as they are bound automatically when needed. Any
+        attribute binding that occurs after the program object has been linked will not
+        take effect until the next time the program object is linked.
+
+        """
+        gl.glBindAttribLocation( self.program, index, name )  
+
+    def use(self):
         gl.glUseProgram(self.program)
 
     @classmethod
-    def unbind(cls):
+    def unuse(cls):
         """
-        Unbinds whichever program currently used
+        Unuse whichever program currently used
         """
         gl.glUseProgram(0)
 
     def uniformf(self, name, *vals):
         loc = self.uniforms.get(name, gl.glGetUniformLocation(self.program,name))
         self.uniforms[name] = loc
+        log.info("uniformf [%s] %s %s " % (loc, name, repr(vals)))  
 
         if len(vals) in range(1, 5):
             { 1 : gl.glUniform1f,
@@ -143,6 +179,7 @@ class Shader(object):
     def uniformi(self, name, *vals):
         loc = self.uniforms.get(name, gl.glGetUniformLocation(self.program,name))
         self.uniforms[name] = loc
+        log.info("uniformi [%s] %s %s " % (loc, name, repr(vals)))  
 
         if len(vals) in range(1, 5):
             { 1 : gl.glUniform1i,
