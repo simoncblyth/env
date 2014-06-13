@@ -116,18 +116,6 @@ div_ = lambda num,den:(num+den-1)//den  # integer division trick, rounding up wi
 
 from pycuda.compiler import SourceModule
 
-kernel_source_dev = r"""
-union X4
-{
-   float4 f ;
-   int4   i ;
-   uint4  u ;
-} ;
-
-union X4 pos ; 
-pos.f = vbo[id*%(numquad)s] ; 
-"""
-
 
 kernel_source = r"""
 //
@@ -136,6 +124,16 @@ kernel_source = r"""
 //  #. depends on the simple quad*numquad structure of the VBO 
 //     created by DAEPhotonsData.create_data 
 //
+#include <stdio.h>
+
+union quad
+{
+   float4 f ;
+   int4   i ;
+   uint4  u ;
+};
+
+#define TEST qlht.i.x 
 
 __global__ void jump(float4* vbo, int items )
 {
@@ -144,6 +142,33 @@ __global__ void jump(float4* vbo, int items )
 
     float4 posw = vbo[id*%(numquad)s] ;    // position_weight 
     float4 dirw = vbo[id*%(numquad)s+1] ;  // direction_wavelength
+    float4 polt = vbo[id*%(numquad)s+2] ;  // polarization_time
+    
+    union quad qflags ; 
+    qflags.f = vbo[id*%(numquad)s+3] ; 
+
+    union quad qlht ;                      // last_hit_triangle
+    qlht.f = vbo[id*%(numquad)s+4] ;    
+
+    if( id %% 100 == 0){
+       printf( "id %%d \n", id );
+       printf( "posw.x %%f \n", posw.x );
+
+       printf( "qflags.f.x %%f \n", qflags.f.x );
+       printf( "qflags.i.x %%d \n", qflags.i.x );
+       printf( "qflags.u.x %%d \n", qflags.u.x );
+
+       printf( "qlht.f.x %%f \n", qlht.f.x );
+       printf( "qlht.i.x %%d \n", qlht.i.x );
+       printf( "qlht.u.x %%d \n", qlht.u.x );
+
+       for( int n=0 ; n < 32 ; ++n ){
+          if (( TEST & ( 1 << n )) == ( 1 << n )){
+             printf(" TEST %%d\n", n );
+          }  
+       }
+
+    }
 
     // modify x of slot0 float4, position 
     // vbo[id*%(numquad)s+0] = make_float4( posw.x + 10. , posw.y , posw.z, posw.w );  

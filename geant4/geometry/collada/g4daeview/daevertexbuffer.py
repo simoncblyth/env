@@ -13,6 +13,7 @@ OpenGL.FORWARD_COMPATIBLE_ONLY = True
 
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
+import OpenGL.raw.GL.VERSION.GL_3_0  as g30
 import glumpy as gp
 
 from glumpy.graphics.vertex_buffer import VertexBufferException, \
@@ -144,16 +145,32 @@ class VertexAttribute_generic(VertexAttribute):
         http://www.opengl.org/sdk/docs/man3/xhtml/glVertexAttribPointer.xml
         http://stackoverflow.com/questions/18919927/passing-uint-attribute-to-glsl 
 
+
+
+        
+
+        * https://www.opengl.org/registry/specs/EXT/gpu_shader4.txt
+
+        ::
+
+           void VertexAttribIPointerEXT(uint index, int size, enum type, sizei stride, const void *pointer);
+
+
         """
-        #
-        #if self.gltype in (gl.GL_BYTE, gl.GL_SHORT, gl.GL_INT, gl.GL_UNSIGNED_BYTE, gl.GL_UNSIGNED_SHORT, gl.GL_UNSIGNED_INT):
-        #    log.info("enable[I] %s " % repr(self) )
-        #    gl.glVertexAttribIPointer( self.index, self.count, self.gltype, self.stride, self.offset )
-        #else:
-        #    log.info("enable[F] %s " % repr(self) )
-        #
-        gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
+        if 0:#self.notfloat:
+            log.info("enable[I] %s " % repr(self) )
+            # 
+            # gl.glVertexAttribIPointerExt( self.index, self.count, self.gltype, self.stride, self.offset )
+            # g30.glVertexAttribIPointer( self.index, self.count, self.gltype, self.stride, self.offset )
+            # gl.glVertexAttribIPointer( self.index, self.count, self.gltype, self.stride, self.offset )
+            assert 0, "failed to access this symbol for integer attributes"
+        else:
+            log.info("enable[F] %s " % repr(self) )
+            gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
+        pass
         gl.glEnableVertexAttribArray( self.index )
+
+    notfloat = property(lambda self:self.gltype in (gl.GL_BYTE, gl.GL_SHORT, gl.GL_INT, gl.GL_UNSIGNED_BYTE, gl.GL_UNSIGNED_SHORT, gl.GL_UNSIGNED_INT))
 
     def disable(self):
         #log.info("disable %s " % repr(self) )

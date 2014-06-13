@@ -1,7 +1,88 @@
 #!/usr/bin/env python
 """
 
-* http://www.cs.unh.edu/~cs770/docs/glsl-1.20-quickref.pdf
+OpenGL Shader Language
+=======================
+
+GLSL 120
+----------
+
+* :google:`glsl 120 spec`
+
+  * http://www.opengl.org/registry/doc/GLSLangSpec.Full.1.20.8.pdf
+
+GLSL 120 Extensions
+---------------------
+
+* http://stackoverflow.com/questions/15107521/opengl-extensions-how-to-use-them-correctly-in-c-and-glsl
+
+GL_EXT_gpu_shader4
+~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.opengl.org/registry/specs/EXT/gpu_shader4.txt
+
+  * `uvec4`
+  * bitwise operators
+  * int/uint attributes
+
+GL_EXT_geometry_shader4
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.opengl.org/registry/specs/EXT/geometry_shader4.txt
+* http://www.opengl.org/wiki/Geometry_Shader_Examples
+
+  * vertex and primitive generation in geometry stage between vertex and fragment
+
+glVertexAttribIPointer API hunt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Trying to get integers attributes into shader proving difficult::
+
+    delta:OpenGL blyth$ find . -name '*.py' -exec grep -H glVertexAttribIPointer {} \;
+    ./platform/entrypoint31.py:glVertexAttribIPointer
+    ./raw/GL/NV/vertex_program4.py:def glVertexAttribIPointerEXT( index,size,type,stride,pointer ):pass
+    ./raw/GL/VERSION/GL_3_0.py:def glVertexAttribIPointer( index,size,type,stride,pointer ):pass
+    delta:OpenGL blyth$ 
+
+
+* http://developer.download.nvidia.com/opengl/specs/GL_NV_vertex_program4.txt
+
+::
+
+    In [15]: import OpenGL.raw.GL.VERSION.GL_3_0  as g30
+
+    In [16]: g30.glVertexAttribIPointer?
+    Type:       glVertexAttribIPointer
+    String Form:<OpenGL.platform.baseplatform.glVertexAttribIPointer object at 0x10babc290>
+    File:       /usr/local/env/chroma_env/lib/python2.7/site-packages/OpenGL/platform/baseplatform.py
+    Definition: g30.glVertexAttribIPointer(self, *args, **named)
+    Docstring:  <no docstring>
+    Call def:   g30.glVertexAttribIPointer(self, *args, **named)
+
+
+
+
+GL_NV_vertex_program4
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* trying to use this extension from glsl gives not supported
+* http://developer.download.nvidia.com/opengl/specs/GL_NV_vertex_program4.txt
+
+::
+
+    In [11]: import OpenGL.raw.GL.NV.vertex_program4 as nv4
+
+    In [12]: nv4.glVertexAttribIPointerEXT
+    Out[12]: <OpenGL.platform.baseplatform.glVertexAttribIPointerEXT at 0x10bb9fed0>
+
+    In [13]: nv4.EXTENSION_NAME  
+    Out[13]: 'GL_NV_vertex_program4'
+
+
+
+
+Fixed Pipeline and Shaders
+---------------------------
 
 When using position_name="position" DAEVertexBuffer does
 the traditional glVertexPointer setup that furnishes gl_Vertex
@@ -12,18 +93,26 @@ Legacy way prior to move to generic attributes::
     gl_Position = vec4( gl_Vertex.xyz , 1.) ; 
     //vMomdir = vec4( 100.,100.,100., 1.) ;
 
+
+
+Bitwise operations glsl
+-------------------------
+
+* http://www.geeks3d.com/20100831/shader-library-noise-and-pseudo-random-number-generator-in-glsl/
+
+
 """
-from env.graphics.opengl.shader.shader import Shader
+
 import logging
 log = logging.getLogger(__name__)
 
+import OpenGL.GL as gl
+from env.graphics.opengl.shader.shader import Shader
 from env.graphics.color.wav2RGB import wav2RGB_glsl
 
-import OpenGL.GL as gl
-
-
-vertex = r"""#version 120
-// vertex : that simply passes through to geometry shader 
+vertex = r"""// vertex : that simply passes through to geometry shader 
+#version 120
+#extension GL_EXT_gpu_shader4 : require
 
 uniform vec4  fparam; 
 uniform ivec4 iparam; 
@@ -32,26 +121,42 @@ attribute vec4 position_weight;
 attribute vec4 direction_wavelength;
 attribute vec4 polarization_time;
 
-//attribute uvec4 flags;
-//attribute ivec4 last_hit_triangle;
+attribute uvec4 flags;
+attribute ivec4 last_hit_triangle;
 
 varying vec4 vMomdir;
 varying vec4 vColor ;
 
 %(funcs)s
 
+//#define TEST int(flags.x)
+#define TEST last_hit_triangle.x
+
 void main()
 {
     gl_Position = vec4( position_weight.xyz, 1.) ; 
     vMomdir = fparam.x*vec4( direction_wavelength.xyz, 1.) ;
-    vColor = wav2color( direction_wavelength.w );
-    //vColor = vec4( 1.0, 0., 0., 1.);
+
+    //vColor = wav2color( direction_wavelength.w );
+
+    //uint test = uint(flags.x);
+    //int test = int(polarization_time.w);
+
+    bool b1 = ( TEST & ( 1 << 0)  ) == ( 1 << 0  ) ;
+    bool b2 = ( TEST & ( 1 << 31) ) == ( 1 << 31 ) ;
+    bool b3 = ( TEST & ( 1 << 32) ) == ( 1 << 32 ) ;
+
+    if      (b1) vColor = vec4( 1.0, 0.0, 0.0, 1.0);
+    else if (b2) vColor = vec4( 0.0, 1.0, 0.0, 1.0);
+    else if (b3) vColor = vec4( 0.0, 0.0, 1.0, 1.0);
+    else         vColor = vec4( 1.0, 1.0, 1.0, 1.0);
 }
 
 """ % { 'funcs':wav2RGB_glsl }
 
-vertex_debug = r"""#version 120
-// vertex_debug : for use without geometry shader 
+vertex_debug = r"""// vertex_debug : use without geometry shader 
+#version 120
+#extension GL_EXT_gpu_shader4 : require
 
 uniform vec4  fparam; 
 uniform ivec4 iparam; 
@@ -73,10 +178,10 @@ void main()
 
 """ % { 'funcs':wav2RGB_glsl }
 
-geometry = r"""#version 120
-#extension GL_EXT_geometry_shader4 : enable
-
-//  http://www.opengl.org/wiki/Geometry_Shader_Examples
+geometry = r"""//  geometry : amplify single vertex into two, generating line from point
+#version 120
+#extension GL_EXT_geometry_shader4 : require
+#extension GL_EXT_gpu_shader4 : require
 
 varying in vec4 vMomdir[] ; 
 varying in vec4 vColor[] ; 
@@ -103,7 +208,9 @@ void main()
 }
 """
 
-fragment = r"""
+fragment = r"""// fragment : minimal
+#version 120
+#extension GL_EXT_gpu_shader4 : require
 
 varying vec4 fColor ;
 

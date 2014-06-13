@@ -147,6 +147,14 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         #. using smth else eg 'position_weight' uses generic attribute , 
            which requires force_attribute_zero for anythinh to appear
 
+
+
+        Fake attribute testing
+
+        #. replace self.time, self.flags and self.last_hit_triangle 
+           to check getting different types (especially integer) 
+           attributes into shaders 
+
         """
         if self.nphotons == 0:return None
 
@@ -161,13 +169,18 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         nvert = self.nphotons
         data = np.zeros(nvert, dtype )
 
+        ones_ = lambda _:np.ones( nvert, dtype=_ )  
+        r012_ = lambda _:np.random.randint(3, size=nvert ).astype(_)  # 0,1,2 randomly 
+
         def pack31_( name, a, b ):
             data[name][:,:3] = a
             data[name][:,3] = b
 
         pack31_( 'position_weight',      self.position ,    self.weight )
         pack31_( 'direction_wavelength', self.direction,    self.wavelength )
-        pack31_( 'polarization_time',    self.polarization, self.time  )
+
+        fake_time = ones_(np.float32)
+        pack31_( 'polarization_time',    self.polarization, fake_time  )
 
         def pack1111_( name, a, b, c, d ):
             data[name][:,0] = a
@@ -175,9 +188,12 @@ class DAEPhotonsData(DAEPhotonsDataBase):
             data[name][:,2] = c
             data[name][:,3] = d
 
-        ones_ = lambda _:np.ones( nvert, dtype=_ )  
-        pack1111_('flags',             self.flags,             ones_(np.uint32), ones_(np.uint32), ones_(np.uint32) )
-        pack1111_('last_hit_triangle', self.last_hit_triangle, ones_(np.int32),  ones_(np.int32), ones_(np.int32) )
+
+        fake_flags = r012_(np.uint32)
+        fake_last_hit_triangle = r012_(np.int32)
+
+        pack1111_('flags',             fake_flags,             ones_(np.uint32), ones_(np.uint32), ones_(np.uint32) )
+        pack1111_('last_hit_triangle', fake_last_hit_triangle, ones_(np.int32),  ones_(np.int32), ones_(np.int32) )
 
         return data
 
