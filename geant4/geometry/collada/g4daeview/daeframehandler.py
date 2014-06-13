@@ -50,6 +50,13 @@ class DAEFrameHandler(object):
     def __repr__(self):
         return "FH %s " % self.fps
 
+    def glinfo(self):
+        info = {}
+        for k in (gl.GL_VERSION, gl.GL_SHADING_LANGUAGE_VERSION, gl.GL_EXTENSIONS ):
+            info[k.name] = gl.glGetString(k)  
+            #log.info("%s %s " % (k, "\n".join(v.split())  ))
+        return info
+
     def tick(self, dt):
         """
         invoked from Interactivity handlers on_idle as this is not getting those notifications

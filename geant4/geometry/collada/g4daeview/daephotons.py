@@ -38,7 +38,6 @@ class DAEPhotons(object):
         self.event = event       
 
         param = DAEPhotonsParam( event.config)
-
         datacls = DAEPhotonsDataLegacy if event.config.args.legacy else DAEPhotonsData
         self.numquad = datacls.numquad  # not really a parameter, rather a fundamental feature of data structure in use
         self.data = datacls(photons, param)

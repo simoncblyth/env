@@ -165,7 +165,7 @@ class VertexAttribute_generic(VertexAttribute):
             # gl.glVertexAttribIPointer( self.index, self.count, self.gltype, self.stride, self.offset )
             assert 0, "failed to access this symbol for integer attributes"
         else:
-            log.info("enable[F] %s " % repr(self) )
+            #log.info("enable[F] %s " % repr(self) )
             gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
         pass
         gl.glEnableVertexAttribArray( self.index )
@@ -265,7 +265,7 @@ class DAEVertexAttributes(object):
         if not self.shader is None:
             self.shader.link()  
             self.shader.use()
-            self.shader.init_uniforms()   ## check this placement 
+            self.shader.update_uniforms()   ## check this placement 
 
         attributes = self.attmap[att]
         for c in attributes.keys():

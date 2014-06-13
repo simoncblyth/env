@@ -9,9 +9,9 @@ OpenGL.FORWARD_COMPATIBLE_ONLY = True
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 
-from daephotonskernel import DAEPhotonsKernel
 from daephotonsshader import DAEPhotonsShader
 from daevertexbuffer import DAEVertexBuffer
+from daephotonskernel import DAEPhotonsKernel
 
 
 class DAEPhotonsRenderer(object):
@@ -23,31 +23,24 @@ class DAEPhotonsRenderer(object):
        lines primitives from points primitives together with a momentum direction
     #. PyCUDA modification of the VBO content
 
+
+
+
+
+
     """
     def __init__(self, dphotons, chroma ):
         """
         :param dphotons: DAEPhotons instance
         :param chroma: chroma context instance
-
-        #. the debug shader skips geometry shader just drawing end-points 
-
-        The source of the kernel and shaders depends on the data structure, so 
-        use string interpolation to tie these together somewhat.
         """
         self.dphotons = dphotons
         self.chroma = chroma
-
-        shader = DAEPhotonsShader(dphotons) 
-        print shader
-
-        kernel = DAEPhotonsKernel(dphotons) if self.interop else None
-        print kernel
-
-        self.shader = shader
-        self.kernel = kernel
+        self.interop = not self.chroma.dummy
+        self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
+        self.shader = DAEPhotonsShader(dphotons) 
         self.invalidate_buffers()
-
-    interop = property(lambda self:not self.chroma.dummy)
+        self.count = 0 
 
     def invalidate_buffers(self):
         """
@@ -70,12 +63,12 @@ class DAEPhotonsRenderer(object):
         return self._lbuffer
     lbuffer = property(_get_lbuffer, doc="line buffer, with doubled vertices : not used when geometry shader available")  
 
-
     def create_buffer(self, data ):
         """
         #. buffer creation does not belong in DAEPhotonsData as OpenGL specific
         """
-        log.debug("create_buffer ")
+        self.count += 1
+        log.warn("############ create_buffer [count %s]  ##################### %s " % (self.count, repr(data.data.dtype)) )
         vbo = DAEVertexBuffer( data.data, data.indices, force_attribute_zero=data.force_attribute_zero, shader=self.shader  )
         self.interop_gl_to_cuda(vbo)
         return vbo
@@ -129,10 +122,8 @@ class DAEPhotonsRenderer(object):
 
         NEXT: 
 
-        #. modify Chroma propagation to use the VBO, not just 
-           simple DAEPhotonsKernel
+        #. modify Chroma propagation to use the VBO, not just simple DAEPhotonsKernel
 
-        #. add line coloring by wavelength computed on device
         #. add mask/bits uniforms and flags attribute 
 
            * use these to move selection logic onto GPU, controlled by setting mask/bits uniform
@@ -145,23 +136,20 @@ class DAEPhotonsRenderer(object):
 
         #. aiming towards once only buffer creation, ie only when a new ChromaPhotonList is loaded
 
-        DONE:
-
-        #. interop dance to get CUDA to make changes inside the OpenGL VBO 
 
         """
         qcount = self.dphotons.qcount
         gl.glPointSize(self.dphotons.param.fphopoint)  
-        
+       
+        self.kernel.update_constants()   # can polling param changes be avoided ?
+
+        # interop sharing of pbuffer 
         self.interop_call_cuda_kernel(self.pbuffer)
         self.interop_cuda_to_gl(self.pbuffer)
-
         self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1 ) 
-
-        
-        gl.glPointSize(1)  
-
         self.interop_gl_to_cuda(self.pbuffer)
+
+        gl.glPointSize(1)  
 
 
 

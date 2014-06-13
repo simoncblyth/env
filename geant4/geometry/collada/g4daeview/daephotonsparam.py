@@ -68,6 +68,14 @@ class DAEPhotonsParam(object):
         return [self.shadermode, mask, bits, 0]
     shader_iparam = property(_get_shader_iparam)
 
+    def _get_kernel_mask(self):
+        mask = self.mask
+        bits = self.bits
+        mask = -1 if mask is None else mask 
+        bits = -1 if bits is None else bits 
+        return [mask, bits, 0, 0]
+    kernel_mask = property(_get_kernel_mask)
+
 
     def _get_mask(self):
         return arg2mask(self._mask)

@@ -101,6 +101,9 @@ Bitwise operations glsl
 * http://www.geeks3d.com/20100831/shader-library-noise-and-pseudo-random-number-generator-in-glsl/
 
 
+* http://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
+
+
 """
 
 import logging
@@ -109,6 +112,36 @@ log = logging.getLogger(__name__)
 import OpenGL.GL as gl
 from env.graphics.opengl.shader.shader import Shader
 from env.graphics.color.wav2RGB import wav2RGB_glsl
+
+
+bit_sniffing = r"""
+
+// making integers useful inside glsl 120 + GL_EXT_gpu_shader4 is too much effort yo be worthwhile
+//  problems 
+//    #. cannot find symbol glVertexAttribIPointer
+//    #. uint type not working so cannot do proper  
+
+    uvec4 cf ;
+    int nb = 0 ;
+    int mb = -1 ;
+    for( int n=0 ; n < 32 ; ++n ){
+          cf.x = ( 1 << n ) ;
+          if (( TEST & cf.x ) != 0){
+                nb += 1 ;
+                mb = n ;
+          }
+    }
+
+    if      (mb==29) vColor = vec4( 1.0, 0.0, 0.0, 1.0);
+    else if (mb==30) vColor = vec4( 0.0, 1.0, 0.0, 1.0);
+    else if (mb==31) vColor = vec4( 0.0, 0.0, 1.0, 1.0);
+    else             vColor = vec4( 1.0, 1.0, 1.0, 1.0);
+
+    uvec4 b = uvec4( 0xff, 0xff00, 0xff0000,0xff000000) ;
+    uvec4 r = uvec4( TEST >> 24 , TEST >> 8, TEST << 8 , TEST << 24 );
+    uvec4 t ;
+    t.x = ( r.x & b.x ) | ( r.z & b.z ) | ( r.y & b.y ) | ( r.w & b.w );
+"""
 
 vertex = r"""// vertex : that simply passes through to geometry shader 
 #version 120
@@ -120,39 +153,24 @@ uniform ivec4 iparam;
 attribute vec4 position_weight;
 attribute vec4 direction_wavelength;
 attribute vec4 polarization_time;
-
+attribute vec4 ccolor ; 
 attribute uvec4 flags;
 attribute ivec4 last_hit_triangle;
 
 varying vec4 vMomdir;
+varying vec4 vPoldir;
 varying vec4 vColor ;
 
-%(funcs)s
-
-//#define TEST int(flags.x)
-#define TEST last_hit_triangle.x
 
 void main()
 {
     gl_Position = vec4( position_weight.xyz, 1.) ; 
     vMomdir = fparam.x*vec4( direction_wavelength.xyz, 1.) ;
-
-    //vColor = wav2color( direction_wavelength.w );
-
-    //uint test = uint(flags.x);
-    //int test = int(polarization_time.w);
-
-    bool b1 = ( TEST & ( 1 << 0)  ) == ( 1 << 0  ) ;
-    bool b2 = ( TEST & ( 1 << 31) ) == ( 1 << 31 ) ;
-    bool b3 = ( TEST & ( 1 << 32) ) == ( 1 << 32 ) ;
-
-    if      (b1) vColor = vec4( 1.0, 0.0, 0.0, 1.0);
-    else if (b2) vColor = vec4( 0.0, 1.0, 0.0, 1.0);
-    else if (b3) vColor = vec4( 0.0, 0.0, 1.0, 1.0);
-    else         vColor = vec4( 1.0, 1.0, 1.0, 1.0);
+    vPoldir = fparam.x*vec4( polarization_time.xyz, 1.) ;
+    vColor = ccolor ; 
 }
 
-""" % { 'funcs':wav2RGB_glsl }
+"""
 
 vertex_debug = r"""// vertex_debug : use without geometry shader 
 #version 120
@@ -184,7 +202,9 @@ geometry = r"""//  geometry : amplify single vertex into two, generating line fr
 #extension GL_EXT_gpu_shader4 : require
 
 varying in vec4 vMomdir[] ; 
+varying in vec4 vPoldir[] ; 
 varying in vec4 vColor[] ; 
+
 varying out vec4 fColor ;
 
 uniform  vec4 fparam; 
@@ -192,19 +212,30 @@ uniform ivec4 iparam;
 
 void main()
 {
+    // dont emit the primitive for alpha 0.
+    if( vColor[0].w > 0. ){
 
-    gl_Position = gl_PositionIn[0];
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-    fColor = vColor[0] ;
-    EmitVertex();
+        gl_Position = gl_PositionIn[0];
+        gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+        fColor = vColor[0] ;
+        EmitVertex();
 
-    gl_Position = gl_PositionIn[0];
-    gl_Position.xyz += vMomdir[0].xyz ;
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-    fColor = vColor[0] ;
-    EmitVertex();
+        gl_Position = gl_PositionIn[0];
+        gl_Position.xyz += vMomdir[0].xyz ;
+        gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+        fColor = vColor[0] ;
+        EmitVertex();
 
-    EndPrimitive();
+        gl_Position = gl_PositionIn[0];
+        gl_Position.xyz += vMomdir[0].xyz ;
+        gl_Position.xyz += vPoldir[0].xyz ;
+        gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+        fColor = vColor[0] ;
+        EmitVertex();
+
+        EndPrimitive();
+
+    }
 }
 """
 
@@ -229,10 +260,6 @@ class DAEPhotonsShader(object):
     def __init__(self, dphotons ):
 
         log.info("%s" % (self.__class__.__name__))
-        for k in (gl.GL_VERSION, gl.GL_SHADING_LANGUAGE_VERSION, gl.GL_EXTENSIONS ):
-            v = gl.glGetString(k)  
-            log.info("%s %s " % (k, "\n".join(v.split())  ))
-
         if dphotons.param.debugshader:
             log.debug("compiling debug shader")
             shader = Shader( vertex_debug , fragment, None )
@@ -247,36 +274,25 @@ class DAEPhotonsShader(object):
         self._iparam = None
         self._fparam = None
 
-    def init_uniforms(self):
+    def update_uniforms(self):
         self.iparam = self.dphotons.param.shader_iparam
         self.fparam = self.dphotons.param.shader_fparam
-
 
     def _get_iparam(self):
         return self._iparam
     def _set_iparam(self, iparam):
-        """
-        """
-        if iparam == self._iparam:
-            return 
+        if iparam == self._iparam:return 
         self._iparam = iparam
         self.shader.uniformi("iparam", *self._iparam)
     iparam = property(_get_iparam, _set_iparam, doc="shader iparam uniform ")
 
-
     def _get_fparam(self):
         return self._fparam
     def _set_fparam(self, fparam):
-        """
-        """
-        if fparam == self._fparam:
-            return 
+        if fparam == self._fparam:return 
         self._fparam = fparam
         self.shader.uniformf("fparam", *self._fparam)
     fparam = property(_get_fparam, _set_fparam, doc="shader fparam uniform ")
-
-
-
 
 
     def __str__(self):

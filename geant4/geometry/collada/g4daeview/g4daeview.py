@@ -313,6 +313,7 @@ from daemenu import DAEMenu, DAEMenuGLUT
 from env.cuda.cuda_launch import CUDACheck
 
 
+
 def main():
     config = DAEConfig(__doc__)
     config.init_parse()
@@ -351,6 +352,8 @@ def main():
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
 
     frame_handler = DAEFrameHandler( frame, mesh, scene )
+    config.glinfo = frame_handler.glinfo()
+
     fig_handler = DAEInteractivityHandler(figure, frame_handler, scene, config  )
     frame_handler.fig_handler = fig_handler
 

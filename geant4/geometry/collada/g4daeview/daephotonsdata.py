@@ -71,29 +71,33 @@ class DAEPhotonsDataBase(object):
 
     def _get_indices(self):
         if self._indices is None:
-            self._indices = self.indices_selection()
+            self._indices = np.arange( self.nphotons, dtype=np.uint32)  
         return self._indices 
     indices = property(_get_indices)
 
     def indices_selection(self):
         """
+        MOVING THIS TO CUDA KERNEL
+
         Use the photon history flags (array of bit fields)
         to make bit mask and history selections
         """
         if self.nphotons == 0:return None
+
         npho = self.nphotons
         flags = self.flags   
         nflag = len(flags)
+
         assert nflag == npho, (nflg, npho)
 
         mask = self.param.mask 
         bits = self.param.bits 
 
-        if mask is None and bits is None:
+        if mask is -1 and bits is -1:
             indices = np.arange( npho, dtype=np.uint32)  
-        elif not mask is None:
+        elif not mask is -1:
             indices = np.where( flags & mask )[0]    # bitwise AND for flags selection
-        elif not bits is None:
+        elif not bits is -1:
             indices = np.where( flags == bits )[0]   # equality for history bits selection
         else:
             assert 0
@@ -126,7 +130,7 @@ class DAEPhotonsDataBase(object):
 
 
 class DAEPhotonsData(DAEPhotonsDataBase):
-    numquad = 5
+    numquad = 6
     force_attribute_zero = "position_weight"
     def __init__(self, photons, param ):
         DAEPhotonsDataBase.__init__(self, photons, param )
@@ -148,12 +152,23 @@ class DAEPhotonsData(DAEPhotonsDataBase):
            which requires force_attribute_zero for anythinh to appear
 
 
-
         Fake attribute testing
 
         #. replace self.time, self.flags and self.last_hit_triangle 
            to check getting different types (especially integer) 
            attributes into shaders 
+
+        r012_ = lambda _:np.random.randint(3, size=nvert ).astype(_)  # 0,1,2 randomly 
+        r124_ = lambda _:np.array([1,2,4],dtype=_)[np.random.randint(3, size=nvert )]
+
+        fake_time = ones_(np.float32)
+        fake_flags = r012_(np.uint32)
+        fake_last_hit_triangle = r012_(np.int32)
+
+        #max_uint32 = (1 << 32) - 1 
+        #max_int32 =  (1 << 31) - 1 
+        #fake_flags = np.tile( 1  , nvert ).astype(np.uint32)
+        #fake_last_hit_triangle = np.tile( 1, nvert ).astype(np.int32)
 
         """
         if self.nphotons == 0:return None
@@ -162,6 +177,7 @@ class DAEPhotonsData(DAEPhotonsDataBase):
             ('position_weight'   ,        np.float32, 4 ), 
             ('direction_wavelength',      np.float32, 4 ), 
             ('polarization_time',         np.float32, 4 ), 
+            ('ccolor',                    np.float32, 4 ), 
             ('flags',                     np.uint32,  4 ), 
             ('last_hit_triangle',         np.int32,   4 ), 
           ])
@@ -170,17 +186,15 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         data = np.zeros(nvert, dtype )
 
         ones_ = lambda _:np.ones( nvert, dtype=_ )  
-        r012_ = lambda _:np.random.randint(3, size=nvert ).astype(_)  # 0,1,2 randomly 
-
         def pack31_( name, a, b ):
             data[name][:,:3] = a
             data[name][:,3] = b
 
         pack31_( 'position_weight',      self.position ,    self.weight )
         pack31_( 'direction_wavelength', self.direction,    self.wavelength )
-
-        fake_time = ones_(np.float32)
-        pack31_( 'polarization_time',    self.polarization, fake_time  )
+        pack31_( 'polarization_time',    self.polarization, self.time  )
+        
+        data['ccolor'] = np.tile( [1.,0.,0,1.], (nvert,1)).astype(np.float32)    # initialize to red, reset by CUDA kernel
 
         def pack1111_( name, a, b, c, d ):
             data[name][:,0] = a
@@ -188,13 +202,8 @@ class DAEPhotonsData(DAEPhotonsDataBase):
             data[name][:,2] = c
             data[name][:,3] = d
 
-
-        fake_flags = r012_(np.uint32)
-        fake_last_hit_triangle = r012_(np.int32)
-
-        pack1111_('flags',             fake_flags,             ones_(np.uint32), ones_(np.uint32), ones_(np.uint32) )
-        pack1111_('last_hit_triangle', fake_last_hit_triangle, ones_(np.int32),  ones_(np.int32), ones_(np.int32) )
-
+        pack1111_('flags',             self.flags,             ones_(np.uint32), ones_(np.uint32), ones_(np.uint32) )
+        pack1111_('last_hit_triangle', self.last_hit_triangle, ones_(np.int32),  ones_(np.int32), ones_(np.int32) )
         return data
 
 

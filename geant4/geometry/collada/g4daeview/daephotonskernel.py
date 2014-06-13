@@ -1,81 +1,10 @@
 #!/usr/bin/env python
 """
-
-NEXT:
-
-#. Current DAEVertexBuffer machinery relies on specific names, 
-   "position" and "color" for appropriate VertexAttribute setup. 
-   Maybe can get away from that via GLSL attribute fed into gl_Position ?
+NEXT
 
 #. Oops forgot to GL_DYNAMIC_DRAW, but its working anyhow
-
-
-Extending interop to Chroma propagation ? 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+#. Extending interop to Chroma propagation ? 
 #. all the photon data could conceivably be visualized or at least used by shaders
-
-::
-
-    __global__ void
-    propagate(
-
-          /* control arguments */
- 
-          int first_photon, 
-          int nthreads, 
-          unsigned int *input_queue,
-          unsigned int *output_queue, 
-          curandState *rng_states,
-
-          /* photon data */
-
-          float3*       positions,          ##
-          float3*       directions,         ##
-          float*        wavelengths,        ##
-          float3*       polarizations,      ##
-          float*        times,              ##
-          unsigned int* histories,          ##
-          int*          last_hit_triangles, ##
-          float*        weights,            ##
-
-          /* configuration */
-
-          int max_steps, 
-          int use_weights, 
-          int scatter_first,
-          Geometry *g
-          ) 
-    {
-
-
-
-
-float4 coalesceing ?
-~~~~~~~~~~~~~~~~~~~~~
-
-* http://devblogs.nvidia.com/parallelforall/cuda-pro-tip-increase-performance-with-vectorized-memory-access/
-
-  * regards casting and alignment
-
-::
-
-    float4*       positions_weights,         ##
-    float4*       directions_wavelengths,    ##
-    float4*       polarizations_times,       ##
-    unsigned int* histories,                 ##   can this be stuffed into an int ?
-    int*          last_hit_triangles,        ##
-
-
-::
-
-    struct VPhoton { 
-       float4 position_weight,                 # 4*4 = 16  
-       float4 direction_wavelength,            # 4*4 = 16     
-       float4 polarization_time,               # 4*4 = 16  48
-       int4 history_last_hit_triangle_sp_sp }  # 4*4 = 16  64      ## 2 spare 4 byte int 
-
-
 
 cuda casting
 ~~~~~~~~~~~~~~
@@ -83,25 +12,20 @@ cuda casting
 * :google:`cuda union struct float4 int4`
 * http://stackoverflow.com/questions/9044139/accessing-float4-int4-elements-using-a-loop-in-cuda
 * https://code.google.com/p/hydrazine/source/browse/trunk/hydrazine/cuda/include/vector_types.h?r=23
-
 * https://svn.ece.lsu.edu/svn/gp/proj-base/boxes/render.cc
 
   * particle system example using lots of structs
 
-::
 
-    /*DEVICE_BUILTIN*/
-    struct __builtin_align__(16) float4
-    {
-      float x, y, z, w;
-    };
 
-    /*DEVICE_BUILTIN*/
-    struct __builtin_align__(16) int4
-    {
-      int x, y, z, w;
-    };
 
+Confirmed no buffer recreation and correct propagation into this kernel
+via external commands::
+
+    udp.py --mask RAYLEIGH_SCATTER
+    udp.py --mask 0
+    udp.py --mask 1
+ 
 
 
 
@@ -113,42 +37,15 @@ from operator import mul
 mul_ = lambda _:reduce(mul, _)          # product of elements 
 div_ = lambda num,den:(num+den-1)//den  # integer division trick, rounding up without iffing around
 
-
+from env.graphics.color.wav2RGB import wav2RGB_cuda
 from pycuda.compiler import SourceModule
+import pycuda.driver as cuda
+import pycuda.gpuarray as ga
 
 
-kernel_source = r"""
-//
-// CUDA kernel checking the modification of OpenGL VBO 
-//
-//  #. depends on the simple quad*numquad structure of the VBO 
-//     created by DAEPhotonsData.create_data 
-//
+kernel_debug = r"""
+
 #include <stdio.h>
-
-union quad
-{
-   float4 f ;
-   int4   i ;
-   uint4  u ;
-};
-
-#define TEST qlht.i.x 
-
-__global__ void jump(float4* vbo, int items )
-{
-    int id = blockIdx.x*blockDim.x + threadIdx.x; 
-    if (id >= items ) return ;
-
-    float4 posw = vbo[id*%(numquad)s] ;    // position_weight 
-    float4 dirw = vbo[id*%(numquad)s+1] ;  // direction_wavelength
-    float4 polt = vbo[id*%(numquad)s+2] ;  // polarization_time
-    
-    union quad qflags ; 
-    qflags.f = vbo[id*%(numquad)s+3] ; 
-
-    union quad qlht ;                      // last_hit_triangle
-    qlht.f = vbo[id*%(numquad)s+4] ;    
 
     if( id %% 100 == 0){
        printf( "id %%d \n", id );
@@ -162,42 +59,125 @@ __global__ void jump(float4* vbo, int items )
        printf( "qlht.i.x %%d \n", qlht.i.x );
        printf( "qlht.u.x %%d \n", qlht.u.x );
 
-       for( int n=0 ; n < 32 ; ++n ){
-          if (( TEST & ( 1 << n )) == ( 1 << n )){
-             printf(" TEST %%d\n", n );
-          }  
-       }
-
     }
 
+//#define TEST qflags.u.x 
+#define TEST qlht.i.x 
+
+    if      (TEST == 0 ) vbo[CCOLOR] = make_float4( 1., 0., 0., 1.);
+    else if (TEST == 1 ) vbo[CCOLOR] = make_float4( 0., 1., 0., 1.);
+    else if (TEST == 2 ) vbo[CCOLOR] = make_float4( 0., 0., 1., 1.);
+    else                 vbo[CCOLOR] = make_float4( 1., 1., 1., 1.);
+
+
     // modify x of slot0 float4, position 
-    // vbo[id*%(numquad)s+0] = make_float4( posw.x + 10. , posw.y , posw.z, posw.w );  
+    // vbo[POSITION_WEIGHT] = make_float4( posw.x + 10. , posw.y , posw.z, posw.w );  
     
     // grow the direction
-    // vbo[id*%(numquad)s+1] = make_float4( dirw.x*1.01 , dirw.y*1.01 , dirw.z*1.01, dirw.w ); 
+    // vbo[DIRECTION_WAVELENGTH] = make_float4( dirw.x*1.01 , dirw.y*1.01 , dirw.z*1.01, dirw.w ); 
 
     // set a constant momdir for all photons
-    // vbo[id*%(numquad)s+1] = make_float4( 100. , 100. , 100. , 0. ); 
-    
+    // vbo[DIRECTION_WAVELENGTH] = make_float4( 100. , 100. , 100. , 0. ); 
+ 
+
+"""
+
+
+
+kernel_source = r"""
+//
+// CUDA kernel checking the modification of OpenGL VBO 
+//
+//  #. depends on the simple quad*numquad structure of the VBO 
+//     created by DAEPhotonsData.create_data 
+// 
+//  #. misuses of quad union to interpret float4 as uint4 or int4  
+//
+
+""" + wav2RGB_cuda + r"""
+
+
+__constant__ int4 g_mask ;
+
+union quad
+{
+   float4 f ;
+   int4   i ;
+   uint4  u ;
+};
+
+#define POSITION_WEIGHT      (id*%(numquad)s)
+#define DIRECTION_WAVELENGTH (id*%(numquad)s+1)
+#define POLARIZATION_TIME    (id*%(numquad)s+2)
+#define CCOLOR               (id*%(numquad)s+3)
+#define FLAGS                (id*%(numquad)s+4)
+#define LAST_HIT_TRIANGLE    (id*%(numquad)s+5)
+
+__global__ void jump(float4* vbo, int items )
+{
+    int id = blockIdx.x*blockDim.x + threadIdx.x; 
+    if (id >= items ) return ;
+
+    float4 posw, dirw, polt, ccol ; 
+    union quad qflags, qlht  ; 
+
+    posw     = vbo[POSITION_WEIGHT];     
+    dirw     = vbo[DIRECTION_WAVELENGTH]; 
+    polt     = vbo[POLARIZATION_TIME];  
+    ccol     = vbo[CCOLOR];  
+    qflags.f = vbo[FLAGS] ; 
+    qlht.f   = vbo[LAST_HIT_TRIANGLE] ;    
+
+    // skip only when bitwise and quality masks are "enabled" by not being -1
+    bool skip = ((g_mask.x > -1 ) && ( qflags.u.x & g_mask.x ) == 0 ) ||
+                ((g_mask.y > -1 ) && ( qflags.u.x != g_mask.y )) ;     
+ 
+    vbo[CCOLOR] = skip ? make_float4( 0.5, 0.5, 0.5, 0.) : wav2color( dirw.w ) ; // greyed out OR color from wavelength 
 }
 """
 
+
+
 class DAEPhotonsKernel(object):
     """
-    NEXT: 
-
-    #. test not-so-simple VBO structure 
     #. adopt ~/e/cuda/cuda_launch approach
+    #. hmm would be good to be able to change the kernel source without restarting 
     """
     def __init__(self, dphotons):
+        self.dphotons = dphotons
+        self.compile_kernel()
+        self.initialize_constants()
 
-        ctx = { 'numquad':dphotons.numquad }
+    def compile_kernel(self):
+        """
+        #. compile kernel and extract __constant__ symbol addresses
+        """
+        ctx = { 'numquad':self.dphotons.numquad }
         self.kernel_source = kernel_source % ctx 
 
         module = SourceModule(self.kernel_source )
         kernel = module.get_function("jump")
         kernel.prepare("Pi")
+
+        self.g_mask = module.get_global("g_mask")[0]  
+        self._mask = None
         self.kernel = kernel
+
+    def initialize_constants(self):
+        self.mask = [-1,-1,-1,-1]
+
+    def update_constants(self):
+        self.mask = self.dphotons.param.kernel_mask
+
+    def _get_mask(self):
+        return self._mask 
+    def _set_mask(self, mask):
+        if mask == self._mask:return
+        self._mask = mask
+        log.info("_set_mask : memcpy_htod %s " % repr(mask))
+        cuda.memcpy_htod(self.g_mask, ga.vec.make_int4(*mask))
+    mask = property(_get_mask, _set_mask, doc="setter copies to device __constant__ memory, getter returns cached value") 
+
 
     def __call__(self, vbo_dev_ptr, workitems ):
         """
@@ -208,9 +188,7 @@ class DAEPhotonsKernel(object):
         threads_per_block = reduce(mul, block)
         grid = ( div_(workitems,threads_per_block), 1 )
         #log.debug("grid %s block %s workitems %s " % ( repr(grid), repr(block), workitems ))
-
         self.kernel.prepared_call( grid, block, vbo_dev_ptr, workitems  )
-
 
     def __str__(self):
         source_ = lambda _:["%2s : %s " % (i, line) for i, line in enumerate(_.split("\n"))]

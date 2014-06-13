@@ -268,8 +268,8 @@ class DAEConfig(ConfigBase):
         defaults['fpholine'] = 100.
         defaults['fphopoint'] = 2
         defaults['tcut'] = 1.
-        defaults['mask'] = None
-        defaults['bits'] = None
+        defaults['mask'] = -1
+        defaults['bits'] = -1
         defaults['reload']  = False
 
         parser.add_argument( "--nolive",  dest="live", help="[I] Disable live updating via ZMQRoot messages. Default %(default)s.", action="store_false")
