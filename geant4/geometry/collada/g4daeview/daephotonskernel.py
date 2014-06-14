@@ -181,7 +181,6 @@ class DAEPhotonsKernel(object):
     def __call__(self, vbo_dev_ptr, workitems ):
         """
         Assuming a single launch 
-
         """
         block = (64,1,1)
         threads_per_block = reduce(mul, block)

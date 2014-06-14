@@ -177,7 +177,8 @@ class DAEEvent(object):
         """
         :param photons: `chroma.event.Photons` instance (or fallback)
 
-        Convert operations level Photons into presentation level DAEPhotons 
+        Slot the operations level chroma.event.Photons into the 
+        DAEPhotons presentation controller instance.
 
         #. setting the photons property invalidates dependents like `.mesh`
 
@@ -190,7 +191,9 @@ class DAEEvent(object):
 
     def step(self, dcc):
         """
-        Use Chroma propagation to step the photons 
+        Use Chroma propagation to step the photons. Note the 
+        replacement of dphotons.photons arising from the 
+        step and resultant VBO recreation.
 
         :param chroma: DAEChromaContext instance
         """
