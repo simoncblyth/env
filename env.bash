@@ -1438,3 +1438,4 @@ opengl-(){      . $(env-home)/graphics/opengl/opengl.bash && opengl-env $* ; }
 atb-(){      . $(env-home)/graphics/atb/atb.bash && atb-env $* ; }
 detsim-(){      . $(env-home)/nuwa/detsim/detsim.bash && detsim-env $* ; }
 ld-(){      . $(env-home)/tools/ld.bash && ld-env $* ; }
+capnproto-(){      . $(env-home)/serialization/capnproto.bash && capnproto-env $* ; }
