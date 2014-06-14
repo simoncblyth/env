@@ -175,12 +175,14 @@ class DAEEvent(object):
 
     def setup_photons(self, photons ):
         """
+        :param photons: `chroma.event.Photons` instance (or fallback)
+
         Convert operations level Photons into presentation level DAEPhotons 
 
-        Formerly instanciated DAEPhotons here only on arrival of CPL, but 
-        thats difficult for manu handling and other things.
+        #. setting the photons property invalidates dependents like `.mesh`
+
         """
-        self.dphotons.photons = photons   # setter invalidates _vbo, _color, _mesh 
+        self.dphotons.photons = photons   
 
         mesh = self.dphotons.mesh
         self.scene.bookmarks.create_for_object( mesh, 9 )
@@ -188,8 +190,9 @@ class DAEEvent(object):
 
     def step(self, dcc):
         """
-        :param chroma: DAEChromaContext instance
         Use Chroma propagation to step the photons 
+
+        :param chroma: DAEChromaContext instance
         """
         if self.dphotons is None:
             log.warn("cannot step without loaded dphotons")
@@ -197,8 +200,7 @@ class DAEEvent(object):
         pass
         log.info("step")
 
-        propagator = dcc.propagator
-        photons = propagator.propagate( self.dphotons.photons, max_steps=1 )
+        photons = dcc.propagator.propagate( self.dphotons.photons, max_steps=1 )
         #photons.dump()
         self.setup_photons( photons )   # results in VBO recreation 
 

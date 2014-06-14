@@ -17,43 +17,68 @@ class DAEPhotons(object):
     Coordinator class handling photon presentation, 
     specifics belong in constituents
 
-    #. `data` photon data manipulations/selections controlled by
-        
-       * `data.photons`
-       * `data.param`
+    Constituents
+    ~~~~~~~~~~~~~
 
-    #. `menuctrl` GLUT menus  
-    #. `renderer` OpenGL drawing
+    #. data, DAEPhotonsData 
+    #. menuctrl, DAEPhotonsMenuController: GLUT menus  
+    #. renderer, DAEPhotonsRenderer: OpenGL drawing
 
-    The photons and param constituens use a layered 
-    property pattern where setters at this level deal with 
-    things like menu updates, and the DAEPhotonData deal with
-    more fundamental things.
+    Read/Write properties:
+    ~~~~~~~~~~~~~~~~~~~~~~
+
+    #. photons
+    #. param 
+
+    Using a layered property pattern where setters at 
+    this level deal with things like menu updates, 
+    and the lower level `data` DAEPhotonData setters 
+    deal with more fundamental things like buffer invalidation.
+
+    Readonly properties:
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    #. vertices
+    #. qcount
+    #. mesh
+
+    actions
+    ~~~~~~~~
+
+    #. draw, passed to renderer
+    #. reconfig, passed to param
+
 
     """ 
     def __init__(self, photons, event ):
         """
-        :param photons: ChromaPhotonList instance
+        :param photons: `chroma.event.Photons` instance (or fallback)
+        :param event: `DAEEvent` instance
         """ 
         self.event = event       
 
         param = DAEPhotonsParam( event.config)
         datacls = DAEPhotonsDataLegacy if event.config.args.legacy else DAEPhotonsData
         self.numquad = datacls.numquad  # not really a parameter, rather a fundamental feature of data structure in use
-        self.data = datacls(photons, param)
 
+        self.data = datacls(photons, param)
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
+    
         self._mesh = None
+
+
+    #### readonly properties #####
+
+    vertices     = property(lambda self:self.data.position)  # allows to be treated like DAEMesh  
 
     def _get_qcount(self):
         """
-        Where to put this ?
-        """
+        Photon count modulated by qcut which varies between 0 and 1. 
+        Used for partial drawing based on a sorted quantity.
+        """ 
         return int(self.data.nphotons*self.event.qcut)
-    qcount = property(_get_qcount, doc="Photon count modulated by qcut which varies between 0 and 1. Used for partial drawing based on a sorted quantity." ) 
-
-    vertices     = property(lambda self:self.data.position)  # allows to be treated like DAEMesh 
+    qcount = property(_get_qcount, doc=_get_qcount.__doc__) 
 
     def _get_mesh(self):
         if self._mesh is None:
@@ -61,9 +86,7 @@ class DAEPhotons(object):
         return self._mesh
     mesh = property(_get_mesh)
 
-    def draw(self):
-        if self.photons is None:return
-        self.renderer.draw()
+    #### read/write  properties #####
 
     def _get_photons(self):
         return self.data.photons 
@@ -83,8 +106,11 @@ class DAEPhotons(object):
     param = property(_get_param, _set_param) 
 
 
-    def __repr__(self):
-        return "%s " % (self.__class__.__name__)
+    ### actions #####
+
+    def draw(self):
+        if self.photons is None:return
+        self.renderer.draw()
 
     def reconfig(self, conf):
         """
@@ -92,15 +118,15 @@ class DAEPhotons(object):
 
             udp.py --fpholine 100
 
-        This formerly forced buffer invalidation, but following move
-        to shader rendering, can just update uniforms.
+        Parameter reconfig updates formerly forced `renderer.invalidate_buffers()`
+        but following migration to shader rendering, 
+        can just update uniforms.
         """
         log.info("reconfig %s " % repr(conf))
         update = self.param.reconfig(conf)
-        #
-        #if update:
-        #    self.renderer.invalidate_buffers()
-        #
+
+    def __repr__(self):
+        return "%s " % (self.__class__.__name__)
 
 
 

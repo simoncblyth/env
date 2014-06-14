@@ -17,7 +17,7 @@ class DAEPhotonsDataBase(object):
     """
     def __init__(self, photons, param ):
         """
-        :param photons: ChromaPhotonList instance 
+        :param photons: `chroma.event.Photons` instance (`photons_fallback.Photons` when no chroma) 
         """
         self.invalidate()
         self._photons = photons  
@@ -52,7 +52,7 @@ class DAEPhotonsDataBase(object):
     def _get_param(self):
         return self._param
     def _set_param(self, param):
-        self.invalidate()
+        self.invalidate()   # huh is this invalidation still needed ?
         self._param = param
     param = property(_get_param, _set_param)
 

@@ -17,11 +17,14 @@ from chroma.gpu.photon import GPUPhotons
 
 class Propagator(object):
     def __init__(self, ctx ):
+        """
+        :param ctx: `DAEChromaContext` instance
+        """
         self.ctx = ctx
 
     def propagate(self, photons, max_steps=100):
         """
-        :param photons: 
+        :param photons: `chroma.event.Photons` instance or fallback
 
         Reuse gpu_photons allocation ? with eye to ease of OpenGL/CUDA interop mapping/unmapping
 
@@ -35,6 +38,8 @@ class Propagator(object):
 
         photons_end = gpu_photons.get()
         return photons_end 
+
+
 
 if __name__ == '__main__':
     pass

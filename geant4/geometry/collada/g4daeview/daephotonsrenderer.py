@@ -3,15 +3,12 @@
 import logging
 log = logging.getLogger(__name__)
 
-import OpenGL
-OpenGL.FORWARD_COMPATIBLE_ONLY = True    
-
 import OpenGL.GL as gl
-import OpenGL.GLUT as glut
 
-from daephotonsshader import DAEPhotonsShader
 from daevertexbuffer import DAEVertexBuffer
+from daephotonsshader import DAEPhotonsShader
 from daephotonskernel import DAEPhotonsKernel
+from daephotonspropagator import DAEPhotonsPropagator
 
 
 class DAEPhotonsRenderer(object):
@@ -19,26 +16,37 @@ class DAEPhotonsRenderer(object):
     Coordinates presentation of photons with sharing of OpenGL VBO between:
 
     #. OpenGL buffer drawing 
-    #. OpenGL GLSL shading, including geometry shader to generate 
-       lines primitives from points primitives together with a momentum direction
+    #. OpenGL GLSL shading
     #. PyCUDA modification of the VBO content
 
+    Features
+    ~~~~~~~~~ 
 
+    #. selection of photons to render is controlled by mask/bits CUDA constants, 
+       which are used in CUDA kernel to set a color that is used by 
+       the GLSL shader 
+    
+    #. OpenGL draw calls use GL_POINT, but lines result via use of GLSL Geometry Shaders
+       that amplify the input vertices using the momentum direction and polarization  
 
-
-
+    Constituents
+    ~~~~~~~~~~~~~
+ 
+    #. kernel DAEPhotonsKernel
+    #. shader DAEPhotonsShader
 
     """
     def __init__(self, dphotons, chroma ):
         """
         :param dphotons: DAEPhotons instance
-        :param chroma: chroma context instance
+        :param chroma: DAEChromaContext instance
         """
         self.dphotons = dphotons
         self.chroma = chroma
         self.interop = not self.chroma.dummy
-        self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
         self.shader = DAEPhotonsShader(dphotons) 
+        self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
+        self.propagator = DAEPhotonsPropagator(dphotons) if self.interop else None
         self.invalidate_buffers()
         self.count = 0 
 
@@ -73,13 +81,6 @@ class DAEPhotonsRenderer(object):
         self.interop_gl_to_cuda(vbo)
         return vbo
 
-    def interop_cuda_to_gl(self, buf ):
-        """
-        Ends CUDA responsibility, allows OpenGL access for drawing 
-        """
-        if not self.interop:return
-        buf.cuda_buffer_object.unregister() 
-
     def interop_gl_to_cuda(self, buf ):
         """ 
         Registering the VBO with CUDA, by creation of cuda_gl BufferObject 
@@ -87,70 +88,68 @@ class DAEPhotonsRenderer(object):
         if not self.interop:return
         buf.cuda_buffer_object = self.chroma.make_cuda_buffer_object(buf.vertices_id)
 
-    def former_draw(self):
+    def interop_cuda_to_gl(self, buf ):
         """
-        Using single doubled up lbuffer with VertexAttrib offset tricks 
-        (via the att=1,2,3) to pull out lines and points from that  
+        Ends CUDA responsibility, allows OpenGL access for drawing 
         """
-        qcount = self.dphotons.qcount
-        gl.glPointSize(self.dphotons.param.fphopoint)  
-
-        self.lbuffer.draw(mode=gl.GL_LINES,   what='pc', count=2*qcount, offset=0, att=1 )
-        self.lbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=2 )     # startpoint
-        #self.lbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=3 )    # endpoint 
-
-        gl.glPointSize(1)  
+        if not self.interop:return
+        buf.cuda_buffer_object.unregister() 
 
     def interop_call_cuda_kernel(self, buf):
         """
-        NEXT:
- 
-        #. variable qcount ? avoid that  
+        Invoke CUDA kernel with VBO argument, 
+        allowing VBO changes.
         """ 
         if self.kernel is None:return
-        import pycuda.driver as cuda_driver
 
+        import pycuda.driver as cuda_driver
         buf_mapping = buf.cuda_buffer_object.map()
         self.kernel( buf_mapping.device_ptr(), self.dphotons.qcount )   
         cuda_driver.Context.synchronize()
         buf_mapping.unmap()
 
+
     def draw(self):
         """
-        Non-doubled pbuffer with geometry shader is used to generate the 2nd vertex 
-        (based on momdir attribute) and line primitive on the device
+        Drawing the pbuffer, after kernel call to potentially modify it
 
-        NEXT: 
-
-        #. modify Chroma propagation to use the VBO, not just simple DAEPhotonsKernel
-
-        #. add mask/bits uniforms and flags attribute 
-
-           * use these to move selection logic onto GPU, controlled by setting mask/bits uniform
-           * apply selection either by geometry shader omission or color alpha control 
-
-        #. try to generate something for the polarization too ?
-
-           * GL_LINE_STRIP comes out of the geometry shader pipe, 
-             stick polz direction compass on the end ?
-
-        #. aiming towards once only buffer creation, ie only when a new ChromaPhotonList is loaded
-
-
+        #. qcount specified count of elements to draw
         """
-        qcount = self.dphotons.qcount
+        qcount = self.dphotons.qcount   
+
         gl.glPointSize(self.dphotons.param.fphopoint)  
        
         self.kernel.update_constants()   # can polling param changes be avoided ?
 
-        # interop sharing of pbuffer 
         self.interop_call_cuda_kernel(self.pbuffer)
+
         self.interop_cuda_to_gl(self.pbuffer)
+
         self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1 ) 
+
         self.interop_gl_to_cuda(self.pbuffer)
 
         gl.glPointSize(1)  
 
+
+    def legacy_draw(self):
+        """
+        Drawing lbuffer (a doubled up pbuffer) with VertexAttrib offset tricks 
+        (via att=1,2,3 corresponding to lines/startpoint/endpoint) to draw lines
+        and points.
+
+        In pre-history used both pbuffer and lbuffer to draw lines and points
+        but that is no longer needed.
+        """
+        qcount = self.dphotons.qcount
+
+        gl.glPointSize(self.dphotons.param.fphopoint)  
+
+        self.lbuffer.draw(mode=gl.GL_LINES,   what='pc', count=2*qcount, offset=0, att=1 )
+
+        self.lbuffer.draw(mode=gl.GL_POINTS,  what='pc', count=qcount,   offset=0, att=2 )    
+
+        gl.glPointSize(1)  
 
 
 if __name__ == '__main__':

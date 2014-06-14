@@ -5,87 +5,31 @@ import logging
 log = logging.getLogger(__name__)
 
 import numpy as np
-
 from env.cuda.cuda_launch import Launch2D
 
-import pycuda.gl as cuda_gl
+#import pycuda.gl as cuda_gl
 import pycuda.driver as cuda
 import pycuda.gpuarray as ga
+
+# hmm isnt this done elsewhere in DAEChromaContext ? maybe needed for standalone test
 import pycuda.gl.autoinit      # excludes use of non-gl autoinit
 
-from chroma.gpu.geometry import GPUGeometry
-from chroma.gpu.tools import cuda_options
-
-from chroma.cuda import srcdir
-import pycuda.tools
-import pycuda.compiler
-
-
-def template_substitute( source, template_vars ):
-    """
-    Substitution is done by removing the instrumented comment:: 
-
-        //metric{time}       int64_t metric = clock64() - start ;
-        //metric{node}       int     metric = node_count ; 
-        //metric{intersect}  int     metric = intersect_count ; 
-        //metric{tri}        int     metric = tri_count ; 
-
-    So to use metric=time to get the time line
-    """
-    for k, v in template_vars: 
-        marker = "//%s{%s}" % ( k,v )      # eg looking for //metric{time}
-        spacer = " " * len(marker)
-        source = source.replace(marker, spacer)
-        log.info("replacing marker %s " % marker ) 
-    pass
-    return source
-
-
-@pycuda.tools.context_dependent_memoize   #not with dict argument
-def get_cu_module(name, options=None, include_source_directory=True, template_vars=None):
-    """
-    Returns a pycuda.compiler.SourceModule object from a CUDA source file
-    located in the chroma cuda directory at cuda/[name].
-
-    Slight extension of chroma.gpu.tools version with 
-    with template_kwa argument for templated changes to the kernel, useful 
-    for debugging: eg changing metrics without iffing.
-    """
-    if options is None:
-        options = []
-    elif isinstance(options, tuple):
-        options = list(options)
-    else:
-        raise TypeError('`options` must be a tuple.')
-
-    if include_source_directory:
-        options += ['-I' + srcdir]
-
-    with open('%s/%s' % (srcdir, name)) as f:
-        source = f.read()
-
-    if template_vars is not None:
-        source = template_substitute( source, template_vars )
-
-    return pycuda.compiler.SourceModule(source, options=options, no_extern_c=True)
-
-
+from chroma.gpu.tools import get_cu_module, cuda_options
 
 
 class PBORenderer(object):
     def __init__(self, pixels, gpu_geometry, config ):
-        pass
+        """
+        :param pixels:
+        :param gpu_geometry: `GPUGeometry` instance
+        :param config:
+        """
         self.pixels = pixels
+        self.gpu_geometry = gpu_geometry 
         self.config = config
-
-        launch = Launch2D( work=pixels.size, launch=config.launch, block=config.block )
-        self.launch = launch
+        self.launch = Launch2D( work=pixels.size, launch=config.launch, block=config.block )
         self.cudacheck = getattr(config, 'cudacheck', None)
         self.times = []
-
-        #self.gpu_geometry = GPUGeometry( chroma_geometry )
-        self.gpu_geometry = gpu_geometry 
-
 
         self._alpha_depth = None
         self._offset = None
@@ -114,7 +58,6 @@ class PBORenderer(object):
         if self.size == size:return   # getter returns cached local value
         self.size = size              # setter copies to device
         self.launch.resize(size)
-
 
     def config_showmetric(self):
         """

@@ -1,6 +1,224 @@
 Daeview Dev Notes 
 =====================
 
+Dependencies Tree
+-------------------
+
+* PyOpenGL
+* glumpy 
+
+  * OpenGL.GLUT (PyOpenGL wrapped)
+
+    * GLUT.framework
+
+* ROOT, used for ChromaPhotonList deserialization
+
+
+Alternatives to GLUT ?
+-------------------------
+
+The glumpy dependency `GLUT.framework` prevents going beyond OpenGL 2.1, GLSL 120.
+This is despite OSX 10.9 system and MBP hardware supporting OpenGL 4.1.
+
+Implications of ancient OpenGL 2.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. developing against obsolete API, eg the geometry shader extension API
+#. GLSL 120 (even with extensions) have very poor int/uint support
+   so forced to do even simple things like photon selection based on flags in CUDA 
+   rather than the shader
+
+GLFW
+~~~~~
+
+* Modern OpenGL support on OSX, Linux, Windows
+* Not a GLUT drop in (no menu-ing)
+
+* http://www.geeks3d.com/20121109/overview-of-opengl-support-on-os-x/
+* http://stackoverflow.com/questions/19993078/looking-for-a-simple-opengl-3-2-python-example-that-uses-glfw
+
+glfwcy with PyOpenGL and OpenGL 3.2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/electronut/pp/blob/master/simplegl/simpleglfw.py
+
+glfw python wrappers
+~~~~~~~~~~~~~~~~~~~~~
+
+* https://pypi.python.org/pypi/glfw/1.0.1
+* https://github.com/enthought/glfwpy
+* https://github.com/glfw/glfw
+    
+migration from glumpy to glfw
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://groups.google.com/forum/m/#!msg/pupil-discuss/qrxH8KGh7vU/ZvRpbg7Mnu0J
+
+  * example of a python project making the move to GLFW
+
+
+Alternatives serialization/deserialization to ROOT ?
+-------------------------------------------------------
+
+Ginormous monolithic ROOT dependency, just to be able to 
+deserialize ChromaPhotonList objects.  
+
+Requirements:
+
+#. serialization usable from Geant4 C++
+#. deserialization usable from Python
+#. in future both usable from iOS
+#. efficient handling of millions of photons!
+
+ChromaPhotonList exists for transport alone, so 
+can easily change the format to something else, 
+eg go directly into capnproto structures, from 
+Geant4 C++ 
+
+Also consider what happens at other end, need to 
+form numpy arrays with the data in order for 
+easy uploading to GPU.
+
+Non-requirements:
+
+#. schema evolution, careful versioning
+
+
+NEXT
+~~~~
+
+#. Make some comparisons for usecase of large numbers of floats, 
+   no necessarily in `std::vector<float>`
+
+contenders
+~~~~~~~~~~~~~
+
+* :google:`protobuf boost.serialize capnproto thrift`
+
+#. capnproto, improvement on protobuf from former protobuf principal 
+#. cereal
+#. google protobuf
+#. boost serialization http://www.ibm.com/developerworks/aix/library/au-boostserialization/
+#. http://home.gna.org/autoserial/objects.html
+#. http://thrift.apache.org
+
+comparisons
+~~~~~~~~~~~~
+
+* https://www.igvita.com/2011/08/01/protocol-buffers-avro-thrift-messagepack/
+* http://www.codeproject.com/Articles/225988/A-practical-guide-to-Cplusplus-serialization
+* https://github.com/thekvs/cpp-serializers
+* http://leopard.in.ua/2013/10/13/binary-serialization-formats/
+* http://stackoverflow.com/questions/1061169/boost-serialization-vs-google-protocol-buffers
+* https://github.com/mapbox/mapnik-vector-tile/issues/1
+* http://en.wikipedia.org/wiki/Comparison_of_data_serialization_formats
+
+
+capnproto
+~~~~~~~~~~~
+
+* Requires GCC 4.7+ or Clang 3.2+
+* iOS ported: https://groups.google.com/forum/#!topic/capnproto/YIcDJzSQh34
+
+* https://github.com/kentonv/capnproto
+* http://kentonv.github.io/capnproto/
+* https://trac.macports.org/browser/trunk/dports/devel/capnproto/Portfile
+* http://blog.jparyani.com/pycapnp/  python binding
+
+Random quote:
+
+    It's extremely performant for C, because its format mimics the layout of C data
+    structures in memory. So for C, the encoding time is zero - just dump the bytes
+    as-is, pretty much.
+
+
+Hmm, what about byte buffer reinterpretation as numpy array ? (a la MySQL-numpy).
+
+
+
+cereal
+~~~~~~~
+
+* http://uscilab.github.io/cereal/index.html
+* https://github.com/USCiLab/cereal
+
+
+boost serialization
+~~~~~~~~~~~~~~~~~~~~~~
+
+* can monolithic-ness be avoided ? iOS ?
+
+ 
+
+
+
+
+Limitations
+-------------
+
+GPU Out-of-memory during BVH construction with full Juno geometry (50M nodes?)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Restricting to about half the geometry succeeds::
+
+     g4daeview.sh -p juno -g 1:25000 --with-chroma --launch 3,3,1
+
+
+Maybe can reorganize the work to avoid using too much memory ?::
+
+    g4daeview.sh -p juno --with-chroma
+
+    074 2014-05-26 10:51:22,642 env.geant4.geometry.collada.collada_to_chroma:297 ColladaToChroma adding BVH
+    075 2014-05-26 10:51:23,879 chroma.loader       :155 Building new BVH using recursive grid algorithm.
+    076 Expanding 422925 parent nodes
+    077 Merging 50232688 nodes to 15826587 parents
+    078 Expanding 48194 parent nodes
+    079 Merging 16250194 nodes to 4923755 parents
+    080 Merging 4971964 nodes to 1289438 parents
+    081 Merging 1289438 nodes to 266462 parents
+    082 Merging 266462 nodes to 51806 parents
+    083 Merging 51806 nodes to 10332 parents
+    084 Merging 10332 nodes to 2216 parents
+    085 Merging 2216 nodes to 480 parents
+    086 Merging 480 nodes to 104 parents
+    087 Merging 104 nodes to 32 parents
+    088 Merging 32 nodes to 8 parents
+    089 Merging 8 nodes to 2 parents
+    090 Merging 2 nodes to 1 parent
+    091 Traceback (most recent call last):
+    092   File "/Users/blyth/env/bin/g4daeview.py", line 4, in <module>
+    093     main()
+    094   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/g4daeview.py", line 186, in main
+    095     scene = DAEScene(geometry, config )
+    096   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daescene.py", line 45, in __init__
+    097     chroma_geometry = geometry.make_chroma_geometry()
+    098   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daegeometry.py", line 315, in make_chroma_ge    ometry
+    099     cc.convert_geometry(nodes=self.nodes())
+    100   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/collada_to_chroma.py", line 291, in convert_geometry
+    101     self.add_bvh()
+    102   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/collada_to_chroma.py", line 304, in add_bvh
+    103     cuda_device=cuda_device)
+    104   File "/usr/local/env/chroma_env/src/chroma/chroma/loader.py", line 160, in load_bvh
+    105     bvh = make_recursive_grid_bvh(geometry.mesh, target_degree=3)
+    106   File "/usr/local/env/chroma_env/src/chroma/chroma/bvh/grid.py", line 91, in make_recursive_grid_bvh
+    107     nodes, layer_bounds = concatenate_layers(layers)
+    108   File "/usr/local/env/chroma_env/src/chroma/chroma/gpu/bvh.py", line 266, in concatenate_layers
+    109     grid=(nblocks_this_iter,1))
+    110   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/driver.py", line 355, in function_call
+    111     handlers, arg_buf = _build_arg_buf(args)
+    112   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/driver.py", line 125, in _build_arg_buf
+    113     arg_data.append(int(arg.get_device_alloc()))
+    114   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/driver.py", line 59, in get_device_alloc
+    115     self.dev_alloc = mem_alloc_like(self.array)
+    116   File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/driver.py", line 608, in mem_alloc_like
+    117     return mem_alloc(ary.nbytes)
+    118 pycuda._driver.MemoryError: cuMemAlloc failed: out of memory
+
+
+
+
+
+
 Old Issues To Be Revisited
 ---------------------------
 
@@ -109,8 +327,8 @@ Very long shapes are problematic::
 
 
 
-Interpolation Jumps
-~~~~~~~~~~~~~~~~~~~
+Interpolation Jumps (FIXED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 ::

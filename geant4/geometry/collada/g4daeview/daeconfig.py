@@ -155,7 +155,7 @@ class DAEConfig(ConfigBase):
 
         defaults['loglevel'] = "INFO"
         defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
-        defaults['legacy'] = True
+        defaults['legacy'] = False
         defaults['debugshader'] = False
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
@@ -167,7 +167,7 @@ class DAEConfig(ConfigBase):
 
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
-        parser.add_argument( "--nolegacy", dest="legacy", action="store_false", help="Sets `legacy=False` , the flag is used for OpenGL modernization tests, default %(default)s." )
+        parser.add_argument( "--legacy", dest="legacy", action="store_true", help="Sets `legacy=True`, with `color` and `position` rather than custom OpenGL attributes, default %(default)s." )
         parser.add_argument( "--debugshader", dest="debugshader", action="store_true", help="Use debug shader without geometry stage, default %(default)s." )
         parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
