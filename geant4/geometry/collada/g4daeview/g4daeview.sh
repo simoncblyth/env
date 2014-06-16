@@ -11,7 +11,10 @@ if [ "${cmdline/--zmqtunnelnode}" != "${cmdline}" ]; then
    done
 fi 
 
-echo zmqtunnelnode=\"$zmqtunnelnode\"
+#echo zmqtunnelnode=\"$zmqtunnelnode\"
+
+export-
+export-export   # DAE_NAME_ envvar
 
 chroma-
 

@@ -68,8 +68,11 @@ g4daeview-dir(){ echo $(env-home)/geant4/geometry/collada/g4daeview; }
 g4daeview-cd(){  cd $(g4daeview-dir); }
 g4daeview-mate(){ mate $(g4daeview-dir) ; }
 
+
+
+
 g4daeview(){
-    g4daeview.py $*   
+    g4daeview.sh --with-chroma $*   
 }
 g4daeview-ctl(){
     udp.py "$*"

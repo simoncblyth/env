@@ -191,10 +191,11 @@ class DAEVertexAttributes(object):
                 'int16'  : gl.GL_SHORT,  'uint16' : gl.GL_UNSIGNED_SHORT,
                 'int32'  : gl.GL_INT,    'uint32' : gl.GL_UNSIGNED_INT }
 
-    def __init__(self, dtype, stride, force_attribute_zero=None, shader=None ):
+    def __init__(self, dtype, stride, max_slots=1, force_attribute_zero=None, shader=None ):
         """
         :param dtype:
-        :param stride:
+        :param stride: from itemsize
+        :param max_slots:
         :param force_attribute_zero: name of generic field to slide into slot 0, "vposition" ? 
 
         Unsure why but nothing appears unless force the attribute holding "position" 
@@ -207,11 +208,17 @@ class DAEVertexAttributes(object):
         log.info("%s stride %s dtype %s " % (self.__class__.__name__, stride, repr(dtype) ))
 
         self.shader = shader
+        self.max_slots = max_slots
+
+        # TODO: generalize the below
         self.all_  = {}
         self.first = {}
         self.second = {}
+        self.slotmin = {}
+        self.slotmax = {}
+        self.attmap = { 'all':self.all_, 'first':self.first, 'second':self.second, 'slotmin':self.slotmin, 'slotmax':self.slotmax } 
+
         self.generic = []
-        self.attmap = { 1:self.all_, 2:self.first, 3:self.second } 
 
         for name in names:
             if dtype[name].subdtype is not None:
@@ -233,6 +240,9 @@ class DAEVertexAttributes(object):
                 self.all_[name[0]] = eval(vclass)(count,gltype,stride,offset)    # all the vertices
                 self.first[name[0]] = eval(vclass)(count,gltype,2*stride,offset) # just first vertex of the pair 
                 self.second[name[0]] = eval(vclass)(count,gltype,2*stride,offset+stride)   # just second vertex of the pair
+
+                self.slotmin[name[0]] = eval(vclass)(count,gltype,max_slots*stride,offset)
+                self.slotmax[name[0]] = eval(vclass)(count,gltype,max_slots*stride,offset+(max_slots-1)*stride)
             else:
                 if name == force_attribute_zero:
                     attribute = VertexAttribute_generic(count,gltype,stride,offset,0, name)
@@ -251,7 +261,7 @@ class DAEVertexAttributes(object):
             if not self.shader is None:
                 self.shader.shader.bind_attribute( attribute.index, attribute.name )  
 
-    def predraw(self, what, att=1):
+    def predraw(self, what, att='all'):
         """
         #. shader.link is internally skipped when linked already, this
            ensures that the link happens after the attributes are bound on 
@@ -273,7 +283,7 @@ class DAEVertexAttributes(object):
                 attributes[c].enable()
 
 
-    def postdraw(self, what, att=1):
+    def postdraw(self, what, att='all'):
         """
         Without the shader unuse, get invalid operation from drawing the geometry 
         """ 
@@ -299,14 +309,15 @@ class DAEVertexBuffer(object):
     For example using 2x striding allow to draw points from a lines VBO 
     http://pyopengl.sourceforge.net/documentation/manual-3.0/glBufferData.html
     """
-    def __init__(self, vertices, indices=None, force_attribute_zero=None, shader=None ):
+    def __init__(self, vertices, indices=None, max_slots=1, force_attribute_zero=None, shader=None ):
         """
         :param vertices: numpy ndarray with named constituents
         :param indices: numpy ndarray of element indices
+        :param max_slots: when greater than 1, allows for example recording multiple steps of photon propagation 
         :param force_attribute_zero: name of 'position' field that will be forced into attribute slot 0 
         :param shader: DAEShader instance
         """
-        self.attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize, force_attribute_zero=force_attribute_zero, shader=shader)
+        self.attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize, max_slots=max_slots,force_attribute_zero=force_attribute_zero, shader=shader)
         self.init( vertices, indices )
 
     def init(self, vertices, indices):
@@ -329,6 +340,14 @@ class DAEVertexBuffer(object):
         gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_STATIC_DRAW )
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 )
 
+    def readback(self):
+        """
+        Reading back the VBO content probably needs glMapBuffer
+
+        * http://www.opengl.org/sdk/docs/man2/xhtml/glMapBuffer.xml
+        """
+        pass
+
     def init_element_array_buffer(self, indices ):
         """
         Upload numpy array into OpenGL element array buffer
@@ -343,7 +362,7 @@ class DAEVertexBuffer(object):
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 )
 
 
-    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att=1 ):
+    def draw( self, mode=gl.GL_QUADS, what='pnctesf', offset=0, count=None, att='all' ):
         """ 
         :param mode: primitive to draw
         :param what: attribute multiple choice by first letter
@@ -351,7 +370,7 @@ class DAEVertexBuffer(object):
                        NB this just controls where in the indices array to start getting elements
                        it does not cause offsets with the vertex items
         :param count: number of elements, default None corresponds to all in self.indices
-        :param att:  normally 1, when 2 or 3 use alternate stride/offset attributes allowing 
+        :param att:  normally 'all', when 'first' or 'second' use alternate stride/offset attributes allowing 
                      things like 2-stepping through VBO via doubled attribute stride and picking which 
                      of pairwise vertices to use.
 

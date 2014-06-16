@@ -40,8 +40,6 @@ Grab with::
    export-get 
 
 
-
-
 Export Environment Setup
 --------------------------
 
@@ -116,6 +114,38 @@ export-home(){ echo $LOCAL_BASE/env/geant4/geometry/export ; }
 export-cd(){  cd $(export-home); }
 export-mate(){ mate $(export-dir) ; }
 export-url(){ echo http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export ; }
+
+
+
+export-name(){
+  local base=$(export-home)
+  case $1 in 
+       dyb) echo $base/DayaBay_VGDX_20140414-1300/g4_00.dae ;;
+       far) echo $base/Far_VGDX_20140414-1256/g4_00.dae ;;
+    lingao) echo $base/Lingao_VGDX_20140414-1247/g4_00.dae ;;
+       lxe) echo $base/LXe/g4_00.dae ;;
+       juno) echo $base/juno/test2.dae ;;
+  esac
+}
+
+export-export(){
+   export DAE_NAME=$(export-name dyb)
+   export DAE_NAME_DYB=$(export-name dyb)
+   export DAE_NAME_FAR=$(export-name far)
+   export DAE_NAME_LIN=$(export-name lingao)
+   export DAE_NAME_LXE=$(export-name lxe)
+   export DAE_NAME_JUNO=$(export-name juno)
+   export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%(arg)s.root"
+}
+
+export-juno-get(){
+   cd $(export-home)
+   scp lxslc5:~lint/test.dae juno/$1.dae
+}
+
+
+
+
 export-get(){
    local tag=${1:-DayaBay_VGDX_20140414-1300}
    local tagdir=$(export-home)/$tag

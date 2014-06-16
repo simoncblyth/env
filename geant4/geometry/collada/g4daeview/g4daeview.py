@@ -6,13 +6,66 @@ G4DAEVIEW
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
+Step Interpolation Visualization
+----------------------------------
+
+Keeping multiple propagation steps in the VBO at once provides an interesting
+visualization possibility.  
+
+#. Run the propagation at event load to a fixed maximum number of steps 
+
+   * controlling the propagation from DAEEvent or DAEPhotons rather 
+     than current DAEPhotonsRenderer makes more sense
+   * in propagate_vbo.cu store the step results into the vbo in slots by step number
+   * within the pre-draw DAEPhotonsRenderer/DAEPhotonsKernel CUDA call calculate 
+     photon parameters based on an input "time" constant (that can be varied 
+     forwards and backwards interactively) 
+
+     * find the pair of steps whose times straddle the input time and 
+       use linear interpolation to calculate the photon parametes at that time, 
+       lay down the result into a slot in the VBO
+
+     * invoke geometry shader rendereing as normal with appropriate stride to 
+       pickup the dynamically calculated photon parameters    
+
+This way you have a "real" time view of simulation progression rather than
+the very artificicial view of discrete steps.
+
+What about non-Chroma devices ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Chroma needs CUDA, to visualize on devices without Chroma/CUDA but 
+with OpenCL (or Metal):
+
+* provide way to pullback/persist/transport VBO, without ROOT dependency.
+
+Dumb (non-compute) devices will not be able to do the interpolation, 
+but they could do the fake glDrawElements time cutting via changing the count. 
+
+
+Geometry Shaders
+~~~~~~~~~~~~~~~~~~
+
+Current rendering requires geometry shading capability, that is 
+not available on OpenGL ES would need to construct line strip VBO 
+rather than generating lines.
+
+Even OpenGL ES Next (expected released 2014) will not have geometry
+shaders.
+
+* http://www.anandtech.com/show/7657/khronos-offers-a-quick-peek-at-the-next-version-of-opengl-es
+
+
+
+
+
 Migration to Shader Control
 -----------------------------
 
 Running into difficulties, photons not appearing, current cmds::
 
    g4daeview.sh --with-chroma --nolegacy 
-      ## photon rep appears on right-arrow loading but immediately dissapears 
+      # photon rep appears on right-arrow loading but immediately dissapears 
 
    g4daeview.sh --with-chroma --nolegacy --debugshader
 

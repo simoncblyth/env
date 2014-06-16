@@ -7,6 +7,13 @@ OSX Automator Workflows
 Automator Service to Make PDF from Multiple PNGs
 -------------------------------------------------
 
+Refs 
+~~~~~~
+
+* http://miriamposner.com/blog/use-automator-to-combine-your-research-photos-into-one-pdf/
+
+
+
 Using *Make PDF from PNGs* Automator Service
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

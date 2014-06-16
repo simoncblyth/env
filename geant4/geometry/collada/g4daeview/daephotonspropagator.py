@@ -48,6 +48,7 @@ class DAEPhotonsPropagator(object):
         """
         self.max_time = 4.
         self.dphotons = dphotons
+        self.max_slots = dphotons.data.max_slots
         self.ctx = ctx
         self.compile_kernel()
         self.uploaded_queues = False
@@ -58,7 +59,7 @@ class DAEPhotonsPropagator(object):
         """
         module = get_cu_module('propagate_vbo.cu', options=cuda_options, template_vars=template_vars )
         kernel = module.get_function( 'propagate_vbo' )
-        kernel.prepare("iiPPPPiiiP")
+        kernel.prepare("iiPPPPiiiPi")
 
         self.g_mask = module.get_global("g_mask")[0]  
         self._mask = None
@@ -183,7 +184,8 @@ class DAEPhotonsPropagator(object):
                              np.int32(nsteps), 
                              np.int32(use_weights), 
                              np.int32(scatter_first), 
-                             self.ctx.gpu_geometry.gpudata ) 
+                             self.ctx.gpu_geometry.gpudata,
+                             np.int32(self.max_slots )) 
 
                     get_time = self.kernel.prepared_timed_call( grid, block, *args )
                     t = get_time()

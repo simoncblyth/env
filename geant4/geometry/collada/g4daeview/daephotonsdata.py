@@ -77,7 +77,7 @@ class DAEPhotonsDataBase(object):
 
     def indices_selection(self):
         """
-        MOVING THIS TO CUDA KERNEL
+        NOW DONE IN CUDA KERNEL
 
         Use the photon history flags (array of bit fields)
         to make bit mask and history selections
@@ -128,29 +128,20 @@ class DAEPhotonsDataBase(object):
 
 
 
-
 class DAEPhotonsData(DAEPhotonsDataBase):
     numquad = 6
+    max_slots = 10
     force_attribute_zero = "position_weight"
     def __init__(self, photons, param ):
         DAEPhotonsDataBase.__init__(self, photons, param )
  
     def create_data(self):
         """
-        Simplify access from CUDA kernels by adopting 4*quads::
-
-            struct VPhoton { 
-               float4 position_weight,                 # 4*4 = 16  
-               float4 direction_wavelength,            # 4*4 = 16     
-               float4 polarization_time,               # 4*4 = 16  48
-               uint4  flags                            # 4*4 = 16  64    
-               int4   last_hit_triangle                # 4*4 = 16  80    
-
+        Simplify access from CUDA kernels by adopting numquad*quads::
           
         #. using 'position' would use traditional glVertexPointer furnishing gl_Vertex to shader
         #. using smth else eg 'position_weight' uses generic attribute , 
            which requires force_attribute_zero for anythinh to appear
-
 
         Fake attribute testing
 
@@ -182,13 +173,13 @@ class DAEPhotonsData(DAEPhotonsDataBase):
             ('last_hit_triangle',         np.int32,   4 ), 
           ])
 
-        nvert = self.nphotons
+        nvert = self.nphotons * self.max_slots
         data = np.zeros(nvert, dtype )
 
         ones_ = lambda _:np.ones( nvert, dtype=_ )  
         def pack31_( name, a, b ):
-            data[name][:,:3] = a
-            data[name][:,3] = b
+            data[name][::self.max_slots,:3] = a
+            data[name][::self.max_slots,3] = b
 
         pack31_( 'position_weight',      self.position ,    self.weight )
         pack31_( 'direction_wavelength', self.direction,    self.wavelength )
@@ -197,10 +188,10 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         data['ccolor'] = np.tile( [1.,0.,0,1.], (nvert,1)).astype(np.float32)    # initialize to red, reset by CUDA kernel
 
         def pack1111_( name, a, b, c, d ):
-            data[name][:,0] = a
-            data[name][:,1] = b
-            data[name][:,2] = c
-            data[name][:,3] = d
+            data[name][::self.max_slots,0] = a
+            data[name][::self.max_slots,1] = b
+            data[name][::self.max_slots,2] = c
+            data[name][::self.max_slots,3] = d
 
         pack1111_('flags',             self.flags,             ones_(np.uint32), ones_(np.uint32), ones_(np.uint32) )
         pack1111_('last_hit_triangle', self.last_hit_triangle, ones_(np.int32),  ones_(np.int32), ones_(np.int32) )
