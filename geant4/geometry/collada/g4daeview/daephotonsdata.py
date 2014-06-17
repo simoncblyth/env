@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 """
+For standalone testing use::
+
+    ./daephotonsdata.sh --prescale 10
+
+
+.. warning:: gl/glumpy imports **NOT ALLOWED** this is for pure numpy data manipulations
 
 """
 import logging
@@ -7,8 +13,6 @@ import numpy as np
 log = logging.getLogger(__name__)
 
 from env.graphics.color.wav2RGB import wav2RGB
-
-# gl/glumpy imports not allowed, this is for pure numpy data manipulations
 
 class DAEPhotonsDataBase(object):
     """
@@ -23,15 +27,79 @@ class DAEPhotonsDataBase(object):
         self._photons = photons  
         self._param = param 
 
-    nphotons     = property(lambda self:len(self._photons) if not self._photons is None else 0)
-    position     = property(lambda self:self._photons.pos if not self._photons is None else None)   
-    direction    = property(lambda self:self._photons.dir if not self._photons is None else None)
-    wavelength   = property(lambda self:self._photons.wavelengths if not self._photons is None else None)
-    weight       = property(lambda self:self._photons.weights if not self._photons is None else None)
-    flags        = property(lambda self:self._photons.flags if not self._photons is None else None)
-    polarization = property(lambda self:self._photons.pol if not self._photons is None else None)
-    time         = property(lambda self:self._photons.t if not self._photons is None else None)
-    last_hit_triangle = property(lambda self:self._photons.last_hit_triangles if not self._photons is None else None)
+    prescale = property(lambda self:self._param.prescale)
+    max_slots = property(lambda self:self._param.max_slots)
+
+    def __repr__(self):
+        return "\n".join([
+            "%s ntruephotons %s nphotons %s prescale %s " % ( self.__class__.__name__, self.ntruephotons, self.nphotons, self.prescale ),
+            str(self.data.dtype),
+            str(self.data) 
+            ])
+
+    ntruephotons = property(lambda self:len(self._photons) if not self._photons is None else 0, doc="Original number of photons from CPL")
+    is_prescaled = property(lambda self:not self.prescale in (1, None))
+
+    def _get_nphotons(self):
+        """
+        Number of photons, with prescale division when prescale is applied
+        """ 
+        return self.ntruephotons//self.prescale if self.is_prescaled else self.ntruephotons
+    nphotons     = property(_get_nphotons)
+
+    def create_sample_indices(self):
+        """
+        Original (unscaled) photon array indices, used to 
+        construct prescaled arrays when prescale > 1
+        """
+        ntruephotons = self.ntruephotons 
+        nphotons = self.nphotons
+        if ntruephotons == nphotons:
+            return np.arange( ntruephotons, dtype=np.uint32)  
+        else:
+            return np.linspace(0, ntruephotons, num=nphotons).astype('uint8') 
+
+    def _get_sample_indices(self):
+        """
+        List of indices to be applied to true arrays to possibly 
+        create prescaled arrays.
+        """ 
+        if self._photons is None:
+            return None
+        if self._sample_indices is None:
+            self._sample_indices = self.create_sample_indices()
+        return self._sample_indices 
+    sample_indices = property(_get_sample_indices, doc=_get_sample_indices.__doc__)
+
+    namemap = {'position':'pos',
+               'direction':'dir',
+               'wavelength':'wavelengths',
+               'weight':'weights',
+               'flags':'flags',
+               'polarization':'pol',
+               'time':'t',
+               'last_hit_triangle':'last_hit_triangles',
+              }
+
+    def _get_array(self, name):
+        """
+        :param name: 
+        :return: photon property array, potentially prescaled
+        """
+        if self._photons is None:
+            return None
+        a = getattr(self._photons, self.namemap[name])
+        return a[self.sample_indices] if self.is_prescaled else a
+
+    position     = property(lambda self:self._get_array('position'))   
+    direction    = property(lambda self:self._get_array('direction'))   
+    wavelength   = property(lambda self:self._get_array('wavelength'))   
+    weight       = property(lambda self:self._get_array('weight'))   
+    flags        = property(lambda self:self._get_array('flags'))   
+    polarization = property(lambda self:self._get_array('polarization'))   
+    time         = property(lambda self:self._get_array('time'))   
+    last_hit_triangle = property(lambda self:self._get_array('last_hit_triangle'))   
+
 
     def invalidate(self):
         """
@@ -41,6 +109,7 @@ class DAEPhotonsDataBase(object):
         self._data = None   
         self._indices = None   
         self._color = None
+        self._sample_indices = None
 
     def _get_photons(self):
         return self._photons    
@@ -70,10 +139,13 @@ class DAEPhotonsDataBase(object):
     vindices = property(_get_vindices, doc="")         
 
     def _get_indices(self):
+        """
+        List of indices, possibly within the post-prescaled array.
+        """ 
         if self._indices is None:
             self._indices = np.arange( self.nphotons, dtype=np.uint32)  
         return self._indices 
-    indices = property(_get_indices)
+    indices = property(_get_indices, doc=_get_indices.__doc__)
 
     def indices_selection(self):
         """
@@ -130,10 +202,13 @@ class DAEPhotonsDataBase(object):
 
 class DAEPhotonsData(DAEPhotonsDataBase):
     numquad = 6
-    max_slots = 10
     force_attribute_zero = "position_weight"
+
     def __init__(self, photons, param ):
         DAEPhotonsDataBase.__init__(self, photons, param )
+        self._ccolor = None
+
+    nvert = property(lambda self:self.nphotons*self.max_slots)
  
     def create_data(self):
         """
@@ -158,6 +233,7 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         """
         if self.nphotons == 0:return None
 
+
         dtype = np.dtype([ 
             ('position_weight'   ,        np.float32, 4 ), 
             ('direction_wavelength',      np.float32, 4 ), 
@@ -167,27 +243,40 @@ class DAEPhotonsData(DAEPhotonsDataBase):
             ('last_hit_triangle',         np.int32,   4 ), 
           ])
 
-        nvert = self.nphotons * self.max_slots
+        nvert = self.nvert
+        log.info( "create_data nvert %d (with slot scaleups) " % nvert )
         data = np.zeros(nvert, dtype )
 
-        ones_ = lambda _:np.ones( nvert, dtype=_ )  
+        # splaying the start data out into the slots, leaving loadsa free slots
         def pack31_( name, a, b ):
             data[name][::self.max_slots,:3] = a
             data[name][::self.max_slots,3] = b
+        def pack1_( name, a):
+            data[name][::self.max_slots,0] = a
+        def pack4_( name, a):
+            data[name][::self.max_slots] = a
+
 
         pack31_( 'position_weight',      self.position ,    self.weight )
         pack31_( 'direction_wavelength', self.direction,    self.wavelength )
         pack31_( 'polarization_time',    self.polarization, self.time  )
         
-        data['ccolor'] = np.tile( [1.,0.,0,1.], (nvert,1)).astype(np.float32)    # initialize to red, reset by CUDA kernel
-
-        def pack1_( name, a):
-            data[name][::self.max_slots,0] = a
-
         pack1_('flags',             self.flags )
         pack1_('last_hit_triangle', self.last_hit_triangle )
+
+        pack4_( 'ccolor',  self.ccolor) 
+
         return data
 
+
+    def _get_ccolor(self):
+        """
+        #. initialize to red, reset by CUDA kernel
+        """
+        if self._ccolor is None:
+            self._ccolor = np.tile( [1.,0.,0,1.], (self.nphotons,1)).astype(np.float32)    
+        return self._ccolor
+    ccolor = property(_get_ccolor, doc=_get_ccolor.__doc__)
 
 
 
@@ -297,12 +386,9 @@ if __name__ == '__main__':
 
     from daephotonsparam import DAEPhotonsParam
     param = DAEPhotonsParam(config)
-    pd = DAEPhotonsData( photons, param )
-    data = pd.data
 
+    pd = DAEPhotonsData( photons, param )
     print pd
-    print data
-    print data.dtype
    
 
 

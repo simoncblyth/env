@@ -8,6 +8,7 @@ import OpenGL.GL as gl
 from daevertexbuffer import DAEVertexBuffer
 from daephotonsshader import DAEPhotonsShader
 from daephotonskernel import DAEPhotonsKernel
+from daephotonspresenter import DAEPhotonsPresenter
 
 
 class DAEPhotonsRenderer(object):
@@ -42,9 +43,10 @@ class DAEPhotonsRenderer(object):
         """
         self.dphotons = dphotons
         self.chroma = chroma
-        self.interop = not self.chroma.dummy
+        self.interop = not chroma.dummy
         self.shader = DAEPhotonsShader(dphotons) 
         self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
+        self.presenter = DAEPhotonsPresenter(dphotons, chroma) if self.interop else None
         self.invalidate_buffers()
         pass
         self.create_buffer_count = 0 
@@ -126,9 +128,7 @@ class DAEPhotonsRenderer(object):
 
         gl.glPointSize(self.dphotons.param.fphopoint)  
        
-        #self.kernel.update_constants()   # can polling param changes be avoided ?
-
-        #self.interop_kernel(self.pbuffer)
+        self.presenter.interop_present(self.pbuffer)
 
         self.interop_cuda_to_gl(self.pbuffer)
 

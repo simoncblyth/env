@@ -41,6 +41,8 @@ class DAEPhotonsParam(object):
         self.fphopoint = config.args.fphopoint
         self.debugshader = config.args.debugshader
         self.shadermode = config.args.shadermode
+        self.prescale = config.args.prescale
+        self.max_slots = config.args.max_slots
 
     reconfigurables = ['fpholine','fphopoint','mask','bits','shadermode']
 

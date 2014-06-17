@@ -83,6 +83,7 @@ class DAEConfig(ConfigBase):
         if path_[0] == '/':return path_
         path_template = self.args.path_template
         if path_template is None:
+            log.warn("path_template missing ")
             return path_
         log.info("resolve_event_path path_template %s path_ %s " % (path_template, path_ ))  
         path = path_template % { 'arg':path_ }
@@ -107,7 +108,8 @@ class DAEConfig(ConfigBase):
         if key is None:
             key = self.args.key
         from env.chroma.ChromaPhotonList.cpl import load_cpl
-        cpl = load_cpl(self.resolve_event_path(name), key )
+        path = self.resolve_event_path(name)
+        cpl = load_cpl(path, key )
         return cpl
 
     def save_cpl(self, cpl, name, key=None ):
@@ -157,6 +159,8 @@ class DAEConfig(ConfigBase):
         defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
         defaults['legacy'] = False
         defaults['debugshader'] = False
+        defaults['prescale'] = 1
+        defaults['max_slots'] = 10
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
@@ -169,6 +173,8 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--logformat", help="%(default)s")  
         parser.add_argument( "--legacy", dest="legacy", action="store_true", help="Sets `legacy=True`, with `color` and `position` rather than custom OpenGL attributes, default %(default)s." )
         parser.add_argument( "--debugshader", dest="debugshader", action="store_true", help="Use debug shader without geometry stage, default %(default)s." )
+        parser.add_argument( "--prescale", help="Scale down photon array sizes yieled by DAEPhotonsData by subsampling, default %(default)s.", type=int )
+        parser.add_argument( "--max-slots", dest="max_slots", help="Blow up photon array and VBO sizes to hold multiple parts of the propagation, default %(default)s.", type=int )
         parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )

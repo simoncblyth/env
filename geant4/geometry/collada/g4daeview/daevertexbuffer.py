@@ -158,25 +158,9 @@ class VertexAttribute_generic(VertexAttribute):
 
 
 
-        ::
- 
-                err = 1281,
-                description = 'invalid value',
-                baseOperation = glVertexAttribPointer,
-                cArguments = (
-                    16,
-                    4,
-                    GL_INT,
-                    False,
-                    960,
-                    c_void_p(176),
-                )
-
-
-
         """
-        log.info("glVertexAttribPointer(index:%s,count:%s,gltype:%s,normalize:%s,stride:%s,offset:%s)" % \
-                   (self.index,self.count,self.gltype,self.normalized,self.stride,self.offset))
+        #log.info("glVertexAttribPointer(index:%s,count:%s,gltype:%s,normalize:%s,stride:%s,offset:%s)" % \
+        #           (self.index,self.count,self.gltype,self.normalized,self.stride,self.offset))
         gl.glVertexAttribPointer( self.index, self.count, self.gltype, self.normalized, self.stride, self.offset )
         gl.glEnableVertexAttribArray( self.index )
 
@@ -201,35 +185,54 @@ class DAEVertexAttributes(object):
                 'int16'  : gl.GL_SHORT,  'uint16' : gl.GL_UNSIGNED_SHORT,
                 'int32'  : gl.GL_INT,    'uint32' : gl.GL_UNSIGNED_INT }
 
-    def __init__(self, dtype, stride, max_slots=1, force_attribute_zero=None, shader=None ):
+    attrib = {}
+    max_slots = None
+
+    @classmethod
+    def get(cls, slot):
+        if slot < 0:
+            slot = cls.max_slots + slot
+        return cls.attrib[slot] 
+
+
+    def __init__(self, dtype, stride, slot=0, max_slots=1, force_attribute_zero=None, shader=None ):
         """
         :param dtype:
         :param stride: from itemsize
+        :param slot: typically 0 or -1 to indicate either first or last slots
         :param max_slots:
         :param force_attribute_zero: name of generic field to slide into slot 0, eg "position_weight" ? 
 
         Unsure why but nothing appears unless force the attribute holding "position" 
         into attribute 0. This is assumed to arise from some OpenGL/NVIDIA bug  
-
         """
+
+        if slot < 0:
+            slot = max_slots + slot 
+
+        self.__class__.attrib[slot] = self   # attrib registry keyed by slot 
+        if self.__class__.max_slots is None:
+            self.__class__.max_slots = max_slots
+        else:
+            assert self.__class__.max_slots == max_slots, "cannot mix max_slots " 
+
+        self.slot = slot 
+        self.shader = shader
+
         names = dtype.names or []
         offset = 0
         index = 0  # formerly 1 with forcing, but now require first constituent to be the positional
 
         log.info("%s stride %s dtype %s " % (self.__class__.__name__, stride, repr(dtype) ))
 
-        self.shader = shader
-        self.max_slots = max_slots
+
 
         # TODO: generalize the below
         self.all_  = {}
         self.first = {}
         self.second = {}
-        self.slotmin = {}
-        self.slotmax = {}
-        self.attmap = { 'all':self.all_, 'first':self.first, 'second':self.second, 'slotmin':self.slotmin, 'slotmax':self.slotmax } 
-
-        self.generic = {}
+        self.attmap = { 'all':self.all_, 'first':self.first, 'second':self.second } 
+        self.generic = []
 
         for name in names:
             if name == force_attribute_zero:
@@ -256,43 +259,35 @@ class DAEVertexAttributes(object):
                 self.first[name[0]] = eval(vclass)(count,gltype,2*stride,offset) # just first vertex of the pair 
                 self.second[name[0]] = eval(vclass)(count,gltype,2*stride,offset+stride)   # just second vertex of the pair
             else:
-                # only have 16 (0..15) attribute indices
-                for slot in (0,1):
-                    attribute = VertexAttribute_generic(count,gltype,max_slots*stride,offset+stride*slot,index, name)
-                    index += 1
-                    if not slot in self.generic:
-                        self.generic[slot] = []
-                    self.generic[slot].append(attribute)
+                attribute = VertexAttribute_generic(count,gltype,max_slots*stride,offset+stride*slot,index, name)
+                index += 1
+                self.generic.append(attribute)
                 pass
             pass
             offset += itemsize
         pass
 
-    def bind_generic_attrib(self, slot=0):
+    def bind_generic_attrib(self):
         """
         Associate slots (ie strides and offsets) into VBO structure
         with attributes available inside GLSL shaders.
 
-        :param slot: typically 0 or -1 to indicate either first or last slots
         """
-        for attribute in self.generic[slot]:
+        for attribute in self.generic:
             attribute.enable()
             if not self.shader is None:
                 self.shader.shader.bind_attribute( attribute.index, attribute.name )  
 
-    def predraw(self, what, slot=0, att='all'):
+    def predraw(self, what, att='all'):
         """
         #. shader.link is internally skipped when linked already, this
            ensures that the link happens after the attributes are bound on 
            the first draw
         """
-        if slot < 0:
-            slot = self.max_slots + slot 
-
         if len(what) > 0:
             gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
 
-        self.bind_generic_attrib(slot=slot)
+        self.bind_generic_attrib()
 
         if not self.shader is None:
             self.shader.link()  
@@ -306,14 +301,11 @@ class DAEVertexAttributes(object):
                     attributes[c].enable()
 
 
-    def postdraw(self, what, slot=0, att='all'):
+    def postdraw(self, what, att='all'):
         """
         Without the shader unuse, get invalid operation from drawing the geometry 
         """ 
-        if slot < 0:
-            slot = self.max_slots + slot 
-
-        for attribute in self.generic[slot]:
+        for attribute in self.generic:
             attribute.disable()
         
         if not self.shader is None:
@@ -344,8 +336,12 @@ class DAEVertexBuffer(object):
         :param shader: DAEShader instance
         """
         log.info("DAEVertexBuffer max_slots %s " % max_slots )
-        self.attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize, max_slots=max_slots,force_attribute_zero=force_attribute_zero, shader=shader)
+        for slot in range(max_slots):
+            attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize, slot=slot, max_slots=max_slots,force_attribute_zero=force_attribute_zero, shader=shader)
+            # stored at classmethod level 
+        pass
         self.init( vertices, indices )
+
 
     def init(self, vertices, indices):
         """
@@ -364,7 +360,7 @@ class DAEVertexBuffer(object):
         self.vertices_id = gl.glGenBuffers(1)
 
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
-        gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_STATIC_DRAW )
+        gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_DYNAMIC_DRAW )  # GL_STATIC_DRAW
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 )
 
     def readback(self):
@@ -406,11 +402,12 @@ class DAEVertexBuffer(object):
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, self.indices_id )
 
-        self.attrib.predraw( what=what, att=att, slot=slot)
+        attrib = DAEVertexAttributes.get( slot )
+        attrib.predraw( what=what, att=att)
 
         gl.glDrawElements( mode, count, self.indices_type, ctypes.c_void_p(self.indices_size*offset) )
 
-        self.attrib.postdraw( what=what, att=att, slot=slot)
+        attrib.postdraw( what=what, att=att)
 
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 ) 
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 

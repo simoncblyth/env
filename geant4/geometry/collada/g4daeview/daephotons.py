@@ -78,7 +78,10 @@ class DAEPhotons(object):
         self.propagator.update_constants()   
         self.propagator.interop_propagate( self.renderer.pbuffer, max_steps=max_steps )
 
-    def draw(self, slot=0):
+    def draw(self, slot=-1):
+        """
+        :param slot: -1 means the reserved slot at max_slots-1
+        """
         if self.photons is None:return
         self.renderer.draw(slot=slot)
 

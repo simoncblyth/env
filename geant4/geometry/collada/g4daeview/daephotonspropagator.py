@@ -48,12 +48,14 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
     kernel_func = "propagate_vbo"
     kernel_args = "iiPPPPiiiP"
 
-    def __init__(self, dphotons, ctx, debug=1):
+    def __init__(self, dphotons, ctx, debug=0):
         """
         :param dphotons: DAEPhotons instance
         :param ctx: `DAEChromaContext` instance, for GPU config and geometry
+
+        #. max_slots, numquad are interpolated into kernel source coming from DAEPhotonsData
         """
-        DAEPhotonsKernelFunc.__init__(self, dphotons, ctx, debug=debug)
+        DAEPhotonsKernelFunc.__init__(self, dphotons, ctx, debug=debug)  
         self.uploaded_queues = False
 
     def reset(self):
