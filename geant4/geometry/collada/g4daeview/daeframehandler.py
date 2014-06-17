@@ -52,9 +52,14 @@ class DAEFrameHandler(object):
 
     def glinfo(self):
         info = {}
-        for k in (gl.GL_VERSION, gl.GL_SHADING_LANGUAGE_VERSION, gl.GL_EXTENSIONS ):
+        for k in (gl.GL_VERSION, gl.GL_SHADING_LANGUAGE_VERSION, gl.GL_EXTENSIONS):
             info[k.name] = gl.glGetString(k)  
-            #log.info("%s %s " % (k, "\n".join(v.split())  ))
+            #log.info("%s %s " % (k, "\n".join(info[k.name].split())  ))
+
+        for k in (gl.GL_MAX_VERTEX_ATTRIBS,):
+            info[k.name] = gl.glGetIntegerv(k)  
+            log.info("%s %s " % (k, info[k.name]) )
+
         return info
 
     def tick(self, dt):

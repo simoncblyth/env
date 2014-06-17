@@ -181,17 +181,17 @@ uniform ivec4 iparam;
 
 attribute vec4 position_weight;
 attribute vec4 direction_wavelength;
+attribute vec4 ccolor ; 
 
 varying vec4 fColor;
 
-%(funcs)s
 
 void main()
 {
     gl_Position = vec4( position_weight.xyz, 1.) ; 
-    gl_Position.xyz += fparam.x*direction_wavelength.xyz ; 
+    //gl_Position.xyz += fparam.x*direction_wavelength.xyz ; 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-    fColor = wav2color( direction_wavelength.w );
+    fColor = ccolor ;
 }
 
 """ % { 'funcs':wav2RGB_glsl }

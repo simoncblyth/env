@@ -8,7 +8,6 @@ import OpenGL.GL as gl
 from daevertexbuffer import DAEVertexBuffer
 from daephotonsshader import DAEPhotonsShader
 from daephotonskernel import DAEPhotonsKernel
-from daephotonspropagator import DAEPhotonsPropagator
 
 
 class DAEPhotonsRenderer(object):
@@ -46,7 +45,6 @@ class DAEPhotonsRenderer(object):
         self.interop = not self.chroma.dummy
         self.shader = DAEPhotonsShader(dphotons) 
         self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
-        self.propagator = DAEPhotonsPropagator(dphotons, chroma) if self.interop else None
         self.invalidate_buffers()
         pass
         self.create_buffer_count = 0 
@@ -75,11 +73,13 @@ class DAEPhotonsRenderer(object):
 
     def create_buffer(self, data ):
         """
+        :param data: DAEPhotonsData instance
+
         #. buffer creation does not belong in DAEPhotonsData as OpenGL specific
         """
         self.create_buffer_count += 1
         log.warn("############ create_buffer [count %s]  ##################### %s " % (self.create_buffer_count, repr(data.data.dtype)) )
-        vbo = DAEVertexBuffer( data.data, data.indices, force_attribute_zero=data.force_attribute_zero, shader=self.shader  )
+        vbo = DAEVertexBuffer( data.data, data.indices, max_slots=data.max_slots, force_attribute_zero=data.force_attribute_zero, shader=self.shader  )
         self.interop_gl_to_cuda(vbo)
         return vbo
 
@@ -97,7 +97,7 @@ class DAEPhotonsRenderer(object):
         if not self.interop:return
         buf.cuda_buffer_object.unregister() 
 
-    def interop_call_cuda_kernel(self, buf):
+    def interop_kernel(self, buf):
         """
         Invoke CUDA kernel with VBO argument, 
         allowing VBO changes.
@@ -109,22 +109,18 @@ class DAEPhotonsRenderer(object):
         vbo_dev_ptr = buf_mapping.device_ptr()
 
         #self.kernel( vbo_dev_ptr, self.dphotons.qcount )  ## huh why the dynamic qcount ? 
-        self.propagator.propagate( vbo_dev_ptr, max_steps=1 )   
 
         cuda_driver.Context.synchronize()
         buf_mapping.unmap()
 
-    def draw(self):
+    def draw(self, slot=0):
         """
         Drawing the pbuffer, after kernel call to potentially modify it
 
         #. qcount specified count of elements to draw
 
-        Need way to control the speed of propagate steps, and a trigger.
         """
         self.draw_count += 1
-
-        propagate = self.draw_count % 10 == 0    ## noddy slow down technique
 
         qcount = self.dphotons.qcount   
 
@@ -132,13 +128,11 @@ class DAEPhotonsRenderer(object):
        
         #self.kernel.update_constants()   # can polling param changes be avoided ?
 
-        #if propagate:
-        self.propagator.update_constants()   
-        self.interop_call_cuda_kernel(self.pbuffer)
+        #self.interop_kernel(self.pbuffer)
 
         self.interop_cuda_to_gl(self.pbuffer)
 
-        self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1 ) 
+        self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1, slot=slot ) 
 
         self.interop_gl_to_cuda(self.pbuffer)
 

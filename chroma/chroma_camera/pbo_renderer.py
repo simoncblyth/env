@@ -44,8 +44,8 @@ class PBORenderer(object):
         self.showmetric = config.args.showmetric
         self._prior_flags = None
 
-        template_vars = None if config.args.metric is None else (('metric',config.args.metric),) 
-        self.compile_kernel(template_vars=template_vars)
+        template_uncomment = None if config.args.metric is None else (('metric',config.args.metric),) 
+        self.compile_kernel(template_uncomment=template_uncomment)
         self.initialize_gpu_constants()
         self.config_showmetric()
 
@@ -110,11 +110,11 @@ class PBORenderer(object):
             self.origin = (0,0,0,1)
             self.pixel2world = np.identity(4)
 
-    def compile_kernel(self, template_vars = None):
+    def compile_kernel(self, template_uncomment = None):
         """
         #. compile kernel and extract __constant__ symbol addresses
         """
-        module = get_cu_module('render_pbo.cu', options=cuda_options, template_vars=template_vars)
+        module = get_cu_module('render_pbo.cu', options=cuda_options, template_uncomment=template_uncomment)
 
         self.g_alpha_depth  = module.get_global("g_alpha_depth")[0]  
         self.g_offset  = module.get_global("g_offset")[0]  

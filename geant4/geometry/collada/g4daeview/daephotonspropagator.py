@@ -34,53 +34,27 @@ from operator import mul
 mul_ = lambda _:reduce(mul, _)          # product of elements 
 div_ = lambda num,den:(num+den-1)//den  # int division roundup without iffing 
 
-import pycuda.driver as cuda
+import pycuda.driver as cuda_driver
 import pycuda.gpuarray as ga
 
-from chroma.gpu.tools import get_cu_module, cuda_options, chunk_iterator, to_float3
+from chroma.gpu.tools import chunk_iterator
 
 
-class DAEPhotonsPropagator(object):
-    def __init__(self, dphotons, ctx ):
+from daephotonskernelfunc import DAEPhotonsKernelFunc
+
+
+class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
+    kernel_name = "propagate_vbo.cu"
+    kernel_func = "propagate_vbo"
+    kernel_args = "iiPPPPiiiP"
+
+    def __init__(self, dphotons, ctx, debug=1):
         """
         :param dphotons: DAEPhotons instance
         :param ctx: `DAEChromaContext` instance, for GPU config and geometry
         """
-        self.max_time = 4.
-        self.dphotons = dphotons
-        self.max_slots = dphotons.data.max_slots
-        self.ctx = ctx
-        self.compile_kernel()
+        DAEPhotonsKernelFunc.__init__(self, dphotons, ctx, debug=debug)
         self.uploaded_queues = False
-
-    def compile_kernel(self, template_vars = None ):
-        """
-        #. compile kernel and extract __constant__ symbol addresses
-        """
-        module = get_cu_module('propagate_vbo.cu', options=cuda_options, template_vars=template_vars )
-        kernel = module.get_function( 'propagate_vbo' )
-        kernel.prepare("iiPPPPiiiPi")
-
-        self.g_mask = module.get_global("g_mask")[0]  
-        self._mask = None
-        self.kernel = kernel
-
-    nphotons = property(lambda self:self.dphotons.data.nphotons)
-
-    def initialize_constants(self):
-        self.mask = [-1,-1,-1,-1]
-
-    def update_constants(self):
-        self.mask = self.dphotons.param.kernel_mask
-
-    def _get_mask(self):
-        return self._mask 
-    def _set_mask(self, mask):
-        if mask == self._mask:return
-        self._mask = mask
-        log.info("_set_mask : memcpy_htod %s " % repr(mask))
-        cuda.memcpy_htod(self.g_mask, ga.vec.make_int4(*mask))
-    mask = property(_get_mask, _set_mask, doc="setter copies to device __constant__ memory, getter returns cached value") 
 
     def reset(self):
         self.uploaded_queues = False
@@ -184,8 +158,7 @@ class DAEPhotonsPropagator(object):
                              np.int32(nsteps), 
                              np.int32(use_weights), 
                              np.int32(scatter_first), 
-                             self.ctx.gpu_geometry.gpudata,
-                             np.int32(self.max_slots )) 
+                             self.ctx.gpu_geometry.gpudata) 
 
                     get_time = self.kernel.prepared_timed_call( grid, block, *args )
                     t = get_time()
@@ -207,7 +180,23 @@ class DAEPhotonsPropagator(object):
                 log.info("DONE step %s max_steps %s " % (step, max_steps))
             pass
         pass 
-        cuda.Context.get_current().synchronize()
+        cuda_driver.Context.get_current().synchronize()
+
+
+    def interop_propagate(self, buf, max_steps=10 ):
+        """
+        :param buf: OpenGL VBO eg renderer.pbuffer
+
+        Invoke CUDA kernel with VBO argument, 
+        allowing VBO changes.
+        """ 
+        buf_mapping = buf.cuda_buffer_object.map()
+
+        vbo_dev_ptr = buf_mapping.device_ptr()
+        self.propagate( vbo_dev_ptr, max_steps=max_steps )   
+
+        cuda_driver.Context.synchronize()
+        buf_mapping.unmap()
 
  
 

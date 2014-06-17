@@ -137,8 +137,8 @@ class DAEPhotonsData(DAEPhotonsDataBase):
  
     def create_data(self):
         """
-        Simplify access from CUDA kernels by adopting numquad*quads::
-          
+        :return: numpy named constituent array with numquad*quads structure 
+
         #. using 'position' would use traditional glVertexPointer furnishing gl_Vertex to shader
         #. using smth else eg 'position_weight' uses generic attribute , 
            which requires force_attribute_zero for anythinh to appear
@@ -152,14 +152,8 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         r012_ = lambda _:np.random.randint(3, size=nvert ).astype(_)  # 0,1,2 randomly 
         r124_ = lambda _:np.array([1,2,4],dtype=_)[np.random.randint(3, size=nvert )]
 
-        fake_time = ones_(np.float32)
-        fake_flags = r012_(np.uint32)
-        fake_last_hit_triangle = r012_(np.int32)
-
         #max_uint32 = (1 << 32) - 1 
         #max_int32 =  (1 << 31) - 1 
-        #fake_flags = np.tile( 1  , nvert ).astype(np.uint32)
-        #fake_last_hit_triangle = np.tile( 1, nvert ).astype(np.int32)
 
         """
         if self.nphotons == 0:return None
@@ -187,14 +181,11 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         
         data['ccolor'] = np.tile( [1.,0.,0,1.], (nvert,1)).astype(np.float32)    # initialize to red, reset by CUDA kernel
 
-        def pack1111_( name, a, b, c, d ):
+        def pack1_( name, a):
             data[name][::self.max_slots,0] = a
-            data[name][::self.max_slots,1] = b
-            data[name][::self.max_slots,2] = c
-            data[name][::self.max_slots,3] = d
 
-        pack1111_('flags',             self.flags,             ones_(np.uint32), ones_(np.uint32), ones_(np.uint32) )
-        pack1111_('last_hit_triangle', self.last_hit_triangle, ones_(np.int32),  ones_(np.int32), ones_(np.int32) )
+        pack1_('flags',             self.flags )
+        pack1_('last_hit_triangle', self.last_hit_triangle )
         return data
 
 
@@ -204,6 +195,7 @@ class DAEPhotonsData(DAEPhotonsDataBase):
 
 class DAEPhotonsDataLegacy(DAEPhotonsDataBase):
     numquad = 3
+    max_slots = 1 
     force_attribute_zero = "position"
     def __init__(self, photons, param ):
         DAEPhotonsDataBase.__init__(self, photons, param )

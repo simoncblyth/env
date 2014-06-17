@@ -10,6 +10,7 @@ from daephotonsparam import DAEPhotonsParam
 from daephotonsmenuctrl import DAEPhotonsMenuController
 from daephotonsrenderer import DAEPhotonsRenderer
 from daephotonsdata import DAEPhotonsData, DAEPhotonsDataLegacy
+from daephotonspropagator import DAEPhotonsPropagator
 
 
 class DAEPhotons(object):
@@ -61,11 +62,25 @@ class DAEPhotons(object):
         datacls = DAEPhotonsDataLegacy if event.config.args.legacy else DAEPhotonsData
         self.numquad = datacls.numquad  # not really a parameter, rather a fundamental feature of data structure in use
 
+        self.interop = not event.scene.chroma.dummy
         self.data = datacls(photons, param)
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
+        self.propagator = DAEPhotonsPropagator(self, event.scene.chroma) if self.interop else None
     
         self._mesh = None
+
+
+    ### primary actions #####
+
+    def propagate(self, max_steps=100):
+        if self.photons is None:return
+        self.propagator.update_constants()   
+        self.propagator.interop_propagate( self.renderer.pbuffer, max_steps=max_steps )
+
+    def draw(self, slot=0):
+        if self.photons is None:return
+        self.renderer.draw(slot=slot)
 
 
     #### readonly properties #####
@@ -94,6 +109,7 @@ class DAEPhotons(object):
         self.data.photons = photons
         if not photons is None:
             self.renderer.invalidate_buffers()
+            self.propagate()
             self.menuctrl.update( photons )    
     photons = property(_get_photons, _set_photons) 
 
@@ -106,11 +122,7 @@ class DAEPhotons(object):
     param = property(_get_param, _set_param) 
 
 
-    ### actions #####
-
-    def draw(self):
-        if self.photons is None:return
-        self.renderer.draw()
+    ### other actions #####
 
     def reconfig(self, conf):
         """

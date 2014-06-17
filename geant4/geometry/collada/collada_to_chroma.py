@@ -86,6 +86,7 @@ class ColladaToChroma(object):
         """
         :param nodecls: typically DAENode
         """ 
+        log.info("ColladaToChroma")
         self.nodecls = nodecls
         self.bvh = bvh
         self.chroma_geometry = Geometry(detector_material=None)    # bialkali ?
@@ -94,7 +95,7 @@ class ColladaToChroma(object):
         self.surfaces = {}
         self.materials = {}
 
-    def convert_opticalsurfaces(self, debug=True):
+    def convert_opticalsurfaces(self, debug=False):
         """
         Chroma surface 
 
@@ -124,6 +125,8 @@ class ColladaToChroma(object):
         * BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT (often present, always zero)
 
         """
+        log.info("convert_opticalsurfaces")
+
         for dsurf in self.nodecls.extra.opticalsurface:
             if debug:
                 print "%-75s %s " % (dsurf.name, dsurf )
@@ -274,9 +277,12 @@ class ColladaToChroma(object):
         When `nodes=None` the entire DAENode tree is visited and converted, 
         otherwise just the listed nodes.
         """ 
+        log.info("convert_geometry")
+
         self.convert_materials() 
         self.convert_opticalsurfaces() 
 
+        log.info("convert_geometry visit")
         if nodes is None:  
             self.nodecls.vwalk(self.visit)
         else:
@@ -395,6 +401,7 @@ class ColladaToChroma(object):
 
         DAENode instances and their pycollada underpinnings meet chroma here
         """
+        #log.info("visit")
         assert node.__class__.__name__ == 'DAENode'
         self.vcount += 1
         if self.vcount < 10:
