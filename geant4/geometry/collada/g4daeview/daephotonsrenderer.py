@@ -46,7 +46,7 @@ class DAEPhotonsRenderer(object):
         self.interop = not chroma.dummy
         self.shader = DAEPhotonsShader(dphotons) 
         self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
-        self.presenter = DAEPhotonsPresenter(dphotons, chroma) if self.interop else None
+        self.presenter = DAEPhotonsPresenter(dphotons, chroma, debug=int(dphotons.config.args.debugkernel)) if self.interop else None
         self.invalidate_buffers()
         pass
         self.create_buffer_count = 0 

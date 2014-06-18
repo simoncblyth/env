@@ -57,6 +57,7 @@ class DAEPhotons(object):
         :param event: `DAEEvent` instance
         """ 
         self.event = event       
+        self.config = event.config      
 
         param = DAEPhotonsParam( event.config)
         datacls = DAEPhotonsDataLegacy if event.config.args.legacy else DAEPhotonsData
@@ -66,7 +67,7 @@ class DAEPhotons(object):
         self.data = datacls(photons, param)
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
-        self.propagator = DAEPhotonsPropagator(self, event.scene.chroma) if self.interop else None
+        self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
     
         self._mesh = None
 

@@ -19,17 +19,22 @@ class DAEPhotonsKernelFunc(object):
         :param dphotons: DAEPhotons instance
         :param ctx: `DAEChromaContext` instance, for GPU config and geometry
         """
+        log.info("%s debug %s " % (self.__class__.__name__, debug ))
         self.dphotons = dphotons
         self.ctx = ctx
-        self.compile_kernel((("debug",debug),("max_slots",dphotons.data.max_slots),("numquad",dphotons.data.numquad)) )
+        
+        template_fill = (("max_slots",dphotons.data.max_slots),("numquad",dphotons.data.numquad),) 
+        template_uncomment = (("debug",debug),) 
+        self.compile_kernel( template_fill, template_uncomment )
 
     nphotons = property(lambda self:self.dphotons.data.nphotons)
-    def compile_kernel(self, template_fill ):
+    def compile_kernel(self, template_fill, template_uncomment=None):
         """
         #. compile kernel and extract __constant__ symbol addresses
         """
-        log.info("compile_kernel %s %s " % (self.kernel_name, repr(template_fill)))
-        module = get_cu_module(self.kernel_name, options=cuda_options, template_fill=template_fill )
+
+        log.info("compile_kernel %s template_fill %s template_uncomment %s " % (self.kernel_name, repr(template_fill),repr(template_uncomment)))
+        module = get_cu_module(self.kernel_name, options=cuda_options, template_fill=template_fill, template_uncomment=template_uncomment)
         kernel = module.get_function( self.kernel_func )
         kernel.prepare(self.kernel_args)
 

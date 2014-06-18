@@ -223,7 +223,7 @@ class DAEVertexAttributes(object):
         offset = 0
         index = 0  # formerly 1 with forcing, but now require first constituent to be the positional
 
-        log.info("%s stride %s dtype %s " % (self.__class__.__name__, stride, repr(dtype) ))
+        #log.info("%s stride %s dtype %s " % (self.__class__.__name__, stride, repr(dtype) ))
 
 
 
@@ -250,7 +250,7 @@ class DAEVertexAttributes(object):
                 raise VertexBufferException('Data type not understood')
             gltype = self.gltypes[gtype]
 
-            log.info("name %s offset %s itemsize %s gtype %s count %s  " % ( name, offset, itemsize, gtype, count )) 
+            #log.info("name %s offset %s itemsize %s gtype %s count %s  " % ( name, offset, itemsize, gtype, count )) 
 
             if name in self.glnames:
                 assert 0
