@@ -1,28 +1,64 @@
 #!/usr/bin/env python
 """
+For individual photon debug tracing::
 
-Can the VBO `dphotons.data.pbuffer` be made to act as a replacement 
-for `chroma.gpu.photon.GPUPhotons` whilst visualizing ?
-
-Compare with the old propagate method, photons are oscillating
-between host and device::
-
-   gpu_photons = GPUPhotons(photons)
-   gpu_photons.propagate(self.ctx.gpu_geometry, 
-                         self.ctx.rng_states,
-                         nthreads_per_block=self.ctx.nthreads_per_block,
-                         max_blocks=self.ctx.max_blocks,
-                         max_steps=max_steps)
-   photons_end = gpu_photons.get()
-   return photons_end 
+   g4daeview.sh --with-chroma --load 1 --debugshader --max-slots 10 --debugkernel --debugphoton 4
 
 
-Task is: 
+Low stat observations:
 
-#. adapt /usr/local/env/chroma_env/src/chroma/chroma/gpu/photon.py
-   to VBO data structure in conjunction with new kernel propagate_vbo.cu
+#. many photons only need a few steps, but some are taking more than 50    
+#. normally repeatably get same photons on each launch
 
-#. use CUDA techniques from ~/e/chroma/chroma_camera/pbo_renderer.py
+   * BUT sometimes get different ones, seed problem ? rng setup ordering 
+
+NEXT:
+
+#. pull back the VBO into numpy arrays, so can find photons with interesting histories 
+
+
+::
+
+2014-06-18 20:47:36,658 env.geant4.geometry.collada.g4daeview.daephotonspropagator:144 prepared_call first_photon 0 photons_this_round 4165 nsteps 100 
+FILL_STATE       START    [  1000] slot  0 steps  1 lht   1262 tpos    9.693  -17818.29 -800100.38   -7063.31    w  412.76   dir    -0.49    -0.01    -0.87 pol    0.161   -0.983   -0.084 
+TO_BOUNDARY      CONTINUE [  1000] slot -1 steps  1 lht   1262 tpos   15.668  -18406.47 -800108.31   -8104.00    w     inf   dir     0.21     0.54    -0.82 pol    0.690   -0.673   -0.267 BULK_REEMIT 
+FILL_STATE       CONTINUE [  1000] slot  1 steps  2 lht   1260 tpos   15.668  -18406.47 -800108.31   -8104.00    w     inf   dir     0.21     0.54    -0.82 pol    0.690   -0.673   -0.267 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps  2 lht   1260 tpos   18.875  -18270.04 -799757.94   -8635.00    w     inf   dir     0.21     0.54    -0.82 pol    0.690   -0.673   -0.267 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps  2 lht   1260 tpos   18.875  -18270.04 -799757.94   -8635.00    w     inf   dir     0.21     0.53    -0.82 pol    0.297    0.763    0.574 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot  2 steps  3 lht    996 tpos   18.875  -18270.04 -799757.94   -8635.00    w     inf   dir     0.21     0.53    -0.82 pol    0.297    0.763    0.574 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps  3 lht    996 tpos   18.966  -18266.22 -799748.12   -8650.00    w     inf   dir     0.21     0.53    -0.82 pol    0.297    0.763    0.574 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps  3 lht    996 tpos   18.966  -18266.22 -799748.12   -8650.00    w     inf   dir     0.21     0.54    -0.82 pol    0.296    0.761    0.578 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot  3 steps  4 lht   4133 tpos   18.966  -18266.22 -799748.12   -8650.00    w     inf   dir     0.21     0.54    -0.82 pol    0.296    0.761    0.578 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps  4 lht   4133 tpos   19.500  -18243.53 -799689.88   -8738.33    w     inf   dir     0.21     0.54    -0.82 pol    0.296    0.761    0.578 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps  4 lht   4133 tpos   19.500  -18243.53 -799689.88   -8738.33    w     inf   dir     0.21     0.55    -0.81 pol   -0.108   -0.811   -0.574 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot  4 steps  5 lht   4136 tpos   19.500  -18243.53 -799689.88   -8738.33    w     inf   dir     0.21     0.55    -0.81 pol   -0.108   -0.811   -0.574 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps  5 lht   4136 tpos   19.929  -18225.30 -799642.62   -8808.48    w     inf   dir     0.21     0.55    -0.81 pol   -0.108   -0.811   -0.574 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps  5 lht   4136 tpos   19.929  -18225.30 -799642.62   -8808.48    w     inf   dir     0.21     0.54    -0.82 pol   -0.110   -0.816   -0.567 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot  5 steps  6 lht   3929 tpos   19.929  -18225.30 -799642.62   -8808.48    w     inf   dir     0.21     0.54    -0.82 pol   -0.110   -0.816   -0.567 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps  6 lht   3929 tpos   20.630  -18195.50 -799566.06   -8924.48    w     inf   dir     0.21     0.54    -0.82 pol   -0.110   -0.816   -0.567 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps  6 lht   3929 tpos   20.630  -18195.50 -799566.06   -8924.48    w     inf   dir     0.22     0.54    -0.81 pol   -0.837   -0.323   -0.443 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot  6 steps  7 lht   3932 tpos   20.630  -18195.50 -799566.06   -8924.48    w     inf   dir     0.22     0.54    -0.81 pol   -0.837   -0.323   -0.443 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps  7 lht   3932 tpos   21.148  -18172.56 -799509.50   -9009.07    w     inf   dir     0.22     0.54    -0.81 pol   -0.837   -0.323   -0.443 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps  7 lht   3932 tpos   21.148  -18172.56 -799509.50   -9009.07    w     inf   dir     0.21     0.54    -0.82 pol   -0.839   -0.329   -0.433 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot  7 steps  8 lht    634 tpos   21.148  -18172.56 -799509.50   -9009.07    w     inf   dir     0.21     0.54    -0.82 pol   -0.839   -0.329   -0.433 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps  8 lht    634 tpos   21.649  -18151.25 -799454.81   -9092.00    w     inf   dir     0.21     0.54    -0.82 pol   -0.839   -0.329   -0.433 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps  8 lht    634 tpos   21.649  -18151.25 -799454.81   -9092.00    w     inf   dir     0.21     0.53    -0.82 pol    0.932   -0.363    0.000 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot  8 steps  9 lht 631702 tpos   21.649  -18151.25 -799454.81   -9092.00    w     inf   dir     0.21     0.53    -0.82 pol    0.932   -0.363    0.000 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps  9 lht 631702 tpos   21.756  -18146.67 -799443.06   -9110.00    w     inf   dir     0.21     0.53    -0.82 pol    0.932   -0.363    0.000 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps  9 lht 631702 tpos   21.756  -18146.67 -799443.06   -9110.00    w     inf   dir     0.20     0.52    -0.83 pol    0.932   -0.363    0.000 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot  9 steps 10 lht 632006 tpos   21.756  -18146.67 -799443.06   -9110.00    w     inf   dir     0.20     0.52    -0.83 pol    0.932   -0.363    0.000 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps 10 lht 632006 tpos   21.815  -18144.23 -799436.81   -9119.90    w     inf   dir     0.20     0.52    -0.83 pol    0.932   -0.363    0.000 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps 10 lht 632006 tpos   21.815  -18144.23 -799436.81   -9119.90    w     inf   dir     0.30     0.78    -0.55 pol    0.932   -0.363    0.000 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot 10 steps 11 lht 632304 tpos   21.815  -18144.23 -799436.81   -9119.90    w     inf   dir     0.30     0.78    -0.55 pol    0.932   -0.363    0.000 BULK_REEMIT 
+TO_BOUNDARY      PASS     [  1000] slot -1 steps 11 lht 632304 tpos   21.815  -18144.20 -799436.75   -9119.95    w     inf   dir     0.30     0.78    -0.55 pol    0.932   -0.363    0.000 BULK_REEMIT 
+AT_BOUNDARY      CONTINUE [  1000] slot -1 steps 11 lht 632304 tpos   21.815  -18144.20 -799436.75   -9119.95    w     inf   dir     0.30     0.78    -0.55 pol    0.932   -0.363    0.000 BULK_REEMIT 
+FILL_STATE       PASS     [  1000] slot 11 steps 12 lht 632331 tpos   21.815  -18144.20 -799436.75   -9119.95    w     inf   dir     0.30     0.78    -0.55 pol    0.932   -0.363    0.000 BULK_REEMIT 
+TO_BOUNDARY      BREAK    [  1000] slot -1 steps 12 lht     -1 tpos   21.815  -18144.20 -799436.75   -9119.95    w     inf   dir     0.30     0.78    -0.55 pol    0.932   -0.363    0.000 BULK_REEMIT BULK_ABSORB 
+2014-06-18 20:47:37,729 env.geant4.geometry.collada.g4daeview.daephotonspropagator:167 launch sequence times [0.63269482421875] 
+2014-06-18 20:47:37,729 env.geant4.geometry.collada.g4daeview.daephotonspropagator:175 DONE step 100 max_steps 100 
+
+
+
 
 """
 

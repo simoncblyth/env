@@ -23,7 +23,10 @@ class DAEPhotonsKernelFunc(object):
         self.dphotons = dphotons
         self.ctx = ctx
         
-        template_fill = (("max_slots",dphotons.data.max_slots),("numquad",dphotons.data.numquad),) 
+        template_fill = (("max_slots",dphotons.data.max_slots),
+                         ("numquad",dphotons.data.numquad),
+                         ("debugphoton",dphotons.config.args.debugphoton),
+                         ) 
         template_uncomment = (("debug",debug),) 
         self.compile_kernel( template_fill, template_uncomment )
 
