@@ -129,6 +129,8 @@ class DAEPhotonsRenderer(object):
 
         qcount = self.dphotons.qcount   
 
+        log.info("%s draw slot %s draw_count %s qcount %s " % (self.__class__.__name__, slot, self.draw_count, qcount ))
+
         gl.glPointSize(self.dphotons.param.fphopoint)  
        
         self.presenter.interop_present(self.pbuffer)
@@ -140,6 +142,31 @@ class DAEPhotonsRenderer(object):
         self.interop_gl_to_cuda(self.pbuffer)
 
         gl.glPointSize(1)  
+
+
+    def multidraw(self, slot=None, counts=None, firsts=None, drawcount=None):
+        """
+        """
+        self.draw_count += 1
+
+        qcount = self.dphotons.qcount   
+
+        log.info("%s multidraw slot %s draw_count %s qcount %s " % (self.__class__.__name__, slot, self.draw_count, qcount ))
+
+        gl.glPointSize(self.dphotons.param.fphopoint)  
+       
+        self.presenter.interop_present(self.pbuffer)
+
+        self.interop_cuda_to_gl(self.pbuffer)
+
+        self.pbuffer.multidraw(mode=gl.GL_LINE_STRIP,  what='', drawcount=qcount, slot=slot, counts=counts, firsts=firsts) 
+
+        self.interop_gl_to_cuda(self.pbuffer)
+
+        gl.glPointSize(1)  
+
+
+
 
 
     def legacy_draw(self):

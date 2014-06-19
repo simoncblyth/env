@@ -198,7 +198,9 @@ class DAEVertexAttributes(object):
 
     @classmethod
     def get(cls, slot):
-        if slot < 0:
+        if slot is None:
+            pass
+        elif slot < 0:
             slot = cls.max_slots + slot
         return cls.attrib[slot] 
 
@@ -214,15 +216,26 @@ class DAEVertexAttributes(object):
         Unsure why but nothing appears unless force the attribute holding "position" 
         into attribute 0. This is assumed to arise from some OpenGL/NVIDIA bug  
         """
+        slot_all = slot is None
 
-        if slot < 0:
+        if slot_all:
+            slot = 0
+            max_slots = 1
+        elif slot < 0:
             slot = max_slots + slot 
 
-        self.__class__.attrib[slot] = self   # attrib registry keyed by slot 
+        if slot_all:
+            self.__class__.attrib[None] = self   # attrib registry keyed by slot 
+        else:
+            self.__class__.attrib[slot] = self   # attrib registry keyed by slot 
+
         if self.__class__.max_slots is None:
             self.__class__.max_slots = max_slots
         else:
-            assert self.__class__.max_slots == max_slots, "cannot mix max_slots " 
+            if slot == 0 and max_slots == 1:
+                pass 
+            else:
+                assert self.__class__.max_slots == max_slots, "cannot mix max_slots " 
 
         self.slot = slot 
         self.shader = shader
@@ -344,9 +357,14 @@ class DAEVertexBuffer(object):
         :param shader: DAEShader instance
         """
         log.info("DAEVertexBuffer max_slots %s " % max_slots )
+        # 
+        # attribute collections are stored at classmethod level
+        # the `None` slot corresponds to "all" for generic attributes, used by multidraw
+        #
         for slot in range(max_slots):
             attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize, slot=slot, max_slots=max_slots,force_attribute_zero=force_attribute_zero, shader=shader)
-            # stored at classmethod level 
+        pass
+        attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize, slot=None, max_slots=1,force_attribute_zero=force_attribute_zero, shader=shader)
         pass
         self.init( vertices, indices )
 
@@ -367,10 +385,10 @@ class DAEVertexBuffer(object):
         self.vertices = vertices
         self.vertices_id = gl.glGenBuffers(1)
 
+        log.info("init_array_buffer size %s itemsize %s nbytes %s " % ( self.vertices.size, self.vertices.itemsize, self.vertices.nbytes) )
+
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
         gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_DYNAMIC_DRAW )  # GL_STATIC_DRAW
-
-
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 )
 
     def read( self ):
@@ -438,6 +456,11 @@ class DAEVertexBuffer(object):
                      things like 2-stepping through VBO via doubled attribute stride and picking which 
                      of pairwise vertices to use.
 
+
+        When not using indices to pick and choose  glDrawArrays is just as good::
+
+            gl.glDrawArrays( mode, first, count )   
+
         """
         assert count
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
@@ -451,6 +474,33 @@ class DAEVertexBuffer(object):
         attrib.postdraw( what=what, att=att)
 
         gl.glBindBuffer( gl.GL_ELEMENT_ARRAY_BUFFER, 0 ) 
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
+
+
+    def multidraw( self, mode=gl.GL_LINE_STRIP, what='', att='all', slot=None, firsts=None, counts=None, drawcount=None ):
+        """
+
+        glMultiDrawArrays
+        ~~~~~~~~~~~~~~~~~~~
+
+        * http://pyopengl.sourceforge.net/documentation/manual-3.0/glMultiDrawArrays.html
+        * http://bazaar.launchpad.net/~mcfletch/openglcontext/trunk/view/head:/tests/ilsstrategies.py
+
+        Render looks to be treading on zeros
+
+        """ 
+
+        log.info("multidraw %s " %  drawcount)
+
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
+
+        attrib = DAEVertexAttributes.get( slot )
+        attrib.predraw( what=what, att=att)
+
+        gl.glMultiDrawArrays( gl.GL_LINE_STRIP, firsts, counts, drawcount )
+
+        attrib.postdraw( what=what, att=att)
+
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
 
 

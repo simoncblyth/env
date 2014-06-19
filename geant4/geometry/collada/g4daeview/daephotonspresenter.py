@@ -2,7 +2,6 @@
 """
 ::
 
-
     g4daeview.sh --with-chroma --load 1 --debugshader --prescale 1000 --max-slots 100
     
         ## terrible performance when push up --max-slots to hold the entire history of the 
@@ -62,6 +61,9 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
 
     def present(self, vbo_dev_ptr):
         """
+        Kernel calls for each photon, not each slot 
+        (there are max_slots eg 10 for each photon) 
+
         """
         nthreads_per_block = self.ctx.nthreads_per_block
         max_blocks = self.ctx.max_blocks

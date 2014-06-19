@@ -189,9 +189,15 @@ varying vec4 fColor;
 void main()
 {
     gl_Position = vec4( position_weight.xyz, 1.) ; 
+
+    // scoot alpha zeros off to infinity and beyond
+    if( ccolor.w == 0. ) gl_Position.w = 0. ;
+
     //gl_Position.xyz += fparam.x*direction_wavelength.xyz ; 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
     fColor = ccolor ;
+
+
 }
 
 """ % { 'funcs':wav2RGB_glsl }

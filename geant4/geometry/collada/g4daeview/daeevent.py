@@ -219,7 +219,8 @@ class DAEEvent(object):
 
     def draw(self):
         if self.dphotons is None:return
-        self.dphotons.draw()
+        #self.dphotons.draw()
+        self.dphotons.multidraw()
 
     def save(self, path_, key=None ):
         if self.cpl is None:
