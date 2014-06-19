@@ -21,6 +21,14 @@ from glumpy.graphics.vertex_buffer import VertexBufferException, \
                                           VertexAttribute_color
 
 
+
+import ctypes
+import numpy as np
+from numpy.core.multiarray import int_asbuffer
+
+
+
+
 class VertexAttribute_position(VertexAttribute):
     def __init__(self, count, gltype, stride, offset):
         assert count > 1, \
@@ -361,15 +369,48 @@ class DAEVertexBuffer(object):
 
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
         gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_DYNAMIC_DRAW )  # GL_STATIC_DRAW
+
+
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 )
 
-    def readback(self):
+    def read( self ):
         """
-        Reading back the VBO content probably needs glMapBuffer
+        :return: numpy array of vertices read from OpenGL VBO
 
-        * http://www.opengl.org/sdk/docs/man2/xhtml/glMapBuffer.xml
+        * :google:`glMapBuffer into numpy array`
+        * http://blog.vrplumber.com/b/2009/09/01/hack-to-map-vertex/
+        * see daevertexbuffer.rst for alternative approached attempted
+
         """
-        pass
+        log.info("read from VBO")
+
+        # hmm maybe split these properties off into a simple buffer type
+        buf_id = self.vertices_id 
+        buf_nbytes = self.vertices.nbytes
+        buf_dtype = self.vertices.dtype
+
+        target, access  = gl.GL_ARRAY_BUFFER, gl.GL_READ_ONLY
+
+        gl.glBindBuffer( target, buf_id )
+
+        c_ptr = ctypes.c_void_p( gl.glMapBuffer( target, access ))
+
+        func = ctypes.pythonapi.PyBuffer_FromMemory
+
+        func.restype = ctypes.py_object
+
+        buf = func( c_ptr, buf_nbytes )
+
+        arr = np.frombuffer( buf, 'B' )     # interpret PyBuffer as array of bytes (uint8)
+
+        readback = arr.view(dtype=buf_dtype).copy()   # view+copy into independant numpy array
+
+        gl.glUnmapBuffer(target)
+        
+        gl.glBindBuffer( target, 0 ) 
+
+        return readback
+
 
     def init_element_array_buffer(self, indices ):
         """

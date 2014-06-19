@@ -34,7 +34,8 @@ class DAEPhotonsDataBase(object):
         return "\n".join([
             "%s ntruephotons %s nphotons %s prescale %s " % ( self.__class__.__name__, self.ntruephotons, self.nphotons, self.prescale ),
             str(self.data.dtype),
-            str(self.data) 
+            str(self.data),
+            "nbytes: %s size:%s itemsize:%s size*itemsize:%s" % ( self.data.nbytes, self.data.size, self.data.itemsize, self.data.size*self.data.itemsize )
             ])
 
     ntruephotons = property(lambda self:len(self._photons) if not self._photons is None else 0, doc="Original number of photons from CPL")
@@ -248,6 +249,7 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         data = np.zeros(nvert, dtype )
 
         # splaying the start data out into the slots, leaving loadsa free slots
+        # NOT A REALISTIC DATA STRUCTURE WITH SO MUCH EMPTY SPACE
         def pack31_( name, a, b ):
             data[name][::self.max_slots,:3] = a
             data[name][::self.max_slots,3] = b
@@ -256,15 +258,12 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         def pack4_( name, a):
             data[name][::self.max_slots] = a
 
-
         pack31_( 'position_weight',      self.position ,    self.weight )
         pack31_( 'direction_wavelength', self.direction,    self.wavelength )
         pack31_( 'polarization_time',    self.polarization, self.time  )
-        
-        pack1_('flags',             self.flags )
-        pack1_('last_hit_triangle', self.last_hit_triangle )
-
-        pack4_( 'ccolor',  self.ccolor) 
+        pack1_(  'flags',                self.flags )
+        pack1_(  'last_hit_triangle',    self.last_hit_triangle )
+        pack4_(  'ccolor',               self.ccolor) 
 
         return data
 
@@ -388,8 +387,9 @@ if __name__ == '__main__':
     param = DAEPhotonsParam(config)
 
     pd = DAEPhotonsData( photons, param )
-    print pd
+    #print pd
    
+    print pd.data
 
 
 

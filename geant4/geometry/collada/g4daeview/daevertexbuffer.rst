@@ -1,8 +1,6 @@
 DAEVertexBuffer Dev Notes
 ===========================
 
-
-
 Interop
 --------
 
@@ -335,6 +333,103 @@ glMultiDrawElements
   
   * MultiDraw with VBO
   * indices and counts arrays are client side, but the indices array holds byte offsets into device side buffer
+
+
+
+
+Read OpenGL buffer back into numpy arrays
+-------------------------------------------
+
+
+::
+
+    def read_array_buffer_0(self):
+        """
+        * http://www.opengl.org/sdk/docs/man2/xhtml/glMapBuffer.xml
+        * http://mail.scipy.org/pipermail/numpy-discussion/2008-September/037131.html
+
+        ctypes.sizeof(ctypes.c_float) == 4
+
+        numpy.ctypeslib.as_array
+
+        Writing into a mapped OpenGL VBO without pyopengl sugar ?
+
+        * http://comments.gmane.org/gmane.comp.python.opengl.user/2069
+
+        ::
+
+             # Map the buffer object to a pointer
+             vbo_pointer = ctypes.cast(gl.glMapBuffer(gl.GL_ARRAY_BUFFER, gl.GL_WRITE_ONLY), ctypes.POINTER(ctypes.c_ubyte))
+             vbo_array = numpy.ctypeslib.as_array(vbo_pointer, (buffer_size,))  # numpy array from pointer 
+             vbo_array[0:data_size_to_copy] = data.view(dtype='uint8').ravel()
+             gl.glUnmapBuffer(gl.GL_ARRAY_BUFFER)
+
+        ::
+
+             data = ctypes.string_at(gl.glMapBuffer(gl.GL_ARRAY_BUFFER, gl.GL_READ_ONLY), self.vertices.nbytes )
+             x = np.frombuffer(int_asbuffer(ctypes.addressof(data.contents), n*8))
+
+
+        * http://stackoverflow.com/questions/7543675/how-to-convert-pointer-to-c-array-to-python-array
+
+
+        """
+        pass
+        log.info("read_array_buffer")
+
+        nbytes = self.vertices_copy.nbytes 
+        dtype = np.dtype(np.float32)
+        itemsize = dtype.itemsize
+        count = nbytes//itemsize   # integer 
+        assert nbytes == count * itemsize 
+
+        ptr = gl.glMapBuffer(gl.GL_ARRAY_BUFFER, gl.GL_READ_ONLY) 
+
+        ArrayType = ctypes.c_float * count
+        ap = ctypes.cast(y, ctypes.POINTER(ArrayType))
+
+        #vbo_data = ctypes.string_at(ptr, nbytes )
+        #x = np.frombuffer(int_asbuffer(ctypes.addressof(vbo_data),nbytes),dtype=dtype)
+        #print x  
+
+        gl.glUnmapBuffer(gl.GL_ARRAY_BUFFER)
+
+        #buffer_size = self.vertices_copy.nbytes
+        #vbo_pointer = ctypes.cast(gl.glMapBuffer(gl.GL_ARRAY_BUFFER, gl.GL_READ_ONLY), ctypes.POINTER(ctypes.c_ubyte))
+        #vbo_array = np.ctypeslib.as_array(vbo_pointer, (buffer_size,))  # numpy array from pointer 
+        #vbo_array[0:data_size_to_copy] = data.view(dtype='uint8').ravel()
+        #gl.glUnmapBuffer(gl.GL_ARRAY_BUFFER)
+
+    def read_array_buffer( self ):
+        """
+        * :google:`glMapBuffer numpy`
+
+          * http://blog.vrplumber.com/b/2009/09/01/hack-to-map-vertex/
+
+        Map the given buffer into a numpy array...
+        """
+        log.info("read_array_buffer")
+        target = gl.GL_ARRAY_BUFFER
+        access = gl.GL_READ_ONLY
+        nbytes = self.vertices.nbytes 
+
+        func = ctypes.pythonapi.PyBuffer_FromMemory
+        func.restype = ctypes.py_object
+
+        ptr = gl.glMapBuffer( target, access )
+
+        buf = func( ctypes.c_void_p(ptr), nbytes )
+        arr = np.frombuffer( buf, 'B' )
+
+        self.propagated = arr.view(dtype=self.vertices.dtype)
+
+        gl.glUnmapBuffer(target)
+        
+
+
+
+
+
 
 
 

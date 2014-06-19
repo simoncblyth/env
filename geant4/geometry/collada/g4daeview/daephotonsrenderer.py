@@ -65,24 +65,27 @@ class DAEPhotonsRenderer(object):
         if self._pbuffer is None:
            self._pbuffer = self.create_buffer(self.dphotons.data)  
         return self._pbuffer
-    pbuffer = property(_get_pbuffer, doc="point buffer, without doubling : used with geometry shader to generate 2nd vertices and lines ")  
+    pbuffer = property(_get_pbuffer, doc="point DAEVertexBuffer, without doubling : used with geometry shader to generate 2nd vertices and lines ")  
 
     def _get_lbuffer(self):
         if self._lbuffer is None:
            self._lbuffer = self.create_buffer(self.dphotons.data)  
         return self._lbuffer
-    lbuffer = property(_get_lbuffer, doc="line buffer, with doubled vertices : not used when geometry shader available")  
+    lbuffer = property(_get_lbuffer, doc="line DAEVertexBuffer, with doubled vertices : not used when geometry shader available")  
 
     def create_buffer(self, data ):
         """
         :param data: DAEPhotonsData instance
+        :return: DAEVertexBuffer instance
 
         #. buffer creation does not belong in DAEPhotonsData as OpenGL specific
         """
         self.create_buffer_count += 1
         log.warn("############ create_buffer [count %s]  ##################### %s " % (self.create_buffer_count, repr(data.data.dtype)) )
         vbo = DAEVertexBuffer( data.data, data.indices, max_slots=data.max_slots, force_attribute_zero=data.force_attribute_zero, shader=self.shader  )
+
         self.interop_gl_to_cuda(vbo)
+        #vbo.read_array_buffer()  
         return vbo
 
     def interop_gl_to_cuda(self, buf ):

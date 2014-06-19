@@ -12,12 +12,31 @@ Jun 19, 2014 : httpd offline, OOM again
    * but httpd does not come back automatically ? 
 
 
-Valmon monitoring 
-~~~~~~~~~~~~~~~~~~~~
+hourly valmon monitoring fails from 06:42 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
     curl -s --connect-timeout 3 http://dayabay.phys.ntu.edu.tw/repos/env/ 
+
+::
+
+    date                 val       
+    -------------------  ----------
+    2014-06-19T10:42:01  0.0       
+    2014-06-19T09:42:01  0.0       
+    2014-06-19T08:42:01  0.0       
+    2014-06-19T07:42:01  0.0       
+    2014-06-19T06:42:01  0.0       
+    2014-06-19T05:42:01  1.0       
+    2014-06-19T04:42:01  1.0       
+    2014-06-19T03:42:01  1.0       
+    2014-06-19T02:42:01  1.0       
+    2014-06-19T01:42:01  1.0       
+
+
+
+
 
 
 Original Cause, httpd OOM

@@ -5,6 +5,7 @@
 import logging
 log = logging.getLogger(__name__)
 
+import numpy as np
 from daegeometry import DAEMesh 
 from daephotonsparam import DAEPhotonsParam
 from daephotonsmenuctrl import DAEPhotonsMenuController
@@ -68,16 +69,42 @@ class DAEPhotons(object):
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
-    
+        self.propagated = None    
+
         self._mesh = None
 
 
     ### primary actions #####
 
     def propagate(self, max_steps=100):
+        """
+        When option `--debugpropagate` is used the propagated VBO
+        is read back into a numpy array and persisted to file `propagated.npz`.
+
+        Access::
+
+           with np.load('propagated.npz') as npz:
+               a = npz['propagated']
+
+        """
         if self.photons is None:return
+
+        vbo = self.renderer.pbuffer   
         self.propagator.update_constants()   
-        self.propagator.interop_propagate( self.renderer.pbuffer, max_steps=max_steps )
+        self.propagator.interop_propagate( vbo, max_steps=max_steps )
+
+        if self.config.args.debugpropagate:
+            propagated = vbo.read()
+            path = "propagated.npz"
+            log.info("propagate completed, save VBO readback into %s " % path )
+            print propagated
+            print propagated.dtype
+            print propagated.size
+            print propagated.itemsize
+            np.savez_compressed(path, propagated=propagated)
+        
+        self.propagated = propagated
+
 
     def draw(self, slot=-1):
         """
