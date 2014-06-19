@@ -9,5 +9,6 @@ Sys Admin Docs
     migration/index
     SOP
     cms01
+    cms02
     dns
 

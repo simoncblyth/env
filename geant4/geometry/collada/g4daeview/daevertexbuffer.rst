@@ -1,6 +1,16 @@
 DAEVertexBuffer Dev Notes
 ===========================
 
+
+
+Interop
+--------
+
+Motivation:
+
+    To avoid buffer recreation for visualization need to get Chroma/CUDA to 
+    use the OpenGL buffers.
+
 Interop steps gleaned from raycaster PBO usage:
 
 #. import pycuda.gl as cuda_gl                  # special GL enabled CUDA context  (handle in DAEChromaContext)
@@ -42,16 +52,6 @@ Ruminations
  
 #. need to retain drawing of initial photon positions/directions for non-chroma installs 
 
-
-Motivation
-------------
-
-To avoid buffer recreation for visualization need to get Chroma/CUDA to 
-use the OpenGL buffers.
-
-
-Ruminations
--------------
 
 Too Many Moving parts
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -228,6 +228,11 @@ machine units.
 
 
 
+
+OpenGL Drawing Techniques
+---------------------------
+
+
 glDrawElements
 ~~~~~~~~~~~~~~~   
 
@@ -315,5 +320,21 @@ The symbolic mask constants and their associated GL client state are as follows
 
 GL_CLIENT_PIXEL_STORE_BIT   Pixel storage modes 
 GL_CLIENT_VERTEX_ARRAY_BIT  Vertex arrays (and enables)
+
+
+glMultiDrawElements
+~~~~~~~~~~~~~~~~~~~~
+
+* http://stackoverflow.com/questions/11286964/glmultidrawelements-values-to-pass-to-indices-parameter-glvoid
+
+* http://stackoverflow.com/questions/5354710/drawing-polygons-with-varying-vertex-count-in-opengl-es
+
+  * not in OpenGL ES 3.0 (highest in iOS so far), is there an alternate that avoids looping over draw calls ?
+
+* https://www.opengl.org/discussion_boards/showthread.php/176891-glMultiDrawElements-VBO
+  
+  * MultiDraw with VBO
+  * indices and counts arrays are client side, but the indices array holds byte offsets into device side buffer
+
 
 
