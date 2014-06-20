@@ -29,10 +29,14 @@ def arg2mask( argl ):
 
 class DAEPhotonsParam(object):
     """
-    Simple holder of the parameters of photon presentation
-    
+    Simple holder of the parameters of photon presentation, that 
+    could potentially be changed during operation 
+    via uniforms/constants.
+ 
     #. initially set from config defaults or commandline options
     #. updated by menus, external messages etc..   
+
+
     """
     def __init__(self, config):
         self._mask = config.args.mask

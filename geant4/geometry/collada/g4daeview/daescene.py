@@ -232,7 +232,7 @@ class DAEScene(window_event.EventDispatcher):
         solids = self.containing_solids( click )
         self.solids = solids
         if len(solids) == 0:
-            log.warn("clicked_point %s found no containing solids : how did you manage that ?" % repr(click) )
+            #log.warn("clicked_point %s found no containing solids : how did you manage that ?" % repr(click) )
             return None
         pass
         log.debug("pick_solid selects %s solids smallest \n%s" % ( len(self.solids), solids[0] ))

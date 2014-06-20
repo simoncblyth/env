@@ -113,8 +113,8 @@ import OpenGL.GL as gl
 from env.graphics.opengl.shader.shader import Shader
 from env.graphics.color.wav2RGB import wav2RGB_glsl
 
-
-bit_sniffing = r"""
+SHADER = {}
+SHADER['bit_sniffing'] = r"""
 
 // making integers useful inside glsl 120 + GL_EXT_gpu_shader4 is too much effort yo be worthwhile
 //  problems 
@@ -143,7 +143,7 @@ bit_sniffing = r"""
     t.x = ( r.x & b.x ) | ( r.z & b.z ) | ( r.y & b.y ) | ( r.w & b.w );
 """
 
-vertex = r"""// vertex : that simply passes through to geometry shader 
+SHADER['vertex_for_geo'] = r"""// simply passes through to geometry shader 
 #version 120
 #extension GL_EXT_gpu_shader4 : require
 
@@ -154,8 +154,9 @@ attribute vec4 position_weight;
 attribute vec4 direction_wavelength;
 attribute vec4 polarization_time;
 attribute vec4 ccolor ; 
-attribute uvec4 flags;
-attribute ivec4 last_hit_triangle;
+
+//attribute uvec4 flags;
+//attribute ivec4 last_hit_triangle;
 
 varying vec4 vMomdir;
 varying vec4 vPoldir;
@@ -172,7 +173,7 @@ void main()
 
 """
 
-vertex_debug = r"""// vertex_debug : for use without geometry shader 
+SHADER['vertex_no_geo'] = r"""//for use without geometry shader 
 #version 120
 #extension GL_EXT_gpu_shader4 : require
 
@@ -202,7 +203,7 @@ void main()
 
 """ 
 
-geometry = r"""//  geometry : amplify single vertex into two, generating line from point
+SHADER['geometry_point2line'] = r"""//amplify single vertex into two, generating line from point
 #version 120
 #extension GL_EXT_geometry_shader4 : require
 #extension GL_EXT_gpu_shader4 : require
@@ -245,16 +246,37 @@ void main()
 }
 """
 
+SHADER['geometry_line2line'] = r"""
+#version 120
+#extension GL_EXT_geometry_shader4 : require
+#extension GL_EXT_gpu_shader4 : require
 
-geometry_linestrip = r"""
 
+varying in vec4 vMomdir[] ; 
+varying in vec4 vPoldir[] ; 
+varying in vec4 vColor[] ; 
 
+varying out vec4 fColor ;
+
+void main()
+{
+   gl_Position = gl_PositionIn[0];
+   gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+   fColor = vColor[0] ;
+   EmitVertex();
+
+   gl_Position = gl_PositionIn[1];
+   gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+   fColor = vColor[1] ;
+   EmitVertex();
+
+   EndPrimitive();
+}
 
 """
 
 
-
-fragment = r"""// fragment : minimal
+SHADER['fragment_fcolor'] = r"""// minimal
 #version 120
 #extension GL_EXT_gpu_shader4 : require
 
@@ -273,21 +295,79 @@ class DAEPhotonsShader(object):
     #. Try to reconfig the shader to do lines and points rather than having two shaders
     """
     def __init__(self, dphotons ):
-
-        log.info("%s" % (self.__class__.__name__))
-        if dphotons.param.debugshader:
-            log.debug("compiling debug shader")
-            shader = Shader( vertex_debug , fragment, None )
-        else:
-            log.debug("compiling normal shader")
-            #shader = Shader( vertex, fragment, geometry, geometry_output_type=gl.GL_POINTS )
-            shader = Shader( vertex, fragment, geometry, geometry_output_type=gl.GL_LINE_STRIP )
-        pass
-        self.shader = shader
+        self.cfg = self.configure(dphotons.config.args.shader)
+        self.shader = self.make_shader( self.cfg ) 
         self.dphotons = dphotons
 
         self._iparam = None
         self._fparam = None
+
+    def make_shader(self, cfg ):
+        log.info("%s cfg %s" % (self.__class__.__name__, repr(cfg)))
+        source = {}
+        for k in ['vertex','fragment','geometry']:
+            if cfg[k] is None:
+                source[k] = None
+            else: 
+                source[k] = "\n".join(["//%s" % cfg[k],SHADER[cfg[k]]])
+            pass
+
+        shader = Shader( source['vertex'], source['fragment'], source['geometry'], geometry_output_type=cfg['geometry_output_type'] )
+        print shader
+        return shader
+
+    def configure(self, shaderkey):
+        """
+        The input type to the geometry shader needs to be one of:
+
+        * GL_POINTS
+        * GL_LINES
+        * GL_TRIANGLES
+        * or ADJACENCY variants of LINES and TRIANGLES 
+
+        NB that is the **input to the geometry shader**, which
+        is distinct from the primitive type used in the draw call.
+
+        For example when the geometry shader is expecting GL_LINES 
+        primitives it is OK to pump GL_LINE_STRIP down the pipeline
+        with the glDraw call
+
+        """
+        cfg = {}
+        cfg['shaderkey'] = shaderkey
+
+        if shaderkey == "nogeo":
+
+            cfg['vertex'] = "vertex_no_geo"
+            cfg['fragment'] = "fragment_fcolor"
+            cfg['geometry'] = None
+            cfg['geometry_output_type'] = None
+
+        elif shaderkey == "line2line":
+
+            cfg['vertex'] = "vertex_for_geo"
+
+            cfg['geometry'] = "geometry_line2line"
+            cfg['geometry_input_type'] = "GL_LINES"   #  does not accept GL_LINE_STRIP, 
+            cfg['geometry_output_type'] = "GL_LINE_STRIP"
+
+            cfg['fragment'] = "fragment_fcolor"
+
+        elif shaderkey == "point2line":
+
+            cfg['geometry'] = "geometry_point2line"
+            cfg['geometry_input_type'] = "GL_POINTS"
+            cfg['geometry_output_type'] = "GL_LINE_STRIP"
+
+        else:
+            assert 0, "shader key %s not recognized " % shaderkey  
+        pass
+        
+        for k,v in cfg.items():
+            if not v is None and v[0:3] == 'GL_':
+                cfg[k] = getattr(gl, cfg[k])  # promote strings starting GL_ to enum types
+
+        return cfg
 
     def update_uniforms(self):
         self.iparam = self.dphotons.param.shader_iparam

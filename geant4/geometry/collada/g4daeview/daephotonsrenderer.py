@@ -85,7 +85,6 @@ class DAEPhotonsRenderer(object):
         vbo = DAEVertexBuffer( data.data, data.indices, max_slots=data.max_slots, force_attribute_zero=data.force_attribute_zero, shader=self.shader  )
 
         self.interop_gl_to_cuda(vbo)
-        #vbo.read_array_buffer()  
         return vbo
 
     def interop_gl_to_cuda(self, buf ):
@@ -151,7 +150,7 @@ class DAEPhotonsRenderer(object):
 
         qcount = self.dphotons.qcount   
 
-        log.info("%s multidraw slot %s draw_count %s qcount %s " % (self.__class__.__name__, slot, self.draw_count, qcount ))
+        #log.info("%s multidraw slot %s draw_count %s qcount %s " % (self.__class__.__name__, slot, self.draw_count, qcount ))
 
         gl.glPointSize(self.dphotons.param.fphopoint)  
        

@@ -1441,3 +1441,4 @@ ld-(){      . $(env-home)/tools/ld.bash && ld-env $* ; }
 capnproto-(){      . $(env-home)/serialization/capnproto.bash && capnproto-env $* ; }
 piwik-(){      . $(env-home)/web/piwik.bash && piwik-env $* ; }
 awstats-(){      . $(env-home)/web/awstats.bash && awstats-env $* ; }
+vispy-(){      . $(env-home)/graphics/vispy/vispy.bash && vispy-env $* ; }

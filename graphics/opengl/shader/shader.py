@@ -61,8 +61,9 @@ class Shader(object):
 
     def __str__(self):
         return "\n".join( 
+           
                        ["#### vertex"]   +  lines_(self.vertex_source)  +
-                       ["#### geometry"] +  lines_(self.geometry_source) + 
+                       ["#### geometry input_type %s output_type %s vertices_out %s" % (self.input_type, self.output_type, self.vertices_out)] +  lines_(self.geometry_source) + 
                        ["#### fragment"] +  lines_(self.fragment_source)  
                         )
 

@@ -73,7 +73,7 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
         nblocks = div_(photons_this_round,nthreads_per_block)
         grid=(nblocks, 1)
 
-        log.info("present photons_this_round %s  grid %s block %s " % (photons_this_round, repr(grid), repr(block)))
+        #log.info("present photons_this_round %s  grid %s block %s " % (photons_this_round, repr(grid), repr(block)))
 
         abort = False
         args = ( 
@@ -89,7 +89,7 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
 
         cuda_driver.Context.get_current().synchronize()
 
-        log.info("%s time %s " % (self.kernel_func, t )) 
+        #log.info("%s time %s " % (self.kernel_func, t )) 
 
         if abort:assert 0
 

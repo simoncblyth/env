@@ -144,6 +144,7 @@ class DAEConfig(ConfigBase):
     geocachepath = property(_get_geocachepath) 
 
 
+
     def _make_base_parser(self, doc):
         """
         Base parser handles arguments/options that 
@@ -158,10 +159,14 @@ class DAEConfig(ConfigBase):
         defaults['loglevel'] = "INFO"
         defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
         defaults['legacy'] = False
-        defaults['debugshader'] = False
+
+        #defaults['shader'] = "nogeo"
+        defaults['shader'] = "line2line"
+
         defaults['debugkernel'] = False
         defaults['debugpropagate'] = False
         defaults['debugphoton'] = 0
+
         defaults['prescale'] = 1
         defaults['max_slots'] = 10
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
@@ -175,6 +180,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
         parser.add_argument( "--legacy", dest="legacy", action="store_true", help="Sets `legacy=True`, with `color` and `position` rather than custom OpenGL attributes, default %(default)s." )
+        parser.add_argument( "--shader", help="Key identifying vertex/geometry/fragment shaders to use, default %(default)s." )
         parser.add_argument( "--debugshader", action="store_true", help="Use debug shader without geometry stage, default %(default)s." )
         parser.add_argument( "--debugkernel", action="store_true", help="Enables VBO_DEBUG in propagate_vbo.cu, default %(default)s." )
         parser.add_argument( "--debugpropagate", action="store_true", help="Readback propagated VBO into numpy array and persist to propagated.npz, default %(default)s." )

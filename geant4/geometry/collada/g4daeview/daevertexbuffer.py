@@ -486,18 +486,50 @@ class DAEVertexBuffer(object):
         * http://pyopengl.sourceforge.net/documentation/manual-3.0/glMultiDrawArrays.html
         * http://bazaar.launchpad.net/~mcfletch/openglcontext/trunk/view/head:/tests/ilsstrategies.py
 
-        Render looks to be treading on zeros
+
+        #. only points dont "invalid operation" with geometry shader 
 
         """ 
 
-        log.info("multidraw %s " %  drawcount)
+        #log.info("multidraw %s " %  drawcount)
 
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
 
         attrib = DAEVertexAttributes.get( slot )
         attrib.predraw( what=what, att=att)
 
-        gl.glMultiDrawArrays( gl.GL_LINE_STRIP, firsts, counts, drawcount )
+        #mode = gl.GL_LINES 
+        #mode = gl.GL_LINE_STRIP
+        mode = gl.GL_POINTS      
+
+        gl.glMultiDrawArrays( mode, firsts, counts, drawcount )
+
+        attrib.postdraw( what=what, att=att)
+
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
+
+
+
+    def slowdraw( self, mode=gl.GL_LINE_STRIP, what='', att='all', slot=None, firsts=None, counts=None, drawcount=None ):
+
+        gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
+
+        attrib = DAEVertexAttributes.get( slot )
+        attrib.predraw( what=what, att=att)
+
+        mode = gl.GL_LINES 
+        #mode = gl.GL_LINE_STRIP
+        #mode = gl.GL_POINTS        # only points dont "invalid operation" with geometry shader 
+
+        for i in range(drawcount):
+            dfirst = firsts[i]
+            dcount = counts[i]
+            #if dcount % 2 != 0:  # non-even counts do not cause problems it seems
+            #    dcount = dcount - 1
+            pass
+            log.info("glDrawArrays %s %s %s " % (mode, dfirst,dcount))
+            gl.glDrawArrays( mode, dfirst, dcount)
+        pass
 
         attrib.postdraw( what=what, att=att)
 

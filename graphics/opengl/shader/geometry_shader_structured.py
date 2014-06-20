@@ -20,7 +20,7 @@ def update(*args):
     glut.glutTimerFunc(33, update, 0)
     glut.glutPostRedisplay()
 
-def input_geometry(color_attrib):
+def input_geometry_points(color_attrib):
     """
     Is there something special about vertex attribute 0 ? implicitly the vertex position
 
@@ -42,6 +42,31 @@ def input_geometry(color_attrib):
     gl.glEnd()
 
 
+def input_geometry_lines(color_attrib):
+    position_attrib = 0   # murky history of OpenGL immediate mode explains this
+
+    gl.glBegin(gl.GL_LINE_STRIP)
+    for x in [-1.5, 0, 2.5]:
+        for y in [-1.5, 0, 2.5]:
+            gl.glVertexAttrib1f(color_attrib, random.uniform(0.0, 1.0))
+            gl.glVertexAttrib3f(position_attrib, x, y, 0)
+
+            gl.glVertexAttrib1f(color_attrib, random.uniform(0.0, 1.0))
+            gl.glVertexAttrib3f(position_attrib, x, y, 5)
+
+            gl.glVertexAttrib1f(color_attrib, random.uniform(0.0, 1.0))
+            gl.glVertexAttrib3f(position_attrib, x, y, 10)
+
+        pass
+    gl.glEnd()
+
+
+
+    
+
+
+
+
 def display():
     gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
     t = glut.glutGet(glut.GLUT_ELAPSED_TIME)
@@ -54,11 +79,17 @@ def display():
                     0,   0,   0,
                     0,   0,   1)
 
-    shader.use()   
-    shader.uniformf( "mydistance" , rot/10000.0)
-    shader.uniformi( "iparam" ,     1, 1, 1, 1 )
-    input_geometry(color_attrib = shader.attrib('color'))
-    shader.unuse()  # glUseProgram(0)
+
+    if shader.enable: 
+        shader.use()   
+        shader.uniformf( "mydistance" , rot/10000.0)
+        shader.uniformi( "iparam" ,     1, 1, 1, 1 )
+    
+    #input_geometry_points(color_attrib = shader.attrib('color'))
+    input_geometry_lines(color_attrib = shader.attrib('color'))
+
+    if shader.enable:
+        shader.unuse()  # glUseProgram(0)
 
 
     glut.glutSwapBuffers()
@@ -159,8 +190,23 @@ if __name__ == '__main__':
     gl.glEnable(gl.GL_POINT_SMOOTH)
     gl.glEnable(gl.GL_LINE_SMOOTH)
 
-    shader = Shader( vertex, fragment, geometry )
+
+    cfg = {}
+    cfg['vertex'] = vertex
+    cfg['fragment'] = fragment
+    cfg['geometry'] = geometry 
+
+    #cfg['geometry_input_type'] = gl.GL_POINTS 
+    cfg['geometry_input_type'] = gl.GL_LINES
+
+    cfg['geometry_output_type'] = gl.GL_LINE_STRIP 
+    cfg['geometry_vertices_out'] = 200
+
+    shader = Shader(**cfg)
     shader.link()
+
+    shader.enable = False
+
 
     glut.glutMainLoop()
 
