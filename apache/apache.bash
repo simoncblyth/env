@@ -670,10 +670,15 @@ apache-logs(){ cd $(apache-logdir) ;  ls -l ; }
 
 
 apache-hits(){
+   local default=$(apache-logdir)/access_log 
+   local logpath=${1:-$default}
+
    local today=$(date +"%d/%b/%Y")
    local day=${1:-$today}
-   perl -e "for \$i (0..23){ \$d=sprintf(\"$day:%0.2d\", \$i); \$c=sprintf(\"grep %s $(apache-logdir)/access_log \| wc -l \", \$d) ;  printf \"%s %s\", \$d, \`\$c\` ; } "
+   perl -e "for \$i (0..23){ \$d=sprintf(\"$day:%0.2d\", \$i); \$c=sprintf(\"grep %s $logpath \| wc -l \", \$d) ;  printf \"%s %s\", \$d, \`\$c\` ; } "
 }
+
+
 
 
 apache-checklog(){

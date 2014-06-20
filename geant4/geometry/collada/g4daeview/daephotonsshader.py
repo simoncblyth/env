@@ -172,7 +172,7 @@ void main()
 
 """
 
-vertex_debug = r"""// vertex_debug : use without geometry shader 
+vertex_debug = r"""// vertex_debug : for use without geometry shader 
 #version 120
 #extension GL_EXT_gpu_shader4 : require
 
@@ -200,7 +200,7 @@ void main()
 
 }
 
-""" % { 'funcs':wav2RGB_glsl }
+""" 
 
 geometry = r"""//  geometry : amplify single vertex into two, generating line from point
 #version 120
@@ -244,6 +244,15 @@ void main()
     }
 }
 """
+
+
+geometry_linestrip = r"""
+
+
+
+"""
+
+
 
 fragment = r"""// fragment : minimal
 #version 120
