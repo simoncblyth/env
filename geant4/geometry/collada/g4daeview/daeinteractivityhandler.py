@@ -105,6 +105,7 @@ class DAEInteractivityHandler(object):
         self.keys = DAEKeys()
         #
         self.scan_mode = False
+        self.time_mode = False
         self.zoom_mode = False
         self.pan_mode = False
         self.near_mode = False
@@ -251,6 +252,7 @@ class DAEInteractivityHandler(object):
         """
         if   symbol == key.ESCAPE: self.exit()
         elif symbol == key.A: self.scan_mode = True
+        elif symbol == key.QUOTELEFT: self.time_mode = True
         elif symbol == key.Z: self.zoom_mode = True
         elif symbol == key.X: self.pan_mode = True
         elif symbol == key.N: self.near_mode = True
@@ -310,6 +312,7 @@ class DAEInteractivityHandler(object):
 
     def on_key_release(self,symbol, modifiers):
         if   symbol == key.Z: self.zoom_mode = False
+        elif symbol == key.QUOTELEFT: self.time_mode = False
         elif symbol == key.A: self.scan_mode = False
         elif symbol == key.X: self.pan_mode = False
         elif symbol == key.N: self.near_mode = False
@@ -347,6 +350,7 @@ class DAEInteractivityHandler(object):
         two_finger_zoom = button == 8    # NB zoom is a misnomer, this is translating eye coordinate z
         if   self.zoom_mode or two_finger_zoom: self.scene.trackball.zoom_to(x,y,dx,dy)
         elif self.scan_mode: self.scene.event.scan_to(x,y,dx,dy)
+        elif self.time_mode: self.scene.event.time_to(x,y,dx,dy)
         elif self.pan_mode: self.scene.trackball.pan_to(x,y,dx,dy)
         elif self.near_mode: self.scene.camera.near_to(x,y,dx,dy)
         elif self.far_mode: self.scene.camera.far_to(x,y,dx,dy)

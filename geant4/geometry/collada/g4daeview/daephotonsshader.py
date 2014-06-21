@@ -150,9 +150,9 @@ SHADER['vertex_for_geo'] = r"""// simply passes through to geometry shader
 uniform vec4  fparam; 
 uniform ivec4 iparam; 
 
-attribute vec4 position_weight;
+attribute vec4 position_time ;
 attribute vec4 direction_wavelength;
-attribute vec4 polarization_time;
+attribute vec4 polarization_weight ;
 attribute vec4 ccolor ; 
 
 //attribute uvec4 flags;
@@ -165,9 +165,9 @@ varying vec4 vColor ;
 
 void main()
 {
-    gl_Position = vec4( position_weight.xyz, 1.) ; 
+    gl_Position = vec4( position_time.xyz, 1.) ; 
     vMomdir = fparam.x*vec4( direction_wavelength.xyz, 1.) ;
-    vPoldir = fparam.x*vec4( polarization_time.xyz, 1.) ;
+    vPoldir = fparam.x*vec4( polarization_weight.xyz, 1.) ;
     vColor = ccolor ; 
 }
 
@@ -180,7 +180,7 @@ SHADER['vertex_no_geo'] = r"""//for use without geometry shader
 uniform vec4  fparam; 
 uniform ivec4 iparam; 
 
-attribute vec4 position_weight;
+attribute vec4 position_time ;
 attribute vec4 direction_wavelength;
 attribute vec4 ccolor ; 
 
@@ -189,7 +189,7 @@ varying vec4 fColor;
 
 void main()
 {
-    gl_Position = vec4( position_weight.xyz, 1.) ; 
+    gl_Position = vec4( position_time.xyz, 1.) ; 
 
     // scoot alpha zeros off to infinity and beyond
     if( ccolor.w == 0. ) gl_Position.w = 0. ;

@@ -28,7 +28,7 @@ class DAEEvent(object):
         self.config = config
         self.scene = scene
         pass
-        self.qcut = config.args.tcut 
+        self.qcut = config.args.qcut 
         self.bbox_cache = None
         photons = None
         self.dphotons = DAEPhotons( photons, self )
@@ -112,6 +112,13 @@ class DAEEvent(object):
         """
         self.qcut += self.qcut*dy
         #log.info("DAEevent.scan_to %s " % repr(self)) 
+
+    def time_to(self, x, y, dx, dy):
+        """
+        Use for real propagation time control, not the fake time of initial photon 
+        variety.
+        """
+        self.dphotons.time_to( x, y, dx, dy )
 
     def reconfig(self, event_config ):
         """

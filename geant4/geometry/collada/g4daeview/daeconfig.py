@@ -285,6 +285,7 @@ class DAEConfig(ConfigBase):
         defaults['fpholine'] = 100.
         defaults['fphopoint'] = 2
         defaults['time'] = 0.
+        defaults['qcut'] = 1.
         defaults['tcut'] = 1.
         defaults['mask'] = -1
         defaults['bits'] = -1
@@ -303,6 +304,7 @@ class DAEConfig(ConfigBase):
         #parser.add_argument( "--pholine", help="Present photons as lines from position to position + momdirection*fpho. Default %(default)s.",action="store_true")
         #parser.add_argument( "--nopholine", dest="pholine", help="Switch off line representation, returning to point. %(default)s.",action="store_false")
         #parser.add_argument( "--phopoint", help="Present photons as points of size fphopoint. Default %(default)s.",action="store_true")
+        parser.add_argument( "--qcut", help="Select photons to present based on quantity count, in range 0. to 1., where 1. means all. Default %(default)s.",type=float)
         parser.add_argument( "--tcut", help="Select photons to present based on their global time, in range 0. to 1., where 1. means all. Default %(default)s.",type=float)
 
         parser.add_argument( "--mask", help="Apply mask bitwise AND selection to status flags of Chroma stepped photons. Default %(default)s", type=str )  

@@ -14,6 +14,7 @@ from daephotonsmenuctrl import DAEPhotonsMenuController
 from daephotonsrenderer import DAEPhotonsRenderer
 from daephotonsdata import DAEPhotonsData, DAEPhotonsDataLegacy
 from daephotonspropagator import DAEPhotonsPropagator
+from daephotonsanalyzer import DAEPhotonsAnalyzer
 
 
 class DAEPhotons(object):
@@ -75,19 +76,25 @@ class DAEPhotons(object):
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma, cfg ) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
+        self.analyzer = DAEPhotonsAnalyzer(self)
         self.propagated = None    
 
         self._mesh = None
-
+        self._tcut = None
+        self.tcut = event.config.args.tcut    
 
     def configure(self, photonskey ):
         """
         :param photonskey: string identifying various techniques to present the photon information
 
-        Meaning of slot values
+        *slot*
+           -1, the reserved slot at max_slots-1
+           None, corresponds to using max_slots 1 with slot 0, 
+           ie seeing all steps of the propagation at once
 
-        * slot -1, the reserved slot at max_slots-1
-        * slot None, using max_slots 1 with slot 0, ie seeing all steps of the propagation at once
+        *drawkey*
+           `multidraw` is efficient way of in effect doing separate draw calls 
+           for each photon (or photon history) eg allowing trajectory line presentation
 
         """
         cfg = {}
@@ -102,11 +109,11 @@ class DAEPhotons(object):
 
         elif photonskey == 'movie':
 
-           cfg['description'] = "" 
+           cfg['description'] = "Hmm might not need separate tag for this, anim should be made to manifest appropriately for the presentation style" 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "point2line"
-           cfg['slot'] = -1
+           cfg['slot'] = None
 
         elif photonskey == 'confetti':
 
@@ -135,10 +142,12 @@ class DAEPhotons(object):
 
     def propagate(self, max_steps=100):
         """
-        When option `--debugpropagate` is used the propagated VBO
-        is read back into a numpy array and persisted to file `propagated.npz`.
+        #. performs photon propagation using the chroma fork propagate_vbo.cu:propagate_vbo 
+        #. reads back the VBO from OpenGL into numpy array
+        #. analyze characteristics of the propagation
 
-        Access::
+        Option `--debugpropagate` persists the numpy propagated array into 
+        file `propagated.npz`. Access the array as shown below, or see standalone `propagated.py`::
 
            with np.load('propagated.npz') as npz:
                a = npz['propagated']
@@ -147,12 +156,12 @@ class DAEPhotons(object):
         if self.photons is None:return
 
         vbo = self.renderer.pbuffer   
+
         self.propagator.update_constants()   
         self.propagator.interop_propagate( vbo, max_steps=max_steps )
             
         propagated = vbo.read()
-        self.analyse_propagation( propagated )
-
+        self.analyzer( propagated )
         self.propagated = propagated
 
         if self.config.args.debugpropagate:
@@ -167,67 +176,18 @@ class DAEPhotons(object):
             pass
         
 
-    def analyse_propagation(self, propagated):
-        """
-        Interpret counts layed down at tail of propagate_vbo.cu:propagate_vbo
-
-        What an "item" is for glDrawArrays depends on the strides setup in DAEVertexAttrib
-
-        Attempts to draw a single (or few) photon histories are failing, ie
-        still see loadsa lines and for everything other than `--debugphoton 0` get
-        an Abort Trap::
-
-            g4daeview.sh --with-chroma --load 1 --debugshader --max-slots 10 --debugkernel --debugphoton 0 --debugpropagate 
-            g4daeview.sh --with-chroma --load 1 --debugshader --max-slots 10 --debugkernel --debugphoton 1 --debugpropagate 
-
-        So trying alternate means to make vertices disappear by scooting them off to infinity.
-
-        #. NB this is based on a very wasteful and truncating array structure
-
-
-        """
-        log.info("analyse_propagation")
-        a = propagated
-        if a is None:return
-        max_slots = self.data.max_slots
-
-        field = 'last_hit_triangle'
-        lht = a[field][::max_slots,0]
-        photon_id = a[field][::max_slots,1]
-        steps = a[field][::max_slots,2]
-        slots = a[field][::max_slots,3]
-
-        #assert np.all( lht == -1 )  no longer the case, as are now putting last slot result into slot 0
-        assert np.all(np.arange(0,len(photon_id),dtype=np.int32) == photon_id)
-        assert np.all( steps == slots )
-
-        counts = np.clip( slots, 0, max_slots-2 ) + 1               # counts of numquad photon records 
-        firsts  = np.arange(len(photon_id), dtype='i')*max_slots   # multipled by numquad ?
-        assert len(counts) == len(firsts) == len(photon_id)
-
-        n = 0 # > 0 causes Abort Trap
-        if self.config.args.debugkernel and n > 0:
-            index = np.where( photon_id == self.config.args.debugphoton )[0][0] 
-            self.counts = counts[index:index+n]
-            self.firsts = firsts[index:index+n]
-            self.drawcount = n
-        else:
-            self.counts = counts
-            self.firsts = firsts
-            self.drawcount = len(photon_id)
-        pass
-        log.info( " counts %s " % str(self.counts))
-        log.info( " firsts %s " % str(self.firsts))
-        log.info( " drawcount %s " % str(self.drawcount))
-
-
     def draw(self):
         """
+        multidraw mode relies on analyzing the propagated VBO to access the 
+        number of propagation steps (actually filled VBO slots, as there will be truncation) 
         """
         if self.photons is None:return
 
         if self.cfg['drawkey'] == 'multidraw':
-            self.renderer.multidraw(mode=self.cfg['drawmode'],slot=self.cfg['slot'], counts=self.counts, firsts=self.firsts, drawcount=self.drawcount )
+            self.renderer.multidraw(mode=self.cfg['drawmode'],slot=self.cfg['slot'], 
+                                      counts=self.analyzer.counts, 
+                                      firsts=self.analyzer.firsts, 
+                                   drawcount=self.analyzer.drawcount )
         else:
             self.renderer.draw(mode=self.cfg['drawmode'],slot=self.cfg['slot'])
 
@@ -309,6 +269,35 @@ class DAEPhotons(object):
         presenter = self.renderer.presenter
         return None if presenter is None else presenter.time
     time = property(_get_time, _set_time, doc="setter copies time into GPU constant g_anim.x, getter returns cached value " )
+
+
+    def time_to(self, x, y, dx, dy):
+        """
+        Use for real propagation time control, not the fake time of initial photon 
+        variety.
+        """
+        log.info("time_to x %s y %s dx %s dy %s " % (x,y,dx,dy))
+        self.tcut += self.tcut*dy
+
+    def _get_tcut(self):
+        return self._tcut
+    def _set_tcut(self, tcut):
+        """
+        Controlled by up/down trackpad dragging whilst pressing QUOTELEFT at keyboard top left" )
+        """
+        self._tcut = np.clip(tcut, 0.00001, 1.) # dont go all the way to zero as cannot then recover
+
+        if self.analyzer is None or self.propagated is None:
+            log.info("cannot act on _set_tcut %s  until event has been propagated and analyzed ", self._tcut )
+            return 
+
+        time_range = self.analyzer.time_range 
+        time = (time_range[1]-time_range[0])*self._tcut + time_range[0] 
+        log.info("_set_tcut %s %s => %s " % (self._tcut, repr(time_range), time ))
+        self.time = time
+    tcut = property(_get_tcut, _set_tcut, doc=_set_tcut.__doc__ )
+
+
 
     def __repr__(self):
         return "%s " % (self.__class__.__name__)
