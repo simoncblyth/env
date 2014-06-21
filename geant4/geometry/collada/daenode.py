@@ -348,7 +348,7 @@ class DAENode(object):
 
         """
         path = os.path.expandvars(path)
-        log.info("DAENode.parse pycollada parse %s " % path )
+        log.debug("DAENode.parse pycollada parse %s " % path )
         dae = collada.Collada(path)
         log.debug("pycollada parse completed ")
         boundgeom = list(dae.scene.objects('geometry'))

@@ -86,7 +86,7 @@ class ColladaToChroma(object):
         """
         :param nodecls: typically DAENode
         """ 
-        log.info("ColladaToChroma")
+        log.debug("ColladaToChroma")
         self.nodecls = nodecls
         self.bvh = bvh
         self.chroma_geometry = Geometry(detector_material=None)    # bialkali ?
@@ -125,7 +125,7 @@ class ColladaToChroma(object):
         * BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT (often present, always zero)
 
         """
-        log.info("convert_opticalsurfaces")
+        log.debug("convert_opticalsurfaces")
 
         for dsurf in self.nodecls.extra.opticalsurface:
             if debug:
@@ -277,12 +277,12 @@ class ColladaToChroma(object):
         When `nodes=None` the entire DAENode tree is visited and converted, 
         otherwise just the listed nodes.
         """ 
-        log.info("convert_geometry")
+        log.debug("convert_geometry")
 
         self.convert_materials() 
         self.convert_opticalsurfaces() 
 
-        log.info("convert_geometry visit")
+        log.debug("convert_geometry visit")
         if nodes is None:  
             self.nodecls.vwalk(self.visit)
         else:
@@ -290,7 +290,7 @@ class ColladaToChroma(object):
                 self.visit(node)
         pass
 
-        log.info("ColladaToChroma convert_geometry flattening %s " % len(self.chroma_geometry.solids))
+        log.debug("ColladaToChroma convert_geometry flattening %s " % len(self.chroma_geometry.solids))
 
         self.chroma_geometry.flatten()
         if self.bvh:
@@ -300,7 +300,7 @@ class ColladaToChroma(object):
         """
         As done by chroma.loader
         """
-        log.info("ColladaToChroma adding BVH")
+        log.debug("ColladaToChroma adding BVH")
         self.chroma_geometry.bvh = load_bvh(self.chroma_geometry, 
                                             bvh_name=bvh_name,
                                             auto_build_bvh=auto_build_bvh,
@@ -308,7 +308,7 @@ class ColladaToChroma(object):
                                             update_bvh_cache=update_bvh_cache,
                                             cache_dir=cache_dir,
                                             cuda_device=cuda_device)
-        log.info("completed adding BVH")
+        log.debug("completed adding BVH")
 
     def find_outer_inner_materials(self, node ):
         """

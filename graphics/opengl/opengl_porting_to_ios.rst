@@ -22,12 +22,36 @@ OpenGL Compute abuse using TransformFeedback is possible
 * http://ciechanowski.me/blog/2014/01/05/exploring_gpgpu_on_ios/  
 
 
+Transform Feedback
+~~~~~~~~~~~~~~~~~~~~
+
+* http://prideout.net/blog/?tag=opengl-transform-feedback
+
+::
+
+
+
+
+
+
 Metal
 -------
 
 Latest devices with A7 chip (with integrated GPU) support Metal 
+which provides CUDA like compute capabilities.
 
 * http://en.wikipedia.org/wiki/Apple_A7 
+
+* http://www.anandtech.com/show/8116/some-thoughts-on-apples-metal-api
+
+    On a final note, while we’ve discussed graphics almost exclusively thus far,
+    it’s interesting to note that Apple is pitching Metal as an API for GPU compute
+    as well as graphics. Despite being one of the initial promoters of the OpenCL
+    API, Apple has never implemented OpenCL or any other GPU compute API on iOS
+    thus far, even after they adopted the compute-friendly PowerVR Rogue GPU for
+    their A7 SoC. As a result GPU compute on iOS has been limited to what OpenGL ES
+    can be coaxed into, which although not wholly incapable, it is an API designed
+    for dealing with images as opposed to free form data.
 
 
 
@@ -46,5 +70,13 @@ Porting Practicalities
   * no glu, matrix support : have to do your own math
   * http://auc.edu.au/2011/09/porting-desktop-opengl-to-ios/ 
   * https://github.com/BradLarson/MoleculesMac 
+
+
+
+OpenGL ES Capabilities of iOS Devices
+--------------------------------------
+
+* https://developer.apple.com/library/ios/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/OpenGLESPlatforms/OpenGLESPlatforms.html
+
 
 

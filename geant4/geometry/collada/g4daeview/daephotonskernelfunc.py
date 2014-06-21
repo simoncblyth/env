@@ -42,14 +42,18 @@ class DAEPhotonsKernelFunc(object):
         kernel.prepare(self.kernel_args)
 
         self.g_mask = module.get_global("g_mask")[0]  
-        self._mask = None
+        self.g_anim = module.get_global("g_anim")[0]  
+        self._mask = [-1,-1,-1,-1]
+        self._anim = [0,0,0,0]
         self.kernel = kernel
 
     def initialize_constants(self):
-        self.mask = [-1,-1,-1,-1]
+        assert 0
+        #elf.mask = [-1,-1,-1,-1]
 
     def update_constants(self):
         self.mask = self.dphotons.param.kernel_mask
+        #self.anim = self.dphotons.param.kernel_anim
 
     def _get_mask(self):
         return self._mask 
@@ -58,7 +62,29 @@ class DAEPhotonsKernelFunc(object):
         self._mask = mask
         log.info("_set_mask : memcpy_htod %s " % repr(mask))
         cuda_driver.memcpy_htod(self.g_mask, ga.vec.make_int4(*mask))
-    mask = property(_get_mask, _set_mask, doc="setter copies to device __constant__ memory, getter returns cached value") 
+    mask = property(_get_mask, _set_mask, doc="mask: setter copies to device __constant__ memory, getter returns cached value") 
+
+    def _get_anim(self):
+        return self._anim 
+    def _set_anim(self, anim):
+        log.info("_set_anim %s " % anim )
+        if anim == self._anim:
+            log.info("_set_anim %s no change %s " % (anim, self._anim) )
+            return
+        self._anim = anim
+        log.info("_set_anim : memcpy_htod %s " % repr(anim))
+        cuda_driver.memcpy_htod(self.g_anim, ga.vec.make_float4(*anim))
+    anim = property(_get_anim, _set_anim, doc="anim: setter copies to device __constant__ memory, getter returns cached value") 
+
+    def _get_time(self):
+        return self._anim[0]
+    def _set_time(self, time):
+        log.info("_set_time %s " % time )
+        anim = self._anim[:]
+        anim[0] = time
+        self.anim = anim
+    time = property(_get_time, _set_time)
+
 
 
 

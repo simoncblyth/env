@@ -95,8 +95,8 @@ class DAEConfig(ConfigBase):
         """
         pvar = "_".join(filter(None,["DAE_NAME",path_,]))
         pvar = pvar.upper()
-        log.info("Using pvar %s to resolve path " % pvar)
         path = os.environ.get(pvar,None)
+        log.debug("Using pvar %s to resolve path %s " % (pvar,path))
         assert not path is None, "Need to define envvar pointing to geometry file"
         assert os.path.exists(path), path
         return path
@@ -160,8 +160,7 @@ class DAEConfig(ConfigBase):
         defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
         defaults['legacy'] = False
 
-        #defaults['shader'] = "nogeo"
-        defaults['shader'] = "line2line"
+        defaults['photons'] = "line2line"
 
         defaults['debugkernel'] = False
         defaults['debugpropagate'] = False
@@ -180,7 +179,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
         parser.add_argument( "--legacy", dest="legacy", action="store_true", help="Sets `legacy=True`, with `color` and `position` rather than custom OpenGL attributes, default %(default)s." )
-        parser.add_argument( "--shader", help="Key identifying vertex/geometry/fragment shaders to use, default %(default)s." )
+        parser.add_argument( "--photons", help="Key controlling photon render, identifying shaders (vertex/geometry/fragment) and rendering techniques to use, default %(default)s." )
         parser.add_argument( "--debugshader", action="store_true", help="Use debug shader without geometry stage, default %(default)s." )
         parser.add_argument( "--debugkernel", action="store_true", help="Enables VBO_DEBUG in propagate_vbo.cu, default %(default)s." )
         parser.add_argument( "--debugpropagate", action="store_true", help="Readback propagated VBO into numpy array and persist to propagated.npz, default %(default)s." )
@@ -285,6 +284,7 @@ class DAEConfig(ConfigBase):
         #defaults['phopoint']  = True
         defaults['fpholine'] = 100.
         defaults['fphopoint'] = 2
+        defaults['time'] = 0.
         defaults['tcut'] = 1.
         defaults['mask'] = -1
         defaults['bits'] = -1
@@ -299,6 +299,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--path-template", help="Path template that load/save arguments fill in. Default %(default)s.",type=str)
         parser.add_argument( "--fpholine", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)
         parser.add_argument( "--fphopoint", help="Present photons as points of size fphopoint. Default %(default)s.",type=float)
+        parser.add_argument( "--time", help="Time used for photon history animation. Default %(default)s.",type=float)
         #parser.add_argument( "--pholine", help="Present photons as lines from position to position + momdirection*fpho. Default %(default)s.",action="store_true")
         #parser.add_argument( "--nopholine", dest="pholine", help="Switch off line representation, returning to point. %(default)s.",action="store_false")
         #parser.add_argument( "--phopoint", help="Present photons as points of size fphopoint. Default %(default)s.",action="store_true")

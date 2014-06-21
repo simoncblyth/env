@@ -135,7 +135,7 @@ class DAEEvent(object):
                 self.qcut = v 
             elif k == 'reload':
                 self.reload_()
-            elif k in ('fpholine','fphopoint','shadermode','mask'):   
+            elif k in ('fpholine','fphopoint','shadermode','mask','time'):   
                 photons_config.append([k,v])
             else:
                 assert 0, (k,v)
@@ -219,8 +219,7 @@ class DAEEvent(object):
 
     def draw(self):
         if self.dphotons is None:return
-        #self.dphotons.draw()
-        self.dphotons.multidraw()
+        self.dphotons.draw()
 
     def save(self, path_, key=None ):
         if self.cpl is None:

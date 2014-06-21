@@ -236,9 +236,9 @@ class DAEPhotonsData(DAEPhotonsDataBase):
 
 
         dtype = np.dtype([ 
-            ('position_weight'   ,        np.float32, 4 ), 
+            ('position_time'   ,          np.float32, 4 ), 
             ('direction_wavelength',      np.float32, 4 ), 
-            ('polarization_time',         np.float32, 4 ), 
+            ('polarization_weight',       np.float32, 4 ), 
             ('ccolor',                    np.float32, 4 ), 
             ('flags',                     np.uint32,  4 ), 
             ('last_hit_triangle',         np.int32,   4 ), 
@@ -258,9 +258,9 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         def pack4_( name, a):
             data[name][::self.max_slots] = a
 
-        pack31_( 'position_weight',      self.position ,    self.weight )
+        pack31_( 'position_time',        self.position ,    self.time )
         pack31_( 'direction_wavelength', self.direction,    self.wavelength )
-        pack31_( 'polarization_time',    self.polarization, self.time  )
+        pack31_( 'polarization_weight',  self.polarization, self.weight  )
         pack1_(  'flags',                self.flags )
         pack1_(  'last_hit_triangle',    self.last_hit_triangle )
         pack4_(  'ccolor',               self.ccolor) 

@@ -19,7 +19,7 @@ inbetween a `shader.bind` and `shader.unbind` pair eg::
     shader.unbind()  # glUseProgram(0)
 
 """
-import logging
+import logging, pprint
 log = logging.getLogger(__name__)
 
 import ctypes
@@ -44,7 +44,13 @@ shadertypes = {
       }
 
 class Shader(object):
-    def __init__(self, vertex=None, fragment=None, geometry=None, **kwa ):
+    def __init__(self, **kwa ):
+
+        log.debug("%s %s " % (self.__class__.__name__, pprint.pformat(kwa)))
+
+        vertex = kwa.pop('vertex',None)
+        fragment = kwa.pop('fragment',None)
+        geometry = kwa.pop('geometry',None)
 
         self.input_type = kwa.pop('geometry_input_type', gl.GL_POINTS )
         self.output_type = kwa.pop('geometry_output_type', gl.GL_LINE_STRIP )
@@ -57,6 +63,7 @@ class Shader(object):
         self._compile( vertex,   gl.GL_VERTEX_SHADER, kwa  )
         self._compile( fragment, gl.GL_FRAGMENT_SHADER, kwa  )
         self._compile( geometry, gl.GL_GEOMETRY_SHADER, kwa )
+
         self.linked = False
 
     def __str__(self):
@@ -72,6 +79,9 @@ class Shader(object):
         At what juncture can these be changed ? 
         """
         log.info("_setup_geometry_shader")
+        log.info("_setup_geometry_shader   input_type  %s " % self.input_type)
+        log.info("_setup_geometry_shader  output_type  %s " % self.output_type)
+        log.info("_setup_geometry_shader  vertices_out %s " % self.vertices_out )
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_INPUT_TYPE_ARB, self.input_type )
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_OUTPUT_TYPE_ARB, self.output_type )
         gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_VERTICES_OUT_ARB, self.vertices_out )

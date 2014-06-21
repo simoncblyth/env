@@ -41,6 +41,7 @@ class DAEPhotonsParam(object):
     def __init__(self, config):
         self._mask = config.args.mask
         self._bits = config.args.bits
+        self._time = 0
         self.fpholine = config.args.fpholine
         self.fphopoint = config.args.fphopoint
         self.debugshader = config.args.debugshader
@@ -48,7 +49,7 @@ class DAEPhotonsParam(object):
         self.prescale = config.args.prescale
         self.max_slots = config.args.max_slots
 
-    reconfigurables = ['fpholine','fphopoint','mask','bits','shadermode']
+    reconfigurables = ['fpholine','fphopoint','mask','bits','shadermode', 'time']
 
     def reconfig(self, conf):        
         update = False
@@ -81,7 +82,6 @@ class DAEPhotonsParam(object):
         bits = -1 if bits is None else bits 
         return [mask, bits, 0, 0]
     kernel_mask = property(_get_kernel_mask)
-
 
     def _get_mask(self):
         return arg2mask(self._mask)

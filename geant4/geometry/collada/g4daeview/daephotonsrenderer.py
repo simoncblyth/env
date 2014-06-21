@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import logging
+import logging, pprint
 log = logging.getLogger(__name__)
 
 import OpenGL.GL as gl
@@ -36,15 +36,19 @@ class DAEPhotonsRenderer(object):
     #. shader DAEPhotonsShader
 
     """
-    def __init__(self, dphotons, chroma ):
+    def __init__(self, dphotons, chroma, cfg ):
         """
         :param dphotons: DAEPhotons instance
         :param chroma: DAEChromaContext instance
+        :param cfg: 
         """
         self.dphotons = dphotons
         self.chroma = chroma
+        self.cfg = cfg 
+
         self.interop = not chroma.dummy
-        self.shader = DAEPhotonsShader(dphotons) 
+
+        self.shader = DAEPhotonsShader(dphotons, cfg ) 
         self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
         self.presenter = DAEPhotonsPresenter(dphotons, chroma, debug=int(dphotons.config.args.debugkernel)) if self.interop else None
         self.invalidate_buffers()
@@ -117,7 +121,7 @@ class DAEPhotonsRenderer(object):
         cuda_driver.Context.synchronize()
         buf_mapping.unmap()
 
-    def draw(self, slot=0):
+    def draw(self, mode=gl.GL_POINTS, slot=0):
         """
         Drawing the pbuffer, after kernel call to potentially modify it
 
@@ -136,14 +140,14 @@ class DAEPhotonsRenderer(object):
 
         self.interop_cuda_to_gl(self.pbuffer)
 
-        self.pbuffer.draw(mode=gl.GL_POINTS,  what='', count=qcount,   offset=0, att=1, slot=slot ) 
+        self.pbuffer.draw(mode,  what='', count=qcount,   offset=0, att=1, slot=slot ) 
 
         self.interop_gl_to_cuda(self.pbuffer)
 
         gl.glPointSize(1)  
 
 
-    def multidraw(self, slot=None, counts=None, firsts=None, drawcount=None):
+    def multidraw(self, mode=gl.GL_LINE_STRIP, slot=None, counts=None, firsts=None, drawcount=None):
         """
         """
         self.draw_count += 1
@@ -158,7 +162,7 @@ class DAEPhotonsRenderer(object):
 
         self.interop_cuda_to_gl(self.pbuffer)
 
-        self.pbuffer.multidraw(mode=gl.GL_LINE_STRIP,  what='', drawcount=qcount, slot=slot, counts=counts, firsts=firsts) 
+        self.pbuffer.multidraw(mode,  what='', drawcount=qcount, slot=slot, counts=counts, firsts=firsts) 
 
         self.interop_gl_to_cuda(self.pbuffer)
 

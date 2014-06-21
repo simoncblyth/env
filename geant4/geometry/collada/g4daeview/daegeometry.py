@@ -273,7 +273,7 @@ class DAEGeometry(object):
             triangles[nt[i]:nt[i+1]] = solid.triangles + nv[i]   # NB offseting vertex indices
             normals[nn[i]:nn[i+1]] = solid.normals
 
-        log.info('Flattening %s DAESolid into one DAEMesh...' % len(self.solids))
+        log.debug('Flattening %s DAESolid into one DAEMesh...' % len(self.solids))
 
         assert len(self.solids) > 0, "failed to find solids, MAYBE EXCLUDED BY -g/--geometry option ? try \"-g 0:\" or \"-g 1:\" "
 
@@ -345,13 +345,13 @@ class DAEGeometry(object):
         Potentially the huge universe may have bad impact on chroma BVH morton codes, 
         as most of the morton space was empty.
         """
-        log.info("make_chroma_geometry bvh %s " % (bvh) )
+        log.debug("make_chroma_geometry bvh %s " % (bvh) )
         from env.geant4.geometry.collada.collada_to_chroma  import ColladaToChroma 
 
         cc = ColladaToChroma(DAENode, bvh=bvh )     
         cc.convert_geometry(nodes=self.nodes())
 
-        log.info("completed make_chroma_geometry")
+        log.debug("completed make_chroma_geometry")
         return cc.chroma_geometry
 
 

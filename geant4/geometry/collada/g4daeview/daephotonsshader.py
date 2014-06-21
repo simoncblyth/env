@@ -294,9 +294,10 @@ class DAEPhotonsShader(object):
     NEXT:
     #. Try to reconfig the shader to do lines and points rather than having two shaders
     """
-    def __init__(self, dphotons ):
-        self.cfg = self.configure(dphotons.config.args.shader)
-        self.shader = self.make_shader( self.cfg ) 
+    def __init__(self, dphotons, cfg ):
+        self.cfg = cfg 
+        self.shadercfg = self.configure(cfg['shaderkey'])
+        self.shader = self.make_shader( self.shadercfg ) 
         self.dphotons = dphotons
 
         self._iparam = None
@@ -304,15 +305,12 @@ class DAEPhotonsShader(object):
 
     def make_shader(self, cfg ):
         log.info("%s cfg %s" % (self.__class__.__name__, repr(cfg)))
-        source = {}
         for k in ['vertex','fragment','geometry']:
-            if cfg[k] is None:
-                source[k] = None
-            else: 
-                source[k] = "\n".join(["//%s" % cfg[k],SHADER[cfg[k]]])
+            if not cfg[k] is None:
+                cfg[k] = "\n".join(["//%s" % cfg[k],SHADER[cfg[k]]])
             pass
 
-        shader = Shader( source['vertex'], source['fragment'], source['geometry'], geometry_output_type=cfg['geometry_output_type'] )
+        shader = Shader( **cfg  )
         print shader
         return shader
 
@@ -330,7 +328,38 @@ class DAEPhotonsShader(object):
 
         For example when the geometry shader is expecting GL_LINES 
         primitives it is OK to pump GL_LINE_STRIP down the pipeline
-        with the glDraw call
+        with the glDraw call.
+
+        That was my expectation from the spec, but reality seems
+        otherwise.
+
+
+        line2line failing at Draw
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        ::
+
+           g4daeview.sh --with-chroma --load 1 --shader line2line 
+
+            OpenGL.error.GLError: GLError(
+                err = 1282,
+                description = 'invalid operation',
+                baseOperation = glMultiDrawArrays,
+                cArguments = (
+                    GL_POINTS,
+                    array([    0,    10,    20, ..., 4162...,
+                    array([3, 2, 2, ..., 2, 3, 9], dtype=...,
+                    4165,
+                )
+           
+
+        point2line, working and rather beautiful
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        :: 
+  
+           g4daeview.sh --with-chroma --load 1 --photons point2line 
+
 
         """
         cfg = {}
@@ -346,18 +375,18 @@ class DAEPhotonsShader(object):
         elif shaderkey == "line2line":
 
             cfg['vertex'] = "vertex_for_geo"
-
             cfg['geometry'] = "geometry_line2line"
             cfg['geometry_input_type'] = "GL_LINES"   #  does not accept GL_LINE_STRIP, 
             cfg['geometry_output_type'] = "GL_LINE_STRIP"
-
             cfg['fragment'] = "fragment_fcolor"
 
         elif shaderkey == "point2line":
 
+            cfg['vertex'] = "vertex_for_geo"
             cfg['geometry'] = "geometry_point2line"
             cfg['geometry_input_type'] = "GL_POINTS"
             cfg['geometry_output_type'] = "GL_LINE_STRIP"
+            cfg['fragment'] = "fragment_fcolor"
 
         else:
             assert 0, "shader key %s not recognized " % shaderkey  

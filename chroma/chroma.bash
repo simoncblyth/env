@@ -616,7 +616,7 @@ chroma-geant4-scd(){ cd $(chroma-geant4-sdir) ; }
 
 chroma-geant4-export(){
    export CHROMA_GEANT4_SDIR=$(chroma-geant4-sdir)
-   env | grep CHROMA_GEANT4
+   #env | grep CHROMA_GEANT4
 }
 
 chroma-geant4-findroot(){ echo $(chroma-geant4-sdir)/cmake/Modules/FindROOT.cmake ; }

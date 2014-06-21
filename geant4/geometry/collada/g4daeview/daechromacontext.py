@@ -29,7 +29,7 @@ class DAEChromaContext(object):
     """
     dummy = False
     def __init__(self, config, chroma_geometry ):
-        log.info("DAEChromaContext init, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
+        log.debug("DAEChromaContext init, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
         self.config = config
         self.chroma_geometry = chroma_geometry
         pass

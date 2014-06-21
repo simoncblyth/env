@@ -2,8 +2,10 @@
 """
 
 """
-import logging
+import logging, pprint
 log = logging.getLogger(__name__)
+
+import OpenGL.GL as gl
 
 import numpy as np
 from daegeometry import DAEMesh 
@@ -60,6 +62,10 @@ class DAEPhotons(object):
         self.event = event       
         self.config = event.config      
 
+        cfg = self.configure(event.config.args.photons)
+        log.info("%s %s" % (self.__class__.__name__, pprint.pformat(cfg)))
+        self.cfg = cfg
+
         param = DAEPhotonsParam( event.config)
         datacls = DAEPhotonsDataLegacy if event.config.args.legacy else DAEPhotonsData
         self.numquad = datacls.numquad  # not really a parameter, rather a fundamental feature of data structure in use
@@ -67,11 +73,62 @@ class DAEPhotons(object):
         self.interop = not event.scene.chroma.dummy
         self.data = datacls(photons, param)
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
-        self.renderer = DAEPhotonsRenderer(self, event.scene.chroma) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
+        self.renderer = DAEPhotonsRenderer(self, event.scene.chroma, cfg ) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
         self.propagated = None    
 
         self._mesh = None
+
+
+    def configure(self, photonskey ):
+        """
+        :param photonskey: string identifying various techniques to present the photon information
+
+        Meaning of slot values
+
+        * slot -1, the reserved slot at max_slots-1
+        * slot None, using max_slots 1 with slot 0, ie seeing all steps of the propagation at once
+
+        """
+        cfg = {}
+
+        if photonskey == 'noodlesoup':
+
+           cfg['description'] = "Generated direction/polarization LINE_STRIP at each step of the photon" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "point2line"
+           cfg['slot'] = None
+
+        elif photonskey == 'movie':
+
+           cfg['description'] = "" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "point2line"
+           cfg['slot'] = -1
+
+        elif photonskey == 'confetti':
+
+           cfg['description'] = "POINTS for each step of the photon" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = None
+
+        elif photonskey == 'spagetti':
+
+           cfg['description'] = "LINE_STRIP trajectory of each photon" 
+           cfg['drawmode'] = gl.GL_LINE_STRIP
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = None
+
+        else:
+            assert 0, photonskey
+
+
+        return cfg 
 
 
     ### primary actions #####
@@ -164,19 +221,15 @@ class DAEPhotons(object):
         log.info( " drawcount %s " % str(self.drawcount))
 
 
-    def draw(self, slot=-1):
+    def draw(self):
         """
-        :param slot: -1 means the reserved slot at max_slots-1
         """
         if self.photons is None:return
-        self.renderer.draw(slot=slot)
 
-    def multidraw(self, slot=None):
-        """
-        :param slot: None means using max_slots 1 with slot 0, ie seeing all records
-        """
-        if self.photons is None:return
-        self.renderer.multidraw(slot=slot, counts=self.counts, firsts=self.firsts, drawcount=self.drawcount )
+        if self.cfg['drawkey'] == 'multidraw':
+            self.renderer.multidraw(mode=self.cfg['drawmode'],slot=self.cfg['slot'], counts=self.counts, firsts=self.firsts, drawcount=self.drawcount )
+        else:
+            self.renderer.draw(mode=self.cfg['drawmode'],slot=self.cfg['slot'])
 
 
     #### readonly properties #####
@@ -220,6 +273,8 @@ class DAEPhotons(object):
 
     ### other actions #####
 
+    reconfig_handled = ['time',]
+
     def reconfig(self, conf):
         """
         This is called to handle external messages such as::
@@ -230,8 +285,30 @@ class DAEPhotons(object):
         but following migration to shader rendering, 
         can just update uniforms.
         """
-        log.info("reconfig %s " % repr(conf))
-        update = self.param.reconfig(conf)
+        update = False
+        unhandled = []
+        for k, v in conf:
+            if k in self.reconfig_handled:
+                setattr(self, k, v ) 
+                update = True
+            else:
+                unhandled.append((k,v,))
+            pass 
+
+        param_update = self.param.reconfig(unhandled)
+        return update or param_update
+
+
+    def _set_time(self, time):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            log.warn("cannot set time when renderer.presenter is not enabled")
+        else:
+            presenter.time = time
+    def _get_time(self):
+        presenter = self.renderer.presenter
+        return None if presenter is None else presenter.time
+    time = property(_get_time, _set_time, doc="setter copies time into GPU constant g_anim.x, getter returns cached value " )
 
     def __repr__(self):
         return "%s " % (self.__class__.__name__)

@@ -60,6 +60,7 @@ ssh-tunnel-open(){
 
 [ -n "$zmqtunnelnode" ] && ssh-tunnel-open $zmqtunnelnode
 
+#echo starting
 g4daeview.py $*
 
 #cuda_info.py

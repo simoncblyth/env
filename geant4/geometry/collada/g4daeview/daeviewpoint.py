@@ -351,7 +351,7 @@ class DAEViewpoint(object):
             pass
         assert len(kwa) == 5, "missing argument(s) %s " % repr(kwa) 
         if solid is None:
-            log.warn("bookmark invalid for current geometry as solid not present ")
+            #log.warn("bookmark invalid for current geometry as solid not present ")
             return None
         pass 
         return cls(**kwa)

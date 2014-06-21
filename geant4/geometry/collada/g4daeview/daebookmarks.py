@@ -36,7 +36,7 @@ class DAEBookmarks(dict):
         """
         :param geometry: DAEGeometry instance
         """
-        log.info("load bookmarks from %s " % self.path )
+        log.debug("load bookmarks from %s " % self.path )
         cfp = ConfigParser()
         cfp.read([self.path])        
 
@@ -46,7 +46,7 @@ class DAEBookmarks(dict):
                 cfg = cfp.items(sect)
                 view = DAEViewpoint.fromini( cfg, geometry ) 
                 if view is None:
-                    log.info("failed to load bookmark %s " % k )
+                    log.debug("failed to load bookmark %s " % k )
                 else:   
                     self.assign(k, view)
 

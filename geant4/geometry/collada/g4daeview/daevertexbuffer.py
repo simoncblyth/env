@@ -477,7 +477,7 @@ class DAEVertexBuffer(object):
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, 0 ) 
 
 
-    def multidraw( self, mode=gl.GL_LINE_STRIP, what='', att='all', slot=None, firsts=None, counts=None, drawcount=None ):
+    def multidraw( self, mode=gl.GL_POINTS, what='', att='all', slot=None, firsts=None, counts=None, drawcount=None ):
         """
 
         glMultiDrawArrays
@@ -490,17 +490,12 @@ class DAEVertexBuffer(object):
         #. only points dont "invalid operation" with geometry shader 
 
         """ 
-
         #log.info("multidraw %s " %  drawcount)
 
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
 
         attrib = DAEVertexAttributes.get( slot )
         attrib.predraw( what=what, att=att)
-
-        #mode = gl.GL_LINES 
-        #mode = gl.GL_LINE_STRIP
-        mode = gl.GL_POINTS      
 
         gl.glMultiDrawArrays( mode, firsts, counts, drawcount )
 

@@ -71,7 +71,7 @@ class PBORenderer(object):
                 self._prior_flags = self.flags
             pass
             self.flags = 0,0
-            log.info("switch OFF showmetric, but retain any flag settings aleady configured" ) 
+            log.debug("switch OFF showmetric, but retain any flag settings aleady configured" ) 
         else:
             if self.flags != (0,0):
                 log.info("switch ON showmetric using already set self.flags %s " % repr(self.flags))
@@ -106,7 +106,7 @@ class PBORenderer(object):
             self.origin = self.config.eye
             self.pixel2world = self.config.pixel2world
         else:
-            log.warn("initializing GPU constants origin/pixel2world to defaults, need to be set appropriately for geometry to see anything  ") 
+            log.debug("initializing GPU constants origin/pixel2world to defaults, need to be set appropriately for geometry to see anything  ") 
             self.origin = (0,0,0,1)
             self.pixel2world = np.identity(4)
 
