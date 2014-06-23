@@ -63,8 +63,12 @@ class DAEEvent(object):
         path = item.extra['path'] 
         self.load(path)
 
+    def _get_time(self):
+        return self.dphotons.time
+    time = property(_get_time, doc="Animation time")
+
     def __repr__(self):
-        return "%5.2f" % self._qcut
+        return "t %5.2f" % self.time
     def _get_qcut(self):
         return self._qcut
     def _set_qcut(self, qcut):
@@ -142,7 +146,7 @@ class DAEEvent(object):
                 self.qcut = v 
             elif k == 'reload':
                 self.reload_()
-            elif k in ('fpholine','fphopoint','shadermode','mask','time'):   
+            elif k in ('fpholine','fphopoint','shadermode','mask','time','style',):   
                 photons_config.append([k,v])
             else:
                 assert 0, (k,v)

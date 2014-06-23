@@ -205,7 +205,7 @@ class DAEVertexAttributes(object):
         return cls.attrib[slot] 
 
 
-    def __init__(self, dtype, stride, slot=0, max_slots=1, force_attribute_zero=None, shader=None ):
+    def __init__(self, renderer, dtype, stride, slot=0, max_slots=1, force_attribute_zero=None ):
         """
         :param dtype:
         :param stride: from itemsize
@@ -237,8 +237,8 @@ class DAEVertexAttributes(object):
             else:
                 assert self.__class__.max_slots == max_slots, "cannot mix max_slots " 
 
+        self.renderer = renderer
         self.slot = slot 
-        self.shader = shader
 
         names = dtype.names or []
         offset = 0
@@ -296,8 +296,8 @@ class DAEVertexAttributes(object):
         """
         for attribute in self.generic:
             attribute.enable()
-            if not self.shader is None:
-                self.shader.shader.bind_attribute( attribute.index, attribute.name )  
+            if not self.renderer.shader is None:
+                self.renderer.shader.shader.bind_attribute( attribute.index, attribute.name )  
 
     def predraw(self, what, att='all'):
         """
@@ -310,10 +310,10 @@ class DAEVertexAttributes(object):
 
         self.bind_generic_attrib()
 
-        if not self.shader is None:
-            self.shader.link()  
-            self.shader.use()
-            self.shader.update_uniforms()   ## check this placement 
+        if not self.renderer.shader is None:
+            self.renderer.shader.link()  
+            self.renderer.shader.use()
+            self.renderer.shader.update_uniforms()   ## check this placement 
 
         if att in self.attmap:
             attributes = self.attmap[att]
@@ -329,8 +329,8 @@ class DAEVertexAttributes(object):
         for attribute in self.generic:
             attribute.disable()
         
-        if not self.shader is None:
-            self.shader.unuse()
+        if not self.renderer.shader is None:
+            self.renderer.shader.unuse()
 
         if len(what) > 0:
             gl.glPopClientAttrib( )
@@ -348,7 +348,7 @@ class DAEVertexBuffer(object):
     For example using 2x striding allow to draw points from a lines VBO 
     http://pyopengl.sourceforge.net/documentation/manual-3.0/glBufferData.html
     """
-    def __init__(self, vertices, indices=None, max_slots=1, force_attribute_zero=None, shader=None ):
+    def __init__(self, renderer, vertices, indices=None, max_slots=1, force_attribute_zero=None ):
         """
         :param vertices: numpy ndarray with named constituents
         :param indices: numpy ndarray of element indices
@@ -361,12 +361,15 @@ class DAEVertexBuffer(object):
         # attribute collections are stored at classmethod level
         # the `None` slot corresponds to "all" for generic attributes, used by multidraw
         #
+        self.renderer = renderer
+
         for slot in range(max_slots):
-            attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize, slot=slot, max_slots=max_slots,force_attribute_zero=force_attribute_zero, shader=shader)
+            attrib = DAEVertexAttributes(renderer, vertices.dtype, vertices.itemsize, slot=slot, max_slots=max_slots,force_attribute_zero=force_attribute_zero )
         pass
-        attrib = DAEVertexAttributes(vertices.dtype, vertices.itemsize, slot=None, max_slots=1,force_attribute_zero=force_attribute_zero, shader=shader)
+        attrib = DAEVertexAttributes(renderer, vertices.dtype, vertices.itemsize, slot=None, max_slots=1,force_attribute_zero=force_attribute_zero )
         pass
         self.init( vertices, indices )
+
 
 
     def init(self, vertices, indices):

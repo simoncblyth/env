@@ -12,7 +12,7 @@ from daegeometry import DAEMesh
 from daephotonsparam import DAEPhotonsParam
 from daephotonsmenuctrl import DAEPhotonsMenuController
 from daephotonsrenderer import DAEPhotonsRenderer
-from daephotonsdata import DAEPhotonsData, DAEPhotonsDataLegacy
+from daephotonsdata import DAEPhotonsData
 from daephotonspropagator import DAEPhotonsPropagator
 from daephotonsanalyzer import DAEPhotonsAnalyzer
 
@@ -61,29 +61,47 @@ class DAEPhotons(object):
         :param event: `DAEEvent` instance
         """ 
         self.event = event       
+        self.interop = not event.scene.chroma.dummy
         self.config = event.config      
 
-        cfg = self.configure(event.config.args.photons)
-        log.info("%s %s" % (self.__class__.__name__, pprint.pformat(cfg)))
-        self.cfg = cfg
+        self._cfg = None
+        self._style = event.config.args.style   
 
-        param = DAEPhotonsParam( event.config)
-        datacls = DAEPhotonsDataLegacy if event.config.args.legacy else DAEPhotonsData
-        self.numquad = datacls.numquad  # not really a parameter, rather a fundamental feature of data structure in use
+        self.numquad = DAEPhotonsData.numquad  # fundamental nature of VBO data structure, not a "parameter"
 
-        self.interop = not event.scene.chroma.dummy
-        self.data = datacls(photons, param)
+        self.param = DAEPhotonsParam( event.config)
+        self.data = DAEPhotonsData(photons, self.param)
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
-        self.renderer = DAEPhotonsRenderer(self, event.scene.chroma, cfg ) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
+    
+        self.renderer = DAEPhotonsRenderer(self, event.scene.chroma ) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
         self.analyzer = DAEPhotonsAnalyzer(self)
-        self.propagated = None    
 
+        self.propagated = None    
         self._mesh = None
         self._tcut = None
         self.tcut = event.config.args.tcut    
 
-    def configure(self, photonskey ):
+
+    def _get_style(self):
+        return self._style
+    def _set_style(self, style):
+        if style == self._style:return
+        self._cfg = None        # invalidate dependant 
+        self._style = style   
+        self.renderer.shaderkey = self.cfg['shaderkey']
+        log.info("%s _set_style [%s] %s" % (self.__class__.__name__, style, pprint.pformat(self._cfg)))
+    style = property(_get_style, _set_style, doc="Photon presentation style, eg confetti/spagetti/movie/...") 
+
+
+    def _get_cfg(self):
+        if self._cfg is None:
+           self._cfg = self.make_cfg()
+        return self._cfg
+    cfg = property(_get_cfg)
+
+
+    def make_cfg(self):
         """
         :param photonskey: string identifying various techniques to present the photon information
 
@@ -110,10 +128,20 @@ class DAEPhotons(object):
 
         A point representing ABSORPTIONs would be more useful.
 
+
+        Live transitions to the "nogeo" shaders `spagetti` 
+        and `confetti` are working from all others.  
+        The reverse transitions from "nogeo" to "point2line" 
+        shaderkey do not work, giving a blank render.
+
+        Presumably an attribute binding problem, not changing a part 
+        of opengl state 
+
         """
         cfg = {}
 
-        if photonskey == 'noodlesoup':
+        style = self.style    
+        if style == 'noodles':
 
            cfg['description'] = "LINE_STRIP direction/polarization at each step of the photon" 
            cfg['drawmode'] = gl.GL_POINTS
@@ -121,7 +149,7 @@ class DAEPhotons(object):
            cfg['shaderkey'] = "point2line"
            cfg['slot'] = None  
 
-        elif photonskey == 'movie':
+        elif style == 'movie':
 
            cfg['description'] = "LINE_STRIP direction/polarization that is time interpolated " 
            cfg['drawmode'] = gl.GL_POINTS
@@ -129,7 +157,7 @@ class DAEPhotons(object):
            cfg['shaderkey'] = "point2line"
            cfg['slot'] = -1  
 
-        elif photonskey == 'confetti':
+        elif style == 'confetti':
 
            cfg['description'] = "POINTS for each step of the photon" 
            cfg['drawmode'] = gl.GL_POINTS
@@ -137,7 +165,24 @@ class DAEPhotons(object):
            cfg['shaderkey'] = "nogeo"
            cfg['slot'] = None
 
-        elif photonskey == 'spagetti':
+        elif style == 'confetti-1':
+
+           cfg['description'] = "POINTS for each step of the photon" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = -1
+
+        elif style == 'confetti-0':
+
+           cfg['description'] = "POINTS for each step of the photon" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = 0
+
+
+        elif style == 'spagetti':
 
            cfg['description'] = "LINE_STRIP trajectory of each photon, " 
            cfg['drawmode'] = gl.GL_LINE_STRIP
@@ -146,7 +191,7 @@ class DAEPhotons(object):
            cfg['slot'] = None
 
         else:
-            assert 0, photonskey
+            assert 0, style
 
 
         return cfg 
@@ -237,18 +282,9 @@ class DAEPhotons(object):
             self.menuctrl.update( photons )    
     photons = property(_get_photons, _set_photons) 
 
-    def _get_param(self):
-        return self.data.param 
-    def _set_param(self, param):
-        self.data.param = param
-        if not param is None:
-            self.menuctrl.update_history_menu( self.photons )   
-    param = property(_get_param, _set_param) 
-
-
     ### other actions #####
 
-    reconfig_handled = ['time',]
+    reconfig_handled = ['time','style',]
 
     def reconfig(self, conf):
         """

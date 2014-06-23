@@ -291,30 +291,58 @@ void main()
 
 class DAEPhotonsShader(object):
     """
-    NEXT:
-    #. Try to reconfig the shader to do lines and points rather than having two shaders
-    """
-    def __init__(self, dphotons, cfg ):
-        self.cfg = cfg 
-        self.shadercfg = self.configure(cfg['shaderkey'])
-        self.shader = self.make_shader( self.shadercfg ) 
-        self.dphotons = dphotons
+    Properties
 
+    #. shaderkey
+
+    """
+    def __init__(self, dphotons):
+        self.dphotons = dphotons
         self._iparam = None
         self._fparam = None
 
-    def make_shader(self, cfg ):
-        log.info("%s cfg %s" % (self.__class__.__name__, repr(cfg)))
-        for k in ['vertex','fragment','geometry']:
-            if not cfg[k] is None:
-                cfg[k] = "\n".join(["//%s" % cfg[k],SHADER[cfg[k]]])
-            pass
+        self._shadercfg = None
+        self._shaderkey = None
+        self.shaderkey = dphotons.cfg['shaderkey']   
+        self.shader = self.make_shader()
 
-        shader = Shader( **cfg  )
+    def shaderkey_changed(self, from_, to_):
+        """
+        Starting with one style, then changing to another causing invalid operations::
+
+           g4daeview.sh --with-chroma --load 1 --style movie
+           udp.py --style spagetti
+        
+        """
+        log.info("shaderkey_changed %s => %s " % (from_,to_))
+        self._shadercfg = None   # invalidate dependent, forcing recreation
+        self.shader.cfg = self.shadercfg
+        program = self.shader.program
+        log.info("pull program %s into life " % program ) 
+
+    def _get_shaderkey(self):
+        return self._shaderkey 
+    def _set_shaderkey(self, shaderkey):
+        if shaderkey == self._shaderkey:return
+        priorkey = self._shaderkey 
+        self._shaderkey = shaderkey
+        if not priorkey is None:
+            self.shaderkey_changed(priorkey, self._shaderkey)
+        pass
+    shaderkey = property(_get_shaderkey, _set_shaderkey, doc="String controlling shader config ")
+
+    def _get_shadercfg(self):
+        if self._shadercfg is None:
+            self._shadercfg = self.make_config(self.shaderkey) 
+        return self._shadercfg 
+    shadercfg = property(_get_shadercfg)
+
+    def make_shader(self):
+        shader = Shader( **self.shadercfg  )
         print shader
         return shader
 
-    def configure(self, shaderkey):
+    def make_config(self, shaderkey):
         """
         The input type to the geometry shader needs to be one of:
 
@@ -333,34 +361,8 @@ class DAEPhotonsShader(object):
         That was my expectation from the spec, but reality seems
         otherwise.
 
-
-        line2line failing at Draw
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        ::
-
-           g4daeview.sh --with-chroma --load 1 --shader line2line 
-
-            OpenGL.error.GLError: GLError(
-                err = 1282,
-                description = 'invalid operation',
-                baseOperation = glMultiDrawArrays,
-                cArguments = (
-                    GL_POINTS,
-                    array([    0,    10,    20, ..., 4162...,
-                    array([3, 2, 2, ..., 2, 3, 9], dtype=...,
-                    4165,
-                )
+        #. line2line failing at Draw with invalid operation
            
-
-        point2line, working and rather beautiful
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        :: 
-  
-           g4daeview.sh --with-chroma --load 1 --photons point2line 
-
-
         """
         cfg = {}
         cfg['shaderkey'] = shaderkey
@@ -395,6 +397,12 @@ class DAEPhotonsShader(object):
         for k,v in cfg.items():
             if not v is None and v[0:3] == 'GL_':
                 cfg[k] = getattr(gl, cfg[k])  # promote strings starting GL_ to enum types
+
+        log.info("%s cfg %s" % (self.__class__.__name__, repr(cfg)))
+        for k in ['vertex','fragment','geometry']:
+            if not cfg[k] is None:
+                cfg[k] = "\n".join(["//%s" % cfg[k],SHADER[cfg[k]]])
+            pass
 
         return cfg
 

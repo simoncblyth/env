@@ -36,25 +36,33 @@ class DAEPhotonsRenderer(object):
     #. shader DAEPhotonsShader
 
     """
-    def __init__(self, dphotons, chroma, cfg ):
+    def __init__(self, dphotons, chroma ):
         """
         :param dphotons: DAEPhotons instance
         :param chroma: DAEChromaContext instance
-        :param cfg: 
         """
         self.dphotons = dphotons
         self.chroma = chroma
-        self.cfg = cfg 
 
         self.interop = not chroma.dummy
-
-        self.shader = DAEPhotonsShader(dphotons, cfg ) 
+        log.info("%s.__init__" % self.__class__.__name__ )
+        self.shader = DAEPhotonsShader(dphotons) 
         self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
         self.presenter = DAEPhotonsPresenter(dphotons, chroma, debug=int(dphotons.config.args.debugkernel)) if self.interop else None
         self.invalidate_buffers()
         pass
         self.create_buffer_count = 0 
         self.draw_count = 0 
+
+
+
+    def _get_shaderkey(self):
+        return self.shader.shaderkey
+    def _set_shaderkey(self, shaderkey):
+        self.shader.shaderkey = shaderkey 
+    shaderkey = property(_get_shaderkey, _set_shaderkey)
+
+
 
     def invalidate_buffers(self):
         """
@@ -86,7 +94,7 @@ class DAEPhotonsRenderer(object):
         """
         self.create_buffer_count += 1
         log.warn("############ create_buffer [count %s]  ##################### %s " % (self.create_buffer_count, repr(data.data.dtype)) )
-        vbo = DAEVertexBuffer( data.data, data.indices, max_slots=data.max_slots, force_attribute_zero=data.force_attribute_zero, shader=self.shader  )
+        vbo = DAEVertexBuffer( self, data.data, data.indices, max_slots=data.max_slots, force_attribute_zero=data.force_attribute_zero )
 
         self.interop_gl_to_cuda(vbo)
         return vbo

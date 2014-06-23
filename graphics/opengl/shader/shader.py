@@ -44,35 +44,83 @@ shadertypes = {
       }
 
 class Shader(object):
-    def __init__(self, **kwa ):
+    def __init__(self, **cfg ):
+        self._program = None
+        self._cfg = None
+        self.cfg = cfg   # setter invalidates
 
-        log.debug("%s %s " % (self.__class__.__name__, pprint.pformat(kwa)))
+    def invalidate(self):
+        """
+        No _program as cleanup is required for that
+        """
+        log.info("invalidate")
+        self.uniforms = {}
+        self.attribs = {}
+    
+    def _get_program(self):
+        if self._program is None:
+            self.create() 
+        return self._program
+    program = property(_get_program)
 
-        vertex = kwa.pop('vertex',None)
-        fragment = kwa.pop('fragment',None)
-        geometry = kwa.pop('geometry',None)
+    def _get_cfg(self):
+        return self._cfg
+    def _set_cfg(self, cfg ):
+        """
+        Change in config causes deletion of program and shader, 
+        On next use they are recreated.
+        """
+        log.info("_set_cfg ")
+        if cfg == self._cfg:
+            log.info("_set_cfg unchanged %s " % repr(cfg))
+            return
+        self._cfg = cfg
+        self.config_changed()
+    cfg = property(_get_cfg,_set_cfg)
 
-        self.input_type = kwa.pop('geometry_input_type', gl.GL_POINTS )
-        self.output_type = kwa.pop('geometry_output_type', gl.GL_LINE_STRIP )
-        self.vertices_out = kwa.pop('geometry_vertices_out', 200 )
+    def config_changed(self):
+        log.info("config_changed")
+        self.delete()
 
-        self.program = gl.glCreateProgram()
+    input_type = property(lambda self:self.cfg.get('geometry_input_type', gl.GL_POINTS ))
+    output_type = property(lambda self:self.cfg.get('geometry_output_type', gl.GL_LINE_STRIP ))
+    vertices_out = property(lambda self:self.cfg.get('geometry_vertices_out', 200 ))
+
+    vertex_source = property(lambda self:self.cfg.get('vertex',""))
+    fragment_source = property(lambda self:self.cfg.get('fragment',""))
+    geometry_source = property(lambda self:self.cfg.get('geometry',""))
+
+    shaderkey = property(lambda self:self.cfg.get('shaderkey',"no-shaderkey ?"))
+
+    def __str__(self):
+        return "%s:%s" % (self.__class__.__name__, self.shaderkey)
+
+
+
+    def create(self): 
+        cfg = self.cfg 
+        self._program = gl.glCreateProgram()
+        log.info("create _program %s " % self._program )
+        self.linked = False
         self.uniforms = {}
         self.attribs = {}
 
-        self._compile( vertex,   gl.GL_VERTEX_SHADER, kwa  )
-        self._compile( fragment, gl.GL_FRAGMENT_SHADER, kwa  )
-        self._compile( geometry, gl.GL_GEOMETRY_SHADER, kwa )
+        _attached_shaders = []
+        vertex   = self.make_shader( self.vertex_source,   gl.GL_VERTEX_SHADER )
+        fragment = self.make_shader( self.fragment_source, gl.GL_FRAGMENT_SHADER )
+        geometry = self.make_shader( self.geometry_source, gl.GL_GEOMETRY_SHADER )
 
-        self.linked = False
+        for shader in filter(None,[vertex, fragment, geometry]):      
+            gl.glAttachShader(self._program, shader)
+            _attached_shaders.append(shader)
+        pass
 
-    def __str__(self):
-        return "\n".join( 
-           
-                       ["#### vertex"]   +  lines_(self.vertex_source)  +
-                       ["#### geometry input_type %s output_type %s vertices_out %s" % (self.input_type, self.output_type, self.vertices_out)] +  lines_(self.geometry_source) + 
-                       ["#### fragment"] +  lines_(self.fragment_source)  
-                        )
+        log.info("_attached_shaders %s " % repr(_attached_shaders)) 
+        self._attached_shaders = _attached_shaders
+
+        if not geometry is None:
+            self._setup_geometry_shader()
+        pass
 
     def _setup_geometry_shader(self):        
         """
@@ -82,20 +130,39 @@ class Shader(object):
         log.info("_setup_geometry_shader   input_type  %s " % self.input_type)
         log.info("_setup_geometry_shader  output_type  %s " % self.output_type)
         log.info("_setup_geometry_shader  vertices_out %s " % self.vertices_out )
-        gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_INPUT_TYPE_ARB, self.input_type )
-        gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_OUTPUT_TYPE_ARB, self.output_type )
-        gsx.glProgramParameteriEXT(self.program, gsa.GL_GEOMETRY_VERTICES_OUT_ARB, self.vertices_out )
-    
-    def _compile(self, source_, shader_type, kwa={} ):
-        
-        typename = shadertypes[shader_type] 
-        setattr( self, '%s_source' % typename,   "")
-        if source_ is None:return
+        gsx.glProgramParameteriEXT(self._program, gsa.GL_GEOMETRY_INPUT_TYPE_ARB, self.input_type )
+        gsx.glProgramParameteriEXT(self._program, gsa.GL_GEOMETRY_OUTPUT_TYPE_ARB, self.output_type )
+        gsx.glProgramParameteriEXT(self._program, gsa.GL_GEOMETRY_VERTICES_OUT_ARB, self.vertices_out )
 
-        source = source_ % kwa 
-        setattr( self, '%s_source' % typename,  source)
+ 
+    def delete(self):
+        """
+        https://www.khronos.org/opengles/sdk/docs/man/xhtml/glDetachShader.xml
+        """
+        log.info("delete")
+        if self._program is None:return
 
-        log.debug("_compile shader %s " % shader_type )
+        if hasattr(self, '_attached_shaders'):
+            for shader in self._attached_shaders:
+                gl.glDetachShader( self._program, shader ) 
+                gl.glDeleteShader( shader )
+            pass
+        pass
+        gl.glDeleteProgram(self._program)
+        self._program = None
+
+    def source(self):
+        gsmry = "#### geometry input/output/vertices " + "/".join(map(str,filter(None,(self.input_type, self.output_type, self.vertices_out,))))
+        return "\n".join( 
+                       ["#### vertex"]   +  lines_(self.vertex_source)  +
+                       [gsmry]           +  lines_(self.geometry_source) + 
+                       ["#### fragment"] +  lines_(self.fragment_source)  
+                        )
+   
+    def make_shader(self, source , shader_type):
+        if source is None or len(source) == 0:
+            return None
+        log.debug("make_shader %s " % shader_type )
 
         shader = gl.glCreateShader(shader_type)
         gl.glShaderSource(shader, [source,])
@@ -106,11 +173,10 @@ class Shader(object):
             print "\n".join(lines_(source))            
             raise Exception(
                     'Shader compilation error %s : ' % shader_type  + gl.glGetShaderInfoLog(shader))
-        else:
-            gl.glAttachShader(self.program, shader)
 
-        if typename == 'geometry': 
-            self._setup_geometry_shader()
+        return shader
+
+
 
 
     def link(self):

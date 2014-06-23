@@ -6,6 +6,21 @@ G4DAEVIEW
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
+Live Style Change issues
+-------------------------
+
+Style change can be done with eg `udp.py --style confetti`, certain switches have issues however:
+
+#. `spagetti` to `confetti` works 
+#. `confetti` to `movie` "works" but the geometry shader does not kickin, left with nogeo (ie points rather than lines) 
+
+   * hmm, no longer getting nothing appearing 
+
+#. `movie` to `confetti` works
+#. `movie` to `spagetti` works 
+#. `spagetti` to `noodlesoup` works BUT left with nogeo shader (ie again not getting the geometry shader to kickin )
+
+
 Step Interpolation Visualization
 ----------------------------------
 

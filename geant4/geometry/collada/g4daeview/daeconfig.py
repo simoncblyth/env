@@ -160,7 +160,6 @@ class DAEConfig(ConfigBase):
         defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
         defaults['legacy'] = False
 
-        defaults['photons'] = "line2line"
 
         defaults['debugkernel'] = False
         defaults['debugpropagate'] = False
@@ -179,7 +178,6 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
         parser.add_argument( "--legacy", dest="legacy", action="store_true", help="Sets `legacy=True`, with `color` and `position` rather than custom OpenGL attributes, default %(default)s." )
-        parser.add_argument( "--photons", help="Key controlling photon render, identifying shaders (vertex/geometry/fragment) and rendering techniques to use, default %(default)s." )
         parser.add_argument( "--debugshader", action="store_true", help="Use debug shader without geometry stage, default %(default)s." )
         parser.add_argument( "--debugkernel", action="store_true", help="Enables VBO_DEBUG in propagate_vbo.cu, default %(default)s." )
         parser.add_argument( "--debugpropagate", action="store_true", help="Readback propagated VBO into numpy array and persist to propagated.npz, default %(default)s." )
@@ -274,6 +272,7 @@ class DAEConfig(ConfigBase):
 
 
         # event
+        defaults['style'] = "movie"
         defaults['live'] = True
         defaults['load'] = None
         defaults['save'] = None
@@ -291,6 +290,7 @@ class DAEConfig(ConfigBase):
         defaults['bits'] = -1
         defaults['reload']  = False
 
+        parser.add_argument( "--style", help="Key controlling photon render eg confetti/spagetti/movie/.., identifying shaders (vertex/geometry/fragment) and rendering techniques to use, default %(default)s." )
         parser.add_argument( "--nolive",  dest="live", help="[I] Disable live updating via ZMQRoot messages. Default %(default)s.", action="store_false")
         parser.add_argument( "--live",    dest="live", help="[I] Enable live updating via ZMQRoot messages. Default %(default)s.", action="store_true")
         parser.add_argument( "--load",  help="[I] Path to .root file to read, eg containing ChromaPhotonList instances. Default %(default)s.",type=str)
