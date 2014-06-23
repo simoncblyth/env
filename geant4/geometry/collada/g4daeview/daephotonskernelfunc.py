@@ -67,19 +67,19 @@ class DAEPhotonsKernelFunc(object):
     def _get_anim(self):
         return self._anim 
     def _set_anim(self, anim):
-        log.info("_set_anim %s " % anim )
+        #log.info("_set_anim %s " % anim )
         if anim == self._anim:
-            log.info("_set_anim %s no change %s " % (anim, self._anim) )
+            #log.info("_set_anim %s no change %s " % (anim, self._anim) )
             return
         self._anim = anim
-        log.info("_set_anim : memcpy_htod %s " % repr(anim))
+        #log.info("_set_anim : memcpy_htod %s " % repr(anim))
         cuda_driver.memcpy_htod(self.g_anim, ga.vec.make_float4(*anim))
     anim = property(_get_anim, _set_anim, doc="anim: setter copies to device __constant__ memory, getter returns cached value") 
 
     def _get_time(self):
         return self._anim[0]
     def _set_time(self, time):
-        log.info("_set_time %s " % time )
+        #log.info("_set_time %s " % time )
         anim = self._anim[:]
         anim[0] = time
         self.anim = anim

@@ -88,32 +88,46 @@ class DAEPhotons(object):
         :param photonskey: string identifying various techniques to present the photon information
 
         *slot*
-           -1, the reserved slot at max_slots-1
-           None, corresponds to using max_slots 1 with slot 0, 
-           ie seeing all steps of the propagation at once
+           -1, top slot at max_slots-1
+           None, corresponds to using max_slots 1 with slot 0,
+           with top slot excluded 
+           (ie seeing all steps of the propagation except the artificial 
+           interpolated top slot)
 
         *drawkey*
            `multidraw` is efficient way of in effect doing separate draw calls 
            for each photon (or photon history) eg allowing trajectory line presentation
+
+
+        Debug tips:
+
+        #. check time dependancy with `udp.py --time 10` etc..
+
+        Animated spagetti, ie LINE_STRIP that animates: not easy 
+        as need multidraw dynamic counts with interpolated top slot 
+        interposition. Technically challenging but not so informative.
+        Would be tractable is could get geometry shader to deal in LINE_STRIPs.
+
+        A point representing ABSORPTIONs would be more useful.
 
         """
         cfg = {}
 
         if photonskey == 'noodlesoup':
 
-           cfg['description'] = "Generated direction/polarization LINE_STRIP at each step of the photon" 
+           cfg['description'] = "LINE_STRIP direction/polarization at each step of the photon" 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "point2line"
-           cfg['slot'] = None
+           cfg['slot'] = None  
 
         elif photonskey == 'movie':
 
-           cfg['description'] = "Hmm might not need separate tag for this, anim should be made to manifest appropriately for the presentation style" 
+           cfg['description'] = "LINE_STRIP direction/polarization that is time interpolated " 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "point2line"
-           cfg['slot'] = None
+           cfg['slot'] = -1  
 
         elif photonskey == 'confetti':
 
@@ -125,7 +139,7 @@ class DAEPhotons(object):
 
         elif photonskey == 'spagetti':
 
-           cfg['description'] = "LINE_STRIP trajectory of each photon" 
+           cfg['description'] = "LINE_STRIP trajectory of each photon, " 
            cfg['drawmode'] = gl.GL_LINE_STRIP
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "nogeo"
@@ -215,6 +229,7 @@ class DAEPhotons(object):
     def _get_photons(self):
         return self.data.photons 
     def _set_photons(self, photons):
+        log.info("_set_photons")
         self.data.photons = photons
         if not photons is None:
             self.renderer.invalidate_buffers()
@@ -276,7 +291,7 @@ class DAEPhotons(object):
         Use for real propagation time control, not the fake time of initial photon 
         variety.
         """
-        log.info("time_to x %s y %s dx %s dy %s " % (x,y,dx,dy))
+        #log.info("time_to x %s y %s dx %s dy %s " % (x,y,dx,dy))
         self.tcut += self.tcut*dy
 
     def _get_tcut(self):
@@ -293,7 +308,7 @@ class DAEPhotons(object):
 
         time_range = self.analyzer.time_range 
         time = (time_range[1]-time_range[0])*self._tcut + time_range[0] 
-        log.info("_set_tcut %s %s => %s " % (self._tcut, repr(time_range), time ))
+        #log.info("_set_tcut %s %s => %s " % (self._tcut, repr(time_range), time ))
         self.time = time
     tcut = property(_get_tcut, _set_tcut, doc=_set_tcut.__doc__ )
 

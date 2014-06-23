@@ -106,10 +106,12 @@ class DAEPhotonsDataBase(object):
         """
         When changing photons everything is invalidated
         """ 
+        log.info("invalidate")
         self._photons = None
         self._data = None   
         self._indices = None   
         self._color = None
+        self._ccolor = None
         self._sample_indices = None
 
     def _get_photons(self):
@@ -245,7 +247,7 @@ class DAEPhotonsData(DAEPhotonsDataBase):
           ])
 
         nvert = self.nvert
-        log.info( "create_data nvert %d (with slot scaleups) " % nvert )
+        log.info( "create_data nphotons %d max_slots %d nvert %d (with slot scaleups) " % (self.nphotons,self.max_slots,nvert) )
         data = np.zeros(nvert, dtype )
 
         # splaying the start data out into the slots, leaving loadsa free slots
