@@ -101,6 +101,7 @@ class DAEScene(window_event.EventDispatcher):
 
         # Event handling, either root file load/save or network messages 
         # needs to be after transform setup as may do a launch load which adds auto-bookmark 9 
+        log.info("**********  scene.event creation ")
         self.event = DAEEvent(config, self) 
 
 
@@ -111,6 +112,7 @@ class DAEScene(window_event.EventDispatcher):
 
         # animation frame count
         self.animator = DAEAnimator(args.period)
+        log.info("**********  scene creation DONE ")
 
     def external_cpl(self, cpl ):
         log.info("external_cpl ChromaPhotonList ")

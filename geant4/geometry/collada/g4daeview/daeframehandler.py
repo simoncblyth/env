@@ -58,7 +58,7 @@ class DAEFrameHandler(object):
 
         for k in (gl.GL_MAX_VERTEX_ATTRIBS,):
             info[k.name] = gl.glGetIntegerv(k)  
-            log.info("%s %s " % (k, info[k.name]) )
+            log.debug("%s %s " % (k, info[k.name]) )
 
         return info
 

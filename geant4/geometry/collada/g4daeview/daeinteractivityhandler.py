@@ -155,7 +155,7 @@ class DAEInteractivityHandler(object):
             return 
 
         zmq_responder = DAEResponder(self.config)
-        log.info(zmq_responder)        
+        log.debug(zmq_responder)        
 
         def _check_zmq_responder(dt):
             zmq_responder.update()

@@ -110,7 +110,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
         if self.uploaded_queues:return
         self.uploaded_queues = True
 
-        log.info("upload_queues %s " % nwork )
+        log.debug("upload_queues %s " % nwork )
 
         input_queue = np.empty(shape=nwork+1, dtype=np.uint32)
         input_queue[0] = 0
@@ -133,7 +133,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
         self.output_queue_gpu = temp
         self.output_queue_gpu[:1].set(np.ones(shape=1, dtype=np.uint32))  
         slot0minus1 = self.input_queue_gpu[:1].get()[0] - 1  # which was just now the output_queue before swap
-        log.info("swap_queues slot0minus1 %s " % slot0minus1 )
+        log.debug("swap_queues slot0minus1 %s " % slot0minus1 )
         return slot0minus1
 
     def propagate(self, 
@@ -171,12 +171,12 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
             pass
             if nwork < small_remainder or use_weights:
                 nsteps = max_steps - step       
-                log.info("increase nsteps for stragglers: small_remainder %s nwork %s nsteps %s max_steps %s " % (small_remainder, nwork, nsteps, max_steps))
+                log.debug("increase nsteps for stragglers: small_remainder %s nwork %s nsteps %s max_steps %s " % (small_remainder, nwork, nsteps, max_steps))
             else:
                 nsteps = 1
             pass
 
-            log.info("nwork %s step %s max_steps %s nsteps %s " % (nwork, step,max_steps, nsteps) )
+            log.debug("nwork %s step %s max_steps %s nsteps %s " % (nwork, step,max_steps, nsteps) )
 
             times = []
             abort = False
@@ -184,7 +184,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
                 if abort:
                     t = -1 
                 else:
-                    log.info("prepared_call first_photon %s photons_this_round %s nsteps %s " % (first_photon, photons_this_round, nsteps))
+                    log.debug("prepared_call first_photon %s photons_this_round %s nsteps %s " % (first_photon, photons_this_round, nsteps))
 
                     grid=(blocks, 1)
                     args = ( np.int32(first_photon), 
@@ -207,7 +207,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
                     pass
                 pass  
             pass
-            log.info("launch sequence times %s " % repr(times))
+            log.debug("launch sequence times %s " % repr(times))
 
             step += nsteps
             scatter_first = 0 # Only allow non-zero in first pass
@@ -215,7 +215,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
                 nwork = self.swap_queues()
                 log.info("result of swap_queues nwork %s " % nwork )  
             else:
-                log.info("DONE step %s max_steps %s " % (step, max_steps))
+                log.debug("DONE step %s max_steps %s " % (step, max_steps))
             pass
         pass 
         cuda_driver.Context.get_current().synchronize()

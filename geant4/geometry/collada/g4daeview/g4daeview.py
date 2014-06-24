@@ -345,22 +345,33 @@ def main():
     figure = gp.Figure(size=config.size)
     frame = figure.add_frame(size=config.frame)
 
-    rmenu_glut.setup_glutMenuStatusFunc()
+    rmenu_glut.setup_glutMenuStatusFunc()   # probably needs to be after OpenGL context creation
 
+
+    log.info("************  DAEScene creation ")
     scene = DAEScene(geometry, config )
 
+    log.info("************  VBO setup ")
     vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=config.rgba)
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
 
+    log.info("************  DAEFrameHandler ")
     frame_handler = DAEFrameHandler( frame, mesh, scene )
     config.glinfo = frame_handler.glinfo()
 
+    log.info("************  DAEInteractivityHandler ")
     fig_handler = DAEInteractivityHandler(figure, frame_handler, scene, config  )
     frame_handler.fig_handler = fig_handler
 
+
     rmenu.push_handlers(fig_handler)   # so events from rmenu such as on_needs_redraw are routed to the fig_handler
+    log.info("************  rmenu_glut.create ")
     rmenu_glut.create(rmenu, "RIGHT")
 
+    log.info("************  deferred apply_launch_config ")
+    scene.event.apply_launch_config()
+    
+    log.info("************  enter eventloop ")
     gp.show()
 
 

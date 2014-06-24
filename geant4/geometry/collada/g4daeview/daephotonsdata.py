@@ -106,7 +106,7 @@ class DAEPhotonsDataBase(object):
         """
         When changing photons everything is invalidated
         """ 
-        log.info("invalidate")
+        log.debug("invalidate")
         self._photons = None
         self._data = None   
         self._indices = None   

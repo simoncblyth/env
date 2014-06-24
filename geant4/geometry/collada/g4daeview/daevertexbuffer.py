@@ -308,7 +308,7 @@ class DAEVertexAttributes(object):
         if len(what) > 0:
             gl.glPushClientAttrib( gl.GL_CLIENT_VERTEX_ARRAY_BIT )
 
-        self.bind_generic_attrib()
+        self.bind_generic_attrib() 
 
         if not self.renderer.shader is None:
             self.renderer.shader.link()  
@@ -356,7 +356,7 @@ class DAEVertexBuffer(object):
         :param force_attribute_zero: name of 'position' field that will be forced into attribute slot 0 
         :param shader: DAEShader instance
         """
-        log.info("DAEVertexBuffer max_slots %s " % max_slots )
+        log.debug("DAEVertexBuffer max_slots %s " % max_slots )
         # 
         # attribute collections are stored at classmethod level
         # the `None` slot corresponds to "all" for generic attributes, used by multidraw
@@ -388,7 +388,7 @@ class DAEVertexBuffer(object):
         self.vertices = vertices
         self.vertices_id = gl.glGenBuffers(1)
 
-        log.info("init_array_buffer size %s itemsize %s nbytes %s " % ( self.vertices.size, self.vertices.itemsize, self.vertices.nbytes) )
+        log.debug("init_array_buffer size %s itemsize %s nbytes %s " % ( self.vertices.size, self.vertices.itemsize, self.vertices.nbytes) )
 
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
         gl.glBufferData( gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_DYNAMIC_DRAW )  # GL_STATIC_DRAW
@@ -403,7 +403,7 @@ class DAEVertexBuffer(object):
         * see daevertexbuffer.rst for alternative approached attempted
 
         """
-        log.info("read from VBO")
+        log.debug("read from VBO")
 
         # hmm maybe split these properties off into a simple buffer type
         buf_id = self.vertices_id 

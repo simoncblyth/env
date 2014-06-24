@@ -274,12 +274,12 @@ class DAEPhotons(object):
     def _get_photons(self):
         return self.data.photons 
     def _set_photons(self, photons):
-        log.info("_set_photons")
+        log.debug("_set_photons")
         self.data.photons = photons
         if not photons is None:
             self.renderer.invalidate_buffers()
             self.propagate()
-            self.menuctrl.update( photons )    
+            self.menuctrl.update( photons, msg="from _set_photons" )    
     photons = property(_get_photons, _set_photons) 
 
     ### other actions #####
@@ -339,7 +339,7 @@ class DAEPhotons(object):
         self._tcut = np.clip(tcut, 0.00001, 1.) # dont go all the way to zero as cannot then recover
 
         if self.analyzer is None or self.propagated is None:
-            log.info("cannot act on _set_tcut %s  until event has been propagated and analyzed ", self._tcut )
+            log.debug("cannot act on _set_tcut %s  until event has been propagated and analyzed ", self._tcut )
             return 
 
         time_range = self.analyzer.time_range 

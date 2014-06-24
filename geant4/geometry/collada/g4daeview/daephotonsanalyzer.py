@@ -28,7 +28,7 @@ class DAEPhotonsAnalyzer(object):
 
 
         """
-        log.info("analyse_propagation")
+        log.debug("analyse_propagation")
         self.analyse_propagation_last_hit_triangle( propagated )
         self.analyse_propagation_flags( propagated )
 
@@ -42,12 +42,13 @@ class DAEPhotonsAnalyzer(object):
         t0    = a['flags'][::max_slots,1].view(np.float32)
         tf    = a['flags'][::max_slots,2].view(np.float32)
 
-        log.info("analyse_propagation_flags")
-        print "flags", flags
-        print "t0", t0
-        print "tf", tf
-        print "t0 range ", t0.min(), t0.max()
-        print "tf range ", tf.min(), tf.max()
+        log.debug("analyse_propagation_flags")
+        if 0:
+            print "flags", flags
+            print "t0", t0
+            print "tf", tf
+            print "t0 range ", t0.min(), t0.max()
+            print "tf range ", tf.min(), tf.max()
 
         self.time_range = [0., tf.max()]   # start from zero or min ?
 
@@ -64,14 +65,14 @@ class DAEPhotonsAnalyzer(object):
         steps = a[field][::max_slots,2]
         slots = a[field][::max_slots,3]
 
-        log.info( " steps %s " % repr(steps))
-        log.info( " slots %s " % repr(steps))
+        log.debug( " steps %s " % repr(steps))
+        log.debug( " slots %s " % repr(steps))
     
 
         #assert np.all( lht == -1 )  no longer the case, as are now putting last slot result into slot 0
         assert np.all(np.arange(0,len(photon_id),dtype=np.int32) == photon_id)
         if not np.all( steps == slots ):
-            log.info("steps and slots differ\nsteps:%s\nslots:%s" % (repr(steps),repr(slots)))
+            log.debug("steps and slots differ\nsteps:%s\nslots:%s" % (repr(steps),repr(slots)))
 
         counts = np.clip( slots, 0, max_slots-2 )                  # counts of numquad photon records 
         firsts  = np.arange(len(photon_id), dtype='i')*max_slots   # multipled by numquad ?
@@ -91,9 +92,9 @@ class DAEPhotonsAnalyzer(object):
         self.firsts = firsts
         self.drawcount = len(photon_id)
         pass
-        log.info( " counts %s " % str(self.counts))
-        log.info( " firsts %s " % str(self.firsts))
-        log.info( " drawcount %s " % str(self.drawcount))
+        log.debug( " counts %s " % str(self.counts))
+        log.debug( " firsts %s " % str(self.firsts))
+        log.debug( " drawcount %s " % str(self.drawcount))
 
 
 if __name__ == '__main__':

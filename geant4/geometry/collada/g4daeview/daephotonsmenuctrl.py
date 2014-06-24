@@ -1,5 +1,24 @@
 #!/usr/bin/env python
+"""
+Menu Issues
+------------
 
+
+Duplicated Flags
+~~~~~~~~~~~~~~~~~~~~
+
+After loading on launch the menu photon flags are duplicated.::
+
+   g4daeview.sh --with-chroma --load 1 
+
+This does not happen after a launch followed by an external load::
+
+   g4daeview.sh --with-chroma 
+   udp.py --load 1
+       
+
+
+"""
 import logging
 log = logging.getLogger(__name__)
 from daemenu import DAEMenu
@@ -23,7 +42,7 @@ class DAEPhotonsMenuController(object):
         """
         Just structure, not content
         """
-        log.debug("setup_menus")
+        log.info("setup_menus")
         photons_menu = DAEMenu("photons")
         flags_menu = DAEMenu("flags")
         history_menu = DAEMenu("history")
@@ -35,15 +54,18 @@ class DAEPhotonsMenuController(object):
         self.flags_menu = flags_menu
         self.history_menu = history_menu
 
-    def update(self, photons):
-        log.debug("update")
+
+    def update(self, photons, msg=""):
+        log.info("update %s" % msg )
         self.update_flags_menu()    
         self.update_history_menu( photons )    
 
     def update_flags_menu(self):
         """
+        Populates flags menu, defining callbacks 
         """
         log.debug("update_flags_menu")
+
         flags_menu = self.rootmenu.find_submenu("flags")
         assert flags_menu == self.flags_menu
 
@@ -52,7 +74,7 @@ class DAEPhotonsMenuController(object):
             log.debug("update_flags_menu %s " % name )
             flags_menu.addnew(name, self.flags_callback )
         pass
-        flags_menu.update()
+        flags_menu.update()  #glut level done all at once ?
 
     def update_history_menu(self, photons  ):
         history_menu = self.rootmenu.find_submenu("history")

@@ -45,7 +45,7 @@ class DAEPhotonsRenderer(object):
         self.chroma = chroma
 
         self.interop = not chroma.dummy
-        log.info("%s.__init__" % self.__class__.__name__ )
+        log.debug("%s.__init__" % self.__class__.__name__ )
         self.shader = DAEPhotonsShader(dphotons) 
         self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
         self.presenter = DAEPhotonsPresenter(dphotons, chroma, debug=int(dphotons.config.args.debugkernel)) if self.interop else None
@@ -93,7 +93,7 @@ class DAEPhotonsRenderer(object):
         #. buffer creation does not belong in DAEPhotonsData as OpenGL specific
         """
         self.create_buffer_count += 1
-        log.warn("############ create_buffer [count %s]  ##################### %s " % (self.create_buffer_count, repr(data.data.dtype)) )
+        log.debug("############ create_buffer [count %s]  ##################### %s " % (self.create_buffer_count, repr(data.data.dtype)) )
         vbo = DAEVertexBuffer( self, data.data, data.indices, max_slots=data.max_slots, force_attribute_zero=data.force_attribute_zero )
 
         self.interop_gl_to_cuda(vbo)
@@ -157,6 +157,10 @@ class DAEPhotonsRenderer(object):
 
     def multidraw(self, mode=gl.GL_LINE_STRIP, slot=None, counts=None, firsts=None, drawcount=None):
         """
+
+        #. prior to MultiDraw the presenter kernel is invoked, allowing per-draw VBO changes (eg used for 
+           animation time interpolation changing VBO top slot)
+
         """
         self.draw_count += 1
 
@@ -175,9 +179,6 @@ class DAEPhotonsRenderer(object):
         self.interop_gl_to_cuda(self.pbuffer)
 
         gl.glPointSize(1)  
-
-
-
 
 
     def legacy_draw(self):

@@ -83,7 +83,7 @@ class ZMQRootResponder(object):
             log.info("bind to endpoint [%s] (server-like)" % config.endpoint )
             socket.bind( config.endpoint )
         elif config.mode == 'connect':
-            log.info("connect to endpoint [%s] (worker-like) " % config.endpoint )
+            log.debug("connect to endpoint [%s] (worker-like) " % config.endpoint )
             socket.connect( config.endpoint )
         else:
             log.fatal("mode must be bind or connect not [%s][%s] " % (config.mode,config.endpoint) )
@@ -96,7 +96,7 @@ class ZMQRootResponder(object):
         self.socket = socket
         self.config = config
 
-        log.info("socket mode: %s to %s hwm %s timeout %s sleep %s " % ( config.mode, config.endpoint, socket.hwm, config.timeout, config.sleep ))
+        log.debug("socket mode: %s to %s hwm %s timeout %s sleep %s " % ( config.mode, config.endpoint, socket.hwm, config.timeout, config.sleep ))
 
     def __repr__(self):
         return "%s %s %s " % (self.__class__.__name__, self.config.mode, self.config.endpoint )

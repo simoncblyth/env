@@ -304,7 +304,7 @@ class DAEPhotonsShader(object):
         self._shadercfg = None
         self._shaderkey = None
         self.shaderkey = dphotons.cfg['shaderkey']   
-        self.shader = self.make_shader()
+        self.shader = Shader( **self.shadercfg )
 
     def shaderkey_changed(self, from_, to_):
         """
@@ -314,16 +314,17 @@ class DAEPhotonsShader(object):
            udp.py --style spagetti
         
         """
-        log.info("shaderkey_changed %s => %s " % (from_,to_))
+        log.info("shaderkey_changed %s => %s delete/recreate shader " % (from_,to_))
         self._shadercfg = None   # invalidate dependent, forcing recreation
-        self.shader.cfg = self.shadercfg
-        program = self.shader.program
-        log.info("pull program %s into life " % program ) 
+        self.shader.delete()
+        self.shader = None
+        self.shader = Shader( **self.shadercfg )
 
     def _get_shaderkey(self):
         return self._shaderkey 
     def _set_shaderkey(self, shaderkey):
         if shaderkey == self._shaderkey:return
+        #log.debug("force shader recreation for every shaderkey setter, even if unchanged ")
         priorkey = self._shaderkey 
         self._shaderkey = shaderkey
         if not priorkey is None:
@@ -337,10 +338,6 @@ class DAEPhotonsShader(object):
         return self._shadercfg 
     shadercfg = property(_get_shadercfg)
 
-    def make_shader(self):
-        shader = Shader( **self.shadercfg  )
-        print shader
-        return shader
 
     def make_config(self, shaderkey):
         """
@@ -398,7 +395,7 @@ class DAEPhotonsShader(object):
             if not v is None and v[0:3] == 'GL_':
                 cfg[k] = getattr(gl, cfg[k])  # promote strings starting GL_ to enum types
 
-        log.info("%s cfg %s" % (self.__class__.__name__, repr(cfg)))
+        log.debug("%s cfg %s" % (self.__class__.__name__, repr(cfg)))
         for k in ['vertex','fragment','geometry']:
             if not cfg[k] is None:
                 cfg[k] = "\n".join(["//%s" % cfg[k],SHADER[cfg[k]]])

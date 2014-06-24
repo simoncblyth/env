@@ -56,7 +56,7 @@ class DAEBookmarks(dict):
         return "".join(map(lambda k:fmt_(k) % k,sorted(self.keys())))
 
     def create_for_solid(self, solid, numkey ):
-        log.info("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
+        log.debug("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
         view = self.transform.spawn_view_jumping_frame(solid)
         self.assign(numkey, view)
         self.set_current(numkey)

@@ -31,7 +31,9 @@ class DAEEvent(object):
         self.qcut = config.args.qcut 
         self.bbox_cache = None
         photons = None
+        log.info("********* scene.event.dphotons ")
         self.dphotons = DAEPhotons( photons, self )
+        log.info("********* scene.event.dphotons DONE ")
         self.objects = []
         self.eventlist = DAEEventList(config.args.path_template)
 
@@ -45,10 +47,10 @@ class DAEEvent(object):
         eventlist_menu = DAEEventListMenu(self.eventlist, self.eventlist_callback )
         rmenu.addSubMenu(eventlist_menu) 
 
-
-        self.apply_launch_config()  # maybe better done externally 
+        #self.apply_launch_config()  # now done externally and deferred to last moment after GLUT setup 
 
     def apply_launch_config(self):
+        log.info("apply_launch_config")
         launch_config = [] 
         if not self.config.args.load is None:
             launch_config.append( ['load',self.config.args.load])
@@ -194,6 +196,7 @@ class DAEEvent(object):
         #. setting the photons property invalidates dependents like `.mesh`
 
         """
+        log.info("setup_photons")
         self.dphotons.photons = photons   
 
         mesh = self.dphotons.mesh

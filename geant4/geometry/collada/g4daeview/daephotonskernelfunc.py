@@ -19,7 +19,7 @@ class DAEPhotonsKernelFunc(object):
         :param dphotons: DAEPhotons instance
         :param ctx: `DAEChromaContext` instance, for GPU config and geometry
         """
-        log.info("%s debug %s " % (self.__class__.__name__, debug ))
+        log.debug("%s debug %s " % (self.__class__.__name__, debug ))
         self.dphotons = dphotons
         self.ctx = ctx
         
@@ -36,7 +36,7 @@ class DAEPhotonsKernelFunc(object):
         #. compile kernel and extract __constant__ symbol addresses
         """
 
-        log.info("compile_kernel %s template_fill %s template_uncomment %s " % (self.kernel_name, repr(template_fill),repr(template_uncomment)))
+        log.debug("compile_kernel %s template_fill %s template_uncomment %s " % (self.kernel_name, repr(template_fill),repr(template_uncomment)))
         module = get_cu_module(self.kernel_name, options=cuda_options, template_fill=template_fill, template_uncomment=template_uncomment)
         kernel = module.get_function( self.kernel_func )
         kernel.prepare(self.kernel_args)

@@ -30,7 +30,7 @@ class DAEResponder(event.EventDispatcher, CPLResponder):
         CPLResponder.__init__(self, cfg )
         self.cfg = cfg 
         self.live = config.args.live
-        log.info("init %s " % repr(self))
+        log.debug("init %s " % repr(self))
 
     def __repr__(self):
         return "%s %s %s live:%s" % ( self.__class__.__name__, self.cfg.mode, self.cfg.endpoint, self.live )

@@ -85,7 +85,7 @@ class DAEConfig(ConfigBase):
         if path_template is None:
             log.warn("path_template missing ")
             return path_
-        log.info("resolve_event_path path_template %s path_ %s " % (path_template, path_ ))  
+        log.debug("resolve_event_path path_template %s path_ %s " % (path_template, path_ ))  
         path = path_template % { 'arg':path_ }
         return path 
 
@@ -272,7 +272,7 @@ class DAEConfig(ConfigBase):
 
 
         # event
-        defaults['style'] = "movie"
+        defaults['style'] = "noodles"
         defaults['live'] = True
         defaults['load'] = None
         defaults['save'] = None
