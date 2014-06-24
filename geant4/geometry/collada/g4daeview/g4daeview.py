@@ -14,11 +14,19 @@ Style change can be done with eg `udp.py --style confetti`, certain switches hav
 #. `spagetti` to `confetti` works 
 #. `confetti` to `movie` "works" but the geometry shader does not kickin, left with nogeo (ie points rather than lines) 
 
-   * hmm, no longer getting nothing appearing 
+   * hmm, no longer the case, nothing appears
 
 #. `movie` to `confetti` works
 #. `movie` to `spagetti` works 
-#. `spagetti` to `noodlesoup` works BUT left with nogeo shader (ie again not getting the geometry shader to kickin )
+#. `spagetti` to `noodles` works BUT left with nogeo shader (ie again not getting the geometry shader to kickin )
+
+Styles that use geometry shaders (noodles, movie) cannot be transitioned to from
+styles that do not.
+
+The style `confetti-1` is useful, as it presents the interpolated last slot
+without 
+
+
 
 
 Step Interpolation Visualization
@@ -370,6 +378,9 @@ def main():
 
     log.info("************  deferred apply_launch_config ")
     scene.event.apply_launch_config()
+
+
+
     
     log.info("************  enter eventloop ")
     gp.show()

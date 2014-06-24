@@ -9,10 +9,10 @@ import logging
 log = logging.getLogger(__name__)
 
 try:
-    from chroma.event import Photons
+    from chroma.event import Photons, mask2arg_, count_unique
     log.info("using chroma.event.Photons")
 except ImportError:
-    from photons_fallback import Photons
+    from photons_fallback import Photons, mask2arg_ , count_unique
     log.info("using photons_fallback.Photons")
 
 

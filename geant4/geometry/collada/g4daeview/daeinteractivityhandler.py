@@ -255,8 +255,8 @@ class DAEInteractivityHandler(object):
         elif symbol == key.UP: self.dragfactor *= 2.
         elif symbol == key.DOWN: self.dragfactor *= 0.5
         elif symbol == key.S: self.toggle_fullscreen()
-        elif symbol == key.LEFT: self.scene.animation_period(2.0)
-        elif symbol == key.RIGHT: self.scene.animation_period(0.5)
+        elif symbol == key.LEFT: self.animation_period(2.0)
+        elif symbol == key.RIGHT: self.animation_period(0.5)
         elif symbol == key.H: self.scene.trackball.home()
         elif symbol == key.SPACE: self.scene.update_current_bookmark()
         elif symbol == key.B: self.scene.setup_bookmark_interpolation()
@@ -271,7 +271,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.O: self.scene.toggle("drawsolid")
         elif symbol == key.K: self.scene.toggle("markers")
         elif symbol == key.EXCLAMATION: self.scene.toggle("photonmagic")
-        elif symbol == key.M: self.scene.toggle_animate()
+        elif symbol == key.M: self.toggle_animate()
         elif symbol == key.C: self.scene.toggle_cuda()
         elif symbol == key.R: self.scene.toggle_raycast()
         elif symbol == key.J: self.scene.toggle_showmetric()
@@ -325,6 +325,19 @@ class DAEInteractivityHandler(object):
         pass
         self.modfactor = 1
         self.redraw()
+
+
+    def toggle_animate(self):
+        if not self.time_mode:
+            self.scene.toggle_animate()
+        else:
+            self.scene.event.toggle_animate()
+
+    def animation_period(self, factor):
+        if not self.time_mode:
+            self.scene.animation_period(factor)
+        else:
+            self.scene.event.animation_period(factor)
 
     def on_mouse_drag(self,_x,_y,_dx,_dy,button):
 

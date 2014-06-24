@@ -68,9 +68,19 @@ class DAEFrameHandler(object):
 
         hmm better way to prevent this being called too often ?
         """
-        if not self.scene.animate:return
-        self.scene.tick(dt)
-        self.frame.redraw() 
+        redraw = False
+
+        if self.scene.animate:
+            self.scene.tick(dt)
+            redraw = True
+
+        if self.scene.event.animate:
+            self.scene.event.tick(dt)
+            redraw = True
+
+        if redraw:
+            self.frame.redraw() 
+
 
     def on_init(self):
         """

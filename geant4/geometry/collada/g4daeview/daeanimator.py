@@ -16,6 +16,8 @@ class DAEAnimator(object):
     def __init__(self, period, low=0., high=1.):
         """
         :param period: frame count to go from low to high
+        :param low:
+        :param high:
         """
         self.count = 0
         self.low = low
@@ -29,6 +31,9 @@ class DAEAnimator(object):
         self.count = 0 
 
     def make_fractions(self, period):
+        """
+        :param period: number of steps between low and high
+        """
         return np.linspace(self.low,self.high,num=period)
 
     nfrac = property(lambda self:len(self.fractions))
@@ -48,6 +53,8 @@ class DAEAnimator(object):
 
     def find_closest_index(self, f ):
         return np.abs(self.fractions - f).argmin()
+
+
 
     def _get_period(self):
         return self._period
@@ -77,11 +84,13 @@ class DAEAnimator(object):
     bump = property(_get_bump)
 
     def __call__(self):
+        """
+        :return: value between low and high, bump   
+
+        #. increments only after getting the fraction and bump
+        """
         fraction = self.fraction
         bump = self.bump
-        # 
-        # increment only after getting the fraction and bump
-        #
         self.count += 1            
         return self.low + (self.high-self.low)*fraction, bump
        

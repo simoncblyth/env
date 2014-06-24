@@ -48,8 +48,12 @@ class DAEPhotonsParam(object):
         self.shadermode = config.args.shadermode
         self.prescale = config.args.prescale
         self.max_slots = config.args.max_slots
+        #self.observers = []
 
     reconfigurables = ['fpholine','fphopoint','mask','bits','shadermode', 'time']
+
+    #def add_observer(self, observer ):
+    #    self.observers.add( observer )
 
     def reconfig(self, conf):        
         update = False

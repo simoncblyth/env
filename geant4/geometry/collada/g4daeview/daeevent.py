@@ -8,6 +8,7 @@ from photons import Photons
 from daephotons import DAEPhotons
 from daeeventlist import DAEEventList , DAEEventListMenu
 from daemenu import DAEMenu
+from daeanimator import DAEAnimator
 
 def timestamp():
     return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -47,9 +48,13 @@ class DAEEvent(object):
         eventlist_menu = DAEEventListMenu(self.eventlist, self.eventlist_callback )
         rmenu.addSubMenu(eventlist_menu) 
 
-        #self.apply_launch_config()  # now done externally and deferred to last moment after GLUT setup 
+        self.set_toggles()
+        self.animator = DAEAnimator(config.args.timeperiod)
 
     def apply_launch_config(self):
+        """
+        #. now invoked externally and deferred to last moment after GLUT setup 
+        """
         log.info("apply_launch_config")
         launch_config = [] 
         if not self.config.args.load is None:
@@ -60,14 +65,34 @@ class DAEEvent(object):
         if len(launch_config) > 0:
             self.reconfig(launch_config)
         pass
+        self.dphotons.deferred_menu_update()
 
     def eventlist_callback(self, item):
         path = item.extra['path'] 
         self.load(path)
 
+    def set_toggles(self):
+        self.animate = False
+
+    def toggle_animate(self):
+        self.toggle('animate')
+
+    def toggle(self, name):
+        log.info("toggle %s" % name )
+        setattr( self, name , not getattr(self, name)) 
+
+    def animation_period(self, factor ):   
+        self.animator.change_period(factor)
+
+    def tick(self, dt):
+        time_fraction, bump = self.animator() 
+        #log.info("event tick  %s" % time_fraction ) 
+        self.dphotons.time_fraction = time_fraction 
+
     def _get_time(self):
         return self.dphotons.time
     time = property(_get_time, doc="Animation time")
+
 
     def __repr__(self):
         return "t %5.2f" % self.time

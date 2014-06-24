@@ -4,8 +4,13 @@ Menu Issues
 ------------
 
 
-Duplicated Flags
-~~~~~~~~~~~~~~~~~~~~
+
+
+
+FIXED : Duplicated Flags
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* resolved by defering the launch config until after GLUT setup
 
 After loading on launch the menu photon flags are duplicated.::
 
@@ -16,6 +21,19 @@ This does not happen after a launch followed by an external load::
    g4daeview.sh --with-chroma 
    udp.py --load 1
        
+
+FIXED : History Selection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* resolved using analyzer.history setup
+
+Old history selection used CPU side examination of 
+chroma.event.Photon flags. Back then was doing single stepping 
+pulling back to CPU and creating chroma.event.Photon at every step.
+
+Equivalent in GPU resident approach, is to do this in the propagate 
+analyzer. After running analyzer for the propagated have analyzer.history 
+available
 
 
 """
@@ -32,7 +50,10 @@ except ImportError:
 class DAEPhotonsMenuController(object):
     def __init__(self, rootmenu, param):
         """
-        Having menus coming and going is problematic, so create tree of placeholder submenus
+        :param rootmenu: DAEMenu instance for the top menu
+        :param param: menu callback receiving instance, needs mask and bits setters 
+                      like DAEPhotonsParam
+
         """ 
         self.rootmenu = rootmenu
         self.param = param
@@ -40,26 +61,48 @@ class DAEPhotonsMenuController(object):
 
     def setup_menus(self):
         """
+        Having menus coming and going is problematic, so create tree of placeholder submenus
         Just structure, not content
         """
         log.info("setup_menus")
+
         photons_menu = DAEMenu("photons")
+
+        style_menu = DAEMenu("style")
         flags_menu = DAEMenu("flags")
         history_menu = DAEMenu("history")
+
+        photons_menu.addSubMenu(style_menu)
         photons_menu.addSubMenu(flags_menu)
         photons_menu.addSubMenu(history_menu) 
+
         self.rootmenu.addSubMenu(photons_menu)
 
         self.photons_menu = photons_menu
+        self.style_menu = style_menu
         self.flags_menu = flags_menu
         self.history_menu = history_menu
 
-
-    def update(self, photons, msg=""):
-        log.info("update %s" % msg )
+    def update_old(self, photons, msg=""):
+        log.info("update_old photons %s %s %s" % (photons.__class__.__name__, photons, msg) )
         self.update_flags_menu()    
-        self.update_history_menu( photons )    
+        self.update_history_menu_old( photons )    
 
+    def update(self, history, msg=""):
+        self.update_flags_menu()    
+        self.update_history_menu( history )    
+
+    def update_style_menu(self, styles, callback ):
+        """
+        """
+        style_menu = self.rootmenu.find_submenu("style")
+        assert style_menu == self.style_menu
+        for name in styles:
+            log.info("update_flags_menu %s " % name )
+            style_menu.addnew(name, callback )
+        pass
+        style_menu.update()  
+        
     def update_flags_menu(self):
         """
         Populates flags menu, defining callbacks 
@@ -74,14 +117,37 @@ class DAEPhotonsMenuController(object):
             log.debug("update_flags_menu %s " % name )
             flags_menu.addnew(name, self.flags_callback )
         pass
-        flags_menu.update()  #glut level done all at once ?
+        flags_menu.update()  
 
-    def update_history_menu(self, photons  ):
+    def update_history_menu(self, history  ):
+        """
+        :param history:
+        """
+        self._update_history_menu( history )
+
+    def update_history_menu_old(self, photons  ):
+        """
+        :param photons: chroma.event.Photons instance
+        """
+        nflag, history = photons.history() 
+        self._update_history_menu( history )
+        
+    def _update_history_menu(self, history ):
+        """
+        :param history: array of arrays containing all unique masks and corresponding counts  
+
+            array([[   1,   15],
+                   [   2, 1282],
+                   [  18,   49],
+                   [  33,    1],
+                   ...
+
+        """
         history_menu = self.rootmenu.find_submenu("history")
         assert history_menu == self.history_menu
 
-        nflag, history = photons.history() 
-        log.debug("update_history_menu : nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
+        nflag = history[:,1].sum()
+        log.info("_update_history_menu : nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
 
         history_menu.addnew( "ANY", self.history_callback, mask=None )
         for mask,count in sorted(history,key=lambda _:_[1], reverse=True):
@@ -91,6 +157,9 @@ class DAEPhotonsMenuController(object):
         pass
         history_menu.update()
  
+
+
+
     def history_callback(self, item):
         """
         Choosing a "photons/history" menu item targets this action resulting 

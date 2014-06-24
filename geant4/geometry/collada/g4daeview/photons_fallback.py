@@ -57,6 +57,13 @@ def mask2arg_( mask ):
     return ",".join(filter(lambda name:mask & PHOTON_FLAGS[name],PHOTON_FLAGS))
 
 
+def count_unique(vals):
+    """ 
+    http://stackoverflow.com/questions/10741346/numpy-frequency-counts-for-unique-values-in-an-array
+    """
+    uniq = np.unique(vals)
+    bins = uniq.searchsorted(vals)
+    return np.vstack((uniq, np.bincount(bins))).T
 
 
 

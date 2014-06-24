@@ -55,6 +55,8 @@ class DAEPhotonsRenderer(object):
         self.draw_count = 0 
 
 
+    def update_constants(self): 
+        self.presenter.update_constants()
 
     def _get_shaderkey(self):
         return self.shader.shaderkey

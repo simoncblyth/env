@@ -125,6 +125,7 @@ class DAEScene(window_event.EventDispatcher):
         self.animator.change_period(factor)
 
     def tick(self, dt):
+        #log.info("tick") 
         fraction, bump = self.animator() 
         self.view(fraction, bump)
 

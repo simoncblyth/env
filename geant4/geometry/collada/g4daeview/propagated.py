@@ -57,7 +57,8 @@
            [  0,   0,   0]], dtype=int32)
 
 
-
+    In [69]: a['flags'][::10,0]
+    Out[69]: array([  2,   2,   2, ..., 514,   2, 610], dtype=uint32)
 
 
 
@@ -65,6 +66,9 @@
 """
 import os
 import numpy as np
+
+from chroma.event import mask2arg_, count_unique
+
 
 path = os.path.expanduser("~/propagated.npz")
 
@@ -74,6 +78,7 @@ with np.load(path) as npz:
 print a['last_hit_triangle'][::10]
 
 
-
+u = count_unique( a['flags'][::10,0] )
+print "\n".join(map(lambda _:"%5s %-80s %s " % ( _[0], mask2arg_(_[0]), _[1] ),u) )
 
 

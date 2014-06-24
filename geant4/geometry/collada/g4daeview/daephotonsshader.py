@@ -233,12 +233,14 @@ void main()
         fColor = vColor[0] ;
         EmitVertex();
 
+     /*
         gl_Position = gl_PositionIn[0];
         gl_Position.xyz += vMomdir[0].xyz ;
         gl_Position.xyz += vPoldir[0].xyz ;
         gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
         fColor = vColor[0] ;
         EmitVertex();
+      */
 
         EndPrimitive();
 

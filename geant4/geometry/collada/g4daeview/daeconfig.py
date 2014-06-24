@@ -143,7 +143,10 @@ class DAEConfig(ConfigBase):
         return gcp
     geocachepath = property(_get_geocachepath) 
 
-
+    def _get_timerange(self):
+        timerange = self.args.timerange
+        return None if timerange is None else fvec_(timerange)
+    timerange = property(_get_timerange) 
 
     def _make_base_parser(self, doc):
         """
@@ -248,6 +251,8 @@ class DAEConfig(ConfigBase):
         defaults['jump'] = None
         defaults['ajump'] = None
         defaults['period'] = 1000
+        defaults['timeperiod'] = 300 
+        defaults['timerange'] = None
         defaults['eye'] = "-2,-2,0"
         defaults['look'] = "0,0,0"
         defaults['up'] = "0,0,1"
@@ -262,6 +267,8 @@ class DAEConfig(ConfigBase):
         parser.add_argument("-j","--jump",    help="[I] Animated transition to another node.")  
         parser.add_argument(     "--ajump",   help="[I] Append jump specs provided onto any existing ones.")  
         parser.add_argument(     "--period",   help="Animation interpolation frames to go from 0. to 1., %(default)s", type=float)  
+        parser.add_argument(     "--timeperiod",   help="Time Animation interpolation frames to go from 0. to 1., %(default)s", type=float)  
+        parser.add_argument(     "--timerange",   help="Comma delimited timerange in nanoseconds, eg 0,100 (0.2997 m/ns) %(default)s", type=str)  
         parser.add_argument("-e","--eye",     help="[I] Eye position ",type=str)
         parser.add_argument("-a","--look",    help="[I] Lookat position ",type=str)
         parser.add_argument("-u","--up",      help="[I] Up direction ",type=str)
@@ -285,7 +292,7 @@ class DAEConfig(ConfigBase):
         defaults['fphopoint'] = 2
         defaults['time'] = 0.
         defaults['qcut'] = 1.
-        defaults['tcut'] = 1.
+        defaults['tcut'] = 0.
         defaults['mask'] = -1
         defaults['bits'] = -1
         defaults['reload']  = False

@@ -103,7 +103,7 @@ class DAEMenuItem(object):
         self.extra = extra
 
     def __repr__(self):
-        return "DMI %s %s %s %s " % ( self.num, self.title, self.ipos, repr(self.extra) )
+        return "DMI num:%s title:%s ipos:%s extra:%s " % ( self.num, self.title, self.ipos, repr(self.extra) )
 
 
 class DAEMenu(event.EventDispatcher):
@@ -323,12 +323,12 @@ class DAEMenuGLUT(object):
         else:
             assert 0, status 
         pass
-        log.info("MenuStatus menu_in_use %s " % self.menu_in_use)
+        log.debug("MenuStatus menu_in_use %s " % self.menu_in_use)
 
     def after_menu_usage(self):
-        log.info("after_menu_usage")
+        log.debug("after_menu_usage")
         if not self.pending is None:
-            log.info("after_menu_usage proceed with pending update")
+            log.debug("after_menu_usage proceed with pending update")
             self.update( self.pending )
         pass
 
