@@ -303,6 +303,11 @@ class DAEScene(window_event.EventDispatcher):
 
     def external_message(self, msg ):
         """
+        TODO: 
+
+        #. pull this out into a separate class
+        #. distribute the properties handled lists into the classes where they are handled
+
         """ 
         live_args = self.config( msg )
         if live_args is None:
@@ -315,6 +320,8 @@ class DAEScene(window_event.EventDispatcher):
         elu = {}
         raycast_config = {}
         event_config = []
+        photon_config = []
+
         for k,v in vars(live_args).items():
             if k == "target":
                 newview = self.target_view(v, prior=self.view ) 
@@ -337,8 +344,10 @@ class DAEScene(window_event.EventDispatcher):
             elif k == "showmetric":
                 raycast_config[k] = v
                 self.toggle_showmetric() 
-            elif k in ("save","load","key","fpholine","fphopoint","shadermode","tcut","mask","reload", "time", "style",):
+            elif k in ("save","load","key","reload", "time",):
                 event_config.append( (k,v,) )   
+            elif k in ("fpholine","fphopoint","shadermode","tcut","mask","time", "style","pid",):
+                photon_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v
             elif k in ("kscale","near","far","yfov","nearclip","farclip","yfovclip"):
@@ -358,7 +367,11 @@ class DAEScene(window_event.EventDispatcher):
 
         if len(event_config) > 0:
             self.event.reconfig(event_config)
-            
+
+        if len(photon_config) > 0:
+            log.info("photon_config %s " % repr(photon_config))
+            self.event.dphotons.reconfig(photon_config)
+
         if len(raycast_config)>0:
             self.raycaster_reconfig(**raycast_config)
 

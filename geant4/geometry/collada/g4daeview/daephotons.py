@@ -115,7 +115,7 @@ class DAEPhotons(object):
 
 
 
-    styles = ['noodles','movie','spagetti','confetti','confetti-0','confetti-1']
+    styles = ['noodles','movie','movie-extra','spagetti','confetti','confetti-0','confetti-1','confetti-p2p',]
     def make_cfg(self):
         """
         :param photonskey: string identifying various techniques to present the photon information
@@ -156,11 +156,15 @@ class DAEPhotons(object):
         of opengl state 
 
 
+        Slot0 Selection Immunity Issue
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 
-
+        Confetti styles were immune to pid/mask/history selection, 
+        until added `init_ccol.w  = skip_alpha` in propagate_vbo.cu:present_vbo
 
         """
         cfg = {}
+        cfg['extrakey'] = None
 
         style = self.style    
         if style == 'noodles':
@@ -168,7 +172,7 @@ class DAEPhotons(object):
            cfg['description'] = "LINE_STRIP direction/polarization at each step of the photon" 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "point2line"
+           cfg['shaderkey'] = "p2l"
            cfg['slot'] = None  
 
         elif style == 'movie':
@@ -176,12 +180,29 @@ class DAEPhotons(object):
            cfg['description'] = "LINE_STRIP direction/polarization that is time interpolated " 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "point2line"
+           cfg['shaderkey'] = "p2l"
            cfg['slot'] = -1  
+
+        elif style == 'movie-extra':
+
+           cfg['description'] = "LINE_STRIP direction/polarization that is time interpolated " 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "p2l"
+           cfg['extrakey'] = "nogeo"
+           cfg['slot'] = -1  
+
+        elif style == 'confetti-p2p':
+
+           cfg['description'] = "POINTS for each step of the photon" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "p2p"
+           cfg['slot'] = None
 
         elif style == 'confetti':
 
-           cfg['description'] = "POINTS for each step of the photon" 
+           cfg['description'] = "POINTS for every step of the photon" 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "nogeo"
@@ -189,7 +210,7 @@ class DAEPhotons(object):
 
         elif style == 'confetti-1':
 
-           cfg['description'] = "POINTS for each step of the photon" 
+           cfg['description'] = "top slot POINTS" 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "nogeo"
@@ -197,7 +218,7 @@ class DAEPhotons(object):
 
         elif style == 'confetti-0':
 
-           cfg['description'] = "POINTS for each step of the photon" 
+           cfg['description'] = "first slot POINTS" 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "nogeo"
@@ -271,7 +292,7 @@ class DAEPhotons(object):
             self.renderer.multidraw(mode=self.cfg['drawmode'],slot=self.cfg['slot'], 
                                       counts=self.analyzer.counts, 
                                       firsts=self.analyzer.firsts, 
-                                   drawcount=self.analyzer.drawcount )
+                                   drawcount=self.analyzer.drawcount, extrakey=self.cfg['extrakey'] )
         else:
             self.renderer.draw(mode=self.cfg['drawmode'],slot=self.cfg['slot'])
 
@@ -308,7 +329,7 @@ class DAEPhotons(object):
 
     ### other actions #####
 
-    reconfig_handled = ['time','style',]
+    reconfig_properties = ['time','style',]
 
     def reconfig(self, conf):
         """
@@ -320,10 +341,12 @@ class DAEPhotons(object):
         but following migration to shader rendering, 
         can just update uniforms.
         """
+        log.info("reconfig %s " % repr(conf))
+
         update = False
         unhandled = []
         for k, v in conf:
-            if k in self.reconfig_handled:
+            if k in self.reconfig_properties:
                 setattr(self, k, v ) 
                 update = True
             else:

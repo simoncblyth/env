@@ -253,7 +253,7 @@ class DAEConfig(ConfigBase):
         defaults['period'] = 1000
         defaults['timeperiod'] = 300 
         defaults['timerange'] = None
-        defaults['eye'] = "-2,-2,0"
+        defaults['eye'] = "-1,-1,0"  # -2,-2,0 formerly 
         defaults['look'] = "0,0,0"
         defaults['up'] = "0,0,1"
         defaults['norm'] = "0,0,0"
@@ -295,6 +295,7 @@ class DAEConfig(ConfigBase):
         defaults['tcut'] = 0.
         defaults['mask'] = -1
         defaults['bits'] = -1
+        defaults['pid'] = -1
         defaults['reload']  = False
 
         parser.add_argument( "--style", help="Key controlling photon render eg confetti/spagetti/movie/.., identifying shaders (vertex/geometry/fragment) and rendering techniques to use, default %(default)s." )
@@ -316,6 +317,7 @@ class DAEConfig(ConfigBase):
 
         parser.add_argument( "--mask", help="Apply mask bitwise AND selection to status flags of Chroma stepped photons. Default %(default)s", type=str )  
         parser.add_argument( "--bits", help="Apply history bits equality selection to flags of Chroma stepped photons. Default %(default)s", type=str )  
+        parser.add_argument( "--pid",  help="Photon ID Selection. Default %(default)s", type=str )  
         parser.add_argument( "--reload",  help="[I] Reload current loaded event, useful after stepping. Default %(default)s.", action="store_true")
 
 

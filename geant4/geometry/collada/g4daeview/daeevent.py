@@ -151,6 +151,7 @@ class DAEEvent(object):
         """
         self.dphotons.time_to( x, y, dx, dy )
 
+
     def reconfig(self, event_config ):
         """
         Handle argument sequences like::
@@ -174,6 +175,7 @@ class DAEEvent(object):
             elif k == 'reload':
                 self.reload_()
             elif k in ('fpholine','fphopoint','shadermode','mask','time','style',):   
+                assert 0, "should be handled directly %s " % k 
                 photons_config.append([k,v])
             else:
                 assert 0, (k,v)

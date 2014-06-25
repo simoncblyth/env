@@ -42,6 +42,7 @@ class DAEPhotonsParam(object):
         self._mask = config.args.mask
         self._bits = config.args.bits
         self._time = 0
+        self.pid  = config.args.pid
         self.fpholine = config.args.fpholine
         self.fphopoint = config.args.fphopoint
         self.debugshader = config.args.debugshader
@@ -50,10 +51,7 @@ class DAEPhotonsParam(object):
         self.max_slots = config.args.max_slots
         #self.observers = []
 
-    reconfigurables = ['fpholine','fphopoint','mask','bits','shadermode', 'time']
-
-    #def add_observer(self, observer ):
-    #    self.observers.add( observer )
+    reconfigurables = ['fpholine','fphopoint','mask','bits','shadermode', 'time','pid',]
 
     def reconfig(self, conf):        
         update = False
@@ -71,20 +69,26 @@ class DAEPhotonsParam(object):
     shader_fparam = property(_get_shader_fparam)
 
     def _get_shader_iparam(self):
+        """
+        #. cannot pass None into a shader uniform 
+        """
         mask = self.mask
         bits = self.bits
-        # cannot pass None into a shader uniform 
+        pid = self.pid
         mask = -1 if mask is None else mask 
         bits = -1 if bits is None else bits 
-        return [self.shadermode, mask, bits, 0]
+        pid  = -1 if pid is None else pid
+        return [mask, bits, pid, 0]
     shader_iparam = property(_get_shader_iparam)
 
     def _get_kernel_mask(self):
         mask = self.mask
         bits = self.bits
+        pid = self.pid
         mask = -1 if mask is None else mask 
         bits = -1 if bits is None else bits 
-        return [mask, bits, 0, 0]
+        pid  = -1 if pid is None else pid 
+        return [mask, bits, pid, 0]
     kernel_mask = property(_get_kernel_mask)
 
     def _get_mask(self):
@@ -98,6 +102,12 @@ class DAEPhotonsParam(object):
     def _set_bits(self, bits):
         self._bits = bits
     bits = property(_get_bits, _set_bits )
+
+    def _get_pid(self):
+        return self._pid
+    def _set_pid(self, pid):
+        self._pid = int(pid)
+    pid = property(_get_pid, _set_pid )
 
 
 

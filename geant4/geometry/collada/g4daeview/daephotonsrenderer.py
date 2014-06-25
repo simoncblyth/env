@@ -47,7 +47,7 @@ class DAEPhotonsRenderer(object):
         self.interop = not chroma.dummy
         log.debug("%s.__init__" % self.__class__.__name__ )
         self.shader = DAEPhotonsShader(dphotons) 
-        self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
+        #self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
         self.presenter = DAEPhotonsPresenter(dphotons, chroma, debug=int(dphotons.config.args.debugkernel)) if self.interop else None
         self.invalidate_buffers()
         pass
@@ -120,6 +120,7 @@ class DAEPhotonsRenderer(object):
         Invoke CUDA kernel with VBO argument, 
         allowing VBO changes.
         """ 
+        assert 0, "no longer in use"
         if not self.interop:return
 
         import pycuda.driver as cuda_driver
@@ -157,7 +158,7 @@ class DAEPhotonsRenderer(object):
         gl.glPointSize(1)  
 
 
-    def multidraw(self, mode=gl.GL_LINE_STRIP, slot=None, counts=None, firsts=None, drawcount=None):
+    def multidraw(self, mode=gl.GL_LINE_STRIP, slot=None, counts=None, firsts=None, drawcount=None, extrakey=None ):
         """
 
         #. prior to MultiDraw the presenter kernel is invoked, allowing per-draw VBO changes (eg used for 
@@ -176,7 +177,16 @@ class DAEPhotonsRenderer(object):
 
         self.interop_cuda_to_gl(self.pbuffer)
 
+        shaderkey = self.shaderkey 
         self.pbuffer.multidraw(mode,  what='', drawcount=qcount, slot=slot, counts=counts, firsts=firsts) 
+
+        if not extrakey is None:
+            if not shaderkey == extrakey:        
+                self.shaderkey = extrakey
+                self.pbuffer.multidraw(mode,  what='', drawcount=qcount, slot=slot, counts=counts, firsts=firsts) 
+                self.shaderkey = shaderkey
+            pass
+        pass
 
         self.interop_gl_to_cuda(self.pbuffer)
 

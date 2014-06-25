@@ -114,37 +114,9 @@ from env.graphics.opengl.shader.shader import Shader
 from env.graphics.color.wav2RGB import wav2RGB_glsl
 
 SHADER = {}
-SHADER['bit_sniffing'] = r"""
-
-// making integers useful inside glsl 120 + GL_EXT_gpu_shader4 is too much effort yo be worthwhile
-//  problems 
-//    #. cannot find symbol glVertexAttribIPointer
-//    #. uint type not working so cannot do proper  
-
-    uvec4 cf ;
-    int nb = 0 ;
-    int mb = -1 ;
-    for( int n=0 ; n < 32 ; ++n ){
-          cf.x = ( 1 << n ) ;
-          if (( TEST & cf.x ) != 0){
-                nb += 1 ;
-                mb = n ;
-          }
-    }
-
-    if      (mb==29) vColor = vec4( 1.0, 0.0, 0.0, 1.0);
-    else if (mb==30) vColor = vec4( 0.0, 1.0, 0.0, 1.0);
-    else if (mb==31) vColor = vec4( 0.0, 0.0, 1.0, 1.0);
-    else             vColor = vec4( 1.0, 1.0, 1.0, 1.0);
-
-    uvec4 b = uvec4( 0xff, 0xff00, 0xff0000,0xff000000) ;
-    uvec4 r = uvec4( TEST >> 24 , TEST >> 8, TEST << 8 , TEST << 24 );
-    uvec4 t ;
-    t.x = ( r.x & b.x ) | ( r.z & b.z ) | ( r.y & b.y ) | ( r.w & b.w );
-"""
-
 SHADER['vertex_for_geo'] = r"""// simply passes through to geometry shader 
 #version 120
+#extension GL_EXT_geometry_shader4 : require
 #extension GL_EXT_gpu_shader4 : require
 
 uniform vec4  fparam; 
@@ -155,13 +127,9 @@ attribute vec4 direction_wavelength;
 attribute vec4 polarization_weight ;
 attribute vec4 ccolor ; 
 
-//attribute uvec4 flags;
-//attribute ivec4 last_hit_triangle;
-
 varying vec4 vMomdir;
 varying vec4 vPoldir;
 varying vec4 vColor ;
-
 
 void main()
 {
@@ -170,38 +138,7 @@ void main()
     vPoldir = fparam.x*vec4( polarization_weight.xyz, 1.) ;
     vColor = ccolor ; 
 }
-
 """
-
-SHADER['vertex_no_geo'] = r"""//for use without geometry shader 
-#version 120
-#extension GL_EXT_gpu_shader4 : require
-
-uniform vec4  fparam; 
-uniform ivec4 iparam; 
-
-attribute vec4 position_time ;
-attribute vec4 direction_wavelength;
-attribute vec4 ccolor ; 
-
-varying vec4 fColor;
-
-
-void main()
-{
-    gl_Position = vec4( position_time.xyz, 1.) ; 
-
-    // scoot alpha zeros off to infinity and beyond
-    if( ccolor.w == 0. ) gl_Position.w = 0. ;
-
-    //gl_Position.xyz += fparam.x*direction_wavelength.xyz ; 
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-    fColor = ccolor ;
-
-
-}
-
-""" 
 
 SHADER['geometry_point2line'] = r"""//amplify single vertex into two, generating line from point
 #version 120
@@ -248,11 +185,10 @@ void main()
 }
 """
 
-SHADER['geometry_line2line'] = r"""
+SHADER['geometry_point2point'] = r"""
 #version 120
 #extension GL_EXT_geometry_shader4 : require
 #extension GL_EXT_gpu_shader4 : require
-
 
 varying in vec4 vMomdir[] ; 
 varying in vec4 vPoldir[] ; 
@@ -260,19 +196,21 @@ varying in vec4 vColor[] ;
 
 varying out vec4 fColor ;
 
+uniform  vec4 fparam; 
+uniform ivec4 iparam; 
+
 void main()
 {
-   gl_Position = gl_PositionIn[0];
-   gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-   fColor = vColor[0] ;
-   EmitVertex();
+   // dont emit the primitive for alpha 0.
+   if( vColor[0].w > 0. ){
 
-   gl_Position = gl_PositionIn[1];
-   gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-   fColor = vColor[1] ;
-   EmitVertex();
+       gl_Position = gl_PositionIn[0];
+       gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+       fColor = vColor[0] ;
+       EmitVertex();
 
-   EndPrimitive();
+       EndPrimitive();
+   }
 }
 
 """
@@ -280,6 +218,7 @@ void main()
 
 SHADER['fragment_fcolor'] = r"""// minimal
 #version 120
+#extension GL_EXT_geometry_shader4 : require
 #extension GL_EXT_gpu_shader4 : require
 
 varying vec4 fColor ;
@@ -287,9 +226,45 @@ varying vec4 fColor ;
 void main()
 {
     gl_FragColor = fColor ;
-    //gl_FragColor = vec4(.0, 1.0, 0, 1);
 }
 """
+
+
+
+
+
+
+
+
+
+
+
+SHADER['vertex_no_geo'] = r"""//for use without geometry shader 
+#version 120
+#extension GL_EXT_gpu_shader4 : require
+
+uniform vec4  fparam; 
+uniform ivec4 iparam; 
+
+attribute vec4 position_time ;
+attribute vec4 direction_wavelength;
+attribute vec4 ccolor ; 
+
+varying vec4 fColor;
+
+void main()
+{
+    gl_Position = vec4( position_time.xyz, 1.) ; 
+
+    // scoot alpha zeros off to infinity and beyond
+    if( ccolor.w == 0. ) gl_Position.w = 0. ;
+
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+    fColor = ccolor ;
+
+}
+""" 
+
 
 class DAEPhotonsShader(object):
     """
@@ -297,48 +272,50 @@ class DAEPhotonsShader(object):
 
     #. shaderkey
 
+
+    Initially tried swapping in and out shaders with deletions etc.. 
+    this approach had issues with some transitions not working. Changing 
+    the approach to keeping the shaders in a registry and swapping between
+    them as needed has proved to work, with no switching problems.
+
     """
+    shaderkeys = ['nogeo','p2p','p2l',]
     def __init__(self, dphotons):
+
+        shadercfg = {} 
+        for key in self.shaderkeys:
+            shadercfg[key] = self.make_config(key)
+        pass
+        self.shadercfg = shadercfg 
+        self.shaders = {}
+
         self.dphotons = dphotons
         self._iparam = None
         self._fparam = None
 
-        self._shadercfg = None
         self._shaderkey = None
         self.shaderkey = dphotons.cfg['shaderkey']   
-        self.shader = Shader( **self.shadercfg )
 
-    def shaderkey_changed(self, from_, to_):
+    def get_shader(self, key ):
         """
-        Starting with one style, then changing to another causing invalid operations::
+        Provides shader for the key, making it if necessary 
 
-           g4daeview.sh --with-chroma --load 1 --style movie
-           udp.py --style spagetti
-        
+        :param key: shader key 
+        :return: Shader instance
         """
-        log.info("shaderkey_changed %s => %s delete/recreate shader " % (from_,to_))
-        self._shadercfg = None   # invalidate dependent, forcing recreation
-        self.shader.delete()
-        self.shader = None
-        self.shader = Shader( **self.shadercfg )
+        assert key in self.shaderkeys
+        if not key in self.shaders:
+            self.shaders[key] = Shader( **self.shadercfg[key] )
+        return self.shaders[key]
+
+    shader = property(lambda self:self.get_shader(self.shaderkey))
 
     def _get_shaderkey(self):
         return self._shaderkey 
     def _set_shaderkey(self, shaderkey):
         if shaderkey == self._shaderkey:return
-        #log.debug("force shader recreation for every shaderkey setter, even if unchanged ")
-        priorkey = self._shaderkey 
         self._shaderkey = shaderkey
-        if not priorkey is None:
-            self.shaderkey_changed(priorkey, self._shaderkey)
-        pass
     shaderkey = property(_get_shaderkey, _set_shaderkey, doc="String controlling shader config ")
-
-    def _get_shadercfg(self):
-        if self._shadercfg is None:
-            self._shadercfg = self.make_config(self.shaderkey) 
-        return self._shadercfg 
-    shadercfg = property(_get_shadercfg)
 
 
     def make_config(self, shaderkey):
@@ -369,25 +346,29 @@ class DAEPhotonsShader(object):
         if shaderkey == "nogeo":
 
             cfg['vertex'] = "vertex_no_geo"
-            cfg['fragment'] = "fragment_fcolor"
             cfg['geometry'] = None
+            cfg['fragment'] = "fragment_fcolor"
+
+            cfg['geometry_input_type'] = None
             cfg['geometry_output_type'] = None
 
-        elif shaderkey == "line2line":
+        elif shaderkey == "p2p":
 
             cfg['vertex'] = "vertex_for_geo"
-            cfg['geometry'] = "geometry_line2line"
-            cfg['geometry_input_type'] = "GL_LINES"   #  does not accept GL_LINE_STRIP, 
-            cfg['geometry_output_type'] = "GL_LINE_STRIP"
+            cfg['geometry'] = "geometry_point2point"
             cfg['fragment'] = "fragment_fcolor"
 
-        elif shaderkey == "point2line":
+            cfg['geometry_input_type'] = "GL_POINTS"
+            cfg['geometry_output_type'] = "GL_POINTS"
+
+        elif shaderkey == "p2l":
 
             cfg['vertex'] = "vertex_for_geo"
             cfg['geometry'] = "geometry_point2line"
+            cfg['fragment'] = "fragment_fcolor"
+
             cfg['geometry_input_type'] = "GL_POINTS"
             cfg['geometry_output_type'] = "GL_LINE_STRIP"
-            cfg['fragment'] = "fragment_fcolor"
 
         else:
             assert 0, "shader key %s not recognized " % shaderkey  

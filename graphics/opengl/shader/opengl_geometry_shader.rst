@@ -13,6 +13,27 @@ Since OpenGL 3.2 there is a third optional type of shader that sits between the
 vertex and fragment shaders, known as the geometry shader. 
 
 
+Issue with changing shader
+----------------------------
+
+Swapping out a geometry shader works, swapping in does not  
+
+#. Mesa (OpenGL in software) implementation of geometry shader might be illuminating 
+
+   * http://lists.freedesktop.org/archives/mesa-dev/2012-July/024792.html
+  
+
+Debugging Geometry Shaders
+---------------------------
+
+* http://stackoverflow.com/questions/8795856/glsl-1-5-simple-geometry-shader
+
+
+Geometry Shader Details
+------------------------
+
+* http://www.informit.com/articles/article.aspx?p=2120983&seqNum=2
+
 
 Older API
 -----------

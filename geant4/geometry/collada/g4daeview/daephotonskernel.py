@@ -182,6 +182,7 @@ class DAEPhotonsKernel(object):
         """
         Assuming a single launch 
         """
+        assert 0, "no longer in use"
         block = (64,1,1)
         threads_per_block = reduce(mul, block)
         grid = ( div_(workitems,threads_per_block), 1 )

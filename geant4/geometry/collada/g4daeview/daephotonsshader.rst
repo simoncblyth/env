@@ -1,6 +1,11 @@
 DAEPhotonsShader
 =================
 
+
+line strip finnicky
+----------------------
+
+
 ::
 
      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daephotons.py", line 179, in multidraw
@@ -23,4 +28,43 @@ DAEPhotonsShader
             4165,
         )
     )
+
+
+
+shaders and integers dont mix in version 120
+------------------------------------------------
+
+::
+
+    SHADER['bit_sniffing'] = r"""
+
+    // making integers useful inside glsl 120 + GL_EXT_gpu_shader4 is too much effort yo be worthwhile
+    //  problems 
+    //    #. cannot find symbol glVertexAttribIPointer
+    //    #. uint type not working so cannot do proper  
+
+        uvec4 cf ;
+        int nb = 0 ;
+        int mb = -1 ;
+        for( int n=0 ; n < 32 ; ++n ){
+              cf.x = ( 1 << n ) ;
+              if (( TEST & cf.x ) != 0){
+                    nb += 1 ;
+                    mb = n ;
+              }
+        }
+
+        if      (mb==29) vColor = vec4( 1.0, 0.0, 0.0, 1.0);
+        else if (mb==30) vColor = vec4( 0.0, 1.0, 0.0, 1.0);
+        else if (mb==31) vColor = vec4( 0.0, 0.0, 1.0, 1.0);
+        else             vColor = vec4( 1.0, 1.0, 1.0, 1.0);
+
+        uvec4 b = uvec4( 0xff, 0xff00, 0xff0000,0xff000000) ;
+        uvec4 r = uvec4( TEST >> 24 , TEST >> 8, TEST << 8 , TEST << 24 );
+        uvec4 t ;
+        t.x = ( r.x & b.x ) | ( r.z & b.z ) | ( r.y & b.y ) | ( r.w & b.w );
+    """
+
+
+
 
