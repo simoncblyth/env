@@ -387,6 +387,7 @@ class DAEPhotonsShader(object):
         return cfg
 
     def update_uniforms(self):
+        #log.info("update_uniforms")
         self.iparam = self.dphotons.param.shader_iparam
         self.fparam = self.dphotons.param.shader_fparam
 

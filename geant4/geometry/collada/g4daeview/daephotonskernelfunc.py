@@ -43,16 +43,20 @@ class DAEPhotonsKernelFunc(object):
 
         self.g_mask = module.get_global("g_mask")[0]  
         self.g_anim = module.get_global("g_anim")[0]  
-        self._mask = [-1,-1,-1,-1]
-        self._anim = [0,0,0,0]
+
+        # must not be defaults otherwise setter will not memcopy_htod
+        self._mask = [-99,-99,-99,-99]  
+        self._anim = [-99,-99,-99,-99]
+
         self.kernel = kernel
 
     def initialize_constants(self):
         assert 0
-        #elf.mask = [-1,-1,-1,-1]
 
     def update_constants(self):
-        self.mask = self.dphotons.param.kernel_mask
+        kernel_mask = self.dphotons.param.kernel_mask
+        #log.info("update_constants %s " % repr(kernel_mask))
+        self.mask = kernel_mask
         #self.anim = self.dphotons.param.kernel_anim
 
     def _get_mask(self):

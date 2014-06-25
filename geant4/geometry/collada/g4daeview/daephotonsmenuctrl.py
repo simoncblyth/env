@@ -64,7 +64,7 @@ class DAEPhotonsMenuController(object):
         Having menus coming and going is problematic, so create tree of placeholder submenus
         Just structure, not content
         """
-        log.info("setup_menus")
+        log.debug("setup_menus")
 
         photons_menu = DAEMenu("photons")
 
@@ -98,7 +98,7 @@ class DAEPhotonsMenuController(object):
         style_menu = self.rootmenu.find_submenu("style")
         assert style_menu == self.style_menu
         for name in styles:
-            log.info("update_flags_menu %s " % name )
+            #log.info("update_flags_menu %s " % name )
             style_menu.addnew(name, callback )
         pass
         style_menu.update()  
@@ -147,7 +147,7 @@ class DAEPhotonsMenuController(object):
         assert history_menu == self.history_menu
 
         nflag = history[:,1].sum()
-        log.info("_update_history_menu : nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
+        #log.info("_update_history_menu : nflag %s unique flag combinations len(history) %s " % (nflag, len(history)))
 
         history_menu.addnew( "ANY", self.history_callback, mask=None )
         for mask,count in sorted(history,key=lambda _:_[1], reverse=True):

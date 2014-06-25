@@ -32,6 +32,10 @@ class DAEPhotonsAnalyzer(object):
         """
         log.debug("analyzer.__call__")
         if propagated is None:return
+        
+        if self.dphotons.config.args.debugpropagate:
+            self.write(propagated)
+        pass
 
         self.time_range = self.get_time_range( propagated )
         
@@ -52,11 +56,36 @@ class DAEPhotonsAnalyzer(object):
 
     max_slots = property(lambda self:self.dphotons.data.max_slots)
 
-    def get_time_range(self, propagated):
+
+    def write(self, propagated, path="propagated.npz"):
+        """
+        """
+        log.info("write propagated into %s " % path )
+        if 0:
+            print propagated
+            print propagated.dtype
+            print propagated.size
+            print propagated.itemsize
+
+        np.savez_compressed(path, propagated=propagated)
+
+
+
+    def get_time_range(self, propagated, slot=-1):
+        """
+        #. devious indexing to get top slot by viewing backwards
+        """
         max_slots = self.max_slots
-        flags = propagated['flags'][::max_slots,0]
-        t0    = propagated['flags'][::max_slots,1].view(np.float32)
-        tf    = propagated['flags'][::max_slots,2].view(np.float32)
+        if slot == -1:
+            flags = propagated['flags'][::-max_slots,0][::-1]
+            t0    = propagated['flags'][::-max_slots,1][::-1].view(np.float32)
+            tf    = propagated['flags'][::-max_slots,2][::-1].view(np.float32)
+        elif slot == 0:
+            flags = propagated['flags'][::max_slots,0]
+            t0    = propagated['flags'][::max_slots,1].view(np.float32)
+            tf    = propagated['flags'][::max_slots,2].view(np.float32)
+        else:
+            assert 0, slot 
 
         log.debug("analyse_propagation_flags")
         if 0:
@@ -74,16 +103,23 @@ class DAEPhotonsAnalyzer(object):
         present_history_ = lambda _:"%5s %-80s %s " % ( _[0], mask2arg_(_[0]), _[1] )
         print "\n".join(map(present_history_,history))
 
-    def get_history(self, propagated ):
+    def get_history(self, propagated, slot=-1):
         """
         Counts of all unique history bit settings 
         """ 
         max_slots = self.max_slots
-        flags = propagated['flags'][::max_slots,0]
+
+        if slot == -1:
+            flags = propagated['flags'][::-max_slots,0][::-1]
+        elif slot == 0:
+            flags = propagated['flags'][::max_slots,0]
+        else:
+            assert 0, slot 
+
         history = count_unique(flags)  
         return history
 
-    def get_counts_firsts_drawcount(self, propagated):
+    def get_counts_firsts_drawcount(self, propagated, slot=-1):
         """
         Attempts to apply a selection at this level 
         causes Abort Trap in glDrawArrays call, 
@@ -100,10 +136,19 @@ class DAEPhotonsAnalyzer(object):
         """
         max_slots = self.max_slots
         field = 'last_hit_triangle'
-        lht = propagated[field][::max_slots,0]
-        photon_id = propagated[field][::max_slots,1]
-        steps = propagated[field][::max_slots,2]
-        slots = propagated[field][::max_slots,3]
+        if slot == -1:
+            lht = propagated[field][::-max_slots,0][::-1]
+            photon_id = propagated[field][::-max_slots,1][::-1]
+            steps = propagated[field][::-max_slots,2][::-1]
+            slots = propagated[field][::-max_slots,3][::-1]
+        elif slot == 0:
+            lht = propagated[field][::max_slots,0]
+            photon_id = propagated[field][::max_slots,1]
+            steps = propagated[field][::max_slots,2]
+            slots = propagated[field][::max_slots,3]
+        else:
+            assert 0, slot 
+
 
         log.debug( " steps %s " % repr(steps))
         log.debug( " slots %s " % repr(steps))

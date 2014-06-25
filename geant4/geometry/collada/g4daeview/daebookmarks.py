@@ -62,7 +62,7 @@ class DAEBookmarks(dict):
         self.set_current(numkey)
 
     def create_for_object(self, obj, numkey ):
-        log.info("create_for_object: numkey %s " % (numkey) )
+        #log.info("create_for_object: numkey %s " % (numkey) )
         view = self.transform.spawn_view_jumping_frame(obj)
         self.assign(numkey, view)
         self.set_current(numkey)

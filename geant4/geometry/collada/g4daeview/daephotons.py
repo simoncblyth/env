@@ -15,6 +15,7 @@ from daephotonsrenderer import DAEPhotonsRenderer
 from daephotonsdata import DAEPhotonsData
 from daephotonspropagator import DAEPhotonsPropagator
 from daephotonsanalyzer import DAEPhotonsAnalyzer
+from daephotonsstyler import DAEPhotonsStyler
 
 
 class DAEPhotons(object):
@@ -64,10 +65,11 @@ class DAEPhotons(object):
         self.interop = not event.scene.chroma.dummy
         self.config = event.config      
 
-        self._cfg = None
         self._style = event.config.args.style   
 
         self.numquad = DAEPhotonsData.numquad  # fundamental nature of VBO data structure, not a "parameter"
+
+        self.styler = DAEPhotonsStyler(self)
 
         self.param = DAEPhotonsParam( event.config)
         self.data = DAEPhotonsData(photons, self.param)
@@ -83,16 +85,16 @@ class DAEPhotons(object):
         self._tcut = None
         self.tcut = event.config.args.tcut    
 
+
+
     def deferred_menu_update(self):
         """
-        Calling this before GLUT setup, results in duplicates menus 
+        Calling this before GLUT setup, results in duplicated menus 
         """
-        log.info("deferred_menu_update")
-        self.menuctrl.update_style_menu( self.styles, self.style_callback )
+        self.menuctrl.update_style_menu( self.styler.style_names, self.style_callback )
 
     def style_callback(self, item):
         style = item.title
-        log.info("style_callback item %s setting style %s  " % (repr(item),style))
         self.style = style
         self.menuctrl.rootmenu.dispatch('on_needs_redraw')
 
@@ -100,143 +102,18 @@ class DAEPhotons(object):
         return self._style
     def _set_style(self, style):
         if style == self._style:return
-        self._cfg = None        # invalidate dependant 
         self._style = style   
-        self.renderer.shaderkey = self.cfg['shaderkey']
-        log.info("%s _set_style [%s] %s" % (self.__class__.__name__, style, pprint.pformat(self._cfg)))
+        #self.renderer.shaderkey = self.cfg['shaderkey']
     style = property(_get_style, _set_style, doc="Photon presentation style, eg confetti/spagetti/movie/...") 
 
-
     def _get_cfg(self):
-        if self._cfg is None:
-           self._cfg = self.make_cfg()
-        return self._cfg
+        return self.styler.get(self.style)
     cfg = property(_get_cfg)
 
+    def _get_cfglist(self):
+        return self.styler.get_list(self.style)
+    cfglist = property(_get_cfglist)
 
-
-    styles = ['noodles','movie','movie-extra','spagetti','confetti','confetti-0','confetti-1','confetti-p2p',]
-    def make_cfg(self):
-        """
-        :param photonskey: string identifying various techniques to present the photon information
-
-        *slot*
-           -1, top slot at max_slots-1
-           None, corresponds to using max_slots 1 with slot 0,
-           with top slot excluded 
-           (ie seeing all steps of the propagation except the artificial 
-           interpolated top slot)
-
-        *drawkey*
-           `multidraw` is efficient way of in effect doing separate draw calls 
-           for each photon (or photon history) eg allowing trajectory line presentation.
-
-           It is so prevalent as without it have no choice but to 
-           restrict to slots that will always be present, ie slot 0 and slot -1.
-           (unless traversed the entire VBO with selection to skip empties ?)
-
-        Debug tips:
-
-        #. check time dependancy with `udp.py --time 10` etc..
-
-        Animated spagetti, ie LINE_STRIP that animates: not easy 
-        as need multidraw dynamic counts with interpolated top slot 
-        interposition. Technically challenging but not so informative.
-        Would be tractable is could get geometry shader to deal in LINE_STRIPs.
-
-        A point representing ABSORPTIONs would be more useful.
-
-
-        Live transitions to the "nogeo" shaders `spagetti` 
-        and `confetti` are working from all others.  
-        The reverse transitions from "nogeo" to "point2line" 
-        shaderkey do not work, giving a blank render.
-
-        Presumably an attribute binding problem, not changing a part 
-        of opengl state 
-
-
-        Slot0 Selection Immunity Issue
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-
-        Confetti styles were immune to pid/mask/history selection, 
-        until added `init_ccol.w  = skip_alpha` in propagate_vbo.cu:present_vbo
-
-        """
-        cfg = {}
-        cfg['extrakey'] = None
-
-        style = self.style    
-        if style == 'noodles':
-
-           cfg['description'] = "LINE_STRIP direction/polarization at each step of the photon" 
-           cfg['drawmode'] = gl.GL_POINTS
-           cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "p2l"
-           cfg['slot'] = None  
-
-        elif style == 'movie':
-
-           cfg['description'] = "LINE_STRIP direction/polarization that is time interpolated " 
-           cfg['drawmode'] = gl.GL_POINTS
-           cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "p2l"
-           cfg['slot'] = -1  
-
-        elif style == 'movie-extra':
-
-           cfg['description'] = "LINE_STRIP direction/polarization that is time interpolated " 
-           cfg['drawmode'] = gl.GL_POINTS
-           cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "p2l"
-           cfg['extrakey'] = "nogeo"
-           cfg['slot'] = -1  
-
-        elif style == 'confetti-p2p':
-
-           cfg['description'] = "POINTS for each step of the photon" 
-           cfg['drawmode'] = gl.GL_POINTS
-           cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "p2p"
-           cfg['slot'] = None
-
-        elif style == 'confetti':
-
-           cfg['description'] = "POINTS for every step of the photon" 
-           cfg['drawmode'] = gl.GL_POINTS
-           cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "nogeo"
-           cfg['slot'] = None
-
-        elif style == 'confetti-1':
-
-           cfg['description'] = "top slot POINTS" 
-           cfg['drawmode'] = gl.GL_POINTS
-           cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "nogeo"
-           cfg['slot'] = -1
-
-        elif style == 'confetti-0':
-
-           cfg['description'] = "first slot POINTS" 
-           cfg['drawmode'] = gl.GL_POINTS
-           cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "nogeo"
-           cfg['slot'] = 0
-
-        elif style == 'spagetti':
-
-           cfg['description'] = "LINE_STRIP trajectory of each photon, " 
-           cfg['drawmode'] = gl.GL_LINE_STRIP
-           cfg['drawkey'] = "multidraw" 
-           cfg['shaderkey'] = "nogeo"
-           cfg['slot'] = None
-
-        else:
-            assert 0, style
-
-
-        return cfg 
 
 
     ### primary actions #####
@@ -267,17 +144,7 @@ class DAEPhotons(object):
 
         self.menuctrl.update( self.analyzer.history , msg="from propagate" )    
 
-        if self.config.args.debugpropagate:
-            path = "propagated.npz"
-            log.info("propagate completed, save VBO readback into %s " % path )
-            print propagated
-            print propagated.dtype
-            print propagated.size
-            print propagated.itemsize
-            np.savez_compressed(path, propagated=propagated)
-        else:
-            pass
-        
+       
 
     def draw(self):
         """
@@ -285,16 +152,20 @@ class DAEPhotons(object):
         number of propagation steps (actually filled VBO slots, as there will be truncation) 
         """
         if self.photons is None:return
-
         self.renderer.update_constants()   
+        for cfg in self.cfglist:
+            self.drawcfg( cfg )
 
-        if self.cfg['drawkey'] == 'multidraw':
-            self.renderer.multidraw(mode=self.cfg['drawmode'],slot=self.cfg['slot'], 
+
+    def drawcfg(self, cfg ): 
+        self.renderer.shaderkey = cfg['shaderkey']
+        if cfg['drawkey'] == 'multidraw':
+            self.renderer.multidraw(mode=cfg['drawmode'],slot=cfg['slot'], 
                                       counts=self.analyzer.counts, 
                                       firsts=self.analyzer.firsts, 
-                                   drawcount=self.analyzer.drawcount, extrakey=self.cfg['extrakey'] )
+                                   drawcount=self.analyzer.drawcount, extrakey=cfg['extrakey'] )
         else:
-            self.renderer.draw(mode=self.cfg['drawmode'],slot=self.cfg['slot'])
+            self.renderer.draw(mode=cfg['drawmode'],slot=cfg['slot'])
 
 
     #### readonly properties #####
@@ -356,6 +227,10 @@ class DAEPhotons(object):
         param_update = self.param.reconfig(unhandled)
         return update or param_update
 
+
+
+    ### time control ######## 
+
     def _get_time_range(self):
         timerange = self.config.timerange
         if not timerange is None:
@@ -408,27 +283,6 @@ class DAEPhotons(object):
         tdelta = tfactor*dy
         self.time += tdelta
         #log.info("time_to x %s y %s dx %s dy %s ===> tfactor %s tdelta  %s ===> time %s " % (x,y,dx,dy, tfactor, tdelta, self.time))
-
-
-    #def _get_tcut(self):
-    #    return self._tcut
-    #def _set_tcut(self, tcut):
-    #    """
-    #    Controlled by up/down trackpad dragging whilst pressing QUOTELEFT at keyboard top left" )
-    #    """
-    #    self._tcut = np.clip(tcut, 0.00001, 1.) # dont go all the way to zero as cannot then recover
-    #
-    #        time_range = self.analyzer.time_range 
-    #    if time_range is None:
-    #        log.debug("cannot act on _set_tcut %s  until event has been propagated and analyzed ", self._tcut )
-    #        return  
-    #
-    #    time = self.time
-    #    time += (time_range[1]-time_range[0])*self._tcut + time_range[0] 
-    #
-    #    log.info("_set_tcut %s %s => %s " % (self._tcut, repr(time_range), time ))
-    #    self.time = time
-    #tcut = property(_get_tcut, _set_tcut, doc=_set_tcut.__doc__ )
 
 
 

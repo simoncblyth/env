@@ -43,20 +43,22 @@ class DAEPhotonsParam(object):
         self._bits = config.args.bits
         self._time = 0
         self.pid  = config.args.pid
+        self.mode = config.args.mode
+
         self.fpholine = config.args.fpholine
         self.fphopoint = config.args.fphopoint
         self.debugshader = config.args.debugshader
-        self.shadermode = config.args.shadermode
         self.prescale = config.args.prescale
         self.max_slots = config.args.max_slots
         #self.observers = []
 
-    reconfigurables = ['fpholine','fphopoint','mask','bits','shadermode', 'time','pid',]
+    reconfigurables = ['fpholine','fphopoint','mask','bits','time','pid','mode',]
 
     def reconfig(self, conf):        
         update = False
         for k, v in conf:
             if k in self.reconfigurables:
+                log.info("%s %s %s " % (self.__class__.__name__, k,v ))
                 setattr(self, k, v ) 
                 update = True
             else:
@@ -68,28 +70,21 @@ class DAEPhotonsParam(object):
         return [self.fpholine, self.fphopoint, 0., 0.]
     shader_fparam = property(_get_shader_fparam)
 
-    def _get_shader_iparam(self):
+    def _get_integer_param(self):
         """
-        #. cannot pass None into a shader uniform 
+        Integer param for kernels and shaders
         """
         mask = self.mask
         bits = self.bits
         pid = self.pid
+        mode = self.mode
         mask = -1 if mask is None else mask 
         bits = -1 if bits is None else bits 
         pid  = -1 if pid is None else pid
-        return [mask, bits, pid, 0]
-    shader_iparam = property(_get_shader_iparam)
-
-    def _get_kernel_mask(self):
-        mask = self.mask
-        bits = self.bits
-        pid = self.pid
-        mask = -1 if mask is None else mask 
-        bits = -1 if bits is None else bits 
-        pid  = -1 if pid is None else pid 
-        return [mask, bits, pid, 0]
-    kernel_mask = property(_get_kernel_mask)
+        mode = -1 if mode is None else mode
+        return [mask, bits, pid, mode]
+    shader_iparam = property(_get_integer_param)
+    kernel_mask = property(_get_integer_param)
 
     def _get_mask(self):
         return arg2mask(self._mask)
@@ -108,6 +103,12 @@ class DAEPhotonsParam(object):
     def _set_pid(self, pid):
         self._pid = int(pid)
     pid = property(_get_pid, _set_pid )
+
+    def _get_mode(self):
+        return self._mode
+    def _set_mode(self, mode):
+        self._mode = int(mode)
+    mode = property(_get_mode, _set_mode )
 
 
 

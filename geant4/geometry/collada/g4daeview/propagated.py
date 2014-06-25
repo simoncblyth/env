@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 """
 
+From ipython::
+
+    In [132]: cd /Users/blyth/env/geant4/geometry/collada/g4daeview
+    /Users/blyth/env/geant4/geometry/collada/g4daeview
+
+    In [133]: run propagated.py
+    [[  -1    0    2    2]
+
+
+
+
 ::
 
     In [246]: a['last_hit_triangle'][::10]
@@ -26,20 +37,6 @@
            3066, 3072, 3090, 3095, 3141, 3223, 3224, 3266, 3348, 3397, 3423,
            3462, 3473, 3527, 3614, 3650, 3705, 3734, 3831, 3867, 3914, 4044,
            4096, 4102, 4145]),)
-
-    In [260]: a['position_weight'][630:640,:3]
-    Out[260]: 
-    array([[ -17025.5       , -801328.125     ,   -7065.32861328],
-           [ -17052.671875  , -801338.375     ,   -7072.61914062],
-           [ -16850.25195312, -801233.6875    ,   -7379.796875  ],
-           [ -16794.09179688, -801209.3125    ,   -7460.82324219],
-           [ -16761.05078125, -801157.75      ,   -7541.86376953],
-           [ -16522.5078125 , -800836.        ,   -8081.76074219],
-           [      0.        ,       0.        ,       0.        ],
-           [      0.        ,       0.        ,       0.        ],
-           [      0.        ,       0.        ,       0.        ],
-           [      0.        ,       0.        ,       0.        ]], dtype=float32)
-
 
       ## when not truncated should add one to the slots to get the count 
 
@@ -70,7 +67,9 @@ import numpy as np
 from chroma.event import mask2arg_, count_unique
 
 
-path = os.path.expanduser("~/propagated.npz")
+
+path = os.path.expanduser("~/e/propagated.npz")
+#path = "propagated.npz"
 
 with np.load(path) as npz:
      a = npz['propagated']

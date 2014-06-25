@@ -1,0 +1,177 @@
+#!/usr/bin/env python
+"""
+
+
+::
+
+    udp.py --style movie,noodles --mode 0
+    udp.py --style movie,confetti --mode 0
+
+       an attempt at combining movie presentation with 
+
+
+"""
+
+import logging, pprint
+log = logging.getLogger(__name__)
+
+import OpenGL.GL as gl
+import numpy as np
+
+
+class DAEPhotonsStyler(object):
+    """
+    """
+    style_names = ['noodles','movie','movie-extra','spagetti','confetti','confetti-0','confetti-1',]
+    def __init__(self, dphotons):
+        self.dphotons = dphotons
+        styles = {}
+        for name in self.style_names:
+            styles[name] = self.make_cfg(name) 
+        pass
+        self.styles = styles
+
+    def get_list(self, style):
+        cfgs = []
+        for name in style.split(","):
+            cfgs.append(self.get(name))
+        return cfgs 
+
+    def get(self, style):
+        assert style in self.styles
+        return self.styles[style]
+
+    def make_cfg(self, style):
+        """
+        :param photonskey: string identifying various techniques to present the photon information
+
+        *slot*
+           -1, top slot at max_slots-1
+           None, corresponds to using max_slots 1 with slot 0,
+           with top slot excluded 
+           (ie seeing all steps of the propagation except the artificial 
+           interpolated top slot)
+
+        *drawkey*
+           `multidraw` is efficient way of in effect doing separate draw calls 
+           for each photon (or photon history) eg allowing trajectory line presentation.
+
+           It is so prevalent as without it have no choice but to 
+           restrict to slots that will always be present, ie slot 0 and slot -1.
+           (unless traversed the entire VBO with selection to skip empties ?)
+
+        Debug tips:
+
+        #. check time dependancy with `udp.py --time 10` etc..
+
+        Animated spagetti, ie LINE_STRIP that animates: not easy 
+        as need multidraw dynamic counts with interpolated top slot 
+        interposition. Technically challenging but not so informative.
+        Would be tractable is could get geometry shader to deal in LINE_STRIPs.
+
+        A point representing ABSORPTIONs would be more useful.
+
+
+        Live transitions to the "nogeo" shaders `spagetti` 
+        and `confetti` are working from all others.  
+        The reverse transitions from "nogeo" to "point2line" 
+        shaderkey do not work, giving a blank render.
+
+        Presumably an attribute binding problem, not changing a part 
+        of opengl state 
+
+
+        Slot0 Selection Immunity Issue
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+        Confetti styles were immune to pid/mask/history selection, 
+        until added `init_ccol.w  = skip_alpha` in propagate_vbo.cu:present_vbo
+
+
+        Color By Flag Change
+        ~~~~~~~~~~~~~~~~~~~~~
+
+
+        """
+        cfg = {}
+        cfg['extrakey'] = None
+
+        if style == 'noodles':
+
+           cfg['description'] = "LINE_STRIP direction/polarization at each step of the photon" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "p2l"
+           cfg['slot'] = None  
+
+        elif style == 'movie':
+
+           cfg['description'] = "LINE_STRIP direction/polarization that is time interpolated " 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "p2l"
+           cfg['slot'] = -1  
+
+        elif style == 'movie-extra':
+
+           cfg['description'] = "LINE_STRIP direction/polarization that is time interpolated " 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "p2l"
+           cfg['extrakey'] = "p2p"   
+
+           # using extrakey "nogeo" or "p2p"
+           #    mysteriously puts the point at the head(not tail) of the line, 
+           #    unless negate --fpholine -100 
+           #
+           cfg['slot'] = -1    
+
+        elif style == 'confetti':
+
+           # the three confetti styles only differ in the slots 
+
+           cfg['description'] = "POINTS for every step of the photon" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = None
+
+        elif style == 'confetti-1':
+
+           cfg['description'] = "top slot POINTS" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = -1
+
+        elif style == 'confetti-0':
+
+           cfg['description'] = "first slot POINTS" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = 0
+
+        elif style == 'spagetti':
+
+           # time dependant slot selection `--mode 0` makes a mess 
+           # for spagetti style, its kinda incompatible as current
+           # skip the point works by shooting the point off to infinity ?
+
+           cfg['description'] = "LINE_STRIP trajectory of each photon, " 
+           cfg['drawmode'] = gl.GL_LINE_STRIP
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = None
+
+        else:
+            assert 0, style
+
+
+        return cfg 
+
+
+if __name__ == '__main__':
+    pass
+
+

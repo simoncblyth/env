@@ -208,7 +208,7 @@ class DAEInteractivityHandler(object):
         return True   # prevent other handlers
 
     def on_needs_redraw(self, msg ):
-        log.info("on_needs_redraw")
+        #log.info("on_needs_redraw")
         self.redraw()
 
     def on_resize(self, width, height, x=0, y=0):

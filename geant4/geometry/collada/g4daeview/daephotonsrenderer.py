@@ -177,16 +177,19 @@ class DAEPhotonsRenderer(object):
 
         self.interop_cuda_to_gl(self.pbuffer)
 
-        shaderkey = self.shaderkey 
-        self.pbuffer.multidraw(mode,  what='', drawcount=qcount, slot=slot, counts=counts, firsts=firsts) 
+
 
         if not extrakey is None:
+            shaderkey = self.shaderkey 
             if not shaderkey == extrakey:        
                 self.shaderkey = extrakey
                 self.pbuffer.multidraw(mode,  what='', drawcount=qcount, slot=slot, counts=counts, firsts=firsts) 
                 self.shaderkey = shaderkey
             pass
         pass
+
+        self.pbuffer.multidraw(mode,  what='', drawcount=qcount, slot=slot, counts=counts, firsts=firsts) 
+
 
         self.interop_gl_to_cuda(self.pbuffer)
 

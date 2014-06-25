@@ -174,7 +174,7 @@ class DAEEvent(object):
                 self.qcut = v 
             elif k == 'reload':
                 self.reload_()
-            elif k in ('fpholine','fphopoint','shadermode','mask','time','style',):   
+            elif k in ('fpholine','fphopoint','mode','mask','time','style',):   
                 assert 0, "should be handled directly %s " % k 
                 photons_config.append([k,v])
             else:
