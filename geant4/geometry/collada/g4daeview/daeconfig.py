@@ -146,7 +146,10 @@ class DAEConfig(ConfigBase):
     def _get_timerange(self):
         timerange = self.args.timerange
         return None if timerange is None else fvec_(timerange)
-    timerange = property(_get_timerange) 
+    def _set_timerange(self, timerange):
+        self.args.timerange = timerange
+    timerange = property(_get_timerange, _set_timerange) 
+
 
     def _make_base_parser(self, doc):
         """

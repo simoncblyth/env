@@ -10,6 +10,14 @@
        an attempt at combining movie presentation with 
 
 
+Animation Style where photons stay at final positions
+
+#. not working, photons disappearing despite expectations
+
+
+
+
+
 """
 
 import logging, pprint

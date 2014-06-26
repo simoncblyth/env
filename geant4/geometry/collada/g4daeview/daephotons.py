@@ -78,9 +78,8 @@ class DAEPhotons(object):
         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma ) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
-        self.analyzer = DAEPhotonsAnalyzer(self)
+        self.analyzer = DAEPhotonsAnalyzer(self.config.args.max_slots)
 
-        self.propagated = None    
         self._mesh = None
         self._tcut = None
         self.tcut = event.config.args.tcut    
@@ -140,8 +139,9 @@ class DAEPhotons(object):
             
         propagated = vbo.read()
         self.analyzer( propagated )
-        self.propagated = propagated
-
+        if self.config.args.debugpropagate:
+            self.analyzer.write_propagated()
+        pass
         self.menuctrl.update( self.analyzer.history , msg="from propagate" )    
 
        
@@ -160,10 +160,11 @@ class DAEPhotons(object):
     def drawcfg(self, cfg ): 
         self.renderer.shaderkey = cfg['shaderkey']
         if cfg['drawkey'] == 'multidraw':
+            counts, firsts, drawcount = self.analyzer.counts_firsts_drawcount 
             self.renderer.multidraw(mode=cfg['drawmode'],slot=cfg['slot'], 
-                                      counts=self.analyzer.counts, 
-                                      firsts=self.analyzer.firsts, 
-                                   drawcount=self.analyzer.drawcount, extrakey=cfg['extrakey'] )
+                                      counts=counts, 
+                                      firsts=firsts, 
+                                   drawcount=drawcount, extrakey=cfg['extrakey'] )
         else:
             self.renderer.draw(mode=cfg['drawmode'],slot=cfg['slot'])
 
@@ -200,7 +201,7 @@ class DAEPhotons(object):
 
     ### other actions #####
 
-    reconfig_properties = ['time','style',]
+    reconfig_properties = ['time','style','timerange',]
 
     def reconfig(self, conf):
         """
@@ -217,7 +218,9 @@ class DAEPhotons(object):
         update = False
         unhandled = []
         for k, v in conf:
-            if k in self.reconfig_properties:
+            if k == 'timerange':
+                self.config.timerange = v   # because fvec done there, hmm should move such stuff to point of use ?
+            elif k in self.reconfig_properties:
                 setattr(self, k, v ) 
                 update = True
             else:
@@ -228,14 +231,13 @@ class DAEPhotons(object):
         return update or param_update
 
 
-
     ### time control ######## 
 
     def _get_time_range(self):
         timerange = self.config.timerange
         if not timerange is None:
             return timerange
-        if self.analyzer is None or self.propagated is None:
+        if self.analyzer is None or self.analyzer.propagated is None:
             return None
         return self.analyzer.time_range
     time_range = property(_get_time_range)

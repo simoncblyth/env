@@ -344,9 +344,9 @@ class DAEScene(window_event.EventDispatcher):
             elif k == "showmetric":
                 raycast_config[k] = v
                 self.toggle_showmetric() 
-            elif k in ("save","load","key","reload", "time",):
+            elif k in ("save","load","key","reload",):
                 event_config.append( (k,v,) )   
-            elif k in ("fpholine","fphopoint","tcut","mask","time", "style","pid","mode",):
+            elif k in ("fpholine","fphopoint","tcut","mask","time", "style","pid","mode","timerange",):
                 photon_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v
@@ -379,6 +379,8 @@ class DAEScene(window_event.EventDispatcher):
             log.info("home-ing trackball and changing parameters of existing view %s " % repr(elu)) 
             self.trackball.home()
             self.view.current_view.change_eye_look_up( **elu )
+
+
 
     def raycaster_reconfig(self, **raycast_config ):
         if not self.raycast:
