@@ -76,6 +76,9 @@ class DAEPhotons(object):
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
     
         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma ) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
+        self.renderer.presenter.time   = event.config.args.time
+        self.renderer.presenter.cohort = event.config.args.cohort
+
 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
         self.analyzer = DAEPhotonsAnalyzer(self.config.args.max_slots)
@@ -201,7 +204,7 @@ class DAEPhotons(object):
 
     ### other actions #####
 
-    reconfig_properties = ['time','style','timerange',]
+    reconfig_properties = ['time','style','timerange','cohort',]
 
     def reconfig(self, conf):
         """
@@ -260,6 +263,18 @@ class DAEPhotons(object):
     time = property(_get_time, _set_time, doc="setter copies time into GPU constant g_anim.x, getter returns cached value " )
 
 
+    def _set_cohort(self, cohort):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            log.warn("cannot set cohort when renderer.presenter is not enabled")
+            return
+        presenter.cohort = cohort
+    def _get_cohort(self):
+        presenter = self.renderer.presenter
+        return None if presenter is None else presenter.cohort
+    cohort = property(_get_cohort, _set_cohort, doc="setter copies cohort begin/end times into GPU constants g_anim.y,z , getter returns cached value " )
+
+
 
     def _set_time_fraction(self, time_fraction):
         time_range = self.time_range
@@ -273,6 +288,7 @@ class DAEPhotons(object):
             return None
         return ( self.time - time_range[0] ) / (time_range[1] - time_range[0] )
     time_fraction = property(_get_time_fraction, _set_time_fraction )
+
 
 
 

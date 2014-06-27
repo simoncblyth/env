@@ -89,6 +89,17 @@ class DAEPhotonsKernelFunc(object):
         self.anim = anim
     time = property(_get_time, _set_time)
 
+    def _get_cohort(self):
+        return self._anim[1:4]
+    def _set_cohort(self, cohort):
+        cohort = map(float,cohort.split(",")) 
+        assert len(cohort) == 3 
+        log.info("_set_cohort %s " % repr(cohort))
+        anim = self._anim[:]
+        anim[1:4] = cohort
+        self.anim = anim
+    cohort = property(_get_cohort, _set_cohort)
+
 
 
 

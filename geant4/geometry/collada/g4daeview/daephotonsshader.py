@@ -133,10 +133,13 @@ varying vec4 vColor ;
 
 void main()
 {
+    // pass attributes without transformation 
     gl_Position = vec4( position_time.xyz, 1.) ; 
     vMomdir = fparam.x*vec4( direction_wavelength.xyz, 1.) ;
     vPoldir = fparam.x*vec4( polarization_weight.xyz, 1.) ;
     vColor = ccolor ; 
+    //vColor.w = abs(ccolor.w) ;
+
 }
 """
 
@@ -157,17 +160,21 @@ uniform ivec4 iparam;
 void main()
 {
     // dont emit the primitive for alpha 0.
-    if( vColor[0].w > 0. ){
+
+    float alpha = abs(vColor[0].w);
+    if( alpha > 0. ){
 
         gl_Position = gl_PositionIn[0];
         gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
         fColor = vColor[0] ;
+        fColor.w = alpha ;
         EmitVertex();
 
         gl_Position = gl_PositionIn[0];
         gl_Position.xyz += vMomdir[0].xyz ;
         gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
         fColor = vColor[0] ;
+        fColor.w = alpha ;
         EmitVertex();
 
      /*
@@ -176,6 +183,7 @@ void main()
         gl_Position.xyz += vPoldir[0].xyz ;
         gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
         fColor = vColor[0] ;
+        fColor.w = alpha ;
         EmitVertex();
       */
 
@@ -202,13 +210,19 @@ uniform ivec4 iparam;
 void main()
 {
    // dont emit the primitive for alpha 0.
-   if( vColor[0].w > 0. ){
+
+   float alpha = abs(vColor[0].w);
+   if( alpha > 0. ){
 
        gl_Position = gl_PositionIn[0];
        gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-       fColor = vColor[0] ;
-       EmitVertex();
 
+       gl_PointSize = ( vColor[0].w < 0. ) ? 7. : 2. ; 
+
+       fColor = vColor[0] ;
+       fColor.w = alpha ;
+
+       EmitVertex();
        EndPrimitive();
    }
 }
@@ -239,7 +253,7 @@ void main()
 
 
 
-SHADER['vertex_no_geo'] = r"""//for use without geometry shader 
+SHADER['vertex_no_geo'] = r"""//for use without geometry shader, eg by spagetti and confetti styles
 #version 120
 #extension GL_EXT_gpu_shader4 : require
 
@@ -255,12 +269,13 @@ varying vec4 fColor;
 void main()
 {
     gl_Position = vec4( position_time.xyz, 1.) ; 
+    gl_PointSize = ( ccolor.w < 0. ) ? 7. : 2. ; 
 
-    // scoot alpha zeros off to infinity and beyond
-    if( ccolor.w == 0. ) gl_Position.w = 0. ;
+    if( ccolor.w == 0. ) gl_Position.w = 0. ;    // scoot alpha zeros off to infinity and beyond
 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
     fColor = ccolor ;
+    fColor.w = abs(ccolor.w) ; 
 
 }
 """ 
@@ -402,7 +417,10 @@ class DAEPhotonsShader(object):
     def _get_fparam(self):
         return self._fparam
     def _set_fparam(self, fparam):
-        if fparam == self._fparam:return 
+        if fparam == self._fparam:
+            #log.info("_set_fparam unchanged %s " % repr(fparam))
+            return 
+        #log.info("_set_fparam %s " % repr(fparam))
         self._fparam = fparam
         self.shader.uniformf("fparam", *self._fparam)
     fparam = property(_get_fparam, _set_fparam, doc="shader fparam uniform ")

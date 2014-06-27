@@ -218,6 +218,8 @@ class DAEFrameHandler(object):
                 glut.glutWireSphere( solid.extent*1.2 , 10, 10)
                 gl.glPopMatrix()
 
+        if self.scene.progpoint:
+            gl.glEnable(gl.GL_PROGRAM_POINT_SIZE)
 
         if self.scene.fill:
             if self.scene.transparent:

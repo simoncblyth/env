@@ -178,7 +178,6 @@ class DAEPhotonsRenderer(object):
         self.interop_cuda_to_gl(self.pbuffer)
 
 
-
         if not extrakey is None:
             shaderkey = self.shaderkey 
             if not shaderkey == extrakey:        

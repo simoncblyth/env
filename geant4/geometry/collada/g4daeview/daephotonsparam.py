@@ -48,9 +48,9 @@ class DAEPhotonsParam(object):
         self.fpholine = config.args.fpholine
         self.fphopoint = config.args.fphopoint
         self.debugshader = config.args.debugshader
+        self.debugphoton = config.args.debugphoton
         self.prescale = config.args.prescale
         self.max_slots = config.args.max_slots
-        #self.observers = []
 
     reconfigurables = ['fpholine','fphopoint','mask','bits','time','pid','mode',]
 
@@ -78,13 +78,16 @@ class DAEPhotonsParam(object):
         bits = self.bits
         pid = self.pid
         mode = self.mode
+
         mask = -1 if mask is None else mask 
         bits = -1 if bits is None else bits 
         pid  = -1 if pid is None else pid
         mode = -1 if mode is None else mode
         return [mask, bits, pid, mode]
+
     shader_iparam = property(_get_integer_param)
     kernel_mask = property(_get_integer_param)
+
 
     def _get_mask(self):
         return arg2mask(self._mask)

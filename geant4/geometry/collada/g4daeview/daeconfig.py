@@ -293,6 +293,7 @@ class DAEConfig(ConfigBase):
         defaults['fpholine'] = 100.
         defaults['fphopoint'] = 2
         defaults['time'] = 0.
+        defaults['cohort'] = "-1,-1,-1"
         defaults['qcut'] = 1.
         defaults['tcut'] = 0.
         defaults['mask'] = -1
@@ -312,6 +313,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--fpholine", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)
         parser.add_argument( "--fphopoint", help="Present photons as points of size fphopoint. Default %(default)s.",type=float)
         parser.add_argument( "--time", help="Time used for photon history animation. Default %(default)s.",type=float)
+        parser.add_argument( "--cohort", help="Comma delimited cohort start/end/mode with times in ns Default %(default)s.",type=str)
         #parser.add_argument( "--pholine", help="Present photons as lines from position to position + momdirection*fpho. Default %(default)s.",action="store_true")
         #parser.add_argument( "--nopholine", dest="pholine", help="Switch off line representation, returning to point. %(default)s.",action="store_false")
         #parser.add_argument( "--phopoint", help="Present photons as points of size fphopoint. Default %(default)s.",action="store_true")

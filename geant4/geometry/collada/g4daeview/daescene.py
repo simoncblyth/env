@@ -105,6 +105,8 @@ class DAEScene(window_event.EventDispatcher):
         self.event = DAEEvent(config, self) 
 
 
+        self.progpoint = True
+
         self.solids = []    # selected solids
 
         # bookmark 0 : corresponding to launch viewpoint 
@@ -346,7 +348,7 @@ class DAEScene(window_event.EventDispatcher):
                 self.toggle_showmetric() 
             elif k in ("save","load","key","reload",):
                 event_config.append( (k,v,) )   
-            elif k in ("fpholine","fphopoint","tcut","mask","time", "style","pid","mode","timerange",):
+            elif k in ("fpholine","fphopoint","tcut","mask","time", "style","pid","mode","timerange","cohort",):
                 photon_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v
