@@ -143,7 +143,7 @@ class DAEPhotons(object):
         propagated = vbo.read()
         self.analyzer( propagated )
         if self.config.args.debugpropagate:
-            self.analyzer.write_propagated()
+            self.analyzer.write_propagated(self.propagator.ctx.seed)
         pass
         self.menuctrl.update( self.analyzer.history , msg="from propagate" )    
 

@@ -48,10 +48,15 @@ class DAEChromaContext(object):
     def setup_random_seed(self):
         if self.seed is None:
             self.seed = pick_seed() 
+            log.warn("RANDOMLY SETTING SEED TO %s " % self.seed )
+        else:
+            log.info("using seed %s " % self.seed )
+        pass 
         np.random.seed(self.seed)
 
     def setup_rng_states(self):
         from chroma.gpu.tools import get_rng_states
+        log.info("setup_rng_states using seed %s "  % self.seed )
         rng_states = get_rng_states(self.nthreads_per_block*self.max_blocks, seed=self.seed)
         return rng_states
 
@@ -78,6 +83,7 @@ class DAEChromaContext(object):
     gpu_geometry = property(_get_gpu_geometry)
 
     def _get_rng_states(self):
+        log.info("_get_rng_states")
         if self._rng_states is None:
             self._rng_states = self.setup_rng_states()
         return self._rng_states

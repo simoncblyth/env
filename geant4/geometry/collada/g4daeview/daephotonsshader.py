@@ -114,6 +114,36 @@ from env.graphics.opengl.shader.shader import Shader
 from env.graphics.color.wav2RGB import wav2RGB_glsl
 
 SHADER = {}
+SHADER['vertex_no_geo'] = r"""//for use without geometry shader, eg by spagetti and confetti styles
+#version 120
+#extension GL_EXT_gpu_shader4 : require
+
+uniform vec4  fparam; 
+uniform ivec4 iparam; 
+
+attribute vec4 position_time ;
+attribute vec4 direction_wavelength;
+attribute vec4 ccolor ; 
+
+varying vec4 fColor;
+
+void main()
+{
+    gl_Position = vec4( position_time.xyz, 1.) ; 
+    gl_PointSize = ( ccolor.w < 0. ) ? 9. : 4. ; 
+
+    if( ccolor.w == 0. ) gl_Position.w = 0. ;    // scoot alpha zeros off to infinity and beyond
+
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
+
+    fColor = vec4( ccolor.xyz, abs(ccolor.w) )  ; 
+
+}
+""" 
+
+
+
+
 SHADER['vertex_for_geo'] = r"""// simply passes through to geometry shader 
 #version 120
 #extension GL_EXT_geometry_shader4 : require
@@ -135,10 +165,11 @@ void main()
 {
     // pass attributes without transformation 
     gl_Position = vec4( position_time.xyz, 1.) ; 
-    vMomdir = fparam.x*vec4( direction_wavelength.xyz, 1.) ;
-    vPoldir = fparam.x*vec4( polarization_weight.xyz, 1.) ;
-    vColor = ccolor ; 
-    //vColor.w = abs(ccolor.w) ;
+    gl_PointSize = ( ccolor.w < 0. ) ? 9. : 4. ; 
+
+    vMomdir = vec4( fparam.x*direction_wavelength.xyz, 1.) ;
+    vPoldir = vec4( fparam.x*polarization_weight.xyz, 1.) ;
+    vColor = vec4( ccolor.xyz, abs(ccolor.w) )  ; 
 
 }
 """
@@ -160,30 +191,32 @@ uniform ivec4 iparam;
 void main()
 {
     // dont emit the primitive for alpha 0.
+    if( vColor[0].w > 0. ){
 
-    float alpha = abs(vColor[0].w);
-    if( alpha > 0. ){
-
+        gl_PointSize = gl_PointSizeIn[0];
         gl_Position = gl_PositionIn[0];
+
         gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
         fColor = vColor[0] ;
-        fColor.w = alpha ;
         EmitVertex();
 
+
+        gl_PointSize = gl_PointSizeIn[0];
         gl_Position = gl_PositionIn[0];
         gl_Position.xyz += vMomdir[0].xyz ;
+
         gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
         fColor = vColor[0] ;
-        fColor.w = alpha ;
+
         EmitVertex();
 
      /*
+        gl_PointSize = gl_PointSizeIn[0];
         gl_Position = gl_PositionIn[0];
         gl_Position.xyz += vMomdir[0].xyz ;
         gl_Position.xyz += vPoldir[0].xyz ;
         gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
         fColor = vColor[0] ;
-        fColor.w = alpha ;
         EmitVertex();
       */
 
@@ -211,16 +244,13 @@ void main()
 {
    // dont emit the primitive for alpha 0.
 
-   float alpha = abs(vColor[0].w);
-   if( alpha > 0. ){
+   if( vColor[0].w > 0. ){
 
        gl_Position = gl_PositionIn[0];
        gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
 
-       gl_PointSize = ( vColor[0].w < 0. ) ? 7. : 2. ; 
-
+       gl_PointSize = gl_PointSizeIn[0];
        fColor = vColor[0] ;
-       fColor.w = alpha ;
 
        EmitVertex();
        EndPrimitive();
@@ -249,36 +279,6 @@ void main()
 
 
 
-
-
-
-
-SHADER['vertex_no_geo'] = r"""//for use without geometry shader, eg by spagetti and confetti styles
-#version 120
-#extension GL_EXT_gpu_shader4 : require
-
-uniform vec4  fparam; 
-uniform ivec4 iparam; 
-
-attribute vec4 position_time ;
-attribute vec4 direction_wavelength;
-attribute vec4 ccolor ; 
-
-varying vec4 fColor;
-
-void main()
-{
-    gl_Position = vec4( position_time.xyz, 1.) ; 
-    gl_PointSize = ( ccolor.w < 0. ) ? 7. : 2. ; 
-
-    if( ccolor.w == 0. ) gl_Position.w = 0. ;    // scoot alpha zeros off to infinity and beyond
-
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Position;
-    fColor = ccolor ;
-    fColor.w = abs(ccolor.w) ; 
-
-}
-""" 
 
 
 class DAEPhotonsShader(object):

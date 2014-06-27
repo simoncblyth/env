@@ -1,35 +1,56 @@
 #!/usr/bin/env python
 """
-Usage from ipython::
+From commandline::
 
-   In [224]: run daephotonsanalyzer.py
-   In [226]: z = analyzer 
-   In [225]: a = z.propagated
-
-
-Questions of photon propagation histories 
-
-#. do many step histories have something different about them,  
- 
-   * wavelength ? REEMISSION 
+    delta:~ blyth$ daephotonsanalyzer.sh propagated-0.npz 
 
 
 """
-import logging, os
+import logging, os, filecmp
 import numpy as np
 log = logging.getLogger(__name__)
 from photons import mask2arg_, count_unique
+from daephotonscompare import DAEPhotonsCompare
+
+
+def compare(apath, bpath, max_slots):
+    """
+    Compare persisted propagation npz files
+    """ 
+    a = DAEPhotonsAnalyzer.make(apath, max_slots)
+    b = DAEPhotonsAnalyzer.make(bpath, max_slots)
+    assert a.atts == b.atts
+    cf = DAEPhotonsCompare( a, b )
+    print cf
+    mismatch = cf.compare(a.atts) 
+
+    fcmp = filecmp.cmp(apath,bpath)
+    if not fcmp:
+        log.warn("filecmp sees binary MISMATCH between %s %s but %s np mismatches  " % (apath, bpath, mismatch))
+    else:
+        log.info("filecmp sees match between %s %s np mismatch %s " % (apath, bpath, mismatch))
+    pass
+    return mismatch 
+
+
 
 class DAEPhotonsAnalyzer(object):
     """
     Interpret information recorded during and at tail 
     of propagate_vbo.cu:propagate_vbo
     """
-    path = "propagated.npz"
+    path = "propagated-%(seed)s.npz"
     def __init__(self, max_slots, slot=-1 ):
         self.max_slots = max_slots
         self.slot = slot
         self.propagated = None
+        self.loaded = None
+
+    @classmethod
+    def make(cls, path, max_slots):
+        analyzer = cls( max_slots=max_slots )
+        analyzer.load(path)
+        return analyzer
 
     def load(self, path=None):
         path = self.path if path is None else path
@@ -38,13 +59,33 @@ class DAEPhotonsAnalyzer(object):
         with np.load(path) as npz:
             propagated = npz['propagated']
         pass
+        self.loaded = path
         self(propagated)
 
-    def write_propagated(self, path=None):
+    def write_propagated(self, seed, path=None):
+        """
+        Trigger this with --debugpropagate
+
+        When there is a preexisting output file they are 
+        compared and an assertion is triggered if there is any mismatch 
+        """
         assert not self.propagated is None
-        path = self.path if path is None else path
-        log.info("write propagated into %s " % path )
+        path = self.path % locals() if path is None else path
+        if not os.path.exists(path):
+            self._write_propagated(path)
+        else:
+            tmppath = path.replace(".npz","-tmp.npz")
+            self._write_propagated(tmppath)
+            self.compare_propagated(path, tmppath)
+        pass
+
+    def _write_propagated(self, path):
+        log.info("_write_propagated %s " % path )  
         np.savez_compressed(path, propagated=self.propagated)
+
+    def compare_propagated(self, a, b):
+        mismatch = compare(a, b, self.max_slots )
+        assert mismatch == 0 , mismatch
 
     def __call__(self, propagated):
         """
@@ -71,6 +112,7 @@ class DAEPhotonsAnalyzer(object):
         return vec
 
     ## accessors
+    atts = "propagated flags t0 t0 time_range lht photon_id steps slots history hsteps hslots".split()
 
     flags = property(lambda self:self.get_vector(field='flags', index=0))
     t0    = property(lambda self:self.get_vector(field='flags', index=1).view(np.float32))
@@ -99,10 +141,11 @@ class DAEPhotonsAnalyzer(object):
 
     ## steering 
 
-    def analyze(self):
+    def analyze(self, checks=False):
         propagated = self.propagated
         if propagated is None:return
-        
+        if not checks:return
+
         self.dump()
         self.check_history()
         self.check_flags()
@@ -172,13 +215,27 @@ class DAEPhotonsAnalyzer(object):
 
 
 
-if __name__ == '__main__':
+
+def main():
     from daeconfig import DAEConfig
     config = DAEConfig()
     config.init_parse()
+    clargs = config.args.clargs 
+    assert len(clargs) > 0, "expecting commandline argument with path to npz file "
+    path = clargs[0]
 
-    analyzer = DAEPhotonsAnalyzer( max_slots=config.args.max_slots )
-    analyzer.load("~/e/propagated.npz")
+    log.info("creating DAEPhotonsAnalyzer for %s " % path )
+
+    z = DAEPhotonsAnalyzer( max_slots=config.args.max_slots )
+    z.load(path)
+
+    log.info("dropping into IPython.embed() try: z.<TAB> ")
+    import IPython 
+    IPython.embed()
+
+
+if __name__ == '__main__':
+    main()
 
 
  
