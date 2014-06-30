@@ -54,6 +54,13 @@ def compare(apath, bpath, max_slots):
     return mismatch 
 
 
+def nearest_index(a,a0):
+    """
+    http://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
+    """
+    return np.sum(np.square(np.abs(a-a0)),1).argmin()
+
+
 
 class DAEPhotonsAnalyzer(object):
     """
@@ -83,10 +90,11 @@ class DAEPhotonsAnalyzer(object):
         self.loaded = path
         self(propagated)
 
-    def write_propagated(self, seed, eventpath ):
+    def write_propagated(self, seed, eventpath, wipepropagate=False):
         """
         :param seed:
         :param eventpath: 
+        :param wipepropagate:  set with --wipepropagate
 
         Trigger this with --debugpropagate
 
@@ -114,6 +122,10 @@ class DAEPhotonsAnalyzer(object):
 
         path = os.path.join( eventbase, name ) 
         log.info("write_propagated %s " % path ) 
+
+        if wipepropagate and os.path.exists(path):
+            log.info("removing invalidated prior %s due to --wipepropagate option   " % path )
+            os.unlink(path)
 
         if not os.path.exists(path):
             self._write_propagated(path)
@@ -172,6 +184,19 @@ class DAEPhotonsAnalyzer(object):
     hsteps  = property(lambda self:count_unique(self.steps))
     hslots  = property(lambda self:count_unique(self.slots))
 
+    post = property(lambda self:self.propagated['position_time'].reshape(-1,self.max_slots,4))
+    nphoton = property(lambda self:len(self.propagated)/self.max_slots)
+
+    def _get_indices(self, slot=-1):
+        return np.arange( self.nphoton )*self.max_slots + (self.max_slots+slot)
+    last_index = property(lambda self:self._get_indices(slot=-2))
+
+    last_post  = property(lambda self:self.propagated['position_time'][self.last_index])
+    last_dirw  = property(lambda self:self.propagated['direction_wavelength'][self.last_index])
+    last_polw  = property(lambda self:self.propagated['polarization_weight'][self.last_index])
+    last_ccol  = property(lambda self:self.propagated['ccolor'][self.last_index])
+    last_flags = property(lambda self:self.propagated['flags'][self.last_index])
+    last_lht   = property(lambda self:self.propagated['last_hit_triangle'][self.last_index])
 
     def _get_counts_firsts_drawcount(self):
         """Counts with truncation, indices of start of each photon record"""
@@ -182,6 +207,13 @@ class DAEPhotonsAnalyzer(object):
         drawcount = nphoton
         return counts, firsts, drawcount
     counts_firsts_drawcount = property(_get_counts_firsts_drawcount, doc=_get_counts_firsts_drawcount.__doc__)
+
+    def nearest_photon(self, click):
+        last_post = self.last_post
+        index = nearest_index( last_post[:,:3], click)
+        delta = click - last_post[:,:3][index]
+        log.info("nearest_photon to click %s index %s at %s delta %s " % ( repr(click), index, last_post[index], repr(delta)  )) 
+        return index
 
     ## steering 
 

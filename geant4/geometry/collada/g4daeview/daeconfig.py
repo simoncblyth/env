@@ -170,6 +170,7 @@ class DAEConfig(ConfigBase):
 
         defaults['debugkernel'] = False
         defaults['debugpropagate'] = True
+        defaults['wipepropagate'] = False
         defaults['debugphoton'] = 0
 
         defaults['prescale'] = 1
@@ -189,6 +190,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--debugshader", action="store_true", help="Use debug shader without geometry stage, default %(default)s." )
         parser.add_argument( "--debugkernel", action="store_true", help="Enables VBO_DEBUG in propagate_vbo.cu, default %(default)s." )
         parser.add_argument( "--debugpropagate", action="store_true", help="Readback propagated VBO into numpy array and persist to propagated.npz, also compares with any same seed prior files. Default %(default)s." )
+        parser.add_argument( "--wipepropagate", action="store_true", help="Wipe preexisting propagated VBO before writing new ones, use this when expect propagates-<seed>.npz to be different due to code changes. Default %(default)s." )
         parser.add_argument( "--debugphoton", type=int, help="photon_id to debug in propagate_vbo.cu when --debugkernel is enabled, default %(default)s." )
         parser.add_argument( "--prescale", help="Scale down photon array sizes yieled by DAEPhotonsData by subsampling, default %(default)s.", type=int )
         parser.add_argument( "--max-slots", dest="max_slots", help="Blow up photon array and VBO sizes to hold multiple parts of the propagation, default %(default)s.", type=int )

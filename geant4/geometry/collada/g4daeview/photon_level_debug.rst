@@ -4,12 +4,263 @@ Photon Level Debug
 Issues
 ---------
 
-#. photon visualization disappearance, even with eg `--mode 7` to exclude truncated
-#. non-sensical discontinuities in propagation history animation  
 #. do many step histories have something different about them,  
  
    * wavelength ? REEMISSION 
    * lots of specular reflections 
+
+
+
+Missing NO_HIT : FIXED
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Formerly (before moved to max_slots-2 for final position, for truncation amelioration) 
+had some appararently direct from the Geant4(muon) NO_HIT(grey) photons appearing outside AD
+in line with muon direction at 20-30ns
+
+* where did they go ?
+* reverting to old way to study them, see that are slot-0 (visible in confetti-0)
+
+* the reason is that the last_offset in present_vbo has to be changed to pick 
+  up the new last slot rather than dynamically setting the last slot
+
+::
+
+    delta:1 blyth$ daephotonsanalyzer.sh propagated-0.npz 
+
+    In [14]: no_hits = np.where( z.propagated['flags'][::-10,0] == 1 )[0]
+    In [16]: no_hits
+    Out[16]: 
+    array([ 818,  846,  865,  890,  927,  949,  988, 1015, 1028, 1061, 1141,
+           1158, 1160, 1196, 1248])
+
+
+::
+
+    In [31]: z.propagated['position_time'][::10][4164-no_hits]
+    Out[31]: 
+    array([[ -20837.0723, -795441.1875,   -7052.3433,      27.145 ],
+           [ -20685.9727, -795674.1875,   -7053.2344,      26.2188],
+           [ -20553.4551, -795878.5   ,   -7054.0117,      25.4065],
+           [ -20486.6914, -796003.4375,   -7059.9165,      24.9435],
+           [ -20346.3223, -796198.0625,   -7055.0967,      24.1361],
+           [ -20244.8359, -796354.625 ,   -7055.6226,      23.5137],
+           [ -20119.9609, -796547.25  ,   -7056.1987,      22.748 ],
+           [ -19886.707 , -796628.6875,   -7042.4688,      22.1542],
+           [ -19982.6934, -796758.5   ,   -7057.3345,      21.9085],
+           [ -19897.7383, -796890.0625,   -7057.2769,      21.3854],
+           [ -19671.6348, -797238.6875,   -7058.2666,      19.9992],
+           [ -19638.5586, -797291.6875,   -7058.1128,      19.791 ],
+           [ -19636.4805, -797296.1875,   -7056.1191,      19.7753],
+           [ -19571.9023, -797392.5   ,   -7058.5796,      19.3877],
+           [ -19457.2754, -797569.3125,   -7058.8467,      18.6849]], dtype=float32)
+
+
+Dropouts : 91 long bouncers out of 4165 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Fixed by saving STATUS_ENQUEUE in addition to STATUS_DONE
+
+  * but the enqueing is not causing a re-propagate ?
+
+
+::
+
+    In [3]: z.last_flags
+    Out[3]: 
+    array([[ 65,   0,   0,  12],
+           [  2,   0,   0,  12],
+           [  2,   0,   0,  12],
+           ..., 
+           [578,   0,   0,  12],
+           [514,   0,   0,  12],
+           [514,   0,   0,  12]], dtype=uint32)
+
+    In [4]: z.last_flags[:,3]
+    Out[4]: array([12, 12, 12, ..., 12, 12, 12], dtype=uint32)
+
+    In [5]: np.where( z.last_flags[:,3] != 12 )
+    Out[5]: 
+    (array([ 111,  117,  208,  302,  415,  572,  660,  701,  720,  765,  769,
+            773,  809,  842,  952,  962, 1072, 1078, 1118, 1178, 1305, 1519,
+           1585, 1592, 1608, 1615, 1650, 1709, 1753, 1856, 1873, 1876, 1880,
+           1949, 1997, 2003, 2012, 2053, 2106, 2186, 2191, 2216, 2236, 2288,
+           2300, 2309, 2377, 2422, 2439, 2445, 2455, 2547, 2555, 2623, 2666,
+           2669, 2791, 2860, 3017, 3024, 3158, 3192, 3212, 3244, 3288, 3293,
+           3332, 3371, 3399, 3453, 3468, 3496, 3521, 3545, 3559, 3688, 3690,
+           3811, 3831, 3835, 3890, 3938, 3940, 3950, 3970, 4033, 4041, 4062,
+           4068, 4112, 4155]),)
+
+    In [6]: 
+
+    In [6]: np.where( z.last_post[:,3] < 0.001 )
+    Out[6]: 
+    (array([ 111,  117,  208,  302,  415,  572,  660,  701,  720,  765,  769,
+            773,  809,  842,  952,  962, 1072, 1078, 1118, 1178, 1305, 1519,
+           1585, 1592, 1608, 1615, 1650, 1709, 1753, 1856, 1873, 1876, 1880,
+           1949, 1997, 2003, 2012, 2053, 2106, 2186, 2191, 2216, 2236, 2288,
+           2300, 2309, 2377, 2422, 2439, 2445, 2455, 2547, 2555, 2623, 2666,
+           2669, 2791, 2860, 3017, 3024, 3158, 3192, 3212, 3244, 3288, 3293,
+           3332, 3371, 3399, 3453, 3468, 3496, 3521, 3545, 3559, 3688, 3690,
+           3811, 3831, 3835, 3890, 3938, 3940, 3950, 3970, 4033, 4041, 4062,
+           4068, 4112, 4155]),)
+
+
+Hmm 91 not filled::
+
+    In [7]: not_done = np.where( z.last_flags[:,3] != 12 )[0]
+
+    In [11]: len(not_done)
+    Out[11]: 91
+
+    In [8]: z.last_flags[not_done]
+    Out[8]: 
+    array([[0, 0, 0, 0],
+           [0, 0, 0, 0],
+           [0, 0, 0, 0],
+           [0, 0, 0, 0],
+
+
+After fix to save STATUE_ENQUEUE, they are filled but not done::
+
+    In [6]: z.last_flags[not_done]
+    Out[6]: 
+    array([[ 80,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 80,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 96,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [608,   0,   0,  11],
+           [ 80,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [ 64,   0,   0,  11],
+           [112,   0,   0,  11],
+           [576,   0,   0,  11],
+           [ 96,   0,   0,  11],
+
+
+Just not saved::
+
+    In [17]: z.propagated['position_time'][1110:1120]
+    Out[17]: 
+    array([[ -17035.1074, -801313.25  ,   -7065.2979,       4.5006],
+           [ -17035.1074, -801313.25  ,   -7065.2979,       4.5006],
+           [ -16996.2812, -801357.9375,   -7056.0366,       4.7988],
+           [ -16984.5684, -801371.4375,   -7053.2563,       4.8891],
+           [ -16815.4824, -801566.    ,   -7012.2808,       6.1676],
+           [ -16981.1055, -801368.5   ,   -6971.5107,       7.4459],
+           [ -16992.5918, -801354.8125,   -6968.7422,       7.5364],
+           [ -17268.082 , -801026.3125,   -6902.0137,       9.695 ],
+           [      0.    ,       0.    ,       0.    ,       0.    ],
+           [      0.    ,       0.    ,       0.    ,       0.    ]], dtype=float32)
+
+
+::
+
+    In [20]: z.propagated['flags'][1110:1120]
+    Out[20]: 
+    array([[         0,          0,          0,          0],
+           [         0,          0,          0,          4],
+           [         0,          0,          0,          4],
+           [         0,          0,          0,          4],
+           [        64,          0,          0,          4],
+           [        64,          0,          0,          4],
+           [        64,          0,          0,          4],
+           [        64,          0,          0,          4],           64 REFLECT_SPECULAR, 4 STATUS_FILL_STATE
+           [         0,          0,          0,          0],
+           [        80, 1083180326, 1128190499,          0]], dtype=uint32)
+
+
+::
+
+    In [21]: z.propagated['flags'][1170:1180]
+    Out[21]: 
+    array([[         0,          0,          0,          0],
+           [         0,          0,          0,          4],
+           [         0,          0,          0,          4],
+           [         0,          0,          0,          4],
+           [        64,          0,          0,          4],
+           [        64,          0,          0,          4],
+           [        64,          0,          0,          4],
+           [        64,          0,          0,          4],
+           [         0,          0,          0,          0],
+           [        64, 1083301678, 1123152860,          0]], dtype=uint32)
+
+
+Maybe its an 8 slot bug, nope its due to 100 step truncation, STATUS_ENQUEUE was not being written:: 
+
+    In [22]: z.propagated['last_hit_triangle'][1170:1180]
+    Out[22]: 
+    array([[    -1,      0,      0,      0],
+           [   576,    117,      1,      1],
+           [   288,    117,      2,      2],
+           [616675,    117,      3,      3],
+           [   288,    117,      4,      4],
+           [   576,    117,      5,      5],
+           [   909,    117,      6,      6],
+           [  1197,    117,      7,      7],
+           [     0,      0,      0,      0],
+           [625654,    117,    100,    101]], dtype=int32)
+
+::
+
+    In [18]: z.propagated['position_time'][1120:1130]
+    Out[18]: 
+    array([[ -17015.4941, -801317.4375,   -7084.8896,       4.505 ],
+           [ -17015.4941, -801317.4375,   -7084.8896,       4.505 ],
+           [ -17170.748 , -800957.0625,   -6044.4136,      10.0594],
+           [ -17174.9473, -800947.625 ,   -6018.001 ,      10.2017],
+           [ -17242.541 , -800790.6875,   -5565.    ,      12.6317],
+           [ -17242.5488, -800790.6875,   -5564.9502,      12.632 ],
+           [ -17243.6074, -800788.25  ,   -5557.8618,      12.6698],
+           [ -17245.8926, -800782.9375,   -5542.4385,      12.7525],
+           [ -17328.8535, -800590.375 ,   -4987.998 ,      15.7173],
+           [      0.    ,       0.    ,       0.    ,       0.    ]], dtype=float32)
+
+
+
+::
+
+    In [11]: z.last_post[:,3].min()
+    Out[11]: 2.3316712
+
+    In [12]: z.last_post[:,3].max()
+    Out[12]: 1371.0537
+
+    In [13]: z.time_range
+    Out[13]: [0.0, 1371.0537]
+
+    In [14]: z.t0
+    Out[14]: 
+    array([    1.4179,     2.3273,     2.3649, ...,   863.4072,   865.5709,
+            1356.45  ], dtype=float32)
+
+    In [15]: z.t0.min()
+    Out[15]: 1.4178798
+
+    In [16]: z.tf.min()
+    Out[16]: 2.3316712
+
+
+
+
+
+
+Fixed Issues
+-------------
+
+Both the below were caused by interpolation bug 
+
+#. photon visualization disappearance, even with eg `--mode 7` to exclude truncated
+#. non-sensical discontinuities in propagation history animation  
 
 
 Repeatability/Seeding Doubts
@@ -29,8 +280,8 @@ Techniques
 daephotonsanalyzer.sh
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use `--debugpropagate` to write files `propagated-<seed>.npz` into the invoking directory
-after performing propagations, which happen as event files are loaded  eg::
+Use `--debugpropagate` to write files `propagated-<seed>.npz` into the directory corresponding to event path.
+This is done after performing propagations, which happen as event files are loaded  eg::
 
     g4daeview.sh --with-chroma --load 1 --debugpropagate
 
@@ -231,6 +482,7 @@ style playoff
 
 
        ## bizarre off-the-cliff and jump around as go beyond 19ns in pid 541
+       ## THIS WAS THE SMOKING GUN THAT REVEALED THE INTERPOLATION BUG
    
 
 

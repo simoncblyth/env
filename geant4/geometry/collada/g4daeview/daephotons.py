@@ -92,7 +92,9 @@ class DAEPhotons(object):
         """
         :param click: world coordinate xyz of point clicked
         """
-        #log.info("clicked_point %s " % repr(click))
+        index = self.analyzer.nearest_photon(click)
+        log.info("clicked_point %s => index %s " % (repr(click),index))
+        self.param.pid = index
 
 
     def deferred_menu_update(self):
@@ -154,7 +156,7 @@ class DAEPhotons(object):
         propagated = vbo.read()
         self.analyzer( propagated )
         if self.config.args.debugpropagate:
-            self.analyzer.write_propagated(self.propagator.ctx.seed, self.event.loaded)
+            self.analyzer.write_propagated(self.propagator.ctx.seed, self.event.loaded, wipepropagate=self.config.args.wipepropagate)
         pass
         self.menuctrl.update( self.analyzer.history , msg="from propagate" )    
 

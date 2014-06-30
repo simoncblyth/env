@@ -1,109 +1,5 @@
 #!/usr/bin/env python
 """
-
-OpenGL Shader Language
-=======================
-
-GLSL 120
-----------
-
-* :google:`glsl 120 spec`
-
-  * http://www.opengl.org/registry/doc/GLSLangSpec.Full.1.20.8.pdf
-
-GLSL 120 Extensions
----------------------
-
-* http://stackoverflow.com/questions/15107521/opengl-extensions-how-to-use-them-correctly-in-c-and-glsl
-
-GL_EXT_gpu_shader4
-~~~~~~~~~~~~~~~~~~~~~~
-
-* https://www.opengl.org/registry/specs/EXT/gpu_shader4.txt
-
-  * `uvec4`
-  * bitwise operators
-  * int/uint attributes
-
-GL_EXT_geometry_shader4
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* https://www.opengl.org/registry/specs/EXT/geometry_shader4.txt
-* http://www.opengl.org/wiki/Geometry_Shader_Examples
-
-  * vertex and primitive generation in geometry stage between vertex and fragment
-
-glVertexAttribIPointer API hunt
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Trying to get integers attributes into shader proving difficult::
-
-    delta:OpenGL blyth$ find . -name '*.py' -exec grep -H glVertexAttribIPointer {} \;
-    ./platform/entrypoint31.py:glVertexAttribIPointer
-    ./raw/GL/NV/vertex_program4.py:def glVertexAttribIPointerEXT( index,size,type,stride,pointer ):pass
-    ./raw/GL/VERSION/GL_3_0.py:def glVertexAttribIPointer( index,size,type,stride,pointer ):pass
-    delta:OpenGL blyth$ 
-
-
-* http://developer.download.nvidia.com/opengl/specs/GL_NV_vertex_program4.txt
-
-::
-
-    In [15]: import OpenGL.raw.GL.VERSION.GL_3_0  as g30
-
-    In [16]: g30.glVertexAttribIPointer?
-    Type:       glVertexAttribIPointer
-    String Form:<OpenGL.platform.baseplatform.glVertexAttribIPointer object at 0x10babc290>
-    File:       /usr/local/env/chroma_env/lib/python2.7/site-packages/OpenGL/platform/baseplatform.py
-    Definition: g30.glVertexAttribIPointer(self, *args, **named)
-    Docstring:  <no docstring>
-    Call def:   g30.glVertexAttribIPointer(self, *args, **named)
-
-
-
-
-GL_NV_vertex_program4
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-* trying to use this extension from glsl gives not supported
-* http://developer.download.nvidia.com/opengl/specs/GL_NV_vertex_program4.txt
-
-::
-
-    In [11]: import OpenGL.raw.GL.NV.vertex_program4 as nv4
-
-    In [12]: nv4.glVertexAttribIPointerEXT
-    Out[12]: <OpenGL.platform.baseplatform.glVertexAttribIPointerEXT at 0x10bb9fed0>
-
-    In [13]: nv4.EXTENSION_NAME  
-    Out[13]: 'GL_NV_vertex_program4'
-
-
-
-
-Fixed Pipeline and Shaders
----------------------------
-
-When using position_name="position" DAEVertexBuffer does
-the traditional glVertexPointer setup that furnishes gl_Vertex
-to the shader. 
-
-Legacy way prior to move to generic attributes::
-
-    gl_Position = vec4( gl_Vertex.xyz , 1.) ; 
-    //vMomdir = vec4( 100.,100.,100., 1.) ;
-
-
-
-Bitwise operations glsl
--------------------------
-
-* http://www.geeks3d.com/20100831/shader-library-noise-and-pseudo-random-number-generator-in-glsl/
-
-
-* http://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
-
-
 """
 
 import logging
@@ -275,24 +171,12 @@ void main()
 
 
 
-
-
-
-
-
-
 class DAEPhotonsShader(object):
     """
-    Properties
-
-    #. shaderkey
-
-
     Initially tried swapping in and out shaders with deletions etc.. 
     this approach had issues with some transitions not working. Changing 
     the approach to keeping the shaders in a registry and swapping between
     them as needed has proved to work, with no switching problems.
-
     """
     shaderkeys = ['nogeo','p2p','p2l',]
     def __init__(self, dphotons):
