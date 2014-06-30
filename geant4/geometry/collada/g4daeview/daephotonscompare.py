@@ -19,11 +19,11 @@ class DAEPhotonsCompare(object):
 
     def compare(self, atts): 
         mismatch = 0
-        log.info("comparing atts %s " % repr(atts))
+        log.debug("comparing atts %s " % repr(atts))
         for att in atts:
             cf = np.all( getattr(self.a, att) == getattr(self.b, att))
-            log.info("att %s cf %s " % ( att, cf ))
             if not cf:
+                log.warn("att %s cf %s " % ( att, cf ))
                 mismatch += 1
         pass
         return mismatch

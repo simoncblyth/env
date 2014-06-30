@@ -5,12 +5,22 @@ log = logging.getLogger(__name__)
 from ConfigParser import ConfigParser
 from daeinterpolateview import DAEInterpolateView, DAEParametricView
 from daeviewpoint import DAEViewpoint
+from daeclipper import DAEClipper
 
 class DAEBookmarks(dict):
-    def __init__(self, path, geometry):
+    def __init__(self, path, geometry ):
+        """
+        :param path: to bookmarks file
+        :param geometry: DAEGeometry instance
+        :param clipper: DAEClipper instance
+        """
         dict.__init__(self)
         self.path = path
         self.current = None
+
+        # clipping plane control
+        self.clippers = {} 
+
         if os.path.exists(path):
             self.load(geometry)  
 
@@ -24,8 +34,34 @@ class DAEBookmarks(dict):
     marks = property(_get_marks)
 
     def _get_asini(self):
-        return "\n".join(["[%s%s]\n%s" % (self.ini_prefix, k, self[k].asini) for k in self.marks])
+        """
+        """
+        entries = []
+        for k in self.marks:
+            view = self[k]
+            vini = "[%s%s]\n%s" % (self.ini_prefix, k, view.asini)
+            entries.append(vini)
+            entries.append(self.clippers[k].asini)
+            pass 
+        return "\n".join(entries)
     asini = property(_get_asini)
+
+    def _get_clipper(self):
+        """
+        Access clipper corresponding to the current bookmark, creates the instance 
+        if does not already exist.
+        """
+        if not self.current in self.clippers:
+            self.clippers[self.current] = DAEClipper()  
+        return self.clippers[self.current] 
+    clipper = property(_get_clipper)
+
+    def add_clipping_plane(self, plane):
+        """
+        Add the plane to the clipper corresponding to the current bookmark
+        """ 
+        log.info("add_clipping_plane")
+        self.clipper.add(plane)
 
     def save(self):
         log.info("save %s bookmarks to %s " % (len(self.marks),self.path ))
@@ -49,26 +85,37 @@ class DAEBookmarks(dict):
                     log.debug("failed to load bookmark %s " % k )
                 else:   
                     self.assign(k, view)
+                    self.clippers[k] = DAEClipper.from_ini(cfg)
 
     def __repr__(self):
         def fmt_(k):
             return "[%s]" if self.is_current(k) else "%s"  
         return "".join(map(lambda k:fmt_(k) % k,sorted(self.keys())))
 
-    def create_for_solid(self, solid, numkey ):
+    def create_for_solid(self, solid, numkey):
         log.debug("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
         view = self.transform.spawn_view_jumping_frame(solid)
         self.assign(numkey, view)
         self.set_current(numkey)
 
-    def create_for_object(self, obj, numkey ):
+    def create_for_object(self, obj, numkey):
         #log.info("create_for_object: numkey %s " % (numkey) )
         view = self.transform.spawn_view_jumping_frame(obj)
         self.assign(numkey, view)
         self.set_current(numkey)
 
     def assign(self, key, view):
+        """
+        Record the `view` as bookmark `key` into this dict
+
+        Whats an appropriate relationship between clips(clipping planes), views and bookmarks ?
+        Views come and go, so not a good place to stick the clips.
+
+        :param key:
+        :param view:
+        """
         self[str(key)] = view
+
     def lookup(self, key, default=None):
         return self.get(str(key),default)
     def set_current(self, key):
@@ -92,6 +139,14 @@ class DAEBookmarks(dict):
         self.assign(numkey, view) 
 
     def visit(self, numkey):
+        oldkey = self.current
+        if oldkey in self.clippers:
+            log.info("disable oldkey %s clips " % oldkey )
+            self.clippers[oldkey].disable()
+        else:
+            log.warn("huh no oldkey %s in clippers " % oldkey ) 
+        pass
+
         view = self.lookup(numkey, None)
         if not view is None:
             self.set_current(numkey)

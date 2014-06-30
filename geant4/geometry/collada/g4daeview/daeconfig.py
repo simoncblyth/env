@@ -257,7 +257,7 @@ class DAEConfig(ConfigBase):
         defaults['ajump'] = None
         defaults['period'] = 1000
         defaults['timeperiod'] = 300 
-        defaults['timerange'] = None
+        defaults['timerange'] = "0,60"   # most action in first 30ns, but continues out to >1000ns
         defaults['eye'] = "-1,-1,0"  # -2,-2,0 formerly 
         defaults['look'] = "0,0,0"
         defaults['up'] = "0,0,1"

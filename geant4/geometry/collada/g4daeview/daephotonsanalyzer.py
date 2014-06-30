@@ -2,7 +2,28 @@
 """
 From commandline::
 
-    delta:~ blyth$ daephotonsanalyzer.sh propagated-0.npz 
+
+    delta:~ blyth$ cd /usr/local/env/tmp/20140514-175600/    ## get path for currently loaded event from g4daeview stdout 
+    delta:20140514-175600 blyth$ daephotonsanalyzer.sh propagated-0.npz 
+
+
+
+#. hmm, it would be useful for g4daeview.py to vend some JSON regarding current high level state
+
+
+Handling Truncation 
+--------------------
+
+#. reserve slot -2, and use it for the last propagated position (up to propagation max_steps)
+
+   * motivations eg to be able to select a photon, need to have easy way to access final position
+
+#. animation interpolation presentation can continue to use slot -1  
+
+
+::
+
+    b = a.reshape( (4165,10) )
 
 
 """
@@ -39,7 +60,7 @@ class DAEPhotonsAnalyzer(object):
     Interpret information recorded during and at tail 
     of propagate_vbo.cu:propagate_vbo
     """
-    path = "propagated-%(seed)s.npz"
+    name = "propagated-%(seed)s.npz"
     def __init__(self, max_slots, slot=-1 ):
         self.max_slots = max_slots
         self.slot = slot
@@ -62,15 +83,38 @@ class DAEPhotonsAnalyzer(object):
         self.loaded = path
         self(propagated)
 
-    def write_propagated(self, seed, path=None):
+    def write_propagated(self, seed, eventpath ):
         """
+        :param seed:
+        :param eventpath: 
+
         Trigger this with --debugpropagate
+
+        Propagated VBO files containing numpy arrays are written 
+        to a directory named after the basename of the originating event file.
+
+        For example the event file `/usr/local/env/tmp/1.root` has 
+        propagated files written to `/usr/local/env/tmp/1/propagated-0.npz` where
+        the zero corresponds to the seed in use.
 
         When there is a preexisting output file they are 
         compared and an assertion is triggered if there is any mismatch 
         """
         assert not self.propagated is None
-        path = self.path % locals() if path is None else path
+        if eventpath is None:
+            log.warn("cannot write_propagated with event that has not been saved to file and subsequently loaded") 
+            return
+        pass
+        name = self.name % locals() 
+        eventbase, ext = os.path.splitext(eventpath)
+        assert ext == '.root', ext 
+
+        if not os.path.exists(eventbase):
+            os.makedirs(eventbase)
+
+        path = os.path.join( eventbase, name ) 
+        log.info("write_propagated %s " % path ) 
+
         if not os.path.exists(path):
             self._write_propagated(path)
         else:

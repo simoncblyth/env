@@ -28,6 +28,7 @@ class DAEEvent(object):
     def __init__(self, config, scene ):
         self.config = config
         self.scene = scene
+        self.loaded = None
         pass
         self.qcut = config.args.qcut 
         self.bbox_cache = None
@@ -76,6 +77,12 @@ class DAEEvent(object):
 
     def toggle_animate(self):
         self.toggle('animate')
+
+    def clicked_point(self, click):
+        """
+        :param click: world coordinate xyz of point clicked
+        """
+        self.dphotons.clicked_point( click )
 
     def toggle(self, name):
         log.info("toggle %s" % name )
@@ -275,6 +282,7 @@ class DAEEvent(object):
             log.warn("load_cpl failed ")
             return
         pass
+        self.loaded = path
         self.eventlist.path = path   # let eventlist know where we are, to allow loadnext loadprev
         self.setup_cpl( cpl )
         self.config.rmenu.dispatch('on_needs_redraw')

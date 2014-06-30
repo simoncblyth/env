@@ -88,6 +88,12 @@ class DAEPhotons(object):
         self.tcut = event.config.args.tcut    
 
 
+    def clicked_point(self, click):
+        """
+        :param click: world coordinate xyz of point clicked
+        """
+        #log.info("clicked_point %s " % repr(click))
+
 
     def deferred_menu_update(self):
         """
@@ -132,6 +138,11 @@ class DAEPhotons(object):
            with np.load('propagated.npz') as npz:
                a = npz['propagated']
 
+
+        Hmm should write propagated into path next to the originating 
+        event file  
+
+
         """
         if self.photons is None:return
 
@@ -143,7 +154,7 @@ class DAEPhotons(object):
         propagated = vbo.read()
         self.analyzer( propagated )
         if self.config.args.debugpropagate:
-            self.analyzer.write_propagated(self.propagator.ctx.seed)
+            self.analyzer.write_propagated(self.propagator.ctx.seed, self.event.loaded)
         pass
         self.menuctrl.update( self.analyzer.history , msg="from propagate" )    
 

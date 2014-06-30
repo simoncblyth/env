@@ -74,10 +74,7 @@ class DAEScene(window_event.EventDispatcher):
         self.lights = DAELights( light_transform, config )
 
         # bookmarked viewpoints
-        self.bookmarks = DAEBookmarks(config.bookmarks, geometry) 
-
-        # clipping plane control
-        self.clipper = DAEClipper() 
+        self.bookmarks = DAEBookmarks(config.bookmarks, geometry ) 
 
         # Chroma raycaster and propagator, None if not --with-chroma
         self.raycaster = self.chroma.raycaster
@@ -119,6 +116,10 @@ class DAEScene(window_event.EventDispatcher):
     def external_cpl(self, cpl ):
         log.info("external_cpl ChromaPhotonList ")
         self.event.external_cpl( cpl )
+
+    def _get_clipper(self):
+        return self.bookmarks.clipper
+    clipper = property(_get_clipper)
 
     def reset_count(self):
         self.animator.reset()
@@ -217,9 +218,7 @@ class DAEScene(window_event.EventDispatcher):
         here = self.here
         solids = self.containing_solids( here )
 
-
-        self.clipper.add( self.transform.plane )
-
+        self.bookmarks.add_clipping_plane( self.transform.plane )
 
         log.info("solids containing eye point %s " % repr(here))   
         print "\n".join(map(repr,solids))
@@ -250,6 +249,9 @@ class DAEScene(window_event.EventDispatcher):
         In target mode this jumps to a new view of clicked solid, from a default viewpoint.  
         This is jarring as usually does not match the viewpoint from which the click was made.
         """ 
+
+        self.event.clicked_point( click )
+
         solid = self.pick_solid(click)
         view = None
         if target_mode:

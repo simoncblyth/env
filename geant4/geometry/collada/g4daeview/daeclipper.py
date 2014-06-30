@@ -69,6 +69,49 @@ class DAEClipper(object):
         self.nplane = 0
         self.planes = {}
 
+    @classmethod
+    def inifmt(cls, planes, prefix="clip_",fmt="%5.1f"):
+        v_ = lambda v:("%(fmt)s,%(fmt)s,%(fmt)s,%(fmt)s" % dict(fmt=fmt)) % tuple(v) 
+        plane_ = lambda _:"%s%s = %s "  % (prefix,_[0], v_(_[1]).replace(" ",""))
+        return "\n".join(map(plane_,planes.items()))
+
+    asini = property(lambda self:self.inifmt(self.planes))
+
+
+    @classmethod
+    def planes_from_ini(cls, cfg, prefix="clip_"):
+        """
+        :param cfg:  List of key value pairs, like that supplied by ConfigParser
+        :return: list of plane 4-tuples
+        """
+        planes = []
+        for k,v in cfg:
+            if k.startswith(prefix):
+                plane = map(float, v.split(","))
+                planes.append(plane)
+            pass
+        pass 
+        return planes
+
+    @classmethod
+    def from_ini(cls, cfg ):
+        planes = cls.planes_from_ini(cfg)
+        clipper = cls() 
+        clipper.load(planes)
+        return clipper 
+
+    def load(self, planes):
+        """
+        :param: list of 4-tuples with plane equations, eg as supplied by DAEClipper.planes_from_ini
+        """
+        if len(planes)>0:
+           log.info("load %s planes " % len(planes))
+           self.reset()
+           for plane in planes: 
+               self.add(plane)
+           pass
+
+
     def add(self, plane_eqn ):
         """
         :param 4-element array representing plane equation 
@@ -79,8 +122,10 @@ class DAEClipper(object):
             return 
         pass
         log.info("add nplane %s plane_eqn %s " % (self.nplane,repr(plane_eqn)))
+
         self.planes[self.nplane] = plane_eqn 
         self.nplane += 1
+         
 
     def enable_one(self, n):
         """
@@ -112,5 +157,12 @@ class DAEClipper(object):
 
 if __name__ == '__main__':
     pass
+
+    clipper = DAEClipper()
+    clipper.add( (1,2,3,4) )
+    clipper.add( (1,2,3,4) )
+    clipper.add( (1,2,3,4) )
+
+    print clipper.asini
 
 
