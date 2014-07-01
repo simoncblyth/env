@@ -9,6 +9,66 @@ where Chroma cannot be installed
 
    ipython collada_to_chroma.py demo.dae -i 
 
+
+Interactive access to geometry via embedded ipython::
+
+    delta:~ blyth$ collada_to_chroma.sh
+    INFO:env.geant4.geometry.collada.collada_to_chroma:daeload path /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae 
+    WARNING:env.geant4.geometry.collada.collada_to_chroma:setting parent_material to __dd__Materials__Vacuum0xbf9fcc0 as parent is None for node top.0 
+    INFO:env.geant4.geometry.collada.collada_to_chroma:dropping into IPython.embed() try: g.<TAB> 
+    ...
+
+    In [1]: g.
+    g.add_solid            g.colors               g.flatten              g.material2_index      g.solid_displacements  g.solid_rotations      g.surface_index        g.unique_surfaces
+    g.bvh                  g.detector_material    g.material1_index      g.mesh                 g.solid_id             g.solids               g.unique_materials     
+
+    In [1]: g.material1_index
+    Out[1]: array([13, 13, 13, ..., 34, 34, 34], dtype=int32)
+
+    In [2]: map(len,[g.material1_index,g.material2_index,g.surface_index,g.unique_materials,g.unique_surfaces])
+    Out[2]: [2448160, 2448160, 2448160, 36, 35]
+
+    In [13]: print "\n".join(["%2s %s" % (i,m.name[17:-9]) for i,m in enumerate(g.unique_materials)])
+     0 PPE
+     1 MixGas
+     2 Air
+     3 Bakelite
+     4 Foam
+     5 Aluminium
+     6 Iron
+     7 GdDopedLS
+     8 Acrylic
+     9 Teflon
+    10 LiquidScintillator
+    11 Bialkali
+    12 OpaqueVacuum
+    13 Vacuum
+    14 Pyrex
+    15 UnstStainlessSteel
+    16 PVC
+    17 StainlessSteel
+    18 ESR
+    19 Nylon
+    20 MineralOil
+    21 BPE
+    22 Ge_68
+    23 Co_60
+    24 C_13
+    25 Silver
+    26 Nitrogen
+    27 Water
+    28 NitrogenGas
+    29 IwsWater
+    30 ADTableStainlessSteel
+    31 Tyvek
+    32 OwsWater
+    33 DeadWater
+    34 RadRock
+    35 Rock
+
+
+
+
 """
 import os, sys, logging, re
 log = logging.getLogger(__name__)
@@ -467,20 +527,23 @@ def daeload(path=None, bvh=False ):
    return cc.chroma_geometry
 
 
-
     
-
+def main():
+    logging.basicConfig(level=logging.INFO)
+    path = sys.argv[1] if len(sys.argv) > 1 else None
+    g = daeload(path)
+    log.info("dropping into IPython.embed() try: g.<TAB> ")
+    import IPython 
+    IPython.embed()
 
 
 
 if __name__ == '__main__':
-   if len(sys.argv) > 1:
-       path = sys.argv[1]
-   else:     
-       path = '$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae'
-   pass    
+    main()
 
-   daeload(path)
+
+
+
 
 
 

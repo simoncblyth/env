@@ -87,7 +87,7 @@ class DAEPhotons(object):
         self._mesh = None
         self._tcut = None
         self.tcut = event.config.args.tcut    
-
+ 
 
     def clicked_point(self, click, live=True ):
         """
@@ -108,12 +108,23 @@ class DAEPhotons(object):
         log.info("clicked_point %s => index %s " % (repr(click),index))
         self.param.pid = index
 
-
     def deferred_menu_update(self):
         """
         Calling this before GLUT setup, results in duplicated menus 
         """
         self.menuctrl.update_style_menu( self.styler.style_names, self.style_callback )
+        self.menuctrl.update_material_menu( self.unique_materials(), self.material_callback )
+
+    def unique_materials(self):
+        g = self.event.scene.chroma.chroma_geometry
+        return [("ANY",-1)] + [(m.name[17:-9],i,) for i,m in enumerate(g.unique_materials)]
+
+    def material_callback(self, item):
+        matname = item.title
+        matindex = item.extra['index']
+        log.info("material_callback matname %s matindex %s  " % (matname, matindex) )
+        self.param.mode = int(matindex)
+        self.menuctrl.rootmenu.dispatch('on_needs_redraw')
 
     def style_callback(self, item):
         style = item.title

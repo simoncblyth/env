@@ -37,6 +37,10 @@ class DAEScene(window_event.EventDispatcher):
     Keep this for handling state, **NOT interactivity**, **NOT graphics**     
     """
     def __init__(self, geometry, config ):
+        """
+        :param geometry: DAEGeometry instance
+        :param config: DAEConfig instance
+        """
         self.geometry = geometry  
         self.config = config
 

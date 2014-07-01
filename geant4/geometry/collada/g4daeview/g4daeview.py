@@ -6,8 +6,11 @@ G4DAEVIEW
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
-Live Style Change issues
--------------------------
+Live Style Change issues FIXED
+---------------------------------
+
+This was fixed by moving to keeping GLSL shaders around and swapping between them 
+rather than attempting to delete shaders.
 
 Style change can be done with eg `udp.py --style confetti`, certain switches have issues however:
 
@@ -24,9 +27,7 @@ Styles that use geometry shaders (noodles, movie) cannot be transitioned to from
 styles that do not.
 
 The style `confetti-1` is useful, as it presents the interpolated last slot
-without 
-
-
+without needing to switch to movie style.
 
 
 Step Interpolation Visualization

@@ -1,0 +1,1 @@
+../geant4/geometry/collada/collada_to_chroma.sh

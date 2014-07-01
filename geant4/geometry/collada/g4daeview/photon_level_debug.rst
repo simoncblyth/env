@@ -10,6 +10,38 @@ Issues
    * lots of specular reflections 
 
 
+Infinite wavelength for reemitted photons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    delta:~ blyth$ collada_to_chroma.sh
+    INFO:env.geant4.geometry.collada.collada_to_chroma:daeload path /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae 
+    WARNING:env.geant4.geometry.collada.collada_to_chroma:setting parent_material to __dd__Materials__Vacuum0xbf9fcc0 as parent is None for node top.0 
+    INFO:env.geant4.geometry.collada.collada_to_chroma:dropping into IPython.embed() try: g.<TAB> 
+    Python 2.7.6 (default, Nov 18 2013, 15:12:51) 
+    Type "copyright", "credits" or "license" for more information.
+
+    IPython 1.2.1 -- An enhanced Interactive Python.
+    ?         -> Introduction and overview of IPython's features.
+    %quickref -> Quick reference.
+    help      -> Python's own help system.
+    object?   -> Details about 'object', use 'object??' for extra details.
+
+    In [1]: g.
+    g.add_solid            g.colors               g.flatten              g.material2_index      g.solid_displacements  g.solid_rotations      g.surface_index        g.unique_surfaces
+    g.bvh                  g.detector_material    g.material1_index      g.mesh                 g.solid_id             g.solids               g.unique_materials     
+
+    In [1]: g.material1_index
+    Out[1]: array([13, 13, 13, ..., 34, 34, 34], dtype=int32)
+
+    In [2]: map(len,[g.material1_index,g.material2_index,g.surface_index,g.unique_materials,g.unique_surfaces])
+    Out[2]: [2448160, 2448160, 2448160, 36, 35]
+
+
+
+
+
 Disappearing/Reappearing Photon 3126 : FIXED
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

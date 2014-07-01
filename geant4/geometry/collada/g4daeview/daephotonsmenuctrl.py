@@ -71,10 +71,12 @@ class DAEPhotonsMenuController(object):
         style_menu = DAEMenu("style")
         flags_menu = DAEMenu("flags")
         history_menu = DAEMenu("history")
+        material_menu = DAEMenu("material")
 
         photons_menu.addSubMenu(style_menu)
         photons_menu.addSubMenu(flags_menu)
         photons_menu.addSubMenu(history_menu) 
+        photons_menu.addSubMenu(material_menu) 
 
         self.rootmenu.addSubMenu(photons_menu)
 
@@ -82,6 +84,7 @@ class DAEPhotonsMenuController(object):
         self.style_menu = style_menu
         self.flags_menu = flags_menu
         self.history_menu = history_menu
+        self.material_menu = material_menu
 
     def update_old(self, photons, msg=""):
         log.info("update_old photons %s %s %s" % (photons.__class__.__name__, photons, msg) )
@@ -102,6 +105,17 @@ class DAEPhotonsMenuController(object):
             style_menu.addnew(name, callback )
         pass
         style_menu.update()  
+
+    def update_material_menu(self, matnameindex, callback ):
+        """
+        """
+        material_menu = self.rootmenu.find_submenu("material")
+        assert material_menu == self.material_menu
+        for name, index in matnameindex:
+            material_menu.addnew(name, callback, index=index )
+        pass
+        material_menu.update()  
+
         
     def update_flags_menu(self):
         """
