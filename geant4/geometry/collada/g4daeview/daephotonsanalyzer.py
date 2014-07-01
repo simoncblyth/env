@@ -2,14 +2,10 @@
 """
 From commandline::
 
-
     delta:~ blyth$ cd /usr/local/env/tmp/20140514-175600/    ## get path for currently loaded event from g4daeview stdout 
     delta:20140514-175600 blyth$ daephotonsanalyzer.sh propagated-0.npz 
 
-
-
 #. hmm, it would be useful for g4daeview.py to vend some JSON regarding current high level state
-
 
 Handling Truncation 
 --------------------
@@ -19,7 +15,6 @@ Handling Truncation
    * motivations eg to be able to select a photon, need to have easy way to access final position
 
 #. animation interpolation presentation can continue to use slot -1  
-
 
 ::
 
@@ -45,11 +40,12 @@ def compare(apath, bpath, max_slots):
     print cf
     mismatch = cf.compare(a.atts) 
 
-    fcmp = filecmp.cmp(apath,bpath)
-    if not fcmp:
-        log.warn("filecmp sees binary MISMATCH between %s %s but %s np mismatches  " % (apath, bpath, mismatch))
-    else:
-        log.info("filecmp sees match between %s %s np mismatch %s " % (apath, bpath, mismatch))
+    # its always filecmp mismatching so no point checking
+    #fcmp = filecmp.cmp(apath,bpath)
+    #if not fcmp:
+    #    log.warn("filecmp sees binary MISMATCH between %s %s but %s np mismatches  " % (apath, bpath, mismatch))
+    #else:
+    #    log.info("filecmp sees match between %s %s np mismatch %s " % (apath, bpath, mismatch))
     pass
     return mismatch 
 
@@ -61,17 +57,127 @@ def nearest_index(a,a0):
     return np.sum(np.square(np.abs(a-a0)),1).argmin()
 
 
+class DAEPhotonsPropagated(object):
+    def __init__(self, propagated=None, max_slots=10, slot=-1 ):
+        self.max_slots = max_slots
+        self.slot = slot
+        if not propagated is None:
+            self(propagated)
 
-class DAEPhotonsAnalyzer(object):
+    def __call__(self, propagated):
+        self.propagated = propagated
+
+    def get_vector(self, field='last_hit_triangle', index=0):
+        """
+        #. devious indexing to get top slot by viewing backwards
+        """ 
+        max_slots = self.max_slots
+        slot = self.slot
+        if slot == -1:
+            vec = self.propagated[field][::-max_slots,index][::-1]
+        elif slot == 0:
+            vec = self.propagated[field][::max_slots,index]
+        else:
+            assert 0, slot 
+        pass
+        return vec
+
+    flags = property(lambda self:self.get_vector(field='flags', index=0))
+    t0    = property(lambda self:self.get_vector(field='flags', index=1).view(np.float32))
+    tf    = property(lambda self:self.get_vector(field='flags', index=2).view(np.float32))
+    time_range = property(lambda self:[0.,self.tf.max()])  # start from 0, not min
+
+    lht       = property(lambda self:self.get_vector(field='last_hit_triangle', index=0))
+    photon_id = property(lambda self:self.get_vector(field='last_hit_triangle', index=1)) 
+    steps     = property(lambda self:self.get_vector(field='last_hit_triangle', index=2))
+    slots     = property(lambda self:self.get_vector(field='last_hit_triangle', index=3))
+
+    history = property(lambda self:count_unique(self.flags))
+    hsteps  = property(lambda self:count_unique(self.steps))
+    hslots  = property(lambda self:count_unique(self.slots))
+
+    # max_slots chunked arrays, for per-photon rather than per-step view 
+    p_post = property(lambda self:self.propagated['position_time'].reshape(-1,self.max_slots,4))
+    p_dirw = property(lambda self:self.propagated['direction_wavelength'].reshape(-1,self.max_slots,4))
+    p_polw = property(lambda self:self.propagated['polarization_weight'].reshape(-1,self.max_slots,4))
+    p_ccol = property(lambda self:self.propagated['ccolor'].reshape(-1,self.max_slots,4))
+    p_flags = property(lambda self:self.propagated['flags'].reshape(-1,self.max_slots,4))
+    p_lht   = property(lambda self:self.propagated['last_hit_triangle'].reshape(-1,self.max_slots,4))
+
+    nphoton = property(lambda self:len(self.propagated)/self.max_slots)
+
+    def _get_indices(self, slot=-1):
+        return np.arange( self.nphoton )*self.max_slots + (self.max_slots+slot)
+    last_index = property(lambda self:self._get_indices(slot=-2))
+
+    ## slot -2 accessors 
+    last_post  = property(lambda self:self.propagated['position_time'][self.last_index])
+    last_dirw  = property(lambda self:self.propagated['direction_wavelength'][self.last_index])
+    last_polw  = property(lambda self:self.propagated['polarization_weight'][self.last_index])
+    last_ccol  = property(lambda self:self.propagated['ccolor'][self.last_index])
+    last_flags = property(lambda self:self.propagated['flags'][self.last_index])
+    last_lht   = property(lambda self:self.propagated['last_hit_triangle'][self.last_index])
+
+    def nearest_photon(self, click):
+        """
+        :return: index of photon with final resting place closest to world frame coordinate `click` 
+        """
+        last_post = self.last_post
+        index = nearest_index( last_post[:,:3], click)
+        delta = click - last_post[:,:3][index]
+        log.info("nearest_photon to click %s index %s at %s delta %s " % ( repr(click), index, last_post[index], repr(delta)  )) 
+        return index
+
+    ## slot -1 accessors 
+    t_post  = property(lambda self:self.propagated['position_time'][::-self.max_slots][::-1])
+    t_dirw  = property(lambda self:self.propagated['direction_wavelength'][::-self.max_slots][::-1])
+    t_polw  = property(lambda self:self.propagated['polarization_weight'][::-self.max_slots][::-1])
+    t_ccol  = property(lambda self:self.propagated['ccolor'][::-self.max_slots][::-1])
+    t_flags = property(lambda self:self.propagated['flags'][::-self.max_slots][::-1])
+    t_lht   = property(lambda self:self.propagated['last_hit_triangle'][::-self.max_slots][::-1])
+
+    def t_nearest_photon(self, click):
+        """
+        :return: index of photon with time dependent position closest to world frame coordinate `click` 
+
+        NB for this to return correct indices the VBO needs to have been pulled off the GPU 
+        very recently 
+        """ 
+        t_post = self.t_post
+        index = nearest_index( t_post[:,:3], click)
+        delta = click - t_post[:,:3][index]
+        log.info("t_nearest_photon to click %s index %s at %s delta %s " % ( repr(click), index, t_post[index], repr(delta)  )) 
+        return index
+
+    def summary(self, pid):
+        log.info("summary for pid %s " % pid )
+        for att in "p_flags p_lht p_post t_post p_dirw p_polw p_ccol".split():
+            print att
+            print getattr(self,att)[pid]
+
+
+    def _get_counts_firsts_drawcount(self):
+        """Counts with truncation, indices of start of each photon record"""
+        photon_id = self.photon_id
+        nphoton = len(photon_id)
+        counts = np.clip( self.slots, 0, self.max_slots-2 )  ## does this need to change with new slot -2 scheme ?
+        firsts = np.arange(nphoton, dtype='i')*self.max_slots
+        drawcount = nphoton
+        return counts, firsts, drawcount
+
+    counts_firsts_drawcount = property(_get_counts_firsts_drawcount, doc=_get_counts_firsts_drawcount.__doc__)
+
+
+
+
+class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
     """
     Interpret information recorded during and at tail 
     of propagate_vbo.cu:propagate_vbo
     """
     name = "propagated-%(seed)s.npz"
     def __init__(self, max_slots, slot=-1 ):
-        self.max_slots = max_slots
-        self.slot = slot
-        self.propagated = None
+        DAEPhotonsPropagated.__init__(self, None, max_slots, slot)
         self.loaded = None
 
     @classmethod
@@ -149,71 +255,12 @@ class DAEPhotonsAnalyzer(object):
         """
         log.debug("analyzer.__call__")
         if propagated is None:return
-        self.propagated = propagated
+
+        DAEPhotonsPropagated.__call__(self, propagated)
+
         self.analyze() 
-
-    def get_vector(self, field='last_hit_triangle', index=0):
-        """
-        #. devious indexing to get top slot by viewing backwards
-        """ 
-        max_slots = self.max_slots
-        slot = self.slot
-        if slot == -1:
-            vec = self.propagated[field][::-max_slots,index][::-1]
-        elif slot == 0:
-            vec = self.propagated[field][::max_slots,index]
-        else:
-            assert 0, slot 
-        pass
-        return vec
-
     ## accessors
     atts = "propagated flags t0 t0 time_range lht photon_id steps slots history hsteps hslots".split()
-
-    flags = property(lambda self:self.get_vector(field='flags', index=0))
-    t0    = property(lambda self:self.get_vector(field='flags', index=1).view(np.float32))
-    tf    = property(lambda self:self.get_vector(field='flags', index=2).view(np.float32))
-    time_range = property(lambda self:[0.,self.tf.max()])  # start from 0, not min
-
-    lht       = property(lambda self:self.get_vector(field='last_hit_triangle', index=0))
-    photon_id = property(lambda self:self.get_vector(field='last_hit_triangle', index=1)) 
-    steps     = property(lambda self:self.get_vector(field='last_hit_triangle', index=2))
-    slots     = property(lambda self:self.get_vector(field='last_hit_triangle', index=3))
-
-    history = property(lambda self:count_unique(self.flags))
-    hsteps  = property(lambda self:count_unique(self.steps))
-    hslots  = property(lambda self:count_unique(self.slots))
-
-    post = property(lambda self:self.propagated['position_time'].reshape(-1,self.max_slots,4))
-    nphoton = property(lambda self:len(self.propagated)/self.max_slots)
-
-    def _get_indices(self, slot=-1):
-        return np.arange( self.nphoton )*self.max_slots + (self.max_slots+slot)
-    last_index = property(lambda self:self._get_indices(slot=-2))
-
-    last_post  = property(lambda self:self.propagated['position_time'][self.last_index])
-    last_dirw  = property(lambda self:self.propagated['direction_wavelength'][self.last_index])
-    last_polw  = property(lambda self:self.propagated['polarization_weight'][self.last_index])
-    last_ccol  = property(lambda self:self.propagated['ccolor'][self.last_index])
-    last_flags = property(lambda self:self.propagated['flags'][self.last_index])
-    last_lht   = property(lambda self:self.propagated['last_hit_triangle'][self.last_index])
-
-    def _get_counts_firsts_drawcount(self):
-        """Counts with truncation, indices of start of each photon record"""
-        photon_id = self.photon_id
-        nphoton = len(photon_id)
-        counts = np.clip( self.slots, 0, self.max_slots-2 ) 
-        firsts = np.arange(nphoton, dtype='i')*self.max_slots
-        drawcount = nphoton
-        return counts, firsts, drawcount
-    counts_firsts_drawcount = property(_get_counts_firsts_drawcount, doc=_get_counts_firsts_drawcount.__doc__)
-
-    def nearest_photon(self, click):
-        last_post = self.last_post
-        index = nearest_index( last_post[:,:3], click)
-        delta = click - last_post[:,:3][index]
-        log.info("nearest_photon to click %s index %s at %s delta %s " % ( repr(click), index, last_post[index], repr(delta)  )) 
-        return index
 
     ## steering 
 
@@ -304,6 +351,33 @@ def main():
 
     z = DAEPhotonsAnalyzer( max_slots=config.args.max_slots )
     z.load(path)
+
+    # populate context with some useful constants
+    NO_HIT           = 0x1 << 0
+    BULK_ABSORB      = 0x1 << 1
+    SURFACE_DETECT   = 0x1 << 2
+    SURFACE_ABSORB   = 0x1 << 3
+    RAYLEIGH_SCATTER = 0x1 << 4
+    REFLECT_DIFFUSE  = 0x1 << 5
+    REFLECT_SPECULAR = 0x1 << 6
+    SURFACE_REEMIT   = 0x1 << 7
+    SURFACE_TRANSMIT = 0x1 << 8
+    BULK_REEMIT      = 0x1 << 9
+    NAN_ABORT        = 0x1 << 31
+
+    STATUS_NONE = 0 
+    STATUS_HISTORY_COMPLETE = 1
+    STATUS_UNPACK = 2
+    STATUS_NAN_FAIL = 3
+    STATUS_FILL_STATE = 4 
+    STATUS_NO_INTERSECTION = 5
+    STATUS_TO_BOUNDARY = 6
+    STATUS_AT_SURFACE = 7
+    STATUS_AT_SURFACE_UNEXPECTED = 8
+    STATUS_AT_BOUNDARY = 9
+    STATUS_BREAKOUT = 10
+    STATUS_ENQUEUE = 11
+    STATUS_DONE = 12
 
     log.info("dropping into IPython.embed() try: z.<TAB> ")
     import IPython 

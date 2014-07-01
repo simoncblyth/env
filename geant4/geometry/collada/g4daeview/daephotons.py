@@ -14,7 +14,7 @@ from daephotonsmenuctrl import DAEPhotonsMenuController
 from daephotonsrenderer import DAEPhotonsRenderer
 from daephotonsdata import DAEPhotonsData
 from daephotonspropagator import DAEPhotonsPropagator
-from daephotonsanalyzer import DAEPhotonsAnalyzer
+from daephotonsanalyzer import DAEPhotonsAnalyzer, DAEPhotonsPropagated
 from daephotonsstyler import DAEPhotonsStyler
 
 
@@ -82,17 +82,29 @@ class DAEPhotons(object):
 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
         self.analyzer = DAEPhotonsAnalyzer(self.config.args.max_slots)
+        self.tpropagated = DAEPhotonsPropagated( None, self.config.args.max_slots )
 
         self._mesh = None
         self._tcut = None
         self.tcut = event.config.args.tcut    
 
 
-    def clicked_point(self, click):
+    def clicked_point(self, click, live=True ):
         """
         :param click: world coordinate xyz of point clicked
+        :param live: when True pull the VBO content off the GPU in order to 
+                     access the t-interpolated slot -1 positions 
+                     when False use last photon positions 
         """
-        index = self.analyzer.nearest_photon(click)
+        if live:
+            vbo = self.renderer.pbuffer   
+            self.tpropagated( vbo.read() ) 
+            index = self.tpropagated.t_nearest_photon( click ) 
+            self.tpropagated.summary(index)
+        else:
+            index = self.analyzer.nearest_photon(click)
+        pass
+
         log.info("clicked_point %s => index %s " % (repr(click),index))
         self.param.pid = index
 

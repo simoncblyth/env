@@ -10,6 +10,90 @@ Issues
    * lots of specular reflections 
 
 
+Disappearing/Reappearing Photon 3126 : FIXED
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* FIXED by modifying present_vbo to allow straddling to the last photon.
+
+Disappearance is much less common now, but some cases remain::
+
+    delta:1 blyth$ daephotonsanalyzer.sh propagated-0.npz 
+    2014-07-01 12:49:19,354 env.geant4.geometry.collada.g4daeview.daephotonsanalyzer:350 creating DAEPhotonsAnalyzer for propagated-0.npz 
+    2014-07-01 12:49:19,355 env.geant4.geometry.collada.g4daeview.daephotonsanalyzer:191 load propagated from propagated-0.npz 
+    2014-07-01 12:49:19,379 env.geant4.geometry.collada.g4daeview.daephotonsanalyzer:382 dropping into IPython.embed() try: z.<TAB> 
+    ... 
+
+    In [1]: z.p_flags[3126]
+    Out[1]: 
+    array([[         0,          0,          0,          0],
+           [        32,          0,          0,          4],
+           [         0,          0,          0,          0],
+           [         0,          0,          0,          0],
+           [         0,          0,          0,          0],
+           [         0,          0,          0,          0],
+           [         0,          0,          0,          0],
+           [         0,          0,          0,          0],
+           [        34,          0,          0,         12],
+           [        34, 1101913600, 1107947402,          0]], dtype=uint32)
+
+    In [2]: STATUS_DONE
+    Out[2]: 12
+
+    In [3]: REFLECT_DIFFUSE
+    Out[3]: 32
+
+    In [4]: REFLECT_DIFFUSE|BULK_ABSORB
+    Out[4]: 34
+
+::
+
+    In [1]: z.p_lht[3126]
+    Out[1]: 
+    array([[2382597,    3126,       1,       0],
+           [2165175,    3126,       2,       1],
+           [      0,       0,       0,       0],
+           [      0,       0,       0,       0],
+           [      0,       0,       0,       0],
+           [      0,       0,       0,       0],
+           [      0,       0,       0,       0],
+           [      0,       0,       0,       0],
+           [     -1,    3126,       2,       2],
+           [     -1,    3126,       2,       2]], dtype=int32)
+
+
+
+
+The photon is invisible between 31.411 and 34.4839.  Fail to staddle ?::
+
+    In [6]: z.p_post[3126]
+    Out[6]: 
+    array([[ -19966.8516, -796813.3125,   -7034.7739,      21.7334],
+           [ -22015.8867, -796247.3125,   -6789.8774,      31.411 ],
+           [      0.    ,       0.    ,       0.    ,       0.    ],
+           [      0.    ,       0.    ,       0.    ,       0.    ],
+           [      0.    ,       0.    ,       0.    ,       0.    ],
+           [      0.    ,       0.    ,       0.    ,       0.    ],
+           [      0.    ,       0.    ,       0.    ,       0.    ],
+           [      0.    ,       0.    ,       0.    ,       0.    ],
+           [ -21424.3594, -796217.1875,   -6569.8042,      34.4839],
+           [      0.    ,       0.    ,       0.    ,       0.    ]], dtype=float32)
+
+
+::
+
+    g4daeview.sh --with-chroma --load 1 --wipepropagate --debugkernel --debugphoton 3126
+
+::
+
+    FILL_STATE       START    [  3126] slot  0 steps  1 lht 2382597 tpos   21.733  -19966.85 -796813.31   -7034.77    w  383.00   dir    -0.96     0.26     0.11 pol   -0.284   -0.933   -0.220 
+    TO_BOUNDARY      PASS     [  3126] slot -1 steps  1 lht 2382597 tpos   31.411  -22015.89 -796247.31   -6789.88    w  383.00   dir    -0.96     0.26     0.11 pol   -0.284   -0.933   -0.220 
+    AT_SURFACE       CONTINUE [  3126] slot -1 steps  1 lht 2382597 tpos   31.411  -22015.89 -796247.31   -6789.88    w  383.00   dir     0.94     0.05     0.35 pol   -0.350    0.221    0.910 REFLECT_DIFFUSE 
+    FILL_STATE       CONTINUE [  3126] slot  1 steps  2 lht 2165175 tpos   31.411  -22015.89 -796247.31   -6789.88    w  383.00   dir     0.94     0.05     0.35 pol   -0.350    0.221    0.910 REFLECT_DIFFUSE 
+    TO_BOUNDARY      BREAK    [  3126] slot -1 steps  2 lht     -1 tpos   34.484  -21424.36 -796217.19   -6569.80    w  383.00   dir     0.94     0.05     0.35 pol   -0.350    0.221    0.910 REFLECT_DIFFUSE BULK_ABSORB 
+
+
+
+
 
 Missing NO_HIT : FIXED
 ~~~~~~~~~~~~~~~~~~~~~~~~~
