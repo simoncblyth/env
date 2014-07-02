@@ -116,8 +116,8 @@ class DAEPhotons(object):
         self.menuctrl.update_material_menu( self.unique_materials(), self.material_callback )
 
     def unique_materials(self):
-        g = self.event.scene.chroma.chroma_geometry
-        return [("ANY",-1)] + [(m.name[17:-9],i,) for i,m in enumerate(g.unique_materials)]
+        cg = self.event.scene.chroma.chroma_geometry
+        return [("-1 ANY",-1)] + [("%2d %s" % (i,m.name[17:-9]),i,) for i,m in enumerate(cg.unique_materials)]
 
     def material_callback(self, item):
         matname = item.title

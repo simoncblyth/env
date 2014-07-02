@@ -4,10 +4,44 @@ Photon Level Debug
 Issues
 ---------
 
-#. do many step histories have something different about them,  
- 
-   * wavelength ? REEMISSION 
-   * lots of specular reflections 
+
+Quite a lot of many step histories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Study these, are they just due to lots of specular reflections ?
+
+Visual distinction for zombie photons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Truncation transitions result in zombie/drunken photons
+linearly interpolating around. Need some visual distinction to
+make clear not real propagation paths. 
+
+ESR Step start Asymmetry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Selecting ESR see many more from bottom ESR than from top ?
+
+Material Selection not compatible with Spagetti style
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Gives lines off to infinity. This is how photon selection is implemented
+but thats not compatible with LINE_STRIP drawing.
+
+Material Step Starts
+~~~~~~~~~~~~~~~~~~~~~~
+
+Selecting steps that start in particular materials mostly gives
+understandable results, with steps in expected places in geometry.
+
+But some materials lead to seemingly wrong results, eg for steps
+starting in Acrylic having entries along muon path.
+
+
+Implement step selection based in *from* and *to* materials
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Need to expand VBO to hold material info.
 
 
 Infinite wavelength for reemitted photons
@@ -37,6 +71,106 @@ Infinite wavelength for reemitted photons
 
     In [2]: map(len,[g.material1_index,g.material2_index,g.surface_index,g.unique_materials,g.unique_surfaces])
     Out[2]: [2448160, 2448160, 2448160, 36, 35]
+
+
+Clicking a green photon at random, see the usual infinite wavelength::
+
+    2014-07-02 16:20:52,345 env.geant4.geometry.collada.g4daeview.daephotonsanalyzer:192 summary for pid 1337 
+    p_flags[1337]                                   p_lht[1337]                    
+    [[         0 1093812380 1093812380          2]  [[  1217   1337      1      0] 
+     [       512 1093812380 1093812380          2]   [  1254   1337      2      1] 
+     [       512 1093812380 1100465654          3]   [   990   1337      3      2] 
+     [       512 1093812380 1100505046          5]   [   634   1337      4      3] 
+     [       512 1093812380 1101658367         15]   [631702   1337      5      4] 
+     [       512 1093812380 1101704640          3]   [632006   1337      6      5] 
+     [       512 1093812380 1101730630          0]   [632304   1337      7      6] 
+     [       512 1093812380 1101730719         13]   [632331   1337      8      7] 
+     [       514 1093812380 1101730719         13]   [    -1   1337      8      8] 
+     [       514 1093812380 1101730719         13]]  [    -1   1337      8      8]]
+    p_post[1337]                                            p_dirw[1337]                            p_polw[1337]                        p_ccol[1337]       
+    [[ -18229.1035 -799469.375    -7061.5503      11.1408]  [[ -0.0442   0.9029   0.4276  88.9868]  [[ 0.9737 -0.0568  0.2204  1.    ]  [[ 1.  1.  1.  1.] 
+     [ -18229.1035 -799469.375    -7061.5503      11.1408]   [  0.0269   0.1337  -0.9907      inf]   [ 0.8209  0.5626  0.0982  1.    ]   [ 0.  1.  0.  1.] 
+     [ -18186.377  -799257.0625   -8635.          18.9717]   [  0.0267   0.1328  -0.9908      inf]   [ 0.1955  0.9713  0.1355  1.    ]   [ 0.  1.  0.  1.] 
+     [ -18185.9727 -799255.0625   -8650.          19.0468]   [  0.0269   0.1337  -0.9907      inf]   [ 0.1955  0.9712  0.1363  1.    ]   [ 0.  1.  0.  1.] 
+     [ -18173.9707 -799195.4375   -9092.          21.2466]   [  0.0267   0.1328  -0.9908      inf]   [ 0.1955  0.9713  0.1355  1.    ]   [ 0.  1.  0.  1.] 
+     [ -18173.4844 -799193.       -9110.          21.3348]   [  0.0262   0.13    -0.9912      inf]   [ 0.1956  0.9717  0.1326  1.    ]   [ 0.  1.  0.  1.] 
+     [ -18173.2227 -799191.6875   -9119.9004      21.3844]   [  0.0389   0.1934  -0.9804      inf]   [ 0.1934  0.9611  0.1972  1.    ]   [ 0.  1.  0.  1.] 
+     [ -18173.2207 -799191.6875   -9119.9502      21.3846]   [  0.0389   0.1934  -0.9803      inf]   [ 0.1934  0.9611  0.1973  1.    ]   [ 0.  1.  0.  1.] 
+     [ -18173.2207 -799191.6875   -9119.9502      21.3846]   [  0.0389   0.1934  -0.9803      inf]   [ 0.1934  0.9611  0.1973  1.    ]   [ 1.  0.  0.  1.] 
+     [ -18199.0137 -799319.875    -8169.6206      16.6555]]  [  0.0269   0.1337  -0.9907      inf]]  [ 0.8209  0.5626  0.0982  1.    ]]  [ 0.  1.  0.  1.]]
+    t_post[1337]                                          t_dirw[1337]                      t_polw[1337]                      t_ccol[1337]     
+    [ -18199.0137 -799319.875    -8169.6206      16.6555] [ 0.0269  0.1337 -0.9907     inf] [ 0.8209  0.5626  0.0982  1.    ] [ 0.  1.  0.  1.]
+    2014-07-02 16:20:52,350 env.geant4.geometry.collada.g4daeview.daephotons:108 clicked_point (-18198.09676577193, -799326.9836636602, -8180.765649884277) => index 1337 
+
+
+Rerun with that photon in debug::
+
+    g4daeview.sh --with-chroma --load 1 --debugkernel --debugphoton 1337 --wipepropagate
+
+    materials 2:GdDopedLS 
+              3:Acrylic  
+              5:LiquidScintillator 
+             13:ESR
+             15:MineralOil
+              0:Air
+
+Looks like GdDopedLS has a reemission probability of 0.4 and no wavelength distribution to back it up::
+
+    2014-07-02 17:15:22,228 env.geant4.geometry.collada.g4daeview.daechromacontext:59  setup_rng_states using seed 0 
+    [  1]   1337 material_code 33816320 inner 2 outer 3 si -1 ri1 1.453600 ri2 1.462000 abs 0.001000 sca 850.000000 rem 0.400000 ncdf -0.000008 w0 60.000000 st 20.000000 cdf lo/up 0.000000 0.000000 
+    [  2]   1337 material_code 33816320 inner 2 outer 3 si -1 ri1 1.478100 ri2 1.487800 abs 3358.373535 sca 500000.000000 rem 0.000000 ncdf -0.000008 w0 60.000000 st 20.000000 cdf lo/up 0.000000 0.000000 
+    [  3]   1337 material_code 50724608 inner 3 outer 5 si -1 ri1 1.487800 ri2 1.478100 abs 8000.000000 sca 500000.000000 rem 0.000000 ncdf -0.000008 w0 60.000000 st 20.000000 cdf lo/up 0.000000 0.000000 
+    [  4]   1337 material_code 84147968 inner 5 outer 3 si -1 ri1 1.478100 ri2 1.487800 abs 3236.346924 sca 500000.000000 rem 0.000000 ncdf -0.000008 w0 60.000000 st 20.000000 cdf lo/up 0.000000 0.000000 
+    [  5]   1337 material_code 51379968 inner 3 outer 15 si -1 ri1 1.456400 ri2 1.487800 abs 2672.763672 sca 500000.000000 rem 0.000000 ncdf -0.000008 w0 60.000000 st 20.000000 cdf lo/up 0.000000 0.000000 
+    [  6]   1337 material_code 261888 inner 0 outer 3 si -1 ri1 1.487800 ri2 1.000270 abs 8000.000000 sca 500000.000000 rem 0.000000 ncdf -0.000008 w0 60.000000 st 20.000000 cdf lo/up 0.000000 0.000000 
+    [  7]   1337 material_code 218169088 inner 13 outer 0 si -1 ri1 1.000270 ri2 1.000000 abs 10000000.000000 sca 1000000.000000 rem 0.000000 ncdf -0.000008 w0 60.000000 st 20.000000 cdf lo/up 0.000000 0.000000 
+    [  8]   1337 material_code 218169088 inner 13 outer 0 si -1 ri1 1.000000 ri2 1.000270 abs 0.001000 sca 1000000.000000 rem 0.000000 ncdf -0.000008 w0 60.000000 st 20.000000 cdf lo/up 0.000000 0.000000 
+    FILL_STATE       START    [  1337] slot  1 steps  1 lht   1217 tpos   11.141  -18229.10 -799469.38   -7061.55    w   88.99   dir    -0.04     0.90     0.43 pol    0.974   -0.057    0.220 
+    TO_BOUNDARY      CONTINUE [  1337] slot -1 steps  1 lht   1217 tpos   11.141  -18229.10 -799469.38   -7061.55    w     inf   dir     0.03     0.13    -0.99 pol    0.821    0.563    0.098 BULK_REEMIT 
+    FILL_STATE       CONTINUE [  1337] slot  2 steps  2 lht   1254 tpos   11.141  -18229.10 -799469.38   -7061.55    w     inf   dir     0.03     0.13    -0.99 pol    0.821    0.563    0.098 BULK_REEMIT 
+    TO_BOUNDARY      PASS     [  1337] slot -1 steps  2 lht   1254 tpos   18.972  -18186.38 -799257.06   -8635.00    w     inf   dir     0.03     0.13    -0.99 pol    0.821    0.563    0.098 BULK_REEMIT 
+    AT_BOUNDARY      CONTINUE [  1337] slot -1 steps  2 lht   1254 tpos   18.972  -18186.38 -799257.06   -8635.00    w     inf   dir     0.03     0.13    -0.99 pol    0.195    0.971    0.135 BULK_REEMIT 
+    FILL_STATE       PASS     [  1337] slot  3 steps  3 lht    990 tpos   18.972  -18186.38 -799257.06   -8635.00    w     inf   dir     0.03     0.13    -0.99 pol    0.195    0.971    0.135 BULK_REEMIT 
+    TO_BOUNDARY      PASS     [  1337] slot -1 steps  3 lht    990 tpos   19.047  -18185.97 -799255.06   -8650.00    w     inf   dir     0.03     0.13    -0.99 pol    0.195    0.971    0.135 BULK_REEMIT 
+    AT_BOUNDARY      CONTINUE [  1337] slot -1 steps  3 lht    990 tpos   19.047  -18185.97 -799255.06   -8650.00    w     inf   dir     0.03     0.13    -0.99 pol    0.195    0.971    0.136 BULK_REEMIT 
+    FILL_STATE       PASS     [  1337] slot  4 steps  4 lht    634 tpos   19.047  -18185.97 -799255.06   -8650.00    w     inf   dir     0.03     0.13    -0.99 pol    0.195    0.971    0.136 BULK_REEMIT 
+    TO_BOUNDARY      PASS     [  1337] slot -1 steps  4 lht    634 tpos   21.247  -18173.97 -799195.44   -9092.00    w     inf   dir     0.03     0.13    -0.99 pol    0.195    0.971    0.136 BULK_REEMIT 
+    AT_BOUNDARY      CONTINUE [  1337] slot -1 steps  4 lht    634 tpos   21.247  -18173.97 -799195.44   -9092.00    w     inf   dir     0.03     0.13    -0.99 pol    0.195    0.971    0.135 BULK_REEMIT 
+    FILL_STATE       PASS     [  1337] slot  5 steps  5 lht 631702 tpos   21.247  -18173.97 -799195.44   -9092.00    w     inf   dir     0.03     0.13    -0.99 pol    0.195    0.971    0.135 BULK_REEMIT 
+    TO_BOUNDARY      PASS     [  1337] slot -1 steps  5 lht 631702 tpos   21.335  -18173.48 -799193.00   -9110.00    w     inf   dir     0.03     0.13    -0.99 pol    0.195    0.971    0.135 BULK_REEMIT 
+    AT_BOUNDARY      CONTINUE [  1337] slot -1 steps  5 lht 631702 tpos   21.335  -18173.48 -799193.00   -9110.00    w     inf   dir     0.03     0.13    -0.99 pol    0.196    0.972    0.133 BULK_REEMIT 
+    FILL_STATE       PASS     [  1337] slot  6 steps  6 lht 632006 tpos   21.335  -18173.48 -799193.00   -9110.00    w     inf   dir     0.03     0.13    -0.99 pol    0.196    0.972    0.133 BULK_REEMIT 
+    TO_BOUNDARY      PASS     [  1337] slot -1 steps  6 lht 632006 tpos   21.384  -18173.22 -799191.69   -9119.90    w     inf   dir     0.03     0.13    -0.99 pol    0.196    0.972    0.133 BULK_REEMIT 
+    AT_BOUNDARY      CONTINUE [  1337] slot -1 steps  6 lht 632006 tpos   21.384  -18173.22 -799191.69   -9119.90    w     inf   dir     0.04     0.19    -0.98 pol    0.193    0.961    0.197 BULK_REEMIT 
+    FILL_STATE       PASS     [  1337] slot  7 steps  7 lht 632304 tpos   21.384  -18173.22 -799191.69   -9119.90    w     inf   dir     0.04     0.19    -0.98 pol    0.193    0.961    0.197 BULK_REEMIT 
+    TO_BOUNDARY      PASS     [  1337] slot -1 steps  7 lht 632304 tpos   21.385  -18173.22 -799191.69   -9119.95    w     inf   dir     0.04     0.19    -0.98 pol    0.193    0.961    0.197 BULK_REEMIT 
+    AT_BOUNDARY      CONTINUE [  1337] slot -1 steps  7 lht 632304 tpos   21.385  -18173.22 -799191.69   -9119.95    w     inf   dir     0.04     0.19    -0.98 pol    0.193    0.961    0.197 BULK_REEMIT 
+    FILL_STATE       PASS     [  1337] slot  8 steps  8 lht 632331 tpos   21.385  -18173.22 -799191.69   -9119.95    w     inf   dir     0.04     0.19    -0.98 pol    0.193    0.961    0.197 BULK_REEMIT 
+    TO_BOUNDARY      BREAK    [  1337] slot -1 steps  8 lht     -1 tpos   21.385  -18173.22 -799191.69   -9119.95    w     inf   dir     0.04     0.19    -0.98 pol    0.193    0.961    0.197 BULK_REEMIT BULK_ABSORB 
+    2014-07-02 17:15:23,323 env.geant4.geometry.collada.g4daeview.daephotonsanalyzer:273 write_propagated /usr/local/env/tmp/1/propagated-0.npz 
+
+
+NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsG4Scintillation.cc::
+
+    577             else {
+    578                 // reemission, the sample method need modification
+    579                 G4double CIIvalue = G4UniformRand()*
+    580                     ScintillationIntegral->GetMaxValue();
+    581                 if (CIIvalue == 0.0) {
+    582                     // return unchanged particle and no secondaries  
+    583                     aParticleChange.SetNumberOfSecondaries(0);
+    584                     return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
+    585                 }
+    586                 sampledEnergy=
+    587                     ScintillationIntegral->GetEnergy(CIIvalue);
+    588                 if (verboseLevel>1) {
+    589                     G4cout << "oldEnergy = " <<aTrack.GetKineticEnergy() << G4endl;
+    590                     G4cout << "reemittedSampledEnergy = " << sampledEnergy
+    591                            << "\nreemittedCIIvalue =        " << CIIvalue << G4endl;
+    592                 }
+    593             }
+    594 
+    595             // Generate random photon direction
 
 
 

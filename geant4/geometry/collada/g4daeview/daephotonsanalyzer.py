@@ -29,6 +29,45 @@ from photons import mask2arg_, count_unique
 from daephotonscompare import DAEPhotonsCompare
 
 
+def srep(obj, att, index):
+    """
+    :param obj:
+    :param att: attribute name
+    :param index: index of array obj.<att>[index]
+
+    :return: string representation of numpy array with att[index] label
+    """
+    body = str(getattr(obj,att)[index])  
+    maxl = max(map(len,body.split("\n"))) 
+    label = "%s[%s]" % (att,index)
+    fmt = "%-"+str(maxl)+"s"
+    fmt_ = lambda _:fmt % _
+    ubody = "\n".join(map(fmt_,body.split("\n")))
+    return "\n".join([fmt_(label),ubody])
+
+def side_by_side(*arr):
+    """
+    :param arr: list of string representations of numpy arrays, 
+                all the representations need to have the same length
+
+    :return:  sting with the arrays presented side by side
+    """
+    split = map(lambda _:_.split("\n"),arr)
+    zsplit = zip(*split)
+    return "\n".join(map(lambda _:" ".join(_), zsplit))
+
+def att_side_by_side( obj, index, atts):
+    """
+    :param obj:
+    :param index:
+    :param atts: list of attribute names
+    """
+    srep_ = lambda _:srep(obj,_,index)
+    return side_by_side(*map(srep_,atts)) 
+
+
+
+
 def compare(apath, bpath, max_slots):
     """
     Compare persisted propagation npz files
@@ -151,10 +190,14 @@ class DAEPhotonsPropagated(object):
 
     def summary(self, pid):
         log.info("summary for pid %s " % pid )
-        for att in "p_flags p_lht p_post t_post p_dirw p_polw p_ccol".split():
-            print att
-            print getattr(self,att)[pid]
-
+        #atts = "t_post".split()
+        #for att in atts:
+        #    print att
+        #    print getattr(self,att)[pid]
+        #pass
+        print att_side_by_side(self, pid, "p_flags p_lht".split()) 
+        print att_side_by_side(self, pid, "p_post p_dirw p_polw p_ccol".split()) 
+        print att_side_by_side(self, pid, "t_post t_dirw t_polw t_ccol".split()) 
 
     def _get_counts_firsts_drawcount(self):
         """Counts with truncation, indices of start of each photon record"""

@@ -1,0 +1,1 @@
+../geant4/geometry/collada/g4daeview/daegeometry.sh

@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 """
 
+.. warning:: Material codes obtained standalone will not match those in-app 
+             if geometry selection is different. Use daegeometry.sh for an easy 
+             way to duplicate what the standard app does.
+
+
 NB the collada to chroma functionality is kept separate 
 from DAENode as that needs to operate on machines
 where Chroma cannot be installed
@@ -27,46 +32,6 @@ Interactive access to geometry via embedded ipython::
 
     In [2]: map(len,[g.material1_index,g.material2_index,g.surface_index,g.unique_materials,g.unique_surfaces])
     Out[2]: [2448160, 2448160, 2448160, 36, 35]
-
-    In [13]: print "\n".join(["%2s %s" % (i,m.name[17:-9]) for i,m in enumerate(g.unique_materials)])
-     0 PPE
-     1 MixGas
-     2 Air
-     3 Bakelite
-     4 Foam
-     5 Aluminium
-     6 Iron
-     7 GdDopedLS
-     8 Acrylic
-     9 Teflon
-    10 LiquidScintillator
-    11 Bialkali
-    12 OpaqueVacuum
-    13 Vacuum
-    14 Pyrex
-    15 UnstStainlessSteel
-    16 PVC
-    17 StainlessSteel
-    18 ESR
-    19 Nylon
-    20 MineralOil
-    21 BPE
-    22 Ge_68
-    23 Co_60
-    24 C_13
-    25 Silver
-    26 Nitrogen
-    27 Water
-    28 NitrogenGas
-    29 IwsWater
-    30 ADTableStainlessSteel
-    31 Tyvek
-    32 OwsWater
-    33 DeadWater
-    34 RadRock
-    35 Rock
-
-
 
 
 """
@@ -153,7 +118,7 @@ class ColladaToChroma(object):
         pass
         self.vcount = 0
         self.surfaces = {}
-        self.materials = {}
+        self.materials = {}   # dict of chroma.geometry.Material 
 
     def convert_opticalsurfaces(self, debug=False):
         """
@@ -249,26 +214,40 @@ class ColladaToChroma(object):
         Which materials have each::
 
              EFFICIENCY                     [1 ] Bialkali 
-             SLOWTIMECONSTANT               [2 ] GdDopedLS,LiquidScintillator 
-             GammaFASTTIMECONSTANT          [2 ] GdDopedLS,LiquidScintillator 
-             ReemissionSLOWTIMECONSTANT     [2 ] GdDopedLS,LiquidScintillator 
-             REEMISSIONPROB                 [2 ] GdDopedLS,LiquidScintillator 
-             AlphaFASTTIMECONSTANT          [2 ] GdDopedLS,LiquidScintillator 
-             ReemissionFASTTIMECONSTANT     [2 ] GdDopedLS,LiquidScintillator 
-             SLOWCOMPONENT                  [2 ] GdDopedLS,LiquidScintillator 
-             YIELDRATIO                     [2 ] GdDopedLS,LiquidScintillator 
-             FASTCOMPONENT                  [2 ] GdDopedLS,LiquidScintillator 
-             NeutronFASTTIMECONSTANT        [2 ] GdDopedLS,LiquidScintillator 
-             ReemissionYIELDRATIO           [2 ] GdDopedLS,LiquidScintillator 
-             NeutronYIELDRATIO              [2 ] GdDopedLS,LiquidScintillator 
-             GammaYIELDRATIO                [2 ] GdDopedLS,LiquidScintillator 
-             SCINTILLATIONYIELD             [2 ] GdDopedLS,LiquidScintillator 
-             AlphaYIELDRATIO                [2 ] GdDopedLS,LiquidScintillator 
-             RESOLUTIONSCALE                [2 ] GdDopedLS,LiquidScintillator 
-             GammaSLOWTIMECONSTANT          [2 ] GdDopedLS,LiquidScintillator 
-             AlphaSLOWTIMECONSTANT          [2 ] GdDopedLS,LiquidScintillator 
-             NeutronSLOWTIMECONSTANT        [2 ] GdDopedLS,LiquidScintillator 
+
+             ---------------------------------------------------------------------
+
              FASTTIMECONSTANT               [2 ] GdDopedLS,LiquidScintillator 
+             SLOWTIMECONSTANT               [2 ] GdDopedLS,LiquidScintillator 
+             YIELDRATIO                     [2 ] GdDopedLS,LiquidScintillator 
+
+             GammaFASTTIMECONSTANT          [2 ] GdDopedLS,LiquidScintillator 
+             GammaSLOWTIMECONSTANT          [2 ] GdDopedLS,LiquidScintillator 
+             GammaYIELDRATIO                [2 ] GdDopedLS,LiquidScintillator 
+
+             AlphaFASTTIMECONSTANT          [2 ] GdDopedLS,LiquidScintillator 
+             AlphaSLOWTIMECONSTANT          [2 ] GdDopedLS,LiquidScintillator 
+             AlphaYIELDRATIO                [2 ] GdDopedLS,LiquidScintillator 
+
+             NeutronFASTTIMECONSTANT        [2 ] GdDopedLS,LiquidScintillator 
+             NeutronSLOWTIMECONSTANT        [2 ] GdDopedLS,LiquidScintillator 
+             NeutronYIELDRATIO              [2 ] GdDopedLS,LiquidScintillator 
+
+             ---------------------------------------------------------------------
+
+             ReemissionFASTTIMECONSTANT     [2 ] GdDopedLS,LiquidScintillator      for opticalphoton
+             ReemissionSLOWTIMECONSTANT     [2 ] GdDopedLS,LiquidScintillator 
+             ReemissionYIELDRATIO           [2 ] GdDopedLS,LiquidScintillator 
+
+             FASTCOMPONENT                  [2 ] GdDopedLS,LiquidScintillator     "Fast_Intensity"
+             SLOWCOMPONENT                  [2 ] GdDopedLS,LiquidScintillator     "Slow_Intensity"
+             REEMISSIONPROB                 [2 ] GdDopedLS,LiquidScintillator     "Reemission_Prob"
+
+             SCINTILLATIONYIELD             [2 ] GdDopedLS,LiquidScintillator 
+             RESOLUTIONSCALE                [2 ] GdDopedLS,LiquidScintillator 
+
+             ------------------------------------------------------------------------
+
              RAYLEIGH                       [5 ] GdDopedLS,Acrylic,Teflon,LiquidScintillator,MineralOil 
              RINDEX                         [14] Air,GdDopedLS,Acrylic,Teflon,LiquidScintillator,Bialkali,Vacuum,Pyrex,MineralOil,Water,NitrogenGas,IwsWater,OwsWater,DeadWater 
              ABSLENGTH                      [20] PPE,Air,GdDopedLS,Acrylic,Teflon,LiquidScintillator,Bialkali,Vacuum,Pyrex,UnstStainlessSteel,StainlessSteel,
@@ -295,7 +274,8 @@ class ColladaToChroma(object):
 
 
         keymat = {}
-        for dmaterial in self.nodecls.orig.materials:
+        collada = self.nodecls.orig 
+        for dmaterial in collada.materials:
             material = Material(dmaterial.id)   
 
             # vacuum like defaults ? is that appropriate ? what is the G4 equivalent ?

@@ -8,6 +8,8 @@ from env.geant4.geometry.collada.daenode import DAENode
 from daeutil import printoptions, ModelToWorld, WorldToModel
 from daeviewpoint import DAEViewpoint
 
+shortname_ = lambda _:_[17:-9]   # trim __dd__Materials__GdDopedLS_fx_0xc2a8ed0 into GdDopedLS 
+
 
 class DAEMesh(object):
     """
@@ -350,6 +352,7 @@ class DAEGeometry(object):
 
         cc = ColladaToChroma(DAENode, bvh=bvh )     
         cc.convert_geometry(nodes=self.nodes())
+        self.cc = cc
 
         log.debug("completed make_chroma_geometry")
         return cc.chroma_geometry
@@ -411,19 +414,7 @@ class DAEVertexBufferObject(object):
 
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
-
-    nodes = "3153:12230"
-    #nodes = "3153:3200"
-
-    class Config(object):
-        path = "/tmp/g4_00.dae" 
-    config = Config()
-
-    dg = DAEGeometry(nodes, config)
-    dg.flatten()
-       
+def check_find( dg ):
     xyz = (-16632.046096412007, -796063.5921605631, -2716.5372465302394 ) 
 
     f = dg.find_bbox_solid(xyz)
@@ -433,9 +424,209 @@ if __name__ == '__main__':
     print "\n".join([ "\n".join([repr(solid),solid.smry()]) for solid in solids])
 
 
-           
+
+def check_geometry( g, cg ):
+    """
+    Passing solid_id_map array pointer in kernel call allows 
+    to map from triangle_id into solid_id. This would allow 
+    picking a photon and seeing all solids that it touches.
+
+    chroma/gpu/geometry.py:: 
+
+       self.solid_id_map = ga.to_gpu(geometry.solid_id.astype(np.uint32))
+
+    chroma/cuda/daq.cu::
+
+       52     int triangle_id = last_hit_triangles[photon_id];
+       53 
+       54     if (triangle_id > -1) {
+       55         int solid_id = solid_map[triangle_id];
+
+    """
+    assert len(cg.surface_index) == len(cg.solid_id) == len(cg.material1_index) == len(cg.material2_index) == len(cg.colors) == len(cg.mesh.triangles), "expecting solid/material indices for every triangle"
+    assert cg.surface_index.max() < 40 , "expecting less than 40 surfaces "
+    assert cg.material1_index.max() < 30 , "expecting less than 30 materials "
+    assert cg.material2_index.max() < 30 , "expecting less than 30 materials "
+    assert cg.solid_id.min() == 0 
+    assert cg.solid_id.max() + 1 == len(g.solids) == len(cg.solids) , "mismatch between DAEGeometry solid count and chroma geometry "
 
 
+def check_material( g, cg ):
+    """
+    ::
+
+        delta:~ blyth$ daegeometry.sh
+        2014-07-02 19:27:41,175 env.geant4.geometry.collada.g4daeview.daegeometry:505 creating DAEGeometry instance from DAEConfig in standard manner
+        label                    absorption_length        scattering_length        refractive_index         reemission_prob          reemission_cdf          
+         0 Air                   False                    False                    False                    True                     True                    
+         1 Aluminium             False                    False                    False                    True                     True                    
+         2 GdDopedLS             False                    False                    False                    False                    True                    
+         3 Acrylic               False                    False                    False                    True                     True                    
+         4 Teflon                False                    False                    False                    True                     True                    
+         5 LiquidScintillator    False                    False                    False                    False                    True                    
+         6 Bialkali              False                    False                    False                    True                     True                    
+         7 OpaqueVacuum          False                    False                    False                    True                     True                    
+         8 Vacuum                False                    False                    False                    True                     True                    
+         9 Pyrex                 False                    False                    False                    True                     True                    
+        10 UnstStainlessSteel    False                    False                    False                    True                     True                    
+        11 PVC                   False                    False                    False                    True                     True                    
+        12 StainlessSteel        False                    False                    False                    True                     True                    
+        13 ESR                   False                    False                    False                    True                     True                    
+        14 Nylon                 False                    False                    False                    True                     True                    
+        15 MineralOil            False                    False                    False                    True                     True                    
+        16 BPE                   False                    False                    False                    True                     True                    
+        17 Ge_68                 False                    False                    False                    True                     True                    
+        18 Co_60                 False                    False                    False                    True                     True                    
+        19 C_13                  False                    False                    False                    True                     True                    
+        20 Silver                False                    False                    False                    True                     True                    
+        21 Nitrogen              False                    False                    False                    True                     True                    
+        22 Water                 False                    False                    False                    True                     True                    
+        23 NitrogenGas           False                    False                    False                    True                     True                    
+        24 IwsWater              False                    False                    False                    True                     True                    
+        25 ADTableStainlessSteel False                    False                    False                    True                     True                    
+        26 Tyvek                 False                    False                    False                    True                     True                    
+        27 OwsWater              False                    False                    False                    True                     True                    
+        28 DeadWater             False                    False                    False                    True                     True                    
+        2014-07-02 19:27:51,690 env.geant4.geometry.collada.g4daeview.daegeometry:524 dropping into IPython.embed() try: g.<TAB> cg.<TAB>
+
+    """
+    props = "absorption_length scattering_length refractive_index reemission_prob reemission_cdf".split()
+    labels = ["%2d %s" % (i,shortname_(mat.name)) for i, mat in enumerate(cg.unique_materials)]
+    maxl = str(max(map(len, props+labels)))
+    fmt_ = lambda _:("%-"+maxl+"s") % str(_)
+    print " ".join(map(fmt_, ["label"] + props)) 
+    for label, mat in zip(labels,cg.unique_materials):
+        missing_ = lambda _:np.all(getattr(mat,_)[:,1] == 0.)
+        print " ".join(map(fmt_, [label] + map(missing_, props)))
+
+
+
+def check_collada2chroma_material( cmat, props ):
+    """
+    Constants, given a dummy table range: 
+
+    #. SCINTILLATIONYIELD         11522.
+    #. RESOLUTIONSCALE            1.
+    #. ReemissionYIELDRATIO       1.
+    #. ReemissionFASTTIMECONSTANT 1.5
+    #. ReemissionSLOWTIMECONSTANT 1.5
+
+    Propa wavelength dependant tables:
+
+    #. FASTCOMPONENT == SLOWCOMPONENT  
+    #. REEMISSIONPROB  
+
+
+    SCINTILLATIONYIELD xrange -0.0012398424468 0.0012398424468 yrange 11522.0 11522.0  
+    [[     0.0012  11522.    ]
+     [    -0.0012  11522.    ]]
+
+    RESOLUTIONSCALE xrange -0.0012398424468 0.0012398424468 yrange 1.0 1.0  
+    [[ 0.0012  1.    ]
+     [-0.0012  1.    ]]
+
+    ReemissionYIELDRATIO xrange -0.0012398424468 0.0012398424468 yrange 1.0 1.0  
+    [[ 0.0012  1.    ]
+     [-0.0012  1.    ]]
+
+    ReemissionFASTTIMECONSTANT xrange -0.0012398424468 0.0012398424468 yrange 1.5 1.5  
+    [[ 0.0012  1.5   ]
+     [-0.0012  1.5   ]]
+
+    ReemissionSLOWTIMECONSTANT xrange -0.0012398424468 0.0012398424468 yrange 1.5 1.5  
+    [[ 0.0012  1.5   ]
+     [-0.0012  1.5   ]]
+
+    FASTCOMPONENT xrange 79.9898352776 799.898352776 yrange 0.0 1.0276  
+    [[  79.9898    0.    ]
+     [ 120.0235    0.    ]
+     [ 199.9746    0.    ]
+     ..., 
+     [ 599.0011    0.0017]
+     [ 600.0012    0.0018]
+     [ 799.8984    0.    ]]
+
+    SLOWCOMPONENT xrange 79.9898352776 799.898352776 yrange 0.0 1.0276  
+    [[  79.9898    0.    ]
+     [ 120.0235    0.    ]
+     [ 199.9746    0.    ]
+     ..., 
+     [ 599.0011    0.0017]
+     [ 600.0012    0.0018]
+     [ 799.8984    0.    ]]
+
+    REEMISSIONPROB xrange 79.9898352776 799.898352776 yrange 0.0 0.8022  
+    [[  79.9898    0.4   ]
+     [ 120.0235    0.4   ]
+     [ 159.9797    0.4   ]
+     ..., 
+     [ 575.8273    0.0587]
+     [ 712.6064    0.    ]
+     [ 799.8984    0.    ]]
+
+    """ 
+    assert cmat.__class__.__module__ == 'collada.material' and cmat.__class__.__name__ == 'Material'
+    assert cmat.extra.__class__.__module__ == 'env.geant4.geometry.collada.daenode' and cmat.extra.__class__.__name__ == 'MaterialProperties'
+    assert cmat.extra.properties.__class__ == dict 
+    d = cmat.extra.properties
+    for k in props:
+        a = d.get(k,None) 
+        print "%s xrange %s %s yrange %s %s  " % (k,  a[:,0].min(), a[:,0].max(), a[:,1].min(), a[:,1].max())
+        print  a
+
+    assert np.all( d['FASTCOMPONENT'] == d['SLOWCOMPONENT'] )
+    assert np.all( d['ReemissionFASTTIMECONSTANT'] == d['ReemissionSLOWTIMECONSTANT'] )
+
+
+def compare_materials( collada, props, a, b  ):
+    cmm = dict([(shortname_(cmat.id), cmat) for cmat in collada.materials])
+    print "compare_collada_material %s %s " % ( a, b )
+    for k in props:
+        print "%-30s %s " % ( k, np.all( cmm[a].extra.properties[k] == cmm[b].extra.properties[k] ))
+
+
+
+def main():
+    """
+    """
+    from daeconfig import DAEConfig
+    config = DAEConfig()
+    config.init_parse()
+    np.set_printoptions(precision=4, suppress=True, threshold=20)
+
+    log.info("creating DAEGeometry instance from DAEConfig in standard manner"  )
+    geometry = DAEGeometry(config.args.geometry, config)
+    geometry.flatten()
+    chroma_geometry = geometry.make_chroma_geometry()
+
+    check_geometry( geometry, chroma_geometry )
+    check_material( geometry, chroma_geometry )
+
+    g = geometry  
+    cg = chroma_geometry 
+    mm = dict([(shortname_(m.name),m) for m in cg.unique_materials])
+
+    collada = geometry.cc.nodecls.orig
+    assert collada.__class__.__name__ == 'Collada'
+    cmm = dict([(shortname_(cmat.id), cmat) for cmat in collada.materials])
+    
+    props = "SCINTILLATIONYIELD RESOLUTIONSCALE ReemissionFASTTIMECONSTANT ReemissionSLOWTIMECONSTANT ReemissionYIELDRATIO FASTCOMPONENT SLOWCOMPONENT REEMISSIONPROB".split()
+    for name in 'GdDopedLS LiquidScintillator'.split():
+        print name 
+        check_collada2chroma_material( cmm[name], props)
+    pass
+    compare_materials( collada, props, 'GdDopedLS', 'LiquidScintillator') 
+    d = cmm['GdDopedLS'].extra.properties
+
+    log.info("dropping into IPython.embed() try: g.<TAB> cg.<TAB>")
+    import IPython 
+    IPython.embed()
+
+
+          
+
+if __name__ == '__main__':
+    main()
 
 
 
