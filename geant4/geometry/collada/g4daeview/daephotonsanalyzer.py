@@ -29,6 +29,9 @@ from photons import mask2arg_, count_unique
 from daephotonscompare import DAEPhotonsCompare
 
 
+
+
+
 def srep(obj, att, index):
     """
     :param obj:
@@ -209,6 +212,10 @@ class DAEPhotonsPropagated(object):
         return counts, firsts, drawcount
 
     counts_firsts_drawcount = property(_get_counts_firsts_drawcount, doc=_get_counts_firsts_drawcount.__doc__)
+
+
+
+
 
 
 

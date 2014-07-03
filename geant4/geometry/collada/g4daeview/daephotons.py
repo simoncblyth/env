@@ -87,7 +87,8 @@ class DAEPhotons(object):
         self._mesh = None
         self._tcut = None
         self.tcut = event.config.args.tcut    
- 
+        self._materialcode2name = None 
+
 
     def clicked_point(self, click, live=True ):
         """

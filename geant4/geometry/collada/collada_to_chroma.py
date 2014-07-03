@@ -5,14 +5,9 @@
              if geometry selection is different. Use daegeometry.sh for an easy 
              way to duplicate what the standard app does.
 
-
 NB the collada to chroma functionality is kept separate 
 from DAENode as that needs to operate on machines
 where Chroma cannot be installed
-
-::
-
-   ipython collada_to_chroma.py demo.dae -i 
 
 
 Interactive access to geometry via embedded ipython::
@@ -33,16 +28,62 @@ Interactive access to geometry via embedded ipython::
     In [2]: map(len,[g.material1_index,g.material2_index,g.surface_index,g.unique_materials,g.unique_surfaces])
     Out[2]: [2448160, 2448160, 2448160, 36, 35]
 
+::
+
+    In [33]: map(lambda _:"%s %s" % (_[0],_[1].shape), m.daeprops.items() )
+    Out[33]: 
+    [
+      'SLOWCOMPONENT (275, 2)',
+      'FASTCOMPONENT (275, 2)',
+
+      'RAYLEIGH (11, 2)',
+      'RINDEX (18, 2)',
+      'REEMISSIONPROB (28, 2)',
+      'ABSLENGTH (497, 2)',
+
+
+Making plots comparing GdLS and LS properties (using the collada source properties)::
+
+    cfplt_("RAYLEIGH")  + [plt.show()]        # look same 
+    cfplt_("RINDEX")    + [plt.show()]        # look same 
+    cfplt_("REEMISSIONPROB")  + [plt.show()]  # look same : whacky top hat 
+
+    cfplt_("SLOWCOMPONENT")  + [plt.show()]   # look same : twin peaks 
+    cfplt_("FASTCOMPONENT")  + [plt.show()]   # look same : twin peaks (same as SLOW)
+
+    cfplt_("ABSLENGTH")  + [plt.show()]       # distinct between 400-600 nm 
+
+
+Using the chroma geometry properties, that are derived from the collada source ones::
+
+    In [3]: plt.plot( gdls.reemission_cdf[:,0], gdls.reemission_cdf[:,1] )
+    Out[3]: [<matplotlib.lines.Line2D at 0x118d46950>]
+
+    In [4]: plt.show()
+
+    In [5]: plt.plot( ls.reemission_cdf[:,0], ls.reemission_cdf[:,1] )
+    Out[5]: [<matplotlib.lines.Line2D at 0x11b58d210>]
+
+    In [6]: plt.show()
+
 
 """
 import os, sys, logging, re
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)   # chroma has weird logging, forcing this placement 
 
+import numpy as np
 from env.geant4.geometry.collada.daenode import DAENode
 from chroma.geometry import Mesh, Solid, Material, Surface, Geometry
 from chroma.loader import load_bvh
 
+import matplotlib.pyplot as plt
+
+def _get_daeprops(self):
+    if self.dae.extra is None:
+        return {}
+    return self.dae.extra.properties    
+Material.daeprops = property(_get_daeprops)
 
 
 matptn = re.compile("^__dd__Materials__(\S*)0x\S{7}$")
@@ -51,6 +92,55 @@ def matshorten(name):
     if m:
         return m.group(1) 
     return name
+
+
+def construct_cdf( xy ):
+    """
+    :param xy:
+
+    Creating cumulative density functions needed by chroma, 
+    eg for generating a wavelengths of reemitted photons.::
+
+        In [52]: sc
+        Out[52]: 
+        array([[  79.9898,    0.    ],
+               [ 120.0235,    0.    ],
+               [ 199.9746,    0.    ],
+               ..., 
+               [ 599.0011,    0.0017],
+               [ 600.0012,    0.0018],
+               [ 799.8984,    0.    ]])
+
+        In [53]: cdf = construct_cdf(sc)
+
+        In [54]: cdf
+        Out[54]: 
+        array([[  79.9898,    0.    ],
+               [ 120.0235,    0.    ],
+               [ 199.9746,    0.    ],
+               ..., 
+               [ 599.0011,    1.    ],
+               [ 600.0012,    1.    ],
+               [ 799.8984,    1.    ]])
+
+        In [55]: plt.plot( cdf[:,0], cdf[:,1] )
+        Out[55]: [<matplotlib.lines.Line2D at 0x125115e10>]
+
+        In [56]: plt.show()   # sigmoidal 
+
+        In [57]: plt.plot( cdf[:,0], cdf[:,1] ) + plt.plot( sc[:,0], sc[:,1] )
+        Out[57]: 
+        [<matplotlib.lines.Line2D at 0x123fa0e90>,
+         <matplotlib.lines.Line2D at 0x125146150>]
+
+        In [58]: plt.show()
+
+    """
+    assert len(xy.shape) == 2 and xy.shape[-1] == 2
+    x,y  = xy[:,0], xy[:,1]
+    cy = np.cumsum(y)
+    cdf_y = cy/cy[-1]   # normalize to 1 at RHS
+    return np.vstack([x,cdf_y]).T
          
 
 class OpticalSurfaceFinish(object):
@@ -119,6 +209,7 @@ class ColladaToChroma(object):
         self.vcount = 0
         self.surfaces = {}
         self.materials = {}   # dict of chroma.geometry.Material 
+        self._materialmap = {}  # dict with short name keys 
 
     def convert_opticalsurfaces(self, debug=False):
         """
@@ -181,6 +272,8 @@ class ColladaToChroma(object):
         pass 
         #assert len(self.surfaces) == len(self.nodecls.extra.opticalsurface), "opticalsurface with duplicate names ? "
         log.debug("convert_opticalsurfaces creates %s from %s  " % (len(self.surfaces),len(self.nodecls.extra.opticalsurface))  )
+
+
 
 
     def convert_materials(self, debug=False):
@@ -277,6 +370,7 @@ class ColladaToChroma(object):
         collada = self.nodecls.orig 
         for dmaterial in collada.materials:
             material = Material(dmaterial.id)   
+            material.dae = dmaterial
 
             # vacuum like defaults ? is that appropriate ? what is the G4 equivalent ?
             material.set('refractive_index', 1.0)  
@@ -284,12 +378,11 @@ class ColladaToChroma(object):
             material.set('scattering_length',1e6)
         
             if dmaterial.extra is not None:
-                for dkey,dval in dmaterial.extra.properties.items():
-
-                    # record of materials that have each key 
+                props = dmaterial.extra.properties
+                for dkey,dval in props.items():
                     if dkey not in keymat:
                         keymat[dkey] = []
-                    keymat[dkey].append(material.name)
+                    keymat[dkey].append(material.name) # record of materials that have each key 
 
                     if dkey in keymap:
                         key = keymap[dkey]
@@ -297,7 +390,14 @@ class ColladaToChroma(object):
                         log.debug("for material %s set Chroma prop %s from G4DAE prop %s vals %s " % ( material.name, key, dkey, len(dval))) 
                     else:
                         log.debug("for material %s skipping G4DAE prop %s vals %s " % ( material.name, dkey, len(dval)))  
-
+                pass
+                fast, slow = props.get('FASTCOMPONENT', None), props.get('SLOWCOMPONENT', None) 
+                if not fast is None and not slow is None:
+                    assert np.all( fast == slow )
+                    cdf = construct_cdf( fast )
+                    log.info("setting reemission_cdf for %s to %s " % (material.name, repr(cdf)))
+                    material.set('reemission_cdf', cdf[:,1], wavelengths=cdf[:,0])
+                pass
             pass 
             self.materials[material.name] = material
         pass
@@ -307,6 +407,32 @@ class ColladaToChroma(object):
                 mats = keymat[dkey]
                 print " %-30s [%-2s] %s " % ( dkey, len(mats), ",".join(map(matshorten,mats)) )
     
+
+    def _get_materialmap(self):
+        """
+        Dict of chroma.geometry.Material instances with short name keys   
+        """
+        if len(self._materialmap)==0:
+            prefix = '__dd__Materials__'
+            for name,mat  in self.materials.items():
+                if name.startswith(prefix):
+                    name = name[len(prefix):]
+                if name[-9:-7] == '0x':
+                    name = name[:-9]
+                pass 
+                self._materialmap[name] = mat
+            pass
+        return self._materialmap
+    materialmap = property(_get_materialmap)
+       
+
+ 
+    def property_plot(self, matname , propname ):
+        import matplotlib.pyplot as plt
+        mat = self.materialmap[matname]
+        xy = mat.daeprops[propname]
+        #plt.plot( xy[:,0], xy[:,1] )
+        plt.plot(*xy.T)
 
     def convert_geometry(self, nodes=None):
         """
@@ -333,8 +459,16 @@ class ColladaToChroma(object):
         log.debug("ColladaToChroma convert_geometry flattening %s " % len(self.chroma_geometry.solids))
 
         self.chroma_geometry.flatten()
+        self.materialcode2namemap = self.make_materialcode2namemap(self.chroma_geometry)
+
         if self.bvh:
             self.add_bvh()
+
+    def make_materialcode2namemap(self, chroma_geometry):
+        """
+        Return dict of shortened material names keyed by enum integer codes 
+        """
+        return dict([(i,m.name[17:-9]) for i,m in enumerate(chroma_geometry.unique_materials)])
 
     def add_bvh( self, bvh_name="default", auto_build_bvh=True, read_bvh_cache=True, update_bvh_cache=True, cache_dir=None, cuda_device=None):
         """
@@ -490,29 +624,31 @@ def daeload(path=None, bvh=False ):
 
    TODO: add nodespec capabilities here to allow loading partial geometries from chroma-cam 
    """
-   if path is None:
-       path = os.environ['DAE_NAME']
-
-   log.info("daeload path %s " % (path))
-
-   if len(DAENode.registry) > 0:
-       log.debug("skipping parse as already have %s nodes " % len(DAENode.registry))
-   else:
-       DAENode.parse(path)
-   pass
-
+   DAENode.init(path)
    cc = ColladaToChroma(DAENode, bvh=bvh )  
    cc.convert_geometry()
-
    return cc.chroma_geometry
 
 
     
 def main():
     logging.basicConfig(level=logging.INFO)
+    np.set_printoptions(threshold=20, precision=4, suppress=True)
+
     path = sys.argv[1] if len(sys.argv) > 1 else None
-    g = daeload(path)
-    log.info("dropping into IPython.embed() try: g.<TAB> ")
+    DAENode.init(path)
+
+    cc = ColladaToChroma(DAENode, bvh=False )  
+    cc.convert_geometry()
+    cg = cc.chroma_geometry 
+
+    ls = cc.materialmap['LiquidScintillator']
+    gdls = cc.materialmap['GdDopedLS']  
+
+    ccplt_ = lambda mat,prop,color:plt.plot(*cc.materialmap[mat].daeprops[prop].T, color=color, label="%s %s %s" % (mat,prop,color))
+    cfplt_ = lambda _:ccplt_('GdDopedLS',_,'r') + ccplt_('LiquidScintillator',_,'b') + [plt.legend()] 
+
+    log.info("dropping into IPython.embed() try: cg.<TAB> ")
     import IPython 
     IPython.embed()
 
@@ -520,8 +656,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
 
 
 

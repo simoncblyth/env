@@ -4,7 +4,6 @@ Photon Level Debug
 Issues
 ---------
 
-
 Quite a lot of many step histories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -21,6 +20,10 @@ ESR Step start Asymmetry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Selecting ESR see many more from bottom ESR than from top ?
+This is true with "noodle" style, but not "movie-extra". Debug this.
+
+#. Maybe a missing last slot bug ?
+#. also in "movie-extra" see a few entries along muon path away from ESR ? 
 
 Material Selection not compatible with Spagetti style
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,15 +40,23 @@ understandable results, with steps in expected places in geometry.
 But some materials lead to seemingly wrong results, eg for steps
 starting in Acrylic having entries along muon path.
 
-
 Implement step selection based in *from* and *to* materials
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Need to expand VBO to hold material info.
 
 
-Infinite wavelength for reemitted photons
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Timeconstant for reemitted photons ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Infinite wavelength for reemitted photons  FIXED
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+FIXED by providing a `reemission_cdf` obtained by `np.cumsum` of the FASTCOMPONENT property.
+
+This is following the spirit of whats done by `void DsG4Scintillation::BuildThePhysicsTable()` 
+whether its close enough remains to be determined.
 
 ::
 

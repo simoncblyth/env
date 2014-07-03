@@ -6,29 +6,25 @@ G4DAEVIEW
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
+During VBO structural changes
+------------------------------
+
+Avoid VBO comparison assertions using `--wipepropagate` to delete any 
+preexisting persisted propagation files, rather that compare against them 
+and assert on differences::
+
+    g4daeview.sh --with-chroma --load 1 --debugkernel --wipepropagate
+
+
 Live Style Change issues FIXED
 ---------------------------------
 
+Formerly could not make style transitions in some directions. In particular
+styles that use geometry shaders (noodles, movie) cannot be transitioned to from
+styles that do not. Actually the transition happens without error but a blank render results.
+
 This was fixed by moving to keeping GLSL shaders around and swapping between them 
 rather than attempting to delete shaders.
-
-Style change can be done with eg `udp.py --style confetti`, certain switches have issues however:
-
-#. `spagetti` to `confetti` works 
-#. `confetti` to `movie` "works" but the geometry shader does not kickin, left with nogeo (ie points rather than lines) 
-
-   * hmm, no longer the case, nothing appears
-
-#. `movie` to `confetti` works
-#. `movie` to `spagetti` works 
-#. `spagetti` to `noodles` works BUT left with nogeo shader (ie again not getting the geometry shader to kickin )
-
-Styles that use geometry shaders (noodles, movie) cannot be transitioned to from
-styles that do not.
-
-The style `confetti-1` is useful, as it presents the interpolated last slot
-without needing to switch to movie style.
-
 
 Step Interpolation Visualization
 ----------------------------------
@@ -58,7 +54,8 @@ the very artificicial view of discrete steps.
 What about non-Chroma devices ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Chroma needs CUDA, to visualize on devices without Chroma/CUDA but 
+Chroma needs CUDA. 
+To visualize on devices without Chroma/CUDA but 
 with OpenCL (or Metal):
 
 * provide way to pullback/persist/transport VBO, without ROOT dependency.
@@ -78,20 +75,6 @@ Even OpenGL ES Next (expected released 2014) will not have geometry
 shaders.
 
 * http://www.anandtech.com/show/7657/khronos-offers-a-quick-peek-at-the-next-version-of-opengl-es
-
-
-
-
-
-Migration to Shader Control
------------------------------
-
-Running into difficulties, photons not appearing, current cmds::
-
-   g4daeview.sh --with-chroma --nolegacy 
-      # photon rep appears on right-arrow loading but immediately dissapears 
-
-   g4daeview.sh --with-chroma --nolegacy --debugshader
 
 
 NB default node selection only applies to to dyb
@@ -126,22 +109,8 @@ from multiple events may appear together in some difficult to
 reproduce circumstances.
 
 
-Observe
---------
-
-#. sometimes "reload" not working, although stepping does
-
-
 Next
 -----
-
-load menu assertion
-~~~~~~~~~~~~~~~~~~~~
-
-#. loading an event from file at launch `--load 1` trips an assertion, as DAEPhoton 
-   menus are attempting to be changed before being created in first place
-
-   * symptom of DAEPhotons doing too much, split menu creation elsewhere 
 
 improved structuring
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -151,7 +120,6 @@ more tractable, things are getting unweildy eg Menu-ing.
 
 * http://www.songho.ca/opengl/gl_mvc.html
 
-
 Histogramming 
 ~~~~~~~~~~~~~~~
 
@@ -160,36 +128,16 @@ Histogramming
 
   * dump numpy arrays for separate presentation
   * separate OpenGL window, would allow live updating during propagation 
+  * communicate to a separate ipython session over ZMQ ? and use matplotlib from there 
+
+    * i like the compartmentalization 
   
-
-Reemission Wavelength Debugging
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* material property readout interface ?
-
-
-Efficient Photon Drawing 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#. efficent GPU resident (and shared with Chroma) CPL handling, to handle 1000x the number of photons
-
-   * current recreate VBO all the time approach might not not be workable
-   * look into OpenGL PointSet or volume field representations of photon clouds
-
-#. basic sticking point is to get PyCUDA/Chroma propagation to work with OpenGL created VBO, 
-   in the same way as pixel arrays were used from raycasting 
-
 issues
 ^^^^^^^^
 
 * fmcpmuon.py refers to volumes with DE names like `/dd/Structure/Pool/db-ows`  geometry 
   nodes available via daenode are all `/dd/Geometry/..`
 
-
-OpenGL PointSet, Volume Field, Particle System representations 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Speculative, probably need more control that these approaches allow.
 
 Photon provenance
 ~~~~~~~~~~~~~~~~~~~
@@ -222,7 +170,7 @@ Avoid Geometry Duplication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. currently geometry info is on GPU twice, once for OpenGL once for Chroma
-   investigate getting them to share the same arrays (similar to whats done with pixels)
+   investigate getting them to share the same arrays (similar to whats done with pixels and now photon steps)
 
 interactive target switching  **NEEDS OVERHAUL**
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -269,12 +217,9 @@ smaller things
 
 #. improve screen text flexibility, columns, matrices, ...
 
-#. improve clipping plane (W) feature:
-
-   * switch planes on/off
-   * make persistent, stored with bookmarks
-
 #. coloring by material
+
+
 
 
 Division of concerns

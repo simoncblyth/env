@@ -7,7 +7,9 @@ from env.geant4.geometry.collada.daenode import DAENode
 
 from daeutil import printoptions, ModelToWorld, WorldToModel
 from daeviewpoint import DAEViewpoint
+from collada.xmlutil import etree as ET
 
+tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode')) 
 shortname_ = lambda _:_[17:-9]   # trim __dd__Materials__GdDopedLS_fx_0xc2a8ed0 into GdDopedLS 
 
 
@@ -503,18 +505,54 @@ def check_material( g, cg ):
 
 def check_collada2chroma_material( cmat, props ):
     """
-    Constants, given a dummy table range: 
+    Look at material properties and their use for reemission in
+    NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsG4Scintillation.cc
 
-    #. SCINTILLATIONYIELD         11522.
-    #. RESOLUTIONSCALE            1.
-    #. ReemissionYIELDRATIO       1.
-    #. ReemissionFASTTIMECONSTANT 1.5
-    #. ReemissionSLOWTIMECONSTANT 1.5
+    Tips for reading horrendously poorly formatted code in vim:
+
+    #. `set fdm=syntax` "foldmethod" 
+    #. open/close folds with `za` on lines with curlies
+
+    ::
+
+        441     G4int materialIndex = aMaterial->GetIndex();
+        443     G4PhysicsOrderedFreeVector* ReemissionIntegral = NULL;
+        444     ReemissionIntegral =
+        445         (G4PhysicsOrderedFreeVector*)((*theReemissionIntegralTable)(materialIndex));
+
+    DsG4Scintillation::BuildThePhysicsTable() integrates for each material `i`
+    the property tables FASTCOMPONENT, SLOWCOMPONENT, REEMISSIONPROB 
+    and sets the(Fast/Slow/Reemission)IntegralTable::
+
+        967         theFastIntegralTable->insertAt(i,aPhysicsOrderedFreeVector);
+        968         theSlowIntegralTable->insertAt(i,bPhysicsOrderedFreeVector);
+        969         theReemissionIntegralTable->insertAt(i,cPhysicsOrderedFreeVector); 
+
+    Constants, given a dummy table range. 
+
+    #. ReemissionFASTTIMECONSTANT 1.5   ==> fastTimeConstant
+    #. ReemissionSLOWTIMECONSTANT 1.5   ==> slowTimeConstant
+    #. ReemissionYIELDRATIO       1.    ==> YieldRatio
+
+    The TIMECONSTANTs in ns feed into ScintillationTime to control time distribution 
+    of reemitted photon::
+
+        647             if (flagReemission) {
+        648                 deltaTime= pPostStepPoint->GetGlobalTime() - t0
+        649                            -ScintillationTime * log( G4UniformRand() );
+
+
 
     Propa wavelength dependant tables:
 
     #. FASTCOMPONENT == SLOWCOMPONENT  
     #. REEMISSIONPROB  
+
+    Not relevant to reemission:
+
+    #. SCINTILLATIONYIELD         11522.
+    #. RESOLUTIONSCALE            1.
+
 
 
     SCINTILLATIONYIELD xrange -0.0012398424468 0.0012398424468 yrange 11522.0 11522.0  
@@ -585,6 +623,61 @@ def compare_materials( collada, props, a, b  ):
         print "%-30s %s " % ( k, np.all( cmm[a].extra.properties[k] == cmm[b].extra.properties[k] ))
 
 
+def dump_extra( cmat ):
+    """
+    Dump the COLLADA DAE XML `extra` element. 
+
+    #. `extra` element contains paired `matrix` and `property` elements  
+
+    :param cmat: collada material instance
+
+    ::
+
+        In [3]: print tostring_(gdls.extra)
+        <extra xmlns="http://www.collada.org/2005/11/COLLADASchema">
+
+            <matrix coldim="2" name="ABSLENGTH0xc2a92f8">
+                      1.3778e-06 299.6 
+                      1.3793e-06 306.2 
+                      1.3808e-06 328.4 
+                      1.3824e-06 363.1
+                      ... 
+            </matrix>
+            <property name="ABSLENGTH" ref="ABSLENGTH0xc2a92f8"/>
+
+            <matrix coldim="2" name="AlphaFASTTIMECONSTANT0xbf6c870">-1 1 1 1</matrix>
+            <property name="AlphaFASTTIMECONSTANT" ref="AlphaFASTTIMECONSTANT0xbf6c870"/>
+
+            ...
+
+            <matrix coldim="2" name="SLOWTIMECONSTANT0xbf6b638">-1 12.2 1 12.2</matrix>
+            <property name="SLOWTIMECONSTANT" ref="SLOWTIMECONSTANT0xbf6b638"/>
+
+            <matrix coldim="2" name="YIELDRATIO0xbf6b6a8">-1 0.86 1 0.86</matrix>
+            <property name="YIELDRATIO" ref="YIELDRATIO0xbf6b6a8"/>
+          </extra>
+
+
+    Property and matrix elements are written by `env/geant4/geometry/DAE/src/G4DAEWrite.cc`:
+
+    * `void G4DAEWrite::PropertyWrite(xercesc::DOMElement* extraElement,  const G4MaterialPropertiesTable* const ptable)`
+    * `void G4DAEWrite::PropertyVectorWrite(const G4String& key,const G4MaterialPropertyVector* const pvec,xercesc::DOMElement* extraElement)`
+
+    Invoked by `env/geant4/geometry/DAE/src/G4DAEWriteMaterials.cc`:
+
+    * `void G4DAEWriteMaterials::MaterialWrite(const G4Material* const materialPtr)`
+
+    """
+    return tostring_(cmat.extra)
+
+
+
+def make_plot():
+    import matplotlib.pyplot as plt
+
+    #plt.plot(sh[1][0:-1], sh[0], 'r-', rh[1][0:-1], rh[0], 'b-')
+
+
 
 def main():
     """
@@ -616,7 +709,11 @@ def main():
         check_collada2chroma_material( cmm[name], props)
     pass
     compare_materials( collada, props, 'GdDopedLS', 'LiquidScintillator') 
-    d = cmm['GdDopedLS'].extra.properties
+
+
+    gdls = cmm['GdDopedLS']
+    d = gdls.extra.properties
+
 
     log.info("dropping into IPython.embed() try: g.<TAB> cg.<TAB>")
     import IPython 
