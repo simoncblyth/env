@@ -9,19 +9,10 @@ NB the collada to chroma functionality is kept separate
 from DAENode as that needs to operate on machines
 where Chroma cannot be installed
 
-
 Interactive access to geometry via embedded ipython::
 
     delta:~ blyth$ collada_to_chroma.sh
-    INFO:env.geant4.geometry.collada.collada_to_chroma:daeload path /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae 
-    WARNING:env.geant4.geometry.collada.collada_to_chroma:setting parent_material to __dd__Materials__Vacuum0xbf9fcc0 as parent is None for node top.0 
-    INFO:env.geant4.geometry.collada.collada_to_chroma:dropping into IPython.embed() try: g.<TAB> 
     ...
-
-    In [1]: g.
-    g.add_solid            g.colors               g.flatten              g.material2_index      g.solid_displacements  g.solid_rotations      g.surface_index        g.unique_surfaces
-    g.bvh                  g.detector_material    g.material1_index      g.mesh                 g.solid_id             g.solids               g.unique_materials     
-
     In [1]: g.material1_index
     Out[1]: array([13, 13, 13, ..., 34, 34, 34], dtype=int32)
 
@@ -68,7 +59,7 @@ Using the chroma geometry properties, that are derived from the collada source o
 
 
 """
-import os, sys, logging, re
+import os, sys, logging, re, json
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)   # chroma has weird logging, forcing this placement 
 
@@ -196,6 +187,7 @@ class SurfaceType(object):
 
 
 
+
 class ColladaToChroma(object):
     def __init__(self, nodecls, bvh=False):
         """
@@ -308,7 +300,7 @@ class ColladaToChroma(object):
 
              EFFICIENCY                     [1 ] Bialkali 
 
-             ---------------------------------------------------------------------
+             -------------- assumed to not apply to optical photons ---------
 
              FASTTIMECONSTANT               [2 ] GdDopedLS,LiquidScintillator 
              SLOWTIMECONSTANT               [2 ] GdDopedLS,LiquidScintillator 
@@ -326,6 +318,9 @@ class ColladaToChroma(object):
              NeutronSLOWTIMECONSTANT        [2 ] GdDopedLS,LiquidScintillator 
              NeutronYIELDRATIO              [2 ] GdDopedLS,LiquidScintillator 
 
+             SCINTILLATIONYIELD             [2 ] GdDopedLS,LiquidScintillator 
+             RESOLUTIONSCALE                [2 ] GdDopedLS,LiquidScintillator 
+
              ---------------------------------------------------------------------
 
              ReemissionFASTTIMECONSTANT     [2 ] GdDopedLS,LiquidScintillator      for opticalphoton
@@ -336,26 +331,19 @@ class ColladaToChroma(object):
              SLOWCOMPONENT                  [2 ] GdDopedLS,LiquidScintillator     "Slow_Intensity"
              REEMISSIONPROB                 [2 ] GdDopedLS,LiquidScintillator     "Reemission_Prob"
 
-             SCINTILLATIONYIELD             [2 ] GdDopedLS,LiquidScintillator 
-             RESOLUTIONSCALE                [2 ] GdDopedLS,LiquidScintillator 
-
              ------------------------------------------------------------------------
 
              RAYLEIGH                       [5 ] GdDopedLS,Acrylic,Teflon,LiquidScintillator,MineralOil 
-             RINDEX                         [14] Air,GdDopedLS,Acrylic,Teflon,LiquidScintillator,Bialkali,Vacuum,Pyrex,MineralOil,Water,NitrogenGas,IwsWater,OwsWater,DeadWater 
-             ABSLENGTH                      [20] PPE,Air,GdDopedLS,Acrylic,Teflon,LiquidScintillator,Bialkali,Vacuum,Pyrex,UnstStainlessSteel,StainlessSteel,
+             RINDEX                         [14] Air,GdDopedLS,Acrylic,Teflon,LiquidScintillator,Bialkali,
+                                                 Vacuum,Pyrex,MineralOil,Water,NitrogenGas,IwsWater,OwsWater,DeadWater 
+             ABSLENGTH                      [20] PPE,Air,GdDopedLS,Acrylic,Teflon,LiquidScintillator,Bialkali,
+                                                 Vacuum,Pyrex,UnstStainlessSteel,StainlessSteel,
                                                  ESR,MineralOil,Water,NitrogenGas,IwsWater,ADTableStainlessSteel,Tyvek,OwsWater,DeadWater 
 
         Observations:
  
         #. no RAYLEIGH for water 
 
-
-
-        Infinite wavelength photons in chroma propagation point to lack of 
-        BULK_REEMISSION probability setup. 
-        Need to study NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsG4Scintillation.cc 
-        to make sense of the constants and what is an appropriate translation into Chroma.
 
         """
         keymap = {
@@ -395,7 +383,7 @@ class ColladaToChroma(object):
                 if not fast is None and not slow is None:
                     assert np.all( fast == slow )
                     cdf = construct_cdf( fast )
-                    log.info("setting reemission_cdf for %s to %s " % (material.name, repr(cdf)))
+                    log.debug("setting reemission_cdf for %s to %s " % (material.name, repr(cdf)))
                     material.set('reemission_cdf', cdf[:,1], wavelengths=cdf[:,0])
                 pass
             pass 
@@ -425,7 +413,6 @@ class ColladaToChroma(object):
         return self._materialmap
     materialmap = property(_get_materialmap)
        
-
  
     def property_plot(self, matname , propname ):
         import matplotlib.pyplot as plt
@@ -459,16 +446,20 @@ class ColladaToChroma(object):
         log.debug("ColladaToChroma convert_geometry flattening %s " % len(self.chroma_geometry.solids))
 
         self.chroma_geometry.flatten()
-        self.materialcode2namemap = self.make_materialcode2namemap(self.chroma_geometry)
-
+        self.cmm = self.make_chroma_material_map( self.chroma_geometry )
         if self.bvh:
             self.add_bvh()
 
-    def make_materialcode2namemap(self, chroma_geometry):
+    def make_chroma_material_map(self, chroma_geometry):
         """
         Return dict of shortened material names keyed by enum integer codes 
+
+        Curiously the order of chroma_geometry.unique_materials on different invokations is 
+        "fairly constant" but not precisely so. 
+        How is that possible ? Perfect or random would seem more likely outcomes. 
         """
-        return dict([(i,m.name[17:-9]) for i,m in enumerate(chroma_geometry.unique_materials)])
+        cmm = dict([(i,m.name[17:-9]) for i,m in enumerate(chroma_geometry.unique_materials)])
+        return cmm
 
     def add_bvh( self, bvh_name="default", auto_build_bvh=True, read_bvh_cache=True, update_bvh_cache=True, cache_dir=None, cuda_device=None):
         """

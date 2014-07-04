@@ -8,20 +8,22 @@ from daeviewpoint import DAEViewpoint
 from daeclipper import DAEClipper
 
 class DAEBookmarks(dict):
-    def __init__(self, path, geometry ):
+    name = "bookmarks.cfg"
+    path = property(lambda self:self.config.resolve_confpath(self.name))
+
+    def __init__(self, config, geometry ):
         """
-        :param path: to bookmarks file
+        :param config: to bookmarks file
         :param geometry: DAEGeometry instance
-        :param clipper: DAEClipper instance
         """
         dict.__init__(self)
-        self.path = path
+        self.config = config
         self.current = None
 
         # clipping plane control
         self.clippers = {} 
 
-        if os.path.exists(path):
+        if os.path.exists(self.path):
             self.load(geometry)  
 
     ini_prefix = "bookmark_"
@@ -64,6 +66,11 @@ class DAEBookmarks(dict):
         self.clipper.add(plane)
 
     def save(self):
+        dir_ = os.path.dirname(self.path)
+        if not os.path.exists(dir_):
+            log.info("creating directory %s " % dir_ )
+            os.makedirs(dir_) 
+        pass
         log.info("save %s bookmarks to %s " % (len(self.marks),self.path ))
         with open(self.path,"w") as w:
             w.write(self.asini + "\n")

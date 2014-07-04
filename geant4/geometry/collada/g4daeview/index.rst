@@ -11,6 +11,13 @@ g4daeview
    g4daeview_lights
    g4daeview_devnotes
    daevertexbuffer
+   daephotonsshader
+   photon_level_debug
+   propagated_flags_mismatch
+
+
+
+
 
 
 

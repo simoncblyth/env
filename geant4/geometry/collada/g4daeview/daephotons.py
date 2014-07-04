@@ -76,9 +76,10 @@ class DAEPhotons(object):
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
     
         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma ) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
-        self.renderer.presenter.time   = event.config.args.time
-        self.renderer.presenter.cohort = event.config.args.cohort
-
+        presenter = self.renderer.presenter
+        if not presenter is None:
+            presenter.time   = event.config.args.time
+            presenter.cohort = event.config.args.cohort
 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
         self.analyzer = DAEPhotonsAnalyzer(self.config.args.max_slots)
@@ -87,7 +88,6 @@ class DAEPhotons(object):
         self._mesh = None
         self._tcut = None
         self.tcut = event.config.args.tcut    
-        self._materialcode2name = None 
 
 
     def clicked_point(self, click, live=True ):
@@ -97,8 +97,10 @@ class DAEPhotons(object):
                      access the t-interpolated slot -1 positions 
                      when False use last photon positions 
         """
+        if not self.interop:return
         if live:
             vbo = self.renderer.pbuffer   
+            if vbo is None:return 
             self.tpropagated( vbo.read() ) 
             index = self.tpropagated.t_nearest_photon( click ) 
             self.tpropagated.summary(index)
@@ -113,6 +115,7 @@ class DAEPhotons(object):
         """
         Calling this before GLUT setup, results in duplicated menus 
         """
+        if not self.interop:return
         self.menuctrl.update_style_menu( self.styler.style_names, self.style_callback )
         self.menuctrl.update_material_menu( self.unique_materials(), self.material_callback )
 
@@ -184,7 +187,6 @@ class DAEPhotons(object):
         pass
         self.menuctrl.update( self.analyzer.history , msg="from propagate" )    
 
-       
 
     def draw(self):
         """
@@ -195,7 +197,6 @@ class DAEPhotons(object):
         self.renderer.update_constants()   
         for cfg in self.cfglist:
             self.drawcfg( cfg )
-
 
     def drawcfg(self, cfg ): 
         self.renderer.shaderkey = cfg['shaderkey']

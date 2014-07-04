@@ -27,11 +27,6 @@ Transform Feedback
 
 * http://prideout.net/blog/?tag=opengl-transform-feedback
 
-::
-
-
-
-
 
 
 Metal

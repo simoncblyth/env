@@ -5,7 +5,10 @@ From commandline::
     delta:~ blyth$ cd /usr/local/env/tmp/20140514-175600/    ## get path for currently loaded event from g4daeview stdout 
     delta:20140514-175600 blyth$ daephotonsanalyzer.sh propagated-0.npz 
 
-#. hmm, it would be useful for g4daeview.py to vend some JSON regarding current high level state
+    delta:~ blyth$ cd /usr/local/env/tmp/1/   
+    delta:1 blyth$ daephotonsanalyzer.sh propagated-0.npz 
+
+
 
 Handling Truncation 
 --------------------
@@ -101,8 +104,9 @@ def nearest_index(a,a0):
 
 class DAEPhotonsPropagated(object):
     def __init__(self, propagated=None, max_slots=10, slot=-1 ):
-        self.max_slots = max_slots
-        self.slot = slot
+        self.max_slots = int(max_slots)
+        self.slot = int(slot)
+        self._last_index = None
         if not propagated is None:
             self(propagated)
 
@@ -132,7 +136,9 @@ class DAEPhotonsPropagated(object):
     lht       = property(lambda self:self.get_vector(field='last_hit_triangle', index=0))
     photon_id = property(lambda self:self.get_vector(field='last_hit_triangle', index=1)) 
     steps     = property(lambda self:self.get_vector(field='last_hit_triangle', index=2))
-    slots     = property(lambda self:self.get_vector(field='last_hit_triangle', index=3))
+    #slots     = property(lambda self:self.get_vector(field='last_hit_triangle', index=3))
+
+
 
     history = property(lambda self:count_unique(self.flags))
     hsteps  = property(lambda self:count_unique(self.steps))
@@ -150,7 +156,14 @@ class DAEPhotonsPropagated(object):
 
     def _get_indices(self, slot=-1):
         return np.arange( self.nphoton )*self.max_slots + (self.max_slots+slot)
-    last_index = property(lambda self:self._get_indices(slot=-2))
+    #last_index = property(lambda self:self._get_indices(slot=-2))
+
+    def _get_last_index(self):
+        if self._last_index is None:
+            log.info("_last_index")
+            self._last_index = self._get_indices(slot=-2)
+        return self._last_index
+    last_index = property(_get_last_index)
 
     ## slot -2 accessors 
     last_post  = property(lambda self:self.propagated['position_time'][self.last_index])
@@ -159,6 +172,10 @@ class DAEPhotonsPropagated(object):
     last_ccol  = property(lambda self:self.propagated['ccolor'][self.last_index])
     last_flags = property(lambda self:self.propagated['flags'][self.last_index])
     last_lht   = property(lambda self:self.propagated['last_hit_triangle'][self.last_index])
+
+    slots = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,3]) 
+
+
 
     def nearest_photon(self, click):
         """
@@ -193,20 +210,30 @@ class DAEPhotonsPropagated(object):
 
     def summary(self, pid):
         log.info("summary for pid %s " % pid )
-        #atts = "t_post".split()
-        #for att in atts:
-        #    print att
-        #    print getattr(self,att)[pid]
-        #pass
         print att_side_by_side(self, pid, "p_flags p_lht".split()) 
         print att_side_by_side(self, pid, "p_post p_dirw p_polw p_ccol".split()) 
         print att_side_by_side(self, pid, "t_post t_dirw t_polw t_ccol".split()) 
 
     def _get_counts_firsts_drawcount(self):
-        """Counts with truncation, indices of start of each photon record"""
+        """
+        Counts with truncation, indices of start of each photon record
+
+        np.clip restricts values gt max to be max and lt min to be min
+        ie with max_slots = 10 slots gt max_slots-2 = 8 become 8 
+
+        Recent VBO recording changed moved to last photon position 
+        being placed into slot -2 (and not duplicated in the body).
+
+        Suspect that may cause glMultiDrawArrays to not work
+        correctly in non-truncated cases as it will step off the 
+        reservation and not see the last slot up at -2.
+        """
         photon_id = self.photon_id
         nphoton = len(photon_id)
-        counts = np.clip( self.slots, 0, self.max_slots-2 )  ## does this need to change with new slot -2 scheme ?
+
+        counts = np.clip( self.slots, 0, self.max_slots-2 )   # seemingly this makes it contiguous
+        #counts = self.slots    # 
+
         firsts = np.arange(nphoton, dtype='i')*self.max_slots
         drawcount = nphoton
         return counts, firsts, drawcount
@@ -231,8 +258,8 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         self.loaded = None
 
     @classmethod
-    def make(cls, path, max_slots):
-        analyzer = cls( max_slots=max_slots )
+    def make(cls, path, config):
+        analyzer = cls( max_slots=config.args.max_slots )
         analyzer.load(path)
         return analyzer
 
@@ -297,7 +324,7 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
 
     def compare_propagated(self, a, b):
         mismatch = compare(a, b, self.max_slots )
-        assert mismatch == 0 , mismatch
+        assert mismatch == 0 , (mismatch, "Debug with eg: cd /usr/local/env/tmp/1/ ; daephotonscompare.sh --loglevel debug ")
 
     def __call__(self, propagated):
         """
@@ -394,10 +421,15 @@ def main():
     config = DAEConfig()
     config.init_parse()
     clargs = config.args.clargs 
-    assert len(clargs) > 0, "expecting commandline argument with path to npz file "
-    path = clargs[0]
 
-    log.info("creating DAEPhotonsAnalyzer for %s " % path )
+    if len(clargs) > 0:
+        path = clargs[0]
+    else:
+        name = DAEPhotonsAnalyzer.name % dict(seed=config.args.seed)
+        path = config.resolve_event_path( config.args.load , name )
+        log.info("resolve %s %s => %s " % (config.args.load, name, path))
+    pass
+    log.info("creating DAEPhotonsAnalyzer for %s " % (path ))
 
     z = DAEPhotonsAnalyzer( max_slots=config.args.max_slots )
     z.load(path)

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
+.. warning:: THIS IS NOT CURRENTLY USED
+
 NEXT
 
-#. Oops forgot to GL_DYNAMIC_DRAW, but its working anyhow
 #. Extending interop to Chroma propagation ? 
 #. all the photon data could conceivably be visualized or at least used by shaders
 

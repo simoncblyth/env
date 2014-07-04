@@ -7,6 +7,8 @@ from env.geant4.geometry.collada.daenode import DAENode
 
 from daeutil import printoptions, ModelToWorld, WorldToModel
 from daeviewpoint import DAEViewpoint
+from daechromamaterialmap import DAEChromaMaterialMap
+
 from collada.xmlutil import etree as ET
 
 tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode')) 
@@ -171,19 +173,16 @@ class DAESolid(DAEMesh):
        
 
 class DAEGeometry(object):
-    def __init__(self, arg, config ):
+    def __init__(self, config ):
         """
-        :param arg:  specifications of the DAE nodes to load, via index or id
-        :param config: 
-
+        :param config: DAEConfig instance
         """
-        if arg is None:
+        nodespec = self.resolve_geometry_arg( config )
+        if nodespec is None:
             solids = []
         else:
-            path = config.path
-            bound = config.args.bound
-            nodes = DAENode.getall(arg, path)
-            solids = [DAESolid(node, bound) for node in nodes]
+            nodes = DAENode.getall(nodespec, config.path)
+            solids = [DAESolid(node, config.args.bound) for node in nodes]
         pass
         self.solids = solids
         self.mesh = None
@@ -192,6 +191,26 @@ class DAEGeometry(object):
        
     def __str__(self):
         return "-p %s -g %s " % ( self.config.args.path, self.config.args.geometry )
+
+    def resolve_geometry_arg(self, config ):
+        """
+        Raw Geometry arguments like "3154:" are returned unchanged.
+
+        The default geometry config argument of "DAE_GEOMETRY_%(path)s" signals
+        that detector specific geometry node specification is to be resolved
+        from envvars such as DAE_GEOMETRY_DYB and DAE_GEOMETRY_JUNO
+        Using the uppercased path config argument.
+        """
+        arg = config.args.geometry
+        if not arg.startswith('DAE_'):
+            return arg
+        pass
+        envvar = (arg % dict(path=config.args.path)).upper() 
+        nodespec = os.environ.get(envvar,None) 
+        log.info("resolve_geometry_arg %s to envvar %s yielding nodespec %s " % (arg, envvar, nodespec )) 
+        assert nodespec
+        return nodespec 
+
 
     def nodes(self):
         """
@@ -354,10 +373,33 @@ class DAEGeometry(object):
 
         cc = ColladaToChroma(DAENode, bvh=bvh )     
         cc.convert_geometry(nodes=self.nodes())
+
         self.cc = cc
+        self.chroma_material_map = DAEChromaMaterialMap( self.config, cc.cmm )
+        self.chroma_material_map.write()
+        self.chroma_material_map.dump()
 
         log.debug("completed make_chroma_geometry")
         return cc.chroma_geometry
+
+
+    def plot( self, prop="RINDEX", materials="MineralOil LiquidScintillator GdDopedLS Acrylic".split() ):
+        import matplotlib.pyplot as plt
+
+        collada = self.cc.nodecls.orig
+        cmm = dict([(shortname_(cmat.id), cmat) for cmat in collada.materials])
+
+        for name in materials:
+            if not name in cmm:
+                log.warn("material named %s not one of %s " % (name, repr(cmm.keys()))) 
+                continue
+            pass
+            mat = cmm[name] 
+            plt.plot( *mat.extra.properties[prop].T, label=name) 
+        pass
+        plt.legend(title=prop)
+        plt.show()
+
 
 
  
@@ -672,15 +714,17 @@ def dump_extra( cmat ):
 
 
 
-def make_plot():
-    import matplotlib.pyplot as plt
-
-    #plt.plot(sh[1][0:-1], sh[0], 'r-', rh[1][0:-1], rh[0], 'b-')
-
 
 
 def main():
     """
+    Make plot comparing properties using embedded ipython::
+
+         mats = "MineralOil LiquidScintillator GdDopedLS Acrylic".split()
+         g.plot(    "RINDEX", mats )
+         g.plot( "ABSLENGTH", mats )
+         g.plot(  "RAYLEIGH", mats )
+
     """
     from daeconfig import DAEConfig
     config = DAEConfig()
@@ -688,7 +732,7 @@ def main():
     np.set_printoptions(precision=4, suppress=True, threshold=20)
 
     log.info("creating DAEGeometry instance from DAEConfig in standard manner"  )
-    geometry = DAEGeometry(config.args.geometry, config)
+    geometry = DAEGeometry(config)
     geometry.flatten()
     chroma_geometry = geometry.make_chroma_geometry()
 
@@ -710,14 +754,13 @@ def main():
     pass
     compare_materials( collada, props, 'GdDopedLS', 'LiquidScintillator') 
 
+    oil,ls,gdls = map(lambda _:cmm[_],'MineralOil LiquidScintillator GdDopedLS'.split())
+    gdls_props = gdls.extra.properties
 
-    gdls = cmm['GdDopedLS']
-    d = gdls.extra.properties
-
-
-    log.info("dropping into IPython.embed() try: g.<TAB> cg.<TAB>")
+    log.info("dropping into IPython try: g.<TAB> cg.<TAB>")
     import IPython 
     IPython.embed()
+    #IPython.start_ipython(user_ns=locals())
 
 
           

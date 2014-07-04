@@ -30,7 +30,7 @@ import numpy as np
 class DAEPhotonsStyler(object):
     """
     """
-    style_names = ['noodles','movie','movie-extra','spagetti','confetti','confetti-0','confetti-1',]
+    style_names = ['noodles','movie','movie-extra','spagetti','confetti','confetti-0','confetti-1','confetti-2',]
     def __init__(self, dphotons):
         self.dphotons = dphotons
         styles = {}
@@ -127,22 +127,25 @@ class DAEPhotonsStyler(object):
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "p2l"
            cfg['extrakey'] = "p2p"   
-
-           # using extrakey "nogeo" or "p2p"
-           #    mysteriously puts the point at the head(not tail) of the line, 
-           #    unless negate --fpholine -100 
-           #
            cfg['slot'] = -1    
 
         elif style == 'confetti':
 
-           # the three confetti styles only differ in the slots 
+           # confetti styles only differ in the slots 
 
            cfg['description'] = "POINTS for every step of the photon" 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "nogeo"
            cfg['slot'] = None
+
+        elif style == 'confetti-2':
+
+           cfg['description'] = "last slot POINTS" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = -2
 
         elif style == 'confetti-1':
 

@@ -7,7 +7,6 @@ import OpenGL.GL as gl
 
 from daevertexbuffer import DAEVertexBuffer
 from daephotonsshader import DAEPhotonsShader
-from daephotonskernel import DAEPhotonsKernel
 from daephotonspresenter import DAEPhotonsPresenter
 
 
@@ -47,7 +46,6 @@ class DAEPhotonsRenderer(object):
         self.interop = not chroma.dummy
         log.debug("%s.__init__" % self.__class__.__name__ )
         self.shader = DAEPhotonsShader(dphotons) 
-        #self.kernel = DAEPhotonsKernel(dphotons) if self.interop else None 
         self.presenter = DAEPhotonsPresenter(dphotons, chroma, debug=int(dphotons.config.args.debugkernel)) if self.interop else None
         self.invalidate_buffers()
         pass
@@ -94,6 +92,7 @@ class DAEPhotonsRenderer(object):
 
         #. buffer creation does not belong in DAEPhotonsData as OpenGL specific
         """
+        if data.data is None:return None
         self.create_buffer_count += 1
         log.debug("############ create_buffer [count %s]  ##################### %s " % (self.create_buffer_count, repr(data.data.dtype)) )
         vbo = DAEVertexBuffer( self, data.data, data.indices, max_slots=data.max_slots, force_attribute_zero=data.force_attribute_zero )

@@ -7,7 +7,6 @@ Env Development Log
 :Version: |version|
 :Date: |today|
 
-
 Objectives for these pages.
 
 #. TODO list  

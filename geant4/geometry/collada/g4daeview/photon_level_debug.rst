@@ -16,20 +16,35 @@ Truncation transitions result in zombie/drunken photons
 linearly interpolating around. Need some visual distinction to
 make clear not real propagation paths. 
 
+Difficult to zoom into closeups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+eg to see photons crossing acrylic
+This is due to view jumping when bookmarking 
+
+Photon Appearance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Photons appearing behind volumes, visible due to transparent effect
+  can look orange (other) when actually red (absorption).  
+  Make geometry invisible with `I` to check actual color.
+
+* Constant pixel size blobs can make the position of the photon deceptive.
+  TODO: blob size variation with distance 
+
+* Difficult to zoom in on a picked photon.
+  TODO: allow viewpoint creation based on a picked photon position 
+
+
 ESR Step start Asymmetry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Selecting ESR see many more from bottom ESR than from top ?
-This is true with "noodle" style, but not "movie-extra". Debug this.
+This is true with "noodle" style, but not "movie-extra". 
 
-#. Maybe a missing last slot bug ?
-#. also in "movie-extra" see a few entries along muon path away from ESR ? 
+This asymmetry problem (not in movie-extra) remains 
+following the wider presentation mode discrepancy fix below.
 
-Material Selection not compatible with Spagetti style
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Gives lines off to infinity. This is how photon selection is implemented
-but thats not compatible with LINE_STRIP drawing.
 
 Material Step Starts
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -40,17 +55,49 @@ understandable results, with steps in expected places in geometry.
 But some materials lead to seemingly wrong results, eg for steps
 starting in Acrylic having entries along muon path.
 
+NB to test this in animation modes be sure to push out the 
+time otherwise the zombies could be misleading.::
+
+   udp.py --timerange 0,5000 --time 5000
+
+After that the liquids look OK, but still problems with Acrylic and ESR.
+
+
 Implement step selection based in *from* and *to* materials
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Need to expand VBO to hold material info.
 
 
+Discrepancy between presentation modes (FIXED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The dots and lines were not lining up. 
+Fixed by restoration of VBO slot contiguity (at expense of always duplicating the last slot)::
+
+    udp.py --style noodles,movie-extra --time 60  # red (absorbed) are mostly matching at 60ns
+    udp.py --style confetti,noodles
+
+Is this a problem with firsts, counts following moving last to -2::
+
+    gl.glMultiDrawArrays( mode, firsts, counts, drawcount )
+
+Yep. Drawing needs contiguity.
+
+
+Material Selection not compatible with Spagetti style
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using spagetti with material selection results in 
+lines going off to infinity. This is how photon selection is implemented
+but thats not compatible with LINE_STRIP drawing.
+
+
 Timeconstant for reemitted photons ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Infinite wavelength for reemitted photons  FIXED
+Infinite wavelength for reemitted photons (FIXED)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 FIXED by providing a `reemission_cdf` obtained by `np.cumsum` of the FASTCOMPONENT property.

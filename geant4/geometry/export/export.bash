@@ -128,6 +128,14 @@ export-name(){
   esac
 }
 
+export-geometry(){
+  case $1 in 
+        dyb) echo 3153:12221 ;;   # skip RPC and radslabs  
+       juno) echo 1:25000  ;;
+  esac
+}
+
+
 export-export(){
    export DAE_NAME=$(export-name dyb)
    export DAE_NAME_DYB=$(export-name dyb)
@@ -136,6 +144,11 @@ export-export(){
    export DAE_NAME_LXE=$(export-name lxe)
    export DAE_NAME_JUNO=$(export-name juno)
    export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%(arg)s.root"
+
+
+   export DAE_GEOMETRY_DYB=$(export-geometry dyb)
+   export DAE_GEOMETRY_JUNO=$(export-geometry juno)
+
 }
 
 export-juno-get(){

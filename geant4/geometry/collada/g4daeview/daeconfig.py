@@ -51,7 +51,14 @@ ivec_ = lambda _:map(int,_.split(","))
 fvec_ = lambda _:map(float,_.split(","))
 
 class DAEConfig(ConfigBase):
+    """
+    TODO:
 
+    #. make this dumber, converting arguments is better done
+       closer to point of use in order that external message config
+       can be converted with the same single code path
+
+    """
     size = property(lambda self:ivec_(self.args.size))
     block=property(lambda self:ivec_(self.args.block))
     launch=property(lambda self:ivec_(self.args.launch))
@@ -68,7 +75,8 @@ class DAEConfig(ConfigBase):
         ConfigBase.__init__(self, doc) 
         self._path = None
 
-    def resolve_event_path(self, path_ ):
+
+    def resolve_event_path(self, path_, subname=None):
         """ 
         Resolves paths to event files
 
@@ -87,7 +95,13 @@ class DAEConfig(ConfigBase):
             return path_
         log.debug("resolve_event_path path_template %s path_ %s " % (path_template, path_ ))  
         path = path_template % { 'arg':path_ }
-        return path 
+
+        if subname is None:
+            return path 
+        else:
+            base, ext = os.path.splitext(path) 
+            return os.path.join( base, subname) 
+
 
     def resolve_path(self, path_):
         """
@@ -128,13 +142,26 @@ class DAEConfig(ConfigBase):
         return self._path
     path = property(_get_path)
 
-    def _get_bookmarks(self):
+    def _get_confdir(self):
         path_ = self.args.path
         if path_ is None:
             path_ = ""
+        return os.path.expanduser(os.path.expandvars( self.args.confdir % dict(path=path_) ))
+    confdir = property(_get_confdir, doc="absolute path to confdir " )
+
+    def resolve_confpath(self, name):
+        """
+        Resolves path to config files, and creates directory if not existing
+
+        :param name:
+        """
+        path = os.path.join( self.confdir, name) 
+        dir_ = os.path.dirname(path)
+        if not os.path.exists(dir_):
+            log.info("creating directory %s " % dir_ )
+            os.makedirs(dir_) 
         pass
-        return self.args.bookmarks % dict(path=path_)
-    bookmarks = property(_get_bookmarks, doc="bookmark file name incorporating the geometry file shortname")  
+        return path
 
     def _get_geocachepath(self):
         gcp = self.args.geocachepath 
@@ -179,7 +206,7 @@ class DAEConfig(ConfigBase):
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
         defaults['seed'] = 0
-        defaults['bookmarks'] = "bookmarks_%(path)s.cfg"
+        defaults['confdir'] = "~/.g4daeview/%(path)s"
         defaults['zmqendpoint'] = os.environ.get("ZMQ_BROKER_URL_BACKEND","tcp://localhost:5002")
         defaults['zmqtunnelnode'] = None
 
@@ -198,7 +225,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )
         parser.add_argument( "--seed", help="Random Number seed, used for np.random.seed and curand setup", type=int  )
-        parser.add_argument( "--bookmarks", help="Path to persisted bookmarks  %(default)s", type=str  )
+        parser.add_argument( "--confdir", help="Path to directory for config files such as bookmarks.  %(default)s", type=str  )
         parser.add_argument( "--zmqendpoint", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
         parser.add_argument( "--zmqtunnelnode", help="Option interpreted at bash invokation level (not python) to specify remote SSH node to which a tunnel will be opened, strictly requires form `--zmqtunnelnode=N`  where N is an SSH config \"alias\".", type=str  )
 
@@ -212,16 +239,18 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "-I","--with-cuda-image-processor", help="Enable CUDA image processors ", action="store_true"  )
         parser.add_argument(      "--cuda-image-processor", help="Name of the CUDA image processor to use.", type=str )
 
-        defaults['with_chroma'] = False
+        defaults['with_chroma'] = True 
         defaults['max_alpha_depth'] = 10
-        parser.add_argument( "-C","--with-chroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_true" )
+        parser.add_argument( "-C","--nochroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_false" )
         parser.add_argument(      "--max-alpha-depth", help="Chroma Raycaster max_alpha_depth", type=int )
 
         defaults['path'] = "dyb"
         #defaults['geometry']="3153:"
         #defaults['geometry']="2+,3153:"
         #defaults['geometry']="2+,3153:12221"  # skip the radslabs
-        defaults['geometry']="3153:12221"      # skip RPC and radslabs
+        #defaults['geometry']="3153:12221"      # skip RPC and radslabs
+        defaults['geometry'] = "DAE_GEOMETRY_%(path)s" 
+
         defaults['geocache'] = False
         defaults['geocachepath'] = None
 

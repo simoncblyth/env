@@ -6,6 +6,24 @@ G4DAEVIEW
 .. seealso:: User instructions :doc:`/geant4/geometry/collada/g4daeview/g4daeview_usage`
 
 
+JSON State vending
+--------------------
+
+It would be useful for g4daeview.py to vend some JSON regarding current high level state
+over ZMQ or UDP ? EG for interoperation with an ipython session.
+
+
+Tight zooming not easy
+-------------------------------------
+
+Tight zooming (eg viewing steps propagating thru the acrylic surfaces) 
+is difficult as bookmarking cause view jumps. 
+
+
+Attempts to do rotation interpolation with no geometry visible cause NaN fails
+---------------------------------------------------------------------------------
+
+
 During VBO structural changes
 ------------------------------
 
@@ -14,6 +32,9 @@ preexisting persisted propagation files, rather that compare against them
 and assert on differences::
 
     g4daeview.sh --with-chroma --load 1 --debugkernel --wipepropagate
+
+Some rare discrepancies in material codes have been observered
+between propagations see :doc:`propagated_flags_mismatch`
 
 
 Live Style Change issues FIXED
@@ -289,7 +310,7 @@ def main():
     if os.path.exists(geocachepath) and config.args.geocache:
         geometry = DAEGeometry.load_from_cache( config )
     else:
-        geometry = DAEGeometry(config.args.geometry, config)
+        geometry = DAEGeometry(config)
         geometry.flatten()
         if config.args.geocache:
             geometry.save_to_cache(geocachepath)
@@ -324,8 +345,6 @@ def main():
 
     log.info("************  deferred apply_launch_config ")
     scene.event.apply_launch_config()
-
-
 
     
     log.info("************  enter eventloop ")

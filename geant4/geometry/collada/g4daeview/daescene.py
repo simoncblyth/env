@@ -78,7 +78,7 @@ class DAEScene(window_event.EventDispatcher):
         self.lights = DAELights( light_transform, config )
 
         # bookmarked viewpoints
-        self.bookmarks = DAEBookmarks(config.bookmarks, geometry ) 
+        self.bookmarks = DAEBookmarks(config, geometry ) 
 
         # Chroma raycaster and propagator, None if not --with-chroma
         self.raycaster = self.chroma.raycaster

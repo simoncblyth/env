@@ -276,9 +276,9 @@ GL_UNSIGNED_INT         0:4.295B
 The what letters, 'pnctesf' define the meaning of the arrays via 
 enabling appropriate attributes.
 
-==================  ==================   ================   =====
+==================  ==================   ==================   =====
 gl***Pointer          GL_***_ARRAY          Att names         *
-==================  ==================   ================   =====
+==================  ==================   ==================   =====
  Color                COLOR                color              c
  EdgeFlag             EDGE_FLAG            edge_flag          e
  FogCoord             FOG_COORD            fog_coord          f
@@ -287,7 +287,7 @@ gl***Pointer          GL_***_ARRAY          Att names         *
  TexCoord             TEXTURE_COORD        tex_coord          t 
  Vertex               VERTEX               position           p
  VertexAttrib         N/A             
-==================  ==================   ================   =====
+==================  ==================   ==================   =====
 
 
 glDrawElements offset
