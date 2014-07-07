@@ -106,13 +106,13 @@ class DAEPhotonsMenuController(object):
         pass
         style_menu.update()  
 
-    def update_material_menu(self, matnameindex, callback ):
+    def update_material_menu(self, matnamecode, callback ):
         """
         """
         material_menu = self.rootmenu.find_submenu("material")
         assert material_menu == self.material_menu
-        for name, index in matnameindex:
-            material_menu.addnew(name, callback, index=index )
+        for name, matcode in matnamecode:
+            material_menu.addnew(name, callback, matcode=matcode )
         pass
         material_menu.update()  
 

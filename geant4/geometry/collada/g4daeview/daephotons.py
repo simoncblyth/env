@@ -64,6 +64,8 @@ class DAEPhotons(object):
         self.event = event       
         self.interop = not event.scene.chroma.dummy
         self.config = event.config      
+        self.chroma_material_map = event.scene.geometry.chroma_material_map
+        self.chroma_process_map = event.scene.geometry.chroma_process_map
 
         self._style = event.config.args.style   
 
@@ -80,6 +82,8 @@ class DAEPhotons(object):
         if not presenter is None:
             presenter.time   = event.config.args.time
             presenter.cohort = event.config.args.cohort
+        pass
+        self.material = event.config.args.material    
 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
         self.analyzer = DAEPhotonsAnalyzer(self.config.args.max_slots)
@@ -103,9 +107,7 @@ class DAEPhotons(object):
             if vbo is None:return 
             self.tpropagated( vbo.read() ) 
             index = self.tpropagated.t_nearest_photon( click ) 
-            chroma_material_map = self.event.scene.geometry.chroma_material_map
-            chroma_process_map = self.event.scene.geometry.chroma_process_map
-            self.tpropagated.summary(index, material_map=chroma_material_map, process_map=chroma_process_map)
+            self.tpropagated.summary(index, material_map=self.chroma_material_map, process_map=self.chroma_process_map)
         else:
             index = self.analyzer.nearest_photon(click)
         pass
@@ -119,17 +121,21 @@ class DAEPhotons(object):
         """
         if not self.interop:return
         self.menuctrl.update_style_menu( self.styler.style_names, self.style_callback )
-        self.menuctrl.update_material_menu( self.unique_materials(), self.material_callback )
+        self.menuctrl.update_material_menu( self.material_pairs(), self.material_callback )
 
-    def unique_materials(self):
-        cg = self.event.scene.chroma.chroma_geometry
-        return [("-1 ANY",-1)] + [("%2d %s" % (i,m.name[17:-9]),i,) for i,m in enumerate(cg.unique_materials)]
+    #def unique_materials(self):
+    #    cg = self.event.scene.chroma.chroma_geometry
+    #    return [("-1 ANY",-1)] + [("%2d %s" % (i,m.name[17:-9]),i,) for i,m in enumerate(cg.unique_materials)]
+
+    def material_pairs(self):
+         return self.analyzer.get_material_pairs(self.chroma_material_map)
 
     def material_callback(self, item):
         matname = item.title
-        matindex = item.extra['index']
-        log.info("material_callback matname %s matindex %s  " % (matname, matindex) )
-        self.param.mode = int(matindex)
+        matcode = item.extra['matcode']
+        log.info("material_callback matname %s matindex %s  " % (matname, matcode) )
+        #self.param.mode = int(matindex)
+        self.material = matcode
         self.menuctrl.rootmenu.dispatch('on_needs_redraw')
 
     def style_callback(self, item):
@@ -244,7 +250,7 @@ class DAEPhotons(object):
 
     ### other actions #####
 
-    reconfig_properties = ['time','style','timerange','cohort',]
+    reconfig_properties = ['time','style','timerange','cohort','material',]
 
     def reconfig(self, conf):
         """
@@ -341,6 +347,30 @@ class DAEPhotons(object):
         tdelta = tfactor*dy
         self.time += tdelta
         #log.info("time_to x %s y %s dx %s dy %s ===> tfactor %s tdelta  %s ===> time %s " % (x,y,dx,dy, tfactor, tdelta, self.time))
+
+
+    ## step material selection
+
+    def _set_material(self, names):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            log.warn("cannot set material selection constants when renderer.presenter is not enabled")
+            return
+        pass
+        codes = self.chroma_material_map.convert_names2codes(names)
+        log.info("_set_mate %s => %s " % (names, codes))
+        presenter.material = codes
+    def _get_material(self):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            return None
+        pass
+        codes = presenter.material
+        names = self.chroma_material_map.convert_codes2names(codes)
+        log.info("_get_mate %s => %s " % (codes, names))
+        return names
+    material = property(_get_material, _set_material, doc="setter copies material selection integers into GPU quad g_mate  getter returns cached value " )
+
 
 
 

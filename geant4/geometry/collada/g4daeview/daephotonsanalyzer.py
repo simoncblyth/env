@@ -123,17 +123,17 @@ class DAEPhotonsPropagated(object):
         pass
         return vec
 
-    flags = property(lambda self:self.get_vector(field='flags', index=0))
-    t0    = property(lambda self:self.get_vector(field='flags', index=1).view(np.float32))
-    tf    = property(lambda self:self.get_vector(field='flags', index=2).view(np.float32))
+
+    flags = property(lambda self:self.propagated['flags'][self.last_index][:,0])
+    t0    = property(lambda self:self.propagated['flags'][self.last_index][:,1].view(np.float32))
+    tf    = property(lambda self:self.propagated['flags'][self.last_index][:,2].view(np.float32))
+    steps = property(lambda self:self.propagated['flags'][self.last_index][:,3])
     time_range = property(lambda self:[0.,self.tf.max()])  # start from 0, not min
 
-    lht       = property(lambda self:self.get_vector(field='last_hit_triangle', index=0))
-    photon_id = property(lambda self:self.get_vector(field='last_hit_triangle', index=1)) 
-    steps     = property(lambda self:self.get_vector(field='last_hit_triangle', index=2))
-    #slots     = property(lambda self:self.get_vector(field='last_hit_triangle', index=3))
-
-
+    lht   = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,0]) 
+    mat1  = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,1]) 
+    mat2  = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,2]) 
+    slots = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,3]) 
 
     history = property(lambda self:count_unique(self.flags))
     hsteps  = property(lambda self:count_unique(self.steps))
@@ -170,9 +170,10 @@ class DAEPhotonsPropagated(object):
     last_flags = property(lambda self:self.propagated['flags'][self.last_index])
     last_lht   = property(lambda self:self.propagated['last_hit_triangle'][self.last_index])
 
-    slots = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,3]) 
-
-
+    # raw, all slot accessors
+    material1  = property(lambda self:self.propagated['last_hit_triangle'][:,1])
+    material2  = property(lambda self:self.propagated['last_hit_triangle'][:,2])
+    matpair    = property(lambda self:self.material1*1000 + self.material2)
 
     def nearest_photon(self, click):
         """
@@ -215,14 +216,30 @@ class DAEPhotonsPropagated(object):
             b[:,0] = a[:,1].view(np.float32)
             b[:,1] = a[:,2].view(np.float32)
             history = columnize(map( process_map.mask2str, a[:,0] ))
-            material = columnize(map( material_map.code2str, a[:,3])) 
-            sbs = side_by_side( "\n".join(history),"\n".join(material),str(b) ) 
+            sbs = side_by_side( "\n".join(history),str(b) ) 
             return sbs
+
+        def format_p_lht(a):
+            from_material = columnize(map( material_map.code2str, a[:,1])) 
+            to_material   = columnize(map( material_map.code2str, a[:,2])) 
+            return side_by_side( str(a), "\n".join(from_material), "\n".join(to_material) )
+
+        def format_p_post(a, maxdist=10000):
+            """
+            distance between step positions
+            """
+            dists = a[1:,0:3] - a[:-1,0:3]
+            stepdist = [-1] + map(np.linalg.norm, dists)
+            stepdist = map( lambda _:-1 if _>maxdist else _, stepdist)
+            return side_by_side( str(a), "\n".join(map(str,stepdist)))
 
         tmap = {} 
         tmap['p_flags'] = format_p_flags
+        tmap['p_lht'] = format_p_lht
+        tmap['p_post'] = format_p_post
+
         print att_side_by_side(self, pid, "p_flags p_lht".split(), tmap ) 
-        print att_side_by_side(self, pid, "p_post p_dirw p_polw p_ccol".split()) 
+        print att_side_by_side(self, pid, "p_post p_dirw p_polw p_ccol".split(), tmap ) 
         print att_side_by_side(self, pid, "t_post t_dirw t_polw t_ccol".split()) 
 
     def _get_counts_firsts_drawcount(self):
@@ -239,8 +256,7 @@ class DAEPhotonsPropagated(object):
         correctly in non-truncated cases as it will step off the 
         reservation and not see the last slot up at -2.
         """
-        photon_id = self.photon_id
-        nphoton = len(photon_id)
+        nphoton = self.nphoton
 
         counts = np.clip( self.slots, 0, self.max_slots-2 )   # seemingly this makes it contiguous
         #counts = self.slots    # 
@@ -336,6 +352,22 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
     def compare_propagated(self, a, b):
         mismatch = compare(a, b, self.max_slots )
         assert mismatch == 0 , (mismatch, "Debug with eg: cd /usr/local/env/tmp/1/ ; daephotonscompare.sh --loglevel debug ")
+
+    def get_material_pairs(self, material_map):
+        vals = self.matpair
+        mp = count_unique(vals)
+        mps = mp[mp[:,-1].argsort()[::-1]]     # order by decreasing pair count  
+        c2s_ = lambda c:material_map.code2str(c,short=False) 
+
+        items = []
+        for mm,count in mps: 
+            smm = ",".join(map(c2s_,[mm//1000,mm%1000]))
+            matname = "%s %s " % ( count, smm )
+            matcode = smm
+            items.append( (matname,matcode))
+        pass
+        return items
+
 
     def __call__(self, propagated):
         """
@@ -454,6 +486,7 @@ def main():
     z = DAEPhotonsAnalyzer( max_slots=config.args.max_slots )
     z.load(path)
     z.summary(0,  material_map=cmm, process_map=cpm )
+    z.check_material_pairs( material_map=cmm )
 
     log.info("dropping into IPython.embed() try: z.<TAB> ")
     import IPython 

@@ -4,6 +4,37 @@ Photon Level Debug
 Issues
 ---------
 
+
+Photon Picking 
+~~~~~~~~~~~~~~~
+
+Works OK in movie mode. Not so well in noddles, confetti modes.
+Because is looking at the nearest positioned photon at a particular time
+using slot -1. 
+
+
+
+Make Bialkali absorb rate ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    014-07-07 16:39:49,336 env.geant4.geometry.collada.g4daeview.daephotonsanalyzer:209 summary for pid 4041 
+    p_flags[4041]                      p_lht[4041]                                          
+               [[ 228.349   228.349 ]  [[  1237      3      5      0] GdDopedLS  Acrylic    
+                [ 228.349   234.2408]   [   949      5     11      1] Acrylic    LiquidScin 
+                [ 228.349   234.3079]   [   615     11      5      2] LiquidScin Acrylic    
+                [ 228.349   237.0455]   [   327      5      6      3] Acrylic    MineralOil 
+                [ 228.349   237.1461]   [363865      6     15      4] MineralOil Pyrex      
+                [ 228.349   238.4965]   [364826     15      9      5] Pyrex      Vacuum     
+                [ 228.349   238.5126]   [365759      9     12      6] Vacuum     Bialkali   
+    R_SPECULAR  [ 228.349   307.1889]   [635507      5      6      7] Acrylic    MineralOil 
+    R_SPECULAR  [ 228.349   307.1889]   [635507      5      6      7] Acrylic    MineralOil 
+    R_SPECULAR  [ 228.349   307.1889]]  [635507      5      6      7]] Acrylic    MineralOil
+    p_post[4041]                                            p_dirw[4041]
+
+
+
 Quite a lot of many step histories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -61,6 +92,99 @@ time otherwise the zombies could be misleading.::
    udp.py --timerange 0,5000 --time 5000
 
 After that the liquids look OK, but still problems with Acrylic and ESR.
+
+
+Selecting steps/selecting photons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+More intuitive to select photons that do a particular step
+rather than select steps.  How to implement ?
+
+
+Both end material check
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With selection based on from/to materials. Peculiarities::
+
+    udp.py --material GdDopedLS,Acrylic
+           # confetti and noodle modes show many steps starting on upper acylic of inner AD
+           # almost none from the bottom
+
+    udp.py --material GdDopedLS,ANY
+           # generalize, still most nothing downwards
+
+::
+
+    Tyvek,Tyvek                     9755    # not real, just 0,0
+    GdDopedLS,Acrylic               6209 
+    Acrylic,LiquidScintillator      5809 
+    LiquidScintillator,Acrylic      5402 
+    MineralOil,Acrylic              5000 
+    Acrylic,MineralOil              3575 
+    ESR,Air                         2079    
+    StainlessSteel,IwsWater         1178 
+    Acrylic,Air                     482 
+    Acrylic,GdDopedLS               402     # huge asymmetry, whereas not for LS ?
+    MineralOil,Pyrex                306 
+    StainlessSteel,MineralOil       258 
+    MineralOil,StainlessSteel       240 
+    Air,ESR                         237 
+    Vacuum,Bialkali                 191    # efficiency ? 
+    Pyrex,Vacuum                    165 
+    Bialkali,Vacuum                 130 
+    UnstStainlessSteel,MineralOil   82 
+    Pyrex,MineralOil                59 
+    IwsWater,IwsWater               16 
+    Vacuum,OpaqueVacuum             14 
+    StainlessSteel,Water            9 
+    MineralOil,UnstStainlessSteel   8 
+    LiquidScintillator,Teflon       8 
+    LiquidScintillator,GdDopedLS    7 
+    LiquidScintillator,MineralOil   6 
+    GdDopedLS,LiquidScintillator    4 
+    OwsWater,Pyrex                  3 
+    OpaqueVacuum,Vacuum             3 
+    IwsWater,StainlessSteel         2 
+    Teflon,LiquidScintillator       2 
+    Water,StainlessSteel            2 
+    StainlessSteel,GdDopedLS        2 
+    StainlessSteel,NitrogenGas      2 
+    OwsWater,UnstStainlessSteel     1 
+    Air,Acrylic                     1 
+    IwsWater,Water                  1 
+     
+
+
+ESR,Air
+~~~~~~~~
+
+::
+
+    udp.py --material ESR,Air  --style noodles,confetti   
+       # almost all at base, 
+
+    udp.py --material Air,ESR  --style noodles,confetti   
+       # also : almost all at base
+
+
+Initially some NO_HIT steps showup along muon path with material
+indices set despite last_hit_triangle -1.
+These NO_HIT interlopers are eliminated by setting the state material indices to 
+default -1 when no intersection found. Must have been picking up some static leftovers ?
+
+
+Material pairs appearing reasonable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    udp.py --material MineralOil,Pyrex --style noodles,confetti 
+         # Mostly just inside the MineralOil, nr Acrylic, and all pointing at PMTs. Top orthographic clearest
+
+    udp.py --material Pyrex,Vacuum --style noodles,confetti 
+         # all inside PMTs, for clear view make geometry invisible with I
+
+
 
 
 Implement step selection based in *from* and *to* materials

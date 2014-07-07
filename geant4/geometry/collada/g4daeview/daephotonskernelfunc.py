@@ -43,10 +43,12 @@ class DAEPhotonsKernelFunc(object):
 
         self.g_mask = module.get_global("g_mask")[0]  
         self.g_anim = module.get_global("g_anim")[0]  
+        self.g_mate = module.get_global("g_mate")[0]  
 
         # must not be defaults otherwise setter will not memcopy_htod
         self._mask = [-99,-99,-99,-99]  
         self._anim = [-99,-99,-99,-99]
+        self._mate = [-99,-99,-99,-99]
 
         self.kernel = kernel
 
@@ -58,6 +60,19 @@ class DAEPhotonsKernelFunc(object):
         #log.info("update_constants %s " % repr(kernel_mask))
         self.mask = kernel_mask
         #self.anim = self.dphotons.param.kernel_anim
+
+
+
+    def _get_material(self):
+        return self._mate 
+    def _set_material(self, mate):
+        if mate == self._mate:return
+        self._mate = mate
+        log.info("_set_mate : memcpy_htod %s " % repr(mate))
+        cuda_driver.memcpy_htod(self.g_mate, ga.vec.make_int4(*mate))
+    material = property(_get_material, _set_material, doc="mate: setter copies to device __constant__ memory, getter returns cached value") 
+
+
 
     def _get_mask(self):
         return self._mask 
