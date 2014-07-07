@@ -29,6 +29,9 @@ class DAEPhotonsCompare(object):
             if not cf:
                 log.warn("att %s cf %s " % ( att, cf ))
                 mismatch += 1
+                if att == 'propagated':
+                    self.compare_propagated()
+
             else:
                 log.debug(" att %s OK " % att )
         pass

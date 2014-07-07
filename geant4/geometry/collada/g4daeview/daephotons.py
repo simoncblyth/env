@@ -103,7 +103,9 @@ class DAEPhotons(object):
             if vbo is None:return 
             self.tpropagated( vbo.read() ) 
             index = self.tpropagated.t_nearest_photon( click ) 
-            self.tpropagated.summary(index)
+            chroma_material_map = self.event.scene.geometry.chroma_material_map
+            chroma_process_map = self.event.scene.geometry.chroma_process_map
+            self.tpropagated.summary(index, material_map=chroma_material_map, process_map=chroma_process_map)
         else:
             index = self.analyzer.nearest_photon(click)
         pass

@@ -110,6 +110,7 @@ class DAEPhotonsStyler(object):
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "p2l"
+           cfg['extrakey'] = None   # switching to p2p causes to become like confetti ?
            cfg['slot'] = None  
 
         elif style == 'movie':

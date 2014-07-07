@@ -1,28 +1,8 @@
 #!/usr/bin/env python
 """
-From commandline::
+Usage::
 
-    delta:~ blyth$ cd /usr/local/env/tmp/20140514-175600/    ## get path for currently loaded event from g4daeview stdout 
-    delta:20140514-175600 blyth$ daephotonsanalyzer.sh propagated-0.npz 
-
-    delta:~ blyth$ cd /usr/local/env/tmp/1/   
-    delta:1 blyth$ daephotonsanalyzer.sh propagated-0.npz 
-
-
-
-Handling Truncation 
---------------------
-
-#. reserve slot -2, and use it for the last propagated position (up to propagation max_steps)
-
-   * motivations eg to be able to select a photon, need to have easy way to access final position
-
-#. animation interpolation presentation can continue to use slot -1  
-
-::
-
-    b = a.reshape( (4165,10) )
-
+    delta:~ blyth$ daephotonsanalyzer.sh --load 1
 
 """
 import logging, os, filecmp
@@ -32,10 +12,17 @@ from photons import mask2arg_, count_unique
 from daephotonscompare import DAEPhotonsCompare
 
 
+def columnize( s ):
+    """
+    :param s: list of strings of varying lengths
+    :return: list of strings formatted to all be the same length  
+    """
+    maxl = max(map(len, s))
+    fmt_ = lambda _:("%-"+str(maxl)+"s") % _            
+    return map(fmt_, s )
 
 
-
-def srep(obj, att, index):
+def srep(obj, att, index, transform_ = lambda _:_):
     """
     :param obj:
     :param att: attribute name
@@ -43,7 +30,7 @@ def srep(obj, att, index):
 
     :return: string representation of numpy array with att[index] label
     """
-    body = str(getattr(obj,att)[index])  
+    body = str(transform_(getattr(obj,att)[index]))  
     maxl = max(map(len,body.split("\n"))) 
     label = "%s[%s]" % (att,index)
     fmt = "%-"+str(maxl)+"s"
@@ -62,15 +49,22 @@ def side_by_side(*arr):
     zsplit = zip(*split)
     return "\n".join(map(lambda _:" ".join(_), zsplit))
 
-def att_side_by_side( obj, index, atts):
+
+
+def att_side_by_side( obj, index, atts, tmap={}):
     """
     :param obj:
     :param index:
     :param atts: list of attribute names
+    :param tmap: dict containing numpy array transform functions keyed by attribute name
     """
-    srep_ = lambda _:srep(obj,_,index)
-    return side_by_side(*map(srep_,atts)) 
-
+    identity_ = lambda _:_
+    arr = []
+    for att in atts:
+        transform_ = tmap.get(att,identity_)
+        arr.append(srep(obj,att,index,transform_))
+    pass
+    return side_by_side(*arr) 
 
 
 
@@ -78,6 +72,7 @@ def compare(apath, bpath, max_slots):
     """
     Compare persisted propagation npz files
     """ 
+    log.info("compare apath %s bpath %s max_slots %s " % (apath,bpath,max_slots))
     a = DAEPhotonsAnalyzer.make(apath, max_slots)
     b = DAEPhotonsAnalyzer.make(bpath, max_slots)
     assert a.atts == b.atts
@@ -152,6 +147,8 @@ class DAEPhotonsPropagated(object):
     p_flags = property(lambda self:self.propagated['flags'].reshape(-1,self.max_slots,4))
     p_lht   = property(lambda self:self.propagated['last_hit_triangle'].reshape(-1,self.max_slots,4))
 
+
+
     nphoton = property(lambda self:len(self.propagated)/self.max_slots)
 
     def _get_indices(self, slot=-1):
@@ -208,9 +205,23 @@ class DAEPhotonsPropagated(object):
         log.info("t_nearest_photon to click %s index %s at %s delta %s " % ( repr(click), index, t_post[index], repr(delta)  )) 
         return index
 
-    def summary(self, pid):
+    def summary(self, pid, material_map=None, process_map=None):
         log.info("summary for pid %s " % pid )
-        print att_side_by_side(self, pid, "p_flags p_lht".split()) 
+        #print "material_map ", material_map
+        #print "process_map ", process_map
+
+        def format_p_flags(a):
+            b = np.empty((a.shape[0],2),dtype=np.float32)
+            b[:,0] = a[:,1].view(np.float32)
+            b[:,1] = a[:,2].view(np.float32)
+            history = columnize(map( process_map.mask2str, a[:,0] ))
+            material = columnize(map( material_map.code2str, a[:,3])) 
+            sbs = side_by_side( "\n".join(history),"\n".join(material),str(b) ) 
+            return sbs
+
+        tmap = {} 
+        tmap['p_flags'] = format_p_flags
+        print att_side_by_side(self, pid, "p_flags p_lht".split(), tmap ) 
         print att_side_by_side(self, pid, "p_post p_dirw p_polw p_ccol".split()) 
         print att_side_by_side(self, pid, "t_post t_dirw t_polw t_ccol".split()) 
 
@@ -258,8 +269,8 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         self.loaded = None
 
     @classmethod
-    def make(cls, path, config):
-        analyzer = cls( max_slots=config.args.max_slots )
+    def make(cls, path, max_slots ):
+        analyzer = cls( max_slots=max_slots )
         analyzer.load(path)
         return analyzer
 
@@ -418,10 +429,18 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
 
 def main():
     from daeconfig import DAEConfig
+    from daechromaprocessmap import DAEChromaProcessMap
+    from daechromamaterialmap import DAEChromaMaterialMap
+
     config = DAEConfig()
     config.init_parse()
-    clargs = config.args.clargs 
+    cpm = DAEChromaProcessMap.fromjson(config)
+    cmm = DAEChromaMaterialMap.fromjson(config)
+    #print cpm
+    #print cmm
 
+
+    clargs = config.args.clargs 
     if len(clargs) > 0:
         path = clargs[0]
     else:
@@ -431,35 +450,10 @@ def main():
     pass
     log.info("creating DAEPhotonsAnalyzer for %s " % (path ))
 
+
     z = DAEPhotonsAnalyzer( max_slots=config.args.max_slots )
     z.load(path)
-
-    # populate context with some useful constants
-    NO_HIT           = 0x1 << 0
-    BULK_ABSORB      = 0x1 << 1
-    SURFACE_DETECT   = 0x1 << 2
-    SURFACE_ABSORB   = 0x1 << 3
-    RAYLEIGH_SCATTER = 0x1 << 4
-    REFLECT_DIFFUSE  = 0x1 << 5
-    REFLECT_SPECULAR = 0x1 << 6
-    SURFACE_REEMIT   = 0x1 << 7
-    SURFACE_TRANSMIT = 0x1 << 8
-    BULK_REEMIT      = 0x1 << 9
-    NAN_ABORT        = 0x1 << 31
-
-    STATUS_NONE = 0 
-    STATUS_HISTORY_COMPLETE = 1
-    STATUS_UNPACK = 2
-    STATUS_NAN_FAIL = 3
-    STATUS_FILL_STATE = 4 
-    STATUS_NO_INTERSECTION = 5
-    STATUS_TO_BOUNDARY = 6
-    STATUS_AT_SURFACE = 7
-    STATUS_AT_SURFACE_UNEXPECTED = 8
-    STATUS_AT_BOUNDARY = 9
-    STATUS_BREAKOUT = 10
-    STATUS_ENQUEUE = 11
-    STATUS_DONE = 12
+    z.summary(0,  material_map=cmm, process_map=cpm )
 
     log.info("dropping into IPython.embed() try: z.<TAB> ")
     import IPython 

@@ -178,6 +178,10 @@ class DAEConfig(ConfigBase):
     timerange = property(_get_timerange, _set_timerange) 
 
 
+    chroma_material_map = property(lambda self:self.resolve_confpath(self.args.chroma_material_map))
+    chroma_process_map = property(lambda self:self.resolve_confpath(self.args.chroma_process_map))
+
+
     def _make_base_parser(self, doc):
         """
         Base parser handles arguments/options that 
@@ -207,6 +211,8 @@ class DAEConfig(ConfigBase):
         defaults['address'] = address()
         defaults['seed'] = 0
         defaults['confdir'] = "~/.g4daeview/%(path)s"
+        defaults['chroma_material_map'] = "chroma_material_map.json"
+        defaults['chroma_process_map'] = "chroma_process_map.json"
         defaults['zmqendpoint'] = os.environ.get("ZMQ_BROKER_URL_BACKEND","tcp://localhost:5002")
         defaults['zmqtunnelnode'] = None
 
@@ -226,6 +232,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )
         parser.add_argument( "--seed", help="Random Number seed, used for np.random.seed and curand setup", type=int  )
         parser.add_argument( "--confdir", help="Path to directory for config files such as bookmarks.  %(default)s", type=str  )
+        parser.add_argument( "--chroma-material-map", help="Name of chroma material map file.  %(default)s", type=str  )
         parser.add_argument( "--zmqendpoint", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
         parser.add_argument( "--zmqtunnelnode", help="Option interpreted at bash invokation level (not python) to specify remote SSH node to which a tunnel will be opened, strictly requires form `--zmqtunnelnode=N`  where N is an SSH config \"alias\".", type=str  )
 

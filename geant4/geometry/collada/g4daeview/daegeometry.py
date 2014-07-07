@@ -8,6 +8,7 @@ from env.geant4.geometry.collada.daenode import DAENode
 from daeutil import printoptions, ModelToWorld, WorldToModel
 from daeviewpoint import DAEViewpoint
 from daechromamaterialmap import DAEChromaMaterialMap
+from daechromaprocessmap import DAEChromaProcessMap
 
 from collada.xmlutil import etree as ET
 
@@ -377,10 +378,26 @@ class DAEGeometry(object):
         self.cc = cc
         self.chroma_material_map = DAEChromaMaterialMap( self.config, cc.cmm )
         self.chroma_material_map.write()
-        self.chroma_material_map.dump()
+
+        cpm = self.make_chroma_process_map()
+
+        self.chroma_process_map = DAEChromaProcessMap( self.config, cpm )
+        self.chroma_process_map.write()
 
         log.debug("completed make_chroma_geometry")
         return cc.chroma_geometry
+
+
+    def make_chroma_process_map(self):
+        """
+        Return dict of process names keyed by enum integer codes 
+        """
+        from photons import PHOTON_FLAGS
+        cpm = {}
+        for name, code in PHOTON_FLAGS.items():
+            cpm[code] = name
+        pass
+        return cpm
 
 
     def plot( self, prop="RINDEX", materials="MineralOil LiquidScintillator GdDopedLS Acrylic".split() ):

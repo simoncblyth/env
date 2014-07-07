@@ -132,6 +132,7 @@ export-geometry(){
   case $1 in 
         dyb) echo 3153:12221 ;;   # skip RPC and radslabs  
        juno) echo 1:25000  ;;
+        lxe) echo 1:   ;;
   esac
 }
 
@@ -148,6 +149,7 @@ export-export(){
 
    export DAE_GEOMETRY_DYB=$(export-geometry dyb)
    export DAE_GEOMETRY_JUNO=$(export-geometry juno)
+   export DAE_GEOMETRY_LXE=$(export-geometry lxe)
 
 }
 

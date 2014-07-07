@@ -461,6 +461,11 @@ class ColladaToChroma(object):
         cmm = dict([(i,m.name[17:-9]) for i,m in enumerate(chroma_geometry.unique_materials)])
         return cmm
 
+
+
+
+
+
     def add_bvh( self, bvh_name="default", auto_build_bvh=True, read_bvh_cache=True, update_bvh_cache=True, cache_dir=None, cuda_device=None):
         """
         As done by chroma.loader

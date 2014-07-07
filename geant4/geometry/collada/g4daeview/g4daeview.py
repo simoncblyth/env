@@ -12,13 +12,11 @@ JSON State vending
 It would be useful for g4daeview.py to vend some JSON regarding current high level state
 over ZMQ or UDP ? EG for interoperation with an ipython session.
 
-
 Tight zooming not easy
 -------------------------------------
 
 Tight zooming (eg viewing steps propagating thru the acrylic surfaces) 
 is difficult as bookmarking cause view jumps. 
-
 
 Attempts to do rotation interpolation with no geometry visible cause NaN fails
 ---------------------------------------------------------------------------------
@@ -47,23 +45,21 @@ styles that do not. Actually the transition happens without error but a blank re
 This was fixed by moving to keeping GLSL shaders around and swapping between them 
 rather than attempting to delete shaders.
 
-Step Interpolation Visualization
-----------------------------------
+Step Interpolation Visualization IMPLEMENTED
+-----------------------------------------------
 
 Keeping multiple propagation steps in the VBO at once provides an interesting
 visualization possibility.  
 
 #. Run the propagation at event load to a fixed maximum number of steps 
 
-   * controlling the propagation from DAEEvent or DAEPhotons rather 
-     than current DAEPhotonsRenderer makes more sense
    * in propagate_vbo.cu store the step results into the vbo in slots by step number
    * within the pre-draw DAEPhotonsRenderer/DAEPhotonsKernel CUDA call calculate 
      photon parameters based on an input "time" constant (that can be varied 
      forwards and backwards interactively) 
 
      * find the pair of steps whose times straddle the input time and 
-       use linear interpolation to calculate the photon parametes at that time, 
+       use linear interpolation to calculate the photon position at that time, 
        lay down the result into a slot in the VBO
 
      * invoke geometry shader rendereing as normal with appropriate stride to 
@@ -98,12 +94,19 @@ shaders.
 * http://www.anandtech.com/show/7657/khronos-offers-a-quick-peek-at-the-next-version-of-opengl-es
 
 
-NB default node selection only applies to to dyb
--------------------------------------------------
+Node selection only applies to to particular geometry dyb/juno/lxe
+--------------------------------------------------------------------
 
-For viewing Geant4 LXe example::
+Current workaround is via envvars like DAE_GEOMETRY_DYB.  
+That does not scale so well, probably need to adopt defaults files maybe:
 
-    g4daeview.sh -p lxe -g 1: 
+* `~/.g4daeview/defaults.cfg`  
+* `~/.g4daeview/dyb/defaults.cfg`  
+* `~/.g4daeview/juno/defaults.cfg`  
+
+Pulled out the default geometry nodeselection, but not geo specific starting eye, near etc..::
+
+    g4daeview.sh -p lxe -C
 
 
 Live Updating Test
