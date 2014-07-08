@@ -61,8 +61,20 @@ class DAEChromaMaterialMap(DAEChromaMap):
         d = self.code2shortname if short else self.code2name
         return d.get(code,"-")
 
-        
+    def paircode2str(self, paircode):
+        c2s_ = lambda c:self.code2str(c,short=False)
+        return ",".join(map(c2s_,[paircode//1000,paircode%1000]))
 
+    def str2paircode(self, names):
+        """
+        ::
+
+            cmm.str2paircode("Acrylic,GdDopedLS")
+            Out[5]: 5003
+
+        """
+        codes = self.convert_names2codes(names)
+        return codes[0]*1000 + codes[1]
 
 
 if __name__ == '__main__':

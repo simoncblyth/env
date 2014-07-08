@@ -459,7 +459,8 @@ class ColladaToChroma(object):
         How is that possible ? Perfect or random would seem more likely outcomes. 
         """
         cmm = dict([(i,m.name[17:-9]) for i,m in enumerate(chroma_geometry.unique_materials)])
-        cmm[999] = "ANY"
+        cmm[-1] = "ANY"
+        cmm[999] = "UNKNOWN"
         return cmm
 
 

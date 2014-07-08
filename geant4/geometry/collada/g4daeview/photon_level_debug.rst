@@ -5,6 +5,48 @@ Issues
 ---------
 
 
+
+
+Pushing Up the Slots causes BUS error
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+max slots of 100 or 50 load noodle style photon render, 
+but on switching to movie style get a bus error:: 
+
+    *** Break *** bus error
+     Generating stack trace...
+     0x00007fff8a06c3a9 in glMultiDrawArrays_ACC_Exec (in GLEngine) + 565
+     0x00000001073706e7 in ffi_call_unix64 (in _ctypes.so) + 79
+     0x00007fff59315790 in <unknown function>
+    -------------------------------------------------------------------
+    PyCUDA ERROR: The context stack was not empty upon module cleanup.
+    -------------------------------------------------------------------
+    A context was still active when the context stack was being
+    cleaned up. At this point in our execution, CUDA may already
+    have been deinitialized, so there is no way we can finish
+    cleanly. The program will be aborted now.
+    Use Context.pop() to avoid this problem.
+    -------------------------------------------------------------------
+    /Users/blyth/env/bin/g4daeview.sh: line 64: 61267 Abort trap: 6           g4daeview.py $*
+    delta:e blyth$ 
+    delta:e blyth$ 
+    delta:e blyth$ g4daeview.sh  --load 1 --wipepropagate --debugkernel --debugphoton 0 --max-slots 30
+
+
+Guessed causes ?
+
+#. drawing time exceeds some OpenGL timeout ?
+
+
+Single Photon Debug
+~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    udp.py --style spagetti,confetti,noodles,movie-extra --sid 3354
+
+
+
 Photon Picking 
 ~~~~~~~~~~~~~~~
 
@@ -92,105 +134,6 @@ time otherwise the zombies could be misleading.::
    udp.py --timerange 0,5000 --time 5000
 
 After that the liquids look OK, but still problems with Acrylic and ESR.
-
-
-Selecting steps/selecting photons
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-More intuitive to select photons that do a particular step
-rather than select steps.  How to implement ?
-
-
-Both end material check
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-With selection based on from/to materials. Peculiarities::
-
-    udp.py --material GdDopedLS,Acrylic
-           # confetti and noodle modes show many steps starting on upper acylic of inner AD
-           # almost none from the bottom
-
-    udp.py --material GdDopedLS,ANY
-           # generalize, still most nothing downwards
-
-::
-
-    Tyvek,Tyvek                     9755    # not real, just 0,0
-    GdDopedLS,Acrylic               6209 
-    Acrylic,LiquidScintillator      5809 
-    LiquidScintillator,Acrylic      5402 
-    MineralOil,Acrylic              5000 
-    Acrylic,MineralOil              3575 
-    ESR,Air                         2079    
-    StainlessSteel,IwsWater         1178 
-    Acrylic,Air                     482 
-    Acrylic,GdDopedLS               402     # huge asymmetry, whereas not for LS ?
-    MineralOil,Pyrex                306 
-    StainlessSteel,MineralOil       258 
-    MineralOil,StainlessSteel       240 
-    Air,ESR                         237 
-    Vacuum,Bialkali                 191    # efficiency ? 
-    Pyrex,Vacuum                    165 
-    Bialkali,Vacuum                 130 
-    UnstStainlessSteel,MineralOil   82 
-    Pyrex,MineralOil                59 
-    IwsWater,IwsWater               16 
-    Vacuum,OpaqueVacuum             14 
-    StainlessSteel,Water            9 
-    MineralOil,UnstStainlessSteel   8 
-    LiquidScintillator,Teflon       8 
-    LiquidScintillator,GdDopedLS    7 
-    LiquidScintillator,MineralOil   6 
-    GdDopedLS,LiquidScintillator    4 
-    OwsWater,Pyrex                  3 
-    OpaqueVacuum,Vacuum             3 
-    IwsWater,StainlessSteel         2 
-    Teflon,LiquidScintillator       2 
-    Water,StainlessSteel            2 
-    StainlessSteel,GdDopedLS        2 
-    StainlessSteel,NitrogenGas      2 
-    OwsWater,UnstStainlessSteel     1 
-    Air,Acrylic                     1 
-    IwsWater,Water                  1 
-     
-
-
-ESR,Air
-~~~~~~~~
-
-::
-
-    udp.py --material ESR,Air  --style noodles,confetti   
-       # almost all at base, 
-
-    udp.py --material Air,ESR  --style noodles,confetti   
-       # also : almost all at base
-
-
-Initially some NO_HIT steps showup along muon path with material
-indices set despite last_hit_triangle -1.
-These NO_HIT interlopers are eliminated by setting the state material indices to 
-default -1 when no intersection found. Must have been picking up some static leftovers ?
-
-
-Material pairs appearing reasonable
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    udp.py --material MineralOil,Pyrex --style noodles,confetti 
-         # Mostly just inside the MineralOil, nr Acrylic, and all pointing at PMTs. Top orthographic clearest
-
-    udp.py --material Pyrex,Vacuum --style noodles,confetti 
-         # all inside PMTs, for clear view make geometry invisible with I
-
-
-
-
-Implement step selection based in *from* and *to* materials
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Need to expand VBO to hold material info.
 
 
 Discrepancy between presentation modes (FIXED)

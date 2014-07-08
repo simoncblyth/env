@@ -205,7 +205,7 @@ class DAEConfig(ConfigBase):
         defaults['debugphoton'] = 0
 
         defaults['prescale'] = 1
-        defaults['max_slots'] = 10
+        defaults['max_slots'] = 25
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
@@ -302,6 +302,7 @@ class DAEConfig(ConfigBase):
         defaults['norm'] = "0,0,0"
         defaults['fullscreen'] = False
         defaults['markers'] = False
+        defaults['mode'] = "-1,-1,-1,-1"
 
         parser.add_argument( "--scaled-mode", action="store_true", help="In scaled mode the actual VBO vertex coordinates are scaled into -1:1, ie shrink world into unit cube. **FOR DEBUG ONLY** " )
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
@@ -317,7 +318,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--norm",    help="Dummy argument, used for informational output.",type=str)
         parser.add_argument( "--fullscreen", action="store_true", help="Start in fullscreen mode." )
         parser.add_argument( "--markers",   action="store_true", help="[I] Frustum and light markers." )
-        parser.add_argument( "--mode", help="Photon style mode, default %(default)s.", type=int )
+        parser.add_argument( "--mode", help="Photon style mode, default %(default)s.", type=str )
 
 
         # event
@@ -340,7 +341,7 @@ class DAEConfig(ConfigBase):
         defaults['mask'] = -1
         defaults['bits'] = -1
         defaults['pid'] = -1
-        defaults['mode'] = -1
+        defaults['sid'] = -1
         defaults['reload']  = False
 
         parser.add_argument( "--style", help="Key controlling photon render eg confetti/spagetti/movie/.., identifying shaders (vertex/geometry/fragment) and rendering techniques to use, default %(default)s." )
@@ -366,6 +367,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--mask", help="Apply mask bitwise AND selection to status flags of Chroma stepped photons. Default %(default)s", type=str )  
         parser.add_argument( "--bits", help="Apply history bits equality selection to flags of Chroma stepped photons. Default %(default)s", type=str )  
         parser.add_argument( "--pid",  help="Photon ID Selection. Default %(default)s", type=str )  
+        parser.add_argument( "--sid",  help="Special Photon ID Selection. Default %(default)s", type=str )  
         parser.add_argument( "--reload",  help="[I] Reload current loaded event, useful after stepping. Default %(default)s.", action="store_true")
 
 

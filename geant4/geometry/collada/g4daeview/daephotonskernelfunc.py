@@ -44,11 +44,13 @@ class DAEPhotonsKernelFunc(object):
         self.g_mask = module.get_global("g_mask")[0]  
         self.g_anim = module.get_global("g_anim")[0]  
         self.g_mate = module.get_global("g_mate")[0]  
+        self.g_mode = module.get_global("g_mode")[0]  
 
         # must not be defaults otherwise setter will not memcopy_htod
         self._mask = [-99,-99,-99,-99]  
         self._anim = [-99,-99,-99,-99]
         self._mate = [-99,-99,-99,-99]
+        self._mode = [-99,-99,-99,-99]
 
         self.kernel = kernel
 
@@ -70,9 +72,20 @@ class DAEPhotonsKernelFunc(object):
         self._mate = mate
         log.info("_set_mate : memcpy_htod %s " % repr(mate))
         cuda_driver.memcpy_htod(self.g_mate, ga.vec.make_int4(*mate))
+
+
     material = property(_get_material, _set_material, doc="mate: setter copies to device __constant__ memory, getter returns cached value") 
 
 
+    def _get_mode(self):
+        return self._mode
+    def _set_mode(self, mode):
+        mode = map(int,mode.split(","))
+        if mode == self._mode:return
+        self._mode = mode
+        log.info("_set_mode : memcpy_htod %s " % repr(mode))
+        cuda_driver.memcpy_htod(self.g_mode, ga.vec.make_int4(*mode))
+    mode = property(_get_mode, _set_mode )
 
     def _get_mask(self):
         return self._mask 
@@ -86,19 +99,14 @@ class DAEPhotonsKernelFunc(object):
     def _get_anim(self):
         return self._anim 
     def _set_anim(self, anim):
-        #log.info("_set_anim %s " % anim )
-        if anim == self._anim:
-            #log.info("_set_anim %s no change %s " % (anim, self._anim) )
-            return
+        if anim == self._anim:return
         self._anim = anim
-        #log.info("_set_anim : memcpy_htod %s " % repr(anim))
         cuda_driver.memcpy_htod(self.g_anim, ga.vec.make_float4(*anim))
     anim = property(_get_anim, _set_anim, doc="anim: setter copies to device __constant__ memory, getter returns cached value") 
 
     def _get_time(self):
         return self._anim[0]
     def _set_time(self, time):
-        #log.info("_set_time %s " % time )
         anim = self._anim[:]
         anim[0] = time
         self.anim = anim

@@ -42,12 +42,16 @@ class DAEPhotonsStyler(object):
     def get_list(self, style):
         cfgs = []
         for name in style.split(","):
-            cfgs.append(self.get(name))
+            cfg = self.get(name)
+            if cfg is None:
+                log.warn("no such style %s " % name )
+            else:
+                cfgs.append(cfg)
+            pass
         return cfgs 
 
     def get(self, style):
-        assert style in self.styles
-        return self.styles[style]
+        return self.styles.get(style,None)
 
     def make_cfg(self, style):
         """

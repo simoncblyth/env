@@ -84,6 +84,7 @@ class DAEPhotons(object):
             presenter.cohort = event.config.args.cohort
         pass
         self.material = event.config.args.material    
+        self.mode = event.config.args.mode    
 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
         self.analyzer = DAEPhotonsAnalyzer(self.config.args.max_slots)
@@ -123,9 +124,6 @@ class DAEPhotons(object):
         self.menuctrl.update_style_menu( self.styler.style_names, self.style_callback )
         self.menuctrl.update_material_menu( self.material_pairs(), self.material_callback )
 
-    #def unique_materials(self):
-    #    cg = self.event.scene.chroma.chroma_geometry
-    #    return [("-1 ANY",-1)] + [("%2d %s" % (i,m.name[17:-9]),i,) for i,m in enumerate(cg.unique_materials)]
 
     def material_pairs(self):
          return self.analyzer.get_material_pairs(self.chroma_material_map)
@@ -134,7 +132,6 @@ class DAEPhotons(object):
         matname = item.title
         matcode = item.extra['matcode']
         log.info("material_callback matname %s matindex %s  " % (matname, matcode) )
-        #self.param.mode = int(matindex)
         self.material = matcode
         self.menuctrl.rootmenu.dispatch('on_needs_redraw')
 
@@ -143,12 +140,16 @@ class DAEPhotons(object):
         self.style = style
         self.menuctrl.rootmenu.dispatch('on_needs_redraw')
 
+    def special_callback(self, item):
+        sid = int(item.extra['sid'])
+        self.param.sid = sid
+        self.menuctrl.rootmenu.dispatch('on_needs_redraw')
+
     def _get_style(self):
         return self._style
     def _set_style(self, style):
         if style == self._style:return
         self._style = style   
-        #self.renderer.shaderkey = self.cfg['shaderkey']
     style = property(_get_style, _set_style, doc="Photon presentation style, eg confetti/spagetti/movie/...") 
 
     def _get_cfg(self):
@@ -170,15 +171,9 @@ class DAEPhotons(object):
         #. analyze characteristics of the propagation
 
         Option `--debugpropagate` persists the numpy propagated array into 
-        file `propagated.npz`. Access the array as shown below, or see standalone `propagated.py`::
-
-           with np.load('propagated.npz') as npz:
-               a = npz['propagated']
-
-
-        Hmm should write propagated into path next to the originating 
-        event file  
-
+        into path next to the originating event file with name including 
+        the seed eg `propagated-0.npz`. 
+        Access the array using eg `daephotonsanalyser.sh --load 1`
 
         """
         if self.photons is None:return
@@ -186,14 +181,14 @@ class DAEPhotons(object):
         vbo = self.renderer.pbuffer   
 
         self.propagator.update_constants()   
-        self.propagator.interop_propagate( vbo, max_steps=max_steps )
+        self.propagator.interop_propagate( vbo, max_steps=max_steps, max_slots=self.config.args.max_slots )
             
         propagated = vbo.read()
         self.analyzer( propagated )
         if self.config.args.debugpropagate:
             self.analyzer.write_propagated(self.propagator.ctx.seed, self.event.loaded, wipepropagate=self.config.args.wipepropagate)
         pass
-        self.menuctrl.update( self.analyzer.history , msg="from propagate" )    
+        self.menuctrl.update_propagated( self.analyzer , special_callback=self.special_callback, msg="from propagate" )    
 
 
     def draw(self):
@@ -250,7 +245,7 @@ class DAEPhotons(object):
 
     ### other actions #####
 
-    reconfig_properties = ['time','style','timerange','cohort','material',]
+    reconfig_properties = ['time','style','timerange','cohort','material','mode',]
 
     def reconfig(self, conf):
         """
@@ -370,6 +365,26 @@ class DAEPhotons(object):
         log.info("_get_mate %s => %s " % (codes, names))
         return names
     material = property(_get_material, _set_material, doc="setter copies material selection integers into GPU quad g_mate  getter returns cached value " )
+
+
+
+
+    def _set_mode(self, mode):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            log.warn("cannot set mode selection constants when renderer.presenter is not enabled")
+            return
+        pass
+        presenter.mode = mode
+    def _get_mode(self):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            return None
+        pass
+        return presenter.mode
+    mode = property(_get_mode, _set_mode, doc="mode: setter copies mode control integers into GPU quad g_mode  getter returns cached value " )
+
+
 
 
 

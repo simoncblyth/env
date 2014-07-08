@@ -43,7 +43,7 @@ class DAEPhotonsParam(object):
         self._bits = config.args.bits
         self._time = 0
         self.pid  = config.args.pid
-        self.mode = config.args.mode
+        self.sid  = config.args.sid
 
         self.fpholine = config.args.fpholine
         self.fphopoint = config.args.fphopoint
@@ -52,7 +52,7 @@ class DAEPhotonsParam(object):
         self.prescale = config.args.prescale
         self.max_slots = config.args.max_slots
 
-    reconfigurables = ['fpholine','fphopoint','mask','bits','time','pid','mode',]
+    reconfigurables = ['fpholine','fphopoint','mask','bits','time','pid','sid',]
 
     def reconfig(self, conf):        
         update = False
@@ -77,13 +77,13 @@ class DAEPhotonsParam(object):
         mask = self.mask
         bits = self.bits
         pid = self.pid
-        mode = self.mode
+        sid = self.sid
 
         mask = -1 if mask is None else mask 
         bits = -1 if bits is None else bits 
         pid  = -1 if pid is None else pid
-        mode = -1 if mode is None else mode
-        return [mask, bits, pid, mode]
+        sid = -1 if sid is None else sid
+        return [mask, bits, pid, sid]
 
     shader_iparam = property(_get_integer_param)
     kernel_mask = property(_get_integer_param)
@@ -107,11 +107,13 @@ class DAEPhotonsParam(object):
         self._pid = int(pid)
     pid = property(_get_pid, _set_pid )
 
-    def _get_mode(self):
-        return self._mode
-    def _set_mode(self, mode):
-        self._mode = int(mode)
-    mode = property(_get_mode, _set_mode )
+    def _get_sid(self):
+        return self._sid
+    def _set_sid(self, sid):
+        self._sid = int(sid)
+    sid = property(_get_sid, _set_sid )
+
+
 
 
 

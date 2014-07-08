@@ -354,7 +354,7 @@ class DAEScene(window_event.EventDispatcher):
                 self.toggle_showmetric() 
             elif k in ("save","load","key","reload",):
                 event_config.append( (k,v,) )   
-            elif k in ("fpholine","fphopoint","tcut","mask","bits","time", "style","pid","mode","timerange","cohort","material",):
+            elif k in ("fpholine","fphopoint","tcut","mask","bits","time", "style","pid","mode","timerange","cohort","material","sid",):
                 photon_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v

@@ -72,11 +72,13 @@ class DAEPhotonsMenuController(object):
         flags_menu = DAEMenu("flags")
         history_menu = DAEMenu("history")
         material_menu = DAEMenu("material")
+        special_menu = DAEMenu("special")
 
         photons_menu.addSubMenu(style_menu)
         photons_menu.addSubMenu(flags_menu)
         photons_menu.addSubMenu(history_menu) 
         photons_menu.addSubMenu(material_menu) 
+        photons_menu.addSubMenu(special_menu) 
 
         self.rootmenu.addSubMenu(photons_menu)
 
@@ -85,19 +87,28 @@ class DAEPhotonsMenuController(object):
         self.flags_menu = flags_menu
         self.history_menu = history_menu
         self.material_menu = material_menu
+        self.special_menu = special_menu
 
     def update_old(self, photons, msg=""):
         log.info("update_old photons %s %s %s" % (photons.__class__.__name__, photons, msg) )
         self.update_flags_menu()    
         self.update_history_menu_old( photons )    
 
-    def update(self, history, msg=""):
+    def update_propagated(self, analyzer, special_callback, msg=""):
         self.update_flags_menu()    
-        self.update_history_menu( history )    
+        self.update_history_menu( analyzer.history )    
+        self.update_special_menu( analyzer.special, special_callback )    
+
+    def update_special_menu(self, special, callback ):
+        special_menu = self.rootmenu.find_submenu("special")
+        assert special_menu == self.special_menu
+        for sid in special:
+            title = "%s" % sid
+            special_menu.addnew(title, callback, sid=int(sid) )
+        pass
+        special_menu.update()  
 
     def update_style_menu(self, styles, callback ):
-        """
-        """
         style_menu = self.rootmenu.find_submenu("style")
         assert style_menu == self.style_menu
         for name in styles:

@@ -13,7 +13,9 @@ g4daeview
    daevertexbuffer
    daephotonsshader
    photon_level_debug
+   material_pair_debug
    propagated_flags_mismatch
+
 
 
 

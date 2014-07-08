@@ -41,12 +41,14 @@ class DAEPhotonsRenderer(object):
         :param chroma: DAEChromaContext instance
         """
         self.dphotons = dphotons
+        self.config = dphotons.config
         self.chroma = chroma
+        self.max_slots = self.config.args.max_slots
 
         self.interop = not chroma.dummy
         log.debug("%s.__init__" % self.__class__.__name__ )
         self.shader = DAEPhotonsShader(dphotons) 
-        self.presenter = DAEPhotonsPresenter(dphotons, chroma, debug=int(dphotons.config.args.debugkernel)) if self.interop else None
+        self.presenter = DAEPhotonsPresenter(dphotons, chroma, debug=int(self.config.args.debugkernel)) if self.interop else None
         self.invalidate_buffers()
         pass
         self.create_buffer_count = 0 
@@ -146,7 +148,7 @@ class DAEPhotonsRenderer(object):
 
         gl.glPointSize(self.dphotons.param.fphopoint)  
        
-        self.presenter.interop_present(self.pbuffer)
+        self.presenter.interop_present(self.pbuffer, max_slots=self.max_slots)
 
         self.interop_cuda_to_gl(self.pbuffer)
 
@@ -172,7 +174,7 @@ class DAEPhotonsRenderer(object):
 
         gl.glPointSize(self.dphotons.param.fphopoint)  
        
-        self.presenter.interop_present(self.pbuffer)
+        self.presenter.interop_present(self.pbuffer, max_slots=self.max_slots)
 
         self.interop_cuda_to_gl(self.pbuffer)
 

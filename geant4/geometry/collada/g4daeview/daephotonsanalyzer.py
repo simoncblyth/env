@@ -4,13 +4,21 @@ Usage::
 
     delta:~ blyth$ daephotonsanalyzer.sh --load 1
 
+
+Changes
+---------
+
+#. metadata regarding the propagation now travels in sidecar .json files 
+
+
 """
-import logging, os, filecmp
+import logging, os, filecmp, json, datetime
 import numpy as np
 log = logging.getLogger(__name__)
 from photons import mask2arg_, count_unique
 from daephotonscompare import DAEPhotonsCompare
 
+timestamp = lambda:datetime.datetime.now()
 
 def columnize( s ):
     """
@@ -68,14 +76,15 @@ def att_side_by_side( obj, index, atts, tmap={}):
 
 
 
-def compare(apath, bpath, max_slots):
+def compare(apath, bpath):
     """
     Compare persisted propagation npz files
     """ 
-    log.info("compare apath %s bpath %s max_slots %s " % (apath,bpath,max_slots))
-    a = DAEPhotonsAnalyzer.make(apath, max_slots)
-    b = DAEPhotonsAnalyzer.make(bpath, max_slots)
+    log.info("compare apath %s bpath %s " % (apath,bpath))
+    a = DAEPhotonsAnalyzer.make(apath)
+    b = DAEPhotonsAnalyzer.make(bpath)
     assert a.atts == b.atts
+    assert a.max_slots == b.max_slots 
     cf = DAEPhotonsCompare( a, b )
     print cf
     mismatch = cf.compare(a.atts) 
@@ -127,6 +136,7 @@ class DAEPhotonsPropagated(object):
     flags = property(lambda self:self.propagated['flags'][self.last_index][:,0])
     t0    = property(lambda self:self.propagated['flags'][self.last_index][:,1].view(np.float32))
     tf    = property(lambda self:self.propagated['flags'][self.last_index][:,2].view(np.float32))
+    tl    = property(lambda self:self.tf - self.t0)
     steps = property(lambda self:self.propagated['flags'][self.last_index][:,3])
     time_range = property(lambda self:[0.,self.tf.max()])  # start from 0, not min
 
@@ -147,7 +157,8 @@ class DAEPhotonsPropagated(object):
     p_flags = property(lambda self:self.propagated['flags'].reshape(-1,self.max_slots,4))
     p_lht   = property(lambda self:self.propagated['last_hit_triangle'].reshape(-1,self.max_slots,4))
 
-
+    long_lived = property(lambda self:np.where( self.tl > 200. )[0])  # lifetime more than 200 ns
+    special = property(lambda self:self.long_lived)
 
     nphoton = property(lambda self:len(self.propagated)/self.max_slots)
 
@@ -173,7 +184,16 @@ class DAEPhotonsPropagated(object):
     # raw, all slot accessors
     material1  = property(lambda self:self.propagated['last_hit_triangle'][:,1])
     material2  = property(lambda self:self.propagated['last_hit_triangle'][:,2])
-    matpair    = property(lambda self:self.material1*1000 + self.material2)
+    matpair    = property(lambda self:self.material1*1000 + self.material2)   # converted into string in DAEChromaMaterialMap.paircode2str
+
+
+    def find_material_pairs(self, mp, material_map):
+        """
+        :param mp: string like "Acrylic,GdDopedLS"
+        """
+        pc = material_map.str2paircode(mp)
+        return np.where( self.matpair == pc )
+
 
     def nearest_photon(self, click):
         """
@@ -206,10 +226,39 @@ class DAEPhotonsPropagated(object):
         log.info("t_nearest_photon to click %s index %s at %s delta %s " % ( repr(click), index, t_post[index], repr(delta)  )) 
         return index
 
+    def _get_counts_firsts_drawcount(self):
+        """
+        Counts with truncation, indices of start of each photon record
+
+        np.clip restricts values gt max to be max and lt min to be min
+        ie with max_slots = 10 slots gt max_slots-2 = 8 become 8 
+      
+        Suspect the counts may be one less than they should be, its the 
+        slot value (which is zero based). Hence the + 1
+
+        Clipping not actually required, but doing it makes the counts into
+        a contiguous array, rather than sliced. This is needed by pyopengl
+        """
+        nphoton = self.nphoton
+        counts = np.clip( self.slots, 0, self.max_slots-2 )  
+        firsts = np.arange(nphoton, dtype='i')*self.max_slots
+        drawcount = nphoton
+        return counts, firsts, drawcount
+
+    counts_firsts_drawcount = property(_get_counts_firsts_drawcount, doc=_get_counts_firsts_drawcount.__doc__)
+
+    def _get_stepindices(self):
+        counts,firsts,drawcount = self.counts_firsts_drawcount
+        ranges = np.vstack( [firsts, firsts+counts]).T
+        return np.concatenate(map(lambda _:np.arange(*_), ranges))   # the map will be python slow 
+    stepindices = property(_get_stepindices)
+
     def summary(self, pid, material_map=None, process_map=None):
         log.info("summary for pid %s " % pid )
-        #print "material_map ", material_map
-        #print "process_map ", process_map
+        if material_map is None:
+            material_map = self.material_map
+        if process_map is None:
+            process_map = self.process_map
 
         def format_p_flags(a):
             b = np.empty((a.shape[0],2),dtype=np.float32)
@@ -242,32 +291,6 @@ class DAEPhotonsPropagated(object):
         print att_side_by_side(self, pid, "p_post p_dirw p_polw p_ccol".split(), tmap ) 
         print att_side_by_side(self, pid, "t_post t_dirw t_polw t_ccol".split()) 
 
-    def _get_counts_firsts_drawcount(self):
-        """
-        Counts with truncation, indices of start of each photon record
-
-        np.clip restricts values gt max to be max and lt min to be min
-        ie with max_slots = 10 slots gt max_slots-2 = 8 become 8 
-
-        Recent VBO recording changed moved to last photon position 
-        being placed into slot -2 (and not duplicated in the body).
-
-        Suspect that may cause glMultiDrawArrays to not work
-        correctly in non-truncated cases as it will step off the 
-        reservation and not see the last slot up at -2.
-        """
-        nphoton = self.nphoton
-
-        counts = np.clip( self.slots, 0, self.max_slots-2 )   # seemingly this makes it contiguous
-        #counts = self.slots    # 
-
-        firsts = np.arange(nphoton, dtype='i')*self.max_slots
-        drawcount = nphoton
-        return counts, firsts, drawcount
-
-    counts_firsts_drawcount = property(_get_counts_firsts_drawcount, doc=_get_counts_firsts_drawcount.__doc__)
-
-
 
 
 
@@ -280,13 +303,15 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
     of propagate_vbo.cu:propagate_vbo
     """
     name = "propagated-%(seed)s.npz"
-    def __init__(self, max_slots, slot=-1 ):
+    def __init__(self, max_slots=None, slot=-1, material_map=None, process_map=None):
         DAEPhotonsPropagated.__init__(self, None, max_slots, slot)
         self.loaded = None
+        self.material_map = material_map
+        self.process_map = process_map
 
     @classmethod
-    def make(cls, path, max_slots ):
-        analyzer = cls( max_slots=max_slots )
+    def make(cls, path ):
+        analyzer = cls()
         analyzer.load(path)
         return analyzer
 
@@ -297,6 +322,12 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         with np.load(path) as npz:
             propagated = npz['propagated']
         pass
+        metadata = self._load_metadata( self.sidecar_path(path) )
+        log.info("load metadata gives %s " % repr(metadata) )
+
+        assert 'max_slots' in metadata
+        self.max_slots = int(metadata['max_slots'])
+
         self.loaded = path
         self(propagated)
 
@@ -337,34 +368,66 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
             log.info("removing invalidated prior %s due to --wipepropagate option   " % path )
             os.unlink(path)
 
+        metadata = self.make_metadata() 
         if not os.path.exists(path):
-            self._write_propagated(path)
+            self._write_propagated(path, **metadata)
         else:
             tmppath = path.replace(".npz","-tmp.npz")
-            self._write_propagated(tmppath)
+            self._write_propagated(tmppath, **metadata )
             self.compare_propagated(path, tmppath)
         pass
 
-    def _write_propagated(self, path):
+    def make_metadata(self):
+        metadata = {}
+        metadata['max_slots'] = self.max_slots
+        now = timestamp()
+        metadata['timestamp'] = now.strftime("%s")
+        metadata['date'] = now.strftime("%Y%m%d-%H%M")
+        return metadata
+
+    def sidecar_path(self, npz ):
+        return npz.replace(".npz",".json")
+
+    def _write_propagated(self, path, **metadata):
         log.info("_write_propagated %s " % path )  
         np.savez_compressed(path, propagated=self.propagated)
+        self._write_metadata( self.sidecar_path(path), **metadata )
+
+    def _write_metadata(self, path, **metadata):
+        if len(metadata) == 0:return
+        log.info("writing to %s " % path )
+        with open(path,"w") as fp:
+            json.dump(metadata, fp) 
+
+    def _load_metadata(self, path):
+        """ 
+        json keys and values are unicode strings by default, 
+        so convert to str,str on reading to match the original dict 
+        """
+        if not os.path.exists(path):
+            log.warn("no such path %s " % path)
+            return None
+        log.info("reading from %s " % path )
+        with open(path,"r") as fp:
+            pd = json.load(fp)
+        pass
+        return dict(map(lambda _:(str(_[0]),str(_[1])),pd.items()))
+
 
     def compare_propagated(self, a, b):
-        mismatch = compare(a, b, self.max_slots )
+        mismatch = compare(a, b )
         assert mismatch == 0 , (mismatch, "Debug with eg: cd /usr/local/env/tmp/1/ ; daephotonscompare.sh --loglevel debug ")
 
     def get_material_pairs(self, material_map):
         vals = self.matpair
         mp = count_unique(vals)
         mps = mp[mp[:,-1].argsort()[::-1]]     # order by decreasing pair count  
-        c2s_ = lambda c:material_map.code2str(c,short=False) 
-
         items = []
+        items.append(("ANY,ANY","ANY,ANY",))
         for mm,count in mps: 
-            smm = ",".join(map(c2s_,[mm//1000,mm%1000]))
-            matname = "%s %s " % ( count, smm )
-            matcode = smm
-            items.append( (matname,matcode))
+            matcode = material_map.paircode2str(mm)
+            matname = "%-4d %s " % ( count, matcode )
+            items.append((matname,matcode))
         pass
         return items
 
@@ -456,7 +519,105 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         log.debug( " firsts %s " % str(firsts))
         log.debug( " drawcount %s " % str(drawcount))
 
+    def plot_steps(self):
+        """
+        Very long tail with a blip at 100 corresponidng to Chroma propagation truncation, 
 
+        #. max_slots 10 introduces too much truncation distortion.  
+        #. max_slots 30 probably good enough, 
+
+        """
+        import matplotlib.pyplot as plt
+        plt.hist(self.steps, bins=25, label="steps") 
+        plt.legend(title="Chroma propagation steps")
+        plt.show()
+
+    def plot_slots(self):
+        """
+        A third of the >50 are in the chroma truncation top bin 97
+        """
+        import matplotlib.pyplot as plt
+        z = self
+        h = plt.hist(z.slots[z.slots>50], bins=np.linspace(50,100,51))
+        plt.show()
+
+    def present_material_pairs(self):
+        mps = self.get_material_pairs( self.material_map )
+        print "\n".join( ["%-40s" % (mp[0]) for mp in mps])  
+
+    def check_surface(self):
+        """
+        Huh, only 2 sufaces and one of them only once.
+
+        ::
+
+            In [11]: count_unique(surface)
+            Out[11]: 
+            array([[   -1, 96830],
+                   [    1,  7160],
+                   [   23,     1]])
+
+        ::
+
+            In [9]: np.intersect1d( np.where( asurface == 23 )[0], z.stepindices )
+            Out[9]: array([312600])
+
+            In [10]: z.summary(3126)   ## WaterPool PMT ?  
+            2014-07-08 20:22:40,059 env.geant4.geometry.collada.g4daeview.daephotonsanalyzer:257 summary for pid 3126 
+            p_flags[3126]                            p_lht[3126]                                              
+                               [[  0.       0.    ]  [[2382597      27      10      23] OwsWater   UnstStainl    #######
+            R_DIFFUSE           [  0.       0.    ]   [2165175       7       9      -1] Pyrex      Vacuum     
+            B_ABSORB,R_DIFFUSE  [  0.       0.    ]   [     -1       7       9      -1] Pyrex      Vacuum     
+            B_ABSORB,R_DIFFUSE  [ 21.7334  34.4839]   [      0       0       0       2] LiquidScin LiquidScin 
+
+            # udp.py --style confetti,spagetti,noodles --sid 3129 
+            # UnstStainlessSteel   surface 23 ?
+
+
+            p_flags[1]                   p_lht[1]                                          
+                     [[ 0.      0.    ]  [[621958     15      5      1] MineralOil Acrylic 
+            B_ABSORB  [ 0.      0.    ]   [    -1     15      5      1] MineralOil Acrylic 
+
+
+            In [11]: z.summary(4160)
+            2014-07-08 21:00:38,346 env.geant4.geometry.collada.g4daeview.daephotonsanalyzer:257 summary for pid 4160 
+            p_flags[4160]                                                  p_lht[4160]                                          
+                                                   [[   0.        0.    ]  [[  1216      3      5     -1] GdDopedLS  Acrylic    
+            R_SCATTER                               [   0.        0.    ]   [  1216      3      5     -1] GdDopedLS  Acrylic    
+            R_SCATTER                               [   0.        0.    ]   [   928      5      4     -1] Acrylic    LiquidScin 
+            R_SCATTER                               [   0.        0.    ]   [   598      4      5     -1] LiquidScin Acrylic    
+            R_SCATTER                               [   0.        0.    ]   [   310      5     15     -1] Acrylic    MineralOil 
+            R_SCATTER                               [   0.        0.    ]   [618757     15      5      1] MineralOil Acrylic   ######### 
+            R_SCATTER,R_SPECULAR                    [   0.        0.    ]   [   310     15      5     -1] MineralOil Acrylic    
+            R_SCATTER,R_SPECULAR                    [   0.        0.    ]   [   598      5      4     -1] Acrylic    LiquidScin 
+            R_SCATTER,R_SPECULAR                    [   0.        0.    ]   [   931      4      5     -1] LiquidScin Acrylic    
+            R_SCATTER,R_SPECULAR                    [   0.        0.    ]   [  1219      5      3     -1] Acrylic    GdDopedLS  
+
+  
+        ::
+
+            In [4]: np.intersect1d( np.where( asurface == 1 )[0], z.stepindices )
+            Out[4]: array([   100,    200,    300, ..., 416005, 416014, 416205])
+
+            In [5]: np.intersect1d( np.where( asurface == 1 )[0], z.stepindices )//100
+            Out[5]: array([   1,    2,    3, ..., 4160, 4160, 4162])
+
+
+        daegeometry.sh::
+
+            In [8]: cg.unique_surfaces[23]   #?
+            Out[8]: <Surface __dd__Geometry__PoolDetails__PoolSurfacesAll__UnistrutRib4Surface>
+
+            In [9]: cg.unique_surfaces[1]
+            Out[9]: <Surface __dd__Geometry__AdDetails__AdSurfacesAll__RSOilSurface>
+
+
+        """
+        z = self
+        asurface = z.propagated['last_hit_triangle'][:,-1]
+        surface = asurface[z.stepindices]
+
+        
 
 
 def main():
@@ -471,7 +632,6 @@ def main():
     #print cpm
     #print cmm
 
-
     clargs = config.args.clargs 
     if len(clargs) > 0:
         path = clargs[0]
@@ -483,10 +643,14 @@ def main():
     log.info("creating DAEPhotonsAnalyzer for %s " % (path ))
 
 
-    z = DAEPhotonsAnalyzer( max_slots=config.args.max_slots )
+    z = DAEPhotonsAnalyzer( max_slots=config.args.max_slots, material_map=cmm, process_map=cpm )
     z.load(path)
-    z.summary(0,  material_map=cmm, process_map=cpm )
-    z.check_material_pairs( material_map=cmm )
+    z.summary(0)
+
+    z.present_material_pairs()
+
+    import matplotlib.pyplot as plt
+
 
     log.info("dropping into IPython.embed() try: z.<TAB> ")
     import IPython 

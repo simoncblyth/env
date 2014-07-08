@@ -36,7 +36,7 @@ from daephotonskernelfunc import DAEPhotonsKernelFunc
 class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
     kernel_name = "propagate_vbo.cu"
     kernel_func = "propagate_vbo"
-    kernel_args = "iiPPPPiiiP"
+    kernel_args = "iiPPPPiiiiP"
 
     def __init__(self, dphotons, ctx, debug=0):
         """
@@ -92,7 +92,8 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
 
     def propagate(self, 
                   vbo_dev_ptr, 
-                  max_steps=10, 
+                  max_steps=100,
+                  max_slots=30, 
                   use_weights=False,
                   scatter_first=0):
         """
@@ -150,6 +151,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
                              self.ctx.rng_states, 
                              vbo_dev_ptr,
                              np.int32(nsteps), 
+                             np.int32(max_slots), 
                              np.int32(use_weights), 
                              np.int32(scatter_first), 
                              self.ctx.gpu_geometry.gpudata) 
@@ -178,7 +180,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
         cuda_driver.Context.get_current().synchronize()
 
 
-    def interop_propagate(self, buf, max_steps=10 ):
+    def interop_propagate(self, buf, max_steps=100, max_slots=30 ):
         """
         :param buf: OpenGL VBO eg renderer.pbuffer
 
@@ -188,7 +190,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
         buf_mapping = buf.cuda_buffer_object.map()
 
         vbo_dev_ptr = buf_mapping.device_ptr()
-        self.propagate( vbo_dev_ptr, max_steps=max_steps )   
+        self.propagate( vbo_dev_ptr, max_steps=max_steps, max_slots=max_slots )   
 
         cuda_driver.Context.synchronize()
         buf_mapping.unmap()

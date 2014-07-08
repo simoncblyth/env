@@ -50,7 +50,7 @@ from daephotonskernelfunc import DAEPhotonsKernelFunc
 class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
     kernel_name = "propagate_vbo.cu"
     kernel_func = "present_vbo"
-    kernel_args = "iP"
+    kernel_args = "iiP"
 
     def __init__(self, dphotons, ctx, debug=1):
         """
@@ -59,11 +59,9 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
         """
         DAEPhotonsKernelFunc.__init__(self, dphotons, ctx, debug=debug)
 
-    def present(self, vbo_dev_ptr):
+    def present(self, vbo_dev_ptr, max_slots=30 ):
         """
         Kernel calls for each photon, not each slot 
-        (there are max_slots eg 10 for each photon) 
-
         """
         nthreads_per_block = self.ctx.nthreads_per_block
         max_blocks = self.ctx.max_blocks
@@ -78,6 +76,7 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
         abort = False
         args = ( 
                   np.int32(photons_this_round), 
+                  np.int32(max_slots), 
                   vbo_dev_ptr, 
                )
         get_time = self.kernel.prepared_timed_call( grid, block, *args )
@@ -94,7 +93,7 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
         if abort:assert 0
 
 
-    def interop_present(self, buf):
+    def interop_present(self, buf, max_slots=30 ):
         """
         :param buf: OpenGL VBO eg renderer.pbuffer
 
@@ -104,7 +103,7 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
         buf_mapping = buf.cuda_buffer_object.map()
 
         vbo_dev_ptr = buf_mapping.device_ptr()
-        self.present( vbo_dev_ptr )   
+        self.present( vbo_dev_ptr, max_slots=max_slots )   
 
         cuda_driver.Context.synchronize()
         buf_mapping.unmap()
