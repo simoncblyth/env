@@ -447,23 +447,30 @@ class ColladaToChroma(object):
 
         self.chroma_geometry.flatten()
         self.cmm = self.make_chroma_material_map( self.chroma_geometry )
+        self.csm = self.make_chroma_surface_map( self.chroma_geometry )
         if self.bvh:
             self.add_bvh()
 
     def make_chroma_material_map(self, chroma_geometry):
         """
-        Return dict of shortened material names keyed by enum integer codes 
-
         Curiously the order of chroma_geometry.unique_materials on different invokations is 
         "fairly constant" but not precisely so. 
         How is that possible ? Perfect or random would seem more likely outcomes. 
         """
-        cmm = dict([(i,m.name[17:-9]) for i,m in enumerate(chroma_geometry.unique_materials)])
+        unique_materials = chroma_geometry.unique_materials
+        material_lookup = dict(zip(unique_materials, range(len(unique_materials))))
+        cmm = dict([(material_lookup[m],m.name) for m in filter(None,unique_materials)])
         cmm[-1] = "ANY"
         cmm[999] = "UNKNOWN"
         return cmm
 
-
+    def make_chroma_surface_map(self, chroma_geometry):
+        unique_surfaces = chroma_geometry.unique_surfaces
+        surface_lookup = dict(zip(unique_surfaces, range(len(unique_surfaces))))
+        csm = dict([(surface_lookup[s],s.name) for s in filter(None,unique_surfaces)])
+        csm[-1] = "ANY"
+        csm[999] = "UNKNOWN"
+        return csm
 
 
     def add_bvh( self, bvh_name="default", auto_build_bvh=True, read_bvh_cache=True, update_bvh_cache=True, cache_dir=None, cuda_device=None):

@@ -28,4 +28,10 @@ Apple OpenGL Profiler
 
 
 
+LINE_STRIP slow performance report
+-----------------------------------
+
+* http://lists.apple.com/archives/mac-opengl/2011/Sep/msg00007.html
+
+
 

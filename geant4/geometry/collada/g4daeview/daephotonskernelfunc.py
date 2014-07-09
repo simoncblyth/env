@@ -45,12 +45,14 @@ class DAEPhotonsKernelFunc(object):
         self.g_anim = module.get_global("g_anim")[0]  
         self.g_mate = module.get_global("g_mate")[0]  
         self.g_mode = module.get_global("g_mode")[0]  
+        self.g_surf = module.get_global("g_surf")[0]  
 
-        # must not be defaults otherwise setter will not memcopy_htod
-        self._mask = [-99,-99,-99,-99]  
-        self._anim = [-99,-99,-99,-99]
-        self._mate = [-99,-99,-99,-99]
-        self._mode = [-99,-99,-99,-99]
+        dummy = [-99,-99,-99,-99]  # must not be defaults otherwise setter will not memcopy_htod
+        self._mask = dummy
+        self._anim = dummy
+        self._mate = dummy
+        self._mode = dummy
+        self._surf = dummy
 
         self.kernel = kernel
 
@@ -64,6 +66,15 @@ class DAEPhotonsKernelFunc(object):
         #self.anim = self.dphotons.param.kernel_anim
 
 
+    def _get_surface(self):
+        return self._surf 
+    def _set_surface(self, surf):
+        if surf == self._surf:return
+        self._surf = surf
+        log.info("_set_surf : memcpy_htod %s " % repr(surf))
+        cuda_driver.memcpy_htod(self.g_surf, ga.vec.make_int4(*surf))
+    surface = property(_get_surface, _set_surface, doc="surf: setter copies to device __constant__ memory, getter returns cached value") 
+
 
     def _get_material(self):
         return self._mate 
@@ -72,8 +83,6 @@ class DAEPhotonsKernelFunc(object):
         self._mate = mate
         log.info("_set_mate : memcpy_htod %s " % repr(mate))
         cuda_driver.memcpy_htod(self.g_mate, ga.vec.make_int4(*mate))
-
-
     material = property(_get_material, _set_material, doc="mate: setter copies to device __constant__ memory, getter returns cached value") 
 
 

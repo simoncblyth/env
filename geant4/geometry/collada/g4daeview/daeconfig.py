@@ -179,6 +179,7 @@ class DAEConfig(ConfigBase):
 
 
     chroma_material_map = property(lambda self:self.resolve_confpath(self.args.chroma_material_map))
+    chroma_surface_map = property(lambda self:self.resolve_confpath(self.args.chroma_surface_map))
     chroma_process_map = property(lambda self:self.resolve_confpath(self.args.chroma_process_map))
 
 
@@ -212,6 +213,7 @@ class DAEConfig(ConfigBase):
         defaults['seed'] = 0
         defaults['confdir'] = "~/.g4daeview/%(path)s"
         defaults['chroma_material_map'] = "chroma_material_map.json"
+        defaults['chroma_surface_map'] = "chroma_surface_map.json"
         defaults['chroma_process_map'] = "chroma_process_map.json"
         defaults['zmqendpoint'] = os.environ.get("ZMQ_BROKER_URL_BACKEND","tcp://localhost:5002")
         defaults['zmqtunnelnode'] = None
@@ -233,6 +235,8 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--seed", help="Random Number seed, used for np.random.seed and curand setup", type=int  )
         parser.add_argument( "--confdir", help="Path to directory for config files such as bookmarks.  %(default)s", type=str  )
         parser.add_argument( "--chroma-material-map", help="Name of chroma material map file.  %(default)s", type=str  )
+        parser.add_argument( "--chroma-surface-map", help="Name of chroma surface map file.  %(default)s", type=str  )
+        parser.add_argument( "--chroma-process-map", help="Name of chroma process map file.  %(default)s", type=str  )
         parser.add_argument( "--zmqendpoint", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
         parser.add_argument( "--zmqtunnelnode", help="Option interpreted at bash invokation level (not python) to specify remote SSH node to which a tunnel will be opened, strictly requires form `--zmqtunnelnode=N`  where N is an SSH config \"alias\".", type=str  )
 
@@ -337,6 +341,7 @@ class DAEConfig(ConfigBase):
         defaults['fphopoint'] = 2
         defaults['time'] = 0.
         defaults['material'] = "ANY,ANY,ANY,ANY"
+        defaults['surface'] = "ANY,ANY,ANY,ANY"
         defaults['cohort'] = "-1,-1,-1"
         defaults['qcut'] = 1.
         defaults['tcut'] = 0.
@@ -358,6 +363,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--fphopoint", help="Present photons as points of size fphopoint. Default %(default)s.",type=float)
         parser.add_argument( "--time", help="Time used for photon history animation. Default %(default)s.",type=float)
         parser.add_argument( "--material", help="Comma delimited material code string used for photon step selection. Default %(default)s.",type=str)
+        parser.add_argument( "--surface", help="Comma delimited surface code string used for photon step selection. Default %(default)s.",type=str)
 
         parser.add_argument( "--cohort", help="Comma delimited cohort start/end/mode with times in ns Default %(default)s.",type=str)
         #parser.add_argument( "--pholine", help="Present photons as lines from position to position + momdirection*fpho. Default %(default)s.",action="store_true")
@@ -408,27 +414,27 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--max-time", help="[I] Maximum time in seconds for kernel launch, if exceeded subsequent launches are ABORTed " + MAX_TIME_WARN , type=float )
 
         # camera
+        defaults['kscale'] = 100.
         defaults['near'] = 30.     
         defaults['far'] = 10000.  
         defaults['yfov'] = 50.
         defaults['nearclip'] = "0.0001,1000."
         defaults['farclip'] = "1,100000."
         defaults['yfovclip'] = "1.,179."
+        defaults['parallel'] = False
+        parser.add_argument("--kscale",    help="[I] Kludge scaling applied to MVP matrix. %(default)s", type=float)
         parser.add_argument("-n","--near",      help="[I] Initial near in mm. %(default)s", type=float)
         parser.add_argument("--far",       help="[I] Initial far in mm. %(default)s", type=float)
         parser.add_argument("--yfov",      help="[I] Initial vertical field of view in degrees. %(default)s", type=float)
         parser.add_argument("--nearclip",  help="[I] Allowed range for near. %(default)s", type=str )
         parser.add_argument("--farclip",   help="[I] Allowed range for far. %(default)s", type=str )
         parser.add_argument("--yfovclip",  help="[I] Allowed range for yfov. %(default)s", type=str )
+        parser.add_argument("--parallel",                         action="store_true", help="Parallel projection, aka orthographic." )
 
         # scene
-        defaults['kscale'] = 100.
-        defaults['parallel'] = False
         defaults['line'] = False
         defaults['fill'] = True
         defaults['transparent'] = True
-        parser.add_argument("--kscale",    help="[I] Kludge scaling applied to MVP matrix. %(default)s", type=float)
-        parser.add_argument("--parallel",                         action="store_true", help="Parallel projection, aka orthographic." )
         parser.add_argument("--line",         dest="line",        action="store_true",  help="Switch on line mode polygons  %(default)s" )
         parser.add_argument("--nofill",       dest="fill",        action="store_false", help="Inhibit fill mode polygons  %(default)s" )
         parser.add_argument("--notransparent",dest="transparent", action="store_false", help="Inhibit transparent fill  %(default)s" )

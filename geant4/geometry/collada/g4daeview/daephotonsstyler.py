@@ -69,7 +69,7 @@ class DAEPhotonsStyler(object):
            for each photon (or photon history) eg allowing trajectory line presentation.
 
            It is so prevalent as without it have no choice but to 
-           restrict to slots that will always be present, ie slot 0 and slot -1.
+           restrict to slots that will always be present, ie slot 0 and slot -1 and -2
            (unless traversed the entire VBO with selection to skip empties ?)
 
         Debug tips:

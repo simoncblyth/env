@@ -7,7 +7,6 @@ import numpy as np
 from glumpy.window import event as window_event
 
 from daetrackball import DAETrackball
-from daecamera import DAECamera
 from daeinterpolateview import DAEInterpolateView
 from daeviewpoint import DAEViewpoint
 from daeutil import Transform
@@ -16,7 +15,6 @@ from daetransform import DAETransform
 from daebookmarks import DAEBookmarks
 from daeanimator import DAEAnimator
 from daeevent import DAEEvent
-from daeclipper import DAEClipper
 
 
 
@@ -160,7 +158,6 @@ class DAEScene(window_event.EventDispatcher):
         self.fill = args.fill
         self.line = args.line
         self.transparent = args.transparent
-        self.parallel = args.parallel
         self.drawsolid = False
         self.photonmagic = True
         self.cuda = args.cuda and args.with_cuda_image_processor
@@ -169,7 +166,7 @@ class DAEScene(window_event.EventDispatcher):
         self.raycast = args.raycast and args.with_chroma 
         self.showmetric = False
         # 
-        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","markers",)  # animate, raycast, cuda have separate handling
+        self.toggles = ("light","fill","line","transparent","drawsolid","markers",)  # animate, raycast, cuda have separate handling
 
     def toggle(self, name):
         setattr( self, name , not getattr(self, name)) 
@@ -280,6 +277,9 @@ class DAEScene(window_event.EventDispatcher):
         if view is None:
             log.warn("visit_bookmark: no such bookmark %s " % numkey)
             return 
+        else:
+            log.debug("visit_bookmark %s " % numkey )
+        pass
         self.update_view(view) 
 
     def update_current_bookmark(self):
@@ -350,7 +350,7 @@ class DAEScene(window_event.EventDispatcher):
                 self.toggle_showmetric() 
             elif k in ("save","load","key","reload",):
                 event_config.append( (k,v,) )   
-            elif k in ("fpholine","fphopoint","tcut","mask","bits","time", "style","pid","mode","timerange","cohort","material","sid",):
+            elif k in ("fpholine","fphopoint","tcut","mask","bits","time", "style","pid","mode","timerange","cohort","material","sid","surface",):
                 photon_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v

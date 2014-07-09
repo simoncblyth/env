@@ -8,6 +8,7 @@ from env.geant4.geometry.collada.daenode import DAENode
 from daeutil import printoptions, ModelToWorld, WorldToModel
 from daeviewpoint import DAEViewpoint
 from daechromamaterialmap import DAEChromaMaterialMap
+from daechromasurfacemap import DAEChromaSurfaceMap
 from daechromaprocessmap import DAEChromaProcessMap
 
 from collada.xmlutil import etree as ET
@@ -379,8 +380,11 @@ class DAEGeometry(object):
         self.chroma_material_map = DAEChromaMaterialMap( self.config, cc.cmm )
         self.chroma_material_map.write()
 
-        cpm = self.make_chroma_process_map()
+        self.chroma_surface_map = DAEChromaSurfaceMap( self.config, cc.csm )
+        self.chroma_surface_map.write()
 
+
+        cpm = self.make_chroma_process_map()
         self.chroma_process_map = DAEChromaProcessMap( self.config, cpm )
         self.chroma_process_map.write()
 

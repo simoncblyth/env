@@ -27,6 +27,16 @@ def arg2mask( argl ):
     return mask
 
 
+
+def argint( arg, fallback=-1 ):
+    try:
+       iarg = int(arg)
+    except ValueError:
+       log.warn("using fallback %s due to malformed integer arg %s " % (fallback, arg))
+       iarg = int(fallback)
+    return iarg
+
+
 class DAEPhotonsParam(object):
     """
     Simple holder of the parameters of photon presentation, that 
@@ -104,13 +114,13 @@ class DAEPhotonsParam(object):
     def _get_pid(self):
         return self._pid
     def _set_pid(self, pid):
-        self._pid = int(pid)
+        self._pid = argint(pid, -1)
     pid = property(_get_pid, _set_pid )
 
     def _get_sid(self):
         return self._sid
     def _set_sid(self, sid):
-        self._sid = int(sid)
+        self._sid = argint(sid, -1)
     sid = property(_get_sid, _set_sid )
 
 

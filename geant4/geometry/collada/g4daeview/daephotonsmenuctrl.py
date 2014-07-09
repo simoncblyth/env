@@ -102,6 +102,7 @@ class DAEPhotonsMenuController(object):
     def update_special_menu(self, special, callback ):
         special_menu = self.rootmenu.find_submenu("special")
         assert special_menu == self.special_menu
+        special_menu.addnew("ANY", callback, sid=-1 )
         for sid in special:
             title = "%s" % sid
             special_menu.addnew(title, callback, sid=int(sid) )

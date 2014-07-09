@@ -33,10 +33,14 @@ class DAEChromaMap(object):
     def __init__(self, config, c2n=None):
         self.config = config
         self.code2name = c2n
+        self._code2shortname = None
+        self._shortname2code = None
+        self._name2code = None
 
     def __str__(self):
         d = self.code2name 
-        return "\n".join(["%3d %s " % (k, d[k]) for k in sorted(d.keys(),key=lambda _:_)])
+        s = self.code2shortname 
+        return "\n".join(["%3d %25s    %s " % (k, s[k], d[k]) for k in sorted(d.keys(),key=lambda _:_)])
 
     def write(self):
         if os.path.exists(self.path):
@@ -60,6 +64,66 @@ class DAEChromaMap(object):
             pd = json.load(fp)
         pass
         return dict(map(lambda _:(int(_[0]),str(_[1])),pd.items()))
+
+
+    def make_name2code(self, code2name):
+        return dict((name,code) for code,name in code2name.items())
+    def make_code2shortname(self, code2name):
+        return dict((code, self.shorten(name)) for code, name in code2name.items())
+    def make_shortname2code(self, code2name):
+        return dict((self.shorten(name),code) for code, name in code2name.items())
+
+    def _get_code2shortname(self):
+        if self._code2shortname is None:
+            self._code2shortname = self.make_code2shortname(self.code2name)
+        return self._code2shortname
+    def _get_shortname2code(self):
+        if self._shortname2code is None:
+            self._shortname2code = self.make_shortname2code(self.code2name)
+        return self._shortname2code
+    def _get_name2code(self):
+        if self._name2code is None:
+            self._name2code = self.make_name2code(self.code2name)
+        return self._name2code
+
+    code2shortname = property(_get_code2shortname)
+    shortname2code = property(_get_shortname2code)
+    name2code = property(_get_name2code)
+
+
+    def convert_names2codes(self,names, short=True):
+        """
+        Comma delimited string of short names -> list of integer codes
+        """
+        d = self.shortname2code if short else self.name2code
+        codes = map( lambda _:d.get(_), names.split(",") )  
+        assert len(codes) <=4, codes 
+        default = [-1,-1,-1,-1]
+        codes = codes + default[:4-len(codes)] 
+        return codes
+
+    def convert_codes2names(self, codes, short=True):
+        """
+        List of integer codes -> comma delimited string of short material names
+        """
+        d = self.code2shortname if short else self.code2name
+        names = map( lambda _:d.get(_,None), codes )
+        return ",".join(filter(None,names))  
+
+    def code2str(self, code, short=True):
+        d = self.code2shortname if short else self.code2name
+        return d.get(code,"-")
+
+    def paircode2str(self, paircode):
+        c2s_ = lambda c:self.code2str(c,short=True)
+        return ",".join(map(c2s_,[paircode//1000,paircode%1000]))
+
+    def str2paircode(self, names):
+        codes = self.convert_names2codes(names)
+        return codes[0]*1000 + codes[1]
+
+
+
 
 
 if __name__ == '__main__':

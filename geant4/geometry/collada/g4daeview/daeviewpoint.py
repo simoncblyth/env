@@ -347,7 +347,7 @@ class DAEViewpoint(object):
                solid = geometry.find_solid_by_index(v) 
                kwa['solid'] = solid 
             else:
-                log.warn("ignoring bookmark key %s " % k )
+                log.debug("ignoring bookmark key %s " % k )
             pass
         assert len(kwa) == 5, "missing argument(s) %s " % repr(kwa) 
         if solid is None:

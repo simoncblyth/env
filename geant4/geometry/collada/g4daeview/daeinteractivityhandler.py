@@ -113,6 +113,7 @@ class DAEInteractivityHandler(object):
         self.target_mode = False
         self.bookmark_mode = False
         self.bookmark_key = None
+        self.tab_mode = False
         #
         if config.args.fullscreen:
             self.toggle_fullscreen()
@@ -265,7 +266,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.L: self.scene.toggle("line")
         elif symbol == key.I: self.scene.toggle("fill")
         elif symbol == key.T: self.scene.toggle("transparent")
-        elif symbol == key.P: self.scene.toggle("parallel")
+        elif symbol == key.P: self.scene.camera.toggle("parallel")
         elif symbol == key.G: self.scene.toggle("light")
         elif symbol == key.O: self.scene.toggle("drawsolid")
         elif symbol == key.K: self.scene.toggle("markers")
@@ -280,6 +281,9 @@ class DAEInteractivityHandler(object):
         elif symbol == key.POUND: self.scene.reload_()
         elif symbol == key.BRACKETRIGHT: self.scene.loadnext()
         elif symbol == key.BRACKETLEFT: self.scene.loadprev()
+        elif symbol == key.TAB: 
+            self.tab_mode = True
+            self.scene.visit_bookmark(None)
         elif symbol in number_keys:
             self.bookmark_mode = True
             self.bookmark_key = symbol - key._0
@@ -311,6 +315,8 @@ class DAEInteractivityHandler(object):
         elif symbol == key.F: self.far_mode = False
         elif symbol == key.Y: self.yfov_mode = False
         elif symbol == key.Q: self.target_mode = False
+        elif symbol == key.TAB: 
+            self.tab_mode = False
         elif symbol in number_keys:
             self.bookmark_mode = False
             if self.bookmark_key is None: 

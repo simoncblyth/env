@@ -144,7 +144,7 @@ class DAEPhotonsRenderer(object):
 
         qcount = self.dphotons.qcount   
 
-        log.info("%s draw slot %s draw_count %s qcount %s " % (self.__class__.__name__, slot, self.draw_count, qcount ))
+        #log.info("%s draw slot %s draw_count %s qcount %s " % (self.__class__.__name__, slot, self.draw_count, qcount ))
 
         gl.glPointSize(self.dphotons.param.fphopoint)  
        

@@ -65,6 +65,7 @@ class DAEPhotons(object):
         self.interop = not event.scene.chroma.dummy
         self.config = event.config      
         self.chroma_material_map = event.scene.geometry.chroma_material_map
+        self.chroma_surface_map = event.scene.geometry.chroma_surface_map
         self.chroma_process_map = event.scene.geometry.chroma_process_map
 
         self._style = event.config.args.style   
@@ -84,6 +85,7 @@ class DAEPhotons(object):
             presenter.cohort = event.config.args.cohort
         pass
         self.material = event.config.args.material    
+        self.surface  = event.config.args.surface
         self.mode = event.config.args.mode    
 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
@@ -247,7 +249,7 @@ class DAEPhotons(object):
 
     ### other actions #####
 
-    reconfig_properties = ['time','style','timerange','cohort','material','mode',]
+    reconfig_properties = ['time','style','timerange','cohort','material','mode','surface',]
 
     def reconfig(self, conf):
         """
@@ -367,6 +369,31 @@ class DAEPhotons(object):
         log.info("_get_mate %s => %s " % (codes, names))
         return names
     material = property(_get_material, _set_material, doc="setter copies material selection integers into GPU quad g_mate  getter returns cached value " )
+
+
+
+    def _set_surface(self, names):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            log.warn("cannot set material selection constants when renderer.presenter is not enabled")
+            return
+        pass
+        codes = self.chroma_surface_map.convert_names2codes(names)
+        log.info("_set_surface %s => %s " % (names, codes))
+        presenter.surface = codes
+    def _get_surface(self):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            return None
+        pass
+        codes = presenter.surface
+        names = self.chroma_surface_map.convert_codes2names(codes)
+        log.info("_get_surface %s => %s " % (codes, names))
+        return names
+    surface = property(_get_surface, _set_surface, doc="surface: setter copies selection integers into GPU quad g_surf  getter returns cached value " )
+
+
+
 
 
 

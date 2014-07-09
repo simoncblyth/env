@@ -39,40 +39,56 @@ class DAEBookmarks(object):
         return marks
     marks = property(_get_marks,doc=_get_marks.__doc__)
 
+    def _get_summary(self):
+        return self.bookmark_asini 
+    summary = property(_get_summary)
+
+    def get_bookmark_asini(self, k):
+        """
+        :param k: 
+        :return: ini format string encoding view and clipping config sections for each bookmark 
+        """
+        entries = []
+        key_hdr = "[%s%s]" % (self.ini_prefix, k)
+        entries.append(key_hdr)
+        entries.append(self.viewpoints[k].asini)
+        entries.append(self.get_camera(k).asini)
+        entries.append(self.get_clipper(k).asini)
+        return "\n".join(entries)
+
+    bookmark_asini = property(lambda self:self.get_bookmark_asini(self.current))
+
     def _get_asini(self):
         """
         :return: ini format string encoding view and clipping config sections for each bookmark 
         """
         entries = []
         for k in self.marks:
-            key_hdr = "[%s%s]" % (self.ini_prefix, k)
-            entries.append(key_hdr)
-            entries.append(self.viewpoints[k].asini)
-            entries.append(self.cameras[k].asini)
-            entries.append(self.clippers[k].asini)
-            pass 
+            entries.append( self.get_bookmark_asini(k))
         return "\n".join(entries)
     asini = property(_get_asini, doc=_get_asini.__doc__)
 
-    def _get_clipper(self):
+   
+    def get_clipper(self, k):
         """
-        Access clipper corresponding to the current bookmark, creates the instance 
+        Access clipper corresponding to the bookmark, creates the instance 
         if does not already exist.
         """
-        if not self.current in self.clippers:
-            self.clippers[self.current] = DAEClipper()  
-        return self.clippers[self.current] 
-    clipper = property(_get_clipper, doc=_get_clipper.__doc__)
+        if not k in self.clippers:
+            self.clippers[k] = DAEClipper()
+        return self.clippers[k]
+    clipper = property(lambda self:self.get_clipper(self.current))
 
-    def _get_camera(self):
+    def get_camera(self, k):
         """
-        Access camera corresponding to the current bookmark, creates the default instance 
+        Access camera corresponding to bookmark, creates the default instance 
         from config if does not already exist.
         """
-        if not self.current in self.cameras:
-            self.cameras[self.current] = DAECamera.fromconfig(self.config)
-        return self.cameras[self.current] 
-    camera = property(_get_camera, doc=_get_camera.__doc__)
+        if not k in self.cameras:
+            self.cameras[k] = DAECamera.fromconfig(self.config)
+        return self.cameras[k]
+    camera = property(lambda self:self.get_camera(self.current))
+
 
 
     def add_clipping_plane(self, plane):
@@ -148,9 +164,18 @@ class DAEBookmarks(object):
     def lookup(self, key, default=None):
         return self.viewpoints.get(str(key),default)
     def set_current(self, key):
+        #log.info("set_current %s " % key )
         self.current = str(key)  
     def is_current(self, key):
         return str(key) == self.current
+
+    def next_key(self):
+        keys = sorted(self.viewpoints, key=lambda _:_)
+        ikey = keys.index(self.current)
+        jkey = (ikey+1)%len(keys)
+        nkey = keys[jkey]
+        #log.debug("next_key keys %s ikey %s jkey %s nkey %s " % (repr(keys),ikey,jkey,nkey))
+        return nkey 
  
     current_view = property(lambda self:self.lookup(self.current,None))
 
@@ -171,9 +196,12 @@ class DAEBookmarks(object):
         self.assign(numkey, view) 
 
     def visit(self, numkey):
+        if numkey is None: 
+            numkey = self.next_key()
+
         oldkey = self.current
         if oldkey in self.clippers:
-            log.info("disable oldkey %s clips " % oldkey )
+            #log.debug("disable oldkey %s clips " % oldkey )
             self.clippers[oldkey].disable()
         else:
             log.warn("huh no oldkey %s in clippers " % oldkey ) 
@@ -182,15 +210,20 @@ class DAEBookmarks(object):
         view = self.lookup(numkey, None)
         if not view is None:
             self.set_current(numkey)
+            #log.info("visit bookmark summary ")
+            #print self.summary
+        else:
+            log.warn("dud bookmark %s " % numkey)   
+
         return view
 
     def make_interpolate_view(self):
         """
         """
-        if len(self) < 2:
+        if len(self.viewpoints) < 2:
             return None
         pass
-        keys = sorted(self, key=lambda _:_)
+        keys = sorted(self.viewpoints, key=lambda _:_)
         idx = keys.index(self.current)
         keys_starting_with_current = keys[idx:] + keys[:idx] 
         views = [self.viewpoints[k] for k in keys_starting_with_current]

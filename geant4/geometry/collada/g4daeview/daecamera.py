@@ -11,11 +11,12 @@ class DAECamera(object):
     def fromconfig(cls, config):
         args = config.args 
         kscale = 1. if args.scaled_mode else config.args.kscale
-        return cls( size=config.size, kscale=kscale, near=args.near, far=args.far, yfov=args.yfov, nearclip=config.nearclip, farclip=config.farclip, yfovclip=config.yfovclip )
+        return cls( size=config.size, kscale=kscale, near=args.near, far=args.far, yfov=args.yfov, parallel=args.parallel, 
+                    nearclip=config.nearclip, farclip=config.farclip, yfovclip=config.yfovclip )
 
-    reconfigurables = ("kscale","near","far","yfov","nearclip","farclip","yfovclip")
+    reconfigurables = ("kscale","near","far","yfov","nearclip","farclip","yfovclip","parallel",)
 
-    def __init__(self, size=(640,480), kscale=1., yfov=50., near=10., far=20000. , nearclip=(1e-6,1e6), farclip=(1e-6,1e6), yfovclip=(1.,179)): 
+    def __init__(self, size=(640,480), kscale=1., yfov=50., near=10., far=20000. , parallel=False, nearclip=(1e-6,1e6), farclip=(1e-6,1e6), yfovclip=(1.,179) ): 
 
         self.size = np.array(size, dtype=int )
         self.kscale = kscale   # i dont like it, but better that putting in the view or scene
@@ -27,6 +28,19 @@ class DAECamera(object):
         self.yfovclip = yfovclip   # extreme angles are handy in parallel projection
         self.nearclip = nearclip
         self.farclip = farclip
+        self.parallel = parallel
+
+    def toggle(self, name):
+        setattr( self, name , not getattr(self, name)) 
+
+    def _set_parallel(self, parallel):
+        """
+        Set bool via int, to support string arguments "0" and "1" as well as False True
+        """
+        self._parallel = bool(int(parallel))
+    def _get_parallel(self):
+        return self._parallel
+    parallel = property(_get_parallel, _set_parallel)
 
     def resize(self, size):
         self.size = size
@@ -56,6 +70,7 @@ class DAECamera(object):
         i2_ = lambda v:"%d,%d" % (v[0],v[1])
         f2_ = lambda v:"%f,%f" % (v[0],v[1])
         s_ = lambda v:"%s" % v
+        b_ = lambda v:"%s" % str(int(v))
 
         return "\n".join([
                   kvf_("size",     self.size,  i2_),
@@ -66,6 +81,7 @@ class DAECamera(object):
                   kvf_("nearclip", self.nearclip, f2_),
                   kvf_("farclip",  self.farclip,  f2_),
                   kvf_("yfovclip", self.yfovclip, f2_),
+                  kvf_("parallel", self.parallel, b_),
                   ])
     asini = property(_get_asini)
 
@@ -77,13 +93,15 @@ class DAECamera(object):
         kwa = {}
         for k,v in cfg:
             if k in ("kscale","yfov","near","far"):
-               kwa[k] = float(v)
+                kwa[k] = float(v)
             elif k == "size":
-               kwa[k] = map(int, v.split(","))
+                kwa[k] = map(int, v.split(","))
             elif k in ("nearclip","farclip","yfovclip"):
-               kwa[k] = map(float, v.split(","))
+                kwa[k] = map(float, v.split(","))
+            elif k == "parallel":
+                kwa[k] = int(v)
             else:
-                log.warn("ignoring bookmark key %s " % k )
+                log.debug("ignoring bookmark key %s " % k )
             pass
         pass 
         return cls(**kwa)

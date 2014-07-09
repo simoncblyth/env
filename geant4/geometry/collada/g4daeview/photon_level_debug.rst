@@ -5,10 +5,18 @@ Issues
 ---------
 
 
+spagetti style and surface step selection incompatible
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Other styles more resonable, spagetti is finnicky as its LINE_STRIP based. So trying
+to hide steps by sending off to infinity creates funny renders.::
+
+    udp.py --surface RSOil
 
 
-Pushing Up the Slots causes BUS error
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pushing Up the Slots causes BUS error (AVOIDED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 max slots of 100 or 50 load noodle style photon render, 
 but on switching to movie style get a bus error:: 
@@ -36,6 +44,10 @@ but on switching to movie style get a bus error::
 Guessed causes ?
 
 #. drawing time exceeds some OpenGL timeout ?
+
+#. moving to draw rather than multidraw succeeds to animate even max_slots 100 but very slowly,
+   assuming due to photon-x-100 VBO memory size pushes geometry VBO out the door
+
 
 
 Single Photon Debug

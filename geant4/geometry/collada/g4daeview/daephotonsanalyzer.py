@@ -156,8 +156,9 @@ class DAEPhotonsPropagated(object):
     p_ccol = property(lambda self:self.propagated['ccolor'].reshape(-1,self.max_slots,4))
     p_flags = property(lambda self:self.propagated['flags'].reshape(-1,self.max_slots,4))
     p_lht   = property(lambda self:self.propagated['last_hit_triangle'].reshape(-1,self.max_slots,4))
+    p_i     = property(lambda self:np.tile(np.arange(self.max_slots), self.nphoton).reshape(-1,self.max_slots,1))
 
-    long_lived = property(lambda self:np.where( self.tl > 200. )[0])  # lifetime more than 200 ns
+    long_lived = property(lambda self:np.where( self.tl > 200. )[0])  # lifetime more than 200 ns, look a lot better with high max_slots 
     special = property(lambda self:self.long_lived)
 
     nphoton = property(lambda self:len(self.propagated)/self.max_slots)
@@ -240,7 +241,8 @@ class DAEPhotonsPropagated(object):
         a contiguous array, rather than sliced. This is needed by pyopengl
         """
         nphoton = self.nphoton
-        counts = np.clip( self.slots, 0, self.max_slots-2 )  
+        counts = np.clip( self.slots + 1, 0, self.max_slots-2 )  
+        assert np.all( counts == self.slots + 1 )
         firsts = np.arange(nphoton, dtype='i')*self.max_slots
         drawcount = nphoton
         return counts, firsts, drawcount
@@ -253,6 +255,8 @@ class DAEPhotonsPropagated(object):
         return np.concatenate(map(lambda _:np.arange(*_), ranges))   # the map will be python slow 
     stepindices = property(_get_stepindices)
 
+    
+
     def summary(self, pid, material_map=None, process_map=None):
         log.info("summary for pid %s " % pid )
         if material_map is None:
@@ -261,11 +265,29 @@ class DAEPhotonsPropagated(object):
             process_map = self.process_map
 
         def format_p_flags(a):
+            """
+            fill_meta body::
+
+                qflags.u.x = p.history ;
+                qflags.f.y = s.distance_to_boundary ;
+                qflags.f.z = 0. ;
+                qflags.f.w = 0. ;
+
+            last (-2)::
+
+                qflags.u.x = p.history ;
+                qflags.f.y = t0 ;             
+                qflags.f.z = p.time ;   
+                qflags.u.w = steps ; 
+
+
+            """
+            history = columnize(map( process_map.mask2str, a[:,0] ))
             b = np.empty((a.shape[0],2),dtype=np.float32)
             b[:,0] = a[:,1].view(np.float32)
             b[:,1] = a[:,2].view(np.float32)
-            history = columnize(map( process_map.mask2str, a[:,0] ))
-            sbs = side_by_side( "\n".join(history),str(b) ) 
+            steps = str(a[:,3:])
+            sbs = side_by_side( "\n".join(history),str(b),steps ) 
             return sbs
 
         def format_p_lht(a):
@@ -287,8 +309,8 @@ class DAEPhotonsPropagated(object):
         tmap['p_lht'] = format_p_lht
         tmap['p_post'] = format_p_post
 
-        print att_side_by_side(self, pid, "p_flags p_lht".split(), tmap ) 
-        print att_side_by_side(self, pid, "p_post p_dirw p_polw p_ccol".split(), tmap ) 
+        print att_side_by_side(self, pid, "p_i p_flags p_lht".split(), tmap ) 
+        print att_side_by_side(self, pid, "p_i p_post p_dirw p_polw p_ccol".split(), tmap ) 
         print att_side_by_side(self, pid, "t_post t_dirw t_polw t_ccol".split()) 
 
 

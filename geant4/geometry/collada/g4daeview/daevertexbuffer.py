@@ -481,7 +481,7 @@ class DAEVertexBuffer(object):
         t0 = time.time()
         gl.glDrawElements( mode, count, self.indices_type, ctypes.c_void_p(self.indices_size*offset) )
         t = time.time() - t0
-        log.info("glDrawElements count %s t %s " % (count, t)) 
+        #log.info("glDrawElements count %s t %s " % (count, t)) 
 
         attrib.postdraw( what=what, att=att)
 
