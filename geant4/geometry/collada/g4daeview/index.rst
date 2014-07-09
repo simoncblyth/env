@@ -15,6 +15,9 @@ g4daeview
    photon_level_debug
    material_pair_debug
    propagated_flags_mismatch
+   g4daeview_performance
+
+
 
 
 

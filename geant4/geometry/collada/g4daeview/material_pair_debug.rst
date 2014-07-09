@@ -35,9 +35,10 @@ DAEPhotonsAnalyzer.get_material_pairs
 Both end material check
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pushing up to --max-slots 30 reduces asymmetry peculiarities at lot. 
-Ten slots (which is effectively 8 slots) is simply not enough 
-
+Pushing up to `--max-slots 30` reduces asymmetry peculiarities a lot. 
+Ten slots (which is effectively 8 slots) is simply not enough. Pushing to  
+`--max-slots 100` suffers from crashes when in animation modes and slow interface
+in other modes.
 
 With selection based on from/to materials. Peculiarities::
 

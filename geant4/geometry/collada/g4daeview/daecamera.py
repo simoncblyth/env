@@ -7,6 +7,14 @@ import numpy as np
 
 
 class DAECamera(object):
+    @classmethod 
+    def fromconfig(cls, config):
+        args = config.args 
+        kscale = 1. if args.scaled_mode else config.args.kscale
+        return cls( size=config.size, kscale=kscale, near=args.near, far=args.far, yfov=args.yfov, nearclip=config.nearclip, farclip=config.farclip, yfovclip=config.yfovclip )
+
+    reconfigurables = ("kscale","near","far","yfov","nearclip","farclip","yfovclip")
+
     def __init__(self, size=(640,480), kscale=1., yfov=50., near=10., far=20000. , nearclip=(1e-6,1e6), farclip=(1e-6,1e6), yfovclip=(1.,179)): 
 
         self.size = np.array(size, dtype=int )
@@ -41,6 +49,47 @@ class DAECamera(object):
                       "pixelhalf   %s " % self.pixelhalf,
                         ]) 
 
+    def _get_asini(self):
+        kvf_ = lambda k,v,f_:"%s = " % k + f_(v).replace(" ","")
+
+        i_ = lambda v:"%d" % v
+        i2_ = lambda v:"%d,%d" % (v[0],v[1])
+        f2_ = lambda v:"%f,%f" % (v[0],v[1])
+        s_ = lambda v:"%s" % v
+
+        return "\n".join([
+                  kvf_("size",     self.size,  i2_),
+                  kvf_("kscale",   self.kscale, s_),
+                  kvf_("yfov",     self._yfov,  s_),
+                  kvf_("near",     self._near,  s_),
+                  kvf_("far",      self._far,   s_),
+                  kvf_("nearclip", self.nearclip, f2_),
+                  kvf_("farclip",  self.farclip,  f2_),
+                  kvf_("yfovclip", self.yfovclip, f2_),
+                  ])
+    asini = property(_get_asini)
+
+    @classmethod
+    def fromini(cls, cfg):
+        """
+        :param cfg:  List of key value pairs, like that supplied by ConfigParser
+        """
+        kwa = {}
+        for k,v in cfg:
+            if k in ("kscale","yfov","near","far"):
+               kwa[k] = float(v)
+            elif k == "size":
+               kwa[k] = map(int, v.split(","))
+            elif k in ("nearclip","farclip","yfovclip"):
+               kwa[k] = map(float, v.split(","))
+            else:
+                log.warn("ignoring bookmark key %s " % k )
+            pass
+        pass 
+        return cls(**kwa)
+
+
+
     def __repr__(self):
         return "C %3.1f/%10.5f/%4.1f " % ( self._yfov, self._near, self._far )
 
@@ -48,7 +97,7 @@ class DAECamera(object):
         ii_ = lambda name:"--%(name)s=%(fmt)s,%(fmt)s" % dict(fmt="%d",name=name) 
         f_ = lambda name,fmt:"--%(name)s=%(fmt)s" % dict(fmt=fmt,name=name) 
         return   " ".join(map(lambda _:_.replace(" ",""),[
-                         ii_("size")  % self.size,
+                         ii_("size")  % (self.size[0],self.size[1]),
                          f_("near","%10.5f")  % self.near,
                          f_("far","%4.1f")  % self.far,
                          f_("yfov","%3.1f")  % self.yfov,
@@ -337,13 +386,7 @@ def check_pixel_pos_corners(camera):
 
 
 
-if __name__ == '__main__':
-    pass
-    np.set_printoptions(precision=4, suppress=True)
-    camera = DAECamera()
-    print camera.smry()
-
-
+def check_pixel( camera ):
     check_pixel_index(camera)
     check_pixel_xyzw(camera)
     check_pixel_pos(camera)
@@ -354,6 +397,30 @@ if __name__ == '__main__':
         pos = camera.pixel_pos(index)
         print "%-5s %10s %10s %s " % ( label, pxyzw, index, pos )
 
+
+def check_asini( camera ):
+    ini = camera.asini
+    import ConfigParser, io
+    cfp = ConfigParser.ConfigParser()
+    cfp.readfp(io.BytesIO("[dummy]\n%s"% ini ))
+    cfg = cfp.items("dummy") 
+    print cfg
+    cam = DAECamera.fromini(cfg)
+
+    print "ini\n",ini
+    print "cam.asini\n",cam.asini
+    assert ini == cam.asini
+
+
+if __name__ == '__main__':
+    pass
+    np.set_printoptions(precision=4, suppress=True)
+    camera = DAECamera()
+    print camera
+    print camera.smry()
+
+    #check_pixel(camera)
+    check_asini(camera)
 
 
 

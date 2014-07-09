@@ -29,6 +29,10 @@ cpl-export
 zmq-
 zmq-broker-export
 
+graphicstools-
+graphicstools-export
+env | grep GL_
+
 
 ssh-tunnel-cmd(){
    local laddr=$1

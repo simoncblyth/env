@@ -193,7 +193,7 @@ class DAEPhotonsShader(object):
         self._fparam = None
 
         self._shaderkey = None
-        self.shaderkey = dphotons.cfg['shaderkey']   
+        self.shaderkey = None # dphotons.cfg['shaderkey']   
 
     def get_shader(self, key ):
         """

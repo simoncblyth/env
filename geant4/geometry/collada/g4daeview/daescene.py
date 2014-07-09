@@ -68,16 +68,11 @@ class DAEScene(window_event.EventDispatcher):
         if args.jump:
             self.view = self.interpolate_view(args.jump)
 
-        # camera
-        kscale = 1. if self.scaled_mode else config.args.kscale
-        camera = DAECamera( size=config.size, kscale=kscale, near=args.near, far=args.far, yfov=args.yfov, nearclip=config.nearclip, farclip=config.farclip, yfovclip=config.yfovclip )
-        self.camera = camera 
-
         # lights
         light_transform = Transform() if self.scaled_mode else geometry.mesh.model2world 
         self.lights = DAELights( light_transform, config )
 
-        # bookmarked viewpoints
+        # bookmarked viewpoints, now contains DAECamera and DAEClipper instances
         self.bookmarks = DAEBookmarks(config, geometry ) 
 
         # Chroma raycaster and propagator, None if not --with-chroma
@@ -121,9 +116,10 @@ class DAEScene(window_event.EventDispatcher):
         log.info("external_cpl ChromaPhotonList ")
         self.event.external_cpl( cpl )
 
-    def _get_clipper(self):
-        return self.bookmarks.clipper
-    clipper = property(_get_clipper)
+
+    clipper = property(lambda self:self.bookmarks.clipper)
+    camera = property(lambda self:self.bookmarks.camera)
+
 
     def reset_count(self):
         self.animator.reset()
@@ -358,7 +354,7 @@ class DAEScene(window_event.EventDispatcher):
                 photon_config.append( (k,v,) )   
             elif k in ("eye","look","up"):
                 elu[k] = v
-            elif k in ("kscale","near","far","yfov","nearclip","farclip","yfovclip"):
+            elif k in self.camera.reconfigurables:
                 setattr(self.camera, k, v )
             elif k in ("translatefactor","trackballradius"):
                 setattr(self.trackball, k, v )

@@ -71,7 +71,7 @@ class DAEPhotons(object):
 
         self.numquad = DAEPhotonsData.numquad  # fundamental nature of VBO data structure, not a "parameter"
 
-        self.styler = DAEPhotonsStyler(self)
+        self.styler = DAEPhotonsStyler()
 
         self.param = DAEPhotonsParam( event.config)
         self.data = DAEPhotonsData(photons, self.param)
@@ -95,22 +95,24 @@ class DAEPhotons(object):
         self.tcut = event.config.args.tcut    
 
 
-    def clicked_point(self, click, live=True ):
+    def clicked_point(self, click, live=True):
         """
         :param click: world coordinate xyz of point clicked
         :param live: when True pull the VBO content off the GPU in order to 
-                     access the t-interpolated slot -1 positions 
+                     access the t-interpolated slot -1 positions (requires --pullvbo config enabled)
                      when False use last photon positions 
         """
         if not self.interop:return
-        if live:
+        if self.config.args.pullvbo and live:
             vbo = self.renderer.pbuffer   
             if vbo is None:return 
             self.tpropagated( vbo.read() ) 
             index = self.tpropagated.t_nearest_photon( click ) 
             self.tpropagated.summary(index, material_map=self.chroma_material_map, process_map=self.chroma_process_map)
         else:
+            log.info("clicked_point pullvbo not enabled")
             index = self.analyzer.nearest_photon(click)
+            self.analyzer.summary(index, material_map=self.chroma_material_map, process_map=self.chroma_process_map)
         pass
 
         log.info("clicked_point %s => index %s " % (repr(click),index))
@@ -152,9 +154,9 @@ class DAEPhotons(object):
         self._style = style   
     style = property(_get_style, _set_style, doc="Photon presentation style, eg confetti/spagetti/movie/...") 
 
-    def _get_cfg(self):
-        return self.styler.get(self.style)
-    cfg = property(_get_cfg)
+    #def _get_cfg(self):
+    #    return self.styler.get(self.style)
+    #cfg = property(_get_cfg)
 
     def _get_cfglist(self):
         return self.styler.get_list(self.style)

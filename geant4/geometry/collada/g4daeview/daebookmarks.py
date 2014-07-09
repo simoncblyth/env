@@ -6,8 +6,9 @@ from ConfigParser import ConfigParser
 from daeinterpolateview import DAEInterpolateView, DAEParametricView
 from daeviewpoint import DAEViewpoint
 from daeclipper import DAEClipper
+from daecamera import DAECamera
 
-class DAEBookmarks(dict):
+class DAEBookmarks(object):
     name = "bookmarks.cfg"
     path = property(lambda self:self.config.resolve_confpath(self.name))
 
@@ -16,12 +17,12 @@ class DAEBookmarks(dict):
         :param config: to bookmarks file
         :param geometry: DAEGeometry instance
         """
-        dict.__init__(self)
         self.config = config
         self.current = None
 
-        # clipping plane control
+        self.viewpoints = {}
         self.clippers = {} 
+        self.cameras = {} 
 
         if os.path.exists(self.path):
             self.load(geometry)  
@@ -30,23 +31,28 @@ class DAEBookmarks(dict):
     ini_exclude = ("0",)
 
     def _get_marks(self):
-        marks = filter(lambda k:k not in self.ini_exclude, sorted(self))  # bookmark_0 excluded
-        marks = filter(lambda k:not self[k].solid is None,marks)  
+        """
+        :return: list of bookmark keys k with associated .viewpoints[k].solid excluding k=0 
+        """
+        marks = filter(lambda k:k not in self.ini_exclude, sorted(self.viewpoints))  # bookmark_0 excluded
+        marks = filter(lambda k:not self.viewpoints[k].solid is None,marks)  
         return marks
-    marks = property(_get_marks)
+    marks = property(_get_marks,doc=_get_marks.__doc__)
 
     def _get_asini(self):
         """
+        :return: ini format string encoding view and clipping config sections for each bookmark 
         """
         entries = []
         for k in self.marks:
-            view = self[k]
-            vini = "[%s%s]\n%s" % (self.ini_prefix, k, view.asini)
-            entries.append(vini)
+            key_hdr = "[%s%s]" % (self.ini_prefix, k)
+            entries.append(key_hdr)
+            entries.append(self.viewpoints[k].asini)
+            entries.append(self.cameras[k].asini)
             entries.append(self.clippers[k].asini)
             pass 
         return "\n".join(entries)
-    asini = property(_get_asini)
+    asini = property(_get_asini, doc=_get_asini.__doc__)
 
     def _get_clipper(self):
         """
@@ -56,7 +62,18 @@ class DAEBookmarks(dict):
         if not self.current in self.clippers:
             self.clippers[self.current] = DAEClipper()  
         return self.clippers[self.current] 
-    clipper = property(_get_clipper)
+    clipper = property(_get_clipper, doc=_get_clipper.__doc__)
+
+    def _get_camera(self):
+        """
+        Access camera corresponding to the current bookmark, creates the default instance 
+        from config if does not already exist.
+        """
+        if not self.current in self.cameras:
+            self.cameras[self.current] = DAECamera.fromconfig(self.config)
+        return self.cameras[self.current] 
+    camera = property(_get_camera, doc=_get_camera.__doc__)
+
 
     def add_clipping_plane(self, plane):
         """
@@ -66,6 +83,9 @@ class DAEBookmarks(dict):
         self.clipper.add(plane)
 
     def save(self):
+        """
+        Saves .asini to .path
+        """
         dir_ = os.path.dirname(self.path)
         if not os.path.exists(dir_):
             log.info("creating directory %s " % dir_ )
@@ -90,14 +110,16 @@ class DAEBookmarks(dict):
                 view = DAEViewpoint.fromini( cfg, geometry ) 
                 if view is None:
                     log.debug("failed to load bookmark %s " % k )
-                else:   
-                    self.assign(k, view)
-                    self.clippers[k] = DAEClipper.from_ini(cfg)
+                    continue
+
+                self.assign(k, view)
+                self.clippers[k] = DAEClipper.from_ini(cfg)
+                self.cameras[k] = DAECamera.fromini(cfg)
 
     def __repr__(self):
         def fmt_(k):
             return "[%s]" if self.is_current(k) else "%s"  
-        return "".join(map(lambda k:fmt_(k) % k,sorted(self.keys())))
+        return "".join(map(lambda k:fmt_(k) % k,sorted(self.viewpoints.keys())))
 
     def create_for_solid(self, solid, numkey):
         log.debug("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
@@ -121,10 +143,10 @@ class DAEBookmarks(dict):
         :param key:
         :param view:
         """
-        self[str(key)] = view
+        self.viewpoints[str(key)] = view
 
     def lookup(self, key, default=None):
-        return self.get(str(key),default)
+        return self.viewpoints.get(str(key),default)
     def set_current(self, key):
         self.current = str(key)  
     def is_current(self, key):
@@ -133,6 +155,9 @@ class DAEBookmarks(dict):
     current_view = property(lambda self:self.lookup(self.current,None))
 
     def update_current(self):
+        """
+        
+        """
         numkey = self.current
         if numkey is None:
             log.warn("no current bookmark")
@@ -160,13 +185,15 @@ class DAEBookmarks(dict):
         return view
 
     def make_interpolate_view(self):
+        """
+        """
         if len(self) < 2:
             return None
         pass
         keys = sorted(self, key=lambda _:_)
         idx = keys.index(self.current)
         keys_starting_with_current = keys[idx:] + keys[:idx] 
-        views = [self[k] for k in keys_starting_with_current]
+        views = [self.viewpoints[k] for k in keys_starting_with_current]
         log.info("make_interpolate_view sequence with %s views " % (len(views)))
         return DAEInterpolateView(views)
 

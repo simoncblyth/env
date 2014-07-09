@@ -1,24 +1,4 @@
 #!/usr/bin/env python
-"""
-
-
-::
-
-    udp.py --style movie,noodles --mode 0
-    udp.py --style movie,confetti --mode 0
-
-       an attempt at combining movie presentation with 
-
-
-Animation Style where photons stay at final positions
-
-#. not working, photons disappearing despite expectations
-
-
-
-
-
-"""
 
 import logging, pprint
 log = logging.getLogger(__name__)
@@ -29,17 +9,32 @@ import numpy as np
 
 class DAEPhotonsStyler(object):
     """
+    High level photon rendering configuration, controlled via 
+    DAEPhotons.style property, which dictates contents of 
+    DAEPhotons.cfglist property.
+
+    The style can be changed live via menu or UDP::
+
+       udp.py --style noodles,movie
+
     """
-    style_names = ['noodles','movie','movie-extra','spagetti','confetti','confetti-0','confetti-1','confetti-2',]
-    def __init__(self, dphotons):
-        self.dphotons = dphotons
+    style_names = ['noodles','movie','movie-extra','dmovie','spagetti','confetti','confetti-0','confetti-2','confetti-1','dconfetti-1',]
+
+    def __init__(self):
+        self.styles = self._make_styles(self.style_names)
+
+    def _make_styles(self, style_names):
         styles = {}
-        for name in self.style_names:
-            styles[name] = self.make_cfg(name) 
+        for name in style_names:
+            styles[name] = self._make_cfg(name) 
         pass
-        self.styles = styles
+        return styles
 
     def get_list(self, style):
+        """
+        :param style: comma delimited list of style names
+        :return: list of style dicts 
+        """
         cfgs = []
         for name in style.split(","):
             cfg = self.get(name)
@@ -51,18 +46,23 @@ class DAEPhotonsStyler(object):
         return cfgs 
 
     def get(self, style):
+        """
+        :param style: name 
+        :return: style dict or None
+        """
         return self.styles.get(style,None)
 
-    def make_cfg(self, style):
+    def _make_cfg(self, style):
         """
         :param photonskey: string identifying various techniques to present the photon information
 
         *slot*
-           -1, top slot at max_slots-1
-           None, corresponds to using max_slots 1 with slot 0,
-           with top slot excluded 
-           (ie seeing all steps of the propagation except the artificial 
-           interpolated top slot)
+
+           #. -1, top slot at max_slots-1
+           #. None, corresponds to using max_slots 1 with slot 0,
+              with top slot excluded 
+              (ie seeing all steps of the propagation except the artificial 
+              interpolated top slot)
 
         *drawkey*
            `multidraw` is efficient way of in effect doing separate draw calls 
@@ -110,7 +110,7 @@ class DAEPhotonsStyler(object):
 
         if style == 'noodles':
 
-           cfg['description'] = "LINE_STRIP direction/polarization at each step of the photon" 
+           cfg['description'] = "multidraw POINTS geometry shader pulled into photon direction direction at each step of the photon" 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "p2l"
@@ -132,6 +132,15 @@ class DAEPhotonsStyler(object):
            cfg['drawkey'] = "multidraw" 
            cfg['shaderkey'] = "p2l"
            cfg['extrakey'] = "p2p"   
+           cfg['slot'] = -1    
+
+        elif style == 'dmovie':
+
+           cfg['description'] = "simple animation slot draw for efficiency" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "draw" 
+           cfg['shaderkey'] = "p2l"
+           cfg['extrakey'] = "p2p" 
            cfg['slot'] = -1    
 
         elif style == 'confetti':
@@ -157,6 +166,14 @@ class DAEPhotonsStyler(object):
            cfg['description'] = "top slot POINTS" 
            cfg['drawmode'] = gl.GL_POINTS
            cfg['drawkey'] = "multidraw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = -1
+
+        elif style == 'dconfetti-1':
+
+           cfg['description'] = "top slot POINTS" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "draw" 
            cfg['shaderkey'] = "nogeo"
            cfg['slot'] = -1
 

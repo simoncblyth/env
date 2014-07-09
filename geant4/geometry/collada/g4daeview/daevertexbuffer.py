@@ -3,7 +3,7 @@
 For development nodes see daevertexbuffer.rst
 """
 
-import logging
+import logging, time
 log = logging.getLogger(__name__)
 import ctypes
 
@@ -460,9 +460,15 @@ class DAEVertexBuffer(object):
                      of pairwise vertices to use.
 
 
-        When not using indices to pick and choose  glDrawArrays is just as good::
+        When not using indices to pick and choose:
+  
+        #. glDrawArrays just as good ? Not convinced, pushing to higher slot
+           counts is bogging down the interface supect glDrawArrays does too much 
+           clientside
 
-            gl.glDrawArrays( mode, first, count )   
+
+           
+
 
         """
         assert count
@@ -472,7 +478,10 @@ class DAEVertexBuffer(object):
         attrib = DAEVertexAttributes.get( slot )
         attrib.predraw( what=what, att=att)
 
+        t0 = time.time()
         gl.glDrawElements( mode, count, self.indices_type, ctypes.c_void_p(self.indices_size*offset) )
+        t = time.time() - t0
+        log.info("glDrawElements count %s t %s " % (count, t)) 
 
         attrib.postdraw( what=what, att=att)
 
