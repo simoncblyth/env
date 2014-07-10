@@ -44,8 +44,13 @@ class DAEChromaMap(object):
 
     def write(self):
         if os.path.exists(self.path):
-            prior = self.fromjson(self.config) 
-            mismatch = self.compare( prior, self )
+            if self.config.args.wipegeometry:
+                log.info("unlinking %s due to --wipegeometry " % self.path)
+                os.unlink(self.path) 
+            else:
+                prior = self.fromjson(self.config) 
+                mismatch = self.compare( prior, self )
+            pass
         pass
         log.info("writing to %s " % self.path )
         with open(self.path,"w") as fp:

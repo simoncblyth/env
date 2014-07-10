@@ -11,6 +11,7 @@ from daecamera import DAECamera
 class DAEBookmarks(object):
     name = "bookmarks.cfg"
     path = property(lambda self:self.config.resolve_confpath(self.name))
+    tpath = property(lambda self:self.config.resolve_confpath(self.name,timestamp=True))
 
     def __init__(self, config, geometry ):
         """
@@ -108,6 +109,12 @@ class DAEBookmarks(object):
             os.makedirs(dir_) 
         pass
         log.info("save %s bookmarks to %s " % (len(self.marks),self.path ))
+
+        if os.path.exists(self.path):
+            tpath = self.tpath 
+            log.info("renaming %s to %s for safe keeping " % ( self.path, tpath )) 
+            os.rename(self.path, tpath )
+        pass
         with open(self.path,"w") as w:
             w.write(self.asini + "\n")
 

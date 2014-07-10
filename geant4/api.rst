@@ -240,3 +240,101 @@ Whats the Chroma equivalent of SD "Collision detection"
 
 
 
+
+Hits
+-----
+
+
+In above the hit is formed based on `fSensitive !=0` ie `fStep->GetPreStepPoint()->GetSensitiveDetector() != 0`
+
+* `G4StepPoint`::
+
+    143   inline G4VSensitiveDetector* GetSensitiveDetector() const;
+    144   inline void SetSensitiveDetector(G4VSensitiveDetector*);
+
+
+
+
+
+* https://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/ch04s04.html
+
+
+Sensitive Detector
+--------------------
+
+G4VSensitiveDetector is an abstract base class which represents a detector. The
+principal mandate of a sensitive detector is the construction of hit objects
+using information from steps along a particle track. The ProcessHits() method
+of G4VSensitiveDetector performs this task using G4Step objects as input. In
+the case of a "Readout" geometry, objects of the G4TouchableHistory class may
+be used as an optional input.
+
+Your concrete detector class should be instantiated with the unique name of
+your detector. The name can be associated with one or more global names with
+"/" as a delimiter for categorizing your detectors. For example::
+
+     myEMcal = new MyEMcal("/myDet/myCal/myEMcal");
+
+where myEMcal is the name of your detector. The detector must be constructed in
+G4VUserDetectorConstruction::ConstructSDandField() method. It must be assigned
+to one or more G4LogicalVolume objects to set the sensitivity of these volumes.
+SUch assignment must be made in the same
+G4VUserDetectorConstruction::ConstructSDandField() method. The pointer should
+also be registered to G4SDManager, as described in Section 4.4.3.
+
+
+::
+
+
+    [blyth@ntugrid5 DDDB]$ find . -name '*.xml' -exec grep -H sens {} \;
+    ./PMT/hemi-parameters.xml:     and simply act as a holder of the sensitive detector.  The
+    ./PMT/hemi-parameters.xml:     sensdet then needs to be programmed to make sure all optical
+    ./PMT/headon-pmt.xml:  <logvol name="lvHeadonPmtCathode" material="Bialkali" sensdet="DsPmtSensDet">
+    ./PMT/hemi-pmt.xml:  <logvol name="lvPmtHemiCathode" material="Bialkali" sensdet="DsPmtSensDet">
+    ./PMT/hemi-pmt.xml:  <logvol name="lvPmtHemiCathode" material="Bialkali" sensdet="DsPmtSensDet">
+    ./RPC/RPCStrip.xml:  <logvol name="lvRPCStrip" material="MixGas" sensdet="DsRpcSensDet">
+
+
+PMT/headon-pmt.xml::
+
+      <!-- The Photo Cathode -->
+      <logvol name="lvHeadonPmtCathode" material="Bialkali" sensdet="DsPmtSensDet">
+        <tubs name="headon-pmt-cath"
+              sizeZ="HeadonPmtCathodeThickness"
+              outerRadius="HeadonPmtGlassRadius-HeadonPmtGlassWallThick"/>
+      </logvol>
+
+      <!-- Opaque Volume Behind Cathode -->
+      <logvol name="lvHeadonPmtBehindCathode" material="OpaqueVacuum">
+        <tubs name="headon-pmt-behind-vac"
+              sizeZ="HeadonPmtGlassLength-2*HeadonPmtGlassWallThick-HeadonPmtCathodeThickness"
+              outerRadius="HeadonPmtGlassRadius-HeadonPmtGlassWallThick"/>
+      </logvol>
+
+PMT/hemi-pmt.xml::
+
+      <!-- The Photo Cathode -->
+      <!-- use if limit photocathode to a face on diameter gt 167mm. -->
+      <logvol name="lvPmtHemiCathode" material="Bialkali" sensdet="DsPmtSensDet">
+        <union name="pmt-hemi-cathode">
+          <sphere name="pmt-hemi-cathode-face"
+                  outerRadius="PmtHemiFaceROCvac"
+                  innerRadius="PmtHemiFaceROCvac-PmtHemiCathodeThickness"
+                  deltaThetaAngle="PmtHemiFaceCathodeAngle"/>
+          <sphere name="pmt-hemi-cathode-belly"
+                  outerRadius="PmtHemiBellyROCvac"
+                  innerRadius="PmtHemiBellyROCvac-PmtHemiCathodeThickness"
+                  startThetaAngle="PmtHemiBellyCathodeAngleStart"
+                  deltaThetaAngle="PmtHemiBellyCathodeAngleDelta"/>
+          <posXYZ z="PmtHemiFaceOff-PmtHemiBellyOff"/>
+        </union>
+      </logvol>
+
+
+::
+
+    g4daeview.sh --geometry-regexp PmtHemiCathode --wipegeometry
+    g4daeview.sh --geometry-regexp HeadonPmtCathode --wipegeometry
+
+
+

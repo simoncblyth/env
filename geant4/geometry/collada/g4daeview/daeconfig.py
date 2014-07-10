@@ -23,7 +23,7 @@ TODO: live parsing of negative toggles is non-intuitive, maybe add reverse ones 
 
 
 """
-import os, logging, argparse, socket, md5
+import os, logging, argparse, socket, md5, datetime, stat
 import numpy as np
 from configbase import ConfigBase, ThrowingArgumentParser
 
@@ -149,7 +149,7 @@ class DAEConfig(ConfigBase):
         return os.path.expanduser(os.path.expandvars( self.args.confdir % dict(path=path_) ))
     confdir = property(_get_confdir, doc="absolute path to confdir " )
 
-    def resolve_confpath(self, name):
+    def resolve_confpath(self, name, timestamp=False):
         """
         Resolves path to config files, and creates directory if not existing
 
@@ -161,6 +161,15 @@ class DAEConfig(ConfigBase):
             log.info("creating directory %s " % dir_ )
             os.makedirs(dir_) 
         pass
+        if timestamp:
+            if os.path.exists(path):
+                stamp = datetime.datetime.fromtimestamp(os.stat(path)[stat.ST_CTIME]).strftime("%Y%m%d-%H%M")
+                base, ext = os.path.splitext(name)        
+                tname = "%s%s%s" % ( base, stamp, ext )        
+                tpath = os.path.join(self, confdir, tname ) 
+                return tpath
+            else:
+                log.warn("no preexisting path %s no need for timestamping  " % path ) 
         return path
 
     def _get_geocachepath(self):
@@ -203,6 +212,7 @@ class DAEConfig(ConfigBase):
         defaults['debugkernel'] = False
         defaults['debugpropagate'] = True
         defaults['wipepropagate'] = False
+        defaults['wipegeometry'] = False
         defaults['debugphoton'] = 0
 
         defaults['prescale'] = 1
@@ -226,6 +236,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--debugkernel", action="store_true", help="Enables VBO_DEBUG in propagate_vbo.cu, default %(default)s." )
         parser.add_argument( "--debugpropagate", action="store_true", help="Readback propagated VBO into numpy array and persist to propagated.npz, also compares with any same seed prior files. Default %(default)s." )
         parser.add_argument( "--wipepropagate", action="store_true", help="Wipe preexisting propagated VBO before writing new ones, use this when expect propagates-<seed>.npz to be different due to code changes. Default %(default)s." )
+        parser.add_argument( "--wipegeometry", action="store_true", help="Wipe preexisting geometry maps before writing new ones, use this when changing geometry. Default %(default)s." )
         parser.add_argument( "--debugphoton", type=int, help="photon_id to debug in propagate_vbo.cu when --debugkernel is enabled, default %(default)s." )
         parser.add_argument( "--prescale", help="Scale down photon array sizes yieled by DAEPhotonsData by subsampling, default %(default)s.", type=int )
         parser.add_argument( "--max-slots", dest="max_slots", help="Blow up photon array and VBO sizes to hold multiple parts of the propagation, default %(default)s.", type=int )
@@ -261,6 +272,7 @@ class DAEConfig(ConfigBase):
         #defaults['geometry']="2+,3153:12221"  # skip the radslabs
         #defaults['geometry']="3153:12221"      # skip RPC and radslabs
         defaults['geometry'] = "DAE_GEOMETRY_%(path)s" 
+        defaults['geometry_regexp'] = None
 
         defaults['geocache'] = False
         defaults['geocachepath'] = None
@@ -268,6 +280,7 @@ class DAEConfig(ConfigBase):
         defaults['bound'] = True
         parser.add_argument("-p","--path",    help="Shortname indicating envvar DAE_NAME_SHORTNAME (or None indicating  DAE_NAME) that provides path to the G4DAE geometry file  %(default)s",type=str)
         parser.add_argument("-g","--geometry",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
+        parser.add_argument(      "--geometry-regexp",   help="regexp search pattern eg PmtHemiCathode applied to node id that further restricts --geometry nodes",type=str)
         parser.add_argument(      "--geocache", help="Save/load flattened geometry to/from binary npz cache. Default %(default)s.", action="store_true" )
         parser.add_argument(      "--geocachepath", help="Path to geometry cache. Default %(default)s." )
         parser.add_argument(     "--nobound",  dest="bound", action="store_false", help="Load geometry in pycollada unbound (local) coordinates, **FOR DEBUG ONLY** ")

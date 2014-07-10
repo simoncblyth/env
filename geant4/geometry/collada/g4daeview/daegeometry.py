@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, logging
+import os, logging, re
 log = logging.getLogger(__name__)
 import numpy as np
 from env.geant4.geometry.collada.daenode import DAENode 
@@ -15,6 +15,21 @@ from collada.xmlutil import etree as ET
 
 tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode')) 
 shortname_ = lambda _:_[17:-9]   # trim __dd__Materials__GdDopedLS_fx_0xc2a8ed0 into GdDopedLS 
+
+
+
+def select_by_regexp(nodes, ptn ):
+    """
+    :param nodes: list of instances (eg DAENode or DAESolid) with .id attribute
+    :param ptn: string search regexp 
+
+    Usage example::
+
+        daegeometry.sh --geometry-regexp PmtHemiCathode 
+
+    """
+    ptn = re.compile(ptn)
+    return filter(None,map(lambda _:_ if ptn.search(_.id) else None, nodes ))
 
 
 class DAEMesh(object):
@@ -183,7 +198,14 @@ class DAEGeometry(object):
         if nodespec is None:
             solids = []
         else:
-            nodes = DAENode.getall(nodespec, config.path)
+            o_nodes = DAENode.getall(nodespec, config.path)
+            geometry_regexp = config.args.geometry_regexp
+            if not geometry_regexp is None:
+                nodes = select_by_regexp(o_nodes, geometry_regexp)
+                log.info("geometry_regexp %s reduced nodes from %s to %s " % (geometry_regexp,len(o_nodes), len(nodes)))
+            else:
+                nodes = o_nodes
+            pass
             solids = [DAESolid(node, config.args.bound) for node in nodes]
         pass
         self.solids = solids
@@ -244,6 +266,14 @@ class DAEGeometry(object):
         focus = selection[0] if len(selection) == 1 else None
         return focus
 
+    def find_solid_by_regexp(self, ptn, index=True):
+        """
+        g.find_solid_by_regexp("PmtHemiCathode")
+        """
+        ptn = re.compile(ptn)
+        ixid = dict((solid.index,solid.id) for solid in self.solids)
+        ixs = filter(None,map(lambda six:six[0] if ptn.search(six[1]) else None, ixid.items() ))
+        return ixs if index else map(lambda _:ixid[_], ixs) 
 
     def make_mesh(self, vertices, triangles, normals ):
         mesh = DAEMesh(vertices, triangles, normals)

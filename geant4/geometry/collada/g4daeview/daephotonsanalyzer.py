@@ -108,7 +108,7 @@ def nearest_index(a,a0):
 
 class DAEPhotonsPropagated(object):
     def __init__(self, propagated=None, max_slots=10, slot=-1 ):
-        self.max_slots = int(max_slots)
+        self.max_slots = max_slots
         self.slot = int(slot)
         self._last_index = None
         if not propagated is None:
@@ -205,6 +205,12 @@ class DAEPhotonsPropagated(object):
         delta = click - last_post[:,:3][index]
         log.info("nearest_photon to click %s index %s at %s delta %s " % ( repr(click), index, last_post[index], repr(delta)  )) 
         return index
+
+    def _get_is_enabled(self):
+        if not hasattr(self, 'propagated'):return False
+        if self.propagated is None:return False
+        return True
+    is_enabled = property(_get_is_enabled)
 
     ## slot -1 accessors 
     t_post  = property(lambda self:self.propagated['position_time'][::-self.max_slots][::-1])
@@ -441,11 +447,18 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         assert mismatch == 0 , (mismatch, "Debug with eg: cd /usr/local/env/tmp/1/ ; daephotonscompare.sh --loglevel debug ")
 
     def get_material_pairs(self, material_map):
+        items = []
+        items.append(("ANY,ANY","ANY,ANY",))
+        if not hasattr(self, 'propagated'):
+            log.info("get_material_pairs needs propagated attribute")
+            return items 
+        if self.propagated is None:
+            log.info("get_material_pairs needs propagated event")
+            return items 
+        pass
         vals = self.matpair
         mp = count_unique(vals)
         mps = mp[mp[:,-1].argsort()[::-1]]     # order by decreasing pair count  
-        items = []
-        items.append(("ANY,ANY","ANY,ANY",))
         for mm,count in mps: 
             matcode = material_map.paircode2str(mm)
             matname = "%-4d %s " % ( count, matcode )

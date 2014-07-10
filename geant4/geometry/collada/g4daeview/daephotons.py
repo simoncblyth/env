@@ -108,11 +108,13 @@ class DAEPhotons(object):
         if self.config.args.pullvbo and live:
             vbo = self.renderer.pbuffer   
             if vbo is None:return 
+            if not self.tpropagated.is_enabled:return 
+
             self.tpropagated( vbo.read() ) 
             index = self.tpropagated.t_nearest_photon( click ) 
             self.tpropagated.summary(index, material_map=self.chroma_material_map, process_map=self.chroma_process_map)
         else:
-            log.info("clicked_point pullvbo not enabled")
+            if not self.analyzer.is_enabled:return 
             index = self.analyzer.nearest_photon(click)
             self.analyzer.summary(index, material_map=self.chroma_material_map, process_map=self.chroma_process_map)
         pass

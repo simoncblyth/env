@@ -21,8 +21,6 @@ Propagation of OP (/processes/optical)
 * Rayleigh scattering 
 
 
-
-
 Hypernews on opticalphotons
 -----------------------------
 
