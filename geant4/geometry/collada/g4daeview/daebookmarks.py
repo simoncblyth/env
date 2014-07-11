@@ -24,6 +24,7 @@ class DAEBookmarks(object):
         self.viewpoints = {}
         self.clippers = {} 
         self.cameras = {} 
+        self.loadfail = {}   # retain cfg k,v lists for bookmarks that fail to load 
 
         if os.path.exists(self.path):
             self.load(geometry)  
@@ -62,10 +63,18 @@ class DAEBookmarks(object):
     def _get_asini(self):
         """
         :return: ini format string encoding view and clipping config sections for each bookmark 
+
+        Bookmarks that failed to load due to lack of corresponding geometry 
+        are retained in ini output.
         """
         entries = []
         for k in self.marks:
-            entries.append( self.get_bookmark_asini(k))
+            if k in self.loadfail:
+                kini = "\n".join(["%s = %s" % (name,val) for name,val in self.loadfail[k]])
+            else:
+                kini = self.get_bookmark_asini(k)
+            pass
+            entries.append(kini) 
         return "\n".join(entries)
     asini = property(_get_asini, doc=_get_asini.__doc__)
 
@@ -89,8 +98,6 @@ class DAEBookmarks(object):
             self.cameras[k] = DAECamera.fromconfig(self.config)
         return self.cameras[k]
     camera = property(lambda self:self.get_camera(self.current))
-
-
 
     def add_clipping_plane(self, plane):
         """
@@ -126,18 +133,18 @@ class DAEBookmarks(object):
         cfp = ConfigParser()
         cfp.read([self.path])        
 
-        for sect in cfp.sections():
-            if sect.startswith(self.ini_prefix):
-                k = sect[len(self.ini_prefix):]
-                cfg = cfp.items(sect)
+        for sectname in cfp.sections():
+            if sectname.startswith(self.ini_prefix):
+                k = sectname[len(self.ini_prefix):]
+                cfg = cfp.items(sectname)      # list of k,v pairs
                 view = DAEViewpoint.fromini( cfg, geometry ) 
                 if view is None:
                     log.debug("failed to load bookmark %s " % k )
-                    continue
-
-                self.assign(k, view)
-                self.clippers[k] = DAEClipper.from_ini(cfg)
-                self.cameras[k] = DAECamera.fromini(cfg)
+                    self.loadfail[k] = cfg
+                else: 
+                    self.assign(k, view)
+                    self.clippers[k] = DAEClipper.from_ini(cfg)
+                    self.cameras[k] = DAECamera.fromini(cfg)
 
     def __repr__(self):
         def fmt_(k):
@@ -184,23 +191,46 @@ class DAEBookmarks(object):
         #log.debug("next_key keys %s ikey %s jkey %s nkey %s " % (repr(keys),ikey,jkey,nkey))
         return nkey 
  
-    current_view = property(lambda self:self.lookup(self.current,None))
 
-    def update_current(self):
-        """
-        
-        """
+    def _get_current_view(self):
+        view = None
         numkey = self.current
         if numkey is None:
             log.warn("no current bookmark")
-            return
-        view = self.lookup(numkey, None)
-        if view is None:
-            log.warn("no such bookmark %s cannot update " % numkey )
-            return  
-        log.info("updating bookmark %s view.solid.id %s " % (numkey, view.solid.id))
-        view = self.transform.spawn_view_jumping_frame(view.solid)
-        self.assign(numkey, view) 
+        else:     
+            view = self.lookup(numkey, None)
+            if view is None:
+                log.warn("no such bookmark %s cannot update " % numkey )
+            pass
+        return view
+
+    current_view = property(_get_current_view)
+
+    def update_current(self):
+        """
+        This is invoked on pressing SPACE 
+
+        The viewpoint is solidified into a bookmark here.
+        But camera and clips are not, can continue to change 
+        those and the final state at exit is what is saved 
+        to bookmarks.cfg.   
+
+        Maybe snapshot camera and clips too ?
+        """
+        current_view = self.current_view
+        if current_view is None:
+            return 
+        numkey = self.current
+        log.info("updating bookmark %s " % numkey )
+        new_view = self.transform.spawn_view_jumping_frame(current_view.solid)
+        self.assign(numkey, new_view) 
+
+
+
+        #log.info("camera.asini\n%s\n" % self.camera.asini )
+
+
+
 
     def visit(self, numkey):
         if numkey is None: 

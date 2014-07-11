@@ -153,7 +153,12 @@ class DAEConfig(ConfigBase):
         """
         Resolves path to config files, and creates directory if not existing
 
+        For timestamp true the last change timestamp of a preexisting file 
+        is incorporated into the name.  This allows prior bookmarks to be retained
+        in timestamped files, to allow reverting to a prior set.
+
         :param name:
+        :param timestamp:
         """
         path = os.path.join( self.confdir, name) 
         dir_ = os.path.dirname(path)
@@ -166,7 +171,7 @@ class DAEConfig(ConfigBase):
                 stamp = datetime.datetime.fromtimestamp(os.stat(path)[stat.ST_CTIME]).strftime("%Y%m%d-%H%M")
                 base, ext = os.path.splitext(name)        
                 tname = "%s%s%s" % ( base, stamp, ext )        
-                tpath = os.path.join(self, confdir, tname ) 
+                tpath = os.path.join(self, self.confdir, tname ) 
                 return tpath
             else:
                 log.warn("no preexisting path %s no need for timestamping  " % path ) 

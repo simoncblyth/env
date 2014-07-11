@@ -12,6 +12,16 @@ Geant4 level interpretation of G4DAEWrite exported pycollada geometry
 Attempt to create the DAENode heirarcy out of a raw collada traverse 
 without monkeying around.
 
+
+Debug Usage
+-------------
+
+::
+
+    daenode.sh --ipy --surface
+
+
+
 Usage Examples
 ----------------
 
@@ -270,6 +280,7 @@ import collada
 from collada.xmlutil import etree as ET
 from collada.xmlutil import writeXML, COLLADA_NS, E
 from collada.common import DaeObject
+
 
 tag = lambda _:str(ET.QName(COLLADA_NS,_))
 
@@ -1684,12 +1695,10 @@ def getTextTree(arg, cfg):
 
 
 class Defaults(object):
-    logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
+    logformat = "%(asctime)s %(name)-20s:%(lineno)-3d %(levelname)-8s %(message)s"
     loglevel = "INFO"
     logpath = None
-    #daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"  # this one has the rotation bug still
-    daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae"
-
+    daepath = "dyb"
     daedbpath = None
     webserver = False
     tree = False
@@ -1704,13 +1713,15 @@ class Defaults(object):
     points = True
     faces = True
     insertsize = 0
+    ipy = False
+    surface = False
 
 
 def resolve_path(path_):
     pvar = "_".join(filter(None,["DAE_NAME",path_,]))
     pvar = pvar.upper()
-    log.info("Using pvar %s to resolve path " % pvar)
     path = os.environ.get(pvar,None)
+    log.info("Using pvar %s to resolve path : %s " % (pvar, path) )
     assert not path is None, "Need to define envvar pointing to geometry file"
     assert os.path.exists(path), path
     return path
@@ -1726,6 +1737,7 @@ def parse_args(doc):
 
     op.add_option("-p", "--daepath", default=defopts.daepath , help="Path to the original geometry file. Default %default ")
     op.add_option(      "--daedbpath", default=defopts.daedbpath , help="Path to the summary SQLite DB, when None use daepath with '.db' appended. Default %default ")
+    op.add_option(      "--ipy",  action="store_true", default=defopts.ipy , help="Drop into embedded ipython. Default %default ")
 
     # three way split 
     op.add_option("-d", "--node", action="store_true", default=defopts.node , help="Text representation of a single volume. Default %default." )
@@ -1744,6 +1756,7 @@ def parse_args(doc):
     op.add_option("-P", "--nopoints",  dest="points", action="store_false", default=defopts.points , help="Prevent the timeconsuming persisting all points. Default %default. ")
     op.add_option("-F", "--nofaces",   dest="faces", action="store_false", default=defopts.faces , help="Prevent the timeconsuming persisting all faces. Default %default. ")
     op.add_option("-i", "--insertsize", type="int", default=defopts.insertsize, help="Control chunk size of DB inserts, zero for all at the end. Default %default. ")
+    op.add_option(       "--surface", action="store_true", default=defopts.surface, help="Surface checking. Default %default. ")
 
     opts, args = op.parse_args()
     del sys.argv[1:]   # avoid confusing webpy with the arguments
@@ -1801,6 +1814,21 @@ def main():
         print getTextTree(args[0], vars(opts))
     elif opts.geom:
         print getSubCollada(args[0], vars(opts))
+
+    if opts.ipy:
+        from daecommon import splitname, shortname, fromjson
+        bordersurface = dict((splitname(_.name)[1],_) for _ in DAENode.extra.bordersurface)
+        log.info("droping into IPython, try:\n%s\n" % examples ) 
+        import IPython
+        IPython.embed()
+    pass
+
+examples = r"""
+
+b=bordersurface['SSTOil'] 
+b?? 
+
+"""
 
 
 def webserver():

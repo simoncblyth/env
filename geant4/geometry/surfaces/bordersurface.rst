@@ -1,7 +1,6 @@
 G4LogicalBorderSurface
 =======================
 
-
 GDML/G4DAE persisted form
 ----------------------------
 
@@ -15,7 +14,6 @@ GDML/G4DAE persisted form
     157615         <physvolref ref="__dd__Geometry__AdDetails__lvBotReflector--pvBotRefGap0xaa6e3d8"/>
     157616         <physvolref ref="__dd__Geometry__AdDetails__lvBotRefGap--pvBotESR0xae4eda0"/>
     157617       </bordersurface>
-
 
 
 Issues

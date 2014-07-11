@@ -3,62 +3,17 @@
 XMLDAE
 =======
 
-Grab latest .dae from N with *dae-;dae-get*
-
 XML level view of a collada .dae, for debugging 
 
 Objective is not to recreate pycollada, but merely to 
 be a convenient debugging tool to ask XML based questions 
 of the DAE.
 
-Questions
-----------
-
-#. Would the xml documument ids be unique without the pointers 0x.... ?
-
-   * checking the .gdml there are dupes in the subtraction/union solids and between element/material names
-     see ~/e/tools/checkxml.py 
-   * checking the GDML writing on which the DAE writing is based,  there is currently only a global addPointerToName 
-     switch so cannot easily turn it off for volumes and not for solids as would break references to solids
-
-#. Can I reproduce VRML2 output from the DAE ? As a validation of all those transformations and everything else.
-
-   * PV count now matches
-   * PV name matching, the NCName IDref XML restriction forced replacing 3 chars ":/#" with  "_"
-   
-     * that is difficult to reverse, need some more unused acceptable chars (single chars would be best)
-     * iterating on dae-edit;dae-validate find that "." and "-" are acceptable on other than the first char 
-
-     * http://www.schemacentral.com/sc/xsd/t-xsd_NCName.html
-     * http://stackoverflow.com/questions/1631396/what-is-an-xsncname-type-and-when-should-it-be-used
-     * http://docs.marklogic.com/xdmp:encode-for-NCName
-     * :google:`NCName encoding decoding`
-     * https://nees.org/tools/vees/browser/xerces/src/xercesc/util/XMLString.cpp
-     * http://msdn.microsoft.com/en-us/library/system.xml.xmlconvert.aspx 
-
-  * TODO:
-
-    * add checkxml.py collection of all id characters to see if "." is used 
-
-
-Reversible Char Swaps
-~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    /  ->   _
-    :  ->   -      (colon always precedes digits eg :1 )  
-    #  ->   .
-
-
-The only '-' containg names that beings with '/'::
-
-    /dd/Structure/Sites/db-rock0xc633af8
-    /dd/Structure/Sites/db-rock0xc633af8_pos
-    /dd/Structure/Sites/db-rock0xc633af8_rot
-
 Usage
 ------
+
+`xmldae.sh --ipy --surface`
+     embedded ipython with surface debugging
 
 `xmldae.py -w -y PV`   
      recursive walk dumping PV 
@@ -73,128 +28,19 @@ Usage
      dump the PV names, cleaned up to correspond to originals 
 
 
-Compare daenames with wrlnames
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Succeed to match the bases, but not the `.1001` extensions::
-
-    echo "select rtrim(substr(name,0,instr(name,'.'))) from shape ;" | sqlite3 -noheader $(shapedb-path) > wrlnames.txt
-    cat wrlnames.txt | cut -d" " -f1 > wrlnames.cut.txt    # get rid of bizarre whitespace padding 
-    diff wrlnames.cut.txt daenames.txt   # they match 
-
-The WRL names, are actually coming from `G4PhysicalVolumeModel::GetCurrentTag`
-
-external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src/G4VRML2SceneHandlerFunc.icc::
-
-    182     // Current Model
-    183     const G4VModel* pv_model  = GetModel();
-    184     G4String pv_name = "No model";
-    185         if (pv_model) pv_name = pv_model->GetCurrentTag() ;
-    186 
-    187     // VRML codes are generated below
-    188 
-    189     fDest << "#---------- SOLID: " << pv_name << "\n";
-
-
-external/build/LCG/geant4.9.2.p01/source/visualization/modeling/include/G4VModel.hh::
-
-    74   virtual G4String GetCurrentTag () const;
-    75   // A tag which depends on the current state of the model.
-
-::
-
-    [blyth@cms01 source]$ find . -name '*.hh' -exec grep -H GetCurrentTag {} \;
-    ./visualization/modeling/include/G4PhysicalVolumeModel.hh:  G4String GetCurrentTag () const;
-    ./visualization/modeling/include/G4VModel.hh:  virtual G4String GetCurrentTag () const;
-
-
-external/build/LCG/geant4.9.2.p01/source/visualization/modeling/include/G4PhysicalVolumeModel.hh::
-
-     67 class G4PhysicalVolumeModel: public G4VModel {
-     68 
-     69 public: // With description
-     70 
-     71   enum {UNLIMITED = -1};
-     72 
-     73   enum ClippingMode {subtraction, intersection};
-     74 
-     75   class G4PhysicalVolumeNodeID {
-     76   public:
-     77     G4PhysicalVolumeNodeID
-     78     (G4VPhysicalVolume* pPV = 0, G4int iCopyNo = 0, G4int depth = 0):
-     79       fpPV(pPV), fCopyNo(iCopyNo), fNonCulledDepth(depth) {}
-     80     G4VPhysicalVolume* GetPhysicalVolume() const {return fpPV;}
-     81     G4int GetCopyNo() const {return fCopyNo;}
-     82     G4int GetNonCulledDepth() const {return fNonCulledDepth;}
-     83     G4bool operator< (const G4PhysicalVolumeNodeID& right) const;
-     84   private:
-     85     G4VPhysicalVolume* fpPV;
-     86     G4int fCopyNo;
-     87     G4int fNonCulledDepth;
-     88   };
-     89   // Nested class for identifying physical volume nodes.
-     ...
-     205   G4VPhysicalVolume* fpCurrentPV;    // Current physical volume.
-
-Suspect the CopyNo should hail from::
-
-    geometry/volumes/src/G4PVPlacement.cc
-    geometry/volumes/include/G4PVPlacement.hh
-
-
-G4PhysicalVolumeNodeID::
-
-    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -H G4PhysicalVolumeNodeID {} \;
-    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:G4bool G4PhysicalVolumeModel::G4PhysicalVolumeNodeID::operator<
-    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:  (const G4PhysicalVolumeModel::G4PhysicalVolumeNodeID& right) const
-    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:  (std::ostream& os, const G4PhysicalVolumeModel::G4PhysicalVolumeNodeID node)
-    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:    (G4PhysicalVolumeNodeID(fpCurrentPV,copyNo,fCurrentDepth));
-    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:      (G4PhysicalVolumeNodeID(fpCurrentPV,copyNo,fCurrentDepth));
-    ./visualization/Tree/src/G4ASCIITreeSceneHandler.cc:  typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
-    ./visualization/Tree/src/G4VTreeSceneHandler.cc:  typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
-    ./visualization/HepRep/src/G4HepRepFileSceneHandler.cc:                 typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
-    ./visualization/XXX/src/G4XXXSGSceneHandler.cc:    typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
-    ./visualization/OpenInventor/src/G4OpenInventorSceneHandler.cc:    typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
-    [blyth@cms01 source]$ 
-
-PVPath::
-
-    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -l PVPath {} \;
-    ./visualization/modeling/src/G4PhysicalVolumeModel.cc
-    ./visualization/Tree/src/G4ASCIITreeSceneHandler.cc
-    ./visualization/Tree/src/G4VTreeSceneHandler.cc
-    ./visualization/HepRep/src/G4HepRepFileSceneHandler.cc
-    ./visualization/XXX/src/G4XXXSGSceneHandler.cc
-    ./visualization/OpenInventor/src/G4OpenInventorSceneHandler.cc
-
-
-external/build/LCG/geant4.9.2.p01/source/visualization/modeling/src/G4PhysicalVolumeModel.cc::
-
-    181 G4String G4PhysicalVolumeModel::GetCurrentTag () const
-    182 {
-    183   if (fpCurrentPV) {
-    184     std::ostringstream o;
-    185     o << fpCurrentPV -> GetCopyNo ();
-    186     return fpCurrentPV -> GetName () + "." + o.str();
-    187   }
-    188   else {
-    189     return "WARNING: NO CURRENT VOLUME - global tag is " + fGlobalTag;
-    190   }
-    191 }
-
-
 """
-import os, sys, logging, re
+import os, sys, logging, re, pprint
 log = logging.getLogger(__name__)
 
 #import xml.etree.cElementTree as ET
 #import xml.etree.ElementTree as ET
 import lxml.etree as ET
 
+from daecommon import splitname, shortname, fromjson
 
 COLLADA_NS='http://www.collada.org/2005/11/COLLADASchema'
 tag = lambda _:str(ET.QName(COLLADA_NS,_))
-parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
+xmlparse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
 tostring_ = lambda _:ET.tostring(_)
 isorted_ = lambda d,idx:sorted(d.items(),key=lambda kv:d[kv[0]].meta[idx]) 
 
@@ -222,7 +68,7 @@ def findall(elem, name, att=None, fn=None):
     return all    
 
 def find(elem, name):
-   return elem.find(qname(name))
+    return elem.find(qname(name))
 
 
 
@@ -580,10 +426,11 @@ class Defaults(object):
     parent = False 
     depthmax = 100 
     indexminmax = "0,100000"
-    #daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
-    daepath = "lxe"
+    daepath = "dyb"
     voltype = None
     names = False
+    ipy = False
+    surface = False
 
 
 
@@ -606,6 +453,7 @@ def parse_args(doc):
     op.add_option("-f", "--logformat", default=defopts.logformat )
     op.add_option("-c", "--childgt",  type=int, default=defopts.childgt)
     op.add_option("-s", "--subnode",  action="store_true" ,  default=defopts.subnode, help="dump subnodes of the targetted level")
+    op.add_option(      "--ipy",  action="store_true" ,  default=defopts.ipy, help="Drop into embedded ipython")
     op.add_option("-w", "--walk",  action="store_true" ,  default=defopts.walk, help="recursive walk ")
     op.add_option("-t", "--traverse",  action="store_true" ,  default=defopts.traverse, help="non-recursive node traversal")
     op.add_option("-p", "--daepath", default=defopts.daepath )
@@ -616,6 +464,7 @@ def parse_args(doc):
     op.add_option("-x", "--xmldump", action="store_true", default=defopts.xmldump )
     op.add_option("-y", "--voltype", default=defopts.voltype, help="PV or LV or None for both" )
     op.add_option("-n", "--names", action="store_true", default=defopts.names, help="Just dump names" )
+    op.add_option(      "--surface", action="store_true", default=defopts.surface, help="Debug opticalsurface,bordersurface,skinsurface " )
 
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )
@@ -647,9 +496,7 @@ def parse_args(doc):
         opts.daepath = os.path.join(os.path.dirname(__file__),daepath)
     else:
         opts.daepath = daepath 
-
-
-
+    pass
     base, ext = os.path.splitext(os.path.abspath(daepath))
     dbpath = base + ".dae.db"
     opts.dbpath = dbpath
@@ -665,10 +512,70 @@ def parse_args(doc):
 
 
 
+def compare_to_csm( raw , csm ):
+    """
+    :param names: list raw xml surface names
+    :param csm: list of ChromaSurfaceMap names 
+    """
+    not_in_csm = []
+
+    uname = set(raw).union(set(csm))
+    for name in uname:
+        if name in ("UNKNOWN","ANY"):continue
+        #assert name in raw, name 
+        if not name in csm:
+            not_in_csm.append(name) 
+        pass
+    return not_in_csm
+
+
+def dump_names_byprefix( names, csm  ):
+    byprefix = {}
+    for name in names:
+        prefix, nam = splitname(name)
+        if not prefix in byprefix:
+            byprefix[prefix] = []
+        mkr = "+" if name in csm else "-"
+        nam = "%s%s" % (mkr,nam)
+        byprefix[prefix].append(nam)
+    pass   
+    for prefix,nams in byprefix.items():
+        print "[%3d] %-50s\n\n%s\n" % ( len(nams),prefix, "\n".join(map(lambda _:"     %s"%_,nams)) )
+
+
+class ppdict(dict):
+    __str__ = pprint.pformat
+
+
+def check_surface( x, csm ):
+    """
+    :param x:  lxml.etree.Element instance, for root node
+    :param csm: list of surface names to compare against 
+    """
+
+    names = {}
+    raw = {}
+    not_in_csm = {}
+
+    for typ in "optical border skin".split():
+        elems = x.findall(".//c:%(typ)ssurface" % locals(), namespaces=dict(c=COLLADA_NS))
+        names[typ] = [e.attrib['name'] for e in elems]
+        raw[typ] = dict((shortname(e.attrib['name']),e) for e in elems)
+        assert len(raw[typ]) == len(names[typ]), "name shortening changing key count "
+        not_in_csm[typ] = map(shortname, compare_to_csm( names[typ], csm ))
+        log.info("check_surface %s raw elem: %s not_in_csm:  %s " % (typ, len(raw[typ]), len(not_in_csm[typ]) ))
+    pass
+    return raw, ppdict(not_in_csm)
+
+
+
+
+
 def main():
     opts, args = parse_args(__doc__) 
     log.info("reading %s " % opts.daepath )
-    xml = parse_(opts.daepath)
+    xml = xmlparse_(opts.daepath)
+    log.info("xml %s " % repr(xml))
 
     if opts.debug:
         checkid(xml)
@@ -683,6 +590,49 @@ def main():
     if opts.walk:          
         xmldae.walk()
 
+    if opts.surface:
+        csm = fromjson("~/.g4daeview/dybf/chroma_surface_map.json").values()  # dybf for fuller geometry, avoiding spurious misses 
+        raw, not_in_csm = check_surface(xml, csm)
+        print "not_in_csm:\n", not_in_csm
+
+    if opts.ipy:
+        x = xml
+        log.info("entering embedded ipython, try below examples\n%s\n" % examples ) 
+        import IPython
+        IPython.embed()
+    pass
+
+
+examples = r"""
+
+Interactive Examples
+---------------------
+
+x.<tab>
+list(x)
+x.find("c:scene", namespaces=dict(c=COLLADA_NS) )
+x.findall(".//c:effect", namespaces=dict(c=COLLADA_NS) )
+x.findall(".//c:extra", namespaces=dict(c=COLLADA_NS) )
+x.findall(".//c:opticalsurface", namespaces=dict(c=COLLADA_NS) )
+
+
+In [6]: print ET.tostring(raw['skin']['NearPoolCover'])
+   <skinsurface xmlns="http://www.collada.org/2005/11/COLLADASchema" 
+                    name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearPoolCoverSurface" 
+         surfaceproperty="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearPoolCoverSurface">
+          <volumeref ref="__dd__Geometry__PoolDetails__lvNearTopCover0xc137060"/>
+   </skinsurface>
+
+In [3]: print ET.tostring(raw['border']['SSTOil'])
+<bordersurface xmlns="http://www.collada.org/2005/11/COLLADASchema" 
+                  name="__dd__Geometry__AdDetails__AdSurfacesAll__SSTOilSurface" 
+       surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesAll__SSTOilSurface">
+        <physvolref ref="__dd__Geometry__AD__lvSST--pvOIL0xc241510"/>
+        <physvolref ref="__dd__Geometry__AD__lvADE--pvSST0xc128d90"/>
+      </bordersurface>
+
+
+"""
 
 if __name__ == '__main__':
     main()

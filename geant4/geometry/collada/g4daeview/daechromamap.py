@@ -15,13 +15,19 @@ class DAEChromaMap(object):
     def compare(cls, a, b ):
         a = a.code2name
         b = b.code2name
-        assert len(a) == len(b) , "key mismatch"
+        uk = set(a.keys()).union(set(b.keys()))
+
+        if len(a) != len(b):
+            log.warn("KEY MISMATCH a %s b %s union %s  " % (repr(a.keys()), repr(b.keys()), repr(uk) ))
+
         mismatch = 0 
-        for k in a:
-            same = a[k] == b[k]
+        for k in uk:
+            ak = a.get(k,None)
+            bk = b.get(k,None)
+            same = ak == bk
             mkr = "" if same else "********"
             if not same:mismatch += 1
-            print "%2d %-20s %-20s %s" % ( k, a[k], b[k], mkr )
+            print "%2d %-20s %-20s %s" % ( k, ak, bk, mkr )
         pass
         log.info("compare sees %s mismatches " % mismatch )
         return mismatch
@@ -38,9 +44,10 @@ class DAEChromaMap(object):
         self._name2code = None
 
     def __str__(self):
+        hdr = "%s with %s code2name keys " % (self.__class__.__name__, len(self.code2name))
         d = self.code2name 
         s = self.code2shortname 
-        return "\n".join(["%3d %25s    %s " % (k, s[k], d[k]) for k in sorted(d.keys(),key=lambda _:_)])
+        return "\n".join([hdr] + ["%3d %25s    %s " % (k, s[k], d[k]) for k in sorted(d.keys(),key=lambda _:_)])
 
     def write(self):
         if os.path.exists(self.path):

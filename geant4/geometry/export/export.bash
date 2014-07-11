@@ -121,6 +121,7 @@ export-name(){
   local base=$(export-home)
   case $1 in 
        dyb) echo $base/DayaBay_VGDX_20140414-1300/g4_00.dae ;;
+       dybf) echo $base/DayaBay_VGDX_20140414-1300/g4_00.dae ;;
        far) echo $base/Far_VGDX_20140414-1256/g4_00.dae ;;
     lingao) echo $base/Lingao_VGDX_20140414-1247/g4_00.dae ;;
        lxe) echo $base/LXe/g4_00.dae ;;
@@ -131,6 +132,7 @@ export-name(){
 export-geometry(){
   case $1 in 
         dyb) echo 3153:12221 ;;   # skip RPC and radslabs  
+        dybf) echo 2+,3147+ ;;   
        juno) echo 1:25000  ;;
         lxe) echo 1:   ;;
   esac
@@ -140,6 +142,7 @@ export-geometry(){
 export-export(){
    export DAE_NAME=$(export-name dyb)
    export DAE_NAME_DYB=$(export-name dyb)
+   export DAE_NAME_DYBF=$(export-name dybf)
    export DAE_NAME_FAR=$(export-name far)
    export DAE_NAME_LIN=$(export-name lingao)
    export DAE_NAME_LXE=$(export-name lxe)
@@ -148,6 +151,7 @@ export-export(){
 
 
    export DAE_GEOMETRY_DYB=$(export-geometry dyb)
+   export DAE_GEOMETRY_DYBF=$(export-geometry dybf)
    export DAE_GEOMETRY_JUNO=$(export-geometry juno)
    export DAE_GEOMETRY_LXE=$(export-geometry lxe)
 

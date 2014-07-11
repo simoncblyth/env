@@ -1,9 +1,62 @@
-XMLDAE : first look at raw G4DAE node structure
-====================================================
+XMLDAE : raw G4DAE node structure
+=====================================
+
+.. contents:: :local:
+
+Questions
+----------
+
+#. Would the xml documument ids be unique without the pointers 0x.... ?
+
+   * checking the .gdml there are dupes in the subtraction/union solids and between element/material names
+     see ~/e/tools/checkxml.py 
+   * checking the GDML writing on which the DAE writing is based,  there is currently only a global addPointerToName 
+     switch so cannot easily turn it off for volumes and not for solids as would break references to solids
+
+#. Can I reproduce VRML2 output from the DAE ? As a validation of all those transformations and everything else.
+
+   * PV count now matches
+   * PV name matching, the NCName IDref XML restriction forced replacing 3 chars ":/#" with  "_"
+   
+     * that is difficult to reverse, need some more unused acceptable chars (single chars would be best)
+     * iterating on dae-edit;dae-validate find that "." and "-" are acceptable on other than the first char 
+
+     * http://www.schemacentral.com/sc/xsd/t-xsd_NCName.html
+     * http://stackoverflow.com/questions/1631396/what-is-an-xsncname-type-and-when-should-it-be-used
+     * http://docs.marklogic.com/xdmp:encode-for-NCName
+     * :google:`NCName encoding decoding`
+     * https://nees.org/tools/vees/browser/xerces/src/xercesc/util/XMLString.cpp
+     * http://msdn.microsoft.com/en-us/library/system.xml.xmlconvert.aspx 
+
+  * TODO:
+
+    * add checkxml.py collection of all id characters to see if "." is used 
+
+
+Reversible Char Swaps
+~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    /  ->   _
+    :  ->   -      (colon always precedes digits eg :1 )  
+    #  ->   .
+
+
+The only '-' containg names that beings with '/'::
+
+    /dd/Structure/Sites/db-rock0xc633af8
+    /dd/Structure/Sites/db-rock0xc633af8_pos
+    /dd/Structure/Sites/db-rock0xc633af8_rot
+
+
+
+Raw Node Tree
+--------------
 
 Raw Node tree has the lv as well as pv, wherese VRML2 tree has only pv ?
 
-   * the raw collada node tree triples the Geant4 volume tree nodes into a regular PPV/LV/GEO per volume structure
+* the raw collada node tree triples the Geant4 volume tree nodes into a regular PPV/LV/GEO per volume structure
 
 
 ::
@@ -129,6 +182,119 @@ Looks to be a pattern that the LV referenced by instance_node are skipped in the
     12228       /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab8.1008                         
     12229       /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab9.1009                         
     sqlite> 
+
+
+
+
+
+Compare daenames with wrlnames : tracing the id
+----------------------------------------------------
+
+Succeed to match the bases, but not the `.1001` extensions::
+
+    echo "select rtrim(substr(name,0,instr(name,'.'))) from shape ;" | sqlite3 -noheader $(shapedb-path) > wrlnames.txt
+    cat wrlnames.txt | cut -d" " -f1 > wrlnames.cut.txt    # get rid of bizarre whitespace padding 
+    diff wrlnames.cut.txt daenames.txt   # they match 
+
+The WRL names, are actually coming from `G4PhysicalVolumeModel::GetCurrentTag`
+
+external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src/G4VRML2SceneHandlerFunc.icc::
+
+    182     // Current Model
+    183     const G4VModel* pv_model  = GetModel();
+    184     G4String pv_name = "No model";
+    185         if (pv_model) pv_name = pv_model->GetCurrentTag() ;
+    186 
+    187     // VRML codes are generated below
+    188 
+    189     fDest << "#---------- SOLID: " << pv_name << "\n";
+
+
+external/build/LCG/geant4.9.2.p01/source/visualization/modeling/include/G4VModel.hh::
+
+    74   virtual G4String GetCurrentTag () const;
+    75   // A tag which depends on the current state of the model.
+
+::
+
+    [blyth@cms01 source]$ find . -name '*.hh' -exec grep -H GetCurrentTag {} \;
+    ./visualization/modeling/include/G4PhysicalVolumeModel.hh:  G4String GetCurrentTag () const;
+    ./visualization/modeling/include/G4VModel.hh:  virtual G4String GetCurrentTag () const;
+
+
+external/build/LCG/geant4.9.2.p01/source/visualization/modeling/include/G4PhysicalVolumeModel.hh::
+
+     67 class G4PhysicalVolumeModel: public G4VModel {
+     68 
+     69 public: // With description
+     70 
+     71   enum {UNLIMITED = -1};
+     72 
+     73   enum ClippingMode {subtraction, intersection};
+     74 
+     75   class G4PhysicalVolumeNodeID {
+     76   public:
+     77     G4PhysicalVolumeNodeID
+     78     (G4VPhysicalVolume* pPV = 0, G4int iCopyNo = 0, G4int depth = 0):
+     79       fpPV(pPV), fCopyNo(iCopyNo), fNonCulledDepth(depth) {}
+     80     G4VPhysicalVolume* GetPhysicalVolume() const {return fpPV;}
+     81     G4int GetCopyNo() const {return fCopyNo;}
+     82     G4int GetNonCulledDepth() const {return fNonCulledDepth;}
+     83     G4bool operator< (const G4PhysicalVolumeNodeID& right) const;
+     84   private:
+     85     G4VPhysicalVolume* fpPV;
+     86     G4int fCopyNo;
+     87     G4int fNonCulledDepth;
+     88   };
+     89   // Nested class for identifying physical volume nodes.
+     ...
+     205   G4VPhysicalVolume* fpCurrentPV;    // Current physical volume.
+
+Suspect the CopyNo should hail from::
+
+    geometry/volumes/src/G4PVPlacement.cc
+    geometry/volumes/include/G4PVPlacement.hh
+
+
+G4PhysicalVolumeNodeID::
+
+    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -H G4PhysicalVolumeNodeID {} \;
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:G4bool G4PhysicalVolumeModel::G4PhysicalVolumeNodeID::operator<
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:  (const G4PhysicalVolumeModel::G4PhysicalVolumeNodeID& right) const
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:  (std::ostream& os, const G4PhysicalVolumeModel::G4PhysicalVolumeNodeID node)
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:    (G4PhysicalVolumeNodeID(fpCurrentPV,copyNo,fCurrentDepth));
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:      (G4PhysicalVolumeNodeID(fpCurrentPV,copyNo,fCurrentDepth));
+    ./visualization/Tree/src/G4ASCIITreeSceneHandler.cc:  typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    ./visualization/Tree/src/G4VTreeSceneHandler.cc:  typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    ./visualization/HepRep/src/G4HepRepFileSceneHandler.cc:                 typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    ./visualization/XXX/src/G4XXXSGSceneHandler.cc:    typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    ./visualization/OpenInventor/src/G4OpenInventorSceneHandler.cc:    typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    [blyth@cms01 source]$ 
+
+PVPath::
+
+    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -l PVPath {} \;
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc
+    ./visualization/Tree/src/G4ASCIITreeSceneHandler.cc
+    ./visualization/Tree/src/G4VTreeSceneHandler.cc
+    ./visualization/HepRep/src/G4HepRepFileSceneHandler.cc
+    ./visualization/XXX/src/G4XXXSGSceneHandler.cc
+    ./visualization/OpenInventor/src/G4OpenInventorSceneHandler.cc
+
+
+external/build/LCG/geant4.9.2.p01/source/visualization/modeling/src/G4PhysicalVolumeModel.cc::
+
+    181 G4String G4PhysicalVolumeModel::GetCurrentTag () const
+    182 {
+    183   if (fpCurrentPV) {
+    184     std::ostringstream o;
+    185     o << fpCurrentPV -> GetCopyNo ();
+    186     return fpCurrentPV -> GetName () + "." + o.str();
+    187   }
+    188   else {
+    189     return "WARNING: NO CURRENT VOLUME - global tag is " + fGlobalTag;
+    190   }
+    191 }
 
 
 

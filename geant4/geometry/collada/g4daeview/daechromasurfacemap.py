@@ -31,7 +31,8 @@ class DAEChromaSurfaceMap(DAEChromaMap):
         pass
         return name
 
-if __name__ == '__main__':
+
+def main():
     from daeconfig import DAEConfig
     config = DAEConfig()
     config.init_parse()
@@ -39,11 +40,14 @@ if __name__ == '__main__':
     csm = DAEChromaSurfaceMap.fromjson(config)
     print csm
 
+
     names_in = "RSOil,UnistrutRib4"
     codes = csm.convert_names2codes(names_in)
     names = csm.convert_codes2names(codes)
     print "codes %s names %s " % (codes, names)
 
+if __name__ == '__main__':
+    main()
 
 
 

@@ -441,10 +441,12 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         pass
         return dict(map(lambda _:(str(_[0]),str(_[1])),pd.items()))
 
-
     def compare_propagated(self, a, b):
         mismatch = compare(a, b )
-        assert mismatch == 0 , (mismatch, "Debug with eg: cd /usr/local/env/tmp/1/ ; daephotonscompare.sh --loglevel debug ")
+        if mismatch > 0:
+            log.warn("compare_propagated mismatch %s " % mismatch )
+            log.warn("Debug with eg: cd /usr/local/env/tmp/1/ ; daephotonscompare.sh --loglevel debug ")
+        pass
 
     def get_material_pairs(self, material_map):
         items = []
@@ -478,7 +480,7 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
 
         self.analyze() 
     ## accessors
-    atts = "propagated flags t0 t0 time_range lht photon_id steps slots history hsteps hslots".split()
+    atts = "propagated flags t0 t0 time_range lht steps slots history hsteps hslots".split()
 
     ## steering 
 
@@ -535,20 +537,17 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
 
     def check_counts_firsts_drawcount(self):
         log.info("check_counts_firsts_drawcount")
-        photon_id = self.photon_id
-        assert np.all(np.arange(0,len(photon_id),dtype=np.int32) == photon_id)
 
         lht = self.lht
         steps = self.steps
         slots = self.slots    
  
-        #assert np.all( lht == -1 )  #no longer the case, as are now putting last slot result into slot 0
         print "lht", lht 
         if not np.all( steps == slots ):
             log.debug("steps and slots differ\nsteps:%s\nslots:%s" % (repr(steps),repr(slots)))
 
         counts, firsts, drawcount = self.counts_firsts_drawcount
-        assert len(counts) == len(firsts) == len(photon_id)
+        assert len(counts) == len(firsts) 
 
         log.debug( " counts %s " % str(counts))
         log.debug( " firsts %s " % str(firsts))

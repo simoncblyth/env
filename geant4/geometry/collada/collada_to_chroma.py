@@ -214,16 +214,49 @@ class ColladaToChroma(object):
 
            enum { SURFACE_DEFAULT, SURFACE_COMPLEX, SURFACE_WLS };
 
-        Potentially wavelength dependent props all default to zero:
+        Potentially wavelength dependent props all default to zero.
+        Having values for these is necessary to get SURFACE_DETECT, SURFACE_ABSORB
 
         * detect
         * absorb
-        * reemit
         * reflect_diffuse
         * reflect_specular
+
+        * reemit
         * eta
         * k
         * reemission_cdf
+
+
+        `chroma/cuda/photon.h`::
+
+            701 __device__ int
+            702 propagate_at_surface(Photon &p, State &s, curandState &rng, Geometry *geometry,
+            703                      bool use_weights=false)
+            704 {
+            705     Surface *surface = geometry->surfaces[s.surface_index];
+            706 
+            707     if (surface->model == SURFACE_COMPLEX)
+            708         return propagate_complex(p, s, rng, surface, use_weights);
+            709     else if (surface->model == SURFACE_WLS)
+            710         return propagate_at_wls(p, s, rng, surface, use_weights);
+            711     else
+            712     {
+            713         // use default surface model: do a combination of specular and
+            714         // diffuse reflection, detection, and absorption based on relative
+            715         // probabilties
+            716 
+            717         // since the surface properties are interpolated linearly, we are
+            718         // guaranteed that they still sum to 1.0.
+            719         float detect = interp_property(surface, p.wavelength, surface->detect);
+            720         float absorb = interp_property(surface, p.wavelength, surface->absorb);
+            721         float reflect_diffuse = interp_property(surface, p.wavelength, surface->reflect_diffuse);
+            722         float reflect_specular = interp_property(surface, p.wavelength, surface->reflect_specular);
+            723 
+
+
+
+
 
         G4DAE Optical Surface properties
 
