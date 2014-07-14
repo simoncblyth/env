@@ -189,6 +189,8 @@ class SurfaceType(object):
 
 
 class ColladaToChroma(object):
+    surface_props = "detect absorb reemit reflect_diffuse reflect_specular eta k reemission_cdf".split()
+
     def __init__(self, nodecls, bvh=False):
         """
         :param nodecls: typically DAENode
@@ -202,6 +204,7 @@ class ColladaToChroma(object):
         self.surfaces = {}
         self.materials = {}   # dict of chroma.geometry.Material 
         self._materialmap = {}  # dict with short name keys 
+        self._surfacemap = {}  # dict with short name keys 
 
     def convert_opticalsurfaces(self, debug=False):
         """
@@ -446,6 +449,27 @@ class ColladaToChroma(object):
         return self._materialmap
     materialmap = property(_get_materialmap)
        
+
+    def _get_surfacemap(self):
+        """
+        Dict of chroma.geometry.Material instances with short name keys   
+        """
+        postfix = 'Surface'
+        if len(self._surfacemap)==0:
+            for name,surf  in self.surfaces.items():
+                prefix = "__".join(name.split("__")[:-1]) + "__"
+                if name.startswith(prefix):
+                    nam = name[len(prefix):]
+                if nam.endswith(postfix):
+                    nam = nam[:-len(postfix)]
+                pass 
+                self._surfacemap[nam] = surf
+            pass
+        return self._surfacemap
+    surfacemap = property(_get_surfacemap)
+ 
+
+
  
     def property_plot(self, matname , propname ):
         import matplotlib.pyplot as plt
@@ -647,6 +671,34 @@ class ColladaToChroma(object):
             extent = bounds[1] - bounds[0]
             print extent
 
+    def surface_props_table(self):
+        """
+        ::
+
+            plt.plot(*cc.surfacemap['NearOWSLiner'].reflect_diffuse.T)
+            plt.plot(*cc.surfacemap['NearDeadLiner'].reflect_diffuse.T)
+            plt.plot(*cc.surfacemap['NearIWSCurtain'].reflect_diffuse.T)  ## all three the same, up to plateau
+
+            plt.plot(*cc.surfacemap['RSOil'].reflect_diffuse.T)    ## falloff 
+
+            plt.plot(*cc.surfacemap['ESRAirSurfaceBot'].reflect_specular.T) 
+            plt.plot(*cc.surfacemap['ESRAirSurfaceTop'].reflect_specular.T)  ## Bot and Top the same, cliff
+
+        """
+        def smry(spt, suppress="60.0:800.0 =0.0"):
+            x,y = spt.T
+            xsmr = "%3.1f:%3.1f" % (x.min(),x.max())
+            ymin, ymax = y.min(), y.max()
+            ysmr = "=%3.1f" % ymin if ymin == ymax else "%3.1f:%3.1f" % (ymin, ymax)
+            s = "%s %s" % (xsmr,ysmr)
+            return "-" if s == suppress else s
+        pass
+        lfmt_ = lambda _:"%-23s" % _    
+        bfmt_ = lambda _:" ".join(["%-25s" % s for s in _])    
+        print lfmt_("surf") + bfmt_(self.surface_props) 
+        for nam, surf in self.surfacemap.items():
+            sprop = map( lambda prop:smry(getattr(surf,prop)), self.surface_props )     
+            print lfmt_(nam) + bfmt_(sprop) 
 
 
 def daeload(path=None, bvh=False ):
@@ -666,6 +718,9 @@ def daeload(path=None, bvh=False ):
    return cc.chroma_geometry
 
 
+
+
+
     
 def main():
     logging.basicConfig(level=logging.INFO)
@@ -683,6 +738,8 @@ def main():
 
     ccplt_ = lambda mat,prop,color:plt.plot(*cc.materialmap[mat].daeprops[prop].T, color=color, label="%s %s %s" % (mat,prop,color))
     cfplt_ = lambda _:ccplt_('GdDopedLS',_,'r') + ccplt_('LiquidScintillator',_,'b') + [plt.legend()] 
+
+    rso = cc.surfacemap['RSOil']
 
     log.info("dropping into IPython.embed() try: cg.<TAB> ")
     import IPython 
