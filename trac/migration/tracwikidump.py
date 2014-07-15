@@ -1,57 +1,62 @@
 #!/usr/bin/env python
 """
-Usage::
+Uses XMLRPC to Dumps all Trac wiki pages from potentially remote
+trac instances into local files.
 
-   tracwikidump.py workflow_trac
-   tracwikidump.py env_trac 
+Usage, assuming config sections of `~/.env.cnf` named according to argument::
 
-Uses XMLRPC to communicate with a potentially remote Trac instance identified
-and pulls all wiki pages into local files.
+   tracwikidump.sh workflow_trac
+   tracwikidump.sh env_trac 
+   tracwikidump.sh heprez_trac 
+   tracwikidump.sh tracdev_trac 
 
 Actions of the script:
 
-#. pull the list of all wiki pages 
+#. XMLRPC pulls the list of all wiki pages 
 #. grabs pages individually and writes into local files in the configured 
    or current directory named "PageName.txt".  
-   Pre-existing files are not re-pulled
+#. Pre-existing files are not re-pulled, no version update checks are done
+   (tracwiki is regarded as a dead source)
+
 
 Config requirements
 ~~~~~~~~~~~~~~~~~~~
 
 #. `~/.env.cnf` with credentialized xmlrpc login urls , eg::
 
+    [workflow_trac]
     xmlrpc_url = http://USER:PASS@localhost/tracs/workflow/login/xmlrpc
-    tracwikidump_outd = /usr/local/workflow/tracwikidump
+    tracdump_outd = /usr/local/workflow/tracdump
+
+
+Hmm whatabout tickets
+~~~~~~~~~~~~~~~~~~~~~~~
+
+To see API docs, visit url endpoint interactively, ignore phishing warning
+
+
 
 Wikipage requirements
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-#. case degenerate pages not allowed, delete one of them 
-
+#. case degenerate page names not allowed, delete one of the degenerates
 
 
 Dump Status
 ~~~~~~~~~~~~~
 
 ==========  =================================================================
- repo         dump status
+ repo         nodes with dumps eg /usr/local/env/tracwikidump/
 ==========  =================================================================
- workflow     D:/usr/local/workflow/tracwikidump/
- env          D:/usr/local/env/tracwikidump/ 
- heprez       D:/usr/local/heprez/tracwikidump/
- tracdev      D:/uar/local/tracdev/tracwikidump/
+ workflow     D G
+ env          D G
+ heprez       D
+ tracdev      D
 ----------  -----------------------------------------------------------------
  aberdeen
  data
  newtest      
 ==========  =================================================================
-
-Issues
-~~~~~~~~
-
-* http://dayabay.phys.ntu.edu.tw/tracs/env/login/xmlrpc
-
-No handler matched request to /login/xmlrpc
 
 
 Trac requirements
@@ -84,8 +89,10 @@ This can be defined with::
    tracxmlrpc-  # uses the default TRAC_INSTANCE name for the node
 
 
-TODO
-~~~~~
+DECIDED AGAINST
+~~~~~~~~~~~~~~~
+
+Tracwiki is now sufficiently dead, that simple .txt file dumps are enough.
 
 #. propagate metadata about wiki pages, maybe into a sidecar JSON file
 
@@ -108,7 +115,6 @@ TODO
 
        * http://localhost/tracs/workflow/report/12?format=csv&NAME=PageName&USER=blyth  works in browser, kicked to login from curl
 
-
 info via SQL reports
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -121,10 +127,6 @@ info via SQL reports
    -- @LIMIT_OFFSET@
 
 * if cannot do so would need to grab tags for each page 
-
-
-
-
 
 
 Issues
@@ -178,9 +180,9 @@ def check_case_degeneracy( pages ):
         IPython.embed()
         #raise Exception(msg)  
 
-def tracwikidump( url , outd=".", dbgpages=[]):
+def trac_wiki_dump( server , outd=".", dbgpages=[]):
    """
-   :param url:
+   :param server:
    :param dbgpages: list of pages on which to use a monkey patched ExpatParser with extra debug
 
    As no longer regard tracwiki as "live" no need to 
@@ -190,9 +192,6 @@ def tracwikidump( url , outd=".", dbgpages=[]):
    directory of .txt files for future grepping and "manual" conversion
    into Sphinx/docutils RST if deemed to be useful.
    """
-   log.debug("tracwikidump %s " % url)
-   server = ServerProxy(url)
-   log.info("API version %s " % server.system.getAPIVersion())
    pages = server.wiki.getAllPages()
    npage = len(pages) 
    log.info("pages %s %s " % ( npage, pages )) 
@@ -223,13 +222,60 @@ def tracwikidump( url , outd=".", dbgpages=[]):
            out.close()
 
 
+def trac_ticket_dump( server, outd="."):
+    """
+    ::
+
+        In [7]: server.ticket.get(60)
+        Out[7]: 
+        [60,
+         <DateTime '20120903T12:11:03' at 110c5acb0>,
+         <DateTime '20120903T12:12:59' at 110c5acf8>,
+         {'_ts': '2012-09-03 12:12:59+00:00',
+          'cc': '',
+          'component': 'Admin',
+          'description': "Hazily remembered issue, but make a ticket to capture some screen captures\nRecall that '''Mail.app''' fails to connect to hep1 (with no visible error) following \nsome intervention on hep1.\n\nSubsequently found solution was to check some dialog box always \naccepting hep1 certificates\n\n\n[[Image(mail-trust-hep1-dialog.png)]]\n\n\n[[Image(mail-certificate-trust-settings.png)]]",
+          'keywords': 'Mail hep1 certificate',
+          'milestone': '',
+          'owner': 'blyth',
+          'priority': 'major',
+          'reporter': 'blyth',
+          'resolution': 'fixed',
+          'status': 'closed',
+          'summary': 'recording ancient issue with Mail.app and hep1 certificates here',
+          'type': 'defect',
+          'version': ''}]
+
+    """
+    tkts = sorted(server.ticket.query("max=0"))  # id numbers of all tickets
+    #import IPython
+    #IPython.embed()
+
+    for tk in tkts:
+        atk = server.ticket.get(tk)
+        assert len(atk) == 4
+        id_, time_created, time_changed, attributes = atk
+        assert id_ == tk
+        assert time_created.__class__ == xmlrpclib.DateTime
+        assert time_changed.__class__ == xmlrpclib.DateTime
+        assert attributes.__class__ == dict
+        assert len(attributes) == 14
+        log.info("tkt %s %s %s %s " % (tk, time_created,time_changed, attributes['summary'] ))
+
+
+
 def main():
    logging.basicConfig(level=logging.INFO)
    from env.web.cnf import cnf_ 
    cnf = cnf_(__doc__)
    url = cnf['xmlrpc_url']
-   outd = cnf.get('tracwikidump_outd', cnf.outd)
-   tracwikidump(url, outd , dbgpages=[])
+   outd = cnf.get('tracdump_outd', cnf.outd)
+
+   server = ServerProxy(url)
+   log.info("API version %s " % server.system.getAPIVersion())
+
+   trac_wiki_dump(server, os.path.join(outd,'wiki') , dbgpages=[])
+   #trac_ticket_dump(server, os.path.join(outd,'ticket') )
 
 
 if __name__ == '__main__':

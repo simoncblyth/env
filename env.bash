@@ -1443,3 +1443,4 @@ piwik-(){      . $(env-home)/web/piwik.bash && piwik-env $* ; }
 awstats-(){      . $(env-home)/web/awstats.bash && awstats-env $* ; }
 vispy-(){      . $(env-home)/graphics/vispy/vispy.bash && vispy-env $* ; }
 graphicstools-(){      . $(env-home)/osx/graphicstools/graphicstools.bash && graphicstools-env $* ; }
+trac2bitbucket-(){      . $(env-home)/trac/migration/trac2bitbucket.bash && trac2bitbucket-env $* ; }

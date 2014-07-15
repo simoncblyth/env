@@ -15,6 +15,9 @@ What needs to be migrated ? Where to ? What can be dropped ?
 * code in SVN
 * history of changes in SVN
 * issues in Trac 
+
+  * https://github.com/acdha/migrate-trac-issues-to-github/blob/master/migrate.py
+
 * wiki pages in Trac into RST Sphinx pages
 
    * convert to RST pages within the repo, ready for Sphinx consumption?  
