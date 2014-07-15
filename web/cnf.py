@@ -11,8 +11,11 @@ class Cnf(dict):pass
 
 def cnf_(doc):
     """
+    Config from `--cnfpath` is potentially overridden by commandline settings
+
     :param doc: docstring for commandline help message 
     :return: `Cnf` instance holding config from file and commandline
+
     """ 
     parser = OptionParser(doc)
     parser.add_option("-c", "--cnfpath", help="file from which to load config setting.", default="~/.env.cnf" )

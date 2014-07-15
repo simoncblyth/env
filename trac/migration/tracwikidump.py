@@ -6,17 +6,53 @@ Usage::
    tracwikidump.py env_trac 
 
 Uses XMLRPC to communicate with a potentially remote Trac instance identified
-via a URL configured in a named section of the config :file:`~/.env.cnf` 
-under key `xmlrpc_url` with values of form::
+and pulls all wiki pages into local files.
 
-   http://USER:PASS@localhost/tracs/workflow/login/xmlrpc
+Actions of the script:
 
-The script proceeds to:
-
-#. pulls the list of all wiki pages 
-#. grabs them individually and writes into local files in the current directory
-   named after the wikipage with a ".txt" extension. 
+#. pull the list of all wiki pages 
+#. grabs pages individually and writes into local files in the configured 
+   or current directory named "PageName.txt".  
    Pre-existing files are not re-pulled
+
+Config requirements
+~~~~~~~~~~~~~~~~~~~
+
+#. `~/.env.cnf` with credentialized xmlrpc login urls , eg::
+
+    xmlrpc_url = http://USER:PASS@localhost/tracs/workflow/login/xmlrpc
+    tracwikidump_outd = /usr/local/workflow/tracwikidump
+
+Wikipage requirements
+~~~~~~~~~~~~~~~~~~~~~~~
+
+#. case degenerate pages not allowed, delete one of them 
+
+
+
+Dump Status
+~~~~~~~~~~~~~
+
+==========  =================================================================
+ repo         dump status
+==========  =================================================================
+ workflow     D:/usr/local/workflow/tracwikidump/
+ env          D:/usr/local/env/tracwikidump/ 
+ heprez       D:/usr/local/heprez/tracwikidump/
+ tracdev      D:/uar/local/tracdev/tracwikidump/
+----------  -----------------------------------------------------------------
+ aberdeen
+ data
+ newtest      
+==========  =================================================================
+
+Issues
+~~~~~~~~
+
+* http://dayabay.phys.ntu.edu.tw/tracs/env/login/xmlrpc
+
+No handler matched request to /login/xmlrpc
+
 
 Trac requirements
 ~~~~~~~~~~~~~~~~~~
@@ -24,9 +60,18 @@ Trac requirements
 This requires two Trac plugins to be installed and configured:
 
 #. TracXMLRPC
-#. TracHttpAuth
+ 
+   * without this installed and enabled get protocol 404 errors 
+   * without permissions setup get::
+
+     Fault 403: 'XML_RPC privileges are required to perform this operation'
+
+#. http://trac-hacks.org/wiki/HttpAuthPlugin
+
+   * workaround allowing accountmanager/xmlrpc to interop
 
 See `tracxmlrpc-` and `trachttpauth-` for installation of those.
+
 
 
 TRAC_ENV_XMLRPC envvar
@@ -129,12 +174,21 @@ def check_case_degeneracy( pages ):
     if len(degen)>0:
         msg = "case degerate trac wiki page names detected %r " % degen 
         log.fatal(msg)
-        raise Exception(msg)  
+        import IPython
+        IPython.embed()
+        #raise Exception(msg)  
 
-def tracwikidump( url , dbgpages=[]):
+def tracwikidump( url , outd=".", dbgpages=[]):
    """
    :param url:
    :param dbgpages: list of pages on which to use a monkey patched ExpatParser with extra debug
+
+   As no longer regard tracwiki as "live" no need to 
+   bother with getting info and checking for any updates.
+  
+   So the dump becomes a once only operation, providing a 
+   directory of .txt files for future grepping and "manual" conversion
+   into Sphinx/docutils RST if deemed to be useful.
    """
    log.debug("tracwikidump %s " % url)
    server = ServerProxy(url)
@@ -151,14 +205,18 @@ def tracwikidump( url , dbgpages=[]):
        else:
            xmlrpclib.ExpatParser = ExpatParser
 
-       info=server.wiki.getPageInfo(page)
-       print page, info
+       path = os.path.join(outd,"%s.txt" % page)
+       odir = os.path.dirname(path)
 
-       path = "%s.txt" % page
+       if not os.path.exists(odir):
+           log.info("creating directory %s " % odir )
+           os.makedirs(odir)
+
        if os.path.exists(path):
            log.info("skip preexisting file %s " % path )    
        else:
-           log.info("getting page %s " % path )
+           info=server.wiki.getPageInfo(page)
+           log.info("getting page %s info %s " % (path,repr(info)) )
            content=server.wiki.getPage(page)
            out=file(path,'w')
            out.write( content.encode("utf-8"))
@@ -170,7 +228,8 @@ def main():
    from env.web.cnf import cnf_ 
    cnf = cnf_(__doc__)
    url = cnf['xmlrpc_url']
-   tracwikidump(url, dbgpages=[])
+   outd = cnf.get('tracwikidump_outd', cnf.outd)
+   tracwikidump(url, outd , dbgpages=[])
 
 
 if __name__ == '__main__':
