@@ -2,7 +2,7 @@
 import os, logging
 log = logging.getLogger(__name__)
 
-from ConfigParser import ConfigParser
+from ConfigParser import ConfigParser, MissingSectionHeaderError
 from daeinterpolateview import DAEInterpolateView, DAEParametricView
 from daeviewpoint import DAEViewpoint
 from daeclipper import DAEClipper
@@ -125,13 +125,29 @@ class DAEBookmarks(object):
         with open(self.path,"w") as w:
             w.write(self.asini + "\n")
 
+
+
+    def parse(self, path):
+        cfp = ConfigParser()
+        try:
+            cfp.read([path])        
+        except MissingSectionHeaderError:
+            cfp = None
+            log.warn("failed to parse bookmarks %s " % path)
+        return cfp
+
+
+
     def load(self, geometry):
         """
         :param geometry: DAEGeometry instance
         """
         log.debug("load bookmarks from %s " % self.path )
-        cfp = ConfigParser()
-        cfp.read([self.path])        
+        cfp = self.parse(self.path)
+        if cfp is None:
+            log.info("bookmarks invalid, delete bookmarks file %s and try again" % self.path )
+            assert 0
+            return
 
         for sectname in cfp.sections():
             if sectname.startswith(self.ini_prefix):
