@@ -9,6 +9,20 @@ http://www.trac-hacks.org/wiki/XmlRpcPlugin
 tracxmlrpc-open
    WSDL style description of the protocol
 
+C2 Installation
+----------------
+
+Relevant python misses TracXMLRPC and TracHTTPAuth on C2::
+
+    C2: /data/env/system/python/Python-2.5.6/lib/python2.5/site-packages
+    G:  /Library/Python/2.5/site-packages/
+
+
+
+
+G Config
+-----------
+
 
 ::
 
