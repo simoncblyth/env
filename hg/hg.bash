@@ -21,6 +21,30 @@ Tips
      combine options, G shows DAG, l to limit revisions 
 
 
+hg convert
+------------
+
+#. needs *sudo port install subversion-python27bindings*
+#. authormap
+#. timezone
+
+
+env repo took about 8 minutes over network to D
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    delta:t blyth$ hg convert --source-type svn --dest-type hg  http://dayabay.phys.ntu.edu.tw/repos/env/trunk envhg
+    initializing destination envhg repository
+    scanning source...
+
+Create a bare repo .hg running hg serve and browsing the html reveals issues:
+
+#. timezone, UTC is obnoxious unless can localize 
+#. authormap
+
+
+
 
 FUNCTIONS
 ---------
@@ -51,6 +75,12 @@ hg-forest-get
 
 		  [extensions]
 		  hgext.forest=
+
+
+hg-convert
+     * http://mercurial.selenic.com/wiki/ConvertExtension
+
+
 
 
 EOU
@@ -101,5 +131,9 @@ hg-backup(){
    hg-pull
 }
 
+hg-convert(){
 
+   hg convert --config convert.localtimezone --source-type svn --dest-type hg  http://dayabay.phys.ntu.edu.tw/repos/env/trunk envhg
+
+}
 
