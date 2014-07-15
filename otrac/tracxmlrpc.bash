@@ -18,6 +18,13 @@ Relevant python misses TracXMLRPC and TracHTTPAuth on C2::
     G:  /Library/Python/2.5/site-packages/
 
 
+#. manually added egg path to easy-install.pth, after::
+
+    python setup.py bdist_egg --dist-dir $(python-site)
+
+#. Added permission thru web admin interface subject:"blyth" action:"XML_RPC" 
+
+   * http://dayabay.phys.ntu.edu.tw/tracs/env/admin/general/perm 
 
 
 G Config
@@ -45,6 +52,10 @@ On G, only after /usr/bin/easy_install (targetting the system python) does:
   
   * the plugin appear in admin, http://localhost/tracs/workflow/admin/general/plugin
   * XML_RPC permission is recognized with tracxmlrpc-permission
+
+
+On C2, when not using easy_install had to manually egg path to easy-install.pth
+
 
 
 ::
@@ -106,6 +117,24 @@ tracxmlrpc-prepare(){
 
 
 tracxmlrpc-install(){
+
+   tracxmlrpc-cd trunk
+   if [ "$NODE_TAG" == "C2" ]; then 
+      python- source
+      which python
+   fi
+   local site=$(python-site) 
+   [ "$site" == "" ] && echo $msg ERROR NEED python-site && return 
+   python setup.py bdist_egg --dist-dir $site
+
+   echo HAD TO MANUALLY ADD EGG TO easy-install.pth
+
+
+
+}
+
+
+tracxmlrpc-install-old(){
 
   #local name=${1:-$SCM_TRAC}
   #local egg=TracXMLRPC-0.1-py2.5.egg

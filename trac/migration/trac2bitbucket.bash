@@ -8,6 +8,8 @@ trac2bitbucket-usage(){ cat << EOU
 Trac2Bitbucket 
 ==================
 
+.. warning:: Other .bash of same name
+
 Bitbucket documents an issue json format, that looks like
 a good format to use to hold issue info in flexible manner.
 
@@ -25,6 +27,21 @@ trac2bitbucket-get(){
    hg clone https://bitbucket.org/secdev/trac2bitbucket
 
 }
+
+trac2bitbucket-wiki(){
+
+   # [ "$NODE_TAG" != "C2" ] && echo $msg needs to run on server && return  
+   # hmm python too old on C2
+
+   #python- source
+   #python $(trac2bitbucket-dir)/wiki.py 
+
+   echo -n
+
+
+}
+
+
 
 
 

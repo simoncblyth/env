@@ -200,4 +200,16 @@ EOP
 }
 
 
+scm-get-tgz(){
+   local name=${1:-env}
+   local tgz=$name.tar.gz
+
+   scp C2:/var/scm/backup/cms02/tracs/$name/last/$tgz .
+   scp C2:/var/scm/backup/cms02/tracs/$name/last/$tgz.dna .
+
+   md5 $tgz
+   cat $tgz.dna
+
+}
+
 

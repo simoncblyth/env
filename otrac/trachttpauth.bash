@@ -7,6 +7,21 @@ http://trac-hacks.org/wiki/HttpAuthPlugin
 Workaround interference between XMLRPCPlugin and AccountManagerPlugin
 needed for authenticated xmlrpc access while form based logins in use"
 
+C2 Install
+~~~~~~~~~~~~~
+
+#. egg into python-site with trachttpauth-install
+#. manually add egg to easy-install.pth
+#. config as indicated http://trac-hacks.org/wiki/HttpAuthPlugin
+
+Using TRAC_INSTANCE=.. trac-edit::
+
+    [components]
+    httpauth.* = enabled
+
+    [httpauth]
+    paths = /xmlrpc, /login/xmlrpc
+     
 
 install setuptools subversion issue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,7 +76,13 @@ trachttpauth-get(){
 trachttpauth-install(){
   trachttpauth-cd
   #sudo easy_install -Z -U $PWD
-  sudo pip install .
+  #sudo pip install .
+
+  local site=$(python-site)
+  [ -z "$site" ] && echo site needed && return
+
+  python setup.py bdist_egg --dist-dir $site
+
 }
 
 trachttpauth-enable(){
