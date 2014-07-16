@@ -227,6 +227,8 @@ class DAEConfig(ConfigBase):
         defaults['address'] = address()
         defaults['seed'] = 0
         defaults['confdir'] = "~/.g4daeview/%(path)s"
+        defaults['ibookmarks'] = "bookmarks.cfg"  # when things go wrong, usually loose bookmarks so convenient to have different input bookmarks 
+        defaults['outdir'] = "."
         defaults['chroma_material_map'] = "chroma_material_map.json"
         defaults['chroma_surface_map'] = "chroma_surface_map.json"
         defaults['chroma_process_map'] = "chroma_process_map.json"
@@ -250,12 +252,15 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )
         parser.add_argument( "--seed", help="Random Number seed, used for np.random.seed and curand setup", type=int  )
         parser.add_argument( "--confdir", help="Path to directory for config files such as bookmarks.  %(default)s", type=str  )
+        parser.add_argument( "--ibookmarks", help="Name of input bookmarks. %(default)s", type=str  )
+        parser.add_argument( "--outdir", help="Path to output directory for screencapture PNGs.  %(default)s", type=str  )
         parser.add_argument( "--chroma-material-map", help="Name of chroma material map file.  %(default)s", type=str  )
         parser.add_argument( "--chroma-surface-map", help="Name of chroma surface map file.  %(default)s", type=str  )
         parser.add_argument( "--chroma-process-map", help="Name of chroma process map file.  %(default)s", type=str  )
         parser.add_argument( "--zmqendpoint", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
         parser.add_argument( "--zmqtunnelnode", help="Option interpreted at bash invokation level (not python) to specify remote SSH node to which a tunnel will be opened, strictly requires form `--zmqtunnelnode=N`  where N is an SSH config \"alias\".", type=str  )
 
+        parser.add_argument( "--apachepub", help="Option interpreted at bash invokation level (not python) to specify running from within local apache htdocs and copying PNGs to remote.", type=str  )
         defaults['deviceid'] = None
         defaults['cuda_profile'] = False
         parser.add_argument(      "--device-id", help="CUDA device id.", type=str )
@@ -326,6 +331,7 @@ class DAEConfig(ConfigBase):
         defaults['pullvbo'] = False
         defaults['markers'] = False
         defaults['mode'] = "-1,-1,-1,-1"
+        defaults['screenshot'] = False
 
         parser.add_argument( "--scaled-mode", action="store_true", help="In scaled mode the actual VBO vertex coordinates are scaled into -1:1, ie shrink world into unit cube. **FOR DEBUG ONLY** " )
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
@@ -343,6 +349,7 @@ class DAEConfig(ConfigBase):
         parser.add_argument( "--pullvbo", action="store_true", help="Enable VBO pullback for analysis on clicking." )
         parser.add_argument( "--markers",   action="store_true", help="[I] Frustum and light markers." )
         parser.add_argument( "--mode", help="Photon style mode, default %(default)s.", type=str )
+        parser.add_argument( "--screenshot", action="store_true", help="Allow remote control screenshots eg for capturing open menus, default %(default)s.")
 
 
         # event

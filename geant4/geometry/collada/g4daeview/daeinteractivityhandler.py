@@ -226,9 +226,8 @@ class DAEInteractivityHandler(object):
     def save_to_file(self):
         x,y,w,h = self.fig.viewport
         name = datetime.now().strftime("%Y%m%d-%H%M%S")
-        log.info("save_to_file %s.png" % name)
-        self.frame_handler.write_to_file( name, x,y,w,h )
-        #self.fig.save("%s.png" % name )
+        log.info("save_to_file name %s" % name)
+        self.frame_handler.write_to_file( name, x,y,w,h, outdir=self.config.args.outdir )
 
     def usage(self):
         print str(self.keys)

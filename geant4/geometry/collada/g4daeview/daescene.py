@@ -305,6 +305,17 @@ class DAEScene(window_event.EventDispatcher):
         view = self.bookmarks.make_parametric_view()
         self.update_view(view)
 
+    def save_to_file(self):
+        """
+        Invoke with `udp.py --screenshot`
+        """
+        if not hasattr(self, 'fig_handler'):
+            log.warn("no scene.fig_handler cannot save_to_file from external_message ")
+            return
+        pass
+        log.info("save_to_file")
+        self.fig_handler.save_to_file()
+
     def external_message(self, msg ):
         """
         TODO: 
@@ -339,6 +350,8 @@ class DAEScene(window_event.EventDispatcher):
                 self.toggle_raycast() 
             elif k == "cuda":
                 self.toggle_cuda() 
+            elif k == "screenshot":
+                self.save_to_file() 
             elif k in self.toggles:
                 self.toggle(k)
             elif k in ("launch","block","flags",):

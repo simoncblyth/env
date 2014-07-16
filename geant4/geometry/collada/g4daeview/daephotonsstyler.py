@@ -19,11 +19,16 @@ class DAEPhotonsStyler(object):
 
     """
     style_names = ['noodles','movie','movie-extra','dmovie','spagetti','confetti','confetti-0','confetti-2','confetti-1','dconfetti-1',]
+    style_names_menu = property(lambda self:self.style_names + ["spagetti,confetti","noodles,confetti"] )
 
     def __init__(self):
         self.styles = self._make_styles(self.style_names)
 
     def _make_styles(self, style_names):
+        """
+        :param style_names: list of names 
+        :return: dict of cfg dicts keyed by style name
+        """
         styles = {}
         for name in style_names:
             styles[name] = self._make_cfg(name) 
@@ -37,7 +42,7 @@ class DAEPhotonsStyler(object):
         """
         cfgs = []
         for name in style.split(","):
-            cfg = self.get(name)
+            cfg = self._get(name)
             if cfg is None:
                 log.warn("no such style %s " % name )
             else:
@@ -45,7 +50,7 @@ class DAEPhotonsStyler(object):
             pass
         return cfgs 
 
-    def get(self, style):
+    def _get(self, style):
         """
         :param style: name 
         :return: style dict or None

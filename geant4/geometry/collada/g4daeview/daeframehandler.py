@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 """
-import logging
+import logging, os
 log = logging.getLogger(__name__)
 import math
 import numpy as np
@@ -295,7 +295,7 @@ class DAEFrameHandler(object):
         return click_xyz
 
 
-    def write_to_file(self, name, x,y,w,h):
+    def write_to_file(self, name, x,y,w,h, outdir="."):
         self.push()
 
         #format_, type_, pil_format = gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, 'RGBA'
@@ -305,7 +305,13 @@ class DAEFrameHandler(object):
         from PIL import Image
         image = Image.fromstring( pil_format , (w,h), data)
         image = image.transpose(Image.FLIP_TOP_BOTTOM)
-        image.save ("%s.png" % name)
+
+        if not os.path.exists(outdir):
+            log.info("creating outdir %s " % outdir )
+            os.makedirs(outdir)
+        pass
+        path = os.path.join(outdir,"%s.png" % name ) 
+        image.save(path)
 
         self.pop()
 

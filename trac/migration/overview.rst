@@ -16,7 +16,7 @@ code and revision history
 
 #. alternative http://mercurial.selenic.com/wiki/HgSubversion
 
-   * http://blogs.atlassian.com/2011/03/goodbye_subversion_hello_mercurial/
+   * TODO: check this recommendation of bitbucket  http://blogs.atlassian.com/2011/03/goodbye_subversion_hello_mercurial/
 
 #. probably just leave: wiki markup in commit messages 
 

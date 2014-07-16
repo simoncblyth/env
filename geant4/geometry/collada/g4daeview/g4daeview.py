@@ -340,6 +340,7 @@ def main():
     log.info("************  DAEInteractivityHandler ")
     fig_handler = DAEInteractivityHandler(figure, frame_handler, scene, config  )
     frame_handler.fig_handler = fig_handler
+    scene.fig_handler = fig_handler    # this suggests need to improve architecture
 
 
     rmenu.push_handlers(fig_handler)   # so events from rmenu such as on_needs_redraw are routed to the fig_handler

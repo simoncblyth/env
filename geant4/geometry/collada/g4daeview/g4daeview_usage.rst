@@ -91,6 +91,38 @@ support multiple loads allowing multiple objects to be loaded.
 
 * TODO: dont replace but concatenate drawing of multiple loaded objects   
 
+Screen Captures and apache publishing
+---------------------------------------
+
+Save any screencaptures directly into apache htdocs using::
+
+    g4(){
+        apache-
+        g4daeview.sh --outdir=$(apache-htdocs)/env/geant4/geometry/collada/g4daeview --load 1 $*
+    }
+
+
+Captures can be remotely invoked using::
+
+   udp.py --screencapture
+
+
+Grab Screen Captures including GLUT menus
+--------------------------------------------
+
+The above screencapture techniqies exclude any GLUT menus that are appearing. 
+To include those use:
+
+* `Grab.app > Capture > Timed Screen`  screen is captured 10s after starting timer, allowing to prepare menus
+* the image is opened in Grab.app and can be saved in a `.tiff`
+
+
+
+Subsequently propagate to remote apache with::
+
+   env-htdocs-rsync C2
+
+TODO: adopt config file for settings like outdir (maybe `~/.g4daeview/config.cfg`) 
 
 
 Partial geometry

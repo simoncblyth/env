@@ -64,9 +64,13 @@ class DAEPhotons(object):
         self.event = event       
         self.interop = not event.scene.chroma.dummy
         self.config = event.config      
-        self.chroma_material_map = event.scene.geometry.chroma_material_map
-        self.chroma_surface_map = event.scene.geometry.chroma_surface_map
-        self.chroma_process_map = event.scene.geometry.chroma_process_map
+
+        geometry = event.scene.geometry
+        for att in "chroma_material_map chroma_surface_map chroma_process_map".split():
+            if hasattr(geometry,att):
+                setattr(self,att,getattr(geometry,att))
+            pass
+        pass
 
         self._style = event.config.args.style   
 
@@ -127,7 +131,7 @@ class DAEPhotons(object):
         Calling this before GLUT setup, results in duplicated menus 
         """
         if not self.interop:return
-        self.menuctrl.update_style_menu( self.styler.style_names, self.style_callback )
+        self.menuctrl.update_style_menu( self.styler.style_names_menu, self.style_callback )
         self.menuctrl.update_material_menu( self.material_pairs(), self.material_callback )
 
 

@@ -9,7 +9,18 @@ from daeclipper import DAEClipper
 from daecamera import DAECamera
 
 class DAEBookmarks(object):
+    """
+    When things go wrong, typically loose bookmarks OR write minimal ones.
+    Workarounds to avoid recreating bookmarks
+
+    #. date stamped copies of bookmarks are made to avoid overwriting on exit 
+    #. use of a fixed input bookmarks name can be used, eg::
+
+         --ibookmarks bookmarks20140716-1608.cfg
+
+    """
     name = "bookmarks.cfg"
+    ipath = property(lambda self:self.config.resolve_confpath(self.config.args.ibookmarks))
     path = property(lambda self:self.config.resolve_confpath(self.name))
     tpath = property(lambda self:self.config.resolve_confpath(self.name,timestamp=True))
 
@@ -26,8 +37,13 @@ class DAEBookmarks(object):
         self.cameras = {} 
         self.loadfail = {}   # retain cfg k,v lists for bookmarks that fail to load 
 
-        if os.path.exists(self.path):
-            self.load(geometry)  
+        ipath = self.ipath
+        if os.path.exists(ipath):
+            self.load(ipath, geometry)  
+        else:
+            log.warn("failed to load ibookmarks from %s " % ipath )
+        pass
+
 
     ini_prefix = "bookmark_"
     ini_exclude = ("0",)
@@ -138,14 +154,15 @@ class DAEBookmarks(object):
 
 
 
-    def load(self, geometry):
+    def load(self, path, geometry):
         """
+        :param path: input path for bookmarks
         :param geometry: DAEGeometry instance
         """
-        log.debug("load bookmarks from %s " % self.path )
-        cfp = self.parse(self.path)
+        log.debug("load bookmarks from %s " % path )
+        cfp = self.parse(path)
         if cfp is None:
-            log.info("bookmarks invalid, delete bookmarks file %s and try again" % self.path )
+            log.info("bookmarks invalid, delete bookmarks file %s and try again" % path )
             assert 0
             return
 
