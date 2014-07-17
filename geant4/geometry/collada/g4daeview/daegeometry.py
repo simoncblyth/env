@@ -307,6 +307,7 @@ class DAEGeometry(object):
         return obj
 
 
+
     def flatten(self):
         """  
         Adapted from Chroma geometry flattening 
@@ -333,7 +334,11 @@ class DAEGeometry(object):
         assert len(self.solids) > 0, "failed to find solids, MAYBE EXCLUDED BY -g/--geometry option ? try \"-g 0:\" or \"-g 1:\" "
 
         mesh = self.make_mesh(vertices, triangles, normals)
+        
+        log.info("flatten nsolids %s into mesh:\n%s\n" % (len(self.solids),repr(mesh)))
         self.mesh = mesh 
+
+    
 
     def make_bbox_cache(self):
         """

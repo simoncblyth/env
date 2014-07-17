@@ -124,18 +124,20 @@ eliminate geometry code as :red:`just one code path`.
 
 .. class:: small
 
-    ====================  ==============  ===========  ===============
-     Qty                    DayaBay         Lingao          Far
-    ====================  ==============  ===========  ===============
-    Volumes                     12,229        12,229          18,903 
-    Triangles                2,448,064     2,448,064       4,189,680
-    Vertices                 1,245,996     1,245,996       2,128,208
-    DAE/GDML/WRL (MB)        6.9/4.0/98   6.9/4.0/96     8.6/6.0/167                    
-    ====================  ==============  ===========  ===============
+    ====================  ==============  ===========  ===============  =================
+     Qty                    DayaBay         Lingao          Far          Juno x0.5 
+    ====================  ==============  ===========  ===============  =================
+    Volumes                     12,229        12,229          18,903         25,000
+    Triangles                2,448,064     2,448,064       4,189,680     21,886,158
+    Vertices                 1,245,996     1,245,996       2,128,208     10,993,079
+    DAE/GDML/WRL (MB)        6.9/4.0/98   6.9/4.0/96     8.6/6.0/167     6.1M/-/-                 
+    ====================  ==============  ===========  ===============  =================
+
+
 
 .. class:: tiny
 
-    ``VGDX_20140414`` counts using ``g4daeview.py -g 0: --with-chroma``
+    ``VGDX_20140414`` counts using ``g4daeview.py -g 0: --with-chroma``, Juno geometry truncated
 
 .. class:: small
 
@@ -181,7 +183,7 @@ eliminate geometry code as :red:`just one code path`.
 :small:`Why HEP Visualization is stuck in the 1990s` 
 ----------------------------------------------------------
 
-.. class:: tiny
+.. class:: small 
 
    Young Physicists are often eager to use Event display software 
    on joining HEP experiments. But following a difficult installation 
@@ -197,8 +199,7 @@ eliminate geometry code as :red:`just one code path`.
    The process is repeated for every frame, with geometry data for millions
    of vertices continuously being transferred from CPU to GPU.
    This "painterly" OpenGL approach was prevalent in the mid-1990s when Geant4 
-   was first being developed.
-
+   was first developed.
    Meanwhile 20 years of GPU revolution occurred with OpenGL 
    transforming itself many times over to keep up with GPU improvements
    and constraints. 
@@ -207,44 +208,65 @@ eliminate geometry code as :red:`just one code path`.
    triangulated geometry data to GPU memory **once only** at application launch.  
    As a result the entire geometry is rendered with **a single OpenGL draw call**, 
    involving minimal data transfers to the GPU.
-
    The stark contrast between per-frame GPU data transfers 
    of a handful of bytes for a 4x4 transformation matrix used by G4DAE 
    compared to typically megabytes of geometry data with standard approaches 
-   result in a transformative leap forwards in graphics performance. 
-
+   result in a transformative leap in graphics performance. 
    Also, with CPU and GPU processing power to spare it has been 
    straightfoward to develop unprecedented interface features 
    such as forward/backward time scrubbing through an event propagation.
 
-   Stopping G4DAE development will probably add many years until 
-   HEP visualization can join the 21st century due to the 
-   extreme rarity of people with the depth of HEP, Geant4, 
+   Stopping G4DAE development will postpone by years the advent   
+   of HEP visualization joining the 21st century due to the 
+   extreme rarity of Physicists with the depth of HEP, Geant4, 
    OpenGL and CUDA experience required to make this revolution happen.
-
-   Holding back progress in this way will not only impact the worldwide HEP 
+   Delaying progress will not only impact the worldwide HEP 
    community but also other fields that use Geant4 such 
    as the space and medical physics communities (http://geant4.in2p3.fr/2013/).
 
   
-
    
-:small:`How G4DAE relates to GPU optical photon propagation ? ` 
---------------------------------------------------------------------
+:small:`How G4DAE relates to Chroma and GPU optical photon propagation` 
+-----------------------------------------------------------------------
 
 .. class:: small
 
    The G4DAE processing approach I adopted for OpenGL visualization 
    was inspired and enabled by the analogous approach taken by the Chroma project 
-   for CUDA propagation of optical photons. 
+   for propagation of optical photons using CUDA.
 
-   The single most CPU expensive aspect of physics simulation is finding 
-   the next intersection in complex geometries. The reason for the expense
-   is again the Geant4 geometry model. 
+   Chroma minimizes data transfers to the GPU by transferring geometry data **once** 
+   and creating a GPU resident Bounding Volume Heirarchy that accelerates calculation
+   of geometry intersections, the single most expensive aspect of optical photon 
+   propagation. In addition Chroma simulates optical photon processes 
+   such as absorption, re-emission, Rayleigh scattering, diffuse and specular 
+   reflection and surface absorption using the wavelength dependant
+   material and surface properties contained within the Chroma geometry.
 
-   Chroma adopts an 
-   An analogous approach to visualization and Opeis The Chroma project provides    
+   Unfortunately Chroma does not provide a way to translate an existing Geant4
+   geometry into a Chroma geometry. G4DAE seeks to provide this missing 
+   aspect by adding the Geant4 material and surface properties to the exported
+   geometry and providing a mapping from there into a Chroma geometry. 
+   This is intended to enable any Geant4 user of optical photon propagation to 
+   benefit from the transformative speedup factors provided by Chroma.
 
+   In addition G4DAE provides a visualization of the propagation 
+   as it happens from GPU resident photon data. This enables 
+   the detailed development work of performing the mapping 
+   between the Geant4 and Chroma models of material and surface properties
+
+   Working together G4DAE and Chroma can bring GPU accelerated optical photon 
+   propagation to any Geant4 user, especially those with existing Geant4 detector
+   geometries.
+   Stopping G4DAE development will prevent the benefits of this
+   partnership from being realised and will leave these projects 
+   to remain obscure curiosities. Termination will delay the day that 
+   Geant4 GPU optical photon propagation can become mainstream by years, 
+   due to the rarity of Physicists with the necessary depth and breadth of experience to be 
+   productive in this area.  
+
+
+ 
 
 
 
@@ -417,7 +439,7 @@ https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:`
    Chroma GPU photon propagation at 12 nanoseconds.  The photons are generated by Geant4 
    simulation of a 100 GeV muon travelling from right to left. 
    Photon colors indicate reemission (green), absorption(red),
-   specular reflection (magenta), no history (white). 
+   specular reflection (magenta), scattering(blue), no history (white). 
 
 .. image:: /env/geant4/geometry/collada/g4daeview/20140716-161445.png
    :height: 600px

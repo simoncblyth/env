@@ -17,6 +17,11 @@ Checking configured settings
 *slides-get 0 15*
            capture PNGs per page, crop the chrome, convert PNGs into PDF
 
+           BEFORE USING MOVE ASIDE THE PRIOR CAPTURES MANUALLY::
+
+                delta:~ blyth$ slides-cd ..
+                delta:presentation blyth$ mv gpu_optical_photon_simulation gpu_optical_photon_simulation_apr28
+
 
 Creating HTML slides from S5 Restructured Text Sources
 --------------------------------------------------------
@@ -315,7 +320,7 @@ EOI
 }
 
 slides-ls(){  ls -l $(slides-dir); }
-slides-cd(){  cd $(slides-dir); }
+slides-cd(){  cd $(slides-dir)/$1; }
 slides-scd(){  cd $(slides-sdir); }
 slides-mate(){ mate $(slides-dir) ; }
 slides-mkdir(){ mkdir -p $(slides-dir) ; }
@@ -434,11 +439,51 @@ slides-crop(){
    echo $msg cropping png
    crop.py ??.png
 }
+
+
+slides-convert-automator(){
+   local msg="=== $FUNCNAME "
+
+   local dir=$(slides-dir)
+   local cmd="open $dir"
+   echo $msg : $cmd
+   eval $cmd
+
+   cat << EOD
+
+Using *Make PDF from PNGs* Automator Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Open folder containing PNGs to combine in Finder.app
+#. Arrange the order and then select PNGs
+#. ctrl-click the selection to get contextual menu, choose Make PDF from PNGs
+#. After a second or so (depending on number of PNGs) a dialog will appear to enter the basename (without .pdf) of the output PDF.
+#. After entering the name the new PDF will appear on the Desktop
+
+For details see http://dayabay.phys.ntu.edu.tw/e/osx/osx_automator_workflows/
+
+After checking the resulting PDF move the prior one aside and
+copy the new in its place, and sync across to remote server::
+
+    delta:presentation blyth$ pwd
+    /Library/WebServer/Documents/env/muon_simulation/presentation
+    delta:presentation blyth$ mv gpu_optical_photon_simulation.pdf gpu_optical_photon_simulation_apr28.pdf
+    delta:presentation blyth$ mv ~/Desktop/gpu_optical_photon_simulation.pdf .
+    delta:presentation blyth$ env-htdocs-rsync
+
+
+
+EOD
+
+}
 slides-convert(){
    local msg="=== $FUNCNAME "
    local pdf=$(slides-name).pdf   
    slides-cd
    echo $msg converting PNG into $pdf 
+
+   [ "$(which convert)" == "" ] && slides-convert-automator && return 
+
    convert ??_crop.png $pdf
 }
 slides-scp(){
