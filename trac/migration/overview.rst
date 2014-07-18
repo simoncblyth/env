@@ -3,6 +3,25 @@ Migration Overview
 
 * https://confluence.atlassian.com/display/BITBUCKET/Convert+from+Subversion+to+Mercurial
 
+
+2-stage strategy
+------------------
+
+Attack in two stages:
+
+#. migrate "env" asis into bitbucket
+
+#. create a (3?) new repositories with 
+
+   * g4dae : just the geant4 exporter 
+   * g4daeview : visualization, optional dependency on g4daechroma
+   * g4daechroma : mapping from g4dae into chroma and propagation steering 
+ 
+Division to allow users without Chroma/CUDA to still benefit from
+the visualization functionality.
+
+
+
 code and revision history
 ---------------------------
 

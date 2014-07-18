@@ -6,6 +6,8 @@ osx
 
    numbers/index
    osx_automator_workflows
+   graphicstools/index
+
 
 
 
