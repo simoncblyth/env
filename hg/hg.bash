@@ -70,6 +70,54 @@ wc comparison with svn
     delta:env blyth$ 
 
 
+manual history comparison
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Hg trailing 2 (Hg 4642 svn 4644)::
+
+    delta:env blyth$ hg par
+    changeset:   4642:d7570fd518b3
+    tag:         tip
+    user:        blyth
+    date:        Mon Jul 21 20:46:21 2014 +0800
+    summary:     mercurial notes
+
+
+Hg starts 1 behind, due to restricting to trunk alone::
+
+    delta:env blyth$ hg log -r 0
+    changeset:   0:9f2fcef8ee0d
+    user:        blyth
+    date:        Sat May 05 10:36:52 2007 +0800
+    summary:     initial import from dummy
+
+    delta:env blyth$ svn log . -r1 -v
+    ------------------------------------------------------------------------
+    r1 | blyth | 2007-05-05 10:36:52 +0800 (Sat, 05 May 2007) | 1 line
+    Changed paths:
+       A /branches
+       A /tags
+       A /trunk
+
+    initial import from dummy 
+
+
+Something funny about changeset 10
+
+* http://dayabay.phys.ntu.edu.tw/tracs/env/changeset/10 it gives permission denied
+
+::
+
+    delta:env blyth$ svn log . -r10 -v
+    ------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 systematic history checking 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
