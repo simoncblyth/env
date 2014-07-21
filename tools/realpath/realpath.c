@@ -1,6 +1,6 @@
 // http://stackoverflow.com/questions/284662/how-do-you-normalize-a-file-path-in-bash
 //
-//    gcc realpath.c -o ~/env/bin/realpath 
+//    gcc realpath.c -o /usr/local/env/bin/realpath 
 //
 //    one might think could use  $(readlink -f path) rather than this
 //    but the readlink `-f` option has different means between OSX and Linux making that inconvenient

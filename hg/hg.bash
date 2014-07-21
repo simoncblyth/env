@@ -28,6 +28,12 @@ hg convert
 #. authormap
 #. timezone
 
+* http://hgbook.red-bean.com/read/migrating-to-mercurial.html
+
+
+
+
+
 
 env repo took about 8 minutes over network to D
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -144,6 +150,9 @@ hg-forest-get
 hg-convert
      * http://mercurial.selenic.com/wiki/ConvertExtension
 
+     #. works incrementally, just converting changes
+     
+
 
 
 
@@ -204,7 +213,9 @@ hg-convert(){
    local hgr=$(hg-repodir $repo)
    local url=http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk
 
+  # it does work incrementally, no need to start from scratch 
   # [ -d "$hgr" ] && echo $msg PREEXISTING hgr $hgr : DELETE THIS AND TRY AGAIN && return
+
    [ ! -d "$hgr" ] && echo $msg creating $hgr && mkdir -p $hgr
 
    local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr"
