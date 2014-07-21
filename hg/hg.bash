@@ -186,6 +186,8 @@ hg-convert(){
 
    local hgr=/var/scm/mercurial/$repo
    local url=http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk
+
+   [ -d "$hgr" ] && echo $msg PREEXISTING hgr $hgr : DELETE THIS AND TRY AGAIN && return
    [ ! -d "$hgr" ] && echo $msg creating $hgr && mkdir -p $hgr
 
    local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr"

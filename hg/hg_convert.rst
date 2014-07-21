@@ -2,35 +2,10 @@ hg convert
 ============
 
 #. empty directories in SVN not honoured in HG ?
+
+   * workaround, delete empties where possible or add README.txt 
+
 #. svn:ignores 
-
-
-::
-
-    delta:env blyth$ find . -mindepth 1 -type d -empty
-    ./.svn/tmp
-    ./_static
-    ./AbtViz/tests
-    ./beizhen
-    ./bzhu
-    ./dj/dybsite/dbi/fixtures
-    ./geant4/g4beta
-    ./gpu
-    ./graphics/webgl/webglbook
-    ./graphics/x3d
-    ./hub/_static
-    ./hub/_templates
-    ./legacy
-    ./liteng
-    ./litsh08
-    ./macros/aberdeen
-    ./pip
-    ./root/tutorials/net
-    ./seed
-    ./setup
-    ./svn_
-    ./thho/NuWa/AcrylicOpticalSim/src
-    ./trac/dj/tests
 
 
 ::
