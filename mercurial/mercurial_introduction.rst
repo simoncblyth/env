@@ -14,11 +14,21 @@ hg book
 
 * http://hgbook.red-bean.com
 * http://hgbook.red-bean.com/read/
+* http://hgbook.red-bean.com/read/migrating-to-mercurial.html
+
 
 Subversion brain damage remediation
 -------------------------------------
 
 * http://hginit.com/00.html
+
+
+Mecurial Approach
+-------------------
+
+* commands apply to the entire repo not just a subdir 
+* branch by cloning into a separate repo, 
+  can merge that back to a central repo later (maybe)
 
 
 hg vs git branching

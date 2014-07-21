@@ -50,40 +50,11 @@ Create a bare repo .hg running hg serve and browsing the html reveals issues:
 #. authormap
 
 
-repeat, 8 minutes again
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    delta:migration blyth$ hg-convert
-    hg convert --config convert.localtimezone=true --source-type svn --dest-type hg http://dayabay.phys.ntu.edu.tw/repos/env/trunk /var/scm/mercurial/env
-    Mon Jul 21 18:18:25 CST 2014
-    scanning source...
-    sorting...
-    converting...
-    4635 initial import from dummy 
-    4634 initial scm-import 
-    4633  
-    4632 tweaks
-    4631 allow ttho to get NODE_TAG of G1
-    4630 
-    4629 
-    ...
-    1 summary presentation updates and notes on slide conversions from PNG captures to PDF 
-    0 documenting the history of G4DAE and G4DAEVIEW development 
-    Mon Jul 21 18:26:32 CST 2014
-
-    delta:migration blyth$ ll /var/scm/mercurial/env
-    total 0
-    drwxr-xr-x   3 blyth  staff  102 Jul 21 18:17 ..
-    drwxr-xr-x   3 blyth  staff  102 Jul 21 18:18 .
-    drwxr-xr-x  11 blyth  staff  374 Jul 21 18:26 .hg
-
-    mkdir /tmp/ee ; cd /tmp/ee ; hg clone /var/scm/mercurial/env 
-
-
-
 #. the bare repo should be admin owned ? 
+#. *hg-convert* DOES work incrementally, after the convert 
+   which gets new revisions from SVN into the bare repo,
+   *hg pull* changes from the bare repo into the working repo 
+   and then *hg update* into working copy
 
 
 wc comparison with svn
@@ -91,28 +62,19 @@ wc comparison with svn
 
 ::
 
-    delta:tmp blyth$ hg-compare-with-svn 
+    delta:env blyth$ hg-compare-with-svn 
     diff -r --brief /Users/blyth/env /tmp/mercurial/env
     Only in /tmp/mercurial/env: .hg
     Only in /Users/blyth/env: .svn
-    Only in /Users/blyth/env: _build
-    Only in /Users/blyth/env: _docs
-    Only in /Users/blyth/env/bin: realpath
-    Only in /tmp/mercurial/env/graphics/collada/colladadom/testColladaDOM: run
-    Files /Users/blyth/env/hg/hg.bash and /tmp/mercurial/env/hg/hg.bash differ
-    delta:tmp blyth$ 
+    Only in /Users/blyth/env: _build   # THIS COULD BE MOVED ELSEWHERE
+    delta:env blyth$ 
 
 
-systematic checking ?
-~~~~~~~~~~~~~~~~~~~~~~
+systematic history checking 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * http://svn.apache.org/repos/asf/subversion/trunk/tools/examples/
-
-
-
-
-
-
+* hgapi
 
 
 
@@ -151,6 +113,8 @@ hg-convert
      * http://mercurial.selenic.com/wiki/ConvertExtension
 
      #. works incrementally, just converting changes
+     #. note only trunk is being converted, this is fine for: 
+        env, heprez, tracdev, workflow
      
 
 
