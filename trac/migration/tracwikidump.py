@@ -34,6 +34,10 @@ Hmm whatabout tickets
 
 To see API docs, visit url endpoint interactively, ignore phishing warning
 
+After peering at the form of tickets data, conclusing that using 
+the bitbucket export format would be good for a standard way to persist 
+tickets.
+
 
 
 Wikipage requirements

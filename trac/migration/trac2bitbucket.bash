@@ -38,7 +38,17 @@ trac2bitbucket-wiki(){
    #python $(trac2bitbucket-dir)/wiki.py 
 
    python $(trac2bitbucket-dir)/wiki.py --tracdir /tmp/t/env --output-dir /tmp/t/envhg
+}
 
+
+
+trac2bitbucket-tickets-json(){
+   local tracdir=$1
+   local name=$(basename $tracdir)
+   local base=$(dirname $tracdir)
+   local zip=$base/${name}_issues.zip
+   local json=$base/${name}.json
+   echo $json
 }
 
 trac2bitbucket-tickets(){
@@ -62,13 +72,18 @@ trac2bitbucket-tickets(){
    unzip -p $zip db-1.0.json > $json
 
    local sdir=$(trac2bitbucket-sdir)
-
-   python $sdir/check_issues_json.py   
+   python $sdir/check_issues_json.py   $json
 
 
 }
 
 
+trac2bitbucket-tickets-check(){
+   local tracdir=$1
+   local json=$(trac2bitbucket-tickets-json $tracdir) 
+   echo tracdir $tracdir json $json
+
+}
 
 
 

@@ -44,6 +44,55 @@ Create a bare repo .hg running hg serve and browsing the html reveals issues:
 #. authormap
 
 
+repeat, 8 minutes again
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    delta:migration blyth$ hg-convert
+    hg convert --config convert.localtimezone=true --source-type svn --dest-type hg http://dayabay.phys.ntu.edu.tw/repos/env/trunk /var/scm/mercurial/env
+    Mon Jul 21 18:18:25 CST 2014
+    scanning source...
+    sorting...
+    converting...
+    4635 initial import from dummy 
+    4634 initial scm-import 
+    4633  
+    4632 tweaks
+    4631 allow ttho to get NODE_TAG of G1
+    4630 
+    4629 
+    ...
+    1 summary presentation updates and notes on slide conversions from PNG captures to PDF 
+    0 documenting the history of G4DAE and G4DAEVIEW development 
+    Mon Jul 21 18:26:32 CST 2014
+
+    delta:migration blyth$ ll /var/scm/mercurial/env
+    total 0
+    drwxr-xr-x   3 blyth  staff  102 Jul 21 18:17 ..
+    drwxr-xr-x   3 blyth  staff  102 Jul 21 18:18 .
+    drwxr-xr-x  11 blyth  staff  374 Jul 21 18:26 .hg
+
+    mkdir /tmp/ee ; cd /tmp/ee ; hg clone /var/scm/mercurial/env 
+
+
+
+#. the bare repo should be admin owned ? 
+
+
+
+
+systematic checking ?
+~~~~~~~~~~~~~~~~~~~~~~
+
+* http://svn.apache.org/repos/asf/subversion/trunk/tools/examples/
+
+
+
+
+
+
+
 
 
 FUNCTIONS
@@ -132,8 +181,17 @@ hg-backup(){
 }
 
 hg-convert(){
+   local msg="=== $FUNCNAME :"
+   local repo=${1:-env}
 
-   hg convert --config convert.localtimezone --source-type svn --dest-type hg  http://dayabay.phys.ntu.edu.tw/repos/env/trunk envhg
+   local hgr=/var/scm/mercurial/$repo
+   local url=http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk
+   [ ! -d "$hgr" ] && echo $msg creating $hgr && mkdir -p $hgr
 
+   local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr"
+   echo $cmd
+   date
+   eval $cmd
+   date
 }
 

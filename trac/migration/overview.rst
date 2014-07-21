@@ -3,13 +3,18 @@ Migration Overview
 
 * https://confluence.atlassian.com/display/BITBUCKET/Convert+from+Subversion+to+Mercurial
 
-
 2-stage strategy
 ------------------
 
 Attack in two stages:
 
 #. migrate "env" asis into bitbucket
+
+
+Split
+--------
+
+Not really a migration, this is new creation.
 
 #. create a (3?) new repositories with 
 
@@ -19,7 +24,6 @@ Attack in two stages:
  
 Division to allow users without Chroma/CUDA to still benefit from
 the visualization functionality.
-
 
 
 code and revision history
