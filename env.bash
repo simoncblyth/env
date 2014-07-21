@@ -1445,3 +1445,4 @@ vispy-(){      . $(env-home)/graphics/vispy/vispy.bash && vispy-env $* ; }
 graphicstools-(){      . $(env-home)/osx/graphicstools/graphicstools.bash && graphicstools-env $* ; }
 trac2bitbucket-(){      . $(env-home)/trac/migration/trac2bitbucket.bash && trac2bitbucket-env $* ; }
 tracmigrate-(){      . $(env-home)/trac/migration/tracmigrate.bash && tracmigrate-env $* ; }
+hgapi-(){      . $(env-home)/hg/hgapi.bash && hgapi-env $* ; }

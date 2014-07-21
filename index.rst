@@ -47,7 +47,6 @@ Contents:
    SCM <scm/index>
    Trac <trac/index>
    ROOT <root/index>
-   ENV <_docs/env>
    sphinxext/index
    matplotlib/index   
    nose/index
@@ -85,6 +84,9 @@ Contents:
    doc/index
    python/index
    osx/index
+   hg/index
+
+
 
 
 

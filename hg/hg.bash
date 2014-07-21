@@ -80,6 +80,21 @@ repeat, 8 minutes again
 #. the bare repo should be admin owned ? 
 
 
+wc comparison with svn
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    delta:tmp blyth$ hg-compare-with-svn 
+    diff -r --brief /Users/blyth/env /tmp/mercurial/env
+    Only in /tmp/mercurial/env: .hg
+    Only in /Users/blyth/env: .svn
+    Only in /Users/blyth/env: _build
+    Only in /Users/blyth/env: _docs
+    Only in /Users/blyth/env/bin: realpath
+    Only in /tmp/mercurial/env/graphics/collada/colladadom/testColladaDOM: run
+    Files /Users/blyth/env/hg/hg.bash and /tmp/mercurial/env/hg/hg.bash differ
+    delta:tmp blyth$ 
 
 
 systematic checking ?
@@ -180,14 +195,16 @@ hg-backup(){
    hg-pull
 }
 
+hg-repodir(){ echo /var/scm/mercurial/${1:-env} ; }
+hg-wcdir(){   echo /tmp/mercurial/${1:-env} ; }
+
 hg-convert(){
    local msg="=== $FUNCNAME :"
    local repo=${1:-env}
-
-   local hgr=/var/scm/mercurial/$repo
+   local hgr=$(hg-repodir $repo)
    local url=http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk
 
-   [ -d "$hgr" ] && echo $msg PREEXISTING hgr $hgr : DELETE THIS AND TRY AGAIN && return
+  # [ -d "$hgr" ] && echo $msg PREEXISTING hgr $hgr : DELETE THIS AND TRY AGAIN && return
    [ ! -d "$hgr" ] && echo $msg creating $hgr && mkdir -p $hgr
 
    local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr"
@@ -201,6 +218,27 @@ hg-find-empty(){
    find . -mindepth 1 -type d -empty
 }
 
+hg-clone(){
+   local repo=${1:-env}
+   local hgr=$(hg-repodir $repo)
+   local dir=$(hg-wcdir $repo)
+   local base=$(dirname $dir)
+ 
+   mkdir -p $(hg-wcdir)
+   cd $base
+   hg clone $hgr   
+   # is this the recommended approach, having a bare repo and cloning to where you work ? 
+}
+
+
+hg-compare-with-svn(){
+   local repo=${1:-env}
+   local cmd="diff -r --brief $HOME/$repo $(hg-wcdir $repo)"
+   echo $cmd
+   eval $cmd
+
+
+}
 
 
 

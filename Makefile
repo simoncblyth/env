@@ -37,7 +37,7 @@ rsync:
 	test -L $(EDOCS) && echo skip rsync as EDOCS $(EDOCS) is symbolic link || rsync -av _build/dirhtml/ $(EDOCS)/ 
 
 bash2rst:
-	bash2rst.py env.bash	
+	@echo inclusion of bash function docs now done piecemeal using env-rst, no longer using bash2rst.py env.bash	
 
 
 help:
@@ -64,7 +64,7 @@ help:
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 
 clean:
-	-rm -rf $(BUILDDIR)/* _docs/*
+	-rm -rf $(BUILDDIR)/* 
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
