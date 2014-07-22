@@ -40,13 +40,20 @@ Need to manually arrange access to SVN bindings, how is that done for chroma_env
     sys.path.append('/opt/local/lib/svn-python2.7')
     import svn 
 
-For a more permanent workaround use *adm-svn-bindings-kludge*.
+For a more permanent workaround use *adm-svn-bindings*.
 Its unclear why that is needed. The macports pkg contains the pth but that 
 seems not to get propagated via virtualenv::
 
     delta:~ blyth$ port contents subversion-python27bindings
     Port subversion-python27bindings contains:
       /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/svn-python.pth
+
+
+env access
+~~~~~~~~~~~
+
+Also *adm-env-ln*
+
 
 FUNCTIONS
 -----------
@@ -99,7 +106,10 @@ adm-utilities(){
 }
 
 
-adm-svn-bindings-kludge(){
+adm-env-ln(){ 
+   ln -s $(env-home) $(adm-sitedir)/env
+}
+adm-svn-bindings(){
     echo /opt/local/lib/svn-python2.7 > $(adm-sitedir)/svn-python.pth 
 }
 
