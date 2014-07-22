@@ -1446,3 +1446,4 @@ graphicstools-(){      . $(env-home)/osx/graphicstools/graphicstools.bash && gra
 trac2bitbucket-(){      . $(env-home)/trac/migration/trac2bitbucket.bash && trac2bitbucket-env $* ; }
 tracmigrate-(){      . $(env-home)/trac/migration/tracmigrate.bash && tracmigrate-env $* ; }
 hgapi-(){      . $(env-home)/hg/hgapi.bash && hgapi-env $* ; }
+adm-(){      . $(env-home)/adm/adm.bash && adm-env $* ; }

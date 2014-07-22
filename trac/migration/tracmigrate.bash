@@ -13,9 +13,11 @@ TRACMIGRATE
      #. copies trac repo tarballs and sidecar dna over from hub node
      #. checks dna match 
      #. untars the tarball
-     
 
+NEXT
 
+#. generalize to scm-migrate, need SVN repo 
+   for HG vs SVN history comparisons
 
 
 EOU

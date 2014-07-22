@@ -1,5 +1,5 @@
-SVN Bindings Examples
-=======================
+SVN Python Bindings Examples
+===============================
 
 
 Many Flavors of Bindings
@@ -20,27 +20,7 @@ Many Flavors of Bindings
       /opt/local/lib/svn-python2.7/libsvn/_client.a
       /opt/local/lib/svn-python2.7/libsvn/_client.so
       /opt/local/lib/svn-python2.7/libsvn/_core.a
-      /opt/local/lib/svn-python2.7/libsvn/_core.so
-      /opt/local/lib/svn-python2.7/libsvn/_delta.a
-      /opt/local/lib/svn-python2.7/libsvn/_delta.so
-      /opt/local/lib/svn-python2.7/libsvn/_diff.a
-      /opt/local/lib/svn-python2.7/libsvn/_diff.so
-      /opt/local/lib/svn-python2.7/libsvn/_fs.a
-      /opt/local/lib/svn-python2.7/libsvn/_fs.so
-      /opt/local/lib/svn-python2.7/libsvn/_ra.a
-      /opt/local/lib/svn-python2.7/libsvn/_ra.so
-      /opt/local/lib/svn-python2.7/libsvn/_repos.a
-      /opt/local/lib/svn-python2.7/libsvn/_repos.so
-      /opt/local/lib/svn-python2.7/libsvn/_wc.a
-      /opt/local/lib/svn-python2.7/libsvn/_wc.so
-      /opt/local/lib/svn-python2.7/libsvn/client.py
-      /opt/local/lib/svn-python2.7/libsvn/core.py
-      /opt/local/lib/svn-python2.7/libsvn/delta.py
-      /opt/local/lib/svn-python2.7/libsvn/diff.py
-      /opt/local/lib/svn-python2.7/libsvn/fs.py
-      /opt/local/lib/svn-python2.7/libsvn/ra.py
-      /opt/local/lib/svn-python2.7/libsvn/repos.py
-      /opt/local/lib/svn-python2.7/libsvn/wc.py
+      ...
       /opt/local/lib/svn-python2.7/svn/__init__.py
       /opt/local/lib/svn-python2.7/svn/client.py
       /opt/local/lib/svn-python2.7/svn/core.py
@@ -51,6 +31,16 @@ Many Flavors of Bindings
       /opt/local/lib/svn-python2.7/svn/repos.py
       /opt/local/lib/svn-python2.7/svn/wc.py
     delta:~ blyth$ 
+
+
+
+Examples
+----------
+
+* http://jtauber.com/python_subversion_binding/
+
+
+
 
 
 

@@ -4,5 +4,5 @@ bindings
 
 .. toctree::
 
-   examples
+   svn_python_bindings
 
