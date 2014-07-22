@@ -1447,3 +1447,4 @@ trac2bitbucket-(){      . $(env-home)/trac/migration/trac2bitbucket.bash && trac
 tracmigrate-(){      . $(env-home)/trac/migration/tracmigrate.bash && tracmigrate-env $* ; }
 hgapi-(){      . $(env-home)/hg/hgapi.bash && hgapi-env $* ; }
 adm-(){      . $(env-home)/adm/adm.bash && adm-env $* ; }
+scmmigrate-(){      . $(env-home)/scm/migration/scmmigrate.bash && scmmigrate-env $* ; }

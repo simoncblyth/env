@@ -22,6 +22,13 @@ example:
 #. hgapi, programmatic access to Mercurial repository 
 
 
+Related
+--------
+
+#. *scmmigrate-*
+#. *hgapi-*
+
+
 Issues
 -------
 

@@ -40,10 +40,11 @@ def local_dna( path ):
 def check_dna( path ):
     local = local_dna(path)
     sidecar = sidecar_dna(path)
-    print "local   %s\nsidecar %s" % (repr(local),repr(sidecar)) 
+    log.debug("local   %s\nsidecar %s" % (repr(local),repr(sidecar)) )
     assert local == sidecar 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     check_dna(sys.argv[1])
 
 if __name__ == '__main__':

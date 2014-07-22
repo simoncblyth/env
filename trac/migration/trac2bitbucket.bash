@@ -72,7 +72,7 @@ trac2bitbucket-tickets(){
    unzip -p $zip db-1.0.json > $json
 
    local sdir=$(trac2bitbucket-sdir)
-   python $sdir/check_issues_json.py   $json
+   python $sdir/issues_json.py   $json
 
 
 }
