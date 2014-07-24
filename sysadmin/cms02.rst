@@ -1,6 +1,19 @@
 CMS02
 ======
 
+Following Typhoon Matmo C2R to H1 backups failing 
+------------------------------------------------------
+
+Possibly due to this ssh trouble::
+
+    [root@cms02 ~]# ssh H1
+    reverse mapping checking getaddrinfo for hep1.phys.ntu.edu.tw failed - POSSIBLE BREAKIN ATTEMPT!
+    Enter passphrase for key '/root/.ssh/id_rsa': 
+    Last login: Thu Jul 24 14:05:43 2014 from cms02.phys.ntu.edu.tw
+    [blyth@hep1 ~]$ uptime
+    14:07:36 up  4:08,  2 users,  load average: 0.00, 0.00, 0.00
+
+
 Attack 19/Jun/2014 from 183.60.119.35
 ---------------------------------------
 
