@@ -9,93 +9,6 @@
 
        # DUD svn revision 10, causes this to be the first to match 
 
-::
-
-    (adm_env)delta:~ blyth$ compare_hg_svn.py /tmp/mercurial/env /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --svnrev 1:10 --hgrev 0:9  
-    INFO:env.scm.migration.compare_hg_svn:hgrev 0 svnrev 1 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 1 svnrev 2 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 2 svnrev 3 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 3 svnrev 4 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 4 svnrev 5 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 5 svnrev 6 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 6 svnrev 7 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 7 svnrev 8 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 8 svnrev 9       ## offset of 1 due to trunk restriction, up to dud svn rev 10
-
-    compare_hg_svn.py /tmp/mercurial/env /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --svnrev 10 --hgrev 9 
-
-    (adm_env)delta:~ blyth$ compare_hg_svn.py /tmp/mercurial/env /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --svnrev 10:19 --hgrev 8:17 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 8 svnrev 10 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 9 svnrev 11 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 10 svnrev 12 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 11 svnrev 13   
-    INFO:env.scm.migration.compare_hg_svn:hgrev 12 svnrev 14 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 13 svnrev 15 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 14 svnrev 16 
-    INFO:env.scm.migration.compare_hg_svn:hgrev 15 svnrev 17  
-    INFO:env.scm.migration.compare_hg_svn:hgrev 16 svnrev 18       ## beyond the dud, need offset of 2 to match
-
-    compare_hg_svn.py /tmp/mercurial/env /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --svnrev 10 --hgrev 8 -A 
-
-    INFO:env.scm.migration.compare_hg_svn:hgrev 388 svnrev 390 
-    lines_dirs
-     [ r] /seed                
-    lines_paths
-
-    compare_hg_svn.py /tmp/mercurial/env /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --svnrev 10 --hgrev 8 -A  --skipempty 
-
-
-    INFO:env.scm.migration.compare_hg_svn:hgrev 1598 svnrev 1600 
-    ---------------------------------------------------------------------------
-    HgException                               Traceback (most recent call last)
-    ...
-    HgException: Error running hg --cwd /tmp/mercurial/env update 1598:
-    " + tErr: abort: case-folding collision between thho/NuWa/python/histogram/pyhist.py and thho/NuWa/python/histogram/PyHist.py
-
-
-    compare_hg_svn.py /tmp/mercurial/env /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --svnrev 1600 --hgrev 1598 -A  --skipempty 
-
-        ## keep getting this...
-
-
-Argh case degenerate entries at SVN rev 1600::
-
-    delta:~ blyth$ svncrawl.py /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --revision 1599 -v | grep -i PyHist
-    /trunk/thho/NuWa/python/histogram/pyhist.py
-
-    delta:~ blyth$ svncrawl.py /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --revision 1600 -v | grep -i PyHist
-    /trunk/thho/NuWa/python/histogram/PyHist.py
-    /trunk/thho/NuWa/python/histogram/pyhist.py
-
-    delta:~ blyth$ svncrawl.py /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --revision 1601 -v | grep -i PyHist
-    /trunk/thho/NuWa/python/histogram/PyHist.py
-
-    delta:~ blyth$ svncrawl.py /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --revision 1602 -v | grep -i PyHist
-    /trunk/thho/NuWa/python/histogram/PyHist.py
-
-Manual fix::
-
-    delta:~ blyth$ hg --cwd /tmp/mercurial/env update 1598
-    abort: case-folding collision between thho/NuWa/python/histogram/pyhist.py and thho/NuWa/python/histogram/PyHist.py
-    delta:~ blyth$ ll /tmp/mercurial/env/thho/NuWa/python/histogram/
-    total 16
-    drwxr-xr-x  10 blyth  wheel   340 Jul 24 20:17 ..
-    -rw-r--r--   1 blyth  wheel  5258 Jul 24 20:17 pyhist.py
-    drwxr-xr-x   3 blyth  wheel   102 Jul 24 20:21 .
-    delta:~ blyth$ rm -rf /tmp/mercurial/env/thho/NuWa/python/histogram
-    delta:~ blyth$ hg --cwd /tmp/mercurial/env update 1598
-    1 files updated, 0 files merged, 0 files removed, 0 files unresolved
-    delta:~ blyth$ ll /tmp/mercurial/env/thho/NuWa/python/histogram/
-    total 16
-    -rw-r--r--   1 blyth  wheel  5258 Jul 24 20:28 PyHist.py
-    drwxr-xr-x  10 blyth  wheel   340 Jul 24 20:28 ..
-    drwxr-xr-x   3 blyth  wheel   102 Jul 24 20:28 .
-    delta:~ blyth$ 
-
-
-SVN permits case degenerate paths to have distinct entries in its DB, but Mercurial doesnt.
-
-
 
 """
 import os, logging, argparse
@@ -103,6 +16,7 @@ log = logging.getLogger(__name__)
 
 from env.svn.bindings.svncrawl import SVNCrawler
 from env.hg.bindings.hgcrawl import HGCrawler
+from env.scm.timezone import cst, utc
 
 def parse(doc):
     parser = argparse.ArgumentParser(doc)
@@ -112,7 +26,11 @@ def parse(doc):
     parser.add_argument("path", nargs=2 )
     parser.add_argument("--hgrev", default=None )
     parser.add_argument("--svnrev", default=None )
+    parser.add_argument("--srctz", default="utc", help="timezone of the SVN source timestamps, usually utc "  )
+    parser.add_argument("--loctz", default="cst", help="timezone in which to make comparisons "  )
     parser.add_argument("--svnprefix", default="/trunk", help="path prefix to remove before comparison" )
+    parser.add_argument("--degenerates", default=None, help="path to file containg list of degenerate paths to be unlinked prior to each hg update" )
+    parser.add_argument("--filemap", default=None, help="path to file containing include/exclude/rename directives" )
     parser.add_argument("-A","--ALLREV", action="store_true", help="Switch on traversal of all revisions, this is slow.")
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging,args.loglevel.upper()))
@@ -138,13 +56,18 @@ def compare_contents( hg, svn , svnprefix, common_paths ):
     svn_digest = svn.read_contents_digest()
     hg_digest = hg.contents_digest()
     mismatch_ = lambda _:hg_digest[_] != svn_digest[_]
-    mismatch = filter(mismatch_, common_paths)
+    mismatch = filter(mismatch_, common_paths)     # matching only the common paths
+
+    svn_only = list(set(svn_digest.keys()).difference(set(common_paths)))
+    hg_only = list(set(hg_digest.keys()).difference(set(common_paths)))
+
+    is_degenerate_ = lambda p:p in hg.degenerate_paths
+    degenerate_svn_only = filter( is_degenerate_, svn_only )
 
     check = {}
     check['hg_keys']  = sorted(hg_digest.keys()) == common_paths
-    check['svn_keys'] = sorted(svn_digest.keys()) == common_paths
-    check['zero mismatch'] = len(mismatch) == 0 
-    check['digest match']  = svn_digest == hg_digest
+    check['svn extras all degenerates'] = len(degenerate_svn_only) == len(svn_only)  
+    check['common path mismatch'] = len(mismatch) == 0 
 
     issues = filter(lambda _:not _[1], check.items()) 
 
@@ -153,6 +76,26 @@ def compare_contents( hg, svn , svnprefix, common_paths ):
         import IPython
         IPython.embed()
 
+
+def compare_log( hg, svn, hgrevs, svnrevs ):
+    """
+    """
+    assert len(hgrevs) == len(svnrevs)
+    youngest_rev = svn.youngest_rev()
+    hgkeys = hg.log.keys() 
+    svnkeys = svn.log.keys() 
+    assert min(svnkeys) == 0 
+    assert sorted(svnkeys) == range(0,max(svnkeys)+1), "expecting contiguous svnkeys revisions from 0 to maxrev "
+
+    for hrev, srev in zip(hgrevs, svnrevs):
+        h = hg.log[hrev]
+        s = svn.log[srev]
+        if str(h['log']) != str(s['log']):
+            log.info("hrev %s srev %s log divergence hlog [%s] slog [%s] " % (hrev, srev, h['log'],s['log']) )
+
+
+    import IPython
+    IPython.embed()
 
 
 def compare_paths( hg, svn, svnprefix, debug=False ):
@@ -188,11 +131,6 @@ def compare_paths( hg, svn, svnprefix, debug=False ):
         INFO:env.scm.migration.compare_hg_svn:issues encountered in compare_paths
 
     """
-    degenerates = {
-        'pyhist':['/thho/NuWa/python/histogram/pyhist.py',
-                  '/thho/NuWa/python/histogram/PyHist.py'],
-    }
-
     svn_dirs = svn.unprefixed_dirs( svnprefix )
     common_dirs, hg_only_dirs, svn_only_dirs, lines_dirs  = compare_lists( hg.dirs, svn_dirs )
 
@@ -203,9 +141,11 @@ def compare_paths( hg, svn, svnprefix, debug=False ):
     case_degenerate_ = lambda p:svn_paths.index(p) != len(svn_paths) - 1 - rl_svn_paths.index(p.lower())
     case_degenerates = filter( case_degenerate_ , svn_paths )
 
+    is_known_degenerate_ = lambda p:p in hg.degenerate_paths
+    degenerate_svn_only_paths = filter( is_known_degenerate_, svn_only_paths )
+
     check = {}
-    check['case_degenerates'] = len(case_degenerates) == 0
-    check['svn_only_paths'] = len(svn_only_paths) == 0
+    check['svn_only_paths'] = len(svn_only_paths) == len(degenerate_svn_only_paths)
     check['hg_only_paths'] = len(hg_only_paths) == 0
     check['svn_only_dirs'] = len(svn_only_dirs) == 0
     check['hg_only_dirs'] = len(hg_only_dirs) == 0
@@ -243,8 +183,22 @@ def main():
     args = parse(__doc__)
     hgdir = args.path[0]
     svndir = args.path[1]
-    hg  = HGCrawler(hgdir, verbose=args.verbose ) 
+
+    if not args.degenerates is None:
+        degenerate_paths = HGCrawler.load_degenerates( args.degenerates )
+    else:
+        degenerate_paths = []
+    pass
+
+    hg  = HGCrawler(hgdir, verbose=args.verbose, degenerate_paths=degenerate_paths ) 
     svn = SVNCrawler(svndir, verbose=args.verbose, skipempty=args.skipempty) 
+
+    dtz = dict(cst=cst,utc=utc)
+    srctz = dtz.get(args.srctz, None)
+    loctz = dtz.get(args.loctz, None)
+
+    hg.readlog(srctz=srctz, loctz=loctz)
+    svn.readlog(srctz=srctz, loctz=loctz)
 
     if args.ALLREV:
         youngest_rev = svn.youngest_rev()
@@ -256,10 +210,13 @@ def main():
     pass
     assert len(svnrevs) == len(hgrevs)  
 
+    compare_log( hg, svn, hgrevs, svnrevs )
+
     for hgrev, svnrev in zip(hgrevs,svnrevs):
         log.info("hgrev %s svnrev %s " % (hgrev, svnrev))
         hg.recurse(hgrev)   # updates hg working copy to this revision
         svn.recurse(svnrev)
+
         common_paths = compare_paths( hg, svn , args.svnprefix )
         compare_contents( hg , svn, args.svnprefix, common_paths )
     pass

@@ -59,15 +59,32 @@ SVN stores links as files starting link and containing the target path::
     Out[29]: True
 
 
+Log Comparison
+------------------
+
+::
+
+    delta:e blyth$ svn log -r2 -v
+    ------------------------------------------------------------------------
+    r2 | blyth | 2007-05-05 10:36:57 +0800 (Sat, 05 May 2007) | 1 line
+    Changed paths:
+
+
+
+
+
+
 Based on examples from 
 
 * http://svnbook.red-bean.com/en/1.7/svn.developer.usingapi.html
 * http://jtauber.com/python_subversion_binding/
 
 """
-import sys, argparse, logging, hashlib, pickle
+import sys, argparse, logging, hashlib, pickle, re
+from datetime import datetime
 import os.path
 import svn.fs, svn.core, svn.repos
+
 
 log = logging.getLogger(__name__)
 
@@ -134,6 +151,7 @@ class SVNCrawler(object):
         self.rootpath = rootpath
         self.verbose = verbose
         self.skipempty = skipempty
+        self.log = None
         self.reset()
 
     def read_contents_digest( self, revision=None, prefix='/trunk' ): 
@@ -167,18 +185,50 @@ class SVNCrawler(object):
         fs_obj = svn.repos.svn_repos_fs(repos_obj)
         rev = svn.fs.svn_fs_youngest_rev(fs_obj) 
         return rev
- 
+
+
+    date_ptn = re.compile("(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})\.(?P<subsec>\d*)Z")
+
+    def readlog(self, srctz=None, loctz=None):
+        """
+        :param loctz: tzinfo instance in which to make timestamp comparisons 
+        :param srctz: tzinfo instance for source SVN timestamps 
+        """
+        repos_obj = svn.repos.svn_repos_open(self.repos_path)
+        fs_obj = svn.repos.svn_repos_fs(repos_obj)
+        maxrev = svn.fs.svn_fs_youngest_rev(fs_obj) 
+        revlog = {}
+        log.info("readlog srctz %s loctz %s  to maxrev %s " % (repr(srctz),repr(loctz),maxrev) ) 
+        for rev in range(0,maxrev+1):
+            meta = {}
+            for propname in "log date author".split(): 
+                propval = svn.fs.revision_prop(fs_obj, rev, "svn:%s"%propname)
+                meta[propname] = propval
+            pass
+            d = self.date_ptn.match(meta['date']).groupdict()
+            tk = "year month day hour minute second".split()
+            tv = map(lambda k:int(d[k]), tk)
+            dt = datetime(*tv)
+            meta['srev'] = rev
+            meta['tsrc'] = dt.replace(tzinfo=srctz)
+            meta['tloc'] = meta['tsrc'].astimezone(loctz)
+            meta['ssrc'] = meta['tsrc'].strftime("%s")
+            meta['sloc'] = meta['tloc'].strftime("%s")
+            revlog[rev] = meta
+        pass
+        self.log = revlog
+
+
     def recurse(self, revision=None):
         """
         Passing root_obj between scopes causes segmentation faults, 
         SWIG can be that way.
         """
-
         repos_obj = svn.repos.svn_repos_open(self.repos_path)
         fs_obj = svn.repos.svn_repos_fs(repos_obj)
         rev = svn.fs.svn_fs_youngest_rev(fs_obj) if revision is None else int(revision)
         root_obj = svn.fs.svn_fs_revision_root(fs_obj, rev)
- 
+
         self.reset(revision)
         crawl_filesystem_dir(root_obj, self.rootpath, self.dir_, self.leaf_, self.exclude_dirs, self.rootpath, self.skipempty)
          
@@ -222,6 +272,7 @@ class SVNCrawler(object):
             paths = [path]
         pass
 
+
         for p in paths:
             props = svn.fs.node_proplist(root_obj, p)
             special = svn.fs.node_prop(root_obj, p, 'svn:special')
@@ -257,6 +308,7 @@ def parse(doc):
     parser.add_argument(     "--loglevel", default="info")
     parser.add_argument(     "--ALLREV", action="store_true", help="Switch on traversal of all revisions, this is slow.")
     parser.add_argument( "-K","--readpickle", action="store_true", help="Read from pickle files, not from SVN repo database")
+    parser.add_argument(      "--readlog", action="store_true", help="Read svn log info")
     parser.add_argument(     "--pickle", action="store_true", help="Switch on writing of digest pickle file")
     parser.add_argument(     "--pickle-path", default=None, help="Defaults to position one up from the repos_path")
     parser.add_argument( "-c", "--cat", default=None, help="path of node contents at the specified revision to cat to stdout ") 
@@ -321,6 +373,10 @@ def main():
                 pickle_write( digest, repos_path, revision )
             pass
         pass 
+    elif args.readlog:
+        sc.readlog()
+        import IPython
+        IPython.embed()
     else:
         sc.recurse(args.revision)
         print sc

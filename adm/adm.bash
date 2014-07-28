@@ -115,4 +115,57 @@ adm-svn-bindings(){
 
 
 
+adm-env-svnhg(){
+
+   local repo=env
+   local hgdir=/tmp/mercurial/$repo
+   local svndir=/var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637
+   local svnrev=1600
+   local hgrev=1598
+
+   local degenerates=~/.$repo/degenerates.cfg
+   local filemap=$(adm-filemap)
+
+   [ ! -d ~/.$repo ] && mkdir ~/.$repo 
+   [ ! -f $degenerates ] && adm-env-degenerates > $degenerates
+
+   compare_hg_svn.py $hgdir $svndir --svnrev $svnrev --hgrev $hgrev -A  --skipempty --degenerates $degenerates 
+
+}
+
+adm-repo(){ echo ${ADM_REPO:-env} ; }
+adm-filemap-path(){ echo ~/.$(adm-repo)/filemap.cfg  ; }
+adm-filemap(){ 
+  local repo=$(adm-repo)
+  case $repo in 
+     env) adm-filemap-$repo ;;
+  esac
+}
+adm-filemap-env(){ cat << EOF
+rename trunk/thho/NuWa/python/histogram/pyhist.py trunk/thho/NuWa/python/histogram/pyhist_avoiding_case_degeneracy.py
+EOF
+}
+
+
+adm-env-convert(){
+   local repo=${1:-env}
+   local hgr=/var/scm/mercurial/${repo:-env} 
+   #local url=http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk
+   local url=http://dayabay.phys.ntu.edu.tw/repos/$repo
+
+   local filemap=$(adm-filemap-path)
+   [ ! -f "$filemap" ] && adm-filemap > $filemap
+   local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr --filemap $filemap"
+   echo $cmd
+   eval $cmd
+}
+
+adm-env-degenerates(){ cat << EOF
+/thho/NuWa/python/histogram/pyhist.py
+/thho/NuWa/python/histogram/PyHist.py
+EOF
+}
+
+
+
 
