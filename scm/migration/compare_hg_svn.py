@@ -10,6 +10,15 @@
        # DUD svn revision 10, causes this to be the first to match 
 
 
+Mysteries:
+
+#. initial trunk only convert, had almost all revisions converted with clearer match
+   (simple constant revision offset) after the dud ? 
+   doing full convert has many dropouts for empties ? making the relationship
+   between SVN and HG revisions to require mappings.
+
+
+
 """
 import os, logging, argparse
 log = logging.getLogger(__name__)
@@ -77,26 +86,6 @@ def compare_contents( hg, svn , svnprefix, common_paths ):
         IPython.embed()
 
 
-def compare_log( hg, svn, hgrevs, svnrevs ):
-    """
-    """
-    assert len(hgrevs) == len(svnrevs)
-    youngest_rev = svn.youngest_rev()
-    hgkeys = hg.log.keys() 
-    svnkeys = svn.log.keys() 
-    assert min(svnkeys) == 0 
-    assert sorted(svnkeys) == range(0,max(svnkeys)+1), "expecting contiguous svnkeys revisions from 0 to maxrev "
-
-    for hrev, srev in zip(hgrevs, svnrevs):
-        h = hg.log[hrev]
-        s = svn.log[srev]
-        if str(h['log']) != str(s['log']):
-            log.info("hrev %s srev %s log divergence hlog [%s] slog [%s] " % (hrev, srev, h['log'],s['log']) )
-
-
-    import IPython
-    IPython.embed()
-
 
 def compare_paths( hg, svn, svnprefix, debug=False ):
     """
@@ -107,8 +96,14 @@ def compare_paths( hg, svn, svnprefix, debug=False ):
     #. update hg working copy to the revision
     #. query SVN db for list of paths at the svnrev 
 
-    Mercurial doesnt "do" empty directories 
+    #. Mercurial doesnt "do" empty directories 
+    #. Comparison trips up on symbolic links, have handled symbolic links to files
+       already but not to directories
 
+    http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/qxml
+    link db/bdbxml/qxml
+
+    http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/db/bdbxml/qxml/
 
     Even with skipempty, this is still tripping up:: 
 
@@ -160,10 +155,9 @@ def compare_paths( hg, svn, svnprefix, debug=False ):
             log.info("%s %s issues encountered in compare_paths" % (len(keys),repr(keys)))
             print "lines_dirs\n", "\n".join(lines_dirs)  
             print "lines_paths\n", "\n".join(lines_paths)  
-            import IPython
-            IPython.embed()
+            #import IPython
+            #IPython.embed()
         pass
-
     return common_paths
 
 
@@ -177,6 +171,129 @@ def revs_arg( arg ):
         revs = map(int,arg.split(","))
     pass
     return revs
+
+
+class Compare(object):
+    def __init__(self, hg, svn, args ):
+        """ 
+        :param hg: HGCrawler instance
+        :param svn: SVNCrawler instance
+        :param args:
+        """
+        self.hg = hg
+        self.svn = svn
+        self.args = args
+
+    def readlog(self):
+        """
+        #. read the SVN and HG logs and establish revision mapping 
+           using the timestamp  
+        """
+        dtz = dict(cst=cst,utc=utc)
+        srctz = dtz.get(self.args.srctz, None)
+        loctz = dtz.get(self.args.loctz, None)
+
+        self.hg.readlog(srctz=srctz, loctz=loctz)
+        self.svn.readlog(srctz=srctz, loctz=loctz)
+
+        svnrevs = self.svn.log.keys() 
+        assert min(svnrevs) == 0 
+        assert sorted(svnrevs) == range(0,max(svnrevs)+1), "expecting contiguous svn revisions from 0 to maxrev "
+
+        ho, so, co = self.compare_timestamps()
+        self.dump_only( ho, so )
+        
+        revs, h2s, s2h = self.compare_log( co )
+
+        self.revs = revs
+        self.h2s = h2s
+        self.s2h = s2h
+
+        self.ho = ho
+        self.so = so
+        self.co = co
+
+
+    def compare_timestamps(self):
+        st = set(self.svn.tlog.keys())
+        ht = set(self.hg.tlog.keys())
+        ho = ht.difference(st)
+        so = st.difference(ht)
+        co = ht.intersection(st)
+        return ho, so, co
+
+    def dump_only(self, ho, so ):
+        """
+        hg only entries explained by mismatches in repo snapshots 
+
+        #. hg convert uses the live SVN repo, will be as uptodate as the convert
+        #. SVN log access using the backup repo, will be as uptodate as the backup
+
+        **So far** svn only entries are all explained by SVN 
+        commits which do not constitute a hg revision, namely:
+
+        #. create/delete empty folders only
+        #. dud SVN revisions (r10 in env)
+        #. change svn revision properties
+
+        """
+        log.info("hg only : %s entries" % len(ho))
+        for t in sorted(ho):
+            log.debug("%(hrev)s %(log)s " % self.hg.tlog[t])
+
+        log.info("svn only : %s entries" % len(so))
+        for t in sorted(so):
+            log.debug("%(srev)s %(log)s " % self.svn.tlog[t])
+
+
+    def compare_log(self, co):
+        """
+        :param co: list of timestamps in common between svn and hg
+
+        Checks that the normalized log messages match and 
+        creates mapping between 
+        """
+        def lognorm(l):
+            lt = l.lstrip().rstrip()  # trim
+            return " ".join(lt.split()) # collapse whitespace
+
+        h2s = {}
+        s2h = {}
+        revs = []
+
+        for t in sorted(co):
+            hl = lognorm(self.hg.tlog[t]['log'])
+            sl = lognorm(self.svn.tlog[t]['log'])
+            hrev = self.hg.tlog[t]['hrev']
+            srev = self.svn.tlog[t]['srev']
+            revs.append( (hrev, srev,) )
+            h2s[hrev] = srev
+            s2h[srev] = hrev
+            if hl != sl:
+                print "hg/svn revision with common timestamp BUT with different log"
+                print "h %-5s [%-70s]" % (hrev, hl) 
+                print "s %-5s [%-70s]" % (srev, sl)
+                assert 0, "after normalization the log entries should match "
+            pass
+        return revs, h2s, s2h
+
+
+    def revisions(self):  
+        if self.args.ALLREV:
+            youngest_rev = self.svn.youngest_rev()
+            svnrevs = range(int(self.args.svnrev),youngest_rev+1)
+            hgrevs = range(int(self.args.hgrev),int(self.args.hgrev)+len(svnrevs))
+        else:
+            svnrevs = revs_arg(self.args.svnrev)
+            hgrevs = revs_arg(self.args.hgrev)
+        pass
+        assert len(svnrevs) == len(hgrevs)  
+        return zip(hgrevs, svnrevs)
+
+
+
+
+
 
 
 def main():
@@ -193,26 +310,10 @@ def main():
     hg  = HGCrawler(hgdir, verbose=args.verbose, degenerate_paths=degenerate_paths ) 
     svn = SVNCrawler(svndir, verbose=args.verbose, skipempty=args.skipempty) 
 
-    dtz = dict(cst=cst,utc=utc)
-    srctz = dtz.get(args.srctz, None)
-    loctz = dtz.get(args.loctz, None)
+    cf = Compare( hg, svn, args )
+    cf.readlog()
 
-    hg.readlog(srctz=srctz, loctz=loctz)
-    svn.readlog(srctz=srctz, loctz=loctz)
-
-    if args.ALLREV:
-        youngest_rev = svn.youngest_rev()
-        svnrevs = range(int(args.svnrev),youngest_rev+1)
-        hgrevs = range(int(args.hgrev),int(args.hgrev)+len(svnrevs))
-    else:
-        svnrevs = revs_arg(args.svnrev)
-        hgrevs = revs_arg(args.hgrev)
-    pass
-    assert len(svnrevs) == len(hgrevs)  
-
-    compare_log( hg, svn, hgrevs, svnrevs )
-
-    for hgrev, svnrev in zip(hgrevs,svnrevs):
+    for hgrev, svnrev in cf.revs:
         log.info("hgrev %s svnrev %s " % (hgrev, svnrev))
         hg.recurse(hgrev)   # updates hg working copy to this revision
         svn.recurse(svnrev)

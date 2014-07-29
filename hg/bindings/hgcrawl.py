@@ -168,7 +168,7 @@ class HGCrawler(object):
             tsrc = datetime.fromtimestamp(datz[0], srctz )
             tloc = tsrc.astimezone(loctz)
 
-            log.info("dbit %s datz %s  " % (repr(dbit), repr(datz)))      
+            log.debug("dbit %s datz %s  " % (repr(dbit), repr(datz)))      
             revlog[rev] = { 
                         'hrev':rev, 
                          'log':desc[i], 
@@ -181,6 +181,19 @@ class HGCrawler(object):
             pass
 
         self.log = revlog
+        self.tlog = self.reindex( revlog, key='sloc')
+
+    def reindex(self, revlog, key='sloc'):
+        """
+        :param revlog: dict of revision records keyed by revision number
+        :param key: name of key to reindex on
+        """
+        klog = {}
+        for hrev,h in revlog.items():
+            klog[h[key]] = h 
+        pass
+        assert len(klog) == len(revlog) , "need unique key for useful reindexing "
+        return klog 
 
     def recurse(self, hgrev):
         """
@@ -191,6 +204,7 @@ class HGCrawler(object):
         """
         self.reset(hgrev)
 
+        # 
         #for path in self.degenerate_paths:
         #    if path[0] == '/':path = path[1:]
         #    abspath = os.path.join(self.hgdir, path)
@@ -199,7 +213,7 @@ class HGCrawler(object):
         #        os.unlink(abspath)
         #    pass
 
-        log.info("calling hg_update %s " % hgrev )
+        log.debug("calling hg_update %s " % hgrev )
         self.hg.hg_update(hgrev)
         crawler( self.hgdir, self.hgdir, self.dir_, self.leaf_, self.rootpath, self.exclude_dirs )
 

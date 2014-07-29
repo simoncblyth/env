@@ -114,49 +114,74 @@ adm-svn-bindings(){
 }
 
 
+adm-svndir(){
+  case $1 in 
+    env) echo /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 ;; 
+  esac
+}
+adm-svnrev(){
+  case $1 in 
+    env) echo 1600 ;;
+  esac
+}
+adm-hgrev(){
+  case $1 in 
+    env) echo 1598 ;;
+  esac
+}
 
-adm-env-svnhg(){
+adm-svnhg(){
 
-   local repo=env
+   local repo=$(adm-repo)
    local hgdir=/tmp/mercurial/$repo
-   local svndir=/var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637
-   local svnrev=1600
-   local hgrev=1598
+   local svndir=$(adm-svndir $repo)
+   local svnrev=$(adm-svnrev $repo)
+   local hgrev=$(adm-hgrev $repo)
+   local filemap=$(adm-filemap $repo)
 
-   local degenerates=~/.$repo/degenerates.cfg
-   local filemap=$(adm-filemap)
+   #local degenerates=~/.$repo/degenerates.cfg
+   #[ ! -d ~/.$repo ] && mkdir ~/.$repo 
+   #[ ! -f $degenerates ] && adm-env-degenerates > $degenerates
+   #compare_hg_svn.py $hgdir $svndir --svnrev $svnrev --hgrev $hgrev -A  --skipempty --degenerates $degenerates
 
-   [ ! -d ~/.$repo ] && mkdir ~/.$repo 
-   [ ! -f $degenerates ] && adm-env-degenerates > $degenerates
-
-   compare_hg_svn.py $hgdir $svndir --svnrev $svnrev --hgrev $hgrev -A  --skipempty --degenerates $degenerates 
+   compare_hg_svn.py $hgdir $svndir --svnrev $svnrev --hgrev $hgrev -A  --skipempty 
 
 }
 
 adm-repo(){ echo ${ADM_REPO:-env} ; }
 adm-filemap-path(){ echo ~/.$(adm-repo)/filemap.cfg  ; }
-adm-filemap(){ 
+adm-filemap(){
   local repo=$(adm-repo)
   case $repo in 
      env) adm-filemap-$repo ;;
   esac
 }
 adm-filemap-env(){ cat << EOF
-rename trunk/thho/NuWa/python/histogram/pyhist.py trunk/thho/NuWa/python/histogram/pyhist_avoiding_case_degeneracy.py
+rename thho/NuWa/python/histogram/pyhist.py thho/NuWa/python/histogram/pyhist_rename_to_avoid_degeneracy.py 
 EOF
 }
 
 
 adm-env-convert(){
+   local msg="=== $FUNCNAME :"
    local repo=${1:-env}
    local hgr=/var/scm/mercurial/${repo:-env} 
-   #local url=http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk
-   local url=http://dayabay.phys.ntu.edu.tw/repos/$repo
+   local url=http://dayabay.phys.ntu.edu.tw/repos/$repo    # NB no trunk 
 
    local filemap=$(adm-filemap-path)
-   [ ! -f "$filemap" ] && adm-filemap > $filemap
-   local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr --filemap $filemap"
+   adm-filemap > $filemap
+
+   echo $msg filemap $filemap
+   cat $filemap
+
+   # restrict source rev to beyond the degenerates, in order to cycle on filemap changes faster
+   local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr --filemap $filemap --rev 1720"
    echo $cmd
+
+   local ans
+   read -p "$msg enter YES to proceed " ans
+   [ "$ans" != "YES" ] && return
+
    eval $cmd
 }
 

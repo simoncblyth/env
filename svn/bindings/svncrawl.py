@@ -96,7 +96,7 @@ def crawl_filesystem_dir(root, directory, dir_, leaf_, exclude_dirs=['tags','bra
     names = entries.keys()
     reldir = directory[len(rootpath):]  
     if skipempty and len(names) == 0:
-        log.info("skipempty dir %s " % reldir )
+        log.debug("skipempty dir %s " % reldir )
     else:
         dir_(reldir)
     pass
@@ -217,7 +217,22 @@ class SVNCrawler(object):
             revlog[rev] = meta
         pass
         self.log = revlog
+        self.tlog = self.reindex( revlog, key='sloc')
 
+    def reindex(self, revlog, key='sloc'):
+        """
+        Convert revision keyed log records to be keyed by some other thing, 
+        typically a timestamp
+
+        :param revlog: dict of revision records keyed by revision number
+        :param key: name of key to reindex on
+        """
+        klog = {}
+        for srev,s in revlog.items():
+            klog[s[key]] = s 
+        pass
+        assert len(klog) == len(revlog) - 1 , "(-1 as rev 0 and 1 have same timestamp) need unique key for useful reindexing "
+        return klog 
 
     def recurse(self, revision=None):
         """
