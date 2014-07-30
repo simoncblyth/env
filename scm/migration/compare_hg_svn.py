@@ -21,9 +21,11 @@ Mysteries:
 
 """
 import os, logging, argparse
+import IPython as IP
 log = logging.getLogger(__name__)
 
 from env.svn.bindings.svncrawl import SVNCrawler
+from env.svn.bindings.svnclient import SVNClient
 from env.hg.bindings.hgcrawl import HGCrawler
 from env.scm.timezone import cst, utc
 
@@ -35,9 +37,13 @@ def parse(doc):
     parser.add_argument("path", nargs=2 )
     parser.add_argument("--hgrev", default=None )
     parser.add_argument("--svnrev", default=None )
+
+    parser.add_argument( "--svnpath", default="/tmp/subversion/env", help="")
+    parser.add_argument( "--svnurl",  default="http://dayabay.phys.ntu.edu.tw/repos/env/trunk/", help="")
+
     parser.add_argument("--srctz", default="utc", help="timezone of the SVN source timestamps, usually utc "  )
     parser.add_argument("--loctz", default="cst", help="timezone in which to make comparisons "  )
-    parser.add_argument("--svnprefix", default="/trunk", help="path prefix to remove before comparison" )
+    parser.add_argument("--svnprefix", default="", help="path prefix to remove before comparison, formerly /trunk but thats not needed with SVNClient" )
     parser.add_argument("--degenerates", default=None, help="path to file containg list of degenerate paths to be unlinked prior to each hg update" )
     parser.add_argument("--filemap", default=None, help="path to file containing include/exclude/rename directives" )
     parser.add_argument("-A","--ALLREV", action="store_true", help="Switch on traversal of all revisions, this is slow.")
@@ -60,9 +66,11 @@ def compare_lists( l, r, verbose=False ):
         pass
     return sorted(list(l.intersection(r))),sorted(list(l.difference(r))),sorted(list(r.difference(l))), lines
 
+
+
 def compare_contents( hg, svn , svnprefix, common_paths ):
     pass
-    svn_digest = svn.read_contents_digest()
+    svn_digest = svn.contents_digest()
     hg_digest = hg.contents_digest()
     mismatch_ = lambda _:hg_digest[_] != svn_digest[_]
     mismatch = filter(mismatch_, common_paths)     # matching only the common paths
@@ -70,12 +78,10 @@ def compare_contents( hg, svn , svnprefix, common_paths ):
     svn_only = list(set(svn_digest.keys()).difference(set(common_paths)))
     hg_only = list(set(hg_digest.keys()).difference(set(common_paths)))
 
-    is_degenerate_ = lambda p:p in hg.degenerate_paths
-    degenerate_svn_only = filter( is_degenerate_, svn_only )
-
     check = {}
     check['hg_keys']  = sorted(hg_digest.keys()) == common_paths
-    check['svn extras all degenerates'] = len(degenerate_svn_only) == len(svn_only)  
+    check['svn_only'] = len(svn_only) == 0
+    check['hg_only'] = len(hg_only) == 0
     check['common path mismatch'] = len(mismatch) == 0 
 
     issues = filter(lambda _:not _[1], check.items()) 
@@ -87,12 +93,13 @@ def compare_contents( hg, svn , svnprefix, common_paths ):
 
 
 
-def compare_paths( hg, svn, svnprefix, debug=False ):
+def compare_paths( hg, svn, svnprefix, fmap=None, debug=False ):
     """
     :param hg: HGCrawler instance
-    :param svn: SVNCrawler instance
-    :param svnprefix: path prefix to be removed from SVN paths before comparison
-
+    :param svn: SVNCrawler or SVNClient instance
+    :param svnprefix: path prefix to be removed from SVN paths before comparison, eg /trunk when using SVNCrawler
+    :param fmap: FileMap instance or None
+ 
     #. update hg working copy to the revision
     #. query SVN db for list of paths at the svnrev 
 
@@ -105,42 +112,24 @@ def compare_paths( hg, svn, svnprefix, debug=False ):
 
     http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/db/bdbxml/qxml/
 
-    Even with skipempty, this is still tripping up:: 
-
-        INFO:env.scm.migration.compare_hg_svn:hgrev 644 svnrev 646 
-        INFO:env.svn.bindings.svncrawl:skipempty dir /trunk/thho/root 
-        INFO:env.svn.bindings.svncrawl:skipempty dir /trunk/dyb/gaudi 
-        INFO:env.svn.bindings.svncrawl:skipempty dir /trunk/dyb/external 
-        lines_dirs
-         [ r] /thho                
-        lines_paths
-
-        INFO:env.scm.migration.compare_hg_svn:hgrev 1444 svnrev 1446 
-        INFO:env.svn.bindings.svncrawl:skipempty dir /trunk/unittest/nose/html 
-        INFO:env.svn.bindings.svncrawl:skipempty dir /trunk/macros/aberdeen 
-        INFO:env.svn.bindings.svncrawl:skipempty dir /trunk/thho/NuWa/python 
-        lines_dirs
-         [ r] /thho/NuWa           
-        lines_paths
-
-        INFO:env.scm.migration.compare_hg_svn:issues encountered in compare_paths
 
     """
-    svn_dirs = svn.unprefixed_dirs( svnprefix )
+    if svnprefix is "":
+        svn_dirs = svn.dirs
+        svn_paths = svn.paths
+    else:
+        svn_dirs = svn.unprefixed_dirs( svnprefix )
+        svn_paths = svn.unprefixed_paths( svnprefix )
+    pass
+
     common_dirs, hg_only_dirs, svn_only_dirs, lines_dirs  = compare_lists( hg.dirs, svn_dirs )
 
-    svn_paths = svn.unprefixed_paths( svnprefix )
+    if not fmap is None:
+        svn_paths = fmap.apply( svn_paths )
+
     common_paths, hg_only_paths, svn_only_paths, lines_paths = compare_lists( hg.paths, svn_paths )
 
-    rl_svn_paths = list(reversed(map(lambda _:_.lower(), svn_paths )))  
-    case_degenerate_ = lambda p:svn_paths.index(p) != len(svn_paths) - 1 - rl_svn_paths.index(p.lower())
-    case_degenerates = filter( case_degenerate_ , svn_paths )
-
-    is_known_degenerate_ = lambda p:p in hg.degenerate_paths
-    degenerate_svn_only_paths = filter( is_known_degenerate_, svn_only_paths )
-
     check = {}
-    check['svn_only_paths'] = len(svn_only_paths) == len(degenerate_svn_only_paths)
     check['hg_only_paths'] = len(hg_only_paths) == 0
     check['svn_only_dirs'] = len(svn_only_dirs) == 0
     check['hg_only_dirs'] = len(hg_only_dirs) == 0
@@ -149,15 +138,12 @@ def compare_paths( hg, svn, svnprefix, debug=False ):
 
     if len(issues) > 0:
         keys = issues.keys()
-        if len(issues) == 2 and 'case_degenerates' in keys and 'svn_only_paths' in keys and  svn_only_paths == case_degenerates:
-            log.info("compare_paths : known problem of case_degenerates %s " % repr(case_degenerates) ) 
-        else:
-            log.info("%s %s issues encountered in compare_paths" % (len(keys),repr(keys)))
-            print "lines_dirs\n", "\n".join(lines_dirs)  
-            print "lines_paths\n", "\n".join(lines_paths)  
-            #import IPython
-            #IPython.embed()
+        log.info("%s %s issues encountered in compare_paths" % (len(keys),repr(keys)))
+        print "lines_dirs\n", "\n".join(lines_dirs)  
+        print "lines_paths\n", "\n".join(lines_paths)  
         pass
+
+    #IP.embed()
     return common_paths
 
 
@@ -197,8 +183,10 @@ class Compare(object):
         self.svn.readlog(srctz=srctz, loctz=loctz)
 
         svnrevs = self.svn.log.keys() 
-        assert min(svnrevs) == 0 
-        assert sorted(svnrevs) == range(0,max(svnrevs)+1), "expecting contiguous svn revisions from 0 to maxrev "
+        contiguous = range(min(svnrevs),max(svnrevs)+1)
+        is_contiguous = contiguous == sorted(svnrevs)
+        missing = list(set(contiguous).difference(set(svnrevs)))
+        log.info("svnrevs min/max/count %s %s %s contiguous? %s missing %s " % (min(svnrevs),max(svnrevs),len(svnrevs), is_contiguous, repr(missing))) 
 
         ho, so, co = self.compare_timestamps()
         self.dump_only( ho, so )
@@ -220,6 +208,7 @@ class Compare(object):
         ho = ht.difference(st)
         so = st.difference(ht)
         co = ht.intersection(st)
+        #IP.embed()
         return ho, so, co
 
     def dump_only(self, ho, so ):
@@ -278,6 +267,16 @@ class Compare(object):
         return revs, h2s, s2h
 
 
+    def recurse(self, hgrev, svnrev ):
+        """
+        #. updates hg working copy to this revision and crawls filesystem noting paths and dirs
+        #. queries SVN database for this revision
+          (hmm maybe should do based on working copy)
+        """
+        log.info("hgrev %s svnrev %s hgrev-svnrev %s " % (hgrev, svnrev, int(hgrev)-int(svnrev) ))
+        self.hg.recurse(hgrev)  
+        self.svn.recurse(svnrev)
+
     def revisions(self):  
         if self.args.ALLREV:
             youngest_rev = self.svn.youngest_rev()
@@ -291,36 +290,78 @@ class Compare(object):
         return zip(hgrevs, svnrevs)
 
 
+class FileMap(object):
+   def __init__(self, path ):
+       chomp_ = lambda line:line.rstrip().lstrip()
+       not_comment_ = lambda line:not line[0] == '#'
+       with open(path,"r") as fp:
+           lines = filter(not_comment_,map(chomp_,fp.readlines()))
+       pass
+       rename, include, exclude = self.parse_content(lines)
+       self.rename = rename
+       self.include = include
+       self.exclude = exclude
 
+   def apply(self, paths):
+       pths = []
+       for p in paths:
+           if p in self.rename:
+               pp = self.rename[p] 
+           else:
+               pp = p
+           pass
+           pths.append(pp)
+       return pths
 
+   def parse_content(self, lines):
+       rename = {}
+       include = []
+       exclude = [] 
+
+       for line in lines:
+           elems = line.split()
+           if elems[0] == 'rename' and len(elems)==3:
+               rename[elems[1]] = elems[2]
+           elif elems[0] == 'include' and len(elems) == 2:
+               include.append(elems[1])
+           elif elems[0] == 'exclude' and len(elems) == 2:
+               exclude.append(elems[1])
+           else:
+               log.warn("ignoring unexpected line : %s " % line )
+           pass
+       return rename, include, exclude    
 
 
 
 def main():
     args = parse(__doc__)
+
+    m_hgrev  = int(args.hgrev) if not args.hgrev is None else 0
+    m_svnrev = int(args.svnrev) if not args.svnrev is None else 0
+
     hgdir = args.path[0]
-    svndir = args.path[1]
+    svndir = args.path[1]   # to backup SVN repo
 
-    if not args.degenerates is None:
-        degenerate_paths = HGCrawler.load_degenerates( args.degenerates )
-    else:
-        degenerate_paths = []
-    pass
+    fmap = FileMap( args.filemap ) if not args.filemap is None else None
+    hg  = HGCrawler(hgdir, verbose=args.verbose ) 
 
-    hg  = HGCrawler(hgdir, verbose=args.verbose, degenerate_paths=degenerate_paths ) 
-    svn = SVNCrawler(svndir, verbose=args.verbose, skipempty=args.skipempty) 
+    #svn = SVNCrawler(svndir, verbose=args.verbose, skipempty=args.skipempty)     # direct access to backup SVN repo
+    svn = SVNClient(args.svnurl, args.svnpath,  verbose=args.verbose, skipempty=args.skipempty)  # client working copy access
 
     cf = Compare( hg, svn, args )
     cf.readlog()
 
     for hgrev, svnrev in cf.revs:
-        log.info("hgrev %s svnrev %s " % (hgrev, svnrev))
-        hg.recurse(hgrev)   # updates hg working copy to this revision
-        svn.recurse(svnrev)
+        if hgrev < m_hgrev or svnrev < m_svnrev:continue 
+        cf.recurse( hgrev, svnrev )
 
-        common_paths = compare_paths( hg, svn , args.svnprefix )
+        #IP.embed()
+
+        common_paths = compare_paths( hg, svn, args.svnprefix, fmap )
         compare_contents( hg , svn, args.svnprefix, common_paths )
     pass
+
+
 
 
 

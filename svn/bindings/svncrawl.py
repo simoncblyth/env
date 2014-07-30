@@ -70,10 +70,6 @@ Log Comparison
     Changed paths:
 
 
-
-
-
-
 Based on examples from 
 
 * http://svnbook.red-bean.com/en/1.7/svn.developer.usingapi.html
@@ -85,55 +81,43 @@ from datetime import datetime
 import os.path
 import svn.fs, svn.core, svn.repos
 
+from svncommon import unprefix
 
 log = logging.getLogger(__name__)
 
 def crawl_filesystem_dir(root, directory, dir_, leaf_, exclude_dirs=['tags','branches'], rootpath='/trunk', skipempty=False):
     """
     Recursive crawler of SVN repository 
+
+    #. cannot just check for no entries to detect empties, 
+       as folders containing nothing but other empty folders would be 
+       considered non-empty unlike Mercurial behavior 
+
     """
     entries = svn.fs.svn_fs_dir_entries(root, directory)
     names = entries.keys()
     reldir = directory[len(rootpath):]  
-    if skipempty and len(names) == 0:
-        log.debug("skipempty dir %s " % reldir )
-    else:
-        dir_(reldir)
-    pass
 
+    leaves = []
     for name in names:
         full_path = directory + '/' + name
         if svn.fs.svn_fs_is_dir(root, full_path):
             if not name in exclude_dirs:
-                crawl_filesystem_dir(root, full_path, dir_, leaf_, exclude_dirs, rootpath, skipempty)
+                subleaves = crawl_filesystem_dir(root, full_path, dir_, leaf_, exclude_dirs, rootpath, skipempty)
+                leaves.extend(subleaves)
         else:
-            leaf_(full_path[len(rootpath):])
+            leaves.append(full_path[len(rootpath):])
         pass
     pass
 
+    if len(leaves) == 0 and skipempty:
+        log.debug("skipempty dir %s " % reldir )
+    else:
+        log.debug("dir %s has %s leaves " % (reldir,len(leaves)) )
+        dir_(reldir)
+    pass
+    return leaves 
 
-
-def unprefix( paths, prefix, debug=False ):
-    """ 
-    :param paths: list of paths
-    :param prefix: string prefix 
-    :return: list of paths with prefix removed
-    """
-    is_not_blank_ = lambda _:len(_) > 0 
-    is_prefixed_ = lambda _:_[0:len(prefix)] == prefix
-    is_not_prefixed_ = lambda _:_[0:len(prefix)] != prefix
-    unprefix_ = lambda _:_[len(prefix):] 
-
-    non_blank = filter( is_not_blank_, paths )
-    ppaths = filter( is_prefixed_ ,     non_blank )
-
-    if debug:
-        upaths = filter( is_not_prefixed_ , non_blank )
-        print "upaths %s " % repr(upaths)
-        print "ppaths %s " % repr(ppaths)
- 
-    assert len(ppaths) == len(non_blank), (len(ppaths),len(non_blank),"all non blank paths are expected to start with the prefix %s " % prefix )
-    return map( unprefix_ , ppaths )   
 
 
 
@@ -154,7 +138,7 @@ class SVNCrawler(object):
         self.log = None
         self.reset()
 
-    def read_contents_digest( self, revision=None, prefix='/trunk' ): 
+    def contents_digest( self, revision=None, prefix='/trunk' ): 
         """
         :param revision: defaults to revision of the prior recurse
         :return: dict keyed by path with content digests for each file
@@ -245,8 +229,10 @@ class SVNCrawler(object):
         root_obj = svn.fs.svn_fs_revision_root(fs_obj, rev)
 
         self.reset(revision)
-        crawl_filesystem_dir(root_obj, self.rootpath, self.dir_, self.leaf_, self.exclude_dirs, self.rootpath, self.skipempty)
-         
+        leaves = crawl_filesystem_dir(root_obj, self.rootpath, self.dir_, self.leaf_, self.exclude_dirs, self.rootpath, self.skipempty)
+        map(self.leaf_, leaves)
+        
+ 
     def leaf_(self, rpath):
         self.paths.append(rpath)
         if self.verbose:
@@ -362,7 +348,7 @@ def main():
     repos_path = svn.core.svn_dirent_canonicalize(args.path[0])
     sc = SVNCrawler(repos_path, verbose=args.verbose, skipempty=args.skipempty)
     if args.readpickle:
-        digest = sc.read_contents_digest( args.revision ) 
+        digest = sc.contents_digest( args.revision ) 
         if path in digest:
             print digest[path]
         else:

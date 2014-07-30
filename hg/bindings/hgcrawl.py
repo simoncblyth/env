@@ -36,8 +36,6 @@ Many errors, did the degeneracy handling deletions touch something it should not
      data/AbtViz/Abtfiles/Aberdeen_World_extract.root.i@3304: missing revlog!
      data/AbtViz/Abtfiles/ev.py.i@3304: missing revlog!
 
-
-
 No verify errors in the bare repo into which the `hg convert` writes::
 
     (adm_env)delta:mercurial blyth$ hg-
@@ -87,6 +85,8 @@ import hgapi
 
 from datetime import datetime
 from env.scm.timezone import cst 
+from env.svn.bindings.svncommon import mimic_svn_link_digest
+
 
 def crawler(root, directory, dir_, leaf_, rootpath, exclude_dirs=[".hg"]):
     """
@@ -108,37 +108,29 @@ def crawler(root, directory, dir_, leaf_, rootpath, exclude_dirs=[".hg"]):
         pass
 
 
-def mimic_svn_link_digest(link):
-    assert os.path.islink(link)
-    target = os.readlink(link)
-    mimic = "link %s" % target 
-    digest = hashlib.md5(mimic).hexdigest() 
-    log.info("link %s target %s mimic %s digest %s " % (link,target,mimic,digest)) 
-    return digest 
-
 
 class HGCrawler(object):
-    @classmethod 
-    def load_degenerates(cls, path):
-        assert not path is None
-        path = os.path.expanduser(path)
-        chomp_ = lambda _:_[:-1]
-        if os.path.exists(path):
-           with open(path,"r") as fp:
-              degenerate_paths = map(chomp_,fp.readlines())
-        else:
-            degenerate_paths = []  
-        pass
-        log.info("read degenerates from path %s " % path )
-        return degenerate_paths
+    #@classmethod 
+    #def load_degenerates(cls, path):
+    #    assert not path is None
+    #    path = os.path.expanduser(path)
+    #    chomp_ = lambda _:_[:-1]
+    #    if os.path.exists(path):
+    #       with open(path,"r") as fp:
+    #          degenerate_paths = map(chomp_,fp.readlines())
+    #    else:
+    #        degenerate_paths = []  
+    #    pass
+    #    log.info("read degenerates from path %s " % path )
+    #    return degenerate_paths
 
-    def __init__(self, hgdir, verbose=False, exclude_dirs=[".hg"], degenerate_paths=[]):
+    def __init__(self, hgdir, verbose=False, exclude_dirs=[".hg"]):
         assert os.path.exists(os.path.join(hgdir,'.hg'))
         self.verbose = verbose
         self.hg = hgapi.Repo(hgdir)
         self.hgdir = hgdir
         self.exclude_dirs = exclude_dirs
-        self.degenerate_paths = degenerate_paths
+        #self.degenerate_paths = degenerate_paths
         self.rootpath = hgdir
         self.hist = None
 
@@ -150,6 +142,14 @@ class HGCrawler(object):
     date_ptn = re.compile("([0123456789\.]*)([+-][\d]*)")
 
     def readlog(self, srctz=None, loctz=None, delim="@@@"):
+        """
+        :param srctz: source tzinfo instance, usually UTC
+        :param loctz: local tzinfo instance
+        :param delim: string delimiter, that must not be present in any log message, author name etc.. 
+
+        Reads hg logs creating `self.log` revision keyed dict 
+        and `self.tlog` timestamp keyed dict
+        """
         log.info("readlog")
         revs = map(int,self.hg.hg_log(template="{rev}"+delim).split(delim)[:-1])
         desc = self.hg.hg_log(template="{desc}"+delim).split(delim)[:-1]
@@ -175,8 +175,8 @@ class HGCrawler(object):
                       'author':auth[i], 
                         'tloc':tloc, 
                         'tsrc':tsrc, 
-                        'sloc':tloc.strftime("%s"), 
-                        'ssrc':tsrc.strftime("%s"), 
+                        'sloc':int(tloc.strftime("%s")), 
+                        'ssrc':int(tsrc.strftime("%s")), 
                         }
             pass
 
@@ -203,22 +203,19 @@ class HGCrawler(object):
         and recursively crawls the filesystem
         """
         self.reset(hgrev)
-
-        # 
-        #for path in self.degenerate_paths:
-        #    if path[0] == '/':path = path[1:]
-        #    abspath = os.path.join(self.hgdir, path)
-        #    if os.path.exists(abspath):
-        #        log.info("unlinking degenerate path %s " % abspath)
-        #        os.unlink(abspath)
-        #    pass
-
         log.debug("calling hg_update %s " % hgrev )
         self.hg.hg_update(hgrev)
         crawler( self.hgdir, self.hgdir, self.dir_, self.leaf_, self.rootpath, self.exclude_dirs )
 
     def contents_digest(self):
-        pass
+        """
+        #. called by compare_contents following a recurse 
+           to update the working copy to a revision and crawl it to compile lists of dirs and paths
+        #. `self.paths` are resolved relative to `self.hgdir`
+        #.  special handling of symbolic links to mimic SVN 
+
+        :return: dict keyed on path containing file content digests for all files resolved from `self.paths`  
+        """
         def _digest(fp):
             md5 = hashlib.md5()
             for chunk in iter(lambda: fp.read(8192),''): 
@@ -274,13 +271,9 @@ def parse(doc):
     
 def main():
     args = parse(__doc__)
-    if not args.degenerates is None:
-        degenerate_paths = HGCrawler.load_degenerates( args.degenerates )
-    else:
-        degenerate_paths = []
-    pass 
  
-    hc = HGCrawler(args.path[0], verbose=args.verbose, exclude_dirs=[".hg"], degenerate_paths=degenerate_paths)
+
+    hc = HGCrawler(args.path[0], verbose=args.verbose, exclude_dirs=[".hg"])
     hc.recurse(args.revision)
 
     path = args.md5

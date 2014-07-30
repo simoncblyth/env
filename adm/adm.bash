@@ -49,6 +49,12 @@ seems not to get propagated via virtualenv::
       /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/svn-python.pth
 
 
+main site-packages access (July 30, 2014)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Motivated by pysvn access, applied adm-site-packages 
+
+
 env access
 ~~~~~~~~~~~
 
@@ -110,8 +116,13 @@ adm-env-ln(){
    ln -s $(env-home) $(adm-sitedir)/env
 }
 adm-svn-bindings(){
-    echo /opt/local/lib/svn-python2.7 > $(adm-sitedir)/svn-python.pth 
+   echo /opt/local/lib/svn-python2.7 > $(adm-sitedir)/svn-python.pth 
 }
+adm-site-packages(){
+   # potential to open a can of worms, but I want pysvn installed from macports access 
+   echo /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages > $(adm-sitedir)/site-packages.pth
+}
+
 
 
 adm-svndir(){
@@ -119,14 +130,11 @@ adm-svndir(){
     env) echo /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 ;; 
   esac
 }
-adm-svnrev(){
+
+adm-hgsvnrev(){
   case $1 in 
-    env) echo 1600 ;;
-  esac
-}
-adm-hgrev(){
-  case $1 in 
-    env) echo 1598 ;;
+    env0) echo 1600 1598 ;;
+    env) echo 3470 1598 ;;
   esac
 }
 
@@ -135,17 +143,13 @@ adm-svnhg(){
    local repo=$(adm-repo)
    local hgdir=/tmp/mercurial/$repo
    local svndir=$(adm-svndir $repo)
-   local svnrev=$(adm-svnrev $repo)
-   local hgrev=$(adm-hgrev $repo)
-   local filemap=$(adm-filemap $repo)
+   local filemap=$(adm-filemap-path)
 
-   #local degenerates=~/.$repo/degenerates.cfg
-   #[ ! -d ~/.$repo ] && mkdir ~/.$repo 
-   #[ ! -f $degenerates ] && adm-env-degenerates > $degenerates
-   #compare_hg_svn.py $hgdir $svndir --svnrev $svnrev --hgrev $hgrev -A  --skipempty --degenerates $degenerates
+   local hs=($(adm-hgsvnrev env))
+   local hgrev=${hs[0]}
+   local svnrev=${hs[1]}
 
-   compare_hg_svn.py $hgdir $svndir --svnrev $svnrev --hgrev $hgrev -A  --skipempty 
-
+   compare_hg_svn.py $hgdir $svndir --svnrev $svnrev --hgrev $hgrev -A  --skipempty --filemap $filemap
 }
 
 adm-repo(){ echo ${ADM_REPO:-env} ; }

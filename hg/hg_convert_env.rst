@@ -1,6 +1,154 @@
 HG Convert of env repo from SVN to HG
 =======================================
 
+[RESOLVED] What is special about this stretch of SVN history ?   
+---------------------------------------------------------------
+
+Creation of a folder than contains nothing but other empties was not 
+skipped by  `--skipempty` in SVNCrawler.  Resolved by judging emptiness at the
+tail rather than head of the recursion based on the total leaves beneath a node.
+
+Discrepant folder `/thho/NuWa` despite `--skipempty` enables for the SVN crawl::
+
+    INFO:env.scm.migration.compare_hg_svn:hgrev 1433 svnrev 1445 
+    INFO:env.scm.migration.compare_hg_svn:hgrev 1434 svnrev 1447 
+    INFO:env.scm.migration.compare_hg_svn:1 ['svn_only_dirs'] issues encountered in compare_paths
+    lines_dirs
+     [ r] /thho/NuWa           
+    lines_paths
+
+    INFO:env.scm.migration.compare_hg_svn:hgrev 1435 svnrev 1448 
+    INFO:env.scm.migration.compare_hg_svn:1 ['svn_only_dirs'] issues encountered in compare_paths
+    lines_dirs
+     [ r] /thho/NuWa           
+    lines_paths
+
+    INFO:env.scm.migration.compare_hg_svn:hgrev 1436 svnrev 1449 
+    INFO:env.scm.migration.compare_hg_svn:hgrev 1437 svnrev 1450 
+    INFO:env.scm.migration.compare_hg_svn:hgrev 1438 svnrev 1451 
+
+
+* http://dayabay.phys.ntu.edu.tw/tracs/env/changeset/1446  creation of "NuWa" directory than contains only an empty "python" directory `trunk/thho/NuWa/python`
+* http://dayabay.phys.ntu.edu.tw/tracs/env/changeset/1447  unrelated 
+* http://dayabay.phys.ntu.edu.tw/tracs/env/changeset/1448  unrelated
+* http://dayabay.phys.ntu.edu.tw/tracs/env/changeset/1449  thho populates 2 levels of emptyness, by creating `trunk/thho/NuWa/python/gentools.py`
+
+
+Maybe resolved too ?
+-----------------------
+
+Even with skipempty, this is still tripping up:: 
+
+        INFO:env.scm.migration.compare_hg_svn:hgrev 644 svnrev 646 
+        lines_dirs
+         [ r] /thho                
+        lines_paths
+
+
+Directory symbolic links need separate handling 
+-------------------------------------------------
+
+This is a problem with the comparison, the conversion succeeds to 
+translate the SVN directory link into a Mercurial one. 
+
+::
+
+    delta:env blyth$ pwd
+    /tmp/mercurial/env
+    delta:env blyth$ l qxml*
+    lrwxr-xr-x  1 blyth  wheel  14 Jul 30 16:28 qxml -> db/bdbxml/qxml
+
+    delta:e blyth$ pwd
+    /Users/blyth/e
+    delta:e blyth$ l qxml
+    lrwxr-xr-x  1 blyth  staff  14 Jan 14  2014 qxml -> db/bdbxml/qxml
+
+
+
+::
+
+    In [3]: svn_only_paths
+    Out[3]: ['/qxml']
+
+
+
+::
+
+    INFO:env.scm.migration.compare_hg_svn:hgrev 3470 svnrev 3493 
+    INFO:env.scm.migration.compare_hg_svn:2 ['hg_only_paths', 'hg_only_dirs'] issues encountered in compare_paths
+    lines_dirs
+     [l ] /qxml/test           
+     [l ] /qxml                
+    lines_paths
+     [l ] /qxml/common.cc      
+     [l ] /qxml/config.hh      
+     [l ] /qxml/existmeta.py   
+     [l ] /qxml/extresolve.hh  
+     [l ] /qxml/extfun.py      
+     [l ] /qxml/common.py      
+     [l ] /qxml/potools.cc     
+     [l ] /qxml/extfun.cc      
+     [l ] /qxml/qxmlcfg.cc     
+     [l ] /qxml/test/tpy.xq    
+     [l ] /qxml/makeXmlException.inc 
+     [l ] /qxml/config.py      
+     [l ] /qxml/element.cc     
+     [l ] /qxml/extfun.hh      
+     [l ] /qxml/Makefile       
+     [l ] /qxml/extresolve.cc  
+     [l ] /qxml/extfun.i       
+     [l ] /qxml/qxml.py        
+     [l ] /qxml/monolith.py    
+     [l ] /qxml/potools.hh     
+     [l ] /qxml/model.hh       
+     [l ] /qxml/qxml.cc        
+     [l ] /qxml/hfagc.cfg      
+     [l ] /qxml/exist2qxml.py  
+     [l ] /qxml/test_pyextfun.py 
+     [l ] /qxml/quote.py       
+     [l ] /qxml/element.hh     
+     [l ] /qxml/transfer.py    
+     [l ] /qxml/hfagc.dbxml    
+     [ r] /qxml                
+     [l ] /qxml/throwPyUserException.inc 
+     [l ] /qxml/glyph.py       
+     [l ] /qxml/README.txt     
+     [l ] /qxml/test/extmixed.xq 
+     [l ] /qxml/notes.txt      
+     [l ] /qxml/config.cc      
+     [l ] /qxml/test/ext.xq    
+     [l ] /qxml/setup.py       
+     [l ] /qxml/common.hh      
+     [l ] /qxml/test/tpydump.xq 
+     [l ] /qxml/test/ls.xq     
+     [l ] /qxml/model.cc       
+    INFO:env.scm.migration.compare_hg_svn:issues encountered in compare_contents
+    Python 2.7.6 (default, Nov 18 2013, 15:12:51) 
+    Type "copyright", "credits" or "license" for more information.
+
+
+
+[RESOLVED] Comparison needs to apply the filemap 
+---------------------------------------------------
+
+Resolved by application of `hg convert` filemap renames 
+to SVN paths before comparison with the HG paths. The renames
+were needed in the first place to avoid case folding problem.
+
+::
+
+    INFO:env.scm.migration.compare_hg_svn:hgrev 1583 svnrev 1596 
+    INFO:env.scm.migration.compare_hg_svn:2 ['hg_only_paths', 'svn_only_paths'] issues encountered in compare_paths
+    lines_dirs
+
+    lines_paths
+     [ r] /thho/NuWa/python/histogram/pyhist.py 
+     [l ] /thho/NuWa/python/histogram/pyhist_rename_to_avoid_degeneracy.py 
+    INFO:env.scm.migration.compare_hg_svn:issues encountered in compare_contents
+    Python 2.7.6 (default, Nov 18 2013, 15:12:51) 
+    Type "copyright", "credits" or "license" for more information.
+
+
 Dud svn rev 10
 ----------------------------
 
@@ -100,7 +248,7 @@ The update to (hgrev 1587 svnrev 1600) gives case-folding collision still (filem
     251 files updated, 0 files merged, 2641 files removed, 0 files unresolved
 
 
-filmap not working without the trunk::
+filemap not working without the trunk::
 
     (adm_env)delta:env blyth$ hg update -r1586
     251 files updated, 0 files merged, 2641 files removed, 0 files unresolved
@@ -116,10 +264,6 @@ filmap not working without the trunk::
 
     (adm_env)delta:histogram blyth$ hg update -r1587
     abort: case-folding collision between thho/NuWa/python/histogram/pyhist.py and thho/NuWa/python/histogram/PyHist.py
-
-
-
-
 
 
 Argh case degenerate entries at SVN rev 1600::

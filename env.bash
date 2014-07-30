@@ -1448,3 +1448,4 @@ tracmigrate-(){      . $(env-home)/trac/migration/tracmigrate.bash && tracmigrat
 hgapi-(){      . $(env-home)/hg/hgapi.bash && hgapi-env $* ; }
 adm-(){      . $(env-home)/adm/adm.bash && adm-env $* ; }
 scmmigrate-(){      . $(env-home)/scm/migration/scmmigrate.bash && scmmigrate-env $* ; }
+pysvn-(){      . $(env-home)/svn/pysvn.bash && pysvn-env $* ; }
