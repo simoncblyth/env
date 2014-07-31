@@ -128,43 +128,119 @@ svnsync-env(){
 
 
 
+#svnsync-sourceurl(){
+#  case ${1:-$NODE_TAG} in
+#    H) echo http://dayabay.ihep.ac.cn/svn/dybsvn ;;
+#    C) echo http://dayabay.ihep.ac.cn/svn/dybsvn ;;
+#    P) echo http://dayabay.ihep.ac.cn/svn/dybsvn ;;
+#    *) echo -n ;;
+#  esac
+#}
+#svnsync-desturl(){
+#  case ${1:-$NODE_TAG} in
+#    H) echo http://dayabay.phys.ntu.edu.tw/repos/mdybsvn ;;  
+#    C) echo http://cms01.phys.ntu.edu.tw/repos/mdybsvn ;;
+#    P) echo http://grid1.phys.ntu.edu.tw/repos/mdybsvn ;;
+#    *) echo -n ;;
+#  esac
+#}
+#svnsync-creds(){
+#  private-
+#  echo --username $(private-val SVN_SYNC_USER) --password $(private-val SVN_SYNC_PASS) 
+#}
+#
+#svnsync-init-cmd(){
+#    echo svnsync initialize $(svnsync-desturl $*) $(svnsync-sourceurl $*) $(svnsync-creds $*)
+#}
+#svnsync-init(){
+#    local cmd=$(svnsync-init-cmd $*)
+#    echo $cmd
+#    eval $cmd
+#}
+#
+#svnsync-syncronize-cmd(){
+#   echo svnsync synchronize $(svnsync-desturl $*) $(svnsync-creds $*)
+#}
+#svnsync-synchronize(){
+#    local cmd=$(svnsync-syncronize-cmd $*)
+#    echo $cmd
+#    eval $cmd  
+#}
 
 
-svnsync-sourceurl(){
-  case ${1:-$NODE_TAG} in
-    H) echo http://dayabay.ihep.ac.cn/svn/dybsvn ;;
-    C) echo http://dayabay.ihep.ac.cn/svn/dybsvn ;;
-    P) echo http://dayabay.ihep.ac.cn/svn/dybsvn ;;
-    *) echo -n ;;
-  esac
-}
-svnsync-desturl(){
-  case ${1:-$NODE_TAG} in
-    H) echo http://dayabay.phys.ntu.edu.tw/repos/mdybsvn ;;  
-    C) echo http://cms01.phys.ntu.edu.tw/repos/mdybsvn ;;
-    P) echo http://grid1.phys.ntu.edu.tw/repos/mdybsvn ;;
-    *) echo -n ;;
-  esac
-}
-svnsync-creds(){
-  private-
-  echo --username $(private-val SVN_SYNC_USER) --password $(private-val SVN_SYNC_PASS) 
+svnsync-name(){  echo env ; }
+svnsync-names(){ echo env heprez tracdev ; }
+svnsync-names-notes(){ cat << EON
+
+data,newtest are not active
+aberdeen under other management
+
+root@cms02 scm]# ll repos/
+total 48
+drwxr-xr-x  7 nobody nobody 4096 May  1  2012 aberdeen
+drwxr-xr-x  7 nobody nobody 4096 May  1  2012 data
+drwxr-xr-x  7 nobody nobody 4096 May  1  2012 env
+drwxr-xr-x  7 nobody nobody 4096 May  1  2012 heprez
+drwxr-xr-x  7 nobody nobody 4096 May  1  2012 newtest
+drwxr-xr-x  7 nobody nobody 4096 May  1  2012 tracdev
+
+EON
 }
 
-svnsync-init-cmd(){
-    echo svnsync initialize $(svnsync-desturl $*) $(svnsync-sourceurl $*) $(svnsync-creds $*)
+svnsync-create-all(){
+   local name
+   for name in $(svnsync-names) ; do 
+       svnsync-create $name  
+   done
 }
-svnsync-init(){
-    local cmd=$(svnsync-init-cmd $*)
+svnsync-sync-all(){
+   local name
+   for name in $(svnsync-names) ; do 
+       svnsync-sync $name  
+   done
+}
+
+svnsync-dest-repo(){ echo /var/scm/subversion/$1 ; }
+svnsync-src-url(){   echo http://dayabay.phys.ntu.edu.tw/repos/$1 ; }
+
+
+svnsync-check(){
+    local msg="=== $FUNCNAME :"
+    local name=${1:-$(svnsync-name)}
+    echo $msg $name
+}
+
+svnsync-create(){
+    local msg="=== $FUNCNAME :"
+    local name=${1:-$(svnsync-name)}
+    echo $msg $name
+
+    local repo=$(svnsync-dest-repo $name)
+    local fold=$(dirname $repo)
+    mkdir -p $fold
+
+    [ -d $repo ] &&  echo $msg repo $repo exists already && return 
+    [ ! -d $repo ] &&  svnadmin create $repo
+
+    echo '#!/bin/sh' > $repo/hooks/pre-revprop-change
+    chmod +x $repo/hooks/pre-revprop-change
+
+    local srcurl=$(svnsync-src-url $name)
+    local desturl=file://$repo
+
+    local cmd="svnsync init $desturl $srcurl"
     echo $cmd
-    eval $cmd
+    eval $cmd 
 }
 
-svnsync-syncronize-cmd(){
-   echo svnsync synchronize $(svnsync-desturl $*) $(svnsync-creds $*)
-}
-svnsync-synchronize(){
-    local cmd=$(svnsync-syncronize-cmd $*)
+svnsync-sync(){
+    local name=$1
+    local repo=$(svnsync-dest-repo $name)
+    local desturl=file://$repo
+    [ ! -d "$repo" ] && echo $msg repodir $repo does not exist && return
+    local cmd="svnsync synchronize $desturl"
     echo $cmd
-    eval $cmd  
+    eval $cmd 
 }
+
+

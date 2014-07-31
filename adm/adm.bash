@@ -61,11 +61,49 @@ env access
 Also *adm-env-ln*
 
 
+status Jul 30, 2014
+~~~~~~~~~~~~~~~~~~~~~
+
+#. env is standard svn layout with only trunk populated
+
+   * converted to hg and 1st pass verified, some tricky areas of SVN history 
+     needed workarounds 
+   * TODO: more verification, check with/without trunk pros/cons
+
+#. heprez is standard layout with only trunk populated
+
+   * converted to hg 
+
+#. tracdev has multiple trunk/branches/tags under multiple toplevel names, will need some special filemappings ?
+   
+   * http://dayabay.phys.ntu.edu.tw/repos/tracdev/ 
+
+
 FUNCTIONS
 -----------
 
 *adm-utilities*
+
      Installs basic utilities: eg readline, ipython 
+
+
+*adm-convert*
+
+     Runs hg convert, migrating SVN repo to Mercurial repo 
+
+     adm-convert env
+     adm-convert heprez
+     adm-convert tracdev
+
+     Before doing this, create local SVN repo mirrors with svnsync-
+
+*adm-svnhg name*
+
+     Compares the SVN and converted HG repositories 
+     by log comparison with timestamp matching to map between revisions.
+     Makes corresponding SVN and HG checkouts for every revision, 
+     compares file paths and content digests for the SVN and HG working copy.
+
 
 
 EOU
@@ -135,14 +173,33 @@ adm-svnrepodbdir(){
 adm-svnurl(){
   local repo=$1
   case $repo in 
-    envremote) echo http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk ;;    
-    env) echo file:///var/scm/subversion/env/trunk ;;
+    env_remote) echo http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk ;;    
+    env)     echo file:///var/scm/subversion/env/trunk ;;
+    heprez)  echo file:///var/scm/subversion/heprez/trunk ;;
+    tracdev) echo file:///var/scm/subversion/tracdev/trunk ;;
   esac
 }
 
 
+adm-init-svnmirror(){
+    local name=$1
+    local fold=/var/scm/subversion
+    mkdir -p $fold
+
+    local repo=$fold/$name
+    [ -d $repo ] &&  echo $msg repo $repo exists already && return 
+
+    [ ! -d $repo ] &&  svnadmin create $repo
+    echo '#!/bin/sh' > $repo/hooks/pre-revprop-change
+    chmod +x $repo/hooks/pre-revprop-change
+}
+
+
+
 adm-hgsvnrev(){
   case $1 in 
+    heprez)  echo 0 1 ;;
+    tracdev) echo 0 1 ;;
     env) echo 1583 1596 ;;
     env0) echo 1600 1598 ;;
     env1) echo 3470 1598 ;;
@@ -153,57 +210,76 @@ adm-hgsvnrev(){
 
 adm-opts(){
   case $1 in 
-    env) echo --ignore-externals --clean-checkout-revs 1599,1600,1601 --known-bad-revs 1600 ;;
+        env) echo --skipempty --ignore-externals --clean-checkout-revs 1599,1600,1601 --known-bad-revs 1600 ;;
+     heprez) echo --skipempty --ignore-externals ;;
+    tracdev) echo --skipempty --ignore-externals ;;
   esac 
 }
 
-
 adm-svnhg(){
+   local name=${1:-env}
+   local hgdir=/tmp/mercurial/$name
+   local svndir=/tmp/subversion/$name
 
-   local repo=$(adm-repo)
-   local hgdir=/tmp/mercurial/$repo
-   local svndir=/tmp/subversion/$repo
-   local svnurl=$(adm-svnurl $repo)
-   local filemap=$(adm-filemap-path)
+   [ ! -d "$hgdir" ] && echo hgdir $hgdir missing : create with hg --cwd $(dirname $hgdir) clone /var/scm/mercurial/$name  && return
 
-   local hs=($(adm-hgsvnrev $repo))
+   local svnurl=$(adm-svnurl $name)
+   local filemap=$(adm-filemap-path $name)
+
+   local hs=($(adm-hgsvnrev $name))
    local hgrev=${hs[0]}
    local svnrev=${hs[1]}
-   local opts=$(adm-opts $repo)
-   local cmd="compare_hg_svn.py $hgdir $svndir $svnurl --svnrev $svnrev --hgrev $hgrev -A  --skipempty --filemap $filemap $opts "
+   local opts=$(adm-opts $name)
+   local cmd="compare_hg_svn.py $hgdir $svndir $svnurl --svnrev $svnrev --hgrev $hgrev --filemap $filemap $opts "
    echo $cmd
    eval $cmd
 
 }
 
 adm-repo(){ echo ${ADM_REPO:-env} ; }
-adm-filemap-path(){ echo ~/.$(adm-repo)/filemap.cfg  ; }
+adm-filemap-path(){ echo ~/.${1}/filemap.cfg  ; }
 adm-filemap(){
-  local repo=$(adm-repo)
-  case $repo in 
-     env) adm-filemap-$repo ;;
+  local name=$1
+  case $name in 
+         env) adm-filemap-$name ;;
+      heprez) adm-filemap-$name ;;
+     tracdev) adm-filemap-$name ;;
   esac
 }
+
 adm-filemap-env(){ cat << EOF
 rename thho/NuWa/python/histogram/pyhist.py thho/NuWa/python/histogram/pyhist_rename_to_avoid_degeneracy.py 
 EOF
 }
+adm-filemap-heprez(){ cat << EOF
+#placeholder
+EOF
+}
+adm-filemap-tracdev(){ cat << EOF
+#placeholder
+EOF
+}
 
 
-adm-env-convert(){
+
+
+adm-convert(){
    local msg="=== $FUNCNAME :"
-   local repo=${1:-env}
-   local hgr=/var/scm/mercurial/${repo:-env} 
-   local url=http://dayabay.phys.ntu.edu.tw/repos/$repo    # NB no trunk 
+   local name=${1:-env}
+   local hgr=/var/scm/mercurial/${name:-env} 
+   local svr=/var/scm/subversion/${name:-env} 
+   
+   #local url=http://dayabay.phys.ntu.edu.tw/repos/$repo    # NB no trunk 
+   local url=file:///$svr    
 
-   local filemap=$(adm-filemap-path)
-   adm-filemap > $filemap
+   local filemap=$(adm-filemap-path $name)
+   mkdir -p $(dirname $filemap)
+   adm-filemap $name > $filemap
 
    echo $msg filemap $filemap
    cat $filemap
 
-   # restrict source rev to beyond the degenerates, in order to cycle on filemap changes faster
-   local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr --filemap $filemap --rev 1720"
+   local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr --filemap $filemap "
    echo $cmd
 
    local ans
@@ -213,25 +289,6 @@ adm-env-convert(){
    eval $cmd
 }
 
-adm-env-degenerates(){ cat << EOF
-/thho/NuWa/python/histogram/pyhist.py
-/thho/NuWa/python/histogram/PyHist.py
-EOF
-}
 
 
 
-adm-conflict(){
-
-   cd /tmp/subversion
-   [ -d env ] && rm -rf env
-
-   svn co file:///var/scm/subversion/env/trunk env -r1599
-   svn st env
-   svn up env -r1600 --accept working 
-   svn st env
-   svn up env -r1601 --accept working
-   svn st env
-
-
-}
