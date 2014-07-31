@@ -266,7 +266,13 @@ echo ""
 }
 
 env-toc(){
-   [ -f index.rst ] && echo index.rst exists already in PWD $PWD, delete and rerun to proceed && return
+   [ -f index.rst ] && echo index.rst exists already in PWD $PWD ----------- && cat index.rst && echo ------------------
+
+   local ans
+   read -p "Enter YES to delete this and recreate " ans
+   [ "$ans" != "YES" ] && echo OK skipping && return 
+   
+
    $FUNCNAME- > index.rst
 }
 

@@ -3,12 +3,7 @@
 ::
 
    adm-
-   compare_hg_svn.py /tmp/mercurial/env /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --svnrev 1002 --hgrev 1000 
-
-   compare_hg_svn.py /tmp/mercurial/env /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 --svnrev 10 --hgrev 8 
-
-       # DUD svn revision 10, causes this to be the first to match 
-
+   adm-svnhg
 
 Mysteries:
 
@@ -16,8 +11,6 @@ Mysteries:
    (simple constant revision offset) after the dud ? 
    doing full convert has many dropouts for empties ? making the relationship
    between SVN and HG revisions to require mappings.
-
-
 
 """
 import os, logging, argparse
@@ -28,29 +21,6 @@ from env.svn.bindings.svncrawl import SVNCrawler
 from env.svn.bindings.svnclient import SVNClient
 from env.hg.bindings.hgcrawl import HGCrawler
 from env.scm.timezone import cst, utc
-
-def parse(doc):
-    parser = argparse.ArgumentParser(doc)
-    parser.add_argument("-v","--verbose", action="store_true")
-    parser.add_argument(     "--skipempty", action="store_true", help="skip empty SVN directories from the crawl " )
-    parser.add_argument("-l","--loglevel", default="info")
-    parser.add_argument("path", nargs=2 )
-    parser.add_argument("--hgrev", default=None )
-    parser.add_argument("--svnrev", default=None )
-
-    parser.add_argument( "--svnpath", default="/tmp/subversion/env", help="")
-    parser.add_argument( "--svnurl",  default="http://dayabay.phys.ntu.edu.tw/repos/env/trunk/", help="")
-
-    parser.add_argument("--srctz", default="utc", help="timezone of the SVN source timestamps, usually utc "  )
-    parser.add_argument("--loctz", default="cst", help="timezone in which to make comparisons "  )
-    parser.add_argument("--svnprefix", default="", help="path prefix to remove before comparison, formerly /trunk but thats not needed with SVNClient" )
-    parser.add_argument("--degenerates", default=None, help="path to file containg list of degenerate paths to be unlinked prior to each hg update" )
-    parser.add_argument("--filemap", default=None, help="path to file containing include/exclude/rename directives" )
-    parser.add_argument("-A","--ALLREV", action="store_true", help="Switch on traversal of all revisions, this is slow.")
-    args = parser.parse_args()
-    logging.basicConfig(level=getattr(logging,args.loglevel.upper()))
-    return args 
- 
 
 def compare_lists( l, r, verbose=False ):
     l = set(l)
@@ -66,114 +36,23 @@ def compare_lists( l, r, verbose=False ):
         pass
     return sorted(list(l.intersection(r))),sorted(list(l.difference(r))),sorted(list(r.difference(l))), lines
 
-
-
-def compare_contents( hg, svn , svnprefix, common_paths ):
-    pass
-    svn_digest = svn.contents_digest()
-    hg_digest = hg.contents_digest()
-    mismatch_ = lambda _:hg_digest[_] != svn_digest[_]
-    mismatch = filter(mismatch_, common_paths)     # matching only the common paths
-
-    svn_only = list(set(svn_digest.keys()).difference(set(common_paths)))
-    hg_only = list(set(hg_digest.keys()).difference(set(common_paths)))
-
-    check = {}
-    check['hg_keys']  = sorted(hg_digest.keys()) == common_paths
-    check['svn_only'] = len(svn_only) == 0
-    check['hg_only'] = len(hg_only) == 0
-    check['common path mismatch'] = len(mismatch) == 0 
-
-    issues = filter(lambda _:not _[1], check.items()) 
-
-    if len(issues) > 0:
-        log.info("issues encountered in compare_contents")
-        import IPython
-        IPython.embed()
-
-
-
-def compare_paths( hg, svn, svnprefix, fmap=None, debug=False ):
-    """
-    :param hg: HGCrawler instance
-    :param svn: SVNCrawler or SVNClient instance
-    :param svnprefix: path prefix to be removed from SVN paths before comparison, eg /trunk when using SVNCrawler
-    :param fmap: FileMap instance or None
- 
-    #. update hg working copy to the revision
-    #. query SVN db for list of paths at the svnrev 
-
-    #. Mercurial doesnt "do" empty directories 
-    #. Comparison trips up on symbolic links, have handled symbolic links to files
-       already but not to directories
-
-    http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/qxml
-    link db/bdbxml/qxml
-
-    http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/db/bdbxml/qxml/
-
-
-    """
-    if svnprefix is "":
-        svn_dirs = svn.dirs
-        svn_paths = svn.paths
-    else:
-        svn_dirs = svn.unprefixed_dirs( svnprefix )
-        svn_paths = svn.unprefixed_paths( svnprefix )
-    pass
-
-    common_dirs, hg_only_dirs, svn_only_dirs, lines_dirs  = compare_lists( hg.dirs, svn_dirs )
-
-    if not fmap is None:
-        svn_paths = fmap.apply( svn_paths )
-
-    common_paths, hg_only_paths, svn_only_paths, lines_paths = compare_lists( hg.paths, svn_paths )
-
-    check = {}
-    check['hg_only_paths'] = len(hg_only_paths) == 0
-    check['svn_only_dirs'] = len(svn_only_dirs) == 0
-    check['hg_only_dirs'] = len(hg_only_dirs) == 0
-
-    issues = dict(filter(lambda _:not _[1], check.items()))
-
-    if len(issues) > 0:
-        keys = issues.keys()
-        log.info("%s %s issues encountered in compare_paths" % (len(keys),repr(keys)))
-        print "lines_dirs\n", "\n".join(lines_dirs)  
-        print "lines_paths\n", "\n".join(lines_paths)  
-        pass
-
-    #IP.embed()
-    return common_paths
-
-
-
-def revs_arg( arg ):
-    if ":" in arg:
-        bits = map(int,arg.split(":"))
-        assert len(bits) == 2
-        revs = range(*bits)
-    else:
-        revs = map(int,arg.split(","))
-    pass
-    return revs
-
-
 class Compare(object):
-    def __init__(self, hg, svn, args ):
+    def __init__(self, hg, svn, args, filemap=None):
         """ 
         :param hg: HGCrawler instance
-        :param svn: SVNCrawler instance
+        :param svn: SVNClient instance
         :param args:
         """
         self.hg = hg
         self.svn = svn
         self.args = args
+        self.filemap = filemap
+        self.cf = {}
 
     def readlog(self):
         """
-        #. read the SVN and HG logs and establish revision mapping 
-           using the timestamp  
+        Read the SVN and HG logs and establish revision 
+        number mapping between them using the timestamp for identity matching 
         """
         dtz = dict(cst=cst,utc=utc)
         srctz = dtz.get(self.args.srctz, None)
@@ -186,7 +65,7 @@ class Compare(object):
         contiguous = range(min(svnrevs),max(svnrevs)+1)
         is_contiguous = contiguous == sorted(svnrevs)
         missing = list(set(contiguous).difference(set(svnrevs)))
-        log.info("svnrevs min/max/count %s %s %s contiguous? %s missing %s " % (min(svnrevs),max(svnrevs),len(svnrevs), is_contiguous, repr(missing))) 
+        log.info("readlog: svnrevs min/max/count %s %s %s contiguous? %s missing %s " % (min(svnrevs),max(svnrevs),len(svnrevs), is_contiguous, repr(missing))) 
 
         ho, so, co = self.compare_timestamps()
         self.dump_only( ho, so )
@@ -201,8 +80,15 @@ class Compare(object):
         self.so = so
         self.co = co
 
-
     def compare_timestamps(self):
+        """
+        Use timestamp keyed revison logs to find timestamps
+        present in either/both hg and svn 
+
+        ho, hg only
+        so, svn only
+        co, common
+        """
         st = set(self.svn.tlog.keys())
         ht = set(self.hg.tlog.keys())
         ho = ht.difference(st)
@@ -266,28 +152,122 @@ class Compare(object):
             pass
         return revs, h2s, s2h
 
-
     def recurse(self, hgrev, svnrev ):
         """
-        #. updates hg working copy to this revision and crawls filesystem noting paths and dirs
-        #. queries SVN database for this revision
-          (hmm maybe should do based on working copy)
+        #. updates hg working copy to hgrev and crawls filesystem noting paths and dirs
+        #. updated SVN working copy to svnrev and crawls filesystem noting paths and dirs
+           (formerly used direct access to a backup SVN repo DB, this is faster but the
+            comparison is easier and more like the usual usage pattern when using working copy)
         """
         log.info("hgrev %s svnrev %s hgrev-svnrev %s " % (hgrev, svnrev, int(hgrev)-int(svnrev) ))
         self.hg.recurse(hgrev)  
         self.svn.recurse(svnrev)
 
-    def revisions(self):  
-        if self.args.ALLREV:
-            youngest_rev = self.svn.youngest_rev()
-            svnrevs = range(int(self.args.svnrev),youngest_rev+1)
-            hgrevs = range(int(self.args.hgrev),int(self.args.hgrev)+len(svnrevs))
+    def compare_paths( self, debug=False ):
+        """
+        #. update hg working copy to the revision
+
+        #. Mercurial doesnt "do" empty directories 
+        #. Comparison trips up on symbolic links, have handled symbolic links to files
+           already but not to directories
+
+        http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/qxml
+        link db/bdbxml/qxml
+
+        http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/db/bdbxml/qxml/
+ 
+        """
+        svnprefix = self.args.svnprefix
+        if svnprefix is "":
+            svn_dirs = self.svn.dirs
+            svn_paths = self.svn.paths
         else:
-            svnrevs = revs_arg(self.args.svnrev)
-            hgrevs = revs_arg(self.args.hgrev)
+            svn_dirs = self.svn.unprefixed_dirs( svnprefix )
+            svn_paths = self.svn.unprefixed_paths( svnprefix )
         pass
-        assert len(svnrevs) == len(hgrevs)  
-        return zip(hgrevs, svnrevs)
+
+        common_dirs, hg_only_dirs, svn_only_dirs, lines_dirs  = compare_lists( self.hg.dirs, svn_dirs )
+
+        if not self.filemap is None:
+            svn_paths = self.filemap.apply( svn_paths )
+
+        common_paths, hg_only_paths, svn_only_paths, lines_paths = compare_lists( self.hg.paths, svn_paths )
+
+        check = {}
+        check['hg_only_paths'] = len(hg_only_paths) == 0
+        check['svn_only_dirs'] = len(svn_only_dirs) == 0
+        check['hg_only_dirs'] = len(hg_only_dirs) == 0
+
+        issues = dict(filter(lambda _:not _[1], check.items()))
+
+        if len(issues) > 0:
+            keys = issues.keys()
+            log.info("%s %s issues encountered in compare_paths" % (len(keys),repr(keys)))
+            print "lines_dirs\n", "\n".join(lines_dirs)  
+            print "lines_paths\n", "\n".join(lines_paths)  
+            if self.svn.is_knownbad():
+                log.warn("known bad svn revision %s " % self.svn.revision )
+            else:
+                IP.embed()
+            pass
+        pass
+        return common_paths
+
+    def compare_contents( self, common_paths ):
+        """
+        Matching the content digests of common_paths
+
+        :param: common_paths
+        """
+        svn_digest = self.svn.contents_digest(filemap=self.filemap)
+        hg_digest = self.hg.contents_digest()
+
+        mismatch_ = lambda _:hg_digest.get(_,None) != svn_digest.get(_,None)
+        mismatch = filter(mismatch_, common_paths)     # matching only the common paths
+
+        svn_only = list(set(svn_digest.keys()).difference(set(common_paths)))
+        hg_only = list(set(hg_digest.keys()).difference(set(common_paths)))
+
+        log.info("compare_contents paths %s svn_digest %s hg_digest %s mismatch %s  svn_only %s hg_only %s " %
+             (len(common_paths),len(svn_digest), len(hg_digest),len(mismatch), len(svn_only),len(hg_only)))
+
+        check = {}
+        check['hg_keys']  = sorted(hg_digest.keys()) == common_paths
+        check['svn_only'] = len(svn_only) == 0
+        check['hg_only'] = len(hg_only) == 0
+        check['common path mismatch'] = len(mismatch) == 0 
+
+        issues = filter(lambda _:not _[1], check.items()) 
+
+        if len(issues) > 0:
+            log.info("issues encountered in compare_contents : %s " % repr(issues))
+            if self.svn.is_knownbad():
+                log.warn("known bad svn revision %s " % self.svn.revision )
+            else:
+                IP.embed()
+            pass
+
+    def compare(self, hgrev, svnrev ):
+        hs = (hgrev,svnrev)
+        self.recurse(*hs)
+        common_paths = self.compare_paths()
+        self.compare_contents( common_paths )
+
+    #def revisions(self):
+    #    if self.args.ALLREV:
+    #        youngest_rev = self.svn.youngest_rev()
+    #        svnrevs = range(int(self.args.svnrev),youngest_rev+1)
+    #        hgrevs = range(int(self.args.hgrev),int(self.args.hgrev)+len(svnrevs))
+    #    else:
+    #        svnrevs = revs_arg(self.args.svnrev)
+    #        hgrevs = revs_arg(self.args.hgrev)
+    #    pass
+    #    assert len(svnrevs) == len(hgrevs)  
+    #    return zip(hgrevs, svnrevs)
+
+
+
+
 
 
 class FileMap(object):
@@ -333,35 +313,53 @@ class FileMap(object):
 
 
 
+
+
+
+def parse(doc):
+    parser = argparse.ArgumentParser(doc)
+    parser.add_argument("-l","--loglevel", default="info")
+    parser.add_argument("-v","--verbose", action="store_true")
+    parser.add_argument("path", nargs=3, help="Require 3 items: hgdir, svndir, svnurl "  )
+    parser.add_argument("--hgrev", default=None, help="minimum hg revision to restrict comparisons whilst testing, does not need to map to --svnrev")
+    parser.add_argument("--svnrev", default=None, help="minimum svn revision to restrict comparisons whilst testing, does not need to map to --hgrev" )
+    parser.add_argument("--srctz", default="utc", help="timezone of the SVN source timestamps, usually utc "  )
+    parser.add_argument("--loctz", default="cst", help="timezone in which to make comparisons "  )
+    parser.add_argument("--svnprefix", default="", help="path prefix to remove before comparison, formerly /trunk but thats not needed with SVNClient" )
+    parser.add_argument("--filemap", default=None, help="path to file containing include/exclude/rename directives" )
+    parser.add_argument("--skipempty", action="store_true", help="skip empty SVN directories from the crawl " )
+    parser.add_argument("--ignore-externals", action="store_true", help="ignore svn externals " )
+    parser.add_argument("--clean-checkout-revs", default="", help="Comma delimited list of revisions for which clean checkouts are needed"  )
+    parser.add_argument("--known-bad-revs", default="", help="Comma delimited list of revisions for which errors are ignored"  )
+
+    parser.add_argument("-A","--ALLREV", action="store_true", help="Switch on traversal of all revisions, this is slow.")
+    args = parser.parse_args()
+    args.m_hgrev  = int(args.hgrev) if not args.hgrev is None else 0
+    args.m_svnrev = int(args.svnrev) if not args.svnrev is None else 0
+
+    logging.basicConfig(level=getattr(logging,args.loglevel.upper()))
+    return args 
+ 
+
+
 def main():
     args = parse(__doc__)
 
-    m_hgrev  = int(args.hgrev) if not args.hgrev is None else 0
-    m_svnrev = int(args.svnrev) if not args.svnrev is None else 0
-
     hgdir = args.path[0]
-    svndir = args.path[1]   # to backup SVN repo
+    svndir = args.path[1]   
+    svnurl = args.path[2]   
 
-    fmap = FileMap( args.filemap ) if not args.filemap is None else None
-    hg  = HGCrawler(hgdir, verbose=args.verbose ) 
+    filemap = FileMap( args.filemap ) if not args.filemap is None else None
 
-    #svn = SVNCrawler(svndir, verbose=args.verbose, skipempty=args.skipempty)     # direct access to backup SVN repo
-    svn = SVNClient(args.svnurl, args.svnpath,  verbose=args.verbose, skipempty=args.skipempty)  # client working copy access
+    hg  = HGCrawler( hgdir, verbose=args.verbose ) 
+    svn = SVNClient( svnurl, svndir,  args )
 
-    cf = Compare( hg, svn, args )
+    cf = Compare( hg, svn, args, filemap=filemap )
     cf.readlog()
 
     for hgrev, svnrev in cf.revs:
-        if hgrev < m_hgrev or svnrev < m_svnrev:continue 
-        cf.recurse( hgrev, svnrev )
-
-        #IP.embed()
-
-        common_paths = compare_paths( hg, svn, args.svnprefix, fmap )
-        compare_contents( hg , svn, args.svnprefix, common_paths )
-    pass
-
-
+        if hgrev < args.m_hgrev or svnrev < args.m_svnrev:continue 
+        cf.compare(hgrev, svnrev)       
 
 
 

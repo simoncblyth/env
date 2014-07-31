@@ -125,31 +125,55 @@ adm-site-packages(){
 
 
 
-adm-svndir(){
+adm-svnrepodbdir(){
   case $1 in 
     env) echo /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 ;; 
   esac
 }
 
-adm-hgsvnrev(){
-  case $1 in 
-    env0) echo 1600 1598 ;;
-    env) echo 3470 1598 ;;
+
+adm-svnurl(){
+  local repo=$1
+  case $repo in 
+    envremote) echo http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk ;;    
+    env) echo file:///var/scm/subversion/env/trunk ;;
   esac
 }
+
+
+adm-hgsvnrev(){
+  case $1 in 
+    env) echo 1583 1596 ;;
+    env0) echo 1600 1598 ;;
+    env1) echo 3470 1598 ;;
+    env2) echo 0 1 ;;
+    env3) echo 724 732 ;;
+  esac
+}
+
+adm-opts(){
+  case $1 in 
+    env) echo --ignore-externals --clean-checkout-revs 1599,1600,1601 --known-bad-revs 1600 ;;
+  esac 
+}
+
 
 adm-svnhg(){
 
    local repo=$(adm-repo)
    local hgdir=/tmp/mercurial/$repo
-   local svndir=$(adm-svndir $repo)
+   local svndir=/tmp/subversion/$repo
+   local svnurl=$(adm-svnurl $repo)
    local filemap=$(adm-filemap-path)
 
-   local hs=($(adm-hgsvnrev env))
+   local hs=($(adm-hgsvnrev $repo))
    local hgrev=${hs[0]}
    local svnrev=${hs[1]}
+   local opts=$(adm-opts $repo)
+   local cmd="compare_hg_svn.py $hgdir $svndir $svnurl --svnrev $svnrev --hgrev $hgrev -A  --skipempty --filemap $filemap $opts "
+   echo $cmd
+   eval $cmd
 
-   compare_hg_svn.py $hgdir $svndir --svnrev $svnrev --hgrev $hgrev -A  --skipempty --filemap $filemap
 }
 
 adm-repo(){ echo ${ADM_REPO:-env} ; }
@@ -197,4 +221,17 @@ EOF
 
 
 
+adm-conflict(){
 
+   cd /tmp/subversion
+   [ -d env ] && rm -rf env
+
+   svn co file:///var/scm/subversion/env/trunk env -r1599
+   svn st env
+   svn up env -r1600 --accept working 
+   svn st env
+   svn up env -r1601 --accept working
+   svn st env
+
+
+}

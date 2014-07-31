@@ -126,6 +126,7 @@ class HGCrawler(object):
 
     def __init__(self, hgdir, verbose=False, exclude_dirs=[".hg"]):
         assert os.path.exists(os.path.join(hgdir,'.hg'))
+        if not hgdir[-1] == '/':hgdir = "%s/" % hgdir   # ensure trailing slash, for root relative paths to avoid the leading slash
         self.verbose = verbose
         self.hg = hgapi.Repo(hgdir)
         self.hgdir = hgdir
