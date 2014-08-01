@@ -176,7 +176,7 @@ adm-svnurl(){
     env_remote) echo http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk ;;    
     env)     echo file:///var/scm/subversion/env/trunk ;;
     heprez)  echo file:///var/scm/subversion/heprez/trunk ;;
-    tracdev) echo file:///var/scm/subversion/tracdev/trunk ;;
+    tracdev) echo file:///var/scm/subversion/tracdev ;;      # no trunk
   esac
 }
 
@@ -257,7 +257,27 @@ EOF
 }
 adm-filemap-tracdev(){ cat << EOF
 #placeholder
+
+rename annobit/trunk annobit
+rename bitten/trunk bitten
+rename db2trac/trunk db2trac
+rename trac2latex/trunk trac2latex
+rename trac2mediawiki/trunk trac2mediawiki
+rename tracwiki2sphinx/trunk tracwiki2sphinx
+rename xsltmacro/trunk xsltmacro
+
 EOF
+}
+adm-filemap-tracdev-notes(){ cat << EON
+
+NB when changing filemap, it is necessary 
+to start from scratch by first deleting:
+
+#. /var/scm/mercurial/tracdev 
+#. /tmp/mercurial/tracdev
+
+
+EON
 }
 
 
@@ -279,6 +299,7 @@ adm-convert(){
    echo $msg filemap $filemap
    cat $filemap
 
+   [ -d "$hgr" ] && echo $msg CAUTION destination hg repo exists already $hgr : THIS WILL BE INCREMENTAL : IF YOU CHANGED FILEMAP/OPTIONS YOU SHOULD FIRST DELETE $hgr 
    local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr --filemap $filemap "
    echo $cmd
 

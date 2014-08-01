@@ -12,6 +12,14 @@ Mysteries:
    doing full convert has many dropouts for empties ? making the relationship
    between SVN and HG revisions to require mappings.
 
+
+TODO:
+
+#. persist comparison status, perhaps in a pickled dict 
+#. investigate above mystery
+#. add status checks, to pysvn checkouts 
+#. add hg verify calls
+
 """
 import os, logging, argparse
 import IPython as IP
@@ -186,11 +194,11 @@ class Compare(object):
             svn_paths = self.svn.unprefixed_paths( svnprefix )
         pass
 
-        common_dirs, hg_only_dirs, svn_only_dirs, lines_dirs  = compare_lists( self.hg.dirs, svn_dirs )
-
         if not self.filemap is None:
+            svn_dirs = self.filemap.apply( svn_dirs )
             svn_paths = self.filemap.apply( svn_paths )
 
+        common_dirs,  hg_only_dirs,  svn_only_dirs,  lines_dirs  = compare_lists( self.hg.dirs,  svn_dirs )
         common_paths, hg_only_paths, svn_only_paths, lines_paths = compare_lists( self.hg.paths, svn_paths )
 
         check = {}
@@ -273,9 +281,9 @@ class Compare(object):
 class FileMap(object):
    def __init__(self, path ):
        chomp_ = lambda line:line.rstrip().lstrip()
-       not_comment_ = lambda line:not line[0] == '#'
+       not_comment_ = lambda line:not line[0] == '#' 
        with open(path,"r") as fp:
-           lines = filter(not_comment_,map(chomp_,fp.readlines()))
+           lines = filter(not_comment_,filter(None,map(chomp_,fp.readlines())))
        pass
        rename, include, exclude = self.parse_content(lines)
        self.rename = rename
@@ -283,12 +291,28 @@ class FileMap(object):
        self.exclude = exclude
 
    def apply(self, paths):
+       """
+       Mercurial migration tool `hg convert` has `--filemap` option supporting 
+       path renaming.  During the creation of Mercurial repos from SVN repos for 
+       example the paths are changed and thus old paths from SVN do not appear 
+       in the HG repo.  
+
+       Thus in order to verify the conversion by comparison of
+       the source and destination paths and dirs it is necessary 
+       to apply the filemap to the source paths in order to allow 
+       comparison of the appropriate paths.  
+
+       This method does that mapping.
+       """
        pths = []
        for p in paths:
-           if p in self.rename:
-               pp = self.rename[p] 
-           else:
-               pp = p
+           pp = p
+           for op,np in self.rename.items():
+               if p.startswith(op):
+                   pp = np + p[len(op):]
+           pass
+           if not pp == p:
+               log.debug("filemap.apply changed [%s] => [%s] " % (p,pp))
            pass
            pths.append(pp)
        return pths
