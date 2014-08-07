@@ -8,6 +8,10 @@ Publishing Pages
 
 Argh ``scb-`` is probably not allowed as labels ending with hyphens are not valid in hostnames.
 
+* this, and the desire to use common name across accounts 
+  prompted name change Aug 7, 2014 from ``scb-`` to ``simoncblyth``
+
+
 Valid Hostnames
 ----------------
 

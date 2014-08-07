@@ -63,9 +63,9 @@ rst tips
 
           * pip install sphinx
 
-          * pip install -e git+git://github.com/scb-/converter.git#egg=converter
+          * pip install -e git+git://github.com/simoncblyth/converter.git#egg=converter
                 ## cannot push back to origin 
-          * pip install -e git+git@github.com:scb-/converter.git#egg=converter
+          * pip install -e git+git@github.com:simoncblyth/converter.git#egg=converter
                 ## can push to origin, if have the key  
      
       Convert .tex sources to .rst
@@ -127,7 +127,7 @@ PDF render :download:`OfflineUserManual.pdf <_build/latex/OfflineUserManual.pdf>
     == Git setup ==
 
          Description of setup moved to
-              https://github.com/scb-/converter/blob/master/NOTES
+              https://github.com/simoncblyth/converter/blob/master/NOTES
 
 
     == OTHERS ==
@@ -222,8 +222,8 @@ converter-mate(){ mate $(converter-dir) ; }
 
 converter-url(){
    case $USER in 
-      blyth) echo git@github.com:scb-/converter.git ;;
-          *) echo git://github.com/scb-/converter.git  ;;
+      blyth) echo git@github.com:simoncblyth/converter.git ;;
+          *) echo git://github.com/simoncblyth/converter.git  ;;
    esac 
 }
 

@@ -4,6 +4,7 @@ SCM
 
 .. toctree::
 
+    history
     scm-backup
     notes
     monitor/index
