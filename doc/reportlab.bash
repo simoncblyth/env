@@ -11,9 +11,25 @@ REPORTLAB
 * http://www.reportlab.com/
 * http://www.reportlab.com/software/installation/
 
-
 INSTALLS
 ---------
+
+
+D
+~~
+
+Aug 2014, py27-reportlab from macports::
+
+    delta:~ blyth$ port contents py27-reportlab
+    Port py27-reportlab contains:
+      /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/reportlab-3.1.8-py2.7.egg-info
+      /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/reportlab/__init__.py
+      ...
+      /opt/local/share/doc/py27-reportlab/README.txt
+
+    delta:~ blyth$ python -c "import reportlab"
+    delta:~ blyth$ 
+
 
 G
 ~~

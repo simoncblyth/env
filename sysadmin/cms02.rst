@@ -1,6 +1,40 @@
 CMS02
 ======
 
+Aug 4, 2014
+------------
+
+Following a powercut cannot connect to cms02 over ssh, although 
+looks normal at console login.
+
+Stays same after commandline reboot.
+
+::
+
+
+    [blyth@cms01 ~]$ uptime
+     11:41:18 up  3:31,  1 user,  load average: 0.00, 0.02, 0.00
+
+    delta:~ blyth$ ping cms02.phys.ntu.edu.tw
+    PING cms02.phys.ntu.edu.tw (140.112.101.191): 56 data bytes
+    Request timeout for icmp_seq 0
+
+    delta:~ blyth$ ping 140.112.101.191
+    PING 140.112.101.191 (140.112.101.191): 56 data bytes
+    Request timeout for icmp_seq 0
+
+    [blyth@cms01 ~]$ ping 140.112.101.191
+    PING 140.112.101.191 (140.112.101.191) 56(84) bytes of data.
+    From 140.112.101.190 icmp_seq=1 Destination Host Unreachable
+    From 140.112.101.190 icmp_seq=2 Destination Host Unreachable
+
+
+Looks like some network infrastructure did not come back following 
+power outage.
+
+
+
+
 Following Typhoon Matmo C2R to H1 backups failing 
 ------------------------------------------------------
 

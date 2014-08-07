@@ -26,6 +26,13 @@ Division to allow users without Chroma/CUDA to still benefit from
 the visualization functionality.
 
 
+* `hg convert` can extract history of parts of the SVN repo in
+  its conversion into Mercurial, so can partition into
+  separate repos.  Which can then be fixed up for the different 
+  python import paths. 
+
+
+
 code and revision history
 ---------------------------
 

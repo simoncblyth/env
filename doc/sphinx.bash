@@ -166,6 +166,16 @@ extension ideas
        * there is a html for chm option, but compiling M$ 
          chm on linux is problematic and demands chm reader on device 
 
+
+customizing sphinx
+-------------------
+
+* :google:`sphinx RST customize`
+* :google:`customize sphinx latex output`
+
+* http://git-pull.readthedocs.org/en/latest/code_explorer/rst-docutils-sphinx-readthedocs.html
+* https://github.com/github/markup/pull/220/files
+
 readthedocs
 -------------
 

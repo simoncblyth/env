@@ -13,7 +13,6 @@ RST2PDF
 * http://rst2pdf.ralsina.com.ar/handbook.html
 * http://ralsina.me/stories/BBS52.html
 
-
 Dependencies
 --------------
 
@@ -21,6 +20,29 @@ Dependencies
 
 INSTALLS
 ----------
+
+D
+~~
+
+
+Aug 2014, macports install::
+
+    delta:~ blyth$ port info rst2pdf
+    rst2pdf @0.93 (textproc, python)
+
+    Description:          Create PDF from reStructuredText
+    Homepage:             http://code.google.com/p/rst2pdf/
+
+    Library Dependencies: python27, py27-reportlab, py27-docutils, py27-setuptools
+    Runtime Dependencies: py27-pygments
+    Platforms:            darwin
+    License:              MIT
+    Maintainers:          nomaintainer@macports.org
+    delta:~ blyth$ 
+
+This macport has an undeclared dependency,  py27-pdfrw
+
+
 
 G
 ~~
