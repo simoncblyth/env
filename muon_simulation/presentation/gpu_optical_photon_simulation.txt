@@ -285,8 +285,8 @@ eliminate geometry code as :red:`just one code path`.
 
 
 
-https://bitbucket.org/scb-/chroma :small:`Forked, changes so far:` 
--------------------------------------------------------------------
+https://bitbucket.org/simoncblyth/chroma :small:`Forked, changes so far:` 
+---------------------------------------------------------------------------
 
 .. class:: small
 

@@ -237,7 +237,8 @@ adm-svnhg(){
 }
 
 adm-repo(){ echo ${ADM_REPO:-env} ; }
-adm-filemap-path(){ echo ~/.${1}/filemap.cfg  ; }
+adm-filemap-path(){   echo ~/.${1}/filemap.cfg  ; }
+adm-authormap-path(){ echo ~/.${1}/authormap.cfg  ; }
 adm-filemap(){
   local name=$1
   case $name in 
@@ -280,8 +281,10 @@ to start from scratch by first deleting:
 EON
 }
 
-
-
+adm-authormap(){ cat << EOF
+blyth = Simon C Blyth <simoncblyth@gmail.com>
+EOF
+}
 
 adm-convert(){
    local msg="=== $FUNCNAME :"
@@ -293,14 +296,16 @@ adm-convert(){
    local url=file:///$svr    
 
    local filemap=$(adm-filemap-path $name)
+   local authormap=$(adm-authormap-path $name)
    mkdir -p $(dirname $filemap)
    adm-filemap $name > $filemap
+   adm-authormap $name > $authormap
 
    echo $msg filemap $filemap
    cat $filemap
 
    [ -d "$hgr" ] && echo $msg CAUTION destination hg repo exists already $hgr : THIS WILL BE INCREMENTAL : IF YOU CHANGED FILEMAP/OPTIONS YOU SHOULD FIRST DELETE $hgr 
-   local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr --filemap $filemap "
+   local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr --filemap $filemap --authormap $authormap "
    echo $cmd
 
    local ans
