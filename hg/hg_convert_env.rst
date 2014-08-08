@@ -1,6 +1,12 @@
 HG Convert of env repo from SVN to HG
 =======================================
 
+.. contents:: :local:
+
+
+SVN env r1599 causing grief
+------------------------------
+
 ::
 
     INFO:env.scm.migration.compare_hg_svn:compare_contents paths 499 svn_digest 499 hg_digest 499 mismatch 0  svn_only 0 hg_only 0 
@@ -22,8 +28,6 @@ HG Convert of env repo from SVN to HG
         self.client.checkout(self.url, self.path, revision=rev_(rev), ignore_externals=self.ignore_externals)
     pysvn._pysvn_2_7.ClientError: Revision 1599 doesn't match existing revision 1598 in '/tmp/subversion/env'
     (adm_env)delta:~ blyth$ 
-
-
 
 
 SVN Tree Conflict
@@ -64,7 +68,6 @@ Stepping through the HG converted history doesnt go into conflict state::
     delta:histogram blyth$ l
     total 16
     -rw-r--r--  1 blyth  wheel  5258 Jul 31 16:49 PyHist.py
-
 
 
 Despite the apparent clean svnclient.py run tree conflicts are lurking:: 

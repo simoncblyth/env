@@ -157,6 +157,19 @@ Most of the binaries are not huge, only the video is potentially a problem,
 maybe dropbox for that.
 
 
+video on dropbox
+------------------
+
+* https://tech.dropbox.com/2014/02/video-processing-at-dropbox/
+* http://eastasiastudent.net/china/dropbox-no-vpn
+* http://techcrunch.com/2014/02/17/dropbox-now-accessible-for-the-first-time-in-china-since-2010/
+
+Some suggestions to add to /etc/hosts::
+
+    174.36.30.73 www.dropbox.com
+    174.36.30.71 www.dropbox.com
+
+
 resource collection
 ---------------------
 

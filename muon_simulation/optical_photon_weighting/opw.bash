@@ -29,17 +29,19 @@ TODO: Make this have fewer steps
 
 #. Generate no-argument script and output directory with `opw-;opw-sim` 
 #. edit script adding `--chroma` option
-#. Build `csa-`::
+#. Build `csa-`
 
-   csa-
-   csa-nuwapkg-diff  
-   csa-nuwapkg-cpto
-   csa-nuwapkg-make
+   ::
 
-   # 
-   csa-nuwapkg-cd cmt
-   cmt config
-   . setup.sh 
+       csa-
+       csa-nuwapkg-diff  
+       csa-nuwapkg-cpto
+       csa-nuwapkg-make
+
+       # 
+       csa-nuwapkg-cd cmt
+       cmt config
+       . setup.sh 
 
 
 #. Run the edited script `python opw-sim.py`  
@@ -53,7 +55,9 @@ FUNCTIONS
     checkout my people copy of Davids OPW
 
 *opw-gen-muons*
-    10k muon vectors took ~6 seconds to generate, the sample is reproducible::
+    10k muon vectors took ~6 seconds to generate, the sample is reproducible
+
+    ::
 
         [blyth@belle7 OPW]$ diff  tenthousandmuons tenthousandmuons.1 
         [blyth@belle7 OPW]$ 

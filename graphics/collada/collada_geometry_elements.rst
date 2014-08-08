@@ -9,7 +9,7 @@ Objective
 Learn about elements of Collada needed to 
 represent Geant4 geometry models.
 
-For more Geant4 exporter implementation specifics :doc:`/geant4/geometry/collada`
+For more Geant4 exporter implementation specifics :doc:`/geant4/geometry/collada/index`
 
 
 References
