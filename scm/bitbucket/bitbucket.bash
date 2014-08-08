@@ -124,6 +124,46 @@ Bitbucket limits
 TODO: Investigate Dropbox for longterm holding of binaries
 
 
+Sphinx downloads
+-----------------
+
+For small numbers of binaries can use Sphinx download with RST source like::
+
+    described in the :download:`Chroma whitepaper <chroma.pdf>`.
+
+Not so keen on this, 
+
+#. it results in having multiple copies of the binary that 
+   get copied around by the Sphinx build.  
+
+#. Prefer a single resource with a single URL, that never gets copied
+
+
+existing resource approach and how to map into bitbucket
+----------------------------------------------------------
+
+#. binaries (images, pdf, videos) served by apache from $APACHE_HTDOCS/env/
+#. Sphinx derived html served from $APACHE_HTDOCS/e/ 
+
+Keeping big and unchanging binaries separate from 
+small and frequently changing html is a good pattern to continue.  
+Could map this into bitbucket via directory structure in the static
+pages repo::
+
+   /var/scm/mercurial/simoncblyth.bitbucket.org/e/ 
+   /var/scm/mercurial/simoncblyth.bitbucket.org/env/ 
+
+Most of the binaries are not huge, only the video is potentially a problem, 
+maybe dropbox for that.
+
+
+resource collection
+---------------------
+
+#. Extended ~/e/muon_simulation/presentation/rst2s5-2.6.py to doctree traverse collecting 
+   and resolving the urls of resources used in the document (images, videos, background images).
+
+
 
 EOU
 }

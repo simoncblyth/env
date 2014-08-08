@@ -40,6 +40,7 @@ extensions = ['sphinx.ext.autodoc',
 	      'env.sphinxext.bashinclude',
 	      'env.sphinxext.taglist',
 	      'env.sphinxext.stockchart',
+	      'env.sphinxext.edir',
         #  'hieroglyph', 
 	      ]
 

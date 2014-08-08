@@ -565,7 +565,15 @@ EOU
 sphinx-dir(){ echo $(local-base)/env/doc/sphinx ; }
 sphinx-cd(){  cd $(sphinx-dir)/$1; }
 
-sphinx-cds(){ cd /opt/local/lib/python2.5/site-packages/sphinx  ; }
+
+sphinx-sdir(){ 
+  case $NODE_TAG in 
+    G) echo /opt/local/lib/python2.5/site-packages/sphinx  ;;
+    D) echo /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx ;; 
+  esac
+}
+
+sphinx-scd(){ cd $(sphinx-sdir) ; }
 
 sphinx-mate(){ mate $(sphinx-dir) ; }
 sphinx-get(){

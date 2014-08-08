@@ -15,6 +15,7 @@ FOOTNOTE_REFERENCES="brackets"
 REALPWD=$(realpath $(PWD))   # avoids requirement to be at ~/env/wherever rather than symbolically linked ~/e/wherever
 RELDIR=$(subst $(ENV_HOME),,$(REALPWD)) 
 NEWPUBDIR=$(addprefix $(APACHE_HTDOCS)/env,$(RELDIR))
+#NEWPUBDIR=.
 NEWPUBURL=$(addprefix http://localhost/env,$(RELDIR))
 
 SOURCES=$(wildcard *.txt)
@@ -60,7 +61,7 @@ $(TXTS): $(SOURCES)
 	cp $< $@
 
 $(SLIDES): $(SOURCES)
-	$(PYTHON) ./rst2s5-2.6.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --visible-controls --language=en $< $@
+	DOCBASE=$(APACHE_HTDOCS) $(PYTHON) ./rst2s5-2.6.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --visible-controls --language=en $< $@
 
 help:
 	$(PYTHON) ./rst2s5-2.6.py --help
