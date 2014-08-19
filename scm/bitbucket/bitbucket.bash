@@ -153,8 +153,26 @@ pages repo::
    /var/scm/mercurial/simoncblyth.bitbucket.org/e/ 
    /var/scm/mercurial/simoncblyth.bitbucket.org/env/ 
 
+But its all one repo anyhow, that is populated by 
+
+#. sphinx build
+#. manual placement of resources 
+
+Could in principal create a script to merge 
+the resource and derived html trees ? But that introduces 
+complication and makes it difficult to do clean Sphinx builds.
+
+managing the binaries
+-----------------------
+
 Most of the binaries are not huge, only the video is potentially a problem, 
-maybe dropbox for that.
+maybe dropbox for that.  But need a way to select only binaries that are 
+actually referred to.
+
+dropbox alternatives
+---------------------
+
+* https://www.yunio.com
 
 
 video on dropbox
@@ -164,17 +182,21 @@ video on dropbox
 * http://eastasiastudent.net/china/dropbox-no-vpn
 * http://techcrunch.com/2014/02/17/dropbox-now-accessible-for-the-first-time-in-china-since-2010/
 
+Right click on video stored in your Public Dropbox folder to get the Public link, include
+that URL in 
+
 Some suggestions to add to /etc/hosts::
 
     174.36.30.73 www.dropbox.com
     174.36.30.71 www.dropbox.com
-
 
 resource collection
 ---------------------
 
 #. Extended ~/e/muon_simulation/presentation/rst2s5-2.6.py to doctree traverse collecting 
    and resolving the urls of resources used in the document (images, videos, background images).
+
+#. ~/e/bin/resources.py adding up sizes
 
 
 

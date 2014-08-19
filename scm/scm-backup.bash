@@ -211,6 +211,61 @@ DURING AN RSYNC TRANSFER, BOTH SIZE AND DIGEST DIFFER
          {'dig': 'da39aee61a748602a15c98e3db25d008', 'size': 1915004348L}
                        sometime later, there is no change : transfer stalled  ?
 
+
+ISSUE : rsync not woking, tarballs not getting purged ?
+-----------------------------------------------------------
+
+#. Aug 19, 2014 : observe that tarballs on C have not been purged since July 20 ?
+
+Checking logs see error::
+
+    === scm-backup-rsync : quick re-transfer /var/scm/backup/cms02 to C:/data/var/scm/backup/ after unlock
+    === scm-backup-rsync : time rsync -e "ssh" --delete-after --stats -razvt /var/scm/backup/cms02 C:/data/var/scm/backup/ --timeout 10
+    Scientific Linux CERN SLC release 4.8 (Beryllium)
+    building file list ... done
+    rsync: mkdir "/data/var/scm/backup" failed: No such file or directory (2)
+    rsync error: error in file IO (code 11) at main.c(576) [receiver=3.0.6]
+    rsync: connection unexpectedly closed (8 bytes received so far) [sender]
+    rsync error: error in rsync protocol data stream (code 12) at io.c(359)
+    real    0m1.153s
+
+Repeating the rsync command manually works, deleting the backlog of unpurged tarballs::
+
+    [root@cms02 log]# rsync -e "ssh" --delete-after --stats -razvt /var/scm/backup/cms02 C:/data/var/scm/backup/ --timeout 10
+
+
+
+ISSUE : fabric run fails
+--------------------------
+
+::
+
+    INFO:env.tools.libfab:ENV setting (key,val)  (timeout,2)
+    INFO:__main__:to check db:  echo .dump tgzs | sqlite3 /data/env/local/env/scm/scm_backup_monitor.db
+    INFO:env.scm.tgz:opening DB /data/env/local/env/scm/scm_backup_monitor.db
+    INFO:ssh.transport:Connected (version 1.99, client OpenSSH_4.3p2-6.cern-hpn-CERN-4.3p2-6.cern)
+    INFO:ssh.transport:Authentication (publickey) successful!
+    INFO:ssh.transport:Secsh channel 1 opened.
+    monitor cfg: {'HOST': 'C',
+     'HUB': 'C2',
+     'dbpath': '$LOCAL_BASE/env/scm/scm_backup_monitor.db',
+     'email': 'blyth@hep1.phys.ntu.edu.tw simon.c.blyth@gmail.com',
+     'jspath': '$APACHE_HTDOCS/data/scm_backup_monitor_%(node)s.json',
+     'reporturl': 'http://dayabay.phys.ntu.edu.tw/e/scm/monitor/%(srvnode)s/',
+     'select': 'repos/env tracs/env repos/aberdeen tracs/aberdeen repos/tracdev tracs/tracdev repos/heprez tracs/heprez',
+     'srvnode': 'cms02'}
+    [C] run: find $SCM_FOLD/backup/cms02 -name '*.gz' -exec du --block-size=1M {} \;
+    [C] out: /home/blyth/.bash_profile: line 32: /data/env/local/env/home/env.bash: No such file or directory^M
+    [C] out: /home/blyth/.bash_profile: line 313: sv-: command not found^M
+    [C] out: /home/blyth/.bash_profile: line 315: python-: command not found^M
+    [C] out: find: /backup/cms02: No such file or directory^M
+
+    Fatal error: run() received nonzero return code 1 while executing!
+
+
+
+
+
 ISSUES WITH NEW INTEGRITY TESTS
 ----------------------------------
 
