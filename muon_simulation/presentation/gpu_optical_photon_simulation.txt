@@ -148,7 +148,7 @@ eliminate geometry code as :red:`just one code path`.
 .. class:: tiny
 
     .. [#perfect] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug. 
-                  Details: http://dayabay.phys.ntu.edu.tw/e/geant4/geometry/collada/dae_cf_wrl/ 
+                  Details: http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/dae_cf_wrl/ 
 
 
 :small:`G4DAE : Triangular Advantage` 
@@ -424,7 +424,7 @@ https://bitbucket.org/simoncblyth/chroma :small:`Forked, changes so far:`
 
 .. class:: tiny
 
-   .. [#g4daeview_usage] http://dayabay.phys.ntu.edu.tw/e/geant4/geometry/collada/g4daeview/g4daeview_usage/
+   .. [#g4daeview_usage] http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
 
    .. [#vbo] Implemented with single OpenGL Vertex Buffer Object (VBO) for entire geometry  
 

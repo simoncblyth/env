@@ -1,0 +1,12 @@
+simoncblyth static pages
+==========================
+
+* env development notes `env/notes/ <env/notes/>`_
+* GPU accelerated simulation presentation `env/muon_simulation/presentation/ <env/muon_simulation/presentation/gpu_optical_photon_simulation.html>`_
+
+
+
+
+
+
+

@@ -146,6 +146,12 @@ C2 is again offline, last straw
     (adm_env)delta:simoncblyth.bitbucket.org blyth$ mv env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf ~/Dropbox/Public/
 
 
+Static TODO
+-------------
+
+Need an index page at http://simoncblyth.bitbucket.org with links
+to the notes and presentations.
+
 
 Notes TODO
 -----------
@@ -306,9 +312,13 @@ https://www.dropbox.com/s/6jmcqxphnc8qhkg/g4daeview_001.m4v?dl=0
 
 EOU
 }
+
+bitbucket-repo(){  echo simoncblyth.bitbucket.org ; }
+bitbucket-sdir(){ echo $(env-home)/scm/bitbucket/$(bitbucket-repo) ; }
+bitbucket-scd(){  cd $(bitbucket-sdir); }
 bitbucket-dir(){ echo $(bitbucket-htdocs) ; }
 bitbucket-cd(){  cd $(bitbucket-dir); }
-bitbucket-htdocs(){ echo $HOME/simoncblyth.bitbucket.org ; }
+bitbucket-htdocs(){ echo $HOME/$(bitbucket-repo) ; }
 bitbucket-export(){
    export BITBUCKET_HTDOCS=$(bitbucket-htdocs)
 }
