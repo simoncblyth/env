@@ -8,7 +8,7 @@ SPHINXOPTS    =
 SPHINXBUILD   ?= sphinx-build
 PAPER         =
 BUILDDIR      = _build
-BITBUCKETDIR  = $(HOME)/simoncblyth.bitbucket.org
+BITBUCKET_HTDOCS  = $(HOME)/simoncblyth.bitbucket.org
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -21,7 +21,7 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 #EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/e
 EDOCS = $(APACHE_HTDOCS)/e
 
-.PHONY: bbenv test bash2rst default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: bb test bash2rst default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 withoutstring := $(foreach rst,$(wildcard *.rst),$(if $(findstring O,$(rst)),,$(rst)))
 withstring := $(foreach rst,$(wildcard *.rst),$(if $(findstring O,$(rst)),$(rst),))
@@ -77,10 +77,10 @@ dirhtml:
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
 
-bbenv:
-	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BITBUCKETDIR)/env
+bb:
+	mkdir -p $(BITBUCKET_HTDOCS)/env/notes && $(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BITBUCKET_HTDOCS)/env/notes
 	@echo
-	@echo "Build finished. The HTML pages are in $(BITBUCKETDIR)/env."
+	@echo "Build finished. The HTML pages are in $(BITBUCKET_HTDOCS)/env/notes."
 
 
 singlehtml:

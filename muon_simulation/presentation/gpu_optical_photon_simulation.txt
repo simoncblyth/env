@@ -45,9 +45,10 @@
 
 .. class:: small
 
-    http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.html
-    http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf
-    http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.txt
+    http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/gpu_optical_photon_simulation.html
+    http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/gpu_optical_photon_simulation.txt
+    https://www.dropbox.com/s/3a6ty8frtmohm06/gpu_optical_photon_simulation.pdf?dl=0
+    https://www.dropbox.com/s/3a6ty8frtmohm06/gpu_optical_photon_simulation.pdf?dl=1
 
 .. sidebar:: Objective 
 
@@ -562,7 +563,8 @@ https://bitbucket.org/simoncblyth/chroma :small:`Forked, changes so far:`
 :small:`g4daeview.py : Video Tour`  
 -----------------------------------------------------
 
-.. s5_video:: /env/g4daeview_001.m4v
+
+.. s5_video:: https://www.dropbox.com/s/6jmcqxphnc8qhkg/g4daeview_001.m4v?dl=1
     :poster: /env/geant4/geometry/collada/g4daeview/20140419-170713.png
     :width: 60%
 

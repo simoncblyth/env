@@ -11,6 +11,7 @@ PYTHON?=python
 
 #FOOTNOTE_REFERENCES="superscript"
 FOOTNOTE_REFERENCES="brackets"
+APACHE_HTDOCS=$(HOME)/simoncblyth.bitbucket.org
 
 REALPWD=$(realpath $(PWD))   # avoids requirement to be at ~/env/wherever rather than symbolically linked ~/e/wherever
 RELDIR=$(subst $(ENV_HOME),,$(REALPWD)) 
@@ -61,7 +62,7 @@ $(TXTS): $(SOURCES)
 	cp $< $@
 
 $(SLIDES): $(SOURCES)
-	DOCBASE=$(APACHE_HTDOCS) $(PYTHON) ./rst2s5-2.6.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --visible-controls --language=en $< $@
+	mkdir -p $(APACHE_HTDOCS)/env/muon_simulation/presentation && DOCBASE=$(APACHE_HTDOCS) $(PYTHON) ./rst2s5-2.6.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --visible-controls --language=en $< $@
 
 help:
 	$(PYTHON) ./rst2s5-2.6.py --help

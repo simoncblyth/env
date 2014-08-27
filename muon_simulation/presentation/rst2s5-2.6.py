@@ -162,8 +162,9 @@ def main():
     urls, paths = collect_resources(pub.document)
     print "\n".join(paths)
 
-
-    IP.embed()
+    if not IP is None:
+        pass
+        #IP.embed()
 
     return output
 

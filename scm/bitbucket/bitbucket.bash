@@ -84,7 +84,7 @@ https://confluence.atlassian.com/display/BITBUCKET/Publishing+a+Website+on+Bitbu
 
 #. add, commit, push static index.html to the root
 
-Add bbenv target to ~/env/Makefile that populates ~/simoncblyth.bitbucket.org/env with 
+Add **bb** target to ~/env/Makefile that populates ~/simoncblyth.bitbucket.org/env with 
 the Sphinx generated html.
 
 #. slightly funny doing that out of svn working copy, but have not migrated yet, still testing  
@@ -103,6 +103,105 @@ the Sphinx generated html.
 
 
 #. Pages appear at http://simoncblyth.bitbucket.org/env/
+
+
+Bitbucket Static pages rejig
+-----------------------------
+
+C2 is again offline, last straw
+
+
+#. through bitbucket web interface 
+
+   * delete repository named *simoncblyth.bitbucket.org*  
+   * create repository named *simoncblyth.bitbucket.org*   # make it public this time
+
+#. in file system::
+
+      delta:~ blyth$ rm -rf simoncblyth.bitbucket.org    # delete old clone
+      delta:~ blyth$ hg clone ssh://hg@bitbucket.org/simoncblyth/simoncblyth.bitbucket.org   # clone the empty
+
+#. amend **bb** target of env/Makefile Sphinx build to create/populate BITBUCKET_HTDOCS/env/notes and build::
+
+      delta:e blyth$ make bb 
+
+#. amend target of env/muon_simulation/presentation/Makefile to create populate BITBUCKET_HTDOCS/env/muon_simulation/presentation and build::
+
+#. move original APACHE_HTDOCS/env to env.keep and create symbolic link to allow local apache 
+   testing of html and resources without committing+pushing to bitbucket::
+
+    delta:Documents blyth$ sudo ln -s /Users/blyth/simoncblyth.bitbucket.org/env  
+
+#. move across the contents of APACHE_HTDOCS/env.keep to the new BITBUCKET_HTDOCS/env 
+   excluding the videos
+
+#. add to the bitbucket repo, mercurial complains about big PDF, so revert and place in Dropbox/Public
+
+    env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf: up to 115 MB of RAM may be required to manage this file
+    (use 'hg revert env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf' to cancel the pending addition)
+
+    delta:simoncblyth.bitbucket.org blyth$ du -h env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf
+     37M    env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf
+
+    (adm_env)delta:simoncblyth.bitbucket.org blyth$ mv env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf ~/Dropbox/Public/
+
+
+
+Notes TODO
+-----------
+
+* http://simoncblyth.bitbucket.org/env/notes/ 
+
+* currently using dirhtml layout, that is problematic for offline html use
+  without a webserver, maybe leap to plain html style like workflow does
+
+Slides TODO
+------------
+
+* http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/gpu_optical_photon_simulation.html
+
+#. trac links need updates to bitbucket ones, after make leap to env in bitbucket and open env repo 
+#. video and presentation PDF are too big for sensible storage in bitbucket repo, need
+   to find another home (Dropbox ?) and link to it 
+
+   * linking video from Dropbox, works but very slow
+
+Dropbox
+-------
+
+#. problem is that the dropbox is designed to be everywhere, 
+   including devices with very little available space having big files 
+   on those makes no sense
+
+   * create a new dropbox account and only use its web interface for uploading  
+
+::
+
+    delta:Dropbox blyth$ mv /Library/WebServer/Documents/env.keep/g4daeview_001.m4v Public/
+
+   * https://www.dropbox.com/s/6jmcqxphnc8qhkg/g4daeview_001.m4v?dl=1  video preview html page and over compressed video
+   * https://www.dropbox.com/s/6jmcqxphnc8qhkg/g4daeview_001.m4v?dl=0  good quality video, but slow to load 
+
+
+Layout migration idea
+-----------------------
+
+Sphinx derived html, for env at least, are very much **notes**. 
+Make that explicit and avoid double top "e" and "env" with 
+layout at expense of the path "/env/notes".
+
+#. /env/...     other resources
+#. /env/muon_simulation/presentation/
+
+Sphinx and slides building machinery currently generates html 
+into APACHE_HTDOCS/e and APACHE_HTDOCS/env respectively. 
+Instead of this generate into BITBUCKET_HTDOCS/env/notes and BITBUCKET_HTDOCS/env
+Then can publish by a Mercurial commit and push.
+
+All bitbucket repos under a username share the same single static pages repo, 
+so having a one to one correspondence to a top level dir named after 
+the repo is the cleanest way. 
+
 
 Whats missing
 ---------------
@@ -199,13 +298,19 @@ resource collection
 #. ~/e/bin/resources.py adding up sizes
 
 
+https://www.dropbox.com/s/6jmcqxphnc8qhkg/g4daeview_001.m4v?dl=0
+
+
+
+
 
 EOU
 }
-bitbucket-dir(){ echo $(local-base)/env/scm/bitbucket/scm/bitbucket-bitbucket ; }
+bitbucket-dir(){ echo $(bitbucket-htdocs) ; }
 bitbucket-cd(){  cd $(bitbucket-dir); }
-bitbucket-mate(){ mate $(bitbucket-dir) ; }
-bitbucket-get(){
-   local dir=$(dirname $(bitbucket-dir)) &&  mkdir -p $dir && cd $dir
-
+bitbucket-htdocs(){ echo $HOME/simoncblyth.bitbucket.org ; }
+bitbucket-export(){
+   export BITBUCKET_HTDOCS=$(bitbucket-htdocs)
 }
+
+
