@@ -40,9 +40,15 @@ def main():
     day = os.environ.get('DAY',datetime.now().strftime("%d/%b/%Y"))  # 20/Jun/2014
     ip = os.environ.get('IP',None)  
 
+    if not ip is None:
+        ip_ = "grep ^%(ip)s"  
+    else:
+        ip_ = None
+    pass
+
     cmds = filter(None,
                    ["cat %(log)s", 
-                    None if ip is None else "grep ^%(ip)s", 
+                    ip_,
                     "grep %(day)s:%(hour)0.2d",
                     "wc -l"]) 
 
