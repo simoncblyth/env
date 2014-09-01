@@ -1,6 +1,12 @@
 Welcome to env
 =================
 
+.. contents:: :local:
+
+
+Overview
+---------
+
 The *env* provides mostly bash and python functions for many tasks related to getting,
 configuring, installing, running, logging and validating software.
 Initially setup for the Daya Bay collaboration however much of the functionality in
@@ -23,12 +29,56 @@ Hook up your bash shell with the env by adding the below to your .bash_profile::
     The env- causes the definition of many bash functions.
 
 
+Making changes to env from Bitbucket
+--------------------------------------
+
+In order for you to make changes to env on bitbucket.
+
+Once only setup
+~~~~~~~~~~~~~~
+
+#. create a free bitbucket account (you will need to provide an email address)
+   https://bitbucket.org
+
+#. fork https://bitbucket.org/simoncblyth/env into your account 
+   using the bitbucket web interface
+
+#. use mercurial to clone your fork onto machines using env
+
+
+For each change
+~~~~~~~~~~~~~~~~
+
+#. commit to local repository with Mercurial and push to bitbucket fork up in the cloud
+
+   ::
+
+       hg commit -m "informative but brief message"
+       hg push 
+
+#. to share the change (best to do this to avoid divergence)
+   make pull requests to me using bitbucket web interface
+
+
+Possible future simplification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bitbucket does actually have "teams" which allow 
+team members to all push into a single repository.
+I'll investigate this possibility further.
+
+* http://blog.bitbucket.org/2012/05/30/bitbucket-teams/
+* https://confluence.atlassian.com/display/BITBUCKET/Bitbucket+Teams
+
+
+
+
 Hierarchical Organization of functions
 ---------------------------------------
 
-Functions ending in hyphen `-` such as `swig-` and `python-` are precursor functions
+Functions ending in hyphens such as *swig-* and *python-* are precursor functions
 that on running lead to the definition of several other functions within these
-namespaces and the running of the corresponding `*-env` function. In this way the
+namespaces and the running of the corresponding *-env* function. In this way the
 functions are insured of a particular environment while minimizing namespace
 pollution.
 
@@ -37,9 +87,9 @@ they are needed, using a kitchensink approach is deprecated as it is then
 unclear of what depends on what making errors harder to trace and making
 modifications more difficult.
 
-The top level "precursors" are defined in `env.bash` and "sub-precursors" should
-be defined in `.bash` named after the top level folder like `swig/swig.bash` or
-`python/python.bash` etc...
+The top level "precursors" are defined in *env.bash* and "sub-precursors" should
+be defined in *.bash* named after the top level folder like *swig/swig.bash* or
+*python/python.bash* etc...
 
 After running the precursors you can use tab completion in the shell to see the
 functions that have been defined::
