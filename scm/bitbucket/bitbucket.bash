@@ -49,6 +49,32 @@ Upload env Mercurial conversion to bitbucket
    * blyth/lint/maqm : Author not mapped to a bitbucket user   
    * added and verified my gmail to use for this 
 
+
+Trial Usage
+------------
+
+Use ssh not http, for auto authentication via key::
+
+    delta:~ blyth$ mv env env.svn
+
+    delta:~ blyth$ hg clone https://simoncblyth@bitbucket.org/simoncblyth/env
+    http authorization required
+    realm: Bitbucket.org HTTP
+    user: simoncblyth
+    password: interrupted!
+
+    delta:~ blyth$ hg clone ssh://hg@bitbucket.org/simoncblyth/env
+    destination directory: env
+    requesting all changes
+    adding changesets
+    adding manifests
+    adding file changes
+    added 4636 changesets with 14033 changes to 4363 files
+    updating to branch default
+    3051 files updated, 0 files merged, 0 files removed, 0 files unresolved
+
+
+
 Username Mapping
 -------------------
 

@@ -126,6 +126,7 @@ release = VERSION
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns = ['_build', 
+		    'README.rst',  # for bitbucket source page
 		    'LOG.rst',  # convenience symbolic link 
 		    'hub/index.rst', # a separate Sphinxtance
 		    ]
