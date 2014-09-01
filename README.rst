@@ -78,6 +78,26 @@ For each change
    make pull requests to me using bitbucket web interface
 
 
+Getting current: hg pull then hg update
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For passwordless, need to run the ssh agent (see ssh--agent-start)::
+
+    [blyth@cms01 env]$ hg pull
+    Enter passphrase for key '/home/blyth/.ssh/id_rsa': 
+    pulling from ssh://hg@bitbucket.org/simoncblyth/env
+    searching for changes
+    adding changesets
+    adding manifests
+    adding file changes
+    added 2 changesets with 8 changes to 7 files
+    (run 'hg update' to get a working copy)
+
+    [blyth@cms01 env]$ hg up
+    7 files updated, 0 files merged, 0 files removed, 0 files unresolved
+
+
+
 Possible future simplification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
