@@ -8,6 +8,12 @@ hg-usage(){
 Mercurial
 ===========
 
+Related
+--------
+
+* *adm-vi*
+
+
 Tips
 ----
 
@@ -21,6 +27,114 @@ Tips
      combine options, G shows DAG, l to limit revisions 
 
 
+hg push backup 
+----------------
+
+* http://www.selenic.com/mercurial/hgrc.5.html
+
+#. Need to init the repository at the destination
+#. Note that path portion is relative to HOME
+
+::
+
+    (adm_env)delta:env blyth$ hg paths
+    default = /var/scm/mercurial/env
+    ##backup = ssh://blyth@cms01.phys.ntu.edu.tw/data/var/scm/mercurial/env  NOPE PATH PORTION IS RELATIVE TO HOME 
+    backup = ssh://blyth@cms01.phys.ntu.edu.tw/../../data/var/scm/mercurial/env
+
+    [blyth@cms01 mercurial]$ pwd
+    /data/var/scm/mercurial
+    [blyth@cms01 mercurial]$ hg init env
+
+    (adm_env)delta:env blyth$ hg push backup
+    pushing to ssh://blyth@cms01.phys.ntu.edu.tw/../../data/var/scm/mercurial/env
+    remote: Scientific Linux CERN SLC release 4.8 (Beryllium)
+    searching for changes
+    remote: adding changesets
+    remote: adding manifests
+    remote: adding file changes
+    remote: added 4635 changesets with 14025 changes to 4361 files
+
+
+checksum a mercurial repo, for backup check ?
+------------------------------------------------
+
+::
+
+    (adm_env)delta:env blyth$ hg bundle --all env.bundle
+    4635 changesets found
+    (adm_env)delta:env blyth$ md5 env.bundle
+    MD5 (env.bundle) = c3bdc095c43af222ffe87cbb11ee50eb
+
+
+#. pushed backup bundle has different md5sum
+
+
+tarred checksum
+-----------------
+
+::
+
+    (adm_env)delta:env blyth$ ( cd /tmp/t/env ; tar -cf - .hg ) | md5
+    8801bf3e1bf5e1e0f8f9985382e99dd5
+
+    (adm_env)delta:env blyth$ ( cd /tmp/s/env ; tar -cf - .hg ) | md5
+    e1a6631035485a95b979a4af6da3f148
+
+
+    delta:env blyth$ ( cd /tmp/t/env ; tar -cf - --exclude .hg/hgrc .hg ) | md5
+    d1f55c3d8beeb2ddb66bdbb54f7bb03a
+
+    delta:env blyth$ ( cd /tmp/s/env ; tar -cf - --exclude .hg/hgrc .hg ) | md5
+    f80ae809ecf9352c376a143da52b045e
+
+
+comparing leaf digests
+-------------------------
+
+::
+
+    delta:env blyth$ ll /tmp/s/env/.hg/dirstate /tmp/t/env/.hg/dirstate
+    -rw-r--r--  1 blyth  wheel  141373 Aug 29 18:37 /tmp/s/env/.hg/dirstate
+    -rw-r--r--  1 blyth  wheel  141373 Aug 29 19:15 /tmp/t/env/.hg/dirstate
+    delta:env blyth$ 
+
+
+Excluding two top level files succeeds to get a digest match for two clones
+both on OSX::
+
+    delta:env blyth$ digest.py /tmp/t/env/.hg hgrc dirstate 
+    3e7d9e26fefdfeaba6e5facf8f68148b
+
+    delta:env blyth$ digest.py /tmp/s/env/.hg hgrc dirstate 
+    3e7d9e26fefdfeaba6e5facf8f68148b
+
+
+Comparing a repo on OSX with a pushed backup on Linux, differs
+apparently due to a file naming difference problem scrambling the digest ordering::
+
+    [blyth@cms01 env]$ l .hg/store/data/base/.ssh.bash.swp.i 
+    -rw-rw-r--  1 blyth blyth 1560 Aug 29 17:53 .hg/store/data/base/.ssh.bash.swp.i
+
+    (adm_env)delta:env blyth$ l .hg/store/data/base/~2essh.bash.swp.i 
+    -rw-r--r--  3 blyth  staff  1560 Aug 29 16:46 .hg/store/data/base/~2essh.bash.swp.i
+
+
+After fixing the file ordering by working around the above name problem 
+succed to get a match within the store:: 
+
+    (adm_env)delta:env blyth$ digest.py .hg/store fncache undo
+    15fdcc096e0252f4a6ee9ed12b86005a
+
+    [blyth@cms01 env]$ digest.py .hg/store fncache undo
+    15fdcc096e0252f4a6ee9ed12b86005a
+
+Suspect getting a complete .hg match liable to be impossible without using 
+precisely the same Mercurial version at both ends.
+
+
+
+
 hg convert
 ------------
 
@@ -29,10 +143,6 @@ hg convert
 #. timezone
 
 * http://hgbook.red-bean.com/read/migrating-to-mercurial.html
-
-
-
-
 
 
 env repo took about 8 minutes over network to D
@@ -162,9 +272,9 @@ hg-convert
 
      #. works incrementally, just converting changes
      #. note only trunk is being converted, this is fine for: 
-        env, heprez, tracdev, workflow
-     
-
+        env, heprez, workflow
+     #. tracdev adopts a multiple trunks under toplevel folders
+        layout which will need special file mapping 
 
 
 

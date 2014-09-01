@@ -25,6 +25,7 @@ example:
 Related
 --------
 
+#. *hg-*
 #. *scmmigrate-*
 #. *hgapi-*
 
@@ -95,7 +96,9 @@ FUNCTIONS
      adm-convert heprez
      adm-convert tracdev
 
-     Before doing this, create local SVN repo mirrors with svnsync-
+     Conversion of about 4000 env revisions from local file based SVN 
+     repo (updated via adm-svnmirror-sync) takes about 1 minute.
+
 
 *adm-svnhg name*
 
@@ -104,6 +107,17 @@ FUNCTIONS
      Makes corresponding SVN and HG checkouts for every revision, 
      compares file paths and content digests for the SVN and HG working copy.
 
+*adm-svnmirror-init name*
+
+     Setup SVN mirror repository 
+
+*adm-svnmirror-sync name*
+
+     sync SVN mirror repository 
+
+*adm-authormap*
+
+     from SVN username into Mercurial/Bitbucket name/email
 
 
 EOU
@@ -174,14 +188,14 @@ adm-svnurl(){
   local repo=$1
   case $repo in 
     env_remote) echo http://dayabay.phys.ntu.edu.tw/repos/$repo/trunk ;;    
-    env)     echo file:///var/scm/subversion/env/trunk ;;
+    env)     echo file:///var/scm/subversion/env/trunk ;;     # NB no actual trunk directory in file system, its a fiction understood to be inside the repo database   
     heprez)  echo file:///var/scm/subversion/heprez/trunk ;;
     tracdev) echo file:///var/scm/subversion/tracdev ;;      # no trunk
   esac
 }
 
 
-adm-init-svnmirror(){
+adm-svnmirror-init(){
     local name=$1
     local fold=/var/scm/subversion
     mkdir -p $fold
@@ -194,6 +208,15 @@ adm-init-svnmirror(){
     chmod +x $repo/hooks/pre-revprop-change
 }
 
+adm-svnmirror-sync(){
+    local name=${1:-env}
+    local fold=/var/scm/subversion
+    mkdir -p $fold
+    local repo=$fold/$name
+    local cmd="svnsync sync file://$repo"
+    echo $cmd
+    eval $cmd
+}
 
 
 adm-hgsvnrev(){
@@ -283,6 +306,10 @@ EON
 
 adm-authormap(){ cat << EOF
 blyth = Simon C Blyth <simoncblyth@gmail.com>
+lint = Tao Lin <lintao51@gmail.com>
+jimmy = Jimmy Ngai <jimngai@hku.hk>
+maqm = Qiumei Ma <maqm@ihep.ac.cn>
+thho = Taihsiang Ho <thho@hep1.phys.ntu.edu.tw>
 EOF
 }
 
@@ -301,8 +328,13 @@ adm-convert(){
    adm-filemap $name > $filemap
    adm-authormap $name > $authormap
 
+   echo
    echo $msg filemap $filemap
    cat $filemap
+   echo
+   echo $msg authormap $authormap
+   cat $authormap
+   echo
 
    [ -d "$hgr" ] && echo $msg CAUTION destination hg repo exists already $hgr : THIS WILL BE INCREMENTAL : IF YOU CHANGED FILEMAP/OPTIONS YOU SHOULD FIRST DELETE $hgr 
    local cmd="hg convert --config convert.localtimezone=true --source-type svn --dest-type hg $url $hgr --filemap $filemap --authormap $authormap "
@@ -315,6 +347,10 @@ adm-convert(){
    eval $cmd
 }
 
+adm-verify(){
 
+  echo  
+
+}
 
 

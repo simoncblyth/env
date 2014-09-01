@@ -1,6 +1,126 @@
 CMS02
 ======
 
+Sep 1, 2014
+------------
+
+Same again. Continuation of the same attack.
+
+Only came back up for a few hours::
+
+    IP=66.249.76.74 DAY=29/Aug/2014 apachehits.py
+
+    [root@cms02 logs]# DAY=29/Aug/2014 apachehits.py
+    cat access_log|grep 29/Aug/2014:00|wc -l 0
+    cat access_log|grep 29/Aug/2014:01|wc -l 0
+    cat access_log|grep 29/Aug/2014:02|wc -l 2
+    cat access_log|grep 29/Aug/2014:03|wc -l 0
+    cat access_log|grep 29/Aug/2014:04|wc -l 0
+    cat access_log|grep 29/Aug/2014:05|wc -l 3
+    cat access_log|grep 29/Aug/2014:06|wc -l 0
+    cat access_log|grep 29/Aug/2014:07|wc -l 0
+    cat access_log|grep 29/Aug/2014:08|wc -l 3
+    cat access_log|grep 29/Aug/2014:09|wc -l 0
+    cat access_log|grep 29/Aug/2014:10|wc -l 0
+    cat access_log|grep 29/Aug/2014:11|wc -l 3
+    cat access_log|grep 29/Aug/2014:12|wc -l 634
+    cat access_log|grep 29/Aug/2014:13|wc -l 356
+    cat access_log|grep 29/Aug/2014:14|wc -l 131
+    cat access_log|grep 29/Aug/2014:15|wc -l 0
+    cat access_log|grep 29/Aug/2014:16|wc -l 0
+    cat access_log|grep 29/Aug/2014:17|wc -l 0
+    cat access_log|grep 29/Aug/2014:18|wc -l 0
+    cat access_log|grep 29/Aug/2014:19|wc -l 0
+    cat access_log|grep 29/Aug/2014:20|wc -l 0
+    cat access_log|grep 29/Aug/2014:21|wc -l 0
+    cat access_log|grep 29/Aug/2014:22|wc -l 0
+    cat access_log|grep 29/Aug/2014:23|wc -l 0
+
+
+
+
+Whois indicates google is culprit::
+
+    [root@cms02 logs]# IP=66.249.76.74 DAY=29/Aug/2014 apachehits.py
+    ...
+    cat access_log|grep ^66.249.76.74|grep 29/Aug/2014:11|wc -l 0
+    cat access_log|grep ^66.249.76.74|grep 29/Aug/2014:12|wc -l 424
+    cat access_log|grep ^66.249.76.74|grep 29/Aug/2014:13|wc -l 166
+    cat access_log|grep ^66.249.76.74|grep 29/Aug/2014:14|wc -l 33
+    cat access_log|grep ^66.249.76.74|grep 29/Aug/2014:15|wc -l 0
+    ...
+
+
+
+
+Aug 29, 2014
+-------------
+
+* noted cms02 apache/svn not responding yesterday evening Aug 28
+* this morning: can ping, but cannot ssh or web access, reboot regains access
+* looks like another robot attack killing apache
+
+
+::
+
+    [root@cms02 logs]# DAY=27/Aug/2014 apachehits.py
+    cat access_log|grep 27/Aug/2014:00|wc -l 8
+    cat access_log|grep 27/Aug/2014:01|wc -l 0
+    cat access_log|grep 27/Aug/2014:02|wc -l 2
+    cat access_log|grep 27/Aug/2014:03|wc -l 2
+    cat access_log|grep 27/Aug/2014:04|wc -l 0
+    cat access_log|grep 27/Aug/2014:05|wc -l 1
+    cat access_log|grep 27/Aug/2014:06|wc -l 1
+    cat access_log|grep 27/Aug/2014:07|wc -l 0
+    cat access_log|grep 27/Aug/2014:08|wc -l 0
+    cat access_log|grep 27/Aug/2014:09|wc -l 4
+    cat access_log|grep 27/Aug/2014:10|wc -l 17
+    cat access_log|grep 27/Aug/2014:11|wc -l 8
+    cat access_log|grep 27/Aug/2014:12|wc -l 0
+    cat access_log|grep 27/Aug/2014:13|wc -l 49
+    cat access_log|grep 27/Aug/2014:14|wc -l 82
+    cat access_log|grep 27/Aug/2014:15|wc -l 0
+    cat access_log|grep 27/Aug/2014:16|wc -l 384
+    cat access_log|grep 27/Aug/2014:17|wc -l 918
+    cat access_log|grep 27/Aug/2014:18|wc -l 368
+    cat access_log|grep 27/Aug/2014:19|wc -l 184
+    cat access_log|grep 27/Aug/2014:20|wc -l 897
+    cat access_log|grep 27/Aug/2014:21|wc -l 202
+    cat access_log|grep 27/Aug/2014:22|wc -l 116
+    cat access_log|grep 27/Aug/2014:23|wc -l 159
+
+    [root@cms02 logs]# DAY=28/Aug/2014 apachehits.py
+    cat access_log|grep 28/Aug/2014:00|wc -l 187
+    cat access_log|grep 28/Aug/2014:01|wc -l 361
+    cat access_log|grep 28/Aug/2014:02|wc -l 356
+    cat access_log|grep 28/Aug/2014:03|wc -l 273
+    cat access_log|grep 28/Aug/2014:04|wc -l 388
+    cat access_log|grep 28/Aug/2014:05|wc -l 402
+    cat access_log|grep 28/Aug/2014:06|wc -l 338
+    cat access_log|grep 28/Aug/2014:07|wc -l 339
+    cat access_log|grep 28/Aug/2014:08|wc -l 667
+    cat access_log|grep 28/Aug/2014:09|wc -l 407
+    cat access_log|grep 28/Aug/2014:10|wc -l 1040
+    cat access_log|grep 28/Aug/2014:11|wc -l 346
+    cat access_log|grep 28/Aug/2014:12|wc -l 258
+    cat access_log|grep 28/Aug/2014:13|wc -l 325
+    cat access_log|grep 28/Aug/2014:14|wc -l 393
+    cat access_log|grep 28/Aug/2014:15|wc -l 0
+    cat access_log|grep 28/Aug/2014:16|wc -l 0
+    cat access_log|grep 28/Aug/2014:17|wc -l 0
+    cat access_log|grep 28/Aug/2014:18|wc -l 0
+    cat access_log|grep 28/Aug/2014:19|wc -l 0
+    cat access_log|grep 28/Aug/2014:20|wc -l 0
+    cat access_log|grep 28/Aug/2014:21|wc -l 0
+    cat access_log|grep 28/Aug/2014:22|wc -l 0
+    cat access_log|grep 28/Aug/2014:23|wc -l 0
+    [root@cms02 logs]# 
+
+
+
+
+
+
 Aug 4, 2014
 ------------
 

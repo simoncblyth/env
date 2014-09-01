@@ -8,6 +8,12 @@ bitbucket-usage(){ cat << EOU
 BITBUCKET
 ==========
 
+related
+--------
+
+* see *hg-* regarding the conversion from Subversion to Mercurial
+
+
 Upload env Mercurial conversion to bitbucket
 ----------------------------------------------
 
@@ -65,6 +71,12 @@ Checking raw commits with bitbucket web interface shows no associated email addr
 
 *hg convert* has a usermap option, so can setup mapping from SVN users like
 "blyth" to an email address verified with bitbucket. 
+
+
+Bitbucket Teams
+----------------
+
+* https://confluence.atlassian.com/display/BITBUCKET/Teams+Frequently+Asked+Questions
 
 
 Bitbucket Static Pages
@@ -127,6 +139,8 @@ C2 is again offline, last straw
 
 #. amend target of env/muon_simulation/presentation/Makefile to create populate BITBUCKET_HTDOCS/env/muon_simulation/presentation and build::
 
+      slides-;slides-scd;make  # OR slides-;slides-make
+
 #. move original APACHE_HTDOCS/env to env.keep and create symbolic link to allow local apache 
    testing of html and resources without committing+pushing to bitbucket::
 
@@ -146,11 +160,25 @@ C2 is again offline, last straw
     (adm_env)delta:simoncblyth.bitbucket.org blyth$ mv env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf ~/Dropbox/Public/
 
 
-Static TODO
--------------
+Bitbucket Static pages index 
+------------------------------
 
-Need an index page at http://simoncblyth.bitbucket.org with links
-to the notes and presentations.
+* http://simoncblyth.bitbucket.org 
+
+Machinery to generate index html from RST sources 
+with links to the notes and presentations::
+
+    cd ~/env/scm/bitbucket/simoncblyth.bitbucket.org    
+          # OR bitbucket-;bitbucket-scd
+    make       
+          # writes ~/simoncblyth.bitbucket.org/index.html
+
+    cd ~/simoncblyth.bitbucket.org                      
+          # bitbucket-cd
+
+    hg commit -m "update top index "
+    hg push
+    open http://simoncblyth.bitbucket.org
 
 
 Notes TODO
@@ -158,8 +186,11 @@ Notes TODO
 
 * http://simoncblyth.bitbucket.org/env/notes/ 
 
-* currently using dirhtml layout, that is problematic for offline html use
-  without a webserver, maybe leap to plain html style like workflow does
+* currently using dirhtml layout, 
+
+  * problematic for offline html use without a webserver
+  * BUT nice short URLs 
+  * maybe leap to plain html style like workflow does
 
 Slides TODO
 ------------
@@ -181,25 +212,28 @@ Dropbox
 
    * create a new dropbox account and only use its web interface for uploading  
 
+
 ::
 
     delta:Dropbox blyth$ mv /Library/WebServer/Documents/env.keep/g4daeview_001.m4v Public/
 
    * https://www.dropbox.com/s/6jmcqxphnc8qhkg/g4daeview_001.m4v?dl=1  video preview html page and over compressed video
    * https://www.dropbox.com/s/6jmcqxphnc8qhkg/g4daeview_001.m4v?dl=0  good quality video, but slow to load 
+   * https://dl.dropboxusercontent.com/u/53346160/g4daeview_001.m4v     # hmm different ways of getting the link yield differet links 
 
 
-Layout migration idea
+Layout migration rejig
 -----------------------
 
 Sphinx derived html, for env at least, are very much **notes**. 
 Make that explicit and avoid double top "e" and "env" with 
-layout at expense of the path "/env/notes".
+layout at expense of the path.  As all repos share the one 
 
+#. /env/notes   Sphinx derived notes
 #. /env/...     other resources
 #. /env/muon_simulation/presentation/
 
-Sphinx and slides building machinery currently generates html 
+Formerly Sphinx and slides building machinery generates html 
 into APACHE_HTDOCS/e and APACHE_HTDOCS/env respectively. 
 Instead of this generate into BITBUCKET_HTDOCS/env/notes and BITBUCKET_HTDOCS/env
 Then can publish by a Mercurial commit and push.
@@ -307,6 +341,20 @@ resource collection
 https://www.dropbox.com/s/6jmcqxphnc8qhkg/g4daeview_001.m4v?dl=0
 
 
+bitbucket paths
+----------------
+
+After cloning /var/scm/mercurial/env into /tmp/t/env the
+/tmp/t/env/.hg/hgrc has a paths setting that points back to where it was 
+cloned from
+
+::
+
+    delta:env blyth$ hg paths
+    default = /var/scm/mercurial/env
+
+
+
 
 
 
@@ -322,5 +370,29 @@ bitbucket-htdocs(){ echo $HOME/$(bitbucket-repo) ; }
 bitbucket-export(){
    export BITBUCKET_HTDOCS=$(bitbucket-htdocs)
 }
+
+bitbucket-username(){ echo ${BITBUCKET_USERNAME:-simoncblyth} ; }
+bitbucket-repo(){ echo /var/scm/mercurial/${1:-env} ; }
+
+bitbucket-paths-(){ 
+   local name=${1:-env}
+   cat << EOC
+
+[paths]
+default = ssh://hg@bitbucket.org/$(bitbucket-username)/$name
+
+EOC
+}
+bitbucket-paths(){
+   local name=${1:-env}
+   local repo=$(bitbucket-repo $name)
+   local hgrc=$repo/.hg/hgrc
+
+   [ ! -d "$(dirname $hgrc)" ] && echo $msg ERROR no .hg dir $(dirname $hgrc) && return
+   [ ! -f "$hgrc" ] && echo $msg writing $hrgc && $FUNCNAME- $ name > $hgrc 
+   [ -f "$hgrc" ] && echo $msg hgrc $hgcr && cat $hgrc 
+
+}
+
 
 

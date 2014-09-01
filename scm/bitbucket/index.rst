@@ -8,6 +8,8 @@ bitbucket
    trac2bitbucket
    features
    bitbucket_ssh
+   bitbucket_env
+
 
 
 
