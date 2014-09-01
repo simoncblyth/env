@@ -18,7 +18,7 @@ been migrated to BitBucket/Mercurial.
 Get/update your env with the below, this will create/update the folder $HOME/env::
 
     cd $HOME ; 
-    hg clone ssh://hg@bitbucket.org/simoncblyth/env
+    hg clone ssh://hg@bitbucket.org/simoncblyth/env   # using SSH to allow passwordless access via keys
     hg pull
 
 Hook up your bash shell with the env by adding the below to your .bash_profile::
@@ -26,7 +26,8 @@ Hook up your bash shell with the env by adding the below to your .bash_profile::
     export ENV_HOME=$HOME/env      
     env-(){  . $ENV_HOME/env.bash  && env-env $* ; }
     env-    
-    The env- causes the definition of many bash functions.
+    
+The *env-* causes the definition of many bash precursor functions.
 
 
 Making changes to env from Bitbucket
@@ -44,6 +45,23 @@ Once only setup
    using the bitbucket web interface
 
 #. use mercurial to clone your fork onto machines using env
+
+passwordless access using ssh keys
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Collect together the public keys on all machines that need to 
+clone the repository and use bitbucket web interface to add the keys
+to your bitbucket account.::
+
+    (adm_env)delta:~ blyth$ scp C2:.ssh/id_rsa.pub C2.id_rsa.pub
+    (adm_env)delta:~ blyth$ cat C2.id_rsa.pub | pbcopy
+    (adm_env)delta:~ blyth$ 
+    (adm_env)delta:~ blyth$ scp N:.ssh/id_rsa.pub N.id_rsa.pub
+    (adm_env)delta:~ blyth$ cat N.id_rsa.pub | pbcopy
+    (adm_env)delta:~ blyth$ 
+    (adm_env)delta:~ blyth$ scp G:.ssh/id_rsa.pub G.id_rsa.pub
+    (adm_env)delta:~ blyth$ cat G.id_rsa.pub | pbcopy
+
 
 
 For each change

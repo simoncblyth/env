@@ -54,7 +54,7 @@ clui-alias(){
    alias vip='vi ~/.bash_profile'
    alias vips='grep BUILD_PATH ~/.bash_profile | grep -v grep '
    alias eu="env-u"
-   alias pyc="rm *.pyc"
+   alias pyc="find $(hg root) -name '*.pyc' -exec rm -f {} \;"
 
 }
 

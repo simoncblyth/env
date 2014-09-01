@@ -1,9 +1,22 @@
 #!/usr/bin/env python
 """
+Full History Comparison of Subversion working copy with Mercurial 
+===================================================================
+
+Operates by:
+
+#. matching Subversion and Mercurial revision logs, by commit times
+#. traversing the revisions, checking them out and doing file digest comparisons
+   between the Subversion and Mecurial versions
+
+
 ::
 
    adm-
    adm-svnhg
+
+   compare_hg_svn.py hgdir svndir svnurl
+
 
 Mysteries:
 

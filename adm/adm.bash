@@ -87,7 +87,6 @@ FUNCTIONS
 
      Installs basic utilities: eg readline, ipython 
 
-
 *adm-convert*
 
      Runs hg convert, migrating SVN repo to Mercurial repo 
@@ -98,7 +97,6 @@ FUNCTIONS
 
      Conversion of about 4000 env revisions from local file based SVN 
      repo (updated via adm-svnmirror-sync) takes about 1 minute.
-
 
 *adm-svnhg name*
 
@@ -159,10 +157,7 @@ adm-utilities(){
 
    easy_install readline   # see ipython- notes
    pip -v install ipython
-
-
 }
-
 
 adm-env-ln(){ 
    ln -s $(env-home) $(adm-sitedir)/env
@@ -244,7 +239,7 @@ adm-svnhg(){
    local hgdir=/tmp/mercurial/$name
    local svndir=/tmp/subversion/$name
 
-   [ ! -d "$hgdir" ] && echo hgdir $hgdir missing : create with hg --cwd $(dirname $hgdir) clone /var/scm/mercurial/$name  && return
+   [ ! -d "$hgdir" ] && echo hgdir $hgdir missing : clone from repo with && echo $msg  hg --cwd $(dirname $hgdir) clone $HOME/$name  && return
 
    local svnurl=$(adm-svnurl $name)
    local filemap=$(adm-filemap-path $name)
@@ -253,11 +248,14 @@ adm-svnhg(){
    local hgrev=${hs[0]}
    local svnrev=${hs[1]}
    local opts=$(adm-opts $name)
+
    local cmd="compare_hg_svn.py $hgdir $svndir $svnurl --svnrev $svnrev --hgrev $hgrev --filemap $filemap $opts "
    echo $cmd
    eval $cmd
 
 }
+
+
 
 adm-repo(){ echo ${ADM_REPO:-env} ; }
 adm-filemap-path(){   echo ~/.${1}/filemap.cfg  ; }
@@ -266,6 +264,7 @@ adm-filemap(){
   local name=$1
   case $name in 
          env) adm-filemap-$name ;;
+       g4dae) adm-filemap-$name ;;
       heprez) adm-filemap-$name ;;
      tracdev) adm-filemap-$name ;;
   esac
@@ -275,6 +274,14 @@ adm-filemap-env(){ cat << EOF
 rename thho/NuWa/python/histogram/pyhist.py thho/NuWa/python/histogram/pyhist_rename_to_avoid_degeneracy.py 
 EOF
 }
+
+adm-filemap-g4dae(){  cat << EOF
+# g4dae exporter code history into top level of new repo
+include geant4/geometry/DAE
+rename geant4/geometry/DAE .
+EOF
+}
+
 adm-filemap-heprez(){ cat << EOF
 #placeholder
 EOF
@@ -346,6 +353,27 @@ adm-convert(){
 
    eval $cmd
 }
+
+
+adm-env-to-g4dae(){
+
+   local name=${1:-g4dae}
+   local filemap=$(adm-filemap-path $name)
+   local authormap=$(adm-authormap-path $name)
+
+   local src=file:///$HOME/env    
+   local dst=file:///$HOME/g4dae    
+
+   mkdir -p $(dirname $filemap)
+
+   adm-filemap $name > $filemap
+   adm-authormap $name > $authormap
+
+   local cmd="hg convert --config convert.localtimezone=true --source-type hg --dest-type hg $src $dst --filemap $filemap --authormap $authormap "
+   echo $cmd
+   eval $cmd
+}
+
 
 adm-verify(){
 

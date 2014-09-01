@@ -81,8 +81,10 @@ def crawler(root, directory, dir_, exclude_dirs=[".svn"], skipempty=False ):
 
 class SVNClient(object):
     def __init__(self, url, path, args ):
-
         """
+        :param url: 
+        :param path:
+
         :param clean_checkout_revs: empty string or comma delimited list of revisions 
         """
         assert len(path) > 5, "path [%s] sanity check fails" % path 
@@ -132,7 +134,7 @@ class SVNClient(object):
 
     def checkout(self, rev, clean=False):
         self.client = self.make_client()
-        log.info("checkout %s rev %s to %s clean %s " % (self.url, rev, self.path, clean)) 
+        log.debug("checkout %s rev %s to %s clean %s " % (self.url, rev, self.path, clean)) 
         if clean:
             if os.path.exists(self.path):
                 assert len(self.path) > 5, "sanity check %s " % self.path
@@ -264,8 +266,8 @@ def parse(doc):
     parser.add_argument("--skipempty", action="store_true")
     parser.add_argument("--ignore-externals", action="store_true")
     parser.add_argument("--loglevel",  default="INFO", help="")
-    parser.add_argument("--url",  default=local, help="")
-    parser.add_argument("--path", default="/tmp/subversion/env", help="")
+    parser.add_argument("--url",  default=local, help="local file:// or remote http:// url of Subversion repository ")
+    parser.add_argument("--path", default="/tmp/subversion/env", help="Directory of Subversion working copy")
     parser.add_argument("--srctz", default="utc", help="timezone of the SVN source timestamps, usually utc "  )
     parser.add_argument("--loctz", default="cst", help="timezone in which to make comparisons "  )
     parser.add_argument("--readlog", action="store_true", help=" "  )
