@@ -3,25 +3,15 @@
 digest.py
 ==========
 
-Emit hexdigest of resources within a folder
+For usage example see *hg-;hg-vi*
 
-::
+Emit hexdigest of resources within a folder::
 
-    cd /tmp/t/env
-    digest.py .hg hgrc
-
-
-OSX/Linux file naming difference is scrambling the digest order::
-
-    [blyth@cms01 env]$ l .hg/store/data/base/.ssh.bash.swp.i 
-    -rw-rw-r--  1 blyth blyth 1560 Aug 29 17:53 .hg/store/data/base/.ssh.bash.swp.i
-
-    (adm_env)delta:env blyth$ l .hg/store/data/base/~2essh.bash.swp.i 
-    -rw-r--r--  3 blyth  staff  1560 Aug 29 16:46 .hg/store/data/base/~2essh.bash.swp.i
-
+    cd ~/env
+    digest.py ~/env/.hg/store undo fncache
 
 """
-# dont use argparse/optparse as want to stay ancient python compatible 
+# dont use argparse as want to stay ancient python compatible 
 from __future__ import with_statement
 import os, sys, time, stat
 try: 
@@ -70,6 +60,15 @@ def linux_name( name ):
     ordering, messing up the cumulative digest.
 
     * http://www.readynas.com/forum/viewtopic.php?f=28&t=28265
+
+
+    OSX/Linux file naming difference is scrambling the digest order::
+
+        [blyth@cms01 env]$ l .hg/store/data/base/.ssh.bash.swp.i 
+        -rw-rw-r--  1 blyth blyth 1560 Aug 29 17:53 .hg/store/data/base/.ssh.bash.swp.i
+
+        (adm_env)delta:env blyth$ l .hg/store/data/base/~2essh.bash.swp.i 
+        -rw-r--r--  3 blyth  staff  1560 Aug 29 16:46 .hg/store/data/base/~2essh.bash.swp.i
 
     """
     if name[0:3] == "~2e":

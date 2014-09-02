@@ -27,24 +27,51 @@ Tips
      combine options, G shows DAG, l to limit revisions 
 
 
-hg push backup 
-----------------
+Simple Mercurial Backup Procedure
+-----------------------------------
 
-* http://www.selenic.com/mercurial/hgrc.5.html
+One time setup
+~~~~~~~~~~~~~~~
 
-#. Need to init the repository at the destination
-#. Note that path portion is relative to HOME
+#. *hg init* repository on remote node that have ssh keyed access to::
 
-::
+        [blyth@cms01 mercurial]$ pwd
+        /data/var/scm/mercurial
+        [blyth@cms01 mercurial]$ hg init env
 
-    (adm_env)delta:env blyth$ hg paths
-    default = /var/scm/mercurial/env
-    ##backup = ssh://blyth@cms01.phys.ntu.edu.tw/data/var/scm/mercurial/env  NOPE PATH PORTION IS RELATIVE TO HOME 
-    backup = ssh://blyth@cms01.phys.ntu.edu.tw/../../data/var/scm/mercurial/env
+#. on working node edit the .hg/hgrc paths section adding a *backup* alias
+   specifying *user@host//path* 
+   The double slash signifies an absolute path, a single slash would be relative to HOME.::
 
-    [blyth@cms01 mercurial]$ pwd
-    /data/var/scm/mercurial
-    [blyth@cms01 mercurial]$ hg init env
+       delta:env blyth$ hg paths
+       default = ssh://hg@bitbucket.org/simoncblyth/env
+       backup = ssh://blyth@cms01.phys.ntu.edu.tw//data/var/scm/mercurial/env
+
+
+Manual Backup
+~~~~~~~~~~~~~~
+
+After commiting local changes and pushing to bitbucket, occasionally make
+an extra backup::
+
+    cd ~/env
+    hg push backup
+    hg-check
+
+
+Repo digest
+~~~~~~~~~~~~
+
+Repository digests are computed from file content of the .hg/store directory 
+excluding two files that were found to differ depending on the architecture
+
+* .hg/store/fncache 
+* .hg/store/undo
+
+For details on Mercurial repo format 
+
+* http://mercurial.selenic.com/wiki/FileFormats
+* http://mercurial.selenic.com/wiki/fncacheRepoFormat
 
     (adm_env)delta:env blyth$ hg push backup
     pushing to ssh://blyth@cms01.phys.ntu.edu.tw/../../data/var/scm/mercurial/env
@@ -56,8 +83,14 @@ hg push backup
     remote: added 4635 changesets with 14025 changes to 4361 files
 
 
-checksum a mercurial repo, for backup check ?
-------------------------------------------------
+
+Failed Repo Digest Approaches
+--------------------------------
+
+bundle digests
+~~~~~~~~~~~~~~~~
+
+#. pushed backup bundle has different md5sum
 
 ::
 
@@ -66,21 +99,10 @@ checksum a mercurial repo, for backup check ?
     (adm_env)delta:env blyth$ md5 env.bundle
     MD5 (env.bundle) = c3bdc095c43af222ffe87cbb11ee50eb
 
-
-#. pushed backup bundle has different md5sum
-
-
-tarred checksum
------------------
+tarred digest
+~~~~~~~~~~~~~~~~~~
 
 ::
-
-    (adm_env)delta:env blyth$ ( cd /tmp/t/env ; tar -cf - .hg ) | md5
-    8801bf3e1bf5e1e0f8f9985382e99dd5
-
-    (adm_env)delta:env blyth$ ( cd /tmp/s/env ; tar -cf - .hg ) | md5
-    e1a6631035485a95b979a4af6da3f148
-
 
     delta:env blyth$ ( cd /tmp/t/env ; tar -cf - --exclude .hg/hgrc .hg ) | md5
     d1f55c3d8beeb2ddb66bdbb54f7bb03a
@@ -89,16 +111,8 @@ tarred checksum
     f80ae809ecf9352c376a143da52b045e
 
 
-comparing leaf digests
--------------------------
-
-::
-
-    delta:env blyth$ ll /tmp/s/env/.hg/dirstate /tmp/t/env/.hg/dirstate
-    -rw-r--r--  1 blyth  wheel  141373 Aug 29 18:37 /tmp/s/env/.hg/dirstate
-    -rw-r--r--  1 blyth  wheel  141373 Aug 29 19:15 /tmp/t/env/.hg/dirstate
-    delta:env blyth$ 
-
+leaf digests
+~~~~~~~~~~~~~~
 
 Excluding two top level files succeeds to get a digest match for two clones
 both on OSX::
@@ -109,7 +123,6 @@ both on OSX::
     delta:env blyth$ digest.py /tmp/s/env/.hg hgrc dirstate 
     3e7d9e26fefdfeaba6e5facf8f68148b
 
-
 Comparing a repo on OSX with a pushed backup on Linux, differs
 apparently due to a file naming difference problem scrambling the digest ordering::
 
@@ -119,9 +132,8 @@ apparently due to a file naming difference problem scrambling the digest orderin
     (adm_env)delta:env blyth$ l .hg/store/data/base/~2essh.bash.swp.i 
     -rw-r--r--  3 blyth  staff  1560 Aug 29 16:46 .hg/store/data/base/~2essh.bash.swp.i
 
-
 After fixing the file ordering by working around the above name problem 
-succed to get a match within the store:: 
+succeed to get a match within the store:: 
 
     (adm_env)delta:env blyth$ digest.py .hg/store fncache undo
     15fdcc096e0252f4a6ee9ed12b86005a
@@ -145,8 +157,8 @@ hg convert
 * http://hgbook.red-bean.com/read/migrating-to-mercurial.html
 
 
-env repo took about 8 minutes over network to D
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+env repo took about 8 minutes over network to D, 1 min with local mirror
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -179,61 +191,11 @@ wc comparison with svn
     Only in /Users/blyth/env: _build   # THIS COULD BE MOVED ELSEWHERE
     delta:env blyth$ 
 
-
-manual history comparison
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Hg trailing 2 (Hg 4642 svn 4644)::
-
-    delta:env blyth$ hg par
-    changeset:   4642:d7570fd518b3
-    tag:         tip
-    user:        blyth
-    date:        Mon Jul 21 20:46:21 2014 +0800
-    summary:     mercurial notes
-
-
-Hg starts 1 behind, due to restricting to trunk alone::
-
-    delta:env blyth$ hg log -r 0
-    changeset:   0:9f2fcef8ee0d
-    user:        blyth
-    date:        Sat May 05 10:36:52 2007 +0800
-    summary:     initial import from dummy
-
-    delta:env blyth$ svn log . -r1 -v
-    ------------------------------------------------------------------------
-    r1 | blyth | 2007-05-05 10:36:52 +0800 (Sat, 05 May 2007) | 1 line
-    Changed paths:
-       A /branches
-       A /tags
-       A /trunk
-
-    initial import from dummy 
-
-
-Something funny about changeset 10
-
-* http://dayabay.phys.ntu.edu.tw/tracs/env/changeset/10 it gives permission denied
-
-::
-
-    delta:env blyth$ svn log . -r10 -v
-    ------------------------------------------------------------------------
-
-
-
-
-
-
-
-
 systematic history checking 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * http://svn.apache.org/repos/asf/subversion/trunk/tools/examples/
 * hgapi
-
 
 
 FUNCTIONS
@@ -320,7 +282,7 @@ hg-pull(){
    cd $iwd
 }
 
-hg-backup(){
+hg-pull-backup(){
    local dir=$(hg-dir)/backup 
    mkdir -p $dir && cd $dir
    hg-pull
@@ -374,4 +336,39 @@ hg-compare-with-svn(){
 }
 
 
+hg-backup(){
+    hg push backup
+    hg-check
+}
+hg-check(){
+    local msg="=== $FUNCNAME : "
+    echo $msg Comparing stores : $PWD $(hg path backup)
+    hg-cdig
+}
+hg-cdig(){
+    local msg="=== $FUNCNAME : "
+    local ldig=$(echo $(hg-ldig))
+    local rdig=$(echo $(hg-rdig))
+
+    echo $msg LOC $ldig
+    echo $msg REM $rdig
+
+    if [ "$ldig" != "$rdig" ]; then 
+        echo $msg LOCAL/REMOTE DIGEST MISMATCH ldig $ldig rdig $rdig
+        sleep 100000000
+    else
+        echo $msg DIGEST MATCH OK 
+    fi 
+}
+hg-ldig(){
+    digest.py .hg/store fncache undo
+}
+hg-rdig(){
+    local bkp=$(hg path backup)
+    local rpath=$(echo ${bkp/*\/\/})
+    local nhp=$(echo ${bkp/ssh:\/\/})  # name@host//path 
+    local namehost=$(echo ${nhp/\/\/*})
+    #
+    ssh $namehost "bash -lc 'digest.py /$rpath/.hg/store fncache undo'" 2>/dev/null
+}
 

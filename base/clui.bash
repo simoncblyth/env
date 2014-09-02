@@ -44,13 +44,13 @@ clui-alias(){
    alias sst="svn st"
    alias stu="svn st -u"
    alias up="svn up"
-   alias ci="svn --username $USER ci "
+   alias sci="svn --username $USER ci "
    alias h='history'
    alias bh='cat ~/.bash_history'
    alias ini='. ~/.bash_profile'
    alias t='type'
    alias f='typeset -F'   ## list functions 
-   alias e='cd $ENV_HOME ; svn st '
+   alias e='cd $ENV_HOME ; hg st '
    alias vip='vi ~/.bash_profile'
    alias vips='grep BUILD_PATH ~/.bash_profile | grep -v grep '
    alias eu="env-u"
