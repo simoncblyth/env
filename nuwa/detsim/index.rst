@@ -4,6 +4,7 @@ detsim
 
 .. toctree::
 
+   detsim_configuration
    detsim_dsopstackaction
    detsim_dsfastmuonstackaction
    detsim_dschromastackaction

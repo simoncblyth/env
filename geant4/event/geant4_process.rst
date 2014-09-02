@@ -1328,6 +1328,168 @@ the selected one can be is forced or not.
 
 
 
+G4Transportation
+------------------
+
+Do nothing methods may be applicable `processes/transportation/include/G4Transportation.hh`::
+
+    058 class G4Transportation : public G4VProcess
+    059 {
+    ...
+    080      G4VParticleChange* PostStepDoIt(
+    081                              const G4Track& track,
+    082                              const G4Step&  stepData
+    083                             );
+    084        // Responsible for the relocation.
+    085 
+    086      G4double PostStepGetPhysicalInteractionLength(
+    087                              const G4Track& ,
+    088                              G4double   previousStepSize,
+    089                              G4ForceCondition* pForceCond
+    090                             );
+    091        // Forces the PostStepDoIt action to be called, 
+    092        // but does not limit the step.
+    ...
+    129      G4double AtRestGetPhysicalInteractionLength(
+    130                              const G4Track& ,
+    131                              G4ForceCondition*
+    132                             ) { return -1.0; };
+    133        // No operation in  AtRestDoIt.
+    134 
+    135      G4VParticleChange* AtRestDoIt(
+    136                              const G4Track& ,
+    137                              const G4Step&
+    138                             ) {return 0;};
+    139        // No operation in  AtRestDoIt.
+
+
+
+NuWa hookup
+-------------
+
+#. Maybe split with `DetSimChroma/src/DsPhysConsChromaOptical.cc`
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsPhysConsOptical.cc`::
+
+    110 void DsPhysConsOptical::ConstructProcess()
+    111 {
+    169     G4OpAbsorption* absorb = 0;
+    170     if (m_useAbsorption) {
+    171         absorb = new G4OpAbsorption();
+    172     }
+    173 
+    174     DsG4OpRayleigh* rayleigh = 0;
+    175     if (m_useRayleigh) {
+    176         rayleigh = new DsG4OpRayleigh();
+    177     //        rayleigh->SetVerboseLevel(2);
+    178     }
+    179 
+    180     //G4OpBoundaryProcess* boundproc = new G4OpBoundaryProcess();
+    181     DsG4OpBoundaryProcess* boundproc = new DsG4OpBoundaryProcess();
+    182     boundproc->SetModel(unified);
+    183 
+    184     G4FastSimulationManagerProcess* fast_sim_man
+    185         = new G4FastSimulationManagerProcess("fast_sim_man");
+    186 
+    187     theParticleIterator->reset();
+    188     while( (*theParticleIterator)() ) {
+    189 
+    190         G4ParticleDefinition* particle = theParticleIterator->value();
+    191         G4ProcessManager* pmanager = particle->GetProcessManager();
+    192 
+    193         // Caution: as of G4.9, Cerenkov becomes a Discrete Process.
+    194         // This code assumes a version of G4Cerenkov from before this version.
+    195 
+    196         if(cerenkov && cerenkov->IsApplicable(*particle)) {
+    197             pmanager->AddProcess(cerenkov);
+    198             pmanager->SetProcessOrdering(cerenkov, idxPostStep);
+    199             debug() << "Process: adding Cherenkov to "
+    200                     << particle->GetParticleName() << endreq;
+    201         }
+    202 
+    203         if(scint && scint->IsApplicable(*particle)) {
+    204             pmanager->AddProcess(scint);
+    205             pmanager->SetProcessOrderingToLast(scint, idxAtRest);
+    206             pmanager->SetProcessOrderingToLast(scint, idxPostStep);
+    207             debug() << "Process: adding Scintillation to "
+    208                     << particle->GetParticleName() << endreq;
+    209         }
+    210 
+    211         if (particle == G4OpticalPhoton::Definition()) {
+    212             if (absorb)
+    213                 pmanager->AddDiscreteProcess(absorb);
+    214             if (rayleigh)
+    215                 pmanager->AddDiscreteProcess(rayleigh);
+    216             pmanager->AddDiscreteProcess(boundproc);
+    217             //pmanager->AddDiscreteProcess(pee);
+    218             pmanager->AddDiscreteProcess(fast_sim_man);
+    219         }
+    220     }
+    221 }
+
+
+
+PhysicsList setup
+~~~~~~~~~~~~~~~~~~~
+
+
+* https://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/ch06.html
+
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsPhysConsGeneral.h`::
+
+     12 class DsPhysConsGeneral : public GiGaPhysConstructorBase
+     13 {
+     14 public:
+     15     DsPhysConsGeneral(const std::string& type,
+     16                          const std::string& name,
+     17                          const IInterface* parent );
+     .. 
+     20     // Interface methods
+     21     void ConstructParticle();
+     22     void ConstructProcess();
+
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsPhysConsGeneral.cc`::
+
+    098 void DsPhysConsGeneral::ConstructProcess()
+    099 {
+    100     // can't call this from a GiGaPhysConstructorBase, but
+    101     // G4VModularPhysicsList will do it for us.
+    102     // AddTransportation();
+
+
+::
+
+    [blyth@belle7 src]$ grep public\ GiGaPhysConstructorBase *.h
+    DsPhysConsElectroNu.h:class DsPhysConsElectroNu : public GiGaPhysConstructorBase
+    DsPhysConsEM.h:class DsPhysConsEM : public GiGaPhysConstructorBase
+    DsPhysConsGeneral.h:class DsPhysConsGeneral : public GiGaPhysConstructorBase
+    DsPhysConsHadron.h:class DsPhysConsHadron : public GiGaPhysConstructorBase
+    DsPhysConsIon.h:class DsPhysConsIon : public GiGaPhysConstructorBase
+    DsPhysConsOptical.h:class DsPhysConsOptical : public GiGaPhysConstructorBase
+
+
+
+
+Impingement
+~~~~~~~~~~~~
+
+* http://www.dnp.fmph.uniba.sk/~zilka/work/g4course
+
+* The G4ProcessManager has the possibility of switching on/off some processes
+  at run time by using ActivateProcess() and InActivateProcess()
+
+* The G4Transportation class must be registered with all particle
+  classes. An AddTransportation() method is provided in
+  G4VUserPhysicsList and it must be called in ConstructPhysics()
+
+
+
+
+
+
+
 Wrapper Process
 -----------------
 
