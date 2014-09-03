@@ -105,8 +105,23 @@ Bitbucket Static pages
 
 * moved to *bitbucketstatic-*
 
+Bitbucket Source Links
+-----------------------
 
+* https://bitbucket.org/simoncblyth/env/src/08b695ed6e2f5c959ec5f70486125dbd6272c1d9/cuda/cuda_launch.py?at=default
 
+Source links including the hash correspond to a precise version, 
+these are precise but otherwise are horribly long and look obnoxious.
+
+Gleaned from rom notes in the below issue 
+
+* https://bitbucket.org/site/master/issue/7150/option-to-replace-the-commit-hash-in-url
+
+And by inspection find less precise but more readable src links 
+including **tip** or **default** also work:
+
+* https://bitbucket.org/simoncblyth/env/src/default/cuda/cuda_launch.py
+* https://bitbucket.org/simoncblyth/env/src/tip/cuda/cuda_launch.py
 
 
 EOU

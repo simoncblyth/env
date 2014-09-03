@@ -12,8 +12,7 @@ from locally hosted apache to cloud servers from bitbucket and dropbox.
 Related
 --------
 
-* :doc:`/env/notes/simoncblyth.bitbucket.org/`
-
+* :doc:`/simoncblyth.bitbucket.org/index`
 
 
 Creation 
@@ -33,6 +32,19 @@ https://confluence.atlassian.com/display/BITBUCKET/Publishing+a+Website+on+Bitbu
 
 #. add, commit, push static index.html to the root
 
+
+RST doc links
+--------------
+
+Absolute Sphinx RST doc links need to omit the **/env/notes** 
+prefix that arises due to the positioning of the root index.html.
+
+For example::
+
+   :doc:`/simoncblyth.bitbucket.org/index`
+
+
+* :doc:`/simoncblyth.bitbucket.org/index`
 
 env notes
 -----------
