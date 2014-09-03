@@ -7,6 +7,44 @@ Commits
 * http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/22635
 * http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/22636
 
+
+Patches
+---------
+
+::
+
+    [blyth@belle7 patches]$ pwd
+    /data1/env/local/dybx/NuWa-trunk/lcgcmt/LCG_Builders/geant4/patches
+    [blyth@belle7 patches]$ svn log -l10 -v
+    ------------------------------------------------------------------------
+    r22636 | blyth | 2014-03-05 20:23:17 +0800 (Wed, 05 Mar 2014) | 1 line
+    Changed paths:
+       M /lcgcmt/trunk/LCG_Builders/geant4/cmt/requirements
+       M /lcgcmt/trunk/LCG_Builders/geant4/patches/geant4.9.2.p01.patch.patch2_source_persistency_GNUmakefile.patch
+       M /lcgcmt/trunk/LCG_Builders/geant4/scripts/geant4_config.sh
+
+    minor: change to tag geant4_with_dae to be closer to geant4 conventions 
+    ------------------------------------------------------------------------
+    r22635 | blyth | 2014-03-05 19:51:25 +0800 (Wed, 05 Mar 2014) | 1 line
+    Changed paths:
+       A /lcgcmt/trunk/LCG_Builders/geant4/patches/geant4.9.2.p01.patch.patch2_source_materials_include_G4MaterialPropertiesTable.hh.patch
+       A /lcgcmt/trunk/LCG_Builders/geant4/patches/geant4.9.2.p01.patch.patch2_source_materials_include_G4MaterialPropertyVector.hh.patch
+       A /lcgcmt/trunk/LCG_Builders/geant4/patches/geant4.9.2.p01.patch.patch2_source_materials_src_G4MaterialPropertyVector.cc.patch
+       A /lcgcmt/trunk/LCG_Builders/geant4/patches/geant4.9.2.p01.patch.patch2_source_persistency_GNUmakefile.patch
+       A /lcgcmt/trunk/LCG_Builders/geant4/patches/geant4.9.2.p01.patch.patch2_source_persistency_gdml_include_G4GDMLWrite.hh.patch
+       A /lcgcmt/trunk/LCG_Builders/geant4/patches/geant4.9.2.p01.patch.patch2_source_persistency_gdml_src_G4GDMLWrite.cc.patch
+       A /lcgcmt/trunk/LCG_Builders/geant4/patches/geant4.9.2.p01.patch.patch2_source_visualization_VRML_src_G4VRML2FileSceneHandler.cc.patch
+       M /lcgcmt/trunk/LCG_Builders/geant4/scripts/geant4_config.sh
+
+    minor: geant4 patches needed to integrate building G4DAE geometry export as COLLADA DAE documents functionaity, NOT ENABLED BY DEFAULT, requires CMTEXTRATAGS to include '''geant4_with_g4dae'''. notes at e/geant4/nuwa/create_incremental_patch 
+
+
+
+
+
+
+
+
 Forking techniques
 ------------------ 
 

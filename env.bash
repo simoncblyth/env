@@ -1456,3 +1456,4 @@ adm-(){      . $(env-home)/adm/adm.bash && adm-env $* ; }
 scmmigrate-(){      . $(env-home)/scm/migration/scmmigrate.bash && scmmigrate-env $* ; }
 pysvn-(){      . $(env-home)/svn/pysvn.bash && pysvn-env $* ; }
 bitbucket-(){      . $(env-home)/scm/bitbucket/bitbucket.bash && bitbucket-env $* ; }
+bitbucketstatic-(){      . $(env-home)/simoncblyth.bitbucket.org/bitbucketstatic.bash && bitbucketstatic-env $* ; }

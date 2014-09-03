@@ -98,21 +98,33 @@ eliminate geometry code as :red:`just one code path`.
 
     * volume tree: PV/LV hierarchy 
     * geometry: vertices, triangles+quads 
-    * materials 
-    * surfaces (skin and border surfaces)
-    * material/surface properties as function of wavelength 
+    * materials and surface with properties as function of wavelength 
 
 .. class:: small
 
-   * http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/DAE 
-   * http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/export
-   * http://www.khronos.org/collada/
+   * http://bitbucket.org/simoncblyth/g4dae
 
-:small:`G4DAE capable NuWa`: ``./dybinst -X geant4_with_dae trunk all``
-
-.. image:: images/G4DAEWrite.png 
+.. image:: images/bitbucket-g4dae.png 
    :height: 700px
    :align: center
+
+
+:small:`G4DAE : DayaBay/NuWa integration`
+-------------------------------------------------------
+ 
+:small:`G4DAE capable NuWa`: ``./dybinst -X geant4_with_dae trunk all``
+
+.. class:: small
+
+   Greenfield dybinstallation required
+
+   * builds Geant4 with G4DAE exporter and other necessary patches  
+   * Details on patching http://simoncblyth.bitbucket.org/env/notes/geant4/nuwa/
+
+   NuWa LCG_builder grabs g4dae from bitbucket 
+
+   * `NuWa-trunk/lcgcmt/LCG_Builders/geant4/scripts/geant4_config.sh` 
+
 
 
 :small:`G4DAE : Export Compared to VRML2(WRL)`
