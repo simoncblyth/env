@@ -22,6 +22,66 @@ example:
 #. hgapi, programmatic access to Mercurial repository 
 
 
+Setup local SVN mirror for faster SVN to HG conversions
+---------------------------------------------------------
+
+::
+
+    (adm_env)delta:~ blyth$ adm-
+    (adm_env)delta:~ blyth$ adm-svnmirror-init heprez
+    svnsync init file:///var/scm/subversion/heprez http://dayabay.phys.ntu.edu.tw/repos/heprez
+    Copied properties for revision 0.
+
+    (adm_env)delta:~ blyth$ adm-svnmirror-sync heprez
+    svnsync sync file:///var/scm/subversion/heprez
+    Committed revision 1.
+    Copied properties for revision 1.
+    Transmitting file data ..............................
+    Committed revision 2.
+    Copied properties for revision 2.
+    Transmitting file data .
+    ...
+    Copied properties for revision 955.
+    Transmitting file data .
+    Committed revision 956.
+    Copied properties for revision 956.
+    (adm_env)delta:~ blyth$ 
+
+
+Simple check::
+
+    (adm_env)delta:~ blyth$ svn co file:///var/scm/subversion/heprez/trunk heprez_svn
+    (adm_env)delta:~ blyth$ svn co http://dayabay.phys.ntu.edu.tw/repos/heprez/trunk heprez_rsvn
+    (adm_env)delta:~ blyth$ diff -r --brief heprez_svn heprez_rsvn
+    Files heprez_svn/.svn/wc.db and heprez_rsvn/.svn/wc.db differ
+    diff: heprez_svn/sources/belle/orig: No such file or directory
+    diff: heprez_rsvn/sources/belle/orig: No such file or directory
+    # warning due a broken link in both cases,  orig -> /Users/blyth/hf/sources/belle
+
+
+
+Perform conversion::
+
+    (adm_env)delta:~ blyth$ adm-
+    (adm_env)delta:~ blyth$ rm -rf /var/scm/mercurial/heprez
+    (adm_env)delta:~ blyth$ adm-convert heprez
+
+    === adm-convert : filemap /Users/blyth/.heprez/filemap.cfg
+    #placeholder
+
+    === adm-convert : authormap /Users/blyth/.heprez/authormap.cfg
+    ...
+
+    hg convert --config convert.localtimezone=true --source-type svn --dest-type hg file:////var/scm/subversion/heprez /var/scm/mercurial/heprez --filemap /Users/blyth/.heprez/filemap.cfg --authormap /Users/blyth/.heprez/authormap.cfg
+    === adm-convert : enter YES to proceed YES
+    scanning source...
+    sorting...
+    converting...
+
+
+
+
+
 Related
 --------
 
@@ -201,6 +261,10 @@ adm-svnmirror-init(){
     [ ! -d $repo ] &&  svnadmin create $repo
     echo '#!/bin/sh' > $repo/hooks/pre-revprop-change
     chmod +x $repo/hooks/pre-revprop-change
+
+    local cmd="svnsync init file://$repo http://dayabay.phys.ntu.edu.tw/repos/$name"
+    echo $cmd
+    eval $cmd 
 }
 
 adm-svnmirror-sync(){

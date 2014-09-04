@@ -1,6 +1,100 @@
 CMS02
 ======
 
+
+Sep 4, 2014
+-------------
+
+#. googlebot is worst offender, so in google webmaster tools limit crawl rate to 0.01 per second 
+
+
+
+Ongoing::
+
+    [root@cms02 logs]# DAY=02/Sep/2014 apachehits.py
+    cat access_log|grep 02/Sep/2014:00|wc -l 1515
+    cat access_log|grep 02/Sep/2014:01|wc -l 1405
+    cat access_log|grep 02/Sep/2014:02|wc -l 1362
+    cat access_log|grep 02/Sep/2014:03|wc -l 1274
+    cat access_log|grep 02/Sep/2014:04|wc -l 1219
+    cat access_log|grep 02/Sep/2014:05|wc -l 1305
+    cat access_log|grep 02/Sep/2014:06|wc -l 1418
+    cat access_log|grep 02/Sep/2014:07|wc -l 1577
+    cat access_log|grep 02/Sep/2014:08|wc -l 1380
+    cat access_log|grep 02/Sep/2014:09|wc -l 1243
+    cat access_log|grep 02/Sep/2014:10|wc -l 248
+    cat access_log|grep 02/Sep/2014:11|wc -l 244
+    cat access_log|grep 02/Sep/2014:12|wc -l 342
+    cat access_log|grep 02/Sep/2014:13|wc -l 365
+    cat access_log|grep 02/Sep/2014:14|wc -l 377
+    cat access_log|grep 02/Sep/2014:15|wc -l 390
+    cat access_log|grep 02/Sep/2014:16|wc -l 423
+    cat access_log|grep 02/Sep/2014:17|wc -l 550
+    cat access_log|grep 02/Sep/2014:18|wc -l 411
+    cat access_log|grep 02/Sep/2014:19|wc -l 412
+    cat access_log|grep 02/Sep/2014:20|wc -l 478
+    cat access_log|grep 02/Sep/2014:21|wc -l 554
+    cat access_log|grep 02/Sep/2014:22|wc -l 429
+    cat access_log|grep 02/Sep/2014:23|wc -l 682
+    [root@cms02 logs]# 
+    [root@cms02 logs]# 
+
+    [root@cms02 logs]# DAY=03/Sep/2014 apachehits.py
+    cat access_log|grep 03/Sep/2014:00|wc -l 767
+    cat access_log|grep 03/Sep/2014:01|wc -l 746
+    cat access_log|grep 03/Sep/2014:02|wc -l 739
+    cat access_log|grep 03/Sep/2014:03|wc -l 788
+    cat access_log|grep 03/Sep/2014:04|wc -l 845
+    cat access_log|grep 03/Sep/2014:05|wc -l 3
+    cat access_log|grep 03/Sep/2014:06|wc -l 0
+    cat access_log|grep 03/Sep/2014:07|wc -l 0
+    cat access_log|grep 03/Sep/2014:08|wc -l 1
+    cat access_log|grep 03/Sep/2014:09|wc -l 0
+    cat access_log|grep 03/Sep/2014:10|wc -l 0
+    cat access_log|grep 03/Sep/2014:11|wc -l 0
+    cat access_log|grep 03/Sep/2014:12|wc -l 0
+    cat access_log|grep 03/Sep/2014:13|wc -l 0
+    cat access_log|grep 03/Sep/2014:14|wc -l 0
+    cat access_log|grep 03/Sep/2014:15|wc -l 0
+    cat access_log|grep 03/Sep/2014:16|wc -l 41
+    cat access_log|grep 03/Sep/2014:17|wc -l 690
+    cat access_log|grep 03/Sep/2014:18|wc -l 398
+    cat access_log|grep 03/Sep/2014:19|wc -l 0
+    cat access_log|grep 03/Sep/2014:20|wc -l 0
+    cat access_log|grep 03/Sep/2014:21|wc -l 0
+    cat access_log|grep 03/Sep/2014:22|wc -l 0
+    cat access_log|grep 03/Sep/2014:23|wc -l 0
+
+    [root@cms02 logs]# DAY=04/Sep/2014 apachehits.py
+    cat access_log|grep 04/Sep/2014:00|wc -l 1
+    cat access_log|grep 04/Sep/2014:01|wc -l 0
+    cat access_log|grep 04/Sep/2014:02|wc -l 0
+    cat access_log|grep 04/Sep/2014:03|wc -l 2
+    cat access_log|grep 04/Sep/2014:04|wc -l 1
+    cat access_log|grep 04/Sep/2014:05|wc -l 0
+    cat access_log|grep 04/Sep/2014:06|wc -l 0
+    cat access_log|grep 04/Sep/2014:07|wc -l 0
+    cat access_log|grep 04/Sep/2014:08|wc -l 2
+    cat access_log|grep 04/Sep/2014:09|wc -l 0
+    cat access_log|grep 04/Sep/2014:10|wc -l 0
+    cat access_log|grep 04/Sep/2014:11|wc -l 0
+    cat access_log|grep 04/Sep/2014:12|wc -l 0
+    cat access_log|grep 04/Sep/2014:13|wc -l 0
+    cat access_log|grep 04/Sep/2014:14|wc -l 0
+    cat access_log|grep 04/Sep/2014:15|wc -l 0
+    cat access_log|grep 04/Sep/2014:16|wc -l 122
+    cat access_log|grep 04/Sep/2014:17|wc -l 0
+    cat access_log|grep 04/Sep/2014:18|wc -l 0
+    cat access_log|grep 04/Sep/2014:19|wc -l 0
+    cat access_log|grep 04/Sep/2014:20|wc -l 0
+    cat access_log|grep 04/Sep/2014:21|wc -l 0
+    cat access_log|grep 04/Sep/2014:22|wc -l 0
+    cat access_log|grep 04/Sep/2014:23|wc -l 0
+    [root@cms02 logs]# 
+
+
+
+
 Sep 1, 2014
 ------------
 

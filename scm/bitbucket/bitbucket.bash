@@ -100,6 +100,13 @@ Bitbucket Teams
 
 * https://confluence.atlassian.com/display/BITBUCKET/Teams+Frequently+Asked+Questions
 
+Sept 4th, 2014
+~~~~~~~~~~~~~~~~~
+
+#. Created "envsys" team https://bitbucket.org/envsys
+#. Attempted to set permissions on https://bitbucket.org/simoncblyth/env to allow commits 
+
+
 Bitbucket Static pages 
 -----------------------
 
