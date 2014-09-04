@@ -1,14 +1,15 @@
-simoncblyth static pages
-==========================
+simoncblyth.bitbucket.org
+===========================
 
-* env development notes `env/notes/ <env/notes/>`_
-* GPU accelerated simulation presentation `env/muon_simulation/presentation/ <env/muon_simulation/presentation/gpu_optical_photon_simulation.html>`_
+* **env** : infrastructure bash scripts and development cradle
 
-Repositories
--------------
+  * `http://bitbucket.org/simoncblyth/env <http://bitbucket.org/simoncblyth/env>`_
+  * `env/notes/ <env/notes/>`_  development notes
+  * `env/muon_simulation/presentation/ <env/muon_simulation/presentation/gpu_optical_photon_simulation.html>`_
 
-* **env** `http://bitbucket.org/simoncblyth/env <http://bitbucket.org/simoncblyth/env>`_
-* **g4dae** `http://bitbucket.org/simoncblyth/g4dae <http://bitbucket.org/simoncblyth/g4dae>`_
+* **g4dae** : Geant4 geometry exporter
+
+  * `http://bitbucket.org/simoncblyth/g4dae <http://bitbucket.org/simoncblyth/g4dae>`_
 
 
 

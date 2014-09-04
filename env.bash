@@ -1457,3 +1457,4 @@ scmmigrate-(){      . $(env-home)/scm/migration/scmmigrate.bash && scmmigrate-en
 pysvn-(){      . $(env-home)/svn/pysvn.bash && pysvn-env $* ; }
 bitbucket-(){      . $(env-home)/scm/bitbucket/bitbucket.bash && bitbucket-env $* ; }
 bitbucketstatic-(){      . $(env-home)/simoncblyth.bitbucket.org/bitbucketstatic.bash && bitbucketstatic-env $* ; }
+b2c-(){      . $(env-home)/b2c/b2c.bash && b2c-env $* ; }
