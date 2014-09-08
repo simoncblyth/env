@@ -7,6 +7,14 @@
 
 BITBUCKET_HTDOCS=$(HOME)/simoncblyth.bitbucket.org
 
-$(BITBUCKET_HTDOCS)/index.html : index.txt
-	mkdir -p $(BITBUCKET_HTDOCS) && rst2html-2.7.py $< $@ 
+.PHONY: all 
+
+all: $(BITBUCKET_HTDOCS)/custom.css $(BITBUCKET_HTDOCS)/index.html
+	@echo thats $@ folks : $< 
+
+$(BITBUCKET_HTDOCS)/custom.css : custom.css
+	mkdir -p $(BITBUCKET_HTDOCS) && cp $< $@
+
+$(BITBUCKET_HTDOCS)/index.html : index.txt 
+	mkdir -p $(BITBUCKET_HTDOCS) && rst2html-2.7.py --stylesheet=$(BITBUCKET_HTDOCS)/custom.css $< $@ 
 

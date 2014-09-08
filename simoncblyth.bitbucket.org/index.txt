@@ -1,17 +1,22 @@
 simoncblyth.bitbucket.org
 ===========================
 
-* **env** : infrastructure bash scripts and development cradle
 
-  * `http://bitbucket.org/simoncblyth/env <http://bitbucket.org/simoncblyth/env>`_
-  * `env/notes/ <env/notes/>`_  development notes
-  * `env/muon_simulation/presentation/ <env/muon_simulation/presentation/gpu_optical_photon_simulation.html>`_
+env
+----
 
-* **g4dae** : Geant4 geometry exporter
+* http://bitbucket.org/simoncblyth/env 
+* http://simoncblyth.bitbucket.org/env/notes/  Development notes
 
-  * `http://bitbucket.org/simoncblyth/g4dae <http://bitbucket.org/simoncblyth/g4dae>`_
+Infrastructure bash scripts and development cradle for numerous
+sub-projects and sys admin explorations and tools.
 
 
+g4dae : Geant4 geometry exporter
+---------------------------------
+
+* http://bitbucket.org/simoncblyth/g4dae 
+* http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/gpu_optical_photon_simulation.html
 
 
 

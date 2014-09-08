@@ -1458,3 +1458,5 @@ pysvn-(){      . $(env-home)/svn/pysvn.bash && pysvn-env $* ; }
 bitbucket-(){      . $(env-home)/scm/bitbucket/bitbucket.bash && bitbucket-env $* ; }
 bitbucketstatic-(){      . $(env-home)/simoncblyth.bitbucket.org/bitbucketstatic.bash && bitbucketstatic-env $* ; }
 b2c-(){      . $(env-home)/b2c/b2c.bash && b2c-env $* ; }
+rst2html-(){      . $(env-home)/doc/rst2html/rst2html.bash && rst2html-env $* ; }
+docutils-(){      . $(env-home)/doc/docutils/docutils.bash && docutils-env $* ; }
