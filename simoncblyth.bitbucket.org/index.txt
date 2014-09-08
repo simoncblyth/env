@@ -1,25 +1,39 @@
-simoncblyth.bitbucket.org
+*simoncblyth.bitbucket.org*
 ===========================
 
-
-env
-----
-
-* http://bitbucket.org/simoncblyth/env 
-* http://simoncblyth.bitbucket.org/env/notes/  Development notes
-
-Infrastructure bash scripts and development cradle for numerous
-sub-projects and sys admin explorations and tools.
+* http://bitbucket.org/simoncblyth
 
 
-g4dae : Geant4 geometry exporter
----------------------------------
+*g4dae : Geant4 geometry exporter*
+-----------------------------------
 
 * http://bitbucket.org/simoncblyth/g4dae 
 * http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/gpu_optical_photon_simulation.html
 
+*chroma fork : GPU optical photon simulation* 
+-----------------------------------------------
 
+* http://bitbucket.org/simoncblyth/chroma
 
+*env : Infrastructure bash/python scripts, dev cradle*
+-------------------------------------------------------------
+
+* http://bitbucket.org/simoncblyth/env 
+* http://simoncblyth.bitbucket.org/env/notes/  Development notes
+
+*Misc*
+-------
+
+* http://bitbucket.org/simoncblyth/heprez Machinery for the HFAG b2charm group webapp.
+* http://bitbucket.org/simoncblyth/MeshLab fork adding COLLADA loading optimization
+* http://bitbucket.org/simoncblyth/tracdev
+* http://github.com/simoncblyth The other place
+
+*Sources for this index page*
+-------------------------------
+
+* https://bitbucket.org/simoncblyth/env/src/tip/simoncblyth.bitbucket.org/
+* https://bitbucket.org/simoncblyth/simoncblyth.bitbucket.org/src
 
 
 

@@ -79,6 +79,15 @@ Perform conversion::
     converting...
 
 
+Tracdev
+--------
+
+::
+
+    rm -rf /var/scm/mercurial/tracdev
+    adm-convert tracdev
+
+
 
 
 
@@ -294,16 +303,58 @@ adm-opts(){
   case $1 in 
         env) echo --skipempty --ignore-externals --clean-checkout-revs 1599,1600,1601 --known-bad-revs 1600 ;;
      heprez) echo --skipempty --ignore-externals ;;
-    tracdev) echo --skipempty --ignore-externals ;;
+    tracdev) echo --skipempty --ignore-externals --expected-svnonly-dirs xsltmacro/branches ;;
   esac 
 }
 
-adm-svnhg(){
+adm-prep-hg(){
+
+   local name=${1:-env}
+   local vard=/var/scm/mercurial/$name
+   local repd=$HOME/$name
+   local tmpd=/tmp/mercurial/$name
+
+   [ ! -d "$vard" ] && echo $msg ERROR no $vard && return
+   [ ! -d "$repd" ] && hg --cwd $(dirname $repd) clone $vard 
+   [ ! -d "$tmpd" ] && hg --cwd $(dirname $tmpd) clone $vard 
+}
+
+
+adm-prep-svn(){
+
+   local name=${1:-env}
+   local vard=/var/scm/subversion/$name
+   local repd=$HOME/${name}_svn
+   local tmpd=/tmp/subversion/$name
+
+   [ ! -d "$vard" ] && echo $msg ERROR no $vard && return
+   [ ! -d "$repd" ] && ( cd $(dirname $repd) && svn co file://$vard ${name}_svn )
+
+   rm -rf $tmpd
+   [ ! -d "$tmpd" ] && ( cd $(dirname $tmpd) && svn co file://$vard ${name}     )
+}
+
+
+adm-reset-svn(){
+   local name=${1:-heprez}
+   local vard=/var/scm/subversion/$name
+   local tmpd=/tmp/subversion/$name
+   rm -rf $tmpd
+   [ ! -d "$tmpd" ] && ( cd $(dirname $tmpd) && svn co -r0 file://$vard ${name}     )
+}
+
+
+adm-compare-svnhg(){
    local name=${1:-env}
    local hgdir=/tmp/mercurial/$name
    local svndir=/tmp/subversion/$name
 
-   [ ! -d "$hgdir" ] && echo hgdir $hgdir missing : clone from repo with && echo $msg  hg --cwd $(dirname $hgdir) clone $HOME/$name  && return
+   [ ! -d "$hgdir/.hg" ] && echo hgdir $hgdir missing .hg do: adm-prep-hg $name && return
+
+   # must start clean as svn checkout to a prior revision leaves non-empty directories hanging 
+   # SVN bends over backwards by not deleting the folders
+   # and as as result is a pain to deal with
+   [ -d "$svndir" ] && echo $msg deleting preexisting svn working copy && rm -rf $svndir 
 
    local svnurl=$(adm-svnurl $name)
    local filemap=$(adm-filemap-path $name)
@@ -360,6 +411,8 @@ rename trac2latex/trunk trac2latex
 rename trac2mediawiki/trunk trac2mediawiki
 rename tracwiki2sphinx/trunk tracwiki2sphinx
 rename xsltmacro/trunk xsltmacro
+rename xsltmacro/branches/xsltmacro-blyth xsltmacro-blyth
+rename xsltmacro/branches/xsltmacro-netjunki xsltmacro-netjunki
 
 EOF
 }

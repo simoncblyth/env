@@ -15,6 +15,6 @@ all: $(BITBUCKET_HTDOCS)/custom.css $(BITBUCKET_HTDOCS)/index.html
 $(BITBUCKET_HTDOCS)/custom.css : custom.css
 	mkdir -p $(BITBUCKET_HTDOCS) && cp $< $@
 
-$(BITBUCKET_HTDOCS)/index.html : index.txt 
+$(BITBUCKET_HTDOCS)/index.html : index.txt custom.css
 	mkdir -p $(BITBUCKET_HTDOCS) && rst2html-2.7.py --stylesheet=$(BITBUCKET_HTDOCS)/custom.css $< $@ 
 

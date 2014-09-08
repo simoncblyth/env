@@ -9,29 +9,47 @@ Operates by:
 #. traversing the revisions, checking them out and doing file digest comparisons
    between the Subversion and Mecurial versions
 
-
 ::
-
-   adm-
-   adm-svnhg
 
    compare_hg_svn.py hgdir svndir svnurl
 
+   OR:
 
-Mysteries:
-
-#. initial trunk only convert, had almost all revisions converted with clearer match
-   (simple constant revision offset) after the dud ? 
-   doing full convert has many dropouts for empties ? making the relationship
-   between SVN and HG revisions to require mappings.
+   adm-
+   adm-compare-svnhg
 
 
 TODO:
 
 #. persist comparison status, perhaps in a pickled dict 
-#. investigate above mystery
 #. add status checks, to pysvn checkouts 
 #. add hg verify calls
+
+heprez comparison
+-----------------
+
+Compare paths tripping up on directories containing nothing but symbolic links::
+
+    In [12]: svn_only_dirs
+    Out[12]: ['bin', 'sources', 'sources/belle']
+
+CONFIRMED to be due to the Subversion "feature" of not deleting non-empty folders 
+which means that cannot go backwards in time with "svn checkout" alone in the
+case of directories containing nothing but symbolic links.  
+
+Workaround is to start the comparison from an empty SVN working copy folder and
+check revisions monotonically.
+
+
+tracdev comparison
+-------------------
+
+Expected effect of filemap repositionings::
+
+    INFO:env.scm.migration.compare_hg_svn:1 ['svn_only_dirs'] issues encountered in compare_paths
+    lines_dirs
+     [ r] xsltmacro/branches   
+
 
 """
 import os, logging, argparse
@@ -191,6 +209,7 @@ class Compare(object):
         #. Mercurial doesnt "do" empty directories 
         #. Comparison trips up on symbolic links, have handled symbolic links to files
            already but not to directories
+        #. directories that contain only symbolic links not "seen" by Mercurial
 
         http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/qxml
         link db/bdbxml/qxml
@@ -211,8 +230,18 @@ class Compare(object):
             svn_dirs = self.filemap.apply( svn_dirs )
             svn_paths = self.filemap.apply( svn_paths )
 
-        common_dirs,  hg_only_dirs,  svn_only_dirs,  lines_dirs  = compare_lists( self.hg.dirs,  svn_dirs )
+        common_dirs,  hg_only_dirs,  svn_only_dirs_all ,  lines_dirs  = compare_lists( self.hg.dirs,  svn_dirs )
         common_paths, hg_only_paths, svn_only_paths, lines_paths = compare_lists( self.hg.paths, svn_paths )
+
+
+
+        svn_only_dirs = filter( lambda _:not _ in self.args.expected_svnonly_dirs, svn_only_dirs_all )
+
+        if not svn_only_dirs == svn_only_dirs_all:
+            log.warn("noted expected svnonly dirs saved an error ")
+            print "svn_only_dirs_all: %s " % repr(svn_only_dirs_all)
+            print "svn_only_dirs    : %s " % repr(svn_only_dirs)
+        pass
 
         check = {}
         check['hg_only_paths'] = len(hg_only_paths) == 0
@@ -249,6 +278,9 @@ class Compare(object):
         svn_only = list(set(svn_digest.keys()).difference(set(common_paths)))
         hg_only = list(set(hg_digest.keys()).difference(set(common_paths)))
 
+         
+
+
         log.info("compare_contents paths %s svn_digest %s hg_digest %s mismatch %s  svn_only %s hg_only %s " %
              (len(common_paths),len(svn_digest), len(hg_digest),len(mismatch), len(svn_only),len(hg_only)))
 
@@ -273,18 +305,6 @@ class Compare(object):
         self.recurse(*hs)
         common_paths = self.compare_paths()
         self.compare_contents( common_paths )
-
-    #def revisions(self):
-    #    if self.args.ALLREV:
-    #        youngest_rev = self.svn.youngest_rev()
-    #        svnrevs = range(int(self.args.svnrev),youngest_rev+1)
-    #        hgrevs = range(int(self.args.hgrev),int(self.args.hgrev)+len(svnrevs))
-    #    else:
-    #        svnrevs = revs_arg(self.args.svnrev)
-    #        hgrevs = revs_arg(self.args.hgrev)
-    #    pass
-    #    assert len(svnrevs) == len(hgrevs)  
-    #    return zip(hgrevs, svnrevs)
 
 
 
@@ -366,6 +386,7 @@ def parse(doc):
     parser.add_argument("--filemap", default=None, help="path to file containing include/exclude/rename directives" )
     parser.add_argument("--skipempty", action="store_true", help="skip empty SVN directories from the crawl " )
     parser.add_argument("--ignore-externals", action="store_true", help="ignore svn externals " )
+    parser.add_argument("--expected-svnonly-dirs", default="", help="Comma delimited list of expected svnonly dirs to not raise error for. " )
     parser.add_argument("--clean-checkout-revs", default="", help="Comma delimited list of revisions for which clean checkouts are needed"  )
     parser.add_argument("--known-bad-revs", default="", help="Comma delimited list of revisions for which errors are ignored"  )
 

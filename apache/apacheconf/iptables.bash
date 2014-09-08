@@ -8,6 +8,66 @@ iptables-env(){
 iptables-ini(){    sudo $(iptables-inipath)  $*  ; }
 iptables-inipath(){ echo /etc/init.d/iptables    ; }
 iptables-syspath(){ echo /etc/sysconfig/iptables ; }
+
+
+iptables-smtpopen-notes(){ cat << EON
+
+http://stackoverflow.com/questions/10670742/how-to-allow-mail-through-iptables
+
+
+2. A hint from the trenches: when you're debugging iptables, it's often helpful
+to -Insert and -Append log messages at the beginning and end of each chain,
+then clear the counters, and run an experiment. (In your case, issue the mail
+command.) Then check the counters and logs to understand how the packet(s)
+migrated through the chains and where they may have been dropped.
+
+
+[root@cms02 ~]# service iptables restart
+Flushing firewall rules:                                   [  OK  ]
+Setting chains to policy ACCEPT: filter                    [  OK  ]
+Unloading iptables modules:                                [  OK  ]
+Applying iptables firewall rules:                          [  OK  ]
+[root@cms02 ~]# 
+[root@cms02 ~]# 
+[root@cms02 ~]# service iptables status
+Table: filter
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+RH-Firewall-1-INPUT  all  --  0.0.0.0/0            0.0.0.0/0           
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination         
+RH-Firewall-1-INPUT  all  --  0.0.0.0/0            0.0.0.0/0           
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain RH-Firewall-1-INPUT (2 references)
+target     prot opt source               destination         
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0           icmp type 255 
+ACCEPT     esp  --  0.0.0.0/0            0.0.0.0/0           
+ACCEPT     ah   --  0.0.0.0/0            0.0.0.0/0           
+ACCEPT     udp  --  0.0.0.0/0            224.0.0.251         udp dpt:5353 
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:631 
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED 
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           state NEW tcp dpt:22 
+REJECT     all  --  0.0.0.0/0            0.0.0.0/0           reject-with icmp-host-prohibited 
+
+
+
+
+
+EON
+}
+
+
+iptables-input(){
+  iptables -n -v --line-numbers -L $(iptables-name)
+}
+
+
 iptables-usage(){
 
    cat << EOU

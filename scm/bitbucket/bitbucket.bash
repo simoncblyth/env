@@ -13,10 +13,10 @@ related
 
 * see *hg-* regarding the conversion from Subversion to Mercurial
 
-Upload env Mercurial conversion to bitbucket
+Upload Mercurial repo to bitbucket
 ----------------------------------------------
 
-#. create repo with bitbucket webinterface named "env", leave it private for now
+#. create repo in bitbucket webinterface named "env", "tracdev", etc..
 #. adjust paths in the bare converted repo on D
 
 ::
@@ -41,12 +41,7 @@ Upload env Mercurial conversion to bitbucket
 
 
 #. observations https://bitbucket.org/simoncblyth/env
-
-   * cursory glance suggests all commits/history are there
-     TODO: clone from bitbucket for systematic check 
- 
-   * blyth/lint/maqm : Author not mapped to a bitbucket user   
-   * added and verified my gmail to use for this 
+#. add a README.rst at top level in bitbucket dialect reStructuredText
 
 Trial Usage
 ------------
@@ -129,6 +124,39 @@ including **tip** or **default** also work:
 
 * https://bitbucket.org/simoncblyth/env/src/default/cuda/cuda_launch.py
 * https://bitbucket.org/simoncblyth/env/src/tip/cuda/cuda_launch.py
+
+
+Setup Mercurial email address
+------------------------------
+
+**IMPORTANT** 
+
+Before committing to a Mercurial repo make sure to 
+set a ui/username in ~/.hgrc to a bitbucket validated 
+email address::
+
+    [ui]
+    username = Simon Blyth <simoncblyth@gmail.com>
+
+
+Bitbucket Unconfirmed email address
+------------------------------------
+
+An env mercurial commit from C2 prior to setting up 
+email address resulted in a default of blyth@cms02 being
+ascribed to the commit.  This causes problems as that 
+is not a valid email.
+
+Cannot use bitbucket aliases to workaround it as
+cannot confirm that address.  Rather than rebuilding 
+the repository to fix the email, maybe easier to 
+make that email address valid ?
+
+* http://www.techotopia.com/index.php/Configuring_an_RHEL_6_Postfix_Email_Server
+
+
+  
+
 
 
 EOU
