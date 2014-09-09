@@ -35,47 +35,86 @@ Making changes to env from Bitbucket
 
 In order for you to make changes to env on bitbucket.
 
-Once only setup
-~~~~~~~~~~~~~~
 
-#. create a free bitbucket account (you will need to provide an email address)
+Mercurial + Bitbucket Setup 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Mercurial preliminaries, create a `~/.hgrc` containing the username and email
+   you will use to register with bitbucket, eg::
+
+        [ui]
+        username = Simon Blyth <simoncblyth@gmail.com>
+        ssh = ssh -C
+
+#. create a free bitbucket account (you will need to provide the same email address as in .hgrc)
    https://bitbucket.org
 
-#. fork https://bitbucket.org/simoncblyth/env into your account 
-   using the bitbucket web interface
 
-#. use mercurial to clone your fork onto machines using env
+Gather SSH public keys and paste into Bitbucket web interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-passwordless access using ssh keys
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Collect together the public keys on all machines that need to 
+Collect together the public keys of all machines that need to 
 clone the repository and use bitbucket web interface to add the keys
 to your bitbucket account.::
 
-    (adm_env)delta:~ blyth$ scp C2:.ssh/id_rsa.pub C2.id_rsa.pub
-    (adm_env)delta:~ blyth$ cat C2.id_rsa.pub | pbcopy
-    (adm_env)delta:~ blyth$ 
-    (adm_env)delta:~ blyth$ scp N:.ssh/id_rsa.pub N.id_rsa.pub
-    (adm_env)delta:~ blyth$ cat N.id_rsa.pub | pbcopy
-    (adm_env)delta:~ blyth$ 
-    (adm_env)delta:~ blyth$ scp G:.ssh/id_rsa.pub G.id_rsa.pub
-    (adm_env)delta:~ blyth$ cat G.id_rsa.pub | pbcopy
+    scp C2:.ssh/id_rsa.pub C2.id_rsa.pub
+    cat C2.id_rsa.pub | pbcopy
+    # paste into browser form
+    
+    scp N:.ssh/id_rsa.pub N.id_rsa.pub
+    cat N.id_rsa.pub | pbcopy
+    # paste into browser form
 
+
+Setup steps for envsys team members
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+Team members of envsys have direct push privileges into 
+the env repository http://bitbucket.org/simoncblyth/env
+
+#. check your bitbucket account is one of the envsys team members
+
+   * https://bitbucket.org/envsys/profile/members 
+ 
+#. clone the repository into your directory using ssh urls:: 
+
+   hg clone ssh://hg@bitbucket.org/simoncblyth/env
+ 
+
+Setup steps for non-envsys team members
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Non team members will need to
+
+#. fork the repository into their bitbucket account using 
+   the webinterface
+
+#. clone the forked repository into their directory::
+
+   hg clone ssh://hg@bitbucket.org/yourusername/env
 
 
 For each change
 ~~~~~~~~~~~~~~~~
 
-#. commit to local repository with Mercurial and push to bitbucket fork up in the cloud
+#. commit to local repository with Mercurial and push to bitbucket original or fork 
+   up in the cloud
 
    ::
 
        hg commit -m "informative but brief message"
+       hg paths      # check the default path where pushes will go 
        hg push 
 
-#. to share the change (best to do this to avoid divergence)
-   make pull requests to me using bitbucket web interface
+
+Extra steps for non team members
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. make pull requests to the original env 
+   repository using bitbucket webinterface
+
+#. wait for original env administrator to perform the pull
+
 
 
 Getting current: hg pull then hg update
@@ -97,17 +136,34 @@ For passwordless, need to run the ssh agent (see ssh--agent-start)::
     7 files updated, 0 files merged, 0 files removed, 0 files unresolved
 
 
+Bitbucket envsys team
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Possible future simplification
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Testing envsys team access to env 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bitbucket does actually have "teams" which allow 
-team members to all push into a single repository.
-I'll investigate this possibility further.
+Juggling two bitbucket identities, is not generally recommended, but can do it for
+testing team access. Create an `~/.ssh/config` section for bitbucket::
 
-* http://blog.bitbucket.org/2012/05/30/bitbucket-teams/
-* https://confluence.atlassian.com/display/BITBUCKET/Bitbucket+Teams
+    # for correct bitbucket identification of commit need to set ~/.hgrc ui/username to simoncblyth@
+    host BB
+         user hg
+         hostname bitbucket.org
+         Compression yes
+         IdentityFile /Users/blyth/.ssh/id_rsa
 
+    # for correct bitbucket identification of commit need to set ~/.hgrc ui/username to simon.cblyth@
+    host BBTEAM
+         user hg
+         hostname bitbucket.org
+         Compression yes
+         IdentityFile /Users/blyth/.ssh/id_dsa
+
+
+Then can clone with the below. Thus is advantageous when switching between identities as
+can control the SSH key that is used::
+
+     hg clone ssh://BB/simoncblyth/env
 
 
 
