@@ -19,6 +19,7 @@
 -------------------------------------------------------------
 
 * http://bitbucket.org/simoncblyth/env 
+* https://bitbucket.org/envsys/profile/members  **envsys** team members
 * http://simoncblyth.bitbucket.org/env/notes/  Development notes
 
 *Misc*

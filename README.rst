@@ -3,6 +3,12 @@ Welcome to env
 
 .. contents:: :local:
 
+Hub Page and env notes
+---------------------------
+
+* http://simoncblyth.bitbucket.org
+* http://simoncblyth.bitbucket.org/env/notes/
+
 Overview
 ---------
 
@@ -133,10 +139,6 @@ For passwordless, need to run the ssh agent (see ssh--agent-start)::
 
     [blyth@cms01 env]$ hg up
     7 files updated, 0 files merged, 0 files removed, 0 files unresolved
-
-
-Bitbucket envsys team
-~~~~~~~~~~~~~~~~~~~~~~~~
 
 Testing envsys team access to env 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
