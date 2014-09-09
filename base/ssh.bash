@@ -671,26 +671,39 @@ ssh--agent-start(){
     . $info
     
     echo ===== adding identities to the agent 
-    
-    #if ([ -f $HOME/.ssh/identity ] && [ -f $HOME/.ssh/id_dsa ] &&  [ -f $HOME/.ssh/id_rsa  ]); then 
-    #   ssh-add $HOME/.ssh/id{_dsa,_rsa,entity}
-    #else
-    #   echo identities not generated ... first invoke .... ssh--keygen passphrase 
-    #fi
-    
+   
 	 if ([ -f $HOME/.ssh/id_dsa ] &&  [ -f $HOME/.ssh/id_rsa  ]); then 
        ssh-add $HOME/.ssh/id{_dsa,_rsa}
     else
        echo identities not generated ... first invoke .... ssh--keygen passphrase 
     fi
     
+    echo ===== listing identities of the agent
+    ssh-add -l
+}
 
-	
-	
+
+ssh--agent-start-dsa(){
+    local info=$(ssh--infofile)
+    ssh-agent > $info && perl -pi -e 's/echo/#echo/' $info && chmod 0600 $info 
+    
+    echo ===== sourcing the info for the agent $info
+    . $info
+    
+    echo ===== adding identities to the agent 
+   
+	 if  [ -f $HOME/.ssh/id_dsa ]; then 
+       ssh-add $HOME/.ssh/id_dsa
+    else
+       echo identities not generated ... first invoke .... ssh--keygen passphrase 
+    fi
     
     echo ===== listing identities of the agent
     ssh-add -l
 }
+
+
+
 
 
 ssh--setup(){
