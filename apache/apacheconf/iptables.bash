@@ -9,6 +9,29 @@ iptables-ini(){    sudo $(iptables-inipath)  $*  ; }
 iptables-inipath(){ echo /etc/init.d/iptables    ; }
 iptables-syspath(){ echo /etc/sysconfig/iptables ; }
 
+iptables-man(){ cat << EOM
+
+mport
+       This module matches a set of source or destination ports.  Up to 15
+       ports can be specified.  It can only be used in conjunction with -p tcp or -p
+       udp.
+
+       --source-ports port[,port[,port...]]
+              Match if the source port is one of the given ports. 
+              The flag --sports is a convenient alias for this option.
+
+       --destination-ports port[,port[,port...]]
+              Match if the destination port is one of the given ports.
+              The flag --dports is a convenient alias for this option.
+
+       --ports port[,port[,port...]]
+              Match if the both the source and destination ports are equal to 
+              each other and to one of the given ports.
+
+
+EOM
+}
+
 
 iptables-smtpopen-notes(){ cat << EON
 
@@ -55,6 +78,35 @@ ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTAB
 ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           state NEW tcp dpt:22 
 REJECT     all  --  0.0.0.0/0            0.0.0.0/0           reject-with icmp-host-prohibited 
 
+
+[root@cms02 ~]# cat /etc/sysconfig/iptables
+# Firewall configuration written by system-config-securitylevel
+# Manual customization of this file is not recommended.
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:RH-Firewall-1-INPUT - [0:0]
+-A INPUT -j RH-Firewall-1-INPUT
+-A FORWARD -j RH-Firewall-1-INPUT
+-A RH-Firewall-1-INPUT -i lo -j ACCEPT
+-A RH-Firewall-1-INPUT -i eth0 -j ACCEPT
+-A RH-Firewall-1-INPUT -p icmp --icmp-type any -j ACCEPT
+-A RH-Firewall-1-INPUT -p 50 -j ACCEPT
+-A RH-Firewall-1-INPUT -p 51 -j ACCEPT
+-A RH-Firewall-1-INPUT -p udp --dport 5353 -d 224.0.0.251 -j ACCEPT
+-A RH-Firewall-1-INPUT -p udp -m udp --dport 631 -j ACCEPT
+-A RH-Firewall-1-INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+-A RH-Firewall-1-INPUT -j REJECT --reject-with icmp-host-prohibited
+COMMIT
+
+
+
+Add logging
+
+iptables -I RH-Firewall-1-INPUT 11 -j LOG --log-prefix scb --log-level 1
+iptables -I RH-Firewall-1-INPUT 11 -j LOG --log-prefix scb --log-level 7
 
 
 
