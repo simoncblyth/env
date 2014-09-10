@@ -188,6 +188,38 @@ Identify target via relative to node list (starting with `+` or `-`) or absolute
        # control the starting eyepoint relative to the target 
 
 
+
+interactive target selection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Switching target to a volume adjusts the viewpoint to 
+be close to the volume and looking towards it and also 
+modifies the center of virtual trackball rotation.  
+Simply drag around on the trackpad to adjust viewpoint 
+relative to the target.
+
+To switch target:
+
+#. hold the Q key whilst clicking on a directly visible volume, beware of
+   selecting transparent volumes that are infront of the volume you intended 
+
+#. this may result in being closer than intended and near clipping might make  
+   the target invisible   
+
+   * press N whilst dragging up/down to adjust the near point 
+   * press Z whilst dragging down to back off the viewpoint position   
+
+#. optionally to create a bookmark for the viewpoint: 
+
+   * click again on the target volume whilst pressing a number key not yet 
+     used for a bookmark
+
+
+TODO:
+
+#. avoid target selection changing viewpoint direction
+
+
 near/far clipping controls
 -----------------------------
 
@@ -323,6 +355,29 @@ Also most other controls can still be used during the animation, such as near/fa
 switching to Chroma raycast rendering.
 
 TODO: key to reverse animation 
+
+
+photon propagation time control : interactive and auto scanning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. press control key and tap on the trackpad whilst over g4daeview window 
+   to display the contextual menu, select `photons > style > movie-extra`  
+
+#. several other presentational styles also give animated propagation effects
+
+   * `movie`
+   * `dmovie` 
+   * `confetti-1`
+   * `dconfetti-1`
+
+#. scrub backwards/forwards the propagation global time (in ns) by
+   toggling time mode by holding the QUOTELEFT key (with tilde at top left of keyboard)  
+   whilst dragging up/down on trackpad.  The time in nanoseconds is displayed at the
+   top left of the window title bar. 
+
+#. to toggle automatic scanning of global time press `M` whilst in time mode (holding QUOTELEFT)
+
+
 
 
 remote control

@@ -397,6 +397,17 @@ rename geant4/geometry/DAE .
 EOF
 }
 
+adm-filemap-g4daeview(){ cat << EOF
+
+# see g4daeview-transmogrify 
+
+include geant4/geometry/collada/g4daeview
+rename geant4/geometry/collada/g4daeview g4daeview 
+
+EOF
+}
+
+
 adm-filemap-heprez(){ cat << EOF
 #placeholder
 EOF

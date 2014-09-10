@@ -41,7 +41,7 @@ class DAEKeys(object):
         key["P"] = "toggle parallel projection (aka orthographic)"
         key["K"] = "toggle drawing illustration markers for: view frustum, lights, raycast rays, eye and look positions "
         key["O"] = "toggle drawing wireframe spheres to mark mouse/trackpad picked solids  "
-        key["M"] = "toggle animation: ie interpolation between views, requires view to be interpolatable, setup using --jump launch or live options "
+        key["M"] = "toggle animation: when not in time mode toggles viewpoint interpolation (setup first with B or V), in time mode toggles propagation time scanning  "
         key["C"] = "toggle CUDA image processor, requires launch --with-cuda-image-processor "
         key["R"] = "toggle Chroma raycasting for the current view, requires launch --with-chroma "
         key["J"] = "toggle Chroma raycasting metric display eg pixel processing time, requires launch --with-chroma, reconfig bitshifts with eg --flags 15,0 "
@@ -243,7 +243,7 @@ class DAEInteractivityHandler(object):
         **************************
         """
         if   symbol == key.ESCAPE: self.exit()
-        elif symbol == key.A: self.scan_mode = True
+        elif symbol == key.A: self.scan_mode = True            # used for qcut scan, was used for primitive time cutting before adding time_mode 
         elif symbol == key.QUOTELEFT: self.time_mode = True
         elif symbol == key.Z: self.zoom_mode = True
         elif symbol == key.X: self.pan_mode = True
@@ -332,6 +332,19 @@ class DAEInteractivityHandler(object):
 
 
     def toggle_animate(self):
+        """
+        Invoked by pressing M, the effect depends on whether 
+        in time_mode (holding QUOTELEFT).
+
+        #. not time_mode: viewpoint animation
+        #. time_mode: event propagation animation
+
+        TODO:
+
+        #. arrange event propagation animation to pick up from the current interactively 
+           set global time rather than starting over from zero 
+
+        """
         if not self.time_mode:
             self.scene.toggle_animate()
         else:
@@ -359,7 +372,7 @@ class DAEInteractivityHandler(object):
 
         two_finger_zoom = button == 8    # NB zoom is a misnomer, this is translating eye coordinate z
         if   self.zoom_mode or two_finger_zoom: self.scene.trackball.zoom_to(x,y,dx,dy)
-        elif self.scan_mode: self.scene.event.scan_to(x,y,dx,dy)
+        elif self.scan_mode: self.scene.event.scan_to(x,y,dx,dy)  # used for qcut for interactive photon selection, primitive time cut
         elif self.time_mode: self.scene.event.time_to(x,y,dx,dy)
         elif self.pan_mode: self.scene.trackball.pan_to(x,y,dx,dy)
         elif self.near_mode: self.scene.camera.near_to(x,y,dx,dy)

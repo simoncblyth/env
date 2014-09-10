@@ -10,6 +10,14 @@
 * http://bitbucket.org/simoncblyth/g4dae 
 * http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/gpu_optical_photon_simulation.html
 
+
+*g4daeview : g4dae OpenGL viewer application*
+-----------------------------------------------
+
+* TODO: split code from env into its own repo
+* http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
+
+
 *chroma fork : GPU optical photon simulation* 
 -----------------------------------------------
 
