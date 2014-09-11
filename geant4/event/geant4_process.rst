@@ -10,26 +10,6 @@ Trace how Geant4 processes work, with a view to glueing
 external batched optical photon propagation into geant4 via 
 a pseudo process. 
 
-Requirements:
-
-#. collect optical photon data for all generated optical photons
-#. suspend other processing of optical photons beyond capture
-#. once all (or some configured number) of optical photons are collected dispatch the external propagation
-   and get the results back
-#. proceed with geant4 processing as if the propagation was standard geant4  
-
-In summary: **mapping external batch optical photon propagation onto Geant4 process**
-
-
-complications
-~~~~~~~~~~~~~~~
-
-#. processes operate at track level, need to propagate at event (or track collection level) 
-
-   * maybe, use stack action in tandem with pseudo process ?
-   * memory cost, diddling via placeholder duplicate object  
-   * obvious optimization is to throw photons that dont get to PMTs, how to handle
-
 
 G4 Stepping, Process mechanics
 ------------------------------------

@@ -4,6 +4,8 @@ detsim
 
 .. toctree::
 
+   detsim_giga_geant4_handoff
+   detsim_dspmtsensdet
    detsim_configuration
    detsim_dsopstackaction
    detsim_dsfastmuonstackaction
@@ -11,13 +13,4 @@ detsim
    detsim_g4scintillation
    detsim_dsg4scintillation
    detsim_dsconsoptical
-
-
-
-
-
-
-
-
-
 

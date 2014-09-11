@@ -13,6 +13,9 @@ Geant4 Event
    geant4_trackingmanager
    geant4_navigator
    geant4_process
+   geant4_external_propagation
+
+
 
 
 
