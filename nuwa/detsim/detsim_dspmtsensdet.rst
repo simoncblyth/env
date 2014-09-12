@@ -21,7 +21,56 @@ Questions
 
 * where is the GiGa/Geant4/DetSim handoff happening ?  DsPullEvent
 
-* where are SensDet identified ? DetDesc **sensdet** attribute on **logvol** elements 
+* where are SensDet identified ? 
+
+  * DetDesc **sensdet** attribute on **logvol** elements, just yields two SD: `DsRpcSensDet` and `DsPmtSensDet`  
+
+
+
+DsPmtSensDet
+-------------
+
+DsPmtSensDet::Initialize create HC for each (site,det) for each event
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+::
+
+    195 void DsPmtSensDet::Initialize(G4HCofThisEvent* hce)
+    196 {
+    197     m_hc.clear();
+    198 
+    199     G4DhHitCollection* hc = new G4DhHitCollection(SensitiveDetectorName,collectionName[0]);
+    200     m_hc[0] = hc;
+    201     int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
+    202     hce->AddHitsCollection(hcid,hc);
+    203 
+    204     for (int isite=0; site_ids[isite] >= 0; ++isite) {
+    205         for (int idet=0; detector_ids[idet] >= 0; ++idet) {
+    206             DayaBay::Detector det(site_ids[isite],detector_ids[idet]);
+    207 
+    208             if (det.bogus()) continue;
+    209 
+    210             string name=det.detName();
+    211             G4DhHitCollection* hc = new G4DhHitCollection(SensitiveDetectorName,name.c_str());
+    212             short int id = det.siteDetPackedData();
+    213             m_hc[id] = hc;
+    214 
+    215             int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
+    216             hce->AddHitsCollection(hcid,hc);
+    217             debug() << "Add hit collection with hcid=" << hcid << ", cached ID="
+    218                     << (void*)id
+    219                     << " name= \"" << SensitiveDetectorName << "/" << name << "\""
+    220                     << endreq;
+    221         }
+    222     }
+    223 
+    224     debug() << "DsPmtSensDet Initialize, made "
+    225            << hce->GetNumberOfCollections() << " collections"
+    226            << endreq;
+    227    
+    228 }
+
+
+
 
 
 SensDet Identification
@@ -31,7 +80,6 @@ SensDet Identification
     [blyth@belle7 DDDB]$ find . -name '*.xml' -exec grep -H Sens {} \;
     ./RPC/RPCStrip.xml:  <logvol name="lvRPCStrip" material="MixGas" sensdet="DsRpcSensDet">
     ./PMT/headon-pmt.xml:  <logvol name="lvHeadonPmtCathode" material="Bialkali" sensdet="DsPmtSensDet">
-    ./PMT/hemi-pmt.xml:  <logvol name="lvPmtHemiCathode" material="Bialkali" sensdet="DsPmtSensDet">
     ./PMT/hemi-pmt.xml:  <logvol name="lvPmtHemiCathode" material="Bialkali" sensdet="DsPmtSensDet">
 
 

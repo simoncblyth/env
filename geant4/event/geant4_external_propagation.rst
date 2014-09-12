@@ -1,8 +1,17 @@
 Geant4 External Propagation
 =============================
 
-Requirements
--------------
+Remit 
+------
+
+This page gives **JUST** an overview/summary.
+For details, code listings etc.. see: 
+
+* :doc:`/nuwa/detsim/detsim_giga_geant4_handoff`
+* :doc:`/nuwa/detsim/detsim_dspmtsensdet`
+
+External Propagation Requirements
+------------------------------------
 
 #. collect optical photon data for all generated optical photons
 #. suspend other processing of optical photons beyond collection

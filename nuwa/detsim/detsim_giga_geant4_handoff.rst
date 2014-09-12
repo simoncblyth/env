@@ -25,44 +25,904 @@ collect and kill tracks, create hit collections
      as normally as possible
 
 
-DsPmtSensDet::Initialize create HC for each (site,det) for each event
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How to associate pmtid with triangles in GPU realm ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Triangles are associated to solids.
+
+* Its looking likely that the DE parameters (PmtId) never get 
+  down to Geant4 level, living only at the Gaudi level in the form
+  of a pv tree/name association to the parameter.  
+
+* Need list of sensitive detector identifiers, of length equal to 
+  the list of solids (or could extend to all triangles). 
+  With placeholder zeros for non-sensitive solids
+
+
+How are pmtid associated with bits of geometry ?  Using Detector Element
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ::
 
-    195 void DsPmtSensDet::Initialize(G4HCofThisEvent* hce)
-    196 {
-    197     m_hc.clear();
-    198 
-    199     G4DhHitCollection* hc = new G4DhHitCollection(SensitiveDetectorName,collectionName[0]);
-    200     m_hc[0] = hc;
-    201     int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
-    202     hce->AddHitsCollection(hcid,hc);
-    203 
-    204     for (int isite=0; site_ids[isite] >= 0; ++isite) {
-    205         for (int idet=0; detector_ids[idet] >= 0; ++idet) {
-    206             DayaBay::Detector det(site_ids[isite],detector_ids[idet]);
-    207 
-    208             if (det.bogus()) continue;
-    209 
-    210             string name=det.detName();
-    211             G4DhHitCollection* hc = new G4DhHitCollection(SensitiveDetectorName,name.c_str());
-    212             short int id = det.siteDetPackedData();
-    213             m_hc[id] = hc;
-    214 
-    215             int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
-    216             hce->AddHitsCollection(hcid,hc);
-    217             debug() << "Add hit collection with hcid=" << hcid << ", cached ID="
-    218                     << (void*)id
-    219                     << " name= \"" << SensitiveDetectorName << "/" << name << "\""
-    220                     << endreq;
-    221         }
-    222     }
-    223 
-    224     debug() << "DsPmtSensDet Initialize, made "
-    225            << hce->GetNumberOfCollections() << " collections"
-    226            << endreq;
-    227    
-    228 }
+    [blyth@belle7 Detector]$ pwd
+    /data1/env/local/dyb/NuWa-trunk/dybgaudi/Detector
+    [blyth@belle7 Detector]$ find . -name '*.cc' -exec grep -l pmtid {} \;
+    ./DetHelpers/src/components/PmtGeomInfo.cc
+    ./DetHelpers/src/components/PmtGeomInfoSvc.cc
+
+
+`NuWa-trunk/dybgaudi/Detector/DetHelpers/src/components/PmtGeomInfo.h`::
+
+     18 class PmtGeomInfo : public virtual IPmtGeomInfo
+     19 {
+     20 public:
+     21     PmtGeomInfo(unsigned int pmtid,
+     22                 IDetectorElement* me,
+     23                 IDetectorElement* parent);
+     24     virtual ~PmtGeomInfo();
+     25 
+     26     /// Return the fully qualified packed ID
+     27     virtual unsigned int pmtid() const;
+     28 
+     29     /// Return the position in world coordinates
+     30     virtual const CLHEP::Hep3Vector& globalPosition() const;
+     31 
+     32     /// Return the position in the natural coordinate system for doing
+     33     /// reconstruction (AD local or Pool local coordinates)
+     34     virtual const CLHEP::Hep3Vector& localPosition() const;
+     35 
+     36     /// Return the direction normal to the PMT face in the global
+     37     /// coordinate system
+     38     virtual const CLHEP::Hep3Vector& globalDirection() const;
+     39 
+     40     /// Return the direction normal to the PMT face in the natural
+     41     /// coordinate system for doing reconstruction (AD local or Pool
+     42     /// local coordinates)
+     43     virtual const CLHEP::Hep3Vector& localDirection() const;
+     44 
+     45     /// Return coresponding DetectorElement
+     46     virtual const IDetectorElement& detectorElement() const;
+     47 
+     48     /// Return DE for detector volume containing PMT
+     49     virtual const IDetectorElement& parentDetector() const;
+     50 
+     51 private:
+     52     unsigned int m_id;
+     53     IDetectorElement* m_me;
+     54     IDetectorElement* m_parent;
+     55 
+     56     mutable CLHEP::Hep3Vector *m_gp, *m_lp, *m_gd, *m_ld;
+     57 
+     58 };
+     59 
+
+`NuWa-trunk/dybgaudi/Detector/DetHelpers/src/components/PmtGeomInfo.cc`::
+
+     36 const Hep3Vector& PmtGeomInfo::globalPosition() const
+     37 {
+     38     if (m_gp) return *m_gp;
+     39 
+     40     Gaudi::XYZPoint zero(0,0,0);
+     41     Gaudi::XYZPoint gp = m_me->geometry()->toGlobal(zero);
+     42 
+     43     m_gp = new Hep3Vector(gp.x(),gp.y(),gp.z());
+     44     return *m_gp;
+     45 }
+
+
+`NuWa-trunk/dybgaudi/Detector/DetHelpers/src/components/PmtGeomInfoSvc.h`::
+
+     28 class PmtGeomInfoSvc : public Service,
+     29                        virtual public IPmtGeomInfoSvc
+     30 {
+     31 public:
+     32     // Service interface
+     33     PmtGeomInfoSvc(const std::string& name, ISvcLocator *svc);
+     34     ~PmtGeomInfoSvc();
+     35     virtual StatusCode initialize();
+     36     virtual StatusCode reinitialize();
+     37     virtual StatusCode finalize();
+     38     virtual StatusCode queryInterface(const InterfaceID& riid,
+     39                                       void** ppvInterface);
+     40 
+     41     /// IPmtGeomInfoSvc interface
+     42 
+     43     /// Look up by TDS path of detector element 
+     44     IPmtGeomInfo* get(std::string structure_path);
+     45 
+     46     /// Look up by DetectorElement
+     47     IPmtGeomInfo* get(IDetectorElement* pmtde);
+     48 
+     49     /// Look up by fully qualified PMT id (see Conventions/Detectors.h)
+     50     IPmtGeomInfo* get(unsigned int pmtid);
+
+
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/python/DetSim/Default.py`::
+
+     16 class Configure:
+     17     '''
+     18     Do default DetSim configuration.
+     19     '''
+     20 
+     21     # Available geometry broken up by site
+     22     giga_far_items = [
+     23         "/dd/Structure/Sites/far-rock",
+     24         "/dd/Geometry/AdDetails/AdSurfacesAll",
+     25         "/dd/Geometry/AdDetails/AdSurfacesFar",
+     26         "/dd/Geometry/PoolDetails/FarPoolSurfaces",
+     27         "/dd/Geometry/PoolDetails/PoolSurfacesAll",
+     28         ]
+     29     giga_dayabay_items = [
+     30         "/dd/Structure/Sites/db-rock",
+     31         "/dd/Geometry/AdDetails/AdSurfacesAll",
+     32         "/dd/Geometry/AdDetails/AdSurfacesNear",
+     33         "/dd/Geometry/PoolDetails/NearPoolSurfaces",
+     34         "/dd/Geometry/PoolDetails/PoolSurfacesAll",
+     35         ]
+     36     giga_lingao_items = [
+     37         "/dd/Structure/Sites/la-rock",
+     38         "/dd/Geometry/AdDetails/AdSurfacesAll",
+     39         "/dd/Geometry/AdDetails/AdSurfacesNear",
+     40         "/dd/Geometry/PoolDetails/NearPoolSurfaces",
+     41         "/dd/Geometry/PoolDetails/PoolSurfacesAll",
+     42         ]
+     43 
+     44     def __init__(self,site="far,dayabay,lingao",
+     45                  physlist = physics_list_basic+physics_list_nuclear,
+     46                  use_push_algs = True,
+     47                  use_sim_subseq=False ):
+     ..
+     68         physics_list = GiGaPhysListModular("GiGa.GiGaPhysListModular")
+     69         physics_list.CutForElectron = 100*units.micrometer
+     70         physics_list.CutForPositron = 100*units.micrometer
+     71         physics_list.CutForGamma = 1*units.millimeter
+     72         physics_list.PhysicsConstructors = physlist
+     73         self.physics_list = physics_list
+     74 
+     75         from GiGa.GiGaConf import GiGa
+     76         giga = GiGa()
+     77         giga.PhysicsList = physics_list
+     78 
+     79         # Start empty step action sequence to hold historian/unobserver
+     80         from GaussTools.GaussToolsConf import GiGaStepActionSequence
+     81         sa = GiGaStepActionSequence('GiGa.GiGaStepActionSequence')
+     82         giga.SteppingAction = sa
+     83 
+     84         self.giga = giga
+     85 
+     86         # Tell GiGa the size of the world.
+     87         # Set default world material to be vacuum to speed propagation of
+     88         # particles in regions of little interest.
+     89         from GiGaCnv.GiGaCnvConf import GiGaGeo
+     90         giga_geom = GiGaGeo()
+     91         giga_geom.XsizeOfWorldVolume = 2.4*units.kilometer
+     92         giga_geom.YsizeOfWorldVolume = 2.4*units.kilometer
+     93         giga_geom.ZsizeOfWorldVolume = 2.4*units.kilometer
+     94         giga_geom.WorldMaterial = "/dd/Materials/Vacuum"
+     95         self.gigageo = giga_geom
+     96 
+     97         # Set up for telling GiGa what geometry to use, but don't
+     98         # actually set that.
+     99         from GaussTools.GaussToolsConf import GiGaInputStream
+     00         giga_items = GiGaInputStream()
+     01         giga_items.ExecuteOnce = True
+     02         giga_items.ConversionSvcName = "GiGaGeo"
+     03         giga_items.DataProviderSvcName = "DetectorDataSvc"
+     04         giga_items.StreamItems = [ ]
+     05         site = site.lower()
+     06         if "far" in site:
+     07             giga_items.StreamItems += self.giga_far_items
+     08         if "dayabay" in site:
+     09             giga_items.StreamItems += self.giga_dayabay_items
+     10         if "lingao" in site:
+     11             giga_items.StreamItems += self.giga_lingao_items
+     12         self.giga_items = giga_items
+     13
+     14         # Make sequencer alg to run all this stuff as subalgs
+     15         from GaudiAlg.GaudiAlgConf import GaudiSequencer
+     16         giga_sequence = GaudiSequencer()
+     17         giga_sequence.Members = [ self.giga_items ]
+     18         self.giga_sequence=giga_sequence
+     19         if use_push_algs:
+     20             # DetSim's algs
+     21             from DetSim.DetSimConf import DsPushKine, DsPullEvent
+     22             self.detsim_push_kine = DsPushKine()
+     23             self.detsim_pull_event = DsPullEvent()
+     24             giga_sequence.Members += [self.detsim_push_kine,
+     25                                       self.detsim_pull_event]
+     26             pass
+     27 
+     28         if not use_sim_subseq:
+     29             from Gaudi.Configuration import ApplicationMgr
+     30             theApp = ApplicationMgr()
+     31             theApp.TopAlg.append(giga_sequence)
+     32 
+     33         return
+
+
+
+
+`NuWa-trunk/dybgaudi/Detector/DetHelpers/src/components/PmtGeomInfoSvc.cc`::
+
+     16 PmtGeomInfoSvc::PmtGeomInfoSvc(const std::string& name, ISvcLocator *svc)
+     17     : Service(name,svc)
+     18     , m_detSvc(0)
+     19     , m_detector(0)
+     20 {
+     21     declareProperty("SiteIdUserParameter",m_SiteIdUserParameter="SiteID",
+     22                     "Name of the user parameter attached to Site detector "
+     23                     "elements that gives the packed Site ID number.");
+     24     declareProperty("DetectorIdUserParameter",
+     25                     m_DetectorIdUserParameter="DetectorID",
+     26                     "Name of the user parameter attached to Detector "
+     27                     "detector elements that gives the fully qualified "
+     28                     "packed Detector ID.");
+     29     declareProperty("PmtIdUserParameter",m_PmtIdUserParameter="PmtID",
+     30                     "Name of the user parameter attached to PMT detector "
+     31                     "elements that gives the fully qualified packed PMT ID");
+     32     std::vector<std::string> defaultStreamItems;
+     33     defaultStreamItems.push_back("/dd/Structure/DayaBay");
+     34     declareProperty("StreamItems",m_StreamItems=defaultStreamItems,
+     35                     "List of top level Detector Elements.");
+     36     declareProperty("EnableSabGeometry",m_enableSabGeometry=true,
+     37                     "Workaround to allow for non-existent SAB geometry");
+     38 }
+     ..
+     ..
+     ..     Pull topDE out of DetectorDataSvc for each of the StreamItems
+     ..
+     46 StatusCode PmtGeomInfoSvc::initialize()
+     47 {
+     48     this->Service::initialize();
+     49 
+     50     MsgStream msg(msgSvc(),name());
+     51     msg << MSG::DEBUG << "PmtGeomInfoSvc::initialize()" << endreq;
+     52 
+     53     StatusCode sc = service("DetectorDataSvc",m_detSvc,true);
+     54     if (sc.isFailure()) return sc;
+     55 
+     56     msg << MSG::DEBUG << "Using IDs:"
+     57         << " site: " << m_SiteIdUserParameter
+     58         << " det: " << m_DetectorIdUserParameter
+     59         << " pmt: " << m_PmtIdUserParameter
+     60         << endreq;
+     61 
+     62     if (! m_StreamItems.size()) {
+     63         msg << MSG::WARNING << "did not get any StreamItems, can not lookup PMTs" << endreq;
+     64         return StatusCode::FAILURE;
+     65     }
+     66     for (size_t ind=0; ind<m_StreamItems.size(); ++ind) {
+     67         string dename = m_StreamItems[ind];
+     68         SmartDataPtr<IDetectorElement> obj(m_detSvc,dename);
+     69         if (!obj) {
+     70             MsgStream msg(msgSvc(),name());
+     71             msg << MSG::WARNING << "Failed to get top Detector Element: \""
+     72                 << dename << "\", skipping" << endreq;
+     73             sc = StatusCode::FAILURE;
+     74             continue;
+     75         }
+     76         msg << MSG::DEBUG << "Adding top level Detector Element: \""
+     77             << dename << endreq;
+     78         m_topDEs.push_back(obj);
+     79     }
+     80     return sc;
+     81 }
+
+Hmm, where do the DE parameters get set ?::
+
+    201 IPmtGeomInfo* PmtGeomInfoSvc::find(unsigned int pmtid, IDetectorElement* de)
+    202 {
+    203     //nomsg MsgStream msg(msgSvc(),name());
+    204     //nomsg msg << MSG::DEBUG << "PmtGeomInfoSvc::find(int "<<(void*)pmtid        <<","<<de->name()<<")" << endreq;
+    205 
+    206     const ParamValidDataObject* params = de->params();
+    207     // Check if DE is a PMT.  If current DE has a PmtID we are done
+    208     // for good or bad.
+    209     if (de->params()->exists(m_PmtIdUserParameter)) {
+    210         unsigned int this_pmtid = (unsigned int)(params->param<int>(m_PmtIdUserParameter));
+    211         if (pmtid == this_pmtid) {
+    212             //nomsg msg << MSG::DEBUG << "found PMT ID " << (void*)pmtid << endreq;
+    213             return this->add(pmtid,"",de);
+    214         }
+    215         //nomsg msg << MSG::DEBUG << "got PMT ID but wrong one "            << (void*)this_pmtid << " != " << (void*)pmtid << endreq;
+    216         return 0;
+    217     }
+
+
+Too many PMTs to be manual, must be generated::
+
+    [blyth@belle7 XmlDetDescGen]$ find . -name '*.py' -exec grep -H pmtid {} \;
+    ./AdPmtStructure/gen.py:    def pmtid(self,site,adn,icol,iring):
+    ./AdPmtStructure/gen.py:                    pmtid = self.pmtid( self.siteid, adn,icol,iring)
+    ./AdPmtStructure/gen.py:                        'pmtid':pmtid
+    ./AdPmtStructure/gen.py:                    de.refs = [UserParameter("PmtID","int",['0x%x'%pmtid],desc="Packed PMT ID")]
+    ./AdPmtStructure/gen.py:                pmtid = self.pmtid( self.siteid, adn,icol,iring)
+    ./AdPmtStructure/gen.py:                        'pmtid':pmtid
+    ./AdPmtStructure/gen.py:                de.refs = [UserParameter("PmtID","int",['0x%x'%pmtid],desc="Packed PMT ID")]
+    ./PoolPmtStructure/gen.py:    def pmtid(self,site,pooln,iid,iwall):
+    ./PoolPmtStructure/gen.py:                    pmtid = self.pmtid(siteid,pooln,iid,iwall)
+    ./PoolPmtStructure/gen.py:                             'idnum':iid,'pmtid':pmtid,'tmp1':tmp1,'tmp2':tmp2,'tmp3':tmp3,'tmp4':tmp4 }
+    ./PoolPmtStructure/gen.py:                    de.refs = [UserParameter("PmtID","int",['0x%x'%pmtid],desc="Packed PMT ID")]
+    ./PoolPmtStructure/gen.py:    def pmtid(self,site,pooln,iid,iwall):
+    ./PoolPmtStructure/gen.py:                    pmtid = self.pmtid(siteid,pooln,iid,iwall)
+    ./PoolPmtStructure/gen.py:                    data = { 'site':site,'siteid':siteid,'poolpv':poolp,'poolnum':pooln,'wallnum':iwall,'idnum':iid,'pmtid':pmtid}
+    ./PoolPmtStructure/gen.py:                    de.refs = [UserParameter("PmtID","int",['0x%x'%pmtid],desc="Packed PMT ID")]
+
+
+`NuWa-trunk/dybgaudi/Detector/XmlDetDesc/python/XmlDetDescGen/AdPmtStructure/gen.py`::
+
+     03 """
+     04 Generate AD PMT Detector Elements.
+     05 
+     06 This generates the Structure XML for all AD PMTs into the TDS at
+     07 /dd/Structure/AdPmts and files in to DDDB/AdPmtStructure/*.xml.
+     08 
+     09 This needs to match the hand-written XML in DDDB/AdPmts/geometry.xml.
+     10 
+     11 """
+     12 
+     13 
+     14 Eight = True
+     15 suffix = ''
+     16 style = '2-2-4'
+     17 
+     18 
+     19 class AdPmtStructure:
+     20 
+
+`NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB/AdPmtStructure/db1.xml`::
+
+      04 <!-- Detector Element "db-ad1-ring1-column1" -->
+      05 <detelem name="db-ad1-ring1-column1">
+      06   <geometryinfo lvname="/dd/Geometry/PMT/lvPmtHemi"
+      07                 npath="pvAdPmtArray/pvAdPmtArrayRotated/pvAdPmtRingInCyl:1/pvAdPmtInRing:1/pvAdPmtUnit/pvAdPmt"
+      08                 support="/dd/Structure/AD/db-oil1" />
+      09   <!-- Packed PMT ID -->
+      10   <userParameter name="PmtID" type="int" comment="Packed PMT ID">
+      11     0x1010101
+      12   </userParameter>
+      13 </detelem>
+
+
+Now what reads that::
+
+    [blyth@belle7 lhcb]$ find . -name '*.cpp' -exec grep -l detelem {} \;
+    ./Sim/GiGaCnv/src/component/GiGaLVolumeCnv.cpp
+    ./Det/DetDescSvc/src/TransportSvc.cpp
+    ./Det/DetDescCnv/src/Lib/XmlBaseDetElemCnv.cpp
+    ./Det/DetDescCnv/src/Lib/XmlGenericCnv.cpp
+    ./Det/DetDescCnv/src/component/XmlCatalogCnv.cpp
+
+
+`NuWa-trunk/lhcb/Det/DetDescCnv/src/Lib/XmlBaseDetElemCnv.cpp`::
+
+    187 // -----------------------------------------------------------------------
+    188 // Fill an object with a new child element
+    189 // -----------------------------------------------------------------------
+    190 StatusCode XmlBaseDetElemCnv::i_fillObj (xercesc::DOMElement* childElement,
+    191                                          DataObject* refpObject,
+    192                                          IOpaqueAddress* address) {
+    193   MsgStream log(msgSvc(), "XmlBaseDetElemCnv" );
+    194 
+    195   // gets the object
+    196   DetectorElement* dataObj = dynamic_cast<DetectorElement*> (refpObject);
+    197   // gets the element's name
+    198   const XMLCh* tagName = childElement->getNodeName();
+    ... 
+    ...
+    ...
+    231   } else if (0 == xercesc::XMLString::compareString
+    232              (geometryinfoString, tagName)) {
+    233     // Everything is in the attributes
+    234     std::string logVolName =
+    235       dom2Std (childElement->getAttribute (lvnameString));
+    236     std::string conditionPath =
+    237       dom2Std (childElement->getAttribute (conditionString));
+    238     std::string support =
+    239       dom2Std (childElement->getAttribute (supportString));
+    240     std::string replicaPath =
+    241       dom2Std (childElement->getAttribute (rpathString));
+    242     std::string namePath =
+    243       dom2Std (childElement->getAttribute (npathString));
+    244     log << MSG::VERBOSE << std::endl
+    245         << "GI volume        : " << logVolName    << std::endl
+    246         << "GI support       : " << support       << std::endl
+    247         << "GI rpath         : " << replicaPath   << std::endl
+    248         << "GI npath         : " << namePath      << std::endl
+    249         << "GI conditionPath : " << conditionPath << endmsg;
+    250 
+    251     // creates a geometryInfo child
+    252     if (logVolName.empty()) {
+    253       dataObj->createGeometryInfo();
+    254     } else if (support.empty()) {
+    255       dataObj->createGeometryInfo (logVolName);
+    256     } else if (!namePath.empty()) {
+    257       dataObj->createGeometryInfo (logVolName, support,
+    258                                    namePath, conditionPath);
+    259     } else if (!replicaPath.empty()) {
+
+
+`NuWa-trunk/lhcb/Det/DetDesc/src/Lib/DetectorElement.cpp`::
+
+    205 const IGeometryInfo*
+    206 DetectorElement::createGeometryInfo( const std::string& LogVol   ,
+    207                                      const std::string& Support  ,
+    208                                      const std::string& NamePath )
+    209 {
+    210   Assert( 0 == geometry() ,
+    211           "Could not create REGULAR(1): Geometry already exist!" );
+    212   m_de_iGeometry = GeoInfo::createGeometryInfo( this     ,
+    213                                                 LogVol   ,
+    214                                                 Support  ,
+    215                                                 NamePath );
+    216   return geometry();
+    217 };
+
+
+`NuWa-trunk/lhcb/Det/DetDesc/DetDesc/GeoInfo.h`::
+
+
+     083   /** create regular geometry infor element 
+     084    *  @exception GeometryInfoException null IDetectorElement pointer   
+     085    *  @param de              pointer to detector element 
+     086    *  @param LogVol          name of logical volume
+     087    *  @param Support         name of support element 
+     088    *  @param ReplicaNamePath replica path/address 
+     089    *  @param alignmentPath   address of alignment condition
+     090    */
+     091   IGeometryInfo*
+     092   createGeometryInfo( IDetectorElement*  de              ,
+     093                       const std::string& LogVol          ,
+     094                       const std::string& Support         ,
+     095                       const std::string& ReplicaNamePath ,
+     096                       const std::string& alignmentPath="");
+
+     098   /** create regular geometry infor element 
+     099    *  @exception GeometryInfoException null IDetectorElement pointer   
+     100    *  @param de              pointer to detector element 
+     101    *  @param LogVol          name of logical volume
+     102    *  @param Support         name of support element 
+     103    *  @param ReplicaPath     replica path 
+     104    *  @param alignmentPath   address of alignment condition
+     105    */
+     106   IGeometryInfo*
+     107   createGeometryInfo( IDetectorElement*  de              ,
+     108                       const std::string& LogVol          ,
+     109                       const std::string& Support         ,
+     110                       const ILVolume::ReplicaPath& ReplicaPath,
+     111                       const std::string& alignmentPath="");
+     112 
+
+
+`NuWa-trunk/lhcb/Det/DetDesc/src/Lib/GeoInfo.cpp`::
+
+    099 IGeometryInfo*
+    100 GeoInfo::createGeometryInfo( IDetectorElement*  de              ,
+    101                              const std::string& LogVol          ,
+    102                              const std::string& Support         ,
+    103                              const std::string& ReplicaNamePath ,
+    104                              const std::string& alignmentPath)
+    105 {
+    106   return new GeometryInfoPlus( de,
+    107                                LogVol,
+    108                                Support,
+    109                                ReplicaNamePath,
+    110                                alignmentPath);
+    111 
+    112 }
+
+`NuWa-trunk/lhcb/Det/DetDesc/src/Lib/GeometryInfoPlus.cpp`::
+
+     155 /// create regular  with name path
+     156 GeometryInfoPlus::GeometryInfoPlus( IDetectorElement*  de,
+     157                                     const std::string& LogVol,
+     158                                     const std::string& Support,
+     159                                     const std::string& ReplicaNamePath,
+     160                                     const std::string& alignmentPath   )
+     161   :
+     162   m_log                 (       0     ),
+     163   m_gi_has_logical      (    true         ),
+     164   m_gi_lvolumeName      (   LogVol        ),
+     165   m_gi_lvolume          (       0         ),
+     166   m_hasAlignment        (     false       ),
+     167   m_alignmentPath       ( alignmentPath   ),
+     168   m_alignmentCondition  (       0         ),
+     169   m_matrix              (       0     ),
+     170   m_idealMatrix         (       0     ),
+     171   m_localIdealMatrix    (       0     ),
+     172   m_localDeltaMatrix    (       0     ),
+     173   m_matrixInv           (       0     ),
+     174   m_idealMatrixInv      (       0     ),
+     175   m_gi_has_support      (    true         ),
+     176   m_gi_supportName      (   Support       ),
+     177   m_gi_support          (       0         ) ,
+     178   m_gi_supportPath      (                 ),
+     179   m_gi_supportNamePath  ( ReplicaNamePath ),
+     180   m_gi_iDetectorElement (      de         ),
+     181   m_gi_parentLoaded     (    false        ),
+     182   m_gi_parent           (      0          ),
+     183   m_gi_childLoaded      (    false        ) ,
+     184   m_gi_childrens        (                 ) ,
+     185   m_gi_childrensNames   (                 ),
+     186   m_services            (      0          ){
+     187   if( 0 == de  )
+     188     { throw GeometryInfoException("IDetectorElement* points to NULL!"    ) ; }
+     189 
+     190   if ( initialize().isFailure() )
+     191   { throw GeometryInfoException("Failed to initialize!") ; }
+     192 
+     193 }
+
+
+`NuWa-trunk/lhcb/Det/DetDesc/DetDesc/IGeometryInfo.h`::
+
+    034 class IGeometryInfo : virtual public IInterface
+    035 {
+    036 public:
+    ...
+    450   /** the name of associated Logical Volume
+    451    *  @return the name of associated Logical Volume
+    452    */
+    453   virtual const std::string& lvolumeName() const = 0 ;
+    454 
+    455   /** associated Logical Volume
+    456    *  @return the pointer to associated Logical Volume
+    457    */
+    458   virtual const ILVolume* lvolume () const = 0 ;
+    ...
+    512   /** the Logical Volume, addressed by  start and Replica Path
+    513    *  @param start start
+    514    *  @param replicaPath replicaPath
+    515    *  @return pointer to Logical Volume
+    516    */
+    517   virtual const ILVolume* lvolume
+    518   ( IGeometryInfo*               start       ,
+    519     const ILVolume::ReplicaPath& replicaPath ) = 0;
+    520  
+    521   /// retrive reference to replica path (mistrerious "rpath" or "npath")
+    522   virtual const ILVolume::ReplicaPath& supportPath() const = 0;
+    523 
+        
+`NuWa-trunk/lhcb/Det/DetDesc/DetDesc/ILVolume.h`::
+
+    036 class ILVolume : virtual public IInterface
+    037 {
+    038   ///
+    039 public:
+    040 
+    041   /**  general typedefs  */
+    042   typedef  std::vector<IPVolume*>                        PVolumes;
+    043   typedef  PVolumes::size_type                           ReplicaType;
+    044   typedef  std::vector<ReplicaType>                      ReplicaPath;
+    045   typedef  std::vector<const IPVolume*>                  PVolumePath;    
+
+
+    279   /** name of sensitive "detector" - needed for simulation 
+    280    *  @return name of sensitive "detector"
+    281    */
+    282   virtual const std::string& sdName   ()                const = 0 ;
+    283 
+
+
+
+
+`NuWa-trunk/lhcb/Det/DetDescCnv/src/component/XmlDetectorElementCnv.cpp`::
+
+     20 XmlDetectorElementCnv::XmlDetectorElementCnv (ISvcLocator* svc) :
+     21   XmlBaseDetElemCnv (svc) {
+     22 }
+
+
+
+Resort to debugger to see where this comes into play
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    #54 0xb3431500 in GiGaGeo::createRep (this=0xa8febe0, object=0xa4fd1a0, address=@0xbf889a08) at ../src/component/GiGaGeo.cpp:647
+    #55 0xb3435e85 in GiGaGeo::volume (this=0xa8febe0, Name=@0xa767e40) at ../src/component/GiGaGeo.cpp:186
+    #56 0xb345681e in GiGaLVolumeCnv::updateRep (this=0xa41c830, Object=0xa768258) at ../src/component/GiGaLVolumeCnv.cpp:156
+    #57 0xb3455d87 in GiGaLVolumeCnv::createRep (this=0xa41c830, Object=0xa768258, Address=@0xbf889fd8) at ../src/component/GiGaLVolumeCnv.cpp:108
+    #58 0xb3431500 in GiGaGeo::createRep (this=0xa8febe0, object=0xa768258, address=@0xbf889fd8) at ../src/component/GiGaGeo.cpp:647
+    #59 0xb3435e85 in GiGaGeo::volume (this=0xa8febe0, Name=@0xa6fd0d4) at ../src/component/GiGaGeo.cpp:186
+    #60 0xb3426c33 in GiGaDetectorElementCnv::updateRep (this=0xa41c5c8, Object=0xa4fbac0) at ../src/component/GiGaDetectorElementCnv.cpp:194
+    #61 0xb3427db0 in GiGaDetectorElementCnv::createRep (this=0xa41c5c8, Object=0xa4fbac0, Address=@0xbf88a620) at ../src/component/GiGaDetectorElementCnv.cpp:132
+    #62 0xb3431500 in GiGaGeo::createRep (this=0xa8febe0, object=0xa4fbac0, address=@0xbf88a620) at ../src/component/GiGaGeo.cpp:647
+    #63 0xb6273ecd in GiGaInputStream::execute (this=0xa3c8300) at ../src/Components/GiGaInputStream.cpp:76
+    #64 0x04667408 in Algorithm::sysExecute (this=0xa3c8304) at ../src/Lib/Algorithm.cpp:558
+    #65 0x03cddfd4 in GaudiSequencer::execute (this=0xa3b86d8) at ../src/lib/GaudiSequencer.cpp:100
+    #66 0x04667408 in Algorithm::sysExecute (this=0xa3b86d8) at ../src/Lib/Algorithm.cpp:558
+    #67 0x03c7568f in GaudiAlgorithm::sysExecute (this=0xa3b86d8) at ../src/lib/GaudiAlgorithm.cpp:161
+    #68 0x046e341a in MinimalEventLoopMgr::executeEvent (this=0x9f768c8) at ../src/Lib/MinimalEventLoopMgr.cpp:450
+    #69 0x03a1c956 in DybEventLoopMgr::executeEvent (this=0x9f768c8, par=0x0) at ../src/DybEventLoopMgr.cpp:125
+    #70 0x03a1d18a in DybEventLoopMgr::nextEvent (this=0x9f768c8, maxevt=100) at ../src/DybEventLoopMgr.cpp:188
+    #71 0x046e1dbd in MinimalEventLoopMgr::executeRun (this=0x9f768c8, maxevt=100) at ../src/Lib/MinimalEventLoopMgr.cpp:400
+    #72 0xb77796d9 in ApplicationMgr::executeRun (this=0x9c43aa0, evtmax=100) at ../src/ApplicationMgr/ApplicationMgr.cpp:867
+    #73 0x0623df57 in method_3426 (retaddr=0xa9ec320, o=0x9c43ecc, arg=@0x9cafc20) at ../i686-slc5-gcc41-dbg/dict/GaudiKernel/dictionary_dict.cpp:4375
+    #74 0x00356add in ROOT::Cintex::Method_stub_with_context (context=0x9cafc18, result=0xaa39264, libp=0xaa392bc) at cint/cintex/src/CINTFunctional.cxx:319
+    #75 0x02d56034 in ?? ()
+    #76 0x09cafc18 in ?? ()
+    #77 0x0aa39264 in ?? ()
+    #78 0x00000000 in ?? ()
+    (gdb) c
+
+
+`NuWa-trunk/lhcb/Sim/GiGaCnv/src/component/GiGaGeo.cpp`::
+
+    628 //=============================================================================
+    629 // Convert the transient object to the requested representation.
+    630 //  e.g. conversion to persistent objects.
+    631 //=============================================================================
+    632 StatusCode GiGaGeo::createRep
+    633 ( DataObject*      object  ,
+    634   IOpaqueAddress*& address )
+    635 {
+    636   ///
+    637   if( 0 == object )
+    638     { return Error(" createRep:: DataObject* points to NULL!");}
+    639   ///
+    640   const IDetectorElement* de = dynamic_cast<IDetectorElement*> ( object ) ;
+    641   IConverter* cnv =
+    642     converter( 0 == de ? object->clID() : CLID_DetectorElement );
+    643   if( 0 == cnv )
+    644     { return Error(" createRep:: converter is not found for '"
+    645                    + object->registry()->identifier() + "'" );}
+    646   ///
+    647   return cnv->createRep( object , address );
+    648 };
+
+
+`NuWa-trunk/lhcb/Sim/GiGaCnv/src/component/GiGaDetectorElementCnv.cpp`::
+
+    139 StatusCode GiGaDetectorElementCnv::updateRep( DataObject*     Object  ,
+    140                                               IOpaqueAddress* /* Address */ )
+    141 {
+    142   ///
+    143   MsgStream log( msgSvc() , name() );
+    144   log << MSG::DEBUG << "updateRep::start "
+    145       << Object->registry()->identifier() << endreq;
+    146   ///
+    147   if( 0 == Object                 )
+    148     { return Error("updateRep::DataObject* points to NULL"); }
+    149   ///
+    150   IDetectorElement* de = 0 ;
+    151   try        { de = dynamic_cast<IDetectorElement*>( Object ) ; }
+    152   catch(...) { de =                                 0 ; }
+    153   if( 0 == de        )
+    154     { return Error("updateRep::Bad cast to IDetectorElement*"); }
+    155   if( 0 == geoSvc()  )
+    156     { return Error("updateRep::Conversion Service is unavailable"); }
+    157   ///
+    158   IGeometryInfo* gi = de->geometry() ;
+    159   if( 0 == gi )
+    160     { return Error("updateRep:: IGeometryInfo* is not available for " +
+    161                    de->name() ); }
+    162   const ILVolume*      lv = gi->lvolume () ;
+    163   if( 0 == lv )
+    164     { return Error("updateRep:: ILVolume*      is not available for " +
+    165                    de->name() ); }
+    166   //
+    167   // // look at G4 physical volume store and check 
+    168   // //  if it was converted exlicitely or imlicitely
+    169   //    {
+    170   //      std::string path ( de->name() );
+    171   //      do
+    172   //      {
+    173   //      G4VPhysicalVolume* pv = 0; 
+    174   //      G4PhysicalVolumeStore& store = *G4PhysicalVolumeStore::GetInstance();
+    175   //      for( unsigned int indx = 0 ; indx < store.size() ; ++indx )
+    176   //      { if( path == store[indx]->GetName() ) { pv = store[indx] ; break; } }
+    177   //      /// it was converted EXPLICITELY or IMPLICITELY !!!
+    178   //      if( 0 != pv ) 
+
+
+
+:google:`gaudi detector element set params`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://lhcb-comp.web.cern.ch/lhcb-comp/Frameworks/Gaudi/Gaudi_v9/GUG/Output/GUG_DetDescription.html
+* http://lhcb-comp.web.cern.ch/lhcb-comp/Frameworks/DetDesc/Documents/detElemExtension.pdf
+
+Once user parameters are defined in XML, they are converted by the regular
+converter for detector elements and are then reachable in the C++ code, 
+with DetectorElement methods.
+
+
+How to access all DE ? detSvc
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://lhcb-comp.web.cern.ch/lhcb-comp/Frameworks/Gaudi/Tutorial/9_Detector_Description.pdf
+
+accessing detector data is done using the DetectorDataSvc (detSvc()) and with the help of a SmartDataPtr().
+
+
+::
+
+    [blyth@belle7 dybgaudi]$ find . -name '*.py' -exec grep -H detSvc {} \;
+    ./Simulation/Historian/python/pmtbox.py:    det = app.detSvc()
+    ./Tutorial/Calibration/python/Calibration/ACUNeutronCapturePosition.py:        ad1 = self.detSvc("/dd/Structure/AD/db-oil1")
+    ./Detector/XmlDetDesc/python/XmlDetDesc/dumper.py:    dsv = g.detSvc()
+    ./Detector/XmlDetDesc/python/XmlDetDesc/dumper.py:    det = app.detSvc()
+    ./Detector/XmlDetDesc/python/xmldetdesc.py:    dsv = g.detSvc()
+    ./Detector/XmlDetDesc/python/xmldetdesc.py:    det = app.detSvc()
+    ./Detector/DetDescVis/python/dump.py:    det = g.detSvc()
+    ./Production/MDC09b/python/MDC09b/chkGamma/__init__.py:        det = self.detSvc(self.target_de_name)   ## '/dd/Structure/AD/db-ade1/db-sst1/db-oil1'
+    ./Production/MDC09b/python/MDC09b/chkIBD/__init__.py:#        det = self.detSvc(self.target_de_name)
+    ./Production/MDC09b/python/MDC09b/chkIBD/__init__.py:#        det_gds = self.detSvc(self.gds_de_name)
+    ./Production/MDC09b/python/MDC09b/chkIBD/__init__.py:#        det_lso = self.detSvc(self.lso_de_name)
+    ./Production/MDC09a/python/MDC09a/chkGamma/__init__.py:        det = self.detSvc(self.target_de_name)
+    ./Production/MDC09a/python/MDC09a/chkIBD15/__init__.py:        det = self.detSvc(self.target_de_name)
+    ./Production/MDC09a/python/MDC09a/chkIBD15/__init__.py:        det_gds = self.detSvc(self.gds_de_name)
+    ./Production/MDC09a/python/MDC09a/chkIBD15/__init__.py:        det_lso = self.detSvc(self.lso_de_name)
+    ./Production/MDC09a/python/MDC09a/chkIBD/__init__.py:        det = self.detSvc(self.target_de_name)
+    ./Production/MDC09a/python/MDC09a/chkIBD/__init__.py:        det_gds = self.detSvc(self.gds_de_name)
+    ./Production/MDC09a/python/MDC09a/chkIBD/__init__.py:        det_lso = self.detSvc(self.lso_de_name)
+    ./Production/MDC09a/python/MDC09a/chkIBD/AdPerformance.py:#        det = self.detSvc(self.target_de_name)
+    ./Production/MDC09a/python/MDC09a/chkIBD/AdPerformance.py:#        det_gds = self.detSvc(self.gds_de_name)
+    ./Production/MDC09a/python/MDC09a/chkIBD/AdPerformance.py:#        det_lso = self.detSvc(self.lso_de_name)
+
+    36 
+    37         self.target_de_name = '/dd/Structure/AD/db-ade1/db-sst1/db-oil1'
+    38         self.gds_de_name = '/dd/Structure/AD/db-gds1'
+    39         self.lso_de_name = '/dd/Structure/AD/db-lso1'
+
+
+`NuWa-trunk/dybgaudi/Detector/XmlDetDesc/python/XmlDetDesc/dump_geo.py`::
+
+     11 def configure(argv=None):
+     12     if argv:
+     13         path = argv[0]
+     14     else:
+     15         path = '/dd/Geometry'
+     16 
+     17     from XmlDetDescChecks.XmlDetDescChecksConf import XddDumpAlg
+     18 
+     19     da = XddDumpAlg()
+     20     da.Paths = [path]
+     21 
+     22     from Gaudi.Configuration import ApplicationMgr
+     23     app = ApplicationMgr()
+     24     app.TopAlg.append(da)
+
+
+
+de.sh
+~~~~~~
+
+Lists DetectorElement names with UserParameter called `PmtId` 
+
+* `NuWa-trunk/dybgaudi/Detector/XmlDetDescChecks/python/XmlDetDescChecks/dedump.py`
+* `NuWa-trunk/dybgaudi/Detector/XmlDetDescChecks/src/DeDumpAlg.cc`
+
+* all DE names inhabit `/dd/Structure/` 
+
+  * can GeometryInfo relate that to real PV names ?
+
+* may be truncated as crashed on `/dd/Structure/CalibrationBox/db-ad1-strongAmC`
+* is 16355+1 = 16356 correct for all three halls PMT count ?  
+
+::
+
+    [blyth@belle7 ~]$ de.sh last 
+    Importing module "XmlDetDescChecks.dedump" ["/dd/Structure/AD/far-oil4/far-ad4-ring0-column6"]
+    ...
+    DetectorDataSvc                    SUCCESS Detector description database: /data1/env/local/dyb/NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB/dayabay.xml
+    EventClockSvc.FakeEventTime           INFO Event times generated from 0 with steps of 0
+    DE   67371014         0 /dd/Structure/AD/far-oil4/far-ad4-ring0-column6
+    ApplicationMgr                        INFO Application Manager Stopped successfully
+    ToolSvc                               INFO Removing all tools created by ToolSvc
+    ApplicationMgr                        INFO Application Manager Finalized successfully
+    ApplicationMgr                        INFO Application Manager Terminated successfully
+    [blyth@belle7 ~]$ 
+
+
+::
+
+    [blyth@belle7 ~]$ de.sh all
+    ...
+    Importing module "XmlDetDescChecks.dedump" ["/dd"]
+    Trying to call configure() on XmlDetDescChecks.dedump
+    ...
+    Dumping /dd
+    DetectorPersistencySvc                INFO  'CnvServices':[ 'XmlCnvSvc/XmlCnvSvc' ]
+    DetectorPersistencySvc                INFO Added successfully Conversion service:XmlCnvSvc
+    DetectorDataSvc                    SUCCESS Detector description database: /data1/env/local/dyb/NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB/dayabay.xml
+    ...
+    DE   16843009         0 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column1
+    DE   16843010         1 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column2
+    DE   16843011         2 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column3
+    DE   16843012         3 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column4
+    DE   16843013         4 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column5
+    DE   16843014         5 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column6
+    DE   16843015         6 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column7
+    DE   16843016         7 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column8
+    DE   16843017         8 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column9
+    DE   16843018         9 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column10
+    DE   16843019        10 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column11
+    DE   16843020        11 /dd/Structure/DayaBay/db-rock/db-ows/db-curtain/db-iws/db-ade1/db-sst1/db-oil1/db-ad1-ring1-column12
+    ...
+    DE   67373078     16347 /dd/Structure/AD/far-oil4/far-ad4-ring8-column22
+    DE   67373079     16348 /dd/Structure/AD/far-oil4/far-ad4-ring8-column23
+    DE   67373080     16349 /dd/Structure/AD/far-oil4/far-ad4-ring8-column24
+    DE   67371009     16350 /dd/Structure/AD/far-oil4/far-ad4-ring0-column1
+    DE   67371010     16351 /dd/Structure/AD/far-oil4/far-ad4-ring0-column2
+    DE   67371011     16352 /dd/Structure/AD/far-oil4/far-ad4-ring0-column3
+    DE   67371012     16353 /dd/Structure/AD/far-oil4/far-ad4-ring0-column4
+    DE   67371013     16354 /dd/Structure/AD/far-oil4/far-ad4-ring0-column5
+    DE   67371014     16355 /dd/Structure/AD/far-oil4/far-ad4-ring0-column6
+    XmlGenericCnv                        FATAL An exception went out of the conversion process : *GeometryInfoException*    GeometryInfoPlus:: error during retrieve of Replica Path     StatusCode=FAILURE
+    DeDumpAlg                            FATAL DeDumpAlg:: Exception throw: get():: No valid data at '/dd/Structure/CalibrationBox/db-ad1-strongAmC' StatusCode=FAILURE
+    DeDumpAlg.sysExecute()               FATAL  Exception with tag= is caught 
+    DeDumpAlg.sysExecute()               ERROR  DeDumpAlg:: get():: No valid data at '/dd/Structure/CalibrationBox/db-ad1-strongAmC'     StatusCode=FAILURE
+    ChronoStatSvc                         INFO  Number of skipped events for MemStat-1
+    MinimalEventLoopMgr.executeEvent()   FATAL  Exception with tag= thrown by DeDumpAlg
+    MinimalEventLoopMgr.executeEvent()   ERROR  DeDumpAlg:: get():: No valid data at '/dd/Structure/CalibrationBox/db-ad1-strongAmC'     StatusCode=FAILURE
+    EventLoopMgr                       WARNING Execution of algorithm DeDumpAlg failed
+    EventLoopMgr                         ERROR Error processing event loop.
+    EventLoopMgr                         ERROR Terminating event processing loop due to errors
+    EventLoopMgr                         ERROR Terminating event processing loop due to errors
+    ApplicationMgr                        INFO Application Manager Stopped successfully
+
+
+
+
+
+::
+
+    [blyth@belle7 ~]$ de.sh 111
+    ...
+    Importing module "XmlDetDescChecks.dedump" ["/dd/Structure/AD/db-oil1/db-ad1-ring1-column1"]
+    Dumping /dd/Structure/AD/db-oil1/db-ad1-ring1-column1
+    DetectorDataSvc                    SUCCESS Detector description database: /data1/env/local/dyb/NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB/dayabay.xml
+    ...
+    PmtId  0x 1010101 0d   16843009 nn          1 de /dd/Structure/AD/db-oil1/db-ad1-ring1-column1
+    lvn /dd/Geometry/PMT/lvPmtHemi
+    ilv 
+     LVolume (17)  name = '/dd/Geometry/PMT/lvPmtHemi'  #physvols1#0  class PVolume (154) [ name='pvPmtHemiVacuum' logvol='/dd/Geometry/PMT/lvPmtHemiVacuum']
+
+     SolidType='SolidUnion'     name='pmt-hemi'
+     BPs: (x,y,z,r,rho)[Min/Max][mm]=(     -131/      131,     -131/      131,     -179/      131,      179,      131) 
+     ** 'Main' solid is 
+     SolidType='SolidIntersection'  name='pmt-hemi-glass-bulb'
+     BPs: (x,y,z,r,rho)[Min/Max][mm]=(     -131/      131,     -131/      131,     -131/      131,      131,      131) 
+     ** 'Main' solid is 
+     SolidType='SolidSphere'    name='pmt-hemi-face-glass'
+     BPs: (x,y,z,r,rho)[Min/Max][mm]=(     -131/      131,     -131/      131,     -131/      131,      131,      131) 
+    outerRadius[mm]      131
+     ** 'Booled' with 
+     SolidType='SolidChild'     name='Child For pmt-hemi-glass-bulb'
+     BPs: (x,y,z,r,rho)[Min/Max][mm]=(     -102/      102,     -102/      102,      -59/      145,      145,      102) 
+     SolidType='SolidSphere'    name='pmt-hemi-top-glass'
+     BPs: (x,y,z,r,rho)[Min/Max][mm]=(     -102/      102,     -102/      102,     -102/      102,      102,      102) 
+    outerRadius[mm]      102
+     ** 'Booled' with 
+     SolidType='SolidChild'     name='Child For pmt-hemi-glass-bulb'
+     BPs: (x,y,z,r,rho)[Min/Max][mm]=(     -102/      102,     -102/      102,      -33/      171,      171,      102) 
+     SolidType='SolidSphere'    name='pmt-hemi-bot-glass'
+     BPs: (x,y,z,r,rho)[Min/Max][mm]=(     -102/      102,     -102/      102,     -102/      102,      102,      102) 
+    outerRadius[mm]      102
+
+     ** 'Booled' with 
+     SolidType='SolidChild'     name='Child For pmt-hemi'
+     BPs: (x,y,z,r,rho)[Min/Max][mm]=(    -94.5/     94.5,    -94.5/     94.5,     -179/     9.97,      179,     94.5) 
+     SolidType='SolidTubs'  name='pmt-hemi-base'
+     BPs: (x,y,z,r,rho)[Min/Max][mm]=(    -42.2/     42.2,    -42.2/     42.2,    -84.5/     84.5,     94.5,     42.2) 
+    [ sizeZ[mm]=      169 outerRadius[mm]=     42.2]
+
+
+    Material name='/dd/Materials/Pyrex' 
+
+        GeometryInfo @ 0xa7809b8
+        globally @ (-16572.9,-801470,-8842.5) mm
+    ApplicationMgr                        INFO Application Manager Stopped successfully
+    ...
+    [blyth@belle7 ~]$ 
+
+
+
+
+
 
 
 DsPmtSensDet::ProcessHits HC population
@@ -103,6 +963,72 @@ DsPmtSensDet::ProcessHits HC population
     343     // wangzhe QE calculation starts here.
     344     int pmtid = this->SensDetId(*de);
     345     DayaBay::Detector detector(pmtid);
+    ...
+    ...     hit formation
+    ...
+    459     DayaBay::SimPmtHit* sphit = new DayaBay::SimPmtHit();
+    460 
+    461     // base hit
+    462 
+    463     // Time since event created
+    464     sphit->setHitTime(preStepPoint->GetGlobalTime());
+    465 
+    466     //#include "G4NavigationHistory.hh"
+    467 
+    468     const G4AffineTransform& trans = hist->GetHistory()->GetTopTransform();
+    469     const G4ThreeVector& global_pos = preStepPoint->GetPosition();
+    470     G4ThreeVector pos = trans.TransformPoint(global_pos);
+    471     sphit->setLocalPos(pos);
+    472     sphit->setSensDetId(pmtid);
+    473    
+    474     // pmt hit
+    475     // sphit->setDir(...);       // for now
+    476     G4ThreeVector pol = trans.TransformAxis(track->GetPolarization());
+    477     pol = pol.unit();
+    478     G4ThreeVector dir = trans.TransformAxis(track->GetMomentum());
+    479     dir = dir.unit();
+    480     sphit->setPol(pol);
+    481     sphit->setDir(dir);
+    482     sphit->setWavelength(wavelength);
+    483     sphit->setType(0);
+    484     // G4cerr<<"PMT: set hit weight "<<weight<<G4endl; //gonchar
+    485     sphit->setWeight(weight);
+    ...
+    ...
+    505     int trackid = track->GetTrackID();
+    506     this->StoreHit(sphit,trackid);
+    507     debug() << "Stored photon " << trackid << " weight " << weight << " pmtid " << (void*)pmtid << " wavelength(nm) " << wavelength/CLHEP::nm << endreq;
+    508     return true;
+    509 }
+    ...
+    ...     pmt_id -> sdid -> m_hc[sdid] (cache) -> hc
+    ...
+    ...     Hmm, can externally invoke to populate the standard HCs, 
+    ...
+    ...             sdpmt->StoreHit(sphit,trackid)
+    ...
+    ...     * How exactly do pmtid get attached to detector elements ?
+    ...     * Also need transform matrix for local conversion ?
+    ...
+    ...       * CPU side 
+    ...
+    ...
+    ...
+    511 void DsPmtSensDet::StoreHit(DayaBay::SimPmtHit* hit, int trackid)
+    512 {
+    513     int did = hit->sensDetId();
+    514     DayaBay::Detector det(did);
+    515     short int sdid = det.siteDetPackedData();
+    516 
+    517     G4DhHitCollection* hc = m_hc[sdid];
+    ...
+    537     hc->insert(new G4DhHit(hit,trackid));
+    538 }
+
+
+
+
+
     ...
     ...
     231 const DetectorElement* DsPmtSensDet::SensDetElem(const G4TouchableHistory& hist)
