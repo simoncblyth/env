@@ -1461,3 +1461,5 @@ b2c-(){      . $(env-home)/b2c/b2c.bash && b2c-env $* ; }
 rst2html-(){      . $(env-home)/doc/rst2html/rst2html.bash && rst2html-env $* ; }
 docutils-(){      . $(env-home)/doc/docutils/docutils.bash && docutils-env $* ; }
 postfix-(){      . $(env-home)/mail/postfix.bash && postfix-env $* ; }
+de-(){      . $(env-home)/nuwa/de.bash && de-env $* ; }
+

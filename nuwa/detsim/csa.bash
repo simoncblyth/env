@@ -21,6 +21,10 @@ Running
 GDB
 ----
 
+Attach debugger using::
+
+    csa-;csa-nuwarun-gdb $(pgrep -f nuwa.py)
+
 * NB use single quote, and hit TAB for completion
 
 ::
@@ -152,15 +156,17 @@ csa-nuwaenv(){
 
 }
 
-
+csa-nuwarun-pid(){ echo $(pgrep -f nuwa.py) ; }
 csa-nuwarun-gdb(){
    
-   local pid=$1
+   local def=$(csa-nuwarun-pid)
+   local pid=${1:-$def}
    [ -z $pid ] && echo enter pid of nuwa.py process && return 1
    opw-
-
    gdb $(which python) $pid
 }
+
+
 
 csa-nuwarun(){
 
