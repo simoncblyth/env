@@ -1,6 +1,138 @@
 DetSim GiGa Geant4 Handoff
 ============================
 
+Identity Heist Approach is becoming clearer
+----------------------------------------------
+
+#. perform a recursive Geant4 traverse, for every step of the traverse
+
+   * form G4TouchableHistory
+   * look for any associated DetectorElement, and any PmtId
+   * compose identifiers that match the COLLADA identifies
+
+   * maybe improve the COLLADA identifiers, to reflect the heirarchy  
+     and avoid the daenode kludge uniqing  
+
+IDMAP observations Experience
+--------------------------------
+
+*  http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/23245
+
+#. entire PMT assembly labelled under the DetectorElement PMTID, not just Cathode
+#. manual check of pvnames/index of 10 random volumes matches against daeserver and `g4daeview.py`
+
+   * http://belle7.nuu.edu.tw/dae/tree/5981.html 
+
+
+`/data1/env/local/env/geant4/geometry/export/DayaBay_MX_20140916-2050/g4_00.idmap`::
+
+    # GiGaRunActionExport::WriteIdMap fields: index,pmtid,pmtid(hex),pvname  npv:12230
+    0 0 0  Universe
+    1 0 0  /dd/Structure/Sites/db-rock
+    2 0 0  /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop
+    3 0 0  /dd/Geometry/Sites/lvNearHallTop#pvNearTopCover
+    4 0 0  /dd/Geometry/Sites/lvNearHallTop#pvNearTeleRpc#pvNearTeleRpc:1
+    5 0 0  /dd/Geometry/RPC/lvRPCMod#pvRPCFoam
+    6 0 0  /dd/Geometry/RPC/lvRPCFoam#pvBarCham14Array#pvBarCham14ArrayOne:1#pvBarCham14Unit
+    7 0 0  /dd/Geometry/RPC/lvRPCBarCham14#pvRPCGasgap14
+    8 0 0  /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:1#pvStrip14Unit
+    9 0 0  /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:2#pvStrip14Unit
+    10 0 0  /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:3#pvStrip14Unit
+    ...
+    3192 0 0  /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:5#IavTopRibRot
+    3193 0 0  /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:6#IavTopRibRot
+    3194 0 0  /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:7#IavTopRibRot
+    3195 0 0  /dd/Geometry/AD/lvOAV#pvOcrGdsLsoInOav
+    3196 0 0  /dd/Geometry/AdDetails/lvOcrGdsLsoInOav#pvOcrGdsTfbInOav
+    3197 0 0  /dd/Geometry/AdDetails/lvOcrGdsTfbInOav#pvOcrGdsInOav
+    3198 0 0  /dd/Geometry/AD/lvOAV#pvOcrCalLsoInOav
+    3199 16843009 1010101  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:1#pvAdPmtUnit#pvAdPmt
+    3200 16843009 1010101  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum
+    3201 16843009 1010101  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode
+    3202 16843009 1010101  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiBottom
+    3203 16843009 1010101  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiDynode
+    3204 0 0  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:1#pvAdPmtUnit#pvAdPmtCollar
+    3205 16843010 1010102  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:2#pvAdPmtUnit#pvAdPmt
+    3206 16843010 1010102  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum
+    3207 16843010 1010102  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode
+    3208 16843010 1010102  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiBottom
+    3209 16843010 1010102  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiDynode
+    3210 0 0  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:2#pvAdPmtUnit#pvAdPmtCollar
+    3211 16843011 1010103  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:3#pvAdPmtUnit#pvAdPmt
+    3212 16843011 1010103  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum
+    3213 16843011 1010103  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode
+    3214 16843011 1010103  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiBottom
+    3215 16843011 1010103  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiDynode
+    3216 0 0  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:3#pvAdPmtUnit#pvAdPmtCollar
+    ...
+    4338 0 0  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:8#pvAdPmtInRing:22#pvAdPmtUnit#pvAdPmtCollar
+    4339 16844823 1010817  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:8#pvAdPmtInRing:23#pvAdPmtUnit#pvAdPmt
+    4340 16844823 1010817  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum
+    4341 16844823 1010817  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode
+    4342 16844823 1010817  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiBottom
+    4343 16844823 1010817  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiDynode
+    4344 0 0  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:8#pvAdPmtInRing:23#pvAdPmtUnit#pvAdPmtCollar
+    4345 16844824 1010818  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:8#pvAdPmtInRing:24#pvAdPmtUnit#pvAdPmt
+    4346 16844824 1010818  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum
+    4347 16844824 1010818  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode
+    4348 16844824 1010818  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiBottom
+    4349 16844824 1010818  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiDynode
+    4350 0 0  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:8#pvAdPmtInRing:24#pvAdPmtUnit#pvAdPmtCollar
+    4351 16842753 1010001  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAd2inPmt:1#pvHeadonPmtAssy
+    4352 16842753 1010001  /dd/Geometry/PMT/lvHeadonPmtAssy#pvHeadonPmtGlass
+    4353 16842753 1010001  /dd/Geometry/PMT/lvHeadonPmtGlass#pvHeadonPmtVacuum
+    4354 16842753 1010001  /dd/Geometry/PMT/lvHeadonPmtVacuum#pvHeadonPmtCathode
+    4355 16842753 1010001  /dd/Geometry/PMT/lvHeadonPmtVacuum#pvHeadonPmtBehindCathode
+    4356 16842753 1010001  /dd/Geometry/PMT/lvHeadonPmtAssy#pvHeadonPmtBase
+    4357 0 0  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAd2inPmt:1#pvHeadonPmtMount
+    4358 16842754 1010002  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAd2inPmt:2#pvHeadonPmtAssy
+    4359 16842754 1010002  /dd/Geometry/PMT/lvHeadonPmtAssy#pvHeadonPmtGlass
+    4360 16842754 1010002  /dd/Geometry/PMT/lvHeadonPmtGlass#pvHeadonPmtVacuum
+    4361 16842754 1010002  /dd/Geometry/PMT/lvHeadonPmtVacuum#pvHeadonPmtCathode
+    4362 16842754 1010002  /dd/Geometry/PMT/lvHeadonPmtVacuum#pvHeadonPmtBehindCathode
+    4363 16842754 1010002  /dd/Geometry/PMT/lvHeadonPmtAssy#pvHeadonPmtBase
+    4364 0 0  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAd2inPmt:2#pvHeadonPmtMount
+    4365 16842755 1010003  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAd2inPmt:3#pvHeadonPmtAssy
+    4366 16842755 1010003  /dd/Geometry/PMT/lvHeadonPmtAssy#pvHeadonPmtGlass
+    4367 16842755 1010003  /dd/Geometry/PMT/lvHeadonPmtGlass#pvHeadonPmtVacuum
+    4368 16842755 1010003  /dd/Geometry/PMT/lvHeadonPmtVacuum#pvHeadonPmtCathode
+    4369 16842755 1010003  /dd/Geometry/PMT/lvHeadonPmtVacuum#pvHeadonPmtBehindCathode
+    4370 16842755 1010003  /dd/Geometry/PMT/lvHeadonPmtAssy#pvHeadonPmtBase
+    ...
+    11405 17172487 1060807  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:7#pvVetoPmtUnit#pvPmtMount#pvMountRib3s#pvMountRib3s:1#pvMountRib3unit
+    11406 17172487 1060807  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:7#pvVetoPmtUnit#pvPmtMount#pvMountRib3s#pvMountRib3s:2#pvMountRib3unit
+    11407 17172487 1060807  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:7#pvVetoPmtUnit#pvPmtMount#pvMountRib3s#pvMountRib3s:3#pvMountRib3unit
+    11408 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtHemi
+    11409 17172488 1060808  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum
+    11410 17172488 1060808  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode
+    11411 17172488 1060808  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiBottom
+    11412 17172488 1060808  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiDynode
+    11413 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvPmtTopRing
+    11414 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvPmtBaseRing
+    11415 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvMountRib1s#pvMountRib1s:1#pvMountRib1unit
+    11416 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvMountRib1s#pvMountRib1s:2#pvMountRib1unit
+    11417 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvMountRib1s#pvMountRib1s:3#pvMountRib1unit
+    11418 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvPmtTee
+    11419 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvMountRib2s#pvMountRib2s:1#pvMountRib2unit
+    11420 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvMountRib2s#pvMountRib2s:2#pvMountRib2unit
+    11421 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvMountRib2s#pvMountRib2s:3#pvMountRib2unit
+    11422 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvMountRib3s#pvMountRib3s:1#pvMountRib3unit
+    11423 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvMountRib3s#pvMountRib3s:2#pvMountRib3unit
+    11424 17172488 1060808  /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFaceout#pvNearOutFaceoutWall8#pvNearOutFaceoutWall8:8#pvVetoPmtUnit#pvPmtMount#pvMountRib3s#pvMountRib3s:3#pvMountRib3unit
+    11425 0 0  /dd/Geometry/Pool/lvNearPoolOWS#pvNearADE1OWSLegs#pvLegInOWS:1#pvLegInOWSUnit
+    11426 0 0  /dd/Geometry/Pool/lvNearPoolOWS#pvNearADE1OWSLegs#pvLegInOWS:2#pvLegInOWSUnit
+    11427 0 0  /dd/Geometry/Pool/lvNearPoolOWS#pvNearADE1OWSLegs#pvLegInOWS:3#pvLegInOWSUnit
+    ...
+    12224 0 0  /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab4
+    12225 0 0  /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab5
+    12226 0 0  /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab6
+    12227 0 0  /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab7
+    12228 0 0  /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab8
+    12229 0 0  /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab9
+
+
+
+
 External Propagation Approaches
 --------------------------------
 
@@ -794,6 +926,7 @@ Lists DetectorElement names with UserParameter called `PmtId`
 
 * `NuWa-trunk/dybgaudi/Detector/XmlDetDescChecks/python/XmlDetDescChecks/dedump.py`
 * `NuWa-trunk/dybgaudi/Detector/XmlDetDescChecks/src/DeDumpAlg.cc`
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Detector/XmlDetDescChecks/src/DeDumpAlg.cc
 
 * all DE names inhabit `/dd/Structure/` 
 

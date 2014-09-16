@@ -13,4 +13,7 @@ detsim
    detsim_g4scintillation
    detsim_dsg4scintillation
    detsim_dsconsoptical
+   geant4_touchable
+
+
 

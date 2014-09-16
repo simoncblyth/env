@@ -10,7 +10,6 @@ Overview
    * expect GPU doable without extreme efforts
    * PMT identification is the most involved aspect 
 
-
 Questions
 ~~~~~~~~~~
 
@@ -24,6 +23,10 @@ Questions
 * where are SensDet identified ? 
 
   * DetDesc **sensdet** attribute on **logvol** elements, just yields two SD: `DsRpcSensDet` and `DsPmtSensDet`  
+
+* GiGa takes the detdesc geometry and converts into Geant4, 
+  where exactly does that happen
+
 
 
 
@@ -70,11 +73,8 @@ DsPmtSensDet::Initialize create HC for each (site,det) for each event
     228 }
 
 
-
-
-
-SensDet Identification
-------------------------
+DetDesc SensDet Identification
+--------------------------------
 ::
 
     [blyth@belle7 DDDB]$ find . -name '*.xml' -exec grep -H Sens {} \;
@@ -161,6 +161,150 @@ Translation of detdesc into Geant4
      60   if( 0 == m_solid )
      61     { throw LogVolumeException("LVolume: ISolid* points to NULL ") ; }
      62 }
+
+
+Where is top volume setup ?
+-----------------------------
+
+Annoyingly difficult to searchable API
+
+`NuWa-trunk/lhcb/Sim/GiGa/src/component/GiGa.h`::
+
+    215   /** set new world wolume 
+    216    *               implementation of IGiGaSetUpSvc abstract interface 
+    217    *
+    218    *  NB: errors are reported through exception thrown 
+    219    * 
+    220    *  @param  world  pointer to  new world volume   
+    221    *  @return self-reference ot IGiGaSetUpSvc interface 
+    222    */
+    223   virtual IGiGaSetUpSvc&
+    224   operator << ( G4VPhysicalVolume             * world         ) ;
+
+
+`NuWa-trunk/lhcb/Sim/GiGa/GiGa/IGiGaSetUpSvc.h`::
+
+     49 class IGiGaSetUpSvc : virtual public IService
+     50 {
+     ..
+     75 
+     76   /** set new world wolume 
+     77    * 
+     78    *  @param  world  pointer to  new world volume   
+     79    *  @return self-reference ot IGiGaSetUpSvc interface 
+     80    */
+     81   virtual IGiGaSetUpSvc& operator << ( G4VPhysicalVolume             * ) = 0 ;
+      
+
+`NuWa-trunk/lhcb/Sim/GiGa/src/component/GiGaIGiGaSetUpSvc.cpp`::
+
+    085 // ============================================================================
+    086 /** set new world wolume 
+    087  *               implementation of IGiGaSetUpSvc abstract interface 
+    088  *
+    089  *  NB: errors are reported through exception thrown 
+    090  * 
+    091  *  @param  obj    pointer to  new world volume   
+    092  *  @return self-reference ot IGiGaSetUpSvc interface 
+    093  */
+    094 // ============================================================================
+    095 IGiGaSetUpSvc& GiGa::operator << ( G4VPhysicalVolume             * obj )
+    096 {
+    097   try
+    098     {
+    099       StatusCode sc = StatusCode::SUCCESS;
+    100       if( 0 == runMgr  () ) { sc = retrieveRunManager()       ; }
+    101       if( sc.isFailure () ) { Exception("Unable to create IGiGaRunManager!");}
+    102       sc = runMgr()->declare( obj ) ;
+    103       if( sc.isFailure () ) { Exception("Unable to declare" +
+    104                                         GiGaUtil::ObjTypeName( obj ) ); }
+    105     }
+    106   catch ( const GaudiException& Excpt )
+    107     { Exception( "operator<<(G4VPhysicalVolume*)" , Excpt ) ; }
+    108   catch ( const std::exception& Excpt )
+    109     { Exception( "operator<<(G4VPhysicalVolume*)" , Excpt ) ; }
+    110   catch(...)
+    111     { Exception( "operator<<(G4VPhysicalVolume*)"         ) ; }
+    112   ///
+    113   return *this;
+    114 };
+
+
+GiGaRunManager also handles geometry too
+-------------------------------------------
+
+Good for understanding GiGa action and source of breakpoints
+
+* `NuWa-trunk/lhcb/Sim/GiGa/src/component/GiGaRunManager.cpp` 
+
+
+
+`NuWa-trunk/lhcb/Sim/GiGa/src/component/GiGaRunManager.h`::
+
+    047 class GiGaRunManager: public  virtual IGiGaRunManager  ,
+    048                       public  virtual  GiGaBase        ,
+    049                       private virtual G4RunManager
+    050 {
+    ...
+    075   /** declare the top level ("world") physical volume 
+    076    *  @see IGiGaRunManager 
+    077    *  @param obj pointer  to top level ("world") physical volume  
+    078    *  @return  status code 
+    079    */
+    080   virtual StatusCode declare( G4VPhysicalVolume              * obj ) ;
+    081 
+    ...
+    269 private:
+    270 
+    271   bool                       m_krn_st          ;
+    272   bool                       m_run_st          ;
+    273   bool                       m_pre_st          ;
+    274   bool                       m_pro_st          ;
+    275   bool                       m_uis_st          ;
+    276 
+    277   G4VPhysicalVolume*         m_rootGeo         ;
+    278   IGiGaGeoSrc*               m_geoSrc          ;
+    279   G4UIsession*               m_g4UIsession     ;
+    280 
+    281   bool                       m_delDetConstr    ;
+    282   bool                       m_delPrimGen      ;
+    283   bool                       m_delPhysList     ;
+
+
+`NuWa-trunk/lhcb/Sim/GiGa/src/component/GiGaRunManagerG4RM.cpp`::
+
+     57 void GiGaRunManager::InitializeGeometry()
+     58 {
+     59   /// get root of geometry tree 
+     60   G4VPhysicalVolume* root = 0;
+     61   if      ( 0 != m_rootGeo                  )
+     62     {
+     63       Print(" Already converted geometry will be used!");
+     64       root = m_rootGeo ;
+     65     }
+     66   else if ( 0 != geoSrc()                  )
+     67     {
+     68       Print(" Geometry will be extracted from " +
+     69             GiGaUtil::ObjTypeName( geoSrc() ) );
+     70       root = geoSrc()->world ();
+     71     }
+     72   else if ( 0 != G4RunManager::userDetector )
+     73     {
+     74       Print(" Geometry will be constructed using " +
+     75             GiGaUtil::ObjTypeName( G4RunManager::userDetector ) );
+     76       root = G4RunManager::userDetector->Construct() ;
+     77     }
+     78   else
+     79     { Error(" There are NO known sources of Geometry information!"); }
+     80   //
+     81   if( 0 == root )
+     82     { Exception("InitializeGeometry: NO 'geometry sources' abvailable");}
+     83   ///  
+     84   DefineWorldVolume( root ) ;
+     85   G4RunManager::geometryInitialized = true;
+     86 };
+
+
 
 
 
@@ -313,9 +457,11 @@ Generalisable Identifier Heist ?
 ---------------------------------
 
 * hmm, maybe can do something generalisable for SD by grabbing identifiers from Geant4 
-  and persisting them into COLLADA export ?
+  and persisting them into COLLADA export ?  
+  Are the identifiers there to be grabbed though ?
 
-  * are the identifiers there to be grabbed though ? 
+  * Nope, the PMTID live as UserParam associated with DETDESC DetectorElement, it 
+    seems these param are not propagated down into the Geant4 representation  
 
 
 `source/geometry/management/include/G4LogicalVolume.hh`::
@@ -324,6 +470,409 @@ Generalisable Identifier Heist ?
     282       // Gets current SensitiveDetector.
     283     inline void SetSensitiveDetector(G4VSensitiveDetector *pSDetector);
     284       // Sets SensitiveDetector (can be 0).
+
+    Dayabay has only two SensDet for Pmt and Rpc 
+
+
+How to persist the PMTID in COLLADA
+--------------------------------------
+
+#. hmm adopt something like `G4GDMLAuxMapType` for G4DAE Export ? 
+
+`geant4.10.00.p01/examples/extended/persistency/gdml/G04/gdml_det.cc`::
+
+
+    103    // Example how to retrieve Auxiliary Information for sensitive detector
+    104    //
+    105    const G4GDMLAuxMapType* auxmap = parser.GetAuxMap();
+    ...
+    124    // The same as above, but now we are looking for
+    125    // sensitive detectors setting them for the volumes
+    126 
+    127    for(G4GDMLAuxMapType::const_iterator iter=auxmap->begin();
+    128        iter!=auxmap->end(); iter++)
+    129    {
+    130      G4cout << "Volume " << ((*iter).first)->GetName()
+    131             << " has the following list of auxiliary information: "
+    132             << G4endl << G4endl;
+    133      for (G4GDMLAuxListType::const_iterator vit=(*iter).second.begin();
+    134           vit!=(*iter).second.end();vit++)
+    135      {
+    136        if ((*vit).type=="SensDet")
+    137        {
+    138          G4cout << "Attaching sensitive detector " << (*vit).value
+    139                 << " to volume " << ((*iter).first)->GetName()
+    140                 <<  G4endl << G4endl;
+       
+
+
+GiGa Manual
+------------
+
+* http://lhcb-comp.web.cern.ch/lhcb-comp/Frameworks/Gaudi/Documents/GiGa.pdf
+
+
+Section 3.2.3 Conversion of Geometry Objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Geometry description in DETDESC package is made through 3 types of identifiable
+objects `LVolume`, `DetectorElement` and `Surface`. 
+The simplified class diagrams for 3 corresponding Converter classes `GiGaLVolumeCnv`, `GiGaDetectorElementCnv`
+and `GiGaSurfaceCnv` are shown on figure 3.2. Call-backs from geometry Converters
+to `IGiGaGeomCnvSvc` interface are explicitly indicated.
+
+These classes are converted into GEANT4 classes `G4LogicalVolume`, `G4PVPlacement`,
+`G4LogicalSkinSurface` and `G4LogicalBorderSurface`.
+
+naming convention
+^^^^^^^^^^^^^^^^^^^^
+
+Logical volume (of type `G4LogicalVolume`) in GEANT4 get its name from `name()` 
+method from `ILVolume` interface, which is the full address of 
+logical volume in transient store, e.g. `/dd/Geometry/LHCb/lvLHCb`.
+
+Situation with naming of physical volumes (of type `G4PVPlacement`) is a little
+bit more complicated. Physical volume gets the name of the form 
+`<MotherLVName>#PVname` 
+if it is created during conversion of its mother logical volume 
+or `FullPathForDetectorElement` if it corresponds to detector element, 
+which is converted in a separate way without conversion of higher
+level detector elements.
+
+Surfaces (of types `G4LogicalSkinSurface` and `G4LogicalBorderSurface`) get their
+name from `fullpath()` method of Surface class, e.g. `/dd/Geometry/Rich1/MirrorSurface`. 
+The corresponding `G4OpticalSurface` class gets the same name.
+
+
+GiGa geometry configuration
+----------------------------
+
+The global magnetic field is the property of GiGaGeomCnvSvc and could be configured through e.g job options technique:
+
+::
+
+    /// ...
+    /// declare constant magnetic field as global field 
+    GiGaGeomCnvSvc.WorldMagneticField = "GiGaMagFieldUniform/Uniform"; /// confiugure magnetic field
+    Uniform.Bx = 0.0;
+    Uniform.By = 10.0;
+    Uniform.Bz = 10.0;
+    /// ...
+
+
+Top Down Trace from nuwa.py `-G/--detector`
+---------------------------------------------
+
+::
+
+    [blyth@belle7 DybPython]$ grep detector *.py
+    cmdline.py:    parser.add_argument("-G", "--detector",default= "",
+    Control.py:        if self.opts.detector:
+    Control.py:            XmlDetDesc.Configure(self.opts.detector)
+    Control.py:                + self.opts.detector + " is loaded."
+    DybPythonAlg.py:        detectorId = inputHeaders[0].context().GetDetId()
+    DybPythonAlg.py:            # Extend time/detector range if needed
+    DybPythonAlg.py:            if detectorId != DetectorId.kAll and detectorId != inputDetId:
+    DybPythonAlg.py:                detectorId = DetectorId.kAll
+    gaudiutil.py:            dec = "%2d %2d %2d %2d %d" % (pp.site(), pp.detectorId(), pp.inwardFacing(), pp.wallNumber(), pp.wallSpot())
+    [blyth@belle7 DybPython]$ 
+
+
+`NuWa-trunk/dybgaudi/Detector/XmlDetDesc/python/XmlDetDesc/__init__.py`::
+
+     36         from XmlTools.XmlToolsConf import XmlCnvSvc, XmlParserSvc
+     37         xmlcnv = XmlCnvSvc()
+     38         xmlcnv.AllowGenericConversion = True
+     39         xmlparser = XmlParserSvc()
+     40 
+     41         from Gaudi.Configuration import ApplicationMgr, DetectorPersistencySvc, DetectorDataSvc
+     42 
+     43         app = ApplicationMgr()
+     44         app.ExtSvc += [ xmlcnv , xmlparser ]
+     45 
+     46         detper = DetectorPersistencySvc()
+     47         detper.CnvServices.append(xmlcnv)
+     48 
+     49         detdat = DetectorDataSvc()
+     50         detdat.UsePersistency = True
+     51         detdat.DetDbRootName  = "dd"
+     52         detdat.DetStorageType = 7
+     53         detdat.DetDbLocation  = xmlfile
+
+
+
+DetectorDataSvc
+----------------
+
+::
+
+    [blyth@belle7 lhcb]$ find . -name '*.cpp' -exec grep -l DetectorDataSvc {} \;
+    ./Tools/XmlTools/src/component/XmlParserSvc.cpp
+    ./Sim/GiGaCnv/src/Lib/GiGaCnvBase.cpp
+    ./Sim/GiGaCnv/src/Lib/GiGaCnvSvcBase.cpp
+    ./Sim/GiGaCnv/src/component/GiGaGeo.cpp
+    ./Det/DetDescSvc/src/EventClockSvc.cpp
+    ./Det/DetDescSvc/src/PreloadGeometryTool.cpp
+    ./Det/DetDescSvc/src/UpdateManagerSvc.cpp
+    ./Det/DetDescSvc/src/TransportSvc.cpp
+    ./Det/DetDescSvc/src/DetElemFinder.cpp
+    ./Det/DetDesc/src/Lib/Services.cpp
+    ./Vis/OnXSvc/src/OnXSvc.cpp
+
+
+    [blyth@belle7 lhcb]$ cd ../gaudi
+    [blyth@belle7 gaudi]$ find . -name '*.cpp' -exec grep -l DetectorDataSvc {} \;
+    ./GaudiSvc/src/ApplicationMgr/ApplicationMgr.cpp
+    ./GaudiSvc/src/DetectorDataSvc/DetDataSvc.cpp
+    ./GaudiAlg/src/lib/GaudiTool.cpp
+    ./GaudiKernel/src/Lib/Algorithm.cpp
+    ./GaudiExamples/src/Properties/PropertyAlg.cpp
+
+
+`NuWa-trunk/gaudi/GaudiSvc/src/DetectorDataSvc/DetDataSvc.cpp` looks to be lazy::
+
+    207 /// Standard Constructor
+    208 DetDataSvc::DetDataSvc(const std::string& name,ISvcLocator* svc) :
+    209   DataSvc(name,svc), m_eventTime(0)  {
+    210   declareProperty("DetStorageType",  m_detStorageType = XML_StorageType );
+    211   declareProperty("DetDbLocation",   m_detDbLocation  = "empty" );
+    212   declareProperty("DetDbRootName",   m_detDbRootName  = "dd" );
+    213   declareProperty("UsePersistency",  m_usePersistency = false );
+    214   declareProperty("PersistencySvc",  m_persistencySvcName = "DetectorPersistencySvc" );
+    215   m_rootName = "/dd";
+    216   m_rootCLID = CLID_Catalog;
+    217   m_addrCreator = 0;
+    218 }
+
+
+* https://lhcb-comp.web.cern.ch/lhcb-comp/Frameworks/Gaudi/Gaudi_v9/GUG/Output/GUG_DetDescription.html
+
+
+GiGaGeo : hunting control of DetDesc to Geant4 conversion
+-----------------------------------------------------------
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/python/DetSim/Default.py`::
+
+     75         from GiGa.GiGaConf import GiGa
+     76         giga = GiGa()
+     77         giga.PhysicsList = physics_list
+     78 
+     79         # Start empty step action sequence to hold historian/unobserver
+     80         from GaussTools.GaussToolsConf import GiGaStepActionSequence
+     81         sa = GiGaStepActionSequence('GiGa.GiGaStepActionSequence')
+     82         giga.SteppingAction = sa
+     83 
+     84         self.giga = giga
+     85 
+     86         # Tell GiGa the size of the world.
+     87         # Set default world material to be vacuum to speed propagation of
+     88         # particles in regions of little interest.
+     89         from GiGaCnv.GiGaCnvConf import GiGaGeo
+     90         giga_geom = GiGaGeo()
+     91         giga_geom.XsizeOfWorldVolume = 2.4*units.kilometer
+     92         giga_geom.YsizeOfWorldVolume = 2.4*units.kilometer
+     93         giga_geom.ZsizeOfWorldVolume = 2.4*units.kilometer
+     94         giga_geom.WorldMaterial = "/dd/Materials/Vacuum"
+     95         self.gigageo = giga_geom
+     96 
+     97         # Set up for telling GiGa what geometry to use, but don't
+     98         # actually set that.
+     ..
+     ..         set below GiGaInputStream section creating self.giga_items 
+     ..
+     13
+     14         # Make sequencer alg to run all this stuff as subalgs
+     15         from GaudiAlg.GaudiAlgConf import GaudiSequencer
+     16         giga_sequence = GaudiSequencer()
+     17         giga_sequence.Members = [ self.giga_items ]
+     18         self.giga_sequence=giga_sequence
+     19         if use_push_algs:
+     20             # DetSim's algs
+     21             from DetSim.DetSimConf import DsPushKine, DsPullEvent
+     22             self.detsim_push_kine = DsPushKine()
+     23             self.detsim_pull_event = DsPullEvent()
+     24             giga_sequence.Members += [self.detsim_push_kine,
+     25                                       self.detsim_pull_event]
+     26             pass
+     27 
+     28         if not use_sim_subseq:
+     29             from Gaudi.Configuration import ApplicationMgr
+     30             theApp = ApplicationMgr()
+     31             theApp.TopAlg.append(giga_sequence)
+
+
+
+GiGaInputStream
+-------------------
+
+config
+~~~~~~~~~
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/python/DetSim/Default.py`::
+
+     99         from GaussTools.GaussToolsConf import GiGaInputStream
+     00         giga_items = GiGaInputStream()
+     01         giga_items.ExecuteOnce = True
+     02         giga_items.ConversionSvcName = "GiGaGeo"
+     03         giga_items.DataProviderSvcName = "DetectorDataSvc"
+     04         giga_items.StreamItems = [ ]
+     05         site = site.lower()
+     06         if "far" in site:
+     07             giga_items.StreamItems += self.giga_far_items
+     08         if "dayabay" in site:
+     09             giga_items.StreamItems += self.giga_dayabay_items
+     10         if "lingao" in site:
+     11             giga_items.StreamItems += self.giga_lingao_items
+     12         self.giga_items = giga_items
+
+ 
+GiGaInputStream::execute
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Load objects (top level `/dd/Structure` paths) and apply GiGaGeo conversion 
+
+#. add handful of top level `/dd/Structure` path for the simulated site to PreLoad list
+#. DataSvc preload from DetDesc XML
+#. run the `LoadObject` for each
+#. `m_cnvSvc->createRep`
+ 
+`NuWa-trunk/lhcb/Sim/GaussTools/src/Components/GiGaInputStream.cpp`::
+
+     47 StatusCode GiGaInputStream::execute()
+     48 {
+     49   ///
+     50   if( !m_execute ) { return StatusCode::SUCCESS; }
+     51   ///
+     52   MsgStream log( msgSvc() , name() );
+     53   log << MSG::VERBOSE << " execute:: start" << endreq;
+     54   ///
+     55   if( m_executeOnce      ) { m_execute  = false; }
+     56   ///
+     57   /// preload data 
+     58   Items::const_iterator item = m_items.begin() ;
+     59   while( item != m_items.end() )
+     60     { m_dataSvc->addPreLoadItem( *item++ ); }
+     61   m_dataSvc->preLoad();
+     62   ///
+     63   StatusCode status = StatusCode::SUCCESS;
+     64   m_dataSelector.clear();
+     65   item = m_items.begin() ;
+     66   while( item != m_items.end() && status.isSuccess() )
+     67     { status = LoadObject( *item++, &m_dataSelector) ; }
+     68   ///  
+     69   if( status.isFailure() )
+     70     { return Error("Execute::Could not load Object="+item->path(), status); }
+     71   /// create the representation 
+     72   for( IDataSelector::iterator obj1 = m_dataSelector.begin() ;
+     73        m_dataSelector.end() != obj1 ; ++obj1 )
+     74     {
+     75       IOpaqueAddress* Address = 0 ;
+     76       status = m_cnvSvc->createRep( *obj1 , Address ) ;
+     77       if( status.isFailure() )
+     78         { return Error(" Error in creation of representation!"); }
+     79       // update the registry
+     80       (*obj1)->registry()->setAddress( Address );
+     81     }
+     82   /// create the references 
+     83   for( IDataSelector::iterator obj2 = m_dataSelector.begin() ;
+     84        m_dataSelector.end() != obj2 ; ++obj2 )
+     85     {
+     86       status = m_cnvSvc->
+     87         fillRepRefs( (*obj2)->registry()->address(),  *obj2 ) ;
+     88       if( status.isFailure() )
+     89         { return Error(" Error in creation of references!"); }
+     90     }
+     91   ///
+     92   if( status.isFailure() )
+     93     { return Error("Execute::Could not convert the IDataSelector*", status);}
+     94   ///
+     95   m_dataSelector.clear();
+     96   ///
+     97   log << MSG::VERBOSE << "Execute::end" << endreq;
+     98   ///
+     99   return status;
+     00   ///
+     01 };
+
+
+
+`NuWa-trunk/lhcb/Sim/GiGaCnv/src/component/GiGaGeo.h`::
+
+     29 /** @class GiGaGeo GiGaGeo.h
+     30  *  
+     31  *  Conversion service for transforming Gaudi detector 
+     32  *  and geometry description into Geant4 geometry and 
+     33  *  detector description 
+     34  *  
+     35  *  @author  Vanya Belyaev
+     36  *  @author  Gonzalo Gracia
+     37  *  @author  Sajan Easo, Gloria Corti
+     38  *  @date    2000-08-07, Last modified: 2007-07-10
+     39  */
+     40 
+     41 class GiGaGeo : public virtual  IGiGaGeomCnvSvc,
+     42                 public           GiGaCnvSvcBase {
+     43 
+
+::
+
+    144   /** Retrieve the pointer to top-level "world" volume,
+    145    *  @see IGiGaGeo 
+    146    *  needed for Geant4 - root for the whole Geant4 geometry tree 
+    147    *  @see class IGiGaGeoSrc 
+    148    *  @return pointer to constructed(converted) geometry tree 
+    149    */
+    150   virtual G4VPhysicalVolume* world();
+
+
+
+
+`NuWa-trunk/lhcb/Sim/GiGaCnv/src/component/GiGaGeo.cpp`::
+
+     79 //=============================================================================
+     80 // Standard constructor, initializes variables
+     81 //=============================================================================
+     82 GiGaGeo::GiGaGeo( const std::string& serviceName,
+     83                   ISvcLocator* serviceLocator )
+     84   : GiGaCnvSvcBase( serviceName, serviceLocator, GiGaGeom_StorageType )
+     85   , m_worldPV( 0 )
+     86   , m_worldMagField( "" )   // check below for double properties 
+     87   , m_SDs()
+     88   , m_MFs()
+     89   , m_FMs()
+     90 {
+     91 
+     92   setNameOfDataProviderSvc("DetectorDataSvc");
+     93 
+     94   declareProperty( "WorldPhysicalVolumeName", m_worldNamePV = "Universe" );
+     95   declareProperty( "WorldLogicalVolumeName",  m_worldNameLV = "World" );
+     96   declareProperty( "WorldMaterial",   m_worldMaterial = "/dd/Materials/Air");
+     97 
+     98   declareProperty( "XsizeOfWorldVolume" , m_worldX = 50. * m );
+     99   declareProperty( "YsizeOfWorldVolume" , m_worldY = 50. * m );
+     00   declareProperty( "ZsizeOfWorldVolume" , m_worldZ = 50. * m );
+     01 
+     02   declareProperty( "GlobalSensitivity" , m_budget = "");
+     03   // Probably obsolete: need to check if WorldMagneticField can be removed
+     04   declareProperty( "WorldMagneticField", m_worldMagField );
+     05   declareProperty( "FieldManager"      , m_worldMagField );
+     06 
+     07   declareProperty( "ClearStores", m_clearStores = true );
+     08 
+     09   declareProperty ( "UseAlignment",      m_useAlignment = false ) ;
+     10   declareProperty ( "AlignAllDetectors", m_alignAll = false );
+     11   m_alignDets.clear();
+     12   declareProperty ( "AlignDetectors",    m_alignDets );
+     13 
+     14 };
+
+
+
+
+
+
+
+
 
 
 
@@ -857,6 +1406,119 @@ Hmm nothing there, killed all photons ? Might be true, but empty implementations
      73   }
      74   return i;
      75 }
+
+
+
+
+DE to PMTID
+-------------
+
+`DetectorElement*->PmtId integer` 
+
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Detector/XmlDetDescChecks/src/DeDumpAlg.cc
+
+
+COLLADA ID
+-----------
+
+* COLLADA ID can be reproduced by 
+
+  * full Geant4 geometry traverse accessing logical/physical names 
+    and duplicating the `daenode.py` de-duping technique and encoding 
+    for XML identifier 
+  * this will by necessity visit all the PV in the traverse order 
+
+
+
+COLLADA id to DetectorElement*
+-----------------------------------------------------------------------
+
+
+`NuWa-trunk/dybgaudi/Simulation/G4DataHelpers/src/components/TH2DE.h`::
+
+     19 class TH2DE : public GaudiTool, virtual ITouchableToDetectorElement
+     20 {
+     21 public:
+     22     TH2DE(const std::string& type,
+     23          const std::string& name,
+     24          const IInterface* parent);
+     25     virtual ~TH2DE();
+     26 
+     27     virtual StatusCode GetBestDetectorElement(const G4TouchableHistory* inHistory,
+     28                                               const std::vector<std::string>& /*ignored*/,
+     29                                               const IDetectorElement* &outElement,
+     30                                               int& outCompatibility);
+     31 
+     32     virtual StatusCode G4VolumeToDetDesc(const G4VPhysicalVolume* inVol,
+     33                                          const IPVolume* &outVol);
+     34 
+     35     virtual StatusCode ClearCache();
+
+
+
+`NuWa-trunk/Simulation/G4DataHelpers/src/components/TouchableToDetectorElementFast.h`::
+
+
+     13 class TouchableToDetectorElementFast : public GaudiTool, virtual ITouchableToDetectorElement
+     14 {
+     15   public:
+     16   TouchableToDetectorElementFast(const std::string& type,
+     17                              const std::string& name,
+     18                             const IInterface* parent);
+     19   virtual ~TouchableToDetectorElementFast() {};
+     20 
+     21   /// Do the conversion.
+     22   virtual StatusCode GetBestDetectorElement(
+     23                           const G4TouchableHistory* inHistory,  // The current particle location
+     24                           const std::vector<std::string>& inPath,// Name(s) of specific detElements, or paths to be searched
+     25                           const IDetectorElement* &outElement,  // output: The best element (may be zero!) 
+     26                           int& outCompatibility );              // output: the goodness of the match (lower is better, <=0 means no match.)
+     27 
+     28   /// Utility to do a simpler conversion: find the IPVolume from a G4PhysicalVolume.
+     29   virtual StatusCode G4VolumeToDetDesc( const G4VPhysicalVolume* inVol,     ///< Input G4 volume
+     30                                         const IPVolume* &outVol             ///< Output DetDesc volume
+     31                                        );
+     32 
+     33   /// Clear caches in case of geometry change.
+     34  virtual StatusCode ClearCache();
+     35 
+     36  private:
+     37 
+     38    // Things to store in the cache:
+     39    struct Relation {
+     40      Relation() : mLogVol(0), mPhysVol(0), mRpath(0) {};
+     41      bool isNull() const { return mLogVol==0; };
+     42      const ILVolume*          mLogVol; // The supporting volume
+     43      const IPVolume*          mPhysVol;
+     44      ILVolume::ReplicaPath    mRpath;  // Empty if it is not under the mWorldElement.
+     45    };
+     46 
+     47    // The Cache:
+     48    const IDetectorElement* mWorldElement;   // From recent calls. Changing this causes cache flushing.
+     49    std::string             mWorldElementName; // The name of above.
+     50    typedef std::map<const G4VPhysicalVolume*,Relation> G4ToRelationMap_t;
+     51    typedef std::map<const IDetectorElement* ,Relation> DetElemToRelationMap_t;
+     52    typedef std::list<const IDetectorElement*>          ElementList_t;
+     53    G4ToRelationMap_t      mG4ToRelationMap;
+     54    DetElemToRelationMap_t mDetElemToRelationMap;
+     55    std::vector<std::string>             mLastSearchPaths;
+     56    ElementList_t                        mElementList;
+     57 
+     58    StatusCode GetRelation(const G4VPhysicalVolume* inVol, Relation* &outRelation );
+     59    StatusCode GetRelation(const IDetectorElement* inElem, Relation* &outRelation );
+     60 
+     61   /// Returns -1 if incompatible, returns number that increases the better the container describes the place.
+     62   int        Compatability(const ILVolume::ReplicaPath& inPlace, const ILVolume::ReplicaPath& inContainer);
+     63 
+     64   template < class T  >
+     65   StatusCode FindObjectsInDirectory(const std::string& dirname, std::list<const T*>& outList);
+     66 
+     67 };
+
+
+
+
+    
 
 
 
