@@ -54,7 +54,8 @@ clui-alias(){
    alias vip='vi ~/.bash_profile'
    alias vips='grep BUILD_PATH ~/.bash_profile | grep -v grep '
    alias eu="env-u"
-   alias pyc="find $ENV_HOME -name '*.pyc' -exec rm -f {} \;"
+   #alias pyc="find $ENV_HOME -name '*.pyc' -exec rm -f {} \;"
+   alias pyc="clui-pyc"
 
 }
 
@@ -63,7 +64,17 @@ clui-alias(){
 #   svn --username $USER ci $*
 #}
 
-
+clui-pyc(){
+   local msg="=== $FUNCNAME : "
+   local root=$(hg root 2>/dev/null)
+   if [ "$root" == "" ]; then
+      echo $msg not in hg repo : remove pyc beneath pwd $PWD
+      root="."
+   else
+      echo $msg in hg repo : remove pyc beneath root $root
+   fi    
+   find $root -name '*.pyc' -exec rm -f {} \;
+}
 
 clui-tty(){
 

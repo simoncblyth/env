@@ -1,7 +1,6 @@
 Welcome to env
 =================
 
-.. contents:: :local:
 
 Hub Page and env notes
 ---------------------------

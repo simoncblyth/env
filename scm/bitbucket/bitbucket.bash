@@ -43,6 +43,33 @@ Upload Mercurial repo to bitbucket
 #. observations https://bitbucket.org/simoncblyth/env
 #. add a README.rst at top level in bitbucket dialect reStructuredText
 
+
+
+Overview README
+----------------
+
+* https://confluence.atlassian.com/display/BITBUCKET/Display+README+text+on+the+overview
+
+Sept 17, 2014
+~~~~~~~~~~~~~~~
+
+Notice that README.rst is no longer being rendered as html for **env** 
+but the other repos are ? 
+
+* https://bitbucket.org/simoncblyth/env
+* https://bitbucket.org/simoncblyth/tracdev
+* https://bitbucket.org/simoncblyth/heprez
+* https://bitbucket.org/simoncblyth/g4dae
+
+Note that only env tries to use contents directive::
+
+    delta:~ blyth$ grep contents  */README.rst 
+    e/README.rst:.. contents:: :local:
+    env/README.rst:.. contents:: :local:
+    delta:~ blyth$ 
+
+
+
 Trial Usage
 ------------
 
