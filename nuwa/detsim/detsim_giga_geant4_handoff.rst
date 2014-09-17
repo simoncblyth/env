@@ -13,6 +13,58 @@ Identity Heist Approach is becoming clearer
    * maybe improve the COLLADA identifiers, to reflect the heirarchy  
      and avoid the daenode kludge uniqing  
 
+
+How to get IDMAP through to Chroma ?
+--------------------------------------
+
+Approaches:
+
+#. Look for Geant4 native way to lodge channel identifiers
+   against pieces of geometry (look at GDML Aux ?)
+   then can read this in the COLLADA export
+   
+   * advantage is that exporter can then be general purpose, 
+     if Geant4 user has labelled the geometry in the prescribed manner
+
+   * there might be no way to do this in Geant4 (or older Geant4) ? 
+     Otherwise why all that DetDesc mess
+
+#. modify exporter to accept a vector of identifiers the same length as 
+   the traversal volumes, represent that in COLLADA extra node, 
+   parse in daenode
+
+   * feels a bit kludgy, but simple
+   * advantage: avoids juggling .dae and .idmap 
+
+#. shortcut: dont bother with passing into COLLADA representation, instead 
+   on loading a .dae in daenode look for companion .idmap and parse 
+   it if present 
+
+   * even more kludgy, but fastest, have to juggle .dae and .idmap
+   * advantage: no need to change exporter
+
+
+Shortcut approach
+~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+XML representation of IDMAP
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. listing all volumes, with most identifiers being zero seems a bit dumb
+   so need to use physvolrefs : makes non-trivial
+
+::
+
+    <channelid name="12345" >
+        <physvolref ref="__dd__Geometry__AdDetails__...bitofpmtreference...0xc266468"/>  
+    </channelid>
+
+
+
 IDMAP observations Experience
 --------------------------------
 

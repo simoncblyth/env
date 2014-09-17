@@ -347,6 +347,36 @@ class DAENode(object):
         cls.dump_extra_material()
 
     @classmethod
+    def idmap_parse( cls, path ):
+        """
+        Read g4_00.idmap file that maps between volume index 
+        and sensdet identity, ie the PmtId
+        """
+        if os.path.exists(path):
+            from idmap import IDMap
+            idmap = IDMap(path)
+            log.info("idmap exists %s entries %s " % (path, len(idmap)))
+        else:
+            log.warn("no idmap found at %s " % path )
+            idmap = None
+        pass
+        return idmap 
+
+    @classmethod
+    def idmaplink(cls, idmap ):
+        if idmap is None:
+            log.warn("skip idmaplink ")
+            return 
+        pass
+        log.info("linking DAENode with idmap %s identifiers " % len(idmap)) 
+        assert len(cls.registry) == len(idmap), ( len(cls.registry), len(idmap))
+        for index, node in enumerate(cls.registry):
+            node.channel_id = idmap[index]
+            #if index % 100 == 0:
+            #    print index, node.channel_id, node, node.__class__
+
+
+    @classmethod
     def parse( cls, path ):
         """
         :param path: to collada file
@@ -360,6 +390,10 @@ class DAENode(object):
         """
         path = os.path.expandvars(path)
         log.debug("DAENode.parse pycollada parse %s " % path )
+
+        base, ext = os.path.splitext(path)
+        idmap = cls.idmap_parse( base + ".idmap" ) # path with .idmap instead of .dae
+
         dae = collada.Collada(path)
         log.debug("pycollada parse completed ")
         boundgeom = list(dae.scene.objects('geometry'))
@@ -370,6 +404,8 @@ class DAENode(object):
         cls.recurse(top)
         #cls.summary()
         cls.indexlink( boundgeom )
+        cls.idmaplink( idmap )
+
         cls.parse_extra_surface( dae )
         cls.parse_extra_material( dae )
 
@@ -782,7 +818,7 @@ class DAENode(object):
         but it does not imply correctness of the cross referencing due
         to a lot of id recycling.
         """
-        log.debug("index linking DAENode with boundgeom %s volumes " % len(boundgeom)) 
+        log.info("index linking DAENode with boundgeom %s volumes " % len(boundgeom)) 
         assert len(cls.registry) == len(boundgeom), ( len(cls.registry), len(boundgeom))
         for vn,bg in zip(cls.registry,boundgeom):
             vn.boundgeom = bg
@@ -1167,6 +1203,94 @@ class VolMap(dict):
 
 
 class DAEExtra(DaeObject):
+    """
+
+    Non-distributed extra nodes are conventrated at 
+
+    ::
+
+                <library_nodes>
+                   <node.../> 
+                   <node.../> 
+                   <node.../> 
+                   <extra>
+                      <opticalsurface.../>
+                      <skinsurface.../>
+                      <bordersurface.../>
+                      <meta>
+                         <bsurf.../>   # ? debug only ?
+                      </meta>
+                   </extra>
+                </library_nodes>
+
+    ::
+
+        066057   <library_nodes>
+        066058     <node id="__dd__Geometry__PoolDetails__lvNearTopCover0xc137060">
+        066059       <instance_geometry url="#near_top_cover_box0xc23f970">
+        066060         <bind_material>
+        066061           <technique_common>
+        066062             <instance_material symbol="PPE" target="#__dd__Materials__PPE0xc12f008"/>
+        066063           </technique_common>
+        066064         </bind_material>
+        066065       </instance_geometry>
+        066066     </node>
+        ... 
+        152905     <node id="World0xc15cfc0">
+        152906       <instance_geometry url="#WorldBox0xc15cf40">
+        152907         <bind_material>
+        152908           <technique_common>
+        152909             <instance_material symbol="Vacuum" target="#__dd__Materials__Vacuum0xbf9fcc0"/>
+        152910           </technique_common>
+        152911         </bind_material>
+        152912       </instance_geometry>
+        152913       <node id="__dd__Structure__Sites__db-rock0xc15d358">
+        152914         <matrix>
+        152915                 -0.543174 -0.83962 0 -16520
+        152916 0.83962 -0.543174 0 -802110
+        152917 0 0 1 -2110
+        152918 0.0 0.0 0.0 1.0
+        152919 </matrix>
+        152920         <instance_node url="#__dd__Geometry__Sites__lvNearSiteRock0xc030350"/>
+        152921         <extra>
+        152922           <meta id="/dd/Structure/Sites/db-rock0xc15d358">
+        152923             <copyNo>1000</copyNo>
+        152924             <ModuleName></ModuleName>
+        152925           </meta>
+        152926         </extra>
+        152927       </node>
+        152928     </node>
+        152929     <extra>
+        152930       <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearPoolCoverSurface" type="0" value="1">
+        152931         <matrix coldim="2" name="REFLECTIVITY0xc04f6a8">1.5e-06 0 6.5e-06 0</matrix>
+        152932         <property name="REFLECTIVITY" ref="REFLECTIVITY0xc04f6a8"/>
+        152933         <matrix coldim="2" name="RINDEX0xc33da70">1.5e-06 0 6.5e-06 0</matrix>
+        152934         <property name="RINDEX" ref="RINDEX0xc33da70"/>
+        152935       </opticalsurface>
+        ...
+        153188       <skinsurface name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearPoolCoverSurface" surfaceproperty="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearPoolCoverSurface">
+        153189         <volumeref ref="__dd__Geometry__PoolDetails__lvNearTopCover0xc137060"/>
+        153190       </skinsurface> 
+        ...
+        153290       <bordersurface name="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceTop" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceTop">
+        153291         <physvolref ref="__dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xc266468"/>
+        153292         <physvolref ref="__dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xc4110d0"/>
+        153293       </bordersurface>
+        ...
+        153322       <meta>
+        153323         <bsurf name="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceTop" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceTop">
+        153324           <pv copyNo="1000" name="__dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap" ref="__dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xc266468"/>
+        153325           <pv copyNo="1000" name="__dd__Geometry__AdDetails__lvTopRefGap--pvTopESR" ref="__dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xc4110d0"/>
+        153326         </bsurf>
+        ...
+        153359       </meta>
+        153360     </extra>
+        153361   </library_nodes>
+
+
+
+
+    """
     def __init__(self, opticalsurface=None, skinsurface=None, bordersurface=None, skinmap=None, bordermap=None, xmlnode=None):
         self.opticalsurface = opticalsurface
         self.skinsurface = skinsurface

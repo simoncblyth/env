@@ -66,6 +66,7 @@ logging.basicConfig(level=logging.INFO)   # chroma has weird logging, forcing th
 import numpy as np
 from env.geant4.geometry.collada.daenode import DAENode
 from chroma.geometry import Mesh, Solid, Material, Surface, Geometry
+from chroma.detector import Detector
 from chroma.loader import load_bvh
 
 import matplotlib.pyplot as plt
@@ -198,13 +199,20 @@ class ColladaToChroma(object):
         log.debug("ColladaToChroma")
         self.nodecls = nodecls
         self.bvh = bvh
-        self.chroma_geometry = Geometry(detector_material=None)    # bialkali ?
+        #self.chroma_geometry = Geometry(detector_material=None)    # bialkali ?
+        self.chroma_geometry = Detector(detector_material=None)    
         pass
         self.vcount = 0
+
         self.surfaces = {}
         self.materials = {}   # dict of chroma.geometry.Material 
         self._materialmap = {}  # dict with short name keys 
         self._surfacemap = {}  # dict with short name keys 
+
+        # idmap checking 
+        self.channel_count = 0
+        self.channel_ids = set()
+
 
     def convert_opticalsurfaces(self, debug=False):
         """
@@ -499,6 +507,7 @@ class ColladaToChroma(object):
             for node in nodes:
                 self.visit(node)
         pass
+        self.dump_channel_info()
 
         log.debug("ColladaToChroma convert_geometry flattening %s " % len(self.chroma_geometry.solids))
 
@@ -659,8 +668,20 @@ class ColladaToChroma(object):
         color = 0x33ffffff 
 
         solid = Solid( mesh, material1, material2, surface, color )
-        self.chroma_geometry.add_solid( solid )
 
+
+        #
+        # hmm a PMT is comprised of several volumes all of which 
+        # have the same associated channel_id 
+        #
+        channel_id = getattr(node, 'channel_id', None) 
+        if not channel_id is None and channel_id > 0:
+            self.channel_count += 1             # nodes with associated non zero channel_id
+            self.channel_ids.add(channel_id)
+            self.chroma_geometry.add_pmt( solid, channel_id=channel_id)
+        else:
+            self.chroma_geometry.add_solid( solid )
+        pass
 
         if debug and self.vcount % 1000 == 0:
             print node.id
@@ -670,6 +691,11 @@ class ColladaToChroma(object):
             bounds =  mesh.get_bounds()
             extent = bounds[1] - bounds[0]
             print extent
+
+    def dump_channel_info(self):
+        log.info("channel_count (nodes with associated non zero channel_id) : %s " % self.channel_count )
+        log.info("channel_ids %s " % len(set(self.channel_ids)))
+        log.debug("channel_ids %s " % repr(self.channel_ids))
 
     def surface_props_table(self):
         """
@@ -718,15 +744,13 @@ def daeload(path=None, bvh=False ):
    return cc.chroma_geometry
 
 
-
-
-
     
 def main():
     logging.basicConfig(level=logging.INFO)
     np.set_printoptions(threshold=20, precision=4, suppress=True)
 
     path = sys.argv[1] if len(sys.argv) > 1 else None
+
     DAENode.init(path)
 
     cc = ColladaToChroma(DAENode, bvh=False )  

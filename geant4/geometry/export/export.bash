@@ -40,6 +40,45 @@ Grab with::
    export-get 
 
 
+Administrator: Placing Exports
+-----------------------------------
+
+Formerly kept in cms02 apache htdocs::
+
+    [blyth@cms02 env]$ ll /data/env/system/apache/httpd-2.0.64/htdocs/env/geant4/geometry/export/
+    total 40
+    drwxr-xr-x  2 blyth blyth 4096 Apr 14 12:51 Lingao_VGDX_20140414-1247
+    drwxr-xr-x  2 blyth blyth 4096 Apr 14 12:59 Far_VGDX_20140414-1256
+    drwxr-xr-x  2 blyth blyth 4096 Apr 14 13:04 DayaBay_VGDX_20140414-1300
+
+    [blyth@cms02 export]$ du -hs * 
+    6.9M    DayaBay_VGDX_20140414-1300
+    8.6M    Far_VGDX_20140414-1256
+    6.9M    Lingao_VGDX_20140414-1247
+
+
+#. env-htdocs-rsync assuming creation into htdocs. Export machinery predates that.
+#. new approach, need to push to bitbucket from /Users/blyth/simoncblyth.bitbucket.org/env/geant4/geometry/export/
+   in order to appear http://simoncblyth.bitbucket.org/env/geant4/geometry/
+
+   * hmm, bitbucket does not provide automatic directories, 
+ 
+     * generate some html OR base on RST and include in notes ?
+
+
+::
+
+    delta:geometry blyth$ pwd
+    /Users/blyth/simoncblyth.bitbucket.org/env/geant4/geometry
+    delta:geometry blyth$ l
+    total 0
+    drwxr-xr-x  4 blyth  staff  136 Apr 27 11:57 collada
+
+For now, just manually grab::
+
+   delta:export blyth$ scp -r N:/data1/env/local/env/geant4/geometry/export/DayaBay_MX_20140916-2050 .
+
+
 Export Environment Setup
 --------------------------
 

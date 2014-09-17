@@ -75,6 +75,75 @@ chroma/detector.py
      40         self.charge_cdf = (np.array([0.99, 1.00]), np.array([0.0, 1.0]))
 
 
+add_solid/add_pmt
+~~~~~~~~~~~~~~~~~~~~
+
+When have a `channel_id` associated to a volume can use **add_pmt**  instead of **add_solid**
+
+::
+
+     42     def add_solid(self, solid, rotation=None, displacement=None):
+     43         """
+     44         Add the solid `solid` to the geometry. When building the final triangle
+     45         mesh, `solid` will be placed by rotating it with the rotation matrix
+     46         `rotation` and displacing it by the vector `displacement`.
+     47         """
+     48         solid_id = Geometry.add_solid(self, solid=solid, rotation=rotation,
+     49                                       displacement=displacement)
+     50         self.solid_id_to_channel_index.resize(solid_id+1)
+     51         self.solid_id_to_channel_index[solid_id] = -1 # solid maps to no channel
+     52         return solid_id
+     53 
+     54     def add_pmt(self, pmt, rotation=None, displacement=None, channel_id=None):
+     55         """Add the PMT `pmt` to the geometry. When building the final triangle
+     56         mesh, `solid` will be placed by rotating it with the rotation matrix
+     57         `rotation` and displacing it by the vector `displacement`, just like
+     58         add_solid().
+     59 
+     60             `pmt``: instance of chroma.Solid
+     61                 Solid representing a PMT.
+     62             `rotation`: numpy.matrix (3x3)
+     63                 Rotation to apply to PMT mesh before displacement.  Defaults to
+     64                 identity rotation.
+     65             `displacement`: numpy.ndarray (shape=3)
+     66                 3-vector displacement to apply to PMT mesh after rotation.
+     67                 Defaults to zero vector.
+     68             `channel_id`: int
+     69                 Integer identifier for this PMT.  May be any integer, with no
+     70                 requirement for consective numbering.  Defaults to None,
+     71                 where the ID number will be set to the generated channel index.
+     72                 The channel_id must be representable as a 32-bit integer.
+     73         
+     74             Returns: dictionary { 'solid_id' : solid_id, 
+     75                                   'channel_index' : channel_index,
+     76                                   'channel_id' : channel_id }
+     77         """
+     78 
+     79         solid_id = self.add_solid(solid=pmt, rotation=rotation,
+     80                                   displacement=displacement)
+     81 
+     82         channel_index = len(self.channel_index_to_solid_id)
+     83         if channel_id is None:
+     84             channel_id = channel_index
+     85 
+     86         # add_solid resized this array already
+     87         self.solid_id_to_channel_index[solid_id] = channel_index
+     88 
+     89         # resize channel_index arrays before filling
+     90         self.channel_index_to_solid_id.resize(channel_index+1)
+     91         self.channel_index_to_solid_id[channel_index] = solid_id
+     92         self.channel_index_to_channel_id.resize(channel_index+1)
+     93         self.channel_index_to_channel_id[channel_index] = channel_id
+     94 
+     95         # dictionary does not need resizing
+     96         self.channel_id_to_channel_index[channel_id] = channel_index
+     97 
+     98         return { 'solid_id' : solid_id,
+     99                  'channel_index' : channel_index,
+     00                  'channel_id' : channel_id }
+
+
+
 
 chroma/gpu/detector.py
 -----------------------
