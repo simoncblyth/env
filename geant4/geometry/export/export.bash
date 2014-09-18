@@ -17,6 +17,13 @@ From script usage::
    GDB=1 export.sh VGDX Far
 
 
+Explore Id Mapping export
+--------------------------
+
+::
+
+   export.sh MX DayaBay
+
 Notable Exports
 -------------------
 
@@ -150,7 +157,9 @@ export-dir(){
    echo $xdir
 }
 export-home(){ echo $LOCAL_BASE/env/geant4/geometry/export ; }
+export-sdir(){ echo $ENV_HOME/geant4/geometry/export ; }
 export-cd(){  cd $(export-home); }
+export-scd(){  cd $(export-sdir); }
 export-mate(){ mate $(export-dir) ; }
 export-url(){ echo http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export ; }
 
@@ -249,7 +258,7 @@ EOA
 
 
 export-prep(){
-   local arg=${1:-VX}
+   local arg=${1:-MX}
    shift
    local site=${1:-DayaBay}
    case $site in 
@@ -320,7 +329,7 @@ export-setup(){
 
 export-main(){
    export-setup
-   export-cd
+   export-scd
 
    if [ -z "$GDB" ]; then 
       export-run $*
