@@ -1,6 +1,7 @@
 # use glob syntax.
 syntax: glob
 
+bin/realpath
 *.pyc
 *.doctree
 *.pickle

@@ -157,6 +157,7 @@ csa-nuwaenv(){
 }
 
 csa-nuwarun-pid(){ echo $(pgrep -f nuwa.py) ; }
+csa-dbg(){  csa-nuwarun-gdb ; }
 csa-nuwarun-gdb(){
    
    local def=$(csa-nuwarun-pid)

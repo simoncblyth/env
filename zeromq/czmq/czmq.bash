@@ -241,7 +241,8 @@ $(czmq-bin czmq_broker)
 EOC
 }
 
-czmq-broker-log(){ echo /tmp/env/zeromq/czmq/cmzq_broker.log ; }
+#czmq-broker-log(){ echo /tmp/env/zeromq/czmq/cmzq_broker.log ; }
+czmq-broker-log(){ echo $(local-base)/env/zeromq/czmq/cmzq_broker.log ; }
 czmq-broker-tail(){ tail -f $(czmq-broker-log) ; }
 czmq-broker-sv-(){ 
 
@@ -262,6 +263,11 @@ stdout_logfile_backups=10
 EOX
 }
 czmq-broker-sv(){
+  local msg="=== $FUNCNAME :"
+  local log=$(czmq-broker-log)
+  local dir=$(dirname $log)
+  [ ! -d "$dir" ] && echo $msg creating $dir && mkdir -p $dir 
+
   sv- 
   $FUNCNAME- | sv-plus czmq_broker.ini
 }
