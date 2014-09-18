@@ -47,8 +47,13 @@ Approaches:
 Shortcut approach
 ~~~~~~~~~~~~~~~~~~~
 
+* https://bitbucket.org/simoncblyth/env/commits/a2d79f476349b62b7c26d5e05af42b840217944a
 
+Seems to be swallowed by Chroma OK, but not getting any SURFACE_DETECT.
 
+Model mismatch ?
+
+* Chroma expecting sensitive detectors (PMT Cathodes) modelled as surfaces ?
 
 
 XML representation of IDMAP

@@ -3,6 +3,14 @@ Chroma Modeling of Sensitive Detectors
 
 .. contents:: :local:
 
+Overview
+--------
+
+#. Chroma/DetSim mismatch: 
+
+   * DetSim, QE handled as a Bialkali material EFFICIENCY property
+   * Chroma, **Surface.detect** property 
+
 Questions 
 -----------
 
@@ -21,6 +29,7 @@ chroma/geometry.py
 
 
         /// collection of solids, maybe with a material flagged as a detector_material
+        /// Nope: detector_material appears unused
 
         261 class Geometry(object):
         262     "Geometry object."
@@ -30,6 +39,300 @@ chroma/geometry.py
         266         self.solid_rotations = []
         267         self.solid_displacements = []
         268         self.bvh = None
+
+        ///
+        /// to get detection, need to model as a surface with detect property ?
+        ///
+
+        234 class Surface(object):
+        235     """Surface optical properties."""
+        236     def __init__(self, name='none', model=0):
+        237         self.name = name
+        238         self.model = model
+        239 
+        240         self.set('detect', 0)
+        241         self.set('absorb', 0)
+        242         self.set('reemit', 0)
+        243         self.set('reflect_diffuse', 0)
+        244         self.set('reflect_specular', 0)
+        245         self.set('eta', 0)
+        246         self.set('k', 0)
+        247         self.set('reemission_cdf', 0)
+        248 
+        249         self.thickness = 0.0
+        250         self.transmissive = 0
+        251 
+        252     def set(self, name, value, wavelengths=standard_wavelengths):
+        253         if np.iterable(value):
+        254             if len(value) != len(wavelengths):
+        255                 raise ValueError('shape mismatch')
+        256         else:
+        257             value = np.tile(value, len(wavelengths))
+        258 
+        259         if (np.asarray(value) < 0.0).any():
+        260             raise Exception('all probabilities must be >= 0.0')
+        261 
+        262         self.__dict__[name] = np.array(zip(wavelengths, value), dtype=np.float32)
+        263     def __repr__(self):
+        264         return '<Surface %s>' % self.name
+
+
+detector_material not used ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    (chroma_env)delta:chroma blyth$ find . -type f -exec grep -H detector_material {} \;
+    ./chroma/detector.py:    def __init__(self, detector_material=None):
+    ./chroma/detector.py:        Geometry.__init__(self, detector_material=detector_material)
+    ./chroma/geometry.py:    def __init__(self, detector_material=None):
+    ./chroma/geometry.py:        self.detector_material = detector_material
+    ./chroma/sim.py:            self.photon_generator = generator.photon.G4ParallelGenerator(geant4_processes, detector.detector_material, base_seed=self.seed)
+
+
+#. Chroma looks to expect sensdet to be represented as surfaces 
+   as needed to get a SURFACE_DETECT ? 
+
+
+detsim does EFFICIENCY lookup on Bialkali materialof the cathode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB/PMT/hemi-pmt.xml`::
+
+    118   <!-- The Photo Cathode -->
+    119   <!-- use if limit photocathode to a face on diameter gt 167mm. -->
+    120   <logvol name="lvPmtHemiCathode" material="Bialkali" sensdet="DsPmtSensDet">
+    121     <union name="pmt-hemi-cathode">
+    122       <sphere name="pmt-hemi-cathode-face"
+    123           outerRadius="PmtHemiFaceROCvac"
+    124           innerRadius="PmtHemiFaceROCvac-PmtHemiCathodeThickness"
+    125           deltaThetaAngle="PmtHemiFaceCathodeAngle"/>
+    126       <sphere name="pmt-hemi-cathode-belly"
+    127           outerRadius="PmtHemiBellyROCvac"
+    128           innerRadius="PmtHemiBellyROCvac-PmtHemiCathodeThickness"
+    129           startThetaAngle="PmtHemiBellyCathodeAngleStart"
+    130           deltaThetaAngle="PmtHemiBellyCathodeAngleDelta"/>
+    131       <posXYZ z="PmtHemiFaceOff-PmtHemiBellyOff"/>
+    132     </union>
+    133   </logvol>
+    134   <!-- use if limit photocathode to a face on diameter lt 167mm. -->
+    135   <!-- 
+    136   <logvol name="lvPmtHemiCathode" material="Bialkali" sensdet="DsPmtSensDet">
+    137     <sphere name="pmt-hemi-cathode-face"
+    138         outerRadius="PmtHemiFaceROCvac"
+    139         innerRadius="PmtHemiFaceROCvac-PmtHemiCathodeThickness"
+    140         deltaThetaAngle="PmtHemiFaceCathodeAngle"/>
+    141   </logvol>
+
+
+`NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB/PMT/headon-pmt.xml`::
+
+     72   <!-- The Photo Cathode -->
+     73   <logvol name="lvHeadonPmtCathode" material="Bialkali" sensdet="DsPmtSensDet">
+     74     <tubs name="headon-pmt-cath"
+     75           sizeZ="HeadonPmtCathodeThickness"
+     76       outerRadius="HeadonPmtGlassRadius-HeadonPmtGlassWallThick"/>
+     77   </logvol>
+
+
+`NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB/materials/bialkali.xml`::
+
+     07   <catalog name="BialkaliProperties">
+      8 
+      9 
+     10     <!-- From G4dyb -->
+     11     <tabproperty name="PhotoCathodeQE"
+     12          type="EFFICIENCY"
+     13          xunit="eV"
+     14          yunit=""
+     15          xaxis="PhotonEnergy"
+     16          yaxis="QuantumEfficiency">
+     17                  1.55000                 0.00010
+     18                  1.80000                 0.00200
+     19                  1.90000                 0.00500
+     ..
+     38                  2.99000                 0.22000
+     39                  3.06000                 0.22000
+     40                  3.14000                 0.23000
+     41                  3.22000                 0.24000
+     42                  3.31000                 0.24000
+     43                  3.40000                 0.24000
+     44                  3.49000                 0.23000
+     45                  3.59000                 0.22000
+     46                  3.70000                 0.21000
+     47                  3.81000                 0.17000
+     48                  3.94000                 0.14000
+     49                  4.07000                 0.09000
+     50                  4.10000                 0.03500
+     ..
+     56     </tabproperty>
+     ..
+     59     <!-- From G4dyb -->
+     60     <tabproperty name="PhotoCathodeRefractionIndex"
+     61          type="RINDEX"
+     62          xunit="eV"
+     63          xaxis="PhotonEnergy"
+     64          yaxis="RefractionIndex">
+     65     1.55    2.9
+     66     6.20    2.9
+     67     10.33   2.9
+     68     15.5    2.9
+     69     </tabproperty>
+     70 
+     71     <tabproperty name="PhotoCathodeImaginaryIndex"
+     72          type="KINDEX"
+     73          xunit="eV"
+     74          xaxis="PhotonEnergy"
+     75          yaxis="RefractionIndex">
+     76     1.55    1.6
+     77     6.20    1.6
+     78     10.33   1.6
+     79     15.5    1.6
+     80     </tabproperty>
+
+
+::
+
+    [blyth@belle7 dybgaudi]$ find . -name '*.cc' -exec grep -H RINDEX {} \;
+    ./Simulation/DetSim/src/DsG4OpRayleigh.cc:        G4MaterialPropertyVector* Rindex = aMPT->GetProperty("RINDEX");
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:       Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:           theStatus = NoRINDEX;
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:           theStatus = NoRINDEX;
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:                  Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:            theStatus = NoRINDEX;
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:                      aMaterialPropertiesTable->GetProperty("REALRINDEX");
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:                      aMaterialPropertiesTable->GetProperty("IMAGINARYRINDEX");
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:                 Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:        theStatus = NoRINDEX;
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:                if ( theStatus == NoRINDEX )
+    ./Simulation/DetSim/src/DsG4OpBoundaryProcess.cc:                        G4cout << " *** NoRINDEX *** " << G4endl;
+    ./Simulation/DetSim/src/DsG4Cerenkov.cc:                aMaterialPropertiesTable->GetProperty("RINDEX"); 
+    ./Simulation/DetSim/src/DsG4Cerenkov.cc:                   aMaterialPropertiesTable->GetProperty("RINDEX");
+    ./Simulation/DetSim/src/DsG4Cerenkov.cc:                     Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
+    ./DybAlg/src/components/DybModifyProperties.cc:   // v.push_back("RINDEX");
+    ./Reconstruction/PoolMuonRec/src/PoolMuonRecTool.cc:    if(type=="RINDEX") {
+    [blyth@belle7 dybgaudi]$ 
+    [blyth@belle7 dybgaudi]$ find . -name '*.cc' -exec grep -H KINDEX {} \;
+    [blyth@belle7 dybgaudi]$ 
+
+
+
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsPmtSensDet.cc`::
+
+    056 DsPmtSensDet::DsPmtSensDet(const std::string& type,
+     57                            const std::string& name, 
+     58                            const IInterface*  parent)
+     59     : G4VSensitiveDetector(name)
+     60     , GiGaSensDetBase(type,name,parent)
+     61     , m_t2de(0)
+     62 {
+     63     info() << "DsPmtSensDet (" << type << "/" << name << ") created" << endreq;
+     64 
+     65     declareProperty("CathodeLogicalVolume",
+     66                     m_cathodeLogVols,
+     67                     "Photo-Cathode logical volume to which this SD is attached.");
+     68 
+     69     declareProperty("TouchableToDetelem", m_t2deName = "TH2DE",
+     70                     "The ITouchableToDetectorElement to use to resolve sensor.");
+     71 
+     72     declareProperty("SensorStructures",m_sensorStructures,
+     73                     "TDS Paths in which to look for sensor detector elements"
+     74                     " using this sensitive detector");
+     75 
+     76     declareProperty("PackedIdPropertyName",m_idParameter="PmtID",
+     77                     "The name of the user property holding the PMT ID.");
+     78 
+     79     declareProperty("QEffParameterName",m_qeffParamName="EFFICIENCY",
+     80                     "name of user parameter in the photo cathode volume that"
+     81                     " holds the quantum efficiency tabproperty");
+     82 
+     83     declareProperty("QEScale",m_qeScale=1.0 / 0.9,
+     84                     "Upward scaling of the quantum efficiency by inverse of mean PMT-to-PMT efficiency in electronics simulation.");
+     85 
+     86     declareProperty("ConvertWeightToEff", m_ConvertWeightToEff=false,
+     87                     "Treat to the optical photon weight as to preliminary applied QE."
+     88                     "Will affect only the primary photons (GtDiffuserBallTool, etc.).");
+     89 
+     90     m_cathodeLogVols.push_back("/dd/Geometry/PMT/lvPmtHemiCathode");
+     91     m_cathodeLogVols.push_back("/dd/Geometry/PMT/lvHeadonPmtCathode");
+     92 }
+     93 
+
+
+
+    277 double DsPmtSensDet::SensDetQE(G4LogicalVolume* logvol, double energy)
+    278 {
+    279     G4Material* mat = logvol->GetMaterial();
+    280     if (!mat) {
+    281         warning () << "No material for " << logvol->GetName() << endreq;
+    282         return -1;
+    283     }
+    284 
+    285 
+    286      G4MaterialPropertiesTable* mattab = mat->GetMaterialPropertiesTable();
+    287     if (mattab) {
+    288         G4MaterialPropertyVector* qevec = mattab->GetProperty(m_qeffParamName.c_str());
+    289         if (qevec) {
+    290 
+    291       verbose() << m_qeffParamName << ":("
+    292           << qevec->GetMinPhotonEnergy()/CLHEP::eV << " eV,"
+    293           << qevec->GetMinProperty() << ")-->("
+    294           << qevec->GetMaxPhotonEnergy()/CLHEP::eV << " eV,"
+    295           << qevec->GetMaxProperty() << ")"
+    296           << " particle energy is " << energy/CLHEP::eV
+    297           << endreq;
+    298 
+    299       return qevec->GetProperty(energy);
+    300 
+    301         }
+    302     }
+    303     else {
+    304         debug () << "No material properties in " << logvol->GetName() << endreq;
+    305     }
+    306 
+    307     int ndaught = logvol->GetNoDaughters();
+    308     for (int ind=0; ind < ndaught; ++ind) {
+    309         G4VPhysicalVolume* physvol = logvol->GetDaughter(ind);
+    310         double qe = this->SensDetQE(physvol->GetLogicalVolume(),energy);
+    311         if (qe < 0) return qe;
+    312     }
+    313     warning() << "All attempts failed to find " << m_qeffParamName
+    314               << " in " << logvol->GetName() << endreq;
+    315     return -1;
+    316 }
+
+
+
+cathode example
+~~~~~~~~~~~~~~~~
+
+`chroma/demo/optics.py`::
+
+     26 # r7081hqe photocathode material surface
+     27 # source: hamamatsu supplied datasheet for r7081hqe pmt serial number zd0062
+     28 r7081hqe_photocathode = Surface('r7081hqe_photocathode')
+     29 r7081hqe_photocathode.detect = \
+     30     np.array([(260.0,  0.00),
+     31               (270.0,  0.04), (280.0,  0.07), (290.0,  0.77), (300.0,  4.57),
+     32               (310.0, 11.80), (320.0, 17.70), (330.0, 23.50), (340.0, 27.54),
+     33               (350.0, 30.52), (360.0, 31.60), (370.0, 31.90), (380.0, 32.20),
+     34               (390.0, 32.00), (400.0, 31.80), (410.0, 30.80), (420.0, 30.16),
+     35               (430.0, 29.24), (440.0, 28.31), (450.0, 27.41), (460.0, 26.25),
+     36               (470.0, 24.90), (480.0, 23.05), (490.0, 21.58), (500.0, 19.94),
+     37               (510.0, 18.48), (520.0, 17.01), (530.0, 15.34), (540.0, 12.93),
+     38               (550.0, 10.17), (560.0,  7.86), (570.0,  6.23), (580.0,  5.07),
+     39               (590.0,  4.03), (600.0,  3.18), (610.0,  2.38), (620.0,  1.72),
+     40               (630.0,  0.95), (640.0,  0.71), (650.0,  0.44), (660.0,  0.25),
+     41               (670.0,  0.14), (680.0,  0.07), (690.0,  0.03), (700.0,  0.02),
+     42               (710.0,  0.00)])
+     43 # convert percent -> fraction
+     44 r7081hqe_photocathode.detect[:,1] /= 100.0
+     45 # roughly the same amount of detected photons are absorbed without detection
+     46 r7081hqe_photocathode.absorb = r7081hqe_photocathode.detect
+     47 # remaining photons are diffusely reflected
+     48 r7081hqe_photocathode.set('reflect_diffuse', 1.0 - r7081hqe_photocathode.detect[:,1] - r7081hqe_photocathode.absorb[:,1], wavelengths=r7081hqe_photocathode.detect[:,0])
+     49 
 
 
 chroma/detector.py
