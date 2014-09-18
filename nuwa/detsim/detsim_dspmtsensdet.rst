@@ -8,7 +8,7 @@ Overview
 #. `DsPmtSensDet::ProcessHits` hit formation has messy detector specific code, but not too extensive
    
    * expect GPU doable without extreme efforts
-   * PMT identification is the most involved aspect 
+   * PMT identification is the most involved aspect, did this within idmap
 
 Questions
 ~~~~~~~~~~
@@ -26,6 +26,16 @@ Questions
 
 * GiGa takes the detdesc geometry and converts into Geant4, 
   where exactly does that happen
+
+
+Testing GPU Hit Formation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. running `csa.sh` takes too long to initialize to be a suitable way to test, 
+   need to get sending dummy ChromaPhotonList working again, and then enhance it to 
+   send real CPL sourced from a .root file 
+
+   * see `czrt-` 
 
 
 
@@ -112,8 +122,68 @@ DetDesc SensDet Identification
     133   </logvol>
 
 
-Translation of detdesc into Geant4
------------------------------------
+
+How does gaudi go from sensdet attribute value DsPmtSensDet to instance
+-------------------------------------------------------------------------
+
+
+Looks like a GiGa hack::
+
+    [blyth@belle7 lhcb]$ find . -name '*.cpp' -exec grep -H SensitiveDetectorName {} \;
+    ./Sim/GiGa/src/Lib/GiGaSensDetBase.cpp:        G4VSensitiveDetector::SensitiveDetectorName = tmp ;  /// ATTENTION !!!
+    ./Sim/GiGa/src/Lib/GiGaSensDetBase.cpp:        G4VSensitiveDetector::SensitiveDetectorName = tmp              ;
+    ./Sim/GiGa/src/Lib/GiGaSensDetBase.cpp:        G4VSensitiveDetector::SensitiveDetectorName.remove(0,pos+1)    ;
+    ./Sim/GiGa/src/Lib/GiGaSensDetBase.cpp:      G4VSensitiveDetector::SensitiveDetectorName; 
+
+
+
+
+Mimic DsPmtSensDet within ChromaStackAction ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Need to pass along the solid index from the GPU, so can do a lookup into a volume store.  
+Not needed for the pmtid, but do need to get the transform.
+NB this is more than just a global position, the preStepPoint knows
+which place its at in the geometry tree
+
+::
+
+    const G4TouchableHistory* hist = 
+        dynamic_cast<const G4TouchableHistory*>(preStepPoint->GetTouchable());
+
+    if (!hist or !hist->GetHistoryDepth()) {
+        error() << "ProcessHits: step has no or empty touchable history" << endreq;
+        return false;
+
+
+::
+
+    068 class G4StepPoint
+     69 ///////////////// 
+     70 {
+    ...
+    195    G4TouchableHandle fpTouchable;
+    196       //  Touchable Handle  
+
+
+`geant4.10.00.p01/source/track/include/G4StepPoint.icc`::
+
+    140 inline
+    141  const G4VTouchable* G4StepPoint::GetTouchable() const
+    142  { return fpTouchable(); }
+    143 
+
+
+
+Can I use DsPmtSensDet methods from StackAction ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Service lookup only provides access to the minimal standard `IGiGaSensDet` interface, 
+#. seems not: 
+
+   * so need to operate at Geant4 level and duplicate 
+     some of what DsPmtSensDet does to access the same 
+     hit collections 
 
 ::
 
@@ -121,6 +191,10 @@ Translation of detdesc into Geant4
     ./Det/DetDescCnv/src/component/XmlLVolumeCnv.cpp:  sensdetString = xercesc::XMLString::transcode("sensdet");
     ./Det/DetDescCnv/src/component/XmlLVolumeCnv.cpp:  xercesc::XMLString::release((XMLCh**)&sensdetString);
     ./Det/DetDescCnv/src/component/XmlLVolumeCnv.cpp:  std::string sensDetName = dom2Std (element->getAttribute (sensdetString));
+
+
+LVolume attribute
+~~~~~~~~~~~~~~~~~~
 
 `NuWa-trunk/lhcb/Det/DetDescCnv/src/component/XmlLVolumeCnv.cpp`::
 
@@ -130,6 +204,104 @@ Translation of detdesc into Geant4
      408                           materialName,
      409                           sensDetName,
      410                           magFieldName);
+
+
+`NuWa-trunk/lhcb/Det/DetDesc/DetDesc/LVolume.h`::
+
+     20 class LVolume: public LogVolBase
+     21 {
+     22   /// friend factory for instantiation 
+     23   friend class DataObjectFactory<LVolume>;
+     24 
+     25 public:
+     26 
+     27   /** constructor, pointer to ISolid* must be valid!, 
+     28    *  overvise constructor throws LogVolumeException!  
+     29    *  @exception LVolumeException for wrong parameters set
+     30    *  @param name         name of logical volume 
+     31    *  @param Solid        pointer to ISolid object 
+     32    *  @param material     name of the material 
+     33    *  @param sensitivity  name of sensitive detector object (for simulation)
+     34    *  @param magnetic     name of magnetic field object (for simulation)
+     35    */
+     36   LVolume( const std::string& name             ,
+     37            ISolid*            Solid            ,
+     38            const std::string& material         ,
+     39            const std::string& sensitivity = "" ,
+     40            const std::string& magnetic    = "" );
+     41 
+     42   /// destructor 
+     43   virtual ~LVolume();
+
+
+`NuWa-trunk/lhcb/Det/DetDesc/DetDesc/LogVolBase.h`::
+
+    035 class LogVolBase:
+     36   public virtual ILVolume   ,
+     37   public         ValidDataObject
+     38 {
+     39 
+     40 protected:
+     41 
+     42   /** constructor
+     43    *  @exception LVolumeException wrong paramaters value
+     44    *  @param name name of logical volume 
+     45    *  @param sensitivity  name of sensitive detector object (for simulation)
+     46    *  @param magnetic  nam eof magnetic field object (for simulation)
+     47    */
+     48   LogVolBase( const std::string& name        = "" ,
+     49               const std::string& sensitivity = "" ,
+     50               const std::string& magnetic    = "" );
+
+    192   /** name of sensitive "detector" - needed for simulation 
+    193    *  @see ILVolume 
+    194    *  @return name of sensitive "detector"
+    195    */
+    196   inline virtual const std::string& sdName () const { return m_sdName; } ;
+
+
+
+`NuWa-trunk/lhcb/Sim/GiGaCnv/src/component/GiGaLVolumeCnv.cpp`::
+
+    185   // sensitivity
+    186   if( !lv->sdName().empty() ) {
+    187     if( 0 == G4LV->GetSensitiveDetector() ) {
+    188       IGiGaSensDet* det = 0 ;
+    189       StatusCode sc = geoSvc()->sensitive( lv->sdName(), det );
+    190       if( sc.isFailure() ) {
+    191         return Error("updateRep:: Could no create SensDet ", sc );
+    192       }
+    193       if( 0 == det ) {
+    194         return Error("updateRep:: Could no create SensDet ");
+    195       }
+    196       // set sensitive detector 
+    197       G4LV->SetSensitiveDetector( det );
+    198     } else {
+    199       Warning( "SensDet is already defined to be '" +
+    200                GiGaUtil::ObjTypeName( G4LV->GetSensitiveDetector() ) +"'");
+    201     }
+    202   }
+
+
+`NuWa-trunk/lhcb/Sim/GiGa/GiGa/IGiGaSensDet.h`::
+
+     22 class IGiGaSensDet: public virtual G4VSensitiveDetector,
+     23                     public virtual IGiGaInterface
+     24 {
+     25 public:
+     26 
+     27   /** Retrieve the unique interface ID (static)
+     28    *  @see IInterface
+     29    */
+     30   static const InterfaceID& interfaceID();
+     31 
+     32   /** Method for being a member of a GiGaSensDetSequence
+     33    *  Implemented by base class, does not need reimplementation!
+     34    */
+     35   virtual bool processStep( G4Step* step, G4TouchableHistory* history ) = 0;
+
+
+
 
 
 `NuWa-trunk/lhcb/Det/DetDesc/src/Lib/LVolume.cpp`::
@@ -879,6 +1051,31 @@ Load objects (top level `/dd/Structure` paths) and apply GiGaGeo conversion
 DsPmtSensDet
 --------------
 
+
+
+
+
+`NuWa-trunk/lhcb/Sim/GiGa/GiGa/GiGaSensDetBase.h`::
+
+     22 class GiGaSensDetBase: virtual public IGiGaSensDet ,
+     23                        public GiGaBase
+     24 {
+     25 
+     26 public:
+     27 
+     28   /** standard constructor   
+     29    *  @see GiGaBase 
+     30    *  @see AlgTool 
+     31    *  @param type type of the object (?)
+     32    *  @param name name of the object
+     33    *  @param parent  pointer to parent object
+     34    */
+     35   GiGaSensDetBase ( const std::string& type   ,
+     36                     const std::string& name   ,
+     37                     const IInterface*  parent );
+
+
+
 `NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsPmtSensDet.h`::
 
      26 class DsPmtSensDet : public GiGaSensDetBase {
@@ -1075,6 +1272,39 @@ DsPmtSensDet::ProcessHits SimPmtHit formation from G4Step, stored into hit colle
     536 
     537     hc->insert(new G4DhHit(hit,trackid));
     538 }
+
+
+TotalEnergyDeposit
+--------------------
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/src`::
+
+    [blyth@belle7 src]$ grep TotalEnergyDeposit *.cc
+    DsG4Scintillation.cc:// necessary information resides in aStep.GetTotalEnergyDeposit()
+    DsG4Scintillation.cc:    G4double TotalEnergyDeposit = aStep.GetTotalEnergyDeposit();
+    DsG4Scintillation.cc:      G4cout << " TotalEnergyDeposit " << TotalEnergyDeposit 
+    DsG4Scintillation.cc:    if (TotalEnergyDeposit <= 0.0 && !flagReemission) {
+    DsG4Scintillation.cc:        G4double dE = TotalEnergyDeposit;
+    DsG4Scintillation.cc:        G4double QuenchedTotalEnergyDeposit 
+    DsG4Scintillation.cc:            = TotalEnergyDeposit/(1+birk1*delta+birk2*delta*delta);
+    DsG4Scintillation.cc:        G4double MeanNumberOfPhotons= ScintillationYield * QuenchedTotalEnergyDeposit;
+    DsPmtModel.cc:    fastStep.ProposeTotalEnergyDeposited(energy);
+    DsPmtSensDet.cc:    double energyDep = step->GetTotalEnergyDeposit();
+    DsRpcModel.cc:    fastStep.ProposeTotalEnergyDeposited(energy);
+    DsRpcSensDet.cc:    double energyDep = step->GetTotalEnergyDeposit();
+
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsPmtModel.cc`::
+
+     61 void DsPmtModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
+     62 {
+     63     const G4Track* track = fastTrack.GetPrimaryTrack();
+     64     double energy = track->GetKineticEnergy();
+     65 
+     66     fastStep.ProposeTrackStatus(fStopAndKill);
+     67     fastStep.ProposePrimaryTrackPathLength(0.0);
+     68     fastStep.ProposeTotalEnergyDeposited(energy);
+     69 }
 
 
 

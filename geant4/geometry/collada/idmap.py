@@ -83,7 +83,8 @@ class IDMap(dict):
         a = np.genfromtxt(path,comments=None,skip_header=1,dtype=self.dtype)
         assert np.all( np.arange(len(a),dtype=np.int32) == a['index'] )
         uid = np.unique(a['id'])
-        log.info("found %s unique ids %s  " % (len(uid), repr(uid)))
+        log.info("found %s unique ids " % (len(uid)))
+        log.debug("ids %s  " % (repr(uid)))
         self.a = a 
         self.update(dict(zip(a['index'],a['id'])))
         assert len(self) == len(a) 

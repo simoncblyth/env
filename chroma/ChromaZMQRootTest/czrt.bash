@@ -60,6 +60,91 @@ SCRIPTS
     send test CPL TObject to the configured *zmq-broker-url-frontend*
  
 
+Local DEBUG
+-------------
+
+#. Initially *czrt.sh* gives symbol loading issue 
+#. After a *czrt-build* runs, but meets NUU network blockage::
+
+    delta:collada blyth$ czrt.sh
+
+       zmq-broker-url          : tcp://203.64.184.126:5001
+       zmq-broker-url-frontend : tcp://203.64.184.126:5001
+       zmq-broker-url-backend  : tcp://203.64.184.126:5002
+
+       zmq-broker-host         : 203.64.184.126
+
+    ZMQRoot::ZMQRoot envvar [CHROMA_CLIENT_CONFIG][Q] config [tcp://203.64.184.126:5001] 
+    ChromaPhotonList::Print  [6]
+    ZMQRoot::SendObject sent bytes: 457 
+
+
+#. Attempt to tunnel through the block, getting refused::
+
+    delta:~ blyth$ czrt.sh --zmqtunnelnode=N
+
+       zmq-broker-url          : tcp://203.64.184.126:5001
+       zmq-broker-url-frontend : tcp://203.64.184.126:5001
+       zmq-broker-url-backend  : tcp://203.64.184.126:5002
+
+       zmq-broker-host         : 203.64.184.126
+
+    === ssh-tunnel-open : opening ssh tunnel using below command
+    ssh -fN -p 22 -L 127.0.0.1:64542:203.64.184.126:5001 N
+    === ssh-tunnel-open : modifying ZMQ_BROKER_URL_FRONTEND to tcp://127.0.0.1:64542 in order to use the ssh tunnel
+    ZMQRoot::ZMQRoot envvar [CHROMA_CLIENT_CONFIG][Q] config [tcp://127.0.0.1:64542] 
+    ChromaPhotonList::Print  [6]
+    ZMQRoot::SendObject sent bytes: 457 
+    channel 1: open failed: connect failed: Connection refused
+    channel 1: open failed: connect failed: Connection refused
+    channel 1: open failed: connect failed: Connection refused
+
+
+
+NuWa DEBUG
+-----------
+
+Not getting through, nothing showing on broker::
+
+    [blyth@belle7 env]$ LD_LIBRARY_PATH=$DYB/external/zmq/4.0.4/i686-slc5-gcc41-dbg/lib:$LD_LIBRARY_PATH CHROMA_CLIENT_CONFIG=tcp://127.0.0.1:5001 ChromaZMQRootTest.exe
+    ZMQRoot::ZMQRoot envvar [CHROMA_CLIENT_CONFIG] config [tcp://127.0.0.1:5001] 
+    ChromaPhotonList::Print UID [0] [6]
+    ZMQRoot::SendObject sent bytes: 457 
+
+
+works locally
+~~~~~~~~~~~~~~
+
+::
+
+    [blyth@belle7 src]$ LD_LIBRARY_PATH=$DYB/external/zmq/4.0.4/i686-slc5-gcc41-dbg/lib:$LD_LIBRARY_PATH ECHO_SERVER_CONFIG=tcp://*:4000 ZMQEchoServer.exe
+    do_bind tcp://*:4000 
+    do_receive zmq_msg_recv waiting... 
+    do_receive got bytes:457 
+    do_send... sending msg of  457 bytes 
+    do_send... queued  457 bytes 
+    do_receive zmq_msg_recv waiting... 
+
+    [blyth@belle7 ~]$ LD_LIBRARY_PATH=$DYB/external/zmq/4.0.4/i686-slc5-gcc41-dbg/lib:$LD_LIBRARY_PATH CHROMA_CLIENT_CONFIG=tcp://127.0.0.1:4000 ChromaZMQRootTest.exe
+    ZMQRoot::ZMQRoot envvar [CHROMA_CLIENT_CONFIG] config [tcp://127.0.0.1:4000] 
+    ChromaPhotonList::Print UID [0] [6]
+    ZMQRoot::SendObject sent bytes: 457 
+    ZMQRoot::ReceiveObject received bytes: 457 
+    ZMQRoot::ReceiveObject reading TObject from the TMessage 
+    ZMQRoot::ReceiveObject returning TObject 
+    ReceiveObject
+    ChromaPhotonList::Print UID [0] [6]
+    ChromaPhotonList::Print UID [0] [6]
+    ChromaPhotonList::Details [6]
+     index 0 pos (1,1,1) mom (2,2,2) pol (3,3,3) _t 0 _wavelength 100 _pmtid 101
+     index 1 pos (1,1,1) mom (2,2,2) pol (3,3,3) _t 0 _wavelength 100 _pmtid 101
+     index 2 pos (1,1,1) mom (2,2,2) pol (3,3,3) _t 0 _wavelength 100 _pmtid 101
+     index 3 pos (1,1,1) mom (2,2,2) pol (3,3,3) _t 0 _wavelength 100 _pmtid 101
+     index 4 pos (1,1,1) mom (2,2,2) pol (3,3,3) _t 0 _wavelength 100 _pmtid 101
+     index 5 pos (1,1,1) mom (2,2,2) pol (3,3,3) _t 0 _wavelength 100 _pmtid 101
+    [blyth@belle7 ~]$ 
+
+
 
 
 EOU
