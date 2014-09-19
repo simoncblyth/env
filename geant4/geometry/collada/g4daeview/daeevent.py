@@ -4,14 +4,11 @@ import logging, datetime
 log = logging.getLogger(__name__)
 import numpy as np
 
-from photons import Photons
 from daephotons import DAEPhotons
 from daeeventlist import DAEEventList , DAEEventListMenu
 from daemenu import DAEMenu
 from daeanimator import DAEAnimator
-
-def timestamp():
-    return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+from daeeventbase import DAEEventBase
 
 class DAEEventMenu(DAEMenu):
     def __init__(self, config, handler):
@@ -20,21 +17,22 @@ class DAEEventMenu(DAEMenu):
         self.add("loadnext",handler.loadnext)
         self.add("loadprev",handler.loadprev)
 
-
-class DAEEvent(object):
+class DAEEvent(DAEEventBase):
     """
     TODO: split this up further, doing too much 
     """
     def __init__(self, config, scene ):
-        self.config = config
-        self.scene = scene
+        DAEEventBase.__init__(self, config, scene)
+
         self.loaded = None
         pass
         self.qcut = config.args.qcut 
         self.bbox_cache = None
         photons = None
+
         log.info("********* scene.event.dphotons ")
         self.dphotons = DAEPhotons( photons, self )
+
         log.info("********* scene.event.dphotons DONE ")
         self.objects = []
         self.eventlist = DAEEventList(config.args.path_template)
@@ -192,35 +190,9 @@ class DAEEvent(object):
             self.dphotons.reconfig(photons_config)
         pass 
 
+
     def external_cpl(self, cpl ):
-        """
-        :param cpl: ChromaPhotonList instance
-
-        External ZMQ messages containing CPL arrive at DAEResponder and are routed here
-        via glumpy event system.
-
-        TODO: check that response is sent with the propagated photons
-        """
-        if self.config.args.saveall:
-            log.info("external_cpl timestamp_save due to --saveall option")
-            self.timestamped_save(cpl)
-        else:
-            log.info("external_cpl not saving ")
-        pass
-        self.setup_cpl(cpl) 
-
-    def timestamped_save(self, cpl, key=None):
-        path_ = timestamp()
-        self.config.save_cpl( path_, key, cpl.cpl)   
- 
-    def setup_cpl(self, cpl):
-        """
-        :param cpl: ChromaPhotonList instance
-
-        Convert serialization level ChromaPhotonList into operation level Photons
-        """
-        photons = Photons.from_cpl(cpl, extend=True)   
-        self.setup_photons( photons ) 
+        self.external_cpl_base( cpl )
 
     def setup_photons(self, photons ):
         """
@@ -232,8 +204,7 @@ class DAEEvent(object):
         #. setting the photons property invalidates dependents like `.mesh`
 
         """
-        log.info("setup_photons")
-        self.dphotons.photons = photons   
+        self.setup_photons_base( photons )
 
         mesh = self.dphotons.mesh
         self.scene.bookmarks.create_for_object( mesh, 9 )

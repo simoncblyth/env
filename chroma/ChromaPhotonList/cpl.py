@@ -17,9 +17,9 @@ try:
 except ImportError:
     ROOT = None
 
-
 if not ROOT is None and not hasattr(ROOT, 'ChromaPhotonList'):
     if ROOT.gSystem.Load(os.environ["CHROMAPHOTONLIST_LIB"]) < 0:ROOT.gSystem.Exit(10)
+
 
 log = logging.getLogger(__name__)
 
@@ -63,6 +63,36 @@ def save_cpl( path, key, obj, compress=1 ):
     obj.Write(key)
     f.Close()
     return 0
+
+
+def create_cpl_from_photons_very_slowly( photons ):
+    """
+    Hmm how to copy numpy arrays into ROOT object in C/C++ 
+    without laborious float-by-float python.
+    To avoid that need to pass numpy array reference to C/C++ 
+
+    * :doc:`/chroma/chroma_pyublas` pyublas/boost-python/boost-ublas example
+    * http://root.cern.ch/phpBB3/viewtopic.php?t=4233 
+
+    """
+    cpl = ROOT.ChromaPhotonList()
+
+    nphotons = len(photons.pos)
+    x,y,z=photons.pos[:,0],photons.pos[:,1],photons.pos[:,2]
+    px,py,pz=photons.dir[:,0],photons.dir[:,1],photons.dir[:,2]
+    polx,poly,polz=photons.pol[:,0],photons.pol[:,1],photons.pol[:,2]
+    t = photons.t 
+    w = photons.wavelengths
+    pmtid = photons.pmtid
+
+    #cpl.FromArrays(x,y,z,px,py,pz,polx,poly,polz,t,w,pmtid,nphotons)  I WISH or better: cpl.FromPhotons(photons)
+    for _ in range(nphotons):
+        cpl.AddPhoton(x[_],y[_],z[_],
+                      px[_],py[_],pz[_],
+                      polx[_],poly[_],polz[_],
+                      t[_],w[_],int(pmtid[_]))    # 
+    return cpl 
+
 
 def load_cpl( path, key ):
     log.info("load_cpl from %s " % path )

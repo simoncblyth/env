@@ -2,26 +2,79 @@
 """
 Plain ZMQRoot responder and Chroma propagator with no OpenGL/glumpy   
 """
-import logging, time
+import logging, os, time
 log = logging.getLogger(__name__)
 
 from daedirectconfig import DAEDirectConfig
+from daegeometry import DAEGeometry
 from daedirectresponder import DAEDirectResponder
+from daedirectpropagator import DAEDirectPropagator
+
+class DAEChromaContextDummy(object):
+    raycaster = None
+    propagator = None
+    dummy = True
+
+
+class G4DAEChroma(object):
+    """
+    Not a graphical scene, just following the structure of g4daeview.py for sanity 
+    """
+    def __init__(self, geometry, config ):
+        """
+        :param geometry: DAEGeometry instance
+        :param config: DAEConfig instance
+        """
+        self.geometry = geometry  
+        self.config = config
+
+        if self.config.args.with_chroma:
+            from daechromacontext import DAEChromaContext     
+            chroma_geometry = geometry.make_chroma_geometry() 
+            self.chroma = DAEChromaContext( config, chroma_geometry )
+        else:
+            self.chroma = DAEChromaContextDummy()
+        pass
+
+        propagator = DAEDirectPropagator(config)
+        def handler(cpl):
+            log.info("handler got cpl") 
+            return propagator.propagate( cpl )
+
+        self.responder = DAEDirectResponder(config, handler )
+        self.propagator = propagator
+
+    def poll_forever(self):
+        log.info("start polling responder: %s " % repr(self.responder))
+        count = 0 
+        while True:
+            if count % 10 == 0:
+                log.info("polling %s " % count ) 
+            self.responder.poll()
+            count += 1 
+            time.sleep(1) 
+        pass
+        log.info("terminating")
+
+ 
 
 def main():
-    print "main"
     config = DAEDirectConfig(__doc__)
     config.parse()
-    responder = DAEDirectResponder( config )
-    log.info("polling: %s " % repr(responder))
-    count = 0 
-    while True:
-        log.info("polling %s " % count ) 
-        responder.poll()
-        count += 1 
-        time.sleep(1) 
-    pass
-    log.info("terminating")
+
+    geocachepath = config.geocachepath
+    if os.path.exists(geocachepath) and config.args.geocache:
+        geometry = DAEGeometry.load_from_cache( config )
+    else:
+        geometry = DAEGeometry(config)
+        geometry.flatten()
+        if config.args.geocache:
+            geometry.save_to_cache(geocachepath)
+        pass
+
+
+    gdc = G4DAEChroma(geometry, config )
+    gdc.poll_forever()
 
 
 if __name__ == '__main__':

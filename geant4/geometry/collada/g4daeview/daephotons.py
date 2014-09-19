@@ -13,9 +13,9 @@ from daephotonsparam import DAEPhotonsParam
 from daephotonsmenuctrl import DAEPhotonsMenuController
 from daephotonsrenderer import DAEPhotonsRenderer
 from daephotonsdata import DAEPhotonsData
-from daephotonspropagator import DAEPhotonsPropagator
 from daephotonsanalyzer import DAEPhotonsAnalyzer, DAEPhotonsPropagated
 from daephotonsstyler import DAEPhotonsStyler
+from daephotonspropagator import DAEPhotonsPropagator
 
 
 class DAEPhotons(object):
@@ -57,9 +57,10 @@ class DAEPhotons(object):
 
     """ 
     def __init__(self, photons, event ):
+
         """
         :param photons: `chroma.event.Photons` instance (or fallback)
-        :param event: `DAEEvent` instance
+        :param event: `DAEEventBase` instance
         """ 
         self.event = event       
         self.interop = not event.scene.chroma.dummy

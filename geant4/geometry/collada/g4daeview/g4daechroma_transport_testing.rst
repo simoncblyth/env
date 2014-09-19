@@ -74,3 +74,23 @@ Worker polls the broker for smth to do
     2014-09-19 13:56:50,031 env.geant4.geometry.collada.g4daeview.g4daechroma:19  polling 11 
 
 
+
+Normal Topology Success, via tunneling both client and worker
+-----------------------------------------------------------------
+
+* broker on N, `czmq_broker` running all the time under supervisord
+* worker on D, interactively started after which polls every second::
+
+  delta:~ blyth$ g4daechroma.sh --zmqtunnelnode=N 
+
+* client on D or N, interactively sends CPL at each invokation::
+
+  delta:~ blyth$ czrt.sh --zmqtunnelnode=N 
+  [blyth@belle7 ~]$ czrt-nsend 
+
+
+
+
+
+
+

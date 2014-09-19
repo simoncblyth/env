@@ -44,6 +44,26 @@ Upload Mercurial repo to bitbucket
 #. add a README.rst at top level in bitbucket dialect reStructuredText
 
 
+Draft Commits Showing in Bitbucket web interface
+--------------------------------------------------
+
+* https://bitbucket.org/site/master/issue/8678/draft-status-on-commits-bb-9791
+
+Sept 19, 2014
+~~~~~~~~~~~~~~~
+
+* Observe commit from belle7 in web interface to be listed as in DRAFT status, possibly
+  due to old client version on belle7
+
+::
+
+    [blyth@belle7 g4daeview]$ hg --version
+    Mercurial Distributed SCM (version 1.5)
+
+    delta:env blyth$ hg --version
+    Mercurial Distributed SCM (version 2.8.1)
+
+
 
 Overview README
 ----------------

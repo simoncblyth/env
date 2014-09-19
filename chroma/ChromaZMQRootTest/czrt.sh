@@ -11,10 +11,6 @@ CZRT.SH
    czrt.sh --zmqtunnelnode=N
 
 
-
-  
- 
-
 EOU
 }
 

@@ -35,6 +35,7 @@ class DAEDirectConfig(object):
         parser, defaults = self._make_direct_parser(doc)
         self.direct_parser = parser
         self.direct_defaults = defaults
+        self._path = None
       
     def parse(self):
         self.direct_parser.set_defaults(**self.direct_defaults)
@@ -74,15 +75,60 @@ class DAEDirectConfig(object):
 
 
         defaults['with_chroma'] = True 
+        defaults['seed'] = 0
+
         parser.add_argument( "-C","--nochroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_false" )
+        parser.add_argument( "--seed", help="Random Number seed, used for np.random.seed and curand setup", type=int  )
+
 
         parser.add_argument( "--zmqendpoint", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
         parser.add_argument( "--zmqtunnelnode", help="Option interpreted at bash invokation level (not python) to specify remote SSH node to which a tunnel will be opened, strictly requires form `--zmqtunnelnode=N`  where N is an SSH config \"alias\".", type=str  )
         defaults['zmqendpoint'] = os.environ.get("ZMQ_BROKER_URL_BACKEND","tcp://localhost:5002")
         defaults['zmqtunnelnode'] = None
 
+        defaults['confdir'] = "~/.g4daeview/%(path)s"
+        defaults['chroma_material_map'] = "chroma_material_map.json"
+        defaults['chroma_surface_map'] = "chroma_surface_map.json"
+        defaults['chroma_process_map'] = "chroma_process_map.json"
+
+        parser.add_argument( "--confdir", help="Path to directory for config files such as bookmarks.  %(default)s", type=str  )
+        parser.add_argument( "--chroma-material-map", help="Name of chroma material map file.  %(default)s", type=str  )
+        parser.add_argument( "--chroma-surface-map", help="Name of chroma surface map file.  %(default)s", type=str  )
+        parser.add_argument( "--chroma-process-map", help="Name of chroma process map file.  %(default)s", type=str  )
+
+        defaults['wipegeometry'] = False
+        parser.add_argument( "--wipegeometry", action="store_true", help="Wipe preexisting geometry maps before writing new ones, use this when changing geometry. Default %(default)s." )
+
+        defaults['path_template'] = os.environ.get('DAE_PATH_TEMPLATE',None)
+        defaults['key'] = 'CPL'
+
+        parser.add_argument( "--key",   help="[I] ROOT Object Key to use with load/save. Default %(default)s.",type=str)
+        parser.add_argument( "--path-template", help="Path template that load/save arguments fill in. Default %(default)s.",type=str)
+
+
+        defaults['deviceid'] = None
+        defaults['cuda_profile'] = False
+
+        parser.add_argument(      "--device-id", help="CUDA device id.", type=str )
+        parser.add_argument(      "--cuda-profile", help="Sets CUDA_PROFILE envvar.", action="store_true" )
+
+        ## hmm these came from the live parser, moving them here means can no longer interactively (over udp) modify 
+        # kernel launch config, transitioning from 1D to 2D
+        defaults['threads_per_block'] = 64  # 1D
+        defaults['max_blocks'] = 1024       # 1D
+        defaults['block'] = "16,16,1"       # 2D
+        defaults['launch'] = "3,2,1"        # 2D
+
+        parser.add_argument( "--threads-per-block", help="", type=int )
+        parser.add_argument( "--max-blocks", help="", type=int )
+        parser.add_argument( "--block", help="[I] String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
+        parser.add_argument( "--launch", help="[I] String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
+
         return parser, defaults 
 
+    chroma_material_map = property(lambda self:self.resolve_confpath(self.args.chroma_material_map))
+    chroma_surface_map = property(lambda self:self.resolve_confpath(self.args.chroma_surface_map))
+    chroma_process_map = property(lambda self:self.resolve_confpath(self.args.chroma_process_map))
 
     def resolve_event_path(self, path_, subname=None):
         """ 
@@ -148,7 +194,7 @@ class DAEDirectConfig(object):
         if self._path is None:
             self._path = self.resolve_path(self.args.path)
         return self._path
-    path = property(_get_path)
+    path = property(_get_path, doc="Resolves alias path arguments `-p dyb` via envvar `DAE_NAME_<DYB>`"  )
 
     def _get_confdir(self):
         path_ = self.args.path

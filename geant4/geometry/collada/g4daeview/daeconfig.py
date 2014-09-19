@@ -70,7 +70,6 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
     def __init__(self, doc=""):
         DAEDirectConfig.__init__(self) 
         ConfigBase.__init__(self, doc) 
-        self._path = None
 
     def _get_timerange(self):
         timerange = self.args.timerange
@@ -78,11 +77,6 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
     def _set_timerange(self, timerange):
         self.args.timerange = timerange
     timerange = property(_get_timerange, _set_timerange) 
-
-
-    chroma_material_map = property(lambda self:self.resolve_confpath(self.args.chroma_material_map))
-    chroma_surface_map = property(lambda self:self.resolve_confpath(self.args.chroma_surface_map))
-    chroma_process_map = property(lambda self:self.resolve_confpath(self.args.chroma_process_map))
 
     def _make_base_parser(self, doc):
         """
@@ -109,7 +103,6 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         defaults['debugkernel'] = False
         defaults['debugpropagate'] = True
         defaults['wipepropagate'] = False
-        defaults['wipegeometry'] = False
         defaults['debugphoton'] = 0
 
         defaults['prescale'] = 1
@@ -117,13 +110,8 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
-        defaults['seed'] = 0
-        defaults['confdir'] = "~/.g4daeview/%(path)s"
         defaults['ibookmarks'] = "bookmarks.cfg"  # when things go wrong, usually loose bookmarks so convenient to have different input bookmarks 
         defaults['outdir'] = "."
-        defaults['chroma_material_map'] = "chroma_material_map.json"
-        defaults['chroma_surface_map'] = "chroma_surface_map.json"
-        defaults['chroma_process_map'] = "chroma_process_map.json"
 
 
         parser.add_argument( "--legacy", dest="legacy", action="store_true", help="Sets `legacy=True`, with `color` and `position` rather than custom OpenGL attributes, default %(default)s." )
@@ -131,26 +119,20 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--debugkernel", action="store_true", help="Enables VBO_DEBUG in propagate_vbo.cu, default %(default)s." )
         parser.add_argument( "--debugpropagate", action="store_true", help="Readback propagated VBO into numpy array and persist to propagated.npz, also compares with any same seed prior files. Default %(default)s." )
         parser.add_argument( "--wipepropagate", action="store_true", help="Wipe preexisting propagated VBO before writing new ones, use this when expect propagates-<seed>.npz to be different due to code changes. Default %(default)s." )
-        parser.add_argument( "--wipegeometry", action="store_true", help="Wipe preexisting geometry maps before writing new ones, use this when changing geometry. Default %(default)s." )
+
         parser.add_argument( "--debugphoton", type=int, help="photon_id to debug in propagate_vbo.cu when --debugkernel is enabled, default %(default)s." )
         parser.add_argument( "--prescale", help="Scale down photon array sizes yieled by DAEPhotonsData by subsampling, default %(default)s.", type=int )
         parser.add_argument( "--max-slots", dest="max_slots", help="Blow up photon array and VBO sizes to hold multiple parts of the propagation, default %(default)s.", type=int )
         parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )
-        parser.add_argument( "--seed", help="Random Number seed, used for np.random.seed and curand setup", type=int  )
-        parser.add_argument( "--confdir", help="Path to directory for config files such as bookmarks.  %(default)s", type=str  )
+
+
         parser.add_argument( "--ibookmarks", help="Name of input bookmarks. %(default)s", type=str  )
         parser.add_argument( "--outdir", help="Path to output directory for screencapture PNGs.  %(default)s", type=str  )
-        parser.add_argument( "--chroma-material-map", help="Name of chroma material map file.  %(default)s", type=str  )
-        parser.add_argument( "--chroma-surface-map", help="Name of chroma surface map file.  %(default)s", type=str  )
-        parser.add_argument( "--chroma-process-map", help="Name of chroma process map file.  %(default)s", type=str  )
 
         parser.add_argument( "--apachepub", help="Option interpreted at bash invokation level (not python) to specify running from within local apache htdocs and copying PNGs to remote.", type=str  )
-        defaults['deviceid'] = None
-        defaults['cuda_profile'] = False
-        parser.add_argument(      "--device-id", help="CUDA device id.", type=str )
-        parser.add_argument(      "--cuda-profile", help="Sets CUDA_PROFILE envvar.", action="store_true" )
+
 
         defaults['with_cuda_image_processor'] = False
         defaults['cuda_image_processor'] = "Invert"
@@ -224,8 +206,6 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         defaults['load'] = None
         defaults['save'] = None
         defaults['saveall'] = False
-        defaults['key'] = 'CPL'
-        defaults['path_template'] = os.environ.get('DAE_PATH_TEMPLATE',None)
         #defaults['pholine']  = False
         #defaults['phopoint']  = True
         defaults['fpholine'] = 100.
@@ -248,8 +228,6 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--load",  help="[I] Path to .root file to read, eg containing ChromaPhotonList instances. Default %(default)s.",type=str)
         parser.add_argument( "--save",  help="[I] Path to .root file to write. Default %(default)s.",type=str)
         parser.add_argument( "--saveall",  help="[I] Save all CPL received. Default %(default)s.", action="store_true")
-        parser.add_argument( "--key",   help="[I] ROOT Object Key to use with load/save. Default %(default)s.",type=str)
-        parser.add_argument( "--path-template", help="Path template that load/save arguments fill in. Default %(default)s.",type=str)
         parser.add_argument( "--fpholine", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)
         parser.add_argument( "--fphopoint", help="Present photons as points of size fphopoint. Default %(default)s.",type=float)
         parser.add_argument( "--time", help="Time used for photon history animation. Default %(default)s.",type=float)
@@ -285,17 +263,6 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--flags", help="[I] g_flags constant provided to kernel, used for thread time presentation eg try 20,0  ", type=str  )
         parser.add_argument( "--metric", help="One of time/node/intersect/tri or default None", type=str  )
         parser.add_argument( "--showmetric", action="store_true", help="Switch on display of the metric and flags configured.")
-
-        # kernel launch config, transitioning from 1D to 2D
-        defaults['threads_per_block'] = 64  # 1D
-        defaults['max_blocks'] = 1024       # 1D
-        defaults['block'] = "16,16,1"       # 2D
-        defaults['launch'] = "3,2,1"        # 2D
-        parser.add_argument( "--threads-per-block", help="", type=int )
-        parser.add_argument( "--max-blocks", help="", type=int )
-        parser.add_argument( "--block", help="[I] String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
-        parser.add_argument( "--launch", help="[I] String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
-
         # kernel params and how launched
         defaults['max_time'] = 3.0  ; MAX_TIME_WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
         defaults['allsync'] = True
