@@ -3,8 +3,10 @@
 ZMQRoot Responder
 ==================
 
-ISSUE: Terminal Window resize causes Interrupted system call
+RESOLVED: Terminal Window resize causes Interrupted system call
 ---------------------------------------------------------------
+
+* resolved, cannot remember details : involved handling some signal perhaps
 
 Changing terminal window size whilst the responder is polling
 results in `zmq.error.ZMQError: Interrupted system call`

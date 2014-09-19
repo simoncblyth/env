@@ -289,5 +289,9 @@ czrt-nuwapkg-run(){
    eval $cmd
 }
 
-
+czrt-nsend(){
+  [ "$NODE_TAG" != "N" ] && echo $msg this is for debug use on N only && return
+  fenv
+  LD_LIBRARY_PATH=$DYB/external/zmq/4.0.4/$CMTCONFIG/lib:$LD_LIBRARY_PATH CHROMA_CLIENT_CONFIG=tcp://127.0.0.1:5001 ChromaZMQRootTest.exe
+}
 

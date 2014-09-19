@@ -11,7 +11,6 @@ Usage::
 
 """
 import os, logging
-import numpy as np
 
 try:
     from env.root.import_ROOT import ROOT     # avoids sys.argv kidnap
@@ -43,6 +42,7 @@ def examine_cpl(obj):
         print d
 
 def random_cpl(n=100):
+     import numpy as np
      cpl = ROOT.ChromaPhotonList()
      for _ in range(n):
          cpl.AddPhoton( *np.random.random(11) )

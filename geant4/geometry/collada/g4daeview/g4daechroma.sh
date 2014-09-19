@@ -1,5 +1,7 @@
 #!/bin/bash -l
 
+
+
 cmdline="$*"
 zmqtunnelnode=""
 
@@ -29,6 +31,21 @@ cpl-export
 
 zmq-
 zmq-broker-export
+
+
+if [ "$NODE_TAG" == "N" ]; then
+   #
+   # for parasitic use of NuWa python2.7 on N with easy_installed pyzmq, see pyzmq-
+   # although no GPU/CUDA/Chroma on N, it would be instructive to have this
+   # operational there to some extent to check CPL transport 
+   # 
+   fenv 
+   export ZMQROOT_LIB=$DYB/NuWa-trunk/dybgaudi/InstallArea/$CMTCONFIG/lib/libZMQRoot.so
+   export CHROMAPHOTONLIST_LIB=$DYB/NuWa-trunk/dybgaudi/InstallArea/$CMTCONFIG/lib/libChroma.so
+   env | grep ZMQ 
+   env | grep CHROMA
+fi
+
 
 
 ssh-tunnel-cmd(){

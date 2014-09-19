@@ -9,13 +9,18 @@ from daedirectconfig import DAEDirectConfig
 from daedirectresponder import DAEDirectResponder
 
 def main():
+    print "main"
     config = DAEDirectConfig(__doc__)
     config.parse()
     responder = DAEDirectResponder( config )
     log.info("polling: %s " % repr(responder))
-    responder.poll()
-    log.info("sleeping while waiting for cpl to arrive")
-    time.sleep(1000000) 
+    count = 0 
+    while True:
+        log.info("polling %s " % count ) 
+        responder.poll()
+        count += 1 
+        time.sleep(1) 
+    pass
     log.info("terminating")
 
 

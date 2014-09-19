@@ -5,7 +5,6 @@ DAEDirectConfig
 
 """
 import os, logging, argparse, socket, md5, datetime, stat
-import numpy as np
 log = logging.getLogger(__name__)
 
 try: 
@@ -41,7 +40,6 @@ class DAEDirectConfig(object):
         self.direct_parser.set_defaults(**self.direct_defaults)
         args = self.direct_parser.parse_args()
         logging.basicConfig(level=getattr(logging, args.loglevel.upper()), format=args.logformat )
-        np.set_printoptions(precision=4, suppress=True)
         self.args = args
  
     def _make_direct_parser(self, doc):
