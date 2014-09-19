@@ -198,6 +198,8 @@ class DAEEvent(object):
 
         External ZMQ messages containing CPL arrive at DAEResponder and are routed here
         via glumpy event system.
+
+        TODO: check that response is sent with the propagated photons
         """
         if self.config.args.saveall:
             log.info("external_cpl timestamp_save due to --saveall option")

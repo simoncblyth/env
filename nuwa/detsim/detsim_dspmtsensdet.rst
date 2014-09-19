@@ -38,6 +38,104 @@ Testing GPU Hit Formation
    * see `czrt-` 
 
 
+First Try
+~~~~~~~~~~~
+
+#. currently now QE, test without first 
+
+::
+
+    [blyth@belle7 dybgaudi]$ svn ci -m "minor: trying Geant4/Chroma integration via effectively forming hits on GPU and placing batches of them into hit collections in StackAction  " 
+    Sending        Simulation/DetSimChroma/cmt/requirements
+    Sending        Simulation/DetSimChroma/src/DsChromaStackAction.cc
+    Sending        Simulation/DetSimChroma/src/DsChromaStackAction.h
+    Sending        Utilities/Chroma/Chroma/ChromaPhotonList.hh
+    Sending        Utilities/Chroma/cmt/requirements
+    Sending        Utilities/Chroma/src/ChromaPhotonList.cc
+    Transmitting file data ......
+    Committed revision 23251.
+
+
+Where does G4 call ProcessHits ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Via the header implemented `Hit` method of `G4VSensitiveDetector`
+
+
+`geant4.10.00.p01/source/tracking/src/G4SteppingManager.cc`::
+
+    116 G4StepStatus G4SteppingManager::Stepping()
+    117 //////////////////////////////////////////
+    118 {
+    ...
+    217 //-------
+    218 // Finale
+    219 //-------
+    220 
+    221 // Update 'TrackLength' and remeber the Step length of the current Step
+    222    fTrack->AddTrackLength(fStep->GetStepLength());
+    223    fPreviousStepSize = fStep->GetStepLength();
+    224    fStep->SetTrack(fTrack);
+    225 #ifdef G4VERBOSE
+    226                          // !!!!! Verbose
+    227 
+    228            if(verboseLevel>0) fVerbose->StepInfo();
+    229 #endif
+    230 // Send G4Step information to Hit/Dig if the volume is sensitive
+    231    fCurrentVolume = fStep->GetPreStepPoint()->GetPhysicalVolume();
+    232    StepControlFlag =  fStep->GetControlFlag();
+    233    if( fCurrentVolume != 0 && StepControlFlag != AvoidHitInvocation) {
+    234       fSensitive = fStep->GetPreStepPoint()->
+    235                                    GetSensitiveDetector();
+    236       if( fSensitive != 0 ) {
+    237         fSensitive->Hit(fStep);
+    238       }
+    239    }
+
+
+G4VSensitiveDetector
+~~~~~~~~~~~~~~~~~~~~~
+
+
+`geant4.10.00.p01/source/digits_hits/detector/include/G4VSensitiveDetector.hh`::
+
+    113   public: // with description
+    114       inline G4bool Hit(G4Step*aStep)
+    115       {
+    116         G4TouchableHistory* ROhis = 0;
+    117         if(!isActive()) return false;
+    118         if(filter)
+    119         { if(!(filter->Accept(aStep))) return false; }
+    120         if(ROgeometry)
+    121         { if(!(ROgeometry->CheckROVolume(aStep,ROhis))) return false; }
+    122         return ProcessHits(aStep,ROhis);
+    123       }
+    124       //  This is the public method invoked by G4SteppingManager for generating
+    125       // hit(s). The actual user's implementation for generating hit(s) must be
+    126       // implemented in GenerateHits() virtual protected method. This method
+    127       // MUST NOT be overrided.
+
+
+`geant4.10.00.p01/source/digits_hits/detector/src/G4VSensitiveDetector.cc`::
+
+    100 G4int G4VSensitiveDetector::GetCollectionID(G4int i)
+    101 {
+    102    return G4SDManager::GetSDMpointer()->GetCollectionID(SensitiveDetectorName+"/"+collectionName[i]);
+    103 }
+    104 
+    105 //----- following methoods are abstract methods to be
+    106 //----- implemented in the concrete classes
+    107 
+    108 void G4VSensitiveDetector::Initialize(G4HCofThisEvent*)
+    109 {
+    110 }
+    111 
+    112 void G4VSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
+    113 {
+    114 }
+
+
+
 
 
 DsPmtSensDet

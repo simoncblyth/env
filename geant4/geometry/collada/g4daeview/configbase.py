@@ -21,7 +21,16 @@ class ThrowingArgumentParser(argparse.ArgumentParser):
         raise ArgumentParserError(message)
 
 class ConfigBase(object):
+    """
+    Classes specializing this expected to implement
+    the below two methods which return the parser and defaults.
 
+    * _make_base_parser
+    * _make_live_parser
+
+    At instantiation the two parsers are hooked up and defaults combined
+
+    """
     def __init__(self, doc):
       
         base_parser, base_defaults = self._make_base_parser(doc)

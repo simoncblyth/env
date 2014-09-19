@@ -1,0 +1,206 @@
+#!/usr/bin/env python
+"""
+DAEDirectConfig 
+=================
+
+"""
+import os, logging, argparse, socket, md5, datetime, stat
+import numpy as np
+log = logging.getLogger(__name__)
+
+try: 
+    from collections import OrderedDict
+except ImportError:
+    OrderedDict = dict
+
+
+digest_ = lambda _:md5.md5(_).hexdigest()
+ivec_ = lambda _:map(int,_.split(","))
+fvec_ = lambda _:map(float,_.split(","))
+
+
+class DAEDirectConfig(object):
+    """
+    Non-GUI config, NB these parameters and defaults are also used
+    for the GUI DAEConfig
+    """
+    block=property(lambda self:ivec_(self.args.block))
+    launch=property(lambda self:ivec_(self.args.launch))
+    flags=property(lambda self:ivec_(self.args.flags))
+
+    def __init__(self, doc=""):
+        """
+        # these direct_ attributes allows DAEConfig to reuse and then 
+        # expand on these parameter/default definitions
+        """
+        parser, defaults = self._make_direct_parser(doc)
+        self.direct_parser = parser
+        self.direct_defaults = defaults
+      
+    def parse(self):
+        self.direct_parser.set_defaults(**self.direct_defaults)
+        args = self.direct_parser.parse_args()
+        logging.basicConfig(level=getattr(logging, args.loglevel.upper()), format=args.logformat )
+        np.set_printoptions(precision=4, suppress=True)
+        self.args = args
+ 
+    def _make_direct_parser(self, doc):
+        parser = argparse.ArgumentParser(doc, add_help=False)
+        defaults = OrderedDict()
+
+        defaults['clargs'] = []
+        defaults['loglevel'] = "INFO"
+        defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
+
+        parser.add_argument( "clargs",nargs="*", help="Optional commandline args   %(default)s")  
+        parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
+        parser.add_argument( "--logformat", help="%(default)s")  
+
+        defaults['path'] = "dyb"
+        #defaults['geometry']="3153:"
+        #defaults['geometry']="2+,3153:"
+        #defaults['geometry']="2+,3153:12221"  # skip the radslabs
+        #defaults['geometry']="3153:12221"      # skip RPC and radslabs
+        defaults['geometry'] = "DAE_GEOMETRY_%(path)s" 
+        defaults['geometry_regexp'] = None
+        defaults['geocache'] = False
+        defaults['geocachepath'] = None
+        defaults['bound'] = True
+
+        parser.add_argument("-p","--path",    help="Shortname indicating envvar DAE_NAME_SHORTNAME (or None indicating  DAE_NAME) that provides path to the G4DAE geometry file  %(default)s",type=str)
+        parser.add_argument("-g","--geometry",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
+        parser.add_argument(      "--geometry-regexp",   help="regexp search pattern eg PmtHemiCathode applied to node id that further restricts --geometry nodes",type=str)
+        parser.add_argument(      "--geocache", help="Save/load flattened geometry to/from binary npz cache. Default %(default)s.", action="store_true" )
+        parser.add_argument(      "--geocachepath", help="Path to geometry cache. Default %(default)s." )
+        parser.add_argument(     "--nobound",  dest="bound", action="store_false", help="Load geometry in pycollada unbound (local) coordinates, **FOR DEBUG ONLY** ")
+
+
+        defaults['with_chroma'] = True 
+        parser.add_argument( "-C","--nochroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_false" )
+
+        parser.add_argument( "--zmqendpoint", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
+        parser.add_argument( "--zmqtunnelnode", help="Option interpreted at bash invokation level (not python) to specify remote SSH node to which a tunnel will be opened, strictly requires form `--zmqtunnelnode=N`  where N is an SSH config \"alias\".", type=str  )
+        defaults['zmqendpoint'] = os.environ.get("ZMQ_BROKER_URL_BACKEND","tcp://localhost:5002")
+        defaults['zmqtunnelnode'] = None
+
+        return parser, defaults 
+
+
+    def resolve_event_path(self, path_, subname=None):
+        """ 
+        Resolves paths to event files
+
+        Using a path_template allows referencing paths in a
+        very brief manner, ie with::
+ 
+            export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%(arg)s.root"
+
+        Can use args `--load 1` 
+
+        """
+        if path_[0] == '/':return path_
+        path_template = self.args.path_template
+        if path_template is None:
+            log.warn("path_template missing ")
+            return path_
+        log.debug("resolve_event_path path_template %s path_ %s " % (path_template, path_ ))  
+        path = path_template % { 'arg':path_ }
+
+        if subname is None:
+            return path 
+        else:
+            base, ext = os.path.splitext(path) 
+            return os.path.join( base, subname) 
+
+
+    def resolve_path(self, path_):
+        """
+        Resolves paths to geometry files
+        """
+        pvar = "_".join(filter(None,["DAE_NAME",path_,]))
+        pvar = pvar.upper()
+        path = os.environ.get(pvar,None)
+        log.debug("Using pvar %s to resolve path %s " % (pvar,path))
+        assert not path is None, "Need to define envvar %s pointing to geometry file" % pvar
+        assert os.path.exists(path), path
+        return path
+
+    def load_cpl(self, name, key=None ):
+        """
+        Requires envvar from cpl-;cpl-export to find the ROOT library 
+        """ 
+        if key is None:
+            key = self.args.key
+        from env.chroma.ChromaPhotonList.cpl import load_cpl
+        path = self.resolve_event_path(name)
+        cpl = load_cpl(path, key )
+        return cpl
+
+    def save_cpl(self, cpl, name, key=None ):
+        """
+        Requires envvar from cpl-;cpl-export to find the ROOT library 
+        """ 
+        if key is None:
+            key = self.args.key
+        path = self.resolve_event_path(name)
+        from env.chroma.ChromaPhotonList.cpl import save_cpl
+        save_cpl( path, key, cpl )
+
+    def _get_path(self):
+        if self._path is None:
+            self._path = self.resolve_path(self.args.path)
+        return self._path
+    path = property(_get_path)
+
+    def _get_confdir(self):
+        path_ = self.args.path
+        if path_ is None:
+            path_ = ""
+        return os.path.expanduser(os.path.expandvars( self.args.confdir % dict(path=path_) ))
+    confdir = property(_get_confdir, doc="absolute path to confdir " )
+
+    def resolve_confpath(self, name, timestamp=False):
+        """
+        Resolves path to config files, and creates directory if not existing
+
+        For timestamp true the last change timestamp of a preexisting file 
+        is incorporated into the name.  This allows prior bookmarks to be retained
+        in timestamped files, to allow reverting to a prior set.
+
+        :param name:
+        :param timestamp:
+        """
+        path = os.path.join( self.confdir, name) 
+        dir_ = os.path.dirname(path)
+        if not os.path.exists(dir_):
+            log.info("creating directory %s " % dir_ )
+            os.makedirs(dir_) 
+        pass
+        if timestamp:
+            if os.path.exists(path):
+                stamp = datetime.datetime.fromtimestamp(os.stat(path)[stat.ST_CTIME]).strftime("%Y%m%d-%H%M")
+                base, ext = os.path.splitext(name)        
+                tname = "%s%s%s" % ( base, stamp, ext )        
+                tpath = os.path.join(self, self.confdir, tname ) 
+                return tpath
+            else:
+                log.warn("no preexisting path %s no need for timestamping  " % path ) 
+        return path
+
+    def _get_geocachepath(self):
+        gcp = self.args.geocachepath 
+        if gcp is None:
+            gcp = "%s.%s.npz" % ( self.path, digest_(self.args.geometry) )
+        return gcp
+    geocachepath = property(_get_geocachepath) 
+
+
+
+
+if __name__ == '__main__':
+    ddc = DAEDirectConfig(__doc__)
+    ddc.parse()
+    print ddc.args 
+
+
+ 

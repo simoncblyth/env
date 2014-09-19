@@ -186,6 +186,7 @@ class DAEPhotons(object):
         Access the array using eg `daephotonsanalyser.sh --load 1`
 
         """
+        log.info("propagate")
         if self.photons is None:return
 
         vbo = self.renderer.pbuffer   
@@ -251,7 +252,7 @@ class DAEPhotons(object):
         if not photons is None:
             self.renderer.invalidate_buffers()
             self.propagate()
-    photons = property(_get_photons, _set_photons) 
+    photons = property(_get_photons, _set_photons, doc="NB the act of setting photons performs the propagation" ) 
 
     ### other actions #####
 
