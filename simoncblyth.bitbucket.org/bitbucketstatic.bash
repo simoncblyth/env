@@ -10,6 +10,13 @@ Bitbucket Static Pages
 
 * http://simoncblyth.bitbucket.org 
 
+Guidelines for binaries
+------------------------
+
+#. not too big there is a 1GB limit on repo size
+#. use parallel folder hierarchy to the env repository  
+
+
 Index Page 
 -----------
 
@@ -24,7 +31,6 @@ with links to the notes and presentations::
     hg commit -m "update top index "
     hg push
     open http://simoncblyth.bitbucket.org
-
 
 Notes 
 -------

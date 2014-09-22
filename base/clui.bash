@@ -143,6 +143,7 @@ clui-pyc(){
       echo $msg in hg repo : remove pyc beneath root $root
    fi    
    find $root -name '*.pyc' -exec rm -f {} \;
+   find $root -name '*.DS_Store' -exec rm -f {} \;
 }
 
 clui-tty(){

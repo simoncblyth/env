@@ -1463,3 +1463,5 @@ docutils-(){      . $(env-home)/doc/docutils/docutils.bash && docutils-env $* ; 
 postfix-(){      . $(env-home)/mail/postfix.bash && postfix-env $* ; }
 de-(){      . $(env-home)/nuwa/de.bash && de-env $* ; }
 
+npyreader-(){      . $(env-home)/numpy/npyreader.bash && npyreader-env $* ; }
+cnpy-(){      . $(env-home)/numpy/cnpy.bash && cnpy-env $* ; }

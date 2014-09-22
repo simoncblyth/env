@@ -86,6 +86,7 @@ Contents:
    osx/index
    hg/index
    simoncblyth.bitbucket.org/index
+   numpy/index
 
 
 
