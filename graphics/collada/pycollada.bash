@@ -29,14 +29,21 @@ history
 #. installed on G first using "git clone" from github, made py25 backport in py25compat git branch
 #. install on N clones from local bare repo at /var/scm/git/pycollada.git  
 
-D
-~~
+D : chroma vpython
+~~~~~~~~~~~~~~~~~~~~~~
 
 Plain vanilla pycollada from git into chroma virtual python, with a non-sudo install, using::
 
    pycollada-get
    pycollada-build
    pycollada-install
+
+
+D : daeserver vpython
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+See *daeserver-*
+
 
 N
 ~~

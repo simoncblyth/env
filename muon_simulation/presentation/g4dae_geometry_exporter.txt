@@ -1,7 +1,6 @@
 
 .. include:: <s5defs.txt>
 
-
 .. s5_background_image::
 
     #
@@ -34,7 +33,7 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
 
 .. class:: small
 
-    Export any Geant4 Geometry into COLLADA/DAE standard 3D files, 
+    Exports Geant4 Geometry into COLLADA/DAE standard 3D files, 
     XML includes:
 
     * volume tree: physical volume/logical volume heirarchy 
@@ -44,7 +43,6 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
 .. image:: images/bitbucket-g4dae.png 
    :width: 700px
    :align: center
-
 
 
 :small:`COLLADA : Standard for 3D Digital Asset Exchange` 
@@ -60,27 +58,31 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
 
 
 
-:small:`G4DAE : Development/Dependencies`
+:small:`G4DAE : Exporter Development`
 -------------------------------------------------------
- 
-:small:`Started from source/persistency/gdml`: 
 
 .. class:: small
 
-   Greenfield dybinstallation required
-
-   * builds Geant4 with G4DAE exporter and other necessary patches  
-   * Details on patching http://simoncblyth.bitbucket.org/env/notes/geant4/nuwa/
-
-
-.. class:: tiny
-
-   NuWa LCG_builder grabs g4dae from bitbucket see 
-   NuWa-trunk/lcgcmt/LCG_Builders/geant4/scripts/geant4_config.sh
+   * based on GDML persistency package
+   * XercesC dependency for XML DOM construction
+   * Triangulation using `G4Polyhedron`, following VRML2  
+   * COLLADA XML `extra` elements for 
 
 
+:small:`G4DAE : Caveats`
+-------------------------------------------------------
 
-:small:`G4DAE : Export Compared to VRML2(WRL)`
+.. class:: small
+
+   * parametrized/replica geometry not handled
+   * limited testing:
+
+     * Daya Bay 
+     * JUNO 
+     * LXe example
+
+
+:small:`G4DAE : Exports Compared to VRML2(WRL)`
 -----------------------------------------------
 
 .. class:: small
@@ -143,26 +145,6 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
 
    https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/daenode.py
    http://belle7.nuu.edu.tw/dae/tree/3148.html
-
-
-
-https://bitbucket.org/simoncblyth/chroma :small:`Forked:` 
----------------------------------------------------------------------------
-
-.. class:: small
-
-    * Stability + efficiency improvements, enabling mobile development [#hw]_
-    * Add recording of propagation steps into VBO [#vbo]_ datastructure
-    * Animated visualization 
-
-.. class:: tiny
-
-   .. [#hw] MacBook Pro (2013), NVIDIA GeForce GT 750M 2048 MB ; 
-            Workstation GPUs such as NVIDIA Kepler K20 expected at least ~3x faster
-
-.. image:: /env/chroma/chroma_fork.png 
-   :width: 700px
-   :align: center
 
 
 :small:`Chroma Raycasting : exercises geometry intersection`

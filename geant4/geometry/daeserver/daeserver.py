@@ -111,7 +111,8 @@ class Defaults(object):
     #daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
     #daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/DVGX_20131121-2053_g4_00.dae"
     #daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae"
-    daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/DVGX_20140222-1423_g4_00.dae"    # aka g4_00.dae.6
+    #daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/DVGX_20140222-1423_g4_00.dae"    # aka g4_00.dae.6
+    daepath = "$DAE_NAME_DYB"
     port = "8080"
     webpy = "scgi"
     uploads = False

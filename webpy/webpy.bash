@@ -26,10 +26,38 @@ Accepting PUT
 
 
 
-
-
 INSTALLS
 ----------
+
+D : daeserver vpython
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+  
+    daeserver-
+    daeserver--
+    which easy_install 
+    easy_install web.py
+
+    daeserver_env)delta:~ blyth$ easy_install web.py 
+    Searching for web.py
+    Reading https://pypi.python.org/simple/web.py/
+    Best match: web.py 0.37
+    Downloading https://pypi.python.org/packages/source/w/web.py/web.py-0.37.tar.gz#md5=93375e3f03e74d6bf5c5096a4962a8db
+    Processing web.py-0.37.tar.gz
+    Writing /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/easy_install-BFmYwY/web.py-0.37/setup.cfg
+    Running web.py-0.37/setup.py -q bdist_egg --dist-dir /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/easy_install-BFmYwY/web.py-0.37/egg-dist-tmp-wV9b_D
+    zip_safe flag not set; analyzing archive contents...
+    web.application: module references __file__
+    web.debugerror: module references __file__
+    Adding web.py 0.37 to easy-install.pth file
+
+    Installed /usr/local/env/geant4/geometry/daeserver_env/lib/python2.7/site-packages/web.py-0.37-py2.7.egg
+    Processing dependencies for web.py
+    Finished processing dependencies for web.py
+    (daeserver_env)delta:~ blyth$ 
+
+
 
 N
 ~~~
@@ -66,3 +94,11 @@ webpy-get(){
    local dir=$(dirname $(webpy-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+webpy-install(){
+   [ -z "$VIRTUAL_ENV" ] && echo $msg this is intended to be used with virtualenv see daeserver-vi as example && return 
+   which easy_install
+   easy_install web.py 
+}
+
+

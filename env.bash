@@ -1465,3 +1465,4 @@ de-(){      . $(env-home)/nuwa/de.bash && de-env $* ; }
 
 npyreader-(){      . $(env-home)/numpy/npyreader.bash && npyreader-env $* ; }
 cnpy-(){      . $(env-home)/numpy/cnpy.bash && cnpy-env $* ; }
+flup-(){      . $(env-home)/wsgi/flup.bash && flup-env $* ; }

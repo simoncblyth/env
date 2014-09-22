@@ -8,16 +8,26 @@ Muon Simulation Presentation
 .. raw:: html
 
    <ul>
-   <li>
+      <li>
          GPU Optical Photon Simulation 
         <ul>  
            <li> <a href="/env/muon_simulation/presentation/gpu_optical_photon_simulation.html" > gpu_optical_photon_simulation.html </a> </li>
            <li> <a href="/env/muon_simulation/presentation/gpu_optical_photon_simulation.txt" > gpu_optical_photon_simulation.txt </a> </li>
            <li> <a href="/env/muon_simulation/presentation/gpu_optical_photon_simulation.pdf" > gpu_optical_photon_simulation.pdf </a> </li>
         </ul>
-   </li>
-   </ul>
+      </li>
 
+      <li>
+         G4DAE
+        <ul>  
+           <li> <a href="/env/muon_simulation/presentation/g4dae_geometry_export.html" > g4dae_geometry_export.html </a> </li>
+           <li> <a href="/env/muon_simulation/presentation/g4dae_geometry_export.txt" >  g4dae_geometry_export.txt </a> </li>
+           <li> <a href="/env/muon_simulation/presentation/g4dae_geometry_export.pdf" >  g4dae_geometry_export.pdf </a> </li>
+        </ul>
+      </li>
+
+
+   </ul>
 
 
 For notes on how these presentations are derived see :doc:`/doc/slides` or `slides-vi`
