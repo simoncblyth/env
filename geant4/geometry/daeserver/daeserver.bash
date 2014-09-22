@@ -8,6 +8,30 @@ daeserver-usage(){ cat << EOU
 DAESERVER
 =========
 
+installs
+----------
+
+D : daeserver vpython
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Check apache is running, start SCGI daeserver with::
+
+    delta:~ blyth$ daeserver.sh 
+    2014-09-22 20:50:28,558 __main__ INFO     /Users/blyth/env/geant4/geometry/daeserver/daeserver.py 127.0.0.1:8080 scgi
+    2014-09-22 20:50:28,558 __main__ INFO     daeserver startup with webpy 0.37 
+    2014-09-22 20:50:28,614 env.geant4.geometry.collada.idmap INFO     found 685 unique ids 
+    2014-09-22 20:50:28,625 env.geant4.geometry.collada.daenode INFO     idmap exists /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.idmap entries 12230 
+    2014-09-22 20:50:30,330 env.geant4.geometry.collada.daenode INFO     index linking DAENode with boundgeom 12230 volumes 
+    2014-09-22 20:50:30,381 env.geant4.geometry.collada.daenode INFO     linking DAENode with idmap 12230 identifiers 
+    2014-09-22 20:50:30 : WSGIServer starting up
+
+
+Check some urls:
+
+* http://localhost/dae/tree/3154.html
+
+
+
 requirements
 ---------------
 

@@ -1,5 +1,22 @@
 #!/bin/bash -l
-env-
+
+daeserver-
+
+daeserver-notes(){ cat << EON
+
+TODO
+
+Make these more similar 
+
+EON
+}
+
+
+daeserver-vrun(){
+  export-;
+  export-export;
+  $(daeserver-vdir)/bin/python $(daeserver-dir)/daeserver.py $*
+}
 
 daeserver-belle7(){
    python- source
@@ -7,12 +24,13 @@ daeserver-belle7(){
 }
 
 daeserver-default(){
-    daeserver.py 
+    daeserver.py $* 
 }
 
 case $NODE_TAG in 
-  N) daeserver-belle7 ;;
-  *) daeserver-default ;;
+  N) daeserver-belle7 $* ;;
+  D) daeserver-vrun $* ;;
+  *) daeserver-default $* ;;
 esac
 
 
