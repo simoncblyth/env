@@ -20,6 +20,7 @@ chroma
    chroma_collada
 
    chroma_pycuda
+   chroma_pyublas
    chroma_geometry
    chroma_materials
    chroma_propagate

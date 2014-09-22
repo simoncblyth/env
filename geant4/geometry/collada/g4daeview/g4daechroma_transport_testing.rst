@@ -81,12 +81,12 @@ Normal Topology Success, via tunneling both client and worker
 * broker on N, `czmq_broker` running all the time under supervisord
 * worker on D, interactively started after which polls every second::
 
-  delta:~ blyth$ g4daechroma.sh --zmqtunnelnode=N 
+   delta:~ blyth$ g4daechroma.sh --zmqtunnelnode=N 
 
 * client on D or N, interactively sends CPL at each invokation::
 
-  delta:~ blyth$ czrt.sh --zmqtunnelnode=N 
-  [blyth@belle7 ~]$ czrt-nsend 
+   delta:~ blyth$ czrt.sh --zmqtunnelnode=N 
+   [blyth@belle7 ~]$ czrt-nsend 
 
 
 

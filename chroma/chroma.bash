@@ -37,6 +37,84 @@ Common
 
 * http://shrinkwrap.readthedocs.org/en/latest/
 
+Careful with errant eggs 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After testing build_ext::
+
+    (chroma_env)delta:chroma blyth$ touch src/G4chroma.cc
+    (chroma_env)delta:chroma blyth$ python setup.py build_ext
+    running build_ext
+    building 'chroma.generator._g4chroma' extension
+    C compiler: /usr/bin/clang -fno-strict-aliasing -fno-common -dynamic -pipe -Os -fwrapv -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes
+
+    compile options: '-Isrc -I/usr/local/env/chroma_env/lib/python2.7/site-packages/pyublas/include -I/usr/local/env/chroma_env/include -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c'
+    extra options: '-DG4INTY_USE_XT -I/usr/X11R6/include -I/opt/local/include -DG4UI_USE_TCSH -DG4VIS_USE_RAYTRACERX -I/usr/local/env/chroma_env/bin/../include/Geant4'
+    clang: src/G4chroma.cc
+    ...
+    /usr/bin/clang++ -bundle -undefined dynamic_lookup -L/opt/local/lib -Wl,-headerpad_max_install_names -L/opt/local/lib/db46 build/temp.macosx-10.9-x86_64-2.7/src/G4chroma.o -lboost_python -o build/lib.macosx-10.9-x86_64-2.7/chroma/generator/_g4chroma.so -L/usr/local/env/chroma_env/bin/../lib -lG4Tree -lG4FR -lG4GMocren -lG4visHepRep -lG4RayTracer -lG4VRML -lG4vis_management -lG4modeling -lG4interfaces -lG4persistency -lG4analysis -lG4error_propagation -lG4readout -lG4physicslists -lG4run -lG4event -lG4tracking -lG4parmodels -lG4processes -lG4digits_hits -lG4track -lG4particles -lG4geometry -lG4materials -lG4graphics_reps -lG4intercoms -lG4global -lG4clhep
+    (chroma_env)delta:chroma blyth$ 
+
+Find launch fails of g4daeview.py, with indication of looking inside an errant egg::
+
+   self._gpu_geometry = self.setup_gpu_geometry()
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daechromacontext.py", line 73, in setup_gpu_geometry
+    return GPUGeometry( self.chroma_geometry )
+  File "/usr/local/env/chroma_env/lib/python2.7/site-packages/Chroma-0.5-py2.7-macosx-10.9-x86_64.egg/chroma/gpu/geometry.py", line 25, in __init__
+    geometry_source = get_cu_source('geometry_types.h')
+  File "<string>", line 2, in get_cu_source
+  File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pytools/__init__.py", line 382, in memoize
+    result = func(*args)
+  File "/usr/local/env/chroma_env/lib/python2.7/site-packages/Chroma-0.5-py2.7-macosx-10.9-x86_64.egg/chroma/gpu/tools.py", line 89, in get_cu_source
+    with open('%s/%s' % (srcdir, name)) as f:
+  IOError: [Errno 2] No such file or directory: '/usr/local/env/chroma_env/lib/python2.7/site-packages/Chroma-0.5-py2.7-macosx-10.9-x86_64.egg/chroma/cuda/geometry_types.h'
+
+
+::
+
+    delta:~ blyth$ ll /usr/local/env/chroma_env/lib/python2.7/site-packages/Chroma-0.5-py2.7-macosx-10.9-x86_64.egg/chroma/cuda/
+    total 16
+    -rw-r--r--   1 blyth  staff   329 Sep 19 20:27 __init__.pyc
+    -rw-r--r--   1 blyth  staff    67 Sep 19 20:27 __init__.py
+    drwxr-xr-x  53 blyth  staff  1802 Sep 19 20:27 ..
+    drwxr-xr-x   4 blyth  staff   136 Sep 19 20:27 .
+    delta:~ blyth$ date
+    Mon Sep 22 16:16:44 CST 2014
+
+The below all failed to place the headers in the egg::
+
+    (chroma_env)delta:chroma blyth$ python setup.py install_headers
+    (chroma_env)delta:chroma blyth$ python setup.py develop
+    (chroma_env)delta:chroma blyth$ python setup.py install
+
+
+Recall that **develop** is the chroma setup.py command being used, so there should
+be no egg. Removing the egg succeeds to resume operation::
+
+    delta:site-packages blyth$ cat easy-install.pth 
+    import sys; sys.__plen = len(sys.path)
+    ./unittest2-0.5.1-py2.7.egg
+    ./Sphinx-1.2-py2.7.egg
+    ./spnav-0.9-py2.7.egg
+    ./uncertainties-2.4.4-py2.7.egg
+    ./Jinja2-2.7.2-py2.7.egg
+    ./Pygments-1.6-py2.7.egg
+    ./pycollada-0.4-py2.7.egg
+    ./readline-6.2.4.1-py2.7-macosx-10.9-x86_64.egg
+    /usr/local/env/chroma_env/src/chroma
+    import sys; new=sys.path[sys.__plen:]; del sys.path[sys.__plen:]; p=getattr(sys,'__egginsert',0); sys.path[p:p]=new; sys.__egginsert = p+len(new)
+    delta:site-packages blyth$ 
+
+
+Probably the **install** command created the egg, but the recommended way is **develop** which plans the path 
+in the `easy-install.pth`:: 
+
+    delta:site-packages blyth$ find /usr/local/env/chroma_env/src/chroma -name geometry_types.h
+    /usr/local/env/chroma_env/src/chroma/chroma/cuda/geometry_types.h
+
+Removing the header from the working copy reproduces the error, so the correct header now
+being used. There was some flakiness in this, supect an egg cache may be coming into play.
+
 
 chroma-deps pycuda build failure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

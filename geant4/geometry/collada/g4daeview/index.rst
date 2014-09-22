@@ -18,6 +18,10 @@ g4daeview
    propagated_flags_mismatch
    g4daeview_performance
    g4daechroma_transport_testing
+   g4daechroma_cpp
+   photon_marshalling
+
+
 
 
 
