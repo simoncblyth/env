@@ -94,24 +94,10 @@ opts = None
 
 class Defaults(object):
     """
-    daepath is updated as new features are added via manual copies from 
-    export directories on N, eg with::
-
-        [blyth@belle7 DVGX_20140222-1423]$ pwd
-        /data1/env/local/env/geant4/geometry/export/DVGX_20140222-1423
-        [blyth@belle7 DVGX_20140222-1423]$ cp g4_00.dae ../../daeserver/DVGX_20140222-1423_g4_00.dae
-        [blyth@belle7 DVGX_20140222-1423]$ md5sum ../../daeserver/DVGX_20140222-1423_g4_00.dae
-        133f851d31ff840a75d1ef71f0e13379  ../../daeserver/DVGX_20140222-1423_g4_00.dae
- 
     """
     logpath = None
     loglevel = "INFO"
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
-
-    #daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
-    #daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/DVGX_20131121-2053_g4_00.dae"
-    #daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae"
-    #daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/DVGX_20140222-1423_g4_00.dae"    # aka g4_00.dae.6
     daepath = "$DAE_NAME_DYB"
     port = "8080"
     webpy = "scgi"
@@ -150,7 +136,7 @@ def parse_args(doc):
     daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
     if not daepath[0] == '/':
         daepath = os.path.abspath(daepath)
-    assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, please create the directory and move the .dae  there, please")
+    assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, create the directory and move the .dae  there")
     opts.daepath = daepath
     return opts, args
 
@@ -171,20 +157,36 @@ class _tree_txt:
     def GET(self, arg):
         return getTextTree(arg, dict(web.input().items())) 
 
-maxdepth_ = lambda arg:arg.split("___")[1] if '___' in arg else -1
 
+def parse_getarg( arg ):
+    elem = arg.split("___") 
+    if len(elem) == 2:
+        nodespec, maxdepth = elem
+    elif len(elem) == 1:  
+        nodespec = elem[0]
+        maxdepth = -1
+    else:
+        raise Exception("failed to parse GET argument %s " % arg )
+    pass 
+    return nodespec, maxdepth
+        
 class _tree_webglbook_html:
     def GET(self, arg):
-        node = DAENode.get(arg)
-        subtree = DAESubTree( node, maxdepth=maxdepth_(arg), text=False )
+        nodespec, maxdepth = parse_getarg( arg )
+        node = DAENode.get(nodespec)
+        subtree = DAESubTree( node, maxdepth=maxdepth, text=False )
         return webglbook_render.production_loader_collada(arg, node, subtree )
 
 class _tree_r62_html:
     def GET(self, arg):
-        node = DAENode.get(arg)
-        subtree = DAESubTree( node, maxdepth=maxdepth_(arg), text=False )
-        #cachekiller = "?cachekiller=%s" % time.time() 
-        cachekiller = ""  # Argh this kills Safari JS debugging too, will not stop on breakpoints 
+        """
+        #cachekiller = "?cachekiller=%s" % time.time()   
+        #    Argh this kills Safari JS debugging too, will not stop on breakpoints 
+        """
+        nodespec, maxdepth = parse_getarg( arg )
+        node = DAENode.get(nodespec)
+        subtree = DAESubTree( node, maxdepth=maxdepth, text=False )
+        cachekiller = ""  
         return r62_render.daeload(arg, node, subtree, cachekiller )
 
 

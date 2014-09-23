@@ -223,7 +223,8 @@ DAELOAD = function(){
 
         function param_table(){
              var table = document.createElement('table') ;
-             param_table_add( table, "background", "http://dayabay.phys.ntu.edu.tw/env/muon_simulation/presentation/gpu_optical_photon_simulation.html" , true );
+             param_table_add( table, "keys", "A:rotate S:zoom D:pan  press key and trackpad drag OR two-finger zoom ", false);
+             param_table_add( table, "background", "http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/gpu_optical_photon_simulation.html" , true );
              param_table_add( table, "samples", "../../muon_simulation/samples/" , true );
              param_table_add( table, "location", window.location , true );
              for (var k in param) {
@@ -498,7 +499,7 @@ DAELOAD = function(){
              controls.noPan = false;
              controls.staticMoving = true;
              controls.dynamicDampingFactor = 0.3;
-             controls.keys = [65, 83, 68];
+             controls.keys = [ 65 /*A*/, 83 /*S*/, 68 /*D*/ ];
         } 
 
 

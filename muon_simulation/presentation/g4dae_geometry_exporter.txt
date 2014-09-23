@@ -65,21 +65,12 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
 
    * based on GDML persistency package
    * XercesC dependency for XML DOM construction
-   * Triangulation using `G4Polyhedron`, following VRML2  
-   * COLLADA XML `extra` elements for 
+   * Triangulation using ``G4Polyhedron``, following VRML2  
+   * COLLADA XML ``extra`` elements for 
+
+     * material and surface properties
 
 
-:small:`G4DAE : Caveats`
--------------------------------------------------------
-
-.. class:: small
-
-   * parametrized/replica geometry not handled
-   * limited testing:
-
-     * Daya Bay 
-     * JUNO 
-     * LXe example
 
 
 :small:`G4DAE : Exports Compared to VRML2(WRL)`
@@ -118,33 +109,159 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
                   Details: http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/dae_cf_wrl/ 
 
 
-:small:`G4DAE : Triangular Advantage` 
---------------------------------------
+
+
+:small:`G4DAE : OSX view/edit in Xcode.app (1)` 
+------------------------------------------------
 
 .. class:: small
 
-    Surface representation simplicity (vertices+triangles) and COLLADA standard 
-    file format means many tools/libraries available, allowing high level development.
-    Basis libraries used for developments:
+   Deep tree makes choice of default appearance problematic. 
 
-    * ``daenode.py`` : G4DAE => Chroma geometry
+.. image:: /env/geant4/geometry/collada/xcode/g4dae_xcode.png
+   :width: 900px
+   :align: center
 
-       * https://github.com/pycollada/pycollada  numpy based DAE parsing
-       * http://www.numpy.org
+.. class:: tiny
 
-    * ``daeserver.py`` : 3D WebGL interface to G4DAE geometry
+   Blender also possible, but interface difficult.
 
-       * https://github.com/mrdoob/three.js/  Javascript 3D 
 
-    * ``g4daeview.py`` : Fast OpenGL 3D viewer/navigator
-
-       * http://pyopengl.sourceforge.net   OpenGL from python 
-       * https://code.google.com/p/glumpy/  pyopengl+numpy integration
+:small:`G4DAE : OSX view/edit in Xcode.app (2)` 
+------------------------------------------------
 
 .. class:: small
 
+   Bialkali PMT cathode highlighted by Xcode effect edit.
+
+.. image:: /env/geant4/geometry/collada/xcode/g4dae_xcode_2.png
+   :width: 900px
+   :align: center
+
+
+:small:`G4DAE : OSX/Windows Sketchup Import` 
+------------------------------------------------
+
+.. image:: /env/geant4/geometry/collada/sketchup/g4dae_sketchup.png
+   :width: 900px
+   :align: center
+
+:small:`G4DAE : OSX Finder, Interactive Quicklook (1)` 
+-------------------------------------------------------
+
+.. image:: /env/geant4/geometry/collada/osx_finder/g4dae_osx_finder.png
+   :width: 900px
+   :align: center
+
+:small:`G4DAE : OSX Finder, Rotate/Pan/Zoom` 
+---------------------------------------------
+
+.. image:: /env/geant4/geometry/collada/osx_finder/g4dae_osx_finder_2.png
+   :width: 900px
+   :align: center
+
+
+.. class: tiny
+
+   OSX 10.8+
+
+
+:small:`G4DAE : Safari WebGL Render using daeserver` 
+------------------------------------------------------
+
+.. image:: /env/geant4/geometry/collada/webgl_safari_daeserver/webgl_safari_daeserver.png
+   :width: 900px
+   :align: center
+
+
+:small:`G4DAE : daeserver.py : View in browser` 
+------------------------------------------------------
+
+.. class:: small
+
+   * http://belle7.nuu.edu.tw/dae/tree/0.html
+
+   Browser client, based on:
+
+   * threejs, Javascript 3D library 
+
+     * reads geometry subtrees from server
+     * renders with WebGL 
+
+   Server:
+
+   * daenode.py, reconstructs Geant4 tree from the DAE 
+   * pycollada, parse full geometry at initialization   
+   * webpy, serve .html and .dae subtrees at each request 
+   * apache mod_fcgi 
+
+   Command line access to subtrees::
+
+       curl -sO http://localhost/dae/tree/3155___2.dae
+   
+
+
+   
+.. class:: tiny
+
+   http://threejs.org 
+   http://pycollada.github.io 
+   http://webpy.org
+   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/daeserver/
    https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/daenode.py
-   http://belle7.nuu.edu.tw/dae/tree/3148.html
+
+ 
+
+
+
+
+
+
+:small:`G4DAE : Issues`
+-------------------------------------------------------
+
+.. class:: small
+
+   * parametrized/replica geometry not implemented
+   * limited testing: DayaBay and JUNO 
+   * appearance (in Preview.app, Xcode.app, Blender) needs work  
+
+
+:small:`G4DAE : COLLADA Standard 3D file format` 
+------------------------------------------------
+
+.. class:: small
+
+    Many apps view/edit COLLADA files: 
+    
+    * Finder/Preview/Xcode, OSX 10.8+ 
+    * Blender, OSX/Windows/Linux
+    * SketchUp, OSX/Windows
+
+    Frameworks:
+
+    * pycollada, Python COLLADA parser 
+    * threejs, Javascript 3D Framework 
+
+.. class:: tiny
+
+   http://threejs.org 
+   http://pycollada.github.io 
+ 
+
+:small:`g4daeview.py` : Geometry and Optical Photon viewer 
+-------------------------------------------------------------
+
+Python OpenGL geometry viewer built with 
+
+* Glumpy, pyopengl+numpy integration
+* PyOpenGL, full access to OpenGL from python
+
+
+.. class:: tiny
+
+   http://pyopengl.sourceforge.net   
+   https://code.google.com/p/glumpy/  
 
 
 :small:`Chroma Raycasting : exercises geometry intersection`

@@ -1,6 +1,7 @@
 # use glob syntax.
 syntax: glob
 
+.DS_Store
 bin/realpath
 *.pyc
 *.doctree

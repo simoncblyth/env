@@ -1382,11 +1382,26 @@ class DAEExtra(DaeObject):
 
 class DAESubTree(list):
     """
-    Recursively creates a list-of-strings representation 
-    of a tree structure. Requires the nodes to have a children
-    attribute which lists other nodes.
+    Flattens all or part of a tree of nodes into this list. 
+
+    Only requires node instances to have a children attribute 
+    which lists other nodes. The list is composed of either:
+
+    #. a string representation of the node
+    #. a tuple of (node, depth, sibdex, indent) 
     """
     def __init__(self, top, maxdepth=-1, text=True, maxsibling = 5):
+        """
+        :param top: root node instance such as `DAENode`  
+        :param maxdepth: integer maximum recursion depth, default of -1 for unlimited
+        :param text: when True makes makes list-of-strings representation of tree, otherwise
+                     make list of tuples incoporating the node in first slot of each tuple
+
+        :param maxsibling: siblings are skipped when the number of children
+                           of a node exceeds 2*maxsibling, 
+                           the first and last `maxsiblings` are incorporated into this list
+                           
+        """
         list.__init__(self)
         self.maxdepth = maxdepth
         self.text = text
@@ -1397,7 +1412,10 @@ class DAESubTree(list):
 
     def __call__(self, node, depth=0, sibdex=-1, nsibling=-1 ):
         """
-        Setting the node to a string acts to stop the recursion
+        :param node:  
+        :param depth:
+        :param sibdex: sibling index from 0:nsibling-1
+        :param nsibling: 
         """
         if not hasattr(node,'children'):
             nchildren = 0  
