@@ -174,33 +174,33 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
    :align: center
 
 
-:small:`G4DAE : daeserver.py : View in browser` 
-------------------------------------------------------
+:small:`daeserver.py : View exported geometry in web browser` 
+------------------------------------------------------------------
 
 .. class:: small
 
    * http://belle7.nuu.edu.tw/dae/tree/0.html
 
-   Browser client, based on:
+   Client in browser based on:
 
-   * threejs, Javascript 3D library 
+   * **threejs**, Javascript 3D library 
 
      * reads geometry subtrees from server
-     * renders with WebGL 
+     * renders with **WebGL**  (**OpenGL** GPU accelerated)
 
    Server:
 
-   * daenode.py, reconstructs Geant4 tree from the DAE 
-   * pycollada, parse full geometry at initialization   
-   * webpy, serve .html and .dae subtrees at each request 
-   * apache mod_fcgi 
+   * **daenode.py**, reconstructs Geant4 tree from G4DAE export
+     using **pycollada** parser
 
-   Command line access to subtrees::
+   * **webpy**, serve .html and .dae subtrees at each request, 
+     running under apache mod_fcgi 
 
-       curl -sO http://localhost/dae/tree/3155___2.dae
+
+   Command line access to volume subtree, specified by index and recursion depth::
+
+       curl -O http://localhost/dae/tree/3155___2.dae
    
-
-
    
 .. class:: tiny
 

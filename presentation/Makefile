@@ -22,8 +22,8 @@ NEWPUBDIR=$(addprefix $(APACHE_HTDOCS)/env,$(RELDIR))
 NEWPUBURL=$(addprefix http://localhost/env,$(RELDIR))
 
 #SOURCES=$(wildcard *.txt)
-#SOURCES=gpu_optical_photon_simulation.txt
-SOURCES=g4dae_geometry_exporter.txt
+SOURCES=gpu_optical_photon_simulation.txt
+#SOURCES=g4dae_geometry_exporter.txt
 
 
 NAMES=$(subst .txt,,$(SOURCES))
