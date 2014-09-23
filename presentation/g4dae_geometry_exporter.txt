@@ -19,8 +19,8 @@ G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
 
 .. class:: small
 
-    http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/g4dae_geometry_exporter.html
-    http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/g4dae_geometry_exporter.txt
+    http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html
+    http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.txt
 
 .. sidebar:: Objective 
 

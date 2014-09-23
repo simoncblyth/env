@@ -43,12 +43,11 @@ OUTDIR=$(LOCAL_BASE)/env/muon_simulation/presentation/name-of-presentation   # t
 
 .PHONY: rsync clean slides touch info ls open help
 
-open: $(SLIDES)
-	@echo open $(SLIDES_URL)
-	@echo rsync to C2 with : env-htdocs-rsync 
-
 slides: $(SLIDES) $(TXTS)
 	@echo created $< NAMES $(NAMES)
+
+open: $(SLIDES)
+	@echo open $(SLIDES_URL)
 
 info:
 	@echo RELDIR $(RELDIR)
