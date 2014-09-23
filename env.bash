@@ -1467,4 +1467,4 @@ npyreader-(){      . $(env-home)/numpy/npyreader.bash && npyreader-env $* ; }
 cnpy-(){      . $(env-home)/numpy/cnpy.bash && cnpy-env $* ; }
 flup-(){      . $(env-home)/wsgi/flup.bash && flup-env $* ; }
 daenode-(){      . $(env-home)/geant4/geometry/collada/daenode.bash && daenode-env $* ; }
-presentation-(){      . $(env-home)/muon_simulation/presentation/presentation.bash && presentation-env $* ; }
+presentation-(){      . $(env-home)/presentation/presentation.bash && presentation-env $* ; }
