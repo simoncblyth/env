@@ -3,30 +3,30 @@
 
 Usage::
 
-   daeserver.py --help
-   daeserver.py             # default of scgi for apache on G 
-   daeserver.py -w fcgi     # fastcgi for nginx on N 
+   g4daeserver.py --help
+   g4daeserver.py             # default of scgi for apache on G 
+   g4daeserver.py -w fcgi     # fastcgi for nginx on N 
 
-   daeserver.py --daepath $LOCAL_BASE/env/graphics/collada/3199.dae  
+   g4daeserver.py --daepath $LOCAL_BASE/env/graphics/collada/3199.dae  
       # starting from a small DAE file is convenient for parsing speed during development
       # NB volume indices will then be relative to that sub-root  
 
 With webpy SCGI deployment with apache
 
-* http://localhost/dae/hello/hello.html?name=simon
-* http://localhost/dae/tree/0___0.html
-* http://localhost/dae/tree/3199___0.html
-* http://localhost/dae/tree/0___0.dae
+* http://localhost/g4dae/hello/hello.html?name=simon
+* http://localhost/g4dae/tree/0___0.html
+* http://localhost/g4dae/tree/3199___0.html
+* http://localhost/g4dae/tree/0___0.dae
 
 Basis Geometry Files
 ----------------------
 
 ::
 
-    [blyth@belle7 daeserver]$ pwd
-    /data1/env/local/env/geant4/geometry/daeserver
-    [blyth@belle7 daeserver]$ cp ../gdml/VDGX_20131121-2043/g4_00.dae VDGX_20131121-2043_g4_00.dae
-    [blyth@belle7 daeserver]$ cp ../gdml/DVGX_20131121-2053/g4_00.dae DVGX_20131121-2053_g4_00.dae 
+    [blyth@belle7 g4daeserver]$ pwd
+    /data1/env/local/env/geant4/geometry/g4daeserver
+    [blyth@belle7 g4daeserver]$ cp ../gdml/VDGX_20131121-2043/g4_00.dae VDGX_20131121-2043_g4_00.dae
+    [blyth@belle7 g4daeserver]$ cp ../gdml/DVGX_20131121-2053/g4_00.dae DVGX_20131121-2053_g4_00.dae 
 
 
 PUT issue
@@ -102,7 +102,7 @@ class Defaults(object):
     port = "8080"
     webpy = "scgi"
     uploads = False
-    uploaddir = "$LOCAL_BASE/env/geant4/geometry/daeserver/samples"
+    uploaddir = "$LOCAL_BASE/env/geant4/geometry/g4daeserver/samples"
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -207,8 +207,8 @@ class _tree_png:
         """
         ::
 
-            curl -T snapshot05.png http://belle7.nuu.edu.tw/dae/tree/
-            curl -T "snapshot0[0-5].png" http://belle7.nuu.edu.tw/dae/tree/    
+            curl -T snapshot05.png http://belle7.nuu.edu.tw/g4dae/tree/
+            curl -T "snapshot0[0-5].png" http://belle7.nuu.edu.tw/g4dae/tree/    
                 # curl needs to do the globbing not the shell, so need the quotes
 
         For large files (>1M) getting "413: Request Entity too large" 
@@ -261,7 +261,7 @@ URLS = (
 def main():
     global opts
     opts, args = parse_args(__doc__) 
-    log.info("daeserver startup with webpy %s " % web.__version__ ) 
+    log.info("g4daeserver startup with webpy %s " % web.__version__ ) 
     DAENode.parse( opts.daepath )
     app = web.application(URLS, globals() ) 
     app.run() 

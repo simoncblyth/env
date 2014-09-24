@@ -1379,7 +1379,7 @@ gprof2dot-(){      . $(env-home)/tools/gprof2dot.bash && gprof2dot-env $* ; }
 cg-(){      . $(env-home)/graphics/cg/cg.bash && cg-env $* ; }
 networkx-(){      . $(env-home)/tools/networkx.bash && networkx-env $* ; }
 webglbook-(){      . $(env-home)/graphics/webgl/webglbook.bash && webglbook-env $* ; }
-daeserver-(){      . $(env-home)/geant4/geometry/daeserver/daeserver.bash && daeserver-env $* ; }
+g4daeserver-(){      . $(env-home)/geant4/geometry/g4daeserver/g4daeserver.bash && g4daeserver-env $* ; }
 np-(){      . $(env-home)/python/np.bash && np-env $* ; }
 threejs-(){      . $(env-home)/graphics/webgl/threejs/threejs.bash && threejs-env $* ; }
 hieroglyph-(){      . $(env-home)/doc/hieroglyph.bash && hieroglyph-env $* ; }
