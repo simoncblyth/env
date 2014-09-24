@@ -1,9 +1,9 @@
-# === func-gen- : geant4/geometry/collada/daenode fgp geant4/geometry/collada/daenode.bash fgn daenode fgh geant4/geometry/collada
-daenode-src(){      echo geant4/geometry/collada/daenode.bash ; }
-daenode-source(){   echo ${BASH_SOURCE:-$(env-home)/$(daenode-src)} ; }
-daenode-vi(){       vi $(daenode-source) ; }
-daenode-env(){      elocal- ; }
-daenode-usage(){ cat << EOU
+# === func-gen- : geant4/geometry/collada/g4daenode fgp geant4/geometry/collada/g4daenode.bash fgn g4daenode fgh geant4/geometry/collada
+g4daenode-src(){      echo geant4/geometry/collada/g4daenode.bash ; }
+g4daenode-source(){   echo ${BASH_SOURCE:-$(env-home)/$(g4daenode-src)} ; }
+g4daenode-vi(){       vi $(g4daenode-source) ; }
+g4daenode-env(){      elocal- ; }
+g4daenode-usage(){ cat << EOU
 
 DAENODE
 =========
@@ -75,6 +75,6 @@ https://discussions.apple.com/thread/4167225?start=0&tstart=0
 
 EOU
 }
-daenode-dir(){ echo $(env-home)/geant4/geometry/collada ; }
-daenode-cd(){  cd $(daenode-dir); }
-daenode-mate(){ mate $(daenode-dir) ; }
+g4daenode-dir(){ echo $(env-home)/geant4/geometry/collada ; }
+g4daenode-cd(){  cd $(g4daenode-dir); }
+g4daenode-mate(){ mate $(g4daenode-dir) ; }

@@ -30,7 +30,7 @@ For examples of queries see ~/env/geant4/geometry/collada/dae_cf_wrl.rst
 import sys, os, logging
 log = logging.getLogger(__name__)
 from env.db.simtab import Table
-from daenode import DAENode, parse_args
+from g4daenode import DAENode, parse_args
 
 
 class DAEDB(object):

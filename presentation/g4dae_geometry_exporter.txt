@@ -160,7 +160,7 @@ https://bitbucket.org/simoncblyth/g4dae
 
    My webapp based on threejs/WebGL (client) and pycollada/webpy (server):
 
-   * :red:`daeserver.py` (OSX/Linux), **NO client installation**
+   * :red:`g4daeserver.py` (OSX/Linux), **NO client installation**
 
 
 
@@ -171,8 +171,8 @@ https://bitbucket.org/simoncblyth/g4dae
 
 
 
-:small:`G4DAE : OSX view/edit in Xcode.app (1)` 
-------------------------------------------------
+:small:`G4DAE export view/edit with OSX Xcode.app (1)` 
+-------------------------------------------------------
 
 .. class:: small
 
@@ -187,8 +187,8 @@ https://bitbucket.org/simoncblyth/g4dae
    Blender also possible, but interface difficult.
 
 
-:small:`G4DAE : OSX view/edit in Xcode.app (2)` 
-------------------------------------------------
+:small:`G4DAE export view/edit with OSX Xcode.app (2)` 
+-------------------------------------------------------
 
 .. class:: small
 
@@ -199,22 +199,22 @@ https://bitbucket.org/simoncblyth/g4dae
    :align: center
 
 
-:small:`G4DAE : OSX/Windows Sketchup Import` 
+:small:`G4DAE export in OSX Sketchup` 
 ------------------------------------------------
 
 .. image:: /env/geant4/geometry/collada/sketchup/g4dae_sketchup.png
    :width: 900px
    :align: center
 
-:small:`G4DAE : OSX Finder, Interactive Quicklook (1)` 
--------------------------------------------------------
+:small:`G4DAE export in OSX Finder, Interactive Quicklook (1)` 
+-----------------------------------------------------------------
 
 .. image:: /env/geant4/geometry/collada/osx_finder/g4dae_osx_finder.png
    :width: 900px
    :align: center
 
-:small:`G4DAE : OSX Finder, Rotate/Pan/Zoom` 
----------------------------------------------
+:small:`G4DAE export in OSX Finder, Rotate/Pan/Zoom` 
+-------------------------------------------------------
 
 .. image:: /env/geant4/geometry/collada/osx_finder/g4dae_osx_finder_2.png
    :width: 900px
@@ -226,20 +226,20 @@ https://bitbucket.org/simoncblyth/g4dae
    OSX 10.8+
 
 
-:small:`G4DAE : Safari WebGL Render using daeserver` 
-------------------------------------------------------
+:small:`g4daeserver.py : View exported geometry in web browser` 
+--------------------------------------------------------------------------
 
 .. image:: /env/geant4/geometry/collada/webgl_safari_daeserver/webgl_safari_daeserver.png
    :width: 900px
    :align: center
 
 
-:small:`daeserver.py : View exported geometry in web browser` 
-------------------------------------------------------------------
+:small:`g4daeserver.py : View exported geometry in web browser, details` 
+--------------------------------------------------------------------------
 
 .. class:: small
 
-   * http://belle7.nuu.edu.tw/dae/tree/0.html
+   * http://belle7.nuu.edu.tw/g4dae/tree/3150___1.html
 
    Client in browser based on:
 
@@ -259,7 +259,7 @@ https://bitbucket.org/simoncblyth/g4dae
 
    Command line access to volume subtree, specified by index and recursion depth::
 
-       curl -O http://localhost/dae/tree/3155___2.dae
+       curl -O http://localhost/g4dae/tree/3155___2.dae
    
    
 .. class:: tiny
@@ -267,7 +267,7 @@ https://bitbucket.org/simoncblyth/g4dae
    http://threejs.org 
    http://pycollada.github.io 
    http://webpy.org
-   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/daeserver/
+   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/g4daeserver/
    https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/daenode.py
 
  

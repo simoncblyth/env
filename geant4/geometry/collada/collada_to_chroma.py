@@ -64,7 +64,7 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)   # chroma has weird logging, forcing this placement 
 
 import numpy as np
-from env.geant4.geometry.collada.daenode import DAENode
+from env.geant4.geometry.collada.g4daenode import DAENode
 from chroma.geometry import Mesh, Solid, Material, Surface, Geometry
 from chroma.detector import Detector
 from chroma.loader import load_bvh

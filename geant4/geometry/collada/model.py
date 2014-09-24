@@ -25,7 +25,7 @@ rainbow = np.array([red,green,blue,cyan,magenta,yellow,white,black,grey])
 def daeload(arg, path=None):
     if path is None:
         path = os.environ['DAE_NAME']
-    from env.geant4.geometry.collada.daenode import DAENode 
+    from env.geant4.geometry.collada.g4daenode import DAENode 
     if len(DAENode.registry) == 0:
         DAENode.parse(path)
     return DAENode.getall(arg)

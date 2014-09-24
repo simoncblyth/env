@@ -3,7 +3,7 @@
 import os, logging, re
 log = logging.getLogger(__name__)
 import numpy as np
-from env.geant4.geometry.collada.daenode import DAENode 
+from env.geant4.geometry.collada.g4daenode import DAENode 
 
 from daeutil import printoptions, ModelToWorld, WorldToModel
 from daeviewpoint import DAEViewpoint
@@ -702,7 +702,7 @@ def check_collada2chroma_material( cmat, props ):
 
     """ 
     assert cmat.__class__.__module__ == 'collada.material' and cmat.__class__.__name__ == 'Material'
-    assert cmat.extra.__class__.__module__ == 'env.geant4.geometry.collada.daenode' and cmat.extra.__class__.__name__ == 'MaterialProperties'
+    assert cmat.extra.__class__.__module__ == 'env.geant4.geometry.collada.g4daenode' and cmat.extra.__class__.__name__ == 'MaterialProperties'
     assert cmat.extra.properties.__class__ == dict 
     d = cmat.extra.properties
     for k in props:

@@ -24,7 +24,7 @@ TODO:
 """
 import os, sys, logging, re
 log = logging.getLogger(__name__)
-from env.geant4.geometry.collada.daenode import DAENode
+from env.geant4.geometry.collada.g4daenode import DAENode
 
 
 class Defaults(object):

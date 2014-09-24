@@ -6,7 +6,7 @@ import os, sys, logging
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)   # chroma has weird logging, forcing this placement 
 
-from env.geant4.geometry.collada.daenode import DAENode
+from env.geant4.geometry.collada.g4daenode import DAENode
 
 
 class CheckMaterial(object):

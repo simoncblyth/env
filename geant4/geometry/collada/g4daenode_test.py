@@ -16,7 +16,7 @@ import lxml.etree as ET
 log = logging.getLogger(__name__)
 
 from collada.xmlutil import COLLADA_NS as NS
-from env.geant4.geometry.collada.daenode import DAENode
+from env.geant4.geometry.collada.g4daenode import DAENode
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)

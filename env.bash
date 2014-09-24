@@ -1466,5 +1466,5 @@ de-(){      . $(env-home)/nuwa/de.bash && de-env $* ; }
 npyreader-(){      . $(env-home)/numpy/npyreader.bash && npyreader-env $* ; }
 cnpy-(){      . $(env-home)/numpy/cnpy.bash && cnpy-env $* ; }
 flup-(){      . $(env-home)/wsgi/flup.bash && flup-env $* ; }
-daenode-(){      . $(env-home)/geant4/geometry/collada/daenode.bash && daenode-env $* ; }
+g4daenode-(){      . $(env-home)/geant4/geometry/collada/g4daenode.bash && g4daenode-env $* ; }
 presentation-(){      . $(env-home)/presentation/presentation.bash && presentation-env $* ; }

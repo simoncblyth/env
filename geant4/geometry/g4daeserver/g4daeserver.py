@@ -88,7 +88,7 @@ Trying to recive PUTs from shift gives::
 import os, sys, logging, time
 log = logging.getLogger(__name__)
 import web
-from env.geant4.geometry.collada.daenode import DAENode, getSubCollada, DAESubTree, getTextTree
+from env.geant4.geometry.collada.g4daenode import DAENode, getSubCollada, DAESubTree, getTextTree
 
 opts = None
 
