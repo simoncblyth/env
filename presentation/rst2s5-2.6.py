@@ -108,6 +108,7 @@ def collect_resources( doctree ):
         ok = "OK" if os.path.exists(path) else "??"
         print "%-4d %s %-60s %s " % (i, ok, url, path ) 
     pass
+    #log.info("collect_resources end")
     return urls, paths 
 
 
@@ -160,7 +161,7 @@ def main():
         config_section=config_section, enable_exit_status=enable_exit_status)
 
     urls, paths = collect_resources(pub.document)
-    print "\n".join(paths)
+    #print "\n".join(paths)
 
     if not IP is None:
         pass

@@ -10,6 +10,16 @@ Bitbucket Static Pages
 
 * http://simoncblyth.bitbucket.org 
 
+
+Sources/Binaries
+------------------
+
+The repo ~/simoncblyth.bitbucket.org contains:
+
+* binaries arranged in directories
+* html pages derived from sources in ~/env
+
+
 Guidelines for binaries
 ------------------------
 

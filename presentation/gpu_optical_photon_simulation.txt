@@ -98,9 +98,10 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
     * geometry: vertices, triangles+quads 
     * materials and surfaces with properties as function of wavelength 
 
-.. image:: images/bitbucket-g4dae.png 
+.. image:: /env/geant4/geometry/collada/g4dae/g4dae_bitbucket.png
    :width: 700px
    :align: center
+
 
 
 :small:`G4DAE : DayaBay/NuWa integration`

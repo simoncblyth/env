@@ -3,14 +3,17 @@
 
 * http://bitbucket.org/simoncblyth
 
+presentations
+-------------
+
+* http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html
+* http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html
+
 
 *g4dae : Geant4 geometry exporter*
 -----------------------------------
 
 * http://bitbucket.org/simoncblyth/g4dae 
-* http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/g4dae_geometry_exporter.html
-* http://simoncblyth.bitbucket.org/env/muon_simulation/presentation/gpu_optical_photon_simulation.html
-
 
 *g4daeview : g4dae OpenGL viewer application*
 -----------------------------------------------

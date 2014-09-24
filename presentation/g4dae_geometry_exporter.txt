@@ -8,9 +8,15 @@
     # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
     # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
     #
+    # NB1 slide titles here must match those in body precisely, 
+    # NB2 also ensure all slide titles are unique
+    #
     # first slide id is exceptionally: slide0, not the mangled title
     slide0
     /env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
 
 
 ======================================================================
@@ -24,11 +30,15 @@ G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
 
 .. sidebar:: Objective 
 
-   Versatile geometry data access for visualization/computation 
+   Ubiquitous geometry visualization and computation 
+   for all Geant4 users and beyond
+
+* :blue:`Widely supported standard file format`
+* :blue:`Viewers already installed on most users devices`
+* :red:`Liberating geometry data allows innovative visualization/computation`
 
 
-
-https://bitbucket.org/simoncblyth/g4dae :small:`Exporter` 
+https://bitbucket.org/simoncblyth/g4dae 
 ---------------------------------------------------------------------------
 
 .. class:: small
@@ -40,13 +50,13 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
     * geometry: vertices, triangles+quads 
     * materials and surfaces with properties as function of wavelength 
 
-.. image:: images/bitbucket-g4dae.png 
+.. image:: /env/geant4/geometry/collada/g4dae/g4dae_bitbucket.png
    :width: 700px
    :align: center
 
 
-:small:`COLLADA : Standard for 3D Digital Asset Exchange` 
-------------------------------------------------------------
+:small:`COLLADA : Standard for 3D Digital Asset Exchange (DAE)` 
+-----------------------------------------------------------------
 
 .. class:: small
 
@@ -58,28 +68,47 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
 
 
 
-:small:`G4DAE : Exporter Development`
+:small:`G4DAE : Exporter Details`
 -------------------------------------------------------
 
 .. class:: small
 
-   * based on GDML persistency package
-   * XercesC dependency for XML DOM construction
-   * Triangulation using ``G4Polyhedron``, following VRML2  
-   * COLLADA XML ``extra`` elements for 
+   * based on **GDML** persistency package, same **XercesC** dependency for XML handling
+   * Triangulation from ``G4Polyhedron``, following **VRML2**  
+   * DAE ``extra`` XML elements used for: 
 
-     * material and surface properties
+     * material/surface properties as function of wavelength
+
+   Used like **GDML** export::
+
+       #include "G4DAEParser.hh"
+
+       void GiGaRunActionExport::WriteDAE(G4VPhysicalVolume* wpv, const G4String& path, G4bool recreatePoly  )
+       {
+           G4DAEParser parser ;
+           G4bool refs = true ; 
+           G4int nodeIndex = -1 ;   // so World is volume 0 
+           parser.Write(path, wpv, refs, recreatePoly, nodeIndex );
+       }
 
 
+.. class:: tiny
+
+    ``G4DAEParser`` a misnomer from following **GDML**, as only writes, does not parse **DAE**
 
 
-:small:`G4DAE : Exports Compared to VRML2(WRL)`
------------------------------------------------
+:small:`Compare DAE Exports to GDML and VRML2(WRL)`
+----------------------------------------------------
 
 .. class:: small
 
     * Comparison of all vertices/faces reveals :red:`boolean solids are discrepant`. 
-    * Perfect [#perfect]_ agreement only achieved by *cheating* : :blue:`perform triangulation once and reuse`.
+    * Perfect [#perfect]_ DAE WRL agreement achieved by *cheating* : :blue:`perform triangulation once and reuse`.
+    * Boolean solid triangulation sensitivity must be kept in mind as a potential systematic
+      for computational uses 
+    * DAE not much bigger than GDML, despite including all triangles/vertices [#not-repeating]_
+      
+       
 
 .. class:: small
 
@@ -93,21 +122,52 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
     ====================  ==============  ===========  ===============  =================
 
 
-
 .. class:: tiny
 
     ``VGDX_20140414`` counts using ``g4daeview.py -g 0: --with-chroma``, Juno geometry truncated
 
-.. class:: small
-
-    * Triangulation sensitivity impact :red:`needs checking`
-    * DAE not much bigger than GDML, but includes all triangles/vertices
-
 .. class:: tiny
 
-    .. [#perfect] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug. 
+    .. [#perfect] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug (fixed in current G4). 
                   Details: http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/dae_cf_wrl/ 
+    .. [#not-repeating] Geometry is not repeated, instead the COLLADA format uses geometry instancing and a tree of transforms, 
+                        just like GDML  
 
+
+
+:small:`Applications Used to View G4DAE exports`
+----------------------------------------------------
+
+.. class:: small
+
+   Commercial:
+
+   * Preview/Finder/Quicklook/Xcode (standard OSX 10.8+)
+
+     * :red:`Xcode.app`, usable material effect editing 
+
+   * Sketchup 8 free (OSX) [also Windows]
+   * ESKO Studio Viewer free (iOS on iPad) 
+
+   Open source:
+
+   * Meshlab (OSX/Linux), slow DAE loading, OK interface [also Windows]
+   * Blender (OSX), painful interface  [also Windows/Linux] 
+
+   My desktop app based on pyopengl/glumpy/pycollada:
+
+   * :red:`g4daeview.py` (OSX/Linux), OK loading, **good** interface 
+
+   My webapp based on threejs/WebGL (client) and pycollada/webpy (server):
+
+   * :red:`daeserver.py` (OSX/Linux), **NO client installation**
+
+
+
+.. class:: small
+
+   http://meshlab.sourceforge.net
+   https://bitbucket.org/simoncblyth/meshlab
 
 
 
@@ -522,8 +582,7 @@ Python OpenGL geometry viewer built with
 :small:`g4daeview.py : Video Tour`  
 -----------------------------------------------------
 
-
-.. s5_video:: https://www.dropbox.com/s/6jmcqxphnc8qhkg/g4daeview_001.m4v?dl=1
+.. s5_video:: http://dayabay.phys.ntu.edu.tw/env/g4daeview_Movie_ipad.m4v
     :poster: /env/geant4/geometry/collada/g4daeview/20140419-170713.png
     :width: 60%
 
