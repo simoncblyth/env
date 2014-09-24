@@ -197,6 +197,20 @@ systematic history checking
 * http://svn.apache.org/repos/asf/subversion/trunk/tools/examples/
 * hgapi
 
+Operational Curiosities
+-------------------------
+
+divergent renames
+~~~~~~~~~~~~~~~~~~~
+
+This warning from 2014-09-24 seems to have no bad consequences::
+
+    blyth@belle7 env]$ hg up
+    warning: detected divergent renames of muon_simulation/presentation/gpu_optical_photon_simulation.txt to:
+     presentation/g4dae_geometry_exporter.txt
+     presentation/gpu_optical_photon_simulation.txt
+    115 files updated, 0 files merged, 88 files removed, 0 files unresolved
+
 
 FUNCTIONS
 ---------

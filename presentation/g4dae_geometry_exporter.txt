@@ -79,7 +79,11 @@ https://bitbucket.org/simoncblyth/g4dae
 
      * material/surface properties as function of wavelength
 
-   Used like **GDML** export::
+   Used like **GDML** write
+
+.. class:: tiny
+
+   ::
 
        #include "G4DAEParser.hh"
 
@@ -237,7 +241,15 @@ https://bitbucket.org/simoncblyth/g4dae
 :small:`g4daeserver.py : View exported geometry in web browser, details` 
 --------------------------------------------------------------------------
 
+.. sidebar:: Instant web access to any volume
+
+   Very useful for single volume debugging, did not pursue 
+   as prefer Python development over Javascript. 
+
+
 .. class:: small
+
+   Select volume subtree by name or index and recursion depth
 
    * http://belle7.nuu.edu.tw/g4dae/tree/3150___1.html
 
@@ -245,22 +257,20 @@ https://bitbucket.org/simoncblyth/g4dae
 
    * **threejs**, Javascript 3D library 
 
-     * reads geometry subtrees from server
-     * renders with **WebGL**  (**OpenGL** GPU accelerated)
+     * reads DAE geometry subtrees from server
+     * parses DAE and renders with **WebGL**  (**OpenGL** GPU accelerated)
 
    Server:
 
-   * **daenode.py**, reconstructs Geant4 tree from G4DAE export
+   * **g4daenode.py**, reconstructs Geant4 tree from G4DAE export
      using **pycollada** parser
 
    * **webpy**, serve .html and .dae subtrees at each request, 
      running under apache mod_fcgi 
 
+   Command line access to DAE subtrees::
 
-   Command line access to volume subtree, specified by index and recursion depth::
-
-       curl -O http://localhost/g4dae/tree/3155___2.dae
-   
+       curl -O http://belle7.nuu.edu.tw/g4dae/tree/3155___2.dae
    
 .. class:: tiny
 
@@ -268,156 +278,57 @@ https://bitbucket.org/simoncblyth/g4dae
    http://pycollada.github.io 
    http://webpy.org
    https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/g4daeserver/
-   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/daenode.py
+   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daenode.py
 
+
+:small:`G4DAE Exporter Status : almost feature complete`
+---------------------------------------------------------------
+
+.. class:: small
+
+   Development started with GDML from **geant4.10.00.p01** 
  
+   * made minor backports to work with **geant4.9.2.p01** 
+   * patched old version to give access to material property tables
+   
+   **Remaining tasks:**
 
-
-
-
-
-
-:small:`G4DAE : Issues`
--------------------------------------------------------
+.. class:: small
+     
+   * test with newer and latest versions of Geant4
 
 .. class:: small
 
-   * parametrized/replica geometry not implemented
-   * limited testing: DayaBay and JUNO 
-   * appearance (in Preview.app, Xcode.app, Blender) needs work  
+   * implement parametrized/replica geometry handling, following GDML
 
-
-:small:`G4DAE : COLLADA Standard 3D file format` 
-------------------------------------------------
+   * investigate suspected issue of missing **G4LogicalBorderSurface** 
+     (volume pairs) in an edge case where one volume is part of 
+     multiple pairs. This is inherited from GDML.
 
 .. class:: small
 
-    Many apps view/edit COLLADA files: 
-    
-    * Finder/Preview/Xcode, OSX 10.8+ 
-    * Blender, OSX/Windows/Linux
-    * SketchUp, OSX/Windows
+   * test on more geometries, currently mainly DayaBay and JUNO 
 
-    Frameworks:
+.. class:: small
 
-    * pycollada, Python COLLADA parser 
-    * threejs, Javascript 3D Framework 
+   * export appearance adjustments 
 
-.. class:: tiny
+     * current uniform translucent white, renders all white in some viewers
+     * too many parameters, unclear what to use for defaults
+     * investigate propagating from **G4VisAttributes**
 
-   http://threejs.org 
-   http://pycollada.github.io 
+.. class:: small
+
+   * review code: 
  
-
-:small:`g4daeview.py` : Geometry and Optical Photon viewer 
--------------------------------------------------------------
-
-Python OpenGL geometry viewer built with 
-
-* Glumpy, pyopengl+numpy integration
-* PyOpenGL, full access to OpenGL from python
-
-
-.. class:: tiny
-
-   http://pyopengl.sourceforge.net   
-   https://code.google.com/p/glumpy/  
-
-
-:small:`Chroma Raycasting : exercises geometry intersection`
--------------------------------------------------------------
+     * remove unused parsing inherited from GDML 
+     * remove any remaining detector specifics, 
+       eg material id prefixes
 
 .. class:: small
 
-    Raycasting exercises slowest part of optical photon propagation: :red:`geometry intersection`. 
- 
-.. image:: /env/chroma/chroma_camera/chroma_raycast_illustration.png 
-   :width: 600px
-   :align: center
+   * document the exporter
 
-.. class:: small
-
-    * Shoot rays thru every pixel out into geometry, 1 CUDA thread for each, typically >1M rays
-    * Find triangle intersections using BVH [#bvh]_ acceleration structure
-    * Determine color based on ray to triangle normal angle
-    * Alpha blend nearest 10 surfaces, providing transparency effect  
-
-.. class:: tiny
-
-    .. [#bvh] Boundary Volume Heirarchy, a tree of bounding boxes with triangles inside leaf nodes
-
-
-
-:small:`Chroma Stability/Efficiency Improvements Made`
-------------------------------------------------------
-
-.. class:: small
-
-    :green:`Split work into multiple CUDA kernel launch, arranged in 2D pattern` [#cuda2d]_ 
-
-    * avoids kernel launch times exceeding 5 seconds 
-    * 2D equalizes thread workload across CUDA warp(32 threads)  
-
-    :green:`Reduced CPU load by reducing transfers`
-
-    * create pixels on GPU, share between OpenGL and CUDA/Chroma [#pbo]_ 
-    * compute photon directions via 4x4 uniform matrix rather than passing arrays 
-    * change matrix to navigate, rather than array manipulating kernel launches 
-
-    These improvements were necessary as *Chroma Camera* [#presume]_ with Dayabay geometry had
-    
-    * very heavy CPU load [#burn]_ and unusably laggy GUI 
-    * frequent GPU panic, GUI freeze, hard system crash forcing reboot
-
- 
-.. class:: tiny
-
-    .. [#cuda2d] https://bitbucket.org/simoncblyth/env/src/tip/cuda/cuda_launch.py 
-
-    .. [#pbo] Using OpenGL pixel buffer objects (PBO) and CUDA-OpenGL interoperability techniques, 
-              https://bitbucket.org/simoncblyth/env/src/tip/pycuda/pycuda_pyopengl_interop/pixel_buffer.py
-              https://bitbucket.org/simoncblyth/env/src/tip/chroma/chroma_camera/pbo_renderer.py
-
-    .. [#presume] Presumably Chroma was developed using fast Linux desktop GPUs where the kernel time limit can be avoided. 
-
-    .. [#burn] :red:`burning CPU errors` in system log
-
-
-
-:small:`Chroma Raycast Worst Case (~entire geometry) Example` 
----------------------------------------------------------------- 
-
-.. class:: small
-
-    Render Split into 3x3 CUDA kernel launches, 1 thread per pixel, ~1.8s for 1.23M pixels, 2.4M tris.
-
-.. image:: /env/chroma/chroma_camera/20140423-162109.png
-   :width: 800px
-   :align: center
-
-.. class:: tiny 
-
-
-    g4daeview.py --target=.. --eye="-0.3,-1.1,1.7" --look="0.1,0.4,-0.6" --up="1.2,2.0,1.6" --size=1440,852 --near=30.00000 --far=10000.0 --yfov=50.0 --with-chroma
-
-
-.. wrk (1440, 852) [1226880]  lch  [3, 3, 1] [9]  blk [16, 16, 1] [256]  0.03,0.26,0.12,0.15,0.79,0.20,0.06,0.20,0.04 TOT 1.84
-
-.. http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/
-
-
-:small:`Chroma Raycast Triangle count (Dyb with RPC)`
-----------------------------------------------------------------
-
-.. class:: tiny
-
-    g4daeview.py --with-chroma --metric tri --flags 1,0    # tri/time/intersect
-
-.. image:: /env/chroma/chroma_camera/pmt-tri-count-hotspots.png
-   :height: 500px
-   :align: center
-
-:small:`All triangle intersections made, even when no visible contribution to render. (Potential for optimisation?)`
 
 
 :small:`g4daeview.py : Fast OpenGL 3D viewer for G4DAE files`  
@@ -425,7 +336,7 @@ Python OpenGL geometry viewer built with
 
 .. class:: small
 
-   G4DAE visualization [#g4daeview_usage]_ and "backbone" application for Chroma testing.
+   G4DAE visualization [#g4daeview_usage]_ implemented with PyCollada, PyOpenGL and Glumpy
 
    * very fast/responsive 3D OpenGL visualization [#vbo]_
    * flexible tree/list based partial geometry loading 
@@ -435,19 +346,43 @@ Python OpenGL geometry viewer built with
    * persistent viewpoint bookmarks 
    * animation by interpolation between bookmarks or orbiting 
    * numerical control via UDP remote messaging 
-   * Chroma interactive raycasting, including animated 
    * live Geant4 connection, photon visualization, single stepping 
    * easily extensible python implementation [#g4daeview_code]_ 
-   * Chroma propagation visualization, with time slider 
    * photon picking interface, with property inspection
 
+   Also used for testing GPU photon propagation with Chroma project 
+
+   * interactive raycasting, including animated 
+   * propagation visualization, with time slider 
+
 .. class:: tiny
+
+   http://pyopengl.sourceforge.net   
+   https://code.google.com/p/glumpy/  
 
    .. [#g4daeview_usage] http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
 
    .. [#vbo] Implemented with single OpenGL Vertex Buffer Object (VBO) for entire geometry  
 
    .. [#g4daeview_code] https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
+
+
+
+:small:`g4daeview.py Status : Ongoing active development`  
+-----------------------------------------------------------------------------   
+
+.. class:: small
+
+   * https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
+
+   Although not stabilised, intend to facilitate usage by others:
+ 
+   * break out into separate bitbucket repository 
+
+   * partition dependencies, to allow users without CUDA/PyCUDA/Chroma 
+     to still use geometry visualization and inspection features 
+
+   * document usage
 
 
 
@@ -481,6 +416,7 @@ Python OpenGL geometry viewer built with
 .. image:: /env/geant4/geometry/collada/g4daeview/20140716-163403.png
    :height: 600px
    :align: center
+
 
 
 :small:`g4daeview.py : Photon Selection Interface` 
@@ -558,6 +494,94 @@ Python OpenGL geometry viewer built with
    :align: center
 
 
+:small:`g4daeview.py : Video Tour`  
+-----------------------------------------------------
+
+.. s5_video:: http://dayabay.phys.ntu.edu.tw/env/g4daeview_Movie_ipad.m4v
+    :poster: /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+    :width: 60%
+
+
+
+:small:`Chroma : Ultra-fast Photon MC, Developed by Stan Seibert, University of Pennsylvania`
+-----------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * http://chroma.bitbucket.org
+
+    Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
+    simulating processes like diffuse and specular reflections, 
+    refraction, Rayleigh scattering and absorption. Using triangle meshes 
+    eliminate geometry code as :red:`just one code path`.
+
+.. sidebar:: Original Motivation for G4DAE exporter
+
+    Allow use of Chroma GPU accelerated optical photon propagation
+    with existing DayaBay Geant4 geometry.
+
+.. class:: small
+
+200x performance claim:
+
+   *With a CUDA GPU Chroma has propagated 2.5M photons per second 
+   in a detector with 29k photomultiplier tubes. This is
+   200x faster than GEANT4.*
+
+.. class:: small
+
+   **BUT** Chroma needs : :red:`triangles + inside/outside materials`
+
+.. class:: tiny
+
+   http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
+
+
+
+:small:`Chroma Raycasting : exercises geometry intersection`
+-------------------------------------------------------------
+
+.. class:: small
+
+    Raycasting exercises slowest part of optical photon propagation: :red:`geometry intersection`. 
+ 
+.. image:: /env/chroma/chroma_camera/chroma_raycast_illustration.png 
+   :width: 600px
+   :align: center
+
+.. class:: small
+
+    * Shoot rays thru every pixel out into geometry, 1 CUDA thread for each, typically >1M rays
+    * Find triangle intersections using BVH [#bvh]_ acceleration structure
+    * Determine color based on ray to triangle normal angle
+    * Alpha blend nearest 10 surfaces, providing transparency effect  
+
+.. class:: tiny
+
+    .. [#bvh] Boundary Volume Heirarchy, a tree of bounding boxes with triangles inside leaf nodes
+
+
+:small:`Chroma Raycast Worst Case (~entire geometry) Example` 
+---------------------------------------------------------------- 
+
+.. class:: small
+
+    Render Split into 3x3 CUDA kernel launches, 1 thread per pixel, ~1.8s for 1.23M pixels, 2.4M tris.
+
+.. image:: /env/chroma/chroma_camera/20140423-162109.png
+   :width: 800px
+   :align: center
+
+.. class:: tiny 
+
+
+    g4daeview.py --target=.. --eye="-0.3,-1.1,1.7" --look="0.1,0.4,-0.6" --up="1.2,2.0,1.6" --size=1440,852 --near=30.00000 --far=10000.0 --yfov=50.0 --with-chroma
+
+
+.. wrk (1440, 852) [1226880]  lch  [3, 3, 1] [9]  blk [16, 16, 1] [256]  0.03,0.26,0.12,0.15,0.79,0.20,0.06,0.20,0.04 TOT 1.84
+
+.. http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/
+
 
 :small:`g4daeview.py : Chroma Raycast of Juno Geometry`
 -------------------------------------------------------------------------------
@@ -575,16 +599,6 @@ Python OpenGL geometry viewer built with
 
 
 
-
-
-
-
-:small:`g4daeview.py : Video Tour`  
------------------------------------------------------
-
-.. s5_video:: http://dayabay.phys.ntu.edu.tw/env/g4daeview_Movie_ipad.m4v
-    :poster: /env/geant4/geometry/collada/g4daeview/20140419-170713.png
-    :width: 60%
 
 
 :small:`Runtime Geant4/Chroma integration with ZMQRoot` 
