@@ -11,8 +11,8 @@ DAESERVER
 installs
 ----------
 
-D : g4daeserver vpython
-~~~~~~~~~~~~~~~~~~~~~~~~~
+D : g4daeserver vpython with system apache + mod_scgi
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check apache is running, start SCGI g4daeserver with::
 
@@ -28,7 +28,49 @@ Check apache is running, start SCGI g4daeserver with::
 
 Check some urls:
 
-* http://localhost/dae/tree/3154.html
+* http://localhost/g4dae/tree/3154.html
+
+
+N : source python served by nginx/fcgi
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* both nginx and g4daeserver.py are run continuously under supervisord
+* using fcgi (not scgi) as had problems with scgi with nginx
+
+
+**CAUTION** the fastcgi config depends on root path in 
+multiple places, see **nginx-edit**::
+
+        location /g4dae {
+
+            fastcgi_pass   localhost:8080;
+
+            fastcgi_split_path_info ^(/g4dae)((?:/.*))?$;  
+            fastcgi_param  PATH_INFO       $fastcgi_path_info; 
+            fastcgi_param  SCRIPT_NAME     /g4dae;
+
+            fastcgi_param  QUERY_STRING     $query_string;
+            fastcgi_param  REQUEST_METHOD   $request_method;
+            fastcgi_param  CONTENT_TYPE     $content_type;
+            fastcgi_param  CONTENT_LENGTH   $content_length;
+
+            fastcgi_param  REQUEST_URI     $request_uri;
+            fastcgi_param  DOCUMENT_URI    $document_uri;
+            fastcgi_param  DOCUMENT_ROOT   $document_root;
+            fastcgi_param  SERVER_PROTOCOL $server_protocol;
+
+            fastcgi_param  GATEWAY_INTERFACE  CGI/1.1;
+            fastcgi_param  SERVER_SOFTWARE    nginx;
+
+            fastcgi_param  REMOTE_ADDR        $remote_addr;
+            fastcgi_param  REMOTE_PORT        $remote_port;
+            fastcgi_param  SERVER_ADDR        $server_addr;
+            fastcgi_param  SERVER_PORT        $server_port;
+            fastcgi_param  SERVER_NAME        $server_name;
+    
+        }   
+
+
 
 
 
@@ -217,6 +259,9 @@ g4daeserver-start-args(){
 }
 
 g4daeserver-start-cmd(){
+
+   g4daeserver-runenv
+
   cat << EOC
 $(which python) $(g4daeserver-dir)/g4daeserver.py $(g4daeserver-start-args) 
 EOC
@@ -225,12 +270,24 @@ EOC
 g4daeserver-log(){ echo $(local-base)/env/geant4/geometry/g4daeserver/logs/sv.log ; }
 
 
+g4daeserver-runenv(){
+   if [ "$NODE_TAG" == "N" ]; then 
+      python-
+      python- source
+   fi 
+   export-
+   export-export   # for DAE_NAME_DYB
+}
+
+
 g4daeserver-sv-(){ 
 
-mkdir -p $(dirname $(g4daeserver-log))
-cat << EOX
+   g4daeserver-runenv
+
+   mkdir -p $(dirname $(g4daeserver-log))
+   cat << EOX
 [program:g4daeserver]
-environment=LD_LIBRARY_PATH=$LD_LIBRARY_PATH,LOCAL_BASE=$LOCAL_BASE
+environment=LD_LIBRARY_PATH=$LD_LIBRARY_PATH,LOCAL_BASE=$LOCAL_BASE,DAE_NAME_DYB=$DAE_NAME_DYB
 command=$(g4daeserver-start-cmd)
 process_name=%(program_name)s
 autostart=true
