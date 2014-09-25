@@ -49,7 +49,7 @@ class DAEDirectConfig(object):
 
         defaults['clargs'] = []
         defaults['loglevel'] = "INFO"
-        defaults['logformat'] = "%(asctime)-15s %(name)-20s:%(lineno)-3d %(message)s"
+        defaults['logformat'] = "%(asctime)-15s %(levelname)-7s %(name)-20s:%(lineno)-3d %(message)s"
 
         parser.add_argument( "clargs",nargs="*", help="Optional commandline args   %(default)s")  
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  

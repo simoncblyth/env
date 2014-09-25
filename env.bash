@@ -1468,3 +1468,4 @@ cnpy-(){      . $(env-home)/numpy/cnpy.bash && cnpy-env $* ; }
 flup-(){      . $(env-home)/wsgi/flup.bash && flup-env $* ; }
 g4daenode-(){      . $(env-home)/geant4/geometry/collada/g4daenode.bash && g4daenode-env $* ; }
 presentation-(){      . $(env-home)/presentation/presentation.bash && presentation-env $* ; }
+dataquality-(){      . $(env-home)/nuwa/dataquality.bash && dataquality-env $* ; }
