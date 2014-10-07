@@ -280,6 +280,7 @@ import collada
 from collada.xmlutil import etree as ET
 from collada.xmlutil import writeXML, COLLADA_NS, E
 from collada.common import DaeObject
+NAMESPACES=dict(c=COLLADA_NS)
 
 
 tag = lambda _:str(ET.QName(COLLADA_NS,_))
@@ -298,6 +299,11 @@ tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode'))
 import sys, os, logging, hashlib, copy, re
 log = logging.getLogger(__name__)
 from StringIO import StringIO
+
+# globals for debug 
+gtop = None
+gsub = None
+
 
 try:
     import web 
@@ -1458,6 +1464,137 @@ class DAESubTree(list):
 
 
 
+class DAENormalize(object):
+    misordered = ["{%s}instance_node" % COLLADA_NS, "{%s}matrix" % COLLADA_NS ]
+    materials_ptn = re.compile("__dd__Materials__(\S*)_fx_0x\S{7}$")
+    def __init__(self, xmlnode ):
+        nodes = xmlnode.xpath("//c:node", namespaces=NAMESPACES)
+        self.normalize_nodes( nodes )
+        effects = xmlnode.xpath("//c:effect", namespaces=NAMESPACES)
+        self.normalize_effects( effects )
+
+    def normalize_nodes(self, nodes):
+        """
+        For unknown reasons small numbers of nodes have the matrix at the end, 
+        with mis-ordered layout::
+
+               node 
+                    instance_node
+                    matrix  
+
+        Corrected layout::
+
+               node 
+                    matrix  
+                    instance_node
+
+        """
+        normnode = 0  
+        for node in nodes:
+            tags = map(lambda _:_.tag, node)
+            if tags == self.misordered: 
+                node[:] = list(reversed(list(node)))
+                normnode += 1 
+            pass
+        pass 
+        log.info("swapped %s / %s node misorders : node/[instance_node <--> matrix] " % (normnode,len(nodes)) )
+
+
+    colormap = {
+                 'MineralOil':'1.0 0.0 0.0 1.0',
+                    'Acrylic':'0.5 0.5 0.5 1.0',
+         'LiquidScintillator':'0.0 1.0 0.0 1.0',
+                  'GdDopedLS':'0.0 0.0 1.0 1.0',
+                     'Teflon':'1.0 0.5 0.5 1.0',
+                      'Pyrex':'0.0 0.0 1.0 1.0',
+                     'Vacuum':'1.0 0.5 0.5 1.0',
+                   'Bialkali':'1.0 0.0 0.0 1.0',
+               'OpaqueVacuum':'1.0 0.5 0.5 1.0',
+         'UnstStainlessSteel':'1.0 0.5 0.5 1.0',
+                        'PVC':'1.0 0.5 0.5 1.0',
+             'StainlessSteel':'0.5 0.5 0.5 1.0',
+                        'Air':'1.0 0.5 0.5 1.0',
+                        'ESR':'1.0 0.0 0.0 1.0',
+                      'Nylon':'1.0 0.5 0.5 1.0',
+     }
+
+
+    transmap = {
+                 'MineralOil':'0.1',
+                    'Acrylic':'0.1',
+         'LiquidScintillator':'0.2',
+                  'GdDopedLS':'0.3',
+                     'Teflon':'0.0',
+                      'Pyrex':'0.4',
+                     'Vacuum':'0.0',
+                   'Bialkali':'0.5',
+               'OpaqueVacuum':'0.0',
+         'UnstStainlessSteel':'0.2',
+                        'PVC':'0.0',
+             'StainlessSteel':'0.2',
+                        'Air':'0.0',
+                        'ESR':'0.1',
+                      'Nylon':'0.0',
+ 
+
+    }
+ 
+
+    def normalize_effects(self, effects):
+        """
+        Change colors for effects which have id matching the map
+
+
+        phong
+              Produces a specularly shaded surface where the specular reflection 
+              is shaded according the Phong BRDF approximation.
+              emission/ambient/diffuse/*specular/shininess*/reflective/reflectivity/transparent/transparency/index_of_refraction
+
+        lambert
+              Produces a diffuse shaded surface that is independent of lighting.
+              emission/ambient/diffuse/reflective/reflectivity/transparent/transparency/index_of_refraction
+
+
+        """
+        for effect in effects:
+            id_ = effect.attrib['id']
+            match = self.materials_ptn.match(id_)
+            if match: 
+                name = match.groups()[0]
+                coltxt = self.colormap.get(name, None)
+                if not coltxt is None:
+                    log.info("effects %s %s " % (name, coltxt) ) 
+                    for color in effect.findall(".//c:color", namespaces=NAMESPACES):
+                        color.text = coltxt
+                        #color.text = '0 0 0 1'
+                    pass
+                    #emission_color = effect.find(".//c:emission/c:color", namespaces=NAMESPACES)   
+                    #emission_color.text = coltxt
+                    pass
+
+
+                transparency = effect.find(".//c:transparency/c:float", namespaces=NAMESPACES)
+                if not transparency is None:
+                    tratxt = self.transmap.get(name, '0.1')   # transparency of 1. is fully non-transparent, transparency 0. is fully-transparent and hence invisible
+                    transparency.text = tratxt   
+                pass    
+
+                technique = effect.find(".//c:technique", namespaces=NAMESPACES )
+
+                # "phong" and "lambert" allowed children differ, 
+                # remove the phong disallowed 
+                #
+                phong = technique.find("./c:phong", namespaces=NAMESPACES )
+                specular = phong.find("./c:specular", namespaces=NAMESPACES )
+                shininess = phong.find("./c:shininess", namespaces=NAMESPACES )
+                phong.remove(specular)
+                phong.remove(shininess) 
+                phong.tag = '{%s}lambert' % COLLADA_NS
+
+                pass
+
+
+
 class DAECopy(object):
     """
     Non-Node objects, ie Effect, Material, Geometry have clearly defined places 
@@ -1597,6 +1734,8 @@ class DAECopy(object):
         * LV nodes contain instance_geometry and 0 or more node(PV)  elements  
         * PV nodes contain matrix and instance_node (pointing to an LV node) **ONLY**
           they are merely placements within their holding LV node. 
+          [observe problem of matrix being placed after instance_node for small numbers
+           of nodes (possibly at leaves?)]
           
         DAENode are created by collada raw nodes traverse hitting leaves, ie
         with recursion node path  Node/NodeNode/GeometryNode or xml structure
@@ -1681,7 +1820,11 @@ class DAECopy(object):
         cnodes = []
         cgeonode = self.copy_geometry_node( geonode )
         #cgeonode = self.faux_copy_geometry_node( geonode )
-        cnodes.append(cgeonode)  
+
+        if depth == 0 and self.opts.get('skiproot', False) == True:
+            log.info("skipping root geometry")
+        else:
+            cnodes.append(cgeonode)  
 
         # collect children of the referred to LV, ie the contained PV
         if not hasattr(vnode,'children') or len(vnode.children) == 0:# leaf
@@ -1734,7 +1877,8 @@ class DAECopy(object):
         writeXML(self.dae.xmlnode, out )
         return out.getvalue()
 
-
+def getExtra( top ):
+    pass
 
 def getSubCollada(arg, cfg ):
     """
@@ -1747,7 +1891,7 @@ def getSubCollada(arg, cfg ):
     log.info("getSubCollada arg maxdepth handling %s %s " % (arg, maxdepth))
 
     indices = DAENode.interpret_ids(arg)
-    assert len(indices) == 1 
+    assert len(indices) == 1, (len(indices), indices ) 
     index = indices[0]
     log.info("geom subcopy arg %s => index %s cfg %s " % (arg, index, cfg) )
     top = DAENode.indexget(index)  
@@ -1768,8 +1912,17 @@ def getSubCollada(arg, cfg ):
     pass
     cfg['extra'] = extra
 
+
     vc = DAECopy(top, cfg )
-    svc = str(vc)
+    DAENormalize(vc.dae.xmlnode)
+
+    xmlshebang = cfg.get('xmlshebang',False)
+    shebang = '<?xml version="1.0" encoding="ISO-8859-1"?>'
+    if xmlshebang:
+        svc = "\n".join([shebang,str(vc)])
+    else:
+        svc = str(vc)
+    pass    
 
     subpath = cfg.get('subpath', None)
     if not subpath is None and cfg.get('daesave',False) == True:
@@ -1777,6 +1930,14 @@ def getSubCollada(arg, cfg ):
         fp = open(subpath, "w") 
         fp.write(svc)
         fp.close()
+    pass 
+
+    debug = cfg.get('debug',False)
+    if debug:
+        global gsub, gtop
+        gsub = vc
+        gtop = top
+    pass 
 
     return svc
 
@@ -1857,6 +2018,8 @@ class Defaults(object):
     insertsize = 0
     ipy = False
     surface = False
+    xmlshebang = False
+    skiproot = False
 
 
 def resolve_path(path_):
@@ -1880,6 +2043,7 @@ def parse_args(doc):
     op.add_option("-p", "--daepath", default=defopts.daepath , help="Path to the original geometry file. Default %default ")
     op.add_option(      "--daedbpath", default=defopts.daedbpath , help="Path to the summary SQLite DB, when None use daepath with '.db' appended. Default %default ")
     op.add_option(      "--ipy",  action="store_true", default=defopts.ipy , help="Drop into embedded ipython. Default %default ")
+    op.add_option(      "--debug",  action="store_true", default=False , help="Call subcollada copy then drop into embedded ipython. Default %default ")
 
     # three way split 
     op.add_option("-d", "--node", action="store_true", default=defopts.node , help="Text representation of a single volume. Default %default." )
@@ -1888,6 +2052,8 @@ def parse_args(doc):
 
     op.add_option("-a", "--ancestors", default=defopts.ancestors , help="Include ancestor nodes in the text dumps. Default %default.")
     op.add_option("-g", "--geometry", default=defopts.geometry ,  help="Include geometry details in the text dumps. Default %default.")
+    op.add_option(      "--xmlshebang", action="store_true", default=defopts.xmlshebang ,  help="Include XML shebang line. Default %default.")
+    op.add_option(      "--skiproot", action="store_true", default=defopts.skiproot ,  help="Skip geometry of root node. Default %default.")
 
     op.add_option("-w", "--webserver", action="store_true", default=defopts.webserver, help="Start a webserver on local node. Default %default." )
 
@@ -1956,6 +2122,12 @@ def main():
         print getTextTree(args[0], vars(opts))
     elif opts.geom:
         print getSubCollada(args[0], vars(opts))
+    elif opts.debug:
+        subxml = getSubCollada(args[0], vars(opts))
+        xmlnode = gsub.dae.xmlnode 
+        effects = xmlnode.findall(".//c:effect", namespaces=NAMESPACES)
+        import IPython
+        IPython.embed()
 
     if opts.ipy:
         from daecommon import splitname, shortname, fromjson
