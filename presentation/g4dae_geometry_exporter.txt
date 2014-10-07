@@ -1,6 +1,21 @@
 
 .. comment 
 
+   https://github.com/ralsina/rst-cheatsheet/blob/master/rst-cheatsheet.rst
+
+   Parallel session 2B : Latest developments on visualization drivers
+   Tuesday 30/09 16:00-17:30
+   (maximum of 20min, including 5 min discussion)
+
+   - Joseph Perl: « Improving vis performances in MT »
+   - Akinori Kimura: « Updates of the gMocren driver » 
+   - Simon Blyth (invited as a contributor for this session) : « Collada geometry exporter G4DAE»
+   - Laurent Garnier: «  Updates on OpenGL (Qt and Wt) drivers » 
+   - space for discussion 
+
+   Laurent
+
+
    TODO: 
    * Need page regarding g4daeview.py implementation techniques
    * need cuts 
@@ -57,10 +72,23 @@ G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
    for Geant4 users and outreach. Facilitate 
    innovative use of geometry data.
 
-* :blue:`Widely supported standard 3D file format`
-* :blue:`Most users can view without installation`
+.. class:: small
 
-* :red:`Facilitate innovative visualization/computation`
+   * Exporter details
+   * What is COLLADA/DAE ?
+   * Validating exports
+   * General viewing of exports
+   * Custom use: :red:`bridging to GPU`
+   * OpenGL Viewer implementation
+   * Optical Photon Data handling 
+   * Introducing *Chroma* 
+   * *Chroma* raycasting
+   * *Chroma* photon propagation 
+   * *G4DAE* Exporter status
+   * Conclusion 
+
+   |  Simon C Blyth, Daya Bay Collaboration, National Taiwan University
+   |  **19th Geant4 Collaboration Meeting, Okinawa, Sept 2014, Parallel Session B2, Visualization Group (Invited Speaker)** 
 
 
 https://bitbucket.org/simoncblyth/g4dae 
@@ -99,24 +127,28 @@ https://bitbucket.org/simoncblyth/g4dae
 
 .. class:: small
 
-    * Comparison of all vertices/faces reveals :red:`boolean solids are discrepant`. 
-    * Perfect [#perfect]_ DAE WRL agreement achieved by *cheating* : :blue:`perform triangulation once and reuse`.
-    * Boolean solid triangulation sensitivity must be kept in mind as a potential systematic
-      for computational uses 
-    * DAE not much bigger than GDML, despite including all triangles/vertices [#not-repeating]_
-      
+    Export validation:
+
+     * Comparison of all vertices/faces reveals :red:`boolean solids are discrepant`. 
+
+     * Perfect [#perfect]_ DAE WRL agreement achieved by *cheating* : :blue:`perform triangulation once and reuse`.
+
+     * Boolean solid triangulation sensitivity must be kept in mind as a potential systematic
+       for computational uses 
+
+     * **DAE not much bigger than GDML**, despite including all triangles/vertices [#not-repeating]_
        
 
 .. class:: small
 
-    ====================  ==============  ===========  ===============  =================
-     Qty                    DayaBay         Lingao          Far          Juno x0.5 
-    ====================  ==============  ===========  ===============  =================
-    Volumes                     12,229        12,229          18,903         25,000
-    Triangles                2,448,064     2,448,064       4,189,680     21,886,158
-    Vertices                 1,245,996     1,245,996       2,128,208     10,993,079
-    DAE/GDML/WRL (MB)        6.9/4.0/98   6.9/4.0/96     8.6/6.0/167     6.1M/-/-                 
-    ====================  ==============  ===========  ===============  =================
+    ====================  =================  ==============  ==================  =================
+     Qty                    DayaBay            Lingao             Far             Juno x0.5 
+    ====================  =================  ==============  ==================  =================
+    Volumes                     12,229           12,229             18,903            25,000
+    Triangles                2,448,064        2,448,064          4,189,680        21,886,158
+    Vertices                 1,245,996        1,245,996          2,128,208        10,993,079
+    DAE/GDML/WRL (MB)      **6.9**/4.0/98    **6.9**/4.0/96    **8.6**/6.0/167     **6.1**/-/-                 
+    ====================  =================  ==============  ==================  =================
 
 
 .. class:: tiny
@@ -312,8 +344,6 @@ https://bitbucket.org/simoncblyth/g4dae
 
 .. class:: tiny
 
-   http://pyopengl.sourceforge.net   
-   https://code.google.com/p/glumpy/  
 
    .. [#g4daeview_usage] http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
 
@@ -339,19 +369,104 @@ https://bitbucket.org/simoncblyth/g4dae
 
 
 
-:small:`g4daeview.py : Implementation and Status`  
+:small:`g4daeview.py : Implementation`  
+-----------------------------------------------------------------------------   
+
+..  comment
+
+    http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/collada/daeviewgl.py?rev=4344
+
+
+.. class:: small
+
+   Based on *glumpy* [#glumpy]_ and *pyopengl* [#pyopengl]_ 
+
+.. class:: small
+
+   * started from .obj viewer [#glumpy-obj-viewer]_ 
+
+   * added vertices, triangles from **G4DAE** export
+     
+      * entire geometry in :red:`single VBO`
+
+      * only **one** OpenGL command needed to draw    
+
+   * immediately (few hrs): :red:`shockingly fast graphics` 
+
+      * smoothly slinging around ~2.5M triangles, no stuttering 
+ 
+
+
+.. class:: tiny
+
+   .. [#glumpy] https://code.google.com/p/glumpy/ many useful examples of pyopengl usage  
+   .. [#pyopengl] http://pyopengl.sourceforge.net  cross platform Python binding to OpenGL and related APIs   
+   .. [#glumpy-obj-viewer] http://bitbucket.org/simoncblyth/env/src/tip/graphics/glumpy/glumpy_examples/obj-viewer-structured.py  
+
+
+:small:`g4daeview.py : Optical Photon (OP) Data Handling`  
 -----------------------------------------------------------------------------   
 
 .. class:: small
 
-   * https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
+   Photon data flow:
 
-   Intend to facilitate usage by others:
+   * OP collected in *StackAction::ClassifyNewTrack* and killed [#alt]_ 
+
+   * *NewStage* send OP lists [#mqtransport]_ to *CUDA/Chroma* process, propagated on GPU
+
+   * reply back to *NewStage* to form hits  
+
+.. sidebar:: CUDA/OpenGL interop 
+
+   Same GPU resident data structure 
+   accessible to computation and presentation
+
+.. class:: small
+      
+   When visualizing/debugging:
+
+   * populate OpenGL VBO data structure
+
+   * on load, propagate, saving steps into VBO slots   
+
+   * presentation, every frame: 
+
+     * photon styles, GLSL shaders: spagetti, confetti, noodles, ...
+
+     * simple CUDA *presenter* kernel to interpolate between steps based on an input time 
+
+.. class:: tiny
+
+   .. [#alt] Would be more efficient to collect OP inside Cerenkov and Scintillation processes, 
+             avoiding creating and stacking only to immediately kill. 
+
+   .. [#mqtransport] ROOT TObject (de)serialization, network message queue ZeroMQ 
+
+
+
+:small:`g4daeview.py : Status`  
+-----------------------------------------------------------------------------   
+
+.. class:: small
+
+   Not mature, but intend to facilitate usage anyhow. 
+
+   **Plan:**
  
    * break out into separate bitbucket repository 
+   
+     * https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
 
-   * partition dependencies, to allow users without CUDA/PyCUDA/Chroma 
-     to still use geometry visualization and inspection features 
+
+.. class:: small
+
+   * degrade to OpenGL only features, when CUDA not available 
+  
+     * *glumpy/pyopengl/numpy/pycollada* : visualization/navigation/bookmarks
+     * *Chroma/PyCUDA/Chroma* : photon propagation, raycasting 
+
+.. class:: small
 
    * document installation and usage
 
@@ -433,7 +548,7 @@ https://bitbucket.org/simoncblyth/g4dae
 
 
 
-:small:`g4daeview.py : Dayabay Chroma Photon Propagation` 
+:small:`g4daeview.py : Dayabay Chroma Photon Propagation (1)` 
 -------------------------------------------------------------------------------
 
 .. class:: tiny
@@ -448,7 +563,7 @@ https://bitbucket.org/simoncblyth/g4dae
    :align: center
 
 
-:small:`g4daeview.py : Dayabay Chroma Photon Propagation` 
+:small:`g4daeview.py : Dayabay Chroma Photon Propagation (2)` 
 -------------------------------------------------------------------------------
 
 .. class:: tiny
@@ -484,9 +599,9 @@ https://bitbucket.org/simoncblyth/g4dae
 
    * implement parametrized/replica geometry handling, following GDML
 
-   * investigate suspected issue of missing **G4LogicalBorderSurface** 
-     (volume pairs) in an edge case where one volume is part of 
-     multiple pairs. This is inherited from GDML.
+   * confirm issue (inherited from GDML) of 
+     edge case skipped **G4LogicalBorderSurface** 
+     where a volume is shared between multiple volume pairs. 
 
 .. class:: small
 
@@ -504,9 +619,7 @@ https://bitbucket.org/simoncblyth/g4dae
 
    * review code: 
  
-     * remove unused parsing inherited from GDML 
-     * remove any remaining detector specifics, 
-       eg material id prefixes
+     * remove: unused parsing inherited from GDML 
 
 
 
@@ -524,7 +637,9 @@ useful for facilitating:
 
 * fast/flexible/ubiquitous visualization 
 * external computation using geometry data such as
-  GPU raycasting and GPU optical photon simulation
+  
+  * GPU raycasting 
+  * GPU optical photon simulation
 
 .. class:: small
 

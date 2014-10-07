@@ -77,6 +77,31 @@ from docutils.core import default_description, default_usage
 from docutils.core import Publisher 
 
 
+def collect_titles( doctree ):
+    """
+    Slide titles
+    """
+    titles = []
+    maintitle = str(doctree.traverse(nodes.title)[0][0])
+    titles.append(maintitle)
+
+    for section in doctree.traverse(nodes.section):
+        names = section.attributes['names']
+        if len(names) > 0:
+            title = names[0]
+        else: 
+            title = repr(names)
+        pass
+        #print title
+        titles.append(title)
+
+    if not IP is None:
+        pass
+        #IP.embed()
+
+    return titles
+
+
 def collect_resources( doctree ):
     """
     :param doctree: 
@@ -163,10 +188,8 @@ def main():
     urls, paths = collect_resources(pub.document)
     #print "\n".join(paths)
 
-    if not IP is None:
-        pass
-        #IP.embed()
-
+    titles = collect_titles(pub.document)
+    print "\n".join(["%0.2d : %s " % (i, title) for i, title in enumerate(titles)])
     return output
 
 

@@ -2,11 +2,30 @@
 slides-src(){      echo doc/slides.bash ; }
 slides-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slides-src)} ; }
 slides-vi(){       vi $(slides-source) ; }
-slides-env(){      elocal- ; }
+slides-env(){      elocal- ; bitbucketstatic- ;  }
 slides-usage(){ cat << EOU
 
 CONVERT SLIDES IN S5 RST TO HTML AND PDF 
 =========================================
+
+
+g4dae
+------
+
+::
+
+    delta:g4dae_geometry_exporter blyth$ pwd
+    /Library/WebServer/Documents/env/presentation/g4dae_geometry_exporter
+
+
+    delta:presentation blyth$ hg add 
+    adding g4dae_geometry_exporter_okinawa.pdf
+    env/presentation/g4dae_geometry_exporter_okinawa.pdf: up to 85 MB of RAM may be required to manage this file
+    (use 'hg revert env/presentation/g4dae_geometry_exporter_okinawa.pdf' to cancel the pending addition)
+    delta:presentation blyth$ 
+
+
+
 
 Checking configured settings
 -------------------------------
@@ -15,6 +34,7 @@ Checking configured settings
            echos the paths/names in use
 
 *slides-get 0 15*
+*slides-get 0 0*   first page only 
            capture PNGs per page, crop the chrome, convert PNGs into PDF
 
            BEFORE USING MOVE ASIDE THE PRIOR CAPTURES MANUALLY::
@@ -332,9 +352,13 @@ slides-get(){
 
 }
 
-slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
-slides-branch(){    echo ${SLIDES_BRANCH:-muon_simulation/presentation} ; }        # env relative path to where .txt sources reside
-slides-host(){      echo ${SLIDES_HOST:-dayabay.phys.ntu.edu.tw} ; }   
+#slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
+slides-name(){      echo ${SLIDES_NAME:-g4dae_geometry_exporter} ; }
+slides-branch(){    echo ${SLIDES_BRANCH:-presentation} ; }        # env relative path to where .txt sources reside
+
+#slides-host(){      echo ${SLIDES_HOST:-dayabay.phys.ntu.edu.tw} ; }   
+#slides-host(){      echo ${SLIDES_HOST:-simoncblyth.bitbucket.org} ; }   
+slides-host(){      echo ${SLIDES_HOST:-localhost} ; }   
 
 slides-url-prior(){ echo ${SLIDES_URL:-http://$(slides-host)/e/$(slides-fold)/$(slides-name).html} ; }
 slides-ppath-prior(){ echo $(apache-htdocs $1)/e/$(slides-fold)/$(slides-name).${2:-pdf} ; }   
