@@ -314,6 +314,10 @@ class ColladaToChroma(object):
 
     def convert_materials(self, debug=False):
         """
+        #. creates chroma Material instances for each collada material 
+        #. fills in properties from the collada extras
+        #. records materials in a map keyed by material.name
+
         Chroma materials default to None, 3 settings:
 
         * refractive_index

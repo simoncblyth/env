@@ -2,7 +2,7 @@
 G4DAEChroma.cpp : ZMQResponder, CUDA kernel call  
 ====================================================
 
-C++ implementation of `g4daechroma.py` with few dependencies 
+Planned C++ implementation of `g4daechroma.py` with few dependencies 
 that just collects photons bytes streams, 
 deserializes into arrays, copies to GPU, runs kernel, 
 copy back, serialize and reply.

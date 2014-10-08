@@ -813,6 +813,13 @@ def main():
     oil,ls,gdls = map(lambda _:cmm[_],'MineralOil LiquidScintillator GdDopedLS'.split())
     gdls_props = gdls.extra.properties
 
+
+    #from npycache import NPYCache 
+    #cache = NPYCache(chroma_geometry, "/tmp") 
+    #cache.write()
+
+    chroma_geometry.save(["/tmp/tt"])
+
     log.info("dropping into IPython try: g.<TAB> cg.<TAB>")
     import IPython 
     IPython.embed()
