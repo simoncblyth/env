@@ -122,7 +122,7 @@ class DAE {
         sceneView.scene = scene
         //sceneView.backgroundColor = NSColor.grayColor()
         sceneView.autoenablesDefaultLighting = true
-        sceneView.allowsCameraControl = true
+        //sceneView.allowsCameraControl = false
         
         let targetNode = self.get_node(target)
         
@@ -145,7 +145,7 @@ class DAE {
         
         cameraNode = SCNNode()
         cameraNode!.camera = camera
-        cameraNode!.position = SCNVector3Make(1000,1000,1000.0)
+        cameraNode!.position = SCNVector3Make(100,1000,1000.0)
         
         scene.rootNode.addChildNode(cameraNode)
 
@@ -231,7 +231,12 @@ let path: String? = env["DAE_NAME_AD"] as? NSString
 if path {
     let dae = DAE(path:path!,target:0)
     XCPShowView("The Scene View", dae.sceneView)
+
+    let pov = dae.sceneView.pointOfView
+    pov.position
 }
+
+
 
 
 

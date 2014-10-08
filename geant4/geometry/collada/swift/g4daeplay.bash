@@ -28,6 +28,8 @@ Refs
 #. https://developer.apple.com/library/ios/recipes/xcode_help-source_editor/chapters/ExploringandEvaluatingSwiftCodeinaPlayground.html
 #. https://developer.apple.com/library/mac/documentation/SceneKit/Reference/SCNCamera_Class/Reference/SCNCamera.html
 #. https://developer.apple.com/library/mac/documentation/3DDrawing/Conceptual/SceneKit_PG/Introduction/Introduction.html
+#. https://developer.apple.com/library/prerelease/mac/documentation/SceneKit/Reference/SCNSceneRenderer_Protocol/index.html
+
 
 To use the camera to display a scene, attach it to the camera property of node,
 then select that node using the pointOfView property of the view (or layer or
