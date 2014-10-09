@@ -40,7 +40,6 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
 
     def __init__(self, dphotons, ctx, debug=0):
         """
-        :param dphotons: DAEPhotons instance
         :param ctx: `DAEChromaContext` instance, for GPU config and geometry
 
         #. max_slots, numquad are interpolated into kernel source coming from DAEPhotonsData

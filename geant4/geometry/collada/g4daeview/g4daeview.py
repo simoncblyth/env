@@ -308,17 +308,7 @@ def main():
     rmenu = DAEMenu("rtop", backend=rmenu_glut)
     config.rmenu = rmenu
 
-
-    geocachepath = config.geocachepath
-    if os.path.exists(geocachepath) and config.args.geocache:
-        geometry = DAEGeometry.load_from_cache( config )
-    else:
-        geometry = DAEGeometry(config)
-        geometry.flatten()
-        if config.args.geocache:
-            geometry.save_to_cache(geocachepath)
-        pass
-    pass
+    geometry = DAEGeometry.get(config)
 
     figure = gp.Figure(size=config.size)
     frame = figure.add_frame(size=config.frame)

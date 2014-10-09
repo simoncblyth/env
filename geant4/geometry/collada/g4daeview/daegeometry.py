@@ -306,6 +306,23 @@ class DAEGeometry(object):
         obj.populate_from_cache(npz)
         return obj
 
+    @classmethod
+    def get(cls, config):
+        """
+        Get from cache when `geocache` configured or create  
+        """
+        geocachepath = config.geocachepath
+        if os.path.exists(geocachepath) and config.args.geocache:
+            geometry = cls.load_from_cache( config )
+        else:
+            geometry = cls(config)
+            geometry.flatten()
+            if config.args.geocache:
+                geometry.save_to_cache(geocachepath)
+            pass
+
+        log.info("DAEGeometry.get DONE")
+        return geometry 
 
 
     def flatten(self):
@@ -335,7 +352,7 @@ class DAEGeometry(object):
 
         mesh = self.make_mesh(vertices, triangles, normals)
         
-        log.info("flatten nsolids %s into mesh:\n%s\n" % (len(self.solids),repr(mesh)))
+        log.info("flatten nsolids %s into mesh: %s " % (len(self.solids),repr(mesh)))
         self.mesh = mesh 
 
     
@@ -405,7 +422,7 @@ class DAEGeometry(object):
         Potentially the huge universe may have bad impact on chroma BVH morton codes, 
         as most of the morton space was empty.
         """
-        log.debug("make_chroma_geometry bvh %s " % (bvh) )
+        log.info("make_chroma_geometry bvh %s " % (bvh) )
         from env.geant4.geometry.collada.collada_to_chroma  import ColladaToChroma 
 
         cc = ColladaToChroma(DAENode, bvh=bvh )     
@@ -414,16 +431,18 @@ class DAEGeometry(object):
         self.cc = cc
         self.chroma_material_map = DAEChromaMaterialMap( self.config, cc.cmm )
         self.chroma_material_map.write()
+        log.info("completed DAEChromaMaterialMap.write")
 
         self.chroma_surface_map = DAEChromaSurfaceMap( self.config, cc.csm )
         self.chroma_surface_map.write()
-
+        log.info("completed DAEChromaSurfaceMap.write")
 
         cpm = self.make_chroma_process_map()
         self.chroma_process_map = DAEChromaProcessMap( self.config, cpm )
         self.chroma_process_map.write()
+        log.info("completed DAEChromaProcessMap.write")
 
-        log.debug("completed make_chroma_geometry")
+        log.info("completed make_chroma_geometry")
         return cc.chroma_geometry
 
 

@@ -31,12 +31,12 @@ class G4DAEChroma(object):
         if self.config.args.with_chroma:
             from daechromacontext import DAEChromaContext     
             chroma_geometry = geometry.make_chroma_geometry() 
-            self.chroma = DAEChromaContext( config, chroma_geometry )
+            chroma = DAEChromaContext( config, chroma_geometry )
         else:
-            self.chroma = DAEChromaContextDummy()
+            chroma = DAEChromaContextDummy()
         pass
 
-        propagator = DAEDirectPropagator(config)
+        propagator = DAEDirectPropagator(config, chroma)
         def handler(cpl):
             log.info("handler got cpl") 
             return propagator.propagate( cpl )
@@ -62,16 +62,7 @@ def main():
     config = DAEDirectConfig(__doc__)
     config.parse()
 
-    geocachepath = config.geocachepath
-    if os.path.exists(geocachepath) and config.args.geocache:
-        geometry = DAEGeometry.load_from_cache( config )
-    else:
-        geometry = DAEGeometry(config)
-        geometry.flatten()
-        if config.args.geocache:
-            geometry.save_to_cache(geocachepath)
-        pass
-
+    geometry = DAEGeometry.get(config) 
 
     gdc = G4DAEChroma(geometry, config )
     gdc.poll_forever()

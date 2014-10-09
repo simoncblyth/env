@@ -521,6 +521,9 @@ class ColladaToChroma(object):
         if self.bvh:
             self.add_bvh()
 
+        log.info("convert_geometry DONE")
+
+
     def make_chroma_material_map(self, chroma_geometry):
         """
         Curiously the order of chroma_geometry.unique_materials on different invokations is 

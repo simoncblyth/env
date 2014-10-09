@@ -12,13 +12,16 @@ class DAEChromaMap(object):
         return cmm
 
     @classmethod
-    def compare(cls, a, b ):
+    def compare(cls, a, b, dump_mismatch=False):
+        log.info("%s compare " % cls.__name__ )
         a = a.code2name
         b = b.code2name
         uk = set(a.keys()).union(set(b.keys()))
 
         if len(a) != len(b):
             log.warn("KEY MISMATCH a %s b %s union %s  " % (repr(a.keys()), repr(b.keys()), repr(uk) ))
+
+        lines = []
 
         mismatch = 0 
         for k in uk:
@@ -27,9 +30,14 @@ class DAEChromaMap(object):
             same = ak == bk
             mkr = "" if same else "********"
             if not same:mismatch += 1
-            print "%2d %-20s %-20s %s" % ( k, ak, bk, mkr )
+            line = "%2d %-20s %-20s %s" % ( k, ak, bk, mkr )
+            lines.append(line)
         pass
+
         log.info("compare sees %s mismatches " % mismatch )
+        if mismatch > 0 and dump_mismatch:
+            print "\n".join(lines) 
+
         return mismatch
 
     def dump(self):
