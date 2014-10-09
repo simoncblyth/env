@@ -11,6 +11,7 @@ Usage::
 
 """
 import os, logging
+import numpy as np
 
 try:
     from env.root.import_ROOT import ROOT     # avoids sys.argv kidnap
@@ -74,6 +75,7 @@ def create_cpl_from_photons_very_slowly( photons ):
     * :doc:`/chroma/chroma_pyublas` pyublas/boost-python/boost-ublas example
     * http://root.cern.ch/phpBB3/viewtopic.php?t=4233 
 
+    The slowness of this motivated looking into NPY serialization approaches.
     """
     cpl = ROOT.ChromaPhotonList()
 
@@ -83,7 +85,11 @@ def create_cpl_from_photons_very_slowly( photons ):
     polx,poly,polz=photons.pol[:,0],photons.pol[:,1],photons.pol[:,2]
     t = photons.t 
     w = photons.wavelengths
-    pmtid = photons.pmtid
+
+    if not hasattr(photons, 'pmtid'):
+       log.warn("filling in pmtid with dummy -1 ") 
+
+    pmtid = getattr(photons,'pmtid', -np.ones( nphotons , np.int32 ))
 
     #cpl.FromArrays(x,y,z,px,py,pz,polx,poly,polz,t,w,pmtid,nphotons)  I WISH or better: cpl.FromPhotons(photons)
     for _ in range(nphotons):

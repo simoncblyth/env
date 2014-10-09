@@ -2,6 +2,9 @@
 #include "assert.h"
 #include <iostream>
 
+#include "TMD5.h"
+
+
 ChromaPhotonList::ChromaPhotonList() : TObject() {
 }
 
@@ -20,6 +23,31 @@ void ChromaPhotonList::Print(Option_t* option) const
 std::size_t ChromaPhotonList::GetSize() const
 {
    return x.size() ;  
+}
+
+
+std::string ChromaPhotonList::GetDigest() const 
+{
+  //const float* bufx = x.data(); 
+  //for(size_t i=0 ; i < x.size() ; i++ ) if ( i < 10 || i > x.size() - 10 ) std::cout << i << " " << bufx[i] << std::endl ;
+
+  // digest of all photon data by casting underlying contiguous arrays as bytes 
+  TMD5 md5 ;
+  md5.Update( (UChar_t*)x.data(), sizeof(float)*x.size() ); 
+  md5.Update( (UChar_t*)y.data(), sizeof(float)*y.size() ); 
+  md5.Update( (UChar_t*)z.data(), sizeof(float)*z.size() ); 
+  md5.Update( (UChar_t*)px.data(), sizeof(float)*px.size() ); 
+  md5.Update( (UChar_t*)py.data(), sizeof(float)*py.size() ); 
+  md5.Update( (UChar_t*)pz.data(), sizeof(float)*pz.size() ); 
+  md5.Update( (UChar_t*)polx.data(), sizeof(float)*polx.size() ); 
+  md5.Update( (UChar_t*)poly.data(), sizeof(float)*poly.size() ); 
+  md5.Update( (UChar_t*)polz.data(), sizeof(float)*polz.size() ); 
+  md5.Update( (UChar_t*)t.data(), sizeof(float)*t.size() ); 
+  md5.Update( (UChar_t*)wavelength.data(), sizeof(float)*wavelength.size() ); 
+
+  md5.Update( (UChar_t*)pmtid.data(), sizeof(int)*pmtid.size() ); 
+  md5.Final();
+  return md5.AsString() ;
 }
 
 

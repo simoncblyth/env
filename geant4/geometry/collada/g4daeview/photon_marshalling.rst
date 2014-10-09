@@ -234,9 +234,11 @@ Alternate Serialization/Compression to ROOT TObject
 #. npy and cnpy, uncompressed numpy serialization format
 
    * appears to allow serialized numpy arrays to be created in C, 
-     this would shortcut may of the lifecycle steps as could 
+     this would shortcut many of the lifecycle steps as could 
      go straight from `std::vector<float>` into npy serialization 
-     and send that over the wire   
+     and send that over the wire
+
+     * BUT, uncompressed nature may be problematic   
 
 #. msgpack : very wide support 
 

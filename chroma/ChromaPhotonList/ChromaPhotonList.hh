@@ -16,6 +16,7 @@
 
 #include <TObject.h>
 #include <vector>
+#include <string>
 
 #ifdef WITH_GEANT4
 #include <G4ThreeVector.hh>
@@ -35,6 +36,7 @@ public:
 #endif
 
   std::size_t GetSize() const;
+  std::string GetDigest() const; 
 
   void Details() const ;
   void GetPhoton(size_t index, 

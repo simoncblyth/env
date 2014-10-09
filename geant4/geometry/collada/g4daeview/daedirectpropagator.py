@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import logging
+log = logging.getLogger(__name__)
 import IPython as IP
 from env.chroma.ChromaPhotonList.cpl import examine_cpl, random_cpl, save_cpl, load_cpl, create_cpl_from_photons_very_slowly
 from photons import Photons
@@ -32,11 +34,24 @@ def main():
     config.parse()
 
     cpl = config.load_cpl("1")
-    photons = Photons.from_cpl(cpl, extend=True)  # CPL into chroma.event.Photons OR photons.Photons   
+
+    extend = False
+    photons = Photons.from_cpl(cpl, extend=extend)  # CPL into chroma.event.Photons OR photons.Photons   
 
     cpl2 = create_cpl_from_photons_very_slowly(photons) 
     print cpl2
+
+    cpl.Print()
     cpl2.Print()
+
+    digests = (cpl.GetDigest(),cpl2.GetDigest()) 
+    log.info( "digests %s " % repr(digests))
+
+    if not extend:
+        assert digests[0] == digests[1], ("Digest mismatch between cpl and cpl2 ", digests)
+    else:
+        assert digests[0] != digests[1], ("Digest mismatch expected in extend mode", digests)
+
 
     propagator = DAEDirectPropagator(config)
     #propagator.propagate(cpl) 

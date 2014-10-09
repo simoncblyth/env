@@ -12,6 +12,23 @@ CHROMAPHOTONLIST
 #. ROOT dependency more difficult, due to need for TObject serialization
 
 
+Usage
+------
+
+::
+
+   cpl-
+   cpl-cmake
+   cpl-make
+   cpl-install
+
+   ## OR to do all the above
+
+   cpl-build
+
+  
+
+
 PyROOT/numpy interfacing
 ----------------------------------
 
