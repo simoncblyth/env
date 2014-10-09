@@ -431,16 +431,16 @@ class DAEGeometry(object):
         self.cc = cc
         self.chroma_material_map = DAEChromaMaterialMap( self.config, cc.cmm )
         self.chroma_material_map.write()
-        log.info("completed DAEChromaMaterialMap.write")
+        log.debug("completed DAEChromaMaterialMap.write")
 
         self.chroma_surface_map = DAEChromaSurfaceMap( self.config, cc.csm )
         self.chroma_surface_map.write()
-        log.info("completed DAEChromaSurfaceMap.write")
+        log.debug("completed DAEChromaSurfaceMap.write")
 
         cpm = self.make_chroma_process_map()
         self.chroma_process_map = DAEChromaProcessMap( self.config, cpm )
         self.chroma_process_map.write()
-        log.info("completed DAEChromaProcessMap.write")
+        log.debug("completed DAEChromaProcessMap.write")
 
         log.info("completed make_chroma_geometry")
         return cc.chroma_geometry

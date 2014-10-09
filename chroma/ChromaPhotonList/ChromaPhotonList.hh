@@ -38,7 +38,7 @@ public:
   std::size_t GetSize() const;
   std::string GetDigest() const; 
 
-  void Details() const ;
+  void Details(bool hit) const ;
   void GetPhoton(size_t index, 
                  float& _x,    float& _y, float& _z, 
                  float& _px, float& _py, float& _pz, 

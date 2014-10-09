@@ -133,7 +133,7 @@ void ChromaPhotonList::FromArrays(float* __x,    float* __y,    float* __z,
 
 
 
-void ChromaPhotonList::Details() const 
+void ChromaPhotonList::Details(bool hit) const 
 {
     std::cout <<  "ChromaPhotonList::Details [" << x.size() << "]" << std::endl ;
 
@@ -158,7 +158,8 @@ void ChromaPhotonList::Details() const
     for( index = 0 ; index < x.size() ; index++ )
     {
         GetPhoton( index, _x,_y,_z, _px,_py,_pz, _polx,_poly,_polz, _t, _wavelength, _pmtid );    
-        std::cout << " index " << index 
+
+        if( ( hit && _pmtid > -1 ) || not hit ) std::cout << " index " << index 
                  << " pos " << _x << " " << _y << " " << _z  
                  << " mom " << _px << " " << _py << " " << _pz  
                  << " pol " << _polx << " " << _poly << " " << _polz 

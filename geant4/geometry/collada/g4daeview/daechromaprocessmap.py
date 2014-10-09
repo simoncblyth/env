@@ -16,7 +16,6 @@ class DAEChromaProcessMap(DAEChromaMap):
         """
         :param cmm: dict of short material names keyed by integer codes
         """
-        log.info("DAEChromaProcessMap")
         DAEChromaMap.__init__(self, config, cpm )
         self._code2shortname = None
 

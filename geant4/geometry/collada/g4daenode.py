@@ -18,8 +18,7 @@ Debug Usage
 
 ::
 
-    daenode.sh --ipy --surface
-
+    g4daenode.sh --ipy --surface
 
 
 Usage Examples
@@ -27,9 +26,8 @@ Usage Examples
 
 ::
 
-   daenode.py --tree 0 > 0.txt            # single line just the world volume, as no recursion by default
-   daenode.py --tree 0___2 > 0___2.txt    # 
-
+   g4daenode.py --tree 0 > 0.txt            # single line just the world volume, as no recursion by default
+   g4daenode.py --tree 0___2 > 0___2.txt    # 
 
 Use from ipython
 -----------------
@@ -82,9 +80,9 @@ Heavy Geometries timeout through web interface
 
 ::
 
-   daenode.py -e -s 1___100    > 1___100.dae 
-   daenode.py -e -s 3148___100 > 3148___100.dae    
-   daenode.py -e -s 3148___6   > 3148___6.dae 
+   g4daenode.py -e -s 1___100    > 1___100.dae 
+   g4daenode.py -e -s 3148___100 > 3148___100.dae    
+   g4daenode.py -e -s 3148___6   > 3148___6.dae 
 
 Notable Volumes
 ----------------
@@ -383,6 +381,73 @@ class DAENode(object):
 
 
     @classmethod
+    def sensitize(cls,matid="__dd__Materials__Bialkali"):
+        """
+        :param matid: material id prefix that confers sensitivity, ie cathode material 
+
+        TODO:
+
+        * workout how to create fake surfaces
+
+        ::
+
+            In [8]: headon = DAENode.pvsearch('__dd__Geometry__PMT__lvHeadonPmtVacuum--pvHeadonPmtCathode')
+
+            In [9]: hemi = DAENode.pvsearch('__dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiCathode')
+
+            In [10]: len(headon)
+            Out[10]: 12
+
+            In [11]: len(hemi)
+            Out[11]: 672
+
+            In [12]: map(lambda node:"0x%7x" % node.channel_id, hemi )
+            Out[12]: 
+            ['0x1010101',
+             '0x1010102',
+             '0x1010103',
+             '0x1010104',
+             '0x1010105',
+             '0x1010106',
+            ...
+
+            In [14]: sorted(DAENode.sensitive_nodes) == sorted(headon+hemi)
+            Out[14]: True
+
+
+            In [16]: c = DAENode.sensitive_nodes[0]
+
+            In [18]: c.lv
+            Out[18]: <NodeNode node=__dd__Geometry__PMT__lvPmtHemiCathode0xc2cdca0>
+
+            In [19]: c.lv.id
+            Out[19]: '__dd__Geometry__PMT__lvPmtHemiCathode0xc2cdca0'
+
+            In [20]: c.pv.id
+            Out[20]: '__dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiCathode0xc02c380'
+
+            In [21]: c.id
+            Out[21]: '__dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiCathode0xc02c380.0'
+
+        """
+        cls.channel_count = 0 
+        cls.channel_ids = set()
+        cls.sensitive_nodes = []
+
+        def visit(node):
+            channel_id = getattr(node,'channel_id',0)
+            if channel_id > 0 and node.matid.startswith(matid): 
+                print "%6d %8d 0x%7x %s " % ( node.index, channel_id, channel_id, node.id )
+                cls.channel_ids.add(channel_id)
+                cls.channel_count += 1  
+                cls.sensitive_nodes.append(node)
+            pass
+        pass
+        cls.vwalk(visit)
+        log.info("sensitize found %s nodes with materialid starting with %s which have an associated channel_id > 0, uniques %s " % (cls.channel_count, matid, len(cls.channel_ids)) )
+
+
+    @classmethod
     def parse( cls, path ):
         """
         :param path: to collada file
@@ -415,6 +480,9 @@ class DAENode(object):
         cls.parse_extra_surface( dae )
         cls.parse_extra_material( dae )
 
+        cls.add_sensitive_detector_surfaces()  
+
+
     @classmethod
     def parse_extra_surface( cls, dae ):
         """
@@ -439,6 +507,38 @@ class DAENode(object):
             pass 
         log.debug("loaded %s extra elements with MaterialProperties " % nextra )             
 
+
+    @classmethod
+    def add_sensitive_detector_surfaces(cls):
+        """
+        Chroma expects sensitive detectors to have an Optical Surface 
+        with channel_id associated.  
+        Whereas Geant4 just has sensitive LV.
+
+        This attempts to bridge from Geant4 to Chroma model 
+        by creation of "fake" chroma skinsurfaces
+
+        Need to hook up to EFFICIENCY material property ?  
+
+        :: 
+
+            In [57]: DAENode.orig.materials['__dd__Materials__Bialkali0xc2f2428'].extra
+            Out[57]: <MaterialProperties keys=['RINDEX', 'EFFICIENCY', 'ABSLENGTH'] >
+
+            In [58]: DAENode.orig.materials['__dd__Materials__Bialkali0xc2f2428'].extra.__class__
+            Out[58]: env.geant4.geometry.collada.g4daenode.MaterialProperties
+
+        """
+        cls.sensitize(matid="__dd__Materials__Bialkali")
+        properties = dict(DETECT=[]) 
+        surfaceproperty = OpticalSurface(name="sensitive_surface", properties=properties)
+        for node in cls.sensitive_nodes:
+            channel_id = node.channel_id 
+            skinsurface = SkinSurface.fake_sensitive_detector(node, surfaceproperty)
+            cls.extra.add_skinsurface(skinsurface)
+        pass
+        log.info("add_sensitive_detector_surfaces")
+
     @classmethod
     def dump_extra_material( cls ):
         log.info("dump_extra_material")
@@ -446,6 +546,9 @@ class DAENode(object):
             print material
             if material.extra is not None:
                 print material.extra 
+
+
+
  
 
     @classmethod
@@ -718,6 +821,60 @@ class DAENode(object):
     @classmethod
     def lvfind(cls, lvid ):
         return cls.lvlookup.get(lvid,[])
+
+
+    @classmethod
+    def lvsearch(cls, lvkey ):
+        """
+        Search for node by key, when the lvkey ends with '0x.....' 
+        a precise id match is made, otherwise the match 
+        is made excluding the address 0x...
+        """
+        if lvkey[-9:-7] == '0x':
+            keys = filter(lambda k:k == lvkey,cls.lvlookup.keys())
+        else:
+            keys = filter(lambda k:k[:-9] == lvkey,cls.lvlookup.keys())
+        pass
+        if len(keys) > 1:
+           log.warn("ambiguous lvkey %s " % lvkey )
+           return None
+        elif len(keys) == 1:
+            return cls.lvlookup[keys[0]]
+        else:
+            return None  
+
+    @classmethod
+    def pvsearch(cls, pvkey ):
+        """
+        Search for node by key, when the pvkey ends with '0x.....' 
+        a precise id match is made, otherwise the match 
+        is made excluding the address 0x...
+
+        ::
+
+            In [30]: DAENode.pvsearch('__dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiCathode')
+            Out[30]: 
+            [  __dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiCathode0xc02c380.0             __dd__Materials__Bialkali0xc2f2428 ,
+               __dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiCathode0xc02c380.1             __dd__Materials__Bialkali0xc2f2428 ,
+               __dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiCathode0xc02c380.2             __dd__Materials__Bialkali0xc2f2428 ,
+               __dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiCathode0xc02c380.3             __dd__Materials__Bialkali0xc2f2428 ,
+               __dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiCathode0xc02c380.4             __dd__Materials__Bialkali0xc2f2428 ,
+
+        """
+        if pvkey[-9:-7] == '0x':
+            keys = filter(lambda k:k == pvkey,cls.pvlookup.keys())
+        else:
+            keys = filter(lambda k:k[:-9] == pvkey,cls.pvlookup.keys())
+        pass
+
+        if len(keys) > 1:
+           log.warn("ambiguous pvkey %s : %s " % (pvkey, repr(keys)) )
+           return None
+        elif len(keys) == 1:
+            return cls.pvlookup[keys[0]]
+        else:
+            return None  
+
 
     @classmethod
     def walk(cls, node=None, depth=0):
@@ -1139,6 +1296,25 @@ class SkinSurface(DaeObject):
         self.volumeref = volumeref
         self.xmlnode = xmlnode
         self.debug = True
+
+    @classmethod 
+    def fake_sensitive_detector(cls, node, surfaceproperty):
+        """
+        :param node: `DaeNode` instance
+
+        name after node with Surface added
+        """
+        pass
+        def makename( nid):
+            ixpo = nid.index("0x")
+            return nid[:ixpo] + 'Surface'  
+
+        name = makename(node.id)
+        volumeref = node.lv.id    # does non-lv-uniqness matter here ?  
+        xmlnode = None
+        return SkinSurface(name, surfaceproperty, volumeref, xmlnode)
+
+
     @staticmethod
     def load(collada, localscope, xmlnode):
         name = xmlnode.attrib['name']
@@ -1303,6 +1479,19 @@ class DAEExtra(DaeObject):
         self.bordersurface = bordersurface
         self.skinmap = skinmap
         self.bordermap = bordermap
+
+    def add_skinsurface(self, skin ):
+        """
+        Used to add extra surface, not present in the COLLADA/DAE document.
+        eg for sensitive detector surfaces needed for matching
+        from geant4 to chroma model 
+
+        :param skin: *SkinSurface* instance
+        """
+        if skin.volumeref not in self.skinmap:
+            self.skinmap[skin.volumeref] = []
+        pass
+        self.skinmap[skin.volumeref].append(skin)
 
     @staticmethod 
     def load(collada, localscope, xmlnode):
@@ -2132,7 +2321,8 @@ def main():
     if opts.ipy:
         from daecommon import splitname, shortname, fromjson
         bordersurface = dict((splitname(_.name)[1],_) for _ in DAENode.extra.bordersurface)
-        log.info("droping into IPython, try:\n%s\n" % examples ) 
+        skinsurface   = dict((splitname(_.name)[1],_) for _ in DAENode.extra.skinsurface)
+        log.info("dropping into IPython, try:\n%s\n" % examples ) 
         import IPython
         IPython.embed()
     pass
@@ -2141,6 +2331,15 @@ examples = r"""
 
 b=bordersurface['SSTOil'] 
 b?? 
+
+ss = skinsurface['SlopeRib1'] 
+
+In [7]: ss.surfaceproperty
+Out[7]: <OpticalSurface f3 m1 t0 v1 pRINDEX:2,REFLECTIVITY:2 >
+
+In [8]: ss.volumeref
+Out[8]: '__dd__Geometry__PoolDetails__lvSlopeRib10xc0d8b50'
+
 
 """
 

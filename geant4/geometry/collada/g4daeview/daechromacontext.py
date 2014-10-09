@@ -41,6 +41,7 @@ class DAEChromaContext(object):
         self.setup_random_seed()
         pass
         self._gpu_geometry = None
+        self._gpu_detector = None
         self._rng_states = None
         self._raycaster = None
         self._propagator = None
@@ -72,6 +73,16 @@ class DAEChromaContext(object):
         from chroma.gpu.geometry import GPUGeometry
         return GPUGeometry( self.chroma_geometry )
 
+    def setup_gpu_detector(self):
+        """
+        For add_pmt rather than add_solid which have a channel_id
+        to copy onto the GPU 
+
+        Use either gpu_geometry OR gpu_detector, NOT BOTH
+        """
+        from chroma.gpu.detector import GPUDetector
+        return GPUDetector( self.chroma_geometry )
+
     def make_cuda_buffer_object(self, buffer_id ):
         import pycuda.gl as cuda_gl
         return cuda_gl.BufferObject(long(buffer_id))  
@@ -81,6 +92,12 @@ class DAEChromaContext(object):
             self._gpu_geometry = self.setup_gpu_geometry()
         return self._gpu_geometry
     gpu_geometry = property(_get_gpu_geometry)
+
+    def _get_gpu_detector(self):
+        if self._gpu_detector is None:
+            self._gpu_detector = self.setup_gpu_detector()
+        return self._gpu_detector
+    gpu_detector = property(_get_gpu_detector)
 
     def _get_rng_states(self):
         log.info("_get_rng_states")

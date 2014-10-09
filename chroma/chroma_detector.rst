@@ -11,10 +11,20 @@ Overview
    * DetSim, QE handled as a Bialkali material EFFICIENCY property
    * Chroma, **Surface.detect** property 
 
+#. To raise SURFACE_DETECT in Chroma need to make PMT Cathods 
+   into surfaces with **Surface.detect** property corresponding to 
+   the QE (matching what ProcessHits does) 
+
+
+Detection Surfaces
+--------------------
+
 Questions 
 -----------
 
 #. How hits are handled in Chroma ?
+
+
 
 chroma/geometry.py
 ---------------------
@@ -381,22 +391,12 @@ chroma/detector.py
 add_solid/add_pmt
 ~~~~~~~~~~~~~~~~~~~~
 
-When have a `channel_id` associated to a volume can use **add_pmt**  instead of **add_solid**
+When have a `channel_id` associated to a volume  **add_pmt**  is used instead of **add_solid**.
+The idmap adds `channel_id` attribute to some DAENode. Which 
+in geometry conversion to chroma results in use of *add_pmt* rather than *add_solid* 
 
-::
+chroma.detector.add_pmt::
 
-     42     def add_solid(self, solid, rotation=None, displacement=None):
-     43         """
-     44         Add the solid `solid` to the geometry. When building the final triangle
-     45         mesh, `solid` will be placed by rotating it with the rotation matrix
-     46         `rotation` and displacing it by the vector `displacement`.
-     47         """
-     48         solid_id = Geometry.add_solid(self, solid=solid, rotation=rotation,
-     49                                       displacement=displacement)
-     50         self.solid_id_to_channel_index.resize(solid_id+1)
-     51         self.solid_id_to_channel_index[solid_id] = -1 # solid maps to no channel
-     52         return solid_id
-     53 
      54     def add_pmt(self, pmt, rotation=None, displacement=None, channel_id=None):
      55         """Add the PMT `pmt` to the geometry. When building the final triangle
      56         mesh, `solid` will be placed by rotating it with the rotation matrix
@@ -421,10 +421,7 @@ When have a `channel_id` associated to a volume can use **add_pmt**  instead of 
      75                                   'channel_index' : channel_index,
      76                                   'channel_id' : channel_id }
      77         """
-     78 
-     79         solid_id = self.add_solid(solid=pmt, rotation=rotation,
-     80                                   displacement=displacement)
-     81 
+     .. 
      82         channel_index = len(self.channel_index_to_solid_id)
      83         if channel_id is None:
      84             channel_id = channel_index
@@ -440,18 +437,17 @@ When have a `channel_id` associated to a volume can use **add_pmt**  instead of 
      94 
      95         # dictionary does not need resizing
      96         self.channel_id_to_channel_index[channel_id] = channel_index
-     97 
-     98         return { 'solid_id' : solid_id,
-     99                  'channel_index' : channel_index,
-     00                  'channel_id' : channel_id }
+       
+chroma.detector.add_solid::
 
-
+     50         self.solid_id_to_channel_index.resize(solid_id+1)
+     51         self.solid_id_to_channel_index[solid_id] = -1 # solid maps to no channel
 
 
 chroma/gpu/detector.py
 -----------------------
 
-::
+To get the mapping copied to GPU need to use GPUDetector rather than GPUGeometry::
 
      14 class GPUDetector(GPUGeometry):
      15     def __init__(self, detector, wavelengths=None, print_usage=False):
@@ -526,6 +522,100 @@ chroma/gpu/daq.py
 
 
 
+run_daq
+~~~~~~~~~
+
+Uses atomics to do histogramming, and find earliest time.
+
+
+`chroma/chroma/cuda/daq.cu`::
+
+     35 __global__ void
+     36 run_daq(curandState *s, unsigned int detection_state,
+     37     int first_photon, int nphotons, float *photon_times,
+     38     unsigned int *photon_histories, int *last_hit_triangles,
+     39     float *weights,
+     40     int *solid_map,
+     41     Detector *detector,
+     42     unsigned int *earliest_time_int,
+     43     unsigned int *channel_q_int, unsigned int *channel_histories,
+     44     float global_weight)
+     45 {
+     46 
+     47     int id = threadIdx.x + blockDim.x * blockIdx.x;
+     48 
+     49     if (id < nphotons) {
+     50     curandState rng = s[id];
+     51     int photon_id = id + first_photon;
+     52     int triangle_id = last_hit_triangles[photon_id];
+     53 
+     54     if (triangle_id > -1) {
+     55         int solid_id = solid_map[triangle_id];
+     56         unsigned int history = photon_histories[photon_id];
+     57         int channel_index = detector->solid_id_to_channel_index[solid_id];
+     58
+     59         if (channel_index >= 0 && (history & detection_state)) {
+     60 
+     61         float weight = weights[photon_id] * global_weight;
+     62         if (curand_uniform(&rng) < weight) {
+     63             float time = photon_times[photon_id] +
+     64                       sample_cdf(&rng, detector->time_cdf_len,
+     65                                        detector->time_cdf_x, detector->time_cdf_y);
+     //
+     66             unsigned int time_int = float_to_sortable_int(time);
+     67 
+     68             float charge = sample_cdf(&rng, detector->charge_cdf_len,
+     69                                             detector->charge_cdf_x,
+     70                                             detector->charge_cdf_y);
+     //
+     71             unsigned int charge_int = roundf(charge / detector->charge_unit);
+     72 
+     73             atomicMin(earliest_time_int + channel_index, time_int);
+     74             atomicAdd(channel_q_int + channel_index, charge_int);
+     75             atomicOr(channel_histories + channel_index, history);
+     76         } // if weighted photon contributes
+     77 
+     78         } // if photon detected by a channel
+     79 
+     80     } // if photon terminated on surface
+     81 
+     82     s[id] = rng;
+     83 
+     84     }
+
+
+Hmm is the CDF sampling here equivalent to QE handling in ProcessHits ?
+
+* no, seems not : the equivalent is done in ElecSim presumably 
+
+
+SURFACE_DETECT
+----------------
+
+::
+
+     18 struct Surface
+     19 {
+     20     float *detect;
+     21     float *absorb;
+     22     float *reemit;
+     23     float *reflect_diffuse;
+     24     float *reflect_specular;
+     25     float *eta;
+     26     float *k;
+     27     float *reemission_cdf;
+     28 
+     29     unsigned int model;
+     30     unsigned int n;
+     31     unsigned int transmissive;
+     32     float step;
+     33     float wavelength0;
+     34     float thickness;
+     35 };
+
+
+Looks like equivent of ProcessHits QE is to set, the surface detect property.
+
 
 chroma/cuda/photon.h 
 ---------------------
@@ -558,7 +648,9 @@ chroma/cuda/photon.h
 chroma/cuda/daq.cu
 --------------------
 
-* how do the *sample_cdf* compare with those from Geant4 ?
+* how do the *sample_cdf* compare with those from Geant4/DetSim ?
+
+  * THINK there is no comparison, ElecSim code being complex moral equivalent  
 
 Sequence::
 

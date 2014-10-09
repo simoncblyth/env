@@ -26,7 +26,34 @@ Usage
 
    cpl-build
 
-  
+
+
+Diffences between CPL chroma.gpu.GPUPhotons chroma.event.Photons
+-------------------------------------------------------------------
+
+============================ ===============================================
+env.chroma.ChromaPhotonList  chroma.gpu.GPUPhotons and chroma.event.Photons
+============================ ===============================================
+x,y,z                         pos  
+px,py,pz                      dir
+polx,poly,polz                pol
+wavelength                    wavelengths
+t                             t
+pmtid                         -
+-                             last_hit_triangles     
+-                             flags
+-                             weights
+============================ ===============================================
+
+
+idmap and channel_id
+-----------------------
+
+The idmap adds channel_id attribute to some DAENode. Which 
+is passed forward by use of *add_pmt* rather than *add_solid* 
+
+* :doc:`/env/chroma/chroma_detector`
+
 
 
 PyROOT/numpy interfacing

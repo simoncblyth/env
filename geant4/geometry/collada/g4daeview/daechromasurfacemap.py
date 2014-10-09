@@ -17,7 +17,6 @@ class DAEChromaSurfaceMap(DAEChromaMap):
         """
         :param csm: dict of surface names keyed by integer codes
         """
-        log.info("DAEChromaSurfaceMap")
         DAEChromaMap.__init__(self, config, csm )
 
     def shorten(self, name):

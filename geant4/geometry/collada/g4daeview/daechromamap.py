@@ -13,7 +13,7 @@ class DAEChromaMap(object):
 
     @classmethod
     def compare(cls, a, b, dump_mismatch=False):
-        log.info("%s compare " % cls.__name__ )
+        log.debug("%s compare " % cls.__name__ )
         a = a.code2name
         b = b.code2name
         uk = set(a.keys()).union(set(b.keys()))
@@ -34,7 +34,7 @@ class DAEChromaMap(object):
             lines.append(line)
         pass
 
-        log.info("compare sees %s mismatches " % mismatch )
+        log.debug("compare sees %s mismatches " % mismatch )
         if mismatch > 0 and dump_mismatch:
             print "\n".join(lines) 
 
@@ -79,7 +79,7 @@ class DAEChromaMap(object):
         if not os.path.exists(self.path):
             log.warn("no such path %s " % self.path)
             return
-        log.info("reading from %s " % self.path )
+        log.debug("reading from %s " % self.path )
         with open(self.path,"r") as fp:
             pd = json.load(fp)
         pass

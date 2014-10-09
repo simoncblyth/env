@@ -36,10 +36,7 @@ class DAEDirectPropagator(object):
 
         """
         photons = Photons.from_cpl(cpl, extend=True)  # CPL into chroma.event.Photons OR photons.Photons   
-        print "photons:", photons
-
         gpu_photons = GPUPhotons(photons)        
-        print "gpu_photons:", gpu_photons
 
         gpu_photons.propagate(self.chroma.gpu_geometry, 
                               self.chroma.rng_states,
@@ -48,7 +45,6 @@ class DAEDirectPropagator(object):
                               max_steps=max_steps)
 
         photons_end = gpu_photons.get()
-
         return create_cpl_from_photons_very_slowly(photons_end) 
 
 
@@ -78,10 +74,19 @@ def main():
     #. runs standard chroma propagation kernel
     #. creates new CPL from the propagated `photons`
 
+
+    DONE:
+
+    #. reproducibility check on propagation
+
+       * OK from quick check of getting same digest on multiple runs
+
     TODO: 
   
-    #. reproducibility check on propagation
     #. getting hit pmtids reported
+
+       * photons has last_hit_triangles that CPL misses
+
     #. move to prepared timed kernel call
     #. look into material/surface/process map, why the index variability ? 
 

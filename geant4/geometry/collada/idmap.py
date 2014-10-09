@@ -13,6 +13,86 @@ the daenode instances.
    * its not the collada parse that can be partial 
      but rather the presentation of nodes from that full parse 
 
+Creation of IDMAP
+------------------
+
+Contortions needed to get IdMap as it does not 
+exist at Geant4 level, so must cross-reference from 
+Gaudi/Gauss level DetectorElement to a 
+Geant4 full geometry traverse.
+
+
+GiGaRunActionExport::WriteIdMap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* traverse volume tree, collecting pvStack for 
+  each visited node 
+
+* recreate a G4TouchableHistory from stacks
+
+* use touchable to access the DetectorElement pmtid 
+  collects that into a vector
+
+* writes out the vectors into idmap file 
+
+
+NuWa-trunk/lhcb/Sim/GaussTools/src/Components/GiGaRunActionExport.cpp::
+
+    670           case 'M':
+    671                  WriteIdMap( wpv, FreeFilePath(base, ".idmap"));
+    672                  break;
+
+    453 void GiGaRunActionExport::WriteIdMap(G4VPhysicalVolume* wpv, const G4String& path )
+    454 {
+    455    // collect identifiers from full traverse, 
+    456    // many placeholder zeros expected
+    457 
+    458    std::cout << "GiGaRunActionExport::WriteIdMap to " << path
+    459              << " WorldVolume : " << wpv->GetName()
+    460              << std::endl ;
+    461 
+    462    const G4LogicalVolume* lvol = wpv->GetLogicalVolume();
+    463 
+    464    m_pvid.clear();
+    465    m_pvname.clear();
+    466 
+    467    // manual World entry, for indice alignment 
+    468    m_pvid.push_back(0);
+    469    m_pvname.push_back(wpv->GetName());
+    470 
+    471    PVStack_t pvStack ;     // Universe not on stack
+    472    TraverseVolumeTree( lvol, pvStack );
+    473 
+    474    assert( m_pvid.size() == m_pvname.size() );
+    475    size_t npv = m_pvid.size() ;
+    476 
+    477    std::ofstream fp;
+    478    fp.open(path);
+    479 
+    480    fp << "# GiGaRunActionExport::WriteIdMap fields: index,pmtid,pmtid(hex),pvname  npv:" << npv << '\n' ;
+    481 
+    482    for( size_t index=0; index < npv; ++index ){
+    483        int id = m_pvid[index] ;
+    484        std::string name = m_pvname[index] ;    // for debug, NOT identity matching 
+
+
+idmap csv file
+~~~~~~~~~~~~~~~
+
+
+/usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.idmap::
+
+    1 # GiGaRunActionExport::WriteIdMap fields: index,pmtid,pmtid(hex),pvname  npv:12230
+    2 0 0 0  Universe
+    3 1 0 0  /dd/Structure/Sites/db-rock
+    4 2 0 0  /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop
+    5 3 0 0  /dd/Geometry/Sites/lvNearHallTop#pvNearTopCover
+    ...
+    11343 11341 17172484 1060804  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum
+    11344 11342 17172484 1060804  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode
+
+* read .idmap with env/geant4/geometry/collada/idmap.py
+
 
 Cheat Placement
 ----------------
@@ -23,7 +103,6 @@ Cheat Placement
     /usr/local/env/geant4/geometry/export/DayaBay_MX_20140916-2050/g4_00.idmap
     delta:~ blyth$ cp $IDMAP /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.idmap
     delta:~ blyth$ 
-
 
 Testing idmap parse
 --------------------

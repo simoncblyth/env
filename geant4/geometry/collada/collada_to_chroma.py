@@ -213,13 +213,30 @@ class ColladaToChroma(object):
         self.channel_count = 0
         self.channel_ids = set()
 
-
     def convert_opticalsurfaces(self, debug=False):
+        log.debug("convert_opticalsurfaces")
+        for dsurf in self.nodecls.extra.opticalsurface:
+            surface = self.make_opticalsurface( dsurf, debug=debug)
+            self.surfaces[surface.name] = surface
+        pass 
+        #assert len(self.surfaces) == len(self.nodecls.extra.opticalsurface), "opticalsurface with duplicate names ? "
+        log.debug("convert_opticalsurfaces creates %s from %s  " % (len(self.surfaces),len(self.nodecls.extra.opticalsurface))  )
+
+    def make_opticalsurface(self, dsurf, debug=False):
         """
-        Chroma surface 
+        :param dsurf: G4DAE surface
+        :return: Chroma surface 
 
         * name
         * model ? defaults to 0
+
+        G4DAE Optical Surface properties
+
+        * REFLECTIVITY (the only property to be widely defined)
+        * RINDEX (seems odd for a surface, looks to always be zero) 
+        * SPECULARLOBECONSTANT  (set to 0.85 for a few surface)
+        * BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT (often present, always zero)
+
 
         `chroma/geometry_types.h`::
 
@@ -264,52 +281,31 @@ class ColladaToChroma(object):
             721         float reflect_diffuse = interp_property(surface, p.wavelength, surface->reflect_diffuse);
             722         float reflect_specular = interp_property(surface, p.wavelength, surface->reflect_specular);
             723 
-
-
-
-
-
-        G4DAE Optical Surface properties
-
-        * REFLECTIVITY (the only property to be widely defined)
-        * RINDEX (seems odd for a surface, looks to always be zero) 
-        * SPECULARLOBECONSTANT  (set to 0.85 for a few surface)
-        * BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT (often present, always zero)
-
         """
-        log.debug("convert_opticalsurfaces")
+        if debug:
+            print "%-75s %s " % (dsurf.name, dsurf )
+        surface = Surface(dsurf.name)
+        if not 'REFLECTIVITY' in dsurf.properties:
+            log.warn(" no REFLECTIVITY in dsurf.properties %s " % repr(dsurf.properties))
+        pass
+        REFLECTIVITY = dsurf.properties.get('REFLECTIVITY',None) 
 
-        for dsurf in self.nodecls.extra.opticalsurface:
-            if debug:
-                print "%-75s %s " % (dsurf.name, dsurf )
-            surface = Surface(dsurf.name)
-            if not 'REFLECTIVITY' in dsurf.properties:
-                log.warn(" no REFLECTIVITY in dsurf.properties %s " % repr(dsurf.properties))
-            pass
-            REFLECTIVITY = dsurf.properties.get('REFLECTIVITY',None) 
-
-            # guess at how to translate the Geant4 description into Chroma  
-            finish = int(dsurf.finish)
-            if finish == OpticalSurfaceFinish.polished:
-                key = 'reflect_specular'
-            elif finish == OpticalSurfaceFinish.ground:
-                key = 'reflect_diffuse'
-            else:
-                key = None 
-            pass
-            if key is None or REFLECTIVITY is None:
-                log.warn("not setting REFLECTIVITY for %s " % surface.name )
-            else: 
-                log.debug("setting prop %s for surface %s " % (key, surface.name))
-                surface.set(key, REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
-                pass
-                self.surfaces[surface.name] = surface
-            pass
-        pass 
-        #assert len(self.surfaces) == len(self.nodecls.extra.opticalsurface), "opticalsurface with duplicate names ? "
-        log.debug("convert_opticalsurfaces creates %s from %s  " % (len(self.surfaces),len(self.nodecls.extra.opticalsurface))  )
-
-
+        # guess at how to translate the Geant4 description into Chroma  
+        finish = int(dsurf.finish)
+        if finish == OpticalSurfaceFinish.polished:
+            key = 'reflect_specular'
+        elif finish == OpticalSurfaceFinish.ground:
+            key = 'reflect_diffuse'
+        else:
+            key = None 
+        pass
+        if key is None or REFLECTIVITY is None:
+            log.warn("not setting REFLECTIVITY for %s " % surface.name )
+        else: 
+            log.debug("setting prop %s for surface %s " % (key, surface.name))
+            surface.set(key, REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
+        pass
+        return surface
 
 
     def convert_materials(self, debug=False):
@@ -464,7 +460,7 @@ class ColladaToChroma(object):
 
     def _get_surfacemap(self):
         """
-        Dict of chroma.geometry.Material instances with short name keys   
+        Dict of chroma.geometry.Surface instances with short name keys   
         """
         postfix = 'Surface'
         if len(self._surfacemap)==0:
@@ -592,6 +588,8 @@ class ColladaToChroma(object):
         """
         assert node.__class__.__name__ == 'DAENode'
         lvid = node.lv.id
+
+        assert self.nodecls.extra.__class__.__name__ == 'DAEExtra'
         skin = self.nodecls.extra.skinmap.get(lvid, None)
         if skin is not None:
             assert len(skin) == 1, "ambigous skin for lvid %s " % lvid 
@@ -632,6 +630,7 @@ class ColladaToChroma(object):
         assert node.__class__.__name__ == 'DAENode'
         skin = self.find_skinsurface( node )
         border = self.find_bordersurface( node )
+
         dsurf = filter(None,[skin, border])
         assert len(dsurf)<2, "Not expecting both skin %s and border %s surface for the same node %s "  % (skin, border, node)
         if len(dsurf) == 1:
@@ -650,8 +649,10 @@ class ColladaToChroma(object):
         :param node: DAENode instance
 
         DAENode instances and their pycollada underpinnings meet chroma here
+
+        Chroma needs sensitive detectors to have an associated surface 
+        with detect property ...
         """
-        #log.info("visit")
         assert node.__class__.__name__ == 'DAENode'
         self.vcount += 1
         if self.vcount < 10:
@@ -670,12 +671,11 @@ class ColladaToChroma(object):
 
         material2, material1 = self.find_outer_inner_materials(node)   
 
-        surface = self.find_surface( node )
+        surface = self.find_surface( node )   # lookup Chroma surface corresponding to the node
 
         color = 0x33ffffff 
 
         solid = Solid( mesh, material1, material2, surface, color )
-
 
         #
         # hmm a PMT is comprised of several volumes all of which 
@@ -700,8 +700,7 @@ class ColladaToChroma(object):
             print extent
 
     def dump_channel_info(self):
-        log.info("channel_count (nodes with associated non zero channel_id) : %s " % self.channel_count )
-        log.info("channel_ids %s " % len(set(self.channel_ids)))
+        log.info("channel_count (nodes with channel_id > 0) : %s  uniques %s " % ( self.channel_count, len(set(self.channel_ids))))
         log.debug("channel_ids %s " % repr(self.channel_ids))
 
     def surface_props_table(self):

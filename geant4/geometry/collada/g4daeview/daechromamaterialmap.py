@@ -13,7 +13,6 @@ class DAEChromaMaterialMap(DAEChromaMap):
         """
         :param cmm: dict of short material names keyed by integer codes
         """
-        log.info("DAEChromaMaterialMap")
         DAEChromaMap.__init__(self, config, cmm )
 
     def shorten(self, name):
