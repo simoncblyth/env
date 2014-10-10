@@ -18,7 +18,7 @@ Debug Usage
 
 ::
 
-    g4daenode.sh --ipy --surface
+    g4daenode.sh -i
 
 
 Usage Examples
@@ -381,13 +381,54 @@ class DAENode(object):
 
 
     @classmethod
+    def add_sensitive_surfaces(cls, matid='__dd__Materials__Bialkali', qeprop='EFFICIENCY'):
+        """
+        Chroma expects sensitive detectors to have an Optical Surface 
+        with channel_id associated.  
+        Whereas Geant4 just has sensitive LV.
+
+        This attempts to bridge from Geant4 to Chroma model 
+        by creation of "fake" chroma skinsurfaces.  
+
+        Effectively sensitive materials are translated 
+        into sensitive surfaces 
+
+        :: 
+
+            In [57]: DAENode.orig.materials['__dd__Materials__Bialkali0xc2f2428'].extra
+            Out[57]: <MaterialProperties keys=['RINDEX', 'EFFICIENCY', 'ABSLENGTH'] >
+
+
+        #. Different efficiency for different cathodes ?
+
+        """
+        log.info("add_sensitive_surfaces matid %s qeprop %s " % (matid, qeprop))
+        sensitive_material = cls.materialsearch(matid)
+        assert sensitive_material
+
+        efficiency = sensitive_material.extra.properties[qeprop] 
+        assert not efficiency is None
+
+        cls.sensitize(matid=matid)
+
+        suffix = "SensitiveSurface"
+        for node in cls.sensitive_nodes:
+            channel_id = node.channel_id 
+
+            surfname = node.id + suffix
+            surf = OpticalSurface.sensitive(name=surfname, properties={qeprop:efficiency})
+            cls.add_extra_opticalsurface(surf)
+
+            skinname = node.id + suffix
+            skin = SkinSurface.sensitive(name=skinname, surfaceproperty=surf, volumeref=node.lv.id )
+            cls.add_extra_skinsurface(skin)
+        pass
+
+
+    @classmethod
     def sensitize(cls,matid="__dd__Materials__Bialkali"):
         """
         :param matid: material id prefix that confers sensitivity, ie cathode material 
-
-        TODO:
-
-        * workout how to create fake surfaces
 
         ::
 
@@ -414,7 +455,6 @@ class DAENode(object):
             In [14]: sorted(DAENode.sensitive_nodes) == sorted(headon+hemi)
             Out[14]: True
 
-
             In [16]: c = DAENode.sensitive_nodes[0]
 
             In [18]: c.lv
@@ -437,14 +477,41 @@ class DAENode(object):
         def visit(node):
             channel_id = getattr(node,'channel_id',0)
             if channel_id > 0 and node.matid.startswith(matid): 
-                print "%6d %8d 0x%7x %s " % ( node.index, channel_id, channel_id, node.id )
+                #print "%6d %8d 0x%7x %s " % ( node.index, channel_id, channel_id, node.id )
                 cls.channel_ids.add(channel_id)
                 cls.channel_count += 1  
                 cls.sensitive_nodes.append(node)
             pass
         pass
         cls.vwalk(visit)
-        log.info("sensitize found %s nodes with materialid starting with %s which have an associated channel_id > 0, uniques %s " % (cls.channel_count, matid, len(cls.channel_ids)) )
+        log.info("sensitize %s nodes with matid %s and channel_id > 0, uniques %s " % (cls.channel_count, matid, len(cls.channel_ids)) )
+
+
+    @classmethod
+    def add_extra_skinsurface(cls, skin ):
+        """
+        Used to add extra surface, not present in the COLLADA/DAE document.
+        eg for sensitive detector surfaces needed for matching
+        from geant4 to chroma model 
+
+        :param skin: *SkinSurface* instance
+        """
+
+        if not skin in cls.extra.skinsurface:
+           cls.extra.skinsurface.append(skin)
+
+        skey = skin.volumeref
+        if not skey in cls.extra.skinmap:
+            cls.extra.skinmap[skey] = []
+        pass
+        cls.extra.skinmap[skey].append(skin)
+        log.debug("+skey %s " % (skey)) 
+
+
+    @classmethod
+    def add_extra_opticalsurface(cls, surf ):
+        if not surf in cls.extra.opticalsurface:
+           cls.extra.opticalsurface.append(surf)
 
 
     @classmethod
@@ -480,7 +547,7 @@ class DAENode(object):
         cls.parse_extra_surface( dae )
         cls.parse_extra_material( dae )
 
-        cls.add_sensitive_detector_surfaces()  
+        cls.add_sensitive_surfaces()  
 
 
     @classmethod
@@ -506,38 +573,6 @@ class DAENode(object):
                 material.extra = MaterialProperties.load(collada, {}, extra)
             pass 
         log.debug("loaded %s extra elements with MaterialProperties " % nextra )             
-
-
-    @classmethod
-    def add_sensitive_detector_surfaces(cls):
-        """
-        Chroma expects sensitive detectors to have an Optical Surface 
-        with channel_id associated.  
-        Whereas Geant4 just has sensitive LV.
-
-        This attempts to bridge from Geant4 to Chroma model 
-        by creation of "fake" chroma skinsurfaces
-
-        Need to hook up to EFFICIENCY material property ?  
-
-        :: 
-
-            In [57]: DAENode.orig.materials['__dd__Materials__Bialkali0xc2f2428'].extra
-            Out[57]: <MaterialProperties keys=['RINDEX', 'EFFICIENCY', 'ABSLENGTH'] >
-
-            In [58]: DAENode.orig.materials['__dd__Materials__Bialkali0xc2f2428'].extra.__class__
-            Out[58]: env.geant4.geometry.collada.g4daenode.MaterialProperties
-
-        """
-        cls.sensitize(matid="__dd__Materials__Bialkali")
-        properties = dict(DETECT=[]) 
-        surfaceproperty = OpticalSurface(name="sensitive_surface", properties=properties)
-        for node in cls.sensitive_nodes:
-            channel_id = node.channel_id 
-            skinsurface = SkinSurface.fake_sensitive_detector(node, surfaceproperty)
-            cls.extra.add_skinsurface(skinsurface)
-        pass
-        log.info("add_sensitive_detector_surfaces")
 
     @classmethod
     def dump_extra_material( cls ):
@@ -822,6 +857,24 @@ class DAENode(object):
     def lvfind(cls, lvid ):
         return cls.lvlookup.get(lvid,[])
 
+    @classmethod
+    def materialsearch(cls, matid ):
+        """
+        """
+        ixpo = matid.find("0x")
+        if ixpo > -1:
+            mats = filter(lambda mat:mat.id == matid,cls.orig.materials )
+        else:
+            mats = filter(lambda mat:mat.id[:-9] == matid,cls.orig.materials )
+        pass
+        if len(mats) > 1:
+            log.warn("ambiguous matid %s " % matid )
+            return None
+        elif len(mats) == 1:
+            return mats[0]
+        else:
+            return None
+
 
     @classmethod
     def lvsearch(cls, lvkey ):
@@ -830,7 +883,8 @@ class DAENode(object):
         a precise id match is made, otherwise the match 
         is made excluding the address 0x...
         """
-        if lvkey[-9:-7] == '0x':
+        ixpo = lvkey.find("0x")
+        if ixpo > -1:
             keys = filter(lambda k:k == lvkey,cls.lvlookup.keys())
         else:
             keys = filter(lambda k:k[:-9] == lvkey,cls.lvlookup.keys())
@@ -1240,6 +1294,15 @@ class OpticalSurface(DaeObject):
         assert surfaceproperty in localscope['surfaceproperty'], localscope
         return localscope['surfaceproperty'][surfaceproperty]
 
+    @classmethod
+    def sensitive(cls, name, properties):
+        """
+        Guessed defaults that are probably not translated anywhere in Chroma model,
+        but need values to avoid asserts
+        """
+        return cls(name=name,finish=0, model=1, type_=0, properties=properties)
+
+
     def __init__(self, name=None, finish=None, model=None, type_=None, value=None, properties=None, xmlnode=None):
         """
         Reference
@@ -1298,19 +1361,11 @@ class SkinSurface(DaeObject):
         self.debug = True
 
     @classmethod 
-    def fake_sensitive_detector(cls, node, surfaceproperty):
+    def sensitive(cls, name, volumeref, surfaceproperty):
         """
-        :param node: `DaeNode` instance
-
-        name after node with Surface added
+        * __dd__Geometry__PMT__lvPmtHemiCathodeSensitiveSurface 
+        * __dd__Geometry__PMT__lvHeadonPmtCathodeSensitiveSurface
         """
-        pass
-        def makename( nid):
-            ixpo = nid.index("0x")
-            return nid[:ixpo] + 'Surface'  
-
-        name = makename(node.id)
-        volumeref = node.lv.id    # does non-lv-uniqness matter here ?  
         xmlnode = None
         return SkinSurface(name, surfaceproperty, volumeref, xmlnode)
 
@@ -1479,19 +1534,6 @@ class DAEExtra(DaeObject):
         self.bordersurface = bordersurface
         self.skinmap = skinmap
         self.bordermap = bordermap
-
-    def add_skinsurface(self, skin ):
-        """
-        Used to add extra surface, not present in the COLLADA/DAE document.
-        eg for sensitive detector surfaces needed for matching
-        from geant4 to chroma model 
-
-        :param skin: *SkinSurface* instance
-        """
-        if skin.volumeref not in self.skinmap:
-            self.skinmap[skin.volumeref] = []
-        pass
-        self.skinmap[skin.volumeref].append(skin)
 
     @staticmethod 
     def load(collada, localscope, xmlnode):
@@ -2205,7 +2247,7 @@ class Defaults(object):
     points = True
     faces = True
     insertsize = 0
-    ipy = False
+    ipython = False
     surface = False
     xmlshebang = False
     skiproot = False
@@ -2231,7 +2273,7 @@ def parse_args(doc):
 
     op.add_option("-p", "--daepath", default=defopts.daepath , help="Path to the original geometry file. Default %default ")
     op.add_option(      "--daedbpath", default=defopts.daedbpath , help="Path to the summary SQLite DB, when None use daepath with '.db' appended. Default %default ")
-    op.add_option(      "--ipy",  action="store_true", default=defopts.ipy , help="Drop into embedded ipython. Default %default ")
+    op.add_option("-i", "--ipython",  action="store_true", default=defopts.ipython , help="Drop into embedded ipython at end of main. Default %default ")
     op.add_option(      "--debug",  action="store_true", default=False , help="Call subcollada copy then drop into embedded ipython. Default %default ")
 
     # three way split 
@@ -2252,7 +2294,7 @@ def parse_args(doc):
     op.add_option("-b", "--blender",  action="store_true", default=defopts.blender , help="Change some aspects of exported geometry for blender compatibility. Default %default. ")
     op.add_option("-P", "--nopoints",  dest="points", action="store_false", default=defopts.points , help="Prevent the timeconsuming persisting all points. Default %default. ")
     op.add_option("-F", "--nofaces",   dest="faces", action="store_false", default=defopts.faces , help="Prevent the timeconsuming persisting all faces. Default %default. ")
-    op.add_option("-i", "--insertsize", type="int", default=defopts.insertsize, help="Control chunk size of DB inserts, zero for all at the end. Default %default. ")
+    op.add_option(      "--insertsize", type="int", default=defopts.insertsize, help="Control chunk size of DB inserts, zero for all at the end. Default %default. ")
     op.add_option(       "--surface", action="store_true", default=defopts.surface, help="Surface checking. Default %default. ")
 
     opts, args = op.parse_args()
@@ -2318,7 +2360,7 @@ def main():
         import IPython
         IPython.embed()
 
-    if opts.ipy:
+    if opts.ipython:
         from daecommon import splitname, shortname, fromjson
         bordersurface = dict((splitname(_.name)[1],_) for _ in DAENode.extra.bordersurface)
         skinsurface   = dict((splitname(_.name)[1],_) for _ in DAENode.extra.skinsurface)

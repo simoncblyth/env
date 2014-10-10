@@ -213,14 +213,16 @@ class ColladaToChroma(object):
         self.channel_count = 0
         self.channel_ids = set()
 
-    def convert_opticalsurfaces(self, debug=False):
-        log.debug("convert_opticalsurfaces")
+    def convert_opticalsurfaces(self, debug=True):
+        """
+        """
+        log.info("convert_opticalsurfaces")
         for dsurf in self.nodecls.extra.opticalsurface:
             surface = self.make_opticalsurface( dsurf, debug=debug)
             self.surfaces[surface.name] = surface
         pass 
         #assert len(self.surfaces) == len(self.nodecls.extra.opticalsurface), "opticalsurface with duplicate names ? "
-        log.debug("convert_opticalsurfaces creates %s from %s  " % (len(self.surfaces),len(self.nodecls.extra.opticalsurface))  )
+        log.info("convert_opticalsurfaces creates %s from %s  " % (len(self.surfaces),len(self.nodecls.extra.opticalsurface))  )
 
     def make_opticalsurface(self, dsurf, debug=False):
         """
@@ -285,25 +287,27 @@ class ColladaToChroma(object):
         if debug:
             print "%-75s %s " % (dsurf.name, dsurf )
         surface = Surface(dsurf.name)
-        if not 'REFLECTIVITY' in dsurf.properties:
-            log.warn(" no REFLECTIVITY in dsurf.properties %s " % repr(dsurf.properties))
-        pass
-        REFLECTIVITY = dsurf.properties.get('REFLECTIVITY',None) 
 
-        # guess at how to translate the Geant4 description into Chroma  
-        finish = int(dsurf.finish)
-        if finish == OpticalSurfaceFinish.polished:
-            key = 'reflect_specular'
-        elif finish == OpticalSurfaceFinish.ground:
-            key = 'reflect_diffuse'
+        finish_map = { 
+              OpticalSurfaceFinish.polished:'reflect_specular',
+              OpticalSurfaceFinish.ground:'reflect_diffuse',
+             }
+
+        if 'EFFICIENCY' in dsurf.properties:
+            EFFICIENCY = dsurf.properties.get('EFFICIENCY',None) 
+            surface.set('detect', EFFICIENCY[:,1], wavelengths=EFFICIENCY[:,0])
+            pass
+        elif 'REFLECTIVITY' in dsurf.properties:
+            REFLECTIVITY = dsurf.properties.get('REFLECTIVITY',None) 
+            key = finish_map.get( int(dsurf.finish), None)
+            if key is None or REFLECTIVITY is None:
+                log.warn("miss REFLECTIVITY key : not setting REFLECTIVITY for %s " % surface.name )
+            else: 
+                log.debug("setting prop %s for surface %s " % (key, surface.name))
+                surface.set(key, REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
+            pass
         else:
-            key = None 
-        pass
-        if key is None or REFLECTIVITY is None:
-            log.warn("not setting REFLECTIVITY for %s " % surface.name )
-        else: 
-            log.debug("setting prop %s for surface %s " % (key, surface.name))
-            surface.set(key, REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
+            log.warn(" no REFLECTIVITY/EFFICIENCY in dsurf.properties %s " % repr(dsurf.properties))
         pass
         return surface
 
@@ -585,6 +589,11 @@ class ColladaToChroma(object):
         """
         :param node: DAENode instance
         :return: G4DAE Surface instance corresponding to G4LogicalSkinSurface if one is available for the LV of the current node
+
+
+        * ambiguous skin for lvid __dd__Geometry__PMT__lvPmtHemiCathode0xc2cdca0 found 672 
+        * if the properties are the same then ambiguity not a problem ?
+
         """
         assert node.__class__.__name__ == 'DAENode'
         lvid = node.lv.id
@@ -592,7 +601,8 @@ class ColladaToChroma(object):
         assert self.nodecls.extra.__class__.__name__ == 'DAEExtra'
         skin = self.nodecls.extra.skinmap.get(lvid, None)
         if skin is not None:
-            assert len(skin) == 1, "ambigous skin for lvid %s " % lvid 
+            ##assert len(skin) == 1, "ambiguous skin for lvid %s found %s  " % (lvid, len(skin)) 
+            ##log.warn("ambiguous skin for lvid %s found %s : USING FIRST  " % (lvid, len(skin))) 
             skin = skin[0]
 
         return skin
@@ -637,7 +647,7 @@ class ColladaToChroma(object):
             dsurface = dsurf[0]
             log.debug("found dsurface %s for node %s " % (dsurface, node ))
             surface = self.surfaces.get(dsurface.name, None)
-            assert surface is not None, "found dsurface %s without corresponding chroma surface for node %s " % ( dsurface, node.id) 
+            assert surface is not None, "dsurface %s without corresponding chroma surface of name %s for node %s " % ( dsurface, dsurface.name, node.id) 
         else:
             surface = None  
         pass 
