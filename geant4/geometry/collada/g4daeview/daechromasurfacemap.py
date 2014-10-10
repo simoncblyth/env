@@ -9,7 +9,9 @@ class DAEChromaSurfaceMap(DAEChromaMap):
 
     prefixes = ['__dd__Geometry__AdDetails__AdSurfacesAll__',
                 '__dd__Geometry__PoolDetails__PoolSurfacesAll__',
-                '__dd__Geometry__PoolDetails__NearPoolSurfaces__',]
+                '__dd__Geometry__PoolDetails__NearPoolSurfaces__',
+                '__dd__Geometry__PMT__lv',  ## for artificial sensitive surface additions
+               ]
 
     postfix = 'Surface'
 

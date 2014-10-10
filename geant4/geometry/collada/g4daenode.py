@@ -309,6 +309,12 @@ except ImportError:
     web = None
 
 
+def remove_address( identifier ):
+    ixpo = identifier.find("0x")
+    if ixpo > -1:
+        identifier = identifier[:ixpo]
+    return identifier
+
 
 def present_geometry( bg ):
     out = []
@@ -411,18 +417,36 @@ class DAENode(object):
 
         cls.sensitize(matid=matid)
 
-        suffix = "SensitiveSurface"
+        # follow convention used in G4DAE exports of using same names for 
+        # the SkinSurface and the OpticalSurface it refers too
+ 
         for node in cls.sensitive_nodes:
-            channel_id = node.channel_id 
+            ssid = cls.sensitive_surface_id(node)
+            volumeref = node.lv.id
 
-            surfname = node.id + suffix
-            surf = OpticalSurface.sensitive(name=surfname, properties={qeprop:efficiency})
+            surf = OpticalSurface.sensitive(name=ssid, properties={qeprop:efficiency})
             cls.add_extra_opticalsurface(surf)
 
-            skinname = node.id + suffix
-            skin = SkinSurface.sensitive(name=skinname, surfaceproperty=surf, volumeref=node.lv.id )
+            skin = SkinSurface.sensitive(name=ssid, surfaceproperty=surf, volumeref=volumeref )
             cls.add_extra_skinsurface(skin)
         pass
+
+
+    @classmethod
+    def sensitive_surface_id(cls, node, suffix="Surface"):
+        """
+        Using name including the channel_id results in too many surfaces
+        and causes cuda launch failures::
+
+            ssid = remove_address(node.lv.id) + "0x%7x" % channel_id + suffix  
+
+        """
+        channel_id = getattr(node,'channel_id',0)
+        if channel_id == 0:
+            ssid = None 
+        else:
+            ssid = remove_address(node.lv.id) + suffix
+        return ssid 
 
 
     @classmethod
@@ -494,18 +518,23 @@ class DAENode(object):
         eg for sensitive detector surfaces needed for matching
         from geant4 to chroma model 
 
+        Attempt to have a different surface per PMT fails, with 
+
+
         :param skin: *SkinSurface* instance
         """
 
         if not skin in cls.extra.skinsurface:
            cls.extra.skinsurface.append(skin)
 
-        skey = skin.volumeref
-        if not skey in cls.extra.skinmap:
-            cls.extra.skinmap[skey] = []
+        ssid = skin.name
+
+        if not ssid in cls.extra.skinmap:
+            cls.extra.skinmap[ssid] = []
         pass
-        cls.extra.skinmap[skey].append(skin)
-        log.debug("+skey %s " % (skey)) 
+
+        cls.extra.skinmap[ssid].append(skin)
+        log.debug("+ssid %s " % (ssid)) 
 
 
     @classmethod

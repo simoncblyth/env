@@ -213,7 +213,7 @@ class ColladaToChroma(object):
         self.channel_count = 0
         self.channel_ids = set()
 
-    def convert_opticalsurfaces(self, debug=True):
+    def convert_opticalsurfaces(self, debug=False):
         """
         """
         log.info("convert_opticalsurfaces")
@@ -584,7 +584,8 @@ class ColladaToChroma(object):
 
         log.debug("find_outer_inner_materials node %s %s %s" % (node, this_material, parent_material))
         return parent_material, this_material
-        
+
+       
     def find_skinsurface(self, node):
         """
         :param node: DAENode instance
@@ -596,14 +597,25 @@ class ColladaToChroma(object):
 
         """
         assert node.__class__.__name__ == 'DAENode'
-        lvid = node.lv.id
-
         assert self.nodecls.extra.__class__.__name__ == 'DAEExtra'
-        skin = self.nodecls.extra.skinmap.get(lvid, None)
-        if skin is not None:
-            ##assert len(skin) == 1, "ambiguous skin for lvid %s found %s  " % (lvid, len(skin)) 
-            ##log.warn("ambiguous skin for lvid %s found %s : USING FIRST  " % (lvid, len(skin))) 
-            skin = skin[0]
+
+        ssid = self.nodecls.sensitive_surface_id(node)
+
+        if not ssid is None:
+            skin = self.nodecls.extra.skinmap.get(ssid, None)
+            log.debug("ssid %s skin %s " % (ssid, repr(skin)))
+            if skin is not None:
+                if len(skin) > 0:  # expected for sensitives
+                    skin = skin[0]
+            pass
+        else:
+            lvid = node.lv.id
+            skin = self.nodecls.extra.skinmap.get(lvid, None)
+            if skin is not None:
+                assert len(skin) == 1, "ambiguous skin for lvid %s found %s  " % (lvid, len(skin)) 
+                ##log.warn("ambiguous skin for lvid %s found %s : USING FIRST  " % (lvid, len(skin))) 
+                skin = skin[0]
+            pass
 
         return skin
            
@@ -638,6 +650,7 @@ class ColladaToChroma(object):
         they could in principal be siblings.
         """
         assert node.__class__.__name__ == 'DAENode'
+
         skin = self.find_skinsurface( node )
         border = self.find_bordersurface( node )
 
@@ -686,6 +699,7 @@ class ColladaToChroma(object):
         color = 0x33ffffff 
 
         solid = Solid( mesh, material1, material2, surface, color )
+        solid.node = node
 
         #
         # hmm a PMT is comprised of several volumes all of which 

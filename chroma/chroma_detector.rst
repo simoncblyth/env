@@ -16,8 +16,85 @@ Overview
    the QE (matching what ProcessHits does) 
 
 
-Detection Surfaces
---------------------
+Adding Detection Surfaces
+----------------------------
+
+Using a surface per-PMT exceeds a limit 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daedirectpropagator.py", line 133, in main
+        cpl_end = propagator.propagate(cpl_begin) 
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daedirectpropagator.py", line 48, in propagate
+        max_steps=max_steps)
+      File "/usr/local/env/chroma_env/src/chroma/chroma/gpu/photon.py", line 145, in propagate
+        if ga.max(self.flags).get() & (1 << 31):
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/gpuarray.py", line 1249, in f
+        krnl = get_minmax_kernel(what, a.dtype)
+      File "<string>", line 2, in get_minmax_kernel
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/tools.py", line 404, in context_dependent_memoize
+        result = func(*args)
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/reduction.py", line 393, in get_minmax_kernel
+        }, preamble="#define MY_INFINITY (1./0)")
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/reduction.py", line 206, in __init__
+        preamble=preamble)
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/reduction.py", line 184, in get_reduction_kernel_and_types
+        func = mod.get_function(name)
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/compiler.py", line 285, in get_function
+        return self.module.get_function(name)
+    pycuda._driver.LaunchError: cuModuleGetFunction failed: launch failed
+    PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
+    cuModuleUnload failed: launch failed
+    PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
+    cuMemFree failed: launch failed
+    PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
+    cuMemFree failed: launch failed
+
+
+::
+
+    delta:chroma blyth$ collada_to_chroma.sh
+
+    In [2]: len(cg.unique_surfaces)
+    Out[2]: 714
+
+
+
+An obvious limitation is from chroma/gpu/geometry.py::
+
+    144 
+    145         material_codes = (((geometry.material1_index & 0xff) << 24) |
+    146                           ((geometry.material2_index & 0xff) << 16) |
+    147                           ((geometry.surface_index & 0xff) << 8)).astype(np.uint32)
+
+
+As unique identifiers are squeezed into one byte::
+
+    In [1]: 0xff
+    Out[1]: 255
+
+
+::
+
+     54 struct Geometry
+     55 {
+     56     float3 *vertices;
+     57     uint3 *triangles;
+     58     unsigned int *material_codes;
+     59     unsigned int *colors;
+     60     uint4 *primary_nodes;
+     61     uint4 *extra_nodes;
+     62     Material **materials;
+     63     Surface **surfaces;
+     64     float3 world_origin;
+     65     float world_scale;
+     66     int nprimary_nodes;
+     67 };
+
+
+
+
 
 Questions 
 -----------

@@ -163,6 +163,13 @@ export-scd(){  cd $(export-sdir); }
 export-mate(){ mate $(export-dir) ; }
 export-url(){ echo http://dayabay.phys.ntu.edu.tw/env/geant4/geometry/export ; }
 
+export-edit(){
+   local name=${1:-dyb}
+   local path=$(export-name $name)
+   echo $msg name $name path $path : MANUAL EDITS WOULD BE UNWISE
+   vi $path
+}
+
 
 
 export-name(){
