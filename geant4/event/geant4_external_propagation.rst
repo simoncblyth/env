@@ -21,6 +21,17 @@ External Propagation Requirements
 #. proceed with geant4 processing as if the propagation was standard geant4  
 
 
+Alternate Early Photon Collection
+----------------------------------------
+
+Collection of photon data within the processes  
+before becomes a G4Track and being stacked 
+would avoid track stacking processing 
+and associated memory expense/concerns.  
+
+* to support this split off photon collection into `G4DAEChromaManager`
+
+
 GPU Hit formation Approach
 ----------------------------
 

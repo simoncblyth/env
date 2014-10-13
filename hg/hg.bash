@@ -27,6 +27,45 @@ Tips
      combine options, G shows DAG, l to limit revisions 
 
 
+Rollback a commit before a push 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Annoyingly Mercurial will plow ahead with a commit even after not finding any username
+configured.  This usually results in a bad username, causes the commit to appear 
+as anonymous in Bitbucket::
+
+    [blyth@cms01 env]$ hg st 
+    M base/digestpath.py
+    [blyth@cms01 env]$ hg commit -m "add dnatree findoption of for example -L, not changing behaviour yet " 
+    No username found, using 'blyth@cms01.phys.ntu.edu.tw' instead
+
+        ## rollback is dangerous and not recommended, but using older mercurial on C so commit has no "--amend" option 
+
+    [blyth@cms01 env]$ hg rollback 
+    rolling back last transaction
+    [blyth@cms01 env]$ hg st 
+    M base/digestpath.py
+    [blyth@cms01 env]$ 
+
+Copy the Mercurial config from another node::
+
+    delta:~ blyth$ scp ~/.hgrc C:
+
+Verify the username before committing::
+
+    [blyth@cms01 env]$ hg showconfig   
+    bundle.mainreporoot=/home/blyth/env
+    extensions.hgext.convert=
+    paths.default=ssh://hg@bitbucket.org/simoncblyth/env
+    ui.ssh=ssh -C
+    ui.username=Simon Blyth <simoncblyth@gmail.com>
+
+
+
+
+
+
+
 Simple Mercurial Backup Procedure
 -----------------------------------
 
@@ -46,6 +85,7 @@ One time setup
        delta:env blyth$ hg paths
        default = ssh://hg@bitbucket.org/simoncblyth/env
        backup = ssh://blyth@cms01.phys.ntu.edu.tw//data/var/scm/mercurial/env
+
 
 
 Manual Backup

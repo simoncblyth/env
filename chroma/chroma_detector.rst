@@ -16,6 +16,407 @@ Overview
    the QE (matching what ProcessHits does) 
 
 
+
+GPU hit formation
+-------------------
+
+cutdown CPL to just the hits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Non-trivial, with GPU processing to make such selections.
+Study chroma slicing.
+
+ChromaManager singleton
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* develop as part of pkg NuWa-trunk/dybgaudi/Utilities/Chroma
+  (probably rename to G4DAEChroma)
+
+* where to construct the transform cache ?  need access from within 
+  a StackAction (or other G4 level class) so a G4 singleton manager
+  seems like the most natural
+
+Runtime interface to Chroma GPU propagation, send photons get hits in reply
+(or at least hit data with which to form them). 
+
+Grab everything possible from the StackAction into *ChromaManager* to 
+avoid duplication.
+Initially considered naming *G4DAEChroma* 
+but that could be confusing as this will clearly 
+never be able to be sent upstream like the *G4DAE* exporter.
+
+* As considering to move photon collection into the processes, to avoid stack addition/deletion overhead.
+* also it would be cleaner and more reusable to keep the **simulation** aspect 
+  distinct from **analysis** aspects
+
+Responsible for
+
+* batching configuration
+* photon collection, 
+* serialization, sending to GPU, 
+* getting reply, deserialization, forming hits 
+* holding the transform cache
+
+Holding transform cache avoids transporting 
+both global and local coordinates for pos/pol/mon
+in the transport class for millions of photons (or thousands? of hits).
+
+* will need a volume index, as well as channel_id
+
+
+G4VSensitiveDetector
+~~~~~~~~~~~~~~~~~~~~~~~
+
+I'm killing all generated OP from G4 point, does that allow
+me other optimizations.  
+
+* How can I hook into the standard hit collection machinery ? G4HCOfThisEvent
+
+* http://www-geant4.kek.jp/g4users/g4tut07/docs/SensitiveDetector.pdf
+
+
+
+correspondence between the COLLADA `boundgeom.matrix` and G4 TopTransform
+----------------------------------------------------------------------------
+
+For forming Hits on GPU need to do local coordinate transform
+somewhere as ProcessHits provides the local coordinate of hits wrt to the
+sensitive volume (PMT Cathode).
+
+Added transform dumping to gausstools `GiGaRunActionExport::WriteIdMap`
+and compare with boundgeom matrices of nodes.
+
+volume 0
+~~~~~~~~~~
+
+/data1/env/local/env/geant4/geometry/export/DayaBay_MX_20141013-1542/g4_00.idmap::
+
+   .1 # GiGaRunActionExport::WriteIdMap fields: index,pmtid,pmtid(hex),pvname  npv:12230
+    2 0 0 0  (0,0,0)
+    3    [ (           1             0             0)
+    4      (           0             1             0)
+    5      (           0             0             1) ]
+    6  Universe
+
+
+volume 1
+~~~~~~~~~~
+
+::
+
+   .7 1 0 0  (664494,-449556,2110)
+    8    [ (   -0.543174      -0.83962             0)
+    9      (     0.83962     -0.543174             0)
+   10      (           0             0             1) ]
+   11  /dd/Structure/Sites/db-rock
+
+
+::
+
+    In [13]: np.set_printoptions(precision=5, suppress=True)
+
+    In [27]: m1 = DAENode.get("1").boundgeom.matrix
+    2014-10-13 16:11:40,609 env.geant4.geometry.collada.g4daenode:686 INFO     arg 1 => indices [1] => node   __dd__Structure__Sites__db-rock0xc15d358.0             __dd__Materials__Rock0xc0300c8  
+
+    In [35]: m1
+    Out[35]: 
+    array([[     -0.54317,      -0.83962,       0.     ,  -16520.     ],
+           [      0.83962,      -0.54317,       0.     , -802110.     ],
+           [      0.     ,       0.     ,       1.     ,   -2110.     ],
+           [      0.     ,       0.     ,       0.     ,       1.     ]], dtype=float
+
+
+    In [28]: invert_homogenous(m1)
+    Out[28]: 
+    array([[     -0.54317,       0.83962,       0.     ,  664494.35857],
+           [     -0.83962,      -0.54317,       0.     , -449555.84222],
+           [      0.     ,       0.     ,       1.     ,    2110.     ],
+           [      0.     ,       0.     ,       0.     ,       1.     ]])
+
+
+* some correspondence but there is a definition difference to clear up
+
+
+last volume
+~~~~~~~~~~~~~~
+
+::
+
+    61147 12229 0 0  (664494,-449556,12410)
+    61148    [ (   -0.543174      -0.83962             0)
+    61149      (     0.83962     -0.543174             0)
+    61150      (           0             0             1) ]
+    61151  /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab9
+
+
+    In [16]: m = DAENode.get("12229").boundgeom.matrix
+    2014-10-13 15:57:01,308 env.geant4.geometry.collada.g4daenode:686 INFO     arg 12229 => indices [12229] => node   __dd__Geometry__Sites__lvNearHallBot--pvNearHallRadSlabs--pvNearHallRadSlab90xc15cf08.0             __dd__Materials__RadRock0xcd2f508  
+
+    In [17]: m
+    Out[17]: 
+    array([[     -0.54317,      -0.83962,       0.     ,  -16520.     ],
+           [      0.83962,      -0.54317,       0.     , -802110.     ],
+           [      0.     ,       0.     ,       1.     ,  -12410.     ],
+           [      0.     ,       0.     ,       0.     ,       1.     ]], dtype=float32)
+
+    In [25]: from env.geant4.geometry.collada.g4daeview.daeutil import invert_homogenous
+
+    In [26]: invert_homogenous( m )    # translation result matches, rotation is transposed 
+    Out[26]: 
+    array([[     -0.54317,       0.83962,       0.     ,  664494.35857],
+           [     -0.83962,      -0.54317,       0.     , -449555.84222],
+           [      0.     ,       0.     ,       1.     ,   12410.     ],
+           [      0.     ,       0.     ,       0.     ,       1.     ]])
+
+
+
+all volumes compared
+~~~~~~~~~~~~~~~~~~~~~~
+
+Loosening tolerances succeeds to get all volumes to match.  
+
+* `env/geant4/geometry/collada/check_volume_transforms.py`
+
+
+
+geant4 transforms
+~~~~~~~~~~~~~~~~~~~
+
+`source/geometry/management/include/G4AffineTransform.hh`::
+
+    .69 class G4AffineTransform
+     70 {
+     71 
+     72 public:
+     73 
+     74   G4AffineTransform();
+     75 
+     76 public: // with description
+     77 
+     78   G4AffineTransform(const G4ThreeVector &tlate);
+     79     // Translation only: under t'form translate point at origin by tlate
+     80 
+     81   G4AffineTransform(const G4RotationMatrix &rot);
+     82     // Rotation only: under t'form rotate by rot
+     83 
+     84   G4AffineTransform(const G4RotationMatrix &rot,
+     85                     const G4ThreeVector &tlate);
+     86     // Under t'form: rotate by rot then translate by tlate
+     87 
+     88   G4AffineTransform(const G4RotationMatrix *rot,
+     89                     const G4ThreeVector &tlate);
+     90     // Optionally rotate by *rot then translate by tlate - rot may be null
+     ..     
+    113   G4ThreeVector TransformPoint(const G4ThreeVector &vec) const;
+    114     // Transform the specified point: returns vec*rot+tlate
+    115 
+    116   G4ThreeVector TransformAxis(const G4ThreeVector &axis) const;
+    117     // Transform the specified axis: returns
+    118 
+    119   void ApplyPointTransform(G4ThreeVector &vec) const;
+    120     // Transform the specified point (in place): sets vec=vec*rot+tlate
+    121 
+    122   void ApplyAxisTransform(G4ThreeVector &axis) const;
+    123     // Transform the specified axis (in place): sets axis=axis*rot;
+
+
+
+pycollada boundgeom nodes matrix
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Binding is done by `g4daenode.py` based on the **full** geometry of the COLLADA export.
+Partial exports at C++ level would result in binding (ie coordinate system)
+based on a different **Universe**. 
+
+Every bound node has a 4x4 matrix associated::
+
+    delta:~ blyth$ g4daenode.sh -i 
+    2014-10-13 14:42:13,194 env.geant4.geometry.collada.g4daenode:2344 INFO     /Users/blyth/env/bin/g4daenode.py
+    2014-10-13 14:42:13,194 env.geant4.geometry.collada.g4daenode:2289 INFO     Using pvar DAE_NAME_DYB to resolve path : /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae 
+    2014-10-13 14:42:13,261 env.geant4.geometry.collada.idmap:165 INFO     found 685 unique ids 
+    ...
+
+    In [1]: DAENode.get("0").boundgeom.matrix
+    2014-10-13 14:42:28,560 env.geant4.geometry.collada.g4daenode:686 INFO     arg 0 => indices [0] => node   top.0             __dd__Materials__Vacuum0xbf9fcc0  
+    Out[1]: 
+    array([[ 1.,  0.,  0.,  0.],
+           [ 0.,  1.,  0.,  0.],
+           [ 0.,  0.,  1.,  0.],
+           [ 0.,  0.,  0.,  1.]], dtype=float32)
+
+
+    In [3]: DAENode.get("1000").boundgeom.matrix
+    2014-10-13 14:42:39,694 env.geant4.geometry.collada.g4daenode:686 INFO     arg 1000 => indices [1000] => node   __dd__Geometry__RPC__lvRPCGasgap23--pvStrip23Array--pvStrip23ArrayOne..6--pvStrip23Unit0xc128768.46             __dd__Materials__MixGas0xc21d930  
+    Out[3]: 
+    array([[ -5.39289117e-01,  -8.41108799e-01,  -4.12638858e-02,
+             -1.99534609e+04],
+           [  8.42120171e-01,  -5.38641453e-01,  -2.64251661e-02,
+             -7.99555000e+05],
+           [  0.00000000e+00,  -4.89999987e-02,   9.98799026e-01,
+             -1.36956641e+03],
+           [  0.00000000e+00,   0.00000000e+00,   0.00000000e+00,
+              1.00000000e+00]], dtype=float32)
+
+
+
+Raw unbound COLLADA matrix elements are written by `G4DAEWriteStructure::TraverseVolumeTree`::
+
+      G4Transform3D daughterR;
+
+      daughterR = TraverseVolumeTree(physvol->GetLogicalVolume(),depth+1);
+
+      G4RotationMatrix rot, invrot;
+      if (physvol->GetFrameRotation() != 0)
+      {
+         rot = *(physvol->GetFrameRotation());
+         invrot = rot.inverse();
+      }
+
+      // G4Transform3D P(rot,physvol->GetObjectTranslation());  GDML does this : not inverting the rotation portion 
+      G4Transform3D P(invrot,physvol->GetObjectTranslation());
+
+      PhysvolWrite(nodeElement,physvol,invR*P*daughterR,ModuleName);
+
+
+The unbound matrices just provide the position of volume relative to parent.  When 
+binding is done by the **objects** call in  `g4daenode.py`::
+
+     564         dae = collada.Collada(path)
+     565         log.debug("pycollada parse completed ")
+     566         boundgeom = list(dae.scene.objects('geometry'))
+     567         top = dae.scene.nodes[0]
+     568         log.debug("pycollada binding completed, found %s  " % len(boundgeom))
+
+the node tree heirarchy of matrices are multiplied to arrive at the 
+scene graph bound matrix. 
+  
+ProcessHits Hit formation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsPmtSensDet.cc`::
+
+    333     const G4TouchableHistory* hist =
+    334         dynamic_cast<const G4TouchableHistory*>(preStepPoint->GetTouchable());
+    ...
+    340     const DetectorElement* de = this->SensDetElem(*hist);
+    341     if (!de) return false;
+    342 
+    343     // wangzhe QE calculation starts here.
+    344     int pmtid = this->SensDetId(*de);
+    ...
+    459     DayaBay::SimPmtHit* sphit = new DayaBay::SimPmtHit();
+    460 
+    461     // base hit
+    462 
+    463     // Time since event created
+    464     sphit->setHitTime(preStepPoint->GetGlobalTime());
+    465 
+    466     //#include "G4NavigationHistory.hh"
+    467 
+    468     const G4AffineTransform& trans = hist->GetHistory()->GetTopTransform();
+    469     const G4ThreeVector& global_pos = preStepPoint->GetPosition();
+    470     G4ThreeVector pos = trans.TransformPoint(global_pos);
+    471     sphit->setLocalPos(pos);
+    472     sphit->setSensDetId(pmtid);
+    473    
+    474     // pmt hit
+    475     // sphit->setDir(...);       // for now
+    476     G4ThreeVector pol = trans.TransformAxis(track->GetPolarization());
+    477     pol = pol.unit();
+    478     G4ThreeVector dir = trans.TransformAxis(track->GetMomentum());
+    479     dir = dir.unit();
+    480     sphit->setPol(pol);
+    481     sphit->setDir(dir);
+    482     sphit->setWavelength(wavelength);
+    483     sphit->setType(0);
+    484     // G4cerr<<"PMT: set hit weight "<<weight<<G4endl; //gonchar
+    485     sphit->setWeight(weight);
+
+
+::
+
+    delta:geant4.10.00.p01 blyth$ find source -name '*.hh'  -exec grep -H GetTopTransform {} \;
+    source/geometry/volumes/include/G4NavigationHistory.hh:  inline const G4AffineTransform& GetTopTransform() const; 
+
+
+
+
+    90   inline const G4AffineTransform& GetTopTransform() const;
+    91     // Returns topmost transform.
+
+    145 #if defined(WIN32)
+    146   std::vector<G4NavigationLevel> fNavHistory;
+    147 #else
+    148   std::vector<G4NavigationLevel,
+    149               G4EnhancedVecAllocator<G4NavigationLevel> > fNavHistory;
+    150     // The geometrical tree; uses specialized allocator to optimize memory
+    151     // handling, reduce possible fragmentation and use of malloc in MT mode
+    152 #endif
+    153 
+    154   G4int fStackDepth;
+    155     // Depth of stack: effectively depth in geometrical tree
+
+
+    source/geometry/volumes/include/G4NavigationHistory.icc
+
+     98 inline
+     99 const G4AffineTransform& G4NavigationHistory::GetTopTransform() const
+    100 {
+    101   return fNavHistory[fStackDepth].GetTransform();
+    102 }
+
+
+     source/geometry/volumes/include/G4NavigationLevel.hh
+
+     54 class G4NavigationLevel
+     55 {
+     56 
+     57  public:  // with description
+     58 
+     59    G4NavigationLevel(G4VPhysicalVolume*       newPtrPhysVol,
+     60                      const G4AffineTransform& newT,
+     61                      EVolume                  newVolTp,
+     62                      G4int                    newRepNo= -1);
+     63 
+     64    G4NavigationLevel(G4VPhysicalVolume*       newPtrPhysVol,
+     65                      const G4AffineTransform& levelAbove,
+     66                      const G4AffineTransform& relativeCurrent,
+     67                      EVolume                  newVolTp,
+     68                      G4int                    newRepNo= -1);
+     69      // As the previous constructor, but instead of giving Transform, give 
+     70      // the AffineTransform to the level above and the current level's 
+     71      // Transform relative to that.
+     72 
+     73    G4NavigationLevel();
+     74    G4NavigationLevel( const G4NavigationLevel& );
+     75 
+     76    ~G4NavigationLevel();
+     77 
+     78    G4NavigationLevel& operator=(const G4NavigationLevel &right);
+     79 
+     80    inline G4VPhysicalVolume*       GetPhysicalVolume() const;
+     81    inline const G4AffineTransform* GetTransformPtr() const ;  // New
+     82    inline const G4AffineTransform& GetTransform() const ;     // Old
+     83 
+
+     source/geometry/volumes/include/G4NavigationLevelRep.hh
+
+     84    inline const G4AffineTransform& GetTransform() const ;     // Old
+     85 
+     86    inline EVolume            GetVolumeType() const ;
+     87    inline G4int              GetReplicaNo() const ;
+     88 
+     ..  
+     98  private:
+     99 
+    100    G4AffineTransform  sTransform;
+    101      // Compounded global->local transformation (takes a point in the 
+    102      // global reference system to the system of the volume at this level)
+
+
+
+
+
 Adding Detection Surfaces
 ----------------------------
 

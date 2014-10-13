@@ -382,6 +382,8 @@ class DAENode(object):
         assert len(cls.registry) == len(idmap), ( len(cls.registry), len(idmap))
         for index, node in enumerate(cls.registry):
             node.channel_id = idmap[index]
+            node.g4tra = idmap.tra[index]
+            node.g4rot = idmap.rot[index]
             #if index % 100 == 0:
             #    print index, node.channel_id, node, node.__class__
 
@@ -560,6 +562,10 @@ class DAENode(object):
 
         base, ext = os.path.splitext(path)
         idmap = cls.idmap_parse( base + ".idmap" ) # path with .idmap instead of .dae
+
+        #import IPython
+        #IPython.embed()
+
 
         dae = collada.Collada(path)
         log.debug("pycollada parse completed ")
@@ -802,7 +808,7 @@ class DAENode(object):
 
 
     @classmethod
-    def init(cls, path ):
+    def init(cls, path=None ):
         if path is None:
             path = os.environ['DAE_NAME']
          
@@ -2386,7 +2392,6 @@ def main():
         subxml = getSubCollada(args[0], vars(opts))
         xmlnode = gsub.dae.xmlnode 
         effects = xmlnode.findall(".//c:effect", namespaces=NAMESPACES)
-        import IPython
         IPython.embed()
 
     if opts.ipython:

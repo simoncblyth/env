@@ -14,6 +14,9 @@ Geant4 Event
    geant4_navigator
    geant4_process
    geant4_external_propagation
+   geant4_hits
+
+
 
 
 

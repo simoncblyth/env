@@ -104,6 +104,7 @@ Cheat Placement
     delta:~ blyth$ cp $IDMAP /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.idmap
     delta:~ blyth$ 
 
+
 Testing idmap parse
 --------------------
 
@@ -143,9 +144,66 @@ Parsed Array
           dtype=[('index', '<i4'), ('id', '<i4'), ('idhex', 'S7'), ('pvname', 'S256')])
 
 
+
+
+Adding transform info (2014-10-13)
+-------------------------------------
+
+::
+
+    delta:collada blyth$ head -10 /usr/local/env/geant4/geometry/export/DayaBay_MX_20141013-1711/g4_00.idmap 
+    # GiGaRunActionExport::WriteIdMap fields: index,pmtid,pmtid(hex),pvname  npv:12230
+    0 0 0 (0,0,0) (1,0,0)(0,1,0)(0,0,1) Universe
+    1 0 0 (664494,-449556,2110) (-0.543174,-0.83962,0)(0.83962,-0.543174,0)(0,0,1) /dd/Structure/Sites/db-rock
+    2 0 0 (661994,-449056,-5390) (-0.543174,-0.83962,0)(0.83962,-0.543174,0)(0,0,1) /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop
+    3 0 0 (664494,-449556,2088) (-0.543174,-0.83962,0)(0.83962,-0.543174,0)(0,0,1) /dd/Geometry/Sites/lvNearHallTop#pvNearTopCover
+    4 0 0 (668975,-437058,-683.904) (-0.53472,-0.84503,0)(0.84503,-0.53472,0)(0,0,1) /dd/Geometry/Sites/lvNearHallTop#pvNearTeleRpc#pvNearTeleRpc:1
+    5 0 0 (668985,-437063,-683.904) (-0.53472,-0.84503,0)(0.84503,-0.53472,0)(0,0,1) /dd/Geometry/RPC/lvRPCMod#pvRPCFoam
+
+
+::
+
+    In [4]: rot[1000]
+    Out[4]: 
+    array([[-0.53929  , -0.841109 , -0.0412639],
+           [ 0.84212  , -0.538642 , -0.0264252],
+           [ 0.       , -0.049    ,  0.998799 ]])
+
+    In [5]: tra[1000]
+    Out[5]: array([ 662561. , -447524. ,  -20583.8])
+
+
+
+
+::
+
+    name=env/geant4/geometry/export/DayaBay_MX_20141013-1711/g4_00.idmap
+    path=$(local-base)/$name
+    mkdir -p $(dirname $path)
+    scp N:$(local-base N)/$name $path 
+
+    export IDMAP=$path
+
+
+
+Cheat Placement Again
+----------------------
+
+::
+
+    (chroma_env)delta:DayaBay_VGDX_20140414-1300 blyth$ mv g4_00.idmap g4_00.idmap.sep17
+    (chroma_env)delta:DayaBay_VGDX_20140414-1300 blyth$ echo $IDMAP
+    /usr/local/env/geant4/geometry/export/DayaBay_MX_20141013-1711/g4_00.idmap
+    (chroma_env)delta:DayaBay_VGDX_20140414-1300 blyth$ cp $IDMAP .
+
+
+
+
+
 """
 import os, sys, logging
 import numpy as np
+import IPython as IP
 
 log = logging.getLogger(__name__)
 
@@ -154,19 +212,34 @@ class IDMap(dict):
                ('index',np.int32),
                ('id',np.int32),
                ('idhex','|S7'), 
-               ('pvname','|S256')
+               ('trans','|S256'),
+               ('rotrow','|S256'),
+               ('pvname','|S256'),
              ]
     def __init__(self, path):
         dict.__init__(self)
         # Cannot use default hash comment marker as that is meaningful in pvnames
-        a = np.genfromtxt(path,comments=None,skip_header=1,dtype=self.dtype)
+        log.info("np.genfromtxt %s " % path ) 
+        a = np.genfromtxt(path,comments=None,skip_header=1,dtype=self.dtype) #, converters=dict(rotrow=lambda _:"yep%s"%_))
         assert np.all( np.arange(len(a),dtype=np.int32) == a['index'] )
         uid = np.unique(a['id'])
         log.info("found %s unique ids " % (len(uid)))
         log.debug("ids %s  " % (repr(uid)))
         self.a = a 
         self.update(dict(zip(a['index'],a['id'])))
+
+        rot = np.zeros( (len(a),3,3) )
+        tra = np.zeros( (len(a),3) )
+
+        for i,rec in enumerate(a):
+            tra[i] = np.fromstring(rec['trans'][1:-1],sep=",").reshape((3,))
+            rot[i] = np.fromstring(rec['rotrow'][1:-1].replace(")(",","),sep=",").reshape((3,3))
+        pass
+ 
+        self.tra = tra
+        self.rot = rot
         assert len(self) == len(a) 
+        #IP.embed()
 
 
 def main():
@@ -175,7 +248,7 @@ def main():
 
 if __name__ == '__main__':
     #main()    
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     path = os.environ['IDMAP']
     idmap = IDMap(path)
 
