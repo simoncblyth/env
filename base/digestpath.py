@@ -30,6 +30,56 @@ and some not::
 	=== scm-backup-dnachecktgzs : FAIL /data/var/scm/backup/cms02/tracs/heprez/2012/09/17/123022/heprez.tar.gz
 
 
+History
+---------
+
+CQ Backup failure incident discovered 2014-10-13
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In response to Gaosongs request to handover  
+maintenance of partitioned CQDB backup to him, I checked 
+status.
+As reminder of where backups are and what is checked look into the monitoring 
+config section on cms01 ~/.env.cnf (it is necessary to remember the node)::
+
+    [dbsrvmon]
+
+    note = currently set to fail via age of 1 days,  60*60*24 = 86400 
+    dbpath = ~/.env/dbsrvmon.sqlite
+    chdir = /data/var/dbbackup/dbsrv/dybdb2.ihep.ac.cn/channelquality_db_dybdb2/archive/10000
+    tn = channelquality_db_10000
+    cmd = digestpath.py 
+    valmon_version = 0.2 
+    return = dict
+    constraints = ( tarball_count >= 31, dna_mismatch == 0, age < 86400, )
+
+
+Checking the chdir directory shows the last partitioned backup tarball 
+is 3 months old::
+
+    /data/var/dbbackup/dbsrv/dybdb2.ihep.ac.cn/channelquality_db_dybdb2/archive/10000/10000_last.tar.gz
+    Jul 25 16:03 
+
+Although the partitions are sized for full ones to be transferred only every 
+10 days or so, the remainder tarball is transferred every day : supposedly to 
+provide warnings of machinery issues.
+
+Checking why the monitoring did not send email to me regarding this, do 
+a manual monitor run on C. Find the digestpath.py to be failing with 
+a find::
+
+        [blyth@cms01 10000]$ find -L . -name '*.tar.gz'
+        find: invalid predicate `-L'
+
+* https://bitbucket.org/simoncblyth/env/commits/81264c3ac057
+
+Jimmy added the "-L" predicate that fails on the version of 
+find on cms01, at some later date env was updated on cms01
+and backup monitoring started to be ineffective from 
+soon after 2014-02-24.
+
+
+
 """
 # dont use logging/argparse/optparse as want to stay ancient python compatible 
 import os, sys, time, stat
@@ -37,6 +87,18 @@ try:
     from hashlib import md5
 except ImportError: 
     from md5 import md5
+
+
+class Logger(object):
+   """Dummy logger""" 
+   def emit(self, *args):sys.stderr.write(args[0] % tuple(args[1:]) + '\n') 
+   info = emit
+   warn = emit
+   debug = emit 
+   fatal = emit 
+
+log = Logger()
+
 
 def dnapath( path , times=False ):
     """
@@ -61,20 +123,28 @@ def dnapath( path , times=False ):
     if times:dna['t'] = t1 - t0   ## not standardly part of dna, as will change 
     return dna
 
-def dnatree( top, ptn , start ):
+def dnatree( top, ptn , start, findoption="-L"):
     """
     :param top: directory to perform find from 
     :param ptn: find pattern eg '*.tar.gz'
     :param start: string start for relative paths, use "." for all or "./dayabay" to restrict 
+
     """ 
     d = {}
-    cmd = "cd %(top)s ; find -L -name '%(ptn)s' " % locals() 
-    for line in os.popen(cmd).readlines():
+    cmd = "cd %(top)s ; find %(findoption)s -name '%(ptn)s' " % locals() 
+    pipe = os.popen(cmd)
+    for line in pipe.readlines():
         if line.startswith(start):
             name = line.strip()
             path = os.path.abspath(os.path.join( top, name ))
             d[name] = dnapath( path )
             #sys.stderr.write("%s:%s" % ( name, d[name] ) )
+
+    rc = pipe.close()
+    if not rc is None:
+        rc = os.WEXITSTATUS(rc)
+        assert rc, "error %s doing cmd: %s " % (rc, cmd)
+ 
     return d 
 
 
@@ -116,7 +186,9 @@ def check_tarball_dna(top, ptn, start, verbose=False):
     smry = dict(dna_match=0,tarball_count=0,dna_mismatch=0,dna_missing=0)
     look = time.time() 
     ctime = {}
-    dt = dnatree(top, ptn, start)
+    dt = dnatree(top, ptn, start, findoption="")
+    #log.info("dnatree top %s ptn %s start %s #dt %s " % (top,ptn,start,len(dt))) 
+
     for path, dna in dt.items():
         smry['tarball_count'] += 1
         ctime[path] = os.path.getctime(path)
