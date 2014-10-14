@@ -6,6 +6,41 @@ scenekit-env(){      elocal- ; }
 scenekit-usage(){ cat << EOU
 
 
+SceneKit
+=========
+
+ColladaDOM Warnings 
+--------------------
+
+Elements within **extra** tags all yield warnings::
+
+    (chroma_env)delta:swift blyth$ ./g4daeparse.swift > out
+    (chroma_env)delta:swift blyth$ grep ColladaDOM out | wc -l
+        6136
+
+    (chroma_env)delta:swift blyth$ tail -10 out
+
+    ColladaDOM Warning: The DOM was unable to create an element named bordersurface at line 153314. Probably a schema violation.
+
+    ColladaDOM Warning: The DOM was unable to create an element named bordersurface at line 153318. Probably a schema violation.
+
+    ColladaDOM Warning: The DOM was unable to create an element named bordersurface at line 153324. Probably a schema violation.
+
+    ColladaDOM Warning: The DOM was unable to create an element named meta at line 153324. Probably a schema violation.
+
+    5892
+
+
+According to https://www.apple.com/opensource/ SceneKit uses colladaDOM 2.2
+
+* http://sourceforge.net/projects/collada-dom/
+* http://sourceforge.net/projects/collada-dom/files/Collada%20DOM/Collada%20DOM%202.2/Collada%20DOM%202.2.zip/download
+
+
+
+SceneKit resources
+-------------------
+
 
 ::
 

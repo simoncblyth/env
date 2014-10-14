@@ -2,6 +2,33 @@ CMS02
 ======
 
 
+Oct 14, 2014
+-------------
+
+Its up, but cannot ssh in and pinging has intermittent timeouts::
+
+    delta:swift blyth$ ping cms02.phys.ntu.edu.tw
+    PING cms02.phys.ntu.edu.tw (140.112.101.191): 56 data bytes
+    64 bytes from 140.112.101.191: icmp_seq=0 ttl=62 time=1.940 ms
+    64 bytes from 140.112.101.191: icmp_seq=1 ttl=62 time=2.330 ms
+    Request timeout for icmp_seq 2
+    64 bytes from 140.112.101.191: icmp_seq=3 ttl=62 time=2.093 ms
+    Request timeout for icmp_seq 4
+    64 bytes from 140.112.101.191: icmp_seq=5 ttl=62 time=2.071 ms
+    64 bytes from 140.112.101.191: icmp_seq=6 ttl=62 time=2.137 ms
+    64 bytes from 140.112.101.191: icmp_seq=7 ttl=62 time=13.915 ms
+    Request timeout for icmp_seq 8
+    64 bytes from 140.112.101.191: icmp_seq=9 ttl=62 time=2.143 ms
+    64 bytes from 140.112.101.191: icmp_seq=10 ttl=62 time=5.739 ms
+    64 bytes from 140.112.101.191: icmp_seq=11 ttl=62 time=2.199 ms
+    ^C
+    --- cms02.phys.ntu.edu.tw ping statistics ---
+    12 packets transmitted, 9 packets received, 25.0% packet loss
+    round-trip min/avg/max/stddev = 1.940/3.841/13.915/3.737 ms
+    delta:swift blyth$ 
+
+
+
 Sep 4, 2014
 -------------
 

@@ -225,7 +225,6 @@ class DAE {
 
 
 
-
 let env = NSProcessInfo.processInfo().environment
 let path: String? = env["DAE_NAME_AD"] as? NSString
 if path {

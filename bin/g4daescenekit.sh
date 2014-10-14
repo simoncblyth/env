@@ -1,0 +1,1 @@
+../geant4/geometry/collada/swift/g4daescenekit.sh
