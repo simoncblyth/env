@@ -34,6 +34,17 @@ from the export directory on N with::
     [root@cms02 downloads]# export-pull Lingao_VGDX_20140414-1247
 
 
+Belle7 down, so custom copy
+----------------------------
+
+::
+
+    cmd="scp N:$(NODE_TAG=N EXPORT_EXT=gdml export-name dyb) $(EXPORT_EXT=gdml export-name dyb)"
+    echo $cmd
+       scp N:/data1/env/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.gdml /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.gdml
+    eval $cmd
+
+
 Getting Exports
 -----------------
 
@@ -156,7 +167,7 @@ export-dir(){
    mkdir -p $xdir
    echo $xdir
 }
-export-home(){ echo $LOCAL_BASE/env/geant4/geometry/export ; }
+export-home(){ echo $(local-base)/env/geant4/geometry/export ; }
 export-sdir(){ echo $ENV_HOME/geant4/geometry/export ; }
 export-cd(){  cd $(export-home); }
 export-scd(){  cd $(export-sdir); }
@@ -170,17 +181,17 @@ export-edit(){
    vi $path
 }
 
-
-
-export-name(){
+export-ext(){ echo ${EXPORT_EXT:-dae} ; }
+export-name(){ echo $(export-base $1).$(export-ext) ; }
+export-base(){
   local base=$(export-home)
   case $1 in 
-       dyb) echo $base/DayaBay_VGDX_20140414-1300/g4_00.dae ;;
-       dybf) echo $base/DayaBay_VGDX_20140414-1300/g4_00.dae ;;
-       far) echo $base/Far_VGDX_20140414-1256/g4_00.dae ;;
-    lingao) echo $base/Lingao_VGDX_20140414-1247/g4_00.dae ;;
-       lxe) echo $base/LXe/g4_00.dae ;;
-       juno) echo $base/juno/test2.dae ;;
+       dyb) echo $base/DayaBay_VGDX_20140414-1300/g4_00 ;;
+       dybf) echo $base/DayaBay_VGDX_20140414-1300/g4_00 ;;
+       far) echo $base/Far_VGDX_20140414-1256/g4_00 ;;
+    lingao) echo $base/Lingao_VGDX_20140414-1247/g4_00 ;;
+       lxe) echo $base/LXe/g4_00 ;;
+       juno) echo $base/juno/test2 ;;
   esac
 }
 
@@ -197,6 +208,7 @@ export-geometry(){
 export-export(){
    export DAE_NAME=$(export-name dyb)
    export DAE_NAME_DYB=$(export-name dyb)
+   export DAE_NAME_DYB_GDML=$(EXPORT_EXT=gdml export-name dyb)
    export DAE_NAME_DYBF=$(export-name dybf)
    export DAE_NAME_FAR=$(export-name far)
    export DAE_NAME_LIN=$(export-name lingao)
@@ -219,11 +231,10 @@ export-juno-get(){
 
 
 
-
 export-get(){
    local tag=${1:-DayaBay_VGDX_20140414-1300}
    local tagdir=$(export-home)/$tag
-   local name=g4_00.dae
+   local name=g4_00.$(export-ext)
    local url=$(export-url)/$tag/$name
 
    [ ! -d "$tagdir" ] && mkdir -p $tagdir

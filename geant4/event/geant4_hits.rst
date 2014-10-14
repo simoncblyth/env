@@ -1,6 +1,25 @@
 Geant4 Hits
 ============
 
+
+
+
+::
+
+    [blyth@belle7 src]$ svn cp ../../DetSim/src/DsPmtSensDet.cc DsChromaPmtSensDet.cc 
+    A         DsChromaPmtSensDet.cc
+    [blyth@belle7 src]$ svn cp ../../DetSim/src/DsPmtSensDet.h DsChromaPmtSensDet.h 
+    A         DsChromaPmtSensDet.h
+
+
+
+
+
+
+
+
+
+
 * http://www-geant4.kek.jp/g4users/g4tut07/docs/SensitiveDetector.pdf
 
 

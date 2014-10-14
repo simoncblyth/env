@@ -56,11 +56,34 @@ First Try
     Committed revision 23251.
 
 
+Factor for clarity
+~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@belle7 dybgaudi]$ svn --username blyth ci -m "minor: pull out Chroma photon collection, propagation into G4DAEChroma for more flexible usage, add all volume transform cache " 
+    Sending        Simulation/DetSimChroma/cmt/requirements
+    Sending        Simulation/DetSimChroma/src/DsChromaStackAction.cc
+    Sending        Simulation/DetSimChroma/src/DsChromaStackAction.h
+    Adding         Utilities/G4DAEChroma
+    Adding         Utilities/G4DAEChroma/G4DAEChroma
+    Adding         Utilities/G4DAEChroma/G4DAEChroma/G4DAEChroma.h
+    Adding         Utilities/G4DAEChroma/cmt
+    Adding         Utilities/G4DAEChroma/cmt/requirements
+    Adding         Utilities/G4DAEChroma/cmt/version.cmt
+    Adding         Utilities/G4DAEChroma/src
+    Adding         Utilities/G4DAEChroma/src/G4DAEChroma.cc
+    Transmitting file data ......
+    Committed revision 23415.
+    [blyth@belle7 dybgaudi]$ 
+
+
+
+
 Where does G4 call ProcessHits ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Via the header implemented `Hit` method of `G4VSensitiveDetector`
-
 
 `geant4.10.00.p01/source/tracking/src/G4SteppingManager.cc`::
 
@@ -76,11 +99,7 @@ Where does G4 call ProcessHits ?
     222    fTrack->AddTrackLength(fStep->GetStepLength());
     223    fPreviousStepSize = fStep->GetStepLength();
     224    fStep->SetTrack(fTrack);
-    225 #ifdef G4VERBOSE
-    226                          // !!!!! Verbose
-    227 
-    228            if(verboseLevel>0) fVerbose->StepInfo();
-    229 #endif
+    ...
     230 // Send G4Step information to Hit/Dig if the volume is sensitive
     231    fCurrentVolume = fStep->GetPreStepPoint()->GetPhysicalVolume();
     232    StepControlFlag =  fStep->GetControlFlag();
@@ -95,7 +114,6 @@ Where does G4 call ProcessHits ?
 
 G4VSensitiveDetector
 ~~~~~~~~~~~~~~~~~~~~~
-
 
 `geant4.10.00.p01/source/digits_hits/detector/include/G4VSensitiveDetector.hh`::
 
