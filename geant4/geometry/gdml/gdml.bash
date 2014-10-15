@@ -15,16 +15,15 @@ Build/Install issues
   * due to lack of global libs by default
   * also lack of XercesC
 
-xercesc_2_7 xercesc_2_8 mixup 
+N xercesc_2_7 xercesc_2_8 mixup 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-System xerces-c 2.7 causing getting linked
-unintentionally in libG4persistency.so at least.::
+System xerces-c 2.7 getting linked
+unintentionally for libG4persistency.so at least.::
 
     [blyth@belle7 source]$ gdml-checklib 
         0   322 ../lib/Linux-g++/libG4DAE.so 
       317     0 ../lib/Linux-g++/libG4persistency.so 
-
 
 After forcibly rebuild/reinstall persistency::
 
@@ -37,7 +36,6 @@ After forcibly rebuild/reinstall persistency::
         0   302 ../lib/Linux-g++/libG4persistency.so 
 
     [blyth@belle7 source]$ gdml-install-g4-libs
-
 
 ::
 
@@ -61,12 +59,25 @@ But expecting::
     0
 
 
+D : chroma misses G4GDMLParser.hh
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tis in tarball::
+
+    chroma-cd src
+    tar ztvf geant4.9.5.p01.tar.gz | grep GDMLParser
+
+
+
 
 EOU
 }
 gdml-env(){      
    elocal- 
-   nuwa-
+   case $NODE_TAG in 
+     D) chroma- ;;
+     *) nuwa- ;;
+   esac
 }
 gdml-dir(){ echo $(gdml-g4-bdir)/source/persistency/gdml ; }
 gdml-sdir(){ echo $(env-home)/geant4/geometry/gdml ; }

@@ -10,9 +10,217 @@ CHROMA
 * http://chroma.bitbucket.org/install/overview.html
 * http://chroma.bitbucket.org/install/macosx.html
 * http://chroma.bitbucket.org/install/overview.html#common-install
-
-
 * https://bitbucket.org/chroma/chroma.bitbucket.org/src
+
+Installation Overview
+----------------------
+
+* contained within virtualenv folder chroma-dir
+  eg /usr/local/env/chroma_env
+
+Dependencies Install Overview
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After setup of ~/.aksetup-defaults.py described in http://chroma.bitbucket.org/install/overview.html::
+
+    #export PIP_EXTRA_INDEX_URL=http://mtrr.org/chroma_pkgs/ 
+    #export PIP_EXTRA_INDEX_URL=http://localhost/chroma_pkgs/ 
+    export PIP_EXTRA_INDEX_URL=file:///usr/local/env/chroma_pkgs/ 
+    pip install chroma_deps
+
+Chroma dependencies installation uses homegrown *shrinkwrap* 
+that makes non-python packages such as Geant4 and ROOT 
+to be amenable to setup.py python package 
+dependency machinery.  
+
+Packages are pulled from server using PIP indexing 
+mechanism. Recall needing to setup localhost index in order
+to conveniently make some patches. 
+
+IMPORTANT
+~~~~~~~~~~~
+
+* pip logs to ~/.pip/pip.log 
+* overwritten at each call
+
+
+chroma deps server
+~~~~~~~~~~~~~~~~~~~~
+
+Bring up local nginx::
+
+    delta:~ blyth$ sudo apachectl stop
+    delta:~ blyth$ nginx-start
+
+
+To provide the below via http://localhost/chroma_pkgs/::
+
+   (chroma_env)delta:Documents blyth$ ll /usr/local/env/chroma_pkgs/
+    total 0
+    drwxr-xr-x   4 blyth  wheel  136 Jan 16  2014 g4py_chroma
+    drwxr-xr-x   8 blyth  wheel  272 Jan 16  2014 .
+    drwxr-xr-x   5 blyth  wheel  170 Jan 16  2014 cmake
+    drwxr-xr-x   5 blyth  wheel  170 Jan 16  2014 chroma_deps
+    drwxr-xr-x   4 blyth  wheel  136 Jan 16  2014 boost
+    drwxr-xr-x   7 blyth  wheel  238 Jan 16  2014 geant4
+    drwxr-xr-x   8 blyth  wheel  272 Jan 17  2014 root
+    drwxr-xr-x  23 blyth  staff  782 Sep 25 12:26 ..
+
+
+
+D: modify chroma geant4 build to add GDML/persistency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macports install of xercesc, see *xercesc-vi*
+
+Want to add GDML to Chroma geant4 build, need to change cmake cmdline::
+
+    delta:geant4-4.9.5.p01 blyth$ pwd
+    /usr/local/env/chroma_pkgs/geant4/geant4-4.9.5.p01
+
+    delta:geant4-4.9.5.p01 blyth$ cat setup.py  | grep cmake
+        config_cmd = 'cmake -DCMAKE_INSTALL_PREFIX=%s -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_RAYTRACER_X11=ON %s' % (inst.virtualenv, g4src_dir)
+        shrinkwrap_requires=['cmake'],
+
+
+* http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/html/ch02.html
+
+::
+
+    delta:geant4-4.9.5.p01 blyth$ diff setup.py ../geant4-4.9.5.post2/setup.py 
+    9,10c9,11
+    < version = '4.9.5.p01'
+    < source_url = 'http://geant4.cern.ch/support/source/geant%s.tar.gz' % version
+    ---
+    > version = '4.9.5.post2'
+    > real_version = '4.9.5.p01'
+    > source_url = 'http://geant4.cern.ch/support/source/geant%s.tar.gz' % real_version
+    18c19
+    <     g4src_dir = os.path.realpath('geant' + version)
+    ---
+    >     g4src_dir = os.path.realpath('geant' + real_version)
+    25,26c26
+    <     xopt = "-DGEANT4_USE_GDML=ON"
+    <     config_cmd = 'cmake -DCMAKE_INSTALL_PREFIX=%s -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_RAYTRACER_X11=ON %s %s' % (inst.virtualenv, xopt, g4src_dir)
+    ---
+    >     config_cmd = 'cmake -DCMAKE_INSTALL_PREFIX=%s -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_RAYTRACER_X11=ON %s' % (inst.virtualenv, g4src_dir)
+    46c46
+    <     shrinkwrap_requires=['cmake'],
+    ---
+    >    # shrinkwrap_requires=['cmake'],
+    delta:geant4-4.9.5.p01 blyth$ 
+
+
+Need to add::
+
+    (chroma_env)delta:geant4 blyth$ vi geant4-4.9.5.post2/setup.py   ## add -DGEANT_USE_GDML=ON
+    (chroma_env)delta:geant4 blyth$ rm  geant4-4.9.5.post2.tar.gz
+    (chroma_env)delta:geant4 blyth$ tar zcvf geant4-4.9.5.post2.tar.gz geant4-4.9.5.post2
+    a geant4-4.9.5.post2
+    a geant4-4.9.5.post2/geant4.egg-info
+    a geant4-4.9.5.post2/PKG-INFO
+    a geant4-4.9.5.post2/setup.cfg
+    a geant4-4.9.5.post2/setup.py
+    a geant4-4.9.5.post2/geant4.egg-info/dependency_links.txt
+    a geant4-4.9.5.post2/geant4.egg-info/PKG-INFO
+    a geant4-4.9.5.post2/geant4.egg-info/SOURCES.txt
+    a geant4-4.9.5.post2/geant4.egg-info/top_level.txt
+
+
+
+
+the pip install sources geant4.sh::
+
+    delta:chroma_env blyth$ find . -name geant4.sh
+    ./bin/geant4.sh
+    ./env.d/geant4.sh
+    ./src/geant4.9.5.p01-build/InstallTreeFiles/geant4.sh
+
+    delta:chroma_env blyth$ cat env.d/geant4.sh 
+
+    pushd .  > /dev/null
+    cd /usr/local/env/chroma_env/bin
+    source geant4.sh
+    popd  > /dev/null
+
+
+Add tail::
+
+    delta:chroma_env blyth$ tail -10 bin/geant4.sh
+
+# SCB extra
+    xercesc_library=/opt/local/lib/libxerces-c.dylib 
+    if [ -f "${xercesc_library}" ]; then 
+       export XERCESC_INCLUDE_DIR=/opt/local/include
+       export XERCESC_LIBRARY=/opt/local/lib/libxerces-c.dylib 
+       env | grep XERCESC
+    fi
+
+
+ 
+Remove that tail, try with env setup in chroma-deps-env, then::
+
+     (chroma_env)delta:chroma_env blyth$ chroma-deps-rebuild geant4 -U -v
+
+
+::
+
+    (chroma_env)delta:chroma_env blyth$ chroma-;chroma-deps-rebuild-geant4 -U -v --pre
+    === chroma-deps-env : writing /Users/blyth/.aksetup-defaults.py
+    XERCESC_INCLUDE_DIR=/opt/local/include
+    XERCESC_LIBRARY=/opt/local/lib/libxerces-c.dylib
+    === chroma-deps-rebuild : pip install -b /usr/local/env/chroma_env/build/build_geant4 -U -v --pre geant4
+    Could not fetch URL https://pypi.python.org/simple/geant4/: HTTP Error 404: Not Found
+    Will skip URL https://pypi.python.org/simple/geant4/ when looking for download links for geant4 in ./lib/python2.7/site-packages
+    Could not fetch URL https://pypi.python.org/simple/geant4/: HTTP Error 404: Not Found
+    Will skip URL https://pypi.python.org/simple/geant4/ when looking for download links for geant4 in ./lib/python2.7/site-packages
+    Installed version (4.9.5.post2) is most up-to-date (past versions: 4.9.5.post2, 4.9.5.post1, 4.9.5.p01)
+    Requirement already up-to-date: geant4 in ./lib/python2.7/site-packages
+    Cleaning up...
+    (chroma_env)delta:chroma_env blyth$ 
+
+
+marker directory in site-packages::
+
+    (chroma_env)delta:site-packages blyth$ l geant4-4.9.5.post2-py2.7.egg-info/
+    total 40
+    -rw-r--r--  1 blyth  staff  197 Jan 16  2014 PKG-INFO
+    -rw-r--r--  1 blyth  staff  130 Jan 16  2014 SOURCES.txt
+    -rw-r--r--  1 blyth  staff    1 Jan 16  2014 dependency_links.txt
+    -rw-r--r--  1 blyth  staff   59 Jan 16  2014 installed-files.txt
+    -rw-r--r--  1 blyth  staff    1 Jan 16  2014 top_level.txt
+    (chroma_env)delta:site-packages blyth$ 
+
+Need to remove 3 dirs to succeeds to rebuild::
+
+    (chroma_env)delta:chroma_env blyth$ rm -r /usr/local/env/chroma_env/build/build_geant4
+    (chroma_env)delta:chroma_env blyth$ rm -r lib/python2.7/site-packages/geant4-4.9.5.post2-py2.7.egg-info
+    (chroma_env)delta:chroma_env blyth$ rm -rf /usr/local/env/chroma_env/src/geant4.9.5.p01   
+        # otherwise get permission denied regarding examples/.../Doxyfile.svn-base
+
+    (chroma_env)delta:chroma_env blyth$ chroma-;chroma-deps-rebuild-geant4 -U -v --pre
+     
+But my change to geant4-4.9.5.post2/setup.py was ignored. Need to create tarball::
+
+    (chroma_env)delta:geant4 blyth$ pwd
+    /usr/local/env/chroma_pkgs/geant4
+    (chroma_env)delta:geant4 blyth$ rm geant4-4.9.5.post2.tar.gz
+    (chroma_env)delta:geant4 blyth$ tar zcvf geant4-4.9.5.post2.tar.gz geant4-4.9.5.post2
+    a geant4-4.9.5.post2
+    a geant4-4.9.5.post2/geant4.egg-info
+    a geant4-4.9.5.post2/PKG-INFO
+    a geant4-4.9.5.post2/setup.cfg
+    a geant4-4.9.5.post2/setup.py
+    a geant4-4.9.5.post2/geant4.egg-info/dependency_links.txt
+    a geant4-4.9.5.post2/geant4.egg-info/PKG-INFO
+    a geant4-4.9.5.post2/geant4.egg-info/SOURCES.txt
+    a geant4-4.9.5.post2/geant4.egg-info/top_level.txt
+    (chroma_env)delta:geant4 blyth$ 
+
+
+
+
+
 
 Chroma Dependencies
 --------------------
@@ -514,35 +722,6 @@ Moved retainable chroma mods into bitbucket fork
    
 
 
-D: Adding GDML XercesC to chroma install 
---------------------------------------------
-
-::
-
-    (chroma_env)delta:geant4.9.5.p01 blyth$ port info xercesc
-    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
-    xercesc @2.8.0_3 (textproc)
-    Variants:             universal
-
-    Description:          Xerces-C++ is a validating XML parser written in a portable subset of C++. Xerces-C++ makes it easy to give your application the ability to read and write XML
-                          data. A shared library is provided for parsing, generating, manipulating, and validating XML documents.
-    Homepage:             http://xerces.apache.org/xerces-c/
-
-    Conflicts with:       xercesc3
-    Platforms:            darwin
-    License:              Apache-2
-    Maintainers:          chris.ridd@isode.com
-    (chroma_env)delta:geant4.9.5.p01 blyth$ 
-
-
-
-
-
-
-
-
-
-
 EOU
 }
 chroma-dir(){ 
@@ -559,7 +738,7 @@ chroma-sdir(){
    esac
 }
 
-chroma-scd(){  cd $(chroma-sdir) ; }
+chroma-scd(){  cd $(chroma-sdir)/$1 ; }
 chroma-env(){      
     elocal-  
     local dir=$(chroma-dir)
@@ -635,7 +814,9 @@ EOS
 
 chroma-pkgs-url(){
    #echo http://mtrr.org/chroma_pkgs/
+   #echo http://localhost/chroma_pkgs/
    echo http://localhost/chroma_pkgs/
+   #echo file:///usr/local/env/chroma_pkgs/    NOPE: pip needs a webserver to provide an index.html
 }
 
 chroma-deps-env(){
@@ -644,6 +825,10 @@ chroma-deps-env(){
    cuda-    # PATH setup for CUDA, expect ignored however these setting coming from aksetup ?
    chroma-pycuda-aksetup
    export PIP_EXTRA_INDEX_URL=$(chroma-pkgs-url)
+
+   xercesc-
+   xercesc-geant4-export
+   env | grep XERCESC
 }
 
 chroma-deps(){
@@ -654,6 +839,15 @@ chroma-deps(){
    pip install chroma_deps
 }
 
+chroma-deps-rebuild-geant4(){ 
+
+    rm -rf $(chroma-dir)/build/build_geant4
+    rm -rf lib/python2.7/site-packages/geant4-4.9.5.post2-py2.7.egg-info
+    rm -rf $(chroma-dir)/src/geant4.9.5.p01   
+
+    chroma-deps-rebuild geant4 -U -v --pre
+
+}
 chroma-deps-rebuild(){
    local msg="=== $FUNCNAME :"
    local name=${1:-root}
@@ -668,6 +862,9 @@ chroma-deps-rebuild(){
    echo $msg $cmd 
    eval $cmd
 }
+
+
+
 
 
 chroma-kludge-root(){
@@ -739,4 +936,5 @@ chroma-g4-libdir(){    echo $(chroma-dir)/src/$(chroma-geant4-name)-build/output
 chroma-clhep-incdir(){ echo $(chroma-dir)/include/Geant4/CLHEP ; }
 chroma-clhep-libdir(){ echo $(chroma-g4-libdir) ; }   ## incorporated with G4? /usr/local/env/chroma_env/lib/libG4clhep.dylib 
 
-
+chroma-xercesc-incdir(){ echo $(xercesc-;xercesc-include-dir) ; }
+   

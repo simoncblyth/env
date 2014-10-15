@@ -43,7 +43,6 @@ C
 
 * /usr/local/nginx/sbin/nginx 
 
-
 N
 ~~
 
@@ -516,6 +515,7 @@ nginx-syshtdocs(){
   echo /usr/share/nginx/html
 }
 
+nginx-htdocs-cd(){  cd $(nginx-htdocs); }
 
 nginx-htdocs(){ 
   case ${1:-$NODE_TAG} in 

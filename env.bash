@@ -1472,3 +1472,4 @@ dataquality-(){      . $(env-home)/nuwa/dataquality.bash && dataquality-env $* ;
 scenekit-(){      . $(env-home)/graphics/scenekit/scenekit.bash && scenekit-env $* ; }
 g4daeplay-(){      . $(env-home)/geant4/geometry/collada/swift/g4daeplay.bash && g4daeplay-env $* ; }
 chromacpp-(){      . $(env-home)/chroma/chromacpp/chromacpp.bash && chromacpp-env $* ; }
+xercesc-(){      . $(env-home)/xml/xercesc/xercesc.bash && xercesc-env $* ; }
