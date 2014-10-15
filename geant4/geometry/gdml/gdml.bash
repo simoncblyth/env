@@ -35,8 +35,8 @@ gdml-get(){
 }
 
 gdml-build(){
-   cd $(nuwa-g4-bdir)/source/persistency/gdml
-   make CLHEP_BASE_DIR=$(nuwa-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(nuwa-xercesc-idir)
+   cd $(gdml-g4-bdir)/source/persistency/gdml
+   make CLHEP_BASE_DIR=$(gdml-clhep-idir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercesc-incdir)
 }
 
 gdml-build-persistency(){
@@ -62,20 +62,81 @@ gdml-install-persistency(){
 }
 
 
+
+gdml-g4-system(){
+  case $NODE_TAG in 
+    D) echo Darwin-UNSUPPORTED ;;
+    *) echo Linux-g++ ;;
+  esac
+}
+
+
+gdml-g4-bdir(){ 
+  case $NODE_TAG in 
+    D) echo $(chroma-g4-bdir) ;;
+    *) echo $(nuwa-g4-bdir) ;;
+  esac
+}
+
+gdml-g4-incdir(){ 
+  case $NODE_TAG in 
+    D) echo $(chroma-g4-incdir) ;;
+    *) echo $(nuwa-g4-incdir) ;;
+  esac
+}
+gdml-g4-libdir(){ 
+  case $NODE_TAG in 
+    D) echo $(chroma-g4-libdir) ;;
+    *) echo $(nuwa-g4-libdir) ;;
+  esac
+}
+
+
+gdml-clhep-incdir(){ 
+  case $NODE_TAG in 
+    D) echo $(chroma-clhep-incdir) ;;
+    *) echo $(nuwa-clhep-incdir) ;;
+  esac
+}
+gdml-clhep-libdir(){ 
+  case $NODE_TAG in 
+    D) echo $(chroma-clhep-libdir) ;;
+    *) echo $(nuwa-clhep-libdir) ;;
+  esac
+}
+
+gdml-xercesc-incdir(){ 
+  case $NODE_TAG in 
+    D) echo $(chroma-xercesc-incdir) ;;
+    *) echo $(nuwa-xercesc-incdir) ;;
+  esac
+}
+gdml-xercesc-libdir(){ 
+  case $NODE_TAG in 
+    *) echo $(nuwa-xercesc-libdir) ;;
+  esac
+}
+
+
+
+
+
+
+
 gdml-test(){
    type $FUNCNAME
    cd $(env-home)/geant4/geometry/gdml
 
    # if omit the xercesc incdir the system xerces-c gets used causing linker problems later
-   g++ -c -I$(nuwa-g4-incdir) \
-          -I$(nuwa-clhep-incdir) \
-          -I$(nuwa-xercesc-incdir) \
+   g++ -c -I$(gdml-g4-incdir) \
+          -I$(gdml-clhep-incdir) \
+          -I$(gdml-xercesc-incdir) \
            -DG4LIB_USE_GDML \
         gdmltest.cc -o gdmltest.o
 
    g++ -m32 gdmltest.o -o gdmltest \
-        -L$(nuwa-xercesc-libdir) -lxerces-c  \
-        -L$(nuwa-g4-libdir) \
+        -L$(gdml-xercesc-libdir) -lxerces-c  \
+        -L$(gdml-g4-libdir) \
            -lG4persistency \
            -lG4readout \
            -lG4run \
@@ -96,7 +157,7 @@ gdml-test(){
            -lG4OpenGL \
            -lG4vis_management \
            -lG4modeling \
-       -L$(nuwa-clhep-libdir) -l$(nuwa-clhep-lib) -lm
+       -L$(gdml-clhep-libdir) -l$(gdml-clhep-lib) -lm
 
 
 }

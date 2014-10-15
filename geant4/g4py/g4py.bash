@@ -11,7 +11,7 @@ Executive Summary
 ------------------
 
 After considerable installation woes documented below, it turns out 
-that g4py misses the boost_python glue to expose the `G4VSolid::GetPolygons` 
+that g4py misses the boost_python glue to expose the *G4VSolid::GetPolygons* 
 that is needed to extract quads/tris from Geant4 geometry.  Possibly that 
 is a simple omission, or exposing that might require exposing other
 classes. 

@@ -45,7 +45,7 @@ class Traverse(object):
         self.world = world
         self.count = 0
 
-    def print_(self, pv, lv, nd):
+    def visit(self, pv, lv, nd):
         pvn = pv.GetName()
         lvn = lv.GetName()
         lso = lv.GetSolid()
@@ -63,11 +63,13 @@ class Traverse(object):
             self.recurse(dpv, fn)
 
     def __call__(self):
-        self.recurse(self.world, self.print_ )
+        self.recurse(self.world, self.visit )
 
 
 if __name__ == '__main__':
-    path = "$LOCAL_BASE/env/geant4/geometry/gdml/g4_01.gdml"
+    #path = "$LOCAL_BASE/env/geant4/geometry/gdml/g4_01.gdml"
+    path = "$DAE_NAME_DYB_GDML"
+
     prs = Geant4.G4GDMLParser()
     validate = False
     prs.Read(os.path.expandvars(path),validate)

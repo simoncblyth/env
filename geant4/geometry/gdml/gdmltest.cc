@@ -190,8 +190,9 @@ void Traverse::Recurse(G4VPhysicalVolume* pv, const G4Transform3D& theAT )
 
 int main(int argc, char** argv)
 {
+   const char* path = "/data1/env/local/env/geant4/geometry/gdml/g4_01.gdml" ;
    Traverse t ;
-   t.Read("/data1/env/local/env/geant4/geometry/gdml/g4_01.gdml", false);
+   t.Read(path, false);
    t.Write("test.wrl");
 }
 

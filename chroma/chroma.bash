@@ -514,6 +514,34 @@ Moved retainable chroma mods into bitbucket fork
    
 
 
+D: Adding GDML XercesC to chroma install 
+--------------------------------------------
+
+::
+
+    (chroma_env)delta:geant4.9.5.p01 blyth$ port info xercesc
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+    xercesc @2.8.0_3 (textproc)
+    Variants:             universal
+
+    Description:          Xerces-C++ is a validating XML parser written in a portable subset of C++. Xerces-C++ makes it easy to give your application the ability to read and write XML
+                          data. A shared library is provided for parsing, generating, manipulating, and validating XML documents.
+    Homepage:             http://xerces.apache.org/xerces-c/
+
+    Conflicts with:       xercesc3
+    Platforms:            darwin
+    License:              Apache-2
+    Maintainers:          chris.ridd@isode.com
+    (chroma_env)delta:geant4.9.5.p01 blyth$ 
+
+
+
+
+
+
+
+
+
 
 EOU
 }
@@ -704,5 +732,11 @@ chroma-clhep-prefix(){
    echo $VIRTUAL_ENV/src/$(chroma-geant4-name)/source/externals/clhep 
 }
 
+chroma-g4-bdir(){      echo $(chroma-dir)/src/$(chroma-geant4-name) ; }
+chroma-g4-incdir(){    echo $(chroma-dir)/include/Geant4 ; }
+chroma-g4-libdir(){    echo $(chroma-dir)/src/$(chroma-geant4-name)-build/outputs/library/Darwin-UNSUPPORTED ; }
+
+chroma-clhep-incdir(){ echo $(chroma-dir)/include/Geant4/CLHEP ; }
+chroma-clhep-libdir(){ echo $(chroma-g4-libdir) ; }   ## incorporated with G4? /usr/local/env/chroma_env/lib/libG4clhep.dylib 
 
 
