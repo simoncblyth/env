@@ -27,6 +27,9 @@ NEXT:
 
 #include <fstream>
 
+#include <stdio.h>  
+#include <stdlib.h>     /* getenv */
+
 
 class Traverse
 {
@@ -188,12 +191,20 @@ void Traverse::Recurse(G4VPhysicalVolume* pv)
 
 
 
+
 int main(int argc, char** argv)
 {
-   const char* path = "/data1/env/local/env/geant4/geometry/gdml/g4_01.gdml" ;
+   const char* envkey = "DAE_NAME_DYB_GDML" ;
+   const char* path = getenv(envkey);
+   if(path == NULL){
+      printf("envkey %s not in environment : use \"export-;export-export\" to define it \n", envkey);
+      return 1;
+   }
+
    Traverse t ;
    t.Read(path, false);
-   t.Write("test.wrl");
+   //t.Write("test.wrl");
+
 }
 
 

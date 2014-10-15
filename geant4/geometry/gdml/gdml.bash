@@ -4,19 +4,63 @@ gdml-source(){   echo ${BASH_SOURCE:-$(env-home)/$(gdml-src)} ; }
 gdml-vi(){       vi $(gdml-source) ; }
 gdml-usage(){ cat << EOU
 
+GDML testing
+=============
 
-g++ -m32 -Wl,-rpath,/data/env/local/env/boost/boost_1_54_0.local/lib:/data/env/local/dyb/trunk/external/geant4/4.9.2.p01/i686-slc4-gcc34-dbg/lib:/data/env/local/dyb/trunk/external/clhep/2.0.4.2/i686-slc4-gcc34-dbg/lib: -Wl,-soname,G4global.so -shared -o G4global.so  G4PyCoutDestination.o  pyG4ApplicationState.o  pyG4Exception.o  pyG4ExceptionHandler.o  pyG4ExceptionSeverity.o  pyG4RandomDirection.o  pyG4RotationMatrix.o  pyG4StateManager.o  pyG4String.o  pyG4ThreeVector.o  pyG4Timer.o  pyG4Transform3D.o  pyG4TwoVector.o  pyG4UnitsTable.o  pyG4UserLimits.o  pyG4Version.o  pygeomdefs.o  pyglobals.o  pymodG4global.o  pyRandomEngines.o  pyRandomize.o  -L/data/env/local/env/boost/boost_1_54_0.local/lib -lboost_python -L/data/env/local/dyb/trunk/external/XercesC/2.8.0/i686-slc4-gcc34-dbg/lib -lxerces-c -L/data/env/local/dyb/trunk/external/geant4/4.9.2.p01/i686-slc4-gcc34-dbg/lib -lG4persistency -lG4readout -lG4run -lG4event -lG4tracking -lG4parmodels -lG4processes -lG4digits_hits -lG4track -lG4particles -lG4geometry -lG4materials -lG4graphics_reps -lG4intercoms -lG4interfaces -lG4global -lG4physicslists  -lG4FR -lG4visHepRep -lG4RayTracer -lG4VRML -lG4Tree -lG4OpenGL -lG4vis_management -lG4modeling -L/data/env/local/dyb/trunk/external/clhep/2.0.4.2/i686-slc4-gcc34-dbg/lib -lCLHEP-2.0.4.2
+Build/Install issues
+---------------------
+
+* similar to those reported in *g4py-*
+
+  * due to lack of global libs by default
+  * also lack of XercesC
+
+xercesc_2_7 xercesc_2_8 mixup 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+System xerces-c 2.7 causing getting linked
+unintentionally in libG4persistency.so at least.::
+
+    [blyth@belle7 source]$ gdml-checklib 
+        0   322 ../lib/Linux-g++/libG4DAE.so 
+      317     0 ../lib/Linux-g++/libG4persistency.so 
 
 
-System xerces-c causing problems::
+After forcibly rebuild/reinstall persistency::
 
-    [blyth@belle7 G01]$ rpm -ql xerces-c
-    /usr/lib/libxerces-c.so.27
-    /usr/lib/libxerces-c.so.27.0
-    /usr/lib/libxerces-depdom.so.27
-    /usr/lib/libxerces-depdom.so.27.0
-    /usr/share/doc/xerces-c-2.7.0
-    /usr/share/doc/xerces-c-2.7.0/LICENSE.txt
+    [blyth@belle7 source]$ find persistency -name '*.cc' -exec touch {} \;
+    [blyth@belle7 source]$ gdml-build-g4-global
+            ...
+
+    [blyth@belle7 source]$ gdml-checklib
+        0   322 ../lib/Linux-g++/libG4DAE.so 
+        0   302 ../lib/Linux-g++/libG4persistency.so 
+
+    [blyth@belle7 source]$ gdml-install-g4-libs
+
+
+::
+
+    /data1/env/local/dybx/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib/libG4persistency.so: undefined reference to `xercesc_2_7::XMLString::transcode(char const*, unsigned short*, unsigned int, xercesc_2_7::MemoryManager*)'
+    /data1/env/local/dybx/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib/libG4persistency.so: undefined reference to `xercesc_2_7::XMLString::transcode(unsigned short const*)'
+    /data1/env/local/dybx/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib/libG4persistency.so: undefined reference to `xercesc_2_7::XercesDOMParser::setErrorHandler(xercesc_2_7::ErrorHandler*)'
+
+But expecting::
+
+    [blyth@belle7 gdml]$ nm $(gdml-xercesc-libdir)/libxerces-c.so | c++filt | grep xercesc | grep XMLString  | head -3
+    0029ccc0 T xercesc_2_8::XMLScanner::setURIStringPool(xercesc_2_8::XMLStringPool*)
+    002d0180 W xercesc_2_8::XSNamedMap<xercesc_2_8::XSIDCDefinition>::XSNamedMap(unsigned int, unsigned int, xercesc_2_8::XMLStringPool*, bool, xercesc_2_8::MemoryManager*)
+    002c9600 W xercesc_2_8::XSNamedMap<xercesc_2_8::XSObject>::XSNamedMap(unsigned int, unsigned int, xercesc_2_8::XMLStringPool*, bool, xercesc_2_8::MemoryManager*)
+
+
+::
+
+    [blyth@belle7 ~]$ nm /data1/env/local/dybx/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib/libG4persistency.so | c++filt | grep xercesc_2_7  | wc -l
+    317
+    [blyth@belle7 ~]$ nm /data1/env/local/dybx/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib/libG4persistency.so | c++filt | grep xercesc_2_8  | wc -l
+    0
+
+
 
 EOU
 }
@@ -41,15 +85,37 @@ gdml-build(){
 
 gdml-build-persistency(){
    cd $(gdml-g4-bdir)/source/persistency
-   make CLHEP_BASE_DIR=$(gdml-clhep-incdir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercesc-incdir) 
-   make CLHEP_BASE_DIR=$(gdml-clhep-idir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercesc-incdir) global
+
+
+
+   make CLHEP_BASE_DIR=$(gdml-clhep-incdir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercescroot) 
+   make CLHEP_BASE_DIR=$(gdml-clhep-idir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercescroot) global
 }
 
 
 gdml-build-g4-global(){
    cd $(gdml-g4-bdir)/source
-   make CLHEP_BASE_DIR=$(gdml-clhep-idir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercesc-incdir) global
+   #find persistency -name '*.cc' -exec touch {} \;
+   make CLHEP_BASE_DIR=$(gdml-clhep-idir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercescroot) global
 }
+
+gdml-libsymcount(){
+   echo $(nm $1 | c++filt | grep -c $2) 
+}
+
+gdml-checklib(){
+   cd $(gdml-g4-bdir)/source
+   local libext=so
+   local libpath
+   ls -1 ../lib/$(gdml-g4-system)/*.$libext | while read libpath ;  do
+      local nm27=$(gdml-libsymcount $libpath xercesc_2_7)
+      local nm28=$(gdml-libsymcount $libpath xercesc_2_8)
+      if [ "$nm27" != "0" -o "$nm28" != "0" ]; then
+         printf "%5s %5s %s \n" $nm27 $nm28 $libpath 
+      fi 
+   done
+}
+
 
 gdml-install-g4-libs(){
    cd $(gdml-g4-bdir)/source
@@ -141,6 +207,11 @@ gdml-clhep-lib(){
   esac 
 }
 
+gdml-xercescroot(){
+  case $NODE_TAG in 
+    *) echo $(dirname $(gdml-xercesc-incdir)) ;;
+  esac
+} 
 gdml-xercesc-incdir(){ 
   case $NODE_TAG in 
     D) echo $(chroma-xercesc-incdir) ;;
@@ -158,21 +229,30 @@ gdml-xercesc-libdir(){
 
 
 
-
-
+gdml-exename(){ echo ${GDML_EXENAME:-gdmltest} ; }
+gdml-exepath(){ echo $(local-base)/env/geant4/geometry/gdml/$(gdml-exename) ; }
+gdml-exepath-run(){
+   local exepath=$(gdml-exepath)
+   exec $exepath $*
+}
 
 gdml-test(){
    type $FUNCNAME
    cd $(env-home)/geant4/geometry/gdml
+
+   local name=$(gdml-exename)
 
    # if omit the xercesc incdir the system xerces-c gets used causing linker problems later
    g++ -c -I$(gdml-g4-incdir) \
           -I$(gdml-clhep-incdir) \
           -I$(gdml-xercesc-incdir) \
            -DG4LIB_USE_GDML \
-        gdmltest.cc -o gdmltest.o
+        $name.cc -o $name.o
 
-   g++ -m32 gdmltest.o -o gdmltest \
+   local exepath=$(gdml-exepath)
+   mkdir -p $(dirname $exepath)
+
+   g++ -m32 $name.o -o $exepath \
         -L$(gdml-xercesc-libdir) -lxerces-c  \
         -L$(gdml-g4-libdir) \
            -lG4persistency \
@@ -197,6 +277,8 @@ gdml-test(){
            -lG4modeling \
        -L$(gdml-clhep-libdir) -l$(gdml-clhep-lib) -lm
 
+    rm $name.o
+    
 
 }
 

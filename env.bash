@@ -16,7 +16,7 @@ env-cache-update(){
    local path=$(env-cache-path)
    local msg="=== $FUNCNAME :"
    echo $msg writing env to $path
-   env | sort | grep -v SSH_ | grep -v DISPLAY | grep -v TERM | grep -v LS_COLORS | grep -v PWD  | while read line ; do echo export $line ; done > $path
+   env | sort | grep -v SSH_ | grep -v DISPLAY | grep -v TERM | grep -v LS_COLORS | grep -v PWD | grep -v DAE_PATH_TEMPLATE | while read line ; do echo export $line ; done > $path
 }
 
 
