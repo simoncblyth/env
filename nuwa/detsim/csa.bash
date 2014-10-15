@@ -102,12 +102,27 @@ csa-nuwapkg-cpto(){
 
    cd $iwd
 }   
-csa-nuwapkg-diff(){
-   local pkg=$(csa-nuwapkg)
-   local nam=DsChromaStackAction
 
-   diff $(csa-dir)/src/$nam.h   $pkg/src/$nam.h
-   diff $(csa-dir)/src/$nam.cc  $pkg/src/$nam.cc
+csa-nuwapkg-diff(){
+   local clss="DsChromaStackAction"
+   local cls
+   for cls in $clss ; do 
+      $FUNCNAME- $cls
+   done
+}
+
+csa-nuwapkg-diff-(){
+   local pkg=$(csa-nuwapkg)
+   local nam=${1:-DsChromaStackAction}
+
+   local exts="h cc"
+   local ext
+   for ext in $exts ; do 
+      local cmd="diff $(csa-dir)/src/$nam.$ext   $pkg/src/$nam.$ext"
+      echo $cmd
+      eval $cmd 
+   done 
+
 }
 
 
