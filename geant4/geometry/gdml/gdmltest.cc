@@ -20,6 +20,7 @@ NEXT:
 #include "G4VSolid.hh"
 #include "G4Polyhedron.hh"
 #include "G4Point3D.hh"
+#include "G4VModel.hh"
 #include "G4Transform3D.hh"
 
 #include "G4VisAttributes.hh"
@@ -36,7 +37,8 @@ class Traverse
      void Read(const G4String& filename, G4bool validate);
      void Write(const G4String& filename);
 
-     void Recurse(G4VPhysicalVolume* pv,const G4Transform3D& theAT );
+     //void Recurse(G4VPhysicalVolume* pv,const G4Transform3D& theAT );
+     void Recurse(G4VPhysicalVolume* pv);
      void Visit(G4VPhysicalVolume* pv, G4LogicalVolume* lv, G4int nd);
      void VisitPolyhedron( const G4Polyhedron& polyhedron );
      void PreAddSolid(const G4Transform3D& objectTransformation, const G4VisAttributes& visAttribs);
@@ -106,13 +108,10 @@ void Traverse::Visit( G4VPhysicalVolume* pVPV, G4LogicalVolume* lv, G4int nd)
   //  $DYB/external/build/LCG/geant4.9.2.p01/source/visualization/modeling/src/G4PhysicalVolumeModel.cc
   const G4RotationMatrix objectRotation = pVPV -> GetObjectRotationValue ();
   const G4ThreeVector&  translation     = pVPV -> GetTranslation ();
-  G4Transform3D theLT (G4Transform3D (objectRotation, translation));
-
-  G4Transform3D theNewAT (theAT);
-
-  if (fCurrentDepth != 0) theNewAT = theAT * theLT;
-
-
+  
+  //G4Transform3D theLT (G4Transform3D (objectRotation, translation));
+  //G4Transform3D theNewAT (theAT);
+  //if (fCurrentDepth != 0) theNewAT = theAT * theLT;
 
   G4cout << pVPV->GetName() << " " << lv->GetName() << " " <<  nd << G4endl ;
   G4VSolid* vso = lv->GetSolid();
@@ -175,7 +174,8 @@ void Traverse::VisitPolyhedron( const G4Polyhedron& polyhedron )
 }
 
 
-void Traverse::Recurse(G4VPhysicalVolume* pv, const G4Transform3D& theAT )
+//void Traverse::Recurse(G4VPhysicalVolume* pv, const G4Transform3D& theAT )
+void Traverse::Recurse(G4VPhysicalVolume* pv)
 {
    G4LogicalVolume* lv = pv->GetLogicalVolume();
    G4int nd = lv->GetNoDaughters();

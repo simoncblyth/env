@@ -24,7 +24,7 @@ gdml-env(){
    elocal- 
    nuwa-
 }
-gdml-dir(){ echo $(nuwa-g4-bdir)/source/persistency/gdml ; }
+gdml-dir(){ echo $(gdml-g4-bdir)/source/persistency/gdml ; }
 gdml-sdir(){ echo $(env-home)/geant4/geometry/gdml ; }
 gdml-cd(){  cd $(gdml-dir); }
 gdml-scd(){  cd $(gdml-sdir); }
@@ -36,14 +36,42 @@ gdml-get(){
 
 gdml-build(){
    cd $(gdml-g4-bdir)/source/persistency/gdml
-   make CLHEP_BASE_DIR=$(gdml-clhep-idir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercesc-incdir)
+   make CLHEP_BASE_DIR=$(gdml-clhep-incdir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercesc-incdir)
 }
 
 gdml-build-persistency(){
-   cd $(nuwa-g4-bdir)/source/persistency
-   make CLHEP_BASE_DIR=$(nuwa-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(nuwa-xercesc-idir) 
-   make CLHEP_BASE_DIR=$(nuwa-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(nuwa-xercesc-idir) global
+   cd $(gdml-g4-bdir)/source/persistency
+   make CLHEP_BASE_DIR=$(gdml-clhep-incdir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercesc-incdir) 
+   make CLHEP_BASE_DIR=$(gdml-clhep-idir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercesc-incdir) global
 }
+
+
+gdml-build-g4-global(){
+   cd $(gdml-g4-bdir)/source
+   make CLHEP_BASE_DIR=$(gdml-clhep-idir) G4SYSTEM=$(gdml-g4-system) G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(gdml-xercesc-incdir) global
+}
+
+gdml-install-g4-libs(){
+   cd $(gdml-g4-bdir)/source
+   local libext=so
+   local line
+   ls -1 ../lib/$(gdml-g4-system)/*.$libext | while read line ;  do
+       local libpath=$line
+       local libname=$(basename $libpath)
+       local libdest=$(gdml-g4-libdir)/$libname
+       #echo ... $libname ... $libpath  ... $libdest ...
+
+       if [ "$libpath" -nt "$libdest" ]; then
+           printf "%10s %s \n" INSTALL $libdest 
+           local cmd="cp $libpath $libdest"
+           eval $cmd
+       else
+           printf "%10s %s \n" ASIS $libdest 
+       fi  
+   done
+}
+
+
  
 gdml-install(){
    cd $(nuwa-g4-bdir)/source/persistency/gdml
@@ -57,10 +85,9 @@ gdml-install(){
 }
 
 gdml-install-persistency(){
-   cd $(nuwa-g4-bdir)/source/persistency
-   cp ../../lib/Linux-g++/libG4persistency.so $(nuwa-g4-libdir)/
+   cd $(gdml-g4-bdir)/source/persistency
+   cp ../../lib/$(gdml-g4-system)/libG4persistency.so $(gdml-g4-libdir)/
 }
-
 
 
 gdml-g4-system(){
@@ -70,10 +97,10 @@ gdml-g4-system(){
   esac
 }
 
-
 gdml-g4-bdir(){ 
   case $NODE_TAG in 
     D) echo $(chroma-g4-bdir) ;;
+    N) echo $(DYB=x nuwa-g4-bdir) ;;
     *) echo $(nuwa-g4-bdir) ;;
   esac
 }
@@ -81,38 +108,49 @@ gdml-g4-bdir(){
 gdml-g4-incdir(){ 
   case $NODE_TAG in 
     D) echo $(chroma-g4-incdir) ;;
+    N) echo $(DYB=x nuwa-g4-incdir) ;;
     *) echo $(nuwa-g4-incdir) ;;
   esac
 }
 gdml-g4-libdir(){ 
   case $NODE_TAG in 
     D) echo $(chroma-g4-libdir) ;;
+    N) echo $(DYB=x nuwa-g4-libdir) ;;
     *) echo $(nuwa-g4-libdir) ;;
   esac
 }
 
-
+gdml-clhep-idir(){ echo $(dirname $(gdml-clhep-incdir)); }
 gdml-clhep-incdir(){ 
   case $NODE_TAG in 
     D) echo $(chroma-clhep-incdir) ;;
+    N) echo $(DYB=x nuwa-clhep-incdir) ;;
     *) echo $(nuwa-clhep-incdir) ;;
   esac
 }
 gdml-clhep-libdir(){ 
   case $NODE_TAG in 
     D) echo $(chroma-clhep-libdir) ;;
+    N) echo $(DYB=x nuwa-clhep-libdir) ;;
     *) echo $(nuwa-clhep-libdir) ;;
   esac
+}
+gdml-clhep-lib(){ 
+  case $NODE_TAG in 
+    *) echo CLHEP ;;
+  esac 
 }
 
 gdml-xercesc-incdir(){ 
   case $NODE_TAG in 
     D) echo $(chroma-xercesc-incdir) ;;
+    N) echo $(DYB=x nuwa-xercesc-incdir) ;;
     *) echo $(nuwa-xercesc-incdir) ;;
   esac
 }
 gdml-xercesc-libdir(){ 
   case $NODE_TAG in 
+    N) echo $(DYB=x nuwa-xercesc-libdir) ;;
     *) echo $(nuwa-xercesc-libdir) ;;
   esac
 }
