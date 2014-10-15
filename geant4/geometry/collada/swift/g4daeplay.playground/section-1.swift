@@ -226,13 +226,29 @@ class DAE {
 
 
 let env = NSProcessInfo.processInfo().environment
-let path: String? = env["DAE_NAME_AD"] as? NSString
+let path: String? = env["DAE_NAME_DYB"] as? NSString
+
 if path {
     let dae = DAE(path:path!,target:0)
     XCPShowView("The Scene View", dae.sceneView)
 
     let pov = dae.sceneView.pointOfView
     pov.position
+    
+    
+    let sceneSource = dae.sceneSource
+    var nodeName = "top"
+    var node:SCNNode? = sceneSource!.entryWithIdentifier(nodeName, withClass:SCNNode.self) as? SCNNode
+    
+    
+    
+    node.de
+    
+    println(node!.name)
+    
+    
+    
+    
 }
 
 

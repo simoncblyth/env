@@ -61,6 +61,59 @@ Verify the username before committing::
     ui.username=Simon Blyth <simoncblyth@gmail.com>
 
 
+Aborted push 
+~~~~~~~~~~~~~
+
+To avoid the below rigmarole, try to operate
+in pass-the-baton fashion as move from machine to machine
+and always push/pull as pass baton.
+
+A push is aborted::
+
+    delta:env blyth$ hg commit -m "ruminate on how to integrate chroma formed GPU hits into the flow " 
+ 
+    delta:env blyth$ hg push 
+    pushing to ssh://hg@bitbucket.org/simoncblyth/env
+    searching for changes
+    abort: push creates new remote head 658f4429167b!
+    (pull and merge or see "hg help push" for details about pushing new heads)
+
+
+Pulling changes gets into multi-headed state::
+
+    delta:env blyth$ hg pull
+    pulling from ssh://hg@bitbucket.org/simoncblyth/env
+    searching for changes
+    adding changesets
+    adding manifests
+    adding file changes
+    added 1 changesets with 1 changes to 1 files (+1 heads)
+    (run 'hg heads' to see heads, 'hg merge' to merge)
+    delta:env blyth$ 
+
+    delta:env blyth$ hg heads
+    changeset:   4705:2b3f791f9c74
+    tag:         tip
+    parent:      4703:57625e9292d1
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Tue Oct 14 19:59:28 2014 +0800
+    summary:     csa generalize
+
+    changeset:   4704:658f4429167b
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Tue Oct 14 21:02:13 2014 +0800
+    summary:     ruminate on how to integrate chroma formed GPU hits into the flow
+
+
+Merge brings them together, with uncommited changes::
+
+    delta:env blyth$ hg merge
+    1 files updated, 0 files merged, 0 files removed, 0 files unresolved
+    (branch merge, don't forget to commit)
+    delta:env blyth$ 
+    delta:env blyth$ hg st 
+    M nuwa/detsim/csa.bash
+    delta:env blyth$ 
 
 
 

@@ -37,14 +37,20 @@ TODO: try to avoid this by using a different namespace for these extras
 Missing lots of nodes ? unique identifier problem ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Getting 5892 when expect 12k, 
-
+On unique identifier calls give 5892 SCNNode when expect 12230,
+(BUT identification of SCNNode with G4 "actual" nodes remains in question)
+ 
 * not related to the extra element warnings, as after stripping the extras get no change
 
-* almost certainly this is the node identity problem than met 
-  before with *g4daenode.py* which was fixed by ensuring that all nodes 
-  have unique identifiers
+Recursive traverse with *Traverse* class 
+shows all nodes are present but with nil names::
+    
+    count 24460 count/2 12230 
 
+    scenekit 2*actual    
+    pycollada 3*actual
+
+ 
 
 FIXED undefined envvar crashes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,37 +113,106 @@ will need to place scripts in shell wrappers to manage the commandline::
 import Foundation
 import SceneKit 
 
-for i in 0..<C_ARGC {
-    let index = Int(i);
-    let arg = String.fromCString(C_ARGV[index])
-    println("index \(index) arg \(arg) ")
+
+func dump_arguments()
+{
+   // two ways to dump commandline arguments
+    for index in 0..<Int(C_ARGC) {
+        let arg = String.fromCString(C_ARGV[index])
+        println("index \(index) arg \(arg) ")
+    }
+    for (index,arg) in enumerate(Process.arguments) {
+        println("index \(index) arg \(arg) ")
+    }
 }
-
-for (index,arg) in enumerate(Process.arguments) {
-   println("index \(index) arg \(arg) ")
-}
-
-
+//dump_arguments()
 
 let env = NSProcessInfo.processInfo().environment
-let key = "DAE_NAME_DYB"
+
+
+
+
+
+//let key = "DAE_NAME_DYB"
+let key = "DAE_NAME_DYB_NOEXTRA"
+//let key = "DAE_NAME_AD"
+
+
+func traverse(node:SCNNode, depth:Int, count:Int)
+{
+    // how to do a counter, globals
+    println("traverse count \(count) depth \(depth) node \(node)")
+    var count = count + 1 
+    for child in node.childNodes {
+        traverse(child as SCNNode, depth+1, count )
+    }
+}
+
+
+class Traverse {
+
+   ///
+
+    var count:Int = 0
+    var root:SCNNode 
+
+    init(root:SCNNode){
+       self.root = root 
+    }
+
+    func visit(node:SCNNode, depth:Int){
+       println("count \(count) depth \(depth) node \(node) name \(node.name) ")
+       self.count += 1 
+    }
+
+    func recurse(node:SCNNode, depth:Int){ 
+       self.visit(node, depth:depth)
+       for child in node.childNodes {
+           self.recurse( child as SCNNode, depth:depth+1 )
+       }  
+    }
+
+    func traverse(){
+        self.count = 0 
+        self.recurse(self.root, depth:0 )
+    } 
+
+    func description()->String{
+       return "count \(count) count/2 \(count/2) "
+    }
+}
+
+
 
 
 if let path:String = env[key] as? NSString {
 
-   let urlpath = path + ".noextra.dae"
-   //let urlpath = path 
-   println("urlpath \(urlpath) ")
+   let urlpath = path 
+   println("key \(key) urlpath \(urlpath) ")
 
    let url = NSURL(fileURLWithPath:urlpath)
 
    let sceneSource = SCNSceneSource(URL:url, options:nil)
    var nid = sceneSource.identifiersOfEntriesWithClass(SCNNode.self) as? [String]
+   var gid = sceneSource.identifiersOfEntriesWithClass(SCNGeometry.self) as? [String]
 
-   for (index, identifier) in enumerate(nid!) {
-       println("ix:\(index) id:\(identifier)")
+   //for (index, identifier) in enumerate(nid!) {
+   //    println("ix:\(index) id:\(identifier)")
+   //}
+
+   println("sceneSource.identifiersOfEntriesWithClass counts\n\tSCNNode:\(nid!.count)\n\tSCNGeometry:\(gid!.count)")
+
+   var nodeName = nid![0]
+   println("first nodeName \(nodeName) ")
+
+   if let node:SCNNode = sceneSource.entryWithIdentifier(nodeName, withClass:SCNNode.self) as? SCNNode {
+       println("\t node \(node)\n\t name \(node.name) ")
+       var t = Traverse(root:node)
+       t.traverse()
+       println(t.description())
    }
-   println(nid!.count)
+
+
 
 } else {
    println("envvar \(key) is not defined ")
