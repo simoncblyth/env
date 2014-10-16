@@ -67,6 +67,14 @@ Tis in tarball::
     chroma-cd src
     tar ztvf geant4.9.5.p01.tar.gz | grep GDMLParser
 
+See *chroma-deps-rebuild-geant4*
+
+D: architecture mixup
+~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    ld: warning: ld: warning: ignoring file gdmltest.o, file was built for unsupported file format ( 0xCF 0xFA 0xED 0xFE 0x07 0x00 0x00 0x01 0x03 0x00 0x00 0x00 0x01 0x00 0x00 0x00 ) which is not the architecture being linked (i386): gdmltest.oignoring file /opt/local/lib/libxerces-c.dylib, file was built for x86_64 which is not the architecture being linked (i386): /opt/local/lib/libxerces-c.dylib
 
 
 
@@ -232,6 +240,7 @@ gdml-xercesc-incdir(){
 }
 gdml-xercesc-libdir(){ 
   case $NODE_TAG in 
+    D) echo $(chroma-xercesc-libdir) ;;
     N) echo $(DYB=x nuwa-xercesc-libdir) ;;
     *) echo $(nuwa-xercesc-libdir) ;;
   esac
@@ -263,7 +272,10 @@ gdml-test(){
    local exepath=$(gdml-exepath)
    mkdir -p $(dirname $exepath)
 
-   g++ -m32 $name.o -o $exepath \
+   #local opt="-m32"
+   local opt=""
+
+   g++ $opt $name.o -o $exepath \
         -L$(gdml-xercesc-libdir) -lxerces-c  \
         -L$(gdml-g4-libdir) \
            -lG4persistency \
@@ -283,13 +295,25 @@ gdml-test(){
            -lG4RayTracer \
            -lG4VRML \
            -lG4Tree \
-           -lG4OpenGL \
-           -lG4vis_management \
            -lG4modeling \
-       -L$(gdml-clhep-libdir) -l$(gdml-clhep-lib) -lm
+             -lm
 
     rm $name.o
-    
+   
+    cat << EOS
+
+   SKIPPED THESE
+
+           -lG4Tree \
+      #     -lG4OpenGL \
+      #     -lG4vis_management \
+           -lG4modeling \
+      #    -L$(gdml-clhep-libdir) -l$(gdml-clhep-lib) \
+             -lm
+ 
+
+EOS
+ 
 
 }
 

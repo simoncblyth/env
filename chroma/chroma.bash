@@ -218,6 +218,13 @@ But my change to geant4-4.9.5.post2/setup.py was ignored. Need to create tarball
     (chroma_env)delta:geant4 blyth$ 
 
 
+After that succeed to rebuild but getting::
+
+   CMake Warning:
+      Manually-specified variables were not used by the project:
+    
+        GEANT_USE_GDML
+    
 
 
 
@@ -812,7 +819,7 @@ CUDA_ENABLE_GL = True
 EOS
 }
 
-chroma-pkgs-url(){
+chroma-indexurl(){
    #echo http://mtrr.org/chroma_pkgs/
    #echo http://localhost/chroma_pkgs/
    echo http://localhost/chroma_pkgs/
@@ -824,7 +831,7 @@ chroma-deps-env(){
    [ -z "$VIRTUAL_ENV" ] && echo $msg ERROR need to be in the virtualenv to proceed && return 1
    cuda-    # PATH setup for CUDA, expect ignored however these setting coming from aksetup ?
    chroma-pycuda-aksetup
-   export PIP_EXTRA_INDEX_URL=$(chroma-pkgs-url)
+   export PIP_EXTRA_INDEX_URL=$(chroma-indexurl)
 
    xercesc-
    xercesc-geant4-export
@@ -839,13 +846,16 @@ chroma-deps(){
    pip install chroma_deps
 }
 
+
+
 chroma-deps-rebuild-geant4(){ 
 
     rm -rf $(chroma-dir)/build/build_geant4
     rm -rf lib/python2.7/site-packages/geant4-4.9.5.post2-py2.7.egg-info
     rm -rf $(chroma-dir)/src/geant4.9.5.p01   
+    rm -rf $(chroma-dir)/include/Geant4
 
-    chroma-deps-rebuild geant4 -U -v --pre
+    chroma-deps-rebuild geant4 -U -v --pre $*
 
 }
 chroma-deps-rebuild(){
@@ -858,7 +868,7 @@ chroma-deps-rebuild(){
 
    chroma-deps-env
    cd $VIRTUAL_ENV  
-   local cmd="pip install -b $builddir $args $name"
+   local cmd="pip install -b $builddir --index-url $(chroma-indexurl) $args $name"
    echo $msg $cmd 
    eval $cmd
 }
@@ -909,8 +919,12 @@ chroma-build(){
 ### TRYING TO BUILD GEANT4 EXAMPLES AGAINST THE CHROMA GEANT4
 
 chroma-geant4-name(){ echo geant4.9.5.p01 ;}
-chroma-geant4-dir(){  echo $VIRTUAL_ENV/lib/Geant4-9.5.1 ; }
-chroma-geant4-sdir(){ echo $VIRTUAL_ENV/src/$(chroma-geant4-name) ; }
+chroma-geant4-sdir(){ echo $(chroma-dir)/src/$(chroma-geant4-name) ; }
+
+chroma-geant4-builddir(){ echo $(chroma-dir)/src/geant4.9.5.p01-build ; }
+chroma-geant4-builddir-cd(){ cd $(chroma-geant4-builddir) ; }
+
+chroma-geant4-dir(){  echo $(chroma-dir)/lib/Geant4-9.5.1 ; }
 chroma-geant4-dir-check(){  
    [ -f "$(chroma-geant4-dir)/Geant4Config.cmake" ] && echo $FUNCNAME OK || echo $FUNCNAME ERROR 
 }
@@ -936,5 +950,6 @@ chroma-g4-libdir(){    echo $(chroma-dir)/src/$(chroma-geant4-name)-build/output
 chroma-clhep-incdir(){ echo $(chroma-dir)/include/Geant4/CLHEP ; }
 chroma-clhep-libdir(){ echo $(chroma-g4-libdir) ; }   ## incorporated with G4? /usr/local/env/chroma_env/lib/libG4clhep.dylib 
 
-chroma-xercesc-incdir(){ echo $(xercesc-;xercesc-include-dir) ; }
+chroma-xercesc-incdir(){ xercesc- ; echo $(xercesc-include-dir) ; }
+chroma-xercesc-libdir(){ xercesc- ; echo $(dirname $(xercesc-library)) ; }
    
