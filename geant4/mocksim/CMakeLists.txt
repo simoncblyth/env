@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.6)  # 2.8
 find_package(Geant4 9.5.0 REQUIRED gdml)
 
 include_directories(${Geant4_INCLUDE_DIRS})       
