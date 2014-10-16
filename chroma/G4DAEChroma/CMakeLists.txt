@@ -28,8 +28,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 
 message( STATUS "ROOT_INCLUDE_DIR ${ROOT_INCLUDE_DIR}" )
 
-#add_definitions( "-DWITH_ZMQ" )
-add_definitions(${Geant4_DEFINITIONS})    
+add_definitions(${Geant4_DEFINITIONS} -DWITH_CHROMA_ZMQ )    
 
 file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc  )  
 add_library(${name} SHARED ${sources})

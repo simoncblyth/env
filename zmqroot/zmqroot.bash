@@ -150,19 +150,24 @@ zmqroot-nuwapkg-cpto-cmds(){
    local dict=$pkg/dict
      
    cat << EOC
-   cp include/ZMQRoot.hh    $inc/
-   cp include/MyTMessage.hh $inc/
-   cp include/MyTMessage_LinkDef.h $dict/
+   cp ZMQRoot/ZMQRoot.hh    $inc/
+   cp ZMQRoot/MyTMessage.hh $inc/
+   cp dict/MyTMessage_LinkDef.h $dict/
 
    cp src/ZMQRoot.cc        $src/
-   perl -pi -e 's,ZMQRoot.hh,ZMQRoot/ZMQRoot.hh,' $src/ZMQRoot.cc 
-   perl -pi -e 's,MyTMessage.hh,ZMQRoot/MyTMessage.hh,' $src/ZMQRoot.cc 
-
    cp src/MyTMessage.cc     $src/
-   perl -pi -e 's,MyTMessage.hh,ZMQRoot/MyTMessage.hh,' $src/MyTMessage.cc 
 EOC
 
 }
+
+zmqroot-old(){ cat << EOC
+   perl -pi -e 's,ZMQRoot.hh,ZMQRoot/ZMQRoot.hh,' $src/ZMQRoot.cc 
+   perl -pi -e 's,MyTMessage.hh,ZMQRoot/MyTMessage.hh,' $src/ZMQRoot.cc 
+   perl -pi -e 's,MyTMessage.hh,ZMQRoot/MyTMessage.hh,' $src/MyTMessage.cc 
+EOC
+}
+
+
 zmqroot-nuwapkg-cpto(){
    local iwd=$PWD 
    zmqroot-scd
@@ -179,9 +184,9 @@ zmqroot-nuwapkg-diff-cmds(){
    local pkn=$(basename $pkg)
    local sdir=$(zmqroot-sdir)
    cat << EOC
-diff $sdir/include/ZMQRoot.hh $pkg/$pkn/ZMQRoot.hh
-diff $sdir/include/MyTMessage.hh $pkg/$pkn/MyTMessage.hh
-diff $sdir/include/MyTMessage_LinkDef.h $pkg/dict/MyTMessage_LinkDef.h
+diff $sdir/ZMQRoot/ZMQRoot.hh $pkg/$pkn/ZMQRoot.hh
+diff $sdir/ZMQRoot/MyTMessage.hh $pkg/$pkn/MyTMessage.hh
+diff $sdir/dict/MyTMessage_LinkDef.h $pkg/dict/MyTMessage_LinkDef.h
 diff $sdir/src/ZMQRoot.cc $pkg/src/ZMQRoot.cc
 diff $sdir/src/MyTMessage.cc $pkg/src/MyTMessage.cc
 EOC

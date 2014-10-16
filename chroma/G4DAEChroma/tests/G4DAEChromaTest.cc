@@ -1,41 +1,35 @@
 #include <stdio.h>  
 #include <stdlib.h>    
 
-#include "G4GDMLParser.hh"
-#include "G4DAEChroma/G4DAEChroma.hh"
-#include "TFile.h"
-
 //#include "Chroma/ChromaPhotonList.hh"
 #include "ChromaPhotonList.hh"
-
+#include "G4DAEChroma/G4DAEGeometry.hh"
+#include "G4DAEChroma/G4DAEChroma.hh"
 
 int main(int argc, char** argv)
 {
-   const char* geokey = "DAE_NAME_DYB_GDML" ;
-   const char* geopath = getenv(geokey);
-   if(geopath == NULL ){
-      printf("geokey %s : missing : use \"export-;export-export\" to define  \n", geokey );
-      return 1;
-   }   
-   printf("geokey %s geopath %s \n", geokey, geopath ); 
+   const char* evtkey = "1" ;
+   const char* geokey = "DAE_NAME_DYB_GDML";
 
-
-   ChromaPhotonList* cpl = ChromaPhotonList::Load("1");
-   if(cpl){
-      cpl->Print();
+   ChromaPhotonList* cpl = ChromaPhotonList::Load(evtkey);
+   if(!cpl){
+       printf("failed to load photons with evtkey %s \n", evtkey);
+       return 1 ;
    }
+   //cpl->Print();
+
+   //G4DAEGeometry* geo = G4DAEGeometry::LoadFromGDML(geokey);
+   G4DAEGeometry* geo = NULL ;
+   if(!geo){
+       printf("failed to load geometry with geokey %s \n", geokey);
+       //return 1 ;
+   }
+   //geo->DumpTransformCache();
 
 
-  /*
-   G4GDMLParser fParser ; 
-   fParser.Read(geopath,false);
-   G4VPhysicalVolume* wpv = fParser.GetWorldVolume();       
-   G4DAEChroma::GetG4DAEChroma()->CreateTransformCache(wpv); 
-   G4DAEChroma::GetG4DAEChroma()->DumpTransformCache(); 
-  */
-   
-
-
+   G4DAEChroma* gdc = G4DAEChroma::GetG4DAEChroma();
+   gdc->SetGeometry(geo);
+   gdc->ProcessHit( cpl, 0 );
 
    return 0 ; 
 }

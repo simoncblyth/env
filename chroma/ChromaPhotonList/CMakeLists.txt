@@ -20,13 +20,16 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                    )
 
 ROOT_GENERATE_DICTIONARY( "ChromaPhotonListDict" 
-                          "${CMAKE_CURRENT_SOURCE_DIR}/ChromaPhotonList.hh" 
+                          "${CMAKE_CURRENT_SOURCE_DIR}/Chroma/ChromaPhotonList.hh" 
                           LINKDEF 
-                          "${CMAKE_CURRENT_SOURCE_DIR}/ChromaPhotonList_LinkDef.h" 
+                          "${CMAKE_CURRENT_SOURCE_DIR}/dict/ChromaPhotonList_LinkDef.h" 
                           OPTIONS -p )
 
-file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cc  )  
+file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc  )  
 list(APPEND sources ChromaPhotonListDict.cxx )
+
+
+# not easy to move header to subdir due to 
 
 add_library(${name} SHARED ${sources})
 
@@ -35,7 +38,7 @@ target_link_libraries( ${name}
                        ${ROOT_LIBRARIES}
                       )
 
-install(FILES "ChromaPhotonList.hh" DESTINATION include)
+install(FILES "Chroma/ChromaPhotonList.hh" DESTINATION include/Chroma)
 install(TARGETS ${name} LIBRARY DESTINATION lib)
 
 

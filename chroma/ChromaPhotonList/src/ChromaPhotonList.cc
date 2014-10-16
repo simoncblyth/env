@@ -1,4 +1,4 @@
-#include "ChromaPhotonList.hh"
+#include "Chroma/ChromaPhotonList.hh"
 #include "assert.h"
 #include <iostream>
 

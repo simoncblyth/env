@@ -194,17 +194,23 @@ cpl-nuwapkg-cpto-cmds(){
    local nam=$(basename $pkg)
    local inc=$pkg/$nam
    local src=$pkg/src
-   local dict=$pkg/dict
    cat << EOC
 
-cp ChromaPhotonList.hh    $inc/
-cp ChromaPhotonList.cc    $src/
-cp ChromaPhotonList_LinkDef.h $dict/
+cp Chroma/ChromaPhotonList.hh      $pkg/$nam
+cp dict/ChromaPhotonList_LinkDef.h $pkg/dict/
+cp src/ChromaPhotonList.cc         $pkg/src/
 
+EOC
+
+}
+
+
+cpl-old(){ cat << EOC
 perl -pi -e 's,ChromaPhotonList.hh,Chroma/ChromaPhotonList.hh,' $src/ChromaPhotonList.cc 
 
 EOC
 }
+
 cpl-nuwapkg-cpto(){
    local iwd=$PWD 
    local cmd
@@ -223,9 +229,9 @@ cpl-nuwapkg-diff-cmds(){
    local pkn=$(basename $pkg)
    local nam=ChromaPhotonList
    cat << EOC
-diff $(cpl-sdir)/$nam.hh $pkg/$pkn/$nam.hh
-diff $(cpl-sdir)/$nam.cc $pkg/src/$nam.cc
-diff $(cpl-sdir)/${nam}_LinkDef.h $pkg/dict/${nam}_LinkDef.h
+diff $(cpl-sdir)/Chroma/$nam.hh $pkg/$pkn/$nam.hh
+diff $(cpl-sdir)/src/$nam.cc $pkg/src/$nam.cc
+diff $(cpl-sdir)/dict/${nam}_LinkDef.h $pkg/dict/${nam}_LinkDef.h
 EOC
 }
 cpl-nuwapkg-diff(){

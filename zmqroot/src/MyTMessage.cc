@@ -1,4 +1,4 @@
-#include "MyTMessage.hh"
+#include "ZMQRoot/MyTMessage.hh"
 
 #include <stdlib.h>
 #include <assert.h>

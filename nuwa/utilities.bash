@@ -97,5 +97,24 @@ utilities-ls(){
 
 }
 
+utilities-precursor(){
+   case $name in 
+            G4DAEChroma) echo gdc- ;;
+      ChromaZMQRootTest) echo czrt- ;;
+                 Chroma) echo cpl- ;;
+                ZMQRoot) echo zmqroot- ;;
+   esac
+}
+
+utilities-nuwapkg-diff(){  utilities-nuwapkg-action diff ; }
+utilities-nuwapkg-action(){
+  local action=${1:-diff}
+  local name
+  utilities-names | while read name ; do
+     local precursor=$(utilities-precursor $name)
+     $precursor
+     ${precursor}nuwapkg-${action}
+  done
+}
 
 

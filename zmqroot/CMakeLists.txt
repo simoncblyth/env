@@ -21,7 +21,7 @@ project(${name})
 find_package(Root REQUIRED)
 find_package(ZMQ REQUIRED)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${ROOT_INCLUDE_DIR}
                     ${ZMQ_INCLUDE_DIR}
                    )
@@ -43,9 +43,9 @@ add_definitions( "-DWITH_ZMQ" )
 
 # Generates MyTMessageDict.cxx, MyTMessageDict.h into build dir CMAKE_CURRENT_BINARY_DIR  
 ROOT_GENERATE_DICTIONARY( "MyTMessageDict"  
-                          "${CMAKE_CURRENT_SOURCE_DIR}/include/MyTMessage.hh"      
+                          "${CMAKE_CURRENT_SOURCE_DIR}/ZMQRoot/MyTMessage.hh"      
                           LINKDEF 
-                          "${CMAKE_CURRENT_SOURCE_DIR}/include/MyTMessage_LinkDef.h"       
+                          "${CMAKE_CURRENT_SOURCE_DIR}/dict/MyTMessage_LinkDef.h"       
                           OPTIONS -p )
 
 
@@ -70,7 +70,7 @@ target_link_libraries( ${name}
                       )
 
 
-install(FILES "include/ZMQRoot.hh" DESTINATION include)
+install(FILES "ZMQRoot/ZMQRoot.hh" DESTINATION include/ZMQRoot)
 install(TARGETS ${name} LIBRARY DESTINATION lib)
 
 
@@ -91,8 +91,6 @@ target_link_libraries(zmqroot_test_worker
 
 install (TARGETS zmqroot_test_client DESTINATION bin)
 install (TARGETS zmqroot_test_worker DESTINATION bin)
-
-
 
 
 

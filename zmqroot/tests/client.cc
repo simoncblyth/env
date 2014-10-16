@@ -1,4 +1,4 @@
-#include "ZMQRoot.hh"
+#include "ZMQRoot/ZMQRoot.hh"
 #include "TNamed.h"
 
 int main() {

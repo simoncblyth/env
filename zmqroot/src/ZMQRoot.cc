@@ -1,7 +1,7 @@
-#include "ZMQRoot.hh"
+#include "ZMQRoot/ZMQRoot.hh"
+#include "ZMQRoot/MyTMessage.hh"
 
 #include "TMessage.h"
-#include "MyTMessage.hh"
 #include <assert.h>
 #include <stdlib.h>
 #include <iostream>

@@ -1,4 +1,5 @@
 #include "G4DAEChroma/G4DAEChroma.hh"
+#include "G4DAEChroma/G4DAEGeometry.hh"
 
 #ifdef WITH_CHROMA_ZMQ
 #include "Chroma/ChromaPhotonList.hh"
@@ -30,11 +31,12 @@ G4DAEChroma* G4DAEChroma::GetG4DAEChromaIfExists()
 
 
 
+
 G4DAEChroma::G4DAEChroma() :
     fZMQRoot(0),
     fPhotonList(0),
     fPhotonList2(0),
-    m_transform_cache_created(false)
+    fGeometry(0)
 { 
 #ifdef WITH_CHROMA_ZMQ
   fPhotonList = new ChromaPhotonList;   
@@ -49,6 +51,15 @@ G4DAEChroma::~G4DAEChroma()
    if(fPhotonList2) delete fPhotonList2 ; 
    if(fZMQRoot)     delete fZMQRoot ; 
 #endif
+}
+
+
+void G4DAEChroma::SetGeometry(G4DAEGeometry* geo){
+   fGeometry = geo ; 
+}
+
+G4DAEGeometry* G4DAEChroma::GetGeometry(){
+   return fGeometry ;
 }
 
 
@@ -107,11 +118,6 @@ void G4DAEChroma::Propagate(G4int batch_id)
 {
 #ifdef WITH_CHROMA_ZMQ
 
-  // defer creating transform cache, to ensure geometry in place
-  if(!m_transform_cache_created){
-       CreateTransformCache();
-       //DumpTransformCache();       
-  }  
 
   fPhotonList->SetUniqueID(batch_id);
   G4cout << "::Propagate fPhotonList " <<  G4endl ;   
@@ -129,7 +135,7 @@ void G4DAEChroma::Propagate(G4int batch_id)
       
       for( std::size_t index = 0 ; index < size ; index++ )
       {
-          ProcessHitsChroma( fPhotonList2,  index );
+          ProcessHit( fPhotonList2,  index );
       }   
 
   } 
@@ -142,203 +148,27 @@ void G4DAEChroma::Propagate(G4int batch_id)
 #endif
 }
 
-bool G4DAEChroma::ProcessHitsChroma( const ChromaPhotonList* cpl, std::size_t index )
+bool G4DAEChroma::ProcessHit( const ChromaPhotonList* cpl, std::size_t index )
 {
 #ifdef WITH_CHROMA_ZMQ
     Hit hit ; 
+
     cpl->GetPhoton( index, hit.gpos, hit.gdir, hit.gpol, hit.t, hit.wavelength, hit.pmtid );    
+
+    hit.hitindex = index ;
     hit.volumeindex = 0 ; //dummy
-    hit.LocalTransform(GetNodeTransform(hit.volumeindex));
+
+    G4AffineTransform identity ;
+    G4AffineTransform& trans = fGeometry ? fGeometry->GetNodeTransform(hit.volumeindex) : identity ;
+    hit.LocalTransform(trans);
+
+    hit.Print();
    
-    G4cout << " index " << index 
-           << " gpos "  << hit.gpos 
-           << " gdir "  << hit.gdir 
-           << " gpol "  << hit.gpol 
-           << " t "    << hit.t 
-           << " wavelength " << hit.wavelength 
-           << " pmtid " << hit.pmtid << G4endl ; 
-
- /*
-    DayaBay::SimPmtHit* sphit = new DayaBay::SimPmtHit();
-    sphit->setHitTime(t);    // Time since event created
-    sphit->setSensDetId(pmtid);
-    sphit->setLocalPos(lpos); 
-    sphit->setPol(lpol);
-    sphit->setDir(ldir);
-    sphit->setWavelength(wavelength);
-    sphit->setType(0);
-    sphit->setWeight(weight);
-    this->StoreHit(sphit,trackid);
-    G4cout << "Stored photon " << trackid << " weight " << weight << " pmtid " << (void*)pmtid << " wavelength(nm) " << wavelength/CLHEP::nm << G4endl;
-
-  */
+#else
+    printf("need to recompile -DWITH_CHROMA_ZMQ \n");
 #endif
     return true;
 }
-
-
-
-void G4DAEChroma::CreateTransformCache(G4VPhysicalVolume* wpv)
-{
-   if( wpv == NULL )
-   {
-       G4cout << "G4DAEChroma::CreateTransformCache trying to access world volume " << G4endl ; 
-       wpv = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
-   }
-
-   if(wpv == NULL){
-       G4cout << "G4DAEChroma::CreateTransformCache ABORT : failed to access WorldVolume " << G4endl ; 
-       return ;
-   } 
-
-   const G4LogicalVolume* lvol = wpv->GetLogicalVolume();
-
-   m_pvname.clear();
-   m_transform.clear();
-
-   // manual World entry, for indice alignment 
-   m_pvname.push_back(wpv->GetName());
-   m_transform.push_back(G4AffineTransform());
-
-   PVStack_t pvStack ;  // topmost volume not on stack
-   TraverseVolumeTree( lvol, pvStack );
-
-   size_t npv = m_pvname.size() ;
-   assert( npv == m_transform.size() );
-
-   m_transform_cache_created = true ; 
-   G4cout << "G4DAEChroma::CreateTransformCache found " << npv << " volumes " << G4endl ; 
-}
-
-
-void G4DAEChroma::DumpTransformCache()
-{
-
-   if(!m_transform_cache_created){
-      G4cout << "G4DAEChroma::DumpTransformCache SKIP : not created yet  " << G4endl ; 
-      return ; 
-   } 
-
-   size_t npv = m_pvname.size() ;
-   assert( npv == m_transform.size() );
-
-   for( size_t index=0; index < npv; ++index ){ 
-       G4AffineTransform& transform = m_transform[index];
-      
-       G4RotationMatrix rotation = transform.NetRotation();
-       G4ThreeVector rowX = rotation.rowX();
-       G4ThreeVector rowY = rotation.rowY();
-       G4ThreeVector rowZ = rotation.rowZ();
-
-       G4ThreeVector translation = transform.NetTranslation(); 
-
-       std::cout << index << " " 
-                 << translation << " "
-                 << rowX << rowY << rowZ << " "  
-                 << m_pvname[index] 
-                 << '\n' ;  
-   }
-}
-
-
-void G4DAEChroma::TraverseVolumeTree(const G4LogicalVolume* const volumePtr, PVStack_t pvStack)
-{
-    // Recursive traverse of all volumes, 
-    // performance is irrelevant as run only once 
-    //
-    // NB position of VisitPV invokation matches that used
-    // by G4DAE COLLADA exporter in order for volume order to match
-
-    VisitPV( pvStack );  
-
-    for (G4int i=0;i<volumePtr->GetNoDaughters();i++)   
-    {   
-        G4VPhysicalVolume* physvol = volumePtr->GetDaughter(i);
-
-        PVStack_t pvStackPlus(pvStack);     // copy ctor: each node of the recursion gets its own stack 
-        pvStackPlus.push_back(physvol);
-
-        TraverseVolumeTree(physvol->GetLogicalVolume(),pvStackPlus);
-    }   
-}
-
-void G4DAEChroma::VisitPV( const PVStack_t& pvStack )
-{
-    //std::cout << "VisitPV " << pvStack.size() << std::endl ; 
-    if(pvStack.size() == 0)
-    {
-        std::cout << "VisitPV skip empty stack " << std::endl ; 
-        return ; 
-    }
-
-    G4NavigationHistory navigationHistory ; 
-
-    size_t indexMax = pvStack.size() - 1;
-    for (size_t index = 0 ; index <= indexMax  ; ++index ){
-
-         G4VPhysicalVolume* pv = pvStack[index] ; 
-
-         /*
-         std::cout << std::setw(2) << index 
-                   << " " << pv 
-                   << " copyNo " << std::setw(5) << pv->GetCopyNo() 
-                   << " " << pv->GetName() 
-                   << std::endl  ;
-         */
-         EVolume volumeType = VolumeType(pv); 
-         assert( volumeType == kNormal );  // PMTs etc.. not being handled as replicas ?
-         navigationHistory.NewLevel( pv, volumeType );  
-    }
-
-    //std::cout << "NavigationHistory TopVolumeName " << navigationHistory.GetTopVolume()->GetName() << std::endl ;  
-
-    G4TouchableHistory touchableHistory(navigationHistory);
-    //std::cout << "TouchableHistory " << touchableHistory.GetHistoryDepth() << std::endl ;
-
-    std::string name = touchableHistory.GetVolume(0)->GetName();
-    const G4AffineTransform& transform = touchableHistory.GetHistory()->GetTopTransform();
-
-    m_pvname.push_back(name);
-    m_transform.push_back(transform);
-
-    //std::cout << "pv " << name << std::endl ;
-}
-
-
-EVolume G4DAEChroma::VolumeType(G4VPhysicalVolume* pv) const
-{
-  // from G4 future
-  EVolume type;
-  EAxis axis;
-  G4int nReplicas;
-  G4double width,offset;
-  G4bool consuming;
-  if ( pv->IsReplicated() )
-  {
-    pv->GetReplicationData(axis,nReplicas,width,offset,consuming);
-    type = (consuming) ? kReplica : kParameterised;
-  }
-  else
-  {
-    type = kNormal;
-  }
-  return type;
-}
-
-
-
-G4AffineTransform& G4DAEChroma::GetNodeTransform(std::size_t index)
-{
-   std::size_t idx = ( index < m_transform.size() ) ? index : 0 ;
-   return m_transform[idx] ;
-}
-
-std::string& G4DAEChroma::GetNodeName(std::size_t index)
-{
-   std::size_t idx = ( index < m_pvname.size() ) ? index : 0 ;  
-   return m_pvname[idx] ;
-}
-
 
 
 
