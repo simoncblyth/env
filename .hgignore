@@ -6,4 +6,5 @@ bin/realpath
 *.pyc
 *.doctree
 *.pickle
+*.swp
 *~
