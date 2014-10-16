@@ -137,7 +137,7 @@ class DAEDirectConfig(object):
         Using a path_template allows referencing paths in a
         very brief manner, ie with::
  
-            export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%(arg)s.root"
+            export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%s.root"
 
         Can use args `--load 1` 
 
@@ -148,7 +148,7 @@ class DAEDirectConfig(object):
             log.warn("path_template missing ")
             return path_
         log.debug("resolve_event_path path_template %s path_ %s " % (path_template, path_ ))  
-        path = path_template % { 'arg':path_ }
+        path = path_template % path_ 
 
         if subname is None:
             return path 

@@ -14,6 +14,11 @@ Objective
 
 Collective handling of the utilities
 
+* cmake build on D
+
+  * http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/html/ch03s02.html 
+
+
 Players
 --------
 
@@ -30,7 +35,8 @@ Players
    * http://dayabay.ihep.ac.cn/svn/dybsvn/dybgaudi/trunk/Utilities/ChromaZMQRootTest
    * env/chroma/ChromaZMQRootTest
    * depends on zmq, ZMQRoot, Chroma
-   * see *czrt-* 
+   * see *czrt-*
+   * *czrt-build-full* working in D 
 
 *Chroma* 
    (de)serialization class for photon transport over networks
@@ -40,31 +46,35 @@ Players
    * tricky rootcinting needed
    * depends on ROOT, Geant4 
    * see *cpl-* for cmake based build
+   * *cpl-build-full* working on D
 
 *ZMQRoot*
 
    * http://dayabay.ihep.ac.cn/svn/dybsvn/dybgaudi/trunk/Utilities/ZMQRoot
    * env/zmqroot
    * depends on zmq, ROOT
-   * see *zmqroot-* 
+   * see *zmqroot-*
+   * *zmqroot-build-full* working on D 
 
 
 
 
 EOU
 }
-utilities-dir(){ echo $(local-base)/env/nuwa/utilities ; }
+utilities-dir(){ echo $(local-base)/env/nuwa/Utilities ; }
 utilities-cd(){  cd $(utilities-dir); }
 utilities-mate(){ mate $(utilities-dir) ; } 
 utilities-get(){
    local dir=$(dirname $(utilities-dir)) &&  mkdir -p $dir && cd $dir
-
+   svn checkout http://dayabay.ihep.ac.cn/svn/dybsvn/dybgaudi/trunk/Utilities  
 }
-
 
 utilities-udir(){
    local name=${1:-G4DAEChroma}
-   echo $DYB/NuWa-trunk/dybgaudi/Utilities/$name
+   case $NODE_TAG in  
+      N) echo $DYB/NuWa-trunk/dybgaudi/Utilities/$name ;;
+      *) echo $(utilities-dir)/$name ;;
+   esac
 }
 
 utilities-names(){ cat << EON
@@ -74,6 +84,7 @@ Chroma
 ZMQRoot
 EON
 }
+
 
 utilities-ls(){
   local name

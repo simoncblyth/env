@@ -1475,3 +1475,4 @@ chromacpp-(){      . $(env-home)/chroma/chromacpp/chromacpp.bash && chromacpp-en
 xercesc-(){      . $(env-home)/xml/xercesc/xercesc.bash && xercesc-env $* ; }
 mocksim-(){      . $(env-home)/geant4/mocksim/mocksim.bash && mocksim-env $* ; }
 utilities-(){      . $(env-home)/nuwa/utilities.bash && utilities-env $* ; }
+gdc-(){      . $(env-home)/chroma/G4DAEChroma/gdc.bash && gdc-env $* ; }

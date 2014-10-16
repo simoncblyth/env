@@ -3,6 +3,56 @@
 #include <iostream>
 
 #include "TMD5.h"
+#include "TFile.h"
+
+/*
+ChromaPhotonList::Load
+========================
+
+Loads ChromaPhotonList objects from root files
+
+Usage::
+
+   ChromaPhotonList* cpl = ChromaPhotonList::Load();
+   ChromaPhotonList* cpl = ChromaPhotonList::Load("1","CPL","DAE_PATH_TEMPLATE");
+   ChromaPhotonList* cpl = ChromaPhotonList::Load("20140514-174932");
+
+The tmpl envvar is expected to have a single %s field which 
+is filled by the first *evt* argument eg  
+
+    DAE_PATH_TEMPLATE=/usr/local/env/tmp/%s.root
+
+The *key* argument is used for TFile loading 
+
+*/
+
+ChromaPhotonList* ChromaPhotonList::Load(const char* evt, const char* evtkey, const char* tmpl)
+{
+   const char* evtfmt  = getenv(tmpl);
+   if(evtfmt == NULL ){
+      printf("tmpl %s : missing : use \"export-;export-export\" to define  \n", tmpl );
+      return NULL;
+   }   
+
+   char evtpath[256];
+   if (sprintf(evtpath, evtfmt, evt ) < 0)
+   {   
+      printf("failed to format evtpath from evtfmt %s and evt %s \n", evtfmt, evt );  
+      return NULL ;
+   }   
+   printf("evtkey %s evtpath %s \n", evtkey, evtpath );  
+
+   TFile fevt( evtpath, "READ" );
+   if( fevt.IsZombie() ){
+       printf("failed to open evtpath %s \n", evtpath );
+       return NULL ; 
+   }   
+
+   TObject* obj = fevt.Get(evtkey);
+   ChromaPhotonList* cpl = (ChromaPhotonList*)obj ;
+   return cpl ; 
+}
+
 
 
 ChromaPhotonList::ChromaPhotonList() : TObject() {

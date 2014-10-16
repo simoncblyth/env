@@ -26,6 +26,9 @@
 class ChromaPhotonList : public TObject {
 
 public:
+  static ChromaPhotonList* Load(const char* evt="1", const char* key="CPL", const char* tmpl="DAE_PATH_TEMPLATE" );
+
+public:
   ChromaPhotonList();
   virtual ~ChromaPhotonList();
   void Print(Option_t* option = "") const ; 

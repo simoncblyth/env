@@ -215,7 +215,7 @@ export-export(){
    export DAE_NAME_LIN=$(export-name lingao)
    export DAE_NAME_LXE=$(export-name lxe)
    export DAE_NAME_JUNO=$(export-name juno)
-   export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%(arg)s.root"
+   export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%s.root"
 
 
    export DAE_GEOMETRY_DYB=$(export-geometry dyb)

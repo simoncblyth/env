@@ -132,23 +132,24 @@ zmqroot-otool(){
   otool-info $(zmqroot-lib)
 }
 
+zmqroot-nuwapkg(){
+  case $NODE_TAG in
+     N) echo $DYB/NuWa-trunk/dybgaudi/Utilities/ZMQRoot ;;
+     *) utilities- && echo $(utilities-dir)/ZMQRoot ;;
+  esac
+}
+zmqroot-nuwapkg-cd(){ cd $(zmqroot-nuwapkg)/$1 ; }
 
 
-
-
-zmqroot-nuwapkg(){    echo $DYB/NuWa-trunk/dybgaudi/Utilities/ZMQRoot ; }
-zmqroot-nuwapkg-cd(){ cd $(zmqroot-nuwapkg) ; }
-zmqroot-nuwapkg-cpto(){
+zmqroot-nuwapkg-cpto-cmds(){
 
    local pkg=$(zmqroot-nuwapkg) 
    local nam=$(basename $pkg)
    local inc=$pkg/$nam
    local src=$pkg/src
    local dict=$pkg/dict
-  
-   local iwd=$PWD 
-   zmqroot-scd
-
+     
+   cat << EOC
    cp include/ZMQRoot.hh    $inc/
    cp include/MyTMessage.hh $inc/
    cp include/MyTMessage_LinkDef.h $dict/
@@ -159,9 +160,37 @@ zmqroot-nuwapkg-cpto(){
 
    cp src/MyTMessage.cc     $src/
    perl -pi -e 's,MyTMessage.hh,ZMQRoot/MyTMessage.hh,' $src/MyTMessage.cc 
+EOC
 
-
+}
+zmqroot-nuwapkg-cpto(){
+   local iwd=$PWD 
+   zmqroot-scd
+   $FUNCNAME-cmds | while read cmd ; do 
+      echo $cmd
+      eval $cmd
+   done 
    cd $iwd
 }
 
+
+zmqroot-nuwapkg-diff-cmds(){
+   local pkg=$(zmqroot-nuwapkg)
+   local pkn=$(basename $pkg)
+   local sdir=$(zmqroot-sdir)
+   cat << EOC
+diff $sdir/include/ZMQRoot.hh $pkg/$pkn/ZMQRoot.hh
+diff $sdir/include/MyTMessage.hh $pkg/$pkn/MyTMessage.hh
+diff $sdir/include/MyTMessage_LinkDef.h $pkg/dict/MyTMessage_LinkDef.h
+diff $sdir/src/ZMQRoot.cc $pkg/src/ZMQRoot.cc
+diff $sdir/src/MyTMessage.cc $pkg/src/MyTMessage.cc
+EOC
+}
+zmqroot-nuwapkg-diff(){
+   local cmd 
+   $FUNCNAME-cmds | while read cmd ; do 
+      echo $cmd
+      eval $cmd
+   done 
+}
 

@@ -1,0 +1,1 @@
+../chroma/G4DAEChroma/tests/G4DAEChromaTest.sh

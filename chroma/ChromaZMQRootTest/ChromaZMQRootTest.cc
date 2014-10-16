@@ -28,7 +28,7 @@ int main (int argc, char *argv[])
 
    ChromaPhotonList* cpl2 = (ChromaPhotonList*)obj;
    cpl2->Print();
-   cpl2->Details();
+   cpl2->Details(true);
 
 
    return 0 ; 

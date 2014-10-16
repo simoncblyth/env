@@ -234,30 +234,49 @@ czrt-otool(){
    otool-info $(czrt-lib)
 }
 
-czrt-nuwapkg(){    echo $DYB/NuWa-trunk/dybgaudi/Utilities/$(czrt-name) ; }  
+czrt-nuwapkg(){
+  case $NODE_TAG in
+     N) echo $DYB/NuWa-trunk/dybgaudi/Utilities/$(czrt-name) ;;
+     *) utilities- && echo $(utilities-dir)/$(czrt-name)    ;;
+  esac
+} 
+
 czrt-nuwapkg-cd(){ cd $(czrt-nuwapkg)/$1 ; }
 czrt-nuwapkg-cpto(){
 
    local pkg=$(czrt-nuwapkg)   
    local nam=$(basename $pkg)
-   local inc=$pkg/$nam
-   local src=$pkg/src
-
-   mkdir -p $pkg
    mkdir -p $pkg/src
   
    local iwd=$PWD 
    czrt-scd
 
-   local main=ChromaZMQRootTest.cc
-   cp $main    $src/
-
-   perl -pi -e 's,ChromaPhotonList.hh,Chroma/ChromaPhotonList.hh,' $src/$main
-   perl -pi -e 's,ZMQRoot.hh,ZMQRoot/ZMQRoot.hh,'                  $src/$main
-
+   cp $nam.cc    $pkg/src/$nam.cc
+   perl -pi -e 's,ChromaPhotonList.hh,Chroma/ChromaPhotonList.hh,' $pkg/src/$nam.cc
+   perl -pi -e 's,ZMQRoot.hh,ZMQRoot/ZMQRoot.hh,'                  $pkg/src/$nam.cc
 
    cd $iwd
 }
+
+
+czrt-nuwapkg-diff-cmds(){
+   local pkg=$(czrt-nuwapkg)   
+   local nam=$(basename $pkg)
+   cat << EOC
+diff $nam.cc $pkg/src/$nam.cc
+EOC
+}
+czrt-nuwapkg-diff(){
+   local cmd
+   czrt-scd
+   $FUNCNAME-cmds | while read cmd ; do
+      echo $cmd
+      eval $cmd
+   done
+}
+
+
+
 
 czrt-nuwapkg-env(){
    local iwd=$PWD

@@ -11,7 +11,6 @@ CHROMAPHOTONLIST
    collect floats and int
 #. ROOT dependency more difficult, due to need for TObject serialization
 
-
 Usage
 ------
 
@@ -99,21 +98,28 @@ cpl-bcd(){  cd $(cpl-bdir); }
 cpl-verbose(){ echo 1 ; }
 cpl-prefix(){ echo $(cpl-dir) ; }
 
+
+
 cpl-geant4-home(){ 
   case $NODE_TAG in 
     D) echo /usr/local/env/chroma_env/src/geant4.9.5.p01 ;;
   esac
 }
-cpl-geant4-dir(){ 
+cpl-geant4-dir(){   # cmake -DGeant4_DIR=$(cpl-geant4-dir) 
   case $NODE_TAG in 
     D) echo /usr/local/env/chroma_env/lib/Geant4-9.5.1 ;;
   esac
 }
+
+
+
 cpl-rootsys(){
   case $NODE_TAG in 
     D) echo /usr/local/env/chroma_env/src/root-v5.34.14 ;;
   esac
 }
+
+
 
 cpl-lib(){ echo $(cpl-prefix)/lib/libChromaPhotonList.dylib ; }
 
@@ -156,13 +162,13 @@ cpl-make(){
    make $* VERBOSE=$(cpl-verbose) 
    cd $iwd
 }
-cpl-install(){
-   cpl-make install
-}
 cpl-build(){
    cpl-cmake
    cpl-make
-   cpl-install
+   cpl-make install
+}
+cpl-install(){
+   cpl-make install
 }
 cpl-build-full(){
    cpl-wipe
@@ -173,38 +179,61 @@ cpl-otool(){
    otool-info $(cpl-lib)
 }
 
-
-cpl-nuwapkg(){    echo $DYB/NuWa-trunk/dybgaudi/Utilities/Chroma ; }  
+cpl-nuwapkg(){    
+  case $NODE_TAG in 
+     N) echo $DYB/NuWa-trunk/dybgaudi/Utilities/Chroma ;;
+     *) utilities- && echo $(utilities-dir)/Chroma ;;
+  esac
+}
+  
 cpl-nuwapkg-cd(){ cd $(cpl-nuwapkg)/$1 ; }
-cpl-nuwapkg-cpto(){
 
+
+cpl-nuwapkg-cpto-cmds(){
    local pkg=$(cpl-nuwapkg)   
    local nam=$(basename $pkg)
    local inc=$pkg/$nam
    local src=$pkg/src
    local dict=$pkg/dict
-  
+   cat << EOC
+
+cp ChromaPhotonList.hh    $inc/
+cp ChromaPhotonList.cc    $src/
+cp ChromaPhotonList_LinkDef.h $dict/
+
+perl -pi -e 's,ChromaPhotonList.hh,Chroma/ChromaPhotonList.hh,' $src/ChromaPhotonList.cc 
+
+EOC
+}
+cpl-nuwapkg-cpto(){
    local iwd=$PWD 
+   local cmd
    cpl-scd
-
-   cp ChromaPhotonList.hh    $inc/
-   cp ChromaPhotonList.cc    $src/
-   cp ChromaPhotonList_LinkDef.h $dict/
-
-   perl -pi -e 's,ChromaPhotonList.hh,Chroma/ChromaPhotonList.hh,' $src/ChromaPhotonList.cc 
-
-
+   $FUNCNAME-cmds | while read cmd ; do 
+      echo $cmd
+      eval $cmd
+   done 
    cd $iwd
 }
 
-cpl-nuwapkg-diff(){
+
+
+cpl-nuwapkg-diff-cmds(){
    local pkg=$(cpl-nuwapkg)
    local pkn=$(basename $pkg)
    local nam=ChromaPhotonList
-
-   diff $(cpl-sdir)/$nam.hh $pkg/$pkn/$nam.hh
-   diff $(cpl-sdir)/$nam.cc $pkg/src/$nam.cc
-   diff $(cpl-sdir)/${nam}_LinkDef.h $pkg/dict/${nam}_LinkDef.h
+   cat << EOC
+diff $(cpl-sdir)/$nam.hh $pkg/$pkn/$nam.hh
+diff $(cpl-sdir)/$nam.cc $pkg/src/$nam.cc
+diff $(cpl-sdir)/${nam}_LinkDef.h $pkg/dict/${nam}_LinkDef.h
+EOC
+}
+cpl-nuwapkg-diff(){
+   local cmd
+   $FUNCNAME-cmds | while read cmd ; do 
+      echo $cmd
+      eval $cmd
+   done 
 }
 
 cpl-nuwapkg-make(){
