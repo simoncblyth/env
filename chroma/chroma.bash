@@ -933,6 +933,7 @@ chroma-geant4-scd(){ cd $(chroma-geant4-sdir) ; }
 
 chroma-geant4-export(){
    export CHROMA_GEANT4_SDIR=$(chroma-geant4-sdir)
+   export GEANT4_HOME=$(chroma-geant4-sdir)
    #env | grep CHROMA_GEANT4
 }
 
@@ -952,4 +953,11 @@ chroma-clhep-libdir(){ echo $(chroma-g4-libdir) ; }   ## incorporated with G4? /
 
 chroma-xercesc-incdir(){ xercesc- ; echo $(xercesc-include-dir) ; }
 chroma-xercesc-libdir(){ xercesc- ; echo $(dirname $(xercesc-library)) ; }
-   
+  
+
+chroma-root-prefix(){ echo $(chroma-dir)/src/root-v5.34.11 ; }
+chroma-root-incdir(){ echo $(chroma-root-prefix)/include ; }
+chroma-root-libdir(){ echo $(chroma-root-prefix)/lib ; }
+
+
+ 

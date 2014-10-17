@@ -1476,3 +1476,5 @@ xercesc-(){      . $(env-home)/xml/xercesc/xercesc.bash && xercesc-env $* ; }
 mocksim-(){      . $(env-home)/geant4/mocksim/mocksim.bash && mocksim-env $* ; }
 utilities-(){      . $(env-home)/nuwa/utilities.bash && utilities-env $* ; }
 gdc-(){      . $(env-home)/chroma/G4DAEChroma/gdc.bash && gdc-env $* ; }
+datamodel-(){      . $(env-home)/nuwa/DataModel/datamodel.bash && datamodel-env $* ; }
+datamodeltest-(){      . $(env-home)/nuwa/DataModelTest/datamodeltest.bash && datamodeltest-env $* ; }
