@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
+#
+#
+#
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
-                      "$ENV{GEANT4_HOME}/cmake/Modules"   # for FindROOT.cmake
                       "$ENV{ENV_HOME}/cmake/Modules"
+                      "$ENV{GEANT4_HOME}/cmake/Modules"   # for FindROOT.cmake
           ) 
 
 set(name G4DAEChroma)

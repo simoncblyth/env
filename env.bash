@@ -1478,3 +1478,6 @@ utilities-(){      . $(env-home)/nuwa/utilities.bash && utilities-env $* ; }
 gdc-(){      . $(env-home)/chroma/G4DAEChroma/gdc.bash && gdc-env $* ; }
 datamodel-(){      . $(env-home)/nuwa/DataModel/datamodel.bash && datamodel-env $* ; }
 datamodeltest-(){      . $(env-home)/nuwa/DataModelTest/datamodeltest.bash && datamodeltest-env $* ; }
+rootsys-(){      . $(env-home)/root/rootsys.bash && rootsys-env $* ; }
+geant4sys-(){      . $(env-home)/geant4/geant4sys.bash && geant4sys-env $* ; }
+mocknuwa-(){      . $(env-home)/nuwa/MockNuWa/mocknuwa.bash && mocknuwa-env $* ; }

@@ -2,20 +2,63 @@
 datamodel-src(){      echo nuwa/DataModel/datamodel.bash ; }
 datamodel-source(){   echo ${BASH_SOURCE:-$(env-home)/$(datamodel-src)} ; }
 datamodel-vi(){       vi $(datamodel-source) ; }
-datamodel-env(){      elocal- ; chroma- ; }
+datamodel-env(){      
+       elocal- 
+       rootsys-     # ROOTSYS
+       geant4sys-   # GEANT4_HOME
+}
 datamodel-usage(){ cat << EOU
 
 NuWa DataModel Extracts
 ========================
 
-Attempt to extract and compile a primitive 
-subset of NuWa DataModel (GOD derived) to allow standalone tests. 
+Extracts subset of NuWa DataModel to allow external testing
+with minimal dependencies: ROOT, CLHEP. 
+
+Usage of NuWa DataModel library
+--------------------------------
+
+See example *datamodeltest-*
+
+
+Build
+------
+
+::
+
+    datamodel-;datamodel-build-full
+
+
+Build Structure
+----------------
+
+Note that DataModel sources are not housed in env
+rather this collects sources them and builds
+them into a library using cmake.
 
 
 Build Issues
 -------------
 
-* commented stream for ../SimEvent/src/SimVertex.cc
+Commented stream for ../SimEvent/src/SimVertex.cc to avoid::
+
+    Linking CXX shared library libDataModel.dylib
+    Undefined symbols for architecture x86_64:
+      "ROOT::Math::GenVector_detail::BitReproducible::Dto2longs(double, unsigned int&, unsigned int&)", referenced from:
+          ROOT::Math::GenVector_detail::BitReproducible::Output(std::__1::basic_ostream<char, std::__1::char_traits<char> >&, double) in SimVertex.cc.o
+    ld: symbol(s) not found for architecture x86_64
+    clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+
+RPATH Debug
+------------
+
+RPATH inside the library::
+
+    (chroma_env)delta:DataModel blyth$ otool-;otool-rpath /usr/local/env/nuwa/lib/libDataModel.dylib | grep path
+             path /usr/local/env/chroma_env/src/root-v5.34.14/lib (offset 12)
+             path /usr/local/env/nuwa/lib (offset 12)
 
 
 FUNCTIONS
@@ -24,14 +67,17 @@ FUNCTIONS
 *datamodel-get*
       copy DataModel sources and modify for limited dependency operation  
 
+*datamodel-build-full*
+      wipe, configure with cmake,  make, install 
+
 *datamodel-test-all*
-      test compile each SimEvent/Event header in a generated cpp
+      manual test compilation for each SimEvent/Event header in a generated cpp
 
 
 EOU
 }
 datamodel-prefix(){ echo $(local-base)/env/nuwa ; }
-datamodel-dir(){ echo $(local-base)/env/nuwa/DataModel ; }
+datamodel-dir(){ echo $(local-base)/env/nuwa/src/DataModel ; }
 datamodel-sdir(){ echo $(env-home)/nuwa/DataModel ; }
 datamodel-tmpdir(){ echo /tmp/env/nuwa/DataModel ; }
 
@@ -54,6 +100,7 @@ datamodel-get(){
    $FUNCNAME-unboost
    $FUNCNAME-unhepmc
    $FUNCNAME-addvector
+   $FUNCNAME-wingodnoalloc
 }
 
 datamodel-get-prep(){
@@ -90,7 +137,6 @@ datamodel-get-basis(){
 }
 
 
-
 datamodel-get-gaudikernel-rels(){ cat << EOR
 GaudiKernel/Point3DTypes.h 
 GaudiKernel/Vector3DTypes.h 
@@ -112,30 +158,6 @@ GaudiKernel/IInspector.h
 GaudiKernel/IInterface.h
 EOR
 } 
-
-
-datamodel-get-gaudikernel(){
-   local iwd=$PWD
-   datamodel-cd
-   local gkdir=$(datamodel-dybdir)/NuWa-trunk/gaudi/GaudiKernel
-   local node=$(datamodel-node)
-   local rel
-   $FUNCNAME-rels | while read rel ; do 
-       local urel=GaudiKernel/$rel
-       echo $urel 
-       if [ ! -f "$urel" ]; then  
-           mkdir -p $(dirname $urel)
-           local cmd="scp ${node}:$gkdir/$rel $urel"
-           echo $cmd
-           eval $cmd        
-       else
-           echo already have $urel
-       fi  
-    done
-    cd $iwd
-}
-
-
 datamodel-get-dybkernel-rels(){ cat << EOR
 DybKernel/IRegistrationSequence.h
 src/IRegistrationSequence.cc
@@ -143,19 +165,33 @@ DybKernel/ObjectReg.h
 src/ObjectReg.cc
 EOR
 } 
+datamodel-get-helpers-rels(){ cat << EOR
+G4DataHelpers/G4DhHit.h
+G4DataHelpers/G4DhHitCollector.h
+src/lib/G4DhHit.cc
+src/lib/G4DhHitCollector.cc
+EOR
+}
+datamodel-get-gaudikernel(){ datamodel-get-source $FUNCNAME NuWa-trunk/gaudi/GaudiKernel ; }
+datamodel-get-dybkernel(){   datamodel-get-source $FUNCNAME NuWa-trunk/dybgaudi/DybKernel ; }
+datamodel-get-helpers(){     datamodel-get-source $FUNCNAME NuWa-trunk/dybgaudi/Simulation/G4DataHelpers ; }
 
-datamodel-get-dybkernel(){
+datamodel-get-source(){
    local iwd=$PWD
    datamodel-cd
-   local dkdir=$(datamodel-dybdir)/NuWa-trunk/dybgaudi/DybKernel
+
+   local caller=$1
+   local path=$2
+
+   local name=$(basename $path)
+   local dir=$(datamodel-dybdir)/$path
    local node=$(datamodel-node)
    local rel
-   $FUNCNAME-rels | while read rel ; do 
-       local urel=DybKernel/$rel
-       echo $urel 
+   $caller-rels $name | while read rel ; do 
+       local urel=$name/$rel
        if [ ! -f "$urel" ]; then  
            mkdir -p $(dirname $urel)
-           local cmd="scp ${node}:$dkdir/$rel $urel"
+           local cmd="scp ${node}:$dir/$rel $urel"
            echo $cmd
            eval $cmd        
        else
@@ -166,7 +202,7 @@ datamodel-get-dybkernel(){
 }
 
 
-
+############## inplace fixes
 
 datamodel-get-unboost(){
    datamodel-cd
@@ -203,6 +239,9 @@ datamodel-get-wingodnoalloc(){
 
 
 
+############## testing
+
+
 datamodel-test-all(){
   datamodel-cd
   local path
@@ -221,13 +260,15 @@ datamodel-test-(){ cat << EOT
 EOT
 }
 
+
+
+####### manual testing useful prior to getting deep into cmake
+
 datamodel-test(){
 
    local iwd=$PWD
    local name=${1:-SimHit}
    local tmpd=$(datamodel-tmpdir)
-
-
 
    mkdir -p $tmpd
    cd $tmpd
@@ -238,12 +279,12 @@ datamodel-test(){
    cd $iwd 
 }
 
-
-
 datamodel-compile(){
    local cpp=$1
    shift 
    local dmd=$(datamodel-dir)
+
+   chroma-
 
    local cmd="clang $* -I$dmd/Context -I$dmd/BaseEvent -I$dmd/Conventions -I$dmd/SimEvent -I$dmd/GaudiKernel -I$(chroma-root-incdir) -I$clhep -DGOD_NOALLOC $cpp "
    echo $cmd PWD $PWD
@@ -270,15 +311,23 @@ datamodel-link(){
 }
 
 
- 
+
+
+
+# cmake config/make/install  NB 3 directories for src, build and install
+
 datamodel-cmake(){
+   local iwd=$PWD
    mkdir -p $(datamodel-tmpdir)
    datamodel-tcd
    cmake $(datamodel-sdir) -DCMAKE_INSTALL_PREFIX=$(datamodel-prefix)
+   cd $iwd
 }
 datamodel-make(){
+   local iwd=$PWD
    datamodel-tcd
    make $*
+   cd $iwd
 }
 datamodel-install(){
    datamodel-make install
@@ -287,5 +336,12 @@ datamodel-build(){
    datamodel-cmake
    datamodel-make
    datamodel-install
+}
+datamodel-wipe(){
+   rm -rf $(datamodel-tmpdir)
+}
+datamodel-build-full(){
+   datamodel-wipe
+   datamodel-build
 }
 

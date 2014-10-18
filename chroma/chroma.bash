@@ -933,7 +933,7 @@ chroma-geant4-scd(){ cd $(chroma-geant4-sdir) ; }
 
 chroma-geant4-export(){
    export CHROMA_GEANT4_SDIR=$(chroma-geant4-sdir)
-   export GEANT4_HOME=$(chroma-geant4-sdir)
+   export GEANT4_HOME=$(chroma-geant4-sdir) # needed by several CMakeLists.txt   see geant4sys-
    #env | grep CHROMA_GEANT4
 }
 
