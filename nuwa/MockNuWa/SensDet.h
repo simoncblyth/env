@@ -6,6 +6,11 @@
 
 #include <map>
 
+namespace DayaBay {
+    class SimPmtHit;
+}
+
+
 class SensDet : public G4VSensitiveDetector {
 
 public:
@@ -18,6 +23,8 @@ public:
     virtual bool ProcessHits(G4Step* step,
                              G4TouchableHistory* history);
 
+private:
+    void StoreHit(DayaBay::SimPmtHit* hit, int trackid);
 
 private:
     typedef std::map<short int,G4DhHitCollection*> LocalHitCache;

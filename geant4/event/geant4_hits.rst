@@ -2,21 +2,12 @@ Geant4 Hits
 ============
 
 
-
-
 ::
 
     [blyth@belle7 src]$ svn cp ../../DetSim/src/DsPmtSensDet.cc DsChromaPmtSensDet.cc 
     A         DsChromaPmtSensDet.cc
     [blyth@belle7 src]$ svn cp ../../DetSim/src/DsPmtSensDet.h DsChromaPmtSensDet.h 
     A         DsChromaPmtSensDet.h
-
-
-
-
-
-
-
 
 
 
