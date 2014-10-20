@@ -153,7 +153,7 @@ bool G4DAEChroma::ProcessHit( const ChromaPhotonList* cpl, std::size_t index )
 #ifdef WITH_CHROMA_ZMQ
     Hit hit ; 
 
-    cpl->GetPhoton( index, hit.gpos, hit.gdir, hit.gpol, hit.t, hit.wavelength, hit.pmtid );    
+    //cpl->GetPhoton( index, hit.gpos, hit.gdir, hit.gpol, hit.t, hit.wavelength, hit.pmtid );    
 
     hit.hitindex = index ;
     hit.volumeindex = 0 ; //dummy

@@ -28,8 +28,11 @@ int main()
    // the above is done by GiGa/DetDesc 
 
 
+   // hmm writing to GDML looses associated SD it seems , so for real
+
    // need to register the Trojan SD at initialization time,  GiGa hook ?
    // Trojan Horse SD to gain access to HCE via Initialize 
+   // 2nd parameter target must match the name of an existing SD 
    G4SDManager::GetSDMpointer()->AddNewDetector(new TrojanSensDet("Trojan_DsPmtSensDet", "DsPmtSensDet"));  
    G4SDManager::GetSDMpointer()->ListTree();
 

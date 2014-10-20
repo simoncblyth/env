@@ -9,6 +9,8 @@
 
 #include <stdlib.h>    
 
+using namespace std ; 
+
 
 G4DAEGeometry::G4DAEGeometry() :
     m_transform_cache_created(false)
@@ -102,7 +104,7 @@ void G4DAEGeometry::DumpTransformCache()
 
        G4ThreeVector translation = transform.NetTranslation(); 
 
-       std::cout << index << " " 
+       cout << index << " " 
                  << translation << " "
                  << rowX << rowY << rowZ << " "  
                  << m_pvname[index] 
@@ -120,6 +122,13 @@ void G4DAEGeometry::TraverseVolumeTree(const G4LogicalVolume* const volumePtr, P
     // by G4DAE COLLADA exporter in order for volume order to match
 
     VisitPV( pvStack );  
+
+    G4VSensitiveDetector* sd = volumePtr->GetSensitiveDetector();
+    // SD assignments do not survive GDML-ization  
+    if( sd ){
+       cout << "SD " << volumePtr->GetName() << endl ; 
+    }
+
 
     for (G4int i=0;i<volumePtr->GetNoDaughters();i++)   
     {   

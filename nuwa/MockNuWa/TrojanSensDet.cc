@@ -16,12 +16,23 @@ using namespace std;
 TrojanSensDet::TrojanSensDet(const std::string& name,  const std::string& target) : G4VSensitiveDetector(name), m_target(target)
 {
    cout << "TrojanSensDet::TrojanSensDet name " << name << " GetName() " << GetName() << "target " <<  GetTargetName() << endl ;
+   CheckTarget();
 }
 
 TrojanSensDet::~TrojanSensDet()
 {
 }
 
+
+void TrojanSensDet::CheckTarget()
+{
+  G4VSensitiveDetector* tgt = GetTarget();
+   if( tgt == NULL ){
+      cout << "TrojanSensDet::TrojanSensDet WARNING target SD " << GetTargetName() << " not found " << endl ; 
+   } else {
+      cout <<  "TrojanSensDet::TrojanSensDet found target " <<  tgt << " name " << tgt->GetName() << endl ; 
+   }
+}  
 
 
 void TrojanSensDet::Initialize( G4HCofThisEvent* hce )
@@ -46,6 +57,11 @@ void TrojanSensDet::EndOfEvent( G4HCofThisEvent* hce )
 std::string TrojanSensDet::GetTargetName(){
     return m_target ; 
 }
+G4VSensitiveDetector* TrojanSensDet::GetTarget()
+{
+    return G4SDManager::GetSDMpointer()->FindSensitiveDetector(GetTargetName());
+}
+
 
 
 
