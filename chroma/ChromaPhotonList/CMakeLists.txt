@@ -28,6 +28,12 @@ ROOT_GENERATE_DICTIONARY( "ChromaPhotonListDict"
 file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc  )  
 list(APPEND sources ChromaPhotonListDict.cxx )
 
+add_definitions(
+                   ${Geant4_DEFINITIONS} 
+                  -DCPL_WITH_GEANT4  
+                )    
+
+
 
 # not easy to move header to subdir due to 
 

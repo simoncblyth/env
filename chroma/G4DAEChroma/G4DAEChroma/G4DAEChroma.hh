@@ -11,64 +11,37 @@
 class ZMQRoot ; 
 class ChromaPhotonList ;
 class G4DAEGeometry ;
- 
+class G4DAETrojanSensDet ;
+
 class G4DAEChroma 
 {
-public:
-    struct Hit {
-        // global
-        G4ThreeVector gpos ;
-        G4ThreeVector gdir ;
-        G4ThreeVector gpol ;
-
-       // local : maybe just keep local, inplace transform ?
-        G4ThreeVector lpos ;
-        G4ThreeVector ldir ;
-        G4ThreeVector lpol ;
-
-        float t ;
-        float wavelength ;
-        int   hitindex ; 
-        int   pmtid ;
-        int   volumeindex ;
-
-        void LocalTransform(G4AffineTransform& trans)
-        { 
-            lpos = trans.TransformPoint(gpos);
-            lpol = trans.TransformAxis(gpol);
-            lpol = lpol.unit();
-            ldir = trans.TransformAxis(gdir);
-            ldir = ldir.unit();
-        }
-        void Print(){
-              G4cout 
-                     << " hitindex " << hitindex 
-                     << " volumeindex " << volumeindex 
-                     << " pmtid "       << pmtid 
-                     << " t "     << t 
-                     << " wavelength " << wavelength 
-                     << " gpos "  << gpos 
-                     << " gdir "  << gdir 
-                     << " gpol "  << gpol 
-                     << G4endl ; 
-         }
-    }; 
-
 public:
     static G4DAEChroma* GetG4DAEChroma();
     static G4DAEChroma* GetG4DAEChromaIfExists();
 protected:
-    G4DAEChroma();
+    G4DAEChroma(const char* envvar="G4DAECHROMA_CLIENT_CONFIG");
 public:
     virtual ~G4DAEChroma();
 
     void SetGeometry(G4DAEGeometry* geo);
     G4DAEGeometry* GetGeometry();
 
+    // **RegisterTrojanSD**
+    //
+    //     creates parasitic SD, re-registering with the same target does nothing  
+    //     internally allows adding hits to hitcollections of target SD, 
+    //     eg canonically DsPmtSensDet
+    //
+    //
+    void RegisterTrojanSD(const std::string& target);
+
     void ClearAll();
     void CollectPhoton(const G4Track* aPhoton );
-    void Propagate(G4int batch_id);
-    bool ProcessHit( const ChromaPhotonList* cpl, std::size_t index );
+    void Propagate(G4int batch_id, const std::string& target);
+
+    G4DAETrojanSensDet* GetTrojanSD(const std::string& target);
+//private:
+//    G4DAETrojanSensDet* GetTrojanSD(const std::string& target);
  
 private:
   // Singleton instance

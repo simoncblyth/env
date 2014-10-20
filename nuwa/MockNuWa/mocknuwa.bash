@@ -64,8 +64,10 @@ mocknuwa-wipe(){
    rm -rf $(mocknuwa-tdir)
 }
 mocknuwa-build-full(){
+   local iwd=$PWD
    mocknuwa-wipe
    mocknuwa-build
+   cd $iwd
 }
 
 mocknuwa-build-and-run(){

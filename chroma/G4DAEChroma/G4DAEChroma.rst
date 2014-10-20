@@ -40,18 +40,6 @@ Initialize in RunAction?
 ::
 
    // 2nd parameter target must match the name of an existing SD 
-   G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-   string target = "DsPmtSensDet" ;
-   string name = "Trojan_" + target ;
-
-   G4VSensitiveDetector* tsd = SDman->FindSensitiveDetector(name, true);
-   if( !tsd ){
-       SDMan->AddNewDetector(new TrojanSensDet(name, target));  
-       SDMan->ListTree();
-   } else {
-       cout << "already registered " << name << endl ;
-   }
-
 
 Normally `AddNewDetector` is done at G4 ConstructDetector 
 initialization stage but seems no GiGa hooks back then. 
@@ -188,6 +176,54 @@ Detector Specific Code
 * how to handle hits interfacing to detector specific code
 
 * arrange det specifics together and use preprocessor macros
+
+
+
+No point duplicating hit
+--------------------------
+
+::
+
+    struct Hit {
+        // global
+        G4ThreeVector gpos ;
+        G4ThreeVector gdir ;
+        G4ThreeVector gpol ;
+
+       // local : maybe just keep local, inplace transform ?
+        G4ThreeVector lpos ;
+        G4ThreeVector ldir ;
+        G4ThreeVector lpol ;
+
+        float t ;
+        float wavelength ;
+        int   hitindex ; 
+        int   pmtid ;
+        int   volumeindex ;
+
+        void LocalTransform(G4AffineTransform& trans)
+        { 
+            lpos = trans.TransformPoint(gpos);
+            lpol = trans.TransformAxis(gpol);
+            lpol = lpol.unit();
+            ldir = trans.TransformAxis(gdir);
+            ldir = ldir.unit();
+        }
+        void Print(){
+              G4cout 
+                     << " hitindex " << hitindex 
+                     << " volumeindex " << volumeindex 
+                     << " pmtid "       << pmtid 
+                     << " t "     << t 
+                     << " wavelength " << wavelength 
+                     << " gpos "  << gpos 
+                     << " gdir "  << gdir 
+                     << " gpol "  << gpol 
+                     << G4endl ; 
+         }
+    }; 
+
+
 
 
 

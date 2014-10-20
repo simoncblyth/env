@@ -1,5 +1,6 @@
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAEGeometry.hh"
+#include "G4DAEChroma/G4DAETrojanSensDet.hh"
 
 #ifdef WITH_CHROMA_ZMQ
 #include "Chroma/ChromaPhotonList.hh"
@@ -12,6 +13,9 @@
 #include "G4NavigationHistory.hh"
 #include "G4TouchableHistory.hh"
 
+#include "G4SDManager.hh"
+
+using namespace std ; 
 
 G4DAEChroma* G4DAEChroma::fG4DAEChroma = 0;
 
@@ -30,9 +34,7 @@ G4DAEChroma* G4DAEChroma::GetG4DAEChromaIfExists()
 }
 
 
-
-
-G4DAEChroma::G4DAEChroma() :
+G4DAEChroma::G4DAEChroma(const char* envvar) :
     fZMQRoot(0),
     fPhotonList(0),
     fPhotonList2(0),
@@ -40,7 +42,8 @@ G4DAEChroma::G4DAEChroma() :
 { 
 #ifdef WITH_CHROMA_ZMQ
   fPhotonList = new ChromaPhotonList;   
-  fZMQRoot = new ZMQRoot("CSA_CLIENT_CONFIG");  //TODO: pass along this config from upper ctor ? change default G4DAECHROMA_CLIENT_CONFIG
+  fZMQRoot = new ZMQRoot(envvar);  
+  //TODO: pass along this config from upper ctor ? change default G4DAECHROMA_CLIENT_CONFIG
 #endif
 }
 
@@ -62,6 +65,37 @@ G4DAEGeometry* G4DAEChroma::GetGeometry(){
    return fGeometry ;
 }
 
+//
+// create parasitic SD for adding hits to hitcollections of target SD, eg DsPmtSensDet
+// need to register the Trojan SD at initialization time
+// to gain access to HCE via Initialize 
+// target parameter must match the name of an existing SD 
+//
+
+void G4DAEChroma::RegisterTrojanSD(const std::string& target)
+{
+    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+    string name = "Trojan_" + target ;
+
+    G4VSensitiveDetector* tsd = SDMan->FindSensitiveDetector(name, true);
+    if( !tsd ){
+        cout << "G4DAEChroma::RegisterTrojanSD AddNewDetector " << name << endl ;
+
+        G4DAETrojanSensDet* tsd = new G4DAETrojanSensDet(name, target);
+        tsd->SetGeometry(fGeometry);
+        SDMan->AddNewDetector(tsd);
+        SDMan->ListTree();
+    } else {
+       cout << "G4DAEChroma::RegisterTrojanSD SD named " << name << " exists already " << endl ;
+    }
+}
+
+G4DAETrojanSensDet* G4DAEChroma::GetTrojanSD(const std::string& target)
+{
+    string name = "Trojan_" + target ;
+    return (G4DAETrojanSensDet*)G4SDManager::GetSDMpointer()->FindSensitiveDetector(name, true);
+}
+
 
 void G4DAEChroma::ClearAll()
 {
@@ -79,6 +113,8 @@ void G4DAEChroma::ClearAll()
 
 void G4DAEChroma::CollectPhoton(const G4Track* aPhoton )
 {
+   // defer this detail into CPL ?
+
 #ifdef WITH_CHROMA_ZMQ
    G4ParticleDefinition* pd = aPhoton->GetDefinition();
    assert( pd->GetParticleName() == "opticalphoton" );
@@ -114,11 +150,10 @@ void G4DAEChroma::CollectPhoton(const G4Track* aPhoton )
 #endif
 }
 
-void G4DAEChroma::Propagate(G4int batch_id)
+void G4DAEChroma::Propagate(G4int batch_id, const std::string& target)
 {
 #ifdef WITH_CHROMA_ZMQ
-
-
+  G4DAETrojanSensDet* TSD = GetTrojanSD(target);
   fPhotonList->SetUniqueID(batch_id);
   G4cout << "::Propagate fPhotonList " <<  G4endl ;   
   fPhotonList->Print(); 
@@ -126,49 +161,22 @@ void G4DAEChroma::Propagate(G4int batch_id)
 
   if(size > 0)
   {
-      G4cout << "::SendObject " <<  G4endl ;   
+      cout << "::SendObject " <<  endl ;   
       fZMQRoot->SendObject(fPhotonList);
-      G4cout << "::ReceiveObject, waiting... " <<  G4endl;   
+      cout << "::ReceiveObject, waiting... " <<  endl;   
       fPhotonList2 = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
-      G4cout << "::fPhotonList2 " <<  G4endl ;   
-      fPhotonList2->Print();
-      
-      for( std::size_t index = 0 ; index < size ; index++ )
-      {
-          ProcessHit( fPhotonList2,  index );
-      }   
-
+      TSD->CollectHits( fPhotonList2 );
   } 
   else 
   { 
-      G4cout << "::Propagate Skip send/recv for empty CPL " <<  G4endl;   
+      cout << "::Propagate Skip send/recv for empty CPL " <<  endl;   
   }
 #else
-      G4cout << "::Propagate : NEED TO RECOMPILE USING : -DWITH_CHROMA_ZMQ  " <<  G4endl;   
+      cout << "::Propagate : NEED TO RECOMPILE USING : -DWITH_CHROMA_ZMQ  " <<  endl;   
 #endif
 }
 
-bool G4DAEChroma::ProcessHit( const ChromaPhotonList* cpl, std::size_t index )
-{
-#ifdef WITH_CHROMA_ZMQ
-    Hit hit ; 
 
-    //cpl->GetPhoton( index, hit.gpos, hit.gdir, hit.gpol, hit.t, hit.wavelength, hit.pmtid );    
-
-    hit.hitindex = index ;
-    hit.volumeindex = 0 ; //dummy
-
-    G4AffineTransform identity ;
-    G4AffineTransform& trans = fGeometry ? fGeometry->GetNodeTransform(hit.volumeindex) : identity ;
-    hit.LocalTransform(trans);
-
-    hit.Print();
-   
-#else
-    printf("need to recompile -DWITH_CHROMA_ZMQ \n");
-#endif
-    return true;
-}
 
 
 

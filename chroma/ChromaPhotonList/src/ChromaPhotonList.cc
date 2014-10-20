@@ -102,7 +102,7 @@ std::string ChromaPhotonList::GetDigest() const
 
 
 
-#ifdef WITH_GEANT4
+#ifdef CPL_WITH_GEANT4
 void ChromaPhotonList::AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid) 
 {
     x.push_back(pos.x());
@@ -192,7 +192,7 @@ void ChromaPhotonList::Details(bool hit) const
     int _pmtid ;
     size_t index ; 
 
-#ifdef WITH_GEANT4
+#ifdef CPL_WITH_GEANT4
     G4ThreeVector pos ;
     G4ThreeVector mom ;
     G4ThreeVector pol ;
@@ -225,7 +225,7 @@ void ChromaPhotonList::Details(bool hit) const
 } 
 
 
-#ifdef WITH_GEANT4
+#ifdef CPL_WITH_GEANT4
 void ChromaPhotonList::GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const
 {
     assert( index < x.size() );

@@ -47,6 +47,7 @@ gdc-cmake(){
    gdc-bcd
    cmake -DGeant4_DIR=$(gdc-geant4-dir) \
          -DCMAKE_INSTALL_PREFIX=$(gdc-prefix) \
+         -DCMAKE_BUILD_TYPE=Debug \
          $(gdc-sdir)
 
    cd $iwd
@@ -59,6 +60,19 @@ gdc-make(){
    cd $iwd
 }
 gdc-install(){ gdc-make install ; }
+
+gdc-build(){
+   gdc-cmake
+   gdc-make
+   gdc-install
+}
+gdc-build-full(){
+   gdc-wipe
+   gdc-build
+}
+gdc-wipe(){
+   rm -rf $(gdc-bdir)
+}
 
 
 ############## running 

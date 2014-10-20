@@ -34,7 +34,11 @@ ZMQRoot::ZMQRoot(const char* envvar, const char mode) : fContext(NULL), fSocket(
   }
 
   int rc = zmq_connect (fSocket, config );
-  assert( rc == 0); 
+  //assert( rc == 0); 
+  if(rc != 0){
+      printf("ZMQRoot::ZMQRoot failed to connect using envvar %s config %s mode %c \n", envvar, config, mode); 
+  }
+
 #else
   printf( "ZMQRoot::ZMQRoot need to compile -DWITH_ZMQ and have ZMQ external \n");   
 #endif
