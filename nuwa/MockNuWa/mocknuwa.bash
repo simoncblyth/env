@@ -42,7 +42,7 @@ mocknuwa-cmake(){
    local iwd=$PWD
    mkdir -p $(mocknuwa-tdir)
    mocknuwa-tcd
-   cmake $(mocknuwa-sdir) -DCMAKE_INSTALL_PREFIX=$(mocknuwa-prefix)
+   cmake $(mocknuwa-sdir) -DCMAKE_INSTALL_PREFIX=$(mocknuwa-prefix) -DCMAKE_BUILD_TYPE=Debug 
    cd $iwd
 }
 mocknuwa-make(){
@@ -81,4 +81,6 @@ mocknuwa--(){
    mocknuwa-build-and-run
 }
 
-
+mocknuwa-lldb(){
+   lldb $(which MockNuWa)
+}

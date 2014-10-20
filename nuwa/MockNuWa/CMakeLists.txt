@@ -8,6 +8,9 @@ find_package(Geant4 9.5.0 REQUIRED gdml)
 list(APPEND CMAKE_MODULE_PATH "$ENV{ENV_HOME}/cmake/Modules")
 include(EnvBuildOptions)
 
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-int-to-void-pointer-cast")
+
 find_package(NuWaDataModel     REQUIRED)
 find_package(Root              REQUIRED)
 find_package(ChromaGeant4CLHEP REQUIRED)  # filching CLHEP that comes with Geant4 means cannot use standard FindCLHEP.cmake 

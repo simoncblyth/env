@@ -1,7 +1,7 @@
 #include "SensDet.h"
+#include "TrojanSensDet.h"
+
 #include "G4SDManager.hh"
-#include <iostream>
-#include <iomanip>
 
 #include "Event/SimPmtHit.h"
 
@@ -11,9 +11,8 @@ namespace DayaBay {
     class SimPmtHit;
 }
 
-
-
 using namespace std ;
+
 
 
 int main()
@@ -21,87 +20,56 @@ int main()
    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
    //SDMan->SetVerboseLevel( 10 );
 
-   SensDet* sd = new SensDet("SensDet");
-   sd->initialize();
-   SDMan->AddNewDetector( sd );
-   SDMan->ListTree();
-   // registration done by DetDesc/GiGa within real NuWa?
-   // needs to be after collectionName inserts
+   SensDet* sd1 = new SensDet("DsPmtSensDet");
+   SensDet* sd2 = new SensDet("DsRpcSensDet");
 
-   G4HCofThisEvent* hce = SDMan->PrepareNewEvent();
-   //sd->Initialize(hce);  done by PrepareNewEvent it seems
-
-   sd->ProcessHits(NULL, NULL);
+   SDMan->AddNewDetector( sd1 );
+   SDMan->AddNewDetector( sd2 );
+   // the above is done by GiGa/DetDesc 
 
 
-   // external access to SensDet hit collections via SDMan inspection
-   // lookup on just the collection name assuming no slash in HCname
+   // need to register the Trojan SD at initialization time,  GiGa hook ?
+   // Trojan Horse SD to gain access to HCE via Initialize 
+   G4SDManager::GetSDMpointer()->AddNewDetector(new TrojanSensDet("Trojan_DsPmtSensDet", "DsPmtSensDet"));  
+   G4SDManager::GetSDMpointer()->ListTree();
 
 
+   // below is done by G4 framework and simulation stepping  
+   G4HCofThisEvent* HCE = SDMan->PrepareNewEvent();  // calls Initialize for registered SD 
 
-   typedef std::map<short int,G4DhHitCollection*> ExternalHitCache;
-   ExternalHitCache x_hc ;
-
-   G4HCtable* hct = SDMan->GetHCtable();
-   for(G4int i=0 ; i < hct->entries() ; i++ )
-   {
-      G4String colName = hct->GetHCname(i);  
-      int hcid = hct->GetCollectionID(colName);
-  
-      DayaBay::Detector det(colName);
-
-      if(det.bogus()) cout << "WARNING bogus det " << det << endl ;
-      //if(det.bogus()) continue ;
-
-      short int detid = det.siteDetPackedData();
-      G4DhHitCollection* hc = (G4DhHitCollection*)hce->GetHC(hcid); 
-      x_hc[detid] = hc ;
-      cout 
-           << " i "       << setw(3)  << i 
-           << " sd "      << setw(20) << hct->GetSDname(i)
-           << " hc "      << setw(20) << colName
-           << " det "     << setw(20) << det.detName() 
-           << " hcid "    << setw(10) << hcid 
-           << " detid "   << setw(10) << (void*)detid  
-           << " hc "      << setw(10) << hc 
-           << endl ;  
-   } 
+   sd1->ProcessHits(NULL, NULL);
+   sd2->ProcessHits(NULL, NULL);
 
 
 
+   // adding extra hits needs access to the tsd
+   TrojanSensDet* TSD = (TrojanSensDet*)G4SDManager::GetSDMpointer()->FindSensitiveDetector("Trojan_DsPmtSensDet", true); 
 
-
-  int myints[] = {
+   int myints[] = {
                    0x1010101,
                    0x2010101,
                    0x4010101,
                  };
 
-  vector<int> pmt( myints, myints + sizeof(myints) / sizeof(int) );
-  for (vector<int>::iterator it = pmt.begin(); it != pmt.end(); ++it)
-  {
+   vector<int> pmtids( myints, myints + sizeof(myints) / sizeof(int) );
+   for (vector<int>::iterator it = pmtids.begin(); it != pmtids.end(); ++it)
+   {
        int trackid = 1 ; 
-       int pmtid = *it ; 
-       DayaBay::Detector hitdet(*it);
-
-       if(hitdet.bogus()) cout << "WARNING bogus hitdet " << hitdet << endl ;
-       short int sdid = hitdet.siteDetPackedData();
-       G4DhHitCollection* xhc = x_hc[sdid];
-
-       cout << " pmtid " << setw(10) << (void*)pmtid 
-            << " hitdet " << setw(20) << hitdet.detName() 
-            << " sdid "   << setw(10) << (void*)sdid 
-            << " xhc  "   << setw(10) << xhc 
-            << endl ;
 
        DayaBay::SimPmtHit* sphit = new DayaBay::SimPmtHit();
-       sphit->setSensDetId(pmtid); 
-       xhc->insert(new G4DhHit(sphit,trackid));
+       sphit->setSensDetId(*it); 
 
-  }
+       TSD->StoreHit( sphit, trackid );
+   }
 
 
-   sd->EndOfEvent(hce);
+
+
+
+   // framework calls this
+   //sd1->EndOfEvent(HCE);
+   //sd2->EndOfEvent(HCE);
+   TSD->EndOfEvent(HCE);
 }
 
 

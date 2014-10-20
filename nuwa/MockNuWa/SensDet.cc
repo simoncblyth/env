@@ -21,6 +21,7 @@ Site::Site_t site_ids[] =
 
 SensDet::SensDet(const std::string& name) : G4VSensitiveDetector(name)
 {
+    initialize();
 }
 
 SensDet::~SensDet()
@@ -29,6 +30,30 @@ SensDet::~SensDet()
 
 
 int SensDet::initialize()
+{
+   DefineCollectionNames();
+   return 0 ; 
+}
+void SensDet::Initialize( G4HCofThisEvent* hce )
+{
+    CreateHitCollections( hce );
+}
+
+void SensDet::EndOfEvent( G4HCofThisEvent* hce ) 
+{
+    DumpStatistics(hce);
+}
+
+
+
+
+
+
+
+
+
+
+void SensDet::DefineCollectionNames()
 {
    collectionName.insert("unknown");
    for (int isite=0; site_ids[isite] >= 0; ++isite) {
@@ -46,26 +71,19 @@ int SensDet::initialize()
             //cout << "insert collectionName " << name << endl ;   
         }
     }
-
-
-    return 0 ;
 }
 
-
-
-void SensDet::Initialize( G4HCofThisEvent* hce )
+void SensDet::CreateHitCollections( G4HCofThisEvent* hce )
 {
-
     m_hc.clear();
-
-    cout << "make G4DhHitCollection SensitiveDetectorName " << SensitiveDetectorName << " collectionName[0] " << collectionName[0] << endl ; 
+    cout << "SensDet::CreateHitCollections SensitiveDetectorName " << SensitiveDetectorName << " collectionName[0] " << collectionName[0] << endl ; 
 
     //G4THitsCollection<G4DhHit>
     G4DhHitCollection* hc = new G4DhHitCollection(SensitiveDetectorName,collectionName[0]);
 
     m_hc[0] = hc;
     int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
-    cout << " hc " << (void*)hc << " hcid " << hcid << endl ;
+    //cout << " hc " << (void*)hc << " hcid " << hcid << endl ;
 
     hce->AddHitsCollection(hcid,hc);
 
@@ -82,15 +100,18 @@ void SensDet::Initialize( G4HCofThisEvent* hce )
 
             int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
             hce->AddHitsCollection(hcid,hc);
+
+            /*
             cout  << "Add hit collection with hcid=" << hcid << ", cached ID=" 
                     << (void*)id 
                     << " name= \"" << SensitiveDetectorName << "/" << name << "\"" 
                     << " hc= " << hc  
                     << endl; 
+            */ 
         }       
     }
 
-    cout << "SensDet Initialize, made "
+    cout << "SensDet::CreateHitCollections : hce now has  "
            << hce->GetNumberOfCollections() << " collections"
            << endl; 
     
@@ -153,7 +174,7 @@ void SensDet::StoreHit(DayaBay::SimPmtHit* hit, int trackid)
     hc->insert(new G4DhHit(hit,trackid));
 }
 
-void SensDet::EndOfEvent( G4HCofThisEvent* hce ) 
+void SensDet::DumpStatistics( G4HCofThisEvent* hce ) 
 {
     cout << "Cache has " << m_hc.size() << " collections" << endl ; 
 

@@ -23,7 +23,10 @@ public:
     virtual bool ProcessHits(G4Step* step,
                              G4TouchableHistory* history);
 
+    void DumpStatistics( G4HCofThisEvent* HCE );
 private:
+    void CreateHitCollections( G4HCofThisEvent* HCE );
+    void DefineCollectionNames();
     void StoreHit(DayaBay::SimPmtHit* hit, int trackid);
 
 private:
