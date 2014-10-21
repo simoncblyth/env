@@ -29,7 +29,7 @@ G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey )
 {
    const char* geopath = getenv(geokey);
    if(geopath == NULL ){
-      printf("geokey %s : missing : use \"export-;export-export\" to define  \n", geokey );
+      printf("G4DAEGeometry::LoadFromGDML geokey %s : missing : use \"export-;export-export\" to define  \n", geokey );
       return NULL;
    }   
    printf("geokey %s geopath %s \n", geokey, geopath ); 

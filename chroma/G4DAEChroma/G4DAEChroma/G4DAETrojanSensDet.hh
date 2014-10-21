@@ -24,7 +24,7 @@ public:
     virtual bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 
 private:
-    int CacheHitCollections( const std::string& name, G4HCofThisEvent* HCE);
+    int StealHitCollections( const std::string& name, G4HCofThisEvent* HCE);
     std::string m_target ; 
 
 };

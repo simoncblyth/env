@@ -67,7 +67,7 @@ G4DAETrojanSensDet::~G4DAETrojanSensDet()
 
 void G4DAETrojanSensDet::Initialize( G4HCofThisEvent* hce )
 {
-    CacheHitCollections( m_target, hce );
+    StealHitCollections( m_target, hce );
 }
 
 bool G4DAETrojanSensDet::ProcessHits(G4Step* step, G4TouchableHistory* history)
@@ -84,7 +84,7 @@ void G4DAETrojanSensDet::EndOfEvent( G4HCofThisEvent* hce )
 
 
 
-int G4DAETrojanSensDet::CacheHitCollections(const std::string& target,  G4HCofThisEvent* HCE)
+int G4DAETrojanSensDet::StealHitCollections(const std::string& target,  G4HCofThisEvent* HCE)
 {
    /*
    Summary: this steals HCE hit collection pointers of target SD
@@ -102,11 +102,6 @@ int G4DAETrojanSensDet::CacheHitCollections(const std::string& target,  G4HCofTh
    hit collection methods provided by the `G4DAESensDet` base class.
 
    */ 
-
-   cout << "G4DAETrojanSensDet::CacheHitCollections "
-        << " HCE " << HCE
-        << " target " << target 
-        << endl ; 
 
    m_hc.clear();
    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
@@ -129,29 +124,24 @@ int G4DAETrojanSensDet::CacheHitCollections(const std::string& target,  G4HCofTh
       G4DhHitCollection* hc = (G4DhHitCollection*)HCE->GetHC(hcid); 
 
       DayaBay::Detector det(colName);
-      if(det.bogus()) cout << "WARNING bogus det " << det << endl ;
+      if(det.bogus()) cout << "G4DAETrojanSensDet::StealHitCollections : WARNING bogus det " << det << endl ;
       //if(det.bogus()) continue ;
       short int detid = det.siteDetPackedData();
 
-      if(m_hc.find(detid) != m_hc.end()) cout << "WARNING : replacing hitcache entry with key " << detid << endl ;
+      if(m_hc.find(detid) != m_hc.end()) cout << "G4DAETrojanSensDet::StealHitCollections : WARNING : replacing hitcache entry with key " << detid << endl ;
       m_hc[detid] = hc ;
-
-      /*
-      cout 
-           << " i "       << setw(3)  << i 
-           << " sd "      << setw(20) << sdName
-           << " hc "      << setw(20) << colName
-           << " det "     << setw(20) << det.detName() 
-           << " hcid "    << setw(10) << hcid 
-           << " detid "   << setw(10) << (void*)detid  
-           << " hc "      << setw(10) << hc 
-           << endl ;  
-      */
-
 #endif
 
-
    } 
+
+
+   cout << "G4DAETrojanSensDet::StealHitCollections "
+        << " HCE " << HCE
+        << " target " << target 
+        << " #col " << m_hc.size()
+        << endl ; 
+
+
    return 0;
 }
 

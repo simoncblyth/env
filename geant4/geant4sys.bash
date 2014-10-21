@@ -5,6 +5,7 @@ geant4sys-vi(){       vi $(geant4sys-source) ; }
 geant4sys-env(){      
      elocal- 
      export GEANT4_HOME=$(geant4sys-home)
+
 }
 geant4sys-usage(){ cat << EOU
 

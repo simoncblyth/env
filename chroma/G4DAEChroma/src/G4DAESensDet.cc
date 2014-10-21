@@ -216,27 +216,30 @@ void G4DAESensDet::CollectOneHit( ChromaPhotonList* cpl , std::size_t index )
 #ifdef G4DAE_DAYABAY
 void G4DAESensDet::StoreHit(DayaBay::SimPmtHit* hit, int trackid)
 {
-    int did = hit->sensDetId();
-    DayaBay::Detector det(did);
+    int pmtid = hit->sensDetId();
+    DayaBay::Detector det(pmtid);
     short int sdid = det.siteDetPackedData();
 
     G4DhHitCollection* hc = m_hc[sdid];
     if (!hc) { 
-        cout  << "Got hit with no hit collection.  ID = " << (void*)did
-              << " which is detector: \"" << DayaBay::Detector(did).detName()
-              << "\". Storing to the " << collectionName[0] << " collection"
+        cout  << "G4DAESensDet::StoreHit : WARNING hit with no hit collection. " 
+              << " pmtid " << (void*)pmtid
+              << " det: " << setw(15) << DayaBay::Detector(pmtid).detName()
+              << " Storing to collectionName[0] " << collectionName[0]
               << endl; 
         sdid = 0;
         hc = m_hc[sdid];
     }
 
 #if 1
-    cout << "Storing hit PMT: " << (void*)did 
-         << " from " << DayaBay::Detector(did).detName()
-         << " in hc #"<<  sdid << " = "
-         << hit->hitTime()/CLHEP::ns << "[ns] " 
-         << hit->localPos()/CLHEP::cm << "[cm] " 
-         << hit->wavelength()/CLHEP::nm << "[nm]"
+    cout << "G4DAESensDet::StoreHit "
+         << " pmtid : " << (void*)pmtid 
+         << " from " << setw(15) << DayaBay::Detector(pmtid).detName()
+         << " sdid " <<  setw(5) << sdid 
+         << " (void*)sdid " << (void*)sdid
+         << " t " << hit->hitTime()/CLHEP::ns << "[ns] " 
+         << " pos " << hit->localPos()/CLHEP::cm << "[cm] " 
+         << " wav " << hit->wavelength()/CLHEP::nm << "[nm]"
          << endl; 
 #endif
 
@@ -288,24 +291,30 @@ void G4DAESensDet::AddSomeFakeHits()
 
 void G4DAESensDet::DumpStatistics( G4HCofThisEvent* hce ) 
 {
-    cout << "G4DAESensDet::DumpStatistics HCE Cache has " << m_hc.size() << " collections" << endl ; 
-
     int ncols = hce->GetNumberOfCollections();
-    cout << "SensDet EndOfEvent " << ncols << " collections.";
+    cout << "G4DAESensDet::DumpStatistics "
+         << " HCE " << hce
+         << " cached HC " << m_hc.size() 
+         << " tot collections " << ncols
+         << endl ; 
 
     int tothits = 0;
-    for (int ind=0; ind<ncols; ++ind) {
-      G4VHitsCollection* hc = hce->GetHC(ind);
-      if ( hc->GetSize() > 0)
-      {
-          if ( tothits == 0) cout << endl; 
-          cout << ind << ": " 
-               << hc->GetSDname() << "//" << hc->GetName() << " has " 
-               << hc->GetSize() << " hits" << endl; 
-      }
-      tothits += hc->GetSize() ;
+    for (int ind=0; ind<ncols; ++ind) 
+    {
+        G4VHitsCollection* hc = hce->GetHC(ind);
+       if ( hc->GetSize() > 0)
+       {
+           string colpath = hc->GetSDname() + "//" + hc->GetName() ;
+
+           if ( tothits == 0) cout << endl; 
+           cout << " col# " << setw(4) << ind << ": " 
+                << setw(30) << colpath 
+                << " #hits  " << setw(10) << hc->GetSize() 
+                << endl; 
+       }
+       tothits += hc->GetSize() ;
     }
-    if ( tothits == 0 ) cout << " No hits found in " << ncols << " collections."  << endl;
+    if ( tothits == 0 ) cout << "G4DAESensDet::DumpStatistics WARNING  No hits found in " << ncols << " collections."  << endl;
 }
 
 
