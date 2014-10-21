@@ -10,7 +10,10 @@
 #include "GaudiAlg/GaudiTool.h"
 #include "G4OpticalPhoton.hh"
 #include "G4Neutron.hh"
+
 #include "GiGa/GiGaStackActionBase.h"
+#include "G4VSensitiveDetector.hh"
+//#include "GiGa/GiGaSensDetBase.h"
 
 /*  A user defined class to select interesting events in the stack action.
 
@@ -19,15 +22,22 @@
 */
 
 
+#include "G4DataHelpers/G4DhHit.h"
+
+#include <string>
+#include <map>
+
+
 class G4Track;
+
+class G4Step;
+class G4TouchableHistory;
+
 class IGeometryInfo;
 class ICoordSysSvc;
 
-class ZMQRoot ; 
-class ChromaPhotonList ;
+class G4DAEChroma;
 
-
-using namespace std;
 
 class DsChromaStackAction :  public GiGaStackActionBase
 {
@@ -39,15 +49,14 @@ class DsChromaStackAction :  public GiGaStackActionBase
   virtual StatusCode         initialize () ; 
   virtual StatusCode         finalize   () ;
 
-
+ 
   public:
     virtual G4ClassificationOfNewTrack ClassifyNewTrack( const G4Track* aTrack);
     virtual void NewStage();
     virtual void PrepareNewEvent();
 
-    virtual void CollectPhoton(const G4Track* aPhoton );
 
-    virtual G4bool    IsNeutronDaughter(const G4int id, const vector<G4int> aList);
+    virtual G4bool    IsNeutronDaughter(const G4int id, const std::vector<G4int> aList);
     virtual G4bool    IsRelevantNeutronDaughter(const G4Track* aTrack);
     virtual G4bool    IsRelevant(const G4Track* aTrack);
     
@@ -72,23 +81,14 @@ class DsChromaStackAction :  public GiGaStackActionBase
     // Modulo scale down photons collected
     G4int m_moduloPhoton;
 
-    
     //    IGeometryInfo* m_geo;
+
     
     // Locally cached pointer to the CoordSysSvc
     ICoordSysSvc* m_csvc;
     
-    //    std::string              m_VertexSelection;
-
-    // ZeroMQ network socket utility 
-    ZMQRoot* fZMQRoot ; 
-
-    // transport ready TObject 
-    ChromaPhotonList* fPhotonList ; 
-
-    // test receiving object from remote zmq server
-    ChromaPhotonList* fPhotonList2 ; 
-
+    // local ptr to singleton instance
+    G4DAEChroma* m_chroma ; 
 
   
 };

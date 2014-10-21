@@ -5,7 +5,9 @@
 #include "G4NavigationHistory.hh"
 #include "G4TouchableHistory.hh"
 
+#ifdef EXPORT_G4GDML
 #include "G4GDMLParser.hh"
+#endif
 
 #include <stdlib.h>    
 
@@ -41,10 +43,17 @@ G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey )
    }   
    printf("geokey %s geopath %s \n", geokey, geopath ); 
 
+
+   G4VPhysicalVolume* world = NULL ;
+
+#ifdef EXPORT_G4GDML
    G4GDMLParser fParser ; 
    fParser.Read(geopath,false);
+   world = fParser.GetWorldVolume();       
+#else
+   printf("G4DAEGeometry::LoadFromGDML need to define -DEXPORT_G4GDML if GDML is available \n");  
+#endif
 
-   G4VPhysicalVolume* world = fParser.GetWorldVolume();       
    return G4DAEGeometry::Load(world);
 }
 

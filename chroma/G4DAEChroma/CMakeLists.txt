@@ -37,7 +37,7 @@ message( STATUS "ROOT_INCLUDE_DIR ${ROOT_INCLUDE_DIR}" )
 
 add_definitions(
                    ${Geant4_DEFINITIONS} 
-                   -DWITH_CHROMA_ZMQ  -DG4DAE_DAYABAY
+                   -DWITH_CHROMA_ZMQ  -DG4DAE_DAYABAY -DEXPORT_G4GDML
                    ${DATAMODEL_DEFINITIONS}  
                    ${CHROMAPHOTONLIST_DEFINITIONS}  
                 )    

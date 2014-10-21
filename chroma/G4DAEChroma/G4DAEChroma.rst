@@ -39,7 +39,6 @@ BeginOfRunAction
   but only need to do that once
 
 
-
 StackAction::ClassifyNewTrack OR customized Processes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -86,6 +85,36 @@ See
 
 Real NuWa hookup for machinery test
 --------------------------------------
+
+::
+
+    [blyth@belle7 dybgaudi]$ svn ci -m "minor: add G4DAEChroma package and hookup to DetSimChroma StackAction and RunAction "
+    Sending        Simulation/DetSimChroma/src/DetSimChroma_entries.cc
+    Adding         Simulation/DetSimChroma/src/DsChromaRunAction.cc
+    Adding         Simulation/DetSimChroma/src/DsChromaRunAction.h
+    Sending        Simulation/DetSimChroma/src/DsChromaStackAction.cc
+    Adding         Utilities/G4DAEChroma/G4DAEChroma/G4DAEChroma.hh
+    Adding         Utilities/G4DAEChroma/G4DAEChroma/G4DAEGeometry.hh
+    Adding         Utilities/G4DAEChroma/G4DAEChroma/G4DAESensDet.hh
+    Adding         Utilities/G4DAEChroma/G4DAEChroma/G4DAETransport.hh
+    Adding         Utilities/G4DAEChroma/G4DAEChroma/G4DAETrojanSensDet.hh
+    Sending        Utilities/G4DAEChroma/cmt/requirements
+    Sending        Utilities/G4DAEChroma/src/G4DAEChroma.cc
+    Adding         Utilities/G4DAEChroma/src/G4DAEGeometry.cc
+    Adding         Utilities/G4DAEChroma/src/G4DAESensDet.cc
+    Adding         Utilities/G4DAEChroma/src/G4DAETransport.cc
+    Adding         Utilities/G4DAEChroma/src/G4DAETrojanSensDet.cc
+    Transmitting file data ...............
+    Committed revision 23458.
+    [blyth@belle7 dybgaudi]$ date
+    Tue Oct 21 20:57:27 CST 2014
+
+
+
+
+
+
+
 
 Integrate with real NuWa via shims:
 

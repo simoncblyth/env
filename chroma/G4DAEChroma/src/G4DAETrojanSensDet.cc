@@ -70,7 +70,7 @@ void G4DAETrojanSensDet::Initialize( G4HCofThisEvent* hce )
     StealHitCollections( m_target, hce );
 }
 
-bool G4DAETrojanSensDet::ProcessHits(G4Step* step, G4TouchableHistory* history)
+bool G4DAETrojanSensDet::ProcessHits(G4Step* /*step*/, G4TouchableHistory* /*history*/)
 {
     assert(0); // should never be called
 }
@@ -130,6 +130,10 @@ int G4DAETrojanSensDet::StealHitCollections(const std::string& target,  G4HCofTh
 
       if(m_hc.find(detid) != m_hc.end()) cout << "G4DAETrojanSensDet::StealHitCollections : WARNING : replacing hitcache entry with key " << detid << endl ;
       m_hc[detid] = hc ;
+
+#else
+      cout << "G4DAETrojanSensDet::StealHitCollections need to recompile with detector switch like  -DG4DAE_DAYABAY to cache hit collections " << endl;  
+
 #endif
 
    } 

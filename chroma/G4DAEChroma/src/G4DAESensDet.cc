@@ -49,7 +49,7 @@ void G4DAESensDet::Initialize( G4HCofThisEvent* hce )
 {
     CreateHitCollections( hce );
 }
-bool G4DAESensDet::ProcessHits(G4Step* step, G4TouchableHistory* history)
+bool G4DAESensDet::ProcessHits(G4Step* /*step*/, G4TouchableHistory* /*history*/)
 {
     //assert(0);
    int pmtid = 0x1010101 ;

@@ -30,18 +30,18 @@ G4DAEChroma* G4DAEChroma::GetG4DAEChromaIfExists()
 
 G4DAEChroma::G4DAEChroma() :
     fTransport(0),
-    fGeometry(0),
-    fSensDet(0)
+    fSensDet(0),
+    fGeometry(0)
 { 
 }
 
 void G4DAEChroma::BeginOfRun( const G4Run* run )
 {
-    cout << "G4DAEChroma::BeginOfRun " << endl ;
+    cout << "G4DAEChroma::BeginOfRun " << run << endl ;
 }
 void G4DAEChroma::EndOfRun(   const G4Run* run )
 {
-    cout << "G4DAEChroma::EndOfRun " << endl ;
+    cout << "G4DAEChroma::EndOfRun " << run << endl ;
 }
 
 void G4DAEChroma::Configure(const char* transport, const char* sensdet, const char* geometry)
@@ -51,9 +51,9 @@ void G4DAEChroma::Configure(const char* transport, const char* sensdet, const ch
     G4DAEGeometry*  geo =  G4DAEGeometry::MakeGeometry(geometry);
     G4DAETrojanSensDet* tsd = G4DAETrojanSensDet::MakeTrojanSensDet(sensdet, geo ); 
 
-    this->SetSensDet( tsd );  
-    this->SetGeometry( geo );  
     this->SetTransport( tra );
+    this->SetGeometry( geo );  
+    this->SetSensDet( tsd );  
 }
 
 
@@ -63,18 +63,9 @@ void G4DAEChroma::Configure(const char* transport, const char* sensdet, const ch
 G4DAEChroma::~G4DAEChroma()
 {
     if(fTransport) delete fTransport ;
-    if(fGeometry)  delete fGeometry ;
     if(fSensDet)  delete fSensDet;
-
+    if(fGeometry)  delete fGeometry ;
 }
-
-void G4DAEChroma::SetGeometry(G4DAEGeometry* geo){
-   fGeometry = geo ; 
-}
-G4DAEGeometry* G4DAEChroma::GetGeometry(){
-   return fGeometry ;
-}
-
 
 void G4DAEChroma::SetTransport(G4DAETransport* tra){
    fTransport = tra ; 
@@ -83,11 +74,19 @@ G4DAETransport* G4DAEChroma::GetTransport(){
    return fTransport ;
 }
 
+
 void G4DAEChroma::SetSensDet(G4DAESensDet* sd){
    fSensDet = sd ; 
 }
 G4DAESensDet* G4DAEChroma::GetSensDet(){
    return fSensDet ;
+}
+
+void G4DAEChroma::SetGeometry(G4DAEGeometry* geo){
+   fGeometry = geo ; 
+}
+G4DAEGeometry* G4DAEChroma::GetGeometry(){
+   return fGeometry ;
 }
 
 

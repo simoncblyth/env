@@ -1,5 +1,9 @@
 #include "DsChromaStackAction.h"
 
+
+#include "Conventions/Detectors.h"
+#include "Event/SimPmtHit.h"
+
 #include "DetDesc/IPVolume.h"
 #include "DetHelpers/ICoordSysSvc.h"
 #include "DetDesc/DetectorElement.h"
@@ -8,7 +12,6 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include <G4ClassificationOfNewTrack.hh>
-#include <G4SDManager.hh>
 #include <G4RunManager.hh>
 #include <G4TrackStatus.hh>
 #include <G4ParticleDefinition.hh>
@@ -16,13 +19,16 @@
 #include <G4ParticleTypes.hh>
 #include <G4Track.hh>
 
-#ifdef WITH_CHROMA_ZMQ
-#include "ChromaPhotonList.hh"
-#include "ZMQRoot.hh"
-#endif
+#include "G4DAEChroma/G4DAEChroma.h"
 
 
 DECLARE_TOOL_FACTORY(DsChromaStackAction);
+
+// duplicate parts of NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsPmtSensDet.cc 
+// as parasite on the StackAction 
+// as dont know how to access DsPmtSensDet private methods from StackAction 
+//
+
 
 DsChromaStackAction::DsChromaStackAction ( const std::string& type   , 
 				   const std::string& name   , 
@@ -33,14 +39,13 @@ DsChromaStackAction::DsChromaStackAction ( const std::string& type   ,
     NeutronNumbers(0),
     interestingEvt(false),
     m_csvc(0),
-    fZMQRoot(0),
-    fPhotonList(0),
-    fPhotonList2(0)
+    m_chroma(0)
 { 
     declareProperty("TightCut",m_tightCut = false, " cut to select Neutron only event in the AD.");
     declareProperty("PhotonCut",m_photonCut = false, " Kill all the optical photons in the process.");
     declareProperty("MaxPhoton",m_maxPhoton = 1e6, " Max number of photons to be hold.");
     declareProperty("ModuloPhoton",m_moduloPhoton = 100, "Modulo scale down photons collected.");
+
 }
 
 
@@ -51,17 +56,13 @@ StatusCode DsChromaStackAction::initialize()
   StatusCode sc = GiGaStackActionBase::initialize();
   if (sc.isFailure()) return sc;
 
-
   if ( service("CoordSysSvc", m_csvc).isFailure()) {
     error() << " No CoordSysSvc available." << endreq;
     return StatusCode::FAILURE;
   }
+    
+  m_chroma = G4DAEChroma::GetG4DAEChroma();  // should have already been configured in RunAction TODO:check this
 
-#ifdef WITH_CHROMA_ZMQ
-  fPhotonList = new ChromaPhotonList ;   
-  fZMQRoot = new ZMQRoot("CSA_CLIENT_CONFIG") ; 
-#endif
-  
   return StatusCode::SUCCESS; 
 }
 
@@ -70,51 +71,7 @@ StatusCode DsChromaStackAction::finalize()
   info() << "DsChromaStackAction::finalize()" << endreq;
   neutronList.clear();  
 
-#ifdef WITH_CHROMA_ZMQ
-  if(fPhotonList2) delete fPhotonList2 ; 
-  delete fPhotonList ;
-  delete fZMQRoot ;
-#endif
-
   return  GiGaStackActionBase::finalize();
-}
-
-
-void DsChromaStackAction::CollectPhoton(const G4Track* aPhoton )
-{
-#ifdef WITH_CHROMA_ZMQ
-   G4ParticleDefinition* pd = aPhoton->GetDefinition();
-   assert( pd->GetParticleName() == "opticalphoton" );
-
-   G4String pname="-";
-   const G4VProcess* process = aPhoton->GetCreatorProcess();
-   if(process) pname = process->GetProcessName();
-   G4cout << " OP : " 
-          << " ProcessName " << pname 
-          << " ParentID "    << aPhoton->GetParentID() 
-          << " TrackID "     << aPhoton->GetTrackID() 
-          << " KineticEnergy " << aPhoton->GetKineticEnergy() 
-          << " TotalEnergy " << aPhoton->GetTotalEnergy() 
-          << " TrackStatus " << aPhoton->GetTrackStatus() 
-          << " CurrentStepNumber " << aPhoton->GetCurrentStepNumber() 
-          << G4endl;
-
-   assert( pname == "Cerenkov" || pname == "Scintillation" );
-
-   G4ThreeVector pos = aPhoton->GetPosition()/mm ;
-   G4ThreeVector dir = aPhoton->GetMomentumDirection() ;
-   G4ThreeVector pol = aPhoton->GetPolarization() ;
-   float time = aPhoton->GetGlobalTime()/ns ;
-   float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
-
-   fPhotonList->AddPhoton( 
-              pos.x(), pos.y(), pos.z(),
-              dir.x(), dir.y(), dir.z(),
-              pol.x(), pol.y(), pol.z(), 
-              time, 
-              wavelength );
-
-#endif
 }
 
 
@@ -185,7 +142,7 @@ G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track*
 	
 	          PhotonNumbers++;
               if(PhotonNumbers % m_moduloPhoton == 0){
-                  CollectPhoton( aTrack );
+                  m_chroma->CollectPhoton( aTrack );
               }
 
 	          if (m_photonCut) 
@@ -231,27 +188,9 @@ void DsChromaStackAction::NewStage()
   const G4Event* currentEvent = runMan->GetCurrentEvent(); 
   G4int eventID = currentEvent->GetEventID();
 
-  fPhotonList->SetUniqueID(eventID);
-  info() << "::NewStage fPhotonList " <<  endreq ;   
-  fPhotonList->Print(); 
-  std::size_t size = fPhotonList->GetSize(); 
-
-  if(size > 0)
-  {
-      info() << "::NewStage SendObject " <<  endreq ;   
-      fZMQRoot->SendObject(fPhotonList);
-      info() << "::NewStage ReceiveObject, waiting... " <<  endreq;   
-      fPhotonList2 = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
-      info() << "::NewStage fPhotonList2 " <<  endreq ;   
-      fPhotonList2->Print();
-  } 
-  else 
-  { 
-      info() << "::NewStage Skip send/recv for empty CPL " <<  endreq;   
-  }
+  m_chroma->Propagate(eventID); 
 
 #endif
-
 
   
   if(m_tightCut){
@@ -283,6 +222,7 @@ void DsChromaStackAction::NewStage()
 }
 
 
+
 //----------------------Reset -----------------------------------
 void DsChromaStackAction::PrepareNewEvent()
 {
@@ -293,21 +233,13 @@ void DsChromaStackAction::PrepareNewEvent()
   NeutronNumbers=0;
   neutronList.clear();
 
-  if(fPhotonList){ 
-      info()<< " StackingAction::PrepareNewEvent fPhotonList ClearAll  "<<endreq;
-      fPhotonList->ClearAll(); 
-  }
-
-  if(fPhotonList2){ 
-      info()<< " StackingAction::PrepareNewEvent fPhotonList2 ClearAll  "<<endreq;
-      fPhotonList2->ClearAll(); 
-  } 
+  //m_chroma->ClearAll(); 
 
 }
 
 //-----------------If the Gamma neutron's daughter ? ---------------------
 
-G4bool DsChromaStackAction::IsNeutronDaughter(const G4int id, const vector<G4int> aList)
+G4bool DsChromaStackAction::IsNeutronDaughter(const G4int id, const std::vector<G4int> aList)
 {
   //check if the gamma is the daughter of neutrons.
   G4bool isDaughter(false);

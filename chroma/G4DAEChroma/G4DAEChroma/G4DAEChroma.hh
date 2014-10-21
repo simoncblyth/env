@@ -54,15 +54,14 @@ private:
   static G4DAEChroma* fG4DAEChroma;
 
 private:
-  // Geometry Transform cache, used to convert global to local coordinates
-  G4DAEGeometry* fGeometry ; 
-
   // Photon Transport 
   G4DAETransport* fTransport ; 
 
   // Hit collection
   G4DAESensDet* fSensDet ; 
 
+  // Geometry Transform cache, used to convert global to local coordinates
+  G4DAEGeometry* fGeometry ; 
 
 
 };

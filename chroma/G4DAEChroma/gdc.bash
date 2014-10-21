@@ -105,21 +105,36 @@ gdc-nuwapkg(){
   
 gdc-nuwapkg-cd(){ cd $(gdc-nuwapkg)/$1 ; } 
 
+
+gdc-names(){ cat << EON
+G4DAEChroma
+G4DAEGeometry
+G4DAESensDet
+G4DAETransport
+G4DAETrojanSensDet
+EON
+}
+
 gdc-nuwapkg-action-cmds(){
    local action=${1:-diff}
    local pkg=$(gdc-nuwapkg)
    local pkn=$(basename $pkg)
-
    local nam=$(gdc-name)
+
    cat << EOC
 mkdir -p $pkg/$pkn
 mkdir -p $pkg/src
-mkdir -p $pkg/tests
-$action $(gdc-sdir)/$nam/$nam.hh         $pkg/$pkn/$nam.hh
-$action $(gdc-sdir)/src/$nam.cc          $pkg/src/$nam.cc
-$action $(gdc-sdir)/tests/${nam}Test.cc  $pkg/tests/${nam}Test.cc
 EOC
+
+   gdc-names |while read nam ; do
+   cat << EOC
+$action $(gdc-sdir)/$pkn/$nam.hh         $pkg/$pkn/$nam.hh
+$action $(gdc-sdir)/src/$nam.cc          $pkg/src/$nam.cc
+EOC
+   done
+
 }
+
 gdc-nuwapkg-action(){
    local cmd
    $FUNCNAME-cmds $1 | while read cmd ; do
@@ -132,4 +147,39 @@ gdc-nuwapkg-cpto(){  gdc-nuwapkg-action cp ; }
 
 
 
+gdc-nuwacfg () 
+{ 
+    local msg="=== $FUNCNAME :";
+    local pkg=$1;
+    shift;
+    [ ! -d "$pkg/cmt" ] && echo ERROR NO cmt SUBDIR && sleep 1000000;
+    local iwd=$PWD;
+    echo $msg for pkg $pkg;
+    cd $pkg/cmt;
+    cmt config;
+    . setup.sh;
+    cd $iwd
+}
+
+
+
+gdc-nuwaenv()
+{   
+    zmqroot-
+    gdc-nuwacfg $(zmqroot-nuwapkg);
+    cpl-
+    gdc-nuwacfg $(cpl-nuwapkg);
+    csa-
+    gdc-nuwacfg $(csa-nuwapkg)
+}
+
+gdc-nuwapkg-make() 
+{ 
+    local iwd=$PWD;
+    gdc-nuwaenv
+    gdc-nuwapkg-cd cmt
+    cmt config
+    cmt make
+    cd $iwd
+}
 
