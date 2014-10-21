@@ -114,46 +114,39 @@ void G4DAESensDet::CreateHitCollections( G4HCofThisEvent* hce )
 
 #ifdef G4DAE_DAYABAY
 
-    cout << "G4DAESensDet::CreateHitCollections SensitiveDetectorName " << SensitiveDetectorName << endl ; 
-    cout << "G4DAESensDet::CreateHitCollections collectionName[0] " << collectionName[0] << endl ; 
+    int noc = hce->GetNumberOfCollections();
+
     //G4THitsCollection<G4DhHit>
     G4DhHitCollection* hc = new G4DhHitCollection(SensitiveDetectorName,collectionName[0]);
-
     m_hc[0] = hc;
     int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
-    //cout << " hc " << (void*)hc << " hcid " << hcid << endl ;
 
     hce->AddHitsCollection(hcid,hc);
 
     for (int isite=0; site_ids[isite] >= 0; ++isite) {
         for (int idet=0; detector_ids[idet] >= 0; ++idet) {
             DayaBay::Detector det(site_ids[isite],detector_ids[idet]);
-
             if (det.bogus()) continue;
 
             string name=det.detName();
             G4DhHitCollection* hc = new G4DhHitCollection(SensitiveDetectorName,name.c_str());
-            short int id = det.siteDetPackedData();
-            m_hc[id] = hc;
-
             int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
             hce->AddHitsCollection(hcid,hc);
 
-            /*
-            cout  << "Add hit collection with hcid=" << hcid << ", cached ID=" 
-                    << (void*)id 
-                    << " name= \"" << SensitiveDetectorName << "/" << name << "\"" 
-                    << " hc= " << hc  
-                    << endl; 
-            */ 
+            short int id = det.siteDetPackedData();
+            m_hc[id] = hc;
+
         }       
     }
 
 #endif
 
-    cout << "G4DAESensDet::CreateHitCollections : hce now has  "
-           << hce->GetNumberOfCollections() << " collections"
-           << endl; 
+    cout << "G4DAESensDet::CreateHitCollections "
+         << " HCE " << hce
+         << " SDN " << SensitiveDetectorName 
+         << " add #collections  " << hce->GetNumberOfCollections() - noc  
+         << " tot " << hce->GetNumberOfCollections()
+         << endl; 
     
 
 }

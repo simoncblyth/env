@@ -37,7 +37,8 @@ gdc-geant4-dir(){
 gdc-env(){      
    elocal- ; 
    export GEANT4_HOME=$(gdc-geant4-home)
-   #export ROOTSYS=$(gdc-rootsys)   # needed to find rootcint for dictionary creation   
+
+   rootsys-  # needed to find root headers
 }
 
 gdc-cmake(){

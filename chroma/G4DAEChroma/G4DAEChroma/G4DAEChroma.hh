@@ -1,17 +1,24 @@
 /*
+
+Aiming for this class to present an unchanging 
+interface, on top of the flexible internal machinery 
+that can adopt different:
+
+* transport mechanism
+* hit collection 
+
+
 */
 #ifndef G4DAECHROMA_H
 #define G4DAECHROMA_H 1
 
 #include <cstddef>
-#include "G4ThreeVector.hh"
-#include "G4Track.hh"
-#include "G4AffineTransform.hh"
 
-class ZMQRoot ; 
-class ChromaPhotonList ;
+
 class G4DAEGeometry ;
-class G4DAETrojanSensDet ;
+class G4DAETransport ;
+class G4DAESensDet ;
+class G4Track ; 
 
 class G4DAEChroma 
 {
@@ -26,38 +33,33 @@ public:
     void SetGeometry(G4DAEGeometry* geo);
     G4DAEGeometry* GetGeometry();
 
-    // **RegisterTrojanSD**
-    //
-    //     creates parasitic SD, re-registering with the same target does nothing  
-    //     internally allows adding hits to hitcollections of target SD, 
-    //     eg canonically DsPmtSensDet
-    //
-    //
-    void RegisterTrojanSD(const std::string& target);
+    void SetTransport(G4DAETransport* tra);
+    G4DAETransport* GetTransport();
+
+    void SetSensDet(G4DAESensDet* sd);
+    G4DAESensDet* GetSensDet();
+
 
     void ClearAll();
     void CollectPhoton(const G4Track* aPhoton );
-    void Propagate(G4int batch_id, const std::string& target);
+    std::size_t Propagate(int batch_id);
 
-    G4DAETrojanSensDet* GetTrojanSD(const std::string& target);
-//private:
-//    G4DAETrojanSensDet* GetTrojanSD(const std::string& target);
  
 private:
   // Singleton instance
   static G4DAEChroma* fG4DAEChroma;
 
-  // ZeroMQ network socket utility 
-  ZMQRoot* fZMQRoot ; 
-
-  // transport ready TObject 
-  ChromaPhotonList* fPhotonList ; 
-
-  // test receiving object from remote zmq server
-  ChromaPhotonList* fPhotonList2 ; 
-
+private:
   // Geometry Transform cache, used to convert global to local coordinates
   G4DAEGeometry* fGeometry ; 
+
+  // Photon Transport 
+  G4DAETransport* fTransport ; 
+
+  // Hit collection
+  G4DAESensDet* fSensDet ; 
+
+
 
 };
 

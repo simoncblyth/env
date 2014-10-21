@@ -13,13 +13,48 @@
 #endif
 
 
-
 using namespace std; 
+
+
+G4DAETrojanSensDet* G4DAETrojanSensDet::MakeTrojanSensDet(const std::string& target, G4DAEGeometry* geometry)
+{
+    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+
+    G4VSensitiveDetector* targetSD = SDMan->FindSensitiveDetector(target, false);
+    if( targetSD == NULL ){
+        cout << "G4DAEChroma::MakeTrojanSensDet ERROR there is no SD called  " << target << endl ;
+        return NULL ; 
+    }
+
+    string trojan = "Trojan_" + target ;
+    G4DAETrojanSensDet* trojanSD = (G4DAETrojanSensDet*)SDMan->FindSensitiveDetector(trojan, false);
+
+    if( trojanSD != NULL )
+    {
+        cout << "G4DAEChroma::MakeTrojanSensDet WARNING there is already a trojanSD called  " << trojan << " SKIPPING " <<  endl ;
+    } 
+    else 
+    {
+        trojanSD = new G4DAETrojanSensDet(trojan, target);
+        trojanSD->SetGeometry(geometry);
+        SDMan->AddNewDetector(trojanSD);
+    }
+    return trojanSD ; 
+}
+
+
+
+G4DAETrojanSensDet* G4DAETrojanSensDet::GetTrojanSensDet(const std::string& target)
+{
+    string trojan = "Trojan_" + target ;
+    return (G4DAETrojanSensDet*)G4SDManager::GetSDMpointer()->FindSensitiveDetector(trojan, true); 
+}
+
+
+
 
 G4DAETrojanSensDet::G4DAETrojanSensDet(const std::string& name,  const std::string& target) : G4DAESensDet(name), m_target(target)
 {
-   cout << "G4DAETrojanSensDet::G4DAETrojanSensDet name " << name << " GetName() " << GetName() << "target " <<  GetTargetName() << endl ;
-   CheckTarget();
 }
 
 G4DAETrojanSensDet::~G4DAETrojanSensDet()
@@ -27,21 +62,12 @@ G4DAETrojanSensDet::~G4DAETrojanSensDet()
 }
 
 
-void G4DAETrojanSensDet::CheckTarget()
-{
-  G4VSensitiveDetector* tgt = GetTarget();
-   if( tgt == NULL ){
-      cout << "G4DAETrojanSensDet::G4DAETrojanSensDet WARNING target SD " << GetTargetName() << " not found " << endl ; 
-   } else {
-      cout <<  "G4DAETrojanSensDet::G4DAETrojanSensDet found target " <<  tgt << " name " << tgt->GetName() << endl ; 
-   }
-}  
+
 
 
 void G4DAETrojanSensDet::Initialize( G4HCofThisEvent* hce )
 {
-    m_hc.clear();
-    CacheHitCollections( GetTargetName(), hce );
+    CacheHitCollections( m_target, hce );
 }
 
 bool G4DAETrojanSensDet::ProcessHits(G4Step* step, G4TouchableHistory* history)
@@ -57,19 +83,32 @@ void G4DAETrojanSensDet::EndOfEvent( G4HCofThisEvent* hce )
 
 
 
-std::string G4DAETrojanSensDet::GetTargetName(){
-    return m_target ; 
-}
-G4VSensitiveDetector* G4DAETrojanSensDet::GetTarget()
+
+int G4DAETrojanSensDet::CacheHitCollections(const std::string& target,  G4HCofThisEvent* HCE)
 {
-    return G4SDManager::GetSDMpointer()->FindSensitiveDetector(GetTargetName());
-}
+   /*
+   Summary: this steals HCE hit collection pointers of target SD
 
+   For entries in HCtable with SDname matching the argument, 
+   obtain hcid and corresponding HC. 
+   Cache HC pointers into m_hc keyed by site-detector short int, 
+   obtained by DayaBay::Detector interpretation of the collection name.   
 
+   NB this relies on the `G4DAETrojanSensDet::Initialize( G4HCofThisEvent* hce )`
+   being called after that of the target SD otherwise will fail to access HC.
 
+   As a result of this access to targetted hit collections of the event
+   hits can be added outside of the normal ProcessHits machinery using 
+   hit collection methods provided by the `G4DAESensDet` base class.
 
-int G4DAETrojanSensDet::CacheHitCollections(const std::string& name,  G4HCofThisEvent* HCE)
-{
+   */ 
+
+   cout << "G4DAETrojanSensDet::CacheHitCollections "
+        << " HCE " << HCE
+        << " target " << target 
+        << endl ; 
+
+   m_hc.clear();
    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 
    G4HCtable* hct = SDMan->GetHCtable();
@@ -78,7 +117,7 @@ int G4DAETrojanSensDet::CacheHitCollections(const std::string& name,  G4HCofThis
       string sdName = hct->GetSDname(i);  
       string colName = hct->GetHCname(i);  
 
-      if(sdName != name) continue ;
+      if(sdName != target) continue ;
 
       G4String query = sdName + "/" + colName ; 
 

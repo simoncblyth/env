@@ -1,24 +1,15 @@
 #define G4DAE_DAYABAY
 
 #include "G4DAEChroma/G4DAEChroma.hh"
+#include "G4DAEChroma/G4DAEGeometry.hh"
+#include "G4DAEChroma/G4DAETransport.hh"
+
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAETrojanSensDet.hh"
 
 #include "G4SDManager.hh"
 
-
-#ifdef G4DAE_DAYABAY
-#include "Event/SimPmtHit.h"
-#include "G4DataHelpers/G4DhHit.h"
-
-namespace DayaBay {
-    class SimPmtHit;
-}
-#endif
-
 using namespace std ;
-
-
 
 int main()
 {
@@ -27,29 +18,32 @@ int main()
 
    G4DAESensDet* sd1 = new G4DAESensDet("DsPmtSensDet");
    sd1->initialize();
+
    G4DAESensDet* sd2 = new G4DAESensDet("DsRpcSensDet");
    sd2->initialize();
 
    SDMan->AddNewDetector( sd1 );
    SDMan->AddNewDetector( sd2 );
+
    // the above is done by GiGa/DetDesc 
 
 
-   // hmm writing to GDML looses associated SD it seems , so for real
 
-   // need to register the Trojan SD at initialization time,  GiGa hook ?
-   // Trojan Horse SD to gain access to HCE via Initialize 
-   // 2nd parameter target must match the name of an existing SD 
-   //G4SDManager::GetSDMpointer()->AddNewDetector(new G4DAETrojanSensDet("Trojan_DsPmtSensDet", "DsPmtSensDet"));  
-
-   string target = "DsPmtSensDet" ; 
+   G4DAETransport* tra =  G4DAETransport::MakeTransport("G4DAECHROMA_CLIENT_CONFIG");
+   G4DAEGeometry*  geo =  G4DAEGeometry::LoadFromGDML("DAE_NAME_DYB_GDML");
+   G4DAETrojanSensDet* tsd = G4DAETrojanSensDet::MakeTrojanSensDet("DsPmtSensDet", geo ); // registration done inside
 
    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-   chroma->RegisterTrojanSD(target); 
+
+   chroma->SetSensDet( tsd ); 
+   chroma->SetGeometry( geo );    // duplication: also in SD, remove ?
+   chroma->SetTransport( tra );
+
+
+
 
 
    G4SDManager::GetSDMpointer()->ListTree();
-
 
    // below is done by G4 framework and simulation stepping  
    G4HCofThisEvent* HCE = SDMan->PrepareNewEvent();  // calls Initialize for registered SD 
@@ -58,14 +52,8 @@ int main()
    sd2->ProcessHits(NULL, NULL);
 
 
-
-
     
    /* 
-
-   // adding extra hits needs access to the tsd
-   G4DAETrojanSensDet* TSD = (G4DAETrojanSensDet*)G4SDManager::GetSDMpointer()->FindSensitiveDetector("Trojan_DsPmtSensDet", true); 
-
    int myints[] = {
                    0x1010101,
                    0x2010101,
@@ -86,8 +74,7 @@ int main()
   */
 
 
-  G4DAETrojanSensDet* tsd = chroma->GetTrojanSD(target);  
-  tsd->AddSomeFakeHits(); 
+  //tsd->AddSomeFakeHits(); 
 
 
    // framework calls this

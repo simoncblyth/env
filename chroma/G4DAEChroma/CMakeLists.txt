@@ -68,7 +68,7 @@ foreach(abspath ${headers})
    get_filename_component(hbase ${hdr} NAME) 
    get_filename_component(hpath ${hdr} PATH) 
    get_filename_component(hfold ${hpath} NAME) 
-   message( DEBUG "hdr ${hdr} hbase ${hbase} hpath ${hpath} hfold ${hfold}")
+   #message( DEBUG " hdr ${hdr} hbase ${hbase} hpath ${hpath} hfold ${hfold}")
    install(FILES ${abspath} DESTINATION include/${hfold})
 endforeach(abspath)
 

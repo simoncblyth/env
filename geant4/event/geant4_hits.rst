@@ -2,6 +2,71 @@ Geant4 Hits
 ============
 
 
+What passes HCE to Initialize and EndOfEvent ?
+------------------------------------------------
+
+
+`source/digits_hits/detector/src/G4SDStructure.cc`::
+
+    213 void G4SDStructure::Initialize(G4HCofThisEvent*HCE)
+    214 {
+    215   size_t i;
+    216   // Broadcast to subdirectories.
+    217   for( i=0; i<structure.size(); i++ )
+    218   {
+    219     structure[i]->Initialize(HCE);
+    220   }
+    221   // Initialize all detectors in this directory.
+    222   for( i=0; i<detector.size(); i++ )
+    223   {
+    224     if(detector[i]->isActive()) detector[i]->Initialize(HCE);
+    225   }
+    226 }
+
+
+::
+
+     43 //  This class is exclusively used by G4SDManager for handling the tree
+     44 // structure of the user's sensitive detector names.
+     45 //
+     46 
+     47 class G4SDStructure
+     48 {
+     49   public:
+     50       G4SDStructure(G4String aPath);
+     51       ~G4SDStructure();
+     52 
+     53       G4int operator==(const G4SDStructure &right) const;
+     54 
+     55       void AddNewDetector(G4VSensitiveDetector*aSD, G4String treeStructure);
+     56       void Activate(G4String aName, G4bool sensitiveFlag);
+     57       void Initialize(G4HCofThisEvent*HCE);
+     58       void Terminate(G4HCofThisEvent*HCE);
+     59       G4VSensitiveDetector* FindSensitiveDetector(G4String aName, G4bool warning = true);
+     60       G4VSensitiveDetector* GetSD(G4String aName);
+     61       void ListTree();
+     62 
+     63   private:
+     64       G4SDStructure* FindSubDirectory(G4String subD);
+     65       G4String ExtractDirName(G4String aPath);
+     66       void RemoveSD(G4VSensitiveDetector*);
+     67 
+     68   private:
+     69       std::vector<G4SDStructure*> structure;
+     70       std::vector<G4VSensitiveDetector*> detector;
+     71       G4String pathName;
+     72       G4String dirName;
+     73       G4int verboseLevel;
+     74 
+
+
+
+
+
+
+G4SensitiveDetector
+--------------------
+
 ::
 
     [blyth@belle7 src]$ svn cp ../../DetSim/src/DsPmtSensDet.cc DsChromaPmtSensDet.cc 
@@ -75,6 +140,11 @@ Geant4 Hits
     125       // hit(s). The actual user's implementation for generating hit(s) must be
     126       // implemented in GenerateHits() virtual protected method. This method
     127       // MUST NOT be overrided.
+
+
+
+G4SDManager
+-------------
 
 
 `source/digits_hits/detector/include/G4SDManager.hh`::
