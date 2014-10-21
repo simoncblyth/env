@@ -12,8 +12,48 @@ for flexible reusability from different Geant4 contexts
 Dependencies
 ------------
 
-* giga/gaudi/gauss NOT ALLOWED 
-* sticking to plain Geant4, ZMQ, ZMQRoot,... for generality 
+* ROOT, CLHEP, Geant4, ZMQ, ZMQRoot
+* **NOT** detsim/giga/gaudi/gauss
+
+  * G4DAEChroma intended to be used from minimal 
+    shim G4 Actions hooked up in DetSim/GiGa 
+    in as few lines of code as possible
+
+  * this facilities limited dependency development/testing 
+    providing faster dev cycle : see `mocknuwa-` `datamodel-`
+
+
+Usage Stages
+--------------
+
+BeginOfRunAction
+~~~~~~~~~~~~~~~~~~
+
+* `G4DAEChroma::G4DAEChroma` ctor singleton and configure constituents
+
+  * Geometry : traverse volume tree creating tranform cache 
+  * Transport : prepare ZMQ sockets  
+  * SensDet : use Trojan to steal DsPmtSensDet hit collections and AddNewDetector 
+
+* geometry is exported to DAE in BeginOfRunAction also, 
+  but only need to do that once
+
+
+
+StackAction::ClassifyNewTrack OR customized Processes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* `G4DAEChroma::CollectPhoton`  and avoid further 
+   G4 processing via kill or not adding as secondary 
+
+
+StackAction::NewStage  
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* perhaps could be Event 
+
+* `G4DAEChroma::Propagate`  which proceeds to add the hits 
+
 
 How to organize code
 -----------------------
@@ -32,6 +72,165 @@ Primary concern of organization is:
 * **ease of testing from MockNuWa**
 
 Leave usage of StackAction etc at level of examples
+
+
+MockNuWa code development
+---------------------------
+
+See
+
+* mocknuwa-
+* datamodel-
+* gdc-  G4DAEChroma
+* gdct- G4DAEChromaTest
+
+Real NuWa hookup for machinery test
+--------------------------------------
+
+Integrate with real NuWa via shims:
+
+* `DsChromaRunAction` 
+* `DsChromaStackAction`
+
+that all depend on G4DAEChroma from Utilities.
+
+Keep all functionality in G4DAEChroma, only thing admissable
+to do in the shim is configuration.
+
+
+csa : ChromaStackAction
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Hmm this is sourced from people area SVN, move to env.
+
+/data1/env/local/env/muon_simulation/optical_photon_weighting/OPW/fmcpmuon.py::
+
+    321     def configure_chromastackaction(self):
+    322         log.info("configure_chromastackaction")
+    323         import DetSimChroma
+    324         from DetSimChroma.DetSimChromaConf import DsChromaStackAction
+    325         saction = DsChromaStackAction("GiGa.DsChromaStackAction")
+    326         saction.PhotonCut = True      # kill OP after collection
+    327         saction.ModuloPhoton = 1000   # scale down collection
+    328         return saction
+
+export- 
+~~~~~~~~~
+
+Handled by adding RunAction sourced from GaussTools, but cannot make GaussTools 
+depend on G4DAEChroma
+
+`env/geant4/geometry/export/export_all.py`::
+
+     69     # --- WRL + GDML + DAE geometry export ---------------------------------
+     70     from GaussTools.GaussToolsConf import GiGaRunActionExport, GiGaRunActionCommand, GiGaRunActionSequence
+     71     export = GiGaRunActionExport("GiGa.GiGaRunActionExport")
+     ..
+     91     giga.RunAction = export
+
+
+
+GiGaRunActionBase
+~~~~~~~~~~~~~~~~~~~
+
+GiGaRunActionBase.h inherits from G4UserRunAction 
+
+::
+
+    [blyth@cms01 ~]$ find $DYB/NuWa-trunk/lhcb/Sim -name 'GiGa*ActionBase.h'
+    /data/env/local/dyb/trunk/NuWa-trunk/lhcb/Sim/GiGa/GiGa/GiGaStepActionBase.h
+    /data/env/local/dyb/trunk/NuWa-trunk/lhcb/Sim/GiGa/GiGa/GiGaEventActionBase.h
+    /data/env/local/dyb/trunk/NuWa-trunk/lhcb/Sim/GiGa/GiGa/GiGaTrackActionBase.h
+    /data/env/local/dyb/trunk/NuWa-trunk/lhcb/Sim/GiGa/GiGa/GiGaRunActionBase.h
+    /data/env/local/dyb/trunk/NuWa-trunk/lhcb/Sim/GiGa/GiGa/GiGaStackActionBase.h
+
+::
+
+     26 class GiGaRunActionBase :
+     27   public virtual IGiGaRunAction ,
+     28   public          GiGaBase
+     29 {
+
+
+     30 class IGiGaRunAction:
+     31   virtual public G4UserRunAction ,
+     32   virtual public IGiGaInterface
+     33 {
+
+
+
+`source/run/include/G4UserRunAction.hh`::
+
+     37 //  This is the base class of a user's action class which defines the
+     38 // user's action at the begining and the end of each run. The user can
+     39 // override the following two methods but the user should not change 
+     40 // any of the contents of G4Run object.
+     41 //    virtual void BeginOfRunAction(const G4Run* aRun);
+     42 //    virtual void EndOfRunAction(const G4Run* aRun);
+     43 // The user can override the following method to instanciate his/her own
+     44 // concrete Run class. G4Run has a virtual method RecordEvent, so that
+     45 // the user can store any information useful to him/her with event statistics.
+     46 //    virtual G4Run* GenerateRun();
+     47 //  The user's concrete class derived from this class must be set to
+     48 // G4RunManager via G4RunManager::SetUserAction() method.
+     49 //
+     50 #include "G4Types.hh"
+     51 
+     52 class G4UserRunAction
+     53 {
+     54   public:
+     55     G4UserRunAction();
+     56     virtual ~G4UserRunAction();
+     57 
+     58   public:
+     59     virtual G4Run* GenerateRun();
+     60     virtual void BeginOfRunAction(const G4Run* aRun);
+     61     virtual void EndOfRunAction(const G4Run* aRun);
+     62 
+
+
+
+GiGaRunActionExport
+---------------------
+
+`/data1/env/local/dyb/NuWa-trunk/lhcb/Sim/GaussTools/src/Components/GiGaRunActionExport.h`::
+
+
+     28 class GiGaRunActionExport: public virtual GiGaRunActionBase
+     29 {
+     30   /// friend factory for instantiation
+     31   //friend class GiGaFactory<GiGaRunActionExport>;
+     32 
+     33 public:
+     34 
+     35   typedef std::vector<G4VPhysicalVolume*> PVStack_t;
+     36 
+     37 
+     38   /** performe the action at the begin of each run 
+     39    *  @param run pointer to Geant4 run object 
+     40    */
+     41   void BeginOfRunAction ( const G4Run* run );
+     42 
+     43   /** performe the action at the end  of each event 
+     44    *  @param run pointer to Geant4 run object 
+     45    */
+     46   void EndOfRunAction   ( const G4Run* run );
+     47 
+
+::
+
+    660 void GiGaRunActionExport::BeginOfRunAction( const G4Run* run )
+    661 {
+    662 
+    663   if( 0 == run )
+    664     { Warning("BeginOfRunAction:: G4Run* points to NULL!") ; }
+    665 
+    666    G4VPhysicalVolume* wpv = G4TransportationManager::GetTransportationManager()->
+    667       GetNavigatorForTracking()->GetWorldVolume();
+    668 
+    669 
+
+
 
 
 Initialize in RunAction?

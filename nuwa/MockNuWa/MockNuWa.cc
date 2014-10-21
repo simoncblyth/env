@@ -29,6 +29,7 @@ int main()
 
 
    // configure G4DAEChroma
+   /*
    G4DAEChroma* gdc = G4DAEChroma::GetG4DAEChroma();
 
    G4DAETransport* tra =  G4DAETransport::MakeTransport("G4DAECHROMA_CLIENT_CONFIG");
@@ -39,6 +40,14 @@ int main()
    gdc->SetGeometry( geo );    // duplication: also in SD, remove ?
    gdc->SetTransport( tra );
 
+   */
+
+
+   const char* transport = "G4DAECHROMA_CLIENT_CONFIG" ;
+   const char* sensdet = "DsPmtSensDet" ;
+   const char* geometry = "DAE_NAME_DYB_GDML" ;
+
+   G4DAEChroma::GetG4DAEChroma()->Configure( transport, sensdet, geometry );
 
    G4SDManager::GetSDMpointer()->ListTree();
 
@@ -50,11 +59,10 @@ int main()
    sd1->ProcessHits(NULL, NULL);
    //sd2->ProcessHits(NULL, NULL);
 
-   tsd->AddSomeFakeHits(); 
+   G4DAEChroma::GetG4DAEChroma()->GetSensDet()->AddSomeFakeHits(); 
 
 
-   // framework calls this
-   tsd->EndOfEvent(HCE);
+   G4DAEChroma::GetG4DAEChroma()->GetSensDet()->EndOfEvent(HCE);     // G4 calls this
 }
 
 

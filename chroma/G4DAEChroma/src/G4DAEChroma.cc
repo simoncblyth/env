@@ -3,11 +3,15 @@
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAEGeometry.hh"
 #include "G4DAEChroma/G4DAESensDet.hh"
+#include "G4DAEChroma/G4DAETrojanSensDet.hh"
+
+#include <iostream>
 
 
 using namespace std ; 
 
 G4DAEChroma* G4DAEChroma::fG4DAEChroma = 0;
+
 
 G4DAEChroma* G4DAEChroma::GetG4DAEChroma()
 {
@@ -24,13 +28,37 @@ G4DAEChroma* G4DAEChroma::GetG4DAEChromaIfExists()
 }
 
 
-G4DAEChroma::G4DAEChroma(const char* envvar) :
+G4DAEChroma::G4DAEChroma() :
     fTransport(0),
     fGeometry(0),
     fSensDet(0)
-
 { 
 }
+
+void G4DAEChroma::BeginOfRun( const G4Run* run )
+{
+    cout << "G4DAEChroma::BeginOfRun " << endl ;
+}
+void G4DAEChroma::EndOfRun(   const G4Run* run )
+{
+    cout << "G4DAEChroma::EndOfRun " << endl ;
+}
+
+void G4DAEChroma::Configure(const char* transport, const char* sensdet, const char* geometry)
+{
+    cout << "G4DAEChroma::Configure " << endl ;
+    G4DAETransport* tra =  G4DAETransport::MakeTransport(transport);
+    G4DAEGeometry*  geo =  G4DAEGeometry::MakeGeometry(geometry);
+    G4DAETrojanSensDet* tsd = G4DAETrojanSensDet::MakeTrojanSensDet(sensdet, geo ); 
+
+    this->SetSensDet( tsd );  
+    this->SetGeometry( geo );  
+    this->SetTransport( tra );
+}
+
+
+
+
 
 G4DAEChroma::~G4DAEChroma()
 {

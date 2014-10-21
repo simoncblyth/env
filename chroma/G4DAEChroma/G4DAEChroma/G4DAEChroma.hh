@@ -19,6 +19,7 @@ class G4DAEGeometry ;
 class G4DAETransport ;
 class G4DAESensDet ;
 class G4Track ; 
+class G4Run ;
 
 class G4DAEChroma 
 {
@@ -26,8 +27,9 @@ public:
     static G4DAEChroma* GetG4DAEChroma();
     static G4DAEChroma* GetG4DAEChromaIfExists();
 protected:
-    G4DAEChroma(const char* envvar="G4DAECHROMA_CLIENT_CONFIG");
+    G4DAEChroma();
 public:
+    void Configure(const char* transport="G4DAECHROMA_CLIENT_CONFIG", const char* sensdet="DsPmtSensDet", const char* geometry=NULL);
     virtual ~G4DAEChroma();
 
     void SetGeometry(G4DAEGeometry* geo);
@@ -39,6 +41,8 @@ public:
     void SetSensDet(G4DAESensDet* sd);
     G4DAESensDet* GetSensDet();
 
+    void BeginOfRun( const G4Run* run );
+    void EndOfRun(   const G4Run* run );
 
     void ClearAll();
     void CollectPhoton(const G4Track* aPhoton );

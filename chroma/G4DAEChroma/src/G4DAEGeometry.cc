@@ -25,6 +25,13 @@ bool G4DAEGeometry::CacheExists(){
    return m_transform_cache_created ;
 }
 
+
+G4DAEGeometry* G4DAEGeometry::MakeGeometry( const char* geometry )
+{
+   return ( geometry == NULL ) ? Load() : LoadFromGDML(geometry) ;
+}
+
+
 G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey )
 {
    const char* geopath = getenv(geokey);
@@ -34,14 +41,23 @@ G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey )
    }   
    printf("geokey %s geopath %s \n", geokey, geopath ); 
 
-
    G4GDMLParser fParser ; 
    fParser.Read(geopath,false);
 
-   G4VPhysicalVolume* wpv = fParser.GetWorldVolume();       
+   G4VPhysicalVolume* world = fParser.GetWorldVolume();       
+   return G4DAEGeometry::Load(world);
+}
+
+G4DAEGeometry* G4DAEGeometry::Load(const G4VPhysicalVolume* world)
+{
+   if( world == NULL )
+   {
+       world = G4TransportationManager::GetTransportationManager()->
+             GetNavigatorForTracking()->GetWorldVolume();
+   }
 
    G4DAEGeometry* geo = new G4DAEGeometry();
-   geo->CreateTransformCache(wpv); 
+   geo->CreateTransformCache(world); 
    //geo->DumpTransformCache(); 
  
    return geo ;
@@ -49,8 +65,7 @@ G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey )
 
 
 
-
-void G4DAEGeometry::CreateTransformCache(G4VPhysicalVolume* wpv)
+void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
 {
    if( wpv == NULL )
    {

@@ -13,14 +13,16 @@ class G4LogicalVolume ;
 class G4DAEGeometry 
 {
 public:
+    static G4DAEGeometry* MakeGeometry( const char* geometry );
     static G4DAEGeometry* LoadFromGDML( const char* geokey="DAE_NAME_DYB_GDML" );
+    static G4DAEGeometry* Load( const G4VPhysicalVolume* world=NULL );
 
     G4DAEGeometry();
     virtual ~G4DAEGeometry();
 
 public:
     bool CacheExists();
-    void CreateTransformCache(G4VPhysicalVolume* wpv=NULL);
+    void CreateTransformCache(const G4VPhysicalVolume* wpv=NULL);
     void DumpTransformCache();
     G4AffineTransform& GetNodeTransform(std::size_t index);
     std::string& GetNodeName(std::size_t index);
