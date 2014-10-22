@@ -10,6 +10,7 @@
 #endif
 
 #include <stdlib.h>    
+#include <iostream>    
 
 using namespace std ; 
 
@@ -30,7 +31,7 @@ bool G4DAEGeometry::CacheExists(){
 
 G4DAEGeometry* G4DAEGeometry::MakeGeometry( const char* geometry )
 {
-   return ( geometry == NULL ) ? Load() : LoadFromGDML(geometry) ;
+   return ( strcmp(geometry,"MEMORY") == 0 ) ? Load(NULL) : LoadFromGDML(geometry) ;
 }
 
 
@@ -64,6 +65,8 @@ G4DAEGeometry* G4DAEGeometry::Load(const G4VPhysicalVolume* world)
        world = G4TransportationManager::GetTransportationManager()->
              GetNavigatorForTracking()->GetWorldVolume();
    }
+   assert(world);
+   cout << "G4DAEGeometry::Load " << world->GetName() << endl ; 
 
    G4DAEGeometry* geo = new G4DAEGeometry();
    geo->CreateTransformCache(world); 
@@ -78,12 +81,12 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
 {
    if( wpv == NULL )
    {
-       G4cout << "G4DAEGeometry::CreateTransformCache trying to access world volume " << G4endl ; 
+       cout << "G4DAEGeometry::CreateTransformCache trying to access world volume " << endl ; 
        wpv = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
    }
 
    if(wpv == NULL){
-       G4cout << "G4DAEGeometry::CreateTransformCache ABORT : failed to access WorldVolume " << G4endl ; 
+       cout << "G4DAEGeometry::CreateTransformCache ABORT : failed to access WorldVolume " << endl ; 
        return ;
    } 
 
@@ -103,7 +106,7 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
    assert( npv == m_transform.size() );
 
    m_transform_cache_created = true ; 
-   G4cout << "G4DAEGeometry::CreateTransformCache found " << npv << " volumes " << G4endl ; 
+   cout << "G4DAEGeometry::CreateTransformCache found " << npv << " volumes " << endl ; 
 }
 
 

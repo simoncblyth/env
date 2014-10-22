@@ -2,33 +2,12 @@
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAEGeometry.hh"
 #include "Chroma/ChromaPhotonList.hh"  
+#include "G4DAEChroma/G4DAEHit.hh"
+#include "G4DAEChroma/G4DAEDetector.hh"
 
 #include "G4SDManager.hh"
 
-
 using namespace std; 
-
-#ifdef G4DAE_DAYABAY
-
-#include "Event/SimPmtHit.h"
-#include "Conventions/Detectors.h"
-
-DetectorId::DetectorId_t detector_ids[] = {              
-                      DetectorId::kAD1, 
-                      DetectorId::kAD2, 
-                      DetectorId::kAD3,
-                      DetectorId::kAD4, 
-                      DetectorId::kIWS, 
-                      DetectorId::kOWS,
-          (DetectorId::DetectorId_t)-1 };
-
-Site::Site_t site_ids[] = { 
-                     Site::kDayaBay, 
-                     Site::kLingAo, 
-                     Site::kFar, 
-                     (Site::Site_t)-1 };
-
-#endif
 
 
 G4DAESensDet::G4DAESensDet(const std::string& name) : G4VSensitiveDetector(name), m_geometry(0)
@@ -76,85 +55,22 @@ void G4DAESensDet::EndOfEvent( G4HCofThisEvent* hce )
 void G4DAESensDet::SetGeometry(G4DAEGeometry* geo){
    m_geometry = geo ; 
 }
-
 G4DAEGeometry* G4DAESensDet::GetGeometry(){
    return m_geometry ;
 }
 
-
-
-
-void G4DAESensDet::DefineCollectionNames()
-{
-#ifdef G4DAE_DAYABAY
-   collectionName.insert("unknown");
-   for (int isite=0; site_ids[isite] >= 0; ++isite) {
-        Site::Site_t site = site_ids[isite];
-
-        for (int idet=0; detector_ids[idet] >= 0; ++idet) {
-            DetectorId::DetectorId_t detid = detector_ids[idet];
-
-            DayaBay::Detector det(site,detid);
-
-            if (det.bogus()) continue;
-
-            string name=det.detName();
-            collectionName.insert(name.c_str());
-            //cout << "insert collectionName " << name << endl ;   
-        }
-    }
-#endif
-
-
+void G4DAESensDet::SetDetector(G4DAEDetector* det){
+   m_detector = det ; 
 }
+G4DAEDetector* G4DAESensDet::GetDetector(){
+   return m_detector ;
+}
+
 
 void G4DAESensDet::CreateHitCollections( G4HCofThisEvent* hce )
 {
-    m_hc.clear();
-
-#ifdef G4DAE_DAYABAY
-
-    int noc = hce->GetNumberOfCollections();
-
-    //G4THitsCollection<G4DhHit>
-    G4DhHitCollection* hc = new G4DhHitCollection(SensitiveDetectorName,collectionName[0]);
-    m_hc[0] = hc;
-    int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
-
-    hce->AddHitsCollection(hcid,hc);
-
-    for (int isite=0; site_ids[isite] >= 0; ++isite) {
-        for (int idet=0; detector_ids[idet] >= 0; ++idet) {
-            DayaBay::Detector det(site_ids[isite],detector_ids[idet]);
-            if (det.bogus()) continue;
-
-            string name=det.detName();
-            G4DhHitCollection* hc = new G4DhHitCollection(SensitiveDetectorName,name.c_str());
-            int hcid = G4SDManager::GetSDMpointer()->GetCollectionID(hc);
-            hce->AddHitsCollection(hcid,hc);
-
-            short int id = det.siteDetPackedData();
-            m_hc[id] = hc;
-
-        }       
-    }
-
-#endif
-
-    cout << "G4DAESensDet::CreateHitCollections "
-         << " HCE " << hce
-         << " SDN " << SensitiveDetectorName 
-         << " add #collections  " << hce->GetNumberOfCollections() - noc  
-         << " tot " << hce->GetNumberOfCollections()
-         << endl; 
-    
-
+    m_detector->CreateHitCollections( SensitiveDetectorName, hce );
 }
-
-
-    
-
-
 
 
 
@@ -164,96 +80,16 @@ void G4DAESensDet::CollectHits(ChromaPhotonList* cpl)
     cout << "G4DAESensDet::CollectHits " <<  endl ;   
     cpl->Print();
     std::size_t size = cpl->GetSize(); 
+
+    G4DAEHit hit ;
     for( std::size_t index = 0 ; index < size ; index++ )
     {
-          CollectOneHit( cpl,  index );
+         hit.Init( cpl, index); 
+         G4AffineTransform& trans = m_geometry->GetNodeTransform(hit.volumeindex) ;
+         hit.LocalTransform( trans );  
+         fDetector->CollectOneHit( hit );
     }   
 }
-
-
-void G4DAESensDet::CollectOneHit( ChromaPhotonList* cpl , std::size_t index )
-{
-    cout << "G4DAESensDet::CollectOneHit " <<  index <<  endl ;   
-
-    G4ThreeVector gpos ; 
-    G4ThreeVector gdir ; 
-    G4ThreeVector gpol ;
-    float t(0) ; 
-    float wavelength(0) ; 
-    int pmtid(0) ; 
-
-    int trackid(0) ;
-    int volumeindex(0) ; 
-    float weight(1) ;     
-
-    cpl->GetPhoton( index, gpos, gdir, gpol, t, wavelength, pmtid );    
-
-    G4AffineTransform& trans = m_geometry->GetNodeTransform(volumeindex) ;
-
-    G4ThreeVector pos = trans.TransformPoint(gpos);
-    G4ThreeVector pol = trans.TransformAxis(gpol);
-    G4ThreeVector dir = trans.TransformAxis(gdir);
-
-
-#ifdef G4DAE_DAYABAY
-    DayaBay::SimPmtHit* sphit = new DayaBay::SimPmtHit();
-
-    sphit->setSensDetId(pmtid);
-    sphit->setLocalPos(pos);
-    sphit->setHitTime(t);
-    sphit->setPol(pol);
-    sphit->setDir(dir);
-    sphit->setWavelength(wavelength);
-    sphit->setType(0);
-    sphit->setWeight(weight);
-
-    this->StoreHit( sphit, trackid );
-#endif
-}
-
-
-
-#ifdef G4DAE_DAYABAY
-void G4DAESensDet::StoreHit(DayaBay::SimPmtHit* hit, int trackid)
-{
-    int pmtid = hit->sensDetId();
-    DayaBay::Detector det(pmtid);
-    short int sdid = det.siteDetPackedData();
-
-    G4DhHitCollection* hc = m_hc[sdid];
-    if (!hc) { 
-        cout  << "G4DAESensDet::StoreHit : WARNING hit with no hit collection. " 
-              << " pmtid " << (void*)pmtid
-              << " det: " << setw(15) << DayaBay::Detector(pmtid).detName()
-              << " Storing to collectionName[0] " << collectionName[0]
-              << endl; 
-        sdid = 0;
-        hc = m_hc[sdid];
-    }
-
-#if 1
-    cout << "G4DAESensDet::StoreHit "
-         << " pmtid : " << (void*)pmtid 
-         << " from " << setw(15) << DayaBay::Detector(pmtid).detName()
-         << " sdid " <<  setw(5) << sdid 
-         << " (void*)sdid " << (void*)sdid
-         << " t " << hit->hitTime()/CLHEP::ns << "[ns] " 
-         << " pos " << hit->localPos()/CLHEP::cm << "[cm] " 
-         << " wav " << hit->wavelength()/CLHEP::nm << "[nm]"
-         << endl; 
-#endif
-
-    hc->insert(new G4DhHit(hit,trackid));
-}
-#else
-void G4DAESensDet::StoreHit(void* hit, int trackid)
-{
-}
-#endif
-
-
-
-
 
 
 

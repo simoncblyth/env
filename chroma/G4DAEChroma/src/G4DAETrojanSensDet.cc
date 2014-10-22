@@ -39,6 +39,9 @@ G4DAETrojanSensDet* G4DAETrojanSensDet::MakeTrojanSensDet(const std::string& tar
         trojanSD->SetGeometry(geometry);
         SDMan->AddNewDetector(trojanSD);
     }
+
+    cout << "G4DAETrojanSensDet::MakeTrojanSensDet SDMan->ListTree() " << endl ;
+    SDMan->ListTree();
     return trojanSD ; 
 }
 
