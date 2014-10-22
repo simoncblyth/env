@@ -17,6 +17,7 @@ public:
     void StealHitCollections( const char* target,  G4HCofThisEvent* hce );
 
     void Collect( const G4DAEHit& hit );
+    void AddSomeFakeHits();
 
 private:
     typedef std::map<short int,G4DhHitCollection*> LocalHitCache;

@@ -10,7 +10,9 @@ class ChromaPhotonList ;
 class G4DAESensDet : public G4VSensitiveDetector {
 
 public:
-    G4DAESensDet(const std::string& name);
+    static G4DAESensDet* MakeSensDet(const char* name, const char* target=NULL);
+
+    G4DAESensDet(const char* name, const char* target=NULL);
     virtual ~G4DAESensDet();
 
     int initialize() ; 
@@ -18,12 +20,8 @@ public:
     virtual void EndOfEvent( G4HCofThisEvent* HCE ) ; 
     virtual bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 
-    void SetGeometry(G4DAEGeometry* geo);
-    G4DAEGeometry* GetGeometry();
-
     void SetDetector(G4DAEDetector* det);
     G4DAEDetector* GetDetector();
-
 
     void DumpStatistics( G4HCofThisEvent* HCE );
 
@@ -33,8 +31,10 @@ public:
 
 protected:
     G4DAEDetector* m_detector ; 
+
 private:
     G4DAEGeometry* m_geometry ; 
+    const char* m_target ;
 
 };
 

@@ -148,6 +148,10 @@ void G4DAEDayabay::StealHitCollections(const char* target,  G4HCofThisEvent* HCE
 }
 
 
+void G4DAEDayabay::AddSomeFakeHits()
+{
+    cout << "G4DAEDayabay::AddSomeFakeHits" << endl;
+}
 
 
 

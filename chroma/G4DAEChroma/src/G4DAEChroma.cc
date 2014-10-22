@@ -3,7 +3,6 @@
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAEGeometry.hh"
 #include "G4DAEChroma/G4DAESensDet.hh"
-#include "G4DAEChroma/G4DAETrojanSensDet.hh"
 
 #include <iostream>
 
@@ -47,9 +46,13 @@ void G4DAEChroma::EndOfRun(   const G4Run* run )
 void G4DAEChroma::Configure(const char* transport, const char* sensdet, const char* geometry)
 {
     cout << "G4DAEChroma::Configure [" << this << "]" << endl ;
-    G4DAETransport* tra =  G4DAETransport::MakeTransport(transport);
-    G4DAEGeometry*  geo =  G4DAEGeometry::MakeGeometry(geometry);
-    G4DAETrojanSensDet* tsd = G4DAETrojanSensDet::MakeTrojanSensDet(sensdet, geo ); 
+    G4DAETransport* tra = G4DAETransport::MakeTransport(transport);
+    G4DAEGeometry*  geo = G4DAEGeometry::MakeGeometry(geometry);
+
+    const char* target = sensdet ; 
+    string trojan = "trojan_" ;
+    trojan += sensdet ;
+    G4DAESensDet*   tsd = G4DAESensDet::MakeSensDet(trojan.c_str(), target );
 
     this->SetTransport( tra );
     this->SetGeometry( geo );  
