@@ -455,3 +455,28 @@ No point duplicating hit
 
 
 
+    void G4DAESensDet::AddSomeFakeHits()
+    {
+        int myints[] = { 
+                       0x1010101,
+                       0x2010101,
+                       0x4010101,
+                     };  
+
+        vector<int> pmtids( myints, myints + sizeof(myints) / sizeof(int) );
+        for (vector<int>::iterator it = pmtids.begin(); it != pmtids.end(); ++it)
+        {   
+            int trackid = 1 ; 
+
+#ifdef G4DAE_DAYABAY
+            DayaBay::SimPmtHit* sphit = new DayaBay::SimPmtHit();
+            sphit->setSensDetId(*it); 
+            StoreHit( sphit, trackid );
+#endif
+
+
+        }   
+    }
+
+
+

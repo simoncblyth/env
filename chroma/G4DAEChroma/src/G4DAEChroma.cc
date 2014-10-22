@@ -105,7 +105,7 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
   std::size_t nhits = fTransport->Propagate(batch_id); 
   if(nhits > 0)
   { 
-      fSensDet->CollectHits( fTransport->GetHits() );
+      fSensDet->CollectHits( fTransport->GetHits(), fGeometry );
   } 
   return nhits ; 
 }

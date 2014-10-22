@@ -1,5 +1,7 @@
 #include "G4DAEChroma/G4DAEHit.hh"
 #include "Chroma/ChromaPhotonList.hh"  
+#include <iostream>
+using namespace std ;
 
 void G4DAEHit::Init(ChromaPhotonList* cpl, std::size_t index)
 {

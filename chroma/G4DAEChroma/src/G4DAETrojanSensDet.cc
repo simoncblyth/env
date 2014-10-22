@@ -1,16 +1,11 @@
 
 #include "G4DAEChroma/G4DAETrojanSensDet.hh"
+#include "G4DAEChroma/G4DAEDetector.hh"
 
 #include "G4SDManager.hh"
 #include "G4HCofThisEvent.hh"
 #include <iostream>
 #include <iomanip>
-
-
-#ifdef G4DAE_DAYABAY
-#include "Event/SimPmtHit.h"
-#include "Conventions/Detectors.h"
-#endif
 
 
 using namespace std; 
@@ -65,12 +60,9 @@ G4DAETrojanSensDet::~G4DAETrojanSensDet()
 }
 
 
-
-
-
 void G4DAETrojanSensDet::Initialize( G4HCofThisEvent* hce )
 {
-    StealHitCollections( m_target, hce );
+    m_detector->StealHitCollections( m_target.c_str(), hce );
 }
 
 bool G4DAETrojanSensDet::ProcessHits(G4Step* /*step*/, G4TouchableHistory* /*history*/)
@@ -80,76 +72,11 @@ bool G4DAETrojanSensDet::ProcessHits(G4Step* /*step*/, G4TouchableHistory* /*his
 
 void G4DAETrojanSensDet::EndOfEvent( G4HCofThisEvent* hce ) 
 {
-    DumpStatistics(hce);
+    m_detector->DumpStatistics(hce);
 }
 
 
 
 
-
-int G4DAETrojanSensDet::StealHitCollections(const std::string& target,  G4HCofThisEvent* HCE)
-{
-   /*
-   Summary: this steals HCE hit collection pointers of target SD
-
-   For entries in HCtable with SDname matching the argument, 
-   obtain hcid and corresponding HC. 
-   Cache HC pointers into m_hc keyed by site-detector short int, 
-   obtained by DayaBay::Detector interpretation of the collection name.   
-
-   NB this relies on the `G4DAETrojanSensDet::Initialize( G4HCofThisEvent* hce )`
-   being called after that of the target SD otherwise will fail to access HC.
-
-   As a result of this access to targetted hit collections of the event
-   hits can be added outside of the normal ProcessHits machinery using 
-   hit collection methods provided by the `G4DAESensDet` base class.
-
-   */ 
-
-   m_hc.clear();
-   G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-
-   G4HCtable* hct = SDMan->GetHCtable();
-   for(G4int i=0 ; i < hct->entries() ; i++ )
-   {
-      string sdName = hct->GetSDname(i);  
-      string colName = hct->GetHCname(i);  
-
-      if(sdName != target) continue ;
-
-      G4String query = sdName + "/" + colName ; 
-
-      int hcid = hct->GetCollectionID(query);
-
-
-#ifdef G4DAE_DAYABAY
-    
-      G4DhHitCollection* hc = (G4DhHitCollection*)HCE->GetHC(hcid); 
-
-      DayaBay::Detector det(colName);
-      if(det.bogus()) cout << "G4DAETrojanSensDet::StealHitCollections : WARNING bogus det " << det << endl ;
-      //if(det.bogus()) continue ;
-      short int detid = det.siteDetPackedData();
-
-      if(m_hc.find(detid) != m_hc.end()) cout << "G4DAETrojanSensDet::StealHitCollections : WARNING : replacing hitcache entry with key " << detid << endl ;
-      m_hc[detid] = hc ;
-
-#else
-      cout << "G4DAETrojanSensDet::StealHitCollections need to recompile with detector switch like  -DG4DAE_DAYABAY to cache hit collections " << endl;  
-
-#endif
-
-   } 
-
-
-   cout << "G4DAETrojanSensDet::StealHitCollections "
-        << " HCE " << HCE
-        << " target " << target 
-        << " #col " << m_hc.size()
-        << endl ; 
-
-
-   return 0;
-}
 
 

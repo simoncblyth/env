@@ -12,9 +12,11 @@ public:
     G4DAEDayabay();
     virtual ~G4DAEDayabay();
 
-    void DefineCollectionNames();
+    void DefineCollectionNames(G4CollectionNameVector&);
     void CreateHitCollections( const char* sdname, G4HCofThisEvent* HCE );
-    void CollectHit( const G4DAEHit& hit );
+    void StealHitCollections( const char* target,  G4HCofThisEvent* hce );
+
+    void Collect( const G4DAEHit& hit );
 
 private:
     typedef std::map<short int,G4DhHitCollection*> LocalHitCache;

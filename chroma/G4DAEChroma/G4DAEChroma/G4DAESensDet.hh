@@ -28,14 +28,13 @@ public:
     void DumpStatistics( G4HCofThisEvent* HCE );
 
 public:
-    void CollectHits( ChromaPhotonList* cpl );
+    void CollectHits( ChromaPhotonList* cpl, G4DAEGeometry* geometry );
     void CollectOneHit( ChromaPhotonList* cpl , std::size_t index );
-    void AddSomeFakeHits();
 
-
+protected:
+    G4DAEDetector* m_detector ; 
 private:
     G4DAEGeometry* m_geometry ; 
-    G4DAEDetector* m_detector ; 
 
 };
 
