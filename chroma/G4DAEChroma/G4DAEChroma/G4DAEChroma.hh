@@ -43,6 +43,7 @@ public:
 
     void BeginOfRun( const G4Run* run );
     void EndOfRun(   const G4Run* run );
+    void Note( const char* msg );
 
     void ClearAll();
     void CollectPhoton(const G4Track* aPhoton );

@@ -71,6 +71,9 @@ void G4DAETransport::CollectPhoton(const G4Track* aPhoton )
    G4String pname="-";
    const G4VProcess* process = aPhoton->GetCreatorProcess();
    if(process) pname = process->GetProcessName();
+   assert( pname == "Cerenkov" || pname == "Scintillation" );
+
+   /* 
    G4cout << " OP : " 
           << " ProcessName " << pname 
           << " ParentID "    << aPhoton->GetParentID() 
@@ -80,12 +83,12 @@ void G4DAETransport::CollectPhoton(const G4Track* aPhoton )
           << " TrackStatus " << aPhoton->GetTrackStatus() 
           << " CurrentStepNumber " << aPhoton->GetCurrentStepNumber() 
           << G4endl;
-
-   assert( pname == "Cerenkov" || pname == "Scintillation" );
+   */
 
    G4ThreeVector pos = aPhoton->GetPosition()/mm ;
    G4ThreeVector dir = aPhoton->GetMomentumDirection() ;
    G4ThreeVector pol = aPhoton->GetPolarization() ;
+
    float time = aPhoton->GetGlobalTime()/ns ;
    float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
 

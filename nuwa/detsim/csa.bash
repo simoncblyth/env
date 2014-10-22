@@ -155,7 +155,8 @@ csa-nuwarun(){
    opw-cd     # need to be in OPW to find "fmcpmuon"
 
    zmq-
-   export CSA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
+   #export CSA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
+   export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
 
    #nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
    nuwa.py -n 100 -m "fmcpmuon --use-basic-physics --chroma "

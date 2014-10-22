@@ -138,6 +138,86 @@ Appending keys for restricted no-login shell identity
     sudo bash -c "cat dybdb1.* >>  ~dayabayscp/.ssh/authorized_keys2"  
 
 
+
+Access remote node via gateway
+--------------------------------
+
+* http://www.onlamp.com/pub/a/onlamp/excerpt/ssh_11/index1.html
+
+The problem: network gnomes have blocked directed access `D -> N`
+but access `D -> C` and `C -> N` remains operational.
+
+To avoid an extra manual ssh step and prevent direct running 
+of commands over ssh : need to setup a forced command 
+on the gateway.
+
+On originating node D, generate an alternative key::
+
+    delta:.ssh blyth$ ssh-keygen -t rsa -f alt_rsa -C "alt $USER@$NODE_TAG"
+    Generating public/private rsa key pair.
+    Enter passphrase (empty for no passphrase): 
+    Enter same passphrase again: 
+    Your identification has been saved in alt_rsa.
+    Your public key has been saved in alt_rsa.pub.
+
+    delta:.ssh blyth$ ssh-keygen -t dsa -f alt_dsa -C "alt $USER@$NODE_TAG"
+    Generating public/private dsa key pair.
+    Enter passphrase (empty for no passphrase): 
+    Enter same passphrase again: 
+    Your identification has been saved in alt_dsa.
+    Your public key has been saved in alt_dsa.pub.
+    ...
+
+
+Add the key to the agent::
+
+    delta:.ssh blyth$ ssh-add -l
+    1024 4d:f7:32:71:1e:09:6a:2b:02:1b:91:5c:49:fd:1c:04 /Users/blyth/.ssh/id_dsa (DSA)
+    2048 2c:3a:e2:f7:e4:04:7e:62:08:fd:dc:7b:19:ec:24:10 /Users/blyth/.ssh/id_rsa (RSA)
+
+    delta:.ssh blyth$ ssh-add alt_rsa
+    Enter passphrase for alt_rsa: 
+    Identity added: alt_rsa (alt_rsa)
+
+    delta:.ssh blyth$ ssh-add -l
+    1024 4d:f7:32:71:1e:09:6a:2b:02:1b:91:5c:49:fd:1c:04 /Users/blyth/.ssh/id_dsa (DSA)
+    2048 2c:3a:e2:f7:e4:04:7e:62:08:fd:dc:7b:19:ec:24:10 /Users/blyth/.ssh/id_rsa (RSA)
+    2048 b0:9c:a6:c9:f5:80:97:65:48:a3:76:fb:04:62:2b:37 alt_rsa (RSA)
+
+
+Copy public key to gateway::
+
+    delta:.ssh blyth$ scp alt_rsa.pub C:.ssh/ 
+    delta:.ssh blyth$ scp alt_dsa.pub C:.ssh/ 
+
+On the gateway machine::
+
+    [blyth@cms01 .ssh]$ cat alt_rsa.pub >> authorized_keys2
+    [blyth@cms01 .ssh]$ cat alt_dsa.pub >> authorized_keys2
+
+Edit the authorized_keys2 adding a forced command infront of the 
+public key just added:: 
+
+    [blyth@cms01 .ssh]$ vi authorized_keys2
+
+    command="sh -c 'ssh belle7.nuu.edu.tw ${SSH_ORIGINAL_COMMAND:-}'" ssh-rsa AAAAB3NzaC1y
+
+Back on original machine add .ssh/config entry that uses the alternative key::
+
+    host CN
+        user blyth
+        hostname 140.112.101.190
+        IdentityFile ~/.ssh/alt_rsa
+        protocol 2
+
+On gateway, copy the alt key forward to target and append to authorized_keys2 on target::
+
+    [blyth@cms01 .ssh]$ scp alt_dsa.pub N:.ssh/
+    [blyth@belle7 .ssh]$ cat alt_dsa.pub >> authorized_keys2
+
+
+
+
 Private web server access over SSH 
 ------------------------------------
 
@@ -662,45 +742,52 @@ EOD
 
 }
 
+ssh--agent-ps(){ ps aux | grep ssh-agent ; }
+ssh--agent-stop(){ pkill ssh-agent ; rm  $(ssh--infofile) ; }
 
+
+ssh--agent-start-notes(){ cat << EON
+
+Attempts to do this in more involved manner
+run into security related errors::
+
+    ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
+
+As OSX needs to prompt for a password but that 
+seems not to work in involved scripts.
+
+* https://github.com/markcarver/mac-ssh-askpass
+
+EON
+}
+
+
+ssh--agent-start-(){
+    local info=$(ssh--infofile)
+    ssh-agent > $info && perl -pi -e 's/echo/#echo/' $info && chmod 0600 $info 
+    echo ===== sourcing the info for the agent $info
+    . $info
+}
 ssh--agent-start(){
-    local info=$(ssh--infofile)
-    ssh-agent > $info && perl -pi -e 's/echo/#echo/' $info && chmod 0600 $info 
-    
-    echo ===== sourcing the info for the agent $info
-    . $info
-    
-    echo ===== adding identities to the agent 
-   
-	 if ([ -f $HOME/.ssh/id_dsa ] &&  [ -f $HOME/.ssh/id_rsa  ]); then 
-       ssh-add $HOME/.ssh/id{_dsa,_rsa}
-    else
-       echo identities not generated ... first invoke .... ssh--keygen passphrase 
-    fi
-    
-    echo ===== listing identities of the agent
+    ssh--agent-start-   
+    echo $FUNCNAME : adding identities to the agent 
+    ssh-add $HOME/.ssh/id_dsa $HOME/.ssh/id_rsa
     ssh-add -l
 }
-
-
+ssh--agent-start-alt(){
+    ssh--agent-start-   
+    echo $FUNCNAME : adding identities to the agent 
+    ssh-add -D  # delete all identities as somehow the defaults keep getting added
+    ssh-add $HOME/.ssh/alt_dsa
+    ssh-add -l
+}
 ssh--agent-start-dsa(){
-    local info=$(ssh--infofile)
-    ssh-agent > $info && perl -pi -e 's/echo/#echo/' $info && chmod 0600 $info 
-    
-    echo ===== sourcing the info for the agent $info
-    . $info
-    
-    echo ===== adding identities to the agent 
-   
-	 if  [ -f $HOME/.ssh/id_dsa ]; then 
-       ssh-add $HOME/.ssh/id_dsa
-    else
-       echo identities not generated ... first invoke .... ssh--keygen passphrase 
-    fi
-    
-    echo ===== listing identities of the agent
+    ssh--agent-start-   
+    echo $FUNCNAME : adding identities to the agent 
+    ssh-add $HOME/.ssh/id_dsa
     ssh-add -l
 }
+
 
 
 

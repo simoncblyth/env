@@ -37,16 +37,16 @@ G4DAEChroma::G4DAEChroma() :
 
 void G4DAEChroma::BeginOfRun( const G4Run* run )
 {
-    cout << "G4DAEChroma::BeginOfRun " << run << endl ;
+    cout << "G4DAEChroma::BeginOfRun [" << this << "] " << run << endl ;
 }
 void G4DAEChroma::EndOfRun(   const G4Run* run )
 {
-    cout << "G4DAEChroma::EndOfRun " << run << endl ;
+    cout << "G4DAEChroma::EndOfRun [" << this << "] " << run << endl ;
 }
 
 void G4DAEChroma::Configure(const char* transport, const char* sensdet, const char* geometry)
 {
-    cout << "G4DAEChroma::Configure " << endl ;
+    cout << "G4DAEChroma::Configure [" << this << "]" << endl ;
     G4DAETransport* tra =  G4DAETransport::MakeTransport(transport);
     G4DAEGeometry*  geo =  G4DAEGeometry::MakeGeometry(geometry);
     G4DAETrojanSensDet* tsd = G4DAETrojanSensDet::MakeTrojanSensDet(sensdet, geo ); 
@@ -56,8 +56,10 @@ void G4DAEChroma::Configure(const char* transport, const char* sensdet, const ch
     this->SetSensDet( tsd );  
 }
 
-
-
+void G4DAEChroma::Note(const char* msg)
+{
+    cout << "G4DAEChroma::Note [" <<  this << "] " << msg << endl ;
+}
 
 
 G4DAEChroma::~G4DAEChroma()

@@ -62,6 +62,7 @@ StatusCode DsChromaStackAction::initialize()
   }
     
   m_chroma = G4DAEChroma::GetG4DAEChroma();  // should have already been configured in RunAction TODO:check this
+  m_chroma->Note("DsChromaStackAction::initialize"); 
 
   return StatusCode::SUCCESS; 
 }
@@ -70,6 +71,7 @@ StatusCode DsChromaStackAction::finalize()
 {
   info() << "DsChromaStackAction::finalize()" << endreq;
   neutronList.clear();  
+  m_chroma->Note("DsChromaStackAction::finalize"); 
 
   return  GiGaStackActionBase::finalize();
 }
