@@ -106,13 +106,12 @@ gdc-nuwapkg(){
 gdc-nuwapkg-cd(){ cd $(gdc-nuwapkg)/$1 ; } 
 
 
-gdc-names(){ cat << EON
-G4DAEChroma
-G4DAEGeometry
-G4DAESensDet
-G4DAETransport
-G4DAETrojanSensDet
-EON
+gdc-names(){ 
+   local path
+   ls -1 $(gdc-sdir)/G4DAEChroma/*.hh  | while read path ; do
+      local name=$(basename $path)
+      echo ${name/.hh}
+   done
 }
 
 gdc-nuwapkg-action-cmds(){

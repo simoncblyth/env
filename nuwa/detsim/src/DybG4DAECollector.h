@@ -1,16 +1,22 @@
-#ifndef G4DAEDAYABAYCOLLECTOR_H
-#define G4DAEDAYABAYCOLLECTOR_H 1
+#ifndef DYBG4DAECOLLECTOR_H
+#define DYBG4DAECOLLECTOR_H 1
 
 #include "G4DAEChroma/G4DAECollector.hh"
 #include <map>
 
 #include "G4DataHelpers/G4DhHit.h"
 
-class DsChromaG4DAECollector : public G4DAECollector {
+// 
+// Dayabay specialization of G4DAECollector
+// allowing use of G4DAEChroma external photon 
+// propagation machinery 
+//
+
+class DybG4DAECollector : public G4DAECollector {
 
 public:
-    DsChromaG4DAECollector();
-    virtual ~DsChromaG4DAECollector();
+    DybG4DAECollector();
+    virtual ~DybG4DAECollector();
 
     void DefineCollectionNames(G4CollectionNameVector&);
     void CreateHitCollections( const char* sdname, G4HCofThisEvent* HCE );

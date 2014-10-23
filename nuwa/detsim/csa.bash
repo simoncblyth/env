@@ -42,6 +42,7 @@ csa-nuwapkg-cd(){ cd $(csa-nuwapkg)/$1 ; }
 csa-names(){ cat << EON
 DsChromaStackAction
 DsChromaRunAction
+DybG4DAECollector
 EON
 }
 
@@ -56,7 +57,6 @@ csa-nuwapkg-cpto-(){
    cd $iwd
 }   
 csa-nuwapkg-cpto(){ 
-   local clss="$(csa-clss)"
    local nam
    csa-names | while read nam ; do 
       $FUNCNAME- $nam
@@ -71,7 +71,6 @@ EOO
 
 
 csa-nuwapkg-diff(){
-   local clss="$(csa-clss)"
    local nam
    csa-names | while read nam ; do 
       $FUNCNAME- $nam
@@ -155,8 +154,10 @@ csa-nuwarun(){
    opw-cd     # need to be in OPW to find "fmcpmuon"
 
    zmq-
-   #export CSA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
    export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
+
+   echo $FUNCNAME 
+   env | grep G4DAECHROMA
 
    #nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
    nuwa.py -n 100 -m "fmcpmuon --use-basic-physics --chroma "

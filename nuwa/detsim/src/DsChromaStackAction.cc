@@ -19,7 +19,7 @@
 #include <G4ParticleTypes.hh>
 #include <G4Track.hh>
 
-#include "G4DAEChroma/G4DAEChroma.h"
+#include "G4DAEChroma/G4DAEChroma.hh"
 
 
 DECLARE_TOOL_FACTORY(DsChromaStackAction);
