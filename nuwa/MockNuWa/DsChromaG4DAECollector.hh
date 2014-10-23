@@ -1,16 +1,16 @@
-#ifndef G4DAEDAYABAY_H
-#define G4DAEDAYABAY_H 1
+#ifndef G4DAEDAYABAYCOLLECTOR_H
+#define G4DAEDAYABAYCOLLECTOR_H 1
 
-#include "G4DAEChroma/G4DAEDetector.hh"
+#include "G4DAEChroma/G4DAECollector.hh"
 #include <map>
 
 #include "G4DataHelpers/G4DhHit.h"
 
-class G4DAEDayabay : public G4DAEDetector {
+class DsChromaG4DAECollector : public G4DAECollector {
 
 public:
-    G4DAEDayabay();
-    virtual ~G4DAEDayabay();
+    DsChromaG4DAECollector();
+    virtual ~DsChromaG4DAECollector();
 
     void DefineCollectionNames(G4CollectionNameVector&);
     void CreateHitCollections( const char* sdname, G4HCofThisEvent* HCE );

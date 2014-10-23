@@ -2,6 +2,52 @@ cms01
 =======
 
 
+Oct 23, 2014
+-------------
+
+Smth changed, getting low on space::
+
+    [blyth@cms01 /]$ sudo du -hs * 
+    Password:
+    113G    data
+    72G home
+    8.9G    var
+    2.3G    usr
+    ..
+    [blyth@cms01 /]$ date
+    Thu Oct 23 11:57:20 CST 2014
+
+
+Looks to be dybsvn::
+
+    [blyth@cms01 alt.backup]$ find . -name '*.gz' -exec du -h {} \;
+    4.0G    ./dayabay/svn/dybaux/2014/10/22/091002/dybaux-5486.tar.gz
+    4.0G    ./dayabay/svn/dybaux/2014/05/10/091002/dybaux-5484.tar.gz
+    1.4G    ./dayabay/svn/dybaux/2014/05/11/091002/dybaux-5484.tar.gz
+    7.1G    ./dayabay/svn/dybsvn/2014/10/21/091002/dybsvn-23456.tar.gz
+    7.1G    ./dayabay/svn/dybsvn/2014/10/22/091002/dybsvn-23458.tar.gz
+    7.1G    ./dayabay/svn/dybsvn/2014/10/20/091002/dybsvn-23443.tar.gz
+    47M ./dayabay/svn/toysvn/2014/10/22/091002/toysvn-185.tar.gz
+    47M ./dayabay/svn/toysvn/2014/05/09/091002/toysvn-185.tar.gz
+    47M ./dayabay/svn/toysvn/2014/05/10/091002/toysvn-185.tar.gz
+    3.0M    ./dayabay/tracs/dybaux/2014/10/22/091002/dybaux.tar.gz
+    2.8M    ./dayabay/tracs/dybaux/2014/05/10/091002/dybaux.tar.gz
+    2.8M    ./dayabay/tracs/dybaux/2014/05/11/091002/dybaux.tar.gz
+    1.7G    ./dayabay/tracs/dybsvn/2014/10/21/091002/dybsvn.tar.gz
+    1.7G    ./dayabay/tracs/dybsvn/2014/10/22/091002/dybsvn.tar.gz
+    1.7G    ./dayabay/tracs/dybsvn/2014/10/20/091002/dybsvn.tar.gz
+    1.0M    ./dayabay/tracs/toysvn/2014/10/22/091002/toysvn.tar.gz
+    884K    ./dayabay/tracs/toysvn/2014/05/10/091002/toysvn.tar.gz
+    884K    ./dayabay/tracs/toysvn/2014/05/11/091002/toysvn.tar.gz
+    12K ./dayabay/folders/svnsetup/2014/10/21/091002/svnsetup.tar.gz
+    12K ./dayabay/folders/svnsetup/2014/10/22/091002/svnsetup.tar.gz
+    12K ./dayabay/folders/svnsetup/2014/10/20/091002/svnsetup.tar.gz
+    24K ./dayabay/repos/newtest/2014/10/22/091002/newtest-0.tar.gz
+    24K ./dayabay/repos/newtest/2014/05/10/091002/newtest-0.tar.gz
+    24K ./dayabay/repos/newtest/2014/05/11/091002/newtest-0.tar.gz
+
+
+
 
 cms01 /data mount
 --------------------

@@ -1,8 +1,7 @@
-#include "G4DAEChroma/G4DAEDayabay.hh"
+#include "DsChromaG4DAECollector.hh"
 
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
-
 
 #include "Event/SimPmtHit.h"
 #include "Conventions/Detectors.h"
@@ -26,16 +25,16 @@ Site::Site_t site_ids[] = {
                      (Site::Site_t)-1 };
 
 
-G4DAEDayabay::G4DAEDayabay()
+DsChromaG4DAECollector::DsChromaG4DAECollector()
 {
     DefineCollectionNames(collectionName);
 }
 
-G4DAEDayabay::~G4DAEDayabay()
+DsChromaG4DAECollector::~DsChromaG4DAECollector()
 {
 }
 
-void G4DAEDayabay::DefineCollectionNames(G4CollectionNameVector& collectionName)
+void DsChromaG4DAECollector::DefineCollectionNames(G4CollectionNameVector& collectionName)
 {
    collectionName.insert("unknown");
    for (int isite=0; site_ids[isite] >= 0; ++isite) {
@@ -56,7 +55,7 @@ void G4DAEDayabay::DefineCollectionNames(G4CollectionNameVector& collectionName)
 }
 
 
-void G4DAEDayabay::CreateHitCollections( const char* sdname, G4HCofThisEvent* hce )
+void DsChromaG4DAECollector::CreateHitCollections( const char* sdname, G4HCofThisEvent* hce )
 {
     m_hc.clear();
 
@@ -84,7 +83,7 @@ void G4DAEDayabay::CreateHitCollections( const char* sdname, G4HCofThisEvent* hc
 
         }       
     }
-    cout << "G4DAEDayabay::CreateHitCollections "
+    cout << "DsChromaG4DAECollector::CreateHitCollections "
          << " HCE " << hce
          << " SDN " << sdname
          << " add #collections  " << hce->GetNumberOfCollections() - noc  
@@ -92,7 +91,7 @@ void G4DAEDayabay::CreateHitCollections( const char* sdname, G4HCofThisEvent* hc
          << endl; 
 }
 
-void G4DAEDayabay::StealHitCollections(const char* target,  G4HCofThisEvent* HCE)
+void DsChromaG4DAECollector::StealHitCollections(const char* target,  G4HCofThisEvent* HCE)
 {
    /*
    Summary: this steals HCE hit collection pointers of target SD
@@ -129,7 +128,7 @@ void G4DAEDayabay::StealHitCollections(const char* target,  G4HCofThisEvent* HCE
       G4DhHitCollection* hc = (G4DhHitCollection*)HCE->GetHC(hcid); 
 
       DayaBay::Detector det(colName);
-      if(det.bogus()) cout << "G4DAEDayabay::StealHitCollections : WARNING bogus det " << det << endl ;
+      if(det.bogus()) cout << "DsChromaG4DAECollector::StealHitCollections : WARNING bogus det " << det << endl ;
       //if(det.bogus()) continue ;
       short int detid = det.siteDetPackedData();
 
@@ -138,28 +137,15 @@ void G4DAEDayabay::StealHitCollections(const char* target,  G4HCofThisEvent* HCE
 
    } 
 
-   cout << "G4DAEDayabay::StealHitCollections "
+   cout << "DsChromaG4DAECollector::StealHitCollections "
         << " HCE " << HCE
         << " target " << target 
         << " #col " << m_hc.size()
         << endl ; 
-
-
 }
 
 
-void G4DAEDayabay::AddSomeFakeHits()
-{
-    cout << "G4DAEDayabay::AddSomeFakeHits" << endl;
-}
-
-
-
-
-
-
-
-void G4DAEDayabay::Collect( const G4DAEHit& hit )
+void DsChromaG4DAECollector::Collect( const G4DAEHit& hit )
 {
     int trackid = hit.trackid ; 
     DayaBay::SimPmtHit* sphit = new DayaBay::SimPmtHit();
@@ -179,7 +165,7 @@ void G4DAEDayabay::Collect( const G4DAEHit& hit )
     G4DhHitCollection* hc = m_hc[sdid];
 
     if (!hc) { 
-        cout  << "G4DAEDayabay::CollectHit : WARNING hit with no hit collection. " 
+        cout  << "DsChromaG4DAECollector::CollectHit : WARNING hit with no hit collection. " 
               << " pmtid " << (void*)hit.pmtid
               << " det: " << setw(15) << det.detName()
               << " Storing to collectionName[0] " << collectionName[0]
@@ -188,7 +174,7 @@ void G4DAEDayabay::Collect( const G4DAEHit& hit )
         hc = m_hc[sdid];
     }
 
-    cout << "G4DAEDayabay::CollectHit "
+    cout << "DsChromaG4DAECollector::CollectHit "
          << " pmtid : " << (void*)hit.pmtid 
          << " from " << setw(15) << det.detName()
          << " sdid " <<  setw(5) << sdid 

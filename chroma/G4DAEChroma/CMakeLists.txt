@@ -14,37 +14,27 @@ find_package(Geant4 9.5.0 REQUIRED gdml)
 find_package(ChromaPhotonList REQUIRED)
 find_package(ZMQRoot REQUIRED)
 find_package(Root REQUIRED)
-find_package(NuWaDataModel REQUIRED) # needed for hits 
 
 include(EnvBuildOptions)
 
 
-## G4DataHelpers in limbo, not in DataModel due to G4 dependency
-## TODO?: stuff into separate package 
-
-set(SRC "$ENV{LOCAL_BASE}/env/nuwa/src/DataModel")
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-                    ${SRC}/G4DataHelpers
                     ${Geant4_INCLUDE_DIRS}    
                     ${CHROMAPHOTONLIST_INCLUDE_DIR}
                     ${ZMQROOT_INCLUDE_DIR}
                     ${ROOT_INCLUDE_DIR}
-                    ${DATAMODEL_INCLUDE_DIRS}
                    )
 
 message( STATUS "ROOT_INCLUDE_DIR ${ROOT_INCLUDE_DIR}" )
 
 add_definitions(
                    ${Geant4_DEFINITIONS} 
-                   -DWITH_CHROMA_ZMQ  -DG4DAE_DAYABAY -DEXPORT_G4GDML
-                   ${DATAMODEL_DEFINITIONS}  
+                   -DWITH_CHROMA_ZMQ  -DEXPORT_G4GDML
                    ${CHROMAPHOTONLIST_DEFINITIONS}  
                 )    
 
 file(GLOB sources
                   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc  
-                  ${SRC}/G4DataHelpers/src/lib/*.cc
      )  
 
 
@@ -54,7 +44,6 @@ target_link_libraries( ${name}
                        ${CHROMAPHOTONLIST_LIBRARIES}
                        ${ZMQROOT_LIBRARIES}
                        ${ROOT_LIBRARIES}
-                       ${DATAMODEL_LIBRARIES}
                       )
 
 install(TARGETS ${name} LIBRARY DESTINATION lib)
@@ -72,17 +61,5 @@ foreach(abspath ${headers})
    install(FILES ${abspath} DESTINATION include/${hfold})
 endforeach(abspath)
 
-
-
-
-#add_executable(${name}Test tests/${name}Test.cc )
-#target_link_libraries( ${name}Test 
-#                       ${name}
-#                       ${Geant4_LIBRARIES} 
-#                       ${CHROMAPHOTONLIST_LIBRARIES}
-#                       ${ZMQROOT_LIBRARIES}
-#                       ${ROOT_LIBRARIES}
-#                      )
-#install(TARGETS ${name}Test DESTINATION bin)
 
 

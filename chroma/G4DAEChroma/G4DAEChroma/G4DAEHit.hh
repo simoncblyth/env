@@ -30,6 +30,7 @@ struct G4DAEHit {
     int volumeindex ; 
 
     void Init(ChromaPhotonList* cpl, std::size_t index);
+    void InitFake( std::size_t sensor_id, std::size_t track_id, std::size_t volume_index );
     void LocalTransform(G4AffineTransform& trans);
     void Print();
 

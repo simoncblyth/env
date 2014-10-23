@@ -33,7 +33,7 @@ mocknuwa-prefix(){ echo $(local-base)/env/nuwa ; }
 mocknuwa-dir(){ echo $(local-base)/env/nuwa/MockNuWa  ; }
 mocknuwa-sdir(){ echo $(env-home)/nuwa/MockNuWa  ; }
 mocknuwa-tdir(){ echo /tmp/nuwa/MockNuWa  ; }
-mocknuwa-cd(){  cd $(mocknuwa-dir); }
+mocknuwa-cd(){  cd $(mocknuwa-sdir); }
 mocknuwa-scd(){  cd $(mocknuwa-sdir); }
 mocknuwa-tcd(){  cd $(mocknuwa-tdir); }
 
@@ -57,7 +57,7 @@ mocknuwa-install(){
 }
 mocknuwa-build(){
    mocknuwa-cmake
-   mocknuwa-make
+   #mocknuwa-make
    mocknuwa-install
 }
 mocknuwa-wipe(){

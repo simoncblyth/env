@@ -34,5 +34,27 @@ void G4DAEHit::Print()
 }
 
 
+void G4DAEHit::InitFake( std::size_t sensor_id, std::size_t track_id, std::size_t volume_index )
+{
+     gpos = G4ThreeVector();
+     gdir = G4ThreeVector();
+     gpol = G4ThreeVector();
+
+     lpos = G4ThreeVector();
+     ldir = G4ThreeVector();
+     lpol = G4ThreeVector();
+
+     t = 0. ; 
+     wavelength = 0. ; 
+     weight = 1. ;     
+
+     pmtid = sensor_id ; 
+     trackid = track_id  ;
+     volumeindex = volume_index ; 
+
+}
+
+
+
 
 

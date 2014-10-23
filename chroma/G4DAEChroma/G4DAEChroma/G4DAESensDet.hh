@@ -4,7 +4,7 @@
 #include "G4VSensitiveDetector.hh"
 
 class G4DAEGeometry ; 
-class G4DAEDetector ; 
+class G4DAECollector ; 
 class ChromaPhotonList ;
 
 class G4DAESensDet : public G4VSensitiveDetector {
@@ -20,8 +20,8 @@ public:
     virtual void EndOfEvent( G4HCofThisEvent* HCE ) ; 
     virtual bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 
-    void SetDetector(G4DAEDetector* det);
-    G4DAEDetector* GetDetector();
+    void SetCollector(G4DAECollector* col);
+    G4DAECollector* GetCollector();
 
     void DumpStatistics( G4HCofThisEvent* HCE );
 
@@ -30,7 +30,7 @@ public:
     void CollectOneHit( ChromaPhotonList* cpl , std::size_t index );
 
 protected:
-    G4DAEDetector* m_detector ; 
+    G4DAECollector* m_collector ; 
 
 private:
     G4DAEGeometry* m_geometry ; 

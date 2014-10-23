@@ -1,12 +1,11 @@
-#define G4DAE_DAYABAY
-
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAEGeometry.hh"
 #include "G4DAEChroma/G4DAETransport.hh"
 
-#include "G4DAEChroma/G4DAEDetector.hh"
-#include "G4DAEChroma/G4DAEDayabay.hh"
+#include "G4DAEChroma/G4DAECollector.hh"
 #include "G4DAEChroma/G4DAESensDet.hh"
+
+#include "DsChromaG4DAECollector.hh"
 
 #include "G4SDManager.hh"
 
@@ -26,12 +25,12 @@ int main()
    //SDMan->SetVerboseLevel( 10 );
 
    G4DAESensDet* sd1 = new G4DAESensDet("DsPmtSensDet");
-   sd1->SetDetector(new G4DAEDayabay );  
+   sd1->SetCollector(new DsChromaG4DAECollector );  
    sd1->initialize();
    SDMan->AddNewDetector( sd1 );
 
    G4DAESensDet* sd2 = new G4DAESensDet("DsRpcSensDet");
-   sd2->SetDetector(new G4DAEDayabay );  
+   sd2->SetCollector(new DsChromaG4DAECollector );  
    sd2->initialize();
    SDMan->AddNewDetector( sd2 );
 
@@ -46,7 +45,7 @@ int main()
    chroma->Configure( transport, sensdet, geometry );
 
    G4DAESensDet* sd3 = chroma->GetSensDet(); 
-   sd3->SetDetector( new G4DAEDayabay );
+   sd3->SetCollector( new DsChromaG4DAECollector );
    sd3->initialize();
    SDMan->AddNewDetector( sd3 );
 
@@ -60,7 +59,16 @@ int main()
    //sd1->ProcessHits(NULL, NULL);
    //sd2->ProcessHits(NULL, NULL);
 
-   G4DAEChroma::GetG4DAEChroma()->GetSensDet()->GetDetector()->AddSomeFakeHits(); 
+
+   std::size_t ids[] = { 
+                     0x1010101,
+                     0x2010101,
+                     0x4010101,
+                   };  
+
+   G4DAECollector::IDVec pmtids( ids, ids + sizeof(ids)/sizeof(std::size_t) );
+
+   G4DAEChroma::GetG4DAEChroma()->GetSensDet()->GetCollector()->AddSomeFakeHits(pmtids); 
 
 
    G4DAEChroma::GetG4DAEChroma()->GetSensDet()->EndOfEvent(HCE);     // G4 calls this
