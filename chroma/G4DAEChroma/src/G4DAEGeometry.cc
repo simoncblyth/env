@@ -16,7 +16,7 @@ using namespace std ;
 
 
 G4DAEGeometry::G4DAEGeometry() :
-    m_transform_cache_created(false)
+    m_transform_cache_created(false), m_pvcount(0), m_sdcount(0)
 { 
 }
 
@@ -94,6 +94,9 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
 
    m_pvname.clear();
    m_transform.clear();
+   m_pvcount = 0 ;
+   m_sdcount = 0 ;
+   m_pvsd.clear() ;
 
    // manual World entry, for indice alignment 
    m_pvname.push_back(wpv->GetName());
@@ -107,6 +110,18 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
 
    m_transform_cache_created = true ; 
    cout << "G4DAEGeometry::CreateTransformCache found " << npv << " volumes " << endl ; 
+
+   cout << "  (pv,sd) index pairs  " << m_pvsd.size() 
+        << "  pvcount " << m_pvcount  
+        << "  sdcount " << m_sdcount 
+        << endl ;
+
+   for(PVSDMap::iterator it = m_pvsd.begin(); it != m_pvsd.end(); it++) {
+       cout << "pv" << setw(10) << it->first 
+            << "sd" << setw(10) << it->second
+            << endl ;
+   } 
+
 }
 
 
@@ -147,14 +162,22 @@ void G4DAEGeometry::TraverseVolumeTree(const G4LogicalVolume* const volumePtr, P
     //
     // NB position of VisitPV invokation matches that used
     // by G4DAE COLLADA exporter in order for volume order to match
+    //
+    //
+    // SD assignments do not survive GDML-ization  
+    //
 
     VisitPV( pvStack );  
 
+
     G4VSensitiveDetector* sd = volumePtr->GetSensitiveDetector();
-    // SD assignments do not survive GDML-ization  
+
     if( sd ){
-       cout << "SD " << volumePtr->GetName() << endl ; 
+       //cout << "SD " << volumePtr->GetName() << endl ; 
+       m_pvsd[m_pvcount] = m_sdcount ; 
+       m_sdcount++; 
     }
+    m_pvcount++;  
 
 
     for (G4int i=0;i<volumePtr->GetNoDaughters();i++)   
@@ -170,6 +193,7 @@ void G4DAEGeometry::TraverseVolumeTree(const G4LogicalVolume* const volumePtr, P
 
 void G4DAEGeometry::VisitPV( const PVStack_t& pvStack )
 {
+
     //std::cout << "VisitPV " << pvStack.size() << std::endl ; 
     if(pvStack.size() == 0)
     {

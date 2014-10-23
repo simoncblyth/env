@@ -5,7 +5,7 @@
 #include "G4DAEChroma/G4DAECollector.hh"
 #include "G4DAEChroma/G4DAESensDet.hh"
 
-#include "DsChromaG4DAECollector.hh"
+#include "DybG4DAECollector.h"
 
 #include "G4SDManager.hh"
 
@@ -44,10 +44,21 @@ int main()
    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
    chroma->Configure( transport, sensdet, geometry );
 
-   G4DAESensDet* sd3 = chroma->GetSensDet(); 
-   sd3->SetCollector( new DsChromaG4DAECollector );
-   sd3->initialize();
-   SDMan->AddNewDetector( sd3 );
+
+
+
+   DybG4DAECollector* col = new DybG4DAECollector ;
+   G4DAESensDet* sd = chroma->GetSensDet();
+   sd->SetCollector(col); 
+   sd->initialize();
+
+   G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+   SDMan->AddNewDetector( sd );
+
+
+
+
+
 
 
    G4SDManager::GetSDMpointer()->ListTree();

@@ -3,6 +3,8 @@
 
 #include <cstddef>
 #include <vector>
+#include <map>
+
 #include "G4ThreeVector.hh"
 #include "G4AffineTransform.hh"
 #include "geomdefs.hh"
@@ -13,6 +15,8 @@ class G4LogicalVolume ;
 class G4DAEGeometry 
 {
 public:
+    typedef std::map<std::size_t,std::size_t> PVSDMap ;
+
     static G4DAEGeometry* MakeGeometry( const char* geometry );
     static G4DAEGeometry* LoadFromGDML( const char* geokey="DAE_NAME_DYB_GDML" );
     static G4DAEGeometry* Load( const G4VPhysicalVolume* world=NULL );
@@ -37,6 +41,10 @@ private:
     std::vector<std::string> m_pvname;   // for debug, not identity matching 
     std::vector<G4AffineTransform> m_transform ; 
     bool m_transform_cache_created ; 
+
+    std::size_t m_pvcount ; 
+    std::size_t m_sdcount ; 
+    PVSDMap m_pvsd ; 
 
 };
 
