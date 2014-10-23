@@ -200,9 +200,14 @@ public key just added::
 
     [blyth@cms01 .ssh]$ vi authorized_keys2
 
-    command="sh -c 'ssh belle7.nuu.edu.tw ${SSH_ORIGINAL_COMMAND:-}'" ssh-rsa AAAAB3NzaC1y
+    command="sh -c 'ssh N ${SSH_ORIGINAL_COMMAND:-}'" ssh-rsa AAAAB3NzaC1y
+        ## this works, but promts for password for the key of gateway machine
 
-Back on original machine add .ssh/config entry that uses the alternative key::
+    command="sh -c 'source ~/.ssh-agent-info ; ssh N ${SSH_ORIGINAL_COMMAND:-}'" ssh-dss AAAAB
+        ## sourcing the agent info in the forced command, allows to make the two hops passwordless-ly
+
+Back on original machine add .ssh/config entry that uses the alternative key, 
+and *ssh-add* that to the agent::
 
     host CN
         user blyth
@@ -214,6 +219,19 @@ On gateway, copy the alt key forward to target and append to authorized_keys2 on
 
     [blyth@cms01 .ssh]$ scp alt_dsa.pub N:.ssh/
     [blyth@belle7 .ssh]$ cat alt_dsa.pub >> authorized_keys2
+
+
+**Success** : tis fiddly to get working due to too many moving parts,
+but can now hop around network blockages and run remote commands::
+
+    delta:~ blyth$ ssh CN
+    Scientific Linux CERN SLC release 4.8 (Beryllium)
+    Last login: Thu Oct 23 14:38:13 2014 from cms01.phys.ntu.edu.tw
+    [blyth@belle7 ~]$ 
+
+    delta:~ blyth$ ssh CN hostname
+    Scientific Linux CERN SLC release 4.8 (Beryllium)
+    belle7.nuu.edu.tw
 
 
 
