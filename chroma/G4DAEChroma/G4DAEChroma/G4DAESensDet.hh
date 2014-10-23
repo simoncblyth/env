@@ -30,11 +30,8 @@ public:
     void CollectOneHit( ChromaPhotonList* cpl , std::size_t index );
 
 protected:
-    G4DAECollector* m_collector ; 
-
-private:
-    G4DAEGeometry* m_geometry ; 
     const char* m_target ;
+    G4DAECollector* m_collector ; 
 
 };
 

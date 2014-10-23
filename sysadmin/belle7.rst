@@ -13,7 +13,6 @@ Block from simon
     Tue Oct 21 12:09:21 HKT 2014
     simon:~ blyth$ 
 
-
 ::
 
     simon:~ blyth$ ping belle7.nuu.edu.tw
