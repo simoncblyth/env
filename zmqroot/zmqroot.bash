@@ -118,9 +118,11 @@ zmqroot-wipe(){
    rm -rf "$bdir"
 }
 zmqroot-build(){
+  local iwd=$PWD 
   zmqroot-cmake
   zmqroot-make
   zmqroot-install
+  cd $iwd
 }
 zmqroot-build-full(){
   zmqroot-wipe

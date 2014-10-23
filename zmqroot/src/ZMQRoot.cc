@@ -16,8 +16,16 @@ ZMQRoot::ZMQRoot(const char* envvar, const char mode) : fContext(NULL), fSocket(
 
 #ifdef WITH_ZMQ
   char* config = getenv(envvar) ;
-  printf( "ZMQRoot::ZMQRoot envvar [%s][%c] config [%s] \n", envvar,mode, config );   
-  assert( config != NULL );
+  if( config != NULL )
+  {
+     printf( "ZMQRoot::ZMQRoot envvar [%s][%c] config [%s] \n", envvar,mode, config );   
+  } 
+  else
+  { 
+     printf( "ZMQRoot::ZMQRoot MISSING envvar [%s][%c] not configured : CANNOT SEND/RECV \n", envvar,mode );   
+     fSocket = NULL ;
+     return ;
+  } 
 
   fContext = zmq_ctx_new ();
 
