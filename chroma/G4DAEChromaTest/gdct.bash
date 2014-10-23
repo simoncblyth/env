@@ -37,8 +37,8 @@ gdct-dir(){ echo $(local-base)/env/nuwa ; }
 gdct-sdir(){ echo $HOME/env/chroma/G4DAEChromaTest ; }
 gdct-tdir(){ echo /tmp/env/chroma/G4DAEChromaTest ; }
 
-gdct-cd(){  cd $(gdct-dir); }
-gdct-scd(){  cd $(gdct-sdir); }
+gdct-cd(){  cd $(gdct-sdir); }
+gdct-bcd(){  cd $(gdct-dir); }
 gdct-tcd(){  cd $(gdct-tdir); }
 
 
@@ -53,15 +53,15 @@ gdct-make(){
    local iwd=$PWD
    gdct-tcd
    make $*
-   [ "$?" != "0" ] && echo $msg $FUNCNAME ERROR && return 1
    cd $iwd
+   [ "$?" != "0" ] && echo $msg $FUNCNAME ERROR && return 1
 }
 gdct-install(){
    gdct-make install
 }
 gdct-build(){
    gdct-cmake
-   gdct-make
+   #gdct-make
    gdct-install
 }
 gdct-wipe(){

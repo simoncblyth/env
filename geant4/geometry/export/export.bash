@@ -215,15 +215,19 @@ export-export(){
    export DAE_NAME_LIN=$(export-name lingao)
    export DAE_NAME_LXE=$(export-name lxe)
    export DAE_NAME_JUNO=$(export-name juno)
-   export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%s.root"
-
 
    export DAE_GEOMETRY_DYB=$(export-geometry dyb)
    export DAE_GEOMETRY_DYBF=$(export-geometry dybf)
    export DAE_GEOMETRY_JUNO=$(export-geometry juno)
    export DAE_GEOMETRY_LXE=$(export-geometry lxe)
 
+   $FUNCNAME-pathtmpl
 }
+
+export-export-pathtmpl(){
+   export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%s.root"
+}
+
 
 export-juno-get(){
    cd $(export-home)

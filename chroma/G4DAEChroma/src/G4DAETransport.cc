@@ -89,18 +89,27 @@ void G4DAETransport::CollectPhoton(const G4Track* aPhoton )
    G4ThreeVector dir = aPhoton->GetMomentumDirection() ;
    G4ThreeVector pol = aPhoton->GetPolarization() ;
 
-   float time = aPhoton->GetGlobalTime()/ns ;
-   float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
+   const float time = aPhoton->GetGlobalTime()/ns ;
+   const float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
 
+   CollectPhoton( pos, dir, pol, time, wavelength );
+
+#endif
+}
+
+
+void G4DAETransport::CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid)
+{
    fPhotonList->AddPhoton( 
               pos.x(), pos.y(), pos.z(),
               dir.x(), dir.y(), dir.z(),
               pol.x(), pol.y(), pol.z(), 
               time, 
-              wavelength );
-
-#endif
+              wavelength, 
+              pmtid );
 }
+
+
 
 
 std::size_t G4DAETransport::Propagate(int batch_id)
@@ -115,14 +124,21 @@ std::size_t G4DAETransport::Propagate(int batch_id)
       return 0 ;
   }
 
-  cout << "::SendObject " <<  endl ;   
-  fZMQRoot->SendObject(fPhotonList);
+  if( batch_id > 0 )
+  { 
+      cout << "G4DAETransport::Propagate : SendObject " <<  endl ;   
+      fZMQRoot->SendObject(fPhotonList);
 
-  cout << "::ReceiveObject, waiting... " <<  endl;   
-  fPhotonHits = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
-  std::size_t hits = fPhotonHits->GetSize();
-
-  return hits ; 
+      cout << "G4DAETransport::Propagate : ReceiveObject, waiting... " <<  endl;   
+      fPhotonHits = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
+  } 
+  else 
+  {
+      cout << "G4DAETransport::Propagate : fake Send/Recv " << endl ; 
+      fPhotonHits = fPhotonList ; 
+  } 
+  std::size_t nhits = fPhotonHits->GetSize();
+  return nhits ; 
 }
 
 

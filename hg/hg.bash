@@ -27,6 +27,34 @@ Tips
      combine options, G shows DAG, l to limit revisions 
 
 
+Start using new node
+~~~~~~~~~~~~~~~~~~~~~~
+
+#. get mercurial, git, svn and cmake installed 
+
+Copy/paste public key into bitbucket webinterface::
+
+    (chroma_env)delta:.ssh blyth$ scp G5:.ssh/id_dsa.pub G5.id_dsa.pub
+    (chroma_env)delta:.ssh blyth$ cat G5.id_dsa.pub | pbcopy 
+
+Copy identity config to node::
+
+    delta:~ blyth$ scp ~/.hgrc G5:
+
+Clone took more than 5 mins::
+
+    [blyth@ntugrid5 ~]$ hg clone ssh://hg@bitbucket.org/simoncblyth/env
+    destination directory: env
+    requesting all changes
+    adding changesets
+    adding manifests
+    adding file changes
+    added 4737 changesets with 14682 changes to 4602 files
+    updating to branch default
+    3166 files updated, 0 files merged, 0 files removed, 0 files unresolved
+    [blyth@ntugrid5 ~]$ 
+
+
 Rollback a commit before a push 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

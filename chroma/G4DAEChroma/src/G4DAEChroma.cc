@@ -96,7 +96,7 @@ G4DAEGeometry* G4DAEChroma::GetGeometry(){
 
 
 
-
+// hmm this echoing is tedious : is it necessary ?
 void G4DAEChroma::CollectPhoton(const G4Track* track)
 {
    fTransport->CollectPhoton(track);
