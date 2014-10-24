@@ -71,7 +71,7 @@ class DAEChromaContext(object):
 
     def setup_gpu_geometry(self):
         from chroma.gpu.geometry import GPUGeometry
-        assert self.chroma_geometry.__class__.__name__ == 'Geometry', self.chroma_geometry.__class__.__name__
+        assert self.chroma_geometry.__class__.__name__ == 'Detector', self.chroma_geometry.__class__.__name__
         return GPUGeometry( self.chroma_geometry )
 
     def setup_gpu_detector(self):

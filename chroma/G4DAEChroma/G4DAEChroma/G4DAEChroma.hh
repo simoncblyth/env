@@ -13,7 +13,7 @@ that can adopt different:
 #define G4DAECHROMA_H 1
 
 #include <cstddef>
-
+#include "G4ThreeVector.hh"
 
 class G4DAEGeometry ;
 class G4DAETransport ;
@@ -48,6 +48,8 @@ public:
 
     void ClearAll();
     void CollectPhoton(const G4Track* aPhoton );
+
+    // sends collected photons, collects hits recv using SensDet and Geometry for local transforms
     std::size_t Propagate(int batch_id);
 
  

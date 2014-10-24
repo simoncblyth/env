@@ -9,8 +9,7 @@ using namespace std ;
 
 G4DAESensDet* G4DAESensDet::MakeSensDet(const char* name, const char* target )
 {
-    if ( target == NULL ) 
-            return new G4DAESensDet(name, NULL);
+    if ( target == NULL ) return new G4DAESensDet(name, NULL);
 
     G4SDManager* SDMan = G4SDManager::GetSDMpointer();
     G4VSensitiveDetector* nameSD = SDMan->FindSensitiveDetector(name, false);

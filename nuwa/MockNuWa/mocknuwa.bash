@@ -49,8 +49,8 @@ mocknuwa-make(){
    local iwd=$PWD
    mocknuwa-tcd
    make $*
-   [ "$?" != "0" ] && echo $msg $FUNCNAME ERROR && return 1
    cd $iwd
+   [ "$?" != "0" ] && echo $msg $FUNCNAME ERROR && return 1
 }
 mocknuwa-install(){
    mocknuwa-make install

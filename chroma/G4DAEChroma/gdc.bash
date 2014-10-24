@@ -7,6 +7,19 @@ gdc-usage(){ cat << EOU
 G4DAEChroma
 ============
 
+
+Issues
+-------
+
+Installation tied to Chroma Geant4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Improve generality of build by simplifications 
+to CMakeLists.txt
+
+* moving things into env/cmake/Modules/ 
+
+
 EOU
 }
 

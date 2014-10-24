@@ -2,6 +2,7 @@
 #define G4DAETRANSPORT_H 1
 
 #include <cstddef>
+#include "G4ThreeVector.hh"
 
 class G4Track ; 
 class ZMQRoot ; 
@@ -19,6 +20,8 @@ public:
     void ClearAll();
     std::size_t Propagate(int batch_id);
     void CollectPhoton(const G4Track* aPhoton );
+    // pmtid ordinarilly -1, but useful for fake-transport test
+    void CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid=-1);
 
     ChromaPhotonList* GetPhotons();
     ChromaPhotonList* GetHits();

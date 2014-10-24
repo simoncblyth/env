@@ -1,38 +1,55 @@
 #include <stdio.h>  
 #include <stdlib.h>    
 
-//#include "Chroma/ChromaPhotonList.hh"
-//#include "ChromaPhotonList.hh"
+#include "Chroma/ChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEGeometry.hh"
 #include "G4DAEChroma/G4DAEChroma.hh"
 
-int main(int argc, char** argv)
-{
-   const char* geokey = "DAE_NAME_DYB_GDML";
 
-  /*
-   const char* evtkey = "1" ;
+void loadgeom(const char* geometry)
+{
+   G4DAEGeometry* geo = G4DAEGeometry::LoadFromGDML(geometry);
+   if(!geo){
+       printf("failed to load geometry with geokey %s \n", geometry);
+   }
+   geo->DumpTransformCache();
+}
+
+
+void loadphotons(const char* evtkey)
+{
    ChromaPhotonList* cpl = ChromaPhotonList::Load(evtkey);
    if(!cpl){
        printf("failed to load photons with evtkey %s \n", evtkey);
-       return 1 ;
    }
-   //cpl->Print();
-   */
+   cpl->Print();
+}
+
+/*
+
+   G4DAEChroma testing in bare environment
 
 
-   G4DAEGeometry* geo = G4DAEGeometry::LoadFromGDML(geokey);
-   //G4DAEGeometry* geo = NULL ;
-   if(!geo){
-       printf("failed to load geometry with geokey %s \n", geokey);
-       return 1 ;
-   }
-   //geo->DumpTransformCache();
+   no-network testing ? 
 
 
-   G4DAEChroma* gdc = G4DAEChroma::GetG4DAEChroma();
-   gdc->SetGeometry(geo);
-   //gdc->ProcessHit( cpl, 0 );
+   * without 
+
+
+*/
+
+
+
+int main(int argc, char** argv)
+{
+   G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+
+   const char* transport = "" ;
+   const char* sensdet = "DsPmtSensDet" ;
+   const char* geometry = "DAE_NAME_DYB_GDML" ;
+
+   chroma->Configure( transport, sensdet, geometry );
+   //chroma->ProcessHit( cpl, 0 );
 
    return 0 ; 
 }

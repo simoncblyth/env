@@ -15,12 +15,14 @@ find_package(NuWaDataModel     REQUIRED)
 find_package(Root              REQUIRED)
 find_package(ChromaGeant4CLHEP REQUIRED)  # filching CLHEP that comes with Geant4 means cannot use standard FindCLHEP.cmake 
 find_package(G4DAEChroma REQUIRED)
+find_package(ChromaPhotonList REQUIRED)
 
 
 ## G4DataHelpers in limbo, not in DataModel due to G4 dependency
 set(SRC "$ENV{LOCAL_BASE}/env/nuwa/src/DataModel")
 include_directories(
                     ${G4DAECHROMA_INCLUDE_DIRS}
+                    ${CHROMAPHOTONLIST_INCLUDE_DIR}
                     ${SRC}/G4DataHelpers
                     ${DATAMODEL_INCLUDE_DIRS}
                     ${CLHEP_INCLUDE_DIRS}
@@ -30,7 +32,8 @@ include_directories(
 
 add_definitions( 
                    ${G4DAECHROMA_DEFINITIONS} 
-                    ${DATAMODEL_DEFINITIONS}  
+                   ${CHROMAPHOTONLIST_DEFINITIONS}  
+                   ${DATAMODEL_DEFINITIONS}  
                )
 
 file(GLOB sources 
@@ -46,6 +49,7 @@ target_link_libraries( ${name}
                        ${ROOT_LIBRARIES}
                        ${Geant4_LIBRARIES} 
                        ${G4DAECHROMA_LIBRARIES} 
+                       ${CHROMAPHOTONLIST_LIBRARIES} 
                      )
 
 install(TARGETS ${name} DESTINATION bin)

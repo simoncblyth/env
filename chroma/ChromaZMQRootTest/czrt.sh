@@ -63,7 +63,7 @@ ssh-tunnel-open(){
 
 
 [ -n "$zmqtunnelnode" ] && ssh-tunnel-open $zmqtunnelnode
-
+[ -z "$zmqtunnelnode" ] && echo not opening tunnel : to open one : --zmqtunnelnode=CN
 
 
 CHROMA_CLIENT_CONFIG=${ZMQ_BROKER_URL_FRONTEND} $(czrt-bin)
