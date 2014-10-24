@@ -279,6 +279,8 @@ export-args(){ cat << EOA
 EOA
 }
 
+export-nuwapkg(){ echo $DYB/NuWa-trunk/lhcb/Sim/GaussTools/src/Components ; }
+export-nuwapkg-cd(){  cd $(export-nuwapkg) ; }
 
 export-prep(){
    local arg=${1:-MX}

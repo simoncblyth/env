@@ -10,7 +10,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
                       "$ENV{GEANT4_HOME}/cmake/Modules"   # for FindROOT.cmake
           ) 
 
+message( STATUS "CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ")
+
 find_package(Geant4 9.5.0 REQUIRED gdml)
+
 find_package(ChromaPhotonList REQUIRED)
 find_package(ZMQRoot REQUIRED)
 find_package(Root REQUIRED)
