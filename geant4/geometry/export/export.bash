@@ -209,6 +209,8 @@ export-export(){
    export DAE_NAME=$(export-name dyb)
    export DAE_NAME_DYB=$(export-name dyb)
    export DAE_NAME_DYB_GDML=$(EXPORT_EXT=gdml export-name dyb)
+   export DAE_NAME_DYB_GDML_FAKESD="/dd/Geometry/PMT/lvPmtHemiCathode;/dd/Geometry/PMT/lvHeadonPmtCathode"
+
    export DAE_NAME_DYB_NOEXTRA=$(EXPORT_EXT=dae.noextra.dae export-name dyb)
    export DAE_NAME_DYBF=$(export-name dybf)
    export DAE_NAME_FAR=$(export-name far)

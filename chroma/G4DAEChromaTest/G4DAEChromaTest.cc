@@ -4,7 +4,16 @@
 #include "Chroma/ChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEGeometry.hh"
 #include "G4DAEChroma/G4DAEChroma.hh"
+#include "G4DAEChroma/G4DAESensDet.hh"
+#include "G4DAEChroma/DemoG4DAECollector.hh"
 
+#include "G4SDManager.hh"
+
+#include <sstream>
+#include <iostream>
+#include <vector>
+
+using namespace std ;
 
 void loadgeom(const char* geometry)
 {
@@ -25,22 +34,7 @@ void loadphotons(const char* evtkey)
    cpl->Print();
 }
 
-/*
-
-   G4DAEChroma testing in bare environment
-
-
-   no-network testing ? 
-
-
-   * without 
-
-
-*/
-
-
-
-int main(int argc, char** argv)
+void configure()
 {
    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
 
@@ -51,6 +45,25 @@ int main(int argc, char** argv)
    chroma->Configure( transport, sensdet, geometry );
    //chroma->ProcessHit( cpl, 0 );
 
-   return 0 ; 
+}
+
+
+
+int main(int argc, char** argv)
+{
+
+    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+    SDMan->SetVerboseLevel( 10 );
+
+    G4DAESensDet* sd = new G4DAESensDet("DsPmtSensDet");
+    sd->SetCollector(new DemoG4DAECollector );  
+    sd->initialize();
+    SDMan->AddNewDetector( sd );
+
+    const char* geometry = "DAE_NAME_DYB_GDML" ;
+    G4DAEGeometry* geo = G4DAEGeometry::LoadFromGDML(geometry, sd);
+
+
+    return 0 ; 
 }
 

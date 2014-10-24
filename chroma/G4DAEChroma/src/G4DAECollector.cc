@@ -46,22 +46,13 @@ void G4DAECollector::CollectHits( ChromaPhotonList* cpl, G4DAEGeometry* geometry
     std::size_t size = cpl->GetSize(); 
     cout << "G4DAECollector::CollectHits size: " << size <<  endl ;   
 
-    G4AffineTransform identity ;
     G4DAEHit hit ;
     for( std::size_t index = 0 ; index < size ; index++ )
     {
         hit.Init( cpl, index); 
 
-        if( geometry != NULL )
-        {
-            G4AffineTransform& trans = geometry->GetNodeTransform(hit.volumeindex) ;
-            hit.LocalTransform( trans );  
-        }
-        else
-        {
-            cout << "G4DAECollector::CollectHits NULL geometry : fallback identity transform used for pos/dir/pol " << endl ;
-            hit.LocalTransform( identity);  
-        }
+        G4AffineTransform* trans = ( geometry == NULL ) ? NULL :  geometry->GetNodeTransform(hit.volumeindex) ;
+        hit.LocalTransform( trans );  
 
         // specific detector subclasses must implement 
         // `void Collect( G4DAEHit& hit)` and several others

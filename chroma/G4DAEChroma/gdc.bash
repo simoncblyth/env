@@ -77,9 +77,13 @@ gdc-install(){ gdc-make install ; }
 
 gdc-build(){
    gdc-cmake
-   gdc-make
+   #gdc-make
    gdc-install
 }
+gdc--(){ 
+   gdc-install 
+}
+
 gdc-build-full(){
    gdc-wipe
    gdc-build

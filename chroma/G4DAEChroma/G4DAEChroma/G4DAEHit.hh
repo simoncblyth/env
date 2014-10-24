@@ -3,10 +3,10 @@
 #define G4DAEHIT_H 1
 
 #include "G4ThreeVector.hh"
-#include "G4AffineTransform.hh"
 #include <iostream>
 #include <cstddef>
 
+class G4AffineTransform;
 class ChromaPhotonList;
 
 struct G4DAEHit {
@@ -31,7 +31,7 @@ struct G4DAEHit {
 
     void Init(ChromaPhotonList* cpl, std::size_t index);
     void InitFake( std::size_t sensor_id, std::size_t track_id, std::size_t volume_index );
-    void LocalTransform(G4AffineTransform& trans);
+    void LocalTransform(G4AffineTransform* trans);
     void Print();
 
 };

@@ -12,8 +12,36 @@
 #include <stdlib.h>    
 #include <iostream>    
 #include <iomanip>    
+#include <sstream>
+#include <vector>
 
 using namespace std ; 
+
+void split( vector<string>& elem, const char* linekey, char delim )
+{
+    const char* line = getenv(linekey);
+    if(line == NULL){ 
+        cout << "split envvar not defined : " << linekey << endl ; 
+        return ;
+    }   
+    istringstream f(line);
+    string s;
+    while (getline(f, s, delim)) elem.push_back(s);
+}
+
+
+string transform_rep( G4AffineTransform& transform )
+{
+   G4RotationMatrix rotation = transform.NetRotation();
+   G4ThreeVector rowX = rotation.rowX();
+   G4ThreeVector rowY = rotation.rowY();
+   G4ThreeVector rowZ = rotation.rowZ();
+   G4ThreeVector tran = transform.NetTranslation(); 
+   
+   stringstream ss;
+   ss << tran << " " << rowX << rowY << rowZ  ;
+   return ss.str();
+}
 
 
 G4DAEGeometry::G4DAEGeometry() :
@@ -36,36 +64,61 @@ G4DAEGeometry* G4DAEGeometry::MakeGeometry( const char* geometry )
 }
 
 
-G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey )
+
+#ifdef EXPORT_G4GDML
+G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey, G4VSensitiveDetector* sd )
 {
    const char* geopath = getenv(geokey);
-   if(geopath == NULL ){
+   if(geopath == NULL )
+   {
       printf("G4DAEGeometry::LoadFromGDML geokey %s : missing : use \"export-;export-export\" to define  \n", geokey );
       return NULL;
    }   
    printf("geokey %s geopath %s \n", geokey, geopath ); 
 
 
-   G4VPhysicalVolume* world = NULL ;
-
-#ifdef EXPORT_G4GDML
    G4GDMLParser fParser ; 
    fParser.Read(geopath,false);
-   world = fParser.GetWorldVolume();       
+
+   G4VPhysicalVolume* top = fParser.GetWorldVolume();       
+   G4LogicalVolume* ltop = top->GetLogicalVolume();
+
+   G4DAEGeometry* geo = new G4DAEGeometry();
+
+   if( sd != NULL )
+   {  
+       string fakesd(geokey);
+       fakesd += "_FAKESD" ;
+   
+       geo->AddSensitiveLVNames(fakesd.c_str(),';');
+       geo->DumpSensitiveLVNames();
+
+       PVStack_t pvStack ;  
+       geo->FakeAssignSensitive( ltop, pvStack, sd );
+   } 
+   // TODO: check fake SD assignments is accurate mockup 
+  
+
+   geo->CreateTransformCache( top ); 
+ 
+   return geo;
+}
 #else
-   printf("G4DAEGeometry::LoadFromGDML need to define -DEXPORT_G4GDML if GDML is available \n");  
+G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey )
+{
+    printf("G4DAEGeometry::LoadFromGDML need to define -DEXPORT_G4GDML if GDML is available \n");  
+    return NULL ;
+}
 #endif
 
-   return G4DAEGeometry::Load(world);
-}
+
+
 
 G4DAEGeometry* G4DAEGeometry::Load(const G4VPhysicalVolume* world)
 {
-   if( world == NULL )
-   {
-       world = G4TransportationManager::GetTransportationManager()->
+   if( world == NULL ) world = G4TransportationManager::GetTransportationManager()->
              GetNavigatorForTracking()->GetWorldVolume();
-   }
+
    assert(world);
    cout << "G4DAEGeometry::Load " << world->GetName() << endl ; 
 
@@ -75,6 +128,19 @@ G4DAEGeometry* G4DAEGeometry::Load(const G4VPhysicalVolume* world)
  
    return geo ;
 }
+
+
+void G4DAEGeometry::Clear()
+{
+   m_pvname.clear();
+   m_transform.clear();
+   m_pvcount = 0 ;
+   m_sdcount = 0 ;
+   m_pvsd.clear() ;
+   m_transform_cache_created = false ; 
+   m_id2transform.clear() ;
+}
+
 
 
 
@@ -91,13 +157,9 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
        return ;
    } 
 
-   const G4LogicalVolume* lvol = wpv->GetLogicalVolume();
+   Clear();
 
-   m_pvname.clear();
-   m_transform.clear();
-   m_pvcount = 0 ;
-   m_sdcount = 0 ;
-   m_pvsd.clear() ;
+   const G4LogicalVolume* lvol = wpv->GetLogicalVolume();
 
    // manual World entry, for indice alignment 
    m_pvname.push_back(wpv->GetName());
@@ -109,7 +171,6 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
    size_t npv = m_pvname.size() ;
    assert( npv == m_transform.size() );
 
-   m_transform_cache_created = true ; 
    cout << "G4DAEGeometry::CreateTransformCache found " << npv << " volumes " << endl ; 
 
    cout << "  (pv,sd) index pairs  " << m_pvsd.size() 
@@ -117,20 +178,28 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
         << "  sdcount " << m_sdcount 
         << endl ;
 
-   for(PVSDMap::iterator it = m_pvsd.begin(); it != m_pvsd.end(); it++) {
-       cout << "pv" << setw(10) << it->first 
-            << "sd" << setw(10) << it->second
+   for(PVSDMap_t::iterator it = m_pvsd.begin(); it != m_pvsd.end(); it++) 
+   {
+       cout << " pv" << setw(10) << it->first 
+            << " sd" << setw(10) << it->second
             << endl ;
    } 
+   for(TransformMap_t::iterator it = m_id2transform.begin(); it != m_id2transform.end(); it++) 
+   {
+       cout << " id " << setw(10) << it->first 
+            << " tr " << transform_rep( it->second )
+            << endl ;
+   } 
+
 
 }
 
 
+
 void G4DAEGeometry::DumpTransformCache()
 {
-
    if(!m_transform_cache_created){
-      G4cout << "G4DAEGeometry::DumpTransformCache SKIP : not created yet  " << G4endl ; 
+      cout << "G4DAEGeometry::DumpTransformCache SKIP : not created yet  " << endl ; 
       return ; 
    } 
 
@@ -138,22 +207,63 @@ void G4DAEGeometry::DumpTransformCache()
    assert( npv == m_transform.size() );
 
    for( size_t index=0; index < npv; ++index ){ 
-       G4AffineTransform& transform = m_transform[index];
-      
-       G4RotationMatrix rotation = transform.NetRotation();
-       G4ThreeVector rowX = rotation.rowX();
-       G4ThreeVector rowY = rotation.rowY();
-       G4ThreeVector rowZ = rotation.rowZ();
-
-       G4ThreeVector translation = transform.NetTranslation(); 
-
-       cout << index << " " 
-                 << translation << " "
-                 << rowX << rowY << rowZ << " "  
-                 << m_pvname[index] 
-                 << '\n' ;  
+       cout << index << " " << transform_rep( m_transform[index] ) << m_pvname[index] << '\n' ;  
    }
 }
+
+void G4DAEGeometry::AddSensitiveLVName(const std::string& lvname)
+{
+    m_lvsensitive.push_back(lvname);
+}
+void G4DAEGeometry::AddSensitiveLVNames(const char* envkey, char delim)
+{
+    split( m_lvsensitive, envkey, delim);
+}
+void G4DAEGeometry::DumpSensitiveLVNames()
+{
+   for(vector<string>::iterator it=m_lvsensitive.begin() ; it != m_lvsensitive.end() ; it++ ) cout << *it << endl ; 
+}
+
+
+bool G4DAEGeometry::VisitFakeAssignSensitive(G4LogicalVolume* lv, const PVStack_t pvStack, G4VSensitiveDetector* sd)
+{
+    string lvname = lv->GetName();
+    bool senlv = (find( m_lvsensitive.begin(), m_lvsensitive.end(), lvname ) != m_lvsensitive.end() ) ;
+    if(!senlv) return false ;
+
+    lv->SetSensitiveDetector(sd);
+
+    size_t indexMax = pvStack.size() - 1;
+    G4VPhysicalVolume* pvtop = pvStack[indexMax];
+    assert( pvtop->GetLogicalVolume() == lv ); 
+
+    string pvname = pvtop->GetName();
+    cout << setw(40) << lvname << " " << pvname << endl ; 
+
+    //for (size_t index = 0 ; index <= indexMax  ; ++index ) cout << setw(2) << index << " " << pvStack[index]->GetName() << endl ; 
+    
+    return true;
+}
+
+void G4DAEGeometry::FakeAssignSensitive(G4LogicalVolume* lv, PVStack_t pvStack, G4VSensitiveDetector* sd)
+{
+    bool senlv = VisitFakeAssignSensitive( lv, pvStack, sd );
+    int n = lv->GetNoDaughters() ;
+    if( senlv ){
+         assert( n == 0 ); // not expecting SD to have daughters
+    } 
+
+    for (G4int i=0;i<n;i++)   
+    {   
+        G4VPhysicalVolume* pv = lv->GetDaughter(i);
+
+        PVStack_t pvStackPlus(pvStack);     // copy ctor: each node of the recursion gets its own stack 
+        pvStackPlus.push_back(pv);
+
+        FakeAssignSensitive(pv->GetLogicalVolume(), pvStackPlus, sd );
+    }   
+}
+
 
 
 void G4DAEGeometry::TraverseVolumeTree(const G4LogicalVolume* const volumePtr, PVStack_t pvStack)
@@ -168,17 +278,7 @@ void G4DAEGeometry::TraverseVolumeTree(const G4LogicalVolume* const volumePtr, P
     // SD assignments do not survive GDML-ization  
     //
 
-    VisitPV( pvStack );  
-
-
-    G4VSensitiveDetector* sd = volumePtr->GetSensitiveDetector();
-
-    if( sd ){
-       //cout << "SD " << volumePtr->GetName() << endl ; 
-       m_pvsd[m_pvcount] = m_sdcount ; 
-       m_sdcount++; 
-    }
-    m_pvcount++;  
+    VisitPV(volumePtr, pvStack );  
 
 
     for (G4int i=0;i<volumePtr->GetNoDaughters();i++)   
@@ -192,48 +292,55 @@ void G4DAEGeometry::TraverseVolumeTree(const G4LogicalVolume* const volumePtr, P
     }   
 }
 
-void G4DAEGeometry::VisitPV( const PVStack_t& pvStack )
-{
 
-    //std::cout << "VisitPV " << pvStack.size() << std::endl ; 
+
+void G4DAEGeometry::VisitPV(const G4LogicalVolume* const volumePtr, const PVStack_t pvStack)
+{
     if(pvStack.size() == 0)
     {
-        std::cout << "VisitPV skip empty stack " << std::endl ; 
+        cout << "G4DAEGeometry::VisitPV skip empty stack " << endl ; 
         return ; 
     }
 
     G4NavigationHistory navigationHistory ; 
-
     size_t indexMax = pvStack.size() - 1;
     for (size_t index = 0 ; index <= indexMax  ; ++index ){
-
          G4VPhysicalVolume* pv = pvStack[index] ; 
-
-         /*
-         std::cout << std::setw(2) << index 
-                   << " " << pv 
-                   << " copyNo " << std::setw(5) << pv->GetCopyNo() 
-                   << " " << pv->GetName() 
-                   << std::endl  ;
-         */
          EVolume volumeType = VolumeType(pv); 
          assert( volumeType == kNormal );  // PMTs etc.. not being handled as replicas ?
          navigationHistory.NewLevel( pv, volumeType );  
     }
-
-    //std::cout << "NavigationHistory TopVolumeName " << navigationHistory.GetTopVolume()->GetName() << std::endl ;  
-
     G4TouchableHistory touchableHistory(navigationHistory);
-    //std::cout << "TouchableHistory " << touchableHistory.GetHistoryDepth() << std::endl ;
-
-    std::string name = touchableHistory.GetVolume(0)->GetName();
     const G4AffineTransform& transform = touchableHistory.GetHistory()->GetTopTransform();
+    string name = touchableHistory.GetVolume(0)->GetName();
 
+    G4VSensitiveDetector* sensitive = volumePtr->GetSensitiveDetector();
+    if( sensitive )
+    {
+       std::size_t id = TouchableToIdentifier( touchableHistory );
+       if(id == 0) cout << "G4DAEGeometry::VisitPV " << name << " WARNING SD with no identifier " << endl ; 
+       if(id > 0) m_id2transform[id] = transform ; 
+
+       m_pvsd[m_pvcount] = m_sdcount ;
+       m_sdcount++; 
+    }
+    m_pvcount++;  
     m_pvname.push_back(name);
     m_transform.push_back(transform);
-
-    //std::cout << "pv " << name << std::endl ;
 }
+
+std::size_t G4DAEGeometry::TouchableToIdentifier( const G4TouchableHistory& hist )
+{
+    return m_sdcount + 1;  // override this in detector specialization subclasses 
+}
+
+G4AffineTransform* G4DAEGeometry::GetSensorTransform(std::size_t id)
+{
+    return ( m_id2transform.find(id) == m_id2transform.end()) ? NULL : &m_id2transform[id] ;
+}
+
+
+
 
 
 EVolume G4DAEGeometry::VolumeType(G4VPhysicalVolume* pv) const
@@ -258,10 +365,9 @@ EVolume G4DAEGeometry::VolumeType(G4VPhysicalVolume* pv) const
 
 
 
-G4AffineTransform& G4DAEGeometry::GetNodeTransform(std::size_t index)
+G4AffineTransform* G4DAEGeometry::GetNodeTransform(std::size_t index)
 {
-   std::size_t idx = ( index < m_transform.size() ) ? index : 0 ;
-   return m_transform[idx] ;
+   return ( index < m_transform.size() ) ? &m_transform[index] : NULL ; 
 }
 
 std::string& G4DAEGeometry::GetNodeName(std::size_t index)

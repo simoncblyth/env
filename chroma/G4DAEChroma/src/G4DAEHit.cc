@@ -1,4 +1,5 @@
 #include "G4DAEChroma/G4DAEHit.hh"
+#include "G4AffineTransform.hh"
 #include "Chroma/ChromaPhotonList.hh"  
 #include <iostream>
 using namespace std ;
@@ -8,13 +9,23 @@ void G4DAEHit::Init(ChromaPhotonList* cpl, std::size_t index)
     cpl->GetPhoton( index, gpos, gdir, gpol, t, wavelength, pmtid );    
 }
 
-void G4DAEHit::LocalTransform(G4AffineTransform& trans)
+void G4DAEHit::LocalTransform(G4AffineTransform* trans)
 { 
-    lpos = trans.TransformPoint(gpos);
-    lpol = trans.TransformAxis(gpol);
-    lpol = lpol.unit();
-    ldir = trans.TransformAxis(gdir);
-    ldir = ldir.unit();
+    if ( trans == NULL )
+    {   
+        cout << "G4DAEHit::LocalTransform NULL transform " << endl ; 
+        lpos = gpos ; 
+        lpol = gpol ;
+        ldir = gdir ; 
+    }
+    else
+    {
+        lpos = trans->TransformPoint(gpos);
+        lpol = trans->TransformAxis(gpol);
+        lpol = lpol.unit();
+        ldir = trans->TransformAxis(gdir);
+        ldir = ldir.unit();
+    }
 }
 
 void G4DAEHit::Print()
