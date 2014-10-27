@@ -10,17 +10,48 @@ CNPY
 
 * https://github.com/rogersce/cnpy.git
 
+* Added RPATH setup to CMakeLists, see cnpytest- which 
+  takes advantage of this
+
+::
+
+    -- Installing: /usr/local/env/cnpy/lib/libcnpy.dylib
+    -- Installing: /usr/local/env/cnpy/lib/libcnpy.a
+    -- Installing: /usr/local/env/cnpy/include/cnpy.h
+    -- Installing: /usr/local/env/cnpy/bin/mat2npz
+    -- Installing: /usr/local/env/cnpy/bin/npy2mat
+    -- Installing: /usr/local/env/cnpy/bin/npz2mat
+
 
 
 EOU
 }
-cnpy-dir(){ echo $(local-base)/env/numpy/cnpy ; }
-cnpy-cd(){  cd $(cnpy-dir); }
-cnpy-mate(){ mate $(cnpy-dir) ; }
+cnpy-prefix(){ echo $(local-base)/env/cnpy ; } 
+cnpy-sdir(){ echo $(local-base)/env/numpy/cnpy ; }
+cnpy-scd(){  cd $(cnpy-sdir); }
+
 cnpy-get(){
-   local dir=$(dirname $(cnpy-dir)) &&  mkdir -p $dir && cd $dir
-
-
+   local dir=$(dirname $(cnpy-sdir)) &&  mkdir -p $dir && cd $dir
    [ ! -d cnpy ] && git clone https://github.com/rogersce/cnpy.git
+}
+
+
+cnpy-build(){
+
+   cnpy-scd
+
+   mkdir build
+   cd build
+
+   cmake -DCMAKE_INSTALL_PREFIX=$(cnpy-prefix) ..
+
+   make 
+   make install
+
+   cd ..
+   rm -rf build
+
 
 }
+
+

@@ -266,6 +266,9 @@ void G4DAEGeometry::FakeAssignSensitive(G4LogicalVolume* lv, PVStack_t pvStack, 
 
 
 
+
+
+
 void G4DAEGeometry::TraverseVolumeTree(const G4LogicalVolume* const volumePtr, PVStack_t pvStack)
 {
     // Recursive traverse of all volumes, 

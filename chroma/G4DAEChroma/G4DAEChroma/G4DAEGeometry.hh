@@ -14,6 +14,15 @@ class G4VPhysicalVolume ;
 class G4LogicalVolume ;
 class G4VSensitiveDetector ; 
 
+/*
+   tis unfocussed => split 
+
+   * GDML loading and SD faking  
+   * transform cache
+
+*/
+
+
 class G4DAEGeometry 
 {
 public:
@@ -69,7 +78,11 @@ protected:
     EVolume VolumeType(G4VPhysicalVolume* pv) const;
 
 private:
-    std::vector<std::string> m_lvsensitive;   // used by FakeAssignSensitive()  
+
+    // used by FakeAssignSensitive()  
+    std::vector<std::string> m_lvsensitive;   
+
+
     std::vector<std::string> m_pvname;   // for debug, not identity matching 
     std::vector<G4AffineTransform> m_transform ; 
     bool m_transform_cache_created ; 
@@ -77,6 +90,7 @@ private:
     std::size_t m_pvcount ; 
     std::size_t m_sdcount ; 
     PVSDMap_t m_pvsd ; 
+
     TransformMap_t m_id2transform ; 
 
 

@@ -27,6 +27,12 @@ geant4sys-home(){
    esac
 }
 
+geant4sys-cmakedir(){
+   case $NODE_TAG in 
+      D) echo /usr/local/env/chroma_env/lib/Geant4-9.5.1 ;;
+      *) echo not-configured-see-geant4sys ;; 
+   esac
+}
 
 
     
