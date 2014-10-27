@@ -13,6 +13,8 @@
 class G4VPhysicalVolume ; 
 class G4LogicalVolume ;
 class G4VSensitiveDetector ; 
+class G4DAETransformCache ;
+
 
 /*
    tis unfocussed => split 
@@ -27,7 +29,7 @@ class G4DAEGeometry
 {
 public:
     typedef std::map<std::size_t,std::size_t> PVSDMap_t ;
-    typedef std::map<std::size_t,G4AffineTransform> TransformMap_t ;
+//    typedef std::map<std::size_t,G4AffineTransform> TransformMap_t ;
     typedef std::vector<G4VPhysicalVolume*> PVStack_t;
 
     static G4DAEGeometry* MakeGeometry( const char* geometry );
@@ -40,6 +42,7 @@ public:
 
 public:
     bool CacheExists();
+    G4DAETransformCache* GetCache();
 
 
 public:
@@ -52,8 +55,9 @@ public:
     void DumpSensitiveLVNames();
 
 public:
-
     void CreateTransformCache(const G4VPhysicalVolume* wpv=NULL);
+    void ArchiveCache(const char* dir);
+    void LoadCache(const char* dir);
     void DumpTransformCache();
 
     G4AffineTransform* GetSensorTransform(std::size_t id);
@@ -91,7 +95,8 @@ private:
     std::size_t m_sdcount ; 
     PVSDMap_t m_pvsd ; 
 
-    TransformMap_t m_id2transform ; 
+    G4DAETransformCache* m_cache ;  
+
 
 
 

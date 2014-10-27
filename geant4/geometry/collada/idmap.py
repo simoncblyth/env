@@ -3,6 +3,11 @@
 IDMAP
 =======
 
+::
+
+    ipython idmap.py -i
+
+
 Read .idmap file into numpy arrays and python dict 
 
 This is used by daenode.py to idmaplink the channel_id into 
@@ -208,6 +213,12 @@ import IPython as IP
 log = logging.getLogger(__name__)
 
 class IDMap(dict):
+    old_dtype = [
+               ('index',np.int32),
+               ('id',np.int32),
+               ('idhex','|S7'), 
+               ('pvname','|S256'),
+             ]
     dtype = [
                ('index',np.int32),
                ('id',np.int32),
@@ -216,11 +227,15 @@ class IDMap(dict):
                ('rotrow','|S256'),
                ('pvname','|S256'),
              ]
-    def __init__(self, path):
+
+
+    def __init__(self, path, old=False):
         dict.__init__(self)
         # Cannot use default hash comment marker as that is meaningful in pvnames
         log.info("np.genfromtxt %s " % path ) 
-        a = np.genfromtxt(path,comments=None,skip_header=1,dtype=self.dtype) #, converters=dict(rotrow=lambda _:"yep%s"%_))
+
+        dtype = self.old_dtype if old else self.dtype
+        a = np.genfromtxt(path,comments=None,skip_header=1,dtype=dtype) #, converters=dict(rotrow=lambda _:"yep%s"%_))
         assert np.all( np.arange(len(a),dtype=np.int32) == a['index'] )
         uid = np.unique(a['id'])
         log.info("found %s unique ids " % (len(uid)))
@@ -228,16 +243,18 @@ class IDMap(dict):
         self.a = a 
         self.update(dict(zip(a['index'],a['id'])))
 
-        rot = np.zeros( (len(a),3,3) )
-        tra = np.zeros( (len(a),3) )
-
-        for i,rec in enumerate(a):
-            tra[i] = np.fromstring(rec['trans'][1:-1],sep=",").reshape((3,))
-            rot[i] = np.fromstring(rec['rotrow'][1:-1].replace(")(",","),sep=",").reshape((3,3))
+        if not old:
+            rot = np.zeros( (len(a),3,3) )
+            tra = np.zeros( (len(a),3) )
+       
+            for i,rec in enumerate(a):
+                tra[i] = np.fromstring(rec['trans'][1:-1],sep=",").reshape((3,))
+                rot[i] = np.fromstring(rec['rotrow'][1:-1].replace(")(",","),sep=",").reshape((3,3))
+            pass
+            self.tra = tra
+            self.rot = rot
         pass
- 
-        self.tra = tra
-        self.rot = rot
+
         assert len(self) == len(a) 
         #IP.embed()
 
@@ -250,7 +267,7 @@ if __name__ == '__main__':
     #main()    
     logging.basicConfig(level=logging.DEBUG)
     path = os.environ['IDMAP']
-    idmap = IDMap(path)
+    idmap = IDMap(path, old=False)
 
 
 

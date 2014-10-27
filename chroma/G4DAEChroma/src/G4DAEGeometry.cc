@@ -1,4 +1,6 @@
 #include "G4DAEChroma/G4DAEGeometry.hh"
+#include "G4DAEChroma/G4DAECommon.hh"
+#include "G4DAEChroma/G4DAETransformCache.hh"
 
 #include "G4AffineTransform.hh"
 #include "G4TransportationManager.hh"
@@ -12,41 +14,21 @@
 #include <stdlib.h>    
 #include <iostream>    
 #include <iomanip>    
-#include <sstream>
 #include <vector>
 
 using namespace std ; 
 
-void split( vector<string>& elem, const char* linekey, char delim )
-{
-    const char* line = getenv(linekey);
-    if(line == NULL){ 
-        cout << "split envvar not defined : " << linekey << endl ; 
-        return ;
-    }   
-    istringstream f(line);
-    string s;
-    while (getline(f, s, delim)) elem.push_back(s);
-}
-
-
-string transform_rep( G4AffineTransform& transform )
-{
-   G4RotationMatrix rotation = transform.NetRotation();
-   G4ThreeVector rowX = rotation.rowX();
-   G4ThreeVector rowY = rotation.rowY();
-   G4ThreeVector rowZ = rotation.rowZ();
-   G4ThreeVector tran = transform.NetTranslation(); 
-   
-   stringstream ss;
-   ss << tran << " " << rowX << rowY << rowZ  ;
-   return ss.str();
-}
 
 
 G4DAEGeometry::G4DAEGeometry() :
-    m_transform_cache_created(false), m_pvcount(0), m_sdcount(0)
+    m_transform_cache_created(false), m_pvcount(0), m_sdcount(0), m_cache(0)
 { 
+    m_cache = new G4DAETransformCache();
+}
+
+
+G4DAETransformCache* G4DAEGeometry::GetCache(){
+    return m_cache ; 
 }
 
 G4DAEGeometry::~G4DAEGeometry()
@@ -76,31 +58,38 @@ G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey, G4VSensitiveDete
    }   
    printf("geokey %s geopath %s \n", geokey, geopath ); 
 
-
-   G4GDMLParser fParser ; 
-   fParser.Read(geopath,false);
-
-   G4VPhysicalVolume* top = fParser.GetWorldVolume();       
-   G4LogicalVolume* ltop = top->GetLogicalVolume();
+   string archivedir(geopath);
+   archivedir += ".cache" ; 
 
    G4DAEGeometry* geo = new G4DAEGeometry();
 
-   if( sd != NULL )
-   {  
-       string fakesd(geokey);
-       fakesd += "_FAKESD" ;
-   
-       geo->AddSensitiveLVNames(fakesd.c_str(),';');
-       geo->DumpSensitiveLVNames();
-
-       PVStack_t pvStack ;  
-       geo->FakeAssignSensitive( ltop, pvStack, sd );
+   if( G4DAETransformCache::Exists(archivedir.c_str()))
+   {
+       geo->LoadCache( archivedir.c_str() ); 
    } 
-   // TODO: check fake SD assignments is accurate mockup 
-  
+   else
+   {
+       G4GDMLParser fParser ; 
+       fParser.Read(geopath,false);
 
-   geo->CreateTransformCache( top ); 
- 
+       G4VPhysicalVolume* top = fParser.GetWorldVolume();       
+       G4LogicalVolume* ltop = top->GetLogicalVolume();
+
+       if( sd != NULL )
+       {  
+           string fakesd(geokey);
+           fakesd += "_FAKESD" ;
+   
+           geo->AddSensitiveLVNames(fakesd.c_str(),';');
+           geo->DumpSensitiveLVNames();
+
+           PVStack_t pvStack ;  
+           geo->FakeAssignSensitive( ltop, pvStack, sd );
+           // TODO: check fake SD assignments is accurate mockup 
+       } 
+       geo->CreateTransformCache( top ); 
+       geo->ArchiveCache( archivedir.c_str() ); 
+   } 
    return geo;
 }
 #else
@@ -124,10 +113,27 @@ G4DAEGeometry* G4DAEGeometry::Load(const G4VPhysicalVolume* world)
 
    G4DAEGeometry* geo = new G4DAEGeometry();
    geo->CreateTransformCache(world); 
-   //geo->DumpTransformCache(); 
- 
+   geo->ArchiveCache(".cache"); 
+  
+   //
+   // where to archive transform cache when getting geometry from MEMORY (ie full NuWa run)? 
+   // once have integrated DAE writing into here can write archive as sidecar to the .dae
+   //
    return geo ;
 }
+
+void G4DAEGeometry::ArchiveCache(const char* dir)
+{
+   m_cache->Archive(dir); 
+}
+
+void G4DAEGeometry::LoadCache(const char* dir)
+{
+   if(m_cache) delete m_cache ; 
+   m_cache = NULL ; 
+   m_cache = G4DAETransformCache::Load(dir);   
+}
+
 
 
 void G4DAEGeometry::Clear()
@@ -138,7 +144,6 @@ void G4DAEGeometry::Clear()
    m_sdcount = 0 ;
    m_pvsd.clear() ;
    m_transform_cache_created = false ; 
-   m_id2transform.clear() ;
 }
 
 
@@ -152,7 +157,8 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
        wpv = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
    }
 
-   if(wpv == NULL){
+   if(wpv == NULL)
+   {
        cout << "G4DAEGeometry::CreateTransformCache ABORT : failed to access WorldVolume " << endl ; 
        return ;
    } 
@@ -161,8 +167,7 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
 
    const G4LogicalVolume* lvol = wpv->GetLogicalVolume();
 
-   // manual World entry, for indice alignment 
-   m_pvname.push_back(wpv->GetName());
+   m_pvname.push_back(wpv->GetName()); // manual World entry, for indice alignment 
    m_transform.push_back(G4AffineTransform());
 
    PVStack_t pvStack ;  // topmost volume not on stack
@@ -173,24 +178,7 @@ void G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume* wpv)
 
    cout << "G4DAEGeometry::CreateTransformCache found " << npv << " volumes " << endl ; 
 
-   cout << "  (pv,sd) index pairs  " << m_pvsd.size() 
-        << "  pvcount " << m_pvcount  
-        << "  sdcount " << m_sdcount 
-        << endl ;
-
-   for(PVSDMap_t::iterator it = m_pvsd.begin(); it != m_pvsd.end(); it++) 
-   {
-       cout << " pv" << setw(10) << it->first 
-            << " sd" << setw(10) << it->second
-            << endl ;
-   } 
-   for(TransformMap_t::iterator it = m_id2transform.begin(); it != m_id2transform.end(); it++) 
-   {
-       cout << " id " << setw(10) << it->first 
-            << " tr " << transform_rep( it->second )
-            << endl ;
-   } 
-
+   
 
 }
 
@@ -209,6 +197,20 @@ void G4DAEGeometry::DumpTransformCache()
    for( size_t index=0; index < npv; ++index ){ 
        cout << index << " " << transform_rep( m_transform[index] ) << m_pvname[index] << '\n' ;  
    }
+
+   cout << "  (pv,sd) index pairs  " << m_pvsd.size() 
+        << "  pvcount " << m_pvcount  
+        << "  sdcount " << m_sdcount 
+        << endl ;
+
+   for(PVSDMap_t::iterator it = m_pvsd.begin(); it != m_pvsd.end(); it++) 
+   {
+       cout << " pv" << setw(10) << it->first 
+            << " sd" << setw(10) << it->second
+            << endl ;
+   } 
+
+
 }
 
 void G4DAEGeometry::AddSensitiveLVName(const std::string& lvname)
@@ -238,7 +240,7 @@ bool G4DAEGeometry::VisitFakeAssignSensitive(G4LogicalVolume* lv, const PVStack_
     assert( pvtop->GetLogicalVolume() == lv ); 
 
     string pvname = pvtop->GetName();
-    cout << setw(40) << lvname << " " << pvname << endl ; 
+    //cout << setw(40) << lvname << " " << pvname << endl ; 
 
     //for (size_t index = 0 ; index <= indexMax  ; ++index ) cout << setw(2) << index << " " << pvStack[index]->GetName() << endl ; 
     
@@ -322,7 +324,7 @@ void G4DAEGeometry::VisitPV(const G4LogicalVolume* const volumePtr, const PVStac
     {
        std::size_t id = TouchableToIdentifier( touchableHistory );
        if(id == 0) cout << "G4DAEGeometry::VisitPV " << name << " WARNING SD with no identifier " << endl ; 
-       if(id > 0) m_id2transform[id] = transform ; 
+       if(id > 0) m_cache->Add(id, transform) ; 
 
        m_pvsd[m_pvcount] = m_sdcount ;
        m_sdcount++; 
@@ -334,14 +336,14 @@ void G4DAEGeometry::VisitPV(const G4LogicalVolume* const volumePtr, const PVStac
 
 std::size_t G4DAEGeometry::TouchableToIdentifier( const G4TouchableHistory& hist )
 {
-    return m_sdcount + 1;  // override this in detector specialization subclasses 
+    //return m_sdcount + 1;  // override this in detector specialization subclasses 
+    return m_pvcount ;  //  pvcount is more useful for debugging comparisons
 }
 
 G4AffineTransform* G4DAEGeometry::GetSensorTransform(std::size_t id)
 {
-    return ( m_id2transform.find(id) == m_id2transform.end()) ? NULL : &m_id2transform[id] ;
+    return ( m_cache == NULL ) ? NULL : m_cache->GetSensorTransform(id) ;
 }
-
 
 
 

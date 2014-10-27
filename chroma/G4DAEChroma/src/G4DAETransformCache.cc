@@ -1,0 +1,295 @@
+#include "G4DAEChroma/G4DAETransformCache.hh"
+#include "G4DAEChroma/G4DAECommon.hh"
+
+#include "cnpy.h"
+#include <sys/stat.h> 
+
+#include "G4ThreeVector.hh"
+#include "G4AffineTransform.hh"
+
+#include <string>
+#include <iostream>
+#include <iomanip>
+
+using namespace std ; 
+
+
+
+void G4DAETransformCache::Serialize()
+{ 
+    // serialize from map into byte buffers ready for persisting 
+     size_t size = m_id2transform.size();
+     this->Resize(size);
+
+     for(TransformMap_t::iterator it = m_id2transform.begin(); it != m_id2transform.end(); it++)
+     {
+         this->AddSerial( it->first, it->second );
+     }
+}
+
+void G4DAETransformCache::DeSerialize()
+{
+    // copy from byte buffers into the map
+    m_id2transform.clear();
+    size_t size = GetSize();
+    for(size_t index=0 ; index < size ; ++index )
+    {
+        size_t key = GetKey(index);
+        G4AffineTransform* tra = GetTransform(index);
+        m_id2transform[key] = *tra ;  
+    }
+}
+
+void G4DAETransformCache::Dump()
+{
+   for(TransformMap_t::iterator it = m_id2transform.begin(); it != m_id2transform.end(); it++) 
+   {
+       size_t key = it->first ; 
+       cout << " key " << setw(10) << key 
+            << " tr " << transform_rep( it->second )
+            << endl ;
+
+
+       size_t index = FindKey( key );     
+       G4AffineTransform* tra = FindTransform( key );     
+
+       cout << " idx " << setw(10) << index 
+            << " tr " << transform_rep( *tra ) 
+            << endl ; 
+
+
+
+   } 
+}
+
+
+G4DAETransformCache::G4DAETransformCache( std::size_t itemcapacity, std::size_t* key, double* data) : 
+             m_itemcapacity(itemcapacity), 
+             m_itemsize(4*4), 
+             m_keysize(1), 
+             m_data(data), 
+             m_key(key), 
+             m_itemcount(0) 
+{
+    if( m_data == NULL && m_key == NULL )
+    {
+        Resize(itemcapacity);      
+    } 
+    else
+    {
+        m_itemcount = m_itemcapacity ; // when loading from buffers
+    }
+}
+
+
+void G4DAETransformCache::Resize(std::size_t itemcapacity)
+{
+   m_itemcount = 0 ; 
+   m_itemcapacity = itemcapacity ;  
+
+   if(m_data) delete[] m_data ; 
+   if(m_key)  delete[] m_key ; 
+     
+   if(m_itemcapacity > 0){
+       m_data = new double[m_itemcapacity*m_itemsize] ;
+       m_key  = new std::size_t[m_itemcapacity] ;
+   }
+}
+
+
+G4DAETransformCache::~G4DAETransformCache()
+{
+    if(m_data) delete[] m_data ; 
+    if(m_key)  delete[] m_key ; 
+}
+
+void G4DAETransformCache::Archive(const char* dir)
+{
+    this->Serialize();
+
+    if (mkdir(dir,0777) == -1) {
+        exit(EXIT_FAILURE);
+    }
+
+    const unsigned int key_shape[] = {m_itemcount};
+    const unsigned int data_shape[] = {m_itemcount,4,4};
+
+    char path[1024];
+    int len ;
+
+    len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "key.npy");
+    path[len] = 0;
+    printf("G4DAETransformCache::Archive [%s]\n", path );
+    cnpy::npy_save(path,m_key,key_shape,1,"w");
+
+    len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "data.npy");
+    path[len] = 0;
+    printf("G4DAETransformCache::Archive [%s]\n", path );
+    cnpy::npy_save(path,m_data,data_shape,3,"w");
+
+}
+
+
+bool G4DAETransformCache::Exists(const char* dir)
+{
+    char path[1024];
+    int len ;
+    len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "key.npy");
+    path[len] = 0;
+ 
+    struct stat   buffer;   
+    bool xkey  = (stat(path, &buffer) == 0);
+
+    len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "data.npy");
+    path[len] = 0;
+    bool xdata = (stat(path, &buffer) == 0);
+
+    return xkey && xdata ; 
+}
+
+
+G4DAETransformCache* G4DAETransformCache::Load(const char* dir)
+{
+    char path[1024];
+    int len ;
+
+    len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "key.npy");
+    path[len] = 0;
+    printf("G4DAETransformCache::Load [%s] \n", path ); 
+    cnpy::NpyArray akey = cnpy::npy_load(path); 
+
+    len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "data.npy");
+    path[len] = 0;
+    printf("G4DAETransformCache::Load [%s] \n", path ); 
+    cnpy::NpyArray adata = cnpy::npy_load(path); 
+
+
+    assert( akey.shape.size() == 1 );
+    assert( adata.shape.size() == 3 );
+    assert( adata.shape[1] == 4 && adata.shape[2] == 4 );
+    assert( adata.shape[0] == akey.shape[0] );
+
+    std::size_t itemcount = adata.shape[0] ;
+    std::size_t* key = reinterpret_cast<std::size_t*>(akey.data);
+    double* data = reinterpret_cast<double*>(adata.data);
+
+    G4DAETransformCache* cache = new G4DAETransformCache( itemcount, key, data );  
+    cache->DeSerialize(); 
+    return cache ; 
+}
+
+
+         
+std::size_t G4DAETransformCache::GetCapacity(){
+    return m_itemcapacity ; 
+}
+
+std::size_t G4DAETransformCache::GetSize(){
+    return m_itemcount ; 
+}
+
+std::size_t G4DAETransformCache::GetKey( std::size_t index )
+{
+    if( index > m_itemcapacity ) return 0 ;
+        std::size_t* id = m_key + index*m_keysize  ;
+    return id[0];
+}
+
+// return index+1 of first key matching argument, or 0 if not found
+std::size_t G4DAETransformCache::FindKey( std::size_t key )
+{
+    for(std::size_t n=0 ; n < m_itemcount ; ++n ){
+       if(m_key[n] == key) return n + 1 ; 
+    }
+    return 0;
+}
+
+G4AffineTransform* G4DAETransformCache::FindTransform( std::size_t key )
+{
+    std::size_t find = FindKey( key );
+    return (find == 0) ? NULL : GetTransform( find - 1 );  
+} 
+
+
+G4AffineTransform* G4DAETransformCache::GetTransform( std::size_t index )
+{
+    if( index > m_itemcapacity ) return NULL ;
+    double* data = m_data + index*m_itemsize ;   
+
+    G4Rep3x3 r33( 
+            data[0], data[1], data[2] ,         
+            data[4], data[5], data[6] ,         
+            data[8], data[9], data[10] 
+    );         
+    G4RotationMatrix rot(r33) ; 
+    G4ThreeVector tlate(data[3],data[7],data[11]) ; 
+
+    G4AffineTransform* transform = new G4AffineTransform();
+    transform->SetNetRotation(rot);
+    transform->SetNetTranslation(tlate);
+    return transform; 
+}
+
+void G4DAETransformCache::Add( std::size_t key, const G4AffineTransform&  transform )
+{
+    m_id2transform[key] = transform ; 
+}
+
+G4AffineTransform* G4DAETransformCache::GetSensorTransform(std::size_t id)
+{
+    return ( m_id2transform.find(id) == m_id2transform.end()) ? NULL : &m_id2transform[id] ;
+}
+
+
+void G4DAETransformCache::AddSerial( std::size_t key, const G4AffineTransform&  transform )
+{
+    assert(m_itemcount < m_itemcapacity );
+
+    double* data = m_data + m_itemcount*m_itemsize ;   
+    std::size_t* id = m_key + m_itemcount*m_keysize ; 
+
+    m_itemcount++ ; 
+
+    id[0] = key ; 
+
+/*
+
+  Indexed access to G4AffineTransform follows
+  an unusual convention, with translation
+  along the bottom ... so not using  that for clarity 
+
+    0:Rxx  1:Rxy  2:Rxz   3:0.
+    4:Ryx  5:Ryy  6:Ryz   7:0.  
+    8:Rzx  9:Rzy 10:Rzz  11:0.
+   12:Tx  13:Ty  14:Tz   15:1.
+
+*/
+
+    G4RotationMatrix rot = transform.NetRotation(); 
+    G4ThreeVector tlate = transform.NetTranslation(); 
+
+    data[0] = rot.xx();
+    data[1] = rot.xy();
+    data[2] = rot.xz();
+
+    data[4] = rot.yx();
+    data[5] = rot.yy();
+    data[6] = rot.yz();
+
+    data[8] = rot.zx();
+    data[9] = rot.zy();
+    data[10] = rot.zz();
+
+    data[3] = tlate.x();
+    data[7] = tlate.y();
+    data[11] = tlate.z();
+
+    data[12] = 0. ;
+    data[13] = 0. ;
+    data[14] = 0. ;
+    data[15] = 1. ;
+}
+
+
+
+

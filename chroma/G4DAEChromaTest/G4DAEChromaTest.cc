@@ -5,6 +5,7 @@
 #include "G4DAEChroma/G4DAEGeometry.hh"
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAESensDet.hh"
+#include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/DemoG4DAECollector.hh"
 
 #include "G4SDManager.hh"
@@ -62,6 +63,8 @@ int main(int argc, char** argv)
 
     const char* geometry = "DAE_NAME_DYB_GDML" ;
     G4DAEGeometry* geo = G4DAEGeometry::LoadFromGDML(geometry, sd);
+    G4DAETransformCache* cache = geo->GetCache(); 
+    cache->Dump();
 
 
     return 0 ; 

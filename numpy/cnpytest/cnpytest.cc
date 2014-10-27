@@ -6,23 +6,30 @@
 #include "G4AffineTransform.hh"
 
 #include <iostream>
+#include <sstream>
 
 using namespace std ; 
 
-
-
 class TransformCache {
   public:
-     TransformCache( std::size_t itemcapacity ) : 
+     TransformCache( std::size_t itemcapacity, std::size_t* key = NULL, double* data = NULL) : 
              m_itemcapacity(itemcapacity), 
              m_itemsize(4*4), 
              m_keysize(1), 
-             m_data(0), 
-             m_key(0), 
+             m_data(data), 
+             m_key(key), 
              m_itemcount(0) 
      {
-         m_data = new double[m_itemcapacity*m_itemsize] ;
-         m_key  = new std::size_t[m_itemcapacity] ;
+         if( m_data == NULL && m_key == NULL )
+         {
+             m_data = new double[m_itemcapacity*m_itemsize] ;
+             m_key  = new std::size_t[m_itemcapacity] ;
+         } 
+         else
+         {
+            // when loading from buffers
+             m_itemcount = m_itemcapacity ; 
+         }
      }
      virtual ~TransformCache()
      {
@@ -43,28 +50,73 @@ class TransformCache {
     {
         cnpy::NpyArray akey = cnpy::npy_load("key.npy"); 
         assert( akey.shape.size() == 1 );
-        std::size_t* key = reinterpret_cast<std::size_t*>(akey.data);
-
-        for(std::size_t n=0 ; n < akey.shape[0] ; n++ ){
-           cout << "akey " << n << " => " << key[n] << endl ;  
-        }
 
         cnpy::NpyArray adata = cnpy::npy_load("data.npy"); 
         assert( adata.shape.size() == 3 );
         assert( adata.shape[1] == 4 && adata.shape[2] == 4 );
    
+        assert( adata.shape[0] == akey.shape[0] );
+
+        std::size_t itemcount = adata.shape[0] ;
+        std::size_t* key = reinterpret_cast<std::size_t*>(akey.data);
         double* data = reinterpret_cast<double*>(adata.data);
 
-        for(std::size_t n=0 ; n < adata.shape[0]*4*4 ; n++ ){
-           cout << "adata " << n << " => " << data[n] << endl ;  
-        }
+        return new TransformCache( itemcount, key, data );  
+    }
+          
+    std::size_t GetCapacity(){
+        return m_itemcapacity ; 
+    }
 
-        return NULL ;  
+    std::size_t GetSize(){
+        return m_itemcount ; 
+    }
+
+    std::size_t GetKey( std::size_t index )
+    {
+        if( index > m_itemcapacity ) return 0 ;
+        std::size_t* id = m_key + index*m_keysize  ;
+        return id[0];
+    }
+
+    // return index+1 of first key matching argument, or 0 if not found
+    std::size_t FindKey( std::size_t key )
+    {
+        for(std::size_t n=0 ; n < m_itemcount ; ++n ){
+            if(m_key[n] == key) return n + 1 ; 
+        }
+        return 0;
+    }
+
+    G4AffineTransform* FindTransform( std::size_t key )
+    {
+        std::size_t find = FindKey( key );
+        return (find == 0) ? NULL : GetTransform( find - 1 );  
+    } 
+
+
+    G4AffineTransform* GetTransform( std::size_t index )
+    {
+        if( index > m_itemcapacity ) return NULL ;
+        double* data = m_data + index*m_itemsize ;   
+
+        G4Rep3x3 r33( 
+            data[0], data[1], data[2] ,         
+            data[4], data[5], data[6] ,         
+            data[8], data[9], data[10] 
+        );         
+        G4RotationMatrix rot(r33) ; 
+        G4ThreeVector tlate(data[3],data[7],data[11]) ; 
+
+        G4AffineTransform* transform = new G4AffineTransform();
+        transform->SetNetRotation(rot);
+        transform->SetNetTranslation(tlate);
+        return transform; 
     }
 
 
-     void Add( std::size_t identifier, const G4AffineTransform&  transform )
-     {
+    void Add( std::size_t key, const G4AffineTransform&  transform )
+    {
            assert(m_itemcount < m_itemcapacity );
 
            double* data = m_data + m_itemcount*m_itemsize ;   
@@ -72,7 +124,8 @@ class TransformCache {
 
            m_itemcount++ ; 
 
-           id[0] = identifier ; 
+           id[0] = key ; 
+
 /*
 
   Indexed access to G4AffineTransform follows
@@ -124,6 +177,21 @@ class TransformCache {
 };
 
 
+string transform_rep( G4AffineTransform& transform )
+{
+   G4RotationMatrix rotation = transform.NetRotation();
+   G4ThreeVector rowX = rotation.rowX();
+   G4ThreeVector rowY = rotation.rowY();
+   G4ThreeVector rowZ = rotation.rowZ();
+   G4ThreeVector tran = transform.NetTranslation(); 
+   
+   stringstream ss; 
+   ss << tran << " " << rowX << rowY << rowZ  ;
+   return ss.str();
+}
+
+
+
 
 
 int main()
@@ -140,10 +208,20 @@ int main()
    tc->Archive();
    */
 
-   TransformCache* load = TransformCache::Load();
+   TransformCache* tc = TransformCache::Load();
 
-
- 
+   for( std::size_t n=0 ; n < tc->GetSize() ; ++n )
+   {
+       std::size_t key  = tc->GetKey(n);
+       G4AffineTransform* find = tc->FindTransform(key);
+       G4AffineTransform* transform = tc->GetTransform(n);
+       if( transform ){
+           cout << "transform " << n << " " << key << " "  << transform_rep(*transform) << endl ; 
+       }
+       if( find ){
+           cout << "find      " << n << " " << key << " "  << transform_rep(*find) << endl ; 
+       }
+   }
 
 
    /*
