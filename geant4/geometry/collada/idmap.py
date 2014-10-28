@@ -229,7 +229,10 @@ class IDMap(dict):
              ]
 
 
-    def __init__(self, path, old=False):
+    def __init__(self, path=None, old=False):
+        if path is None:
+            path = os.environ['DAE_NAME_DYB_IDMAP'] # define with: export-;export-export
+        pass 
         dict.__init__(self)
         # Cannot use default hash comment marker as that is meaningful in pvnames
         log.info("np.genfromtxt %s " % path ) 
@@ -246,13 +249,18 @@ class IDMap(dict):
         if not old:
             rot = np.zeros( (len(a),3,3) )
             tra = np.zeros( (len(a),3) )
+            transform = np.zeros( (len(a),4,4))
        
             for i,rec in enumerate(a):
                 tra[i] = np.fromstring(rec['trans'][1:-1],sep=",").reshape((3,))
                 rot[i] = np.fromstring(rec['rotrow'][1:-1].replace(")(",","),sep=",").reshape((3,3))
+                transform[i] = np.identity(4)
+                transform[i][:3,:3] = rot[i]
+                transform[i][:3,3] = tra[i]
             pass
             self.tra = tra
             self.rot = rot
+            self.transform = transform
         pass
 
         assert len(self) == len(a) 
@@ -264,10 +272,8 @@ def main():
 
 
 if __name__ == '__main__':
-    #main()    
     logging.basicConfig(level=logging.DEBUG)
-    path = os.environ['IDMAP']
-    idmap = IDMap(path, old=False)
+    idmap = IDMap()
 
 
 

@@ -1,5 +1,19 @@
 #ifndef G4DAETRANSFORMCACHE_H
 #define G4DAETRANSFORMCACHE_H
+/*
+G4DAETransformCache
+=====================
+
+* Holds a map of G4AffineTransforms keyed on an identifier (eg PmtId)
+* Can persist/load the map to/from binary CNPY formatted key.npy 
+  and data.npy files. These files can be loaded directly into python with::
+
+       a = np.load("data.npy")
+
+See also `env/geant4/geometry/collada/transform_cache.py` 
+
+
+*/
 
 #include <cstddef>
 #include "G4AffineTransform.hh" 
