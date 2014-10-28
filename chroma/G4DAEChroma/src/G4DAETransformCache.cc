@@ -1,11 +1,14 @@
 #include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 
-#include "cnpy.h"
+#include "cnpy/cnpy.h"
 #include <sys/stat.h> 
 
 #include "G4ThreeVector.hh"
 #include "G4AffineTransform.hh"
+
+#include <CLHEP/Vector/Rotation.h>
+#include "G4RotationMatrix.hh"
 
 #include <string>
 #include <iostream>
@@ -216,7 +219,7 @@ G4AffineTransform* G4DAETransformCache::GetTransform( std::size_t index )
     if( index > m_itemcapacity ) return NULL ;
     double* data = m_data + index*m_itemsize ;   
 
-    G4Rep3x3 r33( 
+    CLHEP::HepRep3x3 r33( 
             data[0], data[1], data[2] ,         
             data[4], data[5], data[6] ,         
             data[8], data[9], data[10] 

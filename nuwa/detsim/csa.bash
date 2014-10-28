@@ -43,6 +43,7 @@ csa-names(){ cat << EON
 DsChromaStackAction
 DsChromaRunAction
 DybG4DAECollector
+DybG4DAEGeometry
 EON
 }
 

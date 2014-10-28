@@ -20,6 +20,41 @@ to CMakeLists.txt
 * moving things into env/cmake/Modules/ 
 
 
+G4Rep3x3 not available in older G4 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    #CMT---> compiling ../src/G4DAETransformCache.cc
+    ../src/G4DAETransformCache.cc: In member function 'G4AffineTransform* G4DAETransformCache::GetTransform(size_t)':
+    ../src/G4DAETransformCache.cc:220: error: 'G4Rep3x3' was not declared in this scope
+    ../src/G4DAETransformCache.cc:220: error: expected `;' before 'r33'
+
+::
+
+     40 #include "globals.hh"
+     41 #include "G4ThreeVector.hh"
+     42 #include <CLHEP/Vector/Rotation.h>
+     43 
+     44 typedef CLHEP::HepRotation G4RotationMatrix;
+     45 
+     46 #endif
+
+::
+
+     39 #include "globals.hh"
+     40 #include "G4ThreeVector.hh"
+     41 #include <CLHEP/Vector/Rotation.h>
+     42 
+     43 typedef CLHEP::HepRotation G4RotationMatrix;
+     44 typedef CLHEP::HepRep3x3 G4Rep3x3;
+     45 
+     46 #endif
+
+
+
+
+
 EOU
 }
 

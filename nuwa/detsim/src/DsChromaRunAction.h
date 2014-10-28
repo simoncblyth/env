@@ -40,6 +40,15 @@ private:
   std::string m_sensdet ;
   std::string m_geometry ;
 
+  /// PackedIdParameterName : name of user paramater of the counted
+  /// detector element which holds the packed, globally unique PMT
+  /// ID.
+  std::string m_idParameter;
+
+  /// TouchableToDetelem : the ITouchableToDetectorElement to use to
+  /// resolve sensor ID.
+  std::string m_t2deName;
+
  
 };
 #endif

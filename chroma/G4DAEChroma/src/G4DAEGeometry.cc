@@ -93,7 +93,7 @@ G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey, G4VSensitiveDete
    return geo;
 }
 #else
-G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char* geokey )
+G4DAEGeometry* G4DAEGeometry::LoadFromGDML( const char*, G4VSensitiveDetector* )
 {
     printf("G4DAEGeometry::LoadFromGDML need to define -DEXPORT_G4GDML if GDML is available \n");  
     return NULL ;
@@ -334,7 +334,7 @@ void G4DAEGeometry::VisitPV(const G4LogicalVolume* const volumePtr, const PVStac
     m_transform.push_back(transform);
 }
 
-std::size_t G4DAEGeometry::TouchableToIdentifier( const G4TouchableHistory& hist )
+std::size_t G4DAEGeometry::TouchableToIdentifier( const G4TouchableHistory& )
 {
     //return m_sdcount + 1;  // override this in detector specialization subclasses 
     return m_pvcount ;  //  pvcount is more useful for debugging comparisons
