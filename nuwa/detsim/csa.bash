@@ -48,6 +48,7 @@ EON
 }
 
 
+
 csa-nuwapkg-cpto-(){ 
    local iwd=$PWD 
    local pkg=$(csa-nuwapkg)
@@ -57,12 +58,30 @@ csa-nuwapkg-cpto-(){
    cp src/$nam.cc $pkg/src/
    cd $iwd
 }   
+csa-nuwapkg-cpfr-(){
+   local iwd=$PWD 
+   local pkg=$(csa-nuwapkg)
+   local nam=$1
+   csa-cd
+   cp $pkg/src/$nam.h src/$nam.h
+   cp $pkg/src/$nam.cc src/$nam.cc
+   cd $iwd
+}
+
 csa-nuwapkg-cpto(){ 
    local nam
    csa-names | while read nam ; do 
       $FUNCNAME- $nam
    done
 }
+csa-nuwapkg-cpfr(){ 
+   local nam
+   csa-names | while read nam ; do 
+      $FUNCNAME- $nam
+   done
+}
+
+
 
 csa-old(){ cat << EOO
    perl -pi -e 's,ChromaPhotonList.hh,Chroma/ChromaPhotonList.hh,' $pkg/src/$nam.cc

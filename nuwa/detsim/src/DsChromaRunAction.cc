@@ -11,6 +11,10 @@
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/PropertyMgr.h"
+
+
+#include "G4DataHelpers/ITouchableToDetectorElement.h"
+
 #include <stdlib.h>  
 #include <assert.h>
 #include <iostream>
@@ -60,9 +64,11 @@ void DsChromaRunAction::BeginOfRunAction( const G4Run* run )
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
 
-    DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(m_t2deName.c_str(), m_idParameter.c_str());
+    ITouchableToDetectorElement* t2de = tool<ITouchableToDetectorElement>(m_t2deName);
+    DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(t2de, m_idParameter.c_str());
     geometry->CreateTransformCache(NULL); 
-    geometry->Archive("DybG4DAEGeometry.cache");  // hmm control this via envvar  
+    geometry->ArchiveCache("DybG4DAEGeometry.cache");  // hmm control this via envvar  
+
 
     const char* target = m_sensdet.c_str() ; 
     string trojan = "trojan_" ;

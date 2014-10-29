@@ -21,10 +21,10 @@ class G4TouchableHistory ;
 //
 //
 
-class DybG4DAEGeometry : public GiGaBase, public G4DAEGeometry {
+class DybG4DAEGeometry : public G4DAEGeometry {
 
 public:
-    DybG4DAEGeometry(const char* t2deName, const char* idParameter);
+    DybG4DAEGeometry(ITouchableToDetectorElement* t2de, const char* idParameter);
     virtual ~DybG4DAEGeometry();
    
     virtual std::size_t TouchableToIdentifier( const G4TouchableHistory& hist );
