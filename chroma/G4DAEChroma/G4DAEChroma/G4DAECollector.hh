@@ -5,6 +5,7 @@
 #include "G4DAEChroma/G4DAEHit.hh"
 #include <vector>
 #include <cstddef>
+#include <string>
 
 class G4HCofThisEvent ;
 class ChromaPhotonList ; 
@@ -26,8 +27,8 @@ public:
     virtual ~G4DAECollector(){};
 
     virtual void DefineCollectionNames(G4CollectionNameVector&) = 0;
-    virtual void CreateHitCollections( const char* sdname, G4HCofThisEvent* hce ) = 0;
-    virtual void StealHitCollections( const char* target,  G4HCofThisEvent* hce ) = 0;
+    virtual void CreateHitCollections( const std::string& sdname, G4HCofThisEvent* hce ) = 0;
+    virtual void StealHitCollections( const std::string& target,  G4HCofThisEvent* hce ) = 0;
     virtual void Collect( const G4DAEHit& hit ) = 0;
 
     virtual void AddSomeFakeHits(const IDVec& sensor_ids);

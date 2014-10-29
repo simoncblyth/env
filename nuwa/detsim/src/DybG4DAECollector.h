@@ -3,6 +3,7 @@
 
 #include "G4DAEChroma/G4DAECollector.hh"
 #include <map>
+#include <string>
 
 #include "G4DataHelpers/G4DhHit.h"
 
@@ -19,11 +20,12 @@ public:
     virtual ~DybG4DAECollector();
 
     void DefineCollectionNames(G4CollectionNameVector&);
-    void CreateHitCollections( const char* sdname, G4HCofThisEvent* HCE );
-    void StealHitCollections( const char* target,  G4HCofThisEvent* hce );
+    void CreateHitCollections( const std::string& sdname, G4HCofThisEvent* HCE );
+    void StealHitCollections( const std::string& target,  G4HCofThisEvent* hce );
 
     void Collect( const G4DAEHit& hit );
     void AddSomeFakeHits();
+    void DumpLocalHitCache();
 
 private:
     typedef std::map<short int,G4DhHitCollection*> LocalHitCache;

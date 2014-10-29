@@ -55,7 +55,8 @@ void DybG4DAECollector::DefineCollectionNames(G4CollectionNameVector& collection
 }
 
 
-void DybG4DAECollector::CreateHitCollections( const char* sdname, G4HCofThisEvent* hce )
+
+void DybG4DAECollector::CreateHitCollections( const std::string& sdname, G4HCofThisEvent* hce )
 {
     m_hc.clear();
 
@@ -91,7 +92,7 @@ void DybG4DAECollector::CreateHitCollections( const char* sdname, G4HCofThisEven
          << endl; 
 }
 
-void DybG4DAECollector::StealHitCollections(const char* target,  G4HCofThisEvent* HCE)
+void DybG4DAECollector::StealHitCollections(const std::string& target,  G4HCofThisEvent* HCE)
 {
    /*
    Summary: this steals HCE hit collection pointers of target SD
@@ -139,7 +140,7 @@ void DybG4DAECollector::StealHitCollections(const char* target,  G4HCofThisEvent
 
    cout << "DybG4DAECollector::StealHitCollections "
         << " HCE " << HCE
-        << " target " << target 
+        << " target [" << target << "]"
         << " #col " << m_hc.size()
         << endl ; 
 }
@@ -164,9 +165,12 @@ void DybG4DAECollector::Collect( const G4DAEHit& hit )
 
     G4DhHitCollection* hc = m_hc[sdid];
 
-    if (!hc) { 
+    if (!hc) 
+    { 
         cout  << "DybG4DAECollector::CollectHit : WARNING hit with no hit collection. " 
               << " pmtid " << (void*)hit.pmtid
+              << " sdid " << setw(5) << sdid
+              << " (void*)sdid " << (void*)sdid
               << " det: " << setw(15) << det.detName()
               << " Storing to collectionName[0] " << collectionName[0]
               << endl; 
@@ -175,6 +179,7 @@ void DybG4DAECollector::Collect( const G4DAEHit& hit )
     }
 
     cout << "DybG4DAECollector::CollectHit "
+         << " hc : " << (void*)hc 
          << " pmtid : " << (void*)hit.pmtid 
          << " from " << setw(15) << det.detName()
          << " sdid " <<  setw(5) << sdid 
@@ -184,8 +189,29 @@ void DybG4DAECollector::Collect( const G4DAEHit& hit )
          << " wav " << sphit->wavelength()/CLHEP::nm << "[nm]"
          << endl; 
 
-    hc->insert(new G4DhHit(sphit,trackid));
+
+    if(hc == NULL)
+    {
+        cout << "DybG4DAECollector::CollectHit NULL hc cannot insert " << endl ; 
+        DumpLocalHitCache();
+    }
+    else
+    {
+        hc->insert(new G4DhHit(sphit,trackid));
+    }
 }
 
 
-
+void DybG4DAECollector::DumpLocalHitCache()
+{
+    cout << "DybG4DAECollector::DumpLocalHitCache m_hc size " << m_hc.size() << endl ; 
+    for( LocalHitCache::iterator it=m_hc.begin() ; it != m_hc.end() ; it++ )
+    {
+         short int hcid = it->first ;
+         G4DhHitCollection* hc = it->second ; 
+         cout 
+               << " hcid " << hcid 
+               << " hc " << hc
+               << endl ;  
+    }
+}

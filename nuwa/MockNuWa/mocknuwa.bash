@@ -1,4 +1,7 @@
 # === func-gen- : nuwa/MockNuWa/mocknuwa fgp nuwa/MockNuWa/mocknuwa.bash fgn mocknuwa fgh nuwa/MockNuWa
+
+#set -e
+
 mocknuwa-src(){      echo nuwa/MockNuWa/mocknuwa.bash ; }
 mocknuwa-source(){   echo ${BASH_SOURCE:-$(env-home)/$(mocknuwa-src)} ; }
 mocknuwa-vi(){       vi $(mocknuwa-source) ; }
@@ -49,8 +52,10 @@ mocknuwa-make(){
    local iwd=$PWD
    mocknuwa-tcd
    make $*
+   local rc=$?
    cd $iwd
-   [ "$?" != "0" ] && echo $msg $FUNCNAME ERROR && return 1
+   [ $rc -ne 0 ] && echo $FUNCNAME failed && return $rc
+   return 0
 }
 mocknuwa-install(){
    mocknuwa-make install
@@ -70,17 +75,12 @@ mocknuwa-build-full(){
    cd $iwd
 }
 
-mocknuwa-build-and-run(){
+mocknuwa--(){
    mocknuwa-make install
-   [ $? -ne 0 ] && return 1 
-
+   [ $? -ne 0 ] && echo $FUNCNAME failed && return 1
    local bin=$(which MockNuWa)
    ls -l $bin
    $bin
-}
-mocknuwa--(){
-   mocknuwa-  # update self
-   mocknuwa-build-and-run
 }
 
 mocknuwa-lldb(){

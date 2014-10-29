@@ -53,6 +53,83 @@ G4Rep3x3 not available in older G4
 
 
 
+NuWa integration
+~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@belle7 dybgaudi]$ svn ci Simulation Utilities -m  "minor: update Utilities/G4DAEChroma with G4DAETransformCache and cnpy dependency, specialize G4DAEGeometry in DybG4DAEGeometry rejig Chroma config in DsChromaRunAction " 
+    Sending        Simulation/DetSimChroma/src/DsChromaRunAction.cc
+    Sending        Simulation/DetSimChroma/src/DsChromaRunAction.h
+    Adding         Simulation/DetSimChroma/src/DybG4DAEGeometry.cc
+    Adding         Simulation/DetSimChroma/src/DybG4DAEGeometry.h
+    Adding         Utilities/G4DAEChroma/G4DAEChroma/DemoG4DAECollector.hh
+    Sending        Utilities/G4DAEChroma/G4DAEChroma/G4DAEChroma.hh
+    Adding         Utilities/G4DAEChroma/G4DAEChroma/G4DAECommon.hh
+    Sending        Utilities/G4DAEChroma/G4DAEChroma/G4DAEGeometry.hh
+    Sending        Utilities/G4DAEChroma/G4DAEChroma/G4DAEHit.hh
+    Adding         Utilities/G4DAEChroma/G4DAEChroma/G4DAETransformCache.hh
+    Sending        Utilities/G4DAEChroma/G4DAEChroma/G4DAETransport.hh
+    Sending        Utilities/G4DAEChroma/cmt/requirements
+    Adding         Utilities/G4DAEChroma/src/DemoG4DAECollector.cc
+    Sending        Utilities/G4DAEChroma/src/G4DAEChroma.cc
+    Sending        Utilities/G4DAEChroma/src/G4DAECollector.cc
+    Adding         Utilities/G4DAEChroma/src/G4DAECommon.cc
+    Sending        Utilities/G4DAEChroma/src/G4DAEGeometry.cc
+    Sending        Utilities/G4DAEChroma/src/G4DAEHit.cc
+    Sending        Utilities/G4DAEChroma/src/G4DAESensDet.cc
+    Adding         Utilities/G4DAEChroma/src/G4DAETransformCache.cc
+    Sending        Utilities/G4DAEChroma/src/G4DAETransport.cc
+    Adding         Utilities/cnpy
+    Adding         Utilities/cnpy/LICENSE
+    Adding         Utilities/cnpy/README
+    Adding         Utilities/cnpy/cmt
+    Adding         Utilities/cnpy/cmt/requirements
+    Adding         Utilities/cnpy/cmt/version.cmt
+    Adding         Utilities/cnpy/cnpy
+    Adding         Utilities/cnpy/cnpy/cnpy.h
+    Adding         Utilities/cnpy/src
+    Adding         Utilities/cnpy/src/cnpy.cpp
+    Transmitting file data ...........................
+    Committed revision 23488.
+    [blyth@belle7 dybgaudi]$ e
+
+
+Wrote transform cache to::
+
+    scp -r CN:/data1/env/local/env/muon_simulation/optical_photon_weighting/OPW/DybG4DAEGeometry.cache .
+
+::
+
+    In [1]: import numpy as np
+
+    In [2]: a = np.load("DybG4DAEGeometry.cache/data.npy")
+
+    In [3]: len(a)
+    Out[3]: 684
+
+    In [4]: a[0]
+    Out[4]: 
+    array([[  5.67843745e-01,   8.23136369e-01,  -6.95385058e-17,
+              6.68898507e+05],
+           [  8.23136369e-01,  -5.67843745e-01,  -1.00801803e-16,
+             -4.39222475e+05],
+           [ -1.22460635e-16,   6.16297582e-33,  -1.00000000e+00,
+             -4.96150000e+03],
+           [  0.00000000e+00,   0.00000000e+00,   0.00000000e+00,
+              1.00000000e+00]])
+
+    In [5]: k = np.load("DybG4DAEGeometry.cache/key.npy")
+
+    In [6]: len(k)
+    Out[6]: 684
+
+    In [7]: k
+    Out[7]: 
+    array([16842753, 16842754, 16842755, 16842756, 16842757, 16842758,
+           16843009, 16843010, 16843011, 16843012, 16843013, 16843014,
+
+
 
 
 EOU

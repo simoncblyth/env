@@ -6,6 +6,7 @@ using namespace std ;
 
 void G4DAEHit::Init(ChromaPhotonList* cpl, std::size_t index)
 {
+    // index is input, others are struct members that are hearby populated
     cpl->GetPhoton( index, gpos, gdir, gpol, t, wavelength, pmtid );    
 }
 
@@ -31,7 +32,6 @@ void G4DAEHit::LocalTransform(G4AffineTransform* trans)
 void G4DAEHit::Print()
 {
     cout 
-          << " volumeindex " << volumeindex 
           << " pmtid "       << pmtid 
           << " t "     << t 
           << " wavelength " << wavelength 
@@ -45,7 +45,7 @@ void G4DAEHit::Print()
 }
 
 
-void G4DAEHit::InitFake( std::size_t sensor_id, std::size_t track_id, std::size_t volume_index )
+void G4DAEHit::InitFake( std::size_t sensor_id, std::size_t track_id )
 {
      gpos = G4ThreeVector();
      gdir = G4ThreeVector();
@@ -61,7 +61,6 @@ void G4DAEHit::InitFake( std::size_t sensor_id, std::size_t track_id, std::size_
 
      pmtid = sensor_id ; 
      trackid = track_id  ;
-     volumeindex = volume_index ; 
 
 }
 

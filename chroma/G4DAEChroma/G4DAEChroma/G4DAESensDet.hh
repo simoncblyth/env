@@ -2,6 +2,7 @@
 #define G4DAESENSDET_H
 
 #include "G4VSensitiveDetector.hh"
+#include <string>
 
 class G4DAEGeometry ; 
 class G4DAECollector ; 
@@ -10,9 +11,9 @@ class ChromaPhotonList ;
 class G4DAESensDet : public G4VSensitiveDetector {
 
 public:
-    static G4DAESensDet* MakeSensDet(const char* name, const char* target=NULL);
+    static G4DAESensDet* MakeSensDet(const std::string& name, const std::string& target);
 
-    G4DAESensDet(const char* name, const char* target=NULL);
+    G4DAESensDet(const std::string& name, const std::string& target);
     virtual ~G4DAESensDet();
 
     int initialize() ; 
@@ -23,6 +24,7 @@ public:
     void SetCollector(G4DAECollector* col);
     G4DAECollector* GetCollector();
 
+    void Print();
     void DumpStatistics( G4HCofThisEvent* HCE );
 
 public:
@@ -30,7 +32,7 @@ public:
     void CollectOneHit( ChromaPhotonList* cpl , std::size_t index );
 
 protected:
-    const char* m_target ;
+    std::string m_target ;
     G4DAECollector* m_collector ; 
 
 };

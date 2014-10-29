@@ -47,7 +47,8 @@ void G4DAETransformCache::Dump()
 {
    for(TransformMap_t::iterator it = m_id2transform.begin(); it != m_id2transform.end(); it++) 
    {
-       size_t key = it->first ; 
+       Key_t key = it->first ; 
+       cout << " key " << (void*)key << endl ; 
        cout << " key " << setw(10) << key 
             << " tr " << transform_rep( it->second )
             << endl ;
@@ -66,7 +67,7 @@ void G4DAETransformCache::Dump()
 }
 
 
-G4DAETransformCache::G4DAETransformCache( std::size_t itemcapacity, std::size_t* key, double* data) : 
+G4DAETransformCache::G4DAETransformCache( std::size_t itemcapacity, Key_t* key, double* data) : 
              m_itemcapacity(itemcapacity), 
              m_itemsize(4*4), 
              m_keysize(1), 
@@ -95,7 +96,7 @@ void G4DAETransformCache::Resize(std::size_t itemcapacity)
      
    if(m_itemcapacity > 0){
        m_data = new double[m_itemcapacity*m_itemsize] ;
-       m_key  = new std::size_t[m_itemcapacity] ;
+       m_key  = new Key_t[m_itemcapacity] ;
    }
 }
 
@@ -173,7 +174,7 @@ G4DAETransformCache* G4DAETransformCache::Load(const char* dir)
     assert( adata.shape[0] == akey.shape[0] );
 
     std::size_t itemcount = adata.shape[0] ;
-    std::size_t* key = reinterpret_cast<std::size_t*>(akey.data);
+    Key_t* key   = reinterpret_cast<Key_t*>(akey.data);
     double* data = reinterpret_cast<double*>(adata.data);
 
     G4DAETransformCache* cache = new G4DAETransformCache( itemcount, key, data );  
@@ -191,15 +192,15 @@ std::size_t G4DAETransformCache::GetSize(){
     return m_itemcount ; 
 }
 
-std::size_t G4DAETransformCache::GetKey( std::size_t index )
+Key_t G4DAETransformCache::GetKey( std::size_t index )
 {
     if( index > m_itemcapacity ) return 0 ;
-        std::size_t* id = m_key + index*m_keysize  ;
+        Key_t* id = m_key + index*m_keysize  ;
     return id[0];
 }
 
 // return index+1 of first key matching argument, or 0 if not found
-std::size_t G4DAETransformCache::FindKey( std::size_t key )
+std::size_t G4DAETransformCache::FindKey( Key_t key )
 {
     for(std::size_t n=0 ; n < m_itemcount ; ++n ){
        if(m_key[n] == key) return n + 1 ; 
@@ -207,7 +208,7 @@ std::size_t G4DAETransformCache::FindKey( std::size_t key )
     return 0;
 }
 
-G4AffineTransform* G4DAETransformCache::FindTransform( std::size_t key )
+G4AffineTransform* G4DAETransformCache::FindTransform( Key_t key )
 {
     std::size_t find = FindKey( key );
     return (find == 0) ? NULL : GetTransform( find - 1 );  
@@ -233,23 +234,23 @@ G4AffineTransform* G4DAETransformCache::GetTransform( std::size_t index )
     return transform; 
 }
 
-void G4DAETransformCache::Add( std::size_t key, const G4AffineTransform&  transform )
+void G4DAETransformCache::Add( Key_t key, const G4AffineTransform&  transform )
 {
     m_id2transform[key] = transform ; 
 }
 
-G4AffineTransform* G4DAETransformCache::GetSensorTransform(std::size_t id)
+G4AffineTransform* G4DAETransformCache::GetSensorTransform(Key_t id)
 {
     return ( m_id2transform.find(id) == m_id2transform.end()) ? NULL : &m_id2transform[id] ;
 }
 
 
-void G4DAETransformCache::AddSerial( std::size_t key, const G4AffineTransform&  transform )
+void G4DAETransformCache::AddSerial( Key_t key, const G4AffineTransform&  transform )
 {
     assert(m_itemcount < m_itemcapacity );
 
     double* data = m_data + m_itemcount*m_itemsize ;   
-    std::size_t* id = m_key + m_itemcount*m_keysize ; 
+    Key_t* id = m_key + m_itemcount*m_keysize ; 
 
     m_itemcount++ ; 
 

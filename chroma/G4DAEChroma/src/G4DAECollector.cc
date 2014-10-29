@@ -51,7 +51,7 @@ void G4DAECollector::CollectHits( ChromaPhotonList* cpl, G4DAEGeometry* geometry
     {
         hit.Init( cpl, index); 
 
-        G4AffineTransform* trans = ( geometry == NULL ) ? NULL :  geometry->GetNodeTransform(hit.volumeindex) ;
+        G4AffineTransform* trans = ( geometry == NULL ) ? NULL :  geometry->GetSensorTransform(hit.pmtid) ;
         hit.LocalTransform( trans );  
 
         // specific detector subclasses must implement 
@@ -68,12 +68,10 @@ void G4DAECollector::AddSomeFakeHits(const IDVec& sensor_ids)
     G4DAEHit hit ;
     for (IDVec::const_iterator it = sensor_ids.begin(); it != sensor_ids.end(); ++it)
     {   
-        hit.InitFake( *it , 0, 0 ); 
+        hit.InitFake( *it , 0 ); 
         this->Collect( hit );
     }
 }
-
-
 
 
 

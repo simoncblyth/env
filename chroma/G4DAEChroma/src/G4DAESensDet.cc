@@ -2,14 +2,13 @@
 #include "G4DAEChroma/G4DAECollector.hh"
 
 #include "G4SDManager.hh"
-#include <string>
 
 using namespace std ; 
 
 
-G4DAESensDet* G4DAESensDet::MakeSensDet(const char* name, const char* target )
+G4DAESensDet* G4DAESensDet::MakeSensDet(const string& name, const string& target )
 {
-    if ( target == NULL ) return new G4DAESensDet(name, NULL);
+    if ( target.empty() ) return new G4DAESensDet(name, target);
 
     G4SDManager* SDMan = G4SDManager::GetSDMpointer();
     G4VSensitiveDetector* nameSD = SDMan->FindSensitiveDetector(name, false);
@@ -28,13 +27,19 @@ G4DAESensDet* G4DAESensDet::MakeSensDet(const char* name, const char* target )
     return new G4DAESensDet(name, target);
 }
 
-G4DAESensDet::G4DAESensDet(const char* name, const char* target) : G4VSensitiveDetector(name), m_target(target), m_collector(0)
+G4DAESensDet::G4DAESensDet(const string& name, const string& target) : G4VSensitiveDetector(name), m_target(target), m_collector(0)
 {
 }
 
 G4DAESensDet::~G4DAESensDet()
 {
 }
+
+void G4DAESensDet::Print()
+{
+    cout << "G4DAESensDet::Print name " << GetName() << " target [" << m_target << "]" << endl ; 
+}
+
 
 int G4DAESensDet::initialize()
 {
@@ -44,9 +49,15 @@ int G4DAESensDet::initialize()
 
 void G4DAESensDet::Initialize( G4HCofThisEvent* hce )
 {
-    if( m_target == NULL ){
+    cout << "G4DAESensDet::Initialize hce " << hce << endl ; 
+    if( m_target.empty() )
+    {
         m_collector->CreateHitCollections( SensitiveDetectorName, hce );
-    } else { // trojan 
+    } 
+    else 
+    {   
+        // trojan
+        cout << "G4DAESensDet::Initialize calling StealHitCollections with m_target " << m_target <<  " HCE " << hce << endl ;
         m_collector->StealHitCollections( m_target, hce );
     }
 }
