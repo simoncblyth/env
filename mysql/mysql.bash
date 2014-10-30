@@ -250,6 +250,14 @@ Note a hostname specific pid file, that will cause issues::
     simon:~ blyth$ 
 
 
+OSX Mavericks/Yosemite MySQL 
+------------------------------
+
+* https://trac.macports.org/wiki/howto/MAMP
+
+
+
+
 EOU
 }
 

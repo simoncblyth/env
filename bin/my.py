@@ -13,6 +13,11 @@ grab with::
 
    svn export http://dayabay.ihep.ac.cn/svn/dybsvn/dybgaudi/trunk/DybPython/scripts/my.py
 
+NB based on ~/.my.cnf config file, get that when moving to new node::
+
+    delta:~ blyth$ scp CN:.my.cnf .
+
+
 Usage::
 
    echo select \* from LOCALSEQNO | $(my.py offline_db) 
