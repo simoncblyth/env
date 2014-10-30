@@ -109,6 +109,12 @@ G4DAETransformCache::~G4DAETransformCache()
 
 void G4DAETransformCache::Archive(const char* dir)
 {
+    if( dir == NULL )
+    {
+        printf("G4DAETransformCache::Archive NULL dir, skipping \n");
+        return ;
+    }
+
     this->Serialize();
 
     if (mkdir(dir,0777) == -1) {
@@ -259,8 +265,16 @@ void G4DAETransformCache::AddSerial( Key_t key, const G4AffineTransform&  transf
 /*
 
   Indexed access to G4AffineTransform follows
-  an unusual convention, with translation
-  along the bottom ... so not using  that for clarity 
+  row-vector convention, with translation
+  along the bottom 
+  
+  my attempt to convert this into the more familiar column-vector
+  convention layout, was a bad idea 
+  TODO: adjust to just following the row-vector convention
+  as used in G4AffineTransform 
+
+  can always transpose in numpy when want to post- rather than pre- multiply  
+ 
 
     0:Rxx  1:Rxy  2:Rxz   3:0.
     4:Ryx  5:Ryy  6:Ryz   7:0.  
@@ -284,6 +298,7 @@ void G4DAETransformCache::AddSerial( Key_t key, const G4AffineTransform&  transf
     data[9] = rot.zy();
     data[10] = rot.zz();
 
+
     data[3] = tlate.x();
     data[7] = tlate.y();
     data[11] = tlate.z();
@@ -292,6 +307,8 @@ void G4DAETransformCache::AddSerial( Key_t key, const G4AffineTransform&  transf
     data[13] = 0. ;
     data[14] = 0. ;
     data[15] = 1. ;
+
+  //
 }
 
 

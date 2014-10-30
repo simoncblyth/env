@@ -72,9 +72,9 @@ void G4DAESensDet::EndOfEvent( G4HCofThisEvent* hce )
     m_collector->DumpStatistics(hce);
 }
 
-void G4DAESensDet::CollectHits(ChromaPhotonList* cpl, G4DAEGeometry* geometry )
+void G4DAESensDet::CollectHits(ChromaPhotonList* cpl, G4DAETransformCache* cache )
 {
-   m_collector->CollectHits( cpl, geometry ); 
+   m_collector->CollectHits( cpl, cache ); 
 }
 
 

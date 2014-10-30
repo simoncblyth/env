@@ -18,6 +18,7 @@ that can adopt different:
 class G4DAEGeometry ;
 class G4DAETransport ;
 class G4DAESensDet ;
+class G4DAETransformCache ;
 class G4Track ; 
 class G4Run ;
 
@@ -40,6 +41,10 @@ public:
 
     void SetSensDet(G4DAESensDet* sd);
     G4DAESensDet* GetSensDet();
+
+    void SetTransformCache(G4DAETransformCache* cache);
+    G4DAETransformCache* GetTransformCache();
+
 
 
     void BeginOfRun( const G4Run* run );
@@ -67,6 +72,8 @@ private:
   // Geometry Transform cache, used to convert global to local coordinates
   G4DAEGeometry* fGeometry ; 
 
+  // Transform Cache  
+  G4DAETransformCache* fCache ; 
 
 };
 

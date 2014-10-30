@@ -9,7 +9,7 @@
 
 class G4HCofThisEvent ;
 class ChromaPhotonList ; 
-class G4DAEGeometry ;
+class G4DAETransformCache ;
 
 //  **G4DAECollector**
 //
@@ -33,7 +33,7 @@ public:
 
     virtual void AddSomeFakeHits(const IDVec& sensor_ids);
     virtual void DumpStatistics( G4HCofThisEvent* hce );
-    virtual void CollectHits( ChromaPhotonList* cpl, G4DAEGeometry* geometry );
+    virtual void CollectHits( ChromaPhotonList* cpl, G4DAETransformCache* cache );
 
 
 };

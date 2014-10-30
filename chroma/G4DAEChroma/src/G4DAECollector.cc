@@ -3,7 +3,7 @@
 #include "G4HCofThisEvent.hh"
 #include "G4VHitsCollection.hh"
 #include "Chroma/ChromaPhotonList.hh"
-#include "G4DAEChroma/G4DAEGeometry.hh"
+#include "G4DAEChroma/G4DAETransformCache.hh"
 
 #include <string>
 #include <iostream>
@@ -40,7 +40,7 @@ void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce )
 }
 
 
-void G4DAECollector::CollectHits( ChromaPhotonList* cpl, G4DAEGeometry* geometry )
+void G4DAECollector::CollectHits( ChromaPhotonList* cpl, G4DAETransformCache* cache )
 { 
     cpl->Print();
     std::size_t size = cpl->GetSize(); 
@@ -51,8 +51,8 @@ void G4DAECollector::CollectHits( ChromaPhotonList* cpl, G4DAEGeometry* geometry
     {
         hit.Init( cpl, index); 
 
-        G4AffineTransform* trans = ( geometry == NULL ) ? NULL :  geometry->GetSensorTransform(hit.pmtid) ;
-        hit.LocalTransform( trans );  
+        G4AffineTransform* transform = ( cache == NULL ) ? NULL :  cache->GetSensorTransform(hit.pmtid) ;
+        hit.LocalTransform( transform );  
 
         // specific detector subclasses must implement 
         // `void Collect( G4DAEHit& hit)` and several others

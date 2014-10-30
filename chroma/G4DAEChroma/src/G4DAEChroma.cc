@@ -2,6 +2,7 @@
 
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAEGeometry.hh"
+#include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAESensDet.hh"
 
 #include <iostream>
@@ -30,7 +31,8 @@ G4DAEChroma* G4DAEChroma::GetG4DAEChromaIfExists()
 G4DAEChroma::G4DAEChroma() :
     fTransport(0),
     fSensDet(0),
-    fGeometry(0)
+    fGeometry(0),
+    fCache(0)
 { 
 }
 
@@ -70,6 +72,7 @@ G4DAEChroma::~G4DAEChroma()
     if(fTransport) delete fTransport ;
     if(fSensDet)  delete fSensDet;
     if(fGeometry)  delete fGeometry ;
+    if(fCache)     delete fCache ;
 }
 
 void G4DAEChroma::SetTransport(G4DAETransport* tra){
@@ -94,6 +97,17 @@ G4DAEGeometry* G4DAEChroma::GetGeometry(){
    return fGeometry ;
 }
 
+void G4DAEChroma::SetTransformCache(G4DAETransformCache* cache){
+   fCache = cache ; 
+}
+G4DAETransformCache* G4DAEChroma::GetTransformCache(){
+   return fCache ;
+}
+
+
+
+
+
 
 
 // hmm this echoing is tedious : is it necessary ?
@@ -103,12 +117,13 @@ void G4DAEChroma::CollectPhoton(const G4Track* track)
 }
 
 
+
 std::size_t G4DAEChroma::Propagate(G4int batch_id)
 {
   std::size_t nhits = fTransport->Propagate(batch_id); 
   if(nhits > 0)
   { 
-      fSensDet->CollectHits( fTransport->GetHits(), fGeometry );
+      fSensDet->CollectHits( fTransport->GetHits(), fCache );
   } 
   return nhits ; 
 }

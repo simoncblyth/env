@@ -4,7 +4,7 @@
 #include "G4VSensitiveDetector.hh"
 #include <string>
 
-class G4DAEGeometry ; 
+class G4DAETransformCache ; 
 class G4DAECollector ; 
 class ChromaPhotonList ;
 
@@ -28,7 +28,7 @@ public:
     void DumpStatistics( G4HCofThisEvent* HCE );
 
 public:
-    void CollectHits( ChromaPhotonList* cpl, G4DAEGeometry* geometry );
+    void CollectHits( ChromaPhotonList* cpl, G4DAETransformCache* cache );
     void CollectOneHit( ChromaPhotonList* cpl , std::size_t index );
 
 protected:

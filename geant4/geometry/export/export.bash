@@ -214,8 +214,9 @@ export-export(){
    ## NB names from multiple exports : 
    ##      once stabilised the names should all have a common export base
    ##
-   export DAE_NAME_DYB_TRANSFORMCACHE=/usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.gdml.cache
    export DAE_NAME_DYB_IDMAP=/usr/local/env/geant4/geometry/export/DayaBay_MX_20141013-1711/g4_00.idmap   
+   #export DAE_NAME_DYB_TRANSFORMCACHE=/usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.gdml.cache
+   export DAE_NAME_DYB_TRANSFORMCACHE=/usr/local/env/geant4/geometry/export/DybG4DAEGeometry.cache
 
 
    export DAE_NAME_DYB_NOEXTRA=$(EXPORT_EXT=dae.noextra.dae export-name dyb)
