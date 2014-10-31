@@ -11,6 +11,9 @@
 
 #include "G4SDManager.hh"
 
+class ITouchableToDetectorElement ;
+
+
 using namespace std ;
 #include <iostream>
 
@@ -99,10 +102,11 @@ int main()
     Mockup_DetDesc_SD();
 
     string transport = "G4DAECHROMA_CLIENT_CONFIG" ;
-    string cachekey = "DAE_NAME_DYB_TRANSFORMCACHE" ;
+    string cachekey = "G4DAECHROMA_CACHE_DIR" ;
     string sensdet = "DsPmtSensDet" ;
+    ITouchableToDetectorElement* t2de = NULL ;
 
-    DsChromaRunAction_BeginOfRunAction( transport, cachekey, sensdet , "", "" );
+    DsChromaRunAction_BeginOfRunAction( transport, cachekey, sensdet , t2de , "" );
     G4SDManager::GetSDMpointer()->ListTree();
 
     G4HCofThisEvent* HCE = Mockup_NewEvent();
@@ -111,10 +115,10 @@ int main()
     G4DAETransformCache* cache = G4DAEChroma::GetG4DAEChroma()->GetTransformCache();
 
     // mockup a hit for every PMT    
-    for( size_t index = 0 ; index < cache->GetSize() ; ++index ) DsChromaStackAction_ClassifyNewTrack(cache->GetKey(index));
+    //for( size_t index = 0 ; index < cache->GetSize() ; ++index ) DsChromaStackAction_ClassifyNewTrack(cache->GetKey(index));
 
     //DsChromaStackAction_ClassifyNewTrack(cache->GetKey(0));
-    //DsChromaStackAction_ClassifyNewTrack(0x1010101);
+    DsChromaStackAction_ClassifyNewTrack(0x1010101);
 
 
     DsChromaStackAction_NewStage();

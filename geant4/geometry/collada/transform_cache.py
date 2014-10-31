@@ -171,7 +171,7 @@ class TransformCache(dict):
     """
     def __init__(self, archivedir=None): 
         if archivedir is None: 
-            archivedir = os.environ['DAE_NAME_DYB_TRANSFORMCACHE'] # define with: export-;export-export 
+            archivedir = os.environ['G4DAECHROMA_CACHE_DIR'] # define with: export-;export-export 
         pass
         data = np.load(archivedir + "/data.npy")
         key  = np.load(archivedir + "/key.npy")

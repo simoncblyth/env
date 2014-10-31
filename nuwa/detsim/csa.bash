@@ -33,10 +33,18 @@ Based on GaussTools exporter::
 EOU
 }
 csa-dir(){ echo $(env-home)/nuwa/detsim ; }
-csa-cachedir(){ echo $(local-base)/nuwa/detsim/DetSimChroma.cache ; }
+csa-cachedir(){ echo $(local-base)/env/nuwa/detsim/DetSimChroma.cache ; }
 csa-cd(){  cd $(csa-dir); }
 csa-nuwapkg(){ echo $DYB/NuWa-trunk/dybgaudi/Simulation/DetSimChroma ; }
 csa-nuwapkg-cd(){ cd $(csa-nuwapkg)/$1 ; }
+
+csa-cachedir-scp(){
+   local cachedir=$(csa-cachedir)
+   mkdir -p $(dirname $cachedir)
+   [ "$NODE_TAG" == "N" ] && echo DISALLOED to run this from N && return 1
+   scp -r CN:$(NODE_TAG=N csa-cachedir) $cachedir  
+}
+
 csa-env(){      elocal- ; mocknuwa- ; }
 
 csa-names(){ cat << EON
@@ -144,6 +152,10 @@ csa-nuwarun-gdb(){
 
 
 
+csa-export(){
+   export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
+}
+
 csa-nuwarun(){
 
    csa-nuwaenv
@@ -154,10 +166,9 @@ csa-nuwarun(){
    local cachedir=$(csa-cachedir)
    mkdir -p $(dirname $cachedir)  # make sure containing folder exists  
 
-   export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
-   export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
-
    echo $FUNCNAME 
+   csa-export
+   export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
    env | grep G4DAECHROMA
 
    #nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
