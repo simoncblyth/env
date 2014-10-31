@@ -3,6 +3,7 @@
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAETransport.hh"
+#include "G4DAEChroma/G4DAETransformCache.hh"
 
 #include "DybG4DAEGeometry.h"
 #include "DybG4DAECollector.h"
@@ -35,8 +36,8 @@ DsChromaRunAction::DsChromaRunAction
     declareProperty("sensdet",m_sensdet="DsPmtSensDet",
                     "Name of target SD where Chroma derived hits will be collected.");
 
-    declareProperty("geometry",m_geometry="MEMORY",
-                    "Used to determine where to load geometry from, default of MEMORY loads from in-memory volume heirarchy");
+    declareProperty("cachekey",m_cachekey="G4DAECHROMA_CACHE_DIR",
+                    "Name of envvar pointing to directory where cache is written to");
 
     declareProperty("TouchableToDetelem", m_t2deName = "TH2DE",
                     "The ITouchableToDetectorElement to use to resolve sensor.");
@@ -51,44 +52,16 @@ DsChromaRunAction::~DsChromaRunAction()
 {
 };
 
+//
+// ugly code inclusion allows common source for Chroma initialization 
+// for both NuWa and MockNuWa running  
+//
+#include "DsChromaRunAction_BeginOfRunAction.icc"
 void DsChromaRunAction::BeginOfRunAction( const G4Run* run )
 {
     assert(run);
-
-    /*
-    Configuring external OP propagation and hit formation 
-         
-    see env/nuwa/MockNuWa/MockNuWa.cc
-
-    */
-
-    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-
     ITouchableToDetectorElement* t2de = tool<ITouchableToDetectorElement>(m_t2deName);
-    DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(t2de, m_idParameter.c_str());
-    geometry->CreateTransformCache(NULL); 
-    geometry->ArchiveCache("DybG4DAEGeometry.cache");  // hmm control this via envvar  
-
-
-    const char* target = m_sensdet.c_str() ; 
-    string trojan = "trojan_" ;
-    trojan += target ;
-    G4DAESensDet*  sensdet = G4DAESensDet::MakeSensDet(trojan.c_str(), target );
-    DybG4DAECollector* collector = new DybG4DAECollector ;
-    sensdet->SetCollector(collector); 
-
-    G4DAETransport* transport = G4DAETransport::MakeTransport(m_transport.c_str());
-
-    chroma->SetGeometry( geometry );  
-    chroma->SetSensDet( sensdet );  
-    chroma->SetTransport( transport );
-
-    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-    cout << "DsChromaRunAction::BeginOfRunAction " << sensdet->GetName() << endl ; 
-
-    SDMan->AddNewDetector( sensdet );
-    chroma->BeginOfRun(run);
-
+    DsChromaRunAction_BeginOfRunAction( m_transport, m_cachekey, m_sensdet, t2de, m_idParameter );
 };
 
 void DsChromaRunAction::EndOfRunAction( const G4Run* run )

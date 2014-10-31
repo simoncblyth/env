@@ -38,7 +38,7 @@ private:
   // configuration of G4DAEChroma singleton
   std::string m_transport ;
   std::string m_sensdet ;
-  std::string m_geometry ;
+  std::string m_cachekey ;
 
   /// PackedIdParameterName : name of user paramater of the counted
   /// detector element which holds the packed, globally unique PMT

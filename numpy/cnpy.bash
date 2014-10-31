@@ -10,31 +10,48 @@ CNPY
 
 * https://github.com/rogersce/cnpy.git
 
-* TODO: evaluate the changes in fork https://github.com/dstahlke/cnpy
+dstalke fork 
+------------
 
+The fork has some improvements but rapidly starts
+using c++11 stuff, which I expect will cause 
+portability issues, so sticking with original, 
+may be able to grab some of developments avoiding c++11 stuff
 
-D cmake install
-------------------
+* https://github.com/dstahlke/cnpy
 
-* Added RPATH setup to CMakeLists, see cnpytest- which 
-  takes advantage of this
-
-::
-
-    -- Installing: /usr/local/env/cnpy/lib/libcnpy.dylib
-    -- Installing: /usr/local/env/cnpy/lib/libcnpy.a
-    -- Installing: /usr/local/env/cnpy/include/cnpy.h
-    -- Installing: /usr/local/env/cnpy/bin/mat2npz
-    -- Installing: /usr/local/env/cnpy/bin/npy2mat
-    -- Installing: /usr/local/env/cnpy/bin/npz2mat
-
-
-How to add to NuWa ?
-----------------------
+Added as NuWa Utility
+-----------------------
 
 Could be an external, but I suspect I will 
 want to make extensive changes if using more
-extensively.  So maybe add to Utilities
+extensively.  So added to Utilities
+
+
+
+Issues
+-------
+
+
+
+
+CMake first build issue
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fails to build the example until 2nd run, as
+needs lib to be installed
+
+RPATH not working 
+~~~~~~~~~~~~~~~~~~
+
+Added RPATH setup to CMakeLists, see cnpytest- which 
+takes advantage of this
+
+Have to use git urls not https ones on N
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Belle7 lives in a wierd network environment, or
+maybe just a very old git ?
 
 ::
 
@@ -50,18 +67,69 @@ extensively.  So maybe add to Utilities
 
 
 
+
+
+CMakeLists Mods
+------------------
+
+Install header into containing cnpy folder and 
+RPATH setup.
+
+
+::
+
+    (chroma_env)delta:cnpy blyth$ git diff CMakeLists.txt 
+    diff --git a/CMakeLists.txt b/CMakeLists.txt
+    index 5a7cdd3..5748e8d 100644
+    --- a/CMakeLists.txt
+    +++ b/CMakeLists.txt
+    @@ -3,6 +3,10 @@ if(COMMAND cmake_policy)
+            cmake_policy(SET CMP0003 NEW)
+     endif(COMMAND cmake_policy)
+     
+    +set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  "$ENV{ENV_HOME}/cmake/Modules")
+    +include(EnvBuildOptions)
+    +
+    +
+     project(CNPY)
+     
+     option(ENABLE_STATIC "Build static (.a) library" ON)
+    @@ -17,7 +21,7 @@ if(ENABLE_STATIC)
+         install(TARGETS "cnpy-static" ARCHIVE DESTINATION lib)
+     endif(ENABLE_STATIC)
+     
+    -install(FILES "cnpy.h" DESTINATION include)
+    +install(FILES "cnpy.h" DESTINATION include/cnpy)
+     install(FILES "mat2npz" "npy2mat" "npz2mat" DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+     
+     add_executable(example1 example1.cpp)
+
+
+
+
+
+
 EOU
 }
 cnpy-prefix(){ echo $(local-base)/env/cnpy ; } 
 cnpy-sdir(){ echo $(local-base)/env/numpy/cnpy ; }
 cnpy-scd(){  cd $(cnpy-sdir); }
 
+cnpy-url(){
+   case $1 in 
+     rogersce)    echo git://github.com/rogersce/cnpy.git  ;;
+     simoncblyth) echo git://github.com/simoncblyth/cnpy.git ;;
+     dstalke)     echo git://github.com/dstahlke/cnpy.git ;; 
+   esac
+}
+cnpy-vers(){ echo rogersce ; }
+
 cnpy-get(){
    local dir=$(dirname $(cnpy-sdir)) &&  mkdir -p $dir && cd $dir
-   [ ! -d cnpy ] &&  git clone git://github.com/simoncblyth/cnpy.git
-   # git clone https://github.com/rogersce/cnpy.git  doesnt clone on N 
+   [ ! -d cnpy ] &&  git clone $(cnpy-url $(cnpy-vers)) 
 }
 
+cnpy-wipe(){ rm -rf $(cnpy-sdir) ; }
 
 cnpy-build(){
 
@@ -72,11 +140,13 @@ cnpy-build(){
 
    cmake -DCMAKE_INSTALL_PREFIX=$(cnpy-prefix) ..
 
+   export VERBOSE=1
+
    make 
    make install
 
    cd ..
-   rm -rf build
+   #rm -rf build
 
 
 }

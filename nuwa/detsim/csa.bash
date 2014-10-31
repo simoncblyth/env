@@ -33,6 +33,7 @@ Based on GaussTools exporter::
 EOU
 }
 csa-dir(){ echo $(env-home)/nuwa/detsim ; }
+csa-cachedir(){ echo $(local-base)/nuwa/detsim/DetSimChroma.cache ; }
 csa-cd(){  cd $(csa-dir); }
 csa-nuwapkg(){ echo $DYB/NuWa-trunk/dybgaudi/Simulation/DetSimChroma ; }
 csa-nuwapkg-cd(){ cd $(csa-nuwapkg)/$1 ; }
@@ -43,84 +44,46 @@ DsChromaStackAction
 DsChromaRunAction
 DybG4DAECollector
 DybG4DAEGeometry
+DsChromaRunAction_BeginOfRunAction
 EON
 }
-
-
-
-csa-nuwapkg-cpto-(){ 
-   local iwd=$PWD 
-   local pkg=$(csa-nuwapkg)
-   local nam=$1
-   csa-cd
-   cp src/$nam.h  $pkg/src/
-   cp src/$nam.cc $pkg/src/
-   cd $iwd
-}   
-csa-nuwapkg-cpfr-(){
-   local iwd=$PWD 
-   local pkg=$(csa-nuwapkg)
-   local nam=$1
-   csa-cd
-   cp $pkg/src/$nam.h src/$nam.h
-   cp $pkg/src/$nam.cc src/$nam.cc
-   cd $iwd
+csa-exts(){
+   case $1 in 
+      DsChromaRunAction_BeginOfRunAction) echo icc ;;
+                                       *) echo h cc ;;
+   esac 
 }
-
-csa-nuwapkg-cpto(){ 
-   local nam
-   csa-names | while read nam ; do 
-      $FUNCNAME- $nam
-   done
-
-   local pkg=$(csa-nuwapkg)
-   nam="DsChromaRunAction_BeginOfRunAction.icc"
-   cp $(mocknuwa-sdir)/$nam $pkg/src/$nam
+csa-nuwapkg-cmd(){
+   case $1 in 
+     cpto) echo cp $2 $3 ;;
+     cpfr) echo cp $3 $2 ;;
+     diff) echo diff $2 $3 ;;
+   esac
 }
-csa-nuwapkg-cpfr(){ 
-   local nam
-   csa-names | while read nam ; do 
-      $FUNCNAME- $nam
-   done
-
+csa-nuwapkg-action-(){ 
+   local act=$1
+   local nam=$2
    local pkg=$(csa-nuwapkg)
-   nam="DsChromaRunAction_BeginOfRunAction.icc"
-   cp $pkg/src/$nam $(mocknuwa-sdir)/$nam 
-}
-
-
-
-csa-old(){ cat << EOO
-   perl -pi -e 's,ChromaPhotonList.hh,Chroma/ChromaPhotonList.hh,' $pkg/src/$nam.cc
-   perl -pi -e 's,ZMQRoot.hh,ZMQRoot/ZMQRoot.hh,'                  $pkg/src/$nam.cc
-EOO
-}
-
-
-csa-nuwapkg-diff(){
-   local nam
-   csa-names | while read nam ; do 
-      $FUNCNAME- $nam
-   done
-
-   local pkg=$(csa-nuwapkg)
-   nam="DsChromaRunAction_BeginOfRunAction.icc"
-   local cmd="diff $pkg/src/$nam $(mocknuwa-sdir)/$nam"
-   echo $cmd
-   eval $cmd
-}
-csa-nuwapkg-diff-(){
-   local pkg=$(csa-nuwapkg)
-   local nam=${1:-DsChromaStackAction}
-
-   local exts="h cc"
+   local exts=$(csa-exts $nam)
+   #echo $FUNCNAME act $act nam $nam
    local ext
    for ext in $exts ; do 
-      local cmd="diff $(csa-dir)/src/$nam.$ext   $pkg/src/$nam.$ext"
+      local cmd=$(csa-nuwapkg-cmd $act $(csa-dir)/src/$nam.$ext $pkg/src/$nam.$ext)
       echo $cmd
       eval $cmd 
    done 
+}   
+csa-nuwapkg-action(){ 
+   local act=$1
+   local nam
+   csa-names | while read nam ; do 
+      $FUNCNAME- $act $nam
+   done
 }
+csa-nuwapkg-cpto(){ csa-nuwapkg-action cpto ; }
+csa-nuwapkg-cpfr(){ csa-nuwapkg-action cpfr ; }
+csa-nuwapkg-diff(){ csa-nuwapkg-action diff ; }
+
 
 
 csa-nuwapkg-make(){
@@ -187,6 +150,11 @@ csa-nuwarun(){
    opw-cd     # need to be in OPW to find "fmcpmuon"
 
    zmq-
+
+   local cachedir=$(csa-cachedir)
+   mkdir -p $(dirname $cachedir)  # make sure containing folder exists  
+
+   export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
    export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
 
    echo $FUNCNAME 

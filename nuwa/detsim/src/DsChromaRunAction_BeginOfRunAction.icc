@@ -11,14 +11,13 @@
 /////////////////////////////////////////////////////////////////////
 
 
-void DsChromaRunAction_BeginOfRunAction( const string& m_transport, const string& m_cachekey, const string& m_sensdet, const string& m_t2deName, const string& m_idParameter )
+void DsChromaRunAction_BeginOfRunAction( const string& m_transport, const string& m_cachekey, const string& m_sensdet, ITouchableToDetectorElement* t2de, const string& m_idParameter )
 { 
     cout << "DsChromaRunAction_BeginOfRunAction" << endl ;
     cout << "\t transport " << m_transport << endl ;
     cout << "\t cachekey  " << m_cachekey  << endl ;
     cout << "\t sensdet   " << m_sensdet << endl ;
-    cout << "\t t2deName  " << m_t2deName << " (not used for MockNuWa running)" << endl ;
-    cout << "\t idParameter " << m_idParameter << " (ditto)" << endl ;
+    cout << "\t idParameter  " << m_idParameter << " (not used for MockNuWa running)" << endl ;
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
 
@@ -26,7 +25,6 @@ void DsChromaRunAction_BeginOfRunAction( const string& m_transport, const string
     assert( cachedir ); // envvar must be provided pointing to transform cache directory 
 
 #ifndef NOT_NUWA
-    ITouchableToDetectorElement* t2de = tool<ITouchableToDetectorElement>(m_t2deName);
     DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(t2de, m_idParameter.c_str());
     G4DAETransformCache* cache = geometry->CreateTransformCache(NULL); 
     cache->Archive(cachedir); 
