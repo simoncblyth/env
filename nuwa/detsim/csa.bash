@@ -2,7 +2,6 @@
 csa-src(){      echo nuwa/detsim/csa.bash ; }
 csa-source(){   echo ${BASH_SOURCE:-$(env-home)/$(csa-src)} ; }
 csa-vi(){       vi $(csa-source) ; }
-csa-env(){      elocal- ; }
 csa-usage(){ cat << EOU
 
 ChromaStackAction and ChromaRunAction
@@ -37,7 +36,7 @@ csa-dir(){ echo $(env-home)/nuwa/detsim ; }
 csa-cd(){  cd $(csa-dir); }
 csa-nuwapkg(){ echo $DYB/NuWa-trunk/dybgaudi/Simulation/DetSimChroma ; }
 csa-nuwapkg-cd(){ cd $(csa-nuwapkg)/$1 ; }
-
+csa-env(){      elocal- ; mocknuwa- ; }
 
 csa-names(){ cat << EON
 DsChromaStackAction
@@ -73,12 +72,20 @@ csa-nuwapkg-cpto(){
    csa-names | while read nam ; do 
       $FUNCNAME- $nam
    done
+
+   local pkg=$(csa-nuwapkg)
+   nam="DsChromaRunAction_BeginOfRunAction.icc"
+   cp $(mocknuwa-sdir)/$nam $pkg/src/$nam
 }
 csa-nuwapkg-cpfr(){ 
    local nam
    csa-names | while read nam ; do 
       $FUNCNAME- $nam
    done
+
+   local pkg=$(csa-nuwapkg)
+   nam="DsChromaRunAction_BeginOfRunAction.icc"
+   cp $pkg/src/$nam $(mocknuwa-sdir)/$nam 
 }
 
 
@@ -95,6 +102,12 @@ csa-nuwapkg-diff(){
    csa-names | while read nam ; do 
       $FUNCNAME- $nam
    done
+
+   local pkg=$(csa-nuwapkg)
+   nam="DsChromaRunAction_BeginOfRunAction.icc"
+   local cmd="diff $pkg/src/$nam $(mocknuwa-sdir)/$nam"
+   echo $cmd
+   eval $cmd
 }
 csa-nuwapkg-diff-(){
    local pkg=$(csa-nuwapkg)

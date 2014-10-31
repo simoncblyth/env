@@ -1,0 +1,73 @@
+/////////// DsChromaRunAction_BeginOfRunAction //////////////////////////
+///
+///  * configure G4DAEChroma singleton
+///  * add trojan SD, providing backdoor for adding GPU hits 
+///
+///  NB when used outside of NuWa need to define NOT_NUWA and a 
+///     transform cache needs to be available and referenced by 
+///     cachekey envvar 
+///
+///
+/////////////////////////////////////////////////////////////////////
+
+
+void DsChromaRunAction_BeginOfRunAction( const string& m_transport, const string& m_cachekey, const string& m_sensdet, const string& m_t2deName, const string& m_idParameter )
+{ 
+    cout << "DsChromaRunAction_BeginOfRunAction" << endl ;
+    cout << "\t transport " << m_transport << endl ;
+    cout << "\t cachekey  " << m_cachekey  << endl ;
+    cout << "\t sensdet   " << m_sensdet << endl ;
+    cout << "\t t2deName  " << m_t2deName << " (not used for MockNuWa running)" << endl ;
+    cout << "\t idParameter " << m_idParameter << " (ditto)" << endl ;
+
+    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+
+    const char* cachedir = getenv(m_cachekey.c_str());
+    assert( cachedir ); // envvar must be provided pointing to transform cache directory 
+
+#ifndef NOT_NUWA
+    ITouchableToDetectorElement* t2de = tool<ITouchableToDetectorElement>(m_t2deName);
+    DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(t2de, m_idParameter.c_str());
+    G4DAETransformCache* cache = geometry->CreateTransformCache(NULL); 
+    cache->Archive(cachedir); 
+    chroma->SetTransformCache(cache);
+#else
+    if(G4DAETransformCache::Exists(cachedir))
+    { 
+        G4DAETransformCache* cache = G4DAETransformCache::Load(cachedir); 
+        chroma->SetTransformCache(cache);
+    }
+    else
+    {
+         assert(0); // transform cache is required when operating outside NuWa
+    } 
+#endif
+
+     ///  sensdet 
+
+    const char* target = m_sensdet.c_str() ; 
+    string trojan = "trojan_" ;
+    trojan += target ;
+
+    G4DAESensDet*  sensdet = G4DAESensDet::MakeSensDet(trojan.c_str(), target );
+    sensdet->Print(); 
+
+    DybG4DAECollector* collector = new DybG4DAECollector ;
+    sensdet->SetCollector(collector); 
+
+    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+    SDMan->AddNewDetector( sensdet );
+    chroma->SetSensDet( sensdet );  
+
+
+    ////// transport 
+
+    cout << "DsChromaRunAction::BeginOfRunAction AddNewDetector [" << sensdet->GetName() << "]" << endl ; 
+
+    G4DAETransport* transport = G4DAETransport::MakeTransport(m_transport.c_str());
+    chroma->SetTransport( transport );
+
+
+}
+
+
