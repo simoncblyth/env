@@ -5,6 +5,9 @@
 #include "TMD5.h"
 #include "TFile.h"
 
+using namespace std ; 
+
+
 /*
 ChromaPhotonList::Load
 ========================
@@ -26,25 +29,32 @@ The *key* argument is used for TFile loading
 
 */
 
-ChromaPhotonList* ChromaPhotonList::Load(const char* evt, const char* evtkey, const char* tmpl)
+string ChromaPhotonList::GetPath( const char* evt , const char* tmpl )
 {
+   string empty ;
    const char* evtfmt  = getenv(tmpl);
    if(evtfmt == NULL ){
       printf("tmpl %s : missing : use \"export-;export-export\" to define  \n", tmpl );
-      return NULL;
+      return empty; 
    }   
-
    char evtpath[256];
-   if (sprintf(evtpath, evtfmt, evt ) < 0)
-   {   
-      printf("failed to format evtpath from evtfmt %s and evt %s \n", evtfmt, evt );  
-      return NULL ;
-   }   
-   printf("evtkey %s evtpath %s \n", evtkey, evtpath );  
+   if (sprintf(evtpath, evtfmt, evt ) < 0) return empty;
+   return string( evtpath );
+}
 
-   TFile fevt( evtpath, "READ" );
+
+ChromaPhotonList* ChromaPhotonList::Load(const char* evt, const char* evtkey, const char* tmpl)
+{
+   string evtpath = GetPath(evt, tmpl);
+   if( evtpath.empty() )
+   {
+      printf("ChromaPhotonList::Load : failed to format evtpath from tmpl  %s and evt %s \n", tmpl, evt );  
+      return NULL ; 
+   } 
+
+   TFile fevt( evtpath.c_str(), "READ" );
    if( fevt.IsZombie() ){
-       printf("failed to open evtpath %s \n", evtpath );
+       cout << "ChromaPhotonList::Load : failed to open evtpath [" << evtpath << "]" << endl ;
        return NULL ; 
    }   
 
@@ -53,6 +63,24 @@ ChromaPhotonList* ChromaPhotonList::Load(const char* evt, const char* evtkey, co
    return cpl ; 
 }
 
+void ChromaPhotonList::Save(const char* evt, const char* evtkey, const char* tmpl)
+{
+   string evtpath = GetPath(evt, tmpl);
+   if( evtpath.empty() )
+   {
+      printf("ChromaPhotonList::Save : failed to format evtpath from tmpl  %s and evt %s \n", tmpl, evt );  
+      return ; 
+   } 
+
+   TFile fevt( evtpath.c_str(), "RECREATE", evtkey );
+   if( fevt.IsZombie() ){
+       cout << "ChromaPhotonList::Save : failed to open evtpath for writing [" << evtpath << "]" << endl ;
+   }   
+   this->Write(evtkey);
+   fevt.Close();
+
+   cout << "ChromaPhotonList::Save : saved with key " << evtkey << " to path " << evtpath << endl ; 
+}
 
 
 ChromaPhotonList::ChromaPhotonList() : TObject() {
@@ -185,7 +213,7 @@ void ChromaPhotonList::FromArrays(float* __x,    float* __y,    float* __z,
 
 void ChromaPhotonList::Details(bool hit) const 
 {
-    std::cout <<  "ChromaPhotonList::Details [" << x.size() << "]" << std::endl ;
+    cout <<  "ChromaPhotonList::Details [" << x.size() << "]" << endl ;
 
     float _t ;
     float _wavelength ;
@@ -199,7 +227,14 @@ void ChromaPhotonList::Details(bool hit) const
     for( index = 0 ; index < x.size() ; index++ )
     {
         GetPhoton( index , pos, mom, pol, _t, _wavelength, _pmtid );    
-        G4cout << " index " << index << " pos " << pos << " mom " << mom << " pol " << pol << " _t " << _t << " _wavelength " << _wavelength << " _pmtid " << _pmtid << G4endl ; 
+        cout << " index " << index 
+             << " pos " << pos 
+             << " mom " << mom 
+             << " pol " << pol 
+             << " _t " << _t 
+             << " _wavelength " << _wavelength 
+             << " _pmtid " << (void*)_pmtid 
+             << endl ; 
     }
 #else
     float _x, _y, _z;
@@ -209,14 +244,14 @@ void ChromaPhotonList::Details(bool hit) const
     {
         GetPhoton( index, _x,_y,_z, _px,_py,_pz, _polx,_poly,_polz, _t, _wavelength, _pmtid );    
 
-        if( ( hit && _pmtid > -1 ) || not hit ) std::cout << " index " << index 
+        if( ( hit && _pmtid > -1 ) || not hit ) cout << " index " << index 
                  << " pos " << _x << " " << _y << " " << _z  
                  << " mom " << _px << " " << _py << " " << _pz  
                  << " pol " << _polx << " " << _poly << " " << _polz 
                  << " _t " << _t 
                  << " _wavelength " << _wavelength 
-                 << " _pmtid " << _pmtid 
-                 << std::endl ; 
+                 << " _pmtid " << (void*)_pmtid 
+                 << endl ; 
     }
 
 #endif

@@ -204,6 +204,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         defaults['style'] = "noodles"
         defaults['live'] = True
         defaults['load'] = None
+        defaults['propagate'] = True
         defaults['save'] = None
         defaults['saveall'] = False
         #defaults['pholine']  = False
@@ -226,6 +227,8 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--nolive",  dest="live", help="[I] Disable live updating via ZMQRoot messages. Default %(default)s.", action="store_false")
         parser.add_argument( "--live",    dest="live", help="[I] Enable live updating via ZMQRoot messages. Default %(default)s.", action="store_true")
         parser.add_argument( "--load",  help="[I] Path to .root file to read, eg containing ChromaPhotonList instances. Default %(default)s.",type=str)
+        parser.add_argument( "-P","--nopropagate", dest="propagate", help="Inhibit propagations on evt load.", action="store_false" )
+        parser.add_argument(      "--propagate",   dest="propagate", help="Enable propagations on evt load.", action="store_true" )
         parser.add_argument( "--save",  help="[I] Path to .root file to write. Default %(default)s.",type=str)
         parser.add_argument( "--saveall",  help="[I] Save all CPL received. Default %(default)s.", action="store_true")
         parser.add_argument( "--fpholine", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)

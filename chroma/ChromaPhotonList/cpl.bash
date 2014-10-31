@@ -164,7 +164,7 @@ cpl-make(){
 }
 cpl-build(){
    cpl-cmake
-   cpl-make
+   #cpl-make
    cpl-make install
 }
 cpl-install(){

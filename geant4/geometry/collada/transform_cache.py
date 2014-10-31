@@ -1,153 +1,74 @@
 #!/usr/bin/env python
 """
+transform_cache.py 
+====================
 
+The transform cache is a dict of global-to-local homogenous 4x4 
+transform matrices keyed on PmtId. The transforms are serialized directly 
+from the G4AffineTransforms using G4DAETransformCache 
+
+* the unfamiliar row-vector convention used in implementation of G4AffineTransform
+  is retained  
+
+* NB avoid copy/pasting numbers dumped from MockNuWa
+  as there is insufficient precision retained in the string formatting
+  due to the large values of some coordinates, **this can be misleading** 
+
+ 
 ::
 
-    delta:collada blyth$ ipython.sh transform_cache.py 
-
-    In [2]: np.set_printoptions(suppress=True, precision=4)
-
-    In [3]: tc[3200]
-    Out[3]: 
-    array([[      0.    ,       0.7615,      -0.6481,    8842.5   ],
-           [      0.    ,       0.6481,       0.7615,  532069.326 ],
-           [      1.    ,      -0.    ,       0.    ,  599608.6129],
-           [      0.    ,       0.    ,       0.    ,       1.    ]])
-
-    In [5]: len(tc)
-    Out[5]: 684
-
-
-
-::
-
-    delta:collada blyth$ ipython.sh transform_cache.py $DAE_NAME_DYB_TRANSFORMCACHE 0x1010101 0x1020701 
-    ...
+    (chroma_env)delta:env blyth$ transform_cache.sh 0x1010101 -i
+    ['0x1010101']
     0x1010101 16843009 
-    [[      0.           0.7615      -0.6481    8842.5   ]
-     [     -0.           0.6481       0.7615  532069.326 ]
-     [      1.           0.           0.      599608.6129]
-     [      0.           0.           0.           1.    ]]
-    0x1020701 16910081 
-    [[      0.           0.7615      -0.6481    5842.5   ]
-     [     -0.           0.6481       0.7615  532818.8074]
-     [      1.           0.           0.      605301.4893]
-     [      0.           0.           0.           1.    ]]
+    [[      0.           0.7615      -0.6481       0.    ]
+     [     -0.           0.6481       0.7615       0.    ]
+     [      1.           0.           0.           0.    ]
+     [   8842.5     532069.326   599608.6129       1.    ]]
+    Python 2.7.8 (default, Jul 13 2014, 17:11:32) 
+    Type "copyright", "credits" or "license" for more information.
 
-    In [1]: 
+    IPython 1.2.1 -- An enhanced Interactive Python.
+    ?         -> Introduction and overview of IPython's features.
+    %quickref -> Quick reference.
+    help      -> Python's own help system.
+    object?   -> Details about 'object', use 'object??' for extra details.
 
+    In [1]: g2l = tc[0x1010101]
 
-
-   M is purportedly the matrix that takes global coords to local in the frame 
-   of the PMT  
-
-        
-        l = M g 
-        l = RT g 
-
-  What g will yield local origin l = (0,0,0,1 ) ?  
-
-       
-      M^(-1) l =  g  
-        
-
-    In [44]: k = np.identity(4)
-
-    In [45]: k[:3,:3] = m[:3,:3].T
-
-    In [46]: k
-    Out[46]: 
-    array([[ 0.    , -0.    ,  1.    ,  0.    ],
-           [ 0.7615,  0.6481,  0.    ,  0.    ],
-           [-0.6481,  0.7615,  0.    ,  0.    ],
-           [ 0.    ,  0.    ,  0.    ,  1.    ]])
-
-    In [47]: k[:,3]
-    Out[47]: array([ 0.,  0.,  0.,  1.])
-
-    In [48]: k[:,3] = -m[:,3]
-
-    In [49]: k
-    Out[49]: 
-    array([[      0.    ,      -0.    ,       1.    ,   -8842.5   ],
-           [      0.7615,       0.6481,       0.    , -532069.326 ],
-           [     -0.6481,       0.7615,       0.    , -599608.6129],
-           [      0.    ,       0.    ,       0.    ,      -1.    ]])
-
-    In [50]: np.dot( k, [0,0,0,1])
-    Out[50]: array([  -8842.5   , -532069.326 , -599608.6129,      -1.    ])
-
-
-
-
-    In [85]: g = np.dot( invert_homogenous(m), [0,0,0,1] )
-
-    In [86]: g
-    Out[86]: array([-599608.6129, -351578.6214, -399460.1738,       1.    ])
-
-    In [87]: np.dot( m, g )
-    Out[87]: array([ 0., -0.,  0.,  1.])
-
-
-
-
-
-::
-
-    In [90]: mm = np.identity(4)
-
-    In [91]: mm[:3,:3] = m[:3,:3]    ## fill in rotation portion as-is
-
-    In [92]: mm
-    Out[92]: 
-    array([[ 0.    ,  0.7615, -0.6481,  0.    ],
-           [-0.    ,  0.6481,  0.7615,  0.    ],
-           [ 1.    ,  0.    ,  0.    ,  0.    ],
-           [ 0.    ,  0.    ,  0.    ,  1.    ]])
-
-    In [93]: mm[3]
-    Out[93]: array([ 0.,  0.,  0.,  1.])
-
-    In [94]: mm[3] = m[:,3].T     ## fill in row-vector convention translation portion from the mal-placed column-vector convention translation portion  
-
-    In [95]: mm
-    Out[95]: 
+    In [2]: g2l   # global to local in row-vector convention
+    Out[2]: 
     array([[      0.    ,       0.7615,      -0.6481,       0.    ],
            [     -0.    ,       0.6481,       0.7615,       0.    ],
            [      1.    ,       0.    ,       0.    ,       0.    ],
            [   8842.5   ,  532069.326 ,  599608.6129,       1.    ]])
 
-    In [96]: mm.T         ## have to transpose in order to use invert_homogenous
-    Out[96]: 
-    array([[      0.    ,      -0.    ,       1.    ,    8842.5   ],
-           [      0.7615,       0.6481,       0.    ,  532069.326 ],
-           [     -0.6481,       0.7615,       0.    ,  599608.6129],
-           [      0.    ,       0.    ,       0.    ,       1.    ]])
+    In [3]: l2g = invert_homogenous(g2l.T).T   # as invert_homogenous assumes the other convention
 
-    In [97]: invert_homogenous(mm.T)   ## invert homogenous assumes column vector layout, hence need to transform first 
-    Out[97]: 
-    array([[      0.    ,       0.7615,      -0.6481,  -16572.8991],
-           [     -0.    ,       0.6481,       0.7615, -801469.6472],
-           [      1.    ,       0.    ,       0.    ,   -8842.5   ],
-           [      0.    ,       0.    ,       0.    ,       1.    ]])
+    In [4]: l2g    # local to global in row-vector convention, obtained by inverting g2l 
+    Out[4]: 
+    array([[      0.    ,      -0.    ,       1.    ,       0.    ],
+           [      0.7615,       0.6481,       0.    ,       0.    ],
+           [     -0.6481,       0.7615,       0.    ,       0.    ],
+           [ -16572.8991, -801469.6472,   -8842.5   ,       1.    ]])
 
-    In [98]: g = np.dot( invert_homogenous(mm.T), [0,0,0,1] )
+    In [5]: l = np.array([0,0,0,1])   # local origin
 
-    In [99]: g
-    Out[99]: array([ -16572.8991, -801469.6472,   -8842.5   ,       1.    ])
+    In [6]: g = np.dot( l, l2g )      # pre-mult, row vector convention
 
+    In [7]: g     
+    Out[7]: array([ -16572.8991, -801469.6472,   -8842.5   ,       1.    ])
 
-    In [100]: np.dot( mm.T, g ) # post-mult 
-    Out[100]: array([ 0., -0., -0.,  1.])
+    In [8]: np.dot( g, g2l )          
+    Out[8]: array([ 0., -0., -0.,  1.])
 
-    In [101]: np.dot( mm , g )   # nope
-    Out[101]: array([ -6.0462e+05,  -5.2618e+05,  -1.6573e+04,  -4.3189e+11])
+    In [9]: np.dot( g2l.T, g  )  # post-mult with transform to allow more familial column vector convention
+    Out[9]: array([ 0., -0., -0.,  1.])
 
-    In [102]: np.dot( g, mm )    # pre-mult
-    Out[102]: array([ 0., -0., -0.,  1.])
+    In [12]: np.allclose( np.dot( g2l, l2g ), np.identity(4) )
+    Out[12]: True
 
-
-
+    In [13]: np.allclose( np.dot( l2g, g2l ), np.identity(4) )
+    Out[13]: True
 
 
 """
@@ -159,6 +80,9 @@ log = logging.getLogger(__name__)
 import IPython
 import os
 import numpy as np
+
+from env.geant4.geometry.collada.g4daeview.daeutil import invert_homogenous
+
 
 
 class TransformCache(dict):

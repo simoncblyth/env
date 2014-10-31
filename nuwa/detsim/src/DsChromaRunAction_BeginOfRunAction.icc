@@ -11,37 +11,49 @@
 /////////////////////////////////////////////////////////////////////
 
 
+string getenvvar( const string& key , const string& def  )
+{
+    const char* val = getenv(key.c_str());
+    return ( val == NULL ) ? string(def) : string(val) ; 
+} 
+
+
 void DsChromaRunAction_BeginOfRunAction( const string& m_transport, const string& m_cachekey, const string& m_sensdet, ITouchableToDetectorElement* t2de, const string& m_idParameter )
 { 
     cout << "DsChromaRunAction_BeginOfRunAction" << endl ;
 
-    const char* cachedir = getenv(m_cachekey.c_str());
-    assert( cachedir ); // envvar must be provided pointing to transform cache directory 
+    string cache_dir = getenvvar(m_cachekey, ".");
+    string transport_cfg = getenvvar(m_transport, "");
 
-    cout << "\t transport " << setw(30) << m_transport << endl ;
-    cout << "\t cachekey  " << setw(30) << m_cachekey  << "[" << cachedir << "]" << endl ;
+    cout << "\t transport " << setw(30) << m_transport << "[" << transport_cfg << "]" << endl ;
+    cout << "\t cachekey  " << setw(30) << m_cachekey  << "[" << cache_dir << "]" << endl ;
     cout << "\t sensdet   " << setw(30) << m_sensdet << endl ;
     cout << "\t idParameter  " << m_idParameter << " (not used for MockNuWa running)" << endl ;
 
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
 
+    /// transport 
+
+    //G4DAETransport* transport = G4DAETransport::MakeTransport(transport_cfg.c_str());
+    G4DAETransport* transport = G4DAETransport::MakeTransport(m_transport.c_str());
+    chroma->SetTransport( transport );
+
+
+    //// transform cache
+
+    G4DAETransformCache* cache = NULL ;
 #ifndef NOT_NUWA
     DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(t2de, m_idParameter.c_str());
-    G4DAETransformCache* cache = geometry->CreateTransformCache(NULL); 
-    cache->Archive(cachedir); 
-    chroma->SetTransformCache(cache);
+    cache = geometry->CreateTransformCache(NULL); 
+    cache->Archive(cache_dir.c_str()); 
 #else
-    if(G4DAETransformCache::Exists(cachedir))
-    { 
-        G4DAETransformCache* cache = G4DAETransformCache::Load(cachedir); 
-        chroma->SetTransformCache(cache);
-    }
-    else
-    {
-         assert(0); // transform cache is required when operating outside NuWa
-    } 
+    if(G4DAETransformCache::Exists(cache_dir.c_str())) cache = G4DAETransformCache::Load(cache_dir.c_str()); 
 #endif
+    assert(cache); // transform cache is required 
+    chroma->SetTransformCache(cache);
+
+
 
      ///  sensdet 
 
@@ -59,14 +71,7 @@ void DsChromaRunAction_BeginOfRunAction( const string& m_transport, const string
     SDMan->AddNewDetector( sensdet );
     chroma->SetSensDet( sensdet );  
 
-
-    ////// transport 
-
     cout << "DsChromaRunAction::BeginOfRunAction AddNewDetector [" << sensdet->GetName() << "]" << endl ; 
-
-    G4DAETransport* transport = G4DAETransport::MakeTransport(m_transport.c_str());
-    chroma->SetTransport( transport );
-
 
 }
 

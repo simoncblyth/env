@@ -149,7 +149,7 @@ class DAEBookmarks(object):
             cfp.read([path])        
         except MissingSectionHeaderError:
             cfp = None
-            log.warn("failed to parse bookmarks %s " % path)
+            log.warn("failed to parse bookmarks %s got MissingSectionHeaderError " % path)
         return cfp
 
 
@@ -159,14 +159,17 @@ class DAEBookmarks(object):
         :param path: input path for bookmarks
         :param geometry: DAEGeometry instance
         """
-        log.debug("load bookmarks from %s " % path )
+        log.info("load bookmarks from %s " % path )
         cfp = self.parse(path)
+        sections = []
         if cfp is None:
             log.info("bookmarks invalid, delete bookmarks file %s and try again" % path )
-            assert 0
-            return
+            #assert 0
+        else:
+            sections = cfp.sections()
+        pass
 
-        for sectname in cfp.sections():
+        for sectname in sections:
             if sectname.startswith(self.ini_prefix):
                 k = sectname[len(self.ini_prefix):]
                 cfg = cfp.items(sectname)      # list of k,v pairs

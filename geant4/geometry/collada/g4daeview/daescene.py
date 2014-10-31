@@ -324,7 +324,7 @@ class DAEScene(window_event.EventDispatcher):
         #. distribute the properties handled lists into the classes where they are handled
 
         """ 
-        live_args = self.config( msg )
+        live_args = self.config.live_parse( msg )
         if live_args is None:
             log.warn("external_message [%s] PARSE ERROR : IGNORING " % str(msg)) 
             return
@@ -371,6 +371,9 @@ class DAEScene(window_event.EventDispatcher):
                 setattr(self.camera, k, v )
             elif k in ("translatefactor","trackballradius"):
                 setattr(self.trackball, k, v )
+            elif k in ("propagate",):
+                log.info("setting config.args.%s = %s " % (k,v ))
+                self.config.args.propagate = v 
             else:
                 log.info("handling of external message key [%s] value [%s] not yet implemented " % (k,v) )
             pass

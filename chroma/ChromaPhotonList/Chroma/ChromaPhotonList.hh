@@ -27,6 +27,8 @@ class ChromaPhotonList : public TObject {
 
 public:
   static ChromaPhotonList* Load(const char* evt="1", const char* key="CPL", const char* tmpl="DAE_PATH_TEMPLATE" );
+  static std::string GetPath( const char* evt="dummy" , const char* tmpl="DAE_PATH_TEMPLATE");   
+  void Save(const char* evt="dummy", const char* key="CPL", const char* tmpl="DAE_PATH_TEMPLATE" );
 
 public:
   ChromaPhotonList();

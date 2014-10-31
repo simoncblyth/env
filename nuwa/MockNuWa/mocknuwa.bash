@@ -75,12 +75,21 @@ mocknuwa-build-full(){
    cd $iwd
 }
 
+mocknuwa-runenv(){
+   csa-
+   csa-export
+
+   export-
+   export-export   # needed for template envvar for CPL saving 
+
+   #export G4DAECHROMA_CLIENT_CONFIG=tcp://localhost:5001    # client to local broker
+   export G4DAECHROMA_CLIENT_CONFIG=""
+}
+
 mocknuwa--(){
    mocknuwa-make install
    [ $? -ne 0 ] && echo $FUNCNAME failed && return 1
-   local bin=$(which MockNuWa)
-   ls -l $bin
-   $bin
+   mocknuwa-run
 }
 
 mocknuwa-lldb(){
@@ -88,4 +97,10 @@ mocknuwa-lldb(){
 }
 
 
-
+mocknuwa-run(){
+   local bin=$(which MockNuWa)
+   mocknuwa-runenv 
+   env | grep G4DAECHROMA
+   ls -l $bin
+   $bin
+}

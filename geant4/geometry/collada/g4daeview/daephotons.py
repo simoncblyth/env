@@ -193,8 +193,13 @@ class DAEPhotons(object):
         vbo = self.renderer.pbuffer   
 
         self.propagator.update_constants()   
-        self.propagator.interop_propagate( vbo, max_steps=max_steps, max_slots=self.config.args.max_slots )
-            
+
+        if not self.config.args.propagate:
+            log.warn("propagation is inhibited by config: -P/--nopropagate ")  
+        else:
+            log.warn("propagation proceeding")  
+            self.propagator.interop_propagate( vbo, max_steps=max_steps, max_slots=self.config.args.max_slots )
+        pass 
         propagated = vbo.read()
         self.analyzer( propagated )
         if self.config.args.debugpropagate:
@@ -250,6 +255,7 @@ class DAEPhotons(object):
     def _set_photons(self, photons):
         log.debug("_set_photons")
         self.data.photons = photons
+
         if not photons is None:
             self.renderer.invalidate_buffers()
             self.propagate()

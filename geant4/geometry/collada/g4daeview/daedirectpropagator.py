@@ -33,20 +33,30 @@ class DAEDirectPropagator(object):
         self.config = config
         self.chroma = chroma
 
-    def propagate(self, cpl, max_steps=100 ):
+    def propagate(self, cpl, max_steps=10 ):
         """
         :param cpl: ChromaPhotonList instance
         :return propagated_cpl: ChromaPhotonList instance
 
         """
         photons = Photons.from_cpl(cpl, extend=True)  # CPL into chroma.event.Photons OR photons.Photons   
+        self.photons_beg = photons
+
         gpu_photons = GPUPhotonsHit(photons)        
         gpu_detector = self.chroma.gpu_detector
 
+
+        nthreads_per_block = self.chroma.nthreads_per_block
+        max_blocks = self.chroma.max_blocks 
+
+        log.info("nthreads_per_block : %s ", nthreads_per_block ) 
+        log.info("max_blocks : %s ", max_blocks ) 
+        log.info("max_steps : %s ", max_steps ) 
+
         gpu_photons.propagate_hit(gpu_detector, 
                                   self.chroma.rng_states,
-                                  nthreads_per_block=self.chroma.nthreads_per_block,
-                                  max_blocks=self.chroma.max_blocks,
+                                  nthreads_per_block=nthreads_per_block,
+                                  max_blocks=max_blocks,
                                   max_steps=max_steps)
 
         photons_end = gpu_photons.get()
@@ -111,6 +121,10 @@ def main():
     config.parse()
     assert config.args.with_chroma
 
+    print config.args.clargs
+    load = config.args.clargs[0]
+    print "load:", load   # eg mock001
+
     from daegeometry import DAEGeometry 
     geometry = DAEGeometry.get(config) 
     chroma_geometry = geometry.make_chroma_geometry() 
@@ -118,7 +132,7 @@ def main():
     from daechromacontext import DAEChromaContext     
     chroma = DAEChromaContext( config, chroma_geometry )
 
-    cpl_begin = config.load_cpl("1")
+    cpl_begin = config.load_cpl(load)
     propagator = DAEDirectPropagator(config, chroma)
     #propagator.check_unpropagated_roundtrip(cpl_begin)
 

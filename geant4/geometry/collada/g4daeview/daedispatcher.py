@@ -9,6 +9,19 @@ from glumpy.window import event
 class DAEDispatcher(event.EventDispatcher):
     """
     http://www.pyglet.org/doc/programming_guide/creating_your_own_event_dispatcher.html
+
+
+    Received event, handlers chain
+ 
+    * DAEInteractivityHandler:on_external_message just passes along
+    * DAEScene:external_message
+ 
+      * parses the message 
+
+       
+    
+
+
     """
     def __init__(self, port="15006", host="127.0.0.1"):
         """
