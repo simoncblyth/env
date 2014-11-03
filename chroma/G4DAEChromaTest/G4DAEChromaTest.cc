@@ -2,28 +2,14 @@
 #include <stdlib.h>    
 
 #include "Chroma/ChromaPhotonList.hh"
-#include "G4DAEChroma/G4DAEGeometry.hh"
-#include "G4DAEChroma/G4DAEChroma.hh"
-#include "G4DAEChroma/G4DAESensDet.hh"
-#include "G4DAEChroma/G4DAETransformCache.hh"
-#include "G4DAEChroma/DemoG4DAECollector.hh"
-
-#include "G4SDManager.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
+#include "G4ThreeVector.hh"
 
 #include <sstream>
 #include <iostream>
 #include <vector>
 
 using namespace std ;
-
-void loadgeom(const char* geometry)
-{
-   G4DAEGeometry* geo = G4DAEGeometry::LoadFromGDML(geometry);
-   if(!geo){
-       printf("failed to load geometry with geokey %s \n", geometry);
-   }
-   geo->DumpTransformCache();
-}
 
 
 void loadphotons(const char* evtkey)
@@ -35,36 +21,43 @@ void loadphotons(const char* evtkey)
    cpl->Print();
 }
 
-void configure()
+
+void gpl_save()
 {
-   G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+    G4DAEPhotonList* gpl = new G4DAEPhotonList(5);
 
-   const char* transport = "" ;
-   const char* sensdet = "DsPmtSensDet" ;
-   const char* geometry = "DAE_NAME_DYB_GDML" ;
+    G4ThreeVector pos(3,3,3);
+    G4ThreeVector dir(0,0,1);
+    G4ThreeVector pol(0,0,1);
 
-   chroma->Configure( transport, sensdet, geometry );
-   //chroma->ProcessHit( cpl, 0 );
+    float time = 1.; 
+    float wavelength = 550.; 
+    int pmtid = 0x1010101 ;
+
+    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+
+    gpl->Save("gdct001");
+
+    delete gpl ;  
+
+/*
+    python -c "import numpy as np ; np.set_printoptions(precision=3, suppress=True) ; print np.load('/usr/local/env/tmp/gdct001.npy')"
+    python -c "import numpy as np ; np.set_printoptions(precision=3, suppress=True) ; a = np.load('/usr/local/env/tmp/gdct001.npy') ; print a ; print a.view(np.int32)"
+*/
 
 }
 
 
 
+
 int main(int argc, char** argv)
 {
-
-    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-    SDMan->SetVerboseLevel( 10 );
-
-    G4DAESensDet* sd = new G4DAESensDet("DsPmtSensDet");
-    sd->SetCollector(new DemoG4DAECollector );  
-    sd->initialize();
-    SDMan->AddNewDetector( sd );
-
-    const char* geometry = "DAE_NAME_DYB_GDML" ;
-    G4DAEGeometry* geo = G4DAEGeometry::LoadFromGDML(geometry, sd);
-    G4DAETransformCache* cache = geo->GetCache(); 
-    cache->Dump();
+    G4DAEPhotonList* gpl = G4DAEPhotonList::Load("gdct001");
+    cout << "gpl " << (void*)gpl << endl ;
 
 
     return 0 ; 

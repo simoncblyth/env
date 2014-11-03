@@ -1,5 +1,15 @@
 /*
+ *  Obtained from https://gist.github.com/rezoo/5656056
+ * 
+ *  A reimplementation of libnpy. 
+ *  This library is header-only and compatible with any environment including MSVC.  
+ *
+ *  SCB : Minor addition to allow reading and writing NPY serializations 
+ *  into memory buffers
+ *
+ * 
  * Copyright (c) 2012 Masaki Saito
+ *
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +40,8 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+
+#include <iostream>
 
 #if defined (__GLIBC__)
 # include <endian.h>
@@ -187,6 +199,77 @@ void SaveArrayAsNumpy(
     stream.write(reinterpret_cast<const char*>(data), sizeof(Scalar)*size);
 }
 
+
+
+
+
+template<typename Scalar>
+std::size_t BufferSize(int n_dims, const int shape[], bool fortran_order) 
+{
+    if(n_dims <= 0)
+        throw std::invalid_argument("received an invalid argument");
+
+    std::string preamble, header;
+    std::string descriptor = detail::CreateDescriptor<Scalar>();
+    detail::CreateMetaData(
+        preamble, header, descriptor, fortran_order, n_dims, shape);
+    const size_t metadata_length = preamble.size() + header.size();
+    if(metadata_length % 16 != 0) {
+        throw std::runtime_error(
+            "formatting error: metadata length is not divisible by 16.");
+    }
+
+    int size = 1;
+    for(int i=0; i<n_dims; ++i) { size *= shape[i]; }
+    std::size_t nbyte = sizeof(Scalar)*size ;
+    return metadata_length + nbyte ; 
+}
+
+
+// write NPY serialization to the memory buffer instead of a file
+template<typename Scalar>
+std::size_t BufferSaveArrayAsNumpy(
+    char* buffer, bool fortran_order,
+    int n_dims, const int shape[], const Scalar* data)
+{
+    if(n_dims <= 0)
+        throw std::invalid_argument("received an invalid argument");
+
+    std::string preamble, header;
+    std::string descriptor = detail::CreateDescriptor<Scalar>();
+    detail::CreateMetaData(
+        preamble, header, descriptor, fortran_order, n_dims, shape);
+    const size_t metadata_length = preamble.size() + header.size();
+    if(metadata_length % 16 != 0) {
+        throw std::runtime_error(
+            "formatting error: metadata length is not divisible by 16.");
+    }
+
+    std::size_t offset = 0 ;
+    offset += preamble.copy( buffer, preamble.size() );
+    offset += header.copy(   buffer + offset, header.size() );
+
+    if(metadata_length != offset){
+        throw std::runtime_error(
+            "offset mismatch with metadata length");
+    }
+
+    int size = 1;
+    for(int i=0; i<n_dims; ++i) { size *= shape[i]; }
+  
+    std::size_t nbyte = sizeof(Scalar)*size ;
+    memcpy( buffer + offset,  reinterpret_cast<const char*>(data), nbyte );
+
+    return nbyte + metadata_length ; 
+}
+
+
+
+
+
+
+
+
 template<typename Scalar>
 void SaveArrayAsNumpy(
     const std::string& filename,
@@ -320,6 +403,112 @@ void LoadArrayFromNumpy(
     data.resize(total);
     stream.read(reinterpret_cast<char*>(&data[0]), word_size*total);
 }
+
+
+// load NPY serialization from the buffer
+template<typename Scalar>
+void BufferLoadArrayFromNumpy(
+    const char* buffer, std::size_t buflen, 
+    std::vector<int>& shape, std::vector<Scalar>& data)
+{
+
+    // check if this buffer is a .npy serialization
+    std::size_t offset = 0 ;
+    std::string valid_preamble = "\x93NUMPY";
+    valid_preamble.push_back(char(1));
+    valid_preamble.push_back(char(0));
+    
+    offset += 8 ; 
+    std::string preamble(buffer, offset);
+
+    if(valid_preamble != preamble) {
+        throw std::runtime_error(
+            "io error: this file do not have a valid npy format.");
+    }
+
+    // load header
+    uint16_t header_length;
+    char* p = reinterpret_cast<char*>(&header_length) ;
+    for(int i=0 ; i < sizeof(uint16_t) ; ++i ) *(p+i) = buffer[offset++];
+
+    header_length = detail::ReorderInteger(header_length);
+
+    if((header_length + preamble.size() + sizeof(uint16_t)) % 16 != 0) {
+        throw std::runtime_error(
+            "formatting error: metadata length is not divisible by 16.");
+    }
+
+
+    std::string header(buffer+offset, header_length);
+    offset += header_length ; 
+
+    // load fortran order
+    typedef std::string::size_type size_type;
+    const size_type header_loc = header.find("fortran_order") + 16;
+    const bool fortran_order = (header.substr(header_loc, 4) == "True");
+
+    // load shape
+    const size_type shape_loc1 = header.find("(");
+    const size_type shape_loc2 = header.find(")");
+    std::string shape_str = header.substr(
+        shape_loc1 + 1, shape_loc2 - shape_loc1 - 1);
+    if(shape_str[shape_str.size() - 1] == ',') shape.resize(1);
+    else shape.resize(std::count(shape_str.begin(), shape_str.end(), ',') + 1);
+    for(size_t i=0; i<shape.size(); ++i) {
+        std::stringstream ss;
+        const size_type loc = shape_str.find(",");
+        ss << shape_str.substr(0, loc);
+        ss >> shape[i];
+        shape_str = shape_str.substr(loc + 1);
+    }
+    if(fortran_order) {
+        std::reverse(shape.begin(), shape.end());
+    }
+
+    // load descriptor
+    const size_type descr_loc = header.find("descr") + 9;
+    const char endian_str = header[descr_loc];
+    const bool little_endian = (endian_str == '<' || endian_str == '|');
+#ifdef AOBA_NUMPY_BIG_ENDIAN
+    const bool is_same_endian = !little_endian;
+#else
+    const bool is_same_endian = little_endian;
+#endif
+    if(!is_same_endian) {
+        throw std::runtime_error(
+            "formatting error: difference endian is not supported.");
+    }
+    const char data_type = header[descr_loc + 1];
+    size_t word_size;
+    std::stringstream ss;
+    ss << header[descr_loc + 2];
+    ss >> word_size;
+    if(data_type != detail::DescriptorDataType<Scalar>::value ||
+       word_size != sizeof(Scalar)) {
+        throw std::runtime_error(
+            "formatting error: the type of .npy file is not equal to that of std::vector<T>");
+    }
+
+    // load data
+    size_t total = 1;
+    for(size_t i=0; i<shape.size(); ++i) {
+        total *= shape[i];
+    }
+
+    data.resize(total);
+
+    char* dest = reinterpret_cast<char*>(&data[0]) ;
+    memcpy( dest,  buffer+offset,  word_size*total);
+
+}
+
+
+
+
+
+
+
+
 
 template<typename Scalar>
 void LoadArrayFromNumpy(
