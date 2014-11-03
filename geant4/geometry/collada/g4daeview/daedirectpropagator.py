@@ -121,9 +121,8 @@ def main():
     config.parse()
     assert config.args.with_chroma
 
-    print config.args.clargs
     load = config.args.clargs[0]
-    print "load:", load   # eg mock001
+    log.info("load:%s" % load )   # eg mock001
 
     from daegeometry import DAEGeometry 
     geometry = DAEGeometry.get(config) 

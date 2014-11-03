@@ -31,6 +31,24 @@ Simplify OP lifecycle ?
   push on the cpp route
 
 
+Numpy Serialize into buffer ?
+-----------------------------------
+
+* http://stackoverflow.com/questions/25116/binary-buffer-in-python
+
+  * env/numpy/numpy_bytesio_load_save.py
+
+
+Efficient Selection of Numpy array, eg just the hits with PMTID > 0   
+------------------------------------------------------------------------
+
+* http://ipython-books.github.io/featured-01/
+* np.take np.where ?
+
+
+
+
+
 Current lifecycle of optical photon data
 ------------------------------------------
 

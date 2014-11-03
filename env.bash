@@ -1485,3 +1485,5 @@ gdct-(){      . $(env-home)/chroma/G4DAEChromaTest/gdct.bash && gdct-env $* ; }
 cnpytest-(){      . $(env-home)/numpy/cnpytest/cnpytest.bash && cnpytest-env $* ; }
 scraper-(){      . $(env-home)/nuwa/scraper/scraper.bash && scraper-env $* ; }
 cq-(){      . $(env-home)/nuwa/cq/cq.bash && cq-env $* ; }
+libnpy-(){      . $(env-home)/numpy/libnpy.bash && libnpy-env $* ; }
+rlibnpy-(){      . $(env-home)/numpy/rlibnpy/rlibnpy.bash && rlibnpy-env $* ; }

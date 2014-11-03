@@ -28,11 +28,46 @@ want to make extensive changes if using more
 extensively.  So added to Utilities
 
 
+Alternatives
+--------------
+
+C
+~~
+
+* libnpy-  
+* npyreader- 
+
+C++
+~~~~
+
+* https://gist.github.com/rezoo/5656056
+
+
+Casting numpy structured arrays into arrays of structs ?
+----------------------------------------------------------
+
+For this to work would need to be in control of the 
+struct packing/padding/alignment ans match it to the
+numpy dtype.  Maybe numpy source would be illuminating.
+
+* http://www.catb.org/esr/structure-packing/ 
+
+Numpy default is packed (unaligned)
+------------------------------------
+
+* http://cython.readthedocs.org/en/latest/src/tutorial/numpy.html
+
+    Also note that NumPy record arrays are by default unaligned, meaning data is
+    packed as tightly as possible without considering the alignment preferences of
+    the CPU. Such unaligned record arrays corresponds to a Cython packed struct. If
+    one uses an aligned dtype, by passing align=True to the dtype constructor, one
+    must drop the packed keyword on the struct definition.
+
+
+
 
 Issues
 -------
-
-
 
 
 CMake first build issue
