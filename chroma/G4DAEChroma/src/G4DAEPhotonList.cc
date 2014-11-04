@@ -1,5 +1,5 @@
 #include "G4DAEChroma/G4DAEPhotonList.hh"
-
+#include "G4DAEChroma/G4DAECommon.hh"
 
 #include "numpy.hpp"
 #include <cassert>
@@ -30,6 +30,66 @@ G4DAEPhotonList::G4DAEPhotonList( std::size_t itemcapacity, float* data) :
 G4DAEPhotonList::~G4DAEPhotonList()
 {
     if(m_data) delete[] m_data ; 
+}
+
+
+size_t G4DAEPhotonList::GetSize() const
+{
+   return m_itemcount ;
+}
+size_t G4DAEPhotonList::GetBytesUsed() const
+{
+   return m_itemcount*m_itemsize ;
+}
+size_t G4DAEPhotonList::GetItemSize() const
+{
+   return m_itemsize ;
+}
+size_t G4DAEPhotonList::GetCapacity() const
+{
+   return m_itemcapacity ;
+}
+string G4DAEPhotonList::GetDigest() const
+{
+    const char* data = reinterpret_cast<const char*>(m_data);
+    size_t nbytes = m_itemcount*m_itemsize ;
+    return md5digest( data, nbytes ); 
+} 
+void G4DAEPhotonList::Print() const 
+{
+    cout <<  "G4DAEPhotonList::Print " 
+         << " size: " << GetSize() 
+         << " capacity: " << GetCapacity() 
+         << " itemsize: " << GetItemSize() 
+         << " bytesused: " << GetBytesUsed() 
+         << " digest: " << GetDigest() 
+         << endl ;    
+} 
+void G4DAEPhotonList::Details(bool hit) const 
+{
+    cout <<  "G4DAEPhotonList::Details [" << GetSize() << "]" << endl ;
+
+    size_t index ;
+
+    G4ThreeVector pos ;
+    G4ThreeVector dir ;
+    G4ThreeVector pol ;
+    float _t ;
+    float _wavelength ;
+    int _pmtid ;
+
+    for( index = 0 ; index < GetSize() ; index++ )
+    {
+        GetPhoton( index , pos, dir, pol, _t, _wavelength, _pmtid );
+        cout << " index " << index
+             << " pos " << pos
+             << " dir " << dir
+             << " pol " << pol
+             << " _t " << _t
+             << " _wavelength " << _wavelength
+             << " _pmtid " << (void*)_pmtid
+             << endl ;
+    }
 }
 
 
@@ -195,7 +255,17 @@ G4DAEPhotonList* G4DAEPhotonList::Load(const char* evt, const char* key, const c
    assert(shape.size() == 3);
    assert(shape[1] == 4 && shape[2] == 4);
 
-   return new G4DAEPhotonList(data.size(), data.data() );  
+   size_t vsize = data.size();
+   size_t itemsize = shape[1]*shape[2] ; 
+   size_t nitems = vsize / itemsize ;  
+
+   /*
+   cout << "vsize " << vsize << endl ; 
+   cout << "itemsize " << itemsize << endl ; 
+   cout << "nitems " << nitems << endl ; 
+   */
+
+   return new G4DAEPhotonList(nitems, data.data() );  
 }
 
 

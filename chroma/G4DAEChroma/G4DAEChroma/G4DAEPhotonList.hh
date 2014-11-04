@@ -18,15 +18,16 @@ public:
 
   static std::string GetPath( const char* evt="dummy" , const char* tmpl="DAE_PATH_TEMPLATE_NPY");   
   static G4DAEPhotonList* Load(const char* evt="1", const char* key="GPL", const char* tmpl="DAE_PATH_TEMPLATE_NPY" );
-  void Save(const char* evt="dummy", const char* key="CPL", const char* tmpl="DAE_PATH_TEMPLATE_NPY" );
+  void Save(const char* evt="dummy", const char* key="GPL", const char* tmpl="DAE_PATH_TEMPLATE_NPY" );
 
-
-  /*
-  void Print(Option_t* option = "") const ; 
-  std::size_t GetSize() const;
-  std::string GetDigest() const; 
+  void Print() const ; 
   void Details(bool hit) const ;
-   */
+  std::size_t GetSize() const;
+  std::size_t GetItemSize() const;
+  std::size_t GetCapacity() const;
+  std::size_t GetBytesUsed() const;
+  std::string GetDigest() const; 
+
 
 private:
 

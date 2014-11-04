@@ -3,7 +3,17 @@
 #include <sstream>
 #include "G4AffineTransform.hh"
 
+#include "md5digest.h"
+
 using namespace std ; 
+
+string md5digest( const char* buffer, int len )
+{
+    char* out = md5digest_str2md5(buffer, len);
+    string digest(out); 
+    free(out);
+    return digest;
+}
 
 string transform_rep( G4AffineTransform& transform )
 {

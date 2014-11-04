@@ -53,12 +53,12 @@ void gpl_save()
 
 
 
-
 int main(int argc, char** argv)
 {
     G4DAEPhotonList* gpl = G4DAEPhotonList::Load("gdct001");
-    cout << "gpl " << (void*)gpl << endl ;
 
+    gpl->Print();
+    gpl->Details(0);
 
     return 0 ; 
 }

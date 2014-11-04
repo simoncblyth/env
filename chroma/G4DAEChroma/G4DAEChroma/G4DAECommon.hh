@@ -9,6 +9,8 @@ class G4AffineTransform ;
 std::string transform_rep( G4AffineTransform& transform );
 void split( std::vector<std::string>& elem, const char* linekey, char delim );
 
+std::string md5digest( const char* str, int length );
+
 
 #endif
 
