@@ -188,7 +188,8 @@ void G4DAEGeometry::AddSensitiveLVName(const std::string& lvname)
 }
 void G4DAEGeometry::AddSensitiveLVNames(const char* envkey, char delim)
 {
-    split( m_lvsensitive, envkey, delim);
+    const char* line = getenv(envkey);
+    split( m_lvsensitive, line, delim);
 }
 void G4DAEGeometry::DumpSensitiveLVNames()
 {

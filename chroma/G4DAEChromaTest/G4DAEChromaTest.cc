@@ -1,7 +1,7 @@
 #include <stdio.h>  
 #include <stdlib.h>    
 
-#include "Chroma/ChromaPhotonList.hh"
+//#include "Chroma/ChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4ThreeVector.hh"
 
@@ -11,7 +11,7 @@
 
 using namespace std ;
 
-
+/*
 void loadphotons(const char* evtkey)
 {
    ChromaPhotonList* cpl = ChromaPhotonList::Load(evtkey);
@@ -20,6 +20,7 @@ void loadphotons(const char* evtkey)
    }
    cpl->Print();
 }
+*/
 
 
 void gpl_save()
@@ -40,7 +41,7 @@ void gpl_save()
     gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
     gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
 
-    gpl->Save("gdct001");
+    gpl->Save("gdct002");
 
     delete gpl ;  
 
@@ -52,14 +53,26 @@ void gpl_save()
 }
 
 
-
-int main(int argc, char** argv)
+int gpl_load()
 {
     G4DAEPhotonList* gpl = G4DAEPhotonList::Load("gdct001");
+    if(!gpl) return 1 ; 
 
     gpl->Print();
     gpl->Details(0);
 
     return 0 ; 
 }
+
+
+
+
+
+
+int main(int argc, char** argv)
+{
+    gpl_save();
+}
+
+
 

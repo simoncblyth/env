@@ -39,9 +39,10 @@ rlibnpy-tcd(){  mkdir -p $(rlibnpy-tdir) && cd $(rlibnpy-tdir); }
 
 
 rlibnpy-test(){
+   local iwd=$PWD
    rlibnpy-tcd
    clang $(rlibnpy-sdir)/numpy_test.cc -lstdc++ -o $FUNCNAME && ./$FUNCNAME &&  $(rlibnpy-sdir)/load.py *_npy  
-
+   cd $iwd
 }
 
 

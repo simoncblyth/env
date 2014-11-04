@@ -130,11 +130,16 @@ inline std::string CreateDescriptor() {
     return descriptor;
 }
 
+
+
+
 inline void CreateMetaData(
     std::string& preamble, std::string& header,
     const std::string& descriptor, bool fortran_order,
-    int n_dims, const int shape[])
+    std::vector<int>& shape)
 {
+    const int n_dims = shape.size() ;
+
     header = "{'descr': '";
     header.append(descriptor);
     if(fortran_order) {
@@ -168,6 +173,23 @@ inline void CreateMetaData(
     uint16_t header_length = detail::ReorderInteger((uint16_t)header.size());
     preamble.append(reinterpret_cast<char*>(&header_length), 2);
 }
+
+
+
+inline void CreateMetaData(
+    std::string& preamble, std::string& header,
+    const std::string& descriptor, bool fortran_order,
+    int n_dims, const int shape[])
+{
+    std::vector<int> vshape ;
+    for(int d=0; d<n_dims; ++d) vshape.push_back(shape[d]);
+
+    CreateMetaData(preamble, header, descriptor, fortran_order, vshape );
+}
+
+
+
+
 
 } // namespace detail
 
@@ -272,11 +294,39 @@ std::size_t BufferSaveArrayAsNumpy(
 
 template<typename Scalar>
 void SaveArrayAsNumpy(
+    const std::string& filename, int nitems, const char* itemshapestr, const Scalar* data)
+{
+    // example itemshapestr "4,4" 
+    
+    std::vector<int> shape ; 
+    shape.push_back(nitems);      
+
+    std::istringstream f(itemshapestr);
+    std::string s;
+    while (getline(f, s, ','))
+    {
+         int i = atoi(s.c_str());
+         shape.push_back(i);
+    }
+
+    int n_dims = shape.size() ; 
+
+    int* dims = new int[n_dims];
+    for(int d=0;d<n_dims;d++) dims[d] = shape[d] ;
+
+    SaveArrayAsNumpy( filename, false, n_dims, dims, data);
+
+    delete dims ; 
+}
+
+
+
+template<typename Scalar>
+void SaveArrayAsNumpy(
     const std::string& filename,
     int n_dims, const int shape[], const Scalar* data)
 {
-    SaveArrayAsNumpy(
-        filename, false, n_dims, shape, data);
+    SaveArrayAsNumpy( filename, false, n_dims, shape, data);
 }
 
 template<typename Scalar>
@@ -317,6 +367,8 @@ void SaveArrayAsNumpy(
     const int dim[4] = { x0, x1, x2, x3 };
     SaveArrayAsNumpy(filename, false, 4, dim, data); 
 }
+
+
 
 template<typename Scalar>
 void LoadArrayFromNumpy(

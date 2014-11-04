@@ -6,10 +6,12 @@
 
 #include <G4ThreeVector.hh>
 
+#include "G4DAEChroma/G4DAEArray.hh"
 
-class G4DAEPhotonList {
+class G4DAEPhotonList : public G4DAEArray {
 
 public:
+
   G4DAEPhotonList( std::size_t itemcapacity = 0, float* data = NULL);
   virtual ~G4DAEPhotonList();
 
@@ -22,19 +24,6 @@ public:
 
   void Print() const ; 
   void Details(bool hit) const ;
-  std::size_t GetSize() const;
-  std::size_t GetItemSize() const;
-  std::size_t GetCapacity() const;
-  std::size_t GetBytesUsed() const;
-  std::string GetDigest() const; 
-
-
-private:
-
-    std::size_t   m_itemcapacity ; 
-    std::size_t   m_itemsize ; 
-    float*        m_data ; 
-    std::size_t   m_itemcount ; 
 
 
 };

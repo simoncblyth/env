@@ -84,15 +84,43 @@ void twodim_b_npy()
 }
 
 
+void flexi_npy()
+{
+   int points[][4][3] = {
+                      {
+                        { 1, 2, 3 },
+                        { 4, 5, 6 },
+                        { 7, 8, 9 },
+                        {10,11,12 }
+                      },
+                      {
+                        { 10, 20, 30 },
+                        { 40, 50, 60 },
+                        { 70, 80, 90 },
+                        {100,110, 120 }
+                      },
+                      {
+                        { 1, 2, 3 },
+                        { 4, 5, 6 },
+                        { 7, 8, 9 },
+                        {10,11,12 }
+                      }
+                     };
+
+   aoba::SaveArrayAsNumpy<int>(__func__, 3, "4,3",  &points[0][0][0] );
+}
+
 
 
 
 int main()
 {
-   onedim_a_npy();
-   onedim_b_npy();
-   twodim_a_npy();
-   twodim_b_npy();
+   //onedim_a_npy();
+   //onedim_b_npy();
+   //twodim_a_npy();
+   //twodim_b_npy();
+
+   flexi_npy();
 
    return 0 ;
 }

@@ -10,61 +10,20 @@
 using namespace std ; 
 
 
-G4DAEPhotonList::G4DAEPhotonList( std::size_t itemcapacity, float* data) : 
-             m_itemcapacity(itemcapacity), 
-             m_itemsize(4*4), 
-             m_itemcount(0)
+G4DAEPhotonList::G4DAEPhotonList( std::size_t itemcapacity, float* data) : G4DAEArray( itemcapacity, "4,4", data )
 {
-    m_data = new float[m_itemcapacity*m_itemsize] ;
-    if( data != NULL )   // copy the buffer
-    {
-        const char* source = reinterpret_cast<const char*>(data);
-        char* dest = reinterpret_cast<char*>(m_data) ;
-        size_t nbytes = m_itemcapacity*m_itemsize*sizeof(float);
-        memcpy( dest, source, nbytes ) ; 
-        m_itemcount = m_itemcapacity ; // when loading from buffers
-    }
 }
-
 
 G4DAEPhotonList::~G4DAEPhotonList()
 {
-    if(m_data) delete[] m_data ; 
 }
 
 
-size_t G4DAEPhotonList::GetSize() const
-{
-   return m_itemcount ;
-}
-size_t G4DAEPhotonList::GetBytesUsed() const
-{
-   return m_itemcount*m_itemsize ;
-}
-size_t G4DAEPhotonList::GetItemSize() const
-{
-   return m_itemsize ;
-}
-size_t G4DAEPhotonList::GetCapacity() const
-{
-   return m_itemcapacity ;
-}
-string G4DAEPhotonList::GetDigest() const
-{
-    const char* data = reinterpret_cast<const char*>(m_data);
-    size_t nbytes = m_itemcount*m_itemsize ;
-    return md5digest( data, nbytes ); 
-} 
 void G4DAEPhotonList::Print() const 
 {
-    cout <<  "G4DAEPhotonList::Print " 
-         << " size: " << GetSize() 
-         << " capacity: " << GetCapacity() 
-         << " itemsize: " << GetItemSize() 
-         << " bytesused: " << GetBytesUsed() 
-         << " digest: " << GetDigest() 
-         << endl ;    
-} 
+    G4DAEArray::Print();
+}
+
 void G4DAEPhotonList::Details(bool hit) const 
 {
     cout <<  "G4DAEPhotonList::Details [" << GetSize() << "]" << endl ;
@@ -201,73 +160,21 @@ void G4DAEPhotonList::AddPhoton( G4ThreeVector pos, G4ThreeVector dir, G4ThreeVe
 }
 
 
-string G4DAEPhotonList::GetPath( const char* evt , const char* tmpl )
-{
-   string empty ;
-   const char* evtfmt  = getenv(tmpl);
-   if(evtfmt == NULL ){
-      printf("tmpl %s : missing : use \"export-;export-export\" to define  \n", tmpl );
-      return empty; 
-   }   
-   char evtpath[256];
-   if (sprintf(evtpath, evtfmt, evt ) < 0) return empty;
-   return string( evtpath );
-}
-
-
-
-void G4DAEPhotonList::Save(const char* evt, const char* evtkey, const char* tmpl)
-{
-   string path = GetPath(evt, tmpl);
-   if( path.empty() )
-   {   
-      printf("G4DAEPhotonList::Save : failed to format path from tmpl  %s and evt %s \n", tmpl, evt );  
-      return; 
-   }   
-
-   bool fortran_order = false ; 
-   const int ndim = 3 ; 
-   const int shape[] = {m_itemcount, 4, 4} ;
-
-   printf("G4DAEPhotonList::Save [%s]\n", path.c_str() );
-   aoba::SaveArrayAsNumpy<float>(path, fortran_order, ndim, shape, m_data );
-
-}
-
-
-
+// passthroughs to get the specialized defaults 
 G4DAEPhotonList* G4DAEPhotonList::Load(const char* evt, const char* key, const char* tmpl )
 {
-    string path = GetPath(evt, tmpl);
-    if( path.empty() )
-    {
-      printf("G4DAEPhotonList::Load : failed to format path from tmpl  %s and evt %s \n", tmpl, evt );  
-      return NULL ; 
-    }
-
-
-   std::vector<int>  shape ;
-   std::vector<float> data ;
-
-   printf("G4DAEPhotonList::Load [%s]\n", path.c_str() );
-   aoba::LoadArrayFromNumpy<float>(path, shape, data );
-
-   assert(shape.size() == 3);
-   assert(shape[1] == 4 && shape[2] == 4);
-
-   size_t vsize = data.size();
-   size_t itemsize = shape[1]*shape[2] ; 
-   size_t nitems = vsize / itemsize ;  
-
-   /*
-   cout << "vsize " << vsize << endl ; 
-   cout << "itemsize " << itemsize << endl ; 
-   cout << "nitems " << nitems << endl ; 
-   */
-
-   return new G4DAEPhotonList(nitems, data.data() );  
+    return (G4DAEPhotonList*)G4DAEArray::Load(evt, key, tmpl);
 }
 
+void G4DAEPhotonList::Save(const char* evt, const char* key, const char* tmpl )
+{
+    G4DAEArray::Save(evt, key, tmpl);
+}
+
+string G4DAEPhotonList::GetPath(const char* evt, const char* tmpl )
+{
+    return G4DAEArray::GetPath(evt, tmpl);
+}
 
 
 

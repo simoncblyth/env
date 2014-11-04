@@ -31,16 +31,26 @@ string transform_rep( G4AffineTransform& transform )
 
 
 
-void split( vector<string>& elem, const char* linekey, char delim )
+void split( vector<string>& elem, const char* line, char delim )
 {
-    const char* line = getenv(linekey);
     if(line == NULL){ 
-        cout << "split envvar not defined : " << linekey << endl ; 
+        cout << "split NULL line not defined : " << endl ; 
         return ;
     }   
     istringstream f(line);
     string s;
     while (getline(f, s, delim)) elem.push_back(s);
+}
+
+void isplit( vector<int>& elem, const char* line, char delim )
+{
+    if(line == NULL){ 
+        cout << "isplit NULL line not defined : " << endl ; 
+        return ;
+    }   
+    istringstream f(line);
+    string s;
+    while (getline(f, s, delim)) elem.push_back(atoi(s.c_str()));
 }
 
 
