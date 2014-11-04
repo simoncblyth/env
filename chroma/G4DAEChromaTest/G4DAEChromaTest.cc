@@ -3,6 +3,7 @@
 
 //#include "Chroma/ChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
+#include "G4DAEChroma/G4DAESocket.hh"
 #include "G4ThreeVector.hh"
 
 #include <sstream>
@@ -71,7 +72,41 @@ int gpl_load()
 
 int main(int argc, char** argv)
 {
-    gpl_save();
+    const char* frontend = "FRONTEND" ; 
+    const char* backend  = "BACKEND" ;
+
+    bool is_frontend = getenv(frontend) ;
+    bool is_backend = getenv(backend) ;
+
+    cout << "is_frontend " << is_frontend << endl ;
+    cout << "is_backend " << is_backend << endl ;
+
+
+    if(is_frontend)
+    {
+        G4DAESocket<G4DAEArray> sock(frontend) ;
+        G4DAEPhotonList* gpl = G4DAEPhotonList::Load("gdct001");
+        gpl->Print();
+        cout << "frontend " << frontend << " sending " << endl ; 
+
+        sock.SendObject((G4DAEArray*)gpl);
+        G4DAEPhotonList* obj = (G4DAEPhotonList*)sock.ReceiveObject();
+        obj->Print();
+
+        //const char* msg = "hello";
+        //sock.SendString((char*)msg);
+        //const char* rep = sock.ReceiveString();
+
+    }
+    else if(is_backend)
+    {
+        char responder = 'P' ;
+        G4DAESocket<G4DAEArray> sock(backend,responder) ;
+        cout << "backend " << backend << " waiting " << endl ; 
+        //sock.MirrorString();
+        sock.MirrorObject();
+    } 
+
 }
 
 

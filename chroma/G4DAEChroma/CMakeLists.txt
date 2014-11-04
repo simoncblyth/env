@@ -16,6 +16,7 @@ find_package(Geant4 9.5.0 REQUIRED gdml)
 find_package(CNPY REQUIRED)
 find_package(ChromaPhotonList REQUIRED)
 find_package(ZMQRoot REQUIRED)
+find_package(ZMQ REQUIRED)
 find_package(Root REQUIRED)
 
 include(EnvBuildOptions)
@@ -28,11 +29,13 @@ include_directories(
     ${ZMQROOT_INCLUDE_DIR}
     ${ROOT_INCLUDE_DIR}
     ${CNPY_INCLUDE_DIRS}
+    ${ZMQ_INCLUDE_DIR}
 )
 
 add_definitions(
     ${Geant4_DEFINITIONS} 
     -DWITH_CHROMA_ZMQ  -DEXPORT_G4GDML
+    -DWITH_ZMQ
     ${CHROMAPHOTONLIST_DEFINITIONS}  
 )    
 
@@ -47,6 +50,7 @@ target_link_libraries( ${name}
     ${ZMQROOT_LIBRARIES}
     ${ROOT_LIBRARIES}
     ${CNPY_LIBRARIES}
+    ${ZMQ_LIBRARIES}
 )
 
 install(TARGETS ${name} LIBRARY DESTINATION lib)

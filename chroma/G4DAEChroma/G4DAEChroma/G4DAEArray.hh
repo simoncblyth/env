@@ -27,6 +27,13 @@ public:
   std::string GetDigest() const; 
   std::string GetItemShapeString() const;
 
+
+public:
+  // informal G4DAESocket protocol methods that allowing G4DAESocket<G4DAEArray> arrsock ; 
+  static G4DAEArray* LoadFromBuffer(const char* buffer, std::size_t buflen);
+  const char* GetBuffer() const; 
+  std::size_t GetBufferSize() const; 
+
 protected:
     std::size_t   m_itemcapacity ; 
     std::size_t   m_itemcount ; 

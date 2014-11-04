@@ -23,13 +23,23 @@ G4DAEArray::G4DAEArray( size_t itemcapacity, string itemshape, float* data) :
     m_data = new float[m_itemcapacity*m_itemsize] ;
     if( data != NULL )   // copy the buffer
     {
-        const char* source = reinterpret_cast<const char*>(data);
-        char* dest = reinterpret_cast<char*>(m_data) ;
-        size_t nbytes = m_itemcapacity*m_itemsize*sizeof(float);
-        memcpy( dest, source, nbytes ) ; 
         m_itemcount = m_itemcapacity ; // when loading from buffers
+        const char* source = GetBuffer();
+        size_t nbytes = GetBufferSize();
+        char* dest = reinterpret_cast<char*>(m_data) ;
+        memcpy( dest, source, nbytes ) ; 
     }
 }
+
+const char* G4DAEArray::GetBuffer() const
+{
+   return reinterpret_cast<const char*>(m_data) ; 
+}
+size_t G4DAEArray::GetBufferSize() const
+{
+   return m_itemcount*m_itemsize*sizeof(float);
+}
+
 
 
 G4DAEArray::~G4DAEArray()
@@ -147,6 +157,22 @@ G4DAEArray* G4DAEArray::Load(const char* evt, const char* key, const char* tmpl 
 
    printf("G4DAEArray::Load [%s]\n", path.c_str() );
    aoba::LoadArrayFromNumpy<float>(path, shape, data );
+
+   size_t itemsize = FormItemSize( shape, 1);
+   string itemshape = FormItemShapeString( shape, 1);
+   size_t nitems = data.size()/itemsize ; 
+
+   return new G4DAEArray( nitems, itemshape, data.data() );  
+}
+
+G4DAEArray* G4DAEArray::LoadFromBuffer(const char* buffer, size_t buflen)
+{
+   printf("G4DAEArray::LoadFromBuffer [%zu]\n", buflen );
+
+   std::vector<int>  shape ;
+   std::vector<float> data ;
+
+   aoba::BufferLoadArrayFromNumpy<float>(buffer, buflen, shape, data );
 
    size_t itemsize = FormItemSize( shape, 1);
    string itemshape = FormItemShapeString( shape, 1);

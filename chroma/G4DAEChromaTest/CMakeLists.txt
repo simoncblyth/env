@@ -14,6 +14,7 @@ find_package(G4DAEChroma REQUIRED)
 find_package(ChromaPhotonList REQUIRED)
 find_package(Geant4 9.5.0 REQUIRED gdml)
 find_package(Root REQUIRED)
+find_package(ZMQ REQUIRED)
 
 include(EnvBuildOptions)
 
@@ -22,12 +23,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CHROMAPHOTONLIST_INCLUDE_DIR}
                     ${G4DAECHROMA_INCLUDE_DIRS}
                     ${ROOT_INCLUDE_DIR}
+                    ${ZMQ_INCLUDE_DIR}
                    )
 
 add_definitions(
                     ${G4DAECHROMA_DEFINITIONS}
                     ${Geant4_DEFINITIONS}    
                     ${CHROMAPHOTONLIST_DEFINITIONS}  
+                    -DWITH_ZMQ
                )    
 
 
@@ -38,6 +41,7 @@ target_link_libraries( ${name}
                         ${CHROMAPHOTONLIST_LIBRARIES}
                         ${G4DAECHROMA_LIBRARIES} 
                         ${ROOT_LIBRARIES} 
+                        ${ZMQ_LIBRARIES} 
                       )
 
 install(TARGETS ${name} DESTINATION bin)
