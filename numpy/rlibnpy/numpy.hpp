@@ -224,6 +224,34 @@ void SaveArrayAsNumpy(
 
 
 
+template<typename Scalar>
+inline void BufferDump(const char* buffer, std::size_t buflen) 
+{
+   const char* hfmt = "\n%04X : " ;
+   for (int i = 0; i < buflen ; i++){
+       if(i % 16 == 0) printf(hfmt, i ); 
+       printf("%02X ", buffer[i]);
+   }
+   printf(hfmt, buflen );
+   printf("\n"); 
+}
+
+template<typename Scalar>
+void ShapeVector(std::vector<int>& shape,  int nitems, const char* itemshapestr )
+{
+    // example itemshapestr "4,4" 
+    shape.push_back(nitems);      
+
+    std::istringstream f(itemshapestr);
+    std::string s;
+    while (getline(f, s, ','))
+    {
+         int i = atoi(s.c_str());
+         shape.push_back(i);
+    }
+}
+
+
 
 template<typename Scalar>
 std::size_t BufferSize(int n_dims, const int shape[], bool fortran_order) 
@@ -248,6 +276,23 @@ std::size_t BufferSize(int n_dims, const int shape[], bool fortran_order)
 }
 
 
+template<typename Scalar>
+std::size_t BufferSize(int n_items, const char* itemshapestr, bool fortran_order) 
+{
+    std::vector<int> shape ; 
+    ShapeVector<Scalar>(shape, n_items, itemshapestr);
+ 
+    int n_dims = shape.size() ; 
+    int* dims = new int[n_dims];
+    for(int d=0;d<n_dims;d++) dims[d] = shape[d] ;
+    std::size_t size = BufferSize<Scalar>( n_dims, dims, fortran_order );
+    delete dims ; 
+    return size ; 
+}
+
+
+
+
 // write NPY serialization to the memory buffer instead of a file
 template<typename Scalar>
 std::size_t BufferSaveArrayAsNumpy(
@@ -264,7 +309,7 @@ std::size_t BufferSaveArrayAsNumpy(
     const size_t metadata_length = preamble.size() + header.size();
     if(metadata_length % 16 != 0) {
         throw std::runtime_error(
-            "formatting error: metadata length is not divisible by 16.");
+            "BufferSaveArrayAsNumpy : formatting error: metadata length is not divisible by 16.");
     }
 
     std::size_t offset = 0 ;
@@ -273,7 +318,7 @@ std::size_t BufferSaveArrayAsNumpy(
 
     if(metadata_length != offset){
         throw std::runtime_error(
-            "offset mismatch with metadata length");
+            "BufferSaveArrayAsNumpy : offset mismatch with metadata length");
     }
 
     int size = 1;
@@ -288,6 +333,26 @@ std::size_t BufferSaveArrayAsNumpy(
 
 
 
+template<typename Scalar>
+std::size_t BufferSaveArrayAsNumpy(
+    char* buffer, bool fortran_order,
+    int n_items, const char* itemshapestr, const Scalar* data)
+{
+    std::vector<int> shape ; 
+    ShapeVector<Scalar>(shape, n_items, itemshapestr);
+    int n_dims = shape.size() ; 
+    int* dims = new int[n_dims];
+    for(int d=0;d<n_dims;d++) dims[d] = shape[d] ;
+
+    std::size_t size = BufferSaveArrayAsNumpy<Scalar>( buffer, fortran_order, n_dims, dims, data );
+    delete dims ; 
+    return size ; 
+}
+
+
+
+
+
 
 
 
@@ -297,8 +362,10 @@ void SaveArrayAsNumpy(
     const std::string& filename, int nitems, const char* itemshapestr, const Scalar* data)
 {
     // example itemshapestr "4,4" 
-    
-    std::vector<int> shape ; 
+    std::vector<int> shape ;
+    ShapeVector<Scalar>( shape, nitems, itemshapestr );
+
+    /* 
     shape.push_back(nitems);      
 
     std::istringstream f(itemshapestr);
@@ -308,9 +375,9 @@ void SaveArrayAsNumpy(
          int i = atoi(s.c_str());
          shape.push_back(i);
     }
+    */
 
     int n_dims = shape.size() ; 
-
     int* dims = new int[n_dims];
     for(int d=0;d<n_dims;d++) dims[d] = shape[d] ;
 
@@ -387,7 +454,7 @@ void LoadArrayFromNumpy(
     stream.read(&preamble[0], 8);
     if(valid_preamble != preamble) {
         throw std::runtime_error(
-            "io error: this file do not have a valid npy format.");
+            "LoadArrayFromNumpy : io error: this file do not have a valid npy format.");
     }
     // load header
     uint16_t header_length;
@@ -474,8 +541,9 @@ void BufferLoadArrayFromNumpy(
     std::string preamble(buffer, offset);
 
     if(valid_preamble != preamble) {
+        BufferDump<Scalar>( buffer, buflen ); 
         throw std::runtime_error(
-            "io error: this file do not have a valid npy format.");
+            "BufferLoadArrayFromNumpy : io error: this file do not have a valid npy format.");
     }
 
     // load header

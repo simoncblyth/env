@@ -4,6 +4,7 @@
 //#include "Chroma/ChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4DAEChroma/G4DAESocket.hh"
+#include "G4DAEChroma/G4DAECommon.hh"
 #include "G4ThreeVector.hh"
 
 #include <sstream>
@@ -61,16 +62,13 @@ int gpl_load()
 
     gpl->Print();
     gpl->Details(0);
+    gpl->DumpBuffer();
 
     return 0 ; 
 }
 
 
-
-
-
-
-int main(int argc, char** argv)
+int gpl_network()
 {
     const char* frontend = "FRONTEND" ; 
     const char* backend  = "BACKEND" ;
@@ -87,9 +85,12 @@ int main(int argc, char** argv)
         G4DAESocket<G4DAEArray> sock(frontend) ;
         G4DAEPhotonList* gpl = G4DAEPhotonList::Load("gdct001");
         gpl->Print();
-        cout << "frontend " << frontend << " sending " << endl ; 
 
-        sock.SendObject((G4DAEArray*)gpl);
+        cout << "frontend " << frontend << " sending " << endl ; 
+   
+        //sock.SendObject((G4DAEArray*)gpl);
+        sock.SendObject(gpl);
+
         G4DAEPhotonList* obj = (G4DAEPhotonList*)sock.ReceiveObject();
         obj->Print();
 
@@ -107,7 +108,35 @@ int main(int argc, char** argv)
         sock.MirrorObject();
     } 
 
+    return 0 ;
 }
+
+
+
+int gpl_buffer()
+{
+
+    G4DAEPhotonList* gpl = G4DAEPhotonList::Load("gdct001");
+    if(!gpl) return 1 ; 
+
+    gpl->Print();
+    gpl->Details(0);
+    gpl->DumpBuffer();
+
+    gpl->SaveToBuffer();
+
+
+
+    return 0 ;
+}
+
+
+
+
+int main(int argc, char** argv){
+    return gpl_buffer();
+}
+
 
 
 

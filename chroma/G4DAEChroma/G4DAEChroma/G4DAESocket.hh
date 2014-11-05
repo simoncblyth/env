@@ -1,6 +1,8 @@
 #ifndef G4DAESOCKET_H 
 #define G4DAESOCKET_H
 
+#include "G4DAEChroma/G4DAECommon.hh"
+
 #include <cstdlib>
 #include <assert.h>
 #include <stdlib.h>
@@ -124,8 +126,13 @@ void G4DAESocket<T>::SendObject(T* obj) const
 #ifdef WITH_ZMQ
    int rc ; 
    assert( obj );
+
+   obj->SaveToBuffer();
    const char* buffer = obj->GetBuffer();
    size_t buflen = obj->GetBufferSize();
+
+   printf("G4DAESocket<T>::SendObject %lu \n", buflen );
+   DumpBuffer( buffer, buflen );
 
    zmq_msg_t zmsg;
    rc = zmq_msg_init_size (&zmsg, buflen);
@@ -172,6 +179,9 @@ T* G4DAESocket<T>::ReceiveObject() const
     size_t size = zmq_msg_size(&msg); 
     void*  data = zmq_msg_data(&msg) ;
 
+    printf("G4DAESocket<T>::ReceiveObject %zu \n", size );
+
+
     object  = T::LoadFromBuffer( reinterpret_cast<const char*>(data), size );  
 
     printf("G4DAESocket::ReceiveBuffer received bytes: %zu \n", size );   
@@ -211,14 +221,11 @@ void G4DAESocket<T>::MirrorObject() const
         }
         assert (rc != -1);
 
-
         sleep(1);
 
         zmq_msg_t reply;
-        zmq_msg_init_size (&reply, 5);
-
-        memcpy (zmq_msg_data (&reply),  zmq_msg_data (&request), zmq_msg_size(&request) );
-
+        zmq_msg_init(&reply );
+        zmq_msg_copy(&reply, &request);  // copy request to reply 
         zmq_msg_send (&reply, m_socket, 0);
 
         zmq_msg_close (&request);

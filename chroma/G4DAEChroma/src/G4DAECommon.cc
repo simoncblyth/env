@@ -7,6 +7,35 @@
 
 using namespace std ; 
 
+
+void DumpBuffer(const char* buffer, size_t buflen) 
+{
+   const char* hfmt = "\n%04X : " ;
+   for (int i = 0; i < buflen ; i++){
+       if(i % 16 == 0) printf(hfmt, i ); 
+       printf("%02X ", buffer[i]);
+   }
+   printf(hfmt, buflen );
+   printf("\n"); 
+}
+
+
+void DumpVector(const std::vector<float>& v, size_t itemsize) 
+{
+   const char* hfmt = "\n%04d : " ;
+   for (int i = 0; i < v.size() ; i++){
+       if(i % itemsize == 0) printf(hfmt, i ); 
+       printf("%10.3f ", v[i]);
+   }
+   printf(hfmt, v.size() );
+   printf("\n"); 
+}
+
+
+
+
+
+
 string md5digest( const char* buffer, int len )
 {
     char* out = md5digest_str2md5(buffer, len);

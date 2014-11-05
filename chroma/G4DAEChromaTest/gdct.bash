@@ -80,3 +80,16 @@ gdct-lldb(){
 }
 
 
+gdct-broker(){
+   czmq-
+   czmq-broker-local
+}
+gdct-frontend(){
+   export-
+   export-export
+   FRONTEND=tcp://127.0.0.1:5001 G4DAEChromaTest
+}
+gdct-backend(){
+   BACKEND=tcp://127.0.0.1:5002 G4DAEChromaTest
+}
+
