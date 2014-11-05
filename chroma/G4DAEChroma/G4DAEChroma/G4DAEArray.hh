@@ -4,6 +4,21 @@
 #include <string>
 #include <vector>
 
+/*
+  Before transport with::
+
+     `G4DAESocket<G4DAEArray>::SendObject(G4DAEArray* a)`` 
+
+  currently need to, with SaveToBuffer:
+  
+   #. create the NPY header into m_buffer
+   #. copy the m_data into m_buffer + header_offset 
+
+  This copying could be avoided by directly allocating
+  the buffer with a reserve for the header, coupled with
+  some header padding. 
+*/
+
 class G4DAEArray {
 
 public:

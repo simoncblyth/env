@@ -176,5 +176,10 @@ string G4DAEPhotonList::GetPath(const char* evt, const char* tmpl )
     return G4DAEArray::GetPath(evt, tmpl);
 }
 
+// allows use with G4DAESocket<G4DAEPhotonList>  
+G4DAEPhotonList*  G4DAEPhotonList::LoadFromBuffer(const char* buffer, std::size_t buflen)
+{
+    return (G4DAEPhotonList*)G4DAEArray::LoadFromBuffer(buffer, buflen);
+}
 
 

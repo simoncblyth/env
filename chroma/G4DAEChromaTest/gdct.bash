@@ -87,9 +87,9 @@ gdct-broker(){
 gdct-frontend(){
    export-
    export-export
-   FRONTEND=tcp://127.0.0.1:5001 G4DAEChromaTest
+   FRONTEND=tcp://127.0.0.1:5001 $LLDB G4DAEChromaTest
 }
 gdct-backend(){
-   BACKEND=tcp://127.0.0.1:5002 G4DAEChromaTest
+   BACKEND=tcp://127.0.0.1:5002 $LLDB G4DAEChromaTest
 }
 

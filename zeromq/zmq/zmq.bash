@@ -150,7 +150,7 @@ EOI
 }
 zmq-frontend-port(){ echo 5001 ; }
 zmq-backend-port(){  echo 5002 ; }
-zmq-broker-tag(){ echo ${ZMQ_BROKER_TAG:-N} ; }
+zmq-broker-tag(){ echo ${ZMQ_BROKER_TAG:-SELF} ; }
 zmq-broker-host(){ local-tag2ip $(zmq-broker-tag) ; }
 
 zmq-broker-url(){ zmq-broker-url-frontend ; }

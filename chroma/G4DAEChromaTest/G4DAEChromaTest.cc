@@ -67,46 +67,84 @@ int gpl_load()
     return 0 ; 
 }
 
+int gpl_string_network()
+{
+    const char* frontend = "FRONTEND" ; 
+    const char* backend  = "BACKEND" ;
+    bool is_frontend = getenv(frontend) ;
+    bool is_backend = getenv(backend) ;
+
+    if(is_frontend)
+    {
+        cout << __func__ << " " << frontend << " Send/Recv String" << endl ; 
+        G4DAESocket<G4DAEArray> sock(frontend) ;
+
+        const char* request = __func__ ;
+
+        sock.SendString((char*)request);
+
+        const char* response = sock.ReceiveString();
+
+        cout << __func__ << " " << "received " << response << endl ; 
+
+    }
+    else if(is_backend)
+    {
+        cout << __func__ << " " << backend << " MirrorString" << endl ; 
+        G4DAESocket<G4DAEArray> sock(backend,'P') ;
+        sock.MirrorString();
+    }
+    return 0 ;
+}
+
 
 int gpl_network()
 {
     const char* frontend = "FRONTEND" ; 
     const char* backend  = "BACKEND" ;
-
     bool is_frontend = getenv(frontend) ;
     bool is_backend = getenv(backend) ;
 
-    cout << "is_frontend " << is_frontend << endl ;
-    cout << "is_backend " << is_backend << endl ;
-
+    G4DAESocket<G4DAEPhotonList>* socket = NULL ; 
 
     if(is_frontend)
     {
-        G4DAESocket<G4DAEArray> sock(frontend) ;
-        G4DAEPhotonList* gpl = G4DAEPhotonList::Load("gdct001");
-        gpl->Print();
+        cout << __func__ << " " << frontend << " Send/Recv Object " << endl ; 
 
-        cout << "frontend " << frontend << " sending " << endl ; 
-   
-        //sock.SendObject((G4DAEArray*)gpl);
-        sock.SendObject(gpl);
+        socket = new G4DAESocket<G4DAEPhotonList>(frontend);
 
-        G4DAEPhotonList* obj = (G4DAEPhotonList*)sock.ReceiveObject();
-        obj->Print();
+        G4DAEPhotonList* request = G4DAEPhotonList::Load("gdct001");
 
-        //const char* msg = "hello";
-        //sock.SendString((char*)msg);
-        //const char* rep = sock.ReceiveString();
+        socket->SendObject(request);
+
+        G4DAEPhotonList* response = socket->ReceiveObject();
+
+        //assert( request->GetDigest() == response->GetDigest() );
+
+        if( request->GetDigest() == response->GetDigest() )
+        {
+            cout << "request and response digests match " << endl ; 
+        }
+        else
+        {
+            cout << "request and response digests differ " << endl ; 
+            request->Print();
+            response->Print();
+            response->Details(0);
+        }
 
     }
     else if(is_backend)
     {
-        char responder = 'P' ;
-        G4DAESocket<G4DAEArray> sock(backend,responder) ;
-        cout << "backend " << backend << " waiting " << endl ; 
-        //sock.MirrorString();
-        sock.MirrorObject();
+        cout << __func__ << " " << backend << " MirrorObject" << endl ; 
+
+        socket = new G4DAESocket<G4DAEPhotonList>(backend, 'P');
+
+        socket->MirrorObject();
+
     } 
+
+    delete socket ; 
 
     return 0 ;
 }
@@ -134,7 +172,9 @@ int gpl_buffer()
 
 
 int main(int argc, char** argv){
-    return gpl_buffer();
+    //return gpl_buffer();
+    return gpl_network();
+    //return gpl_string_network();
 }
 
 

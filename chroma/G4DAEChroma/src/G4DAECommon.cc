@@ -13,7 +13,7 @@ void DumpBuffer(const char* buffer, size_t buflen)
    const char* hfmt = "\n%04X : " ;
    for (int i = 0; i < buflen ; i++){
        if(i % 16 == 0) printf(hfmt, i ); 
-       printf("%02X ", buffer[i]);
+       printf("%02X ", buffer[i] & 0xff );
    }
    printf(hfmt, buflen );
    printf("\n"); 

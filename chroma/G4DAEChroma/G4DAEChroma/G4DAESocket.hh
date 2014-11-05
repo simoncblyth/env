@@ -124,18 +124,14 @@ template <typename T>
 void G4DAESocket<T>::SendObject(T* obj) const
 {
 #ifdef WITH_ZMQ
-   int rc ; 
-   assert( obj );
-
-   obj->SaveToBuffer();
+   obj->SaveToBuffer(); // NPY serialization to the buffer
    const char* buffer = obj->GetBuffer();
    size_t buflen = obj->GetBufferSize();
-
    printf("G4DAESocket<T>::SendObject %lu \n", buflen );
-   DumpBuffer( buffer, buflen );
+   //obj->DumpBuffer();
 
    zmq_msg_t zmsg;
-   rc = zmq_msg_init_size (&zmsg, buflen);
+   int rc = zmq_msg_init_size (&zmsg, buflen);
    assert (rc == 0);
    
    memcpy(zmq_msg_data (&zmsg), buffer, buflen );   // TODO : check for zero copy approaches
@@ -144,14 +140,17 @@ void G4DAESocket<T>::SendObject(T* obj) const
    
    if (rc == -1) {
        int err = zmq_errno();
-       printf ("Error occurred during zmq_msg_send : %s\n", zmq_strerror(err));
+       printf ("G4DAESocket<T>::SendObject : Error occurred during zmq_msg_send : %s\n", zmq_strerror(err));
        abort (); 
+   } else {
+       int nbytes = rc ; 
+       printf ("G4DAESocket<T>::SendObject : zmq_msg_send sent %d bytes \n", nbytes);
    }
   
    zmq_msg_close (&zmsg); 
 
 #else
-    printf( "G4DAESocket::SendBuffer need to compile -DWITH_ZMQ and have ZMQ external \n");   
+    printf( "G4DAESocket<T>::SendObject : need to compile -DWITH_ZMQ and have ZMQ external \n");   
 #endif
 }
 
@@ -168,19 +167,17 @@ T* G4DAESocket<T>::ReceiveObject() const
 
     rc = zmq_msg_recv (&msg, m_socket, 0);   
 
-    if(rc)
-    {
+    if(rc == -1){
        int err = zmq_errno();
-       printf( "Error on zmq_msg_recv : %s \n ", zmq_strerror(err)) ;
+       printf( "G4DAESocket<T>::ReceiveObject : Error on zmq_msg_recv : %s \n", zmq_strerror(err)) ;
+    } else {
+       printf( "G4DAESocket<T>::ReceiveObject : zmq_msg_recv received %d bytes \n", rc ) ;
     }
-
-    assert (rc != -1);
 
     size_t size = zmq_msg_size(&msg); 
     void*  data = zmq_msg_data(&msg) ;
 
     printf("G4DAESocket<T>::ReceiveObject %zu \n", size );
-
 
     object  = T::LoadFromBuffer( reinterpret_cast<const char*>(data), size );  
 
@@ -205,21 +202,19 @@ void G4DAESocket<T>::MirrorObject() const
     while(1)
     {
         zmq_msg_t request;
-        int rc = zmq_msg_init(&request); assert (rc == 0);
+        int rc = zmq_msg_init(&request); 
+        assert (rc == 0);
 
-        printf("waiting on zmq_msg_recv \n");
+        printf("G4DAESocket<T>::MirrorObject : waiting on zmq_msg_recv \n");
+
         rc = zmq_msg_recv (&request, m_socket,  0);
-
-        if(rc)
-        {
+        if(rc == -1){
            int err = zmq_errno();
-           printf( "Error on zmq_msg_recv : %s \n ", zmq_strerror(err)) ;
+           printf( "G4DAESocket<T>::MirrorObject : Error on zmq_msg_recv : %s \n ", zmq_strerror(err)) ;
+        } else {
+           int nbytes = rc ; 
+           printf("G4DAESocket<T>::MirrorObject : OK zmq_msg_recv nbytes %d \n", nbytes);
         }
-        else
-        {
-           printf("OK zmq_msg_recv \n");
-        }
-        assert (rc != -1);
 
         sleep(1);
 
@@ -246,33 +241,34 @@ void G4DAESocket<T>::MirrorString()
 {
     while(1){
 
-        char* req = s_recv( m_socket );
-        printf("MirrorString req %s \n", req );
-        free(req);        
+        char* request = s_recv( m_socket );
+        printf("G4DAESocket<T>::MirrorString request \"%s\" \n", request );
+        std::string msg(request);
+        free(request);        
 
         sleep(1);
 
-        const char* rep = "mirror" ; 
-        int size = s_send( m_socket, (char*)rep );
-        printf("MirrorString size %d \n", size );
+        char* response = const_cast<char*>(msg.c_str()); 
+        int size = s_send( m_socket, response );
+        printf("G4DAESocket<T>::MirrorString response \"%s\" size %d \n", response, size );
 
     }
 }
 
 template <typename T>
-void G4DAESocket<T>::SendString(char* msg) 
+void G4DAESocket<T>::SendString(char* request) 
 {
-    int size = s_send( m_socket, msg );
-    printf("SendString %s size %d \n", msg, size );
+    int size = s_send( m_socket, request );
+    printf("G4DAESocket<T>::SendString \"%s\" bytes sent %d \n", request, size );
 }
 
 
 template <typename T>
 char* G4DAESocket<T>::ReceiveString() 
 {
-    char* msg = s_recv( m_socket );
-    printf("ReceiveString %s \n", msg );
-    return msg ;  
+    char* request = s_recv( m_socket );
+    printf("G4DAESocket<T>::ReceiveString request \"%s\" \n", request );
+    return request ;  
 }
 
 

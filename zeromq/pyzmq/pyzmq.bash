@@ -129,4 +129,9 @@ pyzmq-operator(){ python $(pyzmq-dir)/zmq_operator.py $* ; }
 pyzmq-broker(){ FRONTEND=tcp://*:$(zmq-frontend-port) BACKEND=tcp://*:$(zmq-backend-port) pyzmq-operator broker ; }
 pyzmq-client(){ FRONTEND=tcp://$(zmq-broker-host):$(zmq-frontend-port) pyzmq-operator client ; }
 pyzmq-worker(){ BACKEND=tcp://$(zmq-broker-host):$(zmq-backend-port)   pyzmq-operator worker ; }
+pyzmq-mirror(){ BACKEND=tcp://$(zmq-broker-host):$(zmq-backend-port)   pyzmq-operator mirror ; }
+pyzmq-npymirror(){ BACKEND=tcp://$(zmq-broker-host):$(zmq-backend-port)   pyzmq-operator npymirror ; }
+
+
+
 
