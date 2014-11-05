@@ -3,10 +3,22 @@
 import logging
 log = logging.getLogger(__name__)
 
-from env.chroma.ChromaPhotonList.cpl_responder import CPLResponder
+#from env.chroma.ChromaPhotonList.cpl_responder import CPLResponder
+from env.zeromq.pyzmq.npyresponder import NPYResponder
 
-class DAEDirectResponder(CPLResponder):
+class DAEDirectResponder(NPYResponder):
     """
+    Receives and replies to messages from C++/Geant4 
+    process containing NPY serializations sent from C++ with::
+
+       G4DAEPhotonList* request = ... ;
+       socket = new G4DAESocket<G4DAEPhotonList>(frontend);
+       socket->SendObject(request);
+       G4DAEPhotonList* response = socket->ReceiveObject();
+
+
+    Was formerly based on CPLResponder:
+
     ZMQRoot/ChromaPhotonList responder
     Allows TObject subclass instances to be received from a remote 
     Geant4 application that invokes::
@@ -22,7 +34,7 @@ class DAEDirectResponder(CPLResponder):
             sleep = 0.5
         pass
         cfg = Cfg()
-        CPLResponder.__init__(self, cfg )
+        NPYResponder.__init__(self, cfg )
         self.cfg = cfg 
         self.handler = handler
         log.debug("init %s " % repr(self))
@@ -30,12 +42,16 @@ class DAEDirectResponder(CPLResponder):
     def __repr__(self):
         return "%s %s %s " % ( self.__class__.__name__, self.cfg.mode, self.cfg.endpoint )
 
-    def reply(self, cpl ):
+    def reply(self, request ):
         """
-        Overrides CPLResponder.reply method that dumps and creates random CPL
+        Overrides base responder .reply method 
         """
-        log.info("responder reply %s " % repr(cpl) )
-        return self.handler( cpl )
+        log.info("DAEDirectResponder request %s " % repr(request) )
+        response = self.handler( request )
+        log.info("DAEDirectResponder response %s " % repr(response) )
+        return response 
+
+        
 
 if __name__ == '__main__':
     pass

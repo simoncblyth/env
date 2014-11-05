@@ -17,6 +17,7 @@ import zmq
 import numpy as np
 np.set_printoptions(suppress=True, precision=3)
 import io
+from npyresponder import NPYContext 
 
 from zmq.devices.basedevice import ProcessDevice
 
@@ -87,40 +88,6 @@ def mirror(cfg):
         log.info("server received %s " % message )
         #socket.send("Response from %s" % server_id)
         socket.send(message)
-
-
-class NPYSocket(zmq.Socket):
-    """
-    Based on http://stackoverflow.com/questions/24483597/pass-numpy-array-without-copy-using-pyzmq
-    which uses multipart zmq messages and a json metadata header
-    The problem with that approach is that difficult to use with C/C++ at the other end
-    of the socket.
-    """
-    def send_npy(self, a, flags=0, copy=True, track=False):
-        """
-        NPY serialize to a buffer and then send
-        """ 
-        stream = io.BytesIO()
-        np.save( stream, a )
-        stream.seek(0)
-        buf = buffer(stream.read())
-        return self.send( buf, flags=flags, copy=copy, track=track)
-
-    def recv_npy(self, flags=0, copy=True, track=False):
-        if copy:
-            msg = self.recv(flags=flags, copy=copy, track=track)  # bytes
-            buf = buffer(msg)
-        else:
-            frame = self.recv(flags=flags,copy=False, track=track)    
-            buf = frame.buffer            # memoryview object 
-        pass
-        stream = io.BytesIO(buf)
-        a = np.load(stream)
-        return a 
-
-class NPYContext(zmq.Context):
-    _socket_class = NPYSocket
-
 
 def npymirror(cfg, copy=False):
     """

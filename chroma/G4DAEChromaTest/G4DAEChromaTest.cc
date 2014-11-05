@@ -130,6 +130,7 @@ int gpl_network()
             cout << "request and response digests differ " << endl ; 
             request->Print();
             response->Print();
+            request->Details(0);
             response->Details(0);
         }
 

@@ -29,10 +29,11 @@ cpl-export
 
 zmq-
 zmq-broker-export
+env | grep ZMQ
 
 graphicstools-
 graphicstools-export
-env | grep GL_
+#env | grep GL_
 
 
 ssh-tunnel-cmd(){

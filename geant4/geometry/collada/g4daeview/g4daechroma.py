@@ -5,6 +5,8 @@ Plain ZMQRoot responder and Chroma propagator with no OpenGL/glumpy
 import logging, os, time
 log = logging.getLogger(__name__)
 
+import numpy as np
+
 from daedirectconfig import DAEDirectConfig
 from daegeometry import DAEGeometry
 from daedirectresponder import DAEDirectResponder
@@ -37,9 +39,9 @@ class G4DAEChroma(object):
         pass
 
         propagator = DAEDirectPropagator(config, chroma)
-        def handler(cpl):
-            log.info("handler got cpl") 
-            return propagator.propagate( cpl )
+        def handler(obj):
+            log.info("handler got obj (cpl or npl)") 
+            return propagator.propagate( obj )
 
         self.responder = DAEDirectResponder(config, handler )
         self.propagator = propagator
@@ -61,6 +63,7 @@ class G4DAEChroma(object):
 def main():
     config = DAEDirectConfig(__doc__)
     config.parse()
+    np.set_printoptions(precision=3, suppress=True)
 
     geometry = DAEGeometry.get(config) 
 

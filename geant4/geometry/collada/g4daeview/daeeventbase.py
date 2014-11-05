@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # keep this minimalistic, no OpenGL..
-import logging, datetime
+import logging, datetime, time
 log = logging.getLogger(__name__)
 from photons import Photons
 import numpy as np
@@ -13,6 +13,22 @@ class DAEEventBase(object):
         self.config = config
         self.scene = scene
 
+    def external_npl_base(self, npl ):
+        if self.config.args.saveall:
+            log.info("external_npl timestamp_save due to --saveall option")
+            self.timestamped_save(npl)
+            key = None
+            self.config.save_npl( timestamp(), key, npl )   
+        else:
+            log.info("external_npl not saving ")
+        pass
+
+        log.info("external_npl_base sleeping for 3 seconds ")
+        time.sleep(3) 
+        log.info("external_npl_base after sleeping for 3 seconds ")
+
+        self.setup_npl(npl) 
+ 
     def external_cpl_base(self, cpl ):
         """
         :param cpl: ChromaPhotonList instance
@@ -24,7 +40,8 @@ class DAEEventBase(object):
         """
         if self.config.args.saveall:
             log.info("external_cpl timestamp_save due to --saveall option")
-            self.timestamped_save(cpl)
+            key = None
+            self.config.save_cpl( timestamp(), key, cpl.cpl)   
         else:
             log.info("external_cpl not saving ")
         pass
@@ -39,13 +56,19 @@ class DAEEventBase(object):
         photons = Photons.from_cpl(cpl, extend=True)   
         self.setup_photons( photons ) 
 
+    def setup_npl(self, npl):
+        """
+        :param npl: NPY deserialized array of shape (nphoton,4,4)
+
+        """
+        photons = Photons.from_npl(npl, extend=True)   
+        self.setup_photons( photons ) 
+
+
     def setup_photons_base( self, photons ):
         log.info("setup_photons_base")
         self.dphotons.photons = photons   ## this setter triggers propagation  
 
-    def timestamped_save(self, cpl, key=None):
-        path_ = timestamp()
-        self.config.save_cpl( path_, key, cpl.cpl)   
  
 
 

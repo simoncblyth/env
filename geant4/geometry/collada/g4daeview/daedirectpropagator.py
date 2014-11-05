@@ -33,18 +33,20 @@ class DAEDirectPropagator(object):
         self.config = config
         self.chroma = chroma
 
-    def propagate(self, cpl, max_steps=10 ):
+    def propagate(self, obj, max_steps=10 ):
         """
-        :param cpl: ChromaPhotonList instance
+        :param obj: ChromaPhotonList instance or np.ndarray from NPY serialization
         :return propagated_cpl: ChromaPhotonList instance
 
+        #. converts ChromaPhotonList  OR  NPL serialized ndarray  
+           into chroma.event.Photons OR photons.Photons   
+
         """
-        photons = Photons.from_cpl(cpl, extend=True)  # CPL into chroma.event.Photons OR photons.Photons   
+        photons = Photons.from_obj( obj, extend=True)
         self.photons_beg = photons
 
         gpu_photons = GPUPhotonsHit(photons)        
         gpu_detector = self.chroma.gpu_detector
-
 
         nthreads_per_block = self.chroma.nthreads_per_block
         max_blocks = self.chroma.max_blocks 
@@ -61,7 +63,12 @@ class DAEDirectPropagator(object):
 
         photons_end = gpu_photons.get()
         self.photons_end = photons_end
-        return create_cpl_from_photons_very_slowly(photons_end) 
+
+        if type(obj) == np.ndarray:
+            return photons_end.as_npl()
+        else:
+            return create_cpl_from_photons_very_slowly(photons_end) 
+        pass
 
 
     def check_unpropagated_roundtrip(self, cpl, extend=False):

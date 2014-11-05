@@ -190,9 +190,11 @@ class DAEEvent(DAEEventBase):
             self.dphotons.reconfig(photons_config)
         pass 
 
-
     def external_cpl(self, cpl ):
         self.external_cpl_base( cpl )
+    def external_npl(self, npl ):
+        self.external_npl_base( npl )
+
 
     def setup_photons(self, photons ):
         """

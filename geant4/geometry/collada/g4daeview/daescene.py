@@ -114,6 +114,10 @@ class DAEScene(window_event.EventDispatcher):
         log.info("external_cpl ChromaPhotonList ")
         self.event.external_cpl( cpl )
 
+    def external_npl(self, npl ):
+        log.info("external_npl NPL received")
+        self.event.external_npl( npl )
+
 
     clipper = property(lambda self:self.bookmarks.clipper)
     camera = property(lambda self:self.bookmarks.camera)
