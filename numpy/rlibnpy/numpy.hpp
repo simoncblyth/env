@@ -585,6 +585,18 @@ void BufferLoadArrayFromNumpy(
         std::reverse(shape.begin(), shape.end());
     }
 
+/*
+   hmm the descr parsing is expecting very simple format 
+   which fails when getting record arrays 
+   which accidentally file the differnece endian  
+
+(lldb) p header
+(std::__1::string) $0 = "{'descr': [('position_time', '<f4', (4,)), ('direction_wavelength', '<f4', (4,)), ('polarization_weight', '<f4', (4,)), ('ccolor', '<f4', (4,)), ('flags', '<u4', (4,)), ('last_hit_triangle', '<i4', (4,))], 'fortran_order': False, 'shape': (125,), }             \n"
+(lldb) p endian_str
+(const char) $1 = '('
+
+*/
+
     // load descriptor
     const size_type descr_loc = header.find("descr") + 9;
     const char endian_str = header[descr_loc];

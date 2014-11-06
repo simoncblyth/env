@@ -71,7 +71,7 @@ g4daeview-mate(){ mate $(g4daeview-dir) ; }
 
 
 g4daeview(){
-    g4daeview.sh --with-chroma $*   
+    g4daeview.sh $*  
 }
 g4daeview-ctl(){
     udp.py "$*"

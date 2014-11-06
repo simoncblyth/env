@@ -154,7 +154,7 @@ class DAEInteractivityHandler(object):
             log.warn("cannot use DAEResponder without ZMQ/pyZMQ " )
             return 
 
-        zmq_responder = DAEResponder(self.config)
+        zmq_responder = DAEResponder(self.config, self.scene)
         log.debug(zmq_responder)        
 
         def _check_zmq_responder(dt):

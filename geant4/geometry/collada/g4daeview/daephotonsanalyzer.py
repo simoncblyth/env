@@ -79,6 +79,8 @@ def att_side_by_side( obj, index, atts, tmap={}):
 def compare(apath, bpath):
     """
     Compare persisted propagation npz files
+
+    TODO: check npy filecmp, npz always filecmp mismatching 
     """ 
     log.info("compare apath %s bpath %s " % (apath,bpath))
     a = DAEPhotonsAnalyzer.make(apath)
@@ -107,6 +109,19 @@ def nearest_index(a,a0):
 
 
 class DAEPhotonsPropagated(object):
+    """
+    A processing wrapper for the propagated photon data in 
+    structured ndarray format (ie VBO arrays) 
+
+    Usage:
+
+    #. instantiate with structure parameters like crucial max_slots 
+       (which is the number of slots reserved per photon in the VBO structure) 
+
+    #. call this instance with the propagated array pulled off the GPU
+
+
+    """
     def __init__(self, propagated=None, max_slots=10, slot=-1 ):
         self.max_slots = max_slots
         self.slot = int(slot)
@@ -332,6 +347,12 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
     """
     name = "propagated-%(seed)s.npz"
     def __init__(self, max_slots=None, slot=-1, material_map=None, process_map=None):
+        """
+        :param max_slots:
+        :param slot:
+        :param material_map:
+        :param process_map:
+        """
         DAEPhotonsPropagated.__init__(self, None, max_slots, slot)
         self.loaded = None
         self.material_map = material_map
@@ -344,6 +365,14 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         return analyzer
 
     def load(self, path=None):
+        """
+        :param path: path to npz format file 
+
+        #. loads and deserializes into np.ndarray 
+        #. invokes __call__ on the array 
+
+        TODO: maybe move to more efficient npy 
+        """
         path = self.path if path is None else path
         log.info("load propagated from %s " % path )
         path = os.path.expanduser(os.path.expandvars(path))
@@ -373,6 +402,31 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         For example the event file `/usr/local/env/tmp/1.root` has 
         propagated files written to `/usr/local/env/tmp/1/propagated-0.npz` where
         the zero corresponds to the seed in use.
+
+        ::
+
+            In [9]: a = np.load("/usr/local/env/tmp/1/propagated-0.npz")
+
+            In [10]: a
+            Out[10]: <numpy.lib.npyio.NpzFile at 0x1071c5790>
+
+            In [11]: a.keys()
+            Out[11]: ['propagated']
+
+            In [12]: p = a['propagated']
+
+            In [29]: p.shape
+            Out[29]: (104125,)
+
+            In [30]: p.dtype.descr
+            Out[30]: 
+            [('position_time', '<f4', (4,)),
+             ('direction_wavelength', '<f4', (4,)),
+             ('polarization_weight', '<f4', (4,)),
+             ('ccolor', '<f4', (4,)),
+             ('flags', '<u4', (4,)),
+             ('last_hit_triangle', '<i4', (4,))]
+
 
         When there is a preexisting output file they are 
         compared and an assertion is triggered if there is any mismatch 

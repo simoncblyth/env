@@ -1,7 +1,8 @@
 #!/bin/bash -l
 
 chroma-
-ipython $* -i 
+#ipython $* -i 
+ipython $*  --pylab
 
 
 

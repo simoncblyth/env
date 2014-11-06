@@ -212,6 +212,7 @@ class DAEPhotonsData(DAEPhotonsDataBase):
         self._ccolor = None
 
     nvert = property(lambda self:self.nphotons*self.max_slots)
+
  
     def create_data(self):
         """

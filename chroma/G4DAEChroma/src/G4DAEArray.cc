@@ -212,7 +212,7 @@ void G4DAEArray::DumpBuffer() const
 G4DAEArray* G4DAEArray::LoadFromBuffer(const char* buffer, size_t buflen)
 {
    printf("G4DAEArray::LoadFromBuffer [%zu][0x%lx]\n", buflen, buflen );
-   //DumpBuffer( buffer, buflen);
+   ::DumpBuffer( buffer, buflen);
 
    std::vector<int>  shape ;
    std::vector<float> data ;

@@ -97,6 +97,10 @@ class DAEPhotons(object):
         self.analyzer = DAEPhotonsAnalyzer(self.config.args.max_slots)
         self.tpropagated = DAEPhotonsPropagated( None, self.config.args.max_slots )
 
+        # lastpropagated photons object used for communication with the responder
+        # _set_photons clears this  
+        self.lastpropagated = None   
+
         self._mesh = None
         self._tcut = None
         self.tcut = event.config.args.tcut    
@@ -177,6 +181,21 @@ class DAEPhotons(object):
 
     def propagate(self, max_steps=100):
         """
+        :param max_steps:
+        :return propagated: photon data instance
+
+        TODO: 
+
+        Translate propagated photons into the 
+        ndarray shape and structure expected by:
+
+        #. invoking caller all the way back in Geant4/C++ 
+        #. transport machinery inbetween here and there 
+
+
+        propagate actions
+        ~~~~~~~~~~~~~~~~~~
+
         #. performs photon propagation using the chroma fork propagate_vbo.cu:propagate_vbo 
         #. reads back the VBO from OpenGL into numpy array
         #. analyze characteristics of the propagation
@@ -190,6 +209,8 @@ class DAEPhotons(object):
         log.info("propagate")
         if self.photons is None:return
 
+        max_slots = self.config.args.max_slots
+
         vbo = self.renderer.pbuffer   
 
         self.propagator.update_constants()   
@@ -198,14 +219,30 @@ class DAEPhotons(object):
             log.warn("propagation is inhibited by config: -P/--nopropagate ")  
         else:
             log.warn("propagation proceeding")  
-            self.propagator.interop_propagate( vbo, max_steps=max_steps, max_slots=self.config.args.max_slots )
+            self.propagator.interop_propagate( vbo, max_steps=max_steps, max_slots=max_slots )
         pass 
+
         propagated = vbo.read()
+
         self.analyzer( propagated )
+
         if self.config.args.debugpropagate:
             self.analyzer.write_propagated(self.propagator.ctx.seed, self.event.loaded, wipepropagate=self.config.args.wipepropagate)
         pass
         self.menuctrl.update_propagated( self.analyzer , special_callback=self.special_callback, msg="from propagate" )    
+
+
+
+        p = propagated[::max_slots]  ## need an offset here, getting slot 0 
+        r = np.zeros( (len(p),4,4), dtype=np.float32 )
+
+        r[:,0,:4] = p['position_time'] 
+        r[:,1,:4] = p['direction_wavelength'] 
+        r[:,2,:4] = p['polarization_weight'] 
+        #r[:,3,:4] = p['polarization_weight'] 
+
+        return r
+
 
 
     def draw(self):
@@ -254,11 +291,17 @@ class DAEPhotons(object):
         return self.data.photons 
     def _set_photons(self, photons):
         log.debug("_set_photons")
-        self.data.photons = photons
+
+        self.data.photons = photons    
 
         if not photons is None:
+            self.lastpropagated = None
             self.renderer.invalidate_buffers()
-            self.propagate()
+            lastpropagated = self.propagate()
+            self.lastpropagated = lastpropagated
+        pass
+
+
     photons = property(_get_photons, _set_photons, doc="NB the act of setting photons performs the propagation" ) 
 
     ### other actions #####

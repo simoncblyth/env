@@ -7,15 +7,31 @@ mail-usage(){
 
   cat << EOU
 
-   Debugging mac Mail.app 
+Debugging Usage of Mail.app 
+==============================
 
-    mail-tmp : $(mail-tmp)
-    mail-host : $(mail-host)
-    mail-ports : $(mail-ports)
+Issues
+--------
 
-    mail-cd  :
-    mail-run :
-        exit Mail.app then run this to start it up with a live view of error messages 
+Many tens of message copies appearing in Mail.app Trash
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This makes it difficult to search as getting hundreds
+of hits from the duplicitous Trash.
+Possibly a gmail/Mail.app incompatibility 
+regards autosave.
+
+* :google:`OSX Mail.app Trash message hundreds`
+
+* http://apple.stackexchange.com/questions/36894/apple-mail-app-search-filter-brings-the-same-email-hundred-times
+* https://discussions.apple.com/thread/5468664?start=15&tstart=0
+
+
+FUNCTIONS
+-----------
+
+mail-run 
+       exit Mail.app then run this to start it up with a live view of error messages 
 
 
 EOU

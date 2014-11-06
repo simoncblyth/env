@@ -10,12 +10,24 @@ using namespace std ;
 
 void DumpBuffer(const char* buffer, size_t buflen) 
 {
-   const char* hfmt = "\n%04X : " ;
+   const char* hfmt = "  %s \n%04X : " ;
+
+   int ascii[2] = { 0x20 , 0x7E };
+   char line[16+1] ;
+
+   int n = 16 ;
+   line[n] = '\0' ;
+   while(n--) line[n] = '~' ;
+
    for (int i = 0; i < buflen ; i++){
-       if(i % 16 == 0) printf(hfmt, i ); 
-       printf("%02X ", buffer[i] & 0xff );
+       int v = buffer[i] & 0xff ;
+       int j = i % 16 ;
+       if(j == 0) printf(hfmt, line, i ); 
+
+       line[j] = ( v >= ascii[0] && v < ascii[1] ) ? v : '.' ;
+       printf("%02X ", v );
    }
-   printf(hfmt, buflen );
+   printf(hfmt, line, buflen );
    printf("\n"); 
 }
 

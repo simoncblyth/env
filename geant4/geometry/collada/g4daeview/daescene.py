@@ -73,7 +73,7 @@ class DAEScene(window_event.EventDispatcher):
         # bookmarked viewpoints, now contains DAECamera and DAEClipper instances
         self.bookmarks = DAEBookmarks(config, geometry ) 
 
-        # Chroma raycaster and propagator, None if not --with-chroma
+        # Chroma raycaster and propagator, None if -C/--nochroma
         self.raycaster = self.chroma.raycaster
         self.propagator = self.chroma.propagator 
 
