@@ -27,20 +27,21 @@ class G4DAEBuffer ;
 class G4DAEArray : public G4DAESerializable {
 
 public:
-  static G4DAEArray* Create(const char* bytes, size_t size);
-  G4DAEArray(const char* bytes, size_t size);
+  G4DAEArray* Create(char* bytes, size_t size);
+  G4DAEArray(char* bytes, size_t size);
   G4DAEArray( std::size_t itemcapacity = 0, std::string itemshapestr = "", float* data = NULL);
   virtual ~G4DAEArray();
 
   void Populate( std::size_t itemcapacity, std::string itemshapestr, float* data);
   virtual void Print() const ;
+  virtual void Reset();
 
   static std::size_t FormItemSize(const std::vector<int>& itemshape, int from=0);
   static std::string FormItemShapeString(const std::vector<int>& itemshape, int from=0);
 
 public:
   // fulfil Serializable protocol 
-  virtual void Populate( const char* bytes, size_t size );
+  virtual void Populate( char* bytes, size_t size );
   virtual void SaveToBuffer();
   virtual const char* GetBufferBytes();
   virtual std::size_t GetBufferSize();

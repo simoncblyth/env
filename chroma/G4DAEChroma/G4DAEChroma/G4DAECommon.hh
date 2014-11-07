@@ -6,6 +6,8 @@
 
 class G4AffineTransform ;
 
+struct zmq_msg_t ;
+
 std::string transform_rep( G4AffineTransform& transform );
 void split( std::vector<std::string>& elem, const char* line, char delim );
 void isplit( std::vector<int>& elem, const char* line, char delim );
@@ -13,6 +15,12 @@ void isplit( std::vector<int>& elem, const char* line, char delim );
 std::string md5digest( const char* str, int length );
 void DumpBuffer(const char* buffer, std::size_t buflen);
 void DumpVector(const std::vector<float>& v, std::size_t itemsize); 
+
+extern int b_recv( void* socket, zmq_msg_t& msg );
+extern int b_send( void* socket, const char* bytes, size_t size );
+extern int s_send (void *socket, char *str); 
+extern char* s_recv (void *socket); 
+
 
 
 #endif

@@ -12,23 +12,34 @@
 
 using namespace std ; 
 
-G4DAEArray* G4DAEArray::Create(const char* bytes, size_t size)
+G4DAEArray* G4DAEArray::Create(char* bytes, size_t size)
 {
+   // used by zombies
    return new G4DAEArray(bytes, size);
 }
 
-G4DAEArray::G4DAEArray(const char* bytes, size_t size)
+G4DAEArray::G4DAEArray(char* bytes, size_t size)
 {
+    Reset();
     Populate(bytes, size);
 }
 
 G4DAEArray::G4DAEArray( size_t itemcapacity, string itemshape, float* data) 
 {
+    Reset();
     Populate( itemcapacity, itemshape, data );
 }
 
-void G4DAEArray::Populate( const char* bytes, size_t size )
+void G4DAEArray::Reset()
 {
+     m_data = NULL ;
+     m_buffer = NULL ;
+}
+
+void G4DAEArray::Populate( char* bytes, size_t size )
+{
+    if(!bytes) return;  // zombie expedient, for zombie->Create(bytes, size) 
+
     printf("G4DAEArray::G4DAEArray [%zu][0x%lx]\n", size, size );
 
     ::DumpBuffer( bytes, size);
@@ -48,6 +59,8 @@ void G4DAEArray::Populate( const char* bytes, size_t size )
 
 void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
 {
+    if(!nitems) return;  // zombie expedient, for zombie->Create(bytes, size) 
+
     m_itemcapacity = nitems ; 
 
     // itemshape such as "4,4" split to form vector and give itemsize of 4*4 

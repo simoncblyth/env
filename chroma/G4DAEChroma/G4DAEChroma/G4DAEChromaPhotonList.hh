@@ -10,10 +10,10 @@ class G4DAEChromaPhotonList : public G4DAESerializable,  public ChromaPhotonList
 
   G4DAEChromaPhotonList();
   virtual ~G4DAEChromaPhotonList();
-  static G4DAEChromaPhotonList* Create(const char* bytes, size_t size);
 
 public:
   // fulfil Serializable protocol 
+  G4DAEChromaPhotonList* Create(char* bytes, size_t size);
   virtual void SaveToBuffer();
   virtual const char* GetBufferBytes();
   virtual std::size_t GetBufferSize();

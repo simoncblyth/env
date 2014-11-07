@@ -29,10 +29,10 @@ void G4DAEChromaPhotonList::SaveToBuffer()
    printf("G4DAEChromaPhotonList::SaveToBuffer wrote %zu \n", m_buffer->GetSize() );
 }
 
-G4DAEChromaPhotonList* G4DAEChromaPhotonList::Create( const char* bytes, size_t size )
+G4DAEChromaPhotonList* G4DAEChromaPhotonList::Create( char* bytes, size_t size )
 {
   // hmm difficult to do without class method due to nature of TObject deserialization
-   MyTMessage* tmsg = new MyTMessage( bytes, size );
+   MyTMessage* tmsg = new MyTMessage( reinterpret_cast<void*>(bytes), size );
    TObject* obj = tmsg->MyReadObject();
    return (G4DAEChromaPhotonList*)obj ;  
 }

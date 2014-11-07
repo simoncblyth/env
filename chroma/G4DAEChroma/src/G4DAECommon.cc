@@ -1,9 +1,15 @@
 #include "G4DAEChroma/G4DAECommon.hh"
 
 #include <sstream>
+#include <cassert>
 #include "G4AffineTransform.hh"
 
 #include "md5digest.h"
+
+#ifdef WITH_ZMQ
+#include <zmq.h>
+#endif
+
 
 using namespace std ; 
 
@@ -95,5 +101,88 @@ void isplit( vector<int>& elem, const char* line, char delim )
 }
 
 
+
+
+
+#ifdef WITH_ZMQ
+// Receive 0MQ string from socket and convert into C string
+
+
+
+char* s_recv (void *socket) 
+{
+    zmq_msg_t message;
+    zmq_msg_init (&message);
+    int size = zmq_msg_recv (&message, socket, 0); 
+    if (size == -1) return NULL;
+    char* str  = (char*)malloc(size + 1);
+    memcpy (str, zmq_msg_data (&message), size); zmq_msg_close (&message);
+    str [size] = 0;
+    return (str);
+}
+
+
+// Convert C string to 0MQ string and send to socket
+
+
+
+int s_send (void *socket, char *str) 
+{
+    zmq_msg_t message;
+    zmq_msg_init_size (&message, strlen(str));
+    memcpy (zmq_msg_data (&message), str, strlen(str)); 
+    int size = zmq_msg_send (&message, socket, 0); 
+    zmq_msg_close (&message);
+    return (size);
+}
+
+
+
+int b_send( void* socket, const char* bytes, size_t size )
+{
+   zmq_msg_t zmsg;
+   int rc = zmq_msg_init_size (&zmsg, size);
+   assert (rc == 0);
+   
+   memcpy(zmq_msg_data (&zmsg), bytes, size );   // TODO : check for zero copy approaches
+
+   rc = zmq_msg_send (&zmsg, socket, 0);
+   
+   if (rc == -1) {
+       int err = zmq_errno();
+       printf ("b_send : Error occurred during zmq_msg_send : %s\n", zmq_strerror(err));
+       abort (); 
+   } else {
+       int nbytes = rc ; 
+       printf ("b_send : zmq_msg_send sent %d bytes \n", nbytes);
+   }
+  
+   zmq_msg_close (&zmsg); 
+
+   return rc ;
+}
+
+
+
+int b_recv( void* socket, zmq_msg_t& msg )
+{
+
+    int rc = zmq_msg_init (&msg); 
+    assert (rc == 0);
+
+    rc = zmq_msg_recv (&msg, socket, 0);   
+
+    if(rc == -1){
+       int err = zmq_errno();
+       printf( "b_recv : Error on zmq_msg_recv : %s \n", zmq_strerror(err)) ;
+    } else {
+       printf( "b_recv : zmq_msg_recv received %d bytes \n", rc ) ;
+    }
+
+    return rc ;
+}
+
+
+#endif
 
 

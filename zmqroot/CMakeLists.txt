@@ -71,6 +71,7 @@ target_link_libraries( ${name}
 
 
 install(FILES "ZMQRoot/ZMQRoot.hh" DESTINATION include/ZMQRoot)
+install(FILES "ZMQRoot/MyTMessage.hh" DESTINATION include/ZMQRoot)
 install(TARGETS ${name} LIBRARY DESTINATION lib)
 
 

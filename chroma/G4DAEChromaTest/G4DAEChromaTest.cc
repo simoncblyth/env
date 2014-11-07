@@ -3,13 +3,20 @@
 
 //#include "Chroma/ChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
-#include "G4DAEChroma/G4DAESocket.hh"
+//#include "G4DAEChroma/G4DAESocket.hh"
+#include "G4DAEChroma/G4DAESocketBase.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4ThreeVector.hh"
 
 #include <sstream>
 #include <iostream>
 #include <vector>
+
+
+//typedef G4DAESocket<G4DAEArray> G4DAESocket_t ;
+//typedef G4DAESocket<G4DAEPhotonList> G4DAESocket_t ;
+typedef G4DAESocketBase G4DAESocket_t ;
+
 
 using namespace std ;
 
@@ -77,12 +84,11 @@ int gpl_string_network()
     if(is_frontend)
     {
         cout << __func__ << " " << frontend << " Send/Recv String" << endl ; 
-        G4DAESocket<G4DAEArray> sock(frontend) ;
+        G4DAESocket_t sock(frontend) ;
 
         const char* request = __func__ ;
 
         sock.SendString((char*)request);
-
         const char* response = sock.ReceiveString();
 
         cout << __func__ << " " << "received " << response << endl ; 
@@ -91,7 +97,7 @@ int gpl_string_network()
     else if(is_backend)
     {
         cout << __func__ << " " << backend << " MirrorString" << endl ; 
-        G4DAESocket<G4DAEArray> sock(backend,'P') ;
+        G4DAESocket_t sock(backend,'P') ;
         sock.MirrorString();
     }
     return 0 ;
@@ -105,21 +111,23 @@ int gpl_network()
     bool is_frontend = getenv(frontend) ;
     bool is_backend = getenv(backend) ;
 
-    G4DAESocket<G4DAEPhotonList>* socket = NULL ; 
+
+    G4DAESocket_t* socket = NULL ; 
 
     if(is_frontend)
     {
         cout << __func__ << " " << frontend << " Send/Recv Object " << endl ; 
 
-        socket = new G4DAESocket<G4DAEPhotonList>(frontend);
+        socket = new G4DAESocket_t(frontend);
 
         G4DAEPhotonList* request = G4DAEPhotonList::Load("gdct001");
 
+        /*
         socket->SendObject(request);
-
         G4DAEPhotonList* response = socket->ReceiveObject();
+        */
 
-        //assert( request->GetDigest() == response->GetDigest() );
+        G4DAEPhotonList* response = reinterpret_cast<G4DAEPhotonList*>(socket->SendReceiveObject(request));
 
         if( request->GetDigest() == response->GetDigest() )
         {
@@ -139,8 +147,7 @@ int gpl_network()
     {
         cout << __func__ << " " << backend << " MirrorObject" << endl ; 
 
-        socket = new G4DAESocket<G4DAEPhotonList>(backend, 'P');
-
+        socket = new G4DAESocket_t(backend, 'P');
         socket->MirrorObject();
 
     } 
