@@ -13,15 +13,15 @@ void DumpBuffer(const char* buffer, size_t buflen)
    const char* hfmt = "  %s \n%04X : " ;
 
    int ascii[2] = { 0x20 , 0x7E };
-   char line[16+1] ;
-
-   int n = 16 ;
+   const int N = 16 ;
+   char line[N+1] ;
+   int n = N ;
    line[n] = '\0' ;
    while(n--) line[n] = '~' ;
 
    for (int i = 0; i < buflen ; i++){
        int v = buffer[i] & 0xff ;
-       int j = i % 16 ;
+       int j = i % N ;
        if(j == 0) printf(hfmt, line, i ); 
 
        line[j] = ( v >= ascii[0] && v < ascii[1] ) ? v : '.' ;

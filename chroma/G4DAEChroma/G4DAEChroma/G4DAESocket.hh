@@ -1,6 +1,28 @@
 #ifndef G4DAESOCKET_H 
 #define G4DAESOCKET_H
 
+/*
+
+G4DAESocket<T>
+=================
+  
+Types T which can be used with G4DAESocket 
+need to implement the below methods::
+
+      
+  T* obj  = T::Create( reinterpret_cast<const char*>(data), size );
+    // this is a static method so cannot be defined as virtual to be a "protocol"
+ 
+  obj->SaveToBuffer();                    // serialization to the buffer
+
+  const char* buffer = obj->GetBufferBytes();  // access to the buffer
+
+  size_t buflen = obj->GetBufferSize();
+
+*/
+
+
+
 #include "G4DAEChroma/G4DAECommon.hh"
 
 #include <cstdlib>
@@ -44,6 +66,7 @@ static int s_send (void *socket, char *str)
 
 
 #endif
+
 
 
 
@@ -124,17 +147,16 @@ template <typename T>
 void G4DAESocket<T>::SendObject(T* obj) const
 {
 #ifdef WITH_ZMQ
-   obj->SaveToBuffer(); // NPY serialization to the buffer
-   const char* buffer = obj->GetBuffer();
-   size_t buflen = obj->GetBufferSize();
-   printf("G4DAESocket<T>::SendObject %lu \n", buflen );
-   //obj->DumpBuffer();
+   obj->SaveToBuffer(); // serialization of object to the buffer
+   const char* bytes = obj->GetBufferBytes();
+   size_t size = obj->GetBufferSize();
+   printf("G4DAESocket<T>::SendObject %lu \n", size );
 
    zmq_msg_t zmsg;
-   int rc = zmq_msg_init_size (&zmsg, buflen);
+   int rc = zmq_msg_init_size (&zmsg, size);
    assert (rc == 0);
    
-   memcpy(zmq_msg_data (&zmsg), buffer, buflen );   // TODO : check for zero copy approaches
+   memcpy(zmq_msg_data (&zmsg), bytes, size );   // TODO : check for zero copy approaches
 
    rc = zmq_msg_send (&zmsg, m_socket, 0);
    
@@ -179,7 +201,11 @@ T* G4DAESocket<T>::ReceiveObject() const
 
     printf("G4DAESocket<T>::ReceiveObject %zu \n", size );
 
-    object  = T::LoadFromBuffer( reinterpret_cast<const char*>(data), size );  
+
+
+    object  = T::Create( reinterpret_cast<const char*>(data), size );  
+
+
 
     printf("G4DAESocket::ReceiveBuffer received bytes: %zu \n", size );   
     zmq_msg_close (&msg);  

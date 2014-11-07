@@ -102,7 +102,7 @@ void DsChromaStackAction_NewStage()
    */
 
 
-   chroma->Propagate(-1); // not >0  fakes the propagation, ie just passes all photons off as hits
+   chroma->Propagate(-1); // <1  fakes the propagation, ie just passes all photons off as hits
 
    /*
 

@@ -104,3 +104,8 @@ mocknuwa-run(){
    ls -l $bin
    $bin
 }
+
+
+
+
+

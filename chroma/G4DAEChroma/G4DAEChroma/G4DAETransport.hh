@@ -20,27 +20,24 @@ public:
     void ClearAll();
     std::size_t Propagate(int batch_id);
     void CollectPhoton(const G4Track* aPhoton );
-    // pmtid ordinarilly -1, but useful for fake-transport test
     void CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid=-1);
+
+    // pmtid ordinarilly -1, but useful for fake-transport test
 
     ChromaPhotonList* GetPhotons();
     ChromaPhotonList* GetHits();
  
 private:
+    // ZeroMQ network socket utility 
+    ZMQRoot* fZMQRoot ; 
 
-  // ZeroMQ network socket utility 
-  ZMQRoot* fZMQRoot ; 
+    // transport ready TObject 
+    ChromaPhotonList* fPhotonList ; 
 
-  // transport ready TObject 
-  ChromaPhotonList* fPhotonList ; 
-
-  // test receiving object from remote zmq server
-  ChromaPhotonList* fPhotonHits ; 
+    // test receiving object from remote zmq server
+    ChromaPhotonList* fPhotonHits ; 
 
 
 };
 
-
-#endif
-
- 
+#endif 

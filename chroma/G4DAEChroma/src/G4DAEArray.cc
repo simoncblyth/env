@@ -1,4 +1,5 @@
 #include "G4DAEChroma/G4DAEArray.hh"
+#include "G4DAEChroma/G4DAEBuffer.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 
 #include "numpy.hpp"
@@ -11,42 +12,80 @@
 
 using namespace std ; 
 
-
-G4DAEArray::G4DAEArray( size_t itemcapacity, string itemshape, float* data) : 
-             m_itemcapacity(itemcapacity), 
-             m_itemcount(0), 
-             m_buffer(NULL),
-             m_buffersize(0)
+G4DAEArray* G4DAEArray::Create(const char* bytes, size_t size)
 {
-    // itemshape such as "4,4" split to form vector and give itemsize of 4*4 
-    isplit( m_itemshape, itemshape.c_str(), ',' );   
-    assert( GetItemShapeString() == itemshape ); 
-    m_itemsize = FormItemSize( m_itemshape, 0 );
-
-    size_t nfloat = m_itemcapacity*m_itemsize ;
-
-    m_data = new float[nfloat] ;
-    if( data != NULL )   // copy floats into owned array 
-    {
-        m_itemcount = m_itemcapacity ; // when loading from float* data
-        for(size_t n=0 ; n < nfloat ; ++n ) m_data[n] = data[n] ;   
-    }
+   return new G4DAEArray(bytes, size);
 }
 
-const char* G4DAEArray::GetBuffer() const
+G4DAEArray::G4DAEArray(const char* bytes, size_t size)
+{
+    Populate(bytes, size);
+}
+
+G4DAEArray::G4DAEArray( size_t itemcapacity, string itemshape, float* data) 
+{
+    Populate( itemcapacity, itemshape, data );
+}
+
+void G4DAEArray::Populate( const char* bytes, size_t size )
+{
+    printf("G4DAEArray::G4DAEArray [%zu][0x%lx]\n", size, size );
+
+    ::DumpBuffer( bytes, size);
+
+    std::vector<int>  shape ;
+    std::vector<float> data ;
+
+    aoba::BufferLoadArrayFromNumpy<float>(bytes, size, shape, data );
+
+    string itemshape = FormItemShapeString( shape, 1);
+    size_t itemsize = FormItemSize( shape, 1);
+    size_t nitems = data.size()/itemsize ; 
+
+    Populate( nitems, itemshape, data.data() );
+}
+
+
+void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
+{
+    m_itemcapacity = nitems ; 
+
+    // itemshape such as "4,4" split to form vector and give itemsize of 4*4 
+    isplit( m_itemshape, itemshape.c_str(), ',' );   assert( GetItemShapeString() == itemshape ); 
+
+    m_itemsize = FormItemSize( m_itemshape, 0 );
+
+    size_t nfloat = nitems*m_itemsize ;
+    
+    m_data = new float[nfloat] ;
+
+    if(data)   // copy floats into owned array 
+    {
+        m_itemcount = m_itemcapacity ; 
+        for(size_t n=0 ; n < nfloat ; ++n ) m_data[n] = data[n] ;   
+    }
+    else
+    {
+        m_itemcount = 0 ;
+    }
+
+    m_buffer = NULL ; 
+
+}
+
+
+
+
+G4DAEBuffer* G4DAEArray::GetBuffer() const
 {
    return m_buffer ; 
 }
-size_t G4DAEArray::GetBufferSize() const
-{
-   return m_buffersize ;
-}
-
 
 
 G4DAEArray::~G4DAEArray()
 {
-    if(m_data) delete[] m_data ; 
+   delete[] m_data ; 
+   delete m_buffer ;
 }
 
 
@@ -110,8 +149,6 @@ void G4DAEArray::Print() const
          << " itemsize: " << GetItemSize() 
          << " itemshape: " << GetItemShapeString() 
          << " bytesused: " << GetBytesUsed() 
-         << " buffersize: " << GetBufferSize() << " (bytes) "
-         << " buffer: " << (void*)GetBuffer() 
          << " digest: " << GetDigest() 
          << endl ;    
 } 
@@ -146,22 +183,38 @@ void G4DAEArray::Save(const char* evt, const char* evtkey, const char* tmpl)
 }
 
 
+// Serializable protocol methods
 
 void G4DAEArray::SaveToBuffer()
 {
    bool fortran_order = false ; 
    string itemshape = GetItemShapeString();
-   size_t expect_bytes = aoba::BufferSize<float>(m_itemcount, itemshape.c_str(), fortran_order  );  
+   size_t nbytes = aoba::BufferSize<float>(m_itemcount, itemshape.c_str(), fortran_order  );  
 
-   printf("G4DAEArray::SaveToBuffer itemcount %lu itemshape %s nbytes %zu \n", m_itemcount, itemshape.c_str(), expect_bytes );
+   printf("G4DAEArray::SaveToBuffer itemcount %lu itemshape %s nbytes %zu \n", m_itemcount, itemshape.c_str(), nbytes );
 
-   m_buffer = new char[expect_bytes];
-   m_buffersize = expect_bytes ; 
+   delete m_buffer ; 
+   m_buffer = new G4DAEBuffer(nbytes); 
 
-   size_t wrote_bytes = aoba::BufferSaveArrayAsNumpy<float>( m_buffer, fortran_order, m_itemcount, itemshape.c_str(), m_data );  
-   assert( wrote_bytes == expect_bytes );
-   printf("G4DAEArray::SaveToBuffer wrote_bytes %zu \n", wrote_bytes );
+   size_t wbytes = aoba::BufferSaveArrayAsNumpy<float>( m_buffer->GetBytes(), fortran_order, m_itemcount, itemshape.c_str(), m_data );  
+   assert( wbytes == nbytes );
+   printf("G4DAEArray::SaveToBuffer wrote bytes %zu \n", wbytes );
 }
+
+const char* G4DAEArray::GetBufferBytes()
+{
+   return m_buffer->GetBytes();
+}
+std::size_t G4DAEArray::GetBufferSize()
+{
+   return m_buffer->GetSize();
+}
+void G4DAEArray::DumpBuffer()
+{
+   return m_buffer->Dump();
+}
+
+
 
 
 
@@ -179,52 +232,16 @@ G4DAEArray* G4DAEArray::Load(const char* evt, const char* key, const char* tmpl 
 
    aoba::LoadArrayFromNumpy<float>(path, shape, data );
 
-   size_t itemsize = FormItemSize( shape, 1);
    string itemshape = FormItemShapeString( shape, 1);
+   size_t itemsize = FormItemSize( shape, 1);
    size_t nitems = data.size()/itemsize ; 
 
    printf("G4DAEArray::Load [%s] itemsize %lu itemshape %s nitems %lu data.size %lu \n", 
        path.c_str(), itemsize, itemshape.c_str(), nitems, data.size() );
 
-   //printf("G4DAEArray::Load DumpVector \n");
-   //DumpVector( data, itemsize );
-
-   //printf("G4DAEArray::Load DumpBuffer &data[0]\n");
-   //DumpBuffer( reinterpret_cast<const char*>(&data[0]), data.size()*sizeof(float) );
-
-   //printf("G4DAEArray::Load DumpBuffer data.data()\n");
-   //DumpBuffer( reinterpret_cast<const char*>(data.data()), data.size()*sizeof(float) );
-
-
-   G4DAEArray* arr = new G4DAEArray( nitems, itemshape, data.data() );  
-   return arr ;
-}
-
-void G4DAEArray::DumpBuffer() const 
-{
-   printf("G4DAEArray::DumpBuffer arr->GetBufferSize()  %lu 0x%lx \n", GetBufferSize(), GetBufferSize() );
-   ::DumpBuffer( GetBuffer(), GetBufferSize() );
-}
-
-
-
-
-G4DAEArray* G4DAEArray::LoadFromBuffer(const char* buffer, size_t buflen)
-{
-   printf("G4DAEArray::LoadFromBuffer [%zu][0x%lx]\n", buflen, buflen );
-   ::DumpBuffer( buffer, buflen);
-
-   std::vector<int>  shape ;
-   std::vector<float> data ;
-
-   aoba::BufferLoadArrayFromNumpy<float>(buffer, buflen, shape, data );
-
-   size_t itemsize = FormItemSize( shape, 1);
-   string itemshape = FormItemShapeString( shape, 1);
-   size_t nitems = data.size()/itemsize ; 
-
    return new G4DAEArray( nitems, itemshape, data.data() );  
 }
+
 
 
 

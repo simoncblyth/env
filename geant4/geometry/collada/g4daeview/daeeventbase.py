@@ -22,11 +22,6 @@ class DAEEventBase(object):
         else:
             log.info("external_npl not saving ")
         pass
-
-        log.info("external_npl_base sleeping for 3 seconds ")
-        time.sleep(3) 
-        log.info("external_npl_base after sleeping for 3 seconds ")
-
         self.setup_npl(npl) 
  
     def external_cpl_base(self, cpl ):
