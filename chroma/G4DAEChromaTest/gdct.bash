@@ -63,6 +63,12 @@ gdct-install(){
 gdct--(){
    gdct-install
 }
+gdct---(){
+   gdct-install
+   G4DAEChromaTest $*
+}
+
+
 gdct-build(){
    gdct-cmake
    #gdct-make

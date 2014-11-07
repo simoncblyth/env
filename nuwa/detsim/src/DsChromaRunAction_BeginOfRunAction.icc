@@ -35,8 +35,7 @@ void DsChromaRunAction_BeginOfRunAction( const string& m_transport, const string
 
     /// transport 
 
-    //G4DAETransport* transport = G4DAETransport::MakeTransport(transport_cfg.c_str());
-    G4DAETransport* transport = G4DAETransport::MakeTransport(m_transport.c_str());
+    G4DAETransport* transport = new G4DAETransport(m_transport.c_str());
     chroma->SetTransport( transport );
 
 

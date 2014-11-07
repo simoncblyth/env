@@ -2,7 +2,7 @@
 
 #include "G4HCofThisEvent.hh"
 #include "G4VHitsCollection.hh"
-#include "Chroma/ChromaPhotonList.hh"
+#include "G4DAEChroma/G4DAEPhotons.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
 
 #include <string>
@@ -40,16 +40,16 @@ void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce )
 }
 
 
-void G4DAECollector::CollectHits( ChromaPhotonList* cpl, G4DAETransformCache* cache )
+void G4DAECollector::CollectHits( G4DAEPhotons* photons, G4DAETransformCache* cache )
 { 
-    cpl->Print();
-    std::size_t size = cpl->GetSize(); 
+    photons->Print();
+    std::size_t size = photons->GetSize(); 
     cout << "G4DAECollector::CollectHits size: " << size <<  endl ;   
 
     G4DAEHit hit ;
     for( std::size_t index = 0 ; index < size ; index++ )
     {
-        hit.Init( cpl, index); 
+        hit.Init( photons, index); 
 
         G4AffineTransform* transform = ( cache == NULL ) ? NULL :  cache->GetSensorTransform(hit.pmtid) ;
         hit.LocalTransform( transform );  

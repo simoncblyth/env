@@ -1,6 +1,8 @@
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAECollector.hh"
 
+
+
 #include "G4SDManager.hh"
 
 using namespace std ; 
@@ -72,9 +74,9 @@ void G4DAESensDet::EndOfEvent( G4HCofThisEvent* hce )
     m_collector->DumpStatistics(hce);
 }
 
-void G4DAESensDet::CollectHits(ChromaPhotonList* cpl, G4DAETransformCache* cache )
+void G4DAESensDet::CollectHits(G4DAEPhotons* photons, G4DAETransformCache* cache )
 {
-   m_collector->CollectHits( cpl, cache ); 
+   m_collector->CollectHits( photons, cache ); 
 }
 
 

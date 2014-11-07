@@ -4,7 +4,8 @@
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
-#include "Chroma/ChromaPhotonList.hh"
+#include "G4DAEChroma/G4DAEPhotons.hh"
+//#include "Chroma/ChromaPhotonList.hh"
 
 #include "DybG4DAECollector.h"
 
@@ -82,7 +83,7 @@ void DsChromaStackAction_NewStage()
    transport->GetPhotons()->Print();
    transport->GetPhotons()->Details(0);
    std::string digest = transport->GetPhotons()->GetDigest();
-   cout << "CPL digest : " << digest << endl ; 
+   cout << "photons digest : " << digest << endl ; 
 
    //transport->GetPhotons()->Save("mock002");  // ldir +y
    //transport->GetPhotons()->Save("mock003");  // ldir +x
@@ -102,7 +103,7 @@ void DsChromaStackAction_NewStage()
    */
 
 
-   chroma->Propagate(-1); // <1  fakes the propagation, ie just passes all photons off as hits
+   chroma->Propagate(1); // <1  fakes the propagation, ie just passes all photons off as hits
 
    /*
 

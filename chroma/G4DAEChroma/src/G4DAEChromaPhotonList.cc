@@ -7,7 +7,18 @@
 using namespace std ; 
 
 
-G4DAEChromaPhotonList::G4DAEChromaPhotonList() : ChromaPhotonList(), m_buffer(NULL)
+
+G4DAEChromaPhotonList* G4DAEChromaPhotonList::Load(const char* evt, const char* key, const char* tmpl )
+{
+   ChromaPhotonList* cpl = ChromaPhotonList::Load(evt, key, tmpl);
+   cpl->Print();
+   return dynamic_cast<G4DAEChromaPhotonList*>(cpl);
+   // hmm static passthroughs are tedious
+}
+
+
+  // itemcapacity not used, here to match G4DAEPhotonList 
+G4DAEChromaPhotonList::G4DAEChromaPhotonList(std::size_t /*itemcapacity*/) : ChromaPhotonList(), m_buffer(NULL)
 {
 }
 G4DAEChromaPhotonList::~G4DAEChromaPhotonList() 
@@ -20,8 +31,11 @@ G4DAEChromaPhotonList::~G4DAEChromaPhotonList()
 void G4DAEChromaPhotonList::SaveToBuffer()
 {
    // serialize to buffer
+   printf("G4DAEChromaPhotonList::SaveToBuffer \n");
+
    TMessage tmsg(kMESS_OBJECT);
-   tmsg.WriteObject((ChromaPhotonList*)this);
+   //tmsg.WriteObject((ChromaPhotonList*)this);
+   tmsg.WriteObject(this);
 
    delete m_buffer ; 
    m_buffer = new G4DAEBuffer(tmsg.Length(), tmsg.Buffer()); 
@@ -48,6 +62,7 @@ std::size_t G4DAEChromaPhotonList::GetBufferSize()
 }
 void G4DAEChromaPhotonList::DumpBuffer()
 {
+   printf("G4DAEChromaPhotonList::DumpBuffer \n");
    return m_buffer->Dump();
 }
 

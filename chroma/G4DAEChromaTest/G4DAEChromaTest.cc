@@ -2,7 +2,9 @@
 #include <stdlib.h>    
 
 //#include "Chroma/ChromaPhotonList.hh"
+#include "G4DAEChroma/G4DAEChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
+
 //#include "G4DAEChroma/G4DAESocket.hh"
 #include "G4DAEChroma/G4DAESocketBase.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
@@ -12,29 +14,31 @@
 #include <iostream>
 #include <vector>
 
+using namespace std ;
+
+const char* frontend = "FRONTEND" ; 
+const char* backend  = "BACKEND" ;
+
 
 //typedef G4DAESocket<G4DAEArray> G4DAESocket_t ;
 //typedef G4DAESocket<G4DAEPhotonList> G4DAESocket_t ;
-typedef G4DAESocketBase G4DAESocket_t ;
 
+// non-template variant dealing in G4DAESerializable types
+typedef G4DAESocketBase G4DAESocket_t ;   
 
-using namespace std ;
+//typedef G4DAEChromaPhotonList G4DAEPhotons_t ;  // .root TObject serialization 
+typedef G4DAEPhotonList       G4DAEPhotons_t ;    // .npy NPY serialization 
 
 /*
-void loadphotons(const char* evtkey)
-{
-   ChromaPhotonList* cpl = ChromaPhotonList::Load(evtkey);
-   if(!cpl){
-       printf("failed to load photons with evtkey %s \n", evtkey);
-   }
-   cpl->Print();
-}
+   Running into bad access trouble with ROOT serialization , 
+   need to make dict at higher level G4DAEChromaPhotonList rather than 
+   ChromaPhotonList to get it properly persisted
 */
 
 
-void gpl_save()
+int p_save(const char* evtkey)
 {
-    G4DAEPhotonList* gpl = new G4DAEPhotonList(5);
+    G4DAEPhotons_t* p = new G4DAEPhotons_t(5);
 
     G4ThreeVector pos(3,3,3);
     G4ThreeVector dir(0,0,1);
@@ -44,44 +48,37 @@ void gpl_save()
     float wavelength = 550.; 
     int pmtid = 0x1010101 ;
 
-    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
-    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
-    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
-    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
-    gpl->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+    p->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+    p->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+    p->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
 
-    gpl->Save("gdct002");
+    p->Save(evtkey);
 
-    delete gpl ;  
-
-/*
-    python -c "import numpy as np ; np.set_printoptions(precision=3, suppress=True) ; print np.load('/usr/local/env/tmp/gdct001.npy')"
-    python -c "import numpy as np ; np.set_printoptions(precision=3, suppress=True) ; a = np.load('/usr/local/env/tmp/gdct001.npy') ; print a ; print a.view(np.int32)"
-*/
-
+    delete p ;  
+    return 0;
 }
 
-
-int gpl_load()
+int p_load(const char* evtkey)
 {
-    G4DAEPhotonList* gpl = G4DAEPhotonList::Load("gdct001");
-    if(!gpl) return 1 ; 
+   // NB due to the default templates having file exts 
+   // .root and .npy the 2 different photon serializations 
+   // load/save the corresponding files
+   // 
+   G4DAEPhotons_t* p = G4DAEPhotons_t::Load(evtkey);
 
-    gpl->Print();
-    gpl->Details(0);
-    gpl->DumpBuffer();
-
-    return 0 ; 
+   if(!p){
+       printf("failed to load photons with evtkey %s \n", evtkey);
+   }
+   p->Print();
+   p->Details(0);
+   return 0 ; 
 }
+
 
 int gpl_string_network()
 {
-    const char* frontend = "FRONTEND" ; 
-    const char* backend  = "BACKEND" ;
-    bool is_frontend = getenv(frontend) ;
-    bool is_backend = getenv(backend) ;
 
-    if(is_frontend)
+    if(getenv(frontend))
     {
         cout << __func__ << " " << frontend << " Send/Recv String" << endl ; 
         G4DAESocket_t sock(frontend) ;
@@ -94,7 +91,7 @@ int gpl_string_network()
         cout << __func__ << " " << "received " << response << endl ; 
 
     }
-    else if(is_backend)
+    else if(getenv(backend))
     {
         cout << __func__ << " " << backend << " MirrorString" << endl ; 
         G4DAESocket_t sock(backend,'P') ;
@@ -104,37 +101,24 @@ int gpl_string_network()
 }
 
 
-int gpl_network()
+int p_network()
 {
-    const char* frontend = "FRONTEND" ; 
-    const char* backend  = "BACKEND" ;
-    bool is_frontend = getenv(frontend) ;
-    bool is_backend = getenv(backend) ;
+    G4DAESocket_t* socket(NULL) ; 
+    G4DAEPhotons_t* request(NULL) ;
+    G4DAEPhotons_t* response(NULL) ;
 
-
-    G4DAESocket_t* socket = NULL ; 
-
-    if(is_frontend)
+    if(getenv(frontend))
     {
-        cout << __func__ << " " << frontend << " Send/Recv Object " << endl ; 
-
         socket = new G4DAESocket_t(frontend);
 
-        G4DAEPhotonList* request = G4DAEPhotonList::Load("gdct001");
+        request = G4DAEPhotons_t::Load("1");
 
-        /*
-        socket->SendObject(request);
-        G4DAEPhotonList* response = socket->ReceiveObject();
-        */
+        response = reinterpret_cast<G4DAEPhotons_t*>(socket->SendReceiveObject(request));
 
-        G4DAEPhotonList* response = reinterpret_cast<G4DAEPhotonList*>(socket->SendReceiveObject(request));
 
-        if( request->GetDigest() == response->GetDigest() )
-        {
+        if( request->GetDigest() == response->GetDigest() ){
             cout << "request and response digests match " << endl ; 
-        }
-        else
-        {
+        } else {
             cout << "request and response digests differ " << endl ; 
             request->Print();
             response->Print();
@@ -143,35 +127,40 @@ int gpl_network()
         }
 
     }
-    else if(is_backend)
+    else if(getenv(backend))
     {
         cout << __func__ << " " << backend << " MirrorObject" << endl ; 
-
         socket = new G4DAESocket_t(backend, 'P');
         socket->MirrorObject();
-
     } 
+    else
+    {
+        cout << "need to define FRONTEND or BACKEND envvars " << endl ;
+    }
 
     delete socket ; 
+    delete request ; 
+    delete response  ; 
 
     return 0 ;
 }
 
 
 
-int gpl_buffer()
+int p_buffer(const char* evtkey)
 {
 
-    G4DAEPhotonList* gpl = G4DAEPhotonList::Load("gdct001");
-    if(!gpl) return 1 ; 
+    G4DAEPhotons_t* p = G4DAEPhotons_t::Load(evtkey);
+    if(!p) return 1 ; 
 
-    gpl->Print();
-    gpl->Details(0);
-    gpl->DumpBuffer();
+    p->Print();
+    p->Details(0);
 
-    gpl->SaveToBuffer();
+    //printf("p_buffer SaveToBuffer\n");
+    //p->SaveToBuffer();
 
-
+    printf("p_buffer DumpBuffer\n");
+    p->DumpBuffer();
 
     return 0 ;
 }
@@ -180,9 +169,17 @@ int gpl_buffer()
 
 
 int main(int argc, char** argv){
-    //return gpl_buffer();
-    return gpl_network();
-    //return gpl_string_network();
+    //p_buffer("3");
+    p_network();
+    //p_string_network();
+
+    /*
+    const char* evtkey = "3" ;
+    p_save(evtkey);
+    p_load(evtkey);
+    */
+
+    return 0 ;
 }
 
 

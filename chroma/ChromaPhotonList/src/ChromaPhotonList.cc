@@ -59,6 +59,7 @@ ChromaPhotonList* ChromaPhotonList::Load(const char* evt, const char* evtkey, co
    }   
 
    TObject* obj = fevt.Get(evtkey);
+   cout << "ChromaPhotonList::Load obj " << obj->ClassName() << endl ; 
    ChromaPhotonList* cpl = (ChromaPhotonList*)obj ;
    return cpl ; 
 }

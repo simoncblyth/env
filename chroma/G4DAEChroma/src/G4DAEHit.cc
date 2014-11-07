@@ -1,13 +1,13 @@
 #include "G4DAEChroma/G4DAEHit.hh"
+#include "G4DAEChroma/G4DAEPhotons.hh"  
 #include "G4AffineTransform.hh"
-#include "Chroma/ChromaPhotonList.hh"  
 #include <iostream>
 using namespace std ;
 
-void G4DAEHit::Init(ChromaPhotonList* cpl, std::size_t index)
+void G4DAEHit::Init(G4DAEPhotons* photons, std::size_t index)
 {
     // index is input, others are struct members that are hearby populated
-    cpl->GetPhoton( index, gpos, gdir, gpol, t, wavelength, pmtid );    
+    photons->GetPhoton( index, gpos, gdir, gpol, t, wavelength, pmtid );    
 }
 
 void G4DAEHit::LocalTransform(G4AffineTransform* trans)

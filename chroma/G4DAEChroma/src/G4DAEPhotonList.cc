@@ -122,6 +122,8 @@ void G4DAEPhotonList::AddPhoton( G4ThreeVector pos, G4ThreeVector dir, G4ThreeVe
 
     float _weight = 1. ;
 
+
+    // hmm need capability to grow the buffer for real collection 
     assert(m_itemcount < m_itemcapacity );
 
     cout << "G4DAEPhotonList::AddPhoton itemcount " << m_itemcount << " itemsize " << m_itemsize << endl ; 

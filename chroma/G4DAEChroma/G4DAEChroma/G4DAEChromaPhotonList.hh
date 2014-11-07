@@ -6,10 +6,18 @@
 
 class G4DAEBuffer ; 
 
+/*
+  Specialization of ancient ChromaPhotonList to 
+  provide G4DAESerializable capabilities
+  
+*/
+
 class G4DAEChromaPhotonList : public G4DAESerializable,  public ChromaPhotonList {
 
-  G4DAEChromaPhotonList();
+public:
+  G4DAEChromaPhotonList(std::size_t itemcapacity);
   virtual ~G4DAEChromaPhotonList();
+  static G4DAEChromaPhotonList* Load(const char* evt="1", const char* key="CPL", const char* tmpl="DAE_PATH_TEMPLATE" );
 
 public:
   // fulfil Serializable protocol 

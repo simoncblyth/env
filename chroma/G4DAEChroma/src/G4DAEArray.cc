@@ -20,21 +20,31 @@ G4DAEArray* G4DAEArray::Create(char* bytes, size_t size)
 
 G4DAEArray::G4DAEArray(char* bytes, size_t size)
 {
-    Reset();
+    Zero();
     Populate(bytes, size);
 }
 
 G4DAEArray::G4DAEArray( size_t itemcapacity, string itemshape, float* data) 
 {
-    Reset();
+    Zero();
     Populate( itemcapacity, itemshape, data );
 }
 
-void G4DAEArray::Reset()
+void G4DAEArray::Zero()
 {
-     m_data = NULL ;
-     m_buffer = NULL ;
+    m_data = NULL ;
+    m_buffer = NULL ;
+    m_itemcapacity = 0 ; 
+    m_itemcount  = 0 ; 
 }
+
+void G4DAEArray::ClearAll()
+{
+    delete [] m_data;
+    delete m_buffer ; 
+    Zero();
+}
+
 
 void G4DAEArray::Populate( char* bytes, size_t size )
 {
@@ -59,6 +69,7 @@ void G4DAEArray::Populate( char* bytes, size_t size )
 
 void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
 {
+
     if(!nitems) return;  // zombie expedient, for zombie->Create(bytes, size) 
 
     m_itemcapacity = nitems ; 
@@ -68,21 +79,19 @@ void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
 
     m_itemsize = FormItemSize( m_itemshape, 0 );
 
-    size_t nfloat = nitems*m_itemsize ;
-    
-    m_data = new float[nfloat] ;
+    size_t n = nitems*m_itemsize ;
+    m_data = new float[n] ;
+    m_buffer = NULL ; 
 
     if(data)   // copy floats into owned array 
     {
         m_itemcount = m_itemcapacity ; 
-        for(size_t n=0 ; n < nfloat ; ++n ) m_data[n] = data[n] ;   
+        while(n--) m_data[n] = data[n] ;   
     }
     else
     {
         m_itemcount = 0 ;
     }
-
-    m_buffer = NULL ; 
 
 }
 

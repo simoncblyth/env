@@ -3,12 +3,12 @@
 
 #include "G4CollectionNameVector.hh"
 #include "G4DAEChroma/G4DAEHit.hh"
+#include "G4DAEChroma/G4DAEPhotons.hh"
 #include <vector>
 #include <cstddef>
 #include <string>
 
 class G4HCofThisEvent ;
-class ChromaPhotonList ; 
 class G4DAETransformCache ;
 
 //  **G4DAECollector**
@@ -33,7 +33,7 @@ public:
 
     virtual void AddSomeFakeHits(const IDVec& sensor_ids);
     virtual void DumpStatistics( G4HCofThisEvent* hce );
-    virtual void CollectHits( ChromaPhotonList* cpl, G4DAETransformCache* cache );
+    virtual void CollectHits( G4DAEPhotons* photons, G4DAETransformCache* cache );
 
 
 };

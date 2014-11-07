@@ -1,4 +1,6 @@
 #include "G4DAEChroma/G4DAETransport.hh"
+#include "G4DAEChroma/G4DAESocketBase.hh"
+#include "G4DAEChroma/G4DAEPhotons.hh"
 
 #include "G4Track.hh"
 #include "G4VProcess.hh"
@@ -7,56 +9,46 @@
 
 using namespace std ; 
 
-#ifdef WITH_CHROMA_ZMQ
-#include "Chroma/ChromaPhotonList.hh"
-#include "ZMQRoot/ZMQRoot.hh"
-#endif
-
-G4DAETransport* G4DAETransport::MakeTransport(const char* envvar)
-{
-    return new G4DAETransport(envvar);
-}
-
 G4DAETransport::G4DAETransport(const char* envvar) :
-    fZMQRoot(0),
-    fPhotonList(0),
-    fPhotonHits(0)
+    m_socket(NULL),
+    m_photons(NULL),
+    m_hits(NULL)
 { 
 #ifdef WITH_CHROMA_ZMQ
-  fPhotonList = new ChromaPhotonList;   
-  fZMQRoot = new ZMQRoot(envvar);  
+   m_socket = new G4DAESocketBase(envvar) ;
+   m_photons = new G4DAEPhotons(100) ;  // hmm capacity needs to be able to grow, or move to vector 
 #endif
 }
 
 G4DAETransport::~G4DAETransport()
 {
 #ifdef WITH_CHROMA_ZMQ
-   if(fPhotonList)  delete fPhotonList ; 
-   if(fPhotonHits)  delete fPhotonHits ; 
-   if(fZMQRoot)     delete fZMQRoot ; 
+   delete m_photons ; 
+   delete m_hits  ; 
+   delete m_socket ; 
 #endif
 }
 
 
-ChromaPhotonList* G4DAETransport::GetPhotons(){ 
-    return fPhotonList ; 
+G4DAEPhotons* G4DAETransport::GetPhotons(){ 
+    return m_photons ; 
 }
-ChromaPhotonList* G4DAETransport::GetHits(){ 
-    return fPhotonHits ; 
+G4DAEPhotons* G4DAETransport::GetHits(){ 
+    return m_hits ; 
 }
 
 
 void G4DAETransport::ClearAll()
 {
 #ifdef WITH_CHROMA_ZMQ
- if(fPhotonList){ 
-      cout<< "::ClearAll fPhotonList  "<<endl;
-      fPhotonList->ClearAll(); 
-  }
-  if(fPhotonHits){ 
-      cout<< "::ClearAll fPhotonHits "<<endl;
-      fPhotonHits->ClearAll(); 
-  } 
+    if(m_photons)
+    {
+        m_photons->ClearAll();   
+    }
+    if(m_hits)
+    {
+        m_hits->ClearAll();   
+    }
 #endif
 }
 
@@ -92,53 +84,51 @@ void G4DAETransport::CollectPhoton(const G4Track* aPhoton )
    const float time = aPhoton->GetGlobalTime()/ns ;
    const float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
 
+   // weight
+   // flags 
+   // trackid ? 
+
    CollectPhoton( pos, dir, pol, time, wavelength );
 
 #endif
 }
 
 
+
+// useful to retain this for easy standalone debug
 void G4DAETransport::CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid)
 {
-   fPhotonList->AddPhoton( 
-              pos.x(), pos.y(), pos.z(),
-              dir.x(), dir.y(), dir.z(),
-              pol.x(), pol.y(), pol.z(), 
-              time, 
-              wavelength, 
-              pmtid );
+    m_photons->AddPhoton(  pos, dir, pol, time, wavelength, pmtid );
 }
-
 
 
 
 std::size_t G4DAETransport::Propagate(int batch_id)
 {
-  fPhotonList->SetUniqueID(batch_id);
+   size_t size = m_photons->GetSize();
 
-  cout << "::Propagate fPhotonList " << batch_id <<  endl ;   
-  fPhotonList->Print(); 
-  std::size_t size = fPhotonList->GetSize(); 
-  if(size == 0){
-      cout << "::Propagate Skip send/recv for empty CPL " <<  endl;   
-      return 0 ;
+   cout << "G4DAETransport::Propagate batch_id " << batch_id <<  " size " << size <<  endl ;   
+   
+   m_photons->Print();
+
+   if(size == 0){
+       cout << "::Propagate Skip send/recv for empty photons list  " <<  endl;   
+       return 0 ;
   }
 
   if( batch_id > 0 )
   { 
-      cout << "G4DAETransport::Propagate : SendObject " <<  endl ;   
-      fZMQRoot->SendObject(fPhotonList);
-
-      cout << "G4DAETransport::Propagate : ReceiveObject, waiting... " <<  endl;   
-      fPhotonHits = (ChromaPhotonList*)fZMQRoot->ReceiveObject();
+      cout << "G4DAETransport::Propagate : SendReceiveObject " <<  endl ;   
+      m_hits = reinterpret_cast<G4DAEPhotons*>(m_socket->SendReceiveObject(m_photons));
   } 
   else 
   {
       cout << "G4DAETransport::Propagate : fake Send/Recv " << endl ; 
-      fPhotonHits = fPhotonList ; 
+      m_hits = m_photons ;  // double delete, but just for debug 
   } 
-  std::size_t nhits = fPhotonHits->GetSize();
+  std::size_t nhits = m_hits->GetSize();
   return nhits ; 
+
 }
 
 

@@ -48,7 +48,7 @@ void G4DAEChroma::EndOfRun(   const G4Run* run )
 void G4DAEChroma::Configure(const char* transport, const char* sensdet, const char* geometry)
 {
     cout << "G4DAEChroma::Configure [" << this << "]" << endl ;
-    G4DAETransport* tra = G4DAETransport::MakeTransport(transport);
+    G4DAETransport* tra = new G4DAETransport(transport);
     G4DAEGeometry*  geo = G4DAEGeometry::MakeGeometry(geometry);
 
     const char* target = sensdet ; 

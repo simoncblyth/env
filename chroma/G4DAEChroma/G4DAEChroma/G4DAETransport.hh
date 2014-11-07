@@ -5,14 +5,16 @@
 #include "G4ThreeVector.hh"
 
 class G4Track ; 
-class ZMQRoot ; 
-class ChromaPhotonList ;
+class G4DAESocketBase ;
+#include "G4DAEChroma/G4DAEPhotons.hh"
+
+// generalizing to support the old ChromaPhotonList demands a Photons virtual base
+// but thats kinda complicated due to ROOT TObject persisting, so put that 
+// on hold : as aiming to get rid of ROOT anyhow
 
 class G4DAETransport
 {
 public:
-    static G4DAETransport* MakeTransport(const char* envvar="G4DAECHROMA_CLIENT_CONFIG");
-protected:
     G4DAETransport(const char* envvar);
 public:
     virtual ~G4DAETransport();
@@ -22,20 +24,16 @@ public:
     void CollectPhoton(const G4Track* aPhoton );
     void CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid=-1);
 
-    // pmtid ordinarilly -1, but useful for fake-transport test
-
-    ChromaPhotonList* GetPhotons();
-    ChromaPhotonList* GetHits();
+    G4DAEPhotons* GetPhotons();
+    G4DAEPhotons* GetHits();
  
 private:
-    // ZeroMQ network socket utility 
-    ZMQRoot* fZMQRoot ; 
 
-    // transport ready TObject 
-    ChromaPhotonList* fPhotonList ; 
+    G4DAESocketBase* m_socket ;
 
-    // test receiving object from remote zmq server
-    ChromaPhotonList* fPhotonHits ; 
+    G4DAEPhotons* m_photons ; 
+
+    G4DAEPhotons* m_hits  ; 
 
 
 };

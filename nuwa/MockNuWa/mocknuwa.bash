@@ -82,8 +82,8 @@ mocknuwa-runenv(){
    export-
    export-export   # needed for template envvar for CPL saving 
 
-   #export G4DAECHROMA_CLIENT_CONFIG=tcp://localhost:5001    # client to local broker
-   export G4DAECHROMA_CLIENT_CONFIG=""
+   export G4DAECHROMA_CLIENT_CONFIG=tcp://localhost:5001    # client to local broker
+   #export G4DAECHROMA_CLIENT_CONFIG=""
 }
 
 mocknuwa--(){
