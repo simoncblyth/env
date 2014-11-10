@@ -18,6 +18,122 @@ Installs
 Installed on D as dependency of chroma, see :doc:`/chroma/chroma`
 
 
+
+Debug/trace switches ?
+------------------------
+
+* http://git.tiker.net/pycuda.git/blob_plain/HEAD:/pycuda/driver.py
+
+
+Syslog Messages
+----------------
+
+* http://lists.tiker.net/pipermail/pycuda/2013-June/004357.html
+
+Profiling
+----------
+
+* http://lists.tiker.net/pipermail/pycuda/2012-November/004216.html
+
+
+Interpreting PyCUDA errors
+---------------------------
+
+* http://lists.tiker.net/pipermail/pycuda/2014-July/004636.html
+
+::
+
+    > pycuda._driver.LogicError: cuMemcpyDtoH failed: invalid/unknown error code
+    > PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
+    > cuModuleUnload failed: invalid/unknown error code
+
+    This means your context went away while PyCUDA was still talking to
+    it. This will happen most often if you perform some invalid operation
+    (such as access out-of-bounds memory in a kernel). In this case, the
+    cuMemcpyDtoH operation could be at fault.
+
+
+
+* http://lists.tiker.net/pipermail/pycuda/2012-September/004106.html
+
+::
+
+    > pycuda._driver.LaunchError: cuMemcpyDtoH failed: launch failed
+    > PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
+    > cuMemFree failed: launch failed
+    >
+    > what would be the reason ?
+
+    It means that the operation before that (kernel execution) crashed and
+    invalidated the context. Most probably, there was some read/write
+    operation to the wrong memory address. You will have to look inside
+    the kernel that gets executed inside gpu_devdeveigenvalues(), or
+    contact its developer (do not forget to provide minimal working
+    example that reproduces the bug).
+
+
+
+* http://lists.tiker.net/pipermail/pycuda/2011-August/003335.html
+
+
+::
+
+    > I'm getting an out-of-resources error when trying to launch a CUDA
+    > kernel (through PyCUDA), and I'm wondering if it's possible to get the
+    > system to tell me which resource it is that I'm short on. Obviously
+    > the system knows what resource has been exhausted, I just want to
+    > query that as well.
+
+    What it likely means to say is that your kernel caused a segmentation
+    fault. Check the output of 'dmesg'. If it says something like 'Nv Xid
+    13' (from memory, may be wrong--the 13 is what says 'segfault', I
+    think), then that's what it is. Have you tried chopping your kernel down
+    to almost-nothing? Bisected?
+
+
+
+
+Trace pycuda slowdown via looking into ptx 
+--------------------------------------------
+
+* http://lists.tiker.net/pipermail/pycuda/2012-April/003755.html
+
+
+
+
+PyCUDA Interop With Cython C code
+-----------------------------------
+
+* http://lists.tiker.net/pipermail/pycuda/2013-November/004465.html
+
+
+PyCUDA Interop with Boost-Python code
+--------------------------------------
+
+* http://lists.tiker.net/pipermail/pycuda/2009-December/001993.html
+
+
+
+
+
+Garbage Collection 
+--------------------
+
+* http://lists.tiker.net/pipermail/pycuda/2014-July/004627.html
+
+* http://lists.tiker.net/pipermail/pycuda/2011-October/003461.html
+
+
+Passing Numpy Structured Array to PyCUDA
+------------------------------------------
+
+
+* http://lists.tiker.net/pipermail/pycuda/2011-July/003310.html
+
+* https://gist.github.com/inducer/88ac86874112b0e126ce
+
+
+
 Sources
 --------
 

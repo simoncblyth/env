@@ -1,5 +1,6 @@
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAECollector.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
 
 
 
@@ -74,7 +75,7 @@ void G4DAESensDet::EndOfEvent( G4HCofThisEvent* hce )
     m_collector->DumpStatistics(hce);
 }
 
-void G4DAESensDet::CollectHits(G4DAEPhotons* photons, G4DAETransformCache* cache )
+void G4DAESensDet::CollectHits(G4DAEPhotonList* photons, G4DAETransformCache* cache )
 {
    m_collector->CollectHits( photons, cache ); 
 }

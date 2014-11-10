@@ -1,5 +1,6 @@
 #include "G4DAEChroma/G4DAEChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEBuffer.hh"
+#include "Chroma/ChromaPhotonList.hh"
 
 #include "TMessage.h"
 #include "ZMQRoot/MyTMessage.hh"
@@ -11,20 +12,76 @@ using namespace std ;
 G4DAEChromaPhotonList* G4DAEChromaPhotonList::Load(const char* evt, const char* key, const char* tmpl )
 {
    ChromaPhotonList* cpl = ChromaPhotonList::Load(evt, key, tmpl);
+   if(!cpl) return NULL ; 
    cpl->Print();
-   return dynamic_cast<G4DAEChromaPhotonList*>(cpl);
-   // hmm static passthroughs are tedious
+   return new G4DAEChromaPhotonList(cpl);
 }
 
 
-  // itemcapacity not used, here to match G4DAEPhotonList 
-G4DAEChromaPhotonList::G4DAEChromaPhotonList(std::size_t /*itemcapacity*/) : ChromaPhotonList(), m_buffer(NULL)
+G4DAEChromaPhotonList::G4DAEChromaPhotonList(ChromaPhotonList* cpl) : m_buffer(NULL), m_cpl(cpl)
 {
+}
+
+G4DAEChromaPhotonList::G4DAEChromaPhotonList(G4DAEPhotons* src) : m_buffer(NULL), m_cpl(NULL)
+{
+   m_cpl = new ChromaPhotonList ; 
+   G4DAEPhotons::Transfer( this, src );  
+}
+
+
+G4DAEChromaPhotonList::G4DAEChromaPhotonList(std::size_t /*itemcapacity*/) : m_buffer(NULL), m_cpl(NULL)
+{
+   m_cpl = new ChromaPhotonList ; 
 }
 G4DAEChromaPhotonList::~G4DAEChromaPhotonList() 
 {
    delete m_buffer ; 
+   delete m_cpl ; 
 }
+
+
+
+
+
+// G4DAEPhotons
+void G4DAEChromaPhotonList::AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid)
+{
+   m_cpl->AddPhoton(pos, mom, pol, _t, _wavelength, _pmtid );
+}
+
+void G4DAEChromaPhotonList::GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const {
+   m_cpl->GetPhoton( index, pos, mom, pol, _t, _wavelength, _pmtid );
+}
+void G4DAEChromaPhotonList::Print() const 
+{
+   m_cpl->Print();
+}
+void G4DAEChromaPhotonList::Details(bool hit) const 
+{
+   m_cpl->Details(hit);
+}
+std::size_t G4DAEChromaPhotonList::GetPhotonCount() const 
+{
+    return m_cpl->GetSize();
+}
+std::string G4DAEChromaPhotonList::GetPhotonDigest() const 
+{
+   return m_cpl->GetDigest();
+}
+void G4DAEChromaPhotonList::ClearAllPhotons() 
+{
+    return m_cpl->ClearAll();
+}
+
+
+// other
+void G4DAEChromaPhotonList::Save(const char* evt, const char* key, const char* tmpl )
+{
+   m_cpl->Save(evt, key, tmpl);
+}
+
+
+
 
 // Serializable protocol methods
 
@@ -34,8 +91,7 @@ void G4DAEChromaPhotonList::SaveToBuffer()
    printf("G4DAEChromaPhotonList::SaveToBuffer \n");
 
    TMessage tmsg(kMESS_OBJECT);
-   //tmsg.WriteObject((ChromaPhotonList*)this);
-   tmsg.WriteObject(this);
+   tmsg.WriteObject(m_cpl);
 
    delete m_buffer ; 
    m_buffer = new G4DAEBuffer(tmsg.Length(), tmsg.Buffer()); 
@@ -43,27 +99,28 @@ void G4DAEChromaPhotonList::SaveToBuffer()
    printf("G4DAEChromaPhotonList::SaveToBuffer wrote %zu \n", m_buffer->GetSize() );
 }
 
-G4DAEChromaPhotonList* G4DAEChromaPhotonList::Create( char* bytes, size_t size )
+G4DAEChromaPhotonList* G4DAEChromaPhotonList::CreateOther( char* bytes, size_t size )
 {
-  // hmm difficult to do without class method due to nature of TObject deserialization
    MyTMessage* tmsg = new MyTMessage( reinterpret_cast<void*>(bytes), size );
    TObject* obj = tmsg->MyReadObject();
-   return (G4DAEChromaPhotonList*)obj ;  
+   G4DAEChromaPhotonList* other = new G4DAEChromaPhotonList((ChromaPhotonList*)obj) ;  
+   // TODO: tmsg looks to leak, but had troubles previously 
+   return other ; 
 }
 
 
 const char* G4DAEChromaPhotonList::GetBufferBytes()
 {
-   return m_buffer->GetBytes();
+   return m_buffer ? m_buffer->GetBytes() : NULL ;
 }
 std::size_t G4DAEChromaPhotonList::GetBufferSize()
 {
-   return m_buffer->GetSize();
+   return m_buffer ? m_buffer->GetSize() : 0 ;
 }
 void G4DAEChromaPhotonList::DumpBuffer()
 {
    printf("G4DAEChromaPhotonList::DumpBuffer \n");
-   return m_buffer->Dump();
+   if(m_buffer) m_buffer->Dump() ;
 }
 
 

@@ -12,7 +12,7 @@
 
 using namespace std ; 
 
-G4DAEArray* G4DAEArray::Create(char* bytes, size_t size)
+G4DAEArray* G4DAEArray::CreateOther(char* bytes, size_t size)
 {
    // used by zombies
    return new G4DAEArray(bytes, size);
@@ -94,6 +94,30 @@ void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
     }
 
 }
+
+
+float* G4DAEArray::GetItemPointer(std::size_t index)
+{
+    assert(index < m_itemcapacity );
+    float* data = m_data + index*m_itemsize ;   
+    return data ; 
+}
+
+float* G4DAEArray::GetNextPointer()
+{
+    // hmm need capability to grow the buffer for real collection 
+    assert(m_itemcount < m_itemcapacity );
+
+    //cout << "G4DAEArray::GetNextPointer itemcount " << m_itemcount << " itemsize " << m_itemsize << endl ; 
+
+    float* data = m_data + m_itemcount*m_itemsize ;   
+    m_itemcount++ ; 
+
+    return data ; 
+}
+
+
+
 
 
 

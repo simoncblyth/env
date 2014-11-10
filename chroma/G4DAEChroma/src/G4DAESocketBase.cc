@@ -112,7 +112,7 @@ G4DAESerializable* G4DAESocketBase::SendReceiveObject(G4DAESerializable* request
         // using static Create method of request object to form response 
         // this allows this to work without template type crutch 
 
-        response  = request->Create( reinterpret_cast<char*>(data), size );  
+        response  = request->CreateOther( reinterpret_cast<char*>(data), size );  
         zmq_msg_close (&msg);  
     } 
 #else

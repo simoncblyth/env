@@ -6,11 +6,9 @@
 
 class G4Track ; 
 class G4DAESocketBase ;
-#include "G4DAEChroma/G4DAEPhotons.hh"
+class G4DAEPhotonList ; 
 
-// generalizing to support the old ChromaPhotonList demands a Photons virtual base
-// but thats kinda complicated due to ROOT TObject persisting, so put that 
-// on hold : as aiming to get rid of ROOT anyhow
+
 
 class G4DAETransport
 {
@@ -24,16 +22,16 @@ public:
     void CollectPhoton(const G4Track* aPhoton );
     void CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid=-1);
 
-    G4DAEPhotons* GetPhotons();
-    G4DAEPhotons* GetHits();
+    G4DAEPhotonList* GetPhotons();
+    G4DAEPhotonList* GetHits();
  
 private:
 
     G4DAESocketBase* m_socket ;
 
-    G4DAEPhotons* m_photons ; 
+    G4DAEPhotonList* m_photons ; 
 
-    G4DAEPhotons* m_hits  ; 
+    G4DAEPhotonList* m_hits  ; 
 
 
 };

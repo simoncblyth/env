@@ -1,6 +1,6 @@
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAESocketBase.hh"
-#include "G4DAEChroma/G4DAEPhotons.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
 
 #include "G4Track.hh"
 #include "G4VProcess.hh"
@@ -16,7 +16,10 @@ G4DAETransport::G4DAETransport(const char* envvar) :
 { 
 #ifdef WITH_CHROMA_ZMQ
    m_socket = new G4DAESocketBase(envvar) ;
-   m_photons = new G4DAEPhotons(100) ;  // hmm capacity needs to be able to grow, or move to vector 
+   m_photons = new G4DAEPhotonList(100) ;  
+   // hmm capacity needs to be able to grow, or move to vector 
+   //  specialization of abstract G4DAEPhotons... 
+   //  nope cannot used abstract member ptr as needs to be Serializable
 #endif
 }
 
@@ -30,10 +33,10 @@ G4DAETransport::~G4DAETransport()
 }
 
 
-G4DAEPhotons* G4DAETransport::GetPhotons(){ 
+G4DAEPhotonList* G4DAETransport::GetPhotons(){ 
     return m_photons ; 
 }
-G4DAEPhotons* G4DAETransport::GetHits(){ 
+G4DAEPhotonList* G4DAETransport::GetHits(){ 
     return m_hits ; 
 }
 
@@ -43,11 +46,11 @@ void G4DAETransport::ClearAll()
 #ifdef WITH_CHROMA_ZMQ
     if(m_photons)
     {
-        m_photons->ClearAll();   
+        m_photons->ClearAllPhotons();   
     }
     if(m_hits)
     {
-        m_hits->ClearAll();   
+        m_hits->ClearAllPhotons();   
     }
 #endif
 }
@@ -105,7 +108,7 @@ void G4DAETransport::CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector
 
 std::size_t G4DAETransport::Propagate(int batch_id)
 {
-   size_t size = m_photons->GetSize();
+   size_t size = m_photons->GetPhotonCount();
 
    cout << "G4DAETransport::Propagate batch_id " << batch_id <<  " size " << size <<  endl ;   
    
@@ -119,14 +122,14 @@ std::size_t G4DAETransport::Propagate(int batch_id)
   if( batch_id > 0 )
   { 
       cout << "G4DAETransport::Propagate : SendReceiveObject " <<  endl ;   
-      m_hits = reinterpret_cast<G4DAEPhotons*>(m_socket->SendReceiveObject(m_photons));
+      m_hits = reinterpret_cast<G4DAEPhotonList*>(m_socket->SendReceiveObject(m_photons));
   } 
   else 
   {
       cout << "G4DAETransport::Propagate : fake Send/Recv " << endl ; 
       m_hits = m_photons ;  // double delete, but just for debug 
   } 
-  std::size_t nhits = m_hits->GetSize();
+  std::size_t nhits = m_hits->GetPhotonCount();
   return nhits ; 
 
 }

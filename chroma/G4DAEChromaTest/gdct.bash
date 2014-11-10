@@ -23,6 +23,24 @@ Usage::
     geokey DAE_NAME_DYB_GDML geopath /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.gdml 
 
 
+Test Network Mirroring frontend/broker/backend
+------------------------------------------------
+
+Compile the p_network function in G4DAEChromaTest.cc, 
+with a choice of Photons implementation.
+
+Open three terminals:
+
+* broker   *czmq-;czmq-broker-local*
+* backend  *gdct-;gdct-backend*
+* frontend *gdct-;gdct-frontend*
+
+The frontend lives for one call only, the other two are 
+long lived. Note that the broker and backend mirroring 
+are blind to the type, they just shovel bytes, so can 
+leave them running and experiment with different 
+types for the frontend.
+
 
 EOU
 }
@@ -39,6 +57,8 @@ gdct-sdir(){ echo $HOME/env/chroma/$(gdct-name); }
 gdct-tdir(){ echo /tmp/env/chroma/$(gdct-name) ; }
 
 gdct-cd(){  cd $(gdct-sdir); }
+
+
 gdct-bcd(){  cd $(gdct-dir); }
 gdct-tcd(){  cd $(gdct-tdir); }
 

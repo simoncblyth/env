@@ -9,9 +9,6 @@ CUDA
 ======
 
 
-
-
-
 versions
 ---------
 
@@ -31,6 +28,12 @@ versions
     Copyright (c) 2005-2013 NVIDIA Corporation
     Built on Thu_Sep__5_10:17:14_PDT_2013
     Cuda compilation tools, release 5.5, V5.5.0
+
+
+syslog : Understanding XID Errors
+------------------------------------
+
+* http://docs.nvidia.com/deploy/xid-errors/index.html
 
 
 

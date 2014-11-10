@@ -43,7 +43,7 @@ void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce )
 void G4DAECollector::CollectHits( G4DAEPhotons* photons, G4DAETransformCache* cache )
 { 
     photons->Print();
-    std::size_t size = photons->GetSize(); 
+    std::size_t size = photons->GetPhotonCount(); 
     cout << "G4DAECollector::CollectHits size: " << size <<  endl ;   
 
     G4DAEHit hit ;

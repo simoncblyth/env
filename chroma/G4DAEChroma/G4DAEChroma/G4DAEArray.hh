@@ -27,7 +27,7 @@ class G4DAEBuffer ;
 class G4DAEArray : public G4DAESerializable {
 
 public:
-    G4DAEArray* Create(char* bytes, size_t size);
+    G4DAEArray* CreateOther(char* bytes, size_t size);
     G4DAEArray(char* bytes, size_t size);
     G4DAEArray( std::size_t itemcapacity = 0, std::string itemshapestr = "", float* data = NULL);
     virtual ~G4DAEArray();
@@ -60,6 +60,10 @@ public:
    static G4DAEArray* LoadFromBuffer(const char* buffer, std::size_t buflen);
 
    G4DAEBuffer* GetBuffer() const;
+
+public:
+    float* GetItemPointer(std::size_t index);
+    float* GetNextPointer();
 
 
 public:
