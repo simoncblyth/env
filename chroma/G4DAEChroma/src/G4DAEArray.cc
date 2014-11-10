@@ -214,7 +214,6 @@ string G4DAEArray::GetPath( const char* evt , const char* tmpl )
    return string( evtpath );
 }
 
-
 void G4DAEArray::Save(const char* evt, const char* evtkey, const char* tmpl)
 {
    string path = GetPath(evt, tmpl);
@@ -223,6 +222,12 @@ void G4DAEArray::Save(const char* evt, const char* evtkey, const char* tmpl)
       printf("G4DAEArray::Save : failed to format path from tmpl  %s and evt %s \n", tmpl, evt );  
       return; 
    }   
+   SavePath(path.c_str());
+}
+
+void G4DAEArray::SavePath(const char* _path, const char* /*key*/)
+{
+   string path(_path);
    string itemshape = GetItemShapeString();
    printf("G4DAEArray::Save [%s] itemcount %lu itemshape %s \n", path.c_str(), m_itemcount, itemshape.c_str() );
    aoba::SaveArrayAsNumpy<float>(path, m_itemcount, itemshape.c_str(), m_data );
@@ -262,17 +267,20 @@ void G4DAEArray::DumpBuffer()
 
 
 
-
-
 G4DAEArray* G4DAEArray::Load(const char* evt, const char* key, const char* tmpl )
 {
    string path = GetPath(evt, tmpl);
-   if( path.empty() )
+   if( path.empty() ) 
    {
       printf("G4DAEArray::Load : failed to format path from tmpl  %s and evt %s \n", tmpl, evt );  
       return NULL ; 
    }
+   return LoadPath( path.c_str(), key);
+}
 
+G4DAEArray* G4DAEArray::LoadPath(const char* _path, const char* /*key*/ )
+{
+   string path(_path);
    std::vector<int>  shape ;
    std::vector<float> data ;
 

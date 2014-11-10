@@ -51,15 +51,19 @@ ChromaPhotonList* ChromaPhotonList::Load(const char* evt, const char* evtkey, co
       printf("ChromaPhotonList::Load : failed to format evtpath from tmpl  %s and evt %s \n", tmpl, evt );  
       return NULL ; 
    } 
+   return LoadPath(evtpath.c_str(), evtkey );
+}
 
-   TFile fevt( evtpath.c_str(), "READ" );
+ChromaPhotonList* ChromaPhotonList::LoadPath(const char* path, const char* evtkey)
+{
+   TFile fevt( path, "READ" );
    if( fevt.IsZombie() ){
-       cout << "ChromaPhotonList::Load : failed to open evtpath [" << evtpath << "]" << endl ;
+       cout << "ChromaPhotonList::Load : failed to open evtpath [" << path << "]" << endl ;
        return NULL ; 
    }   
 
    TObject* obj = fevt.Get(evtkey);
-   cout << "ChromaPhotonList::Load obj " << obj->ClassName() << endl ; 
+   //cout << "ChromaPhotonList::Load obj " << obj->ClassName() << endl ; 
    ChromaPhotonList* cpl = (ChromaPhotonList*)obj ;
    return cpl ; 
 }
@@ -72,16 +76,25 @@ void ChromaPhotonList::Save(const char* evt, const char* evtkey, const char* tmp
       printf("ChromaPhotonList::Save : failed to format evtpath from tmpl  %s and evt %s \n", tmpl, evt );  
       return ; 
    } 
+   SavePath(evtpath.c_str(), evtkey );
+}
 
-   TFile fevt( evtpath.c_str(), "RECREATE", evtkey );
+void ChromaPhotonList::SavePath(const char* path, const char* evtkey)
+{  
+   TFile fevt( path, "RECREATE", evtkey );
    if( fevt.IsZombie() ){
-       cout << "ChromaPhotonList::Save : failed to open evtpath for writing [" << evtpath << "]" << endl ;
+       cout << "ChromaPhotonList::Save : failed to open evtpath for writing [" << path << "]" << endl ;
    }   
    this->Write(evtkey);
    fevt.Close();
 
-   cout << "ChromaPhotonList::Save : saved with key " << evtkey << " to path " << evtpath << endl ; 
+   cout << "ChromaPhotonList::Save : saved with key " << evtkey << " to path " << path << endl ; 
 }
+
+
+
+
+
 
 
 ChromaPhotonList::ChromaPhotonList() : TObject() {

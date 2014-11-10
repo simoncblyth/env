@@ -22,6 +22,7 @@ public:
   G4DAEChromaPhotonList(std::size_t itemcapacity);
   virtual ~G4DAEChromaPhotonList();
   static G4DAEChromaPhotonList* Load(const char* evt="1", const char* key="CPL", const char* tmpl="DAE_PATH_TEMPLATE" );
+  static G4DAEChromaPhotonList* LoadPath(const char* path, const char* key="CPL");
 
 public:
   // G4DAEPhotons
@@ -35,6 +36,7 @@ public:
 
 public:
    void Save(const char* evt="dummy", const char* key="CPL", const char* tmpl="DAE_PATH_TEMPLATE" );
+   void SavePath(const char* path, const char* key="CPL");
    std::string GetDigest() const ; 
 
 public:

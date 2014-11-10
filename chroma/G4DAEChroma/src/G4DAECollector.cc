@@ -2,8 +2,9 @@
 
 #include "G4HCofThisEvent.hh"
 #include "G4VHitsCollection.hh"
-#include "G4DAEChroma/G4DAEPhotons.hh"
+#include "G4DAEChroma/G4DAESerializablePhotons.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
+#include "G4DAEChroma/G4DAEPhotons.hh"
 
 #include <string>
 #include <iostream>
@@ -40,7 +41,7 @@ void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce )
 }
 
 
-void G4DAECollector::CollectHits( G4DAEPhotons* photons, G4DAETransformCache* cache )
+void G4DAECollector::CollectHits( Photons_t* photons, G4DAETransformCache* cache )
 { 
     photons->Print();
     std::size_t size = photons->GetPhotonCount(); 

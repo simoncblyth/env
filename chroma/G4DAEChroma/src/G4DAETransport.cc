@@ -1,5 +1,6 @@
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAESocketBase.hh"
+#include "G4DAEChroma/G4DAESerializablePhotons.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 
 #include "G4Track.hh"
@@ -16,7 +17,10 @@ G4DAETransport::G4DAETransport(const char* envvar) :
 { 
 #ifdef WITH_CHROMA_ZMQ
    m_socket = new G4DAESocketBase(envvar) ;
-   m_photons = new G4DAEPhotonList(100) ;  
+
+   m_photons = (G4DAESerializablePhotons*)new G4DAEPhotonList(100) ;  
+   //m_photons = (G4DAESerializablePhotons*)new G4DAEChromaPhotonList(100) ;  
+
    // hmm capacity needs to be able to grow, or move to vector 
    //  specialization of abstract G4DAEPhotons... 
    //  nope cannot used abstract member ptr as needs to be Serializable
@@ -33,10 +37,10 @@ G4DAETransport::~G4DAETransport()
 }
 
 
-G4DAEPhotonList* G4DAETransport::GetPhotons(){ 
+Photons_t* G4DAETransport::GetPhotons(){ 
     return m_photons ; 
 }
-G4DAEPhotonList* G4DAETransport::GetHits(){ 
+Photons_t* G4DAETransport::GetHits(){ 
     return m_hits ; 
 }
 
@@ -122,7 +126,7 @@ std::size_t G4DAETransport::Propagate(int batch_id)
   if( batch_id > 0 )
   { 
       cout << "G4DAETransport::Propagate : SendReceiveObject " <<  endl ;   
-      m_hits = reinterpret_cast<G4DAEPhotonList*>(m_socket->SendReceiveObject(m_photons));
+      m_hits = reinterpret_cast<Photons_t*>(m_socket->SendReceiveObject(m_photons));
   } 
   else 
   {
@@ -133,6 +137,5 @@ std::size_t G4DAETransport::Propagate(int batch_id)
   return nhits ; 
 
 }
-
 
 

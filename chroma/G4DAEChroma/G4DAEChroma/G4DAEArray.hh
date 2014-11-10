@@ -51,7 +51,9 @@ public:
 public:
     //  serialization/deserialization to file
     virtual void Save(const char* evt, const char* key, const char* tmpl );
+    virtual void SavePath(const char* path, const char* key="NPL");
     static G4DAEArray* Load(const char* evt, const char* key, const char* tmpl );
+    static G4DAEArray* LoadPath(const char* path, const char* key="NPL");
     static std::string GetPath( const char* evt, const char* tmpl );   
 
 public:

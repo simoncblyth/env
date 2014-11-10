@@ -44,6 +44,21 @@ target_link_libraries( ${name}
                         ${ZMQ_LIBRARIES} 
                       )
 
+add_executable(root2npy root2npy.cc )
+
+target_link_libraries( root2npy
+                    #    ${Geant4_LIBRARIES} 
+                    #    ${CHROMAPHOTONLIST_LIBRARIES}
+                        ${G4DAECHROMA_LIBRARIES} 
+                    #    ${ROOT_LIBRARIES} 
+                    #    ${ZMQ_LIBRARIES} 
+                      )
+
+
+
 install(TARGETS ${name} DESTINATION bin)
+install(TARGETS root2npy DESTINATION bin)
+
+
 
 

@@ -192,20 +192,19 @@ int p_copy(const char* evtkey)
 
 
 
-
 int main(int argc, char** argv)
 {
+
+  /*
     const char* evtkey = "3" ;
     p_copy<G4DAEChromaPhotonList,G4DAEPhotonList>(evtkey);
+
     p_copy<G4DAEChromaPhotonList,G4DAEChromaPhotonList>(evtkey);
+
     p_copy<G4DAEPhotonList,G4DAEChromaPhotonList>(evtkey);
+
     p_copy<G4DAEPhotonList,G4DAEPhotonList>(evtkey);
 
-    //p_network<G4DAEPhotonList>();
-    //p_network<G4DAEChromaPhotonList>();
-    //p_string_network();
-
-    /*
 
     p_save<G4DAEPhotonList>(evtkey);
     p_load<G4DAEPhotonList>(evtkey);
@@ -216,8 +215,12 @@ int main(int argc, char** argv)
     p_buffer<G4DAEPhotonList>(evtkey);
     p_buffer<G4DAEChromaPhotonList>(evtkey);
 
+  */
 
-    */
+    // p_network<G4DAEPhotonList>();
+    // p_network<G4DAEChromaPhotonList>();
+    //p_string_network();
+
 
     return 0 ;
 }

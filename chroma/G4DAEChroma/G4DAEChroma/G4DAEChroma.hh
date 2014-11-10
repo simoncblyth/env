@@ -63,6 +63,7 @@ private:
   static G4DAEChroma* fG4DAEChroma;
 
 private:
+
   // Photon Transport 
   G4DAETransport* fTransport ; 
 

@@ -32,10 +32,25 @@ G4DAEPhotonList* G4DAEPhotonList::Load(const char* evt, const char* key, const c
     return new G4DAEPhotonList(array) ;  
 }
 
+G4DAEPhotonList* G4DAEPhotonList::LoadPath(const char* path, const char* key )
+{
+    G4DAEArray* array = G4DAEArray::LoadPath(path, key );
+    return new G4DAEPhotonList(array) ;  
+}
+
 void G4DAEPhotonList::Save(const char* evt, const char* key, const char* tmpl )
 {
     if(m_array) m_array->Save(evt, key, tmpl);
 }
+void G4DAEPhotonList::SavePath(const char* path, const char* key)
+{
+    if(m_array) m_array->SavePath(path, key );
+}
+
+
+
+
+
 
 string G4DAEPhotonList::GetPath(const char* evt, const char* tmpl )
 {

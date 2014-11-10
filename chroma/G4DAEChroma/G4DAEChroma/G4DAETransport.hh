@@ -6,8 +6,9 @@
 
 class G4Track ; 
 class G4DAESocketBase ;
-class G4DAEPhotonList ; 
+class G4DAESerializablePhotons ;
 
+typedef G4DAESerializablePhotons Photons_t ;
 
 
 class G4DAETransport
@@ -22,16 +23,16 @@ public:
     void CollectPhoton(const G4Track* aPhoton );
     void CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid=-1);
 
-    G4DAEPhotonList* GetPhotons();
-    G4DAEPhotonList* GetHits();
+    Photons_t* GetPhotons();
+    Photons_t* GetHits();
  
 private:
 
     G4DAESocketBase* m_socket ;
 
-    G4DAEPhotonList* m_photons ; 
+    Photons_t* m_photons ; 
 
-    G4DAEPhotonList* m_hits  ; 
+    Photons_t* m_hits  ; 
 
 
 };

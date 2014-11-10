@@ -43,6 +43,9 @@ public:
   static G4DAEPhotonList* Load(const char* evt="1", const char* key="GPL", const char* tmpl="DAE_PATH_TEMPLATE_NPY" );
   void Save(const char* evt="dummy", const char* key="GPL", const char* tmpl="DAE_PATH_TEMPLATE_NPY" );
 
+  static G4DAEPhotonList* LoadPath(const char* path, const char* key="GPL");
+  void SavePath(const char* path, const char* key="GPL");
+
 private:
    G4DAEArray* m_array ;
 

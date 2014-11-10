@@ -13,9 +13,21 @@ G4DAEChromaPhotonList* G4DAEChromaPhotonList::Load(const char* evt, const char* 
 {
    ChromaPhotonList* cpl = ChromaPhotonList::Load(evt, key, tmpl);
    if(!cpl) return NULL ; 
-   cpl->Print();
+   //cpl->Print();
    return new G4DAEChromaPhotonList(cpl);
 }
+
+G4DAEChromaPhotonList* G4DAEChromaPhotonList::LoadPath(const char* path, const char* key)
+{
+   ChromaPhotonList* cpl = ChromaPhotonList::LoadPath(path, key);
+   if(!cpl) return NULL ; 
+   //cpl->Print();
+   return new G4DAEChromaPhotonList(cpl);
+}
+
+
+
+
 
 
 G4DAEChromaPhotonList::G4DAEChromaPhotonList(ChromaPhotonList* cpl) : m_buffer(NULL), m_cpl(cpl)
@@ -79,6 +91,11 @@ void G4DAEChromaPhotonList::Save(const char* evt, const char* key, const char* t
 {
    m_cpl->Save(evt, key, tmpl);
 }
+void G4DAEChromaPhotonList::SavePath(const char* path, const char* key)
+{
+   m_cpl->SavePath(path, key );
+}
+
 
 
 

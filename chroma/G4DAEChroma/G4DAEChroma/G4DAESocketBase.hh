@@ -12,6 +12,7 @@
 
 
 class G4DAESerializable ;
+//class G4DAESerializablePhotons ;
 
 
 class G4DAESocketBase
@@ -28,6 +29,7 @@ public:
 public:
   virtual void MirrorObject() const;
   virtual G4DAESerializable* SendReceiveObject(G4DAESerializable* obj) const;
+  //virtual G4DAESerializablePhotons* SendReceiveObject(G4DAESerializablePhotons* obj) const;
 
 protected:
   void* m_context ;   
