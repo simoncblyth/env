@@ -226,7 +226,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--style", help="Key controlling photon render eg confetti/spagetti/movie/.., identifying shaders (vertex/geometry/fragment) and rendering techniques to use, default %(default)s." )
         parser.add_argument( "--nolive",  dest="live", help="[I] Disable live updating via ZMQRoot messages. Default %(default)s.", action="store_false")
         parser.add_argument( "--live",    dest="live", help="[I] Enable live updating via ZMQRoot messages. Default %(default)s.", action="store_true")
-        parser.add_argument( "--load",  help="[I] Path to .root file to read, eg containing ChromaPhotonList instances. Default %(default)s.",type=str)
+        parser.add_argument( "--load",  help="[I] Key used with template to yield path to .root OR .npy file to read. Default %(default)s.",type=str)
         parser.add_argument( "-P","--nopropagate", dest="propagate", help="Inhibit propagations on evt load.", action="store_false" )
         parser.add_argument(      "--propagate",   dest="propagate", help="Enable propagations on evt load.", action="store_true" )
         parser.add_argument( "--save",  help="[I] Path to .root file to write. Default %(default)s.",type=str)

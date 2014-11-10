@@ -5,6 +5,7 @@ DAEDirectConfig
 
 """
 import os, logging, argparse, socket, md5, datetime, stat
+import numpy as np
 log = logging.getLogger(__name__)
 
 try: 
@@ -179,6 +180,14 @@ class DAEDirectConfig(object):
         path = self.resolve_event_path(name)
         cpl = load_cpl(path, key )
         return cpl
+
+
+    def load_npl(self, name, key=None ):
+        """
+        """ 
+        path = self.resolve_event_path(name)
+        npl = np.load(path)
+        return npl
 
     def save_cpl(self, cpl, name, key=None ):
         """

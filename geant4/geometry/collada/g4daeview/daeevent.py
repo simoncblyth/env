@@ -252,14 +252,23 @@ class DAEEvent(DAEEventBase):
 
     def load(self, path_, key=None ):
         path = self.config.resolve_event_path( path_ )
-        cpl = self.config.load_cpl( path, key )
-        if cpl is None:
-            log.warn("load_cpl failed ")
+
+        lpho = None
+        if path[-4:] == ".npy":
+            lpho = self.config.load_npl( path, key )
+            self.setup_npl( lpho )
+        elif path[-5:] == ".root":
+            lpho = self.config.load_cpl( path, key )
+            self.setup_cpl( lpho )
+        else:
+            log.warn("unexpected path extension %s ", path)
+        pass          
+        if lpho is None:
+            log.warn("load failed ")
             return
         pass
         self.loaded = path
         self.eventlist.path = path   # let eventlist know where we are, to allow loadnext loadprev
-        self.setup_cpl( cpl )
         self.config.rmenu.dispatch('on_needs_redraw')
 
     def reload_(self):

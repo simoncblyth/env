@@ -20,6 +20,9 @@ g4daeview
    g4daechroma_transport_testing
    g4daechroma_cpp
    photon_marshalling
+   g4daeview_propagate_timeouts
+
+
 
 
 

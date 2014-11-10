@@ -235,8 +235,9 @@ export-export(){
 }
 
 export-export-pathtmpl(){
-   export DAE_PATH_TEMPLATE="/usr/local/env/tmp/%s.root"
+   export DAE_PATH_TEMPLATE_ROOT="/usr/local/env/tmp/%s.root"
    export DAE_PATH_TEMPLATE_NPY="/usr/local/env/tmp/%s.npy"
+   export DAE_PATH_TEMPLATE=$DAE_PATH_TEMPLATE_NPY
 }
 
 
