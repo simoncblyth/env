@@ -44,8 +44,26 @@ std::string G4DAEPhotons::SwapExt(const char* path, const char* aext, const char
 }
 
 
+G4DAEPhotons* G4DAEPhotons::Load(const char* name, const char* key, const char* tmpl)
+{
+   G4DAEPhotons* photons = NULL ; 
+   if( strcmp( key, "CPL" ) == 0 )
+   {
+       photons = (G4DAEPhotons*)G4DAEChromaPhotonList::Load( name, key, tmpl );
+   } 
+   else if ( strcmp( key, "NPL" ) == 0 )
+   {
+       photons = (G4DAEPhotons*)G4DAEPhotonList::Load( name, key, tmpl );
+   }
+   else
+   {
+       printf("G4DAEPhotons::Load expects key to be either CPL or NPL not [%s] \n", key ); 
+   }
+   return photons ;
+}
 
-G4DAEPhotons* G4DAEPhotons::LoadPhotons(const char* path, const char* _key )
+
+G4DAEPhotons* G4DAEPhotons::LoadPath(const char* path, const char* _key )
 {   
    G4DAEPhotons* photons = NULL ; 
 
@@ -61,14 +79,14 @@ G4DAEPhotons* G4DAEPhotons::LoadPhotons(const char* path, const char* _key )
    } 
    else 
    {
-      printf("unexpected file extension for path %s \n", path );
+      printf("G4DAEPhotons::LoadPhotons unexpected file extension for path %s \n", path );
    }
 
    return photons ; 
 }
 
 
-void G4DAEPhotons::SavePhotons(G4DAEChromaPhotonList* photons, const char* path, const char* _key )
+void G4DAEPhotons::SavePath(G4DAEChromaPhotonList* photons, const char* path, const char* _key )
 {
    if(!photons || !path) return ; 
    
@@ -87,7 +105,7 @@ void G4DAEPhotons::SavePhotons(G4DAEChromaPhotonList* photons, const char* path,
    }
 }
 
-void G4DAEPhotons::SavePhotons(G4DAEPhotonList* photons, const char* path, const char* _key )
+void G4DAEPhotons::SavePath(G4DAEPhotonList* photons, const char* path, const char* _key )
 {
    if(!photons || !path) return ; 
    

@@ -70,6 +70,7 @@ void DsChromaRunAction_BeginOfRunAction( const string& m_transport, const string
     SDMan->AddNewDetector( sensdet );
     chroma->SetSensDet( sensdet );  
 
+    SDMan->ListTree();
     cout << "DsChromaRunAction::BeginOfRunAction AddNewDetector [" << sensdet->GetName() << "]" << endl ; 
 
 }

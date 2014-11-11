@@ -1,6 +1,8 @@
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAESocketBase.hh"
-#include "G4DAEChroma/G4DAESerializablePhotons.hh"
+
+#include "G4DAEChroma/G4DAEPhotons.hh"
+//#include "G4DAEChroma/G4DAESerializablePhotons.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 
 #include "G4Track.hh"
@@ -18,8 +20,8 @@ G4DAETransport::G4DAETransport(const char* envvar) :
 #ifdef WITH_CHROMA_ZMQ
    m_socket = new G4DAESocketBase(envvar) ;
 
-   m_photons = (G4DAESerializablePhotons*)new G4DAEPhotonList(100) ;  
-   //m_photons = (G4DAESerializablePhotons*)new G4DAEChromaPhotonList(100) ;  
+   m_photons = (Photons_t*)new G4DAEPhotonList(100) ;  
+   //m_photons = (Photons_t*)new G4DAEChromaPhotonList(100) ;  
 
    // hmm capacity needs to be able to grow, or move to vector 
    //  specialization of abstract G4DAEPhotons... 
@@ -43,6 +45,21 @@ Photons_t* G4DAETransport::GetPhotons(){
 Photons_t* G4DAETransport::GetHits(){ 
     return m_hits ; 
 }
+
+
+void G4DAETransport::SetPhotons(Photons_t* photons)
+{
+   delete m_photons ; 
+   m_photons = photons ; 
+}
+void G4DAETransport::SetHits(Photons_t* hits)
+{
+   delete m_hits ; 
+   m_hits = hits ; 
+}
+
+
+
 
 
 void G4DAETransport::ClearAll()

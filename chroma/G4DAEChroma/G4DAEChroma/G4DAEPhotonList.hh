@@ -11,7 +11,7 @@
 
 class G4DAEArray ;
 
-class G4DAEPhotonList : public G4DAESerializable, public G4DAEPhotons  {
+class G4DAEPhotonList : public G4DAEPhotons  {
 
 public:
   G4DAEPhotonList( G4DAEPhotons* arr );

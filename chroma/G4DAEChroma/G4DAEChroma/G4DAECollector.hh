@@ -17,8 +17,7 @@ class G4DAETransformCache ;
 //  in specific detector subclasses.
 //
 
-class G4DAESerializablePhotons ;
-typedef G4DAESerializablePhotons Photons_t ;
+#include "G4DAEChroma/Photons_t.hh"
 
 class G4DAECollector  {
 

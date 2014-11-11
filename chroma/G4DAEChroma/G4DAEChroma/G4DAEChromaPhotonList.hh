@@ -1,7 +1,7 @@
 #ifndef G4DAECHROMAPHOTONLIST_H
 #define G4DAECHROMAPHOTONLIST_H
 
-#include "G4DAEChroma/G4DAESerializable.hh"
+//#include "G4DAEChroma/G4DAESerializable.hh"
 #include "G4DAEChroma/G4DAEPhotons.hh"
 #include <string>
 
@@ -14,7 +14,7 @@ class G4DAEBuffer ;
   
 */
 
-class G4DAEChromaPhotonList : public G4DAESerializable, public G4DAEPhotons {
+class G4DAEChromaPhotonList : public G4DAEPhotons {
 
 public:
   G4DAEChromaPhotonList(ChromaPhotonList* cpl);

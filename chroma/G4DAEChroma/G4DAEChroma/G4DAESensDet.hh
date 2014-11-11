@@ -6,9 +6,8 @@
 
 class G4DAETransformCache ; 
 class G4DAECollector ; 
-//class G4DAEPhotons ; 
-class G4DAESerializablePhotons ;
-typedef G4DAESerializablePhotons Photons_t ;
+
+#include "G4DAEChroma/Photons_t.hh"
 
 class G4DAESensDet : public G4VSensitiveDetector {
 

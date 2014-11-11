@@ -6,9 +6,8 @@
 
 class G4Track ; 
 class G4DAESocketBase ;
-class G4DAESerializablePhotons ;
 
-typedef G4DAESerializablePhotons Photons_t ;
+#include "G4DAEChroma/Photons_t.hh"
 
 
 class G4DAETransport
@@ -25,6 +24,10 @@ public:
 
     Photons_t* GetPhotons();
     Photons_t* GetHits();
+
+    // setters take ownership of photons/hits
+    void SetPhotons(Photons_t* photons);
+    void SetHits(   Photons_t* hits);
  
 private:
 
