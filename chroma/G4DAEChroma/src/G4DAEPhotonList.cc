@@ -260,6 +260,22 @@ void G4DAEPhotonList::AddPhoton( G4ThreeVector pos, G4ThreeVector dir, G4ThreeVe
     data[flag_z] =  uifd[2].f ;
     data[flag_w] =  uifd[3].f ;
 
+/*
+
+   default pmtid of -1 appears as nan in the float view 
+
+In [3]: a[:,3,3]
+Out[3]: array([ nan,  nan,  nan, ...,  nan,  nan,  nan], dtype=float32)
+
+In [4]: a[:,3,3].view(np.int32)
+Out[4]: array([-1, -1, -1, ..., -1, -1, -1], dtype=int32)
+
+In [5]: a[:,3,2].view(np.int32)
+Out[5]: array([30, 30, 30, ..., 30, 30, 30], dtype=int32)
+
+*/
+
+
 }
 
 

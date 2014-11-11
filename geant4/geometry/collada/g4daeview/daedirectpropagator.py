@@ -61,12 +61,15 @@ class DAEDirectPropagator(object):
                                   max_blocks=max_blocks,
                                   max_steps=max_steps)
 
-        photons_end = gpu_photons.get()
+        # pycuda get()s from GPU back into ndarrays and creates event.Photon instance
+        photons_end = gpu_photons.get()  
         self.photons_end = photons_end
 
         if type(obj) == np.ndarray:
-            return photons_end.as_npl()
+            log.info("daedirectpropagator:propagate returning photons_end.as_npl()")
+            return photons_end.as_npl(directpropagator=True,hit=True)
         else:
+            log.info("daedirectpropagator:propagate returning create_cpl_from_photons_very_slowly(photons_end)")
             return create_cpl_from_photons_very_slowly(photons_end) 
         pass
 

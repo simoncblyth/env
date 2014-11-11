@@ -14,7 +14,7 @@ void G4DAEHit::LocalTransform(G4AffineTransform* trans)
 { 
     if ( trans == NULL )
     {   
-        cout << "G4DAEHit::LocalTransform NULL transform " << endl ; 
+        //cout << "G4DAEHit::LocalTransform NULL transform " << endl ; 
         lpos = gpos ; 
         lpol = gpol ;
         ldir = gdir ; 

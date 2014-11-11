@@ -30,6 +30,7 @@ public:
 
   static void SavePath( G4DAEPhotonList* photons, const char* path , const char* key="NPL");
   static void SavePath( G4DAEChromaPhotonList* photons, const char* path , const char* key="CPL");
+  static void Save( G4DAEPhotons* photons, const char* name, const char* key="NPL", const char* tmpl="DAE_PATH_TEMPLATE" );
 
   static bool HasExt(const char* path, const char* ext);
   static std::string SwapExt(const char* path, const char* aext, const char* bext);

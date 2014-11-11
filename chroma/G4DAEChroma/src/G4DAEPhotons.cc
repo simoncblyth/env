@@ -125,6 +125,34 @@ void G4DAEPhotons::SavePath(G4DAEPhotonList* photons, const char* path, const ch
 }
 
 
+void G4DAEPhotons::Save(G4DAEPhotons* photons, const char* name, const char* /*key*/, const char* tmpl )
+{
+   if(!photons || !name || !tmpl) return ; 
+   
+    // distinguish the flavor of photons by dynamic casting 
+   G4DAEPhotonList* gnpl = dynamic_cast<G4DAEPhotonList*>(photons);
+   G4DAEChromaPhotonList* gcpl = dynamic_cast<G4DAEChromaPhotonList*>(photons); 
+
+   if( gnpl )
+   {
+       printf("G4DAEPhotons::Save using G4DAEPhotonList \n");
+       gnpl->Save( name, "NPL", tmpl);
+   }
+   else if( gcpl )
+   {
+       printf("G4DAEPhotons::Save using G4DAEChromaPhotonList \n");
+       gcpl->Save( name, "CPL", tmpl);
+   } 
+   else
+   {
+       printf("failed to dynamic_cast photons to allowed type \n");
+   }
+}
+
+
+
+
+
 
 
 

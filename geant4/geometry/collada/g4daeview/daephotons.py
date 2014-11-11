@@ -205,11 +205,14 @@ class DAEPhotons(object):
         the seed eg `propagated-0.npz`. 
         Access the array using eg `daephotonsanalyser.sh --load 1`
 
+
+        **CAUTION** there is different propagation invoked in daedirectpropagator
         """
         log.info("propagate")
         if self.photons is None:return
 
-        max_slots = self.config.args.max_slots
+        #max_slots = self.config.args.max_slots
+        max_slots = self.data.max_slots
 
         vbo = self.renderer.pbuffer   
 
@@ -232,14 +235,19 @@ class DAEPhotons(object):
         self.menuctrl.update_propagated( self.analyzer , special_callback=self.special_callback, msg="from propagate" )    
 
 
+        nphotons = self.data.nphotons
+        last_slot = -2
+        last_slot_indices = np.arange(nphotons)*max_slots + (max_slots+last_slot)
 
-        p = propagated[::max_slots]  ## need an offset here, getting slot 0 
-        r = np.zeros( (len(p),4,4), dtype=np.float32 )
+        #p = propagated[::max_slots]  ## need an offset here, getting slot 0 
+        p = propagated[last_slot_indices]
+
+        r = np.zeros( (len(p),4,4), dtype=np.float32 )  # this is causing float coercion of int32 data "floats" 
 
         r[:,0,:4] = p['position_time'] 
         r[:,1,:4] = p['direction_wavelength'] 
         r[:,2,:4] = p['polarization_weight'] 
-        #r[:,3,:4] = p['polarization_weight'] 
+        r[:,3,:4] = p['last_hit_triangle'].view(r.dtype) 
 
         return r
 

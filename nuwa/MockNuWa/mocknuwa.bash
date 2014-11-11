@@ -89,11 +89,11 @@ mocknuwa-runenv(){
 mocknuwa--(){
    mocknuwa-make install
    [ $? -ne 0 ] && echo $FUNCNAME failed && return 1
-   mocknuwa-run
+   mocknuwa-run $*
 }
 
 mocknuwa-lldb(){
-   lldb $(which MockNuWa)
+   lldb $(which MockNuWa) $*
 }
 
 
@@ -102,7 +102,7 @@ mocknuwa-run(){
    mocknuwa-runenv 
    env | grep G4DAECHROMA
    ls -l $bin
-   $bin
+   $bin $*
 }
 
 

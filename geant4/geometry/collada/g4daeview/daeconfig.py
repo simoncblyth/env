@@ -205,6 +205,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         defaults['live'] = True
         defaults['load'] = None
         defaults['propagate'] = True
+        defaults['clear'] = True
         defaults['save'] = None
         defaults['saveall'] = False
         #defaults['pholine']  = False
@@ -229,6 +230,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--load",  help="[I] Key used with template to yield path to .root OR .npy file to read. Default %(default)s.",type=str)
         parser.add_argument( "-P","--nopropagate", dest="propagate", help="Inhibit propagations on evt load.", action="store_false" )
         parser.add_argument(      "--propagate",   dest="propagate", help="Enable propagations on evt load.", action="store_true" )
+        parser.add_argument(      "--clear",       dest="clear", help="Clear the loaded/propagated evt.", action="store_true" )
         parser.add_argument( "--save",  help="[I] Path to .root file to write. Default %(default)s.",type=str)
         parser.add_argument( "--saveall",  help="[I] Save all CPL received. Default %(default)s.", action="store_true")
         parser.add_argument( "--fpholine", help="In --pholine mode controls line length from position to position + momdirection*fpho. Default %(default)s.",type=float)

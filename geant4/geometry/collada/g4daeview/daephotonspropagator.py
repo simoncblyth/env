@@ -36,7 +36,8 @@ from daephotonskernelfunc import DAEPhotonsKernelFunc
 class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
     kernel_name = "propagate_vbo.cu"
     kernel_func = "propagate_vbo"
-    kernel_args = "iiPPPPiiiiP"
+    #kernel_args = "iiPPPPiiiiP"
+    kernel_args =  "iiPPPPiiiiPPP"
 
     def __init__(self, dphotons, ctx, debug=0):
         """
@@ -153,7 +154,10 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
                              np.int32(max_slots), 
                              np.int32(use_weights), 
                              np.int32(scatter_first), 
-                             self.ctx.gpu_geometry.gpudata) 
+                             self.ctx.gpu_detector.gpudata,
+                             self.ctx.gpu_detector.solid_id_map.gpudata,
+                             self.ctx.gpu_detector.solid_id_to_channel_id_gpu.gpudata,
+                            ) 
 
                     get_time = self.kernel.prepared_timed_call( grid, block, *args )
 

@@ -13,7 +13,7 @@ void split( std::vector<std::string>& elem, const char* line, char delim );
 void isplit( std::vector<int>& elem, const char* line, char delim );
 
 std::string md5digest( const char* str, int length );
-void DumpBuffer(const char* buffer, std::size_t buflen);
+void DumpBuffer(const char* buffer, std::size_t buflen, std::size_t maxlines=64); 
 void DumpVector(const std::vector<float>& v, std::size_t itemsize); 
 
 extern int b_recv( void* socket, zmq_msg_t& msg );

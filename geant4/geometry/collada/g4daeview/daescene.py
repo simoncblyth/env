@@ -365,7 +365,7 @@ class DAEScene(window_event.EventDispatcher):
             elif k == "showmetric":
                 raycast_config[k] = v
                 self.toggle_showmetric() 
-            elif k in ("save","load","key","reload",):
+            elif k in ("save","load","key","reload","clear",):
                 event_config.append( (k,v,) )   
             elif k in ("fpholine","fphopoint","tcut","mask","bits","time", "style","pid","mode","timerange","cohort","material","sid","surface",):
                 photon_config.append( (k,v,) )   
@@ -377,7 +377,7 @@ class DAEScene(window_event.EventDispatcher):
                 setattr(self.trackball, k, v )
             elif k in ("propagate",):
                 log.info("setting config.args.%s = %s " % (k,v ))
-                self.config.args.propagate = v 
+                setattr(self.config.args,k,v)  # problem with this is no immediate action, it just takes effect on next load
             else:
                 log.info("handling of external message key [%s] value [%s] not yet implemented " % (k,v) )
             pass

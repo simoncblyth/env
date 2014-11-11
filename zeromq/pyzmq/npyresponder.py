@@ -9,7 +9,7 @@ ChromaPhotonList (ROOT TObject serialization)
 This means can eliminate ROOT dependency.
 
 """
-import logging, os, io, time
+import logging, os, io, time, errno
 import numpy as np
 import zmq 
 log = logging.getLogger(__name__)
@@ -102,7 +102,7 @@ class NPYResponder(object):
             events = self.socket.poll(timeout=self.config.timeout, flags=self.config.flags )
         except zmq.ZMQError as e:
             if e.errno == errno.EINTR:
-                log.debug("got zmq.ZMQError : Interrupted System Call, return to poll again sometime")
+                log.debug("got zmq.ZMQError : Interrupted System Call, return to poll again sometime, resizing terminal windowtriggers this")
                 return 
             else:
                 raise

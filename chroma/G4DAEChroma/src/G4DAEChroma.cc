@@ -120,11 +120,13 @@ void G4DAEChroma::CollectPhoton(const G4Track* track)
 
 std::size_t G4DAEChroma::Propagate(G4int batch_id)
 {
+  cout << "G4DAEChroma::Propagate batch_id " << batch_id << endl ; 
   std::size_t nhits = fTransport->Propagate(batch_id); 
   if(nhits > 0)
   { 
       fSensDet->CollectHits( fTransport->GetHits(), fCache );
   } 
+  cout << "G4DAEChroma::Propagate batch_id " << batch_id << " nhits " << nhits << endl ; 
   return nhits ; 
 }
 

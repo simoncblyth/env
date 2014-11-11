@@ -2,11 +2,49 @@ ipython-src(){ echo python/ipython.bash ; }
 ipython-source(){  echo $(env-home)/$(ipython-src) ; }
 ipython-vi(){      vi $(ipython-source) ; }
 
+
+ipython-profile-path(){ echo ~/.ipython/profile_$1/ipython_config.py ; }
+ipython-edit(){ vi $(ipython-profile-path $(ipython-profile)) ;} 
+ipython-profile(){ echo g4dae ; }
+
 ipython-usage(){ cat << EOU
 
 
 IPYTHON
 ========
+
+profiles
+---------
+
+::
+
+    (chroma_env)delta:~ blyth$ ipython profile create g4dae
+    [ProfileCreate] Generating default config file: u'/Users/blyth/.ipython/profile_g4dae/ipython_config.py'
+    [ProfileCreate] Generating default config file: u'/Users/blyth/.ipython/profile_g4dae/ipython_notebook_config.py'
+    [ProfileCreate] Generating default config file: u'/Users/blyth/.ipython/profile_g4dae/ipython_nbconvert_config.py'
+    (chroma_env)delta:~ blyth$ 
+
+
+
+customize profile
+------------------
+
+::
+
+    ipython-edit
+
+::
+
+    exec_lines = r"""
+    import os
+    import numpy as np
+    ph = lambda _:np.load(os.environ['DAE_PATH_TEMPLATE'] % _)
+    np.set_printoptions(suppress=True, precision=3)
+    """
+    c.InteractiveShellApp.exec_lines = exec_lines.split("\n")
+
+
+
 
 
 installs

@@ -55,10 +55,14 @@ class DAEEventBase(object):
         """
         :param npl: NPY deserialized array of shape (nphoton,4,4)
 
+        Calls up to subclass, potentially for GUI things like menu updating
         """
         photons = Photons.from_npl(npl, extend=True)   
         self.setup_photons( photons ) 
 
+    def clear(self):
+        log.info("clear setting photons to None")
+        self.setup_photons_base(None)
 
     def setup_photons_base( self, photons ):
         log.info("setup_photons_base")

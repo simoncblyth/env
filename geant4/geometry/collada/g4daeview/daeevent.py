@@ -175,6 +175,8 @@ class DAEEvent(DAEEventBase):
                 self.save(v, key)
             elif k == 'load':
                 self.load(v, key)
+            elif k == 'clear':
+                self.clear()
             elif k == 'tcut':
                 self.qcut = v 
             elif k == 'reload':
@@ -204,6 +206,7 @@ class DAEEvent(DAEEventBase):
         DAEPhotons presentation controller instance.
 
         #. setting the photons property invalidates dependents like `.mesh`
+           and subsequent access will recreate them 
 
         """
         self.setup_photons_base( photons )
@@ -250,6 +253,7 @@ class DAEEvent(DAEEventBase):
             return
         self.config.save_cpl( path_, key, self.cpl.cpl )   
 
+        
     def load(self, path_, key=None ):
         path = self.config.resolve_event_path( path_ )
 

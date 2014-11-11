@@ -89,8 +89,18 @@ void CollectMockPhotonList()
 
 
 
-int main()
+int main(int argc, const char** argv)
 {
+    const char* name = NULL ; 
+    if(argc > 1) name = argv[1] ; 
+
+    if( name == NULL )
+    {
+       printf("expecting an argument specifying the photons to mockup or load \n");
+       exit(1);
+    }
+ 
+
     Mockup_DetDesc_SD();
 
     DsChromaRunAction_BeginOfRunAction("G4DAECHROMA_CLIENT_CONFIG", "G4DAECHROMA_CACHE_DIR", "DsPmtSensDet" , NULL , "" ); // config 
@@ -102,19 +112,33 @@ int main()
 
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
 
-    //CollectMockPhotonList();
+    if( strcmp(name, "mock") == 0 )
+    {
+        CollectMockPhotonList();
+    }
+    else
+    { 
+        printf("load photon cohort named [%s] \n", name );
+        Photons_t* photons = G4DAEPhotons::Load(name);
+        assert(photons);
+        photons->Print(); 
 
-    Photons_t* photons = G4DAEPhotons::Load("1");
-    assert(photons);
+        transport->SetPhotons( photons );
 
-    photons->Print(); 
+        chroma->Propagate(1); // PropagateToHits : <1  fakes the propagation, ie just passes all photons off as hits
 
-    transport->SetPhotons( photons );
+        Photons_t* hits = transport->GetHits();
+        hits->Print();
 
-    chroma->Propagate(1); // PropagateToHits : <1  fakes the propagation, ie just passes all photons off as hits
+        string hname("h") ;
+        hname += name ; 
+        G4DAEPhotons::Save(hits, hname.c_str());
+    }
 
     chroma->GetSensDet()->EndOfEvent(HCE); // G4 calls this for hit handling?
 
+
+    return 0 ; 
 }
 
 

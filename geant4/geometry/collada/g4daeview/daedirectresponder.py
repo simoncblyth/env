@@ -11,11 +11,9 @@ class DAEDirectResponder(NPYResponder):
     Receives and replies to messages from C++/Geant4 
     process containing NPY serializations sent from C++ with::
 
-       G4DAEPhotonList* request = ... ;
-       socket = new G4DAESocket<G4DAEPhotonList>(frontend);
-       socket->SendObject(request);
-       G4DAEPhotonList* response = socket->ReceiveObject();
-
+       G4DAESocketBase* socket = new G4DAESocketBase(frontend);
+       G4DAEPhotons* photons = G4DAEPhotons::Load("1") ;
+       G4DAEPhotons* hits = socket->SendReceiveObject(photons);
 
     Was formerly based on CPLResponder:
 
@@ -28,7 +26,7 @@ class DAEDirectResponder(NPYResponder):
     """
     def __init__(self, config, handler ):
         class Cfg(object):
-            mode = 'connect' # worker, as opposed to 'bind' for server
+            mode = 'connect' # 'connect' for worker, 'bind' for server
             endpoint = config.args.zmqendpoint
             timeout = 100  # millisecond
             sleep = 0.5
