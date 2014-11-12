@@ -44,9 +44,9 @@ class DAEDirectResponder(NPYResponder):
         """
         Overrides base responder .reply method 
         """
-        log.info("DAEDirectResponder request %s " % repr(request) )
+        log.info("DAEDirectResponder request %s " % repr(request.shape) )
         response = self.handler( request )
-        log.info("DAEDirectResponder response %s " % repr(response) )
+        log.info("DAEDirectResponder response %s " % repr(response.shape) )
         return response 
 
         

@@ -117,11 +117,13 @@ class DAEDirectConfig(object):
         # kernel launch config, transitioning from 1D to 2D
         defaults['threads_per_block'] = 64  # 1D
         defaults['max_blocks'] = 1024       # 1D
+        defaults['max_steps'] = 30        
         defaults['block'] = "16,16,1"       # 2D
         defaults['launch'] = "3,2,1"        # 2D
 
         parser.add_argument( "--threads-per-block", help="", type=int )
         parser.add_argument( "--max-blocks", help="", type=int )
+        parser.add_argument( "--max-steps", help="Maximum photon propagation steps. Default %(default)s", type=int )
         parser.add_argument( "--block", help="[I] String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
         parser.add_argument( "--launch", help="[I] String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
 

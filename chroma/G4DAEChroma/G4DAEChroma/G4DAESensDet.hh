@@ -25,7 +25,7 @@ public:
     void SetCollector(G4DAECollector* col);
     G4DAECollector* GetCollector();
 
-    void Print();
+    void Print(const char* msg="G4DAESensDet::Print") const;
     void DumpStatistics( G4HCofThisEvent* HCE );
 
 public:

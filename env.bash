@@ -1488,3 +1488,4 @@ cq-(){      . $(env-home)/nuwa/cq/cq.bash && cq-env $* ; }
 libnpy-(){      . $(env-home)/numpy/libnpy.bash && libnpy-env $* ; }
 rlibnpy-(){      . $(env-home)/numpy/rlibnpy/rlibnpy.bash && rlibnpy-env $* ; }
 cblosc-(){      . $(env-home)/base/compression/blosc/cblosc.bash && cblosc-env $* ; }
+mpl-(){      . $(env-home)/matplotlib/mpl.bash && mpl-env $* ; }

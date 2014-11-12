@@ -92,11 +92,13 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
 
     def propagate(self, 
                   vbo_dev_ptr, 
-                  max_steps=100,
                   max_slots=30, 
                   use_weights=False,
                   scatter_first=0):
         """
+
+        :param: reset_rng_states when True, the RNG is reset for every propagation
+
         Adaption of chroma.gpu.photon.GPUPhotons:propagate
 
         Propagate photons on GPU to termination or max_steps, whichever
@@ -114,11 +116,18 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
 
         Redirecting CUDA printf would be useful for checkinh, but thats not to easy.
         """
+        reset_rng_states = self.ctx.reset_rng_states
+        if reset_rng_states:
+            log.warn("reset_rng_states")
+            self.ctx.rng_states = None
+        pass
+
         nwork = self.nphotons
         self.upload_queues(nwork)
 
         nthreads_per_block = self.ctx.nthreads_per_block
         max_blocks = self.ctx.max_blocks
+        max_steps = self.ctx.max_steps
 
         small_remainder = nthreads_per_block * 16 * 8
         block=(nthreads_per_block,1,1)
@@ -128,12 +137,12 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
             pass
             if nwork < small_remainder or use_weights:
                 nsteps = max_steps - step       
-                log.debug("increase nsteps for stragglers: small_remainder %s nwork %s nsteps %s max_steps %s " % (small_remainder, nwork, nsteps, max_steps))
+                log.info("increase nsteps for stragglers: small_remainder %s nwork %s nsteps %s max_steps %s " % (small_remainder, nwork, nsteps, max_steps))
             else:
                 nsteps = 1
             pass
 
-            log.debug("nwork %s step %s max_steps %s nsteps %s " % (nwork, step,max_steps, nsteps) )
+            log.info("nwork %s step %s max_steps %s nsteps %s " % (nwork, step,max_steps, nsteps) )
 
             times = []
             abort = False
@@ -141,7 +150,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
                 if abort:
                     t = -1 
                 else:
-                    log.debug("prepared_call first_photon %s photons_this_round %s nsteps %s " % (first_photon, photons_this_round, nsteps))
+                    log.info("prepared_call first_photon %s photons_this_round %s nsteps %s " % (first_photon, photons_this_round, nsteps))
 
                     grid=(blocks, 1)
                     args = ( np.int32(first_photon), 
@@ -169,7 +178,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
                     pass
                 pass  
             pass
-            log.debug("launch sequence times %s " % repr(times))
+            log.info("launch sequence times %s " % repr(times))
 
             step += nsteps
             scatter_first = 0 # Only allow non-zero in first pass
@@ -183,7 +192,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
         cuda_driver.Context.get_current().synchronize()
 
 
-    def interop_propagate(self, buf, max_steps=100, max_slots=30 ):
+    def interop_propagate(self, buf, max_slots ):
         """
         :param buf: OpenGL VBO eg renderer.pbuffer
 
@@ -193,7 +202,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
         buf_mapping = buf.cuda_buffer_object.map()
 
         vbo_dev_ptr = buf_mapping.device_ptr()
-        self.propagate( vbo_dev_ptr, max_steps=max_steps, max_slots=max_slots )   
+        self.propagate( vbo_dev_ptr, max_slots=max_slots)   
 
         cuda_driver.Context.synchronize()
         buf_mapping.unmap()

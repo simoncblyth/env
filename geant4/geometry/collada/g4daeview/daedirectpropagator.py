@@ -33,7 +33,7 @@ class DAEDirectPropagator(object):
         self.config = config
         self.chroma = chroma
 
-    def propagate(self, obj, max_steps=10 ):
+    def propagate(self, obj):
         """
         :param obj: ChromaPhotonList instance or np.ndarray from NPY serialization
         :return propagated_cpl: ChromaPhotonList instance
@@ -42,14 +42,21 @@ class DAEDirectPropagator(object):
            into chroma.event.Photons OR photons.Photons   
 
         """
+        nthreads_per_block = self.chroma.nthreads_per_block
+        max_blocks = self.chroma.max_blocks 
+        max_steps = self.chroma.max_steps
+        reset_rng_states = self.chroma.reset_rng_states
+
+        if reset_rng_states:
+            log.warn("reset_rng_states")
+            self.chroma.rng_states = None
+        pass
+
         photons = Photons.from_obj( obj, extend=True)
         self.photons_beg = photons
 
         gpu_photons = GPUPhotonsHit(photons)        
         gpu_detector = self.chroma.gpu_detector
-
-        nthreads_per_block = self.chroma.nthreads_per_block
-        max_blocks = self.chroma.max_blocks 
 
         log.info("nthreads_per_block : %s ", nthreads_per_block ) 
         log.info("max_blocks : %s ", max_blocks ) 

@@ -5,12 +5,23 @@
 #include "G4DAEChroma/G4DAESerializablePhotons.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAEPhotons.hh"
+#include "G4DAEChroma/G4DAEHitList.hh"
 
 #include <string>
 #include <iostream>
 #include <iomanip>
 
 using namespace std;
+
+
+G4DAECollector::G4DAECollector() : m_hits(NULL)
+{
+}
+G4DAECollector::~G4DAECollector()
+{
+   delete m_hits ; 
+}
+
 
 
 void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce ) 
@@ -50,6 +61,9 @@ void G4DAECollector::CollectHits( Photons_t* photons, G4DAETransformCache* cache
     photons->Print();
 #endif
 
+    delete m_hits ;
+    m_hits = new G4DAEHitList(size);
+
     G4DAEHit hit ;
     for( std::size_t index = 0 ; index < size ; index++ )
     {
@@ -59,9 +73,16 @@ void G4DAECollector::CollectHits( Photons_t* photons, G4DAETransformCache* cache
         hit.LocalTransform( transform );  
 
         this->Collect( hit );
+
+        m_hits->AddHit( hit ); 
     }   
 }
 
+
+G4DAEHitList* G4DAECollector::GetHits()
+{
+   return m_hits ; 
+}
 
 void G4DAECollector::AddSomeFakeHits(const IDVec& sensor_ids)
 {

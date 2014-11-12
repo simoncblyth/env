@@ -91,13 +91,12 @@ class DAEResponder(event.EventDispatcher, NPYResponder):
         #. some kinda singleton approach for last propagation ? 
 
         """
-        log.info("DAEResponder.reply : request %s  " % repr(request) )
+        log.info("DAEResponder.reply : request %s  " % repr(request.shape) )
         self.dispatch_event(self.config.handler, request)   # results in setting the photons and propagating 
         log.info("DAEResponder.reply : after dispatch_event with handler %s completes " % self.config.handler )
-
-        r = self.scene.event.dphotons.lastpropagated
-        log.info("DAEResponder.reply : response \n%s\n%s\n%s  " % (r,r.shape,r.dtype.descr) )
-        return r
+        response = self.scene.event.dphotons.lastpropagated
+        log.info("DAEResponder.reply : response %s  " % repr(response.shape) )
+        return response
 
     def on_external_cpl(self, cpl):
         """

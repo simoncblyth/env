@@ -38,9 +38,10 @@ G4DAESensDet::~G4DAESensDet()
 {
 }
 
-void G4DAESensDet::Print()
+void G4DAESensDet::Print(const char* msg) const
 {
-    cout << "G4DAESensDet::Print name " << GetName() << " target [" << m_target << "]" << endl ; 
+    cout << msg 
+         << " name " << GetName() << " target [" << m_target << "]" << endl ; 
 }
 
 
@@ -52,7 +53,9 @@ int G4DAESensDet::initialize()
 
 void G4DAESensDet::Initialize( G4HCofThisEvent* hce )
 {
+#ifdef VERBOSE
     cout << "G4DAESensDet::Initialize hce " << hce << endl ; 
+#endif
     if( m_target.empty() )
     {
         m_collector->CreateHitCollections( SensitiveDetectorName, hce );
@@ -60,7 +63,9 @@ void G4DAESensDet::Initialize( G4HCofThisEvent* hce )
     else 
     {   
         // trojan
+#ifdef VERBOSE
         cout << "G4DAESensDet::Initialize calling StealHitCollections with m_target " << m_target <<  " HCE " << hce << endl ;
+#endif
         m_collector->StealHitCollections( m_target, hce );
     }
 }

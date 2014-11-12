@@ -84,12 +84,16 @@ void DybG4DAECollector::CreateHitCollections( const std::string& sdname, G4HCofT
 
         }       
     }
+
+#ifdef VERBOSE
     cout << "DybG4DAECollector::CreateHitCollections "
          << " HCE " << hce
          << " SDN " << sdname
          << " add #collections  " << hce->GetNumberOfCollections() - noc  
          << " tot " << hce->GetNumberOfCollections()
          << endl; 
+#endif
+
 }
 
 void DybG4DAECollector::StealHitCollections(const std::string& target,  G4HCofThisEvent* HCE)
@@ -129,7 +133,7 @@ void DybG4DAECollector::StealHitCollections(const std::string& target,  G4HCofTh
       G4DhHitCollection* hc = (G4DhHitCollection*)HCE->GetHC(hcid); 
 
       DayaBay::Detector det(colName);
-      if(det.bogus()) cout << "DybG4DAECollector::StealHitCollections : WARNING bogus det " << det << endl ;
+      if(det.bogus() && det != 0x0) cout << "DybG4DAECollector::StealHitCollections : WARNING bogus det " << det << endl ;
       //if(det.bogus()) continue ;
       short int detid = det.siteDetPackedData();
 
@@ -138,11 +142,13 @@ void DybG4DAECollector::StealHitCollections(const std::string& target,  G4HCofTh
 
    } 
 
+#ifdef VERBOSE
    cout << "DybG4DAECollector::StealHitCollections "
         << " HCE " << HCE
         << " target [" << target << "]"
         << " #col " << m_hc.size()
         << endl ; 
+#endif
 }
 
 
@@ -160,6 +166,7 @@ void DybG4DAECollector::Collect( const G4DAEHit& hit )
     sphit->setType(0);
     sphit->setWeight(hit.weight);
 
+    // pick hit site-det collection to insert into 
     DayaBay::Detector det(hit.pmtid);
     short int sdid = det.siteDetPackedData();
 
@@ -178,6 +185,7 @@ void DybG4DAECollector::Collect( const G4DAEHit& hit )
         hc = m_hc[sdid];
     }
 
+#ifdef VERBOSE
     cout << "DybG4DAECollector::CollectHit "
          << " hc : " << (void*)hc 
          << " pmtid : " << (void*)hit.pmtid 
@@ -188,6 +196,7 @@ void DybG4DAECollector::Collect( const G4DAEHit& hit )
          << " pos " << sphit->localPos()/CLHEP::cm << "[cm] " 
          << " wav " << sphit->wavelength()/CLHEP::nm << "[nm]"
          << endl; 
+#endif
 
 
     if(hc == NULL)

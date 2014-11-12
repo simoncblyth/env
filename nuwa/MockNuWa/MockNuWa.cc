@@ -4,6 +4,7 @@
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
+#include "G4DAEChroma/G4DAEHitList.hh"
 
 #include "G4DAEChroma/Photons_t.hh"
 
@@ -92,7 +93,9 @@ void CollectMockPhotonList()
 int main(int argc, const char** argv)
 {
     const char* name = NULL ; 
+    const char* tag  = "hh" ; // eg "hv" for vbo prop, "ha" for array (non-vbo) prop
     if(argc > 1) name = argv[1] ; 
+    if(argc > 2) tag  = argv[2] ; 
 
     if( name == NULL )
     {
@@ -100,12 +103,19 @@ int main(int argc, const char** argv)
        exit(1);
     }
  
+    string htag(tag) ;
+    htag += name ; 
+
 
     Mockup_DetDesc_SD();
 
     DsChromaRunAction_BeginOfRunAction("G4DAECHROMA_CLIENT_CONFIG", "G4DAECHROMA_CACHE_DIR", "DsPmtSensDet" , NULL , "" ); // config 
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+
+    // TODO: simplify API, so normal operations all done through "chroma" instance ?
+    //       reposition photons and hits outside transport 
+    //
 
     G4DAETransport*   transport = chroma->GetTransport();
 
@@ -129,12 +139,18 @@ int main(int argc, const char** argv)
         Photons_t* hits = transport->GetHits();
         hits->Print("mocknuwa: hits");
 
-        string hname("h") ;
-        hname += name ; 
-        G4DAEPhotons::Save(hits, hname.c_str());
+        // hmm need to distinguish between the vbo and non-vbo propagations
+        // but currently no way to do so other than controlling which is running  
+
+        G4DAEPhotons::Save(hits, htag.c_str());
     }
 
-    chroma->GetSensDet()->EndOfEvent(HCE); // G4 calls this for hit handling?
+
+    G4DAESensDet* sd = chroma->GetSensDet();
+    sd->EndOfEvent(HCE); // G4 calls this for hit handling?
+
+    G4DAEHitList* hits = sd->GetCollector()->GetHits(); 
+    hits->Save( htag.c_str() );
 
 
     return 0 ; 

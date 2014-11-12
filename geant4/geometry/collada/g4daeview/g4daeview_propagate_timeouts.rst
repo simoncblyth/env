@@ -6,10 +6,15 @@ Objectives
 
 * robustify propagation
 * monitoring propagation times
+
+  * check dependency on params like max_steps and cohort size 
+
 * reproducibility/seeding
+
+  * need interface for resetting the seed ?
+
 * hit checking 
 
-  * is the transform to local yielding expected coordinates ?
   * flag analysis : NAN_ABORT trace
   * many slot 22 : suggests truncation : check just storage truncation, not step truncation
   * correlate the photons with the hits 
@@ -17,11 +22,27 @@ Objectives
   * hit time distributions
   * hit wavelength distributions
 
+Code Improvements
+-------------------
+
+* move propagation relevant constants into daedirectconfig.py so both propagations use the same 
+
+* provide high level API for ease of use
+
+  * single header "G4DAEChroma.hh"
+  * all normal operations through "chroma" instance ?
+  * reposition photons and hits outside transport 
+
+* move G4DAETransformCache from cnpy to numpy.hpp : to eliminate dependency/duplication 
+
 
 DONE
 ------
 
 * getting sensor ids back to caller
+* is the transform to local yielding expected coordinates ?  yep small
+
+
 
 ::
 
@@ -100,6 +121,20 @@ To visualize initial photons load with `-P/--nopropagate`
    //transport->GetPhotons()->Save("mock006");  // lpos (0,0,500) ldir (0,0,-1)  try to shoot directly at PMT 
    //transport->GetPhotons()->Save("mock007");  // lpos (0,0,1500) ldir (0,0,-1)  try to shoot directly at PMT 
 
+
+
+vbo vs non-vbo hit count difference
+--------------------------------------
+
+::
+
+    In [36]: h.shape
+    Out[36]: (146, 4, 4)
+
+    In [37]: h = ph("h1")
+
+    In [38]: h.shape
+    Out[38]: (33, 4, 4)
 
 
 mocknuwa propagation testing over network

@@ -222,7 +222,7 @@ class DAEPhotons(object):
             log.warn("propagation is inhibited by config: -P/--nopropagate ")  
         else:
             log.warn("propagation proceeding")  
-            self.propagator.interop_propagate( vbo, max_steps=max_steps, max_slots=max_slots )
+            self.propagator.interop_propagate( vbo, max_slots=max_slots ) 
         pass 
 
         propagated = vbo.read()

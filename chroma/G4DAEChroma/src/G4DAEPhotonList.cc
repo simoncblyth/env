@@ -168,13 +168,6 @@ enum {
 };
 
 
-// using union for co-location of int, unsigned int or float within "float" slots 
-typedef union {
-    float f ;
-    int i ;
-    unsigned int u ;
-} uif_t ;  
-
 
 
 std::size_t G4DAEPhotonList::GetPhotonCount() const {

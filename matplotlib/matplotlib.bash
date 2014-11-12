@@ -9,6 +9,17 @@ matplotlib-usage(){
 Matplotlib
 ===========
 
+* see mpl- for usage rather than installation notes
+
+Version
+---------
+
+::
+
+    delta:~ blyth$ python -c "import matplotlib as _ ; print _.__file__, _.__version__ "
+    /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/matplotlib/__init__.pyc 1.3.1
+
+
 OSX installation 
 ------------------
 

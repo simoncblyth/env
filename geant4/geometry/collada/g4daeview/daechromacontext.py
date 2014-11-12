@@ -36,7 +36,9 @@ class DAEChromaContext(object):
         self.deviceid = config.args.deviceid 
         self.nthreads_per_block = config.args.threads_per_block
         self.max_blocks = config.args.max_blocks
+        self.max_steps = config.args.max_steps
         self.seed = config.args.seed
+        self.reset_rng_states = True   # reset rng_states for every propagation, to repeat same random sequence
         pass
         self.setup_random_seed()
         pass
@@ -106,7 +108,12 @@ class DAEChromaContext(object):
         if self._rng_states is None:
             self._rng_states = self.setup_rng_states()
         return self._rng_states
-    rng_states = property(_get_rng_states)
+    def _set_rng_states(self, rs):
+        log.info("_set_rng_states")
+        assert rs is None, "only allowed to set to None"
+        self._rng_states = None
+    rng_states = property(_get_rng_states, _set_rng_states, doc="setter accepts only None, to force recreation")
+   
 
     def _get_raycaster(self):
         if self._raycaster is None:

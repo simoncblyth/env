@@ -4,6 +4,15 @@
 #include <string>
 #include <vector>
 
+
+// using union for co-location of int, unsigned int or float within "float" slots 
+typedef union {
+    float f ;
+    int i ;
+    unsigned int u ;
+} uif_t ;  
+
+
 class G4AffineTransform ;
 
 struct zmq_msg_t ;

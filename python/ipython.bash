@@ -7,6 +7,12 @@ ipython-profile-path(){ echo ~/.ipython/profile_$1/ipython_config.py ; }
 ipython-edit(){ vi $(ipython-profile-path $(ipython-profile)) ;} 
 ipython-profile(){ echo g4dae ; }
 
+ipython-nb(){
+    chroma-
+    ipython notebook --profile $(ipython-profile)
+}
+
+
 ipython-usage(){ cat << EOU
 
 
@@ -25,6 +31,22 @@ profiles
     (chroma_env)delta:~ blyth$ 
 
 
+plotly
+-------
+
+* https://plot.ly/python/3d-plots-tutorial/
+
+notebooks
+-----------
+
+* http://ipython.org/ipython-doc/2/notebook/index.html
+
+nbviewer
+---------
+
+* http://nbviewer.ipython.org/faq
+* https://github.com/ipython/nbviewer
+
 
 customize profile
 ------------------
@@ -38,6 +60,7 @@ customize profile
     exec_lines = r"""
     import os
     import numpy as np
+    import matplotlib.pyplot as plt
     ph = lambda _:np.load(os.environ['DAE_PATH_TEMPLATE'] % _)
     np.set_printoptions(suppress=True, precision=3)
     """

@@ -19,13 +19,16 @@ class G4DAETransformCache ;
 
 #include "G4DAEChroma/Photons_t.hh"
 
+
+class G4DAEHitList ; 
+
 class G4DAECollector  {
 
 public:
     typedef std::vector<std::size_t> IDVec ; 
 
-    G4DAECollector(){};
-    virtual ~G4DAECollector(){};
+    G4DAECollector();
+    virtual ~G4DAECollector();
 
     virtual void DefineCollectionNames(G4CollectionNameVector&) = 0;
     virtual void CreateHitCollections( const std::string& sdname, G4HCofThisEvent* hce ) = 0;
@@ -35,6 +38,11 @@ public:
     virtual void AddSomeFakeHits(const IDVec& sensor_ids);
     virtual void DumpStatistics( G4HCofThisEvent* hce );
     virtual void CollectHits( Photons_t* photons, G4DAETransformCache* cache );
+    G4DAEHitList* GetHits();
+
+private:
+    G4DAEHitList* m_hits ;  // for debugging 
+
 
 
 };

@@ -165,12 +165,17 @@ G4DAETransformCache* G4DAETransformCache::Load(const char* dir)
 
     len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "key.npy");
     path[len] = 0;
+
+#ifdef VERBOSE
     printf("G4DAETransformCache::Load [%s] \n", path ); 
+#endif
     cnpy::NpyArray akey = cnpy::npy_load(path); 
 
     len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "data.npy");
     path[len] = 0;
+#ifdef VERBOSE
     printf("G4DAETransformCache::Load [%s] \n", path ); 
+#endif
     cnpy::NpyArray adata = cnpy::npy_load(path); 
 
 
