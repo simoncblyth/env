@@ -33,7 +33,7 @@ public:
     virtual ~G4DAEArray();
 
     void Populate( std::size_t itemcapacity, std::string itemshapestr, float* data);
-    virtual void Print() const ;
+    virtual void Print(const char* msg="G4DAEArray::Print") const ;
     virtual void Zero();
     virtual void ClearAll();
 

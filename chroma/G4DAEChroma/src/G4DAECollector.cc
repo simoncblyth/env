@@ -24,7 +24,7 @@ void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce )
     int tothits = 0;
     for (int ind=0; ind<ncols; ++ind) 
     {
-        G4VHitsCollection* hc = hce->GetHC(ind);
+       G4VHitsCollection* hc = hce->GetHC(ind);
        if ( hc->GetSize() > 0)
        {
            string colpath = hc->GetSDname() + "//" + hc->GetName() ;
@@ -43,9 +43,12 @@ void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce )
 
 void G4DAECollector::CollectHits( Photons_t* photons, G4DAETransformCache* cache )
 { 
-    photons->Print();
     std::size_t size = photons->GetPhotonCount(); 
+
+#ifdef VERBOSE
     cout << "G4DAECollector::CollectHits size: " << size <<  endl ;   
+    photons->Print();
+#endif
 
     G4DAEHit hit ;
     for( std::size_t index = 0 ; index < size ; index++ )
@@ -55,9 +58,6 @@ void G4DAECollector::CollectHits( Photons_t* photons, G4DAETransformCache* cache
         G4AffineTransform* transform = ( cache == NULL ) ? NULL :  cache->GetSensorTransform(hit.pmtid) ;
         hit.LocalTransform( transform );  
 
-        // specific detector subclasses must implement 
-        // `void Collect( G4DAEHit& hit)` and several others
-        //
         this->Collect( hit );
     }   
 }

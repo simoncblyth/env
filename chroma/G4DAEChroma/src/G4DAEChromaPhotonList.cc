@@ -64,9 +64,9 @@ void G4DAEChromaPhotonList::AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4Th
 void G4DAEChromaPhotonList::GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const {
    m_cpl->GetPhoton( index, pos, mom, pol, _t, _wavelength, _pmtid );
 }
-void G4DAEChromaPhotonList::Print() const 
+void G4DAEChromaPhotonList::Print(const char* msg) const 
 {
-   m_cpl->Print();
+   m_cpl->Print(msg);
 }
 void G4DAEChromaPhotonList::Details(bool hit) const 
 {

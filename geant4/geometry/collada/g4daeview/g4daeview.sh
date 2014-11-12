@@ -1,5 +1,5 @@
 #!/bin/bash -l
-
+echo $0 start $(date)
 cmdline="$*"
 zmqtunnelnode=""
 
@@ -67,6 +67,7 @@ ssh-tunnel-open(){
 [ -n "$zmqtunnelnode" ] && ssh-tunnel-open $zmqtunnelnode
 
 #echo starting
+echo $0 calling python $(date)
 g4daeview.py $*
 
 #cuda_info.py

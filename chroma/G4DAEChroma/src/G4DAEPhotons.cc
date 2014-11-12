@@ -63,37 +63,34 @@ G4DAEPhotons* G4DAEPhotons::Load(const char* name, const char* key, const char* 
 }
 
 
-G4DAEPhotons* G4DAEPhotons::LoadPath(const char* path, const char* _key )
+G4DAEPhotons* G4DAEPhotons::LoadPath(const char* path, const char* key )
 {   
    G4DAEPhotons* photons = NULL ; 
 
    if(HasExt(path, ".root"))
    {
-      //printf("found ROOT %s \n", path );
-      photons = (G4DAEPhotons*)G4DAEChromaPhotonList::LoadPath( path, _key );
+      photons = (G4DAEPhotons*)G4DAEChromaPhotonList::LoadPath( path, key );
    } 
    else if(HasExt(path, ".npy"))
    {
-      //printf("found NPY  %s \n", path );
-      photons = (G4DAEPhotons*)G4DAEPhotonList::LoadPath( path, _key );
+      photons = (G4DAEPhotons*)G4DAEPhotonList::LoadPath( path, key );
    } 
    else 
    {
       printf("G4DAEPhotons::LoadPhotons unexpected file extension for path %s \n", path );
    }
-
    return photons ; 
 }
 
 
-void G4DAEPhotons::SavePath(G4DAEChromaPhotonList* photons, const char* path, const char* _key )
+void G4DAEPhotons::SavePath(G4DAEChromaPhotonList* photons, const char* path, const char* key )
 {
    if(!photons || !path) return ; 
    
    if(HasExt(path, ".root"))
    {
       printf("SavePath %s \n", path );
-      photons->SavePath(path, _key );
+      photons->SavePath(path, key );
    } 
    else if(HasExt(path, ".npy"))
    {
@@ -105,14 +102,14 @@ void G4DAEPhotons::SavePath(G4DAEChromaPhotonList* photons, const char* path, co
    }
 }
 
-void G4DAEPhotons::SavePath(G4DAEPhotonList* photons, const char* path, const char* _key )
+void G4DAEPhotons::SavePath(G4DAEPhotonList* photons, const char* path, const char* key )
 {
    if(!photons || !path) return ; 
    
    if(HasExt(path, ".npy"))
    {
       printf("SavePath %s \n", path );
-      photons->SavePath(path, _key );
+      photons->SavePath(path, key );
    } 
    else if(HasExt(path, ".root"))
    {
@@ -135,17 +132,21 @@ void G4DAEPhotons::Save(G4DAEPhotons* photons, const char* name, const char* /*k
 
    if( gnpl )
    {
+#ifdef VERBOSE
        printf("G4DAEPhotons::Save using G4DAEPhotonList \n");
+#endif
        gnpl->Save( name, "NPL", tmpl);
    }
    else if( gcpl )
    {
+#ifdef VERBOSE
        printf("G4DAEPhotons::Save using G4DAEChromaPhotonList \n");
+#endif
        gcpl->Save( name, "CPL", tmpl);
    } 
    else
    {
-       printf("failed to dynamic_cast photons to allowed type \n");
+       printf("G4DAEPhotons::Save failed to dynamic_cast photons to allowed type \n");
    }
 }
 

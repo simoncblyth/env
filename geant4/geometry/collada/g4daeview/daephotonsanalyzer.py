@@ -155,10 +155,14 @@ class DAEPhotonsPropagated(object):
     steps = property(lambda self:self.propagated['flags'][self.last_index][:,3])
     time_range = property(lambda self:[0.,self.tf.max()])  # start from 0, not min
 
-    lht   = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,0]) 
-    mat1  = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,1]) 
-    mat2  = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,2]) 
-    slots = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,3]) 
+
+    # must correspond to layout in propagate_vbo.cu 
+    photon_id2 = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,0]) 
+    slots      = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,1]) 
+    flags2     = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,2]) 
+    pmtid      = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,3]) 
+
+
 
     history = property(lambda self:count_unique(self.flags))
     hsteps  = property(lambda self:count_unique(self.steps))

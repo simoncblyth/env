@@ -152,17 +152,17 @@ int b_send( void* socket, const char* bytes, size_t size )
    memcpy(zmq_msg_data (&zmsg), bytes, size );   // TODO : check for zero copy approaches
 
    rc = zmq_msg_send (&zmsg, socket, 0);
-   
+
    if (rc == -1) {
        int err = zmq_errno();
        printf ("b_send : Error occurred during zmq_msg_send : %s\n", zmq_strerror(err));
-       abort (); 
-   } else {
-       int nbytes = rc ; 
-       printf ("b_send : zmq_msg_send sent %d bytes \n", nbytes);
    }
-  
    zmq_msg_close (&zmsg); 
+
+#ifdef VERBOSE
+   int nbytes = rc ; 
+   printf ("b_send : zmq_msg_send sent %d bytes \n", nbytes);
+#endif
 
    return rc ;
 }
@@ -178,12 +178,14 @@ int b_recv( void* socket, zmq_msg_t& msg )
     rc = zmq_msg_recv (&msg, socket, 0);   
 
     if(rc == -1){
-       int err = zmq_errno();
-       printf( "b_recv : Error on zmq_msg_recv : %s \n", zmq_strerror(err)) ;
-    } else {
-       printf( "b_recv : zmq_msg_recv received %d bytes \n", rc ) ;
-    }
+        int err = zmq_errno();
+        printf( "b_recv : Error on zmq_msg_recv : %s \n", zmq_strerror(err)) ;
+        return rc ;
+    } 
 
+#ifdef VERBOSE
+    printf( "b_recv : zmq_msg_recv received %d bytes \n", rc ) ;
+#endif
     return rc ;
 }
 

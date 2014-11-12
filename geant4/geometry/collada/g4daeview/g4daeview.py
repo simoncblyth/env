@@ -294,6 +294,7 @@ from env.cuda.cuda_launch import CUDACheck
 
 
 def main():
+    log.info("************  main ")
     config = DAEConfig(__doc__)
     config.init_parse()
     config.report()
@@ -308,7 +309,9 @@ def main():
     rmenu = DAEMenu("rtop", backend=rmenu_glut)
     config.rmenu = rmenu
 
+    log.info("************  DAEGeometry.get ")
     geometry = DAEGeometry.get(config)
+    log.info("************  DAEGeometry.get DONE ")
 
     figure = gp.Figure(size=config.size)
     frame = figure.add_frame(size=config.frame)

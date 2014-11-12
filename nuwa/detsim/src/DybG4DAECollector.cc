@@ -178,7 +178,6 @@ void DybG4DAECollector::Collect( const G4DAEHit& hit )
         hc = m_hc[sdid];
     }
 
-#if 0
     cout << "DybG4DAECollector::CollectHit "
          << " hc : " << (void*)hc 
          << " pmtid : " << (void*)hit.pmtid 
@@ -189,7 +188,6 @@ void DybG4DAECollector::Collect( const G4DAEHit& hit )
          << " pos " << sphit->localPos()/CLHEP::cm << "[cm] " 
          << " wav " << sphit->wavelength()/CLHEP::nm << "[nm]"
          << endl; 
-#endif
 
 
     if(hc == NULL)

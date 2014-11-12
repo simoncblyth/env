@@ -99,7 +99,9 @@ G4DAESerializable* G4DAESocketBase::SendReceiveObject(G4DAESerializable* request
         request->SaveToBuffer(); // serialization of object to the buffer
         const char* bytes = request->GetBufferBytes();
         size_t size = request->GetBufferSize();
+#ifdef VERBOSE
         printf("G4DAESocketBase::SendReceiveObject : send  %lu \n", size );
+#endif
         b_send( m_socket, bytes, size );
     } 
     // receive

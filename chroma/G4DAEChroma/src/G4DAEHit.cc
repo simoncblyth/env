@@ -29,9 +29,9 @@ void G4DAEHit::LocalTransform(G4AffineTransform* trans)
     }
 }
 
-void G4DAEHit::Print()
+void G4DAEHit::Print(const char* msg) const
 {
-    cout 
+    cout  << msg 
           << " pmtid "       << pmtid 
           << " t "     << t 
           << " wavelength " << wavelength 

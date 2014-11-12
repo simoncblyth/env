@@ -118,17 +118,16 @@ int main(int argc, const char** argv)
     }
     else
     { 
-        printf("load photon cohort named [%s] \n", name );
         Photons_t* photons = G4DAEPhotons::Load(name);
         assert(photons);
-        photons->Print(); 
+        photons->Print("mocknuwa: photons"); 
 
         transport->SetPhotons( photons );
 
         chroma->Propagate(1); // PropagateToHits : <1  fakes the propagation, ie just passes all photons off as hits
 
         Photons_t* hits = transport->GetHits();
-        hits->Print();
+        hits->Print("mocknuwa: hits");
 
         string hname("h") ;
         hname += name ; 

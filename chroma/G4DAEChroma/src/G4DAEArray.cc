@@ -50,9 +50,10 @@ void G4DAEArray::Populate( char* bytes, size_t size )
 {
     if(!bytes) return;  // zombie expedient, for zombie->Create(bytes, size) 
 
-    printf("G4DAEArray::G4DAEArray [%zu][0x%lx]\n", size, size );
-
+#ifdef VERBOSE
+    printf("G4DAEArray::Populate [%zu][0x%lx] ::DumpBuffer \n", size, size );
     ::DumpBuffer( bytes, size);
+#endif
 
     std::vector<int>  shape ;
     std::vector<float> data ;
@@ -187,9 +188,9 @@ string G4DAEArray::GetDigest() const
     return md5digest( data, nbytes ); 
 } 
 
-void G4DAEArray::Print() const 
+void G4DAEArray::Print(const char* msg ) const 
 {
-    cout <<  "G4DAEArray::Print " 
+    cout << msg 
          << " size: " << GetSize() 
          << " capacity: " << GetCapacity() 
          << " itemsize: " << GetItemSize() 
@@ -229,8 +230,10 @@ void G4DAEArray::SavePath(const char* _path, const char* /*key*/)
 {
    string path(_path);
    string itemshape = GetItemShapeString();
-   printf("G4DAEArray::Save [%s] itemcount %lu itemshape %s \n", path.c_str(), m_itemcount, itemshape.c_str() );
    aoba::SaveArrayAsNumpy<float>(path, m_itemcount, itemshape.c_str(), m_data );
+#ifdef VERBOSE
+   printf("G4DAEArray::SavePath [%s] itemcount %lu itemshape %s \n", path.c_str(), m_itemcount, itemshape.c_str() );
+#endif
 }
 
 
@@ -242,14 +245,15 @@ void G4DAEArray::SaveToBuffer()
    string itemshape = GetItemShapeString();
    size_t nbytes = aoba::BufferSize<float>(m_itemcount, itemshape.c_str(), fortran_order  );  
 
-   printf("G4DAEArray::SaveToBuffer itemcount %lu itemshape %s nbytes %zu \n", m_itemcount, itemshape.c_str(), nbytes );
-
    delete m_buffer ; 
    m_buffer = new G4DAEBuffer(nbytes); 
 
    size_t wbytes = aoba::BufferSaveArrayAsNumpy<float>( m_buffer->GetBytes(), fortran_order, m_itemcount, itemshape.c_str(), m_data );  
    assert( wbytes == nbytes );
-   printf("G4DAEArray::SaveToBuffer wrote bytes %zu \n", wbytes );
+
+#ifdef VERBOSE
+   printf("G4DAEArray::SaveToBuffer itemcount %lu itemshape %s nbytes %zu wrote bytes %zu \n", m_itemcount, itemshape.c_str(), nbytes, wbytes );
+#endif
 }
 
 const char* G4DAEArray::GetBufferBytes()
@@ -290,8 +294,10 @@ G4DAEArray* G4DAEArray::LoadPath(const char* _path, const char* /*key*/ )
    size_t itemsize = FormItemSize( shape, 1);
    size_t nitems = data.size()/itemsize ; 
 
+#ifdef VERBOSE
    printf("G4DAEArray::Load [%s] itemsize %lu itemshape %s nitems %lu data.size %lu \n", 
        path.c_str(), itemsize, itemshape.c_str(), nitems, data.size() );
+#endif
 
    return new G4DAEArray( nitems, itemshape, data.data() );  
 }

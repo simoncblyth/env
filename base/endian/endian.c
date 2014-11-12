@@ -33,17 +33,22 @@ int main()
             break ;
     } 
     printf("\n");
-    printf("sizeof(int)     %zu \n", sizeof(int)); 
-    printf("sizeof(float)   %zu \n", sizeof(float)); 
-    printf("sizeof(double)  %zu \n", sizeof(double)); 
-    printf("sizeof(char)    %zu \n", sizeof(char)); 
-    printf("sizeof(void)    %zu \n", sizeof(void)); 
+    printf("sizeof(char)            %zu \n", sizeof(char)); 
+    printf("sizeof(void)            %zu \n", sizeof(void)); 
+    printf("sizeof(short)           %zu \n", sizeof(short)); 
+    printf("sizeof(unsigned short)  %zu \n", sizeof(unsigned short)); 
+    printf("sizeof(int)             %zu \n", sizeof(int)); 
+    printf("sizeof(unsigned int)    %zu \n", sizeof(unsigned int)); 
+    printf("sizeof(float)           %zu \n", sizeof(float)); 
+    printf("sizeof(long)            %zu \n", sizeof(long)); 
+    printf("sizeof(unsigned long)   %zu \n", sizeof(unsigned long)); 
+    printf("sizeof(double)          %zu \n", sizeof(double)); 
     printf("\n");
-    printf("sizeof(int*)    %zu \n", sizeof(int*)); 
-    printf("sizeof(float*)  %zu \n", sizeof(float*)); 
-    printf("sizeof(double*) %zu \n", sizeof(float*)); 
-    printf("sizeof(char*)   %zu \n", sizeof(char*)); 
-    printf("sizeof(void*)   %zu \n", sizeof(void*)); 
+    printf("sizeof(int*)            %zu \n", sizeof(int*)); 
+    printf("sizeof(float*)          %zu \n", sizeof(float*)); 
+    printf("sizeof(double*)         %zu \n", sizeof(float*)); 
+    printf("sizeof(char*)           %zu \n", sizeof(char*)); 
+    printf("sizeof(void*)           %zu \n", sizeof(void*)); 
 
 }
 

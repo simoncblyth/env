@@ -110,9 +110,9 @@ std::size_t G4DAEPhotonList::GetBufferSize()
 // G4DAEPhotons
 
 
-void G4DAEPhotonList::Print() const 
+void G4DAEPhotonList::Print(const char* msg) const 
 {
-    if(m_array) m_array->Print();
+    if(m_array) m_array->Print(msg);
 }
 
 void G4DAEPhotonList::Details(bool hit) const 
@@ -168,10 +168,11 @@ enum {
 };
 
 
-// using union for writing ints into float slot 
+// using union for co-location of int, unsigned int or float within "float" slots 
 typedef union {
     float f ;
     int i ;
+    unsigned int u ;
 } uif_t ;  
 
 
@@ -196,6 +197,7 @@ void G4DAEPhotonList::ClearAllPhotons() {
 void G4DAEPhotonList::GetPhoton( std::size_t index , G4ThreeVector& pos, G4ThreeVector& dir, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const
 {
     float* data = m_array->GetItemPointer( index );
+
     pos.setX(data[post_x]);
     pos.setY(data[post_y]);
     pos.setZ(data[post_z]);
@@ -217,10 +219,15 @@ void G4DAEPhotonList::GetPhoton( std::size_t index , G4ThreeVector& pos, G4Three
     uifd[2].f = data[flag_z];
     uifd[3].f = data[flag_w]; 
 
-    // =  uifd[0].i ;
-    // =  uifd[1].i ;
-    // =  uifd[2].i ;
-    _pmtid =  uifd[3].i ;
+    // TODO: get this back to caller, struct to hold the quad ?
+    int _photon_id ; 
+    int _spare ; 
+    unsigned int _flags ;
+
+    _photon_id = uifd[0].i ;
+    _spare     = uifd[1].i ;
+    _flags     = uifd[2].u ;
+    _pmtid     = uifd[3].i ;
 
 }
 
@@ -249,11 +256,15 @@ void G4DAEPhotonList::AddPhoton( G4ThreeVector pos, G4ThreeVector dir, G4ThreeVe
 
     //assert(sizeof(float) == sizeof(int)); 
 
+    int _photon_id = 0; 
+    int _spare     = 0; 
+    unsigned int _flags     = 0 ;
+
     uif_t uifd[4] ; 
-    uifd[0].i = 10 ;
-    uifd[1].i = 20 ;
-    uifd[2].i = 30 ;
-    uifd[3].i = _pmtid ; 
+    uifd[0].i = _photon_id ;
+    uifd[1].i = _spare ;
+    uifd[2].u = _flags     ;
+    uifd[3].i = _pmtid     ; 
 
     data[flag_x] =  uifd[0].f ;
     data[flag_y] =  uifd[1].f ;

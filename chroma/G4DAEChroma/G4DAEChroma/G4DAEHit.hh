@@ -32,7 +32,7 @@ struct G4DAEHit {
     void Init(G4DAEPhotons* photons, std::size_t index);
     void InitFake( std::size_t sensor_id, std::size_t track_id );
     void LocalTransform(G4AffineTransform* trans);
-    void Print();
+    void Print(const char* msg="G4DAEHit::Print") const;
 
 };
 

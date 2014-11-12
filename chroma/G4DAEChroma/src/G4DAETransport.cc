@@ -20,12 +20,9 @@ G4DAETransport::G4DAETransport(const char* envvar) :
 #ifdef WITH_CHROMA_ZMQ
    m_socket = new G4DAESocketBase(envvar) ;
 
-   m_photons = (Photons_t*)new G4DAEPhotonList(100) ;  
-   //m_photons = (Photons_t*)new G4DAEChromaPhotonList(100) ;  
+   // TODO: make this NULL and move to always using SetPhotons ?
+   m_photons = (Photons_t*)new G4DAEPhotonList(100) ;   
 
-   // hmm capacity needs to be able to grow, or move to vector 
-   //  specialization of abstract G4DAEPhotons... 
-   //  nope cannot used abstract member ptr as needs to be Serializable
 #endif
 }
 
@@ -129,26 +126,29 @@ void G4DAETransport::CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector
 
 std::size_t G4DAETransport::Propagate(int batch_id)
 {
-   size_t size = m_photons->GetPhotonCount();
-
-   cout << "G4DAETransport::Propagate batch_id " << batch_id <<  " size " << size <<  endl ;   
-   
-   m_photons->Print();
-
+   size_t size = m_photons ? m_photons->GetPhotonCount() : 0 ;
    if(size == 0){
-       cout << "::Propagate Skip send/recv for empty photons list  " <<  endl;   
+       cout << "G4DAETransport::Propagate SKIP no/empty photons list  " <<  endl;   
        return 0 ;
-  }
+   }
+
+#ifdef VERBOSE
+   cout << "G4DAETransport::Propagate batch_id " << batch_id <<  " size " << size <<  endl ;   
+   m_photons->Print();
+#endif
+
 
   if( batch_id > 0 )
   { 
+#ifdef VERBOSE
       cout << "G4DAETransport::Propagate : SendReceiveObject " <<  endl ;   
+#endif
       m_hits = reinterpret_cast<Photons_t*>(m_socket->SendReceiveObject(m_photons));
   } 
   else 
   {
       cout << "G4DAETransport::Propagate : fake Send/Recv " << endl ; 
-      m_hits = m_photons ;  // double delete, but just for debug 
+      m_hits = m_photons ;  // potential double delete, but just for debug 
   } 
   std::size_t nhits = m_hits->GetPhotonCount();
   return nhits ; 

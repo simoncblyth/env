@@ -18,7 +18,7 @@ public:
 
   virtual void AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid=-1) = 0 ;
   virtual void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const = 0 ; 
-  virtual void Print() const = 0 ;
+  virtual void Print(const char* msg="G4DAEPhotons::Print") const = 0 ;
   virtual void Details(bool hit) const = 0 ;
   virtual std::size_t GetPhotonCount() const = 0;
   virtual std::string GetPhotonDigest() const = 0;

@@ -234,23 +234,26 @@ class DAEPhotons(object):
         pass
         self.menuctrl.update_propagated( self.analyzer , special_callback=self.special_callback, msg="from propagate" )    
 
-
         nphotons = self.data.nphotons
         last_slot = -2
         last_slot_indices = np.arange(nphotons)*max_slots + (max_slots+last_slot)
 
-        #p = propagated[::max_slots]  ## need an offset here, getting slot 0 
+        #p = propagated[::max_slots]  ## slot 0 
         p = propagated[last_slot_indices]
 
-        r = np.zeros( (len(p),4,4), dtype=np.float32 )  # this is causing float coercion of int32 data "floats" 
+        r = np.zeros( (len(p),4,4), dtype=np.float32 )  
 
         r[:,0,:4] = p['position_time'] 
         r[:,1,:4] = p['direction_wavelength'] 
         r[:,2,:4] = p['polarization_weight'] 
-        r[:,3,:4] = p['last_hit_triangle'].view(r.dtype) 
+        r[:,3,:4] = p['last_hit_triangle'].view(r.dtype) # must view as target type to avoid coercion of int32 data into float32
 
-        return r
+        #photon_id  = r[:,3,0]     #    
+        #spare      = r[:,3,1]     #    
+        #flags      = r[:,3,2]     # history  
+        channel_id = r[:,3,3]     # pmtid 
 
+        return r[channel_id > 0]   
 
 
     def draw(self):

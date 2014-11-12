@@ -28,7 +28,7 @@ public:
   // G4DAEPhotons
   void AddPhoton(G4ThreeVector pos, G4ThreeVector mom, G4ThreeVector pol, float _t, float _wavelength, int _pmtid=-1);
   void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const ; 
-  void Print() const ;
+  void Print(const char* msg="G4DAEChromaPhotonList::Print") const ;
   void Details(bool hit) const ;
   std::size_t GetPhotonCount() const ;
   std::string GetPhotonDigest() const ;

@@ -1,22 +1,149 @@
 Propagate Timeouts
 ====================
 
-Some photon files like mock001 succeed to propagate, some 
-causing timeouts.
-
 Objectives
 ----------
 
-* robustify 
-* getting sensor ids back into hit collections
-* monitoring times
+* robustify propagation
+* monitoring propagation times
+* reproducibility/seeding
+* hit checking 
+
+  * is the transform to local yielding expected coordinates ?
+  * flag analysis : NAN_ABORT trace
+  * many slot 22 : suggests truncation : check just storage truncation, not step truncation
+  * correlate the photons with the hits 
+  * compare vbo to non-vbo propagation
+  * hit time distributions
+  * hit wavelength distributions
+
+
+DONE
+------
+
+* getting sensor ids back to caller
+
+::
+
+    # vbo propagation 
+    # photon_id / slot / history / pmtid 
+
+    In [23]: h[:,3,:4].view(np.int32)
+    Out[23]: 
+    array([[      62,       22,       68, 16844311],
+           [      74,       22,       84, 16844311],
+           [      82,       22,       68, 16844810],
+           [      93,       22,      580, 16843276],
+           [     164,       22,       68, 16843021],
+           [     170,       11,       68, 16844291],
+           [     194,        5,      516, 16844033],
+           [     248,        6,      516, 16843800],
+
+
+Issues
+--------
+
+timeouts
+~~~~~~~~~
+
+Some photon lists like mock001 succeed to propagate, 
+some like mock007 causing timeouts.
+
+pycuda errors that manifest as timeouts can be due to the GPU equivalent 
+of a segfault which kills the context, and subsequently causes the 
+timeout as the host has no context to talk to on device.
+
+Are certain photon parameters causing "segfaults" on GPU ?
+
+::
+
+     File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daephotons.py", line 222, in propagate
+        self.propagator.interop_propagate( vbo, max_steps=max_steps, max_slots=max_slots )
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daephotonspropagator.py", line 192, in interop_propagate
+        self.propagate( vbo_dev_ptr, max_steps=max_steps, max_slots=max_slots )   
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daephotonspropagator.py", line 160, in propagate
+        t = get_time()
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/driver.py", line 453, in get_call_time
+        end.synchronize()
+    pycuda._driver.LaunchError: cuEventSynchronize failed: launch timeout
+    PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
+    cuEventDestroy failed: launch timeout
+    PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
+    cuEventDestroy failed: launch timeout
+    PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
+    cuGLUnmapBufferObject failed: launch timeout
+    (chroma_env)delta:g4daeview blyth$ 
+    (chroma_env)delta:g4daeview blyth$ 
+    (chroma_env)delta:g4daeview blyth$ g4daeview.sh --load mock007
+
+
+
+mock photons
+-------------
+
+Using the transform cache, samples of photons were prepared with 
+directions oriented with respect to the PMTs. Eg bullseye photons.
+
+To visualize initial photons load with `-P/--nopropagate` 
+
+::
+
+   g4daeview.sh --load mock002 --nopropagate --geometry-regexp PmtHemiCathode
+
+
+::
+
+   //transport->GetPhotons()->Save("mock002");  // ldir +y
+   //transport->GetPhotons()->Save("mock003");  // ldir +x
+   //transport->GetPhotons()->Save("mock004");  // ldir +z
+   //transport->GetPhotons()->Save("mock005");  // lpos (0,0,100) ldir (0,0,-1)  try to shoot directly at PMT 
+   //transport->GetPhotons()->Save("mock006");  // lpos (0,0,500) ldir (0,0,-1)  try to shoot directly at PMT 
+   //transport->GetPhotons()->Save("mock007");  // lpos (0,0,1500) ldir (0,0,-1)  try to shoot directly at PMT 
+
+
+
+mocknuwa propagation testing over network
+--------------------------------------------
+
+While running::
+
+    # non-vbo  propagation using propagate_hit.cu gpu/photon_hit.py GPUPhotonsHit 
+    g4daechroma.sh        
+
+    # vbo propagation with the GUI 
+    g4daeview.sh --live   
+    g4daeview.sh --zmqendpoint=tcp://localhost:5002
+
+    # the broker
+    czmq-;czmq-broker-local    
+
+Provoke a propagation with::
+
+    mocknuwa.sh 1
+
+file based propagation testing
+--------------------------------
+
+debug propagation with::
+
+    daedirectpropagation.sh mock001
+
+visualize initial positions by holding propagation
+----------------------------------------------------
+
+::
+
+
+   g4daeview.sh --load mock002 --nopropagate --geometry-regexp PmtHemiCathode
+   udp.py --load mock002 
+   udp.py --load mock003 
+   udp.py --propagate
+
+
 
 
 vbo propagation
 -----------------
-
-
-#. more difficult as uses vbo photon data
 
 Kernel invoked from interop_propagate  `daephotons.py`::
 
@@ -204,56 +331,45 @@ Must use GPUDetector (not GPUGeometry) to have the mapping arrays.
 threading sensor ids back to caller (vbo)
 ----------------------------------------------
 
-Hmm coming in as ints in a float, non-unionized::
+::
 
-    In [28]: h = ph("h1")
+    In [7]: h = ph("h1")
 
-    In [35]: a = h[:,3,0].view(np.int32)
+    In [8]: a = h[:,3,0].view(np.int32)
 
-    In [38]: b = h[:,3,1].view(np.int32)
+    In [9]: b = h[:,3,1].view(np.int32)
 
-    In [43]: c = h[:,3,2].view(np.int32)
+    In [10]: c = h[:,3,2].view(np.int32)
+        
+    In [11]: a[a != 0]
+    Out[11]: 
+    array([ 750,  276,  816,  342,  486,  702, 1044,  936,  696,  696, 1050,
+           1194,  372,  390,  756, 1086,  762, 1134,  786,  726, 1026,  408,
+            912,   48,  102,   78,  756,  942,  954, 1164,  108,  876, 1092,
+            702,  504,  414,  702,  498,  522,  546,  768,  324, 1086, 1008,
 
-    In [42]: a[a != 0].view(np.float32)
-    Out[42]: 
-    array([  750.,   276.,   816.,   342.,   486.,   702.,  1044.,   936.,
-             696.,   696.,  1050.,  1194.,   372.,   390.,   756.,  1086.,
-             762.,  1134.,   786.,   726.,  1026.,   408.,   912.,    48.,
-             102.,    78.,   756.,   942.,   954.,  1164.,   108.,   876.,
+            ...
 
+    In [13]: np.set_printoptions(formatter={'int':hex})
 
-    In [41]: b[b != 0].view(np.float32)
-    Out[41]: 
-    array([ 16844054.,  16843280.,  16844296.,  16843522.,  16843778.,
-            16844046.,  16844568.,  16844548.,  16844044.,  16844044.,
-            16844568.,  16844824.,  16843528.,  16843530.,  16844056.,
+    In [14]: b[b != 0]
+    Out[14]: 
+    array([0x1010516, 0x101020f, 0x1010609, 0x1010302, 0x1010402, 0x101050e,
+           0x1010717, 0x1010705, 0x101050d, 0x101050d, 0x1010718, 0x1010818,
+           0x1010307, 0x101030a, 0x1010517, 0x1010806, 0x1010518, 0x101080e,
+           0x1010604, 0x1010512, 0x1010714, 0x101030d, 0x1010701, 0x1010101,
+           ...
+ 
 
-    In [44]: c[c != 0].view(np.float32)
-    Out[44]: array([ 888.,  888.,  888., ...,  888.,  888.,  888.], dtype=float32)
+    In [16]: np.set_printoptions(formatter={'int':None})
 
-
-The int data has somewhere been coerced into a float, not left to travel 
-as a funny float (containing int data).  Maybe fixed via `.view(np.float32)` at creation.
+    In [17]: c[c != 0]
+    Out[17]: array([888, 888, 888, ..., 888, 888, 888], dtype=int32)
 
 
 
 threading sensor ids back to caller (non-vbo)
 ----------------------------------------------
-
-Following::
-
-    mocknuwa.sh 1
-
-While running::
-
-    g4daechroma.sh        # non-vbo  propagation using propagate_hit.cu gpu/photon_hit.py GPUPhotonsHit 
-    g4daeview.sh --live   # for vbo propagation with the GUI 
-
-
-Broker::
-
-    czmq-;czmq-broker-local
-
 
 ::
 
@@ -293,97 +409,5 @@ Hmm for comparison need photon index in the hits array
 
 
 
-
-network setup for testing
---------------------------
-
-::
-
-      czmq-
-      czmq-broker-local 
-
-      g4daeview.sh --zmqendpoint=tcp://localhost:5002
-
-      OR g4daechroma.sh
-
-      mocknuwa-
-      mocknuwa-runenv
-      G4DAECHROMA_CLIENT_CONFIG=tcp://localhost:5001 mocknuwa
-
-
-file based testing
--------------------
-
-debug propagation with::
-
-    daedirectpropagation.sh mock001
-
-
-holding propagation
----------------------
-
-::
-
-
-   g4daeview.sh --load mock002 --nopropagate --geometry-regexp PmtHemiCathode
-   udp.py --load mock002 
-   udp.py --load mock003 
-   udp.py --propagate
-
-
-mock photons
--------------
-
-Using the transform cache, samples of photons were prepared with 
-directions oriented with respect to the PMTs. Eg bullseye photons.
-
-To visualize initial photons load with `-P/--nopropagate` 
-
-::
-
-   g4daeview.sh --load mock002 --nopropagate --geometry-regexp PmtHemiCathode
-
-
-::
-
-   //transport->GetPhotons()->Save("mock002");  // ldir +y
-   //transport->GetPhotons()->Save("mock003");  // ldir +x
-   //transport->GetPhotons()->Save("mock004");  // ldir +z
-   //transport->GetPhotons()->Save("mock005");  // lpos (0,0,100) ldir (0,0,-1)  try to shoot directly at PMT 
-   //transport->GetPhotons()->Save("mock006");  // lpos (0,0,500) ldir (0,0,-1)  try to shoot directly at PMT 
-   //transport->GetPhotons()->Save("mock007");  // lpos (0,0,1500) ldir (0,0,-1)  try to shoot directly at PMT 
-
-
-
-timeouts
----------
-
-pycuda errors that manifest as timeouts can be due to the GPU equivalent 
-of a segfault which kills the context, and subsequently causes the 
-timeout as the host has no context to talk to on device.
-
-Are certain photon parameters causing "segfaults" on GPU ?
-
-
-::
-
-     File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daephotons.py", line 222, in propagate
-        self.propagator.interop_propagate( vbo, max_steps=max_steps, max_slots=max_slots )
-      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daephotonspropagator.py", line 192, in interop_propagate
-        self.propagate( vbo_dev_ptr, max_steps=max_steps, max_slots=max_slots )   
-      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/geant4/geometry/collada/g4daeview/daephotonspropagator.py", line 160, in propagate
-        t = get_time()
-      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/driver.py", line 453, in get_call_time
-        end.synchronize()
-    pycuda._driver.LaunchError: cuEventSynchronize failed: launch timeout
-    PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
-    cuEventDestroy failed: launch timeout
-    PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
-    cuEventDestroy failed: launch timeout
-    PyCUDA WARNING: a clean-up operation failed (dead context maybe?)
-    cuGLUnmapBufferObject failed: launch timeout
-    (chroma_env)delta:g4daeview blyth$ 
-    (chroma_env)delta:g4daeview blyth$ 
-    (chroma_env)delta:g4daeview blyth$ g4daeview.sh --load mock007
 
 
