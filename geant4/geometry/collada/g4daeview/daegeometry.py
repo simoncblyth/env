@@ -4,8 +4,9 @@ import os, logging, re, time
 log = logging.getLogger(__name__)
 import numpy as np
 from env.geant4.geometry.collada.g4daenode import DAENode 
+from env.base.timing import timing, timing_report
 
-from daeutil import printoptions, ModelToWorld, WorldToModel, timing
+from daeutil import printoptions, ModelToWorld, WorldToModel
 from daeviewpoint import DAEViewpoint
 from daechromamaterialmap import DAEChromaMaterialMap
 from daechromasurfacemap import DAEChromaSurfaceMap
@@ -17,19 +18,24 @@ tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode'))
 shortname_ = lambda _:_[17:-9]   # trim __dd__Materials__GdDopedLS_fx_0xc2a8ed0 into GdDopedLS 
 
 
+class Regexp(object):
+    def __init__(self, ptn):
+        """
+        :param ptn: string search regexp 
+        """
+        self.ptn = re.compile(ptn)
 
-def select_by_regexp(nodes, ptn ):
-    """
-    :param nodes: list of instances (eg DAENode or DAESolid) with .id attribute
-    :param ptn: string search regexp 
+    def select(self, nodes):
+        """
+        :param nodes: list of instances (eg DAENode or DAESolid) with .id attribute
 
-    Usage example::
+        Usage example::
 
-        daegeometry.sh --geometry-regexp PmtHemiCathode 
+            daegeometry.sh --geometry-regexp PmtHemiCathode 
 
-    """
-    ptn = re.compile(ptn)
-    return filter(None,map(lambda _:_ if ptn.search(_.id) else None, nodes ))
+        """
+        match_ = lambda _:_ if self.ptn.search(_.id) else None
+        return filter(None,map(match_, nodes))
 
 
 class DAEMesh(object):
@@ -41,6 +47,8 @@ class DAEMesh(object):
     requires a numpy array of vertices, so a ChromaPhotonList 
     can be treated as a DAEMesh for navigation purposes.
     """
+    secs = {}
+    @timing(secs)
     def __init__(self, vertices, triangles=[], normals=[] ):
         self.vertices = vertices
         self.triangles = triangles
@@ -164,15 +172,19 @@ class DAESolid(DAEMesh):
 
     DAEMesh vertex 466  triangles 884  normals 584 
     """
+    secs = {}
     def __init__(self, node, bound=True, generateNormals=True):
         """
         :param node: DAENode instance 
         """
         assert node.__class__.__name__ == 'DAENode'
         pl = list(node.boundgeom.primitives())[0] if bound else node.geo.geometry.primitives[0]
-        tris = pl.triangleset()
+
+        #tris = pl.triangleset()
+        tris = self.make_tris(pl) 
+
         if generateNormals:
-            tris.generateNormals()
+            self.genNormals(tris)
        
         DAEMesh.__init__(self, tris._vertex, tris._vertex_index, tris._normal )
 
@@ -183,6 +195,15 @@ class DAESolid(DAEMesh):
         if not self.check():
             log.debug("DAESolid Meshcheck failure %s " % self)
 
+    @timing(secs)
+    def make_tris(self, pl):
+        return pl.triangleset()
+
+    @timing(secs)
+    def genNormals(self, tris):
+        tris.generateNormals()
+
+
     def __repr__(self):
         return "{0:6.1f} {1:-5d}  {2:s}".format(self.extent, self.index, self.id)    # py26 needs the positional indices 0,1,2    py27 doesnt 
 
@@ -190,6 +211,30 @@ class DAESolid(DAEMesh):
        
 
 class DAEGeometry(object):
+    """
+    DAEGeometry 
+    __init__        :      6.395          1      6.395     ## getall(=parse) + make_solids = 2.462 + 3.933 = 6.395 
+    flatten         :      0.132          1      0.132 
+    make_solids     :      3.933          1      3.933 
+
+    DAENode    
+    getall          :      2.462          1      2.462 
+    init            :      2.460          1      2.460 
+    parse           :      2.460          1      2.460 
+
+    DAESolid   
+    genNormals      :      2.763       9068      0.000 
+    make_tris       :      0.401       9068      0.000 
+
+        2.763+0.401 = 3.164
+
+
+    DAEMesh    
+    __init__        :      0.022       9069      0.000 
+
+
+
+    """
     secs = {}
     @timing(secs)
     def __init__(self, config ):
@@ -203,18 +248,29 @@ class DAEGeometry(object):
             o_nodes = DAENode.getall(nodespec, config.path)
             geometry_regexp = config.args.geometry_regexp
             if not geometry_regexp is None:
-                nodes = select_by_regexp(o_nodes, geometry_regexp)
+                regexp = Regexp(geometry_regexp)
+                nodes = regexp.select(o_nodes)
                 log.info("geometry_regexp %s reduced nodes from %s to %s " % (geometry_regexp,len(o_nodes), len(nodes)))
             else:
                 nodes = o_nodes
             pass
-            solids = [DAESolid(node, config.args.bound) for node in nodes]
+            solids = self.make_solids(nodes, config.args.bound)
         pass
         self.solids = solids
         self.mesh = None
         self.bbox_cache = None
         self.config = config
-       
+ 
+
+ 
+    @timing(secs)
+    def make_solids(self, nodes, bound):
+        """
+        Taking almost 4 seconds 
+        """
+        return [DAESolid(node, bound) for node in nodes]
+
+ 
     def __str__(self):
         return "-p %s -g %s " % ( self.config.args.path, self.config.args.geometry )
 
@@ -324,7 +380,8 @@ class DAEGeometry(object):
                 geometry.save_to_cache(geocachepath)
             pass
 
-        log.info("DAEGeometry.get DONE  %s" % repr(cls.secs))
+        log.info("DAEGeometry.get DONE timing_report ")
+        timing_report([DAEGeometry, DAENode, DAESolid, DAEMesh])
         return geometry 
 
     @timing(secs)

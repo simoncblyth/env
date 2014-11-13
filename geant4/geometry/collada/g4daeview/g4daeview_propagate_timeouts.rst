@@ -5,27 +5,36 @@ Objectives
 ----------
 
 * robustify propagation
-* monitoring propagation times
 
-  * check dependency on params like max_steps and cohort size 
 
-* reproducibility/seeding
+* bookkeeping
 
-  * need interface for resetting the seed ?
+  * local worker lockfile to prevent two propagators running simultaneously on same node
+  * python metadata dict containing propagator name and parameters : could be the lockfile 
+  * how to do this remotely? multipart zmq message with 2nd frame containing metadata ?
+
+    * probably json https://github.com/vivkin/gason as easy to 
+      translate from python dict and parsers available in every language : speed
+      is not a great concern as not much metadata 
+
+  * sqlite based recording of 
+
+    * propagation parameters and times
+    * photon/hits/hitlist digests 
+
+  * exercise bookkeeping by checking dependency on params like max_steps and cohort size 
 
 * hit checking 
 
   * flag analysis : NAN_ABORT trace
   * many slot 22 : suggests truncation : check just storage truncation, not step truncation
   * correlate the photons with the hits 
-  * compare vbo to non-vbo propagation
   * hit time distributions
   * hit wavelength distributions
 
+
 Code Improvements
 -------------------
-
-* move propagation relevant constants into daedirectconfig.py so both propagations use the same 
 
 * provide high level API for ease of use
 
@@ -39,6 +48,9 @@ Code Improvements
 DONE
 ------
 
+* reproducibility/seeding : reproducibility established by reset_rng_states that does reset for every propagation 
+* compare vbo to non-vbo propagation : match made
+* move propagation relevant constants into daedirectconfig.py so both propagations use the same 
 * getting sensor ids back to caller
 * is the transform to local yielding expected coordinates ?  yep small
 

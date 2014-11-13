@@ -63,6 +63,8 @@ import os, sys, logging, re, json
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)   # chroma has weird logging, forcing this placement 
 
+from env.base.timing import timing, timing_report
+
 import numpy as np
 from env.geant4.geometry.collada.g4daenode import DAENode
 from chroma.geometry import Mesh, Solid, Material, Surface, Geometry
@@ -190,8 +192,10 @@ class SurfaceType(object):
 
 
 class ColladaToChroma(object):
+    secs = {}
     surface_props = "detect absorb reemit reflect_diffuse reflect_specular eta k reemission_cdf".split()
 
+    @timing(secs)
     def __init__(self, nodecls, bvh=False):
         """
         :param nodecls: typically DAENode
@@ -213,6 +217,7 @@ class ColladaToChroma(object):
         self.channel_count = 0
         self.channel_ids = set()
 
+    @timing(secs)
     def convert_opticalsurfaces(self, debug=False):
         """
         """
@@ -312,6 +317,7 @@ class ColladaToChroma(object):
         return surface
 
 
+    @timing(secs)
     def convert_materials(self, debug=False):
         """
         #. creates chroma Material instances for each collada material 
@@ -480,8 +486,6 @@ class ColladaToChroma(object):
         return self._surfacemap
     surfacemap = property(_get_surfacemap)
  
-
-
  
     def property_plot(self, matname , propname ):
         import matplotlib.pyplot as plt
@@ -490,6 +494,29 @@ class ColladaToChroma(object):
         #plt.plot( xy[:,0], xy[:,1] )
         plt.plot(*xy.T)
 
+    @timing(secs)
+    def convert_geometry_traverse(self, nodes=None):
+        log.debug("convert_geometry_traverse")
+        if nodes is None:  
+            self.nodecls.vwalk(self.visit)
+        else:
+            for node in nodes:
+                self.visit(node)
+        pass
+        self.dump_channel_info()
+
+    @timing(secs)
+    def convert_flatten(self):
+        log.debug("ColladaToChroma convert_geometry flattening %s " % len(self.chroma_geometry.solids))
+        self.chroma_geometry.flatten()
+
+    @timing(secs)
+    def convert_make_maps(self):
+        self.cmm = self.make_chroma_material_map( self.chroma_geometry )
+        self.csm = self.make_chroma_surface_map( self.chroma_geometry )
+
+
+    @timing(secs)
     def convert_geometry(self, nodes=None):
         """
         :param nodes: list of DAENode instances or None
@@ -503,25 +530,15 @@ class ColladaToChroma(object):
 
         self.convert_materials() 
         self.convert_opticalsurfaces() 
+        self.convert_geometry_traverse(nodes) 
+        self.convert_flatten() 
+        self.convert_make_maps() 
 
-        log.debug("convert_geometry visit")
-        if nodes is None:  
-            self.nodecls.vwalk(self.visit)
-        else:
-            for node in nodes:
-                self.visit(node)
-        pass
-        self.dump_channel_info()
-
-        log.debug("ColladaToChroma convert_geometry flattening %s " % len(self.chroma_geometry.solids))
-
-        self.chroma_geometry.flatten()
-        self.cmm = self.make_chroma_material_map( self.chroma_geometry )
-        self.csm = self.make_chroma_surface_map( self.chroma_geometry )
         if self.bvh:
             self.add_bvh()
 
-        log.info("convert_geometry DONE")
+        log.info("convert_geometry DONE timing_report: ")
+        timing_report( [self.__class__] )
 
 
     def make_chroma_material_map(self, chroma_geometry):
@@ -546,6 +563,7 @@ class ColladaToChroma(object):
         return csm
 
 
+    @timing(secs)
     def add_bvh( self, bvh_name="default", auto_build_bvh=True, read_bvh_cache=True, update_bvh_cache=True, cache_dir=None, cuda_device=None):
         """
         As done by chroma.loader
@@ -676,14 +694,17 @@ class ColladaToChroma(object):
         Chroma needs sensitive detectors to have an associated surface 
         with detect property ...
         """
-        assert node.__class__.__name__ == 'DAENode'
+        #assert node.__class__.__name__ == 'DAENode'
         self.vcount += 1
         if self.vcount < 10:
             log.debug("visit : vcount %s node.index %s node.id %s " % ( self.vcount, node.index, node.id ))
 
         bps = list(node.boundgeom.primitives())
+        
         bpl = bps[0]
+        
         assert len(bps) == 1 and bpl.__class__.__name__ == 'BoundPolylist'
+        
         tris = bpl.triangleset()
 
         vertices = tris._vertex

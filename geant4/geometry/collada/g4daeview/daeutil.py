@@ -9,23 +9,6 @@ import contextlib
 normalize_ = lambda _:_/np.linalg.norm(_)
 
 
-# three levels allows the decorator to take an argument 
-def timing(results): 
-    def real_timing(func):
-        def wrapper(*arg,**kw):
-            """
-            As this is invoked, during the wrapping, the func
-            is not yet an instance method (no im_class), 
-            so adopt devious approach of passing in a class variable 
-            as an argument to the decorator, in order to leave the timing 
-            results in the class variable.
-            """
-            t0 = time.time()
-            res = func(*arg,**kw)
-            results[func.func_name] = time.time()-t0 
-            return res 
-        return wrapper
-    return real_timing 
 
 
 @contextlib.contextmanager

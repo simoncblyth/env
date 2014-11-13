@@ -275,6 +275,8 @@ import collada
 #from monkey_matrix_load import _monkey_matrix_load
 #collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)   
 
+from env.base.timing import timing
+
 from collada.xmlutil import etree as ET
 from collada.xmlutil import writeXML, COLLADA_NS, E
 from collada.common import DaeObject
@@ -326,6 +328,7 @@ def present_geometry( bg ):
 
 
 class DAENode(object):
+    secs = {}
     registry = []
     lookup = {}
     idlookup = {}
@@ -546,6 +549,7 @@ class DAENode(object):
 
 
     @classmethod
+    @timing(secs)
     def parse( cls, path ):
         """
         :param path: to collada file
@@ -693,11 +697,12 @@ class DAENode(object):
         return node
 
     @classmethod
-    def getall(cls, arg, path=None):
+    @timing(secs)  # 2.5s in init/parse
+    def getall(cls, nodespec, path=None):
         if not path is None:
             cls.init(path)
         pass
-        indices = cls.interpret_ids(arg)
+        indices = cls.interpret_ids(nodespec)
         return [cls.registry[index] for index in indices]
 
     @classmethod
@@ -808,6 +813,7 @@ class DAENode(object):
 
 
     @classmethod
+    @timing(secs)
     def init(cls, path=None ):
         if path is None:
             path = os.environ['DAE_NAME']
