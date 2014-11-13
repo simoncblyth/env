@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-import os, logging, re
+import os, logging, re, time
 log = logging.getLogger(__name__)
 import numpy as np
 from env.geant4.geometry.collada.g4daenode import DAENode 
 
-from daeutil import printoptions, ModelToWorld, WorldToModel
+from daeutil import printoptions, ModelToWorld, WorldToModel, timing
 from daeviewpoint import DAEViewpoint
 from daechromamaterialmap import DAEChromaMaterialMap
 from daechromasurfacemap import DAEChromaSurfaceMap
@@ -190,6 +190,8 @@ class DAESolid(DAEMesh):
        
 
 class DAEGeometry(object):
+    secs = {}
+    @timing(secs)
     def __init__(self, config ):
         """
         :param config: DAEConfig instance
@@ -311,6 +313,7 @@ class DAEGeometry(object):
         """
         Get from cache when `geocache` configured or create  
         """
+        log.info("DAEGeometry.get START")
         geocachepath = config.geocachepath
         if os.path.exists(geocachepath) and config.args.geocache:
             geometry = cls.load_from_cache( config )
@@ -321,10 +324,10 @@ class DAEGeometry(object):
                 geometry.save_to_cache(geocachepath)
             pass
 
-        log.info("DAEGeometry.get DONE")
+        log.info("DAEGeometry.get DONE  %s" % repr(cls.secs))
         return geometry 
 
-
+    @timing(secs)
     def flatten(self):
         """  
         Adapted from Chroma geometry flattening 
@@ -412,6 +415,7 @@ class DAEGeometry(object):
             vertices = self.mesh.vertices
         return DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )
       
+    @timing(secs)
     def make_chroma_geometry(self, bvh=True):
         """
         This was formerly converting the entire geometry, not the 

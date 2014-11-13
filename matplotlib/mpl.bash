@@ -8,24 +8,13 @@ mpl-usage(){ cat << EOU
 Matplotlib Notes
 ==================
 
-See also matplotlib-
+See also matplotlib- ipython-
 
 
 Refs
 -----
 
 * http://www.physics.ucdavis.edu/~dwittman/Matplotlib-examples/
-
-
-with ipython notebook web interface
--------------------------------------
-
-* http://nbviewer.ipython.org
- 
-  * many examples of note book usage 
-  * http://nbviewer.ipython.org/github/jrjohansson/scientific-python-lectures/blob/master/Lecture-4-Matplotlib.ipynb
-
-* http://jakevdp.github.io/mpl_tutorial/tutorial_pages/tut5.html
 
 
 Access photons hit data 4x4

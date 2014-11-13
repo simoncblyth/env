@@ -502,7 +502,10 @@ class DAEVertexBuffer(object):
         #. only points dont "invalid operation" with geometry shader 
 
         """ 
-        #log.info("multidraw %s " %  drawcount)
+        log.info("slot   %s " %  slot )
+        log.info("firsts %s " %  firsts )
+        log.info("counts %s " %  counts )
+        log.info("drawcount %s " %  drawcount)
 
         gl.glBindBuffer( gl.GL_ARRAY_BUFFER, self.vertices_id )
 

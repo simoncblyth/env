@@ -36,10 +36,27 @@ plotly
 
 * https://plot.ly/python/3d-plots-tutorial/
 
-notebooks
------------
+notebooks web interface
+-------------------------
 
 * http://ipython.org/ipython-doc/2/notebook/index.html
+
+* http://nbviewer.ipython.org
+ 
+  * many examples of note book usage 
+
+* http://nbviewer.ipython.org/github/jrjohansson/scientific-python-lectures/blob/master/Lecture-4-Matplotlib.ipynb
+
+  * matplotlib inline 
+
+* http://nbviewer.ipython.org/github/ipython/ipython/blob/2.x/examples/Notebook/User%20Interface.ipynb
+
+  * shortcut keys 
+
+* http://jakevdp.github.io/mpl_tutorial/tutorial_pages/tut5.html
+
+
+
 
 nbviewer
 ---------

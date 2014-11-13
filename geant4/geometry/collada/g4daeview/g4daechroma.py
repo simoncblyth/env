@@ -64,10 +64,13 @@ def main():
     config = DAEDirectConfig(__doc__)
     config.parse()
     np.set_printoptions(precision=3, suppress=True)
+    log.info("***** post DAEDirectConfig.parse")
 
     geometry = DAEGeometry.get(config) 
+    log.info("***** post DAEGeometry.get")
 
     gdc = G4DAEChroma(geometry, config )
+    log.info("***** post G4DAEChroma ctor")
     gdc.poll_forever()
 
 

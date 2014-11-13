@@ -148,20 +148,30 @@ class DAEPhotonsPropagated(object):
         return vec
 
 
-    flags = property(lambda self:self.propagated['flags'][self.last_index][:,0])
-    t0    = property(lambda self:self.propagated['flags'][self.last_index][:,1].view(np.float32))
-    tf    = property(lambda self:self.propagated['flags'][self.last_index][:,2].view(np.float32))
-    tl    = property(lambda self:self.tf - self.t0)
-    steps = property(lambda self:self.propagated['flags'][self.last_index][:,3])
-    time_range = property(lambda self:[0.,self.tf.max()])  # start from 0, not min
+    # must correspond to layout in propagate_vbo.cu for photon visualization to work 
+    # TODO: pull out critical interpretation of vbo structure into base class
+    #
+    # from daephotonsdata.py vbo structure
+    #
+    #     last_hit_triangle np.int32
+    #     flags             np.uint32 
+    # 
+    # this type difference matters for OpenGL calling multidraw
+    #
 
-
-    # must correspond to layout in propagate_vbo.cu 
-    photon_id2 = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,0]) 
-    slots      = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,1]) 
-    flags2     = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,2]) 
+    photon_id  = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,0]) 
+    slots0     = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,1]) 
+    flags      = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,2]) 
     pmtid      = property(lambda self:self.propagated['last_hit_triangle'][self.last_index][:,3]) 
 
+    slots = property(lambda self:self.propagated['flags'][self.last_index][:,0].view(np.int32))
+    t0    = property(lambda self:self.propagated['flags'][self.last_index][:,1].view(np.float32))
+    tf    = property(lambda self:self.propagated['flags'][self.last_index][:,2].view(np.float32))
+    steps = property(lambda self:self.propagated['flags'][self.last_index][:,3])
+
+
+    tl    = property(lambda self:self.tf - self.t0)
+    time_range = property(lambda self:[0.,self.tf.max()])  # start from 0, not min
 
 
     history = property(lambda self:count_unique(self.flags))
