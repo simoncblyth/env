@@ -137,7 +137,7 @@ int main(int argc, const char** argv)
         chroma->Propagate(1); // PropagateToHits : <1  fakes the propagation, ie just passes all photons off as hits
 
         Photons_t* hits = transport->GetHits();
-        hits->Print("mocknuwa: hits");
+        hits->Print("mocknuwa: hits___");
 
         // hmm need to distinguish between the vbo and non-vbo propagations
         // but currently no way to do so other than controlling which is running  
@@ -149,8 +149,9 @@ int main(int argc, const char** argv)
     G4DAESensDet* sd = chroma->GetSensDet();
     sd->EndOfEvent(HCE); // G4 calls this for hit handling?
 
-    G4DAEHitList* hits = sd->GetCollector()->GetHits(); 
-    hits->Save( htag.c_str() );
+    G4DAEHitList* hitlist = sd->GetCollector()->GetHits(); 
+    hitlist->Save( htag.c_str() );
+    hitlist->Print("mocknuwa: hitlist");
 
 
     return 0 ; 

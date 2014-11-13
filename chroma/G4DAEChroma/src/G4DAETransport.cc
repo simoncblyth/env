@@ -64,11 +64,11 @@ void G4DAETransport::ClearAll()
 #ifdef WITH_CHROMA_ZMQ
     if(m_photons)
     {
-        m_photons->ClearAllPhotons();   
+        m_photons->ClearAll();   
     }
     if(m_hits)
     {
-        m_hits->ClearAllPhotons();   
+        m_hits->ClearAll();   
     }
 #endif
 }
@@ -126,7 +126,7 @@ void G4DAETransport::CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector
 
 std::size_t G4DAETransport::Propagate(int batch_id)
 {
-   size_t size = m_photons ? m_photons->GetPhotonCount() : 0 ;
+   size_t size = m_photons ? m_photons->GetCount() : 0 ;
    if(size == 0){
        cout << "G4DAETransport::Propagate SKIP no/empty photons list  " <<  endl;   
        return 0 ;
@@ -150,7 +150,7 @@ std::size_t G4DAETransport::Propagate(int batch_id)
       cout << "G4DAETransport::Propagate : fake Send/Recv " << endl ; 
       m_hits = m_photons ;  // potential double delete, but just for debug 
   } 
-  std::size_t nhits = m_hits->GetPhotonCount();
+  std::size_t nhits = m_hits->GetCount();
   return nhits ; 
 
 }

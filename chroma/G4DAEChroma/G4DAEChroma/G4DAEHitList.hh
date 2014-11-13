@@ -6,10 +6,15 @@
 #include <G4ThreeVector.hh>
 
 #include "G4DAEChroma/G4DAEHit.hh"
+#include "G4DAEChroma/G4DAEArrayHolder.hh"
 
 class G4DAEArray ;
 
-class G4DAEHitList {
+class G4DAEHitList : public G4DAEArrayHolder {
+
+  static const char* TMPL ;   // name of envvar containing path template 
+  static const char* SHAPE ;  // numpy array itemshape eg "8,3" or "4,4" 
+  static const char* KEY ;  
 
 public:
   G4DAEHitList( G4DAEArray* array );
@@ -18,20 +23,17 @@ public:
 
 public:
   void AddHit( G4DAEHit& hit );
-  void Print(const char* msg="G4DAEHitList::Print") const ; 
+
+
+// the below cannot go to base due to the static tmpl arguments
+public:
+  static std::string GetPath( const char* evt, const char* tmpl=TMPL);   
+  static G4DAEHitList* Load(const char* evt, const char* key=KEY, const char* tmpl=TMPL);
+  static G4DAEHitList* LoadPath(const char* path, const char* key=KEY);
 
 public:
-  // other  
-  static std::string GetPath( const char* evt="dummy" , const char* tmpl="DAEHIT_PATH_TEMPLATE");   
-  static G4DAEHitList* Load(const char* evt="1", const char* key="GPL", const char* tmpl="DAEHIT_PATH_TEMPLATE" );
-  void Save(const char* evt="dummy", const char* key="GPL", const char* tmpl="DAEHIT_PATH_TEMPLATE" );
-
-  static G4DAEHitList* LoadPath(const char* path, const char* key="GPL");
-  void SavePath(const char* path, const char* key="GPL");
-
-private:
-   G4DAEArray* m_array ;
-
+  virtual void Save(const char* evt, const char* key=KEY, const char* tmpl=TMPL );
+  virtual void SavePath(const char* path, const char* key=KEY);
 
 };
 

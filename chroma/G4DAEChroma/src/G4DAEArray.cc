@@ -191,11 +191,11 @@ string G4DAEArray::GetDigest() const
 void G4DAEArray::Print(const char* msg ) const 
 {
     cout << msg 
-         << " size: " << GetSize() 
-         << " capacity: " << GetCapacity() 
-         << " itemsize: " << GetItemSize() 
-         << " itemshape: " << GetItemShapeString() 
-         << " bytesused: " << GetBytesUsed() 
+         << " size: "     << setw(4) << GetSize() 
+         << " capacity: " << setw(4) << GetCapacity() 
+         << " itemsize: " << setw(4) << GetItemSize() 
+         << " itemshape: " << setw(4) << GetItemShapeString() 
+         << " bytesused: " << setw(7) << GetBytesUsed() 
          << " digest: " << GetDigest() 
          << endl ;    
 } 

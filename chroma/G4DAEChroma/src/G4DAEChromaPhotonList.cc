@@ -7,6 +7,10 @@
 
 using namespace std ; 
 
+const char* G4DAEChromaPhotonList::TMPL = "DAE_PATH_TEMPLATE_CPL" ;
+const char* G4DAEChromaPhotonList::KEY  = "CPL" ;
+const char* G4DAEChromaPhotonList::SHAPE  = "0,0" ; /* not used*/
+
 
 
 G4DAEChromaPhotonList* G4DAEChromaPhotonList::Load(const char* evt, const char* key, const char* tmpl )
@@ -72,15 +76,15 @@ void G4DAEChromaPhotonList::Details(bool hit) const
 {
    m_cpl->Details(hit);
 }
-std::size_t G4DAEChromaPhotonList::GetPhotonCount() const 
+std::size_t G4DAEChromaPhotonList::GetCount() const 
 {
     return m_cpl->GetSize();
 }
-std::string G4DAEChromaPhotonList::GetPhotonDigest() const 
+std::string G4DAEChromaPhotonList::GetDigest() const 
 {
    return m_cpl->GetDigest();
 }
-void G4DAEChromaPhotonList::ClearAllPhotons() 
+void G4DAEChromaPhotonList::ClearAll() 
 {
     return m_cpl->ClearAll();
 }

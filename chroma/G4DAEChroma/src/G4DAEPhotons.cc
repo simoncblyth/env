@@ -12,7 +12,7 @@
 
 void G4DAEPhotons::Transfer( G4DAEPhotons* dest , G4DAEPhotons* src )
 {
-   size_t nphoton = src->GetPhotonCount();
+   size_t nphoton = src->GetCount();
 
    G4ThreeVector pos ;
    G4ThreeVector mom ; 

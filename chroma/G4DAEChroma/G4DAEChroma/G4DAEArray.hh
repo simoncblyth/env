@@ -90,9 +90,43 @@ protected:
 private:
     G4DAEBuffer*     m_buffer ; 
 
+public:
+
+    // static template functions for array holder types like G4DAEHitList and G4DAEPhotonList
+    template<typename T>
+    static T* Load(const char* evt, const char* key=T::KEY, const char* tmpl=T::TMPL)
+    {
+        G4DAEArray* array = G4DAEArray::Load(evt, key, tmpl);
+        return new T(array);
+    }
+
+    template<typename T>
+    static T* LoadPath(const char* path, const char* key=T::KEY)
+    {
+        G4DAEArray* array = G4DAEArray::LoadPath(path, key);
+        return new T(array);
+    }
+
+    // instance template methods just to access default arguments 
+    // from the corresponding class static consts
+
+    template<typename T>
+    void Save(const char* evt, const char* key=T::KEY, const char* tmpl=T::TMPL)
+    {
+        this->Save(evt, key, tmpl);
+    }
+
+    template<typename T>
+    void SavePath(const char* path, const char* key=T::KEY)
+    {
+        this->SavePath(path, key);
+    }
+
+
 
 };
 
 #endif
+
 
 

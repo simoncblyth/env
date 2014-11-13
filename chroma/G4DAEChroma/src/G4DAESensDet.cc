@@ -77,7 +77,9 @@ bool G4DAESensDet::ProcessHits(G4Step* /*step*/, G4TouchableHistory* /*history*/
 
 void G4DAESensDet::EndOfEvent( G4HCofThisEvent* hce ) 
 {
+#ifdef VERBOSE
     m_collector->DumpStatistics(hce);
+#endif
 }
 
 void G4DAESensDet::CollectHits(Photons_t* photons, G4DAETransformCache* cache )

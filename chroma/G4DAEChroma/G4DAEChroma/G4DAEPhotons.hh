@@ -20,9 +20,10 @@ public:
   virtual void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const = 0 ; 
   virtual void Print(const char* msg="G4DAEPhotons::Print") const = 0 ;
   virtual void Details(bool hit) const = 0 ;
-  virtual std::size_t GetPhotonCount() const = 0;
-  virtual std::string GetPhotonDigest() const = 0;
-  virtual void ClearAllPhotons() = 0;
+
+  virtual std::size_t GetCount() const = 0;
+  virtual std::string GetDigest() const = 0;
+  virtual void ClearAll() = 0;
 
   static void Transfer( G4DAEPhotons* dest , G4DAEPhotons* src );
   static G4DAEPhotons* LoadPath( const char* path , const char* key="NPL");

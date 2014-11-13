@@ -154,7 +154,7 @@ void DybG4DAECollector::StealHitCollections(const std::string& target,  G4HCofTh
 
 void DybG4DAECollector::Collect( const G4DAEHit& hit )
 {
-    int trackid = hit.trackid ; 
+    int trackid = hit.photonid ; 
     DayaBay::SimPmtHit* sphit = new DayaBay::SimPmtHit();
 
     sphit->setSensDetId(hit.pmtid);

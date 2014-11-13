@@ -54,7 +54,7 @@ void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce )
 
 void G4DAECollector::CollectHits( Photons_t* photons, G4DAETransformCache* cache )
 { 
-    std::size_t size = photons->GetPhotonCount(); 
+    std::size_t size = photons->GetCount(); 
 
 #ifdef VERBOSE
     cout << "G4DAECollector::CollectHits size: " << size <<  endl ;   

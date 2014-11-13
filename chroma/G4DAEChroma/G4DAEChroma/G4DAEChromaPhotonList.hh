@@ -16,13 +16,17 @@ class G4DAEBuffer ;
 
 class G4DAEChromaPhotonList : public G4DAEPhotons {
 
+  static const char* TMPL ; 
+  static const char* KEY ; 
+  static const char* SHAPE ;  /*not used, here to match NPL*/
+
 public:
   G4DAEChromaPhotonList(ChromaPhotonList* cpl);
   G4DAEChromaPhotonList(G4DAEPhotons* src);
   G4DAEChromaPhotonList(std::size_t itemcapacity);
   virtual ~G4DAEChromaPhotonList();
-  static G4DAEChromaPhotonList* Load(const char* evt="1", const char* key="CPL", const char* tmpl="DAE_PATH_TEMPLATE" );
-  static G4DAEChromaPhotonList* LoadPath(const char* path, const char* key="CPL");
+  static G4DAEChromaPhotonList* Load(const char* evt, const char* key=KEY, const char* tmpl=TMPL );
+  static G4DAEChromaPhotonList* LoadPath(const char* path, const char* key=KEY);
 
 public:
   // G4DAEPhotons
@@ -30,14 +34,13 @@ public:
   void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const ; 
   void Print(const char* msg="G4DAEChromaPhotonList::Print") const ;
   void Details(bool hit) const ;
-  std::size_t GetPhotonCount() const ;
-  std::string GetPhotonDigest() const ;
-  void ClearAllPhotons();
+  std::size_t GetCount() const ;
+  std::string GetDigest() const ;
+  void ClearAll();
 
 public:
-   void Save(const char* evt="dummy", const char* key="CPL", const char* tmpl="DAE_PATH_TEMPLATE" );
-   void SavePath(const char* path, const char* key="CPL");
-   std::string GetDigest() const ; 
+   void Save(const char* evt, const char* key=KEY, const char* tmpl=TMPL );
+   void SavePath(const char* path, const char* key=KEY);
 
 public:
   // fulfil Serializable protocol 

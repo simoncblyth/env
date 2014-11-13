@@ -13,6 +13,10 @@ class G4DAEArray ;
 
 class G4DAEPhotonList : public G4DAEPhotons  {
 
+  static const char* TMPL ;
+  static const char* SHAPE ;
+  static const char* KEY ;
+
 public:
   G4DAEPhotonList( G4DAEPhotons* arr );
   G4DAEPhotonList( G4DAEArray* arr );
@@ -25,9 +29,11 @@ public:
   void GetPhoton(size_t index, G4ThreeVector& pos, G4ThreeVector& mom, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const;
   void Print(const char* msg="G4DAEPhotonList::Print") const ; 
   void Details(bool hit) const ;
-  std::size_t GetPhotonCount() const ;
-  std::string GetPhotonDigest() const ;
-  void ClearAllPhotons();
+
+
+  std::size_t GetCount() const ;
+  std::string GetDigest() const ;
+  void ClearAll();
 
 public:
   // G4DAESerializable
@@ -38,13 +44,13 @@ public:
   std::size_t GetBufferSize();
 
 public:
-  // other  
-  static std::string GetPath( const char* evt="dummy" , const char* tmpl="DAE_PATH_TEMPLATE_NPY");   
-  static G4DAEPhotonList* Load(const char* evt="1", const char* key="GPL", const char* tmpl="DAE_PATH_TEMPLATE_NPY" );
-  void Save(const char* evt="dummy", const char* key="GPL", const char* tmpl="DAE_PATH_TEMPLATE_NPY" );
+  // G4DAEArray persistency 
+  static std::string GetPath( const char* evt, const char* tmpl=TMPL);   
+  static G4DAEPhotonList* Load(const char* evt, const char* key=KEY, const char* tmpl=TMPL );
+  static G4DAEPhotonList* LoadPath(const char* path, const char* key=KEY);
 
-  static G4DAEPhotonList* LoadPath(const char* path, const char* key="GPL");
-  void SavePath(const char* path, const char* key="GPL");
+  void Save(const char* evt, const char* key=KEY, const char* tmpl=TMPL );
+  void SavePath(const char* path, const char* key=KEY);
 
 private:
    G4DAEArray* m_array ;

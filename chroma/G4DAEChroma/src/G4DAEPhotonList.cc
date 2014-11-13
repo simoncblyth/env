@@ -10,10 +10,14 @@
 
 using namespace std ; 
 
+const char* G4DAEPhotonList::TMPL = "DAE_PATH_TEMPLATE_NPY" ;
+const char* G4DAEPhotonList::SHAPE = "4,4" ;
+const char* G4DAEPhotonList::KEY   = "NPY" ;
+
 
 G4DAEPhotonList::G4DAEPhotonList( std::size_t itemcapacity, float* data) : m_array(NULL) 
 {
-    m_array = new G4DAEArray( itemcapacity, "4,4", data );
+    m_array = new G4DAEArray( itemcapacity, SHAPE, data );
 }
 
 G4DAEPhotonList::G4DAEPhotonList( G4DAEArray* arr ) : m_array(arr) 
@@ -21,21 +25,19 @@ G4DAEPhotonList::G4DAEPhotonList( G4DAEArray* arr ) : m_array(arr)
 }
 G4DAEPhotonList::G4DAEPhotonList( G4DAEPhotons* src ) : m_array(NULL)
 {
-    size_t itemcapacity = src->GetPhotonCount();
-    m_array = new G4DAEArray( itemcapacity, "4,4", NULL );
+    size_t itemcapacity = src->GetCount();
+    m_array = new G4DAEArray( itemcapacity, SHAPE, NULL );
     G4DAEPhotons::Transfer( this, src );
 } 
 
 G4DAEPhotonList* G4DAEPhotonList::Load(const char* evt, const char* key, const char* tmpl )
 {
-    G4DAEArray* array = G4DAEArray::Load(evt, key, tmpl);
-    return new G4DAEPhotonList(array) ;  
+    return G4DAEArray::Load<G4DAEPhotonList>(evt, key, tmpl);
 }
 
 G4DAEPhotonList* G4DAEPhotonList::LoadPath(const char* path, const char* key )
 {
-    G4DAEArray* array = G4DAEArray::LoadPath(path, key );
-    return new G4DAEPhotonList(array) ;  
+    return G4DAEArray::LoadPath<G4DAEPhotonList>(path, key );
 }
 
 void G4DAEPhotonList::Save(const char* evt, const char* key, const char* tmpl )
@@ -62,6 +64,21 @@ G4DAEPhotonList::~G4DAEPhotonList()
    delete m_array ; 
 }
 
+
+
+// hmm duplicating G4DAEArrayHolder
+
+std::size_t G4DAEPhotonList::GetCount() const {
+    return m_array ? m_array->GetSize() : 0 ;
+}
+
+std::string G4DAEPhotonList::GetDigest() const {
+    return m_array ? m_array->GetDigest() : "" ;
+}
+
+void G4DAEPhotonList::ClearAll() {
+    if(m_array) m_array->ClearAll();
+}
 
 
 
@@ -118,7 +135,7 @@ void G4DAEPhotonList::Print(const char* msg) const
 void G4DAEPhotonList::Details(bool hit) const 
 {
     cout <<  "G4DAEPhotonList::Details " << endl ;
-    size_t count = GetPhotonCount();
+    size_t count = GetCount();
     cout <<  "G4DAEPhotonList::Details [" << count << "]" << endl ;
 
     size_t index ;
@@ -169,18 +186,6 @@ enum {
 
 
 
-
-std::size_t G4DAEPhotonList::GetPhotonCount() const {
-   return m_array ? m_array->GetSize() : 0 ;
-}
-
-std::string G4DAEPhotonList::GetPhotonDigest() const {
-   return m_array ? m_array->GetDigest() : "" ;
-}
-
-void G4DAEPhotonList::ClearAllPhotons() {
-   if(m_array) m_array->ClearAll();
-}
 
 
 
