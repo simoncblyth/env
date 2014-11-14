@@ -7,7 +7,6 @@
 #include "G4DAEChroma/G4DAEHitList.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
 
-#include "G4DAEChroma/Photons_t.hh"
 
 #include "DybG4DAECollector.h"
 
@@ -82,7 +81,7 @@ void CollectMockPhotonList()
     //CollectMockPhoton(cache->GetKey(0));
     //CollectMockPhoton(0x1010101);
 
-    Photons_t* photons = transport->GetPhotons() ;
+    G4DAEPhotons* photons = transport->GetPhotons() ;
     photons->Print();
     photons->Details(0);
     //photons->Save("mock001"); 
@@ -130,17 +129,9 @@ int main(int argc, const char** argv)
     else
     { 
 
-
-        G4DAEMetadata* head = new G4DAEMetadata();
-        head->SetString("headmeta");
-
-        G4DAEMetadata* tail = new G4DAEMetadata();
-        tail->SetString("tailmeta");
-
-        Photons_t* photons = G4DAEPhotons::Load(name);
-
-        head->SetLink(photons);
-        photons->SetLink(tail);
+        G4DAEPhotons* photons = G4DAEPhotons::Load(name);
+        photons->AddLink(new G4DAEMetadata("meta1"));
+        photons->AddLink(new G4DAEMetadata("meta2"));
 
         assert(photons);
         photons->Print("mocknuwa: photons"); 
@@ -149,7 +140,9 @@ int main(int argc, const char** argv)
 
         chroma->Propagate(1); // PropagateToHits : <1  fakes the propagation, ie just passes all photons off as hits
 
-        Photons_t* hits = transport->GetHits();
+        G4DAEPhotons* hits = transport->GetHits();
+        assert(hits);
+
         hits->Print("mocknuwa: hits___");
 
         // hmm need to distinguish between the vbo and non-vbo propagations

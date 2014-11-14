@@ -68,7 +68,6 @@ TO REMOVE::
 
      G4DAETransportCPL
 
-     Photons_t
 
 
 

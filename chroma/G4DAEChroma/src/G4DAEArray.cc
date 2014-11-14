@@ -12,6 +12,8 @@
 
 using namespace std ; 
 
+const char* G4DAEArray::MAGIC = "\x93NUMPY" ; 
+
 G4DAEArray* G4DAEArray::CreateOther(char* bytes, size_t size)
 {
    // used by zombies
@@ -267,6 +269,10 @@ std::size_t G4DAEArray::GetBufferSize()
 void G4DAEArray::DumpBuffer()
 {
    return m_buffer->Dump();
+}
+const char* G4DAEArray::GetMagic()
+{
+   return MAGIC ;  
 }
 
 

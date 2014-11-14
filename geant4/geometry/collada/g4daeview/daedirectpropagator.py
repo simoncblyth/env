@@ -23,6 +23,8 @@ from chroma.gpu.tools import get_cu_module, cuda_options, chunk_iterator, to_flo
 from chroma.gpu.photon_hit import GPUPhotonsHit
 from chroma.gpu.geometry import GPUGeometry
 
+class NPY(np.ndarray):pass
+
 
 class DAEDirectPropagator(object):
     def __init__(self, config, chroma):
@@ -72,9 +74,12 @@ class DAEDirectPropagator(object):
         photons_end = gpu_photons.get()  
         self.photons_end = photons_end
 
-        if type(obj) == np.ndarray:
+        if isinstance(obj,np.ndarray):
             log.info("daedirectpropagator:propagate returning photons_end.as_npl()")
-            return photons_end.as_npl(directpropagator=True,hit=True)
+            a = photons_end.as_npl(directpropagator=True,hit=True)
+            aa = a.view(NPY)
+            aa.meta = ["check","if","this","travels"]
+            return aa
         else:
             log.info("daedirectpropagator:propagate returning create_cpl_from_photons_very_slowly(photons_end)")
             return create_cpl_from_photons_very_slowly(photons_end) 

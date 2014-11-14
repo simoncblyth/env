@@ -6,8 +6,7 @@
 
 class G4DAETransformCache ; 
 class G4DAECollector ; 
-
-#include "G4DAEChroma/Photons_t.hh"
+class G4DAEPhotons ;
 
 class G4DAESensDet : public G4VSensitiveDetector {
 
@@ -29,7 +28,7 @@ public:
     void DumpStatistics( G4HCofThisEvent* HCE );
 
 public:
-    void CollectHits(Photons_t* photons, G4DAETransformCache* cache );
+    void CollectHits(G4DAEPhotons* photons, G4DAETransformCache* cache );
 
 protected:
     std::string m_target ;

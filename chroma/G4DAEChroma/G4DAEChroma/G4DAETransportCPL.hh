@@ -4,6 +4,11 @@
 #include <cstddef>
 #include "G4ThreeVector.hh"
 
+/*
+TODO: Eliminate this, when demonstrate can transport CPL via the G4DAESocketBase
+*/
+
+
 class G4Track ; 
 class ZMQRoot ; 
 class ChromaPhotonList ;

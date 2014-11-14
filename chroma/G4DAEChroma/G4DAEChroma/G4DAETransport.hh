@@ -6,8 +6,7 @@
 
 class G4Track ; 
 class G4DAESocketBase ;
-
-#include "G4DAEChroma/Photons_t.hh"
+class G4DAEPhotons ; 
 
 
 class G4DAETransport
@@ -22,20 +21,20 @@ public:
     void CollectPhoton(const G4Track* aPhoton );
     void CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid=-1);
 
-    Photons_t* GetPhotons();
-    Photons_t* GetHits();
+    G4DAEPhotons* GetPhotons();
+    G4DAEPhotons* GetHits();
 
     // setters take ownership of photons/hits
-    void SetPhotons(Photons_t* photons);
-    void SetHits(   Photons_t* hits);
+    void SetPhotons(G4DAEPhotons* photons);
+    void SetHits(   G4DAEPhotons* hits);
  
 private:
 
     G4DAESocketBase* m_socket ;
 
-    Photons_t* m_photons ; 
+    G4DAEPhotons* m_photons ; 
 
-    Photons_t* m_hits  ; 
+    G4DAEPhotons* m_hits  ; 
 
 
 };

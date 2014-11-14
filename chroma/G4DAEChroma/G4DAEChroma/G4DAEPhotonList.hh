@@ -6,10 +6,11 @@
 
 #include <G4ThreeVector.hh>
 
-#include "G4DAEChroma/G4DAESerializable.hh"
+//#include "G4DAEChroma/G4DAESerializable.hh"
 #include "G4DAEChroma/G4DAEPhotons.hh"
 
 class G4DAEArray ;
+class G4DAEMetadata ; 
 
 class G4DAEPhotonList : public G4DAEPhotons  {
 
@@ -42,9 +43,13 @@ public:
   void DumpBuffer();
   const char* GetBufferBytes();
   std::size_t GetBufferSize();
+  const char* GetMagic();
 
-  //G4DAESerializable* GetLink();
-  //void SetLink(G4DAESerializable* link);
+  G4DAEMetadata* GetLink();
+  void SetLink(G4DAEMetadata* link);
+  //G4DAEMetadata* GetLastLink();
+  //void AddLink(G4DAEMetadata* link );
+
 
 
 public:
@@ -58,7 +63,7 @@ public:
 
 private:
    G4DAEArray* m_array ;
-
+   G4DAEMetadata* m_link ; 
 
 
 };

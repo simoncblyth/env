@@ -25,7 +25,7 @@ class G4DAEBuffer ;
 #include "G4DAEChroma/G4DAESerializable.hh"
 
 class G4DAEArray : public G4DAESerializable {
-
+    static const char* MAGIC ; 
 public:
     G4DAEArray* CreateOther(char* bytes, size_t size);
     G4DAEArray(char* bytes, size_t size);
@@ -47,6 +47,7 @@ public:
     virtual const char* GetBufferBytes();
     virtual std::size_t GetBufferSize();
     virtual void DumpBuffer();
+    virtual const char* GetMagic();
 
 public:
     //  serialization/deserialization to file

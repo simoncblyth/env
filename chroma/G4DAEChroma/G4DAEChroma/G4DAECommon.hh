@@ -26,7 +26,7 @@ void DumpBuffer(const char* buffer, std::size_t buflen, std::size_t maxlines=64)
 void DumpVector(const std::vector<float>& v, std::size_t itemsize); 
 
 extern int b_recv( void* socket, zmq_msg_t& msg );
-extern int b_send( void* socket, const char* bytes, size_t size );
+extern int b_send( void* socket, const char* bytes, size_t size, int flags=0 );
 extern int s_send (void *socket, char *str); 
 extern char* s_recv (void *socket); 
 

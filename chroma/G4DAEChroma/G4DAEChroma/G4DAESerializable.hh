@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 class G4DAESerializable ;
+class G4DAEMetadata ;
 
 class G4DAESerializable {
 public:
@@ -13,8 +14,11 @@ public:
    virtual G4DAESerializable* CreateOther(char* bytes, std::size_t size) = 0 ;
 
    // impure : do nothing default implementation
-   virtual G4DAESerializable* GetLink();
-   virtual void SetLink(G4DAESerializable* link);
+   virtual const char* GetMagic();
+   virtual G4DAEMetadata* GetLink();
+   virtual void SetLink(G4DAEMetadata* link);
+   virtual void AddLink(G4DAEMetadata* link);
+   virtual G4DAEMetadata* GetLastLink();
 
 };
 

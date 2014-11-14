@@ -17,9 +17,8 @@ class G4DAETransformCache ;
 //  in specific detector subclasses.
 //
 
-#include "G4DAEChroma/Photons_t.hh"
 
-
+class G4DAEPhotons ; 
 class G4DAEHitList ; 
 
 class G4DAECollector  {
@@ -37,7 +36,7 @@ public:
 
     virtual void AddSomeFakeHits(const IDVec& sensor_ids);
     virtual void DumpStatistics( G4HCofThisEvent* hce );
-    virtual void CollectHits( Photons_t* photons, G4DAETransformCache* cache );
+    virtual void CollectHits( G4DAEPhotons* photons, G4DAETransformCache* cache );
     G4DAEHitList* GetHits();
 
 private:

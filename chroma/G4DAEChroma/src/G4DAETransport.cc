@@ -20,7 +20,7 @@ G4DAETransport::G4DAETransport(const char* envvar) :
    m_socket = new G4DAESocketBase(envvar) ;
 
    // TODO: make this NULL and move to always using SetPhotons ?
-   m_photons = (Photons_t*)new G4DAEPhotonList(100) ;   
+   m_photons = (G4DAEPhotons*)new G4DAEPhotonList(100) ;   
 
 #endif
 }
@@ -35,20 +35,20 @@ G4DAETransport::~G4DAETransport()
 }
 
 
-Photons_t* G4DAETransport::GetPhotons(){ 
+G4DAEPhotons* G4DAETransport::GetPhotons(){ 
     return m_photons ; 
 }
-Photons_t* G4DAETransport::GetHits(){ 
+G4DAEPhotons* G4DAETransport::GetHits(){ 
     return m_hits ; 
 }
 
 
-void G4DAETransport::SetPhotons(Photons_t* photons)
+void G4DAETransport::SetPhotons(G4DAEPhotons* photons)
 {
    delete m_photons ; 
    m_photons = photons ; 
 }
-void G4DAETransport::SetHits(Photons_t* hits)
+void G4DAETransport::SetHits(G4DAEPhotons* hits)
 {
    delete m_hits ; 
    m_hits = hits ; 
@@ -142,14 +142,14 @@ std::size_t G4DAETransport::Propagate(int batch_id)
 #ifdef VERBOSE
       cout << "G4DAETransport::Propagate : SendReceiveObject " <<  endl ;   
 #endif
-      m_hits = reinterpret_cast<Photons_t*>(m_socket->SendReceiveObject(m_photons));
+      m_hits = reinterpret_cast<G4DAEPhotons*>(m_socket->SendReceiveObject(m_photons));
   } 
   else 
   {
       cout << "G4DAETransport::Propagate : fake Send/Recv " << endl ; 
       m_hits = m_photons ;  // potential double delete, but just for debug 
   } 
-  std::size_t nhits = m_hits->GetCount();
+  std::size_t nhits = m_hits ? m_hits->GetCount() : 0 ;
   return nhits ; 
 
 }

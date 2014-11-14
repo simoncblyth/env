@@ -143,7 +143,7 @@ int s_send (void *socket, char *str)
 
 
 
-int b_send( void* socket, const char* bytes, size_t size )
+int b_send( void* socket, const char* bytes, size_t size, int flags )
 {
    zmq_msg_t zmsg;
    int rc = zmq_msg_init_size (&zmsg, size);
@@ -151,7 +151,7 @@ int b_send( void* socket, const char* bytes, size_t size )
    
    memcpy(zmq_msg_data (&zmsg), bytes, size );   // TODO : check for zero copy approaches
 
-   rc = zmq_msg_send (&zmsg, socket, 0);
+   rc = zmq_msg_send (&zmsg, socket, flags);
 
    if (rc == -1) {
        int err = zmq_errno();

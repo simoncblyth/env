@@ -1,6 +1,7 @@
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4DAEChroma/G4DAEArray.hh"
+#include "G4DAEChroma/G4DAEMetadata.hh"
 
 #include "numpy.hpp"
 #include <cassert>
@@ -15,21 +16,30 @@ const char* G4DAEPhotonList::SHAPE = "4,4" ;
 const char* G4DAEPhotonList::KEY   = "NPY" ;
 
 
-G4DAEPhotonList::G4DAEPhotonList( std::size_t itemcapacity, float* data) : m_array(NULL) 
+G4DAEPhotonList::G4DAEPhotonList( std::size_t itemcapacity, float* data) : m_array(NULL), m_link(NULL) 
 {
     m_array = new G4DAEArray( itemcapacity, SHAPE, data );
 }
 
-G4DAEPhotonList::G4DAEPhotonList( G4DAEArray* arr ) : m_array(arr) 
+G4DAEPhotonList::G4DAEPhotonList( G4DAEArray* arr ) : m_array(arr), m_link(NULL) 
 {
 }
-G4DAEPhotonList::G4DAEPhotonList( G4DAEPhotons* src ) : m_array(NULL)
+G4DAEPhotonList::G4DAEPhotonList( G4DAEPhotons* src ) : m_array(NULL), m_link(NULL)
 {
     // provides conversions between different implementation of photon lists 
     size_t itemcapacity = src->GetCount();
     m_array = new G4DAEArray( itemcapacity, SHAPE, NULL );
     G4DAEPhotons::Transfer( this, src );
 } 
+
+
+G4DAEPhotonList::~G4DAEPhotonList()
+{
+   delete m_array ; 
+   // delete m_link ; **NOT DELETING LINK : REGARDED AS WEAK REFERENCE**
+}
+
+
 
 G4DAEPhotonList* G4DAEPhotonList::Load(const char* evt, const char* key, const char* tmpl )
 {
@@ -58,11 +68,6 @@ void G4DAEPhotonList::SavePath(const char* path, const char* key)
 string G4DAEPhotonList::GetPath(const char* evt, const char* tmpl )
 {
     return G4DAEArray::GetPath(evt, tmpl);
-}
-
-G4DAEPhotonList::~G4DAEPhotonList()
-{
-   delete m_array ; 
 }
 
 
@@ -111,6 +116,22 @@ std::size_t G4DAEPhotonList::GetBufferSize()
 {
     return m_array ? m_array->GetBufferSize() : 0 ; 
 }
+const char* G4DAEPhotonList::GetMagic()
+{
+    return m_array ? m_array->GetMagic() : NULL ;
+}
+
+
+
+
+void G4DAEPhotonList::SetLink(G4DAEMetadata* link )
+{
+    m_link = link ;
+}
+G4DAEMetadata* G4DAEPhotonList::GetLink()
+{
+    return m_link ;
+}
 
 
 
@@ -131,6 +152,7 @@ std::size_t G4DAEPhotonList::GetBufferSize()
 void G4DAEPhotonList::Print(const char* msg) const 
 {
     if(m_array) m_array->Print(msg);
+    if(m_link) m_link->Print(msg);
 }
 
 void G4DAEPhotonList::Details(bool hit) const 

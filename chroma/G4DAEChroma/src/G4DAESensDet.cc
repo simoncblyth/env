@@ -82,7 +82,7 @@ void G4DAESensDet::EndOfEvent( G4HCofThisEvent* hce )
 #endif
 }
 
-void G4DAESensDet::CollectHits(Photons_t* photons, G4DAETransformCache* cache )
+void G4DAESensDet::CollectHits(G4DAEPhotons* photons, G4DAETransformCache* cache )
 {
    m_collector->CollectHits( photons, cache ); 
 }

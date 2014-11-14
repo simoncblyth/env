@@ -9,10 +9,19 @@ ChromaPhotonList (ROOT TObject serialization)
 This means can eliminate ROOT dependency.
 
 """
-import logging, os, io, time, errno
+import logging, os, io, time, errno, codecs
 import numpy as np
 import zmq 
 log = logging.getLogger(__name__)
+
+
+class NP(np.ndarray):
+    """
+    Subclass to enable hanging metadata on the array 
+
+    http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+    """ 
+    pass
 
 class NPYSocket(zmq.Socket):
     """
@@ -38,24 +47,77 @@ class NPYSocket(zmq.Socket):
         buffers ? Which would allow to get rid of one copy.
 
         http://python.6.x6.nabble.com/Buffer-protocol-for-io-BytesIO-td1902991.html        
-        """ 
+        """
+
         stream = io.BytesIO()
-        np.save( stream, a )
+        np.save( stream, a )    # serialize ndarray into stream
         stream.seek(0)
         buf = buffer(stream.read())
-        return self.send( buf, flags=flags, copy=copy, track=track)
 
-    def recv_npy(self, flags=0, copy=True, track=False):
+        bufs = [buf]
+        if hasattr(a, 'meta'):
+            for s in a.meta:
+                bufs.append(s) 
+            pass
+
+        return self.send_multipart( bufs, flags=flags, copy=copy, track=track)
+
+
+    def recv_npy(self, flags=0, copy=True, track=False, meta_encoding="ascii"):
+        """
+        When copy=True receive bytes otherwise receive frames
+
+
+        http://zeromq.github.io/pyzmq/api/zmq.html#frame
+
+        frame.buffer
+             A read-only buffer view of the message contents.
+
+        frame.bytes
+             The message content as a Python bytes object.
+             The first time this property is accessed, a copy of the message contents is made. 
+             From then on that same copy of the message is returned.
+
+
+        TODO:
+
+        * work out how to peek at first byte and check for 0x93 in position 0 
+          (signalling NPY serialization) : currently assuming the first frame to 
+          to contain the NPY
+
+        """ 
+        assert copy == False, "implementation needs rejig when copying "
         if copy:
-            msg = self.recv(flags=flags, copy=copy, track=track)  # bytes
-            buf = buffer(msg)
+            msgs = self.recv_multipart(flags=flags, copy=copy, track=track)  # bytes
+            bufs = map(lambda msg:buffer(msg),msgs)
         else:
-            frame = self.recv(flags=flags,copy=False, track=track)    
-            buf = frame.buffer            # memoryview object 
+            frames = self.recv_multipart(flags=flags,copy=False, track=track)    
+            bufs = map(lambda frame:frame.buffer, frames)            # memoryview object 
         pass
-        stream = io.BytesIO(buf)
-        a = np.load(stream)
-        return a 
+        
+        # peek into the memoryview to find NPY serialization, from magic bytes 
+        jbuf = -1
+        meta = []
+        for ibuf,buf in enumerate(bufs):   # the buf are memoryview 
+            print ibuf, buf, len(buf), dir(buf)
+            #if buf[0] == b'\x93':  ## IndexError: invalid indexing of 0-dim memory
+            #if buf[1:7].tobytes() == b'NUMPY':   ## ditto
+            if ibuf == 0:
+                jbuf = ibuf
+            else:
+                meta.append(codecs.decode(buf.tobytes()))
+        pass
+        assert jbuf > -1, "failed to find NPY serialization in any of the multipart frames" 
+
+        if jbuf > -1:
+            stream = io.BytesIO(bufs[jbuf])  # file like access to memory buffer
+            a = np.load(stream)
+            aa = a.view(NP)       # view as subclass, to enable attaching metadata
+        else:
+            aa = NP(0)            # nonce 
+        pass
+        aa.meta = meta
+        return aa 
 
 class NPYContext(zmq.Context):
     _socket_class = NPYSocket
@@ -109,6 +171,9 @@ class NPYResponder(object):
             pass
         if events:
             request = self.socket.recv_npy(copy=False)
+            print "poll request      %s " % repr(request)
+            print "poll request.meta %s " % repr(request.meta)
+
             response = self.reply(request) 
             time.sleep(self.config.sleep)
             self.socket.send_npy(response)    

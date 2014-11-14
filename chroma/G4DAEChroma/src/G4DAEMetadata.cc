@@ -1,12 +1,17 @@
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEBuffer.hh"
 #include <string.h>
+#include <iostream>
 
 using namespace std ; 
 
 const std::string G4DAEMetadata::EMPTY = "empty" ; 
 
-G4DAEMetadata::G4DAEMetadata() : m_buffer(NULL), m_link(NULL) 
+G4DAEMetadata::G4DAEMetadata(const char* str ) : m_buffer(NULL), m_link(NULL)
+{
+   SetString(str);
+}
+G4DAEMetadata::G4DAEMetadata(G4DAEBuffer* buffer) : m_buffer(buffer), m_link(NULL) 
 {
     m_kv[EMPTY] = "" ; 
 }
@@ -35,6 +40,23 @@ void G4DAEMetadata::SetString(const char* str)
     m_buffer = new G4DAEBuffer(strlen(str), const_cast<char*>(str)); 
 }     
 
+std::string G4DAEMetadata::GetString() const 
+{
+    return m_buffer ? std::string(m_buffer->GetBytes(), m_buffer->GetSize()) : std::string() ; 
+}
+
+
+void G4DAEMetadata::Print(const char* msg) const
+{
+    cout << msg 
+         << " str: " << GetString() << endl ; 
+
+    if(m_link) m_link->Print(msg);
+}
+
+
+
+
 void G4DAEMetadata::SaveToBuffer()
 {
     // not needed when use SetString
@@ -54,19 +76,21 @@ void G4DAEMetadata::DumpBuffer()
    if(m_buffer) m_buffer->Dump() ;
 }
 
-G4DAESerializable* G4DAEMetadata::CreateOther(char* bytes, std::size_t size)
+
+
+G4DAEMetadata* G4DAEMetadata::CreateOther(char* buffer, std::size_t buflen)
 {
-    // deserialize into the map : maybe json parser for this
-    return NULL ;
+    G4DAEBuffer* buf = new G4DAEBuffer(buflen, buffer);
+    return new G4DAEMetadata(buf);
+    // where/when to deserialize into the map : maybe json parser for this
 }
 
 
-
-void G4DAEMetadata::SetLink(G4DAESerializable* link )
+void G4DAEMetadata::SetLink(G4DAEMetadata* link )
 {
     m_link = link ;
 }
-G4DAESerializable* G4DAEMetadata::GetLink()
+G4DAEMetadata* G4DAEMetadata::GetLink()
 {
     return m_link ;
 }

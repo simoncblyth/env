@@ -1,6 +1,7 @@
 #include "G4DAEChroma/G4DAESocketBase.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4DAEChroma/G4DAESerializable.hh"
+#include "G4DAEChroma/G4DAEMetadata.hh"
 
 #include <cstdlib>
 #include <assert.h>
@@ -93,26 +94,90 @@ char* G4DAESocketBase::ReceiveString()
 G4DAESerializable* G4DAESocketBase::SendReceiveObject(G4DAESerializable* request) const
 {
     G4DAESerializable* response = NULL ; 
+    G4DAESerializable* link = request->GetLink() ; // assume request linked
 #ifdef WITH_ZMQ
-    // send
-    {
-        request->SaveToBuffer(); // serialization of object to the buffer
-        const char* bytes = request->GetBufferBytes();
-        size_t size = request->GetBufferSize();
+
+    /*
+    Although looking the same the G4DAESerializable instances are not 
+    all the same need to use the appropiate instance with the corresponding 
+    instande : cannot materialize a NPY array from metadata ?
+    */ 
+
+    int nsend = 0 ; 
+    G4DAESerializable* frame = request ;
+    while(frame)  // send multipart
+    { 
+        frame->SaveToBuffer(); // serialization of object to the buffer
+        const char* bytes = frame->GetBufferBytes();
+        size_t size = frame->GetBufferSize();
+        int flags = frame->GetLink() == NULL ? 0 : ZMQ_SNDMORE ;  
+
 #ifdef VERBOSE
-        printf("G4DAESocketBase::SendReceiveObject : send  %lu \n", size );
+        printf("G4DAESocketBase::SendReceiveObject : nsend %d size %lu flags %d \n", nsend, size, flags );
 #endif
-        b_send( m_socket, bytes, size );
+        b_send( m_socket, bytes, size, flags );
+
+        frame = frame->GetLink();
+        nsend++ ; 
     } 
-    // receive
+
+
+
+    const char* magic = request->GetMagic();
+    size_t lmagic = magic ? strlen(magic) : 0 ;
+    char* peek = new char[lmagic+1]; 
+
+    typedef std::vector<G4DAESerializable*> VS_t ;
+    VS_t others ; 
+
+    int nrecv = 0 ; 
+    while(1)   // receive multipart
     { 
         zmq_msg_t msg;
         b_recv( m_socket, msg );
         size_t size = zmq_msg_size(&msg); 
         void*  data = zmq_msg_data(&msg) ;
-        response  = request->CreateOther( reinterpret_cast<char*>(data), size );  
-        zmq_msg_close (&msg);  
+        char* cdata = reinterpret_cast<char*>(data) ; 
+
+        strncpy(peek, cdata, lmagic);
+        peek[lmagic] = '\0' ;
+
+        if(strcmp(magic, peek) == 0) 
+        { 
+            response  = request->CreateOther( cdata, size );  
+        }
+        else if(link)  // needs to be multipart request in order to handle multipart response
+        {
+            G4DAESerializable* other = link->CreateOther( cdata, size );
+            others.push_back(other);
+        }  
+
+        zmq_msg_close (&msg);
+
+        //printf("G4DAESocketBase::SendReceiveObject : nrecv %d size %lu \n", nrecv, size );
+
+        int more ;
+        size_t more_size = sizeof(more);
+        zmq_getsockopt( m_socket, ZMQ_RCVMORE, &more, &more_size);
+        if(!more) break ; 
+
+        nrecv++ ;
     } 
+    delete peek ;
+
+
+    // defer to end, so part order doesnt matter
+    if( response )
+    {
+        VS_t::iterator it = others.begin();
+        while(it != others.end()) 
+        {
+            G4DAEMetadata* m = dynamic_cast<G4DAEMetadata*>(*it);
+            if(m) response->AddLink(m) ;
+            it++;
+        }
+    }
+
 #else
     printf( "G4DAESocketBase::SendObject : need to compile -DWITH_ZMQ and have ZMQ external \n");   
 #endif
