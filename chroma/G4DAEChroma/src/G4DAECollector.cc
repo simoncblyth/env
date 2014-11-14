@@ -2,7 +2,6 @@
 
 #include "G4HCofThisEvent.hh"
 #include "G4VHitsCollection.hh"
-#include "G4DAEChroma/G4DAESerializablePhotons.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAEPhotons.hh"
 #include "G4DAEChroma/G4DAEHitList.hh"

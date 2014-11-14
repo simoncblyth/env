@@ -12,6 +12,9 @@ class G4DAEChromaPhotonList ;
 
 class G4DAEPhotons : public G4DAESerializable {
 
+  static const char* TMPL ;
+  static const char* KEY ;
+
 public:
 
   virtual ~G4DAEPhotons(){};
@@ -26,12 +29,13 @@ public:
   virtual void ClearAll() = 0;
 
   static void Transfer( G4DAEPhotons* dest , G4DAEPhotons* src );
-  static G4DAEPhotons* LoadPath( const char* path , const char* key="NPL");
-  static G4DAEPhotons* Load(   const char* name , const char* key="NPL", const char* tmpl="DAE_PATH_TEMPLATE" );
+  static G4DAEPhotons* LoadPath( const char* path , const char* key=KEY);
+  static G4DAEPhotons* Load(   const char* name , const char* key=KEY, const char* tmpl=TMPL );
 
-  static void SavePath( G4DAEPhotonList* photons, const char* path , const char* key="NPL");
+
+  static void SavePath( G4DAEPhotonList* photons, const char* path , const char* key=KEY );
   static void SavePath( G4DAEChromaPhotonList* photons, const char* path , const char* key="CPL");
-  static void Save( G4DAEPhotons* photons, const char* name, const char* key="NPL", const char* tmpl="DAE_PATH_TEMPLATE" );
+  static void Save( G4DAEPhotons* photons, const char* name, const char* key=KEY, const char* tmpl=TMPL );
 
   static bool HasExt(const char* path, const char* ext);
   static std::string SwapExt(const char* path, const char* aext, const char* bext);

@@ -12,6 +12,10 @@ public:
    virtual void DumpBuffer() = 0 ;
    virtual G4DAESerializable* CreateOther(char* bytes, std::size_t size) = 0 ;
 
+   // impure : do nothing default implementation
+   virtual G4DAESerializable* GetLink();
+   virtual void SetLink(G4DAESerializable* link);
+
 };
 
 #endif 

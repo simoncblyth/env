@@ -42,7 +42,19 @@ Code Improvements
   * all normal operations through "chroma" instance ?
   * reposition photons and hits outside transport 
 
-* move G4DAETransformCache from cnpy to numpy.hpp : to eliminate dependency/duplication 
+
+Dependencies
+-------------
+
+* eliminate cnpy to avoid dependency duplication 
+
+  * need to migrate G4DAETransformCache to numpy.hpp 
+
+* cordon ROOT + ZMQRoot + ChromaPhotonList usage behind a definition
+
+
+
+
 
 
 DONE

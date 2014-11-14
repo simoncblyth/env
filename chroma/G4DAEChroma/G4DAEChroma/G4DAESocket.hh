@@ -8,8 +8,6 @@ G4DAESocket<T>
   
 Types T compatible with G4DAESocket 
 must implement the G4DAESerializable protocol
-methods and a static Create from bytes, size 
-function.
 
 */
 

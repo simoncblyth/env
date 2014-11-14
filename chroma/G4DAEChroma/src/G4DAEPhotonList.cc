@@ -25,6 +25,7 @@ G4DAEPhotonList::G4DAEPhotonList( G4DAEArray* arr ) : m_array(arr)
 }
 G4DAEPhotonList::G4DAEPhotonList( G4DAEPhotons* src ) : m_array(NULL)
 {
+    // provides conversions between different implementation of photon lists 
     size_t itemcapacity = src->GetCount();
     m_array = new G4DAEArray( itemcapacity, SHAPE, NULL );
     G4DAEPhotons::Transfer( this, src );

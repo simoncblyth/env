@@ -2,7 +2,6 @@
 #include "G4DAEChroma/G4DAESocketBase.hh"
 
 #include "G4DAEChroma/G4DAEPhotons.hh"
-//#include "G4DAEChroma/G4DAESerializablePhotons.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 
 #include "G4Track.hh"

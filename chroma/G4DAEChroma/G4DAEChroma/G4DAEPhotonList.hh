@@ -43,6 +43,10 @@ public:
   const char* GetBufferBytes();
   std::size_t GetBufferSize();
 
+  //G4DAESerializable* GetLink();
+  //void SetLink(G4DAESerializable* link);
+
+
 public:
   // G4DAEArray persistency 
   static std::string GetPath( const char* evt, const char* tmpl=TMPL);   

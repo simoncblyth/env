@@ -25,7 +25,7 @@ size_t G4DAEBuffer::GetSize() const
 }
 void G4DAEBuffer::Dump() const 
 {
-   printf("G4DAEBuffer::Dump arr->GetSize()  %lu 0x%lx \n", m_size, m_size );
+   printf("G4DAEBuffer::Dump size %lu 0x%lx \n", m_size, m_size );
    ::DumpBuffer( m_bytes, m_size );
 }
 

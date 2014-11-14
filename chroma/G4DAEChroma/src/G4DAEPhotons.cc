@@ -8,6 +8,10 @@
 #include "G4DAEChroma/G4DAEChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 
+
+const char* G4DAEPhotons::TMPL = "DAE_PATH_TEMPLATE" ; 
+const char* G4DAEPhotons::KEY  = "NPL" ; 
+
 // static utility funcs
 
 void G4DAEPhotons::Transfer( G4DAEPhotons* dest , G4DAEPhotons* src )

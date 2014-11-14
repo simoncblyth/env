@@ -5,6 +5,7 @@
 #include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4DAEChroma/G4DAEHitList.hh"
+#include "G4DAEChroma/G4DAEMetadata.hh"
 
 #include "G4DAEChroma/Photons_t.hh"
 
@@ -128,7 +129,19 @@ int main(int argc, const char** argv)
     }
     else
     { 
+
+
+        G4DAEMetadata* head = new G4DAEMetadata();
+        head->SetString("headmeta");
+
+        G4DAEMetadata* tail = new G4DAEMetadata();
+        tail->SetString("tailmeta");
+
         Photons_t* photons = G4DAEPhotons::Load(name);
+
+        head->SetLink(photons);
+        photons->SetLink(tail);
+
         assert(photons);
         photons->Print("mocknuwa: photons"); 
 

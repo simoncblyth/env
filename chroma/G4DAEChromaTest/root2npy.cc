@@ -54,7 +54,7 @@ int convert( const char* srcpath )
 {
     // NB must use copy ctor in order to write to other format 
 
-    G4DAEPhotons* photons = G4DAEPhotons::LoadPhotons(srcpath);
+    G4DAEPhotons* photons = G4DAEPhotons::LoadPath(srcpath);
     //photons->Print();
 
     std::string destpath ; 

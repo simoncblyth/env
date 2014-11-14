@@ -8,6 +8,7 @@
 //#include "G4DAEChroma/G4DAESocket.hh"
 #include "G4DAEChroma/G4DAESocketBase.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
+#include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4ThreeVector.hh"
 
 #include <sstream>
@@ -192,6 +193,16 @@ int p_copy(const char* evtkey)
 
 
 
+int metadata()
+{
+   G4DAEMetadata* meta = new G4DAEMetadata();
+
+   delete meta ;
+   return 0 ;
+}
+
+
+
 int main(int argc, char** argv)
 {
 
@@ -221,6 +232,7 @@ int main(int argc, char** argv)
     // p_network<G4DAEChromaPhotonList>();
     //p_string_network();
 
+    metadata();
 
     return 0 ;
 }
