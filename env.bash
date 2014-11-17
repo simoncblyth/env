@@ -1492,3 +1492,4 @@ mpl-(){      . $(env-home)/matplotlib/mpl.bash && mpl-env $* ; }
 jsmn-(){      . $(env-home)/messaging/jsmn.bash && jsmn-env $* ; }
 metal-(){      . $(env-home)/graphics/metal/metal.bash && metal-env $* ; }
 gason-(){      . $(env-home)/messaging/gason.bash && gason-env $* ; }
+testsqlite-(){      . $(env-home)/sqlite/testsqlite/testsqlite.bash && testsqlite-env $* ; }
