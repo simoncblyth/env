@@ -58,7 +58,9 @@ Load Error: Failed to load Dynamic link library /data/env/local/env/home/notifym
 EOU
 }
 cjson-dir(){ echo $(local-base)/env/messaging/cjson ; }
+cjson-sdir(){ echo $(env-home)/messaging/cjson ; }
 cjson-cd(){  cd $(cjson-dir); }
+cjson-scd(){  cd $(cjson-sdir); }
 cjson-mate(){ mate $(cjson-dir) ; }
 
 ## exported via ~/e/bin/env-config
@@ -74,7 +76,9 @@ cjson-wipe(){
 }
 cjson-get(){
    local dir=$(dirname $(cjson-dir)) &&  mkdir -p $dir && cd $dir
-   svn co https://cjson.svn.sourceforge.net/svnroot/cjson -r $(cjson-rev)
+   #svn co https://cjson.svn.sourceforge.net/svnroot/cjson -r $(cjson-rev)
+
+   svn checkout svn://svn.code.sf.net/p/cjson/code/ cjson
 }
 
 cjson-test(){

@@ -1489,3 +1489,6 @@ libnpy-(){      . $(env-home)/numpy/libnpy.bash && libnpy-env $* ; }
 rlibnpy-(){      . $(env-home)/numpy/rlibnpy/rlibnpy.bash && rlibnpy-env $* ; }
 cblosc-(){      . $(env-home)/base/compression/blosc/cblosc.bash && cblosc-env $* ; }
 mpl-(){      . $(env-home)/matplotlib/mpl.bash && mpl-env $* ; }
+jsmn-(){      . $(env-home)/messaging/jsmn.bash && jsmn-env $* ; }
+metal-(){      . $(env-home)/graphics/metal/metal.bash && metal-env $* ; }
+gason-(){      . $(env-home)/messaging/gason.bash && gason-env $* ; }

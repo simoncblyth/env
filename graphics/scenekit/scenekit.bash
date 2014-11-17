@@ -37,6 +37,11 @@ According to https://www.apple.com/opensource/ SceneKit uses colladaDOM 2.2
 * http://sourceforge.net/projects/collada-dom/files/Collada%20DOM/Collada%20DOM%202.2/Collada%20DOM%202.2.zip/download
 
 
+Extracting Vertices using SCNGeometrySource
+---------------------------------------------
+
+* http://stackoverflow.com/questions/17250501/extracting-vertices-from-scenekit
+
 
 SceneKit resources
 -------------------
