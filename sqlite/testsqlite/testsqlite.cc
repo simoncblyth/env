@@ -222,7 +222,8 @@ public:
    void Select(const char* table);
    void Create(const char* table, Map_t& map);
    void Insert(const char* table, Map_t& map);
-
+   void Create(const char* tn, const char* spec );
+   void Insert(const char* tn, const char* spec );
 
    void SetResultColumn(std::size_t rc); 
    std::size_t GetResultColumn(); 
@@ -511,6 +512,34 @@ void DB::Introspect()
     IntrospectTableInfo();
 }
 
+Map_t dsplit( const char* spec, char adelim, char bdelim )
+{
+    Map_t map ; 
+    Vec_t elem;
+    split(elem, spec, adelim);
+    for(std::size_t i=0 ; i<elem.size() ; ++i )
+    {
+       Vec_t pair ;
+       split(pair, elem[i].c_str(), bdelim);
+       //printf("elem i %lu [%s] \n", i, elem[i].c_str());
+
+       assert(pair.size() == 2 );
+       map[pair[0]] = pair[1];
+    } 
+    return map;
+}
+
+
+void DB::Create(const char* tn, const char* spec )
+{
+    Map_t map = dsplit(spec, ',', ':');
+    Create(tn, map); 
+}
+void DB::Insert(const char* tn, const char* spec )
+{
+    Map_t map = dsplit(spec, ',', ':');
+    Insert(tn, map); 
+}
 void DB::Create(const char* tn, Map_t& map )
 {
     Table* t = new Table(tn);
@@ -550,24 +579,29 @@ int main()
     DB* db = new DB("DBPATH");
 
     db->Introspect();
-    //db->DumpTables();
 
+   /*
     Map_t map ; 
     map["x"] = "int" ;
     map["y"] = "string" ;
     map["z"] = "float" ;
     map["w"] = "float" ;
     db->Create("C", map );
+   */
 
+    db->Create("D", "x:int,y:string,z:float,w:float");
 
+   /*
     map["x"] = "1" ;
     map["y"] = "hello" ;
     map["z"] = "1.1" ;
     map["w"] = "2.2" ;
     db->Insert("C",map);
+   */
 
+    db->Insert("D","x:1,y:hello,z:1.1,w:2.2");
 
-    db->Select("C");
+    db->Select("D");
 
     delete db ;  
 }
