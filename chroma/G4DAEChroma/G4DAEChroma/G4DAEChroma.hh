@@ -19,6 +19,7 @@ class G4DAEGeometry ;
 class G4DAETransport ;
 class G4DAESensDet ;
 class G4DAETransformCache ;
+class G4DAEDatabase;
 class G4Track ; 
 class G4Run ;
 
@@ -30,7 +31,7 @@ public:
 protected:
     G4DAEChroma();
 public:
-    void Configure(const char* transport="G4DAECHROMA_CLIENT_CONFIG", const char* sensdet="DsPmtSensDet", const char* geometry=NULL);
+    void Configure(const char* transport="G4DAECHROMA_CLIENT_CONFIG", const char* sensdet="DsPmtSensDet", const char* geometry=NULL, const char* database="G4DAECHROMA_DATABASE_PATH");
     virtual ~G4DAEChroma();
 
     void SetGeometry(G4DAEGeometry* geo);
@@ -44,6 +45,9 @@ public:
 
     void SetTransformCache(G4DAETransformCache* cache);
     G4DAETransformCache* GetTransformCache();
+
+    void SetDatabase(G4DAEDatabase* database);
+    G4DAEDatabase* GetDatabase();
 
 
 
@@ -65,16 +69,20 @@ private:
 private:
 
   // Photon Transport 
-  G4DAETransport* fTransport ; 
+  G4DAETransport* m_transport ; 
 
   // Hit collection
-  G4DAESensDet* fSensDet ; 
+  G4DAESensDet* m_sensdet ; 
 
   // Geometry Transform cache, used to convert global to local coordinates
-  G4DAEGeometry* fGeometry ; 
+  G4DAEGeometry* m_geometry ; 
 
   // Transform Cache  
-  G4DAETransformCache* fCache ; 
+  G4DAETransformCache* m_cache ; 
+
+  // DB  
+  G4DAEDatabase* m_database ; 
+
 
 };
 

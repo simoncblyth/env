@@ -5,6 +5,10 @@ cjson-vi(){       vi $(cjson-source) ; }
 cjson-env(){      elocal- ; }
 cjson-usage(){
   cat << EOU
+
+     see also cjs- for cmake package-ization
+
+
      cjson-src : $(cjson-src)
      cjson-dir : $(cjson-dir)
 

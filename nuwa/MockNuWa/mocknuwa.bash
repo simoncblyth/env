@@ -75,6 +75,14 @@ mocknuwa-build-full(){
    cd $iwd
 }
 
+
+mocknuwa-db(){
+   echo $LOCAL_BASE/env/nuwa/mocknuwa.db
+}
+mocknuwa-sqlite(){
+   sqlite3 $(mocknuwa-db)
+}
+
 mocknuwa-runenv(){
    csa-
    csa-export
@@ -82,7 +90,12 @@ mocknuwa-runenv(){
    export-
    export-export   # needed for template envvar for CPL saving 
 
+   local path=$(mocknuwa-db)
+   mkdir -p $(dirname $path)
+
+   export G4DAECHROMA_DATABASE_PATH=$path
    export G4DAECHROMA_CLIENT_CONFIG=tcp://localhost:5001    # client to local broker
+
    #export G4DAECHROMA_CLIENT_CONFIG=""
 }
 

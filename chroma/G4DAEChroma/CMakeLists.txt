@@ -18,6 +18,7 @@ find_package(ChromaPhotonList REQUIRED)
 find_package(ZMQRoot REQUIRED)
 find_package(ZMQ REQUIRED)
 find_package(Root REQUIRED)
+find_package(RapSqlite REQUIRED)
 
 include(EnvBuildOptions)
 
@@ -30,6 +31,7 @@ include_directories(
     ${ROOT_INCLUDE_DIR}
     ${CNPY_INCLUDE_DIRS}
     ${ZMQ_INCLUDE_DIR}
+    ${RapSqlite_INCLUDE_DIRS}
 )
 
 add_definitions(
@@ -37,6 +39,7 @@ add_definitions(
     -DWITH_CHROMA_ZMQ  -DEXPORT_G4GDML
     -DWITH_ZMQ
     ${CHROMAPHOTONLIST_DEFINITIONS}  
+    ${RapSqlite_DEFINITIONS}
 )    
 
 file(GLOB sources
@@ -51,6 +54,7 @@ target_link_libraries( ${name}
     ${ROOT_LIBRARIES}
     ${CNPY_LIBRARIES}
     ${ZMQ_LIBRARIES}
+    ${RapSqlite_LIBRARIES}
 )
 
 install(TARGETS ${name} LIBRARY DESTINATION lib)

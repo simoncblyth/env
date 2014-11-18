@@ -6,7 +6,7 @@ Test Usage::
 
 
 """
-import logging
+import logging, json
 log = logging.getLogger(__name__)
 
 
@@ -44,10 +44,13 @@ class DAEDirectPropagator(object):
            into chroma.event.Photons OR photons.Photons   
 
         """
-        nthreads_per_block = self.chroma.nthreads_per_block
-        max_blocks = self.chroma.max_blocks 
-        max_steps = self.chroma.max_steps
-        reset_rng_states = self.chroma.reset_rng_states
+        parameters = self.chroma.parameters()
+        parameters['propagator'] = 1
+
+        nthreads_per_block = parameters['nthreads_per_block']
+        max_blocks = parameters['max_blocks'] 
+        max_steps = parameters['max_steps']
+        reset_rng_states = parameters['reset_rng_states']
 
         if reset_rng_states:
             log.warn("reset_rng_states")
@@ -64,11 +67,11 @@ class DAEDirectPropagator(object):
         log.info("max_blocks : %s ", max_blocks ) 
         log.info("max_steps : %s ", max_steps ) 
 
-        gpu_photons.propagate_hit(gpu_detector, 
-                                  self.chroma.rng_states,
-                                  nthreads_per_block=nthreads_per_block,
-                                  max_blocks=max_blocks,
-                                  max_steps=max_steps)
+        results = gpu_photons.propagate_hit(gpu_detector, 
+                                            self.chroma.rng_states,
+                                            nthreads_per_block=nthreads_per_block,
+                                            max_blocks=max_blocks,
+                                            max_steps=max_steps)
 
         # pycuda get()s from GPU back into ndarrays and creates event.Photon instance
         photons_end = gpu_photons.get()  
@@ -78,7 +81,11 @@ class DAEDirectPropagator(object):
             log.info("daedirectpropagator:propagate returning photons_end.as_npl()")
             a = photons_end.as_npl(directpropagator=True,hit=True)
             aa = a.view(NPY)
-            aa.meta = ["check","if","this","travels"]
+
+            metadata = {}
+            metadata['parameters'] = parameters
+            metadata['results'] = results
+            aa.meta = [json.dumps(metadata)]
             return aa
         else:
             log.info("daedirectpropagator:propagate returning create_cpl_from_photons_very_slowly(photons_end)")

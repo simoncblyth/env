@@ -2,6 +2,30 @@
 #include "RapSqlite/Table.hh"
 
 
+const char* Database::Path(const char* envvar)
+{
+   const char* path = envvar ? getenv(envvar) : NULL ;
+   return path ; 
+}
+
+Database::Database(const char* envvar) : m_db(NULL), m_resultcolumn(0) 
+{
+   const char* path = Path(envvar);
+   int rc = sqlite3_open(path, &m_db );
+   if( rc ){
+      fprintf(stderr, "Can't open database at path %s: %s\n", path, sqlite3_errmsg(m_db));
+   }
+   //fprintf(stderr,"Opened %s \n", path);
+}
+
+Database::~Database()
+{
+   sqlite3_close(m_db);
+}
+
+
+
+
 void Database::ClearResults()
 {
    m_results.clear();
@@ -35,18 +59,6 @@ std::string Database::GetResult(int n)
    return m_results.size() > n  ? m_results[n] : empty ;  
 }
 
-
-
-
-Database::Database(const char* envvar) : m_db(NULL), m_resultcolumn(0) 
-{
-   const char* path = getenv(envvar);
-   int rc = sqlite3_open(path, &m_db );
-   if( rc ){
-      fprintf(stderr, "Can't open database at path %s: %s\n", path, sqlite3_errmsg(m_db));
-   }
-   //fprintf(stderr,"Opened %s \n", path);
-}
 
 
 static int c_callback(void *self, int argc, char **argv, char **azColName)
@@ -300,10 +312,6 @@ void Database::Select(const char* table)
     if(!t) return ; 
     std::string select = t->SelectStatement();
     this->Exec(select.c_str());
-}
-Database::~Database()
-{
-   sqlite3_close(m_db);
 }
 
 

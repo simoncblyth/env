@@ -6,6 +6,7 @@
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4DAEChroma/G4DAEHitList.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
+#include "G4DAEChroma/G4DAEDatabase.hh"
 
 
 #include "DybG4DAECollector.h"
@@ -109,7 +110,13 @@ int main(int argc, const char** argv)
 
     Mockup_DetDesc_SD();
 
-    DsChromaRunAction_BeginOfRunAction("G4DAECHROMA_CLIENT_CONFIG", "G4DAECHROMA_CACHE_DIR", "DsPmtSensDet" , NULL , "" ); // config 
+    DsChromaRunAction_BeginOfRunAction(
+         "G4DAECHROMA_CLIENT_CONFIG", 
+         "G4DAECHROMA_CACHE_DIR", 
+         "DsPmtSensDet" , 
+         "G4DAECHROMA_DATABASE_PATH", 
+          NULL, 
+          "" ); // config 
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
 
@@ -145,8 +152,9 @@ int main(int argc, const char** argv)
 
         hits->Print("mocknuwa: hits___");
 
-        // hmm need to distinguish between the vbo and non-vbo propagations
-        // but currently no way to do so other than controlling which is running  
+        G4DAEMetadata* link = hits->GetLink();
+        link->Print("link");
+
 
         G4DAEPhotons::Save(hits, htag.c_str());
     }

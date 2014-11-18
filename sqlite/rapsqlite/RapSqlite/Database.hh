@@ -5,6 +5,7 @@
 
 class Database {
 public:
+   static const char* Path(const char* envvar );
    Database(const char* envvar );
    virtual ~Database();
 

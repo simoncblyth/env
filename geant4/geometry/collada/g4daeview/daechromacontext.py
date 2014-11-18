@@ -48,6 +48,13 @@ class DAEChromaContext(object):
         self._raycaster = None
         self._propagator = None
 
+    def parameters(self):
+        p = {}
+        for att in 'nthreads_per_block max_blocks max_steps seed reset_rng_states'.split():
+            p[att] = getattr(self, att)
+        pass
+        return p
+
     def setup_random_seed(self):
         if self.seed is None:
             self.seed = pick_seed() 
