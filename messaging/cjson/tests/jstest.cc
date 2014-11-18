@@ -8,6 +8,9 @@ int main(int argc, char** argv)
     JS* js = JS::Load(argv[1]);
     js->Print();
 
+    const char* wanted = argc > 2 ? argv[2] : "" ;
+    js->Traverse(wanted);
+
     delete js;
 }
 
