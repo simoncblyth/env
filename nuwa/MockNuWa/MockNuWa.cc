@@ -125,6 +125,7 @@ int main(int argc, const char** argv)
     //
 
     G4DAETransport*   transport = chroma->GetTransport();
+    G4DAEDatabase*    database = chroma->GetDatabase();
 
 
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
@@ -153,7 +154,7 @@ int main(int argc, const char** argv)
         hits->Print("mocknuwa: hits___");
 
         G4DAEMetadata* link = hits->GetLink();
-        link->Print("link");
+        database->Insert(link); 
 
 
         G4DAEPhotons::Save(hits, htag.c_str());

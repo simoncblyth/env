@@ -1,6 +1,8 @@
 /*
+   see cjs-test
 
    cc cJSON.c testcjson.c   -o $LOCAL_BASE/env/bin/testcjson && testcjson $PWD/out.js
+
 
 */
 
@@ -9,28 +11,16 @@
 #include <assert.h>
 #include <string.h>
 
-#include "cJSON.h"
+#include "cJSON/cJSON.h"
 
-
-char* slurp( const char* filename )
-{
-    FILE *f=fopen(filename,"rb");
-    fseek(f,0,SEEK_END);
-    long len=ftell(f);
-    fseek(f,0,SEEK_SET);
-
-    char *data=(char*)malloc(len+1);
-    fread(data,1,len,f);
-    fclose(f);
-    data[len] = '\0' ;
-
-    return data;
-}
+#include "jscommon.h"
 
 
 cJSON* parse(const char* filename, int pretty)
 {
     char* text = slurp(filename);
+    if(!text) return 0 ;
+
     cJSON* root = cJSON_Parse(text);
     free(text);
 
@@ -85,6 +75,7 @@ int main(int argc, char** argv)
     assert(argc > 1);
     char* filename = argv[1] ; 
     cJSON* root = parse(filename,0);
+    if(!root) return 1 ; 
 
     recurse(root, "");
 

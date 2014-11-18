@@ -19,6 +19,7 @@ find_package(ZMQRoot REQUIRED)
 find_package(ZMQ REQUIRED)
 find_package(Root REQUIRED)
 find_package(RapSqlite REQUIRED)
+find_package(cJSON REQUIRED)
 
 include(EnvBuildOptions)
 
@@ -32,6 +33,7 @@ include_directories(
     ${CNPY_INCLUDE_DIRS}
     ${ZMQ_INCLUDE_DIR}
     ${RapSqlite_INCLUDE_DIRS}
+    ${cJSON_INCLUDE_DIRS}
 )
 
 add_definitions(
@@ -40,6 +42,7 @@ add_definitions(
     -DWITH_ZMQ
     ${CHROMAPHOTONLIST_DEFINITIONS}  
     ${RapSqlite_DEFINITIONS}
+    ${cJSON_DEFINITIONS}
 )    
 
 file(GLOB sources
@@ -55,6 +58,7 @@ target_link_libraries( ${name}
     ${CNPY_LIBRARIES}
     ${ZMQ_LIBRARIES}
     ${RapSqlite_LIBRARIES}
+    ${cJSON_LIBRARIES}
 )
 
 install(TARGETS ${name} LIBRARY DESTINATION lib)

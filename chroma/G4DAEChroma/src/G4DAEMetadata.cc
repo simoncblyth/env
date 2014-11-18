@@ -51,7 +51,7 @@ void G4DAEMetadata::Print(const char* msg) const
     cout << msg 
          << " str: " << GetString() << endl ; 
 
-    if(m_link) m_link->Print(msg);
+    //if(m_link) m_link->Print(msg);
 }
 
 

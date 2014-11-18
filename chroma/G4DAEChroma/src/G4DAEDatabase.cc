@@ -1,6 +1,7 @@
 #include "G4DAEChroma/G4DAEDatabase.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "RapSqlite/Database.hh"
+#include "cJSON/cJSON.h"
 
 #include <string>
 #include <iostream>
@@ -29,7 +30,12 @@ void G4DAEDatabase::Insert(G4DAEMetadata* metadata)
 {
     if(!metadata || !m_db) return;
     string meta = metadata->GetString();
-    cout << "G4DAEDatabase::Insert " << meta << endl ; 
+
+    cJSON* root = cJSON_Parse(meta.c_str());
+    char *out = cJSON_Print(root);
+    printf("G4DAEDatabase::Insert %s\n",out);
+    free(out);
+
 }
 
 
