@@ -1494,3 +1494,4 @@ metal-(){      . $(env-home)/graphics/metal/metal.bash && metal-env $* ; }
 gason-(){      . $(env-home)/messaging/gason.bash && gason-env $* ; }
 testsqlite-(){      . $(env-home)/sqlite/testsqlite/testsqlite.bash && testsqlite-env $* ; }
 pythonext-(){      . $(env-home)/python/pythonext/pythonext.bash && pythonext-env $* ; }
+rapsqlite-(){      . $(env-home)/sqlite/rapsqlite/rapsqlite.bash && rapsqlite-env $* ; }

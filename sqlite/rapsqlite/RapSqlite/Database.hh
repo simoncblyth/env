@@ -1,0 +1,53 @@
+#ifndef RSDATABASE_H
+#define RSDATABASE_H
+
+#include "RapSqlite/Common.hh"
+
+class Database {
+public:
+   Database(const char* envvar );
+   virtual ~Database();
+
+   // TODO: introspect table definitions from DB schema queries
+   void AddTable(Table* table);
+   Table* FindTable(const char* name);
+
+   int callback(int argc, char **argv, char **azColName);
+
+   void Introspect();
+   void IntrospectTableNames();
+   void IntrospectTableSQL();
+   void IntrospectTableInfo();
+
+   void DumpTableNames();
+   void DumpTables();
+   void Select(const char* table);
+   void Create(const char* table, Map_t& map);
+   void Insert(const char* table, Map_t& map);
+   void Create(const char* tn, const char* spec );
+   void Insert(const char* tn, const char* spec );
+
+   void SetResultColumn(std::size_t rc); 
+   std::size_t GetResultColumn(); 
+
+   void ClearResults();
+   void DumpResults();
+   std::vector<std::string>& GetResults();
+   std::vector<std::string>  GetResultsCopy();
+
+   std::string GetResult(int n=0);
+
+   void Exec(const char* sql, int debug=0 );
+   char Type(int type);
+   void ExecCallback(const char* sql );
+
+private:
+   sqlite3* m_db;
+   std::vector<std::string> m_tablenames ; 
+   std::map<std::string,Table*> m_tables ; 
+   std::vector<std::string> m_results ; 
+   std::size_t m_resultcolumn ; 
+};
+
+#endif
+
