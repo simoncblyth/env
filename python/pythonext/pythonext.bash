@@ -12,6 +12,14 @@ Python Extensions
 * http://dan.iel.fm/posts/python-c-extensions/
 
 
+Numpy Array Handling Extensions
+--------------------------------
+
+* http://wiki.scipy.org/Cookbook/C_Extensions/NumPy_arrays
+* http://docs.scipy.org/doc/numpy/user/c-info.how-to-extend.html
+* http://blog.enthought.com/python/numpy-arrays-with-pre-allocated-memory/
+
+
 Building
 ---------
 
@@ -78,28 +86,47 @@ Building
 
 EOU
 }
-pythonext-dir(){ echo $(local-base)/env/python/pythonext/chi2 ; }
-pythonext-sdir(){ echo $(env-home)/python/pythonext/chi2 ; }
+
+pythonext-name(){
+   #echo chi2 
+   echo ${PYTHONEXT_NAME:-npar}
+}
+
+pythonext-dir(){ 
+    case $(pythonext-name) in 
+       chi2) pythonext-idir ;;
+       npar) pythonext-sdir ;;
+    esac
+}
+
+pythonext-idir(){ echo $(local-base)/env/python/pythonext/$(pythonext-name) ; }
+pythonext-sdir(){ echo $(env-home)/python/pythonext/$(pythonext-name) ; }
 pythonext-cd(){  cd $(pythonext-dir); }
 pythonext-scd(){  cd $(pythonext-sdir); }
-pythonext-mate(){ mate $(pythonext-dir) ; }
 pythonext-get(){
    local dir=$(dirname $(pythonext-dir)) &&  mkdir -p $dir && cd $dir
 
-   git clone git://gist.github.com/3247796.git chi2 
-
+   case $(pythonext-name) in
+     chi2) git clone git://gist.github.com/3247796.git chi2  ;;
+     npar) echo -n ;;
+  esac
 }
 
+
+pythonext-libdir-ls(){ ls -l $(pythonext-libdir) ; }
+pythonext-libdir(){ echo $LOCAL_BASE/env/python/lib ; }
+pythonext-tmpdir(){ echo /tmp/env/python/pythonext/$(pythonext-name) ; }
 pythonext-build(){
    pythonext-cd
-   python setup.py build_ext --inplace --verbose
+   python setup.py build_ext --build-lib $(pythonext-libdir) --build-temp $(pythonext-tmpdir)
+   pythonext-check
 }
-
 pythonext-import(){
-   PYTHONPATH=$(pythonext-dir) python -c "import _chi2"
+   local name=$(pythonext-name)
+   PYTHONPATH=$(pythonext-libdir) python -c "import _${name}"
 }
 pythonext-check(){
-   PYTHONPATH=$(pythonext-dir) python $(pythonext-sdir)/check.py 
+   PYTHONPATH=$(pythonext-libdir) python $(pythonext-sdir)/check.py 
 }
 
 
