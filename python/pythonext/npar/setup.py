@@ -1,7 +1,7 @@
 from distutils.core import setup, Extension
 import numpy.distutils.misc_util
 
-c_ext = Extension("_npar", ["_npar.c"])
+c_ext = Extension("_npar", ["_npar.c", "querydata.c"])
 
 setup(
     ext_modules=[c_ext],

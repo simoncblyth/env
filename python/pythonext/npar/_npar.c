@@ -1,7 +1,7 @@
 #include <Python.h>
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
-
+#include "querydata.h"
 
 static char npar_docstring[] = 
     "Create an numpy ndarray in C";
@@ -30,28 +30,33 @@ static PyObject* npar_npar(PyObject *self, PyObject *args)
     char* sql  = NULL ;
     if(!PyArg_ParseTuple(args, "s", &sql) || sql == NULL) return NULL;
 
-    printf("sql %s \n", sql );
+
+    int typenum ;
+
+    char type ;
+    int nrow ;
+    int ncol ; 
+    void* data = querydata(sql, &nrow, &ncol, &type );
+
+    switch(type)
+    {
+        case 'f':typenum = NPY_FLOAT32 ;break;
+        default: typenum = 0; break ;
+    } 
+
+    if(typenum == 0){
+        PyErr_SetString(PyExc_RuntimeError, "TypeError in npar_npar");
+        return NULL;
+    }
 
     const int nd = 2 ;
-    npy_intp dims[nd] = { 2, 2 };
+    npy_intp dims[nd] = { nrow, ncol };
 
-    size_t size = sizeof(float)*dims[0]*dims[1] ;
-    float* data = (float*)malloc(size);
-
-    data[0] = 1. ;
-    data[1] = 2. ;
-    data[2] = 3. ;
-    data[3] = 4. ;
-
-    PyArrayObject* arr = (PyArrayObject*)PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT32, data);
+    PyArrayObject* arr = (PyArrayObject*)PyArray_SimpleNewFromData(nd, dims, typenum, data);
     int flags = PyArray_FLAGS(arr);
     PyArray_ENABLEFLAGS(arr, flags | NPY_ARRAY_OWNDATA ); // get numpy to deallocate when done
 
     return PyArray_Return(arr);
 }
-
-/*
-PyErr_SetString(PyExc_RuntimeError, "Error in npar_npar");
-*/
 
 
