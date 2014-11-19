@@ -34,7 +34,7 @@ class DAEChromaContext(object):
         self.chroma_geometry = chroma_geometry
         pass
 
-        self.COLUMNS = 'COLUMNS:s,deviceid:i,propagatorcode:i,nthreads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i'
+        self.COLUMNS = 'deviceid:i,propagatorcode:i,nthreads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i'
         self.deviceid = config.args.deviceid 
         self.nthreads_per_block = config.args.threads_per_block
         self.max_blocks = config.args.max_blocks
@@ -54,7 +54,9 @@ class DAEChromaContext(object):
     def parameters(self):
         atts = map(lambda pair:pair.split(':')[0], self.COLUMNS.split(","))
         vals = map(lambda att:getattr(self,att), atts)
-        return dict(zip(atts,vals))
+        d = dict(zip(atts,vals))
+        d['COLUMNS'] = self.COLUMNS
+        return d
 
     def setup_random_seed(self):
         if self.seed is None:

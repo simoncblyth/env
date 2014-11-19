@@ -130,35 +130,20 @@ int main(int argc, const char** argv)
 
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
 
-    if( strcmp(name, "mock") == 0 )
-    {
-        CollectMockPhotonList();
-    }
-    else
-    { 
 
-        G4DAEPhotons* photons = G4DAEPhotons::Load(name);
-        photons->AddLink(new G4DAEMetadata("meta1"));
-        photons->AddLink(new G4DAEMetadata("meta2"));
+    G4DAEPhotons* photons = G4DAEPhotons::Load(name); assert(photons);
+    photons->AddLink(new G4DAEMetadata("{}"));
+    photons->AddLink(new G4DAEMetadata("{}"));
+    photons->Print("mocknuwa: photons"); 
 
-        assert(photons);
-        photons->Print("mocknuwa: photons"); 
+    transport->SetPhotons( photons );
 
-        transport->SetPhotons( photons );
+    chroma->Propagate(1); // PropagateToHits : <1  fakes the propagation, ie just passes all photons off as hits
 
-        chroma->Propagate(1); // PropagateToHits : <1  fakes the propagation, ie just passes all photons off as hits
+    G4DAEPhotons* hits = transport->GetHits(); assert(hits);
+    hits->Print("mocknuwa: hits___");
 
-        G4DAEPhotons* hits = transport->GetHits();
-        assert(hits);
-
-        hits->Print("mocknuwa: hits___");
-
-        G4DAEMetadata* link = hits->GetLink();
-        database->Insert(link); 
-
-
-        G4DAEPhotons::Save(hits, htag.c_str());
-    }
+    G4DAEPhotons::Save(hits, htag.c_str());
 
 
     G4DAESensDet* sd = chroma->GetSensDet();
@@ -168,6 +153,19 @@ int main(int argc, const char** argv)
     hitlist->Save( htag.c_str() );
     hitlist->Print("mocknuwa: hitlist");
 
+    G4DAEMetadata* meta = hits->GetLink();
+    meta->Set("htag",     htag.c_str() );
+    meta->Set("dphotons", photons->GetDigest().c_str() );
+    meta->Set("dhits",    hits->GetDigest().c_str() );
+    meta->Set("dhitlist", hitlist->GetDigest().c_str() );
+    meta->Set("COLUMNS",  "htag:s,dphotons:s,dhits:s,dhitlist:s");
+
+    meta->Merge("caller");
+    meta->Print();
+    meta->PrintToFile("/tmp/mocknuwa.json");
+    meta->SetName("mocknuwa");
+
+    database->Insert(meta); 
 
     return 0 ; 
 }

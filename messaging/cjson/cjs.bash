@@ -98,7 +98,7 @@ cjs-wipe(){
 }
 
 
-cjs-test(){
+cjs-testcjson(){
 
    cjs-scd tests
 
@@ -114,7 +114,7 @@ cjs-test(){
    $bin $(cjs-sdir)/tests/out.js
 }
 
-cjs-test-cmake(){
+cjs-testcjson-cmake(){
 
    local iwd=$PWD
    local tmp=/tmp/env/messaging/cjson/$FUNCNAME
@@ -133,10 +133,10 @@ cjs-test-cmake(){
 }
 
 
-cjs-js-make(){
+cjs-jstest-make(){
    local pfx=$(cjs-prefix) 
    cjs-scd tests
-   clang js.cc jstest.cc -lstdc++ -I$pfx/include -L$pfx/lib -lcJSON -Wl,-rpath,$pfx/lib -o $LOCAL_BASE/env/bin/js && js out.js
+   clang jstest.cc -lstdc++ -I$pfx/include -L$pfx/lib -lcJSON -Wl,-rpath,$pfx/lib -o $LOCAL_BASE/env/bin/js && js out.js
 }
 
 

@@ -1,11 +1,12 @@
 #include "G4DAEChroma/G4DAEDatabase.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "RapSqlite/Database.hh"
-#include "cJSON/cJSON.h"
+
 
 #include <string>
 #include <iostream>
 
+typedef G4DAEMetadata::Map_t  Map_t ;
 using namespace std ; 
 
 G4DAEDatabase::G4DAEDatabase(const char* envvar) : m_db(NULL) 
@@ -26,19 +27,16 @@ G4DAEDatabase::~G4DAEDatabase()
     delete m_db ; 
 }
 
-void G4DAEDatabase::Insert(G4DAEMetadata* metadata)
+void G4DAEDatabase::Insert(G4DAEMetadata* meta)
 {
-    if(!metadata || !m_db) return;
-    string meta = metadata->GetString();
+    if(!meta || !m_db) return;
 
-    cJSON* root = cJSON_Parse(meta.c_str());
+    //string meta = metadata->GetString();
+    Map_t row  = meta->GetRowMap();
+    Map_t type = meta->GetTypeMap();
 
-    /* where to put json parse capability Database or Metadata */
-
-
-    char *out = cJSON_Print(root);
-    printf("G4DAEDatabase::Insert %s\n",out);
-    free(out);
+    m_db->Create(meta->GetName(), type);
+    m_db->Insert(meta->GetName(), row);
 
 }
 
