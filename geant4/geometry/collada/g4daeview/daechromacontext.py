@@ -28,17 +28,20 @@ class DAEChromaContext(object):
     (eg do stepping in the propagator not here)
     """
     dummy = False
-    def __init__(self, config, chroma_geometry ):
+    def __init__(self, config, chroma_geometry, propagatorcode=0 ):
         log.debug("DAEChromaContext init, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
         self.config = config
         self.chroma_geometry = chroma_geometry
         pass
+
+        self.COLUMNS = 'COLUMNS:s,deviceid:i,propagatorcode:i,nthreads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i'
         self.deviceid = config.args.deviceid 
         self.nthreads_per_block = config.args.threads_per_block
         self.max_blocks = config.args.max_blocks
         self.max_steps = config.args.max_steps
         self.seed = config.args.seed
-        self.reset_rng_states = True   # reset rng_states for every propagation, to repeat same random sequence
+        self.reset_rng_states = 1      # reset rng_states for every propagation, to repeat same random sequence
+        self.propagatorcode = propagatorcode
         pass
         self.setup_random_seed()
         pass
@@ -49,11 +52,9 @@ class DAEChromaContext(object):
         self._propagator = None
 
     def parameters(self):
-        p = {}
-        for att in 'nthreads_per_block max_blocks max_steps seed reset_rng_states'.split():
-            p[att] = getattr(self, att)
-        pass
-        return p
+        atts = map(lambda pair:pair.split(':')[0], self.COLUMNS.split(","))
+        vals = map(lambda att:getattr(self,att), atts)
+        return dict(zip(atts,vals))
 
     def setup_random_seed(self):
         if self.seed is None:

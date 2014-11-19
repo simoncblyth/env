@@ -237,10 +237,59 @@ class DAEGeometry(object):
     """
     secs = {}
     @timing(secs)
-    def __init__(self, config ):
+    def __init__(self, config, fromcache=False ):
         """
         :param config: DAEConfig instance
         """
+        self.config = config
+        if not fromcache:
+            self.solids = self.get_solids(config)
+            self.mesh = None
+            self.bbox_cache = None
+        else:
+            geocachepath = config.geocachepath
+            assert os.path.exists(geocachepath), geocachepath 
+            log.info("populate fromcache %s " % geocachepath )
+            npz = np.load(geocachepath)
+            self.populate_from_cache(npz)
+        pass
+
+    def populate_from_cache(self, npz):
+        """
+        .. warning:: geocache is not operational, misses solids 
+                     
+             solids needed for make_chroma_geometry, but making chroma geometry 
+             entails making array copies to GPU. Do not want to cache all the 
+             many thousands of solids, want to cache after flattened to a single
+             object.
+
+             Need rejig to partition pre-GPU processing which can be cached, and
+             chroma geometry creation needs to use that cache.
+ 
+             Also should move from npz to multiple npy files in a folder
+             (possibly with json metadata).
+             As numpy/python npz zipfile handling is inefficient 
+             (it extracts to tmp files) and also to allow use from C++
+
+        """
+        mesh = self.make_mesh( npz['vertices'], npz['triangles'], npz['normals'] )                
+        self.mesh = mesh 
+        self.bbox_cache = npz['bbox_cache']  
+
+    def save_to_cache(self, cachepath):
+        if self.bbox_cache is None:
+            self.make_bbox_cache()
+        pass
+        if os.path.exists(cachepath):
+            log.info("overwriting preexisting cache file %s " % cachepath ) 
+        else:
+            log.info("writing cache file %s " % cachepath ) 
+        pass
+        np.savez(cachepath, bbox_cache=self.bbox_cache, vertices=self.mesh.vertices, triangles=self.mesh.triangles, normals=self.mesh.normals)
+
+
+    @timing(secs)
+    def get_solids(self, config):
         nodespec = self.resolve_geometry_arg( config )
         if nodespec is None:
             solids = []
@@ -256,12 +305,7 @@ class DAEGeometry(object):
             pass
             solids = self.make_solids(nodes, config.args.bound)
         pass
-        self.solids = solids
-        self.mesh = None
-        self.bbox_cache = None
-        self.config = config
- 
-
+        return solids
  
     @timing(secs)
     def make_solids(self, nodes, bound):
@@ -338,30 +382,9 @@ class DAEGeometry(object):
         log.debug(mesh)
         return mesh
 
-    def save_to_cache(self, cachepath):
-        if self.bbox_cache is None:
-            self.make_bbox_cache()
-        pass
-        if os.path.exists(cachepath):
-            log.info("overwriting preexisting cache file %s " % cachepath ) 
-        else:
-            log.info("writing cache file %s " % cachepath ) 
-        pass
-        np.savez(cachepath, bbox_cache=self.bbox_cache, vertices=self.mesh.vertices, triangles=self.mesh.triangles, normals=self.mesh.normals)
-
-    def populate_from_cache(self, npz):
-        mesh = self.make_mesh( npz['vertices'], npz['triangles'], npz['normals'] )                
-        self.mesh = mesh 
-        self.bbox_cache = npz['bbox_cache']  
-
     @classmethod
     def load_from_cache(cls, config):
-        geocachepath = config.geocachepath
-        assert os.path.exists(geocachepath), geocachepath 
-        log.info("load_from_cache %s " % geocachepath )
-        npz = np.load(geocachepath)
-        obj = cls(None, config)
-        obj.populate_from_cache(npz)
+        obj = cls(config, fromcache=True)
         return obj
 
     @classmethod
@@ -371,6 +394,9 @@ class DAEGeometry(object):
         """
         log.info("DAEGeometry.get START")
         geocachepath = config.geocachepath
+        if config.args.geocache and not os.path.exists(geocachepath):
+            log.warn("geocache was requested by no cache exists at %s : will create the cache" % geocachepath )
+        pass
         if os.path.exists(geocachepath) and config.args.geocache:
             geometry = cls.load_from_cache( config )
         else:

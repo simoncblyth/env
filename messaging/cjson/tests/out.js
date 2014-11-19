@@ -1,24 +1,29 @@
 {
     "results":  {
+        "nwork":    4165,
         "name": "propagate_hit",
-        "n_abort":  0,
-        "n_work":   4165,
-        "n_small":  8192,
-        "n_pass":   1,
-        "mintime":  1.257199,
-        "tottime":  1.257199,
-        "n_launch": 1,
-        "maxtime":  1.257199,
-        "n_photons":    4165
+        "mintime":  0.379093,
+        "npass":    1,
+        "nphotons": 4165,
+        "nabort":   0,
+        "nsmall":   8192,
+        "nlaunch":  1,
+        "maxtime":  0.379093,
+        "COLUMNS":  "name:s,nphotons:i,nwork:i,nsmall:i,npass:i,nabort:i,nlaunch:i,tottime:f,maxtime:f,mintime:f",
+        "tottime":  0.379093
     },
     "parameters":   {
-        "reset_rng_states": true,
+        "reset_rng_states": 1,
         "nthreads_per_block":   64,
+        "propagatorcode":   1,
         "seed": 0,
-        "max_blocks":   1024,
+        "deviceid": null,
         "max_steps":    30,
-        "propagator":   1
+        "COLUMNS":  "COLUMNS:s,deviceid:i,propagatorcode:i,nthreads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i",
+        "max_blocks":   1024
     }
 }
+
+
 
 

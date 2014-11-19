@@ -32,6 +32,10 @@ void G4DAEDatabase::Insert(G4DAEMetadata* metadata)
     string meta = metadata->GetString();
 
     cJSON* root = cJSON_Parse(meta.c_str());
+
+    /* where to put json parse capability Database or Metadata */
+
+
     char *out = cJSON_Print(root);
     printf("G4DAEDatabase::Insert %s\n",out);
     free(out);

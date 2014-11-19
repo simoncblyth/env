@@ -21,6 +21,9 @@ public:
    void Recurse(cJSON* item, const char* prefix, const char* wanted);
    void Visit(cJSON *item, const char* prefix, const char* wanted);
 
+   void AddKV(cJSON* obj, const char* key, const char* val );
+   void AddMap(const char* name, Map_t& map);
+
    void PopulateMap(const char* prefix=NULL);
    void DumpMap();
 

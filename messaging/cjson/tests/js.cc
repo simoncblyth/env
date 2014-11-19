@@ -90,6 +90,7 @@ void JS::Visit(cJSON *item, const char* prefix, const char* wanted )
         case 'F':printf(" %d %f ", item->valueint, item->valuedouble); break ;
         case 'T':printf(" %s ", item->valuestring); break ;
         case 'B':printf(" %d ", item->valueint );break;
+        case 'N':printf(" nul ");break;
         default:printf("?????: item->type %d ", item->type );
     }
     printf("\n");
@@ -131,6 +132,40 @@ void JS::PopulateMap(const char* starting)
 void JS::DumpMap()
 {
 }
+
+
+void JS::AddKV(cJSON* obj, const char* key, const char* val )
+{
+   // endptr pointing to null terminator means converted while string 
+   {
+      char* endptr;
+      long int lval = strtol(val, &endptr, 10); 
+      if(!*endptr)  
+      {
+          cJSON_AddNumberToObject(obj, key, lval );
+          return ; 
+      }
+   }
+   {
+      char* endptr;
+      double dval = strtod(val, &endptr); 
+      if(!*endptr)  
+      {
+          cJSON_AddNumberToObject(obj, key, dval );
+          return ; 
+      }
+   }
+   cJSON_AddStringToObject(obj, key, val );
+}
+
+
+void JS::AddMap(const char* name, Map_t& map)
+{
+    cJSON* obj = cJSON_CreateObject();
+    for(Map_t::iterator it=map.begin(); it != map.end() ; ++it ) AddKV(obj, it->first.c_str(),it->second.c_str()) ;
+    cJSON_AddItemToObject(m_root,name,obj);
+}
+
 
 void JS::Print(const char* msg)
 {

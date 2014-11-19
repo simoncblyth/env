@@ -5,6 +5,42 @@ cjs-vi(){       vi $(cjs-source) ; }
 cjs-env(){      elocal- ; }
 cjs-usage(){ cat << EOU
 
+JSON Usage from C++
+===========================
+
+
+JSON Types
+-----------
+
+* http://en.wikipedia.org/wiki/JSON
+
+::
+
+    Number 
+          no distinction between float and int
+    String
+    Boolean
+    Array 
+    Object
+    null
+
+Hmm lack of float/int distinction means need to provide 
+type metadata, as wish for ints to be preserved as such 
+for selection purposes. 
+
+SQLite3 Types
+---------------
+
+* https://www.sqlite.org/datatype3.html
+
+::
+
+    NULL
+    INTEGER
+    REAL
+    TEXT
+    BLOB
+
 
 
 
@@ -95,4 +131,13 @@ cjs-test-cmake(){
    cd $iwd 
 
 }
+
+
+cjs-js-make(){
+   local pfx=$(cjs-prefix) 
+   cjs-scd tests
+   clang js.cc jstest.cc -lstdc++ -I$pfx/include -L$pfx/lib -lcJSON -Wl,-rpath,$pfx/lib -o $LOCAL_BASE/env/bin/js && js out.js
+}
+
+
 

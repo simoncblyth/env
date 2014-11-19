@@ -45,7 +45,6 @@ class DAEDirectPropagator(object):
 
         """
         parameters = self.chroma.parameters()
-        parameters['propagator'] = 1
 
         nthreads_per_block = parameters['nthreads_per_block']
         max_blocks = parameters['max_blocks'] 
@@ -63,15 +62,16 @@ class DAEDirectPropagator(object):
         gpu_photons = GPUPhotonsHit(photons)        
         gpu_detector = self.chroma.gpu_detector
 
-        log.info("nthreads_per_block : %s ", nthreads_per_block ) 
-        log.info("max_blocks : %s ", max_blocks ) 
-        log.info("max_steps : %s ", max_steps ) 
+        #log.info("nthreads_per_block : %s ", nthreads_per_block ) 
+        #log.info("max_blocks : %s ", max_blocks ) 
+        #log.info("max_steps : %s ", max_steps ) 
 
         results = gpu_photons.propagate_hit(gpu_detector, 
                                             self.chroma.rng_states,
                                             nthreads_per_block=nthreads_per_block,
                                             max_blocks=max_blocks,
                                             max_steps=max_steps)
+
 
         # pycuda get()s from GPU back into ndarrays and creates event.Photon instance
         photons_end = gpu_photons.get()  

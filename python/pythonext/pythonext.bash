@@ -105,13 +105,11 @@ pythonext-cd(){  cd $(pythonext-dir); }
 pythonext-scd(){  cd $(pythonext-sdir); }
 pythonext-get(){
    local dir=$(dirname $(pythonext-dir)) &&  mkdir -p $dir && cd $dir
-
    case $(pythonext-name) in
      chi2) git clone git://gist.github.com/3247796.git chi2  ;;
      npar) echo -n ;;
-  esac
+   esac
 }
-
 
 pythonext-libdir-ls(){ ls -l $(pythonext-libdir) ; }
 pythonext-libdir(){ echo $LOCAL_BASE/env/python/lib ; }

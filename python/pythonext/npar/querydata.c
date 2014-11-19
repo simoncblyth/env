@@ -10,11 +10,8 @@ void* querydata( const char* sql, int* nrow, int* ncol, char* type )
     *nrow = 1 ;
     *ncol = 1 ;
 
-    size_t size ;
-    void* data = NULL ;
-
-    size = sizeof(float)*(*nrow)*(*ncol) ;
-    data = malloc(size);
+    size_t size = sizeof(float)*(*nrow)*(*ncol) ;
+    void* data = malloc(size);
 
     float* fdata = (float*)data ;
     fdata[0] = 1. ;
