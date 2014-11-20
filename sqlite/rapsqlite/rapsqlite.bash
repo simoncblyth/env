@@ -99,15 +99,51 @@ rapsqlite-test(){
    local bin=$LOCAL_BASE/env/bin/$nam
    local pfx=$(rapsqlite-prefix)
    local lib=RapSqlite
-   local dbp=/tmp/rap.db
+   local dbp=$LOCAL_BASE/env/nuwa/mocknuwa.db
+   local tab="mocknuwa"
 
    # bake the place to find the dylib into the binary, so no need for library path
-   clang $src -lstdc++ -I$pfx/include -L$pfx/lib -l$lib -Wl,-rpath,$pfx/lib -o $bin
-
-   DBPATH=$dbp $nam
-   echo select \* from D \; | sqlite3 $dbp
- 
+   clang $src -lstdc++ \
+               -I$pfx/include \
+               -L$pfx/lib -l$lib \
+               -Wl,-rpath,$pfx/lib \
+               -o $bin \
+        && DBPATH=$dbp $LLDB $nam \
+        && echo select \* from $tab \; | sqlite3 $dbp
 }
+
+rapsqlite-lldb(){
+   LLDB=lldb rapsqlite-test
+}
+
+
+
+rapsqlite-lib(){ echo RapSqlite ; }
+
+rapsqlite-testjs(){
+
+   cjs- 
+   rapsqlite-scd tests
+
+   local nam=testrapsqlitejs
+   local dbp=$LOCAL_BASE/env/nuwa/mocknuwa.db
+
+   clang $nam.cc -lstdc++ \
+              -I$(rapsqlite-prefix)/include \
+              -I$(cjs-prefix)/include \
+              -L$(rapsqlite-prefix)/lib -l$(rapsqlite-lib) \
+              -L$(cjs-prefix)/lib -l$(cjs-lib) \
+              -Wl,-rpath,$(rapsqlite-prefix)/lib \
+              -Wl,-rpath,$(cjs-prefix)/lib \
+              -o $LOCAL_BASE/env/bin/$nam \
+        && DBPATH=$dbp $LLDB $nam
+
+}
+
+
+
+
+
 
 rapsqlite-test-cmake(){
 

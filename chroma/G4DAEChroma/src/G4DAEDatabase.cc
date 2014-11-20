@@ -6,7 +6,6 @@
 #include <string>
 #include <iostream>
 
-typedef G4DAEMetadata::Map_t  Map_t ;
 using namespace std ; 
 
 G4DAEDatabase::G4DAEDatabase(const char* envvar) : m_db(NULL) 
@@ -31,13 +30,26 @@ void G4DAEDatabase::Insert(G4DAEMetadata* meta)
 {
     if(!meta || !m_db) return;
 
-    //string meta = metadata->GetString();
+    const char* name = meta->GetName();
     Map_t row  = meta->GetRowMap();
     Map_t type = meta->GetTypeMap();
 
-    m_db->Create(meta->GetName(), type);
-    m_db->Insert(meta->GetName(), row);
+    m_db->Create(name, type);  // create table if not existing 
+    m_db->Insert(name, row);   
 
+}
+
+int G4DAEDatabase::Query(const char* sql )
+{
+    if(!m_db) return -2 ;
+    return m_db->Exec(sql); 
+}
+
+Map_t G4DAEDatabase::GetRow(std::size_t index)
+{
+    Map_t row ;
+    if(m_db) row = m_db->GetRow(index);
+    return row;
 }
 
 

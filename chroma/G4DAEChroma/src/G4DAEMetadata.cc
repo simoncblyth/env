@@ -42,6 +42,7 @@ std::string& G4DAEMetadata::Get(const char* key)
     return ( m_kv.find(k) == m_kv.end()) ? m_kv[EMPTY] : m_kv[k] ;
 }
 
+
 void G4DAEMetadata::SetString(const char* str)
 {
     delete m_buffer ; 
@@ -58,6 +59,20 @@ void G4DAEMetadata::Merge(const char* name)
     if(!m_js) return ;
     m_js->AddMap(name, m_kv);
 }
+
+void G4DAEMetadata::AddMap(const char* name, Map_t& map)
+{
+    if(!m_js) return ;
+    m_js->AddMap(name, map);
+} 
+
+void G4DAEMetadata::SaveToBuffer()
+{
+    if(!m_js) return ;
+    std::string str = m_js->AsString();
+    SetString( str.c_str());
+}
+
 
 void G4DAEMetadata::Print(const char* msg) const
 {
@@ -99,12 +114,6 @@ Map_t G4DAEMetadata::GetTypeMap()
     return tmap ;
 }
 
-
-
-void G4DAEMetadata::SaveToBuffer()
-{
-    // not needed when use SetString
-}
 
 const char* G4DAEMetadata::GetBufferBytes()
 {

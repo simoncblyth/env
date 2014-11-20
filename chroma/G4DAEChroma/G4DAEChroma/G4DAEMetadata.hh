@@ -21,11 +21,18 @@ public:
     virtual ~G4DAEMetadata();
 
 public:
+    // set,get manual key value pairs
     void Set(const char* key, const char* val );
     std::string& Get(const char* key);
 
-    // merge JSON tree parsed from string together with internal map
+    // merge JSON tree parsed from initial string/buffer together 
+    // with manual key/values map under new JSON top level object 
+    // named by the argument
     void Merge(const char* name); 
+
+    // incorporate key, values from map argument into contained JSON tree in 
+    // new top level JSON object named by the argument 
+    void AddMap(const char* name, Map_t& map); 
 
 public:
     // debugging 

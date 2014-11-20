@@ -93,10 +93,19 @@ void CollectMockPhotonList()
 
 int main(int argc, const char** argv)
 {
+    //
+    //  TODO: move to arguments specifiying one or more 
+    //        primary keys of config and photondata tables in DB
+    // 
+    //        DB select the specified entries as Map_t, these
+    //        are converteted to JSON for transport to propagator
+    //
+
     const char* name = NULL ; 
     const char* tag  = "hh" ; // eg "hv" for vbo prop, "ha" for array (non-vbo) prop
     if(argc > 1) name = argv[1] ; 
     if(argc > 2) tag  = argv[2] ; 
+
 
     if( name == NULL )
     {
@@ -131,9 +140,26 @@ int main(int argc, const char** argv)
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
 
 
+    // TODO: arrange config tables to have convenient PKs for selection based on command line args
+    const char* sql = "select max_blocks, max_steps, nthreads_per_block, seed, reset_rng_states from mocknuwa limit 1 ;" ;
+    int nrow = database->Query(sql);
+    Map_t row = database->GetRow(0);
+    if(row.size() < 2 ){
+        printf("mocknuwa: DB query error OR empty result OR row too small nrow %d sql: %s \n", nrow, sql );
+        exit(1);
+    }
+
+    G4DAEMetadata* ctrl = new G4DAEMetadata("{}");
+    ctrl->AddMap("ctrl", row );
+    ctrl->Set("htag", htag.c_str());
+    ctrl->Merge("args");
+    ctrl->Print(); 
+    ctrl->SaveToBuffer();
+
     G4DAEPhotons* photons = G4DAEPhotons::Load(name); assert(photons);
-    photons->AddLink(new G4DAEMetadata("{}"));
-    photons->AddLink(new G4DAEMetadata("{}"));
+    photons->AddLink(ctrl);
+
+
     photons->Print("mocknuwa: photons"); 
 
     transport->SetPhotons( photons );
@@ -153,19 +179,25 @@ int main(int argc, const char** argv)
     hitlist->Save( htag.c_str() );
     hitlist->Print("mocknuwa: hitlist");
 
+
     G4DAEMetadata* meta = hits->GetLink();
     meta->Set("htag",     htag.c_str() );
     meta->Set("dphotons", photons->GetDigest().c_str() );
     meta->Set("dhits",    hits->GetDigest().c_str() );
     meta->Set("dhitlist", hitlist->GetDigest().c_str() );
     meta->Set("COLUMNS",  "htag:s,dphotons:s,dhits:s,dhitlist:s");
+    meta->Merge("caller");  // add "caller" object with these settings to JSON tree
 
-    meta->Merge("caller");
     meta->Print();
     meta->PrintToFile("/tmp/mocknuwa.json");
-    meta->SetName("mocknuwa");
 
+    meta->SetName("mocknuwa");   // DB tablename
     database->Insert(meta); 
+
+    //
+    // TODO: check can extract hitlists from actual collections
+    //       to make connection to standard Geant4 propagation hits 
+    //
 
     return 0 ; 
 }

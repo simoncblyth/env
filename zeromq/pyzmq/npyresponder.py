@@ -99,7 +99,7 @@ class NPYSocket(zmq.Socket):
         jbuf = -1
         meta = []
         for ibuf,buf in enumerate(bufs):   # the buf are memoryview 
-            print ibuf, buf, len(buf), dir(buf)
+            #print ibuf, buf, len(buf), dir(buf)
             #if buf[0] == b'\x93':  ## IndexError: invalid indexing of 0-dim memory
             #if buf[1:7].tobytes() == b'NUMPY':   ## ditto
             if ibuf == 0:
@@ -171,11 +171,7 @@ class NPYResponder(object):
             pass
         if events:
             request = self.socket.recv_npy(copy=False)
-            print "poll request      %s " % repr(request)
-            print "poll request.meta %s " % repr(request.meta)
-
             response = self.reply(request) 
-            time.sleep(self.config.sleep)
             self.socket.send_npy(response)    
 
     def reply(self, obj):

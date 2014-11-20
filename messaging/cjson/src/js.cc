@@ -133,6 +133,14 @@ void JS::Print(const char* msg)
     free(out);
 }
 
+std::string JS::AsString(bool pretty)
+{
+    char *out = pretty ? cJSON_Print(m_root) : cJSON_PrintUnformatted(m_root) ;
+    std::string str(out);
+    free(out);
+    return str; 
+}
+
 void JS::PrintToFile(const char* path)
 {
     char *out = cJSON_Print(m_root);

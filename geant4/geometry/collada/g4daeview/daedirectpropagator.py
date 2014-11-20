@@ -6,7 +6,7 @@ Test Usage::
 
 
 """
-import logging, json
+import logging
 log = logging.getLogger(__name__)
 
 
@@ -85,7 +85,7 @@ class DAEDirectPropagator(object):
             metadata = {}
             metadata['parameters'] = parameters
             metadata['results'] = results
-            aa.meta = [json.dumps(metadata)]
+            aa.meta = [metadata]
             return aa
         else:
             log.info("daedirectpropagator:propagate returning create_cpl_from_photons_very_slowly(photons_end)")

@@ -25,11 +25,12 @@ public:
    virtual ~JS();
 
 public:
-   // primary operations
+   // primary operations used by G4DAEMetadata
    void AddMap(const char* name, Map_t& map);  // causes a re-analysis
    Map_t CreateRowMap();
    Map_t CreateTypeMap();
    Map_t CreateMap(char form);
+   std::string AsString(bool pretty=false);
 
 public:
    // secondary

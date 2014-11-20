@@ -16,6 +16,7 @@ class Table ;
 
 typedef std::vector<std::string> Vec_t ; 
 typedef std::map<std::string,std::string> Map_t ; 
+typedef std::vector<Map_t> VMap_t ; 
 typedef std::map<std::string,Table*> TableMap_t ; 
 
 extern void split( std::vector<std::string>& elem, const char* line, char delim );

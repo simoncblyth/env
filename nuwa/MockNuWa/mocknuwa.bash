@@ -25,6 +25,12 @@ mocknuwa-usage(){ cat << EOU
 MockNuWa
 =========
 
+Need way to record the "split" event, as it slows down processing::
+
+    2014-11-20 18:37:51,426 INFO    env.geant4.geometry.collada.g4daeview.daechromacontext:122 _set_rng_states
+    2014-11-20 18:37:51,763 INFO    chroma.gpu.geometry :171 Splitting BVH between GPU and CPU memory at node 78800
+    2014-11-20 18:37:51,786 INFO    chroma.gpu.geometry :201 device usage:
+
 
 
 

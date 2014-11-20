@@ -50,6 +50,7 @@ EOU
 
 cjs-name(){  echo cjson ; }
 cjs-prefix(){ echo $(cjs-dir) ; }
+cjs-lib(){  echo cJSON ; }
 
 cjs-dir(){   echo $(local-base)/env/messaging/$(cjs-name) ; }
 cjs-sdir(){ echo $(env-home)/messaging/$(cjs-name) ; }
@@ -106,7 +107,7 @@ cjs-testcjson(){
    local src=$nam.c 
    local bin=$LOCAL_BASE/env/bin/$nam
    local pfx=$(cjs-prefix)
-   local lib=cJSON
+   local lib=$(cjs-lib)
 
    # bake the place to find the dylib into the binary, so no need for library path
    cc -g $src -I$pfx/include -L$pfx/lib -l$lib -Wl,-rpath,$pfx/lib -o $bin

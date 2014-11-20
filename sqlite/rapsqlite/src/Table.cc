@@ -35,7 +35,7 @@ void Table::Dump()
     printf("Table::Dump %s \n", m_name.c_str());
     size_t ncol = GetNumColumns();
     for(size_t i=0 ; i < ncol ; ++i ){
-       printf(" %zu   %s %s \n", i, m_keys[i].c_str(), m_type[i].c_str() );
+       printf(" %3zu %10s : %s \n", i, m_type[i].c_str(), m_keys[i].c_str() );
     }
 }
 

@@ -1,6 +1,8 @@
 #include "RapSqlite/Database.hh"
 #include "RapSqlite/Table.hh"
 
+const char* Database::SENTINEL = "COLUMNS" ; 
+const int Database::DEBUG  = 0 ; 
 
 const char* Database::Path(const char* envvar)
 {
@@ -8,14 +10,16 @@ const char* Database::Path(const char* envvar)
    return path ; 
 }
 
-Database::Database(const char* envvar) : m_db(NULL), m_resultcolumn(0) 
+Database::Database(const char* envvar) : m_debug(DEBUG), m_db(NULL), m_resultcolumn(0) 
 {
    const char* path = Path(envvar);
    int rc = sqlite3_open(path, &m_db );
    if( rc ){
       fprintf(stderr, "Can't open database at path %s: %s\n", path, sqlite3_errmsg(m_db));
    }
-   //fprintf(stderr,"Opened %s \n", path);
+   if(m_debug > 0) fprintf(stderr,"Opened %s \n", path);
+
+   //Introspect();
 }
 
 Database::~Database()
@@ -24,11 +28,19 @@ Database::~Database()
 }
 
 
-
+void Database::SetDebug(int debug)
+{
+    m_debug = debug ;
+}
+int Database::GetDebug()
+{
+    return m_debug ;
+}
 
 void Database::ClearResults()
 {
    m_results.clear();
+   m_rows.clear();
 }
 
 std::vector<std::string>& Database::GetResults()
@@ -41,16 +53,25 @@ std::vector<std::string> Database::GetResultsCopy()
 }
 
 
-void Database::DumpResults()
+void Database::DumpResults(const char* msg)
 {
    size_t size = m_results.size();
-   for(size_t i=0 ; i<size ; ++i )
-   {
-       printf("%zu %s\n", i,m_results[i].c_str()); 
-   }
+   printf("%s : size %zu \n", msg, size);
+   for(size_t i=0 ; i<size ; ++i ) printf("%zu %s\n", i,m_results[i].c_str()); 
 }
 
+void Database::DumpRows(const char* msg)
+{
+   size_t size = m_rows.size();
+   printf("%s : size %zu \n", msg, size);
+   for(size_t i=0 ; i<size ; ++i ) DumpMap("row",m_rows[i]);
+}
 
+void Database::DumpMap(const char* msg, Map_t& map)
+{
+   printf("Database::DumpMap : %s \n", msg);
+   for(Map_t::const_iterator it=map.begin() ; it != map.end() ; ++it ) printf(" %20s  : %s \n", it->first.c_str(), it->second.c_str() ); 
+}
 
 
 std::string Database::GetResult(int n)
@@ -111,55 +132,131 @@ char Database::Type(int type)
 }
 
 
-void Database::Exec(const char* sql, int debug )
+// exec and helpers
+
+
+bool Database::Prepare(const char* sql, sqlite3_stmt** statement )
 {
-   ClearResults();
-   if(debug>0) printf("Database::Exec [%s]\n", sql ); 
-
-   sqlite3_stmt *statement;
-
-   int rc = sqlite3_prepare_v2(m_db, sql, -1, &statement, 0);
+   if(m_debug>0) printf("Database::Prepare [%s]\n", sql ); 
+   int rc = sqlite3_prepare_v2(m_db, sql, -1, statement, 0);
    if( rc != SQLITE_OK )
    {
        const char* err = sqlite3_errmsg(m_db);
        fprintf(stderr, "Database::Exec sqlite3_prepare_v2 error with sql %s : %s \n", sql, err );
-       return ;
    }
+   return rc == SQLITE_OK ;
+}
+
+
+int Database::Exec(const char* sql)
+{
+   sqlite3_stmt* statement;
+   bool ok = Prepare( sql, &statement ); 
+   if(!ok) return -1 ;
 
    int ncol = sqlite3_column_count(statement);
-   char* types = new char[ncol+1];
-   types[0] = '\0';
+   if(m_debug > 0) printf("Database::Exec %s ncol %d \n", sql, ncol );
 
-   int first = 1 ; 
+   m_results.clear();
+   m_rows.clear();
+
+   size_t count = 0 ;
    while(sqlite3_step(statement) == SQLITE_ROW )
    {
-       if(first) 
-       {
-           for(int c = 0; c < ncol; c++)
-           {
-               types[c] = Type(sqlite3_column_type(statement, c));
-               const char* decl = sqlite3_column_decltype(statement, c);
-               const char* name = sqlite3_column_name(statement, c);
-               if(debug>1) printf(" %s:[%c]%s ", name, types[c],decl ); 
-           }
-           if(debug>1) printf("\n");
-           types[ncol] = '\0' ;
-           first = 0 ;
-       }
-
-       if(debug>2) printf("%s ", types);
-       for(int c = 0; c < ncol; c++)
-       {
-           const char* text = (const char*)sqlite3_column_text(statement, c);
-           if(c == m_resultcolumn) m_results.push_back(std::string(text));
-           if(debug>2) printf(" %s ", text );
-       }
-       if(debug>2) printf("\n");
+       if(count == 0) FillTypes(m_typelast, statement, ncol);
+       Map_t row ; 
+       FillColumns(row, statement, ncol );
+       m_rows.push_back(row); 
+       count++;
    }
    sqlite3_finalize(statement);
+   if(m_debug>2) Dump();
 
-   if(debug>0) DumpResults();
+   assert(m_rows.size() == count );
+   return count ;
 }
+
+Map_t& Database::GetRowType()
+{
+   return m_typelast ;
+}
+
+
+Map_t Database::GetRow(std::size_t index, const char* sentinel)
+{
+    Map_t row ;
+    if( index < m_rows.size() ) row = m_rows[index];
+    if(sentinel != NULL ) row[std::string(sentinel)] = GetRowSpec();
+    return row ; 
+}
+
+
+std::string Database::GetRowSpec()
+{
+   size_t size = m_typelast.size(); 
+   Map_t::iterator it = m_typelast.begin();
+   std::stringstream ss ; 
+   for(size_t i = 0 ; i<size ; ++i )
+   {
+        ss << it->first << ":" << it->second ;
+        if(i < size - 1) ss << "," ;
+        it++ ;
+   }
+   return ss.str();
+}
+
+std::size_t Database::GetRowCount()
+{
+   return m_rows.size();
+}
+std::vector<Map_t>& Database::GetRows()
+{
+   return m_rows ;
+}
+
+
+
+void Database::Dump()
+{
+    DumpResults();
+    DumpRows();
+}
+
+
+void Database::FillTypes(Map_t& typemap, sqlite3_stmt* statement, int ncol )
+{
+     typemap.clear();
+     for(int c = 0; c < ncol; c++)
+     {
+         const char* name = sqlite3_column_name(statement, c);
+         char type = Type(sqlite3_column_type(statement, c));
+         typemap[std::string(name)] = std::string(&type, 1); 
+     }
+}
+
+void Database::FillColumns(Map_t& rowmap, sqlite3_stmt* statement, int ncol )
+{
+     rowmap.clear();
+     for(int c = 0; c < ncol; c++)
+     {
+         const char* name = sqlite3_column_name(statement, c);
+         const char* text = (const char*)sqlite3_column_text(statement, c);
+         rowmap[std::string(name)] = std::string(text);
+
+         // for single column collection 
+         if(c == m_resultcolumn) m_results.push_back(std::string(text));
+     }
+}
+
+
+
+
+
+
+
+
+
+
 
 
 void Database::SetResultColumn(std::size_t col)
@@ -199,7 +296,7 @@ void Database::IntrospectTableNames()
 {
     std::string listall = Table::ListAllStatement();
     SetResultColumn(0);
-    this->Exec(listall.c_str(),0);
+    this->Exec(listall.c_str());
     m_tablenames = GetResultsCopy();
     //DumpTableNames();
 }
@@ -216,7 +313,7 @@ void Database::IntrospectTableSQL()
     {
         const char* tn = m_tablenames[i].c_str() ;
         std::string tablesql = Table::TableSQLStatement(tn);
-        this->Exec(tablesql.c_str(),0);
+        this->Exec(tablesql.c_str());
 
         std::string sql = GetResult(0);
         printf("Database::IntrospectTableSQL %d name %s sql %s \n", i, tn, sql.c_str()  );
@@ -235,11 +332,11 @@ void Database::IntrospectTableInfo()
         std::vector<std::string> types ; 
 
         SetResultColumn(1);
-        this->Exec(tableinfo.c_str(),0);
+        this->Exec(tableinfo.c_str());
         names = m_results ; 
 
         SetResultColumn(2);
-        this->Exec(tableinfo.c_str(),0);
+        this->Exec(tableinfo.c_str());
         types = m_results ; 
 
         SetResultColumn(0);
