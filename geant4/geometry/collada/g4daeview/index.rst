@@ -21,6 +21,10 @@ g4daeview
    g4daechroma_cpp
    photon_marshalling
    g4daeview_propagate_timeouts
+   g4daeview_bvh_split
+   g4daeview_datamodel
+
+
 
 
 

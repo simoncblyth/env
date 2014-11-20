@@ -154,7 +154,6 @@ int main(int argc, const char** argv)
     ctrl->Set("htag", htag.c_str());
     ctrl->Merge("args");
     ctrl->Print(); 
-    ctrl->SaveToBuffer();
 
     G4DAEPhotons* photons = G4DAEPhotons::Load(name); assert(photons);
     photons->AddLink(ctrl);

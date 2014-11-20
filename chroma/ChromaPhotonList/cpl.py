@@ -12,9 +12,12 @@ Usage::
 """
 import os, logging
 import numpy as np
+log = logging.getLogger(__name__)
 
 try:
-    from env.root.import_ROOT import ROOT     # avoids sys.argv kidnap
+    #from env.root.import_ROOT import ROOT     # avoids sys.argv kidnap
+    log.info("trying to operate without ROOT") 
+    ROOT = None
 except ImportError:
     ROOT = None
 

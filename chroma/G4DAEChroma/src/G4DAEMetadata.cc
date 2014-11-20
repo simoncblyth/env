@@ -70,6 +70,7 @@ void G4DAEMetadata::SaveToBuffer()
 {
     if(!m_js) return ;
     std::string str = m_js->AsString();
+    //printf("G4DAEMetadata::SaveToBuffer str %s \n", str.c_str() );
     SetString( str.c_str());
 }
 

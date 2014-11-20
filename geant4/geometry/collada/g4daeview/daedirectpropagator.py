@@ -35,16 +35,23 @@ class DAEDirectPropagator(object):
         self.config = config
         self.chroma = chroma
 
-    def propagate(self, obj):
+    def propagate(self, request):
         """
-        :param obj: ChromaPhotonList instance or np.ndarray from NPY serialization
-        :return propagated_cpl: ChromaPhotonList instance
+        :param request: np.ndarray (or NPY subclass) [formerly ChromaPhotonList]
+        :return response: same type as request, but propagated 
 
-        #. converts ChromaPhotonList  OR  NPL serialized ndarray  
-           into chroma.event.Photons OR photons.Photons   
+        This method is invoked by the DAEDirectResponder handler, 
+        which specializes NPYResponder by implementing reply method 
+        which does::
 
+           response = self.handler( request )
+
+        TODO: simplify marshalling to avoid going via chroma.event.Photons 
         """
         parameters = self.chroma.parameters()
+        ctrl = request.meta[0].get('ctrl',None)
+        if ctrl:
+            log.info("ctrl %s ", str(ctrl))
 
         nthreads_per_block = parameters['nthreads_per_block']
         max_blocks = parameters['max_blocks'] 
@@ -56,15 +63,12 @@ class DAEDirectPropagator(object):
             self.chroma.rng_states = None
         pass
 
-        photons = Photons.from_obj( obj, extend=True)
+        photons = Photons.from_obj( request, extend=True)
         self.photons_beg = photons
 
         gpu_photons = GPUPhotonsHit(photons)        
         gpu_detector = self.chroma.gpu_detector
 
-        #log.info("nthreads_per_block : %s ", nthreads_per_block ) 
-        #log.info("max_blocks : %s ", max_blocks ) 
-        #log.info("max_steps : %s ", max_steps ) 
 
         results = gpu_photons.propagate_hit(gpu_detector, 
                                             self.chroma.rng_states,
@@ -77,7 +81,7 @@ class DAEDirectPropagator(object):
         photons_end = gpu_photons.get()  
         self.photons_end = photons_end
 
-        if isinstance(obj,np.ndarray):
+        if isinstance(request,np.ndarray):
             log.info("daedirectpropagator:propagate returning photons_end.as_npl()")
             a = photons_end.as_npl(directpropagator=True,hit=True)
             aa = a.view(NPY)
@@ -85,6 +89,8 @@ class DAEDirectPropagator(object):
             metadata = {}
             metadata['parameters'] = parameters
             metadata['results'] = results
+            metadata['geometry'] = gpu_detector.metadata
+
             aa.meta = [metadata]
             return aa
         else:
