@@ -1,5 +1,11 @@
 #include "RapSqlite/Table.hh"
 
+
+const char* Table::INTEGER_TYPE = "integer" ;
+const char* Table::FLOAT_TYPE = "real" ;
+const char* Table::STRING_TYPE = "text" ;
+const char* Table::BLOB_TYPE = "blob" ;
+
     
 Table::Table(const char* name) : m_name(name) {}
 Table::~Table(){}
@@ -57,6 +63,11 @@ std::string Table::TableSQLStatement(const char* name)
 
 Table* Table::FromCreateStatement(const char* sql)
 {
+   //
+   // attempting to parse sql create statement : obsoleted by use of "pragma table_info(tablename)"
+   //
+    assert(0); // this is obsolete
+
     std::string create(sql);
     size_t bop = create.find('(')+1; 
     size_t bcl = create.find(')');  // hmm eg char(50) type messes this up.. need to find last 
@@ -71,7 +82,6 @@ Table* Table::FromCreateStatement(const char* sql)
     {
        printf(" %d %s \n", i, elem[i].c_str() );
     } 
-
 
     return NULL ;
 }
@@ -93,6 +103,8 @@ std::string Table::CreateStatement()
 
 std::string Table::InsertStatement(Map_t& map)
 {
+    // TODO: binding approaches ? so can do this once and reuse with different binds
+
     std::stringstream ss ;
     ss << "insert into " << m_name << " values(" ;
     for(size_t i=0 ; i < m_keys.size() ; ++i )
@@ -100,7 +112,7 @@ std::string Table::InsertStatement(Map_t& map)
        if(map.find(m_keys[i]) != map.end())
        {
            std::string val = map[m_keys[i]] ;
-           if(m_type[i] == "string" )
+           if(m_type[i] == STRING_TYPE )
            {
                ss << "\"" << val << "\"" ; 
            }

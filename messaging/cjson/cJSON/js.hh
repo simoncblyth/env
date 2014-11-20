@@ -4,66 +4,79 @@
 #include <string>
 #include <map>
 typedef std::map<std::string,std::string> Map_t ;
-
 struct cJSON ;
 
 class JS {
+
 public:
+   // statics
    static JS* Load(const char* path);
 
-   static const char* itype ;
-   static const char* ftype ;
-   static const char* stype ;
-   static const char* btype ;
+   static const char* INTEGER_TYPE ;
+   static const char* FLOAT_TYPE ;
+   static const char* STRING_TYPE ;
+   static const char* BLOB_TYPE ;
+
+   static const char* SENTINEL ;
 
 public:
-   JS(const char* text);
+   // lifecycle
+   JS(const char* text="{}");
    virtual ~JS();
 
-   void Print(const char* msg="JS::Print");
-   void PrintToFile(const char* path);
-
-   void SetVerbosity(int verbosity);
-   int GetVerbosity();
-
-   // mode:0 
-   //    initial traversal collecting all strings
-   //    matching the sentinel into the selection map
-   //
-   // mode:1 
-   //    subsequent traversal operates 
-   //    based on the types found
-   //
-   void SetMode(int mode);
-   int GetMode();
-
 public:
-   void DumpMap(Map_t& map, const char* msg);
+   // primary operations
+   void AddMap(const char* name, Map_t& map);  // causes a re-analysis
    Map_t CreateRowMap();
    Map_t CreateTypeMap();
    Map_t CreateMap(char form);
 
 public:
-   // JSON operations
-   const char* TypeName( char type);
-   char Type( int type);
+   // secondary
+   void DumpMap(Map_t& map, const char* msg);
+   void Print(const char* msg="JS::Print");
+   void PrintToFile(const char* path);
    void Traverse(const char* wanted);
-   void Recurse(cJSON* item, const char* prefix, const char* wanted);
-   void Visit(cJSON *item, const char* prefix, const char* wanted);
-   void AddKV(cJSON* obj, const char* key, const char* val );
-   void AddMap(const char* name, Map_t& map);
-   void FindTypes(const char* sentinel="COLUMNS");
-   void DumpTypes();
-   char LookupType(const char* path);
-   void DumpItem( cJSON* item, const char* prefix  );
+   void PrintMap(const char* msg="JS::PrintMap") const;
 
 public:
-   // Map_t manipulations, eg for selecting parts of the JSON tree
-   void AddMapKV( const char* key, const char* val );
+   // tertiary 
+   void Demo();
+   void SetVerbosity(int verbosity);
+   int GetVerbosity();
+
+
+private:
+   // high level internals :  convert from JSON tree into maps
+   void Analyse(); 
+   void ParseSentinels();
+   void SetMode(int mode);
+   int GetMode();
+
+private:
+   // m_map manipulations
    void ClearMap();
-   void PrintMap(const char* msg="JS::PrintMap");
+   void AddMapKV( const char* key, const char* val );
    Map_t& GetMap();
 
+private:
+   // navigating JS tree
+   void Visit(cJSON *item, const char* prefix, const char* wanted);
+   void Recurse(cJSON* item, const char* prefix, const char* wanted);
+
+private:
+   // adding to JS tree
+   void AddKV(cJSON* obj, const char* key, const char* val );
+
+private:
+   // lookups
+   char LookupType(const char* path) const;
+   const char* TypeName( char type) const ;
+   char Type( int type) const;
+
+private:
+   // debug internals
+   void DumpItem( cJSON* item, const char* prefix  );
 
 private: 
    cJSON* m_root ; 

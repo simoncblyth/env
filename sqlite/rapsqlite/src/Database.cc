@@ -60,7 +60,7 @@ std::string Database::GetResult(int n)
 }
 
 
-
+// pseudo-methodcall 
 static int c_callback(void *self, int argc, char **argv, char **azColName)
 {
     Database* db = reinterpret_cast<Database*>(self);
@@ -260,9 +260,7 @@ void Database::DumpTables()
 {
    for(TableMap_t::iterator it=m_tables.begin() ; it != m_tables.end() ; it++)
    {
-        //std::string tn = it->first ;
         Table* table = it->second ; 
-        //printf(" tn %s \n", tn.c_str() );
         table->Dump();
    }
 }

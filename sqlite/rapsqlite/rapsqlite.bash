@@ -5,6 +5,30 @@ rapsqlite-vi(){       vi $(rapsqlite-source) ; }
 rapsqlite-env(){      elocal- ; }
 rapsqlite-usage(){ cat << EOU
 
+RapSqlite : Yet Another SQLite3 C++ Wrapper  
+=============================================
+
+
+Related
+---------
+
+* sqlite- for Trac usage 
+* sqlite3- building 
+
+
+
+SQLite3 Refs
+---------------
+
+* http://www.sqlite.org/backup.html
+
+  * copy memory db to file
+
+* http://beets.radbox.org/blog/sqlite-nightmare.html
+
+  * concurrency, locking issues
+
+
 
 
 

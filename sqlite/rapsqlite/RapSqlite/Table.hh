@@ -5,6 +5,10 @@
 
 class Table {
 public:
+   static const char* INTEGER_TYPE;
+   static const char* FLOAT_TYPE;
+   static const char* STRING_TYPE;
+   static const char* BLOB_TYPE;
 
    static std::string ListAllStatement();
    static std::string TableSQLStatement(const char* name);
