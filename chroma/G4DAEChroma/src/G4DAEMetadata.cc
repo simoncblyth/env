@@ -32,6 +32,13 @@ G4DAEMetadata::~G4DAEMetadata()
 
 void G4DAEMetadata::Set(const char* key, const char* val )
 {
+    if(!key || !val){
+        printf("G4DAEMetadata::Set null key or val \n");
+        return ;
+    }
+
+    printf("G4DAEMetadata::Set key %s val %s \n", key,val);
+ 
     string k(key);
     string v(val);
     m_kv[k] = v ;

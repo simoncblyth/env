@@ -10,6 +10,7 @@ This means can eliminate ROOT dependency.
 
 """
 import logging, os, io, time, errno, codecs
+import json, pprint
 import numpy as np
 import zmq 
 log = logging.getLogger(__name__)
@@ -171,7 +172,21 @@ class NPYResponder(object):
             pass
         if events:
             request = self.socket.recv_npy(copy=False)
+
+            if hasattr(request, 'meta'):
+                meta = map(lambda _:json.loads(_), request.meta )
+                request.meta = meta
+                log.info("NPYResponder converting request.meta to dict %s " % pprint.pformat(request.meta, width=20) )
+            pass
+
             response = self.reply(request) 
+
+            if hasattr(response, 'meta'):
+                meta = map(lambda _:json.dumps(_), response.meta )
+                response.meta = meta 
+                log.info("NPYResponder converting response.meta to dict %s " % pprint.pformat(response.meta, width=20) )
+            pass
+
             self.socket.send_npy(response)    
 
     def reply(self, obj):

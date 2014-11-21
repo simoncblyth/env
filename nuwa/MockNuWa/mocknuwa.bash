@@ -138,6 +138,7 @@ mocknuwa--(){
 }
 
 mocknuwa-lldb(){
+   mocknuwa-runenv 
    lldb $(which MockNuWa) $*
 }
 

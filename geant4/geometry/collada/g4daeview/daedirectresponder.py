@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import logging, json, pprint
+import logging
 log = logging.getLogger(__name__)
 
 #from env.chroma.ChromaPhotonList.cpl_responder import CPLResponder
@@ -43,21 +43,12 @@ class DAEDirectResponder(NPYResponder):
     def reply(self, request ):
         """
         Overrides base responder .reply method 
+
+        .. warning:: very similar twin method in DAEResponder
+
         """
         log.info("DAEDirectResponder request %s " % repr(request.shape) )
-
-        if hasattr(request, 'meta'):
-            meta = map(lambda _:json.loads(_), request.meta )
-            request.meta = meta
-            #log.info("DAEDirectResponder converting request.meta to dict %s " % pprint.pformat(request.meta, width=20) )
-
         response = self.handler( request )
-
-        if hasattr(response, 'meta'):
-            meta = map(lambda _:json.dumps(_), response.meta )
-            response.meta = meta 
-            #log.info("DAEDirectResponder converting response.meta to dict %s " % pprint.pformat(response.meta, width=20) )
-
         log.info("DAEDirectResponder response %s " % repr(response.shape) )
         return response 
 

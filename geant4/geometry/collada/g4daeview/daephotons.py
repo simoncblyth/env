@@ -17,6 +17,8 @@ from daephotonsanalyzer import DAEPhotonsAnalyzer, DAEPhotonsPropagated
 from daephotonsstyler import DAEPhotonsStyler
 from daephotonspropagator import DAEPhotonsPropagator
 
+class NPY(np.ndarray):pass
+
 
 class DAEPhotons(object):
     """
@@ -253,7 +255,15 @@ class DAEPhotons(object):
         #flags      = r[:,3,2]     # history  
         channel_id = r[:,3,3]     # pmtid 
 
-        return r[channel_id > 0]   
+
+
+        hits = r[channel_id > 0].view(NPY)    # subclass np.ndarray to allow attaching meta
+
+        metadata = {}
+        metadata['test'] = { 'nhits':len(hits), 'propagator':"daephotons" }
+        hits.meta = [metadata]
+
+        return hits   
 
 
     def draw(self):

@@ -180,18 +180,26 @@ int main(int argc, const char** argv)
 
 
     G4DAEMetadata* meta = hits->GetLink();
-    meta->Set("htag",     htag.c_str() );
-    meta->Set("dphotons", photons->GetDigest().c_str() );
-    meta->Set("dhits",    hits->GetDigest().c_str() );
-    meta->Set("dhitlist", hitlist->GetDigest().c_str() );
-    meta->Set("COLUMNS",  "htag:s,dphotons:s,dhits:s,dhitlist:s");
-    meta->Merge("caller");  // add "caller" object with these settings to JSON tree
+    if( meta )
+    {
+        meta->Set("htag",     htag.c_str() );
+        meta->Set("dphotons", photons->GetDigest().c_str() );
+        meta->Set("dhits",    hits->GetDigest().c_str() );
+        meta->Set("dhitlist", hitlist->GetDigest().c_str() );
+        meta->Set("COLUMNS",  "htag:s,dphotons:s,dhits:s,dhitlist:s");
+        meta->Merge("caller");  // add "caller" object with these settings to JSON tree
 
-    meta->Print();
-    meta->PrintToFile("/tmp/mocknuwa.json");
+        meta->Print();
+        meta->PrintToFile("/tmp/mocknuwa.json");
 
-    meta->SetName("mocknuwa");   // DB tablename
-    database->Insert(meta); 
+        meta->SetName("mocknuwa");   // DB tablename
+        database->Insert(meta); 
+    }
+    else
+    {
+        printf("mocknuwa: meta NULL \n");
+    }
+
 
     //
     // TODO: check can extract hitlists from actual collections

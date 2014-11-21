@@ -57,6 +57,11 @@ class DAEEventBase(object):
 
         Calls up to subclass, potentially for GUI things like menu updating
         """
+
+        ctrl = npl.meta[0].get('ctrl',None)
+        if ctrl:
+            log.info("DAEEventBase ctrl %s ", str(ctrl))
+        pass
         photons = Photons.from_npl(npl, extend=True)   
         self.setup_photons( photons ) 
 
@@ -65,7 +70,7 @@ class DAEEventBase(object):
         self.setup_photons_base(None)
 
     def setup_photons_base( self, photons ):
-        log.info("setup_photons_base")
+        log.info("setup_photons_base %s " % (photons.__class__.__name__) )
         self.dphotons.photons = photons   ## this setter triggers propagation  
 
  

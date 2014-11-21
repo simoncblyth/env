@@ -48,11 +48,12 @@ class DAEDirectPropagator(object):
 
         TODO: simplify marshalling to avoid going via chroma.event.Photons 
         """
-        parameters = self.chroma.parameters()
         ctrl = request.meta[0].get('ctrl',None)
         if ctrl:
-            log.info("ctrl %s ", str(ctrl))
+            log.info("DAEDirectPropagator ctrl %s ", str(ctrl))
 
+
+        parameters = self.chroma.parameters()
         nthreads_per_block = parameters['nthreads_per_block']
         max_blocks = parameters['max_blocks'] 
         max_steps = parameters['max_steps']
