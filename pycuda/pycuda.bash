@@ -18,6 +18,19 @@ Installs
 Installed on D as dependency of chroma, see :doc:`/chroma/chroma`
 
 
+Actual Source used by Chroma ?
+--------------------------------
+
+::
+
+    cd $VIRTUAL_ENV
+    (chroma_env)delta:chroma_env blyth$ find . -name pycuda -type d
+    ./build/build_pycuda/pycuda
+    ./build/build_pycuda/pycuda/build/lib.macosx-10.9-x86_64-2.7/pycuda
+    ./build/build_pycuda/pycuda/pycuda
+    ./lib/python2.7/site-packages/pycuda
+
+
 
 Debug/trace switches ?
 ------------------------

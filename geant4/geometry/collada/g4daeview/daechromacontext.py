@@ -14,7 +14,77 @@ import os, time, logging
 log = logging.getLogger(__name__)
 
 import numpy as np
-import pycuda.gl.autoinit  # after this can use pycuda.gl.BufferObject(unsigned int)
+#import pycuda.gl.autoinit  # after this can use pycuda.gl.BufferObject(unsigned int)
+
+def pycuda_init_gl():
+    """
+    Based on pycuda.gl.autoinit  pycuda.autoinit
+    """
+    log.info("pycuda_init_gl")
+
+    import pycuda.driver as cuda
+    import pycuda.gl as cudagl
+
+    cuda.init()
+    count = cuda.Device.count()
+    assert count >= 1
+
+    from pycuda.tools import make_default_context
+    global context
+    context = make_default_context(lambda dev: cudagl.make_context(dev))
+    device = context.get_device()
+
+    def _finish_up_gl():
+        global context
+        context.pop()
+        context = None
+        from pycuda.tools import clear_context_caches
+        clear_context_caches()
+    pass
+    import atexit
+    atexit.register(_finish_up_gl)
+
+
+def pycuda_init():
+    """
+    Based on pycuda.autoinit
+
+    See :doc:`/env/pycuda/pycuda_memory`
+    """
+    log.info("pycuda_init")
+    import pycuda.driver as cuda
+
+    cuda.init()
+    count = cuda.Device.count()
+    assert count >= 1
+
+    def _ctx_maker(dev):
+        """
+        TODO: record htod geometry copy time
+              and see if the below flag makes a difference
+        """
+        flags = cuda.ctx_flags.MAP_HOST
+        log.info("pycuda_init _ctx_maker with flags %s " % flags )
+        return dev.make_context(flags)
+
+    from pycuda.tools import make_default_context
+    global context
+    context = make_default_context(_ctx_maker)
+    device = context.get_device()
+
+    def _finish_up():
+        global context
+        context.pop()
+        context = None
+        from pycuda.tools import clear_context_caches
+        clear_context_caches()
+    pass
+    import atexit
+    atexit.register(_finish_up)
+
+
+
+
 
 def pick_seed():
     """Returns a seed for a random number generator selected using
@@ -31,6 +101,10 @@ class DAEChromaContext(object):
     def __init__(self, config, chroma_geometry, propagatorcode=0 ):
         log.debug("DAEChromaContext init, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
         self.config = config
+
+        #pycuda_init_gl()
+        pycuda_init()
+
         self.chroma_geometry = chroma_geometry
         pass
 

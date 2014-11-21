@@ -3,11 +3,31 @@ CUDA Profiling
 
 * http://docs.nvidia.com/cuda/profiler-users-guide/
 
+nvprof
+---------
+
+* http://devblogs.nvidia.com/parallelforall/cuda-pro-tip-nvprof-your-handy-universal-gpu-profiler/
+
+    nvprof knows how to profile CUDA kernels running on NVIDIA GPUs, no matter what
+    language they are written in (as long as they are launched using the CUDA
+    runtime API or driver API).
+
+* http://devblogs.nvidia.com/parallelforall/pro-tip-clean-up-after-yourself-ensure-correct-profiling/
+
+    Therefore, you should clean up your application’s CUDA objects properly to make
+    sure that the profiler is able to store all gathered data. This means not only
+    freeing memory allocated on the GPU, but also resetting the device Context.
+
+    If your application uses the CUDA Driver API, call cuProfilerStop() on each
+    context to flush the profiling buffers before destroying the context with
+    cuCtxDestroy().
+
+
+
 cuda clock
 ----------
 
 * http://stackoverflow.com/questions/11217117/equivalent-of-usleep-in-cuda-kernel
-
 
 gpu burn
 ---------
