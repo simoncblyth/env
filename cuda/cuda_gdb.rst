@@ -96,6 +96,546 @@ Its more convenient to debug by
 
 
 
+g4daechroma debug
+-------------------
+
+::
+
+    Launch of CUDA Kernel 0 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpFOMSIi
+    [Launch of CUDA Kernel 1 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpAN87U6
+    [Launch of CUDA Kernel 2 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    2014-11-24 13:44:22,093 INFO    chroma.gpu.geometry :206 Optimization: Sufficient memory to move triangles onto GPU
+    2014-11-24 13:44:22,105 INFO    chroma.gpu.geometry :220 Optimization: Sufficient memory to move vertices onto GPU
+    2014-11-24 13:44:22,105 INFO    chroma.gpu.geometry :248 device usage:
+    ----------
+    nodes             3.4M  54.9M
+    total                   54.9M
+    ----------
+    device total             2.1G
+    device used            244.9M
+    device free              1.9G
+
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpdgM3nQ
+    [Launch of CUDA Kernel 3 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    2014-11-24 13:44:23,206 INFO    daechromacontext    :177 _get_rng_states
+    2014-11-24 13:44:23,206 INFO    daechromacontext    :132 setup_rng_states using seed 0 
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpVvN6DN
+    [Launch of CUDA Kernel 4 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpIdukSq
+    [Launch of CUDA Kernel 5 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    2014-11-24 13:44:28,228 INFO    chroma.gpu.photon_hit:204 nwork 4165 step 0 max_steps 30 nsteps 30 
+    [Launch of CUDA Kernel 6 (propagate_hit<<<(66,1,1),(64,1,1)>>>) on Device 0]
+    2014-11-24 13:45:08,737 WARNING chroma.gpu.photon_hit:238 kernel launch time 40.5083046875 > max_time 4.0 : ABORTING 
+    2014-11-24 13:45:08,737 INFO    chroma.gpu.photon_hit:242 step 0 propagate_hit_kernel times  [40.5083046875] 
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmp2zPlV7
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpA5dzDs
+    [Launch of CUDA Kernel 7 (reduce_kernel_stage1<<<(3,1,1),(512,1,1)>>>) on Device 0]
+    [Launch of CUDA Kernel 8 (reduce_kernel_stage2<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    2014-11-24 13:45:11,809 INFO    daedirectpropagator :86  daedirectpropagator:propagate returning photons_end.as_npl()
+    2014-11-24 13:45:12,039 INFO    daedirectresponder  :52  DAEDirectResponder response (95, 4, 4) 
+
+
+
+#. setup rng states doing compilation, maybe just because cache disabled in debug mode
+
+
+
+::
+
+    (chroma_env)delta:g4daeview blyth$ g4daechroma.sh --cuda-gdb
+    /Users/blyth/env/bin/g4daechroma.sh Mon Nov 24 15:41:14 CST 2014
+    /Users/blyth/env/bin/g4daechroma.sh Mon Nov 24 15:41:15 CST 2014
+    NVIDIA (R) CUDA Debugger
+    5.5 release
+    Portions Copyright (C) 2007-2013 NVIDIA Corporation
+    GNU gdb (GDB) 7.2
+    ...
+    2014-11-24 15:43:20,404 INFO    __main__            :54  polling 90 
+    2014-11-24 15:43:31,435 INFO    __main__            :54  polling 100 
+    2014-11-24 15:43:42,442 INFO    __main__            :54  polling 110 
+    2014-11-24 15:43:43,548 INFO    env.zeromq.pyzmq.npyresponder:179 NPYResponder converting request.meta to dict [{u'args': {u'htag': u'zzmock007'},
+      u'ctrl': {u'COLUMNS': u'max_blocks:i,max_steps:i,nthreads_per_block:i,reset_rng_states:i,seed:i',
+                u'max_blocks': 1024,
+                u'max_steps': 30,
+                u'nthreads_per_block': 64,
+                u'reset_rng_states': 1,
+                u'seed': 0}}] 
+    2014-11-24 15:43:43,548 INFO    daedirectresponder  :50  DAEDirectResponder request (684, 4, 4) 
+    2014-11-24 15:43:43,548 INFO    __main__            :43  handler got obj (cpl or npl)
+    2014-11-24 15:43:43,548 INFO    daedirectpropagator :53  DAEDirectPropagator ctrl {u'reset_rng_states': 1, u'nthreads_per_block': 64, u'seed': 0, u'max_blocks': 1024, u'max_steps': 30, u'COLUMNS': u'max_blocks:i,max_steps:i,nthreads_per_block:i,reset_rng_states:i,seed:i'} 
+    2014-11-24 15:43:43,549 WARNING daedirectpropagator :63  reset_rng_states
+    2014-11-24 15:43:43,549 INFO    daechromacontext    :187 _set_rng_states
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpRWcjoc
+    2014-11-24 15:43:45,794 INFO    daechromacontext    :182 _get_rng_states
+    2014-11-24 15:43:45,794 INFO    daechromacontext    :137 setup_rng_states using seed 0 
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpW1b0ii
+    [Launch of CUDA Kernel 4 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpA9FyVR
+    [Launch of CUDA Kernel 5 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    2014-11-24 15:43:50,093 INFO    chroma.gpu.photon_hit:204 nwork 684 step 0 max_steps 30 nsteps 30 
+    [Launch of CUDA Kernel 6 (propagate_hit<<<(11,1,1),(64,1,1)>>>) on Device 0]
+    ^C
+    Program received signal SIGINT, Interrupt.
+    [Switching focus to CUDA kernel 6, grid 7, block (0,0,0), thread (32,0,0), device 0, sm 1, warp 0, lane 0]
+    0x000000011996e7e8 in intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=<value optimized out>, direction=<value optimized out>, 
+        g=<value optimized out>, min_distance=<value optimized out>, last_hit_triangle=<value optimized out>) at mesh.h:108
+    108     } // loop over children, starting with first_child
+    (cuda-gdb) info cuda threads 
+      BlockIdx ThreadIdx To BlockIdx ThreadIdx Count         Virtual PC           Filename  Line 
+    Kernel 6
+    *  (0,0,0)  (32,0,0)     (0,0,0)  (44,0,0)    13 0x000000011996e7e8             mesh.h   108 
+       (0,0,0)  (45,0,0)     (0,0,0)  (47,0,0)     3 0x000000011995d8e0        intersect.h    21 
+       (0,0,0)  (48,0,0)     (0,0,0)  (55,0,0)     8 0x000000011996e6c0             mesh.h   104 
+       (0,0,0)  (56,0,0)     (0,0,0)  (57,0,0)     2 0x000000011996e7e8             mesh.h   108 
+       (0,0,0)  (58,0,0)     (0,0,0)  (59,0,0)     2 0x000000011996e7d8             mesh.h   108 
+       (0,0,0)  (60,0,0)     (0,0,0)  (63,0,0)     4 0x000000011996e7e8             mesh.h   108 
+       (2,0,0)  (32,0,0)     (2,0,0)  (41,0,0)    10 0x000000011996e7e8             mesh.h   108 
+       (2,0,0)  (42,0,0)     (2,0,0)  (43,0,0)     2 0x00000001199716c8        intersect.h   110 
+       (2,0,0)  (44,0,0)     (2,0,0)  (52,0,0)     9 0x000000011996e7e8             mesh.h   108 
+       ...
+       (9,0,0)  (31,0,0)     (9,0,0)  (31,0,0)     1 0x00000001199715c0        intersect.h   102 
+       (9,0,0)  (32,0,0)     (9,0,0)  (32,0,0)     1 0x000000011996e7e8             mesh.h   108 
+       (9,0,0)  (33,0,0)     (9,0,0)  (33,0,0)     1 0x000000011999cf70         geometry.h    57 
+       (9,0,0)  (34,0,0)     (9,0,0)  (63,0,0)    30 0x000000011996e7e8             mesh.h   108 
+    (cuda-gdb) list
+    103         
+    104         if (curr >= STACK_SIZE) {
+    105             printf("warning: intersect_mesh() aborted; node > tail\n");
+    106             break;
+    107         }
+    108     } // loop over children, starting with first_child
+    109 
+    110     } // while nodes on stack
+    111 
+    112     //if (blockIdx.x == 0 && threadIdx.x == 0) {
+    (cuda-gdb) p curr
+    $1 = <value optimized out>
+
+
+    (cuda-gdb) bt 
+    #0  0x000000011996e7e8 in intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=<value optimized out>, 
+        direction=<value optimized out>, g=<value optimized out>, min_distance=<value optimized out>, last_hit_triangle=<value optimized out>) at mesh.h:108
+    #1  0x000000011997c618 in fill_state(State * @generic, Photon * @generic, Geometry * @generic) (s=<value optimized out>, p=<value optimized out>, g=<value optimized out>) at photon.h:168
+    #2  0x0000000119993c28 in propagate_hit(int, int, unsigned int * @generic, unsigned int * @generic, curandState * @generic, float3 * @generic, float3 * @generic, float * @generic, float3 * @generic, float * @generic, unsigned int * @generic, int * @generic, float * @generic, int, int, int, Geometry * @generic, int * @generic, int * @generic)<<<(11,1,1),(64,1,1)>>> (first_photon=0, 
+        nthreads=684, input_queue=0x707fe3c04, output_queue=0x707fe4800, rng_states=0x7080e0000, positions=0x707ee0000, directions=0x707ee2200, wavelengths=0x707fe0000, polarizations=0x707ee4400, 
+        times=0x707fe0c00, histories=0x707fe2400, last_hit_triangles=0x707fe1800, weights=0x707fe3000, max_steps=30, use_weights=0, __val_paramscatter_first=0, __val_paramg=0x700177c00, 
+        solid_map=0x7014c0000, solid_id_to_channel_id=0x707be8e00) at kernel.cu:189
+    (cuda-gdb) f 
+
+
+    neg_origin_inv_dir = {x = -76474.7656, y = -824920.688, z = -1.23878184e+20}
+
+
+    cuda-gdb) info locals
+    __T227 = 0
+    root = {lower = {x = -23327.6914, y = -809820.562, z = -12110}, upper = {x = -9712.1377, y = -794399.188, z = -2139.94434}, child = 1, nchild = 2}
+    inv_dir = {x = -4.775702, y = -1.0226711, z = -1.63317796e+16}
+    child_ptr_stack = {130, 540, 7549, 27652, 7580, 7857, 2454275289, 825045562, 1900092336, 3697343089, 760470915, 2146882409, 2000637694, 343303227, 3891626781, 2757016765, 3997473261, 4015377800, 
+      745490961, 2855539022, 36229159, 2375394427, 2208656873, 3920625546, 2614469314, 213338525, 2055366274, 2729976209, 827771411, 2430496777, 1198164420, 1789631187, 1922667440, 2747674190, 
+      1461695896, 1770331341, 4284442852, 357535311, 919857376, 3053795110, 3533531372, 2124270060, 1004072597, 201138876, 3221275220, 1589659138, 1418386120, 1148950143, 4211579707, 1799726917, 
+      2838977761, 3540708069, 892664404, 416103844, 2248389027, 1790015671, 3936883, 2612357890, 3481887924, 1619955951, 4188275966, 2963623483, 2005534713, 564854400, 747724021, 4037561738, 
+      3431155922, 2620990454, 604900912, 610898209, 1473244091, 3880001339, 2879060316, 3300897679, 3960972039, 3201086624, 3814462934, 3426650044, 1930881632, 1981178788, 2956279691, 4272406256, 
+      372705521, 1359389771, 1590302979, 3940206208, 3817999127, 2527835456, 2739078164, 716997849, 3235607043, 2550297745, 3688700200, 354502605, 2285793656, 2339138034, 3912354142, 2262255668, 
+      469322622, 1319943359, 1916101235, 200441823, 509436982, 2160284593, 1687919695, 4153615582, 495735041, 3694469424, 2086893117, 4223008799, 105344742, 1698033424, 1149223145, 4183918790, 
+      4176151950, 415739351, 817762972, 3768072560, 1931430949, 2698979439, 3481477932, 1994322914, 4078299950, 1268233995, 3254069145, 91029129, 498234704, 1636613942, 3710087092, 3876816560, 
+      3510446387, 3870169008, 1370156410, 2442498047, 2324396523, 1258730334, 621954739, 1053015373, 491820717, 3386515432, 2203703266, 120167176, 2383669740, 1038666440, 2927342870, 3583197824, 
+      1236241846, 2474675929, 679052891, 2451259584, 2177706146, 606842882, 3546980104, 2289281509, 353873434, 2041926837, 1238346748, 2729109726, 2843938395, 2938124210, 2554443866, 1494477920, 
+      693378319, 2020963566, 2000385949, 3744098787, 650307220, 2631327075, 1529128757, 595871428, 3206666562, 458062987, 875238192, 3729317374, 1368843921, 3478430230, 3234384578, 3232435428, 
+      321359326, 994274524, 361184397, 4285497594, 915263578, 1486882838, 9988613, 829077170, 677216046, 4141828204, 165804609, 1086678519, 2933434608, 1351662802, 2640085040, 2611502932, 
+      2033698714, 2008873254, 3995557835, 1020873906, 67873555, 2230337823...}
+    __T228 = {x = 16013.3027, y = 806633.438, z = 7585.1001}
+    neg_origin_inv_dir = {x = -76474.7656, y = -824920.688, z = -1.23878184e+20}
+
+
+switching cuda threads::
+
+    (cuda-gdb) cuda thread
+    thread (32,0,0)
+    (cuda-gdb) cuda thread all
+    CUDA focus unchanged.
+    (cuda-gdb) cuda thread (54)
+    [Switching focus to CUDA kernel 6, grid 7, block (0,0,0), thread (54,0,0), device 0, sm 1, warp 0, lane 22]
+    0x000000011996df80  77          if (intersect_node(neg_origin_inv_dir, inv_dir, g, node, min_distance)) {
+    (cuda-gdb) 
+
+
+Hmm unhealthy infinities ? Nope the code handles it, just need one of three coordinates to be finite::
+
+    (cuda-gdb) info locals
+    node = {lower = {x = -11941.7461, y = -807158.438, z = -9682.72656}, upper = {x = -11920.0967, y = -807139.125, z = -9674.96191}, child = 1561362, nchild = 0}
+    i = 1548710
+    first_child = 1548708
+    nchild = 6
+    __T227 = 0
+    root = {lower = {x = -23327.6914, y = -809820.562, z = -12110}, upper = {x = -9712.1377, y = -794399.188, z = -2139.94434}, child = 1, nchild = 2}
+    inv_dir = {x = -inf, y = inf, z = -1}
+
+
+    (cuda-gdb) p origin
+    $13 = (const @generic float3 * @register) 0x3fffbb0
+    (cuda-gdb) p *origin
+    $14 = {x = -11603.4365, y = -805333.562, z = -9297.40039}
+    (cuda-gdb) 
+
+    (cuda-gdb) p direction
+    $15 = (const @generic float3 * @register) 0x3fffbbc
+    (cuda-gdb) p *direction
+    $16 = {x = -0, y = 0, z = -1}
+
+
+
+kernel pileup ?
+-----------------
+
+
+::
+
+    (cuda-gdb) kill
+    Kill the program being debugged? (y or n) y
+    [Termination of CUDA Kernel 29 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 26 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 23 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 20 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 17 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 14 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 11 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 8 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 28 (reduce_kernel_stage1<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 25 (reduce_kernel_stage1<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 22 (reduce_kernel_stage1<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 19 (reduce_kernel_stage1<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 16 (reduce_kernel_stage1<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 13 (reduce_kernel_stage1<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 10 (reduce_kernel_stage1<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 7 (reduce_kernel_stage1<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 5 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 4 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 30 (propagate_hit<<<(11,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 27 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 24 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 21 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 18 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 15 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 12 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 9 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 6 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 3 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 2 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 1 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 0 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    (cuda-gdb) 
+
+
+Termination before prop gives::
+
+    uit anyway? (y or n) y
+    [Termination of CUDA Kernel 3 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 2 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 1 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 0 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    (chroma_env)delta:g4daeview blyth$ 
+    i
+
+
+
+
+
+
+
+Something about the bullseye photons causes lock up with only 10 photons
+
+::
+
+    (chroma_env)delta:MockNuWa blyth$ RANGE=0:10 MockNuWa mock007 zz
+
+
+    cuda-gdb) info cuda threads
+      BlockIdx ThreadIdx To BlockIdx ThreadIdx Count         Virtual PC           Filename  Line 
+    Kernel 9
+    *  (0,0,0)   (0,0,0)     (0,0,0)   (0,0,0)     1 0x0000000100f5a1e8             mesh.h   112 
+       (0,0,0)   (1,0,0)     (0,0,0)   (1,0,0)     1 0x0000000134f8ae50 vector_functions.h   239 
+       (0,0,0)   (2,0,0)     (0,0,0)   (2,0,0)     1 0x0000000100f5a1e8             mesh.h   112 
+       (0,0,0)   (3,0,0)     (0,0,0)   (3,0,0)     1 0x0000000134f8ae50 vector_functions.h   239 
+       (0,0,0)   (4,0,0)     (0,0,0)   (4,0,0)     1 0x0000000100f5a1e8             mesh.h   112 
+       (0,0,0)   (5,0,0)     (0,0,0)   (5,0,0)     1 0x0000000134f8ae50 vector_functions.h   239 
+       (0,0,0)   (6,0,0)     (0,0,0)   (9,0,0)     4 0x0000000100f5a1e8             mesh.h   112 
+       (0,0,0)  (10,0,0)     (0,0,0)  (31,0,0)    22 0x0000000100f7e490          kernel.cu   151 
+    (cuda-gdb) c
+    Continuing.
+    ^C
+    Program received signal SIGINT, Interrupt.
+    intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=<value optimized out>, direction=<value optimized out>, g=<value optimized out>, min_distance=<value optimized out>, 
+        last_hit_triangle=<value optimized out>) at mesh.h:112
+    112     if (blockIdx.x == 0 && threadIdx.x == 0) {
+    (cuda-gdb) info cuda threads
+      BlockIdx ThreadIdx To BlockIdx ThreadIdx Count         Virtual PC  Filename  Line 
+    Kernel 9
+    *  (0,0,0)   (0,0,0)     (0,0,0)   (0,0,0)     1 0x0000000100f5a1e8    mesh.h   112 
+       (0,0,0)   (1,0,0)     (0,0,0)   (1,0,0)     1 0x0000000134f404a8  linalg.h    55 
+       (0,0,0)   (2,0,0)     (0,0,0)   (2,0,0)     1 0x0000000100f5a1e8    mesh.h   112 
+       (0,0,0)   (3,0,0)     (0,0,0)   (3,0,0)     1 0x0000000134f404a8  linalg.h    55 
+       (0,0,0)   (4,0,0)     (0,0,0)   (4,0,0)     1 0x0000000100f5a1e8    mesh.h   112 
+       (0,0,0)   (5,0,0)     (0,0,0)   (5,0,0)     1 0x0000000134f404a8  linalg.h    55 
+       (0,0,0)   (6,0,0)     (0,0,0)   (9,0,0)     4 0x0000000100f5a1e8    mesh.h   112 
+       (0,0,0)  (10,0,0)     (0,0,0)  (31,0,0)    22 0x0000000100f7e490 kernel.cu   151 
+    (cuda-gdb) quit
+    A debugging session is active.
+
+        Inferior 1 [process 35265] will be killed.
+
+    Quit anyway? (y or n) y
+    [Termination of CUDA Kernel 8 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 7 (reduce_kernel_stage1<<<(1,1,1),(512,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 5 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 4 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 9 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 6 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 3 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 2 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 1 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    [Termination of CUDA Kernel 0 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    (chroma_env)delta:g4daeview blyth$ 
+
+
+
+even 5 is enough
+-------------------
+
+::
+
+    (chroma_env)delta:MockNuWa blyth$ RANGE=0:5 MockNuWa mock007 zz
+
+
+::
+
+    014-11-24 18:24:10,110 INFO    daechromacontext    :137 setup_rng_states using seed 0 
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpb2cKE5
+    [Launch of CUDA Kernel 4 (write_size<<<(1,1,1),(1,1,1)>>>) on Device 0]
+    *** compiler output in /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpO2rITA
+    [Launch of CUDA Kernel 5 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    2014-11-24 18:24:15,149 INFO    chroma.gpu.photon_hit:204 nwork 5 step 0 max_steps 30 nsteps 30 
+    [Launch of CUDA Kernel 6 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    ^Cwarning: (Internal error: pc 0x104b257e8 in read in psymtab, but not in symtab.)
+
+
+    Program received signal SIGINT, Interrupt.
+    [Switching focus to CUDA kernel 6, grid 7, block (0,0,0), thread (0,0,0), device 0, sm 1, warp 3, lane 0]
+    intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=<value optimized out>, direction=<value optimized out>, g=<value optimized out>, min_distance=<value optimized out>, 
+        last_hit_triangle=<value optimized out>) at mesh.h:112
+    112     if (blockIdx.x == 0 && threadIdx.x == 0) {
+    (cuda-gdb) info cuda threads
+      BlockIdx ThreadIdx To BlockIdx ThreadIdx Count         Virtual PC  Filename  Line 
+    Kernel 6
+    *  (0,0,0)   (0,0,0)     (0,0,0)   (0,0,0)     1 0x0000000104b257e8    mesh.h   112 
+       (0,0,0)   (1,0,0)     (0,0,0)   (1,0,0)     1 0x0000000122d2dcd0  linalg.h   109 
+       (0,0,0)   (2,0,0)     (0,0,0)   (2,0,0)     1 0x0000000104b257e8    mesh.h   112 
+       (0,0,0)   (3,0,0)     (0,0,0)   (3,0,0)     1 0x0000000122d2dcd0  linalg.h   109 
+       (0,0,0)   (4,0,0)     (0,0,0)   (4,0,0)     1 0x0000000104b257e8    mesh.h   112 
+       (0,0,0)   (5,0,0)     (0,0,0)  (31,0,0)    27 0x0000000104b49a90 kernel.cu   151 
+    (cuda-gdb) cuda thread <<<0,5>>>
+    Unrecognized argument(s).
+    (cuda-gdb) cuda thread <<<(0,5)>>>
+    Unrecognized argument(s).
+    (cuda-gdb) cuda thread (0,5)
+    Request cannot be satisfied. CUDA focus unchanged.
+    (cuda-gdb) cuda thread (5)
+    [Switching focus to CUDA kernel 6, grid 7, block (0,0,0), thread (5,0,0), device 0, sm 1, warp 3, lane 5]
+    0x0000000104b49a90  151     if (id >= nthreads)
+    (cuda-gdb) cuda thread (6)
+    [Switching focus to CUDA kernel 6, grid 7, block (0,0,0), thread (6,0,0), device 0, sm 1, warp 3, lane 6]
+    0x0000000104b49a90  151     if (id >= nthreads)
+    (cuda-gdb) cuda thread (7)
+    [Switching focus to CUDA kernel 6, grid 7, block (0,0,0), thread (7,0,0), device 0, sm 1, warp 3, lane 7]
+    0x0000000104b49a90  151     if (id >= nthreads)
+    (cuda-gdb) 
+
+
+
+
+actually 2 will do it 
+-----------------------
+
+Processing gets bogged down inside fill_state::
+
+    (cuda-gdb) bt
+    #0  intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=0x3fffbb0, direction=0x3fffbbc, g=0x1000000, min_distance=0x3fffc1c, last_hit_triangle=1263) at mesh.h:74
+    #1  0x0000000103976a18 in fill_state(State * @generic, Photon * @generic, Geometry * @generic) (s=<value optimized out>, p=<value optimized out>, g=<value optimized out>) at photon.h:168
+    #2  0x000000010398e028 in propagate_hit(int, int, unsigned int * @generic, unsigned int * @generic, curandState * @generic, float3 * @generic, float3 * @generic, float * @generic, float3 * @generic, float * @generic, unsigned int * @generic, int * @generic, float * @generic, int, int, int, Geometry * @generic, int * @generic, int * @generic)<<<(1,1,1),(64,1,1)>>> (first_photon=0, nthreads=2, input_queue=0x700179804, output_queue=0x700179a00, rng_states=0x707ee0000, 
+        positions=0x700178800, directions=0x700178a00, wavelengths=0x700178e00, polarizations=0x700178c00, times=0x700179000, histories=0x700179400, last_hit_triangles=0x700179200, weights=0x700179600, max_steps=30, use_weights=0, 
+        __val_paramscatter_first=0, __val_paramg=0x700177c00, solid_map=0x7014c0000, solid_id_to_channel_id=0x707be8e00) at kernel.cu:189
+    (cuda-gdb) 
+
+
+Looks like some repetition in the bvh node intersection sequence, on hitting breakpoint::
+
+    cuda-gdb) p i
+    $7 = 821365
+    (cuda-gdb) p node
+    $8 = {lower = {x = -18878.123, y = -801907.875, z = -5291.75146}, upper = {x = -18850.5898, y = -801877.75, z = -5267.04346}, child = 2729356, nchild = 5}
+    (cuda-gdb) c
+    Continuing.
+
+    Breakpoint 3, intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=0x3fffbb0, direction=0x3fffbbc, g=0x1000000, min_distance=0x3fffc1c, last_hit_triangle=1263) at mesh.h:74
+    74          Node node = get_node(g, i);
+    (cuda-gdb) p node
+    $9 = {lower = {x = -18864.0039, y = -801907.625, z = -5290.81006}, upper = {x = -18839.0605, y = -801884.125, z = -5267.04346}, child = 2729361, nchild = 2}
+    (cuda-gdb) c
+    Continuing.
+
+    Breakpoint 3, intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=0x3fffbb0, direction=0x3fffbbc, g=0x1000000, min_distance=0x3fffc1c, last_hit_triangle=1263) at mesh.h:74
+    74          Node node = get_node(g, i);
+    (cuda-gdb) 
+    Continuing.
+
+    Breakpoint 3, intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=0x3fffbb0, direction=0x3fffbbc, g=0x1000000, min_distance=0x3fffc1c, last_hit_triangle=1263) at mesh.h:74
+    74          Node node = get_node(g, i);
+    (cuda-gdb) p node
+    $10 = {lower = {x = -18857.8848, y = -801907.625, z = -5290.81006}, upper = {x = -18839.0605, y = -801884.812, z = -5267.04346}, child = 593861, nchild = 0}
+    (cuda-gdb) c
+    Continuing.
+
+    Breakpoint 3, intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=0x3fffbb0, direction=0x3fffbbc, g=0x1000000, min_distance=0x3fffc1c, last_hit_triangle=1263) at mesh.h:74
+    74          Node node = get_node(g, i);
+    (cuda-gdb) p i
+    $11 = 2729357
+    (cuda-gdb) p node
+    $12 = {lower = {x = -18876.9453, y = -801902, z = -5291.28076}, upper = {x = -18857.4141, y = -801884.125, z = -5267.98486}, child = 594123, nchild = 0}
+    (cuda-gdb) c
+    Continuing.
+
+    Breakpoint 3, intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=0x3fffbb0, direction=0x3fffbbc, g=0x1000000, min_distance=0x3fffc1c, last_hit_triangle=1263) at mesh.h:74
+    74          Node node = get_node(g, i);
+    (cuda-gdb) p node
+    $13 = {lower = {x = -18864.2383, y = -801907.625, z = -5290.81006}, upper = {x = -18850.5898, y = -801884.812, z = -5267.04346}, child = 593860, nchild = 0}
+    (cuda-gdb) c
+    Continuing.
+
+    Breakpoint 3, intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=0x3fffbb0, direction=0x3fffbbc, g=0x1000000, min_distance=0x3fffc1c, last_hit_triangle=1263) at mesh.h:74
+    74          Node node = get_node(g, i);
+    (cuda-gdb) p node
+    $14 = {lower = {x = -18878.123, y = -801907.875, z = -5291.75146}, upper = {x = -18860.2383, y = -801885.75, z = -5270.33789}, child = 591819, nchild = 0}
+    (cuda-gdb) c
+    Continuing.
+
+    Breakpoint 3, intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=0x3fffbb0, direction=0x3fffbbc, g=0x1000000, min_distance=0x3fffc1c, last_hit_triangle=1263) at mesh.h:74
+    74          Node node = get_node(g, i);
+    (cuda-gdb) p node
+    $15 = {lower = {x = -18876.9453, y = -801897.5, z = -5291.28076}, upper = {x = -18857.4141, y = -801877.75, z = -5267.98486}, child = 594122, nchild = 0}
+    (cuda-gdb) 
+
+
+even single photon (the 2nd photon in mock007) will do it
+------------------------------------------------------------
+
+::
+
+    chroma_env)delta:MockNuWa blyth$ RANGE=1:2 MockNuWa mock007 zz
+
+
+    (cuda-gdb) bt
+    #0  0x000000012374a0b8 in make_float3 (x=<value optimized out>, y=<value optimized out>, z=<value optimized out>) at vector_functions.h:239
+    #1  0x0000000123703e28 in operator-(const float3 * @generic, const float3 * @generic) (a=<value optimized out>, b=<value optimized out>) at linalg.h:55
+    #2  0x0000000115519988 in intersect_triangle(const float3 * @generic, const float3 * @generic, const Triangle * @generic, float * @generic) (origin=<value optimized out>, direction=<value optimized out>, triangle=<value optimized out>, 
+        distance=<value optimized out>) at intersect.h:31
+    #3  0x0000000115529f88 in intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=<value optimized out>, direction=<value optimized out>, g=<value optimized out>, 
+        min_distance=<value optimized out>, last_hit_triangle=<value optimized out>) at mesh.h:88
+    #4  0x0000000115538218 in fill_state(State * @generic, Photon * @generic, Geometry * @generic) (s=<value optimized out>, p=<value optimized out>, g=<value optimized out>) at photon.h:168
+    #5  0x000000011554f828 in propagate_hit(int, int, unsigned int * @generic, unsigned int * @generic, curandState * @generic, float3 * @generic, float3 * @generic, float * @generic, float3 * @generic, float * @generic, unsigned int * @generic, int * @generic, float * @generic, int, int, int, Geometry * @generic, int * @generic, int * @generic)<<<(1,1,1),(64,1,1)>>> (first_photon=0, nthreads=1, input_queue=0x700179804, output_queue=0x700179a00, rng_states=0x707ee0000, 
+        positions=0x700178800, directions=0x700178a00, wavelengths=0x700178e00, polarizations=0x700178c00, times=0x700179000, histories=0x700179400, last_hit_triangles=0x700179200, weights=0x700179600, max_steps=30, use_weights=0, 
+        __val_paramscatter_first=0, __val_paramg=0x700177c00, solid_map=0x7014c0000, solid_id_to_channel_id=0x707be8e00) at kernel.cu:189
+    (cuda-gdb) info cu threads
+      BlockIdx ThreadIdx To BlockIdx ThreadIdx Count         Virtual PC           Filename  Line 
+    Kernel 6
+    *  (0,0,0)   (0,0,0)     (0,0,0)   (0,0,0)     1 0x000000012374a0b8 vector_functions.h   239 
+       (0,0,0)   (1,0,0)     (0,0,0)  (31,0,0)    31 0x000000011554e290          kernel.cu   151 
+    (cuda-gdb) 
+
+
+    (cuda-gdb) p p
+    $1 = {position = {x = -18289.8398, y = -800004.438, z = -7723.5}, direction = {x = 0, y = -0, z = -1}, polarization = {x = 0, y = 0, z = 1}, wavelength = 550, time = 1, weight = 1, history = 0, last_hit_triangle = -1}
+    (cuda-gdb) 
+
+
+skipping the photons with axis aligned directions succeeds to complete
+------------------------------------------------------------------------
+
+* :google:`cuda axis aligned rays`
+
+Long kernel launch times as in debugger. Dont cause a problem as running in console mode::
+
+    Launch of CUDA Kernel 5 (init_rng<<<(1025,1,1),(64,1,1)>>>) on Device 0]
+    2014-11-24 20:33:36,756 INFO    chroma.gpu.photon_hit:204 nwork 63 step 0 max_steps 30 nsteps 30 
+    [Launch of CUDA Kernel 6 (propagate_hit<<<(1,1,1),(64,1,1)>>>) on Device 0]
+    2014-11-24 20:34:05,232 WARNING chroma.gpu.photon_hit:238 kernel launch time 28.4752539062 > max_time 4.0 : ABORTING 
+    2014-11-24 20:34:05,232 INFO    chroma.gpu.photon_hit:242 step 0 propagate_hit_kernel times  [28.47525390625] 
+
+Running CUDAGDB costs a factor of 25, here the same work without it::
+
+    2014-11-24 20:44:59,730 INFO    chroma.gpu.photon_hit:204 nwork 63 step 0 max_steps 30 nsteps 30 
+    2014-11-24 20:45:01,007 INFO    chroma.gpu.photon_hit:242 step 0 propagate_hit_kernel times  [1.275962890625] 
+
+
+push the work up to 628 hardly touches the time
+--------------------------------------------------
+
+::
+
+    "results":  {
+        "nwork":    628,
+        "name": "propagate_hit",
+        "mintime":  1.550168,
+        "npass":    1,
+        "nphotons": 628,
+        "nabort":   0,
+        "nsmall":   8192,
+        "nlaunch":  1,
+        "maxtime":  1.550168,
+        "COLUMNS":  "name:s,nphotons:i,nwork:i,nsmall:i,npass:i,nabort:i,nlaunch:i,tottime:f,maxtime:f,mintime:f",
+        "tottime":  1.550168
+    },
+
+
+
+
+
+gdb compilation fail
+----------------------
+
+::
+
+     File "daechromacontext.py", line 158, in setup_gpu_detector
+        return GPUDetector( self.chroma_geometry )
+      File "/usr/local/env/chroma_env/src/chroma/chroma/gpu/detector.py", line 18, in __init__
+        GPUGeometry.__init__(self, detector, wavelengths=wavelengths, print_usage=False)
+      File "/usr/local/env/chroma_env/src/chroma/chroma/gpu/geometry.py", line 37, in __init__
+        surface_struct_size = characterize.sizeof('Surface', geometry_source)
+      File "<string>", line 2, in sizeof
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/tools.py", line 404, in context_dependent_memoize
+        result = func(*args)
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/characterize.py", line 40, in sizeof
+        """ % (preamble, type_name), no_extern_c=True)
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/compiler.py", line 262, in __init__
+        arch, code, cache_dir, include_dirs)
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/compiler.py", line 252, in compile
+        return compile_plain(source, options, keep, nvcc, cache_dir)
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/compiler.py", line 134, in compile_plain
+        cmdline, stdout=stdout.decode("utf-8"), stderr=stderr.decode("utf-8"))
+    pycuda.driver.CompileError: nvcc compilation of /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpdYkTX5/kernel.cu failed
+    [command: nvcc --cubin -g -G -arch sm_30 -m64 -I/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/cuda --keep kernel.cu]
+    [stderr:
+    kernel.cu(45): warning: variable "NCHILD_MASK" was declared but never referenced
+
+
+    Compilation terminated.
+    ]
+    [Context Pop of context 0x115700400 on Device 0]
+
+
+
+
+
 Debug Example
 ---------------
 

@@ -13,6 +13,10 @@ One of:
 
 */
 
+const unsigned int CHILD_BITS = 28; 
+const unsigned int NCHILD_MASK = (0xFFFFu << CHILD_BITS);
+
+
 #include <stdio.h>
 
 int main()

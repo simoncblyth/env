@@ -111,6 +111,11 @@ class DAEChromaContext(object):
         self._raycaster = None
         self._propagator = None
 
+        log.info("*** first GPU hit : creating gpu_detector  ")
+        gpu_detector = self.gpu_detector
+        log.info("*** first GPU hit : done ")
+
+
     def parameters(self):
         atts = map(lambda pair:pair.split(':')[0], self.COLUMNS.split(","))
         vals = map(lambda att:getattr(self,att), atts)

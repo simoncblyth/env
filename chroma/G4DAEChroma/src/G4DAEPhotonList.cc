@@ -24,12 +24,12 @@ G4DAEPhotonList::G4DAEPhotonList( std::size_t itemcapacity, float* data) : m_arr
 G4DAEPhotonList::G4DAEPhotonList( G4DAEArray* arr ) : m_array(arr), m_link(NULL) 
 {
 }
-G4DAEPhotonList::G4DAEPhotonList( G4DAEPhotons* src ) : m_array(NULL), m_link(NULL)
+G4DAEPhotonList::G4DAEPhotonList( G4DAEPhotons* src, int a, int b ) : m_array(NULL), m_link(NULL)
 {
     // provides conversions between different implementation of photon lists 
-    size_t itemcapacity = src->GetCount();
+    size_t itemcapacity = b - a > 0 ? b - a : src->GetCount();
     m_array = new G4DAEArray( itemcapacity, SHAPE, NULL );
-    G4DAEPhotons::Transfer( this, src );
+    G4DAEPhotons::Transfer( this, src, a, b );
 } 
 
 

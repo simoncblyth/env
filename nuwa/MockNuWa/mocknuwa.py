@@ -12,6 +12,16 @@ def fmt(v):
 if __name__ == '__main__':
     d = load("/tmp/mocknuwa.json")
     g = d['geometry']
+
+    for pfx in "a b c d e".split():
+        tot = "%s_gpu_total" % pfx
+        fre = "%s_gpu_free" % pfx
+        g['%s_gpu_used' % pfx] = g[tot] - g[fre]     
+        del g[tot]
+        del g[fre]
+
+
+
     print "\n".join([" %30s : %10.2fM  %s  " % (k,fmt(v),v) for (k,v) in g.items()])
 
 

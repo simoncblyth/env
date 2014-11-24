@@ -17,8 +17,17 @@ Related
 
 
 
+
+
 SQLite3 Refs
 ---------------
+
+* https://www.sqlite.org/autoinc.html
+
+  * Auto increment Primary Key 
+  * NB there is an invisible ROWID/OID column in all sqlite tables
+    but better to make it explicit (in case ever need to move 
+    to another DB) via an "id integer primary key" 
 
 * http://www.sqlite.org/backup.html
 
@@ -28,6 +37,11 @@ SQLite3 Refs
 
   * concurrency, locking issues
 
+
+SQLite3 Swift Wrapper
+----------------------
+
+* https://github.com/stephencelis/SQLite.swift/blob/master/Documentation/Index.md
 
 
 

@@ -1496,3 +1496,5 @@ testsqlite-(){      . $(env-home)/sqlite/testsqlite/testsqlite.bash && testsqlit
 pythonext-(){      . $(env-home)/python/pythonext/pythonext.bash && pythonext-env $* ; }
 rapsqlite-(){      . $(env-home)/sqlite/rapsqlite/rapsqlite.bash && rapsqlite-env $* ; }
 cjs-(){      . $(env-home)/messaging/cjson/cjs.bash && cjs-env $* ; }
+sqliteswift-(){      . $(env-home)/sqlite/sqliteswift/sqliteswift.bash && sqliteswift-env $* ; }
+lineprofiler-(){      . $(env-home)/python/lineprofiler/lineprofiler.bash && lineprofiler-env $* ; }

@@ -7,6 +7,7 @@
 #include "G4DAEChroma/G4DAEHitList.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEDatabase.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
 
 
 #include "DybG4DAECollector.h"
@@ -41,54 +42,59 @@ void Mockup_DetDesc_SD()
 
 
 
-void CollectMockPhoton(int pmtid)
+G4DAEPhotons* MockPhotonList(G4DAETransformCache* cache, std::size_t size)
 {
-   // mock OP know the PMT in their destiny 
+    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(size);
 
-    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-    G4DAETransport*   transport = chroma->GetTransport();
-    G4DAETransformCache*  cache = chroma->GetTransformCache();
-
-    G4AffineTransform* pg2l = cache->GetSensorTransform(pmtid);
-    assert(pg2l);
-
-    G4AffineTransform g2l(*pg2l);
-    G4AffineTransform l2g(g2l.Inverse());
-
-    G4ThreeVector lpos(0,0,1500) ; 
-    G4ThreeVector ldir(0,0,-1) ;   //  ( lx, ly, lz )  => ( gz, 0.761 gx + 0.6481 gy, -0.64812 gx + 0.761538 gy )  
+    G4ThreeVector lpos(0,0,1500) ;
+    G4ThreeVector lpot(0,0,1000) ; 
     G4ThreeVector lpol(0,0,1) ; 
-
-    G4ThreeVector gpos(l2g.TransformPoint(lpos));
-    G4ThreeVector gdir(l2g.TransformAxis(ldir));
-    G4ThreeVector gpol(l2g.TransformAxis(lpol));
-
     const float time = 1. ;
     const float wavelength = 550. ;
 
-    transport->CollectPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
-}
-
-
-void CollectMockPhotonList()
-{
-    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-    G4DAETransformCache* cache = chroma->GetTransformCache();
-    G4DAETransport*   transport = chroma->GetTransport();
+    size_t count = 0 ;
     for( size_t index = 0 ; index < cache->GetSize() ; ++index ) // cache contains affine transforms for all PMTs
     {
-        if( index % 10 == 0 ) CollectMockPhoton(cache->GetKey(index));
-    } 
-    //CollectMockPhoton(cache->GetKey(0));
-    //CollectMockPhoton(0x1010101);
+        if( index % 1 == 0 && count < size )
+        {
+            int pmtid = cache->GetKey(index);
 
-    G4DAEPhotons* photons = transport->GetPhotons() ;
-    photons->Print();
-    photons->Details(0);
-    //photons->Save("mock001"); 
+            G4AffineTransform* pg2l = cache->GetSensorTransform(pmtid);
+            assert(pg2l);
+
+            G4AffineTransform g2l(*pg2l);
+            G4AffineTransform l2g(g2l.Inverse());
+           
+            G4ThreeVector gpos(l2g.TransformPoint(lpos));
+            G4ThreeVector gpot(l2g.TransformPoint(lpot));
+            G4ThreeVector gdir = gpot - gpos ;
+            G4ThreeVector gpol(l2g.TransformAxis(lpol));
+
+            if( gdir.x() == 0. && gdir.y() == 0. ){
+                printf("skip pmtid %d \n", (void*)pmtid );
+            } else {
+                photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
+                count++ ;
+            }
+        }
+    } 
+
+    return photons ; 
 }
 
 
+void getintpair( const char* envvar, char delim, int* a, int* b )
+{
+    const char* val = getenv(envvar);
+    if(!val) return ;
+
+    std::vector<std::string> elem ;  
+    split(elem, val, delim);
+    assert( elem.size() == 2 );
+
+    *a = atoi(elem[0].c_str()) ;
+    *b = atoi(elem[1].c_str()) ;
+}
 
 
 int main(int argc, const char** argv)
@@ -135,6 +141,7 @@ int main(int argc, const char** argv)
 
     G4DAETransport*   transport = chroma->GetTransport();
     G4DAEDatabase*    database = chroma->GetDatabase();
+    G4DAETransformCache*  cache = chroma->GetTransformCache();
 
 
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
@@ -155,11 +162,22 @@ int main(int argc, const char** argv)
     ctrl->Merge("args");
     ctrl->Print(); 
 
-    G4DAEPhotons* photons = G4DAEPhotons::Load(name); assert(photons);
+
+    /*
+    int a = 0 ;
+    int b = 0 ;
+    getintpair( "RANGE", ':', &a, &b ); // python style 0:1 => [0]
+    G4DAEPhotons* allphotons = G4DAEPhotons::Load(name); assert(allphotons);
+    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(allphotons, a, b);
+    */
+
+    G4DAEPhotons* photons = MockPhotonList( cache, cache->GetSize() );
+
     photons->AddLink(ctrl);
 
 
     photons->Print("mocknuwa: photons"); 
+    photons->Details(0); 
 
     transport->SetPhotons( photons );
 
@@ -169,14 +187,23 @@ int main(int argc, const char** argv)
     hits->Print("mocknuwa: hits___");
 
     G4DAEPhotons::Save(hits, htag.c_str());
+    hits->Print("after save");
+
 
 
     G4DAESensDet* sd = chroma->GetSensDet();
     sd->EndOfEvent(HCE); // G4 calls this for hit handling?
 
     G4DAEHitList* hitlist = sd->GetCollector()->GetHits(); 
-    hitlist->Save( htag.c_str() );
-    hitlist->Print("mocknuwa: hitlist");
+    if( hitlist )
+    {
+        hitlist->Save( htag.c_str() );
+        hitlist->Print("mocknuwa: hitlist");
+    }
+    else
+    {
+        printf("null hitlist\n");
+    }
 
 
     G4DAEMetadata* meta = hits->GetLink();
@@ -185,7 +212,9 @@ int main(int argc, const char** argv)
         meta->Set("htag",     htag.c_str() );
         meta->Set("dphotons", photons->GetDigest().c_str() );
         meta->Set("dhits",    hits->GetDigest().c_str() );
-        meta->Set("dhitlist", hitlist->GetDigest().c_str() );
+
+        if( hitlist ) meta->Set("dhitlist", hitlist->GetDigest().c_str() );
+
         meta->Set("COLUMNS",  "htag:s,dphotons:s,dhits:s,dhitlist:s");
         meta->Merge("caller");  // add "caller" object with these settings to JSON tree
 

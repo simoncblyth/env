@@ -4,6 +4,7 @@ echo $0 $(date)
 
 cmdline="$*"
 zmqtunnelnode=""
+cudagdb=0
 
 if [ "${cmdline/--zmqtunnelnode}" != "${cmdline}" ]; then
    for arg in $cmdline ; do
@@ -12,6 +13,13 @@ if [ "${cmdline/--zmqtunnelnode}" != "${cmdline}" ]; then
        esac      
    done
 fi 
+
+if [ "${cmdline/--cuda-gdb}" != "${cmdline}" ]; then
+   cudagdb=1
+fi 
+
+
+
 
 
 #echo zmqtunnelnode=\"$zmqtunnelnode\"
@@ -80,7 +88,14 @@ ssh-tunnel-open(){
 
 #echo starting
 echo $0 $(date)
-g4daechroma.py $*
+
+if [ "$cudagdb" == "1" ]; then
+   cd $ENV_HOME/geant4/geometry/collada/g4daeview 
+   cuda-gdb --args python -m pycuda.debug g4daechroma.py $*
+else
+   g4daechroma.py $*
+fi
+
 
 #cuda_info.py
 

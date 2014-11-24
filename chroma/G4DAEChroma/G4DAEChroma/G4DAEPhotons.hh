@@ -28,7 +28,7 @@ public:
   virtual std::string GetDigest() const = 0;
   virtual void ClearAll() = 0;
 
-  static void Transfer( G4DAEPhotons* dest , G4DAEPhotons* src );
+  static void Transfer( G4DAEPhotons* dest , G4DAEPhotons* src, int a=0, int b=0 );
   static G4DAEPhotons* LoadPath( const char* path , const char* key=KEY);
   static G4DAEPhotons* Load(   const char* name , const char* key=KEY, const char* tmpl=TMPL );
 

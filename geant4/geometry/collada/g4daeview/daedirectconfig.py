@@ -84,8 +84,10 @@ class DAEDirectConfig(object):
 
         parser.add_argument( "--zmqendpoint", help="Endpoint to for ZMQ ChromaPhotonList objects ", type=str  )
         parser.add_argument( "--zmqtunnelnode", help="Option interpreted at bash invokation level (not python) to specify remote SSH node to which a tunnel will be opened, strictly requires form `--zmqtunnelnode=N`  where N is an SSH config \"alias\".", type=str  )
+        parser.add_argument( "--cuda-gdb", help="Option interpreted at bash invokation level (not python)", action="store_true")
         defaults['zmqendpoint'] = os.environ.get("ZMQ_BROKER_URL_BACKEND","tcp://localhost:5002")
         defaults['zmqtunnelnode'] = None
+        defaults['cuda_gdb'] = False
 
         defaults['confdir'] = "~/.g4daeview/%(path)s"
         defaults['chroma_material_map'] = "chroma_material_map.json"

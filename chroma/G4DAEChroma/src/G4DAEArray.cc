@@ -109,9 +109,17 @@ float* G4DAEArray::GetItemPointer(std::size_t index)
 float* G4DAEArray::GetNextPointer()
 {
     // hmm need capability to grow the buffer for real collection 
+
+   /*
+    cout << "G4DAEArray::GetNextPointer " 
+         << " itemcount " << m_itemcount 
+         << " itemcapacity " << m_itemcapacity 
+         << " itemsize " << m_itemsize 
+         << endl ; 
+   */
+
     assert(m_itemcount < m_itemcapacity );
 
-    //cout << "G4DAEArray::GetNextPointer itemcount " << m_itemcount << " itemsize " << m_itemsize << endl ; 
 
     float* data = m_data + m_itemcount*m_itemsize ;   
     m_itemcount++ ; 
@@ -232,6 +240,8 @@ void G4DAEArray::SavePath(const char* _path, const char* /*key*/)
 {
    string path(_path);
    string itemshape = GetItemShapeString();
+   printf("G4DAEArray::SavePath [%s] itemcount %lu itemshape %s \n", path.c_str(), m_itemcount, itemshape.c_str() );
+
    aoba::SaveArrayAsNumpy<float>(path, m_itemcount, itemshape.c_str(), m_data );
 #ifdef VERBOSE
    printf("G4DAEArray::SavePath [%s] itemcount %lu itemshape %s \n", path.c_str(), m_itemcount, itemshape.c_str() );

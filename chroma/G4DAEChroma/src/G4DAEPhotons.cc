@@ -14,7 +14,7 @@ const char* G4DAEPhotons::KEY  = "NPL" ;
 
 // static utility funcs
 
-void G4DAEPhotons::Transfer( G4DAEPhotons* dest , G4DAEPhotons* src )
+void G4DAEPhotons::Transfer( G4DAEPhotons* dest , G4DAEPhotons* src, int a, int b )
 {
    size_t nphoton = src->GetCount();
 
@@ -25,7 +25,15 @@ void G4DAEPhotons::Transfer( G4DAEPhotons* dest , G4DAEPhotons* src )
    float _wavelength ; 
    int _pmtid ;
 
+   printf("G4DAEPhotons::Transfer a %d b %d %zu \n", a, b, nphoton );
+
    for(size_t index=0 ; index < nphoton ; ++index){
+       if((b - a) > 0 && ( index < a || index >= b)){
+             printf("G4DAEPhotons::Transfer skip index %zu \n", index );
+             continue ;      // python style range 0:1 => [0]   0:2 => [0,1]
+       } else {
+             printf("G4DAEPhotons::Transfer index %zu \n", index );
+       }
        src->GetPhoton(index, pos, mom, pol, _t, _wavelength, _pmtid);
        dest->AddPhoton(pos, mom, pol, _t, _wavelength, _pmtid);
    }   
