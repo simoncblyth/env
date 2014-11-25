@@ -80,7 +80,8 @@ class DAEEvent(DAEEventBase):
         """
         :param click: world coordinate xyz of point clicked
         """
-        self.dphotons.clicked_point( click )
+        if self.config.args.click:
+            self.dphotons.clicked_point( click )
 
     def toggle(self, name):
         log.info("toggle %s" % name )

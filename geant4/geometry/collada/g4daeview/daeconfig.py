@@ -177,6 +177,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         defaults['norm'] = "0,0,0"
         defaults['fullscreen'] = False
         defaults['pullvbo'] = False
+        defaults['click'] = False
         defaults['markers'] = False
         defaults['mode'] = "-1,-1,-1,-1"
         defaults['screenshot'] = False
@@ -195,6 +196,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--norm",    help="Dummy argument, used for informational output.",type=str)
         parser.add_argument( "--fullscreen", action="store_true", help="Start in fullscreen mode." )
         parser.add_argument( "--pullvbo", action="store_true", help="Enable VBO pullback for analysis on clicking." )
+        parser.add_argument( "--click", action="store_true", help="Enable photon clicking mode." )
         parser.add_argument( "--markers",   action="store_true", help="[I] Frustum and light markers." )
         parser.add_argument( "--mode", help="Photon style mode, default %(default)s.", type=str )
         parser.add_argument( "--screenshot", action="store_true", help="Allow remote control screenshots eg for capturing open menus, default %(default)s.")

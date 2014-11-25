@@ -261,6 +261,9 @@ class DAEPhotons(object):
 
         metadata = {}
         metadata['test'] = { 'nhits':len(hits), 'propagator':"daephotons" }
+
+        metadata['geometry'] = self.event.scene.chroma.gpu_detector.metadata
+
         hits.meta = [metadata]
 
         return hits   

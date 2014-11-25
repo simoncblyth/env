@@ -5,24 +5,47 @@ import json, pprint, collections
 def load(path):
     return json.load(file(path),object_pairs_hook=collections.OrderedDict)
 
-def fmt(v):
-    return float(v)/1e6 if v>1e6  else v
+
+
+
+
+
+
+def fmt(k,v):
+    try:
+        v = int(v)     
+    except ValueError:
+        return v
+     
+    if v > 1e6:
+        return "%10.2fM " % (float(v)/1e6)         
+    else:
+        return v
+
+
 
 
 if __name__ == '__main__':
     d = load("/tmp/mocknuwa.json")
     g = d['geometry']
 
-    for pfx in "a b c d e".split():
-        tot = "%s_gpu_total" % pfx
-        fre = "%s_gpu_free" % pfx
-        g['%s_gpu_used' % pfx] = g[tot] - g[fre]     
-        del g[tot]
-        del g[fre]
+    used = []
 
-
-
-    print "\n".join([" %30s : %10.2fM  %s  " % (k,fmt(v),v) for (k,v) in g.items()])
+    for k,v in g.items():
+        extra = ""
+        if k.endswith('gpu_used'):
+            used.append(v)
+            if len(used) > 1:   
+                extra = " %s" % (fmt(k,v-used[-2])) 
+            pass
+        elif k.endswith('count'):
+            count = g[k]
+            itemsize = g.get(k.replace('count','itemsize'),None) 
+            if not itemsize is None: 
+                total = count*itemsize
+                extra = "  %d * %d = %d  (%10.2f M) " % (itemsize, count, total, float(total)/1.0e6 )
+     
+        print " %30s :   %s   %s " % (k,fmt(k,v), extra) 
 
 
 

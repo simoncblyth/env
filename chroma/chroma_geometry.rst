@@ -1,6 +1,61 @@
 Chroma Geometry Source Overview
 =================================
 
+GPU memory usage of chroma geometry
+-------------------------------------
+
+For simple memory check make sure a non-split load.
+
+2nd `gpu_used` numbers show change with prior.
+
+::
+
+    (chroma_env)delta:MockNuWa blyth$ python mocknuwa.py 
+                                  a :   start    
+                         a_gpu_used :      1269.06M     
+                 a_min_free_gpu_mem :       300.00M     
+                                  b :   after materials,surfaces    
+                         b_gpu_used :      1270.11M           1.05M  
+                                  c :   after colors, idmap    
+                         c_gpu_used :      1299.48M          29.37M     ## large? for colors and idmap, maybe context setup for kernels ?
+                                  d :   after nodes    
+                         d_gpu_used :      1354.40M          54.92M     ## matches expectation for nodes
+                     d_nodes_nbytes :        54.91M     
+                   d_nodes_itemsize :   16    
+                      d_nodes_count :         3.43M      16 * 3431850 = 54909600  (     54.91 M)  
+                      d_split_index :         3.43M     
+                d_extra_nodes_count :   1    
+                        d_splitting :   0    
+                 e_triangles_nbytes :        28.83M                   
+               e_triangles_itemsize :   12    
+                  e_triangles_count :         2.40M      12 * 2402432 = 28829184  (     28.83 M)  
+                                  e :   after triangles    
+                         e_gpu_used :      1383.23M          28.84M     ## matches expectation for triangles 
+                    e_triangles_gpu :   1    
+                  f_vertices_nbytes :        14.60M     
+                f_vertices_itemsize :   12    
+                   f_vertices_count :         1.22M      12 * 1216452 = 14597424  (     14.60 M)  
+                                  f :   after vertices    
+                         f_gpu_used :      1397.91M          14.68M     ## matches expectation for vertices
+                     f_vertices_gpu :   1    
+                                  g :   after geometry struct    
+                         g_gpu_used :      1397.91M     0 
+    (chroma_env)delta:MockNuWa blyth$ 
+
+
+::
+
+    In [12]: 1397.91 - 1269.06
+    Out[12]: 128.85000000000014       # only ~129 MB 
+
+
+
+
+
+
+
+
+
 
 where is geometry populated
 -----------------------------

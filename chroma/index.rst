@@ -5,6 +5,7 @@ chroma
 .. toctree::
 
    chroma_issues
+   chroma_intersection
    chroma 
    how_chroma_works
    development

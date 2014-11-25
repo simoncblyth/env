@@ -72,9 +72,13 @@ G4DAEPhotons* MockPhotonList(G4DAETransformCache* cache, std::size_t size)
 
             if( gdir.x() == 0. && gdir.y() == 0. ){
                 printf("skip pmtid %d \n", (void*)pmtid );
-            } else {
+
                 photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
                 count++ ;
+
+            } else {
+                //photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
+                //count++ ;
             }
         }
     } 
