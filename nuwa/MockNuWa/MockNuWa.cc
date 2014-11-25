@@ -70,16 +70,9 @@ G4DAEPhotons* MockPhotonList(G4DAETransformCache* cache, std::size_t size)
             G4ThreeVector gdir = gpot - gpos ;
             G4ThreeVector gpol(l2g.TransformAxis(lpol));
 
-            if( gdir.x() == 0. && gdir.y() == 0. ){
-                printf("skip pmtid %d \n", (void*)pmtid );
-
-                photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
-                count++ ;
-
-            } else {
-                //photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
-                //count++ ;
-            }
+            //bool vertical = ( gdir.x() == 0. && gdir.y() == 0. ); // problematic vertical photons
+            photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
+            count++ ;
         }
     } 
 
@@ -152,7 +145,7 @@ int main(int argc, const char** argv)
 
 
     // TODO: arrange config tables to have convenient PKs for selection based on command line args
-    const char* sql = "select max_blocks, max_steps, nthreads_per_block, seed, reset_rng_states from mocknuwa limit 1 ;" ;
+    const char* sql = "select max_blocks, max_steps, nthreads_per_block threads_per_block, seed, reset_rng_states from mocknuwa limit 1 ;" ;
     int nrow = database->Query(sql);
     Map_t row = database->GetRow(0);
     if(row.size() < 2 ){
@@ -163,25 +156,35 @@ int main(int argc, const char** argv)
     G4DAEMetadata* ctrl = new G4DAEMetadata("{}");
     ctrl->AddMap("ctrl", row );
     ctrl->Set("htag", htag.c_str());
+    ctrl->Set("hit", "0");
     ctrl->Merge("args");
     ctrl->Print(); 
 
 
-    /*
+    G4DAEPhotons* all = NULL ;
+    if( strcmp(name,"MOCK") == 0 )
+    {
+        printf("mocknuwa: generating photon list with MockPhotonList\n");
+        all = MockPhotonList( cache, cache->GetSize() );
+    }
+    else
+    {
+        printf("mocknuwa: loading photon list named %s\n", name);
+        all = G4DAEPhotons::Load(name); 
+    } 
+
+    assert(all);
+
     int a = 0 ;
     int b = 0 ;
-    getintpair( "RANGE", ':', &a, &b ); // python style 0:1 => [0]
-    G4DAEPhotons* allphotons = G4DAEPhotons::Load(name); assert(allphotons);
-    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(allphotons, a, b);
-    */
-
-    G4DAEPhotons* photons = MockPhotonList( cache, cache->GetSize() );
+    getintpair( "RANGE", ':', &a, &b ); // python style 0:1 => [0]   0:0 means ALL
+    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(all, a, b);
 
     photons->AddLink(ctrl);
 
 
     photons->Print("mocknuwa: photons"); 
-    photons->Details(0); 
+    //photons->Details(0); 
 
     transport->SetPhotons( photons );
 

@@ -146,19 +146,23 @@ mocknuwa-lldb(){
 mocknuwa-run(){
    local msg="=== $FUNCNAME :"
 
+
    local evt=$1   # src identifier eg "1"
    shift
    local pfx=$1   # output prefix eg "ha" "hv"
    shift
 
-   local src=$(printf ${DAE_PATH_TEMPLATE} $evt)
-   local pho=$(printf ${DAE_PATH_TEMPLATE} $pfx$evt)
-   local hit=$(printf ${DAEHIT_PATH_TEMPLATE} $pfx$evt)
 
-   printf " evt %s pfx %s \n" $evt $pfx
-   printf " src %s \n" $src 
-   printf " pho %s \n" $pho 
-   printf " hit %s \n" $hit 
+   if [ "$evt" != "MOCK" ]; then 
+       local src=$(printf ${DAE_PATH_TEMPLATE} $evt)
+       local pho=$(printf ${DAE_PATH_TEMPLATE} $pfx$evt)
+       local hit=$(printf ${DAEHIT_PATH_TEMPLATE} $pfx$evt)
+
+       printf " evt %s pfx %s \n" $evt $pfx
+       printf " src %s \n" $src 
+       printf " pho %s \n" $pho 
+       printf " hit %s \n" $hit 
+   fi
 
    mocknuwa-runenv 
    #env | grep G4DAECHROMA
@@ -168,7 +172,7 @@ mocknuwa-run(){
    echo $cmd
    eval $cmd
 
-   ls -l $src $pho $hit 
+   [ "$evt" != "MOCK" ] && ls -l $src $pho $hit 
   
 
 }

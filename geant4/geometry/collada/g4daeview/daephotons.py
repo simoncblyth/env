@@ -240,8 +240,7 @@ class DAEPhotons(object):
         last_slot = -2
         last_slot_indices = np.arange(nphotons)*max_slots + (max_slots+last_slot)
 
-        #p = propagated[::max_slots]  ## slot 0 
-        p = propagated[last_slot_indices]
+        p = propagated[last_slot_indices]   # VBO branch
 
         r = np.zeros( (len(p),4,4), dtype=np.float32 )  
 
@@ -262,7 +261,8 @@ class DAEPhotons(object):
         metadata = {}
         metadata['test'] = { 'nhits':len(hits), 'propagator':"daephotons" }
 
-        metadata['geometry'] = self.event.scene.chroma.gpu_detector.metadata
+        #metadata['geometry'] = self.event.scene.chroma.gpu_detector.metadata  suspect this caused double htod copies
+        #metadata['geometry'] = self.event.scene.chroma.metadata
 
         hits.meta = [metadata]
 

@@ -87,24 +87,30 @@ class DAEChromaContext(object):
     (eg do stepping in the propagator not here)
     """
     dummy = False
-    def __init__(self, config, chroma_geometry, propagatorcode=0, gl=0):
+    def __init__(self, config, chroma_geometry, gl=0):
         log.debug("DAEChromaContext init, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
+        config.args.gl = gl   # placeholder parameter
         self.config = config
         pycuda_init(gl=gl)
         self.chroma_geometry = chroma_geometry
         pass
 
-        self.COLUMNS = 'deviceid:i,propagatorcode:i,nthreads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i'
+        self.COLUMNS = 'hit:i,deviceid:i,gl:i,threads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i'
         self.deviceid = config.args.deviceid 
-        self.nthreads_per_block = config.args.threads_per_block
+
+        # temporarily pinned here 
+        self.threads_per_block = config.args.threads_per_block
         self.max_blocks = config.args.max_blocks
-        self.max_steps = config.args.max_steps
         self.seed = config.args.seed
-        self.reset_rng_states = 1      # reset rng_states for every propagation, to repeat same random sequence
-        self.propagatorcode = propagatorcode
+
+        #self.max_steps = config.args.max_steps
+        #self.reset_rng_states = 1      # reset rng_states for every propagation, to repeat same random sequence
+        #self.propagatorcode = propagatorcode
+
         pass
-        self.setup_random_seed()
+        #self.setup_random_seed()
         pass
+        self._gpu_seed = None
         self._gpu_geometry = None
         self._gpu_detector = None
         self._rng_states = None
@@ -113,30 +119,53 @@ class DAEChromaContext(object):
 
         log.info("*** first GPU hit : creating gpu_detector  ")
         gpu_detector = self.gpu_detector
+        self.metadata = gpu_detector.metadata  
         log.info("*** first GPU hit : done ")
 
 
-    def parameters(self):
-        atts = map(lambda pair:pair.split(':')[0], self.COLUMNS.split(","))
-        vals = map(lambda att:getattr(self,att), atts)
+
+    def defaults(self):
+        pairs = self.COLUMNS.split(",")
+        atts = map(lambda pair:pair.split(':')[0], pairs)
+        typs = map(lambda pair:pair.split(':')[1], pairs)
+        vals = map(lambda att:getattr(self.config.args,att), atts)
         d = dict(zip(atts,vals))
+        t = dict(zip(atts,typs))
+        return d, t
+
+    def parameters(self, ctrl, args, dump=True):
+        """
+        #. start with defaults from config/commandline
+        #. apply overrides from ctrl and args
+        """
+        d, t = self.defaults()
+
+        def override(name, kv):
+            if kv is None:return
+            for k,v in kv.items(): 
+                if k in d and v != d[k]:
+                    log.warn("%s override  %s : %s -> %s " % (name, k,d[k], v))
+                    d[k] = v 
+                pass   
+            pass
+
+        override('ctrl', ctrl)
+        override('args', args)
+
+        for k in filter(lambda k:t[k] == 'i',d):
+            try:
+                d[k] = int(d[k])
+            except TypeError:
+                log.warn("type error for k %s d[k] %s " % (k,d[k])) 
+            pass
+
+        if dump:
+            log.info("default and ctrl override parameters")
+            for k in d:
+                print "[%s] %-30s : %10s : %10s " % (t[k], k, d[k], p[k])
+
         d['COLUMNS'] = self.COLUMNS
         return d
-
-    def setup_random_seed(self):
-        if self.seed is None:
-            self.seed = pick_seed() 
-            log.warn("RANDOMLY SETTING SEED TO %s " % self.seed )
-        else:
-            log.info("using seed %s " % self.seed )
-        pass 
-        np.random.seed(self.seed)
-
-    def setup_rng_states(self):
-        from chroma.gpu.tools import get_rng_states
-        log.info("setup_rng_states using seed %s "  % self.seed )
-        rng_states = get_rng_states(self.nthreads_per_block*self.max_blocks, seed=self.seed)
-        return rng_states
 
     def setup_raycaster(self):
         from daeraycaster import DAERaycaster
@@ -166,17 +195,46 @@ class DAEChromaContext(object):
         import pycuda.gl as cuda_gl
         return cuda_gl.BufferObject(long(buffer_id))  
 
-    def _get_gpu_geometry(self):
-        if self._gpu_geometry is None:
-            self._gpu_geometry = self.setup_gpu_geometry()
-        return self._gpu_geometry
-    gpu_geometry = property(_get_gpu_geometry)
+    def setup_rng_states(self):
+        """
+        Hmm this placement prevents ctrl variation of nthreads_per_block 
+        """
+        from chroma.gpu.tools import get_rng_states
+        seed = self.gpu_seed 
+        log.info("setup_rng_states using seed %s "  % seed )
+        rng_states = get_rng_states(self.threads_per_block*self.max_blocks, seed=seed)
+        return rng_states
 
-    def _get_gpu_detector(self):
-        if self._gpu_detector is None:
-            self._gpu_detector = self.setup_gpu_detector()
-        return self._gpu_detector
-    gpu_detector = property(_get_gpu_detector)
+    def setup_gpu_seed(self, seed):
+        if seed is None:
+            seed = pick_seed() 
+            log.warn("RANDOMLY SETTING SEED TO %s " % seed )
+            assert 0
+        else:
+            log.info("using seed %s " % seed )
+        pass 
+        np.random.seed(seed)
+        return seed
+
+    def _get_gpu_seed(self):
+        """
+        """
+        if self._gpu_seed is None:
+            assert 0, "use setter first"
+            #self._gpu_seed = self.setup_gpu_seed(None)  
+        return self._gpu_seed
+    def _set_gpu_seed(self, seed):
+        """
+        This setter invalidates the RNG states, forcing recreation at next access, 
+        invoke the setter with::
+
+            chroma.gpu_seed = the-seed-integer
+
+        """
+        self._gpu_seed = self.setup_gpu_seed(seed)
+        self._rng_states = None    
+        pass
+    gpu_seed = property(_get_gpu_seed, _set_gpu_seed)  
 
     def _get_rng_states(self):
         log.info("_get_rng_states")
@@ -189,6 +247,21 @@ class DAEChromaContext(object):
         self._rng_states = None
     rng_states = property(_get_rng_states, _set_rng_states, doc="setter accepts only None, to force recreation")
    
+
+
+
+
+    def _get_gpu_geometry(self):
+        if self._gpu_geometry is None:
+            self._gpu_geometry = self.setup_gpu_geometry()
+        return self._gpu_geometry
+    gpu_geometry = property(_get_gpu_geometry)
+
+    def _get_gpu_detector(self):
+        if self._gpu_detector is None:
+            self._gpu_detector = self.setup_gpu_detector()
+        return self._gpu_detector
+    gpu_detector = property(_get_gpu_detector)
 
     def _get_raycaster(self):
         if self._raycaster is None:

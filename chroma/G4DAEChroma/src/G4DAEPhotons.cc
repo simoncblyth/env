@@ -25,18 +25,22 @@ void G4DAEPhotons::Transfer( G4DAEPhotons* dest , G4DAEPhotons* src, int a, int 
    float _wavelength ; 
    int _pmtid ;
 
-   printf("G4DAEPhotons::Transfer a %d b %d %zu \n", a, b, nphoton );
-
+   size_t skip=0, take=0 ;
    for(size_t index=0 ; index < nphoton ; ++index){
        if((b - a) > 0 && ( index < a || index >= b)){
-             printf("G4DAEPhotons::Transfer skip index %zu \n", index );
+             skip++ ;
              continue ;      // python style range 0:1 => [0]   0:2 => [0,1]
        } else {
-             printf("G4DAEPhotons::Transfer index %zu \n", index );
+             take++ ;
        }
        src->GetPhoton(index, pos, mom, pol, _t, _wavelength, _pmtid);
        dest->AddPhoton(pos, mom, pol, _t, _wavelength, _pmtid);
-   }   
+   }
+
+   if((b - a) > 0)
+   {
+       printf("G4DAEPhotons::Transfer range selection a %d b %d selected %zu skipped %zu from source total %zu \n", a, b, take, skip, nphoton); 
+   }    
 }
 
 bool G4DAEPhotons::HasExt(const char* path, const char* ext)

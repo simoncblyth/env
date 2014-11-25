@@ -176,7 +176,7 @@ class NPYResponder(object):
             if hasattr(request, 'meta'):
                 meta = map(lambda _:json.loads(_), request.meta )
                 request.meta = meta
-                log.info("NPYResponder converting request.meta to dict %s " % pprint.pformat(request.meta, width=20) )
+                #log.info("NPYResponder converting request.meta to dict %s " % pprint.pformat(request.meta, width=20) )
             pass
 
             response = self.reply(request) 
@@ -184,7 +184,7 @@ class NPYResponder(object):
             if hasattr(response, 'meta'):
                 meta = map(lambda _:json.dumps(_), response.meta )
                 response.meta = meta 
-                log.info("NPYResponder converting response.meta to dict %s " % pprint.pformat(response.meta, width=20) )
+                #log.info("NPYResponder converting response.meta to dict %s " % pprint.pformat(response.meta, width=20) )
             pass
 
             self.socket.send_npy(response)    

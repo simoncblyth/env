@@ -15,7 +15,7 @@ class DAERaycaster(object):
         self.config = ctx.config
         self.size = self.config.size 
         self.pixels = PixelBuffer( self.size, texture=True)
-        self.renderer = PBORenderer( self.pixels, ctx.gpu_geometry, ctx.config )
+        self.renderer = PBORenderer( self.pixels, ctx.gpu_detector, ctx.config )  # avoid double htod by using sub-instance gpu_detector instead of gpu_geometry
 
     def resize(self, size ):
         log.debug("DAERaycaster resize %s " % repr(size))

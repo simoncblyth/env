@@ -48,56 +48,39 @@ class DAEDirectPropagator(object):
 
         TODO: simplify marshalling to avoid going via chroma.event.Photons 
         """
-        ctrl = request.meta[0].get('ctrl',None)
-        if ctrl:
-            log.info("DAEDirectPropagator ctrl %s ", str(ctrl))
 
+        ctrl = request.meta[0].get('ctrl',{})
+        args = request.meta[0].get('args',{})
+        parameters = self.chroma.parameters(ctrl, args, dump=True)
 
-        parameters = self.chroma.parameters()
-        nthreads_per_block = parameters['nthreads_per_block']
-        max_blocks = parameters['max_blocks'] 
-        max_steps = parameters['max_steps']
-        reset_rng_states = parameters['reset_rng_states']
-
-        if reset_rng_states:
+        if parameters['reset_rng_states']:
             log.warn("reset_rng_states")
             self.chroma.rng_states = None
+            self.chroma.gpu_seed = parameters['seed']
         pass
 
-        photons = Photons.from_obj( request, extend=True)
+        photons = Photons.from_obj( request, extend=True) # TODO: short circuit this, moving to NPL
         self.photons_beg = photons
 
         gpu_photons = GPUPhotonsHit(photons)        
         gpu_detector = self.chroma.gpu_detector
 
-
         results = gpu_photons.propagate_hit(gpu_detector, 
                                             self.chroma.rng_states,
-                                            nthreads_per_block=nthreads_per_block,
-                                            max_blocks=max_blocks,
-                                            max_steps=max_steps)
+                                            parameters)
 
 
-        # pycuda get()s from GPU back into ndarrays and creates event.Photon instance
-        photons_end = gpu_photons.get()  
+        # pycuda get()s from GPU back into ndarrays and creates NPL, formerly event.Photon instance
+        photons_end = gpu_photons.get(npl=1,hit=parameters['hit'])
         self.photons_end = photons_end
 
-        if isinstance(request,np.ndarray):
-            log.info("daedirectpropagator:propagate returning photons_end.as_npl()")
-            a = photons_end.as_npl(directpropagator=True,hit=True)
-            aa = a.view(NPY)
+        metadata = {}
+        metadata['parameters'] = parameters
+        metadata['results'] = results
+        metadata['geometry'] = gpu_detector.metadata
+        photons_end.meta = [metadata]
 
-            metadata = {}
-            metadata['parameters'] = parameters
-            metadata['results'] = results
-            metadata['geometry'] = gpu_detector.metadata
-
-            aa.meta = [metadata]
-            return aa
-        else:
-            log.info("daedirectpropagator:propagate returning create_cpl_from_photons_very_slowly(photons_end)")
-            return create_cpl_from_photons_very_slowly(photons_end) 
-        pass
+        return photons_end
 
 
     def check_unpropagated_roundtrip(self, cpl, extend=False):

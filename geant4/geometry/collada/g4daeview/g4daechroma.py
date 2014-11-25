@@ -33,7 +33,7 @@ class G4DAEChroma(object):
         if self.config.args.with_chroma:
             from daechromacontext import DAEChromaContext     
             chroma_geometry = geometry.make_chroma_geometry() 
-            chroma = DAEChromaContext( config, chroma_geometry, propagatorcode=1 )
+            chroma = DAEChromaContext( config, chroma_geometry, gl=0)
         else:
             chroma = DAEChromaContextDummy()
         pass
