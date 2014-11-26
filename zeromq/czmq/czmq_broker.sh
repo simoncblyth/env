@@ -4,8 +4,15 @@ zmq-
 zmq-broker-info
 
 czmq-
-type czmq-broker
-czmq-broker
+
+
+if [ "$1" == "local" ]; then 
+   type czmq-broker-local
+   czmq-broker-local
+else
+   type czmq-broker
+   czmq-broker
+fi
 
 
 

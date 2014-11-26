@@ -63,9 +63,8 @@ class DAEEventBase(object):
         self.scene.chroma.configure_parameters(ctrl, args, dump=True)
 
         pass
-        photons = Photons.from_npl(npl, extend=True)   
+        photons = Photons.from_npl(npl, extend=False)   
         #photons = npl
-
         self.setup_photons( photons ) 
 
 

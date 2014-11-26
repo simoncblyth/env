@@ -46,8 +46,12 @@ G4DAEPhotons* MockPhotonList(G4DAETransformCache* cache, std::size_t size)
 {
     G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(size);
 
-    G4ThreeVector lpos(0,0,1500) ;
-    G4ThreeVector lpot(0,0,1000) ; 
+    // using 1500 gives NAN_ABORT for vertical photon index 513, 
+    // on hitting AD table which results in NAN for direction.x,y,z
+    // see env/geant4/geometry/collada/g4daeview/g4daeview_nan_abort_photon.rst
+
+    G4ThreeVector lpos(0,0,1500) ;  
+    G4ThreeVector ldir(0,0,-1) ;
     G4ThreeVector lpol(0,0,1) ; 
     const float time = 1. ;
     const float wavelength = 550. ;
@@ -66,8 +70,7 @@ G4DAEPhotons* MockPhotonList(G4DAETransformCache* cache, std::size_t size)
             G4AffineTransform l2g(g2l.Inverse());
            
             G4ThreeVector gpos(l2g.TransformPoint(lpos));
-            G4ThreeVector gpot(l2g.TransformPoint(lpot));
-            G4ThreeVector gdir = gpot - gpos ;
+            G4ThreeVector gdir(l2g.TransformAxis(ldir));
             G4ThreeVector gpol(l2g.TransformAxis(lpol));
 
             //bool vertical = ( gdir.x() == 0. && gdir.y() == 0. ); // problematic vertical photons
@@ -184,7 +187,7 @@ int main(int argc, const char** argv)
 
 
     photons->Print("mocknuwa: photons"); 
-    //photons->Details(0); 
+    photons->Details(0); 
 
     transport->SetPhotons( photons );
 
