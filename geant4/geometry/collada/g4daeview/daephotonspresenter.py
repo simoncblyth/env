@@ -63,12 +63,12 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
         """
         Kernel calls for each photon, not each slot 
         """
-        nthreads_per_block = self.ctx.nthreads_per_block
+        threads_per_block = self.ctx.threads_per_block
         max_blocks = self.ctx.max_blocks
         photons_this_round = self.nphotons
 
-        block=(nthreads_per_block,1,1)
-        nblocks = div_(photons_this_round,nthreads_per_block)
+        block=(threads_per_block,1,1)
+        nblocks = div_(photons_this_round,threads_per_block)
         grid=(nblocks, 1)
 
         #log.info("present photons_this_round %s  grid %s block %s " % (photons_this_round, repr(grid), repr(block)))

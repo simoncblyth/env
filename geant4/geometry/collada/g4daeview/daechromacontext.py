@@ -96,16 +96,6 @@ class DAEChromaContext(object):
         pass
 
         self.COLUMNS = 'hit:i,deviceid:i,gl:i,threads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i'
-        self.deviceid = config.args.deviceid 
-
-        # temporarily pinned here 
-        self.threads_per_block = config.args.threads_per_block
-        self.max_blocks = config.args.max_blocks
-        self.seed = config.args.seed
-
-        #self.max_steps = config.args.max_steps
-        #self.reset_rng_states = 1      # reset rng_states for every propagation, to repeat same random sequence
-        #self.propagatorcode = propagatorcode
 
         pass
         #self.setup_random_seed()
@@ -116,12 +106,22 @@ class DAEChromaContext(object):
         self._rng_states = None
         self._raycaster = None
         self._propagator = None
+        self._parameters = None
 
         log.info("*** first GPU hit : creating gpu_detector  ")
         gpu_detector = self.gpu_detector
         self.metadata = gpu_detector.metadata  
         log.info("*** first GPU hit : done ")
 
+
+    # first getters will invoke config_parameters resulting in configured values, 
+    # for propagation level override call chroma.config_parameters(args, ctrl) to change  
+    deviceid = property(lambda self:self.parameters['deviceid'])
+    seed = property(lambda self:self.parameters['seed'])
+    max_blocks = property(lambda self:self.parameters['max_blocks'])
+    max_steps = property(lambda self:self.parameters['max_steps'])
+    threads_per_block = property(lambda self:self.parameters['threads_per_block'])
+    reset_rng_states = property(lambda self:self.parameters['reset_rng_states'])
 
 
     def defaults(self):
@@ -133,39 +133,60 @@ class DAEChromaContext(object):
         t = dict(zip(atts,typs))
         return d, t
 
-    def parameters(self, ctrl, args, dump=True):
+    def _get_parameters(self):
+        if self._parameters is None:
+            log.warn("setting up default parameters : use configure_parameters to control ")
+            self._parameters = self.configure_parameters(None, None, dump=True)
+        return self._parameters 
+    def _set_parameters(self, d):
+        self._parameters = d
+    parameters = property(_get_parameters, _set_parameters)
+
+
+    def configure_parameters(self, ctrl, args, dump=True):
         """
         #. start with defaults from config/commandline
         #. apply overrides from ctrl and args
         """
         d, t = self.defaults()
+        p = d.copy()
 
         def override(name, kv):
             if kv is None:return
             for k,v in kv.items(): 
-                if k in d and v != d[k]:
-                    log.warn("%s override  %s : %s -> %s " % (name, k,d[k], v))
-                    d[k] = v 
+                if k in p and v != p[k]:
+                    log.warn("%s override  %s : %s -> %s " % (name, k, p[k], v))
+                    p[k] = v 
                 pass   
             pass
 
-        override('ctrl', ctrl)
-        override('args', args)
+        def fixtype():
+            for k in filter(lambda k:t[k] == 'i',p):
+                try:
+                    p[k] = int(p[k])
+                except TypeError:
+                    log.warn("type error for k %s d[k] %s " % (k,p[k])) 
+                pass
 
-        for k in filter(lambda k:t[k] == 'i',d):
-            try:
-                d[k] = int(d[k])
-            except TypeError:
-                log.warn("type error for k %s d[k] %s " % (k,d[k])) 
-            pass
-
-        if dump:
+        def pdump():
             log.info("default and ctrl override parameters")
-            for k in d:
+            for k in p:
                 print "[%s] %-30s : %10s : %10s " % (t[k], k, d[k], p[k])
 
-        d['COLUMNS'] = self.COLUMNS
-        return d
+
+        override('ctrl', ctrl)
+        override('args', args)
+        fixtype()
+
+        if dump:
+            pdump()
+
+        p['COLUMNS'] = self.COLUMNS
+
+        self._parameters = p
+        return self._parameters 
+
+
 
     def setup_raycaster(self):
         from daeraycaster import DAERaycaster
@@ -197,7 +218,8 @@ class DAEChromaContext(object):
 
     def setup_rng_states(self):
         """
-        Hmm this placement prevents ctrl variation of nthreads_per_block 
+        Note that threads_per_block and max_block are properties 
+        that can be changed via config_parameters
         """
         from chroma.gpu.tools import get_rng_states
         seed = self.gpu_seed 

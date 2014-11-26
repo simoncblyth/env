@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 
 from env.graphics.color.wav2RGB import wav2RGB
 
+
 class DAEPhotonsDataBase(object):
     """
     Responsible for "casting" the storage/transport oriented `ChromaPhotonList` 
@@ -82,6 +83,7 @@ class DAEPhotonsDataBase(object):
                'last_hit_triangle':'last_hit_triangles',
               }
 
+
     def _get_array(self, name):
         """
         :param name: 
@@ -91,6 +93,17 @@ class DAEPhotonsDataBase(object):
             return None
         a = getattr(self._photons, self.namemap[name])
         return a[self.sample_indices] if self.is_prescaled else a
+
+    def _get_array_npl(self, name):
+        """
+        :param name: 
+        :return: photon property array, potentially prescaled
+        """
+        if self._photons is None:
+            return None
+        a = getattr(self._photons, self.namemap[name])
+        return a[self.sample_indices] if self.is_prescaled else a
+
 
     position     = property(lambda self:self._get_array('position'))   
     direction    = property(lambda self:self._get_array('direction'))   

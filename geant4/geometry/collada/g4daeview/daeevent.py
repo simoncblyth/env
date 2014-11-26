@@ -224,6 +224,7 @@ class DAEEvent(DAEEventBase):
 
         :param chroma: DAEChromaContext instance
         """
+        assert 0 
         if self.dphotons is None:
             log.warn("cannot step without loaded dphotons")
             return

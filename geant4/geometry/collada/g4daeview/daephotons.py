@@ -16,6 +16,8 @@ from daephotonsdata import DAEPhotonsData
 from daephotonsanalyzer import DAEPhotonsAnalyzer, DAEPhotonsPropagated
 from daephotonsstyler import DAEPhotonsStyler
 from daephotonspropagator import DAEPhotonsPropagator
+from daephotonsnpl import DAEPhotonsNPL
+
 
 class NPY(np.ndarray):pass
 
@@ -213,7 +215,6 @@ class DAEPhotons(object):
         log.info("propagate")
         if self.photons is None:return
 
-        #max_slots = self.config.args.max_slots
         max_slots = self.data.max_slots
 
         vbo = self.renderer.pbuffer   
@@ -236,37 +237,34 @@ class DAEPhotons(object):
         pass
         self.menuctrl.update_propagated( self.analyzer , special_callback=self.special_callback, msg="from propagate" )    
 
+
         nphotons = self.data.nphotons
         last_slot = -2
         last_slot_indices = np.arange(nphotons)*max_slots + (max_slots+last_slot)
 
         p = propagated[last_slot_indices]   # VBO branch
 
-        r = np.zeros( (len(p),4,4), dtype=np.float32 )  
+        r = DAEPhotonsNPL.from_vbo_propagated(p)
+        hits = r.hits 
 
-        r[:,0,:4] = p['position_time'] 
-        r[:,1,:4] = p['direction_wavelength'] 
-        r[:,2,:4] = p['polarization_weight'] 
-        r[:,3,:4] = p['last_hit_triangle'].view(r.dtype) # must view as target type to avoid coercion of int32 data into float32
-
-        #photon_id  = r[:,3,0]     #    
-        #spare      = r[:,3,1]     #    
-        #flags      = r[:,3,2]     # history  
-        channel_id = r[:,3,3]     # pmtid 
-
-
-
-        hits = r[channel_id > 0].view(NPY)    # subclass np.ndarray to allow attaching meta
+        ## respond with all propagated photons or only those that register a hit on PMT
+        if self.propagator.ctx.parameters['hit']:
+            response = hits
+        else:
+            response = r
+        pass
+        assert self.event.scene.chroma == self.propagator.ctx 
 
         metadata = {}
-        metadata['test'] = { 'nhits':len(hits), 'propagator':"daephotons" }
-
-        #metadata['geometry'] = self.event.scene.chroma.gpu_detector.metadata  suspect this caused double htod copies
-        #metadata['geometry'] = self.event.scene.chroma.metadata
-
-        hits.meta = [metadata]
-
-        return hits   
+        metadata['test'] = { 
+                               'npropagated':len(r), 
+                                 'nhits':len(hits), 
+                                 'nresponse':len(response), 
+                                'propagator':"daephotons" 
+                          }
+        metadata['geometry'] = self.event.scene.chroma.metadata
+        response.meta = [metadata]
+        return response
 
 
     def draw(self):

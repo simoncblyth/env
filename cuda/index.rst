@@ -24,6 +24,7 @@ cuda
     cuda_memory_types
     cuda_math
     cuda_context_cleanup
+    cuda_persistent_threads
 
 
 

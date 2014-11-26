@@ -106,7 +106,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
         single-stepping through photon history.
 
         ..warning::
-            `rng_states` must have at least `nthreads_per_block`*`max_blocks` number of curandStates.
+            `rng_states` must have at least `threads_per_block`*`max_blocks` number of curandStates.
 
         Hmm how to grab from VBO equivalently to::
 
@@ -119,18 +119,22 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
         reset_rng_states = self.ctx.reset_rng_states
         if reset_rng_states:
             log.warn("reset_rng_states")
-            self.ctx.rng_states = None
+            # self.ctx.rng_states = None  gpu_seed setter does this
+            self.ctx.gpu_seed = self.ctx.seed
         pass
+
+
+
 
         nwork = self.nphotons
         self.upload_queues(nwork)
 
-        nthreads_per_block = self.ctx.nthreads_per_block
+        threads_per_block = self.ctx.threads_per_block
         max_blocks = self.ctx.max_blocks
         max_steps = self.ctx.max_steps
 
-        small_remainder = nthreads_per_block * 16 * 8
-        block=(nthreads_per_block,1,1)
+        small_remainder = threads_per_block * 16 * 8
+        block=(threads_per_block,1,1)
 
         step = 0
         while step < max_steps:
@@ -146,7 +150,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
 
             times = []
             abort = False
-            for first_photon, photons_this_round, blocks in chunk_iterator(nwork, nthreads_per_block, max_blocks):
+            for first_photon, photons_this_round, blocks in chunk_iterator(nwork, threads_per_block, max_blocks):
                 if abort:
                     t = -1 
                 else:

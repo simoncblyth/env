@@ -51,11 +51,11 @@ class DAEDirectPropagator(object):
 
         ctrl = request.meta[0].get('ctrl',{})
         args = request.meta[0].get('args',{})
-        parameters = self.chroma.parameters(ctrl, args, dump=True)
+        parameters = self.chroma.configure_parameters(ctrl, args, dump=True)
 
         if parameters['reset_rng_states']:
             log.warn("reset_rng_states")
-            self.chroma.rng_states = None
+            #self.chroma.rng_states = None  gpu_seed setter does this
             self.chroma.gpu_seed = parameters['seed']
         pass
 
