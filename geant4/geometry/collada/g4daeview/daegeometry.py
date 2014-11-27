@@ -250,11 +250,22 @@ class DAEGeometry(object):
             geocachepath = config.geocachepath
             assert os.path.exists(geocachepath), geocachepath 
             log.info("populate fromcache %s " % geocachepath )
-            npz = np.load(geocachepath)
-            self.populate_from_cache(npz)
+
+            if geocachepath.endswith('.npz'):
+                npz = np.load(geocachepath)
+                self.populate_from_cache_npz(npz)
+            else:
+                self.populate_from_cache_dir(geocachepath)
+            pass
         pass
 
-    def populate_from_cache(self, npz):
+    def populate_from_cache_dir(self, cachedir):
+        pass
+        npy_ = lambda name:os.path.join(cachedir, "%s.npy" % name)
+        self.mesh = self.make_mesh( np.load(npy_("vertices")), np.load(npy_("triangles")), np.load(npy_("normals")))
+        self.bbox_cache = np.load(npy_("bbox_cache"))
+
+    def populate_from_cache_npz(self, npz):
         """
         .. warning:: geocache is not operational, misses solids 
                      
@@ -280,12 +291,24 @@ class DAEGeometry(object):
         if self.bbox_cache is None:
             self.make_bbox_cache()
         pass
-        if os.path.exists(cachepath):
-            log.info("overwriting preexisting cache file %s " % cachepath ) 
+
+        if cachepath.endswith('.npz'):
+            if os.path.exists(cachepath):
+                log.info("overwriting preexisting cache file %s " % cachepath ) 
+            else:
+                log.info("writing cache file %s " % cachepath ) 
+            pass
+            np.savez(cachepath, bbox_cache=self.bbox_cache, vertices=self.mesh.vertices, triangles=self.mesh.triangles, normals=self.mesh.normals)
         else:
-            log.info("writing cache file %s " % cachepath ) 
-        pass
-        np.savez(cachepath, bbox_cache=self.bbox_cache, vertices=self.mesh.vertices, triangles=self.mesh.triangles, normals=self.mesh.normals)
+            if not os.path.exists(cachepath):
+                os.makedirs(cachepath) 
+
+            npy_ = lambda name:os.path.join(cachepath, "%s.npy" % name)
+            np.save( npy_("bbox_cache"), self.bbox_cache )
+            np.save( npy_("vertices"), self.mesh.vertices )
+            np.save( npy_("triangles"), self.mesh.triangles )
+            np.save( npy_("normals"), self.mesh.normals )
+
 
 
     @timing(secs)

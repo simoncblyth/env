@@ -537,15 +537,8 @@ class ColladaToChroma(object):
         if self.bvh:
             self.add_bvh()
 
-        self.persist_chroma_geometry()
-
         log.info("convert_geometry DONE timing_report: ")
         timing_report( [self.__class__] )
-
-    @timing(secs)
-    def persist_chroma_geometry(self):
-        log.info("persist_chroma_geometry")
-        self.chroma_geometry.save("/tmp/env/collada_to_chroma")
 
     def make_chroma_material_map(self, chroma_geometry):
         """

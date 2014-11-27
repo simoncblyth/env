@@ -255,10 +255,13 @@ class DAEDirectConfig(object):
     def _get_geocachepath(self):
         gcp = self.args.geocachepath 
         if gcp is None:
-            gcp = "%s.%s.npz" % ( self.path, digest_(self.args.geometry) )
+            gcp = "%s.%s" % ( self.path, digest_(self.args.geometry) )
         return gcp
     geocachepath = property(_get_geocachepath) 
 
+    def _get_chromacachepath(self):
+        return os.path.join( self.geocachepath, "chroma_geometry")
+    chromacachepath = property(_get_chromacachepath) 
 
 
 

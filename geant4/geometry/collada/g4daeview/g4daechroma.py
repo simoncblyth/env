@@ -11,32 +11,24 @@ from daedirectconfig import DAEDirectConfig
 from daegeometry import DAEGeometry
 from daedirectresponder import DAEDirectResponder
 from daedirectpropagator import DAEDirectPropagator
+from daechromacontext import DAEChromaContext     
 
-class DAEChromaContextDummy(object):
-    raycaster = None
-    propagator = None
-    dummy = True
+from chroma.npycacheable import NPYCacheable
 
 
 class G4DAEChroma(object):
     """
     Not a graphical scene, just following the structure of g4daeview.py for sanity 
     """
-    def __init__(self, geometry, config ):
+    def __init__(self, chroma_geometry, config ):
         """
-        :param geometry: DAEGeometry instance
+        :param chroma_geometry: chroma.Detector or chroma.Geometry instance
         :param config: DAEConfig instance
         """
-        self.geometry = geometry  
+        self.chroma_geometry = chroma_geometry  
         self.config = config
 
-        if self.config.args.with_chroma:
-            from daechromacontext import DAEChromaContext     
-            chroma_geometry = geometry.make_chroma_geometry() 
-            chroma = DAEChromaContext( config, chroma_geometry, gl=0)
-        else:
-            chroma = DAEChromaContextDummy()
-        pass
+        chroma = DAEChromaContext( config, chroma_geometry, gl=0)
 
         propagator = DAEDirectPropagator(config, chroma)
         def handler(obj):
@@ -63,13 +55,30 @@ class G4DAEChroma(object):
 def main():
     config = DAEDirectConfig(__doc__)
     config.parse()
+    assert config.args.with_chroma
     np.set_printoptions(precision=3, suppress=True)
     log.info("***** post DAEDirectConfig.parse")
 
-    geometry = DAEGeometry.get(config) 
-    log.info("***** post DAEGeometry.get")
+    chroma_geometry = None 
+    chromacachepath = config.chromacachepath
+    if config.args.geocache:
+        if os.path.isdir(chromacachepath):
+            chroma_geometry = NPYCacheable.load_instance(chromacachepath)
+        pass
+    pass
+    
+    if chroma_geometry is None:
+        geometry = DAEGeometry.get(config) 
+        log.info("***** post DAEGeometry.get")
+        chroma_geometry = geometry.make_chroma_geometry() 
+        log.info("***** post make_chroma_geometry ")
+        if config.args.geocache:
+            log.info("save chroma_geometry to %s " % chromacachepath )
+            chroma_geometry.save(chromacachepath)
+        pass
+    pass
 
-    gdc = G4DAEChroma(geometry, config )
+    gdc = G4DAEChroma(chroma_geometry, config )
     log.info("***** post G4DAEChroma ctor")
     gdc.poll_forever()
 
