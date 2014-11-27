@@ -3,6 +3,8 @@
 Plain ZMQRoot responder and Chroma propagator with no OpenGL/glumpy   
 """
 import logging, os, time
+import IPython
+
 log = logging.getLogger(__name__)
 
 import numpy as np
@@ -13,8 +15,7 @@ from daedirectresponder import DAEDirectResponder
 from daedirectpropagator import DAEDirectPropagator
 from daechromacontext import DAEChromaContext     
 
-from chroma.npycacheable import NPYCacheable
-
+from chroma.detector import Detector
 
 class G4DAEChroma(object):
     """
@@ -53,30 +54,36 @@ class G4DAEChroma(object):
  
 
 def main():
+    """
+    Note that there is no need for the DAEGeometry when running from 
+    cache, when not visualizing it is just an intermediate object 
+    needed to parse collada and create the chroma_geometry  
+    """
     config = DAEDirectConfig(__doc__)
     config.parse()
     assert config.args.with_chroma
     np.set_printoptions(precision=3, suppress=True)
-    log.info("***** post DAEDirectConfig.parse")
+    log.info("***** g4daechroma start")
+
+    if config.args.geocacheupdate:
+        config.wipe_geocache()
 
     chroma_geometry = None 
-    chromacachepath = config.chromacachepath
     if config.args.geocache:
-        if os.path.isdir(chromacachepath):
-            chroma_geometry = NPYCacheable.load_instance(chromacachepath)
-        pass
-    pass
+        chroma_geometry = Detector.get(config.chromacachepath)  
     
     if chroma_geometry is None:
         geometry = DAEGeometry.get(config) 
         log.info("***** post DAEGeometry.get")
         chroma_geometry = geometry.make_chroma_geometry() 
         log.info("***** post make_chroma_geometry ")
-        if config.args.geocache:
-            log.info("save chroma_geometry to %s " % chromacachepath )
-            chroma_geometry.save(chromacachepath)
+        if config.args.geocache or config.args.geocacheupdate:
+            log.info("as --geocache/--geocacheupdate : saving chroma_geometry to %s " % config.chromacachepath )
+            chroma_geometry.save(config.chromacachepath)
         pass
     pass
+
+    #IPython.embed()
 
     gdc = G4DAEChroma(chroma_geometry, config )
     log.info("***** post G4DAEChroma ctor")

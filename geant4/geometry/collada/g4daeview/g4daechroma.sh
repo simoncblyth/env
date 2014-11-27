@@ -1,5 +1,5 @@
 #!/bin/bash -l
-echo $0 $(date)
+#echo $0 $(date)
 
 
 cmdline="$*"
@@ -87,7 +87,7 @@ ssh-tunnel-open(){
 [ -n "$zmqtunnelnode" ] && ssh-tunnel-open $zmqtunnelnode
 
 #echo starting
-echo $0 $(date)
+#echo $0 $(date)
 
 if [ "$cudagdb" == "1" ]; then
    cd $ENV_HOME/geant4/geometry/collada/g4daeview 

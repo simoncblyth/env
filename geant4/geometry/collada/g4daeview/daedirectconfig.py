@@ -4,7 +4,7 @@ DAEDirectConfig
 =================
 
 """
-import os, logging, argparse, socket, md5, datetime, stat
+import os, logging, argparse, socket, md5, datetime, stat, shutil
 import numpy as np
 log = logging.getLogger(__name__)
 
@@ -64,6 +64,7 @@ class DAEDirectConfig(object):
         defaults['geometry'] = "DAE_GEOMETRY_%(path)s" 
         defaults['geometry_regexp'] = None
         defaults['geocache'] = False
+        defaults['geocacheupdate'] = False
         defaults['geocachepath'] = None
         defaults['bound'] = True
 
@@ -71,6 +72,7 @@ class DAEDirectConfig(object):
         parser.add_argument("-g","--geometry",   help="DAENode.getall node(s) specifier %(default)s often 3153:12230 for some PMTs 5000:5100 ",type=str)
         parser.add_argument(      "--geometry-regexp",   help="regexp search pattern eg PmtHemiCathode applied to node id that further restricts --geometry nodes",type=str)
         parser.add_argument(      "--geocache", help="Save/load flattened geometry to/from binary npz cache. Default %(default)s.", action="store_true" )
+        parser.add_argument(      "--geocacheupdate", help="Remove geometry cache, to force rebuild. Default %(default)s.", action="store_true" )
         parser.add_argument(      "--geocachepath", help="Path to geometry cache. Default %(default)s." )
         parser.add_argument(     "--nobound",  dest="bound", action="store_false", help="Load geometry in pycollada unbound (local) coordinates, **FOR DEBUG ONLY** ")
 
@@ -262,6 +264,16 @@ class DAEDirectConfig(object):
     def _get_chromacachepath(self):
         return os.path.join( self.geocachepath, "chroma_geometry")
     chromacachepath = property(_get_chromacachepath) 
+
+    def wipe_geocache(self):
+        cachedir = self.geocachepath
+        if not os.path.exists(cachedir):
+            return
+        assert os.path.isdir(cachedir) 
+        assert len(cachedir.split('/')) > 2, "cachedir sanitu check fail %s " % cachedir
+        log.warn("removeing cachedir %s " % cachedir )
+        shutil.rmtree(cachedir) 
+ 
 
 
 

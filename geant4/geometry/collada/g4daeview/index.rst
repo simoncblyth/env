@@ -23,6 +23,9 @@ g4daeview
    g4daeview_propagate_timeouts
    g4daeview_bvh_split
    g4daeview_datamodel
+   g4daeview_geometry_cache
+
+
 
 
 

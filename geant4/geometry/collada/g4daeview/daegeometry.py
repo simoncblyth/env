@@ -387,6 +387,10 @@ class DAEGeometry(object):
         """
         :para index:
         """
+        if not hasattr(self, 'solids'):
+            log.warn("missing solids ")
+            return None
+
         selection = filter(lambda _:str(_.index) == index, self.solids)
         focus = selection[0] if len(selection) == 1 else None
         return focus
@@ -425,7 +429,7 @@ class DAEGeometry(object):
         else:
             geometry = cls(config)
             geometry.flatten()
-            if config.args.geocache:
+            if config.args.geocache or config.args.geocacheupdate:
                 geometry.save_to_cache(geocachepath)
             pass
 

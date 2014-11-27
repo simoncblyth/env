@@ -77,7 +77,7 @@ def _get_daeprops(self):
     if self.dae.extra is None:
         return {}
     return self.dae.extra.properties    
-Material.daeprops = property(_get_daeprops)
+#Material.daeprops = property(_get_daeprops)
 
 
 matptn = re.compile("^__dd__Materials__(\S*)0x\S{7}$")
@@ -412,7 +412,7 @@ class ColladaToChroma(object):
         collada = self.nodecls.orig 
         for dmaterial in collada.materials:
             material = Material(dmaterial.id)   
-            material.dae = dmaterial
+            #material.dae = dmaterial
 
             # vacuum like defaults ? is that appropriate ? what is the G4 equivalent ?
             material.set('refractive_index', 1.0)  

@@ -298,6 +298,9 @@ def main():
     config = DAEConfig(__doc__)
     config.init_parse()
     config.report()
+
+    if config.args.geocacheupdate:
+        config.wipe_geocache()
    
     if config.args.cuda_profile: 
         cudacheck = CUDACheck(config)  # MUST be done before pycuda autoinit, for setting of CUDA_PROFILE envvar 
@@ -318,9 +321,35 @@ def main():
 
     rmenu_glut.setup_glutMenuStatusFunc()   # probably needs to be after OpenGL context creation
 
+    chromacachepath = config.chromacachepath
+    chroma_geometry = None 
+    if config.args.with_chroma:
+        from chroma.detector import Detector
+        if config.args.geocache or config.args.geocacheupdate:
+            chroma_geometry = Detector.get(chromacachepath)  
+
+            # TODO: get rid of these, sideeffects of the geometry conversion
+            # and moving parts liable to get out of sync with whats in the cache
+            # scrambling surface/material identity 
+            from daechromamaterialmap import DAEChromaMaterialMap
+            from daechromasurfacemap import DAEChromaSurfaceMap
+            from daechromaprocessmap import DAEChromaProcessMap
+
+            geometry.chroma_material_map = DAEChromaMaterialMap.fromjson(config)
+            geometry.chroma_surface_map = DAEChromaMaterialMap.fromjson(config)
+            geometry.chroma_process_map = DAEChromaProcessMap.fromjson(config)
+        pass
+        if chroma_geometry is None: 
+            chroma_geometry = geometry.make_chroma_geometry() 
+            if config.args.geocache or config.args.geocacheupdate:
+                log.info("as geocache enabled and just created chroma_geometry save to %s " % chromacachepath )
+                chroma_geometry.save(chromacachepath)
+            pass
+        pass
+
 
     log.info("************  DAEScene creation ")
-    scene = DAEScene(geometry, config )
+    scene = DAEScene(geometry, chroma_geometry, config )
 
     log.info("************  VBO setup ")
     vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=config.rgba)

@@ -34,9 +34,10 @@ class DAEScene(window_event.EventDispatcher):
     """
     Keep this for handling state, **NOT interactivity**, **NOT graphics**     
     """
-    def __init__(self, geometry, config ):
+    def __init__(self, geometry, chroma_geometry, config ):
         """
         :param geometry: DAEGeometry instance
+        :param chroma_geometry: chroma.Detector or chroma.Geometry instance
         :param config: DAEConfig instance
         """
         self.geometry = geometry  
@@ -44,7 +45,6 @@ class DAEScene(window_event.EventDispatcher):
 
         if self.config.args.with_chroma:
             from daechromacontext import DAEChromaContext     
-            chroma_geometry = geometry.make_chroma_geometry() 
             self.chroma = DAEChromaContext( config, chroma_geometry )
         else:
             self.chroma = DAEChromaContextDummy()
@@ -229,6 +229,10 @@ class DAEScene(window_event.EventDispatcher):
         Find solids that contain the world frame coordinates argument,  
         sorted by extent.
         """
+        if not hasattr(self.geometry, 'solids'):
+            log.warn("no solids when running from cache")
+            return []
+
         indices = self.geometry.find_bbox_solid( xyz )
         solids = sorted([self.geometry.solids[_] for _ in indices],key=lambda _:_.extent) 
         return solids
