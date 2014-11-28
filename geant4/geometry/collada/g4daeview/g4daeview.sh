@@ -1,5 +1,5 @@
 #!/bin/bash -l
-echo $0 start $(date)
+#echo $0 start $(date)
 cmdline="$*"
 zmqtunnelnode=""
 
@@ -29,7 +29,7 @@ cpl-export
 
 zmq-
 zmq-broker-export
-env | grep ZMQ
+#env | grep ZMQ
 
 graphicstools-
 graphicstools-export

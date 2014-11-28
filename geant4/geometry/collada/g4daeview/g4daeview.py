@@ -276,6 +276,7 @@ Division of concerns
 import os, sys, logging
 log = logging.getLogger(__name__)
 
+import IPython
 import OpenGL
 OpenGL.FORWARD_COMPATIBLE_ONLY = True    
 # surprised this does not cause any errors, glumpy uses lots of fixed pipeline functionality 
@@ -294,19 +295,21 @@ from env.cuda.cuda_launch import CUDACheck
 
 
 def main():
-    log.info("************  main ")
     config = DAEConfig(__doc__)
     config.init_parse()
+    log.info("************  main ")
     config.report()
 
     if config.args.geocacheupdate:
         config.wipe_geocache()
-   
+  
+ 
     if config.args.cuda_profile: 
-        cudacheck = CUDACheck(config)  # MUST be done before pycuda autoinit, for setting of CUDA_PROFILE envvar 
+        cudacheck = CUDACheck(config)  # MUST be done before pycuda initialization, for setting of CUDA_PROFILE envvar 
     else:
         cudacheck = None
     config.cudacheck = cudacheck
+
 
     rmenu_glut = DAEMenuGLUT()
     rmenu = DAEMenu("rtop", backend=rmenu_glut)
@@ -316,10 +319,10 @@ def main():
     geometry = DAEGeometry.get(config)
     log.info("************  DAEGeometry.get DONE ")
 
-    figure = gp.Figure(size=config.size)
-    frame = figure.add_frame(size=config.frame)
+    if config.args.ipython:
+        g = geometry
+        IPython.embed()
 
-    rmenu_glut.setup_glutMenuStatusFunc()   # probably needs to be after OpenGL context creation
 
     chromacachepath = config.chromacachepath
     chroma_geometry = None 
@@ -347,6 +350,11 @@ def main():
             pass
         pass
 
+    log.info("************  chroma geometry DONE ")
+
+    figure = gp.Figure(size=config.size)
+    frame = figure.add_frame(size=config.frame)
+    rmenu_glut.setup_glutMenuStatusFunc()   # probably needs to be after OpenGL context creation
 
     log.info("************  DAEScene creation ")
     scene = DAEScene(geometry, chroma_geometry, config )

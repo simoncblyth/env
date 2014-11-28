@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, logging
+import os, logging, shutil
 log = logging.getLogger(__name__)
 
 from ConfigParser import ConfigParser, MissingSectionHeaderError
@@ -41,8 +41,9 @@ class DAEBookmarks(object):
         if os.path.exists(ipath):
             self.load(ipath, geometry)  
         else:
-            log.warn("failed to load ibookmarks from %s " % ipath )
+            log.warn("no bookmarks file at  %s " % ipath )
         pass
+        log.info("loadfail %s " % repr(self.loadfail)) 
 
 
     ini_prefix = "bookmark_"
@@ -61,20 +62,29 @@ class DAEBookmarks(object):
         return self.bookmark_asini 
     summary = property(_get_summary)
 
+    def get_bookmark_hdr(self, k):
+        return  "[%s%s]" % (self.ini_prefix, k)
+
     def get_bookmark_asini(self, k):
         """
         :param k: 
         :return: ini format string encoding view and clipping config sections for each bookmark 
         """
         entries = []
-        key_hdr = "[%s%s]" % (self.ini_prefix, k)
+        key_hdr = self.get_bookmark_hdr(k)
         entries.append(key_hdr)
-        entries.append(self.viewpoints[k].asini)
-        entries.append(self.get_camera(k).asini)
-        entries.append(self.get_clipper(k).asini)
+        if k in self.loadfail:
+            kini = "\n".join(["%s = %s" % (name,val) for name,val in self.loadfail[k]])
+            entries.append(kini)
+        else:
+            entries.append(self.viewpoints[k].asini)
+            entries.append(self.get_camera(k).asini)
+            entries.append(self.get_clipper(k).asini)
+        pass
         return "\n".join(entries)
 
     bookmark_asini = property(lambda self:self.get_bookmark_asini(self.current))
+
 
     def _get_asini(self):
         """
@@ -85,11 +95,7 @@ class DAEBookmarks(object):
         """
         entries = []
         for k in self.marks:
-            if k in self.loadfail:
-                kini = "\n".join(["%s = %s" % (name,val) for name,val in self.loadfail[k]])
-            else:
-                kini = self.get_bookmark_asini(k)
-            pass
+            kini = self.get_bookmark_asini(k)
             entries.append(kini) 
         return "\n".join(entries)
     asini = property(_get_asini, doc=_get_asini.__doc__)
@@ -131,12 +137,18 @@ class DAEBookmarks(object):
             log.info("creating directory %s " % dir_ )
             os.makedirs(dir_) 
         pass
-        log.info("save %s bookmarks to %s " % (len(self.marks),self.path ))
+
+        if len(self.marks) == 0:
+            log.info("no bookmarks to save")
+            return   
+        else:
+            log.info("save %s bookmarks to %s " % (len(self.marks),self.path ))
 
         if os.path.exists(self.path):
             tpath = self.tpath 
-            log.info("renaming %s to %s for safe keeping " % ( self.path, tpath )) 
-            os.rename(self.path, tpath )
+            log.info("copying %s to %s for safe keeping " % ( self.path, tpath )) 
+            #os.rename(self.path, tpath )
+            shutil.copyfile(self.path, tpath )
         pass
         with open(self.path,"w") as w:
             w.write(self.asini + "\n")
@@ -168,14 +180,14 @@ class DAEBookmarks(object):
         else:
             sections = cfp.sections()
         pass
-
+        log.info("sections %s " % repr(sections) )
         for sectname in sections:
             if sectname.startswith(self.ini_prefix):
                 k = sectname[len(self.ini_prefix):]
                 cfg = cfp.items(sectname)      # list of k,v pairs
                 view = DAEViewpoint.fromini( cfg, geometry ) 
                 if view is None:
-                    log.debug("failed to load bookmark %s " % k )
+                    log.warn("failed to load bookmark %s " % k )
                     self.loadfail[k] = cfg
                 else: 
                     self.assign(k, view)
@@ -188,7 +200,7 @@ class DAEBookmarks(object):
         return "".join(map(lambda k:fmt_(k) % k,sorted(self.viewpoints.keys())))
 
     def create_for_solid(self, solid, numkey):
-        log.debug("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
+        log.info("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
         view = self.transform.spawn_view_jumping_frame(solid)
         self.assign(numkey, view)
         self.set_current(numkey)

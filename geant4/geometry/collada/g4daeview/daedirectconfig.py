@@ -50,9 +50,11 @@ class DAEDirectConfig(object):
 
         defaults['clargs'] = []
         defaults['loglevel'] = "INFO"
+        defaults['ipython'] = False
         defaults['logformat'] = "%(asctime)-15s %(levelname)-7s %(name)-20s:%(lineno)-3d %(message)s"
 
         parser.add_argument( "clargs",nargs="*", help="Optional commandline args   %(default)s")  
+        parser.add_argument( "--ipython",action="store_true", help="Drop into embedded ipython, where IPython.embed() is placed in the code. %(default)s")  
         parser.add_argument( "--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "--logformat", help="%(default)s")  
 
@@ -262,7 +264,8 @@ class DAEDirectConfig(object):
         """
         gcp = self.args.geocachepath 
         if gcp is None:
-            gcp = "%s.%s" % ( self.path, digest_(self.args.geometry) )
+            dig = digest_("%s%s" % (self.args.geometry, self.args.regexp))
+            gcp = "%s.%s" % ( self.path, dig )
         return gcp
     geocachepath = property(_get_geocachepath) 
 

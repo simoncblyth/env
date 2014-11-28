@@ -217,28 +217,16 @@ class DAEScene(window_event.EventDispatcher):
     def where(self):
         print str(self)
         here = self.here
-        solids = self.containing_solids( here )
+        solids = self.geometry.containing_solids( here )
 
         self.bookmarks.add_clipping_plane( self.transform.plane )
 
         log.info("solids containing eye point %s " % repr(here))   
         print "\n".join(map(repr,solids))
 
-    def containing_solids(self, xyz ):
-        """
-        Find solids that contain the world frame coordinates argument,  
-        sorted by extent.
-        """
-        if not hasattr(self.geometry, 'solids'):
-            log.warn("no solids when running from cache")
-            return []
-
-        indices = self.geometry.find_bbox_solid( xyz )
-        solids = sorted([self.geometry.solids[_] for _ in indices],key=lambda _:_.extent) 
-        return solids
 
     def pick_solid(self, click):
-        solids = self.containing_solids( click )
+        solids = self.geometry.containing_solids( click )
         self.solids = solids
         if len(solids) == 0:
             #log.warn("clicked_point %s found no containing solids : how did you manage that ?" % repr(click) )

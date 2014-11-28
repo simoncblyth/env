@@ -83,7 +83,8 @@ def main():
         pass
     pass
 
-    #IPython.embed()
+    if config.args.ipython:
+        IPython.embed()
 
     gdc = G4DAEChroma(chroma_geometry, config )
     log.info("***** post G4DAEChroma ctor")

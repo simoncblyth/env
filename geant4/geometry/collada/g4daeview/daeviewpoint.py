@@ -88,6 +88,8 @@ class DAEViewpoint(object):
         assert len(_up) == 3
 
         pass
+        assert solid.__class__.__name__ in ('DAESubSolid','DAECompositeMesh','DAEMesh'), solid.__class__.__name__
+
         # the below are fixed for the view, cannot change the solid associated with a Viewpoint
         self.solid = solid
         self.target = target  # informational
@@ -337,6 +339,8 @@ class DAEViewpoint(object):
         :param cfg:  List of key value pairs, like that supplied by ConfigParser
         """
         solid = None
+
+
         kwa = {}
         for k,v in cfg:
             if k in ("eye","look","up"):
@@ -344,14 +348,14 @@ class DAEViewpoint(object):
             elif k == "target":
                kwa['target'] = v
             elif k == "solid":
-               solid = geometry.find_solid_by_index(v) 
+               solid = geometry.find_solid(v) 
                kwa['solid'] = solid 
             else:
                 log.debug("ignoring bookmark key %s " % k )
             pass
         assert len(kwa) == 5, "missing argument(s) %s " % repr(kwa) 
         if solid is None:
-            #log.warn("bookmark invalid for current geometry as solid not present ")
+            log.warn("bookmark invalid for current geometry as solid not present %s " % repr(kwa))
             return None
         pass 
         return cls(**kwa)
