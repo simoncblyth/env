@@ -57,14 +57,9 @@ class DAEEventBase(object):
 
         Calls up to subclass, potentially for GUI things like menu updating
         """
-        ctrl = npl.meta[0].get('ctrl',{})
-        args = npl.meta[0].get('args',{})
-        log.info("DAEEventBase ctrl %s args %s" % (str(ctrl),str(args)))
-        self.scene.chroma.configure_parameters(ctrl, args, dump=True)
-
+        self.scene.chroma.incoming(npl)
         pass
         photons = Photons.from_npl(npl, extend=False)   
-        #photons = npl
         self.setup_photons( photons ) 
 
 

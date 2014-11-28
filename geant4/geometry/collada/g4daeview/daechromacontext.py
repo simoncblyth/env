@@ -10,7 +10,7 @@ For example DAERaycaster pulls in PixelBuffer which requires
 an active OpenGL context so defer the import until needed.
 
 """
-import os, time, logging
+import os, time, logging, traceback
 log = logging.getLogger(__name__)
 
 import numpy as np
@@ -122,6 +122,16 @@ class DAEChromaContext(object):
     max_steps = property(lambda self:self.parameters['max_steps'])
     threads_per_block = property(lambda self:self.parameters['threads_per_block'])
     reset_rng_states = property(lambda self:self.parameters['reset_rng_states'])
+
+
+    def incoming(self, request):
+        ctrl = request.meta[0].get('ctrl',{})
+        args = request.meta[0].get('args',{})
+        parameters = self.configure_parameters(ctrl, args, dump=True)
+        if parameters['reset_rng_states']:
+            log.warn("reset_rng_states")
+            self.gpu_seed = parameters['seed']
+        pass
 
 
     def defaults(self):
@@ -255,6 +265,7 @@ class DAEChromaContext(object):
         """
         self._gpu_seed = self.setup_gpu_seed(seed)
         self._rng_states = None    
+        #traceback.print_stack()
         pass
     gpu_seed = property(_get_gpu_seed, _set_gpu_seed)  
 

@@ -31,11 +31,16 @@ class Regexp(object):
 
         Usage example::
 
-            daegeometry.sh --geometry-regexp PmtHemiCathode 
+            daegeometry.sh --regexp PmtHemiCathode 
 
         """
         match_ = lambda _:_ if self.ptn.search(_.id) else None
         return filter(None,map(match_, nodes))
+
+
+       
+
+
 
 
 class DAEMesh(object):
@@ -50,11 +55,11 @@ class DAEMesh(object):
     secs = {}
     @timing(secs)
     def __init__(self, vertices, triangles=[], normals=[] ):
-        self.vertices = vertices
-        self.triangles = triangles
-        self.normals = normals
+        self._vertices = vertices
+        self._triangles = triangles
+        self._normals = normals
 
-        self.index = -1
+        self._index = -1
         self.id = "entiremesh"
 
         self._bounds = None
@@ -64,6 +69,20 @@ class DAEMesh(object):
         self._dimensions = None
         self._bounds_extent = None
         self._center_extent = None
+
+    ## access via property allows to override in subclass
+
+    def _get_vertices(self):
+        return self._vertices
+    vertices = property(_get_vertices)
+    triangles = property(lambda self:self._triangles)
+    normals = property(lambda self:self._normals)
+
+    def _get_index(self):
+        return self._index 
+    def _set_index(self, index):
+        self._index = index
+    index = property(_get_index,_set_index)
 
     def check(self):
         """
@@ -123,7 +142,11 @@ class DAEMesh(object):
 
     def _get_center_extent(self):
         if self._center_extent is None:
-            bounds = np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
+            vertices = self.vertices
+            print vertices
+            bounds = np.min(vertices, axis=0), np.max(vertices, axis=0)
+            print bounds
+
             center = np.mean(bounds, axis=0)
             dimensions = bounds[1] - bounds[0]
             extent = np.max(dimensions)/2.
@@ -155,13 +178,99 @@ class DAEMesh(object):
     def __repr__(self):
         return " ".join( [
                            "%s" % self.__class__.__name__,
-                           "v %s " % len(self.vertices), 
-                           "t %s " % len(self.triangles), 
-                           "n %s " % len(self.normals), 
+                           "v %s " % len(self._vertices), 
+                           "t %s " % len(self._triangles), 
+                           "n %s " % len(self._normals), 
                            ])
 
 
 
+
+class DAECompositeMesh(DAEMesh):
+    """
+    A DAEMesh that remembers which of its vertices, triangles and normals
+    belongs to constituent meshes and can extract sub-meshes for them.
+    Created in DAEGeometry.flatten 
+    """
+    def __init__(self, vertices, triangles=[], normals=[], nv=[], nt=[], nn=[] ):
+        DAEMesh.__init__(self, vertices, triangles, normals )
+        assert len(nv) == len(nt) == len(nn), "length mismatch"
+        self.maxindex = len(nv) - 1 
+        self.nv = nv
+        self.nt = nt
+        self.nn = nn
+
+    def save(self, path_ ):
+        """
+        :param path_: function that takes a name argument and returns an absolute path
+        """
+        np.save(path_("vertices"), self._vertices )
+        np.save(path_("triangles"), self._triangles )
+        np.save(path_("normals"), self._normals )
+        np.save(path_("nv"), self.nv )
+        np.save(path_("nt"), self.nt )
+        np.save(path_("nn"), self.nn )
+
+    @classmethod
+    def load(cls, path_): 
+        vertices = np.load(path_("vertices"))
+        triangles = np.load(path_("triangles"))
+        normals = np.load(path_("normals"))
+        nv = np.load(path_("nv"))
+        nt = np.load(path_("nt"))
+        nn = np.load(path_("nn"))
+        mesh = DAECompositeMesh(vertices, triangles, normals, nv, nt, nn)
+        log.debug(mesh)
+        return mesh
+ 
+    def index_contained(self, index):
+        return -1 < index <= self.maxindex
+
+    def _set_index(self, index):
+        assert index <= self.maxindex
+        self._index = index
+    def _get_index(self):
+        return self._index
+    index = property(_get_index,_set_index)
+
+    def _get_vertices(self):
+        i = self._index
+        if i == -1:return self._vertices
+        nv = self.nv
+        return self._vertices[nv[i]:nv[i+1]]
+
+    def _get_triangles(self):
+        i = self._index
+        if i == -1:return self._triangles
+        nt = self.nt
+        nv = self.nv
+        return self._triangles[nt[i]:nt[i+1]] - nv[i]   ## un-offsetting vertex indices 
+
+    def _get_normals(self):
+        i = self._index
+        if i == -1:return self._normals
+        nn = self.nn
+        return self._normals[nn[i]:nn[i+1]]
+
+    # getters that return sub-meshes based on value of index property
+    vertices = property(lambda self:self._get_vertices)
+    triangles = property(lambda self:self._get_triangles)
+    normals = property(lambda self:self._get_normals)
+
+
+    def _get_submesh(self):
+        return DAEMesh(self.vertices.copy(), self.triangles.copy(), self.normals.copy())
+    submesh = property(_get_submesh)
+ 
+    def make_submesh(self, index):
+        """
+        :param index:
+
+        Copy of vertices, triangles and normals corresponding to the current 
+        index attribute 
+        """
+        self.index = index 
+        return self.submesh 
 
 
 class DAESolid(DAEMesh):
@@ -250,65 +359,28 @@ class DAEGeometry(object):
             geocachepath = config.geocachepath
             assert os.path.exists(geocachepath), geocachepath 
             log.info("populate fromcache %s " % geocachepath )
-
-            if geocachepath.endswith('.npz'):
-                npz = np.load(geocachepath)
-                self.populate_from_cache_npz(npz)
-            else:
-                self.populate_from_cache_dir(geocachepath)
-            pass
+            self.populate_from_cache_dir(geocachepath)
         pass
+
 
     def populate_from_cache_dir(self, cachedir):
         pass
+        cachedir = os.path.join(cachedir, "daegeometry")
         npy_ = lambda name:os.path.join(cachedir, "%s.npy" % name)
-        self.mesh = self.make_mesh( np.load(npy_("vertices")), np.load(npy_("triangles")), np.load(npy_("normals")))
         self.bbox_cache = np.load(npy_("bbox_cache"))
+        self.mesh = DAECompositeMesh.load(npy_)
 
-    def populate_from_cache_npz(self, npz):
-        """
-        .. warning:: geocache is not operational, misses solids 
-                     
-             solids needed for make_chroma_geometry, but making chroma geometry 
-             entails making array copies to GPU. Do not want to cache all the 
-             many thousands of solids, want to cache after flattened to a single
-             object.
-
-             Need rejig to partition pre-GPU processing which can be cached, and
-             chroma geometry creation needs to use that cache.
- 
-             Also should move from npz to multiple npy files in a folder
-             (possibly with json metadata).
-             As numpy/python npz zipfile handling is inefficient 
-             (it extracts to tmp files) and also to allow use from C++
-
-        """
-        mesh = self.make_mesh( npz['vertices'], npz['triangles'], npz['normals'] )                
-        self.mesh = mesh 
-        self.bbox_cache = npz['bbox_cache']  
-
-    def save_to_cache(self, cachepath):
+    def save_to_cache(self, cachedir):
         if self.bbox_cache is None:
             self.make_bbox_cache()
         pass
+        cachedir = os.path.join(cachedir, "daegeometry")
+        if not os.path.exists(cachedir):
+            os.makedirs(cachedir) 
 
-        if cachepath.endswith('.npz'):
-            if os.path.exists(cachepath):
-                log.info("overwriting preexisting cache file %s " % cachepath ) 
-            else:
-                log.info("writing cache file %s " % cachepath ) 
-            pass
-            np.savez(cachepath, bbox_cache=self.bbox_cache, vertices=self.mesh.vertices, triangles=self.mesh.triangles, normals=self.mesh.normals)
-        else:
-            if not os.path.exists(cachepath):
-                os.makedirs(cachepath) 
-
-            npy_ = lambda name:os.path.join(cachepath, "%s.npy" % name)
-            np.save( npy_("bbox_cache"), self.bbox_cache )
-            np.save( npy_("vertices"), self.mesh.vertices )
-            np.save( npy_("triangles"), self.mesh.triangles )
-            np.save( npy_("normals"), self.mesh.normals )
-
+        npy_ = lambda name:os.path.join(cachedir, "%s.npy" % name)
+        np.save( npy_("bbox_cache"), self.bbox_cache )
+        self.mesh.save(npy_)
 
 
     @timing(secs)
@@ -318,11 +390,10 @@ class DAEGeometry(object):
             solids = []
         else:
             o_nodes = DAENode.getall(nodespec, config.path)
-            geometry_regexp = config.args.geometry_regexp
-            if not geometry_regexp is None:
-                regexp = Regexp(geometry_regexp)
+            if not config.args.regexp is None:
+                regexp = Regexp(config.args.regexp)
                 nodes = regexp.select(o_nodes)
-                log.info("geometry_regexp %s reduced nodes from %s to %s " % (geometry_regexp,len(o_nodes), len(nodes)))
+                log.info("geometry regexp %s reduced nodes from %s to %s " % (config.args.regexp,len(o_nodes), len(nodes)))
             else:
                 nodes = o_nodes
             pass
@@ -333,7 +404,18 @@ class DAEGeometry(object):
     @timing(secs)
     def make_solids(self, nodes, bound):
         """
+        :param nodes: list of DAENode instances
+        :param bound: almost always True, 
+                      when False pycollada local coordinates are used (for low level internal testing)
+
+
+        :return: python list of many thousands of DAESolids instances
+
         Taking almost 4 seconds 
+
+        TODO: work out how the solid info is being used and replace with 
+              a single ndarray structure for all solids
+
         """
         return [DAESolid(node, bound) for node in nodes]
 
@@ -384,7 +466,14 @@ class DAEGeometry(object):
             return self.find_solid_by_index(target)
             
     def find_solid_by_index(self, index):
+        if not self.mesh.index_contained(index):return None
+        return self.mesh.make_submesh(index)
+
+    def find_solid_by_index_deprecated(self, index):
         """
+        Used by DAEViewpoint to support bookmarks, the "DAESolid" 
+        object returned needs to provide: index, extent, model2world, world2model
+
         :para index:
         """
         if not hasattr(self, 'solids'):
@@ -403,11 +492,6 @@ class DAEGeometry(object):
         ixid = dict((solid.index,solid.id) for solid in self.solids)
         ixs = filter(None,map(lambda six:six[0] if ptn.search(six[1]) else None, ixid.items() ))
         return ixs if index else map(lambda _:ixid[_], ixs) 
-
-    def make_mesh(self, vertices, triangles, normals ):
-        mesh = DAEMesh(vertices, triangles, normals)
-        log.debug(mesh)
-        return mesh
 
     @classmethod
     def load_from_cache(cls, config):
@@ -463,10 +547,11 @@ class DAEGeometry(object):
 
         assert len(self.solids) > 0, "failed to find solids, MAYBE EXCLUDED BY -g/--geometry option ? try \"-g 0:\" or \"-g 1:\" "
 
-        mesh = self.make_mesh(vertices, triangles, normals)
+        mesh = DAECompositeMesh(vertices, triangles, normals, nv, nt, nn)
         
         log.info("flatten nsolids %s into mesh: %s " % (len(self.solids),repr(mesh)))
         self.mesh = mesh 
+
 
     
 

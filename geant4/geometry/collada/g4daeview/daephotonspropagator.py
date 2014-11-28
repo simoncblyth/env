@@ -116,14 +116,6 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
 
         Redirecting CUDA printf would be useful for checkinh, but thats not to easy.
         """
-        reset_rng_states = self.ctx.reset_rng_states
-        if reset_rng_states:
-            log.warn("reset_rng_states")
-            # self.ctx.rng_states = None  gpu_seed setter does this
-            self.ctx.gpu_seed = self.ctx.seed
-        pass
-
-
 
 
         nwork = self.nphotons

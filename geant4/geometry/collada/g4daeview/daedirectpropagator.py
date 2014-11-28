@@ -48,18 +48,9 @@ class DAEDirectPropagator(object):
 
         TODO: simplify marshalling to avoid going via chroma.event.Photons 
         """
+        self.chroma.incoming(request)  # do any config contained in request
 
-        ctrl = request.meta[0].get('ctrl',{})
-        args = request.meta[0].get('args',{})
-        parameters = self.chroma.configure_parameters(ctrl, args, dump=True)
-
-        if parameters['reset_rng_states']:
-            log.warn("reset_rng_states")
-            #self.chroma.rng_states = None  gpu_seed setter does this
-            self.chroma.gpu_seed = parameters['seed']
-        pass
-
-        photons = Photons.from_obj( request, extend=True) # TODO: short circuit this, moving to NPL
+        photons = Photons.from_obj( request, extend=False) # TODO: short circuit this, moving to NPL
         self.photons_beg = photons
 
         gpu_photons = GPUPhotonsHit(photons)        

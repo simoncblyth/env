@@ -50,11 +50,6 @@ But they are different from the non geocache digests::
 
 
 
-
-
-
-
-
 Huh numerical diffs but they hit same PMTs::
 
     1: a = ph("aaMOCK")
@@ -373,5 +368,67 @@ Hmm only first last and middle agree, thats suspicious::
 
     In [38]: c[683,3].view(np.int32)
     Out[38]: DAEPhotonsNPL([683,   0,  64,   0], dtype=int32)
+
+
+
+
+Fixed Problem was the time sorting again
+-----------------------------------------
+
+* need to reduce duplication between g4daeview and g4daechroma some more
+  to avoid such issues
+
+
+::
+
+    (chroma_env)delta:g4daeview blyth$ g4daechroma.sh --geocache
+
+    "caller":   {
+        "COLUMNS":  "htag:s,dphotons:s,dhits:s,dhitlist:s",
+        "dhitlist": "1af89ad33e6eaeba73da0ba62f19214f",
+        "dhits":    "34b666d4225350ae22e1643ce94278fe",
+        "dphotons": "65851b617842abf44939f206b942c7b7",
+        "empty":    0,
+        "htag": "gdcMOCK"
+    }
+
+    "caller":   {
+        "COLUMNS":  "htag:s,dphotons:s,dhits:s,dhitlist:s",
+        "dhitlist": "1af89ad33e6eaeba73da0ba62f19214f",
+        "dhits":    "34b666d4225350ae22e1643ce94278fe",
+        "dphotons": "65851b617842abf44939f206b942c7b7",
+        "empty":    0,
+        "htag": "gdcnocacheMOCK"
+    }
+
+
+
+
+::
+
+    (chroma_env)delta:g4daeview blyth$ g4daeview.sh --geocache
+
+
+    "caller":   {
+        "COLUMNS":  "htag:s,dphotons:s,dhits:s,dhitlist:s",
+        "dhitlist": "1af89ad33e6eaeba73da0ba62f19214f",
+        "dhits":    "34b666d4225350ae22e1643ce94278fe",
+        "dphotons": "65851b617842abf44939f206b942c7b7",
+        "empty":    0,
+        "htag": "gdvMOCK"
+    }
+
+    "caller":   {
+        "COLUMNS":  "htag:s,dphotons:s,dhits:s,dhitlist:s",
+        "dhitlist": "1af89ad33e6eaeba73da0ba62f19214f",
+        "dhits":    "34b666d4225350ae22e1643ce94278fe",
+        "dphotons": "65851b617842abf44939f206b942c7b7",
+        "empty":    0,
+        "htag": "gdvnocacheMOCK"
+    }
+
+
+
+
 
 

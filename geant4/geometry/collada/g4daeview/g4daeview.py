@@ -336,7 +336,7 @@ def main():
             from daechromaprocessmap import DAEChromaProcessMap
 
             geometry.chroma_material_map = DAEChromaMaterialMap.fromjson(config)
-            geometry.chroma_surface_map = DAEChromaMaterialMap.fromjson(config)
+            geometry.chroma_surface_map = DAEChromaSurfaceMap.fromjson(config)
             geometry.chroma_process_map = DAEChromaProcessMap.fromjson(config)
         pass
         if chroma_geometry is None: 
