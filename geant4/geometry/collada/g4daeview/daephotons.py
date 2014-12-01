@@ -230,6 +230,7 @@ class DAEPhotons(object):
 
         propagated = vbo.read()
 
+
         self.analyzer( propagated )
 
         if self.config.args.debugpropagate:

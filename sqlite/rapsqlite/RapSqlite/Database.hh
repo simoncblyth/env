@@ -26,6 +26,9 @@ public:
 public:
    // Exec and helpers, result collection 
    int Exec(const char* sql);
+   int ExecI(const char* sql, int param);
+   int Exec(const char* sql, sqlite3_stmt* statement);
+
    bool Prepare(const char* sql, sqlite3_stmt** statement );
    void FillColumns(Map_t& rowmap, sqlite3_stmt* statement, int ncol );
    void FillTypes(Map_t& typemap, sqlite3_stmt* statement, int ncol );

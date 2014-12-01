@@ -1,6 +1,10 @@
 NAN Abort Photon
 =================
 
+* Resolved by special casing perfect normal incidence
+
+
+
 Initially was numbering as index 279, but that is with time ordering sort on load, 
 which with all mock photons starting at 1ns means randomly ordered.
 Actially is mock photon index 513 when lpos is (0,0,1500) ie shoot from 1.5m infront of PMT::
@@ -16,6 +20,12 @@ Actially is mock photon index 513 when lpos is (0,0,1500) ie shoot from 1.5m inf
 
 The PMT 0x1051912 is in water shield on mid-line between ADs and underneath. The 
 Looks like photon getting stuck on AD table ?
+
+::
+
+    delta:~ blyth$ udp.py --target 0x1051912
+    sending [--target 0x1051912] to host:port delta.local:15006 
+
 
 
 ::

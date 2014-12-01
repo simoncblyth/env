@@ -127,13 +127,21 @@ class DAEChromaContext(object):
 
 
     def incoming(self, request):
-        ctrl = request.meta[0].get('ctrl',{})
-        args = request.meta[0].get('args',{})
+        if hasattr(request, 'meta'):
+            ctrl = request.meta[0].get('ctrl',{})
+            args = request.meta[0].get('args',{})
+        else:
+            log.warn("incoming request with no metadata, parameter defaults will be used") 
+            ctrl = {}
+            args = {}
+        pass
         parameters = self.configure_parameters(ctrl, args, dump=True)
+        pass
         if parameters['reset_rng_states']:
             log.warn("reset_rng_states")
             self.gpu_seed = parameters['seed']
         pass
+        self.parameters = parameters
 
 
     def defaults(self):

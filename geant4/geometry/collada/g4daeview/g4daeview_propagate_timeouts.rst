@@ -6,7 +6,6 @@ Objectives
 
 * robustify propagation
 
-
 * bookkeeping
 
   * local worker lockfile to prevent two propagators running simultaneously on same node
@@ -33,8 +32,16 @@ Objectives
   * hit wavelength distributions
 
 
-mock001
---------
+mock001 : normal incidence NAN_ABORT
+--------------------------------------
+
+Perfect normal incidence resulted in an NAN_ABORT. Observed
+with a vertical photon incident on the horizontal AD table, 
+on which the ADs sit. Worked around by special casing normal incidence.
+
+
+mock001 : axis aligned photons issue
+---------------------------------------
 
 Need to login GPU machine in ">console" only  mode in order to use the debugger.
 Most convenient to do that over ssh, for multiple connections and copy and pasting.
@@ -42,46 +49,6 @@ Most convenient to do that over ssh, for multiple connections and copy and pasti
 ::
 
     (chroma_env)delta:g4daeview blyth$ g4daechroma.sh --cuda-gdb 
-
-
-Debugging shows some crazy values::
-
-    Launch of CUDA Kernel 10 (propagate_hit<<<(2,1,1),(64,1,1)>>>) on Device 0]
-    ^Cwarning: (Internal error: pc 0x1042bdbe8 in read in psymtab, but not in symtab.)
-
-
-    Program received signal SIGINT, Interrupt.
-    [Switching focus to CUDA kernel 10, grid 11, block (0,0,0), thread (0,0,0), device 0, sm 1, warp 2, lane 0]
-    0x00000001042bdbe8 in intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=<value optimized out>, direction=<value optimized out>, g=<value optimized out>, 
-        min_distance=<value optimized out>, last_hit_triangle=<value optimized out>) at mesh.h:108
-    108     } // loop over children, starting with first_child
-    (cuda-gdb) info threads
-      4 Thread 0x261b of process 44071  0x00007fff9292664a in -[PAStackshot initWithGlobalTrace].tracebuf () from /usr/lib/system/libsystem_kernel.dylib
-      3 Thread 0x240b of process 44071  0x00007fff9292664a in -[PAStackshot initWithGlobalTrace].tracebuf () from /usr/lib/system/libsystem_kernel.dylib
-      2 Thread 0x23f7 of process 44071  0x00007fff92921a1a in -[PAStackshot initWithGlobalTrace].tracebuf () from /usr/lib/system/libsystem_kernel.dylib
-    * 1 Thread 0x2203 of process 44071  0x00007fff9278abd4 in -[PAStackshot initWithGlobalTrace].tracebuf () from /usr/lib/system/libsystem_platform.dylib
-    (cuda-gdb) bt
-#0  0x00000001042bdbe8 in intersect_mesh(const float3 * @generic, const float3 * @generic, Geometry * @generic, float * @generic, int) (origin=warning: (Internal error: pc 0x1042bdbe8 in read in psymtab, but not in symtab.)
-
-    <value optimized out>, direction=<value optimized out>, g=<value optimized out>, 
-        min_distance=<value optimized out>, last_hit_triangle=<value optimized out>) at mesh.h:108
-#1  0x00000001042cba18 in fill_state(State * @generic, Photon * @generic, Geometry * @generic) (s=<value optimized out>, p=<value optimized out>, g=<value optimized out>) at photon.h:168
-#2  0x00000001042e3028 in propagate_hit(int, int, unsigned int * @generic, unsigned int * @generic, curandState * @generic, float3 * @generic, float3 * @generic, float * @generic, float3 * @generic, float * @generic, unsigned int * @generic, int * @generic, float * @generic, int, int, int, Geometry * @generic, int * @generic, int * @generic)<<<(2,1,1),(64,1,1)>>> (first_photon=0, nthreads=69, input_queue=0x700479e04, output_queue=0x70047a000, rng_states=0x707ee0000, positions=0x700478800, 
-        directions=0x700478c00, wavelengths=0x700479400, polarizations=0x700479000, times=0x700479600, histories=0x700479a00, last_hit_triangles=0x700479800, weights=0x700479c00, max_steps=30, use_weights=0, __val_paramscatter_first=0, 
-        __val_paramg=0x700477c00, solid_map=0x7017c0000, solid_id_to_channel_id=0x700382400) at kernel.cu:189
-    (cuda-gdb) f 1
-#1  0x00000001042cba18 in fill_state(State * @generic, Photon * @generic, Geometry * @generic) (s=warning: (Internal error: pc 0x1042cba18 in read in psymtab, but not in symtab.)
-
-    0x3fffbb0, p=0x3fffbbc, g=0x1000000) at photon.h:168
-    168     p.last_hit_triangle = intersect_mesh(p.position, p.direction, g,
-    (cuda-gdb) p p
-    $1 = (@generic Photon * @register) 0x3fffbbc
-    (cuda-gdb) p *p
-    $2 = {position = {x = 6.95385065e-17, y = 1.00801804e-16, z = 1}, direction = {x = -6.95385065e-17, y = -1.00801804e-16, z = -1}, polarization = {x = 550, y = 1, z = 1}, wavelength = 0, time = -nan(0x7fffff), weight = 1.04754447e+35, 
-      history = 422573751, last_hit_triangle = -681408366}
-    (cuda-gdb) 
-
-
 
 
 Suspect a handful of stuck threads::
@@ -107,8 +74,10 @@ Suspect a handful of stuck threads::
     (cuda-gdb) 
 
 
-
-
+Suspicion turned out to be correct, axis aligned (actually z-aligned vertical photons) 
+were not reaching intersection.  They were just continuously testing against boxes, this was due
+to some infinities meaning that the x,y info was effectively not used.  Workaround 
+was to special case axis aligned photons.
 
 
 

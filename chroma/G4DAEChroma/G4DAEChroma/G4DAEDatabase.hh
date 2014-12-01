@@ -20,6 +20,7 @@ public:
     // from DB
     Map_t GetRow(std::size_t index=0);
     int Query(const char* sql );   // returns rowcount, or negative for error
+    int QueryI(const char* sql, int param );  
 
 private:
     Database* m_db ;

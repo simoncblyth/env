@@ -29,6 +29,11 @@ class DAEEventList(object):
         self.path_template = path_template
         self._index = 0
         self.paths = self.find_paths()
+        log.info("%s" % repr(self))
+
+
+    def __repr__(self):
+        return "%s %s %s " % (self.__class__.__name__ , self.path_template, len(self.paths))
 
     def update(self):
         """
@@ -43,7 +48,7 @@ class DAEEventList(object):
         self.path = curpath
 
     def resolve(self, arg):
-        return self.path_template % {'arg':arg } 
+        return self.path_template % arg  
 
     def find_paths(self):
         return glob(self.resolve("*"))

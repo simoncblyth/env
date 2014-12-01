@@ -24,6 +24,14 @@ g4daeview
    g4daeview_bvh_split
    g4daeview_datamodel
    g4daeview_geometry_cache
+   g4daeview_serialization
+   g4daeview_dependencies
+   g4daeview_ideas
+   g4daeview_architecture
+
+
+
+ 
 
 
 

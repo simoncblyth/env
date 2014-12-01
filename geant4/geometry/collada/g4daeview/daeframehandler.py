@@ -253,6 +253,22 @@ class DAEFrameHandler(object):
             gl.glDisable( gl.GL_BLEND )
             gl.glDisable( gl.GL_LINE_SMOOTH )
 
+            gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_FILL )  # without this the raycast render doesnt show
+
+
+        if self.scene.touch_mesh:
+            gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_LINE )
+            gl.glEnable( gl.GL_BLEND )
+            gl.glEnable( gl.GL_LINE_SMOOTH )
+            gl.glColor( 0., 0., 0., 0.5 ) # difficult to see lines from some directions, unless black
+        
+            self.scene.touch_mesh.draw( gl.GL_TRIANGLES, "p" )  # position
+
+            gl.glDisable( gl.GL_BLEND )
+            gl.glDisable( gl.GL_LINE_SMOOTH )
+
+            gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_FILL ) # without this the raycast render doesnt show
+
 
         if self.scene.cuda:
             if self.scene.processor is not None:

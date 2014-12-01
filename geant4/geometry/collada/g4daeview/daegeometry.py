@@ -245,6 +245,14 @@ class DAECompositeMesh(DAEMesh):
         return self._index
     index = property(_get_index,_set_index)
 
+    def channel_to_index(self, channel):
+        try:
+            index = np.where(self.channels == channel)[0][0]
+        except IndexError:
+            index = -1
+            log.warn("channel %s is not present within the %s contained channels %s " % (channel, len(self.channels), repr(self.channels)))
+        pass
+        return index 
 
 
     def nodeindex_to_index(self, nodeindex):
@@ -348,7 +356,10 @@ class DAECompositeMesh(DAEMesh):
 
         prior = self.index
         self.index = index
+
         subsolid = self.subsolid
+        subsolid.solidindex = index        
+
         self.index = prior
         return subsolid
 
@@ -574,6 +585,8 @@ class DAEGeometry(object):
             #solid = self.oldmesh  
         elif target[0] == "+" or target[0] == "-":            # relative addressing 
             solid = self.find_solid_by_index(int(target)) 
+        elif target[0:2] == "0x":            # relative addressing 
+            solid = self.find_solid_by_channel(int(target,16)) # hexstring to decimal int 
         else:                                               # absolute addressing
             index = self.mesh.nodeindex_to_index(int(target))
             if index != -1:
@@ -583,6 +596,9 @@ class DAEGeometry(object):
         log.info("find_solid target %s => index %s => solid %s  " % (target, index, repr(solid)))
         return solid
 
+    def find_solid_by_channel(self, channel):
+        index = self.mesh.channel_to_index(channel)
+        return self.find_solid_by_index(index)
  
     def find_solid_by_index(self, index):
         """
@@ -739,16 +755,29 @@ class DAEGeometry(object):
                     print "%-5d %-5d [%s] %-50s %-40s %-40s (%7.3f) %-40s " % ( i, solid.index, marker, unprefix(solid.id), lower, upper, solid.extent, solid.dimensions )
         return f 
 
-    def make_vbo(self,scale=False, rgba=(0.7,0.7,0.7,0.5)):
-        if self.mesh is None:
-            self.flatten() 
+    def make_vbo(self,scale=False, rgba=(0.7,0.7,0.7,0.5), index=-1):
+        """
+        :param scale:
+        :param rgba:
+        :param index: NB default of -1 means all geometry 
+        """
+        #if self.mesh is None:
+        #    self.flatten() 
+        assert not self.mesh is None, "huh geometry needs to be flattened before can make_vbo " 
 
-        self.mesh.index = -1
+        prior = self.mesh.index        
+        self.mesh.index = index
         if scale:
             vertices = (self.mesh.vertices - self.mesh.center)/self.mesh.extent
         else:
             vertices = self.mesh.vertices
-        return DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )
+        pass
+
+        vbo = DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )  # allocates own structure and copies argument arrays
+        self.mesh.index = prior
+        return vbo
+
+
       
     @timing(secs)
     def make_chroma_geometry(self, bvh=True):

@@ -452,7 +452,7 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         pass
         name = self.name % locals() 
         eventbase, ext = os.path.splitext(eventpath)
-        assert ext == '.root', ext 
+        assert ext == '.npy', ext 
 
         if not os.path.exists(eventbase):
             os.makedirs(eventbase)
@@ -541,8 +541,8 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         """
         :param propagated: 
         """
-        log.debug("analyzer.__call__")
         if propagated is None:return
+        log.info("analyzer.__call__ %s ", repr(propagated))
 
         DAEPhotonsPropagated.__call__(self, propagated)
 

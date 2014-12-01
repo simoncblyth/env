@@ -4,13 +4,6 @@
     clang chromacpp.c -c     
     clang *.o -o chromacpp
 
-
-  Run into linker problems, probably the npyreader build did not set arch appropriately 
-
-   npyreader- && clang -I$(npyreader-incdir) -L$(npyreader-libdir) -l$(npyreader-libname) chromacpp.cc -o chromacpp && ./chromacpp /tmp/tt
-
-   ./chromacpp /tmp/tt/Detector0x113312090/unique_surfaces/__dd__Geometry__PoolDetails__PoolSurfacesAll__VertiCableTraySurface
-
 */
 
 #include <stdlib.h>
@@ -18,13 +11,12 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <assert.h>
 
 #include "npyreader.h"
 
 
-
-
-int readnpy(const char* path)
+int readnpy(const char* path, const char* root )
 {
     FILE *fp;
 
@@ -48,7 +40,11 @@ int readnpy(const char* path)
         i++;
     }   
 
-    printf("\t NPY dt %5s sh %10s sz %10zu  %s \n", dtype, shape, datasize, path  );
+    size_t rlen = strlen(root) ;
+    size_t plen = strlen(path) ; 
+    assert( plen > rlen );
+
+    printf("\t NPY dt %5s sh %10s sz %10zu  %s \n", dtype, shape, datasize, path + rlen + 1 );
 
     free(fsizes);
     free(dtype);
@@ -80,8 +76,12 @@ int readnpy(const char* path)
 
 
 
-int recursive_listdir( const char* base )
+int recursive_listdir( const char* base, const char* root )
 {
+    size_t rlen = strlen(root) ;
+    size_t blen = strlen(base) ; 
+    assert( blen >= rlen );
+
     DIR* dir ; 
     struct dirent* dent;
     struct stat st;
@@ -102,8 +102,8 @@ int recursive_listdir( const char* base )
             if(strcmp(dent->d_name,".") == 0 || strcmp(dent->d_name,"..") == 0 ) continue ;
             else
             {
-                printf("\t D %s \n", path );
-                recursive_listdir( path );  
+                printf("\t D %s \n", path + rlen + 1 );
+                recursive_listdir( path, root );  
             } 
         }
         else
@@ -116,11 +116,11 @@ int recursive_listdir( const char* base )
 
             const char* flast = dent->d_name + flen - 4 ;
             if( strcmp( flast, ".npy") == 0 ){
-                  readnpy( path );
+                  readnpy( path, root );
             } 
             else 
             {
-                  printf("\t OTHER %s \n", path );
+                  printf("\t OTHER %s \n", path + rlen + 1 );
             }
 
         }
@@ -137,7 +137,9 @@ int main(int argc, char **argv )
         return -1;  
     }
 
-    int rc = recursive_listdir(argv[1]); 
+    const char* root = argv[1] ;
+
+    int rc = recursive_listdir(root, root); 
 
     return rc ;
 }

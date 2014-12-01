@@ -1,11 +1,20 @@
-
 G4DAEChroma.cpp : ZMQResponder, CUDA kernel call  
 ====================================================
+
 
 Planned C++ implementation of `g4daechroma.py` with few dependencies 
 that just collects photons bytes streams, 
 deserializes into arrays, copies to GPU, runs kernel, 
 copy back, serialize and reply.
+
+
+Progress
+---------
+
+* `chromacpp-` prelim look at directory traversal and reading npy files
+* `--geocache` is now operational, so have the cache 
+
+
 
 Motivation
 -----------
@@ -17,7 +26,6 @@ Motivation
   GPU propagation on same machine at the generation
 
 * speed
-
 
 Dependencies
 -------------

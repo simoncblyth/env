@@ -147,13 +147,34 @@ bool Database::Prepare(const char* sql, sqlite3_stmt** statement )
    return rc == SQLITE_OK ;
 }
 
-
-int Database::Exec(const char* sql)
+int Database::ExecI(const char* sql, int param)
 {
    sqlite3_stmt* statement;
    bool ok = Prepare( sql, &statement ); 
    if(!ok) return -1 ;
 
+   int rc = sqlite3_bind_int( statement, 1, param );
+   if (rc != SQLITE_OK )
+   {
+       const char* err = sqlite3_errmsg(m_db);
+       fprintf(stderr, "Database::ExecI sqlite3_bind_int error with sql %s : %s \n", sql, err );
+       return -1 ; 
+   }
+   return Exec(sql, statement);
+}
+
+int Database::Exec(const char* sql)
+{
+
+   sqlite3_stmt* statement;
+   bool ok = Prepare( sql, &statement ); 
+   if(!ok) return -1 ;
+   return Exec(sql, statement);
+}
+
+
+int Database::Exec(const char* sql, sqlite3_stmt* statement)
+{
    int ncol = sqlite3_column_count(statement);
    if(m_debug > 0) printf("Database::Exec %s ncol %d \n", sql, ncol );
 
@@ -399,7 +420,17 @@ void Database::Insert(const char* table, Map_t& map)
     if(!t) return ; 
 
     std::string insert = t->InsertStatement(map);
-    this->Exec(insert.c_str());
+    int rc = this->Exec(insert.c_str());
+    if(rc != 0)
+    {
+        printf("Database::Insert into table %s failed \n", table );
+        for(Map_t::iterator it=map.begin() ; it!=map.end() ; it++)
+        {
+            printf(" %20s : %s \n", it->first.c_str(), it->second.c_str()) ;
+        } 
+    }
+
+
 }
 void Database::Select(const char* table)
 {

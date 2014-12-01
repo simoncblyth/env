@@ -35,6 +35,19 @@ After a ~20min in Safari, Terminal, Sys Prefs a whole gig of GPU memory is gone:
     memory free              738.7M
     delta:~ blyth$ 
 
+After sleeping during lunch, 1G of VRAM frees up::
+
+    delta:env blyth$ cuda_info.sh
+    timestamp                Mon Dec  1 14:55:09 2014
+    tag                      default
+    name                     GeForce GT 750M
+    compute capability       (3, 0)
+    memory total             2.1G
+    memory used              440.8M
+    memory free              1.7G
+    delta:env blyth$ 
+
+
 
 Pragmatic Solution
 ------------------

@@ -4,6 +4,7 @@
 import os, sys, logging
 log = logging.getLogger(__name__)
 import numpy as np
+import glumpy as gp
 from glumpy.window import event as window_event
 
 from daetrackball import DAETrackball
@@ -102,6 +103,10 @@ class DAEScene(window_event.EventDispatcher):
         self.progpoint = True
 
         self.solids = []    # selected solids
+
+        # highlight volumes via subvbo
+        self.touch_index = None
+        self.touch_mesh = None
 
         # bookmark 0 : corresponding to launch viewpoint 
         self.bookmarks.create_for_solid(self.view.solid, 0)
@@ -242,20 +247,38 @@ class DAEScene(window_event.EventDispatcher):
         In target mode this jumps to a new view of clicked solid, from a default viewpoint.  
         This is jarring as usually does not match the viewpoint from which the click was made.
         """ 
-        #log.debug("clicked_point click %s  target_mode %s " % (repr(click), target_mode)) 
+        log.debug("clicked_point click %s  target_mode %s " % (repr(click), target_mode)) 
         self.event.clicked_point( click )
 
         solid = self.pick_solid(click)
+        if solid:
+            log.debug("touched solid.index %s solid.solidindex %s " % (solid.index,solid.solidindex))
+            self.update_touch_mesh(solid.solidindex) 
+        else:
+            log.debug("null solid")
+
         view = None
         if target_mode:
-            log.info("as target mode changing view to the new solid, index %s " % solid.index )
+            log.debug("as target mode changing view to the new solid, index %s " % solid.index )
             view = self.target_view( solid.index , prior=None )
         pass
         if view is None:
             log.debug("view unchanged by clicked_point")
         else:
-            log.info("view changed by clicked_point")
+            log.debug("view changed by clicked_point")
             self.update_view(view)
+
+    def update_touch_mesh(self, index, enabled=True):
+        """
+        The touch_mesh is drawn on top of the full one in order
+        to "highlight" touched volumes
+        """
+        if index == self.touch_index or index == -1:pass 
+        log.debug("update_touch_mesh index %s " % index )
+        if enabled:
+            touch_vbo = self.geometry.make_vbo(scale=self.scaled_mode, rgba=self.config.rgba, index=index)
+            self.touch_mesh = gp.graphics.VertexBuffer( touch_vbo.data, touch_vbo.faces )
+        pass
 
     def create_bookmark(self, click, numkey):
         """

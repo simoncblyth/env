@@ -177,7 +177,36 @@ mocknuwa-run(){
 
 }
 
+mocknuwa-npy(){
+   local base=$(dirname $DAE_PATH_TEMPLATE)
+   local path
+   local name
+   local evt
+   for path in $(ls -1 $base/2014*.npy) ; do
+       name=${path/$base\/}
+       evt=${name/.npy/}
+       echo $evt
+   done
+}
+
+mocknuwa-all(){
+  local tag
+  mocknuwa-npy | while read tag ; do
+     echo $tag
+     mocknuwa-run $tag pp
+  done
+}
 
 
+mocknuwa-tableinfo(){
+   echo pragma table_info\(mocknuwa\)\; | sqlite3 -cmd '.header ON' -cmd '.width 5 20 20 5 5' -column $(mocknuwa-db)
+}
 
+mocknuwa-insert-config-(){ cat << EOS
+create table if not exists config (id integer primary key, max_blocks integer, max_steps integer, threads_per_block integer, seed integer, reset_rng_states integer );
+insert into config values (NULL, 1024, 30, 64, 0, 1 );
+EOS
+}
+mocknuwa-insert-config(){ $FUNCNAME- | sqlite3 $(mocknuwa-db) ; }
+mocknuwa-config(){ echo select \* from config \; | sqlite3 -cmd '.header ON' -column $(mocknuwa-db) ; }
 

@@ -58,15 +58,15 @@ class DAEDirectPropagator(object):
 
         results = gpu_photons.propagate_hit(gpu_detector, 
                                             self.chroma.rng_states,
-                                            parameters)
+                                            self.chroma.parameters)
 
 
         # pycuda get()s from GPU back into ndarrays and creates NPL, formerly event.Photon instance
-        photons_end = gpu_photons.get(npl=1,hit=parameters['hit'])
+        photons_end = gpu_photons.get(npl=1,hit=self.chroma.parameters['hit'])
         self.photons_end = photons_end
 
         metadata = {}
-        metadata['parameters'] = parameters
+        metadata['parameters'] = self.chroma.parameters
         metadata['results'] = results
         metadata['geometry'] = gpu_detector.metadata
         photons_end.meta = [metadata]

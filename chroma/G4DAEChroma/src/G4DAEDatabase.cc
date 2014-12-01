@@ -45,6 +45,14 @@ int G4DAEDatabase::Query(const char* sql )
     return m_db->Exec(sql); 
 }
 
+int G4DAEDatabase::QueryI(const char* sql, int param )
+{
+    if(!m_db) return -2 ;
+    return m_db->ExecI(sql, param); 
+}
+
+
+
 Map_t G4DAEDatabase::GetRow(std::size_t index)
 {
     Map_t row ;

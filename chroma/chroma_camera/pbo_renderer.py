@@ -12,7 +12,7 @@ import pycuda.driver as cuda
 import pycuda.gpuarray as ga
 
 # hmm isnt this done elsewhere in DAEChromaContext ? maybe needed for standalone test
-import pycuda.gl.autoinit      # excludes use of non-gl autoinit
+#import pycuda.gl.autoinit      # excludes use of non-gl autoinit
 
 from chroma.gpu.tools import get_cu_module, cuda_options
 
