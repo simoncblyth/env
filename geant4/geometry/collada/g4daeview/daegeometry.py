@@ -61,7 +61,12 @@ class DAEMesh(object):
 
         self._index = -1
         self.id = "entiremesh"
+        self.reset() 
 
+    def reset(self):
+        """
+        Reset locally cached calculated values
+        """ 
         self._bounds = None
         self._lower_upper = None
         self._center = None
@@ -70,11 +75,7 @@ class DAEMesh(object):
         self._bounds_extent = None
         self._center_extent = None
 
-    ## access via property allows to override in subclass
-
-    def _get_vertices(self):
-        return self._vertices
-    vertices = property(_get_vertices)
+    vertices = property(lambda self:self._vertices)
     triangles = property(lambda self:self._triangles)
     normals = property(lambda self:self._normals)
 
@@ -189,9 +190,9 @@ class DAECompositeMesh(DAEMesh):
     belongs to constituent meshes and can extract sub-meshes for them.
     Created in DAEGeometry.flatten 
     """
-    def __init__(self, vertices, triangles=[], normals=[], nv=[], nt=[], nn=[], bbox=[], ids=[], indices=[]):
+    def __init__(self, vertices, triangles=[], normals=[], nv=[], nt=[], nn=[], bbox=[], ids=[], indices=[], channels=[]):
         DAEMesh.__init__(self, vertices, triangles, normals )
-        assert len(nv) == len(nt) == len(nn) == len(bbox) + 1 == len(indices) + 1, "length mismatch"
+        assert len(nv) == len(nt) == len(nn) == len(bbox) + 1 == len(indices) + 1 == len(channels) + 1, "length mismatch"
         self.size = len(nv) - 1 
         self.nv = nv
         self.nt = nt
@@ -199,7 +200,7 @@ class DAECompositeMesh(DAEMesh):
         self.bbox = bbox
         self.ids = ids
         self.indices = indices
-        self._nodeindex = None
+        self.channels = channels
 
     def save(self, path_ ):
         """
@@ -214,6 +215,7 @@ class DAECompositeMesh(DAEMesh):
         np.save(path_("bbox"), self.bbox )
         np.save(path_("ids"), self.ids )
         np.save(path_("indices"), self.indices )
+        np.save(path_("channels"), self.channels )
 
     @classmethod
     def load(cls, path_): 
@@ -226,14 +228,19 @@ class DAECompositeMesh(DAEMesh):
         bbox = np.load(path_("bbox"))
         ids = np.load(path_("ids"))
         indices = np.load(path_("indices"))
-        mesh = DAECompositeMesh(vertices, triangles, normals, nv, nt, nn, bbox, ids, indices)
+        channels = np.load(path_("channels"))
+        mesh = DAECompositeMesh(vertices, triangles, normals, nv, nt, nn, bbox, ids, indices, channels)
         log.debug(mesh)
         return mesh
 
     def _set_index(self, index):
         if index >= self.size or index < -1:
             raise IndexError 
-        self._index = index
+
+        if not self._index == index:
+            self.reset()
+            self._index = index
+        pass
     def _get_index(self):
         return self._index
     index = property(_get_index,_set_index)
@@ -291,6 +298,11 @@ class DAECompositeMesh(DAEMesh):
         if i == -1:return None
         return self.ids[i]
 
+    def _get_schannel(self):
+        i = self._index
+        if i == -1:return None
+        return self.channels[i]
+
     def _get_sindice(self):
         i = self._index
         if i == -1:return None
@@ -302,7 +314,7 @@ class DAECompositeMesh(DAEMesh):
         return self.bbox[i]
 
     def _get_subsolid(self):
-        return DAESubSolid(self.vertices.copy(), self.triangles.copy(), self.normals.copy(), self.sindice, self.sid)
+        return DAESubSolid(self.vertices.copy(), self.triangles.copy(), self.normals.copy(), self.sindice, self.sid, self.schannel)
 
 
     # getters that return sub-ranges of underlying arrays based on value of index property
@@ -310,6 +322,7 @@ class DAECompositeMesh(DAEMesh):
     triangles = property(_get_triangles)
     normals = property(_get_normals)
     sid     = property(_get_sid)
+    schannel = property(_get_schannel)
     sindice = property(_get_sindice)
     sbbox   = property(_get_sbbox)
     subsolid = property(_get_subsolid)
@@ -333,8 +346,12 @@ class DAECompositeMesh(DAEMesh):
         if index > self.size:
             raise IndexError
 
+        prior = self.index
         self.index = index
-        return self.subsolid
+        subsolid = self.subsolid
+        self.index = prior
+        return subsolid
+
 
     def indices_for_regexp(self, ptn):
         """
@@ -353,13 +370,15 @@ class DAECompositeMesh(DAEMesh):
 
 
 class DAESubSolid(DAEMesh):
-    def __init__(self, vertices, triangles, normals, sindice, sid ):
+    def __init__(self, vertices, triangles, normals, sindice, sid, schannel):
         DAEMesh.__init__(self, vertices, triangles, normals)
         self.index = sindice   # originating node index
         self.id = sid          # name string, truncated at some length 
+        self.channel = schannel
 
     def __repr__(self):
-        return "{0:6.1f} {1:-5d}  {2:s}".format(self.extent, self.index, self.id) 
+        # py26 needs the positional indices 0,1,2    py27 doesnt 
+        return "{0:6.1f} 0x{1:-7x} {2:-5d}  {3:s}".format(self.extent, self.channel, self.index, self.id) 
     __str__ = __repr__
  
 
@@ -389,6 +408,7 @@ class DAESolid(DAEMesh):
 
         self.index = node.index
         self.id = node.id
+        self.channel = node.channel
         self.node = node   
 
         if not self.check():
@@ -407,7 +427,7 @@ class DAESolid(DAEMesh):
         """
         String repr used on clicking point on OpenGL window to list containing solids
         """
-        return "{0:6.1f} {1:-5d}  {2:s}".format(self.extent, self.index, self.id)    # py26 needs the positional indices 0,1,2    py27 doesnt 
+        return "{0:6.1f} {1:-5d}  {2:s}".format(self.extent, self.index, self.id)    
 
     __str__ = __repr__
        
@@ -530,8 +550,10 @@ class DAEGeometry(object):
     def nodes(self):
         """
         :return: list of DAENode instances
+
+        This does not survive the cache
         """
-        traceback.print_stack()
+        #traceback.print_stack()
         return [solid.node for solid in self.solids] 
 
     def find_solid(self, target ):
@@ -548,8 +570,8 @@ class DAEGeometry(object):
 
         if target == "..":                  # entire mesh 
             self.mesh.index = -1
-            #solid = self.mesh  
-            solid = self.oldmesh  
+            solid = self.mesh  
+            #solid = self.oldmesh  
         elif target[0] == "+" or target[0] == "-":            # relative addressing 
             solid = self.find_solid_by_index(int(target)) 
         else:                                               # absolute addressing
@@ -647,25 +669,26 @@ class DAEGeometry(object):
         ids = np.empty((len(self.solids),),np.dtype((np.str_,idmaxlen)))
         bbox = np.empty((len(self.solids),6))    
         indices = np.empty((len(self.solids),),dtype=np.uint32)    
+        channels = np.empty((len(self.solids),),dtype=np.uint32)    
 
         for i, solid in enumerate(self.solids):
             bbox[i] = solid.lower_upper
             ids[i] = solid.id   # tail chars > idmaxlen are truncated
             indices[i] = solid.index
+            channels[i] = solid.channel
 
 
         log.debug('Flattening %s DAESolid into one DAEMesh...' % len(self.solids))
         assert len(self.solids) > 0, "failed to find solids, MAYBE EXCLUDED BY -g/--geometry option ? try \"-g 0:\" or \"-g 1:\" "
 
-        oldmesh = DAEMesh(vertices, triangles, normals)
-        mesh = DAECompositeMesh(vertices, triangles, normals, nv, nt, nn, bbox, ids, indices)
+        mesh = DAECompositeMesh(vertices, triangles, normals, nv, nt, nn, bbox, ids, indices, channels)
         
         log.info("flatten nsolids %s into mesh: %s " % (len(self.solids),repr(mesh)))
         self.mesh = mesh 
 
-    def _get_oldmesh(self):
-        return DAEMesh(self.mesh._vertices, self.mesh._triangles, self.mesh._normals)        
-    oldmesh = property(_get_oldmesh)
+    #def _get_oldmesh(self):
+    #    return DAEMesh(self.mesh._vertices, self.mesh._triangles, self.mesh._normals)        
+    #oldmesh = property(_get_oldmesh)
 
     def containing_solids(self, xyz ):
         """
@@ -719,6 +742,8 @@ class DAEGeometry(object):
     def make_vbo(self,scale=False, rgba=(0.7,0.7,0.7,0.5)):
         if self.mesh is None:
             self.flatten() 
+
+        self.mesh.index = -1
         if scale:
             vertices = (self.mesh.vertices - self.mesh.center)/self.mesh.extent
         else:

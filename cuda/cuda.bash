@@ -9,8 +9,34 @@ CUDA
 ======
 
 
+
+version available
+------------------
+
+From system prefs::
+
+    Available: CUDA 6.5.18 Driver update is available
+
+
 versions
 ---------
+
+::
+
+   Current: CUDA Driver Version: 5.5.47
+             GPU Driver Version: 8.26.26 310.40.45f01
+
+    delta:~ blyth$ cuda-
+    delta:~ blyth$ nvcc -V
+    nvcc: NVIDIA (R) Cuda compiler driver
+    Copyright (c) 2005-2013 NVIDIA Corporation
+    Built on Thu_Sep__5_10:17:14_PDT_2013
+    Cuda compilation tools, release 5.5, V5.5.0
+    delta:~ blyth$ 
+
+
+installer pkginfo
+~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -19,15 +45,6 @@ versions
     CUDA Driver
     CUDA Toolkit
     CUDA Samples
-
-
-::
-
-    delta:~ blyth$ nvcc -V
-    nvcc: NVIDIA (R) Cuda compiler driver
-    Copyright (c) 2005-2013 NVIDIA Corporation
-    Built on Thu_Sep__5_10:17:14_PDT_2013
-    Cuda compilation tools, release 5.5, V5.5.0
 
 
 syslog : Understanding XID Errors
@@ -118,6 +135,30 @@ bandwidthTest
 
     Result = PASS
     delta:~ blyth$
+
+
+
+Profiling
+-----------
+
+nvvp and nsight
+~~~~~~~~~~~~~~~~~~
+
+::
+
+    delta:doc blyth$ nvvp
+    Unable to find any JVMs matching architecture "i386".
+    No Java runtime present, try --request to install.
+    No Java runtime present, requesting install.
+
+    delta:doc blyth$ which nsight
+    /Developer/NVIDIA/CUDA-5.5/bin/nsight
+    delta:doc blyth$ nsight
+    Unable to find any JVMs matching architecture "i386".
+    No Java runtime present, try --request to install.
+    No Java runtime present, requesting install.
+    delta:doc blyth$ 
+
 
 
 

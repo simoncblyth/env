@@ -315,9 +315,9 @@ def main():
     rmenu = DAEMenu("rtop", backend=rmenu_glut)
     config.rmenu = rmenu
 
-    log.info("************  DAEGeometry.get ")
+    #log.info("************  DAEGeometry.get ")
     geometry = DAEGeometry.get(config)
-    log.info("************  DAEGeometry.get DONE ")
+    #log.info("************  DAEGeometry.get DONE ")
 
     if config.args.ipython:
         g = geometry

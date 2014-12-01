@@ -390,6 +390,7 @@ class DAENode(object):
             #if index % 100 == 0:
             #    print index, node.channel_id, node, node.__class__
 
+    channel = property(lambda self:getattr(self, 'channel_id', 0)) 
 
     @classmethod
     def add_sensitive_surfaces(cls, matid='__dd__Materials__Bialkali', qeprop='EFFICIENCY'):
@@ -435,6 +436,7 @@ class DAENode(object):
             skin = SkinSurface.sensitive(name=ssid, surfaceproperty=surf, volumeref=volumeref )
             cls.add_extra_skinsurface(skin)
         pass
+
 
 
     @classmethod

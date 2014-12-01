@@ -390,6 +390,7 @@ class DAEInteractivityHandler(object):
         self.redraw()
 
     def on_mouse_press(self, x, y, button):
+        #log.info("on_mouse_press %d " % button)
         if button != 2:print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
         xyz = self.frame_handler.unproject(x,y)
         if xyz is None:

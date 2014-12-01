@@ -43,12 +43,13 @@ def pycuda_init(gl=False):
 
     if gl:
         def _ctx_maker(dev):
-            # ? how to set flags for gl ?
-            return cudagl.make_context(dev)
+            flags = cuda.ctx_flags.MAP_HOST
+            log.info("pycuda_init cudagl.make_context with flags %s " % flags )
+            return cudagl.make_context(dev, flags)
     else:  
         def _ctx_maker(dev):
             flags = cuda.ctx_flags.MAP_HOST
-            log.info("pycuda_init _ctx_maker with flags %s " % flags )
+            log.info("pycuda_init non-gl make_context with flags %s " % flags )
             return dev.make_context(flags)
 
 
@@ -62,6 +63,7 @@ def pycuda_init(gl=False):
         Hmm this only gets done for clean exits 
         https://docs.python.org/2/library/atexit.html
         """
+        print "_finish_up : cuda cleanup " 
         global context
         context.pop()
         context = None

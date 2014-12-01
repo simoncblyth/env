@@ -8,6 +8,59 @@ Is this due to bad actors not cleaning up their CUDA Contexts ?
 
 * does host thread death automatically cleanup any CUDA contexts that were openend ?
 
+Running with OSX in normal GUI mode
+-------------------------------------
+
+Immediately after restart with Finder, Safari and Terminal::
+
+    delta:~ blyth$ cuda_info.sh
+    timestamp                Mon Dec  1 13:25:26 2014
+    tag                      default
+    name                     GeForce GT 750M
+    compute capability       (3, 0)
+    memory total             2.1G
+    memory used              447.8M
+    memory free              1.7G
+    delta:~ blyth$ 
+
+After a ~20min in Safari, Terminal, Sys Prefs a whole gig of GPU memory is gone::
+
+    delta:~ blyth$ cuda_info.sh
+    timestamp                Mon Dec  1 13:42:33 2014
+    tag                      default
+    name                     GeForce GT 750M
+    compute capability       (3, 0)
+    memory total             2.1G
+    memory used              1.4G
+    memory free              738.7M
+    delta:~ blyth$ 
+
+
+Pragmatic Solution
+------------------
+
+* run in ">console" mode when you need maximum GPU memory 
+* for GUI usage, restart the machine often to ensure will have enough GPU memory 
+
+  * TODO: add a GPU memory configurable minimum to g4daeview.py, it will try to 
+    run with mapped/pinned host memory but the performance is factor 3-4 lower that 
+    when sufficient memory to go GPU resident 
+
+
+OSX VRAM 
+-----------
+
+* https://forums.adobe.com/thread/1326404
+
+  * some Adobe raycaster, running into VRAM pressure
+
+* http://www.anandtech.com/show/2804
+* http://arstechnica.com/apple/2005/04/macosx-10-4/13/
+
+  * abouts OSX VRAM usage, number of open windows matters
+
+* retina screen support is presumably eating lots of VRAM 
+
 
 Running without GUI using ">console" login
 ---------------------------------------------

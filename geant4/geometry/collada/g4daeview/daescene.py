@@ -45,7 +45,7 @@ class DAEScene(window_event.EventDispatcher):
 
         if self.config.args.with_chroma:
             from daechromacontext import DAEChromaContext     
-            self.chroma = DAEChromaContext( config, chroma_geometry )
+            self.chroma = DAEChromaContext( config, chroma_geometry, gl=1 )
         else:
             self.chroma = DAEChromaContextDummy()
         pass
@@ -242,7 +242,7 @@ class DAEScene(window_event.EventDispatcher):
         In target mode this jumps to a new view of clicked solid, from a default viewpoint.  
         This is jarring as usually does not match the viewpoint from which the click was made.
         """ 
-
+        #log.debug("clicked_point click %s  target_mode %s " % (repr(click), target_mode)) 
         self.event.clicked_point( click )
 
         solid = self.pick_solid(click)
