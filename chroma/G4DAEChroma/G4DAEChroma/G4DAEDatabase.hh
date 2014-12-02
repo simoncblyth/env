@@ -16,8 +16,10 @@ public:
 public:
     // into DB
     void Insert(G4DAEMetadata* metadata);
+
 public:
-    // from DB
+    // low level DB access : with no DB table assumptions
+    Map_t GetOne(const char* sql, int id);
     Map_t GetRow(std::size_t index=0);
     int Query(const char* sql );   // returns rowcount, or negative for error
     int QueryI(const char* sql, int param );  

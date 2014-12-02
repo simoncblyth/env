@@ -98,6 +98,8 @@ class DAEPhotons(object):
         self.mode = event.config.args.mode    
 
         self.propagator = DAEPhotonsPropagator(self, event.scene.chroma, debug=int(event.config.args.debugkernel) ) if self.interop else None
+
+        # hmm max_slots can now be changed per batch  
         self.analyzer = DAEPhotonsAnalyzer(self.config.args.max_slots)
         self.tpropagated = DAEPhotonsPropagated( None, self.config.args.max_slots )
 
@@ -230,14 +232,17 @@ class DAEPhotons(object):
 
         propagated = vbo.read()
 
+        if self.config.args.analyze:
+            self.analyzer( propagated )
+            self.analyzer.check_history()
 
-        self.analyzer( propagated )
-
-        if self.config.args.debugpropagate:
-            self.analyzer.write_propagated(self.propagator.ctx.seed, self.event.loaded, wipepropagate=self.config.args.wipepropagate)
+            if self.config.args.debugpropagate:
+                self.analyzer.write_propagated(self.propagator.ctx.seed, self.event.loaded, wipepropagate=self.config.args.wipepropagate)
+            pass
+            self.menuctrl.update_propagated( self.analyzer , special_callback=self.special_callback, msg="from propagate" )    
+        else:
+            log.warn("not analyzing propagated photons")
         pass
-        self.menuctrl.update_propagated( self.analyzer , special_callback=self.special_callback, msg="from propagate" )    
-
 
         nphotons = self.data.nphotons
         last_slot = -2

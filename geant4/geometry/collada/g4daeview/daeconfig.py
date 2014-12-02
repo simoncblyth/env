@@ -104,6 +104,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         defaults['debugpropagate'] = True
         defaults['wipepropagate'] = False
         defaults['debugphoton'] = 0
+        defaults['analyze'] = True
 
         defaults['prescale'] = 1
         defaults['max_slots'] = 25
@@ -121,6 +122,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--wipepropagate", action="store_true", help="Wipe preexisting propagated VBO before writing new ones, use this when expect propagates-<seed>.npz to be different due to code changes. Default %(default)s." )
 
         parser.add_argument( "--debugphoton", type=int, help="photon_id to debug in propagate_vbo.cu when --debugkernel is enabled, default %(default)s." )
+        parser.add_argument( "--noanalyze", dest="analyze", action="store_false", help="Analyze propagated photons. Default %(default)s." )
         parser.add_argument( "--prescale", help="Scale down photon array sizes yieled by DAEPhotonsData by subsampling, default %(default)s.", type=int )
         parser.add_argument( "--max-slots", dest="max_slots", help="Blow up photon array and VBO sizes to hold multiple parts of the propagation, default %(default)s.", type=int )
         parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )

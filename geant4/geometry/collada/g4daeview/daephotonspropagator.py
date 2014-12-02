@@ -24,6 +24,7 @@ from operator import mul
 mul_ = lambda _:reduce(mul, _)          # product of elements 
 div_ = lambda num,den:(num+den-1)//den  # int division roundup without iffing 
 
+import pycuda
 import pycuda.driver as cuda_driver
 import pycuda.gpuarray as ga
 
@@ -166,7 +167,13 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
 
                     get_time = self.kernel.prepared_timed_call( grid, block, *args )
 
-                    t = get_time()
+
+                    try:
+                        t = get_time()
+                    except pycuda._driver.LaunchError:
+                        log.warn("got pycuda._driver.LaunchError ")
+                        sys.exit(1) 
+                    pass
                     times.append(t)
                     if t > self.max_time:
                         abort=True

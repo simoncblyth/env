@@ -78,13 +78,12 @@ G4DAEPhotons* MockPhotonList(G4DAETransformCache* cache, std::size_t size)
 }
 
 
-void getintpair( const char* envvar, char delim, int* a, int* b )
+void getintpair( const char* range, char delim, int* a, int* b )
 {
-    const char* val = getenv(envvar);
-    if(!val) return ;
+    if(!range) return ;
 
     std::vector<std::string> elem ;  
-    split(elem, val, delim);
+    split(elem, range, delim);
     assert( elem.size() == 2 );
 
     *a = atoi(elem[0].c_str()) ;
@@ -92,30 +91,52 @@ void getintpair( const char* envvar, char delim, int* a, int* b )
 }
 
 
+
+G4DAEPhotons* prepare_photons(Map_t& batch, G4DAETransformCache* cache)
+{
+    std::string tag = batch[std::string("tag")];
+
+    G4DAEPhotons* all = NULL ;
+    if( strcmp(tag.c_str(),"MOCK") == 0 )
+    {
+        printf("mocknuwa: generating photon list with MockPhotonList\n");
+        all = MockPhotonList( cache, cache->GetSize() );
+    }
+    else
+    {
+        printf("mocknuwa: loading photon list named %s\n", tag.c_str());
+        all = G4DAEPhotons::Load(tag.c_str()); 
+    } 
+
+    assert(all);
+
+    int a = 0 ;
+    int b = 0 ;
+
+
+    getintpair(getenv("RANGE"), ':', &a, &b ); // python style 0:1 => [0]   0:0 means ALL
+
+    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(all, a, b);
+
+    return photons ; 
+}
+
+
 int main(int argc, const char** argv)
 {
-    //
-    //  TODO: move to arguments specifiying one or more 
-    //        primary keys of config and photondata tables in DB
-    // 
-    //        DB select the specified entries as Map_t, these
-    //        are converteted to JSON for transport to propagator
-    //
+    const char* _batch  = "1:2" ; 
+    const char* _config = "1:2" ;  // python style range 
 
-    const char* name = NULL ; 
-    const char* tag  = "hh" ; // eg "hv" for vbo prop, "ha" for array (non-vbo) prop
-    if(argc > 1) name = argv[1] ; 
-    if(argc > 2) tag  = argv[2] ; 
+    if(argc > 1) _batch   = argv[1] ; 
+    if(argc > 2) _config  = argv[2] ; 
 
+    int batch_id[2] ;
+    int config_id[2] ;
+    getintpair( _batch,  ':', batch_id, batch_id+1 );
+    getintpair( _config, ':', config_id, config_id+1 );
 
-    if( name == NULL )
-    {
-       printf("expecting an argument specifying the photons to mockup or load \n");
-       exit(1);
-    }
- 
-    string htag(tag) ;
-    htag += name ; 
+    printf("mocknuwa _batch  %s => %d : %d  \n", _batch, batch_id[0], batch_id[1] ); 
+    printf("mocknuwa _config %s => %d : %d  \n", _config, config_id[0], config_id[1] ); 
 
 
     Mockup_DetDesc_SD();
@@ -138,109 +159,54 @@ int main(int argc, const char** argv)
     G4DAEDatabase*    database = chroma->GetDatabase();
     G4DAETransformCache*  cache = chroma->GetTransformCache();
 
-
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
 
-
-    int config_id = 1 ; 
-    const char* sql = "select * from config where id=? ;" ;
-    int nrow = database->QueryI(sql, config_id); // config_id parameter is bound to the statement
-    Map_t cfg = database->GetRow(0);
-    if(cfg.size() < 2 ){
-        printf("mocknuwa: DB query error OR empty result OR row too small nrow %d sql: %s \n", nrow, sql );
-        exit(1);
-    }
-
-    G4DAEMetadata* ctrl = new G4DAEMetadata("{}");
-    ctrl->AddMap("ctrl", cfg );
-    ctrl->Set("htag", htag.c_str());
-    ctrl->Set("hit", "0");
-    ctrl->Merge("args");
-    ctrl->Print(); 
-
-
-    G4DAEPhotons* all = NULL ;
-    if( strcmp(name,"MOCK") == 0 )
+    for(int cid=config_id[0] ; cid < config_id[1] ; cid++ )
     {
-        printf("mocknuwa: generating photon list with MockPhotonList\n");
-        all = MockPhotonList( cache, cache->GetSize() );
-    }
-    else
-    {
-        printf("mocknuwa: loading photon list named %s\n", name);
-        all = G4DAEPhotons::Load(name); 
-    } 
+        // prepare config
+        Map_t config  = database->GetOne("select * from config  where id=? ;", cid ); assert(!config.empty()); 
+        G4DAEMetadata* ctrl = new G4DAEMetadata("{}");
+        ctrl->AddMap("ctrl", config );
+        ctrl->Set("hit", "0");
+        ctrl->Merge("args");
+        ctrl->Print(); 
 
-    assert(all);
+        for(int bid=batch_id[0] ; bid < batch_id[1] ; bid++ )
+        {
+            // prepare photon data
+            Map_t batch  = database->GetOne("select * from batch  where id=? ;", bid ); assert(!batch.empty()); 
+            G4DAEPhotons* photons = prepare_photons(batch, cache);
 
-    int a = 0 ;
-    int b = 0 ;
-    getintpair( "RANGE", ':', &a, &b ); // python style 0:1 => [0]   0:0 means ALL
-    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(all, a, b);
+            photons->Print("mocknuwa: photons"); 
+            photons->AddLink(ctrl);
 
-    photons->AddLink(ctrl);
+            transport->SetPhotons( photons );
+            chroma->Propagate(bid); 
+            G4DAEPhotons* hits = transport->GetHits(); assert(hits);   // TODO:avoid having to talk to transport
+            hits->Print("mocknuwa: hits___");
 
+            //G4DAEPhotons::Save(hits, htag.c_str());
+            //hits->Print("after save");
 
-    photons->Print("mocknuwa: photons"); 
-    //photons->Details(0); 
+            G4DAESensDet* sd = chroma->GetSensDet();
+            sd->EndOfEvent(HCE); // G4 calls this for hit handling?
+            //G4DAEHitList* hitlist = sd->GetCollector()->GetHits(); 
 
-    transport->SetPhotons( photons );
+            G4DAEMetadata* meta = hits->GetLink();  assert(meta);
 
-    chroma->Propagate(1); // PropagateToHits : <1  fakes the propagation, ie just passes all photons off as hits
+            meta->Set("COLUMNS",  "dphotons:s,dhits:s");
+            meta->Set("dphotons", photons->GetDigest().c_str() );
+            meta->Set("dhits",    hits->GetDigest().c_str() );
+            meta->Merge("caller");  // add "caller" object with these digests to JSON tree
 
-    G4DAEPhotons* hits = transport->GetHits(); assert(hits);
-    hits->Print("mocknuwa: hits___");
+            meta->Print();
+            meta->PrintToFile("/tmp/mocknuwa.json");  // write with a timestamp (and the rowid of the insert) 
 
-    G4DAEPhotons::Save(hits, htag.c_str());
-    hits->Print("after save");
+            meta->SetName("test");   // DB tablename
+            database->Insert(meta); 
 
-
-
-    G4DAESensDet* sd = chroma->GetSensDet();
-    sd->EndOfEvent(HCE); // G4 calls this for hit handling?
-
-
-    // TODO: get rid of hitlist, only thing it adds is local coordinates
-    G4DAEHitList* hitlist = sd->GetCollector()->GetHits(); 
-    if( hitlist )
-    {
-        hitlist->Save( htag.c_str() );
-        hitlist->Print("mocknuwa: hitlist");
-    }
-    else
-    {
-        printf("null hitlist\n");
-    }
-
-
-    G4DAEMetadata* meta = hits->GetLink();
-    if( meta )
-    {
-        meta->Set("htag",     htag.c_str() );
-        meta->Set("dphotons", photons->GetDigest().c_str() );
-        meta->Set("dhits",    hits->GetDigest().c_str() );
-
-        if( hitlist ) meta->Set("dhitlist", hitlist->GetDigest().c_str() );
-
-        meta->Set("COLUMNS",  "htag:s,dphotons:s,dhits:s,dhitlist:s");
-        meta->Merge("caller");  // add "caller" object with these settings to JSON tree
-
-        meta->Print();
-        meta->PrintToFile("/tmp/mocknuwa.json");  // write with a timestamp (and the rowid of the insert) 
-
-        meta->SetName("mocknuwa");   // DB tablename
-        database->Insert(meta); 
-    }
-    else
-    {
-        printf("mocknuwa: meta NULL \n");
-    }
-
-
-    //
-    // TODO: check can extract hitlists from actual collections
-    //       to make connection to standard Geant4 propagation hits 
-    //
+        } // bid
+    }     // cid
 
     return 0 ; 
 }

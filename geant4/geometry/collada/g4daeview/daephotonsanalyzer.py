@@ -125,12 +125,16 @@ class DAEPhotonsPropagated(object):
     def __init__(self, propagated=None, max_slots=10, slot=-1 ):
         self.max_slots = max_slots
         self.slot = int(slot)
-        self._last_index = None
+        self.reset()
         if not propagated is None:
             self(propagated)
 
     def __call__(self, propagated):
+        self.reset()
         self.propagated = propagated
+
+    def reset(self):
+        self._last_index = None
 
     def get_vector(self, field='last_hit_triangle', index=0):
         """
@@ -542,7 +546,7 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         :param propagated: 
         """
         if propagated is None:return
-        log.info("analyzer.__call__ %s ", repr(propagated))
+        log.info("analyzer.__call__ propagated.shape  %s ", repr(propagated.shape))
 
         DAEPhotonsPropagated.__call__(self, propagated)
 

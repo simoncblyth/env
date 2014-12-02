@@ -61,4 +61,15 @@ Map_t G4DAEDatabase::GetRow(std::size_t index)
 }
 
 
+Map_t G4DAEDatabase::GetOne(const char* sql, int id)
+{
+    Map_t row ;
+    int rc = this->QueryI(sql, id); 
+    if( rc > -1 )
+    {
+       row = this->GetRow(0);
+    }
+    return row ; 
+}
+
 

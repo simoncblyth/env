@@ -8,6 +8,11 @@ cuda-usage(){ cat << EOU
 CUDA
 ======
 
+tips to free up GPU memory
+---------------------------
+
+#. minimise the number of apps and windows running
+#. put the machine to sleep and go and have a coffee
 
 
 version available
