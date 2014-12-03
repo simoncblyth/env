@@ -92,32 +92,25 @@ void getintpair( const char* range, char delim, int* a, int* b )
 
 
 
-G4DAEPhotons* prepare_photons(Map_t& batch, G4DAETransformCache* cache)
+G4DAEPhotons* prepare_photons(const char* tag, G4DAETransformCache* cache)
 {
-    std::string tag = batch[std::string("tag")];
-
     G4DAEPhotons* all = NULL ;
-    if( strcmp(tag.c_str(),"MOCK") == 0 )
+    if( strcmp(tag,"MOCK") == 0 )
     {
         printf("mocknuwa: generating photon list with MockPhotonList\n");
         all = MockPhotonList( cache, cache->GetSize() );
     }
     else
     {
-        printf("mocknuwa: loading photon list named %s\n", tag.c_str());
-        all = G4DAEPhotons::Load(tag.c_str()); 
+        printf("mocknuwa: loading photon list named %s\n", tag);
+        all = G4DAEPhotons::Load(tag); 
     } 
-
     assert(all);
 
     int a = 0 ;
     int b = 0 ;
-
-
     getintpair(getenv("RANGE"), ':', &a, &b ); // python style 0:1 => [0]   0:0 means ALL
-
     G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(all, a, b);
-
     return photons ; 
 }
 
@@ -150,12 +143,6 @@ int main(int argc, const char** argv)
           "" ); // config 
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-
-    // TODO: simplify API, so normal operations all done through "chroma" instance ?
-    //       reposition photons and hits outside transport 
-    //
-
-    G4DAETransport*   transport = chroma->GetTransport();
     G4DAEDatabase*    database = chroma->GetDatabase();
     G4DAETransformCache*  cache = chroma->GetTransformCache();
 
@@ -165,45 +152,56 @@ int main(int argc, const char** argv)
     {
         // prepare config
         Map_t config  = database->GetOne("select * from config  where id=? ;", cid ); assert(!config.empty()); 
-        G4DAEMetadata* ctrl = new G4DAEMetadata("{}");
-        ctrl->AddMap("ctrl", config );
-        ctrl->Set("hit", "0");
-        ctrl->Merge("args");
-        ctrl->Print(); 
+        G4DAEMetadata* req = new G4DAEMetadata(config, "ctrl");
 
         for(int bid=batch_id[0] ; bid < batch_id[1] ; bid++ )
         {
+
             // prepare photon data
-            Map_t batch  = database->GetOne("select * from batch  where id=? ;", bid ); assert(!batch.empty()); 
-            G4DAEPhotons* photons = prepare_photons(batch, cache);
+            Map_t batch  = database->GetOne("select * from batch  where id=? ;", bid ); 
+            assert(!batch.empty()); 
+            const char* tag = batch[std::string("tag")].c_str();
+
+            G4DAEPhotons* photons = prepare_photons(tag, cache);
+
+            req->SetKV("args", "COLUMNS", "config_id:i,batch_id:i,tag:s,hit:i,dphotons:s");
+            req->SetKV("args", "config_id", cid );
+            req->SetKV("args", "batch_id",  bid );
+            req->SetKV("args", "tag",  tag );
+            req->SetKV("args", "hit",  0 );
+            req->SetKV("args", "dphotons",  photons->GetDigest().c_str() );
+            req->Print(); 
 
             photons->Print("mocknuwa: photons"); 
-            photons->AddLink(ctrl);
+            photons->AddLink(req);
 
-            transport->SetPhotons( photons );
-            chroma->Propagate(bid); 
-            G4DAEPhotons* hits = transport->GetHits(); assert(hits);   // TODO:avoid having to talk to transport
+            G4DAEPhotons* hits = chroma->Propagate(bid, photons); assert(hits);  
             hits->Print("mocknuwa: hits___");
 
-            //G4DAEPhotons::Save(hits, htag.c_str());
-            //hits->Print("after save");
+            // TODO:consistency asserts on response metadata
 
-            G4DAESensDet* sd = chroma->GetSensDet();
-            sd->EndOfEvent(HCE); // G4 calls this for hit handling?
-            //G4DAEHitList* hitlist = sd->GetCollector()->GetHits(); 
+            G4DAEMetadata* rep = hits->GetLink();  assert(rep);
 
-            G4DAEMetadata* meta = hits->GetLink();  assert(meta);
+            std::string check_cid = rep->Get("args", "config_id");
+            printf("check_cid %s \n", check_cid.c_str());
 
-            meta->Set("COLUMNS",  "dphotons:s,dhits:s");
-            meta->Set("dphotons", photons->GetDigest().c_str() );
-            meta->Set("dhits",    hits->GetDigest().c_str() );
-            meta->Merge("caller");  // add "caller" object with these digests to JSON tree
+            rep->Set("COLUMNS",  "config_id:i,batch_id:i,dphotons:s,dhits:s");
+            rep->Set("config_id", cid);
+            rep->Set("batch_id",  bid);
+            rep->Set("dhits",     hits->GetDigest().c_str() );
+            rep->Merge("caller");  // add "caller" object with these digests to JSON tree
 
-            meta->Print();
-            meta->PrintToFile("/tmp/mocknuwa.json");  // write with a timestamp (and the rowid of the insert) 
+            rep->PrintMap("hits js map");
+            rep->Print();
+            rep->PrintToFile("/tmp/mocknuwa.json");  // write with a timestamp (and the rowid of the insert) 
 
-            meta->SetName("test");   // DB tablename
-            database->Insert(meta); 
+            int stat_id = database->Insert(rep, "stat", "config_id,batch_id,tottime,nwork" ); 
+            printf("stat insert %d \n", stat_id);
+
+            //TODO: insert datetime column
+            //
+
+
 
         } // bid
     }     // cid

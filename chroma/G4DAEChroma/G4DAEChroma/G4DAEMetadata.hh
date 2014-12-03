@@ -16,14 +16,17 @@ public:
     typedef std::map<std::string,std::string> Map_t ;
     static const std::string EMPTY ; 
 public:
+    G4DAEMetadata(Map_t& map, const char* name);
     G4DAEMetadata(const char* str);
     G4DAEMetadata(G4DAEBuffer* buffer=NULL);
     virtual ~G4DAEMetadata();
 
 public:
     // set,get manual key value pairs
+    void Set(const char* key, int val );
     void Set(const char* key, const char* val );
     std::string& Get(const char* key);
+    std::string  Get(const char* name, const char* key);
 
     // merge JSON tree parsed from initial string/buffer together 
     // with manual key/values map under new JSON top level object 
@@ -35,9 +38,16 @@ public:
     void AddMap(const char* name, Map_t& map); 
 
 public:
+    // setting into the JSON tree for existing top level object "name" 
+    void SetKV(const char* name, const char* key, const char* val);
+    void SetKV(const char* name, const char* key, int val );
+
+
+public:
     // debugging 
     void PrintToFile(const char* path) const;
     void Print(const char* msg="G4DAEMetadata::Print") const;
+    void PrintMap(const char* msg="G4DAEMetadata::PrintMap");
     void SetString(const char* str);
     std::string GetString() const;
 
@@ -56,8 +66,9 @@ public:
     // Database insertion
     void SetName(const char* name);
     const char* GetName();
-    Map_t GetRowMap();
-    Map_t GetTypeMap();
+    //G4DAEMetadata* SubMeta(const char* name, const char* columns); 
+    Map_t GetRowMap(const char* columns=NULL);
+    Map_t GetTypeMap(const char* columns=NULL);
 
 private:
     Map_t m_kv ;

@@ -51,7 +51,7 @@ class DAEDirectPropagator(object):
         self.chroma.incoming(request)  # do any config contained in request
 
         photons = Photons.from_obj( request, extend=False) # TODO: short circuit this, moving to NPL
-        self.photons_beg = photons
+        #self.photons_beg = photons
 
         gpu_photons = GPUPhotonsHit(photons)        
         gpu_detector = self.chroma.gpu_detector
@@ -60,18 +60,10 @@ class DAEDirectPropagator(object):
                                             self.chroma.rng_states,
                                             self.chroma.parameters)
 
-
         # pycuda get()s from GPU back into ndarrays and creates NPL, formerly event.Photon instance
         photons_end = gpu_photons.get(npl=1,hit=self.chroma.parameters['hit'])
-        self.photons_end = photons_end
-
-        metadata = {}
-        metadata['parameters'] = self.chroma.parameters
-        metadata['results'] = results
-        metadata['geometry'] = gpu_detector.metadata
-        photons_end.meta = [metadata]
-
-        return photons_end
+        #self.photons_end = photons_end
+        return self.chroma.outgoing(photons_end, results)
 
 
     def check_unpropagated_roundtrip(self, cpl, extend=False):

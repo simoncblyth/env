@@ -15,7 +15,7 @@ public:
 
 public:
     // into DB
-    void Insert(G4DAEMetadata* metadata);
+    int Insert(G4DAEMetadata* metadata, const char* name=NULL, const char* columns=NULL);
 
 public:
     // low level DB access : with no DB table assumptions

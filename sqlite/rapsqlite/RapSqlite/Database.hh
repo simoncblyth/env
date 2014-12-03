@@ -59,6 +59,7 @@ public:
    void Insert(const char* table, Map_t& map);
    void Create(const char* tn, const char* spec );
    void Insert(const char* tn, const char* spec );
+   int LastInsertRowId();
 
    void ClearResults();
 

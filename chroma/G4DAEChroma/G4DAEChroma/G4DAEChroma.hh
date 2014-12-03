@@ -20,6 +20,8 @@ class G4DAETransport ;
 class G4DAESensDet ;
 class G4DAETransformCache ;
 class G4DAEDatabase;
+class G4DAEPhotons;
+class G4DAEHitList;
 class G4Track ; 
 class G4Run ;
 
@@ -49,17 +51,30 @@ public:
     void SetDatabase(G4DAEDatabase* database);
     G4DAEDatabase* GetDatabase();
 
+    // from the SensDet collector
+    G4DAEHitList* GetHitList();
 
+public:
+    //  these pass thru to the transport
+    G4DAEPhotons* Propagate(G4int batch_id, G4DAEPhotons* photons);
 
-    void BeginOfRun( const G4Run* run );
-    void EndOfRun(   const G4Run* run );
-    void Note( const char* msg );
+    void SetPhotons(G4DAEPhotons* photons);
+    G4DAEPhotons* GetPhotons();
+
+    void SetHits(G4DAEPhotons* hits);
+    G4DAEPhotons* GetHits();
 
     void ClearAll();
     void CollectPhoton(const G4Track* aPhoton );
 
     // sends collected photons, collects hits recv using SensDet and Geometry for local transforms
     std::size_t Propagate(int batch_id);
+
+
+public:
+    void BeginOfRun( const G4Run* run );
+    void EndOfRun(   const G4Run* run );
+    void Note( const char* msg );
 
  
 private:

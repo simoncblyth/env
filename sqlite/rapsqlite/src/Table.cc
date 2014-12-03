@@ -5,6 +5,7 @@ const char* Table::INTEGER_TYPE = "integer" ;
 const char* Table::FLOAT_TYPE = "real" ;
 const char* Table::STRING_TYPE = "text" ;
 const char* Table::BLOB_TYPE = "blob" ;
+const char* Table::PK = "id integer primary key" ;
 
     
 Table::Table(const char* name) : m_name(name) {}
@@ -87,11 +88,14 @@ Table* Table::FromCreateStatement(const char* sql)
 }
 
 
-std::string Table::CreateStatement()
+std::string Table::CreateStatement(const char* pk)
 {
     assert( m_keys.size() == m_type.size() ); 
     std::stringstream ss ;
     ss << "create table if not exists " << m_name << " (" ; 
+
+    if(pk) ss << pk << "," ;
+
     for(size_t i=0 ; i < m_keys.size() ; ++i )
     {
         ss << m_keys[i] << " " << m_type[i] ;
@@ -101,12 +105,14 @@ std::string Table::CreateStatement()
     return ss.str();  
 }
 
-std::string Table::InsertStatement(Map_t& map)
+std::string Table::InsertStatement(Map_t& map, const char* pk)
 {
     // TODO: binding approaches ? so can do this once and reuse with different binds
 
     std::stringstream ss ;
     ss << "insert into " << m_name << " values(" ;
+    if(pk) ss << "null," ; // auto incrementing PK
+
     for(size_t i=0 ; i < m_keys.size() ; ++i )
     {
        if(map.find(m_keys[i]) != map.end())

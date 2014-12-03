@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <vector>
+#include <string>
 
 #include "cJSON/cJSON.h"
 
@@ -62,18 +63,21 @@ void JS::AddMap(const char* name, Map_t& map)
     Analyse();
 }
 
-Map_t JS::CreateRowMap()
+Map_t JS::CreateRowMap(const char* columns)
 {
-    return CreateMap('r');
+    return CreateMap('r', columns);
 }
 
-Map_t JS::CreateTypeMap()
+Map_t JS::CreateTypeMap(const char* columns)
 {
-    return CreateMap('t');
+    return CreateMap('t', columns);
 }
 
-Map_t JS::CreateMap(char form)
+Map_t JS::CreateMap(char form, const char* columns)
 {
+   std::vector<std::string> cols ;
+   if(columns) split(cols, columns, ','); 
+
     Map_t xmap ; 
     for(Map_t::iterator it=m_map.begin() ; it != m_map.end() ; it++ )
     {
@@ -81,7 +85,19 @@ Map_t JS::CreateMap(char form)
         const char* val = it->second.c_str();
         char look = LookupType(key);
         const char* type = TypeName(look);
-        const char* name = strrchr(key, '/') + 1;
+        const char* name = strrchr(key, '/') + 1;  // keys are full paths within the js tree, this plucks just the basename
+
+        bool select = true ;
+        if(!cols.empty())
+        {
+            select = std::find(cols.begin(), cols.end(), name) != cols.end() ;
+        } 
+        if(!select)
+        {
+           //printf("JS::CreateMap skipping name %s \n", name);
+           continue;
+        }
+
 
         switch(form)
         {
@@ -93,9 +109,8 @@ Map_t JS::CreateMap(char form)
                     break;
         }
     }   
-    //assert( xmap.size() == m_map.size() ); // possibly non-unique name 
 
-    if(xmap.size() != m_map.size())
+    if(xmap.size() != m_map.size() && columns == NULL)
     {
         printf("JS::CreateMap [%c] xmap %zu m_map %zu map size mismatch \n", form, xmap.size(),m_map.size() );
         DumpMap(xmap,  "xmap"); 
@@ -377,6 +392,34 @@ void JS::Recurse(cJSON *item, const char* prefix, const char* wanted )
 
 
 // adding to JS tree
+void JS::SetKV(const char* name, const char* key, const char* val )
+{
+     cJSON* obj = cJSON_GetObjectItem(m_root, name);
+     if(!obj)
+     {
+         obj = cJSON_CreateObject();
+         cJSON_AddItemToObject(m_root,name,obj);
+         printf("JS::SetKV create top level object named %s \n", name);
+     }
+     AddKV(obj, key, val);
+     Analyse();
+}
+
+
+
+std::string JS::Get(const char* name, const char* key)
+{
+     std::string ret ;
+     cJSON* obj  = cJSON_GetObjectItem(m_root, name);
+     if(!obj) return ret ;
+
+     cJSON* item = cJSON_GetObjectItem(obj, name);
+     if(!item) return ret ;
+
+     ret.assign(item->valuestring);
+     return ret ;
+}
+
 
 void JS::AddKV(cJSON* obj, const char* key, const char* val )
 {

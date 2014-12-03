@@ -5,6 +5,9 @@
 #include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAEDatabase.hh"
+#include "G4DAEChroma/G4DAEMetadata.hh"
+#include "G4DAEChroma/G4DAEHitList.hh"
+#include "G4DAEChroma/G4DAECollector.hh"
 
 #include <iostream>
 
@@ -121,12 +124,78 @@ G4DAEDatabase* G4DAEChroma::GetDatabase(){
 
 
 
+G4DAEHitList* G4DAEChroma::GetHitList()
+{
+   G4DAESensDet* sd = GetSensDet(); 
+   return sd->GetCollector()->GetHits(); 
+   // G4DAEHitList only adds local coords compared to G4DAEPhotons
+}
 
+
+
+
+
+
+void G4DAEChroma::SetPhotons(G4DAEPhotons* photons)
+{
+   m_transport->SetPhotons(photons);
+}
+void G4DAEChroma::SetHits(G4DAEPhotons* hits)
+{
+   m_transport->SetHits(hits);
+}
+
+G4DAEPhotons* G4DAEChroma::GetPhotons()
+{
+   return m_transport->GetPhotons();
+}
+G4DAEPhotons* G4DAEChroma::GetHits()
+{
+   return m_transport->GetHits();
+}
 
 void G4DAEChroma::CollectPhoton(const G4Track* track)
 {
    m_transport->CollectPhoton(track);
 }
+
+
+
+G4DAEPhotons* G4DAEChroma::Propagate(G4int batch_id, G4DAEPhotons* photons)
+{
+   m_transport->SetPhotons(photons);
+   std::size_t nhits = this->Propagate(batch_id);
+   return m_transport->GetHits();
+}
+
+
+
+/*
+G4DAEMetadata* G4DAEChroma::CollectMetadata(G4DAEMetadata* callmeta)
+{
+    G4DAEPhotons* photons = m_transport->GetPhotons();
+    G4DAEPhotons* hits = m_transport->GetHits();
+
+    G4DAEMetadata* meta = hits->GetLink();  assert(meta);
+
+    const char* columns = "dphotons:s,dhits:s" ;
+
+    meta->Set("COLUMNS",  columns);
+    meta->Set("dphotons", photons->GetDigest().c_str() );
+    meta->Set("dhits",    hits->GetDigest().c_str() );
+    meta->Set("batch_id", batch_id  );
+
+
+    meta->Merge("caller");  // add "caller" object with these digests to JSON tree
+
+    meta->Print();
+    meta->PrintToFile("/tmp/mocknuwa.json");  // write with a timestamp (and the rowid of the insert) 
+
+    meta->SetName("test");   // DB tablename
+}
+*/
+
+
 
 
 

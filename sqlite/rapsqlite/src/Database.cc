@@ -28,6 +28,12 @@ Database::~Database()
 }
 
 
+int Database::LastInsertRowId()
+{
+    return sqlite3_last_insert_rowid(m_db);
+}
+
+
 void Database::SetDebug(int debug)
 {
     m_debug = debug ;
@@ -402,7 +408,7 @@ void Database::Insert(const char* tn, const char* spec )
     Map_t map = dsplit(spec, ',', ':');
     Insert(tn, map); 
 }
-void Database::Create(const char* tn, Map_t& map )
+void Database::Create(const char* tn, Map_t& map)
 {
     Table* t = new Table(tn);
     t->AddDefinition(map);
@@ -429,9 +435,9 @@ void Database::Insert(const char* table, Map_t& map)
             printf(" %20s : %s \n", it->first.c_str(), it->second.c_str()) ;
         } 
     }
-
-
 }
+
+
 void Database::Select(const char* table)
 {
     Table* t = this->FindTable(table);

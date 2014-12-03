@@ -135,6 +135,9 @@ class DAEChromaContext(object):
             ctrl = {}
             args = {}
         pass
+        self.ctrl = ctrl
+        self.args = args
+
         parameters = self.configure_parameters(ctrl, args, dump=True)
         pass
         if parameters['reset_rng_states']:
@@ -142,6 +145,21 @@ class DAEChromaContext(object):
             self.gpu_seed = parameters['seed']
         pass
         self.parameters = parameters
+
+
+    def outgoing(self, response, results):
+        """
+        :param response: NPL propagated photons
+        :param results: dict of results from the propagation, eg times 
+        """
+        metadata = {}
+        metadata['parameters'] = self.parameters
+        metadata['results'] = results
+        metadata['ctrl'] = self.ctrl
+        metadata['args'] = self.args
+        metadata['geometry'] = self.gpu_detector.metadata
+        response.meta = [metadata]
+        return response
 
 
     def defaults(self):

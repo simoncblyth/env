@@ -27,10 +27,13 @@ public:
 public:
    // primary operations used by G4DAEMetadata
    void AddMap(const char* name, Map_t& map);  // causes a re-analysis
-   Map_t CreateRowMap();
-   Map_t CreateTypeMap();
-   Map_t CreateMap(char form);
+   Map_t CreateRowMap(const char* columns=NULL);
+   Map_t CreateTypeMap(const char* columns=NULL);
+   Map_t CreateMap(char form, const char* columns=NULL);
    std::string AsString(bool pretty=false);
+   void SetKV(const char* name, const char* key, const char* val );
+   std::string Get(const char* name, const char* key);
+
 
 public:
    // secondary

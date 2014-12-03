@@ -9,6 +9,7 @@ public:
    static const char* FLOAT_TYPE;
    static const char* STRING_TYPE;
    static const char* BLOB_TYPE;
+   static const char* PK ;
 
    static std::string ListAllStatement();
    static std::string TableSQLStatement(const char* name);
@@ -26,9 +27,9 @@ public:
 
    virtual ~Table();
 
-   std::string CreateStatement();
+   std::string CreateStatement(const char* pk=PK);
    std::string SelectStatement();
-   std::string InsertStatement(Map_t& map);
+   std::string InsertStatement(Map_t& map, const char* pk=PK);
 
 private:
    std::string m_name ;

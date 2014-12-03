@@ -15,11 +15,13 @@ int main(int argc, char** argv)
 
     js->AddMap("extra", map);
 
+    js->SetKV("parameters", "deviceid", "10");
 
     js->Print();
 
     const char* wanted = argc > 2 ? argv[2] : "" ;
     js->Traverse(wanted);
+
 
 
     delete js;

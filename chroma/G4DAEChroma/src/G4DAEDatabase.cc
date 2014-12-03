@@ -26,17 +26,19 @@ G4DAEDatabase::~G4DAEDatabase()
     delete m_db ; 
 }
 
-void G4DAEDatabase::Insert(G4DAEMetadata* meta)
+int G4DAEDatabase::Insert(G4DAEMetadata* meta, const char* name, const char* columns )
 {
-    if(!meta || !m_db) return;
+    if(!meta || !m_db) return -1;
 
-    const char* name = meta->GetName();
-    Map_t row  = meta->GetRowMap();
-    Map_t type = meta->GetTypeMap();
+    if(!name) name = meta->GetName();
+
+    Map_t row  = meta->GetRowMap(columns);
+    Map_t type = meta->GetTypeMap(columns);
 
     m_db->Create(name, type);  // create table if not existing 
     m_db->Insert(name, row);   
 
+    return m_db->LastInsertRowId();
 }
 
 int G4DAEDatabase::Query(const char* sql )
