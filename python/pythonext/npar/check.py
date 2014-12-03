@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+from _npar import npar as q 
 
-import _npar
-print _npar.npar("yo")
+a = q("select tottime from test ;")
+print a 
 
 
 

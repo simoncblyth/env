@@ -19,6 +19,35 @@ Numpy Array Handling Extensions
 * http://docs.scipy.org/doc/numpy/user/c-info.how-to-extend.html
 * http://blog.enthought.com/python/numpy-arrays-with-pre-allocated-memory/
 
+npar : pull numpy ndarray out of sqlite3 queries 
+--------------------------------------------------
+
+#. build with *pythonext-build* 
+
+   * installs into /usr/local/env/python/lib *pythonext-libdir*
+
+#. hook that up to the chroma virtual python by adding 
+   that directory to /usr/local/env/chroma_env/lib/python2.7/site-packages/easy-install.pth
+
+#. import into ipython using *ipython-edit* adding to execlines
+   *from _npar import npar as q*
+
+
+ipython.sh::
+
+    Python profile: g4dae
+
+    In [1]: a = q("select oid, nwork, tottime from test ;")
+    npar: envvar SQLITE3_DATABASE:/usr/local/env/nuwa/mocknuwa.db ncol 3 nrow 48 type f  fbufmax 1000  
+
+    In [2]: a
+    Out[2]: 
+    array([[    1.   ,   445.   ,     0.07 ],
+           [    2.   ,    24.   ,     0.013],
+           [    3.   ,  1888.   ,     0.222],
+
+
+
 
 Building
 ---------
@@ -116,7 +145,7 @@ pythonext-libdir(){ echo $LOCAL_BASE/env/python/lib ; }
 pythonext-tmpdir(){ echo /tmp/env/python/pythonext/$(pythonext-name) ; }
 pythonext-build(){
    pythonext-cd
-   python setup.py build_ext --build-lib $(pythonext-libdir) --build-temp $(pythonext-tmpdir)
+   python setup.py build_ext -g --build-lib $(pythonext-libdir) --build-temp $(pythonext-tmpdir)
    pythonext-check
 }
 pythonext-import(){
@@ -124,8 +153,10 @@ pythonext-import(){
    PYTHONPATH=$(pythonext-libdir) python -c "import _${name}"
 }
 pythonext-check(){
-   PYTHONPATH=$(pythonext-libdir) python $(pythonext-sdir)/check.py 
+   PYTHONPATH=$(pythonext-libdir) $LLDB python $(pythonext-sdir)/check.py 
 }
 
-
+pythonext-lldb(){
+   LLDB=lldb pythonext-check
+}
 
