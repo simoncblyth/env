@@ -148,7 +148,7 @@ Add tail::
 
     delta:chroma_env blyth$ tail -10 bin/geant4.sh
 
-# SCB extra
+    # SCB extra
     xercesc_library=/opt/local/lib/libxerces-c.dylib 
     if [ -f "${xercesc_library}" ]; then 
        export XERCESC_INCLUDE_DIR=/opt/local/include

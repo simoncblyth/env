@@ -4,6 +4,7 @@ chroma
 
 .. toctree::
 
+   G4DAEChroma/index
    chroma_issues
    chroma_intersection
    chroma 

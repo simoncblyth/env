@@ -9,7 +9,7 @@ Geant4 Geometry Export
    exports
    vrml2/index
    collada/index
-   daeserver/index
+   g4daeserver/index
    xdae/index
    xdaefile/index
    gdml/index

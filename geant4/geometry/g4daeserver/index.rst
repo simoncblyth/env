@@ -4,5 +4,5 @@ daeserver
 
 .. toctree::
 
-   daeserver
+   g4daeserver
 

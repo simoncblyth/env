@@ -123,15 +123,14 @@ G4DAEDatabase* G4DAEChroma::GetDatabase(){
 
 
 
-
+#ifdef DEBUG_HITLIST
 G4DAEHitList* G4DAEChroma::GetHitList()
 {
    G4DAESensDet* sd = GetSensDet(); 
    return sd->GetCollector()->GetHits(); 
    // G4DAEHitList only adds local coords compared to G4DAEPhotons
 }
-
-
+#endif
 
 
 

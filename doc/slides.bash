@@ -31,16 +31,17 @@ Checking configured settings
 -------------------------------
 
 *slides-info*
-           echos the paths/names in use
+    echos the paths/names in use
 
 *slides-get 0 15*
-*slides-get 0 0*   first page only 
-           capture PNGs per page, crop the chrome, convert PNGs into PDF
+    capture PNGs per page, crop the chrome, convert PNGs into PDF
+    BEFORE USING MOVE ASIDE THE PRIOR CAPTURES MANUALLY::
 
-           BEFORE USING MOVE ASIDE THE PRIOR CAPTURES MANUALLY::
+        delta:~ blyth$ slides-cd ..
+        delta:presentation blyth$ mv gpu_optical_photon_simulation gpu_optical_photon_simulation_apr28
 
-                delta:~ blyth$ slides-cd ..
-                delta:presentation blyth$ mv gpu_optical_photon_simulation gpu_optical_photon_simulation_apr28
+*slides-get 0 0*   
+    first page only 
 
 
 Creating HTML slides from S5 Restructured Text Sources

@@ -87,6 +87,7 @@ Contents:
    hg/index
    simoncblyth.bitbucket.org/index
    numpy/index
+   presentation/index
 
 
 

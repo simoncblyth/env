@@ -39,10 +39,6 @@ Current Approach Aiming at
   standard DsPmtSensDet hit collections using TrojanSensDet approach  
 
 
-Functionality by class
-------------------------
-
-
 
 Ultimate photon list compression approach 
 ------------------------------------------

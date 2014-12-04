@@ -111,16 +111,25 @@ Pulled out the default geometry nodeselection, but not geo specific starting eye
 Live Updating Test
 --------------------
 
-#. start the "worker" with ZMQ tunnel node specified as the SSH config "alias" of the node 
-   on which the broker is running::
+
+worker
+~~~~~~~~
+
+Start the "worker" with ZMQ tunnel node specified as the SSH config "alias" of the node
+on which the broker is running
+
+::
 
    g4daeview.sh --zmqtunnelnode=N       # starts up within a few seconds
 
-#. start the "client" on N::
- 
+
+client
+~~~~~~~
+
+Start the "client" on N::
+
    csa.sh    # takes several minutes to get going, currently only 100 events
 
-   
 The "worker" can be stopped and started whilst the "client" runs and 
 new live ChromaPhotonList are presented as they are simulated and ZMQ
 transported. Use auto-created bookmark 9 to find them.

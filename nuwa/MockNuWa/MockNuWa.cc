@@ -139,6 +139,9 @@ int main(int argc, const char** argv)
 
     Mockup_DetDesc_SD();
 
+
+    // initializing G4DAEChroma
+
     DsChromaRunAction_BeginOfRunAction(
          "G4DAECHROMA_CLIENT_CONFIG", 
          "G4DAECHROMA_CACHE_DIR", 

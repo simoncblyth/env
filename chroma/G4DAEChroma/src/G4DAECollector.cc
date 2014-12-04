@@ -13,12 +13,17 @@
 using namespace std;
 
 
-G4DAECollector::G4DAECollector() : m_hits(NULL)
+G4DAECollector::G4DAECollector() 
+#ifdef DEBUG_HITLIST
+   : m_hits(NULL)
+#endif
 {
 }
 G4DAECollector::~G4DAECollector()
 {
+#ifdef DEBUG_HITLIST
    delete m_hits ; 
+#endif
 }
 
 

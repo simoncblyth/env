@@ -119,10 +119,11 @@ eliminate geometry code as :red:`just one code path`.
 :small:`Replacing Geant4 OP Simulation with GPU equivalent`
 -------------------------------------------------------------------------- 
 
-* Recreate Geometry/Material/Surface properties on GPU  
+* Recreate Geometry/Material/Surface + PmtId properties on GPU  
 
-  * export from Geant4 into DAE 3D files, **G4DAE**
-  * parse **G4DAE** file into external geometry tree **g4daenode.py** 
+  * export Geant4 volumes into triangulated DAE 3D files, **G4DAE** 
+  * export per volume PmtId to **idmap**
+  * parse **G4DAE** and **idmap** file into external geometry tree **g4daenode.py** 
   * convert tree into Chroma geometry on the GPU **collada_to_chroma.py**
 
 * Optical Photon handling (Geant4 side) **G4DAEChroma**
@@ -130,7 +131,8 @@ eliminate geometry code as :red:`just one code path`.
   * collect all optical photons into batches and kill them
     to prevent further G4 processing 
   * serialize batch and send bytes via ZMQ to separate propagator process/thread
-  * deserialize response bytes into hits    
+  * deserialize response bytes into hits
+  * apply local sensor transform obtained from transform cache    
   * collect hits into standand Geant4 hit collections
   * subsequent simulation proceeds normally  
 

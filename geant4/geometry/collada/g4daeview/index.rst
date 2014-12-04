@@ -29,8 +29,8 @@ g4daeview
    g4daeview_ideas
    g4daeview_architecture
    g4daeview_issues
-
-
+   g4daeview_nan_abort_photon
+   simplify
  
 
 

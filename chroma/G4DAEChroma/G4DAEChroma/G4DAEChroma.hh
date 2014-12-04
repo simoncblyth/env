@@ -21,9 +21,12 @@ class G4DAESensDet ;
 class G4DAETransformCache ;
 class G4DAEDatabase;
 class G4DAEPhotons;
-class G4DAEHitList;
 class G4Track ; 
 class G4Run ;
+
+#ifdef DEBUG_HITLIST
+class G4DAEHitList;
+#endif
 
 class G4DAEChroma 
 {
@@ -51,8 +54,10 @@ public:
     void SetDatabase(G4DAEDatabase* database);
     G4DAEDatabase* GetDatabase();
 
+#ifdef DEBUG_HITLIST
     // from the SensDet collector
     G4DAEHitList* GetHitList();
+#endif
 
 public:
     //  these pass thru to the transport
