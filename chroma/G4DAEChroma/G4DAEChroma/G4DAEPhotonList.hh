@@ -11,6 +11,7 @@
 
 class G4DAEArray ;
 class G4DAEMetadata ; 
+class G4DAETransformCache ;
 
 class G4DAEPhotonList : public G4DAEPhotons  {
 
@@ -19,6 +20,7 @@ class G4DAEPhotonList : public G4DAEPhotons  {
   static const char* KEY ;
 
 public:
+  G4DAEPhotonList* Slice( int a, int b );
   G4DAEPhotonList( G4DAEPhotons* arr, int a=0, int b=0 );
   G4DAEPhotonList( G4DAEArray* arr );
   G4DAEPhotonList( std::size_t itemcapacity = 0, float* data = NULL);

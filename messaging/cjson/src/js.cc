@@ -63,17 +63,24 @@ void JS::AddMap(const char* name, Map_t& map)
     Analyse();
 }
 
+
+
+Map_t JS::CreateSubMap(const char* wanted)
+{
+    return CreateMap('r', NULL, wanted);
+}
+
 Map_t JS::CreateRowMap(const char* columns)
 {
-    return CreateMap('r', columns);
+    return CreateMap('r', columns, NULL);
 }
 
 Map_t JS::CreateTypeMap(const char* columns)
 {
-    return CreateMap('t', columns);
+    return CreateMap('t', columns, NULL);
 }
 
-Map_t JS::CreateMap(char form, const char* columns)
+Map_t JS::CreateMap(char form, const char* columns, const char* wanted)
 {
    std::vector<std::string> cols ;
    if(columns) split(cols, columns, ','); 
@@ -92,9 +99,22 @@ Map_t JS::CreateMap(char form, const char* columns)
         {
             select = std::find(cols.begin(), cols.end(), name) != cols.end() ;
         } 
+
+        if(wanted)
+        {  
+            if(wanted[0] == '/') // absolute: match all "wanted" from start 
+            {  
+                select = strncmp( key, wanted, strlen(wanted)) == 0  ;
+            }
+            else   // relative: match "wanted" from end
+            {
+                select = strncmp( key + strlen(key) - strlen(wanted), wanted, strlen(wanted)) == 0  ;
+            }
+        }
+
+
         if(!select)
         {
-           //printf("JS::CreateMap skipping name %s \n", name);
            continue;
         }
 
@@ -110,7 +130,7 @@ Map_t JS::CreateMap(char form, const char* columns)
         }
     }   
 
-    if(xmap.size() != m_map.size() && columns == NULL)
+    if(xmap.size() != m_map.size() && columns == NULL && wanted == NULL)
     {
         printf("JS::CreateMap [%c] xmap %zu m_map %zu map size mismatch \n", form, xmap.size(),m_map.size() );
         DumpMap(xmap,  "xmap"); 
@@ -310,9 +330,9 @@ void JS::AddMapKV( const char* key, const char* val )
     m_map[k] = v ;
 }
 
-Map_t& JS::GetMap()
+Map_t JS::GetMap(const char* wanted)
 {
-    return m_map ; 
+    return wanted ? CreateSubMap(wanted) : m_map ;
 }
 
 
@@ -323,7 +343,7 @@ void JS::Visit(cJSON *item, const char* prefix, const char* wanted )
 {
     if(m_verbosity > 1) DumpItem(item, prefix);
 
-    if(m_mode == 0 )
+    if(m_mode == 0 )  // just plucking sentinel strings ie COLUMNS with sqlite type info
     {
         if(item->type == cJSON_String ) AddMapKV(prefix, item->valuestring );
         return;
@@ -399,14 +419,14 @@ void JS::SetKV(const char* name, const char* key, const char* val )
      {
          obj = cJSON_CreateObject();
          cJSON_AddItemToObject(m_root,name,obj);
-         printf("JS::SetKV create top level object named %s \n", name);
+         //printf("JS::SetKV create top level object named %s \n", name);
      }
      AddKV(obj, key, val);
      Analyse();
 }
 
 
-
+/*
 std::string JS::Get(const char* name, const char* key)
 {
      std::string ret ;
@@ -419,6 +439,8 @@ std::string JS::Get(const char* name, const char* key)
      ret.assign(item->valuestring);
      return ret ;
 }
+*/
+
 
 
 void JS::AddKV(cJSON* obj, const char* key, const char* val )

@@ -9,6 +9,19 @@
 using namespace std ; 
 
 
+void G4DAESensDet::MockupSD(const char* name, G4DAECollector* collector)
+{
+   G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+   //SDMan->SetVerboseLevel( 10 );
+
+   G4DAESensDet* sd = new G4DAESensDet(name,"");
+   sd->SetCollector(collector);  
+   sd->initialize();
+   SDMan->AddNewDetector( sd );
+}
+
+
+
 G4DAESensDet* G4DAESensDet::MakeSensDet(const string& name, const string& target )
 {
     if ( target.empty() ) return new G4DAESensDet(name, target);

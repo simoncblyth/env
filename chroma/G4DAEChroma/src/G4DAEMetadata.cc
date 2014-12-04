@@ -75,7 +75,7 @@ void G4DAEMetadata::Set(const char* key, const char* val )
         return ;
     }
 
-    printf("G4DAEMetadata::Set key %s val %s \n", key,val);
+    //printf("G4DAEMetadata::Set key %s val %s \n", key,val);
  
     string k(key);
     string v(val);
@@ -86,14 +86,6 @@ std::string& G4DAEMetadata::Get(const char* key)
     string k(key);
     return ( m_kv.find(k) == m_kv.end()) ? m_kv[EMPTY] : m_kv[k] ;
 }
-
-
-std::string G4DAEMetadata::Get(const char* name, const char* key)
-{
-    std::string emp ;
-    return m_js ? m_js->Get(name, key) : emp ; 
-}
-
 
 
 
@@ -120,6 +112,18 @@ void G4DAEMetadata::AddMap(const char* name, Map_t& map)
     if(!m_js) return ;
     m_js->AddMap(name, map);
 } 
+
+Map_t G4DAEMetadata::GetMap(const char* wanted)
+{
+    Map_t emp ;
+    return m_js ? m_js->GetMap(wanted) : emp ;
+} 
+
+void G4DAEMetadata::DumpMap(Map_t& map, const char* msg)
+{
+    JS::DumpMap(map, msg);
+} 
+
 
 void G4DAEMetadata::PrintMap(const char* msg)
 {

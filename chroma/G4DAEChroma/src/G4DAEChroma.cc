@@ -8,6 +8,11 @@
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEHitList.hh"
 #include "G4DAEChroma/G4DAECollector.hh"
+#include "G4DAEChroma/G4DAEPhotons.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
+
+#include "G4ThreeVector.hh"
+#include "G4AffineTransform.hh"
 
 #include <iostream>
 
@@ -219,5 +224,45 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
 
 
 
+
+
+G4DAEPhotons* G4DAEChroma::GenerateMockPhotons()
+{
+    G4DAETransformCache* cache = GetTransformCache();
+    if(!cache) return NULL ; 
+    size_t size = cache->GetSize();
+
+
+    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(size);
+
+    G4ThreeVector lpos(0,0,1500) ;  
+    G4ThreeVector ldir(0,0,-1) ;
+    G4ThreeVector lpol(0,0,1) ; 
+    const float time = 1. ;
+    const float wavelength = 550. ;
+
+    size_t count = 0 ;
+    for( size_t index = 0 ; index < cache->GetSize() ; ++index ) // cache contains affine transforms for all PMTs
+    {
+        if( index % 1 == 0 && count < size )
+        {
+            int pmtid = cache->GetKey(index);
+
+            G4AffineTransform* pg2l = cache->GetSensorTransform(pmtid);
+            assert(pg2l);
+
+            G4AffineTransform g2l(*pg2l);
+            G4AffineTransform l2g(g2l.Inverse());
+           
+            G4ThreeVector gpos(l2g.TransformPoint(lpos));
+            G4ThreeVector gdir(l2g.TransformAxis(ldir));
+            G4ThreeVector gpol(l2g.TransformAxis(lpol));
+
+            photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
+            count++ ;
+        }
+    } 
+    return photons ; 
+}
 
 

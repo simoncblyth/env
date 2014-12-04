@@ -76,6 +76,8 @@ cjs-cmake(){
 cjs-verbose(){ echo  1 ; }
 cjs-make(){
    local iwd=$PWD
+   [ ! -d "$(cjs-bdir)" ] && echo needs cjs-build-full first && return 
+
    cjs-bcd
    make $* VERBOSE=$(cjs-verbose)
    cd $iwd

@@ -9,138 +9,61 @@
 #include "G4DAEChroma/G4DAEDatabase.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 
-
 #include "DybG4DAECollector.h"
 
 #include "G4SDManager.hh"
 
-class ITouchableToDetectorElement ;
-
 
 using namespace std ;
 #include <iostream>
+#include <sstream>
+
+class ITouchableToDetectorElement ;
 
 #define NOT_NUWA 1
 #include "DsChromaRunAction_BeginOfRunAction.icc"
 
 
-void Mockup_DetDesc_SD()
+
+template<typename T>
+std::string toStr(const T& value)
 {
-   G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-   //SDMan->SetVerboseLevel( 10 );
-
-   G4DAESensDet* sd1 = new G4DAESensDet("DsPmtSensDet","");
-   sd1->SetCollector(new DybG4DAECollector );  
-   sd1->initialize();
-   SDMan->AddNewDetector( sd1 );
-
-   G4DAESensDet* sd2 = new G4DAESensDet("DsRpcSensDet","");
-   sd2->SetCollector(new DybG4DAECollector );  
-   sd2->initialize();
-   SDMan->AddNewDetector( sd2 );
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
 }
-
-
-
-G4DAEPhotons* MockPhotonList(G4DAETransformCache* cache, std::size_t size)
-{
-    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(size);
-
-    G4ThreeVector lpos(0,0,1500) ;  
-    G4ThreeVector ldir(0,0,-1) ;
-    G4ThreeVector lpol(0,0,1) ; 
-    const float time = 1. ;
-    const float wavelength = 550. ;
-
-    size_t count = 0 ;
-    for( size_t index = 0 ; index < cache->GetSize() ; ++index ) // cache contains affine transforms for all PMTs
-    {
-        if( index % 1 == 0 && count < size )
-        {
-            int pmtid = cache->GetKey(index);
-
-            G4AffineTransform* pg2l = cache->GetSensorTransform(pmtid);
-            assert(pg2l);
-
-            G4AffineTransform g2l(*pg2l);
-            G4AffineTransform l2g(g2l.Inverse());
-           
-            G4ThreeVector gpos(l2g.TransformPoint(lpos));
-            G4ThreeVector gdir(l2g.TransformAxis(ldir));
-            G4ThreeVector gpol(l2g.TransformAxis(lpol));
-
-            photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
-            count++ ;
-        }
-    } 
-
-    return photons ; 
-}
-
-
-void getintpair( const char* range, char delim, int* a, int* b )
-{
-    if(!range) return ;
-
-    std::vector<std::string> elem ;  
-    split(elem, range, delim);
-    assert( elem.size() == 2 );
-
-    *a = atoi(elem[0].c_str()) ;
-    *b = atoi(elem[1].c_str()) ;
-}
-
-
-G4DAEPhotons* prepare_photons(const char* tag)
-{
-    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-    G4DAETransformCache*  cache = chroma->GetTransformCache();
-
-    G4DAEPhotons* all = NULL ;
-    if( strcmp(tag,"MOCK") == 0 )
-    {
-        printf("mocknuwa: generating photon list with MockPhotonList\n");
-        all = MockPhotonList( cache, cache->GetSize() );
-    }
-    else
-    {
-        printf("mocknuwa: loading photon list named %s\n", tag);
-        all = G4DAEPhotons::Load(tag); 
-    } 
-    assert(all);
-
-    int a = 0 ;
-    int b = 0 ;
-    getintpair(getenv("RANGE"), ':', &a, &b ); // python style 0:1 => [0]   0:0 means ALL
-    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(all, a, b);
-    return photons ; 
-}
-
-
 
 
 
 int main(int argc, const char** argv)
 {
+    // python style ranges 
     const char* _batch  = "1:2" ; 
-    const char* _config = "1:2" ;  // python style range 
+    const char* _ctrl = "1:2" ;           
+    const char* _range  = getenv("RANGE") ;
 
     if(argc > 1) _batch   = argv[1] ; 
-    if(argc > 2) _config  = argv[2] ; 
+    if(argc > 2) _ctrl  = argv[2] ; 
 
     int batch_id[2] ;
-    int config_id[2] ;
+    int ctrl_id[2] ;
+    int range[2] = {0} ;
+
     getintpair( _batch,  ':', batch_id, batch_id+1 );
-    getintpair( _config, ':', config_id, config_id+1 );
+    getintpair( _ctrl, ':', ctrl_id, ctrl_id+1 );
+    getintpair( _range, ':', range, range+1 ); 
 
     printf("mocknuwa _batch  %s => %d : %d  \n", _batch, batch_id[0], batch_id[1] ); 
-    printf("mocknuwa _config %s => %d : %d  \n", _config, config_id[0], config_id[1] ); 
+    printf("mocknuwa _ctrl   %s => %d : %d  \n", _ctrl, ctrl_id[0], ctrl_id[1] ); 
+    printf("mocknuwa _range %s => %d : %d  \n", _range, range[0], range[1] ); 
 
 
-    Mockup_DetDesc_SD();
+    // setup Geant4 SDs like NuWa/DetDesc does
 
+    G4DAESensDet::MockupSD("DsPmtSensDet", new DybG4DAECollector );
+    G4DAESensDet::MockupSD("DsRpcSensDet", new DybG4DAECollector );
 
-    // initializing G4DAEChroma
+    // initializing G4DAEChroma, including hooking up trojan SD
 
     DsChromaRunAction_BeginOfRunAction(
          "G4DAECHROMA_CLIENT_CONFIG", 
@@ -148,65 +71,75 @@ int main(int argc, const char** argv)
          "DsPmtSensDet" , 
          "G4DAECHROMA_DATABASE_PATH", 
           NULL, 
-          "" ); // config 
+          "" ); 
+
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
     G4DAEDatabase*    database = chroma->GetDatabase();
 
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
 
-    for(int cid=config_id[0] ; cid < config_id[1] ; cid++ )
+
+    for(int cid=ctrl_id[0] ; cid < ctrl_id[1] ; cid++ )
     {
-        // prepare config
-        Map_t config  = database->GetOne("select * from config  where id=? ;", cid ); assert(!config.empty()); 
-        G4DAEMetadata* req = new G4DAEMetadata(config, "ctrl");
+        Map_t ctrl  = database->GetOne("select * from ctrl  where id=? ;", cid ); assert(!ctrl.empty()); 
 
         for(int bid=batch_id[0] ; bid < batch_id[1] ; bid++ )
         {
+            // prepare photon data and link metadata
 
-            // prepare photon data
-            Map_t batch  = database->GetOne("select * from batch  where id=? ;", bid ); 
+            Map_t batch  = database->GetOne("select id batch_id, path, tag from batch where id=? ;", bid ); 
             assert(!batch.empty()); 
-            const char* tag = batch[std::string("tag")].c_str();
+            std::string tag = batch["tag"];
 
-            G4DAEPhotons* photons = prepare_photons(tag);
+            G4DAEPhotons* all = G4DAEPhotons::LoadPath( batch["path"].c_str() );
+            G4DAEPhotons* photons = all->Slice(range[0], range[1]);
+            delete all ;
 
-            req->SetKV("args", "COLUMNS", "config_id:i,batch_id:i,tag:s,hit:i,dphotons:s");
-            req->SetKV("args", "config_id", cid );
-            req->SetKV("args", "batch_id",  bid );
-            req->SetKV("args", "tag",  tag );
-            req->SetKV("args", "hit",  0 );
-            req->SetKV("args", "dphotons",  photons->GetDigest().c_str() );
+            Map_t args ;
+            args["COLUMNS"] = "config_id:i,batch_id:i,tag:s,hit:i,dphotons:s,nphotons:i";
+            args["ctrl_id"] = toStr<int>(cid) ; 
+            args["batch_id"] = toStr<int>(bid) ; 
+
+            args["hit"] = toStr<int>(0) ;   // 1:reply with only hits, 0:reply with all 
+            args["dphotons"] = photons->GetDigest() ;
+            args["nphotons"] = toStr<int>(photons->GetCount()) ;
+
+
+            G4DAEMetadata* req = new G4DAEMetadata("{}") ;
+            req->AddMap("ctrl", ctrl);
+            req->AddMap("batch", batch);
+            req->AddMap("args", args);
             req->Print(); 
-
-            photons->Print("mocknuwa: photons"); 
             photons->AddLink(req);
 
-            G4DAEPhotons* hits = chroma->Propagate(bid, photons); assert(hits);  
+            // doing the propagation 
+
+            G4DAEPhotons* hits = chroma->Propagate(bid, photons); 
+
+            G4DAEMetadata* rep = hits->GetLink();  
             hits->Print("mocknuwa: hits___");
 
-            // TODO:consistency asserts on response metadata
+            Map_t mhits ; 
+            mhits["dhits"] = hits->GetDigest();
+            mhits["nhits"] = toStr<int>(hits->GetCount());
+            rep->AddMap("mhits", mhits); 
 
-            G4DAEMetadata* rep = hits->GetLink();  assert(rep);
+            //rep->Set("COLUMNS",  "config_id:i,batch_id:i,dphotons:s,dhits:s");
+            //rep->Set("config_id", cid);
+            //rep->Set("batch_id",  bid);
+            //rep->Set("dhits",     hits->GetDigest().c_str() );
+            //rep->Merge("caller");  // add "caller" object with these digests to JSON tree
 
-            std::string check_cid = rep->Get("args", "config_id");
-            printf("check_cid %s \n", check_cid.c_str());
-
-            rep->Set("COLUMNS",  "config_id:i,batch_id:i,dphotons:s,dhits:s");
-            rep->Set("config_id", cid);
-            rep->Set("batch_id",  bid);
-            rep->Set("dhits",     hits->GetDigest().c_str() );
-            rep->Merge("caller");  // add "caller" object with these digests to JSON tree
-
-            rep->PrintMap("hits js map");
             rep->Print();
-            rep->PrintToFile("/tmp/mocknuwa.json");  // write with a timestamp (and the rowid of the insert) 
+            rep->PrintToFile("/tmp/mocknuwa.json");  
+            // write with a timestamp (and the rowid of the insert) 
+
 
             int stat_id = database->Insert(rep, "stat", "config_id,batch_id,tottime,nwork" ); 
             printf("stat insert %d \n", stat_id);
 
             //TODO: insert datetime column
-            //
 
 
 

@@ -30,6 +30,12 @@ G4DAEChromaPhotonList* G4DAEChromaPhotonList::LoadPath(const char* path, const c
 }
 
 
+G4DAEChromaPhotonList* G4DAEChromaPhotonList::Slice( int a, int b )
+{
+    return new G4DAEChromaPhotonList( this, a, b );
+}
+
+
 
 
 
@@ -38,11 +44,14 @@ G4DAEChromaPhotonList::G4DAEChromaPhotonList(ChromaPhotonList* cpl) : m_buffer(N
 {
 }
 
-G4DAEChromaPhotonList::G4DAEChromaPhotonList(G4DAEPhotons* src) : m_buffer(NULL), m_cpl(NULL)
+
+G4DAEChromaPhotonList::G4DAEChromaPhotonList( G4DAEPhotons* src, int a, int b ) : m_buffer(NULL), m_cpl(NULL)
 {
-   m_cpl = new ChromaPhotonList ; 
-   G4DAEPhotons::Transfer( this, src );  
-}
+    m_cpl = new ChromaPhotonList ; 
+    G4DAEPhotons::Transfer( this, src, a, b );
+} 
+
+
 
 
 G4DAEChromaPhotonList::G4DAEChromaPhotonList(std::size_t /*itemcapacity*/) : m_buffer(NULL), m_cpl(NULL)

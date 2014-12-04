@@ -17,7 +17,7 @@ public:
     static const std::string EMPTY ; 
 public:
     G4DAEMetadata(Map_t& map, const char* name);
-    G4DAEMetadata(const char* str);
+    G4DAEMetadata(const char* str );
     G4DAEMetadata(G4DAEBuffer* buffer=NULL);
     virtual ~G4DAEMetadata();
 
@@ -26,7 +26,6 @@ public:
     void Set(const char* key, int val );
     void Set(const char* key, const char* val );
     std::string& Get(const char* key);
-    std::string  Get(const char* name, const char* key);
 
     // merge JSON tree parsed from initial string/buffer together 
     // with manual key/values map under new JSON top level object 
@@ -42,6 +41,10 @@ public:
     void SetKV(const char* name, const char* key, const char* val);
     void SetKV(const char* name, const char* key, int val );
 
+public:
+    // read from JSON tree
+    Map_t GetMap(const char* wanted);
+    static void DumpMap(Map_t& map, const char* msg);
 
 public:
     // debugging 

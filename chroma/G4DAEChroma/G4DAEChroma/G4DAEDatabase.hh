@@ -1,12 +1,10 @@
 #ifndef G4DAEDATABASE_H
 #define G4DAEDATABASE_H
 
-#include <string>
-#include <map>
-typedef std::map<std::string,std::string>  Map_t ;
-
 class Database ;
 class G4DAEMetadata ; 
+
+#include "G4DAEChroma/G4DAEMap.hh"
 
 class G4DAEDatabase {
 public:

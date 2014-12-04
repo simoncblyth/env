@@ -162,13 +162,13 @@ mocknuwa-tableinfo(){
    echo pragma table_info\(mocknuwa\)\; | sqlite3 -cmd '.header ON' -cmd '.width 5 20 20 5 5' -column $(mocknuwa-db)
 }
 
-mocknuwa-insert-config-(){ cat << EOC
-create table if not exists config (id integer primary key, max_blocks integer, max_steps integer, threads_per_block integer, seed integer, reset_rng_states integer );
-insert into config values (NULL, 1024, 30, 64, 0, 1 );
+mocknuwa-insert-ctrl-(){ cat << EOC
+create table if not exists ctrl (id integer primary key, max_blocks integer, max_steps integer, threads_per_block integer, seed integer, reset_rng_states integer );
+insert into ctrl values (NULL, 1024, 30, 64, 0, 1 );
 EOC
 }
-mocknuwa-insert-config(){ $FUNCNAME- | sqlite3 $(mocknuwa-db) ; }
-mocknuwa-select-config(){ echo select \* from config \; | sqlite3 -cmd '.header ON' -column $(mocknuwa-db) ; }
+mocknuwa-insert-ctrl(){ $FUNCNAME- | sqlite3 $(mocknuwa-db) ; }
+mocknuwa-select-ctrl(){ echo select \* from ctrl \; | sqlite3 -cmd '.header ON' -column $(mocknuwa-db) ; }
 
 
 mocknuwa-insert-batch-(){ 

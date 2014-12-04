@@ -29,6 +29,8 @@ public:
 
 public:
     void CollectHits(G4DAEPhotons* photons, G4DAETransformCache* cache );
+    static void MockupSD(const char* name, G4DAECollector* collector);
+
 
 protected:
     std::string m_target ;

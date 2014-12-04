@@ -27,17 +27,18 @@ public:
 public:
    // primary operations used by G4DAEMetadata
    void AddMap(const char* name, Map_t& map);  // causes a re-analysis
+   Map_t CreateSubMap(const char* wanted);
    Map_t CreateRowMap(const char* columns=NULL);
    Map_t CreateTypeMap(const char* columns=NULL);
-   Map_t CreateMap(char form, const char* columns=NULL);
+   Map_t CreateMap(char form, const char* columns=NULL, const char* wanted=NULL);
    std::string AsString(bool pretty=false);
    void SetKV(const char* name, const char* key, const char* val );
-   std::string Get(const char* name, const char* key);
+   //std::string Get(const char* name, const char* key);
 
 
 public:
    // secondary
-   void DumpMap(Map_t& map, const char* msg);
+   static void DumpMap(Map_t& map, const char* msg);
    void Print(const char* msg="JS::Print");
    void PrintToFile(const char* path);
    void Traverse(const char* wanted);
@@ -48,7 +49,7 @@ public:
    void Demo();
    void SetVerbosity(int verbosity);
    int GetVerbosity();
-
+   Map_t GetMap(const char* wanted=NULL);
 
 private:
    // high level internals :  convert from JSON tree into maps
@@ -61,7 +62,6 @@ private:
    // m_map manipulations
    void ClearMap();
    void AddMapKV( const char* key, const char* val );
-   Map_t& GetMap();
 
 private:
    // navigating JS tree
@@ -83,6 +83,7 @@ private:
    void DumpItem( cJSON* item, const char* prefix  );
 
 private: 
+   // awkward to work with because too much state, and modes
    cJSON* m_root ; 
    Map_t m_map ;  
    Map_t m_type ;  

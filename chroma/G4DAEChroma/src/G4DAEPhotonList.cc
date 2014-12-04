@@ -2,6 +2,7 @@
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4DAEChroma/G4DAEArray.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
+#include "G4DAEChroma/G4DAETransformCache.hh"
 
 #include "numpy.hpp"
 #include <cassert>
@@ -31,6 +32,11 @@ G4DAEPhotonList::G4DAEPhotonList( G4DAEPhotons* src, int a, int b ) : m_array(NU
     m_array = new G4DAEArray( itemcapacity, SHAPE, NULL );
     G4DAEPhotons::Transfer( this, src, a, b );
 } 
+
+G4DAEPhotonList* G4DAEPhotonList::Slice( int a, int b )
+{
+    return new G4DAEPhotonList( this, a, b );
+}
 
 
 G4DAEPhotonList::~G4DAEPhotonList()
@@ -309,6 +315,7 @@ Out[5]: array([30, 30, 30, ..., 30, 30, 30], dtype=int32)
 
 
 }
+
 
 
 

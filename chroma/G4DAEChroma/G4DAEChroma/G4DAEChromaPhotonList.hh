@@ -21,8 +21,9 @@ class G4DAEChromaPhotonList : public G4DAEPhotons {
   static const char* SHAPE ;  /*not used, here to match NPL*/
 
 public:
+  G4DAEChromaPhotonList* Slice( int a, int b );
   G4DAEChromaPhotonList(ChromaPhotonList* cpl);
-  G4DAEChromaPhotonList(G4DAEPhotons* src);
+  G4DAEChromaPhotonList(G4DAEPhotons* src, int a=0, int b=0 );
   G4DAEChromaPhotonList(std::size_t itemcapacity);
   virtual ~G4DAEChromaPhotonList();
   static G4DAEChromaPhotonList* Load(const char* evt, const char* key=KEY, const char* tmpl=TMPL );

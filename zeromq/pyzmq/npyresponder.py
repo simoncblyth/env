@@ -174,7 +174,12 @@ class NPYResponder(object):
             request = self.socket.recv_npy(copy=False)
 
             if hasattr(request, 'meta'):
-                meta = map(lambda _:json.loads(_), request.meta )
+                try:
+                    meta = map(lambda _:json.loads(_), request.meta )
+                except ValueError:
+                    log.warn("JSON load error for %s " % repr(request.meta))
+                    meta = []
+                pass 
                 request.meta = meta
                 #log.info("NPYResponder converting request.meta to dict %s " % pprint.pformat(request.meta, width=20) )
             pass

@@ -106,6 +106,17 @@ void isplit( vector<int>& elem, const char* line, char delim )
 }
 
 
+void getintpair( const char* range, char delim, int* a, int* b ) 
+{
+    if(!range) return ;
+
+    std::vector<std::string> elem ;   
+    split(elem, range, delim);
+    assert( elem.size() == 2 );
+
+    *a = atoi(elem[0].c_str()) ;
+    *b = atoi(elem[1].c_str()) ;
+}
 
 
 

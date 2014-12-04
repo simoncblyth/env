@@ -76,6 +76,8 @@ public:
     std::size_t Propagate(int batch_id);
 
 
+    G4DAEPhotons* GenerateMockPhotons();
+
 public:
     void BeginOfRun( const G4Run* run );
     void EndOfRun(   const G4Run* run );

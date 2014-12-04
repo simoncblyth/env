@@ -43,6 +43,8 @@ void G4DAEPhotons::Transfer( G4DAEPhotons* dest , G4DAEPhotons* src, int a, int 
    }    
 }
 
+
+
 bool G4DAEPhotons::HasExt(const char* path, const char* ext)
 {
    int plen = strlen(path);

@@ -127,12 +127,12 @@ class DAEChromaContext(object):
 
 
     def incoming(self, request):
-        if hasattr(request, 'meta'):
+        if hasattr(request, 'meta') and len(request.meta)>0:
             ctrl = request.meta[0].get('ctrl',{})
             args = request.meta[0].get('args',{})
         else:
             log.warn("incoming request with no metadata, parameter defaults will be used") 
-            ctrl = {}
+            config = {}
             args = {}
         pass
         self.ctrl = ctrl
