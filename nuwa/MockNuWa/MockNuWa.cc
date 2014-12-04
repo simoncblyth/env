@@ -91,9 +91,11 @@ void getintpair( const char* range, char delim, int* a, int* b )
 }
 
 
-
-G4DAEPhotons* prepare_photons(const char* tag, G4DAETransformCache* cache)
+G4DAEPhotons* prepare_photons(const char* tag)
 {
+    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+    G4DAETransformCache*  cache = chroma->GetTransformCache();
+
     G4DAEPhotons* all = NULL ;
     if( strcmp(tag,"MOCK") == 0 )
     {
@@ -113,6 +115,9 @@ G4DAEPhotons* prepare_photons(const char* tag, G4DAETransformCache* cache)
     G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(all, a, b);
     return photons ; 
 }
+
+
+
 
 
 int main(int argc, const char** argv)
@@ -144,7 +149,6 @@ int main(int argc, const char** argv)
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
     G4DAEDatabase*    database = chroma->GetDatabase();
-    G4DAETransformCache*  cache = chroma->GetTransformCache();
 
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
 
@@ -162,7 +166,7 @@ int main(int argc, const char** argv)
             assert(!batch.empty()); 
             const char* tag = batch[std::string("tag")].c_str();
 
-            G4DAEPhotons* photons = prepare_photons(tag, cache);
+            G4DAEPhotons* photons = prepare_photons(tag);
 
             req->SetKV("args", "COLUMNS", "config_id:i,batch_id:i,tag:s,hit:i,dphotons:s");
             req->SetKV("args", "config_id", cid );

@@ -1,0 +1,152 @@
+
+.. comment 
+
+    Title: 
+
+        GPU Acceleration of Geant4 Simulations of 
+        the Daya Bay Anti-Neutrino Detector
+
+    Abstract:
+
+        Studies of the acceleration of Geant4 based Monte Carlo Simulations 
+        of the Daya Bay anti-neutrino detector using the Chroma GPU 
+        optical photon simulation package are presented. 
+
+        Original open source developments made to bring the 
+        Geant4 simulation context to the GPU are described. 
+        They include a Geant4 geometry exporter package (G4DAE) 
+        and a bridging package (G4DAEChroma) that integrates 
+        external optical photon propagation with standard 
+        Geant4 simulations. The G4DAE geometry exporter 
+        package is planned to be incorporated with the 2015 
+        release of the Geant4 simulation toolkit.
+
+        The export of triangulated geometry data into XML files 
+        following the standard COLLADA 3D specification was 
+        found to allow both massively parallel CUDA based optical 
+        photon propagation and high performance OpenGL 
+        visualizations of geometry and event data.  
+         
+
+ 
+
+.. include:: <s5defs.txt>
+
+.. s5_background_image::
+
+    #
+    # slide titles and background image urls, 
+    # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    #
+    # NB1 slide titles here must match those in body precisely, 
+    # NB2 also ensure all slide titles are unique
+    #
+    # first slide id is exceptionally: slide0, not the mangled title
+    slide0
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+
+
+======================================================================
+GPU Accelerated Geant4 Simulation with G4DAE and Chroma
+======================================================================
+
+.. class:: small
+
+    http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulation.html
+    http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html
+    http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html
+
+.. sidebar:: Drastic 200x Potential Speedup   
+
+   Chroma project claims 200x speedup of optical
+   photon (OP) propagation compared to Geant4. 
+   **A goal worthwhile chasing**.
+
+.. class:: small
+
+   * Geant4 Profiling 
+   * Validating exports
+   * General viewing of exports
+   * Custom use: :red:`bridging to GPU`
+   * OpenGL Viewer implementation
+   * Optical Photon Data handling 
+   * Introducing *Chroma* 
+   * *Chroma* raycasting
+   * *Chroma* photon propagation 
+   * *G4DAE* Exporter status
+   * Conclusion 
+
+   |  Simon C Blyth, Daya Bay Collaboration, National Taiwan University
+   |  **January 2015** 
+
+
+
+
+:small:`Geant4 Profiling`
+--------------------------- 
+
+
+
+Chroma : Ultra-fast Optical Photon (OP) MC
+----------------------------------------------
+
+**Developed by Stan Seibert, University of Pennsylvania.**
+
+Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
+simulating processes like diffuse and specular reflections, 
+refraction, Rayleigh scattering and absorption. Using triangle meshes 
+eliminate geometry code as :red:`just one code path`.
+
+200x performance claim:
+
+   *With a CUDA GPU Chroma has propagated 2.5M photons per second 
+   in a detector with 29k photomultiplier tubes. This is
+   200x faster than GEANT4.*
+
+**BUT:** Chroma needs : :red:`triangles + inside/outside materials`
+
+.. class:: small
+
+   http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
+
+
+
+
+:small:`Replacing Geant4 OP Simulation with GPU equivalent`
+-------------------------------------------------------------------------- 
+
+* Recreate Geometry/Material/Surface properties on GPU  
+
+  * export from Geant4 into DAE 3D files, **G4DAE**
+  * parse **G4DAE** file into external geometry tree **g4daenode.py** 
+  * convert tree into Chroma geometry on the GPU **collada_to_chroma.py**
+
+* Optical Photon handling (Geant4 side) **G4DAEChroma**
+
+  * collect all optical photons into batches and kill them
+    to prevent further G4 processing 
+  * serialize batch and send bytes via ZMQ to separate propagator process/thread
+  * deserialize response bytes into hits    
+  * collect hits into standand Geant4 hit collections
+  * subsequent simulation proceeds normally  
+
+* Optical Photon handling (Chroma side) **g4daechroma.py** **g4daeview.py** **Chroma**
+
+  * receive bytes from message queue, deserialize into Photons
+  * push Photon array to GPU
+  * invoke Chroma/CUDA propagation kernel   
+  * pull propagated photon array back to CPU
+  * serialize propagated photons and reply via ZMQ    
+
+
+
+
+
+
+
+
+

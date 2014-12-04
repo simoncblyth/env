@@ -38,6 +38,12 @@ Current Approach Aiming at
 * HitList deserialized back in Geant4 process, and collected into 
   standard DsPmtSensDet hit collections using TrojanSensDet approach  
 
+
+Functionality by class
+------------------------
+
+
+
 Ultimate photon list compression approach 
 ------------------------------------------
 

@@ -19,7 +19,10 @@ class G4DAETransformCache ;
 
 
 class G4DAEPhotons ; 
+
+#ifdef DEBUG_HITLIST
 class G4DAEHitList ; 
+#endif
 
 class G4DAECollector  {
 
@@ -37,11 +40,17 @@ public:
     virtual void AddSomeFakeHits(const IDVec& sensor_ids);
     virtual void DumpStatistics( G4HCofThisEvent* hce );
     virtual void CollectHits( G4DAEPhotons* photons, G4DAETransformCache* cache );
+
+public:
+#ifdef DEBUG_HITLIST
     G4DAEHitList* GetHits();
+#endif
 
 private:
-    G4DAEHitList* m_hits ;  // for debugging 
 
+#ifdef DEBUG_HITLIST
+    G4DAEHitList* m_hits ;  // for debugging 
+#endif
 
 
 };

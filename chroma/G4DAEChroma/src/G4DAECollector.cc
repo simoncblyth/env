@@ -60,8 +60,10 @@ void G4DAECollector::CollectHits( G4DAEPhotons* photons, G4DAETransformCache* ca
     photons->Print();
 #endif
 
+#ifdef DEBUG_HITLIST
     delete m_hits ;
     m_hits = new G4DAEHitList(size);
+#endif
 
     G4DAEHit hit ;
     for( std::size_t index = 0 ; index < size ; index++ )
@@ -73,15 +75,19 @@ void G4DAECollector::CollectHits( G4DAEPhotons* photons, G4DAETransformCache* ca
 
         this->Collect( hit );
 
+#ifdef DEBUG_HITLIST
         m_hits->AddHit( hit ); 
+#endif
     }   
 }
 
 
+#ifdef DEBUG_HITLIST
 G4DAEHitList* G4DAECollector::GetHits()
 {
    return m_hits ; 
 }
+#endif
 
 void G4DAECollector::AddSomeFakeHits(const IDVec& sensor_ids)
 {
