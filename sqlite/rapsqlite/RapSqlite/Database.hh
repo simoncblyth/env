@@ -55,8 +55,8 @@ public:
    void DumpTableNames();
    void DumpTables();
    void Select(const char* table);
-   void Create(const char* table, Map_t& map);
-   void Insert(const char* table, Map_t& map);
+   void Create(const char* table, Map_t& map, const char* columns=NULL);
+   void Insert(const char* table, Map_t& map, const char* columns=NULL);
    void Create(const char* tn, const char* spec );
    void Insert(const char* tn, const char* spec );
    int LastInsertRowId();

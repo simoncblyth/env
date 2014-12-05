@@ -23,12 +23,39 @@ const char* Table::GetName()
     return m_name.c_str();
 }
 
-void Table::AddDefinition(Map_t& map)
+void Table::AddDefinition(Map_t& map, const char* columns)
 {
-    for(Map_t::iterator it=map.begin() ; it!=map.end(); it++ )
+
+    if(!columns)
     {
-       this->AddColumn( it->first.c_str(), it->second.c_str() ); 
-    }   
+        // default ordering is alphabetic by key 
+        for(Map_t::iterator it=map.begin() ; it!=map.end(); it++ )
+        {
+           this->AddColumn( it->first.c_str(), it->second.c_str() ); 
+        }   
+    }
+    else
+    {
+       // when columns provided order by those
+        typedef std::vector<std::string> Vec_t ;
+        Vec_t cols ;
+        split(cols, columns, ',' );
+
+        for(Vec_t::iterator it=cols.begin() ; it !=cols.end() ; it++)
+        { 
+            std::string key = *it ;
+            if(map.find(key) != map.end())
+            {
+                 std::string val = map[key] ;
+                 this->AddColumn( key.c_str(), val.c_str());  
+            } 
+            else
+            {
+                printf("Table::AddDefinition no column %s in the map\n", key.c_str() );
+            }
+        }
+    }
+
 }
 
 void Table::Dump()
@@ -105,12 +132,28 @@ std::string Table::CreateStatement(const char* pk)
     return ss.str();  
 }
 
+std::string Table::GetColumns(const char* pk)
+{
+    std::stringstream ss ;
+    if(pk) ss << "id," ; 
+    for(size_t i=0 ; i < m_keys.size() ; ++i )
+    {
+        ss << m_keys[i] ;
+        if( i < m_keys.size() - 1 ) ss << "," ; 
+    }
+    return ss.str();  
+}
+
+
+
 std::string Table::InsertStatement(Map_t& map, const char* pk)
 {
     // TODO: binding approaches ? so can do this once and reuse with different binds
 
+    std::string cols = GetColumns(pk);
+
     std::stringstream ss ;
-    ss << "insert into " << m_name << " values(" ;
+    ss << "insert into " << m_name << "(" << cols << ")" << " values(" ;
     if(pk) ss << "null," ; // auto incrementing PK
 
     for(size_t i=0 ; i < m_keys.size() ; ++i )

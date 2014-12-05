@@ -408,10 +408,10 @@ void Database::Insert(const char* tn, const char* spec )
     Map_t map = dsplit(spec, ',', ':');
     Insert(tn, map); 
 }
-void Database::Create(const char* tn, Map_t& map)
+void Database::Create(const char* tn, Map_t& map, const char* columns)
 {
     Table* t = new Table(tn);
-    t->AddDefinition(map);
+    t->AddDefinition(map, columns);  // when non-NULL columns controls ordering  
     this->AddTable(t);
 
     Table* chk = this->FindTable(tn);
@@ -420,7 +420,7 @@ void Database::Create(const char* tn, Map_t& map)
     std::string create = t->CreateStatement();
     this->Exec(create.c_str()); 
 }
-void Database::Insert(const char* table, Map_t& map)
+void Database::Insert(const char* table, Map_t& map, const char* columns)
 {
     Table* t = this->FindTable(table);
     if(!t) return ; 

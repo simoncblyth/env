@@ -16,6 +16,7 @@
 #include <string>
 
 #include "cJSON/cJSON.h"
+#include "cJSON/common.h"
 
 // functions defined at tail
 char* slurp( const char* filename );
@@ -176,10 +177,15 @@ std::string JS::AsString(bool pretty)
     return str; 
 }
 
-void JS::PrintToFile(const char* path)
+void JS::PrintToFile(const char* _path)
 {
+    char* path = strdup(_path);
+    char* base = basepath(path, '/');  // path upto last '/'
+    int mode = 0777 ;
+    int rc = mkdirp( base, mode ); 
+
     char *out = cJSON_Print(m_root);
-    FILE* fp=fopen(path,"w");
+    FILE* fp=fopen(_path,"w");
     if(!fp){
         fprintf(stderr, "JS::PrintToFile failed to open for writing:  %s \n", path);
         return ;
@@ -188,6 +194,7 @@ void JS::PrintToFile(const char* path)
     fprintf(fp,"%s\n", out);
     fclose(fp);
     free(out);
+    free(path); 
 }
 
 void JS::Traverse(const char* wanted)

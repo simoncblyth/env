@@ -39,6 +39,11 @@ extern char* s_recv (void *socket);
 
 void current_time(char* buf, int buflen, const char* tfmt, int utc);
 std::string now(const char* tfmt, const int buflen, int utc);
+int mkdirp(const char* path, int mode);
+char* basepath( const char* _path, char delim );
+
+std::string join(std::vector<std::string>& elem, char delim );
+
 
 
 template<typename T>

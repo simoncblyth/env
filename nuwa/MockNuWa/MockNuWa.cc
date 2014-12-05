@@ -15,9 +15,6 @@
 
 
 
-
-
-
 using namespace std ;
 #include <iostream>
 #include <sstream>
@@ -75,10 +72,8 @@ int main(int argc, const char** argv)
 
     Map_t empty ;
 
-    for(int cid=ctrl_id[0] ; cid < ctrl_id[1] ; cid++ )
-    {
-    for(int bid=batch_id[0] ; bid < batch_id[1] ; bid++ )
-    {
+    for(int cid=ctrl_id[0] ; cid < ctrl_id[1] ; cid++ ){
+    for(int bid=batch_id[0] ; bid < batch_id[1] ; bid++ ){
 
             Map_t ctrl   = database ? database->GetOne("select * from ctrl  where id=? ;", cid ) : empty ; 
             Map_t batch  = database ? database->GetOne("select path, tag from batch where id=? ;", bid ) : empty ; 
@@ -95,7 +90,9 @@ int main(int argc, const char** argv)
             phometa->AddMap("batch", batch);
             phometa->AddMap("args", args);
 
-            G4DAEPhotons* all = G4DAEPhotons::LoadPath( batch["path"].c_str() );
+
+            const char* path = batch["path"].c_str();
+            G4DAEPhotons* all = G4DAEPhotons::LoadPath( path );
             G4DAEPhotons* photons = all->Slice(range[0], range[1]);
 
             args["COLUMNS"] += "dphotons:s,aphotons:i,nphotons:i,arange:i,brange:i";
@@ -113,24 +110,32 @@ int main(int argc, const char** argv)
             G4DAEPhotons* hits = chroma->Propagate(photons);   // propagation + hit collection
 
 
+            G4DAEMetadata* hitmeta = hits->GetLink();  
+
             Map_t mhits ; 
             mhits["COLUMNS"] = "dhits:s,nhits:i,std:i,stddt:s,loc:i,locdt:s";
             mhits["dhits"] = hits->GetDigest();
             mhits["nhits"] = toStr<int>(hits->GetCount());
-
             mhits["std"]   = now("%s", 20, 1 );
             mhits["stddt"] = now("%Y-%m-%d %H:%M:%S", 20, 1);
             mhits["loc"]   = now("%s", 20, 0 );
             mhits["locdt"] = now("%Y-%m-%d %H:%M:%S", 20, 0);
 
-            G4DAEMetadata* hitmeta = hits->GetLink();  
+            
             hitmeta->AddMap("mhits", mhits);         
-
+            
             std::string logfield = "ctrl_id,batch_id,tottime,nwork,std,stddt,loc,locdt" ;
             int log_id = database ? database->Insert(hitmeta, "log", logfield.c_str() ) : 0 ; 
-            const char* logpath = "/tmp/mocknuwa.json" ;  // form a logging path/name for the metadata json
 
+            std::string timestamp = now("%Y%m%d_%H%M%S", 20, 0);
 
+            std::vector<std::string> elem ;
+            elem.push_back(basepath(path,'.'));
+            elem.push_back("v001");
+            elem.push_back(timestamp);
+            elem.push_back("mocknuwa.json");
+            std::string logpath = join(elem, '/'); 
+            
             Map_t mlog ;
             mlog["logfield"] = logfield ;
             mlog["log_id"] = toStr<int>(log_id); 
@@ -138,7 +143,7 @@ int main(int argc, const char** argv)
 
             hitmeta->AddMap("mlog", mlog); 
             hitmeta->Print("#hitmeta");
-            hitmeta->PrintToFile(logpath); 
+            hitmeta->PrintToFile(logpath.c_str()); 
 
 
     } // bid

@@ -35,8 +35,11 @@ int G4DAEDatabase::Insert(G4DAEMetadata* meta, const char* name, const char* col
     Map_t row  = meta->GetRowMap(columns);
     Map_t type = meta->GetTypeMap(columns);
 
-    m_db->Create(name, type);  // create table if not existing 
-    m_db->Insert(name, row);   
+    // std::map<std::string,std::string> iterator order is by key comparison, ie alphabetic
+    // so need to pass columns to control order 
+
+    m_db->Create(name, type, columns);  // create table if not existing 
+    m_db->Insert(name, row, columns);   
 
     return m_db->LastInsertRowId();
 }

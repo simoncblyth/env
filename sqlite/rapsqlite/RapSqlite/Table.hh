@@ -20,9 +20,10 @@ public:
    const char* GetName();
 
    void AddColumn( const char* key, const char* type );
-   void AddDefinition(Map_t& map);
+   void AddDefinition(Map_t& map, const char* columns=NULL);
    void Dump();
 
+   std::string GetColumns(const char* pk=PK);
    std::size_t GetNumColumns();
 
    virtual ~Table();
