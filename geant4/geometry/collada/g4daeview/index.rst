@@ -17,8 +17,6 @@ g4daeview
    material_pair_debug
    propagated_flags_mismatch
    g4daeview_performance
-   g4daechroma_transport_testing
-   g4daechroma_cpp
    photon_marshalling
    g4daeview_propagate_timeouts
    g4daeview_bvh_split
@@ -31,7 +29,10 @@ g4daeview
    g4daeview_issues
    g4daeview_nan_abort_photon
    simplify
- 
+   g4daechroma_transport_testing
+   g4daechroma_memory_leak
+   g4daechroma_cpp
+
 
 
 

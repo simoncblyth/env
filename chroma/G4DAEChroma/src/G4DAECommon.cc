@@ -12,6 +12,8 @@
 #endif
 
 
+#include <unistd.h>
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -290,7 +292,19 @@ int b_recv( void* socket, zmq_msg_t& msg )
     int rc = zmq_msg_init (&msg); 
     assert (rc == 0);
 
-    rc = zmq_msg_recv (&msg, socket, 0);   
+
+    //rc = zmq_msg_recv (&msg, socket, 0);   
+
+    //http://stackoverflow.com/questions/16212526/how-can-i-clean-up-properly-when-recv-is-blocking
+
+    while(-1 == zmq_msg_recv(&msg, socket, ZMQ_DONTWAIT))
+    {
+        if (EAGAIN != errno){
+             break ;
+        }  
+        sleep(1);
+    }
+
 
     if(rc == -1){
         int err = zmq_errno();

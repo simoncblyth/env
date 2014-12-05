@@ -162,29 +162,18 @@ mocknuwa-tableinfo(){
    echo pragma table_info\(mocknuwa\)\; | sqlite3 -cmd '.header ON' -cmd '.width 5 20 20 5 5' -column $(mocknuwa-db)
 }
 
-mocknuwa-insert-ctrl-(){ cat << EOC
-create table if not exists ctrl (id integer primary key, max_blocks integer, max_steps integer, threads_per_block integer, seed integer, reset_rng_states integer );
-insert into ctrl values (NULL, 1024, 30, 64, 0, 1 );
-EOC
+mocknuwa-ctrl-setup(){ 
+   mocknuwa-export
+   python $(mocknuwa-sdir)/ctrl.py $* ; 
 }
-mocknuwa-insert-ctrl(){ $FUNCNAME- | sqlite3 $(mocknuwa-db) ; }
-mocknuwa-select-ctrl(){ echo select \* from ctrl \; | sqlite3 -cmd '.header ON' -column $(mocknuwa-db) ; }
+mocknuwa-ctrl(){  mocknuwa-query ctrl; }
+mocknuwa-batch(){ mocknuwa-query batch; }
+mocknuwa-query(){ echo select \* from ${1:-ctrl} \; |  sqlite3 -cmd '.header ON' -column $(mocknuwa-db) ; }
 
 
-mocknuwa-insert-batch-(){ 
-   local base=$(dirname $DAE_PATH_TEMPLATE)
-   cat << EOD
-      create table if not exists batch (id integer primary key, tag text, path text);
-EOD
-   local tag
-   mocknuwa-npy | while read tag ; do
-       cat << EOI
-       insert into batch values(NULL, "$tag", "$base/${tag}.npy"); 
-EOI
-   done
+mocknuwa-scan(){
+   mocknuwa-runenv 
+   MockNuWa 1:49 1:17
 }
-mocknuwa-insert-batch(){  $FUNCNAME- | sqlite3 $(mocknuwa-db) ; }
-mocknuwa-select-batch(){ echo select \* from batch \; |  sqlite3 -cmd '.header ON' -column $(mocknuwa-db) ; }
-
 
 
