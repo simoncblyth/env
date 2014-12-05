@@ -34,7 +34,6 @@ public:
   static G4DAEPhotons* LoadPath( const char* path , const char* key=KEY);
   static G4DAEPhotons* Load(   const char* name , const char* key=KEY, const char* tmpl=TMPL );
 
-
   static void SavePath( G4DAEPhotonList* photons, const char* path , const char* key=KEY );
   static void SavePath( G4DAEChromaPhotonList* photons, const char* path , const char* key="CPL");
   static void Save( G4DAEPhotons* photons, const char* name, const char* key=KEY, const char* tmpl=TMPL );

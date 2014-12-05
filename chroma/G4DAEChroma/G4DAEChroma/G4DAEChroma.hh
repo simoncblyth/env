@@ -61,7 +61,7 @@ public:
 
 public:
     //  these pass thru to the transport
-    G4DAEPhotons* Propagate(G4int batch_id, G4DAEPhotons* photons);
+    G4DAEPhotons* Propagate(G4DAEPhotons* photons);
 
     void SetPhotons(G4DAEPhotons* photons);
     G4DAEPhotons* GetPhotons();

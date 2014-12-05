@@ -184,7 +184,7 @@ void JS::PrintToFile(const char* path)
         fprintf(stderr, "JS::PrintToFile failed to open for writing:  %s \n", path);
         return ;
     }
-    printf("JS::PrintToFile %s\n",path);
+    //printf("JS::PrintToFile %s\n",path);
     fprintf(fp,"%s\n", out);
     fclose(fp);
     free(out);

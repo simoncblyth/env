@@ -14,6 +14,10 @@ const char* G4DAEPhotons::KEY  = "NPL" ;
 
 // static utility funcs
 
+
+
+
+
 void G4DAEPhotons::Transfer( G4DAEPhotons* dest , G4DAEPhotons* src, int a, int b )
 {
    size_t nphoton = src->GetCount();

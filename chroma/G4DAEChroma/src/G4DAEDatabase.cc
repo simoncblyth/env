@@ -13,7 +13,7 @@ G4DAEDatabase::G4DAEDatabase(const char* envvar) : m_db(NULL)
     const char* path = Database::Path(envvar);
     if( path )
     {
-        cout << "G4DAEDatabase::G4DAEDatabase : INFO : envvar " << envvar << " opening path " << path << endl ; 
+        //cout << "G4DAEDatabase::G4DAEDatabase : INFO : envvar " << envvar << " opening path " << path << endl ; 
         m_db = new Database(envvar);
     }
     else

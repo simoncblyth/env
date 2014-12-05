@@ -5,6 +5,7 @@
 #include "G4AffineTransform.hh"
 
 #include "md5digest.h"
+#include <time.h>   
 
 #ifdef WITH_ZMQ
 #include <zmq.h>
@@ -117,6 +118,29 @@ void getintpair( const char* range, char delim, int* a, int* b )
     *a = atoi(elem[0].c_str()) ;
     *b = atoi(elem[1].c_str()) ;
 }
+
+
+
+
+
+void current_time(char* buf, int buflen, const char* tfmt, int utc)
+{
+   time_t t;
+   time (&t); 
+   struct tm* tt = utc ? gmtime(&t) : localtime(&t) ;
+   strftime(buf, buflen, tfmt, tt);
+}
+
+
+
+std::string now(const char* tfmt, const int buflen, int utc )
+{
+    char buf[buflen];
+    current_time( buf, buflen, tfmt, utc );  
+    return std::string(buf);
+}
+
+
 
 
 

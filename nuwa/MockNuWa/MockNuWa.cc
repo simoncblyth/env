@@ -14,6 +14,10 @@
 #include "G4SDManager.hh"
 
 
+
+
+
+
 using namespace std ;
 #include <iostream>
 #include <sstream>
@@ -22,16 +26,6 @@ class ITouchableToDetectorElement ;
 
 #define NOT_NUWA 1
 #include "DsChromaRunAction_BeginOfRunAction.icc"
-
-
-
-template<typename T>
-std::string toStr(const T& value)
-{
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
-}
 
 
 
@@ -53,9 +47,9 @@ int main(int argc, const char** argv)
     getintpair( _ctrl, ':', ctrl_id, ctrl_id+1 );
     getintpair( _range, ':', range, range+1 ); 
 
-    printf("mocknuwa _batch  %s => %d : %d  \n", _batch, batch_id[0], batch_id[1] ); 
-    printf("mocknuwa _ctrl   %s => %d : %d  \n", _ctrl, ctrl_id[0], ctrl_id[1] ); 
-    printf("mocknuwa _range %s => %d : %d  \n", _range, range[0], range[1] ); 
+    //printf("mocknuwa _batch  %s => %d : %d  \n", _batch, batch_id[0], batch_id[1] ); 
+    //printf("mocknuwa _ctrl   %s => %d : %d  \n", _ctrl, ctrl_id[0], ctrl_id[1] ); 
+    //printf("mocknuwa _range %s => %d : %d  \n", _range, range[0], range[1] ); 
 
 
     // setup Geant4 SDs like NuWa/DetDesc does
@@ -79,72 +73,76 @@ int main(int argc, const char** argv)
 
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
 
+    Map_t empty ;
 
     for(int cid=ctrl_id[0] ; cid < ctrl_id[1] ; cid++ )
     {
-        Map_t ctrl  = database->GetOne("select * from ctrl  where id=? ;", cid ); assert(!ctrl.empty()); 
+    for(int bid=batch_id[0] ; bid < batch_id[1] ; bid++ )
+    {
 
-        for(int bid=batch_id[0] ; bid < batch_id[1] ; bid++ )
-        {
-            // prepare photon data and link metadata
+            Map_t ctrl   = database ? database->GetOne("select * from ctrl  where id=? ;", cid ) : empty ; 
+            Map_t batch  = database ? database->GetOne("select path, tag from batch where id=? ;", bid ) : empty ; 
 
-            Map_t batch  = database->GetOne("select id batch_id, path, tag from batch where id=? ;", bid ); 
-            assert(!batch.empty()); 
-            std::string tag = batch["tag"];
+            Map_t args ;
+            args["COLUMNS"] = "ctrl_id:i,batch_id:i,hit:i,dphotons:s,nphotons:i";
+            args["ctrl_id"] = toStr<int>(cid) ; 
+            args["batch_id"] = toStr<int>(bid) ; 
+            args["hit"] = toStr<int>(0) ;   // 1:reply with only hits, 0:reply with all 
+
+
+            G4DAEMetadata* phometa = new G4DAEMetadata("{}") ;
+            phometa->AddMap("ctrl", ctrl);
+            phometa->AddMap("batch", batch);
+            phometa->AddMap("args", args);
 
             G4DAEPhotons* all = G4DAEPhotons::LoadPath( batch["path"].c_str() );
             G4DAEPhotons* photons = all->Slice(range[0], range[1]);
+
+            args["COLUMNS"] += "dphotons:s,aphotons:i,nphotons:i,arange:i,brange:i";
+            args["dphotons"] = photons->GetDigest() ;
+            args["aphotons"] = toStr<int>(all->GetCount()) ;
+            args["nphotons"] = toStr<int>(photons->GetCount()) ;
+            args["arange"]   = toStr<int>(range[0]) ;
+            args["brange"]   = toStr<int>(range[1]) ;
+
             delete all ;
 
-            Map_t args ;
-            args["COLUMNS"] = "config_id:i,batch_id:i,tag:s,hit:i,dphotons:s,nphotons:i";
-            args["ctrl_id"] = toStr<int>(cid) ; 
-            args["batch_id"] = toStr<int>(bid) ; 
+            phometa->Print("#phometa"); 
+            photons->AddLink(phometa);
 
-            args["hit"] = toStr<int>(0) ;   // 1:reply with only hits, 0:reply with all 
-            args["dphotons"] = photons->GetDigest() ;
-            args["nphotons"] = toStr<int>(photons->GetCount()) ;
+            G4DAEPhotons* hits = chroma->Propagate(photons);   // propagation + hit collection
 
-
-            G4DAEMetadata* req = new G4DAEMetadata("{}") ;
-            req->AddMap("ctrl", ctrl);
-            req->AddMap("batch", batch);
-            req->AddMap("args", args);
-            req->Print(); 
-            photons->AddLink(req);
-
-            // doing the propagation 
-
-            G4DAEPhotons* hits = chroma->Propagate(bid, photons); 
-
-            G4DAEMetadata* rep = hits->GetLink();  
-            hits->Print("mocknuwa: hits___");
 
             Map_t mhits ; 
+            mhits["COLUMNS"] = "dhits:s,nhits:i,std:i,stddt:s,loc:i,locdt:s";
             mhits["dhits"] = hits->GetDigest();
             mhits["nhits"] = toStr<int>(hits->GetCount());
-            rep->AddMap("mhits", mhits); 
 
-            //rep->Set("COLUMNS",  "config_id:i,batch_id:i,dphotons:s,dhits:s");
-            //rep->Set("config_id", cid);
-            //rep->Set("batch_id",  bid);
-            //rep->Set("dhits",     hits->GetDigest().c_str() );
-            //rep->Merge("caller");  // add "caller" object with these digests to JSON tree
+            mhits["std"]   = now("%s", 20, 1 );
+            mhits["stddt"] = now("%Y-%m-%d %H:%M:%S", 20, 1);
+            mhits["loc"]   = now("%s", 20, 0 );
+            mhits["locdt"] = now("%Y-%m-%d %H:%M:%S", 20, 0);
 
-            rep->Print();
-            rep->PrintToFile("/tmp/mocknuwa.json");  
-            // write with a timestamp (and the rowid of the insert) 
+            G4DAEMetadata* hitmeta = hits->GetLink();  
+            hitmeta->AddMap("mhits", mhits);         
 
-
-            int stat_id = database->Insert(rep, "stat", "config_id,batch_id,tottime,nwork" ); 
-            printf("stat insert %d \n", stat_id);
-
-            //TODO: insert datetime column
+            std::string logfield = "ctrl_id,batch_id,tottime,nwork,std,stddt,loc,locdt" ;
+            int log_id = database ? database->Insert(hitmeta, "log", logfield.c_str() ) : 0 ; 
+            const char* logpath = "/tmp/mocknuwa.json" ;  // form a logging path/name for the metadata json
 
 
+            Map_t mlog ;
+            mlog["logfield"] = logfield ;
+            mlog["log_id"] = toStr<int>(log_id); 
+            mlog["logpath"] = logpath ;
 
-        } // bid
-    }     // cid
+            hitmeta->AddMap("mlog", mlog); 
+            hitmeta->Print("#hitmeta");
+            hitmeta->PrintToFile(logpath); 
+
+
+    } // bid
+    } // cid
 
     return 0 ; 
 }

@@ -165,39 +165,13 @@ void G4DAEChroma::CollectPhoton(const G4Track* track)
 
 
 
-G4DAEPhotons* G4DAEChroma::Propagate(G4int batch_id, G4DAEPhotons* photons)
+G4DAEPhotons* G4DAEChroma::Propagate(G4DAEPhotons* photons)
 {
    m_transport->SetPhotons(photons);
-   std::size_t nhits = this->Propagate(batch_id);
+   std::size_t nhits = this->Propagate(1); // >0 for real propagation, otherwise fakes
    return m_transport->GetHits();
 }
 
-
-
-/*
-G4DAEMetadata* G4DAEChroma::CollectMetadata(G4DAEMetadata* callmeta)
-{
-    G4DAEPhotons* photons = m_transport->GetPhotons();
-    G4DAEPhotons* hits = m_transport->GetHits();
-
-    G4DAEMetadata* meta = hits->GetLink();  assert(meta);
-
-    const char* columns = "dphotons:s,dhits:s" ;
-
-    meta->Set("COLUMNS",  columns);
-    meta->Set("dphotons", photons->GetDigest().c_str() );
-    meta->Set("dhits",    hits->GetDigest().c_str() );
-    meta->Set("batch_id", batch_id  );
-
-
-    meta->Merge("caller");  // add "caller" object with these digests to JSON tree
-
-    meta->Print();
-    meta->PrintToFile("/tmp/mocknuwa.json");  // write with a timestamp (and the rowid of the insert) 
-
-    meta->SetName("test");   // DB tablename
-}
-*/
 
 
 
