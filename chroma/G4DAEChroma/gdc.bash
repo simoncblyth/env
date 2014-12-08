@@ -226,10 +226,11 @@ gdc-run(){
 ############## over to NuWa
 
 gdc-nuwapkg(){    
-  case $NODE_TAG in  
-     N) echo $DYB/NuWa-trunk/dybgaudi/Utilities/$(gdc-name) ;;
-     *) utilities- && echo $(utilities-dir)/$(gdc-name) ;;
-  esac
+  if [ -n "$DYB" ]; then 
+     echo $DYB/NuWa-trunk/dybgaudi/Utilities/$(gdc-name) 
+  else
+     utilities- && echo $(utilities-dir)/$(gdc-name) 
+  fi
 }
   
 gdc-nuwapkg-cd(){ cd $(gdc-nuwapkg)/$1 ; } 

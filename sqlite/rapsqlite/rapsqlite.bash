@@ -16,9 +16,6 @@ Related
 * sqlite3- building 
 
 
-
-
-
 SQLite3 Refs
 ---------------
 
@@ -45,12 +42,24 @@ SQLite3 Swift Wrapper
 
 
 
+Install as NuWa Utility
+-------------------------
+
+Depends in $DYB/NuWa-trunk/lcgcmt/LCG_Builders/sqlite/cmt/requirements 
+
+::
+
+	./dybinst trunk external sqlite
+
+
+
 
 
 EOU
 }
 rapsqlite-dir(){ echo $(local-base)/env/sqlite/rapsqlite ; }
 rapsqlite-prefix(){ echo $(rapsqlite-dir) ; }
+rapsqlite-name(){ echo RapSqlite ; }
 
 rapsqlite-sdir(){ echo $(env-home)/sqlite/rapsqlite ; }
 rapsqlite-bdir(){ echo /tmp/env/sqlite/rapsqlite ; }
@@ -175,4 +184,72 @@ rapsqlite-test-cmake(){
 
    cd $iwd 
 
+}
+
+
+
+rapsqlite-nuwapkg(){    
+  if [ -n "$DYB" ]; then 
+     echo $DYB/NuWa-trunk/dybgaudi/Utilities/$(rapsqlite-name) 
+  else
+     utilities- && echo $(utilities-dir)/$(rapsqlite-name) 
+  fi
+}
+
+rapsqlite-nuwapkg-cd(){ cd $(rapsqlite-nuwapkg)/$1 ; } 
+
+
+rapsqlite-names(){ 
+   local path
+   ls -1 $(rapsqlite-sdir)/$(rapsqlite-name)/*.hh  | while read path ; do
+      local name=$(basename $path)
+      echo ${name/.hh}
+   done
+}
+
+
+
+
+rapsqlite-nuwapkg-action-cmds(){
+   local action=${1:-diff}
+   local pkg=$(rapsqlite-nuwapkg)
+   local pkn=$(basename $pkg)
+   local nam=$(rapsqlite-name)
+
+   cat << EOC
+mkdir -p $pkg/$pkn
+mkdir -p $pkg/src
+EOC
+
+   rapsqlite-names |while read nam ; do
+   cat << EOC
+$action $(rapsqlite-sdir)/$pkn/$nam.hh         $pkg/$pkn/$nam.hh
+$action $(rapsqlite-sdir)/src/$nam.cc          $pkg/src/$nam.cc
+EOC
+   done
+
+}
+
+rapsqlite-nuwapkg-action(){
+   local cmd
+   $FUNCNAME-cmds $1 | while read cmd ; do
+      echo $cmd
+      eval $cmd
+   done
+}
+rapsqlite-nuwapkg-diff(){  rapsqlite-nuwapkg-action diff ; }
+rapsqlite-nuwapkg-cpto(){  rapsqlite-nuwapkg-action cp ; }
+
+rapsqlite-nuwacfg () 
+{ 
+    local msg="=== $FUNCNAME :";
+    local pkg=$(rapsqlite-nuwapkg);
+    shift;
+    [ ! -d "$pkg/cmt" ] && echo ERROR NO cmt SUBDIR && sleep 1000000;
+    local iwd=$PWD;
+    echo $msg for pkg $pkg;
+    cd $pkg/cmt;
+    cmt config;
+    . setup.sh;
+    cd $iwd
 }
