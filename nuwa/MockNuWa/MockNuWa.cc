@@ -124,7 +124,7 @@ int main(int argc, const char** argv)
             
             hitmeta->AddMap("mhits", mhits);         
             
-            std::string logfield = "ctrl_id,batch_id,tottime,nwork,std,stddt,loc,locdt" ;
+            std::string logfield = "ctrl_id,batch_id,tottime,nwork,std,stddt,loc,locdt,in_vms,out_vms" ;
             int log_id = database ? database->Insert(hitmeta, "log", logfield.c_str() ) : 0 ; 
 
             std::string timestamp = now("%Y%m%d_%H%M%S", 20, 0);

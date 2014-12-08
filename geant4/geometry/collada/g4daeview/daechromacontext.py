@@ -15,6 +15,11 @@ log = logging.getLogger(__name__)
 
 import numpy as np
 
+try:
+    import psutil 
+except ImportError:
+    psutil = None 
+
 
 def pycuda_init(gl=False):
     """
@@ -82,6 +87,39 @@ def pick_seed():
     a mixture of the current time and the current process ID."""
     return int(time.time()) ^ (os.getpid() << 16)
 
+
+
+class DAEMemoryMon(dict):
+    def __init__(self):
+        dict.__init__(self) 
+        self._process = None
+
+    def _get_process(self):
+        if not psutil is None:
+            if self._process is None:
+                self._process = psutil.Process()
+            pass
+        pass
+        return self._process
+    process = property(_get_process)
+
+    def __call__(self, tag):
+        ps = self.process
+        if ps is None:
+            log.warn("no process memory monitoring as no psutil")
+            return
+        mem = ps.get_memory_info()
+        MB = 1024*1024
+        self["%s_vms" % tag ] = float(mem.vms)/MB
+        self["%s_rss" % tag ] = float(mem.rss)/MB
+        
+    def metadata(self):
+        memmon = self.copy()
+        memmon['COLUMNS'] = ",".join(map(lambda k:"%s:f" % k, self))
+        return memmon 
+
+
+
 class DAEChromaContext(object):
     """
     DCC is intended as a rack on which to hang objects, 
@@ -92,6 +130,7 @@ class DAEChromaContext(object):
     def __init__(self, config, chroma_geometry, gl=0):
         log.debug("DAEChromaContext init, CUDA_PROFILE %s " % os.environ.get('CUDA_PROFILE',"not-defined") )
         config.args.gl = gl   # placeholder parameter
+
         self.config = config
         pycuda_init(gl=gl)
         self.chroma_geometry = chroma_geometry
@@ -109,12 +148,15 @@ class DAEChromaContext(object):
         self._raycaster = None
         self._propagator = None
         self._parameters = None
+        self._process = None
+
+        self.mem = DAEMemoryMon()
+        self.mem("init")
 
         log.info("*** first GPU hit : creating gpu_detector  ")
         gpu_detector = self.gpu_detector
-        self.metadata = gpu_detector.metadata  
+        self.metadata = gpu_detector.metadata 
         log.info("*** first GPU hit : done ")
-
 
     # first getters will invoke config_parameters resulting in configured values, 
     # for propagation level override call chroma.config_parameters(args, ctrl) to change  
@@ -127,6 +169,7 @@ class DAEChromaContext(object):
 
 
     def incoming(self, request):
+        self.mem("in")
         if hasattr(request, 'meta') and len(request.meta)>0:
             ctrl = request.meta[0].get('ctrl',{})
             args = request.meta[0].get('args',{})
@@ -152,12 +195,14 @@ class DAEChromaContext(object):
         :param response: NPL propagated photons
         :param results: dict of results from the propagation, eg times 
         """
+        self.mem("out")
         metadata = {}
         metadata['parameters'] = self.parameters
         metadata['results'] = results
         metadata['ctrl'] = self.ctrl
         metadata['args'] = self.args
         metadata['geometry'] = self.gpu_detector.metadata
+        metadata['cpumem'] = self.mem.metadata()
         response.meta = [metadata]
         return response
 

@@ -9,6 +9,13 @@ scenekit-usage(){ cat << EOU
 SceneKit
 =========
 
+
+Dynamic Loading
+----------------
+
+* http://www.the-nerd.be/2014/11/07/dynamically-load-collada-files-in-scenekit-at-runtime/#more-457
+
+
 ColladaDOM Warnings 
 --------------------
 

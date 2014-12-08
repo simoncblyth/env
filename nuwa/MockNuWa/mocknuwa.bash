@@ -176,4 +176,16 @@ mocknuwa-scan(){
    MockNuWa 1:49 1:17
 }
 
+mocknuwa-scanone(){
+   mocknuwa-runenv 
+   MockNuWa 1:2 1:17
+}
+
+mocknuwa-log-drop(){
+   echo drop table if exists log \; | mocknuwa-sqlite
+}
+
+mocknuwa-log(){
+   echo select \* from log \; | mocknuwa-sqlite
+}
 

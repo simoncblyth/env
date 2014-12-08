@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 import numpy as np
 
 from daedirectconfig import DAEDirectConfig
-from daegeometry import DAEGeometry
 from daedirectresponder import DAEDirectResponder
 from daedirectpropagator import DAEDirectPropagator
 from daechromacontext import DAEChromaContext     
@@ -73,6 +72,7 @@ def main():
         chroma_geometry = Detector.get(config.chromacachepath)  
     
     if chroma_geometry is None:
+        from daegeometry import DAEGeometry
         geometry = DAEGeometry.get(config) 
         log.info("***** post DAEGeometry.get")
         chroma_geometry = geometry.make_chroma_geometry() 
