@@ -217,7 +217,6 @@ Map_t Database::GetRow(std::size_t index, const char* sentinel)
     return row ; 
 }
 
-
 std::string Database::GetRowSpec()
 {
    size_t size = m_typelast.size(); 
@@ -277,6 +276,35 @@ void Database::FillColumns(Map_t& rowmap, sqlite3_stmt* statement, int ncol )
 
 
 
+
+std::vector<long> Database::GetIVec(const char* column, const char* sql)
+{   
+    std::vector<long> ivec ;
+    int rc = Exec(sql);
+    if(rc < 0){
+        printf("Database::GetIVec error from Exec %s %d \n", sql, rc );
+        return ivec ;
+    }
+
+    std::string colname(column);
+    for(int r = 0; r < m_rows.size(); r++)
+    {
+        Map_t row = m_rows[r];
+
+        {
+            const char* val = row[colname].c_str();
+            char* end;
+            long ival = strtol(val,&end,10);
+            if(end == val)
+            {
+                printf("Database::GetIVec failed to extract int from column %s string %s \n", column, val );
+            }
+           ivec.push_back(ival);  
+        }
+
+    }
+    return ivec ; 
+}
 
 
 

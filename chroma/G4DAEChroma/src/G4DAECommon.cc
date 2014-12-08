@@ -293,18 +293,34 @@ int b_recv( void* socket, zmq_msg_t& msg )
     assert (rc == 0);
 
 
-    //rc = zmq_msg_recv (&msg, socket, 0);   
+    //
 
-    //http://stackoverflow.com/questions/16212526/how-can-i-clean-up-properly-when-recv-is-blocking
+    rc = zmq_msg_recv (&msg, socket, 0);   
 
+
+    //
+    // simple method above exits with "Interrupted system call" 
+    // on resizing terminal windows
+    // this frailty can be avoided using while loop and sleeping 
+    // at performance cost from the sleep
+    //
+    // TODO: work out a better way, maybe with a poller to avoid the 
+    //       problem without having to sleep 
+    //
+    // http://stackoverflow.com/questions/16212526/how-can-i-clean-up-properly-when-recv-is-blocking
+    //
+    //
+
+/*   
     while(-1 == zmq_msg_recv(&msg, socket, ZMQ_DONTWAIT))
     {
         if (EAGAIN != errno){
              break ;
         }  
+        printf("b_recv sleeping\n");
         sleep(1);
     }
-
+*/
 
     if(rc == -1){
         int err = zmq_errno();

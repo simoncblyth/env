@@ -5,7 +5,6 @@ import numpy as np
 ph = lambda _:np.load(os.environ['DAE_PATH_TEMPLATE'] % _)
 hh = lambda _:np.load(os.environ['DAEHIT_PATH_TEMPLATE'] % _)
 
-
 class Tag(object):
     """
     For tag "hh1" loads photon and hit lists 

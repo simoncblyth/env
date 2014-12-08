@@ -170,10 +170,13 @@ mocknuwa-ctrl(){  mocknuwa-query ctrl; }
 mocknuwa-batch(){ mocknuwa-query batch; }
 mocknuwa-query(){ echo select \* from ${1:-ctrl} \; |  sqlite3 -cmd '.header ON' -column $(mocknuwa-db) ; }
 
+mocknuwa-batch-sql(){  echo "select id from batch where nwork > 3200 order by id ;" ; }
+mocknuwa-ctrl-sql(){   echo "select id from ctrl order by id ;" ; }
 
 mocknuwa-scan(){
    mocknuwa-runenv 
-   MockNuWa 1:49 1:17
+   local ctrl_sql="select id from ctrl order by id ;"
+   MockNuWa "$(mocknuwa-batch-sql)" "$(mocknuwa-ctrl-sql)"
 }
 
 mocknuwa-scanone(){
@@ -187,5 +190,30 @@ mocknuwa-log-drop(){
 
 mocknuwa-log(){
    echo select \* from log \; | mocknuwa-sqlite
+}
+
+
+mocknuwa-tperk-(){ cat << EOS
+
+select log.id, \
+       log.batch_id, \
+       log.ctrl_id, \
+       batch.nwork, \
+       threads_per_block, \
+       tottime, \
+       tottime/batch.nwork*1000 tperk \
+       from \
+             log, ctrl, batch  \
+       on \
+             log.ctrl_id = ctrl.id and log.batch_id = batch.id \
+       where \
+           batch.nwork > 100 \
+       order by tperk desc ;
+
+EOS
+}
+
+mocknuwa-tperk(){
+  $FUNCNAME- | mocknuwa-sqlite
 }
 

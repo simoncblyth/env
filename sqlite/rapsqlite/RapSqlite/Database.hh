@@ -49,6 +49,7 @@ public:
    Map_t GetRow(std::size_t index=0, const char* sentinel=SENTINEL);
    Map_t& GetRowType();
    std::string GetRowSpec();
+   std::vector<long> GetIVec(const char* column, const char* sql);
 
    void SetDebug(int debug);
    int GetDebug();

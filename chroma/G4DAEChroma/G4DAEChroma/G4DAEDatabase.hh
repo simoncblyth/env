@@ -5,6 +5,7 @@ class Database ;
 class G4DAEMetadata ; 
 
 #include "G4DAEChroma/G4DAEMap.hh"
+#include <vector>
 
 class G4DAEDatabase {
 public:
@@ -19,6 +20,7 @@ public:
     // low level DB access : with no DB table assumptions
     Map_t GetOne(const char* sql, int id);
     Map_t GetRow(std::size_t index=0);
+    std::vector<long> GetIVec(const char* column, const char* sql);
     int Query(const char* sql );   // returns rowcount, or negative for error
     int QueryI(const char* sql, int param );  
 

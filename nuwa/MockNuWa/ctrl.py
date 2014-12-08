@@ -68,30 +68,37 @@ class Ctrl(Table):
          
         db.script(t.drop)
         db.script(t.create)
-        for x in np.arange(32,512+1,32):
+
+        #for x in np.arange(32,512+1,32):
+        #for x in [32,64,128,256,384,512,768,1024]:
+        for x in [32,64,128,256,384,512]:
             t['threads_per_block'] = x 
             db.script(t.insert)
+        pass
 
 
 class Batch(Table):
     _create = r"""
-    create table if not exists %(table)s (id integer primary key, tag text, path text);
+    create table if not exists %(table)s (id integer primary key, tag text, path text, nwork integer);
     """
     _insert = r"""
-    insert into %(table)s values (%(id)s, "%(tag)s", "%(path)s");
+    insert into %(table)s values (%(id)s, "%(tag)s", "%(path)s", %(nwork)s);
     """
     @classmethod
     def setup(cls, db):
-        t = cls(table="tbatch")
+        t = cls(table="batch")
         t['id'] = "null"
 
         db.script(t.drop)
         db.script(t.create)
         base = os.path.dirname(os.environ['DAE_PATH_TEMPLATE']) 
         for path in glob.glob(base + "/2014*.npy"):
+            a = np.load(path)   
             t['tag'] = os.path.basename(path)[:-4]
             t['path'] = path
+            t['nwork'] = a.shape[0]
             db.script(t.insert)
+            #log.info("batch insert %s " % t.insert)
  
 def main():
     logging.basicConfig(level=logging.INFO)

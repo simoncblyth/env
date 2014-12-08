@@ -65,6 +65,14 @@ Map_t G4DAEDatabase::GetRow(std::size_t index)
     return row;
 }
 
+std::vector<long> G4DAEDatabase::GetIVec(const char* column, const char* sql)
+{
+    std::vector<long> ivec ;
+    if(m_db) ivec = m_db->GetIVec(column, sql);
+    return ivec ;
+}
+
+
 
 Map_t G4DAEDatabase::GetOne(const char* sql, int id)
 {
