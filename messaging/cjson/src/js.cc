@@ -14,6 +14,8 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <cstring>
+#include <algorithm>
 
 #include "cJSON/cJSON.h"
 #include "cJSON/common.h"
@@ -183,6 +185,10 @@ void JS::PrintToFile(const char* _path)
     char* base = basepath(path, '/');  // path upto last '/'
     int mode = 0777 ;
     int rc = mkdirp( base, mode ); 
+    if(rc){
+        fprintf(stderr, "JS::PrintToFile mkdirp failed for base dir: [%s] \n", base);
+        return ;
+    } 
 
     char *out = cJSON_Print(m_root);
     FILE* fp=fopen(_path,"w");
@@ -346,7 +352,7 @@ Map_t JS::GetMap(const char* wanted)
 // navigating JS tree
 
 
-void JS::Visit(cJSON *item, const char* prefix, const char* wanted )
+void JS::Visit(cJSON *item, const char* prefix, const char* /*wanted*/ )
 {
     if(m_verbosity > 1) DumpItem(item, prefix);
 

@@ -80,7 +80,7 @@ void Database::DumpMap(const char* msg, Map_t& map)
 }
 
 
-std::string Database::GetResult(int n)
+std::string Database::GetResult(std::size_t n)
 {
    std::string empty ;
    return m_results.size() > n  ? m_results[n] : empty ;  
@@ -94,11 +94,12 @@ static int c_callback(void *self, int argc, char **argv, char **azColName)
     return db->callback(argc, argv, azColName);
 }
 
-int Database::callback(int argc, char **argv, char **azColName)
+int Database::callback(int argc, char **argv, char ** /*azColName*/)
 {
+   assert(0); // callback approach no longer in use, using step method
    for(int i=0; i<argc; i++)
    {
-      const char* key = azColName[i] ;
+      //const char* key = azColName[i] ;
       const char* val = argv[i] ? argv[i] : "NULL" ; 
       // collecting only 1st column of results 
       if(i == 0) m_results.push_back(std::string(val));
@@ -249,10 +250,10 @@ void Database::Dump()
 }
 
 
-void Database::FillTypes(Map_t& typemap, sqlite3_stmt* statement, int ncol )
+void Database::FillTypes(Map_t& typemap, sqlite3_stmt* statement, std::size_t ncol )
 {
      typemap.clear();
-     for(int c = 0; c < ncol; c++)
+     for(std::size_t c = 0; c < ncol; c++)
      {
          const char* name = sqlite3_column_name(statement, c);
          char type = Type(sqlite3_column_type(statement, c));
@@ -260,10 +261,10 @@ void Database::FillTypes(Map_t& typemap, sqlite3_stmt* statement, int ncol )
      }
 }
 
-void Database::FillColumns(Map_t& rowmap, sqlite3_stmt* statement, int ncol )
+void Database::FillColumns(Map_t& rowmap, sqlite3_stmt* statement, std::size_t ncol )
 {
      rowmap.clear();
-     for(int c = 0; c < ncol; c++)
+     for(std::size_t c = 0; c < ncol; c++)
      {
          const char* name = sqlite3_column_name(statement, c);
          const char* text = (const char*)sqlite3_column_text(statement, c);
@@ -287,7 +288,7 @@ std::vector<long> Database::GetIVec(const char* column, const char* sql)
     }
 
     std::string colname(column);
-    for(int r = 0; r < m_rows.size(); r++)
+    for(std::size_t r = 0; r < m_rows.size(); r++)
     {
         Map_t row = m_rows[r];
 
@@ -358,26 +359,26 @@ void Database::IntrospectTableNames()
 
 void Database::DumpTableNames()
 {
-    for(int i=0 ; i<m_tablenames.size(); ++i ) fprintf(stderr, "%s\n", m_tablenames[i].c_str());
+    for(std::size_t i=0 ; i<m_tablenames.size(); ++i ) fprintf(stderr, "%s\n", m_tablenames[i].c_str());
 }
 
 void Database::IntrospectTableSQL()
 {
     SetResultColumn(0);
-    for(int i=0 ; i<m_tablenames.size(); ++i )
+    for(std::size_t i=0 ; i<m_tablenames.size(); ++i )
     {
         const char* tn = m_tablenames[i].c_str() ;
         std::string tablesql = Table::TableSQLStatement(tn);
         this->Exec(tablesql.c_str());
 
         std::string sql = GetResult(0);
-        printf("Database::IntrospectTableSQL %d name %s sql %s \n", i, tn, sql.c_str()  );
+        printf("Database::IntrospectTableSQL %zu name %s sql %s \n", i, tn, sql.c_str()  );
     }
 }
 
 void Database::IntrospectTableInfo()
 {
-    for(int i=0 ; i<m_tablenames.size(); ++i )
+    for(std::size_t i=0 ; i<m_tablenames.size(); ++i )
     {
         const char* tn = m_tablenames[i].c_str() ;
         std::string tableinfo = Table::TableInfoStatement(tn);
@@ -399,7 +400,7 @@ void Database::IntrospectTableInfo()
         assert(names.size() == types.size());
 
         Table* table = new Table(tn);
-        for(int c=0 ; c < names.size() ; ++c )
+        for(std::size_t c=0 ; c < names.size() ; ++c )
         {
             table->AddColumn( names[c].c_str(), types[c].c_str() ); 
         }
@@ -448,7 +449,7 @@ void Database::Create(const char* tn, Map_t& map, const char* columns)
     std::string create = t->CreateStatement();
     this->Exec(create.c_str()); 
 }
-void Database::Insert(const char* table, Map_t& map, const char* columns)
+void Database::Insert(const char* table, Map_t& map)
 {
     Table* t = this->FindTable(table);
     if(!t) return ; 

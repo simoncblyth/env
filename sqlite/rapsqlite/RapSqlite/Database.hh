@@ -30,8 +30,8 @@ public:
    int Exec(const char* sql, sqlite3_stmt* statement);
 
    bool Prepare(const char* sql, sqlite3_stmt** statement );
-   void FillColumns(Map_t& rowmap, sqlite3_stmt* statement, int ncol );
-   void FillTypes(Map_t& typemap, sqlite3_stmt* statement, int ncol );
+   void FillColumns(Map_t& rowmap, sqlite3_stmt* statement, std::size_t ncol );
+   void FillTypes(Map_t& typemap, sqlite3_stmt* statement, std::size_t ncol );
 
 public:
    // single column result handling 
@@ -39,7 +39,7 @@ public:
    std::size_t GetResultColumn(); 
    std::vector<std::string>& GetResults();
    std::vector<std::string>  GetResultsCopy();
-   std::string GetResult(int n=0);
+   std::string GetResult(std::size_t n=0);
 
 public:
    // map result handling
@@ -57,7 +57,7 @@ public:
    void DumpTables();
    void Select(const char* table);
    void Create(const char* table, Map_t& map, const char* columns=NULL);
-   void Insert(const char* table, Map_t& map, const char* columns=NULL);
+   void Insert(const char* table, Map_t& map);
    void Create(const char* tn, const char* spec );
    void Insert(const char* tn, const char* spec );
    int LastInsertRowId();

@@ -106,9 +106,9 @@ Table* Table::FromCreateStatement(const char* sql)
 
     printf(" bop %zu bcl %zu cols: %s  #col %lu \n", bop, bcl, cols.c_str(), elem.size() );
 
-    for(int i=0 ; i<elem.size() ; ++i)
+    for(std::size_t i=0 ; i<elem.size() ; ++i)
     {
-       printf(" %d %s \n", i, elem[i].c_str() );
+       printf(" %zu %s \n", i, elem[i].c_str() );
     } 
 
     return NULL ;

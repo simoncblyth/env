@@ -222,13 +222,25 @@ mkdir -p $pkg/src
 EOC
 
    rapsqlite-names |while read nam ; do
-   cat << EOC
+       if [ "$action" == "cpfr" ]; then
+
+         cat << EOC
+cp  $pkg/$pkn/$nam.hh $(rapsqlite-sdir)/$pkn/$nam.hh         
+cp  $pkg/src/$nam.cc  $(rapsqlite-sdir)/src/$nam.cc          
+EOC
+       else
+
+         cat << EOC
 $action $(rapsqlite-sdir)/$pkn/$nam.hh         $pkg/$pkn/$nam.hh
 $action $(rapsqlite-sdir)/src/$nam.cc          $pkg/src/$nam.cc
 EOC
-   done
+      fi
 
+   done
 }
+
+
+
 
 rapsqlite-nuwapkg-action(){
    local cmd
@@ -239,8 +251,9 @@ rapsqlite-nuwapkg-action(){
 }
 rapsqlite-nuwapkg-diff(){  rapsqlite-nuwapkg-action diff ; }
 rapsqlite-nuwapkg-cpto(){  rapsqlite-nuwapkg-action cp ; }
+rapsqlite-nuwapkg-cpfr(){  rapsqlite-nuwapkg-action cpfr ; }
 
-rapsqlite-nuwacfg () 
+rapsqlite-nuwapkg-cfg () 
 { 
     local msg="=== $FUNCNAME :";
     local pkg=$(rapsqlite-nuwapkg);
@@ -253,3 +266,16 @@ rapsqlite-nuwacfg ()
     . setup.sh;
     cd $iwd
 }
+
+rapsqlite-nuwapkg-build(){
+   rapsqlite-nuwapkg-cd 
+   rapsqlite-nuwapkg-cfg
+
+   rapsqlite-nuwapkg-cd cmt
+   cmt br cmt config
+   make 
+
+}
+
+
+
