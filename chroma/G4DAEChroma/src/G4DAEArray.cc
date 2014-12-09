@@ -1,8 +1,8 @@
 #include "G4DAEChroma/G4DAEArray.hh"
 #include "G4DAEChroma/G4DAEBuffer.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
+#include "G4DAEChroma/numpy.hpp"
 
-#include "numpy.hpp"
 #include <cassert>
 #include <sys/stat.h> 
 

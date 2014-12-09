@@ -66,7 +66,7 @@ install(TARGETS ${name} LIBRARY DESTINATION lib)
 
 
 # arranging header installation to retain containing folder structure
-file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/*/*.hh)
+file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/*/*.hh ${CMAKE_CURRENT_SOURCE_DIR}/*/*.h ${CMAKE_CURRENT_SOURCE_DIR}/*/*.hpp )
 foreach(abspath ${headers})
    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" hdr "${abspath}")  # remove the SRC prefix 
    get_filename_component(hbase ${hdr} NAME) 

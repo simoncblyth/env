@@ -244,23 +244,65 @@ gdc-names(){
    done
 }
 
+gdc-extra-hdrs(){ cat << EOX
+numpy.hpp
+md5digest.h
+EOX
+}
+
+
 gdc-nuwapkg-action-cmds(){
    local action=${1:-diff}
    local pkg=$(gdc-nuwapkg)
    local pkn=$(basename $pkg)
    local nam=$(gdc-name)
+   local sdir=$(gdc-sdir)
 
    cat << EOC
 mkdir -p $pkg/$pkn
 mkdir -p $pkg/src
 EOC
 
-   gdc-names |while read nam ; do
+   gdc-names | while read nam ; do
+
+   if [ "$action" == "cpfr" ]; then
+
    cat << EOC
-$action $(gdc-sdir)/$pkn/$nam.hh         $pkg/$pkn/$nam.hh
-$action $(gdc-sdir)/src/$nam.cc          $pkg/src/$nam.cc
+cp $pkg/$pkn/$nam.hh $sdir/$pkn/$nam.hh         
+cp $pkg/src/$nam.cc $sdir/src/$nam.cc          
 EOC
+ 
+   else
+
+   cat << EOC
+$action $sdir/$pkn/$nam.hh         $pkg/$pkn/$nam.hh
+$action $sdir/src/$nam.cc          $pkg/src/$nam.cc
+EOC
+   fi  
+
+
    done
+
+   local hdr
+   gdc-extra-hdrs | while read hdr ; do
+
+   if [ "$action" == "cpfr" ]; then
+
+   cat << EOC
+cp $pkg/$pkn/$hdr $sdir/$pkn/$hdr         
+EOC
+ 
+   else 
+
+   cat << EOC
+$action $sdir/$pkn/$hdr         $pkg/$pkn/$hdr
+EOC
+ 
+   fi
+
+   done
+
+
 
 }
 

@@ -39,7 +39,7 @@ int G4DAEDatabase::Insert(G4DAEMetadata* meta, const char* name, const char* col
     // so need to pass columns to control order 
 
     m_db->Create(name, type, columns);  // create table if not existing 
-    m_db->Insert(name, row, columns);   
+    m_db->Insert(name, row);   
 
     return m_db->LastInsertRowId();
 }

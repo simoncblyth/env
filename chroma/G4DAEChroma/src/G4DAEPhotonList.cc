@@ -3,8 +3,8 @@
 #include "G4DAEChroma/G4DAEArray.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
+#include "G4DAEChroma/numpy.hpp"
 
-#include "numpy.hpp"
 #include <cassert>
 #include <sys/stat.h> 
 

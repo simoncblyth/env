@@ -1,10 +1,10 @@
 #include "G4DAEChroma/G4DAECommon.hh"
+#include "G4DAEChroma/md5digest.h"
 
 #include <sstream>
 #include <cassert>
 #include "G4AffineTransform.hh"
 
-#include "md5digest.h"
 #include <time.h>   
 
 #ifdef WITH_ZMQ
