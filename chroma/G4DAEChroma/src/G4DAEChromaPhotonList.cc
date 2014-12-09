@@ -1,3 +1,5 @@
+#ifdef G4DAECHROMA_WITH_CPL
+
 #include "G4DAEChroma/G4DAEChromaPhotonList.hh"
 #include "G4DAEChroma/G4DAEBuffer.hh"
 #include "Chroma/ChromaPhotonList.hh"
@@ -155,4 +157,4 @@ void G4DAEChromaPhotonList::DumpBuffer()
 
 
 
- 
+#endif 

@@ -1,3 +1,5 @@
+#ifdef G4DAECHROMA_WITH_CPL
+
 #ifndef G4DAETRANSPORTCPL_H
 #define G4DAETRANSPORTCPL_H 1
 
@@ -43,4 +45,5 @@ private:
 
 };
 
+#endif 
 #endif 

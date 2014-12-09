@@ -37,15 +37,15 @@ public:
     virtual void Zero();
     virtual void ClearAll();
 
-    static std::size_t FormItemSize(const std::vector<int>& itemshape, int from=0);
-    static std::string FormItemShapeString(const std::vector<int>& itemshape, int from=0);
+    static size_t FormItemSize(const std::vector<int>& itemshape, size_t from=0);
+    static std::string FormItemShapeString(const std::vector<int>& itemshape, size_t from=0);
 
 public:
     // fulfil Serializable protocol 
     virtual void Populate( char* bytes, size_t size );
     virtual void SaveToBuffer();
     virtual const char* GetBufferBytes();
-    virtual std::size_t GetBufferSize();
+    virtual size_t GetBufferSize();
     virtual void DumpBuffer();
     virtual const char* GetMagic();
 

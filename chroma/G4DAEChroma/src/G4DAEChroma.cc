@@ -169,6 +169,7 @@ G4DAEPhotons* G4DAEChroma::Propagate(G4DAEPhotons* photons)
 {
    m_transport->SetPhotons(photons);
    std::size_t nhits = this->Propagate(1); // >0 for real propagation, otherwise fakes
+   printf("G4DAEChroma::Propagate returned %zu hits \n", nhits); 
    return m_transport->GetHits();
 }
 

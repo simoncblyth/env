@@ -30,12 +30,14 @@ public:
   virtual G4DAEPhotons* Slice(int a, int b) = 0;
 
 
-  static void Transfer( G4DAEPhotons* dest , G4DAEPhotons* src, int a=0, int b=0 );
+  static void Transfer( G4DAEPhotons* dest , G4DAEPhotons* src, std::size_t a=0, std::size_t b=0 );
   static G4DAEPhotons* LoadPath( const char* path , const char* key=KEY);
   static G4DAEPhotons* Load(   const char* name , const char* key=KEY, const char* tmpl=TMPL );
 
   static void SavePath( G4DAEPhotonList* photons, const char* path , const char* key=KEY );
+#ifdef G4DAECHROMA_WITH_CPL
   static void SavePath( G4DAEChromaPhotonList* photons, const char* path , const char* key="CPL");
+#endif
   static void Save( G4DAEPhotons* photons, const char* name, const char* key=KEY, const char* tmpl=TMPL );
 
   static bool HasExt(const char* path, const char* ext);

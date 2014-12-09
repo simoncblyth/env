@@ -3,7 +3,7 @@
 
 // do nothing default implementation, requiring no storage
 
-void G4DAESerializable::SetLink(G4DAEMetadata* link)
+void G4DAESerializable::SetLink(G4DAEMetadata* /*link*/)
 {
 }
 G4DAEMetadata* G4DAESerializable::GetLink()

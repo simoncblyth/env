@@ -3,6 +3,7 @@
 //#include "G4DAEChroma/G4DAECommon.hh"
 #include <string.h>
 #include <iostream>
+#include <stdio.h>
 
 #include "cJSON/js.hh"
 

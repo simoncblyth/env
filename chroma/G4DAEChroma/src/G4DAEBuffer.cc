@@ -3,6 +3,9 @@
 
 using namespace std ; 
 
+#include <string.h>
+#include <stdio.h>
+
 
 G4DAEBuffer::G4DAEBuffer( size_t size, char* bytes ) : m_size(size), m_bytes(bytes)
 {

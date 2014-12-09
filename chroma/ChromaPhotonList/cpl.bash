@@ -86,6 +86,7 @@ From PyROOT
 
 EOU
 }
+cpl-pkgname(){  echo Chroma ; }  ## hmm change this
 cpl-dir(){  echo $(local-base)/env/chroma/ChromaPhotonList ; }
 cpl-sdir(){ echo $(env-home)/chroma/ChromaPhotonList ; }
 cpl-bdir(){ echo /tmp/env/chroma/ChromaPhotonList ; }
@@ -179,12 +180,15 @@ cpl-otool(){
    otool-info $(cpl-lib)
 }
 
-cpl-nuwapkg(){    
-  case $NODE_TAG in 
-     N) echo $DYB/NuWa-trunk/dybgaudi/Utilities/Chroma ;;
-     *) utilities- && echo $(utilities-dir)/Chroma ;;
-  esac
+cpl-nuwapkg(){
+  if [ -n "$DYB" ]; then
+     echo $DYB/NuWa-trunk/dybgaudi/Utilities/$(cpl-pkgname) 
+  else
+     utilities- && echo $(utilities-dir)/$(cpl-pkgname) 
+  fi
 }
+
+
   
 cpl-nuwapkg-cd(){ cd $(cpl-nuwapkg)/$1 ; }
 

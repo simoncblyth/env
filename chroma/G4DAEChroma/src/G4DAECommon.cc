@@ -38,7 +38,7 @@ void DumpBuffer(const char* buffer, size_t buflen, size_t maxlines )
    line[n] = '\0' ;
    while(n--) line[n] = ' ' ;
 
-   for (int i = 0; i < buflen ; i++){
+   for (size_t i = 0; i < buflen ; i++){
        int v = buffer[i] & 0xff ;
        bool out = i < halfmaxbytes || i > buflen - halfmaxbytes - 1 ; 
        if( i == halfmaxbytes || i == buflen - halfmaxbytes - 1  ) printf(hfmt, "...", i );  
@@ -57,7 +57,7 @@ void DumpBuffer(const char* buffer, size_t buflen, size_t maxlines )
 void DumpVector(const std::vector<float>& v, size_t itemsize) 
 {
    const char* hfmt = "\n%04d : " ;
-   for (int i = 0; i < v.size() ; i++){
+   for (size_t i = 0; i < v.size() ; i++){
        if(i % itemsize == 0) printf(hfmt, i ); 
        printf("%10.3f ", v[i]);
    }
@@ -154,7 +154,7 @@ std::string join(std::vector<std::string>& elem, char delim )
 {
     typedef std::vector<std::string> Vec_t ;
     std::stringstream ss ;    
-    for(int i=0 ; i < elem.size() ; ++i)
+    for(size_t i=0 ; i < elem.size() ; ++i)
     {
         ss << elem[i] ;
         if( i < elem.size() - 1) ss << delim ; 

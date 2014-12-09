@@ -84,6 +84,7 @@ zmqroot-env(){
 
 zmqroot-prefix(){ echo $(zmqroot-dir) ; }
 zmqroot-libraries(){    echo ZMQRoot ; }
+zmqroot-pkgname(){      echo ZMQRoot ; }
 zmqroot-lib(){  echo $(zmqroot-prefix)/lib/libZMQRoot.dylib ;}
 zmqroot-export(){
   export ZMQROOT_PREFIX=$(zmqroot-prefix)
@@ -134,12 +135,14 @@ zmqroot-otool(){
   otool-info $(zmqroot-lib)
 }
 
-zmqroot-nuwapkg(){
-  case $NODE_TAG in
-     N) echo $DYB/NuWa-trunk/dybgaudi/Utilities/ZMQRoot ;;
-     *) utilities- && echo $(utilities-dir)/ZMQRoot ;;
-  esac
+zmqroot-nuwapkg(){    
+  if [ -n "$DYB" ]; then 
+     echo $DYB/NuWa-trunk/dybgaudi/Utilities/$(zmqroot-pkgname) 
+  else
+     utilities- && echo $(utilities-dir)/$(zmqroot-pkgname) 
+  fi
 }
+
 zmqroot-nuwapkg-cd(){ cd $(zmqroot-nuwapkg)/$1 ; }
 
 
@@ -200,4 +203,42 @@ zmqroot-nuwapkg-diff(){
       eval $cmd
    done 
 }
+
+
+zmqroot-nuwacfg () 
+{ 
+    local msg="=== $FUNCNAME :";
+    local pkg=$1;
+    shift;
+    [ ! -d "$pkg/cmt" ] && echo ERROR pkg $pkg has no cmt dir && sleep 1000000;
+    local iwd=$PWD;
+    echo $msg for pkg $pkg;
+    cd $pkg/cmt;
+    cmt config;
+    . setup.sh;
+    cd $iwd
+}
+
+
+
+zmqroot-nuwaenv()
+{   
+   echo -n
+}
+
+zmqroot-nuwapkg-make() 
+{ 
+    local iwd=$PWD;
+    zmqroot-nuwaenv
+    zmqroot-nuwapkg-cd cmt
+    cmt br cmt config
+
+    cmt config
+    cmt make
+    cd $iwd
+}
+
+
+
+
 

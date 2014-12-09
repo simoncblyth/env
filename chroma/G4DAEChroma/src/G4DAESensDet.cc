@@ -90,6 +90,7 @@ bool G4DAESensDet::ProcessHits(G4Step* /*step*/, G4TouchableHistory* /*history*/
 
 void G4DAESensDet::EndOfEvent( G4HCofThisEvent* hce ) 
 {
+    cout << "G4DAESensDet::EndOfEvent " << hce << endl ;
 #ifdef VERBOSE
     m_collector->DumpStatistics(hce);
 #endif

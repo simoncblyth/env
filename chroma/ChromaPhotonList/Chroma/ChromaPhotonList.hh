@@ -18,6 +18,7 @@
 #include <vector>
 #include <string>
 
+#define CPL_WITH_GEANT4 
 #ifdef CPL_WITH_GEANT4
 #include <G4ThreeVector.hh>
 #endif

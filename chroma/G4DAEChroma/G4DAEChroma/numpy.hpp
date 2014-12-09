@@ -41,6 +41,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <string.h>
 
 #include <iostream>
 
@@ -229,7 +230,7 @@ template<typename Scalar>
 inline void BufferDump(const char* buffer, std::size_t buflen) 
 {
    const char* hfmt = "\n%04X : " ;
-   for (int i = 0; i < buflen ; i++){
+   for (std::size_t i = 0; i < buflen ; i++){
        if(i % 16 == 0) printf(hfmt, i ); 
        printf("%02X ", buffer[i]);
    }
@@ -551,7 +552,7 @@ void BufferLoadArrayFromNumpy(
     // load header
     uint16_t header_length;
     char* p = reinterpret_cast<char*>(&header_length) ;
-    for(int i=0 ; i < sizeof(uint16_t) ; ++i ) *(p+i) = buffer[offset++];
+    for(std::size_t i=0 ; i < sizeof(uint16_t) ; ++i ) *(p+i) = buffer[offset++];
 
     header_length = detail::ReorderInteger(header_length);
 

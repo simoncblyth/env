@@ -315,6 +315,7 @@ gdc-nuwapkg-action(){
 }
 gdc-nuwapkg-diff(){  gdc-nuwapkg-action diff ; }
 gdc-nuwapkg-cpto(){  gdc-nuwapkg-action cp ; }
+gdc-nuwapkg-cpfr(){  gdc-nuwapkg-action cpfr ; }
 
 
 
@@ -323,7 +324,7 @@ gdc-nuwacfg ()
     local msg="=== $FUNCNAME :";
     local pkg=$1;
     shift;
-    [ ! -d "$pkg/cmt" ] && echo ERROR NO cmt SUBDIR && sleep 1000000;
+    [ ! -d "$pkg/cmt" ] && echo ERROR pkg $pkg has no cmt dir && sleep 1000000;
     local iwd=$PWD;
     echo $msg for pkg $pkg;
     cd $pkg/cmt;
@@ -349,8 +350,34 @@ gdc-nuwapkg-make()
     local iwd=$PWD;
     gdc-nuwaenv
     gdc-nuwapkg-cd cmt
+    cmt br cmt config
+
     cmt config
     cmt make
     cd $iwd
 }
+
+
+gdc-nuwapkg-prerequisites()
+{
+    [ -z "$DYB" ] && echo DYB is not defined && return 1
+    cd $DYB
+
+    ./dybinst trunk external zmq
+
+
+
+    zmqroot-                    # TO BE REMOVED
+    zmqroot-nuwapkg-make
+
+    cpl-                        # ChromaPhotonList   TO BE REMOVED
+    cpl-nuwapkg-make
+
+    cnpy-                       # TO BE REMOVED
+    cnpy-nuwapkg-make
+
+
+}
+
+
 

@@ -161,7 +161,7 @@ void G4DAEPhotonList::Print(const char* msg) const
     //if(m_link) m_link->Print(msg);
 }
 
-void G4DAEPhotonList::Details(bool hit) const 
+void G4DAEPhotonList::Details(bool /*hit*/) const 
 {
     cout <<  "G4DAEPhotonList::Details " << endl ;
     size_t count = GetCount();

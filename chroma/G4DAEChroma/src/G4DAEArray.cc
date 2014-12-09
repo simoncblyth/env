@@ -151,18 +151,18 @@ string G4DAEArray::GetItemShapeString() const
     return FormItemShapeString(m_itemshape, 0);
 }
 
-size_t G4DAEArray::FormItemSize(const vector<int>& itemshape, int from) 
+size_t G4DAEArray::FormItemSize(const vector<int>& itemshape, size_t from) 
 {
     size_t itemsize = 1 ; 
-    for(int d=from ; d<itemshape.size(); ++d) itemsize *= itemshape[d]; 
+    for(size_t d=from ; d<itemshape.size(); ++d) itemsize *= itemshape[d]; 
     return itemsize ; 
 }
 
-string G4DAEArray::FormItemShapeString(const vector<int>& itemshape, int from) 
+string G4DAEArray::FormItemShapeString(const vector<int>& itemshape, size_t from) 
 {
     stringstream ss ; 
     size_t nidim = itemshape.size() ; 
-    for(int d=from ; d<nidim ; ++d)
+    for(size_t d=from ; d<nidim ; ++d)
     {
         ss << itemshape[d] ;
         if( d < nidim -1 ) ss << "," ; 
@@ -225,7 +225,7 @@ string G4DAEArray::GetPath( const char* evt , const char* tmpl )
    return string( evtpath );
 }
 
-void G4DAEArray::Save(const char* evt, const char* evtkey, const char* tmpl)
+void G4DAEArray::Save(const char* evt, const char* /*evtkey*/, const char* tmpl)
 {
    string path = GetPath(evt, tmpl);
    if( path.empty() )

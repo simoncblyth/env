@@ -37,11 +37,17 @@ gives PMTID values::
 */
 
 #include <cstddef>
-#include <cstdint>
+
+
+//#include <cstdint>   C++0x   depends on newish C++0x
+//typedef std::uint32_t Key_t ;
+
+#include <stdint.h>
+typedef uint32_t Key_t ;
+
 #include "G4AffineTransform.hh" 
 #include <map>
 
-typedef std::uint32_t Key_t ;
 typedef std::map<Key_t,G4AffineTransform> TransformMap_t ;
 
 class G4DAETransformCache {

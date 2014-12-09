@@ -1,3 +1,5 @@
+#ifdef G4DAECHROMA_WITH_CPL
+
 #ifndef G4DAECHROMAPHOTONLIST_H
 #define G4DAECHROMAPHOTONLIST_H
 
@@ -61,3 +63,5 @@ private:
 
 
 #endif
+#endif
+

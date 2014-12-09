@@ -1,3 +1,5 @@
+#ifdef G4DAECHROMA_WITH_CPL
+
 #include "G4DAEChroma/G4DAETransportCPL.hh"
 
 #include "G4Track.hh"
@@ -138,4 +140,4 @@ std::size_t G4DAETransportCPL::Propagate(int batch_id)
 }
 
 
-
+#endif

@@ -158,6 +158,7 @@ cnpy-url(){
    esac
 }
 cnpy-vers(){ echo rogersce ; }
+#cnpy-vers(){ echo simoncblyth ; }
 
 cnpy-get(){
    local dir=$(dirname $(cnpy-sdir)) &&  mkdir -p $dir && cd $dir
@@ -204,7 +205,7 @@ cnpy-mapping(){
 }
 
 cnpy-nuwapkg(){ echo $DYB/NuWa-trunk/dybgaudi/Utilities/cnpy ; }
-cnpy-nuwapkg-cd(){  cd $(cnpy-nuwapkg); }
+cnpy-nuwapkg-cd(){  cd $(cnpy-nuwapkg)/$1 ; }
 cnpy-nuwapkg-action(){
    local action=${1:-ls}
    local iwd=$PWD
@@ -227,7 +228,27 @@ cnpy-nuwapkg-action(){
 cnpy-nuwapkg-cpto(){ cnpy-nuwapkg-action cpto  ;}
 cnpy-nuwapkg-cpfr(){ cnpy-nuwapkg-action cpfr  ;}
 cnpy-nuwapkg-diff(){ cnpy-nuwapkg-action diff  ;}
+cnpy-nuwapkg-echo(){ cnpy-nuwapkg-action echo  ;}
 cnpy-nuwapkg-ls(){   cnpy-nuwapkg-action ls  ;}
+
+
+cnpy-nuwapkg-env(){
+    echo -n
+}
+
+cnpy-nuwapkg-make() 
+{ 
+    local iwd=$PWD;
+    cnpy-nuwapkg-env
+    cnpy-nuwapkg-cd cmt
+
+    cmt br cmt config
+
+    cmt config
+    cmt make
+    cd $iwd
+}
+
 
 
 

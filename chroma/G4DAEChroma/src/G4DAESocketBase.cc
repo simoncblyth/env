@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <unistd.h>
+#include <string.h>
 
 
 #ifdef WITH_ZMQ
