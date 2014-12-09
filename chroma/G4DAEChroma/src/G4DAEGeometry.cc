@@ -290,7 +290,7 @@ void G4DAEGeometry::VisitPV(const G4LogicalVolume* const volumePtr, const PVStac
     if( sensitive )
     {
        std::size_t id = TouchableToIdentifier( touchableHistory );
-       if(id == 0) cout << "G4DAEGeometry::VisitPV " << name << " WARNING SD with no identifier " << endl ; 
+       //if(id == 0) cout << "G4DAEGeometry::VisitPV " << name << " WARNING SD with no identifier " << endl ; 
 
        if(id > 0) cache->Add(id, transform) ; 
 

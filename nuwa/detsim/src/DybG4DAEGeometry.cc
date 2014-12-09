@@ -76,7 +76,8 @@ int  DybG4DAEGeometry::SensDetId(const DetectorElement& de)
         detelem = dynamic_cast<const DetectorElement*>(detelem->parentIDetectorElement());
     }   
     if (!detelem) {
-        cout << "warning() " << "Could not get PMT detector element starting from " << endl;
+        // cout << "warning() " << "Could not get PMT detector element starting from " << endl;
+        //  RPCs do this so dont whine
         return 0;
     }   
 

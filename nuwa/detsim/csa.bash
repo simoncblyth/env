@@ -128,11 +128,25 @@ csa-nuwaenv(){
 
    opw-       # opw-env sets up NuWa env 
 
-   zmqroot-
-   csa-nuwacfg $(zmqroot-nuwapkg)
+   if [ "$NODE_TAG" == "G5" ]; then 
+      dyb-- dybpython 
+   fi 
 
-   cpl- 
-   csa-nuwacfg $(cpl-nuwapkg)
+
+   #zmqroot-
+   #csa-nuwacfg $(zmqroot-nuwapkg)
+
+   #cpl- 
+   #csa-nuwacfg $(cpl-nuwapkg)
+
+   cjs-
+   csa-nuwacfg $(cjs-nuwapkg)
+
+   rapsqlite-
+   csa-nuwacfg $(rapsqlite-nuwapkg)
+
+   gdc-
+   csa-nuwacfg $(gdc-nuwapkg)
 
    csa-
    csa-nuwacfg $(csa-nuwapkg)
@@ -171,8 +185,8 @@ csa-nuwarun(){
    export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
    env | grep G4DAECHROMA
 
-   #nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
-   nuwa.py -n 100 -m "fmcpmuon --use-basic-physics --chroma "
+   nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
+   #nuwa.py -n 100 -m "fmcpmuon --use-basic-physics --chroma "
 
 }
 

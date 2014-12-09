@@ -4,6 +4,7 @@
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
+#include "G4DAEChroma/G4DAEDatabase.hh"
 
 #include "DybG4DAEGeometry.h"
 #include "DybG4DAECollector.h"
@@ -16,6 +17,7 @@
 
 #include "G4DataHelpers/ITouchableToDetectorElement.h"
 
+#include <stdio.h>  
 #include <stdlib.h>  
 #include <assert.h>
 #include <iostream>
@@ -39,6 +41,9 @@ DsChromaRunAction::DsChromaRunAction
     declareProperty("cachekey",m_cachekey="G4DAECHROMA_CACHE_DIR",
                     "Name of envvar pointing to directory where cache is written to");
 
+    declareProperty("databasekey",m_databasekey="G4DAECHROMA_DATABASE_PATH",
+                    "Name of envvar pointing to config/monitoring sqlite3 database path");
+
     declareProperty("TouchableToDetelem", m_t2deName = "TH2DE",
                     "The ITouchableToDetectorElement to use to resolve sensor.");
 
@@ -59,15 +64,27 @@ DsChromaRunAction::~DsChromaRunAction()
 #include "DsChromaRunAction_BeginOfRunAction.icc"
 void DsChromaRunAction::BeginOfRunAction( const G4Run* run )
 {
+    printf("DsChromaRunAction::BeginOfRunAction START\n");
+
     assert(run);
     ITouchableToDetectorElement* t2de = tool<ITouchableToDetectorElement>(m_t2deName);
-    DsChromaRunAction_BeginOfRunAction( m_transport, m_cachekey, m_sensdet, t2de, m_idParameter );
+    DsChromaRunAction_BeginOfRunAction( 
+          m_transport, 
+          m_cachekey, 
+          m_sensdet, 
+          m_databasekey, 
+          t2de, 
+          m_idParameter );
+
+    printf("DsChromaRunAction::BeginOfRunAction DONE\n");
 };
 
 void DsChromaRunAction::EndOfRunAction( const G4Run* run )
 {
+    printf("DsChromaRunAction::EndOfRunAction START\n");
     G4DAEChroma::GetG4DAEChroma()->EndOfRun(run);
     assert(run);
+    printf("DsChromaRunAction::EndOfRunAction DONE\n");
 };
 
 

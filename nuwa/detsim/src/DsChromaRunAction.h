@@ -39,6 +39,7 @@ private:
   std::string m_transport ;
   std::string m_sensdet ;
   std::string m_cachekey ;
+  std::string m_databasekey ;
 
   /// PackedIdParameterName : name of user paramater of the counted
   /// detector element which holds the packed, globally unique PMT

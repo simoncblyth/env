@@ -71,10 +71,11 @@ utilities-get(){
 
 utilities-udir(){
    local name=${1:-G4DAEChroma}
-   case $NODE_TAG in  
-      N) echo $DYB/NuWa-trunk/dybgaudi/Utilities/$name ;;
-      *) echo $(utilities-dir)/$name ;;
-   esac
+   if [ -n "$DYB" ]; then 
+       echo $DYB/NuWa-trunk/dybgaudi/Utilities/$name 
+   else 
+       echo $(utilities-dir)/$name 
+   fi
 }
 
 utilities-names(){ cat << EON
@@ -82,6 +83,9 @@ G4DAEChroma
 ChromaZMQRootTest
 Chroma
 ZMQRoot
+cnpy
+cJSON
+RapSqlite
 EON
 }
 
@@ -103,6 +107,9 @@ utilities-precursor(){
       ChromaZMQRootTest) echo czrt- ;;
                  Chroma) echo cpl- ;;
                 ZMQRoot) echo zmqroot- ;;
+                   cnpy) echo cnpy- ;;
+                  cJSON) echo cjs- ;;
+              RapSqlite) echo rapsqlite- ;;
    esac
 }
 

@@ -8,7 +8,13 @@
 ///     cachekey envvar 
 ///
 ///
+///
+///  FOR BUILD TO SEE EDITS : touch DsChromaRunAction.cc  
+///
 /////////////////////////////////////////////////////////////////////
+
+
+#define VERBOSE
 
 
 string getenvvar( const string& key , const string& def  )
@@ -36,7 +42,7 @@ void DsChromaRunAction_BeginOfRunAction(
     cout << "\t cachekey  " << setw(30) << _cachekey  << "[" << cache_dir << "]" << endl ;
     cout << "\t sensdet   " << setw(30) << _sensdet << endl ;
     cout << "\t database  " << setw(30) << _database  << "[" << database_cfg << "]" << endl ;
-    cout << "\t idParameter  " << m_idParameter << " (not used for MockNuWa running)" << endl ;
+    cout << "\t idParameter  " << _idParameter << " (not used for MockNuWa running)" << endl ;
 #endif
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
@@ -56,8 +62,11 @@ void DsChromaRunAction_BeginOfRunAction(
 
     G4DAETransformCache* cache = NULL ;
 #ifndef NOT_NUWA
-    DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(t2de, m_idParameter.c_str());
+    DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(_t2de, _idParameter.c_str());
     cache = geometry->CreateTransformCache(NULL); 
+
+    printf("DsChromaRunAction_BeginOfRunAction : archive cache to %s\n", cache_dir.c_str());
+
     cache->Archive(cache_dir.c_str()); 
 #else
     if(G4DAETransformCache::Exists(cache_dir.c_str())) cache = G4DAETransformCache::Load(cache_dir.c_str()); 
@@ -66,12 +75,13 @@ void DsChromaRunAction_BeginOfRunAction(
     chroma->SetTransformCache(cache);
 
 
-
      ///  sensdet 
 
     const char* target = _sensdet.c_str() ; 
     string trojan = "trojan_" ;
     trojan += target ;
+
+    printf("DsChromaRunAction_BeginOfRunAction : stealing hit collections from %s into %s \n", target, trojan.c_str() );
 
     G4DAESensDet*  sensdet = G4DAESensDet::MakeSensDet(trojan.c_str(), target );
 #ifdef VERBOSE
@@ -92,4 +102,7 @@ void DsChromaRunAction_BeginOfRunAction(
 
 }
 
+//
+//  FOR BUILD TO SEE EDITS : touch DsChromaRunAction.cc  
+//
 

@@ -118,7 +118,8 @@ void G4DAETransformCache::Archive(const char* dir)
     this->Serialize();
 
     if (mkdir(dir,0777) == -1) {
-        exit(EXIT_FAILURE);
+        printf("G4DAETransformCache::Archive mkdir error exiting \n");
+        //exit(EXIT_FAILURE);
     }
 
     const unsigned int key_shape[] = {m_itemcount};
@@ -240,11 +241,19 @@ G4AffineTransform* G4DAETransformCache::GetSensorTransform(Key_t id)
 
 void G4DAETransformCache::AddSerial( Key_t key, const G4AffineTransform&  transform )
 {
+    // writes into the buffer
+    //
+    
+    if( m_itemcount >= m_itemcapacity )
+    {
+        printf("G4DAETransformCache::AddSerial too many items itemcount %zu itemcapacity %zu \n", m_itemcount, m_itemcapacity ); 
+    }
+
     assert(m_itemcount < m_itemcapacity );
 
+    // pointers into the buffers, prior to incrementing m_itemcount
     double* data = m_data + m_itemcount*m_itemsize ;   
     Key_t* id = m_key + m_itemcount*m_keysize ; 
-
     m_itemcount++ ; 
 
     id[0] = key ; 
@@ -303,6 +312,7 @@ void G4DAETransformCache::AddSerial( Key_t key, const G4AffineTransform&  transf
 
 G4AffineTransform* G4DAETransformCache::GetTransform( std::size_t index )
 {
+    // creates the G4AffineTransform direct from the serialized buffer
     if( index > m_itemcapacity ) return NULL ;
     double* data = m_data + index*m_itemsize ;   
 
