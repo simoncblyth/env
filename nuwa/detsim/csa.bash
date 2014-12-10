@@ -124,14 +124,10 @@ csa-nuwacfg(){
    cd $iwd
 }
 
+
 csa-nuwaenv(){
 
    opw-       # opw-env sets up NuWa env 
-
-   if [ "$NODE_TAG" == "G5" ]; then 
-      dyb-- dybpython 
-   fi 
-
 
    #zmqroot-
    #csa-nuwacfg $(zmqroot-nuwapkg)
@@ -153,6 +149,59 @@ csa-nuwaenv(){
 
 }
 
+
+
+csa-export(){
+   export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
+}
+
+csa-envcache(){ printf $ENVCAP_BASH_TMPL csa ; }
+csa-envcache-rm(){ 
+  local envcache=$(csa-envcache)
+  rm $envcache
+} 
+
+csa-pp(){
+   which python
+   echo $PYTHONPATH | tr ":" "\n"
+}
+
+
+csa-nuwarun(){
+   local msg=" === $FUNCNAME :"
+   local envcache=$(csa-envcache)
+   if [ -f "$envcache" ]; then 
+       echo $msg sourcing envcache $envcache
+       source $envcache
+   else
+
+       if [ "$NODE_TAG" == "G5" ]; then 
+          dyb-- dybpython 
+       fi 
+
+       csa-nuwaenv
+       zmq-
+       csa-export
+       export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
+       env | grep G4DAECHROMA
+       envcap.sh -zpost -tcsa cachediff
+   fi
+
+
+   ## TODO: adopt mkdirp to avoid this limitation of preexisting dir 
+   local cachedir=$G4DAECHROMA_CACHE_DIR
+   if [ -n "$cachedir" ]; then
+       mkdir -p $(dirname $cachedir)  
+   fi
+
+
+   opw-
+   opw-cd     # need to be in OPW to find "fmcpmuon"
+
+   nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
+}
+
+
 csa-nuwarun-pid(){ echo $(pgrep -f nuwa.py) ; }
 csa-dbg(){  csa-nuwarun-gdb ; }
 csa-nuwarun-gdb(){
@@ -166,29 +215,7 @@ csa-nuwarun-gdb(){
 
 
 
-csa-export(){
-   export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
-}
 
-csa-nuwarun(){
-
-   csa-nuwaenv
-   opw-cd     # need to be in OPW to find "fmcpmuon"
-
-   zmq-
-
-   local cachedir=$(csa-cachedir)
-   mkdir -p $(dirname $cachedir)  # make sure containing folder exists  
-
-   echo $FUNCNAME 
-   csa-export
-   export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
-   env | grep G4DAECHROMA
-
-   nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
-   #nuwa.py -n 100 -m "fmcpmuon --use-basic-physics --chroma "
-
-}
 
 csa-nuwa-send-test-cpl(){
    csa-nuwaenv

@@ -19,8 +19,7 @@ G4DAETransport::G4DAETransport(const char* envvar) :
 #ifdef WITH_CHROMA_ZMQ
    m_socket = new G4DAESocketBase(envvar) ;
 
-   // TODO: make this NULL and move to always using SetPhotons ?
-   m_photons = (G4DAEPhotons*)new G4DAEPhotonList(100) ;   
+   m_photons = (G4DAEPhotons*)new G4DAEPhotonList(10000) ;    // it grows if needed 
 
 #endif
 }

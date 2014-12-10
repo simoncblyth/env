@@ -188,9 +188,9 @@ void DsChromaStackAction::NewStage()
 
   G4RunManager* runMan = G4RunManager::GetRunManager(); 
   const G4Event* currentEvent = runMan->GetCurrentEvent(); 
-  G4int eventID = currentEvent->GetEventID();
+  G4int eventID = currentEvent->GetEventID(); // always 0 it seems
 
-  m_chroma->Propagate(eventID); 
+  m_chroma->Propagate(1); 
 
 #endif
 

@@ -101,6 +101,13 @@ zeromq-make(){
   make 
   make install
 }
+
+zeromq-build(){
+   zeromq-get
+   zeromq-make
+}
+
+
 zeromq-ls(){ ls $(zeromq-prefix)/include $(zeromq-prefix)/lib ; }
 
 zeromq-zguide-install-zhelpers(){

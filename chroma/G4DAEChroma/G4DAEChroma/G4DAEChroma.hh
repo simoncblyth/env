@@ -54,6 +54,11 @@ public:
     void SetDatabase(G4DAEDatabase* database);
     G4DAEDatabase* GetDatabase();
 
+    void SetVerbosity(int verbosity);
+    int GetVerbosity();
+
+
+
 #ifdef DEBUG_HITLIST
     // from the SensDet collector
     G4DAEHitList* GetHitList();
@@ -65,6 +70,9 @@ public:
 
     void SetPhotons(G4DAEPhotons* photons);
     G4DAEPhotons* GetPhotons();
+
+    void SavePhotons(const char* evtkey );
+    void LoadPhotons(const char* evtkey );
 
     void SetHits(G4DAEPhotons* hits);
     G4DAEPhotons* GetHits();
@@ -104,6 +112,9 @@ private:
 
   // DB  
   G4DAEDatabase* m_database ; 
+
+  // verbosity level
+  int m_verbosity ;  
 
 
 };

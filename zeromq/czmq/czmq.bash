@@ -13,6 +13,31 @@ CZMQ : High-level C Binding for 0MQ
 
 * https://github.com/zeromq/pyczmq
 
+
+Installing broker onto a fresh node G5
+-----------------------------------------
+
+Get, build and install on G5::
+
+    zeromq-
+    zeromq-build
+
+    czmq-
+    czmq-build    
+
+    czmq-cc-build    # compile broker 
+
+Start broker on G5 with local argument, as using SSH tunnelling is more robust::
+
+    czmq_broker.sh local  
+
+
+On D (GPU node) start the worker and tunnel to broker node::
+
+    g4daechroma.sh --zmqtunnelnode=G5
+
+
+
 Dependencies
 -------------
 

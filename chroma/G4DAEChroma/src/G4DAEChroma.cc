@@ -42,7 +42,8 @@ G4DAEChroma::G4DAEChroma() :
     m_sensdet(0),
     m_geometry(0),
     m_cache(0),
-    m_database(0)
+    m_database(0),
+    m_verbosity(3)
 { 
 }
 
@@ -126,6 +127,14 @@ G4DAEDatabase* G4DAEChroma::GetDatabase(){
 }
 
 
+void G4DAEChroma::SetVerbosity(int verbosity){
+   m_verbosity = verbosity ;
+}
+int G4DAEChroma::GetVerbosity(){
+   return m_verbosity ;
+}
+
+
 
 
 #ifdef DEBUG_HITLIST
@@ -148,6 +157,24 @@ void G4DAEChroma::SetHits(G4DAEPhotons* hits)
 {
    m_transport->SetHits(hits);
 }
+
+
+void G4DAEChroma::SavePhotons(const char* evtkey )
+{
+   G4DAEPhotons* photons = m_transport->GetPhotons();
+   photons->Print("G4DAEChroma::SavePhotons");
+   G4DAEPhotons::Save( photons, evtkey ); 
+}
+
+void G4DAEChroma::LoadPhotons(const char* evtkey )
+{
+   G4DAEPhotons* photons = G4DAEPhotons::Load(evtkey ); 
+   photons->Print("G4DAEChroma::SavePhotons");
+   m_transport->SetPhotons(photons);  // leaking prior photons
+}
+
+
+
 
 G4DAEPhotons* G4DAEChroma::GetPhotons()
 {
@@ -180,20 +207,27 @@ G4DAEPhotons* G4DAEChroma::Propagate(G4DAEPhotons* photons)
 
 std::size_t G4DAEChroma::Propagate(G4int batch_id)
 {
-#ifdef VERBOSE
-  cout << "G4DAEChroma::Propagate START batch_id " << batch_id << endl ; 
-#endif
+  if(m_verbosity > 1)
+      cout << "G4DAEChroma::Propagate START batch_id " << batch_id << endl ; 
+
   std::size_t nhits = m_transport->Propagate(batch_id); 
-#ifdef VERBOSE
-  cout << "G4DAEChroma::Propagate CollectHits batch_id " << batch_id << endl ; 
-#endif
+
+  if(m_verbosity > 1) 
+      cout << "G4DAEChroma::Propagate CollectHits batch_id " << batch_id << endl ; 
+
   if(nhits > 0)
   { 
-      m_sensdet->CollectHits( m_transport->GetHits(), m_cache );
+      G4DAEPhotons* hits = m_transport->GetHits() ;
+      if(m_verbosity > 1){
+          hits->Print("G4DAEChroma::Propagate returned hits"); 
+          hits->Details(1); 
+      }
+      m_sensdet->CollectHits( hits, m_cache );
   } 
-#ifdef VERBOSE
-  cout << "G4DAEChroma::Propagate DONE batch_id " << batch_id << " nhits " << nhits << endl ; 
-#endif
+
+  if(m_verbosity > 1)
+      cout << "G4DAEChroma::Propagate DONE batch_id " << batch_id << " nhits " << nhits << endl ; 
+
   return nhits ; 
 }
 
