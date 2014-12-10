@@ -28,10 +28,14 @@ class G4DAEArray : public G4DAESerializable {
     static const char* MAGIC ; 
 public:
     G4DAEArray* CreateOther(char* bytes, size_t size);
-    G4DAEArray(char* bytes, size_t size);
-    G4DAEArray( std::size_t itemcapacity = 0, std::string itemshapestr = "", float* data = NULL);
+
+    G4DAEArray(char* bytes, size_t size, float growth=1.5 );
+    G4DAEArray( std::size_t itemcapacity = 0, std::string itemshapestr = "", float* data = NULL, float growth=1.5 );
+
     virtual ~G4DAEArray();
 
+    void Allocate( size_t nitems );
+    void Extend(size_t nitems );
     void Populate( std::size_t itemcapacity, std::string itemshapestr, float* data);
     virtual void Print(const char* msg="G4DAEArray::Print") const ;
     virtual void Zero();
@@ -87,6 +91,7 @@ protected:
     std::size_t      m_itemcount ; 
     std::size_t      m_itemcapacity ; 
     float*           m_data ; 
+    float            m_growthfactor ; 
 
 private:
     G4DAEBuffer*     m_buffer ; 

@@ -20,17 +20,18 @@ G4DAEArray* G4DAEArray::CreateOther(char* bytes, size_t size)
    return new G4DAEArray(bytes, size);
 }
 
-G4DAEArray::G4DAEArray(char* bytes, size_t size)
+G4DAEArray::G4DAEArray(char* bytes, size_t size, float growth) : m_growthfactor(growth)
 {
     Zero();
     Populate(bytes, size);
 }
 
-G4DAEArray::G4DAEArray( size_t itemcapacity, string itemshape, float* data) 
+G4DAEArray::G4DAEArray( size_t itemcapacity, string itemshape, float* data, float growth ) : m_growthfactor(growth) 
 {
     Zero();
     Populate( itemcapacity, itemshape, data );
 }
+
 
 void G4DAEArray::Zero()
 {
@@ -42,7 +43,7 @@ void G4DAEArray::Zero()
 
 void G4DAEArray::ClearAll()
 {
-    delete [] m_data;
+    free(m_data);
     delete m_buffer ; 
     Zero();
 }
@@ -50,76 +51,109 @@ void G4DAEArray::ClearAll()
 
 void G4DAEArray::Populate( char* bytes, size_t size )
 {
+
     if(!bytes) return;  // zombie expedient, for zombie->Create(bytes, size) 
 
 #ifdef VERBOSE
     printf("G4DAEArray::Populate [%zu][0x%lx] ::DumpBuffer \n", size, size );
     ::DumpBuffer( bytes, size);
 #endif
+    
 
+    // interpreting (bytes, size)  as serialized NPY array
     std::vector<int>  shape ;
     std::vector<float> data ;
-
     aoba::BufferLoadArrayFromNumpy<float>(bytes, size, shape, data );
 
-    string itemshape = FormItemShapeString( shape, 1);
-    size_t itemsize = FormItemSize( shape, 1);
+    size_t from = 1 ;   //  first dimension excluded
+    string itemshape = FormItemShapeString( shape, from);
+    size_t itemsize = FormItemSize( shape, from);
     size_t nitems = data.size()/itemsize ; 
 
+    // shovelling bytes into native float* array m_data
     Populate( nitems, itemshape, data.data() );
 }
 
 
-void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
+void G4DAEArray::Allocate( size_t nitems )
 {
+    size_t nfloat = nitems*m_itemsize ;
+    printf("G4DAEArray::Allocate nitems %zu nfloat %zu \n", nitems, nfloat );
+    m_data = (float*)malloc( nfloat*sizeof(float) ) ;
+    m_itemcapacity = nitems ; 
+    m_buffer = NULL ;   
+
+}
+
+void G4DAEArray::Extend(size_t nitems )
+{
+   size_t nfloat = nitems*m_itemsize ;
+   float* tmp = (float*)realloc(m_data, nfloat*sizeof(float)  );
+   if(tmp) 
+   {
+       printf("G4DAEArray::Extend to nitems %zu nfloat  %zu \n", nitems, nfloat );
+       m_data = tmp;
+       m_itemcapacity = nitems ; 
+   }
+   else 
+   {
+       printf("G4DAEArray::Extend FAILURE nitems %zu nfloat %zu \n", nitems, nfloat );
+   }
+}
+
+
+
+void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
+{  
+    /*
+       #. nitems eg 1000 for full shape 1000,4,4
+       #. itemshape with 1st dim already dropped eg  "4,4" 
+
+
+    Sets member variables characterizing the data and copies
+    it into m_data 
+    */
 
     if(!nitems) return;  // zombie expedient, for zombie->Create(bytes, size) 
 
-    m_itemcapacity = nitems ; 
+    isplit( m_itemshape, itemshape.c_str(), ',' );   // populate vector<int>
 
-    // itemshape such as "4,4" split to form vector and give itemsize of 4*4 
-    isplit( m_itemshape, itemshape.c_str(), ',' );   assert( GetItemShapeString() == itemshape ); 
+    assert( GetItemShapeString() == itemshape ); 
 
-    m_itemsize = FormItemSize( m_itemshape, 0 );
+    m_itemsize = FormItemSize( m_itemshape, 0 );     // eg 16 for "4,4" (1st dim already dropped)
 
-    size_t n = nitems*m_itemsize ;
-    m_data = new float[n] ;
-    m_buffer = NULL ; 
+    Allocate(nitems);
 
-    if(data)   // copy floats into owned array 
+    if(data)   
     {
-        m_itemcount = m_itemcapacity ; 
-        while(n--) m_data[n] = data[n] ;   
+        m_itemcount = nitems ; 
+        size_t nbytes = m_itemsize*nitems*sizeof(float); 
+        memcpy( m_data, data, nbytes );
     }
     else
     {
         m_itemcount = 0 ;
     }
-
 }
+
+
 
 
 float* G4DAEArray::GetItemPointer(std::size_t index)
 {
-    assert(index < m_itemcapacity );
-    float* data = m_data + index*m_itemsize ;   
-    return data ; 
+   // only gets existing items 
+    return (index < m_itemcount) ?  m_data + index*m_itemsize : NULL  ;   
 }
+
 
 float* G4DAEArray::GetNextPointer()
 {
-    // hmm need capability to grow the buffer for real collection 
-
-   /*
-    cout << "G4DAEArray::GetNextPointer " 
-         << " itemcount " << m_itemcount 
-         << " itemcapacity " << m_itemcapacity 
-         << " itemsize " << m_itemsize 
-         << endl ; 
-   */
+    if(m_itemcount == m_itemcapacity)
+    {
+         Extend(m_itemcapacity*m_growthfactor);
+    }
 
     assert(m_itemcount < m_itemcapacity );
-
 
     float* data = m_data + m_itemcount*m_itemsize ;   
     m_itemcount++ ; 
@@ -129,30 +163,25 @@ float* G4DAEArray::GetNextPointer()
 
 
 
-
-
-
-
-G4DAEBuffer* G4DAEArray::GetBuffer() const
-{
-   return m_buffer ; 
-}
-
-
 G4DAEArray::~G4DAEArray()
 {
-   delete[] m_data ; 
+   free(m_data) ; 
    delete m_buffer ;
 }
 
 
 string G4DAEArray::GetItemShapeString() const 
 {
+    // full shape string eg "1000,4,4"
     return FormItemShapeString(m_itemshape, 0);
 }
 
 size_t G4DAEArray::FormItemSize(const vector<int>& itemshape, size_t from) 
 {
+    //
+    //  eg for itemshape 1000,4,4  (1000 4x4 matrices) 
+    //     using from = 1 gives ItemSize  16 
+    //
     size_t itemsize = 1 ; 
     for(size_t d=from ; d<itemshape.size(); ++d) itemsize *= itemshape[d]; 
     return itemsize ; 
@@ -160,6 +189,10 @@ size_t G4DAEArray::FormItemSize(const vector<int>& itemshape, size_t from)
 
 string G4DAEArray::FormItemShapeString(const vector<int>& itemshape, size_t from) 
 {
+    //
+    //  eg for itemshape 1000,4,4  (1000 4x4 matrices) 
+    //     using from = 1 gives ItemShapeString "4,4"
+    //
     stringstream ss ; 
     size_t nidim = itemshape.size() ; 
     for(size_t d=from ; d<nidim ; ++d)
@@ -255,6 +288,8 @@ void G4DAEArray::SaveToBuffer()
 {
    bool fortran_order = false ; 
    string itemshape = GetItemShapeString();
+
+   // pre-calculate total buffer size including the padded header
    size_t nbytes = aoba::BufferSize<float>(m_itemcount, itemshape.c_str(), fortran_order  );  
 
    delete m_buffer ; 
@@ -268,6 +303,16 @@ void G4DAEArray::SaveToBuffer()
 #endif
 }
 
+
+
+
+
+//  buffer access for serialization
+
+G4DAEBuffer* G4DAEArray::GetBuffer() const
+{
+   return m_buffer ; 
+}
 const char* G4DAEArray::GetBufferBytes()
 {
    return m_buffer->GetBytes();

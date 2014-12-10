@@ -1,8 +1,11 @@
 #include <stdio.h>  
 #include <stdlib.h>    
 
-//#include "Chroma/ChromaPhotonList.hh"
+
+#ifdef G4DAECHROMA_WITH_CPL
 #include "G4DAEChroma/G4DAEChromaPhotonList.hh"
+#endif
+
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 
 //#include "G4DAEChroma/G4DAESocket.hh"
@@ -29,8 +32,8 @@ typedef G4DAESocketBase G4DAESocket_t ;
 
 
 // **SUCH TYPEDEF OK IN TEST CODE : TOO CONFUSING IN MORE SOLID CODE**
-typedef G4DAEChromaPhotonList G4DAEPhotons_t ;  // .root TObject serialization 
-//typedef G4DAEPhotonList       G4DAEPhotons_t ;    // .npy NPY serialization 
+//typedef G4DAEChromaPhotonList G4DAEPhotons_t ;  // .root TObject serialization 
+typedef G4DAEPhotonList       G4DAEPhotons_t ;    // .npy NPY serialization 
 
 /*
    Running into bad access trouble with ROOT serialization , 
@@ -202,12 +205,45 @@ int metadata()
 }
 
 
+int test_array_growth(const char* evtkey)
+{
+   G4DAEPhotons* p = G4DAEPhotons::Load(evtkey);
+   p->Print("test_array_growth");
+
+
+   G4ThreeVector pos(3,3,3);
+   G4ThreeVector dir(0,0,1);
+   G4ThreeVector pol(0,0,1);
+
+   float time = 1.; 
+   float wavelength = 550.; 
+   int pmtid = 0x1010101 ;
+
+   size_t grow = 1000000 ; 
+   for(size_t i=0 ; i < grow ; i++ ) p->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+   p->Print("after growing");
+   //p->Details(1);
+
+   const char* xkey = "1x" ; 
+   G4DAEPhotons::Save(p, xkey);
+
+   G4DAEPhotons* x = G4DAEPhotons::Load(xkey);
+   x->Print("after serialization/deserialization");
+
+   return 0 ; 
+}
+
+
+
 
 int main(int argc, char** argv)
 {
+    const char* evtkey = "1" ;
+
+    test_array_growth(evtkey);
+
 
   /*
-    const char* evtkey = "3" ;
     p_copy<G4DAEChromaPhotonList,G4DAEPhotonList>(evtkey);
 
     p_copy<G4DAEChromaPhotonList,G4DAEChromaPhotonList>(evtkey);
@@ -232,7 +268,7 @@ int main(int argc, char** argv)
     // p_network<G4DAEChromaPhotonList>();
     //p_string_network();
 
-    metadata();
+    //metadata();
 
     return 0 ;
 }

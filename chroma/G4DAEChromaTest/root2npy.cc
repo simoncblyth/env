@@ -49,7 +49,7 @@ bool canwrite( const char* path )
 
 
 
-
+#ifdef G4DAECHROMA_WITH_CPL
 int convert( const char* srcpath )
 {
     // NB must use copy ctor in order to write to other format 
@@ -95,7 +95,13 @@ int convert( const char* srcpath )
 
     return 0 ; 
 }
+#else
+int convert( const char* /*srcpath*/ )
+{
+    return 0 ;
+}
 
+#endif
 
 
 int recursive_listdir( const char* base, const char* fext )
