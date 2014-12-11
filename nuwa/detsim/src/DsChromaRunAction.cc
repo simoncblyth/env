@@ -50,6 +50,9 @@ DsChromaRunAction::DsChromaRunAction
     declareProperty("PackedIdPropertyName",m_idParameter="PmtID",
                     "The name of the user property holding the PMT ID.");
 
+    declareProperty("EnableChroma",m_enableChroma = false, 
+                    "Enable GPU optical photon propagation with Chroma, requires paired DsChromaStackAction");
+
 
 };
 
@@ -65,16 +68,17 @@ DsChromaRunAction::~DsChromaRunAction()
 void DsChromaRunAction::BeginOfRunAction( const G4Run* run )
 {
     printf("DsChromaRunAction::BeginOfRunAction START\n");
-
     assert(run);
+
     ITouchableToDetectorElement* t2de = tool<ITouchableToDetectorElement>(m_t2deName);
     DsChromaRunAction_BeginOfRunAction( 
-          m_transport, 
-          m_cachekey, 
-          m_sensdet, 
-          m_databasekey, 
-          t2de, 
-          m_idParameter );
+              m_transport, 
+              m_cachekey, 
+              m_sensdet, 
+              m_databasekey, 
+              t2de, 
+              m_idParameter,
+              m_enableChroma );
 
     printf("DsChromaRunAction::BeginOfRunAction DONE\n");
 };

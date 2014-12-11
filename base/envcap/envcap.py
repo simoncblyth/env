@@ -1,22 +1,29 @@
 #!/usr/bin/env python
 """
-Usage::
+Usage via the python script directly is recommended as other
+less direct methods (such as via shim bash or python scripts) 
+are prone to tampering with the environment being captured::
 
-    $HOME/env/base/envcap.py -tzero save   # minimal dependency caching of environment
-    envcap.sh -tlater save       # shorthand after environment is established
+    $HOME/env/base/envcap/envcap.py -tzero save   # capture zero env from start of .bash_profile
+    $HOME/env/base/envcap/envcap.py -tpost save   # capture post env from end of .bash_profile
 
-    envcap.sh -zpost -tcsa cachediff
+    $HOME/env/base/envcap/envcap.py -tcsa  save   
 
+            # after doing some time consuming env setup cache to csa.json
 
-TODO:
+    $HOME/env/base/envcap/envcap.py -zpost -tcsa cachediff
 
-#. snapshot env, store in pickle and then just do a diff with a new env  
+            # now cache the env difference between the "post.json" and "csa.json" 
+            # dumps into a bash envcache script "csa.sh" 
+            # precise paths controlled via template envvars
 
 """
 import collections
-import os, json, logging
+import os, json, logging, time
 log = logging.getLogger(__name__)
 
+def mtime(path):
+    return time.ctime(os.path.getmtime(path))
 
 class Env(collections.OrderedDict):
     _skips = r"""_ HOME PWD OLDPWD LOGNAME SHELL SHLVL MAIL USER 
@@ -54,7 +61,7 @@ class Env(collections.OrderedDict):
     @classmethod
     def diff(cls, zpath, path):
         pass
-        log.info("diff zpath %s path %s " % (zpath, path))
+        log.info("diff zpath %s %s path %s %s " % (zpath,mtime(zpath), path,mtime(path)))
 
         c = cls()
         a = cls.load(zpath)
@@ -63,7 +70,7 @@ class Env(collections.OrderedDict):
         ak = set(a.keys())
         bk = set(b.keys())
 
-        for k in ak.union(bk):
+        for k in sorted(ak.union(bk)):
             if k in ak and k in bk:
                 if a[k] == b[k]:
                     log.debug("a == b : %s : %s == %s  " % (k,a[k], b[k]))
@@ -79,9 +86,11 @@ class Env(collections.OrderedDict):
                 c[k] = b[k] 
             pass
         pass
+        c['ENVCAP_META_ZPATH'] = zpath
+        c['ENVCAP_META_ZPATH_MTIME'] = mtime(zpath)
+        c['ENVCAP_META_PATH'] = path
+        c['ENVCAP_META_PATH_MTIME'] = mtime(path)
         return c
-
-
 
     def __str__(self):
         return "\n".join(map(lambda kv:"export %s='%s'" % kv ,sorted(self.items())))
@@ -130,8 +139,6 @@ class Config(object):
     zpath = property(lambda self:prep(self.opts.jsontmpl,self.opts.zero))
 
 
-
-
 def main():
     cfg = Config()
     for cmd in cfg.args:
@@ -139,10 +146,10 @@ def main():
             e = Env.capture()
             e.save(cfg.path) 
         elif cmd == "diff":
-	    e = Env.diff(cfg.zpath, cfg.path) 
+            e = Env.diff(cfg.zpath, cfg.path) 
             print e
         elif cmd == "cachediff":
-	    e = Env.diff(cfg.zpath, cfg.path) 
+            e = Env.diff(cfg.zpath, cfg.path) 
             sh = cfg.bash
             log.info("cachediff writing to %s " % sh )
             with open(sh, "w") as fp:
@@ -150,9 +157,6 @@ def main():
         else:
             log.warn("cmd % ignored " % cmd )
 
-
-
- 
 
 if __name__ == '__main__':
     main()

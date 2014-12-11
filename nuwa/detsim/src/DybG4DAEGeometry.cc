@@ -11,10 +11,8 @@ using namespace std ;
 DybG4DAEGeometry::DybG4DAEGeometry(ITouchableToDetectorElement* t2de, const char* idParameter) : 
      G4DAEGeometry(), 
      m_idParameter(idParameter),
-     //m_t2deName(t2deName), 
      m_t2de(t2de)
 {
-    //m_t2de = tool<ITouchableToDetectorElement>(m_t2deName);
 }
 
 DybG4DAEGeometry::~DybG4DAEGeometry()

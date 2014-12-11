@@ -43,12 +43,6 @@ dyb-edit(){
   vi $(dyb-rc)
 }
 
-dyb-setup(){
-  [ -z "$DYB"  ]               && echo $msg ERROR need DYB to point to dybinst export directory && return 1
-  cd $DYB
-  . NuWa-trunk/setup.sh 
-}
-
 dyb-d(){
   [ -z "$DYB"  ]               && echo $msg ERROR need DYB to point to dybinst export directory && return 1
   cd $DYB
@@ -71,6 +65,43 @@ dybpython(){          dyb-- $FUNCNAME ; cd python/DybPython ;  }
 dybdbi(){             dyb-- $FUNCNAME ; cd python/DybDbi ;  }
 
 
+
+dyb-setup(){
+  local iwd=$PWD
+  [ -z "$DYB"  ]               && echo $msg ERROR need DYB to point to dybinst export directory && return 1
+  cd $DYB
+  . NuWa-trunk/setup.sh 
+  cd $iwd
+}
+
+dyb-cfg(){
+
+   # contrary to dyb-- this works for non-released packages
+   local msg="=== $FUNCNAME :"
+   local pkg=$1
+   shift  # protect cmt from args
+
+   [ ! -d "$pkg/cmt" ] && echo ERROR NO cmt SUBDIR && sleep 1000000
+   local iwd=$PWD
+
+   echo $msg for pkg $pkg
+   cd $pkg/cmt
+
+   cmt config
+   . setup.sh 
+
+   cmt br cmt config
+
+   cd $iwd
+}
+
+
+dyb-config(){
+   local pkg=$1
+   dyb-setup
+   dyb-cfg $DYB/NuWa-trunk/dybgaudi/DybRelease
+   [ -n "$pkg" ] && dyb-cfg $pkg
+}
 
 
 

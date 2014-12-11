@@ -4,6 +4,7 @@ detsim
 
 .. toctree::
 
+   detsim_dschroma
    detsim_giga_geant4_handoff
    detsim_dspmtsensdet
    detsim_configuration
@@ -14,6 +15,9 @@ detsim
    detsim_dsg4scintillation
    detsim_dsconsoptical
    geant4_touchable
+   detsim_check_hits
+
+
 
 
 

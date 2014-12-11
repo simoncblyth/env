@@ -30,7 +30,9 @@ void DsChromaRunAction_BeginOfRunAction(
        const string& _sensdet, 
        const string& _database, 
        ITouchableToDetectorElement* _t2de, 
-       const string& _idParameter )
+       const string& _idParameter,
+       bool _enableChroma 
+      )
 { 
     string cache_dir = getenvvar(_cachekey, ".");
     string transport_cfg = getenvvar(_transport, "");
@@ -47,15 +49,21 @@ void DsChromaRunAction_BeginOfRunAction(
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
 
-    /// transport 
-
-    G4DAETransport* transport = new G4DAETransport(_transport.c_str());
-    chroma->SetTransport( transport );
-
      ////  database
 
     G4DAEDatabase* database = new G4DAEDatabase(_database.c_str());
     chroma->SetDatabase( database );
+
+    if(!_enableChroma)
+    {
+        cout << "DsChromaRunAction_BeginOfRunAction chroma propagation is disabled " << endl ;  
+        return ;
+    } 
+
+    /// transport 
+
+    G4DAETransport* transport = new G4DAETransport(_transport.c_str());
+    chroma->SetTransport( transport );
 
 
     //// transform cache

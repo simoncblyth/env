@@ -54,26 +54,27 @@ class DsChromaStackAction :  public GiGaStackActionBase
     virtual G4ClassificationOfNewTrack ClassifyNewTrack( const G4Track* aTrack);
     virtual void NewStage();
     virtual void PrepareNewEvent();
+    virtual void Dump(const char* msg);
 
 
-    virtual G4bool    IsNeutronDaughter(const G4int id, const std::vector<G4int> aList);
+    virtual G4bool    IsNeutronDaughter(const G4int id, const std::vector<G4int>& aList);
     virtual G4bool    IsRelevantNeutronDaughter(const G4Track* aTrack);
     virtual G4bool    IsRelevant(const G4Track* aTrack);
     
   private:
 
-    G4int stage;
-    G4int PhotonNumbers;
-    G4int NeutronNumbers;
-    G4bool interestingEvt;    //    Is this event a possible background event? 
+    G4int m_stage;
+    G4int m_photonNumbers;
+    G4int m_neutronNumbers;
+    G4bool m_interestingEvt;    //    Is this event a possible background event? 
 
-    std::vector<G4int> neutronList;
+    std::vector<G4int> m_neutronList;
 
     // background selection property.
-    G4bool m_tightCut;
+    G4bool m_neutronParent;
     
     // kill all the optical photons if True
-    G4bool m_photonCut;
+    G4bool m_photonKill;
 
     // Maximum Number of optical photons been hold..
     G4double m_maxPhoton;
@@ -81,8 +82,8 @@ class DsChromaStackAction :  public GiGaStackActionBase
     // Modulo scale down photons collected
     G4int m_moduloPhoton;
 
-    //    IGeometryInfo* m_geo;
-
+    // Propagate Optical Photons on GPU
+    G4bool m_chromaPropagate;
     
     // Locally cached pointer to the CoordSysSvc
     ICoordSysSvc* m_csvc;

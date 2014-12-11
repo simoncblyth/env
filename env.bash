@@ -68,7 +68,7 @@ u_(){
 u(){ 
    local url=$(u_ $*)
    echo $msg open URL corresponding to PWD $PWD : $url
-   open $(u_ $*) ; 
+   [ "$(uname)" == "Darwin" ] && open $url 
 }
 
 

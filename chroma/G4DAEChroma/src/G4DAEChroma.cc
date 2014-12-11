@@ -47,6 +47,18 @@ G4DAEChroma::G4DAEChroma() :
 { 
 }
 
+void G4DAEChroma::Print(const char* msg)
+{
+    cout << msg << endl ; 
+    cout << "transport " << m_transport << endl ; 
+    cout << "sensdet   " << m_sensdet   << endl ; 
+    cout << "geometry  " << m_geometry  << endl ; 
+    cout << "cache     " << m_cache     << endl ; 
+    cout << "database  " << m_database  << endl ; 
+    cout << "verbosity " << m_verbosity << endl ; 
+}
+
+
 void G4DAEChroma::BeginOfRun( const G4Run* run )
 {
     cout << "G4DAEChroma::BeginOfRun [" << this << "] " << run << endl ;
@@ -190,6 +202,10 @@ void G4DAEChroma::CollectPhoton(const G4Track* track)
    m_transport->CollectPhoton(track);
 }
 
+void G4DAEChroma::ClearAll()
+{
+    m_transport->ClearAll();
+}
 
 
 G4DAEPhotons* G4DAEChroma::Propagate(G4DAEPhotons* photons)
@@ -199,8 +215,6 @@ G4DAEPhotons* G4DAEChroma::Propagate(G4DAEPhotons* photons)
    printf("G4DAEChroma::Propagate returned %zu hits \n", nhits); 
    return m_transport->GetHits();
 }
-
-
 
 
 

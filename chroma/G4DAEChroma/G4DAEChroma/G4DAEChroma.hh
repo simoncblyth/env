@@ -57,6 +57,7 @@ public:
     void SetVerbosity(int verbosity);
     int GetVerbosity();
 
+    void Print(const char* msg="G4DAEChroma::Print");
 
 
 #ifdef DEBUG_HITLIST

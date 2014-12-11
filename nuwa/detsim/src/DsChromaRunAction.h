@@ -50,6 +50,8 @@ private:
   /// resolve sensor ID.
   std::string m_t2deName;
 
+  bool m_enableChroma ; 
+
  
 };
 #endif

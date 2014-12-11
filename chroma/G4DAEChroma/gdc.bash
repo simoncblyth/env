@@ -348,12 +348,18 @@ gdc-nuwaenv()
 gdc-nuwapkg-make() 
 { 
     local iwd=$PWD;
-    gdc-nuwaenv
-    gdc-nuwapkg-cd cmt
-    cmt br cmt config
 
+    dyb-;
+    dyb-setup;
+
+    #gdc-nuwaenv
+
+    gdc-nuwapkg-cd cmt
+
+    cmt br cmt config
     cmt config
     cmt make
+
     cd $iwd
 }
 

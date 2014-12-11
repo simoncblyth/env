@@ -2,7 +2,10 @@
 de-src(){      echo nuwa/de.bash ; }
 de-source(){   echo ${BASH_SOURCE:-$(env-home)/$(de-src)} ; }
 de-vi(){       vi $(de-source) ; }
-de-env(){      elocal- ; fenv ; }
+de-env(){      
+   elocal-  
+   #fenv  
+}
 de-usage(){ cat << EOU
 
 de : Detector Element Dumping
@@ -25,7 +28,15 @@ de-path(){
       111) echo /dd/Structure/AD/db-oil1/db-ad1-ring1-column1 ;; 
    esac
 }
+
+de-runenv(){
+   csa-
+   csa-envcache-source
+}
+
 de-dump(){
+
+   de-runenv
    local tag=${1:-oil}
    local path=$(de-path $tag)
    nuwa.py -n1 -m "XmlDetDescChecks.dedump $path"

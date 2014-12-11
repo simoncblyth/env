@@ -34,6 +34,77 @@ G4UserStackingAction
 
 
 
+Documentation Extracts
+-----------------------
+
+* http://geant4.web.cern.ch/geant4/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/UserActions/OptionalActions.html
+
+ClassifyNewTrack
+~~~~~~~~~~~~~~~~~
+
+`ClassifyNewTrack()` is invoked by `G4StackManager` whenever a new `G4Track`
+object is "pushed" onto a stack by `G4EventManager`.  `ClassifyNewTrack()`
+returns an enumerator, `G4ClassificationOfNewTrack`, whose value indicates to
+which stack, if any, the track will be sent.  This value should be determined
+by the user. `G4ClassificationOfNewTrack` has four possible values:
+
+#. `fUrgent` - track is placed in the urgent stack
+#. `fWaiting` - track is placed in the waiting stack, and will not be simulated until the urgent stack is empty
+#. `fPostpone` - track is postponed to the next event
+#. `fKill` - the track is deleted immediately and not stored in any stack.
+
+These assignments may be made based on the origin of the track which is obtained as follows:
+`G4int parent_ID = aTrack->get_parentID();`
+where
+
+#. `parent_ID = 0` indicates a primary particle
+#. `parent_ID > 0` indicates a secondary particle
+#. `parent_ID < 0` indicates postponed particle from previous event.
+
+
+* always returning `fUrgent` would result in stepping proceeding 
+  for tracks as they arise, ie with OP mixed up with everything else
+
+
+NewStage : deal with the wait stack
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`NewStage()` is invoked when the urgent stack is empty and the waiting stack
+contains at least one `G4Track` object.  Here the user may kill or re-assign to
+different stacks all the tracks in the waiting stack by calling the
+`stackManager->ReClassify()` method which, in turn, calls the
+`ClassifyNewTrack()` method. 
+
+If no user action is taken, all tracks in the waiting stack are transferred to
+the urgent stack. 
+
+* HMM: so can see how long the Optical Photons are taking could first 
+  collect them into the wait stack and then "do nothing" at NewStage
+
+
+The user may also decide to abort the current event even though some tracks may
+remain in the waiting stack by calling `stackManager->clear()`.  This method is
+valid and safe only if it is called from the `G4UserStackingAction` class. 
+
+A global method of event abortion is::
+
+    G4UImanager * UImanager = G4UImanager::GetUIpointer();
+    UImanager->ApplyCommand("/event/abort");
+
+
+PrepareNewEvent
+~~~~~~~~~~~~~~~~~~~
+
+`PrepareNewEvent()` is invoked at the beginning of each event. At this point no
+primary particles have been converted to tracks, so the urgent and waiting
+stacks are empty. However, there may be tracks in the postponed-to-next-event
+stack; for each of these the `ClassifyNewTrack()` method is called and the track
+is assigned to the appropriate stack.
+
+
+
+
+
 StackingAction Source 
 ----------------------
 

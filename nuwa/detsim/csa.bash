@@ -97,7 +97,10 @@ csa-nuwapkg-diff(){ csa-nuwapkg-action diff ; }
 csa-nuwapkg-make(){
    local iwd=$PWD
 
-   csa-nuwaenv
+   #csa-nuwaenv
+
+   dyb-
+   dyb-setup
 
    csa-nuwapkg-cd cmt
    cmt config
@@ -125,7 +128,33 @@ csa-nuwacfg(){
 }
 
 
-csa-nuwaenv(){
+
+
+csa-envcache-cd(){ cd $(dirname $(csa-envcache)) ; }
+csa-envcache(){ printf $ENVCAP_BASH_TMPL csa ; }
+csa-envcache-rm(){ 
+  local envcache=$(csa-envcache)
+  rm $envcache
+} 
+csa-envcache-source(){
+   local msg=" === $FUNCNAME :"
+   local envcache=$(csa-envcache)
+   if [ -f "$envcache" ]; then
+       echo $msg sourcing envcache $envcache
+       source $envcache
+   else
+       echo $msg MISSING FILE $envcache
+   fi
+}
+
+
+csa-pp(){
+   which python
+   echo $PYTHONPATH | tr ":" "\n"
+}
+
+
+csa-nuwaenv-manual(){
 
    opw-       # opw-env sets up NuWa env 
 
@@ -151,31 +180,31 @@ csa-nuwaenv(){
 
 
 
-csa-envcache(){ printf $ENVCAP_BASH_TMPL csa ; }
-csa-envcache-rm(){ 
-  local envcache=$(csa-envcache)
-  rm $envcache
-} 
-csa-envcache-source(){
-   local msg=" === $FUNCNAME :"
-   local envcache=$(csa-envcache)
-   echo $msg sourcing envcache $envcache
-   source $envcache
+csa-nuwaenv(){
+   dyb-
+   dyb-config $(csa-nuwapkg)
+
+   #
+   # in response to lack of MySQLdb in focussed environment config 
+   # have kludged to config the kitchensink DybRelease
+   # maybe adding DybPython to dependencies for runtime use of nuwa.py 
+   # can avoid that 
+   #
+   # BUT now that envcache is working, not much motivation for this
+   # 
 }
 
 
-csa-pp(){
-   which python
-   echo $PYTHONPATH | tr ":" "\n"
-}
 
 csa-export(){
    # potentially override defaults set in requirements
    zmq-
-   export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
    export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     
+   export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
+   export G4DAECHROMA_DATABASE_PATH=$HOME/g4daechroma.db     
    env | grep G4DAECHROMA
 }
+
 
 csa-nuwarun(){
    local msg=" === $FUNCNAME :"
@@ -183,15 +212,10 @@ csa-nuwarun(){
    if [ -f "$(csa-envcache)" ]; then 
        csa-envcache-source
    else
-
-       if [ "$NODE_TAG" == "G5" ]; then 
-          dyb-- dybpython 
-       fi 
-
        csa-nuwaenv
        csa-export
 
-       envcap.sh -zpost -tcsa cachediff
+       $ENV_HOME/base/envcap/envcap.py -zpost -tcsa save cachediff
    fi
 
 
@@ -204,7 +228,9 @@ csa-nuwarun(){
    opw-
    opw-cd     # need to be in OPW to find "fmcpmuon"
 
-   nuwa.py -n 1 -m "fmcpmuon --use-basic-physics --chroma --test"
+
+   local args="fmcpmuon --use-basic-physics --chroma --chroma-disable --test"
+   nuwa.py -n 1 -m "$args"
 }
 
 
@@ -215,7 +241,10 @@ csa-nuwarun-gdb(){
    local def=$(csa-nuwarun-pid)
    local pid=${1:-$def}
    [ -z $pid ] && echo enter pid of nuwa.py process && return 1
+
    opw-
+   opw-cd
+
    gdb $(which python) $pid
 }
 
