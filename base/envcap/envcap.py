@@ -2,7 +2,7 @@
 """
 Usage::
 
-    PYTHONPATH=$HOME $HOME/env/base/envcap.py -tzero save   # minimal dependency caching of environment
+    $HOME/env/base/envcap.py -tzero save   # minimal dependency caching of environment
     envcap.sh -tlater save       # shorthand after environment is established
 
     envcap.sh -zpost -tcsa cachediff
@@ -93,8 +93,8 @@ def parse_args(doc):
     from optparse import OptionParser
     op = OptionParser(usage=doc)
 
-    envcap_json_tmpl = os.environ.get('ENVCAP_JSON_TMPL', "~/.env/envcap/%s.json" ) 
-    envcap_bash_tmpl = os.environ.get('ENVCAP_BASH_TMPL', "~/.env/envcap/%s.sh" ) 
+    envcap_json_tmpl = os.environ.get('ENVCAP_JSON_TMPL', "$HOME/.env/envcap/%s.json" ) 
+    envcap_bash_tmpl = os.environ.get('ENVCAP_BASH_TMPL', "$HOME/.env/envcap/%s.sh" ) 
 
     op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG. Default %default"  )
     op.add_option("--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" , help="logging format" )

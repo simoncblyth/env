@@ -1,5 +1,3 @@
 #!/bin/bash -l 
-
-PYTHONPATH=$HOME envcap.py $*
-
+envcap.py $*
 

@@ -151,28 +151,37 @@ csa-nuwaenv(){
 
 
 
-csa-export(){
-   export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
-}
-
 csa-envcache(){ printf $ENVCAP_BASH_TMPL csa ; }
 csa-envcache-rm(){ 
   local envcache=$(csa-envcache)
   rm $envcache
 } 
+csa-envcache-source(){
+   local msg=" === $FUNCNAME :"
+   local envcache=$(csa-envcache)
+   echo $msg sourcing envcache $envcache
+   source $envcache
+}
+
 
 csa-pp(){
    which python
    echo $PYTHONPATH | tr ":" "\n"
 }
 
+csa-export(){
+   # potentially override defaults set in requirements
+   zmq-
+   export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
+   export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     
+   env | grep G4DAECHROMA
+}
 
 csa-nuwarun(){
    local msg=" === $FUNCNAME :"
-   local envcache=$(csa-envcache)
-   if [ -f "$envcache" ]; then 
-       echo $msg sourcing envcache $envcache
-       source $envcache
+
+   if [ -f "$(csa-envcache)" ]; then 
+       csa-envcache-source
    else
 
        if [ "$NODE_TAG" == "G5" ]; then 
@@ -180,10 +189,8 @@ csa-nuwarun(){
        fi 
 
        csa-nuwaenv
-       zmq-
        csa-export
-       export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     # override default set in requirements
-       env | grep G4DAECHROMA
+
        envcap.sh -zpost -tcsa cachediff
    fi
 
@@ -193,7 +200,6 @@ csa-nuwarun(){
    if [ -n "$cachedir" ]; then
        mkdir -p $(dirname $cachedir)  
    fi
-
 
    opw-
    opw-cd     # need to be in OPW to find "fmcpmuon"

@@ -79,8 +79,12 @@ opw-cd(){  cd $(opw-dir); }
 opw-mate(){ mate $(opw-dir) ; }
 
 opw-env(){     
-    elocal- ; 
+    elocal- 
+    #opw-env-setup
+}
 
+
+opw-env-setup(){
     local fast=$HOME/env-fast.sh
     [ -f "$fast" ] && . $fast       # NuWa dbg env
     [ ! -f "$fast" ] && echo $msg WARNING no fast $fast

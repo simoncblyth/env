@@ -243,6 +243,17 @@ czmq-client-tunneled(){
 }
 
 
+czmq-main(){
+    local arg=${1:-local}
+    zmq-broker-info
+    if [ "$arg" == "local" ]; then
+        type czmq-broker-local
+        czmq-broker-local
+    else
+        type czmq-broker
+        czmq-broker
+    fi
+}
 
 
 czmq-broker(){ 
