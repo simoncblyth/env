@@ -175,7 +175,7 @@ class DAEChromaContext(object):
             args = request.meta[0].get('args',{})
         else:
             log.warn("incoming request with no metadata, parameter defaults will be used") 
-            config = {}
+            ctrl = {}
             args = {}
         pass
         self.ctrl = ctrl

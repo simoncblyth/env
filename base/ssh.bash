@@ -60,6 +60,53 @@ the passphrase used at key creation will be prompted for
     source>  ssh--agent-start
 
 
+
+SSH Key Juggling
+-----------------
+
+As direct ssh connection from D to N is blocked (by network gnomes) are 
+making such connections via C, using a forced ssh command that only 
+kicks in when an alternative key is used::
+
+     61 # belle7 via forced command on C
+     62 host CN
+     63     user blyth
+     64     hostname 140.112.101.190
+     65     IdentityFile ~/.ssh/alt_dsa
+     66     protocol 2
+
+Problem is that when the normal ssh agent is running providing 
+passwordless access to all non-blocked nodes this uses the 
+normal key and thus doesnt run the forced command to get to N, 
+ending up at C::
+
+    delta:~ blyth$ ssh CN
+    Scientific Linux CERN SLC release 4.8 (Beryllium)
+    Last login: Thu Dec 11 12:04:14 2014 from simon.phys.ntu.edu.tw
+    [blyth@cms01 ~]$ 
+
+
+Workaround (not solution as need to manually enter password)
+is to prevent interference from the agent when connecting to CN::
+
+    delta:env blyth$ SSH_AUTH_SOCK= ssh CN
+    Scientific Linux CERN SLC release 4.8 (Beryllium)
+    Enter passphrase for key '/Users/blyth/.ssh/alt_dsa': 
+    Last login: Thu Dec 11 12:04:27 2014 from cms01.phys.ntu.edu.tw
+    [blyth@belle7 ~]$ 
+
+Or equivalently with function::
+
+    delta:env blyth$ CN(){ SSH_AUTH_SOCK= ssh CN ; }
+    delta:env blyth$ CN
+    Scientific Linux CERN SLC release 4.8 (Beryllium)
+    Enter passphrase for key '/Users/blyth/.ssh/alt_dsa': 
+    Last login: Thu Dec 11 12:12:00 2014 from cms01.phys.ntu.edu.tw
+    [blyth@belle7 ~]$ 
+
+
+
+
 Debugging Tips
 ----------------
 

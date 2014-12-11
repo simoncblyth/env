@@ -42,7 +42,7 @@ class G4DAEChroma(object):
         log.info("start polling responder: %s " % repr(self.responder))
         count = 0 
         while True:
-            if count % 10 == 0:
+            if count % 100 == 0:
                 log.info("polling %s " % count ) 
             self.responder.poll()
             count += 1 

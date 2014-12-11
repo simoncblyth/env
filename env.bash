@@ -54,8 +54,8 @@ u_(){
    local dir=${1:-$PWD}
    local abs=$(realpath $dir)   # see ~/e/tools/realpath/
    case $abs in
-           ${ENV_HOME}) echo http://localhost/e/ ;; 
-          ${ENV_HOME}*) echo http://localhost/e/${abs/$ENV_HOME\/}/ ;; 
+           ${ENV_HOME}) echo http://localhost/env_notes/ ;; 
+          ${ENV_HOME}*) echo http://localhost/env_notes/${abs/$ENV_HOME\/}/ ;; 
       ${WORKFLOW_HOME}) echo http://localhost/w/ ;; 
      ${WORKFLOW_HOME}*) echo http://localhost/w/${abs/$WORKFLOW_HOME\/}/ ;; 
         ${HEPREZ_HOME}) echo http://dayabay.phys.ntu.edu.tw/h/ ;; 
@@ -1499,4 +1499,5 @@ cjs-(){      . $(env-home)/messaging/cjson/cjs.bash && cjs-env $* ; }
 sqliteswift-(){      . $(env-home)/sqlite/sqliteswift/sqliteswift.bash && sqliteswift-env $* ; }
 lineprofiler-(){      . $(env-home)/python/lineprofiler/lineprofiler.bash && lineprofiler-env $* ; }
 wt-(){      . $(env-home)/web/wt.bash && wt-env $* ; }
+vim-(){      . $(env-home)/base/vim/vim.bash && vim-env $* ; }
 envcap-(){      . $(env-home)/base/envcap.bash && envcap-env $* ; }

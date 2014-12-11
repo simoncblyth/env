@@ -2,8 +2,6 @@ NuWa on Mavericks
 ===================
 
 
-
-
 Getting NuWa installed on Mavericks, with clang will take effort::
 
     delta:~ blyth$ dybinst-
