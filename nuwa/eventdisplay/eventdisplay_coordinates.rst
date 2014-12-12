@@ -21,7 +21,10 @@ TODO:
    perhaps G4DAETransformMap 
 
 
+All DE are traversed by::
 
+    [blyth@ntugrid5 ~]$ which de.sh
+    ~/env/bin/de.sh
 
 
 

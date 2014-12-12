@@ -19,6 +19,9 @@ Running
     [blyth@belle7 ~]$ csa.sh
 
 
+    [blyth@ntugrid5 ~]$ csa.sh --modulo-photon 1000
+
+
 ChromaRunAction
 -----------------
 
@@ -50,13 +53,16 @@ csa-env(){      elocal- ; mocknuwa- ; }
 csa-names(){ cat << EON
 DsChromaStackAction
 DsChromaRunAction
+DsChromaEventAction
 DybG4DAECollector
 DybG4DAEGeometry
 DsChromaRunAction_BeginOfRunAction
+csa
 EON
 }
 csa-exts(){
    case $1 in 
+                                     csa) echo py ;;
       DsChromaRunAction_BeginOfRunAction) echo icc ;;
                                        *) echo h cc ;;
    esac 
@@ -75,8 +81,12 @@ csa-nuwapkg-action-(){
    local exts=$(csa-exts $nam)
    #echo $FUNCNAME act $act nam $nam
    local ext
+   local cmd
    for ext in $exts ; do 
-      local cmd=$(csa-nuwapkg-cmd $act $(csa-dir)/src/$nam.$ext $pkg/src/$nam.$ext)
+      case $ext in 
+        py) cmd=$(csa-nuwapkg-cmd $act $(csa-dir)/python/DetSimChroma/$nam.$ext $pkg/python/DetSimChroma/$nam.$ext) ;;
+         *) cmd=$(csa-nuwapkg-cmd $act $(csa-dir)/src/$nam.$ext $pkg/src/$nam.$ext) ;;
+      esac
       echo $cmd
       eval $cmd 
    done 
@@ -94,17 +104,16 @@ csa-nuwapkg-diff(){ csa-nuwapkg-action diff ; }
 
 
 
+csa-nuwapkg-make-py(){ csa-nuwapkg-make DetSimChroma_python ; }
 csa-nuwapkg-make(){
    local iwd=$PWD
-
-   #csa-nuwaenv
 
    dyb-
    dyb-setup
 
    csa-nuwapkg-cd cmt
    cmt config
-   cmt make 
+   cmt make $*
 
    cd $iwd
 }
@@ -205,7 +214,7 @@ csa-export(){
    env | grep G4DAECHROMA
 }
 
-
+csa-nevt(){ echo ${CSA_NEVT:-1} ; }
 csa-nuwarun(){
    local msg=" === $FUNCNAME :"
 
@@ -214,10 +223,8 @@ csa-nuwarun(){
    else
        csa-nuwaenv
        csa-export
-
        $ENV_HOME/base/envcap/envcap.py -zpost -tcsa save cachediff
    fi
-
 
    ## TODO: adopt mkdirp to avoid this limitation of preexisting dir 
    local cachedir=$G4DAECHROMA_CACHE_DIR
@@ -225,12 +232,8 @@ csa-nuwarun(){
        mkdir -p $(dirname $cachedir)  
    fi
 
-   opw-
-   opw-cd     # need to be in OPW to find "fmcpmuon"
-
-
-   local args="fmcpmuon --use-basic-physics --chroma --chroma-disable --test"
-   nuwa.py -n 1 -m "$args"
+   local args="DetSimChroma.csa --use-basic-physics --chroma --chroma-disable --test $*"
+   nuwa.py -n $(csa-nevt) -m "$args"
 }
 
 

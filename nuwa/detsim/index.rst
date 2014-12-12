@@ -5,6 +5,7 @@ detsim
 .. toctree::
 
    detsim_dschroma
+   detsim_monitoring
    detsim_giga_geant4_handoff
    detsim_dspmtsensdet
    detsim_configuration

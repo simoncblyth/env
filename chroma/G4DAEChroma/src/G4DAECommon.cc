@@ -5,7 +5,6 @@
 #include <cassert>
 #include "G4AffineTransform.hh"
 
-#include <time.h>   
 
 #ifdef WITH_ZMQ
 #include <zmq.h>
@@ -130,14 +129,6 @@ void getintpair( const char* range, char delim, int* a, int* b )
 }
 
 
-void current_time(char* buf, int buflen, const char* tfmt, int utc)
-{
-   time_t t;
-   time (&t); 
-   struct tm* tt = utc ? gmtime(&t) : localtime(&t) ;
-   strftime(buf, buflen, tfmt, tt);
-}
-
 
 // return path up to the last occurrence of the delim
 // in principal the path returned should be free-d
@@ -209,18 +200,6 @@ int mkdirp(const char* _path, int mode)
 
 
 
-
-
-
-
-
-
-std::string now(const char* tfmt, const int buflen, int utc )
-{
-    char buf[buflen];
-    current_time( buf, buflen, tfmt, utc );  
-    return std::string(buf);
-}
 
 
 
@@ -336,5 +315,10 @@ int b_recv( void* socket, zmq_msg_t& msg )
 
 
 #endif
+
+
+
+
+
 
 

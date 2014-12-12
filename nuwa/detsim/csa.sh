@@ -1,6 +1,7 @@
 #!/bin/bash -l
 
 csa-
-csa-nuwarun
+csa-nuwarun $*
+
 
 
