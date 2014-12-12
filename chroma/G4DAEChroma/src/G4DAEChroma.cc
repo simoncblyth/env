@@ -249,7 +249,25 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
   if(m_verbosity > 1)
       cout << "G4DAEChroma::Propagate START batch_id " << batch_id << endl ; 
 
+ 
+  G4DAEPhotons* photons = m_transport->GetPhotons();
+  G4DAEMetadata* phometa = new G4DAEMetadata("{}") ; 
+  if(m_database)
+  {  
+      int cid = 2 ; // TODO: make this a parameter somehow
+      Map_t ctrl = m_database->GetOne("select * from ctrl where id=? ;", cid ) ;
+      phometa->AddMap("ctrl", ctrl);
+  }
+  phometa->Print("#phometa");
+  photons->AddLink(phometa);
+
+
+  if(m_verbosity > 1)
+      photons->Print("G4DAEChroma::Propagate photons"); 
+
+
   std::size_t nhits = m_transport->Propagate(batch_id); 
+
 
   if(m_verbosity > 1) 
       cout << "G4DAEChroma::Propagate CollectHits batch_id " << batch_id << endl ; 
