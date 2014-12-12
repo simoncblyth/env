@@ -4,6 +4,7 @@
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
+#include "G4DAEChroma/G4DAETime.hh"
 #include "G4DAEChroma/G4DAEHitList.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEDatabase.hh"
@@ -66,7 +67,14 @@ void Propagate(int seq, int bid, int cid, int* range )
     phometa->Print("#phometa"); 
     photons->AddLink(phometa);
 
-    G4DAEPhotons* hits = chroma->Propagate(photons);   // propagation + hit collection
+
+    G4DAEPhotons* hits = NULL ;
+    double t_propagate = -1. ; 
+    {
+        double t0 = getRealTime();
+        hits = chroma->Propagate(photons);   // propagation + hit collection
+        t_propagate = getRealTime() - t0 ;
+    }
     G4DAEMetadata* hitmeta = hits->GetLink();  
 
     Map_t mhits ; 
@@ -77,6 +85,7 @@ void Propagate(int seq, int bid, int cid, int* range )
     mhits["stddt"] = now("%Y-%m-%d %H:%M:%S", 20, 1);
     mhits["loc"]   = now("%s", 20, 0 );
     mhits["locdt"] = now("%Y-%m-%d %H:%M:%S", 20, 0);
+    mhits["tprop"] = toStr<double>(t_propagate);
 
 
     hitmeta->AddMap("mhits", mhits);         
@@ -127,9 +136,9 @@ std::vector<long> getivec( G4DAEDatabase* db, const char* arg )
 
 int main(int argc, const char** argv)
 {
-    const char* _batch  = "select id from batch where nwork>2000 order by id;" ; 
-    const char* _ctrl   = "select id from ctrl order by id ;" ;           
-    const char* _range  = getenv("RANGE") ;
+    const char* _batch = "select id from batch where nwork>2000 order by id;" ; 
+    const char* _ctrl  = "select id from ctrl order by id ;" ;           
+    const char* _range = getenv("RANGE") ;
 
     if(argc > 1) _batch = argv[1] ; 
     if(argc > 2) _ctrl  = argv[2] ; 
@@ -144,7 +153,8 @@ int main(int argc, const char** argv)
          "DsPmtSensDet" , 
          "G4DAECHROMA_DATABASE_PATH", 
           NULL, 
-          "" ); 
+          "",
+          true ); 
 
     G4DAEDatabase* db = G4DAEChroma::GetG4DAEChroma()->GetDatabase();
 

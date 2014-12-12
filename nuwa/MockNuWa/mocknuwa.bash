@@ -178,23 +178,23 @@ mocknuwa-scan(){
    local ctrl_sql="select id from ctrl order by id ;"
    MockNuWa "$(mocknuwa-batch-sql)" "$(mocknuwa-ctrl-sql)"
 }
-
-mocknuwa-scanone(){
+mocknuwa-scan-config(){
    mocknuwa-runenv 
-   MockNuWa 1:2 1:17
+   MockNuWa 12:13 1:17
+}
+mocknuwa-one(){
+   mocknuwa-runenv 
+   MockNuWa 12:13 1:2
+}
+mocknuwa-scan-batch(){
+   mocknuwa-runenv 
+   MockNuWa 1:10 1:2
 }
 
-mocknuwa-log-drop(){
-   echo drop table if exists log \; | mocknuwa-sqlite
-}
-
-mocknuwa-log(){
-   echo select \* from log \; | mocknuwa-sqlite
-}
-
-
+mocknuwa-log-drop(){ echo drop table if exists log \; | mocknuwa-sqlite ; }
+mocknuwa-log(){ echo select \* from log \; | mocknuwa-sqlite ; }
+mocknuwa-tperk(){ $FUNCNAME- | mocknuwa-sqlite ; }
 mocknuwa-tperk-(){ cat << EOS
-
 select log.id, \
        log.batch_id, \
        log.ctrl_id, \
@@ -211,9 +211,5 @@ select log.id, \
        order by tperk desc ;
 
 EOS
-}
-
-mocknuwa-tperk(){
-  $FUNCNAME- | mocknuwa-sqlite
 }
 
