@@ -1501,3 +1501,4 @@ lineprofiler-(){      . $(env-home)/python/lineprofiler/lineprofiler.bash && lin
 wt-(){      . $(env-home)/web/wt.bash && wt-env $* ; }
 vim-(){      . $(env-home)/base/vim/vim.bash && vim-env $* ; }
 envcap-(){      . $(env-home)/base/envcap.bash && envcap-env $* ; }
+realtime-(){      . $(env-home)/base/time/realtime.bash && realtime-env $* ; }
