@@ -36,6 +36,7 @@ class G4TouchableHistory;
 class IGeometryInfo;
 class ICoordSysSvc;
 
+#include "G4DAEChroma/G4DAEMap.hh"
 class G4DAEChroma;
 
 
@@ -91,7 +92,12 @@ class DsChromaStackAction :  public GiGaStackActionBase
     // local ptr to singleton instance
     G4DAEChroma* m_chroma ; 
 
-  
+ private:
+
+     double  m_t0 ;
+     Map_t   m_map ; 
+
+ 
 };
 
 #endif

@@ -20,6 +20,8 @@
 #include <G4Track.hh>
 
 #include "G4DAEChroma/G4DAEChroma.hh"
+#include "G4DAEChroma/G4DAEMetadata.hh"
+#include "G4DAEChroma/G4DAECommon.hh"
 
 
 DECLARE_TOOL_FACTORY(DsChromaStackAction);
@@ -171,26 +173,38 @@ G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track*
 
 
               } else {         // optical  
-        
+       
+                  assert(is_secondary); 
+
                   m_photonNumbers++;
 
-                  // either kill all photons or modulo misses for non-realistic (but faster) testing 
-                  if (m_photonKill || m_photonNumbers % m_moduloPhoton != 0) 
+                  // either kill all photons or modulo misses for non-realistic (but faster) testing  or overmax
+                  bool kill = m_photonKill || m_photonNumbers % m_moduloPhoton != 0 || m_photonNumbers >= m_maxPhoton ;
+
+                  if( m_chroma )
                   {
-                      classification=fKill;
+                       // chroma always kills from G4 point of view, but collects non-kills
+                       classification=fKill;  
+                       if(!kill)
+                       {
+                           m_chroma->CollectPhoton( aTrack ); 
+                       } 
                   }
-                  else if( is_secondary && m_photonNumbers <= m_maxPhoton && !m_interestingEvt )  
-                  {
-                      // Chroma:Collect+fKill === Geant4:fWaiting  
-                      if( m_chroma ) 
-                      { 
-                          m_chroma->CollectPhoton( aTrack ); 
-                          classification=fKill ;
-                      } 
-                      else
-                      {
-                          classification=fWaiting;    
-                      }
+                  else
+                  { 
+                       // once strike interestingness everything gets classified urgent
+                       if(kill)
+                       {
+                           classification=fKill;
+                       } 
+                       else if( is_secondary && !m_interestingEvt )  
+                       {
+                           classification=fWaiting;    
+                       }
+                       else
+                       {
+                           //G4cout <<  *aTrack << G4endl ;
+                       }
                   }
                   break;
               }
@@ -215,6 +229,21 @@ G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track*
 void DsChromaStackAction::NewStage()
 {
   m_stage++;
+
+  double td = G4DAEMetadata::RealTime() - m_t0 ;
+
+  m_map["NewStage"] = G4DAEMetadata::TimeStampLocal();
+  m_map["duration"]  = toStr<double>(td) ;  
+  m_map["photonNumbers"]  = toStr<int>(m_photonNumbers) ;  
+  m_map["neutronNumbers"]  = toStr<int>(m_neutronNumbers) ;  
+  m_map["moduloPhoton"]  = toStr<int>(m_moduloPhoton) ;  
+  m_map["maxPhoton"]  = toStr<int>(m_maxPhoton) ;  
+
+  m_map["COLUMNS"] = "NewStage:s,PrepareNewEvent:s,duration:f,photonNumbers:i,neutronNumbers:i,moduloPhoton:i,maxPhoton:i" ;
+
+  G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
+  G4DAEMetadata* meta = chroma->GetMetadata(); 
+  meta->AddMap("stackaction",m_map);
 
   info()<< "DsChromaStackAction::NewStage m_stage  " << m_stage <<endreq;
   info()<< " photonNumbers  :  "<< m_photonNumbers <<endreq;
@@ -288,6 +317,11 @@ void DsChromaStackAction::PrepareNewEvent()
   { 
       m_chroma->ClearAll(); 
   } 
+
+
+  m_t0 = G4DAEMetadata::RealTime();
+  printf("DsChromaStackAction::PrepareNewEvent t0 %f \n", m_t0 );
+  m_map["PrepareNewEvent"] = G4DAEMetadata::TimeStampLocal();
 
 }
 

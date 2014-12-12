@@ -15,6 +15,12 @@ class G4DAEMetadata : public G4DAESerializable {
 public:
     typedef std::map<std::string,std::string> Map_t ;
     static const std::string EMPTY ; 
+    static const char* TIMEFORMAT ; 
+    static char* TimeStampLocal();
+    static char* TimeStampUTC();
+    static double RealTime();
+
+
 public:
     G4DAEMetadata(Map_t& map, const char* name);
     G4DAEMetadata(const char* str );

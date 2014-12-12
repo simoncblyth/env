@@ -1,6 +1,6 @@
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEBuffer.hh"
-//#include "G4DAEChroma/G4DAECommon.hh"
+#include "G4DAEChroma/G4DAETime.hh"
 #include <string.h>
 #include <iostream>
 #include <stdio.h>
@@ -11,6 +11,22 @@ using namespace std ;
 
 const std::string G4DAEMetadata::EMPTY = "empty" ; 
 
+const char* G4DAEMetadata::TIMEFORMAT = "%Y-%m-%d %H:%M:%S" ; 
+
+double G4DAEMetadata::RealTime()
+{
+   return getRealTime();
+}
+
+char* G4DAEMetadata::TimeStampLocal()
+{
+   return now(G4DAEMetadata::TIMEFORMAT, 20, 0); 
+}
+
+char* G4DAEMetadata::TimeStampUTC()
+{
+   return now(G4DAEMetadata::TIMEFORMAT, 20, 1); 
+}
 
 
 

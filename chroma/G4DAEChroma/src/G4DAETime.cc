@@ -110,6 +110,8 @@ double getRealTime( )
 
 /// second precision only below, but has absolute meaning unlike the above 
 
+#include "string.h"
+
 
 void current_time(char* buf, int buflen, const char* tfmt, int utc)
 {

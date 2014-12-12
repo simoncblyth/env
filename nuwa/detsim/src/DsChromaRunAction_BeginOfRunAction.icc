@@ -54,6 +54,9 @@ void DsChromaRunAction_BeginOfRunAction(
     G4DAEDatabase* database = new G4DAEDatabase(_database.c_str());
     chroma->SetDatabase( database );
 
+    G4DAEMetadata* meta = new G4DAEMetadata("{}");
+    chroma->SetMetadata( meta );
+
     if(!_enableChroma)
     {
         cout << "DsChromaRunAction_BeginOfRunAction chroma propagation is disabled " << endl ;  

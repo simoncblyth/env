@@ -26,11 +26,12 @@ class G4DAEBuffer ;
 
 class G4DAEArray : public G4DAESerializable {
     static const char* MAGIC ; 
+    static const size_t INITCAPACITY ; 
 public:
     G4DAEArray* CreateOther(char* bytes, size_t size);
 
     G4DAEArray(char* bytes, size_t size, float growth=1.5 );
-    G4DAEArray( std::size_t itemcapacity = 0, std::string itemshapestr = "", float* data = NULL, float growth=1.5 );
+    G4DAEArray( std::size_t initcapacity = INITCAPACITY , std::string itemshapestr = "", float* data = NULL, float growth=1.5 );
 
     virtual ~G4DAEArray();
 
@@ -77,6 +78,7 @@ public:
     std::size_t GetSize() const;
     std::size_t GetItemSize() const;
     std::size_t GetCapacity() const;
+    std::size_t GetInitCapacity() const;
     std::size_t GetBytesUsed() const;
     std::size_t GetBytes() const;
     std::string GetDigest() const; 
@@ -89,6 +91,7 @@ protected:
 
 protected:
     std::size_t      m_itemcount ; 
+    std::size_t      m_initcapacity ; 
     std::size_t      m_itemcapacity ; 
     float*           m_data ; 
     float            m_growthfactor ; 

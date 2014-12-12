@@ -15,6 +15,7 @@
 #include "G4AffineTransform.hh"
 
 #include <iostream>
+#include <assert.h>
 
 
 using namespace std ; 
@@ -43,9 +44,22 @@ G4DAEChroma::G4DAEChroma() :
     m_geometry(0),
     m_cache(0),
     m_database(0),
+    m_metadata(0),
     m_verbosity(3)
 { 
 }
+
+G4DAEChroma::~G4DAEChroma()
+{
+    delete m_transport ;
+    delete m_sensdet ;
+    delete m_geometry ;
+    delete m_cache ;
+    delete m_database ;
+    delete m_metadata ;
+}
+
+
 
 void G4DAEChroma::Print(const char* msg)
 {
@@ -55,6 +69,7 @@ void G4DAEChroma::Print(const char* msg)
     cout << "geometry  " << m_geometry  << endl ; 
     cout << "cache     " << m_cache     << endl ; 
     cout << "database  " << m_database  << endl ; 
+    cout << "metadata  " << m_metadata  << endl ; 
     cout << "verbosity " << m_verbosity << endl ; 
 }
 
@@ -70,6 +85,8 @@ void G4DAEChroma::EndOfRun(   const G4Run* run )
 
 void G4DAEChroma::Configure(const char* transport, const char* sensdet, const char* geometry, const char* database)
 {
+    assert(0); // not in use : TODO:get rid of this
+
     cout << "G4DAEChroma::Configure [" << this << "]" << endl ;
     G4DAETransport* tra = new G4DAETransport(transport);
     G4DAEGeometry*  geo = G4DAEGeometry::MakeGeometry(geometry);
@@ -93,14 +110,6 @@ void G4DAEChroma::Note(const char* msg)
 }
 
 
-G4DAEChroma::~G4DAEChroma()
-{
-    delete m_transport ;
-    delete m_sensdet ;
-    delete m_geometry ;
-    delete m_cache ;
-    delete m_database ;
-}
 
 void G4DAEChroma::SetTransport(G4DAETransport* tra){
    m_transport = tra ; 
@@ -137,6 +146,17 @@ void G4DAEChroma::SetDatabase(G4DAEDatabase* db){
 G4DAEDatabase* G4DAEChroma::GetDatabase(){
    return m_database ;
 }
+
+void G4DAEChroma::SetMetadata(G4DAEMetadata* meta){
+   m_metadata = meta ; 
+}
+G4DAEMetadata* G4DAEChroma::GetMetadata(){
+   return m_metadata ;
+}
+
+
+
+
 
 
 void G4DAEChroma::SetVerbosity(int verbosity){
@@ -221,6 +241,11 @@ G4DAEPhotons* G4DAEChroma::Propagate(G4DAEPhotons* photons)
 
 std::size_t G4DAEChroma::Propagate(G4int batch_id)
 {
+   // remember that may do multiple propagations for 
+   // for a single event, so this is not the place 
+   // for end of event activities
+
+
   if(m_verbosity > 1)
       cout << "G4DAEChroma::Propagate START batch_id " << batch_id << endl ; 
 
@@ -232,11 +257,28 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
   if(nhits > 0)
   { 
       G4DAEPhotons* hits = m_transport->GetHits() ;
-      if(m_verbosity > 1){
+      G4DAEMetadata* hitmeta = hits->GetLink();
+
+      if(m_verbosity > 1)
+      {
           hits->Print("G4DAEChroma::Propagate returned hits"); 
           hits->Details(1); 
+
+
       }
       m_sensdet->CollectHits( hits, m_cache );
+
+
+      if(m_metadata && hitmeta)
+      {
+          m_metadata->AddLink(hitmeta);     // **Add** not **Set** : tacks on to last link of chain
+          // TODO: clear metadata at end of event   
+      } 
+      else
+      {
+           cout << "G4DAEChroma::Propagate missing m_metadata " << m_metadata << " or hitmeta " << hitmeta << endl ;
+      } 
+
   } 
 
   if(m_verbosity > 1)

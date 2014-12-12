@@ -13,6 +13,7 @@
 using namespace std ; 
 
 const char* G4DAEArray::MAGIC = "\x93NUMPY" ; 
+const size_t G4DAEArray::INITCAPACITY = 10000 ; 
 
 G4DAEArray* G4DAEArray::CreateOther(char* bytes, size_t size)
 {
@@ -20,16 +21,22 @@ G4DAEArray* G4DAEArray::CreateOther(char* bytes, size_t size)
    return new G4DAEArray(bytes, size);
 }
 
-G4DAEArray::G4DAEArray(char* bytes, size_t size, float growth) : m_growthfactor(growth)
+G4DAEArray::G4DAEArray(char* bytes, size_t size, float growth) 
+          : 
+          m_initcapacity(INITCAPACITY),
+          m_growthfactor(growth)
 {
     Zero();
     Populate(bytes, size);
 }
 
-G4DAEArray::G4DAEArray( size_t itemcapacity, string itemshape, float* data, float growth ) : m_growthfactor(growth) 
+G4DAEArray::G4DAEArray( size_t initcapacity, string itemshape, float* data, float growth ) 
+          : 
+          m_initcapacity(initcapacity),
+          m_growthfactor(growth)
 {
     Zero();
-    Populate( itemcapacity, itemshape, data );
+    Populate( initcapacity, itemshape, data );
 }
 
 
@@ -37,8 +44,8 @@ void G4DAEArray::Zero()
 {
     m_data = NULL ;
     m_buffer = NULL ;
-    m_itemcapacity = 0 ; 
     m_itemcount  = 0 ; 
+    m_itemcapacity = 0 ; 
 }
 
 void G4DAEArray::ClearAll()
@@ -82,7 +89,6 @@ void G4DAEArray::Allocate( size_t nitems )
     m_data = (float*)malloc( nfloat*sizeof(float) ) ;
     m_itemcapacity = nitems ; 
     m_buffer = NULL ;   
-
 }
 
 void G4DAEArray::Extend(size_t nitems )
@@ -100,6 +106,29 @@ void G4DAEArray::Extend(size_t nitems )
        printf("G4DAEArray::Extend FAILURE nitems %zu nfloat %zu \n", nitems, nfloat );
    }
 }
+
+float* G4DAEArray::GetNextPointer()
+{
+    if(m_itemcount == m_itemcapacity)
+    {
+         if(m_itemcapacity == 0)  // following a ClearAll  need to make new allocation
+         {
+             printf("G4DAEArray::GetNextPointer allocating to initcapacity %zu following a ClearAll ", m_initcapacity );
+             Allocate(m_initcapacity); // allocates and bumps up itemcapacity 
+         }
+         else
+         {
+             Extend(m_itemcapacity*m_growthfactor);
+         }
+    }
+    assert(m_itemcount < m_itemcapacity );
+
+    float* data = m_data + m_itemcount*m_itemsize ;   
+
+    m_itemcount++ ; 
+    return data ; 
+}
+
 
 
 
@@ -138,27 +167,10 @@ void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
 
 
 
-
 float* G4DAEArray::GetItemPointer(std::size_t index)
 {
    // only gets existing items 
     return (index < m_itemcount) ?  m_data + index*m_itemsize : NULL  ;   
-}
-
-
-float* G4DAEArray::GetNextPointer()
-{
-    if(m_itemcount == m_itemcapacity)
-    {
-         Extend(m_itemcapacity*m_growthfactor);
-    }
-
-    assert(m_itemcount < m_itemcapacity );
-
-    float* data = m_data + m_itemcount*m_itemsize ;   
-    m_itemcount++ ; 
-
-    return data ; 
 }
 
 

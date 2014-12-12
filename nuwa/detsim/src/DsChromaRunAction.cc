@@ -4,6 +4,7 @@
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
+#include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEDatabase.hh"
 
 #include "DybG4DAEGeometry.h"

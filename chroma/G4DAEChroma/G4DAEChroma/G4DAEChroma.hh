@@ -20,6 +20,7 @@ class G4DAETransport ;
 class G4DAESensDet ;
 class G4DAETransformCache ;
 class G4DAEDatabase;
+class G4DAEMetadata;
 class G4DAEPhotons;
 class G4Track ; 
 class G4Run ;
@@ -53,6 +54,10 @@ public:
 
     void SetDatabase(G4DAEDatabase* database);
     G4DAEDatabase* GetDatabase();
+
+    void SetMetadata(G4DAEMetadata* metadata);
+    G4DAEMetadata* GetMetadata();
+
 
     void SetVerbosity(int verbosity);
     int GetVerbosity();
@@ -113,6 +118,9 @@ private:
 
   // DB  
   G4DAEDatabase* m_database ; 
+
+  // Metadata, separate from the photon and hits metadata
+  G4DAEMetadata* m_metadata ; 
 
   // verbosity level
   int m_verbosity ;  

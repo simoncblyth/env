@@ -9,6 +9,9 @@
 
 #include <iostream>
 
+
+#define G4DAETRANSPORT_VERBOSE
+
 using namespace std ; 
 
 G4DAETransport::G4DAETransport(const char* envvar) :
@@ -130,7 +133,7 @@ std::size_t G4DAETransport::Propagate(int batch_id)
        return 0 ;
    }
 
-#ifdef VERBOSE
+#ifdef G4DAETRANSPORT_VERBOSE
    cout << "G4DAETransport::Propagate batch_id " << batch_id <<  " size " << size <<  endl ;   
    m_photons->Print();
 #endif
@@ -138,7 +141,7 @@ std::size_t G4DAETransport::Propagate(int batch_id)
 
   if( batch_id > 0 )
   { 
-#ifdef VERBOSE
+#ifdef G4DAETRANSPORT_VERBOSE
       cout << "G4DAETransport::Propagate : SendReceiveObject " <<  endl ;   
 #endif
       m_hits = reinterpret_cast<G4DAEPhotons*>(m_socket->SendReceiveObject(m_photons));

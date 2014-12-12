@@ -203,14 +203,14 @@ csa-nuwaenv(){
    # 
 }
 
-
-
+csa-db(){ echo $HOME/g4daechroma.db ; }
+csa-sqlite(){ sqlite3 $(csa-db) ; }
 csa-export(){
    # potentially override defaults set in requirements
    zmq-
    export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     
    export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
-   export G4DAECHROMA_DATABASE_PATH=$HOME/g4daechroma.db     
+   export G4DAECHROMA_DATABASE_PATH=$(csa-db)
    env | grep G4DAECHROMA
 }
 
@@ -232,7 +232,8 @@ csa-nuwarun(){
        mkdir -p $(dirname $cachedir)  
    fi
 
-   local args="DetSimChroma.csa --use-basic-physics --chroma --chroma-disable --test $*"
+   #local args="DetSimChroma.csa --use-basic-physics --chroma --chroma-disable --test $*"
+   local args="DetSimChroma.csa --use-basic-physics --chroma --test $*"
    nuwa.py -n $(csa-nevt) -m "$args"
 }
 
@@ -245,8 +246,7 @@ csa-nuwarun-gdb(){
    local pid=${1:-$def}
    [ -z $pid ] && echo enter pid of nuwa.py process && return 1
 
-   opw-
-   opw-cd
+   csa-envcache-source
 
    gdb $(which python) $pid
 }
