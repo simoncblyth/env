@@ -51,6 +51,9 @@ csa-cachedir-scp(){
 csa-env(){      elocal- ; mocknuwa- ; }
 
 csa-names(){ cat << EON
+DsChromaPhysConsOptical
+DsChromaG4Cerenkov
+DsChromaG4Scintillation
 DsChromaStackAction
 DsChromaRunAction
 DsChromaEventAction
