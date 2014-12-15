@@ -10,6 +10,25 @@ CNPY
 
 * https://github.com/rogersce/cnpy.git
 
+
+G5 : kludge containing folder
+------------------------------
+
+::
+
+    blyth@ntugrid5 cnpy]$ ll /home/blyth/local/env/cnpy/include/
+    total 20
+    -rw-r--r-- 1 blyth blyth 9906 Dec  9 15:52 cnpy.h
+    drwxr-xr-x 5 blyth blyth 4096 Dec 15 19:39 ..
+    drwxr-xr-x 2 blyth blyth 4096 Dec 15 19:39 .
+    [blyth@ntugrid5 cnpy]$ mkdir /home/blyth/local/env/cnpy/include/cnpy
+    [blyth@ntugrid5 cnpy]$ cd /home/blyth/local/env/cnpy/include/cnpy
+    [blyth@ntugrid5 cnpy]$ ln -s ../cnpy.h 
+
+
+
+
+
 dstalke fork 
 ------------
 

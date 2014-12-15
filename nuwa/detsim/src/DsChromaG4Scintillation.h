@@ -84,7 +84,7 @@
 #include "G4MaterialPropertiesTable.hh"
 #include "G4PhysicsOrderedFreeVector.hh"
 #include "G4UImessenger.hh"
-#include "DsPhysConsOptical.h"
+//#include "DsChromaPhysConsOptical.h"
 #include <fstream>
 #include <iostream>
 class G4UIcommand;

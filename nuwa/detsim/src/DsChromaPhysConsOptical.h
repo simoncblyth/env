@@ -1,5 +1,5 @@
 /**
- * \class DsPhysConsOptical
+ * \class DsChromaPhysConsOptical
  *
  * \brief Construct Optical Processes
  *
@@ -12,20 +12,20 @@
  */
 
 
-#ifndef DSPHYSCONSOPTICAL_H
-#define DSPHYSCONSOPTICAL_H
+#ifndef DSCHROMAPHYSCONSOPTICAL_H
+#define DSCHROMAPHYSCONSOPTICAL_H
 
 #include "GiGa/GiGaPhysConstructorBase.h"
 
-class DsPhysConsOptical : public GiGaPhysConstructorBase
+class DsChromaPhysConsOptical : public GiGaPhysConstructorBase
 {
 
 public:
 
-    DsPhysConsOptical(const std::string& type,
+    DsChromaPhysConsOptical(const std::string& type,
                      const std::string& name,
                      const IInterface* parent);
-    virtual ~DsPhysConsOptical();
+    virtual ~DsChromaPhysConsOptical();
 
     // Interface methods
     void ConstructParticle();

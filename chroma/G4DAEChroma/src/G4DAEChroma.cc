@@ -10,6 +10,9 @@
 #include "G4DAEChroma/G4DAECollector.hh"
 #include "G4DAEChroma/G4DAEPhotons.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
+#include "G4DAEChroma/G4DAECerenkovStepList.hh"
+#include "G4DAEChroma/G4DAEScintillationStepList.hh"
+
 
 #include "G4ThreeVector.hh"
 #include "G4AffineTransform.hh"
@@ -203,6 +206,19 @@ void G4DAEChroma::LoadPhotons(const char* evtkey )
    G4DAEPhotons* photons = G4DAEPhotons::Load(evtkey ); 
    photons->Print("G4DAEChroma::SavePhotons");
    m_transport->SetPhotons(photons);  // leaking prior photons
+}
+
+
+
+
+
+G4DAECerenkovStepList* G4DAEChroma::GetCerenkovStepList()
+{
+   return m_transport->GetCerenkovStepList();
+}
+G4DAEScintillationStepList* G4DAEChroma::GetScintillationStepList()
+{
+   return m_transport->GetScintillationStepList();
 }
 
 

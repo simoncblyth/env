@@ -22,6 +22,8 @@ class G4DAETransformCache ;
 class G4DAEDatabase;
 class G4DAEMetadata;
 class G4DAEPhotons;
+class G4DAECerenkovStepList;
+class G4DAEScintillationStepList;
 class G4Track ; 
 class G4Run ;
 
@@ -64,6 +66,9 @@ public:
 
     void Print(const char* msg="G4DAEChroma::Print");
 
+    G4DAECerenkovStepList* GetCerenkovStepList();
+
+    G4DAEScintillationStepList* GetScintillationStepList();
 
 #ifdef DEBUG_HITLIST
     // from the SensDet collector

@@ -160,6 +160,9 @@ int mkdirp(const char* _path, int mode)
 {
     // directory tree creation by swapping slashes for end of string '\0'
     // then restoring the slash 
+    //
+    // NB when given a file path to be created this does NOT do the
+    // the right thing : it creates a directory named like intended filepath 
     //  
     //  http://stackoverflow.com/questions/675039/how-can-i-create-directory-tree-in-c-linux
     //  printf("_path %s \n", _path);

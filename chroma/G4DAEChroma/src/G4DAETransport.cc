@@ -3,6 +3,8 @@
 
 #include "G4DAEChroma/G4DAEPhotons.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
+#include "G4DAEChroma/G4DAECerenkovStepList.hh"
+#include "G4DAEChroma/G4DAEScintillationStepList.hh"
 
 #include "G4Track.hh"
 #include "G4VProcess.hh"
@@ -17,12 +19,18 @@ using namespace std ;
 G4DAETransport::G4DAETransport(const char* envvar) :
     m_socket(NULL),
     m_photons(NULL),
-    m_hits(NULL)
+    m_hits(NULL),
+    m_cerenkov(NULL),
+    m_scintillation(NULL)
 { 
 #ifdef WITH_CHROMA_ZMQ
    m_socket = new G4DAESocketBase(envvar) ;
 
    m_photons = (G4DAEPhotons*)new G4DAEPhotonList(10000) ;    // it grows if needed 
+
+   m_cerenkov = new G4DAECerenkovStepList();
+
+   m_scintillation = new G4DAEScintillationStepList();
 
 #endif
 }
@@ -33,6 +41,8 @@ G4DAETransport::~G4DAETransport()
    delete m_photons ; 
    delete m_hits  ; 
    delete m_socket ; 
+   delete m_cerenkov ; 
+   delete m_scintillation ; 
 #endif
 }
 
@@ -43,6 +53,14 @@ G4DAEPhotons* G4DAETransport::GetPhotons(){
 G4DAEPhotons* G4DAETransport::GetHits(){ 
     return m_hits ; 
 }
+G4DAECerenkovStepList* G4DAETransport::GetCerenkovStepList(){ 
+    return m_cerenkov ; 
+}
+G4DAEScintillationStepList* G4DAETransport::GetScintillationStepList(){ 
+    return m_scintillation ; 
+}
+
+
 
 
 void G4DAETransport::SetPhotons(G4DAEPhotons* photons)
@@ -55,6 +73,19 @@ void G4DAETransport::SetHits(G4DAEPhotons* hits)
    delete m_hits ; 
    m_hits = hits ; 
 }
+void G4DAETransport::SetCerenkovStepList(G4DAECerenkovStepList* cerenkov)
+{
+   delete m_cerenkov ; 
+   m_cerenkov = cerenkov ; 
+}
+void G4DAETransport::SetScintillationStepList(G4DAEScintillationStepList* scintillation)
+{
+   delete m_scintillation ; 
+   m_scintillation = scintillation ; 
+}
+
+
+
 
 
 
@@ -70,6 +101,14 @@ void G4DAETransport::ClearAll()
     if(m_hits)
     {
         m_hits->ClearAll();   
+    }
+    if(m_cerenkov)
+    {
+        m_cerenkov->ClearAll();   
+    }
+    if(m_scintillation)
+    {
+        m_scintillation->ClearAll();   
     }
 #endif
 }

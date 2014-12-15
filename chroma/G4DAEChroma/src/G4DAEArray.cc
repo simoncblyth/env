@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <sys/stat.h> 
+#include <libgen.h> 
 
 #include <sstream>
 #include <iostream>
@@ -286,6 +287,10 @@ void G4DAEArray::SavePath(const char* _path, const char* /*key*/)
    string path(_path);
    string itemshape = GetItemShapeString();
    printf("G4DAEArray::SavePath [%s] itemcount %lu itemshape %s \n", path.c_str(), m_itemcount, itemshape.c_str() );
+
+   char* dirp = dirname((char*)_path);
+   int rc = mkdirp(dirp, 0777);
+   printf("G4DAEArray::SavePath dirp [%s] mkdirp rc %d \n", dirp, rc ); 
 
    aoba::SaveArrayAsNumpy<float>(path, m_itemcount, itemshape.c_str(), m_data );
 #ifdef VERBOSE

@@ -235,10 +235,12 @@ export-export(){
 }
 
 export-export-pathtmpl(){
-   export DAE_PATH_TEMPLATE_ROOT="/usr/local/env/tmp/%s.root"
-   export DAE_PATH_TEMPLATE_NPY="/usr/local/env/tmp/%s.npy"
+   export DAE_PATH_TEMPLATE_ROOT="$LOCAL_BASE/env/tmp/%s.root"
+   export DAE_PATH_TEMPLATE_NPY="$LOCAL_BASE/env/tmp/%s.npy"
    export DAE_PATH_TEMPLATE=$DAE_PATH_TEMPLATE_NPY
-   export DAEHIT_PATH_TEMPLATE="/usr/local/env/hit/%s.npy"
+   export DAEHIT_PATH_TEMPLATE="$LOCAL_BASE/env/hit/%s.npy"
+   export DAECERENKOV_PATH_TEMPLATE="$LOCAL_BASE/env/cerenkov/%s.npy"
+   export DAESCINTILLATION_PATH_TEMPLATE="$LOCAL_BASE/env/scintillation/%s.npy"
 }
 
 

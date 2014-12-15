@@ -43,11 +43,11 @@ std::string G4DAEHitList::GetPath( const char* evt, const char* tmpl)
 {
     return G4DAEArray::GetPath(evt, tmpl);
 }
-G4DAEHitList* Load(const char* evt, const char* key, const char* tmpl)
+G4DAEHitList* G4DAEHitList::Load(const char* evt, const char* key, const char* tmpl)
 {
     return G4DAEArray::Load<G4DAEHitList>(evt, key, tmpl);
 }
-G4DAEHitList* LoadPath(const char* path, const char* key)
+G4DAEHitList* G4DAEHitList::LoadPath(const char* path, const char* key)
 {
     return G4DAEArray::LoadPath<G4DAEHitList>(path, key);
 }

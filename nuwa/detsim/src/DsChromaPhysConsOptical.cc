@@ -1,8 +1,8 @@
 #define USE_CUSTOM_CERENKOV
 #define USE_CUSTOM_SCINTILLATION
 
-#include "DsPhysConsOptical.h"
-#include "DsG4OpRayleigh.h"
+#include "DsChromaPhysConsOptical.h"
+#include "DsChromaG4OpRayleigh.h"
 
 #ifdef USE_CUSTOM_CERENKOV
 #include "DsChromaG4Cerenkov.h"
@@ -22,14 +22,14 @@
 #include "G4OpAbsorption.hh"
 #include "G4OpRayleigh.hh"
 //#include "G4OpBoundaryProcess.hh"
-#include "DsG4OpBoundaryProcess.h"
+#include "DsChromaG4OpBoundaryProcess.h"
 #include "G4ProcessManager.hh"
 #include "G4FastSimulationManagerProcess.hh"
 
-DECLARE_TOOL_FACTORY(DsPhysConsOptical);
+DECLARE_TOOL_FACTORY(DsChromaPhysConsOptical);
 
 
-DsPhysConsOptical::DsPhysConsOptical(const std::string& type,
+DsChromaPhysConsOptical::DsChromaPhysConsOptical(const std::string& type,
                                      const std::string& name, 
                                      const IInterface* parent)
     : GiGaPhysConstructorBase(type,name,parent)
@@ -87,7 +87,7 @@ DsPhysConsOptical::DsPhysConsOptical(const std::string& type,
                     "Scale down number of produced scintillation photons by this much."); 
 }
 
-StatusCode DsPhysConsOptical::initialize()
+StatusCode DsChromaPhysConsOptical::initialize()
 {
     info()<<"Photons prescaling is "<<( m_cerenPhotonScaleWeight>1.?"on":"off" )
           <<" for Cerenkov. Preliminary applied efficiency is "
@@ -99,15 +99,15 @@ StatusCode DsPhysConsOptical::initialize()
     return this->GiGaPhysConstructorBase::initialize();
 }
 
-DsPhysConsOptical::~DsPhysConsOptical()
+DsChromaPhysConsOptical::~DsChromaPhysConsOptical()
 {
 }
 
-void DsPhysConsOptical::ConstructParticle()
+void DsChromaPhysConsOptical::ConstructParticle()
 {
 }
 
-void DsPhysConsOptical::ConstructProcess()
+void DsChromaPhysConsOptical::ConstructProcess()
 {
 #ifdef USE_CUSTOM_CERENKOV
     
@@ -171,14 +171,14 @@ void DsPhysConsOptical::ConstructProcess()
         absorb = new G4OpAbsorption();
     }
 
-    DsG4OpRayleigh* rayleigh = 0;
+    DsChromaG4OpRayleigh* rayleigh = 0;
     if (m_useRayleigh) {
-        rayleigh = new DsG4OpRayleigh();
+        rayleigh = new DsChromaG4OpRayleigh();
 	//        rayleigh->SetVerboseLevel(2);
     }
 
     //G4OpBoundaryProcess* boundproc = new G4OpBoundaryProcess();
-    DsG4OpBoundaryProcess* boundproc = new DsG4OpBoundaryProcess();
+    DsChromaG4OpBoundaryProcess* boundproc = new DsChromaG4OpBoundaryProcess();
     boundproc->SetModel(unified);
 
     G4FastSimulationManagerProcess* fast_sim_man

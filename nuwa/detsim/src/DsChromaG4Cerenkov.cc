@@ -1,3 +1,13 @@
+
+#define G4DAECHROMA_GPU_OPTICAL
+
+#ifdef G4DAECHROMA_GPU_OPTICAL
+#include "G4DAEChroma/G4DAEChroma.hh"
+#include "G4DAEChroma/G4DAECerenkovStepList.hh"
+#include "G4DAEChroma/G4DAECommon.hh"
+#endif
+
+
 /**
  * \class DsChromaG4Cerenkov
  *
@@ -100,7 +110,7 @@
 
 #include "DsChromaG4Cerenkov.h"
 
-#include "DsPhotonTrackInfo.h"
+#include "DsChromaPhotonTrackInfo.h"
 #include "G4DataHelpers/G4CompositeTrackInfo.h"
 using namespace std;
 
@@ -295,6 +305,64 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         G4double MeanNumberOfPhotons2 =
                      GetAverageNumberOfPhotons(charge,beta2,aMaterial,Rindex);
 
+#ifdef G4DAECHROMA_GPU_OPTICAL
+    {
+        // serialize DsG4Cerenkov::PostStepDoIt stack, just before the photon loop
+        G4DAECerenkovStepList* csl = G4DAEChroma::GetG4DAEChroma()->GetCerenkovStepList();
+
+        // shoving ints into float bits
+        G4ThreeVector deltaPosition = aStep.GetDeltaPosition();
+        G4double weight = fPhotonWeight*aTrack.GetWeight();
+
+        int chroma_material_code = 0 ;
+        // hmm need material code so can access the appropriate Rindex GPU side
+        // have to make connection between chroma material indices and geant4 materials  
+
+        size_t csid = csl->GetCount() ;
+        cout << "G4DAECerenkovStep csid " << csid << endl ;
+
+        uif_t uifd[4] ;
+        uifd[0].i = csid ;
+        uifd[1].i = aTrack.GetTrackID() ;
+        uifd[2].i = chroma_material_code ; 
+        uifd[3].i = NumPhotons ;
+
+        // directly fills next item of G4DAEArray using (n,4,6) structure [float4 quads efficient on GPU]
+        float* cs = csl->GetNextPointer();     
+
+        cs[G4DAECerenkovStep::_Id]         =  uifd[0].f ;
+        cs[G4DAECerenkovStep::_ParentID]   =  uifd[1].f ;
+        cs[G4DAECerenkovStep::_Material]   =  uifd[2].f ; 
+        cs[G4DAECerenkovStep::_NumPhotons] =  uifd[3].f ;
+
+        cs[G4DAECerenkovStep::_x0_x] =  x0.x() ;
+        cs[G4DAECerenkovStep::_x0_y] =  x0.y() ;
+        cs[G4DAECerenkovStep::_x0_z] =  x0.z() ;
+        cs[G4DAECerenkovStep::_t0]   =  t0 ;
+
+        cs[G4DAECerenkovStep::_DeltaPosition_x] =  deltaPosition.x() ;
+        cs[G4DAECerenkovStep::_DeltaPosition_y] =  deltaPosition.y() ;
+        cs[G4DAECerenkovStep::_DeltaPosition_z] =  deltaPosition.z() ;
+        cs[G4DAECerenkovStep::_step_length] =  step_length ;
+
+        cs[G4DAECerenkovStep::_charge] = charge ;
+        cs[G4DAECerenkovStep::_BetaInverse] = BetaInverse ;
+        cs[G4DAECerenkovStep::_weight] = weight ;
+        cs[G4DAECerenkovStep::_MeanVelocity] = ((pPreStepPoint->GetVelocity()+pPostStepPoint->GetVelocity())/2.);
+
+        cs[G4DAECerenkovStep::_Pmin] = Pmin ;
+        cs[G4DAECerenkovStep::_Pmax] = Pmax ;
+        cs[G4DAECerenkovStep::_dp] = dp ;
+        cs[G4DAECerenkovStep::_maxCos] = maxCos ;
+
+        cs[G4DAECerenkovStep::_maxSin2] = maxSin2 ;
+        cs[G4DAECerenkovStep::_MeanNumberOfPhotons1] = MeanNumberOfPhotons1 ;
+        cs[G4DAECerenkovStep::_MeanNumberOfPhotons2] = MeanNumberOfPhotons2 ;
+        cs[G4DAECerenkovStep::_MeanNumberOfPhotonsMax] = std::max(MeanNumberOfPhotons1,MeanNumberOfPhotons2) ;
+
+    }
+#else
+
 	for (G4int i = 0; i < NumPhotons; i++) {
 	  // Determine photon energy
 	  G4double rand=0;
@@ -417,13 +485,13 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	  
 	  // set user track info
 	  G4CompositeTrackInfo* comp=new G4CompositeTrackInfo();
-	  DsPhotonTrackInfo* trackinf=new DsPhotonTrackInfo();
+	  DsChromaPhotonTrackInfo* trackinf=new DsChromaPhotonTrackInfo();
 	  if ( ApplyWaterQE ) {
-	    trackinf->SetMode(DsPhotonTrackInfo::kQEWater);
+	    trackinf->SetMode(DsChromaPhotonTrackInfo::kQEWater);
 	    trackinf->SetQE(qe);
 	  }
 	  else if ( fApplyPreQE ) {
-	    trackinf->SetMode(DsPhotonTrackInfo::kQEPreScale);
+	    trackinf->SetMode(DsChromaPhotonTrackInfo::kQEPreScale);
 	    trackinf->SetQE(fPreQE);
 	  }
 	  comp->SetPhotonTrackInfo(trackinf);
@@ -444,6 +512,9 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 		   << ") aSecondaryTrack->GetWeight() " << aSecondaryTrack->GetWeight() << G4endl;
 	  }
 	}
+
+#endif
+
 	
 	if (verboseLevel>0) {
 	G4cout << "\n Exiting from DsChromaG4Cerenkov::DoIt -- NumberOfSecondaries = " 

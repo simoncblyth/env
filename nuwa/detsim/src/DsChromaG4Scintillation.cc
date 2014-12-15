@@ -1,3 +1,11 @@
+#define G4DAECHROMA_GPU_OPTICAL
+
+#ifdef G4DAECHROMA_GPU_OPTICAL
+#include "G4DAEChroma/G4DAEChroma.hh"
+#include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAECommon.hh"
+#endif
+
 //
 // ********************************************************************
 //  * DISCLAIMER                                                       *
@@ -73,7 +81,7 @@
 #include "G4Electron.hh"
 #include "globals.hh"
 
-#include "DsPhotonTrackInfo.h"
+#include "DsChromaPhotonTrackInfo.h"
 #include "G4DataHelpers/G4CompositeTrackInfo.h"
 
 ///////////////////////////////////////////////////////////////////
@@ -189,11 +197,11 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
     G4double vertenergy=0.0;
     G4double reem_d=0.0;
     G4bool flagReemission= false;
-    DsPhotonTrackInfo* reemittedTI=0;
+    DsChromaPhotonTrackInfo* reemittedTI=0;
     if (aTrack.GetDefinition() == G4OpticalPhoton::OpticalPhoton()) {
         G4Track *track=aStep.GetTrack();
         G4CompositeTrackInfo* composite=dynamic_cast<G4CompositeTrackInfo*>(track->GetUserInformation());
-        reemittedTI = composite?dynamic_cast<DsPhotonTrackInfo*>( composite->GetPhotonTrackInfo() ):0;
+        reemittedTI = composite?dynamic_cast<DsChromaPhotonTrackInfo*>( composite->GetPhotonTrackInfo() ):0;
         
         const G4VProcess* process = track->GetCreatorProcess();
         if(process) pname = process->GetProcessName();
@@ -549,7 +557,15 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
         if (!ScintillationIntegral) continue;
 	
         // Max Scintillation Integral
-		
+	
+
+#ifdef G4DAECHROMA_GPU_OPTICAL
+        // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
+        G4DAEScintillationStepList* csl = G4DAEChroma::GetG4DAEChroma()->GetScintillationStepList();
+
+
+#else
+	
         for (G4int i = 0; i < Num; i++) { //Num is # of 2ndary tracks now
 	    // Determine photon energy
 
@@ -686,13 +702,13 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
                 new G4Track(aScintillationPhoton,aSecondaryTime,aSecondaryPosition);
 
             G4CompositeTrackInfo* comp=new G4CompositeTrackInfo();
-            DsPhotonTrackInfo* trackinf=new DsPhotonTrackInfo();
+            DsChromaPhotonTrackInfo* trackinf=new DsChromaPhotonTrackInfo();
             if ( flagReemission ){
                 if ( reemittedTI ) *trackinf = *reemittedTI;
                 trackinf->SetReemitted();
             }
             else if ( fApplyPreQE ) {
-                trackinf->SetMode(DsPhotonTrackInfo::kQEPreScale);
+                trackinf->SetMode(DsChromaPhotonTrackInfo::kQEPreScale);
                 trackinf->SetQE(fPreQE);
             }
             comp->SetPhotonTrackInfo(trackinf);
@@ -710,14 +726,20 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 		
             aSecondaryTrack->SetWeight( weight );
 	    if ( verboseLevel > 0 ) {
-	      G4cout << " aSecondaryTrack->SetWeight( " << weight<< " ) ; aSecondaryTrack->GetWeight() = " << aSecondaryTrack->GetWeight() << G4endl;}
+	      G4cout << " aSecondaryTrack->SetWeight( " << weight<< " ) ; aSecondaryTrack->GetWeight() = " << aSecondaryTrack->GetWeight() << G4endl;
+         }
             // The above line is necessary because AddSecondary() 
             // overrides our setting of the secondary track weight, 
             // in Geant4.3.1 & earlier. (and also later, at least 
             // until Geant4.7 (and beyond?)
             //  -- maybe not required if SetWeightByProcess(true) called,
             //  but we do both, just to be sure)
-        }
+
+
+        }    // over Num photons
+#endif
+
+
     } // end loop over fast/slow scints
 
     if (verboseLevel > 0) {

@@ -12,14 +12,23 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 
 message( STATUS "CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ")
 
-find_package(Geant4 9.5.0 REQUIRED gdml)
+
+
+#find_package(Geant4 9.5.0 REQUIRED gdml)
+find_package(NuWaGeant4)
+find_package(NuWaCLHEP)
+
+
+
+
 find_package(CNPY REQUIRED)
-find_package(ChromaPhotonList REQUIRED)
-find_package(ZMQRoot REQUIRED)
 find_package(ZMQ REQUIRED)
-find_package(Root REQUIRED)
 find_package(RapSqlite REQUIRED)
 find_package(cJSON REQUIRED)
+
+#find_package(ChromaPhotonList REQUIRED)
+#find_package(ZMQRoot REQUIRED)
+#find_package(Root REQUIRED)
 
 include(EnvBuildOptions)
 
@@ -27,9 +36,10 @@ include(EnvBuildOptions)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${Geant4_INCLUDE_DIRS}    
-    ${CHROMAPHOTONLIST_INCLUDE_DIR}
-    ${ZMQROOT_INCLUDE_DIR}
-    ${ROOT_INCLUDE_DIR}
+    ${CLHEP_INCLUDE_DIRS}    
+#    ${CHROMAPHOTONLIST_INCLUDE_DIR}
+#    ${ZMQROOT_INCLUDE_DIR}
+#    ${ROOT_INCLUDE_DIR}
     ${CNPY_INCLUDE_DIRS}
     ${ZMQ_INCLUDE_DIR}
     ${RapSqlite_INCLUDE_DIRS}
@@ -38,9 +48,10 @@ include_directories(
 
 add_definitions(
     ${Geant4_DEFINITIONS} 
-    -DWITH_CHROMA_ZMQ  -DEXPORT_G4GDML
+    -DWITH_CHROMA_ZMQ 
+  #  -DEXPORT_G4GDML
     -DWITH_ZMQ
-    ${CHROMAPHOTONLIST_DEFINITIONS}  
+ #   ${CHROMAPHOTONLIST_DEFINITIONS}  
     ${RapSqlite_DEFINITIONS}
     ${cJSON_DEFINITIONS}
 )    
@@ -52,9 +63,9 @@ file(GLOB sources
 add_library(${name} SHARED ${sources})
 target_link_libraries( ${name} 
     ${Geant4_LIBRARIES} 
-    ${CHROMAPHOTONLIST_LIBRARIES}
-    ${ZMQROOT_LIBRARIES}
-    ${ROOT_LIBRARIES}
+#    ${CHROMAPHOTONLIST_LIBRARIES}
+#    ${ZMQROOT_LIBRARIES}
+#    ${ROOT_LIBRARIES}
     ${CNPY_LIBRARIES}
     ${ZMQ_LIBRARIES}
     ${RapSqlite_LIBRARIES}

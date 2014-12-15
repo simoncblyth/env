@@ -4,6 +4,7 @@
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEDatabase.hh"
+#include "G4DAEChroma/G4DAECerenkovStepList.hh"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/PropertyMgr.h"
@@ -46,6 +47,10 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
     m_map["COLUMNS"] = "BeginOfEvent:s,EndOfEvent:s,DurationOfEvent:f" ;
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
+    G4DAECerenkovStepList* csl = chroma->GetCerenkovStepList(); 
+    csl->Save("1");
+    
+
     G4DAEDatabase* db = chroma->GetDatabase(); 
     G4DAEMetadata* meta = chroma->GetMetadata(); 
 

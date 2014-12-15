@@ -54,6 +54,8 @@ csa-names(){ cat << EON
 DsChromaPhysConsOptical
 DsChromaG4Cerenkov
 DsChromaG4Scintillation
+DsChromaG4OpBoundaryProcess
+DsChromaG4OpRayleigh
 DsChromaStackAction
 DsChromaRunAction
 DsChromaEventAction
@@ -215,25 +217,34 @@ csa-export(){
    export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
    export G4DAECHROMA_DATABASE_PATH=$(csa-db)
    env | grep G4DAECHROMA
+
+   export-
+   export-export    
+   # for path tmpls
 }
 
 csa-nevt(){ echo ${CSA_NEVT:-1} ; }
-csa-nuwarun(){
-   local msg=" === $FUNCNAME :"
+
+
+csa-envsetup(){
 
    if [ -f "$(csa-envcache)" ]; then 
        csa-envcache-source
    else
        csa-nuwaenv
-       csa-export
        $ENV_HOME/base/envcap/envcap.py -zpost -tcsa save cachediff
    fi
 
-   ## TODO: adopt mkdirp to avoid this limitation of preexisting dir 
-   local cachedir=$G4DAECHROMA_CACHE_DIR
-   if [ -n "$cachedir" ]; then
-       mkdir -p $(dirname $cachedir)  
-   fi
+   # non-cached envvars
+   csa-export   
+
+}
+
+
+csa-nuwarun(){
+   local msg=" === $FUNCNAME :"
+
+   csa-envsetup
 
    #local args="DetSimChroma.csa --use-basic-physics --chroma --chroma-disable --test $*"
    local args="DetSimChroma.csa --use-basic-physics --chroma --test $*"
@@ -249,7 +260,7 @@ csa-nuwarun-gdb(){
    local pid=${1:-$def}
    [ -z $pid ] && echo enter pid of nuwa.py process && return 1
 
-   csa-envcache-source
+   csa-envsetup
 
    gdb $(which python) $pid
 }

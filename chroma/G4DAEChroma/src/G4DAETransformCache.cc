@@ -130,6 +130,10 @@ void G4DAETransformCache::Archive(const char* dir)
 
     len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "key.npy");
     path[len] = 0;
+
+    int rc = mkdirp(path, 0777);
+    printf("G4DAETransformCache::Archive [%s] mkdirp rc %d \n", path, rc );
+
     printf("G4DAETransformCache::Archive [%s]\n", path );
     cnpy::npy_save(path,m_key,key_shape,1,"w");
 

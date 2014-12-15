@@ -254,19 +254,29 @@ class ConfigMuonGeneration(object):
 
 
     def configure_detsim(self):
-        log.info("configure_detsim")
+        """
+        See NuWa-trunk/dybgaudi/Simulation/DetSim/python/DetSim/Default.py
+        """
+        log.info("configure_detsim for site %s " %  self.site)
 
         import DetSim
         if self.opts.use_basic_physics :
-            detsim = DetSim.Configure(physlist=DetSim.physics_list_basic,site=self.site)
-            print "FMCPMUON: Configuring DetSim to use basic physics list only for site",self.site
+            physlist=DetSim.physics_list_basic 
         else:
-            detsim = DetSim.Configure(site=self.site)
+            physlist=DetSim.physics_list_basic + DetSim.physics_list_nuclear
+        pass
+
+        if self.opts.chroma:
+            pco = physlist.index("DsPhysConsOptical")
+            physlist[pco] = "DsChromaPhysConsOptical" 
+        pass
+
+        log.info("using physlist %s " % repr(physlist))
+        detsim = DetSim.Configure(physlist=physlist,site=self.site)
 
         detsim.OutputLevel = 1
 
         self.detsim = detsim 
-
 
 
     def configure_physconsoptical(self):
@@ -276,23 +286,40 @@ class ConfigMuonGeneration(object):
             log.info("configure_phyconsoptical : skipping due to --machinerytest")
             return  
 
-        from DetSim.DetSimConf import DsPhysConsOptical
-        optical = DsPhysConsOptical("GiGa.GiGaPhysListModular.DsPhysConsOptical")
+        if self.opts.chroma:
+            optical = self.configure_dschromaoptical()
+        else:
+            optical = self.configure_dsoptical()
+        pass
         #optical.CerenPhotonScaleWeight = 3.0
         #optical.ScintPhotonScaleWeight = 3.0
         optical.UseScintillation = True
-        optical.UseCerenkov = False   
-        optical.UseFastMu300nsTrick = True
-
-        self.optical = optical
-
         fastMuEnergyCut = True
         if self.mode == "Full":
             optical.UseCerenkov = True
             optical.UseFastMu300nsTrick = False
             fastMuEnergyCut = False
+        else:
+            optical.UseCerenkov = False
+            optical.UseFastMu300nsTrick = True
         pass
         self.fastMuEnergyCut = fastMuEnergyCut
+        self.optical = optical
+
+
+    def configure_dschromaoptical(self):
+        log.info("configure_dschromaoptical")
+        import DetSimChroma
+        from DetSimChroma.DetSimChromaConf import DsChromaPhysConsOptical
+        optical = DsChromaPhysConsOptical("GiGa.GiGaPhysListModular.DsChromaPhysConsOptical")
+        return optical 
+
+    def configure_dsoptical(self):
+        log.info("configure_dsoptical")
+        from DetSim.DetSimConf import DsPhysConsOptical
+        optical = DsPhysConsOptical("GiGa.GiGaPhysListModular.DsPhysConsOptical")
+        return optical 
+
 
     def configure_runaction(self):
         """

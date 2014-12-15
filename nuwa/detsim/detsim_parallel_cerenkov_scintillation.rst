@@ -81,4 +81,52 @@ Copy over to DetSimChroma and change class names
     [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4Cerenkov,DsChromaG4Cerenkov,g' DetSimChroma/src/DsChromaPhysConsOptical.cc
 
 
+Also need this header only class::
+
+    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsPhotonTrackInfo.h DetSimChroma/src/DsChromaPhotonTrackInfo.h
+
+
+    [blyth@ntugrid5 src]$ perl -pi -e 's,DsPhotonTrackInfo,DsChromaPhotonTrackInfo,g' DsChromaG4Scintillation.cc
+    [blyth@ntugrid5 src]$ perl -pi -e 's,DsPhotonTrackInfo,DsChromaPhotonTrackInfo,g' DsChromaG4Cerenkov.cc
+    [blyth@ntugrid5 src]$ 
+
+
+    [blyth@ntugrid5 src]$ perl -pi -e 's,DsPhysConsOptical,DsChromaPhysConsOptical,g' DsChromaPhysConsOptical.cc
+    [blyth@ntugrid5 src]$ perl -pi -e 's,DsPhysConsOptical,DsChromaPhysConsOptical,g' DsChromaPhysConsOptical.h
+
+
+    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4OpRayleigh.h DetSimChroma/src/DsChromaG4OpRayleigh.h
+    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4OpRayleigh.cc DetSimChroma/src/DsChromaG4OpRayleigh.cc
+    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4OpBoundaryProcess.h DetSimChroma/src/DsChromaG4OpBoundaryProcess.h
+    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4OpBoundaryProcess.cc DetSimChroma/src/DsChromaG4OpBoundaryProcess.cc
+    [blyth@ntugrid5 Simulation]$ 
+    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4OpRayleigh,DsChromaG4OpRayleigh,g' DetSimChroma/src/DsChromaG4OpRayleigh.h DetSimChroma/src/DsChromaG4OpRayleigh.cc
+    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4OpRayleigh,DsChromaG4OpRayleigh,g' DetSimChroma/src/DsChromaPhysConsOptical.cc
+    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4OpBoundaryProcess,DsChromaG4OpBoundaryProcess,g' DetSimChroma/src/DsChromaPhysConsOptical.cc DetSimChroma/src/DsChromaG4OpBoundaryProcess.cc DetSimChroma/src/DsChromaG4OpBoundaryProcess.h
+    [blyth@ntugrid5 Simulation]$ 
+
+
+
+Some hookup missing
+---------------------
+
+::
+
+    *************************************************************
+     Geant4 version Name: geant4-09-02-patch-01    (13-March-2009)
+                          Copyright : Geant4 Collaboration
+                          Reference : NIM A 506 (2003), 250-303
+                                WWW : http://cern.ch/geant4
+    *************************************************************
+
+    GiGa.GiGaPhysListModular              INFO GiGaPhysListModular initializing
+    GiGa.GiGaPhysListModular              INFO Registered GiGa.GiGaPhysListModular.DsPhysConsGeneral
+    GiGa.GiGaPhysListModular.DsPhysC...   INFO Photons prescaling is on for Cerenkov. Preliminary applied efficiency is 0.32 (weight=3.125)
+    GiGa.GiGaPhysListModular.DsPhysC...   INFO Photons prescaling is on for Scintillation. Preliminary applied efficiency is 0.32 (weight=3.125)
+    GiGa.GiGaPhysListModular.DsPhysC...   INFO WaterQE is turned on for Cerenkov.
+    GiGa.GiGaPhysListModular              INFO Registered GiGa.GiGaPhysListModular.DsPhysConsOptical
+    GiGa.GiGaPhysListModular              INFO Registered GiGa.GiGaPhysListModular.DsPhysConsEM
+    GiGa.GiGaPhysListModular.DsPhysC...   INFO Set PDG code for opticalphoton to 20022
+    List of instantiated particles ============================================
+
 
