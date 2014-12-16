@@ -48,6 +48,7 @@ chroma
    chroma_tests/index
    ChromaZMQRootTest/index
    chroma_curand
+   chroma_reemission
 
 
 
