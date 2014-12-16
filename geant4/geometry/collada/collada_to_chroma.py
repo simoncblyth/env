@@ -63,6 +63,9 @@ import os, sys, logging, re, json
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)   # chroma has weird logging, forcing this placement 
 
+
+DEBUG = 1
+
 from env.base.timing import timing, timing_report
 
 import numpy as np
@@ -77,7 +80,9 @@ def _get_daeprops(self):
     if self.dae.extra is None:
         return {}
     return self.dae.extra.properties    
-#Material.daeprops = property(_get_daeprops)
+
+if DEBUG:
+    Material.daeprops = property(_get_daeprops)
 
 
 matptn = re.compile("^__dd__Materials__(\S*)0x\S{7}$")
@@ -128,6 +133,9 @@ def construct_cdf( xy ):
          <matplotlib.lines.Line2D at 0x125146150>]
 
         In [58]: plt.show()
+
+
+    
 
     """
     assert len(xy.shape) == 2 and xy.shape[-1] == 2
@@ -317,6 +325,27 @@ class ColladaToChroma(object):
         return surface
 
 
+    def collada_materials_summary(self, names=['GdDopedLS','LiquidScintillator']):
+        collada = self.nodecls.orig 
+        find_ = lambda name:filter(lambda m:m.id.find(name) > -1, collada.materials)
+        for name in names:
+            mats = find_(name)
+            assert len(mats) == 1, "name is ambiguous or missing"
+            self.dump_collada_material(mats[0])
+        pass
+
+    def dump_collada_material(self, mat):
+         extra = getattr(mat,'extra',None)
+         keys  = extra.properties.keys() if extra else []
+         print mat.id
+         keys = sorted(keys, key=lambda k:extra.properties[k].shape[0], reverse=True)
+         for k in keys:
+             xy = extra.properties[k]
+             x = xy[:,0]
+             y = xy[:,1]
+             print "%30s %10s    %10.3f %10.3f   %10.3f %10.3f   " % (k, repr(xy.shape), x.min(), x.max(), y.min(), y.max() ) 
+
+
     @timing(secs)
     def convert_materials(self, debug=False):
         """
@@ -412,7 +441,8 @@ class ColladaToChroma(object):
         collada = self.nodecls.orig 
         for dmaterial in collada.materials:
             material = Material(dmaterial.id)   
-            #material.dae = dmaterial
+            if DEBUG:
+                material.dae = dmaterial
 
             # vacuum like defaults ? is that appropriate ? what is the G4 equivalent ?
             material.set('refractive_index', 1.0)  
@@ -432,13 +462,8 @@ class ColladaToChroma(object):
                         log.debug("for material %s set Chroma prop %s from G4DAE prop %s vals %s " % ( material.name, key, dkey, len(dval))) 
                     else:
                         log.debug("for material %s skipping G4DAE prop %s vals %s " % ( material.name, dkey, len(dval)))  
-                pass
-                fast, slow = props.get('FASTCOMPONENT', None), props.get('SLOWCOMPONENT', None) 
-                if not fast is None and not slow is None:
-                    assert np.all( fast == slow )
-                    cdf = construct_cdf( fast )
-                    log.debug("setting reemission_cdf for %s to %s " % (material.name, repr(cdf)))
-                    material.set('reemission_cdf', cdf[:,1], wavelengths=cdf[:,0])
+                    pass 
+                    self.setup_cdf( material, props )
                 pass
             pass 
             self.materials[material.name] = material
@@ -448,7 +473,46 @@ class ColladaToChroma(object):
             for dkey in sorted(keymat,key=lambda _:len(keymat[_])): 
                 mats = keymat[dkey]
                 print " %-30s [%-2s] %s " % ( dkey, len(mats), ",".join(map(matshorten,mats)) )
+
+
+    def setup_cdf(self, material, props ):
+        """
+        Chroma uses "reemission_cdf" cumulative distribution function 
+        to generate the wavelength of reemission photons. 
+
+        NB REEMISSIONPROB->reemission_prob is handled as a 
+        normal keymapped property, no need to integrate to construct 
+        the cdf for that.
     
+        Compare this with the C++
+
+           DsChromaG4Scintillation::BuildThePhysicsTable()  
+
+        """  
+        fast = props.get('FASTCOMPONENT', None)
+        slow = props.get('SLOWCOMPONENT', None) 
+        reem = props.get('REEMISSIONPROB', None) 
+
+        assert not fast is None and not slow is None and not reem is None
+        assert np.all( fast == slow )     # CURIOUS, that these are the same
+
+        fast_cdf = construct_cdf( fast )
+        slow_cdf = construct_cdf( slow )
+        reem_cdf = construct_cdf( reem )
+
+        assert np.all( fast_cdf == slow_cdf )
+
+        log.debug("setting reemission_cdf for %s to %s " % (material.name, repr(cdf)))
+
+        OLDBUG = False   ## UNCONFIRMED BUG 
+        if OLDBUG:
+            material.set('reemission_cdf', fast_cdf[:,1], wavelengths=fast_cdf[:,0])
+        else:
+            material.set('slow_cdf', slow_cdf[:,1], wavelengths=slow_cdf[:,0])
+            material.set('fast_cdf', fast_cdf[:,1], wavelengths=fast_cdf[:,0])
+            material.set('reemission_cdf', reem_cdf[:,1], wavelengths=reem_cdf[:,0])
+        pass
+
 
     def _get_materialmap(self):
         """
@@ -804,6 +868,7 @@ def main():
     DAENode.init(path)
 
     cc = ColladaToChroma(DAENode, bvh=False )  
+    cc.collada_materials_summary()
     cc.convert_geometry()
     cg = cc.chroma_geometry 
 
@@ -814,6 +879,9 @@ def main():
     cfplt_ = lambda _:ccplt_('GdDopedLS',_,'r') + ccplt_('LiquidScintillator',_,'b') + [plt.legend()] 
 
     rso = cc.surfacemap['RSOil']
+
+    self = cc
+
 
     log.info("dropping into IPython.embed() try: cg.<TAB> ")
     import IPython 
