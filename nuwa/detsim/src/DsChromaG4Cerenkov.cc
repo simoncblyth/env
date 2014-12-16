@@ -313,10 +313,9 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         // shoving ints into float bits
         G4ThreeVector deltaPosition = aStep.GetDeltaPosition();
         G4double weight = fPhotonWeight*aTrack.GetWeight();
-
-        int chroma_material_code = 0 ;
-        // hmm need material code so can access the appropriate Rindex GPU side
-        // have to make connection between chroma material indices and geant4 materials  
+        G4int materialIndex = aMaterial->GetIndex();
+        // will need to relate this Geant4 materialIndex to the chroma equivalent
+        // where to make the mapping ?
 
         size_t csid = csl->GetCount() ;
         cout << "G4DAECerenkovStep csid " << csid << endl ;
@@ -324,7 +323,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         uif_t uifd[4] ;
         uifd[0].i = csid ;
         uifd[1].i = aTrack.GetTrackID() ;
-        uifd[2].i = chroma_material_code ; 
+        uifd[2].i = materialIndex ; 
         uifd[3].i = NumPhotons ;
 
         // directly fills next item of G4DAEArray using (n,4,6) structure [float4 quads efficient on GPU]

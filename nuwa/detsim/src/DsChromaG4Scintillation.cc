@@ -560,10 +560,62 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 	
 
 #ifdef G4DAECHROMA_GPU_OPTICAL
-        // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
-        G4DAEScintillationStepList* csl = G4DAEChroma::GetG4DAEChroma()->GetScintillationStepList();
+        {
+            //
+            // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
+            // by directly G4DAEArray intems using (n,?,4) structure [float4 quads are efficient on GPU]
+            //
+            G4DAEScintillationStepList* ssl = G4DAEChroma::GetG4DAEChroma()->GetScintillationStepList();
+            size_t ssid = ssl->GetCount() ;
+            float* ss = ssl->GetNextPointer();     
 
+            const G4ParticleDefinition* definition = aParticle->GetDefinition(); 
+            G4int    code = definition->GetPDGEncoding();
+            G4double charge = definition->GetPDGCharge();
 
+            cout << "G4DAEScintillationStep " 
+                 << " ssid " << ssid 
+                 << " code " << code 
+                 << " Num " << Num 
+                 << endl ;
+
+            uif_t uifd[6] ;
+            uifd[0].i = ssid ;
+            uifd[1].i = aTrack.GetTrackID() ;
+            uifd[2].i = materialIndex ; 
+            uifd[3].i = Num ;
+
+            uifd[4].i = scnt ;
+            uifd[5].i = code ;
+
+            ss[G4DAEScintillationStep::_Id]         =  uifd[0].f ;
+            ss[G4DAEScintillationStep::_ParentID]   =  uifd[1].f ;
+            ss[G4DAEScintillationStep::_Material]   =  uifd[2].f ; 
+            ss[G4DAEScintillationStep::_NumPhotons] =  uifd[3].f ;
+
+            ss[G4DAEScintillationStep::_scnt]       =  uifd[4].f ;
+            ss[G4DAEScintillationStep::_code]      =  uifd[5].f ;
+            ss[G4DAEScintillationStep::_charge]    =  charge ;
+
+            ss[G4DAEScintillationStep::_ScintillationTime]  = ScintillationTime ;
+            ss[G4DAEScintillationStep::_ScintillationIntegralMax]  = ScintillationIntegral->GetMaxValue() ;
+            ss[G4DAEScintillationStep::_slowerRatio]  =  slowerRatio ;
+            ss[G4DAEScintillationStep::_slowTimeConstant]  =  slowTimeConstant ;
+            ss[G4DAEScintillationStep::_slowerTimeConstant]  =  slowerTimeConstant ;
+
+            ss[G4DAEScintillationStep::_step_length]  =  aStep.GetStepLength() ;
+            ss[G4DAEScintillationStep::_MeanVelocity] = 
+                    ((pPreStepPoint->GetVelocity()+
+                      pPostStepPoint->GetVelocity())/2.);
+
+            ss[G4DAEScintillationStep::_DeltaPosition] = aStep.GetDeltaPosition();
+
+            ss[G4DAEScintillationStep::_x0_x] = x0.x() ;
+            ss[G4DAEScintillationStep::_x0_y] = x0.y() ;
+            ss[G4DAEScintillationStep::_x0_z] = x0.z() ;
+            ss[G4DAEScintillationStep::_t0] = t0 ;
+
+       } 
 #else
 	
         for (G4int i = 0; i < Num; i++) { //Num is # of 2ndary tracks now
