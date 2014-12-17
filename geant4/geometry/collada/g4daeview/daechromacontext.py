@@ -10,10 +10,12 @@ For example DAERaycaster pulls in PixelBuffer which requires
 an active OpenGL context so defer the import until needed.
 
 """
-import os, time, logging, traceback
-log = logging.getLogger(__name__)
-
+import os, time, logging, traceback, json
 import numpy as np
+
+log = logging.getLogger(__name__)
+json_ = lambda path:json.load(file(os.path.expandvars(path)))
+
 
 try:
     import psutil 
@@ -120,6 +122,23 @@ class DAEMemoryMon(dict):
 
 
 
+
+class MaterialMap(dict):
+    """
+    Provides mapping from geant4 material index to chroma material index
+    """
+    def __init__(self, chroma_geometry):
+        js = json_("$G4DAECHROMA_CACHE_DIR/g4materials.json")
+        g4name2index = js["MaterialMap"]
+        for chindex, m in enumerate(chroma_geometry.unique_materials):
+            g4name = m.name[:-9].replace("__","/")
+            g4index = g4name2index[g4name]
+            #print m.name, g4name, g4index       
+            self[g4index] = chindex
+
+
+
+
 class DAEChromaContext(object):
     """
     DCC is intended as a rack on which to hang objects, 
@@ -134,6 +153,7 @@ class DAEChromaContext(object):
         self.config = config
         pycuda_init(gl=gl)
         self.chroma_geometry = chroma_geometry
+        self.materialmap = MaterialMap(chroma_geometry)   
         pass
 
         self.COLUMNS = 'hit:i,deviceid:i,gl:i,threads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i,max_time:f'
@@ -149,6 +169,10 @@ class DAEChromaContext(object):
         self._propagator = None
         self._parameters = None
         self._process = None
+
+
+     
+
 
         self.mem = DAEMemoryMon()
         self.mem("init")

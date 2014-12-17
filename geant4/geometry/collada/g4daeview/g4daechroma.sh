@@ -31,14 +31,17 @@ chroma-
 
 #cuda_info.py
 
-zmqroot-
-zmqroot-export 
-
-cpl-
-cpl-export
+#zmqroot-
+#zmqroot-export 
+#
+#cpl-
+#cpl-export
 
 zmq-
 zmq-broker-export
+
+csa-
+csa-export
 
 
 if [ "$NODE_TAG" == "N" ]; then

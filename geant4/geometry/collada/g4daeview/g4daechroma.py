@@ -16,6 +16,7 @@ from daechromacontext import DAEChromaContext
 
 from chroma.detector import Detector
 
+
 class G4DAEChroma(object):
     """
     Not a graphical scene, just following the structure of g4daeview.py for sanity 
@@ -50,8 +51,8 @@ class G4DAEChroma(object):
         pass
         log.info("terminating")
 
- 
 
+ 
 def main():
     """
     Note that there is no need for the DAEGeometry when running from 
@@ -70,6 +71,7 @@ def main():
     chroma_geometry = None 
     if config.args.geocache:
         chroma_geometry = Detector.get(config.chromacachepath)  
+
     
     if chroma_geometry is None:
         from daegeometry import DAEGeometry
@@ -83,10 +85,12 @@ def main():
         pass
     pass
 
+
+    gdc = G4DAEChroma(chroma_geometry, config )
+
     if config.args.ipython:
         IPython.embed()
 
-    gdc = G4DAEChroma(chroma_geometry, config )
     log.info("***** post G4DAEChroma ctor")
     gdc.poll_forever()
 

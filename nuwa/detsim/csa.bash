@@ -42,16 +42,31 @@ csa-nuwapkg-cd(){ cd $(csa-nuwapkg)/$1 ; }
 
 csa-env(){      elocal- ; mocknuwa- ; }
 
+csa-g4materials-vi(){ vi $(csa-g4materials) ; }
+csa-g4materials(){ echo $(csa-cachedir)/g4materials.json ; }
+
 csa-cachedir(){ echo $(local-base)/env/nuwa/detsim/DetSimChroma.cache ; }
 csa-cachedir-ls(){ ls -l $(csa-cachedir) ;}
 csa-cachedir-cd(){ cd $(csa-cachedir) ;}
 csa-cachedir-srcnode(){ echo G5 ; }
+csa-cachedir-names(){ cat << EON
+data.npy
+key.npy
+g4materials.json
+EON
+}
 csa-cachedir-scp(){
    local cachedir=$(csa-cachedir)
    local srcnode=$(csa-cachedir-srcnode)
    mkdir -p $(dirname $cachedir)
    [ "$NODE_TAG" == "$srcnode" ] && echo DISALLOED to run this from srcnode $srcnode && return 1
-   scp -r $srcnode:$(NODE_TAG=N csa-cachedir) $cachedir  
+
+   local name
+   local cmd
+   csa-cachedir-names | while read name ; do 
+       cmd="scp $srcnode:$(NODE_TAG=$srcnode csa-cachedir)/$name $cachedir/$name"
+       echo $cmd
+   done
 }
 
 
