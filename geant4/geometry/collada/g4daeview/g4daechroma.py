@@ -33,7 +33,7 @@ class G4DAEChroma(object):
         propagator = DAEDirectPropagator(config, chroma)
         def handler(obj):
             log.info("handler got obj (cpl or npl)") 
-            return propagator.propagate( obj )
+            return propagator.incoming( obj )
 
         self.responder = DAEDirectResponder(config, handler )
         self.propagator = propagator

@@ -127,6 +127,10 @@ class DAEDirectConfig(object):
         defaults['max_steps'] = 30        
         defaults['block'] = "16,16,1"       # 2D
         defaults['launch'] = "3,2,1"        # 2D
+        defaults['max_time'] = 4.0  ; MAX_TIME_WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
+
+
+
         defaults['hit'] = True        
         defaults['reset_rng_states'] = True        
         defaults['gl'] = False       
@@ -137,6 +141,7 @@ class DAEDirectConfig(object):
         parser.add_argument( "--max-steps", help="Maximum photon propagation steps. Default %(default)s", type=int )
         parser.add_argument( "--block", help="[I] String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
         parser.add_argument( "--launch", help="[I] String 3-tuple dimensions of the sequence of CUDA kernel launches, eg \"1,1,1\",  \"2,2,1\", \"2,3,1\" ", type=str  )
+        parser.add_argument( "--max-time", help="[I] Maximum time in seconds for kernel launch, if exceeded subsequent launches are ABORTed " + MAX_TIME_WARN , type=float )
 
         parser.add_argument( "--nohit", dest="hit", action="store_false", help="Return only photons that hit sensitive detectors. ")
         parser.add_argument( "--noreset-rng-states", dest="reset_rng_states", action="store_false", help="Reset rng states for each propagation. ")

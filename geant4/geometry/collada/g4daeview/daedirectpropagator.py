@@ -21,6 +21,7 @@ import pycuda.gpuarray as ga
 from chroma.gpu.tools import get_cu_module, cuda_options, chunk_iterator, to_float3
 #from chroma.gpu.photon import GPUPhotons
 from chroma.gpu.photon_hit import GPUPhotonsHit
+from chroma.gpu.gensteps import GPUGenSteps
 from chroma.gpu.geometry import GPUGeometry
 
 class NPY(np.ndarray):pass
@@ -34,6 +35,41 @@ class DAEDirectPropagator(object):
         """
         self.config = config
         self.chroma = chroma
+
+    def incoming(self, request):
+        """
+        Branch handling based on itemshape (excluding first dimension) 
+        of the request array 
+        """
+        self.chroma.incoming(request)  # do any config contained in request
+        itemshape = request.shape[1:]
+        log.info("incoming itemshape %s " % repr(itemshape))
+        if itemshape == (6,4):
+            response, results = self.generate(request)
+        else:
+            response, results = self.propagate(request)
+        pass
+        return self.chroma.outgoing(response, results)
+
+
+    def generate(self, request):
+        """
+        ::
+
+            In [98]: gensteps[0:100,0,3].view(np.int32).sum()
+            Out[98]: 4711
+
+        """
+        results = {}
+        gpu_gensteps = GPUGenSteps(request)
+
+        results = gpu_gensteps.generate(self.chroma.gpu_detector, 
+                                        self.chroma.rng_states,
+                                        self.chroma.parameters)
+        photons = gpu_gensteps.get()
+
+        return photons, results
+
 
     def propagate(self, request):
         """
@@ -50,7 +86,6 @@ class DAEDirectPropagator(object):
         TODO: move most of this into DAEChromaContext, because thats common between the
               two flavors of propagation
         """
-        self.chroma.incoming(request)  # do any config contained in request
 
         photons = Photons.from_obj( request, extend=False) # TODO: short circuit this, moving to NPL
 
@@ -63,7 +98,7 @@ class DAEDirectPropagator(object):
         # pycuda get()s from GPU back into ndarrays and creates NPL, formerly event.Photon instance
         photons_end = gpu_photons.get(npl=1,hit=self.chroma.parameters['hit'])
 
-        return self.chroma.outgoing(photons_end, results)
+        return photons_end, results
 
 
     def check_unpropagated_roundtrip(self, cpl, extend=False):

@@ -474,7 +474,6 @@ class ColladaToChroma(object):
                 mats = keymat[dkey]
                 print " %-30s [%-2s] %s " % ( dkey, len(mats), ",".join(map(matshorten,mats)) )
 
-
     def setup_cdf(self, material, props ):
         """
         Chroma uses "reemission_cdf" cumulative distribution function 
@@ -493,25 +492,43 @@ class ColladaToChroma(object):
         slow = props.get('SLOWCOMPONENT', None) 
         reem = props.get('REEMISSIONPROB', None) 
 
-        assert not fast is None and not slow is None and not reem is None
+        if fast is None or slow is None or reem is None:
+            return 
+
+        assert not fast is None 
+        assert not slow is None 
+        assert not reem is None
+
         assert np.all( fast == slow )     # CURIOUS, that these are the same
 
         fast_cdf = construct_cdf( fast )
         slow_cdf = construct_cdf( slow )
-        reem_cdf = construct_cdf( reem )
+        reemission_cdf = construct_cdf( fast ) 
+        ## yep "fast" : need intensity distribution 
 
+        #
+        #   reem_cdf = construct_cdf( reem )
+        #   
+        #   Nope the CDF are used to generate wavelengths 
+        #   following the desired slow/fast intensity distribution 
+        #   [ie number of photons in wavelength ranges]
+        #   (which happen to be the same)
+        # 
+        #   conversely the reemission probability gives the 
+        #   fraction that reemit at the wavelength
+        #   that value can be used directly by random uniform throws
+        #   to decide whether to reemit no cdf gymnastics needed
+        #   as are just determining whether somethinh happens not
+        #   the wavelength distribution  of photons
+        # 
+        #
         assert np.all( fast_cdf == slow_cdf )
 
-        log.debug("setting reemission_cdf for %s to %s " % (material.name, repr(cdf)))
+        log.debug("setting reemission_cdf for %s to %s " % (material.name, repr(reemission_cdf)))
 
-        OLDBUG = False   ## UNCONFIRMED BUG 
-        if OLDBUG:
-            material.set('reemission_cdf', fast_cdf[:,1], wavelengths=fast_cdf[:,0])
-        else:
-            material.set('slow_cdf', slow_cdf[:,1], wavelengths=slow_cdf[:,0])
-            material.set('fast_cdf', fast_cdf[:,1], wavelengths=fast_cdf[:,0])
-            material.set('reemission_cdf', reem_cdf[:,1], wavelengths=reem_cdf[:,0])
-        pass
+        material.set('slow_cdf', slow_cdf[:,1], wavelengths=slow_cdf[:,0])
+        material.set('fast_cdf', fast_cdf[:,1], wavelengths=fast_cdf[:,0])
+        material.set('reemission_cdf', reemission_cdf[:,1], wavelengths=reemission_cdf[:,0])
 
 
     def _get_materialmap(self):

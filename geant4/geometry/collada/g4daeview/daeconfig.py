@@ -273,12 +273,10 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--metric", help="One of time/node/intersect/tri or default None", type=str  )
         parser.add_argument( "--showmetric", action="store_true", help="Switch on display of the metric and flags configured.")
         # kernel params and how launched
-        defaults['max_time'] = 3.0  ; MAX_TIME_WARN = "(greater than 4 seconds leads to GPU PANIC, GUI FREEZE AND SYSTEM CRASH) "
         defaults['allsync'] = True
         defaults['alpha_depth'] = 10
         parser.add_argument( "--allsync",   help="[I] always CUDA sync after each launch", action="store_true" )
         parser.add_argument( "--alpha-depth", help="[I] Chroma Raycaster alpha_depth", type=int )
-        parser.add_argument( "--max-time", help="[I] Maximum time in seconds for kernel launch, if exceeded subsequent launches are ABORTed " + MAX_TIME_WARN , type=float )
 
         # camera
         defaults['kscale'] = 100.

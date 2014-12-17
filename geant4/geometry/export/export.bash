@@ -248,17 +248,19 @@ export-export(){
    $FUNCNAME-pathtmpl
 }
 
-export-cerenkov-path-template(){      echo "$(local-base)/env/cerenkov/%s.npy" ; }
-export-scintillation-path-template(){ echo "$(local-base)/env/scintillation/%s.npy" ; }
-
+export-path-template(){ echo "$(local-base)/env/$1/%s.npy" ; }
 export-source-node(){ echo G5 ; }
-export-cerenkov-get(){
-    local from=$(export-source-node)
-    [ "$NODE_TAG" == "$from" ] && echo $msg cannot get to self && return 
+export-cerenkov-get(){       export-npy-get ${1:-1} cerenkov ; }
+export-scintillation-get(){  export-npy-get ${1:-1} scintillation ; }
+export-npy-get(){
 
     local evt=${1:-1}
-    local rtmpl=$(NODE_TAG=$from export-cerenkov-path-template)
-    local ltmpl=$(export-cerenkov-path-template)
+    local typ=${2:-cerenkov}
+
+    local from=$(export-source-node)
+    [ "$NODE_TAG" == "$from" ] && echo $msg cannot get to self && return 
+    local rtmpl=$(NODE_TAG=$from export-path-template $typ)
+    local ltmpl=$(export-path-template $typ)
     local rpath=$(printf $rtmpl $evt)
     local lpath=$(printf $ltmpl $evt)
    
@@ -272,9 +274,23 @@ export-export-pathtmpl(){
    export DAE_PATH_TEMPLATE_NPY="$LOCAL_BASE/env/tmp/%s.npy"
    export DAE_PATH_TEMPLATE=$DAE_PATH_TEMPLATE_NPY
    export DAEHIT_PATH_TEMPLATE="$LOCAL_BASE/env/hit/%s.npy"
-   export DAECERENKOV_PATH_TEMPLATE=$(export-cerenkov-path-template)
-   export DAESCINTILLATION_PATH_TEMPLATE=$(export-scintillation-path-template)
+   export DAECERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
+   export DAESCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
+   export DAETEST_PATH_TEMPLATE=$(export-path-template test)
 }
+
+export-lambda-(){ cat << EOL
+
+manually add the below to ipython environment using ipython-edit
+
+hh = lambda _:np.load(os.environ['DAEHIT_PATH_TEMPLATE'] % str(_))
+cs = lambda _:np.load(os.environ['DAECERENKOV_PATH_TEMPLATE'] % str(_))
+ss = lambda _:np.load(os.environ['DAESCINTILLATION_PATH_TEMPLATE'] % str(_))
+tt = lambda _:np.load(os.environ['DAETEST_PATH_TEMPLATE'] % str(_))
+
+EOL
+}
+
 
 
 export-juno-get(){
