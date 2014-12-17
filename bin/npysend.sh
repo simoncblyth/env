@@ -1,0 +1,1 @@
+../zeromq/pyzmq/npysend.sh

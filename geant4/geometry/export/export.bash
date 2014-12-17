@@ -58,6 +58,20 @@ Grab with::
    export-get 
 
 
+Getting CerenkovStep/ScintillationStep files
+----------------------------------------------
+
+::
+
+    delta:~ blyth$ export-cerenkov-get
+    mkdir -p /usr/local/env/cerenkov && scp G5:/home/blyth/local/env/cerenkov/1.npy /usr/local/env/cerenkov/1.npy
+
+    delta:~ blyth$ export-cerenkov-get | sh 
+    1.npy                                                                                               100%  747KB 746.9KB/s   00:01    
+     
+
+
+
 Administrator: Placing Exports
 -----------------------------------
 
@@ -234,13 +248,32 @@ export-export(){
    $FUNCNAME-pathtmpl
 }
 
+export-cerenkov-path-template(){      echo "$(local-base)/env/cerenkov/%s.npy" ; }
+export-scintillation-path-template(){ echo "$(local-base)/env/scintillation/%s.npy" ; }
+
+export-source-node(){ echo G5 ; }
+export-cerenkov-get(){
+    local from=$(export-source-node)
+    [ "$NODE_TAG" == "$from" ] && echo $msg cannot get to self && return 
+
+    local evt=${1:-1}
+    local rtmpl=$(NODE_TAG=$from export-cerenkov-path-template)
+    local ltmpl=$(export-cerenkov-path-template)
+    local rpath=$(printf $rtmpl $evt)
+    local lpath=$(printf $ltmpl $evt)
+   
+    local cmd="mkdir -p $(dirname $lpath) && scp $from:$rpath $lpath" 
+    echo $cmd
+}
+
+
 export-export-pathtmpl(){
    export DAE_PATH_TEMPLATE_ROOT="$LOCAL_BASE/env/tmp/%s.root"
    export DAE_PATH_TEMPLATE_NPY="$LOCAL_BASE/env/tmp/%s.npy"
    export DAE_PATH_TEMPLATE=$DAE_PATH_TEMPLATE_NPY
    export DAEHIT_PATH_TEMPLATE="$LOCAL_BASE/env/hit/%s.npy"
-   export DAECERENKOV_PATH_TEMPLATE="$LOCAL_BASE/env/cerenkov/%s.npy"
-   export DAESCINTILLATION_PATH_TEMPLATE="$LOCAL_BASE/env/scintillation/%s.npy"
+   export DAECERENKOV_PATH_TEMPLATE=$(export-cerenkov-path-template)
+   export DAESCINTILLATION_PATH_TEMPLATE=$(export-scintillation-path-template)
 }
 
 
