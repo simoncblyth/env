@@ -297,8 +297,6 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
       {
           hits->Print("G4DAEChroma::Propagate returned hits"); 
           hits->Details(1); 
-
-
       }
       m_sensdet->CollectHits( hits, m_cache );
 

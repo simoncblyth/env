@@ -511,48 +511,64 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
         G4double ScintillationTime = 0.*ns;
         G4PhysicsOrderedFreeVector* ScintillationIntegral = NULL;
          
-        if (scnt == 1) {//fast
-            if (nscnt == 1) {
-                if(Fast_Intensity){
+        if (scnt == 1) //fast
+        {
+            if (nscnt == 1) 
+            {
+                if(Fast_Intensity) // FASTCOMPONENT mpt 
+                {
                     ScintillationTime   = fastTimeConstant;
                     ScintillationIntegral =
                         (G4PhysicsOrderedFreeVector*)((*theFastIntegralTable)(materialIndex));
                 }
-                if(Slow_Intensity){
+                if(Slow_Intensity)
+                {
                     ScintillationTime   = slowTimeConstant;
                     ScintillationIntegral =
                         (G4PhysicsOrderedFreeVector*)((*theSlowIntegralTable)(materialIndex));
                 }
             }
-            else {
-                if ( ExcitationRatio == 1.0 ) {
-		  Num = G4int( 0.5 +  (min(YieldRatio,1.0) * NumTracks) );  // round off, not truncation
+            else 
+            {
+                if ( ExcitationRatio == 1.0 ) 
+                {
+		             Num = G4int( 0.5 +  (min(YieldRatio,1.0) * NumTracks) );  // round off, not truncation
                 }
-                else {
-		  Num = G4int( 0.5 +  (min(ExcitationRatio,1.0) * NumTracks));
+                else 
+                {
+		             Num = G4int( 0.5 +  (min(ExcitationRatio,1.0) * NumTracks));
                 }
-		if ( verboseLevel>1 ){
-		  G4cout << "Generate Num " << Num << " optical photons with fast component using NumTracks " 
-			 << NumTracks << " YieldRatio " << YieldRatio << " ExcitationRatio " << ExcitationRatio 
-			 << " min(YieldRatio,1.)*NumTracks = " <<  min(YieldRatio,1.)*NumTracks 
-			 << " min(ExcitationRatio,1.)*NumTracks = " <<  min(ExcitationRatio,1.)*NumTracks 
-			 << G4endl;
-		}
+
+                if ( verboseLevel>1 )
+                {
+                     G4cout << "Generate " 
+                            << "Num " << Num 
+                            << " optical photons with fast component using "
+                            << " NumTracks " << NumTracks 
+                            << " YieldRatio " << YieldRatio 
+                            << " ExcitationRatio " << ExcitationRatio 
+                            << " min(YieldRatio,1.)*NumTracks = " <<  min(YieldRatio,1.)*NumTracks 
+                            << " min(ExcitationRatio,1.)*NumTracks = " <<  min(ExcitationRatio,1.)*NumTracks 
+                            << G4endl;
+                }
                 ScintillationTime   = fastTimeConstant;
                 ScintillationIntegral =
                     (G4PhysicsOrderedFreeVector*)((*theFastIntegralTable)(materialIndex));
             }
         }
-        else {//slow
+        else              //slow
+        {  
             Num = NumTracks - Num;
             ScintillationTime   =   slowTimeConstant;
             ScintillationIntegral =
                 (G4PhysicsOrderedFreeVector*)((*theSlowIntegralTable)(materialIndex));
         }
-	if (verboseLevel > 0) {
-	  G4cout << "generate " << Num << " optical photons with scintTime " << ScintillationTime 
-		 << " slowTimeConstant " << slowTimeConstant << " fastTimeConstant " << fastTimeConstant << G4endl;
-	}
+
+  	    if (verboseLevel > 0) 
+        {
+	           G4cout << "generate " << Num << " optical photons with scintTime " << ScintillationTime 
+		              << " slowTimeConstant " << slowTimeConstant << " fastTimeConstant " << fastTimeConstant << G4endl;
+	    }
 
         if (!ScintillationIntegral) continue;
 	
@@ -570,50 +586,57 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             float* ss = ssl->GetNextPointer();     
 
             const G4ParticleDefinition* definition = aParticle->GetDefinition(); 
-            G4int    code = definition->GetPDGEncoding();
-            G4double charge = definition->GetPDGCharge();
+            G4ThreeVector deltaPosition = aStep.GetDeltaPosition();
 
+            /*
             cout << "G4DAEScintillationStep " 
                  << " ssid " << ssid 
-                 << " code " << code 
+                 << " PDGEncoding " << definition->GetPDGEncoding() 
                  << " Num " << Num 
                  << endl ;
+            */
 
-            uif_t uifd[6] ;
-            uifd[0].i = ssid ;
-            uifd[1].i = aTrack.GetTrackID() ;
-            uifd[2].i = materialIndex ; 
-            uifd[3].i = Num ;
+            uif_t uifa[4] ;
+            uifa[0].i = ssid ;
+            uifa[1].i = aTrack.GetTrackID() ;
+            uifa[2].i = materialIndex ; 
+            uifa[3].i = Num ;
 
-            uifd[4].i = scnt ;
-            uifd[5].i = code ;
+            uif_t uifb[4] ;
+            uifb[0].i = definition->GetPDGEncoding();
+            uifb[1].i = scnt ;   // 1:fast 2:slow
+            uifb[2].i = 0 ;
+            uifb[3].i = 0 ;
 
-            ss[G4DAEScintillationStep::_Id]         =  uifd[0].f ;
-            ss[G4DAEScintillationStep::_ParentID]   =  uifd[1].f ;
-            ss[G4DAEScintillationStep::_Material]   =  uifd[2].f ; 
-            ss[G4DAEScintillationStep::_NumPhotons] =  uifd[3].f ;
-
-            ss[G4DAEScintillationStep::_scnt]       =  uifd[4].f ;
-            ss[G4DAEScintillationStep::_code]      =  uifd[5].f ;
-            ss[G4DAEScintillationStep::_charge]    =  charge ;
-
-            ss[G4DAEScintillationStep::_ScintillationTime]  = ScintillationTime ;
-            ss[G4DAEScintillationStep::_ScintillationIntegralMax]  = ScintillationIntegral->GetMaxValue() ;
-            ss[G4DAEScintillationStep::_slowerRatio]  =  slowerRatio ;
-            ss[G4DAEScintillationStep::_slowTimeConstant]  =  slowTimeConstant ;
-            ss[G4DAEScintillationStep::_slowerTimeConstant]  =  slowerTimeConstant ;
-
-            ss[G4DAEScintillationStep::_step_length]  =  aStep.GetStepLength() ;
-            ss[G4DAEScintillationStep::_MeanVelocity] = 
-                    ((pPreStepPoint->GetVelocity()+
-                      pPostStepPoint->GetVelocity())/2.);
-
-            ss[G4DAEScintillationStep::_DeltaPosition] = aStep.GetDeltaPosition();
+            ss[G4DAEScintillationStep::_Id]         =  uifa[0].f ;
+            ss[G4DAEScintillationStep::_ParentID]   =  uifa[1].f ;
+            ss[G4DAEScintillationStep::_Material]   =  uifa[2].f ; 
+            ss[G4DAEScintillationStep::_NumPhotons] =  uifa[3].f ;
 
             ss[G4DAEScintillationStep::_x0_x] = x0.x() ;
             ss[G4DAEScintillationStep::_x0_y] = x0.y() ;
             ss[G4DAEScintillationStep::_x0_z] = x0.z() ;
             ss[G4DAEScintillationStep::_t0] = t0 ;
+
+            ss[G4DAEScintillationStep::_DeltaPosition_x] = deltaPosition.x();
+            ss[G4DAEScintillationStep::_DeltaPosition_y] = deltaPosition.y();
+            ss[G4DAEScintillationStep::_DeltaPosition_z] = deltaPosition.z();
+            ss[G4DAEScintillationStep::_step_length]     = aStep.GetStepLength() ;
+
+            ss[G4DAEScintillationStep::_code]      =  uifb[0].f ;
+            ss[G4DAEScintillationStep::_charge]    =  definition->GetPDGCharge();
+            ss[G4DAEScintillationStep::_weight]    =  weight ;
+            ss[G4DAEScintillationStep::_MeanVelocity] = ((pPreStepPoint->GetVelocity()+ pPostStepPoint->GetVelocity())/2.);
+
+            ss[G4DAEScintillationStep::_scnt]      =  uifb[1].f ;
+            ss[G4DAEScintillationStep::_slowerRatio]  =  slowerRatio ;
+            ss[G4DAEScintillationStep::_slowTimeConstant]  =  slowTimeConstant ;
+            ss[G4DAEScintillationStep::_slowerTimeConstant]  =  slowerTimeConstant ;
+
+            ss[G4DAEScintillationStep::_ScintillationTime]  = ScintillationTime ;
+            ss[G4DAEScintillationStep::_ScintillationIntegralMax]  = ScintillationIntegral->GetMaxValue() ;
+            ss[G4DAEScintillationStep::_Spare1]  = 0. ;
+            ss[G4DAEScintillationStep::_Spare2]  = 0. ;
 
        } 
 #else
@@ -628,37 +651,37 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             }
         }
 
-	    G4double sampledEnergy;
-	    if ( !flagReemission ) {
+        G4double sampledEnergy;
+        if ( !flagReemission ) 
+        {
                 // normal scintillation
-                G4double CIIvalue = G4UniformRand()*
-                    ScintillationIntegral->GetMaxValue();
-                sampledEnergy=
-                    ScintillationIntegral->GetEnergy(CIIvalue);
+                G4double CIIvalue = G4UniformRand()* ScintillationIntegral->GetMaxValue();
+                sampledEnergy = ScintillationIntegral->GetEnergy(CIIvalue);
 
                 if (verboseLevel>1) 
-                    {
+                {
                         G4cout << "sampledEnergy = " << sampledEnergy << G4endl;
                         G4cout << "CIIvalue =        " << CIIvalue << G4endl;
-                    }
-	    }
-            else {
+                }
+        }
+        else 
+        {
                 // reemission, the sample method need modification
-                G4double CIIvalue = G4UniformRand()*
-                    ScintillationIntegral->GetMaxValue();
-                if (CIIvalue == 0.0) {
+                G4double CIIvalue = G4UniformRand()* ScintillationIntegral->GetMaxValue();
+                if (CIIvalue == 0.0) 
+                {
                     // return unchanged particle and no secondaries  
                     aParticleChange.SetNumberOfSecondaries(0);
                     return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
                 }
-                sampledEnergy=
-                    ScintillationIntegral->GetEnergy(CIIvalue);
-                if (verboseLevel>1) {
+                sampledEnergy= ScintillationIntegral->GetEnergy(CIIvalue);
+                if (verboseLevel>1) 
+                {
                     G4cout << "oldEnergy = " <<aTrack.GetKineticEnergy() << G4endl;
                     G4cout << "reemittedSampledEnergy = " << sampledEnergy
                            << "\nreemittedCIIvalue =        " << CIIvalue << G4endl;
                 }
-            }
+       }
 
             // Generate random photon direction
 

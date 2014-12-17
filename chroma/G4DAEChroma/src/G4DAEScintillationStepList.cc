@@ -3,7 +3,7 @@
 
 const char* G4DAEScintillationStepList::TMPL = "DAESCINTILLATION_PATH_TEMPLATE" ;
 const char* G4DAEScintillationStepList::SHAPE = "6,4" ;
-const char* G4DAEScintillationStepList::KEY   = "XXX" ;
+const char* G4DAEScintillationStepList::KEY   = "SSL" ;
 
 G4DAEScintillationStepList::G4DAEScintillationStepList( G4DAEArray* array ) : G4DAEArrayHolder(array) {}
 G4DAEScintillationStepList::G4DAEScintillationStepList( std::size_t itemcapacity, float* data) : G4DAEArrayHolder( itemcapacity, data, SHAPE ) {}

@@ -1,8 +1,5 @@
-
 #ifndef G4DAECERENKOVSTEP_H
 #define G4DAECERENKOVSTEP_H 
-
-#include "G4ThreeVector.hh"
 
 // machinery to serialize the stack from DsG4Cerenkov::PostStepDoIt 
 
@@ -128,14 +125,14 @@ struct G4DAECerenkovStep {
        _DeltaPosition_z,
        _step_length,
 
+       _code, 
        _charge, 
-       _BetaInverse,
        _weight, 
        _MeanVelocity,
 
+       _BetaInverse,
        _Pmin,  
        _Pmax,   
-       _dp,    
        _maxCos,
 
        _maxSin2,

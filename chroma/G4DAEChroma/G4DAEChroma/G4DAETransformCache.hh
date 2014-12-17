@@ -13,41 +13,17 @@ G4DAETransformCache
 See also `env/geant4/geometry/collada/transform_cache.py` 
 
 
-Issues
---------
-
-portable keys
-~~~~~~~~~~~~~~~~~
-
-Argh size_t not a portable key between 32 and 64 bit 
-architectures ? Or maybe cnpy is deficient, as the python load
-succeeds to convert appropriately.
-
-Big numbers are keys from the dump, truncating them down to uint32
-gives PMTID values::
-
-    In [7]: "0x%x" % np.uint32(72339077621415937) 
-    Out[7]: '0x1010001'
-
-    In [8]: "0x%x" % np.uint32(72339086211350531)
-    Out[8]: '0x1010003'
-
-
-
 */
 
-#include <cstddef>
-
-
-//#include <cstdint>   C++0x   depends on newish C++0x
-//typedef std::uint32_t Key_t ;
-
-#include <stdint.h>
-typedef uint32_t Key_t ;
-
+#include "G4DAEChroma/G4DAEMetadata.hh"
+#include "G4DAEChroma/G4DAEMap.hh"
 #include "G4AffineTransform.hh" 
-#include <map>
 
+#include <map>
+#include <cstddef>
+#include <stdint.h>
+
+typedef uint32_t Key_t ;
 typedef std::map<Key_t,G4AffineTransform> TransformMap_t ;
 
 class G4DAETransformCache {
@@ -72,6 +48,9 @@ public:
     G4AffineTransform* GetTransform( std::size_t index );  // transform for index
     G4AffineTransform* FindTransform( Key_t key );         // transform for key 
 
+public:
+    void AddMetadata( const char* name, Map_t& map);
+
 protected:
     // lower level operations on the serialized bytes 
 
@@ -85,6 +64,8 @@ private:
     TransformMap_t m_id2transform ; 
 
 private:
+    G4DAEMetadata* m_metadata ; 
+
     std::size_t   m_itemcapacity ; 
     std::size_t   m_itemsize ; 
     std::size_t   m_keysize ; 

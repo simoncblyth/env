@@ -310,29 +310,46 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         // serialize DsG4Cerenkov::PostStepDoIt stack, just before the photon loop
         G4DAECerenkovStepList* csl = G4DAEChroma::GetG4DAEChroma()->GetCerenkovStepList();
 
-        // shoving ints into float bits
+        const G4ParticleDefinition* definition = aParticle->GetDefinition(); 
         G4ThreeVector deltaPosition = aStep.GetDeltaPosition();
         G4double weight = fPhotonWeight*aTrack.GetWeight();
         G4int materialIndex = aMaterial->GetIndex();
+        G4String materialName = aMaterial->GetName();
+
         // will need to relate this Geant4 materialIndex to the chroma equivalent
         // where to make the mapping ?
 
         size_t csid = csl->GetCount() ;
-        cout << "G4DAECerenkovStep csid " << csid << endl ;
 
-        uif_t uifd[4] ;
-        uifd[0].i = csid ;
-        uifd[1].i = aTrack.GetTrackID() ;
-        uifd[2].i = materialIndex ; 
-        uifd[3].i = NumPhotons ;
+        /*
+        cout << "G4DAECerenkovStep " 
+             << " csid " << csid 
+             << " materialIndex " << materialIndex
+             << " materialName " << materialName
+             << endl ;
+        */ 
+
+        // shoving ints into float bits
+        uif_t uifa[4] ;
+        uifa[0].i = csid ;
+        uifa[1].i = aTrack.GetTrackID() ;
+        uifa[2].i = materialIndex ; 
+        uifa[3].i = NumPhotons ;
+
+        uif_t uifb[4] ;
+        uifb[0].i = definition->GetPDGEncoding();
+        uifb[1].i = 0 ;   // 1:fast 2:slow
+        uifb[2].i = 0 ;
+        uifb[3].i = 0 ;
+
 
         // directly fills next item of G4DAEArray using (n,4,6) structure [float4 quads efficient on GPU]
         float* cs = csl->GetNextPointer();     
 
-        cs[G4DAECerenkovStep::_Id]         =  uifd[0].f ;
-        cs[G4DAECerenkovStep::_ParentID]   =  uifd[1].f ;
-        cs[G4DAECerenkovStep::_Material]   =  uifd[2].f ; 
-        cs[G4DAECerenkovStep::_NumPhotons] =  uifd[3].f ;
+        cs[G4DAECerenkovStep::_Id]         =  uifa[0].f ;
+        cs[G4DAECerenkovStep::_ParentID]   =  uifa[1].f ;
+        cs[G4DAECerenkovStep::_Material]   =  uifa[2].f ; 
+        cs[G4DAECerenkovStep::_NumPhotons] =  uifa[3].f ;
 
         cs[G4DAECerenkovStep::_x0_x] =  x0.x() ;
         cs[G4DAECerenkovStep::_x0_y] =  x0.y() ;
@@ -344,14 +361,14 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         cs[G4DAECerenkovStep::_DeltaPosition_z] =  deltaPosition.z() ;
         cs[G4DAECerenkovStep::_step_length] =  step_length ;
 
+        cs[G4DAECerenkovStep::_code] = uifb[0].f ;
         cs[G4DAECerenkovStep::_charge] = charge ;
-        cs[G4DAECerenkovStep::_BetaInverse] = BetaInverse ;
         cs[G4DAECerenkovStep::_weight] = weight ;
         cs[G4DAECerenkovStep::_MeanVelocity] = ((pPreStepPoint->GetVelocity()+pPostStepPoint->GetVelocity())/2.);
 
+        cs[G4DAECerenkovStep::_BetaInverse] = BetaInverse ;
         cs[G4DAECerenkovStep::_Pmin] = Pmin ;
         cs[G4DAECerenkovStep::_Pmax] = Pmax ;
-        cs[G4DAECerenkovStep::_dp] = dp ;
         cs[G4DAECerenkovStep::_maxCos] = maxCos ;
 
         cs[G4DAECerenkovStep::_maxSin2] = maxSin2 ;

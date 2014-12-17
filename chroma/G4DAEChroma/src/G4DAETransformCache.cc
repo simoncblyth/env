@@ -3,6 +3,7 @@
 
 #include "cnpy/cnpy.h"
 #include <sys/stat.h> 
+#include <libgen.h>
 
 #include "G4ThreeVector.hh"
 #include "G4AffineTransform.hh"
@@ -83,7 +84,14 @@ G4DAETransformCache::G4DAETransformCache( std::size_t itemcapacity, Key_t* key, 
     {
         m_itemcount = m_itemcapacity ; // when loading from buffers
     }
+    m_metadata = new G4DAEMetadata("{}");
 }
+
+void G4DAETransformCache::AddMetadata( const char* name, Map_t& map)
+{
+    m_metadata->AddMap(name, map);
+}
+
 
 
 void G4DAETransformCache::Resize(std::size_t itemcapacity)
@@ -105,6 +113,7 @@ G4DAETransformCache::~G4DAETransformCache()
 {
     if(m_data) delete[] m_data ; 
     if(m_key)  delete[] m_key ; 
+    delete m_metadata ;
 }
 
 void G4DAETransformCache::Archive(const char* dir)
@@ -117,10 +126,8 @@ void G4DAETransformCache::Archive(const char* dir)
 
     this->Serialize();
 
-    if (mkdir(dir,0777) == -1) {
-        printf("G4DAETransformCache::Archive mkdir error exiting \n");
-        //exit(EXIT_FAILURE);
-    }
+    int rc = mkdirp(dir, 0777);
+    printf("G4DAETransformCache::Archive mkdirp [%s] rc %d \n", dir, rc );
 
     const unsigned int key_shape[] = {m_itemcount};
     const unsigned int data_shape[] = {m_itemcount,4,4};
@@ -130,17 +137,18 @@ void G4DAETransformCache::Archive(const char* dir)
 
     len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "key.npy");
     path[len] = 0;
-
-    int rc = mkdirp(path, 0777);
-    printf("G4DAETransformCache::Archive [%s] mkdirp rc %d \n", path, rc );
-
-    printf("G4DAETransformCache::Archive [%s]\n", path );
+    printf("G4DAETransformCache::Archive npy_save keys [%s]\n", path );
     cnpy::npy_save(path,m_key,key_shape,1,"w");
 
     len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "data.npy");
     path[len] = 0;
-    printf("G4DAETransformCache::Archive [%s]\n", path );
+    printf("G4DAETransformCache::Archive npy_save data [%s]\n", path );
     cnpy::npy_save(path,m_data,data_shape,3,"w");
+
+    len = snprintf(path, sizeof(path)-1, "%s/%s", dir, "g4materials.json");
+    path[len] = 0;
+    printf("G4DAETransformCache::Archive PrintToFile metadata [%s]\n", path );
+    m_metadata->PrintToFile(path);
 
 }
 

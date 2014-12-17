@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <string>
 #include <map>
 
 #include "G4ThreeVector.hh"
@@ -55,6 +56,7 @@ public:
     void AddSensitiveLVName(const std::string& lvname);
     void AddSensitiveLVNames(const char* envkey, char delim=';' );
     void DumpSensitiveLVNames();
+    void MakeMaterialMap();
 
 public:
     G4DAETransformCache* CreateTransformCache(const G4VPhysicalVolume* world=NULL);
@@ -90,6 +92,8 @@ private:
 
     PVSDMap_t m_pvsd ; 
 
+
+    std::map<std::string,std::string> m_material ; 
 
 };
 

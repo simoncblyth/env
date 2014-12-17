@@ -3,7 +3,7 @@
 
 const char* G4DAECerenkovStepList::TMPL = "DAECERENKOV_PATH_TEMPLATE" ;
 const char* G4DAECerenkovStepList::SHAPE = "6,4" ;
-const char* G4DAECerenkovStepList::KEY   = "XXX" ;
+const char* G4DAECerenkovStepList::KEY   = "CSL" ;
 
 G4DAECerenkovStepList::G4DAECerenkovStepList( G4DAEArray* array ) : G4DAEArrayHolder(array) {}
 G4DAECerenkovStepList::G4DAECerenkovStepList( std::size_t itemcapacity, float* data) : G4DAEArrayHolder( itemcapacity, data, SHAPE ) {}

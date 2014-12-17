@@ -238,7 +238,7 @@ cjs-nuwapkg-cfg ()
     cd $iwd
 }
 
-cjs-nuwapkg-build(){
+cjs-nuwapkg-make(){
    cjs-nuwapkg-cd
    cjs-nuwapkg-cfg
 

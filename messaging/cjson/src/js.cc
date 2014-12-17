@@ -186,8 +186,8 @@ void JS::PrintToFile(const char* _path)
     int mode = 0777 ;
     int rc = mkdirp( base, mode ); 
     if(rc){
-        fprintf(stderr, "JS::PrintToFile mkdirp failed for base dir: [%s] \n", base);
-        return ;
+        fprintf(stderr, "JS::PrintToFile mkdirp failed for base dir: [%s] exists already? \n", base);
+        //return ;
     } 
 
     char *out = cJSON_Print(m_root);

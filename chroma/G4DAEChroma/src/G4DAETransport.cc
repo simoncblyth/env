@@ -26,11 +26,13 @@ G4DAETransport::G4DAETransport(const char* envvar) :
 #ifdef WITH_CHROMA_ZMQ
    m_socket = new G4DAESocketBase(envvar) ;
 
-   m_photons = (G4DAEPhotons*)new G4DAEPhotonList(10000) ;    // it grows if needed 
+   // the arrays grow as needed
 
-   m_cerenkov = new G4DAECerenkovStepList();
+   m_photons = (G4DAEPhotons*)new G4DAEPhotonList(10000) ;   
 
-   m_scintillation = new G4DAEScintillationStepList();
+   m_cerenkov = new G4DAECerenkovStepList(10000);
+
+   m_scintillation = new G4DAEScintillationStepList(10000);
 
 #endif
 }

@@ -36,19 +36,25 @@ Based on GaussTools exporter::
 EOU
 }
 csa-dir(){ echo $(env-home)/nuwa/detsim ; }
-csa-cachedir(){ echo $(local-base)/env/nuwa/detsim/DetSimChroma.cache ; }
 csa-cd(){  cd $(csa-dir); }
 csa-nuwapkg(){ echo $DYB/NuWa-trunk/dybgaudi/Simulation/DetSimChroma ; }
 csa-nuwapkg-cd(){ cd $(csa-nuwapkg)/$1 ; }
 
+csa-env(){      elocal- ; mocknuwa- ; }
+
+csa-cachedir(){ echo $(local-base)/env/nuwa/detsim/DetSimChroma.cache ; }
+csa-cachedir-ls(){ ls -l $(csa-cachedir) ;}
+csa-cachedir-cd(){ cd $(csa-cachedir) ;}
+csa-cachedir-srcnode(){ echo G5 ; }
 csa-cachedir-scp(){
    local cachedir=$(csa-cachedir)
+   local srcnode=$(csa-cachedir-srcnode)
    mkdir -p $(dirname $cachedir)
-   [ "$NODE_TAG" == "N" ] && echo DISALLOED to run this from N && return 1
-   scp -r CN:$(NODE_TAG=N csa-cachedir) $cachedir  
+   [ "$NODE_TAG" == "$srcnode" ] && echo DISALLOED to run this from srcnode $srcnode && return 1
+   scp -r $srcnode:$(NODE_TAG=N csa-cachedir) $cachedir  
 }
 
-csa-env(){      elocal- ; mocknuwa- ; }
+
 
 csa-names(){ cat << EON
 DsChromaPhysConsOptical
@@ -224,7 +230,6 @@ csa-export(){
 }
 
 csa-nevt(){ echo ${CSA_NEVT:-1} ; }
-
 
 csa-envsetup(){
 

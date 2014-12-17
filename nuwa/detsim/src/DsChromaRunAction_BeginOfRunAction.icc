@@ -77,8 +77,8 @@ void DsChromaRunAction_BeginOfRunAction(
     cache = geometry->CreateTransformCache(NULL); 
 
     printf("DsChromaRunAction_BeginOfRunAction : archive cache to %s\n", cache_dir.c_str());
-
     cache->Archive(cache_dir.c_str()); 
+
 #else
     if(G4DAETransformCache::Exists(cache_dir.c_str())) cache = G4DAETransformCache::Load(cache_dir.c_str()); 
 #endif

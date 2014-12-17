@@ -25,20 +25,20 @@ struct G4DAEScintillationStep {
        _DeltaPosition_z,
        _step_length,
 
+       _code,
        _charge, 
-       _BetaInverse,
        _weight, 
        _MeanVelocity,
 
-       _Pmin,  
-       _Pmax,   
-       _dp,    
-       _maxCos,
+       _scnt,  
+       _slowerRatio,   
+       _slowTimeConstant,    
+       _slowerTimeConstant,
 
-       _maxSin2,
-       _MeanNumberOfPhotons1,
-       _MeanNumberOfPhotons2,
-       _MeanNumberOfPhotonsMax,
+       _ScintillationTime,
+       _ScintillationIntegralMax,
+       _Spare1,
+       _Spare2,
 
        SIZE
 
