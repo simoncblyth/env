@@ -5,6 +5,7 @@ import logging, os, io, time, errno, codecs
 import json, pprint
 import numpy as np
 import zmq 
+import IPython
 log = logging.getLogger(__name__)
 
 
@@ -27,40 +28,53 @@ class NPYSocket(zmq.Socket):
 
     http://stackoverflow.com/questions/12462547/numpy-getbuffer-and-numpy-frombuffer
     """
-    def send_npy(self, a, flags=0, copy=True, track=False):
+    def send_npy(self, a, flags=0, copy=False, track=False, ipython=False):
         """
         NPY serialize to a buffer and then send
 
-        Probably this is doing three copies:
+        Probably this is doing two copies:
 
-        #. array to stream (inevitable as want the NPY serialization)
-        #. stream to buf
-        #. buf into zmq internals
-      
-        Perhaps streams might provide access to their internal 
-        buffers ? Which would allow to get rid of one copy.
+        #. array to stream (inevitable as need the NPY serialization with its header etc..)
+        #. stream to content
+
+        Unfortunately it seems io.BytesIO streams does not provide 
+        a buffer interface to give access without copying.
+        This means are forced to make a copy of the bytes into "content"
 
         http://python.6.x6.nabble.com/Buffer-protocol-for-io-BytesIO-td1902991.html        
         """
-
-        stream = io.BytesIO()
-        np.save( stream, a )    # serialize ndarray into stream
-        stream.seek(0)
-        buf = buffer(stream.read())
-
-        bufs = [buf]
-        if hasattr(a, 'meta'):
-            for s in a.meta:
-                bufs.append(s) 
+        if copy:
+            log.warn("using slower copy=True option ")
+            assert 0
+        pass
+        bufs = []
+        if not a is None:
+            stream = io.BytesIO()
+            np.save( stream, a )     # write ndarray into stream
+            stream.seek(0)
+            content = stream.read()  # NPY format serialized bytes 
+            buf = memoryview(content)
+            bufs.append(buf)
+            if hasattr(a, 'meta'):
+                for jsd in a.meta:
+                    bufs.append(json.dumps(jsd))   # convert dicts to json strings
+                pass
             pass
-
+        else:
+            log.warn("send_npy sending empty json") 
+            bufs.append(json.dumps({}))
+        pass
+        if ipython:
+            log.info("stopped in send_npy just after creating the bufs to send")
+            IPython.embed()
+        pass
+        log.info("send_npy sending %s bufs copy %s " % (len(bufs),copy))
         return self.send_multipart( bufs, flags=flags, copy=copy, track=track)
 
 
-    def recv_npy(self, flags=0, copy=True, track=False, meta_encoding="ascii"):
+    def recv_npy(self, flags=0, copy=False, track=False, meta_encoding="ascii", ipython=False):
         """
         When copy=True receive bytes otherwise receive frames
-
 
         http://zeromq.github.io/pyzmq/api/zmq.html#frame
 
@@ -73,44 +87,75 @@ class NPYSocket(zmq.Socket):
              From then on that same copy of the message is returned.
 
 
-        TODO:
+        When `copy=False` the list of frames provided by recv_multipart
+        provide with `.buffer` memoryview objects.  But these have 
 
-        * work out how to peek at first byte and check for 0x93 in position 0 
-          (signalling NPY serialization) : currently assuming the first frame to 
-          to contain the NPY
+        #. ndim 0
+        #. itemsize 1
+        #. shape = strides = None
 
+        Presumably this means no buffer interface is implemented, which 
+        makes attempts to index into the memoryview fail with::
+
+            IndexError: invalid indexing of 0-dim memory
+
+        Workaround adopted to peek at the bytes is to use io.BytesIO 
+        which provides peek/seek/read file like access into memory.
         """ 
-        assert copy == False, "implementation needs rejig when copying "
         if copy:
-            msgs = self.recv_multipart(flags=flags, copy=copy, track=track)  # bytes
+            log.warn("using slower copy=True option ")
+            assert 0
+            msgs = self.recv_multipart(flags=flags, copy=True, track=track)  # bytes
             bufs = map(lambda msg:buffer(msg),msgs)
         else:
             frames = self.recv_multipart(flags=flags,copy=False, track=track)    
             bufs = map(lambda frame:frame.buffer, frames)            # memoryview object 
         pass
         
-        # peek into the memoryview to find NPY serialization, from magic bytes 
-        jbuf = -1
-        meta = []
-        for ibuf,buf in enumerate(bufs):   # the buf are memoryview 
-            #print ibuf, buf, len(buf), dir(buf)
-            #if buf[0] == b'\x93':  ## IndexError: invalid indexing of 0-dim memory
-            #if buf[1:7].tobytes() == b'NUMPY':   ## ditto
-            if ibuf == 0:
-                jbuf = ibuf
-            else:
-                meta.append(codecs.decode(buf.tobytes()))
+        if ipython:
+            log.info("stopped in recv_npy just after receiving the bufs (list of memoryview)")
+            IPython.embed()
         pass
-        assert jbuf > -1, "failed to find NPY serialization in any of the multipart frames" 
 
-        if jbuf > -1:
-            stream = io.BytesIO(bufs[jbuf])  # file like access to memory buffer
-            a = np.load(stream)
-            aa = a.view(NP)       # view as subclass, to enable attaching metadata
-        else:
-            aa = NP(0)            # nonce 
+        arys = []
+        meta = []
+        other = []
+
+        for buf in bufs:   
+            stream = io.BytesIO(buf)     # file like access to memory buffer
+            peek = stream.read(1)
+            stream.seek(0)
+            if peek == '\x93':
+                a = np.load(stream)
+                aa = a.view(NP)          # view as subclass, to enable attaching metadata
+                arys.append(aa)
+            else:
+                txt = codecs.decode(stream.read(-1))
+                if peek == '{':
+                    try:
+                        jsdict = json.loads(txt)   
+                    except ValueError:
+                        log.warn("JSON load error for %s " % repr(txt))
+                    pass
+                    meta.append(jsdict)
+                else:
+                    other.append(txt)
+                pass
+            pass
         pass
-        aa.meta = meta
+
+        log.info("recy_npy got %s frames: %s NPY, %s json metadata, %s other " % (len(bufs),len(arys),len(meta),len(other))) 
+        if len(arys) == 0:
+            aa = NP(0)   # zombie ndarray 
+            log.warn("no NPY serialization found in any of the multipart frames ")
+        elif len(arys) == 1:
+            aa = arys[0]
+        else:
+            aa = arys[0]
+            log.warn("found %s NPY in the multipart frames, returning first only " % len(arys) ) 
+        pass
+        aa.meta  = meta
+        aa.other = other
         return aa 
 
 class NPYContext(zmq.Context):

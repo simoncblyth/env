@@ -65,25 +65,7 @@ class NPYResponder(object):
             pass
         if events:
             request = self.socket.recv_npy(copy=False)
-
-            if hasattr(request, 'meta'):
-                try:
-                    meta = map(lambda _:json.loads(_), request.meta )
-                except ValueError:
-                    log.warn("JSON load error for %s " % repr(request.meta))
-                    meta = []
-                pass 
-                request.meta = meta
-                #log.info("NPYResponder converting request.meta to dict %s " % pprint.pformat(request.meta, width=20) )
-            pass
-
             response = self.reply(request) 
-
-            if hasattr(response, 'meta'):
-                meta = map(lambda _:json.dumps(_), response.meta )
-                response.meta = meta 
-                #log.info("NPYResponder converting response.meta to dict %s " % pprint.pformat(response.meta, width=20) )
-            pass
 
             self.socket.send_npy(response)    
 

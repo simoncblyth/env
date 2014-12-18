@@ -122,21 +122,19 @@ class DAEMemoryMon(dict):
 
 
 
+class Geant4MaterialMap(dict):
+    def __init__(self, path="$G4DAECHROMA_CACHE_DIR/g4materials.json"):
+        jsd = json_(path)
+        keys = jsd.keys() 
+        key = keys[0]
+        dict.__init__(self, jsd[key])
 
-class MaterialMap(dict):
-    """
-    Provides mapping from geant4 material index to chroma material index
-    """
+
+class ChromaMaterialMap(dict):
     def __init__(self, chroma_geometry):
-        js = json_("$G4DAECHROMA_CACHE_DIR/g4materials.json")
-        g4name2index = js["MaterialMap"]
         for chindex, m in enumerate(chroma_geometry.unique_materials):
             g4name = m.name[:-9].replace("__","/")
-            g4index = g4name2index[g4name]
-            #print m.name, g4name, g4index       
-            self[g4index] = chindex
-
-
+            self[g4name] = chindex
 
 
 class DAEChromaContext(object):
@@ -153,7 +151,8 @@ class DAEChromaContext(object):
         self.config = config
         pycuda_init(gl=gl)
         self.chroma_geometry = chroma_geometry
-        self.materialmap = MaterialMap(chroma_geometry)   
+        self.chroma_material_map = ChromaMaterialMap(chroma_geometry)   
+        self.geant4_material_map = Geant4MaterialMap()   
         pass
 
         self.COLUMNS = 'hit:i,deviceid:i,gl:i,threads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i,max_time:f'
@@ -169,9 +168,6 @@ class DAEChromaContext(object):
         self._propagator = None
         self._parameters = None
         self._process = None
-
-
-     
 
 
         self.mem = DAEMemoryMon()
@@ -214,7 +210,7 @@ class DAEChromaContext(object):
         self.parameters = parameters
 
 
-    def outgoing(self, response, results):
+    def outgoing(self, response, results, extra=False):
         """
         :param response: NPL propagated photons
         :param results: dict of results from the propagation, eg times 
@@ -225,8 +221,12 @@ class DAEChromaContext(object):
         metadata['results'] = results
         metadata['ctrl'] = self.ctrl
         metadata['args'] = self.args
-        metadata['geometry'] = self.gpu_detector.metadata
-        metadata['cpumem'] = self.mem.metadata()
+        if extra:
+            metadata['geometry'] = self.gpu_detector.metadata
+            metadata['cpumem'] = self.mem.metadata()
+            metadata['chroma_material_map'] = self.chroma_material_map
+            metadata['geant4_material_map'] = self.geant4_material_map
+        pass
         response.meta = [metadata]
         return response
 

@@ -44,12 +44,22 @@ class DAEDirectPropagator(object):
         self.chroma.incoming(request)  # do any config contained in request
         itemshape = request.shape[1:]
         log.info("incoming itemshape %s " % repr(itemshape))
-        if itemshape == (6,4):
+        extra = False 
+        if itemshape == ():
+            log.warn("empty itemshape received %s " % str(itemshape))
+            response = NPY(0)
+            results = {}
+            extra = True
+        elif itemshape == (6,4):
             response, results = self.generate(request)
-        else:
+        elif itemshape == (4,4):
             response, results = self.propagate(request)
+        else:
+            log.warn("itemshape %s not recognized " % str(itemshape))
+            response = NPY(0)
+            results = {}
         pass
-        return self.chroma.outgoing(response, results)
+        return self.chroma.outgoing(response, results, extra=extra)
 
 
     def generate(self, request):

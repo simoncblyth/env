@@ -21,7 +21,7 @@ start those in two terminal windows first::
     delta:~ blyth$ g4daechroma.sh 
 
 """
-import logging, os
+import logging, os, pprint
 import numpy as np
 import zmq 
 log = logging.getLogger(__name__)
@@ -57,11 +57,14 @@ class NPYProcessor(dict):
         log.info("connect to endpoint %s " % self.config.endpoint ) 
         socket.connect(self.config.endpoint)
         log.info("send_npy")
-        socket.send_npy(request)
-        log.info("recv_npy")
-        response = socket.recv_npy(copy=False)
+        socket.send_npy(request,copy=self.config.copy,ipython=self.config.ipython)
+        response = socket.recv_npy(copy=self.config.copy, ipython=self.config.ipython)
         log.info("response %s\n%s " % (str(response.shape), repr(response)))
 
+        meta = getattr(response, 'meta', [])
+        for jsd in meta:
+            print pprint.pformat(jsd)
+        pass
         return response
 
 
@@ -101,6 +104,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     d = {}
+    d['ipython'] = False
+    d['copy'] = False
     d['tag'] = "1"
     d['slice'] = None
     d['inp'] = "cerenkov"
@@ -108,6 +113,8 @@ def parse_args():
     d['level'] = "INFO"
     d['endpoint'] = os.environ['ZMQ_BROKER_URL_FRONTEND']
 
+    parser.add_argument("--ipython", action="store_true", default=d['ipython'] ) 
+    parser.add_argument("--copy", action="store_true", default=d['copy'], help="Copy frames into bytes during npysocket operation (SLOWER)" ) 
     parser.add_argument("--tag", default=d['tag'] ) 
     parser.add_argument("--inp", default=d['inp'], help="Type of file to load",type=str)
     parser.add_argument("--out", default=d['out'], help="Type of file to save response into", type=str)
@@ -123,7 +130,11 @@ def parse_args():
 def main():
     config = parse_args()
     proc = NPYProcessor(config)
-    request = proc.load(config.tag,  config.inp, config.slice )
+    if config.inp == "none":
+        request = None
+    else:
+        request = proc.load(config.tag,  config.inp, config.slice )
+    pass
     response = proc.process(request)
     proc.save(response, config.tag, config.out ) 
 
