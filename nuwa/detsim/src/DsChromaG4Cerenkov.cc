@@ -308,16 +308,18 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 #ifdef G4DAECHROMA_GPU_OPTICAL
     {
         // serialize DsG4Cerenkov::PostStepDoIt stack, just before the photon loop
-        G4DAECerenkovStepList* csl = G4DAEChroma::GetG4DAEChroma()->GetCerenkovStepList();
+        G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+        G4DAECerenkovStepList* csl = chroma->GetCerenkovStepList();
+        int* g2c = chroma->GetMaterialLookup();
 
         const G4ParticleDefinition* definition = aParticle->GetDefinition(); 
         G4ThreeVector deltaPosition = aStep.GetDeltaPosition();
         G4double weight = fPhotonWeight*aTrack.GetWeight();
         G4int materialIndex = aMaterial->GetIndex();
-        G4String materialName = aMaterial->GetName();
 
-        // will need to relate this Geant4 materialIndex to the chroma equivalent
-        // where to make the mapping ?
+        // this relates Geant4 materialIndex to the chroma equivalent
+        G4int chromaMaterialIndex = g2c[materialIndex] ;
+        G4String materialName = aMaterial->GetName();
 
         size_t csid = csl->GetCount() ;
 
@@ -325,20 +327,22 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         cout << "G4DAECerenkovStep " 
              << " csid " << csid 
              << " materialIndex " << materialIndex
+             << " chromaMaterialIndex " << chromaMaterialIndex
              << " materialName " << materialName
              << endl ;
         */ 
+        assert(chromaMaterialIndex > -1 );
 
         // shoving ints into float bits
         uif_t uifa[4] ;
         uifa[0].i = csid ;
         uifa[1].i = aTrack.GetTrackID() ;
-        uifa[2].i = materialIndex ; 
+        uifa[2].i = chromaMaterialIndex ; 
         uifa[3].i = NumPhotons ;
 
         uif_t uifb[4] ;
         uifb[0].i = definition->GetPDGEncoding();
-        uifb[1].i = 0 ;   // 1:fast 2:slow
+        uifb[1].i = 0 ;  
         uifb[2].i = 0 ;
         uifb[3].i = 0 ;
 

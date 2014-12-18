@@ -135,7 +135,7 @@ Map_t JS::CreateMap(char form, const char* columns, const char* wanted)
 
     if(xmap.size() != m_map.size() && columns == NULL && wanted == NULL)
     {
-        printf("JS::CreateMap [%c] xmap %zu m_map %zu map size mismatch \n", form, xmap.size(),m_map.size() );
+        //printf("JS::CreateMap [%c] xmap %zu m_map %zu map size mismatch \n", form, xmap.size(),m_map.size() );
         DumpMap(xmap,  "xmap"); 
         DumpMap(m_map, "m_map"); 
     }
@@ -184,7 +184,7 @@ void JS::PrintToFile(const char* _path)
     char* path = strdup(_path);
     char* base = basepath(path, '/');  // path upto last '/'
     int mode = 0777 ;
-    int rc = mkdirp( base, mode ); 
+    mkdirp( base, mode ); 
 
     //if(rc){
     //    fprintf(stderr, "JS::PrintToFile mkdirp failed for base dir: [%s] exists already? \n", base);

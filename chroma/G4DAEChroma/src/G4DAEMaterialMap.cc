@@ -45,7 +45,7 @@ G4DAEMaterialMap::G4DAEMaterialMap(const G4MaterialTable* table)
     if(!table) table = G4Material::GetMaterialTable();
 
     G4int n = G4Material::GetNumberOfMaterials();
-    cout << " G4DAEMaterialMap numOfMaterials " << n << endl ;
+    //cout << " G4DAEMaterialMap::G4DAEMaterialMap #materials " << n << endl ;
 
     for(G4int i=0 ; i < n ; i++)
     {
@@ -55,11 +55,13 @@ G4DAEMaterialMap::G4DAEMaterialMap(const G4MaterialTable* table)
         
          m_map[name] = index ; 
 
+         /*
          cout << " material " 
               << " i " << i
               << " index " << index 
               << " name"   << name 
               << endl; 
+         */
     } 
 }
 
@@ -172,9 +174,15 @@ int* G4DAEMaterialMap::MakeLookupArray(G4DAEMaterialMap* a, G4DAEMaterialMap* b)
 
 void G4DAEMaterialMap::DumpLookupArray( G4DAEMaterialMap* a, G4DAEMaterialMap* b, int* a2b )
 {
-    cout << "G4DAEMaterialMap::DumpLookupArray " 
+    cout << "G4DAEMaterialMap::DumpLookupArray key/min/max " 
          << " a " << a->GetKey() 
+         << " [ " << a->GetMinIndex() 
+         << " : " << a->GetMaxIndex() 
+         << " ] "  
          << " b " << b->GetKey() 
+         << " [ " << b->GetMinIndex() 
+         << " : " << b->GetMaxIndex() 
+         << " ] "  
          << endl ; 
 
     for( int ia=0 ; ia <= a->GetMaxIndex() ; ia++ )
@@ -187,6 +195,21 @@ void G4DAEMaterialMap::DumpLookupArray( G4DAEMaterialMap* a, G4DAEMaterialMap* b
              << endl ;
     }   
 }   
+
+
+Map_t G4DAEMaterialMap::GetStringMap()
+{
+    Map_t map ; 
+    for( int index=GetMinIndex() ; index <= GetMaxIndex() ; index++ )
+    { 
+         string name = FindName(index);
+         assert(!name.empty());
+         stringstream ss ; 
+         ss << index ;  
+         map[name] = ss.str() ;
+    }
+    return map; 
+}
 
 
 

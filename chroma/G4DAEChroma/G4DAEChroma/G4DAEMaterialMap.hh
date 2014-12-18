@@ -2,6 +2,7 @@
 #define G4DAEMATERIALMAP_H 1
 
 #include "G4Material.hh"
+#include "G4DAEChroma/G4DAEMap.hh"
 #include <string>
 #include <map>
 
@@ -24,6 +25,8 @@ public:
     int FindIndex(const char* name);
     std::string FindName(int index);
     std::string GetKey();
+
+    Map_t GetStringMap();
 
 private:
     std::string m_key ; 

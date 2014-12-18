@@ -239,12 +239,22 @@ cjs-nuwapkg-cfg ()
 }
 
 cjs-nuwapkg-make(){
+
+   dyb-
+   dyb-setup
+ 
    cjs-nuwapkg-cd
    cjs-nuwapkg-cfg
 
    cjs-nuwapkg-cd cmt
    cmt br cmt config
-   make
+
+   cjs-nuwapkg-cd
+   cjs-nuwapkg-cfg
+
+   cjs-nuwapkg-cd cmt
+
+   make $*
 
 }
 

@@ -98,6 +98,9 @@ void DsChromaRunAction_BeginOfRunAction(
     DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(_t2de, _idParameter.c_str());
     cache = geometry->CreateTransformCache(NULL); 
 
+    Map_t gmms = gmm->GetStringMap();
+    cache->AddMetadata("geant4_material_map", gmms );
+
     printf("DsChromaRunAction_BeginOfRunAction : archive cache to %s\n", cache_dir.c_str());
     cache->Archive(cache_dir.c_str()); 
 

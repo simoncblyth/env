@@ -6,6 +6,7 @@
 #include "G4DAEChroma/G4DAETransformCache.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEDatabase.hh"
+#include "G4DAEChroma/G4DAEMaterialMap.hh"
 
 #include "DybG4DAEGeometry.h"
 #include "DybG4DAECollector.h"

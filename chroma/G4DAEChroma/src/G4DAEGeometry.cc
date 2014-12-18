@@ -119,40 +119,11 @@ void G4DAEGeometry::Clear()
    m_pvname.clear();
    m_transform.clear();
    m_pvsd.clear() ;
-   m_material.clear() ;
 
    m_pvcount = 0 ;
    m_sdcount = 0 ;
 }
 
-
-
-void G4DAEGeometry::MakeMaterialMap()
-{
-    const G4MaterialTable* t = G4Material::GetMaterialTable();
-    G4int n = G4Material::GetNumberOfMaterials();
-    cout << " G4DAEGeometry::MakeMaterialMap numOfMaterials " << n << endl ;
-
-
-    for(G4int i=0 ; i < n ; i++)
-    {
-         G4Material* m = (*t)[i];
-         G4int index = m->GetIndex();
-         G4String name = m->GetName();
-
-         std::stringstream ss ; 
-         ss << index ;  
-
-         m_material[name] = ss.str() ;
-
-         cout << " material " 
-              << " i " << i
-              << " index " << index 
-              << " name"   << name 
-              << " sindex " << ss.str()
-              << endl; 
-    } 
-}
 
 
 
@@ -182,10 +153,6 @@ G4DAETransformCache* G4DAEGeometry::CreateTransformCache(const G4VPhysicalVolume
    assert( npv == m_transform.size() );
 
    cout << "G4DAEGeometry::CreateTransformCache found " << npv << " volumes " << endl ; 
-
-   MakeMaterialMap();
-   cache->AddMetadata("MaterialMap", m_material );
-
 
    return cache; 
 }
