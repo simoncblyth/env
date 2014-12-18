@@ -112,6 +112,18 @@ void G4DAEChroma::Note(const char* msg)
     cout << "G4DAEChroma::Note [" <<  this << "] " << msg << endl ;
 }
 
+void G4DAEChroma::Handshake(G4DAEMetadata* request)
+{
+    if(!m_transport) return;
+    m_transport->Handshake(request);
+}
+
+G4DAEMetadata* G4DAEChroma::GetHandshake()
+{
+    if(!m_transport) return NULL;
+    return m_transport->GetHandshake();
+}
+
 
 
 void G4DAEChroma::SetTransport(G4DAETransport* tra){

@@ -67,6 +67,10 @@ void DsChromaRunAction_BeginOfRunAction(
 
     G4DAETransport* transport = new G4DAETransport(_transport.c_str());
     chroma->SetTransport( transport );
+    chroma->Handshake();
+
+    G4DAEMetadata* handshake = chroma->GetHandshake();
+    handshake->Print("DsChromaRunAction_BeginOfRunAction handshake");
 
 
     //// transform cache

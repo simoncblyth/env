@@ -106,7 +106,7 @@ G4DAESerializable* G4DAESocketBase::SendReceiveObject(G4DAESerializable* request
 
     int nsend = 0 ; 
     G4DAESerializable* frame = request ;
-    while(frame)  // send multipart
+    while(frame)  // send multipart following links in the chain
     { 
         frame->SaveToBuffer(); // serialization of object to the buffer
         const char* bytes = frame->GetBufferBytes();
@@ -118,11 +118,10 @@ G4DAESerializable* G4DAESocketBase::SendReceiveObject(G4DAESerializable* request
 #endif
         b_send( m_socket, bytes, size, flags );
 
+        // TODO: stress test to check for leaks
         frame = frame->GetLink();
         nsend++ ; 
     } 
-
-
 
     const char* magic = request->GetMagic();
     size_t lmagic = magic ? strlen(magic) : 0 ;
@@ -140,10 +139,10 @@ G4DAESerializable* G4DAESocketBase::SendReceiveObject(G4DAESerializable* request
         void*  data = zmq_msg_data(&msg) ;
         char* cdata = reinterpret_cast<char*>(data) ; 
 
-        strncpy(peek, cdata, lmagic);
+        strncpy(peek, cdata, lmagic);  // peek at first few bytes
         peek[lmagic] = '\0' ;
 
-        if(strcmp(magic, peek) == 0) 
+        if(strcmp(magic, peek) == 0)  // peek suggests know format (NPY serialization, json string) 
         { 
             response  = request->CreateOther( cdata, size );  
         }

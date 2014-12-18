@@ -79,6 +79,10 @@ public:
     //  these pass thru to the transport
     G4DAEPhotons* Propagate(G4DAEPhotons* photons);
 
+    void Handshake(G4DAEMetadata* request=NULL);
+
+    G4DAEMetadata* GetHandshake();
+
     void SetPhotons(G4DAEPhotons* photons);
     G4DAEPhotons* GetPhotons();
 

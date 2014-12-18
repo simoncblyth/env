@@ -10,8 +10,14 @@
 using namespace std ; 
 
 const std::string G4DAEMetadata::EMPTY = "empty" ; 
-
+const char* G4DAEMetadata::MAGIC = "{" ; 
 const char* G4DAEMetadata::TIMEFORMAT = "%Y-%m-%d %H:%M:%S" ; 
+
+
+const char* G4DAEMetadata::GetMagic()
+{
+   return MAGIC ;  
+}
 
 double G4DAEMetadata::RealTime()
 {
@@ -217,11 +223,15 @@ void G4DAEMetadata::DumpBuffer()
 
 
 
-G4DAEMetadata* G4DAEMetadata::CreateOther(char* buffer, std::size_t buflen)
+G4DAEMetadata* G4DAEMetadata::CreateFromBuffer(char* buffer, std::size_t buflen)
 {
     G4DAEBuffer* buf = new G4DAEBuffer(buflen, buffer);
     return new G4DAEMetadata(buf);
-    // where/when to deserialize into the map : maybe json parser for this
+}
+
+G4DAEMetadata* G4DAEMetadata::CreateOther(char* buffer, std::size_t buflen)
+{
+    return CreateFromBuffer(buffer, buflen);
 }
 
 

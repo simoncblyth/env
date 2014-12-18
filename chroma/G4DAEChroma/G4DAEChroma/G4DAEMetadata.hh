@@ -14,12 +14,13 @@ class JS ;
 class G4DAEMetadata : public G4DAESerializable {
 public:
     typedef std::map<std::string,std::string> Map_t ;
+    static const char* MAGIC ; 
     static const std::string EMPTY ; 
     static const char* TIMEFORMAT ; 
     static char* TimeStampLocal();
     static char* TimeStampUTC();
     static double RealTime();
-
+    static G4DAEMetadata* CreateFromBuffer(char* bytes, std::size_t size);
 
 public:
     G4DAEMetadata(Map_t& map, const char* name);
@@ -67,6 +68,8 @@ public:
    virtual std::size_t GetBufferSize();
    virtual void DumpBuffer();
    virtual G4DAEMetadata* CreateOther(char* bytes, std::size_t size);
+   const char* GetMagic();
+
 
    void SetLink(G4DAEMetadata* link );
    G4DAEMetadata* GetLink();

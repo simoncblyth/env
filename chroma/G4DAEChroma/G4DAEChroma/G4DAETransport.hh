@@ -9,6 +9,7 @@ class G4DAESocketBase ;
 class G4DAEPhotons ; 
 class G4DAECerenkovStepList ; 
 class G4DAEScintillationStepList ; 
+class G4DAEMetadata ; 
 
 
 class G4DAETransport
@@ -19,6 +20,8 @@ public:
     virtual ~G4DAETransport();
 
     void ClearAll();
+    void Handshake(G4DAEMetadata* request=NULL);
+
     std::size_t Propagate(int batch_id);
     void CollectPhoton(const G4Track* aPhoton );
     void CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid=-1);
@@ -27,6 +30,7 @@ public:
     G4DAEPhotons* GetHits();
     G4DAECerenkovStepList* GetCerenkovStepList();
     G4DAEScintillationStepList* GetScintillationStepList();
+    G4DAEMetadata* GetHandshake();
 
     // setters take ownership of photons/hits
     void SetPhotons(G4DAEPhotons* photons);
@@ -45,6 +49,8 @@ private:
     G4DAECerenkovStepList* m_cerenkov  ; 
 
     G4DAEScintillationStepList* m_scintillation  ; 
+
+    G4DAEMetadata* m_handshake ; 
 
 };
 
