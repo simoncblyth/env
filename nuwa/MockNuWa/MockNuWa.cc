@@ -9,6 +9,7 @@
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEDatabase.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
+#include "G4DAEChroma/G4DAEMaterialMap.hh"
 
 #include "DybG4DAECollector.h"
 
@@ -19,12 +20,12 @@
 using namespace std ;
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 class ITouchableToDetectorElement ;
 
 #define NOT_NUWA 1
 #include "DsChromaRunAction_BeginOfRunAction.icc"
-
 
 
 

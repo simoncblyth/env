@@ -126,6 +126,7 @@ void G4DAEGeometry::Clear()
 }
 
 
+
 void G4DAEGeometry::MakeMaterialMap()
 {
     const G4MaterialTable* t = G4Material::GetMaterialTable();

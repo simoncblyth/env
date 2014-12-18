@@ -184,8 +184,10 @@ mocknuwa-scan-config(){
 }
 mocknuwa-one(){
    mocknuwa-runenv 
-   MockNuWa 12:13 1:2
+   $LLDB MockNuWa 12:13 1:2
 }
+mocknuwa-one-lldb(){ LLDB=lldb mocknuwa-one ; }
+
 mocknuwa-scan-batch(){
    mocknuwa-runenv 
    MockNuWa 1:10 1:2

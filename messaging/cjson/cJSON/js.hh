@@ -26,6 +26,8 @@ public:
 
 public:
    // primary operations used by G4DAEMetadata
+
+
    void AddMap(const char* name, Map_t& map);  // causes a re-analysis
    Map_t CreateSubMap(const char* wanted);
    Map_t CreateRowMap(const char* columns=NULL);
@@ -35,6 +37,8 @@ public:
    void SetKV(const char* name, const char* key, const char* val );
    //std::string Get(const char* name, const char* key);
 
+   // for more flexible map handling 
+   void Set(Map_t& map, const char* key, const char* val);
 
 public:
    // secondary
@@ -42,7 +46,9 @@ public:
    void Print(const char* msg="JS::Print");
    void PrintToFile(const char* path);
    void Traverse(const char* wanted);
-   void PrintMap(const char* msg="JS::PrintMap") const;
+   void PrintMap(const char* msg="JS::PrintMap") ;
+   void PrintMap(const char* msg, Map_t& map) ;
+   Map_t GetRawMap(const char* wanted);
 
 public:
    // tertiary 
@@ -54,19 +60,19 @@ public:
 private:
    // high level internals :  convert from JSON tree into maps
    void Analyse(); 
-   void ParseSentinels();
-   void SetMode(int mode);
-   int GetMode();
+   void ParseSentinels(Map_t& src, Map_t& dest);
+   //void SetMode(int mode);
+   //int GetMode();
 
 private:
    // m_map manipulations
-   void ClearMap();
+   void ClearMap(Map_t& map);
    void AddMapKV( const char* key, const char* val );
 
 private:
    // navigating JS tree
-   void Visit(cJSON *item, const char* prefix, const char* wanted);
-   void Recurse(cJSON* item, const char* prefix, const char* wanted);
+   void Visit(cJSON *item, const char* prefix, const char* wanted, Map_t& map, int mode);
+   void Recurse(cJSON* item, const char* prefix, const char* wanted, Map_t& map, int mode);
 
 private:
    // adding to JS tree
@@ -88,7 +94,7 @@ private:
    Map_t m_map ;  
    Map_t m_type ;  
    int m_verbosity ;
-   int m_mode ;
+   //int m_mode ;
 
 };
 

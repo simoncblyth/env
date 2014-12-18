@@ -24,6 +24,7 @@ class G4DAEMetadata;
 class G4DAEPhotons;
 class G4DAECerenkovStepList;
 class G4DAEScintillationStepList;
+class G4DAEMaterialMap;
 class G4Track ; 
 class G4Run ;
 
@@ -83,6 +84,12 @@ public:
 
     G4DAEMetadata* GetHandshake();
 
+    void SetMaterialMap(G4DAEMaterialMap* mmap);
+    G4DAEMaterialMap* GetMaterialMap();
+
+    void SetMaterialLookup(int* g2c);
+    int* GetMaterialLookup();
+
     void SetPhotons(G4DAEPhotons* photons);
     G4DAEPhotons* GetPhotons();
 
@@ -130,6 +137,14 @@ private:
 
   // Metadata, separate from the photon and hits metadata
   G4DAEMetadata* m_metadata ; 
+
+  // mapping between Geant4 and Chroma material indices
+  G4DAEMaterialMap* m_materialmap ; 
+
+  // mapping between Geant4 and Chroma material indices
+  int* m_g2c ; 
+
+
 
   // verbosity level
   int m_verbosity ;  

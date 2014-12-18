@@ -12,6 +12,7 @@
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAEMaterialMap.hh"
 
 
 #include "G4ThreeVector.hh"
@@ -48,6 +49,8 @@ G4DAEChroma::G4DAEChroma() :
     m_cache(0),
     m_database(0),
     m_metadata(0),
+    m_materialmap(0),
+    m_g2c(0),
     m_verbosity(3)
 { 
 }
@@ -60,6 +63,8 @@ G4DAEChroma::~G4DAEChroma()
     delete m_cache ;
     delete m_database ;
     delete m_metadata ;
+    delete m_materialmap ;
+    delete m_g2c;
 }
 
 
@@ -67,13 +72,15 @@ G4DAEChroma::~G4DAEChroma()
 void G4DAEChroma::Print(const char* msg)
 {
     cout << msg << endl ; 
-    cout << "transport " << m_transport << endl ; 
-    cout << "sensdet   " << m_sensdet   << endl ; 
-    cout << "geometry  " << m_geometry  << endl ; 
-    cout << "cache     " << m_cache     << endl ; 
-    cout << "database  " << m_database  << endl ; 
-    cout << "metadata  " << m_metadata  << endl ; 
-    cout << "verbosity " << m_verbosity << endl ; 
+    cout << "transport   " << m_transport << endl ; 
+    cout << "sensdet     " << m_sensdet   << endl ; 
+    cout << "geometry    " << m_geometry  << endl ; 
+    cout << "cache       " << m_cache     << endl ; 
+    cout << "database    " << m_database  << endl ; 
+    cout << "metadata    " << m_metadata  << endl ; 
+    cout << "materialmap " << m_materialmap  << endl ; 
+    cout << "g2c         " << m_g2c  << endl ; 
+    cout << "verbosity   " << m_verbosity  << endl ; 
 }
 
 
@@ -123,6 +130,26 @@ G4DAEMetadata* G4DAEChroma::GetHandshake()
     if(!m_transport) return NULL;
     return m_transport->GetHandshake();
 }
+
+
+
+
+
+void G4DAEChroma::SetMaterialMap(G4DAEMaterialMap* map){
+   m_materialmap = map ; 
+}
+G4DAEMaterialMap* G4DAEChroma::GetMaterialMap(){
+   return m_materialmap ;
+}
+void G4DAEChroma::SetMaterialLookup(int* g2c){
+   m_g2c = g2c ; 
+}
+int* G4DAEChroma::GetMaterialLookup(){
+   return m_g2c ;
+}
+
+
+
 
 
 

@@ -6,11 +6,14 @@
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
+#include "G4DAEChroma/G4DAEMap.hh"
 
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
+#include <string>
 #include <iostream>
+#include <stdio.h>
 
 
 #define G4DAETRANSPORT_VERBOSE
@@ -59,20 +62,21 @@ G4DAEMetadata* G4DAETransport::GetHandshake(){
 
 void G4DAETransport::Handshake(G4DAEMetadata* request)
 {
-    if(!request)
-    {
-        request = new G4DAEMetadata("{}"); 
-    } 
+    if(!request) request = new G4DAEMetadata("{}"); 
+
     m_handshake = reinterpret_cast<G4DAEMetadata*>(m_socket->SendReceiveObject(request));
-    if(m_handshake)
-    {
-        m_handshake->Print("G4DAETransport::Handshake");
-    } 
-    else
+
+    if(!m_handshake)
     {
         request->Print("G4DAETransport::Handshake FAILED with request:");
+        return ;  
     }
+
+    //m_handshake->PrintMap("G4DAETransport::Handshake PrintMap");
 }
+
+
+
 
 G4DAEPhotons* G4DAETransport::GetPhotons(){ 
     return m_photons ; 

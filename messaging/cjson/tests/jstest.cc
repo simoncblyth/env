@@ -36,6 +36,13 @@ int main(int argc, char** argv)
     }
 
 
+
+    const char* rawpath = "/chroma_material_map" ;
+    Map_t raw = js->GetRawMap(rawpath);
+    JS::DumpMap(raw, rawpath);
+
+
+
     delete js;
 }
 

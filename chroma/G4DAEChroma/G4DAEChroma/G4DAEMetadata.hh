@@ -50,7 +50,8 @@ public:
 
 public:
     // read from JSON tree
-    Map_t GetMap(const char* wanted);
+    Map_t GetMap(const char* wanted);      // typed only, ie with COLUMNS type codes 
+    Map_t GetRawMap(const char* wanted);   
     static void DumpMap(Map_t& map, const char* msg);
 
 public:

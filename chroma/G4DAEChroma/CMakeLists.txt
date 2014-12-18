@@ -14,9 +14,9 @@ message( STATUS "CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ")
 
 
 
-#find_package(Geant4 9.5.0 REQUIRED gdml)
-find_package(NuWaGeant4)
-find_package(NuWaCLHEP)
+find_package(Geant4 9.5.0 REQUIRED gdml)
+#find_package(NuWaGeant4)
+#find_package(NuWaCLHEP)
 
 
 
@@ -49,7 +49,7 @@ include_directories(
 add_definitions(
     ${Geant4_DEFINITIONS} 
     -DWITH_CHROMA_ZMQ 
-  #  -DEXPORT_G4GDML
+    -DEXPORT_G4GDML
     -DWITH_ZMQ
  #   ${CHROMAPHOTONLIST_DEFINITIONS}  
     ${RapSqlite_DEFINITIONS}

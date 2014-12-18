@@ -70,13 +70,31 @@ void DsChromaRunAction_BeginOfRunAction(
     chroma->Handshake();
 
     G4DAEMetadata* handshake = chroma->GetHandshake();
-    handshake->Print("DsChromaRunAction_BeginOfRunAction handshake");
+    //handshake->Print("DsChromaRunAction_BeginOfRunAction handshake");
+
+    G4DAEMaterialMap* cmm = new G4DAEMaterialMap(handshake, "/chroma_material_map"); 
+    chroma->SetMaterialMap(cmm);
+    //cmm->Print("#chroma_material_map");
+    
+
+#ifndef NOT_NUWA
+    // full nuwa environment : allows to obtain g4 material map from materials table
+    G4DAEMaterialMap* gmm = new G4DAEMaterialMap(); 
+#else
+    // non-nuwa : need to rely on handshake metadata for g4 material map
+    G4DAEMaterialMap* gmm = new G4DAEMaterialMap(handshake, "/geant4_material_map"); 
+#endif
+    //gmm->Print("#geant4_material_map");
+
+    int* g2c = G4DAEMaterialMap::MakeLookupArray( gmm, cmm );
+    chroma->SetMaterialLookup(g2c);
 
 
     //// transform cache
 
     G4DAETransformCache* cache = NULL ;
 #ifndef NOT_NUWA
+    // full nuwa environment
     DybG4DAEGeometry* geometry  = new DybG4DAEGeometry(_t2de, _idParameter.c_str());
     cache = geometry->CreateTransformCache(NULL); 
 
@@ -117,7 +135,5 @@ void DsChromaRunAction_BeginOfRunAction(
 
 }
 
-//
-//  FOR BUILD TO SEE EDITS : touch DsChromaRunAction.cc  
-//
 
+//  FOR BUILD TO SEE EDITS : touch DsChromaRunAction.cc    OR touch mocknuwa.cc

@@ -44,7 +44,7 @@ JS* JS::Load(const char* path)
 
 // lifecycle
 
-JS::JS(const char* text) : m_root(NULL), m_verbosity(0), m_mode(0)
+JS::JS(const char* text) : m_root(NULL), m_verbosity(0)
 {
     assert(text);
     m_root = cJSON_Parse(text);
@@ -185,10 +185,10 @@ void JS::PrintToFile(const char* _path)
     char* base = basepath(path, '/');  // path upto last '/'
     int mode = 0777 ;
     int rc = mkdirp( base, mode ); 
-    if(rc){
-        fprintf(stderr, "JS::PrintToFile mkdirp failed for base dir: [%s] exists already? \n", base);
-        //return ;
-    } 
+
+    //if(rc){
+    //    fprintf(stderr, "JS::PrintToFile mkdirp failed for base dir: [%s] exists already? \n", base);
+    //} 
 
     char *out = cJSON_Print(m_root);
     FILE* fp=fopen(_path,"w");
@@ -206,15 +206,21 @@ void JS::PrintToFile(const char* _path)
 void JS::Traverse(const char* wanted)
 {
    // used by interative JSON dumper : "which js"
-    ClearMap();
-    Recurse(m_root, "", wanted );
-    PrintMap("JS::Traverse");
+    ClearMap(m_map);
+    Recurse(m_root, "", wanted, m_map, 1 );
+    PrintMap("JS::Traverse", m_map );
 }
 
-void JS::PrintMap(const char* msg) const
+void JS::PrintMap(const char* msg) 
+{
+    // m_map only contains typed qtys, ie ones named in COLUMNS sentinel fields
+    PrintMap(msg, m_map ); 
+}
+
+void JS::PrintMap(const char* msg, Map_t& map) 
 {
     printf("%s\n", msg);
-    for(Map_t::const_iterator it=m_map.begin() ; it != m_map.end() ; it++ )
+    for(Map_t::const_iterator it=map.begin() ; it != map.end() ; it++ )
     {
         const char* key = it->first.c_str();
         const char* val = it->second.c_str();
@@ -226,6 +232,15 @@ void JS::PrintMap(const char* msg) const
         printf(" [%c]%10s %40s : %20s : %s \n", look,type, key, name, val );
     }
 }
+
+
+Map_t JS::GetRawMap(const char* wanted)
+{
+    Map_t raw ; 
+    Recurse(m_root, "", wanted, raw, 2);
+    return raw;
+}
+
 
 
 // tertiary operations
@@ -266,19 +281,19 @@ void JS::Analyse()
    
    */
 
-    SetMode(0);
-    ClearMap();
-    Recurse(m_root, "", SENTINEL );   // m_root -> m_map (recurse selects sentinel paths only)
-
-    ParseSentinels();                 // m_map -> m_type 
+    // mode 0 : recurse to selects sentinel paths with type codes 
+    ClearMap(m_map);
+    Recurse(m_root, "", SENTINEL, m_map, 0);   
+    ParseSentinels(m_map, m_type);   
     if(m_verbosity > 1) DumpMap(m_type, "m_type");
 
-    SetMode(1);
-    ClearMap();
-    Recurse(m_root, "", "" );         // m_root -> m_map  (full tree recurse, selecting items with defined types)
+    // mode 1 : full tree recurse, collecting items with defined types into the map
+    ClearMap(m_map);
+    Recurse(m_root, "", "", m_map, 1 );  
+
 }
 
-void JS::ParseSentinels()
+void JS::ParseSentinels(Map_t& src, Map_t& dest)
 {
     /*
         Sentinel m_map (key,val) entries like:: 
@@ -293,7 +308,7 @@ void JS::ParseSentinels()
 
 
     */
-    for(Map_t::iterator it=m_map.begin() ; it != m_map.end() ; it++ )
+    for(Map_t::iterator it=src.begin() ; it != src.end() ; it++ )
     {
         const char* key = it->first.c_str();
         const char* val = it->second.c_str();
@@ -312,36 +327,38 @@ void JS::ParseSentinels()
 
              std::string path(pfx);
              path += pair[0] ;
-             m_type[path] = pair[1] ;
+             dest[path] = pair[1] ;  // type code keyed by full path name 
         }          
 
         if(m_verbosity > 2) printf(" %40s : %20s : %s  \n", key, val, pfx.c_str() );
     }
 }
 
-void JS::SetMode(int mode)
-{
-    m_mode = mode ;
-}
-int JS::GetMode()
-{
-    return m_mode;
-}
-
 
 // m_map manipulations
 
-void JS::ClearMap()
+void JS::ClearMap(Map_t& map)
 {
-    m_map.clear();
+    map.clear();
 }
 
 void JS::AddMapKV( const char* key, const char* val )
 {
+    // replacing this with more flexible JS::Set
     std::string k(key);
     std::string v(val);
     m_map[k] = v ;
 }
+
+void JS::Set( Map_t& map, const char* key, const char* val )
+{
+    std::string k(key);
+    std::string v(val);
+    map[k] = v ;
+}
+
+
+
 
 Map_t JS::GetMap(const char* wanted)
 {
@@ -352,44 +369,64 @@ Map_t JS::GetMap(const char* wanted)
 // navigating JS tree
 
 
-void JS::Visit(cJSON *item, const char* prefix, const char* /*wanted*/ )
+void JS::Visit(cJSON *item, const char* prefix, const char* wanted, Map_t& map, int mode)
 {
     if(m_verbosity > 1) DumpItem(item, prefix);
 
-    if(m_mode == 0 )  // just plucking sentinel strings ie COLUMNS with sqlite type info
+    // just plucking sentinel strings ie COLUMNS with sqlite type info
+    if(mode == 0 )  
     {
-        if(item->type == cJSON_String ) AddMapKV(prefix, item->valuestring );
+        if(item->type == cJSON_String ) Set(map, prefix, item->valuestring );
         return;
     }
 
-
-    char look = LookupType(prefix); // type char obtained from sentinel fields
     size_t size = 256 ;
     char* value = new char[size];
-    bool skip = false ; 
 
-    switch(look)
+    if(mode == 1) // explicitly typed only 
     {
-        case 'i':
-                 snprintf(value, size,  "%d", item->valueint );
-                 break;
-        case 'f':
-                 snprintf(value, size,  "%f", item->valuedouble );
-                 break;
-        case 's':
-                 snprintf(value, size,  "%s", item->valuestring );
-                 break;
-        default:
-                 skip = true ;
-                 break;
-              
+
+        char look = LookupType(prefix); // type char obtained from sentinel fields
+        bool skip = false ; 
+
+        switch(look)
+        {
+            case 'i':
+                     snprintf(value, size,  "%d", item->valueint );
+                     break;
+            case 'f':
+                     snprintf(value, size,  "%f", item->valuedouble );
+                     break;
+            case 's':
+                     snprintf(value, size,  "%s", item->valuestring );
+                     break;
+            default:
+                     skip = true ;
+                     break;
+                  
+        }
+        if(!skip) Set(map, prefix, value);
+    }
+    else if(mode == 2)
+    {
+        if(strlen(prefix) > strlen(wanted))  // skip the root of wanted object, just take content
+        {
+            const char* key = item->string ? item->string : "~" ;  // anonymous nodes like root have empty key  
+            snprintf(value, size,  "%d", item->valueint );
+            //printf("m2 prefix %s i %d f %f s %s \n", prefix, item->valueint, item->valuedouble, item->valuestring );  
+            Set(map, key, value);
+        }
+    } 
+    else
+    {
+        printf("mode ? %d \n", mode);
     }
 
-    if(!skip) AddMapKV(prefix, value);
+    delete value ;
 }
 
 
-void JS::Recurse(cJSON *item, const char* prefix, const char* wanted )
+void JS::Recurse(cJSON *item, const char* prefix, const char* wanted, Map_t& map, int mode)
 {
     while (item)
     {
@@ -415,9 +452,9 @@ void JS::Recurse(cJSON *item, const char* prefix, const char* wanted )
         {
             match = strncmp( newprefix + strlen(newprefix) - strlen(wanted), wanted, strlen(wanted)) == 0  ;
         }
-        if(match) Visit(item, newprefix, wanted );
+        if(match) Visit(item, newprefix, wanted, map, mode);
 
-        if(item->child) Recurse(item->child, newprefix, wanted );
+        if(item->child) Recurse(item->child, newprefix, wanted, map, mode );
         item=item->next;
         free(newprefix);
     }

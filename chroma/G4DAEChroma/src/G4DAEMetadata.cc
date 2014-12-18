@@ -142,6 +142,14 @@ Map_t G4DAEMetadata::GetMap(const char* wanted)
     return m_js ? m_js->GetMap(wanted) : emp ;
 } 
 
+Map_t G4DAEMetadata::GetRawMap(const char* wanted)
+{
+    Map_t emp ;
+    return m_js ? m_js->GetRawMap(wanted) : emp ;
+} 
+
+
+
 void G4DAEMetadata::DumpMap(Map_t& map, const char* msg)
 {
     JS::DumpMap(map, msg);
