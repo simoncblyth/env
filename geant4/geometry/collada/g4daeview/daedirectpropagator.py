@@ -71,7 +71,7 @@ class DAEDirectPropagator(object):
 
         """
         results = {}
-        gpu_gensteps = GPUGenSteps(request, self.chroma.materialmap)
+        gpu_gensteps = GPUGenSteps(request)
 
         results = gpu_gensteps.generate(self.chroma.gpu_detector, 
                                         self.chroma.rng_states,
