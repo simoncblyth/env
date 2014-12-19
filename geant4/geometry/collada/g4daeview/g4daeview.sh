@@ -8,6 +8,9 @@ graphicstools-export
 
 chroma-
 
+csa-
+csa-export
+
 zmq-
 zmq-broker-export
 

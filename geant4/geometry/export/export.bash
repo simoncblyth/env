@@ -250,14 +250,16 @@ export-export(){
 
 export-path-template(){ echo "$(local-base)/env/$1/%s.npy" ; }
 export-source-node(){ echo G5 ; }
-export-cerenkov-get(){       export-npy-get ${1:-1} cerenkov ; }
-export-scintillation-get(){  export-npy-get ${1:-1} scintillation ; }
+
+export-cerenkov-get(){         export-npy-get ${1:-1} cerenkov ; }
+export-scintillation-get(){    export-npy-get ${1:-1} scintillation ; }
+export-opcerenkov-get(){       export-npy-get ${1:-1} opcerenkov ; }
+export-opscintillation-get(){  export-npy-get ${1:-1} opscintillation ; }
+
 export-steps-get(){  
     export-scintillation-get ${1:-1}
     export-cerenkov-get ${1:-1}
 }
-
-
 
 
 export-npy-get(){
@@ -281,20 +283,19 @@ export-export-pathtmpl(){
    export DAE_PATH_TEMPLATE_ROOT="$LOCAL_BASE/env/tmp/%s.root"
    export DAE_PATH_TEMPLATE_NPY="$LOCAL_BASE/env/tmp/%s.npy"
    export DAE_PATH_TEMPLATE=$DAE_PATH_TEMPLATE_NPY
-   export DAEHIT_PATH_TEMPLATE="$LOCAL_BASE/env/hit/%s.npy"
-   export DAECERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
-   export DAESCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
-   export DAETEST_PATH_TEMPLATE=$(export-path-template test)
+
+   export DAE_PHOTON_PATH_TEMPLATE="$LOCAL_BASE/env/tmp/%s.npy"
+   export DAE_HIT_PATH_TEMPLATE="$LOCAL_BASE/env/hit/%s.npy"
+   export DAE_CERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
+   export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
+   export DAE_OPCERENKOV_PATH_TEMPLATE=$(export-path-template opcerenkov)
+   export DAE_OPSCINTILLATION_PATH_TEMPLATE=$(export-path-template opscintillation)
+   export DAE_TEST_PATH_TEMPLATE=$(export-path-template test)
 }
 
 export-lambda-(){ cat << EOL
 
 manually add the below to ipython environment using ipython-edit
-
-hh = lambda _:np.load(os.environ['DAEHIT_PATH_TEMPLATE'] % str(_))
-cs = lambda _:np.load(os.environ['DAECERENKOV_PATH_TEMPLATE'] % str(_))
-ss = lambda _:np.load(os.environ['DAESCINTILLATION_PATH_TEMPLATE'] % str(_))
-tt = lambda _:np.load(os.environ['DAETEST_PATH_TEMPLATE'] % str(_))
 
 EOL
 }

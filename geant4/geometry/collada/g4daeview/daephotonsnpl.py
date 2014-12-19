@@ -34,9 +34,10 @@ class DAEPhotonsNPL(np.ndarray):
         return r.view(cls) 
 
     @classmethod
-    def load(cls, tag):
-        path = os.environ['DAE_PATH_TEMPLATE'] % tag 
-        log.info("loading path %s for tag %s " % (path,tag) )
+    def load(cls, tag, typ="photon"):
+        tmplname = "DAE_%s_PATH_TEMPLATE" % typ.upper() 
+        path = os.environ[tmpl] % tag 
+        log.info("loading %s path %s for tag %s " % (tmplname,path,tag) )
         a = np.load(path)
         return a.view(cls)
 

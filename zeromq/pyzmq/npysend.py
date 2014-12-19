@@ -9,11 +9,12 @@ Avoids the need to run NuWa or mocknuwa.
 
 Usage::
 
-    delta:~ blyth$ npysend.sh 
-    delta:~ blyth$ npysend.sh --tag 1 --inp cerenkov
-    delta:~ blyth$ npysend.sh --tag 1 --inp scintillation 
-    delta:~ blyth$ npysend.sh --tag 1 --inp photon
     delta:~ blyth$ npysend.sh --tag 1 --inp handshake
+    delta:~ blyth$ npysend.sh --inp scintillation --out opscintillation
+    delta:~ blyth$ npysend.sh --inp cerenkov --out opcerenkov
+
+    delta:~ blyth$ npysend.sh --inp opcerenkov --slice ::100
+
 
 Can also access remote frontends::
 
@@ -36,18 +37,9 @@ log = logging.getLogger(__name__)
 
 from npycontext import NPYContext 
 
-class NPYProcessor(dict):
-    tmplmap = {
-            'photon':"DAE_PATH_TEMPLATE_NPY",
-          'cerenkov':"DAECERENKOV_PATH_TEMPLATE",
-   'scintillation':"DAESCINTILLATION_PATH_TEMPLATE",
-            'test':"DAETEST_PATH_TEMPLATE",
-          }
-
+class NPYProcessor(object):
     def __init__(self, config):
         self.config = config
-        dict.__init__(self)
-        self.update(self.tmplmap)
 
     def cerenkov(self, tag):
         return self.load(tag, "cerenkov")
@@ -76,9 +68,11 @@ class NPYProcessor(dict):
         return response
 
 
+    def tmplname(self, tag):
+        return "DAE_%s_PATH_TEMPLATE" % tag.upper()
+
     def path(self, tag, typ):
-        tmplname = self.get(typ, None)
-        assert tmplname, "typ %s unhandled" % typ
+        tmplname = self.tmplname(typ)
         tmpl = os.environ.get(tmplname, None)
         assert tmpl, "envvar %s missing " % tmplname
         log.info("tmplname %s tmpl %s tag %s " % (tmplname, tmpl, tag))
@@ -86,11 +80,22 @@ class NPYProcessor(dict):
         return path
 
     def load(self, tag, typ, sli ): 
+        """
+        ::
+
+            In [8]: a[::10].shape
+            Out[8]: (265265, 4, 4)
+
+            In [10]: a[slice(None,None,10)].shape
+            Out[10]: (265265, 4, 4)
+
+        """
         path = self.path(tag, typ)
         a = np.load(path)
         log.info("load %s %s " % (path, str(a.shape) ))    
         if not sli is None:
-            chop = slice(*map(int,sli.split(":")))
+            int_ = lambda _:int(_) if _ else None
+            chop = slice(*map(int_,sli.split(":")))
             a = a[chop]
             log.info("sliced down to %s " % (str(a.shape) ))    
         pass 
@@ -129,7 +134,7 @@ def parse_args():
     parser.add_argument("--out", default=d['out'], help="Type of file to save response into", type=str)
     parser.add_argument("-l","--level", default=d['level'], help="INFO/DEBUG/WARN/..")  
     parser.add_argument("--endpoint", default=d['endpoint'], help="broker url")  
-    parser.add_argument("--slice", default=d['slice'], help="Colon delimited slice to apply to array, eg 0:1 for 1st item, or 0:2 for 1st two items")
+    parser.add_argument("--slice", default=d['slice'], help="Colon delimited slice to apply to array, eg 0:1 0:2 ::100")
     
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.level.upper()))
