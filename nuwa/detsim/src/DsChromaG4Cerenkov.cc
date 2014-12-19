@@ -321,7 +321,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         G4int chromaMaterialIndex = g2c[materialIndex] ;
         G4String materialName = aMaterial->GetName();
 
-        size_t csid = csl->GetCount() ;
+        size_t csid = 1 + csl->GetCount() ;  // 1-based
 
         /*
         cout << "G4DAECerenkovStep " 
@@ -335,7 +335,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
         // shoving ints into float bits
         uif_t uifa[4] ;
-        uifa[0].i = csid ;
+        uifa[0].i = -csid ;     //   negated 1-based index signalling Cerenkov (as opposed to Scintillation)
         uifa[1].i = aTrack.GetTrackID() ;
         uifa[2].i = chromaMaterialIndex ; 
         uifa[3].i = NumPhotons ;

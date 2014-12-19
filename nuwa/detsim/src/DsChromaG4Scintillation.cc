@@ -581,8 +581,15 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
             // by directly G4DAEArray intems using (n,?,4) structure [float4 quads are efficient on GPU]
             //
-            G4DAEScintillationStepList* ssl = G4DAEChroma::GetG4DAEChroma()->GetScintillationStepList();
-            size_t ssid = ssl->GetCount() ;
+            G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+            G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList();
+            int* g2c = chroma->GetMaterialLookup();
+
+            // this relates Geant4 materialIndex to the chroma equivalent
+            G4int chromaMaterialIndex = g2c[materialIndex] ;
+            G4String materialName = aMaterial->GetName();
+
+            size_t ssid = 1 + ssl->GetCount() ;  // 1-based 
             float* ss = ssl->GetNextPointer();     
 
             const G4ParticleDefinition* definition = aParticle->GetDefinition(); 
@@ -591,15 +598,20 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             /*
             cout << "G4DAEScintillationStep " 
                  << " ssid " << ssid 
+                 << " materialIndex " << materialIndex
+                 << " chromaMaterialIndex " << chromaMaterialIndex
+                 <<  materialName " << materialName
                  << " PDGEncoding " << definition->GetPDGEncoding() 
                  << " Num " << Num 
                  << endl ;
             */
 
+            assert(chromaMaterialIndex > -1 );
+
             uif_t uifa[4] ;
-            uifa[0].i = ssid ;
+            uifa[0].i = ssid ;  // > 0 for Scintillation
             uifa[1].i = aTrack.GetTrackID() ;
-            uifa[2].i = materialIndex ; 
+            uifa[2].i = chromaMaterialIndex ; 
             uifa[3].i = Num ;
 
             uif_t uifb[4] ;
