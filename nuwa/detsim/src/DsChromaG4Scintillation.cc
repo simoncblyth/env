@@ -1,6 +1,7 @@
-#define G4DAECHROMA_GPU_OPTICAL
+#define G4DAECHROMA_COLLECT_STEPS
+#define G4DAECHROMA_COLLECT_PHOTONS
 
-#ifdef G4DAECHROMA_GPU_OPTICAL
+#ifdef G4DAECHROMA_COLLECT_STEPS
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
@@ -575,7 +576,7 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
         // Max Scintillation Integral
 	
 
-#ifdef G4DAECHROMA_GPU_OPTICAL
+#ifdef G4DAECHROMA_COLLECT_STEPS
         {
             //
             // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
@@ -651,8 +652,9 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             ss[G4DAEScintillationStep::_Spare2]  = 0. ;
 
        } 
-#else
+#endif
 	
+#ifdef G4DAECHROMA_COLLECT_PHOTONS
         for (G4int i = 0; i < Num; i++) { //Num is # of 2ndary tracks now
 	    // Determine photon energy
 
@@ -833,8 +835,9 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             //  but we do both, just to be sure)
 
 
+
         }    // over Num photons
-#endif
+#endif       // COLLECT_PHOTONS
 
 
     } // end loop over fast/slow scints
