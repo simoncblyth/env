@@ -706,15 +706,25 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             G4double sy = cost*sinp; 
             G4double sz = -sint;
 
-            G4ThreeVector photonPolarization(sx, sy, sz);
+            G4ThreeVector photonPolarization(sx, sy, sz);  // orthogonal to photonMomentum,   p.s = 0 
 
-            G4ThreeVector perp = photonMomentum.cross(photonPolarization);
+            G4ThreeVector perp = photonMomentum.cross(photonPolarization);  
+
+            // orthogonal vectors:
+            //
+            //     dir (photonMomentum) 
+            //     pol (photonPolarization)
+            //     perp
+            //
+            // random rotation about dir 
+            // (linear combination of pol and perp) stays orthogonal to dir 
+            //  
 
             phi = twopi*G4UniformRand();
             sinp = sin(phi);
             cosp = cos(phi);
 
-            photonPolarization = cosp * photonPolarization + sinp * perp;
+            photonPolarization = cosp * photonPolarization + sinp * perp;   
 
             photonPolarization = photonPolarization.unit();
 

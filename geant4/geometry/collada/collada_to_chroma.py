@@ -479,6 +479,10 @@ class ColladaToChroma(object):
         Chroma uses "reemission_cdf" cumulative distribution function 
         to generate the wavelength of reemission photons. 
 
+        Currently think that the name "reemission_cdf" is misleading, 
+        as it is the RHS normalized CDF obtained from an intensity distribution
+        (photon intensity as function of wavelength) 
+
         NB REEMISSIONPROB->reemission_prob is handled as a 
         normal keymapped property, no need to integrate to construct 
         the cdf for that.

@@ -2,8 +2,6 @@
 #ifndef G4DAESCINTILLATIONSTEP_H
 #define G4DAESCINTILLATIONSTEP_H 
 
-#include "G4ThreeVector.hh"
-
 // machinery to serialize the stack from DsChromaG4Scintillation::PostStepDoIt 
 
 struct G4DAEScintillationStep {
