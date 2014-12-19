@@ -3,22 +3,30 @@
 NPYSEND
 =========
 
-A quick way to feed the worker some numpy arrays to 
-chew on for use while testing.  Avoids the need to 
-run NuWa or mocknuwa. 
+A quick way to send numpy arrays to broker frontend, which
+then passes to worker. 
+Avoids the need to run NuWa or mocknuwa. 
 
 Usage::
 
     delta:~ blyth$ npysend.sh 
-    delta:~ blyth$ npysend.sh --tag 1 --type cerenkov
-    delta:~ blyth$ npysend.sh --tag 1 --type scintillation 
-    delta:~ blyth$ npysend.sh --tag 1 --type photon
+    delta:~ blyth$ npysend.sh --tag 1 --inp cerenkov
+    delta:~ blyth$ npysend.sh --tag 1 --inp scintillation 
+    delta:~ blyth$ npysend.sh --tag 1 --inp photon
+    delta:~ blyth$ npysend.sh --tag 1 --inp handshake
+
+Can also access remote frontends::
+
+    delta:~ blyth$ npysend.sh --zmqtunnelnode=G5 --inp handshake
+    ## TODO: avoid leaking tunnels 
+
 
 Both broker and worker must be running for a response to be provided, 
 start those in two terminal windows first::
 
     delta:~ blyth$ czmq_broker.sh 
     delta:~ blyth$ g4daechroma.sh 
+
 
 """
 import logging, os, pprint
@@ -115,6 +123,7 @@ def parse_args():
 
     parser.add_argument("--ipython", action="store_true", default=d['ipython'] ) 
     parser.add_argument("--copy", action="store_true", default=d['copy'], help="Copy frames into bytes during npysocket operation (SLOWER)" ) 
+    parser.add_argument("--zmqtunnelnode", default=None, help="Option handled in the invoking bash script, which opens ssh tunnel to remote frontend" ) 
     parser.add_argument("--tag", default=d['tag'] ) 
     parser.add_argument("--inp", default=d['inp'], help="Type of file to load",type=str)
     parser.add_argument("--out", default=d['out'], help="Type of file to save response into", type=str)
@@ -130,7 +139,7 @@ def parse_args():
 def main():
     config = parse_args()
     proc = NPYProcessor(config)
-    if config.inp == "none":
+    if config.inp == "handshake":
         request = None
     else:
         request = proc.load(config.tag,  config.inp, config.slice )

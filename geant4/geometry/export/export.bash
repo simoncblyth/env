@@ -252,6 +252,14 @@ export-path-template(){ echo "$(local-base)/env/$1/%s.npy" ; }
 export-source-node(){ echo G5 ; }
 export-cerenkov-get(){       export-npy-get ${1:-1} cerenkov ; }
 export-scintillation-get(){  export-npy-get ${1:-1} scintillation ; }
+export-steps-get(){  
+    export-scintillation-get ${1:-1}
+    export-cerenkov-get ${1:-1}
+}
+
+
+
+
 export-npy-get(){
 
     local evt=${1:-1}
