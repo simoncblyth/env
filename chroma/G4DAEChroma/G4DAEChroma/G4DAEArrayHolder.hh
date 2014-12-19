@@ -18,11 +18,6 @@ public:
   virtual void ClearAll();
   virtual std::size_t GetCount() const ;
 
-  /*
-  virtual void Save(const char* evt, const char* key, const char* tmpl );
-  virtual void SavePath(const char* path, const char* key);
-  */
-
   virtual float* GetNextPointer();
 
 protected:

@@ -1,7 +1,7 @@
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEArray.hh"
 
-const char* G4DAECerenkovStepList::TMPL = "DAECERENKOV_PATH_TEMPLATE" ;
+const char* G4DAECerenkovStepList::TMPL = "DAE_CERENKOV_PATH_TEMPLATE" ;
 const char* G4DAECerenkovStepList::SHAPE = "6,4" ;
 const char* G4DAECerenkovStepList::KEY   = "CSL" ;
 

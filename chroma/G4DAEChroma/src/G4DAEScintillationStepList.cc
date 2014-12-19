@@ -1,7 +1,7 @@
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAEArray.hh"
 
-const char* G4DAEScintillationStepList::TMPL = "DAESCINTILLATION_PATH_TEMPLATE" ;
+const char* G4DAEScintillationStepList::TMPL = "DAE_SCINTILLATION_PATH_TEMPLATE" ;
 const char* G4DAEScintillationStepList::SHAPE = "6,4" ;
 const char* G4DAEScintillationStepList::KEY   = "SSL" ;
 
