@@ -24,6 +24,41 @@ and present as parameter to the kernel launch.
 
 
 
+Validating GPU generated photons
+-----------------------------------
+
+Scintillation photons::
+
+    In [1]: t = tt(1)
+
+    In [2]: t.shape
+    Out[2]: (2652646, 4, 4)
+
+    plt.hist(t[:,0,3], bins=100, range=(0,100))     # time distrib, smooth
+
+    plt.hist(t[:,1,3], bins=100 )   # distinct coarsely binned structure of underlying distrib apparent ?
+
+
+Cerenkov wavelength distrib very flat ? 
+
+Need to collect geant4 originals in same 
+format to allow direct comparison.
+
+
+Properties
+----------
+
+::
+
+    delta:~ blyth$ export-
+    delta:~ blyth$ export-export
+    delta:~ blyth$ find $DAE_NAME_DYB_CHROMACACHE -name reemission_cdf.npy | grep Gd
+    /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae.29c299d81706c62884caf5c3dbdea5c1/chroma_geometry/chroma.detector:Detector:0x11ca48510/unique_materials/003/chroma.geometry:Material:__dd__Materials__GdDopedLS0xc2a8ed0/reemission_cdf.npy
+    delta:~ blyth$ 
+
+
+
+
 Lookups for Cerenkov
 ---------------------
 

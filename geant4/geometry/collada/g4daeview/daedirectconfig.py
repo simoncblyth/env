@@ -4,7 +4,7 @@ DAEDirectConfig
 =================
 
 """
-import os, logging, argparse, socket, md5, datetime, stat, shutil
+import os, sys, logging, argparse, socket, md5, datetime, stat, shutil
 import numpy as np
 log = logging.getLogger(__name__)
 
@@ -38,7 +38,10 @@ class DAEDirectConfig(object):
         self.direct_defaults = defaults
         self._path = None
       
-    def parse(self):
+    def parse(self, nocli=False):
+        if nocli:
+            sys.argv = []
+
         self.direct_parser.set_defaults(**self.direct_defaults)
         args = self.direct_parser.parse_args()
         logging.basicConfig(level=getattr(logging, args.loglevel.upper()), format=args.logformat )
