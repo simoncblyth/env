@@ -23,10 +23,9 @@ class G4DAEDatabase;
 class G4DAEMetadata;
 class G4DAEPhotons;
 
-//class G4DAECerenkovStepList;
-//class G4DAEScintillationStepList;
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAEFotonList.hh"
 
 
 class G4DAEMaterialMap;
@@ -75,6 +74,9 @@ public:
     G4DAECerenkovStepList* GetCerenkovStepList();
 
     G4DAEScintillationStepList* GetScintillationStepList();
+
+    G4DAEFotonList* GetFotonList();
+
 
 #ifdef DEBUG_HITLIST
     // from the SensDet collector

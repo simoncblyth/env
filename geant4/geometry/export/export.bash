@@ -250,13 +250,15 @@ export-export(){
 
 export-path-template(){ 
    case $1 in
-     photon|foton) echo "$(local-base)/env/tmp/%s.npy" ;;
+           photon) echo "$(local-base)/env/tmp/%s.npy" ;;
+       #     foton) echo "$(local-base)/env/tmp/%s.npy" ;;
                 *) echo "$(local-base)/env/$1/%s.npy" ;;
    esac
 }
 
 export-source-node(){ echo G5 ; }
 
+export-foton-get(){            export-npy-get ${1:-1} foton ; }
 export-cerenkov-get(){         export-npy-get ${1:-1} cerenkov ; }
 export-scintillation-get(){    export-npy-get ${1:-1} scintillation ; }
 export-opcerenkov-get(){       export-npy-get ${1:-1} opcerenkov ; }

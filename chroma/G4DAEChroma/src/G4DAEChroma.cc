@@ -259,6 +259,12 @@ G4DAEScintillationStepList* G4DAEChroma::GetScintillationStepList()
 {
    return m_transport->GetScintillationStepList();
 }
+G4DAEFotonList* G4DAEChroma::GetFotonList()
+{
+   return m_transport->GetFotonList();
+}
+
+
 
 
 

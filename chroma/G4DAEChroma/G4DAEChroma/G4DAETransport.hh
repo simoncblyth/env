@@ -8,10 +8,9 @@ class G4Track ;
 class G4DAESocketBase ;
 class G4DAEPhotons ; 
 
-//class G4DAECerenkovStepList ; 
-//class G4DAEScintillationStepList ; 
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAEFotonList.hh"
 
 
 class G4DAEMetadata ; 
@@ -33,8 +32,11 @@ public:
 
     G4DAEPhotons* GetPhotons();
     G4DAEPhotons* GetHits();
+
     G4DAECerenkovStepList* GetCerenkovStepList();
     G4DAEScintillationStepList* GetScintillationStepList();
+    G4DAEFotonList* GetFotonList();
+
     G4DAEMetadata* GetHandshake();
 
     // setters take ownership of photons/hits
@@ -42,6 +44,7 @@ public:
     void SetHits(   G4DAEPhotons* hits);
     void SetCerenkovStepList(G4DAECerenkovStepList* cerenkov);
     void SetScintillationStepList(G4DAEScintillationStepList* scintillation);
+    void SetFotonList(G4DAEFotonList* fotons);
  
 private:
 
@@ -54,6 +57,8 @@ private:
     G4DAECerenkovStepList* m_cerenkov  ; 
 
     G4DAEScintillationStepList* m_scintillation  ; 
+
+    G4DAEFotonList* m_fotons  ; 
 
     G4DAEMetadata* m_handshake ; 
 

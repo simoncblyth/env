@@ -4,6 +4,7 @@
 #ifdef G4DAECHROMA_COLLECT_STEPS
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAEFoton.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 #endif
 
@@ -577,6 +578,7 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 	
 
 #ifdef G4DAECHROMA_COLLECT_STEPS
+        size_t ssid ;  // place here, for access from FOTON collection
         {
             //
             // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
@@ -590,7 +592,7 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             G4int chromaMaterialIndex = g2c[materialIndex] ;
             G4String materialName = aMaterial->GetName();
 
-            size_t ssid = 1 + ssl->GetCount() ;  // 1-based 
+            ssid = 1 + ssl->GetCount() ;  // 1-based 
             float* ss = ssl->GetNextPointer();     
 
             const G4ParticleDefinition* definition = aParticle->GetDefinition(); 
@@ -833,6 +835,42 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             // until Geant4.7 (and beyond?)
             //  -- maybe not required if SetWeightByProcess(true) called,
             //  but we do both, just to be sure)
+
+
+            {
+                G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+                G4DAEFotonList* fl = chroma->GetFotonList();
+                size_t ffid = 1 + fl->GetCount() ;  // 1-based 
+                float* ff = fl->GetNextPointer();     
+
+                float wavelength = (h_Planck * c_light / sampledEnergy) / nanometer ;
+
+                ff[G4DAEFoton::_post_x] = aSecondaryPosition.x()/mm ;
+                ff[G4DAEFoton::_post_y] = aSecondaryPosition.y()/mm ;
+                ff[G4DAEFoton::_post_z] = aSecondaryPosition.z()/mm ;
+                ff[G4DAEFoton::_post_w] = aSecondaryTime/ns ;
+
+                ff[G4DAEFoton::_dirw_x] = photonMomentum.x();
+                ff[G4DAEFoton::_dirw_y] = photonMomentum.y() ;
+                ff[G4DAEFoton::_dirw_z] = photonMomentum.z() ;
+                ff[G4DAEFoton::_dirw_w] = wavelength ; 
+
+                ff[G4DAEFoton::_polw_x] = photonPolarization.x();
+                ff[G4DAEFoton::_polw_y] = photonPolarization.y() ;
+                ff[G4DAEFoton::_polw_z] = photonPolarization.z() ;
+                ff[G4DAEFoton::_polw_w] = weight ; 
+
+                uif_t uifd[4] ; 
+                uifd[0].i = ffid ;  // 1-based fhoton index within the step
+                uifd[1].i = ssid ;  // 1-based scintillation step id
+                uifd[2].u = 0 ;     // flags
+                uifd[3].i = -1  ;   // pmtid
+
+                ff[G4DAEFoton::_flag_x] =  uifd[0].f ;
+                ff[G4DAEFoton::_flag_y] =  uifd[1].f ;
+                ff[G4DAEFoton::_flag_z] =  uifd[2].f ;
+                ff[G4DAEFoton::_flag_w] =  uifd[3].f ;
+           } 
 
 
 

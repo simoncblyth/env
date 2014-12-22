@@ -49,11 +49,17 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
 
+
     G4DAECerenkovStepList* csl = chroma->GetCerenkovStepList(); 
     csl->Save("1");
     
     G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList(); 
     ssl->Save("1");
+
+    G4DAEFotonList* fl = chroma->GetFotonList(); 
+    fl->Save("1");
+ 
+
  
     G4DAEDatabase* db = chroma->GetDatabase(); 
     G4DAEMetadata* meta = chroma->GetMetadata(); 
@@ -68,7 +74,6 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
         m->Print("#chromameta_linked") ;
         m = m->GetLink();
     }   
-
 
 
     if(db)

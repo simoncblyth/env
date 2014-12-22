@@ -3,8 +3,11 @@
 
 #include "G4DAEChroma/G4DAEPhotons.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
+
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAEFotonList.hh"
+
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEMap.hh"
 
@@ -26,6 +29,7 @@ G4DAETransport::G4DAETransport(const char* envvar) :
     m_hits(NULL),
     m_cerenkov(NULL),
     m_scintillation(NULL),
+    m_fotons(NULL),
     m_handshake(NULL)
 { 
 #ifdef WITH_CHROMA_ZMQ
@@ -35,9 +39,12 @@ G4DAETransport::G4DAETransport(const char* envvar) :
 
    m_photons = (G4DAEPhotons*)new G4DAEPhotonList(10000) ;   
 
+
    m_cerenkov = new G4DAECerenkovStepList(10000);
 
    m_scintillation = new G4DAEScintillationStepList(10000);
+
+   m_fotons = new G4DAEFotonList(10000);
 
 
 #endif
@@ -51,6 +58,7 @@ G4DAETransport::~G4DAETransport()
    delete m_socket ; 
    delete m_cerenkov ; 
    delete m_scintillation ; 
+   delete m_fotons ; 
    delete m_handshake ; 
 #endif
 }
@@ -63,6 +71,8 @@ G4DAEMetadata* G4DAETransport::GetHandshake(){
 void G4DAETransport::Handshake(G4DAEMetadata* request)
 {
     if(!request) request = new G4DAEMetadata("{}"); 
+
+    request->Print("G4DAETransport::Handshake waiting for handshake response:");
 
     m_handshake = reinterpret_cast<G4DAEMetadata*>(m_socket->SendReceiveObject(request));
 
@@ -90,6 +100,10 @@ G4DAECerenkovStepList* G4DAETransport::GetCerenkovStepList(){
 G4DAEScintillationStepList* G4DAETransport::GetScintillationStepList(){ 
     return m_scintillation ; 
 }
+G4DAEFotonList* G4DAETransport::GetFotonList(){ 
+    return m_fotons ; 
+}
+
 
 
 
@@ -114,6 +128,12 @@ void G4DAETransport::SetScintillationStepList(G4DAEScintillationStepList* scinti
    delete m_scintillation ; 
    m_scintillation = scintillation ; 
 }
+void G4DAETransport::SetFotonList(G4DAEFotonList* fotons)
+{
+   delete m_fotons ; 
+   m_fotons = fotons ; 
+}
+
 
 
 
@@ -140,6 +160,10 @@ void G4DAETransport::ClearAll()
     if(m_scintillation)
     {
         m_scintillation->ClearAll();   
+    }
+    if(m_fotons)
+    {
+        m_fotons->ClearAll();   
     }
 #endif
 }
