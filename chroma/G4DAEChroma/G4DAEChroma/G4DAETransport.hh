@@ -7,8 +7,13 @@
 class G4Track ; 
 class G4DAESocketBase ;
 class G4DAEPhotons ; 
-class G4DAECerenkovStepList ; 
-class G4DAEScintillationStepList ; 
+
+//class G4DAECerenkovStepList ; 
+//class G4DAEScintillationStepList ; 
+#include "G4DAEChroma/G4DAECerenkovStepList.hh"
+#include "G4DAEChroma/G4DAEScintillationStepList.hh"
+
+
 class G4DAEMetadata ; 
 
 

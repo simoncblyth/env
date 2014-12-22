@@ -1,4 +1,7 @@
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
+
+/*
+
 #include "G4DAEChroma/G4DAEArray.hh"
 
 const char* G4DAEScintillationStepList::TMPL = "DAE_SCINTILLATION_PATH_TEMPLATE" ;
@@ -35,4 +38,4 @@ G4DAEScintillationStepList* G4DAEScintillationStepList::LoadPath(const char* pat
 }
 
 
-
+*/

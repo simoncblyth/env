@@ -7,6 +7,15 @@ might provide an interesting way to "see" what events
 looks like inside the ADs.
 
 
+Accelerated Stochastic Progressive Photon Mapping On GPU
+----------------------------------------------------------
+
+* https://github.com/ishaan13/PhotonMapper
+* https://github.com/ishaan13/PhotonMapper/blob/master/PROJ1_NIX/makefile
+
+  * fairly minimal dependencies
+
+
 
 Opposite Renderer
 -------------------

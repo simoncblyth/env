@@ -22,8 +22,13 @@ class G4DAETransformCache ;
 class G4DAEDatabase;
 class G4DAEMetadata;
 class G4DAEPhotons;
-class G4DAECerenkovStepList;
-class G4DAEScintillationStepList;
+
+//class G4DAECerenkovStepList;
+//class G4DAEScintillationStepList;
+#include "G4DAEChroma/G4DAECerenkovStepList.hh"
+#include "G4DAEChroma/G4DAEScintillationStepList.hh"
+
+
 class G4DAEMaterialMap;
 class G4Track ; 
 class G4Run ;

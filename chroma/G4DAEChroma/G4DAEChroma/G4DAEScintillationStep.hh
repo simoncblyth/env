@@ -1,10 +1,14 @@
-
 #ifndef G4DAESCINTILLATIONSTEP_H
 #define G4DAESCINTILLATIONSTEP_H 
 
 // machinery to serialize the stack from DsChromaG4Scintillation::PostStepDoIt 
 
-struct G4DAEScintillationStep {
+class G4DAEScintillationStep {
+    public:
+
+    static const char* TMPL ;   // name of envvar containing path template 
+    static const char* SHAPE ;  // numpy array itemshape eg "8,3" or "4,4" 
+    static const char* KEY ;  
 
     enum {
 
@@ -42,7 +46,6 @@ struct G4DAEScintillationStep {
 
     };
 
-    int id ; // avoid empty 
 };
 
 

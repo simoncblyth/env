@@ -248,7 +248,13 @@ export-export(){
    $FUNCNAME-pathtmpl
 }
 
-export-path-template(){ echo "$(local-base)/env/$1/%s.npy" ; }
+export-path-template(){ 
+   case $1 in
+     photon|foton) echo "$(local-base)/env/tmp/%s.npy" ;;
+                *) echo "$(local-base)/env/$1/%s.npy" ;;
+   esac
+}
+
 export-source-node(){ echo G5 ; }
 
 export-cerenkov-get(){         export-npy-get ${1:-1} cerenkov ; }
@@ -284,8 +290,9 @@ export-export-pathtmpl(){
    export DAE_PATH_TEMPLATE_NPY="$LOCAL_BASE/env/tmp/%s.npy"
    export DAE_PATH_TEMPLATE=$DAE_PATH_TEMPLATE_NPY
 
-   export DAE_PHOTON_PATH_TEMPLATE="$LOCAL_BASE/env/tmp/%s.npy"
-   export DAE_HIT_PATH_TEMPLATE="$LOCAL_BASE/env/hit/%s.npy"
+   export DAE_HIT_PATH_TEMPLATE=$(export-path-template hitn)
+   export DAE_PHOTON_PATH_TEMPLATE=$(export-path-template photon)
+   export DAE_FOTON_PATH_TEMPLATE=$(export-path-template foton)
    export DAE_CERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
    export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
    export DAE_OPCERENKOV_PATH_TEMPLATE=$(export-path-template opcerenkov)

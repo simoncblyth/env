@@ -6,9 +6,12 @@
 #include "G4DAEChroma/G4DAEChromaPhotonList.hh"
 #endif
 
+#include "G4DAEChroma/G4DAEFotonList.hh"
+#include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAECerenkovStepList.hh"
+
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 
-//#include "G4DAEChroma/G4DAESocket.hh"
 #include "G4DAEChroma/G4DAESocketBase.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
@@ -24,24 +27,6 @@ const char* frontend = "FRONTEND" ;
 const char* backend  = "BACKEND" ;
 
 
-//typedef G4DAESocket<G4DAEArray> G4DAESocket_t ;
-//typedef G4DAESocket<G4DAEPhotonList> G4DAESocket_t ;
-
-// non-template variant dealing in G4DAESerializable types
-typedef G4DAESocketBase G4DAESocket_t ;   
-
-
-// **SUCH TYPEDEF OK IN TEST CODE : TOO CONFUSING IN MORE SOLID CODE**
-//typedef G4DAEChromaPhotonList G4DAEPhotons_t ;  // .root TObject serialization 
-typedef G4DAEPhotonList       G4DAEPhotons_t ;    // .npy NPY serialization 
-
-/*
-   Running into bad access trouble with ROOT serialization , 
-   need to make dict at higher level G4DAEChromaPhotonList rather than 
-   ChromaPhotonList to get it properly persisted
-*/
-
-
 
 int gpl_string_network()
 {
@@ -49,7 +34,7 @@ int gpl_string_network()
     if(getenv(frontend))
     {
         cout << __func__ << " " << frontend << " Send/Recv String" << endl ; 
-        G4DAESocket_t sock(frontend) ;
+        G4DAESocketBase sock(frontend) ;
 
         const char* request = __func__ ;
 
@@ -62,7 +47,7 @@ int gpl_string_network()
     else if(getenv(backend))
     {
         cout << __func__ << " " << backend << " MirrorString" << endl ; 
-        G4DAESocket_t sock(backend,'P') ;
+        G4DAESocketBase sock(backend,'P') ;
         sock.MirrorString();
     }
     return 0 ;
@@ -73,13 +58,13 @@ int gpl_string_network()
 template<typename T>
 int p_network()
 {
-    G4DAESocket_t* socket(NULL) ; 
+    G4DAESocketBase* socket(NULL) ; 
     T* request(NULL) ;
     T* response(NULL) ;
 
     if(getenv(frontend))
     {
-        socket = new G4DAESocket_t(frontend);
+        socket = new G4DAESocketBase(frontend);
 
         request = T::Load("1");
 
@@ -236,14 +221,43 @@ int test_array_growth(const char* evtkey)
 
 
 
+int test_scintillationsteplist(const char* evtkey)
+{
+   G4DAEScintillationStepList* a = G4DAEScintillationStepList::Load(evtkey);
+   a->Print("scintillationsteplist");
+   return 0 ;
+}
+
+int test_cerenkovsteplist(const char* evtkey)
+{
+   G4DAECerenkovStepList* a = G4DAECerenkovStepList::Load(evtkey);
+   a->Print("cerenkovsteplist");
+   return 0 ;
+}
+
+int test_fotonlist(const char* evtkey)
+{
+   G4DAEFotonList* a = G4DAEFotonList::Load(evtkey);
+   a->Print("fotonlist");
+   return 0 ;
+}
+
+
+
 int main(int argc, char** argv)
 {
     const char* evtkey = "1" ;
 
-    test_array_growth(evtkey);
+    test_fotonlist(evtkey);
+    test_cerenkovsteplist(evtkey);
+    test_scintillationsteplist(evtkey);
 
 
   /*
+    test_array_growth(evtkey);
+
+
+
     p_copy<G4DAEChromaPhotonList,G4DAEPhotonList>(evtkey);
 
     p_copy<G4DAEChromaPhotonList,G4DAEChromaPhotonList>(evtkey);

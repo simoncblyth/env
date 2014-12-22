@@ -4,8 +4,11 @@
 #include <string>
 
 class G4DAEArray ;
+class G4DAEMetadata ;
 
-class G4DAEArrayHolder {
+#include "G4DAEChroma/G4DAESerializable.hh"
+
+class G4DAEArrayHolder : public G4DAESerializable {
 
 public:
   G4DAEArrayHolder( G4DAEArray* array );
@@ -20,8 +23,24 @@ public:
 
   virtual float* GetNextPointer();
 
+public:
+  // G4DAESerializable
+  virtual G4DAEArrayHolder* CreateOther(char* bytes, std::size_t size);
+
+  void SaveToBuffer();
+  void DumpBuffer();
+  const char* GetBufferBytes();
+  std::size_t GetBufferSize();
+  const char* GetMagic();  
+
+  G4DAEMetadata* GetLink();
+  void SetLink(G4DAEMetadata* link);
+
+
 protected:
    G4DAEArray* m_array ;
+   G4DAEMetadata* m_link ; 
+
 
 };
 

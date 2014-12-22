@@ -1,4 +1,7 @@
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
+
+/*
+
 #include "G4DAEChroma/G4DAEArray.hh"
 
 const char* G4DAECerenkovStepList::TMPL = "DAE_CERENKOV_PATH_TEMPLATE" ;
@@ -34,5 +37,7 @@ G4DAECerenkovStepList* G4DAECerenkovStepList::LoadPath(const char* path, const c
     return G4DAEArray::LoadPath<G4DAECerenkovStepList>(path, key);
 }
 
+
+*/
 
 

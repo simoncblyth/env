@@ -1,6 +1,13 @@
 #ifndef G4DAECERENKOVSTEPLIST_H
 #define G4DAECERENKOVSTEPLIST_H
 
+#include "G4DAEChroma/G4DAECerenkovStep.hh"
+#include "G4DAEChroma/G4DAEList.hh"
+
+typedef G4DAEList<G4DAECerenkovStep> G4DAECerenkovStepList ;
+
+/*
+
 #include <vector>
 #include <string>
 #include <G4ThreeVector.hh>
@@ -33,6 +40,9 @@ public:
   virtual void SavePath(const char* path, const char* key=KEY);
 
 };
+
+*/
+
 
 #endif
 
