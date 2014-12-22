@@ -21,6 +21,7 @@ public:
   virtual void ClearAll();
   virtual std::size_t GetCount() const ;
 
+  virtual float* GetItemPointer(std::size_t index);
   virtual float* GetNextPointer();
 
 public:

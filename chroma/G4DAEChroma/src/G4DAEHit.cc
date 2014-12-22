@@ -4,13 +4,16 @@
 
 #include "G4AffineTransform.hh"
 #include <iostream>
+#include <cassert>
 using namespace std ;
 
 
 void G4DAEHit::Init(G4DAEPhotonList* photons, std::size_t index)
 {
     // index is input, others are struct members that are hearby populated
-    photons->GetPhoton( index, gpos, gdir, gpol, t, wavelength, pmtid );    
+    
+    assert(0);
+    //photons->GetPhoton( index, gpos, gdir, gpol, t, wavelength, pmtid );    
 
     // ensure initialize all elements of struct, otherwise get random bits
     weight = 1. ;

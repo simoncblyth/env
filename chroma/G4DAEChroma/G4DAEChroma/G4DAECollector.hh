@@ -3,6 +3,7 @@
 
 #include "G4CollectionNameVector.hh"
 #include "G4DAEChroma/G4DAEHit.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
 #include <vector>
 #include <cstddef>
 #include <string>
@@ -17,8 +18,6 @@ class G4DAETransformCache ;
 //  in specific detector subclasses.
 //
 
-
-class G4DAEPhotonList ; 
 
 #ifdef DEBUG_HITLIST
 class G4DAEHitList ; 

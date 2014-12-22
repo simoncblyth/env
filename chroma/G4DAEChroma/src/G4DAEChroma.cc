@@ -382,7 +382,6 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
       if(m_verbosity > 1)
       {
           hits->Print("G4DAEChroma::Propagate returned hits"); 
-          hits->Details(1); 
       }
       m_sensdet->CollectHits( hits, m_cache );
 
@@ -441,7 +440,8 @@ G4DAEPhotonList* G4DAEChroma::GenerateMockPhotons()
             G4ThreeVector gdir(l2g.TransformAxis(ldir));
             G4ThreeVector gpol(l2g.TransformAxis(lpol));
 
-            photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
+            assert(0);// falling foul of rejig
+            //photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
             count++ ;
         }
     } 

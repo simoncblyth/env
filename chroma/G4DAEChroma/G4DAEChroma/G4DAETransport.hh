@@ -29,6 +29,9 @@ public:
 
     void CollectPhoton(const G4Track* aPhoton );
     void CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid=-1);
+    void DumpPhotons(bool /*hit*/) const ;
+    void GetPhoton( std::size_t index , G4ThreeVector& pos, G4ThreeVector& dir, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const ;
+
 
     std::size_t ProcessCerenkovSteps(int batch_id);
     std::size_t ProcessScintillationSteps(int batch_id);

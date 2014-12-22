@@ -2,11 +2,11 @@
 #define G4DAESENSDET_H
 
 #include "G4VSensitiveDetector.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
 #include <string>
 
 class G4DAETransformCache ; 
 class G4DAECollector ; 
-class G4DAEPhotonList ;
 
 class G4DAESensDet : public G4VSensitiveDetector {
 

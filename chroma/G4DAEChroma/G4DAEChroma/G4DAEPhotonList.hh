@@ -4,6 +4,11 @@
 #include "G4DAEChroma/G4DAEPhoton.hh"
 #include "G4DAEChroma/G4DAEList.hh"
 
+typedef G4DAEList<G4DAEPhoton> G4DAEPhotonList ;
+
+
+
+/*
 #include <G4ThreeVector.hh>
 
 class G4DAEPhotonList : public G4DAEList<G4DAEPhoton> {
@@ -18,9 +23,8 @@ public:
   void Print(const char* msg="G4DAEPhotonList::Print") const ; 
   void Details(bool hit) const ;
 
-
 };
-
+*/
 
 
 #endif

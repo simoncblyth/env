@@ -192,7 +192,7 @@ int metadata()
 
 int test_array_growth(const char* evtkey)
 {
-   G4DAEPhotons* p = G4DAEPhotons::Load(evtkey);
+   G4DAEPhotonList* p = G4DAEPhotonList::Load(evtkey);
    p->Print("test_array_growth");
 
 
@@ -205,14 +205,14 @@ int test_array_growth(const char* evtkey)
    int pmtid = 0x1010101 ;
 
    size_t grow = 1000000 ; 
-   for(size_t i=0 ; i < grow ; i++ ) p->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
+   //for(size_t i=0 ; i < grow ; i++ ) p->AddPhoton( pos, dir, pol, time, wavelength, pmtid );
    p->Print("after growing");
    //p->Details(1);
 
    const char* xkey = "1x" ; 
-   G4DAEPhotons::Save(p, xkey);
+   p->Save(xkey);
 
-   G4DAEPhotons* x = G4DAEPhotons::Load(xkey);
+   G4DAEPhotonList* x = G4DAEPhotonList::Load(xkey);
    x->Print("after serialization/deserialization");
 
    return 0 ; 
@@ -221,26 +221,36 @@ int test_array_growth(const char* evtkey)
 
 
 
-int test_scintillationsteplist(const char* evtkey)
+int test_scintillationstep_list(const char* evtkey)
 {
    G4DAEScintillationStepList* a = G4DAEScintillationStepList::Load(evtkey);
    a->Print("scintillationsteplist");
    return 0 ;
 }
 
-int test_cerenkovsteplist(const char* evtkey)
+int test_cerenkovstep_list(const char* evtkey)
 {
    G4DAECerenkovStepList* a = G4DAECerenkovStepList::Load(evtkey);
    a->Print("cerenkovsteplist");
    return 0 ;
 }
 
-int test_fotonlist(const char* evtkey)
+int test_foton_list(const char* evtkey)
 {
    G4DAEFotonList* a = G4DAEFotonList::Load(evtkey);
    a->Print("fotonlist");
    return 0 ;
 }
+
+int test_photon_list(const char* evtkey)
+{
+   G4DAEPhotonList* a = G4DAEPhotonList::Load(evtkey);
+   a->Print("photonlist");
+   return 0 ;
+}
+
+
+
 
 
 
@@ -248,9 +258,10 @@ int main(int argc, char** argv)
 {
     const char* evtkey = "1" ;
 
-    test_fotonlist(evtkey);
-    test_cerenkovsteplist(evtkey);
-    test_scintillationsteplist(evtkey);
+    test_foton_list(evtkey);
+    test_cerenkovstep_list(evtkey);
+    test_scintillationstep_list(evtkey);
+    test_photon_list(evtkey);
 
 
   /*

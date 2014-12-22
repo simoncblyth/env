@@ -5,9 +5,9 @@
 #include <cstdlib>
 #include <string>
 
-class G4DAEPhotonList ;
 class G4DAEChromaPhotonList ;
 
+#include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4DAEChroma/G4DAESerializable.hh"
 
 class G4DAEPhotons : public G4DAESerializable {

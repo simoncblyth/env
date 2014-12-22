@@ -38,6 +38,10 @@ float* G4DAEArrayHolder::GetNextPointer() {
     return m_array ? m_array->GetNextPointer() : NULL  ;
 }
 
+float* G4DAEArrayHolder::GetItemPointer(std::size_t index) {
+    return m_array ? m_array->GetItemPointer(index) : NULL  ;
+}
+
 
 
 
