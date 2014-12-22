@@ -1,8 +1,7 @@
 #ifndef G4DAEFOTON_H
 #define G4DAEFOTON_H 
 
-
-class G4DAEFoton {
+class G4DAEFoton  {
     public:
 
     static const char* TMPL ;   // name of envvar containing path template 
@@ -30,6 +29,7 @@ class G4DAEFoton {
        _flag_z,
        _flag_w
     };
+
 
 };
 

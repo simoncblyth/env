@@ -1,12 +1,13 @@
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAESocketBase.hh"
 
-#include "G4DAEChroma/G4DAEPhotons.hh"
+//#include "G4DAEChroma/G4DAEPhotons.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAEFotonList.hh"
+#include "G4DAEChroma/G4DAEXotonList.hh"
 
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEMap.hh"
@@ -30,15 +31,16 @@ G4DAETransport::G4DAETransport(const char* envvar) :
     m_cerenkov(NULL),
     m_scintillation(NULL),
     m_fotons(NULL),
-    m_handshake(NULL)
+    m_xotons(NULL),
+    m_handshake(NULL),
+    m_verbosity(3)
 { 
 #ifdef WITH_CHROMA_ZMQ
    m_socket = new G4DAESocketBase(envvar) ;
 
    // the arrays grow as needed
 
-   m_photons = (G4DAEPhotons*)new G4DAEPhotonList(10000) ;   
-
+   m_photons = new G4DAEPhotonList(10000) ;   
 
    m_cerenkov = new G4DAECerenkovStepList(10000);
 
@@ -46,6 +48,7 @@ G4DAETransport::G4DAETransport(const char* envvar) :
 
    m_fotons = new G4DAEFotonList(10000);
 
+   m_xotons = new G4DAEXotonList(10000);
 
 #endif
 }
@@ -59,12 +62,26 @@ G4DAETransport::~G4DAETransport()
    delete m_cerenkov ; 
    delete m_scintillation ; 
    delete m_fotons ; 
+   delete m_xotons ; 
    delete m_handshake ; 
 #endif
 }
 
 
-G4DAEMetadata* G4DAETransport::GetHandshake(){ 
+int G4DAETransport::GetVerbosity()
+{
+    return m_verbosity ;
+}
+
+void G4DAETransport::SetVerbosity(int verbosity)
+{
+     m_verbosity = verbosity ;
+}
+
+
+
+G4DAEMetadata* G4DAETransport::GetHandshake()
+{ 
     return m_handshake ; 
 }
 
@@ -72,6 +89,7 @@ void G4DAETransport::Handshake(G4DAEMetadata* request)
 {
     if(!request) request = new G4DAEMetadata("{}"); 
 
+    if( m_verbosity > 0 )
     request->Print("G4DAETransport::Handshake waiting for handshake response:");
 
     m_handshake = reinterpret_cast<G4DAEMetadata*>(m_socket->SendReceiveObject(request));
@@ -88,10 +106,10 @@ void G4DAETransport::Handshake(G4DAEMetadata* request)
 
 
 
-G4DAEPhotons* G4DAETransport::GetPhotons(){ 
+G4DAEPhotonList* G4DAETransport::GetPhotons(){ 
     return m_photons ; 
 }
-G4DAEPhotons* G4DAETransport::GetHits(){ 
+G4DAEPhotonList* G4DAETransport::GetHits(){ 
     return m_hits ; 
 }
 G4DAECerenkovStepList* G4DAETransport::GetCerenkovStepList(){ 
@@ -103,17 +121,21 @@ G4DAEScintillationStepList* G4DAETransport::GetScintillationStepList(){
 G4DAEFotonList* G4DAETransport::GetFotonList(){ 
     return m_fotons ; 
 }
+G4DAEXotonList* G4DAETransport::GetXotonList(){ 
+    return m_xotons ; 
+}
 
 
 
 
 
-void G4DAETransport::SetPhotons(G4DAEPhotons* photons)
+
+void G4DAETransport::SetPhotons(G4DAEPhotonList* photons)
 {
    delete m_photons ; 
    m_photons = photons ; 
 }
-void G4DAETransport::SetHits(G4DAEPhotons* hits)
+void G4DAETransport::SetHits(G4DAEPhotonList* hits)
 {
    delete m_hits ; 
    m_hits = hits ; 
@@ -165,14 +187,16 @@ void G4DAETransport::ClearAll()
     {
         m_fotons->ClearAll();   
     }
+    if(m_xotons)
+    {
+        m_xotons->ClearAll();   
+    }
 #endif
 }
 
 
 void G4DAETransport::CollectPhoton(const G4Track* aPhoton )
 {
-
-#ifdef WITH_CHROMA_ZMQ
    G4ParticleDefinition* pd = aPhoton->GetDefinition();
    assert( pd->GetParticleName() == "opticalphoton" );
 
@@ -181,18 +205,6 @@ void G4DAETransport::CollectPhoton(const G4Track* aPhoton )
    if(process) pname = process->GetProcessName();
    assert( pname == "Cerenkov" || pname == "Scintillation" );
 
-   /* 
-   G4cout << " OP : " 
-          << " ProcessName " << pname 
-          << " ParentID "    << aPhoton->GetParentID() 
-          << " TrackID "     << aPhoton->GetTrackID() 
-          << " KineticEnergy " << aPhoton->GetKineticEnergy() 
-          << " TotalEnergy " << aPhoton->GetTotalEnergy() 
-          << " TrackStatus " << aPhoton->GetTrackStatus() 
-          << " CurrentStepNumber " << aPhoton->GetCurrentStepNumber() 
-          << G4endl;
-   */
-
    G4ThreeVector pos = aPhoton->GetPosition()/mm ;
    G4ThreeVector dir = aPhoton->GetMomentumDirection() ;
    G4ThreeVector pol = aPhoton->GetPolarization() ;
@@ -200,18 +212,10 @@ void G4DAETransport::CollectPhoton(const G4Track* aPhoton )
    const float time = aPhoton->GetGlobalTime()/ns ;
    const float wavelength = (h_Planck * c_light / aPhoton->GetKineticEnergy()) / nanometer ;
 
-   // weight
-   // flags 
-   // trackid ? 
-
    CollectPhoton( pos, dir, pol, time, wavelength );
-
-#endif
 }
 
 
-
-// useful to retain this for easy standalone debug
 void G4DAETransport::CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid)
 {
     m_photons->AddPhoton(  pos, dir, pol, time, wavelength, pmtid );
@@ -219,35 +223,48 @@ void G4DAETransport::CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector
 
 
 
+
+
+std::size_t G4DAETransport::ProcessCerenkovSteps(int batch_id)
+{
+    return Process(batch_id, m_cerenkov );
+}
+
+std::size_t G4DAETransport::ProcessScintillationSteps(int batch_id)
+{
+    return Process(batch_id, m_scintillation );
+}
+
 std::size_t G4DAETransport::Propagate(int batch_id)
 {
-   size_t size = m_photons ? m_photons->GetCount() : 0 ;
+    return Process(batch_id, m_photons );
+}
+
+
+std::size_t G4DAETransport::Process(int batch_id, G4DAEArrayHolder* request)
+{
+   size_t size = request ? request->GetCount() : 0 ;
    if(size == 0){
-       cout << "G4DAETransport::Propagate SKIP no/empty photons list  " <<  endl;   
+       request->Print("G4DAETransport::Process EMPTY request");
        return 0 ;
    }
 
-#ifdef G4DAETRANSPORT_VERBOSE
-   cout << "G4DAETransport::Propagate batch_id " << batch_id <<  " size " << size <<  endl ;   
-   m_photons->Print();
-#endif
+   if(m_verbosity > 1)
+   {
+       request->Print("G4DAETransport::Process");
+   } 
 
+   if( m_verbosity > 0 ) cout << "G4DAETransport::Process : SendReceiveObject batch_id " << batch_id <<  endl ;   
 
-  if( batch_id > 0 )
-  { 
-#ifdef G4DAETRANSPORT_VERBOSE
-      cout << "G4DAETransport::Propagate : SendReceiveObject " <<  endl ;   
-#endif
-      m_hits = reinterpret_cast<G4DAEPhotons*>(m_socket->SendReceiveObject(m_photons));
-  } 
-  else 
-  {
-      cout << "G4DAETransport::Propagate : fake Send/Recv " << endl ; 
-      m_hits = m_photons ;  // potential double delete, but just for debug 
-  } 
-  std::size_t nhits = m_hits ? m_hits->GetCount() : 0 ;
-  return nhits ; 
+   m_hits = reinterpret_cast<G4DAEPhotonList*>(m_socket->SendReceiveObject(request));
+
+   std::size_t nhits = m_hits ? m_hits->GetCount() : 0 ;
+   return nhits ; 
 
 }
+
+
+
+
 
 

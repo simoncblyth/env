@@ -295,6 +295,7 @@ export-export-pathtmpl(){
    export DAE_HIT_PATH_TEMPLATE=$(export-path-template hitn)
    export DAE_PHOTON_PATH_TEMPLATE=$(export-path-template photon)
    export DAE_FOTON_PATH_TEMPLATE=$(export-path-template foton)
+   export DAE_XOTON_PATH_TEMPLATE=$(export-path-template xoton)
    export DAE_CERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
    export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
    export DAE_OPCERENKOV_PATH_TEMPLATE=$(export-path-template opcerenkov)

@@ -1,5 +1,5 @@
 #include "G4DAEChroma/G4DAEHit.hh"
-#include "G4DAEChroma/G4DAEPhotons.hh"  
+#include "G4DAEChroma/G4DAEPhotonList.hh"  
 #include "G4DAEChroma/G4DAECommon.hh"  
 
 #include "G4AffineTransform.hh"
@@ -7,7 +7,7 @@
 using namespace std ;
 
 
-void G4DAEHit::Init(G4DAEPhotons* photons, std::size_t index)
+void G4DAEHit::Init(G4DAEPhotonList* photons, std::size_t index)
 {
     // index is input, others are struct members that are hearby populated
     photons->GetPhoton( index, gpos, gdir, gpol, t, wavelength, pmtid );    

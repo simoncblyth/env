@@ -1,5 +1,6 @@
 #define G4DAECHROMA_COLLECT_STEPS
 #define G4DAECHROMA_COLLECT_PHOTONS
+#define G4DAECHROMA_INHIBIT_G4
 
 #ifdef G4DAECHROMA_COLLECT_STEPS
 #include "G4DAEChroma/G4DAEChroma.hh"
@@ -656,7 +657,6 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
        } 
 #endif
 	
-#ifdef G4DAECHROMA_COLLECT_PHOTONS
         for (G4int i = 0; i < Num; i++) { //Num is # of 2ndary tracks now
 	    // Determine photon energy
 
@@ -823,20 +823,31 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 		
             // add the secondary to the ParticleChange object
             aParticleChange.SetSecondaryWeightByProcess( true ); // recommended
-            aParticleChange.AddSecondary(aSecondaryTrack);
-		
+
+
+#ifdef G4DAECHROMA_INHIBIT_G4
+            {
+                if(G4DAEChroma::GetG4DAEChroma()->IsG4Scintillation())
+                {
+                    aParticleChange.AddSecondary(aSecondaryTrack);
+                }
+            }
+#endif
+	
             aSecondaryTrack->SetWeight( weight );
-	    if ( verboseLevel > 0 ) {
-	      G4cout << " aSecondaryTrack->SetWeight( " << weight<< " ) ; aSecondaryTrack->GetWeight() = " << aSecondaryTrack->GetWeight() << G4endl;
-         }
             // The above line is necessary because AddSecondary() 
             // overrides our setting of the secondary track weight, 
             // in Geant4.3.1 & earlier. (and also later, at least 
             // until Geant4.7 (and beyond?)
             //  -- maybe not required if SetWeightByProcess(true) called,
             //  but we do both, just to be sure)
+	        if ( verboseLevel > 0 ) 
+            {
+	            G4cout << " aSecondaryTrack->SetWeight( " << weight<< " ) ; aSecondaryTrack->GetWeight() = " << aSecondaryTrack->GetWeight() << G4endl;
+            }
 
 
+#ifdef G4DAECHROMA_COLLECT_PHOTONS
             {
                 G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
                 G4DAEFotonList* fl = chroma->GetFotonList();
@@ -871,11 +882,11 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
                 ff[G4DAEFoton::_flag_z] =  uifd[2].f ;
                 ff[G4DAEFoton::_flag_w] =  uifd[3].f ;
            } 
+#endif      
 
 
 
         }    // over Num photons
-#endif       // COLLECT_PHOTONS
 
 
     } // end loop over fast/slow scints
@@ -884,6 +895,23 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 	G4cout << "\n Exiting from G4Scintillation::DoIt -- NumberOfSecondaries = " 
                << aParticleChange.GetNumberOfSecondaries() << G4endl;
     }
+
+#ifdef G4DAECHROMA_INHIBIT_G4
+    {
+        if(G4DAEChroma::GetG4DAEChroma()->IsG4Scintillation())
+        {
+            if (verboseLevel > 0) 
+            G4cout << "DsChromaG4Scintillation::PostStepDoIt proceed with " << aParticleChange.GetNumberOfSecondaries() << " G4 scintillation secondaries " << G4endl ;  
+        } 
+        else 
+        {
+            if (verboseLevel > 0) 
+            G4cout << "DsChromaG4Scintillation::PostStepDoIt INHIBIT " << aParticleChange.GetNumberOfSecondaries() << " G4 scintillation secondaries " << G4endl ;  
+            aParticleChange.SetNumberOfSecondaries(0);
+            return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
+        }
+    }
+#endif 
 
     return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
 }

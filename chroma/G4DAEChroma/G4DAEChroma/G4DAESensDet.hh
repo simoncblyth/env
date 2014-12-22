@@ -6,7 +6,7 @@
 
 class G4DAETransformCache ; 
 class G4DAECollector ; 
-class G4DAEPhotons ;
+class G4DAEPhotonList ;
 
 class G4DAESensDet : public G4VSensitiveDetector {
 
@@ -28,7 +28,7 @@ public:
     void DumpStatistics( G4HCofThisEvent* HCE );
 
 public:
-    void CollectHits(G4DAEPhotons* photons, G4DAETransformCache* cache );
+    void CollectHits(G4DAEPhotonList* photons, G4DAETransformCache* cache );
     static void MockupSD(const char* name, G4DAECollector* collector);
 
 

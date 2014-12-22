@@ -21,11 +21,12 @@ class G4DAESensDet ;
 class G4DAETransformCache ;
 class G4DAEDatabase;
 class G4DAEMetadata;
-class G4DAEPhotons;
 
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4DAEChroma/G4DAEFotonList.hh"
+#include "G4DAEChroma/G4DAEXotonList.hh"
 
 
 class G4DAEMaterialMap;
@@ -77,6 +78,8 @@ public:
 
     G4DAEFotonList* GetFotonList();
 
+    G4DAEXotonList* GetXotonList();
+
 
 #ifdef DEBUG_HITLIST
     // from the SensDet collector
@@ -85,7 +88,7 @@ public:
 
 public:
     //  these pass thru to the transport
-    G4DAEPhotons* Propagate(G4DAEPhotons* photons);
+    G4DAEPhotonList* Propagate(G4DAEPhotonList* photons);
 
     void Handshake(G4DAEMetadata* request=NULL);
 
@@ -97,14 +100,14 @@ public:
     void SetMaterialLookup(int* g2c);
     int* GetMaterialLookup();
 
-    void SetPhotons(G4DAEPhotons* photons);
-    G4DAEPhotons* GetPhotons();
+    void SetPhotons(G4DAEPhotonList* photons);
+    G4DAEPhotonList* GetPhotons();
 
     void SavePhotons(const char* evtkey );
     void LoadPhotons(const char* evtkey );
 
-    void SetHits(G4DAEPhotons* hits);
-    G4DAEPhotons* GetHits();
+    void SetHits(G4DAEPhotonList* hits);
+    G4DAEPhotonList* GetHits();
 
     void ClearAll();
     void CollectPhoton(const G4Track* aPhoton );
@@ -112,8 +115,17 @@ public:
     // sends collected photons, collects hits recv using SensDet and Geometry for local transforms
     std::size_t Propagate(int batch_id);
 
+    std::size_t ProcessCerenkovSteps(int batch_id);
 
-    G4DAEPhotons* GenerateMockPhotons();
+    std::size_t ProcessScintillationSteps(int batch_id);
+
+
+    void SetG4Cerenkov(bool do_);
+    void SetG4Scintillation(bool do_);
+    bool IsG4Cerenkov();
+    bool IsG4Scintillation();
+
+    G4DAEPhotonList* GenerateMockPhotons();
 
 public:
     void BeginOfRun( const G4Run* run );
@@ -151,6 +163,10 @@ private:
   // mapping between Geant4 and Chroma material indices
   int* m_g2c ; 
 
+
+  bool m_g4cerenkov ;  
+
+  bool m_g4scintillation ;  
 
 
   // verbosity level

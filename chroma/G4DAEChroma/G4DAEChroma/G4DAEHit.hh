@@ -3,7 +3,7 @@
 #define G4DAEHIT_H 1
 
 #include "G4ThreeVector.hh"
-#include "G4DAEChroma/G4DAEPhotons.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
 #include <iostream>
 #include <cstddef>
 
@@ -65,7 +65,7 @@ struct G4DAEHit {
     int spare ;
 
 
-    void Init(G4DAEPhotons* photons, std::size_t index);
+    void Init(G4DAEPhotonList* photons, std::size_t index);
     void Serialize(float* data);
     void InitFake( std::size_t pmtid_, std::size_t photonid_ );
     void LocalTransform(G4AffineTransform* trans);

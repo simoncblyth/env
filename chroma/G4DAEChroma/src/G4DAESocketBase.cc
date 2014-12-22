@@ -144,6 +144,7 @@ G4DAESerializable* G4DAESocketBase::SendReceiveObject(G4DAESerializable* request
 
         if(strcmp(magic, peek) == 0)  // peek suggests know format (NPY serialization, json string) 
         { 
+            // this is problematic for responses of different higher type
             response  = request->CreateOther( cdata, size );  
         }
         else if(link)  // needs to be multipart request in order to handle multipart response

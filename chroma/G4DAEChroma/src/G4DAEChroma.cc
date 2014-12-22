@@ -51,6 +51,8 @@ G4DAEChroma::G4DAEChroma() :
     m_metadata(0),
     m_materialmap(0),
     m_g2c(0),
+    m_g4cerenkov(false),
+    m_g4scintillation(false),
     m_verbosity(3)
 { 
 }
@@ -67,6 +69,25 @@ G4DAEChroma::~G4DAEChroma()
     delete m_g2c;
 }
 
+void G4DAEChroma::SetG4Cerenkov(bool do_)
+{
+   m_g4cerenkov = do_ ; 
+}
+void G4DAEChroma::SetG4Scintillation(bool do_)
+{
+   m_g4scintillation = do_ ; 
+}
+bool G4DAEChroma::IsG4Cerenkov()
+{
+   return m_g4cerenkov ; 
+}
+bool G4DAEChroma::IsG4Scintillation()
+{
+   return m_g4scintillation ; 
+}
+
+
+
 
 
 void G4DAEChroma::Print(const char* msg)
@@ -81,6 +102,8 @@ void G4DAEChroma::Print(const char* msg)
     cout << "materialmap " << m_materialmap  << endl ; 
     cout << "g2c         " << m_g2c  << endl ; 
     cout << "verbosity   " << m_verbosity  << endl ; 
+    cout << "g4cerenkov        " << m_g4cerenkov << endl ; 
+    cout << "g4scintillation   " << m_g4scintillation  << endl ; 
 }
 
 
@@ -223,11 +246,11 @@ G4DAEHitList* G4DAEChroma::GetHitList()
 
 
 
-void G4DAEChroma::SetPhotons(G4DAEPhotons* photons)
+void G4DAEChroma::SetPhotons(G4DAEPhotonList* photons)
 {
    m_transport->SetPhotons(photons);
 }
-void G4DAEChroma::SetHits(G4DAEPhotons* hits)
+void G4DAEChroma::SetHits(G4DAEPhotonList* hits)
 {
    m_transport->SetHits(hits);
 }
@@ -235,14 +258,15 @@ void G4DAEChroma::SetHits(G4DAEPhotons* hits)
 
 void G4DAEChroma::SavePhotons(const char* evtkey )
 {
-   G4DAEPhotons* photons = m_transport->GetPhotons();
+   G4DAEPhotonList* photons = m_transport->GetPhotons();
    photons->Print("G4DAEChroma::SavePhotons");
-   G4DAEPhotons::Save( photons, evtkey ); 
+   photons->Save( evtkey ); 
 }
 
 void G4DAEChroma::LoadPhotons(const char* evtkey )
 {
-   G4DAEPhotons* photons = G4DAEPhotons::Load(evtkey ); 
+   G4DAEList<G4DAEPhoton>* pl = G4DAEPhotonList::Load(evtkey ); 
+   G4DAEPhotonList* photons = reinterpret_cast<G4DAEPhotonList*>(pl);
    photons->Print("G4DAEChroma::SavePhotons");
    m_transport->SetPhotons(photons);  // leaking prior photons
 }
@@ -263,17 +287,22 @@ G4DAEFotonList* G4DAEChroma::GetFotonList()
 {
    return m_transport->GetFotonList();
 }
+G4DAEXotonList* G4DAEChroma::GetXotonList()
+{
+   return m_transport->GetXotonList();
+}
 
 
 
 
 
 
-G4DAEPhotons* G4DAEChroma::GetPhotons()
+
+G4DAEPhotonList* G4DAEChroma::GetPhotons()
 {
    return m_transport->GetPhotons();
 }
-G4DAEPhotons* G4DAEChroma::GetHits()
+G4DAEPhotonList* G4DAEChroma::GetHits()
 {
    return m_transport->GetHits();
 }
@@ -289,7 +318,7 @@ void G4DAEChroma::ClearAll()
 }
 
 
-G4DAEPhotons* G4DAEChroma::Propagate(G4DAEPhotons* photons)
+G4DAEPhotonList* G4DAEChroma::Propagate(G4DAEPhotonList* photons)
 {
    m_transport->SetPhotons(photons);
    std::size_t nhits = this->Propagate(1); // >0 for real propagation, otherwise fakes
@@ -298,6 +327,18 @@ G4DAEPhotons* G4DAEChroma::Propagate(G4DAEPhotons* photons)
 }
 
 
+
+std::size_t G4DAEChroma::ProcessCerenkovSteps(G4int batch_id)
+{
+    std::size_t nhits = m_transport->ProcessCerenkovSteps(batch_id); 
+    return nhits ; 
+}
+
+std::size_t G4DAEChroma::ProcessScintillationSteps(G4int batch_id)
+{
+    std::size_t nhits = m_transport->ProcessScintillationSteps(batch_id); 
+    return nhits ; 
+}
 
 
 std::size_t G4DAEChroma::Propagate(G4int batch_id)
@@ -311,7 +352,7 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
       cout << "G4DAEChroma::Propagate START batch_id " << batch_id << endl ; 
 
  
-  G4DAEPhotons* photons = m_transport->GetPhotons();
+  G4DAEPhotonList* photons = m_transport->GetPhotons();
   G4DAEMetadata* phometa = new G4DAEMetadata("{}") ; 
   if(m_database)
   {  
@@ -335,7 +376,7 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
 
   if(nhits > 0)
   { 
-      G4DAEPhotons* hits = m_transport->GetHits() ;
+      G4DAEPhotonList* hits = m_transport->GetHits() ;
       G4DAEMetadata* hitmeta = hits->GetLink();
 
       if(m_verbosity > 1)
@@ -368,14 +409,14 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
 
 
 
-G4DAEPhotons* G4DAEChroma::GenerateMockPhotons()
+G4DAEPhotonList* G4DAEChroma::GenerateMockPhotons()
 {
     G4DAETransformCache* cache = GetTransformCache();
     if(!cache) return NULL ; 
     size_t size = cache->GetSize();
 
 
-    G4DAEPhotons* photons = (G4DAEPhotons*)new G4DAEPhotonList(size);
+    G4DAEPhotonList* photons = new G4DAEPhotonList(size);
 
     G4ThreeVector lpos(0,0,1500) ;  
     G4ThreeVector ldir(0,0,-1) ;

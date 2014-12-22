@@ -6,6 +6,7 @@
 #include "G4DAEChroma/G4DAEDatabase.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAEPhotonList.hh"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/PropertyMgr.h"
@@ -56,9 +57,29 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
     G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList(); 
     ssl->Save("1");
 
-    G4DAEFotonList* fl = chroma->GetFotonList(); 
+    G4DAEFotonList* fl = chroma->GetFotonList();   // G4 generated Scintillation photons
     fl->Save("1");
- 
+
+    G4DAEXotonList* xl = chroma->GetXotonList();   // G4 generated Cerenkov photons
+    xl->Save("1");
+
+
+
+    size_t ncs = chroma->ProcessCerenkovSteps(1);    
+    printf("ProcessCerenkovSteps ncs %zu \n", ncs); 
+    G4DAEPhotonList* csp = chroma->GetHits();    // hmm GetResponse would be better
+    csp->Print("response from ProcessCerenkovSteps ");
+    csp->Save("1cs");
+
+
+    size_t nss = chroma->ProcessScintillationSteps(1);    
+    printf("ProcessScintillationSteps nss %zu \n", nss); 
+    G4DAEPhotonList* css = chroma->GetHits();    // hmm GetResponse would be better
+    css->Print("response from ProcessScintillationSteps ");
+    css->Save("1ss");
+
+
+
 
  
     G4DAEDatabase* db = chroma->GetDatabase(); 

@@ -1,7 +1,11 @@
 
-#define G4DAECHROMA_GPU_OPTICAL
 
-#ifdef G4DAECHROMA_GPU_OPTICAL
+#define G4DAECHROMA_COLLECT_STEPS
+#define G4DAECHROMA_COLLECT_PHOTONS
+#define G4DAECHROMA_INHIBIT_G4
+
+
+#ifdef G4DAECHROMA_COLLECT_STEPS
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
@@ -206,18 +210,18 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
         const G4Material* aMaterial = aTrack.GetMaterial();
 
-	G4StepPoint* pPreStepPoint  = aStep.GetPreStepPoint();
-	G4StepPoint* pPostStepPoint = aStep.GetPostStepPoint();
+        G4StepPoint* pPreStepPoint  = aStep.GetPreStepPoint();
+        G4StepPoint* pPostStepPoint = aStep.GetPostStepPoint();
 
-	G4ThreeVector x0 = pPreStepPoint->GetPosition();
+        G4ThreeVector x0 = pPreStepPoint->GetPosition();
         G4ThreeVector p0 = aStep.GetDeltaPosition().unit();
-	G4double t0 = pPreStepPoint->GetGlobalTime();
+        G4double t0 = pPreStepPoint->GetGlobalTime();
 
         G4MaterialPropertiesTable* aMaterialPropertiesTable =
                                aMaterial->GetMaterialPropertiesTable();
         if (!aMaterialPropertiesTable) return pParticleChange;
 
-	const G4MaterialPropertyVector* Rindex = 
+        const G4MaterialPropertyVector* Rindex = 
                 aMaterialPropertiesTable->GetProperty("RINDEX"); 
         if (!Rindex) return pParticleChange;
 
@@ -228,7 +232,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         const G4double beta = (pPreStepPoint ->GetBeta() +
                                pPostStepPoint->GetBeta())/2.;
 
-	G4double MeanNumberOfPhotons = 
+        G4double MeanNumberOfPhotons = 
                  GetAverageNumberOfPhotons(charge,beta,aMaterial,Rindex);
 
         if (MeanNumberOfPhotons <= 0.0) {
@@ -236,7 +240,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
                 // return unchanged particle and no secondaries
 
                 aParticleChange.SetNumberOfSecondaries(0);
- 
+
                 return pParticleChange;
 
         }
@@ -244,68 +248,69 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         G4double step_length;
         step_length = aStep.GetStepLength();
 
-	MeanNumberOfPhotons = MeanNumberOfPhotons * step_length;
-	G4bool ApplyWaterQE = fApplyWaterQe && aMaterial->GetName().contains("Water");
+        MeanNumberOfPhotons = MeanNumberOfPhotons * step_length;
+        G4bool ApplyWaterQE = fApplyWaterQe && aMaterial->GetName().contains("Water");
 
-	// Reduce generated photons by given photon weight
-	// Daya Bay mod, bv@bnl.gov
-	if (verboseLevel>0) {
-	  G4cout << "DsChromaG4Cerenkov MeanNumberOfPhotons "<< MeanNumberOfPhotons 
-		 << " before dividing by fPhotonWeight " << fPhotonWeight << G4endl;
-	}
-	MeanNumberOfPhotons/=fPhotonWeight;
-	if (verboseLevel>0) {
-	  G4cout << "DsChromaG4Cerenkov MeanNumberOfPhotons "<< MeanNumberOfPhotons 
-		 << " before multiplying by fPreQE " << fPreQE 
-		 << " (only if fApplyPreQE=" << fApplyPreQE << " is set true " << G4endl;
-	}
-	if ( fApplyPreQE ) {
-	  // if WaterQE is applied, it's corrected by the fPreQE.
-	  MeanNumberOfPhotons *= fPreQE;
-	}
-	G4int NumPhotons = (G4int) G4Poisson(MeanNumberOfPhotons);
-	if (verboseLevel>0) {
-	  G4cout << "DsChromaG4Cerenkov MeanNumberOfPhotons "<< MeanNumberOfPhotons
-		 << " as mean of poission used to calculate NumPhotons " << NumPhotons
-		 << G4endl;
-	}
-	if (NumPhotons <= 0) {
-		// return unchanged particle and no secondaries  
-		aParticleChange.SetNumberOfSecondaries(0);
-                return pParticleChange;
-	}
+       // Reduce generated photons by given photon weight
+       // Daya Bay mod, bv@bnl.gov
+       if (verboseLevel>0) {
+           G4cout << "DsChromaG4Cerenkov MeanNumberOfPhotons "<< MeanNumberOfPhotons 
+                  << " before dividing by fPhotonWeight " << fPhotonWeight << G4endl;
+       }
+       MeanNumberOfPhotons/=fPhotonWeight;
+       if (verboseLevel>0) {
+           G4cout << "DsChromaG4Cerenkov MeanNumberOfPhotons "<< MeanNumberOfPhotons 
+                  << " before multiplying by fPreQE " << fPreQE 
+                  << " (only if fApplyPreQE=" << fApplyPreQE << " is set true " << G4endl;
+       }
+       if ( fApplyPreQE ) {
+            // if WaterQE is applied, it's corrected by the fPreQE.
+           MeanNumberOfPhotons *= fPreQE;
+       }
+       G4int NumPhotons = (G4int) G4Poisson(MeanNumberOfPhotons);
+       if (verboseLevel>0) {
+            G4cout << "DsChromaG4Cerenkov MeanNumberOfPhotons "<< MeanNumberOfPhotons
+                   << " as mean of poission used to calculate NumPhotons " << NumPhotons
+                   << G4endl;
+       }
+       if (NumPhotons <= 0) {
+           // return unchanged particle and no secondaries  
+            aParticleChange.SetNumberOfSecondaries(0);
+           return pParticleChange;
+       }
 
-	////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 
-	aParticleChange.SetNumberOfSecondaries(NumPhotons);
+       aParticleChange.SetNumberOfSecondaries(NumPhotons);
 
         if (fTrackSecondariesFirst) {
            if (aTrack.GetTrackStatus() == fAlive )
                    aParticleChange.ProposeTrackStatus(fSuspend);
         }
-	
-	////////////////////////////////////////////////////////////////
 
-	G4double Pmin = Rindex->GetMinPhotonEnergy();
-	G4double Pmax = Rindex->GetMaxPhotonEnergy();
-	G4double dp = Pmax - Pmin;
+////////////////////////////////////////////////////////////////
 
-	G4double nMax = Rindex->GetMaxProperty();
+       G4double Pmin = Rindex->GetMinPhotonEnergy();
+       G4double Pmax = Rindex->GetMaxPhotonEnergy();
+       G4double dp = Pmax - Pmin;
 
-        G4double BetaInverse = 1./beta;
+       G4double nMax = Rindex->GetMaxProperty();
 
-	G4double maxCos = BetaInverse / nMax; 
-	G4double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
+       G4double BetaInverse = 1./beta;
 
-        const G4double beta1 = pPreStepPoint ->GetBeta();
-        const G4double beta2 = pPostStepPoint->GetBeta();
+       G4double maxCos = BetaInverse / nMax; 
+       G4double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
 
-        G4double MeanNumberOfPhotons1 =
+       const G4double beta1 = pPreStepPoint ->GetBeta();
+       const G4double beta2 = pPostStepPoint->GetBeta();
+
+       G4double MeanNumberOfPhotons1 =
                      GetAverageNumberOfPhotons(charge,beta1,aMaterial,Rindex);
-        G4double MeanNumberOfPhotons2 =
+       G4double MeanNumberOfPhotons2 =
                      GetAverageNumberOfPhotons(charge,beta2,aMaterial,Rindex);
 
-#ifdef G4DAECHROMA_GPU_OPTICAL
+#ifdef G4DAECHROMA_COLLECT_STEPS
+    size_t csid ;  // here for visibility from foton collection
     {
         // serialize DsG4Cerenkov::PostStepDoIt stack, just before the photon loop
         G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
@@ -321,7 +326,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         G4int chromaMaterialIndex = g2c[materialIndex] ;
         G4String materialName = aMaterial->GetName();
 
-        size_t csid = 1 + csl->GetCount() ;  // 1-based
+        csid = 1 + csl->GetCount() ;  // 1-based
 
         /*
         cout << "G4DAECerenkovStep " 
@@ -381,7 +386,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         cs[G4DAECerenkovStep::_MeanNumberOfPhotonsMax] = std::max(MeanNumberOfPhotons1,MeanNumberOfPhotons2) ;
 
     }
-#else
+#endif
 
 	for (G4int i = 0; i < NumPhotons; i++) {
 	  // Determine photon energy
@@ -522,7 +527,15 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	  
 	  aSecondaryTrack->SetParentID(aTrack.GetTrackID());
 	  
-	  aParticleChange.AddSecondary(aSecondaryTrack);
+
+#ifdef G4DAECHROMA_INHIBIT_G4
+    {
+        if(G4DAEChroma::GetG4DAEChroma()->IsG4Cerenkov())
+        {
+            aParticleChange.AddSecondary(aSecondaryTrack);
+        }
+    }
+#endif
 	  
 	  // Daya Bay mods, bv@bnl.gov
 	  aSecondaryTrack->SetWeight(fPhotonWeight*aTrack.GetWeight());
@@ -531,16 +544,66 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	    G4cout << "DsChromaG4Cerenkov  aSecondaryTrack->SetWeight( fPhotonWeight="<<fPhotonWeight<<" * aTrack.GetWeight()= " << aTrack.GetWeight() 
 		   << ") aSecondaryTrack->GetWeight() " << aSecondaryTrack->GetWeight() << G4endl;
 	  }
-	}
 
+
+#ifdef G4DAECHROMA_COLLECT_PHOTONS
+        {
+            G4DAEXotonList* xl = G4DAEChroma::GetG4DAEChroma()->GetXotonList();
+            size_t xxid = 1 + xl->GetCount() ;  // 1-based 
+            float* xx = xl->GetNextPointer();     
+
+            float wavelength = (h_Planck * c_light / sampledEnergy) / nanometer ;
+
+            xx[G4DAEXoton::_post_x] = aSecondaryPosition.x()/mm ;
+            xx[G4DAEXoton::_post_y] = aSecondaryPosition.y()/mm ;
+            xx[G4DAEXoton::_post_z] = aSecondaryPosition.z()/mm ;
+            xx[G4DAEXoton::_post_w] = aSecondaryTime/ns ;
+
+            xx[G4DAEXoton::_dirw_x] = photonMomentum.x();
+            xx[G4DAEXoton::_dirw_y] = photonMomentum.y() ;
+            xx[G4DAEXoton::_dirw_z] = photonMomentum.z() ;
+            xx[G4DAEXoton::_dirw_w] = wavelength ; 
+
+            xx[G4DAEXoton::_polw_x] = photonPolarization.x();
+            xx[G4DAEXoton::_polw_y] = photonPolarization.y() ;
+            xx[G4DAEXoton::_polw_z] = photonPolarization.z() ;
+            xx[G4DAEXoton::_polw_w] = aSecondaryTrack->GetWeight() ; 
+
+            uif_t uifd[4] ; 
+            uifd[0].i = xxid ;  // 1-based fhoton index within the step
+            uifd[1].i = csid ;  // 1-based cerenkov step id
+            uifd[2].u = 0 ;     // flags
+            uifd[3].i = -1  ;   // pmtid
+
+            xx[G4DAEXoton::_flag_x] =  uifd[0].f ;
+            xx[G4DAEXoton::_flag_y] =  uifd[1].f ;
+            xx[G4DAEXoton::_flag_z] =  uifd[2].f ;
+            xx[G4DAEXoton::_flag_w] =  uifd[3].f ;
+       } 
 #endif
 
-	
-	if (verboseLevel>0) {
-	G4cout << "\n Exiting from DsChromaG4Cerenkov::DoIt -- NumberOfSecondaries = " 
-	     << aParticleChange.GetNumberOfSecondaries() << G4endl;
-	}
 
+	}  // over NumPhotons
+
+
+
+#ifdef G4DAECHROMA_INHIBIT_G4
+    {
+        G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+        if(chroma->IsG4Cerenkov())
+        {
+            if (verboseLevel > 0) 
+            G4cout << "DsChromaG4Cerenkov::PostStepDoIt proceed with " << aParticleChange.GetNumberOfSecondaries() << " G4 cerenkov secondaries " << G4endl ;  
+        } 
+        else 
+        {
+            if (verboseLevel > 0) 
+            G4cout << "DsChromaG4Cerenkov::PostStepDoIt INHIBIT " << aParticleChange.GetNumberOfSecondaries() << " G4 cerenkov secondaries " << G4endl ;  
+            aParticleChange.SetNumberOfSecondaries(0);
+            return pParticleChange;  // huh "a" "p" pattern used above 
+        }
+    }
+#endif 
         return pParticleChange;
 }
 
