@@ -34,6 +34,7 @@ from chroma.detector import Detector
 from env.geant4.geometry.collada.g4daeview.daephotonsnpl import DAEPhotonsNPL as NPL
 npl = lambda _:NPL.load(_)
 
+ff = lambda _:np.load(os.environ['DAE_FOTON_PATH_TEMPLATE'] % str(_))
 pp = lambda _:np.load(os.environ['DAE_PHOTON_PATH_TEMPLATE'] % str(_))
 hh = lambda _:np.load(os.environ['DAE_HIT_PATH_TEMPLATE'] % str(_))
 cs = lambda _:np.load(os.environ['DAE_CERENKOV_PATH_TEMPLATE'] % str(_))
@@ -71,6 +72,84 @@ def gdls():
 def ls():
     dae = daenode()
     return dae.materialsearch("__dd__Materials__LiquidScintillator")
+
+
+
+
+def cf_xy(a,b):
+    ir,ic = 0,0    
+    plt.subplot(2,ir+1,ic+1)
+    plt.title("x") 
+    plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step" )
+    ir,ic = 0,1    
+    plt.subplot(2,ir+1,ic+1)
+    plt.title("y") 
+    plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step" )
+    plt.show()
+
+def cf_time(a,b):
+    ir, ic = 0, 3 
+    plt.title("time")
+    plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step", range=(0,100))
+    plt.show()
+
+def cf_wavelength(a,b):
+    ir, ic = 1, 3 
+    plt.title("wavelength")
+    plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step")
+    plt.show()
+
+
+
+def cf_xyz(a,b,r=0):
+    nr, nc = 3, 1 
+    pl = 0 
+    for c, t in enumerate(["x","y","z"]):
+        pl += 1
+        plt.subplot(nr,nc,pl)
+        plt.title(t) 
+        plt.hist((a[:,r,c],b[:,r,c]), bins=100,histtype="step" )
+    pass
+    plt.show()
+
+
+
+def cf_3xyz(a,b):
+    kwa = dict(bins=100,histtype="step")
+    nr, nc, pl = 3, 3, 0 
+    for r, rt in enumerate(["pos","dir","pol"]):
+        for c, ct in enumerate(["x","y","z"]):
+            pl += 1
+            plt.subplot(nr,nc,pl)
+            plt.title("%s %s " % (rt, ct)) 
+            plt.hist((a[:,r,c],b[:,r,c]), **kwa )
+        pass 
+    pass
+    plt.show()
+
+
+def cf_3xyzw(a,b):
+    kwa = dict(bins=100,histtype="step")
+    nr, nc, pl = 3, 4, 0 
+    for r, rt in enumerate(["pos","dir","pol"]):
+        for c, ct in enumerate(["x","y","z","w"]):
+            pl += 1
+            plt.subplot(nr,nc,pl)
+            plt.title("%s %s " % (rt, ct)) 
+
+            if (r,c) == (0,3):
+                kwa['range'] = (0,100)
+            else:
+                kwa['range'] = None
+            pass
+
+            plt.hist((a[:,r,c],b[:,r,c]), **kwa)
+        pass 
+    pass
+    plt.show()
+
+
+
 
 
 if __name__ == '__main__':
