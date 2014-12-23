@@ -258,7 +258,9 @@ export-path-template(){
 
 export-source-node(){ echo G5 ; }
 
+export-photon-get(){           export-npy-get ${1:-1} photon ; }
 export-foton-get(){            export-npy-get ${1:-1} foton ; }
+export-xoton-get(){            export-npy-get ${1:-1} xoton ; }
 export-cerenkov-get(){         export-npy-get ${1:-1} cerenkov ; }
 export-scintillation-get(){    export-npy-get ${1:-1} scintillation ; }
 export-opcerenkov-get(){       export-npy-get ${1:-1} opcerenkov ; }

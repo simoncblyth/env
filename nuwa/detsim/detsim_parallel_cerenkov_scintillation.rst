@@ -14,12 +14,157 @@ be looked up from material props on GPU no point doing that
 when are constant for all photons, just do it once
 and present as parameter to the kernel launch.
 
+
+Comparison of GPU generated with Geant4 generated
+---------------------------------------------------
+
 ::
 
-    m_chroma->CollectCerenkovStep( 
-                    G4Step& step,
-                   
-                )
+    G4DAEChroma::Propagate photons size:    0 capacity: 10000 itemsize:   16 itemshape:  4,4 bytesused:       0 digest: d41d8cd98f00b204e9800998ecf8427e
+    G4DAETransport::ProcessRaw EMPTY request size:    0 capacity: 10000 itemsize:   16 itemshape:  4,4 bytesused:       0 digest: d41d8cd98f00b204e9800998ecf8427e
+    G4DAETransport::Process response NULL 
+    G4DAEChroma::Propagate CollectHits batch_id 1
+    G4DAEChroma::Propagate DONE batch_id 1 nhits 0
+    G4DAESensDet::EndOfEvent 0x7356b80
+
+    DsChromaEventAction::EndOfEventAction te 9003499.080944 t0 9003483.984345 td 15.096599 
+    G4DAEArray::SavePath [/home/blyth/local/env/cerenkov/1.npy] itemcount 8386 itemshape 6,4 
+    G4DAEArray::SavePath [/home/blyth/local/env/scintillation/1.npy] itemcount 13950 itemshape 6,4 
+    G4DAEArray::SavePath [/home/blyth/local/env/foton/1.npy] itemcount 2793265 itemshape 4,4 
+    G4DAEArray::SavePath [/home/blyth/local/env/xoton/1.npy] itemcount 540825 itemshape 4,4 
+
+
+    G4DAETransport::ProcessRaw request size: 8386 capacity: 10000 itemsize:   24 itemshape:  6,4 bytesused:  805056 digest: 21f15469aa84f130afef368b60c9b1f2
+    G4DAESocketBase::SendReceive : nsend 0 size 805136 flags 0 
+    G4DAEArray::Allocate nitems 629244 nfloat 10067904 
+    received array  size: 629244 capacity: 629244 itemsize:   16 itemshape:  4,4 bytesused: 40271616 digest: 6fd3736a3d240eb29d9fdde50481c215
+    ...
+    G4DAETransport::Process response size: 629244 capacity: 629244 itemsize:   16 itemshape:  4,4 bytesused: 40271616 digest: 6fd3736a3d240eb29d9fdde50481c215
+    ProcessCerenkovSteps ncs 629244 
+    response from ProcessCerenkovSteps  size: 629244 capacity: 629244 itemsize:   16 itemshape:  4,4 bytesused: 40271616 digest: 6fd3736a3d240eb29d9fdde50481c215
+    G4DAEArray::SavePath [/home/blyth/local/env/tmp/1cs.npy] itemcount 629244 itemshape 4,4 
+
+
+
+    G4DAETransport::ProcessRaw request size: 13950 capacity: 15000 itemsize:   24 itemshape:  6,4 bytesused: 1339200 digest: 96630ae0881b06365a05387ce1bc883f
+    G4DAESocketBase::SendReceive : nsend 0 size 1339280 flags 0 
+    G4DAEArray::Allocate nitems 2793265 nfloat 44692240 
+    received array  size: 2793265 capacity: 2793265 itemsize:   16 itemshape:  4,4 bytesused: 178768960 digest: 678dc0ac75fbacc9bc29e8ff67035e3a
+
+
+    G4DAETransport::Process response size: 2793265 capacity: 2793265 itemsize:   16 itemshape:  4,4 bytesused: 178768960 digest: 678dc0ac75fbacc9bc29e8ff67035e3a
+    ProcessScintillationSteps nss 2793265 
+    response from ProcessScintillationSteps  size: 2793265 capacity: 2793265 itemsize:   16 itemshape:  4,4 bytesused: 178768960 digest: 678dc0ac75fbacc9bc29e8ff67035e3a
+    G4DAEArray::SavePath [/home/blyth/local/env/tmp/1ss.npy] itemcount 2793265 itemshape 4,4 
+
+
+Geant4 generated cerenkov and scintillation photons::
+
+    delta:~ blyth$ export-foton-get 1 | sh 
+    1.npy                                                                                                                                                       100%  170MB   2.6MB/s   01:05    
+    delta:~ blyth$ export-xoton-get 1 | sh 
+    1.npy                   
+
+
+
+GPU generated cerenkov and scintillation photons::
+
+    delta:~ blyth$ export-photon-get 1cs | sh 
+    1cs.npy                                                                                                                                                     100%   38MB   2.4MB/s   00:16    
+    delta:~ blyth$ export-photon-get 1ss | sh 
+    1ss.npy                                                                                                                                                     100%  170MB   2.7MB/s   01:04    
+    delta:~ blyth$ 
+
+
+Cerenkov counts mismatch, g4 missing lots::
+
+    In [1]: c_cs = pp("1cs")
+
+    In [2]: c_cs.shape
+    Out[2]: (629244, 4, 4)
+
+    In [8]: g_cs = xx(1)
+
+    In [9]: g_cs.shape       ## mismatch count 
+    Out[9]: (540825, 4, 4)
+
+    ## expected NumPhotons matches chroma, but not G4
+
+    In [20]: step_cs = cs(1)
+
+    In [22]: step_cs.shape
+    Out[22]: (8386, 6, 4)
+
+    In [24]: step_cs[:,0,3].view(np.int32)
+    Out[24]: array([ 80,   8,  93, ..., 103,  87,  21], dtype=int32)
+
+    In [25]: step_cs[:,0,3].view(np.int32).sum()
+    Out[25]: 629244
+
+
+Very different wavelength, chroma flat, g4 peak at 100nm::
+
+    In [4]: c_cs = pp("1cs")
+
+    In [5]: g_cs = xx(1)
+
+    In [8]: cf_wavelength( c_cs, g_cs , color=("r","b")) 
+
+
+Time very closely matched up to 18ns, beyond that much less g4:: 
+
+    In [9]: cf_time( c_cs, g_cs , color=("r","b"))
+
+
+Clear spatial discrepancy, less at extremes of x and y:: 
+
+    In [12]: cf_3xyz( c_cs, g_cs )
+
+
+Scintillation counts match::
+
+    In [3]: c_ss = pp("1ss")
+
+    In [4]: c_ss.shape
+    Out[4]: (2793265, 4, 4)
+
+    In [10]: g_ss = ff(1)
+
+    In [11]: g_ss.shape         
+    Out[11]: (2793265, 4, 4)
+
+
+Counts match expectation from the steps::
+
+    In [21]: step_ss = ss(1)
+
+    In [23]: step_ss.shape
+    Out[23]: (13950, 6, 4)
+
+    In [27]: step_ss[:,0,3].view(np.int32)
+    Out[27]: array([320, 172, 554, ..., 210, 110,  59], dtype=int32)
+
+    In [28]: step_ss[:,0,3].view(np.int32).sum()
+    Out[28]: 2793265
+
+Scintillation wavelength, chroma distrib is faithfully representing 
+a "histogram" stepping shape with "bins" of about 25nm.  Looks
+like a problem of mismatched histogram ranges in the chroma
+sampling and the input histogram::
+
+    In [6]: cf_wavelength( c_ss , g_ss, range=(300,500), color=("r","b"))
+
+Scintillation time, very close match::
+
+    In [7]: cf_time( c_ss , g_ss, color=("r","b"))
+
+Position, direction and polarization all excellent matches.::
+
+    In [1]: c_ss = pp("1ss")
+
+    In [2]: g_ss = ff(1)
+
+    In [3]: cf_3xyz( c_ss, g_ss )
 
 
 

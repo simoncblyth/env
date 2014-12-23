@@ -26,6 +26,9 @@ Shortcut functions for use from ipython. Usage::
 import os
 import numpy as np
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 from env.geant4.geometry.collada.g4daeview.daedirectconfig import DAEDirectConfig
 from env.geant4.geometry.collada.g4daenode import DAENode
 from env.geant4.geometry.collada.g4daeview.daegeometry import DAEGeometry
@@ -35,6 +38,7 @@ from env.geant4.geometry.collada.g4daeview.daephotonsnpl import DAEPhotonsNPL as
 npl = lambda _:NPL.load(_)
 
 ff = lambda _:np.load(os.environ['DAE_FOTON_PATH_TEMPLATE'] % str(_))
+xx = lambda _:np.load(os.environ['DAE_XOTON_PATH_TEMPLATE'] % str(_))
 pp = lambda _:np.load(os.environ['DAE_PHOTON_PATH_TEMPLATE'] % str(_))
 hh = lambda _:np.load(os.environ['DAE_HIT_PATH_TEMPLATE'] % str(_))
 cs = lambda _:np.load(os.environ['DAE_CERENKOV_PATH_TEMPLATE'] % str(_))
@@ -87,49 +91,63 @@ def cf_xy(a,b):
     plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step" )
     plt.show()
 
-def cf_time(a,b):
+def cf_time(a,b, **kwa):
     ir, ic = 0, 3 
-    plt.title("time")
-    plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step", range=(0,100))
+
+    cfg = dict(bins=100,histtype="step", range=(0,100),title="time")
+    cfg.update(kwa)
+
+    plt.title(cfg.pop("title"))
+    plt.hist((a[:,ir,ic],b[:,ir,ic]), **cfg)
     plt.show()
 
-def cf_wavelength(a,b):
+def cf_wavelength(a,b, **kwa):
     ir, ic = 1, 3 
-    plt.title("wavelength")
-    plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step")
+    cfg = dict(bins=100,histtype="step",title="wavelength")
+    cfg.update(kwa)
+
+    plt.title(cfg.pop("title"))
+    plt.hist((a[:,ir,ic],b[:,ir,ic]), **cfg)
     plt.show()
 
 
-
-def cf_xyz(a,b,r=0):
+def cf_xyz(a,b,r=0, **kwa):
     nr, nc = 3, 1 
+
+    cfg = dict(bins=100,histtype="step")
+    cfg.update(kwa)
+
     pl = 0 
     for c, t in enumerate(["x","y","z"]):
         pl += 1
         plt.subplot(nr,nc,pl)
         plt.title(t) 
-        plt.hist((a[:,r,c],b[:,r,c]), bins=100,histtype="step" )
+        plt.hist((a[:,r,c],b[:,r,c]), **cfg )
     pass
     plt.show()
 
 
 
-def cf_3xyz(a,b):
-    kwa = dict(bins=100,histtype="step")
+def cf_3xyz(a,b, **kwa):
+    cfg = dict(bins=100,histtype="step")
+    cfg.update(kwa)
+
     nr, nc, pl = 3, 3, 0 
     for r, rt in enumerate(["pos","dir","pol"]):
         for c, ct in enumerate(["x","y","z"]):
             pl += 1
             plt.subplot(nr,nc,pl)
             plt.title("%s %s " % (rt, ct)) 
-            plt.hist((a[:,r,c],b[:,r,c]), **kwa )
+            plt.hist((a[:,r,c],b[:,r,c]), **cfg )
         pass 
     pass
     plt.show()
 
 
-def cf_3xyzw(a,b):
-    kwa = dict(bins=100,histtype="step")
+def cf_3xyzw(a,b, **kwa):
+    cfg = dict(bins=100,histtype="step")
+    cfg.update(kwa)
+
     nr, nc, pl = 3, 4, 0 
     for r, rt in enumerate(["pos","dir","pol"]):
         for c, ct in enumerate(["x","y","z","w"]):
@@ -143,7 +161,7 @@ def cf_3xyzw(a,b):
                 kwa['range'] = None
             pass
 
-            plt.hist((a[:,r,c],b[:,r,c]), **kwa)
+            plt.hist((a[:,r,c],b[:,r,c]), **cfg)
         pass 
     pass
     plt.show()
