@@ -3,7 +3,7 @@
 
 #include "G4CollectionNameVector.hh"
 #include "G4DAEChroma/G4DAEHit.hh"
-#include "G4DAEChroma/G4DAEPhotonList.hh"
+class G4DAEArrayHolder ; 
 #include <vector>
 #include <cstddef>
 #include <string>
@@ -38,7 +38,7 @@ public:
 
     virtual void AddSomeFakeHits(const IDVec& sensor_ids);
     virtual void DumpStatistics( G4HCofThisEvent* hce );
-    virtual void CollectHits( G4DAEPhotonList* photons, G4DAETransformCache* cache );
+    virtual void CollectHits( G4DAEArrayHolder* photons, G4DAETransformCache* cache );
 
 public:
 #ifdef DEBUG_HITLIST

@@ -1,5 +1,7 @@
 #include "G4DAEChroma/G4DAEHit.hh"
+#include "G4DAEChroma/G4DAEArrayHolder.hh"  
 #include "G4DAEChroma/G4DAEPhotonList.hh"  
+#include "G4DAEChroma/G4DAEPhoton.hh"  
 #include "G4DAEChroma/G4DAECommon.hh"  
 
 #include "G4AffineTransform.hh"
@@ -8,12 +10,12 @@
 using namespace std ;
 
 
-void G4DAEHit::Init(G4DAEPhotonList* photons, std::size_t index)
+void G4DAEHit::Init(G4DAEArrayHolder* photons, std::size_t index)
 {
     // index is input, others are struct members that are hearby populated
-    
-    assert(0);
-    //photons->GetPhoton( index, gpos, gdir, gpol, t, wavelength, pmtid );    
+
+    G4DAEPhotonList* pl = new G4DAEPhotonList(photons);
+    G4DAEPhoton::Get( pl, index, gpos, gdir, gpol, t, wavelength, pmtid );    
 
     // ensure initialize all elements of struct, otherwise get random bits
     weight = 1. ;

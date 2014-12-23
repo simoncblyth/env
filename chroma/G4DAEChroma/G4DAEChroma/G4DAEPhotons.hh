@@ -6,8 +6,8 @@
 #include <string>
 
 class G4DAEChromaPhotonList ;
+class G4DAEPhotonListOld ;
 
-#include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4DAEChroma/G4DAESerializable.hh"
 
 class G4DAEPhotons : public G4DAESerializable {
@@ -34,7 +34,7 @@ public:
   static G4DAEPhotons* LoadPath( const char* path , const char* key=KEY);
   static G4DAEPhotons* Load(   const char* name , const char* key=KEY, const char* tmpl=TMPL );
 
-  static void SavePath( G4DAEPhotonList* photons, const char* path , const char* key=KEY );
+  static void SavePath( G4DAEPhotonListOld* photons, const char* path , const char* key=KEY );
 #ifdef G4DAECHROMA_WITH_CPL
   static void SavePath( G4DAEChromaPhotonList* photons, const char* path , const char* key="CPL");
 #endif

@@ -3,7 +3,9 @@
 #define G4DAEHIT_H 1
 
 #include "G4ThreeVector.hh"
-#include "G4DAEChroma/G4DAEPhotonList.hh"
+
+class G4DAEArrayHolder ; 
+
 #include <iostream>
 #include <cstddef>
 
@@ -65,7 +67,7 @@ struct G4DAEHit {
     int spare ;
 
 
-    void Init(G4DAEPhotonList* photons, std::size_t index);
+    void Init(G4DAEArrayHolder* photons, std::size_t index);
     void Serialize(float* data);
     void InitFake( std::size_t pmtid_, std::size_t photonid_ );
     void LocalTransform(G4AffineTransform* trans);

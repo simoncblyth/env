@@ -2,9 +2,7 @@
 #define G4DAETRANSPORT_H 1
 
 #include <cstddef>
-#include "G4ThreeVector.hh"
 
-class G4Track ; 
 class G4DAESocketBase ;
 
 #include "G4DAEChroma/G4DAEPhotonList.hh"
@@ -13,6 +11,7 @@ class G4DAESocketBase ;
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 
+class G4DAEArrayHolder ; 
 class G4DAEMetadata ; 
 
 
@@ -24,39 +23,44 @@ public:
     virtual ~G4DAETransport();
 
     void ClearAll();
+
+    /////////////   remote callers
+
     void Handshake(G4DAEMetadata* request=NULL);
-    G4DAEMetadata* GetHandshake();
-
-    void CollectPhoton(const G4Track* aPhoton );
-    void CollectPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float time, const float wavelength, const int pmtid=-1);
-    void DumpPhotons(bool /*hit*/) const ;
-    void GetPhoton( std::size_t index , G4ThreeVector& pos, G4ThreeVector& dir, G4ThreeVector& pol, float& _t, float& _wavelength, int& _pmtid ) const ;
-
 
     std::size_t ProcessCerenkovSteps(int batch_id);
     std::size_t ProcessScintillationSteps(int batch_id);
     std::size_t Propagate(int batch_id);
     std::size_t Process(int batch_id, G4DAEArrayHolder* request);
 
+    G4DAEArrayHolder* ProcessRaw(int batch_id, G4DAEArrayHolder* request);
 
-    // not yet using templated DAEList 
+    //////////////  getters
+
+    G4DAEMetadata* GetHandshake();
+    G4DAEArrayHolder* GetResponse();
+
     G4DAEPhotonList* GetPhotons();
     G4DAEPhotonList* GetHits();
-    void SetPhotons(G4DAEPhotonList* photons);
-    void SetHits(   G4DAEPhotonList* hits);
-
+    G4DAEFotonList*  GetFotonList();
+    G4DAEXotonList*  GetXotonList();
 
     G4DAECerenkovStepList* GetCerenkovStepList();
     G4DAEScintillationStepList* GetScintillationStepList();
-    G4DAEFotonList* GetFotonList();
-    G4DAEXotonList* GetXotonList();
 
-    // setters take ownership of photons/hits
-    void SetCerenkovStepList(G4DAECerenkovStepList* cerenkov);
-    void SetScintillationStepList(G4DAEScintillationStepList* scintillation);
+    //////////////  setters take ownership of photons/hits
+
+    void SetResponse(G4DAEArrayHolder* response);
+
+    void SetPhotons(G4DAEPhotonList* photons);
+    void SetHits(   G4DAEPhotonList* hits);
     void SetFotonList(G4DAEFotonList* fotons);
     void SetXotonList(G4DAEXotonList* xotons);
 
+    void SetCerenkovStepList(G4DAECerenkovStepList* cerenkov);
+    void SetScintillationStepList(G4DAEScintillationStepList* scintillation);
+
+    ////////////
 
     int GetVerbosity();
     void SetVerbosity(int verbosity);
@@ -65,19 +69,27 @@ private:
 
     G4DAESocketBase* m_socket ;
 
-    G4DAEPhotonList* m_photons ; 
+    G4DAEMetadata* m_handshake ; 
 
-    G4DAEPhotonList* m_hits  ; 
+private:
 
     G4DAECerenkovStepList* m_cerenkov  ; 
 
     G4DAEScintillationStepList* m_scintillation  ; 
 
+private:
+
+    G4DAEPhotonList* m_photons ; 
+
     G4DAEFotonList* m_fotons  ; 
 
     G4DAEXotonList* m_xotons  ; 
 
-    G4DAEMetadata* m_handshake ; 
+private:
+
+    G4DAEPhotonList* m_hits ; 
+
+private:
 
     int m_verbosity ; 
 

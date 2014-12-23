@@ -300,16 +300,16 @@ G4DAEXotonList* G4DAEChroma::GetXotonList()
 
 G4DAEPhotonList* G4DAEChroma::GetPhotons()
 {
-   return m_transport->GetPhotons();
+    return m_transport->GetPhotons();
 }
 G4DAEPhotonList* G4DAEChroma::GetHits()
 {
-   return m_transport->GetHits();
+    return m_transport->GetHits();
 }
 
 void G4DAEChroma::CollectPhoton(const G4Track* track)
 {
-   m_transport->CollectPhoton(track);
+    G4DAEPhoton::Collect( m_transport->GetPhotons(),  track );
 }
 
 void G4DAEChroma::ClearAll()
@@ -320,10 +320,10 @@ void G4DAEChroma::ClearAll()
 
 G4DAEPhotonList* G4DAEChroma::Propagate(G4DAEPhotonList* photons)
 {
-   m_transport->SetPhotons(photons);
-   std::size_t nhits = this->Propagate(1); // >0 for real propagation, otherwise fakes
-   printf("G4DAEChroma::Propagate returned %zu hits \n", nhits); 
-   return m_transport->GetHits();
+    m_transport->SetPhotons(photons);
+    std::size_t nhits = this->Propagate(1); // >0 for real propagation, otherwise fakes
+    printf("G4DAEChroma::Propagate returned %zu hits \n", nhits); 
+    return m_transport->GetHits();
 }
 
 
@@ -440,8 +440,7 @@ G4DAEPhotonList* G4DAEChroma::GenerateMockPhotons()
             G4ThreeVector gdir(l2g.TransformAxis(ldir));
             G4ThreeVector gpol(l2g.TransformAxis(lpol));
 
-            assert(0);// falling foul of rejig
-            //photons->AddPhoton( gpos, gdir, gpol, time, wavelength, pmtid );
+            G4DAEPhoton::Collect( photons, gpos, gdir, gpol, time, wavelength, pmtid );
             count++ ;
         }
     } 

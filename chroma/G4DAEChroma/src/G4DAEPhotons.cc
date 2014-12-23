@@ -11,7 +11,7 @@
 class G4DAEChromaPhotonList ;
 #endif
 
-#include "G4DAEChroma/G4DAEPhotonList.hh"
+#include "G4DAEChroma/G4DAEPhotonListOld.hh"
 
 
 const char* G4DAEPhotons::TMPL = "DAE_PATH_TEMPLATE" ; 
@@ -85,7 +85,7 @@ G4DAEPhotons* G4DAEPhotons::Load(const char* name, const char* key, const char* 
    } 
    else if ( strcmp( key, "NPL" ) == 0 )
    {
-       photons = (G4DAEPhotons*)G4DAEPhotonList::Load( name, key, tmpl );
+       photons = (G4DAEPhotons*)G4DAEPhotonListOld::Load( name, key, tmpl );
    }
    else
    {
@@ -110,7 +110,7 @@ G4DAEPhotons* G4DAEPhotons::LoadPath(const char* path, const char* key )
    } 
    else if(HasExt(path, ".npy"))
    {
-      photons = (G4DAEPhotons*)G4DAEPhotonList::LoadPath( path, key );
+      photons = (G4DAEPhotons*)G4DAEPhotonListOld::LoadPath( path, key );
    } 
    else 
    {
@@ -141,7 +141,7 @@ void G4DAEPhotons::SavePath(G4DAEChromaPhotonList* photons, const char* path, co
 }
 #endif
 
-void G4DAEPhotons::SavePath(G4DAEPhotonList* photons, const char* path, const char* key )
+void G4DAEPhotons::SavePath(G4DAEPhotonListOld* photons, const char* path, const char* key )
 {
    if(!photons || !path) return ; 
    
@@ -152,7 +152,7 @@ void G4DAEPhotons::SavePath(G4DAEPhotonList* photons, const char* path, const ch
    } 
    else if(HasExt(path, ".root"))
    {
-      printf(".root is the wrong extension for persisting G4DAEPhotonList  %s \n", path );
+      printf(".root is the wrong extension for persisting G4DAEPhotonListOld  %s \n", path );
    } 
    else 
    {
@@ -166,7 +166,7 @@ void G4DAEPhotons::Save(G4DAEPhotons* photons, const char* name, const char* /*k
    if(!photons || !name || !tmpl) return ; 
    
     // distinguish the flavor of photons by dynamic casting 
-   G4DAEPhotonList* gnpl = dynamic_cast<G4DAEPhotonList*>(photons);
+   G4DAEPhotonListOld* gnpl = dynamic_cast<G4DAEPhotonListOld*>(photons);
 #ifdef G4DAECHROMA_WITH_CPL
    G4DAEChromaPhotonList* gcpl = dynamic_cast<G4DAEChromaPhotonList*>(photons); 
 #else   
@@ -176,7 +176,7 @@ void G4DAEPhotons::Save(G4DAEPhotons* photons, const char* name, const char* /*k
    if( gnpl )
    {
 #ifdef VERBOSE
-       printf("G4DAEPhotons::Save using G4DAEPhotonList \n");
+       printf("G4DAEPhotons::Save using G4DAEPhotonListOld \n");
 #endif
        gnpl->Save( name, "NPL", tmpl);
    }
