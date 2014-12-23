@@ -25,6 +25,7 @@ class G4DAEBuffer ;
 #include "G4DAEChroma/G4DAESerializable.hh"
 
 class G4DAEArray : public G4DAESerializable {
+public:
     static const char* MAGIC ; 
     static const size_t INITCAPACITY ; 
 public:

@@ -9,6 +9,7 @@ template <class T>
 class G4DAEList : public G4DAEArrayHolder 
 {
 public:
+  G4DAEList(G4DAEArrayHolder* holder);
   G4DAEList(G4DAEArray* array);
   G4DAEList( std::size_t itemcapacity = 0, float* data = NULL);
   virtual ~G4DAEList();
@@ -18,6 +19,7 @@ public:
   static std::string GetPath( const char* evt, const char* tmpl=T::TMPL);   
   static G4DAEList* Load(const char* evt, const char* key=T::KEY, const char* tmpl=T::TMPL);
   static G4DAEList* LoadPath(const char* path, const char* key=T::KEY);
+  static G4DAEList* Adopt(G4DAEArrayHolder* holder);
 
 public:
   virtual void Save(const char* evt, const char* key=T::KEY, const char* tmpl=T::TMPL );
@@ -25,6 +27,10 @@ public:
 
 };
 
+template <typename T>
+G4DAEList<T>::G4DAEList( G4DAEArrayHolder* holder ) : G4DAEArrayHolder( holder ) 
+{
+}
 
 template <typename T>
 G4DAEList<T>::G4DAEList( G4DAEArray* array ) : G4DAEArrayHolder( array ) 

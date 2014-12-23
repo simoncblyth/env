@@ -26,6 +26,7 @@ public:
     G4DAEMetadata(Map_t& map, const char* name);
     G4DAEMetadata(const char* str );
     G4DAEMetadata(G4DAEBuffer* buffer=NULL);
+
     virtual ~G4DAEMetadata();
 
 public:

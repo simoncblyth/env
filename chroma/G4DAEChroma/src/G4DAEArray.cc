@@ -340,7 +340,12 @@ std::size_t G4DAEArray::GetBufferSize()
 }
 void G4DAEArray::DumpBuffer()
 {
-   return m_buffer->Dump();
+   if(!m_buffer)
+   {
+       printf("G4DAEArray::DumpBuffer buffer is NULL \n");
+       return;
+   }
+   m_buffer->Dump();
 }
 const char* G4DAEArray::GetMagic()
 {

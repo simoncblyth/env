@@ -31,9 +31,9 @@ with a choice of Photons implementation.
 
 Open three terminals:
 
-* broker   *czmq-;czmq-broker-local*
-* backend  *gdct-;gdct-backend*
-* frontend *gdct-;gdct-frontend*
+* broker   czmq_broker.sh 
+* worker   *gdct-;gdct-worker*   talks to BACKEND
+* client   *gdct-;gdct-client*   talks to FRONTEND
 
 The frontend lives for one call only, the other two are 
 long lived. Note that the broker and backend mirroring 
@@ -110,12 +110,12 @@ gdct-broker(){
    czmq-
    czmq-broker-local
 }
-gdct-frontend(){
+gdct-client(){
    export-
    export-export
    FRONTEND=tcp://127.0.0.1:5001 $LLDB G4DAEChromaTest
 }
-gdct-backend(){
+gdct-worker(){
    BACKEND=tcp://127.0.0.1:5002 $LLDB G4DAEChromaTest
 }
 

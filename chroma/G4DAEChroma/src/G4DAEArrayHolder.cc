@@ -2,6 +2,9 @@
 #include "G4DAEChroma/G4DAEArrayHolder.hh"
 #include "G4DAEChroma/G4DAEArray.hh"
 
+// CAUTION: copy ctor that just steals pointers without copying 
+G4DAEArrayHolder::G4DAEArrayHolder( G4DAEArrayHolder* other ) : m_array(other->GetArray()), m_link(other->GetLink()) {}
+
 
 G4DAEArrayHolder::G4DAEArrayHolder( G4DAEArray* array ) : m_array(array), m_link(NULL) {}
 
@@ -16,6 +19,18 @@ G4DAEArrayHolder::~G4DAEArrayHolder()
    delete m_array ;
    // delete m_link ; **NOT DELETING LINK : REGARDED AS WEAK REFERENCE**
 }
+
+
+void G4DAEArrayHolder::SetArray(G4DAEArray* array )
+{
+   delete m_array ; 
+   m_array = array ; 
+} 
+
+G4DAEArray* G4DAEArrayHolder::GetArray()
+{
+   return m_array ; 
+} 
 
 void G4DAEArrayHolder::Print(const char* msg) const 
 {

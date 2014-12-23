@@ -11,9 +11,13 @@ class G4DAEMetadata ;
 class G4DAEArrayHolder : public G4DAESerializable {
 
 public:
+  G4DAEArrayHolder( G4DAEArrayHolder* other ); // CAUTION: copy ctor that just steals pointers without copying 
   G4DAEArrayHolder( G4DAEArray* array );
   G4DAEArrayHolder( std::size_t itemcapacity = 0, float* data = NULL, const char* shape = "3,3" );
   virtual ~G4DAEArrayHolder();
+
+  void SetArray(G4DAEArray* array);
+  G4DAEArray* GetArray(); 
 
 public:
   virtual void Print(const char* msg="G4DAEArrayHolder::Print") const ; 

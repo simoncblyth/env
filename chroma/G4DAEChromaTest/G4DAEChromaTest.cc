@@ -6,11 +6,12 @@
 #include "G4DAEChroma/G4DAEChromaPhotonList.hh"
 #endif
 
+#include "G4DAEChroma/G4DAEPhotonList.hh"
+#include "G4DAEChroma/G4DAEXotonList.hh"
 #include "G4DAEChroma/G4DAEFotonList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 
-#include "G4DAEChroma/G4DAEPhotonList.hh"
 
 #include "G4DAEChroma/G4DAESocketBase.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
@@ -249,7 +250,47 @@ int test_photon_list(const char* evtkey)
    return 0 ;
 }
 
+int test_generate(const char* evtkey )
+{
+   G4DAECerenkovStepList* a = G4DAECerenkovStepList::Load(evtkey);
+   a->Print("cerenkovsteplist");
 
+   G4DAESocketBase* socket = new G4DAESocketBase(frontend);
+
+   G4DAEArrayHolder* response = socket->SendReceive(a);
+   if(!response) return 1 ; 
+
+   printf("response %p \n", (void*)response);
+   response->DumpBuffer();
+   response->Print("response");
+
+
+   // NB the below do not have their own storage, they 
+   // are just different "view"s of the response 
+
+   G4DAEFotonList* fl = new G4DAEFotonList(response) ; 
+   fl->Print("fotonlist");
+   fl->Save("test"); 
+
+   G4DAEXotonList* xl = new G4DAEXotonList(response) ; 
+   xl->Print("xotonlist");
+   xl->Save("test"); 
+
+   G4DAEPhotonList* pl = new G4DAEPhotonList(response) ; 
+   pl->Print("photonlist");
+   pl->Save("test"); 
+
+   G4DAECerenkovStepList* cl = new G4DAECerenkovStepList(response) ; 
+   cl->Print("cerenkovsteplist");
+   cl->Save("test"); 
+
+   G4DAEScintillationStepList* sl = new G4DAEScintillationStepList(response) ; 
+   sl->Print("scintillationsteplist");
+   sl->Save("test"); 
+
+
+   return 0 ;
+}
 
 
 
@@ -257,17 +298,22 @@ int test_photon_list(const char* evtkey)
 int main(int argc, char** argv)
 {
     const char* evtkey = "1" ;
+    test_generate(evtkey);
 
+
+  /*
     test_foton_list(evtkey);
     test_cerenkovstep_list(evtkey);
     test_scintillationstep_list(evtkey);
     test_photon_list(evtkey);
-
+  */
 
   /*
     test_array_growth(evtkey);
+  */
 
 
+  /*
 
     p_copy<G4DAEChromaPhotonList,G4DAEPhotonList>(evtkey);
 
@@ -276,8 +322,10 @@ int main(int argc, char** argv)
     p_copy<G4DAEPhotonList,G4DAEChromaPhotonList>(evtkey);
 
     p_copy<G4DAEPhotonList,G4DAEPhotonList>(evtkey);
+ */ 
 
 
+  /*
     p_save<G4DAEPhotonList>(evtkey);
     p_load<G4DAEPhotonList>(evtkey);
 
@@ -286,7 +334,6 @@ int main(int argc, char** argv)
 
     p_buffer<G4DAEPhotonList>(evtkey);
     p_buffer<G4DAEChromaPhotonList>(evtkey);
-
   */
 
     // p_network<G4DAEPhotonList>();

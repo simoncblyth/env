@@ -12,7 +12,7 @@
 
 
 class G4DAESerializable ;
-
+class G4DAEArrayHolder ;
 
 class G4DAESocketBase
 {
@@ -28,6 +28,7 @@ public:
 public:
   virtual void MirrorObject() const;
   virtual G4DAESerializable* SendReceiveObject(G4DAESerializable* obj) const;
+  virtual G4DAEArrayHolder* SendReceive(G4DAEArrayHolder* request) const;
 
 protected:
   void* m_context ;   

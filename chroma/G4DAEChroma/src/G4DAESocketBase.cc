@@ -2,6 +2,8 @@
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4DAEChroma/G4DAESerializable.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
+#include "G4DAEChroma/G4DAEArray.hh"
+#include "G4DAEChroma/G4DAEArrayHolder.hh"
 
 #include <cstdlib>
 #include <assert.h>
@@ -91,14 +93,87 @@ char* G4DAESocketBase::ReceiveString()
     return request ;  
 }
 
+G4DAEArrayHolder* G4DAESocketBase::SendReceive(G4DAEArrayHolder* request) const
+{
+    if(!m_socket) return NULL ; 
+
+    G4DAEArray* array = NULL ; 
+    G4DAEMetadata* metadata = NULL ; 
+    G4DAEArrayHolder* response = new G4DAEArrayHolder(array) ;
+
+    G4DAESerializable* frame = request ;
+
+    int nsend = 0 ; 
+    while(frame)  // send multipart following links in the chain
+    { 
+        frame->SaveToBuffer(); // serialization of object to the buffer
+        const char* bytes = frame->GetBufferBytes();
+        size_t size = frame->GetBufferSize();
+        int flags = frame->GetLink() == NULL ? 0 : ZMQ_SNDMORE ;  
+
+        printf("G4DAESocketBase::SendReceive : nsend %d size %lu flags %d \n", nsend, size, flags );
+        b_send( m_socket, bytes, size, flags );
+
+        frame = frame->GetLink();
+        nsend++ ; 
+    } 
+
+    int nrecv = 0 ; 
+    while(1)   // receive multipart
+    { 
+        zmq_msg_t msg;
+        b_recv( m_socket, msg );
+        size_t size = zmq_msg_size(&msg); 
+        void*  data = zmq_msg_data(&msg) ;
+        char* cdata = reinterpret_cast<char*>(data) ; 
+
+        if(strncmp(cdata, G4DAEArray::MAGIC, strlen(G4DAEArray::MAGIC) ) == 0) 
+        { 
+            array = new G4DAEArray(cdata, size);
+            array->Print("received array ");
+            response->SetArray(array);
+        }
+        else if(strncmp(cdata, G4DAEMetadata::MAGIC, strlen(G4DAEMetadata::MAGIC) ) == 0) 
+        {
+            metadata = new G4DAEMetadata(cdata );
+            metadata->Print("received metadata");
+            response->AddLink(metadata) ;
+        }  
+        else
+        {
+            printf("G4DAESocketBase::SendReceive returned object doesn match known magic \n");
+        }
+
+        zmq_msg_close (&msg);
+
+        int more ;
+        size_t more_size = sizeof(more);
+        zmq_getsockopt( m_socket, ZMQ_RCVMORE, &more, &more_size);
+        if(!more) break ; 
+
+        nrecv++ ;
+    } 
+    return response ;
+}
 
 G4DAESerializable* G4DAESocketBase::SendReceiveObject(G4DAESerializable* request) const
 {
+#ifdef WITH_ZMQ
+    if(!m_socket)
+    {
+        printf("G4DAESocketBase::SendReceiveObject : ERROR socket not available \n");
+        return NULL ; 
+    }
+
     G4DAESerializable* response = NULL ; 
     G4DAESerializable* link = request->GetLink() ; // assume request linked
-#ifdef WITH_ZMQ
 
     /*
+    There is far too much secret sauce in this method, 
+    mostly from CreateOther which is acting on the higher
+    typed objects...   Moving to more explicit SendReceive above
+
+
     Although looking the same the G4DAESerializable instances are not 
     all the same need to use the appropiate instance with the corresponding 
     instande : cannot materialize a NPY array from metadata ?
