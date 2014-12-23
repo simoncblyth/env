@@ -230,17 +230,20 @@ G4DAEArrayHolder* G4DAETransport::ProcessRaw(int /*batch_id*/, G4DAEArrayHolder*
 std::size_t G4DAETransport::Process(int batch_id, G4DAEArrayHolder* request)
 {
     G4DAEArrayHolder* response = ProcessRaw(batch_id, request );
+    G4DAEPhotonList* hits = NULL ; 
 
-    if(m_verbosity > 0){
-        response->Print("G4DAETransport::Process response");
+    if(response)
+    {
+        if(m_verbosity > 0 ) response->Print("G4DAETransport::Process response");
+        hits = new G4DAEPhotonList(response);
+    }
+    else
+    {
+         cout << "G4DAETransport::Process response NULL " << endl ;  
     } 
 
-    G4DAEPhotonList* hits = new G4DAEPhotonList(response);
-
     SetHits(hits);
-
     std::size_t count = hits ? hits->GetCount() : 0 ;
-
     return count ;
 
 }
