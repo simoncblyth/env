@@ -58,14 +58,15 @@ Comparison of GPU generated with Geant4 generated
     G4DAEArray::SavePath [/home/blyth/local/env/tmp/1ss.npy] itemcount 2793265 itemshape 4,4 
 
 
+
+Grab the files
+----------------
+
+
 Geant4 generated cerenkov and scintillation photons::
 
     delta:~ blyth$ export-foton-get 1 | sh 
     1.npy                                                                                                                                                       100%  170MB   2.6MB/s   01:05    
-    delta:~ blyth$ export-xoton-get 1 | sh 
-    1.npy                   
-
-
 
 GPU generated cerenkov and scintillation photons::
 
@@ -74,6 +75,16 @@ GPU generated cerenkov and scintillation photons::
     delta:~ blyth$ export-photon-get 1ss | sh 
     1ss.npy                                                                                                                                                     100%  170MB   2.7MB/s   01:04    
     delta:~ blyth$ 
+
+
+
+Cerenkov
+----------
+
+::
+
+    delta:~ blyth$ export-photon-get 1cs | sh    # chroma
+    delta:~ blyth$ export-xoton-get 1 | sh       # g4
 
 
 Cerenkov counts mismatch, g4 missing lots::
@@ -101,6 +112,9 @@ Cerenkov counts mismatch, g4 missing lots::
     In [25]: step_cs[:,0,3].view(np.int32).sum()
     Out[25]: 629244
 
+Probably due to ApplyWaterQE which is killing photons
+via a continue in the photon loop. 
+
 
 Very different wavelength, chroma flat, g4 peak at 100nm::
 
@@ -120,6 +134,52 @@ Clear spatial discrepancy, less at extremes of x and y::
 
     In [12]: cf_3xyz( c_cs, g_cs )
 
+
+Cerenkov with ApplyWaterQE photon killing inhibited
+------------------------------------------------------
+
+Prior mismatch::
+
+    In [1]: c_cs = pp("1cs")
+
+    In [2]: c_cs.shape
+    Out[2]: (629244, 4, 4)
+
+    In [8]: g_cs = xx(1)
+
+    In [9]: g_cs.shape       ## mismatch count 
+    Out[9]: (540825, 4, 4)
+
+
+With G4DAECHROMA_KILL_WATER_QE ndef see count difference entirely caused by ApplyWaterQE::
+
+    In [1]: c_cs = pp("1cs")
+
+    In [2]: g_cs = xx(1)
+
+    In [3]: c_cs.shape
+    Out[3]: (612841, 4, 4)
+
+    In [4]: g_cs.shape
+    Out[4]: (612841, 4, 4)
+
+
+Now very good 3xzy, time match, spatial spikes rounded(?) though::
+
+    In [5]: cf_3xyz( c_cs, g_cs )
+
+    In [6]: cf_time( c_cs, g_cs )
+
+
+Wavelength still mismatched, chroma flat::
+
+    In [7]: cf_wavelength( c_cs, g_cs )
+
+
+
+
+Scintillation
+--------------
 
 Scintillation counts match::
 
@@ -165,6 +225,7 @@ Position, direction and polarization all excellent matches.::
     In [2]: g_ss = ff(1)
 
     In [3]: cf_3xyz( c_ss, g_ss )
+
 
 
 
