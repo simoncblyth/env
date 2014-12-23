@@ -3,12 +3,16 @@
 #define G4DAECHROMA_COLLECT_STEPS
 #define G4DAECHROMA_COLLECT_PHOTONS
 #define G4DAECHROMA_INHIBIT_G4
+//#define G4DAECHROMA_KILL_WATER_QE
 
 
 #ifdef G4DAECHROMA_COLLECT_STEPS
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
+
+static int bialkaliMaterialIndex = -1 ;
+
 #endif
 
 
@@ -148,23 +152,23 @@ DsChromaG4Cerenkov::DsChromaG4Cerenkov(const G4String& processName, G4ProcessTyp
 
         SetProcessSubType(fCerenkov);
 
-	fTrackSecondariesFirst = false;
-	fMaxBetaChange = 0.;
-	fMaxPhotons = 0;
+        fTrackSecondariesFirst = false;
+        fMaxBetaChange = 0.;
+        fMaxPhotons = 0;
         fPhotonWeight = 1.0;    // Daya Bay mod, bv@bnl.gov
 
         thePhysicsTable = NULL;
 
-	if (verboseLevel>0) {
-           G4cout << GetProcessName() << " is created " << G4endl;
-	}
+        if (verboseLevel>0) {
+            G4cout << GetProcessName() << " is created " << G4endl;
+        }
 
-	BuildThePhysicsTable();
-	
-	// wangzhe
-	fApplyWaterQe = false;
-	m_qeScale = 1.0/0.9;
-	// wz
+        BuildThePhysicsTable();
+
+        // wangzhe
+        fApplyWaterQe = false;
+        m_qeScale = 1.0/0.9;
+        // wz
 }
 
 // G4Cerenkov::G4Cerenkov(const G4Cerenkov &right)
@@ -177,10 +181,10 @@ DsChromaG4Cerenkov::DsChromaG4Cerenkov(const G4String& processName, G4ProcessTyp
 
 DsChromaG4Cerenkov::~DsChromaG4Cerenkov() 
 {
-	if (thePhysicsTable != NULL) {
-	   thePhysicsTable->clearAndDestroy();
-           delete thePhysicsTable;
-	}
+    if (thePhysicsTable != NULL) {
+       thePhysicsTable->clearAndDestroy();
+       delete thePhysicsTable;
+    }
 }
 
         ////////////
@@ -312,6 +316,14 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 #ifdef G4DAECHROMA_COLLECT_STEPS
     size_t csid ;  // here for visibility from foton collection
     {
+
+        if(bialkaliMaterialIndex == -1 )
+        {
+              G4Material* bialkali = G4Material::GetMaterial("/dd/Materials/Bialkali");
+              bialkaliMaterialIndex = bialkali ? bialkali->GetIndex() : -2 ; 
+        }
+        assert(bialkaliMaterialIndex > -1 );
+
         // serialize DsG4Cerenkov::PostStepDoIt stack, just before the photon loop
         G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
         G4DAECerenkovStepList* csl = chroma->GetCerenkovStepList();
@@ -321,9 +333,13 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         G4ThreeVector deltaPosition = aStep.GetDeltaPosition();
         G4double weight = fPhotonWeight*aTrack.GetWeight();
         G4int materialIndex = aMaterial->GetIndex();
+        assert(materialIndex > -1 );
 
         // this relates Geant4 materialIndex to the chroma equivalent
         G4int chromaMaterialIndex = g2c[materialIndex] ;
+        assert(chromaMaterialIndex > -1 );
+
+        G4int chromaBialkaliIndex = g2c[bialkaliMaterialIndex] ;
         G4String materialName = aMaterial->GetName();
 
         csid = 1 + csl->GetCount() ;  // 1-based
@@ -336,7 +352,6 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
              << " materialName " << materialName
              << endl ;
         */ 
-        assert(chromaMaterialIndex > -1 );
 
         // shoving ints into float bits
         uif_t uifa[4] ;
@@ -347,7 +362,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
         uif_t uifb[4] ;
         uifb[0].i = definition->GetPDGEncoding();
-        uifb[1].i = 0 ;  
+        uifb[1].i = chromaBialkaliIndex ;  
         uifb[2].i = 0 ;
         uifb[3].i = 0 ;
 
@@ -383,7 +398,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         cs[G4DAECerenkovStep::_maxSin2] = maxSin2 ;
         cs[G4DAECerenkovStep::_MeanNumberOfPhotons1] = MeanNumberOfPhotons1 ;
         cs[G4DAECerenkovStep::_MeanNumberOfPhotons2] = MeanNumberOfPhotons2 ;
-        cs[G4DAECerenkovStep::_MeanNumberOfPhotonsMax] = std::max(MeanNumberOfPhotons1,MeanNumberOfPhotons2) ;
+        cs[G4DAECerenkovStep::_BialkaliMaterialIndex] = uifb[1].f ; 
 
     }
 #endif
@@ -405,27 +420,33 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	    rand = G4UniformRand();	
 	    
 	  } while (rand*maxSin2 > sin2Theta);
-	  
+	 
+
 	  // wangzhe
 	  // kill a optical photon according to the QE(energy) probability function
 	  G4double qe=1.;
-	  if ( ApplyWaterQE ) {
-	    G4double uni;
-	    // 0.6: For now, hard code "extra" decrease in efficiency for water shield PMTs to match G4dyb.
-	    // m_qeScale: 1.0/0.9
-	    G4double effqe=qe=0.6*m_qeScale*GetPoolPmtQe(sampledEnergy);
-	    if ( fApplyPreQE ) {
-	      // take into account preapplied maximal QE 
-	      effqe/=fPreQE;
-	      if ( effqe>1. ) G4cerr<<"WaterPMT efficiency>1. This means that used CerenPhotonScaleWeight is too big."<<G4endl;
-	    }
-	    uni = G4UniformRand();
-	    //G4cout <<"qe= "<<qe<<" uni= "<<uni<<" energy= "<<sampledEnergy/CLHEP::eV<<" eV, "
-	    //	     <<"raw QE= "<<GetPoolPmtQe(sampledEnergy)<<G4endl;
+	  if ( ApplyWaterQE ) 
+      {
+	      G4double uni;
+	      // 0.6: For now, hard code "extra" decrease in efficiency for water shield PMTs to match G4dyb.
+	      // m_qeScale: 1.0/0.9
+	      G4double effqe=qe=0.6*m_qeScale*GetPoolPmtQe(sampledEnergy);
+	      if ( fApplyPreQE ) 
+          {
+	          // take into account preapplied maximal QE 
+	          effqe/=fPreQE;
+	          if ( effqe>1. ) G4cerr<<"WaterPMT efficiency>1. This means that used CerenPhotonScaleWeight is too big."<<G4endl;
+	      }
+	      uni = G4UniformRand();
+	      //G4cout <<"qe= "<<qe<<" uni= "<<uni<<" energy= "<<sampledEnergy/CLHEP::eV<<" eV, "
+	      //	     <<"raw QE= "<<GetPoolPmtQe(sampledEnergy)<<G4endl;
 	    
-	    if ( uni >= effqe ) {
-	      continue;
-	    }
+	      if ( uni >= effqe ) 
+          {
+#ifdef G4DAECHROMA_KILL_WATER_QE
+	         continue;
+#endif
+	      }
 	  }
 	  // wz
 	  
@@ -511,13 +532,15 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	  // set user track info
 	  G4CompositeTrackInfo* comp=new G4CompositeTrackInfo();
 	  DsChromaPhotonTrackInfo* trackinf=new DsChromaPhotonTrackInfo();
-	  if ( ApplyWaterQE ) {
-	    trackinf->SetMode(DsChromaPhotonTrackInfo::kQEWater);
-	    trackinf->SetQE(qe);
+	  if ( ApplyWaterQE ) 
+      {
+	      trackinf->SetMode(DsChromaPhotonTrackInfo::kQEWater);
+	      trackinf->SetQE(qe);
 	  }
-	  else if ( fApplyPreQE ) {
-	    trackinf->SetMode(DsChromaPhotonTrackInfo::kQEPreScale);
-	    trackinf->SetQE(fPreQE);
+	  else if ( fApplyPreQE ) 
+      {
+	      trackinf->SetMode(DsChromaPhotonTrackInfo::kQEPreScale);
+	      trackinf->SetQE(fPreQE);
 	  }
 	  comp->SetPhotonTrackInfo(trackinf);
 	  aSecondaryTrack->SetUserInformation(comp);

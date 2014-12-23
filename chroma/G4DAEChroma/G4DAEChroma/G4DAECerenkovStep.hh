@@ -40,7 +40,7 @@ class G4DAECerenkovStep {
        _maxSin2,
        _MeanNumberOfPhotons1,
        _MeanNumberOfPhotons2,
-       _MeanNumberOfPhotonsMax,
+       _BialkaliMaterialIndex,
 
        SIZE
 
