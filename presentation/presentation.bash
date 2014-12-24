@@ -13,4 +13,20 @@ EOU
 }
 presentation-dir(){ echo $(env-home)/presentation ; }
 presentation-cd(){  cd $(presentation-dir); }
-presentation-mate(){ mate $(presentation-dir) ; }
+
+
+presentation-name(){ echo gpu_accelerated_geant4_simulation ; }
+presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
+presentation-export(){
+   export PRESENTATION_NAME=$(presentation-name)
+}
+presentation-edit(){ vi $(presentation-path) ; }
+presentation-make(){
+   presentation-cd
+   presentation-export
+   env | grep PRESENTATION
+   make $*
+}
+ 
+
+

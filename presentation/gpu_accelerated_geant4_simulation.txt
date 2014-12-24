@@ -28,6 +28,9 @@
         visualizations of geometry and event data.  
          
 
+
+
+
  
 
 .. include:: <s5defs.txt>
@@ -48,6 +51,22 @@
 
     g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
     /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+
+    Cerenkov Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
+
+    Cerenkov Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
+
+    Scintillation Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
+
+    Scintillation Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
+
+
+
+
 
 
 ======================================================================
@@ -88,6 +107,24 @@ GPU Accelerated Geant4 Simulation with G4DAE and Chroma
 
 :small:`Geant4 Profiling`
 --------------------------- 
+
+
+
+
+Cerenkov Photons Simulation - Top View
+----------------------------------------------
+
+Scintillation Photons Simulation - Top View
+----------------------------------------------
+
+Cerenkov Photons Simulation - Side View
+----------------------------------------------
+
+Scintillation Photons Simulation - Side View
+----------------------------------------------
+
+
+
 
 
 

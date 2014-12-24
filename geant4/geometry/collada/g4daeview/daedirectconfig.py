@@ -109,11 +109,12 @@ class DAEDirectConfig(object):
         defaults['wipegeometry'] = False
         parser.add_argument( "--wipegeometry", action="store_true", help="Wipe preexisting geometry maps before writing new ones, use this when changing geometry. Default %(default)s." )
 
-        defaults['path_template'] = os.environ.get('DAE_PATH_TEMPLATE',None)
-        defaults['key'] = 'CPL'
-
-        parser.add_argument( "--key",   help="[I] ROOT Object Key to use with load/save. Default %(default)s.",type=str)
-        parser.add_argument( "--path-template", help="Path template that load/save arguments fill in. Default %(default)s.",type=str)
+        defaults['type'] = "photons"
+        defaults['slice'] = None
+        defaults['key'] = '???'
+        parser.add_argument( "--type",  help="Path template type, eg \"photons\" for template DAE_PHOTONS_PATH_TEMPLATE yielding npy paths. Default %(default)s.",type=str)
+        parser.add_argument( "--slice", help="Colon delimited slice string, eg ::100 for 1 per 100 scaledown, applied to loaded numpy evt. Default %(default)s.",type=str)
+        parser.add_argument( "--key",   help="Path template key, currently not used. Default %(default)s.",type=str)
 
 
         defaults['deviceid'] = None
@@ -155,6 +156,11 @@ class DAEDirectConfig(object):
     chroma_surface_map = property(lambda self:self.resolve_confpath(self.args.chroma_surface_map))
     chroma_process_map = property(lambda self:self.resolve_confpath(self.args.chroma_process_map))
 
+
+    path_template_varname = property(lambda self:"DAE_%s_PATH_TEMPLATE" % self.args.type.upper() )
+    path_template         = property(lambda self:os.environ.get(self.path_template_varname, None))
+
+
     def resolve_event_path(self, path_, subname=None):
         """ 
         Resolves paths to event files
@@ -168,9 +174,10 @@ class DAEDirectConfig(object):
 
         """
         if path_[0] == '/':return path_
-        path_template = self.args.path_template
+        path_template_varname = self.path_template_varname
+        path_template = self.path_template
         if path_template is None:
-            log.warn("path_template missing ")
+            log.warn("path_template_varname %s envvar missing %s " % (path_template_varname, path_template))
             return path_
         log.debug("resolve_event_path path_template %s path_ %s " % (path_template, path_ ))  
         path = path_template % path_ 
@@ -205,13 +212,22 @@ class DAEDirectConfig(object):
         cpl = load_cpl(path, key )
         return cpl
 
-
-    def load_npl(self, name, key=None ):
+    def load_npl(self, name, key=None, sli=None ):
         """
         """ 
+        if sli is None:
+            sli = self.args.slice
+
         path = self.resolve_event_path(name)
-        npl = np.load(path)
-        return npl
+        a = np.load(path)
+        log.info("load %s %s " % (path, str(a.shape) ))    
+        if not sli is None:
+            int_ = lambda _:int(_) if _ else None
+            chop = slice(*map(int_,sli.split(":")))
+            a = a[chop]
+            log.info("sliced down to %s " % (str(a.shape) ))    
+        pass 
+        return a
 
     def save_cpl(self, cpl, name, key=None ):
         """

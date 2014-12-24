@@ -16,10 +16,7 @@ PAGE=0
 REMOTEHOST=simoncblyth.bitbucket.org
 DOCBASE=$(HOME)/simoncblyth.bitbucket.org
 
-#SOURCES=$(wildcard *.txt)
-#SOURCES=gpu_optical_photon_simulation.txt
-SOURCES=g4dae_geometry_exporter.txt
-
+SOURCES=$(PRESENTATION_NAME).txt
 
 REALPWD=$(realpath $(PWD))   # avoids requirement to be at ~/env/wherever rather than symbolically linked ~/e/wherever
 RELDIR=$(subst $(ENV_HOME),,$(REALPWD)) 

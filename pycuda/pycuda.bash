@@ -31,6 +31,24 @@ Actual Source used by Chroma ?
     ./lib/python2.7/site-packages/pycuda
 
 
+Multiple GPUs
+--------------
+
+I see there are complications
+to getting pycuda to work with multiple GPUs:
+
+* http://wiki.tiker.net/PyCuda/FrequentlyAskedQuestions#How_about_multiple_GPUs.3F
+* http://wiki.tiker.net/PyCuda/FrequentlyAskedQuestions#threading
+
+It may be more convenient to call the Chroma CUDA  C kernels 
+directly in C/C++ rather than using it via PyCUDA ?
+
+I wonder will performance scale with GPUs ?
+
+4*5  ~ 20 in GFLOPS
+4*8 ~  32 in cores
+
+
 
 Debug/trace switches ?
 ------------------------

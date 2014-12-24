@@ -20,6 +20,21 @@ On pressing "U" usage text describing the actions of each key
 are written to stdout.  (TODO: display to screen)
 
 
+Event Loading/slicing tips
+----------------------------
+
+Create/update bookmarks with smaller sample size (update bookmarked viewpoints with "space" )  
+by using high slice scaledowns like `--slice ::100`.  
+Then when presenting more photons with eg `--slice ::10` can 
+just jump to the prepared bookmarks.
+
+::
+
+    g4daeview.sh --load 1 --type opcerenkov --slice ::100
+    g4daeview.sh --load 1 --type opscintillation --slice ::100
+
+
+
 Receive ChromaPhotonList from Remote Geant4 
 --------------------------------------------- 
 
@@ -101,10 +116,21 @@ Save any screencaptures directly into apache htdocs using::
         g4daeview.sh --outdir=$(apache-htdocs)/env/geant4/geometry/collada/g4daeview --load 1 $*
     }
 
+    (chroma_env)delta:~ blyth$ apache-cd
+    (chroma_env)delta:Documents blyth$ l env
+    lrwxr-xr-x  1 root  wheel  42 Aug 27 15:28 env -> /Users/blyth/simoncblyth.bitbucket.org/env
+
+NB apache-htdocs env is a symbolic link into simoncblyth.bitbucket.org 
+(a bitbucket repository for statics with size limit of 1GB) see `bitbucketstatic-`
+
 
 Captures can be remotely invoked using::
 
    udp.py --screencapture
+
+
+
+
 
 
 Grab Screen Captures including GLUT menus

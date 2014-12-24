@@ -35,7 +35,7 @@ class DAEEvent(DAEEventBase):
 
         log.info("********* scene.event.dphotons DONE ")
         self.objects = []
-        self.eventlist = DAEEventList(config.args.path_template)
+        self.eventlist = DAEEventList(config.path_template)
 
         # dont like this menu setup here, move into constituent controllers
 

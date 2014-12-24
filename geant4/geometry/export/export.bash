@@ -266,11 +266,45 @@ export-scintillation-get(){    export-npy-get ${1:-1} scintillation ; }
 export-opcerenkov-get(){       export-npy-get ${1:-1} opcerenkov ; }
 export-opscintillation-get(){  export-npy-get ${1:-1} opscintillation ; }
 
+export-type-(){ cat << EOT
+photon
+foton
+xoton
+cerenkov
+scintillation
+opcerenkov
+opscintillation
+EOT
+}
+
+
+export-du(){ export-op "du -h" ${1:-1} ; }
+export-ls(){ export-op "ls -l" ${1:-1} ; }
+export-op(){ 
+   local op=${1:-ls}
+   local evt=${2:-1}
+   local type
+   local path
+   export-type- | while read type ; do  
+      path=$(export-npy-path $evt $type)
+      cmd="$op $path"
+      echo $cmd
+      eval $cmd
+   done 
+}
+
 export-steps-get(){  
     export-scintillation-get ${1:-1}
     export-cerenkov-get ${1:-1}
 }
 
+export-npy-path(){
+    local evt=${1:-1}
+    local typ=${2:-cerenkov}
+    local tmpl=$(export-path-template $typ)
+    local path=$(printf $tmpl $evt)
+    echo $path
+}
 
 export-npy-get(){
 
@@ -279,11 +313,10 @@ export-npy-get(){
 
     local from=$(export-source-node)
     [ "$NODE_TAG" == "$from" ] && echo $msg cannot get to self && return 
-    local rtmpl=$(NODE_TAG=$from export-path-template $typ)
-    local ltmpl=$(export-path-template $typ)
-    local rpath=$(printf $rtmpl $evt)
-    local lpath=$(printf $ltmpl $evt)
-   
+
+    local rpath=$(NODE_TAG=$from export-npy-path $evt $typ)
+    local lpath=$(export-npy-path $evt $typ)
+
     local cmd="mkdir -p $(dirname $lpath) && scp $from:$rpath $lpath" 
     echo $cmd
 }

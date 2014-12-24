@@ -9,6 +9,61 @@ Pull out everything Chroma related and reusable
 from StackAction and SensitiveDetector
 for flexible reusability from different Geant4 contexts
 
+
+Recent Changes
+----------------
+
+
+Major recent changes are:
+
+* forming PMT hits on the GPU, by associating every triangle 
+  of the PMT cathode with the PMT identifier. 
+  This allows returning only photons that hit PMTs to Geant4
+
+* transforming global hit coordinates into local coordinates for the hits using 
+  a per PMT transform cache 
+
+* integrating the GPU formed hits into the standard Geant4 hit collections, 
+  allowing subsequent simulation to work unchanged
+
+* moving Scintillation and Cerenkov generation to the GPU by 
+  collecting generation steps and transferring those.
+  Avoids having to transfer ~200MB of photon data for a 3M photon event :
+  instead down to  ~2MB of generation steps.
+
+  Its also advantageous never to even create G4Track for the millions
+  of photons : they are skipped in the Scintillation and Cerenkov processes
+
+* adopting NumPy serialization format, so can effectively directly fill
+  NumPy arrays from Geant4 C++ 
+  Allows to get rid of ROOT TObject, (and ROOT entirely) and annoying 
+  dictionary generation hassles.
+
+* for monitoring, control and communication  G4DAEChroma includes 
+  integration with sqlite3 and a cJSON implementation allowing python
+  dicts to be passed to C++ as map<string,string> which can be 
+  inserted into sqlite3 tables 
+
+* G4DAE geometry exporter was presented at the Geant4 Okinawa Collaboration 
+  meeting in Sept. I proposed to contribute the exporter to Geant4 and they agreed.  
+  The plan is to include it with the Geant4 released at the end of 2015.
+
+
+
+TODO : Test on Workstation GPU
+-------------------------------
+
+So far I have been developing using my laptop GPU only. 
+I think I will soon be interested in testing the machinery to see 
+the kind of performance possible on workstation GPUs.
+
+Comparing my laptop GPU (with that 
+
+* http://www.techpowerup.com/gpudb/2527/geforce-gt-750m-mac-edition.html
+* http://www.techpowerup.com/gpudb/2029/tesla-k20m.html
+
+
+
 Dependencies
 ------------
 

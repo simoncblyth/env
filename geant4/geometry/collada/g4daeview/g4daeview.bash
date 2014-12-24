@@ -102,6 +102,37 @@ g4daeview-transmogrify(){
 
 }
 
+
+g4daeview-pngdir-ls(){
+   ls -1 $(g4daeview-pngdir)
+}
+
+g4daeview-pngdir(){
+   apache-
+   echo $(apache-htdocs)/env/geant4/geometry/collada/g4daeview 
+}
+
+g4daeview-pngs()
+{
+    ls -1 *.png 
+}
+
+g4daeview-pngs-mvto()
+{
+    local dest=$(g4daeview-pngdir)
+    [ "$PWD" == "$dest" ] && echo $msg already in dest $dest nothing to do && return 1    
+
+    local png
+    local cmd
+    g4daeview-pngs | while read png ; do
+        cmd="mv $png $dest/$png"
+        echo $cmd
+    done
+}
+
+
+
+
 g4daeview-transmogrify-notes(){ cat << EON
 
 Making g4daeview.py more portable
