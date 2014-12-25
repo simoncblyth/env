@@ -1,0 +1,36 @@
+graph G {
+
+
+    subgraph clusterA 
+    {
+
+
+        subgraph clusterC 
+        {
+            CerenkovStepList
+ 
+            ScintillationStepList
+
+            label = "G4DAEChroma";
+        }
+
+
+        label = "Geant4";
+    }
+
+
+    subgraph clusterB 
+    {
+
+        label = "Chroma";
+    }
+
+
+
+
+    clusterC -- clusterB
+
+}
+
+
+
