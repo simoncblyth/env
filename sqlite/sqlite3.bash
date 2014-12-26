@@ -13,6 +13,14 @@ SQLITE3
 yum depends on sqlite3
 
 
+
+regexp extension
+----------------
+
+* https://github.com/ralight/sqlite3-pcre
+
+
+
 timezone documentation extracts
 --------------------------------
 

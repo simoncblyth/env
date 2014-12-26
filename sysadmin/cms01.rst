@@ -1,6 +1,21 @@
 cms01
 =======
 
+Dec 26, 2014
+--------------
+
+Low space again.
+
+::
+
+    delta:~ blyth$ scp C:.env/envmon.sqlite .env/C_envmon.sqlite
+
+::
+
+    monitordb.sh gb_free --limit 72 --level debug   
+      ## daily tidal range of ~13 GB, but longterm slow trend down
+
+
 
 Oct 23, 2014
 -------------
