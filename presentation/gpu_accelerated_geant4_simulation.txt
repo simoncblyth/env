@@ -64,6 +64,11 @@
     Scintillation Photons Simulation - Side View
     /env/geant4/geometry/collada/g4daeview/20141224-121435.png
 
+    Standard Geant4 Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
+
+    GPU Accelerated Geant4 Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
 
 
 
@@ -109,6 +114,11 @@ GPU Accelerated Geant4 Simulation with G4DAE and Chroma
 --------------------------- 
 
 
+Standard Geant4 Workflow
+------------------------------
+
+GPU Accelerated Geant4 Workflow
+---------------------------------
 
 
 Cerenkov Photons Simulation - Top View

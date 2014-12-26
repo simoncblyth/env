@@ -21,7 +21,7 @@ mocknuwa-env-check(){
 }
 
 mocknuwa-export(){
-   export SQLITE3_DATABASE=$(mocknuwa-db) 
+   [ -z "$SQLITE3_DATABASE" ] && export SQLITE3_DATABASE=$(mocknuwa-db) 
 }
 
 
