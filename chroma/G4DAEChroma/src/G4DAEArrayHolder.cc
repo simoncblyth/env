@@ -2,6 +2,11 @@
 #include "G4DAEChroma/G4DAEArrayHolder.hh"
 #include "G4DAEChroma/G4DAEArray.hh"
 
+#include "G4DAEChroma/G4DAEMetadata.hh"
+#include "G4DAEChroma/G4DAEMap.hh"
+
+
+
 // CAUTION: copy ctor that just steals pointers without copying 
 G4DAEArrayHolder::G4DAEArrayHolder( G4DAEArrayHolder* other ) : m_array(other->GetArray()), m_link(other->GetLink()) {}
 
@@ -36,6 +41,36 @@ void G4DAEArrayHolder::Print(const char* msg) const
 {
     if(m_array) m_array->Print(msg);
 }
+
+
+
+
+void G4DAEArrayHolder::CreateLink() 
+{
+    if(!m_link)
+    {
+        m_link = new G4DAEMetadata("{}") ;
+    }
+}
+void G4DAEArrayHolder::AddMap(const char* name, Map_t& meta) 
+{
+    CreateLink();
+    m_link->AddMap(name, meta); 
+}
+void G4DAEArrayHolder::SetKV(const char* name, const char* key, const char* val)
+{
+    CreateLink();
+    m_link->SetKV(name, key, val);
+}
+void G4DAEArrayHolder::SetKV(const char* name, const char* key, int ival)
+{
+    CreateLink();
+    m_link->SetKV(name, key, ival);
+}
+
+
+
+
 
 std::size_t G4DAEArrayHolder::GetCount() const {
     return m_array ? m_array->GetSize() : 0 ;

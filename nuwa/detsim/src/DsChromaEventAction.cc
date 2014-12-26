@@ -51,16 +51,39 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
 
 
-    // For debug only : Save GenStep Lists to file 
+    // For debug only : save GenSteps to file 
+    {
+        G4DAECerenkovStepList* csl = chroma->GetCerenkovStepList(); 
+        csl->SetKV("ctrl", "noreturn", 1 );
+        csl->SetKV("ctrl", "type", "cerenkov" );
+        csl->SetKV("ctrl", "evt", "1" );
 
-    G4DAECerenkovStepList* csl = chroma->GetCerenkovStepList(); 
-    csl->Save("1");
-    
-    G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList(); 
-    ssl->Save("1");
+        Map_t m ; 
+        m["note"] = "CerenkovStepList metadata from DsChromaEventAction" ; 
+        m["type"] = "cerenkov" ; 
+        m["key"] = "1" ;
+        m["noreturn"] = "1" ;
+        csl->AddMap("DsChromaEventAction", m);
+        csl->Save("1");
+    }
+
+    {
+        G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList(); 
+        ssl->SetKV("ctrl", "noreturn", 1 );
+        ssl->SetKV("ctrl", "type", "scintillation" );
+        ssl->SetKV("ctrl", "evt", "1" );
+
+        Map_t m ; 
+        m["note"] = "ScintillationStepList metadata from DsChromaEventAction" ; 
+        m["type"] = "scintillation" ; 
+        m["key"] = "1" ;
+        m["noreturn"] = "1" ;
+        ssl->AddMap("DsChromaEventAction", m);
+        ssl->Save("1");
+    }
 
 
-    // For debug only : save Geant4 generated Scintillation and Cerenkov photons to NPY files
+    // For debug only : save G4 generated Scintillation and Cerenkov photons to file
 
     G4DAEScintillationPhotonList* spl = chroma->GetScintillationPhotonList();   
     spl->Save("1");
@@ -69,20 +92,21 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
     cpl->Save("1");
 
 
-
-
-    //  hmm the below get the GPU generated 
-
+    //  Currently doing generation only, so below get GPU generated(unpropagated) photons 
+    //  and write to file, 
+    //  BUT thats kinda silly as need them on D anyhow for ipython plot making   
+    //
+   
     size_t ncs = chroma->ProcessCerenkovSteps(1);    
     printf("ProcessCerenkovSteps ncs %zu \n", ncs); 
-    G4DAEPhotonList* csp = chroma->GetHits();    // hmm GetResponse would be better
+    G4DAEPhotonList* csp = chroma->GetHits();   
     csp->Print("response from ProcessCerenkovSteps ");
     csp->Save("1cs");
 
 
     size_t nss = chroma->ProcessScintillationSteps(1);    
     printf("ProcessScintillationSteps nss %zu \n", nss); 
-    G4DAEPhotonList* css = chroma->GetHits();    // hmm GetResponse would be better
+    G4DAEPhotonList* css = chroma->GetHits();   
     css->Print("response from ProcessScintillationSteps ");
     css->Save("1ss");
 

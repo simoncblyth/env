@@ -245,7 +245,7 @@ export-export(){
    export DAE_GEOMETRY_JUNO=$(export-geometry juno)
    export DAE_GEOMETRY_LXE=$(export-geometry lxe)
 
-   $FUNCNAME-pathtmpl
+   $FUNCNAME-templates
 }
 
 export-path-template(){ 
@@ -331,6 +331,13 @@ export-steps-get(){
     export-cerenkov-get ${1:-1}
 }
 
+export-gop-get(){  
+    export-gopscintillation-get ${1:-1}
+    export-gopcerenkov-get ${1:-1}
+}
+
+
+
 export-npy-path(){
     local evt=${1:-1}
     local typ=${2:-cerenkov}
@@ -355,20 +362,22 @@ export-npy-get(){
 }
 
 
-export-export-pathtmpl(){
+export-export-templates(){
    export DAE_PATH_TEMPLATE_ROOT="$LOCAL_BASE/env/tmp/%s.root"
    export DAE_PATH_TEMPLATE_NPY="$LOCAL_BASE/env/tmp/%s.npy"
    export DAE_PATH_TEMPLATE=$DAE_PATH_TEMPLATE_NPY
 
-   export DAE_HIT_PATH_TEMPLATE=$(export-path-template hitn)
+   export DAE_HIT_PATH_TEMPLATE=$(export-path-template hit)
    export DAE_PHOTON_PATH_TEMPLATE=$(export-path-template photon)
-   export DAE_FOTON_PATH_TEMPLATE=$(export-path-template foton)
-   export DAE_XOTON_PATH_TEMPLATE=$(export-path-template xoton)
-   export DAE_CERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
-   export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
+
+   export DAE_GOPSCINTILLATION_PATH_TEMPLATE=$(export-path-template gopscintillation)
+   export DAE_GOPCERENKOV_PATH_TEMPLATE=$(export-path-template gopcerenkov)
+
    export DAE_OPCERENKOV_PATH_TEMPLATE=$(export-path-template opcerenkov)
    export DAE_OPSCINTILLATION_PATH_TEMPLATE=$(export-path-template opscintillation)
-   export DAE_TEST_PATH_TEMPLATE=$(export-path-template test)
+
+   export DAE_CERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
+   export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
 }
 
 export-lambda-(){ cat << EOL

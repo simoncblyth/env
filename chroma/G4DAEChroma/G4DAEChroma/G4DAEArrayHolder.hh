@@ -7,6 +7,7 @@ class G4DAEArray ;
 class G4DAEMetadata ;
 
 #include "G4DAEChroma/G4DAESerializable.hh"
+#include "G4DAEChroma/G4DAEMap.hh"
 
 class G4DAEArrayHolder : public G4DAESerializable {
 
@@ -40,6 +41,10 @@ public:
 
   G4DAEMetadata* GetLink();
   void SetLink(G4DAEMetadata* link);
+  void CreateLink();
+  void AddMap(const char* name, Map_t& meta);
+  void SetKV(const char* name, const char* key, const char* val);
+  void SetKV(const char* name, const char* key, int ival);
 
 
 protected:
