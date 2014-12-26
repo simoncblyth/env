@@ -24,7 +24,13 @@ from chroma.gpu.photon_hit import GPUPhotonsHit
 from chroma.gpu.gensteps import GPUGenSteps
 from chroma.gpu.geometry import GPUGeometry
 
-class NPY(np.ndarray):pass
+class NPY(np.ndarray):
+    pass
+    @classmethod
+    def empty(cls):
+        a = np.array((), dtype=np.float32)
+        return a.view(cls)
+
 
 
 class DAEDirectPropagator(object):
@@ -45,9 +51,13 @@ class DAEDirectPropagator(object):
         itemshape = request.shape[1:]
         log.info("incoming itemshape %s " % repr(itemshape))
         extra = False 
-        if itemshape == ():
+        if self.chroma.ctrl.get('onlycopy',0) == 1:
+            self.onlycopy(request)
+            response = NPY.empty()
+            results = {}
+        elif itemshape == ():
             log.warn("empty itemshape received %s " % str(itemshape))
-            response = NPY(0)
+            response = NPY.empty()
             results = {}
             extra = True
         elif itemshape == (6,4):
@@ -56,10 +66,31 @@ class DAEDirectPropagator(object):
             response, results = self.propagate(request)
         else:
             log.warn("itemshape %s not recognized " % str(itemshape))
-            response = NPY(0)
+            response = NPY.empty()
             results = {}
         pass
         return self.chroma.outgoing(response, results, extra=extra)
+
+
+    def onlycopy(self, request):
+        itype = self.chroma.ctrl.get('type',None)
+        evt = self.chroma.ctrl.get('evt',None)
+        if not itype is None:
+            self.config.save_npy(request, evt, itype)   
+        else:
+            log.warn("failed to onlycopy")
+        pass
+
+    def sidesave(self, request, photons):
+        itype = self.chroma.ctrl.get('type',None)
+        evt = self.chroma.ctrl.get('evt',None)
+        if not itype is None:
+            self.config.save_npy(request, evt, itype)   
+            otype = "op%s" % itype
+            self.config.save_npy(photons, evt, otype)   
+        else:
+            log.warn("failed to sidesave")
+        pass
 
 
     def generate(self, request):
@@ -70,6 +101,8 @@ class DAEDirectPropagator(object):
             Out[98]: 4711
 
         """
+
+
         results = {}
         gpu_gensteps = GPUGenSteps(request)
 
@@ -78,7 +111,16 @@ class DAEDirectPropagator(object):
                                         self.chroma.parameters)
         photons = gpu_gensteps.get()
 
-        return photons, results
+
+        if self.chroma.ctrl.get('sidesave',0) == 1:
+            self.sidesave(request, photons)
+
+        if self.chroma.ctrl.get('noreturn',0) == 1:
+            response = NPY.empty()
+        else:
+            response = photons
+        pass
+        return response, results
 
 
     def propagate(self, request):

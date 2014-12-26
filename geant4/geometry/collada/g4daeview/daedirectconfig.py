@@ -161,6 +161,14 @@ class DAEDirectConfig(object):
     path_template         = property(lambda self:os.environ.get(self.path_template_varname, None))
 
 
+    def resolve_templated_path(self, name, typ):
+        varname = "DAE_%s_PATH_TEMPLATE" % typ.upper()  
+        var = os.environ.get(varname, None)
+        if var is None or name is None:
+            log.warn("missing envvar %s or name %s  " % (varname, name) ) 
+            return None
+        return var % name
+
     def resolve_event_path(self, path_, subname=None):
         """ 
         Resolves paths to event files
@@ -228,6 +236,24 @@ class DAEDirectConfig(object):
             log.info("sliced down to %s " % (str(a.shape) ))    
         pass 
         return a
+
+    def save_npy(self, npy, name, typ ):
+        """
+        :param npy:  numpy array or subclass
+        :param name:  name to fill the template with
+        :param typ: type name of the template eg opcerenkov, opscintillation
+        """
+        path = self.resolve_templated_path(name, typ)
+        if path is None:
+            log.warn("failed to resolve path for %s %s " % (typ, name))
+            return
+        dirp = os.path.dirname(path)
+        if not os.path.exists(dirp):
+            os.makedirs(dirp)
+        pass
+        log.info("saving %s %s to %s " % (typ, name, path)) 
+        np.save(path, npy) 
+
 
     def save_cpl(self, cpl, name, key=None ):
         """

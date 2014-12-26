@@ -15,165 +15,383 @@ when are constant for all photons, just do it once
 and present as parameter to the kernel launch.
 
 
-Comparison of GPU generated with Geant4 generated
----------------------------------------------------
-
-::
-
-    G4DAEChroma::Propagate photons size:    0 capacity: 10000 itemsize:   16 itemshape:  4,4 bytesused:       0 digest: d41d8cd98f00b204e9800998ecf8427e
-    G4DAETransport::ProcessRaw EMPTY request size:    0 capacity: 10000 itemsize:   16 itemshape:  4,4 bytesused:       0 digest: d41d8cd98f00b204e9800998ecf8427e
-    G4DAETransport::Process response NULL 
-    G4DAEChroma::Propagate CollectHits batch_id 1
-    G4DAEChroma::Propagate DONE batch_id 1 nhits 0
-    G4DAESensDet::EndOfEvent 0x7356b80
-
-    DsChromaEventAction::EndOfEventAction te 9003499.080944 t0 9003483.984345 td 15.096599 
-    G4DAEArray::SavePath [/home/blyth/local/env/cerenkov/1.npy] itemcount 8386 itemshape 6,4 
-    G4DAEArray::SavePath [/home/blyth/local/env/scintillation/1.npy] itemcount 13950 itemshape 6,4 
-    G4DAEArray::SavePath [/home/blyth/local/env/foton/1.npy] itemcount 2793265 itemshape 4,4 
-    G4DAEArray::SavePath [/home/blyth/local/env/xoton/1.npy] itemcount 540825 itemshape 4,4 
-
-
-    G4DAETransport::ProcessRaw request size: 8386 capacity: 10000 itemsize:   24 itemshape:  6,4 bytesused:  805056 digest: 21f15469aa84f130afef368b60c9b1f2
-    G4DAESocketBase::SendReceive : nsend 0 size 805136 flags 0 
-    G4DAEArray::Allocate nitems 629244 nfloat 10067904 
-    received array  size: 629244 capacity: 629244 itemsize:   16 itemshape:  4,4 bytesused: 40271616 digest: 6fd3736a3d240eb29d9fdde50481c215
-    ...
-    G4DAETransport::Process response size: 629244 capacity: 629244 itemsize:   16 itemshape:  4,4 bytesused: 40271616 digest: 6fd3736a3d240eb29d9fdde50481c215
-    ProcessCerenkovSteps ncs 629244 
-    response from ProcessCerenkovSteps  size: 629244 capacity: 629244 itemsize:   16 itemshape:  4,4 bytesused: 40271616 digest: 6fd3736a3d240eb29d9fdde50481c215
-    G4DAEArray::SavePath [/home/blyth/local/env/tmp/1cs.npy] itemcount 629244 itemshape 4,4 
-
-
-
-    G4DAETransport::ProcessRaw request size: 13950 capacity: 15000 itemsize:   24 itemshape:  6,4 bytesused: 1339200 digest: 96630ae0881b06365a05387ce1bc883f
-    G4DAESocketBase::SendReceive : nsend 0 size 1339280 flags 0 
-    G4DAEArray::Allocate nitems 2793265 nfloat 44692240 
-    received array  size: 2793265 capacity: 2793265 itemsize:   16 itemshape:  4,4 bytesused: 178768960 digest: 678dc0ac75fbacc9bc29e8ff67035e3a
-
-
-    G4DAETransport::Process response size: 2793265 capacity: 2793265 itemsize:   16 itemshape:  4,4 bytesused: 178768960 digest: 678dc0ac75fbacc9bc29e8ff67035e3a
-    ProcessScintillationSteps nss 2793265 
-    response from ProcessScintillationSteps  size: 2793265 capacity: 2793265 itemsize:   16 itemshape:  4,4 bytesused: 178768960 digest: 678dc0ac75fbacc9bc29e8ff67035e3a
-    G4DAEArray::SavePath [/home/blyth/local/env/tmp/1ss.npy] itemcount 2793265 itemshape 4,4 
-
-
-
 Grab the files
 ----------------
 
+c = chc(1)Geant4 generated cerenkov and scintillation photons::
 
-Geant4 generated cerenkov and scintillation photons::
+    elta:env blyth$ export-gop-get
+    mkdir -p /usr/local/env/gopscintillation && scp G5:/home/blyth/local/env/gopscintillation/1.npy /usr/local/env/gopscintillation/1.npy
+    mkdir -p /usr/local/env/gopcerenkov && scp G5:/home/blyth/local/env/gopcerenkov/1.npy /usr/local/env/gopcerenkov/1.npy
 
-    delta:~ blyth$ export-foton-get 1 | sh 
-    1.npy                                                                                                                                                       100%  170MB   2.6MB/s   01:05    
+    delta:env blyth$ export-gop-get | sh 
 
-GPU generated cerenkov and scintillation photons::
+GPU generated cerenkov and scintillation photons, are now "sidesaved" under types opcerenkov and opscintillation
+on GPU machine when using `ctrl:noreturn:1`, so no copying needed.
 
-    delta:~ blyth$ export-photon-get 1cs | sh 
-    1cs.npy                                                                                                                                                     100%   38MB   2.4MB/s   00:16    
-    delta:~ blyth$ export-photon-get 1ss | sh 
-    1ss.npy                                                                                                                                                     100%  170MB   2.7MB/s   01:04    
-    delta:~ blyth$ 
 
+Check Generation Consistency
+-----------------------------
+
+Three files to check for each process (Scintillation and Cerenkov):
+
+* CERENKOV, the step file
+* GOPCERENKOV, g4 optical photons generated from those steps
+* OPCERENKOV, chroma optical photons generated from the steps on GPU
+
+* SCINTILLATION, the step file
+* GOPSCINTILLATION, g4 optical photons generated from those steps
+* OPSCINTILLATION, chroma optical photons generated from the steps on GPU
+
+
+No longer need to manually copy any files, thats done 
+from `DsChromaEventAction::EndOfEventAction` via metadata control such 
+as `noreturn` and `onlycopy` applied to processing of all species. 
+
+
+
+
+Count Checking
+----------------
+
+* Cerenkov counts are matching only as ApplyWaterQE killing (via continue in photon loop) is still disabled
+
+
+Check counts from ipython::
+
+
+    In [2]: genconsistency(1)
+    INFO:env.g4dae:g4c : GOPCERENKOV    (612841, 4, 4) 
+    INFO:env.g4dae:chc :  OPCERENKOV    (612841, 4, 4) 
+    INFO:env.g4dae:stc :    CERENKOV    (7836, 6, 4) ==> N 612841 
+    INFO:env.g4dae:g4s : GOPSCINTILLATION    (2817543, 4, 4) 
+    INFO:env.g4dae:chs :  OPSCINTILLATION    (2817543, 4, 4) 
+    INFO:env.g4dae:sts :    SCINTILLATION    (13898, 6, 4) ==> N 2817543 
 
 
 Cerenkov
 ----------
 
+tee up the arrays
+~~~~~~~~~~~~~~~~~~~
+
 ::
 
-    delta:~ blyth$ export-photon-get 1cs | sh    # chroma
-    delta:~ blyth$ export-xoton-get 1 | sh       # g4
+    In [3]: _g4c = g4c(1)
+
+    In [4]: _chc = chc(1)
 
 
-Cerenkov counts mismatch, g4 missing lots::
-
-    In [1]: c_cs = pp("1cs")
-
-    In [2]: c_cs.shape
-    Out[2]: (629244, 4, 4)
-
-    In [8]: g_cs = xx(1)
-
-    In [9]: g_cs.shape       ## mismatch count 
-    Out[9]: (540825, 4, 4)
-
-    ## expected NumPhotons matches chroma, but not G4
-
-    In [20]: step_cs = cs(1)
-
-    In [22]: step_cs.shape
-    Out[22]: (8386, 6, 4)
-
-    In [24]: step_cs[:,0,3].view(np.int32)
-    Out[24]: array([ 80,   8,  93, ..., 103,  87,  21], dtype=int32)
-
-    In [25]: step_cs[:,0,3].view(np.int32).sum()
-    Out[25]: 629244
-
-Probably due to ApplyWaterQE which is killing photons
-via a continue in the photon loop. 
-
+wavelength
+~~~~~~~~~~~~
 
 Very different wavelength, chroma flat, g4 peak at 100nm::
 
-    In [4]: c_cs = pp("1cs")
 
-    In [5]: g_cs = xx(1)
+    In [7]: cf_wavelength(_g4c, _chc, color=('b','r'))
 
-    In [8]: cf_wavelength( c_cs, g_cs , color=("r","b")) 
+time
+~~~~~~
 
+::
 
-Time very closely matched up to 18ns, beyond that much less g4:: 
-
-    In [9]: cf_time( c_cs, g_cs , color=("r","b"))
-
-
-Clear spatial discrepancy, less at extremes of x and y:: 
-
-    In [12]: cf_3xyz( c_cs, g_cs )
+    In [8]: cf_time(_g4c, _chc, color=('b','r'))
 
 
-Cerenkov with ApplyWaterQE photon killing inhibited
-------------------------------------------------------
+* with ApplyWaterQE killing enabled
 
-Prior mismatch::
-
-    In [1]: c_cs = pp("1cs")
-
-    In [2]: c_cs.shape
-    Out[2]: (629244, 4, 4)
-
-    In [8]: g_cs = xx(1)
-
-    In [9]: g_cs.shape       ## mismatch count 
-    Out[9]: (540825, 4, 4)
+  * very closely matched up to 18ns, beyond that much less g4
 
 
-With G4DAECHROMA_KILL_WATER_QE ndef see count difference entirely caused by ApplyWaterQE::
+* without ApplyWaterQE
 
-    In [1]: c_cs = pp("1cs")
-
-    In [2]: g_cs = xx(1)
-
-    In [3]: c_cs.shape
-    Out[3]: (612841, 4, 4)
-
-    In [4]: g_cs.shape
-    Out[4]: (612841, 4, 4)
+  * almost perfect match
 
 
-Now very good 3xzy, time match, spatial spikes rounded(?) though::
+xyz pos,dir,pol
+~~~~~~~~~~~~~~~~~~
 
-    In [5]: cf_3xyz( c_cs, g_cs )
+::
 
-    In [6]: cf_time( c_cs, g_cs )
+    In [9]: cf_3xyz(_g4c, _chc, color=('b','r'))
 
 
-Wavelength still mismatched, chroma flat::
+* with ApplyWaterQE killing enabled
 
-    In [7]: cf_wavelength( c_cs, g_cs )
+  * pos : clear spatial discrepancy, less at extremes of x and y
+
+* without ApplyWaterQE 
+
+  * pos : almost perfect 
+  * dir : vgood agreement, except that chroma spikes are more spiky 
+  * pol : same as dir with chroma spikes more spiky 
+
+
+investigate cerenkov wavelength
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`chroma/chroma/cuda/cerenkov.h`::
+
+    202 __device__ void
+    203 generate_cerenkov_photon(Photon& p, CerenkovStep& cs, curandState &rng)
+    204 {
+    205      float cosTheta ;
+    206      float sin2Theta ;
+    207      float wavelength ;
+    208      float sampledRI ;
+    209 
+    210      // 
+    211      //  sampling to get wavelength and cone angle 
+    212      //
+    213      // pick random wavelength inside the range, 
+    214      // lookup refractive index
+    215      // calculate cosTheta and sinTheta for the refractive index
+    216      // 
+    217      do {
+    218 
+    219         wavelength = sample_value(cs.material, curand_uniform(&rng));
+    220 
+    221         sampledRI = interp_property(cs.material, wavelength, cs.material->refractive_index);
+    222 
+    223         cosTheta = cs.BetaInverse / sampledRI;
+    224 
+    225         sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta);
+    226 
+    227       } while ( curand_uniform(&rng)*cs.maxSin2 > sin2Theta);
+    228 
+    229 
+    230       p.wavelength = wavelength ;
+    231 
+
+
+::
+
+    296        G4double Pmin = Rindex->GetMinPhotonEnergy();
+    297        G4double Pmax = Rindex->GetMaxPhotonEnergy();
+    298        G4double dp = Pmax - Pmin;
+
+
+
+    405     for (G4int i = 0; i < NumPhotons; i++) {
+    406       // Determine photon energy
+    407       G4double rand=0;
+    408       G4double sampledEnergy=0, sampledRI=0;
+    409       G4double cosTheta=0, sin2Theta=0;
+    410 
+    411       // sample an energy
+    412       do {
+    413         rand = G4UniformRand();
+    414         sampledEnergy = Pmin + rand * dp;
+    415         sampledRI = Rindex->GetProperty(sampledEnergy);
+    416         cosTheta = BetaInverse / sampledRI;
+    417 
+    418         sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta);
+    419         rand = G4UniformRand();
+    420 
+    421       } while (rand*maxSin2 > sin2Theta);
+    422 
+
+
+
+
+
+::
+
+    In [48]: cls.refractive_index
+    Out[48]: 
+    array([[  79.99 ,    1.454],
+           [ 120.023,    1.454],
+           [ 129.99 ,    1.554],
+           [ 139.984,    1.664],
+           [ 149.975,    1.783],
+           [ 159.98 ,    1.793],
+           [ 169.981,    1.554],
+           [ 179.974,    1.527],
+           [ 189.985,    1.618],
+           [ 199.975,    1.618],
+           [ 300.   ,    1.526],
+           [ 404.7  ,    1.499],
+           [ 435.8  ,    1.495],
+           [ 486.001,    1.492],
+           [ 546.001,    1.486],
+           [ 589.002,    1.484],
+           [ 690.701,    1.48 ],
+           [ 799.898,    1.478]], dtype=float32)
+
+    In [49]: cls.name
+    Out[49]: '__dd__Materials__LiquidScintillator0xc2308d0'
+
+    In [50]: ri = cls.refractive_index
+
+    In [51]: plt.scatter(ri[:,0],ri[:,1])
+    Out[51]: <matplotlib.collections.PathCollection at 0x125b76a90>
+
+    In [52]: plt.show()
+
+
+
+
+
+
+
+
+
+::
+
+    In [105]: chroma_refractive_index(cg)
+    [ 0]        LiquidScintillator    (18, 2)     wl   79.99 :  799.90          1.454 :      1.793 
+    [ 1]                       Air     (4, 2)     wl   79.99 :  799.90          1.000 :      1.000 
+    [ 2]                 Aluminium    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [ 3]                 GdDopedLS    (18, 2)     wl   79.99 :  799.90          1.454 :      1.793 
+    [ 4]                    Teflon    (18, 2)     wl   79.99 :  799.90          1.462 :      1.793 
+    [ 5]                   Acrylic    (18, 2)     wl   79.99 :  799.90          1.462 :      1.793 
+    [ 6]            StainlessSteel    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [ 7]                  Bialkali     (6, 2)     wl   79.99 :  799.90          1.458 :      1.458 
+    [ 8]                       BPE    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [ 9]                       ESR    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [10]                MineralOil    (18, 2)     wl   79.99 :  799.90          1.434 :      1.759 
+    [11]                     Nylon    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [12]                    Vacuum    (11, 2)     wl   79.99 : 1239.84          1.000 :      1.000 
+    [13]        UnstStainlessSteel    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [14]                     Pyrex     (6, 2)     wl   79.99 :  799.90          1.458 :      1.458 
+    [15]              OpaqueVacuum    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [16]                       PVC    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [17]                     Ge_68    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [18]                     Co_60    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [19]                      C_13    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [20]                    Silver    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [21]                  Nitrogen    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [22]                     Water    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+    [23]               NitrogenGas     (6, 2)     wl   79.99 :  799.90          1.000 :      1.000 
+    [24]                  IwsWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+    [25]     ADTableStainlessSteel    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [26]                     Tyvek    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [27]                  OwsWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+    [28]                 DeadWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+
+
+
+
+::
+
+    In [53]: _stc = stc(1)
+
+    In [56]: BetaInverse = _stc[:,4,0]   
+    Out[56]: array([ 1.,  1.,  1., ...,  1.,  1.,  1.], dtype=float32)
+
+    In [57]: BetaInverse.min()
+    Out[57]: 1.0000062
+
+    In [58]: BetaInverse.max()
+    Out[58]: 1.4531251
+
+    In [64]: plt.hist(BetaInverse, bins=100,log=True)    # mainly 1.000  with small tail out to 1.45
+
+
+
+::
+
+    In [107]: _stc[:,0].view(np.int32)
+    Out[107]: 
+    array([[   -1,     1,    24,    80],
+           [   -2,     1,    24,   108],
+           [   -3,     1,    24,    77],
+           ..., 
+           [-7834,     1,    28,    91],
+           [-7835,     1,    28,    83],
+           [-7836,     1,    28,    48]], dtype=int32)
+
+    In [108]: _stc[:,0,2].view(np.int32)
+    Out[108]: array([24, 24, 24, ..., 28, 28, 28], dtype=int32)
+
+    In [110]: im
+    Out[110]: array([24, 24, 24, ..., 28, 28, 28], dtype=int32)
+
+    In [111]: np.unique(im)
+    Out[111]: array([ 0,  3,  5, 10, 24, 27, 28], dtype=int32)
+
+    In [129]: bc = np.bincount(im)
+
+    In [130]: for i in np.unique(im):print "%2d : %5d : %s " % ( i, bc[i], cg.unique_materials[i].name[17:-9] )
+
+     0 :  1133 : LiquidScintillator 
+     3 :  4220 : GdDopedLS 
+     5 :    88 : Acrylic 
+    10 :  1046 : MineralOil 
+    24 :   791 : IwsWater 
+    27 :   530 : OwsWater 
+    28 :    28 : DeadWater 
+
+
+
+
+
+`G4DAEChroma/G4DAECerenkovStep.hh`::
+
+     13     enum {
+     14 
+     15        _Id,                      //  0
+     16        _ParentID,
+     17        _Material,
+     18        _NumPhotons,
+     19 
+     20        _x0_x,                    //  1
+     21        _x0_y,
+     22        _x0_z,
+     23        _t0,
+     24 
+     25        _DeltaPosition_x,         // 2
+     26        _DeltaPosition_y,
+     27        _DeltaPosition_z,
+     28        _step_length,
+     29
+     30        _code,                    // 3
+     31        _charge,
+     32        _weight,
+     33        _MeanVelocity,
+     34 
+     35        _BetaInverse,             //  4
+     36        _Pmin,
+     37        _Pmax,
+     38        _maxCos,
+     39 
+     40        _maxSin2,                 // 5
+     41        _MeanNumberOfPhotons1,
+     42        _MeanNumberOfPhotons2,
+     43        _BialkaliMaterialIndex,
+
+
+
+::
+
+    In [73]: maxSin2 = _stc[:,5,0]
+
+    In [76]: plt.hist(maxSin2, bins=100, log=True)   ## mostly flat with few spikes at high end
+
+    In [82]: maxSin2.min()
+    Out[82]: 0.00065323891
+
+    In [83]: maxSin2.max()
+    Out[83]: 0.53214556
+
+
+
+BialkaliMaterialIndex::
+
+    n [69]: _stc[:,5,3].view(np.int32).min()
+    Out[69]: 7
+
+    In [70]: _stc[:,5,3].view(np.int32).max()
+    Out[70]: 7
+
+    In [71]: cg.unique_materials[7]
+    Out[71]: <chroma.geometry.Material at 0x125a9a950>
+
+    In [72]: cg.unique_materials[7].name
+    Out[72]: '__dd__Materials__Bialkali0xc2f2428'
+
+
+
 
 
 
@@ -181,74 +399,86 @@ Wavelength still mismatched, chroma flat::
 Scintillation
 --------------
 
-Scintillation counts match::
+tee up the arrays
+~~~~~~~~~~~~~~~~~~~
 
-    In [3]: c_ss = pp("1ss")
+::
 
-    In [4]: c_ss.shape
-    Out[4]: (2793265, 4, 4)
+    In [3]: _g4s = g4s(1)
 
-    In [10]: g_ss = ff(1)
+    In [4]: _chs = chs(1)
 
-    In [11]: g_ss.shape         
-    Out[11]: (2793265, 4, 4)
+wavelength
+~~~~~~~~~~~
 
+::
 
-Counts match expectation from the steps::
+    In [6]: cf_wavelength( _g4s , _chs, range=(300,500), color=("b","r"))
 
-    In [21]: step_ss = ss(1)
-
-    In [23]: step_ss.shape
-    Out[23]: (13950, 6, 4)
-
-    In [27]: step_ss[:,0,3].view(np.int32)
-    Out[27]: array([320, 172, 554, ..., 210, 110,  59], dtype=int32)
-
-    In [28]: step_ss[:,0,3].view(np.int32).sum()
-    Out[28]: 2793265
 
 Scintillation wavelength, chroma distrib is faithfully representing 
-a "histogram" stepping shape with "bins" of about 25nm.  Looks
-like a problem of mismatched histogram ranges in the chroma
-sampling and the input histogram::
+a "histogram" stepping shape with "bins" of about 25nm.  
+Looks like a problem of mismatched histogram ranges in the chroma
+sampling and the input histogram
 
-    In [6]: cf_wavelength( c_ss , g_ss, range=(300,500), color=("r","b"))
-
-Scintillation time, very close match::
-
-    In [7]: cf_time( c_ss , g_ss, color=("r","b"))
-
-Position, direction and polarization all excellent matches.::
-
-    In [1]: c_ss = pp("1ss")
-
-    In [2]: g_ss = ff(1)
-
-    In [3]: cf_3xyz( c_ss, g_ss )
+* not quite, just a case of coarse interpolation
 
 
+`chroma/chroma/geometry.py`::
+
+     25 # all material/surface properties are interpolated at these
+     26 # wavelengths when they are sent to the gpu
+     27 standard_wavelengths = np.arange(60, 810, 20).astype(np.float32)
+     28 
+
+
+::
+
+    In [45]: standard_wavelengths = np.arange(60, 810, 20).astype(np.float32)
+
+    In [46]: standard_wavelengths
+    Out[46]: 
+    array([  60.,   80.,  100.,  120.,  140.,  160.,  180.,  200.,  220.,
+            240.,  260.,  280.,  300.,  320.,  340.,  360.,  380.,  400.,
+            420.,  440.,  460.,  480.,  500.,  520.,  540.,  560.,  580.,
+            600.,  620.,  640.,  660.,  680.,  700.,  720.,  740.,  760.,
+            780.,  800.], dtype=float32)
+
+    In [47]: len(standard_wavelengths)
+    Out[47]: 38
 
 
 
-Validating GPU generated photons
------------------------------------
 
-Scintillation photons::
+* what to do about that ?
 
-    In [1]: t = tt(1)
+  * tighten the range to a more relevant one, and reduce bin size to 
+    keep roughly the same number of bins 
 
-    In [2]: t.shape
-    Out[2]: (2652646, 4, 4)
+  * reduce bin size  
 
-    plt.hist(t[:,0,3], bins=100, range=(0,100))     # time distrib, smooth
+  * variable bin size ? bad performance impact presumably 
 
-    plt.hist(t[:,1,3], bins=100 )   # distinct coarsely binned structure of underlying distrib apparent ?
+    * could use a coarse and a fine 
 
 
-Cerenkov wavelength distrib very flat ? 
 
-Need to collect geant4 originals in same 
-format to allow direct comparison.
+
+time
+~~~~~~~~
+
+Scintillation time, almost perfect close match::
+
+    In [7]: cf_time( _g4s , _chs, color=("b","r"))
+
+xyz pos,dir,pol
+~~~~~~~~~~~~~~~~~
+
+Position, direction and polarization all almost perfect matches.::
+
+    In [14]: cf_3xyz(_g4s, _chs, color=('b','r'))
+
+
 
 
 Properties
@@ -293,58 +523,6 @@ Lookups for Cerenkov
            [ 690.701,    1.48 ],
            [ 799.898,    1.478]], dtype=float32)
 
-
-
-
-
-Copy over to DetSimChroma and change class names
--------------------------------------------------
-
-::
-
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4Scintillation.cc DetSimChroma/src/DsChromaG4Scintillation.cc
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4Scintillation.h  DetSimChroma/src/DsChromaG4Scintillation.h
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4Cerenkov.cc    DetSimChroma/src/DsChromaG4Cerenkov.cc
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4Cerenkov.h     DetSimChroma/src/DsChromaG4Cerenkov.h
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsPhysConsOptical.cc DetSimChroma/src/DsChromaPhysConsOptical.cc
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsPhysConsOptical.h DetSimChroma/src/DsChromaPhysConsOptical.h
-
-::
-
-    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4Scintillation,DsChromaG4Scintillation,g' DetSimChroma/src/DsChromaG4Scintillation.h 
-    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4Scintillation,DsChromaG4Scintillation,g' DetSimChroma/src/DsChromaG4Scintillation.cc
-    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4Scintillation,DsChromaG4Scintillation,g' DetSimChroma/src/DsChromaPhysConsOptical.cc
-
-::
-
-    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4Cerenkov,DsChromaG4Cerenkov,g' DetSimChroma/src/DsChromaG4Cerenkov.cc
-    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4Cerenkov,DsChromaG4Cerenkov,g' DetSimChroma/src/DsChromaG4Cerenkov.h
-    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4Cerenkov,DsChromaG4Cerenkov,g' DetSimChroma/src/DsChromaPhysConsOptical.cc
-
-
-Also need this header only class::
-
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsPhotonTrackInfo.h DetSimChroma/src/DsChromaPhotonTrackInfo.h
-
-
-    [blyth@ntugrid5 src]$ perl -pi -e 's,DsPhotonTrackInfo,DsChromaPhotonTrackInfo,g' DsChromaG4Scintillation.cc
-    [blyth@ntugrid5 src]$ perl -pi -e 's,DsPhotonTrackInfo,DsChromaPhotonTrackInfo,g' DsChromaG4Cerenkov.cc
-    [blyth@ntugrid5 src]$ 
-
-
-    [blyth@ntugrid5 src]$ perl -pi -e 's,DsPhysConsOptical,DsChromaPhysConsOptical,g' DsChromaPhysConsOptical.cc
-    [blyth@ntugrid5 src]$ perl -pi -e 's,DsPhysConsOptical,DsChromaPhysConsOptical,g' DsChromaPhysConsOptical.h
-
-
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4OpRayleigh.h DetSimChroma/src/DsChromaG4OpRayleigh.h
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4OpRayleigh.cc DetSimChroma/src/DsChromaG4OpRayleigh.cc
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4OpBoundaryProcess.h DetSimChroma/src/DsChromaG4OpBoundaryProcess.h
-    [blyth@ntugrid5 Simulation]$ cp DetSim/src/DsG4OpBoundaryProcess.cc DetSimChroma/src/DsChromaG4OpBoundaryProcess.cc
-    [blyth@ntugrid5 Simulation]$ 
-    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4OpRayleigh,DsChromaG4OpRayleigh,g' DetSimChroma/src/DsChromaG4OpRayleigh.h DetSimChroma/src/DsChromaG4OpRayleigh.cc
-    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4OpRayleigh,DsChromaG4OpRayleigh,g' DetSimChroma/src/DsChromaPhysConsOptical.cc
-    [blyth@ntugrid5 Simulation]$ perl -pi -e 's,DsG4OpBoundaryProcess,DsChromaG4OpBoundaryProcess,g' DetSimChroma/src/DsChromaPhysConsOptical.cc DetSimChroma/src/DsChromaG4OpBoundaryProcess.cc DetSimChroma/src/DsChromaG4OpBoundaryProcess.h
-    [blyth@ntugrid5 Simulation]$ 
 
 
 
@@ -559,6 +737,91 @@ Material Properties for Scintillation/Cerenkov GPU generation
 
     In [15]: np.allclose( collada.materials[7].extra.properties['SLOWCOMPONENT'], collada.materials[7].extra.properties['FASTCOMPONENT'] )
     Out[15]: True
+
+
+
+
+Wavelength Ranges from G4 to Chroma
+-------------------------------------
+
+::
+
+    In [15]: _gdls = gdls()
+
+    In [18]: _gdls.__class__
+    Out[18]: collada.material.Material
+
+    In [21]: slow = _gdls.extra.properties['SLOWCOMPONENT']
+
+    In [22]: plt.scatter(slow[:,0],slow[:,1])
+    Out[22]: <matplotlib.collections.PathCollection at 0x115e406d0>
+
+    In [23]: plt.show()
+
+
+Wide range, but very few entries at extremes and near zero anyhow, all action in middle::
+
+
+    In [20]: _gdls.extra.properties['SLOWCOMPONENT']
+    Out[20]: 
+    array([[  79.99 ,    0.   ],
+           [ 120.023,    0.   ],
+           [ 199.975,    0.   ],
+           [ 330.   ,    0.006],
+           [ 331.   ,    0.006],
+           [ 332.   ,    0.005],
+           [ 333.   ,    0.005],
+           ...
+           [ 598.001,    0.002],
+           [ 599.001,    0.002],
+           [ 600.001,    0.002],
+           [ 799.898,    0.   ]])
+
+
+    In [24]: slow[:,0].min()
+    Out[24]: 79.989835277575907
+
+    In [25]: slow[:,0].max()
+    Out[25]: 799.89835277575912
+
+
+Chopping the extremes::
+
+    In [28]: plt.scatter(slow[10:-10,0],slow[10:-10,1])
+    Out[28]: <matplotlib.collections.PathCollection at 0x124b8f110>
+
+    In [29]: plt.show()
+
+
+
+The wide range feeds forward into chroma::
+
+    In [33]: cg = chroma_geometry()
+
+    In [37]: cg.unique_materials[0].name
+    Out[37]: '__dd__Materials__LiquidScintillator0xc2308d0'
+
+    In [38]: cls = cg.unique_materials[0]
+
+    In [40]: cls.reemission_cdf.shape
+    Out[40]: (275, 2)
+
+    In [41]: slow.shape
+    Out[41]: (275, 2)
+
+    In [44]: np.allclose( cls.reemission_cdf[:,0], slow[:,0] )
+    Out[44]: True
+
+
+
+`chroma/chroma/geometry.py`::
+
+     25 # all material/surface properties are interpolated at these
+     26 # wavelengths when they are sent to the gpu
+     27 standard_wavelengths = np.arange(60, 810, 20).astype(np.float32)
+     28 
+
+Hmm thats pretty coarse, this explains the generated scintillation wavelength distrib.  
 
 
 

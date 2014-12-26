@@ -23,7 +23,8 @@ Shortcut functions for use from ipython. Usage::
 
 
 """
-import os
+import os, logging
+log = logging.getLogger(__name__)
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -37,15 +38,56 @@ from chroma.detector import Detector
 from env.geant4.geometry.collada.g4daeview.daephotonsnpl import DAEPhotonsNPL as NPL
 npl = lambda _:NPL.load(_)
 
-ff = lambda _:np.load(os.environ['DAE_FOTON_PATH_TEMPLATE'] % str(_))
-xx = lambda _:np.load(os.environ['DAE_XOTON_PATH_TEMPLATE'] % str(_))
 pp = lambda _:np.load(os.environ['DAE_PHOTON_PATH_TEMPLATE'] % str(_))
 hh = lambda _:np.load(os.environ['DAE_HIT_PATH_TEMPLATE'] % str(_))
-cs = lambda _:np.load(os.environ['DAE_CERENKOV_PATH_TEMPLATE'] % str(_))
-ss = lambda _:np.load(os.environ['DAE_SCINTILLATION_PATH_TEMPLATE'] % str(_))
-cp = lambda _:np.load(os.environ['DAE_OPCERENKOV_PATH_TEMPLATE'] % str(_))
-sp = lambda _:np.load(os.environ['DAE_OPSCINTILLATION_PATH_TEMPLATE'] % str(_))
 tt = lambda _:np.load(os.environ['DAE_TEST_PATH_TEMPLATE'] % str(_))
+
+
+stc = lambda _:np.load(os.environ['DAE_CERENKOV_PATH_TEMPLATE'] % str(_))
+sts = lambda _:np.load(os.environ['DAE_SCINTILLATION_PATH_TEMPLATE'] % str(_))
+
+chc = lambda _:np.load(os.environ['DAE_OPCERENKOV_PATH_TEMPLATE'] % str(_))
+chs = lambda _:np.load(os.environ['DAE_OPSCINTILLATION_PATH_TEMPLATE'] % str(_))
+
+g4c = lambda _:np.load(os.environ['DAE_GOPCERENKOV_PATH_TEMPLATE'] % str(_))
+g4s = lambda _:np.load(os.environ['DAE_GOPSCINTILLATION_PATH_TEMPLATE'] % str(_))
+
+
+def genconsistency(evt):
+    genconsistency_cerenkov(evt)
+    genconsistency_scintillation(evt)    
+
+
+def genconsistency_cerenkov(evt):
+    _g4c = g4c(evt)
+    _chc = chc(evt)
+    _stc = stc(evt)
+
+    n = _stc[:,0,3].view(np.int32).sum()
+
+    log.info("g4c : GOPCERENKOV    %s " % str(_g4c.shape))
+    log.info("chc :  OPCERENKOV    %s " % str(_chc.shape))
+    log.info("stc :    CERENKOV    %s ==> N %s " % (str(_stc.shape), n) )
+    
+    assert _g4c.shape[0] == n
+    assert _chc.shape[0] == n
+
+
+def genconsistency_scintillation(evt):
+    _g4s = g4s(evt)
+    _chs = chs(evt)
+    _sts = sts(evt)
+
+    n = _sts[:,0,3].view(np.int32).sum()
+
+    log.info("g4s : GOPSCINTILLATION    %s " % str(_g4s.shape))
+    log.info("chs :  OPSCINTILLATION    %s " % str(_chs.shape))
+    log.info("sts :    SCINTILLATION    %s ==> N %s " % (str(_sts.shape), n) )
+    
+    assert _g4s.shape[0] == n
+    assert _chs.shape[0] == n
+
+
 
 
 def config():
@@ -76,6 +118,55 @@ def gdls():
 def ls():
     dae = daenode()
     return dae.materialsearch("__dd__Materials__LiquidScintillator")
+
+
+def cerenkov_wavelength(cg, cs, csi=0, nrand=1000):
+
+    rands = np.random.random(nrand)
+ 
+    materialIndex = cs[csi,0,2].view(np.int32)
+    BetaInverse = cs[csi,4,0]
+    maxSin2 = cs[csi,5,0]
+
+    material = cg.unique_materials[materialIndex]
+    ri = material.refractive_index
+    w0 = ri[:,0][0]
+    w1 = ri[:,0][-1]
+
+    print "materialIndex %s BetaInverse %s maxSin2 %s material %s " % (materialIndex, BetaInverse, maxSin2, material.name)
+    print "w0 %s w1 %s " % (w0, w1) 
+
+    n = 0
+    while n < nrand:
+        u = rands[n]
+        n += 1
+
+        wavelength = w0 + (w1-w0)*u
+        sampledRI = np.interp( wavelength , ri[:,0], ri[:,1] )
+        cosTheta = BetaInverse/sampledRI
+        sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta)
+        sin2Theta_over_maxSin2 = sin2Theta/maxSin2 
+
+        u = rands[n]
+        n += 1
+        print "wavelength %s sampledRI %s cosTheta %s sin2Theta %s sin2Theta/maxSin2 %s  %s " % (wavelength, sampledRI, cosTheta, sin2Theta, sin2Theta_over_maxSin2, u)
+        if not u > sin2Theta_over_maxSin2:
+            break
+        pass
+    pass
+
+    print "n %s wavelength %s " % (n, wavelength)
+ 
+
+
+
+
+def chroma_refractive_index(cg):
+    for im, cm in enumerate(cg.unique_materials):
+        wlri = cm.refractive_index
+        wl = wlri[:,0]
+        ri = wlri[:,1]
+        print "[%2d] %25s %10s     wl %7.2f : %7.2f     %10.3f : %10.3f " % ( im, cm.name[17:-9], str(wlri.shape), wl.min(), wl.max(), ri.min(), ri.max() )  
 
 
 
