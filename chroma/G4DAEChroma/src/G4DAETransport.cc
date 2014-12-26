@@ -4,8 +4,8 @@
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
-#include "G4DAEChroma/G4DAEFotonList.hh"
-#include "G4DAEChroma/G4DAEXotonList.hh"
+#include "G4DAEChroma/G4DAEScintillationPhotonList.hh"
+#include "G4DAEChroma/G4DAECerenkovPhotonList.hh"
 
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAEMap.hh"
@@ -25,8 +25,8 @@ G4DAETransport::G4DAETransport(const char* envvar) :
     m_cerenkov(NULL),
     m_scintillation(NULL),
     m_photons(NULL),
-    m_fotons(NULL),
-    m_xotons(NULL),
+    m_scintillation_photons(NULL),
+    m_cerenkov_photons(NULL),
     m_hits(NULL),
     m_verbosity(3)
 { 
@@ -39,8 +39,8 @@ G4DAETransport::~G4DAETransport()
 {
 #ifdef WITH_CHROMA_ZMQ
    delete m_hits  ; 
-   delete m_xotons ; 
-   delete m_fotons ; 
+   delete m_cerenkov_photons ; 
+   delete m_scintillation_photons ; 
    delete m_photons ; 
    delete m_scintillation ; 
    delete m_cerenkov ; 
@@ -113,15 +113,15 @@ G4DAEPhotonList* G4DAETransport::GetPhotons()
     if(!m_photons) m_photons = new G4DAEPhotonList(10000);
     return m_photons ; 
 }
-G4DAEFotonList* G4DAETransport::GetFotonList()
+G4DAEScintillationPhotonList* G4DAETransport::GetScintillationPhotonList()
 { 
-    if(!m_fotons) m_fotons = new G4DAEFotonList(10000);
-    return m_fotons ; 
+    if(!m_scintillation_photons) m_scintillation_photons = new G4DAEScintillationPhotonList(10000);
+    return m_scintillation_photons ; 
 }
-G4DAEXotonList* G4DAETransport::GetXotonList()
+G4DAECerenkovPhotonList* G4DAETransport::GetCerenkovPhotonList()
 { 
-    if(!m_xotons) m_xotons = new G4DAEXotonList(10000);
-    return m_xotons ; 
+    if(!m_cerenkov_photons) m_cerenkov_photons = new G4DAECerenkovPhotonList(10000);
+    return m_cerenkov_photons ; 
 }
 
 
@@ -136,15 +136,15 @@ void G4DAETransport::SetPhotons(G4DAEPhotonList* photons)
     delete m_photons ; 
     m_photons = photons ; 
 }
-void G4DAETransport::SetFotonList(G4DAEFotonList* fotons)
+void G4DAETransport::SetScintillationPhotonList(G4DAEScintillationPhotonList* scintillation_photons)
 {
-    delete m_fotons ; 
-    m_fotons = fotons ; 
+    delete m_scintillation_photons ; 
+    m_scintillation_photons = scintillation_photons ; 
 }
-void G4DAETransport::SetXotonList(G4DAEXotonList* xotons)
+void G4DAETransport::SetCerenkovPhotonList(G4DAECerenkovPhotonList* cerenkov_photons)
 {
-    delete m_xotons ; 
-    m_xotons = xotons ; 
+    delete m_cerenkov_photons ; 
+    m_cerenkov_photons = cerenkov_photons ; 
 }
 
 
@@ -180,13 +180,13 @@ void G4DAETransport::ClearAll()
     {
         m_scintillation->ClearAll();   
     }
-    if(m_fotons)
+    if(m_scintillation_photons)
     {
-        m_fotons->ClearAll();   
+        m_scintillation_photons->ClearAll();   
     }
-    if(m_xotons)
+    if(m_cerenkov_photons)
     {
-        m_xotons->ClearAll();   
+        m_cerenkov_photons->ClearAll();   
     }
 #endif
 }

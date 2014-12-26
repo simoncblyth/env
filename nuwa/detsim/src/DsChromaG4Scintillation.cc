@@ -5,7 +5,7 @@
 #ifdef G4DAECHROMA_COLLECT_STEPS
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
-#include "G4DAEChroma/G4DAEFoton.hh"
+#include "G4DAEChroma/G4DAEScintillationPhoton.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 #endif
 
@@ -850,37 +850,37 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 #ifdef G4DAECHROMA_COLLECT_PHOTONS
             {
                 G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-                G4DAEFotonList* fl = chroma->GetFotonList();
-                size_t ffid = 1 + fl->GetCount() ;  // 1-based 
-                float* ff = fl->GetNextPointer();     
+                G4DAEScintillationPhotonList* spl = chroma->GetScintillationPhotonList();
+                size_t spid = 1 + spl->GetCount() ;  // 1-based 
+                float* sp = spl->GetNextPointer();     
 
                 float wavelength = (h_Planck * c_light / sampledEnergy) / nanometer ;
 
-                ff[G4DAEFoton::_post_x] = aSecondaryPosition.x()/mm ;
-                ff[G4DAEFoton::_post_y] = aSecondaryPosition.y()/mm ;
-                ff[G4DAEFoton::_post_z] = aSecondaryPosition.z()/mm ;
-                ff[G4DAEFoton::_post_w] = aSecondaryTime/ns ;
+                sp[G4DAEScintillationPhoton::_post_x] = aSecondaryPosition.x()/mm ;
+                sp[G4DAEScintillationPhoton::_post_y] = aSecondaryPosition.y()/mm ;
+                sp[G4DAEScintillationPhoton::_post_z] = aSecondaryPosition.z()/mm ;
+                sp[G4DAEScintillationPhoton::_post_w] = aSecondaryTime/ns ;
 
-                ff[G4DAEFoton::_dirw_x] = photonMomentum.x();
-                ff[G4DAEFoton::_dirw_y] = photonMomentum.y() ;
-                ff[G4DAEFoton::_dirw_z] = photonMomentum.z() ;
-                ff[G4DAEFoton::_dirw_w] = wavelength ; 
+                sp[G4DAEScintillationPhoton::_dirw_x] = photonMomentum.x();
+                sp[G4DAEScintillationPhoton::_dirw_y] = photonMomentum.y() ;
+                sp[G4DAEScintillationPhoton::_dirw_z] = photonMomentum.z() ;
+                sp[G4DAEScintillationPhoton::_dirw_w] = wavelength ; 
 
-                ff[G4DAEFoton::_polw_x] = photonPolarization.x();
-                ff[G4DAEFoton::_polw_y] = photonPolarization.y() ;
-                ff[G4DAEFoton::_polw_z] = photonPolarization.z() ;
-                ff[G4DAEFoton::_polw_w] = weight ; 
+                sp[G4DAEScintillationPhoton::_polw_x] = photonPolarization.x();
+                sp[G4DAEScintillationPhoton::_polw_y] = photonPolarization.y() ;
+                sp[G4DAEScintillationPhoton::_polw_z] = photonPolarization.z() ;
+                sp[G4DAEScintillationPhoton::_polw_w] = weight ; 
 
                 uif_t uifd[4] ; 
-                uifd[0].i = ffid ;  // 1-based fhoton index within the step
+                uifd[0].i = spid ;  // 1-based fhoton index within the step
                 uifd[1].i = ssid ;  // 1-based scintillation step id
                 uifd[2].u = 0 ;     // flags
                 uifd[3].i = -1  ;   // pmtid
 
-                ff[G4DAEFoton::_flag_x] =  uifd[0].f ;
-                ff[G4DAEFoton::_flag_y] =  uifd[1].f ;
-                ff[G4DAEFoton::_flag_z] =  uifd[2].f ;
-                ff[G4DAEFoton::_flag_w] =  uifd[3].f ;
+                sp[G4DAEScintillationPhoton::_flag_x] =  uifd[0].f ;
+                sp[G4DAEScintillationPhoton::_flag_y] =  uifd[1].f ;
+                sp[G4DAEScintillationPhoton::_flag_z] =  uifd[2].f ;
+                sp[G4DAEScintillationPhoton::_flag_w] =  uifd[3].f ;
            } 
 #endif      
 

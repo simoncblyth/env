@@ -6,8 +6,8 @@
 class G4DAESocketBase ;
 
 #include "G4DAEChroma/G4DAEPhotonList.hh"
-#include "G4DAEChroma/G4DAEFotonList.hh"
-#include "G4DAEChroma/G4DAEXotonList.hh"
+#include "G4DAEChroma/G4DAEScintillationPhotonList.hh"
+#include "G4DAEChroma/G4DAECerenkovPhotonList.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 
@@ -42,8 +42,8 @@ public:
 
     G4DAEPhotonList* GetPhotons();
     G4DAEPhotonList* GetHits();
-    G4DAEFotonList*  GetFotonList();
-    G4DAEXotonList*  GetXotonList();
+    G4DAEScintillationPhotonList*  GetScintillationPhotonList();
+    G4DAECerenkovPhotonList*  GetCerenkovPhotonList();
 
     G4DAECerenkovStepList* GetCerenkovStepList();
     G4DAEScintillationStepList* GetScintillationStepList();
@@ -54,8 +54,8 @@ public:
 
     void SetPhotons(G4DAEPhotonList* photons);
     void SetHits(   G4DAEPhotonList* hits);
-    void SetFotonList(G4DAEFotonList* fotons);
-    void SetXotonList(G4DAEXotonList* xotons);
+    void SetScintillationPhotonList(G4DAEScintillationPhotonList* scintillation_photons);
+    void SetCerenkovPhotonList(G4DAECerenkovPhotonList* cerenkov_photons);
 
     void SetCerenkovStepList(G4DAECerenkovStepList* cerenkov);
     void SetScintillationStepList(G4DAEScintillationStepList* scintillation);
@@ -81,9 +81,9 @@ private:
 
     G4DAEPhotonList* m_photons ; 
 
-    G4DAEFotonList* m_fotons  ; 
+    G4DAEScintillationPhotonList* m_scintillation_photons  ; 
 
-    G4DAEXotonList* m_xotons  ; 
+    G4DAECerenkovPhotonList* m_cerenkov_photons  ; 
 
 private:
 

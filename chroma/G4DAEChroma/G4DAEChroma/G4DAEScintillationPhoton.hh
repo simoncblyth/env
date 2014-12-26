@@ -1,9 +1,9 @@
-#ifndef G4DAEXOTON_H
-#define G4DAEXOTON_H 
+#ifndef G4DAESCINTILLATIONPHOTON_H
+#define G4DAESCINTILLATIONPHOTON_H 
 
-#include "G4DAEChroma/G4DAEFoton.hh"
+#include "G4DAEChroma/G4DAEPhoton.hh"
 
-class G4DAEXoton : public G4DAEFoton  {
+class G4DAEScintillationPhoton : public G4DAEPhoton {
     public:
 
     static const char* TMPL ;   // name of envvar containing path template 

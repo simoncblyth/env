@@ -51,19 +51,27 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
 
 
+    // For debug only : Save GenStep Lists to file 
+
     G4DAECerenkovStepList* csl = chroma->GetCerenkovStepList(); 
     csl->Save("1");
     
     G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList(); 
     ssl->Save("1");
 
-    G4DAEFotonList* fl = chroma->GetFotonList();   // G4 generated Scintillation photons
-    fl->Save("1");
 
-    G4DAEXotonList* xl = chroma->GetXotonList();   // G4 generated Cerenkov photons
-    xl->Save("1");
+    // For debug only : save Geant4 generated Scintillation and Cerenkov photons to NPY files
+
+    G4DAEScintillationPhotonList* spl = chroma->GetScintillationPhotonList();   
+    spl->Save("1");
+
+    G4DAECerenkovPhotonList* cpl = chroma->GetCerenkovPhotonList();  
+    cpl->Save("1");
 
 
+
+
+    //  hmm the below get the GPU generated 
 
     size_t ncs = chroma->ProcessCerenkovSteps(1);    
     printf("ProcessCerenkovSteps ncs %zu \n", ncs); 

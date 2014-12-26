@@ -259,21 +259,54 @@ export-path-template(){
 export-source-node(){ echo G5 ; }
 
 export-photon-get(){           export-npy-get ${1:-1} photon ; }
-export-foton-get(){            export-npy-get ${1:-1} foton ; }
-export-xoton-get(){            export-npy-get ${1:-1} xoton ; }
-export-cerenkov-get(){         export-npy-get ${1:-1} cerenkov ; }
-export-scintillation-get(){    export-npy-get ${1:-1} scintillation ; }
-export-opcerenkov-get(){       export-npy-get ${1:-1} opcerenkov ; }
+
+export-gopscintillation-get(){ export-npy-get ${1:-1} gopscintillation ; }
+export-gopcerenkov-get(){      export-npy-get ${1:-1} gopcerenkov ; }
+
 export-opscintillation-get(){  export-npy-get ${1:-1} opscintillation ; }
+export-opcerenkov-get(){       export-npy-get ${1:-1} opcerenkov ; }
+
+export-scintillation-get(){    export-npy-get ${1:-1} scintillation ; }
+export-cerenkov-get(){         export-npy-get ${1:-1} cerenkov ; }
+
+export-type-notes(){ cat << EON
+
+photon
+   Source unspecified optical photons, possibly hits 
+
+
+gopscintillation
+   G4 generated scintilation photon
+
+gopcerenkov
+   G4 generated cerenkov photon
+
+
+opscintillation
+   Chroma generated scintilation photon
+
+opcerenkov
+   Chroma generated cerenkov photon
+
+
+scintillation
+   Scintillation Generation Step
+
+cerenkov
+   Cerenkov Generation Step
+
+
+EON
+}
 
 export-type-(){ cat << EOT
 photon
-foton
-xoton
-cerenkov
-scintillation
-opcerenkov
+gopscintillation
+gopcerenkov
 opscintillation
+opcerenkov
+scintillation
+cerenkov
 EOT
 }
 

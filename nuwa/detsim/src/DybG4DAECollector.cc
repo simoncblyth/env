@@ -60,7 +60,9 @@ void DybG4DAECollector::CreateHitCollections( const std::string& sdname, G4HCofT
 {
     m_hc.clear();
 
+#ifdef VERBOSE
     int noc = hce->GetNumberOfCollections();
+#endif
 
     //G4THitsCollection<G4DhHit>
     G4DhHitCollection* hc = new G4DhHitCollection(sdname ,collectionName[0]);

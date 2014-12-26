@@ -25,8 +25,8 @@ class G4DAEMetadata;
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
-#include "G4DAEChroma/G4DAEFotonList.hh"
-#include "G4DAEChroma/G4DAEXotonList.hh"
+#include "G4DAEChroma/G4DAEScintillationPhotonList.hh"
+#include "G4DAEChroma/G4DAECerenkovPhotonList.hh"
 
 
 class G4DAEMaterialMap;
@@ -76,9 +76,9 @@ public:
 
     G4DAEScintillationStepList* GetScintillationStepList();
 
-    G4DAEFotonList* GetFotonList();
+    G4DAEScintillationPhotonList* GetScintillationPhotonList();
 
-    G4DAEXotonList* GetXotonList();
+    G4DAECerenkovPhotonList* GetCerenkovPhotonList();
 
 
 #ifdef DEBUG_HITLIST

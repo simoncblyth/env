@@ -8,7 +8,6 @@
 
 #ifdef G4DAECHROMA_COLLECT_STEPS
 #include "G4DAEChroma/G4DAEChroma.hh"
-#include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 
 static int bialkaliMaterialIndex = -1 ;
@@ -571,37 +570,37 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
 #ifdef G4DAECHROMA_COLLECT_PHOTONS
         {
-            G4DAEXotonList* xl = G4DAEChroma::GetG4DAEChroma()->GetXotonList();
-            size_t xxid = 1 + xl->GetCount() ;  // 1-based 
-            float* xx = xl->GetNextPointer();     
+            G4DAECerenkovPhotonList* cpl = G4DAEChroma::GetG4DAEChroma()->GetCerenkovPhotonList();
+            size_t cpid = 1 + cpl->GetCount() ;  // 1-based 
+            float* cp = cpl->GetNextPointer();     
 
             float wavelength = (h_Planck * c_light / sampledEnergy) / nanometer ;
 
-            xx[G4DAEXoton::_post_x] = aSecondaryPosition.x()/mm ;
-            xx[G4DAEXoton::_post_y] = aSecondaryPosition.y()/mm ;
-            xx[G4DAEXoton::_post_z] = aSecondaryPosition.z()/mm ;
-            xx[G4DAEXoton::_post_w] = aSecondaryTime/ns ;
+            cp[G4DAECerenkovPhoton::_post_x] = aSecondaryPosition.x()/mm ;
+            cp[G4DAECerenkovPhoton::_post_y] = aSecondaryPosition.y()/mm ;
+            cp[G4DAECerenkovPhoton::_post_z] = aSecondaryPosition.z()/mm ;
+            cp[G4DAECerenkovPhoton::_post_w] = aSecondaryTime/ns ;
 
-            xx[G4DAEXoton::_dirw_x] = photonMomentum.x();
-            xx[G4DAEXoton::_dirw_y] = photonMomentum.y() ;
-            xx[G4DAEXoton::_dirw_z] = photonMomentum.z() ;
-            xx[G4DAEXoton::_dirw_w] = wavelength ; 
+            cp[G4DAECerenkovPhoton::_dirw_x] = photonMomentum.x();
+            cp[G4DAECerenkovPhoton::_dirw_y] = photonMomentum.y() ;
+            cp[G4DAECerenkovPhoton::_dirw_z] = photonMomentum.z() ;
+            cp[G4DAECerenkovPhoton::_dirw_w] = wavelength ; 
 
-            xx[G4DAEXoton::_polw_x] = photonPolarization.x();
-            xx[G4DAEXoton::_polw_y] = photonPolarization.y() ;
-            xx[G4DAEXoton::_polw_z] = photonPolarization.z() ;
-            xx[G4DAEXoton::_polw_w] = aSecondaryTrack->GetWeight() ; 
+            cp[G4DAECerenkovPhoton::_polw_x] = photonPolarization.x();
+            cp[G4DAECerenkovPhoton::_polw_y] = photonPolarization.y() ;
+            cp[G4DAECerenkovPhoton::_polw_z] = photonPolarization.z() ;
+            cp[G4DAECerenkovPhoton::_polw_w] = aSecondaryTrack->GetWeight() ; 
 
             uif_t uifd[4] ; 
-            uifd[0].i = xxid ;  // 1-based fhoton index within the step
+            uifd[0].i = cpid ;  // 1-based fhoton index within the step
             uifd[1].i = csid ;  // 1-based cerenkov step id
             uifd[2].u = 0 ;     // flags
             uifd[3].i = -1  ;   // pmtid
 
-            xx[G4DAEXoton::_flag_x] =  uifd[0].f ;
-            xx[G4DAEXoton::_flag_y] =  uifd[1].f ;
-            xx[G4DAEXoton::_flag_z] =  uifd[2].f ;
-            xx[G4DAEXoton::_flag_w] =  uifd[3].f ;
+            cp[G4DAECerenkovPhoton::_flag_x] =  uifd[0].f ;
+            cp[G4DAECerenkovPhoton::_flag_y] =  uifd[1].f ;
+            cp[G4DAECerenkovPhoton::_flag_z] =  uifd[2].f ;
+            cp[G4DAECerenkovPhoton::_flag_w] =  uifd[3].f ;
        } 
 #endif
 
