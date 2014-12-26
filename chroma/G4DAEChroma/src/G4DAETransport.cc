@@ -202,6 +202,19 @@ std::size_t G4DAETransport::ProcessScintillationSteps(int batch_id)
 {
     return Process(batch_id, m_scintillation );
 }
+std::size_t G4DAETransport::ProcessCerenkovPhotons(int batch_id)
+{
+    return Process(batch_id, m_cerenkov_photons );
+}
+std::size_t G4DAETransport::ProcessScintillationPhotons(int batch_id)
+{
+    return Process(batch_id, m_scintillation_photons );
+}
+
+
+
+
+
 std::size_t G4DAETransport::Propagate(int batch_id)
 {
     return Process(batch_id, m_photons );

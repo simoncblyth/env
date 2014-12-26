@@ -30,6 +30,9 @@ public:
 
     std::size_t ProcessCerenkovSteps(int batch_id);
     std::size_t ProcessScintillationSteps(int batch_id);
+    std::size_t ProcessCerenkovPhotons(int batch_id);
+    std::size_t ProcessScintillationPhotons(int batch_id);
+
     std::size_t Propagate(int batch_id);
     std::size_t Process(int batch_id, G4DAEArrayHolder* request);
 

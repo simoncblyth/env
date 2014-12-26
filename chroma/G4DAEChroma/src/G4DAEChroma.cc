@@ -341,6 +341,24 @@ std::size_t G4DAEChroma::ProcessScintillationSteps(G4int batch_id)
 }
 
 
+
+
+std::size_t G4DAEChroma::ProcessCerenkovPhotons(G4int batch_id)
+{
+    std::size_t nhits = m_transport->ProcessCerenkovPhotons(batch_id); 
+    return nhits ; 
+}
+
+std::size_t G4DAEChroma::ProcessScintillationPhotons(G4int batch_id)
+{
+    std::size_t nhits = m_transport->ProcessScintillationPhotons(batch_id); 
+    return nhits ; 
+}
+
+
+
+
+
 std::size_t G4DAEChroma::Propagate(G4int batch_id)
 {
    // remember that may do multiple propagations for 

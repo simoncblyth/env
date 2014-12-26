@@ -45,70 +45,77 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
 
     m_map["EndOfEvent"] = G4DAEMetadata::TimeStampLocal();
     m_map["DurationOfEvent"] = toStr<double>(td) ;  
-
     m_map["COLUMNS"] = "BeginOfEvent:s,EndOfEvent:s,DurationOfEvent:f" ;
+
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
 
-
-    // For debug only : save GenSteps to file 
+    // hmm below type info is so useful : formalize it ?
     {
-        G4DAECerenkovStepList* csl = chroma->GetCerenkovStepList(); 
-        csl->SetKV("ctrl", "noreturn", 1 );
-        csl->SetKV("ctrl", "type", "cerenkov" );
-        csl->SetKV("ctrl", "evt", "1" );
-
-        Map_t m ; 
-        m["note"] = "CerenkovStepList metadata from DsChromaEventAction" ; 
-        m["type"] = "cerenkov" ; 
-        m["key"] = "1" ;
-        m["noreturn"] = "1" ;
-        csl->AddMap("DsChromaEventAction", m);
-        csl->Save("1");
+        G4DAECerenkovStepList* l = chroma->GetCerenkovStepList(); 
+        l->SetKV("ctrl", "type", "cerenkov" );
+        l->SetKV("ctrl", "evt", "1" );
+        l->SetKV("ctrl", "threads_per_block", 512 );
+        l->SetKV("ctrl", "noreturn", 1 );
+        l->SetKV("ctrl", "sidesave", 1 );   // remote save 
     }
 
     {
-        G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList(); 
-        ssl->SetKV("ctrl", "noreturn", 1 );
-        ssl->SetKV("ctrl", "type", "scintillation" );
-        ssl->SetKV("ctrl", "evt", "1" );
+        G4DAEScintillationStepList* l = chroma->GetScintillationStepList(); 
+        l->SetKV("ctrl", "type", "scintillation" );
+        l->SetKV("ctrl", "evt", "1" );
+        l->SetKV("ctrl", "threads_per_block", 512 );
+        l->SetKV("ctrl", "noreturn", 1 );
+        l->SetKV("ctrl", "sidesave", 1 );   // remote save
+    }
 
-        Map_t m ; 
-        m["note"] = "ScintillationStepList metadata from DsChromaEventAction" ; 
-        m["type"] = "scintillation" ; 
-        m["key"] = "1" ;
-        m["noreturn"] = "1" ;
-        ssl->AddMap("DsChromaEventAction", m);
-        ssl->Save("1");
+    {
+        G4DAEScintillationPhotonList* l = chroma->GetScintillationPhotonList();   
+        l->SetKV("ctrl", "type", "gopscintillation" );
+        l->SetKV("ctrl", "evt", "1" );
+        l->SetKV("ctrl", "onlycopy", 1 );
+        l->Save("1");
     }
 
 
-    // For debug only : save G4 generated Scintillation and Cerenkov photons to file
-
-    G4DAEScintillationPhotonList* spl = chroma->GetScintillationPhotonList();   
-    spl->Save("1");
-
-    G4DAECerenkovPhotonList* cpl = chroma->GetCerenkovPhotonList();  
-    cpl->Save("1");
-
-
-    //  Currently doing generation only, so below get GPU generated(unpropagated) photons 
-    //  and write to file, 
-    //  BUT thats kinda silly as need them on D anyhow for ipython plot making   
-    //
-   
-    size_t ncs = chroma->ProcessCerenkovSteps(1);    
-    printf("ProcessCerenkovSteps ncs %zu \n", ncs); 
-    G4DAEPhotonList* csp = chroma->GetHits();   
-    csp->Print("response from ProcessCerenkovSteps ");
-    csp->Save("1cs");
+    {
+        G4DAECerenkovPhotonList* l = chroma->GetCerenkovPhotonList();  
+        l->SetKV("ctrl", "type", "gopcerenkov" );  
+        l->SetKV("ctrl", "evt", "1" );
+        l->SetKV("ctrl", "onlycopy", 1 );
+        l->Save("1");
+    } 
 
 
-    size_t nss = chroma->ProcessScintillationSteps(1);    
-    printf("ProcessScintillationSteps nss %zu \n", nss); 
-    G4DAEPhotonList* css = chroma->GetHits();   
-    css->Print("response from ProcessScintillationSteps ");
-    css->Save("1ss");
+
+    {
+        size_t n = chroma->ProcessCerenkovSteps(1);    
+        printf("ProcessCerenkovSteps n %zu \n", n); 
+        G4DAEPhotonList* hits = chroma->GetHits();   
+        hits->Print("response from ProcessCerenkovSteps ");
+    }
+    {
+        size_t n = chroma->ProcessScintillationSteps(1);    
+        printf("ProcessScintillationSteps n %zu \n", n); 
+        G4DAEPhotonList* hits = chroma->GetHits();   
+        hits->Print("response from ProcessScintillationSteps ");
+    }
+
+    // G4 generated photons just copied to the otherside 
+    // for comparison convenience due to above ctrl:onlycopy:1 setting
+    {
+        size_t n = chroma->ProcessCerenkovPhotons(1);    
+        printf("ProcessCerenkovPhotons n %zu \n", n); 
+        G4DAEPhotonList* hits = chroma->GetHits();   
+        hits->Print("response from ProcessCerenkovPhotons ");
+    }
+    {
+        size_t n = chroma->ProcessScintillationPhotons(1);    
+        printf("ProcessScintillationPhotons n %zu \n", n); 
+        G4DAEPhotonList* hits = chroma->GetHits();   
+        hits->Print("response from ProcessScintillationPhotons ");
+    }
+
 
 
 
