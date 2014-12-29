@@ -378,6 +378,8 @@ export-export-templates(){
 
    export DAE_CERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
    export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
+
+   export DAE_TEST_PATH_TEMPLATE=$(export-path-template test)
 }
 
 export-lambda-(){ cat << EOL

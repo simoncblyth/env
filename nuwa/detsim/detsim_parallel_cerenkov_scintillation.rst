@@ -30,6 +30,22 @@ GPU generated cerenkov and scintillation photons, are now "sidesaved" under type
 on GPU machine when using `ctrl:noreturn:1`, so no copying needed.
 
 
+Cerenkov Refs
+---------------
+
+* http://large.stanford.edu/courses/2014/ph241/alaeian2/
+* http://math.ucr.edu/home/baez/physics/Relativity/SpeedOfLight/cherenkov.html
+* https://thespectrumofriemannium.wordpress.com/tag/tamm-frank-formula/
+
+
+Rejection Sampling
+-------------------
+
+* http://www.youtube.com/watch?v=wRdjeCtc8d0&feature=youtube_gdata_player
+
+
+
+
 Check Generation Consistency
 -----------------------------
 
@@ -89,6 +105,96 @@ Very different wavelength, chroma flat, g4 peak at 100nm::
 
 
     In [7]: cf_wavelength(_g4c, _chc, color=('b','r'))
+
+
+Create some new "test" arrays with modified kernel::
+
+    npysend.sh -icerenkov -otest -t1
+
+
+Test distrib looks more physical than geant4 one::
+
+    In [1]: _g4c = g4c(1)
+
+    In [2]: _chc = chc(1)
+
+    In [3]: _ttt = ttt(1)
+
+    In [4]: _ttt.shape
+    Out[4]: (612841, 4, 4)
+
+    In [5]: _chc.shape
+    Out[5]: (612841, 4, 4)
+
+    In [6]: cf_wavelength( _g4c, _ttt, color=('b','r'))
+
+
+
+G4 distrib has step at 200nm, an artifact of RINDEX edge of quoted range
+
+::
+
+
+
+    In [105]: chroma_refractive_index(cg)
+    [ 0]        LiquidScintillator    (18, 2)     wl   79.99 :  799.90          1.454 :      1.793 
+    [ 3]                 GdDopedLS    (18, 2)     wl   79.99 :  799.90          1.454 :      1.793 
+    [ 5]                   Acrylic    (18, 2)     wl   79.99 :  799.90          1.462 :      1.793 
+    [10]                MineralOil    (18, 2)     wl   79.99 :  799.90          1.434 :      1.759 
+    [24]                  IwsWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+    [27]                  OwsWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+    [28]                 DeadWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+
+
+
+    In [105]: chroma_refractive_index(cg)
+    [ 0]        LiquidScintillator    (18, 2)     wl   79.99 :  799.90          1.454 :      1.793 
+    [ 1]                       Air     (4, 2)     wl   79.99 :  799.90          1.000 :      1.000 
+    [ 2]                 Aluminium    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [ 3]                 GdDopedLS    (18, 2)     wl   79.99 :  799.90          1.454 :      1.793 
+    [ 4]                    Teflon    (18, 2)     wl   79.99 :  799.90          1.462 :      1.793 
+    [ 5]                   Acrylic    (18, 2)     wl   79.99 :  799.90          1.462 :      1.793 
+    [ 6]            StainlessSteel    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [ 7]                  Bialkali     (6, 2)     wl   79.99 :  799.90          1.458 :      1.458 
+    [ 8]                       BPE    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [ 9]                       ESR    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [10]                MineralOil    (18, 2)     wl   79.99 :  799.90          1.434 :      1.759 
+    [11]                     Nylon    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [12]                    Vacuum    (11, 2)     wl   79.99 : 1239.84          1.000 :      1.000 
+    [13]        UnstStainlessSteel    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [14]                     Pyrex     (6, 2)     wl   79.99 :  799.90          1.458 :      1.458 
+    [15]              OpaqueVacuum    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [16]                       PVC    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [17]                     Ge_68    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [18]                     Co_60    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [19]                      C_13    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [20]                    Silver    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [21]                  Nitrogen    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [22]                     Water    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+    [23]               NitrogenGas     (6, 2)     wl   79.99 :  799.90          1.000 :      1.000 
+    [24]                  IwsWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+    [25]     ADTableStainlessSteel    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [26]                     Tyvek    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
+    [27]                  OwsWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+    [28]                 DeadWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
+
+
+    In [130]: for i in np.unique(im):print "%2d : %5d : %s " % ( i, bc[i], cg.unique_materials[i].name[17:-9] )
+
+     0 :  1133 : LiquidScintillator 
+     3 :  4220 : GdDopedLS 
+     5 :    88 : Acrylic 
+    10 :  1046 : MineralOil 
+    24 :   791 : IwsWater 
+    27 :   530 : OwsWater 
+    28 :    28 : DeadWater 
+
+
+
+
+
+
+
 
 time
 ~~~~~~
@@ -235,39 +341,6 @@ investigate cerenkov wavelength
 
 
 
-
-::
-
-    In [105]: chroma_refractive_index(cg)
-    [ 0]        LiquidScintillator    (18, 2)     wl   79.99 :  799.90          1.454 :      1.793 
-    [ 1]                       Air     (4, 2)     wl   79.99 :  799.90          1.000 :      1.000 
-    [ 2]                 Aluminium    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [ 3]                 GdDopedLS    (18, 2)     wl   79.99 :  799.90          1.454 :      1.793 
-    [ 4]                    Teflon    (18, 2)     wl   79.99 :  799.90          1.462 :      1.793 
-    [ 5]                   Acrylic    (18, 2)     wl   79.99 :  799.90          1.462 :      1.793 
-    [ 6]            StainlessSteel    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [ 7]                  Bialkali     (6, 2)     wl   79.99 :  799.90          1.458 :      1.458 
-    [ 8]                       BPE    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [ 9]                       ESR    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [10]                MineralOil    (18, 2)     wl   79.99 :  799.90          1.434 :      1.759 
-    [11]                     Nylon    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [12]                    Vacuum    (11, 2)     wl   79.99 : 1239.84          1.000 :      1.000 
-    [13]        UnstStainlessSteel    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [14]                     Pyrex     (6, 2)     wl   79.99 :  799.90          1.458 :      1.458 
-    [15]              OpaqueVacuum    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [16]                       PVC    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [17]                     Ge_68    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [18]                     Co_60    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [19]                      C_13    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [20]                    Silver    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [21]                  Nitrogen    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [22]                     Water    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
-    [23]               NitrogenGas     (6, 2)     wl   79.99 :  799.90          1.000 :      1.000 
-    [24]                  IwsWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
-    [25]     ADTableStainlessSteel    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [26]                     Tyvek    (38, 2)     wl   60.00 :  800.00          1.000 :      1.000 
-    [27]                  OwsWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
-    [28]                 DeadWater    (34, 2)     wl  199.97 :  799.90          1.333 :      1.390 
 
 
 

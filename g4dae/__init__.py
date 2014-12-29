@@ -38,10 +38,9 @@ from chroma.detector import Detector
 from env.geant4.geometry.collada.g4daeview.daephotonsnpl import DAEPhotonsNPL as NPL
 npl = lambda _:NPL.load(_)
 
-pp = lambda _:np.load(os.environ['DAE_PHOTON_PATH_TEMPLATE'] % str(_))
-hh = lambda _:np.load(os.environ['DAE_HIT_PATH_TEMPLATE'] % str(_))
-tt = lambda _:np.load(os.environ['DAE_TEST_PATH_TEMPLATE'] % str(_))
-
+ppp = lambda _:np.load(os.environ['DAE_PHOTON_PATH_TEMPLATE'] % str(_))
+hhh = lambda _:np.load(os.environ['DAE_HIT_PATH_TEMPLATE'] % str(_))
+ttt = lambda _:np.load(os.environ['DAE_TEST_PATH_TEMPLATE'] % str(_))
 
 stc = lambda _:np.load(os.environ['DAE_CERENKOV_PATH_TEMPLATE'] % str(_))
 sts = lambda _:np.load(os.environ['DAE_SCINTILLATION_PATH_TEMPLATE'] % str(_))
@@ -120,43 +119,208 @@ def ls():
     return dae.materialsearch("__dd__Materials__LiquidScintillator")
 
 
-def cerenkov_wavelength(cg, cs, csi=0, nrand=1000):
 
-    rands = np.random.random(nrand)
+class CerenkovPhoton(np.ndarray):
+    """
+    see DsChromaG4Cerenkov.cc
+    ::
  
-    materialIndex = cs[csi,0,2].view(np.int32)
-    BetaInverse = cs[csi,4,0]
-    maxSin2 = cs[csi,5,0]
+        In [86]: g4c_ = CerenkovPhoton.get(1)
+
+        In [89]: g4c_.cpid
+        Out[89]: CerenkovPhoton([     1,      2,      3, ..., 612839, 612840, 612841], dtype=int32)
+
+        In [88]: g4c_.csid
+        Out[88]: CerenkovPhoton([   1,    1,    1, ..., 7836, 7836, 7836], dtype=int32)
+
+    """
+    @classmethod
+    def get(cls, tag):
+        return g4c(tag).view(cls)
+
+    cpid = property(lambda self:self[:,3,0].view(np.int32)) # 1-based CerenkovPhoton index 
+    csid = property(lambda self:self[:,3,1].view(np.int32)) # 1-based CerenkovStep index 
+
+
+    
+
+class CerenkovStep(np.ndarray):
+    """
+    ::
+
+        cg = chroma_geometry()
+
+        In [45]: cs = stc(1).view(CerenkovStep)   # view array as CerenkovStep
+
+        In [46]: cs.plot_refractive_index(cg)   
+
+        cs.plot(mm, 'refractive_index')
+
+        In [104]: wi = water_indices(cg)
+
+        In [105]: wi
+        Out[105]: [22, 24, 27, 28]
+
+        In [106]: np.unique(cs.materialIndex)
+        Out[106]: CerenkovStep([ 0,  3,  5, 10, 24, 27, 28], dtype=int32)
+
+        ## kludge usage of accidental? clustering of the waters at high materialIndex
+
+        In [108]: cs[cs.materialIndex < 22].shape
+        Out[108]: (6487, 6, 4)
+
+        In [109]: cs[cs.materialIndex > 22].shape
+        Out[109]: (1349, 6, 4)
+
+        ## indices of water and non-water steps
+
+        In [121]: cs[cs.materialIndex > 22].csid
+        Out[121]: CerenkovStep([   1,    2,    3, ..., 7834, 7835, 7836], dtype=int32)
+
+        In [122]: cs[cs.materialIndex < 22].csid
+        Out[122]: CerenkovStep([ 115,  116,  117, ..., 6599, 6600, 6601], dtype=int32)
+
+
+
+    Want to work out the CerenkovPhoton indices of photons from water steps::
+
+            In [156]: ws.csid
+            Out[156]: CerenkovStep([   1,    2,    3, ..., 7834, 7835, 7836], dtype=int32)    
+             
+
+    """
+    @classmethod
+    def get(cls, tag):
+        return stc(tag).view(cls)
+
+    csid = property(lambda self:-self[:,0,0].view(np.int32))
+    parentId = property(lambda self:self[:,0,1].view(np.int32))
+    materialIndex = property(lambda self:self[:,0,2].view(np.int32))
+    numPhotons = property(lambda self:self[:,0,3].view(np.int32))  
+
+    code = property(lambda self:self[:,3,0].view(np.int32))  
+    BetaInverse = property(lambda self:self[:,4,0])
+    maxSin2 = property(lambda self:self[:,5,0])
+    bialkaliIndex = property(lambda self:self[:,5,3].view(np.int32))  
+
+    materialIndices = property(lambda self:np.unique(self.materialIndex))
+
+    def materials(self, cg):
+        return [cg.unique_materials[materialIndex] for materialIndex in self.materialIndices]
+
+    def plot_refractive_index(self, cg):
+        """
+        Water starts at 200nm
+        """
+        mm = self.materials(cg)
+        qplot(mm, 'refractive_index')
+
+
+
+
+
+
+# from chroma.gpu.GPUGeometry
+def interp_material_property(wavelengths, prop):
+    # note that it is essential that the material properties be
+    # interpolated linearly. this fact is used in the propagation
+    # code to guarantee that probabilities still sum to one.
+    return np.interp(wavelengths, prop[:,0], prop[:,1]).astype(np.float32)
+
+def standardize( prop, standard_wavelengths = np.arange(60, 810, 20).astype(np.float32)):
+    """
+    mimic what the chroma.geometry machinery does to properties on copying to GPU
+    """
+    vals = interp_material_property(standard_wavelengths,  prop )
+    return np.vstack([standard_wavelengths, vals]).T
+
+
+def qplot(materials, standard=False, qty='refractive_index'):
+    """
+    :param materials: list of chroma material instances
+    :param standard:  when True apply chroma wavelength standardization and interpolation
+    :param qty: name of quantity 
+    """
+    title = qty
+    for m in materials:
+        q = getattr(m, qty, None)
+        if q is None:continue
+        if standard:
+            q = standardize(q)
+            title += " standardized " 
+        pass
+        plt.plot( q[:,0], q[:,1], label=m.name[17:-9])
+        pass
+    pass
+    plt.title(title)
+    plt.legend()
+    plt.show()  
+
+
+def water_indices(cg):
+    return filter(lambda _:cg.unique_materials[_].name.find('Water')>-1,range(len(cg.unique_materials)))
+
+
+def cerenkov_wavelength(cg, cs, csi=0, nrand=100000, standard=False):
+    """
+    ::
+
+         cg = chroma_geometry()
+         cs = stc(1)
+
+    Rapidly descending distrib with wavelength (Cerenkov blue light)
+    starting from the low edge of the ri property of the material.
+    What you get is majorly dependent on the ri range of the material
+    so if diffent materials have different ranges, artifacts are inevitable
+
+    Scintillator RINDEX start at 80nm, waters at 200nm
+
+    ::
+
+        In [56]: cerenkov_wavelength(cg, cs, 0)
+        materialIndex 24 BetaInverse 1.00001 maxSin2 0.482422 material __dd__Materials__IwsWater0xc288f98 
+        w0 199.975 w1 799.898 
+
+        In [57]: cerenkov_wavelength(cg, cs, 1)
+        materialIndex 24 BetaInverse 1.00001 maxSin2 0.482422 material __dd__Materials__IwsWater0xc288f98 
+        w0 199.975 w1 799.898 
+
+        In [58]: cerenkov_wavelength(cg, cs, 1000)
+        materialIndex 0 BetaInverse 1.41302 maxSin2 0.0550548 material __dd__Materials__LiquidScintillator0xc2308d0 
+        w0 79.9898 w1 799.898 
+
+
+    """
+    materialIndex = cs.materialIndex[csi]
+    BetaInverse = cs.BetaInverse[csi]
+    maxSin2 = cs.maxSin2[csi]
 
     material = cg.unique_materials[materialIndex]
     ri = material.refractive_index
-    w0 = ri[:,0][0]
-    w1 = ri[:,0][-1]
+
+    if standard:
+        ri = standardize(ri) 
+
+    w0 = ri[0,0]
+    w1 = ri[-1,0]
 
     print "materialIndex %s BetaInverse %s maxSin2 %s material %s " % (materialIndex, BetaInverse, maxSin2, material.name)
     print "w0 %s w1 %s " % (w0, w1) 
 
-    n = 0
-    while n < nrand:
-        u = rands[n]
-        n += 1
-
-        wavelength = w0 + (w1-w0)*u
-        sampledRI = np.interp( wavelength , ri[:,0], ri[:,1] )
-        cosTheta = BetaInverse/sampledRI
-        sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta)
-        sin2Theta_over_maxSin2 = sin2Theta/maxSin2 
-
-        u = rands[n]
-        n += 1
-        print "wavelength %s sampledRI %s cosTheta %s sin2Theta %s sin2Theta/maxSin2 %s  %s " % (wavelength, sampledRI, cosTheta, sin2Theta, sin2Theta_over_maxSin2, u)
-        if not u > sin2Theta_over_maxSin2:
-            break
-        pass
-    pass
-
-    print "n %s wavelength %s " % (n, wavelength)
+    u1 = np.random.random(nrand)
+    u2 = np.random.random(nrand)
  
+    iw = (1./w1)*u1 + (1./w0)*(1.-u1)  # uniform in 1/w 
+    w = 1./iw
+
+    sampledRI = np.interp( w, ri[:,0], ri[:,1] )
+    cosTheta = BetaInverse/sampledRI
+    sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta)
+    sin2Theta_over_maxSin2 = sin2Theta/maxSin2 
+    ws = w[np.where( u2 <= sin2Theta_over_maxSin2)]
+
+    plt.hist(ws, bins=100)
+    plt.show() 
 
 
 

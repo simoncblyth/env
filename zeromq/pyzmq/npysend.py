@@ -9,6 +9,8 @@ Avoids the need to run NuWa or mocknuwa.
 
 Usage::
 
+    delta:~ blyth$ npysend.sh -icerenkov -otest -t1
+
     delta:~ blyth$ npysend.sh --tag 1 --inp handshake
     delta:~ blyth$ npysend.sh --inp scintillation --out opscintillation
     delta:~ blyth$ npysend.sh --inp cerenkov --out opcerenkov
@@ -129,9 +131,9 @@ def parse_args():
     parser.add_argument("--ipython", action="store_true", default=d['ipython'] ) 
     parser.add_argument("--copy", action="store_true", default=d['copy'], help="Copy frames into bytes during npysocket operation (SLOWER)" ) 
     parser.add_argument("--zmqtunnelnode", default=None, help="Option handled in the invoking bash script, which opens ssh tunnel to remote frontend" ) 
-    parser.add_argument("--tag", default=d['tag'] ) 
-    parser.add_argument("--inp", default=d['inp'], help="Type of file to load",type=str)
-    parser.add_argument("--out", default=d['out'], help="Type of file to save response into", type=str)
+    parser.add_argument("-t","--tag", default=d['tag'] ) 
+    parser.add_argument("-i","--inp", default=d['inp'], help="Type of file to load",type=str)
+    parser.add_argument("-o","--out", default=d['out'], help="Type of file to save response into", type=str)
     parser.add_argument("-l","--level", default=d['level'], help="INFO/DEBUG/WARN/..")  
     parser.add_argument("--endpoint", default=d['endpoint'], help="broker url")  
     parser.add_argument("--slice", default=d['slice'], help="Colon delimited slice to apply to array, eg 0:1 0:2 ::100")
