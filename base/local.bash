@@ -86,6 +86,10 @@ local-tail(){   sudo tail -f $(local-logpath)  ; }
 local-atail(){  sudo tail -f  /var/log/audit/audit.log ; }
 local-alog(){   sudo vi /var/log/audit/audit.log ; }
 
+local-static(){ 
+   echo $HOME/simoncblyth.bitbucket.org
+}
+
 local-env(){
 
    local dbg=${1:-0}
@@ -106,6 +110,7 @@ local-env(){
  
    export SYSTEM_BASE=$(local-system-base) ## prequisite base for most everything, ie where to pick up subversion +
    export LOCAL_BASE=$(local-base)
+   export STATIC_BASE=$(local-static)
    export ENV_PREFIX=$(local-prefix)
 
    export VAR_BASE=$(local-var-base)    ## operational files, like backups
@@ -113,6 +118,8 @@ local-env(){
    export VAR_BASE_BACKUP=$(local-var-base $BACKUP_TAG)
    export USER_BASE=$(local-user-base)
    export OUTPUT_BASE=$(local-output-base)
+
+
 
    # [ ! -d "$USER_BASE" ]   && echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE 
    # [ ! -d "$OUTPUT_BASE" ] && echo "WARNING creating folder OUTPUT_BASE $OUTPUT_BASE" &&   mkdir -p $OUTPUT_BASE 

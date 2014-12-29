@@ -93,9 +93,9 @@ tee up the arrays
 
 ::
 
-    In [3]: _g4c = g4c(1)
+    In [3]: g4c = G4CerenkovPhotons.get(1)
 
-    In [4]: _chc = chc(1)
+    In [4]: chc = ChCerenkovPhotons.get(1)
 
 
 wavelength
@@ -104,29 +104,23 @@ wavelength
 Very different wavelength, chroma flat, g4 peak at 100nm::
 
 
-    In [7]: cf_wavelength(_g4c, _chc, color=('b','r'))
-
+    In [7]: cf_wavelength(g4c, chc, color=('b','r'))
 
 Create some new "test" arrays with modified kernel::
 
     npysend.sh -icerenkov -otest -t1
 
-
 Test distrib looks more physical than geant4 one::
 
-    In [1]: _g4c = g4c(1)
+    In [3]: ttt = ttt_(1)
 
-    In [2]: _chc = chc(1)
-
-    In [3]: _ttt = ttt(1)
-
-    In [4]: _ttt.shape
+    In [4]: ttt.shape
     Out[4]: (612841, 4, 4)
 
-    In [5]: _chc.shape
+    In [5]: chc.shape
     Out[5]: (612841, 4, 4)
 
-    In [6]: cf_wavelength( _g4c, _ttt, color=('b','r'))
+    In [6]: cf_wavelength( g4c, ttt, color=('b','r'))
 
 
 

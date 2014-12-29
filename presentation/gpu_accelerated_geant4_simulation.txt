@@ -70,6 +70,8 @@
     GPU Accelerated Geant4 Workflow
     /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
 
+    G4/DetSim Generated Cerenkov Wavelength
+    /env/g4dae/g4_cerenkov_wavelength.png
 
 
 
@@ -135,6 +137,10 @@ Scintillation Photons Simulation - Side View
 
 
 
+``G4/DetSim Generated Cerenkov Wavelength``
+---------------------------------------------
+
+.. image:: /env/g4dae/g4_cerenkov_wavelength.png
 
 
 

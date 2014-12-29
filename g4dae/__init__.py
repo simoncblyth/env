@@ -35,21 +35,17 @@ from env.geant4.geometry.collada.g4daenode import DAENode
 from env.geant4.geometry.collada.g4daeview.daegeometry import DAEGeometry
 from chroma.detector import Detector
 
-from env.geant4.geometry.collada.g4daeview.daephotonsnpl import DAEPhotonsNPL as NPL
-npl = lambda _:NPL.load(_)
+from env.g4dae.types import CerenkovStep, G4CerenkovPhoton, ChCerenkovPhoton
+from env.g4dae.types import ScintillationStep, G4ScintillationPhoton, ChScintillationPhoton
 
-ppp = lambda _:np.load(os.environ['DAE_PHOTON_PATH_TEMPLATE'] % str(_))
-hhh = lambda _:np.load(os.environ['DAE_HIT_PATH_TEMPLATE'] % str(_))
-ttt = lambda _:np.load(os.environ['DAE_TEST_PATH_TEMPLATE'] % str(_))
+cg = None
+def cg_get():
+    global cg
+    if cg is None:
+        cg = chroma_geometry()
+    return cg 
 
-stc = lambda _:np.load(os.environ['DAE_CERENKOV_PATH_TEMPLATE'] % str(_))
-sts = lambda _:np.load(os.environ['DAE_SCINTILLATION_PATH_TEMPLATE'] % str(_))
 
-chc = lambda _:np.load(os.environ['DAE_OPCERENKOV_PATH_TEMPLATE'] % str(_))
-chs = lambda _:np.load(os.environ['DAE_OPSCINTILLATION_PATH_TEMPLATE'] % str(_))
-
-g4c = lambda _:np.load(os.environ['DAE_GOPCERENKOV_PATH_TEMPLATE'] % str(_))
-g4s = lambda _:np.load(os.environ['DAE_GOPSCINTILLATION_PATH_TEMPLATE'] % str(_))
 
 
 def genconsistency(evt):
@@ -58,33 +54,31 @@ def genconsistency(evt):
 
 
 def genconsistency_cerenkov(evt):
-    _g4c = g4c(evt)
-    _chc = chc(evt)
-    _stc = stc(evt)
+    g4c = G4CerenkovPhoton.get(evt)
+    chc = ChCerenkovPhoton.get(evt)
+    stc = CerenkovStep.get(evt)
+    n = stc.totPhotons
 
-    n = _stc[:,0,3].view(np.int32).sum()
-
-    log.info("g4c : GOPCERENKOV    %s " % str(_g4c.shape))
-    log.info("chc :  OPCERENKOV    %s " % str(_chc.shape))
-    log.info("stc :    CERENKOV    %s ==> N %s " % (str(_stc.shape), n) )
+    log.info("g4c : GOPCERENKOV    %s " % str(g4c.shape))
+    log.info("chc :  OPCERENKOV    %s " % str(chc.shape))
+    log.info("stc :    CERENKOV    %s ==> N %s " % (str(stc.shape), n) )
     
-    assert _g4c.shape[0] == n
-    assert _chc.shape[0] == n
+    assert g4c.shape[0] == n
+    assert chc.shape[0] == n
 
 
 def genconsistency_scintillation(evt):
-    _g4s = g4s(evt)
-    _chs = chs(evt)
-    _sts = sts(evt)
+    g4s = G4ScintillationPhoton.get(evt)
+    chs = ChScintillationPhoton.get(evt)
+    sts = ScintillationStep.get(evt)
+    n = sts.totPhotons
 
-    n = _sts[:,0,3].view(np.int32).sum()
-
-    log.info("g4s : GOPSCINTILLATION    %s " % str(_g4s.shape))
-    log.info("chs :  OPSCINTILLATION    %s " % str(_chs.shape))
-    log.info("sts :    SCINTILLATION    %s ==> N %s " % (str(_sts.shape), n) )
+    log.info("g4s : GOPSCINTILLATION    %s " % str(g4s.shape))
+    log.info("chs :  OPSCINTILLATION    %s " % str(chs.shape))
+    log.info("sts :    SCINTILLATION    %s ==> N %s " % (str(sts.shape), n) )
     
-    assert _g4s.shape[0] == n
-    assert _chs.shape[0] == n
+    assert g4s.shape[0] == n
+    assert chs.shape[0] == n
 
 
 
@@ -120,103 +114,117 @@ def ls():
 
 
 
-class CerenkovPhoton(np.ndarray):
+
+
+def g4_cerenkov_wavelength(tag, **kwa):
     """
-    see DsChromaG4Cerenkov.cc
+    """
+    cg = cg_get()
+    pass
+    g4c = G4CerenkovPhoton.get(tag)
+    base = os.path.expandvars('$STATIC_BASE/env/g4dae') 
+    path =  os.path.join(base, "g4_cerenkov_wavelength.png")
+    cat = "aux0"
+    val = "wavelength"
+    title = "G4/Detsim Generated Cerenkov Wavelength by material" 
+    catplot(g4c, cg, cat=cat, val=val, path=path, title=title, log=True, histtype='step', stacked=False)
+
+
+def catplot(a, **kwa):
+    """
+    Category plot, eg Geant4 Generated Cerenkov Wavelength categorized by material  
+    """
+    cg = cg_get()
+    a4inches = np.array((11.69, 8.28)) 
+    cfg = dict(bins=100,cat='aux0',val='wavelength',ics=None, reverse=True, path=None, figsize=a4inches*0.8, title=None)
+    cfg.update(kwa)
+
+    plt.figure(figsize=cfg.pop('figsize'))    
+
+    title = cfg.pop('title')
+    if title is None:
+        title = " %s (%s categories)" % (cfg['val'], cfg['cat'])
+
+    plt.title(title)
+
+    cat = cfg.pop('cat')
+    val = cfg.pop('val')
+    ics = cfg.pop('ics')
+    reverse = cfg.pop('reverse')
+    path = cfg.pop('path')
+
+    catprop = getattr(a, cat)
+    valprop = getattr(a, val)
+    if ics is None:
+        ics = np.unique(catprop)
+    else:
+        log.info("using argument ics")
+    pass
+    bc = np.bincount(catprop)
+
+    print "ics:", ics
+    cfg['label'] = "All [%d]" % bc.sum()
+    plt.hist(valprop, **cfg)
+    for ic in sorted(ics, key=lambda ic:bc[ic], reverse=reverse):
+        material = cg.unique_materials[ic]
+        cfg['label'] = "%20s  [%d]" % ( material.name[17:-9],bc[ic])
+        print cfg
+        plt.hist(valprop[catprop == ic], **cfg)
+    pass
+    plt.legend()
+
+    if not path is None:
+        log.info("saving to %s " % path)
+        dirp = os.path.dirname(path)
+        if not os.path.exists(dirp):
+            os.makedirs(dirp)
+        pass 
+        plt.savefig(path)
+
+    plt.show()
+
+
+def cf_cerenkov(qty='wavelength', tag=1, **kwa):
+    """
     ::
- 
-        In [86]: g4c_ = CerenkovPhoton.get(1)
 
-        In [89]: g4c_.cpid
-        Out[89]: CerenkovPhoton([     1,      2,      3, ..., 612839, 612840, 612841], dtype=int32)
-
-        In [88]: g4c_.csid
-        Out[88]: CerenkovPhoton([   1,    1,    1, ..., 7836, 7836, 7836], dtype=int32)
+       cf_cerenkov('wavelength')
+       cf_cerenkov('time')
 
     """
-    @classmethod
-    def get(cls, tag):
-        return g4c(tag).view(cls)
-
-    cpid = property(lambda self:self[:,3,0].view(np.int32)) # 1-based CerenkovPhoton index 
-    csid = property(lambda self:self[:,3,1].view(np.int32)) # 1-based CerenkovStep index 
+    g4c = G4CerenkovPhoton.get(tag)
+    chc = ChCerenkovPhoton.get(tag)
+    cf(qty, g4c, chc, **kwa)
 
 
-    
-
-class CerenkovStep(np.ndarray):
+def cf_scintillation(qty='wavelength', tag=1, **kwa):
     """
     ::
 
-        cg = chroma_geometry()
-
-        In [45]: cs = stc(1).view(CerenkovStep)   # view array as CerenkovStep
-
-        In [46]: cs.plot_refractive_index(cg)   
-
-        cs.plot(mm, 'refractive_index')
-
-        In [104]: wi = water_indices(cg)
-
-        In [105]: wi
-        Out[105]: [22, 24, 27, 28]
-
-        In [106]: np.unique(cs.materialIndex)
-        Out[106]: CerenkovStep([ 0,  3,  5, 10, 24, 27, 28], dtype=int32)
-
-        ## kludge usage of accidental? clustering of the waters at high materialIndex
-
-        In [108]: cs[cs.materialIndex < 22].shape
-        Out[108]: (6487, 6, 4)
-
-        In [109]: cs[cs.materialIndex > 22].shape
-        Out[109]: (1349, 6, 4)
-
-        ## indices of water and non-water steps
-
-        In [121]: cs[cs.materialIndex > 22].csid
-        Out[121]: CerenkovStep([   1,    2,    3, ..., 7834, 7835, 7836], dtype=int32)
-
-        In [122]: cs[cs.materialIndex < 22].csid
-        Out[122]: CerenkovStep([ 115,  116,  117, ..., 6599, 6600, 6601], dtype=int32)
-
-
-
-    Want to work out the CerenkovPhoton indices of photons from water steps::
-
-            In [156]: ws.csid
-            Out[156]: CerenkovStep([   1,    2,    3, ..., 7834, 7835, 7836], dtype=int32)    
-             
+       cf_scintillation('wavelength')
+       cf_scintillation('time')
 
     """
-    @classmethod
-    def get(cls, tag):
-        return stc(tag).view(cls)
-
-    csid = property(lambda self:-self[:,0,0].view(np.int32))
-    parentId = property(lambda self:self[:,0,1].view(np.int32))
-    materialIndex = property(lambda self:self[:,0,2].view(np.int32))
-    numPhotons = property(lambda self:self[:,0,3].view(np.int32))  
-
-    code = property(lambda self:self[:,3,0].view(np.int32))  
-    BetaInverse = property(lambda self:self[:,4,0])
-    maxSin2 = property(lambda self:self[:,5,0])
-    bialkaliIndex = property(lambda self:self[:,5,3].view(np.int32))  
-
-    materialIndices = property(lambda self:np.unique(self.materialIndex))
-
-    def materials(self, cg):
-        return [cg.unique_materials[materialIndex] for materialIndex in self.materialIndices]
-
-    def plot_refractive_index(self, cg):
-        """
-        Water starts at 200nm
-        """
-        mm = self.materials(cg)
-        qplot(mm, 'refractive_index')
+    g4s = G4ScintillationPhoton.get(tag)
+    chs = ChScintillationPhoton.get(tag)
+    cf(qty, g4s, chs, **kwa)
 
 
+def plot_refractive_index(tag=1, **kwa):
+    """
+    G4/Detsim
+       Scintillators start at 80nm, waters at 200nm
 
+    Chroma Standard interpolated 
+        Everything interpolated to start from 60nm
+
+    """
+    cs = CerenkovStep.get(tag)
+    cg = cg_get()
+    mm = cs.materials(cg)
+    cfg = dict(qty='refractive_index')
+    cfg.update(kwa)
+    qplot(mm, **cfg)
 
 
 
@@ -242,12 +250,14 @@ def qplot(materials, standard=False, qty='refractive_index'):
     :param qty: name of quantity 
     """
     title = qty
+    if standard:
+        title += " standardized " 
+
     for m in materials:
         q = getattr(m, qty, None)
         if q is None:continue
         if standard:
             q = standardize(q)
-            title += " standardized " 
         pass
         plt.plot( q[:,0], q[:,1], label=m.name[17:-9])
         pass
@@ -261,7 +271,7 @@ def water_indices(cg):
     return filter(lambda _:cg.unique_materials[_].name.find('Water')>-1,range(len(cg.unique_materials)))
 
 
-def cerenkov_wavelength(cg, cs, csi=0, nrand=100000, standard=False):
+def cerenkov_wavelength(cs, csi=0, nrand=100000, standard=False):
     """
     ::
 
@@ -325,7 +335,7 @@ def cerenkov_wavelength(cg, cs, csi=0, nrand=100000, standard=False):
 
 
 
-def chroma_refractive_index(cg):
+def chroma_refractive_index():
     for im, cm in enumerate(cg.unique_materials):
         wlri = cm.refractive_index
         wl = wlri[:,0]
@@ -346,26 +356,6 @@ def cf_xy(a,b):
     plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step" )
     plt.show()
 
-def cf_time(a,b, **kwa):
-    ir, ic = 0, 3 
-
-    cfg = dict(bins=100,histtype="step", range=(0,100),title="time")
-    cfg.update(kwa)
-
-    plt.title(cfg.pop("title"))
-    plt.hist((a[:,ir,ic],b[:,ir,ic]), **cfg)
-    plt.show()
-
-def cf_wavelength(a,b, **kwa):
-    ir, ic = 1, 3 
-    cfg = dict(bins=100,histtype="step",title="wavelength")
-    cfg.update(kwa)
-
-    plt.title(cfg.pop("title"))
-    plt.hist((a[:,ir,ic],b[:,ir,ic]), **cfg)
-    plt.show()
-
-
 def cf_xyz(a,b,r=0, **kwa):
     nr, nc = 3, 1 
 
@@ -383,6 +373,36 @@ def cf_xyz(a,b,r=0, **kwa):
 
 
 
+
+def cf(qty, a, b, **kwa):
+    av = getattr(a, qty)
+    bv = getattr(b, qty)
+
+    cfg = dict(bins=100,histtype="step",title=qty)
+    cfg.update(kwa)
+
+    plt.title(cfg.pop("title"))
+
+    cfg.update(label=getattr(a,'label','b'), color='b')
+    plt.hist(av, **cfg)
+
+    cfg.update(label=getattr(b,'label','r'), color='r')
+    plt.hist(bv, **cfg)
+
+    plt.legend()
+    plt.show()
+
+
+def cf_wavelength(a,b, **kwa):
+    cf('wavelength', a, b, **kwa)
+
+def cf_time(a, b, **kwa):
+    cfg = dict(range=(0,100))
+    cfg.update(kwa)
+    cf('time',a,b, **cfg)
+
+
+
 def cf_3xyz(a,b, **kwa):
     cfg = dict(bins=100,histtype="step")
     cfg.update(kwa)
@@ -397,6 +417,12 @@ def cf_3xyz(a,b, **kwa):
         pass 
     pass
     plt.show()
+
+
+def cf_3xyzw_cerenkov(tag=1, **kwa):
+    g4c = G4CerenkovPhoton.get(tag)
+    chc = ChCerenkovPhoton.get(tag)
+    cf_3xyzw(g4c,chc, **kwa)
 
 
 def cf_3xyzw(a,b, **kwa):
