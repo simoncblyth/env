@@ -46,6 +46,59 @@ def cg_get():
         cg = chroma_geometry()
     return cg 
 
+g = None
+def g_get():
+    global g
+    if g is None:
+        g = geometry()
+    return g
+
+dae = None
+def dae_get():
+    global dae
+    dae = daenode()
+    return dae
+
+def config():
+    cfg = DAEDirectConfig()
+    cfg.parse(nocli=True)
+    return cfg
+
+def daenode():
+    cfg = config()
+    DAENode.init(cfg.path)
+    return DAENode
+
+def chroma_geometry():
+    cfg = config()
+    print cfg.chromacachepath
+    cg = Detector.get(cfg.chromacachepath)
+    return cg 
+
+def geometry():
+    cfg = config()
+    g = DAEGeometry.get(cfg) 
+    return g 
+
+def get_gdls():
+    dae = dae_get()
+    return dae.materialsearch("__dd__Materials__GdDopedLS")    
+
+def get_ls():
+    dae = dae_get()
+    return dae.materialsearch("__dd__Materials__LiquidScintillator")
+ 
+def plt_gdls():
+    gdls = get_gdls()
+    props = gdls.extra.properties
+    fast = props['FASTCOMPONENT']
+    slow = props['SLOWCOMPONENT']
+
+    plt.title( "GdLS  ln(SLOWCOMPONENT) vs wl   ")
+    plt.plot(slow[:,0],np.log(slow[:,1]), 'r+')
+    plt.show()
+
+ 
 
 
 
@@ -84,35 +137,6 @@ def genconsistency_scintillation(evt):
 
 
 
-def config():
-    cfg = DAEDirectConfig()
-    cfg.parse(nocli=True)
-    return cfg
-
-def daenode():
-    cfg = config()
-    DAENode.init(cfg.path)
-    return DAENode
-
-def chroma_geometry():
-    cfg = config()
-    print cfg.chromacachepath
-    cg = Detector.get(cfg.chromacachepath)
-    return cg 
-
-def geometry():
-    cfg = config()
-    g = DAEGeometry.get(cfg) 
-    return g 
-
-def gdls():
-    dae = daenode()
-    return dae.materialsearch("__dd__Materials__GdDopedLS")    
-    
-def ls():
-    dae = daenode()
-    return dae.materialsearch("__dd__Materials__LiquidScintillator")
-
 
 
 
@@ -125,18 +149,43 @@ def g4_cerenkov_wavelength(tag, **kwa):
     g4c = G4CerenkovPhoton.get(tag)
     base = os.path.expandvars('$STATIC_BASE/env/g4dae') 
     path =  os.path.join(base, "g4_cerenkov_wavelength.png")
-    cat = "aux0"
+    cat = "cmat"
     val = "wavelength"
     title = "G4/Detsim Generated Cerenkov Wavelength by material" 
 
     catplot(g4c, cat=cat, val=val, path=path, title=title, log=True, histtype='step', stacked=False)
 
 
+
+
+pdgcode = {11:"e",13:"mu",22:"gamma"}
+scntcode = {1:"fast",2:"slow"}
+def catname(cat,ic):
+    if cat == 'cmat':
+        cg = cg_get()
+        material = cg.unique_materials[ic]
+        name = material.name[17:-9]
+    elif cat == 'pdg':
+        name = pdgcode.get(ic, ic) 
+    elif cat == 'scnt':
+        
+        name = scntcode.get(ic, ic) 
+    else:
+        name = "%s:%s" % (cat,ic)
+    pass
+    return name 
+
+
 def catplot(a, **kwa):
     """
     Category plot, eg Geant4 Generated Cerenkov Wavelength categorized by material  
+
+    ::
+
+         g4s, = NPY.mget(1,"gopscintillation")
+         catplot(g4s, val='wavelength', cat='pdg' )
+
     """
-    cg = cg_get()
     a4inches = np.array((11.69, 8.28)) 
     cfg = dict(bins=100,cat='aux0',val='wavelength',ics=None, reverse=True, path=None, figsize=a4inches*0.8, title=None)
     cfg.update(kwa)
@@ -168,8 +217,7 @@ def catplot(a, **kwa):
     cfg['label'] = "All [%d]" % bc.sum()
     plt.hist(valprop, **cfg)
     for ic in sorted(ics, key=lambda ic:bc[ic], reverse=reverse):
-        material = cg.unique_materials[ic]
-        cfg['label'] = "%20s  [%d]" % ( material.name[17:-9],bc[ic])
+        cfg['label'] = "%20s  [%d]" % (catname(cat,ic),bc[ic])
         print cfg
         plt.hist(valprop[catprop == ic], **cfg)
     pass

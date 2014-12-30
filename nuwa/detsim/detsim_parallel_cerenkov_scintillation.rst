@@ -87,9 +87,14 @@ uniform in reciprocal of wavelenth::
 
     In [1]: cf('wavelength', tag=1, typs="gopcerenkov opcerenkov test")
 
-Create some new "test" arrays with modified kernel::
+
+Create some new "test" arrays with modified standard wavelengths::
+
+    g4daechroma.sh --wavelengths 80:801:20
 
     npysend.sh -t1 -icerenkov -otest 
+
+* need to split test into testcerenkov and testscintillation, otherwise write stomping potential ?
 
 
 G4 distrib has step at 200nm, an artifact of RINDEX edge of quoted range::
@@ -460,6 +465,192 @@ sampling and the input histogram
   * variable bin size ? bad performance impact presumably 
 
     * could use a coarse and a fine 
+
+
+closer look at scintillation wavelength
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* chroma has sharp cutoff at 600nm and less clear drop down at around 350nm
+
+
+The cdf becomes flat above 600nm::
+
+    In [41]: np.set_printoptions(precision=10)
+
+    In [42]: s_reemission_cdf
+    Out[42]: 
+    array([[  60.          ,    0.          ],
+           [  80.          ,    0.          ],
+           [ 100.          ,    0.          ],
+           [ 120.          ,    0.          ],
+           [ 140.          ,    0.          ],
+           [ 160.          ,    0.          ],
+           [ 180.          ,    0.          ],
+           [ 200.          ,    0.0000000205],
+           [ 220.          ,    0.0000161953],
+           [ 240.          ,    0.00003237  ],
+           [ 260.          ,    0.0000485448],
+           [ 280.          ,    0.0000647195],
+           [ 300.          ,    0.0000808943],
+           [ 320.          ,    0.000097069 ],
+           [ 340.          ,    0.0009699235],
+           [ 360.          ,    0.003526893 ],
+           [ 380.          ,    0.0114005441],
+           [ 400.          ,    0.1889369488],
+           [ 420.          ,    0.5017676353],
+           [ 440.          ,    0.7646831274],
+           [ 460.          ,    0.9037991762],
+           [ 480.          ,    0.9602615237],
+           [ 500.          ,    0.9843546748],
+           [ 520.          ,    0.9931191802],
+           [ 540.          ,    0.9967452288],
+           [ 560.          ,    0.9983744621],
+           [ 580.          ,    0.99932307  ],
+           [ 600.          ,    0.9999999404],
+           [ 620.          ,    1.          ],
+           [ 640.          ,    1.          ],
+           [ 660.          ,    1.          ],
+           [ 680.          ,    1.          ],
+           [ 700.          ,    1.          ],
+           [ 720.          ,    1.          ],
+           [ 740.          ,    1.          ],
+           [ 760.          ,    1.          ],
+           [ 780.          ,    1.          ],
+           [ 800.          ,    1.          ]], dtype=float32)
+
+    In [43]: s_reemission_cdf.shape
+    Out[43]: (38, 2)
+
+
+
+::
+
+    171 __device__ void
+    172 generate_scintillation_photon(Photon& p, ScintillationStep& ss, curandState &rng)
+    173 {
+    174     float ScintillationTime = ss.ScintillationTime ;
+    175     if(ss.scnt == 2)
+    176     {
+    177         ScintillationTime = ss.slowTimeConstant ;
+    178         if(curand_uniform(&rng) < ss.slowerRatio)
+    179         {
+    180             ScintillationTime = ss.slowerTimeConstant ;
+    181         }
+    182     }
+    183 
+    184     p.wavelength = sample_cdf(&rng, ss.material->n,
+    185                                     ss.material->wavelength0,
+    186                                     ss.material->step,
+    187                                     ss.material->reemission_cdf); // reemission_cdf poorly named, intensity_cdf better
+    188 
+
+`random.h`::
+
+     25 // Draw a random sample given a cumulative distribution function
+     26 // Assumptions: ncdf >= 2, cdf_y[0] is 0.0, and cdf_y[ncdf-1] is 1.0
+     27 __device__ float
+     28 sample_cdf(curandState *rng, int ncdf, float *cdf_x, float *cdf_y)
+     29 {
+     30     return interp(curand_uniform(rng),ncdf,cdf_y,cdf_x);
+     31 }
+     32 
+     33 // Sample from a uniformly-sampled CDF
+     34 __device__ float
+     35 sample_cdf(curandState *rng, int ncdf, float x0, float delta, float *cdf_y)
+     36 {
+     37     float u = curand_uniform(rng);
+     38 
+     39     int lower = 0;
+     40     int upper = ncdf - 1;     // far left, right bin numbers 
+     41 
+     42     while(lower < upper-1)    // still not settled on a bin
+     43     {
+     44         int half = (lower + upper) / 2;
+     45 
+     46         if (u < cdf_y[half])
+                                      // cdf is normalized to 1 at rhs, so this is appropriate
+     47             upper = half;
+     48         else
+     49             lower = half;
+     50     }
+     51 
+     52     float delta_cdf_y = cdf_y[upper] - cdf_y[lower];
+     53 
+     54     return x0 + delta*lower + delta*(u-cdf_y[lower])/delta_cdf_y;
+     55 }
+
+Bins (ie wavelengths) beyond where the CDF reaches 1 will never get sampled. The 
+source distribution is SLOWCOMPONENT (same as FASTCOMPONENT)::
+
+     plt_gdls()  
+
+
+
+Wavelength comes from sampling::
+
+    In [31]: np.allclose( cg.unique_materials[3].reemission_cdf, cg.unique_materials[0].reemission_cdf )
+    Out[31]: True
+
+    In [32]: reemission_cdf = cg.unique_materials[3].reemission_cdf
+
+    In [33]: s_reemission_cdf = standardize(reemission_cdf)
+
+
+
+investigate G4 scintillation wavelength
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    catplot(g4s, log=True, range=(100,900))
+
+
+    catplot(g4s, val='wavelength', cat='pdg', log=True, range=(100,900))   ## edges at 200, 800 nm 
+
+    In [7]: g4s.wavelength.min()
+    Out[7]: G4ScintillationPhoton(199.97593688964844, dtype=float32)
+
+    In [8]: g4s.wavelength.max()
+    Out[8]: G4ScintillationPhoton(799.8797607421875, dtype=float32)
+
+
+Where did those edges come from::
+
+    In [11]: gdls.extra.properties['SLOWCOMPONENT']
+    Out[11]: 
+    array([[  79.99 ,    0.   ],
+           [ 120.023,    0.   ],
+           [ 199.975,    0.   ],     ## note 130nm jump to zero bin
+           [ 330.   ,    0.006],
+           [ 331.   ,    0.006],
+           [ 332.   ,    0.005],
+           [ 333.   ,    0.005],
+           ...
+           [ 598.001,    0.002],
+           [ 599.001,    0.002],
+           [ 600.001,    0.002],
+           [ 799.898,    0.   ]])    ## note 200nm jump to zero bin  
+
+
+
+::
+
+    catplot(g4s, val='time', cat='scnt', log=True, range=(0,50))
+
+
+::
+
+    [blyth@ntugrid5 geant4.9.2.p01]$ find $PWD -name 'G4PhysicsVector.hh' 
+    /home/blyth/local/env/dyb/external/build/LCG/geant4.9.2.p01/include/G4PhysicsVector.hh
+    /home/blyth/local/env/dyb/external/build/LCG/geant4.9.2.p01/source/global/management/include/G4PhysicsVector.hh
+
+    [blyth@ntugrid5 geant4.9.2.p01]$ find $PWD -name 'G4PhysicsOrderedFreeVector.hh' 
+    /home/blyth/local/env/dyb/external/build/LCG/geant4.9.2.p01/include/G4PhysicsOrderedFreeVector.hh
+    /home/blyth/local/env/dyb/external/build/LCG/geant4.9.2.p01/source/global/management/include/G4PhysicsOrderedFreeVector.hh
+    [blyth@ntugrid5 geant4.9.2.p01]$ 
+
+
+
 
 
 

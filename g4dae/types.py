@@ -1,5 +1,5 @@
 #!/bin/env python
-import os
+import os, datetime
 import numpy as np
 
 from env.geant4.geometry.collada.g4daeview.daephotonsnpl import DAEPhotonsNPL as NPL
@@ -38,6 +38,19 @@ class NPY(np.ndarray):
     label = property(lambda self:"%s.get(%s)" % (self.__class__.__name__, self.tag))
 
     @classmethod
+    def summary(cls, tag):
+        for typ in typs:
+            path = path_(typ,tag)
+            if os.path.exists(path):
+                mt = os.path.getmtime(path)
+                dt = datetime.datetime.fromtimestamp(mt)
+                msg = dt.strftime("%c")
+            else:
+                msg = "-"
+            pass
+            print "%20s : %60s : %s " % (typ, path, msg)
+
+    @classmethod
     def mget(cls, tag, *typs):
         """
         Load multiple typed instances::
@@ -72,30 +85,40 @@ class Photon(NPY):
 
     aux0 = property(lambda self:self[:,3,0].view(np.int32))
     aux1 = property(lambda self:self[:,3,1].view(np.int32))
+    aux2 = property(lambda self:self[:,3,2].view(np.int32))
+    aux3 = property(lambda self:self[:,3,3].view(np.int32))
     flgs = property(lambda self:self[:,3,2].view(np.uint32))
     pmt  = property(lambda self:self[:,3,3].view(np.int32))
 
 
 class G4CerenkovPhoton(Photon):
-    """
-    see DsChromaG4Cerenkov.cc
-    """
+    """DsChromaG4Cerenkov.cc"""
     typ = "gopcerenkov"
     cmat = property(lambda self:self[:,3,0].view(np.int32)) # chroma material index
-    csid = property(lambda self:self[:,3,1].view(np.int32)) # 1-based CerenkovStep index 
+    sid = property(lambda self:self[:,3,1].view(np.int32)) 
 typmap[G4CerenkovPhoton.typ] = G4CerenkovPhoton
+
+class G4ScintillationPhoton(Photon):
+    """DsChromaG4Scintillation.cc"""
+    typ = "gopscintillation"
+    cmat = property(lambda self:self[:,3,0].view(np.int32)) # chroma material index
+    sid = property(lambda self:self[:,3,1].view(np.int32)) 
+    pdg = property(lambda self:self[:,3,2].view(np.int32)) 
+    scnt = property(lambda self:self[:,3,3].view(np.int32)) 
+
+
+typmap[G4ScintillationPhoton.typ] = G4ScintillationPhoton
+
 
 class ChCerenkovPhoton(Photon):
     typ = "opcerenkov"
 typmap[ChCerenkovPhoton.typ] = ChCerenkovPhoton
 
-class G4ScintillationPhoton(Photon):
-    typ = "gopscintillation"
-typmap[G4ScintillationPhoton.typ] = G4ScintillationPhoton
-
 class ChScintillationPhoton(Photon):
     typ = "opscintillation"
 typmap[ChScintillationPhoton.typ] = ChScintillationPhoton
+
+
 
 class TestPhoton(Photon):
     typ = "test"

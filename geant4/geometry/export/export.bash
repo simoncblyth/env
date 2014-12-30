@@ -380,6 +380,7 @@ export-export-templates(){
    export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
 
    export DAE_TEST_PATH_TEMPLATE=$(export-path-template test)
+   export DAE_PROP_PATH_TEMPLATE=$(export-path-template prop)
 }
 
 export-lambda-(){ cat << EOL

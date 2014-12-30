@@ -7,8 +7,8 @@
 #endif
 
 #include "G4DAEChroma/G4DAEPhotonList.hh"
-#include "G4DAEChroma/G4DAEXotonList.hh"
-#include "G4DAEChroma/G4DAEFotonList.hh"
+#include "G4DAEChroma/G4DAECerenkovPhotonList.hh"
+#include "G4DAEChroma/G4DAEScintillationPhotonList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 
@@ -16,7 +16,12 @@
 #include "G4DAEChroma/G4DAESocketBase.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
+#include "G4DAEChroma/G4DAEPropList.hh"
+
+
 #include "G4ThreeVector.hh"
+#include "G4PhysicsOrderedFreeVector.hh"
+
 
 #include <sstream>
 #include <iostream>
@@ -238,7 +243,7 @@ int test_cerenkovstep_list(const char* evtkey)
 
 int test_foton_list(const char* evtkey)
 {
-   G4DAEFotonList* a = G4DAEFotonList::Load(evtkey);
+   G4DAEScintillationPhotonList* a = G4DAEScintillationPhotonList::Load(evtkey);
    a->Print("fotonlist");
    return 0 ;
 }
@@ -268,11 +273,11 @@ int test_generate(const char* evtkey )
    // NB the below do not have their own storage, they 
    // are just different "view"s of the response 
 
-   G4DAEFotonList* fl = new G4DAEFotonList(response) ; 
+   G4DAEScintillationPhotonList* fl = new G4DAEScintillationPhotonList(response) ; 
    fl->Print("fotonlist");
    fl->Save("test"); 
 
-   G4DAEXotonList* xl = new G4DAEXotonList(response) ; 
+   G4DAECerenkovPhotonList* xl = new G4DAECerenkovPhotonList(response) ; 
    xl->Print("xotonlist");
    xl->Save("test"); 
 
@@ -294,11 +299,38 @@ int test_generate(const char* evtkey )
 
 
 
+int test_G4DAEPropList()
+{
+
+    G4PhysicsOrderedFreeVector* pofv = new G4PhysicsOrderedFreeVector();
+    float nm = 80. ;
+    while( nm < 800. )
+    { 
+        pofv->InsertValues( nm, nm*10. );
+        nm += 20.5 ;
+    } 
+    pofv->DumpValues();
+
+    cout << "MaxValue         " << pofv->GetMaxValue() << endl ;
+    cout << "MinValue         " << pofv->GetMinValue() << endl ;
+    cout << "MaxLowEdgeEnergy " << pofv->GetMaxLowEdgeEnergy() << endl ;
+    cout << "MaxMinEdgeEnergy " << pofv->GetMinLowEdgeEnergy() << endl ;
+    cout << "VectorLength     " << pofv->GetVectorLength() << endl ;
+
+    G4DAEPropList* pl = new G4DAEPropList(G4DAEProp::Copy(pofv));
+    pl->Save("test");
+
+    return 0 ;
+} 
+  
+
 
 int main(int argc, char** argv)
 {
-    const char* evtkey = "1" ;
-    test_generate(evtkey);
+    test_G4DAEPropList();
+
+    //const char* evtkey = "1" ;
+    //test_generate(evtkey);
 
 
   /*
