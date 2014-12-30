@@ -257,7 +257,6 @@ export-path-template(){
 }
 
 export-source-node(){ echo G5 ; }
-
 export-photon-get(){           export-npy-get ${1:-1} photon ; }
 
 export-gopscintillation-get(){ export-npy-get ${1:-1} gopscintillation ; }
@@ -268,6 +267,10 @@ export-opcerenkov-get(){       export-npy-get ${1:-1} opcerenkov ; }
 
 export-scintillation-get(){    export-npy-get ${1:-1} scintillation ; }
 export-cerenkov-get(){         export-npy-get ${1:-1} cerenkov ; }
+
+
+export-prop-rget(){            export-npy-rget prop ; }
+
 
 export-type-notes(){ cat << EON
 
@@ -344,6 +347,21 @@ export-npy-path(){
     local tmpl=$(export-path-template $typ)
     local path=$(printf $tmpl $evt)
     echo $path
+}
+export-npy-rget(){
+    local evt="dummy"
+    local typ=${1:-prop}
+    local from=$(export-source-node)
+    [ "$NODE_TAG" == "$from" ] && echo $msg cannot get to self && return 
+
+    local rpath=$(NODE_TAG=$from export-npy-path $evt $typ)
+    local lpath=$(export-npy-path $evt $typ)
+    local rdir=$(dirname $rpath)
+    local ldir=$(dirname $lpath)
+
+    local cmd="mkdir -p $ldir && scp -r $from:$rdir/\*.npy $ldir/" 
+    echo $cmd
+
 }
 
 export-npy-get(){

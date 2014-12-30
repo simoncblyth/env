@@ -317,8 +317,9 @@ int test_G4DAEPropList()
     cout << "MaxMinEdgeEnergy " << pofv->GetMinLowEdgeEnergy() << endl ;
     cout << "VectorLength     " << pofv->GetVectorLength() << endl ;
 
-    G4DAEPropList* pl = new G4DAEPropList(G4DAEProp::Copy(pofv));
-    pl->Save("test");
+
+    G4DAEPropList a(G4DAEProp::Copy(pofv));
+    a.Save("check");
 
     return 0 ;
 } 

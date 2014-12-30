@@ -632,7 +632,6 @@ Where did those edges come from::
            [ 799.898,    0.   ]])    ## note 200nm jump to zero bin  
 
 
-
 ::
 
     catplot(g4s, val='time', cat='scnt', log=True, range=(0,50))
@@ -648,6 +647,35 @@ Where did those edges come from::
     /home/blyth/local/env/dyb/external/build/LCG/geant4.9.2.p01/include/G4PhysicsOrderedFreeVector.hh
     /home/blyth/local/env/dyb/external/build/LCG/geant4.9.2.p01/source/global/management/include/G4PhysicsOrderedFreeVector.hh
     [blyth@ntugrid5 geant4.9.2.p01]$ 
+
+
+
+Grab the scintillation integrals using G4DAEPropList::
+
+    G4DAEArray::Allocate nitems 275 nfloat 550 
+    G4DAEArray::Allocate nitems 275 nfloat 550 
+    G4DAEArray::Allocate nitems 28 nfloat 56 
+    G4DAEArray::SavePath [/home/blyth/local/env/prop/ls_fast.npy] itemcount 275 itemshape 2 
+    G4DAEArray::SavePath [/home/blyth/local/env/prop/ls_slow.npy] itemcount 275 itemshape 2 
+    G4DAEArray::SavePath [/home/blyth/local/env/prop/ls_reem.npy] itemcount 28 itemshape 2 
+    G4DAEArray::Allocate nitems 275 nfloat 550 
+    G4DAEArray::Allocate nitems 275 nfloat 550 
+    G4DAEArray::Allocate nitems 28 nfloat 56 
+    G4DAEArray::SavePath [/home/blyth/local/env/prop/gdls_fast.npy] itemcount 275 itemshape 2 
+    G4DAEArray::SavePath [/home/blyth/local/env/prop/gdls_slow.npy] itemcount 275 itemshape 2 
+    G4DAEArray::SavePath [/home/blyth/local/env/prop/gdls_reem.npy] itemcount 28 itemshape 2 
+    physicsList->setCut() start.
+
+
+::
+
+    delta:~ blyth$ export-prop-rget | sh 
+    gdls_fast.npy                                                                                                                           100% 2280     2.2KB/s   00:00    
+    ls_slow.npy                                                                                                                             100% 2280     2.2KB/s   00:00    
+    gdls_slow.npy                                                                                                                           100% 2280     2.2KB/s   00:00    
+    gdls_reem.npy                                                                                                                           100%  304     0.3KB/s   00:00    
+    ls_reem.npy                                                                                                                             100%  304     0.3KB/s   00:00    
+    ls_fast.npy                                                                                                                             100% 2280     2.2KB/s   00:00    
 
 
 
