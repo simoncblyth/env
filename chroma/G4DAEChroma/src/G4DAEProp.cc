@@ -7,16 +7,28 @@ const char* G4DAEProp::TMPL = "DAE_PROP_PATH_TEMPLATE" ;
 const char* G4DAEProp::SHAPE = "2" ;
 const char* G4DAEProp::KEY   = "PRP" ;
 
-G4DAEArrayHolder* G4DAEProp::Copy(G4PhysicsOrderedFreeVector* pofv)
+#include <iostream>
+using namespace std ; 
+
+G4DAEArrayHolder* G4DAEProp::Copy(G4PhysicsOrderedFreeVector* pofv, double xscale, double yscale )
 {
     size_t size = pofv->GetVectorLength() ;
+    printf("G4DAEProp::Copy size %zu \n", size ); 
     G4DAEArrayHolder* holder = new G4DAEArrayHolder( size, NULL, "2" );
-    for(int b=0 ; b < size ; ++b)
+    for(size_t b=0 ; b < size ; ++b)
     {
-       float* prop = holder->GetNextPointer(); 
-       prop[_binEdge]  = pofv->GetLowEdgeEnergy(b);
-       prop[_binValue] = (*pofv)[b] ; 
+       float* prop = holder->GetNextPointer();
+
+       double d_edge = pofv->GetLowEdgeEnergy(b)*xscale ;
+       double d_value  = (*pofv)[b]*yscale ; 
+ 
+       cout << " edge " << d_edge << " value " << d_value << endl ; 
+
+       prop[_binEdge]  = float(d_edge) ;
+       prop[_binValue] = float(d_value) ; 
     }
+
+    
     return holder ; 
 }
 

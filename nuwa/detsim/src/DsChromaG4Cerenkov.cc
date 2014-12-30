@@ -356,7 +356,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
         // shoving ints into float bits
         uif_t uifa[4] ;
-        uifa[0].i = -csid ;     //   negated 1-based index signalling Cerenkov (as opposed to Scintillation)
+        uifa[0].i = -csid ;     //   negated 1-based index signalling Cerenkov (as opposed to Scintillation), acted upon in generate.cu
         uifa[1].i = aTrack.GetTrackID() ;
         uifa[2].i = chromaMaterialIndex ; 
         uifa[3].i = NumPhotons ;

@@ -7,6 +7,7 @@
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationPhoton.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
+#include "G4DAEChroma/G4DAEPropList.hh"
 #endif
 
 //
@@ -580,6 +581,8 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 
 #ifdef G4DAECHROMA_COLLECT_STEPS
         size_t ssid ;  // place here, for access from FOTON collection
+        G4int chromaMaterialIndex ;
+        G4int pdgCode ; 
         {
             //
             // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
@@ -590,13 +593,14 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             int* g2c = chroma->GetMaterialLookup();
 
             // this relates Geant4 materialIndex to the chroma equivalent
-            G4int chromaMaterialIndex = g2c[materialIndex] ;
+            chromaMaterialIndex = g2c[materialIndex] ;
             G4String materialName = aMaterial->GetName();
 
             ssid = 1 + ssl->GetCount() ;  // 1-based 
             float* ss = ssl->GetNextPointer();     
 
             const G4ParticleDefinition* definition = aParticle->GetDefinition(); 
+            pdgCode = definition->GetPDGEncoding();
             G4ThreeVector deltaPosition = aStep.GetDeltaPosition();
 
             /*
@@ -613,43 +617,43 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             assert(chromaMaterialIndex > -1 );
 
             uif_t uifa[4] ;
-            uifa[0].i = ssid ;  // > 0 for Scintillation
+            uifa[0].i = ssid ;  // > 0 for Scintillation, distinguises from Cerenkov in generate.cu
             uifa[1].i = aTrack.GetTrackID() ;
             uifa[2].i = chromaMaterialIndex ; 
             uifa[3].i = Num ;
 
             uif_t uifb[4] ;
-            uifb[0].i = definition->GetPDGEncoding();
+            uifb[0].i = pdgCode ;
             uifb[1].i = scnt ;   // 1:fast 2:slow
             uifb[2].i = 0 ;
             uifb[3].i = 0 ;
 
-            ss[G4DAEScintillationStep::_Id]         =  uifa[0].f ;
+            ss[G4DAEScintillationStep::_Id]         =  uifa[0].f ;   // 0
             ss[G4DAEScintillationStep::_ParentID]   =  uifa[1].f ;
             ss[G4DAEScintillationStep::_Material]   =  uifa[2].f ; 
             ss[G4DAEScintillationStep::_NumPhotons] =  uifa[3].f ;
 
-            ss[G4DAEScintillationStep::_x0_x] = x0.x() ;
+            ss[G4DAEScintillationStep::_x0_x] = x0.x() ;             // 1
             ss[G4DAEScintillationStep::_x0_y] = x0.y() ;
             ss[G4DAEScintillationStep::_x0_z] = x0.z() ;
             ss[G4DAEScintillationStep::_t0] = t0 ;
 
-            ss[G4DAEScintillationStep::_DeltaPosition_x] = deltaPosition.x();
+            ss[G4DAEScintillationStep::_DeltaPosition_x] = deltaPosition.x(); // 2
             ss[G4DAEScintillationStep::_DeltaPosition_y] = deltaPosition.y();
             ss[G4DAEScintillationStep::_DeltaPosition_z] = deltaPosition.z();
             ss[G4DAEScintillationStep::_step_length]     = aStep.GetStepLength() ;
 
-            ss[G4DAEScintillationStep::_code]      =  uifb[0].f ;
+            ss[G4DAEScintillationStep::_code]      =  uifb[0].f ;    // 3
             ss[G4DAEScintillationStep::_charge]    =  definition->GetPDGCharge();
             ss[G4DAEScintillationStep::_weight]    =  weight ;
             ss[G4DAEScintillationStep::_MeanVelocity] = ((pPreStepPoint->GetVelocity()+ pPostStepPoint->GetVelocity())/2.);
 
-            ss[G4DAEScintillationStep::_scnt]      =  uifb[1].f ;
+            ss[G4DAEScintillationStep::_scnt]      =  uifb[1].f ;    // 4
             ss[G4DAEScintillationStep::_slowerRatio]  =  slowerRatio ;
             ss[G4DAEScintillationStep::_slowTimeConstant]  =  slowTimeConstant ;
             ss[G4DAEScintillationStep::_slowerTimeConstant]  =  slowerTimeConstant ;
 
-            ss[G4DAEScintillationStep::_ScintillationTime]  = ScintillationTime ;
+            ss[G4DAEScintillationStep::_ScintillationTime]  = ScintillationTime ;  // 5 
             ss[G4DAEScintillationStep::_ScintillationIntegralMax]  = ScintillationIntegral->GetMaxValue() ;
             ss[G4DAEScintillationStep::_Spare1]  = 0. ;
             ss[G4DAEScintillationStep::_Spare2]  = 0. ;
@@ -827,6 +831,8 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 
 #ifdef G4DAECHROMA_INHIBIT_G4
             {
+                assert( flagReemission == false );
+
                 if(G4DAEChroma::GetG4DAEChroma()->IsG4Scintillation())
                 {
                     aParticleChange.AddSecondary(aSecondaryTrack);
@@ -872,10 +878,11 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
                 sp[G4DAEScintillationPhoton::_polw_w] = weight ; 
 
                 uif_t uifd[4] ; 
-                uifd[0].i = spid ;  // 1-based fhoton index within the step
+                //uifd[0].i = spid ;  // 1-based fhoton index within the step
+                uifd[0].i = chromaMaterialIndex ;  // record material with photon  
                 uifd[1].i = ssid ;  // 1-based scintillation step id
-                uifd[2].u = 0 ;     // flags
-                uifd[3].i = -1  ;   // pmtid
+                uifd[2].i = pdgCode ;
+                uifd[3].i = scnt  ;   
 
                 sp[G4DAEScintillationPhoton::_flag_x] =  uifd[0].f ;
                 sp[G4DAEScintillationPhoton::_flag_y] =  uifd[1].f ;
@@ -1152,6 +1159,33 @@ void DsChromaG4Scintillation::BuildThePhysicsTable()
         // will be inserted in the table(s) according to the
         // position of the material in the material table.
 
+#ifdef G4DAECHROMA_COLLECT_STEPS
+        {
+
+             double xscale = (h_Planck * c_light )/nanometer ;  // express energy in reciprocal wavelengths nm^-1
+             double yscale =  1e9 ;   // values are unhealthily small for a float, so scale by a billion 
+
+             G4String name ; 
+             G4String materialName = aMaterial->GetName();
+             if( materialName == "/dd/Materials/LiquidScintillator" ) name = "ls" ;
+             if( materialName == "/dd/Materials/GdDopedLS" ) name = "gdls" ;
+
+             if(!name.empty())
+             {
+                 G4DAEPropList a(G4DAEProp::Copy(aPhysicsOrderedFreeVector,xscale,yscale)); 
+                 G4DAEPropList b(G4DAEProp::Copy(bPhysicsOrderedFreeVector,xscale,yscale)); 
+                 G4DAEPropList c(G4DAEProp::Copy(cPhysicsOrderedFreeVector,xscale,yscale)); 
+
+                 G4String aname(name+"_fast");
+                 G4String bname(name+"_slow");
+                 G4String cname(name+"_reem");
+
+                 a.Save(aname.c_str());
+                 b.Save(bname.c_str());
+                 c.Save(cname.c_str());
+             } 
+        }
+#endif
         theFastIntegralTable->insertAt(i,aPhysicsOrderedFreeVector);
         theSlowIntegralTable->insertAt(i,bPhysicsOrderedFreeVector);
         theReemissionIntegralTable->insertAt(i,cPhysicsOrderedFreeVector);

@@ -11,7 +11,7 @@ class G4DAEProp {
     static const char* SHAPE ;  // numpy array itemshape eg "8,3" or "4,4" 
     static const char* KEY ;  
 
-    static G4DAEArrayHolder* Copy(G4PhysicsOrderedFreeVector* pofv);
+    static G4DAEArrayHolder* Copy(G4PhysicsOrderedFreeVector* pofv, double xscale=1.0, double yscale=1.0 );
 
     enum {
        _binEdge,      //  0
