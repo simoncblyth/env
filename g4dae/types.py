@@ -18,6 +18,11 @@ g4s_ = lambda _:load_("gopscintillation",_)
 path_ = lambda typ,tag:os.environ["DAE_%s_PATH_TEMPLATE" % typ.upper()] % str(tag)
 load_ = lambda typ,tag:np.load(path_(typ,tag))     
 
+global typs
+typs = "photon hit test cerenkov scintillation opcerenkov opscintillation gopcerenkov gopscintillation".split()
+
+global typmap
+typmap = {}
 
 class NPY(np.ndarray):
     @classmethod
@@ -31,6 +36,22 @@ class NPY(np.ndarray):
         return a
 
     label = property(lambda self:"%s.get(%s)" % (self.__class__.__name__, self.tag))
+
+    @classmethod
+    def mget(cls, tag, *typs):
+        """
+        Load multiple typed instances::
+
+            chc, g4c, tst = NPY.mget(1,"opcerenkov","gopcerenkov","test")
+
+        """
+        if len(typs) == 1:
+            typs = typs[0].split()
+
+        klss = map(lambda _:typmap[_], typs)
+        arys = map(lambda kls:kls.get(tag), klss)
+        return arys
+
 
 
 class Photon(NPY):
@@ -62,15 +83,28 @@ class G4CerenkovPhoton(Photon):
     typ = "gopcerenkov"
     cmat = property(lambda self:self[:,3,0].view(np.int32)) # chroma material index
     csid = property(lambda self:self[:,3,1].view(np.int32)) # 1-based CerenkovStep index 
+typmap[G4CerenkovPhoton.typ] = G4CerenkovPhoton
 
 class ChCerenkovPhoton(Photon):
     typ = "opcerenkov"
+typmap[ChCerenkovPhoton.typ] = ChCerenkovPhoton
 
 class G4ScintillationPhoton(Photon):
     typ = "gopscintillation"
+typmap[G4ScintillationPhoton.typ] = G4ScintillationPhoton
 
 class ChScintillationPhoton(Photon):
     typ = "opscintillation"
+typmap[ChScintillationPhoton.typ] = ChScintillationPhoton
+
+class TestPhoton(Photon):
+    typ = "test"
+typmap[TestPhoton.typ] = TestPhoton
+
+
+
+
+
 
 
 class G4Step(NPY):

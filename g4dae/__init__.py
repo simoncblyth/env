@@ -35,6 +35,7 @@ from env.geant4.geometry.collada.g4daenode import DAENode
 from env.geant4.geometry.collada.g4daeview.daegeometry import DAEGeometry
 from chroma.detector import Detector
 
+from env.g4dae.types import NPY
 from env.g4dae.types import CerenkovStep, G4CerenkovPhoton, ChCerenkovPhoton
 from env.g4dae.types import ScintillationStep, G4ScintillationPhoton, ChScintillationPhoton
 
@@ -127,7 +128,8 @@ def g4_cerenkov_wavelength(tag, **kwa):
     cat = "aux0"
     val = "wavelength"
     title = "G4/Detsim Generated Cerenkov Wavelength by material" 
-    catplot(g4c, cg, cat=cat, val=val, path=path, title=title, log=True, histtype='step', stacked=False)
+
+    catplot(g4c, cat=cat, val=val, path=path, title=title, log=True, histtype='step', stacked=False)
 
 
 def catplot(a, **kwa):
@@ -192,8 +194,7 @@ def cf_cerenkov(qty='wavelength', tag=1, **kwa):
        cf_cerenkov('time')
 
     """
-    g4c = G4CerenkovPhoton.get(tag)
-    chc = ChCerenkovPhoton.get(tag)
+    g4c,chc = NPY.mget(tag, "gopcerenkov","opcerenkov")
     cf(qty, g4c, chc, **kwa)
 
 
@@ -208,6 +209,8 @@ def cf_scintillation(qty='wavelength', tag=1, **kwa):
     g4s = G4ScintillationPhoton.get(tag)
     chs = ChScintillationPhoton.get(tag)
     cf(qty, g4s, chs, **kwa)
+
+
 
 
 def plot_refractive_index(tag=1, **kwa):
@@ -225,7 +228,6 @@ def plot_refractive_index(tag=1, **kwa):
     cfg = dict(qty='refractive_index')
     cfg.update(kwa)
     qplot(mm, **cfg)
-
 
 
 # from chroma.gpu.GPUGeometry
@@ -269,6 +271,13 @@ def qplot(materials, standard=False, qty='refractive_index'):
 
 def water_indices(cg):
     return filter(lambda _:cg.unique_materials[_].name.find('Water')>-1,range(len(cg.unique_materials)))
+
+def chroma_refractive_index():
+    for im, cm in enumerate(cg.unique_materials):
+        wlri = cm.refractive_index
+        wl = wlri[:,0]
+        ri = wlri[:,1]
+        print "[%2d] %25s %10s     wl %7.2f : %7.2f     %10.3f : %10.3f " % ( im, cm.name[17:-9], str(wlri.shape), wl.min(), wl.max(), ri.min(), ri.max() )  
 
 
 def cerenkov_wavelength(cs, csi=0, nrand=100000, standard=False):
@@ -335,117 +344,72 @@ def cerenkov_wavelength(cs, csi=0, nrand=100000, standard=False):
 
 
 
-def chroma_refractive_index():
-    for im, cm in enumerate(cg.unique_materials):
-        wlri = cm.refractive_index
-        wl = wlri[:,0]
-        ri = wlri[:,1]
-        print "[%2d] %25s %10s     wl %7.2f : %7.2f     %10.3f : %10.3f " % ( im, cm.name[17:-9], str(wlri.shape), wl.min(), wl.max(), ri.min(), ri.max() )  
+def cf(qty, *arys, **kwa):
+    """
+    Comparison histogram with legend  
+
+    ::
+
+        cf('wavelength', tag=1, typs="test gopcerenkov", legend=True)
+
+        cf('3xyz', tag=1, typs="gopcerenkov opcerenkov test", legend=False)
+
+        cf('3xyzw', tag=1, typs="opcerenkov gopcerenkov test", legend=False)
 
 
+        cf('wavelength', g4s, chs, log=True)
 
 
-def cf_xy(a,b):
-    ir,ic = 0,0    
-    plt.subplot(2,ir+1,ic+1)
-    plt.title("x") 
-    plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step" )
-    ir,ic = 0,1    
-    plt.subplot(2,ir+1,ic+1)
-    plt.title("y") 
-    plt.hist((a[:,ir,ic],b[:,ir,ic]), bins=100,histtype="step" )
-    plt.show()
+    """
+    if len(arys) == 0:
+        tag  = kwa.pop('tag')
+        typs = kwa.pop('typs')
+        arys = NPY.mget(tag, typs) 
+    pass
 
-def cf_xyz(a,b,r=0, **kwa):
-    nr, nc = 3, 1 
-
-    cfg = dict(bins=100,histtype="step")
+    cfg = dict(bins=100,histtype="step",title=qty, color="rbgcmyk", legend=True)
     cfg.update(kwa)
 
-    pl = 0 
-    for c, t in enumerate(["x","y","z"]):
-        pl += 1
-        plt.subplot(nr,nc,pl)
-        plt.title(t) 
-        plt.hist((a[:,r,c],b[:,r,c]), **cfg )
+    if qty == '3xyz':
+        qty = "posx posy posz dirx diry dirz polx poly polz"  
+    elif qty == '3xyzw':
+        qty = "posx posy posz time dirx diry dirz wavelength polx poly polz weight"  
+    pass
+
+
+    qtys = qty.split() if qty.find(' ')>-1 else [qty]
+    nqty = len(qtys)
+
+    if nqty == 1:    
+        nr, nc = 1, 1
+    elif nqty == 9:    
+        nr, nc = 3, 3
+    elif nqty == 12:    
+        nr, nc = 3, 4
+    elif nqty == 4:    
+        nr, nc = 2, 2
+    else:    
+        nr, nc = nqty//2, 2    # guessing
+      
+
+    legend = cfg.pop("legend")
+    color = list(cfg.pop("color"))
+    title = cfg.pop("title")
+
+    for pl,qty in enumerate(qtys):
+        plt.subplot(nr,nc,pl+1)
+        plt.title(qty) 
+        for i, ary in enumerate(arys):
+            col = color[i] 
+            cfg.update(label=getattr(ary,'label',col), color=col)
+            val = getattr(ary, qty)
+            plt.hist(val, **cfg)
+        pass
+        if legend:
+            plt.legend()
     pass
     plt.show()
 
-
-
-
-def cf(qty, a, b, **kwa):
-    av = getattr(a, qty)
-    bv = getattr(b, qty)
-
-    cfg = dict(bins=100,histtype="step",title=qty)
-    cfg.update(kwa)
-
-    plt.title(cfg.pop("title"))
-
-    cfg.update(label=getattr(a,'label','b'), color='b')
-    plt.hist(av, **cfg)
-
-    cfg.update(label=getattr(b,'label','r'), color='r')
-    plt.hist(bv, **cfg)
-
-    plt.legend()
-    plt.show()
-
-
-def cf_wavelength(a,b, **kwa):
-    cf('wavelength', a, b, **kwa)
-
-def cf_time(a, b, **kwa):
-    cfg = dict(range=(0,100))
-    cfg.update(kwa)
-    cf('time',a,b, **cfg)
-
-
-
-def cf_3xyz(a,b, **kwa):
-    cfg = dict(bins=100,histtype="step")
-    cfg.update(kwa)
-
-    nr, nc, pl = 3, 3, 0 
-    for r, rt in enumerate(["pos","dir","pol"]):
-        for c, ct in enumerate(["x","y","z"]):
-            pl += 1
-            plt.subplot(nr,nc,pl)
-            plt.title("%s %s " % (rt, ct)) 
-            plt.hist((a[:,r,c],b[:,r,c]), **cfg )
-        pass 
-    pass
-    plt.show()
-
-
-def cf_3xyzw_cerenkov(tag=1, **kwa):
-    g4c = G4CerenkovPhoton.get(tag)
-    chc = ChCerenkovPhoton.get(tag)
-    cf_3xyzw(g4c,chc, **kwa)
-
-
-def cf_3xyzw(a,b, **kwa):
-    cfg = dict(bins=100,histtype="step")
-    cfg.update(kwa)
-
-    nr, nc, pl = 3, 4, 0 
-    for r, rt in enumerate(["pos","dir","pol"]):
-        for c, ct in enumerate(["x","y","z","w"]):
-            pl += 1
-            plt.subplot(nr,nc,pl)
-            plt.title("%s %s " % (rt, ct)) 
-
-            if (r,c) == (0,3):
-                kwa['range'] = (0,100)
-            else:
-                kwa['range'] = None
-            pass
-
-            plt.hist((a[:,r,c],b[:,r,c]), **cfg)
-        pass 
-    pass
-    plt.show()
 
 
 

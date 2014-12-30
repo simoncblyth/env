@@ -23,6 +23,12 @@ except ImportError:
     psutil = None 
 
 
+def min_max_step(wl):
+    mn = wl.min()
+    mx = wl.max()
+    st = np.unique(np.diff(wl)).item()
+    return mn,mx,st
+
 def pycuda_init(gl=False):
     """
     Based on pycuda.gl.autoinit  pycuda.autoinit
@@ -149,6 +155,7 @@ class DAEChromaContext(object):
         config.args.gl = gl   # placeholder parameter
 
         self.config = config
+
         pycuda_init(gl=gl)
         self.chroma_geometry = chroma_geometry
         self.chroma_material_map = ChromaMaterialMap(chroma_geometry)   
@@ -307,9 +314,10 @@ class DAEChromaContext(object):
         return Propagator( self )
 
     def setup_gpu_geometry(self):
+        assert 0, "use setup_gpu_detector"
         from chroma.gpu.geometry import GPUGeometry
         assert self.chroma_geometry.__class__.__name__ == 'Detector', self.chroma_geometry.__class__.__name__
-        return GPUGeometry( self.chroma_geometry )
+        return GPUGeometry( self.chroma_geometry)
 
     def setup_gpu_detector(self):
         """
@@ -320,7 +328,12 @@ class DAEChromaContext(object):
         """
         from chroma.gpu.detector import GPUDetector
         assert self.chroma_geometry.__class__.__name__ == 'Detector', self.chroma_geometry.__class__.__name__
-        return GPUDetector( self.chroma_geometry )
+
+        standard_wavelengths = self.config.wavelengths
+        assert len(standard_wavelengths) > 20, standard_wavelengths
+        mn, mx, st = min_max_step(standard_wavelengths)
+        log.info("creating GPUGeometry using standard_wavelengths %s ==> %s:%s:%s " % (self.config.args.wavelengths, mn,mx,st)) 
+        return GPUDetector( self.chroma_geometry, standard_wavelengths )
 
     def make_cuda_buffer_object(self, buffer_id ):
         import pycuda.gl as cuda_gl
