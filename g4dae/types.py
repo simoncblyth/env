@@ -5,6 +5,7 @@ import numpy as np
 from env.geant4.geometry.collada.g4daeview.daephotonsnpl import DAEPhotonsNPL as NPL
 npl = lambda _:NPL.load(_)
 
+pro_ = lambda _:load_("prop",_)
 ppp_ = lambda _:load_("photon",_)
 hhh_ = lambda _:load_("hit",_)
 ttt_ = lambda _:load_("test",_)
