@@ -35,7 +35,7 @@ from env.geant4.geometry.collada.g4daenode import DAENode
 from env.geant4.geometry.collada.g4daeview.daegeometry import DAEGeometry
 from chroma.detector import Detector
 
-from env.g4dae.types import NPY
+from env.g4dae.types import NPY, pro_, Prop
 from env.g4dae.types import CerenkovStep, G4CerenkovPhoton, ChCerenkovPhoton
 from env.g4dae.types import ScintillationStep, G4ScintillationPhoton, ChScintillationPhoton
 
@@ -388,6 +388,65 @@ def cerenkov_wavelength(cs, csi=0, nrand=100000, standard=False):
 
     plt.hist(ws, bins=100)
     plt.show() 
+
+
+
+
+
+def scintillation_wavelength(n=2817543):
+    """
+    The "cheats" by using the purloined ScintillationIntegral 
+    (ie does not form the cumulative summation from the input property
+    itself)
+
+    So just need to sample from the CDF,  
+    a uniform draw in "y" is used to lookup the "x"  
+    (1/wavelength)
+
+    """
+    cdf = pro_("gdls_fast").copy()      
+
+    cdf[:,1] = cdf[:,1]/cdf[:,1].max()   # make y range 0:1
+
+    wi = np.interp( np.random.rand(n) , cdf[:,1], cdf[:,0] )   ## x-y flip to pluck x from a drawn y 
+    
+    w = 1/wi
+
+    plt.hist(w, bins=100, log=True, range=(100,900))
+
+    plt.show()
+
+
+def get_cdf():
+    from env.geant4.geometry.collada.collada_to_chroma import construct_cdf_energywise
+
+    ls = get_ls()
+
+    fast = ls.extra.properties['FASTCOMPONENT'].astype(np.float64)     
+
+    cdf = construct_cdf_energywise(fast)
+   
+    return cdf
+
+
+def scintillation_wavelength_raw(n=2817543):
+    """
+    Succeeds to reproduce the scintillation wavelength distrib 
+    by duplicating the DsChromaG4Scintillation::BuildThePhysicsTable 
+    logic in construct_cdf_energywise
+    """
+    cdf = get_cdf()
+
+    assert np.all(np.diff(cdf[:,1]) >= 0), "must be increasing "
+
+    w = np.interp( np.random.rand(n) , cdf[:,1], cdf[:,0] )   ## x-y flip to pluck x from a drawn y 
+
+    plt.hist(w, bins=100, log=True, range=(100,900))
+
+    plt.show()
+
+
+
 
 
 

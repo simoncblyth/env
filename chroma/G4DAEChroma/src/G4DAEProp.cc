@@ -33,6 +33,27 @@ G4DAEArrayHolder* G4DAEProp::Copy(G4PhysicsOrderedFreeVector* pofv, double xscal
 }
 
 
+G4PhysicsOrderedFreeVector* G4DAEProp::CreatePOFV(G4DAEArrayHolder* holder, double xscale, double yscale)
+{
+    G4PhysicsOrderedFreeVector* pofv = new G4PhysicsOrderedFreeVector();
+    size_t size = holder->GetCount();
+    printf("G4DAEProp::Create size %zu \n", size ); 
+    for(size_t index=0 ; index < size ; index++ )
+    {   
+        float* prop = holder->GetItemPointer( index );
+        float edge = prop[_binEdge] ;
+        float value = prop[_binValue] ;
+
+        double d_edge  = edge*xscale ; 
+        double d_value = value*yscale ; 
+
+        pofv->InsertValues(d_edge, d_value);
+    }   
+    return pofv ; 
+}
+
+
+
 
 
 

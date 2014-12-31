@@ -419,7 +419,7 @@ wavelength
 
 ::
 
-    In [6]: cf('wavelength', g4s, chs, log=True )   ## hmm clear chroma cut at 600nm ???
+    In [6]: cf('wavelength', typs="gopscintillation opscintillation",tag=1, log=True, range=(100,900) )   ## hmm clear chroma cut at 600nm ???
 
 
 Scintillation wavelength, chroma distrib is faithfully representing 
@@ -677,6 +677,248 @@ Grab the scintillation integrals using G4DAEPropList::
     ls_reem.npy                                                                                                                             100%  304     0.3KB/s   00:00    
     ls_fast.npy                                                                                                                             100% 2280     2.2KB/s   00:00    
 
+
+Energy is xscaled to be in reciprocal wavelength (1/nm) and yscale is 1e9::
+
+    ls = pro_("ls_fast")
+    plt.plot(ls[:,0], ls[:,1])
+    plt.show()
+
+    plt.plot(1./ls[:,0], ls[:,1], "r+")
+    plt.show()
+
+
+
+Establish connection between scintillation step and the transported scintillation integeral::
+
+
+   In [3]: g4s = ScintillationStep.get(1)
+
+    In [13]: np.unique(g4s[:,5,1]).item()*1e9
+    Out[13]: 410.0278374608024
+
+
+Cheat by using purloined ScintillationIntegral in gdct- test_ScintillationIntegral succeeds
+to reproduce the scintillation wavelengths. 
+But this is essentially using the same G4 code so no surprise::
+
+    int test_ScintillationIntegral()
+    {
+        G4DAEPropList* cdf = G4DAEPropList::Load("gdls_fast");
+        cdf->Print();
+        G4PhysicsOrderedFreeVector* ScintillationIntegral = G4DAEProp::CreatePOFV(cdf);
+        G4double MaxValue = ScintillationIntegral->GetMaxValue() ;
+
+        //size_t size = 1e6 ; 
+        size_t size = 2817543 ;  // match the count to current evt "1"
+
+        G4DAEArrayHolder* holder = new G4DAEArrayHolder( size, NULL, "2" );
+        for(size_t n=0 ; n<size ; n++ )
+        {
+            G4double CIIvalue = G4UniformRand()*MaxValue;
+            G4double sampledEnergy = ScintillationIntegral->GetEnergy(CIIvalue);
+
+            float* prop = holder->GetNextPointer();
+            prop[G4DAEProp::_binEdge]  = float(CIIvalue) ;
+            prop[G4DAEProp::_binValue] = float(sampledEnergy) ;
+        }
+
+        G4DAEPropList dist(holder);
+        dist.Save("1");  // sampledEnergy
+
+        //
+        //  cf('wavelength', typs="gopscintillation opscintillation prop",tag=1,  log=True, range=(100,900) )
+        //   succeeds to match G4 Scintillation photon distrib 
+        //
+        return 0 ; 
+    }
+
+
+What about numpy level::
+
+    In [13]: cdf = pro_("gdls_fast")
+
+    In [16]: mx = cdf[:,1].max()
+
+    In [17]: mx
+    Out[17]: 410.02786
+
+    In [18]: u = np.random.rand( 2817543 )
+
+    In [19]: u.shape
+    Out[19]: (2817543,)
+
+Need to invert x to have wavelength ordinate, but that makes CDF back to front::
+
+    In [32]: plt.plot(1/cdf[:,0],cdf[:,1])
+    Out[32]: [<matplotlib.lines.Line2D at 0x11645d5d0>]
+
+So interpolate in 1/wavelength land and invert afterwards,
+this avoids the question of how to deal with infinite wavelength::
+
+    In [46]: wi = np.interp( u*cdf[:,1].max(), cdf[:,1], cdf[:,0] )  ## NB x-y flip 
+
+    In [47]: w = 1/wi
+
+    In [51]: plt.hist(w, bins=100, log=True, range=(100,900)) ## looking good
+
+
+compare cdfs
+~~~~~~~~~~~~~~~~
+
+So how does the purloined scintillation integral compare with what have been using.
+
+::
+
+    In [3]: cg = cg_get()
+
+    In [7]: ls = cg.unique_materials[0]
+
+    In [13]: rcdf = ls.reemission_cdf
+
+    In [14]: plt.plot(rcdf[:,0], rcdf[:,1])
+    Out[14]: [<matplotlib.lines.Line2D at 0x116369050>]
+
+    In [15]: plt.show()
+
+
+::
+
+    In [41]: plt.plot( 1/rcdf[:,0], rcdf[:,1], 'b+')
+    Out[41]: [<matplotlib.lines.Line2D at 0x10ccc4310>]
+
+    In [45]: plt.plot( cdf[:,0], 1 - cdf[:,1]/cdf[:,1].max(), 'r+')
+    Out[45]: [<matplotlib.lines.Line2D at 0x126e99650>]
+
+
+
+
+::
+
+    In [48]: plt.plot( cdf[:,0], 1 - cdf[:,1]/cdf[:,1].max(), 'r+',   1/rcdf[:,0], rcdf[:,1], 'b+'  )
+
+    In [50]: plt.plot( 1/cdf[:,0], 1 - cdf[:,1]/cdf[:,1].max(), 'r+',   rcdf[:,0], rcdf[:,1], 'b+'  )
+
+    In [64]: plt.plot( 1/cdf[:,0], 1 - cdf[:,1]/cdf[:,1].max(), 'r+-',   rcdf[:,0], rcdf[:,1], 'b+-'  )
+
+::
+
+    In [52]: ls = get_ls()
+
+    In [57]: fast = ls.extra.properties['FASTCOMPONENT'].astype(np.float64)
+
+    cy = np.cumsum(fast[:,1], dtype=np.float64)   ## cumulative in wavelength land
+
+    fcdf = np.vstack([fast[:,0],cy/cy[-1]]).T     ## cdf in wavelength 
+
+    In [112]: np.allclose(fcdf, rcdf)
+    Out[112]: True
+
+
+Try duplicating BuildPhysicsTable, fiddly bin averaging::
+
+    In [129]: rfast = fast[::-1]   # reverse order to be in ascending energy 
+
+    In [130]: rfast[0]
+    Out[130]: array([ 799.898,    0.   ])
+
+::
+
+    In [146]: x = 1/rfast[:,0]     # work in inverse wavelength 1/nm
+
+    In [147]: y = rfast[:,1]
+
+    (y[1:]+y[:-1])/2      # sum of bins
+
+    np.cumsum( (y[1:]+y[:-1])/2 * np.diff(x) )*1e6
+
+    In [168]: bcdf = np.vstack( [x[1:], cy/cy[-1]] ).T
+
+    In [175]: xcdf = cdf.copy()
+
+    In [176]: xcdf[:,1] = xcdf[:,1]/xcdf[:,1].max()
+
+    In [180]: np.allclose( xcdf[1:], bcdf )
+    Out[180]: True
+
+
+Avoid loosing the bin::
+
+    In [185]: bcdf = np.empty( fast.shape )
+
+    In [194]: bcdf[0] = 1/fast[-1,0], 0
+
+    bcdf[:,0] = x
+
+    np.cumsum(ymid*xdif, out=bcdf[1:,1])
+
+    bcdf[1:,1] = bcdf[1:,1]/bcdf[1:,1].max() 
+
+    In [216]: np.allclose(bcdf, xcdf)
+    Out[216]: True
+
+
+Lay this down in collada_to_chroma:construct_cdf_energywise 
+
+
+
+test with energywise cdf 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    g4daechroma.sh --nogeocache
+
+    npysend.sh -t1 -iscintillation -otest 
+
+
+Getting the energywise CDF onto GPU is complicated 
+by chroma wavelength standardization, which does an interpolation
+to that standard wavelengths. As interpolation requires
+ascending "x" need to flip order::
+
+Some success with handling energywise cdf, but suspect getting
+back to front wavelength distrib::
+
+     67         def interp_material_property(wavelengths, prop):
+     68             # note that it is essential that the material properties be
+     69             # interpolated linearly. this fact is used in the propagation
+     70             # code to guarantee that probabilities still sum to one.
+     71 
+     72             ascending = np.all(np.diff(prop[:,0]) >= 0)
+     73             descending = np.all(np.diff(prop[:,0]) <= 0)
+     74 
+     75             if ascending:
+     76                 return np.interp(wavelengths, prop[:,0], prop[:,1]).astype(np.float32)
+     77             elif descending:
+     78                 # the interpolation needs ascending so reverse here, then reverse back after
+     79                 iprop = np.interp(wavelengths, prop[::-1,0], prop[::-1,1]).astype(np.float32)
+     80                 return iprop[::-1].copy()
+     81             else:
+     82                 assert 0, "needs to be all ascending or all descending "
+     83                 return None
+
+
+Access test wavelengths::
+
+    In [1]: t = ttt_(1)
+
+    In [4]: w = t[:,1,3]
+
+
+Getting some infinites, probably LS material index shift::
+
+    In [26]: w[w==np.inf].shape
+    Out[26]: (598018,)
+
+    In [27]: w[w!=np.inf].shape
+    Out[27]: (2219525,)
+
+The non infinities look like a wavelength distrib::
+
+    In [7]: ww=w[w!=np.Inf]
+
+    In [9]: plt.hist(ww, bins=100)   ## wavelength flipped distribution, maybe need to "1 - cdf" 
 
 
 

@@ -20,6 +20,9 @@
 #include "G4DAEChroma/G4DAEPropList.hh"
 
 
+
+#include "Randomize.hh"
+
 #include "G4ThreeVector.hh"
 #include "G4PhysicsOrderedFreeVector.hh"
 
@@ -300,6 +303,16 @@ int test_generate(const char* evtkey )
 
 
 
+void dump_POFV(G4PhysicsOrderedFreeVector* pofv)
+{
+    cout << "MaxValue         " << pofv->GetMaxValue() << endl ;
+    cout << "MinValue         " << pofv->GetMinValue() << endl ;
+    cout << "MaxLowEdgeEnergy " << pofv->GetMaxLowEdgeEnergy() << endl ;
+    cout << "MaxMinEdgeEnergy " << pofv->GetMinLowEdgeEnergy() << endl ;
+    cout << "VectorLength     " << pofv->GetVectorLength() << endl ;
+}
+
+
 int test_G4DAEPropList()
 {
 
@@ -310,21 +323,64 @@ int test_G4DAEPropList()
         pofv->InsertValues( nm, nm*10. );
         nm += 20.5 ;
     } 
+
     pofv->DumpValues();
-
-    cout << "MaxValue         " << pofv->GetMaxValue() << endl ;
-    cout << "MinValue         " << pofv->GetMinValue() << endl ;
-    cout << "MaxLowEdgeEnergy " << pofv->GetMaxLowEdgeEnergy() << endl ;
-    cout << "MaxMinEdgeEnergy " << pofv->GetMinLowEdgeEnergy() << endl ;
-    cout << "VectorLength     " << pofv->GetVectorLength() << endl ;
-
+    dump_POFV(pofv);
 
     G4DAEPropList a(G4DAEProp::Copy(pofv));
     a.Save("check");
 
     return 0 ;
 } 
-  
+ 
+
+int test_G4DAEPropList_read()
+{
+    G4DAEPropList* pl = G4DAEPropList::Load("gdls_fast");
+    pl->Print();
+   
+    G4PhysicsOrderedFreeVector* pofv = G4DAEProp::CreatePOFV(pl);
+
+    pofv->DumpValues();
+    dump_POFV(pofv);
+    
+    return 0 ;
+}
+
+
+int test_ScintillationIntegral()
+{
+    G4DAEPropList* cdf = G4DAEPropList::Load("gdls_fast");
+    cdf->Print();
+    G4PhysicsOrderedFreeVector* ScintillationIntegral = G4DAEProp::CreatePOFV(cdf);
+    G4double MaxValue = ScintillationIntegral->GetMaxValue() ;
+
+    //size_t size = 1e6 ; 
+    size_t size = 2817543 ;  // match the count to current evt "1"
+
+    G4DAEArrayHolder* holder = new G4DAEArrayHolder( size, NULL, "2" );
+    for(size_t n=0 ; n<size ; n++ )
+    {
+        G4double CIIvalue = G4UniformRand()*MaxValue;
+        G4double sampledEnergy = ScintillationIntegral->GetEnergy(CIIvalue);
+
+        float* prop = holder->GetNextPointer();
+        prop[G4DAEProp::_binEdge]  = float(CIIvalue) ;
+        prop[G4DAEProp::_binValue] = float(sampledEnergy) ;
+    }
+
+    G4DAEPropList dist(holder); 
+    dist.Save("1");  // sampledEnergy
+
+    //
+    //  cf('wavelength', typs="gopscintillation opscintillation prop",tag=1,  log=True, range=(100,900) )
+    //   succeeds to match G4 Scintillation photon wavelength distrib 
+    //
+    return 0 ; 
+}
+
+
+ 
 
 int test_G4DAEChroma_flags()
 {
@@ -345,8 +401,10 @@ int test_G4DAEChroma_flags()
 
 int main(int argc, char** argv)
 {
+    test_ScintillationIntegral();
+    //test_G4DAEPropList_read();
     //test_G4DAEPropList();
-    test_G4DAEChroma_flags();
+    //test_G4DAEChroma_flags();
 
     //const char* evtkey = "1" ;
     //test_generate(evtkey);

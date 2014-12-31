@@ -145,6 +145,39 @@ def construct_cdf( xy ):
     return np.vstack([x,cdf_y]).T
          
 
+
+def construct_cdf_energywise(xy):
+    """
+    Duplicates DsChromaG4Scintillation::BuildThePhysicsTable     
+    """
+    assert len(xy.shape) == 2 and xy.shape[-1] == 2
+
+    bcdf = np.empty( xy.shape )
+
+    rxy = xy[::-1]              # reverse order, for ascending energy 
+
+    x = 1/rxy[:,0]              # work in inverse wavelength 1/nm
+
+    y = rxy[:,1]
+
+    ymid = (y[:-1]+y[1:])/2     # looses entry as needs pair
+
+    xdif = np.diff(x)            
+
+    bcdf[:,0] = rxy[:,0]        # back to wavelength
+
+    bcdf[0,1] = 0.
+
+    np.cumsum(ymid*xdif, out=bcdf[1:,1])
+
+    bcdf[1:,1] = bcdf[1:,1]/bcdf[1:,1].max() 
+
+    #return bcdf[::-1]           # reverse order, back to ascending wavelength 
+    return bcdf                 # not so easy to reverse, as interpolation relies on an increasing cdf "y" value 
+
+
+
+
 class OpticalSurfaceFinish(object):
     """
     `LCG/geant4.9.2.p01/source/materials/include/G4OpticalSurface.hh`::
@@ -505,11 +538,12 @@ class ColladaToChroma(object):
 
         assert np.all( fast == slow )     # CURIOUS, that these are the same
 
-        fast_cdf = construct_cdf( fast )
-        slow_cdf = construct_cdf( slow )
-        reemission_cdf = construct_cdf( fast ) 
-        ## yep "fast" : need intensity distribution 
+        #fast_cdf = construct_cdf_energywise( fast )
+        #slow_cdf = construct_cdf_energywise( slow )
+        #assert np.all( fast_cdf == slow_cdf )
+        reemission_cdf = construct_cdf_energywise( fast ) 
 
+        ## yep "fast" : need intensity distribution 
         #
         #   reem_cdf = construct_cdf( reem )
         #   
@@ -526,13 +560,13 @@ class ColladaToChroma(object):
         #   the wavelength distribution  of photons
         # 
         #
-        assert np.all( fast_cdf == slow_cdf )
 
-        log.debug("setting reemission_cdf for %s to %s " % (material.name, repr(reemission_cdf)))
+        log.info("setting reemission_cdf for %s to %s " % (material.name, repr(reemission_cdf)))
 
-        material.set('slow_cdf', slow_cdf[:,1], wavelengths=slow_cdf[:,0])
-        material.set('fast_cdf', fast_cdf[:,1], wavelengths=fast_cdf[:,0])
+        #material.set('slow_cdf', slow_cdf[:,1], wavelengths=slow_cdf[:,0])
+        #material.set('fast_cdf', fast_cdf[:,1], wavelengths=fast_cdf[:,0])
         material.set('reemission_cdf', reemission_cdf[:,1], wavelengths=reemission_cdf[:,0])
+
 
 
     def _get_materialmap(self):

@@ -92,11 +92,23 @@ class Photon(NPY):
     pmt  = property(lambda self:self[:,3,3].view(np.int32))
 
 
+class Prop(NPY):
+    """
+    See test_ScintillationIntegral from gdct-
+    """
+    typ = "prop"
+    flat = property(lambda self:self[:,0])  # unform draw from 0 to max ScintillationIntegral 
+    wavelength = property(lambda self:1./self[:,1])# take reciprocal to give wavelength
+    pass
+typmap[Prop.typ] = Prop
+
+
 class G4CerenkovPhoton(Photon):
     """DsChromaG4Cerenkov.cc"""
     typ = "gopcerenkov"
     cmat = property(lambda self:self[:,3,0].view(np.int32)) # chroma material index
     sid = property(lambda self:self[:,3,1].view(np.int32)) 
+    pass
 typmap[G4CerenkovPhoton.typ] = G4CerenkovPhoton
 
 class G4ScintillationPhoton(Photon):
@@ -106,23 +118,24 @@ class G4ScintillationPhoton(Photon):
     sid = property(lambda self:self[:,3,1].view(np.int32)) 
     pdg = property(lambda self:self[:,3,2].view(np.int32)) 
     scnt = property(lambda self:self[:,3,3].view(np.int32)) 
-
-
+    pass
 typmap[G4ScintillationPhoton.typ] = G4ScintillationPhoton
 
 
 class ChCerenkovPhoton(Photon):
     typ = "opcerenkov"
+    pass
 typmap[ChCerenkovPhoton.typ] = ChCerenkovPhoton
 
 class ChScintillationPhoton(Photon):
     typ = "opscintillation"
+    pass
 typmap[ChScintillationPhoton.typ] = ChScintillationPhoton
-
 
 
 class TestPhoton(Photon):
     typ = "test"
+    pass
 typmap[TestPhoton.typ] = TestPhoton
 
 
@@ -155,6 +168,8 @@ class ScintillationStep(G4Step):
     see DsChromaG4Scintillation.cc
     """
     typ = "scintillation"
+    pass
+typmap[ScintillationStep.typ] = ScintillationStep
 
  
 class CerenkovStep(G4Step):
@@ -165,6 +180,8 @@ class CerenkovStep(G4Step):
     BetaInverse = property(lambda self:self[:,4,0])
     maxSin2 = property(lambda self:self[:,5,0])
     bialkaliIndex = property(lambda self:self[:,5,3].view(np.int32))  
+    pass
+typmap[CerenkovStep.typ] = CerenkovStep
 
 
 
