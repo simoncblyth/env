@@ -1,8 +1,6 @@
-#define G4DAECHROMA_COLLECT_STEPS
-#define G4DAECHROMA_COLLECT_PHOTONS
-#define G4DAECHROMA_INHIBIT_G4
+#define G4DAECHROMA
 
-#ifdef G4DAECHROMA_COLLECT_STEPS
+#ifdef G4DAECHROMA
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationPhoton.hh"
@@ -195,7 +193,10 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
         return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
     }
 
-
+#ifdef G4DAECHROMA
+    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+#endif
+ 
     G4String pname="";
     G4ThreeVector vertpos;
     G4double vertenergy=0.0;
@@ -579,16 +580,16 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
         // Max Scintillation Integral
 	
 
-#ifdef G4DAECHROMA_COLLECT_STEPS
+#ifdef G4DAECHROMA
         size_t ssid ;  // place here, for access from FOTON collection
         G4int chromaMaterialIndex ;
         G4int pdgCode ; 
+        if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_STEP))
         {
             //
             // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
             // by directly G4DAEArray intems using (n,?,4) structure [float4 quads are efficient on GPU]
             //
-            G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
             G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList();
             int* g2c = chroma->GetMaterialLookup();
 
@@ -829,11 +830,10 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             aParticleChange.SetSecondaryWeightByProcess( true ); // recommended
 
 
-#ifdef G4DAECHROMA_INHIBIT_G4
+#ifdef G4DAECHROMA
             {
                 assert( flagReemission == false );
-
-                if(G4DAEChroma::GetG4DAEChroma()->IsG4Scintillation())
+                if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_ADD_SECONDARY))
                 {
                     aParticleChange.AddSecondary(aSecondaryTrack);
                 }
@@ -853,9 +853,9 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             }
 
 
-#ifdef G4DAECHROMA_COLLECT_PHOTONS
+#ifdef G4DAECHROMA
+            if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_PHOTON)) 
             {
-                G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
                 G4DAEScintillationPhotonList* spl = chroma->GetScintillationPhotonList();
                 size_t spid = 1 + spl->GetCount() ;  // 1-based 
                 float* sp = spl->GetNextPointer();     
@@ -903,21 +903,22 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
                << aParticleChange.GetNumberOfSecondaries() << G4endl;
     }
 
-#ifdef G4DAECHROMA_INHIBIT_G4
+#ifdef G4DAECHROMA
+    if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_KILL_SECONDARY)) 
     {
-        if(G4DAEChroma::GetG4DAEChroma()->IsG4Scintillation())
-        {
-            if (verboseLevel > 0) 
-            G4cout << "DsChromaG4Scintillation::PostStepDoIt proceed with " << aParticleChange.GetNumberOfSecondaries() << " G4 scintillation secondaries " << G4endl ;  
-        } 
-        else 
-        {
-            if (verboseLevel > 0) 
-            G4cout << "DsChromaG4Scintillation::PostStepDoIt INHIBIT " << aParticleChange.GetNumberOfSecondaries() << " G4 scintillation secondaries " << G4endl ;  
-            aParticleChange.SetNumberOfSecondaries(0);
-            return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
-        }
-    }
+        if (verboseLevel > 0) 
+             G4cout << "DsChromaG4Scintillation::PostStepDoIt FLAG_G4SCINTILLATION_KILL_SECONDARY " 
+             << aParticleChange.GetNumberOfSecondaries() << " G4 scintillation secondaries " << G4endl ;  
+
+        aParticleChange.SetNumberOfSecondaries(0);
+        return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
+    } 
+    else
+    {
+         if (verboseLevel > 0) 
+              G4cout << "DsChromaG4Scintillation::PostStepDoIt proceed with " 
+              << aParticleChange.GetNumberOfSecondaries() << " G4 scintillation secondaries " << G4endl ;  
+    } 
 #endif 
 
     return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
@@ -1162,7 +1163,12 @@ void DsChromaG4Scintillation::BuildThePhysicsTable()
 #ifdef G4DAECHROMA_COLLECT_STEPS
         {
 
-             double xscale = (h_Planck * c_light )/nanometer ;  // express energy in reciprocal wavelengths nm^-1
+             /*
+                   float wavelength = (h_Planck * c_light / sampledEnergy) / nanometer ;
+                         1/wavelength (nm^-1)  =  
+
+             */
+             double xscale = nanometer/(h_Planck * c_light ) ;  // scale energy to reciprocal wavelengths (nm^-1)
              double yscale =  1e9 ;   // values are unhealthily small for a float, so scale by a billion 
 
              G4String name ; 

@@ -58,6 +58,9 @@ def parse_args( argv ):
     parser.add_option("-c","--chroma",action="store_true",
                       help="Send OPs off to remote Chroma for perusal [default %default]")
 
+    parser.add_option(     "--chroma-flags",default="",type="str",
+                      help="Chroma flags string [default %default]")
+
     parser.add_option("","--chroma-disabled",action="store_true",
                       help="Disable Chroma propagation but retain Chroma instrumentaion [default %default]")
 
@@ -420,6 +423,7 @@ class ConfigMuonGeneration(object):
         action.TouchableToDetelem = "TH2DE"
         action.PackedIdPropertyName = "PmtID"
         action.EnableChroma = not self.opts.chroma_disabled
+        action.ChromaFlags = self.opts.chroma_flags
         return action
 
     def configure_chromaeventaction(self): 

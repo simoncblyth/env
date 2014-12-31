@@ -261,13 +261,21 @@ csa-envsetup(){
 }
 
 
+csa-flags-(){ cat << EOF
+FLAG_G4SCINTILLATION_COLLECT_STEPS
+FLAG_G4CERENKOV_COLLECT_STEPS
+EOF
+}
+csa-flags(){ $FUNCNAME- | tr "\n" "," ; }
+
+
 csa-nuwarun(){
    local msg=" === $FUNCNAME :"
 
    csa-envsetup
 
    #local args="DetSimChroma.csa --use-basic-physics --chroma --chroma-disable --test $*"
-   local args="DetSimChroma.csa --use-basic-physics --chroma --test $*"
+   local args="DetSimChroma.csa --use-basic-physics --chroma --chroma-flags $(csa-flags) --test $*"
    nuwa.py -n $(csa-nevt) -m "$args"
 }
 

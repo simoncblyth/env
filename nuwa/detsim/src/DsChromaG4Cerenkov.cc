@@ -1,17 +1,11 @@
 
 
-#define G4DAECHROMA_COLLECT_STEPS
-#define G4DAECHROMA_COLLECT_PHOTONS
-#define G4DAECHROMA_INHIBIT_G4
-//#define G4DAECHROMA_KILL_WATER_QE
+#define G4DAECHROMA
 
-
-#ifdef G4DAECHROMA_COLLECT_STEPS
+#ifdef G4DAECHROMA
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
-
 static int bialkaliMaterialIndex = -1 ;
-
 #endif
 
 
@@ -208,6 +202,10 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	// Should we ensure that the material is dispersive?
 	//////////////////////////////////////////////////////
 
+#ifdef G4DAECHROMA
+        G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+#endif
+ 
         aParticleChange.Initialize(aTrack);
 
         const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
@@ -312,12 +310,12 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
        G4double MeanNumberOfPhotons2 =
                      GetAverageNumberOfPhotons(charge,beta2,aMaterial,Rindex);
 
-#ifdef G4DAECHROMA_COLLECT_STEPS
+#ifdef G4DAECHROMA
     // here for visibility from CerenkovPhoton collection
     size_t csid ;  
     G4int chromaMaterialIndex ; 
+    if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_COLLECT_STEP))
     {
-
         if(bialkaliMaterialIndex == -1 )
         {
               G4Material* bialkali = G4Material::GetMaterial("/dd/Materials/Bialkali");
@@ -326,7 +324,6 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         assert(bialkaliMaterialIndex > -1 );
 
         // serialize DsG4Cerenkov::PostStepDoIt stack, just before the photon loop
-        G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
         G4DAECerenkovStepList* csl = chroma->GetCerenkovStepList();
         int* g2c = chroma->GetMaterialLookup();
 
@@ -444,8 +441,11 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	    
 	      if ( uni >= effqe ) 
           {
-#ifdef G4DAECHROMA_KILL_WATER_QE
+#ifdef G4DAECHROMA
+        if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_APPLY_WATER_QE))
+        {
 	         continue;
+        }
 #endif
 	      }
 	  }
@@ -552,9 +552,9 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	  aSecondaryTrack->SetParentID(aTrack.GetTrackID());
 	  
 
-#ifdef G4DAECHROMA_INHIBIT_G4
+#ifdef G4DAECHROMA
     {
-        if(G4DAEChroma::GetG4DAEChroma()->IsG4Cerenkov())
+        if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_ADD_SECONDARY))
         {
             aParticleChange.AddSecondary(aSecondaryTrack);
         }
@@ -570,9 +570,10 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	  }
 
 
-#ifdef G4DAECHROMA_COLLECT_PHOTONS
+#ifdef G4DAECHROMA
+        if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_COLLECT_PHOTON))
         {
-            G4DAECerenkovPhotonList* cpl = G4DAEChroma::GetG4DAEChroma()->GetCerenkovPhotonList();
+            G4DAECerenkovPhotonList* cpl = chroma->GetCerenkovPhotonList();
             size_t cpid = 1 + cpl->GetCount() ;  // 1-based 
             float* cp = cpl->GetNextPointer();     
 
@@ -612,20 +613,19 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
 
 
-#ifdef G4DAECHROMA_INHIBIT_G4
+#ifdef G4DAECHROMA
     {
-        G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-        if(chroma->IsG4Cerenkov())
+        if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_KILL_SECONDARY))
         {
             if (verboseLevel > 0) 
-            G4cout << "DsChromaG4Cerenkov::PostStepDoIt proceed with " << aParticleChange.GetNumberOfSecondaries() << " G4 cerenkov secondaries " << G4endl ;  
-        } 
+            G4cout << "DsChromaG4Cerenkov::PostStepDoIt FLAG_G4CERENKOV_KILL_SECONDARY " << aParticleChange.GetNumberOfSecondaries() << " G4 cerenkov secondaries " << G4endl ;  
+            aParticleChange.SetNumberOfSecondaries(0);
+            return pParticleChange;  // huh "a" "p" pattern used above 
+        }
         else 
         {
             if (verboseLevel > 0) 
-            G4cout << "DsChromaG4Cerenkov::PostStepDoIt INHIBIT " << aParticleChange.GetNumberOfSecondaries() << " G4 cerenkov secondaries " << G4endl ;  
-            aParticleChange.SetNumberOfSecondaries(0);
-            return pParticleChange;  // huh "a" "p" pattern used above 
+            G4cout << "DsChromaG4Cerenkov::PostStepDoIt proceed with " << aParticleChange.GetNumberOfSecondaries() << " G4 cerenkov secondaries " << G4endl ;  
         }
     }
 #endif 

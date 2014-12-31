@@ -52,6 +52,7 @@ private:
 
   bool m_enableChroma ; 
 
+  std::string  m_chromaFlags ; 
  
 };
 #endif

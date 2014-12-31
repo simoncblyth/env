@@ -12,6 +12,7 @@ that can adopt different:
 #ifndef G4DAECHROMA_H
 #define G4DAECHROMA_H 1
 
+#include <string>
 #include <cstddef>
 #include "G4ThreeVector.hh"
 
@@ -39,6 +40,49 @@ class G4DAEHitList;
 
 class G4DAEChroma 
 {
+
+public:
+    // flag control
+    enum
+    {
+        FLAG_ZERO = 0,
+        FLAG_G4SCINTILLATION_ADD_SECONDARY  = 1 << 0, 
+        FLAG_G4SCINTILLATION_KILL_SECONDARY = 1 << 1, 
+        FLAG_G4SCINTILLATION_COLLECT_STEP   = 1 << 2, 
+        FLAG_G4SCINTILLATION_COLLECT_PHOTON = 1 << 3, 
+
+        FLAG_G4CERENKOV_ADD_SECONDARY      = 1 << 16, 
+        FLAG_G4CERENKOV_KILL_SECONDARY     = 1 << 17, 
+        FLAG_G4CERENKOV_COLLECT_STEP       = 1 << 18, 
+        FLAG_G4CERENKOV_COLLECT_PHOTON     = 1 << 19, 
+        FLAG_G4CERENKOV_APPLY_WATER_QE     = 1 << 20, 
+
+        FLAG_LAST = 1 << 31 
+    };
+    static const char* _FLAG_G4CERENKOV_ADD_SECONDARY ; 
+    static const char* _FLAG_G4CERENKOV_KILL_SECONDARY ; 
+    static const char* _FLAG_G4CERENKOV_COLLECT_STEP ; 
+    static const char* _FLAG_G4CERENKOV_COLLECT_PHOTON ; 
+    static const char* _FLAG_G4CERENKOV_APPLY_WATER_QE ; 
+
+    static const char* _FLAG_G4SCINTILLATION_ADD_SECONDARY ; 
+    static const char* _FLAG_G4SCINTILLATION_KILL_SECONDARY ; 
+    static const char* _FLAG_G4SCINTILLATION_COLLECT_STEP  ; 
+    static const char* _FLAG_G4SCINTILLATION_COLLECT_PHOTON  ; 
+
+    static int ParseFlags(std::string sflags, char delim=',');
+    static int MatchFlag(const char* flag );
+
+    void SetFlags(int flags);
+    void SetFlags(std::string flags);
+    int GetFlags();
+    void AddFlags(int flags);
+    void AddFlags(std::string flags);
+    bool HasFlag(int flags);
+    std::string Flags();
+
+
+
 public:
     static G4DAEChroma* GetG4DAEChroma();
     static G4DAEChroma* GetG4DAEChromaIfExists();
@@ -120,12 +164,13 @@ public:
     std::size_t ProcessScintillationSteps(int batch_id);
     std::size_t ProcessScintillationPhotons(int batch_id);
 
+   
+    //void SetG4Cerenkov(bool do_);
+    //void SetG4Scintillation(bool do_);
+    //bool IsG4Cerenkov();
+    //bool IsG4Scintillation();
 
-    void SetG4Cerenkov(bool do_);
-    void SetG4Scintillation(bool do_);
-    bool IsG4Cerenkov();
-    bool IsG4Scintillation();
-
+   
     G4DAEPhotonList* GenerateMockPhotons();
 
 public:
@@ -173,6 +218,7 @@ private:
   // verbosity level
   int m_verbosity ;  
 
+  int m_flags ;  
 
 };
 

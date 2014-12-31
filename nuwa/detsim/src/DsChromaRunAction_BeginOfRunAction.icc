@@ -31,7 +31,8 @@ void DsChromaRunAction_BeginOfRunAction(
        const string& _database, 
        ITouchableToDetectorElement* _t2de, 
        const string& _idParameter,
-       bool _enableChroma 
+       bool _enableChroma,
+       const string& _chromaFlags
       )
 { 
     string cache_dir = getenvvar(_cachekey, ".");
@@ -48,6 +49,10 @@ void DsChromaRunAction_BeginOfRunAction(
 #endif
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+    chroma->SetFlags(_chromaFlags); 
+    cout << "DsChromaRunAction_BeginOfRunAction chromaFlags " << chroma->Flags() << endl;   
+
+    cout << "flags 0x" << hex << chroma->GetFlags() << endl ; 
 
      ////  database
 

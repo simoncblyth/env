@@ -55,6 +55,9 @@ DsChromaRunAction::DsChromaRunAction
     declareProperty("EnableChroma",m_enableChroma = false, 
                     "Enable GPU optical photon propagation with Chroma, requires paired DsChromaStackAction");
 
+    declareProperty("ChromaFlags",m_chromaFlags = "", 
+                    "Delimited String to be parsed into bitfield controlling G4DAEChroma");
+
 
 };
 
@@ -80,7 +83,8 @@ void DsChromaRunAction::BeginOfRunAction( const G4Run* run )
               m_databasekey, 
               t2de, 
               m_idParameter,
-              m_enableChroma );
+              m_enableChroma,
+              m_chromaFlags );
 
     printf("DsChromaRunAction::BeginOfRunAction DONE\n");
 };
