@@ -6,6 +6,7 @@
 #include "G4DAEChroma/G4DAEChromaPhotonList.hh"
 #endif
 
+#include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4DAEChroma/G4DAECerenkovPhotonList.hh"
 #include "G4DAEChroma/G4DAEScintillationPhotonList.hh"
@@ -325,10 +326,27 @@ int test_G4DAEPropList()
 } 
   
 
+int test_G4DAEChroma_flags()
+{
+
+    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
+
+    string flags = "FLAG_G4SCINTILLATION_COLLECT_STEP,FLAG_G4CERENKOV_COLLECT_STEP," ;
+    //string flags = "FLAG_G4SCINTILLATION_KILL_SECONDARY,FLAG_G4CERENKOV_KILL_SECONDARY," ;
+
+    chroma->SetFlags(flags);
+
+    cout << chroma->Flags() << endl ;    
+
+    return 0 ; 
+}
+
+
 
 int main(int argc, char** argv)
 {
-    test_G4DAEPropList();
+    //test_G4DAEPropList();
+    test_G4DAEChroma_flags();
 
     //const char* evtkey = "1" ;
     //test_generate(evtkey);

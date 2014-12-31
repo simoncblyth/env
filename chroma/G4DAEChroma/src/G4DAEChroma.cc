@@ -111,33 +111,43 @@ std::string G4DAEChroma::Flags()
 
 int G4DAEChroma::MatchFlag(const char* flag )
 {
-    if(strcmp(flag, _FLAG_G4SCINTILLATION_ADD_SECONDARY ) == 0)  return FLAG_G4SCINTILLATION_ADD_SECONDARY ;
-    if(strcmp(flag, _FLAG_G4SCINTILLATION_KILL_SECONDARY ) == 0) return FLAG_G4SCINTILLATION_KILL_SECONDARY ;
-    if(strcmp(flag, _FLAG_G4SCINTILLATION_COLLECT_STEP ) == 0)   return FLAG_G4SCINTILLATION_COLLECT_STEP ;
-    if(strcmp(flag, _FLAG_G4SCINTILLATION_COLLECT_PHOTON ) == 0) return FLAG_G4SCINTILLATION_COLLECT_PHOTON ;
 
-    if(strcmp(flag, _FLAG_G4CERENKOV_ADD_SECONDARY ) == 0)       return FLAG_G4CERENKOV_ADD_SECONDARY ;
-    if(strcmp(flag, _FLAG_G4CERENKOV_KILL_SECONDARY ) == 0)      return FLAG_G4CERENKOV_KILL_SECONDARY ;
-    if(strcmp(flag, _FLAG_G4CERENKOV_COLLECT_STEP ) == 0)        return FLAG_G4CERENKOV_COLLECT_STEP ;
-    if(strcmp(flag, _FLAG_G4CERENKOV_COLLECT_PHOTON ) == 0)      return FLAG_G4CERENKOV_COLLECT_PHOTON ;
+    int ret = FLAG_ZERO ; 
 
-    if(strcmp(flag, _FLAG_G4CERENKOV_APPLY_WATER_QE ) == 0)      return FLAG_G4CERENKOV_APPLY_WATER_QE ;
+    if(strcmp(flag, _FLAG_G4SCINTILLATION_ADD_SECONDARY ) == 0)  ret = FLAG_G4SCINTILLATION_ADD_SECONDARY ;
+    if(strcmp(flag, _FLAG_G4SCINTILLATION_KILL_SECONDARY ) == 0) ret = FLAG_G4SCINTILLATION_KILL_SECONDARY ;
+    if(strcmp(flag, _FLAG_G4SCINTILLATION_COLLECT_STEP ) == 0)   ret = FLAG_G4SCINTILLATION_COLLECT_STEP ;
+    if(strcmp(flag, _FLAG_G4SCINTILLATION_COLLECT_PHOTON ) == 0) ret = FLAG_G4SCINTILLATION_COLLECT_PHOTON ;
 
-    return FLAG_ZERO ; 
+    if(strcmp(flag, _FLAG_G4CERENKOV_ADD_SECONDARY ) == 0)       ret = FLAG_G4CERENKOV_ADD_SECONDARY ;
+    if(strcmp(flag, _FLAG_G4CERENKOV_KILL_SECONDARY ) == 0)      ret = FLAG_G4CERENKOV_KILL_SECONDARY ;
+    if(strcmp(flag, _FLAG_G4CERENKOV_COLLECT_STEP ) == 0)        ret = FLAG_G4CERENKOV_COLLECT_STEP ;
+    if(strcmp(flag, _FLAG_G4CERENKOV_COLLECT_PHOTON ) == 0)      ret = FLAG_G4CERENKOV_COLLECT_PHOTON ;
+
+    if(strcmp(flag, _FLAG_G4CERENKOV_APPLY_WATER_QE ) == 0)      ret = FLAG_G4CERENKOV_APPLY_WATER_QE ;
+
+    //cout << "G4DAEChroma::MatchFlag " << flag << " " << ret << endl ;
+
+    return ret ; 
 }
 
 
 int G4DAEChroma::ParseFlags(std::string sflags, char delim)
 {
+
+    //cout << "G4DAEChroma::ParseFlags " << sflags << endl ; 
+
     typedef std::vector<std::string> Vec_t ;
     Vec_t elems ; 
     split(elems, sflags.c_str(), delim);
 
-    int flags ; 
+    int flags = 0 ; 
     for(Vec_t::iterator it=elems.begin() ; it!=elems.end() ; it++)
     {
         std::string elem = *it;
-        flags |= MatchFlag( elem.c_str() );
+        int eflag = MatchFlag( elem.c_str() );
+        cout << "G4DAEChroma::ParseFlags  elem " << elem << " eflag " << eflag << endl ; 
+        flags |= eflag ; 
     }
     return flags ; 
 }
