@@ -574,7 +574,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_COLLECT_PHOTON))
         {
             G4DAECerenkovPhotonList* cpl = chroma->GetCerenkovPhotonList();
-            size_t cpid = 1 + cpl->GetCount() ;  // 1-based 
+            //size_t cpid = 1 + cpl->GetCount() ;  // 1-based 
             float* cp = cpl->GetNextPointer();     
 
             float wavelength = (h_Planck * c_light / sampledEnergy) / nanometer ;

@@ -50,6 +50,7 @@ public:
         FLAG_G4SCINTILLATION_KILL_SECONDARY = 1 << 1, 
         FLAG_G4SCINTILLATION_COLLECT_STEP   = 1 << 2, 
         FLAG_G4SCINTILLATION_COLLECT_PHOTON = 1 << 3, 
+        FLAG_G4SCINTILLATION_COLLECT_PROP   = 1 << 4, 
 
         FLAG_G4CERENKOV_ADD_SECONDARY      = 1 << 16, 
         FLAG_G4CERENKOV_KILL_SECONDARY     = 1 << 17, 
@@ -59,16 +60,19 @@ public:
 
         FLAG_LAST = 1 << 31 
     };
-    static const char* _FLAG_G4CERENKOV_ADD_SECONDARY ; 
-    static const char* _FLAG_G4CERENKOV_KILL_SECONDARY ; 
-    static const char* _FLAG_G4CERENKOV_COLLECT_STEP ; 
-    static const char* _FLAG_G4CERENKOV_COLLECT_PHOTON ; 
-    static const char* _FLAG_G4CERENKOV_APPLY_WATER_QE ; 
+
 
     static const char* _FLAG_G4SCINTILLATION_ADD_SECONDARY ; 
     static const char* _FLAG_G4SCINTILLATION_KILL_SECONDARY ; 
     static const char* _FLAG_G4SCINTILLATION_COLLECT_STEP  ; 
     static const char* _FLAG_G4SCINTILLATION_COLLECT_PHOTON  ; 
+    static const char* _FLAG_G4SCINTILLATION_COLLECT_PROP   ; 
+
+    static const char* _FLAG_G4CERENKOV_ADD_SECONDARY ; 
+    static const char* _FLAG_G4CERENKOV_KILL_SECONDARY ; 
+    static const char* _FLAG_G4CERENKOV_COLLECT_STEP ; 
+    static const char* _FLAG_G4CERENKOV_COLLECT_PHOTON ; 
+    static const char* _FLAG_G4CERENKOV_APPLY_WATER_QE ; 
 
     static int ParseFlags(std::string sflags, char delim=',');
     static int MatchFlag(const char* flag );
@@ -165,12 +169,6 @@ public:
     std::size_t ProcessScintillationPhotons(int batch_id);
 
    
-    //void SetG4Cerenkov(bool do_);
-    //void SetG4Scintillation(bool do_);
-    //bool IsG4Cerenkov();
-    //bool IsG4Scintillation();
-
-   
     G4DAEPhotonList* GenerateMockPhotons();
 
 public:
@@ -209,15 +207,10 @@ private:
   // mapping between Geant4 and Chroma material indices
   int* m_g2c ; 
 
-
-  bool m_g4cerenkov ;  
-
-  bool m_g4scintillation ;  
-
-
   // verbosity level
   int m_verbosity ;  
 
+  // control bitfield
   int m_flags ;  
 
 };

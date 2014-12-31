@@ -195,6 +195,10 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 
 #ifdef G4DAECHROMA
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+    bool FLAG_G4SCINTILLATION_COLLECT_STEP   = chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_STEP) ;
+    bool FLAG_G4SCINTILLATION_COLLECT_PHOTON = chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_PHOTON) 
+    bool FLAG_G4SCINTILLATION_ADD_SECONDARY  = chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_ADD_SECONDARY) ;
+    bool FLAG_G4SCINTILLATION_KILL_SECONDARY = chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_KILL_SECONDARY) ; 
 #endif
  
     G4String pname="";
@@ -584,7 +588,7 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
         size_t ssid ;  // place here, for access from FOTON collection
         G4int chromaMaterialIndex ;
         G4int pdgCode ; 
-        if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_STEP))
+        if(FLAG_G4SCINTILLATION_COLLECT_STEP)
         {
             //
             // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
@@ -833,7 +837,7 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 #ifdef G4DAECHROMA
             {
                 assert( flagReemission == false );
-                if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_ADD_SECONDARY))
+                if(FLAG_G4SCINTILLATION_ADD_SECONDARY)
                 {
                     aParticleChange.AddSecondary(aSecondaryTrack);
                 }
@@ -854,10 +858,10 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 
 
 #ifdef G4DAECHROMA
-            if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_PHOTON)) 
+            if(FLAG_G4SCINTILLATION_COLLECT_PHOTON) 
             {
                 G4DAEScintillationPhotonList* spl = chroma->GetScintillationPhotonList();
-                size_t spid = 1 + spl->GetCount() ;  // 1-based 
+                //size_t spid = 1 + spl->GetCount() ;  // 1-based 
                 float* sp = spl->GetNextPointer();     
 
                 float wavelength = (h_Planck * c_light / sampledEnergy) / nanometer ;
@@ -904,7 +908,7 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
     }
 
 #ifdef G4DAECHROMA
-    if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_KILL_SECONDARY)) 
+    if(FLAG_G4SCINTILLATION_KILL_SECONDARY) 
     {
         if (verboseLevel > 0) 
              G4cout << "DsChromaG4Scintillation::PostStepDoIt FLAG_G4SCINTILLATION_KILL_SECONDARY " 
@@ -1160,7 +1164,10 @@ void DsChromaG4Scintillation::BuildThePhysicsTable()
         // will be inserted in the table(s) according to the
         // position of the material in the material table.
 
-#ifdef G4DAECHROMA_COLLECT_STEPS
+#ifdef G4DAECHROMA
+        // this happens before the RunAction initializes Chroma, so no flags set yet
+        //if(G4DAEChroma::GetG4DAEChroma()->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_PROP))
+        if(true)
         {
 
              /*
@@ -1170,6 +1177,11 @@ void DsChromaG4Scintillation::BuildThePhysicsTable()
              */
              double xscale = nanometer/(h_Planck * c_light ) ;  // scale energy to reciprocal wavelengths (nm^-1)
              double yscale =  1e9 ;   // values are unhealthily small for a float, so scale by a billion 
+
+             cout << "FLAG_G4SCINTILLATION_COLLECT_PROP " 
+                  << " xscale " <<  xscale 
+                  << " yscale " <<  yscale
+                  << endl ;  
 
              G4String name ; 
              G4String materialName = aMaterial->GetName();
@@ -1190,6 +1202,10 @@ void DsChromaG4Scintillation::BuildThePhysicsTable()
                  b.Save(bname.c_str());
                  c.Save(cname.c_str());
              } 
+        }
+        else
+        { 
+              printf("FLAG_G4SCINTILLATION_COLLECT_PROP skipping \n");
         }
 #endif
         theFastIntegralTable->insertAt(i,aPhysicsOrderedFreeVector);

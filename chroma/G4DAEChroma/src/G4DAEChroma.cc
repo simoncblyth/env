@@ -58,8 +58,6 @@ G4DAEChroma::G4DAEChroma() :
     m_metadata(0),
     m_materialmap(0),
     m_g2c(0),
-    m_g4cerenkov(false),
-    m_g4scintillation(false),
     m_verbosity(3),
     m_flags(0)
 { 
@@ -82,6 +80,7 @@ const char* G4DAEChroma::_FLAG_G4SCINTILLATION_ADD_SECONDARY    = "FLAG_G4SCINTI
 const char* G4DAEChroma::_FLAG_G4SCINTILLATION_KILL_SECONDARY   = "FLAG_G4SCINTILLATION_KILL_SECONDARY" ; 
 const char* G4DAEChroma::_FLAG_G4SCINTILLATION_COLLECT_STEP     = "FLAG_G4SCINTILLATION_COLLECT_STEP" ; 
 const char* G4DAEChroma::_FLAG_G4SCINTILLATION_COLLECT_PHOTON   = "FLAG_G4SCINTILLATION_COLLECT_PHOTON" ; 
+const char* G4DAEChroma::_FLAG_G4SCINTILLATION_COLLECT_PROP     = "FLAG_G4SCINTILLATION_COLLECT_PROP" ; 
 
 const char* G4DAEChroma::_FLAG_G4CERENKOV_ADD_SECONDARY         = "FLAG_G4CERENKOV_ADD_SECONDARY" ; 
 const char* G4DAEChroma::_FLAG_G4CERENKOV_KILL_SECONDARY        = "FLAG_G4CERENKOV_KILL_SECONDARY" ; 
@@ -97,6 +96,7 @@ std::string G4DAEChroma::Flags()
     if(HasFlag(FLAG_G4SCINTILLATION_KILL_SECONDARY))     elem.push_back(std::string(_FLAG_G4SCINTILLATION_KILL_SECONDARY)) ;
     if(HasFlag(FLAG_G4SCINTILLATION_COLLECT_STEP))       elem.push_back(std::string(_FLAG_G4SCINTILLATION_COLLECT_STEP)) ;
     if(HasFlag(FLAG_G4SCINTILLATION_COLLECT_PHOTON))     elem.push_back(std::string(_FLAG_G4SCINTILLATION_COLLECT_PHOTON)) ;
+    if(HasFlag(FLAG_G4SCINTILLATION_COLLECT_PROP))       elem.push_back(std::string(_FLAG_G4SCINTILLATION_COLLECT_PROP)) ;
 
     if(HasFlag(FLAG_G4CERENKOV_ADD_SECONDARY))           elem.push_back(std::string(_FLAG_G4CERENKOV_ADD_SECONDARY)) ;
     if(HasFlag(FLAG_G4CERENKOV_KILL_SECONDARY))          elem.push_back(std::string(_FLAG_G4CERENKOV_KILL_SECONDARY)) ;
@@ -118,6 +118,7 @@ int G4DAEChroma::MatchFlag(const char* flag )
     if(strcmp(flag, _FLAG_G4SCINTILLATION_KILL_SECONDARY ) == 0) ret = FLAG_G4SCINTILLATION_KILL_SECONDARY ;
     if(strcmp(flag, _FLAG_G4SCINTILLATION_COLLECT_STEP ) == 0)   ret = FLAG_G4SCINTILLATION_COLLECT_STEP ;
     if(strcmp(flag, _FLAG_G4SCINTILLATION_COLLECT_PHOTON ) == 0) ret = FLAG_G4SCINTILLATION_COLLECT_PHOTON ;
+    if(strcmp(flag, _FLAG_G4SCINTILLATION_COLLECT_PROP ) == 0)   ret = FLAG_G4SCINTILLATION_COLLECT_PROP ;
 
     if(strcmp(flag, _FLAG_G4CERENKOV_ADD_SECONDARY ) == 0)       ret = FLAG_G4CERENKOV_ADD_SECONDARY ;
     if(strcmp(flag, _FLAG_G4CERENKOV_KILL_SECONDARY ) == 0)      ret = FLAG_G4CERENKOV_KILL_SECONDARY ;
@@ -167,7 +168,6 @@ int G4DAEChroma::GetFlags()
 {
     return m_flags ; 
 }
-
 void G4DAEChroma::AddFlags(int flags)
 {
     m_flags |= flags ; 
@@ -187,27 +187,6 @@ bool G4DAEChroma::HasFlag(int flag)
 }
 
 
-/*
-void G4DAEChroma::SetG4Cerenkov(bool do_)
-{
-   m_g4cerenkov = do_ ; 
-}
-void G4DAEChroma::SetG4Scintillation(bool do_)
-{
-   m_g4scintillation = do_ ; 
-}
-bool G4DAEChroma::IsG4Cerenkov()
-{
-   return m_g4cerenkov ; 
-}
-bool G4DAEChroma::IsG4Scintillation()
-{
-   return m_g4scintillation ; 
-}
-*/
-
-
-
 
 void G4DAEChroma::Print(const char* msg)
 {
@@ -221,8 +200,7 @@ void G4DAEChroma::Print(const char* msg)
     cout << "materialmap " << m_materialmap  << endl ; 
     cout << "g2c         " << m_g2c  << endl ; 
     cout << "verbosity   " << m_verbosity  << endl ; 
-    cout << "g4cerenkov        " << m_g4cerenkov << endl ; 
-    cout << "g4scintillation   " << m_g4scintillation  << endl ; 
+    cout << "flags:\n"     << Flags() << endl ;
 }
 
 

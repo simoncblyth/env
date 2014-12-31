@@ -52,7 +52,7 @@ void DsChromaRunAction_BeginOfRunAction(
     chroma->SetFlags(_chromaFlags); 
     cout << "DsChromaRunAction_BeginOfRunAction chromaFlags " << chroma->Flags() << endl;   
 
-    cout << "flags 0x" << hex << chroma->GetFlags() << endl ; 
+    cout << "flags 0x" << hex << chroma->GetFlags() << dec << " dec " << chroma->GetFlags() << endl ; 
 
      ////  database
 
