@@ -171,6 +171,15 @@ void G4DAEMetadata::SaveToBuffer()
     SetString( str.c_str());
 }
 
+void G4DAEMetadata::PrintLinks(const char* msg) 
+{
+    G4DAEMetadata* link = GetLink();
+    while(link)
+    {   
+        link->Print(msg) ;
+        link = link->GetLink();
+    }   
+}
 
 void G4DAEMetadata::Print(const char* msg) const
 {

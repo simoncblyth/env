@@ -385,5 +385,6 @@ gdc-nuwapkg-prerequisites()
 
 }
 
-
+gdc-flags-json(){ echo $(gdc-sdir)/flags.json ; }
+gdc-flags-gen(){ PYTHONPATH=$HOME flags.py $(gdc-flags-json) ; }
 

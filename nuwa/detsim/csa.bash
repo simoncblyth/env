@@ -257,14 +257,33 @@ csa-envsetup(){
 
    # non-cached envvars
    csa-export   
-
 }
 
 
+csa-flags-notes(){ cat << EON
+
+FLAG_G4CERENKOV_COLLECT_STEP
+FLAG_G4SCINTILLATION_COLLECT_STEP
+       collect G4 gensteps and send to chroma, currently with noreturn
+
+FLAG_G4CERENKOV_COLLECT_PHOTON
+FLAG_G4SCINTILLATION_COLLECT_PHOTON
+       collect G4 generated photons and send to chroma,
+       allows same steps comparison with the chroma generated photons  
+
+FLAG_G4SCINTILLATION_COLLECT_PROP
+       collect scintillation integrals into G4DAEPropList 
+       and write to file, for debugging  
+
+EON
+}
+
 csa-flags-(){ cat << EOF
 FLAG_G4SCINTILLATION_COLLECT_STEP
+FLAG_G4SCINTILLATION_COLLECT_PHOTON
 FLAG_G4SCINTILLATION_COLLECT_PROP
 FLAG_G4CERENKOV_COLLECT_STEP
+FLAG_G4CERENKOV_COLLECT_PHOTON
 EOF
 }
 csa-flags(){ $FUNCNAME- | tr "\n" "," ; }

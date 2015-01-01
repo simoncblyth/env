@@ -76,6 +76,9 @@ G4DAEChroma::~G4DAEChroma()
 }
 
 
+
+////////  Generate the bitfield flags code from flags.json source using: gdc-flags-gen /////////
+
 const char* G4DAEChroma::_FLAG_G4SCINTILLATION_ADD_SECONDARY    = "FLAG_G4SCINTILLATION_ADD_SECONDARY" ;
 const char* G4DAEChroma::_FLAG_G4SCINTILLATION_KILL_SECONDARY   = "FLAG_G4SCINTILLATION_KILL_SECONDARY" ; 
 const char* G4DAEChroma::_FLAG_G4SCINTILLATION_COLLECT_STEP     = "FLAG_G4SCINTILLATION_COLLECT_STEP" ; 
@@ -131,6 +134,9 @@ int G4DAEChroma::MatchFlag(const char* flag )
 
     return ret ; 
 }
+/////////////// end of generatable code //////////////////
+
+
 
 
 int G4DAEChroma::ParseFlags(std::string sflags, char delim)

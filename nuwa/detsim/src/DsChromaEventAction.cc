@@ -39,20 +39,59 @@ void DsChromaEventAction::BeginOfEventAction( const G4Event* /*event*/ )
 
 void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
 {
-    double te = G4DAEMetadata::RealTime();
-    double td = te - m_t0 ;
-    printf("DsChromaEventAction::EndOfEventAction te %f t0 %f td %f \n", te, m_t0, td );
+    // hmm maybe add less manual timestamping, eg using map<string,double> timestamp structure 
 
-    m_map["EndOfEvent"] = G4DAEMetadata::TimeStampLocal();
-    m_map["DurationOfEvent"] = toStr<double>(td) ;  
-    m_map["COLUMNS"] = "BeginOfEvent:s,EndOfEvent:s,DurationOfEvent:f" ;
+    double te ; 
+    {   
+        te = G4DAEMetadata::RealTime();
+        double d = te - m_t0 ;
+        printf("DsChromaEventAction::EndOfEventAction-Head te %f t0 %f te-t0 %f \n", te, m_t0, d );
+        m_map["EndOfEvent"] = G4DAEMetadata::TimeStampLocal();
+        m_map["DurationOfEvent"] = toStr<double>(d) ;  
+        m_map["COLUMNS"] = "BeginOfEvent:s,EndOfEvent:s,DurationOfEvent:f,TailOfEvent:f,DurationOfTail:f" ;
+    }  
+
+    ChromaProcessing();
+
+    double tf ; 
+    {   
+        tf = G4DAEMetadata::RealTime();
+        double d = tf - te ;
+        printf("DsChromaEventAction::EndOfEventAction-Tail te %f tf %f tf-te %f \n", tf, te, d );
+        m_map["TailOfEvent"] = G4DAEMetadata::TimeStampLocal();
+        m_map["DurationOfTail"] = toStr<double>(d) ;  
+    }  
 
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
+    G4DAEMetadata* meta = chroma->GetMetadata(); 
+    {
+        meta->AddMap("eventaction",m_map);
+        meta->Print("#chromameta");
+        meta->PrintLinks("#chromameta_links");
+    }   
+
+    {
+        G4DAEDatabase* db = chroma->GetDatabase(); 
+        if(db)
+        {
+            db->Insert(meta, "tevent",  "BeginOfEvent,EndOfEvent,DurationOfEvent" );
+        }
+        else
+        {
+            printf("DsChromaEventAction::EndOfEventAction db NULL \n");
+        }
+    }
+}
 
 
+void DsChromaEventAction::ChromaProcessing()
+{
+
+    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
     if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_COLLECT_STEP))
     {
+        printf("FLAG_G4CERENKOV_COLLECT_STEP\n"); 
         G4DAECerenkovStepList* l = chroma->GetCerenkovStepList(); 
         l->SetKV("ctrl", "type", "cerenkov" );
         l->SetKV("ctrl", "evt", "1" );
@@ -80,6 +119,7 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
 
     if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_STEP))
     {
+        printf("FLAG_G4SCINTILLATION_COLLECT_STEP\n"); 
         G4DAEScintillationStepList* l = chroma->GetScintillationStepList(); 
         l->SetKV("ctrl", "type", "scintillation" );
         l->SetKV("ctrl", "evt", "1" );
@@ -109,6 +149,7 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
 
     if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_COLLECT_PHOTON))
     {
+        printf("FLAG_G4CERENKOV_COLLECT_PHOTON\n"); 
         G4DAECerenkovPhotonList* l = chroma->GetCerenkovPhotonList();  
         l->SetKV("ctrl", "type", "gopcerenkov" );  
         l->SetKV("ctrl", "evt", "1" );
@@ -137,6 +178,7 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
 
     if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_PHOTON))
     {
+        printf("FLAG_G4SCINTILLATION_COLLECT_PHOTON\n"); 
         G4DAEScintillationPhotonList* l = chroma->GetScintillationPhotonList();   
         l->SetKV("ctrl", "type", "gopscintillation" );
         l->SetKV("ctrl", "evt", "1" );
@@ -160,32 +202,8 @@ void DsChromaEventAction::EndOfEventAction( const G4Event* /*event*/ )
         printf("ProcessScintillationPhotons FLAG_G4SCINTILLATION_COLLECT_PHOTON : SKIPPING  \n"); 
     }
 
-
-
- 
-    G4DAEDatabase* db = chroma->GetDatabase(); 
-    G4DAEMetadata* meta = chroma->GetMetadata(); 
-
-    meta->AddMap("eventaction",m_map);
-    meta->Print("#chromameta");
-
-   
-    G4DAEMetadata* m = meta->GetLink();
-    while(m)
-    {  
-        m->Print("#chromameta_linked") ;
-        m = m->GetLink();
-    }   
-
-
-    if(db)
-    {
-        db->Insert(meta, "tevent",  "BeginOfEvent,EndOfEvent,DurationOfEvent" );
-    }
-    else
-    {
-        printf("DsChromaEventAction::EndOfEventAction db NULL \n");
-    }
 }
+
+
 
 

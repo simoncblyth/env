@@ -21,8 +21,6 @@ G4DAEArrayHolder* G4DAEProp::Copy(G4PhysicsOrderedFreeVector* pofv, double xscal
 
        double d_edge = pofv->GetLowEdgeEnergy(b)*xscale ;
        double d_value  = (*pofv)[b]*yscale ; 
- 
-       cout << " edge " << d_edge << " value " << d_value << endl ; 
 
        prop[_binEdge]  = float(d_edge) ;
        prop[_binValue] = float(d_value) ; 

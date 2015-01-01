@@ -36,6 +36,8 @@ private:
   DsChromaEventAction( const DsChromaEventAction& );  
   DsChromaEventAction& operator=( const DsChromaEventAction& );
 
+  void ChromaProcessing();
+
 private:
   double  m_t0 ;
   Map_t   m_map ; 

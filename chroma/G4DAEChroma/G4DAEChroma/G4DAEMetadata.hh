@@ -59,6 +59,7 @@ public:
     // debugging 
     void PrintToFile(const char* path) const;
     void Print(const char* msg="G4DAEMetadata::Print") const;
+    void PrintLinks(const char* msg="G4DAEMetadata::PrintLinks");
     void PrintMap(const char* msg="G4DAEMetadata::PrintMap");
     void SetString(const char* str);
     std::string GetString() const;
