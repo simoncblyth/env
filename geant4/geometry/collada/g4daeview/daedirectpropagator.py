@@ -81,17 +81,19 @@ class DAEDirectPropagator(object):
             log.warn("failed to onlycopy")
         pass
 
-    def sidesave(self, request, photons):
+
+    def save(self, npy, prefix=None):
+        """
+        Better to keep type info and metadata with the npy 
+        rather than using common place in chroma 
+        """
         itype = self.chroma.ctrl.get('type',None)
         evt = self.chroma.ctrl.get('evt',None)
-        if not itype is None:
-            self.config.save_npy(request, evt, itype)   
-            otype = "op%s" % itype
-            self.config.save_npy(photons, evt, otype)   
-        else:
-            log.warn("failed to sidesave")
-        pass
-
+        if itype is None or evt is None:    
+            log.warn("failed to save, missing type/evt metadata")
+   
+        utype = itype if prefix is None else "%s%s" % (prefix, itype)
+        self.config.save_npy(npy, evt, utype)   
 
     def generate(self, request):
         """
@@ -101,9 +103,11 @@ class DAEDirectPropagator(object):
             Out[98]: 4711
 
         """
-
-
         results = {}
+
+        if self.chroma.ctrl.get('sidesave',0) == 1:
+            self.save(request)
+
         gpu_gensteps = GPUGenSteps(request)
 
         results = gpu_gensteps.generate(self.chroma.gpu_detector, 
@@ -111,9 +115,8 @@ class DAEDirectPropagator(object):
                                         self.chroma.parameters)
         photons = gpu_gensteps.get()
 
-
         if self.chroma.ctrl.get('sidesave',0) == 1:
-            self.sidesave(request, photons)
+            self.save(photons, prefix='op')
 
         if self.chroma.ctrl.get('noreturn',0) == 1:
             response = NPY.empty()

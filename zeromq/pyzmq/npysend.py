@@ -128,11 +128,14 @@ def parse_args():
     d['level'] = "INFO"
     d['endpoint'] = os.environ['ZMQ_BROKER_URL_FRONTEND']
 
+    h = {}
+    h['inp'] = "Either \"handshake\" or the type of file to load, eg \"cerenkov\", \"scintillation\", \"opscintillation\" "  
+
     parser.add_argument("--ipython", action="store_true", default=d['ipython'] ) 
     parser.add_argument("--copy", action="store_true", default=d['copy'], help="Copy frames into bytes during npysocket operation (SLOWER)" ) 
     parser.add_argument("--zmqtunnelnode", default=None, help="Option handled in the invoking bash script, which opens ssh tunnel to remote frontend" ) 
     parser.add_argument("-t","--tag", default=d['tag'] ) 
-    parser.add_argument("-i","--inp", default=d['inp'], help="Type of file to load",type=str)
+    parser.add_argument("-i","--inp", default=d['inp'], help=h['inp'],type=str)
     parser.add_argument("-o","--out", default=d['out'], help="Type of file to save response into", type=str)
     parser.add_argument("-l","--level", default=d['level'], help="INFO/DEBUG/WARN/..")  
     parser.add_argument("--endpoint", default=d['endpoint'], help="broker url")  

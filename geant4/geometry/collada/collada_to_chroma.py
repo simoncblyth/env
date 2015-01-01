@@ -561,7 +561,7 @@ class ColladaToChroma(object):
         # 
         #
 
-        log.info("setting reemission_cdf for %s to %s " % (material.name, repr(reemission_cdf)))
+        log.debug("setting reemission_cdf for %s to %s " % (material.name, repr(reemission_cdf)))
 
         #material.set('slow_cdf', slow_cdf[:,1], wavelengths=slow_cdf[:,0])
         #material.set('fast_cdf', fast_cdf[:,1], wavelengths=fast_cdf[:,0])

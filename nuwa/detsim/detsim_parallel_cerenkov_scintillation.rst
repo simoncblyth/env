@@ -921,6 +921,9 @@ The non infinities look like a wavelength distrib::
     In [9]: plt.hist(ww, bins=100)   ## wavelength flipped distribution, maybe need to "1 - cdf" 
 
 
+Succeed to get rid of infinities by establishing order of chroma 
+materials and surfaces to be based on names with pointer address excluded. 
+
 
 
 

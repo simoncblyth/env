@@ -278,21 +278,6 @@ def plot_refractive_index(tag=1, **kwa):
     qplot(mm, **cfg)
 
 
-# from chroma.gpu.GPUGeometry
-def interp_material_property(wavelengths, prop):
-    # note that it is essential that the material properties be
-    # interpolated linearly. this fact is used in the propagation
-    # code to guarantee that probabilities still sum to one.
-    return np.interp(wavelengths, prop[:,0], prop[:,1]).astype(np.float32)
-
-def standardize( prop, standard_wavelengths = np.arange(60, 810, 20).astype(np.float32)):
-    """
-    mimic what the chroma.geometry machinery does to properties on copying to GPU
-    """
-    vals = interp_material_property(standard_wavelengths,  prop )
-    return np.vstack([standard_wavelengths, vals]).T
-
-
 def qplot(materials, standard=False, qty='refractive_index'):
     """
     :param materials: list of chroma material instances
@@ -429,7 +414,7 @@ def get_cdf():
     return cdf
 
 
-def scintillation_wavelength_raw(n=2817543):
+def scintillation_wavelength_raw(n=2817543, plot=False, standard=False, wl="60:810:20"):
     """
     Succeeds to reproduce the scintillation wavelength distrib 
     by duplicating the DsChromaG4Scintillation::BuildThePhysicsTable 
@@ -437,16 +422,55 @@ def scintillation_wavelength_raw(n=2817543):
     """
     cdf = get_cdf()
 
-    assert np.all(np.diff(cdf[:,1]) >= 0), "must be increasing "
+    if standard:
+        cdf = standardize(cdf,wl)
 
-    w = np.interp( np.random.rand(n) , cdf[:,1], cdf[:,0] )   ## x-y flip to pluck x from a drawn y 
+    ascending = np.all(np.diff(cdf[:,1]) >= 0)
+    descending = np.all(np.diff(cdf[:,1]) <= 0)
 
-    plt.hist(w, bins=100, log=True, range=(100,900))
+    if descending:
+        cdf[:,1] = 1 - cdf[:, 1]
 
-    plt.show()
+    w = np.interp( np.random.rand(n) , cdf[:,1], cdf[:,0] )   # uniform draw 0:1 used to look up a wavelength from the cdf
+
+    if plot:
+        plt.hist(w, bins=100, log=True, range=(100,900))
+        plt.show()
+
+    return w
 
 
 
+def interp_material_property(wavelengths, prop):
+    ascending = np.all(np.diff(prop[:,0]) >= 0)
+    descending = np.all(np.diff(prop[:,0]) <= 0)
+    
+    if ascending:
+        return np.interp(wavelengths, prop[:,0], prop[:,1]).astype(np.float32)
+    elif descending:
+        # the interpolation needs ascending so reverse here, then reverse back after
+        iprop = np.interp(wavelengths, prop[::-1,0], prop[::-1,1]).astype(np.float32)
+        return iprop[::-1].copy()
+    else:
+        assert 0, "needs to be all ascending or all descending "
+        return None 
+
+
+def original_interp_material_property(wavelengths, prop):
+    # from chroma.gpu.GPUGeometry
+    # note that it is essential that the material properties be
+    # interpolated linearly. this fact is used in the propagation
+    # code to guarantee that probabilities still sum to one.
+    return np.interp(wavelengths, prop[:,0], prop[:,1]).astype(np.float32)
+
+def standardize( prop, wl="60:810:20"):
+    """
+    mimic what the chroma.geometry machinery does to properties on copying to GPU
+    """
+    wl = map(float,wl.split(":"))
+    standard_wavelengths = np.arange(*wl).astype(np.float32)
+    vals = interp_material_property(standard_wavelengths,  prop )
+    return np.vstack([standard_wavelengths, vals]).T
 
 
 
