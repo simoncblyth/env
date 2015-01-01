@@ -164,7 +164,8 @@ def construct_cdf_energywise(xy):
 
     xdif = np.diff(x)            
 
-    bcdf[:,0] = rxy[:,0]        # back to wavelength
+    #bcdf[:,0] = rxy[:,0]        # back to wavelength
+    bcdf[:,0] = x                # keeping 1/wavelenth
 
     bcdf[0,1] = 0.
 
@@ -172,8 +173,7 @@ def construct_cdf_energywise(xy):
 
     bcdf[1:,1] = bcdf[1:,1]/bcdf[1:,1].max() 
 
-    #return bcdf[::-1]           # reverse order, back to ascending wavelength 
-    return bcdf                 # not so easy to reverse, as interpolation relies on an increasing cdf "y" value 
+    return bcdf         
 
 
 
@@ -538,9 +538,6 @@ class ColladaToChroma(object):
 
         assert np.all( fast == slow )     # CURIOUS, that these are the same
 
-        #fast_cdf = construct_cdf_energywise( fast )
-        #slow_cdf = construct_cdf_energywise( slow )
-        #assert np.all( fast_cdf == slow_cdf )
         reemission_cdf = construct_cdf_energywise( fast ) 
 
         ## yep "fast" : need intensity distribution 
@@ -561,11 +558,10 @@ class ColladaToChroma(object):
         # 
         #
 
-        log.debug("setting reemission_cdf for %s to %s " % (material.name, repr(reemission_cdf)))
+        log.info("setting reemission_cdf for %s to %s " % (material.name, repr(reemission_cdf)))
 
-        #material.set('slow_cdf', slow_cdf[:,1], wavelengths=slow_cdf[:,0])
-        #material.set('fast_cdf', fast_cdf[:,1], wavelengths=fast_cdf[:,0])
-        material.set('reemission_cdf', reemission_cdf[:,1], wavelengths=reemission_cdf[:,0])
+        #material.set('reemission_cdf', reemission_cdf[:,1], wavelengths=reemission_cdf[:,0])
+        material.setraw('reemission_cdf', reemission_cdf)
 
 
 

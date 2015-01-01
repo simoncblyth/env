@@ -130,6 +130,9 @@ def sample_cdf( u, nbin, x0, delta, cdf_y ):
     # 
     delta_cdf_y = cdf_y[upper] - cdf_y[lower]
     return x0 + delta*lower + delta*(u-cdf_y[lower])/delta_cdf_y
+
+
+
  
 
 def make_cdf(entries):

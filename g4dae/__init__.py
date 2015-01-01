@@ -378,6 +378,34 @@ def cerenkov_wavelength(cs, csi=0, nrand=100000, standard=False):
 
 
 
+def get_cheat_cdf(name="gdls_fast"):
+    """
+    *  (1/wavelength, ascending_cdf)
+
+    ::
+
+        In [20]: ccdf = get_cheat_cdf()
+    
+        In [24]: ccdf
+        Out[24]: 
+        array([[ 0.001,  0.   ],
+               [ 0.002,  0.001],
+               [ 0.002,  0.001],
+               ...
+               [ 0.005,  1.   ],
+               [ 0.008,  1.   ],
+               [ 0.013,  1.   ]], dtype=float32)
+
+        In [23]: plt.plot(ccdf[:,0],ccdf[:,1])
+
+    """
+    cdf = pro_(name).copy()      
+
+    cdf[:,1] = cdf[:,1]/cdf[:,1].max()   # make y range 0:1
+
+    return cdf
+
+
 def scintillation_wavelength(n=2817543):
     """
     The "cheats" by using the purloined ScintillationIntegral 
@@ -388,89 +416,264 @@ def scintillation_wavelength(n=2817543):
     a uniform draw in "y" is used to lookup the "x"  
     (1/wavelength)
 
+    Where the reciprocal is taken doesnt matter for middle and high wavelengths, 
+    but has significant effect on low wavelengths 200:350 nm
+    reciprocal after (ie the interpolation yields reciprocal wavelengths)
+    being an almost pefect match for the G4 distrib.
+
+    Thus to get a match need to do interpolation in 1/wavelength
+
+    ::
+
+       plt.figure()
+       plt.title("reciprocal after")
+       plt.hist(wa_(n), bins=100, log=True, range=(100,900), histtype="step")  
+       plt.hist(wa_(n), bins=100, log=True, range=(100,900), histtype="step")  
+       plt.hist(wa_(n), bins=100, log=True, range=(100,900), histtype="step")  
+
+       plt.figure()
+       plt.title("reciprocal before")
+       plt.hist(wb_(n), bins=100, log=True, range=(100,900), histtype="step")  
+       plt.hist(wb_(n), bins=100, log=True, range=(100,900), histtype="step")  
+       plt.hist(wb_(n), bins=100, log=True, range=(100,900), histtype="step")  
+       ...
+
+       g4s = G4ScintillationPhoton.get(1)
+       wg = g4s.wavelength
+
+       plt.figure(1)
+       plt.hist( wg, bins=100, log=True, range=(100,900), histtype="step")
+
+       plt.figure(2)
+       plt.hist( wg, bins=100, log=True, range=(100,900), histtype="step")
+
+
     """
-    cdf = pro_("gdls_fast").copy()      
+    ccdf = get_cheat_cdf("gdls_fast")   # (1/wavelength, ascending_cdf)
 
-    cdf[:,1] = cdf[:,1]/cdf[:,1].max()   # make y range 0:1
+    wa_ = lambda n:1/np.interp( np.random.rand(n) , ccdf[:,1], ccdf[:,0] ) # reciprocal after 
 
-    wi = np.interp( np.random.rand(n) , cdf[:,1], cdf[:,0] )   ## x-y flip to pluck x from a drawn y 
-    
-    w = 1/wi
+    wb_ = lambda n:np.interp( np.random.rand(n) , ccdf[:,1], 1/ccdf[:,0] ) # reciprocal before 
 
-    plt.hist(w, bins=100, log=True, range=(100,900))
+    plt.hist(wa_(n), bins=100, log=True, range=(100,900), histtype="step")
 
     plt.show()
 
 
+
+def construct_cdf_energywise(xy):
+    """
+    Duplicates DsChromaG4Scintillation::BuildThePhysicsTable     
+
+    # NB changed to return (asc 1/wavelenth, asc cdf) 
+ 
+    """
+    assert len(xy.shape) == 2 and xy.shape[-1] == 2
+
+    bcdf = np.empty( xy.shape )
+
+    rxy = xy[::-1]              # reverse order, for ascending energy 
+
+    x = 1/rxy[:,0]              # work in inverse wavelength 1/nm
+
+    y = rxy[:,1]
+
+    ymid = (y[:-1]+y[1:])/2     # looses entry as needs pair
+
+    xdif = np.diff(x)            
+
+    #bcdf[:,0] = rxy[:,0]        # back to wavelength
+    bcdf[:,0] = x                # keeping 1/wavelenth
+
+    bcdf[0,1] = 0.
+
+    np.cumsum(ymid*xdif, out=bcdf[1:,1])
+
+    bcdf[1:,1] = bcdf[1:,1]/bcdf[1:,1].max() 
+
+    return bcdf    # (asc 1/wavelength, asc cdf)
+
+
+
 def get_cdf():
-    from env.geant4.geometry.collada.collada_to_chroma import construct_cdf_energywise
+    """
+    Original and reversed plot look precisely the same, but the 
+    reversed enables interp to work.
+
+         plt.plot(cdf[:,0],cdf[:,1])
+         plt.plot(cdf[::-1,0],cdf[::-1,1])
+
+    """
+    #from env.geant4.geometry.collada.collada_to_chroma import construct_cdf_energywise
 
     ls = get_ls()
 
     fast = ls.extra.properties['FASTCOMPONENT'].astype(np.float64)     
 
-    cdf = construct_cdf_energywise(fast)
+    cdf = construct_cdf_energywise(fast)  # (asc 1/wavelength, asc cdf )
    
     return cdf
 
 
-def scintillation_wavelength_raw(n=2817543, plot=False, standard=False, wl="60:810:20"):
+
+def compare_cdf():
+    ccdf = get_cheat_cdf()         # (asc 1/wavelength, asc cdf)
+
+    rcdf = get_cdf()               # (asc 1/wavelength, asc cdf) 
+
+    assert np.allclose(rcdf,ccdf)  #  max diff ~1.e-7
+    
+
+
+def scintillation_wavelength_raw(n=2817543, plot=True, standard=False, wl="60:810:20", after=True):
     """
     Succeeds to reproduce the scintillation wavelength distrib 
     by duplicating the DsChromaG4Scintillation::BuildThePhysicsTable 
     logic in construct_cdf_energywise
+
+    ::
+
+        plt.ion()
+        scintillation_wavelength_raw()
+        scintillation_wavelength_raw(after=False)                 # very off 200:350, 700:800
+        scintillation_wavelength_raw(after=False, standard=True)  # huh standard mode mends the "before"
+
+        scintillation_wavelength_raw(standard=True,wl="60:810:20")   # slightly off at ~400nm cliff
+        scintillation_wavelength_raw(standard=True,wl="60:810:10")   # step of 10nm much better 
+
+        ## good agreement 
+
     """
     cdf = get_cdf()
 
     if standard:
-        cdf = standardize(cdf,wl)
+        cdf = standardize(cdf, wl, reciprocal=True)
 
-    ascending = np.all(np.diff(cdf[:,1]) >= 0)
-    descending = np.all(np.diff(cdf[:,1]) <= 0)
+    wb_ = lambda n:np.interp( np.random.rand(n) , cdf[:,1], 1/cdf[:,0] ) # reciprocal before 
+    wa_ = lambda n:1/np.interp( np.random.rand(n) , cdf[:,1], cdf[:,0] ) # reciprocal after 
 
-    if descending:
-        cdf[:,1] = 1 - cdf[:, 1]
+    ## huh after/before seems making no difference here
+    if after:
+        w_ = wa_
+    else:
+        w_ = wb_
 
-    w = np.interp( np.random.rand(n) , cdf[:,1], cdf[:,0] )   # uniform draw 0:1 used to look up a wavelength from the cdf
+    w = w_(n)   
 
     if plot:
-        plt.hist(w, bins=100, log=True, range=(100,900))
-        plt.show()
+        plt.hist(w, bins=100, log=True, range=(100,900), histtype='step')
 
     return w
 
 
-
-def interp_material_property(wavelengths, prop):
-    ascending = np.all(np.diff(prop[:,0]) >= 0)
-    descending = np.all(np.diff(prop[:,0]) <= 0)
-    
-    if ascending:
-        return np.interp(wavelengths, prop[:,0], prop[:,1]).astype(np.float32)
-    elif descending:
-        # the interpolation needs ascending so reverse here, then reverse back after
-        iprop = np.interp(wavelengths, prop[::-1,0], prop[::-1,1]).astype(np.float32)
-        return iprop[::-1].copy()
-    else:
-        assert 0, "needs to be all ascending or all descending "
-        return None 
-
-
-def original_interp_material_property(wavelengths, prop):
-    # from chroma.gpu.GPUGeometry
-    # note that it is essential that the material properties be
-    # interpolated linearly. this fact is used in the propagation
-    # code to guarantee that probabilities still sum to one.
-    return np.interp(wavelengths, prop[:,0], prop[:,1]).astype(np.float32)
-
-def standardize( prop, wl="60:810:20"):
+def interp_material_property(domain, prop, reciprocal=False):
     """
+    :param domain:
+    :param prop:
+
+    from chroma.gpu.GPUGeometry
+    note that it is essential that the material properties be
+    interpolated linearly. this fact is used in the propagation
+    code to guarantee that probabilities still sum to one.
+    """
+    ascending_ = lambda _:np.all(np.diff(_) >= 0)
+    assert ascending_(domain) 
+    assert ascending_(prop[:,0]) 
+    return np.interp(domain, prop[:,0], prop[:,1]).astype(np.float32)
+
+
+
+def get_wavelengths(wl="60:810:20"):
+    wavelengths = np.arange(*map(float,wl.split(":"))).astype(np.float32)
+    return wavelengths
+
+
+def standardize( prop, wl="60:810:20", reciprocal=False):
+    """
+    :param reciprocal:  when true the interpolation assumes prop[:,0] to be in 1/wavelength
+
     mimic what the chroma.geometry machinery does to properties on copying to GPU
     """
-    wl = map(float,wl.split(":"))
-    standard_wavelengths = np.arange(*wl).astype(np.float32)
-    vals = interp_material_property(standard_wavelengths,  prop )
-    return np.vstack([standard_wavelengths, vals]).T
+    wavelengths = get_wavelengths(wl)
+
+    domain = 1/wavelengths[::-1] if reciprocal else wavelengths
+
+    vals = interp_material_property(domain,  prop, reciprocal=reciprocal)
+
+    return np.vstack([domain, vals]).T
+
+
+def demo_standardize():
+    """
+    Stepsize of 20 does poor job at ~400nm
+    """
+    rcdf = get_cdf()
+
+    s_rcdf = standardize(rcdf, reciprocal=True, wl="60:810:10")
+
+    plt.plot(1/rcdf[:,0],rcdf[:,1],'r-+',1/s_rcdf[:,0],s_rcdf[:,1], 'b-+' )
+
+
+def sample_reciprocal_cdf( u, nbin, x0, delta, cdf_y ):
+    """
+    Due to the 1 to 1 mirror bin relationship 
+    between the domain and its reciprocal, can 
+    use a CDF on the reciprocal domain via reading 
+    from the right.
+
+    ::
+
+        In [52]: x = np.arange(1,5,1).astype(np.float32)
+
+        In [53]: 1/x[::-1]
+        Out[53]: array([ 0.25 ,  0.333,  0.5  ,  1.   ], dtype=float32)
+
+        In [54]: x
+        Out[54]: array([ 1.,  2.,  3.,  4.], dtype=float32)
+
+    """
+
+    lower, upper = 0, nbin - 1
+
+    while lower < upper-1:
+        half = (lower + upper)//2
+        y = cdf_y[half]
+        if u < y:
+            upper = half
+        else:
+            lower = half
+        pass
+    pass
+
+    #found the bin in which the draw lies
+    delta_cdf_y = cdf_y[upper] - cdf_y[lower]
+
+    #domain is 1/wavelength[::-1] so looking from the right 
+    # within the bin, upwards fraction   
+      
+    r_fraction = (cdf_y[upper]-u)/delta_cdf_y    
+    r_upper = nbin - 1 - upper ;   
+ 
+    return x0 + delta*r_upper + delta*r_fraction ;
+
+
+def test_sample_reciprocal_cdf(wl="60:810:10"):
+
+     cdf = get_cdf()
+
+     reciprocal = True
+
+     wavelengths = get_wavelengths(wl)
+
+     domain = 1/wavelengths[::-1] if reciprocal else wavelengths
+
+     scdf = standardize(cdf, reciprocal=reciprocal, wl=wl)
+
+     nbin = len(wavelengths)
+     x0 = wavelengths[0]
+     delta = np.unique(np.diff(wavelengths)).item()
+
+     sample_reciprocal_cdf( 0.5 , nbin, x0, delta, scdf[:,1] ) 
 
 
 
