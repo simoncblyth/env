@@ -1170,19 +1170,28 @@ void DsChromaG4Scintillation::BuildThePhysicsTable()
         if(true)
         {
 
-             /*
-                   float wavelength = (h_Planck * c_light / sampledEnergy) / nanometer ;
-                         1/wavelength (nm^-1)  =  
+/*
+FLAG_G4SCINTILLATION_COLLECT_PROP  xscale 806.554 yscale 1e+09 nanometer 1e-06 h_Planck 4.13567e-12 c_light 299.792
+::
 
-             */
+    In [1]: h = 4.13567e-12
+    In [2]: c = 299.792
+    In [3]: nanometer = 1e-06 
+    In [4]: nanometer/(h*c)
+    Out[4]: 806.5551767734278
+*/
              double xscale = nanometer/(h_Planck * c_light ) ;  // scale energy to reciprocal wavelengths (nm^-1)
              double yscale =  1e9 ;   // values are unhealthily small for a float, so scale by a billion 
 
+             /*
              cout << "FLAG_G4SCINTILLATION_COLLECT_PROP " 
                   << " xscale " <<  xscale 
                   << " yscale " <<  yscale
+                  << " nanometer " << nanometer
+                  << " h_Planck " << h_Planck
+                  << " c_light " << c_light
                   << endl ;  
-
+             */
              G4String name ; 
              G4String materialName = aMaterial->GetName();
              if( materialName == "/dd/Materials/LiquidScintillator" ) name = "ls" ;
