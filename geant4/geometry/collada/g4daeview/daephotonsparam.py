@@ -61,6 +61,7 @@ class DAEPhotonsParam(object):
         self.debugphoton = config.args.debugphoton
         self.prescale = config.args.prescale
         self.max_slots = config.args.max_slots
+        self.numquad = config.args.numquad
 
     reconfigurables = ['fpholine','fphopoint','mask','bits','time','pid','sid',]
 

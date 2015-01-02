@@ -399,6 +399,14 @@ BialkaliMaterialIndex::
 
 
 
+cerenkov review
+~~~~~~~~~~~~~~~~~
+
+
+TODO: settle on standard wavelenth range to match G4 better::
+
+
+    In [4]: cf('3xyzw', tag=1, typs='gopcerenkov opcerenkov', legend=False, log=True)
 
 
 
@@ -925,6 +933,23 @@ Succeed to get rid of infinities by establishing order of chroma
 materials and surfaces to be based on names with pointer address excluded. 
 
 
+After adjusting to use 1/wavelength[::-1] domain reemission_cdf 
+and using kernel sampling that takes that into account, 
+
+`chroma/cuda/scintillation.h`::
+
+    194     p.wavelength = sample_reciprocal_cdf(&rng, ss.material->n,
+    195                                                ss.material->wavelength0,
+    196                                                ss.material->step,
+    197                                                ss.material->reemission_cdf);
+
+
+
+::
+
+    cf('wavelength', tag=1, typs='gopscintillation opscintillation', log=True )
+
+
 
 
 time
@@ -945,6 +970,13 @@ Position, direction and polarization all almost perfect matches, wavelength need
     In [32]: cf('3xyzw', g4s, chs, legend=False)
 
 
+
+scintillation review
+~~~~~~~~~~~~~~~~~~~~~~
+
+Looking good::
+
+    In [3]: cf('3xyzw', tag=1, typs='gopscintillation opscintillation', legend=False, log=True)
 
 
 

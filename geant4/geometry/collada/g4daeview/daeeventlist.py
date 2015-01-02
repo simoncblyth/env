@@ -26,10 +26,11 @@ class DAEEventList(object):
     A list of paths and a "cursor" index pointing at one of them
     """
     def __init__(self, path_template):
+        log.debug("path_template %s " % path_template)
         self.path_template = path_template
         self._index = 0
         self.paths = self.find_paths()
-        log.info("%s" % repr(self))
+        log.debug("%s" % repr(self))
 
 
     def __repr__(self):
@@ -48,10 +49,14 @@ class DAEEventList(object):
         self.path = curpath
 
     def resolve(self, arg):
-        return self.path_template % arg  
+        path = self.path_template % arg  
+        log.debug("path_template %s arg %s => path %s " % (self.path_template, arg, path))
+        return path
 
     def find_paths(self):
-        return glob(self.resolve("*"))
+        paths = glob(self.resolve("*"))
+        log.debug("paths\n%s\n" % "\n".join(paths))
+        return paths
 
     def abspath(self, path_):
         if path_[0] == '/':

@@ -41,7 +41,7 @@ def pycuda_init(gl=False):
     #import pycuda.gl.autoinit  # after this can use pycuda.gl.BufferObject(unsigned int)
 
     """
-    log.info("pycuda_init gl %s " % gl )
+    log.debug("pycuda_init gl %s " % gl )
     import pycuda.driver as cuda
 
     if gl:
@@ -57,12 +57,12 @@ def pycuda_init(gl=False):
     if gl:
         def _ctx_maker(dev):
             flags = cuda.ctx_flags.MAP_HOST
-            log.info("pycuda_init cudagl.make_context with flags %s " % flags )
+            log.debug("pycuda_init cudagl.make_context with flags %s " % flags )
             return cudagl.make_context(dev, flags)
     else:  
         def _ctx_maker(dev):
             flags = cuda.ctx_flags.MAP_HOST
-            log.info("pycuda_init non-gl make_context with flags %s " % flags )
+            log.debug("pycuda_init non-gl make_context with flags %s " % flags )
             return dev.make_context(flags)
 
 
@@ -180,7 +180,7 @@ class DAEChromaContext(object):
         self.mem = DAEMemoryMon()
         self.mem("init")
 
-        log.info("*** first GPU hit : creating gpu_detector  ")
+        log.debug("*** first GPU hit : creating gpu_detector  ")
         gpu_detector = self.gpu_detector
         self.metadata = gpu_detector.metadata 
         log.info("*** first GPU hit : done ")
@@ -332,7 +332,7 @@ class DAEChromaContext(object):
         standard_wavelengths = self.config.wavelengths
         assert len(standard_wavelengths) > 20, standard_wavelengths
         mn, mx, st = min_max_step(standard_wavelengths)
-        log.info("creating GPUGeometry using standard_wavelengths %s ==> %s:%s:%s " % (self.config.args.wavelengths, mn,mx,st)) 
+        log.debug("creating GPUGeometry using standard_wavelengths %s ==> %s:%s:%s " % (self.config.args.wavelengths, mn,mx,st)) 
         return GPUDetector( self.chroma_geometry, standard_wavelengths )
 
     def make_cuda_buffer_object(self, buffer_id ):

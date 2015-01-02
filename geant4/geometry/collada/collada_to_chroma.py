@@ -64,7 +64,6 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)   # chroma has weird logging, forcing this placement 
 
 
-DEBUG = 1
 
 from env.base.timing import timing, timing_report
 
@@ -81,6 +80,12 @@ def _get_daeprops(self):
         return {}
     return self.dae.extra.properties    
 
+#
+# daeprops must not be present for NPYCacheable to succeed 
+# with its cache writing/reading so following switch off 
+# may need to --geocacheupdate
+#
+DEBUG = 0  
 if DEBUG:
     Material.daeprops = property(_get_daeprops)
 
@@ -558,7 +563,7 @@ class ColladaToChroma(object):
         # 
         #
 
-        log.info("setting reemission_cdf for %s to %s " % (material.name, repr(reemission_cdf)))
+        log.debug("setting reemission_cdf for %s to %s " % (material.name, repr(reemission_cdf)))
 
         #material.set('reemission_cdf', reemission_cdf[:,1], wavelengths=reemission_cdf[:,0])
         material.setraw('reemission_cdf', reemission_cdf)

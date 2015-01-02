@@ -43,7 +43,9 @@ class DAEBookmarks(object):
         else:
             log.warn("no bookmarks file at  %s " % ipath )
         pass
-        log.info("loadfail %s " % repr(self.loadfail)) 
+
+        if len(self.loadfail)>0:
+            log.warn("loadfail %s " % repr(self.loadfail)) 
 
 
     ini_prefix = "bookmark_"
@@ -180,7 +182,7 @@ class DAEBookmarks(object):
         else:
             sections = cfp.sections()
         pass
-        log.info("sections %s " % repr(sections) )
+        log.debug("sections %s " % repr(sections) )
         for sectname in sections:
             if sectname.startswith(self.ini_prefix):
                 k = sectname[len(self.ini_prefix):]
@@ -200,7 +202,7 @@ class DAEBookmarks(object):
         return "".join(map(lambda k:fmt_(k) % k,sorted(self.viewpoints.keys())))
 
     def create_for_solid(self, solid, numkey):
-        log.info("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
+        log.debug("create_for_solid: numkey %s solid.id %s" % (numkey,solid.id) )
         view = self.transform.spawn_view_jumping_frame(solid)
         self.assign(numkey, view)
         self.set_current(numkey)

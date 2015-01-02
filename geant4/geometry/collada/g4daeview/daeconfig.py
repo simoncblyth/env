@@ -108,6 +108,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
 
         defaults['prescale'] = 1
         defaults['max_slots'] = 25
+        defaults['numquad'] = 6
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
         defaults['address'] = address()
@@ -125,6 +126,7 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--noanalyze", dest="analyze", action="store_false", help="Analyze propagated photons. Default %(default)s." )
         parser.add_argument( "--prescale", help="Scale down photon array sizes yieled by DAEPhotonsData by subsampling, default %(default)s.", type=int )
         parser.add_argument( "--max-slots", dest="max_slots", help="Blow up photon array and VBO sizes to hold multiple parts of the propagation, default %(default)s.", type=int )
+        parser.add_argument( "--numquad", dest="numquad", help="VBOPhoton datastructure number of float4, default %(default)s.", type=int )
         parser.add_argument( "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument( "--port", help="Port to bind to for UDP messages ", type=str  )
         parser.add_argument( "--address", help="IP address %(default)s", type=str  )

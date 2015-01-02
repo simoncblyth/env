@@ -2,7 +2,12 @@
 # keep this minimalistic, no OpenGL..
 import logging, datetime, time
 log = logging.getLogger(__name__)
-from photons import Photons
+
+#from photons import Photons
+#from daephotonsnpl import DAEPhotonsNPL 
+from env.g4dae.types import Photon, NPY
+
+
 import numpy as np
 
 def timestamp():
@@ -33,14 +38,15 @@ class DAEEventBase(object):
 
         TODO: check that response is sent with the propagated photons
         """
-        if self.config.args.saveall:
-            log.info("external_cpl timestamp_save due to --saveall option")
-            key = None
-            self.config.save_cpl( timestamp(), key, cpl.cpl)   
-        else:
-            log.info("external_cpl not saving ")
-        pass
-        self.setup_cpl(cpl) 
+        assert 0, "CPL no longer suppported"
+        #if self.config.args.saveall:
+        #    log.info("external_cpl timestamp_save due to --saveall option")
+        #    key = None
+        #    self.config.save_cpl( timestamp(), key, cpl.cpl)   
+        #else:
+        #    log.info("external_cpl not saving ")
+        #pass
+        #self.setup_cpl(cpl) 
 
     def setup_cpl(self, cpl):
         """
@@ -48,19 +54,29 @@ class DAEEventBase(object):
 
         Convert serialization level ChromaPhotonList into operation level Photons
         """
-        photons = Photons.from_cpl(cpl, extend=True)   
-        self.setup_photons( photons ) 
+        assert 0, "CPL no longer suppported"
+        #photons = Photons.from_cpl(cpl, extend=True)   
+        #self.setup_photons( photons ) 
 
     def setup_npl(self, npl):
         """
-        :param npl: NPY deserialized array of shape (nphoton,4,4)
+        :param npl: NPY deserialized array 
+                    of shape (nphoton,4,4) for photons
 
         Calls up to subclass, potentially for GUI things like menu updating
         """
         self.scene.chroma.incoming(npl)
         pass
-        photons = Photons.from_npl(npl, extend=False)   
-        self.setup_photons( photons ) 
+        typ = NPY.detect_type(npl)
+        log.info("incoming array detect_type be: %s %s " % (typ, repr(npl.shape))) 
+
+        if typ == "photon": 
+            photons = Photon.from_array(npl)   
+            self.setup_photons( photons ) 
+        else:
+            log.info("received NPY array of unknown type %s %s " % (typ, repr(npl.shape)))
+        pass
+
 
 
     def clear(self):

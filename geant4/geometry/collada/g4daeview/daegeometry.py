@@ -481,7 +481,7 @@ class DAEGeometry(object):
         else:
             geocachepath = config.geocachepath
             assert os.path.exists(geocachepath), geocachepath 
-            log.info("populate_from_cache %s " % geocachepath )
+            log.debug("populate_from_cache %s " % geocachepath )
             self.populate_from_cache(geocachepath)
         pass
 
@@ -593,7 +593,7 @@ class DAEGeometry(object):
                 solid = self.find_solid_by_index(index) 
             pass
         pass
-        log.info("find_solid target %s => index %s => solid %s  " % (target, index, repr(solid)))
+        log.debug("find_solid target %s => index %s => solid %s  " % (target, index, repr(solid)))
         return solid
 
     def find_solid_by_channel(self, channel):

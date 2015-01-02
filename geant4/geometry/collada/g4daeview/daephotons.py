@@ -16,7 +16,9 @@ from daephotonsdata import DAEPhotonsData
 from daephotonsanalyzer import DAEPhotonsAnalyzer, DAEPhotonsPropagated
 from daephotonsstyler import DAEPhotonsStyler
 from daephotonspropagator import DAEPhotonsPropagator
-from daephotonsnpl import DAEPhotonsNPL
+
+#from daephotonsnpl import DAEPhotonsNPL
+from env.g4dae.types import VBOPhoton
 
 
 class NPY(np.ndarray):pass
@@ -61,7 +63,6 @@ class DAEPhotons(object):
 
     """ 
     def __init__(self, photons, event ):
-
         """
         :param photons: `chroma.event.Photons` instance (or fallback)
         :param event: `DAEEventBase` instance
@@ -77,14 +78,20 @@ class DAEPhotons(object):
             pass
         pass
 
-        self._style = event.config.args.style   
+        self._style = event.config.args.style  # eg noodles, confetti, spagetti
 
         self.numquad = DAEPhotonsData.numquad  # fundamental nature of VBO data structure, not a "parameter"
 
         self.styler = DAEPhotonsStyler()
 
         self.param = DAEPhotonsParam( event.config)
-        self.data = DAEPhotonsData(photons, self.param)
+
+        #self.data = DAEPhotonsData(photons, self.param)
+  
+        self._photons = None
+        self.photons = photons
+
+
         self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
     
         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma ) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
@@ -166,21 +173,6 @@ class DAEPhotons(object):
         self.param.sid = sid
         self.menuctrl.rootmenu.dispatch('on_needs_redraw')
 
-    def _get_style(self):
-        return self._style
-    def _set_style(self, style):
-        if style == self._style:return
-        self._style = style   
-    style = property(_get_style, _set_style, doc="Photon presentation style, eg confetti/spagetti/movie/...") 
-
-    #def _get_cfg(self):
-    #    return self.styler.get(self.style)
-    #cfg = property(_get_cfg)
-
-    def _get_cfglist(self):
-        return self.styler.get_list(self.style)
-    cfglist = property(_get_cfglist)
-
 
 
     ### primary actions #####
@@ -217,7 +209,7 @@ class DAEPhotons(object):
         log.info("propagate")
         if self.photons is None:return
 
-        max_slots = self.data.max_slots
+        max_slots = self.param.max_slots
 
         vbo = self.renderer.pbuffer   
 
@@ -244,13 +236,14 @@ class DAEPhotons(object):
             log.warn("not analyzing propagated photons")
         pass
 
-        nphotons = self.data.nphotons
+        #nphotons = self.data.nphotons
+        nphotons = len(self.photons)
         last_slot = -2
         last_slot_indices = np.arange(nphotons)*max_slots + (max_slots+last_slot)
 
         p = propagated[last_slot_indices]   # VBO branch
 
-        r = DAEPhotonsNPL.from_vbo_propagated(p)
+        r = VBOPhoton.from_vbo_propagated(p)
         hits = r.hits 
 
         ## respond with all propagated photons or only those that register a hit on PMT
@@ -271,6 +264,21 @@ class DAEPhotons(object):
         metadata['geometry'] = self.event.scene.chroma.metadata
         response.meta = [metadata]
         return response
+
+
+
+    #### DAEPhotonsStyler driven rendering  ####
+
+    def _get_style(self):
+        return self._style
+    def _set_style(self, style):
+        if style == self._style:return
+        self._style = style   
+    style = property(_get_style, _set_style, doc="Photon presentation style, eg confetti/spagetti/movie/...") 
+
+    def _get_cfglist(self):
+        return self.styler.get_list(self.style)
+    cfglist = property(_get_cfglist)
 
 
     def draw(self):
@@ -304,23 +312,26 @@ class DAEPhotons(object):
         Photon count modulated by qcut which varies between 0 and 1. 
         Used for partial drawing based on a sorted quantity.
         """ 
-        return int(self.data.nphotons*self.event.qcut)
+        return int(len(self.photons)*self.event.qcut)
     qcount = property(_get_qcount, doc=_get_qcount.__doc__) 
 
     def _get_mesh(self):
         if self._mesh is None:
-            self._mesh = DAEMesh(self.data.position)
+            self._mesh = DAEMesh(self.photons.position)
         return self._mesh
     mesh = property(_get_mesh)
 
     #### read/write  properties #####
 
     def _get_photons(self):
-        return self.data.photons 
+        #return self.data.photons 
+        return self._photons 
+
     def _set_photons(self, photons):
         log.debug("_set_photons")
 
-        self.data.photons = photons    
+        #self.data.photons = photons    
+        self._photons = VBOPhoton.from_array(photons, self.param.max_slots)    
 
         if not photons is None:
             self.lastpropagated = None
@@ -442,7 +453,7 @@ class DAEPhotons(object):
             return
         pass
         codes = self.chroma_material_map.convert_names2codes(names)
-        log.info("_set_mate %s => %s " % (names, codes))
+        log.debug("_set_mate %s => %s " % (names, codes))
         presenter.material = codes
     def _get_material(self):
         presenter = self.renderer.presenter
@@ -451,7 +462,7 @@ class DAEPhotons(object):
         pass
         codes = presenter.material
         names = self.chroma_material_map.convert_codes2names(codes)
-        log.info("_get_mate %s => %s " % (codes, names))
+        log.debug("_get_mate %s => %s " % (codes, names))
         return names
     material = property(_get_material, _set_material, doc="setter copies material selection integers into GPU quad g_mate  getter returns cached value " )
 
@@ -464,7 +475,7 @@ class DAEPhotons(object):
             return
         pass
         codes = self.chroma_surface_map.convert_names2codes(names)
-        log.info("_set_surface %s => %s " % (names, codes))
+        log.debug("_set_surface %s => %s " % (names, codes))
         presenter.surface = codes
     def _get_surface(self):
         presenter = self.renderer.presenter
@@ -473,7 +484,7 @@ class DAEPhotons(object):
         pass
         codes = presenter.surface
         names = self.chroma_surface_map.convert_codes2names(codes)
-        log.info("_get_surface %s => %s " % (codes, names))
+        log.debug("_get_surface %s => %s " % (codes, names))
         return names
     surface = property(_get_surface, _set_surface, doc="surface: setter copies selection integers into GPU quad g_surf  getter returns cached value " )
 

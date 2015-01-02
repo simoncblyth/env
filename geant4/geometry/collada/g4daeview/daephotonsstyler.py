@@ -1,5 +1,96 @@
 #!/usr/bin/env python
+"""
+DAEPhotonsStyler
+==================
 
+DAEPhotonsStyler Usage by DAEPhotons together with DAEPhotonsRenderer
+-----------------------------------------------------------------------------
+
+#. DAEPhotonsStyler used together with DAEPhotonsRenderer as constituents of DAEPhotons
+#. cfglist property of styler steers the renderer in DAEPhotons.draw
+
+::
+
+    084         self.styler = DAEPhotonsStyler()
+    ...
+    090         self.renderer = DAEPhotonsRenderer(self, event.scene.chroma ) # pass chroma context to renderer for PyCUDA/OpenGL interop tasks 
+    ...
+    180     def _get_cfglist(self):
+    181         return self.styler.get_list(self.style)
+    182     cfglist = property(_get_cfglist)
+    ...
+    276     def draw(self):
+    ...
+    281         if self.photons is None:return
+    282         self.renderer.update_constants()
+    283         for cfg in self.cfglist:
+    284             self.drawcfg( cfg )
+    285 
+    286     def drawcfg(self, cfg ):
+    287         self.renderer.shaderkey = cfg['shaderkey']
+    288         if cfg['drawkey'] == 'multidraw':
+    289             counts, firsts, drawcount = self.analyzer.counts_firsts_drawcount
+    290             self.renderer.multidraw(mode=cfg['drawmode'],slot=cfg['slot'],
+    291                                       counts=counts,
+    292                                       firsts=firsts,
+    293                                    drawcount=drawcount, extrakey=cfg['extrakey'] )
+    294         else:
+    295             self.renderer.draw(mode=cfg['drawmode'],slot=cfg['slot'])
+
+
+Styles
+--------
+
+============  ===========      ============  ============  ==========  ========   ==============
+style          drawmode         drawkey       shaderkey     extrakey    slot       description 
+============  ===========      ============  ============  ==========  ========   ==============
+noodles        GL_POINTS        multidraw      p2l           None       None       all steps  
+movie          GL_POINTS        multidraw      p2l           None       -1         
+movie-extra    GL_POINTS        multidraw      p2l           p2p        -1          
+dmovie         GL_POINTS        draw           p2l           p2p        -1         simple animation slot draw, expected to be efficient
+confetti       GL_POINTS        multidraw      nogeo         None       None       points for every step   
+confetti-0     GL_POINTS        multidraw      nogeo         None        0         first slot points
+confetti-2     GL_POINTS        multidraw      nogeo         None       -2         last slot points
+confetti-1     GL_POINTS        multidraw      nogeo         None       -1         animation slot points
+dconfetti-1    GL_POINTS        draw           nogeo         None       -1         animation slot points, expected to be efficient
+spagetti       GL_LINE_STRIP    multidraw      nogeo         None       None       trajectory lines for each photon 
+============  ===========      ============  ============  ==========  ========   ==============
+
+
+Ingredients of Style
+-----------------------
+
+*slot*
+
+   #. -1, animation top slot (max_slots-1) 
+
+      content is calculated by presenter CUDA kernel 
+      by interpolation of relevant slot pair straddling 
+      the time parameter input 
+
+   #. None, 
+
+      corresponds to using a max_slots value of 1 and slot 0, 
+      ie see all slots, but exclude slot -1 (?how?)
+
+      How does this handle empty slots and exclusion of slot -1  
+
+      It doesnt see them, as it uses **multidraw** 
+      which has a number of filled slots input array 
+      to the multidraw call 
+
+*drawkey*
+
+   #. `multidraw` is way of in effect doing separate draw calls 
+       for each photon (or photon history) eg allowing trajectory line presentation.
+
+       It is so prevalent as without it have no choice but to 
+       restrict to slots that will always be present, ie slot 0 and slot -1 and -2
+       (unless traversed the entire VBO with selection to skip empties ?)
+
+
+
+"""
 import logging, pprint
 log = logging.getLogger(__name__)
 
@@ -37,7 +128,7 @@ class DAEPhotonsStyler(object):
 
     def get_list(self, style):
         """
-        :param style: comma delimited list of style names
+        :param style: comma delimited list of style names eg "noodles,confetti"
         :return: list of style dicts 
         """
         cfgs = []
@@ -59,24 +150,9 @@ class DAEPhotonsStyler(object):
 
     def _make_cfg(self, style):
         """
-        :param photonskey: string identifying various techniques to present the photon information
+        :param style: string identifying various techniques to present the photon information
 
-        *slot*
-
-           #. -1, top slot at max_slots-1
-           #. None, corresponds to using max_slots 1 with slot 0,
-              with top slot excluded 
-              (ie seeing all steps of the propagation except the artificial 
-              interpolated top slot)
-
-        *drawkey*
-           `multidraw` is efficient way of in effect doing separate draw calls 
-           for each photon (or photon history) eg allowing trajectory line presentation.
-
-           It is so prevalent as without it have no choice but to 
-           restrict to slots that will always be present, ie slot 0 and slot -1 and -2
-           (unless traversed the entire VBO with selection to skip empties ?)
-
+:e
         Debug tips:
 
         #. check time dependancy with `udp.py --time 10` etc..
@@ -89,6 +165,9 @@ class DAEPhotonsStyler(object):
         A point representing ABSORPTIONs would be more useful.
 
 
+        (FIXED) Shader Switching Issue 
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~         
+
         Live transitions to the "nogeo" shaders `spagetti` 
         and `confetti` are working from all others.  
         The reverse transitions from "nogeo" to "point2line" 
@@ -97,6 +176,8 @@ class DAEPhotonsStyler(object):
         Presumably an attribute binding problem, not changing a part 
         of opengl state 
 
+        Fixed by keeping shaders alive and never deleting 
+        them just switch between them.
 
         Slot0 Selection Immunity Issue
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

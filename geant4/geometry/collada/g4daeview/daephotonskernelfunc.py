@@ -23,14 +23,14 @@ class DAEPhotonsKernelFunc(object):
         self.dphotons = dphotons
         self.ctx = ctx
         
-        template_fill = (("max_slots",dphotons.data.max_slots),
-                         ("numquad",dphotons.data.numquad),
+        template_fill = (("max_slots",dphotons.param.max_slots),
+                         ("numquad",dphotons.param.numquad),
                          ("debugphoton",dphotons.config.args.debugphoton),
                          ) 
         template_uncomment = (("debug",debug),) 
         self.compile_kernel( template_fill, template_uncomment )
 
-    nphotons = property(lambda self:self.dphotons.data.nphotons)
+    nphotons = property(lambda self:len(self.dphotons.photons))
     def compile_kernel(self, template_fill, template_uncomment=None):
         """
         #. compile kernel and extract __constant__ symbol addresses
@@ -71,7 +71,7 @@ class DAEPhotonsKernelFunc(object):
     def _set_surface(self, surf):
         if surf == self._surf:return
         self._surf = surf
-        log.info("_set_surf : memcpy_htod %s " % repr(surf))
+        log.debug("_set_surf : memcpy_htod %s " % repr(surf))
         cuda_driver.memcpy_htod(self.g_surf, ga.vec.make_int4(*surf))
     surface = property(_get_surface, _set_surface, doc="surf: setter copies to device __constant__ memory, getter returns cached value") 
 
@@ -81,7 +81,7 @@ class DAEPhotonsKernelFunc(object):
     def _set_material(self, mate):
         if mate == self._mate:return
         self._mate = mate
-        log.info("_set_mate : memcpy_htod %s " % repr(mate))
+        log.debug("_set_mate : memcpy_htod %s " % repr(mate))
         cuda_driver.memcpy_htod(self.g_mate, ga.vec.make_int4(*mate))
     material = property(_get_material, _set_material, doc="mate: setter copies to device __constant__ memory, getter returns cached value") 
 
@@ -92,7 +92,7 @@ class DAEPhotonsKernelFunc(object):
         mode = map(int,mode.split(","))
         if mode == self._mode:return
         self._mode = mode
-        log.info("_set_mode : memcpy_htod %s " % repr(mode))
+        log.debug("_set_mode : memcpy_htod %s " % repr(mode))
         cuda_driver.memcpy_htod(self.g_mode, ga.vec.make_int4(*mode))
     mode = property(_get_mode, _set_mode )
 
@@ -101,7 +101,7 @@ class DAEPhotonsKernelFunc(object):
     def _set_mask(self, mask):
         if mask == self._mask:return
         self._mask = mask
-        log.info("_set_mask : memcpy_htod %s " % repr(mask))
+        log.debug("_set_mask : memcpy_htod %s " % repr(mask))
         cuda_driver.memcpy_htod(self.g_mask, ga.vec.make_int4(*mask))
     mask = property(_get_mask, _set_mask, doc="mask: setter copies to device __constant__ memory, getter returns cached value") 
 
@@ -126,7 +126,7 @@ class DAEPhotonsKernelFunc(object):
     def _set_cohort(self, cohort):
         cohort = map(float,cohort.split(",")) 
         assert len(cohort) == 3 
-        log.info("_set_cohort %s " % repr(cohort))
+        log.debug("_set_cohort %s " % repr(cohort))
         anim = self._anim[:]
         anim[1:4] = cohort
         self.anim = anim

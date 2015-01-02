@@ -1,5 +1,70 @@
 #!/usr/bin/env python
 """
+daephotonsshader.py : GLSL Shaders for photon presentation
+===========================================================
+
+
+DAEPhotonsShader : shader pipeline creation
+---------------------------------------------
+
+Used by DAEPhotonsRenderer
+
+
+
+Pipelines combining constituent shaders
+----------------------------------------
+
+nogeo
+~~~~~~
+ 
+#. vertex_no_geo
+#. -
+#. fragment_fcolor
+
+p2p
+~~~~
+
+#. vertex_for_geo
+#. geometry_point2point   (geometry in/out: GL_POINTS -> GL_POINTS)
+#. fragment_fcolor
+
+p2l
+~~~~
+
+#. vertex_for_geo
+#. geometry_point2line    (geometry in/out: GL_POINTS -> GL_LINE_STRIP)
+#. fragment_fcolor
+
+
+
+Vertex, Geometry and Fragment Shaders
+-----------------------------------------
+
+vertex_no_geo
+    transfer VBO attributes into varyings for fragment shader consumption
+        position_time.xyz -> gl_Position
+        ccolor.xyz, abs(ccolor.w) -> fColor
+
+    scoot ccolor.w = 0 positions off to infinity
+    set larger point size for ccolor.w < 0 
+
+vertex_for_geo
+    transfer VBO attributes into varyings for geometry shader consumption
+       fparam.x * direction_wavelength.xyz -> vMomdir 
+       fparam.x * polarization_weight.xyz  -> vPoldir 
+       ccolor.xyz, abs(ccolor.w)           -> vColor
+
+geometry_point2line
+    provide two vertices for one input vertex, the first asis and 
+    the second displaced by adding vMomdir  
+
+geometry_point2point
+    geometry passthrough but with a selection based on zero alpha vColor[0].w  
+
+fragment_fcolor
+    fColor varying input is returned
+
+
 """
 
 import logging
@@ -199,6 +264,10 @@ class DAEPhotonsShader(object):
         """
         Provides shader for the key, making it if necessary 
 
+        The .shader property invokes this to provide the encumbent 
+        shader based on the current shaderkey.  Changing shaderkey 
+        thus is all that is needed to switch between shaders. 
+
         :param key: shader key 
         :return: Shader instance
         """
@@ -207,6 +276,7 @@ class DAEPhotonsShader(object):
             self.shaders[key] = Shader( **self.shadercfg[key] )
         return self.shaders[key]
 
+    
     shader = property(lambda self:self.get_shader(self.shaderkey))
 
     def _get_shaderkey(self):
@@ -214,11 +284,14 @@ class DAEPhotonsShader(object):
     def _set_shaderkey(self, shaderkey):
         if shaderkey == self._shaderkey:return
         self._shaderkey = shaderkey
-    shaderkey = property(_get_shaderkey, _set_shaderkey, doc="String controlling shader config ")
+    shaderkey = property(_get_shaderkey, _set_shaderkey, doc="String controlling encumbent shader ")
 
 
     def make_config(self, shaderkey):
         """
+        :param shaderkey: one of "nogeo", "p2p" or "p2l"
+        :return: dict containing glsl source of constituent shaders 
+
         The input type to the geometry shader needs to be one of:
 
         * GL_POINTS
@@ -286,6 +359,9 @@ class DAEPhotonsShader(object):
         return cfg
 
     def update_uniforms(self):
+        """
+        Transfer parameters from dphotons into iparam, fparam
+        """
         #log.info("update_uniforms")
         self.iparam = self.dphotons.param.shader_iparam
         self.fparam = self.dphotons.param.shader_fparam
@@ -296,7 +372,7 @@ class DAEPhotonsShader(object):
         if iparam == self._iparam:return 
         self._iparam = iparam
         self.shader.uniformi("iparam", *self._iparam)
-    iparam = property(_get_iparam, _set_iparam, doc="shader iparam uniform ")
+    iparam = property(_get_iparam, _set_iparam, doc="shader iparam uniform, get from or set into the encumbent shader ")
 
     def _get_fparam(self):
         return self._fparam
@@ -307,7 +383,7 @@ class DAEPhotonsShader(object):
         #log.info("_set_fparam %s " % repr(fparam))
         self._fparam = fparam
         self.shader.uniformf("fparam", *self._fparam)
-    fparam = property(_get_fparam, _set_fparam, doc="shader fparam uniform ")
+    fparam = property(_get_fparam, _set_fparam, doc="shader fparam uniform, get from or set into the encumbent shader")
 
 
     def __str__(self):

@@ -31,8 +31,8 @@ class DAEPhotonsRenderer(object):
     Constituents
     ~~~~~~~~~~~~~
  
-    #. kernel DAEPhotonsKernel
     #. shader DAEPhotonsShader
+    #. presenter DAEPhotonsPresenter
 
     """
     def __init__(self, dphotons, chroma ):
@@ -77,13 +77,14 @@ class DAEPhotonsRenderer(object):
 
     def _get_pbuffer(self):
         if self._pbuffer is None:
-           self._pbuffer = self.create_buffer(self.dphotons.data)  
+           self._pbuffer = self.create_buffer(self.dphotons.photons)  
         return self._pbuffer
     pbuffer = property(_get_pbuffer, doc="point DAEVertexBuffer, without doubling : used with geometry shader to generate 2nd vertices and lines ")  
 
     def _get_lbuffer(self):
+        assert 0, "in use ? "
         if self._lbuffer is None:
-           self._lbuffer = self.create_buffer(self.dphotons.data)  
+           self._lbuffer = self.create_buffer(self.dphotons.photons)  
         return self._lbuffer
     lbuffer = property(_get_lbuffer, doc="line DAEVertexBuffer, with doubled vertices : not used when geometry shader available")  
 
@@ -115,23 +116,6 @@ class DAEPhotonsRenderer(object):
         """
         if not self.interop:return
         buf.cuda_buffer_object.unregister() 
-
-    def interop_kernel(self, buf):
-        """
-        Invoke CUDA kernel with VBO argument, 
-        allowing VBO changes.
-        """ 
-        assert 0, "no longer in use"
-        if not self.interop:return
-
-        import pycuda.driver as cuda_driver
-        buf_mapping = buf.cuda_buffer_object.map()
-        vbo_dev_ptr = buf_mapping.device_ptr()
-
-        #self.kernel( vbo_dev_ptr, self.dphotons.qcount )  ## huh why the dynamic qcount ? 
-
-        cuda_driver.Context.synchronize()
-        buf_mapping.unmap()
 
     def draw(self, mode=gl.GL_POINTS, slot=0):
         """

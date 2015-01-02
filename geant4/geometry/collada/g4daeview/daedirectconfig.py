@@ -109,7 +109,7 @@ class DAEDirectConfig(object):
         defaults['wipegeometry'] = False
         parser.add_argument( "--wipegeometry", action="store_true", help="Wipe preexisting geometry maps before writing new ones, use this when changing geometry. Default %(default)s." )
 
-        defaults['type'] = "photons"
+        defaults['type'] = "photon"
         defaults['slice'] = None
         defaults['key'] = '???'
         parser.add_argument( "--type",  help="Path template type, eg \"photons\" for template DAE_PHOTONS_PATH_TEMPLATE yielding npy paths. Default %(default)s.",type=str)

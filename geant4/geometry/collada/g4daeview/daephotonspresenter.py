@@ -62,6 +62,10 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
     def present(self, vbo_dev_ptr, max_slots=30 ):
         """
         Kernel calls for each photon, not each slot 
+
+        This is filling the animation slot -1, based on 
+        input time and interpolation of the relevant pair of 
+        slots of the propagation.
         """
         threads_per_block = self.ctx.threads_per_block
         max_blocks = self.ctx.max_blocks
