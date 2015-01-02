@@ -14,23 +14,26 @@ from chroma.gpu.tools import get_cu_module, cuda_options, chunk_iterator, to_flo
 
 class DAEPhotonsKernelFunc(object):
     max_time = 4.
-    def __init__(self, dphotons, ctx, debug=1):
+    def __init__(self, drawable, ctx, debug=1):
         """
         :param dphotons: DAEPhotons instance
         :param ctx: `DAEChromaContext` instance, for GPU config and geometry
         """
         log.debug("%s debug %s " % (self.__class__.__name__, debug ))
-        self.dphotons = dphotons
+        self.drawable = drawable
         self.ctx = ctx
         
-        template_fill = (("max_slots",dphotons.param.max_slots),
-                         ("numquad",dphotons.param.numquad),
-                         ("debugphoton",dphotons.config.args.debugphoton),
+
+        template_fill = (("max_slots",drawable.param.max_slots),
+                         ("numquad",drawable.param.numquad),
+                         ("debugphoton",drawable.config.args.debugphoton),
                          ) 
+
+
         template_uncomment = (("debug",debug),) 
         self.compile_kernel( template_fill, template_uncomment )
 
-    nphotons = property(lambda self:len(self.dphotons.photons))
+    nitems = property(lambda self:len(self.drawable.array))
     def compile_kernel(self, template_fill, template_uncomment=None):
         """
         #. compile kernel and extract __constant__ symbol addresses
@@ -60,10 +63,10 @@ class DAEPhotonsKernelFunc(object):
         assert 0
 
     def update_constants(self):
-        kernel_mask = self.dphotons.param.kernel_mask
+        kernel_mask = self.drawable.param.kernel_mask
         #log.info("update_constants %s " % repr(kernel_mask))
         self.mask = kernel_mask
-        #self.anim = self.dphotons.param.kernel_anim
+        #self.anim = self.drawable.param.kernel_anim
 
 
     def _get_surface(self):

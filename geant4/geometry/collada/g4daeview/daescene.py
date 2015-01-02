@@ -115,13 +115,9 @@ class DAEScene(window_event.EventDispatcher):
         self.animator = DAEAnimator(args.period)
         log.info("**********  scene creation DONE ")
 
-    def external_cpl(self, cpl ):
-        log.info("external_cpl ChromaPhotonList ")
-        self.event.external_cpl( cpl )
-
-    def external_npl(self, npl ):
-        log.info("external_npl NPL received")
-        self.event.external_npl( npl )
+    def external_npy(self, npy ):
+        log.info("external_npy NPY received")
+        self.event.external_npy( npy )
 
 
     clipper = property(lambda self:self.bookmarks.clipper)

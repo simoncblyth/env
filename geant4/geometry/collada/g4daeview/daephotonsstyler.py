@@ -109,7 +109,7 @@ class DAEPhotonsStyler(object):
        udp.py --style noodles,movie
 
     """
-    style_names = ['noodles','movie','movie-extra','dmovie','spagetti','confetti','confetti-0','confetti-2','confetti-1','dconfetti-1',]
+    style_names = ['noodles','movie','movie-extra','dmovie','spagetti','confetti','confetti-0','confetti-2','confetti-1','dconfetti-1','genstep',]
     style_names_menu = property(lambda self:self.style_names + ["spagetti,confetti","noodles,confetti"] )
 
     def __init__(self):
@@ -228,6 +228,14 @@ class DAEPhotonsStyler(object):
            cfg['shaderkey'] = "p2l"
            cfg['extrakey'] = "p2p" 
            cfg['slot'] = -1    
+
+        elif style == 'genstep':
+
+           cfg['description'] = "genstep dev" 
+           cfg['drawmode'] = gl.GL_POINTS
+           cfg['drawkey'] = "draw" 
+           cfg['shaderkey'] = "nogeo"
+           cfg['slot'] = None
 
         elif style == 'confetti':
 

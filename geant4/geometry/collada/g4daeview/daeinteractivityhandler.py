@@ -203,16 +203,10 @@ class DAEInteractivityHandler(object):
         self.scene.external_message(msg)
         self.redraw()
 
-    def on_external_cpl(self, cpl ):
-        self.scene.external_cpl(cpl)
+    def on_external_npy(self, npy ):
+        self.scene.external_npy(npy)
         self.redraw()
         return True   # prevent other handlers
-
-    def on_external_npl(self, npl ):
-        self.scene.external_npl(npl)
-        self.redraw()
-        return True   # prevent other handlers
-
 
     def on_needs_redraw(self, msg ):
         #log.info("on_needs_redraw")

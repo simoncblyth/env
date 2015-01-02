@@ -37,16 +37,15 @@ from daephotonskernelfunc import DAEPhotonsKernelFunc
 class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
     kernel_name = "propagate_vbo.cu"
     kernel_func = "propagate_vbo"
-    #kernel_args = "iiPPPPiiiiP"
     kernel_args =  "iiPPPPiiiiPPP"
 
-    def __init__(self, dphotons, ctx, debug=0):
+    def __init__(self, drawable, ctx, debug=0):
         """
         :param ctx: `DAEChromaContext` instance, for GPU config and geometry
 
         #. max_slots, numquad are interpolated into kernel source coming from DAEPhotonsData
         """
-        DAEPhotonsKernelFunc.__init__(self, dphotons, ctx, debug=debug)  
+        DAEPhotonsKernelFunc.__init__(self, drawable, ctx, debug=debug)  
         self.uploaded_queues = False
 
     def reset(self):
@@ -119,7 +118,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
         """
 
 
-        nwork = self.nphotons
+        nwork = self.nitems
         self.upload_queues(nwork)
 
         threads_per_block = self.ctx.threads_per_block

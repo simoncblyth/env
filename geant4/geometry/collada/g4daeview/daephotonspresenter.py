@@ -69,7 +69,7 @@ class DAEPhotonsPresenter(DAEPhotonsKernelFunc):
         """
         threads_per_block = self.ctx.threads_per_block
         max_blocks = self.ctx.max_blocks
-        photons_this_round = self.nphotons
+        photons_this_round = self.nitems
 
         block=(threads_per_block,1,1)
         nblocks = div_(photons_this_round,threads_per_block)

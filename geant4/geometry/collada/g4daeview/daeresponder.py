@@ -55,8 +55,7 @@ class DAEResponder(event.EventDispatcher, NPYResponder):
             endpoint = config.args.zmqendpoint
             timeout = 100  # millisecond
             sleep = 0.5
-            handler = 'on_external_npl'
-            #handler = 'on_external_cpl'
+            handler = 'on_external_npy'
         pass
         cfg = Cfg()
         NPYResponder.__init__(self, cfg )
@@ -98,22 +97,15 @@ class DAEResponder(event.EventDispatcher, NPYResponder):
         log.info("DAEResponder.reply : response %s  " % repr(response.shape) )
         return response
 
-    def on_external_cpl(self, cpl):
+    def on_external_npy(self, npy):
         """
         To prevent this being called ensure that the other handler returns True
         """
-        log.info("default on_external_cpl %s " % cpl )    
-
-    def on_external_npl(self, npl):
-        """
-        To prevent this being called ensure that the other handler returns True
-        """
-        log.info("default on_external_npl %s " % npl )    
+        log.info("default on_external_npy %s " % npy )    
 
 
 
-DAEResponder.register_event_type('on_external_cpl')
-DAEResponder.register_event_type('on_external_npl')
+DAEResponder.register_event_type('on_external_npy')
 
 
 

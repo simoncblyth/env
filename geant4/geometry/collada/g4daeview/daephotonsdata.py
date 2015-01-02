@@ -8,6 +8,7 @@ For standalone testing use::
 .. warning:: gl/glumpy imports **NOT ALLOWED** this is for pure numpy data manipulations
 
 """
+assert 0, "replacing this with simpler VBOPhotons"
 import logging
 import numpy as np
 log = logging.getLogger(__name__)

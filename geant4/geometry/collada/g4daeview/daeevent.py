@@ -5,10 +5,14 @@ log = logging.getLogger(__name__)
 import numpy as np
 
 from daephotons import DAEPhotons
+from daegenstep import DAEGenstep
+
 from daeeventlist import DAEEventList , DAEEventListMenu
 from daemenu import DAEMenu
 from daeanimator import DAEAnimator
-from daeeventbase import DAEEventBase
+
+from env.g4dae.types import Photon, G4Step, NPY
+
 
 class DAEEventMenu(DAEMenu):
     def __init__(self, config, handler):
@@ -17,21 +21,23 @@ class DAEEventMenu(DAEMenu):
         self.add("loadnext",handler.loadnext)
         self.add("loadprev",handler.loadprev)
 
-class DAEEvent(DAEEventBase):
+
+class DAEEvent(object):
     """
-    TODO: split this up further, doing too much 
     """
     def __init__(self, config, scene ):
-        DAEEventBase.__init__(self, config, scene)
-
+        self.config = config
+        self.scene = scene
         self.loaded = None
         pass
         self.qcut = config.args.qcut 
         self.bbox_cache = None
-        photons = None
 
         log.info("********* scene.event.dphotons ")
-        self.dphotons = DAEPhotons( photons, self )
+        #self.dphotons = DAEPhotons( None, self )
+        self.dphotons = None
+        self.dgenstep = DAEGenstep( None, self )
+        self.menuholder = self.dgenstep
 
         log.info("********* scene.event.dphotons DONE ")
         self.objects = []
@@ -64,7 +70,7 @@ class DAEEvent(DAEEventBase):
         if len(launch_config) > 0:
             self.reconfig(launch_config)
         pass
-        self.dphotons.deferred_menu_update()
+        self.menuholder.deferred_menu_update()
 
     def eventlist_callback(self, item):
         path = item.extra['path'] 
@@ -96,7 +102,8 @@ class DAEEvent(DAEEventBase):
         self.dphotons.time_fraction = time_fraction 
 
     def _get_time(self):
-        return self.dphotons.time
+        return 0
+        #return self.dphotons.time
     time = property(_get_time, doc="Animation time")
 
 
@@ -161,21 +168,17 @@ class DAEEvent(DAEEventBase):
     def reconfig(self, event_config ):
         """
         Handle argument sequences like::
-
-            --key CPL --load /tmp/1.root --key OBJ --load /tmp/2.root 
-
         """ 
-        key = self.config.args.key
-
         photons_config = []
 
+        key = None
         for k,v in event_config:
             if k == 'key':
                 key = v
             elif k == 'save':
-                self.save(v, key)
+                self.save(v)
             elif k == 'load':
-                self.load(v, key)
+                self.load(v)
             elif k == 'clear':
                 self.clear()
             elif k == 'tcut':
@@ -193,28 +196,65 @@ class DAEEvent(DAEEventBase):
             self.dphotons.reconfig(photons_config)
         pass 
 
-    def external_cpl(self, cpl ):
-        self.external_cpl_base( cpl )
-    def external_npl(self, npl ):
-        self.external_npl_base( npl )
+    def external_npy(self, npy ):
+        if self.config.args.saveall:
+            log.info("external_npy timestamp_save due to --saveall option")
+            name = None  # None signals timestamp
+            typ = None
+            assert 0, "needs attention" 
+            #self.config.save_npy( npl, name, npl.typ )   
+        else:
+            log.info("external_npy not saving ")
+        pass
+        self.setup_npy(npy) 
+ 
+    def setup_npy(self, npy):
+        """
+        :param npl: NPY array, shape (nphoton,4,4) for photons
 
+        This is invoked by:
+
+        * `external_npy` when arriving over network
+        * `load` when loading from file
+
+        """
+        assert len(npy.shape) == 3 , "unexpected npy.shape %s " % repr(shape)
+
+        self.scene.chroma.incoming(npy)
+        typ = NPY.detect_type(npy)
+        log.info("incoming array detect_type: %s %s " % (typ, repr(npy.shape))) 
+
+        if typ == "photon": 
+            photons = Photon.from_array(npy)   
+            self.setup_photons( photons ) 
+        elif typ == "cerenkov" or typ == "scintillation": 
+            genstep = G4Step.from_array(npy)
+            self.setup_genstep(genstep)
+        else:
+            log.info("received NPY array of unhandled type %s %s " % (typ, repr(npy.shape)))
+        pass
+
+    def setup_genstep(self, genstep):
+        self.dgenstep.array = genstep
 
     def setup_photons(self, photons ):
         """
-        :param photons: `chroma.event.Photons` instance (or fallback)
-
-        Slot the operations level chroma.event.Photons into the 
-        DAEPhotons presentation controller instance.
+        :param photons: NPY Photon instance 
 
         #. setting the photons property invalidates dependents like `.mesh`
            and subsequent access will recreate them 
 
         """
-        self.setup_photons_base( photons )
+        self.dphotons.array = photons
 
         mesh = self.dphotons.mesh
         self.scene.bookmarks.create_for_object( mesh, 9 )
         self.objects = [mesh]
+
+    def clear(self):
+        log.info("clear setting photons to None")
+        self.dphotons.photons = None
+
 
     def step(self, dcc):
         """
@@ -246,31 +286,27 @@ class DAEEvent(DAEEventBase):
             return None
 
     def draw(self):
-        if self.dphotons is None:return
-        self.dphotons.draw()
+        if not self.dphotons is None:
+            self.dphotons.draw()
+        if not self.dgenstep is None:
+            self.dgenstep.draw()
+        pass
 
-    def save(self, path_, key=None ):
-        if self.cpl is None:
-            log.warn("no cpl, nothing to save ") 
-            return
-        self.config.save_cpl( path_, key, self.cpl.cpl )   
-
+    #def save(self, path_, key=None ):
+    #    if self.cpl is None:
+    #        log.warn("no cpl, nothing to save ") 
+    #        return
+    #    self.config.save_cpl( path_, key, self.cpl.cpl )   
         
-    def load(self, path_, key=None ):
-        path = self.config.resolve_event_path( path_ )
+    def load(self, name):
+        typ = self.config.args.type
+        path = self.config.resolve_templated_path(name, typ)
 
-        lpho = None
-        if path[-4:] == ".npy":
-            lpho = self.config.load_npl( path, key )
-            self.setup_npl( lpho )
-        elif path[-5:] == ".root":
-            lpho = self.config.load_cpl( path, key )
-            self.setup_cpl( lpho )
-        else:
-            log.warn("unexpected path extension %s ", path)
-        pass          
-        if lpho is None:
-            log.warn("load failed ")
+        npy = self.config.load_npy( path, typ )
+        self.setup_npy( npy )
+
+        if npy is None:
+            log.warn("load of typ %s name %s path %s failed " % (typ,name,path))
             return
         pass
         self.loaded = path

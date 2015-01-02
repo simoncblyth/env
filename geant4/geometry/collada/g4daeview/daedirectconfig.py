@@ -19,6 +19,10 @@ ivec_ = lambda _:map(int,_.split(","))
 fvec_ = lambda _:map(float,_.split(","))
 
 
+def timestamp():
+    return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+
 class DAEDirectConfig(object):
     """
     Non-GUI config, NB these parameters and defaults are also used
@@ -162,6 +166,7 @@ class DAEDirectConfig(object):
     wavelengths = property(lambda self:np.arange(*map(float,self.args.wavelengths.split(":"))).astype(np.float32))
 
     def resolve_templated_path(self, name, typ):
+        if name[0] == '/':return name
         varname = "DAE_%s_PATH_TEMPLATE" % typ.upper()  
         var = os.environ.get(varname, None)
         if var is None or name is None:
@@ -181,6 +186,7 @@ class DAEDirectConfig(object):
         Can use args `--load 1` 
 
         """
+        assert 0, "moving to template" 
         if path_[0] == '/':return path_
         path_template_varname = self.path_template_varname
         path_template = self.path_template
@@ -209,25 +215,17 @@ class DAEDirectConfig(object):
         assert os.path.exists(path), path
         return path
 
-    def load_cpl(self, name, key=None ):
-        """
-        Requires envvar from cpl-;cpl-export to find the ROOT library 
-        """ 
-        if key is None:
-            key = self.args.key
-        from env.chroma.ChromaPhotonList.cpl import load_cpl
-        path = self.resolve_event_path(name)
-        cpl = load_cpl(path, key )
-        return cpl
-
-    def load_npl(self, name, key=None, sli=None ):
+    def load_npy(self, name, typ=None, sli=None ):
         """
         """ 
         if sli is None:
             sli = self.args.slice
+        if typ is None:
+            typ = self.args.type
 
-        path = self.resolve_event_path(name)
+        path = self.resolve_templated_path(name, typ)
         a = np.load(path)
+
         log.info("load %s %s " % (path, str(a.shape) ))    
         if not sli is None:
             int_ = lambda _:int(_) if _ else None
@@ -243,6 +241,9 @@ class DAEDirectConfig(object):
         :param name:  name to fill the template with
         :param typ: type name of the template eg opcerenkov, opscintillation
         """
+        if name is None:
+           name = timestamp()
+
         path = self.resolve_templated_path(name, typ)
         if path is None:
             log.warn("failed to resolve path for %s %s " % (typ, name))
@@ -254,16 +255,6 @@ class DAEDirectConfig(object):
         log.info("saving %s %s to %s " % (typ, name, path)) 
         np.save(path, npy) 
 
-
-    def save_cpl(self, cpl, name, key=None ):
-        """
-        Requires envvar from cpl-;cpl-export to find the ROOT library 
-        """ 
-        if key is None:
-            key = self.args.key
-        path = self.resolve_event_path(name)
-        from env.chroma.ChromaPhotonList.cpl import save_cpl
-        save_cpl( path, key, cpl )
 
     def _get_path(self):
         if self._path is None:

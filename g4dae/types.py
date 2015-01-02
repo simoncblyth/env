@@ -211,6 +211,13 @@ class G4Step(NPY):
     materialIndex = property(lambda self:self[:,0,2].view(np.int32))
     numPhotons = property(lambda self:self[:,0,3].view(np.int32))  
 
+    position      = property(lambda self:self[:,1,:3]) 
+    time          = property(lambda self:self[:,1,3])
+
+    deltaPosition = property(lambda self:self[:,2,:3]) 
+    stepLength    = property(lambda self:self[:,2,3])
+
+
     code = property(lambda self:self[:,3,0].view(np.int32))   # 3 
 
     totPhotons = property(lambda self:int(self.numPhotons.sum()))
@@ -251,103 +258,23 @@ typmap[CerenkovStep.typ] = CerenkovStep
 
 
 
-class VBOPhoton(Photon):
-    """
-    Extend Photon with VBO creation capabilites
-    """
+class VBOMixin(object):
     numquad = 6 
     force_attribute_zero = "position_weight"
+
     @classmethod
-    def from_array(cls, arr, max_slots=None):
+    def vbo_from_array(cls, arr, max_slots=None):
         if arr is None:return None 
         assert max_slots
         a = arr.view(cls)
-        a.max_slots = max_slots
-        a._data = None
-        a._ccolor = None
-        a._indices = None
+        a.initialize(max_slots)
         return a 
 
-    @classmethod
-    def from_vbo_propagated(cls, vbo ):
-        r = np.zeros( (len(vbo),4,4), dtype=np.float32 )  
-        r[:,0,:4] = vbo['position_time'] 
-        r[:,1,:4] = vbo['direction_wavelength'] 
-        r[:,2,:4] = vbo['polarization_weight'] 
-        r[:,3,:4] = vbo['last_hit_triangle'].view(r.dtype) # must view as target type to avoid coercion of int32 data into float32
-        return r.view(cls) 
-
-    def _get_data(self):
-        if self._data is None:
-            self._data = self.create_data(self.max_slots)
-        return self._data
-    data = property(_get_data)         
-
-    def create_data(self, max_slots):
-        """
-        :return: numpy named constituent array with numquad*quads structure 
-
-        Trying to replace DAEPhotonsData
-
-        The start data is splayed out into the slots, leaving loadsa free slots
-        this very sparse data structure with loadsa empty space limits 
-        the number of photons that can me managed, but its for visualization  
-        anyhow so do not need more than 100k or so. 
-
-        Caution sensitivity to data structure naming:
-
-        #. using 'position' would use traditional glVertexPointer furnishing gl_Vertex to shader
-        #. using smth else eg 'position_weight' uses generic attribute , 
-           which requires force_attribute_zero for anythinh to appear
-
-        Fake attribute testing
-
-        #. replace self.time, self.flags and self.last_hit_triangle 
-           to check getting different types (especially integer) 
-           attributes into shaders 
-
-        r012_ = lambda _:np.random.randint(3, size=nvert ).astype(_)  # 0,1,2 randomly 
-        r124_ = lambda _:np.array([1,2,4],dtype=_)[np.random.randint(3, size=nvert )]
-
-        max_uint32 = (1 << 32) - 1 
-        max_int32 =  (1 << 31) - 1 
-
-        """
-        if len(self) == 0:return None
-
-        nphotons = len(self)
-        nvert = nphotons*max_slots
-
-        dtype = np.dtype([ 
-            ('position_time'   ,          np.float32, 4 ), 
-            ('direction_wavelength',      np.float32, 4 ), 
-            ('polarization_weight',       np.float32, 4 ), 
-            ('ccolor',                    np.float32, 4 ), 
-            ('flags',                     np.uint32,  4 ), 
-            ('last_hit_triangle',         np.int32,   4 ), 
-          ])
-        assert len(dtype) == self.numquad
-
-        log.info( "create_data nphotons %d max_slots %d nvert %d (with slot scaleups) " % (nphotons,max_slots,nvert) )
-        data = np.zeros(nvert, dtype )
-
-        def pack31_( name, a, b ):
-            data[name][::max_slots,:3] = a
-            data[name][::max_slots,3] = b
-        def pack1_( name, a):
-            data[name][::max_slots,0] = a
-        def pack4_( name, a):
-            data[name][::max_slots] = a
-
-        pack31_( 'position_time',        self.position ,    self.time )
-        pack31_( 'direction_wavelength', self.direction,    self.wavelength )
-        pack31_( 'polarization_weight',  self.polarization, self.weight  )
-        pack1_(  'flags',                self.history )            # flags is used already by numpy 
-        pack1_(  'last_hit_triangle',    self.last_hit_triangle )
-        pack4_(  'ccolor',               self.ccolor) 
-
-        return data
-
+    def initialize(self, max_slots): 
+        self.max_slots = max_slots
+        self._vbodata = None
+        self._ccolor = None
+        self._indices = None
 
     def _get_ccolor(self):
         """
@@ -366,6 +293,117 @@ class VBOPhoton(Photon):
             self._indices = np.arange( len(self), dtype=np.uint32)  
         return self._indices 
     indices = property(_get_indices, doc=_get_indices.__doc__)
+
+    def _get_vbodata(self):
+        if self._vbodata is None:
+            self._vbodata = self.create_vbodata(self.max_slots)
+        return self._vbodata
+    vbodata = property(_get_vbodata)         
+
+
+
+
+class VBOStep(G4Step, VBOMixin):
+    def create_vbodata(self, max_slots):
+        """
+        """
+        if len(self) == 0:return None
+        dtype = np.dtype([ 
+            ('position_time'   ,          np.float32, 4 ), 
+            ('direction_wavelength',      np.float32, 4 ), 
+            ('polarization_weight',       np.float32, 4 ), 
+            ('ccolor',                    np.float32, 4 ), 
+            ('flags',                     np.uint32,  4 ), 
+            ('last_hit_triangle',         np.int32,   4 ), 
+          ])
+        assert len(dtype) == self.numquad
+
+        data = np.zeros(len(self)*max_slots, dtype )
+        log.info( "create_data items %d max_slots %d nvert %d (with slot scaleups) " % (len(self),max_slots,len(data)) )
+
+
+        def pack31_( name, a, b ):
+            data[name][::max_slots,:3] = a
+            data[name][::max_slots,3] = b
+        def pack1_( name, a):
+            data[name][::max_slots,0] = a
+        def pack4_( name, a):
+            data[name][::max_slots] = a
+
+        pack31_( 'position_time',        self.position ,    self.time )
+        pack31_( 'direction_wavelength', self.deltaPosition, self.time )
+        #pack31_( 'polarization_weight',  self.polarization, self.weight  )
+        #pack1_(  'flags',                self.history )            # flags is used already by numpy 
+        #pack1_(  'last_hit_triangle',    self.last_hit_triangle )
+        pack4_(  'ccolor',               self.ccolor) 
+
+        return data
+
+
+
+class VBOPhoton(Photon, VBOMixin):
+    @classmethod
+    def from_vbo_propagated(cls, vbo ):
+        """
+        Pulling the correct slot (-2) ?
+        Hmm seems to be pulling all slots ?
+        """
+        r = np.zeros( (len(vbo),4,4), dtype=np.float32 )  
+        r[:,0,:4] = vbo['position_time'] 
+        r[:,1,:4] = vbo['direction_wavelength'] 
+        r[:,2,:4] = vbo['polarization_weight'] 
+        r[:,3,:4] = vbo['last_hit_triangle'].view(r.dtype) # must view as target type to avoid coercion of int32 data into float32
+        return r.view(cls) 
+
+    def create_vbodata(self, max_slots):
+        """
+        :return: numpy named constituent array with numquad*quads structure 
+
+        Trying to replace DAEPhotonsData
+
+        The start data is splayed out into the slots, leaving loadsa free slots
+        this very sparse data structure with loadsa empty space limits 
+        the number of photons that can me managed, but its for visualization  
+        anyhow so do not need more than 100k or so. 
+
+        Caution sensitivity to data structure naming:
+
+        #. using 'position' would use traditional glVertexPointer furnishing gl_Vertex to shader
+        #. using smth else eg 'position_weight' uses generic attribute , 
+           which requires force_attribute_zero for anythinh to appear
+
+        """
+        if len(self) == 0:return None
+        dtype = np.dtype([ 
+            ('position_time'   ,          np.float32, 4 ), 
+            ('direction_wavelength',      np.float32, 4 ), 
+            ('polarization_weight',       np.float32, 4 ), 
+            ('ccolor',                    np.float32, 4 ), 
+            ('flags',                     np.uint32,  4 ), 
+            ('last_hit_triangle',         np.int32,   4 ), 
+          ])
+        assert len(dtype) == self.numquad
+
+        data = np.zeros(len(self)*max_slots, dtype )
+        log.info( "create_data items %d max_slots %d nvert %d (with slot scaleups) " % (len(self),max_slots,len(data)) )
+
+        def pack31_( name, a, b ):
+            data[name][::max_slots,:3] = a
+            data[name][::max_slots,3] = b
+        def pack1_( name, a):
+            data[name][::max_slots,0] = a
+        def pack4_( name, a):
+            data[name][::max_slots] = a
+
+        pack31_( 'position_time',        self.position ,    self.time )
+        pack31_( 'direction_wavelength', self.direction,    self.wavelength )
+        pack31_( 'polarization_weight',  self.polarization, self.weight  )
+        pack1_(  'flags',                self.history )            # flags is used already by numpy 
+        pack1_(  'last_hit_triangle',    self.last_hit_triangle )
+        pack4_(  'ccolor',               self.ccolor) 
+
+        return data
+
 
 
 

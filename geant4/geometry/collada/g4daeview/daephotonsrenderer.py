@@ -35,20 +35,20 @@ class DAEPhotonsRenderer(object):
     #. presenter DAEPhotonsPresenter
 
     """
-    def __init__(self, dphotons, chroma ):
+    def __init__(self, drawable, chroma, config ):
         """
-        :param dphotons: DAEPhotons instance
+        :param drawable: instance of DAEDrawable subclass eg DAEPhotons  
         :param chroma: DAEChromaContext instance
         """
-        self.dphotons = dphotons
-        self.config = dphotons.config
+        self.drawable = drawable
+        self.config = config
         self.chroma = chroma
         self.max_slots = self.config.args.max_slots
 
         self.interop = not chroma.dummy
         log.debug("%s.__init__" % self.__class__.__name__ )
-        self.shader = DAEPhotonsShader(dphotons) 
-        self.presenter = DAEPhotonsPresenter(dphotons, chroma, debug=int(self.config.args.debugkernel)) if self.interop else None
+        self.shader = DAEPhotonsShader(drawable) 
+        self.presenter = DAEPhotonsPresenter(drawable, chroma, debug=int(self.config.args.debugkernel)) if self.interop else None
         self.invalidate_buffers()
         pass
         self.create_buffer_count = 0 
@@ -77,28 +77,31 @@ class DAEPhotonsRenderer(object):
 
     def _get_pbuffer(self):
         if self._pbuffer is None:
-           self._pbuffer = self.create_buffer(self.dphotons.photons)  
+           self._pbuffer = self.create_buffer(self.drawable.array)  
         return self._pbuffer
     pbuffer = property(_get_pbuffer, doc="point DAEVertexBuffer, without doubling : used with geometry shader to generate 2nd vertices and lines ")  
 
     def _get_lbuffer(self):
         assert 0, "in use ? "
         if self._lbuffer is None:
-           self._lbuffer = self.create_buffer(self.dphotons.photons)  
+           self._lbuffer = self.create_buffer(self.drawable.array)  
         return self._lbuffer
     lbuffer = property(_get_lbuffer, doc="line DAEVertexBuffer, with doubled vertices : not used when geometry shader available")  
 
-    def create_buffer(self, data ):
+    def create_buffer(self, _array ):
         """
         :param data: DAEPhotonsData instance
         :return: DAEVertexBuffer instance
 
         #. buffer creation does not belong in DAEPhotonsData as OpenGL specific
         """
-        if data.data is None:return None
+        if _array.vbodata is None:return None
         self.create_buffer_count += 1
-        log.debug("############ create_buffer [count %s]  ##################### %s " % (self.create_buffer_count, repr(data.data.dtype)) )
-        vbo = DAEVertexBuffer( self, data.data, data.indices, max_slots=data.max_slots, force_attribute_zero=data.force_attribute_zero )
+
+        log.info("_array %s " % repr(_array)) 
+
+        log.debug("############ create_buffer [count %s]  ##################### %s " % (self.create_buffer_count, repr(_array.vbodata.dtype)) )
+        vbo = DAEVertexBuffer( self, _array.vbodata, _array.indices, max_slots=_array.max_slots, force_attribute_zero=_array.force_attribute_zero )
 
         self.interop_gl_to_cuda(vbo)
         return vbo
@@ -126,13 +129,14 @@ class DAEPhotonsRenderer(object):
         """
         self.draw_count += 1
 
-        qcount = self.dphotons.qcount   
+        qcount = self.drawable.qcount   
 
         #log.info("%s draw slot %s draw_count %s qcount %s " % (self.__class__.__name__, slot, self.draw_count, qcount ))
 
-        gl.glPointSize(self.dphotons.param.fphopoint)  
+        gl.glPointSize(self.drawable.param.fphopoint)  
        
-        self.presenter.interop_present(self.pbuffer, max_slots=self.max_slots)
+        if self.drawable.animate:
+            self.presenter.interop_present(self.pbuffer, max_slots=self.max_slots)
 
         self.interop_cuda_to_gl(self.pbuffer)
 
@@ -143,7 +147,7 @@ class DAEPhotonsRenderer(object):
         gl.glPointSize(1)  
 
 
-    def multidraw(self, mode=gl.GL_LINE_STRIP, slot=None, counts=None, firsts=None, drawcount=None, extrakey=None ):
+    def multidraw(self, mode=gl.GL_LINE_STRIP, slot=None, counts=None, firsts=None, drawcount=None, extrakey=None):
         """
 
         #. prior to MultiDraw the presenter kernel is invoked, allowing per-draw VBO changes (eg used for 
@@ -152,13 +156,14 @@ class DAEPhotonsRenderer(object):
         """
         self.draw_count += 1
 
-        qcount = self.dphotons.qcount   
+        qcount = self.drawable.qcount   
 
         #log.info("%s multidraw slot %s draw_count %s qcount %s " % (self.__class__.__name__, slot, self.draw_count, qcount ))
 
-        gl.glPointSize(self.dphotons.param.fphopoint)  
+        gl.glPointSize(self.drawable.param.fphopoint)  
        
-        self.presenter.interop_present(self.pbuffer, max_slots=self.max_slots)
+        if self.drawable.animate:
+            self.presenter.interop_present(self.pbuffer, max_slots=self.max_slots)
 
         self.interop_cuda_to_gl(self.pbuffer)
 
@@ -189,9 +194,9 @@ class DAEPhotonsRenderer(object):
         In pre-history used both pbuffer and lbuffer to draw lines and points
         but that is no longer needed.
         """
-        qcount = self.dphotons.qcount
+        qcount = self.drawable.qcount
 
-        gl.glPointSize(self.dphotons.param.fphopoint)  
+        gl.glPointSize(self.drawable.param.fphopoint)  
 
         self.lbuffer.draw(mode=gl.GL_LINES,   what='pc', count=2*qcount, offset=0, att=1 )
 
