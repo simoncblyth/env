@@ -128,6 +128,22 @@ void getintpair( const char* range, char delim, int* a, int* b )
     *b = atoi(elem[1].c_str()) ;
 }
 
+void getinttriplet( const char* range, char delim, int* a, int* b, int* c ) 
+{
+    if(!range) return ;
+
+    std::vector<std::string> elem ;   
+    split(elem, range, delim);
+    assert( elem.size() == 3 );
+
+    *a = atoi(elem[0].c_str()) ;
+    *b = atoi(elem[1].c_str()) ;
+    *c = atoi(elem[2].c_str()) ;
+}
+
+
+
+
 
 
 // return path up to the last occurrence of the delim

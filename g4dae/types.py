@@ -13,6 +13,7 @@ chc_ = lambda _:load_("opcerenkov",_)
 chs_ = lambda _:load_("opscintillation",_)
 g4c_ = lambda _:load_("gopcerenkov",_)
 g4s_ = lambda _:load_("gopscintillation",_)
+pmt_ = lambda _:load_("pmthit",_)
 
 path_ = lambda typ,tag:os.environ["DAE_%s_PATH_TEMPLATE" % typ.upper()] % str(tag)
 load_ = lambda typ,tag:np.load(path_(typ,tag))     
@@ -203,7 +204,6 @@ class Prop(NPY):
     pass
 typmap[Prop.typ] = Prop
 
-
 class G4Step(NPY):
     typ = "g4step"
     sid = property(lambda self:self[:,0,0].view(np.int32))    # 0
@@ -254,6 +254,9 @@ class CerenkovStep(G4Step):
 typmap[CerenkovStep.typ] = CerenkovStep
 
 
+class PmtHit(NPY):
+    typ = "pmthit"
+typmap[PmtHit.typ] = PmtHit
 
 
 

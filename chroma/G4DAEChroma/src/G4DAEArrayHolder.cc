@@ -10,8 +10,20 @@
 // CAUTION: copy ctor that just steals pointers without copying 
 G4DAEArrayHolder::G4DAEArrayHolder( G4DAEArrayHolder* other ) : m_array(other->GetArray()), m_link(other->GetLink()) {}
 
+G4DAEArrayHolder::G4DAEArrayHolder( G4DAEArrayHolder* other, int start, int stop, int step) : m_array(NULL), m_link(other->GetLink()) 
+{
+    m_array = new G4DAEArray( other->GetArray(), start, stop, step );
+}
+
 
 G4DAEArrayHolder::G4DAEArrayHolder( G4DAEArray* array ) : m_array(array), m_link(NULL) {}
+
+G4DAEArrayHolder::G4DAEArrayHolder( G4DAEArray* array, int start, int stop, int step ) : m_array(NULL), m_link(NULL) 
+{
+    m_array = new G4DAEArray( array, start, stop, step );
+}
+
+
 
 
 G4DAEArrayHolder::G4DAEArrayHolder( std::size_t itemcapacity, float* data, const char* shape ) : m_array(NULL), m_link(NULL)

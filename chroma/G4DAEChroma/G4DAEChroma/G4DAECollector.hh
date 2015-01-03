@@ -9,6 +9,8 @@ class G4DAEArrayHolder ;
 #include <string>
 
 class G4HCofThisEvent ;
+class G4VHitsCollection ;
+
 class G4DAETransformCache ;
 
 //  **G4DAECollector**
@@ -37,8 +39,12 @@ public:
     virtual void Collect( const G4DAEHit& hit ) = 0;
 
     virtual void AddSomeFakeHits(const IDVec& sensor_ids);
-    virtual void DumpStatistics( G4HCofThisEvent* hce );
     virtual void CollectHits( G4DAEArrayHolder* photons, G4DAETransformCache* cache );
+
+public:
+    static void DumpStatistics( G4HCofThisEvent* hce, int detail=0 );
+    static void DumpHC( G4VHitsCollection* hc,  int index, int detail );
+
 
 public:
 #ifdef DEBUG_HITLIST

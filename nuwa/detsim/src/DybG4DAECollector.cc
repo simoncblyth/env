@@ -6,6 +6,11 @@
 #include "Event/SimPmtHit.h"
 #include "Conventions/Detectors.h"
 
+#include "G4DAEChroma/G4DAEChroma.hh"
+#include "G4DAEChroma/G4DAEPmtHitList.hh"
+#include "G4DAEChroma/G4DAECommon.hh"
+
+
 using namespace std ; 
 
 
@@ -220,9 +225,115 @@ void DybG4DAECollector::DumpLocalHitCache()
     {
          short int hcid = it->first ;
          G4DhHitCollection* hc = it->second ; 
+         if(hc->GetSize() == 0) continue;
+
          cout 
-               << " hcid " << hcid 
-               << " hc " << hc
-               << endl ;  
+             << " hcid " << hcid 
+             << " hc " << hc
+             << " size " << hc->GetSize() 
+             << endl ; 
+
+         DumpLocalHitCollection(hc); 
     }
 }
+
+void DybG4DAECollector::DumpLocalHitCollection(G4DhHitCollection* hc)
+{
+
+    //G4THitsCollection<G4DhHit>
+    size_t size = hc->GetSize(); 
+    for(size_t index = 0 ; index < size ; ++index )
+    {
+         G4DhHit* hit = dynamic_cast<G4DhHit*>(hc->GetHit(index));
+         cout << " index " << index << " hit " << hit << endl ;  
+
+         int trackid = hit->trackId();
+         DayaBay::SimPmtHit* sphit = dynamic_cast<DayaBay::SimPmtHit*>(hit->get());
+
+         cout << " trackid " << trackid 
+              << " sphit " << sphit 
+              << endl ;  
+
+         const CLHEP::Hep3Vector& localPos = sphit->localPos(); 
+         cout << "localPos " << localPos << endl ; 
+    }
+}
+
+
+
+
+void DybG4DAECollector::FillPmtHitList()
+{
+    cout << "DybG4DAECollector::FillPmtHitList" << endl; 
+    G4DAEPmtHitList* phl = G4DAEChroma::GetG4DAEChroma()->GetPmtHitList();
+
+    for( LocalHitCache::iterator it=m_hc.begin() ; it != m_hc.end() ; it++ )
+    {
+         short int hcid = it->first ;
+         G4DhHitCollection* hc = it->second ; 
+
+         size_t size = hc->GetSize(); 
+         if(size == 0) continue;
+
+         for(size_t index = 0 ; index < size ; ++index )
+         {
+             G4DhHit* hit = dynamic_cast<G4DhHit*>(hc->GetHit(index));
+             DayaBay::SimPmtHit* sphit = dynamic_cast<DayaBay::SimPmtHit*>(hit->get());
+
+             const CLHEP::Hep3Vector& localPos = sphit->localPos(); 
+             double hitTime = sphit->hitTime();
+
+             const CLHEP::Hep3Vector& dir = sphit->dir(); 
+             double wavelength = sphit->wavelength();
+
+             const CLHEP::Hep3Vector& pol = sphit->pol(); 
+             float weight = sphit->weight();
+
+             int trackid = hit->trackId();
+             int type    = sphit->type();   // unused?
+             int sensDetId = sphit->sensDetId();
+
+             float* ph = phl->GetNextPointer();     
+
+             ph[G4DAEPmtHit::_localPos_x] = localPos.x() ;
+             ph[G4DAEPmtHit::_localPos_y] = localPos.y() ;
+             ph[G4DAEPmtHit::_localPos_z] = localPos.z() ;
+             ph[G4DAEPmtHit::_hitTime]    = hitTime  ;
+
+             ph[G4DAEPmtHit::_dir_x] = dir.x() ;
+             ph[G4DAEPmtHit::_dir_y] = dir.y() ;
+             ph[G4DAEPmtHit::_dir_z] = dir.z() ;
+             ph[G4DAEPmtHit::_wavelength] = wavelength ;
+
+             ph[G4DAEPmtHit::_pol_x] = pol.x() ;
+             ph[G4DAEPmtHit::_pol_y] = pol.y() ;
+             ph[G4DAEPmtHit::_pol_z] = pol.z() ;
+             ph[G4DAEPmtHit::_weight] = weight ;
+
+             uif_t uifd[4] ; 
+             uifd[0].i = trackid ;
+             uifd[1].i = type ;  
+             uifd[2].i = 0 ;
+             uifd[3].i = sensDetId  ; 
+
+             ph[G4DAEPmtHit::_trackid] = uifd[0].f ;
+             ph[G4DAEPmtHit::_aux1]    = uifd[1].f ;
+             ph[G4DAEPmtHit::_aux2]    = uifd[2].f ;
+             ph[G4DAEPmtHit::_pmtid]   = uifd[3].f ;
+
+
+         }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

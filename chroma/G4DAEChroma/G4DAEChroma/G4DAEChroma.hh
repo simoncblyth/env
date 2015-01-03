@@ -16,9 +16,12 @@ that can adopt different:
 #include <cstddef>
 #include "G4ThreeVector.hh"
 
+class G4HCofThisEvent ; 
+
 class G4DAEGeometry ;
 class G4DAETransport ;
 class G4DAESensDet ;
+class G4DAECollector ;
 class G4DAETransformCache ;
 class G4DAEDatabase;
 class G4DAEMetadata;
@@ -28,6 +31,7 @@ class G4DAEMetadata;
 #include "G4DAEChroma/G4DAEPhotonList.hh"
 #include "G4DAEChroma/G4DAEScintillationPhotonList.hh"
 #include "G4DAEChroma/G4DAECerenkovPhotonList.hh"
+#include "G4DAEChroma/G4DAEPmtHitList.hh"
 
 
 class G4DAEMaterialMap;
@@ -104,6 +108,7 @@ public:
 
     void SetSensDet(G4DAESensDet* sd);
     G4DAESensDet* GetSensDet();
+    G4DAECollector* GetCollector();
 
     void SetTransformCache(G4DAETransformCache* cache);
     G4DAETransformCache* GetTransformCache();
@@ -114,6 +119,8 @@ public:
     void SetMetadata(G4DAEMetadata* metadata);
     G4DAEMetadata* GetMetadata();
 
+    void SetHCofThisEvent(G4HCofThisEvent* hce);
+    G4HCofThisEvent* GetHCofThisEvent();
 
     void SetVerbosity(int verbosity);
     int GetVerbosity();
@@ -127,6 +134,8 @@ public:
     G4DAEScintillationPhotonList* GetScintillationPhotonList();
 
     G4DAECerenkovPhotonList* GetCerenkovPhotonList();
+
+    G4DAEPmtHitList* GetPmtHitList();
 
 
 #ifdef DEBUG_HITLIST
@@ -203,6 +212,9 @@ private:
 
   // mapping between Geant4 and Chroma material indices
   G4DAEMaterialMap* m_materialmap ; 
+
+  //
+  G4HCofThisEvent* m_hce ;   
 
   // mapping between Geant4 and Chroma material indices
   int* m_g2c ; 

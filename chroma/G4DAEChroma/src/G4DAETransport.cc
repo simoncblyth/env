@@ -28,6 +28,7 @@ G4DAETransport::G4DAETransport(const char* envvar) :
     m_scintillation_photons(NULL),
     m_cerenkov_photons(NULL),
     m_hits(NULL),
+    m_pmthits(NULL),
     m_verbosity(3)
 { 
 #ifdef WITH_CHROMA_ZMQ
@@ -46,6 +47,7 @@ G4DAETransport::~G4DAETransport()
    delete m_cerenkov ; 
    delete m_handshake ; 
    delete m_socket ; 
+   delete m_pmthits ; 
 #endif
 }
 
@@ -102,6 +104,15 @@ G4DAEScintillationStepList* G4DAETransport::GetScintillationStepList()
 }
 
 
+
+G4DAEPmtHitList* G4DAETransport::GetPmtHitList()
+{ 
+    if(!m_pmthits) m_pmthits = new G4DAEPmtHitList(10000);
+    return m_pmthits  ; 
+}
+
+
+
 G4DAEPhotonList* G4DAETransport::GetHits()
 { 
     // hits only created from socket response
@@ -126,6 +137,8 @@ G4DAECerenkovPhotonList* G4DAETransport::GetCerenkovPhotonList()
 
 
 
+
+
 void G4DAETransport::SetHits(G4DAEPhotonList* hits)
 { 
     delete m_hits ; 
@@ -146,6 +159,16 @@ void G4DAETransport::SetCerenkovPhotonList(G4DAECerenkovPhotonList* cerenkov_pho
     delete m_cerenkov_photons ; 
     m_cerenkov_photons = cerenkov_photons ; 
 }
+
+
+
+void G4DAETransport::SetPmtHitList(G4DAEPmtHitList* pmthits)
+{ 
+    delete m_pmthits ; 
+    m_pmthits = pmthits ; 
+}
+
+
 
 
 void G4DAETransport::SetCerenkovStepList(G4DAECerenkovStepList* cerenkov)
@@ -188,6 +211,12 @@ void G4DAETransport::ClearAll()
     {
         m_cerenkov_photons->ClearAll();   
     }
+    if(m_pmthits)
+    {
+        m_pmthits->ClearAll();   
+    }
+
+
 #endif
 }
 
@@ -210,6 +239,11 @@ std::size_t G4DAETransport::ProcessScintillationPhotons(int batch_id)
 {
     return Process(batch_id, m_scintillation_photons );
 }
+std::size_t G4DAETransport::ProcessPmtHits(int batch_id)
+{
+    return Process(batch_id, m_pmthits );
+}
+
 
 
 
@@ -243,6 +277,11 @@ G4DAEArrayHolder* G4DAETransport::ProcessRaw(int /*batch_id*/, G4DAEArrayHolder*
 std::size_t G4DAETransport::Process(int batch_id, G4DAEArrayHolder* request)
 {
     G4DAEArrayHolder* response = ProcessRaw(batch_id, request );
+
+    //
+    // the assumption that hits are returned is often not true, 
+    // eg when just using the transport to copy things to the other side
+    //
     G4DAEPhotonList* hits = NULL ; 
 
     if(response)

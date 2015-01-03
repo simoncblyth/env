@@ -24,6 +24,7 @@ void isplit( std::vector<int>& elem, const char* line, char delim );
 
 
 void getintpair( const char* range, char delim, int* a, int* b );
+void getinttriplet( const char* range, char delim, int* a, int* b, int* c);
 
 
 

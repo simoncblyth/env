@@ -399,6 +399,8 @@ export-export-templates(){
 
    export DAE_TEST_PATH_TEMPLATE=$(export-path-template test)
    export DAE_PROP_PATH_TEMPLATE=$(export-path-template prop)
+
+   export DAE_PMTHIT_PATH_TEMPLATE=$(export-path-template pmthit)
 }
 
 export-lambda-(){ cat << EOL

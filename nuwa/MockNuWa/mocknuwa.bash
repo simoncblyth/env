@@ -4,7 +4,7 @@
 
 mocknuwa-src(){      echo nuwa/MockNuWa/mocknuwa.bash ; }
 mocknuwa-source(){   echo ${BASH_SOURCE:-$(env-home)/$(mocknuwa-src)} ; }
-mocknuwa-vi(){       vi $(mocknuwa-source) ; }
+mocknuwa-vi(){       vi $(mocknuwa-source) $(mocknuwa-sdir)/mocknuwa.cc ; }
 mocknuwa-env(){      
    elocal- 
 
@@ -123,7 +123,7 @@ mocknuwa-runenv(){
 mocknuwa--(){
    mocknuwa-make install
    [ $? -ne 0 ] && echo $FUNCNAME failed && return 1
-   mocknuwa-run $*
+   mocknuwa-one $*
 }
 
 mocknuwa-lldb(){

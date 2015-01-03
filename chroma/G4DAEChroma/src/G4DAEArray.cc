@@ -15,6 +15,7 @@ using namespace std ;
 
 const char* G4DAEArray::MAGIC = "\x93NUMPY" ; 
 const size_t G4DAEArray::INITCAPACITY = 10000 ; 
+const float G4DAEArray::GROWTH = 1.5 ; 
 
 G4DAEArray* G4DAEArray::CreateOther(char* bytes, size_t size)
 {
@@ -39,6 +40,71 @@ G4DAEArray::G4DAEArray( size_t initcapacity, string itemshape, float* data, floa
     Zero();
     Populate( initcapacity, itemshape, data );
 }
+
+
+G4DAEArray* G4DAEArray::Slice( int start, int stop, int step )
+{
+    return new G4DAEArray( this, start, stop, step );
+}
+
+G4DAEArray::G4DAEArray( G4DAEArray* src, int start, int stop, int step )
+{
+
+    size_t nsrc = src->GetSize();
+    printf("G4DAEArray::G4DAEArray sliced copy ctor : nsrc %zu start/stop/step %d/%d/%d \n", nsrc, start, stop, step );
+
+    if(start == INT_MAX) start = 0 ;
+    if(stop  == INT_MAX) stop  = nsrc ;
+    if(step  == INT_MAX) step  = 1 ;
+
+    if( start < 0) start = nsrc + start ;
+    if( stop < 0)  stop  = nsrc + stop  ;
+
+    m_initcapacity = abs( stop - start )/abs(step) ; // initial guess, but the array will grow as needed anyhow
+    m_growthfactor = src->GetGrowthFactor();
+
+    Zero();
+
+    InitializeItemShape(src->GetItemShapeString());
+
+    G4DAEArray::Transfer( this, src, start, stop, step );
+} 
+
+void G4DAEArray::Transfer( G4DAEArray* dest , G4DAEArray* src, int start, int stop, int step )
+{
+    size_t nsrc = src->GetSize();
+    if(start < 0 || stop < 0)
+    {
+        printf("G4DAEArray::Transfer unexpected nsrc/start/stop/step %zu %d %d %d \n", nsrc,start, stop, step);
+        return ;  
+    }
+    assert(src->GetItemSize() == dest->GetItemSize());
+
+    size_t nbytes = src->GetItemSize()*1*sizeof(float); 
+    size_t take=0; 
+
+    //TODO: test behaviour with non-existing start/stop
+    for(size_t index=start ; index < stop ; index+=step)
+    {
+        float* s = src->GetItemPointer(index);
+        if(!s)
+        {
+            printf("G4DAEArray::Transfer  NULL item \n");
+            return ; 
+        } 
+        float* d = dest->GetNextPointer();
+        memcpy( d, s, nbytes );   
+        take++;
+    }
+
+    // itemwise copying, could be made much more efficient 
+    // by copying multiple contiguous items at once depending on start, stop, step 
+   
+    printf("G4DAEArray::Transfer nsrc %zu nbytes %zu start/stop/step %d/%d/%d took %zu  \n", nsrc,nbytes, start,stop,step, take);
+
+}
+
+
 
 
 void G4DAEArray::Zero()
@@ -130,7 +196,15 @@ float* G4DAEArray::GetNextPointer()
     return data ; 
 }
 
+void G4DAEArray::InitializeItemShape( string itemshape )
+{
+    isplit( m_itemshape, itemshape.c_str(), ',' );   // populate m_itemshape   vector<int> 
 
+    assert( GetItemShapeString() == itemshape ); 
+
+    m_itemsize = FormItemSize( m_itemshape, 0 );     // eg 16 for "4,4" (1st dim already dropped)
+
+}
 
 
 void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
@@ -146,11 +220,7 @@ void G4DAEArray::Populate( size_t nitems, string itemshape, float* data )
 
     if(!nitems) return;  // zombie expedient, for zombie->Create(bytes, size) 
 
-    isplit( m_itemshape, itemshape.c_str(), ',' );   // populate vector<int>
-
-    assert( GetItemShapeString() == itemshape ); 
-
-    m_itemsize = FormItemSize( m_itemshape, 0 );     // eg 16 for "4,4" (1st dim already dropped)
+    InitializeItemShape(itemshape);
 
     Allocate(nitems);
 
@@ -216,6 +286,11 @@ string G4DAEArray::FormItemShapeString(const vector<int>& itemshape, size_t from
     return ss.str();
 }
 
+
+float G4DAEArray::GetGrowthFactor() const
+{
+    return m_growthfactor ; 
+}
 
 size_t G4DAEArray::GetItemSize() const
 {

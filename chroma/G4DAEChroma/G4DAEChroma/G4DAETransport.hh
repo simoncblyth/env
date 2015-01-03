@@ -10,6 +10,7 @@ class G4DAESocketBase ;
 #include "G4DAEChroma/G4DAECerenkovPhotonList.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
+#include "G4DAEChroma/G4DAEPmtHitList.hh"
 
 class G4DAEArrayHolder ; 
 class G4DAEMetadata ; 
@@ -32,6 +33,7 @@ public:
     std::size_t ProcessScintillationSteps(int batch_id);
     std::size_t ProcessCerenkovPhotons(int batch_id);
     std::size_t ProcessScintillationPhotons(int batch_id);
+    std::size_t ProcessPmtHits(int batch_id);
 
     std::size_t Propagate(int batch_id);
     std::size_t Process(int batch_id, G4DAEArrayHolder* request);
@@ -47,6 +49,7 @@ public:
     G4DAEPhotonList* GetHits();
     G4DAEScintillationPhotonList*  GetScintillationPhotonList();
     G4DAECerenkovPhotonList*  GetCerenkovPhotonList();
+    G4DAEPmtHitList*  GetPmtHitList();
 
     G4DAECerenkovStepList* GetCerenkovStepList();
     G4DAEScintillationStepList* GetScintillationStepList();
@@ -59,6 +62,7 @@ public:
     void SetHits(   G4DAEPhotonList* hits);
     void SetScintillationPhotonList(G4DAEScintillationPhotonList* scintillation_photons);
     void SetCerenkovPhotonList(G4DAECerenkovPhotonList* cerenkov_photons);
+    void SetPmtHitList(G4DAEPmtHitList* pmthits);
 
     void SetCerenkovStepList(G4DAECerenkovStepList* cerenkov);
     void SetScintillationStepList(G4DAEScintillationStepList* scintillation);
@@ -90,7 +94,9 @@ private:
 
 private:
 
-    G4DAEPhotonList* m_hits ; 
+    G4DAEPhotonList* m_hits ;      // as arrives from chroma, PhotonList with pmtid set 
+
+    G4DAEPmtHitList* m_pmthits ;   // extracted from G4 hit collections 
 
 private:
 

@@ -259,6 +259,12 @@ G4DAEMetadata* G4DAEChroma::GetHandshake()
 
 
 
+void G4DAEChroma::SetHCofThisEvent(G4HCofThisEvent* hce){
+   m_hce = hce ; 
+}
+G4HCofThisEvent* G4DAEChroma::GetHCofThisEvent(){
+   return m_hce ; 
+}
 
 
 void G4DAEChroma::SetMaterialMap(G4DAEMaterialMap* map){
@@ -293,6 +299,12 @@ void G4DAEChroma::SetSensDet(G4DAESensDet* sd){
 G4DAESensDet* G4DAEChroma::GetSensDet(){
    return m_sensdet ;
 }
+G4DAECollector* G4DAEChroma::GetCollector(){
+   if(!m_sensdet) return NULL ;
+   return m_sensdet->GetCollector(); 
+}
+
+
 
 void G4DAEChroma::SetGeometry(G4DAEGeometry* geo){
    m_geometry = geo ; 
@@ -394,11 +406,10 @@ G4DAECerenkovPhotonList* G4DAEChroma::GetCerenkovPhotonList()
 {
    return m_transport->GetCerenkovPhotonList();
 }
-
-
-
-
-
+G4DAEPmtHitList* G4DAEChroma::GetPmtHitList()
+{
+   return m_transport->GetPmtHitList();
+}
 
 
 G4DAEPhotonList* G4DAEChroma::GetPhotons()
@@ -518,6 +529,11 @@ std::size_t G4DAEChroma::Propagate(G4int batch_id)
       } 
 
   } 
+  else
+  {
+      cout << "G4DAEChroma::Propagate : zero hits   " << endl ; 
+
+  }
 
   if(m_verbosity > 1)
       cout << "G4DAEChroma::Propagate DONE batch_id " << batch_id << " nhits " << nhits << endl ; 

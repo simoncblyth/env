@@ -29,11 +29,17 @@ class ITouchableToDetectorElement ;
 
 
 
+
+
 void Propagate(int seq, int bid, int cid, int* range )
 {
+    printf("Propagate seq %d bid %d cid %d range %d:%d:%d \n", seq, bid, cid, range[0], range[1], range[2]);
+ 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
     G4DAEDatabase* db = chroma->GetDatabase();
     G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
+    chroma->SetHCofThisEvent(HCE);
+
 
     Map_t empty ;
     Map_t ctrl   = db ? db->GetOne("select * from ctrl  where id=? ;", cid ) : empty ; 
@@ -53,8 +59,13 @@ void Propagate(int seq, int bid, int cid, int* range )
     phometa->AddMap("args", args);
 
     const char* path = batch["path"].c_str();
-    G4DAEPhotons* all = G4DAEPhotons::LoadPath( path );
-    G4DAEPhotons* photons = all->Slice(range[0], range[1]);
+
+    printf("load from %s \n", path );
+    G4DAEPhotonList* all = G4DAEPhotonList::LoadPath( path );
+    all->Print("all photonlist");
+
+    G4DAEPhotonList* photons = new G4DAEPhotonList( all, range[0], range[1], range[2]);
+    photons->Print("sliced photonlist");
 
     args["COLUMNS"] += "dphotons:s,aphotons:i,nphotons:i,arange:i,brange:i";
     args["dphotons"] = photons->GetDigest() ;
@@ -69,7 +80,7 @@ void Propagate(int seq, int bid, int cid, int* range )
     photons->AddLink(phometa);
 
 
-    G4DAEPhotons* hits = NULL ;
+    G4DAEPhotonList* hits = NULL ;
     double t_propagate = -1. ; 
     {
         double t0 = getRealTime();
@@ -144,9 +155,12 @@ int main(int argc, const char** argv)
     if(argc > 1) _batch = argv[1] ; 
     if(argc > 2) _ctrl  = argv[2] ; 
 
+    if(!_range) _range = "0:10000:1" ; 
 
     G4DAESensDet::MockupSD("DsPmtSensDet", new DybG4DAECollector ); // setup Geant4 SDs like NuWa/DetDesc does
     G4DAESensDet::MockupSD("DsRpcSensDet", new DybG4DAECollector );
+
+    std::string chromaFlags = "" ;
 
     DsChromaRunAction_BeginOfRunAction(      // initializing G4DAEChroma, including hooking up trojan SD
          "G4DAECHROMA_CLIENT_CONFIG", 
@@ -155,15 +169,19 @@ int main(int argc, const char** argv)
          "G4DAECHROMA_DATABASE_PATH", 
           NULL, 
           "",
-          true ); 
+          true,
+          chromaFlags 
+         ); 
 
     G4DAEDatabase* db = G4DAEChroma::GetG4DAEChroma()->GetDatabase();
 
     std::vector<long> batch_id = getivec( db, _batch );
     std::vector<long> ctrl_id = getivec( db, _ctrl );
 
-    int range[2] = {0} ;
-    getintpair( _range, ':', range, range+1 ); 
+    int range[3] = {0} ;
+    getinttriplet( _range, ':', range, range+1, range+2 ); 
+
+
 
     int seq = 0 ;
     for(size_t b=0 ; b < batch_id.size() ; ++b )
@@ -178,6 +196,18 @@ int main(int argc, const char** argv)
         seq++ ;
     } 
     } 
+
+
+
+    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+    DybG4DAECollector* collector = (DybG4DAECollector*)chroma->GetCollector();
+    //collector->DumpLocalHitCache();
+    collector->FillPmtHitList();
+
+    G4DAEPmtHitList* phl = chroma->GetPmtHitList();
+    phl->Print("G4DAEPmtHitList from mocknuwa");
+    phl->Save("1");
+
 
     return 0 ; 
 }

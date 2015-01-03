@@ -27,8 +27,19 @@ G4DAECollector::~G4DAECollector()
 }
 
 
+void G4DAECollector::DumpHC( G4VHitsCollection* hc,  int index, int detail ) 
+{
+    string colpath = hc->GetSDname() + "//" + hc->GetName() ;
+    cout << " HC " 
+         << setw(4) << index << ": " 
+         << setw(30) << colpath 
+         << " #hits  " << setw(10) << hc->GetSize() 
+         << endl;
 
-void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce ) 
+    hc->PrintAllHits();
+}
+
+void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce,  int detail ) 
 {
     int ncols = hce->GetNumberOfCollections();
     cout << "G4DAECollector::DumpStatistics "
@@ -37,18 +48,13 @@ void G4DAECollector::DumpStatistics( G4HCofThisEvent* hce )
          << endl ; 
 
     int tothits = 0;
-    for (int ind=0; ind<ncols; ++ind) 
+    for (int index=0; index<ncols; ++index) 
     {
-       G4VHitsCollection* hc = hce->GetHC(ind);
+       G4VHitsCollection* hc = hce->GetHC(index);
        if ( hc->GetSize() > 0)
        {
-           string colpath = hc->GetSDname() + "//" + hc->GetName() ;
-
            if ( tothits == 0) cout << endl; 
-           cout << " col# " << setw(4) << ind << ": " 
-                << setw(30) << colpath 
-                << " #hits  " << setw(10) << hc->GetSize() 
-                << endl; 
+           DumpHC(hc, index, detail);
        }
        tothits += hc->GetSize() ;
     }

@@ -23,19 +23,29 @@
 class G4DAEBuffer ;
 
 #include "G4DAEChroma/G4DAESerializable.hh"
+#include <limits.h>
 
 class G4DAEArray : public G4DAESerializable {
 public:
     static const char* MAGIC ; 
     static const size_t INITCAPACITY ; 
+    static const float GROWTH ; 
 public:
     G4DAEArray* CreateOther(char* bytes, size_t size);
 
     G4DAEArray(char* bytes, size_t size, float growth=1.5 );
-    G4DAEArray( std::size_t initcapacity = INITCAPACITY , std::string itemshapestr = "", float* data = NULL, float growth=1.5 );
-
+    G4DAEArray( std::size_t initcapacity = INITCAPACITY , std::string itemshapestr = "", float* data = NULL, float growth=GROWTH );
     virtual ~G4DAEArray();
 
+public:
+    G4DAEArray* Slice( int start, int stop, int step );
+    G4DAEArray( G4DAEArray* src, int start=INT_MAX, int stop=INT_MAX, int step=INT_MAX );
+    static void Transfer(G4DAEArray* dest , G4DAEArray* src, int start=INT_MAX, int stop=INT_MAX, int step=INT_MAX ); // INT_MAX means None
+
+protected:
+    void InitializeItemShape(std::string itemshapestr);
+
+public:
     void Allocate( size_t nitems );
     void Extend(size_t nitems );
     void Populate( std::size_t itemcapacity, std::string itemshapestr, float* data);
@@ -45,7 +55,6 @@ public:
 
     static size_t FormItemSize(const std::vector<int>& itemshape, size_t from=0);
     static std::string FormItemShapeString(const std::vector<int>& itemshape, size_t from=0);
-
 public:
     // fulfil Serializable protocol 
     virtual void Populate( char* bytes, size_t size );
@@ -84,18 +93,19 @@ public:
     std::size_t GetBytes() const;
     std::string GetDigest() const; 
     std::string GetItemShapeString() const;
+    float GetGrowthFactor() const;
 
 protected:
     // equivalent of ndarray type info
     std::vector<int> m_itemshape ; 
     std::size_t      m_itemsize ; 
+    std::size_t      m_initcapacity ; 
+    float            m_growthfactor ; 
 
 protected:
     std::size_t      m_itemcount ; 
-    std::size_t      m_initcapacity ; 
     std::size_t      m_itemcapacity ; 
     float*           m_data ; 
-    float            m_growthfactor ; 
 
 private:
     G4DAEBuffer*     m_buffer ; 

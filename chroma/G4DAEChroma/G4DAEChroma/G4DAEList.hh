@@ -10,7 +10,9 @@ class G4DAEList : public G4DAEArrayHolder
 {
 public:
   G4DAEList(G4DAEArrayHolder* holder);
+  G4DAEList(G4DAEArrayHolder* holder, int start, int stop, int step);
   G4DAEList(G4DAEArray* array);
+  G4DAEList(G4DAEArray* array, int start, int stop, int step);
   G4DAEList( std::size_t itemcapacity = 0, float* data = NULL);
   virtual ~G4DAEList();
 
@@ -33,7 +35,17 @@ G4DAEList<T>::G4DAEList( G4DAEArrayHolder* holder ) : G4DAEArrayHolder( holder )
 }
 
 template <typename T>
+G4DAEList<T>::G4DAEList( G4DAEArrayHolder* holder, int start, int stop, int step ) : G4DAEArrayHolder( holder, start, stop, step ) 
+{
+}
+
+template <typename T>
 G4DAEList<T>::G4DAEList( G4DAEArray* array ) : G4DAEArrayHolder( array ) 
+{
+}
+
+template <typename T>
+G4DAEList<T>::G4DAEList( G4DAEArray* array, int start, int stop, int step ) : G4DAEArrayHolder( array, start, stop, step ) 
 {
 }
 
