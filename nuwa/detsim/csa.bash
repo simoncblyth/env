@@ -231,12 +231,18 @@ csa-nuwaenv(){
 
 csa-db(){ echo $HOME/g4daechroma.db ; }
 csa-sqlite(){ sqlite3 $(csa-db) ; }
+csa-metadata(){
+   gdc-
+   gdc-flags-json
+}
+
 csa-export(){
    # potentially override defaults set in requirements
    zmq-
    export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     
    export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
    export G4DAECHROMA_DATABASE_PATH=$(csa-db)
+   export G4DAECHROMA_CONFIG_PATH=$(csa-metadata)
    env | grep G4DAECHROMA
 
    export-

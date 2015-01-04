@@ -21,6 +21,7 @@ public:
     static char* TimeStampUTC();
     static double RealTime();
     static G4DAEMetadata* CreateFromBuffer(char* bytes, std::size_t size);
+    static G4DAEMetadata* CreateFromFile(const char* jspath);
 
 public:
     G4DAEMetadata(Map_t& map, const char* name);

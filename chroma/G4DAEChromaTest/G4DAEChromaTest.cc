@@ -387,8 +387,8 @@ int test_G4DAEChroma_flags()
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
 
-    string flags = "FLAG_G4SCINTILLATION_COLLECT_STEP,FLAG_G4CERENKOV_COLLECT_STEP," ;
-    //string flags = "FLAG_G4SCINTILLATION_KILL_SECONDARY,FLAG_G4CERENKOV_KILL_SECONDARY," ;
+    //string flags = "FLAG_G4SCINTILLATION_COLLECT_STEP,FLAG_G4CERENKOV_COLLECT_STEP," ;
+    string flags = "FLAG_G4SCINTILLATION_KILL_SECONDARY,FLAG_G4CERENKOV_KILL_SECONDARY," ;
 
     chroma->SetFlags(flags);
 
@@ -398,13 +398,46 @@ int test_G4DAEChroma_flags()
 }
 
 
+int test_G4DAEMetadata()
+{
+    const char* jspath = getenv("G4DAECHROMA_CONFIG_PATH");
+    if(!jspath) return 1 ; 
+
+    G4DAEMetadata* meta = G4DAEMetadata::CreateFromFile(jspath);
+    meta->Print();
+    Map_t map = meta->GetRawMap("/FLAGS");
+    for(Map_t::iterator it=map.begin() ; it != map.end() ; it++ )
+    {   
+        string key = it->first ;
+        string val = it->second ;
+        int ival = atoi(val.c_str());
+        printf(" %20s : %s : %d \n", key.c_str(), val.c_str(), ival );
+    }   
+
+    return 0 ; 
+}
+
+
+int test_G4DAEManager()
+{
+    G4DAEChroma* mgr = G4DAEChroma::GetG4DAEChroma();
+    return 0 ; 
+}
+
+
+
 
 int main(int argc, char** argv)
 {
-    test_ScintillationIntegral();
+
+    //test_G4DAEManager();
+
+    //test_G4DAEMetadata();
+    test_G4DAEChroma_flags();
+
+    //test_ScintillationIntegral();
     //test_G4DAEPropList_read();
     //test_G4DAEPropList();
-    //test_G4DAEChroma_flags();
 
     //const char* evtkey = "1" ;
     //test_generate(evtkey);

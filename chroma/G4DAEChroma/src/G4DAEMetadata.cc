@@ -239,6 +239,12 @@ void G4DAEMetadata::DumpBuffer()
 }
 
 
+G4DAEMetadata* G4DAEMetadata::CreateFromFile(const char* jspath)
+{
+    if(!jspath) return NULL ;
+    G4DAEBuffer* buf = new G4DAEBuffer(jspath);
+    return new G4DAEMetadata(buf);
+}
 
 G4DAEMetadata* G4DAEMetadata::CreateFromBuffer(char* buffer, std::size_t buflen)
 {

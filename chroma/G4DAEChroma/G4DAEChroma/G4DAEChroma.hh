@@ -26,6 +26,7 @@ class G4DAETransformCache ;
 class G4DAEDatabase;
 class G4DAEMetadata;
 
+#include "G4DAEChroma/G4DAEManager.hh"
 #include "G4DAEChroma/G4DAECerenkovStepList.hh"
 #include "G4DAEChroma/G4DAEScintillationStepList.hh"
 #include "G4DAEChroma/G4DAEPhotonList.hh"
@@ -42,54 +43,8 @@ class G4Run ;
 class G4DAEHitList;
 #endif
 
-class G4DAEChroma 
+class G4DAEChroma  : public G4DAEManager 
 {
-
-public:
-    // flag control
-    enum
-    {
-        FLAG_ZERO = 0,
-        FLAG_G4SCINTILLATION_ADD_SECONDARY  = 1 << 0, 
-        FLAG_G4SCINTILLATION_KILL_SECONDARY = 1 << 1, 
-        FLAG_G4SCINTILLATION_COLLECT_STEP   = 1 << 2, 
-        FLAG_G4SCINTILLATION_COLLECT_PHOTON = 1 << 3, 
-        FLAG_G4SCINTILLATION_COLLECT_PROP   = 1 << 4, 
-
-        FLAG_G4CERENKOV_ADD_SECONDARY      = 1 << 16, 
-        FLAG_G4CERENKOV_KILL_SECONDARY     = 1 << 17, 
-        FLAG_G4CERENKOV_COLLECT_STEP       = 1 << 18, 
-        FLAG_G4CERENKOV_COLLECT_PHOTON     = 1 << 19, 
-        FLAG_G4CERENKOV_APPLY_WATER_QE     = 1 << 20, 
-
-        FLAG_LAST = 1 << 31 
-    };
-
-
-    static const char* _FLAG_G4SCINTILLATION_ADD_SECONDARY ; 
-    static const char* _FLAG_G4SCINTILLATION_KILL_SECONDARY ; 
-    static const char* _FLAG_G4SCINTILLATION_COLLECT_STEP  ; 
-    static const char* _FLAG_G4SCINTILLATION_COLLECT_PHOTON  ; 
-    static const char* _FLAG_G4SCINTILLATION_COLLECT_PROP   ; 
-
-    static const char* _FLAG_G4CERENKOV_ADD_SECONDARY ; 
-    static const char* _FLAG_G4CERENKOV_KILL_SECONDARY ; 
-    static const char* _FLAG_G4CERENKOV_COLLECT_STEP ; 
-    static const char* _FLAG_G4CERENKOV_COLLECT_PHOTON ; 
-    static const char* _FLAG_G4CERENKOV_APPLY_WATER_QE ; 
-
-    static int ParseFlags(std::string sflags, char delim=',');
-    static int MatchFlag(const char* flag );
-
-    void SetFlags(int flags);
-    void SetFlags(std::string flags);
-    int GetFlags();
-    void AddFlags(int flags);
-    void AddFlags(std::string flags);
-    bool HasFlag(int flags);
-    std::string Flags();
-
-
 
 public:
     static G4DAEChroma* GetG4DAEChroma();
@@ -221,9 +176,6 @@ private:
 
   // verbosity level
   int m_verbosity ;  
-
-  // control bitfield
-  int m_flags ;  
 
 };
 

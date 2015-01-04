@@ -7,6 +7,8 @@ class G4DAEBuffer {
 
 public:
   G4DAEBuffer(std::size_t size, char* bytes=NULL );
+  G4DAEBuffer(const char* path );
+
   virtual ~G4DAEBuffer();
 
   virtual std::size_t GetSize() const; 
