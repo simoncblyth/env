@@ -50,7 +50,7 @@ G4DAEBuffer::G4DAEBuffer( const char* path )
             printf("G4DAEBuffer::G4DAEBuffer failed to read  %s \n", path );
             return ;  
         }
-        assert(nread == size);
+        assert(nread == m_size);
     }
     fclose(fp);
 }

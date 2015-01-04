@@ -40,7 +40,7 @@ public:
 public:
     G4DAEArray* Slice( int start, int stop, int step );
     G4DAEArray( G4DAEArray* src, int start=INT_MAX, int stop=INT_MAX, int step=INT_MAX );
-    static void Transfer(G4DAEArray* dest , G4DAEArray* src, int start=INT_MAX, int stop=INT_MAX, int step=INT_MAX ); // INT_MAX means None
+    static void Transfer(G4DAEArray* dest , G4DAEArray* src, size_t start=INT_MAX, size_t stop=INT_MAX, int step=INT_MAX ); // INT_MAX means None
 
 protected:
     void InitializeItemShape(std::string itemshapestr);

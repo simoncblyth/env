@@ -60,6 +60,12 @@ G4DAEArray::G4DAEArray( G4DAEArray* src, int start, int stop, int step )
     if( start < 0) start = nsrc + start ;
     if( stop < 0)  stop  = nsrc + stop  ;
 
+    if(start < 0 || stop < 0)
+    {
+        printf("G4DAEArray::Transfer unexpected nsrc/start/stop/step %zu %d %d %d \n", nsrc,start, stop, step);
+        return ;  
+    }
+
     m_initcapacity = abs( stop - start )/abs(step) ; // initial guess, but the array will grow as needed anyhow
     m_growthfactor = src->GetGrowthFactor();
 
@@ -70,14 +76,9 @@ G4DAEArray::G4DAEArray( G4DAEArray* src, int start, int stop, int step )
     G4DAEArray::Transfer( this, src, start, stop, step );
 } 
 
-void G4DAEArray::Transfer( G4DAEArray* dest , G4DAEArray* src, int start, int stop, int step )
+void G4DAEArray::Transfer( G4DAEArray* dest , G4DAEArray* src, size_t start, size_t stop, int step )
 {
     size_t nsrc = src->GetSize();
-    if(start < 0 || stop < 0)
-    {
-        printf("G4DAEArray::Transfer unexpected nsrc/start/stop/step %zu %d %d %d \n", nsrc,start, stop, step);
-        return ;  
-    }
     assert(src->GetItemSize() == dest->GetItemSize());
 
     size_t nbytes = src->GetItemSize()*1*sizeof(float); 
@@ -100,7 +101,7 @@ void G4DAEArray::Transfer( G4DAEArray* dest , G4DAEArray* src, int start, int st
     // itemwise copying, could be made much more efficient 
     // by copying multiple contiguous items at once depending on start, stop, step 
    
-    printf("G4DAEArray::Transfer nsrc %zu nbytes %zu start/stop/step %d/%d/%d took %zu  \n", nsrc,nbytes, start,stop,step, take);
+    printf("G4DAEArray::Transfer nsrc %zu nbytes %zu start/stop/step %zu/%zu/%d took %zu  \n", nsrc,nbytes, start,stop,step, take);
 
 }
 

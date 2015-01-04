@@ -4,6 +4,8 @@
 #include "G4DAEChroma/G4DAEMap.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
 
+#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include <vector>
@@ -22,12 +24,36 @@ G4DAEManager::~G4DAEManager()
 {
 }
 
+void G4DAEManager::ZeroConfig()
+{
+    for(size_t i=0 ; i<MAXTASK ; i++)
+    {
+        if(m_name[i]) free((void*)m_name[i]);
+        m_name[i] = NULL ; 
+        m_status[i] = 0 ;   // hmm parallel to m_flags bitfield
+    }
+}
+
+void G4DAEManager::ZeroResults()
+{
+    for(size_t i=0 ; i<MAXTASK ; i++)
+    {
+        m_count[i] = 0 ;
+        m_start[i] = 0. ;
+        m_stop[i] = 0. ;
+        m_duration[i] = 0. ;
+        m_average[i] = 0. ;
+    }
+}
+
+
 void G4DAEManager::Initialize(const char* configkey)
 {
     ZeroConfig();
     ZeroResults();
     LoadConfig(configkey);
-    LoadFlags("/FLAGS");
+    LoadMap("/FLAGS", 'f');
+    LoadMap("/STATUS", 's');
     DumpConfig();
 }
 
@@ -56,20 +82,38 @@ void G4DAEManager::LoadConfig(const char* configkey)
 }
 
 
-void G4DAEManager::LoadFlags(const char* cfgpath)
+void G4DAEManager::LoadMap(const char* cfgpath, char dest)
 {
     if(!m_config) return ;
 
-    Map_t flags = m_config->GetRawMap(cfgpath);
+    Map_t map = m_config->GetRawMap(cfgpath);
 
-    for(Map_t::iterator it=flags.begin() ; it != flags.end() ; it++ )
+    int imax = MAXTASK ;
+    for(Map_t::iterator it=map.begin() ; it != map.end() ; it++ )
     {   
         string key = it->first ;
         string val = it->second ;
         int ival = atoi(val.c_str());
-        assert(ival >= 0 && ival < MAXTASK);
-        m_name[ival] = strdup(key.c_str()); 
-        //printf(" %20s : %s : %d \n", key.c_str(), val.c_str(), ival );
+        assert(ival >= 0 && ival < imax);
+
+        if(dest == 'f')
+        {
+            // establish the names of the flags 
+            m_name[ival]   = strdup(key.c_str()); 
+        } 
+        else if (dest == 's')
+        {
+            // set status of the named flag 
+            size_t iflag = FindFlag(key.c_str());
+            if(iflag == 0)
+            {
+                printf("G4DAEManager::LoadMap no such key %s \n", key.c_str());
+                continue ; 
+            }
+            m_status[iflag] = ival ; 
+            if(ival > 0) AddFlags( 1 << iflag ) ;    // TODO: get rid of duplication between m_status and m_flags
+        }
+                      
     }   
 }
 
@@ -83,30 +127,24 @@ void G4DAEManager::DumpConfig(const char* msg)
     }
     for(size_t i=0 ; i<MAXTASK ; i++)
     {
-        printf(" %zu : %s \n", i, m_name[i] );
+        printf(" %2zu : %zu : %s \n", i, m_status[i], m_name[i] );
     }
 }
 
-
-void G4DAEManager::ZeroConfig()
+void G4DAEManager::DumpResults(const char* msg)
 {
+    cout << msg << endl ; 
+    if(!m_config)
+    {
+        cout << "CONFIG HAS NOT BEEN LOADED" << endl ; 
+        return ; 
+    }
     for(size_t i=0 ; i<MAXTASK ; i++)
     {
-        if(m_name[i]) free((void*)m_name[i]);
-        m_name[i] = NULL ; 
+        printf(" %2zu : %zu : %30s : %zu : %10.2f  %10.2f  \n", i, m_status[i], m_name[i], m_count[i], m_duration[i], m_average[i] );
     }
 }
 
-void G4DAEManager::ZeroResults()
-{
-    for(size_t i=0 ; i<MAXTASK ; i++)
-    {
-        m_count[i] = 0 ;
-        m_start[i] = 0. ;
-        m_stop[i] = 0. ;
-        m_duration[i] = 0. ;
-    }
-}
 
 string G4DAEManager::Flags()
 {
@@ -120,6 +158,20 @@ string G4DAEManager::Flags()
     return join(elem, '\n') ; 
 }
 
+
+void G4DAEManager::Start(size_t task)
+{
+    m_start[task] = G4DAEMetadata::RealTime();
+}
+void G4DAEManager::Stop(size_t task)
+{
+    m_count[task] += 1 ; 
+    m_stop[task] = G4DAEMetadata::RealTime();
+    m_duration[task] += m_stop[task] - m_start[task] ; 
+    m_average[task] = m_duration[task]/m_count[task] ; 
+}
+
+
 size_t G4DAEManager::FindFlag(const char* flag )
 {
     size_t iflag = 0 ; 
@@ -129,6 +181,9 @@ size_t G4DAEManager::FindFlag(const char* flag )
     }
     return iflag ;
 }
+
+
+
 
 size_t G4DAEManager::ParseFlags(string sflags, char delim)
 {
@@ -160,16 +215,34 @@ size_t G4DAEManager::ParseFlags(string sflags, char delim)
 
 void G4DAEManager::SetFlags(string flags)
 {
-     size_t _flags = ParseFlags(flags);
-     SetFlags(_flags);
+    size_t _flags = ParseFlags(flags);
+    SetFlags(_flags);
 }
 void G4DAEManager::SetFlags(size_t flags)
 {
     m_flags = flags ; 
+    SetStatus(flags);
 }
+
+void G4DAEManager::SetStatus(size_t flgs)
+{
+    for(size_t i=0 ; i < MAXTASK ; i++)
+    {
+        m_status[i] = (flgs & ( 1 << i )) ? 1 : 0 ;
+    }
+}
+void G4DAEManager::AddStatus(size_t flgs)
+{
+    for(size_t i=0 ; i < MAXTASK ; i++)
+    {
+        if(flgs & ( 1 << i )) m_status[i] = 1 ;  
+    }
+}
+
 void G4DAEManager::AddFlags(size_t flags)
 {
     m_flags |= flags ; 
+    AddStatus(flags);
 }
 void G4DAEManager::AddFlags(string flags)
 {
@@ -186,7 +259,6 @@ size_t G4DAEManager::GetFlags()
 }
 bool G4DAEManager::HasFlag(size_t flg)
 {
-    // use this for inner loops
     return m_flags & (1 << flg) ; 
 }
 bool G4DAEManager::HasFlag(const char* name)
@@ -195,6 +267,29 @@ bool G4DAEManager::HasFlag(const char* name)
     return flg && HasFlag(flg);
 }
 
+
+size_t G4DAEManager::FindTask(const char* name)
+{
+    size_t flg = FindFlag(name);
+    return FindTask(flg);
+}
+
+size_t G4DAEManager::FindTask(size_t flg)
+{
+    // a task is a flag with status > 0 
+    return ( HasFlag(flg) && GetStatus(flg) > 0) ? flg : 0 ; 
+}
+
+
+size_t G4DAEManager::GetStatus(const char* name)
+{
+    size_t flg = FindFlag(name);
+    return GetStatus(flg); 
+}
+size_t G4DAEManager::GetStatus(size_t flg)
+{
+    return m_status[flg];
+}
 
 
 

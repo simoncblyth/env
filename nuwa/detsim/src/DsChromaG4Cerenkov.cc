@@ -204,6 +204,17 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
 #ifdef G4DAECHROMA
         G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+        //
+        // TODO: move config grabbing to filling a struct, 
+        //  so dont have to repeat for every step
+        //  difficult to do from ctor as chroma not yet initialized ?
+        //
+        size_t TASK_COLLECT_STEP    = chroma->FindTask("G4CERENKOV_COLLECT_STEP");
+        size_t TASK_COLLECT_PHOTON  = chroma->FindTask("G4CERENKOV_COLLECT_PHOTON");
+        size_t TASK_APPLY_WATER_QE  = chroma->FindTask("G4CERENKOV_APPLY_WATER_QE");
+        size_t TASK_ADD_SECONDARY   = chroma->FindTask("G4CERENKOV_ADD_SECONDARY");
+        size_t TASK_KILL_SECONDARY  = chroma->FindTask("G4CERENKOV_KILL_SECONDARY");
+
 #endif
  
         aParticleChange.Initialize(aTrack);
@@ -314,8 +325,10 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
     // here for visibility from CerenkovPhoton collection
     size_t csid ;  
     G4int chromaMaterialIndex ; 
-    if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_COLLECT_STEP))
+    if(TASK_COLLECT_STEP)
     {
+        chroma->Start(TASK_COLLECT_STEP);
+
         if(bialkaliMaterialIndex == -1 )
         {
               G4Material* bialkali = G4Material::GetMaterial("/dd/Materials/Bialkali");
@@ -398,6 +411,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         cs[G4DAECerenkovStep::_MeanNumberOfPhotons2] = MeanNumberOfPhotons2 ;
         cs[G4DAECerenkovStep::_BialkaliMaterialIndex] = uifb[1].f ; 
 
+        chroma->Stop(TASK_COLLECT_STEP);
     }
 #endif
 
@@ -442,7 +456,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 	      if ( uni >= effqe ) 
           {
 #ifdef G4DAECHROMA
-        if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_APPLY_WATER_QE))
+        if(TASK_APPLY_WATER_QE)
         {
 	         continue;
         }
@@ -554,7 +568,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
 #ifdef G4DAECHROMA
     {
-        if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_ADD_SECONDARY))
+        if(TASK_ADD_SECONDARY)
         {
             aParticleChange.AddSecondary(aSecondaryTrack);
         }
@@ -571,8 +585,10 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
 
 #ifdef G4DAECHROMA
-        if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_COLLECT_PHOTON))
+        if(TASK_COLLECT_PHOTON)
         {
+            chroma->Start(TASK_COLLECT_PHOTON);
+
             G4DAECerenkovPhotonList* cpl = chroma->GetCerenkovPhotonList();
             //size_t cpid = 1 + cpl->GetCount() ;  // 1-based 
             float* cp = cpl->GetNextPointer();     
@@ -605,6 +621,8 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
             cp[G4DAECerenkovPhoton::_flag_y] =  uifd[1].f ;
             cp[G4DAECerenkovPhoton::_flag_z] =  uifd[2].f ;
             cp[G4DAECerenkovPhoton::_flag_w] =  uifd[3].f ;
+
+            chroma->Stop(TASK_COLLECT_PHOTON);
        } 
 #endif
 
@@ -615,7 +633,7 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
 #ifdef G4DAECHROMA
     {
-        if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_KILL_SECONDARY))
+        if(TASK_KILL_SECONDARY)
         {
             if (verboseLevel > 0) 
             G4cout << "DsChromaG4Cerenkov::PostStepDoIt FLAG_G4CERENKOV_KILL_SECONDARY " << aParticleChange.GetNumberOfSecondaries() << " G4 cerenkov secondaries " << G4endl ;  

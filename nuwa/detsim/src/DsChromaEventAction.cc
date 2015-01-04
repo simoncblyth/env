@@ -89,9 +89,17 @@ void DsChromaEventAction::ChromaProcessing()
 {
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
-    if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_COLLECT_STEP))
+
+    size_t TASK_G4CERENKOV_PROCESS_STEP        = chroma->FindTask("G4CERENKOV_PROCESS_STEP");
+    size_t TASK_G4CERENKOV_PROCESS_PHOTON      = chroma->FindTask("G4CERENKOV_PROCESS_PHOTON");
+    size_t TASK_G4SCINTILLATION_PROCESS_STEP   = chroma->FindTask("G4SCINTILLATION_PROCESS_STEP");
+    size_t TASK_G4SCINTILLATION_PROCESS_PHOTON = chroma->FindTask("G4SCINTILLATION_PROCESS_PHOTON");
+
+    if(TASK_G4CERENKOV_PROCESS_STEP)
     {
-        printf("FLAG_G4CERENKOV_COLLECT_STEP\n"); 
+        chroma->Start(TASK_G4CERENKOV_PROCESS_STEP);
+
+        printf("TASK_G4CERENKOV_PROCESS_STEP\n"); 
         G4DAECerenkovStepList* l = chroma->GetCerenkovStepList(); 
         l->SetKV("ctrl", "type", "cerenkov" );
         l->SetKV("ctrl", "evt", "1" );
@@ -100,7 +108,7 @@ void DsChromaEventAction::ChromaProcessing()
         l->SetKV("ctrl", "sidesave", 1 );   // remote save of GPU generated photons
 
         size_t n = chroma->ProcessCerenkovSteps(1);    
-        printf("ProcessCerenkovSteps FLAG_G4CERENKOV_COLLECT_STEP  n %zu \n", n); 
+        printf("ProcessCerenkovSteps TASK_G4CERENKOV_PROCESS_STEP  n %zu \n", n); 
         G4DAEPhotonList* hits = chroma->GetHits();   
         if(hits)
         {
@@ -110,16 +118,20 @@ void DsChromaEventAction::ChromaProcessing()
         { 
             printf("ProcessCerenkovSteps n %zu NULL hits  \n", n); 
         }
+
+        chroma->Stop(TASK_G4CERENKOV_PROCESS_STEP);
     }
     else
     {
-        printf("ProcessCerenkovSteps FLAG_G4CERENKOV_COLLECT_STEP : SKIPPING  \n"); 
+        printf("ProcessCerenkovSteps FLAG_TASK_G4CERENKOV_PROCESS_STEP : SKIPPING  \n"); 
     }
 
 
-    if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_STEP))
+    if(TASK_G4SCINTILLATION_PROCESS_STEP)
     {
-        printf("FLAG_G4SCINTILLATION_COLLECT_STEP\n"); 
+        chroma->Start(TASK_G4SCINTILLATION_PROCESS_STEP);
+
+        printf("TASK_G4SCINTILLATION_PROCESS_STEP\n"); 
         G4DAEScintillationStepList* l = chroma->GetScintillationStepList(); 
         l->SetKV("ctrl", "type", "scintillation" );
         l->SetKV("ctrl", "evt", "1" );
@@ -128,7 +140,7 @@ void DsChromaEventAction::ChromaProcessing()
         l->SetKV("ctrl", "sidesave", 1 );   // remote save of GPU generated photons
 
         size_t n = chroma->ProcessScintillationSteps(1);    
-        printf("ProcessScintillationSteps FLAG_G4SCINTILLATION_COLLECT_STEP  n %zu \n", n); 
+        printf("ProcessScintillationSteps TASK_G4SCINTILLATION_PROCESS_STEP  n %zu \n", n); 
         G4DAEPhotonList* hits = chroma->GetHits();   
         if(hits)
         {
@@ -138,18 +150,22 @@ void DsChromaEventAction::ChromaProcessing()
         {
             printf("ProcessScintillationSteps n %zu NULL hits \n", n); 
         } 
+
+        chroma->Stop(TASK_G4SCINTILLATION_PROCESS_STEP);
     }
     else
     {
-        printf("ProcessScintillationSteps FLAG_G4SCINTILLATION_COLLECT_STEP : SKIPPING  \n"); 
+        printf("ProcessScintillationSteps TASK_G4SCINTILLATION_PROCESS_STEP : SKIPPING  \n"); 
     }
 
 
 
 
-    if(chroma->HasFlag(G4DAEChroma::FLAG_G4CERENKOV_COLLECT_PHOTON))
+    if(TASK_G4CERENKOV_PROCESS_PHOTON)
     {
-        printf("FLAG_G4CERENKOV_COLLECT_PHOTON\n"); 
+        chroma->Start(TASK_G4CERENKOV_PROCESS_PHOTON);
+
+        printf("TASK_G4CERENKOV_PROCESS_PHOTON\n"); 
         G4DAECerenkovPhotonList* l = chroma->GetCerenkovPhotonList();  
         l->SetKV("ctrl", "type", "gopcerenkov" );  
         l->SetKV("ctrl", "evt", "1" );
@@ -158,7 +174,7 @@ void DsChromaEventAction::ChromaProcessing()
 
 
         size_t n = chroma->ProcessCerenkovPhotons(1);    
-        printf("ProcessCerenkovPhotons FLAG_G4CERENKOV_COLLECT_PHOTON   n %zu \n", n); 
+        printf("ProcessCerenkovPhotons TASK_G4CERENKOV_PROCESS_PHOTON   n %zu \n", n); 
         G4DAEPhotonList* hits = chroma->GetHits();   
         if(hits)
         {
@@ -168,17 +184,20 @@ void DsChromaEventAction::ChromaProcessing()
         {
             printf("NULL hits from ProcessCerenkovPhotons n %zu \n", n); 
         }
+        chroma->Stop(TASK_G4CERENKOV_PROCESS_PHOTON);
     }
     else
     {
-        printf("ProcessCerenkovPhotons FLAG_G4CERENKOV_COLLECT_PHOTON : SKIPPING  \n"); 
+        printf("ProcessCerenkovPhotons TASK_G4CERENKOV_PROCESS_PHOTON : SKIPPING  \n"); 
     }
 
 
 
-    if(chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_PHOTON))
+    if(TASK_G4SCINTILLATION_PROCESS_PHOTON)
     {
-        printf("FLAG_G4SCINTILLATION_COLLECT_PHOTON\n"); 
+        chroma->Start(TASK_G4SCINTILLATION_PROCESS_PHOTON);
+
+        printf("TASK_G4SCINTILLATION_PROCESS_PHOTON\n"); 
         G4DAEScintillationPhotonList* l = chroma->GetScintillationPhotonList();   
         l->SetKV("ctrl", "type", "gopscintillation" );
         l->SetKV("ctrl", "evt", "1" );
@@ -186,7 +205,7 @@ void DsChromaEventAction::ChromaProcessing()
         //l->Save("1");
 
         size_t n = chroma->ProcessScintillationPhotons(1);    
-        printf("ProcessScintillationPhotons FLAG_G4SCINTILLATION_COLLECT_PHOTON  n %zu \n", n); 
+        printf("ProcessScintillationPhotons TASK_G4SCINTILLATION_PROCESS_PHOTON  n %zu \n", n); 
         G4DAEPhotonList* hits = chroma->GetHits();   
         if(hits)
         {
@@ -196,12 +215,16 @@ void DsChromaEventAction::ChromaProcessing()
         {
             printf("NULL hits from ProcessScintillationPhotons n %zu \n", n); 
         } 
+
+        chroma->Stop(TASK_G4SCINTILLATION_PROCESS_PHOTON);
     }
     else
     {
-        printf("ProcessScintillationPhotons FLAG_G4SCINTILLATION_COLLECT_PHOTON : SKIPPING  \n"); 
+        printf("ProcessScintillationPhotons TASK_G4SCINTILLATION_PROCESS_PHOTON : SKIPPING  \n"); 
     }
 
+
+    chroma->DumpResults("DsChromaEventAction::EndOfEventAction");
 }
 
 

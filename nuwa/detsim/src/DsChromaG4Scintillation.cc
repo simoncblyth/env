@@ -195,10 +195,12 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 
 #ifdef G4DAECHROMA
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-    bool FLAG_G4SCINTILLATION_COLLECT_STEP   = chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_STEP) ;
-    bool FLAG_G4SCINTILLATION_COLLECT_PHOTON = chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_PHOTON) ;
-    bool FLAG_G4SCINTILLATION_ADD_SECONDARY  = chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_ADD_SECONDARY) ;
-    bool FLAG_G4SCINTILLATION_KILL_SECONDARY = chroma->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_KILL_SECONDARY) ; 
+
+    size_t TASK_COLLECT_STEP    = chroma->FindTask("G4SCINTILLATION_COLLECT_STEP");
+    size_t TASK_COLLECT_PHOTON  = chroma->FindTask("G4SCINTILLATION_COLLECT_PHOTON");
+    size_t TASK_ADD_SECONDARY   = chroma->FindTask("G4SCINTILLATION_ADD_SECONDARY");
+    size_t TASK_KILL_SECONDARY  = chroma->FindTask("G4SCINTILLATION_KILL_SECONDARY");
+
 #endif
  
     G4String pname="";
@@ -588,8 +590,9 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
         size_t ssid ;  // place here, for access from FOTON collection
         G4int chromaMaterialIndex ;
         G4int pdgCode ; 
-        if(FLAG_G4SCINTILLATION_COLLECT_STEP)
+        if(TASK_COLLECT_STEP)
         {
+            chroma->Start(TASK_COLLECT_STEP);
             //
             // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
             // by directly G4DAEArray intems using (n,?,4) structure [float4 quads are efficient on GPU]
@@ -663,6 +666,7 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
             ss[G4DAEScintillationStep::_Spare1]  = 0. ;
             ss[G4DAEScintillationStep::_Spare2]  = 0. ;
 
+            chroma->Stop(TASK_COLLECT_STEP);
        } 
 #endif
 	
@@ -837,7 +841,7 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 #ifdef G4DAECHROMA
             {
                 assert( flagReemission == false );
-                if(FLAG_G4SCINTILLATION_ADD_SECONDARY)
+                if(TASK_ADD_SECONDARY)
                 {
                     aParticleChange.AddSecondary(aSecondaryTrack);
                 }
@@ -858,8 +862,10 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 
 
 #ifdef G4DAECHROMA
-            if(FLAG_G4SCINTILLATION_COLLECT_PHOTON) 
+            if(TASK_COLLECT_PHOTON) 
             {
+                chroma->Start(TASK_COLLECT_PHOTON);
+
                 G4DAEScintillationPhotonList* spl = chroma->GetScintillationPhotonList();
                 //size_t spid = 1 + spl->GetCount() ;  // 1-based 
                 float* sp = spl->GetNextPointer();     
@@ -892,6 +898,8 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
                 sp[G4DAEScintillationPhoton::_flag_y] =  uifd[1].f ;
                 sp[G4DAEScintillationPhoton::_flag_z] =  uifd[2].f ;
                 sp[G4DAEScintillationPhoton::_flag_w] =  uifd[3].f ;
+
+                chroma->Stop(TASK_COLLECT_PHOTON);
            } 
 #endif      
 
@@ -908,10 +916,10 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
     }
 
 #ifdef G4DAECHROMA
-    if(FLAG_G4SCINTILLATION_KILL_SECONDARY) 
+    if(TASK_KILL_SECONDARY) 
     {
         if (verboseLevel > 0) 
-             G4cout << "DsChromaG4Scintillation::PostStepDoIt FLAG_G4SCINTILLATION_KILL_SECONDARY " 
+             G4cout << "DsChromaG4Scintillation::PostStepDoIt TASK__KILL_SECONDARY " 
              << aParticleChange.GetNumberOfSecondaries() << " G4 scintillation secondaries " << G4endl ;  
 
         aParticleChange.SetNumberOfSecondaries(0);
@@ -1166,7 +1174,7 @@ void DsChromaG4Scintillation::BuildThePhysicsTable()
 
 #ifdef G4DAECHROMA
         // this happens before the RunAction initializes Chroma, so no flags set yet
-        //if(G4DAEChroma::GetG4DAEChroma()->HasFlag(G4DAEChroma::FLAG_G4SCINTILLATION_COLLECT_PROP))
+        //if(G4DAEChroma::GetG4DAEChroma()->HasFlag(G4DAEChroma::TASK_COLLECT_PROP))
         if(true)
         {
 

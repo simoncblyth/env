@@ -49,7 +49,10 @@ void DsChromaRunAction_BeginOfRunAction(
 #endif
 
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-    chroma->SetFlags(_chromaFlags); 
+
+    // just use the json flags 
+    // chroma->AddFlags(_chromaFlags);   // Add not Set, to not stomp on JSON loaded config 
+    
     cout << "DsChromaRunAction_BeginOfRunAction chromaFlags " << chroma->Flags() << endl;   
 
     cout << "flags 0x" << hex << chroma->GetFlags() << dec << " dec " << chroma->GetFlags() << endl ; 

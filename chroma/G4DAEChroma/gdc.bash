@@ -385,6 +385,9 @@ gdc-nuwapkg-prerequisites()
 
 }
 
-gdc-flags-json(){ echo $(gdc-sdir)/flags.json ; }
+gdc-config-edit(){ vi $(gdc-config-json) ; }
+gdc-config-check(){ python -c "import json, pprint ; print pprint.pformat(json.load(file('$(gdc-config-json)')))" ; } 
+gdc-config-json(){ echo $(gdc-sdir)/config.json ; }
+gdc-flags-json(){  echo $(gdc-sdir)/flags.json ; }
 gdc-flags-gen(){ PYTHONPATH=$HOME flags.py $(gdc-flags-json) ; }
 

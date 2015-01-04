@@ -269,7 +269,7 @@ void DybG4DAECollector::FillPmtHitList()
 
     for( LocalHitCache::iterator it=m_hc.begin() ; it != m_hc.end() ; it++ )
     {
-         short int hcid = it->first ;
+         //short int hcid = it->first ;
          G4DhHitCollection* hc = it->second ; 
 
          size_t size = hc->GetSize(); 

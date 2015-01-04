@@ -231,9 +231,9 @@ csa-nuwaenv(){
 
 csa-db(){ echo $HOME/g4daechroma.db ; }
 csa-sqlite(){ sqlite3 $(csa-db) ; }
-csa-metadata(){
+csa-config(){
    gdc-
-   gdc-flags-json
+   gdc-config-json
 }
 
 csa-export(){
@@ -242,7 +242,7 @@ csa-export(){
    export G4DAECHROMA_CLIENT_CONFIG=$(zmq-broker-url)     
    export G4DAECHROMA_CACHE_DIR=$(csa-cachedir) 
    export G4DAECHROMA_DATABASE_PATH=$(csa-db)
-   export G4DAECHROMA_CONFIG_PATH=$(csa-metadata)
+   export G4DAECHROMA_CONFIG_PATH=$(csa-config)
    env | grep G4DAECHROMA
 
    export-
@@ -268,16 +268,16 @@ csa-envsetup(){
 
 csa-flags-notes(){ cat << EON
 
-FLAG_G4CERENKOV_COLLECT_STEP
-FLAG_G4SCINTILLATION_COLLECT_STEP
+G4CERENKOV_COLLECT_STEP
+G4SCINTILLATION_COLLECT_STEP
        collect G4 gensteps and send to chroma, currently with noreturn
 
-FLAG_G4CERENKOV_COLLECT_PHOTON
-FLAG_G4SCINTILLATION_COLLECT_PHOTON
+G4CERENKOV_COLLECT_PHOTON
+G4SCINTILLATION_COLLECT_PHOTON
        collect G4 generated photons and send to chroma,
        allows same steps comparison with the chroma generated photons  
 
-FLAG_G4SCINTILLATION_COLLECT_PROP
+G4SCINTILLATION_COLLECT_PROP
        collect scintillation integrals into G4DAEPropList 
        and write to file, for debugging  
 
@@ -285,11 +285,11 @@ EON
 }
 
 csa-flags-(){ cat << EOF
-FLAG_G4SCINTILLATION_COLLECT_STEP
-FLAG_G4SCINTILLATION_COLLECT_PHOTON
-FLAG_G4SCINTILLATION_COLLECT_PROP
-FLAG_G4CERENKOV_COLLECT_STEP
-FLAG_G4CERENKOV_COLLECT_PHOTON
+G4SCINTILLATION_COLLECT_STEP
+G4SCINTILLATION_COLLECT_PHOTON
+G4SCINTILLATION_COLLECT_PROP
+G4CERENKOV_COLLECT_STEP
+G4CERENKOV_COLLECT_PHOTON
 EOF
 }
 csa-flags(){ $FUNCNAME- | tr "\n" "," ; }

@@ -27,7 +27,7 @@ G4DAECollector::~G4DAECollector()
 }
 
 
-void G4DAECollector::DumpHC( G4VHitsCollection* hc,  int index, int detail ) 
+void G4DAECollector::DumpHC( G4VHitsCollection* hc,  int index, int /*detail*/ ) 
 {
     string colpath = hc->GetSDname() + "//" + hc->GetName() ;
     cout << " HC " 
