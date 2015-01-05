@@ -39,6 +39,9 @@ log = logging.getLogger(__name__)
 
 from npycontext import NPYContext 
 
+
+class NPY(np.ndarray):pass
+
 class NPYProcessor(object):
     def __init__(self, config):
         self.config = config
@@ -55,7 +58,6 @@ class NPYProcessor(object):
     def process(self, request):
         context = NPYContext()
         socket = context.socket(zmq.REQ)
-
         log.info("connect to endpoint %s " % self.config.endpoint ) 
         socket.connect(self.config.endpoint)
         log.info("send_npy")
@@ -127,6 +129,7 @@ def parse_args():
     d['out'] = "test"
     d['level'] = "INFO"
     d['endpoint'] = os.environ['ZMQ_BROKER_URL_FRONTEND']
+    d['threads_per_block'] = None
 
     h = {}
     h['inp'] = "Either \"handshake\" or the type of file to load, eg \"cerenkov\", \"scintillation\", \"opscintillation\" "  
@@ -140,20 +143,32 @@ def parse_args():
     parser.add_argument("-l","--level", default=d['level'], help="INFO/DEBUG/WARN/..")  
     parser.add_argument("--endpoint", default=d['endpoint'], help="broker url")  
     parser.add_argument("--slice", default=d['slice'], help="Colon delimited slice to apply to array, eg 0:1 0:2 ::100")
+    parser.add_argument("--threads-per-block", type=int, default=d['threads_per_block'], help="Kernel launch threads_per_block")
     
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.level.upper()))
     np.set_printoptions(precision=3, suppress=True)
     return args
 
+
+def attach_metadata(request, config):
+    if config.threads_per_block is None:return
+    metadata = {}
+    metadata['ctrl'] = { 'threads_per_block':config.threads_per_block }
+    request.meta = [metadata] 
+
+
 def main():
     config = parse_args()
     proc = NPYProcessor(config)
+
     if config.inp == "handshake":
         request = None
     else:
-        request = proc.load(config.tag,  config.inp, config.slice )
+        request = proc.load(config.tag,  config.inp, config.slice ).view(NPY)
+        attach_metadata(request, config)
     pass
+
     response = proc.process(request)
     proc.save(response, config.tag, config.out ) 
 

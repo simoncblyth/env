@@ -12,24 +12,17 @@ log = logging.getLogger(__name__)
 
 import numpy as np
 import IPython as IP
-from env.chroma.ChromaPhotonList.cpl import examine_cpl, random_cpl, save_cpl, load_cpl, create_cpl_from_photons_very_slowly
-from photons import Photons
+
+from env.g4dae.types import ChromaPhoton, Photon, G4Step, NPY
 
 import pycuda.driver as cuda_driver
 import pycuda.gpuarray as ga
 
 from chroma.gpu.tools import get_cu_module, cuda_options, chunk_iterator, to_float3
-#from chroma.gpu.photon import GPUPhotons
 from chroma.gpu.photon_hit import GPUPhotonsHit
 from chroma.gpu.gensteps import GPUGenSteps
 from chroma.gpu.geometry import GPUGeometry
 
-class NPY(np.ndarray):
-    pass
-    @classmethod
-    def empty(cls):
-        a = np.array((), dtype=np.float32)
-        return a.view(cls)
 
 
 
@@ -51,24 +44,35 @@ class DAEDirectPropagator(object):
         itemshape = request.shape[1:]
         log.info("incoming itemshape %s " % repr(itemshape))
         extra = False 
+        results = {}
+        response = NPY.empty()
+
         if self.chroma.ctrl.get('onlycopy',0) == 1:
+
             self.onlycopy(request)
-            response = NPY.empty()
-            results = {}
+
         elif itemshape == ():
+
             log.warn("empty itemshape received %s " % str(itemshape))
-            response = NPY.empty()
-            results = {}
             extra = True
+
         elif itemshape == (6,4):
-            response, results = self.generate(request)
+
+            #response, results = self.generate(request)
+            response, results = self.generate_and_propagate(request)
+
         elif itemshape == (4,4):
+
             response, results = self.propagate(request)
+
         else:
+
             log.warn("itemshape %s not recognized " % str(itemshape))
+
+
+        if self.chroma.ctrl.get('noreturn',0) == 1:
             response = NPY.empty()
-            results = {}
-        pass
+
         return self.chroma.outgoing(response, results, extra=extra)
 
 
@@ -95,16 +99,23 @@ class DAEDirectPropagator(object):
         utype = itype if prefix is None else "%s%s" % (prefix, itype)
         self.config.save_npy(npy, evt, utype)   
 
+    def generate_and_propagate(self, request):
+        log.info("generate_and_propagate %s " % repr(request.shape))
+        gpu_photons = GPUPhotonsHit(gensteps=request)        
+
+        results = gpu_photons.propagate_hit(self.chroma.gpu_detector, 
+                                            self.chroma.rng_states,
+                                            self.chroma.parameters)
+
+        hit = self.chroma.parameters['hit']
+        pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights = gpu_photons.get()
+        photons = ChromaPhoton.from_arrays(pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights, hit=hit)
+
+        return photons, results
+
     def generate(self, request):
         """
-        ::
-
-            In [98]: gensteps[0:100,0,3].view(np.int32).sum()
-            Out[98]: 4711
-
         """
-        results = {}
-
         if self.chroma.ctrl.get('sidesave',0) == 1:
             self.save(request)
 
@@ -113,17 +124,15 @@ class DAEDirectPropagator(object):
         results = gpu_gensteps.generate(self.chroma.gpu_detector, 
                                         self.chroma.rng_states,
                                         self.chroma.parameters)
-        photons = gpu_gensteps.get()
+
+        hit = 0 
+        pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights = gpu_gensteps.get()
+        photons = ChromaPhoton.from_arrays(pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights, hit=hit)
 
         if self.chroma.ctrl.get('sidesave',0) == 1:
             self.save(photons, prefix='op')
 
-        if self.chroma.ctrl.get('noreturn',0) == 1:
-            response = NPY.empty()
-        else:
-            response = photons
-        pass
-        return response, results
+        return photons, results
 
 
     def propagate(self, request):
@@ -137,38 +146,21 @@ class DAEDirectPropagator(object):
 
            response = self.handler( request )
 
-        TODO: simplify marshalling to avoid going via chroma.event.Photons 
-        TODO: move most of this into DAEChromaContext, because thats common between the
-              two flavors of propagation
         """
+        photons = ChromaPhoton.from_array(request)
 
-        photons = Photons.from_obj( request, extend=False) # TODO: short circuit this, moving to NPL
-
-        gpu_photons = GPUPhotonsHit(photons)        
+        gpu_photons = GPUPhotonsHit(photons=photons)        
 
         results = gpu_photons.propagate_hit(self.chroma.gpu_detector, 
                                             self.chroma.rng_states,
                                             self.chroma.parameters)
 
-        # pycuda get()s from GPU back into ndarrays and creates NPL, formerly event.Photon instance
-        photons_end = gpu_photons.get(npl=1,hit=self.chroma.parameters['hit'])
+        hit = self.chroma.parameters['hit']
+        pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights = gpu_photons.get()
+        photons = ChromaPhoton.from_arrays(pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights, hit=hit)
 
-        return photons_end, results
+        return photons, results
 
-
-    def check_unpropagated_roundtrip(self, cpl, extend=False):
-        """
-        """
-        photons = Photons.from_cpl(cpl, extend=extend)  # CPL into chroma.event.Photons OR photons.Photons   
-        cpl2 = create_cpl_from_photons_very_slowly(photons) 
-        digests = (cpl.GetDigest(),cpl2.GetDigest()) 
-        log.info( "digests %s " % repr(digests))
-
-        if not extend:
-            assert digests[0] == digests[1], ("Digest mismatch between cpl and cpl2 ", digests)
-        else:
-            assert digests[0] != digests[1], ("Digest mismatch expected in extend mode", digests)
-        pass
 
 def main():
     """
@@ -223,18 +215,15 @@ def main():
     from daechromacontext import DAEChromaContext     
     chroma = DAEChromaContext( config, chroma_geometry )
 
-    cpl_begin = config.load_cpl(load)
     propagator = DAEDirectPropagator(config, chroma)
-    #propagator.check_unpropagated_roundtrip(cpl_begin)
 
-    cpl_end = propagator.propagate(cpl_begin) 
-    log.info("cpl_begin digest %s " % cpl_begin.GetDigest())
-    log.info("cpl_end   digest %s " % cpl_end.GetDigest())
+    request, = NPY.mget(1,"opcerenkov") 
 
-    photons_end = propagator.photons_end 
+    response, results = propagator.propagate(request) 
 
-    lht = photons_end.last_hit_triangles
-    flg = photons_end.flags
+    lht = response.last_hit_triangles
+    flg = response.flags
+
     assert len(lht) == len(flg)
     SURFACE_DETECT = 0x1 << 2
     detected = np.where( flg & SURFACE_DETECT  )

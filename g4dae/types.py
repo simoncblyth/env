@@ -25,14 +25,19 @@ global typmap
 typmap = {}
 
 class NPY(np.ndarray):
-    @classmethod
-    def from_array(cls, arr ):
-        return arr.view(cls)
-
     shape2type = {
             (4,4):"photon",
             (6,4):"g4step",
                  }
+
+    @classmethod
+    def from_array(cls, arr ):
+        return arr.view(cls)
+
+    @classmethod
+    def empty(cls):
+        a = np.array((), dtype=np.float32)
+        return a.view(cls)
 
     @classmethod
     def detect_type(cls, arr ):
@@ -189,6 +194,58 @@ class TestPhoton(Photon):
     typ = "test"
     pass
 typmap[TestPhoton.typ] = TestPhoton
+
+
+class ChromaPhoton(Photon):
+    typ = "chromaphoton"
+
+    GENERATE_SCINTILLATION = 0x1 << 16
+    GENERATE_CERENKOV      = 0x1 << 17
+
+    cerenkov      = property(lambda self:self[np.where( self.history & self.GENERATE_CERENKOV )[0]])
+    scintillation = property(lambda self:self[np.where( self.history & self.GENERATE_SCINTILLATION )[0]])
+
+    @classmethod
+    def from_arrays(cls, pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights, hit=0): 
+        """
+        #. NB a kludge setting of pmtid into lht using the map argument of propagate_hit.cu 
+        """
+        nall = len(pos)
+        a = np.zeros( (nall,4,4), dtype=np.float32 )       
+        pmtid = np.zeros( nall, dtype=np.int32 )
+ 
+        a[:,0,:3] = pos
+        a[:,0, 3] = t 
+
+        a[:,1,:3] = dir
+        a[:,1, 3] = wavelengths
+
+        a[:,2,:3] = pol
+        a[:,2, 3] = weights 
+
+        assert len(last_hit_triangles) == len(flags)
+
+        SURFACE_DETECT = 0x1 << 2
+        detected = np.where( flags & SURFACE_DETECT  )
+        pmtid[detected] = last_hit_triangles[detected]             # sparsely populate, leaving zeros for undetected
+
+        a[:,3, 0] = np.arange(nall, dtype=np.int32).view(a.dtype)  # photon_id
+        a[:,3, 1] = 0                                              # used in comparison againt vbo prop
+        a[:,3, 2] = flags.view(a.dtype)                            # history flags 
+        a[:,3, 3] = pmtid.view(a.dtype)                            # channel_id ie PmtId
+
+        if hit:
+            pp = a[pmtid > 0].view(cls)
+        else:
+            pp = a.view(cls)  
+        pass
+        return pp
+    pass
+typmap[ChromaPhoton.typ] = ChromaPhoton
+
+
+
+
 
 
 

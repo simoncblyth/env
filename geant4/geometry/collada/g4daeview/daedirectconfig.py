@@ -166,7 +166,7 @@ class DAEDirectConfig(object):
     wavelengths = property(lambda self:np.arange(*map(float,self.args.wavelengths.split(":"))).astype(np.float32))
 
     def resolve_templated_path(self, name, typ):
-        if name[0] == '/':return name
+        if str(name)[0] == '/':return name
         varname = "DAE_%s_PATH_TEMPLATE" % typ.upper()  
         var = os.environ.get(varname, None)
         if var is None or name is None:
