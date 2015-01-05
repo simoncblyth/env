@@ -53,7 +53,6 @@ public:
 protected:
     G4DAEChroma();
 public:
-    void Configure(const char* transport="G4DAECHROMA_CLIENT_CONFIG", const char* sensdet="DsPmtSensDet", const char* geometry=NULL, const char* database="G4DAECHROMA_DATABASE_PATH");
     virtual ~G4DAEChroma();
 
     void SetGeometry(G4DAEGeometry* geo);
@@ -62,9 +61,21 @@ public:
     void SetTransport(G4DAETransport* tra);
     G4DAETransport* GetTransport();
 
+    // standalone SD and collector with own hit collections
     void SetSensDet(G4DAESensDet* sd);
     G4DAESensDet* GetSensDet();
     G4DAECollector* GetCollector();
+
+    // SD and collector with stolen pointers to preexisting hit collections
+    void SetTrojanSensDet(G4DAESensDet* sd);
+    G4DAESensDet* GetTrojanSensDet();
+    G4DAECollector* GetTrojanCollector();
+
+    // pointer to one of the two above SD
+    void SetActiveSensDet(G4DAESensDet* sd);
+    G4DAESensDet* GetActiveSensDet();
+    G4DAECollector* GetActiveCollector();
+
 
     void SetTransformCache(G4DAETransformCache* cache);
     G4DAETransformCache* GetTransformCache();
@@ -80,6 +91,10 @@ public:
 
     void SetVerbosity(int verbosity);
     int GetVerbosity();
+
+    void SetControlId(int cid);
+    int GetControlId();
+
 
     void Print(const char* msg="G4DAEChroma::Print");
 
@@ -100,9 +115,6 @@ public:
 #endif
 
 public:
-    //  these pass thru to the transport
-    G4DAEPhotonList* Propagate(G4DAEPhotonList* photons);
-
     void Handshake(G4DAEMetadata* request=NULL);
 
     G4DAEMetadata* GetHandshake();
@@ -125,13 +137,16 @@ public:
     void ClearAll();
     void CollectPhoton(const G4Track* aPhoton );
 
-    // sends collected photons, collects hits recv using SensDet and Geometry for local transforms
-    std::size_t Propagate(int batch_id);
+    std::size_t ProcessCerenkovSteps();
+    std::size_t ProcessScintillationSteps();
+    std::size_t ProcessSteps(G4DAEArrayHolder* steps);
 
-    std::size_t ProcessCerenkovSteps(int batch_id);
-    std::size_t ProcessCerenkovPhotons(int batch_id);
-    std::size_t ProcessScintillationSteps(int batch_id);
-    std::size_t ProcessScintillationPhotons(int batch_id);
+    std::size_t ProcessCerenkovPhotons();
+    std::size_t ProcessScintillationPhotons();
+    std::size_t ProcessPhotons(G4DAEArrayHolder* photons);
+
+    void AttachControlMetadata(G4DAEArrayHolder* request);
+    std::size_t CollectHits(G4DAEArrayHolder* hits);
 
     void ChromaProcess(); 
     G4DAEPhotonList* GenerateMockPhotons();
@@ -157,6 +172,12 @@ private:
   // Hit collection
   G4DAESensDet* m_sensdet ; 
 
+  // Trojan
+  G4DAESensDet* m_trojan_sensdet ; 
+
+  // Active
+  G4DAESensDet* m_active_sensdet ; 
+
   // Geometry Transform cache, used to convert global to local coordinates
   G4DAEGeometry* m_geometry ; 
 
@@ -180,6 +201,10 @@ private:
 
   // verbosity level
   int m_verbosity ;  
+
+  // control id
+  int m_cid ;  
+
 
 };
 

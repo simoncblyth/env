@@ -37,9 +37,11 @@ public:
     virtual void CreateHitCollections( const std::string& sdname, G4HCofThisEvent* hce ) = 0;
     virtual void StealHitCollections( const std::string& target,  G4HCofThisEvent* hce ) = 0;
     virtual void Collect( const G4DAEHit& hit ) = 0;
+    virtual void HarvestPmtHits() = 0;
 
     virtual void AddSomeFakeHits(const IDVec& sensor_ids);
     virtual void CollectHits( G4DAEArrayHolder* photons, G4DAETransformCache* cache );
+
 
 public:
     static void DumpStatistics( G4HCofThisEvent* hce, int detail=0 );

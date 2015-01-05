@@ -47,6 +47,8 @@ G4DAEChroma::G4DAEChroma() :
     G4DAEManager("G4DAECHROMA_CONFIG_PATH"),
     m_transport(0),
     m_sensdet(0),
+    m_trojan_sensdet(0),
+    m_active_sensdet(0),
     m_geometry(0),
     m_cache(0),
     m_database(0),
@@ -61,6 +63,8 @@ G4DAEChroma::~G4DAEChroma()
 {
     delete m_transport ;
     delete m_sensdet ;
+    delete m_trojan_sensdet ;
+    //delete m_active_sensdet ;  just points to one of the other two
     delete m_geometry ;
     delete m_cache ;
     delete m_database ;
@@ -75,39 +79,19 @@ G4DAEChroma::~G4DAEChroma()
 void G4DAEChroma::Print(const char* msg)
 {
     cout << msg << endl ; 
-    cout << "transport   " << m_transport << endl ; 
-    cout << "sensdet     " << m_sensdet   << endl ; 
-    cout << "geometry    " << m_geometry  << endl ; 
-    cout << "cache       " << m_cache     << endl ; 
-    cout << "database    " << m_database  << endl ; 
-    cout << "metadata    " << m_metadata  << endl ; 
-    cout << "materialmap " << m_materialmap  << endl ; 
-    cout << "g2c         " << m_g2c  << endl ; 
-    cout << "verbosity   " << m_verbosity  << endl ; 
+    cout << "transport       " << m_transport << endl ; 
+    cout << "sensdet         " << m_sensdet   << endl ; 
+    cout << "trojan_sensdet  " << m_trojan_sensdet   << endl ; 
+    cout << "active_sensdet  " << m_trojan_sensdet   << endl ; 
+    cout << "geometry        " << m_geometry  << endl ; 
+    cout << "cache           " << m_cache     << endl ; 
+    cout << "database        " << m_database  << endl ; 
+    cout << "metadata        " << m_metadata  << endl ; 
+    cout << "materialmap     " << m_materialmap  << endl ; 
+    cout << "g2c             " << m_g2c  << endl ; 
+    cout << "verbosity       " << m_verbosity  << endl ; 
     cout << "flags:\n"     << Flags() << endl ;
 
-}
-
-
-void G4DAEChroma::Configure(const char* transport, const char* sensdet, const char* geometry, const char* database)
-{
-    assert(0); // not in use : TODO:get rid of this
-
-    cout << "G4DAEChroma::Configure [" << this << "]" << endl ;
-    G4DAETransport* tra = new G4DAETransport(transport);
-    G4DAEGeometry*  geo = G4DAEGeometry::MakeGeometry(geometry);
-    G4DAEDatabase*  db = new G4DAEDatabase(database);
-
-    const char* target = sensdet ; 
-    string trojan = "trojan_" ;
-    trojan += sensdet ;
-    G4DAESensDet*   tsd = G4DAESensDet::MakeSensDet(trojan.c_str(), target );
-
-
-    this->SetTransport( tra );
-    this->SetGeometry( geo );  
-    this->SetSensDet( tsd );  
-    this->SetDatabase( db );  
 }
 
 void G4DAEChroma::Note(const char* msg)
@@ -128,13 +112,6 @@ G4DAEMetadata* G4DAEChroma::GetHandshake()
 }
 
 
-
-void G4DAEChroma::SetHCofThisEvent(G4HCofThisEvent* hce){
-   m_hce = hce ; 
-}
-G4HCofThisEvent* G4DAEChroma::GetHCofThisEvent(){
-   return m_hce ; 
-}
 
 
 void G4DAEChroma::SetMaterialMap(G4DAEMaterialMap* map){
@@ -163,6 +140,15 @@ G4DAETransport* G4DAEChroma::GetTransport(){
 }
 
 
+
+
+void G4DAEChroma::SetHCofThisEvent(G4HCofThisEvent* hce){
+   m_hce = hce ; 
+}
+G4HCofThisEvent* G4DAEChroma::GetHCofThisEvent(){
+   return m_hce ; 
+}
+
 void G4DAEChroma::SetSensDet(G4DAESensDet* sd){
    m_sensdet = sd ; 
 }
@@ -173,6 +159,32 @@ G4DAECollector* G4DAEChroma::GetCollector(){
    if(!m_sensdet) return NULL ;
    return m_sensdet->GetCollector(); 
 }
+
+
+void G4DAEChroma::SetTrojanSensDet(G4DAESensDet* tsd){
+   m_trojan_sensdet = tsd ; 
+}
+G4DAESensDet* G4DAEChroma::GetTrojanSensDet(){
+   return m_trojan_sensdet ;
+}
+G4DAECollector* G4DAEChroma::GetTrojanCollector(){
+   if(!m_trojan_sensdet) return NULL ;
+   return m_trojan_sensdet->GetCollector(); 
+}
+
+
+G4DAESensDet* G4DAEChroma::GetActiveSensDet(){
+   return m_active_sensdet ;
+}
+void G4DAEChroma::SetActiveSensDet(G4DAESensDet* asd){
+   m_active_sensdet = asd ; 
+}
+G4DAECollector* G4DAEChroma::GetActiveCollector(){
+   if(!m_active_sensdet) return NULL ;
+   return m_active_sensdet->GetCollector(); 
+}
+
+
 
 
 
@@ -302,114 +314,73 @@ void G4DAEChroma::ClearAll()
 }
 
 
-G4DAEPhotonList* G4DAEChroma::Propagate(G4DAEPhotonList* photons)
+
+
+std::size_t G4DAEChroma::ProcessCerenkovSteps()
 {
-    m_transport->SetPhotons(photons);
-    std::size_t nhits = this->Propagate(1); // >0 for real propagation, otherwise fakes
-    printf("G4DAEChroma::Propagate returned %zu hits \n", nhits); 
-    return m_transport->GetHits();
+    G4DAECerenkovStepList* req = m_transport->GetCerenkovStepList(); 
+    AttachControlMetadata(req);
+    return ProcessSteps(req);
+}
+std::size_t G4DAEChroma::ProcessScintillationSteps()
+{
+    G4DAEScintillationStepList* req = m_transport->GetScintillationStepList(); 
+    AttachControlMetadata(req);
+    return ProcessSteps(req);
+}
+
+std::size_t G4DAEChroma::ProcessCerenkovPhotons()
+{
+    G4DAECerenkovPhotonList* req = m_transport->GetCerenkovPhotonList(); 
+    AttachControlMetadata(req);
+    return ProcessPhotons(req);
+}
+std::size_t G4DAEChroma::ProcessScintillationPhotons()
+{
+    G4DAEScintillationPhotonList* req = m_transport->GetScintillationPhotonList(); 
+    AttachControlMetadata(req);
+    return ProcessPhotons(req);
 }
 
 
-
-std::size_t G4DAEChroma::ProcessCerenkovSteps(G4int batch_id)
+std::size_t G4DAEChroma::ProcessSteps(G4DAEArrayHolder* steps)
 {
-    std::size_t nhits = m_transport->ProcessCerenkovSteps(batch_id); 
+    G4DAEArrayHolder* response = m_transport->Process(steps);
+    G4DAEPhotonList* hits = new G4DAEPhotonList(response);
+    return CollectHits(hits);
+}
+std::size_t G4DAEChroma::ProcessPhotons(G4DAEArrayHolder* photons)
+{
+    G4DAEArrayHolder* response = m_transport->Process(photons);
+    G4DAEPhotonList* hits = new G4DAEPhotonList(response);
+    return CollectHits(hits);
+}
+
+std::size_t G4DAEChroma::CollectHits(G4DAEArrayHolder* hits)
+{
+    G4DAESensDet* sd = GetActiveSensDet();
+    sensdet->CollectHits( hits, m_cache );
+    size_t nhits = hits->GetCount(); 
     return nhits ; 
 }
 
-std::size_t G4DAEChroma::ProcessScintillationSteps(G4int batch_id)
+
+void G4DAEChroma::AttachControlMetadata(G4DAEArrayHolder* request)
 {
-    std::size_t nhits = m_transport->ProcessScintillationSteps(batch_id); 
-    return nhits ; 
+    G4DAEMetadata* meta = new G4DAEMetadata("{}") ; 
+    if(m_database)
+    {  
+        int cid = GetControlId();
+        Map_t ctrl = m_database->GetOne("select * from ctrl where id=? ;", cid ) ;
+        meta->AddMap("ctrl", ctrl);
+    }
+    meta->Print("#request");
+    request->AddLink(meta);
 }
 
 
 
 
-std::size_t G4DAEChroma::ProcessCerenkovPhotons(G4int batch_id)
-{
-    std::size_t nhits = m_transport->ProcessCerenkovPhotons(batch_id); 
-    return nhits ; 
-}
-
-std::size_t G4DAEChroma::ProcessScintillationPhotons(G4int batch_id)
-{
-    std::size_t nhits = m_transport->ProcessScintillationPhotons(batch_id); 
-    return nhits ; 
-}
-
-
-
-
-
-std::size_t G4DAEChroma::Propagate(G4int batch_id)
-{
-   // remember that may do multiple propagations for 
-   // for a single event, so this is not the place 
-   // for end of event activities
-
-
-  if(m_verbosity > 1)
-      cout << "G4DAEChroma::Propagate START batch_id " << batch_id << endl ; 
-
- 
-  G4DAEPhotonList* photons = m_transport->GetPhotons();
-  G4DAEMetadata* phometa = new G4DAEMetadata("{}") ; 
-  if(m_database)
-  {  
-      int cid = 2 ; // TODO: make this a parameter somehow
-      Map_t ctrl = m_database->GetOne("select * from ctrl where id=? ;", cid ) ;
-      phometa->AddMap("ctrl", ctrl);
-  }
-  phometa->Print("#phometa");
-  photons->AddLink(phometa);
-
-
-  if(m_verbosity > 1)
-      photons->Print("G4DAEChroma::Propagate photons"); 
-
-
-  std::size_t nhits = m_transport->Propagate(batch_id); 
-
-
-  if(m_verbosity > 1) 
-      cout << "G4DAEChroma::Propagate CollectHits batch_id " << batch_id << endl ; 
-
-  if(nhits > 0)
-  { 
-      G4DAEPhotonList* hits = m_transport->GetHits() ;
-      G4DAEMetadata* hitmeta = hits->GetLink();
-
-      if(m_verbosity > 1)
-      {
-          hits->Print("G4DAEChroma::Propagate returned hits"); 
-      }
-      m_sensdet->CollectHits( hits, m_cache );
-
-
-      if(m_metadata && hitmeta)
-      {
-          m_metadata->AddLink(hitmeta);     // **Add** not **Set** : tacks on to last link of chain
-          // TODO: clear metadata at end of event   
-      } 
-      else
-      {
-           cout << "G4DAEChroma::Propagate missing m_metadata " << m_metadata << " or hitmeta " << hitmeta << endl ;
-      } 
-
-  } 
-  else
-  {
-      cout << "G4DAEChroma::Propagate : zero hits   " << endl ; 
-
-  }
-
-  if(m_verbosity > 1)
-      cout << "G4DAEChroma::Propagate DONE batch_id " << batch_id << " nhits " << nhits << endl ; 
-
-  return nhits ; 
-}
 
 
 

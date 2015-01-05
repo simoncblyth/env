@@ -63,6 +63,14 @@ void DybG4DAECollector::DefineCollectionNames(G4CollectionNameVector& collection
 
 void DybG4DAECollector::CreateHitCollections( const std::string& sdname, G4HCofThisEvent* hce )
 {
+   /*
+   When target is empty this is invoked from 
+
+           void G4DAESensDet::Initialize( G4HCofThisEvent* hce )
+
+   note that the created collections are added to the hce 
+   */ 
+
     m_hc.clear();
 
 #ifdef VERBOSE
@@ -106,6 +114,9 @@ void DybG4DAECollector::CreateHitCollections( const std::string& sdname, G4HCofT
 void DybG4DAECollector::StealHitCollections(const std::string& target,  G4HCofThisEvent* HCE)
 {
    /*
+   Invoked from 
+           void G4DAESensDet::Initialize( G4HCofThisEvent* hce )
+
    Summary: this steals HCE hit collection pointers of target SD
 
    For entries in HCtable with SDname matching the argument, 
@@ -119,6 +130,11 @@ void DybG4DAECollector::StealHitCollections(const std::string& target,  G4HCofTh
    As a result of this access to targetted hit collections of the event
    hits can be added outside of the normal ProcessHits machinery using 
    hit collection methods provided by the `G4DAESensDet` base class.
+
+
+   When combining normal G4 operations with GPU hits for 
+   same event comparisons, it would be better not to do this.  Instead
+   craete a separate SensDet 
 
    */ 
 
@@ -262,9 +278,9 @@ void DybG4DAECollector::DumpLocalHitCollection(G4DhHitCollection* hc)
 
 
 
-void DybG4DAECollector::FillPmtHitList()
+void DybG4DAECollector::HarvestPmtHits()
 {
-    cout << "DybG4DAECollector::FillPmtHitList" << endl; 
+    cout << "DybG4DAECollector::HarvestPmtHits" << endl; 
     G4DAEPmtHitList* phl = G4DAEChroma::GetG4DAEChroma()->GetPmtHitList();
 
     for( LocalHitCache::iterator it=m_hc.begin() ; it != m_hc.end() ; it++ )

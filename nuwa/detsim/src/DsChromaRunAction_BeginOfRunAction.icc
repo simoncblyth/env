@@ -120,26 +120,35 @@ void DsChromaRunAction_BeginOfRunAction(
     assert(cache); // transform cache is required 
     chroma->SetTransformCache(cache);
 
-
      ///  sensdet 
 
     const char* target = _sensdet.c_str() ; 
-    string trojan = "trojan_" ;
-    trojan += target ;
-
-    printf("DsChromaRunAction_BeginOfRunAction : stealing hit collections from %s into %s \n", target, trojan.c_str() );
-
-    G4DAESensDet*  sensdet = G4DAESensDet::MakeSensDet(trojan.c_str(), target );
-#ifdef VERBOSE
-    sensdet->Print(); 
-#endif
-
-    DybG4DAECollector* collector = new DybG4DAECollector ;
-    sensdet->SetCollector(collector); 
-
     G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-    SDMan->AddNewDetector( sensdet );
-    chroma->SetSensDet( sensdet );  
+
+    // this one has access to the standard Geant4 hit collections
+    {
+        string prefix = "trojan_" ;
+        prefix += target ;
+        printf("DsChromaRunAction_BeginOfRunAction : stealing hit collections from %s into %s \n", target, prefix.c_str() );
+        G4DAESensDet* sensdet = G4DAESensDet::MakeSensDet(prefix.c_str(), target );
+        DybG4DAECollector* collector = new DybG4DAECollector ;
+        sensdet->SetCollector(collector); 
+        SDMan->AddNewDetector( sensdet );
+        chroma->SetTrojanSensDet( sensdet );  
+    }
+
+    {
+        string prefix = "chroma_" ;
+        prefix += target ;
+        printf("DsChromaRunAction_BeginOfRunAction : NOT stealing hit collections : using separate collections from %s \n", prefix.c_str() );
+        G4DAESensDet* sensdet = G4DAESensDet::MakeSensDet(prefix.c_str(), "" );
+        DybG4DAECollector* collector = new DybG4DAECollector ;
+        sensdet->SetCollector(collector); 
+        SDMan->AddNewDetector( sensdet );
+        chroma->SetSensDet( sensdet );  
+    }    
+
+
 
 #ifdef VERBOSE
     SDMan->ListTree();

@@ -27,7 +27,8 @@ public:
     void AddSomeFakeHits();
     void DumpLocalHitCache();
     void DumpLocalHitCollection(G4DhHitCollection* hc);
-    void FillPmtHitList();
+
+    void HarvestPmtHits();
 
 private:
     typedef std::map<short int,G4DhHitCollection*> LocalHitCache;

@@ -14,7 +14,8 @@ public:
     void DefineCollectionNames(G4CollectionNameVector&);;
     void CreateHitCollections( const char* sdname, G4HCofThisEvent* hce );
     void StealHitCollections( const char* target,  G4HCofThisEvent* hce );
-    void Collect( const G4DAEHit& hit );;
+    void Collect( const G4DAEHit& hit );
+    void HarvestPmtHits();
 
 
 };

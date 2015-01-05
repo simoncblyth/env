@@ -223,40 +223,7 @@ void G4DAETransport::ClearAll()
 
 
 
-std::size_t G4DAETransport::ProcessCerenkovSteps(int batch_id)
-{
-    return Process(batch_id, m_cerenkov );
-}
-std::size_t G4DAETransport::ProcessScintillationSteps(int batch_id)
-{
-    return Process(batch_id, m_scintillation );
-}
-std::size_t G4DAETransport::ProcessCerenkovPhotons(int batch_id)
-{
-    return Process(batch_id, m_cerenkov_photons );
-}
-std::size_t G4DAETransport::ProcessScintillationPhotons(int batch_id)
-{
-    return Process(batch_id, m_scintillation_photons );
-}
-std::size_t G4DAETransport::ProcessPmtHits(int batch_id)
-{
-    return Process(batch_id, m_pmthits );
-}
-
-
-
-
-
-
-std::size_t G4DAETransport::Propagate(int batch_id)
-{
-    return Process(batch_id, m_photons );
-}
-
-
-
-G4DAEArrayHolder* G4DAETransport::ProcessRaw(int /*batch_id*/, G4DAEArrayHolder* request)
+G4DAEArrayHolder* G4DAETransport::Process(G4DAEArrayHolder* request)
 {
     size_t size = request ? request->GetCount() : 0 ;
     if(size == 0){
@@ -272,33 +239,6 @@ G4DAEArrayHolder* G4DAETransport::ProcessRaw(int /*batch_id*/, G4DAEArrayHolder*
     return response ; 
 }
 
-
-
-std::size_t G4DAETransport::Process(int batch_id, G4DAEArrayHolder* request)
-{
-    G4DAEArrayHolder* response = ProcessRaw(batch_id, request );
-
-    //
-    // the assumption that hits are returned is often not true, 
-    // eg when just using the transport to copy things to the other side
-    //
-    G4DAEPhotonList* hits = NULL ; 
-
-    if(response)
-    {
-        if(m_verbosity > 0 ) response->Print("G4DAETransport::Process response");
-        hits = new G4DAEPhotonList(response);
-    }
-    else
-    {
-         cout << "G4DAETransport::Process response NULL " << endl ;  
-    } 
-
-    SetHits(hits);
-    std::size_t count = hits ? hits->GetCount() : 0 ;
-    return count ;
-
-}
 
 
 

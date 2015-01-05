@@ -401,6 +401,8 @@ export-export-templates(){
    export DAE_PROP_PATH_TEMPLATE=$(export-path-template prop)
 
    export DAE_PMTHIT_PATH_TEMPLATE=$(export-path-template pmthit)
+   export DAE_G4PMTHIT_PATH_TEMPLATE=$(export-path-template g4pmthit)
+
    export DAE_CHROMAPHOTON_PATH_TEMPLATE=$(export-path-template chromaphoton)
 }
 

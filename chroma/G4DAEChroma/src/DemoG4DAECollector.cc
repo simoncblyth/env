@@ -13,5 +13,9 @@ void DemoG4DAECollector::StealHitCollections( const char* /*target*/,  G4HCofThi
 void DemoG4DAECollector::Collect( const G4DAEHit& /*hit*/ )
 {
 }
+void DemoG4DAECollector::HarvestPmtHits()
+{
+}
+
 
 

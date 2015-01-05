@@ -29,16 +29,7 @@ public:
 
     void Handshake(G4DAEMetadata* request=NULL);
 
-    std::size_t ProcessCerenkovSteps(int batch_id);
-    std::size_t ProcessScintillationSteps(int batch_id);
-    std::size_t ProcessCerenkovPhotons(int batch_id);
-    std::size_t ProcessScintillationPhotons(int batch_id);
-    std::size_t ProcessPmtHits(int batch_id);
-
-    std::size_t Propagate(int batch_id);
-    std::size_t Process(int batch_id, G4DAEArrayHolder* request);
-
-    G4DAEArrayHolder* ProcessRaw(int batch_id, G4DAEArrayHolder* request);
+    G4DAEArrayHolder* Process(G4DAEArrayHolder* request);
 
     //////////////  getters
 
