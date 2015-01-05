@@ -196,11 +196,17 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 #ifdef G4DAECHROMA
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
 
+    size_t FLAG_G4SCINTILLATION_PSDI         = chroma->FindFlag("G4SCINTILLATION_PSDI");
+    size_t FLAG_COLLECT_STEP_REEMISSION_SKIP = chroma->FindFlag("G4SCINTILLATION_COLLECT_STEP_REEMISSION_SKIP");
+    size_t FLAG_REEMISSION                   = chroma->FindFlag("G4SCINTILLATION_REEMISSION");
+
     size_t TASK_COLLECT_STEP    = chroma->FindTask("G4SCINTILLATION_COLLECT_STEP");
     size_t TASK_COLLECT_PHOTON  = chroma->FindTask("G4SCINTILLATION_COLLECT_PHOTON");
     size_t TASK_ADD_SECONDARY   = chroma->FindTask("G4SCINTILLATION_ADD_SECONDARY");
     size_t TASK_KILL_SECONDARY  = chroma->FindTask("G4SCINTILLATION_KILL_SECONDARY");
 
+
+    chroma->Register(FLAG_G4SCINTILLATION_PSDI, 10000);
 #endif
  
     G4String pname="";
@@ -592,81 +598,90 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
         G4int pdgCode ; 
         if(TASK_COLLECT_STEP)
         {
-            chroma->Start(TASK_COLLECT_STEP);
-            //
-            // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
-            // by directly G4DAEArray intems using (n,?,4) structure [float4 quads are efficient on GPU]
-            //
-            G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList();
-            int* g2c = chroma->GetMaterialLookup();
+            if(flagReemission)
+            {
+                chroma->Register(FLAG_COLLECT_STEP_REEMISSION_SKIP);
+            }
+            else
+            {
+                chroma->Start(TASK_COLLECT_STEP);
+                //
+                // serialize DsChromaG4Scintillation::PostStepDoIt stack, just before the photon loop
+                // by directly G4DAEArray intems using (n,?,4) structure [float4 quads are efficient on GPU]
+                //
+                G4DAEScintillationStepList* ssl = chroma->GetScintillationStepList();
+                int* g2c = chroma->GetMaterialLookup();
 
-            // this relates Geant4 materialIndex to the chroma equivalent
-            chromaMaterialIndex = g2c[materialIndex] ;
-            G4String materialName = aMaterial->GetName();
+                // this relates Geant4 materialIndex to the chroma equivalent
+                chromaMaterialIndex = g2c[materialIndex] ;
+                G4String materialName = aMaterial->GetName();
 
-            ssid = 1 + ssl->GetCount() ;  // 1-based 
-            float* ss = ssl->GetNextPointer();     
+                ssid = 1 + ssl->GetCount() ;  // 1-based 
+                float* ss = ssl->GetNextPointer();     
 
-            const G4ParticleDefinition* definition = aParticle->GetDefinition(); 
-            pdgCode = definition->GetPDGEncoding();
-            G4ThreeVector deltaPosition = aStep.GetDeltaPosition();
+                const G4ParticleDefinition* definition = aParticle->GetDefinition(); 
+                pdgCode = definition->GetPDGEncoding();
+                G4ThreeVector deltaPosition = aStep.GetDeltaPosition();
 
-            /*
-            cout << "G4DAEScintillationStep " 
-                 << " ssid " << ssid 
-                 << " materialIndex " << materialIndex
-                 << " chromaMaterialIndex " << chromaMaterialIndex
-                 <<  materialName " << materialName
-                 << " PDGEncoding " << definition->GetPDGEncoding() 
-                 << " Num " << Num 
-                 << endl ;
-            */
+                /*
+                cout << "G4DAEScintillationStep " 
+                     << " ssid " << ssid 
+                     << " materialIndex " << materialIndex
+                     << " chromaMaterialIndex " << chromaMaterialIndex
+                     <<  materialName " << materialName
+                     << " PDGEncoding " << definition->GetPDGEncoding() 
+                     << " Num " << Num 
+                     << endl ;
+                */
 
-            assert(chromaMaterialIndex > -1 );
+                assert(chromaMaterialIndex > -1 );
 
-            uif_t uifa[4] ;
-            uifa[0].i = ssid ;  // > 0 for Scintillation, distinguises from Cerenkov in generate.cu
-            uifa[1].i = aTrack.GetTrackID() ;
-            uifa[2].i = chromaMaterialIndex ; 
-            uifa[3].i = Num ;
+                uif_t uifa[4] ;
+                uifa[0].i = ssid ;  // > 0 for Scintillation, distinguises from Cerenkov in generate.cu
+                uifa[1].i = aTrack.GetTrackID() ;
+                uifa[2].i = chromaMaterialIndex ; 
+                uifa[3].i = Num ;
 
-            uif_t uifb[4] ;
-            uifb[0].i = pdgCode ;
-            uifb[1].i = scnt ;   // 1:fast 2:slow
-            uifb[2].i = 0 ;
-            uifb[3].i = 0 ;
+                uif_t uifb[4] ;
+                uifb[0].i = pdgCode ;
+                uifb[1].i = scnt ;   // 1:fast 2:slow
+                uifb[2].i = 0 ;
+                uifb[3].i = 0 ;
 
-            ss[G4DAEScintillationStep::_Id]         =  uifa[0].f ;   // 0
-            ss[G4DAEScintillationStep::_ParentID]   =  uifa[1].f ;
-            ss[G4DAEScintillationStep::_Material]   =  uifa[2].f ; 
-            ss[G4DAEScintillationStep::_NumPhotons] =  uifa[3].f ;
+                ss[G4DAEScintillationStep::_Id]         =  uifa[0].f ;   // 0
+                ss[G4DAEScintillationStep::_ParentID]   =  uifa[1].f ;
+                ss[G4DAEScintillationStep::_Material]   =  uifa[2].f ; 
+                ss[G4DAEScintillationStep::_NumPhotons] =  uifa[3].f ;
 
-            ss[G4DAEScintillationStep::_x0_x] = x0.x() ;             // 1
-            ss[G4DAEScintillationStep::_x0_y] = x0.y() ;
-            ss[G4DAEScintillationStep::_x0_z] = x0.z() ;
-            ss[G4DAEScintillationStep::_t0] = t0 ;
+                ss[G4DAEScintillationStep::_x0_x] = x0.x() ;             // 1
+                ss[G4DAEScintillationStep::_x0_y] = x0.y() ;
+                ss[G4DAEScintillationStep::_x0_z] = x0.z() ;
+                ss[G4DAEScintillationStep::_t0] = t0 ;
 
-            ss[G4DAEScintillationStep::_DeltaPosition_x] = deltaPosition.x(); // 2
-            ss[G4DAEScintillationStep::_DeltaPosition_y] = deltaPosition.y();
-            ss[G4DAEScintillationStep::_DeltaPosition_z] = deltaPosition.z();
-            ss[G4DAEScintillationStep::_step_length]     = aStep.GetStepLength() ;
+                ss[G4DAEScintillationStep::_DeltaPosition_x] = deltaPosition.x(); // 2
+                ss[G4DAEScintillationStep::_DeltaPosition_y] = deltaPosition.y();
+                ss[G4DAEScintillationStep::_DeltaPosition_z] = deltaPosition.z();
+                ss[G4DAEScintillationStep::_step_length]     = aStep.GetStepLength() ;
 
-            ss[G4DAEScintillationStep::_code]      =  uifb[0].f ;    // 3
-            ss[G4DAEScintillationStep::_charge]    =  definition->GetPDGCharge();
-            ss[G4DAEScintillationStep::_weight]    =  weight ;
-            ss[G4DAEScintillationStep::_MeanVelocity] = ((pPreStepPoint->GetVelocity()+ pPostStepPoint->GetVelocity())/2.);
+                ss[G4DAEScintillationStep::_code]      =  uifb[0].f ;    // 3
+                ss[G4DAEScintillationStep::_charge]    =  definition->GetPDGCharge();
+                ss[G4DAEScintillationStep::_weight]    =  weight ;
+                ss[G4DAEScintillationStep::_MeanVelocity] = ((pPreStepPoint->GetVelocity()+ pPostStepPoint->GetVelocity())/2.);
 
-            ss[G4DAEScintillationStep::_scnt]      =  uifb[1].f ;    // 4
-            ss[G4DAEScintillationStep::_slowerRatio]  =  slowerRatio ;
-            ss[G4DAEScintillationStep::_slowTimeConstant]  =  slowTimeConstant ;
-            ss[G4DAEScintillationStep::_slowerTimeConstant]  =  slowerTimeConstant ;
+                ss[G4DAEScintillationStep::_scnt]      =  uifb[1].f ;    // 4
+                ss[G4DAEScintillationStep::_slowerRatio]  =  slowerRatio ;
+                ss[G4DAEScintillationStep::_slowTimeConstant]  =  slowTimeConstant ;
+                ss[G4DAEScintillationStep::_slowerTimeConstant]  =  slowerTimeConstant ;
 
-            ss[G4DAEScintillationStep::_ScintillationTime]  = ScintillationTime ;  // 5 
-            ss[G4DAEScintillationStep::_ScintillationIntegralMax]  = ScintillationIntegral->GetMaxValue() ;
-            ss[G4DAEScintillationStep::_Spare1]  = 0. ;
-            ss[G4DAEScintillationStep::_Spare2]  = 0. ;
+                ss[G4DAEScintillationStep::_ScintillationTime]  = ScintillationTime ;  // 5 
+                ss[G4DAEScintillationStep::_ScintillationIntegralMax]  = ScintillationIntegral->GetMaxValue() ;
+                ss[G4DAEScintillationStep::_Spare1]  = 0. ;
+                ss[G4DAEScintillationStep::_Spare2]  = 0. ;
 
-            chroma->Stop(TASK_COLLECT_STEP);
+                chroma->Stop(TASK_COLLECT_STEP);
+
+            }
+
        } 
 #endif
 	
@@ -840,10 +855,21 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 
 #ifdef G4DAECHROMA
             {
-                assert( flagReemission == false );
+               //  assert( flagReemission == false );
+               // this is tripped when ADDing secondaries and 
+               // not killing all optical photons in the stack action
+                if(flagReemission)
+                {
+                    chroma->Register(FLAG_REEMISSION);
+                }
+
                 if(TASK_ADD_SECONDARY)
                 {
+                    chroma->Start(TASK_ADD_SECONDARY);
+
                     aParticleChange.AddSecondary(aSecondaryTrack);
+
+                    chroma->Stop(TASK_ADD_SECONDARY);
                 }
             }
 #endif
@@ -918,11 +944,13 @@ DsChromaG4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep
 #ifdef G4DAECHROMA
     if(TASK_KILL_SECONDARY) 
     {
+        chroma->Start(TASK_KILL_SECONDARY);
         if (verboseLevel > 0) 
              G4cout << "DsChromaG4Scintillation::PostStepDoIt TASK__KILL_SECONDARY " 
              << aParticleChange.GetNumberOfSecondaries() << " G4 scintillation secondaries " << G4endl ;  
 
         aParticleChange.SetNumberOfSecondaries(0);
+        chroma->Stop(TASK_KILL_SECONDARY);
         return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
     } 
     else

@@ -13,7 +13,7 @@ using namespace std ;
 G4DAEArrayHolder* G4DAEProp::Copy(G4PhysicsOrderedFreeVector* pofv, double xscale, double yscale )
 {
     size_t size = pofv->GetVectorLength() ;
-    printf("G4DAEProp::Copy size %zu \n", size ); 
+    //printf("G4DAEProp::Copy size %zu \n", size ); 
     G4DAEArrayHolder* holder = new G4DAEArrayHolder( size, NULL, "2" );
     for(size_t b=0 ; b < size ; ++b)
     {
@@ -35,7 +35,7 @@ G4PhysicsOrderedFreeVector* G4DAEProp::CreatePOFV(G4DAEArrayHolder* holder, doub
 {
     G4PhysicsOrderedFreeVector* pofv = new G4PhysicsOrderedFreeVector();
     size_t size = holder->GetCount();
-    printf("G4DAEProp::Create size %zu \n", size ); 
+    //printf("G4DAEProp::Create size %zu \n", size ); 
     for(size_t index=0 ; index < size ; index++ )
     {   
         float* prop = holder->GetItemPointer( index );

@@ -19,9 +19,12 @@
 #include <G4ParticleTypes.hh>
 #include <G4Track.hh>
 
+
+#ifdef G4DAECHROMA
 #include "G4DAEChroma/G4DAEChroma.hh"
 #include "G4DAEChroma/G4DAEMetadata.hh"
 #include "G4DAEChroma/G4DAECommon.hh"
+#endif
 
 
 DECLARE_TOOL_FACTORY(DsChromaStackAction);
@@ -40,14 +43,12 @@ DsChromaStackAction::DsChromaStackAction ( const std::string& type   ,
     m_photonNumbers(0),
     m_neutronNumbers(0),
     m_interestingEvt(false),
-    m_csvc(0),
-    m_chroma(0)
+    m_csvc(0)
 { 
     declareProperty("NeutronParent",m_neutronParent = false, "Select events with neutron parent in addition to being in MO/LS/GdLS/Acrylic");
     declareProperty("PhotonKill",m_photonKill = false, " Kill all the optical photons in the process.");
     declareProperty("MaxPhoton",m_maxPhoton = 1e6, " Max number of photons to be hold.");
     declareProperty("ModuloPhoton",m_moduloPhoton = 100, "Modulo scale down photons collected.");
-    declareProperty("ChromaPropagate",m_chromaPropagate = false, "Propagate optical photons externally, requires DsChromaRunAction instanciating Chroma.");
 }
 
 void DsChromaStackAction::Dump(const char* msg )
@@ -58,7 +59,6 @@ void DsChromaStackAction::Dump(const char* msg )
     info()<< " PhotonKill      :  "<< m_photonKill  <<endreq;
     info()<< " MaxPhoton       :  "<< m_maxPhoton  <<endreq;
     info()<< " ModuloPhoton    :  "<< m_moduloPhoton  <<endreq;
-    info()<< " ChromaPropagate :  "<< m_maxPhoton  <<endreq;
     info()<< " ========================================= " << endreq ; 
     info()<< " photonNumbers   :  "<< m_photonNumbers <<endreq;
     info()<< " neutronNumbers  :  "<< m_neutronNumbers <<endreq;
@@ -67,8 +67,6 @@ void DsChromaStackAction::Dump(const char* msg )
 
 StatusCode DsChromaStackAction::initialize() 
 {
-  info() << "DsChromaStackAction::initialize " << endreq;
-  
   StatusCode sc = GiGaStackActionBase::initialize();
   if (sc.isFailure()) return sc;
 
@@ -77,48 +75,55 @@ StatusCode DsChromaStackAction::initialize()
     return StatusCode::FAILURE;
   }
     
-  if(m_chromaPropagate)
-  {
-#ifdef WITH_CHROMA_ZMQ
-      info() << "DsChromaStackAction::initialize with Chroma propagation " << endreq;
-      m_chroma = G4DAEChroma::GetG4DAEChroma();  // should have already been configured in RunAction TODO:check this
-      m_chroma->Note("DsChromaStackAction::initialize"); 
-      m_chroma->Print();
-#else
-      warn() << "DsChromaStackAction::initialize ChromaPropagate requested but not compiled -DWITH_CHROMA_ZMQ " << endreq;
-#endif
-  }
-  else
-  {
-      info() << "DsChromaStackAction::initialize with standard Geant4 propagation" << endreq;
-  }
-
   return StatusCode::SUCCESS; 
 }
 
 StatusCode DsChromaStackAction::finalize() 
 {
-  info() << "DsChromaStackAction::finalize()" << endreq;
   m_neutronList.clear();  
-
-  if(m_chroma)
-  {
-      m_chroma->Note("DsChromaStackAction::finalize"); 
-  } 
 
   return  GiGaStackActionBase::finalize();
 }
 
 
-//--------------------------------------------------------------------------
+void DsChromaStackAction::PrepareNewEvent()
+{
+  info()<< " StackingAction::PrepareNewEvent "<<endreq;
+  m_interestingEvt=false;
+  m_stage=0;
+  m_photonNumbers=0;
+  m_neutronNumbers=0;
+  m_neutronList.clear();
+
+#ifdef G4DAECHROMA
+  m_map.clear(); 
+  G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
+  chroma->Start("STACK"); 
+  chroma->Stamp("PrepareNewEvent"); 
+#endif
+}
+
+
 
 G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track* aTrack) 
 {
+
+#ifdef G4DAECHROMA
+  G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
+  size_t STACK_CLASSIFY = chroma->FindFlag("STACK_CLASSIFY");
+  size_t STACK_OP       = chroma->FindFlag("STACK_OP");
+  size_t STACK_KILL     = chroma->FindFlag("STACK_KILL");
+#endif
+
   G4ClassificationOfNewTrack classification = fUrgent;
   switch(m_stage)
   {
     case 0: 
           {
+#ifdef G4DAECHROMA
+              chroma->Register(STACK_CLASSIFY, 10000);
+#endif
+
               G4ParticleDefinition* definition = aTrack->GetDefinition() ;
               G4bool is_optical = definition == G4OpticalPhoton::OpticalPhotonDefinition() ;
               G4bool is_neutron = definition == G4Neutron::NeutronDefinition() ;
@@ -176,21 +181,33 @@ G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track*
        
                   assert(is_secondary); 
 
+#ifdef G4DAECHROMA
+                  chroma->Register(STACK_OP);
+#endif
                   m_photonNumbers++;
 
                   // either kill all photons or modulo misses for non-realistic (but faster) testing  or overmax
                   bool kill = m_photonKill || m_photonNumbers % m_moduloPhoton != 0 || m_photonNumbers >= m_maxPhoton ;
 
+                  //
+                  // FORMERLY: 
+                  //       chroma always kills from G4 point of view, but collects non-kills
+                  //
+                  // BUT NOW:
+                  //        chroma kills photons before they become G4Track within the Cerenkov and Scintillation
+                  //        processes by not adding secondary,
+                  //        instead process steps are collected and generated into photons on the GPU 
+                  //
+                  //
+
+                  /*
                   if( m_chroma )
                   {
-                       // chroma always kills from G4 point of view, but collects non-kills
                        classification=fKill;  
-                       if(!kill)
-                       {
-                           m_chroma->CollectPhoton( aTrack ); 
-                       } 
                   }
                   else
+                  */
+
                   { 
                        // once strike interestingness everything gets classified urgent
                        if(kill)
@@ -218,6 +235,15 @@ G4ClassificationOfNewTrack DsChromaStackAction::ClassifyNewTrack (const G4Track*
     default:
           classification = fUrgent;
   } 
+
+
+#ifdef G4DAECHROMA
+  if(classification == fKill)
+  {
+      chroma->Register(STACK_KILL);
+  }   
+#endif
+
   return classification;
 }
 
@@ -230,20 +256,22 @@ void DsChromaStackAction::NewStage()
 {
   m_stage++;
 
-  double td = G4DAEMetadata::RealTime() - m_t0 ;
+#ifdef G4DAECHROMA
+  G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
+  chroma->Stop("STACK"); 
+  chroma->Stamp("NewStage"); 
 
-  m_map["NewStage"] = G4DAEMetadata::TimeStampLocal();
-  m_map["duration"]  = toStr<double>(td) ;  
   m_map["photonNumbers"]  = toStr<int>(m_photonNumbers) ;  
   m_map["neutronNumbers"]  = toStr<int>(m_neutronNumbers) ;  
   m_map["moduloPhoton"]  = toStr<int>(m_moduloPhoton) ;  
   m_map["maxPhoton"]  = toStr<int>(m_maxPhoton) ;  
 
-  m_map["COLUMNS"] = "NewStage:s,PrepareNewEvent:s,duration:f,photonNumbers:i,neutronNumbers:i,moduloPhoton:i,maxPhoton:i" ;
+  m_map["COLUMNS"] = "NewStage:s,PrepareNewEvent:s,photonNumbers:i,neutronNumbers:i,moduloPhoton:i,maxPhoton:i" ;
 
-  G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma(); 
-  G4DAEMetadata* meta = chroma->GetMetadata(); 
-  meta->AddMap("stackaction",m_map);
+  G4DAEMetadata* results = chroma->GetResults(); 
+  results->AddMap("stackaction",m_map);
+
+#endif
 
   info()<< "DsChromaStackAction::NewStage m_stage  " << m_stage <<endreq;
   info()<< " photonNumbers  :  "<< m_photonNumbers <<endreq;
@@ -277,11 +305,13 @@ void DsChromaStackAction::NewStage()
   {
       info()<<" An interesting event! Let's go on!"<<endreq;
 
+      /*
       if(m_chroma)
       {
           m_chroma->Propagate(1); 
       }
       else
+      */
       {
           stackManager->ReClassify();  // stage>0 immediately goes to fUrgent
       }
@@ -289,11 +319,15 @@ void DsChromaStackAction::NewStage()
   else 
   {
       info()<< "Boring event, aborting..."<<endreq;
+
+      /*
       if(m_chroma)
       {
           m_chroma->ClearAll();
       }  
       else
+      */
+
       {
           stackManager->clear();  //abort the event
       }
@@ -302,28 +336,6 @@ void DsChromaStackAction::NewStage()
 }
 
 
-
-//----------------------Reset -----------------------------------
-void DsChromaStackAction::PrepareNewEvent()
-{
-  info()<< " StackingAction::PrepareNewEvent "<<endreq;
-  m_interestingEvt=false;
-  m_stage=0;
-  m_photonNumbers=0;
-  m_neutronNumbers=0;
-  m_neutronList.clear();
-
-  if(m_chroma)
-  { 
-      m_chroma->ClearAll(); 
-  } 
-
-
-  m_t0 = G4DAEMetadata::RealTime();
-  printf("DsChromaStackAction::PrepareNewEvent t0 %f \n", m_t0 );
-  m_map["PrepareNewEvent"] = G4DAEMetadata::TimeStampLocal();
-
-}
 
 //-----------------If the Gamma neutron's daughter ? ---------------------
 

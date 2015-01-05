@@ -15,7 +15,7 @@ using namespace std ;
 
 const size_t  G4DAEManager::MAXTASK ; 
 
-G4DAEManager::G4DAEManager(const char* configkey)  : m_flags(0), m_config(NULL)
+G4DAEManager::G4DAEManager(const char* configkey)  : m_flags(0), m_config(NULL), m_results(NULL)
 {
    Initialize(configkey);
 }
@@ -28,7 +28,6 @@ void G4DAEManager::ZeroConfig()
 {
     for(size_t i=0 ; i<MAXTASK ; i++)
     {
-        if(m_name[i]) free((void*)m_name[i]);
         m_name[i] = NULL ; 
         m_status[i] = 0 ;   // hmm parallel to m_flags bitfield
     }
@@ -39,6 +38,7 @@ void G4DAEManager::ZeroResults()
     for(size_t i=0 ; i<MAXTASK ; i++)
     {
         m_count[i] = 0 ;
+        m_register[i] = 0 ;
         m_start[i] = 0. ;
         m_stop[i] = 0. ;
         m_duration[i] = 0. ;
@@ -61,6 +61,18 @@ G4DAEMetadata* G4DAEManager::GetConfig()
 {
     return m_config ;
 }
+G4DAEMetadata* G4DAEManager::GetResults()
+{
+    if(!m_results) m_results = new G4DAEMetadata("{}");
+    return m_results ;
+}
+
+void G4DAEManager::UpdateResults()
+{
+    G4DAEMetadata* results = GetResults();
+    results->AddMap("timestamp",m_timestamp);
+}
+
 
 void G4DAEManager::LoadConfig(const char* configkey)
 {
@@ -141,7 +153,14 @@ void G4DAEManager::DumpResults(const char* msg)
     }
     for(size_t i=0 ; i<MAXTASK ; i++)
     {
-        printf(" %2zu : %zu : %30s : %zu : %10.2f  %10.2f  \n", i, m_status[i], m_name[i], m_count[i], m_duration[i], m_average[i] );
+        printf(" %2zu : %zu : %50s : %7zu %7zu : %10.4f  %10.4f  \n", 
+              i, 
+              m_status[i], 
+              m_name[i], 
+              m_register[i], 
+              m_count[i], 
+              m_duration[i], 
+              m_average[i] );
     }
 }
 
@@ -159,16 +178,101 @@ string G4DAEManager::Flags()
 }
 
 
-void G4DAEManager::Start(size_t task)
+const char* G4DAEManager::GetName(size_t flg)
 {
+    return ( flg < MAXTASK ) ? m_name[flg] : NULL ;
+}
+
+
+
+void G4DAEManager::Skip(const char* name, size_t verbosity)
+{
+    size_t task = FindFlag(name);
+    Skip(task, verbosity);
+}
+void G4DAEManager::Start(const char* name, size_t verbosity)
+{
+    size_t task = FindFlag(name);
+    Start(task, verbosity);
+}
+
+void G4DAEManager::Stop(const char* name, size_t verbosity)
+{
+    size_t task = FindFlag(name);
+    Stop(task, verbosity);
+}
+
+void G4DAEManager::Stamp(const char* name, size_t verbosity)
+{
+    string stamp =  G4DAEMetadata::TimeStampLocal();
+    if(verbosity > 0)
+    {
+        printf("G4DAEManager::Stamp %s %s \n", name, stamp.c_str());
+    }
+    m_timestamp[name] = stamp ;  
+}
+
+void G4DAEManager::Skip(size_t task, size_t verbosity)
+{
+    if(verbosity>0)
+    {
+        const char* name = GetName(task);
+        printf("G4DAEManager::Skip %zu %s \n", task, name);
+    }
+}
+
+void G4DAEManager::Register(size_t task, size_t modulo)
+{
+    if(task >= MAXTASK) return ; 
+
+    if(modulo > 0 && m_register[task] % modulo == 0)
+    {
+        const char* name = GetName(task);
+        printf("G4DAEManager::Register task %zu modulo %zu register %zu name %s \n", task, modulo, m_register[task], name);
+    }
+
+    m_register[task] += 1 ; 
+
+    
+
+}
+
+
+void G4DAEManager::Start(size_t task, size_t verbosity)
+{
+    if(verbosity>0)
+    {
+        const char* name = GetName(task);
+        printf("G4DAEManager::Start %zu %s \n", task, name);
+    }
+
+    if(task == 0 || task >= MAXTASK)
+    {
+        printf("G4DAEManager::Start invalid task %zu \n", task);
+        return ;
+    }
+
     m_start[task] = G4DAEMetadata::RealTime();
 }
-void G4DAEManager::Stop(size_t task)
+void G4DAEManager::Stop(size_t task, size_t verbosity)
 {
+    if(task == 0 || task >= MAXTASK)
+    {
+        printf("G4DAEManager::Stop invalid task %zu \n", task);
+        return ;
+    }
+
     m_count[task] += 1 ; 
     m_stop[task] = G4DAEMetadata::RealTime();
     m_duration[task] += m_stop[task] - m_start[task] ; 
     m_average[task] = m_duration[task]/m_count[task] ; 
+
+    if(verbosity>0)
+    {
+        const char* name = GetName(task);
+        printf("G4DAEManager::Stop %zu %s \n", task, name);
+    }
+
 }
 
 

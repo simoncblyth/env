@@ -1,7 +1,7 @@
 #ifndef G4DAEMANAGER_H
 #define G4DAEMANAGER_H 1
 
-
+#include "G4DAEChroma/G4DAEMap.hh" 
 #include <string>
 
 class G4DAEMetadata ; 
@@ -35,6 +35,7 @@ public:
     void SetStatus(size_t flags);
 
 public:
+    const char* GetName(size_t flg);
     size_t GetFlags();
     bool HasFlag(size_t flg);
     bool HasFlag(const char* name);
@@ -45,11 +46,23 @@ public:
     size_t GetStatus(const char* name);
 
 public:
-    void Start(size_t flg);
-    void Stop(size_t flg);
+    void Start(size_t flg, size_t verbosity=0);
+    void Stop(size_t flg, size_t verbosity=0);
+    void Skip(size_t flg, size_t verbosity=0);
+    void Register(size_t flg, size_t modulo=0);
+
+    void Start(const char* name, size_t verbosity=0);
+    void Stop(const char* name, size_t verbosity=0);
+    void Skip(const char* name, size_t verbosity=0);
+
+    void Stamp(const char* name, size_t verbosity=0);
+
 
 public:
     G4DAEMetadata* GetConfig();
+    G4DAEMetadata* GetResults();
+    void UpdateResults(); // from maps and arrays into the metadata
+
     void DumpConfig(const char* msg="G4DAEManager::DumpConfig");
     void DumpResults(const char* msg="G4DAEManager::DumpResults");
     void LoadConfig(const char* configkey);
@@ -64,6 +77,9 @@ private:
 
     // flags names and numbers
     G4DAEMetadata* m_config ; 
+
+    // timestamps and durations
+    G4DAEMetadata* m_results ; 
 
     // last realtime start
     double m_start[MAXTASK] ; 
@@ -80,12 +96,19 @@ private:
     // start counts
     size_t m_count[MAXTASK];
 
+    // counters without timing 
+    size_t m_register[MAXTASK];
+
     // task names corresponding to the flags 
     const char* m_name[MAXTASK] ;
 
     // task status, eg disabled, active, ...
     size_t m_status[MAXTASK];
  
+    // timestamps
+    Map_t m_timestamp ; 
+
+
 
 };
 

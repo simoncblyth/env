@@ -38,6 +38,7 @@ class G4DAEMetadata;
 class G4DAEMaterialMap;
 class G4Track ; 
 class G4Run ;
+class G4Event ;
 
 #ifdef DEBUG_HITLIST
 class G4DAEHitList;
@@ -132,10 +133,12 @@ public:
     std::size_t ProcessScintillationSteps(int batch_id);
     std::size_t ProcessScintillationPhotons(int batch_id);
 
-   
+    void ChromaProcess(); 
     G4DAEPhotonList* GenerateMockPhotons();
 
 public:
+    void BeginOfEvent( const G4Event* event );
+    void EndOfEvent( const G4Event* event );
     void BeginOfRun( const G4Run* run );
     void EndOfRun(   const G4Run* run );
     void Note( const char* msg );
@@ -144,6 +147,7 @@ public:
 private:
   // Singleton instance
   static G4DAEChroma* fG4DAEChroma;
+
 
 private:
 

@@ -407,7 +407,6 @@ class ConfigMuonGeneration(object):
         action.PhotonKill = False        # kill OP after collection
         action.MaxPhoton = self.opts.max_photon         
         action.ModuloPhoton = self.opts.modulo_photon    
-        action.ChromaPropagate = not self.opts.chroma_disabled
         return action
 
     def configure_chromarunaction(self): 

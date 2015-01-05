@@ -52,6 +52,8 @@ void DsChromaRunAction_BeginOfRunAction(
 
     // just use the json flags 
     // chroma->AddFlags(_chromaFlags);   // Add not Set, to not stomp on JSON loaded config 
+
+    cout << "DsChromaRunAction_BeginOfRunAction WARNING : IGNORING _chromaFlags argument " << _chromaFlags << endl ;  
     
     cout << "DsChromaRunAction_BeginOfRunAction chromaFlags " << chroma->Flags() << endl;   
 

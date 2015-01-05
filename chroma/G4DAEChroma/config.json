@@ -7,6 +7,16 @@
                "G4SCINTILLATION_COLLECT_PROP"   :  5, 
                "G4SCINTILLATION_PROCESS_STEP"   :  6, 
                "G4SCINTILLATION_PROCESS_PHOTON" :  7, 
+               "G4SCINTILLATION_REEMISSION"     :  8, 
+               "G4SCINTILLATION_COLLECT_STEP_REEMISSION_SKIP"   :  9, 
+
+               "EVENT"                          : 10, 
+               "CHROMA_PROCESS"                 : 11, 
+               "STACK"                          : 12, 
+               "STACK_CLASSIFY"                 : 13, 
+               "STACK_OP"                       : 14, 
+               "STACK_KILL"                     : 15, 
+
 
                "G4CERENKOV_ADD_SECONDARY"       : 16, 
                "G4CERENKOV_KILL_SECONDARY"      : 17, 
@@ -15,11 +25,14 @@
                "G4CERENKOV_APPLY_WATER_QE"      : 20,
                "G4CERENKOV_PROCESS_STEP"        : 21, 
                "G4CERENKOV_PROCESS_PHOTON"      : 22,
+               "G4CERENKOV_PSDI"                : 23, 
+
+               "G4SCINTILLATION_PSDI"           : 30, 
                "LAST"                           : 31
            },
 
    "STATUS": {
-               "G4SCINTILLATION_ADD_SECONDARY"  :  0, 
+               "G4SCINTILLATION_ADD_SECONDARY"  :  1, 
                "G4SCINTILLATION_KILL_SECONDARY" :  0, 
                "G4SCINTILLATION_COLLECT_STEP"   :  1, 
                "G4SCINTILLATION_COLLECT_PHOTON" :  0, 
@@ -27,7 +40,7 @@
                "G4SCINTILLATION_PROCESS_STEP"   :  1, 
                "G4SCINTILLATION_PROCESS_PHOTON" :  0, 
 
-               "G4CERENKOV_ADD_SECONDARY"       :  0, 
+               "G4CERENKOV_ADD_SECONDARY"       :  1, 
                "G4CERENKOV_KILL_SECONDARY"      :  0, 
                "G4CERENKOV_COLLECT_STEP"        :  1, 
                "G4CERENKOV_COLLECT_PHOTON"      :  0, 

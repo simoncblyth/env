@@ -209,12 +209,16 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         //  so dont have to repeat for every step
         //  difficult to do from ctor as chroma not yet initialized ?
         //
+
+        size_t FLAG_G4CERENKOV_PSDI = chroma->FindFlag("G4CERENKOV_PSDI");
+
         size_t TASK_COLLECT_STEP    = chroma->FindTask("G4CERENKOV_COLLECT_STEP");
         size_t TASK_COLLECT_PHOTON  = chroma->FindTask("G4CERENKOV_COLLECT_PHOTON");
         size_t TASK_APPLY_WATER_QE  = chroma->FindTask("G4CERENKOV_APPLY_WATER_QE");
         size_t TASK_ADD_SECONDARY   = chroma->FindTask("G4CERENKOV_ADD_SECONDARY");
         size_t TASK_KILL_SECONDARY  = chroma->FindTask("G4CERENKOV_KILL_SECONDARY");
 
+        chroma->Register(FLAG_G4CERENKOV_PSDI, 10000);
 #endif
  
         aParticleChange.Initialize(aTrack);
@@ -570,7 +574,11 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
     {
         if(TASK_ADD_SECONDARY)
         {
+            chroma->Start(TASK_ADD_SECONDARY);
+
             aParticleChange.AddSecondary(aSecondaryTrack);
+
+            chroma->Stop(TASK_ADD_SECONDARY);
         }
     }
 #endif
@@ -635,9 +643,13 @@ DsChromaG4Cerenkov::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
     {
         if(TASK_KILL_SECONDARY)
         {
+            chroma->Start(TASK_KILL_SECONDARY);
+
             if (verboseLevel > 0) 
             G4cout << "DsChromaG4Cerenkov::PostStepDoIt FLAG_G4CERENKOV_KILL_SECONDARY " << aParticleChange.GetNumberOfSecondaries() << " G4 cerenkov secondaries " << G4endl ;  
             aParticleChange.SetNumberOfSecondaries(0);
+
+            chroma->Stop(TASK_KILL_SECONDARY);
             return pParticleChange;  // huh "a" "p" pattern used above 
         }
         else 

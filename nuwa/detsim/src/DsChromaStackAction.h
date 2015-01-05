@@ -1,6 +1,8 @@
 #ifndef DSCHROMASTACKACTION_H
 #define DSCHROMASTACKACTION_H 1
 
+#define G4DAECHROMA
+
 #include "globals.hh"
 #include <iostream>
 #include <vector>
@@ -36,8 +38,11 @@ class G4TouchableHistory;
 class IGeometryInfo;
 class ICoordSysSvc;
 
+
+#ifdef G4DAECHROMA
 #include "G4DAEChroma/G4DAEMap.hh"
 class G4DAEChroma;
+#endif
 
 
 class DsChromaStackAction :  public GiGaStackActionBase
@@ -83,19 +88,14 @@ class DsChromaStackAction :  public GiGaStackActionBase
     // Modulo scale down photons collected
     G4int m_moduloPhoton;
 
-    // Propagate Optical Photons on GPU
-    G4bool m_chromaPropagate;
-    
     // Locally cached pointer to the CoordSysSvc
     ICoordSysSvc* m_csvc;
     
-    // local ptr to singleton instance
-    G4DAEChroma* m_chroma ; 
-
  private:
 
-     double  m_t0 ;
+#ifdef G4DAECHROMA
      Map_t   m_map ; 
+#endif
 
  
 };

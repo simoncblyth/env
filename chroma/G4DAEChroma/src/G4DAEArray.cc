@@ -153,7 +153,7 @@ void G4DAEArray::Populate( char* bytes, size_t size )
 void G4DAEArray::Allocate( size_t nitems )
 {
     size_t nfloat = nitems*m_itemsize ;
-    printf("G4DAEArray::Allocate nitems %zu nfloat %zu \n", nitems, nfloat );
+    //printf("G4DAEArray::Allocate nitems %zu nfloat %zu \n", nitems, nfloat );
     m_data = (float*)malloc( nfloat*sizeof(float) ) ;
     m_itemcapacity = nitems ; 
     m_buffer = NULL ;   

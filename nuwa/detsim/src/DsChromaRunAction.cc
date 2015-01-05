@@ -1,6 +1,13 @@
 #include "DsChromaRunAction.h"
 
+#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "GaudiKernel/PropertyMgr.h"
+
 #include "G4DAEChroma/G4DAEChroma.hh"
+
+
+// Needed for chroma initialization in the icc
+
 #include "G4DAEChroma/G4DAESensDet.hh"
 #include "G4DAEChroma/G4DAETransport.hh"
 #include "G4DAEChroma/G4DAETransformCache.hh"
@@ -12,10 +19,6 @@
 #include "DybG4DAECollector.h"
 
 #include "G4SDManager.hh"
-
-#include "GaudiKernel/DeclareFactoryEntries.h"
-#include "GaudiKernel/PropertyMgr.h"
-
 
 #include "G4DataHelpers/ITouchableToDetectorElement.h"
 
@@ -59,11 +62,11 @@ DsChromaRunAction::DsChromaRunAction
                     "Delimited String to be parsed into bitfield controlling G4DAEChroma");
 
 
-};
+}
 
 DsChromaRunAction::~DsChromaRunAction()
 {
-};
+}
 
 //
 // ugly code inclusion allows common source for Chroma initialization 
@@ -72,8 +75,7 @@ DsChromaRunAction::~DsChromaRunAction()
 #include "DsChromaRunAction_BeginOfRunAction.icc"
 void DsChromaRunAction::BeginOfRunAction( const G4Run* run )
 {
-    printf("DsChromaRunAction::BeginOfRunAction START\n");
-    assert(run);
+    G4DAEChroma::GetG4DAEChroma()->BeginOfRun(run);
 
     ITouchableToDetectorElement* t2de = tool<ITouchableToDetectorElement>(m_t2deName);
     DsChromaRunAction_BeginOfRunAction( 
@@ -86,15 +88,11 @@ void DsChromaRunAction::BeginOfRunAction( const G4Run* run )
               m_enableChroma,
               m_chromaFlags );
 
-    printf("DsChromaRunAction::BeginOfRunAction DONE\n");
-};
+}
 
 void DsChromaRunAction::EndOfRunAction( const G4Run* run )
 {
-    printf("DsChromaRunAction::EndOfRunAction START\n");
     G4DAEChroma::GetG4DAEChroma()->EndOfRun(run);
-    assert(run);
-    printf("DsChromaRunAction::EndOfRunAction DONE\n");
-};
+}
 
 
