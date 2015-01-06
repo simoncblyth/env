@@ -48,6 +48,26 @@ and the Geant4 equivalents are "onlycopied" from `DsChromaEventAction::EndOfEven
 via metadata control such as `ctrl:noreturn:1` and `ctrl:onlycopy:1` applied to processing of all species. 
 
 
+Revisit With New Type Names
+-----------------------------
+
+::
+
+    In [1]: cf('wavelength', tag=1, typs='gopcerenkov opcerenkovgen')  
+     
+     ## improved by shifting low wavelength to match G4 change 60:801:20 to 80:801:20
+
+    In [3]: cf('3xyzw', tag=1, typs='gopcerenkov opcerenkovgen', legend=False)
+
+
+    In [1]: cf('3xyzw', tag=1, typs='gopscintillation opscintillationgen', legend=False)
+
+    In [2]: cf('wavelength', tag=1, typs='gopscintillation opscintillationgen', log=True)
+
+
+
+
+
 
 Count Checking
 ----------------

@@ -130,6 +130,7 @@ def parse_args():
     d['level'] = "INFO"
     d['endpoint'] = os.environ['ZMQ_BROKER_URL_FRONTEND']
     d['threads_per_block'] = None
+    d['steps_per_call'] = None
 
     h = {}
     h['inp'] = "Either \"handshake\" or the type of file to load, eg \"cerenkov\", \"scintillation\", \"opscintillation\" "  
@@ -144,6 +145,7 @@ def parse_args():
     parser.add_argument("--endpoint", default=d['endpoint'], help="broker url")  
     parser.add_argument("--slice", default=d['slice'], help="Colon delimited slice to apply to array, eg 0:1 0:2 ::100")
     parser.add_argument("--threads-per-block", type=int, default=d['threads_per_block'], help="Kernel launch threads_per_block")
+    parser.add_argument("--steps-per-call", type=int, default=d['steps_per_call'], help="Propagation steps within launch")
     
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.level.upper()))
@@ -152,9 +154,24 @@ def parse_args():
 
 
 def attach_metadata(request, config):
-    if config.threads_per_block is None:return
+    """
+    Mimic metadata settings from G4DAEChroma::GPUProcessing 
+    """ 
+    ctrl = {}
+
+    if not config.inp is None:
+        ctrl['type'] = config.inp
+    if not config.tag is None:
+        ctrl['evt'] = config.tag
+
+    atts = ["threads_per_block", "steps_per_call"]
+    for att in atts: 
+        val = getattr(config, att, None)
+        if val is None:continue 
+        ctrl[att] = val 
+    pass
     metadata = {}
-    metadata['ctrl'] = { 'threads_per_block':config.threads_per_block }
+    metadata['ctrl'] = ctrl 
     request.meta = [metadata] 
 
 

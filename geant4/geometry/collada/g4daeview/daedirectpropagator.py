@@ -42,7 +42,7 @@ class DAEDirectPropagator(object):
         """
         self.chroma.incoming(request)  # do any config contained in request
         itemshape = request.shape[1:]
-        log.info("incoming itemshape %s " % repr(itemshape))
+        log.info("incoming request %s " % repr(request.shape))
         extra = False 
         results = {}
         response = NPY.empty()
@@ -86,21 +86,31 @@ class DAEDirectPropagator(object):
         pass
 
 
-    def save(self, npy, prefix=None):
+    def save(self, npy, prefix=None, postfix=None):
         """
         Better to keep type info and metadata with the npy 
         rather than using common place in chroma 
         """
         itype = self.chroma.ctrl.get('type',None)
         evt = self.chroma.ctrl.get('evt',None)
-        if itype is None or evt is None:    
-            log.warn("failed to save, missing type/evt metadata")
-   
-        utype = itype if prefix is None else "%s%s" % (prefix, itype)
+
+        if itype is None:    
+            log.warn("failed to save, missing type")
+
+        if evt is None:    
+            log.warn("failed to save, missing evt")
+ 
+        utype = "".join(map(str,filter(None,(prefix,itype,postfix))))
+
+        log.info("itype %s evt %s utype %s prefix %s postfix %s " % (itype, evt, utype, prefix, postfix))
+
         self.config.save_npy(npy, evt, utype)   
 
     def generate_and_propagate(self, request):
         log.info("generate_and_propagate %s " % repr(request.shape))
+        if self.chroma.ctrl.get('sidesave',0) == 1:
+            self.save(request)
+
         gpu_photons = GPUPhotonsHit(gensteps=request)        
 
         results = gpu_photons.propagate_hit(self.chroma.gpu_detector, 
@@ -108,8 +118,17 @@ class DAEDirectPropagator(object):
                                             self.chroma.parameters)
 
         hit = self.chroma.parameters['hit']
-        pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights = gpu_photons.get()
-        photons = ChromaPhoton.from_arrays(pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights, hit=hit)
+
+        #pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights = gpu_photons.get()
+        #photons = ChromaPhoton.from_arrays(pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights, hit=hit)
+
+        photons = gpu_photons.pull(hit=hit)
+
+        if hasattr(gpu_photons, 'generated'):
+            self.save(gpu_photons.generated, prefix='op', postfix='gen')
+
+        if self.chroma.ctrl.get('sidesave',0) == 1:
+            self.save(photons, prefix='op')
 
         return photons, results
 

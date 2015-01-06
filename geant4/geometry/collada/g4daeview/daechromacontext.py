@@ -162,7 +162,7 @@ class DAEChromaContext(object):
         self.geant4_material_map = Geant4MaterialMap()   
         pass
 
-        self.COLUMNS = 'hit:i,deviceid:i,gl:i,threads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i,max_time:f'
+        self.COLUMNS = 'hit:i,deviceid:i,gl:i,steps_per_call:i,threads_per_block:i,max_blocks:i,max_steps:i,seed:i,reset_rng_states:i,max_time:f'
 
         pass
         #self.setup_random_seed()
@@ -193,6 +193,7 @@ class DAEChromaContext(object):
     max_steps = property(lambda self:self.parameters['max_steps'])
     threads_per_block = property(lambda self:self.parameters['threads_per_block'])
     reset_rng_states = property(lambda self:self.parameters['reset_rng_states'])
+    steps_per_call = property(lambda self:self.parameters['steps_per_call'])
 
 
     def incoming(self, request):

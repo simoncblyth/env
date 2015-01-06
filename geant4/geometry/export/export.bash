@@ -394,6 +394,9 @@ export-export-templates(){
    export DAE_OPCERENKOV_PATH_TEMPLATE=$(export-path-template opcerenkov)
    export DAE_OPSCINTILLATION_PATH_TEMPLATE=$(export-path-template opscintillation)
 
+   export DAE_OPCERENKOVGEN_PATH_TEMPLATE=$(export-path-template opcerenkovgen)
+   export DAE_OPSCINTILLATIONGEN_PATH_TEMPLATE=$(export-path-template opscintillationgen)
+
    export DAE_CERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
    export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
 

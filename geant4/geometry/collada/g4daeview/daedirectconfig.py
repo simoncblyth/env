@@ -130,7 +130,8 @@ class DAEDirectConfig(object):
         ## hmm these came from the live parser, moving them here means can no longer interactively (over udp) modify 
         # kernel launch config, transitioning from 1D to 2D
         defaults['deviceid'] = -1  # 1D
-        defaults['threads_per_block'] = 64  # 1D
+        defaults['threads_per_block'] = 512  # 1D
+        defaults['steps_per_call'] = 1      # 
         defaults['max_blocks'] = 1024       # 1D
         defaults['max_steps'] = 30        
         defaults['block'] = "16,16,1"       # 2D
@@ -140,10 +141,12 @@ class DAEDirectConfig(object):
         defaults['hit'] = True        
         defaults['reset_rng_states'] = True        
         defaults['gl'] = False       
-        defaults['wavelengths'] = "60:801:20"  
+        #defaults['wavelengths'] = "60:801:20"   # chroma original 
+        defaults['wavelengths'] = "80:801:20"    # for matching G4 Cerenkov low edge 
 
         parser.add_argument( "--deviceid", help="For multiple GPU device selection when non negative", type=int )
         parser.add_argument( "--threads-per-block", help="", type=int )
+        parser.add_argument( "--steps-per-call", help="Maximum number of propagation steps to normally do within kernel call. Probably up to 2~3 is always safe.  Default %(default)s.", type=int )
         parser.add_argument( "--max-blocks", help="", type=int )
         parser.add_argument( "--max-steps", help="Maximum photon propagation steps. Default %(default)s", type=int )
         parser.add_argument( "--block", help="[I] String 3-tuple dimensions of the block of CUDA threads, eg \"32,32,1\" \"16,16,1\" \"8,8,1\" ", type=str  )
@@ -252,7 +255,7 @@ class DAEDirectConfig(object):
         if not os.path.exists(dirp):
             os.makedirs(dirp)
         pass
-        log.info("saving %s %s to %s " % (typ, name, path)) 
+        log.info("saving %s %s to %s %s " % (typ, name, path, repr(npy.shape))) 
         np.save(path, npy) 
 
 

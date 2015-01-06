@@ -185,10 +185,25 @@ class ChCerenkovPhoton(Photon):
     pass
 typmap[ChCerenkovPhoton.typ] = ChCerenkovPhoton
 
+class ChCerenkovPhotonGen(Photon):
+    typ = "opcerenkovgen"
+    pass
+typmap[ChCerenkovPhotonGen.typ] = ChCerenkovPhotonGen
+
+
 class ChScintillationPhoton(Photon):
     typ = "opscintillation"
     pass
 typmap[ChScintillationPhoton.typ] = ChScintillationPhoton
+
+class ChScintillationPhotonGen(Photon):
+    typ = "opscintillationgen"
+    pass
+typmap[ChScintillationPhotonGen.typ] = ChScintillationPhotonGen
+
+
+
+
 
 class TestPhoton(Photon):
     typ = "test"
@@ -315,6 +330,9 @@ class PmtHit(Photon):
     typ = "pmthit"
 typmap[PmtHit.typ] = PmtHit
 
+class G4PmtHit(Photon):
+    typ = "g4pmthit"
+typmap[G4PmtHit.typ] = G4PmtHit
 
 
 
