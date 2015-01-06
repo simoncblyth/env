@@ -311,7 +311,7 @@ class CerenkovStep(G4Step):
 typmap[CerenkovStep.typ] = CerenkovStep
 
 
-class PmtHit(NPY):
+class PmtHit(Photon):
     typ = "pmthit"
 typmap[PmtHit.typ] = PmtHit
 

@@ -37,7 +37,10 @@ void Propagate(int seq, int bid, int cid, int* range )
  
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
     G4DAEDatabase* db = chroma->GetDatabase();
-    G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent();  // calls Initialize for registered SD 
+
+    printf("PrepareNewEvent Calling Initialize for registered SD\n");
+    G4HCofThisEvent* HCE = G4SDManager::GetSDMpointer()->PrepareNewEvent(); 
+    printf("PrepareNewEvent DONE\n");
     chroma->SetHCofThisEvent(HCE);
 
 
@@ -79,14 +82,10 @@ void Propagate(int seq, int bid, int cid, int* range )
     phometa->Print("#phometa"); 
     photons->AddLink(phometa);
 
+    chroma->SetPhotonList(photons);
+    chroma->ProcessCollectedPhotons();   // propagation + hit collection
 
-    G4DAEPhotonList* hits = NULL ;
-    double t_propagate = -1. ; 
-    {
-        double t0 = getRealTime();
-        hits = chroma->Propagate(photons);   // propagation + hit collection
-        t_propagate = getRealTime() - t0 ;
-    }
+    G4DAEPhotonList* hits = chroma->GetHits() ;
     G4DAEMetadata* hitmeta = hits->GetLink();  
 
     Map_t mhits ; 
@@ -97,7 +96,7 @@ void Propagate(int seq, int bid, int cid, int* range )
     mhits["stddt"] = now("%Y-%m-%d %H:%M:%S", 20, 1);
     mhits["loc"]   = now("%s", 20, 0 );
     mhits["locdt"] = now("%Y-%m-%d %H:%M:%S", 20, 0);
-    mhits["tprop"] = toStr<double>(t_propagate);
+    //mhits["tprop"] = toStr<double>(t_propagate);
 
 
     hitmeta->AddMap("mhits", mhits);         
@@ -173,7 +172,13 @@ int main(int argc, const char** argv)
           chromaFlags 
          ); 
 
-    G4DAEDatabase* db = G4DAEChroma::GetG4DAEChroma()->GetDatabase();
+    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+    G4DAEDatabase* db = chroma->GetDatabase();
+
+    G4DAESensDet* sd  = chroma->GetSensDet(); 
+    G4DAESensDet* tsd = chroma->GetTrojanSensDet(); 
+    chroma->SetActiveSensDet(sd);
+    assert( chroma->GetActiveSensDet() == sd ); 
 
     std::vector<long> batch_id = getivec( db, _batch );
     std::vector<long> ctrl_id = getivec( db, _ctrl );
@@ -199,12 +204,11 @@ int main(int argc, const char** argv)
 
 
 
-    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-    DybG4DAECollector* collector = (DybG4DAECollector*)chroma->GetCollector();
-    //collector->DumpLocalHitCache();
-    collector->FillPmtHitList();
-
+    G4DAESensDet* asd = chroma->GetActiveSensDet();
     G4DAEPmtHitList* phl = chroma->GetPmtHitList();
+
+    asd->PopulatePmtHitList(phl);
+
     phl->Print("G4DAEPmtHitList from mocknuwa");
     phl->Save("1");
 

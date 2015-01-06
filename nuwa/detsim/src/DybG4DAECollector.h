@@ -2,6 +2,7 @@
 #define DYBG4DAECOLLECTOR_H 1
 
 #include "G4DAEChroma/G4DAECollector.hh"
+#include "G4DAEChroma/G4DAEPmtHitList.hh"
 #include <map>
 #include <string>
 
@@ -28,7 +29,7 @@ public:
     void DumpLocalHitCache();
     void DumpLocalHitCollection(G4DhHitCollection* hc);
 
-    void HarvestPmtHits();
+    void PopulatePmtHitList(G4DAEPmtHitList* pmthits);
 
 private:
     typedef std::map<short int,G4DhHitCollection*> LocalHitCache;

@@ -278,10 +278,9 @@ void DybG4DAECollector::DumpLocalHitCollection(G4DhHitCollection* hc)
 
 
 
-void DybG4DAECollector::HarvestPmtHits()
+void DybG4DAECollector::PopulatePmtHitList(G4DAEPmtHitList* phl)
 {
-    cout << "DybG4DAECollector::HarvestPmtHits" << endl; 
-    G4DAEPmtHitList* phl = G4DAEChroma::GetG4DAEChroma()->GetPmtHitList();
+    cout << "DybG4DAECollector::PopulatePmtHitList" << endl; 
 
     for( LocalHitCache::iterator it=m_hc.begin() ; it != m_hc.end() ; it++ )
     {

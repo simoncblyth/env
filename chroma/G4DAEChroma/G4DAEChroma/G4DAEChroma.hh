@@ -40,9 +40,6 @@ class G4Track ;
 class G4Run ;
 class G4Event ;
 
-#ifdef DEBUG_HITLIST
-class G4DAEHitList;
-#endif
 
 class G4DAEChroma  : public G4DAEManager 
 {
@@ -54,13 +51,46 @@ protected:
     G4DAEChroma();
 public:
     virtual ~G4DAEChroma();
+    void Print(const char* msg="G4DAEChroma::Print");
 
+public:
+    //  ints
+    void SetVerbosity(int verbosity);
+    int GetVerbosity();
+
+    void SetControlId(int cid);
+    int GetControlId();
+
+public:
+    //  infrastructure ingredients
     void SetGeometry(G4DAEGeometry* geo);
     G4DAEGeometry* GetGeometry();
+
+    void SetTransformCache(G4DAETransformCache* cache);
+    G4DAETransformCache* GetTransformCache();
 
     void SetTransport(G4DAETransport* tra);
     G4DAETransport* GetTransport();
 
+    void SetDatabase(G4DAEDatabase* database);
+    G4DAEDatabase* GetDatabase();
+
+    void SetMetadata(G4DAEMetadata* metadata);
+    G4DAEMetadata* GetMetadata();
+
+public:
+    // infrastructure operations
+    void Handshake(G4DAEMetadata* request=NULL);
+    G4DAEMetadata* GetHandshake();
+
+    void SetMaterialMap(G4DAEMaterialMap* mmap);
+    G4DAEMaterialMap* GetMaterialMap();
+
+    void SetMaterialLookup(int* g2c);
+    int* GetMaterialLookup();
+
+public:
+    // hit collection 
     // standalone SD and collector with own hit collections
     void SetSensDet(G4DAESensDet* sd);
     G4DAESensDet* GetSensDet();
@@ -75,28 +105,13 @@ public:
     void SetActiveSensDet(G4DAESensDet* sd);
     G4DAESensDet* GetActiveSensDet();
     G4DAECollector* GetActiveCollector();
-
-
-    void SetTransformCache(G4DAETransformCache* cache);
-    G4DAETransformCache* GetTransformCache();
-
-    void SetDatabase(G4DAEDatabase* database);
-    G4DAEDatabase* GetDatabase();
-
-    void SetMetadata(G4DAEMetadata* metadata);
-    G4DAEMetadata* GetMetadata();
-
+   
+    // debugging
     void SetHCofThisEvent(G4HCofThisEvent* hce);
     G4HCofThisEvent* GetHCofThisEvent();
 
-    void SetVerbosity(int verbosity);
-    int GetVerbosity();
-
-    void SetControlId(int cid);
-    int GetControlId();
-
-
-    void Print(const char* msg="G4DAEChroma::Print");
+public:
+    //  DAEList<T> getters 
 
     G4DAECerenkovStepList* GetCerenkovStepList();
 
@@ -108,61 +123,70 @@ public:
 
     G4DAEPmtHitList* GetPmtHitList();
 
+    G4DAEPhotonList* GetPhotonList();
 
-#ifdef DEBUG_HITLIST
-    // from the SensDet collector
-    G4DAEHitList* GetHitList();
-#endif
+    G4DAEPhotonList* GetHits();
 
 public:
-    void Handshake(G4DAEMetadata* request=NULL);
+    //  DAEList<T> setters
 
-    G4DAEMetadata* GetHandshake();
+    void SetPhotonList(G4DAEPhotonList* photons);
 
-    void SetMaterialMap(G4DAEMaterialMap* mmap);
-    G4DAEMaterialMap* GetMaterialMap();
+    void SetHits(G4DAEPhotonList* hits);
 
-    void SetMaterialLookup(int* g2c);
-    int* GetMaterialLookup();
+public:
+    // housekeeping 
 
-    void SetPhotons(G4DAEPhotonList* photons);
-    G4DAEPhotonList* GetPhotons();
+    void ClearAll();
 
+public:
+    // TO REMOVE ?
     void SavePhotons(const char* evtkey );
     void LoadPhotons(const char* evtkey );
 
-    void SetHits(G4DAEPhotonList* hits);
-    G4DAEPhotonList* GetHits();
-
-    void ClearAll();
+public:
     void CollectPhoton(const G4Track* aPhoton );
+
+public:
+    // processing
+    void GPUProcessing(); 
 
     std::size_t ProcessCerenkovSteps();
     std::size_t ProcessScintillationSteps();
-    std::size_t ProcessSteps(G4DAEArrayHolder* steps);
 
     std::size_t ProcessCerenkovPhotons();
     std::size_t ProcessScintillationPhotons();
+    std::size_t ProcessCollectedPhotons();
+
+    std::size_t ProcessSteps(G4DAEArrayHolder* steps);
     std::size_t ProcessPhotons(G4DAEArrayHolder* photons);
 
-    void AttachControlMetadata(G4DAEArrayHolder* request);
-    std::size_t CollectHits(G4DAEArrayHolder* hits);
-
-    void ChromaProcess(); 
-    G4DAEPhotonList* GenerateMockPhotons();
+    std::size_t CollectHits(G4DAEPhotonList* hits);
 
 public:
+    // processing control
+
+    void AttachControlMetadata(G4DAEArrayHolder* request);
+
+public:
+    // lifecycle
     void BeginOfEvent( const G4Event* event );
+
     void EndOfEvent( const G4Event* event );
+
     void BeginOfRun( const G4Run* run );
+
     void EndOfRun(   const G4Run* run );
+
     void Note( const char* msg );
 
+public:
+    // debug 
+    G4DAEPhotonList* GenerateMockPhotons();
  
 private:
   // Singleton instance
   static G4DAEChroma* fG4DAEChroma;
-
 
 private:
 

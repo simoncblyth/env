@@ -20,27 +20,62 @@ void G4DAESensDet::MockupSD(const char* name, G4DAECollector* collector)
 }
 
 
-
-G4DAESensDet* G4DAESensDet::MakeSensDet(const string& name, const string& target )
+G4DAESensDet* G4DAESensDet::MakeTrojanSensDet(const string& target, G4DAECollector* collector)
 {
-    if ( target.empty() ) return new G4DAESensDet(name, target);
+    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+    G4VSensitiveDetector* targetSD = SDMan->FindSensitiveDetector(target, false);
+    if( targetSD == NULL)
+    {
+        cout << "G4DAESensDet::MakeTrojanSensDet ERROR no such target SD exists  " << target << endl ;  
+        return NULL ; 
+    } 
+    // this one has access to the standard Geant4 hit collections
+    string name = "trojan_" ;
+    name += target ;
+
+    printf("G4DAESensDet::MakeTrojanSensDet : stealing hit collections from target %s into %s \n", target.c_str(), name.c_str() );
+
+    G4DAESensDet* sensdet = new G4DAESensDet(name, target);
+    sensdet->SetCollector(collector); 
+    SDMan->AddNewDetector( sensdet );
+
+    cout << "G4DAESensDet::MakeTrojanSensDet AddNewDetector [" << sensdet->GetName() << "]" << endl ; 
+    return sensdet ;    
+}
+
+
+G4DAESensDet* G4DAESensDet::MakeChromaSensDet(const string& target, G4DAECollector* collector)
+{
+    string name = "chroma_" ;
+    name += target ;
 
     G4SDManager* SDMan = G4SDManager::GetSDMpointer();
     G4VSensitiveDetector* nameSD = SDMan->FindSensitiveDetector(name, false);
-    G4VSensitiveDetector* targetSD = SDMan->FindSensitiveDetector(target, false);
-
-    if( targetSD == NULL || nameSD != NULL)
+    if( nameSD != NULL)
     {
-       cout << "G4DAESensDet::MakeSensDet ERROR failed to make trojan " 
-            << " target: " << target 
-            << " targetSD: " << targetSD 
-            << " name: " << name
-            << " nameSD: " << nameSD
-            << endl ; 
+        cout << "G4DAESensDet::MakeChromaSensDet ERROR SD exists already  " << name << endl ;  
         return NULL ; 
     } 
-    return new G4DAESensDet(name, target);
+
+    printf("G4DAESensDet::MakeChromaSensDet : %s \n", name.c_str() );
+
+    G4DAESensDet* sensdet = new G4DAESensDet(name, "");
+    sensdet->SetCollector(collector); 
+    sensdet->initialize();
+
+    SDMan->AddNewDetector( sensdet );
+
+    cout << "G4DAESensDet::MakeChromaSensDet AddNewDetector [" << sensdet->GetName() << "]" << endl ; 
+    return sensdet ;    
 }
+
+
+
+
+
+
+
+
 
 G4DAESensDet::G4DAESensDet(const string& name, const string& target) : G4VSensitiveDetector(name), m_target(target), m_collector(0)
 {
@@ -97,7 +132,14 @@ void G4DAESensDet::EndOfEvent( G4HCofThisEvent* hce )
 
 void G4DAESensDet::CollectHits(G4DAEPhotonList* photons, G4DAETransformCache* cache )
 {
+   // in 
    m_collector->CollectHits( photons, cache ); 
+}
+
+void G4DAESensDet::PopulatePmtHitList(G4DAEPmtHitList* pmthits)
+{
+   // out 
+   m_collector->PopulatePmtHitList(pmthits);
 }
 
 

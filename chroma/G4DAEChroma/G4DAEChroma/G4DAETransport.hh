@@ -36,7 +36,7 @@ public:
     G4DAEMetadata* GetHandshake();
     G4DAEArrayHolder* GetResponse();
 
-    G4DAEPhotonList* GetPhotons();
+    G4DAEPhotonList* GetPhotonList();
     G4DAEPhotonList* GetHits();
     G4DAEScintillationPhotonList*  GetScintillationPhotonList();
     G4DAECerenkovPhotonList*  GetCerenkovPhotonList();
@@ -49,11 +49,12 @@ public:
 
     void SetResponse(G4DAEArrayHolder* response);
 
-    void SetPhotons(G4DAEPhotonList* photons);
-    void SetHits(   G4DAEPhotonList* hits);
+    void SetPhotonList(G4DAEPhotonList* photons);
     void SetScintillationPhotonList(G4DAEScintillationPhotonList* scintillation_photons);
     void SetCerenkovPhotonList(G4DAECerenkovPhotonList* cerenkov_photons);
     void SetPmtHitList(G4DAEPmtHitList* pmthits);
+
+    void SetHits(   G4DAEPhotonList* hits);
 
     void SetCerenkovStepList(G4DAECerenkovStepList* cerenkov);
     void SetScintillationStepList(G4DAEScintillationStepList* scintillation);

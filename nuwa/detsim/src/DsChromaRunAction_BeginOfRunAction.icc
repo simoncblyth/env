@@ -120,40 +120,53 @@ void DsChromaRunAction_BeginOfRunAction(
     assert(cache); // transform cache is required 
     chroma->SetTransformCache(cache);
 
-     ///  sensdet 
+
+    //
+    //  sensdet 
+    //
+    //   trojan
+    //          with access to the hit collections of the target
+    //          by stealing pointers to them
+    //   chroma
+    //          with separate hit collections mirroring structure of the target 
+    //
 
     const char* target = _sensdet.c_str() ; 
-    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 
-    // this one has access to the standard Geant4 hit collections
+    G4DAESensDet* tsd = G4DAESensDet::MakeTrojanSensDet(target, new DybG4DAECollector) ;
+    chroma->SetTrojanSensDet( tsd );  
+
+    G4DAESensDet* sd = G4DAESensDet::MakeChromaSensDet(target, new DybG4DAECollector) ;
+    chroma->SetSensDet( sd );  
+
+    //
+    //  The Chroma ActiveSensDet determines where GPU hits 
+    //  will be collected. 
+    //
+    //  For simultaneous testing of Chroma and Geant 
+    //  this shoud be the separate ChromaSensDet 
+    //  hit collections.
+    //
+    //  When Geant4 optical photons are switched off
+    //  this needs to be the TrojanSensDet 
+    //  in order that the rest of the simulation has
+    //  some hits to work with.
+    //   
+    //
+
+    bool simultaneous = true ;   
+    if(simultaneous)
     {
-        string prefix = "trojan_" ;
-        prefix += target ;
-        printf("DsChromaRunAction_BeginOfRunAction : stealing hit collections from %s into %s \n", target, prefix.c_str() );
-        G4DAESensDet* sensdet = G4DAESensDet::MakeSensDet(prefix.c_str(), target );
-        DybG4DAECollector* collector = new DybG4DAECollector ;
-        sensdet->SetCollector(collector); 
-        SDMan->AddNewDetector( sensdet );
-        chroma->SetTrojanSensDet( sensdet );  
+        chroma->SetActiveSensDet(sd);
+    }
+    else
+    {
+        chroma->SetActiveSensDet(tsd);
     }
 
-    {
-        string prefix = "chroma_" ;
-        prefix += target ;
-        printf("DsChromaRunAction_BeginOfRunAction : NOT stealing hit collections : using separate collections from %s \n", prefix.c_str() );
-        G4DAESensDet* sensdet = G4DAESensDet::MakeSensDet(prefix.c_str(), "" );
-        DybG4DAECollector* collector = new DybG4DAECollector ;
-        sensdet->SetCollector(collector); 
-        SDMan->AddNewDetector( sensdet );
-        chroma->SetSensDet( sensdet );  
-    }    
 
-
-
-#ifdef VERBOSE
+    G4SDManager* SDMan = G4SDManager::GetSDMpointer();
     SDMan->ListTree();
-    cout << "DsChromaRunAction::BeginOfRunAction AddNewDetector [" << sensdet->GetName() << "]" << endl ; 
-#endif
 
 }
 
