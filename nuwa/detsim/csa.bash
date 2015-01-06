@@ -294,14 +294,17 @@ EOF
 }
 csa-flags(){ $FUNCNAME- | tr "\n" "," ; }
 
+csa-modulo-photon(){ echo 1 ; }   # 1 for all photons, eg 100 for big scaledown
 
 csa-nuwarun(){
    local msg=" === $FUNCNAME :"
 
    csa-envsetup
 
-   #local args="DetSimChroma.csa --use-basic-physics --chroma --chroma-disable --test $*"
-   local args="DetSimChroma.csa --use-basic-physics --chroma --chroma-flags $(csa-flags) --test $*"
+   local args="DetSimChroma.csa --modulo-photon $(csa-modulo-photon) --use-basic-physics --chroma --chroma-flags $(csa-flags) --test $*"
+
+   echo $msg $args 
+
    nuwa.py -n $(csa-nevt) -m "$args"
 }
 

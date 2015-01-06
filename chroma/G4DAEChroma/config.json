@@ -32,21 +32,21 @@
            },
 
    "STATUS": {
-               "G4SCINTILLATION_ADD_SECONDARY"  :  1, 
+               "G4SCINTILLATION_ADD_SECONDARY"  :  0, 
                "G4SCINTILLATION_KILL_SECONDARY" :  0, 
                "G4SCINTILLATION_COLLECT_STEP"   :  1, 
-               "G4SCINTILLATION_COLLECT_PHOTON" :  0, 
+               "G4SCINTILLATION_COLLECT_PHOTON" :  1, 
                "G4SCINTILLATION_COLLECT_PROP"   :  0, 
                "G4SCINTILLATION_PROCESS_STEP"   :  1, 
-               "G4SCINTILLATION_PROCESS_PHOTON" :  0, 
+               "G4SCINTILLATION_PROCESS_PHOTON" :  1, 
 
-               "G4CERENKOV_ADD_SECONDARY"       :  1, 
+               "G4CERENKOV_ADD_SECONDARY"       :  0, 
                "G4CERENKOV_KILL_SECONDARY"      :  0, 
                "G4CERENKOV_COLLECT_STEP"        :  1, 
-               "G4CERENKOV_COLLECT_PHOTON"      :  0, 
+               "G4CERENKOV_COLLECT_PHOTON"      :  1, 
                "G4CERENKOV_APPLY_WATER_QE"      :  0,
                "G4CERENKOV_PROCESS_STEP"        :  1, 
-               "G4CERENKOV_PROCESS_PHOTON"      :  0,
+               "G4CERENKOV_PROCESS_PHOTON"      :  1,
                "LAST"                           :  0
  
            }

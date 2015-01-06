@@ -1,8 +1,6 @@
 #include "DsChromaEventAction.h"
 
 #include "G4DAEChroma/G4DAEChroma.hh"
-#include "G4DAEChroma/G4DAEPmtHitList.hh"
-#include "DybG4DAECollector.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/PropertyMgr.h"
@@ -28,19 +26,13 @@ DsChromaEventAction::~DsChromaEventAction()
 
 void DsChromaEventAction::BeginOfEventAction( const G4Event* event )
 {
-    G4DAEChroma::GetG4DAEChroma()->BeginOfEvent(event);
+    G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
+    chroma->BeginOfEvent(event);
 }
 
 void DsChromaEventAction::EndOfEventAction( const G4Event* event )
 {
     G4DAEChroma* chroma = G4DAEChroma::GetG4DAEChroma();
-
-    DybG4DAECollector* collector = (DybG4DAECollector*)chroma->GetCollector();
-    collector->HarvestPmtHits();  // from G4 HC into PmtHitList
-
-    G4DAEPmtHitList* phl = chroma->GetPmtHitList();
-    phl->Save("1", "HIT", "DAE_G4PMTHIT_TEMPLATE_PATH");
-
     chroma->EndOfEvent(event);
 }
 

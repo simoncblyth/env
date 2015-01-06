@@ -61,6 +61,10 @@ public:
     void SetControlId(int cid);
     int GetControlId();
 
+    void SetEvent(int evt);
+    int GetEvent();
+
+
 public:
     //  infrastructure ingredients
     void SetGeometry(G4DAEGeometry* geo);
@@ -149,14 +153,16 @@ public:
 
 public:
     // processing
-    void GPUProcessing(); 
+    void GPUProcessing(int evt); 
+    void PostProcessing(int evt); 
 
-    std::size_t ProcessCerenkovSteps();
-    std::size_t ProcessScintillationSteps();
+    std::size_t ProcessCerenkovSteps(int evt);
+    std::size_t ProcessScintillationSteps(int evt);
 
-    std::size_t ProcessCerenkovPhotons();
-    std::size_t ProcessScintillationPhotons();
-    std::size_t ProcessCollectedPhotons();
+    std::size_t ProcessCerenkovPhotons(int evt);
+    std::size_t ProcessScintillationPhotons(int evt);
+    std::size_t ProcessCollectedPhotons(int evt);
+    void CopyToRemote(G4DAEArrayHolder* req, int evt, const char* type);
 
     std::size_t ProcessSteps(G4DAEArrayHolder* steps);
     std::size_t ProcessPhotons(G4DAEArrayHolder* photons);
@@ -228,6 +234,10 @@ private:
 
   // control id
   int m_cid ;  
+
+  // event id
+  int m_event ;  
+
 
 
 };

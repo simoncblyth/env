@@ -220,6 +220,12 @@ G4DAEMetadata* G4DAEChroma::GetMetadata(){
 
 
 
+void G4DAEChroma::SetEvent(int evt){
+   m_event = evt ;
+}
+int G4DAEChroma::GetEvent(){
+   return m_event ;
+}
 
 void G4DAEChroma::SetControlId(int cid){
    m_cid = cid ;
@@ -260,7 +266,7 @@ void G4DAEChroma::LoadPhotons(const char* evtkey )
 {
    G4DAEList<G4DAEPhoton>* pl = G4DAEPhotonList::Load(evtkey ); 
    G4DAEPhotonList* photons = reinterpret_cast<G4DAEPhotonList*>(pl);
-   photons->Print("G4DAEChroma::SavePhotons");
+   photons->Print("G4DAEChroma::LoadPhotons");
    m_transport->SetPhotonList(photons);  // leaking prior photons
 }
 
@@ -312,41 +318,32 @@ void G4DAEChroma::ClearAll()
 
 
 
-std::size_t G4DAEChroma::ProcessCerenkovSteps()
+std::size_t G4DAEChroma::ProcessCerenkovSteps(int evt)
 {
     G4DAECerenkovStepList* req = m_transport->GetCerenkovStepList(); 
-    AttachControlMetadata(req);
+
+    req->SetKV("ctrl", "type", "cerenkov" );
+    req->SetKV("ctrl", "evt", evt );
+    req->SetKV("ctrl", "threads_per_block", 512 );
+    req->SetKV("ctrl", "noreturn", 0 );
+    req->SetKV("ctrl", "sidesave", 1 );   // remote save of GPU generated photons
+
+    //AttachControlMetadata(req);
     return ProcessSteps(req);
 }
-std::size_t G4DAEChroma::ProcessScintillationSteps()
+std::size_t G4DAEChroma::ProcessScintillationSteps(int evt)
 {
     G4DAEScintillationStepList* req = m_transport->GetScintillationStepList(); 
-    AttachControlMetadata(req);
+
+    req->SetKV("ctrl", "type", "scintillation" );
+    req->SetKV("ctrl", "evt", evt );
+    req->SetKV("ctrl", "threads_per_block", 512 );
+    req->SetKV("ctrl", "noreturn", 0 );
+    req->SetKV("ctrl", "sidesave", 1 );   // remote save of GPU generated photons
+
+    //AttachControlMetadata(req);
     return ProcessSteps(req);
 }
-
-
-
-std::size_t G4DAEChroma::ProcessCerenkovPhotons()
-{
-    G4DAECerenkovPhotonList* req = m_transport->GetCerenkovPhotonList(); 
-    AttachControlMetadata(req);
-    return ProcessPhotons(req);
-}
-std::size_t G4DAEChroma::ProcessScintillationPhotons()
-{
-    G4DAEScintillationPhotonList* req = m_transport->GetScintillationPhotonList(); 
-    AttachControlMetadata(req);
-    return ProcessPhotons(req);
-}
-std::size_t G4DAEChroma::ProcessCollectedPhotons()
-{
-    G4DAEPhotonList* req = m_transport->GetPhotonList(); 
-    AttachControlMetadata(req);
-    return ProcessPhotons(req);
-}
-
-
 
 
 std::size_t G4DAEChroma::ProcessSteps(G4DAEArrayHolder* steps)
@@ -354,8 +351,58 @@ std::size_t G4DAEChroma::ProcessSteps(G4DAEArrayHolder* steps)
     G4DAEArrayHolder* response = m_transport->Process(steps);
     G4DAEPhotonList* hits = new G4DAEPhotonList(response);
     SetHits(hits);
+
+    assert(hits);
+    hits->Print("response from ProcessSteps ");
+
     return CollectHits(hits);
 }
+
+
+
+
+
+std::size_t G4DAEChroma::ProcessCerenkovPhotons(int evt)
+{
+    G4DAECerenkovPhotonList* req = m_transport->GetCerenkovPhotonList(); 
+    CopyToRemote(req, evt, "gopcerenkov");
+    return 0 ;
+}
+
+std::size_t G4DAEChroma::ProcessScintillationPhotons(int evt)
+{
+    G4DAEScintillationPhotonList* req = m_transport->GetScintillationPhotonList(); 
+    CopyToRemote(req, evt, "gopcerenkov");
+    return 0 ;
+}
+
+
+void G4DAEChroma::CopyToRemote(G4DAEArrayHolder* req, int evt, const char* type)
+{
+    printf("G4DAEChroma::CopyToRemote  evt %d type %s \n", evt, type);
+
+    req->SetKV("ctrl", "type", type );
+    req->SetKV("ctrl", "evt", evt );
+    req->SetKV("ctrl", "onlycopy", 1 );
+
+    G4DAEArrayHolder* response = m_transport->Process(req);
+    if( response )  // will be NULL when req is empty 
+    {
+        assert( response->GetCount() == 0 );
+    }
+}
+
+
+
+
+std::size_t G4DAEChroma::ProcessCollectedPhotons(int /*evt*/)
+{
+    G4DAEPhotonList* req = m_transport->GetPhotonList(); 
+    //AttachControlMetadata(req);
+    return ProcessPhotons(req);
+}
+
+
 std::size_t G4DAEChroma::ProcessPhotons(G4DAEArrayHolder* photons)
 {
     G4DAEArrayHolder* response = m_transport->Process(photons);
@@ -415,6 +462,7 @@ void G4DAEChroma::EndOfRun(   const G4Run* /*run*/ )
 }
 void G4DAEChroma::BeginOfEvent(const G4Event* /*event*/)
 {
+    SetEvent(1);
     Stamp("BeginOfEvent", 1);
     Start("EVENT", 1);
 }
@@ -423,7 +471,46 @@ void G4DAEChroma::EndOfEvent(const G4Event* /*event*/)
     Stop("EVENT", 1);
     Stamp("EndOfEvent", 1);
 
-    GPUProcessing();
+    int evt = GetEvent();
+    GPUProcessing(evt);
+    PostProcessing(evt);
+}
+
+
+void G4DAEChroma::PostProcessing(int evt)
+{
+    
+    {
+        G4DAESensDet* tsd = GetTrojanSensDet();
+
+        G4DAEPmtHitList* phl = new G4DAEPmtHitList(1000);
+
+        tsd->PopulatePmtHitList(phl);  // from G4 HC into PmtHitList
+
+        phl->Print("G4DAEChroma::PostProcessing from TrojanSD");
+
+        //phl->Save(evt, "HIT", "DAE_G4PMTHIT_PATH_TEMPLATE");
+
+        CopyToRemote(phl, evt, "g4pmthit");
+
+
+    }
+    {
+        G4DAESensDet* sd = GetSensDet();
+
+        G4DAEPmtHitList* phl = new G4DAEPmtHitList(1000);
+
+        sd->PopulatePmtHitList(phl);  // from chroma HC into PmtHitList
+
+        phl->Print("G4DAEChroma::PostProcessing from SD");
+
+        //phl->Save(evt);  // standard PMTHIT template
+
+        CopyToRemote(phl, evt, "pmthit");
+
+    }
+    
+
 
     DumpResults("G4DAEChroma::EndOfEvent");
     UpdateResults();
@@ -445,7 +532,7 @@ void G4DAEChroma::EndOfEvent(const G4Event* /*event*/)
 
 
 
-void G4DAEChroma::GPUProcessing()
+void G4DAEChroma::GPUProcessing(int evt)
 {
     Start("CHROMA_PROCESS", 1);
 
@@ -458,24 +545,7 @@ void G4DAEChroma::GPUProcessing()
     {
         Start(TASK_G4CERENKOV_PROCESS_STEP, 1);
 
-        G4DAECerenkovStepList* l = GetCerenkovStepList(); 
-        l->SetKV("ctrl", "type", "cerenkov" );
-        l->SetKV("ctrl", "evt", "1" );
-        l->SetKV("ctrl", "threads_per_block", 512 );
-        l->SetKV("ctrl", "noreturn", 1 );
-        l->SetKV("ctrl", "sidesave", 1 );   // remote save of GPU generated photons
-
-        size_t n = ProcessCerenkovSteps();    
-        G4DAEPhotonList* hits = GetHits();   
-        if(hits)
-        {
-            hits->Print("response from ProcessCerenkovSteps ");
-        }
-        else
-        { 
-            printf("ProcessCerenkovSteps n %zu NULL hits  \n", n); 
-        }
-
+        ProcessCerenkovSteps(evt);    
         Stop(TASK_G4CERENKOV_PROCESS_STEP, 1);
     }
     else
@@ -487,25 +557,7 @@ void G4DAEChroma::GPUProcessing()
     if(TASK_G4SCINTILLATION_PROCESS_STEP)
     {
         Start(TASK_G4SCINTILLATION_PROCESS_STEP, 1);
-
-        G4DAEScintillationStepList* l = GetScintillationStepList(); 
-        l->SetKV("ctrl", "type", "scintillation" );
-        l->SetKV("ctrl", "evt", "1" );
-        l->SetKV("ctrl", "threads_per_block", 512 );
-        l->SetKV("ctrl", "noreturn", 1 );
-        l->SetKV("ctrl", "sidesave", 1 );   // remote save of GPU generated photons
-
-        size_t n = ProcessScintillationSteps();    
-        G4DAEPhotonList* hits = GetHits();   
-        if(hits)
-        {
-            hits->Print("response from ProcessScintillationSteps ");
-        }
-        else
-        {
-            printf("ProcessScintillationSteps n %zu NULL hits \n", n); 
-        } 
-
+        ProcessScintillationSteps(evt);    
         Stop(TASK_G4SCINTILLATION_PROCESS_STEP, 1);
     }
     else
@@ -514,23 +566,10 @@ void G4DAEChroma::GPUProcessing()
     }
 
 
-
-
     if(TASK_G4CERENKOV_PROCESS_PHOTON)
     {
         Start(TASK_G4CERENKOV_PROCESS_PHOTON, 1);
-
-        G4DAECerenkovPhotonList* l = GetCerenkovPhotonList();  
-        l->SetKV("ctrl", "type", "gopcerenkov" );  
-        l->SetKV("ctrl", "evt", "1" );
-        l->SetKV("ctrl", "onlycopy", 1 );  // just copy G4 generated photons to otherside
-
-        ProcessCerenkovPhotons();    
-
-        G4DAEPhotonList* response = GetHits();   
-        assert(response);
-        response->Print("response from ProcessCerenkovPhotons ");
-
+        ProcessCerenkovPhotons(evt);    
         Stop(TASK_G4CERENKOV_PROCESS_PHOTON, 1);
     }
     else
@@ -543,18 +582,7 @@ void G4DAEChroma::GPUProcessing()
     if(TASK_G4SCINTILLATION_PROCESS_PHOTON)
     {
         Start(TASK_G4SCINTILLATION_PROCESS_PHOTON, 1);
-
-        G4DAEScintillationPhotonList* l = GetScintillationPhotonList();   
-        l->SetKV("ctrl", "type", "gopscintillation" );
-        l->SetKV("ctrl", "evt", "1" );
-        l->SetKV("ctrl", "onlycopy", 1 );  // just copy G4 generated photons to otherside
-
-        ProcessScintillationPhotons();    
-
-        G4DAEPhotonList* response = GetHits();   
-        assert(response);
-        response->Print("response from ProcessScintillationPhotons ");
-
+        ProcessScintillationPhotons(evt);    
         Stop(TASK_G4SCINTILLATION_PROCESS_PHOTON, 1);
     }
     else

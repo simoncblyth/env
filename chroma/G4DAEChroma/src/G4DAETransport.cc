@@ -14,6 +14,7 @@
 #include <string>
 #include <iostream>
 #include <stdio.h>
+#include <assert.h>
 
 
 using namespace std ; 
@@ -87,11 +88,13 @@ void G4DAETransport::Handshake(G4DAEMetadata* request)
 
 G4DAEArrayHolder* G4DAETransport::Process(G4DAEArrayHolder* request)
 {
-    size_t size = request ? request->GetCount() : 0 ;
+    assert(request);
+
+    size_t size = request->GetCount() ;
 
     if(size == 0){
-        request->Print("G4DAETransport::Process EMPTY request");
-        return NULL ;
+        request->Print("G4DAETransport::Process WARNING sending size 0 request");
+        //return NULL ;
     }
 
     if(m_verbosity > 0){

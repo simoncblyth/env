@@ -182,10 +182,10 @@ void DybG4DAECollector::Collect( const G4DAEHit& hit )
 
     sphit->setSensDetId(hit.pmtid);
     sphit->setLocalPos(hit.lpos);
-    sphit->setHitTime(hit.t);
+    sphit->setHitTime(hit.t*CLHEP::ns);
     sphit->setPol(hit.lpol);
     sphit->setDir(hit.ldir);
-    sphit->setWavelength(hit.wavelength);
+    sphit->setWavelength(hit.wavelength*CLHEP::nm);  //?
     sphit->setType(0);
     sphit->setWeight(hit.weight);
 
@@ -281,6 +281,11 @@ void DybG4DAECollector::DumpLocalHitCollection(G4DhHitCollection* hc)
 void DybG4DAECollector::PopulatePmtHitList(G4DAEPmtHitList* phl)
 {
     cout << "DybG4DAECollector::PopulatePmtHitList" << endl; 
+    cout << "units " 
+         << " nanometer " << nanometer 
+         << " nm " << CLHEP::nm 
+         << " ns " << CLHEP::ns
+         << endl ;   
 
     for( LocalHitCache::iterator it=m_hc.begin() ; it != m_hc.end() ; it++ )
     {
@@ -296,10 +301,10 @@ void DybG4DAECollector::PopulatePmtHitList(G4DAEPmtHitList* phl)
              DayaBay::SimPmtHit* sphit = dynamic_cast<DayaBay::SimPmtHit*>(hit->get());
 
              const CLHEP::Hep3Vector& localPos = sphit->localPos(); 
-             double hitTime = sphit->hitTime();
+             double hitTime = sphit->hitTime()/CLHEP::ns;
 
              const CLHEP::Hep3Vector& dir = sphit->dir(); 
-             double wavelength = sphit->wavelength();
+             double wavelength = sphit->wavelength()/CLHEP::nm;
 
              const CLHEP::Hep3Vector& pol = sphit->pol(); 
              float weight = sphit->weight();
