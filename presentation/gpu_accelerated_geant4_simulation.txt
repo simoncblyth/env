@@ -29,7 +29,19 @@
          
 
 
+.. raw:: html
 
+    <style type="text/css">
+        span.alarm { color: red; } 
+        span.warn { color: orange; } 
+        span.ok { color: green; } 
+        span.i { display: none; } 
+    </style>
+
+.. role:: i 
+.. role:: alarm
+.. role:: warn
+.. role:: ok
 
  
 
@@ -67,12 +79,17 @@
     Standard Geant4 Workflow
     /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
 
-    GPU Accelerated Geant4 Workflow
+    External Photon Simulation Workflow
     /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
 
     G4/DetSim Generated Cerenkov Wavelength
     /env/g4dae/g4_cerenkov_wavelength.png
 
+
+.. comment 
+
+    Generated Scintillation Photons GPU cf Geant4
+    /env/g4dae/generated_scintillation_time_wavelength.png
 
 
 
@@ -94,7 +111,6 @@ GPU Accelerated Geant4 Simulation with G4DAE and Chroma
 
 .. class:: small
 
-   * Geant4 Profiling 
    * Validating exports
    * General viewing of exports
    * Custom use: :red:`bridging to GPU`
@@ -112,15 +128,435 @@ GPU Accelerated Geant4 Simulation with G4DAE and Chroma
 
 
 
-:small:`Geant4 Profiling`
---------------------------- 
+:small:`Generated Scintillation Photons GPU cf Geant4`
+------------------------------------------------------- 
+
+.. image:: /env/g4dae/generated_scintillation_time_wavelength.png
+   :width: 900px
+   :align: center
+
+
+
+
+
+:small:`Implications of Geometry Model Choice`
+------------------------------------------------------- 
+
+:red:`Track > Geometry intersection` typically limits 
+simulation performance. Geometry model determines 
+techniques (and hardware) available to accelerate intersection. 
+
+:green:`Geant4` Geometry Model (:blue:`solid based`, :red:`locked in`)
+
+    *Tree of nested solids composed of materials, 
+    each shape represented by different C++ class* 
+
+:green:`Chroma` Geometry Model (:blue:`surface based`, :red:`extremely simple > portable`)
+
+    *List of oriented triangles, each representing 
+    boundary between inside and outside materials.*     
+
+
+3D industry focusses on surface models >> frameworks and GPU 
+hardware designed to work with surface based geometries.  
+
+
+
+
+
+:small:`Chroma : Ultra-fast Photon MC, Developed by Stan Seibert, University of Pennsylvania`
+-----------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * http://chroma.bitbucket.org
+
+    Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
+    simulating processes like diffuse and specular reflections, 
+    refraction, Rayleigh scattering and absorption. Using triangle meshes 
+    eliminate geometry code as :red:`just one code path`.
+
+.. sidebar:: Original Motivation for G4DAE exporter
+
+    Allow use of Chroma GPU accelerated optical photon propagation
+    with existing DayaBay Geant4 geometry.
+
+.. class:: small
+
+200x performance claim:
+
+   *With a CUDA GPU Chroma has propagated 2.5M photons per second 
+   in a detector with 29k photomultiplier tubes. This is
+   200x faster than GEANT4.*
+
+.. class:: small
+
+   **BUT** Chroma needs : :red:`triangles + inside/outside materials`
+
+.. class:: tiny
+
+   http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
+
+   https://bitbucket.org/chroma/chroma
+
+   https://bitbucket.org/simoncblyth/chroma  (my fork)
+
+
 
 
 Standard Geant4 Workflow
-------------------------------
+--------------------------
 
-GPU Accelerated Geant4 Workflow
----------------------------------
+.. class:: small
+
+    :i:`Some invisible vertical space`
+
+
+.. class:: large
+
+    :i:`.`
+
+        :i:`.`
+
+            :i:`.`
+
+                 OP Generated in Cerenkov and Scintillation G4VProcess, 
+                 some reach PMTs and form hits.
+       
+
+.. class:: tiny
+
+    :i:`.`
+
+        :i:`.`
+
+            :i:`.`
+
+                :i:`.`
+
+                    :i:`.`
+
+                        ::
+
+                            // G4VProcess subclass 
+                            PostStepDoIt(const G4Track&, const G4Step&)
+                            {
+                                // calculate NumPhotons
+                                aParticleChange.SetNumberOfSecondaries(NumPhotons);
+
+                                // generate and collect secondaries 
+                                for (G4int i = 0; i < NumPhotons; i++) 
+                                {
+                                    ...
+                                    aParticleChange.AddSecondary(aSecondaryTrack);
+                                } 
+                            }
+
+                            // G4VSensitiveDetector subclass
+                            bool ProcessHits(G4Step* step, ...)
+                            {
+                                // form hits from step information 
+                            }
+
+
+
+
+Geant4 <-> Chroma Integration 
+----------------------------------------
+
+
+.. sidebar:: Bridging to external OP simulation 
+
+   .. class:: small
+
+      Optical photons (modulo reemission) are the 
+      leaves of the simulation tree, allowing external
+      simulation to be integrated rather simply. 
+
+
+.. class:: small
+
+    Recreate Geometry info on GPU (:blue:`G4DAE`)
+
+    * export triangulated geometry as COLLADA/DAE files
+    * export PMT identifiers associating sensors with volumes 
+    * import geometry and identity files into Chroma and upload to GPU
+
+    :red:`Runtime bridge` via message queue (:blue:`G4DAEChroma`)
+
+    * collect generation step parameters and prevent 
+      photon processing by not forming secondaries
+    * send generation steps to Chroma and receive hits in reply 
+    * include hits into standard Geant4 hit collections,
+      subsequent simulation proceeds normally  
+
+    GPU Optical Photon simulation (:blue:`Chroma`)
+
+    * receive generation steps from message queue
+    * copy generation steps to GPU and allocate GPU memory for photons 
+    * invoke generation and propagation CUDA kernel   
+    * copy propagated photons back to CPU
+    * send reply with hits back to :blue:`G4DAEChroma`    
+
+
+
+External Photon Simulation Workflow
+-------------------------------------
+
+
+https://bitbucket.org/simoncblyth/g4dae 
+---------------------------------------------------------------------------
+
+.. sidebar:: Inclusion into Geant4 
+
+   .. class:: small
+
+       Geometry exporter presented at 
+       Sept 2014 Geant4 Collaboration Meeting. 
+       Proposal to contribute was accepted, intended
+       to be included with 2015 Geant4 release. 
+
+.. class:: small
+
+    Exports *Geant4* Geometry into COLLADA/DAE standard 3D files, 
+    based on *GDML writer* code, same *XercesC* dependency for XML handling. Export includes:
+
+    * volume tree: solid/physical volume/logical volume heirarchy
+    * geometry: vertices, triangles+quads   (triangulation from *G4Polyhedron*) 
+    * materials and surfaces with properties as function of wavelength 
+      (using DAE *extra* XML elements) 
+
+
+.. image:: /env/geant4/geometry/collada/g4dae/g4dae_bitbucket.png
+   :width: 700px
+   :align: center
+
+
+
+
+:small:`COLLADA : Standard for 3D Digital Asset Exchange (DAE)` 
+-----------------------------------------------------------------
+
+.. class:: small
+
+   * https://www.khronos.org/collada/ 
+
+.. image:: /env/graphics/collada/collada_khronos.png
+   :width: 900px
+   :align: center
+
+
+:small:`Exported Geometry allows Ubiquitous Visualizaton`
+-----------------------------------------------------------
+
+.. sidebar:: G4DAE Usage 
+
+   Many commercial, open source apps/libs 
+   can view/edit G4DAE files. 
+
+.. class:: small
+
+   Commercial:
+
+   * *Finder/Quicklook/Preview/Xcode* (standard OSX 10.8+)
+
+     * :blue:`Xcode : useful effect tweaking interface` 
+     * :blue:`Preview : set black background for visibility`
+
+   * *Sketchup 8* free (OSX) [also Windows]
+   * *ESKO Studio Viewer* free (iOS on iPad) 
+
+   Open source:
+
+   * *Meshlab* (OSX/Linux), slow DAE loading, OK interface [also Windows]
+   * *Blender* (OSX), painful GUI  [also Windows/Linux] 
+   * *g4daeview* (OSX/Linux), :red:`extremely useful for debugging` 
+
+   Frameworks:
+
+   * *pycollada*, Python COLLADA parsing/construction, :red:`lxml + numpy powered fast parsing` 
+   * *threejs*, Javascript COLLADA loading, renders HTML canvas with WebGL
+   * *SceneKit*, Objective C Framework used by OSX apps
+
+   Many more applications and frameworks listed http://en.wikipedia.org/wiki/COLLADA
+
+
+.. class:: tiny
+
+   http://meshlab.sourceforge.net
+   https://bitbucket.org/simoncblyth/meshlab (fork improves COLLADA loading speed)
+
+
+
+:small:`g4daeview.py : Fast OpenGL 3D viewer for G4DAE files`  
+-----------------------------------------------------------------------------   
+
+.. class:: small
+
+   G4DAE visualization [#g4daeview_usage]_ implemented with PyCollada, PyOpenGL and Glumpy
+
+   * very fast/responsive 3D OpenGL visualization [#vbo]_
+   * flexible tree/list based partial geometry loading 
+   * intuitive virtual trackball translate/rotate 
+   * parallel or perspective projections 
+   * interactive fov and near/far plane clipping 
+   * persistent viewpoint bookmarks 
+   * animation by interpolation between bookmarks or orbiting 
+   * numerical control via UDP remote messaging 
+   * live Geant4 connection, photon, genstep visualization, single stepping 
+   * easily extensible python implementation [#g4daeview_code]_ 
+   * photon picking interface, with property inspection
+
+   Also used for testing GPU photon propagation with Chroma project 
+
+   * interactive raycasting, including animated 
+   * propagation visualization, with time slider 
+
+.. class:: tiny
+
+
+   .. [#g4daeview_usage] http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
+
+   .. [#vbo] Implemented with single OpenGL Vertex Buffer Object (VBO) for entire geometry  
+
+   .. [#g4daeview_code] https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
+
+
+
+:small:`Compare DAE Exports to GDML and VRML2(WRL)`
+----------------------------------------------------
+
+.. class:: small
+
+    Export validation:
+
+     * Comparison of all vertices/faces reveals :red:`boolean solids are discrepant`. 
+
+     * Perfect [#perfect]_ DAE WRL agreement achieved by *cheating* : :blue:`perform triangulation once and reuse`.
+
+     * Boolean solid triangulation sensitivity must be kept in mind as a potential systematic
+       for computational uses 
+
+     * **DAE not much bigger than GDML**, despite including all triangles/vertices [#not-repeating]_
+       
+
+.. class:: small
+
+    ====================  =================  ==============  ==================  =================
+     Qty                    DayaBay            Lingao             Far             Juno x0.5 
+    ====================  =================  ==============  ==================  =================
+    Volumes                     12,229           12,229             18,903            25,000
+    Triangles                2,448,064        2,448,064          4,189,680        21,886,158
+    Vertices                 1,245,996        1,245,996          2,128,208        10,993,079
+    DAE/GDML/WRL (MB)      **6.9**/4.0/98    **6.9**/4.0/96    **8.6**/6.0/167     **6.1**/-/-                 
+    ====================  =================  ==============  ==================  =================
+
+
+.. class:: tiny
+
+    ``VGDX_20140414`` counts using ``g4daeview.py -g 0: --with-chroma``, Juno geometry truncated
+
+.. class:: tiny
+
+    .. [#perfect] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug (fixed in current G4). 
+                  Details: http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/dae_cf_wrl/ 
+    .. [#not-repeating] Geometry is not repeated, instead the COLLADA format uses geometry instancing and a tree of transforms, 
+                        just like GDML  
+
+
+
+
+:small:`Chroma Raycasting : exercises geometry intersection`
+-------------------------------------------------------------
+
+.. class:: small
+
+    Raycasting exercises slowest part of optical photon propagation: :red:`geometry intersection`. 
+ 
+.. image:: /env/chroma/chroma_camera/chroma_raycast_illustration.png 
+   :width: 600px
+   :align: center
+
+.. class:: small
+
+    * Shoot rays thru every pixel out into geometry, 1 CUDA thread for each, typically >1M rays
+    * Find triangle intersections using BVH [#bvh]_ acceleration structure
+    * Determine color based on ray to triangle normal angle
+    * Alpha blend nearest 10 surfaces, providing transparency effect  
+
+.. class:: tiny
+
+    .. [#bvh] Boundary Volume Heirarchy, a tree of bounding boxes with triangles inside leaf nodes
+
+
+:small:`Chroma Raycast with entire geometry in view` 
+---------------------------------------------------------------- 
+
+.. class:: small
+
+    Render Split into 3x3 CUDA kernel launches, 1 thread per pixel, ~1.8s for 1.23M pixels, 2.4M tris (with [#hw]_)
+
+.. image:: /env/chroma/chroma_camera/20140423-162109.png
+   :width: 800px
+   :align: center
+
+.. class:: tiny
+
+   .. [#hw] MacBook Pro (2013), NVIDIA GeForce GT 750M 2048 MB ; 
+            Workstation GPUs such as NVIDIA Kepler K20 expected at least ~5x faster
+
+
+
+:small:`g4daeview.py : Dayabay Chroma Photon Propagation (1)` 
+-------------------------------------------------------------------------------
+
+.. class:: tiny
+
+   Chroma GPU photon propagation at 12 nanoseconds.  The photons are generated by Geant4 
+   simulation of a 100 GeV muon travelling from right to left. 
+   Photon colors indicate reemission (green), absorption(red),
+   specular reflection (magenta), scattering(blue), no history (white). 
+
+.. image:: /env/geant4/geometry/collada/g4daeview/20140716-161445.png
+   :height: 600px
+   :align: center
+
+
+
+
+:small:`G4DAEChroma : Bridging from Geant4 to Chroma`
+-----------------------------------------------------------
+
+.. class:: small
+
+   https://bitbucket.org/simoncblyth/env/src/tip/chroma/G4DAEChroma/G4DAEChroma/
+
+   * NumPy array creation from C++ and transport via ZeroMQ Socket  
+   * JSON based metadata transport, *C++ map<string,string> <-> Python dict*
+   * Geant4 hit integration by :red:`stealing` Geant4 Hit collection 
+     pointers from preexisting *G4VSensitiveDetector* subclasses.
+   * Transform Cache for to obtain PMT local coordinates from global hits
+
+.. image:: /env/chroma/G4DAEChroma/G4DAEChroma_bitbucket.png
+   :width: 700px
+   :align: center
+
+
+
+:i:`Cerenkov Photons Simulation - Side View`
+----------------------------------------------
+
+.. sidebar:: Cerenkov Photons
+
+    .. class:: tiny
+
+       Simulated Cerenkov shock front from an 100 GeV muon travelling 
+       from right to left across Dayabay AD. 
+       Primaries are simulated by Geant4, Cerenkov "steps" of the primaries 
+       are transferred to the GPU where **photons are generated, propagated and PMT hits formed**. 
+       Photon colors indicate reemission (green), absorption(red), specular reflection (magenta), scattering(blue), no history (white).
+
+
 
 
 Cerenkov Photons Simulation - Top View
@@ -129,8 +565,7 @@ Cerenkov Photons Simulation - Top View
 Scintillation Photons Simulation - Top View
 ----------------------------------------------
 
-Cerenkov Photons Simulation - Side View
-----------------------------------------------
+
 
 Scintillation Photons Simulation - Side View
 ----------------------------------------------
@@ -139,64 +574,6 @@ Scintillation Photons Simulation - Side View
 
 ``G4/DetSim Generated Cerenkov Wavelength``
 ---------------------------------------------
-
-.. image:: /env/g4dae/g4_cerenkov_wavelength.png
-
-
-
-Chroma : Ultra-fast Optical Photon (OP) MC
-----------------------------------------------
-
-**Developed by Stan Seibert, University of Pennsylvania.**
-
-Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
-simulating processes like diffuse and specular reflections, 
-refraction, Rayleigh scattering and absorption. Using triangle meshes 
-eliminate geometry code as :red:`just one code path`.
-
-200x performance claim:
-
-   *With a CUDA GPU Chroma has propagated 2.5M photons per second 
-   in a detector with 29k photomultiplier tubes. This is
-   200x faster than GEANT4.*
-
-**BUT:** Chroma needs : :red:`triangles + inside/outside materials`
-
-.. class:: small
-
-   http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
-
-
-
-
-:small:`Replacing Geant4 OP Simulation with GPU equivalent`
--------------------------------------------------------------------------- 
-
-* Recreate Geometry/Material/Surface + PmtId properties on GPU  
-
-  * export Geant4 volumes into triangulated DAE 3D files, **G4DAE** 
-  * export per volume PmtId to **idmap**
-  * parse **G4DAE** and **idmap** file into external geometry tree **g4daenode.py** 
-  * convert tree into Chroma geometry on the GPU **collada_to_chroma.py**
-
-* Optical Photon handling (Geant4 side) **G4DAEChroma**
-
-  * collect all optical photons into batches and kill them
-    to prevent further G4 processing 
-  * serialize batch and send bytes via ZMQ to separate propagator process/thread
-  * deserialize response bytes into hits
-  * apply local sensor transform obtained from transform cache    
-  * collect hits into standand Geant4 hit collections
-  * subsequent simulation proceeds normally  
-
-* Optical Photon handling (Chroma side) **g4daechroma.py** **g4daeview.py** **Chroma**
-
-  * receive bytes from message queue, deserialize into Photons
-  * push Photon array to GPU
-  * invoke Chroma/CUDA propagation kernel   
-  * pull propagated photon array back to CPU
-  * serialize propagated photons and reply via ZMQ    
-
 
 
 

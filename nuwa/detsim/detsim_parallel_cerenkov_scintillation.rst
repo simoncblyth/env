@@ -903,7 +903,7 @@ test with energywise cdf
 Getting the energywise CDF onto GPU is complicated 
 by chroma wavelength standardization, which does an interpolation
 to that standard wavelengths. As interpolation requires
-ascending "x" need to flip order::
+ascending "x" need to flip order.
 
 Some success with handling energywise cdf, but suspect getting
 back to front wavelength distrib::

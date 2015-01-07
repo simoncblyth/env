@@ -1,7 +1,6 @@
 DetSim Check Hits
 ===================
 
-
 Where do the hits go next ?
 ---------------------------
 

@@ -372,7 +372,7 @@ std::size_t G4DAEChroma::ProcessCerenkovPhotons(int evt)
 std::size_t G4DAEChroma::ProcessScintillationPhotons(int evt)
 {
     G4DAEScintillationPhotonList* req = m_transport->GetScintillationPhotonList(); 
-    CopyToRemote(req, evt, "gopcerenkov");
+    CopyToRemote(req, evt, "gopscintillation");  // was incorrectly gopcerenkov
     return 0 ;
 }
 

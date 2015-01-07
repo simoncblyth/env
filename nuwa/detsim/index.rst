@@ -17,6 +17,8 @@ detsim
    detsim_dsconsoptical
    geant4_touchable
    detsim_check_hits
+   detsim_hits
+   detsim_parallel_cerenkov_scintillation
 
 
 

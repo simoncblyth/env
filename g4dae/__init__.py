@@ -39,6 +39,8 @@ from env.g4dae.types import NPY, pro_, Prop
 from env.g4dae.types import CerenkovStep, G4CerenkovPhoton, ChCerenkovPhoton
 from env.g4dae.types import ScintillationStep, G4ScintillationPhoton, ChScintillationPhoton
 
+a4inches = np.array((11.69, 8.28)) 
+
 cg = None
 def cg_get():
     global cg
@@ -156,6 +158,21 @@ def g4_cerenkov_wavelength(tag, **kwa):
     catplot(g4c, cat=cat, val=val, path=path, title=title, log=True, histtype='step', stacked=False)
 
 
+def generated_scintillation_time_wavelength(tag=1):
+    typs = "gopscintillation opscintillationgen"
+    suptitle = "GPU Generated Scintillation Photons Compared to Geant4 (Single Event)"
+    path = "generated_scintillation_time_wavelength"
+    cf('time_wavelength',tag=tag, typs=typs, legend=[True, False], log=True, suptitle=suptitle, path=path)
+
+def generated_cerenkov_time_wavelength(tag=1):
+    typs = "gopcerenkov opcerenkovgen"
+    suptitle = "GPU Generated Cerenkov Photons Compared to Geant4 (Single Event)"
+    path = "generated_cerenkov_time_wavelength"
+    cf('time_wavelength',tag=tag, typs=typs, legend=[True, False], log=True, suptitle=suptitle, path=path)
+
+
+
+
 
 
 pdgcode = {11:"e",13:"mu",22:"gamma"}
@@ -176,6 +193,31 @@ def catname(cat,ic):
     return name 
 
 
+
+def plt_save(path):
+    if path is None:return
+    base = os.path.expandvars('$STATIC_BASE/env/g4dae') 
+    path =  os.path.join(base, "%s.png" % path)
+
+    log.info("saving to %s " % path)
+    dirp = os.path.dirname(path)
+    if not os.path.exists(dirp):
+        os.makedirs(dirp)
+    pass 
+    plt.savefig(path)
+
+
+def plt_figure(cfg):
+    figsize = cfg.pop('figsize', None)
+    if figsize is None:
+        fig = plt.figure()
+    else:
+        fig = plt.figure(figsize=figsize)    
+    pass
+    return fig 
+
+
+
 def catplot(a, **kwa):
     """
     Category plot, eg Geant4 Generated Cerenkov Wavelength categorized by material  
@@ -186,11 +228,11 @@ def catplot(a, **kwa):
          catplot(g4s, val='wavelength', cat='pdg' )
 
     """
-    a4inches = np.array((11.69, 8.28)) 
-    cfg = dict(bins=100,cat='aux0',val='wavelength',ics=None, reverse=True, path=None, figsize=a4inches*0.8, title=None)
+    cfg = dict(bins=100,cat='aux0',val='wavelength',ics=None, reverse=True, path=None, title=None)
+    cfg['figsize'] = a4inches*0.8
     cfg.update(kwa)
 
-    plt.figure(figsize=cfg.pop('figsize'))    
+    plt_figure(cfg)    
 
     title = cfg.pop('title')
     if title is None:
@@ -223,13 +265,7 @@ def catplot(a, **kwa):
     pass
     plt.legend()
 
-    if not path is None:
-        log.info("saving to %s " % path)
-        dirp = os.path.dirname(path)
-        if not os.path.exists(dirp):
-            os.makedirs(dirp)
-        pass 
-        plt.savefig(path)
+    plt_save(path)
 
     plt.show()
 
@@ -244,7 +280,6 @@ def cf_cerenkov(qty='wavelength', tag=1, **kwa):
     """
     g4c,chc = NPY.mget(tag, "gopcerenkov","opcerenkov")
     cf(qty, g4c, chc, **kwa)
-
 
 def cf_scintillation(qty='wavelength', tag=1, **kwa):
     """
@@ -690,7 +725,6 @@ def cf(qty, *arys, **kwa):
 
         cf('3xyzw', tag=1, typs="opcerenkov gopcerenkov test", legend=False)
 
-
         cf('wavelength', g4s, chs, log=True)
 
 
@@ -703,11 +737,14 @@ def cf(qty, *arys, **kwa):
 
     cfg = dict(bins=100,histtype="step",title=qty, color="rbgcmyk", legend=True)
     cfg.update(kwa)
+    cfg['figsize'] = a4inches*0.8
 
     if qty == '3xyz':
         qty = "posx posy posz dirx diry dirz polx poly polz"  
     elif qty == '3xyzw':
         qty = "posx posy posz time dirx diry dirz wavelength polx poly polz weight"  
+    elif qty == 'time_wavelength':
+        qty = "time wavelength"  
     pass
 
 
@@ -716,6 +753,8 @@ def cf(qty, *arys, **kwa):
 
     if nqty == 1:    
         nr, nc = 1, 1
+    elif nqty == 2:    
+        nr, nc = 1, 2
     elif nqty == 9:    
         nr, nc = 3, 3
     elif nqty == 12:    
@@ -728,7 +767,14 @@ def cf(qty, *arys, **kwa):
 
     legend = cfg.pop("legend")
     color = list(cfg.pop("color"))
-    title = cfg.pop("title")
+    title = cfg.pop("title", None)
+    path = cfg.pop("path", None)
+    suptitle = cfg.pop("suptitle", None)
+
+    fig = plt_figure(cfg)
+
+    if not suptitle is None:
+        fig.suptitle(suptitle, fontsize=14, fontweight='bold')
 
     for pl,qty in enumerate(qtys):
         plt.subplot(nr,nc,pl+1)
@@ -739,9 +785,17 @@ def cf(qty, *arys, **kwa):
             val = getattr(ary, qty)
             plt.hist(val, **cfg)
         pass
-        if legend:
+        if type(legend) == list:
+            assert len(legend) == len(qtys)
+            ulegend = legend[pl]
+        else:
+            ulegend = legend
+        if ulegend:
             plt.legend()
     pass
+
+    plt_save(path)
+
     plt.show()
 
 

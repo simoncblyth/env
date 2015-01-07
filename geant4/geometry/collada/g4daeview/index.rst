@@ -32,6 +32,8 @@ g4daeview
    g4daechroma_transport_testing
    g4daechroma_memory_leak
    g4daechroma_cpp
+   g4daechroma_cuda_tune
+   g4daeview_gensteps
 
 
 

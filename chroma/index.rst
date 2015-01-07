@@ -37,6 +37,7 @@ chroma
    chroma_cuda_freeze
    chroma_cuda
    chroma_visualisation
+   photon_mapping 
 
    geant4_background
    cuda_background
