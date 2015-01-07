@@ -82,14 +82,14 @@
     External Photon Simulation Workflow
     /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
 
-    G4/DetSim Generated Cerenkov Wavelength
-    /env/g4dae/g4_cerenkov_wavelength.png
-
 
 .. comment 
 
     Generated Scintillation Photons GPU cf Geant4
     /env/g4dae/generated_scintillation_time_wavelength.png
+
+    G4/DetSim Generated Cerenkov Wavelength
+    /env/g4dae/g4_cerenkov_wavelength.png
 
 
 
@@ -124,18 +124,6 @@ GPU Accelerated Geant4 Simulation with G4DAE and Chroma
 
    |  Simon C Blyth, Daya Bay Collaboration, National Taiwan University
    |  **January 2015** 
-
-
-
-
-:small:`Generated Scintillation Photons GPU cf Geant4`
-------------------------------------------------------- 
-
-.. image:: /env/g4dae/generated_scintillation_time_wavelength.png
-   :width: 900px
-   :align: center
-
-
 
 
 
@@ -533,13 +521,42 @@ https://bitbucket.org/simoncblyth/g4dae
 
    * NumPy array creation from C++ and transport via ZeroMQ Socket  
    * JSON based metadata transport, *C++ map<string,string> <-> Python dict*
-   * Geant4 hit integration by :red:`stealing` Geant4 Hit collection 
-     pointers from preexisting *G4VSensitiveDetector* subclasses.
-   * Transform Cache for to obtain PMT local coordinates from global hits
+   * Geant4 hit integration using additional *G4VSensitiveDetector*
+     that steals hit collection pointers from existing one
+   * Transform Cache to obtain PMT local coordinates from global hit coordinates
 
 .. image:: /env/chroma/G4DAEChroma/G4DAEChroma_bitbucket.png
    :width: 700px
    :align: center
+
+
+
+:small:`GPU Generated Scintillation Photons cf Geant4`
+------------------------------------------------------- 
+
+.. class:: small 
+
+   Chroma interpolates all properties in 20nm bins, stair artifacts
+   in wavelength distribution can be reduced by using eg 10nm property interpolation bins.  
+
+.. image:: /env/g4dae/generated_scintillation_time_wavelength.png
+   :width: 800px
+   :align: center
+
+
+:small:`GPU Generated Cerenkov Photons cf Geant4`
+------------------------------------------------------- 
+
+.. class:: small 
+  
+   Geant4/DetSim wavelength distribution has a blip at 200nm, corresponding to edge of water 
+   refractive index properties. (see the extra slides)
+
+.. image:: /env/g4dae/generated_cerenkov_time_wavelength.png
+   :width: 800px
+   :align: center
+
+
 
 
 
@@ -572,13 +589,63 @@ Scintillation Photons Simulation - Side View
 
 
 
-``G4/DetSim Generated Cerenkov Wavelength``
----------------------------------------------
+Extra Slides
+---------------
 
 
 
 
 
+:small:`G4 Generated Cerenkov Wavelengths in material categories`
+------------------------------------------------------------------------
 
+.. class:: small 
+
+   Blip caused by 200nm edge in water refractive index
+
+.. image:: /env/g4dae/g4_cerenkov_wavelength.png
+   :width: 700px
+   :align: center
+
+
+
+:small:`Refractive Index Interpolation Explains Jump at 200nm`
+---------------------------------------------------------------- 
+
+.. class:: small
+
+   DeadWater, IwsWater, OwsWater have same RINDEX starting from 200nm.
+   Chroma interpolates properties onto a standard set of wavelengths, 
+   getting rid of the jump. 
+
+
+.. image:: /env/g4dae/plot_refractive_index_comparison.png
+   :width: 900px
+   :align: center
+
+
+
+:small:`Comparison of Generated Scintillation Photon Distributions`
+------------------------------------------------------------------------
+
+.. class:: small 
+
+   Position, direction, polarization XYZ  + time, wavelength, weight  
+
+.. image:: /env/g4dae/generated_scintillation_3xyzw.png
+   :width: 700px
+   :align: center
+
+
+:small:`Comparison of Generated Cerenokov Photon Distributions`
+------------------------------------------------------------------------
+
+.. class:: small 
+
+   Position, direction, polarization XYZ  + time, wavelength, weight  
+
+.. image:: /env/g4dae/generated_cerenkov_3xyzw.png
+   :width: 700px
+   :align: center
 
 

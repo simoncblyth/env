@@ -158,6 +158,18 @@ def g4_cerenkov_wavelength(tag, **kwa):
     catplot(g4c, cat=cat, val=val, path=path, title=title, log=True, histtype='step', stacked=False)
 
 
+
+def generated_scintillation_3xyzw(tag=1):
+    typs = "gopscintillation opscintillationgen"
+    suptitle = "GPU Generated Scintillation Photons(blue) Compared to Geant4(red) (Single Event)"
+    cf('3xyzw', tag=tag, typs=typs, legend=False, log=True, suptitle=suptitle )
+
+def generated_cerenkov_3xyzw(tag=1):
+    typs = "gopcerenkov opcerenkovgen"
+    suptitle = "GPU Generated Cerenkov Photons(blue) Compared to Geant4(red) (Single Event)"
+    cf('3xyzw', tag=tag, typs=typs, legend=False, log=True, suptitle=suptitle )
+
+
 def generated_scintillation_time_wavelength(tag=1):
     typs = "gopscintillation opscintillationgen"
     suptitle = "GPU Generated Scintillation Photons Compared to Geant4 (Single Event)"
@@ -313,6 +325,25 @@ def plot_refractive_index(tag=1, **kwa):
     qplot(mm, **cfg)
 
 
+def plot_refractive_index_comparison(tag=1, **kwa):
+    cs = CerenkovStep.get(tag)
+    cg = cg_get()
+    mm = cs.materials(cg)
+    cfg = dict(qty='refractive_index')
+    cfg.update(kwa)
+
+    nr, nc = 1, 2 
+
+    plt.subplot(nr, nc, 1 ) 
+    qplot(mm, **cfg)
+
+    plt.subplot(nr, nc, 2 ) 
+    cfg.update(standard=True)
+    qplot(mm, **cfg)
+
+
+
+
 def qplot(materials, standard=False, qty='refractive_index'):
     """
     :param materials: list of chroma material instances
@@ -334,7 +365,6 @@ def qplot(materials, standard=False, qty='refractive_index'):
     pass
     plt.title(title)
     plt.legend()
-    plt.show()  
 
 
 def water_indices(cg):
