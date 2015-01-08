@@ -185,9 +185,12 @@ def main():
         argv, usage, description, settings_spec, settings_overrides,
         config_section=config_section, enable_exit_status=enable_exit_status)
 
+
+    log.info("list of urls and resolved files from collect_resources") 
     urls, paths = collect_resources(pub.document)
     #print "\n".join(paths)
-
+    print "\n\n"
+    log.info("list of titles from collect_titles") 
     titles = collect_titles(pub.document)
     print "\n".join(["%0.2d : %s " % (i, title) for i, title in enumerate(titles)])
     return output

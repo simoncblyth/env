@@ -26,8 +26,10 @@
         found to allow both massively parallel CUDA based optical 
         photon propagation and high performance OpenGL 
         visualizations of geometry and event data.  
-         
 
+
+    12 Jan 2015, Monday 17:05  
+         
 
 .. raw:: html
 
@@ -43,7 +45,6 @@
 .. role:: warn
 .. role:: ok
 
- 
 
 .. include:: <s5defs.txt>
 
@@ -111,19 +112,76 @@ GPU Accelerated Geant4 Simulation with G4DAE and Chroma
 
 .. class:: small
 
-   * Validating exports
-   * General viewing of exports
-   * Custom use: :red:`bridging to GPU`
-   * OpenGL Viewer implementation
-   * Optical Photon Data handling 
-   * Introducing *Chroma* 
-   * *Chroma* raycasting
-   * *Chroma* photon propagation 
-   * *G4DAE* Exporter status
-   * Conclusion 
+   * Geometry Model Implications
+   * Introducing Chroma
+   * Geant4 <-> Chroma Integration
+   * G4DAE Geometry Exporter
+   * Validating GPU Geometry
+   * G4DAEChroma bridge
+   * Chroma Forked
+   * Validating Chroma Generated Photons
+   * Next Steps
+   * Visualizations
 
-   |  Simon C Blyth, Daya Bay Collaboration, National Taiwan University
+   |  Simon C Blyth, National Taiwan University
    |  **January 2015** 
+
+.. comment 
+
+    Title
+        00 : GPU Accelerated Geant4 Simulation with G4DAE and Chroma 
+
+    Geometry Model Implications
+        01 : implications of geometry model choice 
+
+    Introducing Chroma
+        02 : chroma : ultra-fast photon mc, developed by stan seibert, university of pennsylvania 
+
+    Geant4 <-> Chroma Integration
+        03 : standard geant4 workflow 
+        04 : geant4 <-> chroma integration 
+        05 : external photon simulation workflow 
+
+    G4DAE Geometry Exporter
+        06 : https://bitbucket.org/simoncblyth/g4dae 
+        07 : collada : standard for 3d digital asset exchange (dae) 
+        08 : liberated geometry allows ubiquitous high peformance visualization 
+        09 : g4daeview.py : fast opengl 3d viewer for g4dae files 
+
+    Validating GPU Geometry
+        10 : compare dae exports to gdml and vrml2(wrl) 
+        11 : chroma raycasting : exercises geometry intersection 
+        12 : chroma raycast with entire geometry in view 
+
+    G4DAEChroma bridge 
+        13 : g4daechroma : bridging from geant4 to chroma 
+        14 : g4daechroma : for implementation details... 
+
+    Chroma Forked 
+        15 : https://bitbucket.org/simoncblyth/chroma forked: 
+
+    Validating Chroma Generated Photons
+        16 : chroma generated scintillation photons cf geant4 
+        17 : chroma generated cerenkov photons cf geant4 
+
+    Next steps
+
+    Visualizations
+        17 : cerenkov photons simulation - side view 
+        18 : cerenkov photons simulation - top view 
+        19 : scintillation photons simulation - top view 
+        20 : scintillation photons simulation - side view 
+
+    Extras
+
+        21 : extra slides 
+        22 : g4 generated cerenkov wavelengths in material categories 
+        23 : refractive index interpolation explains jump at 200nm 
+        24 : comparison of generated scintillation photon distributions 
+        25 : comparison of generated cerenokov photon distributions 
+        13 : g4daeview.py : dayabay chroma photon propagation (1) 
+
+
 
 
 
@@ -147,9 +205,6 @@ techniques (and hardware) available to accelerate intersection.
 
 3D industry focusses on surface models >> frameworks and GPU 
 hardware designed to work with surface based geometries.  
-
-
-
 
 
 :small:`Chroma : Ultra-fast Photon MC, Developed by Stan Seibert, University of Pennsylvania`
@@ -320,8 +375,6 @@ https://bitbucket.org/simoncblyth/g4dae
    :align: center
 
 
-
-
 :small:`COLLADA : Standard for 3D Digital Asset Exchange (DAE)` 
 -----------------------------------------------------------------
 
@@ -334,13 +387,20 @@ https://bitbucket.org/simoncblyth/g4dae
    :align: center
 
 
-:small:`Exported Geometry allows Ubiquitous Visualizaton`
------------------------------------------------------------
+:small:`Liberated Geometry allows Ubiquitous High Peformance Visualization`
+-----------------------------------------------------------------------------
+       
 
-.. sidebar:: G4DAE Usage 
+.. sidebar:: Geometry Set Free  
 
-   Many commercial, open source apps/libs 
-   can view/edit G4DAE files. 
+   .. class:: small
+
+       Liberating geometry data from Geant4/ROOT 
+       gives free choice of visualization packages.
+       Many commercial, open source apps/libs 
+       provide high performance visualization of DAE files
+       using GPU efficient OpenGL techniques.
+       :red:`=> Shockingly Smooth Visualization performance` 
 
 .. class:: small
 
@@ -379,9 +439,18 @@ https://bitbucket.org/simoncblyth/g4dae
 :small:`g4daeview.py : Fast OpenGL 3D viewer for G4DAE files`  
 -----------------------------------------------------------------------------   
 
+.. sidebar:: PyOpenGL Based
+
+   .. class:: small
+
+       Easy to extend due to fast python development, yet access to 
+       highly efficient OpenGL techniques such as 
+       VBOs, PBOs and GLSL shaders.
+
+
 .. class:: small
 
-   G4DAE visualization [#g4daeview_usage]_ implemented with PyCollada, PyOpenGL and Glumpy
+   G4DAE visualization [#g4daeview_usage]_ implemented with PyCollada, **PyOpenGL** and Glumpy
 
    * very fast/responsive 3D OpenGL visualization [#vbo]_
    * flexible tree/list based partial geometry loading 
@@ -495,21 +564,6 @@ https://bitbucket.org/simoncblyth/g4dae
 
 
 
-:small:`g4daeview.py : Dayabay Chroma Photon Propagation (1)` 
--------------------------------------------------------------------------------
-
-.. class:: tiny
-
-   Chroma GPU photon propagation at 12 nanoseconds.  The photons are generated by Geant4 
-   simulation of a 100 GeV muon travelling from right to left. 
-   Photon colors indicate reemission (green), absorption(red),
-   specular reflection (magenta), scattering(blue), no history (white). 
-
-.. image:: /env/geant4/geometry/collada/g4daeview/20140716-161445.png
-   :height: 600px
-   :align: center
-
-
 
 
 :small:`G4DAEChroma : Bridging from Geant4 to Chroma`
@@ -519,20 +573,65 @@ https://bitbucket.org/simoncblyth/g4dae
 
    https://bitbucket.org/simoncblyth/env/src/tip/chroma/G4DAEChroma/G4DAEChroma/
 
-   * NumPy array creation from C++ and transport via ZeroMQ Socket  
-   * JSON based metadata transport, *C++ map<string,string> <-> Python dict*
+.. sidebar:: Transport Infrastructure
+
+   .. class:: small
+
+       Collects generation steps from Geant4, sends to Chroma, receives
+       hits in reply, integrates into G4 Hit Collections.
+       :red:`Implemented with core of ~20 C++ classes`
+
+.. class:: small
+
+   * :green:`Two detector specific subclasses required eg` *DybG4DAECollector* *DybG4DAEGeometry*
+   * NumPy array creation from C++, transport via ZeroMQ
+   * JSON metadata communication C++/Python, *map<string,string> <-> dict*
    * Geant4 hit integration using additional *G4VSensitiveDetector*
      that steals hit collection pointers from existing one
    * Transform Cache to obtain PMT local coordinates from global hit coordinates
+   * SQLite DB integation for monitoring/control
 
 .. image:: /env/chroma/G4DAEChroma/G4DAEChroma_bitbucket.png
    :width: 700px
    :align: center
 
 
+:small:`G4DAEChroma : For implementation details...`
+-----------------------------------------------------------
 
-:small:`GPU Generated Scintillation Photons cf Geant4`
-------------------------------------------------------- 
+.. class:: small
+
+   http://simoncblyth.bitbucket.org/env/notes/chroma/G4DAEChroma/G4DAEChroma/G4DAEChroma_implementation/
+
+.. image:: /env/chroma/G4DAEChroma/G4DAEChroma_implementation.png
+   :width: 700px
+   :align: center
+
+
+https://bitbucket.org/simoncblyth/chroma :small:`Forked:` 
+---------------------------------------------------------------------------
+
+.. class:: small
+
+    Changes in my fork of Chroma:
+
+    * stability + efficiency improvements, enabling mobile development 
+    * OpenGL/CUDA interoperation, using VBOs
+    * add recording of propagation steps into VBO datastructure
+    * more efficient Raycasting using 4x4 matrix uniforms and PBOs
+    * animated photon propagation visualization
+    * change serialization approach from ROOT/TObject to NumPy (NPY) 
+    * :red:`generation of Cerenkov and Scintillation Photons based
+      on Geant4 Generation Step inputs` 
+
+.. image:: /env/chroma/chroma_fork_jan2015.png 
+   :width: 700px
+   :align: center
+
+
+
+:small:`Chroma Generated Scintillation Photons cf Geant4`
+------------------------------------------------------------ 
 
 .. class:: small 
 
@@ -544,7 +643,7 @@ https://bitbucket.org/simoncblyth/g4dae
    :align: center
 
 
-:small:`GPU Generated Cerenkov Photons cf Geant4`
+:small:`Chroma Generated Cerenkov Photons cf Geant4`
 ------------------------------------------------------- 
 
 .. class:: small 
@@ -556,7 +655,50 @@ https://bitbucket.org/simoncblyth/g4dae
    :width: 800px
    :align: center
 
+Next Steps
+------------------
 
+.. class:: small
+
+   G4DAE Geometry Exporter
+
+   * implement parametrized/replica geometry handling, following GDML
+
+   * investigate issue inherited from GDML of a skipped  
+     edge case (when a volume is shared between multiple volume pairs)
+     resulting in missing *G4LogicalBorderSurface* 
+
+   * investigate improving default export appearance in common viewers 
+
+   * test with newer and latest versions of Geant4
+
+   * test on more detector geometries
+
+   * incorporate into Geant4 codebase  
+
+.. class:: small
+
+   G4DAEChroma bridge
+
+   * refactor to remove duplication in *G4DAEHit* *G4DAEHitList* 
+
+   * eliminate use of *cnpy* external in favor of *numpy.hpp* 
+
+.. class:: small
+
+   Chroma
+
+   * Port Cerenkov *ApplyWaterQE* to Chroma (expect quick)
+
+   * Port *DsPmtSensDet::ProcessHits* QE gymnastics to Chroma 
+
+   * Implement double sided surfaces, to match *G4LogicalBorderSurface*
+
+   * Compare PMT Hit distributions between *NuWa/DetSimChroma* and *NuWa/DetSim* 
+
+     * :red:`iterate until match achieved or discrepancies explained`
+
+   * Find desktop GPU on which can test operation and performance  
 
 
 
@@ -574,6 +716,19 @@ https://bitbucket.org/simoncblyth/g4dae
        Photon colors indicate reemission (green), absorption(red), specular reflection (magenta), scattering(blue), no history (white).
 
 
+:i:`Scintillation Photons Simulation - Side View`
+--------------------------------------------------
+
+.. sidebar:: Scintillation Photons
+
+    .. class:: tiny
+
+       Simulated Scintillation photons from an 100 GeV muon travelling 
+       from right to left across Dayabay AD. 
+       Primaries are simulated by Geant4, Scintillation "steps" of the primaries 
+       are transferred to the GPU where **photons are generated, propagated and PMT hits formed**. 
+       Photon colors indicate reemission (green), absorption(red), specular reflection (magenta), scattering(blue), no history (white).
+
 
 
 Cerenkov Photons Simulation - Top View
@@ -584,15 +739,44 @@ Scintillation Photons Simulation - Top View
 
 
 
-Scintillation Photons Simulation - Side View
-----------------------------------------------
-
-
-
 Extra Slides
 ---------------
 
 
+
+:small:`g4daeview.py : OpenGL view of Juno Geometry`
+-------------------------------------------------------------------------------
+
+.. class:: tiny
+
+   External view of Juno geometry with cutaway. The extreme size of the Juno geometry (50 million nodes in Chroma representation)
+   provides a challenge for development on mobile GPUs. 
+   As my developments operate at the Geant4 level wherever possible it   
+   was relatively straightforward to apply the machinery developed for 
+   Dayabay to the Juno detector. In collaboration with 
+   Juno simulation experts the geometry was exported from   
+   Geant4 and GPU visualized in under a days work. 
+
+
+.. image:: /env/geant4/geometry/collada/g4daeview/20140716-194144.png
+   :height: 650px
+   :align: center
+
+
+
+:small:`g4daeview.py : Chroma Raycast of Juno Geometry`
+-------------------------------------------------------------------------------
+
+.. class:: tiny
+
+   External view of Juno geometry. The extreme size of the  Juno geometry (50 million nodes in Chroma representation)
+   provides a challenge for development on mobile GPUs. The black rectangle arises due to aborts to avoid GPU
+   crashes. 
+
+
+.. image:: /env/geant4/geometry/collada/g4daeview/20140716-191232.png
+   :height: 650px
+   :align: center
 
 
 
@@ -647,5 +831,23 @@ Extra Slides
 .. image:: /env/g4dae/generated_cerenkov_3xyzw.png
    :width: 700px
    :align: center
+
+
+
+
+:small:`g4daeview.py : Dayabay Chroma Photon Propagation (1)` 
+-------------------------------------------------------------------------------
+
+.. class:: tiny
+
+   Chroma GPU photon propagation at 12 nanoseconds.  The photons are generated by Geant4 
+   simulation of a 100 GeV muon travelling from right to left. 
+   Photon colors indicate reemission (green), absorption(red),
+   specular reflection (magenta), scattering(blue), no history (white). 
+
+.. image:: /env/geant4/geometry/collada/g4daeview/20140716-161445.png
+   :height: 600px
+   :align: center
+
 
 
