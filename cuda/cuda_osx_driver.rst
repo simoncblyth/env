@@ -5,6 +5,55 @@ CUDA OSX Driver
 * https://devtalk.nvidia.com/default/topic/528725/forcing-retina-macbook-pro-to-use-intel-graphics-for-desktop-freeing-memory-on-cuda-device-/
 
 
+
+January 2015
+--------------
+
+Considering upgrading from Mavericks to Yosemite, any CUDA implications ?
+
+
+OSX Syspref says::
+
+   CUDA 6.5.36 Driver update is available
+
+   CUDA Driver Version : 5.5.47
+
+   GPU Driver Version : 8.26.26 310.40.45f01
+
+
+
+Release notes:
+
+* http://www.nvidia.com/object/macosx-cuda-6.5.25-driver.html
+
+* http://www.nvidia.com/object/macosx-cuda-6.5.36-driver.html 2015.01.14 52.8 MB
+
+  Supports all NVIDIA products available on Mac HW.
+  Note: this driver does not support GeForce GTX980 and GTX970. 
+  Please download the equivalent CUDA driver 6.5.37 which supports 
+  GeForce GTX980 and GTX970.
+
+* http://www.nvidia.com/object/macosx-cuda-6.5.37-driver.html 2015.01.14  52.3 MB
+
+  Supports all NVIDIA products available on Mac HW.
+  Note: this driver does not support the older generation GPUs with SM1.x.
+  Please download the equivalent CUDA driver 6.5.36 which supports SM1.x.
+
+
+Some chatter regards problems, but suspect issue with addon hardware on Mac Pro
+
+* :google:`yosemite cuda`
+
+* https://forums.geforce.com/default/topic/787648/geforce-drivers/osx-10-10-yosemite-and-cuda-when-will-it-work-/
+
+* http://www.xlr8yourmac.com/index.html#NvidiaF02DriversOSX10.10.0
+
+
+
+
+
+
+
 March 12, 2014
 ---------------
 
