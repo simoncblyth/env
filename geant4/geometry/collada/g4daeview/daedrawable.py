@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 """
 """
+import numpy as np
 import logging
 log = logging.getLogger(__name__)
 
 # these names need to be changed to remove the "photons"
+from daegeometry import DAEMesh 
 from daephotonsmenuctrl import DAEPhotonsMenuController
 from daephotonsparam import DAEPhotonsParam
 from daephotonsrenderer import DAEPhotonsRenderer
@@ -30,7 +32,15 @@ class DAEDrawable(object):
         self._style = event.config.args.style  # eg noodles, confetti, spagetti
         self.styler = DAEPhotonsStyler()
 
-        self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param )
+        topnames = {
+            'DAEPhotons':"photons",
+            'DAEGenstep':"genstep",
+                  }
+  
+        topname = topnames.get(self.__class__.__name__, None)
+        assert topname
+
+        self.menuctrl = DAEPhotonsMenuController( event.config.rmenu, self.param, topname)
         self.material = event.config.args.material    
         self.surface  = event.config.args.surface
         self.mode = event.config.args.mode    
@@ -204,6 +214,73 @@ class DAEDrawable(object):
         pass
         return presenter.mode
     mode = property(_get_mode, _set_mode, doc="mode: setter copies mode control integers into GPU quad g_mode  getter returns cached value " )
+
+    ### time control ######## 
+
+    def _get_time_range(self):
+        timerange = self.config.timerange
+        if not timerange is None:
+            return timerange
+        if self.analyzer is None or self.analyzer.propagated is None:
+            return None
+        return self.analyzer.time_range
+    time_range = property(_get_time_range)
+
+    def _set_time(self, time):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            log.warn("cannot set time when renderer.presenter is not enabled")
+            return
+        time_range = self.time_range
+        if time_range is None:
+           time_range = [0,1000,]    
+           log.warn("using default time_range %s ns " % repr(time_range))
+        pass
+        presenter.time = np.clip(time, time_range[0], time_range[1] )
+
+    def _get_time(self):
+        presenter = self.renderer.presenter
+        return 0. if presenter is None else presenter.time
+    time = property(_get_time, _set_time, doc="setter copies time into GPU constant g_anim.x, getter returns cached value " )
+
+
+    def _set_cohort(self, cohort):
+        presenter = self.renderer.presenter
+        if presenter is None:
+            log.warn("cannot set cohort when renderer.presenter is not enabled")
+            return
+        presenter.cohort = cohort
+    def _get_cohort(self):
+        presenter = self.renderer.presenter
+        return None if presenter is None else presenter.cohort
+    cohort = property(_get_cohort, _set_cohort, doc="setter copies cohort begin/end times into GPU constants g_anim.y,z , getter returns cached value " )
+
+
+
+    def _set_time_fraction(self, time_fraction):
+        time_range = self.time_range
+        if time_range is None:
+            return 
+        time = time_range[0] + time_fraction*(time_range[1] - time_range[0])
+        self.time = time 
+    def _get_time_fraction(self):
+        time_range = self.time_range
+        if time_range is None:
+            return None
+        return ( self.time - time_range[0] ) / (time_range[1] - time_range[0] )
+    time_fraction = property(_get_time_fraction, _set_time_fraction )
+
+
+    def time_to(self, x, y, dx, dy):
+        """
+        Use for real propagation time control, not the fake time of initial photon 
+        variety.
+        """
+        tfactor = 10. 
+        tdelta = tfactor*dy
+        self.time += tdelta
+        #log.info("time_to x %s y %s dx %s dy %s ===> tfactor %s tdelta  %s ===> time %s " % (x,y,dx,dy, tfactor, tdelta, self.time))
+
 
 
 

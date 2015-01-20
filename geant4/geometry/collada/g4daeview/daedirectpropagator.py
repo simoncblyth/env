@@ -119,14 +119,13 @@ class DAEDirectPropagator(object):
 
         hit = self.chroma.parameters['hit']
 
-        #pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights = gpu_photons.get()
-        #photons = ChromaPhoton.from_arrays(pos, dir, pol, wavelengths, t, last_hit_triangles, flags, weights, hit=hit)
-
         photons = gpu_photons.pull(hit=hit)
+        assert photons.__class__.__name__ == 'ChromaPhoton'
 
         if hasattr(gpu_photons, 'generated'):
             self.save(gpu_photons.generated, prefix='op', postfix='gen')
 
+        # stomping on unpropagated ? from a prior propagate
         if self.chroma.ctrl.get('sidesave',0) == 1:
             self.save(photons, prefix='op')
 

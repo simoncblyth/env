@@ -32,7 +32,9 @@ class ConfigBase(object):
 
     """
     def __init__(self, doc):
-      
+        """
+        :param doc:
+        """
         base_parser, base_defaults = self._make_base_parser(doc)
         init_parser, live_defaults = self._make_live_parser(parents=[base_parser]) 
 

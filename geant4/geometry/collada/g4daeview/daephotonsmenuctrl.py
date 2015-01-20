@@ -48,7 +48,7 @@ except ImportError:
 
 
 class DAEPhotonsMenuController(object):
-    def __init__(self, rootmenu, param):
+    def __init__(self, rootmenu, param, topname="photons"):
         """
         :param rootmenu: DAEMenu instance for the top menu
         :param param: menu callback receiving instance, needs mask and bits setters 
@@ -57,32 +57,38 @@ class DAEPhotonsMenuController(object):
         """ 
         self.rootmenu = rootmenu
         self.param = param
-        self.setup_menus()
+        self.setup_menus(topname)
 
-    def setup_menus(self):
+    def setup_menus(self, topname):
         """
         Having menus coming and going is problematic, so create tree of placeholder submenus
         Just structure, not content
         """
         log.debug("setup_menus")
 
-        photons_menu = DAEMenu("photons")
+        top_menu = DAEMenu(topname)
+        
+        if topname == 'genstep':
+            prefix = "g"
+        else:  
+            prefix = ""
+        pass
 
-        style_menu = DAEMenu("style")
-        flags_menu = DAEMenu("flags")
-        history_menu = DAEMenu("history")
-        material_menu = DAEMenu("material")
-        special_menu = DAEMenu("special")
+        style_menu = DAEMenu(prefix+"style")
+        flags_menu = DAEMenu(prefix+"flags")
+        history_menu = DAEMenu(prefix+"history")
+        material_menu = DAEMenu(prefix+"material")
+        special_menu = DAEMenu(prefix+"special")
 
-        photons_menu.addSubMenu(style_menu)
-        photons_menu.addSubMenu(flags_menu)
-        photons_menu.addSubMenu(history_menu) 
-        photons_menu.addSubMenu(material_menu) 
-        photons_menu.addSubMenu(special_menu) 
+        top_menu.addSubMenu(style_menu)
+        top_menu.addSubMenu(flags_menu)
+        top_menu.addSubMenu(history_menu) 
+        top_menu.addSubMenu(material_menu) 
+        top_menu.addSubMenu(special_menu) 
 
-        self.rootmenu.addSubMenu(photons_menu)
+        self.rootmenu.addSubMenu(top_menu)
 
-        self.photons_menu = photons_menu
+        self.top_menu = top_menu
         self.style_menu = style_menu
         self.flags_menu = flags_menu
         self.history_menu = history_menu

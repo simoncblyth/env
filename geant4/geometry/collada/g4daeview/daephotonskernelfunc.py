@@ -94,8 +94,10 @@ class DAEPhotonsKernelFunc(object):
     def _set_mode(self, mode):
         mode = map(int,mode.split(","))
         if mode == self._mode:return
+        if len(mode) < 4:
+            mode.extend([0,0,0]) 
         self._mode = mode
-        log.debug("_set_mode : memcpy_htod %s " % repr(mode))
+        log.info("_set_mode : memcpy_htod %s " % repr(mode))
         cuda_driver.memcpy_htod(self.g_mode, ga.vec.make_int4(*mode))
     mode = property(_get_mode, _set_mode )
 
@@ -116,20 +118,38 @@ class DAEPhotonsKernelFunc(object):
         cuda_driver.memcpy_htod(self.g_anim, ga.vec.make_float4(*anim))
     anim = property(_get_anim, _set_anim, doc="anim: setter copies to device __constant__ memory, getter returns cached value") 
 
+
+
+
     def _get_time(self):
         return self._anim[0]
     def _set_time(self, time):
+        """
+        ::
+ 
+            float t            = g_anim.x ; 
+
+         """
         anim = self._anim[:]
         anim[0] = time
+        log.debug("_set_time %s " % repr(anim))
         self.anim = anim
     time = property(_get_time, _set_time)
 
     def _get_cohort(self):
         return self._anim[1:4]
     def _set_cohort(self, cohort):
+        """
+        ::
+ 
+            float cohort_start = g_anim.y ; 
+            float cohort_end   = g_anim.z ; 
+            float cohort_mode  = g_anim.w ; 
+
+        """
         cohort = map(float,cohort.split(",")) 
-        assert len(cohort) == 3 
-        log.debug("_set_cohort %s " % repr(cohort))
+        assert len(cohort) == 3,  "cohort expected to be a triplet" 
+        log.info("_set_cohort %s " % repr(cohort))
         anim = self._anim[:]
         anim[1:4] = cohort
         self.anim = anim

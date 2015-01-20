@@ -209,7 +209,20 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         # event
         defaults['style'] = "noodles"
         defaults['live'] = True
+        
+
         defaults['load'] = None
+        defaults['type'] = "photon"
+        defaults['slice'] = None
+        defaults['key'] = '???'
+
+        parser.add_argument( "--load",  help="[I] Key used with template to yield path to .root OR .npy file to read. Default %(default)s.",type=str)
+        parser.add_argument( "--type",  help="Path template type, eg \"photons\" for template DAE_PHOTONS_PATH_TEMPLATE yielding npy paths. Default %(default)s.",type=str)
+        parser.add_argument( "--slice", help="Colon delimited slice string, eg ::100 for 1 per 100 scaledown, applied to loaded numpy evt. Default %(default)s.",type=str)
+        parser.add_argument( "--key",   help="Path template key, currently not used. Default %(default)s.",type=str)
+
+
+
         defaults['propagate'] = True
         defaults['clear'] = True
         defaults['save'] = None
@@ -233,7 +246,9 @@ class DAEConfig(DAEDirectConfig, ConfigBase):
         parser.add_argument( "--style", help="Key controlling photon render eg confetti/spagetti/movie/.., identifying shaders (vertex/geometry/fragment) and rendering techniques to use, default %(default)s." )
         parser.add_argument( "--nolive",  dest="live", help="[I] Disable live updating via ZMQRoot messages. Default %(default)s.", action="store_false")
         parser.add_argument( "--live",    dest="live", help="[I] Enable live updating via ZMQRoot messages. Default %(default)s.", action="store_true")
-        parser.add_argument( "--load",  help="[I] Key used with template to yield path to .root OR .npy file to read. Default %(default)s.",type=str)
+
+
+
         parser.add_argument( "-P","--nopropagate", dest="propagate", help="Inhibit propagations on evt load.", action="store_false" )
         parser.add_argument(      "--propagate",   dest="propagate", help="Enable propagations on evt load.", action="store_true" )
         parser.add_argument(      "--clear",       dest="clear", help="Clear the loaded/propagated evt.", action="store_true" )

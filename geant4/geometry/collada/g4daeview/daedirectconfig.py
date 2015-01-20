@@ -52,6 +52,10 @@ class DAEDirectConfig(object):
         self.args = args
  
     def _make_direct_parser(self, doc):
+        """
+        Restrict arguments here to just the ones related to chroma startup, 
+
+        """
         parser = argparse.ArgumentParser(doc, add_help=False)
         defaults = OrderedDict()
 
@@ -113,12 +117,14 @@ class DAEDirectConfig(object):
         defaults['wipegeometry'] = False
         parser.add_argument( "--wipegeometry", action="store_true", help="Wipe preexisting geometry maps before writing new ones, use this when changing geometry. Default %(default)s." )
 
-        defaults['type'] = "photon"
-        defaults['slice'] = None
-        defaults['key'] = '???'
-        parser.add_argument( "--type",  help="Path template type, eg \"photons\" for template DAE_PHOTONS_PATH_TEMPLATE yielding npy paths. Default %(default)s.",type=str)
-        parser.add_argument( "--slice", help="Colon delimited slice string, eg ::100 for 1 per 100 scaledown, applied to loaded numpy evt. Default %(default)s.",type=str)
-        parser.add_argument( "--key",   help="Path template key, currently not used. Default %(default)s.",type=str)
+
+
+        #defaults['type'] = "photon"
+        #defaults['slice'] = None
+        #defaults['key'] = '???'
+        #parser.add_argument( "--type",  help="Path template type, eg \"photons\" for template DAE_PHOTONS_PATH_TEMPLATE yielding npy paths. Default %(default)s.",type=str)
+        #parser.add_argument( "--slice", help="Colon delimited slice string, eg ::100 for 1 per 100 scaledown, applied to loaded numpy evt. Default %(default)s.",type=str)
+        #parser.add_argument( "--key",   help="Path template key, currently not used. Default %(default)s.",type=str)
 
 
         defaults['deviceid'] = None

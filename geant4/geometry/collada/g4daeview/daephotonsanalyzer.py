@@ -541,16 +541,16 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
         return items
 
 
-    def __call__(self, propagated):
+    def __call__(self, propagated, checks=False):
         """
         :param propagated: 
         """
         if propagated is None:return
-        log.info("analyzer.__call__ propagated.shape  %s ", repr(propagated.shape))
+        log.info("analyzer.__call__ propagated.shape  %s %s  " %  (repr(propagated.shape),propagated.__class__.__name__))
 
         DAEPhotonsPropagated.__call__(self, propagated)
 
-        self.analyze() 
+        self.analyze(checks=checks) 
     ## accessors
     atts = "propagated flags t0 t0 time_range lht steps slots history hsteps hslots".split()
 
@@ -610,7 +610,7 @@ class DAEPhotonsAnalyzer(DAEPhotonsPropagated):
     def check_counts_firsts_drawcount(self):
         log.info("check_counts_firsts_drawcount")
 
-        lht = self.lht
+        lht = self.last_lht
         steps = self.steps
         slots = self.slots    
  

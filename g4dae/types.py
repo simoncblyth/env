@@ -137,6 +137,10 @@ class Photon(NPY):
 
     last_hit_triangle = property(lambda self:self[:,3,0].view(np.int32)) 
 
+    def history_zero(self):
+        log.info("filling history with zeros %s " % repr(self.history.shape))
+        self.history.fill(0)
+
     #def _get_last_hit_triangles(self):
     #    if self._last_hit_triangles is None:
     #        self._last_hit_triangles = np.empty(len(self), dtype=np.int32)
@@ -363,6 +367,13 @@ class VBOMixin(object):
         return self._ccolor
     ccolor = property(_get_ccolor, doc=_get_ccolor.__doc__)
 
+    def ccolor_from_code(self):
+        ccolor = np.tile( [1.,1.,1.,1.], (len(self),1)).astype(np.float32)    
+        ccolor[np.where(self.code == 13),:] = [1,0,0,1]  #     mu:red  
+        ccolor[np.where(self.code == 11),:] = [0,1,0,1]  #      e:green 
+        ccolor[np.where(self.code == 22),:] = [0,0,1,1]  #  gamma:blue 
+        return ccolor
+
     def _get_indices(self):
         """
         List of indices
@@ -410,10 +421,17 @@ class VBOStep(G4Step, VBOMixin):
 
         pack31_( 'position_time',        self.position ,    self.time )
         pack31_( 'direction_wavelength', self.deltaPosition, self.time )
+
+        # not setting, leaving at zero initially 
         #pack31_( 'polarization_weight',  self.polarization, self.weight  )
         #pack1_(  'flags',                self.history )            # flags is used already by numpy 
         #pack1_(  'last_hit_triangle',    self.last_hit_triangle )
-        pack4_(  'ccolor',               self.ccolor) 
+
+        # attempting to get gensteps sensitive to time selection
+        data['flags'][::max_slots, 1] = self.time   
+        data['flags'][::max_slots, 2] = self.time   
+
+        pack4_(  'ccolor',               self.ccolor_from_code()) 
 
         return data
 
@@ -473,11 +491,15 @@ class VBOPhoton(Photon, VBOMixin):
         def pack4_( name, a):
             data[name][::max_slots] = a
 
+
         pack31_( 'position_time',        self.position ,    self.time )
         pack31_( 'direction_wavelength', self.direction,    self.wavelength )
         pack31_( 'polarization_weight',  self.polarization, self.weight  )
-        pack1_(  'flags',                self.history )            # flags is used already by numpy 
-        pack1_(  'last_hit_triangle',    self.last_hit_triangle )
+
+        # not setting leaving at zero 
+        #pack1_(  'flags',                self.history )            # flags is used already by numpy 
+        #pack1_(  'last_hit_triangle',    self.last_hit_triangle )
+
         pack4_(  'ccolor',               self.ccolor) 
 
         return data

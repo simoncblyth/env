@@ -376,7 +376,7 @@ class DAEScene(window_event.EventDispatcher):
             elif k == "showmetric":
                 raycast_config[k] = v
                 self.toggle_showmetric() 
-            elif k in ("save","load","key","reload","clear",):
+            elif k in ("save","load","key","reload","clear","type","slice"):
                 event_config.append( (k,v,) )   
             elif k in ("fpholine","fphopoint","tcut","mask","bits","time", "style","pid","mode","timerange","cohort","material","sid","surface",):
                 photon_config.append( (k,v,) )   

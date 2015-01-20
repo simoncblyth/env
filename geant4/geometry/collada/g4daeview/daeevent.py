@@ -34,10 +34,13 @@ class DAEEvent(object):
         self.bbox_cache = None
 
         log.info("********* scene.event.dphotons ")
-        #self.dphotons = DAEPhotons( None, self )
-        self.dphotons = None
+
+         
+        
+        self.dphotons = DAEPhotons( None, self )
         self.dgenstep = DAEGenstep( None, self )
-        self.menuholder = self.dgenstep
+
+        self.menuholder = self.dphotons
 
         log.info("********* scene.event.dphotons DONE ")
         self.objects = []
@@ -170,6 +173,7 @@ class DAEEvent(object):
         Handle argument sequences like::
         """ 
         photons_config = []
+        load_config = {}
 
         key = None
         for k,v in event_config:
@@ -177,8 +181,8 @@ class DAEEvent(object):
                 key = v
             elif k == 'save':
                 self.save(v)
-            elif k == 'load':
-                self.load(v)
+            elif k in ('load','type','slice'):
+                load_config[k] = v 
             elif k == 'clear':
                 self.clear()
             elif k == 'tcut':
@@ -192,6 +196,9 @@ class DAEEvent(object):
                 assert 0, (k,v)
             pass
         pass
+        if len(load_config)>0:
+            self.load(load_config['load'], load_config)
+
         if len(photons_config)>0:
             self.dphotons.reconfig(photons_config)
         pass 
@@ -298,11 +305,11 @@ class DAEEvent(object):
     #        return
     #    self.config.save_cpl( path_, key, self.cpl.cpl )   
         
-    def load(self, name):
-        typ = self.config.args.type
+    def load(self, name, cfg={}):
+        typ = cfg.get('type', self.config.args.type)
+        sli = cfg.get('slice', self.config.args.slice)
         path = self.config.resolve_templated_path(name, typ)
-
-        npy = self.config.load_npy( path, typ )
+        npy = self.config.load_npy( path, typ, sli)
         self.setup_npy( npy )
 
         if npy is None:

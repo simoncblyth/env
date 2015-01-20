@@ -188,7 +188,7 @@ class DAEPhotonsPropagator(DAEPhotonsKernelFunc):
                 nwork = self.swap_queues()
                 log.info("result of swap_queues nwork %s " % nwork )  
             else:
-                log.debug("DONE step %s max_steps %s " % (step, max_steps))
+                log.info("DONE step %s max_steps %s " % (step, max_steps))
             pass
         pass 
         cuda_driver.Context.get_current().synchronize()

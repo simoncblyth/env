@@ -30,8 +30,12 @@ just jump to the prepared bookmarks.
 
 ::
 
-    g4daeview.sh --load 1 --type opcerenkov --slice ::100
-    g4daeview.sh --load 1 --type opscintillation --slice ::100
+    g4daeview.sh --load 1 --type opcerenkovgen --slice ::100
+    g4daeview.sh --load 1 --type opscintillationgen --slice ::100
+
+    # NB types without the gen like "opcerenkov" are propagated already 
+
+    g4daeview.sh --load 1 --type cerenkov   
 
 
 
