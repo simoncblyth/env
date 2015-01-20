@@ -42,6 +42,18 @@ Creating *Make PDF from PNGs* Automator Service
    * Save workflow as `Make PDF from PNGs` and exit Automator.app
 
 
+Modifying *Make PDF from PNGs* Automator Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Find it::
+
+    delta:~ blyth$ mdfind "Make PDF from PNGs.workflow"
+    /Users/blyth/Library/Services/Make PDF from PNGs.workflow
+    delta:~ blyth$ 
+
+
+
+
 Automator Service to Combine Multiple PDFs 
 --------------------------------------------
 

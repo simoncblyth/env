@@ -2,7 +2,7 @@
 slides-src(){      echo doc/slides.bash ; }
 slides-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slides-src)} ; }
 slides-vi(){       vi $(slides-source) ; }
-slides-env(){      elocal- ; bitbucketstatic- ;  }
+slides-env(){      elocal- ; bitbucketstatic- ; presentation- ;  }
 slides-usage(){ cat << EOU
 
 CONVERT SLIDES IN S5 RST TO HTML AND PDF 
@@ -354,7 +354,8 @@ slides-get(){
 }
 
 #slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
-slides-name(){      echo ${SLIDES_NAME:-g4dae_geometry_exporter} ; }
+#slides-name(){      echo ${SLIDES_NAME:-g4dae_geometry_exporter} ; }
+slides-name(){       echo $(presentation-name) ; }
 slides-branch(){    echo ${SLIDES_BRANCH:-presentation} ; }        # env relative path to where .txt sources reside
 
 #slides-host(){      echo ${SLIDES_HOST:-dayabay.phys.ntu.edu.tw} ; }   
