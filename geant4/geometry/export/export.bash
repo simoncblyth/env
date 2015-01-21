@@ -232,7 +232,7 @@ export-export(){
    #export DAE_NAME_DYB_TRANSFORMCACHE=/usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.gdml.cache
    export DAE_NAME_DYB_TRANSFORMCACHE=/usr/local/env/geant4/geometry/export/DybG4DAEGeometry.cache
    export DAE_NAME_DYB_CHROMACACHE=$LOCAL_BASE/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae.29c299d81706c62884caf5c3dbdea5c1/chroma_geometry
-
+   export DAE_NAME_DYB_CHROMACACHE_MESH=$DAE_NAME_DYB_CHROMACACHE/chroma.detector:Detector:0x10a881cd0/mesh/chroma.geometry:Mesh:0x10ea3bf50
    export DAE_NAME_DYB_NOEXTRA=$(EXPORT_EXT=dae.noextra.dae export-name dyb)
    export DAE_NAME_DYBF=$(export-name dybf)
    export DAE_NAME_FAR=$(export-name far)

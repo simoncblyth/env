@@ -1506,4 +1506,4 @@ fdp-(){      . $(env-home)/tools/graphviz/fdp.bash && fdp-env $* ; }
 osx-(){      . $(env-home)/osx/osx.bash && osx-env $* ; }
 optix-(){      . $(env-home)/cuda/optix/optix.bash && optix-env $* ; }
 oppr-(){      . $(env-home)/cuda/optix/OppositeRenderer/oppr.bash && oppr-env $* ; }
-optixsample1-(){      . $(env-home)/cuda/optix/optix301/sample1/optixsample1.bash && optixsample1-env $* ; }
+optixsample1-(){      . $(env-home)/cuda/optix/optix301/sample1manual/optixsample1.bash && optixsample1-env $* ; }
