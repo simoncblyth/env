@@ -1509,3 +1509,4 @@ oppr-(){      . $(env-home)/cuda/optix/OppositeRenderer/oppr.bash && oppr-env $*
 optixsample1-(){      . $(env-home)/cuda/optix/optix301/sample1manual/optixsample1.bash && optixsample1-env $* ; }
 assimp-(){      . $(env-home)/graphics/assimp/assimp.bash && assimp-env $* ; }
 assimptest-(){      . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && assimptest-env $* ; }
+optixtest-(){      . $(env-home)/cuda/optix/OptiXTest/optixtest.bash && optixtest-env $* ; }
