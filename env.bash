@@ -1511,3 +1511,4 @@ assimp-(){      . $(env-home)/graphics/assimp/assimp.bash && assimp-env $* ; }
 assimptest-(){      . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && assimptest-env $* ; }
 optixtest-(){      . $(env-home)/cuda/optix/OptiXTest/optixtest.bash && optixtest-env $* ; }
 raytrace-(){      . $(env-home)/graphics/raytrace/raytrace.bash && raytrace-env $* ; }
+mercurial-(){      . $(env-home)/hg/mercurial.bash && mercurial-env $* ; }

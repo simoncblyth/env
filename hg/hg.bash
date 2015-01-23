@@ -32,6 +32,10 @@ Start using new node
 
 #. get mercurial, git, svn and cmake installed 
 
+   * if mercurial not installed and do not have root access
+     then use mercurial- for a local install
+
+
 Copy/paste public key into bitbucket webinterface::
 
     (chroma_env)delta:.ssh blyth$ scp G5:.ssh/id_dsa.pub G5.id_dsa.pub
@@ -40,6 +44,7 @@ Copy/paste public key into bitbucket webinterface::
 Copy identity config to node::
 
     delta:~ blyth$ scp ~/.hgrc G5:
+    delta:~ blyth$ scp .hgrc L:
 
 Clone took more than 5 mins::
 
@@ -53,6 +58,15 @@ Clone took more than 5 mins::
     updating to branch default
     3166 files updated, 0 files merged, 0 files removed, 0 files unresolved
     [blyth@ntugrid5 ~]$ 
+
+
+Passwordless Operations
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Start and authenticate agent::
+
+   ssh--agent-start
+
 
 
 Rollback a commit before a push 
