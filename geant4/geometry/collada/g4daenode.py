@@ -418,6 +418,10 @@ class DAENode(object):
         sensitive_material = cls.materialsearch(matid)
         assert sensitive_material
 
+        if sensitive_material.extra is None:
+            log.warn("sensitive_material.extra not available cannot sensitize ")
+            return 
+
         efficiency = sensitive_material.extra.properties[qeprop] 
         assert not efficiency is None
 
@@ -598,8 +602,11 @@ class DAENode(object):
         log.debug("collecting opticalsurface/boundarysurface/skinsurface info from library_nodes/extra/")
         library_nodes = dae.xmlnode.find(".//"+tag("library_nodes"))
         extra = library_nodes.find(tag("extra"))
-        assert extra is not None
-        cls.extra = DAEExtra.load(collada, {}, extra) 
+        
+        if extra is not None:
+            cls.extra = DAEExtra.load(collada, {}, extra) 
+        else:
+            cls.extra = None
 
     @classmethod
     def parse_extra_material( cls, dae ):
@@ -852,7 +859,10 @@ class DAENode(object):
         A digest keyed lookup gives fast access to node parents,
         the digest represents a path through the tree of nodes.
         """
-        node = cls(nodepath, extras )
+
+    
+        node = cls(nodepath, extras )    #  DAENode instantiation
+
         if node.index == 0:
             cls.root = node
 
@@ -2404,8 +2414,10 @@ def main():
 
     if opts.ipython:
         from daecommon import splitname, shortname, fromjson
-        bordersurface = dict((splitname(_.name)[1],_) for _ in DAENode.extra.bordersurface)
-        skinsurface   = dict((splitname(_.name)[1],_) for _ in DAENode.extra.skinsurface)
+        if not DAENode.extra is None:
+            bordersurface = dict((splitname(_.name)[1],_) for _ in DAENode.extra.bordersurface)
+            skinsurface   = dict((splitname(_.name)[1],_) for _ in DAENode.extra.skinsurface)
+        pass
         log.info("dropping into IPython, try:\n%s\n" % examples ) 
         import IPython
         IPython.embed()
