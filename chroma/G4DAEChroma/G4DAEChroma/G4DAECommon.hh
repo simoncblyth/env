@@ -42,8 +42,8 @@ int mkdirp(const char* path, int mode);
 char* basepath( const char* _path, char delim );
 
 std::string join(std::vector<std::string>& elem, char delim );
-
-
+std::string removeField(const char* line, char delim, int index );
+std::string insertField(const char* line, char delim, int index, const char* field);
 
 template<typename T>
 std::string toStr(const T& value)

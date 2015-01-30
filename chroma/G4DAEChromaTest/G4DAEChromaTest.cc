@@ -425,7 +425,21 @@ int test_G4DAEManager()
 }
 
 
+void test_G4DAECommon_removeField()
+{
+     const char* token = "token_to_be_removed" ;
+     const char* line = "/path/to/geometry.dae.noextra.token_to_be_removed.dae" ;
 
+     std::string path = removeField(line, '.', -2 );
+     printf("line %s \n", line);
+     printf("path %s \n", path.c_str());
+
+     std::string chk = insertField( path.c_str(), '.', -1, token );
+     printf("chk  %s \n", chk.c_str());
+
+     assert(strcmp(line, chk.c_str()) == 0);
+
+}
 
 int main(int argc, char** argv)
 {
@@ -433,7 +447,10 @@ int main(int argc, char** argv)
     //test_G4DAEManager();
 
     //test_G4DAEMetadata();
-    test_G4DAEChroma_flags();
+    //test_G4DAEChroma_flags();
+
+    test_G4DAECommon_removeField();
+   
 
     //test_ScintillationIntegral();
     //test_G4DAEPropList_read();

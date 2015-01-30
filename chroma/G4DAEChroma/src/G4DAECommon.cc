@@ -170,6 +170,63 @@ std::string join(std::vector<std::string>& elem, char delim )
 }
 
 
+std::string removeField(const char* line, char delim, int index )
+{
+    //  
+    //   split the line with the delim
+    //   then reassemble skipping the field pointed to by rfield
+    //  
+    //    For example the below line with delim '.' and rfield -2
+    //  
+    //       /path/to/geometry.dae.noextra.abcdefghijklmnopqrstuvwxyz.dae
+    //       /path/to/geometry.dae.noextra.dae
+    //  
+
+    std::vector<std::string> elem ;
+    split(elem, line, delim);      
+
+    if(index >= 0 && index < elem.size())
+    {
+        elem.erase( elem.begin() + index);
+    }
+    else if( index < 0 && -index < elem.size())
+    {
+        elem.erase( elem.end() + index );
+    } 
+    else
+    {
+        printf("removeField line %s delim %c index %d : invalid index \n", line, delim, index );
+    }
+    return join(elem, delim); 
+}
+
+
+std::string insertField(const char* line, char delim, int index, const char* field)
+{
+    std::vector<std::string> elem ;
+    split(elem, line, delim);      
+
+    std::string s(field);
+
+    if(index >= 0 && index < elem.size())
+    {
+        elem.insert( elem.begin() + index, s);
+    }
+    else if( index < 0 && -index < elem.size())
+    {
+        elem.insert( elem.end() + index, s );
+    } 
+    else
+    {
+        printf("insertField line %s delim %c index %d : invalid index \n", line, delim, index );
+    }
+    return join(elem, delim); 
+}
+
+
+
+
+
 
 
 int mkdirp(const char* _path, int mode) 
