@@ -1512,3 +1512,5 @@ assimptest-(){      . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && 
 optixtest-(){      . $(env-home)/cuda/optix/OptiXTest/optixtest.bash && optixtest-env $* ; }
 raytrace-(){      . $(env-home)/graphics/raytrace/raytrace.bash && raytrace-env $* ; }
 mercurial-(){      . $(env-home)/hg/mercurial.bash && mercurial-env $* ; }
+virtualgl-(){      . $(env-home)/graphics/virtualgl/virtualgl.bash && virtualgl-env $* ; }
+nvidia-(){      . $(env-home)/graphics/nvidia/nvidia.bash && nvidia-env $* ; }

@@ -1,6 +1,19 @@
 HGPU01
 ========
 
+Quick Access
+-------------
+
+After the ssh agents are running on source node and the chosen lxslc gateway node
+can get through with 2 passwordless hops::
+
+    delta:~ blyth$ ssh L6
+    -bash-3.2$ ssh G1
+    -bash-4.1$ 
+
+Forced command could be used to shrink this to one hop.
+
+
 Access
 -------
 
