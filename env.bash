@@ -1515,3 +1515,5 @@ mercurial-(){      . $(env-home)/hg/mercurial.bash && mercurial-env $* ; }
 virtualgl-(){      . $(env-home)/graphics/virtualgl/virtualgl.bash && virtualgl-env $* ; }
 nvidia-(){      . $(env-home)/graphics/nvidia/nvidia.bash && nvidia-env $* ; }
 cudaz-(){      . $(env-home)/cuda/cudaz/cudaz.bash && cudaz-env $* ; }
+mesa-(){      . $(env-home)/graphics/opengl/mesa/mesa.bash && mesa-env $* ; }
+libpng-(){      . $(env-home)/graphics/libpng/libpng.bash && libpng-env $* ; }

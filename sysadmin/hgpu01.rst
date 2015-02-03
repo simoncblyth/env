@@ -116,3 +116,63 @@ Storage
 
 
 
+
+Headless OpenGL ?
+--------------------
+
+Following the below article I note that the graphics operation mode “GOM”
+shown above is set to “Compute” only which prevents use of OpenGL 
+
+* http://devblogs.nvidia.com/parallelforall/interactive-supercomputing-in-situ-visualization-tesla-gpus/
+
+::
+
+    -bash-4.1$ nvidia-smi --format=csv --query-gpu=gom.current
+    gom.current
+    Compute
+    Compute
+    -bash-4.1$ 
+
+    -bash-4.1$ nvidia-smi -i 0 --gom=0
+    Unable to set GOM to "All On" for GPU 0000:03:00.0: Insufficient Permissions
+    Terminating early due to previous errors.
+
+    -bash-4.1$ nvidia-smi -i 1 --gom=0
+    Unable to set GOM to "All On" for GPU 0000:84:00.0: Insufficient Permissions
+    Terminating early due to previous errors.
+
+
+Enabling GOM is just the first step...
+it would be necessary to run an X server on the node to provide 
+OpenGL with somewhere to put its context.    I am not sure how 
+to do headless OpenGL rendering but possibly using 
+a virtual framebuffer like Xvfb would work ?
+
+     http://www.x.org/releases/X11R7.6/doc/man/man1/Xvfb.1.xhtml
+
+Hmm maybe simpler to output OptiX buffers into ppm or png ?
+
+
+libPNG
+-------
+
+::
+
+    -bash-4.1$ locate libpng
+    /usr/bin/libpng-config
+    /usr/bin/libpng12-config
+    /usr/include/libpng12
+    /usr/include/libpng12/png.h
+    /usr/include/libpng12/pngconf.h
+    /usr/lib/libpng.so
+    /usr/lib/libpng.so.3
+    /usr/lib/libpng.so.3.49.0
+    /usr/lib/libpng12.so
+    /usr/lib/libpng12.so.0
+    /usr/lib/libpng12.so.0.49.0
+    /usr/lib/pkgconfig/libpng.pc
+    /usr/lib/pkgconfig/libpng12.pc
+    /usr/lib64/libpng.so
+    /usr/lib64/libpng.so.3
+    ...
+

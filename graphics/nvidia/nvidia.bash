@@ -71,3 +71,9 @@ nvidia-get(){
    local dir=$(dirname $(nvidia-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+nvidia-gom(){
+   nvidia-smi --format=csv --query-gpu=gom.current
+}
+
+
