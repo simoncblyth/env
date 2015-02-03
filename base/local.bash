@@ -322,6 +322,7 @@ local-nodetag(){
           Arc) echo A ;;
          rh02) echo SDU ;;
           n98) echo CC ;;
+       hgpu01) echo G1  ;;
             *) local-nodetag-other $(uname -n) ;;
   esac
 
@@ -462,7 +463,8 @@ local-base(){
     case $t in 
        WW) echo /home/blyth/local ;;
         G) echo /usr/local ;;
-       G1) echo /disk/d3/dayabay/local ;;    ## used to be :  /data/w  then /disk/d4
+    OLD_G1) echo /disk/d3/dayabay/local ;;    ## used to be :  /data/w  then /disk/d4
+       G1) echo /dyb/dybd07/user/blyth/hgpu01.ihep.ac.cn ;;  
         P) echo /disk/d3/dayabay/local ;;
         L) echo /usr/local ;;
         H) echo /data/usr/local ;;
