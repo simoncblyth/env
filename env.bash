@@ -1514,3 +1514,4 @@ raytrace-(){      . $(env-home)/graphics/raytrace/raytrace.bash && raytrace-env 
 mercurial-(){      . $(env-home)/hg/mercurial.bash && mercurial-env $* ; }
 virtualgl-(){      . $(env-home)/graphics/virtualgl/virtualgl.bash && virtualgl-env $* ; }
 nvidia-(){      . $(env-home)/graphics/nvidia/nvidia.bash && nvidia-env $* ; }
+cudaz-(){      . $(env-home)/cuda/cudaz/cudaz.bash && cudaz-env $* ; }
