@@ -69,6 +69,9 @@ Versions
     delta:~ blyth$ cmake -version
     cmake version 2.8.12
 
+    -bash-4.1$ cmake -version
+    cmake version 2.6-patch 4
+
     delta:~ blyth$ which cmake
     /opt/local/bin/cmake
 
