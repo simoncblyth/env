@@ -323,6 +323,8 @@ local-nodetag(){
          rh02) echo SDU ;;
           n98) echo CC ;;
        hgpu01) echo G1  ;;
+     lxslc506) echo L6  ;;
+     lxslc5??) echo LX  ;;
             *) local-nodetag-other $(uname -n) ;;
   esac
 
@@ -465,6 +467,7 @@ local-base(){
         G) echo /usr/local ;;
     OLD_G1) echo /disk/d3/dayabay/local ;;    ## used to be :  /data/w  then /disk/d4
        G1) echo /dyb/dybd07/user/blyth/hgpu01.ihep.ac.cn ;;  
+    L6|LX) echo /dyb/dybd07/user/blyth/hgpu01.ihep.ac.cn ;;  
         P) echo /disk/d3/dayabay/local ;;
         L) echo /usr/local ;;
         H) echo /data/usr/local ;;
