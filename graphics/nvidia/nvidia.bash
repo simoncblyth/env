@@ -59,6 +59,49 @@ NVIDIA On Linux
     -bash-4.1$ 
 
 
+Checking NVIDIA Driver and CUDA Versions On Linux
+-----------------------------------------------------
+
+* http://stackoverflow.com/questions/13125714/how-to-get-the-nvidia-driver-version-from-the-command-line
+
+::
+
+    -bash-4.1$ nvidia-smi
+    Wed Feb  4 15:11:29 2015       
+    +------------------------------------------------------+                       
+    | NVIDIA-SMI 5.319.37   Driver Version: 319.37         |                       
+    |-------------------------------+----------------------+----------------------+
+    | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+    | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+    |===============================+======================+======================|
+    |   0  Tesla K20m          Off  | 0000:03:00.0     Off |                    0 |
+    | N/A   23C    P0    34W / 225W |       11MB /  4799MB |      0%      Default |
+    +-------------------------------+----------------------+----------------------+
+    |   1  Tesla K20m          Off  | 0000:84:00.0     Off |                    0 |
+    | N/A   22C    P0    41W / 225W |       11MB /  4799MB |     77%      Default |
+    +-------------------------------+----------------------+----------------------+
+                                                                                   
+    +-----------------------------------------------------------------------------+
+    | Compute processes:                                               GPU Memory |
+    |  GPU       PID  Process name                                     Usage      |
+    |=============================================================================|
+    |  No running compute processes found                                         |
+    +-----------------------------------------------------------------------------+
+
+
+    ## version of the currently loaded NVIDIA kernel module
+
+    -bash-4.1$ cat /proc/driver/nvidia/version
+    NVRM version: NVIDIA UNIX x86_64 Kernel Module  319.37  Wed Jul  3 17:08:50 PDT 2013
+    GCC version:  gcc version 4.4.7 20120313 (Red Hat 4.4.7-4) (GCC) 
+
+    -bash-4.1$ cuda-
+    -bash-4.1$ nvcc --version
+    nvcc: NVIDIA (R) Cuda compiler driver
+    Copyright (c) 2005-2013 NVIDIA Corporation
+    Built on Wed_Jul_17_18:36:13_PDT_2013
+    Cuda compilation tools, release 5.5, V5.5.0
+    -bash-4.1$ 
 
 
 
