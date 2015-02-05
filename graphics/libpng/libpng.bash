@@ -71,3 +71,14 @@ libpng-test-osx(){
    cat /System/Library/Frameworks/Tk.framework/Versions/8.5/Resources/Scripts/demos/images/teapot.ppm | libpng-wpng > teapot.png
 }
 
+libpng--(){
+  local ppm=${1:-out.ppm}
+  local png=${ppm/.ppm}.png 
+  echo $msg wpng-ing ppm $ppm into png $png  
+  case $ppm in 
+    *ppm) cat $ppm | libpng-wpng > $png && open $png ;;
+       *) echo expecting path ending .ppm ;; 
+  esac
+}
+
+

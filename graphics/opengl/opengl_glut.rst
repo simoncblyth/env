@@ -11,8 +11,6 @@ Sources
 
 
 
-
-
 OSX supporting two finger trackpad scroll
 ------------------------------------------
 
