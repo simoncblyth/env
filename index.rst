@@ -88,6 +88,7 @@ Contents:
    simoncblyth.bitbucket.org/index
    numpy/index
    presentation/index
+   optix/index
 
 
 

@@ -1509,7 +1509,7 @@ oppr-(){      . $(env-home)/cuda/optix/OppositeRenderer/oppr.bash && oppr-env $*
 optixsample1-(){      . $(env-home)/cuda/optix/optix301/sample1manual/optixsample1.bash && optixsample1-env $* ; }
 assimp-(){      . $(env-home)/graphics/assimp/assimp.bash && assimp-env $* ; }
 assimptest-(){      . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && assimptest-env $* ; }
-optixtest-(){      . $(env-home)/cuda/optix/OptiXTest/optixtest.bash && optixtest-env $* ; }
+optixtest-(){      . $(env-home)/optix/OptiXTest/optixtest.bash && optixtest-env $* ; }
 raytrace-(){      . $(env-home)/graphics/raytrace/raytrace.bash && raytrace-env $* ; }
 mercurial-(){      . $(env-home)/hg/mercurial.bash && mercurial-env $* ; }
 virtualgl-(){      . $(env-home)/graphics/virtualgl/virtualgl.bash && virtualgl-env $* ; }
@@ -1517,3 +1517,4 @@ nvidia-(){      . $(env-home)/graphics/nvidia/nvidia.bash && nvidia-env $* ; }
 cudaz-(){      . $(env-home)/cuda/cudaz/cudaz.bash && cudaz-env $* ; }
 mesa-(){      . $(env-home)/graphics/opengl/mesa/mesa.bash && mesa-env $* ; }
 libpng-(){      . $(env-home)/graphics/libpng/libpng.bash && libpng-env $* ; }
+macrosim-(){      . $(env-home)/optix/macrosim/macrosim.bash && macrosim-env $* ; }
