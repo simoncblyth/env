@@ -217,6 +217,10 @@ ISSUE : rsync not woking, tarballs not getting purged ?
 
 #. Aug 19, 2014 : observe that tarballs on C have not been purged since July 20 ?
 
+#. Feb 5, 2015 : same again, suspect that a hiatus results in too many files changed
+   which means rsync falls foul of the timeout : causing the rsync and the purge 
+   that it causes on remote nodes from never happening 
+
 Checking logs see error::
 
     === scm-backup-rsync : quick re-transfer /var/scm/backup/cms02 to C:/data/var/scm/backup/ after unlock
