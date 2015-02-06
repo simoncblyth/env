@@ -97,12 +97,12 @@ git-bare-clone(){
 
 git-conf(){
 
-git config --global user.name "Simon Blyth"
-git config --global user.email "blyth@hep1.phys.ntu.edu.tw"
+git config --global user.name "Simon C Blyth"
+git config --global user.email "simon.c.blyth@gmail.com"
 git config --global color.diff auto
 git config --global color.status auto
 git config --global color.branch auto
-git config --global core.editor "mate -w"
+#git config --global core.editor "mate -w"
 
 git config -l
 
