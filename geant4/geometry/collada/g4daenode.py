@@ -1619,6 +1619,9 @@ class DAEExtra(DaeObject):
             bord = BorderSurface.load(collada, localscope, elem)
             bordersurface.append(bord)
 
+            ## hmm this looks unheathy due to the stomping potential, 
+            ## need to key on the pair not the individuals ?
+
             if bord.physvolref1 not in bordermap:
                 bordermap[bord.physvolref1] = []
             bordermap[bord.physvolref1].append(bord)
