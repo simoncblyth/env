@@ -15,6 +15,46 @@ Graphics on Tesla GPUs
 * http://devblogs.nvidia.com/parallelforall/interactive-supercomputing-in-situ-visualization-tesla-gpus/
 
 
+GPU Achitecture history
+------------------------
+
+* Fermi
+* Kepler
+* Maxwell
+* Pascal 
+
+* http://en.m.wikipedia.org/wiki/Kepler_(microarchitecture)
+* http://en.m.wikipedia.org/wiki/Maxwell_(microarchitecture)
+
+
+GeForce GT 750M (GK107 : Kepler Architecture)
+-----------------------------------------------
+
+* http://www.geforce.com/hardware/notebook-gpus/geforce-gt-750m/description
+
+The GeForce GT 750M is a graphics card by NVIDIA, launched in January 2013.
+Built on the 28 nm process, and based on the GK107 graphics processor.
+It features 384 shading units, 32 texture mapping units and 16 ROPs. NVIDIA has
+placed 2,048 MB GDDR5 memory on the card, which are connected using a 128-bit
+memory interface. The GPU is operating at a frequency of 941 MHz, which can be
+boosted up to 967 MHz, memory is running at 1000 MHz. 
+
+
+Tesla K20  (GK110 : Kepler Architecture)
+------------------------------------------
+
+* http://www.anandtech.com/show/6446/nvidia-launches-tesla-k20-k20x-gk110-arrives-at-last
+
+K20c
+~~~~~~
+
+* http://www8.hp.com/h20195/v2/getpdf.aspx/c04111061.pdf?ver=2
+* compute only, not capable of OpenGL 
+
+
+
+
+
 Enabling graphics operation on compute GPUs
 --------------------------------------------
 
@@ -117,6 +157,12 @@ nvidia-get(){
 
 nvidia-gom(){
    nvidia-smi --format=csv --query-gpu=gom.current
+}
+
+
+nvidia-version(){
+   type $FUNCNAME
+   cat /proc/driver/nvidia/version      # Linux Only 
 }
 
 

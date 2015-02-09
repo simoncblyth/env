@@ -1519,3 +1519,6 @@ mesa-(){      . $(env-home)/graphics/opengl/mesa/mesa.bash && mesa-env $* ; }
 libpng-(){      . $(env-home)/graphics/libpng/libpng.bash && libpng-env $* ; }
 macrosim-(){      . $(env-home)/optix/macrosim/macrosim.bash && macrosim-env $* ; }
 assimpwrap-(){      . $(env-home)/graphics/assimpwrap/assimpwrap.bash && assimpwrap-env $* ; }
+goofit-(){      . $(env-home)/cuda/goofit/goofit.bash && goofit-env $* ; }
+vmd-(){      . $(env-home)/optix/vmd/vmd.bash && vmd-env $* ; }
+openrl-(){      . $(env-home)/graphics/openrl/openrl.bash && openrl-env $* ; }
