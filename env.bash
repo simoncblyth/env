@@ -1523,3 +1523,4 @@ goofit-(){      . $(env-home)/cuda/goofit/goofit.bash && goofit-env $* ; }
 vmd-(){      . $(env-home)/optix/vmd/vmd.bash && vmd-env $* ; }
 openrl-(){      . $(env-home)/graphics/openrl/openrl.bash && openrl-env $* ; }
 ggeo-(){      . $(env-home)/optix/ggeo/ggeo.bash && ggeo-env $* ; }
+cudatex-(){      . $(env-home)/cuda/texture/cudatex.bash && cudatex-env $* ; }
