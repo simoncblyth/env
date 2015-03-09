@@ -31,6 +31,16 @@ Background: Physics and Math of Shading (Naty Hoffman)
   * microfacet surface models, various formulations
 
 
+Physically Based Shader Design in Arnold (Anders Langlands) 
+-------------------------------------------------------------
+
+* http://blog.selfshadow.com/publications/s2014-shading-course/langlands/s2014_pbs_alshaders_slides.pdf
+* http://blog.selfshadow.com/publications/s2014-shading-course/langlands/s2014_pbs_alshaders_notes.pdf
+* https://bitbucket.org/anderslanglands/alshaders/wiki/Home
+
+* notably realistic glass renders
+
+
 Physically Based Shading at Disney (Brent Burley) 
 --------------------------------------------------
 
@@ -75,6 +85,14 @@ BRDF wavelength dependent
 
 BRDF usually ignores dependence on wavelength, just "averaging" results into RGB channel
 values.
+
+
+Geant4 Optical
+----------------
+
+* flat REFLECTIVITY as function of wavelength, 
+
+  * is there any Fresnel reflectivity increaese as incident angle increases ?
 
 
 
