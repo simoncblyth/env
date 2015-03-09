@@ -1525,3 +1525,5 @@ openrl-(){      . $(env-home)/graphics/openrl/openrl.bash && openrl-env $* ; }
 ggeo-(){      . $(env-home)/optix/ggeo/ggeo.bash && ggeo-env $* ; }
 cudatex-(){      . $(env-home)/cuda/texture/cudatex.bash && cudatex-env $* ; }
 optixtex-(){      . $(env-home)/optix/optixtex/optixtex.bash && optixtex-env $* ; }
+unity-(){      . $(env-home)/graphics/unity/unity.bash && unity-env $* ; }
+pbs-(){      . $(env-home)/graphics/shading/pbs.bash && pbs-env $* ; }
