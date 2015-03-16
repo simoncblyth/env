@@ -1527,3 +1527,4 @@ cudatex-(){      . $(env-home)/cuda/texture/cudatex.bash && cudatex-env $* ; }
 optixtex-(){      . $(env-home)/optix/optixtex/optixtex.bash && optixtex-env $* ; }
 unity-(){      . $(env-home)/graphics/unity/unity.bash && unity-env $* ; }
 pbs-(){      . $(env-home)/graphics/shading/pbs.bash && pbs-env $* ; }
+cudaenv-(){      . $(env-home)/cuda/cudaenv/cudaenv.bash && cudaenv-env $* ; }
