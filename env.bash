@@ -1529,3 +1529,4 @@ unity-(){      . $(env-home)/graphics/unity/unity.bash && unity-env $* ; }
 pbs-(){      . $(env-home)/graphics/shading/pbs.bash && pbs-env $* ; }
 cudawrap-(){    . $(env-home)/cuda/cudawrap/cudawrap.bash && cudawrap-env $* ; }
 optixsamples-(){      . $(env-home)/optix/optixsamples.bash && optixsamples-env $* ; }
+iray-(){      . $(env-home)/iray/iray.bash && iray-env $* ; }
