@@ -1530,3 +1530,7 @@ pbs-(){      . $(env-home)/graphics/shading/pbs.bash && pbs-env $* ; }
 cudawrap-(){    . $(env-home)/cuda/cudawrap/cudawrap.bash && cudawrap-env $* ; }
 optixsamples-(){      . $(env-home)/optix/optixsamples.bash && optixsamples-env $* ; }
 iray-(){      . $(env-home)/iray/iray.bash && iray-env $* ; }
+glfw-(){      . $(env-home)/graphics/glfw/glfw.bash && glfw-env $* ; }
+glew-(){      . $(env-home)/graphics/glew/glew.bash && glew-env $* ; }
+glfwtest-(){      . $(env-home)/graphics/glfw/glfwtest/glfwtest.bash && glfwtest-env $* ; }
+vl-(){      . $(env-home)/graphics/vl/vl.bash && vl-env $* ; }

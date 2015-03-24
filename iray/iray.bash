@@ -12,6 +12,11 @@ NVIDIA iRAY
 * http://www.nvidia-arc.com/products/iray/iray-integration-framework.html
 
 
+daz3d studio beta : incorporates iray 
+---------------------------------------
+
+* http://www.daz3d.com/daz-studio-beta
+
 
 
 

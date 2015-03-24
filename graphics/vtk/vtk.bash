@@ -8,9 +8,15 @@ vtk-usage(){ cat << EOU
 VTK Visualization Toolkit
 ==========================
 
+Aimed at data visualization rather than more generic 3D graphics.
+
 * http://www.vtk.org/
 
 * http://www.kitware.com/media/html/KitwareOnAppleOSXItJustWorksInMacPorts.html
+
+
+
+
 
 macports
 --------
