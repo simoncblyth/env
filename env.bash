@@ -1534,3 +1534,6 @@ glfw-(){      . $(env-home)/graphics/glfw/glfw.bash && glfw-env $* ; }
 glew-(){      . $(env-home)/graphics/glew/glew.bash && glew-env $* ; }
 glfwtest-(){      . $(env-home)/graphics/glfw/glfwtest/glfwtest.bash && glfwtest-env $* ; }
 vl-(){      . $(env-home)/graphics/vl/vl.bash && vl-env $* ; }
+vltest-(){      . $(env-home)/graphics/vl/vltest/vltest.bash && vltest-env $* ; }
+oglplus-(){      . $(env-home)/graphics/oglplus/oglplus.bash && oglplus-env $* ; }
+oglplustest-(){      . $(env-home)/graphics/oglplus/oglplustest/oglplustest.bash && oglplustest-env $* ; }

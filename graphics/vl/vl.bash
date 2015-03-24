@@ -8,6 +8,10 @@ vl-usage(){ cat << EOU
 Visualization Library
 =======================
 
+Interesting, but not an active project : so little in the way of help
+or examples.
+
+
 A lightweight C++ OpenGL middleware for 2D/3D graphics
 
 * http://www.visualizationlibrary.org/documentation/pag_key_features.html
@@ -15,6 +19,8 @@ A lightweight C++ OpenGL middleware for 2D/3D graphics
 * http://www.visualizationlibrary.org/documentation/pag_guides.html
 
 * https://github.com/Wulfire/visualizationlibrary
+
+* http://www.visualizationlibrary.org/forum/viewforum.php?f=3&sid=ec19297f14b38b715d7d6e914d177400
 
 
 Looking for a C++ equivalent of pyopengl/glumpy to 
