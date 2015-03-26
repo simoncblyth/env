@@ -1537,3 +1537,4 @@ vl-(){      . $(env-home)/graphics/vl/vl.bash && vl-env $* ; }
 vltest-(){      . $(env-home)/graphics/vl/vltest/vltest.bash && vltest-env $* ; }
 oglplus-(){      . $(env-home)/graphics/oglplus/oglplus.bash && oglplus-env $* ; }
 oglplustest-(){      . $(env-home)/graphics/oglplus/oglplustest/oglplustest.bash && oglplustest-env $* ; }
+oglrap-(){      . $(env-home)/graphics/oglrap/oglrap.bash && oglrap-env $* ; }
