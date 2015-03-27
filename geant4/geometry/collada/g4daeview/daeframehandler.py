@@ -33,6 +33,11 @@ class DAEFrameHandler(object):
     Handles event notifications from the frame: `on_init` and `on_draw`
     """
     def __init__(self, frame, mesh, scene ):
+        """
+        :param frame: glumpy frame of on_init, on_draw handler hookup
+        :param mesh: gp.graphics.VertexBuffer holding VBO data
+        :param scene: DAEScene
+        """
         self.frame = frame
         self.mesh = mesh
         self.scene = scene
@@ -150,6 +155,14 @@ class DAEFrameHandler(object):
 
         if not scene.scaled_mode:
             glu.gluLookAt( *view.eye_look_up )   # NB no scaling, still world distances, eye at origin and point -Z at look
+
+        #
+        # gluLookAt : 
+        #     computes the inverse camera transform according to its parameters 
+        #     and multiplies it onto the current matrix stack.
+        #
+        # https://www.opengl.org/archives/resources/faq/technical/viewing.htm
+        #
 
 
 
