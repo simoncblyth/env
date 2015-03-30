@@ -131,6 +131,11 @@ git-bare-clone(){
 }
 
 
+git-origin(){
+   git remote show origin
+}
+
+
 git-conf(){
 
 git config --global user.name "Simon C Blyth"

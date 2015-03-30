@@ -1541,3 +1541,9 @@ oglrap-(){      . $(env-home)/graphics/oglrap/oglrap.bash && oglrap-env $* ; }
 ggeoview-(){      . $(env-home)/graphics/ggeoview/ggeoview.bash && ggeoview-env $* ; }
 glm-(){      . $(env-home)/graphics/glm/glm.bash && glm-env $* ; }
 gl-(){      . $(env-home)/graphics/opengl/gl.bash && gl-env $* ; }
+wendy-(){      . $(env-home)/graphics/wendy/wendy.bash && wendy-env $* ; }
+basio-(){      . $(env-home)/boost/basio/basio.bash && basio-env $* ; }
+asio-(){      . $(env-home)/network/asio/asio.bash && asio-env $* ; }
+udpserver-(){      . $(env-home)/boost/basio/udp_server/udpserver.bash && udpserver-env $* ; }
+photonio-(){      . $(env-home)/graphics/photonio/photonio.bash && photonio-env $* ; }
+fishtank-(){      . $(env-home)/graphics/fishtank/fishtank.bash && fishtank-env $* ; }
