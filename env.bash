@@ -1551,3 +1551,4 @@ sdl-(){      . $(env-home)/graphics/sdl/sdl.bash && sdl-env $* ; }
 sfml-(){      . $(env-home)/graphics/sfml/sfml.bash && sfml-env $* ; }
 gleq-(){      . $(env-home)/graphics/gleq/gleq.bash && gleq-env $* ; }
 gleqtest-(){  . $(env-home)/graphics/glfw/gleqtest/gleqtest.bash && gleqtest-env $* ; }
+bpo-(){      . $(env-home)/boost/bpo/bpo.bash && bpo-env $* ; }
