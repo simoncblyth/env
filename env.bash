@@ -1547,3 +1547,7 @@ asio-(){      . $(env-home)/network/asio/asio.bash && asio-env $* ; }
 udpserver-(){      . $(env-home)/boost/basio/udp_server/udpserver.bash && udpserver-env $* ; }
 photonio-(){      . $(env-home)/graphics/photonio/photonio.bash && photonio-env $* ; }
 fishtank-(){      . $(env-home)/graphics/fishtank/fishtank.bash && fishtank-env $* ; }
+sdl-(){      . $(env-home)/graphics/sdl/sdl.bash && sdl-env $* ; }
+sfml-(){      . $(env-home)/graphics/sfml/sfml.bash && sfml-env $* ; }
+gleq-(){      . $(env-home)/graphics/gleq/gleq.bash && gleq-env $* ; }
+gleqtest-(){  . $(env-home)/graphics/glfw/gleqtest/gleqtest.bash && gleqtest-env $* ; }
