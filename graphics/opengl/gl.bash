@@ -13,6 +13,14 @@ Modern Open GL 3.x and 4 resources
 
 * http://www.swiftless.com/opengl4tuts.html
 
+* https://www.opengl.org/wiki/Related_toolkits_and_APIs
+
+  * GLFW http://www.glfw.org
+  * SDL
+  * SFML
+  * Allegro http://alleg.sourceforge.net/
+
+
 
 
 

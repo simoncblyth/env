@@ -31,6 +31,54 @@ start those in two terminal windows first::
     delta:~ blyth$ g4daechroma.sh 
 
 
+Issues
+--------
+
+Wrong python::
+
+    delta:example blyth$ npysend.py --help
+    Traceback (most recent call last):
+      File "/Users/blyth/env/bin/npysend.py", line 2, in <module>
+        from env.zeromq.pyzmq.npysend import main
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/env/zeromq/pyzmq/npysend.py", line 37, in <module>
+        import zmq 
+    ImportError: No module named zmq
+    delta:example blyth$ 
+
+
+Solution, use the bash wrapper which sets up the required environment::
+
+    delta:example blyth$ npysend.sh --help
+    usage: npysend.py [-h] [--ipython] [--copy] [--zmqtunnelnode ZMQTUNNELNODE]
+                      [-t TAG] [-i INP] [-o OUT] [-l LEVEL] [--endpoint ENDPOINT]
+                      [--slice SLICE] [--threads-per-block THREADS_PER_BLOCK]
+                      [--steps-per-call STEPS_PER_CALL]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --ipython
+      --copy                Copy frames into bytes during npysocket operation
+                            (SLOWER)
+      --zmqtunnelnode ZMQTUNNELNODE
+                            Option handled in the invoking bash script, which
+                            opens ssh tunnel to remote frontend
+      -t TAG, --tag TAG
+      -i INP, --inp INP     Either "handshake" or the type of file to load, eg
+                            "cerenkov", "scintillation", "opscintillation"
+      -o OUT, --out OUT     Type of file to save response into
+      -l LEVEL, --level LEVEL
+                            INFO/DEBUG/WARN/..
+      --endpoint ENDPOINT   broker url
+      --slice SLICE         Colon delimited slice to apply to array, eg 0:1 0:2
+                            ::100
+      --threads-per-block THREADS_PER_BLOCK
+                            Kernel launch threads_per_block
+      --steps-per-call STEPS_PER_CALL
+                            Propagation steps within launch
+
+
+
+
 """
 import logging, os, pprint
 import numpy as np

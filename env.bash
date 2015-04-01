@@ -1552,3 +1552,6 @@ sfml-(){      . $(env-home)/graphics/sfml/sfml.bash && sfml-env $* ; }
 gleq-(){      . $(env-home)/graphics/gleq/gleq.bash && gleq-env $* ; }
 gleqtest-(){  . $(env-home)/graphics/glfw/gleqtest/gleqtest.bash && gleqtest-env $* ; }
 bpo-(){      . $(env-home)/boost/bpo/bpo.bash && bpo-env $* ; }
+asiozmq-(){      . $(env-home)/network/asiozmq/asiozmq.bash && asiozmq-env $* ; }
+asiozmqtest-(){      . $(env-home)/network/asiozmqtest/asiozmqtest.bash && asiozmqtest-env $* ; }
+azmq-(){      . $(env-home)/network/azmq/azmq.bash && azmq-env $* ; }

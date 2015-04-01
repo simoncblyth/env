@@ -292,3 +292,9 @@ cmake-get(){
    local dir=$(dirname $(cmake-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+cmake-find(){
+   cd $ENV_HOME
+   find . -name CMakeLists.txt -exec grep -H ${1:-ZMQ} {} \;
+}
+
