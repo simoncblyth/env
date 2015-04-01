@@ -14,6 +14,12 @@ ZEROMQ
 
 * http://zguide.zeromq.org/py:all
 
+Alternatives
+-------------
+
+* http://nanomsg.org/documentation-zeromq.html
+
+
 
 INSTALLS
 -----------
@@ -62,6 +68,27 @@ http://zeromq.org/area:faq
 
 
 
+ZeroMQ multi threading with PAIR
+----------------------------------
+
+::
+
+    delta:C blyth$ zeromq-
+
+    delta:C blyth$ zeromq-examples-get mtrelay.c
+    cp /usr/local/env/zeromq/zguide/examples/C/mtrelay.c /Users/blyth/env/zeromq/zguide/examples/C/mtrelay.c
+
+    delta:C blyth$ zeromq-clang mtrelay.c 
+    clang -I/usr/local/env/zeromq/include -L/usr/local/env/zeromq/lib -lzmq mtrelay.c -o /tmp/env/zeromq/mtrelay
+
+    delta:C blyth$ /tmp/env/zeromq/mtrelay
+    Step 1 ready, signaling step 2
+    Step 2 ready, signaling step 3
+    Test successful!
+
+
+
+
 
 EOU
 }
@@ -93,6 +120,17 @@ zeromq-prefix-default(){
     *) echo $(zeromq-fold) ;;
   esac
 }
+
+zeromq-idir(){ echo $(zeromq-prefix)/include ; }
+zeromq-ldir(){ echo $(zeromq-prefix)/lib ; }
+zeromq-clang(){ 
+   mkdir -p /tmp/env/zeromq
+   local cmd="clang -I$(zeromq-idir) -L$(zeromq-ldir) -lzmq $1 -o /tmp/env/zeromq/${1/.c}"
+   echo $cmd
+   eval $cmd
+}
+
+
 zeromq-make(){
   zeromq-cd
   env-llp
@@ -135,6 +173,21 @@ zeromq-versions(){
 
 
 
+zeromq-examples-lang(){ echo C ; }
+zeromq-examples-idir(){ echo $(zeromq-fold)/zguide/examples/$(zeromq-examples-lang) ; }
+zeromq-examples-sdir(){ echo $(env-home)/zeromq/zguide/examples/$(zeromq-examples-lang) ; }
+zeromq-examples-icd(){  cd $(zeromq-examples-idir) ; }
+zeromq-examples-scd(){  cd $(zeromq-examples-sdir) ; }
+zeromq-examples-get(){
+   local nam=${1:-mtrelay.c}
+   local src=$(zeromq-examples-idir)/$nam ;
+   local dst=$(zeromq-examples-sdir)/$nam ;
+   mkdir -p $(dirname $dst)
+   local cmd="cp $src $dst"
+   echo $cmd
+   eval $cmd
+   zeromq-examples-scd
+}
 
 
 

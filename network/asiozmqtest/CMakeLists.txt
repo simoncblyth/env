@@ -41,6 +41,8 @@ add_definitions(
 
 add_library( ${name} SHARED
           npyworker.cc 
+          npyQueue.cc 
+          npyBuffer.cc 
 )
 
 target_link_libraries( ${name}

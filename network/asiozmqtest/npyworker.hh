@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 
+
 // following /usr/local/env/network/asiozmq/example/rrworker.cpp
 
 class npyworker {
@@ -17,6 +18,8 @@ public:
 
     void handle_req(boost::system::error_code const& ec);
     void dump();
+    void dump_npy( char* bytes, size_t size );
+
 
 private:
     boost::asio::zmq::socket             m_responder;

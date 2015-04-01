@@ -17,9 +17,8 @@ equivalent of python/pyzmq based NPYResponder
 
 Just need the worker, the broker and client can stay as is.
 
-* broker (C based zmq server)
-* client (numerous pyzmq test clients or C++ G4DAEChroma) 
-
+* broker (C based zmq)
+* client (numerous pyzmq test clients including npysend.sh or C++ G4DAEChroma) 
 
 See also
 ----------
@@ -38,6 +37,10 @@ Thoughts
 * hmm, but npyworker needs to run the propagation
   and then send back the reply  
 
+* is developing an eventqueue to hold npy data, reinventing
+  the wheel that zmq has solved already 
+
+
 * both asio-zmq and azmq need C++11 and are header only, 
   that might be a problem
 
@@ -45,6 +48,100 @@ Thoughts
 
   * maybe the C++11 can be isolated by moving into a library 
     and providing a plain C interface for what is needed ?
+
+
+ZeroMQ Multithreading
+---------------------
+
+* http://zeromq.org/whitepapers:multithreading-magic
+
+  * The key is to pass information as messages rather than shared state
+
+  * Although it takes care to break an application into tasks that each run as one
+    thread, it becomes trivial to scale an application. Just create more instances
+    of a thread. You can run any number of instances, with no synchronization (thus
+    no scaling) issues.
+ 
+    * maybe npyworker should handle receiving messages
+      and just pass them over to npypropagator
+
+
+* http://zguide.zeromq.org/php:chapter2
+
+
+* Isolate data privately within its thread and never share data in multiple
+  threads. The only exception to this are ZeroMQ contexts, which are threadsafe.
+
+* Stay away from the classic concurrency mechanisms like as mutexes, critical
+  sections, semaphores, etc. These are an anti-pattern in ZeroMQ applications.
+
+* Create one ZeroMQ context at the start of your process, and pass that to all
+  threads that you want to connect via inproc sockets.
+
+* Use attached threads to create structure within your application, and connect
+  these to their parent threads using PAIR sockets over inproc. 
+  The pattern is:
+  
+  * bind parent socket, 
+  * then create child thread which connects its socket.
+
+* Use detached threads to simulate independent tasks, with their own contexts.
+  Connect these over tcp. Later you can move these to stand-alone processes
+  without changing the code significantly.
+
+* All interaction between threads happens as ZeroMQ messages, which you can
+  define more or less formally.
+
+* Don't share ZeroMQ sockets between threads. ZeroMQ sockets are not
+  threadsafe. Technically it's possible to migrate a socket from one thread to
+  another but it demands skill. The only place where it's remotely sane to share
+  sockets between threads are in language bindings that need to do magic like
+  garbage collection on sockets.
+
+
+ZeroMQ 
+
+
+ZeroMQ inproc
+~~~~~~~~~~~~~~
+
+The inter-thread transport, inproc, is a connected signaling transport. It is
+much faster than tcp or ipc. This transport has a specific limitation compared
+to tcp and ipc:
+
+*  **the server must issue a bind before any client issues a connect**
+
+This is something future versions of ZeroMQ may fix, but at present
+this defines how you use inproc sockets. We create and bind one socket and
+start the child threads, which create and connect the other sockets.
+
+
+Application Tasks
+~~~~~~~~~~~~~~~~~~~
+
+* **communicator**  
+
+  * receiving npy payloads 
+  * hand off to **propagator**
+  * reply to sender with propagated results
+
+* **propagator** 
+
+  * no zeromq, may want to swap that out or operate from files 
+  * receive buffers (bytes and a size) 
+  * convert payload into form needed for optix 
+  * do optix launches
+  * convert buffer results into npy payload buffers
+   
+* **presenter**
+
+  * convert payload into form needed for OpenGL
+
+
+Application Design
+~~~~~~~~~~~~~~~~~~~
+
+* http://stefan.sofa-rockers.org/2012/02/01/designing-and-testing-pyzmq-applications-part-1/
 
 
 Testing
@@ -230,10 +327,12 @@ asiozmqtest-make(){
    make $*
    cd $iwd
 }
+
 asiozmqtest--(){
    asiozmqtest-wipe
    asiozmqtest-cmake
    asiozmqtest-make
+   asiozmqtest-run
 }
 
 asiozmqtest-run(){
