@@ -1544,7 +1544,7 @@ gl-(){      . $(env-home)/graphics/opengl/gl.bash && gl-env $* ; }
 wendy-(){      . $(env-home)/graphics/wendy/wendy.bash && wendy-env $* ; }
 basio-(){      . $(env-home)/boost/basio/basio.bash && basio-env $* ; }
 asio-(){      . $(env-home)/network/asio/asio.bash && asio-env $* ; }
-udpserver-(){      . $(env-home)/boost/basio/udp_server/udpserver.bash && udpserver-env $* ; }
+netapp-(){      . $(env-home)/boost/basio/netapp/netapp.bash && netapp-env $* ; }
 photonio-(){      . $(env-home)/graphics/photonio/photonio.bash && photonio-env $* ; }
 fishtank-(){      . $(env-home)/graphics/fishtank/fishtank.bash && fishtank-env $* ; }
 sdl-(){      . $(env-home)/graphics/sdl/sdl.bash && sdl-env $* ; }
