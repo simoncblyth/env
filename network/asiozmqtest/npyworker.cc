@@ -81,12 +81,6 @@ void npyworker::dump()
     }
 }
 
-
-
-
-
-
-
 void npyworker::dump_npy( char* bytes, size_t size )
 {
     // interpreting (bytes, size)  as serialized NPY array
