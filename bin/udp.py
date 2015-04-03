@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 import os, sys, socket
+"""
+https://wiki.python.org/moin/UdpCommunication
+
+http://pymotw.com/2/socket/udp.html
+
+
+
+
+"""
 
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
