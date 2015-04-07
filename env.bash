@@ -1556,3 +1556,5 @@ asiozmq-(){      . $(env-home)/network/asiozmq/asiozmq.bash && asiozmq-env $* ; 
 asiozmqtest-(){      . $(env-home)/network/asiozmqtest/asiozmqtest.bash && asiozmqtest-env $* ; }
 azmq-(){      . $(env-home)/network/azmq/azmq.bash && azmq-env $* ; }
 asiosamples-(){      . $(env-home)/boost/basio/asiosamples/asiosamples.bash && asiosamples-env $* ; }
+bcfg-(){      . $(env-home)/boost/bpo/bcfg/bcfg.bash && bcfg-env $* ; }
+bcfgtest-(){  . $(env-home)/boost/bpo/bcfg/test/bcfgtest.bash && bcfgtest-env $* ; }
