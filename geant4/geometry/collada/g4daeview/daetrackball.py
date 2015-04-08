@@ -165,12 +165,15 @@ class DAETrackball(gp.Trackball):
 
         self._theta = theta
         self._phi = phi 
+
         angle = self._theta*(math.pi/180.0)
         sine = math.sin(0.5*angle)
         xrot = [1*sine, 0, 0, math.cos(0.5*angle)]
+
         angle = self._phi*(math.pi/180.0)
         sine = math.sin(0.5*angle);
         zrot = [0, 0, sine, math.cos(0.5*angle)]
+
         self._rotation = _q_add(xrot, zrot)
         m = _q_rotmatrix(self._rotation)
         #self._matrix = (GLfloat*len(m))(*m)
