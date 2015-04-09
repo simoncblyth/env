@@ -121,6 +121,11 @@ class DAETrackball(gp.Trackball):
             ( self._x, self._y, self._z, self.theta, self.phi )
     __str__ = __repr__
 
+    def dump(self):
+        print " trackballradius %s " % self.trackballradius
+        print " translatefactor %s " % self.translatefactor
+        print " _rotation(xyzw) %s " % repr(self._rotation) 
+
 
     def _get_xyz(self):
         return np.array([self._x, self._y, self._z])   
@@ -141,6 +146,9 @@ class DAETrackball(gp.Trackball):
     rotation = property(_get_rotation)
 
 
+    def test_drag_to(self):
+        self.drag_to(0,0,0.01,0)
+
     def drag_to (self, x, y, dx, dy):
         """
         Move trackball view from x,y to x+dx,y+dy. 
@@ -150,7 +158,16 @@ class DAETrackball(gp.Trackball):
             RuntimeWarning: Item size computed from the PEP 3118 buffer format string does not match the actual item size.
         """
         q = self._rotate(x,y,dx,dy)
+
+        drag = x,y,dx,dy
+        print "drag_to drag  %s " % repr(drag)
+        print "drag_to q     %s " % repr(q)   
+        print "drag_to _rot0 %s " % repr(self._rotation)   
+
         self._rotation = _q_add(q,self._rotation)
+
+        print "drag_to _rot1  %s " % repr(self._rotation)   
+
         self._count += 1
         if self._count > self._RENORMCOUNT:
             self._rotation = _q_normalize(self._rotation)
@@ -213,6 +230,12 @@ class DAETrackball(gp.Trackball):
         return z
 
 
+    def test_rotate(self):
+        drag = (0,0,0.01,0)
+        q = self._rotate(*drag)
+        print " x,y,dx,dy %s => %s " % (repr(drag), repr(q)) 
+
+
     def _rotate(self, x, y, dx, dy):
         """
         Simulate a track-ball.
@@ -229,13 +252,24 @@ class DAETrackball(gp.Trackball):
             return [ 0.0, 0.0, 0.0, 1.0]
         last = [x, y,       self._project(self.trackballradius, x, y)]
         new  = [x+dx, y+dy, self._project(self.trackballradius, x+dx, y+dy)]
+
         a = _v_cross(new, last)
+
         d = _v_sub(last, new)
         t = _v_length(d) / (2.0*self.trackballradius)
         if (t > 1.0): t = 1.0
         if (t < -1.0): t = -1.0
         phi = 2.0 * math.asin(t)
-        return _q_from_axis_angle(a,phi)
+
+        q = _q_from_axis_angle(a,phi)
+
+        #print "_rotate p0   %s " % repr(last)
+        #print "_rotate p1   %s " % repr(new)
+        #print "_rotate axis %s " % repr(a)
+        #print "_rotate t %s phi %s " % (t, phi)
+        #print "_rotate q %s  " % repr(q)
+
+        return q
 
     def zoom_to (self, x, y, dx, dy):
         """
@@ -259,3 +293,10 @@ class DAETrackball(gp.Trackball):
 
 if __name__ == '__main__':
     pass
+    tb = DAETrackball()
+    tb.dump()
+    #tb.test_rotate()
+    tb.test_drag_to()
+
+
+
