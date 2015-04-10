@@ -184,6 +184,16 @@ class Texture(object):
         :param fy:
         :param fw:
         :param fh:
+
+        Hmm how to do this in modern OpenGL ?
+
+        * need buffers to pass to shader 
+
+          * vertices and texcoords of one GL_QUADS
+
+
+        * http://gamedev.stackexchange.com/questions/35486/map-and-fill-texture-using-pbo-opengl-3-3
+
         """ 
         x, y = int(fx*self.image_width), int(fy*self.image_height)
         width, height = int(fw*self.image_width), int(fh*self.image_height)  

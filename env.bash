@@ -1559,3 +1559,4 @@ asiosamples-(){      . $(env-home)/boost/basio/asiosamples/asiosamples.bash && a
 bcfg-(){      . $(env-home)/boost/bpo/bcfg/bcfg.bash && bcfg-env $* ; }
 bcfgtest-(){  . $(env-home)/boost/bpo/bcfg/test/bcfgtest.bash && bcfgtest-env $* ; }
 optixrap-(){      . $(env-home)/graphics/optixrap/optixrap.bash && optixrap-env $* ; }
+hrt-(){      . $(env-home)/graphics/hybrid-rendering-thesis/hrt.bash && hrt-env $* ; }
