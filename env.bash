@@ -1560,3 +1560,5 @@ bcfg-(){      . $(env-home)/boost/bpo/bcfg/bcfg.bash && bcfg-env $* ; }
 bcfgtest-(){  . $(env-home)/boost/bpo/bcfg/test/bcfgtest.bash && bcfgtest-env $* ; }
 optixrap-(){      . $(env-home)/graphics/optixrap/optixrap.bash && optixrap-env $* ; }
 hrt-(){      . $(env-home)/graphics/hybrid-rendering-thesis/hrt.bash && hrt-env $* ; }
+ppm-(){      . $(env-home)/graphics/ppm/ppm.bash && ppm-env $* ; }
+ppmfast-(){      . $(env-home)/graphics/ppmfast/ppmfast.bash && ppmfast-env $* ; }
