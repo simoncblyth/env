@@ -158,9 +158,9 @@ def view_transform( eye, look, up, inverse=False ):
     #assert len(top) == 3, top
  
     r = np.identity(4)
-    r[:3,0] = right
-    r[:3,1] = top
-    r[:3,2] = -forward  
+    r[:3,0] = right      # X column
+    r[:3,1] = top        # Y column
+    r[:3,2] = -forward   # Z column
 
     if inverse:
         m = np.dot(translate_matrix(eye),r)
