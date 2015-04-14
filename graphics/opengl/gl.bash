@@ -21,7 +21,19 @@ Modern Open GL 3.x and 4 resources
   * Allegro http://alleg.sourceforge.net/
 
 
+Advanced Modern OpenGL Resources
+----------------------------------
 
+* http://rauwendaal.net/category/opengl/
+* http://openglinsights.com
+* http://github.prideout.net/modern-opengl-prezo/
+
+Version History
+---------------
+
+* https://www.opengl.org/wiki/History_of_OpenGL
+
+* https://www.opengl.org/wiki/Vertex_Rendering#Indirect_rendering
 
 
 
