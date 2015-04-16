@@ -96,6 +96,9 @@ def main():
 
     log.info("************  VBO setup ")
     vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=config.rgba, index=-1)
+
+    log.info("vbo.data %s " % repr(vbo.data))
+
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
 
     log.info("************  DAEFrameHandler ")

@@ -368,7 +368,7 @@ class DAEInteractivityHandler(object):
         y  = dragfactor*(_y*2.0 - height)/height
         dy = dragfactor*(2.*_dy)/height
 
-        log.info("on_mouse_drag x %s y %s dx %s dy %s dragfactor %s " % (x,y,dx,dy, dragfactor ))
+        #log.info("on_mouse_drag x %s y %s dx %s dy %s dragfactor %s " % (x,y,dx,dy, dragfactor ))
 
         two_finger_zoom = button == 8    # NB zoom is a misnomer, this is translating eye coordinate z
         if   self.zoom_mode or two_finger_zoom: self.scene.trackball.zoom_to(x,y,dx,dy)
