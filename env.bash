@@ -1564,3 +1564,4 @@ ppm-(){      . $(env-home)/graphics/ppm/ppm.bash && ppm-env $* ; }
 ppmfast-(){      . $(env-home)/graphics/ppmfast/ppmfast.bash && ppmfast-env $* ; }
 blogg-(){      . $(env-home)/boost/blogg/blogg.bash && blogg-env $* ; }
 ntuwireless-(){      . $(env-home)/admin/ntuwireless.bash && ntuwireless-env $* ; }
+npy-(){      . $(env-home)/numerics/npy/npy.bash && npy-env $* ; }
