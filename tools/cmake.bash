@@ -10,6 +10,20 @@ CMAKE
 
 * http://www.cmake.org/
 
+
+Issues
+-------
+
+* note that refactoring that removes a header from a package 
+  is not noticed and cleared from a install location resulting
+  in old headers being left in include folders 
+
+  * workaround is to occasionally delete the include folder
+    and rebuild and reinstall
+
+
+
+
 Best Docs encountered
 ----------------------
 
