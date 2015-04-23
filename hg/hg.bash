@@ -26,6 +26,25 @@ Tips
 *hg log -vGl 5*
      combine options, G shows DAG, l to limit revisions 
 
+*hg log --date "2014-05-01 to 2015-04-21"*
+     select entries in a date range
+
+
+log templates
+~~~~~~~~~~~~~~
+
+* http://stackoverflow.com/questions/3575189/mercurial-log-with-one-liners
+
+Add log alias to .hgrc::
+
+    [alias]
+    shortlog = log --template '{node|short} | {date|isodatesec} | {author|user}: {desc|strip|firstline}\n'
+
+Then can review period by period with::
+
+    hg shortlog --date "2014-05-01 to 2014-05-07" | tail -r
+
+
 
 Start using new node
 ~~~~~~~~~~~~~~~~~~~~~~

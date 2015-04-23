@@ -4,6 +4,14 @@ env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-log(){ vi $(${FUNCNAME}path) ; }
 
+env-commit-url(){ echo https://bitbucket.org/simoncblyth/env/commits/${1:-658f4429167b} ; }
+env-commit(){ open $(env-commit-url $1); }
+
+
+env-src-url(){ echo https://bitbucket.org/simoncblyth/env/src/tip/${1:-chroma/G4DAEChroma} ; }
+env-src(){ open $(env-src-url $1); }
+
+
 
 env-cache-path(){ echo ~/env-cache.sh ; }
 env-cache(){
@@ -1505,7 +1513,7 @@ realtime-(){      . $(env-home)/base/time/realtime.bash && realtime-env $* ; }
 fdp-(){      . $(env-home)/tools/graphviz/fdp.bash && fdp-env $* ; }
 osx-(){      . $(env-home)/osx/osx.bash && osx-env $* ; }
 optix-(){      . $(env-home)/optix/optix.bash && optix-env $* ; }
-oppr-(){      . $(env-home)/cuda/optix/OppositeRenderer/oppr.bash && oppr-env $* ; }
+oppr-(){      . $(env-home)/optix/OppositeRenderer/oppr.bash && oppr-env $* ; }
 optixsample1-(){      . $(env-home)/cuda/optix/optix301/sample1manual/optixsample1.bash && optixsample1-env $* ; }
 assimp-(){      . $(env-home)/graphics/assimp/assimp.bash && assimp-env $* ; }
 assimptest-(){      . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && assimptest-env $* ; }
@@ -1566,3 +1574,7 @@ blogg-(){      . $(env-home)/boost/blogg/blogg.bash && blogg-env $* ; }
 ntuwireless-(){      . $(env-home)/admin/ntuwireless.bash && ntuwireless-env $* ; }
 npy-(){      . $(env-home)/numerics/npy/npy.bash && npy-env $* ; }
 bfs-(){      . $(env-home)/boost/bfs/bfs.bash && bfs-env $* ; }
+bpt-(){      . $(env-home)/boost/bpt/bpt.bash && bpt-env $* ; }
+word-(){      . $(env-home)/tools/word/word.bash && word-env $* ; }
+pages-(){      . $(env-home)/tools/pages/pages.bash && pages-env $* ; }
+docx-(){      . $(env-home)/tools/docx/docx.bash && docx-env $* ; }
