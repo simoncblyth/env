@@ -16,4 +16,8 @@ docutils-dir(){ python -c "import os, docutils ; print os.path.dirname(docutils.
 docutils-cd(){  cd $(docutils-dir); }
 
 
+docutils-sdir(){ echo $(env-home)/doc/docutils ; }
+docutils-scd(){ cd $(docutils-sdir) ; }
+
+
 

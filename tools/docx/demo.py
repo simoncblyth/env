@@ -27,11 +27,12 @@ hdr_cells = table.rows[0].cells
 hdr_cells[0].text = 'Qty'
 hdr_cells[1].text = 'Id'
 hdr_cells[2].text = 'Desc'
-for item in recordset:
-    row_cells = table.add_row().cells
-    row_cells[0].text = str(item.qty)
-    row_cells[1].text = str(item.id)
-    row_cells[2].text = item.desc
+
+#for item in recordset:
+#    row_cells = table.add_row().cells
+#    row_cells[0].text = str(item.qty)
+#    row_cells[1].text = str(item.id)
+#    row_cells[2].text = item.desc
 
 document.add_page_break()
 

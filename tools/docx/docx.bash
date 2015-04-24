@@ -5,12 +5,15 @@ docx-vi(){       vi $(docx-source) ; }
 docx-env(){      elocal- ; }
 docx-usage(){ cat << EOU
 
+Python-docx
+=============
 
-
-python-docx is a Python library for creating and updating Microsoft Word (.docx) files.
-
+python-docx is a Python library for creating 
+and updating Microsoft Word (.docx) files.
 
 * https://python-docx.readthedocs.org/en/latest/
+
+* https://python-docx.readthedocs.org/en/latest/user/styles-understanding.html
 
 
 Hmm looks like macports drastically out of date
@@ -18,8 +21,10 @@ Hmm looks like macports drastically out of date
 
 * https://github.com/mikemaccana/python-docx
 
+See also
+---------
 
-
+* docxbuilder-
 
 
 EOU
@@ -36,6 +41,11 @@ docx-get()
     git clone https://github.com/python-openxml/python-docx docx
 }
 
+docx-ln()
+{
+    python-
+    python-ln $(docx-dir)/docx
+}
 
 
 

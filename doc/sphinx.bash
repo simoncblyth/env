@@ -9,11 +9,31 @@ sphinx-usage(){
 Sphinx
 ======
 
+version
+--------
+
+::
+
+    delta:docxbuilder blyth$ which sphinx-build
+    /opt/local/bin/sphinx-build
+
+    delta:docxbuilder blyth$ sphinx-build --version
+    Sphinx (sphinx-build) 1.2
+
+
+
+
+
 extensions
 -----------
 
 * https://pypi.python.org/pypi/sphinxcontrib-newsfeed/0.1.1
 * https://pypi.python.org/pypi/sphinxcontrib-googleanalytics/
+
+List of sphinxcontrib extensions
+
+* http://sphinxext-survey.readthedocs.org/en/latest/builders.html
+
 
 update
 --------
