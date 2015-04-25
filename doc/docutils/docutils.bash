@@ -20,4 +20,8 @@ docutils-sdir(){ echo $(env-home)/doc/docutils ; }
 docutils-scd(){ cd $(docutils-sdir) ; }
 
 
+docutils-rst2docx(){
+   docutils-scd
+   python rst2docx.py /tmp/report.rst /tmp/report.docx
 
+}
