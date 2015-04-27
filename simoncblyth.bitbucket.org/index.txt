@@ -11,6 +11,13 @@ presentations
 * http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html (Sept 2014)
 * http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html
 
+reports
+--------
+
+* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-may-2015.docx 
+* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-may-2015.pdf
+* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-may-2015.rst 
+
 
 *g4dae : Geant4 geometry exporter*
 -----------------------------------

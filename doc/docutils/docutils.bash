@@ -9,6 +9,60 @@ DOCUTILS
 ==========
 
 
+rst2odt.py
+-----------
+
+Translates RST into a Open Document Format .odt file
+
+* http://docutils.sourceforge.net/docs/user/odt.html
+
+rst2doc
+--------
+
+* https://github.com/trevorld/utilities/blob/master/bin/rst2doc
+
+::
+
+    base=`basename $1 .rst`
+    rst2odt ${base}.rst ${base}.odt
+    libreoffice --headless --convert-to doc ${base}.odt
+
+rst2docx.py 
+-------------
+
+* https://github.com/python-openxml/python-docx
+
+My development based on docutils and python-docx to 
+convert simple RST reports into docx equivalents, using 
+the default styles of python-docx which are fortunately 
+neutral.
+
+issue : table of contents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://groups.google.com/forum/#!topic/python-docx/VnHD7AwmPgY
+* http://stackoverflow.com/questions/18595864/python-create-a-table-of-contents-with-python-docx-lxml
+
+.. a rendered ToC depends on pagination to know what page number to put for each
+heading. Pagination is a function provided by the layout engine, a very complex
+piece of software built into the Word client.
+
+
+* https://github.com/python-openxml/python-docx/issues/36
+
+
+plain text problem
+-------------------
+
+Why is the world still:
+
+* sourcing its documents using bloated binary formats ?
+* not using text based sources for all documents 
+* not using version control for all documents 
+
+* http://bettermess.com/the-plain-text-problem/
+
+
 
 EOU
 }

@@ -41,6 +41,12 @@ from docutils import writers
 from docutils.core import Publisher
 import docutils.nodes as nodes
 
+
+
+from docx.oxml.shared import OxmlElement, qn
+
+
+
 from translator import BaseTranslator
 
 default_usage = '%prog [options] [<source> [<destination>]]'
@@ -48,6 +54,60 @@ default_description = ('Reads from <source> (default is stdin) and writes to '
                        '<destination> (default is stdout).  See '
                        '<http://docutils.sf.net/docs/user/config.html> for '
                        'the full reference.')
+
+
+class AddTOC(object):
+    """
+    Attempt to follow the hint from 
+
+    * https://github.com/python-openxml/python-docx/issues/36
+
+    The document shows up, but no TOC (in Pages as least) despite the
+    following gobbledegook being incorporated::
+
+          <w:r>
+            <w:fldChar w:fldCharType="begin"/>
+          </w:r>
+          <w:r>
+            <w:instrText xml:space="preserve">TOC \* MERGEFORMAT</w:instrText>
+          </w:r>
+          <w:r>
+            <w:fldChar w:fldCharType="end"/>
+          </w:r>
+
+    * http://stackoverflow.com/questions/9762684/how-to-generate-table-of-contents-using-openxml-sdk-2-0
+
+    Hmm, it seems the effort required to automatically AddTOC 
+    are not worth the effort. Workaround: do it manually within the client, it would 
+    be necessary in any case to adjust styles of headings etc..
+
+    """
+    def __init__(self, docx):
+        self.para = docx.add_paragraph()
+        self.add_element(self.element('w:fldChar', {"w:fldCharType":'begin'}))
+        self.add_element(self.element('w:instrText', {'xml:space':'preserve', '_text':"TOC \* MERGEFORMAT"}))
+        self.add_element(self.element('w:fldChar', {'w:fldCharType':'end'}))
+
+    def add_element(self, elem):
+        run = self.para.add_run()
+        r_element = run._r
+        r_element.append(elem) 
+
+    def __repr__(self):
+        p_element = self.para._p
+        return str(p_element.xml)
+
+    def element(self, name, attr):
+        from docx.oxml.shared import OxmlElement, qn
+        elem = OxmlElement(name)  
+        text = attr.pop('_text', None)
+        for k, v in attr.items():
+            elem.set(qn(k), v) 
+        pass 
+        if not text is None:
+           elem.text = text 
+        pass
+        return elem
 
 
 
@@ -62,6 +122,8 @@ class Writer(writers.Writer):
         self.translator_class = Translator
         self.uribase = uribase
         self.docx = Document()
+        #atoc = AddTOC(self.docx)
+        #print atoc
 
     def resolve(self, uri):
         path = os.path.join(self.uribase, uri)
@@ -99,9 +161,11 @@ class Translator(BaseTranslator):
         self.style = []
         self.docinfo = {}
         self.nopara = False
+        self.date = None
+        self.title_count = 0 
 
     def astext(self):
-        return "klop"
+        return ""
 
     def visit_section(self, node):
         self.level += 1
@@ -111,7 +175,14 @@ class Translator(BaseTranslator):
     def visit_title(self, node):
         pass
     def depart_title(self, node):
-        self.docx.add_heading(self.text.pop(), self.level)
+        self.title_count += 1  
+        text = self.text.pop()
+
+        ## somewhat specifically add date to first title heading
+        if self.title_count == 1 and not self.date is None:
+            text = "%s [%s]" % (text, self.date)
+
+        self.docx.add_heading(text, self.level)
 
     def visit_Text(self, node):
         self.text.append(node_astext(node))
@@ -184,7 +255,11 @@ class Translator(BaseTranslator):
     def depart_field_body(self, node):
         pass
  
-
+    def visit_date(self, node):
+        self.date = node_astext(node)
+    def depart_date(self, node):
+        pass
+  
 
 
 class Config(object):
