@@ -1581,3 +1581,4 @@ docx-(){      . $(env-home)/tools/docx/docx.bash && docx-env $* ; }
 docxbuilder-(){      . $(env-home)/tools/docxbuilder/docxbuilder.bash && docxbuilder-env $* ; }
 mono-(){      . $(env-home)/tools/mono/mono.bash && mono-env $* ; }
 openxml-(){      . $(env-home)/tools/openxml/openxml.bash && openxml-env $* ; }
+argparse-(){      . $(env-home)/python/argparse/argparse.bash && argparse-env $* ; }

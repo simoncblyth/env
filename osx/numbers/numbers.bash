@@ -30,7 +30,7 @@ Usage Steps
 
 #. To import into the current spreadsheet::
 
-     numbers-export in.csv
+     numbers-import in.csv
 
 Example::
 
