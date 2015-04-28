@@ -84,7 +84,7 @@ EOU
 }
 numbers-dir(){ echo $(local-base)/env/osx/numbers ; }
 numbers-sdir(){ echo $(env-home)/osx/numbers ; }
-numbers-cd(){  cd $(numbers-dir); }
+numbers-cd(){  cd $(numbers-sdir); }
 numbers-scd(){  cd $(numbers-sdir); }
 numbers-mate(){ mate $(numbers-dir) ; }
 
@@ -119,6 +119,26 @@ numbers-export(){
    echo $msg path $path
    numbers-context
    osascript $(numbers-sdir)/numbers_export_csv.applescript $path "$(numbers-sheetname)" $(numbers-toprow) $(numbers-delimiter)
+}
+
+numbers-document-name(){
+   osascript $(numbers-sdir)/numbers_document_name.applescript 
+}
+
+numbers-to-csv(){
+   local msg="=== $FUNCNAME :"
+   local dir=${1:-$PWD}
+   local name=$(numbers-document-name)
+   local path="$dir/$name/$name.csv"
+
+   local odir=$(dirname $path)
+   if [ ! -d "$odir" ]; then 
+      mkdir -p $odir
+   fi 
+
+   echo $msg write frontmost Numbers document $name into "$path" assuming sheetname $(numbers-sheetname) toprow $(numbers-toprow) delimiter $(numbers-delimiter) 
+   [ -f "$path" ] && echo $msg there is preexisting "$path" : remove it and rerun && return  
+   numbers-export "$path"
 }
 
 
