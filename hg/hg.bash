@@ -35,10 +35,14 @@ log templates
 
 * http://stackoverflow.com/questions/3575189/mercurial-log-with-one-liners
 
+Many examples of templates at http://www.selenic.com/hg/help/templates
+
+
 Add log alias to .hgrc::
 
     [alias]
     shortlog = log --template '{node|short} | {date|isodatesec} | {author|user}: {desc|strip|firstline}\n'
+    flog = log --template "\n{node|short} | {date|isodatesec} | {author|user}: {desc|strip|firstline}\n{files % '  {file}\n'}"
 
 Then can review period by period with::
 
@@ -303,6 +307,9 @@ precisely the same Mercurial version at both ends.
 
 hg convert
 ------------
+
+* see adm- for higher level usage with full history comparisons
+
 
 #. needs *sudo port install subversion-python27bindings*
 #. authormap

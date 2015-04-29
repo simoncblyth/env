@@ -273,16 +273,23 @@ class Compare(object):
         hg_digest = self.hg.contents_digest()
 
         mismatch_ = lambda _:hg_digest.get(_,None) != svn_digest.get(_,None)
-        mismatch = filter(mismatch_, common_paths)     # matching only the common paths
+        mismatch0 = filter(mismatch_, common_paths)     # matching only the common paths
+
+        not_knownbadpath_ = lambda _:not self.svn.is_knownbadpath(_)
+        mismatch = filter( not_knownbadpath_ , mismatch0 ) 
+
+        kbp = list(set(mismatch0).difference(set(mismatch)))
+
+        if len(kbp) > 0:
+            log.debug("known bad paths excluded entries from mismatch %s " % repr(kbp))
+
 
         svn_only = list(set(svn_digest.keys()).difference(set(common_paths)))
         hg_only = list(set(hg_digest.keys()).difference(set(common_paths)))
 
-         
 
-
-        log.info("compare_contents paths %s svn_digest %s hg_digest %s mismatch %s  svn_only %s hg_only %s " %
-             (len(common_paths),len(svn_digest), len(hg_digest),len(mismatch), len(svn_only),len(hg_only)))
+        log.info("compare_contents paths %s svn_digest %s hg_digest %s mismatch %s  svn_only %s hg_only %s kbp %s " %
+             (len(common_paths),len(svn_digest), len(hg_digest),len(mismatch), len(svn_only),len(hg_only), len(kbp)))
 
         check = {}
         check['hg_keys']  = sorted(hg_digest.keys()) == common_paths
@@ -389,6 +396,7 @@ def parse(doc):
     parser.add_argument("--expected-svnonly-dirs", default="", help="Comma delimited list of expected svnonly dirs to not raise error for. " )
     parser.add_argument("--clean-checkout-revs", default="", help="Comma delimited list of revisions for which clean checkouts are needed"  )
     parser.add_argument("--known-bad-revs", default="", help="Comma delimited list of revisions for which errors are ignored"  )
+    parser.add_argument("--known-bad-paths", default="", help="Comma delimited list of paths for which errors are ignored"  )
 
     parser.add_argument("-A","--ALLREV", action="store_true", help="Switch on traversal of all revisions, this is slow.")
     args = parser.parse_args()

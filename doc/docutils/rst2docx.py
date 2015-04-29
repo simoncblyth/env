@@ -281,6 +281,10 @@ def main():
 
     log.info("reading %s " % paths[0])
 
+    odir = os.path.dirname(paths[1])
+    if not os.path.exists(odir):
+        os.makedirs(odir)
+
 
     reader=None
     parser=None

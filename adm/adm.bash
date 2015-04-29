@@ -22,6 +22,50 @@ example:
 #. hgapi, programmatic access to Mercurial repository 
 
 
+FUNCTIONS
+-----------
+
+*adm-svnmirror-init name*
+
+     Setup SVN mirror repository connected to source repository via
+     configured src repos URL eg http://dayabay.phys.ntu.edy.tw/repos
+     OR envvar ADM_SVNREPOSURL 
+
+*adm-svnmirror-sync name*
+
+     sync SVN mirror repository 
+
+*adm-convert*
+
+     Runs hg convert, migrating SVN repo to Mercurial repo 
+
+     adm-convert env
+     adm-convert heprez
+     adm-convert tracdev
+
+     Conversion of about 4000 env revisions from local file based SVN 
+     repo (updated via adm-svnmirror-sync) takes about 1 minute.
+
+*adm-prep-hg name*
+
+
+*adm-compare-svnhg name*
+
+     Compares the SVN and converted HG repositories 
+     by log comparison with timestamp matching to map between revisions.
+     Makes corresponding SVN and HG checkouts for every revision, 
+     compares file paths and content digests for the SVN and HG working copy.
+
+*adm-authormap*
+
+     from SVN username into Mercurial/Bitbucket name/email
+
+
+*adm-utilities*
+
+     Installs basic utilities: eg readline, ipython 
+
+
 Setup local SVN mirror for faster SVN to HG conversions
 ---------------------------------------------------------
 
@@ -88,9 +132,6 @@ Tracdev
     adm-convert tracdev
 
 
-
-
-
 Related
 --------
 
@@ -147,44 +188,6 @@ status Jul 30, 2014
 #. tracdev has multiple trunk/branches/tags under multiple toplevel names, will need some special filemappings ?
    
    * http://dayabay.phys.ntu.edu.tw/repos/tracdev/ 
-
-
-FUNCTIONS
------------
-
-*adm-utilities*
-
-     Installs basic utilities: eg readline, ipython 
-
-*adm-convert*
-
-     Runs hg convert, migrating SVN repo to Mercurial repo 
-
-     adm-convert env
-     adm-convert heprez
-     adm-convert tracdev
-
-     Conversion of about 4000 env revisions from local file based SVN 
-     repo (updated via adm-svnmirror-sync) takes about 1 minute.
-
-*adm-svnhg name*
-
-     Compares the SVN and converted HG repositories 
-     by log comparison with timestamp matching to map between revisions.
-     Makes corresponding SVN and HG checkouts for every revision, 
-     compares file paths and content digests for the SVN and HG working copy.
-
-*adm-svnmirror-init name*
-
-     Setup SVN mirror repository 
-
-*adm-svnmirror-sync name*
-
-     sync SVN mirror repository 
-
-*adm-authormap*
-
-     from SVN username into Mercurial/Bitbucket name/email
 
 
 EOU
@@ -255,10 +258,11 @@ adm-svnurl(){
     env)     echo file:///var/scm/subversion/env/trunk ;;     # NB no actual trunk directory in file system, its a fiction understood to be inside the repo database   
     heprez)  echo file:///var/scm/subversion/heprez/trunk ;;
     tracdev) echo file:///var/scm/subversion/tracdev ;;      # no trunk
+          *) echo file:///var/scm/subversion/$repo/trunk ;;  # default to SVN standard layout, NB no trunk in filesystem, it lives inside the repo DB
   esac
 }
 
-
+adm-svnreposurl(){ echo ${ADM_SVNREPOSURL:-http://dayabay.phys.ntu.edy.tw/repos} ; }
 adm-svnmirror-init(){
     local name=$1
     local fold=/var/scm/subversion
@@ -271,7 +275,7 @@ adm-svnmirror-init(){
     echo '#!/bin/sh' > $repo/hooks/pre-revprop-change
     chmod +x $repo/hooks/pre-revprop-change
 
-    local cmd="svnsync init file://$repo http://dayabay.phys.ntu.edu.tw/repos/$name"
+    local cmd="svnsync init file://$repo $(adm-svnreposurl)/$name"
     echo $cmd
     eval $cmd 
 }
@@ -288,6 +292,7 @@ adm-svnmirror-sync(){
 
 
 adm-hgsvnrev(){
+  ## SVN rev 1 presumably creates the trunk folder, this presumably aligns history to trunkless hg  
   case $1 in 
     heprez)  echo 0 1 ;;
     tracdev) echo 0 1 ;;
@@ -296,6 +301,8 @@ adm-hgsvnrev(){
     env1) echo 3470 1598 ;;
     env2) echo 0 1 ;;
     env3) echo 724 732 ;;
+ workflow0) echo 679 691 ;;        
+       *) echo 0 1 ;;        
   esac
 }
 
@@ -304,6 +311,9 @@ adm-opts(){
         env) echo --skipempty --ignore-externals --clean-checkout-revs 1599,1600,1601 --known-bad-revs 1600 ;;
      heprez) echo --skipempty --ignore-externals ;;
     tracdev) echo --skipempty --ignore-externals --expected-svnonly-dirs xsltmacro/branches ;;
+   workflow) echo --skipempty --ignore-externals --known-bad-paths notes/dev/tools/subversion.rst ;;
+   # r696: notes/dev/tools/subversion.rst uses SVN variable substitution macros, so mismatch is expected
+          *) echo --skipempty --ignore-externals ;;
   esac 
 }
 
@@ -311,11 +321,12 @@ adm-prep-hg(){
 
    local name=${1:-env}
    local vard=/var/scm/mercurial/$name
-   local repd=$HOME/$name
+   #local repd=$HOME/$name
    local tmpd=/tmp/mercurial/$name
+   mkdir -p $(dirname $tmpd)
 
    [ ! -d "$vard" ] && echo $msg ERROR no $vard && return
-   [ ! -d "$repd" ] && hg --cwd $(dirname $repd) clone $vard 
+   #[ ! -d "$repd" ] && hg --cwd $(dirname $repd) clone $vard 
    [ ! -d "$tmpd" ] && hg --cwd $(dirname $tmpd) clone $vard 
 }
 

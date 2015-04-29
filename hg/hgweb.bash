@@ -3,17 +3,30 @@ hgweb-src(){      echo hg/hgweb.bash ; }
 hgweb-source(){   echo ${BASH_SOURCE:-$(env-home)/$(hgweb-src)} ; }
 hgweb-vi(){       vi $(hgweb-source) ; }
 hgweb-env(){      elocal- ; }
-hgweb-usage(){
-  cat << EOU
-     hgweb-src : $(hgweb-src)
-     hgweb-dir : $(hgweb-dir)
+hgweb-usage(){  cat << EOU
 
-       Deployments :
-            C  ...  supervisor controlled SCGI + apache modscgi 
-            N  ...  apache modwsgi embedded
+HGWEB
+=======
+
+List of solutions for remote Mercurial access
+-----------------------------------------------
+
+* http://mercurial.selenic.com/wiki/PublishingRepositories
+
+HGWeb is only one way of providing remote access to Mercurial repos. 
+The simplicity of just using SSH is attractive, see hgssh- for details.
+
+HGWeb
+-------
+
+Deployments:
+
+* C  supervisor controlled SCGI + apache modscgi 
+* N  apache modwsgi embedded
 
 
-     http://mercurial.selenic.com/wiki/HgWebDirStepByStep
+* http://mercurial.selenic.com/wiki/HgWebDirStepByStep
+
 
      hgweb-hgrc-
          demo to stdout the hook that needs to be added 
@@ -22,17 +35,15 @@ hgweb-usage(){
              http://mercurial.selenic.com/wiki/modwsgi
 
 
-     Mercurial clones in :  
-         /var/hg/repos 
+Mercurial clones in : /var/hg/repos 
 
-     Will show up in the list   
+Will show up in the list   
           http://belle7.nuu.edu.tw/hg/
 
-     with URLs like :
+with URLs like :
           http://belle7.nuu.edu.tw/hg/AuthKit/
 
-
-     hgweb-vhgpy 
+hgweb-vhgpy 
          create a virtual python environment to house mercurial 
 
 
@@ -272,17 +283,5 @@ redirect_stderr=true
 autostart=true
 EOC
 }
-
-
-
-
-
-
-
-
-
-
- 
-
 
 

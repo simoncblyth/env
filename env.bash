@@ -170,6 +170,10 @@ env functions
 *env-toc*
      create index.rst toctree referencing all .rst in PWD 
 
+*env-wdir dir:-PWD*
+     create index.rst using wdir directive to provide a list of .pdf 
+     used for parallel or sweep.py trees  
+
 
 absorbing an exported env working copy 
 -----------------------------------------
@@ -321,6 +325,37 @@ env-rst(){
      build.xml) $FUNCNAME-xml- > $rstpath ;;
              *) $FUNCNAME-     > $rstpath ;;
    esac
+}
+
+
+env-wdir-(){ cat <<EOL
+:wdir:
+
+WDIR
+=====
+
+PDFS
+----
+
+.. wdir:: *.pdf
+
+DOCX
+-----
+
+.. wdir:: *.docx
+
+
+EOL
+}
+
+env-wdir(){
+
+  local dir=${1:-$PWD} 
+  local path=$dir/index.rst
+  [ -f "$path" ] && echo $msg path $path exists already && return 
+
+  echo $msg writing $path 
+  $FUNCNAME- > $path
 }
 
 
@@ -1582,3 +1617,4 @@ docxbuilder-(){      . $(env-home)/tools/docxbuilder/docxbuilder.bash && docxbui
 mono-(){      . $(env-home)/tools/mono/mono.bash && mono-env $* ; }
 openxml-(){      . $(env-home)/tools/openxml/openxml.bash && openxml-env $* ; }
 argparse-(){      . $(env-home)/python/argparse/argparse.bash && argparse-env $* ; }
+hgssh-(){      . $(env-home)/hg/hgssh.bash && hgssh-env $* ; }

@@ -99,6 +99,7 @@ class SVNClient(object):
         self.ignore_externals = args.ignore_externals
         self.clean_checkout_revs = map(int, filter(None,args.clean_checkout_revs.split(",")))    
         self.known_bad_revs = map(int, filter(None,args.known_bad_revs.split(",")))    
+        self.known_bad_paths = args.known_bad_paths.split(",")   
 
 
     def make_client(self):
@@ -131,6 +132,8 @@ class SVNClient(object):
 
     def is_knownbad(self):
         return self.revision in self.known_bad_revs
+    def is_knownbadpath(self, path):
+        return path in self.known_bad_paths
 
     def checkout(self, rev, clean=False):
         self.client = self.make_client()

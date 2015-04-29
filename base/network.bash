@@ -1,4 +1,46 @@
+network-vi(){ vi $BASH_SOURCE ; }
+
 network-usage(){ cat << EOU
+
+Network Issues
+===============
+
+
+OSX : Internet sharing from G4PB to Delta over adhoc WiFi not working 
+-----------------------------------------------------------------------
+
+* wifi connection is OK and can ssh from Delta to G4PB but 
+  internet sharing not working, curl just hangs
+
+* reboot Delta makes no difference, this is with a just rebooted G4PB
+
+Fix: is to disable/enable "System Preferences > Sharing > Internet sharing" 
+     on G4PB
+
+
+OSX : share WiFi to WiFi ?
+----------------------------
+
+* http://superuser.com/questions/233924/share-a-wifi-connection-through-wifi-on-mac-os-x
+
+The below looks liable to cause more problems than it solves::
+
+    sudo -s
+    ifconfig en1 x.x.x.1/24 alias
+    sysctl -w net.inet.ip.forwarding=1
+    natd -interface en1
+    ipfw -f flush
+    ipfw add divert natd all from any to any via en1
+    ipfw add pass all from any to any
+
+
+Why do that:
+
+* to connect iPod/iPad to MBP disk over AFP it needs to be 
+  an AdHoc network coming from the MBP
+
+  * http://www.goodiware.com/gr-man-tr-wifi-create.html
+
 
 
 EOU
