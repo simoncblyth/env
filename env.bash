@@ -774,6 +774,11 @@ env-rstfind(){
   cd $(env-home)
   find . -name '*.rst' -exec grep -H $q {} \;  
 }
+env-bashfind(){
+  local q=${1:-dummy}
+  cd $(env-home)
+  find . -name '*.bash' -exec grep -H $q {} \;  
+}
 env-dfind(){
   local q=${1:-dummy}
 

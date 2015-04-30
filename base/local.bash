@@ -203,7 +203,7 @@ local-tag2node(){
          N1) echo belle1 ;;
     S2|P|G1) echo grid1 ;;
          G3) echo g3pb ;;
-          G) echo g4pb ;; 
+G|g4pb.local) echo g4pb ;; 
           *) echo unknown ;; 
   esac
 }
@@ -291,7 +291,8 @@ local-port-sshd(){
 local-nodetag(){
   [ -n "$NODE_TAG_OVERRIDE" ] && echo $NODE_TAG_OVERRIDE && return 0
   case ${1:-$LOCAL_NODE} in
-   g4pb|simon) echo G ;;
+         g4pb) echo G ;;
+  delta|simon) echo D ;;
          mars) echo M ;;
          coop) echo CO ;;
          hep1) echo H1 ;;

@@ -66,6 +66,16 @@ FUNCTIONS
      Installs basic utilities: eg readline, ipython 
 
 
+
+Switching svnsync mirror repo source URL following network rejig
+------------------------------------------------------------------
+
+* http://www.emreakkas.com/linux-tips/how-to-change-svnsync-url-for-source-repository
+
+
+
+
+
 Setup local SVN mirror for faster SVN to HG conversions
 ---------------------------------------------------------
 
@@ -279,6 +289,33 @@ adm-svnmirror-init(){
     echo $cmd
     eval $cmd 
 }
+
+adm-svnmirror-get-url(){
+    local name=${1:-env}
+    local fold=/var/scm/subversion
+    local repo=$fold/$name
+    svn propget svn:sync-from-url --revprop -r 0 file://$repo
+}
+
+adm-svnmirror-set-url(){
+    local name=${1:-env}
+    local url=${2:-you-need-to-provide-new-url}
+    local fold=/var/scm/subversion
+    local repo=$fold/$name
+    local cmd="svn propset svn:sync-from-url --revprop -r 0 $url file://$repo"
+    echo $msg $cmd 
+} 
+
+
+adm-svnmirror-get-uuid(){
+    local name=${1:-env}
+    local fold=/var/scm/subversion
+    local repo=$fold/$name
+    svn propget svn:sync-from-uuid --revprop -r 0 file://$repo
+}
+
+
+
 
 adm-svnmirror-sync(){
     local name=${1:-env}

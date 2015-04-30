@@ -8,12 +8,22 @@ scmmigrate-usage(){ cat << EOU
 SCM MIGRATE
 ============
 
+Uses standard scm repos/tracs/backup layout adopted 
+by all my SVN/Trac instances to facilitate migrations.
+
+
 FUNCTIONS
 ----------
 
 *scmmigrate-get*
     transfers backup tarballs from remote hub node, verifies and unpacks them  
     into same directory layout as source, namely beneath /var/scm/backup
+
+
+*scmmigrate-tickets*
+    
+
+
 
 EOU
 }
@@ -22,6 +32,26 @@ scmmigrate-hub(){ echo ${SCMMIGRATE_HUB:-C2} ; }
 scmmigrate-repo(){ echo ${SCMMIGRATE_REPO:-env} ; }
 scmmigrate-stamp(){ echo ${SCMMIGRATE_STAMP:-2014/07/20/173006} ; } # could be "last" 
 scmmigrate-fold(){ echo /var/scm ; }
+
+scmmigrate-dump(){ cat << EOI
+
+  scmmigrate-hub          :  $(scmmigrate-hub)
+  scmmigrate-repo         :  $(scmmigrate-repo)
+  scmmigrate-stamp        :  $(scmmigrate-stamp)
+
+  *scmmigrate-get* copies remote hub node directories to local, 
+  does dna check and untars the tarball 
+
+  scmmigrate-tgzdir tracs :  $(scmmigrate-tgzdir tracs)
+  scmmigrate-tgzdir repos :  $(scmmigrate-tgzdir repos)
+
+
+  scmmigrate-tracdir      : $(scmmigrate-tracdir)
+  scmmigrate-svndir       : $(scmmigrate-svndir)
+
+EOI
+}
+
 
 scmmigrate-tgzdir(){
    local typ=${1:-tracs}
@@ -88,6 +118,9 @@ scmmigrate-get-tgzdir(){
 
 scmmigrate-repodirname(){
    local dir=${1:-.}
+
+   [ ! -d "$dir" ] && echo repodir-does-not-exist-yet && return 
+
    local tgz=$(ls -1 $dir/*.tar.gz)
    local bas=$(basename $tgz)
    local nam=${bas/.tar.gz}
@@ -106,7 +139,7 @@ scmmigrate-untar-tgzdir(){
    rc=$?
 
    [ ${rc} -ne 0 ] && echo $msg WARNING DNA MISMATCH && sleep 1000000000000
-   [ ! -d "$nam" ] && echo $msg untarring $tgz && tar zxvf $tgz
+   [ ! -d "$nam" ] && echo $msg untarring $tgz && tar zxf $tgz
    [ -d "$nam" ] && echo $msg tarballs from $dir are untarred into $nam
 
    cd $iwd

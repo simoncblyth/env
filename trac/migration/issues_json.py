@@ -37,6 +37,13 @@ Questions
 import json, sys, os, logging
 log = logging.getLogger(__name__)
 
+try:
+   import IPython
+except ImportError:
+   IPython = None
+
+
+
 def readjson(path):
     with open(path,"rb") as fp:
         js = json.load(fp)
@@ -63,8 +70,8 @@ def main():
     js = readjson(path)
     bbi = BBI(js)
 
-    import IPython
-    IPython.embed()  
+    if not IPython is None:
+        IPython.embed()  
 
 
 if __name__ == '__main__':
