@@ -1623,3 +1623,4 @@ mono-(){      . $(env-home)/tools/mono/mono.bash && mono-env $* ; }
 openxml-(){      . $(env-home)/tools/openxml/openxml.bash && openxml-env $* ; }
 argparse-(){      . $(env-home)/python/argparse/argparse.bash && argparse-env $* ; }
 hgssh-(){      . $(env-home)/hg/hgssh.bash && hgssh-env $* ; }
+imagecapture-(){      . $(env-home)/osx/imagecapture.bash && imagecapture-env $* ; }
