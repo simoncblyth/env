@@ -25,6 +25,7 @@ if __name__ == '__main__':
     config = DAEConfig()
     config.init_parse()
     cmm = DAEChromaMaterialMap.fromjson(config)
+    print cmm.path
     print cmm
 
     names_in = "Acrylic,GdDopedLS"
