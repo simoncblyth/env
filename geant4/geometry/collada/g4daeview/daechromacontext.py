@@ -138,9 +138,19 @@ class Geant4MaterialMap(dict):
 
 class ChromaMaterialMap(dict):
     def __init__(self, chroma_geometry):
+        self.material_count = len(chroma_geometry.unique_materials)
         for chindex, m in enumerate(chroma_geometry.unique_materials):
             g4name = m.name[:-9].replace("__","/")
             self[g4name] = chindex
+
+    def write(self, path):
+        log.info("writing to %s " % path )
+        with open(path,"w") as fp:
+            json.dump(self, fp) 
+
+    def __str__(self):
+        return "\n".join(["%s : %s " % (k, v ) for k, v in self.items()])
+
 
 
 class DAEChromaContext(object):
@@ -159,6 +169,9 @@ class DAEChromaContext(object):
         pycuda_init(gl=gl)
         self.chroma_geometry = chroma_geometry
         self.chroma_material_map = ChromaMaterialMap(chroma_geometry)   
+        log.info("chroma_material_map : %s " % str(self.chroma_material_map))
+        self.chroma_material_map.write("/tmp/ChromaMaterialMap.json")
+
         self.geant4_material_map = Geant4MaterialMap()   
         pass
 

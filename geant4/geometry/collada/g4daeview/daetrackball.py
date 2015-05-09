@@ -160,13 +160,13 @@ class DAETrackball(gp.Trackball):
         q = self._rotate(x,y,dx,dy)
 
         drag = x,y,dx,dy
-        print "drag_to drag  %s " % repr(drag)
-        print "drag_to q     %s " % repr(q)   
-        print "drag_to _rot0 %s " % repr(self._rotation)   
+        #print "drag_to drag  %s " % repr(drag)
+        #print "drag_to q     %s " % repr(q)   
+        #print "drag_to _rot0 %s " % repr(self._rotation)   
 
         self._rotation = _q_add(q,self._rotation)
 
-        print "drag_to _rot1  %s " % repr(self._rotation)   
+        #print "drag_to _rot1  %s " % repr(self._rotation)   
 
         self._count += 1
         if self._count > self._RENORMCOUNT:
