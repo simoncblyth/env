@@ -170,7 +170,9 @@ class DAEChromaContext(object):
         self.chroma_geometry = chroma_geometry
         self.chroma_material_map = ChromaMaterialMap(chroma_geometry)   
         log.info("chroma_material_map : %s " % str(self.chroma_material_map))
-        self.chroma_material_map.write("/tmp/ChromaMaterialMap.json")
+
+        cmmpath = os.path.join(config.geocachefold, "ChromaMaterialMap.json")
+        self.chroma_material_map.write(cmmpath)
 
         self.geant4_material_map = Geant4MaterialMap()   
         pass

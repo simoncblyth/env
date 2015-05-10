@@ -323,6 +323,13 @@ class DAEDirectConfig(object):
         return os.path.join( self.geocachepath, "chroma_geometry")
     chromacachepath = property(_get_chromacachepath) 
 
+
+    def _get_geocachefold(self):
+        return os.path.dirname(self.geocachepath)
+    geocachefold = property(_get_geocachefold) 
+    
+
+
     def wipe_geocache(self):
         cachedir = self.geocachepath
         if not os.path.exists(cachedir):
@@ -339,6 +346,8 @@ if __name__ == '__main__':
     ddc = DAEDirectConfig(__doc__)
     ddc.parse()
     print ddc.args 
+    print "geocachepath:%s" % ddc.geocachepath
+    print "geocachefold:%s" % ddc.geocachefold
 
 
  
