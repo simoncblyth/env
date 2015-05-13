@@ -33,6 +33,28 @@ Interactive access to geometry via embedded ipython::
       'ABSLENGTH (497, 2)',
 
 
+
+Dump array with slowcomponent::
+
+    In [4]: a = gdls.daeprops['SLOWCOMPONENT']
+
+    In [5]: a
+    Out[5]: 
+    array([[  79.9898,    0.    ],
+           [ 120.0235,    0.    ],
+           [ 199.9746,    0.    ],
+           ..., 
+           [ 599.0011,    0.0017],
+           [ 600.0012,    0.0018],
+           [ 799.8984,    0.    ]])
+
+    In [6]: a.shape
+    Out[6]: (275, 2)
+
+    In [8]: np.save("/tmp/slowcomponent.npy", a )
+
+
+
 Making plots comparing GdLS and LS properties (using the collada source properties)::
 
     cfplt_("RAYLEIGH")  + [plt.show()]        # look same 
@@ -85,7 +107,7 @@ def _get_daeprops(self):
 # with its cache writing/reading so following switch off 
 # may need to --geocacheupdate
 #
-DEBUG = 0  
+DEBUG = 1
 if DEBUG:
     Material.daeprops = property(_get_daeprops)
 
@@ -542,6 +564,7 @@ class ColladaToChroma(object):
         assert not reem is None
 
         assert np.all( fast == slow )     # CURIOUS, that these are the same
+
 
         reemission_cdf = construct_cdf_energywise( fast ) 
 
