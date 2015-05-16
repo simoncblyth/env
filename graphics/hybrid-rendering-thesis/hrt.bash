@@ -15,6 +15,13 @@ Master's thesis at Narvik University College.
 https://code.google.com/p/hybrid-rendering-thesis/
 
 
+Physically based Rendering Background
+--------------------------------------
+
+* http://www.pbrt.org
+
+
+
 Shared PBO
 ------------
 
