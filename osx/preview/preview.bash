@@ -11,11 +11,25 @@ Preview.app image editing
 
 * https://support.apple.com/en-us/HT201740
 
-to scale down retina screen capture
-------------------------------------
+
+Scaledown retina screen capture by factor 2
+----------------------------------------------
 
 * hit edit button, select size icon, change dpi from 144 to 72
   it saves automatically 
+
+
+Combine multiple PDFs into one PDF 
+---------------------------------------
+
+* see osx_automator_workflows
+
+
+Combine multiple PNGs into one PDF
+--------------------------------------
+
+* see osx_automator_workflows
+
 
 
 
