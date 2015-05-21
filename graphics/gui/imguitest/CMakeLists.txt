@@ -46,7 +46,10 @@ message("ImGui_LIBRARIES:" ${ImGui_LIBRARIES})
 message("ImGui_INCLUDE_DIRS:" ${ImGui_INCLUDE_DIRS})  
 
 add_executable( ${name} main.cpp )
-target_link_libraries( ${name} ${ImGui_LIBRARIES})
+target_link_libraries( ${name} 
+    ${GLEW_LIBRARIES}
+    ${GLFW_LIBRARIES}
+    ${ImGui_LIBRARIES})
 
 install(TARGETS ${name} DESTINATION bin)
 

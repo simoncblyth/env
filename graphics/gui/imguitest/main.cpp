@@ -3,7 +3,9 @@
 #include <imgui.h>
 #include "imgui_impl_glfw_gl3.h"
 #include <stdio.h>
-#include <GL/gl3w.h>
+
+//#include <GL/gl3w.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 static void error_callback(int error, const char* description)
@@ -25,7 +27,14 @@ int main(int, char**)
 #endif
     GLFWwindow* window = glfwCreateWindow(1280, 720, "ImGui OpenGL3 example", NULL, NULL);
     glfwMakeContextCurrent(window);
-    gl3wInit();
+
+    //gl3wInit();
+
+    // start GLEW extension handler, segfaults if done before glfwCreateWindow
+    glewExperimental = GL_TRUE;
+    glewInit (); 
+
+
 
     // Setup ImGui binding
     ImGui_ImplGlfwGL3_Init(window, true);
