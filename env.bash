@@ -1626,3 +1626,6 @@ hgssh-(){      . $(env-home)/hg/hgssh.bash && hgssh-env $* ; }
 imagecapture-(){      . $(env-home)/osx/imagecapture.bash && imagecapture-env $* ; }
 preview-(){      . $(env-home)/osx/preview/preview.bash && preview-env $* ; }
 brandom-(){      . $(env-home)/boost/random/brandom.bash && brandom-env $* ; }
+librocket-(){      . $(env-home)/graphics/gui/librocket/librocket.bash && librocket-env $* ; }
+imgui-(){      . $(env-home)/graphics/gui/imgui/imgui.bash && imgui-env $* ; }
+imguitest-(){      . $(env-home)/graphics/gui/imguitest/imguitest.bash && imguitest-env $* ; }
