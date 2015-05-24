@@ -10,6 +10,10 @@ class s5backgroundimage(nodes.General, nodes.Inline, nodes.Element):
     pass
 
 def render_s5backgroundimage( n ):
+    """
+    http://www.w3schools.com/cssref/tryit.asp?filename=trycss3_background-size
+    """
+
     div_tmpl = r"""div.slide#%(tid)s{
              background-image: url(%(url)s);
              background-size: %(size)s;

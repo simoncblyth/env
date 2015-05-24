@@ -1,3 +1,8 @@
+# Usage:
+#
+# * presentation-vi to set the name of the presentation
+# * presentation-make to run this make file with the needed environment   
+#
 #
 # Convert RST .txt into .html within $(DOCBASE) and 
 # open a page of the presentation in Safari:

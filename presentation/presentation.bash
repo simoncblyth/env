@@ -15,7 +15,9 @@ presentation-dir(){ echo $(env-home)/presentation ; }
 presentation-cd(){  cd $(presentation-dir); }
 
 
-presentation-name(){ echo gpu_accelerated_geant4_simulation ; }
+#presentation-name(){ echo gpu_accelerated_geant4_simulation ; }
+presentation-name(){ echo optical_photon_simulation_with_nvidia_optix ; }
+
 presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
 presentation-export(){
    export PRESENTATION_NAME=$(presentation-name)
@@ -27,6 +29,17 @@ presentation-make(){
    env | grep PRESENTATION
    make $*
 }
- 
 
+
+presentation-remote(){
+   echo simoncblyth.bitbucket.org
+}
+
+presentation-open(){
+   open http://localhost/env/presentation/$(presentation-name).html?page=${1:-0}
+} 
+
+presentation-open-remote(){
+   open http://$(presentation-remote)/env/presentation/$(presentation-name).html?page=${1:-0}
+}
 
