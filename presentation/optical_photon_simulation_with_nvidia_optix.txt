@@ -290,7 +290,7 @@ Optical Photon Simulation with NVIDIA OptiX
 :small:`Status of Chroma to OptiX migration`
 ---------------------------------------------------------
 
-.. sidebar:: Python/NumPy/PyCUDA to C++/CUDA/???
+.. sidebar:: NumPy/PyCUDA to C++/CUDA
 
       .. class:: small
 
@@ -302,9 +302,12 @@ Optical Photon Simulation with NVIDIA OptiX
 
           :red:`Reimplementation in C++ adopted as the simplest longterm approach`
 
+          **G4DAEChroma** bridge works asis, just need to change name: **G4DAEOpticks**
+
+
+
 
 .. class:: small
-
 
     Infrastructure for geometry/photon GPU loading, kernel launch
 
@@ -326,6 +329,7 @@ Optical Photon Simulation with NVIDIA OptiX
     Visualization application to aid simulation development
 
     * :blue:`development ongoing in tandem with simulation port needs`
+
 
 
 
@@ -447,8 +451,8 @@ Optical Photon Simulation with NVIDIA OptiX
     Forked Assimp parses G4DAE **extra** XML elements, *AssimpWrap* creates *GGeo* geometry
     with standard properties interpolated onto :red:`common wavelength domain`
 
-    * material: refractive_index, absorption_length, scattering_length, reemission_prob (*float4*)
-    * surface: detect, absorb, reflect_specular, reflect_diffuse (*float4*)
+    * **material** : refractive_index, absorption_length, scattering_length, reemission_prob (*float4*)
+    * **surface** : detect, absorb, reflect_specular, reflect_diffuse (*float4*)
 
 .. sidebar:: Fast GPU texture lookup 
 
@@ -479,6 +483,18 @@ Optical Photon Simulation with NVIDIA OptiX
 
     https://github.com/simoncblyth/assimp (my fork of Assimp)
 
+
+:small:`Inverted CDF allows reemission wavelength lookup`
+-----------------------------------------------------------------------------
+    
+.. class:: small
+
+    Equivalent to value search sampling, fast lookup but requires
+    many probability bins (using 4096). 
+
+.. image:: /env/g4dae/optix-icdf-reemission.png
+   :width: 800px
+   :align: center
 
 
 
@@ -520,116 +536,6 @@ Optical Photon Simulation with NVIDIA OptiX
        arbitrary scaling for visibility. 
        
 
-
-:small:`Compare DAE Exports to GDML and VRML2(WRL)`
-----------------------------------------------------
-
-.. class:: small
-
-    Export validation:
-
-     * Comparison of all vertices/faces reveals :red:`boolean solids are discrepant`. 
-
-     * Perfect [#perfect]_ DAE WRL agreement achieved by *cheating* : :blue:`perform triangulation once and reuse`.
-
-     * Boolean solid triangulation sensitivity must be kept in mind as a potential systematic
-       for computational uses 
-
-     * **DAE not much bigger than GDML**, despite including all triangles/vertices [#not-repeating]_
-       
-
-.. class:: small
-
-    ====================  =================  ==============  ==================  =================
-     Qty                    DayaBay            Lingao             Far             Juno x0.5 
-    ====================  =================  ==============  ==================  =================
-    Volumes                     12,229           12,229             18,903            25,000
-    Triangles                2,448,064        2,448,064          4,189,680        21,886,158
-    Vertices                 1,245,996        1,245,996          2,128,208        10,993,079
-    DAE/GDML/WRL (MB)      **6.9**/4.0/98    **6.9**/4.0/96    **8.6**/6.0/167     **6.1**/-/-                 
-    ====================  =================  ==============  ==================  =================
-
-
-.. class:: tiny
-
-    ``VGDX_20140414`` counts using ``g4daeview.py -g 0: --with-chroma``, Juno geometry truncated
-
-.. class:: tiny
-
-    .. [#perfect] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug (fixed in current G4). 
-                  Details: http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/dae_cf_wrl/ 
-    .. [#not-repeating] Geometry is not repeated, instead the COLLADA format uses geometry instancing and a tree of transforms, 
-                        just like GDML  
-
-
-
-
-
-
-:small:`G4DAEChroma : Bridging from Geant4 to Chroma`
------------------------------------------------------------
-
-.. class:: small
-
-   https://bitbucket.org/simoncblyth/env/src/tip/chroma/G4DAEChroma/G4DAEChroma/
-
-.. sidebar:: Transport Infrastructure
-
-   .. class:: small
-
-       Collects generation steps from Geant4, sends to Chroma, receives
-       hits in reply, integrates into G4 Hit Collections.
-       :red:`Implemented with core of ~20 C++ classes`
-
-.. class:: small
-
-   * :green:`Two detector specific subclasses required eg` *DybG4DAECollector* *DybG4DAEGeometry*
-   * NumPy array creation from C++, transport via ZeroMQ
-   * JSON metadata communication C++/Python, *map<string,string> <-> dict*
-   * Geant4 hit integration using additional *G4VSensitiveDetector*
-     that steals hit collection pointers from existing one
-   * Transform Cache to obtain PMT local coordinates from global hit coordinates
-   * SQLite DB integation for monitoring/control
-
-.. image:: /env/chroma/G4DAEChroma/G4DAEChroma_bitbucket.png
-   :width: 700px
-   :align: center
-
-
-:small:`G4DAEChroma : For implementation details...`
------------------------------------------------------------
-
-.. class:: small
-
-   http://simoncblyth.bitbucket.org/env/notes/chroma/G4DAEChroma/G4DAEChroma/G4DAEChroma_implementation/
-
-.. image:: /env/chroma/G4DAEChroma/G4DAEChroma_implementation.png
-   :width: 700px
-   :align: center
-
-
-https://bitbucket.org/simoncblyth/chroma :small:`Forked:` 
----------------------------------------------------------------------------
-
-.. class:: small
-
-    Changes in my fork of Chroma:
-
-    * stability + efficiency improvements, enabling mobile development 
-    * OpenGL/CUDA interoperation, using VBOs
-    * add recording of propagation steps into VBO datastructure
-    * more efficient Raycasting using 4x4 matrix uniforms and PBOs
-    * animated photon propagation visualization
-    * change serialization approach from ROOT/TObject to NumPy (NPY) 
-    * :red:`generation of Cerenkov and Scintillation Photons based
-      on Geant4 Generation Step inputs` 
-
-.. image:: /env/chroma/chroma_fork_jan2015.png 
-   :width: 700px
-   :align: center
-
-
-
 :small:`Chroma Generated Scintillation Photons cf Geant4`
 ------------------------------------------------------------ 
 
@@ -654,6 +560,7 @@ https://bitbucket.org/simoncblyth/chroma :small:`Forked:`
 .. image:: /env/g4dae/generated_cerenkov_time_wavelength.png
    :width: 800px
    :align: center
+
 
 Next Steps
 ------------------
@@ -702,113 +609,6 @@ Next Steps
 
 
 
-:i:`Cerenkov Photons Simulation - Side View`
-----------------------------------------------
-
-.. sidebar:: Cerenkov Photons
-
-    .. class:: tiny
-
-       Simulated Cerenkov shock front from an 100 GeV muon travelling 
-       from right to left across Dayabay AD. 
-       Primaries are simulated by Geant4, Cerenkov "steps" of the primaries 
-       are transferred to the GPU where **photons are generated, propagated and PMT hits formed**. 
-       Photon colors indicate reemission (green), absorption(red), specular reflection (magenta), scattering(blue), no history (white).
-
-
-:i:`Scintillation Photons Simulation - Side View`
---------------------------------------------------
-
-.. sidebar:: Scintillation Photons
-
-    .. class:: tiny
-
-       Simulated Scintillation photons from an 100 GeV muon travelling 
-       from right to left across Dayabay AD. 
-       Primaries are simulated by Geant4, Scintillation "steps" of the primaries 
-       are transferred to the GPU where **photons are generated, propagated and PMT hits formed**. 
-       Photon colors indicate reemission (green), absorption(red), specular reflection (magenta), scattering(blue), no history (white).
-
-
-
-Cerenkov Photons Simulation - Top View
-----------------------------------------------
-
-Scintillation Photons Simulation - Top View
-----------------------------------------------
-
-
-
-Extra Slides
----------------
-
-
-
-:small:`g4daeview.py : OpenGL view of Juno Geometry`
--------------------------------------------------------------------------------
-
-.. class:: tiny
-
-   External view of Juno geometry with cutaway. The extreme size of the Juno geometry (50 million nodes in Chroma representation)
-   provides a challenge for development on mobile GPUs. 
-   As my developments operate at the Geant4 level wherever possible it   
-   was relatively straightforward to apply the machinery developed for 
-   Dayabay to the Juno detector. In collaboration with 
-   Juno simulation experts the geometry was exported from   
-   Geant4 and GPU visualized in under a days work. 
-
-
-.. image:: /env/geant4/geometry/collada/g4daeview/20140716-194144.png
-   :height: 650px
-   :align: center
-
-
-
-:small:`g4daeview.py : Chroma Raycast of Juno Geometry`
--------------------------------------------------------------------------------
-
-.. class:: tiny
-
-   External view of Juno geometry. The extreme size of the  Juno geometry (50 million nodes in Chroma representation)
-   provides a challenge for development on mobile GPUs. The black rectangle arises due to aborts to avoid GPU
-   crashes. 
-
-
-.. image:: /env/geant4/geometry/collada/g4daeview/20140716-191232.png
-   :height: 650px
-   :align: center
-
-
-
-:small:`G4 Generated Cerenkov Wavelengths in material categories`
-------------------------------------------------------------------------
-
-.. class:: small 
-
-   Blip caused by 200nm edge in water refractive index
-
-.. image:: /env/g4dae/g4_cerenkov_wavelength.png
-   :width: 700px
-   :align: center
-
-
-
-:small:`Refractive Index Interpolation Explains Jump at 200nm`
----------------------------------------------------------------- 
-
-.. class:: small
-
-   DeadWater, IwsWater, OwsWater have same RINDEX starting from 200nm.
-   Chroma interpolates properties onto a standard set of wavelengths, 
-   getting rid of the jump. 
-
-
-.. image:: /env/g4dae/plot_refractive_index_comparison.png
-   :width: 900px
-   :align: center
-
-
-
 :small:`Comparison of Generated Scintillation Photon Distributions`
 ------------------------------------------------------------------------
 
@@ -830,23 +630,6 @@ Extra Slides
 
 .. image:: /env/g4dae/generated_cerenkov_3xyzw.png
    :width: 700px
-   :align: center
-
-
-
-
-:small:`g4daeview.py : Dayabay Chroma Photon Propagation (1)` 
--------------------------------------------------------------------------------
-
-.. class:: tiny
-
-   Chroma GPU photon propagation at 12 nanoseconds.  The photons are generated by Geant4 
-   simulation of a 100 GeV muon travelling from right to left. 
-   Photon colors indicate reemission (green), absorption(red),
-   specular reflection (magenta), scattering(blue), no history (white). 
-
-.. image:: /env/geant4/geometry/collada/g4daeview/20140716-161445.png
-   :height: 600px
    :align: center
 
 
