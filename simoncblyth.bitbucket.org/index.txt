@@ -7,6 +7,7 @@
 presentations
 -------------
 
+* http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (May 2015)
 * http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulation.html (January 2015)
 * http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html (Sept 2014)
 * http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html
@@ -24,17 +25,24 @@ reports
 
 * http://bitbucket.org/simoncblyth/g4dae 
 
+
+*Assimp fork : G4DAE extra property handling in C++*
+-------------------------------------------------------
+
+* http://github.com/simoncblyth/assimp
+
+
 *g4daeview : g4dae OpenGL viewer application*
 -----------------------------------------------
 
 * TODO: split code from env into its own repo
 * http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
 
-
 *chroma fork : GPU optical photon simulation* 
 -----------------------------------------------
 
 * http://bitbucket.org/simoncblyth/chroma
+
 
 *env : Infrastructure bash/python scripts, dev cradle*
 -------------------------------------------------------------

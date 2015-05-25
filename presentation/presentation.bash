@@ -5,6 +5,30 @@ presentation-vi(){       vi $(presentation-source) ; }
 presentation-env(){      elocal- ; }
 presentation-usage(){ cat << EOU
 
+Presentation preparation
+============================
+
+Preparation workflow:
+
+#. change presention name below and create the .txt
+#. iterate on presentation by running the below which invokes *presentation-make*
+   and *presentation-open* to view local html pages in Safari::
+
+   presentation.sh
+
+#. static .png etc.. are managed within bitbucket static repo, 
+   local clone at ~/simoncblyth.bitbucket.org
+
+   * remember not too big, there is 1GB total repo limit 
+
+#. running presentation.sh updates the derived html within
+   the static repo clone, will need to "hg add" to begin with
+
+
+Publishing to remote:
+
+#. update index page as instructed in *bitbucketstatic-vi*
+#. push the statics to remote 
 
 
 
@@ -29,7 +53,6 @@ presentation-make(){
    env | grep PRESENTATION
    make $*
 }
-
 
 presentation-remote(){
    echo simoncblyth.bitbucket.org

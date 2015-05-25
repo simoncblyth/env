@@ -96,16 +96,51 @@ Optical Photon Simulation with NVIDIA OptiX
 
    * Why not Chroma ?
    * Introducing NVIDIA OptiX
-   * OptiX tests
+   * OptiX testing
    * Chroma to OptiX migration
    * Validating OptiX Generated Photons
    * Next Steps
-   * Visualizations
 
    |  Simon C Blyth, National Taiwan University
    |  **May 2015** 
 
 .. comment 
+
+    00 : Optical Photon Simulation with NVIDIA OptiX 
+
+   * Why not Chroma ?
+
+     01 : why not chroma ? 
+
+   * Introducing NVIDIA OptiX
+
+     02 : introducing nvidia optix ray tracing engine [c++/c/cuda] 
+     03 : ray tracing and optical photon simulation parallels 
+
+   * OptiX testing
+
+     04 : chroma raycast with entire geometry in view 
+     05 : optix raycast performance 
+
+   * Chroma to OptiX migration
+
+     06 : status of chroma to optix migration 
+     07 : c++ infrastructure : foundation packages 
+     08 : c++ infrastructure : domain packages 
+     09 : boundary material/surface properties gpu texture 
+     10 : ggeoview 
+
+   * Validating OptiX Generated Photons
+
+     11 : ggeo/optix generated scintillation photons cf geant4 
+     12 : inverted cdf allows reemission wavelength gpu texture lookup 
+     13 : ggeo/optix generated cerenkov photons cf geant4 
+     15 : comparison of ggeo/optix generated scintillation photon distributions 
+     16 : comparison of ggeo/optix generated cerenkov photon distributions 
+
+     14 : next steps 
+
+
 
 
 :small:`Why not Chroma ?`
@@ -287,6 +322,37 @@ Optical Photon Simulation with NVIDIA OptiX
 
 
 
+:small:`1000x performance, at a price`
+---------------------------------------------------------------------------
+
+.. sidebar:: Performance Linearity with CUDA cores 
+
+    .. image:: /env/g4dae/core_linearity.png
+       :width: 500px
+       :align: right
+
+.. class:: small 
+
+   OptiX apps can connect to cloud GPU clusters...
+
+   * connection to 1 or more VCAs (each with 8 Maxwell GPUs) 
+
+   * total of **24,576** CUDA cores each
+
+
+   :red:`100x is enough` to make optical photon processing no longer the rate determining step 
+
+
+   * How many cores needed ? :red:`to be determined`
+
+
+.. class:: tiny 
+
+   http://www.nvidia.com/object/visual-computing-appliance.html
+
+
+
+
 :small:`Status of Chroma to OptiX migration`
 ---------------------------------------------------------
 
@@ -381,6 +447,36 @@ Optical Photon Simulation with NVIDIA OptiX
    https://bitbucket.org/simoncblyth/env/src/tip/boost/basio/numpyserver/
 
    https://bitbucket.org/simoncblyth/env/src/tip/cuda/cudawrap/
+
+
+
+
+:small:`Random Number Generation in OptiX programs`
+-----------------------------------------------------
+
+.. class:: small
+
+    **cuRAND library from CUDA toolkit features:**
+
+    * concurrent generation of reproducible pseudorandom number sequences
+    * sub-sequences are assigned to each CUDA thread, which maintains position in sub-sequence
+    * per-thread state is initialized within CUDA kernel
+
+    **cuRAND Initialization demands large stack size**
+
+    Stack sizes 10x typical for OptiX programs were needed, 
+    resulting in slow OptiX running.
+
+    **Workaround:**
+
+    * use separate pure CUDA launches to initialize cuRAND
+    * copy curandState back to host and persist to file
+    * prior to OptiX launch, copy persisted curandState to GPU
+    * OptiX can then use cuRAND without having to initialize it
+
+    Packaged solution into **CUDAWrap**
+
+    * https://bitbucket.org/simoncblyth/env/src/tip/cuda/cudawrap/
 
 
 :small:`C++ Infrastructure : domain packages`
@@ -484,45 +580,13 @@ Optical Photon Simulation with NVIDIA OptiX
     https://github.com/simoncblyth/assimp (my fork of Assimp)
 
 
-:small:`Inverted CDF allows reemission wavelength lookup`
------------------------------------------------------------------------------
-    
-.. class:: small
-
-    Equivalent to value search sampling, fast lookup but requires
-    many probability bins (using 4096). 
-
-.. image:: /env/g4dae/optix-icdf-reemission.png
-   :width: 800px
-   :align: center
-
-
-
-:small:`GGeoView : geometry, genstep, photon visualization`  
------------------------------------------------------------------------------   
-
-.. class:: small
-
-   * very fast 3D OpenGL visualization 
-   * intuitive GUI controls
-   * intuitive virtual trackball translate/rotate 
-   * interactive fov and near/far plane clipping 
-   * perspective projection :red:`to implement: parallel projection`
-   * numerical control via UDP remote messaging 
-   * persistent viewpoint bookmarks :red:`in development`
-   * live Geant4 connection, photon, genstep visualization :red:`in development`
-
-   Also used for testing GPU photon propagation with OptiX project 
-
-   * OpenGL/OptiX interop presentation of GPU resident photon/genstep data
-   * interactive OptiX raycasting 
 
 
 :i:`GGeoView`  
 -----------------------------------------------------------------------------   
 
 
-.. sidebar:: Simulation development
+.. sidebar:: GGeoView 
 
     .. class:: tiny
 
@@ -536,28 +600,41 @@ Optical Photon Simulation with NVIDIA OptiX
        arbitrary scaling for visibility. 
        
 
-:small:`Chroma Generated Scintillation Photons cf Geant4`
------------------------------------------------------------- 
+:small:`GGeo/OptiX Generated Scintillation Photons cf Geant4`
+--------------------------------------------------------------- 
 
 .. class:: small 
 
-   Chroma interpolates all properties in 20nm bins, stair artifacts
-   in wavelength distribution can be reduced by using eg 10nm property interpolation bins.  
+   GGeo/OptiX using inverted CDF reemission wavelength lookups (4096 bins)
 
-.. image:: /env/g4dae/generated_scintillation_time_wavelength.png
+.. image:: /env/g4dae/generated_oxscintillation_time_wavelength.png
    :width: 800px
    :align: center
 
 
-:small:`Chroma Generated Cerenkov Photons cf Geant4`
-------------------------------------------------------- 
+:small:`Inverted CDF allows reemission wavelength GPU texture lookup`
+-----------------------------------------------------------------------------
+    
+.. class:: small
+
+    Equivalent to value search sampling, fast lookup but requires
+    many probability bins (using 4096). 
+
+.. image:: /env/g4dae/reemission_src_cdf_icdf_smpl.png
+   :width: 800px
+   :align: center
+
+
+
+:small:`GGeo/OptiX Generated Cerenkov Photons cf Geant4`
+---------------------------------------------------------- 
 
 .. class:: small 
   
    Geant4/DetSim wavelength distribution has a blip at 200nm, corresponding to edge of water 
-   refractive index properties. (see the extra slides)
+   refractive index properties.
 
-.. image:: /env/g4dae/generated_cerenkov_time_wavelength.png
+.. image:: /env/g4dae/generated_oxcerenkov_time_wavelength.png
    :width: 800px
    :align: center
 
@@ -565,9 +642,28 @@ Optical Photon Simulation with NVIDIA OptiX
 Next Steps
 ------------------
 
+
 .. class:: small
 
-   G4DAE Geometry Exporter
+   **Optical Photon Simulation**
+
+   * Continue port of Chroma propagation kernels into GGeo/OptiX 
+
+   * Instrument Geant4 optical photon propagation, 
+     by collecting photon steps into NPY array to :red:`enable step-by-step comparison`
+
+   Attempt to :red:`achieve matching between standard and external` optical photon simulation, many details to port:  
+
+   * Cerenkov *ApplyWaterQE* 
+
+   * *DsPmtSensDet::ProcessHits* QE gymnastics 
+
+
+.. class:: small
+
+   **G4DAE Geometry Exporter**
+
+   * test on more detector geometries
 
    * implement parametrized/replica geometry handling, following GDML
 
@@ -577,58 +673,31 @@ Next Steps
 
    * investigate improving default export appearance in common viewers 
 
-   * test with newer and latest versions of Geant4
-
-   * test on more detector geometries
-
    * incorporate into Geant4 codebase  
 
-.. class:: small
-
-   G4DAEChroma bridge
-
-   * refactor to remove duplication in *G4DAEHit* *G4DAEHitList* 
-
-   * eliminate use of *cnpy* external in favor of *numpy.hpp* 
-
-.. class:: small
-
-   Chroma
-
-   * Port Cerenkov *ApplyWaterQE* to Chroma (expect quick)
-
-   * Port *DsPmtSensDet::ProcessHits* QE gymnastics to Chroma 
-
-   * Implement double sided surfaces, to match *G4LogicalBorderSurface*
-
-   * Compare PMT Hit distributions between *NuWa/DetSimChroma* and *NuWa/DetSim* 
-
-     * :red:`iterate until match achieved or discrepancies explained`
-
-   * Find desktop GPU on which can test operation and performance  
 
 
 
-:small:`Comparison of Generated Scintillation Photon Distributions`
-------------------------------------------------------------------------
+:small:`Comparison of GGeo/OptiX Generated Scintillation Photon Distributions`
+--------------------------------------------------------------------------------
 
 .. class:: small 
 
    Position, direction, polarization XYZ  + time, wavelength, weight  
 
-.. image:: /env/g4dae/generated_scintillation_3xyzw.png
+.. image:: /env/g4dae/generated_oxscintillation_3xyzw.png
    :width: 700px
    :align: center
 
 
-:small:`Comparison of Generated Cerenokov Photon Distributions`
-------------------------------------------------------------------------
+:small:`Comparison of GGeo/OptiX Generated Cerenkov Photon Distributions`
+---------------------------------------------------------------------------
 
 .. class:: small 
 
    Position, direction, polarization XYZ  + time, wavelength, weight  
 
-.. image:: /env/g4dae/generated_cerenkov_3xyzw.png
+.. image:: /env/g4dae/generated_oxcerenkov_3xyzw.png
    :width: 700px
    :align: center
 
