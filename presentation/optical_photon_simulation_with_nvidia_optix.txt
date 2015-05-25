@@ -8,12 +8,22 @@
         span.warn { color: orange; } 
         span.ok { color: green; } 
         span.i { display: none; } 
+        pre.sliteral { class:"literal-block small"; }   
+        pre.mypre {
+             display: block;
+             font-family: monospace;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
     </style>
 
 .. role:: i 
 .. role:: alarm
 .. role:: warn
 .. role:: ok
+.. role:: sliteral
+.. role:: mypre 
 
 
 .. include:: <s5defs.txt>
@@ -344,17 +354,17 @@ Optical Photon Simulation with NVIDIA OptiX
          Array persistency/manipulations inspired by NumPy, 
          using NPY serialization format 
 
-         * 11 classes: G4StepNPY, PhotonsNPY, ViewNPY, NPY, ...
+         * 11 classes: G4StepNPY, PhotonsNPY, NPY, ...
 
    *NumpyServer*
          Asynchronous IO of Geant4 Steps, Photons, Hits.
          Communicates with remote *G4DAEOpticks* process, receiving
          steps and replying with hits. 
          
-         * 7 classes : numpyserver, numpydelegate, udp_server, ... 
+         * 7 classes : numpydelegate, udp_server, ... 
 
    *CUDAWrap*
-         cuRAND initialization and state persistency using pure CUDA
+         cuRAND init and persist curandState (pure CUDA)
 
          * avoids large stack size requirement of cuRAND init within OptiX  
          * 5 classes : cuRANDWrapper, LaunchSequence, LaunchCommon, ..
@@ -395,23 +405,22 @@ Optical Photon Simulation with NVIDIA OptiX
    *GGeo*
          GPU Geometry representation, NPY persistency 
  
-         * 22 classes: GNode, GMaterial, GSurface, GProperty, ...
+         * 22 classes: GNode, GMaterial, GProperty, ...
 
    *AssimpWrap*
-         Creates GGeo geometries from G4DAE exports using: 
+         G4DAE -> GGeo geometry 
 
-         * https://github.com/simoncblyth/assimp (fork handles G4DAE material/surface properties)
          * 7 classes : AssimpGGeo, AssimpTree, ...
          
    *OptiXRap*
-         Conversion of GGeo into OptiX geometries and OptiX launch control.
+         GGeo -> OptiX geometry, OptiX launch control
          
          * 7 classes : OptiXEngine, OptixGeometry, ...
 
    *OGLRap*
-         OpenGL shader based 3D visualization, using GLEW, GLFW
+         OpenGL shader based 3D visualization
     
-         * 29 classes : Scene, View, Camera, Trackball, Renderer, Shdr, GUI, ...
+         * 29 classes : Scene, View, Camera, Rdr, Shdr, ...
      
 
 
@@ -424,6 +433,51 @@ Optical Photon Simulation with NVIDIA OptiX
     https://bitbucket.org/simoncblyth/env/src/tip/graphics/oglrap/
 
     https://bitbucket.org/simoncblyth/env/src/tip/graphics/optixrap/
+
+
+
+
+
+
+:small:`Boundary material/surface properties GPU texture`  
+-----------------------------------------------------------------------------   
+
+.. class:: small
+
+    Forked Assimp parses G4DAE **extra** XML elements, *AssimpWrap* creates *GGeo* geometry
+    with standard properties interpolated onto :red:`common wavelength domain`
+
+    * material: refractive_index, absorption_length, scattering_length, reemission_prob (*float4*)
+    * surface: detect, absorb, reflect_specular, reflect_diffuse (*float4*)
+
+.. sidebar:: Fast GPU texture lookup 
+
+    .. class:: small
+
+         GPU Texture lookups highly optimized, as
+         standard way to wrap CG geometries.
+
+         DayaBay: ~50 boundaries, 4 *float4* each
+
+.. class:: small
+
+    Volume tree traversal labels triangles with **boundary** indices, :red:`identity based on properties digest`:
+
+    * **inner material** : self 
+    * **outer material** : parent 
+    * **inner surface** : outwards going photons (self to parent) 
+    * **outer surface** : inwards going photons (parent to self)
+
+    Interleave properties into 2d **GPU texture** (wavelength, qty line).
+    CUDA **tex2d** property lookup::
+
+        float nmi = (nm - wavelength_domain.x)/wavelength_domain.z + 0.5f ;   
+        float4 props = tex2D(wavelength_texture, nmi, line + 0.5f );
+        float refractive_index = props.x ; 
+      
+.. class:: tiny 
+
+    https://github.com/simoncblyth/assimp (my fork of Assimp)
 
 
 
