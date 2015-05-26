@@ -229,6 +229,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
 
 
+
 :small:`Ray Tracing and Optical Photon Simulation Parallels`
 --------------------------------------------------------------
 
@@ -349,6 +350,53 @@ Optical Photon Simulation with NVIDIA OptiX
 .. class:: tiny 
 
    http://www.nvidia.com/object/visual-computing-appliance.html
+
+   http://on-demand-gtc.gputechconf.com/gtc-quicklink/6bIayc
+
+
+
+:small:`OptiX Programming Model`
+--------------------------------------------------------------
+
+
+.. sidebar:: OptiX Control Flow 
+
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+
+    OptiX provides a :red:`ray tracing pipeline` analogous to OpenGL
+    rasterization pipeline. 
+
+    * Blue: OptiX internals 
+    * Yellow: User supplied CUDA *Programs* 
+
+    Higher level API than pure CUDA, eg:
+
+    * :red:`shared host/device context system` 
+
+
+    **Optical Photon Simulation port currently using:**
+
+    *Ray Generation* 
+         entry/exit, Cerenkov/Scintillation generation 
+
+    *Intersection* 
+         Triangle mesh intersection, boundary index lookup
+
+    *Closest Hit*
+         determine ray to boundary orientation
+
+
+.. class:: tiny
+  
+    https://research.nvidia.com/sites/default/files/publications/Parker10Optix_1.pdf 
+
+
 
 
 
