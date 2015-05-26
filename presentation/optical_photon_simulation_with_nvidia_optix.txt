@@ -520,7 +520,7 @@ Optical Photon Simulation with NVIDIA OptiX
     * use separate pure CUDA launches to initialize cuRAND
     * copy curandState back to host and persist to file
     * prior to OptiX launch, copy persisted curandState to GPU
-    * OptiX can then use cuRAND without having to initialize it
+    * :red:`OptiX can then use cuRAND without having to initialize it`
 
     Packaged solution into **CUDAWrap**
 
@@ -538,7 +538,7 @@ Optical Photon Simulation with NVIDIA OptiX
          Many C++ classes required to replace:
  
          * PyCOLLADA
-         * PyOpenGL + glumpy + OpenGL 2.1 + GLUT
+         * PyOpenGL + glumpy + GLUT
          * daenode.py
          * g4daeview.py
 
