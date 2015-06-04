@@ -54,3 +54,8 @@ g4ten-export(){
 }
 
 
+g4ten-optical-dir(){ echo $(g4ten-dir)/source/processes/optical/src ; }
+g4ten-optical(){     cd $(g4ten-optical-dir) ; }
+
+
+
