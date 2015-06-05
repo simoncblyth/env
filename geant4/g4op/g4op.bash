@@ -206,6 +206,11 @@ If the angle is less than 90 degrees, fresnel will return full reflection (Kr = 
 * http://renderman.pixar.com/resources/RPS_17/rslFunctions.html#fresnel
 
 
+* http://http.developer.nvidia.com/GPUGems/gpugems_ch02.html
+
+  * rendering sea bed caustics  
+
+
 optix examples
 ~~~~~~~~~~~~~~~~
 
@@ -247,8 +252,7 @@ fresnel eqn
   * P-polarized: E field vector inside plane of incidence
   * S-polarized: E field vector orthogonal to plane of incidence 
   * plane of incidence is the defined by the wave direction vector
-    and normal to the interface [not definedat normal incidence]
-
+    and normal to the interface [not defined at normal incidence]
 
 
 source/processes/optical/src/G4OpBoundaryProcess.cc (yuck what a tabbing mess)::
