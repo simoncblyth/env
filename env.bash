@@ -1630,3 +1630,4 @@ librocket-(){      . $(env-home)/graphics/gui/librocket/librocket.bash && libroc
 imgui-(){      . $(env-home)/graphics/gui/imgui/imgui.bash && imgui-env $* ; }
 imguitest-(){      . $(env-home)/graphics/gui/imguitest/imguitest.bash && imguitest-env $* ; }
 g4op-(){      . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
+bregex-(){      . $(env-home)/boost/bregex/bregex.bash && bregex-env $* ; }
