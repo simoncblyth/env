@@ -404,9 +404,16 @@ export-export-templates(){
    export DAE_OPSCINTILLATION_PATH_TEMPLATE=$(export-path-template opscintillation)
 
    export DAE_OXCERENKOV_DESCRIPTION="Cerenkov photons generated from OptiX based machinery"
-   export DAE_OXSCINTILLATION_DESCRIPTION="Scintillation photons generated from OptiX based machinery"
    export DAE_OXCERENKOV_PATH_TEMPLATE=$(export-path-template oxcerenkov)
+
+   export DAE_OXSCINTILLATION_DESCRIPTION="Scintillation photons generated from OptiX based machinery"
    export DAE_OXSCINTILLATION_PATH_TEMPLATE=$(export-path-template oxscintillation)
+
+   export DAE_RXCERENKOV_DESCRIPTION="Cerenkov records generated from OptiX based machinery"
+   export DAE_RXCERENKOV_PATH_TEMPLATE=$(export-path-template rxcerenkov)
+
+   export DAE_RXSCINTILLATION_DESCRIPTION="Scintillation records generated from OptiX based machinery"
+   export DAE_RXSCINTILLATION_PATH_TEMPLATE=$(export-path-template rxscintillation)
 
    export DAE_OPCERENKOVGEN_PATH_TEMPLATE=$(export-path-template opcerenkovgen)
    export DAE_OPSCINTILLATIONGEN_PATH_TEMPLATE=$(export-path-template opscintillationgen)
