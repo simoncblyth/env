@@ -29,6 +29,14 @@ Objectives
     delta:include blyth$ 
 
 
+Others
+-------
+
+Photon propagation code
+
+* http://icecube.wisc.edu/~dima/work/WISC/ppc/
+
+
 Chroma propagation pseudo-code
 ---------------------------------
 
