@@ -412,6 +412,7 @@ export-export-templates(){
    export DAE_RXCERENKOV_DESCRIPTION="Cerenkov records generated from OptiX based machinery"
    export DAE_RXCERENKOV_PATH_TEMPLATE=$(export-path-template rxcerenkov)
 
+
    export DAE_RXSCINTILLATION_DESCRIPTION="Scintillation records generated from OptiX based machinery"
    export DAE_RXSCINTILLATION_PATH_TEMPLATE=$(export-path-template rxscintillation)
 
@@ -428,6 +429,13 @@ export-export-templates(){
    export DAE_G4PMTHIT_PATH_TEMPLATE=$(export-path-template g4pmthit)
 
    export DAE_CHROMAPHOTON_PATH_TEMPLATE=$(export-path-template chromaphoton)
+
+
+   export DAE_DOMAIN_DESCRIPTION="Domain quads used to decode packed data such as photon records"
+   export DAE_DOMAIN_PATH_TEMPLATE=$(export-path-template domain)
+
+
+
 }
 
 export-lambda-(){ cat << EOL
