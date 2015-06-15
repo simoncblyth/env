@@ -1604,6 +1604,795 @@ ChooseReflection sets *theStatus*
 
 
 
+G4OpticalSurface
+------------------
+
+::
+
+    simon:geant4.10.00.p01 blyth$ find . -name '*.cc' -exec grep -l OpticalSurface {} \;
+    ./examples/advanced/air_shower/src/UltraDetectorConstruction.cc
+    ./examples/advanced/underground_physics/src/DMXDetectorConstruction.cc
+    ./examples/extended/optical/LXe/src/LXeDetectorConstruction.cc
+    ./examples/extended/optical/LXe/src/LXeMainVolume.cc
+    ./examples/extended/optical/OpNovice/src/OpNoviceDetectorConstruction.cc
+    ./examples/extended/optical/wls/src/WLSDetectorConstruction.cc
+    ./source/materials/src/G4OpticalSurface.cc
+    ./source/persistency/gdml/src/G4GDMLReadSolids.cc
+    ./source/persistency/gdml/src/G4GDMLWriteSolids.cc
+    ./source/persistency/gdml/src/G4GDMLWriteStructure.cc
+    ./source/physics_lists/constructors/electromagnetic/src/G4OpticalPhysicsMessenger.cc
+    ./source/processes/optical/src/G4OpBoundaryProcess.cc
+    simon:geant4.10.00.p01 blyth$ 
+
+
+::
+
+     G4OpBoundaryProcess::PostStepDoIt
+
+
+
+     162 G4VParticleChange*
+     163 G4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
+     164 {
+     165         theStatus = Undefined;
+     166 
+     167         aParticleChange.Initialize(aTrack);
+     168         aParticleChange.ProposeVelocity(aTrack.GetVelocity());
+     169 
+     170         // Get hyperStep from  G4ParallelWorldProcess
+     171         //  NOTE: PostSetpDoIt of this process should be
+     172         //        invoked after G4ParallelWorldProcess!
+     173 
+     174         const G4Step* pStep = &aStep;
+     175 
+     176         const G4Step* hStep = G4ParallelWorldProcess::GetHyperStep();
+     177 
+     178         if (hStep) pStep = hStep;
+     179 
+     180         G4bool isOnBoundary =
+     181                 (pStep->GetPostStepPoint()->GetStepStatus() == fGeomBoundary);
+     182 
+     183         if (isOnBoundary) {
+     184            Material1 = pStep->GetPreStepPoint()->GetMaterial();
+     185            Material2 = pStep->GetPostStepPoint()->GetMaterial();
+     186         } else {
+     187            theStatus = NotAtBoundary;
+     188            if ( verboseLevel > 0) BoundaryProcessVerbose();
+     189            return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     190         }
+
+     ///
+     /// lack of material RINDEX causes StopAndKill
+     ///
+
+     271     G4MaterialPropertiesTable* aMaterialPropertiesTable;
+     272     G4MaterialPropertyVector* Rindex;
+     273 
+     274     aMaterialPropertiesTable = Material1->GetMaterialPropertiesTable();
+     275     if (aMaterialPropertiesTable) {
+     276         Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
+     277     }
+     278     else {
+     279         theStatus = NoRINDEX;
+     280         if ( verboseLevel > 0) BoundaryProcessVerbose();
+     281         aParticleChange.ProposeLocalEnergyDeposit(thePhotonMomentum);
+     282         aParticleChange.ProposeTrackStatus(fStopAndKill);
+     283         return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     284     }
+     285 
+     286     if (Rindex) {
+     287         Rindex1 = Rindex->Value(thePhotonMomentum);
+     288     }
+     289     else {
+     290         theStatus = NoRINDEX;
+     291         if ( verboseLevel > 0) BoundaryProcessVerbose();
+     292         aParticleChange.ProposeLocalEnergyDeposit(thePhotonMomentum);
+     293         aParticleChange.ProposeTrackStatus(fStopAndKill);
+     294         return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     295     }
+
+
+     ///  defaults without an OpticalSurface
+
+     297         theReflectivity =  1.;
+     298         theEfficiency   =  0.;
+     299         theTransmittance = 0.;
+     300 
+     301         theModel = glisur;
+     302         theFinish = polished;
+     303 
+     304         G4SurfaceType type = dielectric_dielectric;
+
+
+     ///  if fail to find border surface for the volume pair look for skin surface for either volume
+
+     306         Rindex = NULL;
+     307         OpticalSurface = NULL;
+     308 
+     309         G4LogicalSurface* Surface = NULL;
+     310 
+     311         Surface = G4LogicalBorderSurface::GetSurface(thePrePV, thePostPV);
+     312 
+     313         if (Surface == NULL){
+     314              G4bool enteredDaughter= (thePostPV->GetMotherLogical() ==
+     315                                       thePrePV ->GetLogicalVolume());
+     316              if(enteredDaughter){
+     317                  Surface =
+     318                         G4LogicalSkinSurface::GetSurface(thePostPV->GetLogicalVolume());
+     319                  if(Surface == NULL)
+     320                       Surface =
+     321                             G4LogicalSkinSurface::GetSurface(thePrePV->GetLogicalVolume());
+     322              }
+     323              else {
+     324                  Surface =
+     325                         G4LogicalSkinSurface::GetSurface(thePrePV->GetLogicalVolume());
+     326                  if(Surface == NULL)
+     327                       Surface =
+     328                                G4LogicalSkinSurface::GetSurface(thePostPV->GetLogicalVolume());
+     329              }
+     330         }
+     331 
+     332         if (Surface) OpticalSurface =
+     333                         dynamic_cast <G4OpticalSurface*> (Surface->GetSurfaceProperty());
+
+
+     335     if (OpticalSurface) {
+     336 
+     337            type      = OpticalSurface->GetType();
+     338            theModel  = OpticalSurface->GetModel();
+     339            theFinish = OpticalSurface->GetFinish();
+     340 
+     341            aMaterialPropertiesTable = OpticalSurface->
+     342                                                       GetMaterialPropertiesTable();
+     343 
+
+     ///
+
+
+     344            if (aMaterialPropertiesTable) 
+                    {
+     345 
+     346               if (theFinish == polishedbackpainted ||
+     347                   theFinish == groundbackpainted ) 
+                       {
+     ///
+     ///                       for these backpainted finishes if opticalsurface MPT has no RINDEX, StopAndKill
+     ///
+     348                         Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
+     349                         if (Rindex) {
+     350                               Rindex2 = Rindex->Value(thePhotonMomentum);
+     351                         }
+     352                         else {
+     353                               theStatus = NoRINDEX;
+     354                               if ( verboseLevel > 0) BoundaryProcessVerbose();
+     355                               aParticleChange.ProposeLocalEnergyDeposit(thePhotonMomentum);
+     356                               aParticleChange.ProposeTrackStatus(fStopAndKill);
+     357                               return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     358                         }
+     359               }
+     ///
+     ///
+     ///               set 
+     ///                      theReflectivity   (calulate if no REFLECTIVITY and have REALRINDEX IMAGINARYRINDEX) 
+     ///                      theEfficiency 
+     ///                      theTransmittance
+     ///
+     ///                if theModel unified  set the below prob from props, otherwise default to 0.
+     ///
+     ///                        prob_sl  SPECULARLOBECONSTANT
+     ///                        prob_ss  SPECULARSPIKECONSTANT
+     ///                        prob_bs  BACKSCATTERCONSTANT
+     ///  
+     ///
+     360 
+     361               PropertyPointer =
+     362                                  aMaterialPropertiesTable->GetProperty("REFLECTIVITY");
+     363               PropertyPointer1 =
+     364                                  aMaterialPropertiesTable->GetProperty("REALRINDEX");
+     365               PropertyPointer2 =
+     366                                  aMaterialPropertiesTable->GetProperty("IMAGINARYRINDEX");
+     367 
+     368               iTE = 1;
+     369               iTM = 1;
+     370 
+     371               if (PropertyPointer) {
+     372 
+     373                  theReflectivity =
+     374                                      PropertyPointer->Value(thePhotonMomentum);
+     375 
+     376               } else if (PropertyPointer1 && PropertyPointer2) {
+     377 
+     378                   CalculateReflectivity();
+     379 
+     380               }
+     381 
+     382               PropertyPointer =
+     383                                    aMaterialPropertiesTable->GetProperty("EFFICIENCY");
+     384               if (PropertyPointer) {
+     385                       theEfficiency =
+     386                                      PropertyPointer->Value(thePhotonMomentum);
+     387               }
+     388 
+     389               PropertyPointer =
+     390                                  aMaterialPropertiesTable->GetProperty("TRANSMITTANCE");
+     391               if (PropertyPointer) {
+     392                       theTransmittance =
+     393                                        PropertyPointer->Value(thePhotonMomentum);
+     394               }
+     395 
+     396               if ( theModel == unified ) 
+                       {
+     397                    PropertyPointer =
+     398                                      aMaterialPropertiesTable->GetProperty("SPECULARLOBECONSTANT");
+     399                    if (PropertyPointer) {
+     400                          prob_sl =
+     401                                    PropertyPointer->Value(thePhotonMomentum);
+     402                    } else {
+     403                          prob_sl = 0.0;
+     404                    }
+     405 
+     406                    PropertyPointer =
+     407                                      aMaterialPropertiesTable->GetProperty("SPECULARSPIKECONSTANT");
+     408                    if (PropertyPointer) {
+     409                          prob_ss =
+     410                                    PropertyPointer->Value(thePhotonMomentum);
+     411                    } else {
+     412                          prob_ss = 0.0;
+     413                    }
+     414 
+     415                    PropertyPointer =
+     416                                      aMaterialPropertiesTable->GetProperty("BACKSCATTERCONSTANT");
+     417                    if (PropertyPointer) {
+     418                          prob_bs =
+     419                                    PropertyPointer->Value(thePhotonMomentum);
+     420                    } else {
+     421                          prob_bs = 0.0;
+     422                    }
+     423              }          // unified
+     424        }     // with MPT
+     425            else if (theFinish == polishedbackpainted ||
+     426                     theFinish == groundbackpainted ) {
+     ///
+     ///              StopAndKill backpainted without MPT
+     ///
+     427                       aParticleChange.ProposeLocalEnergyDeposit(thePhotonMomentum);
+     428                       aParticleChange.ProposeTrackStatus(fStopAndKill);
+     429                       return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     430            }
+     431         }   // with OpticalSurface
+
+
+
+     433         if (type == dielectric_dielectric ) {
+     434             if (theFinish == polished || theFinish == ground ) 
+                     {
+     435 
+     436                  if (Material1 == Material2){
+     437                       theStatus = SameMaterial;
+     438                       if ( verboseLevel > 0) BoundaryProcessVerbose();
+     439                       return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     440                  }
+     441                  aMaterialPropertiesTable =
+     442                                               Material2->GetMaterialPropertiesTable();
+     443                  if (aMaterialPropertiesTable)
+     444                                                Rindex = aMaterialPropertiesTable->GetProperty("RINDEX");
+     445                  if (Rindex) {
+     446                                               Rindex2 = Rindex->Value(thePhotonMomentum);
+     447                  }
+     448                  else {
+     449                              theStatus = NoRINDEX;
+     450                              if ( verboseLevel > 0) BoundaryProcessVerbose();
+     451                              aParticleChange.ProposeLocalEnergyDeposit(thePhotonMomentum);
+     452                              aParticleChange.ProposeTrackStatus(fStopAndKill);
+     453                              return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     454                  }
+     455             }
+     456         }
+
+
+     ///
+     ///   the chances of such "fortran style?"  coding doing the correct thing seem minimal
+     ///
+
+     457 
+     458     if (type == dielectric_metal) 
+             {
+     459 
+     460           DielectricMetal();
+     461 
+     462           // Uncomment the following lines if you wish to have 
+     463           //         Transmission instead of Absorption
+     464           // if (theStatus == Absorption) {
+     465           //    return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     466           // }
+     467 
+     468     }
+     469     else if (type == dielectric_LUT) 
+             {
+     470 
+     471           DielectricLUT();
+     472 
+     473     }
+     474     else if (type == dielectric_dichroic) {
+     475 
+     476           DielectricDichroic();
+     477 
+     478     }
+     479     else if (type == dielectric_dielectric) {
+     480 
+     481           if ( theFinish == polishedbackpainted ||
+     482                theFinish == groundbackpainted ) {
+     483                DielectricDielectric();
+     484           }
+     485           else {
+     486                if ( !G4BooleanRand(theReflectivity) ) {
+     487                      DoAbsorption();
+     488                }
+     489                else {
+     490                       if ( theFinish == polishedfrontpainted ) {
+     491                            DoReflection();
+     492                       }
+     493                       else if ( theFinish == groundfrontpainted ) {
+     494                            theStatus = LambertianReflection;
+     495                            DoReflection();
+     496                       }
+     497                       else {
+     498                            DielectricDielectric();
+     499                       }
+     500                }
+     501           }
+     502     }
+     503     else {
+     504 
+     505       G4cerr << " Error: G4BoundaryProcess: illegal boundary type " << G4endl;
+     506       return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     507 
+     508     }
+
+
+     510         NewMomentum = NewMomentum.unit();
+     511         NewPolarization = NewPolarization.unit();
+     ...
+     519         aParticleChange.ProposeMomentumDirection(NewMomentum);
+     520         aParticleChange.ProposePolarization(NewPolarization);
+     521 
+     522         if ( theStatus == FresnelRefraction ) {
+     523            G4MaterialPropertyVector* groupvel =
+     524                    Material2->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
+     525            G4double finalVelocity = groupvel->Value(thePhotonMomentum);
+     526            aParticleChange.ProposeVelocity(finalVelocity);
+     527         }
+     528 
+     529         if ( theStatus == Detection ) InvokeSD(pStep);
+     530 
+     531         return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     532 }
+
+
+
+::
+
+    261 inline
+    262 G4bool G4OpBoundaryProcess::G4BooleanRand(const G4double prob) const
+    263 {
+    264   /* Returns a random boolean variable with the specified probability */
+    265 
+    266   return (G4UniformRand() < prob);
+    267 }
+    ...
+    282 inline
+    283 void G4OpBoundaryProcess::ChooseReflection()
+    284 {
+    285                  G4double rand = G4UniformRand();
+    286                  if ( rand >= 0.0 && rand < prob_ss ) {
+    287                     theStatus = SpikeReflection;
+    288                     theFacetNormal = theGlobalNormal;
+    289                  }
+    290                  else if ( rand >= prob_ss &&
+    291                            rand <= prob_ss+prob_sl) {
+    292                     theStatus = LobeReflection;
+    293                  }
+    294                  else if ( rand > prob_ss+prob_sl &&
+    295                            rand < prob_ss+prob_sl+prob_bs ) {
+    296                     theStatus = BackScattering;
+    297                  }
+    298                  else {
+    299                     theStatus = LambertianReflection;
+    300                  }
+    301 }
+
+    ///
+    ///    default with prob_ss = prob_sl = prob_bs = 0. will be LambertianReflection
+    ///
+
+
+
+     55 inline G4ThreeVector G4RandomDirection()
+     56 {
+     57   G4double cosTheta  = 2.*G4UniformRand()-1.;
+     58   G4double sinTheta2 = 1. - cosTheta*cosTheta;
+     59   if( sinTheta2 < 0.)  sinTheta2 = 0.;
+     60   G4double sinTheta  = std::sqrt(sinTheta2);
+     61   G4double phi       = CLHEP::twopi*G4UniformRand();
+     62   return G4ThreeVector(sinTheta*std::cos(phi),
+     63                        sinTheta*std::sin(phi), cosTheta).unit();
+     64 }
+
+
+
+     52 // ---------------------------------------------------------------------------
+     53 // Returns a random lambertian unit vector
+     54 //
+     55 inline G4ThreeVector G4LambertianRand(const G4ThreeVector& normal)
+     56 {
+     57   G4ThreeVector vect;
+     58   G4double ndotv;
+     59 
+     60   do
+     61   {
+     62     vect = G4RandomDirection();
+     63     ndotv = normal * vect;
+     64 
+     65     if (ndotv < 0.0)
+     66     {
+     67       vect = -vect;
+     68       ndotv = -ndotv;
+     69     }
+     70 
+     71   } while (!(G4UniformRand() < ndotv));
+     72 
+     73   return vect;
+     74 }
+     75 
+
+
+
+    325 inline
+    326 void G4OpBoundaryProcess::DoReflection()
+    327 {
+    328         if ( theStatus == LambertianReflection ) {
+    329 
+    330           NewMomentum = G4LambertianRand(theGlobalNormal);
+    331           theFacetNormal = (NewMomentum - OldMomentum).unit();
+    332 
+    333         }
+    334         else if ( theFinish == ground ) {
+    335 
+    336       theStatus = LobeReflection;
+    337           if ( PropertyPointer1 && PropertyPointer2 ){
+    338           } else {
+    339              theFacetNormal =
+    340                  GetFacetNormal(OldMomentum,theGlobalNormal);
+    341           }
+    342           G4double PdotN = OldMomentum * theFacetNormal;
+    343           NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+    344 
+    345         }
+    346         else {
+    347 
+    348           theStatus = SpikeReflection;
+    349           theFacetNormal = theGlobalNormal;
+    350           G4double PdotN = OldMomentum * theFacetNormal;
+    351           NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+    352 
+    353         }
+    354         G4double EdotN = OldPolarization * theFacetNormal;
+    355         NewPolarization = -OldPolarization + (2.*EdotN)*theFacetNormal;
+    356 }
+
+
+
+
+::
+
+     689 void G4OpBoundaryProcess::DielectricMetal()
+     690 {
+     691     G4int n = 0;
+     693     do {
+     695            n++;
+     697            if( !G4BooleanRand(theReflectivity) && n == 1 ) {
+     702                DoAbsorption();
+     704                break;
+     706            }
+     707            else {
+     ...
+     719              if ( theModel == glisur || theFinish == polished ) {
+     721                 DoReflection();
+     723              } else {
+     724 
+     725                 if ( n == 1 ) ChooseReflection();
+     726 
+     727                 if ( theStatus == LambertianReflection ) {
+     728                    DoReflection();
+     729                 }
+     730                 else if ( theStatus == BackScattering ) {
+     731                    NewMomentum = -OldMomentum;
+     732                    NewPolarization = -OldPolarization;
+     733                 }
+     734                 else {
+     735 
+     736                    if(theStatus==LobeReflection){
+     737                      if ( PropertyPointer1 && PropertyPointer2 ){
+     738                      } else {
+     739                         theFacetNormal =
+     740                             GetFacetNormal(OldMomentum,theGlobalNormal);
+     741                      }
+     742                    }
+     ...
+     744                    G4double PdotN = OldMomentum * theFacetNormal;
+     745                    NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+     746                    G4double EdotN = OldPolarization * theFacetNormal;
+     747 
+     748                    G4ThreeVector A_trans, A_paral;
+     749 
+     ///
+     ///      horrendous coding style, depending on smth lying around in the scope
+     ///      eg from some random prior photon bounce
+     ////
+     ///
+     750                    if (sint1 > 0.0 ) {
+     751                       A_trans = OldMomentum.cross(theFacetNormal);
+     752                       A_trans = A_trans.unit();
+     753                    } else {
+     754                       A_trans  = OldPolarization;
+     755                    }
+     756                    A_paral   = NewMomentum.cross(A_trans);
+     757                    A_paral   = A_paral.unit();
+     758 
+     759                    if(iTE>0&&iTM>0) {
+     760                      NewPolarization =
+     761                            -OldPolarization + (2.*EdotN)*theFacetNormal;
+     762                    } else if (iTE>0) {
+     763                      NewPolarization = -A_trans;
+     764                    } else if (iTM>0) {
+     765                      NewPolarization = -A_paral;
+     766                    }
+     767 
+     768                 }
+     769 
+     770              }
+     771 
+     772              OldMomentum = NewMomentum;
+     773              OldPolarization = NewPolarization;
+     774 
+     775        }
+     776 
+     777     } while (NewMomentum * theGlobalNormal < 0.0);
+     778 }
+
+
+
+
+
+
+g4dae::
+
+    248 void G4DAEWriteStructure::
+    249 OpticalSurfaceWrite(xercesc::DOMElement* targetElement,
+    250                     const G4OpticalSurface* const surf)
+    251 {
+    252    xercesc::DOMElement* optElement = NewElement("opticalsurface");
+    253    G4OpticalSurfaceModel smodel = surf->GetModel();
+    254    G4double sval = (smodel==glisur) ? surf->GetPolish() : surf->GetSigmaAlpha();
+    255 
+    256    optElement->setAttributeNode(NewNCNameAttribute("name", surf->GetName()));
+    257    optElement->setAttributeNode(NewAttribute("model", smodel));
+    258    optElement->setAttributeNode(NewAttribute("finish", surf->GetFinish()));
+    259    optElement->setAttributeNode(NewAttribute("type", surf->GetType()));
+    260    optElement->setAttributeNode(NewAttribute("value", sval));
+    261 
+    262    G4MaterialPropertiesTable* ptable = surf->GetMaterialPropertiesTable();
+    263    PropertyWrite( optElement, ptable );
+    264 
+    265    targetElement->appendChild(optElement);
+    266 }
+
+
+::
+
+    152930       <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearPoolCoverSurface" type="0" value="1">
+    152931         <matrix coldim="2" name="REFLECTIVITY0xc04f6a8">1.5e-06 0 6.5e-06 0</matrix>
+    152932         <property name="REFLECTIVITY" ref="REFLECTIVITY0xc04f6a8"/>
+    152933         <matrix coldim="2" name="RINDEX0xc33da70">1.5e-06 0 6.5e-06 0</matrix>
+    152934         <property name="RINDEX" ref="RINDEX0xc33da70"/>
+    152935       </opticalsurface>
+    152936       <opticalsurface finish="3" model="1" name="__dd__Geometry__AdDetails__AdSurfacesAll__RSOilSurface" type="0" value="1">
+    152937         <matrix coldim="2" name="BACKSCATTERCONSTANT0xc28d340">1.55e-06 0 6.2e-06 0 1.033e-05 0 1.55e-05 0</matrix>
+    152938         <property name="BACKSCATTERCONSTANT" ref="BACKSCATTERCONSTANT0xc28d340"/>
+    152939         <matrix coldim="2" name="REFLECTIVITY0xc563328">1.55e-06 0.0393 1.771e-06 0.0393 2.066e-06 0.0394 2.48e-06 0.03975 2.755e-06 0.04045 3.01e-06 0.04135 3.542e-06 0.0432 4.133e-06 0.04655 4.       959e-06 0.0538 6.2e-06 0.067 1.033e-05 0.114 1.55e-05 0.173</matrix>
+    152940         <property name="REFLECTIVITY" ref="REFLECTIVITY0xc563328"/>
+    152941         <matrix coldim="2" name="SPECULARLOBECONSTANT0xbfa85d0">1.55e-06 0 6.2e-06 0 1.033e-05 0 1.55e-05 0</matrix>
+    152942         <property name="SPECULARLOBECONSTANT" ref="SPECULARLOBECONSTANT0xbfa85d0"/>
+    152943         <matrix coldim="2" name="SPECULARSPIKECONSTANT0xc03fc20">1.55e-06 0 6.2e-06 0 1.033e-05 0 1.55e-05 0</matrix>
+    152944         <property name="SPECULARSPIKECONSTANT" ref="SPECULARSPIKECONSTANT0xc03fc20"/>
+    152945       </opticalsurface>
+
+::
+
+    simon:DayaBay_VGDX_20140414-1300 blyth$ grep \<optical  g4_00.dae
+
+
+          <opticalsurface finish="0" model="1" name="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceTop"          type="0" value="0">   **
+          <opticalsurface finish="0" model="1" name="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceBot"          type="0" value="0">   **
+
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear1"     type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear2"     type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__AdDetails__AdSurfacesAll__SSTOilSurface"             type="0" value="1">
+
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearIWSCurtainSurface"   type="0" value="0.2">   **
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearOWSLinerSurface"      type="0" value="0.2"> **
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearDeadLinerSurface"     type="0" value="0.2"> ** 
+
+          ## above are border surfaces tied to pairs of volumes below just tied to single volumes
+
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearPoolCoverSurface" type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__AdDetails__AdSurfacesAll__RSOilSurface"              type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__AdDetails__AdSurfacesAll__AdCableTraySurface"        type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__PmtMtTopRingSurface"   type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__PmtMtBaseRingSurface"  type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__PmtMtRib1Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__PmtMtRib2Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__PmtMtRib3Surface"        type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__LegInIWSTubSurface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__TablePanelSurface"       type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__SupportRib1Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__SupportRib5Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__SlopeRib1Surface"        type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__SlopeRib5Surface"        type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__ADVertiCableTraySurface" type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__ShortParCableTraySurface" type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearInnInPiperSurface"   type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearInnOutPiperSurface"  type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__LegInOWSTubSurface"       type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__UnistrutRib6Surface"     type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__UnistrutRib7Surface"     type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__UnistrutRib3Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__UnistrutRib5Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__UnistrutRib4Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__UnistrutRib1Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__UnistrutRib2Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__UnistrutRib8Surface"      type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__UnistrutRib9Surface"       type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__TopShortCableTraySurface" type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__TopCornerCableTraySurface" type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__VertiCableTraySurface"     type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearOutInPiperSurface"    type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearOutOutPiperSurface"   type="0" value="1">
+          <opticalsurface finish="3" model="1" name="__dd__Geometry__PoolDetails__PoolSurfacesAll__LegInDeadTubSurface"       type="0" value="1">
+
+    simon:DayaBay_VGDX_20140414-1300 blyth$ 
+
+
+All optical surfaces are ground except the two polished mirrors, all dielectric_metal 
+
+g4ten::
+
+     61 enum G4OpticalSurfaceFinish
+     62 {
+     63    polished,                    // smooth perfectly polished surface
+     64    polishedfrontpainted,        // smooth top-layer (front) paint
+     65    polishedbackpainted,         // same is 'polished' but with a back-paint
+     66 
+     67    ground,                      // rough surface
+     68    groundfrontpainted,          // rough top-layer (front) paint
+     69    groundbackpainted,           // same as 'ground' but with a back-paint
+
+
+/data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/source/materials/include/G4OpticalSurface.hh::
+
+     61 enum G4OpticalSurfaceFinish
+     62 {
+     63    polished,                    // smooth perfectly polished surface
+     64    polishedfrontpainted,        // smooth top-layer (front) paint
+     65    polishedbackpainted,         // same is 'polished' but with a back-paint
+     66    ground,                      // rough surface
+     67    groundfrontpainted,          // rough top-layer (front) paint
+     68    groundbackpainted            // same as 'ground' but with a back-paint
+     69 };
+     70 
+     71 enum G4OpticalSurfaceModel
+     72 {
+     73    glisur,                      // original GEANT3 model
+     74    unified                      // UNIFIED model
+     75 };
+
+
+
+::
+
+     65 enum G4SurfaceType
+     66 {
+     67    dielectric_metal,            // dielectric-metal interface
+     68    dielectric_dielectric,       // dielectric-dielectric interface
+     69    dielectric_LUT,              // dielectric-Look-Up-Table interface
+     70    dielectric_dichroic,         // dichroic filter interface
+     71    firsov,                      // for Firsov Process
+     72    x_ray                        // for x-ray mirror process
+     73 };
+
+
+     66 enum G4SurfaceType
+     67 {
+     68    dielectric_metal,            // dielectric-metal interface
+     69    dielectric_dielectric,       // dielectric-dielectric interface
+     70    firsov,                      // for Firsov Process
+     71    x_ray                        // for x-ray mirror process
+     72 };
+
+
+
+All optical surfaces are using unified::
+
+    099 enum G4OpticalSurfaceModel
+    100 {
+    101    glisur,                      // original GEANT3 model
+    102    unified,                     // UNIFIED model
+    103    LUT,                         // Look-Up-Table model
+    104    dichroic                     // dichroic filter
+    105 };
+
+
+
+assimp-fork::
+
+    1387 void ColladaLoader::BuildMaterialsExtras( ColladaParser& pParser, const Collada::Material& material , aiMaterial* mat )
+    1388 {
+    1389     if(material.mExtra)
+    1390     {
+    1391         Collada::ExtraProperties::ExtraPropertiesMap& epm = material.mExtra->mProperties ;
+    1392 
+    1393         for(Collada::ExtraProperties::ExtraPropertiesMap::iterator it=epm.begin() ; it != epm.end() ; it++ )
+    1394         {
+    1395             const char* key = it->first.c_str() ;
+    1396             const char* val = it->second.c_str() ;
+    1397 
+    1398             const char* prefix = "g4dae_" ;
+    1399             if(strncmp(key, prefix, strlen(prefix)) == 0)
+    1400             {
+    1401                 aiString sval(val);
+    1402                 mat->AddProperty( &sval, key);
+    1403                 //printf("ColladaLoader::BuildMaterialsExtras AddProperty [%s] [%s] \n", val, key );
+    1404             }
+    1405             else
+    1406             {
+    1407                 if(pParser.mDataLibrary.find(it->second) != pParser.mDataLibrary.end())
+    1408                 {
+    1409                     //printf("ColladaLoader::BuildMaterialsExtras AddProperty<float> [%s] [%s] \n", val, key );
+    1410                     Collada::Data& data = pParser.mDataLibrary[it->second];
+    1411                     mat->AddProperty<float>( data.mValues.data(), data.mValues.size(), key);
+    1412                 }
+    1413                 else
+    1414                 {
+    1415                     printf("ColladaLoader::BuildMaterialsExtras BAD DATA REF  key %s val %s \n", key, val );
+    1416                 }
+    1417             }
+    1418 
+    1419         }
+    1420     }
+    1421 }
+    1422 #endif
+
+
+Suspect are missing the model/type/... attributes in the import::
+
+    2551 void ColladaParser::FakeExtraSkinSurface(Collada::SkinSurface& pSkinSurface,  Collada::Material& pMaterial)
+    2552 {
+    2553     // hijack Assimp material infrastructure to hold skin surface properties
+    2554     if(!pMaterial.mExtra )
+    2555         pMaterial.mExtra = new Collada::ExtraProperties();
+    2556 
+    2557     if(pSkinSurface.mOpticalSurface)
+    2558     {
+    2559         std::map<std::string,std::string>& ssm = pSkinSurface.mOpticalSurface->mExtra->mProperties ;
+    2560         pMaterial.mExtra->mProperties.insert( ssm.begin(), ssm.end() );
+    2561         pMaterial.mExtra->mProperties[g4dae_skinsurface_volume] = pSkinSurface.mVolume ;
+    2562     }
+    2563 }
+    2564 
+
+
+
+
 
 
 
