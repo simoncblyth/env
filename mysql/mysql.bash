@@ -256,6 +256,72 @@ OSX Mavericks/Yosemite MySQL
 * https://trac.macports.org/wiki/howto/MAMP
 
 
+OSX Macports MySQL56 
+----------------------
+
+* https://trac.macports.org/wiki/howto/MySQL
+
+::
+
+    simon:~ blyth$ sudo port install mysql56-server
+    Password:
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+    --->  Computing dependencies for mysql56-server
+    --->  Dependencies to be installed: mysql56 mysql_select tcp_wrappers
+    --->  Fetching archive for mysql_select
+    --->  Attempting to fetch mysql_select-0.1.2_0.darwin_13.noarch.tbz2 from http://packages.macports.org/mysql_select
+    --->  Attempting to fetch mysql_select-0.1.2_0.darwin_13.noarch.tbz2.rmd160 from http://packages.macports.org/mysql_select
+    --->  Installing mysql_select @0.1.2_0
+    --->  Activating mysql_select @0.1.2_0
+    --->  Cleaning mysql_select
+    --->  Fetching archive for tcp_wrappers
+    --->  Attempting to fetch tcp_wrappers-20_2.darwin_13.x86_64.tbz2 from http://packages.macports.org/tcp_wrappers
+    --->  Attempting to fetch tcp_wrappers-20_2.darwin_13.x86_64.tbz2.rmd160 from http://packages.macports.org/tcp_wrappers
+    --->  Installing tcp_wrappers @20_2
+    --->  Activating tcp_wrappers @20_2
+    --->  Cleaning tcp_wrappers
+    --->  Fetching archive for mysql56
+    --->  Attempting to fetch mysql56-5.6.23_0.darwin_13.x86_64.tbz2 from http://packages.macports.org/mysql56
+    --->  Attempting to fetch mysql56-5.6.23_0.darwin_13.x86_64.tbz2 from http://jog.id.packages.macports.org/macports/packages/mysql56
+    --->  Attempting to fetch mysql56-5.6.23_0.darwin_13.x86_64.tbz2 from http://lil.fr.packages.macports.org/mysql56
+    --->  Fetching distfiles for mysql56
+    --->  Attempting to fetch mysql-5.6.23.tar.gz from http://mysql.ntu.edu.tw/Downloads/MySQL-5.6
+    --->  Attempting to fetch mysql-5.6.23.tar.gz from http://mysql.cdpa.nsysu.edu.tw/Downloads/MySQL-5.6
+    --->  Attempting to fetch mysql-5.6.23.tar.gz from http://ftp.iij.ad.jp/pub/db/mysql/Downloads/MySQL-5.6
+    --->  Attempting to fetch mysql-5.6.23.tar.gz from http://ftp.jaist.ac.jp/pub/mysql/Downloads/MySQL-5.6
+    --->  Attempting to fetch mysql-5.6.23.tar.gz from http://cjj.kr.distfiles.macports.org/mysql56
+    --->  Verifying checksums for mysql56                                            
+    --->  Extracting mysql56
+    --->  Applying patches to mysql56
+    --->  Configuring mysql56
+    Error: org.macports.configure for port mysql56 returned: configure failure: command execution failed
+    Error: Failed to install mysql56
+    Please see the log file for port mysql56 for details:
+        /opt/local/var/macports/logs/_opt_local_var_macports_sources_rsync.macports.org_release_tarballs_ports_databases_mysql56/mysql56/main.log
+    Error: The following dependencies were not installed: mysql56
+    To report a bug, follow the instructions in the guide:
+        http://guide.macports.org/#project.tickets
+    Error: Processing of port mysql56-server failed
+
+::
+
+    simon:~ blyth$ sudo port install mysql56-server
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+    --->  Computing dependencies for mysql56-server
+    --->  Dependencies to be installed: mysql56
+    --->  Configuring mysql56
+    Error: org.macports.configure for port mysql56 returned: configure failure: command execution failed
+    Error: Failed to install mysql56
+    Please see the log file for port mysql56 for details:
+        /opt/local/var/macports/logs/_opt_local_var_macports_sources_rsync.macports.org_release_tarballs_ports_databases_mysql56/mysql56/main.log
+    Error: The following dependencies were not installed: mysql56
+    To report a bug, follow the instructions in the guide:
+        http://guide.macports.org/#project.tickets
+    Error: Processing of port mysql56-server failed
+    simon:~ blyth$ 
+
+
+* installing mysql56 and then  mysql56-server succeeds, appararently some problem with dependency auto-installing
 
 
 EOU

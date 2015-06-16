@@ -2391,9 +2391,45 @@ Suspect are missing the model/type/... attributes in the import::
     2564 
 
 
+dielectric_metal reflection
+----------------------------
+
+* :google:`dielectric metal reflection polarization`
 
 
 
+
+
+* http://physics.stackexchange.com/questions/10911/polarization-and-mirrors
+
+
+Plasma Physics 
+~~~~~~~~~~~~~~~~
+
+Polarization measurements used to understand plasmas. So they need to
+have a detailed understanding of ordinary polarization from reflection too.
+ 
+Tokamak MSE (Motional Stark Effect) : extensive polarized reflection calcs
+
+* https://www.psfc.mit.edu/~sscott/MSEmemos/mse_memo_83c.pdf
+
+* https://en.wikipedia.org/wiki/Stark_effect E-field effect on spectral lines
+
+* http://www.novaphotonics.com/MSE%20Diagnostic/MSE_Diagnostic.html
+
+    The motional Stark effect diagnostic (MSE) was invented by Dr. Fred M.
+    Levinton in 1989 and has subsequently become the worldwide touchstone for the
+    measurement of internal magnetic fields in high temperature plasma experiments.
+
+    The concept of MSE is based on the measurement of the polarization state of
+    light emitted from an atomic hydrogen beam as it passes through a magnetized
+    plasma. As the beam moves through the magnetic field, B, at high velocity, v,
+    it experiences in its reference frame an electric field, E = v x B. The beam
+    atoms are excited via collisions with background plasma, and emit visible light
+    which is split into nine spectral lines by the electric field in a phenomemon
+    known as the Stark effect. The polarization of the light is aligned with
+    respect to the magnetic field, so a measurement of the polarization orientation
+    can be used to determine the magnetic field direction in the plasma.
 
 
 EOU
