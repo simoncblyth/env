@@ -2396,9 +2396,7 @@ dielectric_metal reflection
 
 * :google:`dielectric metal reflection polarization`
 
-
-
-
+* :google:`reflection metal complex refractive index polarization`
 
 * http://physics.stackexchange.com/questions/10911/polarization-and-mirrors
 
