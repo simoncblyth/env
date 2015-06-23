@@ -431,8 +431,14 @@ export-export-templates(){
    export DAE_CHROMAPHOTON_PATH_TEMPLATE=$(export-path-template chromaphoton)
 
 
-   export DAE_DOMAIN_DESCRIPTION="Domain quads used to decode packed data such as photon records"
+   export DAE_DOMAIN_DESCRIPTION="Domain float quad parameters used to decode packed data such as photon records"
    export DAE_DOMAIN_PATH_TEMPLATE=$(export-path-template domain)
+
+   export DAE_IDOMAIN_DESCRIPTION="Domain integer quad parameters eg max_bounce maxrec "
+   export DAE_IDOMAIN_PATH_TEMPLATE=$(export-path-template idomain)
+
+   export DAE_SEQIDX_DESCRIPTION="Photon sequence index "
+   export DAE_SEQIDX_PATH_TEMPLATE=$(export-path-template seqidx)
 
 
 
