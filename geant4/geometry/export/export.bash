@@ -437,8 +437,11 @@ export-export-templates(){
    export DAE_IDOMAIN_DESCRIPTION="Domain integer quad parameters eg max_bounce maxrec "
    export DAE_IDOMAIN_PATH_TEMPLATE=$(export-path-template idomain)
 
-   export DAE_SEQIDX_DESCRIPTION="Photon sequence index "
-   export DAE_SEQIDX_PATH_TEMPLATE=$(export-path-template seqidx)
+   export DAE_SEQCERENKOV_DESCRIPTION="Photon sequence index "
+   export DAE_SEQCERENKOV_PATH_TEMPLATE=$(export-path-template seqcerenkov)
+
+   export DAE_SEQSCINTILLATION_DESCRIPTION="Photon sequence index "
+   export DAE_SEQSCINTILLATION_PATH_TEMPLATE=$(export-path-template seqscintillation)
 
 
 
