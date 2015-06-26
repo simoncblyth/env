@@ -1635,3 +1635,5 @@ bregex-(){      . $(env-home)/boost/bregex/bregex.bash && bregex-env $* ; }
 ispm-(){      . $(env-home)/graphics/ispm/ispm.bash && ispm-env $* ; }
 thrust-(){      . $(env-home)/numerics/thrust/thrust.bash && thrust-env $* ; }
 thrusthello-(){      . $(env-home)/numerics/thrust/hello/thrusthello.bash && thrusthello-env $* ; }
+photonmap-(){      . $(env-home)/graphics/photonmap/photonmap.bash && photonmap-env $* ; }
+thrustexamples-(){      . $(env-home)/numerics/thrust/thrustexamples/thrustexamples.bash && thrustexamples-env $* ; }
