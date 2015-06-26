@@ -1633,3 +1633,5 @@ imguitest-(){      . $(env-home)/graphics/gui/imguitest/imguitest.bash && imguit
 g4op-(){      . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
 bregex-(){      . $(env-home)/boost/bregex/bregex.bash && bregex-env $* ; }
 ispm-(){      . $(env-home)/graphics/ispm/ispm.bash && ispm-env $* ; }
+thrust-(){      . $(env-home)/numerics/thrust/thrust.bash && thrust-env $* ; }
+thrusthello-(){      . $(env-home)/numerics/thrust/hello/thrusthello.bash && thrusthello-env $* ; }
