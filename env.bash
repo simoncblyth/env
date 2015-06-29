@@ -1638,3 +1638,4 @@ thrusthello-(){      . $(env-home)/numerics/thrust/hello/thrusthello.bash && thr
 photonmap-(){      . $(env-home)/graphics/photonmap/photonmap.bash && photonmap-env $* ; }
 thrustexamples-(){      . $(env-home)/numerics/thrust/thrustexamples/thrustexamples.bash && thrustexamples-env $* ; }
 thrustrap-(){      . $(env-home)/numerics/thrustrap/thrustrap.bash && thrustrap-env $* ; }
+cudainstall-(){      . $(env-home)/cuda/cudainstall.bash && cudainstall-env $* ; }

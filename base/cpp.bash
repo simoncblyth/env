@@ -5,6 +5,20 @@ cpp-vi(){       vi $(cpp-source) ; }
 cpp-env(){      elocal- ; }
 cpp-usage(){
   cat << EOU
+
+C++
+====
+
+
+C++11
+-------
+
+* http://herbsutter.com/elements-of-modern-c-style/
+
+Versions
+---------
+
+
      cpp-src : $(cpp-src)
 
    hfag    "3.2.3 20030502 (Red Hat Linux 3.2.3-59)"

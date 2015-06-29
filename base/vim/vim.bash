@@ -5,13 +5,14 @@ vim-vi(){       vi $(vim-source) ; }
 vim-env(){      elocal- ; }
 vim-usage(){ cat << EOU
 
-VIM
-=====
-
-Tips
------
+VIM Tips
+=========
 
 
+Gutter Line Numbers
+----------------------
+
+* http://vim.wikia.com/wiki/Display_line_numbers
 
 
 
