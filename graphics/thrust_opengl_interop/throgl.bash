@@ -4,6 +4,46 @@ throgl-source(){   echo ${BASH_SOURCE:-$(env-home)/$(throgl-src)} ; }
 throgl-vi(){       vi $(throgl-source) ; }
 throgl-usage(){ cat << EOU
 
+Interop between OpenGL/OptiX/Thrust/CUDA 
+==========================================
+
+
+harrism : NVIDIA expert on Interop (2011)
+--------------------------------------------
+
+* http://stackoverflow.com/questions/6481123/cuda-and-opengl-interop
+
+As of CUDA 4.0, OpenGL interop is one-way. That means to do what you want (run
+a CUDA kernel that writes data to a GL buffer or texture image), you have to
+map the buffer to a device pointer, and pass that pointer to your kernel, as
+shown in your example.
+
+cudaGraphicsResourceGetMappedPointer is called every time display() is 
+called because cudaGraphicsMapResource is called every frame.
+Any time you re-map a resource you should re-get the mapped pointer, because it
+may have changed. 
+
+Why re-map every frame? 
+
+Well, OpenGL sometimes moves buffer objects around in memory, 
+for performance reasons (especially in memory-intensive GL applications). 
+
+If you leave the resource mapped all the time, it can't do this, 
+and performance may suffer. 
+
+I believe GL's ability and need to virtualize memory objects is 
+also one of the reasons the current GL interop API is one-way 
+(the GL is not allowed to move CUDA allocations around,
+and therefore you can't map a CUDA-allocated device pointer into a GL buffer
+object).
+
+
+
+Presentation on interop (uses deprecated API)
+-----------------------------------------------
+
+* http://www.nvidia.com/content/gtc/documents/1055_gtc09.pdf
+
 
 
 
