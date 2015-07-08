@@ -78,13 +78,24 @@
 
 
 
+.. comment
+
+   Last 6 weeks
+
+   implemented optical physics in OptiX infrastructure
+   squeeze photon record into 128 bit 
+   record viz
+   photon history/material indexing
+
+
+
 ======================================================================
 Optical Photon Simulation with NVIDIA OptiX
 ======================================================================
 
 .. class:: small
 
-    http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (May 2015)
+    http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
     http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulation.html (Jan 2015)
 
 .. sidebar:: OptiX Ray Tracing    
@@ -102,7 +113,7 @@ Optical Photon Simulation with NVIDIA OptiX
    * Next Steps
 
    |  Simon C Blyth, National Taiwan University
-   |  **May 2015** 
+   |  **July 2015** 
 
 .. comment 
 
@@ -186,7 +197,7 @@ Optical Photon Simulation with NVIDIA OptiX
 :small:`Introducing NVIDIA OptiX Ray Tracing Engine [C++/C/CUDA]`
 -------------------------------------------------------------------
 
-.. sidebar:: OptiX *Tutorial* Sample App
+.. sidebar:: OptiX *Tutorial* App
 
     .. class:: small
 
@@ -201,24 +212,23 @@ Optical Photon Simulation with NVIDIA OptiX
 
 .. class:: small
 
-    * ~200M ray/s/GPU geometry intersections
-    * very general ray tracing framework, **no rendering assumptions**
-    * regular releases, improvements/tuning for new GPUs
-
-    Ray Trace optimized compiler generates kernel combining 
-    user programs: ray generation, object intersection, material shading, ..
-    Incorporates NVIDIA expertise on efficient GPU/multi-GPU usage:
-
-    * state machine continuations to implement GPU recursion
-    * persistent warps with just enough threads to fill machine
-    * load balancing between warps and between GPUs
-      
-    :red:`Hugely advantageous to let OptiX handle:`   
+    OptiX provides: :blue:`CUDA compiler optimized for Ray Tracing` 
  
-    * acceleration of geometry intersection 
-    * efficient GPU/multi-GPU usage
+    * ray tracing framework, **no rendering assumptions**
 
-    BUT: OptiX requires NVIDIA GPUs, AMD OpenCL **ray trace renderer** is not equivalent
+    * ~200M ray/s/GPU geometry intersections
+
+    * regular releases, improvements, tuning for new GPUs
+
+    * shared C++/CUDA context eases development 
+
+
+    :red:`NVIDIA expertise on efficient GPU/multi-GPU usage` 
+
+    * persistent warps sized to fill machine
+
+    * load balancing between warps, GPUs
+ 
 
 
 .. class:: tiny
@@ -230,8 +240,8 @@ Optical Photon Simulation with NVIDIA OptiX
 
 
 
-:small:`Ray Tracing and Optical Photon Simulation Parallels`
---------------------------------------------------------------
+:small:`Parallels between Realistic Image Synthesis and Optical Simulation`
+-------------------------------------------------------------------------------
 
 .. sidebar:: OptiX *Glass* Sample App
 
@@ -254,11 +264,11 @@ Optical Photon Simulation with NVIDIA OptiX
 
     Same rate determining step: :red:`geometry intersection` 
 
-    **Applying** techniques/hardware developed for fast ray tracing 
+    Applying techniques/hardware developed for fast ray tracing 
     can be hugely beneficial to optical photon simulation. 
    
-    * expect OP simulation performance >100x Geant4
-    * OP processing time becomes effectively zero compared to rest
+    * :red:`expect OP simulation performance >100x Geant4`
+    * OP processing time becomes effectively zero
 
 
 
@@ -267,7 +277,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
 .. class:: small
 
-    Render Split into 3x3 CUDA kernel launches, 1 thread per pixel, ~1.8s for 1.23M pixels, 2.4M tris (with [#hw]_)
+    Render Split into 3x3 CUDA kernel launches, 1 thread per pixel, :red:`~1.8s for 1.23M pixels`, 2.4M tris (with [#hw]_)
 
 .. image:: /env/chroma/chroma_camera/20140423-162109.png
    :width: 800px
@@ -293,14 +303,25 @@ Optical Photon Simulation with NVIDIA OptiX
         https://bitbucket.org/simoncblyth/env/src/tip/graphics/ggeoview/
 
 
-
-
 .. class:: small
 
     DBNS geometry raycast comparison using mobile GPU
 
-    * OptiX : interactive ~30 fps raycasting
+    * OptiX : :red:`interactive ~30 fps` raycasting
     * Chroma : 1.8s per frame 
+
+    Performance improvement ~50x
+
+
+
+:small:`OptiX Performance Scaling, GPU comparison`
+---------------------------------------------------------------------------
+
+.. sidebar:: Performance Linearity with CUDA cores 
+
+    .. image:: /env/g4dae/core_linearity.png
+       :width: 500px
+       :align: right
 
 .. class:: small
 
@@ -310,46 +331,26 @@ Optical Photon Simulation with NVIDIA OptiX
     * 1 Tesla K20m (2496 cores) 49.1 ms/f
     * 1 GeForce GT 750m (382 cores) 345.1 ms/f
  
-    Performance linear with GPU cores, workstation compared to laptop:
+    :red:`Performance linear with GPU cores`, compared to laptop:
 
     * 13x cores, 12x performance
 
-    :red:`Adoption of OptiX is compelling`:
-
-    * extremely fast intersection performance
-    * scales with CUDA cores across multiple GPUs
-    * improves with each release, new GPU tuning
-    * defer management of acceleration to NVIDIA 
-
-
-
-:small:`1000x performance, at a price`
----------------------------------------------------------------------------
-
-.. sidebar:: Performance Linearity with CUDA cores 
-
-    .. image:: /env/g4dae/core_linearity.png
-       :width: 500px
-       :align: right
 
 .. class:: small 
 
-   OptiX apps can connect to cloud GPU clusters...
+   **Future scaling possibilities, with VCA** 
 
-   * connection to 1 or more VCAs (each with 8 Maxwell GPUs) 
+   OptiX apps can connect to remote Visual Computing Appliances 
 
-   * total of **24,576** CUDA cores each
+   * 1 VCA : **24,576** cores (64x laptop GPU)
 
-
-   :red:`100x is enough` to make optical photon processing no longer the rate determining step 
-
-
-   * How many cores needed ? :red:`to be determined`
+   Clusters of ~10 VCAs are in use by design/advertising companies 
+   for interactive product rendering.
 
 
 .. class:: tiny 
 
-   http://www.nvidia.com/object/visual-computing-appliance.html
+   http://www.nvidia.com/object/visual-computing-appliance.html (8 Maxwell GPUs)
 
    http://on-demand-gtc.gputechconf.com/gtc-quicklink/6bIayc
 
@@ -399,103 +400,97 @@ Optical Photon Simulation with NVIDIA OptiX
 
 
 
+:small:`OptiX Adoption Costs, Application to JUNO Geometry`
+--------------------------------------------------------------
 
 
-:small:`Status of Chroma to OptiX migration`
----------------------------------------------------------
+.. sidebar:: Application to JUNO  
 
-.. sidebar:: NumPy/PyCUDA to C++/CUDA
+    OptiX memory efficiency treatment of 
+    repeated geometry: PMTs
+
+    * instancing avoids duplication
+    * parameterized shape avoids tesselation, like Geant4   
+
+    Memory access typically limiting,
+    performance may improve with memory efficiency.
+
+
+.. class:: small
+
+    **Adoption of OptiX is compelling**
+
+    * extremely fast intersection performance
+    * scales with CUDA cores across multiple GPUs
+    * improves with each release, new GPU tuning
+    * defer management of acceleration to NVIDIA 
+
+    **Costs of adoption**
+
+    * :green:`learn new tools: OptiX, Thrust`
+    * :green:`develop C++ replacement for Chroma/G4DAE python` 
+    * :blue:`port Chroma/G4 optical physics into new framework`
+    * :red:`validate against Geant4`
+    * :red:`develop memory efficient geometry representation`
+
+
+
+:small:`New C++ Packages Replacing Chroma`
+------------------------------------------------------------------
+
+.. sidebar:: ~10 Packages Developed 
 
       .. class:: small
 
-          OptiX provides C++/C/CUDA APIs.
+          Organized by dependencies
 
-          Chroma Python infrastructure is great for learning and development
-          but inconvenient in production when using multiple
-          threads, the standard way to work with multiple GPUs.
+          * :red:`Recreates Geant4 context on GPU`
+          * :blue:`Optical simulation by OptiX programs` 
+          * :blue:`Visualization by OpenGL GLSL Shaders`  
 
-          :red:`Reimplementation in C++ adopted as the simplest longterm approach`
+          Interop between OpenGL/OptiX/Thrust/CUDA  
 
-          **G4DAEChroma** bridge works asis, just need to change name: **G4DAEOpticks**
+          * :blue:`shared GPU buffers, efficient visualization`
 
+          Externals: 
 
+          * Boost libraries  
+          * Boost-Asio, Asio-ZMQ, ZMQ
+          * CUDA 7.0, Thrust 1.8
+          * OptiX 3.8
+          * OpenGL 4.1 (GLEW, GLFW, GLM)
+          * ImGUI  
 
-
-.. class:: small
-
-    Infrastructure for geometry/photon GPU loading, kernel launch
-
-    * :green:`C++ re-implementation, initial developments completed`
-    * :red:`need to add PMT identity information for hit formation`
-
-    Geometry intersection acceleration 
-
-    * :green:`no longer needed, handled by OptiX`
-
-    Optical photon Cerenkov/Scintillation generation 
-
-    * :green:`port completed and verified to match Geant4`
-
-    Optical photon simulation CUDA kernels 
-
-    * :blue:`port started`
-
-    Visualization application to aid simulation development
-
-    * :blue:`development ongoing in tandem with simulation port needs`
-
-
-
-
-:small:`C++ Infrastructure : foundation packages`
------------------------------------------------------
-
-.. sidebar:: Replacing Python, NumPy, PyZMQ
-
-    .. class:: small
-
-         Boost Libraries (filesystem, thread, program_options, logging, regex, ptree, Asio)
-         and Asio-ZMQ, ZMQ used to replace python packages.  
-
-         NPY format convenient for C++/Python interop:
-
-    .. class:: tiny
-    
-         ::
-
-             a = np.load("photons.npy")
+          See *backup* for details, source links 
 
 
 .. class:: small
 
-   *NPY*
-         Array persistency/manipulations inspired by NumPy, 
-         using NPY serialization format 
+   **Basis packages**
 
-         * 11 classes: G4StepNPY, PhotonsNPY, NPY, ...
+   * *NPY* : host array handling, persistency
+   * *NumpyServer* : network IO of *NPY* arrays
+   * *BCfg* *BRegex* : configuration
 
-   *NumpyServer*
-         Asynchronous IO of Geant4 Steps, Photons, Hits.
-         Communicates with remote *G4DAEOpticks* process, receiving
-         steps and replying with hits. 
-         
-         * 7 classes : numpydelegate, udp_server, ... 
+   **Geometry packages** 
 
-   *CUDAWrap*
-         cuRAND init and persist curandState (pure CUDA)
+   * *GGeo* : preparing geometry for GPU
+   * *AssimpWrap* : G4DAE geometry loading using forked Assimp
 
-         * avoids large stack size requirement of cuRAND init within OptiX  
-         * 5 classes : cuRANDWrapper, LaunchSequence, LaunchCommon, ..
- 
+   **GPU library interface packages** 
+
+   * *CUDAWrap* : pseudo random numbers with cuRAND
+   * *OptiXRap* : geometry loading, OptiX launch control
+   * *OGLWrap* : OpenGL visualization
+   * *ThrustRap* : photon indexing, based on CUDA Thrust  
+
+   **Main package** 
+
+   * *GGeoView* : optical physics OptiX programs, OpenGL shaders
 
 .. class:: tiny
-
-   https://bitbucket.org/simoncblyth/env/src/tip/numerics/npy/
-
-   https://bitbucket.org/simoncblyth/env/src/tip/boost/basio/numpyserver/
-
-   https://bitbucket.org/simoncblyth/env/src/tip/cuda/cudawrap/
-
+  
+    https://bitbucket.org/simoncblyth/env/src/tip/graphics/ggeoview/
 
 
 
@@ -525,66 +520,6 @@ Optical Photon Simulation with NVIDIA OptiX
     Packaged solution into **CUDAWrap**
 
     * https://bitbucket.org/simoncblyth/env/src/tip/cuda/cudawrap/
-
-
-:small:`C++ Infrastructure : domain packages`
------------------------------------------------------
-
-
-.. sidebar:: Replacing Python packages
-
-    .. class:: small
-
-         Many C++ classes required to replace:
- 
-         * PyCOLLADA
-         * PyOpenGL + glumpy + GLUT
-         * daenode.py
-         * g4daeview.py
-
-         Migration allows use of modern OpenGL 4.1:
-
-         * better visualization performance
-         * retina resolution support
-         * many GUI packages to choose from, picked https://github.com/ocornut/imgui
-
-.. class:: small
-
-   *GGeo*
-         GPU Geometry representation, NPY persistency 
- 
-         * 22 classes: GNode, GMaterial, GProperty, ...
-
-   *AssimpWrap*
-         G4DAE -> GGeo geometry 
-
-         * 7 classes : AssimpGGeo, AssimpTree, ...
-         
-   *OptiXRap*
-         GGeo -> OptiX geometry, OptiX launch control
-         
-         * 7 classes : OptiXEngine, OptixGeometry, ...
-
-   *OGLRap*
-         OpenGL shader based 3D visualization
-    
-         * 29 classes : Scene, View, Camera, Rdr, Shdr, ...
-     
-
-
-.. class:: tiny
-
-    https://bitbucket.org/simoncblyth/env/src/tip/optix/ggeo/
-
-    https://bitbucket.org/simoncblyth/env/src/tip/graphics/assimpwrap/
-
-    https://bitbucket.org/simoncblyth/env/src/tip/graphics/oglrap/
-
-    https://bitbucket.org/simoncblyth/env/src/tip/graphics/optixrap/
-
-
-
-
 
 
 :small:`Boundary material/surface properties GPU texture`  
@@ -626,6 +561,103 @@ Optical Photon Simulation with NVIDIA OptiX
 .. class:: tiny 
 
     https://github.com/simoncblyth/assimp (my fork of Assimp)
+
+
+:small:`Recording up to 10 steps of ~3 million photons`  
+---------------------------------------------------------   
+
+.. sidebar:: 128 bit compressed record
+
+    .. class:: small
+
+         Compression necessary to work with ~30M records  
+         (30M * 128bit = ~500 MB)
+
+         GPU memory 2 GB    
+
+
+.. class:: small
+
+    Up to 10 steps of the photon propagation are recorded.
+
+    **Photon buffer** : 4 * *float4* = 512 bits/photon
+
+    * *float4*: position, time  [32 * 4 = 128 bits]
+    * *float4*: direction, weight
+    * *float4*: polarization, wavelength
+    * *float4*: flags: material, boundary, history  
+
+    **Record buffer** : 2 * *short4* = 2*16*4 = 128 bits/record
+
+    * *short4*: position, time (snorm compressed)  [4*16 = 64 bits]
+    * *uchar4*: polarization, wavelength (uchar compressed) [4*8 = 32 bits]
+    * *uchar4*: material, history flags [4*8 = 32 bits]  
+
+    Compression uses known domains of position (geometry center, extent),
+    time (0:200ns), wavelength, polarization. 
+
+
+.. class:: tiny
+
+   Union trickery allows recording ints into floats 
+
+
+:small:`Indexing photon flag/material sequences`  
+---------------------------------------------------------   
+
+.. figure:: /env/graphics/ggeoview/flagsequence.png
+   :width: 200px
+   :align: right
+
+.. class:: small
+
+    Selecting photons by flag/material sequences, requires indexing integer sequences.
+
+    * CK : Cerenkov
+    * BT : Boundary Transmit
+    * BR : Boundary Reflect
+    * RE : Reemission
+    * AB : Absorb 
+    * BS : Bulk Scatter 
+
+    Indexing history/material sequences for 3M photons:
+
+    * CPU STL map, sstream  ~40s 
+    * CUDA Thrust sorted sparse histogram  <0.4s 
+
+    Packaged indexing into **ThrustRap** *ThrustIdx*
+
+    * https://bitbucket.org/simoncblyth/env/src/tip/numerics/thrustrap/
+
+
+:small:`CUDA Thrust`  
+---------------------------------------------------------   
+
+.. image:: /env/numerics/thrust/thrust.png
+   :width: 400px
+   :align: right
+
+.. class:: small
+
+   Distributed with CUDA
+
+   * C++ template library for CUDA based on STL
+   * higher level way to use CUDA
+   * https://developer.nvidia.com/Thrust
+
+   :red:`GPU performance without developing CUDA kernels`
+
+
+
+:small:`Porting Optical Physics from Geant4/Chroma to OptiX`  
+----------------------------------------------------------------   
+
+.. class:: small
+
+
+
+
+
 
 
 
@@ -724,6 +756,122 @@ Next Steps
    * incorporate into Geant4 codebase  
 
 
+:small:`Details for Reference`
+---------------------------------
+
+
+
+:small:`C++ Infrastructure : foundation packages`
+-----------------------------------------------------
+
+.. sidebar:: Replacing Python, NumPy, PyZMQ
+
+    .. class:: small
+
+         Boost Libraries (filesystem, thread, program_options, logging, regex, ptree, Asio)
+         and Asio-ZMQ, ZMQ used to replace python packages.  
+
+         NPY format convenient for C++/Python interop:
+
+    .. class:: tiny
+    
+         ::
+
+             a = np.load("photons.npy")
+
+
+.. class:: small
+
+   *NPY*
+         Array persistency/manipulations inspired by NumPy, 
+         using NPY serialization format 
+
+         * 11 classes: G4StepNPY, PhotonsNPY, NPY, ...
+
+   *NumpyServer*
+         Asynchronous IO of Geant4 Steps, Photons, Hits.
+         Communicates with remote *G4DAEOpticks* process, receiving
+         steps and replying with hits. 
+         
+         * 7 classes : numpydelegate, udp_server, ... 
+
+   *CUDAWrap*
+         cuRAND init and persist curandState (pure CUDA)
+
+         * avoids large stack size requirement of cuRAND init within OptiX  
+         * 5 classes : cuRANDWrapper, LaunchSequence, LaunchCommon, ..
+ 
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/env/src/tip/numerics/npy/
+
+   https://bitbucket.org/simoncblyth/env/src/tip/boost/basio/numpyserver/
+
+   https://bitbucket.org/simoncblyth/env/src/tip/cuda/cudawrap/
+
+
+
+
+:small:`C++ Infrastructure : domain packages`
+-----------------------------------------------------
+
+
+.. sidebar:: Replacing Python packages
+
+    .. class:: small
+
+         Many C++ classes required to replace:
+ 
+         * PyCOLLADA
+         * PyOpenGL + glumpy + GLUT
+         * daenode.py
+         * g4daeview.py
+
+         Migration allows use of modern OpenGL 4.1:
+
+         * better visualization performance
+         * retina resolution support
+         * many GUI packages to choose from, picked https://github.com/ocornut/imgui
+
+.. class:: small
+
+   *GGeo*
+         GPU Geometry representation, NPY persistency 
+ 
+         * 22 classes: GNode, GMaterial, GProperty, ...
+
+   *AssimpWrap*
+         G4DAE -> GGeo geometry 
+
+         * 7 classes : AssimpGGeo, AssimpTree, ...
+         
+   *OptiXRap*
+         GGeo -> OptiX geometry, OptiX launch control
+         
+         * 7 classes : OptiXEngine, OptixGeometry, ...
+
+   *OGLRap*
+         OpenGL shader based 3D visualization
+    
+         * 29 classes : Scene, View, Camera, Rdr, Shdr, ...
+     
+
+
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/env/src/tip/optix/ggeo/
+
+    https://bitbucket.org/simoncblyth/env/src/tip/graphics/assimpwrap/
+
+    https://bitbucket.org/simoncblyth/env/src/tip/graphics/oglrap/
+
+    https://bitbucket.org/simoncblyth/env/src/tip/graphics/optixrap/
+
+
+
+
+
 
 
 :small:`Comparison of GGeo/OptiX Generated Scintillation Photon Distributions`
@@ -748,6 +896,8 @@ Next Steps
 .. image:: /env/g4dae/generated_oxcerenkov_3xyzw.png
    :width: 700px
    :align: center
+
+
 
 
 
