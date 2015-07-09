@@ -32,6 +32,15 @@ Publishing to remote:
 
 
 
+s5 rst underpinning
+--------------------
+
+* http://docutils.sourceforge.net/docs/user/slide-shows.html#s5-theme-files
+
+
+
+
+
 
 EOU
 }
