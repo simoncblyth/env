@@ -67,15 +67,37 @@
     GGeoView
     /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
 
+    GGeoView M1 Points
+    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
+
+    GGeoView Flag Selection 
+    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
+
+    GGeoView Cerenkov Geom M1
+    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
+    
+
+
 .. comment 
 
     GGeoView image is 2094x1590 1047x795
+
+    GGeoView M1 Points is 2870x1696  1435x848
+
+    GGeoView Flag Selection 2872x1684 1436x842
+
+    GGeoView Cerenkov Geom M1 2832x1690 1416x845
+
 
     Generated Scintillation Photons GPU cf Geant4
     /env/g4dae/generated_scintillation_time_wavelength.png
 
     G4/DetSim Generated Cerenkov Wavelength
     /env/g4dae/g4_cerenkov_wavelength.png
+
+
+
+
 
 
 
@@ -109,48 +131,57 @@ Optical Photon Simulation with NVIDIA OptiX
    * Why not Chroma ?
    * Introducing NVIDIA OptiX
    * OptiX testing
-   * Chroma to OptiX migration
-   * Validating OptiX Generated Photons
+   * New Packages Replacing Chroma 
+   * Mobile GPU Timings 
+   * Application to JUNO 
    * Next Steps
 
    |  Simon C Blyth, National Taiwan University
    |  **July 2015** 
 
-.. comment 
+
+.. comment
 
     00 : Optical Photon Simulation with NVIDIA OptiX 
 
-   * Why not Chroma ?
+    01 : why not chroma ? 
 
-     01 : why not chroma ? 
+    02 : introducing nvidia optix ray tracing engine [c++/c/cuda] 
+    03 : parallels between realistic image synthesis and optical simulation 
+    04 : chroma raycast with entire geometry in view 
+    05 : optix raycast performance 
+    06 : optix performance scaling with gpu cores 
+    07 : optix programming model 
+    08 : optix adoption costs, application to juno geometry 
 
-   * Introducing NVIDIA OptiX
+    09 : new c++ packages replacing chroma 
+    10 : selection of gpu development details 
+    11 : porting optical physics from geant4/chroma to optix 
+    12 : optical physics implementation 
+    13 : random number generation in optix programs 
+    14 : fast material/surface property lookup from boundary texture 
+    15 : inverted cdf allows reemission wavelength gpu texture lookup 
+    16 : recording the steps of ~3 million photons 
+    17 : indexing photon flag/material sequences 
+    18 : introducing cuda thrust 
 
-     02 : introducing nvidia optix ray tracing engine [c++/c/cuda] 
-     03 : ray tracing and optical photon simulation parallels 
+    19 : mobile gpu timings for cerenkov and scintillation photons 
+    20 : ggeoview m1 points 
+    21 : next steps 
 
-   * OptiX testing
+    22 : "backup" : details for reference 
+    23 : ggeo/optix generated scintillation photons cf geant4 
+    24 : ggeo/optix generated cerenkov photons cf geant4 
+    25 : c++ infrastructure : foundation packages 
+    26 : c++ infrastructure : domain packages 
+    27 : propagate_to_boundary : absorb(reemit) / scatter / survive 
+    28 : comparison of ggeo/optix generated scintillation photon distributions 
+    29 : comparison of ggeo/optix generated cerenkov photon distributions 
+    30 : ggeoview 
 
-     04 : chroma raycast with entire geometry in view 
-     05 : optix raycast performance 
 
-   * Chroma to OptiX migration
 
-     06 : status of chroma to optix migration 
-     07 : c++ infrastructure : foundation packages 
-     08 : c++ infrastructure : domain packages 
-     09 : boundary material/surface properties gpu texture 
-     10 : ggeoview 
 
-   * Validating OptiX Generated Photons
-
-     11 : ggeo/optix generated scintillation photons cf geant4 
-     12 : inverted cdf allows reemission wavelength gpu texture lookup 
-     13 : ggeo/optix generated cerenkov photons cf geant4 
-     15 : comparison of ggeo/optix generated scintillation photon distributions 
-     16 : comparison of ggeo/optix generated cerenkov photon distributions 
-
-     14 : next steps 
 
 
 
@@ -286,8 +317,8 @@ Optical Photon Simulation with NVIDIA OptiX
 
 .. class:: tiny
 
-   .. [#hw] MacBook Pro (2013), NVIDIA GeForce GT 750M 2048 MB ; 
-            Workstation GPUs such as NVIDIA Kepler K20 expected at least ~5x faster
+   .. [#hw] MacBook Pro (2013), NVIDIA GeForce GT 750M 2048 MB (384 cores); 
+            Workstation GPU performance expected to scale by core count 
 
 
 :small:`OptiX raycast performance`
@@ -315,7 +346,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
 
 
-:small:`OptiX Performance Scaling, GPU comparison`
+:small:`OptiX Performance Scaling with GPU cores`
 ---------------------------------------------------------------------------
 
 .. sidebar:: Performance Linearity with CUDA cores 
@@ -330,7 +361,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
     * 2 Tesla K20m (4992 cores) 28.0 ms/f
     * 1 Tesla K20m (2496 cores) 49.1 ms/f
-    * 1 GeForce GT 750m (382 cores) 345.1 ms/f
+    * 1 GeForce GT 750m (384 cores) 345.1 ms/f
  
     :red:`Performance linear with GPU cores`, compared to laptop:
 
@@ -399,25 +430,8 @@ Optical Photon Simulation with NVIDIA OptiX
     https://research.nvidia.com/sites/default/files/publications/Parker10Optix_1.pdf 
 
 
-
-
-:small:`OptiX Adoption Costs, Application to JUNO Geometry`
---------------------------------------------------------------
-
-.. sidebar:: Application to JUNO  
-
-    .. class:: small
-
-        Large number of PMTs will likely 
-        demand use of OptiX features:
-
-        * geometry instancing to avoid duplication
-        * parameterized geometry avoids tesselation,
-          like *Geant4* 
-
-        Memory access typically limiting,
-        performance may improve with memory efficiency.
-
+:small:`OptiX Adoption Costs`
+---------------------------------
 
 .. class:: small
 
@@ -485,7 +499,7 @@ Optical Photon Simulation with NVIDIA OptiX
    * *CUDAWrap* : pseudo random numbers with cuRAND
    * *OptiXRap* : geometry loading, OptiX launch control
    * *OGLWrap* : OpenGL visualization
-   * *ThrustRap* : photon indexing, based on CUDA Thrust  
+   * *ThrustRap* : photon indexing, using CUDA Thrust  
 
    **Main package** 
 
@@ -511,12 +525,12 @@ Optical Photon Simulation with NVIDIA OptiX
    **Supplying the OptiX Programs**
 
    * Random Number Generation in OptiX programs
-   * Boundary material/surface properties GPU texture
-   * Inverted CDF allows reemission wavelength GPU texture lookup
+   * Fast material/surface property lookup from boundary texture
+   * Reemission wavelength lookup from Inverted CDF texture
 
    **Handling Outputs**
 
-   * Recording the steps of ~3 million photons 
+   * Recording the steps of millions photons 
    * Indexing photon flag/material sequences
    * Introducing CUDA Thrust 
 
@@ -549,9 +563,9 @@ Optical Photon Simulation with NVIDIA OptiX
     {
       bounce++   
 
-      rtTrace(geom, optix::make_Ray(p.pos, p.dir,...),prd) 
+      ray = optix::make_Ray(p.pos, p.dir,...) 
+      rtTrace(geom, ray, prd) 
       if(!prd.boundary) break  // MISS
-      SAVE(p)
 
       cmd = propagate_to_boundary(p, s)  
       if(cmd == BREAK)    break     // ABSORB
@@ -569,7 +583,6 @@ Optical Photon Simulation with NVIDIA OptiX
          propagate_at_boundary(p, s)    // BOUNDARY_REFLECT BOUNDARY_TRANSMIT 
       }
     } 
-    SAVE(p)
     </pre>
  
 
@@ -616,10 +629,6 @@ Optical Photon Simulation with NVIDIA OptiX
    https://bitbucket.org/simoncblyth/env/src/tip/graphics/ggeoview/cu/propagate.h
 
 
-      
-   
-
-
 :small:`Random Number Generation in OptiX programs`
 -----------------------------------------------------
 
@@ -648,41 +657,50 @@ Optical Photon Simulation with NVIDIA OptiX
     * https://bitbucket.org/simoncblyth/env/src/tip/cuda/cudawrap/
 
 
-:small:`Boundary material/surface properties GPU texture`  
+:small:`Fast material/surface property lookup from boundary texture`  
 -----------------------------------------------------------------------------   
 
-.. class:: small
+.. comment
 
     Forked Assimp parses G4DAE **extra** XML elements, *AssimpWrap* creates *GGeo* geometry
     with standard properties interpolated onto :red:`common wavelength domain`
 
-    * **material** : refractive_index, absorption_length, scattering_length, reemission_prob (*float4*)
-    * **surface** : detect, absorb, reflect_specular, reflect_diffuse (*float4*)
 
 .. sidebar:: Fast GPU texture lookup 
 
     .. class:: small
 
-         GPU Texture lookups highly optimized, as
-         standard way to wrap CG geometries.
+         GPUs contain hardware dedicated to fast texture lookup
+         and interpolation.  Using texture lookup for all properties
+         and reemission wavelengths keeps OptiX programs simple.
 
-         DayaBay: ~50 boundaries, 4 *float4* each
+
 
 .. class:: small
 
-    Volume tree traversal labels triangles with **boundary** indices, :red:`identity based on properties digest`:
+    *AssimpWrap* creates *GGeo* :red:`boundary instances` and labels
+    triangles with **boundary** indices, boundaries contain:
 
     * **inner material** : self 
     * **outer material** : parent 
     * **inner surface** : outwards going photons (self to parent) 
     * **outer surface** : inwards going photons (parent to self)
 
-    Interleave properties into 2d **GPU texture** (wavelength, qty line).
-    CUDA **tex2d** property lookup::
+    Properties are interpolated onto a :red:`common wavelength domain`
+
+    * **material** : refractive_index, absorption_length, scattering_length, reemission_prob (*float4*)
+    * **surface** : detect, absorb, reflect_specular, reflect_diffuse (*float4*)
+
+    Interleaved properties used to create single **boundary texture** 2d (wavelength, qty line)
+    containing ~50 boundaries, 4 *float4* each.  CUDA **tex2d** property lookup::
 
         float nmi = (nm - wavelength_domain.x)/wavelength_domain.z + 0.5f ;   
-        float4 props = tex2D(wavelength_texture, nmi, line + 0.5f );
-        float refractive_index = props.x ; 
+        float4 material1 = tex2D(wavelength_texture, nmi, line + 0.5f );
+
+        float refractive_index = material1.x ; 
+        float absorption_length = material1.y ; 
+        float scattering_length = material1.z ; 
+
       
 .. class:: tiny 
 
@@ -691,21 +709,18 @@ Optical Photon Simulation with NVIDIA OptiX
 
 
 
-:small:`Inverted CDF allows reemission wavelength GPU texture lookup`
+:small:`Reemission wavelength lookup from Inverted CDF texture`
 -----------------------------------------------------------------------------
     
 .. class:: small
 
-    Equivalent to value search sampling, fast lookup but requires
-    many probability bins (using 4096). 
+    Inverting Reemission CDF allows using texture lookup to obtain 
+    reemission wavelength from uniform random throws. 
+    Using 4096 probability bins. 
 
 .. image:: /env/g4dae/reemission_src_cdf_icdf_smpl.png
    :width: 800px
    :align: center
-
-
-
-
 
 
 :small:`Recording the steps of ~3 million photons`  
@@ -747,6 +762,20 @@ Optical Photon Simulation with NVIDIA OptiX
    Union trickery allows recording ints into floats 
 
 
+:i:`GGeoView M1 Points`  
+-----------------------------------------------------------------------------   
+
+.. sidebar:: Scintillation Photons colored by material
+
+    .. class:: tiny
+
+       Visualizing 30M records of scintillation photons from an 100 GeV muon crossing Dayabay AD. 
+       Primaries are simulated by Geant4, Scintillation "steps" of the primaries are transferred to the GPU.  
+       The dots represent OptiX calculated photon steps with colors 
+       corresponding to materials.
+      
+
+
 :small:`Indexing photon flag/material sequences`  
 ---------------------------------------------------------   
 
@@ -775,6 +804,21 @@ Optical Photon Simulation with NVIDIA OptiX
     * https://bitbucket.org/simoncblyth/env/src/tip/numerics/thrustrap/
 
 
+
+:i:`GGeoView Flag Selection`
+----------------------------------- 
+
+.. sidebar:: Selection by flag sequence
+
+    .. class:: tiny
+
+       Selection of scintillation photons by flag sequence (all boundary transmit) from a 100 GeV muon crossing Dayabay AD. 
+       Primaries are simulated by Geant4, Scintillation "steps" of the primaries are transferred to the GPU.  
+       The dots represent OptiX calculated photon steps with colors 
+       corresponding to materials.
+
+
+
 :small:`Introducing CUDA Thrust`  
 ---------------------------------------------------------   
 
@@ -793,78 +837,143 @@ Optical Photon Simulation with NVIDIA OptiX
    :red:`GPU performance without developing CUDA kernels`
 
 
-:small:`Mobile GPU Times, preparing, propagating, indexing`
+:small:`Mobile GPU Timings for Cerenkov and Scintillation photons`
 -------------------------------------------------------------------------
 
-.. sidebar:: Timings, maxrecord 10, maxbounce 9
+.. sidebar:: Avoid CPU for performance   
 
     .. class:: small
 
-       * allocation of ~500MB host memory dominates 
+       * allocation of ~700MB host memory dominates 
+       * workstation GPU core counts => *generatePropagate* will 
+         become effectively zero 
 
        Once debugged can skip:
 
-       * recording photon steps 
+       * recording photon steps, indexing, OpenGL visualization  
        * most host allocations 
 
-       CUDA Thrust potentially great help:
+       Possible approach:
 
-       * allocate photon buffers on GPU only 
-       * interop with OptiX to populate buffers
+       * allocate GPU only photon buffers using Thrust 
+       * Thrust interop with OptiX to populate buffers
        * copy back just the hits using thrust::copy_if
 
 .. raw:: html
 
     <pre class="mypre">
- 
-                    label        ck   ck*4.59        sc
-
+     max_record:10  
+     max_bounce:9
+                            Cerenkov   Ck*4.59  Scintillation
                   photons     0.61M      2.8M      2.8M
-
-                    scale     1.000     4.598     1.000
-
+     ---(bytes)-----------------------------------------------
+             genstep size      736K                1.3M      
+             photons size       37M                172M      
+             records size       97M                430M      
+     ---(seconds)---------------------------------------------
       createOpenGLContext     0.692         -     0.599
              loadGeometry     1.570         -     1.302
            interpGeometry     0.211         -     0.190
+                initOptiX     4.216         -     6.521
       
               loadGenstep     0.011         -     0.014
         hostEvtAllocation **  3.540    16.275    16.179  
                 uploadEvt     0.232     1.066     0.552
-                initOptiX     4.216         -     6.521
 
         generatePropagate ++  1.404     6.453     7.907 ++         
 
               evtDownload **  0.348     1.602     1.780    
                   evtSave **  0.437     2.008     2.006    
 
-            boundaryIndex **  0.064     0.292     0.244    
             sequenceIndex     0.134     0.614     0.359
-  selectionDownloadUpload     0.036     0.164     0.326
-
+     --------------------------------------------------------
                           ** scales by photon count 
 
-                          ++ workstation GPU expected to be ~30x faster  
 
    </pre>
 
 
-:i:`GGeoView`  
------------------------------------------------------------------------------   
+:small:`Application to JUNO`
+--------------------------------------------------------------
+
+.. sidebar:: OptiX Julia Set Sample
+
+    .. class:: small
+
+        Ray tracing with purely analytic geometry, 
+        ie :red:`no triangles`. Application to PMTs may 
+        allow drastic reduction in memory usage 
+        and access costs.  
+
+    .. image:: /env/optix/raycast/julia.png 
+       :width: 463px
+       :align: right
 
 
-.. sidebar:: GGeoView 
+.. class:: small
 
-    .. class:: tiny
+    The large number of PMTs may require a more memory 
+    efficient geometry representation using OptiX features:
 
-       Cerenkov photons from an 100 GeV muon travelling from right to left across Dayabay AD. 
-       Primaries are simulated by Geant4, Cerenkov "steps" of the primaries are transferred to the GPU.  
-       The dots represent OptiX calculated first intersections of GPU generated photons with colors 
-       corresponding to material boundaries: :red:`(red) GdDopedLS:Acrylic`,
-       :green:`(green) LiquidScintillator:Acrylic`, :blue:`(blue) Acrylic:LiquidScintillator`,
-       (white) IwsWater:UnstStainlessSteel, (grey) others.
-       The red lines represent the positions and directions of the "steps" with an
-       arbitrary scaling for visibility. 
-       
+    * parameterized geometry avoids tesselation, like *Geant4* 
+    * geometry instancing avoid duplication
+
+    Memory access (not calculation) typically limits GPU performance,
+    improving memory efficiency expected to improve performance.
+ 
+
+Next Steps
+------------------
+
+
+.. class:: small
+
+   **Test New Framework with IHEP 4-GPU workstation**
+
+   * check performance scaling with GPU cores 
+   * attempt loading JUNO geometry
+   * investigate more memory efficient geometry techniques
+
+   **Optical Photon Simulation**
+
+   * Complete porting Optical Physics  
+
+   * Instrument Geant4 optical photon propagation, 
+     by collecting photon steps into NPY array to :red:`enable step-by-step comparison`
+
+   * Debugging to :red:`achieve match between Geant4 and GPU` optical photon simulation, 
+
+     * QE details to port 
+
+
+.. class:: small
+
+   **G4DAE Geometry Exporter**
+
+   * investigate issue inherited from GDML of a skipped  
+     edge case (when a volume is shared between multiple volume pairs)
+     resulting in missing *G4LogicalBorderSurface* 
+
+   * incorporate into Geant4 codebase  
+
+
+
+:small:`"Backup" : Details for Reference`
+-------------------------------------------
+
+.. class:: small
+
+   On the following pages:
+
+   * GGeo/OptiX Generated Scintillation Photons cf Geant4
+   * GGeo/OptiX Generated Cerenkov Photons cf Geant4
+   * C++ Infrastructure : foundation packages
+   * C++ Infrastructure : domain packages
+   * propagate_to_boundary : ABSORB(REEMIT) / SCATTER / survive
+   * Comparison of GGeo/OptiX Generated Scintillation Photon Distributions
+   * Comparison of GGeo/OptiX Generated Cerenkov Photon Distributions
+
+
 
 :small:`GGeo/OptiX Generated Scintillation Photons cf Geant4`
 --------------------------------------------------------------- 
@@ -892,63 +1001,18 @@ Optical Photon Simulation with NVIDIA OptiX
    :align: center
 
 
-Next Steps
-------------------
 
+:i:`GGeoView Cerenkov Geom M1`
+---------------------------------------------------------- 
 
-.. class:: small
+.. sidebar:: Cerenkov Photon Steps 
 
-   **Test New Framework on workstation GPU**
+    .. class:: tiny
 
-   * check performance scaling with GPU cores 
-
-   **Optical Photon Simulation**
-
-   * Complete port of Optical Physics  
-
-   * Instrument Geant4 optical photon propagation, 
-     by collecting photon steps into NPY array to :red:`enable step-by-step comparison`
-
-   * Inevitably : lots of debugging 
-
-   Attempt to :red:`achieve matching between standard and external` optical photon simulation, many details to port:  
-
-   * Cerenkov *ApplyWaterQE* 
-
-   * *DsPmtSensDet::ProcessHits* QE gymnastics 
-
-
-.. class:: small
-
-   **G4DAE Geometry Exporter**
-
-   * test on more detector geometries
-
-   * implement parametrized/replica geometry handling, following GDML
-
-   * investigate issue inherited from GDML of a skipped  
-     edge case (when a volume is shared between multiple volume pairs)
-     resulting in missing *G4LogicalBorderSurface* 
-
-   * investigate improving default export appearance in common viewers 
-
-   * incorporate into Geant4 codebase  
-
-
-
-
-:small:`"Backup" : Details for Reference`
--------------------------------------------
-
-.. class:: small
-
-   On the following pages:
-
-   * C++ Infrastructure : foundation packages
-   * C++ Infrastructure : domain packages
-   * propagate_to_boundary : ABSORB(REEMIT) / SCATTER / survive
-   * Comparison of GGeo/OptiX Generated Scintillation Photon Distributions
-   * Comparison of GGeo/OptiX Generated Cerenkov Photon Distributions
+       Cerenkov photons steps from a 100 GeV muon crossing Dayabay AD. 
+       Primaries are simulated by Geant4, Cerenkov  "steps" of the primaries are transferred to the GPU.  
+       The dots represent OptiX calculated photon steps with colors 
+       corresponding to materials.
 
 
 :small:`C++ Infrastructure : foundation packages`
@@ -1131,4 +1195,21 @@ Next Steps
 
 
 
+:i:`GGeoView`  
+-----------------------------------------------------------------------------   
+
+
+.. sidebar:: GGeoView 
+
+    .. class:: tiny
+
+       Cerenkov photons from an 100 GeV muon travelling from right to left across Dayabay AD. 
+       Primaries are simulated by Geant4, Cerenkov "steps" of the primaries are transferred to the GPU.  
+       The dots represent OptiX calculated first intersections of GPU generated photons with colors 
+       corresponding to material boundaries: :red:`(red) GdDopedLS:Acrylic`,
+       :green:`(green) LiquidScintillator:Acrylic`, :blue:`(blue) Acrylic:LiquidScintillator`,
+       (white) IwsWater:UnstStainlessSteel, (grey) others.
+       The red lines represent the positions and directions of the "steps" with an
+       arbitrary scaling for visibility. 
+       
 
