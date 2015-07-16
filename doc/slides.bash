@@ -481,7 +481,7 @@ Using *Make PDF from PNGs* Automator Service
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Open folder containing PNGs to combine in Finder.app
-#. Arrange the order and then select PNGs
+#. Move uncropped to trash and arrange order of cropped by name and then select PNGs
 #. ctrl-click the selection to get contextual menu, choose Make PDF from PNGs
 #. After a second or so (depending on number of PNGs) a dialog will appear to enter the basename (without .pdf) of the output PDF.
 #. After entering the name the new PDF will appear on the Desktop

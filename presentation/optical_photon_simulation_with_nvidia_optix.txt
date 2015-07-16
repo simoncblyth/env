@@ -133,7 +133,7 @@ Optical Photon Simulation with NVIDIA OptiX
    * OptiX testing
    * New Packages Replacing Chroma 
    * Mobile GPU Timings 
-   * Application to JUNO 
+   * Operation with JUNO Geometry ?  
    * Next Steps
 
    |  Simon C Blyth, National Taiwan University
@@ -433,14 +433,22 @@ Optical Photon Simulation with NVIDIA OptiX
 :small:`OptiX Adoption Costs`
 ---------------------------------
 
+
+.. sidebar:: Defer to NVIDIA
+
+      .. class:: small
+
+          * acceleration structure creation and fast traversal 
+          * :red:`efficient GPU/multi-GPU utilization`  
+
 .. class:: small
 
     **Adoption of OptiX is compelling**
 
     * extremely fast intersection performance
     * scales with CUDA cores across multiple GPUs
-    * improves with each release, new GPU tuning
-    * defer management of acceleration to NVIDIA 
+    * improves with each release
+    * releases tune for new GPU architectures
 
     **Costs of adoption**
 
@@ -519,7 +527,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
    **Optical Physics**
 
-   * Porting Geant4/Chroma Optical Physics into OptiX Programs
+   * Porting Optical Physics from Geant4/Chroma into OptiX 
    * Optical Physics Implementation
 
    **Supplying the OptiX Programs**
@@ -536,7 +544,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
 
 
-:small:`Porting Optical Physics from Geant4/Chroma to OptiX`  
+:small:`Porting Optical Physics from Geant4/Chroma into OptiX`  
 ----------------------------------------------------------------   
 
 .. sidebar:: Synthesis of sources
@@ -599,7 +607,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
    .. class:: small
 
-      * Nice Simple Structure from Chroma
+      * Overall Structure from Chroma
       * Aiming for equivalence with Geant4  
       * :red:`Optical Surface treatment in progress`
 
@@ -769,11 +777,11 @@ Optical Photon Simulation with NVIDIA OptiX
 
     .. class:: tiny
 
-       Visualizing 30M records of scintillation photons from an 100 GeV muon crossing Dayabay AD. 
-       Primaries are simulated by Geant4, Scintillation "steps" of the primaries are transferred to the GPU.  
-       The dots represent OptiX calculated photon steps with colors 
+       Visualization of 30M scintillation photon records from an 100 GeV muon crossing Dayabay AD. 
+       Primaries are simulated by Geant4, Scintillation "steps" of the primaries are transferred to the GPU,
+       where photons are generated, propagated using NVIDIA OptiX and visualized using OpenGL. 
+       The dots represent propagation step positions with colors 
        corresponding to materials.
-      
 
 
 :small:`Indexing photon flag/material sequences`  
@@ -862,38 +870,38 @@ Optical Photon Simulation with NVIDIA OptiX
 .. raw:: html
 
     <pre class="mypre">
-     max_record:10  
-     max_bounce:9
-                            Cerenkov   Ck*4.59  Scintillation
-                  photons     0.61M      2.8M      2.8M
-     ---(bytes)-----------------------------------------------
-             genstep size      736K                1.3M      
-             photons size       37M                172M      
-             records size       97M                430M      
-     ---(seconds)---------------------------------------------
-      createOpenGLContext     0.692         -     0.599
-             loadGeometry     1.570         -     1.302
-           interpGeometry     0.211         -     0.190
-                initOptiX     4.216         -     6.521
-      
-              loadGenstep     0.011         -     0.014
-        hostEvtAllocation **  3.540    16.275    16.179  
-                uploadEvt     0.232     1.066     0.552
+    max_record:10  
+    max_bounce:9
+                       Cerenkov   Ck*4.59 Scintillation
+              photons     0.61M      2.8M      2.8M
+    --(bytes)--------------------------------------
+         genstep size      736K                1.3M      
+         photons size       37M                172M      
+         records size       97M                430M      
+    --(seconds)------------------------------------
+      createOpenGLCtx     0.692         -     0.599
+         loadGeometry     1.570         -     1.302
+       interpGeometry     0.211         -     0.190
+            initOptiX     4.216         -     6.521
+  
+          loadGenstep     0.011         -     0.014
+    hostEvtAllocation **  3.540    16.275    16.179  
+            uploadEvt     0.232     1.066     0.552
 
-        generatePropagate ++  1.404     6.453     7.907 ++         
+    generatePropagate ++  1.404     6.453     7.907          
 
-              evtDownload **  0.348     1.602     1.780    
-                  evtSave **  0.437     2.008     2.006    
+          evtDownload **  0.348     1.602     1.780    
+              evtSave **  0.437     2.008     2.006    
 
-            sequenceIndex     0.134     0.614     0.359
-     --------------------------------------------------------
-                          ** scales by photon count 
+        sequenceIndex     0.134     0.614     0.359
+    -----------------------------------------------
+                      ** scales by photon count 
 
 
    </pre>
 
 
-:small:`Application to JUNO`
+:small:`Operation with JUNO Geometry ?`
 --------------------------------------------------------------
 
 .. sidebar:: OptiX Julia Set Sample
@@ -916,7 +924,7 @@ Optical Photon Simulation with NVIDIA OptiX
     efficient geometry representation using OptiX features:
 
     * parameterized geometry avoids tesselation, like *Geant4* 
-    * geometry instancing avoid duplication
+    * geometry instancing avoids duplication
 
     Memory access (not calculation) typically limits GPU performance,
     improving memory efficiency expected to improve performance.
@@ -928,9 +936,9 @@ Next Steps
 
 .. class:: small
 
-   **Test New Framework with IHEP 4-GPU workstation**
+   **Test New Framework with IHEP 4-GPU workstation (together with Tao Lin)**
 
-   * check performance scaling with GPU cores 
+   * check performance scaling across 4-GPU cores 
    * attempt loading JUNO geometry
    * investigate more memory efficient geometry techniques
 
@@ -939,7 +947,7 @@ Next Steps
    * Complete porting Optical Physics  
 
    * Instrument Geant4 optical photon propagation, 
-     by collecting photon steps into NPY array to :red:`enable step-by-step comparison`
+     by recording photon steps into NPY array to :red:`enable step-by-step comparison`
 
    * Debugging to :red:`achieve match between Geant4 and GPU` optical photon simulation, 
 
@@ -967,6 +975,7 @@ Next Steps
 
    * GGeo/OptiX Generated Scintillation Photons cf Geant4
    * GGeo/OptiX Generated Cerenkov Photons cf Geant4
+   * Cerenkov Photon Steps
    * C++ Infrastructure : foundation packages
    * C++ Infrastructure : domain packages
    * propagate_to_boundary : ABSORB(REEMIT) / SCATTER / survive

@@ -52,6 +52,13 @@ Find it::
     delta:~ blyth$ 
 
 
+Page Sizing
+~~~~~~~~~~~~~
+
+Existing PDF from PNGs is making all pages 1024x768
+
+
+
 
 
 Automator Service to Combine Multiple PDFs 
