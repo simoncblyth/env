@@ -1643,3 +1643,5 @@ cudainstall-(){      . $(env-home)/cuda/cudainstall.bash && cudainstall-env $* ;
 throgl-(){      . $(env-home)/graphics/thrust_opengl_interop/throgl.bash && throgl-env $* ; }
 glfwminimal-(){      . $(env-home)/graphics/glfw/glfwminimal/glfwminimal.bash && glfwminimal-env $* ; }
 
+glewminimal-(){      . $(env-home)/graphics/glew/glewminimal.bash && glewminimal-env $* ; }
+glewminimal-(){      . $(env-home)/graphics/glew/glewminimal/glewminimal.bash && glewminimal-env $* ; }
