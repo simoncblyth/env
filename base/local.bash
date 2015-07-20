@@ -363,6 +363,8 @@ local-nodetag-other(){
        echo N 
    elif [ "$host" == "dayabay.ihep.ac.cn" ]; then
        local-nodetag-xinchun    
+   elif [ "$host" == "ihep" ]; then
+       echo LT
    else
        echo U
    fi
