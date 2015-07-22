@@ -394,54 +394,54 @@ export-export-templates(){
    export DAE_PATH_TEMPLATE_NPY="$LOCAL_BASE/env/tmp/%s.npy"
    export DAE_PATH_TEMPLATE=$DAE_PATH_TEMPLATE_NPY
 
-   export DAE_HIT_PATH_TEMPLATE=$(export-path-template hit)
-   export DAE_PHOTON_PATH_TEMPLATE=$(export-path-template photon)
+   #export DAE_HIT_PATH_TEMPLATE=$(export-path-template hit)
+   #export DAE_PHOTON_PATH_TEMPLATE=$(export-path-template photon)
 
-   export DAE_GOPSCINTILLATION_PATH_TEMPLATE=$(export-path-template gopscintillation)
-   export DAE_GOPCERENKOV_PATH_TEMPLATE=$(export-path-template gopcerenkov)
+   #export DAE_GOPSCINTILLATION_PATH_TEMPLATE=$(export-path-template gopscintillation)
+   #export DAE_GOPCERENKOV_PATH_TEMPLATE=$(export-path-template gopcerenkov)
 
-   export DAE_OPCERENKOV_PATH_TEMPLATE=$(export-path-template opcerenkov)
-   export DAE_OPSCINTILLATION_PATH_TEMPLATE=$(export-path-template opscintillation)
+   #export DAE_OPCERENKOV_PATH_TEMPLATE=$(export-path-template opcerenkov)
+   #export DAE_OPSCINTILLATION_PATH_TEMPLATE=$(export-path-template opscintillation)
 
-   export DAE_OXCERENKOV_DESCRIPTION="Cerenkov photons generated from OptiX based machinery"
-   export DAE_OXCERENKOV_PATH_TEMPLATE=$(export-path-template oxcerenkov)
+   #export DAE_OXCERENKOV_DESCRIPTION="Cerenkov photons generated from OptiX based machinery"
+   #export DAE_OXCERENKOV_PATH_TEMPLATE=$(export-path-template oxcerenkov)
 
-   export DAE_OXSCINTILLATION_DESCRIPTION="Scintillation photons generated from OptiX based machinery"
-   export DAE_OXSCINTILLATION_PATH_TEMPLATE=$(export-path-template oxscintillation)
+   #export DAE_OXSCINTILLATION_DESCRIPTION="Scintillation photons generated from OptiX based machinery"
+   #export DAE_OXSCINTILLATION_PATH_TEMPLATE=$(export-path-template oxscintillation)
 
-   export DAE_RXCERENKOV_DESCRIPTION="Cerenkov records generated from OptiX based machinery"
-   export DAE_RXCERENKOV_PATH_TEMPLATE=$(export-path-template rxcerenkov)
-
-
-   export DAE_RXSCINTILLATION_DESCRIPTION="Scintillation records generated from OptiX based machinery"
-   export DAE_RXSCINTILLATION_PATH_TEMPLATE=$(export-path-template rxscintillation)
-
-   export DAE_OPCERENKOVGEN_PATH_TEMPLATE=$(export-path-template opcerenkovgen)
-   export DAE_OPSCINTILLATIONGEN_PATH_TEMPLATE=$(export-path-template opscintillationgen)
-
-   export DAE_CERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
-   export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
-
-   export DAE_TEST_PATH_TEMPLATE=$(export-path-template test)
-   export DAE_PROP_PATH_TEMPLATE=$(export-path-template prop)
-
-   export DAE_PMTHIT_PATH_TEMPLATE=$(export-path-template pmthit)
-   export DAE_G4PMTHIT_PATH_TEMPLATE=$(export-path-template g4pmthit)
-
-   export DAE_CHROMAPHOTON_PATH_TEMPLATE=$(export-path-template chromaphoton)
+   #export DAE_RXCERENKOV_DESCRIPTION="Cerenkov records generated from OptiX based machinery"
+   #export DAE_RXCERENKOV_PATH_TEMPLATE=$(export-path-template rxcerenkov)
 
 
-   export DAE_DOMAIN_DESCRIPTION="Domain float quad parameters used to decode packed data such as photon records"
-   export DAE_DOMAIN_PATH_TEMPLATE=$(export-path-template domain)
+   #export DAE_RXSCINTILLATION_DESCRIPTION="Scintillation records generated from OptiX based machinery"
+   #export DAE_RXSCINTILLATION_PATH_TEMPLATE=$(export-path-template rxscintillation)
 
-   export DAE_IDOMAIN_DESCRIPTION="Domain integer quad parameters eg max_bounce maxrec "
-   export DAE_IDOMAIN_PATH_TEMPLATE=$(export-path-template idomain)
+   #export DAE_OPCERENKOVGEN_PATH_TEMPLATE=$(export-path-template opcerenkovgen)
+   #export DAE_OPSCINTILLATIONGEN_PATH_TEMPLATE=$(export-path-template opscintillationgen)
 
-   export DAE_SEQCERENKOV_DESCRIPTION="Photon sequence index "
-   export DAE_SEQCERENKOV_PATH_TEMPLATE=$(export-path-template seqcerenkov)
+   #export DAE_CERENKOV_PATH_TEMPLATE=$(export-path-template cerenkov)
+   #export DAE_SCINTILLATION_PATH_TEMPLATE=$(export-path-template scintillation)
 
-   export DAE_SEQSCINTILLATION_DESCRIPTION="Photon sequence index "
-   export DAE_SEQSCINTILLATION_PATH_TEMPLATE=$(export-path-template seqscintillation)
+   #export DAE_TEST_PATH_TEMPLATE=$(export-path-template test)
+   #export DAE_PROP_PATH_TEMPLATE=$(export-path-template prop)
+
+   #export DAE_PMTHIT_PATH_TEMPLATE=$(export-path-template pmthit)
+   #export DAE_G4PMTHIT_PATH_TEMPLATE=$(export-path-template g4pmthit)
+
+   #export DAE_CHROMAPHOTON_PATH_TEMPLATE=$(export-path-template chromaphoton)
+
+
+   #export DAE_DOMAIN_DESCRIPTION="Domain float quad parameters used to decode packed data such as photon records"
+   #export DAE_DOMAIN_PATH_TEMPLATE=$(export-path-template domain)
+
+   #export DAE_IDOMAIN_DESCRIPTION="Domain integer quad parameters eg max_bounce maxrec "
+   #export DAE_IDOMAIN_PATH_TEMPLATE=$(export-path-template idomain)
+
+   #export DAE_SEQCERENKOV_DESCRIPTION="Photon sequence index "
+   #export DAE_SEQCERENKOV_PATH_TEMPLATE=$(export-path-template seqcerenkov)
+
+   #export DAE_SEQSCINTILLATION_DESCRIPTION="Photon sequence index "
+   #export DAE_SEQSCINTILLATION_PATH_TEMPLATE=$(export-path-template seqscintillation)
 
 
 
