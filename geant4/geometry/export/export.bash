@@ -205,7 +205,8 @@ export-base(){
        far) echo $base/Far_VGDX_20140414-1256/g4_00 ;;
     lingao) echo $base/Lingao_VGDX_20140414-1247/g4_00 ;;
        lxe) echo $base/LXe/g4_00 ;;
-       juno) echo $base/juno/test3 ;;
+       #juno) echo $base/juno/test3 ;;
+       juno) echo $base/juno/nopmt ;;
   esac
 }
 
