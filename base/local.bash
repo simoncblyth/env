@@ -365,6 +365,16 @@ local-nodetag-other(){
        local-nodetag-xinchun    
    elif [ "$host" == "ihep" ]; then
        echo LT
+   elif [ "$host" == "gputest.ihep.ac.cn" ]; then
+       case $USER in
+         lint) echo GTL ;;
+         blyth) echo GTB ;;
+       esac
+   elif [ "${host:0:6}" == "lxslc6" ]; then
+       case $USER in
+         lint) echo GTL ;;
+         blyth) echo GTB ;;
+       esac
    else
        echo U
    fi
@@ -488,6 +498,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
        XT) echo /home/tianxc ;;   
         K) echo /Users/heprez/local ;;
        G5) echo /home/blyth/local ;;
+      GTL) echo /afs/ihep.ac.cn/soft/juno/JUNO-ALL-SLC6/GPU/20150723/local ;;
         *) echo /usr/local ;;
    esac
 }
