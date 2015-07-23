@@ -50,6 +50,18 @@ Start VNCServer
    Xorg
 
 
+Error when don't specify CUDA_VISIBLE_DEVICE
+--------------------------------------------
+
+::
+
+    [2015-Jul-23 15:26:36.132392]: OptiXEngine::preprocess
+    [2015-Jul-23 15:26:36.132541]: OptiXEngine::preprocess start validate 
+    [2015-Jul-23 15:26:36.132625]: OptiXEngine::preprocess start compile 
+    [2015-Jul-23 15:26:36.288857]: OptiXEngine::preprocess start building Accel structure 
+    terminate called after throwing an instance of 'optix::Exception'
+      what():  Invalid value (Details: Function "RTresult _rtContextLaunch1D(RTcontext, unsigned int, RTsize)" caught exception: GL error: Invalid enum
+      , [10420284])
 
 
 
