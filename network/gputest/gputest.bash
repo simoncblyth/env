@@ -8,6 +8,11 @@ gputest-usage(){ cat << EOU
 GPUTEST at IHEP
 =================
 
+XServer setup etc..
+--------------------
+
+* https://pleiades.ucsc.edu/hyades/OpenGL_on_Nvidia_K20
+
 Access
 -------
 
