@@ -1645,3 +1645,6 @@ glfwminimal-(){      . $(env-home)/graphics/glfw/glfwminimal/glfwminimal.bash &&
 
 glewminimal-(){      . $(env-home)/graphics/glew/glewminimal.bash && glewminimal-env $* ; }
 glewminimal-(){      . $(env-home)/graphics/glew/glewminimal/glewminimal.bash && glewminimal-env $* ; }
+turbovnc-(){      . $(env-home)/network/turbovnc/turbovnc.bash && turbovnc-env $* ; }
+gputest-(){      . $(env-home)/network/gputest/gputest.bash && gputest-env $* ; }
+java-(){      . $(env-home)/tools/java/java.bash && java-env $* ; }
