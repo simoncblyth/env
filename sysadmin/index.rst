@@ -10,6 +10,7 @@ Sys Admin Docs
     SOP
     cms01
     cms02
+    hfag
     belle7
     dns
     network_troubleshooting

@@ -1,6 +1,26 @@
 cms01
 =======
 
+Jul 30, 2015 Manual Stop prior to powercut
+-------------------------------------------
+
+Old HFAG server was still running (unattended)::
+
+    [blyth@cms01 ~]$ sudo /usr/sbin/apachectl stop
+
+    [blyth@cms01 ~]$ sudo /sbin/shutdown -h now "goin down"
+
+    Broadcast message from root (pts/0) (Thu Jul 30 15:09:43 2015):
+
+    goin down 
+    The system is going down for system halt NOW!
+    [blyth@cms01 ~]$ 
+
+
+
+
+
+
 Dec 26, 2014
 --------------
 

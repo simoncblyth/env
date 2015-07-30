@@ -2,6 +2,33 @@ CMS02
 ======
 
 
+July 30, 2015 Manual Stop prior to powercut
+---------------------------------------------
+
+Note that commandline is slow.::
+
+    Last login: Thu Jul 30 15:16:29 on ttys011
+    simon:~ blyth$ vin
+    simon:~ blyth$ ssh C2
+    Enter passphrase for key '/Users/blyth/.ssh/id_rsa': 
+    Last login: Thu Jul 30 15:13:19 2015 from simon.phys.ntu.edu.tw
+    [blyth@cms02 ~]$ 
+    [blyth@cms02 ~]$ sudo /sbin/shutdown -h now "goin down"
+    Password:
+
+    Broadcast message from root (pts/0) (Thu Jul 30 15:35:47 2015):
+
+    goin down 
+    The system is going down for system halt NOW!
+
+
+
+
+
+
+
+
+
 
 Oct 14, 2014
 -------------
