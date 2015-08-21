@@ -351,6 +351,55 @@ The extra nodes need to be stripped to avoid schema validation errors (why are e
     dae-validate  g4_00.dae.6.noextra
 
 
+Big DAE crash Preview.app
+--------------------------
+
+::
+
+    export-cd
+
+    simon:juno blyth$ export-strip-extra-meta test3.dae
+    orig test3.dae nometa test3.nometa.dae
+    simon:juno blyth$ open test3.nometa.dae
+    simon:juno blyth$ open test.nometa.dae   # this one is much smaller and opens OK
+
+::
+
+    Exception Type:  EXC_BAD_ACCESS (SIGSEGV)
+    Exception Codes: KERN_INVALID_ADDRESS at 0x0000000000000038
+
+    VM Regions Near 0x38:
+    --> 
+        __TEXT                 0000000100828000-0000000100a0c000 [ 1936K] r-x/rwx SM=COW  /Applications/Preview.app/Contents/MacOS/Preview
+
+    Thread 0 Crashed:: Dispatch queue: com.apple.main-thread
+    0   com.apple.SceneKit              0x00007fff8cb33dac C3DGenericSourceGetAccessor + 4
+    1   com.apple.SceneKit              0x00007fff8ca81b39 __TransformAndAppendMeshSource + 31
+    2   com.apple.SceneKit              0x00007fff8ca7f86c _C3DCreateFlattenedGeometryFromNodeHierarchy + 1253
+    3   com.apple.SceneKit              0x00007fff8cb6289f C3DIOFinalizeLoadScene + 8367
+    4   com.apple.SceneKit              0x00007fff8ca77eba C3DSceneSourceCreateSceneAtIndex + 642
+    5   com.apple.SceneKit              0x00007fff8cb12821 -[SCNSceneSource _createSceneRefWithOptions:statusHandler:] + 331
+    6   com.apple.SceneKit              0x00007fff8cb12df2 -[SCNSceneSource _sceneWithClass:options:statusHandler:] + 215
+    7   com.apple.Preview               0x000000010087b082 0x100828000 + 340098
+    8   com.apple.Preview               0x000000010082f754 0x100828000 + 30548
+    9   com.apple.Preview               0x000000010082f3c7 0x100828000 + 29639
+    10  libdispatch.dylib               0x00007fff8c1a91bb _dispatch_call_block_and_release + 12
+    11  libdispatch.dylib               0x00007fff8c1a628d _dispatch_client_callout + 8
+    12  libdispatch.dylib               0x00007fff8c1adef0 _dispatch_main_queue_callback_4CF + 333
+    13  com.apple.CoreFoundation        0x00007fff88c8d4f9 __CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE__ + 9
+    14  com.apple.CoreFoundation        0x00007fff88c48714 __CFRunLoopRun + 1636
+    15  com.apple.CoreFoundation        0x00007fff88c47e75 CFRunLoopRunSpecific + 309
+    16  com.apple.HIToolbox             0x00007fff8807ea0d RunCurrentEventLoopInMode + 226
+    17  com.apple.HIToolbox             0x00007fff8807e7b7 ReceiveNextEventCommon + 479
+    18  com.apple.HIToolbox             0x00007fff8807e5bc _BlockUntilNextEventMatchingListInModeWithFilter + 65
+    19  com.apple.AppKit                0x00007fff8e4de24e _DPSNextEvent + 1434
+    20  com.apple.AppKit                0x00007fff8e4dd89b -[NSApplication nextEventMatchingMask:untilDate:inMode:dequeue:] + 122
+    21  com.apple.AppKit                0x00007fff8e4d199c -[NSApplication run] + 553
+    22  com.apple.AppKit                0x00007fff8e4bc783 NSApplicationMain + 940
+    23  libdyld.dylib                   0x00007fff8723a5fd start + 1
+
+
+
 
 Code Organisation
 --------------------

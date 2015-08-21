@@ -205,16 +205,29 @@ export-base(){
        far) echo $base/Far_VGDX_20140414-1256/g4_00 ;;
     lingao) echo $base/Lingao_VGDX_20140414-1247/g4_00 ;;
        lxe) echo $base/LXe/g4_00 ;;
-       #juno) echo $base/juno/test3 ;;
+       jpmt) echo $base/juno/test3 ;;
        juno) echo $base/juno/nopmt ;;
+       jtst) echo $base/juno/test ;;
   esac
 }
+
+export-strip-extra-meta(){
+
+   local orig=$1
+   local nometa=${orig/.dae/.nometa.dae}
+   echo $msg orig $orig nometa $nometa
+
+   xsltproc $(export-home)/strip-extra-meta.xsl $orig > $nometa
+}
+
 
 export-geometry(){
   case $1 in 
         dyb) echo 3153:12221 ;;   # skip RPC and radslabs  
         dybf) echo 2+,3147+ ;;   
        juno) echo 1:25000  ;;
+       jpmt) echo 1:25000  ;;
+       jtst) echo 1:25000  ;;
         lxe) echo 1:   ;;
   esac
 }
@@ -239,11 +252,16 @@ export-export(){
    export DAE_NAME_FAR=$(export-name far)
    export DAE_NAME_LIN=$(export-name lingao)
    export DAE_NAME_LXE=$(export-name lxe)
+
    export DAE_NAME_JUNO=$(export-name juno)
+   export DAE_NAME_JPMT=$(export-name jpmt)
+   export DAE_NAME_JTST=$(export-name jtst)
 
    export DAE_GEOMETRY_DYB=$(export-geometry dyb)
    export DAE_GEOMETRY_DYBF=$(export-geometry dybf)
    export DAE_GEOMETRY_JUNO=$(export-geometry juno)
+   export DAE_GEOMETRY_JPMT=$(export-geometry jpmt)
+   export DAE_GEOMETRY_JTST=$(export-geometry jtst)
    export DAE_GEOMETRY_LXE=$(export-geometry lxe)
 
    $FUNCNAME-templates
