@@ -18,6 +18,27 @@ Installs
 Installed on D as dependency of chroma, see :doc:`/chroma/chroma`
 
 
+Need to reinstall following move to CUDA 7.0
+----------------------------------------------
+
+::
+
+    simon:~ blyth$ cu
+    Traceback (most recent call last):
+      File "/Users/blyth/env/bin/cuda_info.py", line 4, in <module>
+        main()
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/env/cuda/cuda_info.py", line 98, in main
+        import pycuda.driver as drv
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/driver.py", line 2, in <module>
+        from pycuda._driver import *
+    ImportError: dlopen(/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/_driver.so, 2): Library not loaded: @rpath/libcurand.5.5.dylib
+      Referenced from: /usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/_driver.so
+      Reason: image not found
+    simon:~ blyth$ 
+
+
+
+
 Actual Source used by Chroma ?
 --------------------------------
 
