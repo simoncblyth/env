@@ -208,7 +208,12 @@ Cheat Placement Again
 """
 import os, sys, logging
 import numpy as np
-import IPython as IP
+
+try:
+    import IPython as IP
+except ImportError:
+    IP = None
+
 
 log = logging.getLogger(__name__)
 

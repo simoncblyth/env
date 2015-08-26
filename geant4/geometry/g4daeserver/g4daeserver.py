@@ -155,6 +155,7 @@ class _tree_dae:
         return getSubCollada(arg, dict(web.input().items()))
 class _tree_txt:
     def GET(self, arg):
+        log.info("_tree_txt %s " % repr(arg))
         return getTextTree(arg, dict(web.input().items())) 
 
 

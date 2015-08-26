@@ -87,18 +87,23 @@ macports py26::
 
 EOU
 }
-webpy-dir(){ echo $(local-base)/env/webpy/webpy-webpy ; }
+webpy-dir(){ echo $(env-home)/webpy ; }
 webpy-cd(){  cd $(webpy-dir); }
-webpy-mate(){ mate $(webpy-dir) ; }
-webpy-get(){
-   local dir=$(dirname $(webpy-dir)) &&  mkdir -p $dir && cd $dir
-
-}
 
 webpy-install(){
    [ -z "$VIRTUAL_ENV" ] && echo $msg this is intended to be used with virtualenv see daeserver-vi as example && return 
    which easy_install
    easy_install web.py 
 }
+
+webpy-tutorial-server(){
+   g4daeserver- 
+   $(g4daeserver-vdir)/bin/python $(webpy-dir)/tutorial/code.py 
+}
+
+webpy-tutorial-test(){
+   curl http://0.0.0.0:8080/
+}
+
 
 

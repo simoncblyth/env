@@ -36,4 +36,6 @@ g4daeserver-main(){
   esac
 }
 
-g4daeserver-main
+g4daeserver-main $*
+
+
