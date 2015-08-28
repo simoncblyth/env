@@ -1648,3 +1648,4 @@ glewminimal-(){      . $(env-home)/graphics/glew/glewminimal/glewminimal.bash &&
 turbovnc-(){      . $(env-home)/network/turbovnc/turbovnc.bash && turbovnc-env $* ; }
 gputest-(){      . $(env-home)/network/gputest/gputest.bash && gputest-env $* ; }
 java-(){      . $(env-home)/tools/java/java.bash && java-env $* ; }
+instancecull-(){      . $(env-home)/graphics/opengl/instancecull.bash && instancecull-env $* ; }
