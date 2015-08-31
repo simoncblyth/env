@@ -83,18 +83,33 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 void init()
 {
-    cudaGLSetGLDevice(0);
+    //cudaGLSetGLDevice(0);
 
     unsigned int size = g_mesh_width * g_mesh_height * sizeof(float4);
+    printf("init size:%d width:%d height:%d \n", size, g_mesh_width, g_mesh_height); 
+
+    float* data = new float[size] ; 
+    unsigned int index(0);
+    for(unsigned ix=0 ; ix < g_mesh_width  ; ix++){
+    for(unsigned iy=0 ; iy < g_mesh_height ; iy++){
+        index = iy*g_mesh_width + ix ; 
+        data[index*4+0] = float(ix/g_mesh_width) ;   
+        data[index*4+1] = float(iy/g_mesh_height) ;   
+        data[index*4+2] = 0.f ;   
+        data[index*4+3] = 1.f ;   
+    }
+    }
+
+
     // create vbo
     glGenBuffers(1, &vbo);
     // bind, initialize, unbind
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, size, 0, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);  // target, size, data, usage
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // register buffer object with CUDA
-    cudaGraphicsGLRegisterBuffer(&vbo_cuda, vbo, cudaGraphicsMapFlagsWriteDiscard);
+    //cudaGraphicsGLRegisterBuffer(&vbo_cuda, vbo, cudaGraphicsMapFlagsWriteDiscard);
 }
 
 
@@ -123,21 +138,23 @@ void display_triangles()
 }
 
 
-void display_thrust()
+void display_thrust(bool thrust)
 {
-    float4 *raw_ptr;
-    size_t buf_size;
+    if(thrust)
+    {
+        cudaGraphicsMapResources(1, &vbo_cuda, 0);
 
-    cudaGraphicsMapResources(1, &vbo_cuda, 0);
-    cudaGraphicsResourceGetMappedPointer((void **)&raw_ptr, &buf_size, vbo_cuda);
-    dev_ptr = thrust::device_pointer_cast(raw_ptr);
+        float4 *raw_ptr;
+        size_t buf_size;
+        cudaGraphicsResourceGetMappedPointer((void **)&raw_ptr, &buf_size, vbo_cuda);
+        dev_ptr = thrust::device_pointer_cast(raw_ptr);
 
-    // transform the mesh
-    thrust::counting_iterator<int> first(0);
-    thrust::counting_iterator<int> last(g_mesh_width * g_mesh_height);
-    thrust::transform(first, last, dev_ptr, sine_wave(g_mesh_width, g_mesh_height, g_anim));
-
-    cudaGraphicsUnmapResources(1, &vbo_cuda, 0);
+        // transform the mesh
+        thrust::counting_iterator<int> first(0);
+        thrust::counting_iterator<int> last(g_mesh_width * g_mesh_height);
+        thrust::transform(first, last, dev_ptr, sine_wave(g_mesh_width, g_mesh_height, g_anim));
+        cudaGraphicsUnmapResources(1, &vbo_cuda, 0);
+    }
 
 
     glTranslatef(0.0, 0.0, g_translate_z);
@@ -146,11 +163,11 @@ void display_thrust()
 
     // render from the vbo
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexPointer(4, GL_FLOAT, 0, 0);
+    glVertexPointer(4, GL_FLOAT, 0, 0); // size, type, stride, pointer
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glColor3f(1.0, 0.0, 0.0);
-    glDrawArrays(GL_POINTS, 0, g_mesh_width * g_mesh_height);
+    glDrawArrays(GL_LINES, 0, g_mesh_width * g_mesh_height); // mode, first, count
     glDisableClientState(GL_VERTEX_ARRAY);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -172,7 +189,7 @@ int main(void)
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
-    window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+    window = glfwCreateWindow(g_window_width, g_window_height, "Simple example", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -191,12 +208,14 @@ int main(void)
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
+                 
+
         glViewport(0, 0, width, height);
 
         setup_view(ratio);
 
         //display_triangles();
-        display_thrust();
+        display_thrust(false);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
