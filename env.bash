@@ -1650,3 +1650,4 @@ gputest-(){      . $(env-home)/network/gputest/gputest.bash && gputest-env $* ; 
 java-(){      . $(env-home)/tools/java/java.bash && java-env $* ; }
 instancecull-(){      . $(env-home)/graphics/opengl/instancecull.bash && instancecull-env $* ; }
 glfwtriangle-(){      . $(env-home)/graphics/glfw/glfwtriangle/glfwtriangle.bash && glfwtriangle-env $* ; }
+optixminimal-(){      . $(env-home)/optix/optixminimal/optixminimal.bash && optixminimal-env $* ; }
