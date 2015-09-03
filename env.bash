@@ -1651,3 +1651,4 @@ java-(){      . $(env-home)/tools/java/java.bash && java-env $* ; }
 instancecull-(){      . $(env-home)/graphics/opengl/instancecull.bash && instancecull-env $* ; }
 glfwtriangle-(){      . $(env-home)/graphics/glfw/glfwtriangle/glfwtriangle.bash && glfwtriangle-env $* ; }
 optixminimal-(){      . $(env-home)/optix/optixminimal/optixminimal.bash && optixminimal-env $* ; }
+optixthrust-(){      . $(env-home)/optix/optixthrust/optixthrust.bash && optixthrust-env $* ; }
