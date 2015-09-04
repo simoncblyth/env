@@ -1652,3 +1652,5 @@ instancecull-(){      . $(env-home)/graphics/opengl/instancecull.bash && instanc
 glfwtriangle-(){      . $(env-home)/graphics/glfw/glfwtriangle/glfwtriangle.bash && glfwtriangle-env $* ; }
 optixminimal-(){      . $(env-home)/optix/optixminimal/optixminimal.bash && optixminimal-env $* ; }
 optixthrust-(){      . $(env-home)/optix/optixthrust/optixthrust.bash && optixthrust-env $* ; }
+nvcc-(){      . $(env-home)/cuda/nvcc/nvcc.bash && nvcc-env $* ; }
+gloptixthrust-(){      . $(env-home)/optix/gloptixthrust/gloptixthrust.bash && gloptixthrust-env $* ; }
