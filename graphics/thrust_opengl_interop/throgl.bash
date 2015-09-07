@@ -7,7 +7,6 @@ throgl-usage(){ cat << EOU
 Interop between OpenGL/OptiX/Thrust/CUDA 
 ==========================================
 
-
 harrism : NVIDIA expert on Interop (2011)
 --------------------------------------------
 

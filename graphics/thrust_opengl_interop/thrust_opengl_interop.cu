@@ -21,7 +21,6 @@ unsigned int g_mesh_width = 256;
 unsigned int g_mesh_height = 256;
 
 
-
 thrust::device_ptr<float4> dev_ptr;
 GLuint vbo;
 struct cudaGraphicsResource *vbo_cuda;
@@ -214,8 +213,8 @@ int main(void)
 
         setup_view(ratio);
 
-        //display_triangles();
-        display_thrust(false);
+        display_triangles();
+        //display_thrust(false);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
