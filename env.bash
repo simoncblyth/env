@@ -1655,3 +1655,4 @@ optixthrust-(){      . $(env-home)/optix/optixthrust/optixthrust.bash && optixth
 nvcc-(){      . $(env-home)/cuda/nvcc/nvcc.bash && nvcc-env $* ; }
 gloptixthrust-(){      . $(env-home)/optix/gloptixthrust/gloptixthrust.bash && gloptixthrust-env $* ; }
 optixthrustnpy-(){      . $(env-home)/optix/optixthrustnpy/optixthrustnpy.bash && optixthrustnpy-env $* ; }
+optixthrustuse-(){      . $(env-home)/optix/optixthrustuse/optixthrustuse.bash && optixthrustuse-env $* ; }
