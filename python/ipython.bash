@@ -5,7 +5,8 @@ ipython-vi(){      vi $(ipython-source) ; }
 
 ipython-profile-path(){ echo ~/.ipython/profile_$1/ipython_config.py ; }
 ipython-edit(){ vi $(ipython-profile-path $(ipython-profile)) ;} 
-ipython-profile(){ echo g4dae ; }
+#ipython-profile(){ echo g4dae ; }
+ipython-profile(){ echo g4opticks ; }
 
 ipython-nb(){
     chroma-

@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-chroma-
+#chroma-
 
 export-
 export-export
@@ -11,7 +11,9 @@ mocknuwa-export
 env | grep SQLITE3
 
 #ipython $* -i 
-ipro="g4dae"
+#ipro="g4dae"
+ipro="g4opticks"
+
 if [ -d ~/.ipython/profile_$ipro ]; then 
     ipython --profile=$ipro $*
 else
