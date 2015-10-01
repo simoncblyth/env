@@ -1659,4 +1659,4 @@ optixthrustuse-(){      . $(env-home)/optix/optixthrustuse/optixthrustuse.bash &
 detdesc-(){      . $(env-home)/nuwa/detdesc/detdesc.bash && detdesc-env $* ; }
 cgal-(){      . $(env-home)/graphics/cgal/cgal.bash && cgal-env $* ; }
 openmesh-(){      . $(env-home)/graphics/openmesh/openmesh.bash && openmesh-env $* ; }
-openmeshtest-(){      . $(env-home)/graphics/openmeshtest/openmeshtest.bash && openmeshtest-env $* ; }
+openmeshrap-(){      . $(env-home)/graphics/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
