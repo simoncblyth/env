@@ -12,6 +12,19 @@ NVIDIA iRAY
 * http://www.nvidia-arc.com/products/iray/iray-integration-framework.html
 
 
+
+
+Talks
+------
+
+Bringing Physically Based Rendering To Your Application
+
+(iray API)
+
+* http://on-demand.gputechconf.com/gtc/2015/presentation/S5536-Martin-Karl-LeFrancois.pdf
+
+
+
 daz3d studio beta : incorporates iray 
 ---------------------------------------
 
