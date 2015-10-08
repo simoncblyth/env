@@ -29,6 +29,12 @@ Objectives
     delta:include blyth$ 
 
 
+G4 Optical Photon Reference 
+-------------------------------
+
+* http://geant4.slac.stanford.edu/UsersWorkshop/PDF/Peter/OpticalPhoton.pdf
+
+
 Others
 -------
 

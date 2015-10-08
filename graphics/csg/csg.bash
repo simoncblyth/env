@@ -19,6 +19,13 @@ CSG : Constructive Solid Geometry
 
 * http://www.cs.utah.edu/~shirley/books/fcg2/rt.pdf
 
+* https://www.clear.rice.edu/comp360/lectures/SurfSpeText.pdf
+
+  Intersections of lines and Special Surfaces: cone, sphere, ...
+
+* https://www.cg.tuwien.ac.at/courses/Rendering/VU.SS2015.html
+
+  CG course with YouTube videos  
 
 
 XRT Renderer : simpler? way of handling CSG trees
