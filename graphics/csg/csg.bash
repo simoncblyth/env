@@ -38,6 +38,14 @@ XRT Renderer : simpler? way of handling CSG trees
 * http://xrt.wikidot.com/doc:csg
 
 
+Cool WebGL interface allowing to edit CSG geometries
+----------------------------------------------------
+
+* http://evanw.github.io/csg.js/
+* http://evanw.github.io/csg.js/docs/
+* https://github.com/evanw/csg.js/
+
+
 
 
 EOU
