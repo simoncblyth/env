@@ -1661,3 +1661,4 @@ cgal-(){      . $(env-home)/graphics/cgal/cgal.bash && cgal-env $* ; }
 openmesh-(){      . $(env-home)/graphics/openmesh/openmesh.bash && openmesh-env $* ; }
 openmeshrap-(){      . $(env-home)/graphics/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
 csg-(){      . $(env-home)/graphics/csg/csg.bash && csg-env $* ; }
+pmt-(){      . $(env-home)/nuwa/detdesc/pmt/pmt.bash && pmt-env $* ; }

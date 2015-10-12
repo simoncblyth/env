@@ -38,12 +38,53 @@ XRT Renderer : simpler? way of handling CSG trees
 * http://xrt.wikidot.com/doc:csg
 
 
+
+CSG Simplification
+-----------------------------------------------
+
+* http://webserver2.tecgraf.puc-rio.br/~lhf/ftp/doc/sib2006b.pdf
+
+  Spatial Partitioning to simplify CSG rendering
+  Hardware-assisted Rendering of CSG Models
+
+
+* http://www.cc.gatech.edu/~turk/my_papers/pxpl_csg.pdf
+
+  CSG Tree Normalization and Pruning
+
+
+
+
+
+CSG Ray Tracing Techniques
+-----------------------------
+
+* http://www.sciencedirect.com/science/article/pii/S0734189X86800548
+
+  A new algorithm for object oriented ray tracing  (1986) Saul Youssef 
+
+
+Ray Tracing CSG Models : implementation details
+------------------------------------------------------ 
+
+* http://web.cse.ohio-state.edu/~parent/classes/681/Lectures/19.RayTracingCSG.pdf
+
+
+
+
+
 Cool WebGL interface allowing to edit CSG geometries
 ----------------------------------------------------
 
 * http://evanw.github.io/csg.js/
 * http://evanw.github.io/csg.js/docs/
 * https://github.com/evanw/csg.js/
+
+
+* http://learningthreejs.com/blog/2011/12/10/constructive-solid-geometry-with-csg-js/
+
+  three.js bridge to csg.js
+
 
 
 

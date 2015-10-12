@@ -12,6 +12,14 @@ PYCOLLADA
 * http://www.khronos.org/collada/
 
 
+Creating Geometry
+------------------
+
+* http://pycollada.github.io/creating.html
+
+
+
+
 REQUIREMENTS
 -------------
 
