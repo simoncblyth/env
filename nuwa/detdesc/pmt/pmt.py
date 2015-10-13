@@ -68,14 +68,16 @@ def circle_intersect( a, b ):
 
    assert(xy_b[1] == xy_a[1]) 
    d = xy_b[0] - xy_a[0]
+   if d == 0:
+       return None
+
    x = (d*d - r*r + R*R)/(2.*d)
    return x + xy_a[0] 
 
 
 
-def plot_revolution(ax, shapes):
+def plot_revs(ax, revs):
     edgecolor = ['r','g','b']
-    spheres = filter(lambda _:_[-1] > 0, shapes) 
 
     zmin = 1e6
     zmax = -1e6
@@ -84,19 +86,33 @@ def plot_revolution(ax, shapes):
     ymax = -1e6
 
     circles = []
-    for i,s in enumerate(spheres):
-        c = plt.Circle((s[2],0.),s[3], edgecolor=edgecolor[i%len(edgecolor)], facecolor='w', alpha=0.5)
-        circles.append(c)
+    rects = []
 
-        if s[2]-s[3] < zmin:
-            zmin = s[2]-s[3]
-        if s[2]+s[3] > zmax:
-            zmax = s[2]+s[3]
-        if -s[3] < ymin:
-            ymin = -s[3]
-        if s[3] > ymax:
-            ymax = s[3]
+    for i,rev in enumerate(revs):
 
+        xyz,r,sz = rev.xyz, rev.r, rev.sz
+        z = xyz[2]
+
+        if rev.typ == "Sphere":
+            circ = plt.Circle((z,0.),r, edgecolor=edgecolor[i%len(edgecolor)], facecolor='w', alpha=0.5)
+            circles.append(circ)
+
+            if z-r < zmin:
+                zmin = z-r
+            if z+r > zmax:
+                zmax = z+r
+            if -r < ymin:
+                ymin = -r
+            if r > ymax:
+                ymax = r
+
+        elif rev.typ == "Tubs":
+             botleft = (z,-r)
+             width = sz
+             height = 2*r
+             log.info("rect %s %s %s " % (botleft, width, height ))
+             rect = plt.Rectangle(botleft, width, height, edgecolor='r', facecolor='w', alpha=0.5) 
+             rects.append(rect)   
         pass
     pass
 
@@ -104,14 +120,15 @@ def plot_revolution(ax, shapes):
     lz = []
     for i in range(1,len(circles)):
         ci = circle_intersect(circles[i-1],circles[i])
-        lx.append([ci,ci])      # x,z coords are start/end of line segment
-        lz.append([zmin,zmax])
+        if ci is not None:
+            lx.append([ci,ci])      # x,z coords are start/end of line segment
+            lz.append([zmin,zmax])
 
     ax.set_xlim(zmin,zmax)
     ax.set_ylim(ymin,ymax)
 
-    for c in circles:
-        ax.add_artist(c)
+    for sh in circles + rects:
+        ax.add_artist(sh)
 
     for i in range(len(lx)):
         a = 0.1 if i == 1 else 0.9
@@ -124,68 +141,6 @@ def plot_revolution(ax, shapes):
 
 
 
-def pmt_hemi_pyrex(g):
-
-    # spheres  
-
-    xy1 = (0.,0.)
-    xy2 = (g('PmtHemiFaceOff-PmtHemiBellyOff'),0.)
-    xy3 = (g('PmtHemiFaceOff+PmtHemiBellyOff'),0.)
-
-    r1 = g('PmtHemiFaceROC')
-    r2 = g('PmtHemiBellyROC')
-    r3 = g('PmtHemiBellyROC')
-
-    # tubs
-  
-    bxy = [g('-0.5*PmtHemiGlassBaseLength'),-1.*g('PmtHemiGlassBaseRadius')]
-    bwh = [g('PmtHemiGlassBaseLength'), 2.0*g('PmtHemiGlassBaseRadius')]   
- 
-    c1=plt.Circle(xy1,r1, edgecolor='r', facecolor='w', alpha=0.5)
-    c2=plt.Circle(xy2,r2, edgecolor='g', facecolor='w', alpha=0.5)
-    c3=plt.Circle(xy3,r3, edgecolor='b', facecolor='w', alpha=0.5)
-  
-    c12 = circle_intersect(c1,c2)
-    c13 = circle_intersect(c1,c3)
-    c23 = circle_intersect(c2,c3)
-
-    xl = (-200,200)
-    yl = (-200,200)
-   
-    nl = 3 
-    l1 = [[c12,c12],[c13,c13],[c23,c23]]
-    l2 = [yl,yl,yl]
-    t1 = plt.Rectangle(bxy, bwh[0], bwh[1], edgecolor='r', facecolor='w', alpha=0.5) 
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, aspect='equal')
-
-    ax.set_xlim(*xl)
-    ax.set_ylim(*yl)
-
-    ax.add_artist(c1)
-    ax.add_artist(c2)
-    ax.add_artist(c3)
-    ax.add_artist(t1)
-
-    for i in range(nl):
-        a = 0.1 if i == 1 else 0.9
-        line = lines.Line2D( l1[i], l2[i] , lw=5., alpha=a)
-        ax.add_line(line)
-
-    ax.autoscale_view(True,True,True)
-    fig.show()
-
-    fig.savefig('/tmp/pmt_hemi_pyrex.png')
-
-
-def pyrex(g):
-    hemi = g.logvol_('lvPmtHemi')
-    for _ in hemi.findall_("./union/*"):
-        print _.__class__.__name__, _
-    pmt_hemi_pyrex(g)
-
-
 if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
@@ -193,20 +148,25 @@ if __name__ == '__main__':
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     g.dump_context('PmtHemi')
 
-    hemiVac = g.logvol_("lvPmtHemiVacuum")
+    revs = []
 
-    lv = g.logvol_("lvPmtHemi")
+    # lvPmtHemiCathode is 2 spheres differing in radius by 0.05 mm !
+    #        PmtHemiCathodeThickness : 0.050000 
+    #
+    #lvns = "lvPmtHemi lvPmtHemiVacuum lvPmtHemiCathode"
+    lvns = "lvPmtHemiCathode"
 
-    # need generic way to pull the shapes 
-    uni = lv.union()
+    for lvn in lvns.split():
+        lv = g.logvol_(lvn)
+        union = lv.union()  # hmm get this from logvol without knowning content 
+        revs += union.allrev()
+    pass
 
-    itr = lv.intersection()
-    sphs = itr.allspheres() 
-    print sphs
+    print "\n".join(map(str,revs))
 
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
-    plot_revolution(ax,sphs)
+    plot_revs(ax,revs)
     fig.show()
 
 

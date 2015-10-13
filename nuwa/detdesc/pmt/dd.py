@@ -12,11 +12,12 @@ fparse_ = lambda _:HT.fragments_fromstring(file(os.path.expandvars(_)).read())
 pp_ = lambda d:"\n".join([" %30s : %f " % (k,d[k]) for k in sorted(d.keys())])
 
 
+
 class Att(object):
     def __init__(self, expr, g, evaluate=True):
         self.expr = expr
         self.g = g  
-        self.evaluate = evaluate 
+        self.evaluate = evaluate
 
     value = property(lambda self:self.g.ctx.evaluate(self.expr) if self.evaluate else self.expr)
 
@@ -25,26 +26,44 @@ class Att(object):
 
 
 class Elem(object):
+    transform = None
+    is_rev = False
     name  = property(lambda self:self.elem.attrib['name'])
+    is_primitive = property(lambda self:type(self) in self.g.primitive)
+    is_composite = property(lambda self:type(self) in self.g.composite)
+    is_transform = property(lambda self:type(self) in self.g.transform)
+
 
     @classmethod
-    def link_PosXYZ(cls, ls, geom ):
+    def link_transform(cls, ls):
         """
         # attach any PosXYZ instances in the list to preceeding geometry elements
+        # looks like physvol can hold one too
         """
         for i in range(len(ls)):
-            if type(ls[i]) == PosXYZ and type(ls[i-1]) in cls.geom:
-                setattr(ls[i-1],'PosXYZ', ls[i]) 
+            if ls[i].is_transform and ls[i-1].is_primitive:
+                ls[i-1].transform = ls[i] 
                 log.debug("linking %s to %s " % (ls[i], ls[i-1]))
+
+
+    def _get_xyz(self):
+       x = y = z = 0
+       if self.transform is not None:
+           x = self.transform.x.value 
+           y = self.transform.y.value 
+           z = self.transform.z.value 
+       pass
+       return [x,y,z] 
+    xyz = property(_get_xyz)
 
 
     def __init__(self, elem, g=None):
         self.elem = elem 
         self.g = g 
 
-    def att(self, k, evaluate=True):
+    def att(self, k, dflt=None):
         v = self.elem.attrib.get(k, None)
-        return Att(v, self.g, evaluate=evaluate) if v is not None else None 
+        return Att(v, self.g) if v is not None else Att(dflt, self.g, evaluate=False) 
 
     def findall_(self, expr):
         return map( lambda e:self.g.kls.get(e.tag,Elem)(e,self.g), self.elem.findall(expr) )
@@ -61,30 +80,30 @@ class Elem(object):
     def __repr__(self):
         return "%15s : %s " % ( self.elem.tag, repr(self.elem.attrib) )
 
-    def asrev(self):
-        w = self.outerRadius.value
-        x,y,z = 0,0,0
-        if hasattr(self, 'PosXYZ'):
-            z = self.PosXYZ.z.value
-        return [x,y,z,w], self.__class__.__name__
-
     def allrev(self):
         """
         Assuming fairly simple
         """
-        comps = self.findall_(".//*") 
-        self.link_PosXYZ(comps)
+        components = self.findall_(".//*") 
+        self.link_transform(components)
 
-        shapes = filter(lambda _:type(_) in self.geom, comps)
-        other = filter(lambda _:type(_) not in self.geom + [PosXYZ], comps)
-        assert len(other) == 0, other 
-
-        shs = []
-        for sh in shapes:
-           shs.append(sh.asrev())
-        pass
-        return shs
-
+        revs = []
+        for c in components:
+            if c.is_primitive:
+                xrev = c.asrev()
+                log.info("allrev: primitive : %s " % repr(xrev)) 
+                revs.extend(xrev)
+            elif c.is_composite:
+                xrev = c.allrev() 
+                log.info("allrev: composite : %s " % repr(xrev)) 
+                revs.extend(xrev)
+            elif c.is_transform:
+                pass
+            else:
+                log.warning("skipped component %s " % repr(c))
+            pass
+                  
+        return revs
 
 
 
@@ -109,33 +128,89 @@ class Logvol(Elem):
         return self.findone_(".//intersection")
 
 
+
 class Union(Elem):
     def __repr__(self):
         return "Union %20s  " % (self.name)
-
 
 class Intersection(Elem):
     def __repr__(self):
         return "Intersection %20s  " % (self.name)
 
 
- 
-class Sphere(Elem):
+
+
+class Rev(object):
+    def __init__(self, typ, xyz, r, sz=None):
+        self.typ = typ
+        self.xyz = xyz 
+        self.r = r
+        self.sz = sz
+
+    def __repr__(self):
+        return "Rev('%s', %s, %s, %s)" % (self.typ, self.xyz, self.r, self.sz)
+
+
+
+class Primitive(Elem):
+    is_rev = True
     outerRadius = property(lambda self:self.att('outerRadius'))
+    innerRadius = property(lambda self:self.att('innerRadius'))
+
+
+class Sphere(Primitive):
+    """
+    What convention for theta,phi ? 
+
+    http://geant4.web.cern.ch/geant4/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/Detector/geomSolids.html
+
+    """
+    startThetaAngle = property(lambda self:self.att('startThetaAngle'))
+    deltaThetaAngle = property(lambda self:self.att('deltaThetaAngle'))
+
     def __repr__(self):
         linked = getattr(self,'PosXYZ', None)
-        return "sphere %20s : %s :  %s " % (self.name, self.outerRadius, linked)
+        return "sphere %20s : %s :  %s " % (self.name, self.outerRadius, self.transform)
+
+    def asrev(self):
+
+        xyz = self.xyz 
+        ro = self.outerRadius.value
+        ri = self.innerRadius.value
+
+        xrev = []
+        xrev += [Rev('Sphere', xyz, ro )]
+        if ri is not None and ri > 0:
+            xrev += [Rev('Sphere', xyz, ri )]
+        
+        return xrev
+
+
+
 
 class Tubs(Elem):
+    is_rev = True
     outerRadius = property(lambda self:self.att('outerRadius'))
     innerRadius = property(lambda self:self.att('innerRadius'))
     sizeZ = property(lambda self:self.att('sizeZ'))
+
     def __repr__(self):
-        linked = getattr(self,'PosXYZ', None)
-        return "Tubs %20s : outerRadius %s  sizeZ %s  : linked  %s " % (self.name, self.outerRadius, self.sizeZ, linked)
+        return "Tubs %20s : outerRadius %s  sizeZ %s  : transform  %s " % (self.name, self.outerRadius, self.sizeZ, self.transform)
+
+    def asrev(self):
+        sz = self.sizeZ.value
+        r = self.outerRadius.value
+        xyz = self.xyz 
+        return [Rev('Tubs', xyz, r, sz )]
+
+
+
+
 
 class PosXYZ(Elem):
-    z = property(lambda self:self.att('z'))
+    x = property(lambda self:self.att('x',0))
+    y = property(lambda self:self.att('y',0))
+    z = property(lambda self:self.att('z',0))
     def __repr__(self):
         return "PosXYZ  %s  " % (repr(self.z))
 
@@ -200,11 +275,16 @@ class Dddb(Elem):
     kls = {
         "parameter":Parameter,
         "sphere":Sphere,
+        "tubs":Tubs,
         "logvol":Logvol,
         "posXYZ":PosXYZ,
         "intersection":Intersection,
         "union":Union,
     }
+
+    primitive = [Sphere, Tubs]
+    composite = [Union, Intersection]
+    transform = [PosXYZ]
 
     expand = {
         "(PmtHemiFaceROCvac^2-PmtHemiBellyROCvac^2-(PmtHemiFaceOff-PmtHemiBellyOff)^2)/(2*(PmtHemiFaceOff-PmtHemiBellyOff))":
