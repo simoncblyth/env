@@ -13,8 +13,12 @@ import matplotlib.patches as mpatches
 log = logging.getLogger(__name__)
 
 
+def make_rect(bl, tr, **kwa):
+    return mpatches.Rectangle( bl, tr[0]-bl[0], tr[1]-bl[1], **kwa)
+
 
 class Circ(object):
+    circle = None
     @classmethod
     def intersect(cls, a, b ):
         """
@@ -57,6 +61,11 @@ class Circ(object):
         dy = xy[1]-self.pos[1]
         return math.atan(dy/dx)*180./math.pi
 
+    def as_circle(self, **kwa):
+        w = self.width  
+        self.circle = mpatches.Circle(self.pos,self.radius, linewidth=w, **kwa)
+        return self.circle 
+
     def as_patch(self, **kwa):
         st = self.startTheta
         dt = self.deltaTheta
@@ -74,6 +83,25 @@ class Circ(object):
                     mpatches.Wedge(self.pos,self.radius, -st-dt, -st, width=w, **kwa)] 
  
 
+class Bbox(object):
+    def __init__(self, bl, tr, art):
+         self.bl = bl
+         self.tr = tr
+         self.art = art
+
+    width  = property(lambda self:self.tr[0] - self.bl[0])
+    height = property(lambda self:self.tr[1] - self.bl[1])
+
+    def as_rect(self):
+         kwa = {}
+         kwa['facecolor'] = "none"
+         kwa['edgecolor'] = "b"
+         rect = mpatches.Rectangle( self.bl, self.tr[0]-self.bl[0], self.tr[1]-self.bl[1], **kwa)
+         self.art.mybbox = rect
+         return rect
+
+    def __repr__(self):
+         return "Bbox   %s %s width:%s height:%s" % (repr(self.bl), repr(self.tr), self.width, self.height)
 
 
 class Chord(object):
@@ -85,6 +113,11 @@ class Chord(object):
         self.ppos = ppos
         self.a = a 
         self.b = b  
+        nx, ny = self.npos
+        px, py = self.ppos
+        assert nx == px  # vertical chord    
+        self.x = nx 
+        
 
     def as_lin(self): 
         return Lin(self.npos, self.ppos)
@@ -97,11 +130,68 @@ class Chord(object):
         else: 
            sTheta, dTheta = nTheta, pTheta - nTheta
         return Circ(c.pos, c.radius, sTheta, dTheta)
-         
+
+    def get_right_bbox(self, c):
+        cr = c.radius
+        cx, cy = c.pos
+        nx, ny = self.npos
+        px, py = self.ppos
+        assert nx == px  # vertical chord    
+
+        if nx > cx:  
+            """
+            chord x to right of the center  
+            right_bbox is limited by the chord on left, circle on right
+            """
+            tr = (cx+cr, py)        
+            bl = (nx, ny)
+        else:      
+            """    
+            chord to the left of center line
+            so right_bbox limited by circle on right
+            """
+            tr = (cx+cr,cy+cr)
+            bl = (nx,cy-cr)
+        pass
+        return Bbox(bl, tr, c.circle)
+
+
+    def get_left_bbox(self, c):
+        cr = c.radius
+        cx, cy = c.pos
+        nx, ny = self.npos
+        px, py = self.ppos
+        assert nx == px  # vertical chord    
+
+        if nx > cx:  
+            """
+            chord x to right of the center  
+            """
+            tr = (nx, cy+cr)        
+            bl = (cx-cr, cy-cr)
+        else:      
+            """    
+            chord to the left of center line
+            """
+            tr = (px,py)
+            bl = (cx-cr,ny)
+        pass
+        return Bbox(bl, tr, c.circle)
+
+
     def get_circ_a(self):
         return self.get_circ(self.a) 
     def get_circ_b(self):
         return self.get_circ(self.b) 
+    def get_right_bbox_a(self):
+        return self.get_right_bbox(self.a)
+    def get_right_bbox_b(self):
+        return self.get_right_bbox(self.b)
+    def get_left_bbox_a(self):
+        return self.get_left_bbox(self.a)
+    def get_left_bbox_b(self):
+        return self.get_left_bbox(self.b)
+
 
 
 class Lin(object):
@@ -131,15 +221,45 @@ class Tub(object):
 
 
 class RevPlot(object):
-    def __init__(self, ax, revs):     
+    edgecolor = ['r','g','b']
 
-        edgecolor = ['r','g','b']
-
+    def find_bounds(self, revs):
         zmin = 1e6
         zmax = -1e6
-  
         ymin = 1e6
         ymax = -1e6
+        for i,rev in enumerate(self.revs):
+            xyz,r,sz = rev.xyz, rev.radius, rev.sizeZ
+            z = xyz[2]
+            pos = (z,0.)
+
+            if rev.typ == "Sphere":
+                if z-r < zmin:
+                    zmin = z-r*1.1
+                if z+r > zmax:
+                    zmax = z+r*1.1
+                if -r < ymin:
+                    ymin = -r
+                if r > ymax:
+                    ymax = r
+
+            elif rev.typ == "Tubs": 
+                pass
+            pass
+
+        self.xlim = [zmin, zmax]
+        self.ylim = [ymin, ymax]
+
+    def set_bounds(self):
+        self.ax.set_xlim(*self.xlim)
+        self.ax.set_ylim(*self.ylim)
+    
+
+    def __init__(self, ax, revs, clip=True):     
+        self.ax = ax
+        self.revs = revs
+        self.clip = clip
+        self.find_bounds()
 
         circs = []
         rects = []
@@ -150,7 +270,7 @@ class RevPlot(object):
         for i,rev in enumerate(revs):
  
             kwa['edgecolor']=edgecolor[i%len(edgecolor)]
-            kwa['facecolor']='w'
+            kwa['facecolor']='none'
             kwa['alpha'] = 0.5 
 
             xyz,r,sz = rev.xyz, rev.radius, rev.sizeZ
@@ -161,12 +281,12 @@ class RevPlot(object):
 
                 circ = Circ( pos,r,  rev.startTheta, rev.deltaTheta, rev.width) 
                 circs.append(circ)
-                patches.extend(circ.as_patch(**kwa))
+                #patches.extend(circ.as_patch(**kwa))
 
                 if z-r < zmin:
-                    zmin = z-r
+                    zmin = z-r*1.1
                 if z+r > zmax:
-                    zmax = z+r
+                    zmax = z+r*1.1
                 if -r < ymin:
                     ymin = -r
                 if r > ymax:
@@ -179,19 +299,40 @@ class RevPlot(object):
             pass
         pass
 
-        for i in range(1,len(circs)):
-            a = circs[i-1]
-            b = circs[i]
-            ch = Circ.intersect(a,b)
-            if ch is not None:
-                lins.append(ch.as_lin())
-                wa = ch.get_circ_a() 
-                patches.extend(wa.as_patch(**kwa))
+        if len(circs) == 3:
+            c1 = circs[0]
+            c2 = circs[1]
+            c3 = circs[2]
+
+            patches.append(c1.as_circle(fc='none',ec='r'))
+            patches.append(c2.as_circle(fc='none',ec='g'))
+            patches.append(c3.as_circle(fc='none',ec='b'))
+
+            h12 = Circ.intersect(c1,c2)
+            lins.append(h12.as_lin())
+
+            h23 = Circ.intersect(c2,c3)
+            lins.append(h23.as_lin())
+
+            rbb_c2 = h23.get_right_bbox_a()
+            rbb_c3 = h23.get_right_bbox_b()
+            if rbb_c2.width < rbb_c3.width:
+                patches.append(rbb_c2.as_rect())
+            else:
+                patches.append(rbb_c3.as_rect())
+
+            lbb_c2 = h23.get_left_bbox_a()
+            lbb_c3 = h23.get_left_bbox_b()
+            if lbb_c2.width < lbb_c3.width:
+                patches.append(lbb_c2.as_rect())
+            else:
+                patches.append(lbb_c3.as_rect())
 
 
-        xlim = [zmin, zmax]
-        ylim = [ymin, ymax]
 
+        # for each slice of z between the chords
+        # need to identify the relevant single primitive
+        # and just collect those
         for p in patches:
             ax.add_artist(p)
 
@@ -199,12 +340,11 @@ class RevPlot(object):
             a = 0.1 if i == 1 else 0.9
             ax.add_line(lins[i].as_line(alpha=a))
 
-        ax.set_xlim(*xlim)
-        ax.set_ylim(*ylim)
-    
-        self.xlim = xlim
-        self.ylim = ylim 
 
+        if clip:
+            for a in ax.findobj(lambda a:hasattr(a, 'mybbox')):
+                log.info("clipping %s " % repr(a))
+                a.set_clip_path(a.mybbox)
 
 
 def split_plot(g, lvns):
@@ -244,23 +384,25 @@ def split_plot(g, lvns):
 
 
 
-def single_plot(g, lvns_):
+def single_plot(g, lvns_, maxdepth=10, clip=True):
     lvns = lvns_.split()
     revs = []
     for i in range(len(lvns)):
         lv = g.logvol_(lvns[i])
-        revs += lv.allrev()
+        revs += lv.allrev(maxdepth=maxdepth)
         print "\n".join(map(str,revs))
 
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
     ax.set_title(lvns_)
-    rp = RevPlot(ax,revs)
+    rp = RevPlot(ax,revs, clip=clip)
+
+
 
     fig.show()
     fig.savefig("/tmp/pmt_single_plot.png")
 
-
+    return ax
 
 
 
@@ -272,13 +414,15 @@ if __name__ == '__main__':
     g.dump_context('PmtHemi')
 
     #lvns = "lvPmtHemi lvPmtHemiVacuum lvPmtHemiCathode"
-    #lvns = "lvPmtHemi"
-    lvns = "lvPmtHemiVacuum"
+    lvns = "lvPmtHemi"
+    #lvns = "lvPmtHemiVacuum"
     #lvns = "lvPmtHemiCathode"
     #lvns = "lvPmtHemiBottom"
     #lvns = "lvPmtHemiDynode"
 
     #split_plot(g, lvns)
-    single_plot(g, lvns)
+    ax = single_plot(g, lvns, maxdepth=2, clip=True)
+
+
 
 

@@ -12,7 +12,6 @@ fparse_ = lambda _:HT.fragments_fromstring(file(os.path.expandvars(_)).read())
 pp_ = lambda d:"\n".join([" %30s : %f " % (k,d[k]) for k in sorted(d.keys())])
 
 
-
 class Att(object):
     def __init__(self, expr, g, evaluate=True):
         self.expr = expr
@@ -88,7 +87,8 @@ class Elem(object):
 
     def find_(self, expr):
         e = self.elem.find(expr) 
-        return self.g.kls.get(e.tag,Elem)(e,self.g) if e is not None else None
+        wrap_ = lambda e:self.g.kls.get(e.tag,Elem)(e,self.g)
+        return wrap_(e) if e is not None else None
 
     def __repr__(self):
         return "%15s : %s " % ( self.elem.tag, repr(self.elem.attrib) )
@@ -101,6 +101,7 @@ class Elem(object):
             lvn = self.logvolref.split("/")[-1]
             log.info("physvol is special logvolref %s lvn %s " % (self.logvolref, lvn ))
             lv = self.g.logvol_(lvn)
+            depth += 1
             components = lv.findall_("./*")  
             transform = self.get_transform()
             if transform:
@@ -142,8 +143,7 @@ class Physvol(Elem):
         return "Physvol %20s %s " % (self.name, self.logvolref)
 
     def get_transform(self):
-        posXYZ = self.find_("./posXYZ") 
-
+        return self.find_("./posXYZ") 
 
 
 class Union(Elem):
