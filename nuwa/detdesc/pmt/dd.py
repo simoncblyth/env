@@ -28,14 +28,24 @@ class Att(object):
 class Elem(object):
     transform = None
     is_rev = False
-    name  = property(lambda self:self.elem.attrib['name'])
+    name  = property(lambda self:self.elem.attrib.get('name',None))
     is_primitive = property(lambda self:type(self) in self.g.primitive)
     is_composite = property(lambda self:type(self) in self.g.composite)
     is_transform = property(lambda self:type(self) in self.g.transform)
 
+    @classmethod
+    def link_transform(cls, ls, transform):
+        """
+        # attach any PosXYZ instances in the list to preceeding geometry elements
+        # looks like physvol can hold one too
+        """
+        for i in range(len(ls)):
+            if ls[i].is_primitive:
+                ls[i].transform = transform 
+                log.debug("linking %s to %s " % (transform, ls[i]))
 
     @classmethod
-    def link_transform(cls, ls):
+    def link_prior_transform(cls, ls):
         """
         # attach any PosXYZ instances in the list to preceeding geometry elements
         # looks like physvol can hold one too
@@ -44,7 +54,6 @@ class Elem(object):
             if ls[i].is_transform and ls[i-1].is_primitive:
                 ls[i-1].transform = ls[i] 
                 log.debug("linking %s to %s " % (ls[i], ls[i-1]))
-
 
     def _get_xyz(self):
        x = y = z = 0
@@ -56,7 +65,6 @@ class Elem(object):
        return [x,y,z] 
     xyz = property(_get_xyz)
 
-
     def __init__(self, elem, g=None):
         self.elem = elem 
         self.g = g 
@@ -66,7 +74,12 @@ class Elem(object):
         return Att(v, self.g) if v is not None else Att(dflt, self.g, evaluate=False) 
 
     def findall_(self, expr):
-        return map( lambda e:self.g.kls.get(e.tag,Elem)(e,self.g), self.elem.findall(expr) )
+        wrap_ = lambda e:self.g.kls.get(e.tag,Elem)(e,self.g)
+        fa = map(wrap_, self.elem.findall(expr) )
+        kln = self.__class__.__name__
+        name = self.name 
+        log.info("findall_ from %s:%s expr:%s returned %s " % (kln, name, expr, len(fa)))
+        return fa 
 
     def findone_(self, expr):
         all_ = self.findall_(expr)
@@ -80,22 +93,33 @@ class Elem(object):
     def __repr__(self):
         return "%15s : %s " % ( self.elem.tag, repr(self.elem.attrib) )
 
-    def allrev(self):
-        """
-        Assuming fairly simple
-        """
-        components = self.findall_(".//*") 
-        self.link_transform(components)
+    def allrev(self, depth=0, maxdepth=10):
+        if depth > maxdepth:
+            return []
+
+        if type(self) is Physvol:
+            lvn = self.logvolref.split("/")[-1]
+            log.info("physvol is special logvolref %s lvn %s " % (self.logvolref, lvn ))
+            lv = self.g.logvol_(lvn)
+            components = lv.findall_("./*")  
+            transform = self.get_transform()
+            if transform:
+                self.link_transform(components, transform)
+        else:
+            components = self.findall_("./*")  # one lev only
+            self.link_prior_transform(components)
+        pass
+  
 
         revs = []
         for c in components:
             if c.is_primitive:
                 xrev = c.asrev()
-                log.info("allrev: primitive : %s " % repr(xrev)) 
+                log.debug("allrev: primitive : %s " % repr(xrev)) 
                 revs.extend(xrev)
             elif c.is_composite:
-                xrev = c.allrev() 
-                log.info("allrev: composite : %s " % repr(xrev)) 
+                xrev = c.allrev(depth=depth+1, maxdepth=maxdepth) 
+                log.debug("allrev: composite : %s " % repr(xrev)) 
                 revs.extend(xrev)
             elif c.is_transform:
                 pass
@@ -104,28 +128,21 @@ class Elem(object):
             pass
                   
         return revs
-
-
-
-class Parameter(Elem):
-    expr = property(lambda self:self.elem.attrib['value'])
-
-    def hasprefix(self, prefix):
-        return self.name.startswith(prefix)
-
-    def __repr__(self):
-        return "%30s : %s " % ( self.name, self.expr )
-
+    
+ 
 class Logvol(Elem):
+    material = property(lambda self:self.elem.attrib.get('material', None))
+    sensdet = property(lambda self:self.elem.attrib.get('sensdet', None))
     def __repr__(self):
-        a = self.elem.attrib
-        return "%30s %20s %s " % (a['name'], a.get('material',"-"), a.get("sensdet","-"))
+        return "%30s %20s %s " % (self.name, self.material, self.sensdet)
 
-    def union(self):
-        return self.findone_(".//union")
+class Physvol(Elem):
+    logvolref = property(lambda self:self.elem.attrib.get('logvol', None))
+    def __repr__(self):
+        return "Physvol %20s %s " % (self.name, self.logvolref)
 
-    def intersection(self):
-        return self.findone_(".//intersection")
+    def get_transform(self):
+        posXYZ = self.find_("./posXYZ") 
 
 
 
@@ -138,33 +155,41 @@ class Intersection(Elem):
         return "Intersection %20s  " % (self.name)
 
 
+class Parameter(Elem):
+    expr = property(lambda self:self.elem.attrib['value'])
+
+    def hasprefix(self, prefix):
+        return self.name.startswith(prefix)
+
+    def __repr__(self):
+        return "%30s : %s " % ( self.name, self.expr )
+
+
+
+
 
 
 class Rev(object):
-    def __init__(self, typ, xyz, r, sz=None):
+    def __init__(self, typ, name, xyz, radius, sizeZ=None, startTheta=None, deltaTheta=None, width=None):
         self.typ = typ
+        self.name = name
         self.xyz = xyz 
-        self.r = r
-        self.sz = sz
+        self.radius = radius
+        self.sizeZ = sizeZ
+        self.startTheta = startTheta
+        self.deltaTheta = deltaTheta
+        self.width = width
 
     def __repr__(self):
-        return "Rev('%s', %s, %s, %s)" % (self.typ, self.xyz, self.r, self.sz)
-
-
+        return "Rev('%s','%s' xyz:%s, r:%s, sz:%s, st:%s, dt:%s wi:%s)" % \
+            (self.typ, self.name, self.xyz, self.radius, self.sizeZ, self.startTheta, self.deltaTheta, self.width)
 
 class Primitive(Elem):
     is_rev = True
     outerRadius = property(lambda self:self.att('outerRadius'))
     innerRadius = property(lambda self:self.att('innerRadius'))
 
-
 class Sphere(Primitive):
-    """
-    What convention for theta,phi ? 
-
-    http://geant4.web.cern.ch/geant4/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/Detector/geomSolids.html
-
-    """
     startThetaAngle = property(lambda self:self.att('startThetaAngle'))
     deltaThetaAngle = property(lambda self:self.att('deltaThetaAngle'))
 
@@ -173,25 +198,19 @@ class Sphere(Primitive):
         return "sphere %20s : %s :  %s " % (self.name, self.outerRadius, self.transform)
 
     def asrev(self):
-
         xyz = self.xyz 
         ro = self.outerRadius.value
         ri = self.innerRadius.value
-
-        xrev = []
-        xrev += [Rev('Sphere', xyz, ro )]
+        st = self.startThetaAngle.value
+        dt = self.deltaThetaAngle.value
+        sz = None
+        wi = None
         if ri is not None and ri > 0:
-            xrev += [Rev('Sphere', xyz, ri )]
-        
-        return xrev
+            wi = ro - ri 
 
+        return [Rev('Sphere', self.name,xyz, ro, sz, st, dt, wi)]
 
-
-
-class Tubs(Elem):
-    is_rev = True
-    outerRadius = property(lambda self:self.att('outerRadius'))
-    innerRadius = property(lambda self:self.att('innerRadius'))
+class Tubs(Primitive):
     sizeZ = property(lambda self:self.att('sizeZ'))
 
     def __repr__(self):
@@ -201,10 +220,7 @@ class Tubs(Elem):
         sz = self.sizeZ.value
         r = self.outerRadius.value
         xyz = self.xyz 
-        return [Rev('Tubs', xyz, r, sz )]
-
-
-
+        return [Rev('Tubs', self.name,xyz, r, sz )]
 
 
 class PosXYZ(Elem):
@@ -250,8 +266,6 @@ class Context(object):
             txt = "float(%s)" % expr
             try:
                 val = eval(txt, globals(), self.d)
-                #if p.name.startswith('Pmt'):
-                #    log.info(" %s : %s => %s " % (p.name, txt, val ))
                 pass
                 self.d[p.name] = float(val)  
             except NameError:
@@ -264,6 +278,7 @@ class Context(object):
         return name_error, type_error
           
     def dump_context(self, prefix):
+        log.info("dump_context %s* " % prefix ) 
         return "\n".join(["%25s : %s " % (k,v) for k,v in filter(lambda kv:kv[0].startswith(prefix),self.d.items())])
  
     def __repr__(self):
@@ -277,13 +292,14 @@ class Dddb(Elem):
         "sphere":Sphere,
         "tubs":Tubs,
         "logvol":Logvol,
+        "physvol":Physvol,
         "posXYZ":PosXYZ,
         "intersection":Intersection,
         "union":Union,
     }
 
     primitive = [Sphere, Tubs]
-    composite = [Union, Intersection]
+    composite = [Union, Intersection, Physvol]
     transform = [PosXYZ]
 
     expand = {
@@ -345,9 +361,12 @@ if __name__ == '__main__':
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     g.dump_context('PmtHemi')
 
-    hemi = g.logvol_("lvPmtHemi")
-    inter = hemi.intersection()
-    revs = inter.allrev() 
+    lv = g.logvol_("lvPmtHemi")
 
-    print revs
+    for maxdepth in range(4):
+        revs = lv.allrev(maxdepth=maxdepth) 
+        log.info("maxdepth %s returned %s revs " % (maxdepth, len(revs)))
+        print "\n".join(map(str,revs))
+
+
 

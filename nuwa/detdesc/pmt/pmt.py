@@ -3,140 +3,263 @@
 ::
 
 
-    In [5]: g.logvols_()
-    Out[5]: 
-    [                lvPmtHemiFrame                    - - ,
-                          lvPmtHemi                Pyrex - ,
-                lvPmtHemiwPmtHolder                    - - ,
-                      lvAdPmtCollar   UnstStainlessSteel - ,
-                    lvPmtHemiVacuum               Vacuum - ,
-                   lvPmtHemiCathode             Bialkali DsPmtSensDet ,
-                    lvPmtHemiBottom         OpaqueVacuum - ,
-                    lvPmtHemiDynode         OpaqueVacuum - ,
-                           lvPmtTee   UnstStainlessSteel - ,
-                       lvPmtTopRing   UnstStainlessSteel - ,
-                      lvPmtBaseRing   UnstStainlessSteel - ,
-                        lvMountRib1   UnstStainlessSteel - ,
-                        lvMountRib2   UnstStainlessSteel - ,
-                        lvMountRib3   UnstStainlessSteel - ,
-                    lvMountRib1unit                    - - ,
-                    lvMountRib2unit                    - - ,
-                    lvMountRib3unit                    - - ,
-                       lvMountRib1s                    - - ,
-                       lvMountRib2s                    - - ,
-                       lvMountRib3s                    - - ,
-                         lvPmtMount                    - - ]
-
-    In [6]: hemiVac = g.logvol_("lvPmtHemiVacuum")
-
-    In [7]: hemiVac
-    Out[7]:                lvPmtHemiVacuum               Vacuum - 
-
-    In [8]: hemiVac.findall_("*")
-    Out[8]: 
-    [          union : {'name': 'pmt-hemi-vac'} ,
-             physvol : {'logvol': '/dd/Geometry/PMT/lvPmtHemiCathode', 'name': 'pvPmtHemiCathode'} ,
-             physvol : {'logvol': '/dd/Geometry/PMT/lvPmtHemiBottom', 'name': 'pvPmtHemiBottom'} ,
-             physvol : {'logvol': '/dd/Geometry/PMT/lvPmtHemiDynode', 'name': 'pvPmtHemiDynode'} ]
-
-
-
-
-
 """
 from dd import *
+import math
 import matplotlib.pyplot as plt 
-import matplotlib.lines as lines
-import matplotlib.patches as patches
+import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
 
 log = logging.getLogger(__name__)
 
 
 
-def circle_intersect( a, b ):
-   """
-   http://mathworld.wolfram.com/Circle-CircleIntersection.html
-   """
-   R = a.radius
-   r = b.radius
+class Circ(object):
+    @classmethod
+    def intersect(cls, a, b ):
+        """
+        http://mathworld.wolfram.com/Circle-CircleIntersection.html
+        """
+        R = a.radius
+        r = b.radius
 
-   xy_a = a.center
-   xy_b = b.center
+        xy_a = a.pos
+        xy_b = b.pos
 
-   log.info(" A %s xy %s " % ( R, repr(xy_a)) )  
-   log.info(" B %s xy %s " % ( r, repr(xy_b)) )  
+        log.debug(" A %s xy %s " % ( R, repr(xy_a)) )  
+        log.debug(" B %s xy %s " % ( r, repr(xy_b)) )  
 
-   assert(xy_b[1] == xy_a[1]) 
-   d = xy_b[0] - xy_a[0]
-   if d == 0:
-       return None
+        assert(xy_b[1] == xy_a[1]) 
+        d = xy_b[0] - xy_a[0]
+        if d == 0:
+            return None
 
-   x = (d*d - r*r + R*R)/(2.*d)
-   return x + xy_a[0] 
+        dd_m_rr_p_RR = d*d - r*r + R*R 
+
+        x = dd_m_rr_p_RR/(2.*d)
+        yy = (4.*d*d*R*R - dd_m_rr_p_RR*dd_m_rr_p_RR)/(4.*d*d)
+        y = math.sqrt(yy)
+
+        npos = [x + xy_a[0], -y]
+        ppos = [x + xy_a[0],  y]
+
+        return Chord(npos, ppos, a, b ) 
+
+    def __init__(self, pos, radius, startTheta=None, deltaTheta=None, width=None):
+        self.pos = pos
+        self.radius = radius
+        self.startTheta = startTheta
+        self.deltaTheta = deltaTheta
+        self.width = width 
+
+    def theta(self, xy):
+        dx = xy[0]-self.pos[0]
+        dy = xy[1]-self.pos[1]
+        return math.atan(dy/dx)*180./math.pi
+
+    def as_patch(self, **kwa):
+        st = self.startTheta
+        dt = self.deltaTheta
+        w = self.width  
+
+        if st is None and dt is None:
+            return [mpatches.Circle(self.pos,self.radius, linewidth=w, **kwa)]
+        elif st is None and dt is not None:
+            log.info("wedge %s : %s " % (-dt, dt))
+            return [mpatches.Wedge(self.pos,self.radius,-dt, dt, width=w, **kwa)] 
+        else:
+            log.info("wedges %s : %s " % (st, st+dt))
+            log.info("wedges %s : %s " % (-st-dt, -st))
+            return [mpatches.Wedge(self.pos,self.radius, st, st+dt, width=w, **kwa),
+                    mpatches.Wedge(self.pos,self.radius, -st-dt, -st, width=w, **kwa)] 
+ 
 
 
 
-def plot_revs(ax, revs):
-    edgecolor = ['r','g','b']
+class Chord(object):
+    """
+    Common Chord of two intersecting circles
+    """
+    def __init__(self, npos, ppos, a, b ):
+        self.npos = npos
+        self.ppos = ppos
+        self.a = a 
+        self.b = b  
 
-    zmin = 1e6
-    zmax = -1e6
+    def as_lin(self): 
+        return Lin(self.npos, self.ppos)
+
+    def get_circ(self, c):
+        nTheta = c.theta(self.npos) 
+        pTheta = c.theta(self.ppos) 
+        if nTheta > pTheta:
+           sTheta, dTheta = pTheta, nTheta - pTheta
+        else: 
+           sTheta, dTheta = nTheta, pTheta - nTheta
+        return Circ(c.pos, c.radius, sTheta, dTheta)
+         
+    def get_circ_a(self):
+        return self.get_circ(self.a) 
+    def get_circ_b(self):
+        return self.get_circ(self.b) 
+
+
+class Lin(object):
+    def __init__(self, a, b ):
+        self.a = a
+        self.b = b 
+
+    def as_line(self, lw=0.1, alpha=0.5):
+        lx = [self.a[0], self.b[0]]
+        ly = [self.a[1], self.b[1]]
+        line = mlines.Line2D( lx, ly, lw=lw, alpha=alpha)
+        return line
+
+
+class Tub(object):
+    def __init__(self, pos, radius, sizeZ):
+        self.pos = pos
+        self.radius = radius
+        self.sizeZ = sizeZ
+
+    def as_patch(self, **kwa):
+        botleft = [ self.pos[0], self.pos[1] - self.radius ]
+        width = self.sizeZ
+        height = 2.*self.radius
+        log.info("rect %s %s %s " % (botleft, width, height ))
+        return [mpatches.Rectangle(botleft, width, height, **kwa)]
+
+
+class RevPlot(object):
+    def __init__(self, ax, revs):     
+
+        edgecolor = ['r','g','b']
+
+        zmin = 1e6
+        zmax = -1e6
   
-    ymin = 1e6
-    ymax = -1e6
+        ymin = 1e6
+        ymax = -1e6
 
-    circles = []
-    rects = []
+        circs = []
+        rects = []
+        lins = []
+        patches = []
+        kwa = {}
 
-    for i,rev in enumerate(revs):
+        for i,rev in enumerate(revs):
+ 
+            kwa['edgecolor']=edgecolor[i%len(edgecolor)]
+            kwa['facecolor']='w'
+            kwa['alpha'] = 0.5 
 
-        xyz,r,sz = rev.xyz, rev.r, rev.sz
-        z = xyz[2]
+            xyz,r,sz = rev.xyz, rev.radius, rev.sizeZ
+            z = xyz[2]
+            pos = (z,0.)
 
-        if rev.typ == "Sphere":
-            circ = plt.Circle((z,0.),r, edgecolor=edgecolor[i%len(edgecolor)], facecolor='w', alpha=0.5)
-            circles.append(circ)
+            if rev.typ == "Sphere":
 
-            if z-r < zmin:
-                zmin = z-r
-            if z+r > zmax:
-                zmax = z+r
-            if -r < ymin:
-                ymin = -r
-            if r > ymax:
-                ymax = r
+                circ = Circ( pos,r,  rev.startTheta, rev.deltaTheta, rev.width) 
+                circs.append(circ)
+                patches.extend(circ.as_patch(**kwa))
 
-        elif rev.typ == "Tubs":
-             botleft = (z,-r)
-             width = sz
-             height = 2*r
-             log.info("rect %s %s %s " % (botleft, width, height ))
-             rect = plt.Rectangle(botleft, width, height, edgecolor='r', facecolor='w', alpha=0.5) 
-             rects.append(rect)   
+                if z-r < zmin:
+                    zmin = z-r
+                if z+r > zmax:
+                    zmax = z+r
+                if -r < ymin:
+                    ymin = -r
+                if r > ymax:
+                    ymax = r
+
+            elif rev.typ == "Tubs":
+
+                tub = Tub( pos, r, rev.sizeZ ) 
+                patches.extend(tub.as_patch(**kwa))   
+            pass
         pass
-    pass
 
-    lx = []
-    lz = []
-    for i in range(1,len(circles)):
-        ci = circle_intersect(circles[i-1],circles[i])
-        if ci is not None:
-            lx.append([ci,ci])      # x,z coords are start/end of line segment
-            lz.append([zmin,zmax])
+        for i in range(1,len(circs)):
+            a = circs[i-1]
+            b = circs[i]
+            ch = Circ.intersect(a,b)
+            if ch is not None:
+                lins.append(ch.as_lin())
+                wa = ch.get_circ_a() 
+                patches.extend(wa.as_patch(**kwa))
 
-    ax.set_xlim(zmin,zmax)
-    ax.set_ylim(ymin,ymax)
 
-    for sh in circles + rects:
-        ax.add_artist(sh)
+        xlim = [zmin, zmax]
+        ylim = [ymin, ymax]
 
-    for i in range(len(lx)):
-        a = 0.1 if i == 1 else 0.9
-        log.info(" i %s : lx %s lz %s " % (i, repr(lx[i]), repr(lz[i]))) 
-        line = lines.Line2D( lx[i], lz[i] , lw=5., alpha=a)
-        ax.add_line(line)
+        for p in patches:
+            ax.add_artist(p)
 
-    #ax.autoscale_view(True,True,True)
+        for i in range(len(lins)):
+            a = 0.1 if i == 1 else 0.9
+            ax.add_line(lins[i].as_line(alpha=a))
+
+        ax.set_xlim(*xlim)
+        ax.set_ylim(*ylim)
+    
+        self.xlim = xlim
+        self.ylim = ylim 
+
+
+
+def split_plot(g, lvns):
+    lvns = lvns.split()
+    xlim = None 
+    ylim = None 
+    nplt = len(lvns)
+    if nplt == 1:
+        nx, ny = 1, 1
+    else:
+        nx, ny = 2, 2
+
+    fig = plt.figure()
+    for i in range(nplt):
+        lv = g.logvol_(lvns[i])
+        revs = lv.allrev()
+        print "\n".join(map(str,revs))
+
+        ax = fig.add_subplot(nx,ny,i+1, aspect='equal')
+        ax.set_title(lv.name)
+
+        rp = RevPlot(ax,revs)
+
+        if xlim is None:
+            xlim = rp.xlim 
+        else:
+            ax.set_xlim(*xlim) 
+
+        if ylim is None:
+           ylim = rp.ylim 
+        else:
+            ax.set_ylim(*ylim) 
+
+    pass 
+    fig.show()
+    fig.savefig("/tmp/pmt_split_plot.png")
+
+
+
+def single_plot(g, lvns_):
+    lvns = lvns_.split()
+    revs = []
+    for i in range(len(lvns)):
+        lv = g.logvol_(lvns[i])
+        revs += lv.allrev()
+        print "\n".join(map(str,revs))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, aspect='equal')
+    ax.set_title(lvns_)
+    rp = RevPlot(ax,revs)
+
+    fig.show()
+    fig.savefig("/tmp/pmt_single_plot.png")
+
 
 
 
@@ -148,27 +271,14 @@ if __name__ == '__main__':
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     g.dump_context('PmtHemi')
 
-    revs = []
-
-    # lvPmtHemiCathode is 2 spheres differing in radius by 0.05 mm !
-    #        PmtHemiCathodeThickness : 0.050000 
-    #
     #lvns = "lvPmtHemi lvPmtHemiVacuum lvPmtHemiCathode"
-    lvns = "lvPmtHemiCathode"
+    #lvns = "lvPmtHemi"
+    lvns = "lvPmtHemiVacuum"
+    #lvns = "lvPmtHemiCathode"
+    #lvns = "lvPmtHemiBottom"
+    #lvns = "lvPmtHemiDynode"
 
-    for lvn in lvns.split():
-        lv = g.logvol_(lvn)
-        union = lv.union()  # hmm get this from logvol without knowning content 
-        revs += union.allrev()
-    pass
-
-    print "\n".join(map(str,revs))
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, aspect='equal')
-    plot_revs(ax,revs)
-    fig.show()
-
-
+    #split_plot(g, lvns)
+    single_plot(g, lvns)
 
 
