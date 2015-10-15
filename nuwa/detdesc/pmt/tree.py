@@ -134,8 +134,26 @@ class Tree(object):
         pass
         return tot
 
+    @classmethod
+    def save_parts(cls, path):
+        tnodes = cls.num_nodes() 
+        tparts = cls.num_parts() 
+        log.info("tnodes %s tparts %s " % (tnodes, tparts))
+        data = np.zeros([tparts,4,4],dtype=np.float32)
 
+        offset = 0 
+        for i in range(tnodes):
+            node = tree.get(i)
+            node.copy_parts(data, offset)    
+            nparts = node.num_parts() 
+            log.info("i %s %s %s " % (i, nparts, repr(node))) 
+            offset += nparts
+        pass
+        log.info("save_parts to %s " % path)
+        np.save(path, data.reshape(-1,4*4))
 
+    def traverse(self):
+        self.wrap.traverse()
 
     def __init__(self, base):
         self.base = base
@@ -169,25 +187,10 @@ class Tree(object):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
-
     tree = Tree(g.logvol_("lvPmtHemi")) 
-    #tree.wrap.traverse()
+    tree.save_parts("/tmp/hemi-pmt-parts.npy")
 
 
-    tnodes = tree.num_nodes() 
-    tparts = tree.num_parts() 
-    log.info("tnodes %s tparts %s " % (tnodes, tparts))
-    data = np.zeros([tparts,4,4],dtype=np.float32)
 
-    offset = 0 
-    for i in range(tnodes):
-        node = tree.get(i)
-        node.copy_parts(data, offset)    
-        nparts = node.num_parts() 
-        log.info("i %s %s %s " % (i, nparts, repr(node))) 
-        offset += nparts
-
-    np.save("/tmp/data.npy", data)
 

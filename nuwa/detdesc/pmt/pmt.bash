@@ -5,7 +5,9 @@ pmt-vi(){       vi $(pmt-source) ; }
 pmt-env(){      elocal- ; }
 pmt-usage(){ cat << EOU
 
+Test loading into ggeo- and optixrap- with::
 
+    ggv --restrictmesh 1 --analyticmesh 1  
 
 
 
@@ -25,11 +27,8 @@ pmt-run(){
    python $(pmt-edir)/${1:-pmt}.py 
 }
 
-pmt-dd(){ 
-   pmt-run dd
-}
-
-
+pmt-dd(){    pmt-run dd ;}
+pmt-parts(){ pmt-run tree ; }
 
 
 
