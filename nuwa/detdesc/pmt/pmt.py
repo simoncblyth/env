@@ -253,24 +253,13 @@ class RevPlot(object):
     def set_bounds(self):
         self.ax.set_xlim(*self.xlim)
         self.ax.set_ylim(*self.ylim)
-    
-
-    def __init__(self, ax, revs, clip=True):     
-        self.ax = ax
-        self.revs = revs
-        self.clip = clip
-        self.find_bounds()
-
-        circs = []
-        rects = []
-        lins = []
-        patches = []
+   
+    def convert(self, revs):
         kwa = {}
-
         for i,rev in enumerate(revs):
  
-            kwa['edgecolor']=edgecolor[i%len(edgecolor)]
-            kwa['facecolor']='none'
+            kwa['edgecolor'] = self.edgecolor[i%len(self.edgecolor)]
+            kwa['facecolor'] = 'none'
             kwa['alpha'] = 0.5 
 
             xyz,r,sz = rev.xyz, rev.radius, rev.sizeZ
@@ -278,68 +267,73 @@ class RevPlot(object):
             pos = (z,0.)
 
             if rev.typ == "Sphere":
-
                 circ = Circ( pos,r,  rev.startTheta, rev.deltaTheta, rev.width) 
-                circs.append(circ)
-                #patches.extend(circ.as_patch(**kwa))
-
-                if z-r < zmin:
-                    zmin = z-r*1.1
-                if z+r > zmax:
-                    zmax = z+r*1.1
-                if -r < ymin:
-                    ymin = -r
-                if r > ymax:
-                    ymax = r
-
+                self.circs.append(circ)
+                self.patches.extend(circ.as_patch(**kwa))
             elif rev.typ == "Tubs":
-
                 tub = Tub( pos, r, rev.sizeZ ) 
-                patches.extend(tub.as_patch(**kwa))   
+                self.patches.extend(tub.as_patch(**kwa))   
             pass
         pass
 
-        if len(circs) == 3:
-            c1 = circs[0]
-            c2 = circs[1]
-            c3 = circs[2]
+    def triplet(self):
+        c1 = self.circs[0]
+        c2 = self.circs[1]
+        c3 = self.circs[2]
 
-            patches.append(c1.as_circle(fc='none',ec='r'))
-            patches.append(c2.as_circle(fc='none',ec='g'))
-            patches.append(c3.as_circle(fc='none',ec='b'))
+        self.patches.append(c1.as_circle(fc='none',ec='r'))
+        self.patches.append(c2.as_circle(fc='none',ec='g'))
+        self.patches.append(c3.as_circle(fc='none',ec='b'))
 
-            h12 = Circ.intersect(c1,c2)
-            lins.append(h12.as_lin())
+        h12 = Circ.intersect(c1,c2)
+        self.lins.append(h12.as_lin())
 
-            h23 = Circ.intersect(c2,c3)
-            lins.append(h23.as_lin())
+        h23 = Circ.intersect(c2,c3)
+        self.lins.append(h23.as_lin())
 
-            rbb_c2 = h23.get_right_bbox_a()
-            rbb_c3 = h23.get_right_bbox_b()
-            if rbb_c2.width < rbb_c3.width:
-                patches.append(rbb_c2.as_rect())
-            else:
-                patches.append(rbb_c3.as_rect())
+        rbb_c2 = h23.get_right_bbox_a()
+        rbb_c3 = h23.get_right_bbox_b()
+        if rbb_c2.width < rbb_c3.width:
+            self.patches.append(rbb_c2.as_rect())
+        else:
+            self.patches.append(rbb_c3.as_rect())
 
-            lbb_c2 = h23.get_left_bbox_a()
-            lbb_c3 = h23.get_left_bbox_b()
-            if lbb_c2.width < lbb_c3.width:
-                patches.append(lbb_c2.as_rect())
-            else:
-                patches.append(lbb_c3.as_rect())
+        lbb_c2 = h23.get_left_bbox_a()
+        lbb_c3 = h23.get_left_bbox_b()
+        if lbb_c2.width < lbb_c3.width:
+            self.patches.append(lbb_c2.as_rect())
+        else:
+            self.patches.append(lbb_c3.as_rect())
 
+
+
+    def __init__(self, ax, revs, clip=True):     
+        self.ax = ax
+        self.revs = revs
+        self.clip = clip
+        self.find_bounds(revs)
+        self.set_bounds()
+
+        self.circs = []
+        self.rects = []
+        self.lins = []
+        self.patches = []
+
+        self.convert(revs)
+
+        #if len(self.circs) == 3:
+        #   self.triplet()
 
 
         # for each slice of z between the chords
         # need to identify the relevant single primitive
         # and just collect those
-        for p in patches:
+        for p in self.patches:
             ax.add_artist(p)
 
-        for i in range(len(lins)):
+        for i in range(len(self.lins)):
             a = 0.1 if i == 1 else 0.9
-            ax.add_line(lins[i].as_line(alpha=a))
-
+            ax.add_line(self.lins[i].as_line(alpha=a))
 
         if clip:
             for a in ax.findobj(lambda a:hasattr(a, 'mybbox')):

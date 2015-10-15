@@ -23,43 +23,50 @@ class Att(object):
     def __repr__(self):
         return "%s : %s " % (self.expr, self.value)
 
-
 class Elem(object):
-    transform = None
+    posXYZ = None
     is_rev = False
     name  = property(lambda self:self.elem.attrib.get('name',None))
+
+    # structure avoids having to forward declare classes
     is_primitive = property(lambda self:type(self) in self.g.primitive)
     is_composite = property(lambda self:type(self) in self.g.composite)
-    is_transform = property(lambda self:type(self) in self.g.transform)
+    is_intersection = property(lambda self:type(self) in self.g.intersection)
+    is_posXYZ = property(lambda self:type(self) in self.g.posXYZ)
+    is_geometry  = property(lambda self:type(self) in self.g.geometry)
 
     @classmethod
-    def link_transform(cls, ls, transform):
+    def link_posXYZ(cls, ls, posXYZ):
         """
         # attach any PosXYZ instances in the list to preceeding geometry elements
         # looks like physvol can hold one too
         """
         for i in range(len(ls)):
             if ls[i].is_primitive:
-                ls[i].transform = transform 
-                log.debug("linking %s to %s " % (transform, ls[i]))
+                ls[i].posXYZ = posXYZ 
+                log.debug("linking %s to %s " % (posXYZ, ls[i]))
 
     @classmethod
-    def link_prior_transform(cls, ls):
+    def link_prior_posXYZ(cls, ls):
         """
         # attach any PosXYZ instances in the list to preceeding geometry elements
         # looks like physvol can hold one too
         """
         for i in range(len(ls)):
-            if ls[i].is_transform and ls[i-1].is_primitive:
-                ls[i-1].transform = ls[i] 
+            if ls[i].is_posXYZ and ls[i-1].is_primitive:
+                ls[i-1].posXYZ = ls[i] 
                 log.debug("linking %s to %s " % (ls[i], ls[i-1]))
+
+    def _get_desc(self):
+        return "%10s %15s %s " % (type(self).__name__, self.xyz, self.name )
+    desc = property(_get_desc)
 
     def _get_xyz(self):
        x = y = z = 0
-       if self.transform is not None:
-           x = self.transform.x.value 
-           y = self.transform.y.value 
-           z = self.transform.z.value 
+       if self.posXYZ is not None:
+           x = self.posXYZ.x.value 
+           y = self.posXYZ.y.value 
+           z = self.posXYZ.z.value 
        pass
        return [x,y,z] 
     xyz = property(_get_xyz)
@@ -77,7 +84,7 @@ class Elem(object):
         fa = map(wrap_, self.elem.findall(expr) )
         kln = self.__class__.__name__
         name = self.name 
-        log.info("findall_ from %s:%s expr:%s returned %s " % (kln, name, expr, len(fa)))
+        log.debug("findall_ from %s:%s expr:%s returned %s " % (kln, name, expr, len(fa)))
         return fa 
 
     def findone_(self, expr):
@@ -93,6 +100,86 @@ class Elem(object):
     def __repr__(self):
         return "%15s : %s " % ( self.elem.tag, repr(self.elem.attrib) )
 
+    def children(self):
+        if type(self) is Physvol:
+            lvn = self.logvolref.split("/")[-1]
+            lv = self.g.logvol_(lvn)
+            return [lv]
+        elif type(self) is Logvol:
+            pvs = self.findall_("./physvol")
+            return pvs
+        else:
+            return []  
+
+    def partition_intersection_3spheres(self, spheres):
+        s1, s2, s3 = spheres
+
+        i12 = Sphere.intersect("i12",s1,s2) # rhs
+        i23 = Sphere.intersect("i23",s2,s3) # lhs
+
+        print i12
+        print i23
+
+        for i,s in enumerate(spheres):
+            print "s%d: %s %s " % (i, s.desc, s.outerRadius.value) 
+        return []
+
+    def partition_intersection_2spheres(self, spheres):
+        s1, s2 = spheres
+        return []
+
+    def partition_intersection(self):
+        log.info("partition_intersection %s " % repr(self))
+        comps = self.components()
+        spheres = []
+        for c in comps:
+            if type(c) is Sphere:
+                spheres.append(c)
+            pass
+
+        assert len(spheres) == len(comps)        
+        if len(spheres) == 3:
+            return self.partition_intersection_3spheres(spheres) 
+        elif len(spheres) == 2:
+            return self.partition_intersection_2spheres(spheres) 
+        else:
+            assert 0 
+
+
+    def components(self):
+        """
+        Provides components from with a single LV only, ie not
+        following pv refs. Recursion is needed 
+        in order to do link posXYZ transforms with geometry
+        and skip them from the components returned.
+        """
+        if type(self) is Physvol:
+            return [] 
+
+        comps = self.findall_("./*")  # one lev only
+        self.link_prior_posXYZ(comps)
+
+        rcomps = []
+        for c in comps:
+            if c.is_primitive:
+                rcomps.extend([c])
+            elif c.is_intersection:
+                xret = c.partition_intersection() 
+                rcomps.extend(xret)
+            elif c.is_composite:
+                xret = c.components() 
+                rcomps.extend(xret)
+            elif c.is_posXYZ:
+                pass
+            else:
+                log.warning("skipped component %s " % repr(c))
+            pass
+
+        return rcomps
+
+    def geometry(self):
+        return filter(lambda c:c.is_geometry, self.components())
+
     def allrev(self, depth=0, maxdepth=10):
         if depth > maxdepth:
             return []
@@ -103,12 +190,12 @@ class Elem(object):
             lv = self.g.logvol_(lvn)
             depth += 1
             components = lv.findall_("./*")  
-            transform = self.get_transform()
-            if transform:
-                self.link_transform(components, transform)
+            posXYZ = self.find_("./posXYZ") 
+            if posXYZ:
+                self.link_posXYZ(components, posXYZ)
         else:
             components = self.findall_("./*")  # one lev only
-            self.link_prior_transform(components)
+            self.link_prior_posXYZ(components)
         pass
   
 
@@ -122,7 +209,7 @@ class Elem(object):
                 xrev = c.allrev(depth=depth+1, maxdepth=maxdepth) 
                 log.debug("allrev: composite : %s " % repr(xrev)) 
                 revs.extend(xrev)
-            elif c.is_transform:
+            elif c.is_posXYZ:
                 pass
             else:
                 log.warning("skipped component %s " % repr(c))
@@ -135,15 +222,13 @@ class Logvol(Elem):
     material = property(lambda self:self.elem.attrib.get('material', None))
     sensdet = property(lambda self:self.elem.attrib.get('sensdet', None))
     def __repr__(self):
-        return "%30s %20s %s " % (self.name, self.material, self.sensdet)
+        return "LV %-20s %20s %s " % (self.name, self.material, self.sensdet)
 
 class Physvol(Elem):
     logvolref = property(lambda self:self.elem.attrib.get('logvol', None))
     def __repr__(self):
-        return "Physvol %20s %s " % (self.name, self.logvolref)
+        return "PV %-20s %s " % (self.name, self.logvolref)
 
-    def get_transform(self):
-        return self.find_("./posXYZ") 
 
 
 class Union(Elem):
@@ -163,10 +248,6 @@ class Parameter(Elem):
 
     def __repr__(self):
         return "%30s : %s " % ( self.name, self.expr )
-
-
-
-
 
 
 class Rev(object):
@@ -189,13 +270,61 @@ class Primitive(Elem):
     outerRadius = property(lambda self:self.att('outerRadius'))
     innerRadius = property(lambda self:self.att('innerRadius'))
 
+
+
+
+class SphereSphereIntersect(object):
+    def __init__(self, name, z, y , a, b):
+        self.name = name
+        self.z = z
+        self.y = y 
+        self.a = a
+        self.b = b
+
+    def __repr__(self):
+        return "SphereSphereIntersect %s z:%s y:%s " % (self.name, self.z, self.y )
+
+
 class Sphere(Primitive):
+    @classmethod
+    def intersect(cls, name, a_, b_ ):
+        """
+        # limited to spheres with offsets in z direction only 
+
+        http://mathworld.wolfram.com/Circle-CircleIntersection.html
+        """
+        R = a_.outerRadius.value
+        r = b_.outerRadius.value
+        a = a_.xyz
+        b = b_.xyz
+
+        log.info(" R %s a %s " % ( R, repr(a)) )  
+        log.info(" r %s b %s " % ( r, repr(b)) )  
+
+        assert a[0] == b[0] == 0
+        assert a[1] == b[1] == 0
+
+        d = b[2] - a[2]
+        if d == 0:
+            return None
+
+        dd_m_rr_p_RR = d*d - r*r + R*R 
+
+        z = dd_m_rr_p_RR/(2.*d)
+        yy = (4.*d*d*R*R - dd_m_rr_p_RR*dd_m_rr_p_RR)/(4.*d*d)
+        y = math.sqrt(yy)
+
+        #n = [0, -y, z + a[2] ]
+        #p = [0,  y, z + a[2] ]
+
+        return SphereSphereIntersect(name, z+a[2], y, a_, b_ ) 
+
+
     startThetaAngle = property(lambda self:self.att('startThetaAngle'))
     deltaThetaAngle = property(lambda self:self.att('deltaThetaAngle'))
 
     def __repr__(self):
-        linked = getattr(self,'PosXYZ', None)
-        return "sphere %20s : %s :  %s " % (self.name, self.outerRadius, self.transform)
+        return "sphere %20s : %s :  %s " % (self.name, self.outerRadius, self.posXYZ)
 
     def asrev(self):
         xyz = self.xyz 
@@ -214,7 +343,7 @@ class Tubs(Primitive):
     sizeZ = property(lambda self:self.att('sizeZ'))
 
     def __repr__(self):
-        return "Tubs %20s : outerRadius %s  sizeZ %s  : transform  %s " % (self.name, self.outerRadius, self.sizeZ, self.transform)
+        return "Tubs %20s : outerRadius %s  sizeZ %s  :  %s " % (self.name, self.outerRadius, self.sizeZ, self.posXYZ)
 
     def asrev(self):
         sz = self.sizeZ.value
@@ -239,9 +368,13 @@ class Context(object):
 
     def build_context(self, params):
         name_error = params
+        type_error = []
         for wave in range(3):
             name_error, type_error = self._build_context(name_error, wave)
-            log.info("after wave %s remaining name_error %s type_error %s " % (wave, len(name_error), len(type_error)))
+            log.debug("after wave %s remaining name_error %s type_error %s " % (wave, len(name_error), len(type_error)))
+        pass
+        assert len(name_error) == 0
+        assert len(type_error) == 0
 
     def evaluate(self, expr):
         txt = "float(%s)" % expr
@@ -259,7 +392,7 @@ class Context(object):
         for p in params:
             if p.expr in self.expand:
                 expr = self.expand[p.expr]
-                log.warn("using manual expansion of %s to %s " % (p.expr, expr))
+                log.debug("using manual expansion of %s to %s " % (p.expr, expr))
             else:
                 expr = p.expr
 
@@ -270,10 +403,10 @@ class Context(object):
                 self.d[p.name] = float(val)  
             except NameError:
                 name_error.append(p)
-                log.info("NameError %s %s " % (p.name, txt ))
+                log.debug("NameError %s %s " % (p.name, txt ))
             except TypeError:
                 type_error.append(p)
-                log.info("TypeError %s %s " % (p.name, txt ))
+                log.debug("TypeError %s %s " % (p.name, txt ))
             pass
         return name_error, type_error
           
@@ -299,15 +432,16 @@ class Dddb(Elem):
     }
 
     primitive = [Sphere, Tubs]
+    intersection = [Intersection]
     composite = [Union, Intersection, Physvol]
-    transform = [PosXYZ]
+    geometry = [Sphere, Tubs, Union, Intersection]
+    posXYZ= [PosXYZ]
 
     expand = {
         "(PmtHemiFaceROCvac^2-PmtHemiBellyROCvac^2-(PmtHemiFaceOff-PmtHemiBellyOff)^2)/(2*(PmtHemiFaceOff-PmtHemiBellyOff))":
          "(PmtHemiFaceROCvac*PmtHemiFaceROCvac-PmtHemiBellyROCvac*PmtHemiBellyROCvac-(PmtHemiFaceOff-PmtHemiBellyOff)*(PmtHemiFaceOff-PmtHemiBellyOff))/(2*(PmtHemiFaceOff-PmtHemiBellyOff))" 
 
     }
-
 
     @classmethod
     def parse(cls, path):
@@ -330,9 +464,10 @@ class Dddb(Elem):
 
         self.ctx = Context(pctx, self.expand)
         self.ctx.build_context(self.params_())
-        self.ctx.dump_context('PmtHemi')
 
     def logvol_(self, name):
+        if name[0] == '/':
+            name = name.split("/")[-1]
         return self.find_(".//logvol[@name='%s']"%name)
 
     def logvols_(self):
@@ -362,6 +497,7 @@ if __name__ == '__main__':
     g.dump_context('PmtHemi')
 
     lv = g.logvol_("lvPmtHemi")
+
 
     for maxdepth in range(4):
         revs = lv.allrev(maxdepth=maxdepth) 
