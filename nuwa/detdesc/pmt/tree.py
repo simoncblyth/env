@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import logging, hashlib
+import numpy as np
 from dd import Dddb 
 
 log = logging.getLogger(__name__)
@@ -46,6 +47,7 @@ class Node(object):
         self.children = []
         self.lv = None
         self.pv = None
+        self._parts = None
 
         self.volpath = volpath
         self.digest = self.md5digest( volpath[0:len(volpath)] )
@@ -59,19 +61,29 @@ class Node(object):
         for child in self.children:
             child.traverse(depth+1)
 
-    def primitives(self):
+    def parts(self):
         """
-        Need to divvy up geometry into primitives that 
+        Divvy up geometry into parts that 
         split "intersection" into union lists. This boils
         down to judicious choice of bounding box according 
         to intersects of the source gemetry.
-
         """
-        prim = []
-        for c in self.lv.components():
-            print c
+        if self._parts is None:
+            self._parts = self.lv.parts()
+        return self._parts
 
-        return prim            
+    def num_parts(self):
+        parts = self.parts()
+        return len(parts)
+
+    def copy_parts(self, data, offset):
+        """
+        # use 4th slots of bbox min/max for integer codes
+        """
+        for i,part in enumerate(self.parts()):
+            data[offset+i] = part.as_quads()
+            data[offset+i].view(np.int32)[2,3] = part.typecode 
+            data[offset+i].view(np.int32)[3,3] = self.index   
  
 
     def add_child(self, child):
@@ -106,6 +118,24 @@ class Tree(object):
     @classmethod
     def get(cls, index):
         return cls.byindex.get(index, None)  
+
+    @classmethod
+    def num_nodes(cls):
+        assert len(cls.registry) == len(cls.byindex)
+        return len(cls.registry)
+
+    @classmethod
+    def num_parts(cls):
+        nn = cls.num_nodes()
+        tot = 0 
+        for i in range(nn):
+            node = cls.get(i)
+            tot += node.num_parts()
+        pass
+        return tot
+
+
+
 
     def __init__(self, base):
         self.base = base
@@ -143,13 +173,21 @@ if __name__ == '__main__':
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
 
     tree = Tree(g.logvol_("lvPmtHemi")) 
-
     #tree.wrap.traverse()
 
-    node = tree.get(0)
-    node.dump("0") 
 
-    node.primitives()
+    tnodes = tree.num_nodes() 
+    tparts = tree.num_parts() 
+    log.info("tnodes %s tparts %s " % (tnodes, tparts))
+    data = np.zeros([tparts,4,4],dtype=np.float32)
 
+    offset = 0 
+    for i in range(tnodes):
+        node = tree.get(i)
+        node.copy_parts(data, offset)    
+        nparts = node.num_parts() 
+        log.info("i %s %s %s " % (i, nparts, repr(node))) 
+        offset += nparts
 
+    np.save("/tmp/data.npy", data)
 

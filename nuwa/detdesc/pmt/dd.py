@@ -23,6 +23,10 @@ class Att(object):
     def __repr__(self):
         return "%s : %s " % (self.expr, self.value)
 
+
+
+
+
 class Elem(object):
     posXYZ = None
     is_rev = False
@@ -71,6 +75,13 @@ class Elem(object):
        return [x,y,z] 
     xyz = property(_get_xyz)
 
+    def _get_z(self):
+       z = 0
+       if self.posXYZ is not None:
+           z = self.posXYZ.z.value 
+       return z
+    z = property(_get_z)
+
     def __init__(self, elem, g=None):
         self.elem = elem 
         self.g = g 
@@ -114,30 +125,54 @@ class Elem(object):
     def partition_intersection_3spheres(self, spheres):
         s1, s2, s3 = spheres
 
-        i12 = Sphere.intersect("i12",s1,s2) # rhs
-        i23 = Sphere.intersect("i23",s2,s3) # lhs
+        assert s1.z < s2.z < s3.z
 
-        print i12
-        print i23
+        z12 = Sphere.intersect("z12",s1,s2) # rhs
+        z23 = Sphere.intersect("z23",s2,s3) # lhs
 
-        for i,s in enumerate(spheres):
-            print "s%d: %s %s " % (i, s.desc, s.outerRadius.value) 
-        return []
+        p1 = s3.part_zleft(z23)       
+        p2 = s2.part_zmiddle(z23, z12)       
+        p3 = s1.part_zright(z12)       
+
+        assert p1.bbox.z < p2.bbox.z < p3.bbox.z
+
+        return [p1,p2,p3]
 
     def partition_intersection_2spheres(self, spheres):
         s1, s2 = spheres
-        return []
+
+        assert s1.z < s2.z 
+
+        z12 = Sphere.intersect("z12",s1,s2) 
+        p1 = s2.part_zleft(z12)       
+        p2 = s1.part_zright(z12)       
+
+        assert p1.bbox.z < p2.bbox.z
+
+        return [p1,p2]
 
     def partition_intersection(self):
         log.info("partition_intersection %s " % repr(self))
-        comps = self.components()
+
         spheres = []
+        comps = self.findall_("./*")
+        self.link_prior_posXYZ(comps)
+
+        other = []
         for c in comps:
             if type(c) is Sphere:
                 spheres.append(c)
+            elif type(c) is PosXYZ:
+                pass
+            else:
+                other.append(c)
             pass
 
-        assert len(spheres) == len(comps)        
+        assert len(other) == 0, "only 2/3-sphere intersections handled"    
+
+        for i,s in enumerate(spheres):
+            print "s%d: %s %s " % (i, s.desc, s.outerRadius.value) 
+ 
         if len(spheres) == 3:
             return self.partition_intersection_3spheres(spheres) 
         elif len(spheres) == 2:
@@ -146,12 +181,12 @@ class Elem(object):
             assert 0 
 
 
-    def components(self):
+    def parts(self):
         """
-        Provides components from with a single LV only, ie not
+        Provides parts from a single LV only, ie not
         following pv refs. Recursion is needed 
         in order to do link posXYZ transforms with geometry
-        and skip them from the components returned.
+        and skip them from the parts returned.
         """
         if type(self) is Physvol:
             return [] 
@@ -159,23 +194,23 @@ class Elem(object):
         comps = self.findall_("./*")  # one lev only
         self.link_prior_posXYZ(comps)
 
-        rcomps = []
+        rparts = []
         for c in comps:
             if c.is_primitive:
-                rcomps.extend([c])
+                rparts.extend([c.as_part()])  # assume in union, so no need for chopping ?
             elif c.is_intersection:
                 xret = c.partition_intersection() 
-                rcomps.extend(xret)
+                rparts.extend(xret)
             elif c.is_composite:
-                xret = c.components() 
-                rcomps.extend(xret)
+                xret = c.parts() 
+                rparts.extend(xret)
             elif c.is_posXYZ:
                 pass
             else:
                 log.warning("skipped component %s " % repr(c))
             pass
 
-        return rcomps
+        return rparts
 
     def geometry(self):
         return filter(lambda c:c.is_geometry, self.components())
@@ -265,27 +300,81 @@ class Rev(object):
         return "Rev('%s','%s' xyz:%s, r:%s, sz:%s, st:%s, dt:%s wi:%s)" % \
             (self.typ, self.name, self.xyz, self.radius, self.sizeZ, self.startTheta, self.deltaTheta, self.width)
 
+
+class ZPlane(object):
+    def __init__(self, name, z, y):
+        self.name = name
+        self.z = z
+        self.y = y 
+    def __repr__(self):
+        return "ZPlane %s z:%s y:%s " % (self.name, self.z, self.y )
+
+class Part(object):
+    def __init__(self, typ, name, xyz, radius, sizeZ=0.):
+        self.typ = typ
+        self.name = name
+        self.xyz = xyz
+        self.radius = radius
+        self.sizeZ = sizeZ   # used for Tubs
+        self.bbox = None
+        if typ == 'Sphere':
+            self.typecode = 1
+        elif typ == 'Tubs':
+            self.typecode = 2
+        else:
+            assert 0
+
+    def __repr__(self):
+        return "Part %s %s %s r:%s sz:%s bb:%s" % (self.typ, self.name, repr(self.xyz), self.radius, self.sizeZ, repr(self.bbox)) 
+
+    def as_quads(self):
+        quads = []
+        quads.append( [self.xyz[0], self.xyz[1], self.xyz[2], self.radius] )
+        quads.append( [self.sizeZ, 0, 0, 0] )
+        for q in self.bbox.as_quads():
+            quads.append(q)
+        return quads
+           
+
+
+
+class BBox(object):
+    def __init__(self, min_, max_):
+        self.min_ = min_
+        self.max_ = max_
+
+        x = (min_[0] + max_[0])/2.
+        y = (min_[1] + max_[1])/2.
+        z = (min_[2] + max_[2])/2.
+
+        self.x = x 
+        self.y = y 
+        self.z = z
+        self.xyz = [x,y,z] 
+
+    def as_quads(self):
+        return [self.min_[0],self.min_[1],self.min_[2],0], [self.max_[0],self.max_[1],self.max_[2],0]
+
+    def __repr__(self):
+        return "BBox min:%s max:%s xyz:%s" % (repr(self.min_), repr(self.max_), repr(self.xyz) )
+
+
+
+
 class Primitive(Elem):
     is_rev = True
     outerRadius = property(lambda self:self.att('outerRadius'))
     innerRadius = property(lambda self:self.att('innerRadius'))
 
-
-
-
-class SphereSphereIntersect(object):
-    def __init__(self, name, z, y , a, b):
-        self.name = name
-        self.z = z
-        self.y = y 
-        self.a = a
-        self.b = b
-
-    def __repr__(self):
-        return "SphereSphereIntersect %s z:%s y:%s " % (self.name, self.z, self.y )
-
+    def bbox(self, zl, zr, yn, yp ):
+        assert yn < 0 and yp > 0 and zr > zl
+        return BBox([yn,yn,zl], [yp,yp,zr])
+ 
 
 class Sphere(Primitive):
+    startThetaAngle = property(lambda self:self.att('startThetaAngle'))
+    deltaThetaAngle = property(lambda self:self.att('deltaThetaAngle'))
+
     @classmethod
     def intersect(cls, name, a_, b_ ):
         """
@@ -313,15 +402,36 @@ class Sphere(Primitive):
         z = dd_m_rr_p_RR/(2.*d)
         yy = (4.*d*d*R*R - dd_m_rr_p_RR*dd_m_rr_p_RR)/(4.*d*d)
         y = math.sqrt(yy)
+        return ZPlane(name, z+a[2], y ) 
 
-        #n = [0, -y, z + a[2] ]
-        #p = [0,  y, z + a[2] ]
+    def as_part(self):
+        radius = self.outerRadius.value 
+        z = self.xyz[2]
+        p = Part('Sphere', self.name + "_part", self.xyz, radius )
+        p.bbox = self.bbox(z-radius, z+radius, -radius, radius)
+        return p 
 
-        return SphereSphereIntersect(name, z+a[2], y, a_, b_ ) 
+    def part_zleft(self, zpl):
+        radius = self.outerRadius.value 
+        z = self.xyz[2]
+        ymax = zpl.y 
+        p = Part('Sphere', self.name + "_part_zleft", self.xyz, radius )
+        p.bbox = self.bbox(z-radius, zpl.z, -ymax, ymax)
+        return p 
 
+    def part_zright(self, zpr):
+        radius = self.outerRadius.value 
+        z = self.xyz[2]
+        ymax = zpr.y 
+        p = Part('Sphere', self.name + "_part_zright", self.xyz, radius )
+        p.bbox = self.bbox(zpr.z,z+radius, -ymax, ymax)
+        return p 
 
-    startThetaAngle = property(lambda self:self.att('startThetaAngle'))
-    deltaThetaAngle = property(lambda self:self.att('deltaThetaAngle'))
+    def part_zmiddle(self, zpl, zpr):
+        p = Part('Sphere', self.name + "_part_zmiddle", self.xyz, self.outerRadius.value )
+        ymax = max(zpl.y,zpr.y)
+        p.bbox = self.bbox(zpl.z,zpr.z,-ymax,ymax )
+        return p 
 
     def __repr__(self):
         return "sphere %20s : %s :  %s " % (self.name, self.outerRadius, self.posXYZ)
@@ -344,6 +454,14 @@ class Tubs(Primitive):
 
     def __repr__(self):
         return "Tubs %20s : outerRadius %s  sizeZ %s  :  %s " % (self.name, self.outerRadius, self.sizeZ, self.posXYZ)
+
+    def as_part(self):
+        sizeZ = self.sizeZ.value
+        radius = self.outerRadius.value 
+        z = self.xyz[2]
+        p = Part('Tubs', self.name + "_part", self.xyz, radius, sizeZ )
+        p.bbox = self.bbox(z, z+sizeZ, -radius, radius)
+        return p 
 
     def asrev(self):
         sz = self.sizeZ.value
@@ -497,7 +615,6 @@ if __name__ == '__main__':
     g.dump_context('PmtHemi')
 
     lv = g.logvol_("lvPmtHemi")
-
 
     for maxdepth in range(4):
         revs = lv.allrev(maxdepth=maxdepth) 
