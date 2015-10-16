@@ -149,8 +149,10 @@ class Tree(object):
             log.info("i %s %s %s " % (i, nparts, repr(node))) 
             offset += nparts
         pass
-        log.info("save_parts to %s " % path)
-        np.save(path, data.reshape(-1,4*4))
+
+        rdata = data.reshape(-1,4) 
+        log.info("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
+        np.save(path, rdata) 
 
     def traverse(self):
         self.wrap.traverse()
