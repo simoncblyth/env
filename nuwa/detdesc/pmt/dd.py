@@ -36,6 +36,9 @@ class Elem(object):
     is_primitive = property(lambda self:type(self) in self.g.primitive)
     is_composite = property(lambda self:type(self) in self.g.composite)
     is_intersection = property(lambda self:type(self) in self.g.intersection)
+    is_tubs = property(lambda self:type(self) in self.g.tubs)
+    is_sphere = property(lambda self:type(self) in self.g.sphere)
+    is_union = property(lambda self:type(self) in self.g.union)
     is_posXYZ = property(lambda self:type(self) in self.g.posXYZ)
     is_geometry  = property(lambda self:type(self) in self.g.geometry)
 
@@ -136,7 +139,7 @@ class Elem(object):
 
         assert p1.bbox.z < p2.bbox.z < p3.bbox.z
 
-        return [p1,p2,p3]
+        return [p3,p2,p1]
 
     def partition_intersection_2spheres(self, spheres):
         s1, s2 = spheres
@@ -149,7 +152,7 @@ class Elem(object):
 
         assert p1.bbox.z < p2.bbox.z
 
-        return [p1,p2]
+        return [p2,p1]
 
     def partition_intersection(self):
         log.info("partition_intersection %s " % repr(self))
@@ -180,6 +183,23 @@ class Elem(object):
         else:
             assert 0 
 
+    def partition_union(self):
+        log.info("partition_union %s " % repr(self))
+        comps = self.findall_("./*")
+        self.link_prior_posXYZ(comps)
+
+        if len(comps) == 3 and comps[0].is_intersection and comps[1].is_tubs and comps[2].is_posXYZ:
+            for i, c in enumerate(comps):
+                log.info("--- %s --- %s " % (i,repr(c)))
+
+        # not yet doing anything just dumoping
+
+
+        rparts = []
+        xret = self.parts() 
+        rparts.extend(xret)
+        return rparts  ; 
+
 
     def parts(self):
         """
@@ -200,6 +220,9 @@ class Elem(object):
                 rparts.extend([c.as_part()])  # assume in union, so no need for chopping ?
             elif c.is_intersection:
                 xret = c.partition_intersection() 
+                rparts.extend(xret)
+            elif c.is_union:
+                xret = c.partition_union() 
                 rparts.extend(xret)
             elif c.is_composite:
                 xret = c.parts() 
@@ -335,8 +358,6 @@ class Part(object):
             quads.append(q)
         return quads
            
-
-
 
 class BBox(object):
     def __init__(self, min_, max_):
@@ -551,6 +572,9 @@ class Dddb(Elem):
 
     primitive = [Sphere, Tubs]
     intersection = [Intersection]
+    union = [Union]
+    tubs = [Tubs]
+    sphere = [Sphere]
     composite = [Union, Intersection, Physvol]
     geometry = [Sphere, Tubs, Union, Intersection]
     posXYZ= [PosXYZ]

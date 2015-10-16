@@ -135,12 +135,12 @@ class Tree(object):
         return tot
 
     @classmethod
-    def save_parts(cls, path):
+    def save_parts(cls, path, limit=None):
         tnodes = cls.num_nodes() 
         tparts = cls.num_parts() 
         log.info("tnodes %s tparts %s " % (tnodes, tparts))
-        data = np.zeros([tparts,4,4],dtype=np.float32)
 
+        data = np.zeros([tparts,4,4],dtype=np.float32)
         offset = 0 
         for i in range(tnodes):
             node = tree.get(i)
@@ -150,8 +150,16 @@ class Tree(object):
             offset += nparts
         pass
 
+
+        if limit is not None:
+            log.warning("save_parts limited to %d parts " % limit )
+            data = data[:limit]
+
         rdata = data.reshape(-1,4) 
         log.info("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
+
+
+
         np.save(path, rdata) 
 
     def traverse(self):
@@ -191,7 +199,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     tree = Tree(g.logvol_("lvPmtHemi")) 
-    tree.save_parts("/tmp/hemi-pmt-parts.npy")
+    tree.save_parts("/tmp/hemi-pmt-parts.npy", 3)
+    #tree.save_parts("/tmp/hemi-pmt-parts.npy")
 
 
 
