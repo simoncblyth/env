@@ -199,7 +199,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     tree = Tree(g.logvol_("lvPmtHemi")) 
-    tree.save_parts("/tmp/hemi-pmt-parts.npy", 3)
+    #tree.save_parts("/tmp/hemi-pmt-parts.npy", 3)  # just first 3 spheres of solid 0 
+    tree.save_parts("/tmp/hemi-pmt-parts.npy", 4)   # 3 sph and tubs of solid 0  
     #tree.save_parts("/tmp/hemi-pmt-parts.npy")
 
 

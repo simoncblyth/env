@@ -15,6 +15,14 @@ osx-library-visible
        http://gregferro.com/make-library-folder-visible-in-os-x-lion/
        http://coolestguidesontheplanet.com/show-hidden-library-and-user-library-folder-in-osx/
 
+osx-captive-wifi-disable
+      http://apple.stackexchange.com/questions/45418/how-to-automatically-login-to-captive-portals-on-os-x
+      https://discussions.apple.com/thread/525840
+
+      The braindead little WebView window that pops up on joining captive portal wifi network does not remember username/password, 
+      disabling com.apple.captive.control makes the portal authentication go via Safari which does remember.
+
+
 
 EOU
 }
@@ -25,6 +33,20 @@ osx-get(){
    local dir=$(dirname $(osx-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+
+osx-captive-wifi()
+{
+    type $FUNCNAME
+    local arg=${1:-true}
+    echo arg $arg
+    sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.captive.control Active -boolean $arg
+}
+
+osx-captive-wifi-disable(){ osx-captive-wifi false ; }
+osx-captive-wifi-enable(){  osx-captive-wifi true ; }
+
+
 
 
 osx-library-visible(){
