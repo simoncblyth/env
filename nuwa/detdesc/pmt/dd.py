@@ -188,15 +188,17 @@ class Elem(object):
         comps = self.findall_("./*")
         self.link_prior_posXYZ(comps)
 
+        # just dumping  
         if len(comps) == 3 and comps[0].is_intersection and comps[1].is_tubs and comps[2].is_posXYZ:
             for i, c in enumerate(comps):
                 log.info("--- %s --- %s " % (i,repr(c)))
-
-        # not yet doing anything just dumoping
-
-
+            pass
+            isect = comps[0].partition_intersection()
+            for i, s in enumerate(isect):
+                log.info("++++ %s +++ %s " % (i, repr(s)))
+        pass
         rparts = []
-        xret = self.parts() 
+        xret = self.parts()   
         rparts.extend(xret)
         return rparts  ; 
 
