@@ -24,11 +24,14 @@ pmt-ecd(){ cd $(pmt-edir) ; }
 
 pmt-run(){ 
    pmt-export
-   python $(pmt-edir)/${1:-pmt}.py 
+   python $(pmt-edir)/${1:-pmt}.py  
 }
 
 pmt-dd(){    pmt-run dd ;}
-pmt-parts(){ pmt-run tree ; }
+pmt-parts(){ 
+   pmt-export
+   python $(pmt-edir)/tree.py $*  
+}
 
 
 

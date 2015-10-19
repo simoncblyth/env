@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import logging, hashlib
+import logging, hashlib, sys
 import numpy as np
 from dd import Dddb 
 
@@ -135,10 +135,10 @@ class Tree(object):
         return tot
 
     @classmethod
-    def save_parts(cls, path, limit=None):
+    def save_parts(cls, path, slice_=None):
         tnodes = cls.num_nodes() 
         tparts = cls.num_parts() 
-        log.info("tnodes %s tparts %s " % (tnodes, tparts))
+        log.info("tnodes %s tparts %s slice %s " % (tnodes, tparts, repr(slice_)))
 
         data = np.zeros([tparts,4,4],dtype=np.float32)
         offset = 0 
@@ -151,9 +151,9 @@ class Tree(object):
         pass
 
 
-        if limit is not None:
-            log.warning("save_parts limited to %d parts " % limit )
-            data = data[:limit]
+        if slice_ is not None:
+            log.warning("save_parts sliced %s  " % repr(slice_) )
+            data = data[slice_]
 
         rdata = data.reshape(-1,4) 
         log.info("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
@@ -195,13 +195,27 @@ class Tree(object):
         return Node.create(volpath)
 
 
+usage = """
+Argument handling
+
+           # default is all parts  
+    0:3    # just first 3 spheres of solid 0 
+    0:4    # 3 sph and tubs of solid 0  
+
+"""
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     tree = Tree(g.logvol_("lvPmtHemi")) 
-    #tree.save_parts("/tmp/hemi-pmt-parts.npy", 3)  # just first 3 spheres of solid 0 
-    tree.save_parts("/tmp/hemi-pmt-parts.npy", 4)   # 3 sph and tubs of solid 0  
-    #tree.save_parts("/tmp/hemi-pmt-parts.npy")
+
+    if len(sys.argv)>1:
+        arg = sys.argv[1] 
+        s = slice(*map(int,arg.split(":")))
+    else:
+        s = None
+    
+    tree.save_parts("/tmp/hemi-pmt-parts.npy", s)   
 
 
 
