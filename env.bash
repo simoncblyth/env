@@ -1662,3 +1662,5 @@ openmesh-(){      . $(env-home)/graphics/openmesh/openmesh.bash && openmesh-env 
 openmeshrap-(){      . $(env-home)/graphics/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
 csg-(){      . $(env-home)/graphics/csg/csg.bash && csg-env $* ; }
 pmt-(){      . $(env-home)/nuwa/detdesc/pmt/pmt.bash && pmt-env $* ; }
+pbrt-(){      . $(env-home)/graphics/pbrt/pbrt.bash && pbrt-env $* ; }
+ciexyz-(){      . $(env-home)/graphics/ciexyz/ciexyz.bash && ciexyz-env $* ; }
