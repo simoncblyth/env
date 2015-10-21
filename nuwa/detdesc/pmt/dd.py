@@ -174,7 +174,7 @@ class Elem(object):
         assert len(other) == 0, "only 2/3-sphere intersections handled"    
 
         for i,s in enumerate(spheres):
-            print "s%d: %s %s " % (i, s.desc, s.outerRadius.value) 
+            log.debug("s%d: %s %s " % (i, s.desc, s.outerRadius.value))
  
         if len(spheres) == 3:
             return self.partition_intersection_3spheres(spheres) 
@@ -196,6 +196,11 @@ class Elem(object):
             isect = comps[0].partition_intersection()
             for i, s in enumerate(isect):
                 log.info("++++ %s +++ %s " % (i, repr(s)))
+
+            tpart = comps[1].as_part()
+            log.info("tpart %s " % repr(tpart))
+        pass
+
         pass
         rparts = []
         xret = self.parts()   
@@ -410,8 +415,8 @@ class Sphere(Primitive):
         a = a_.xyz
         b = b_.xyz
 
-        log.info(" R %s a %s " % ( R, repr(a)) )  
-        log.info(" r %s b %s " % ( r, repr(b)) )  
+        log.debug(" R %s a %s " % ( R, repr(a)) )  
+        log.debug(" r %s b %s " % ( r, repr(b)) )  
 
         assert a[0] == b[0] == 0
         assert a[1] == b[1] == 0
@@ -635,7 +640,8 @@ class Dddb(Elem):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    format_ = "[%(filename)s +%(lineno)3s %(funcName)20s() ] %(message)s" 
+    logging.basicConfig(level=logging.INFO, format=format_)
 
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     g.dump_context('PmtHemi')

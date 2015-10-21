@@ -149,17 +149,12 @@ class Tree(object):
             log.info("i %s %s %s " % (i, nparts, repr(node))) 
             offset += nparts
         pass
-
-
         if slice_ is not None:
             log.warning("save_parts sliced %s  " % repr(slice_) )
             data = data[slice_]
 
         rdata = data.reshape(-1,4) 
         log.info("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
-
-
-
         np.save(path, rdata) 
 
     def traverse(self):
@@ -205,7 +200,8 @@ Argument handling
 """
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    format_ = "[%(filename)s +%(lineno)3s %(funcName)20s() ] %(message)s" 
+    logging.basicConfig(level=logging.INFO, format=format_)
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     tree = Tree(g.logvol_("lvPmtHemi")) 
 
