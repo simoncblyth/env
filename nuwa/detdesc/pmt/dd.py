@@ -11,6 +11,7 @@ parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
 fparse_ = lambda _:HT.fragments_fromstring(file(os.path.expandvars(_)).read())
 pp_ = lambda d:"\n".join([" %30s : %f " % (k,d[k]) for k in sorted(d.keys())])
 
+X,Y,Z = 0,1,2
 
 class Att(object):
     def __init__(self, expr, g, evaluate=True):
@@ -22,10 +23,6 @@ class Att(object):
 
     def __repr__(self):
         return "%s : %s " % (self.expr, self.value)
-
-
-
-
 
 class Elem(object):
     posXYZ = None
@@ -45,8 +42,7 @@ class Elem(object):
     @classmethod
     def link_posXYZ(cls, ls, posXYZ):
         """
-        # attach any PosXYZ instances in the list to preceeding geometry elements
-        # looks like physvol can hold one too
+        Attach *posXYZ* attribute to all primitives in the list 
         """
         for i in range(len(ls)):
             if ls[i].is_primitive:
@@ -56,8 +52,7 @@ class Elem(object):
     @classmethod
     def link_prior_posXYZ(cls, ls):
         """
-        # attach any PosXYZ instances in the list to preceeding geometry elements
-        # looks like physvol can hold one too
+        Attach any *posXYZ* instances in the list to preceeding primitives
         """
         for i in range(len(ls)):
             if ls[i].is_posXYZ and ls[i-1].is_primitive:
@@ -79,6 +74,9 @@ class Elem(object):
     xyz = property(_get_xyz)
 
     def _get_z(self):
+       """
+       z value from any linked *posXYZ* or 0 
+       """
        z = 0
        if self.posXYZ is not None:
            z = self.posXYZ.z.value 
@@ -94,6 +92,9 @@ class Elem(object):
         return Att(v, self.g) if v is not None else Att(dflt, self.g, evaluate=False) 
 
     def findall_(self, expr):
+        """
+        lxml findall result elements are wrapped in the class appropriate to their tags 
+        """
         wrap_ = lambda e:self.g.kls.get(e.tag,Elem)(e,self.g)
         fa = map(wrap_, self.elem.findall(expr) )
         kln = self.__class__.__name__
@@ -115,6 +116,16 @@ class Elem(object):
         return "%15s : %s " % ( self.elem.tag, repr(self.elem.attrib) )
 
     def children(self):
+        """
+        Defines the nature of the tree. 
+
+        * for Physvol returns single item list containing the referenced Logvol
+        * for Logvol returns list of all contained Physvol
+        * otherwise returns empty list 
+
+        NB bits of geometry of a Logvol are not regarded as children, 
+        but rather are constitutent to it.
+        """
         if type(self) is Physvol:
             lvn = self.logvolref.split("/")[-1]
             lv = self.g.logvol_(lvn)
@@ -126,12 +137,31 @@ class Elem(object):
             return []  
 
     def partition_intersection_3spheres(self, spheres):
+        """
+        :param spheres:  list of three *Sphere* in ascending center z order, which are assumed to intersect
+        :return parts:  list of three sphere *Part* instances 
+
+        Extend the below two sphere intersection approach to three spheres
+        numbered s1,s2,s3 from left to right, with two ZPlane intersections z23, z12.
+
+        left
+            from s3, bounded by z23 on right  
+
+        middle
+            from s2, bounded by z23 on left, z12 on right
+
+        right 
+            from s1, bounded by z12 on left
+
+        """
         s1, s2, s3 = spheres
 
         assert s1.z < s2.z < s3.z
 
-        z12 = Sphere.intersect("z12",s1,s2) # rhs
-        z23 = Sphere.intersect("z23",s2,s3) # lhs
+        z12 = Sphere.intersect("z12",s1,s2)   # ZPlane of s1 s2 intersection
+        z23 = Sphere.intersect("z23",s2,s3)   # ZPlane of s2 s3 intersection
+
+        assert z23.z < z12.z 
 
         p1 = s3.part_zleft(z23)       
         p2 = s2.part_zmiddle(z23, z12)       
@@ -142,6 +172,15 @@ class Elem(object):
         return [p3,p2,p1]
 
     def partition_intersection_2spheres(self, spheres):
+        """
+        :param spheres: list of two *Sphere* in ascending center z order
+        :return parts: list of two sphere *Part* instances
+
+        Consider splitting the lens shape made from the intersection of two spheres
+        along the plane of the intersection. 
+        The left part of the lens comes from the right Sphere 
+        and the right part comes left Sphere.
+        """ 
         s1, s2 = spheres
 
         assert s1.z < s2.z 
@@ -183,28 +222,40 @@ class Elem(object):
         else:
             assert 0 
 
+
     def partition_union(self):
+        """
+        union of a 3-sphere lens shape and a tubs requires:
+
+        * adjust bbox of the abutting part Sphere to the intersection z of tubs and Sphere
+        * avoid a surface at the interface of tubs endcap and part Sphere
+
+        """
         log.info("partition_union %s " % repr(self))
         comps = self.findall_("./*")
         self.link_prior_posXYZ(comps)
 
-        # just dumping  
+        rparts = []
         if len(comps) == 3 and comps[0].is_intersection and comps[1].is_tubs and comps[2].is_posXYZ:
-            for i, c in enumerate(comps):
-                log.info("--- %s --- %s " % (i,repr(c)))
-            pass
-            isect = comps[0].partition_intersection()
-            for i, s in enumerate(isect):
+        
+            sparts = Part.ascending_bbox_zleft(comps[0].partition_intersection())
+            for i, s in enumerate(sparts):
                 log.info("++++ %s +++ %s " % (i, repr(s)))
 
             tpart = comps[1].as_part()
-            log.info("tpart %s " % repr(tpart))
-        pass
+            ts = Part.intersect_tubs_sphere("ts", tpart, sparts[0], -1)   # -ve root for leftmost
 
+            sparts[0].bbox.zleft = ts.z   
+            tpart.bbox.zright = ts.z
+
+            log.info("ts %s " % repr(ts))
+
+            rparts.extend(sparts)
+            rparts.extend([tpart])
+        else:
+            xret = self.parts()   
+            rparts.extend(xret)
         pass
-        rparts = []
-        xret = self.parts()   
-        rparts.extend(xret)
         return rparts  ; 
 
 
@@ -246,6 +297,8 @@ class Elem(object):
         return filter(lambda c:c.is_geometry, self.components())
 
     def allrev(self, depth=0, maxdepth=10):
+        assert 0, "no longer using this approach as not enough control over the recursion"
+ 
         if depth > maxdepth:
             return []
 
@@ -340,6 +393,44 @@ class ZPlane(object):
         return "ZPlane %s z:%s y:%s " % (self.name, self.z, self.y )
 
 class Part(object):
+    @classmethod 
+    def ascending_bbox_zleft(cls, parts):
+        return sorted(parts, key=lambda p:p.bbox.zleft)
+
+    @classmethod 
+    def intersect_tubs_sphere(cls, name, tubs, sphere, sign ):
+        """
+        :param name: identifier of ZPlane created
+        :param tubs: tubs Part instance  
+        :param sphere: sphere Part instance  
+        :param sign: 1 or -1 sign of the sqrt  
+
+        Sphere at zp on Z axis
+
+            xx + yy + (z-zp)(z-zp) = RR    
+
+        Cylinder along Z axis from 0 to sizeZ
+           
+            xx + yy = rr
+
+        Intersection is a circle in Z plane  
+
+            (z-zp) = sqrt(RR - rr) 
+
+        """ 
+        R = sphere.radius 
+        r = tubs.radius
+
+        RR_m_rr = R*R - r*r
+        assert RR_m_rr > 0
+
+        iz = math.sqrt(RR_m_rr)  
+        assert iz < tubs.sizeZ 
+
+
+        return ZPlane(name, sphere.xyz[Z] + sign*iz, r) 
+
+
     def __init__(self, typ, name, xyz, radius, sizeZ=0.):
         self.typ = typ
         self.name = name
@@ -371,17 +462,26 @@ class BBox(object):
         self.min_ = min_
         self.max_ = max_
 
-        x = (min_[0] + max_[0])/2.
-        y = (min_[1] + max_[1])/2.
-        z = (min_[2] + max_[2])/2.
+    def _get_zleft(self):
+        return self.min_[Z]
+    def _set_zleft(self, val):
+        self.min_[Z] = val 
+    zleft = property(_get_zleft, _set_zleft)
 
-        self.x = x 
-        self.y = y 
-        self.z = z
-        self.xyz = [x,y,z] 
+    def _get_zright(self):
+        return self.max_[Z]
+    def _set_zright(self, val):
+        self.max_[Z] = val 
+    zright = property(_get_zright, _set_zright)
+
+ 
+    x = property(lambda self:(self.min_[X] + self.max_[X])/2.)
+    y = property(lambda self:(self.min_[Y] + self.max_[Y])/2.)
+    z = property(lambda self:(self.min_[Z] + self.max_[Z])/2.)
+    xyz = property(lambda self:[self.x, self.y,self.z])
 
     def as_quads(self):
-        return [self.min_[0],self.min_[1],self.min_[2],0], [self.max_[0],self.max_[1],self.max_[2],0]
+        return [self.min_[X],self.min_[Y],self.min_[Z],0], [self.max_[X],self.max_[Y],self.max_[Z],0]
 
     def __repr__(self):
         return "BBox min:%s max:%s xyz:%s" % (repr(self.min_), repr(self.max_), repr(self.xyz) )
@@ -406,9 +506,17 @@ class Sphere(Primitive):
     @classmethod
     def intersect(cls, name, a_, b_ ):
         """
-        # limited to spheres with offsets in z direction only 
+        Find Z intersect of two Z offset spheres 
 
-        http://mathworld.wolfram.com/Circle-CircleIntersection.html
+        * http://mathworld.wolfram.com/Circle-CircleIntersection.html
+
+        :param name: identifer passed to ZPlane
+        :param a_: *Sphere* instance
+        :param b_: *Sphere* instance
+
+        :return zpl: *ZPlane* instance with z and y attributes where:
+                     z is intersection coordinate 
+                     y is radius of the intersection circle 
         """
         R = a_.outerRadius.value
         r = b_.outerRadius.value
@@ -418,19 +526,22 @@ class Sphere(Primitive):
         log.debug(" R %s a %s " % ( R, repr(a)) )  
         log.debug(" r %s b %s " % ( r, repr(b)) )  
 
-        assert a[0] == b[0] == 0
-        assert a[1] == b[1] == 0
+        dx = b[X] - a[X]
+        dy = b[Y] - a[Y]
+        dz = b[Z] - a[Z]
 
-        d = b[2] - a[2]
-        if d == 0:
-            return None
+        assert dx == 0
+        assert dy == 0
+        assert dz != 0 
 
+        d = dz             # use Sphere a_ frame
         dd_m_rr_p_RR = d*d - r*r + R*R 
-
         z = dd_m_rr_p_RR/(2.*d)
         yy = (4.*d*d*R*R - dd_m_rr_p_RR*dd_m_rr_p_RR)/(4.*d*d)
         y = math.sqrt(yy)
-        return ZPlane(name, z+a[2], y ) 
+
+        # add a[Z] to return to original frame
+        return ZPlane(name, z+a[Z], y ) 
 
     def as_part(self):
         radius = self.outerRadius.value 
@@ -478,6 +589,8 @@ class Sphere(Primitive):
         return [Rev('Sphere', self.name,xyz, ro, sz, st, dt, wi)]
 
 class Tubs(Primitive):
+
+
     sizeZ = property(lambda self:self.att('sizeZ'))
 
     def __repr__(self):

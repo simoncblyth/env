@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 """
-::
+
+NB this is messy initial dev, superceeded by:
+
+dd.py 
+tree.py 
+plot.py 
 
 
 """

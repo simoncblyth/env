@@ -38,11 +38,13 @@ class ZTubs(object):
         return "ZTubs %s %s %s " % (repr(self.position), self.radius, self.sizeZ)
 
     def as_patch(self, axes):
-        if Z in axes:
+        if Z == axes[0]:
             width = self.sizeZ
             height = 2*self.radius
             botleft = self.position[axes] - np.array([0, self.radius])
             patch = mpatches.Rectangle(botleft, width, height)
+        elif Z == axes[1]:
+            assert 0
         else:
             patch = mpatches.Circle(self.position[axes],self.radius)
         return patch
@@ -74,6 +76,10 @@ class Pmt(object):
         self.partnode = self.data[:,3,3].view(np.int32)
 
     def parts(self, solid):
+        """
+        :param solid: index of node/solid 
+        :return parts array:
+        """
         return np.arange(len(self.partnode))[self.partnode == solid]
 
     def bbox(self, p):
@@ -81,6 +87,10 @@ class Pmt(object):
         return Bbox(part[2,:3], part[3,:3])
 
     def shape(self, p):
+        """
+        :param p: part index
+        :return shape instance: Sphere or ZTubs 
+        """
         code = self.partcode[p]
         if code == 1:
             return self.sphere(p)
@@ -90,6 +100,12 @@ class Pmt(object):
             return None 
 
     def sphere(self, p):
+        """
+        Creates *Shape* instance from Part data identified by index
+
+        :param p: part index
+        :return Sphere:
+        """
         part = self.data[p]
         return Sphere( part[0][:3], part[0][3])
 
@@ -107,15 +123,13 @@ class PmtPlot(object):
         self.ec = 'none'
         self.edgecolor = ['r','g','b','c','m','y','k']
         
-
-
     def plot_bbox(self, parts=[]):
         for p in parts:
             bb = self.pmt.bbox(p)
             _bb = bb.as_patch(self.axes)
             self.add_patch(_bb)
 
-    def plot_shape(self, parts=[]):
+    def plot_shape(self, parts=[], clip=True):
         for i,p in enumerate(parts):
             self.ec = self.edgecolor[i%len(self.edgecolor)]
             bb = self.pmt.bbox(p)
@@ -125,7 +139,8 @@ class PmtPlot(object):
             sh = self.pmt.shape(p)
             _sh = sh.as_patch(self.axes)
             self.add_patch(_sh)
-            _sh.set_clip_path(_bb)
+            if clip:
+                _sh.set_clip_path(_bb)
 
     def add_patch(self, patch):
         patch.set_fc('none')
@@ -133,10 +148,45 @@ class PmtPlot(object):
         self.patches.append(patch)
         self.ax.add_artist(patch)
 
-    def limits(self):
-        s = 150
+    def limits(self, s):
         self.ax.set_xlim(-s,s)
         self.ax.set_ylim(-s,s)
+
+
+
+def mug_plot(fig, pmt, solid, size):
+
+    ax = fig.add_subplot(1,2,1, aspect='equal')
+    pp = PmtPlot(ax, pmt, axes=ZX) 
+    pp.plot_shape(pmt.parts(solid), clip=True)
+    pp.limits(size)
+
+    ax = fig.add_subplot(1,2,2, aspect='equal')
+    pp = PmtPlot(ax, pmt, axes=XY) 
+    pp.plot_shape(pmt.parts(solid), clip=True)
+    pp.limits(size)
+
+
+
+def one_plot(fig, pmt, solid, size, clip):
+
+    ax = fig.add_subplot(1,1,1, aspect='equal')
+    pp = PmtPlot(ax, pmt, axes=ZX) 
+    pp.plot_shape(pmt.parts(solid), clip)
+    pp.limits(size)
+
+
+def clipped_unclipped_plot(fig, pmt, solid, size):
+
+    ax = fig.add_subplot(1,2,1, aspect='equal')
+    pp = PmtPlot(ax, pmt, axes=ZX) 
+    pp.plot_shape(pmt.parts(solid), clip=False)
+    pp.limits(size)
+
+    ax = fig.add_subplot(1,2,2, aspect='equal')
+    pp = PmtPlot(ax, pmt, axes=ZX) 
+    pp.plot_shape(pmt.parts(solid), clip=True)
+    pp.limits(size)
 
 
 
@@ -144,24 +194,12 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     pmt = Pmt("/tmp/hemi-pmt-parts.npy")
-
     fig = plt.figure()
-    solid = 0
 
-    ax = fig.add_subplot(1,2,1, aspect='equal')
-    pp = PmtPlot(ax, pmt, axes=ZX) 
-    pp.plot_shape(pmt.parts(solid))
-    pp.limits()
-
-    ax = fig.add_subplot(1,2,2, aspect='equal')
-    pp = PmtPlot(ax, pmt, axes=XY) 
-    pp.plot_shape(pmt.parts(solid))
-    pp.limits()
-
+    #mug_plot(fig, pmt, solid=0, size=150)
+    #clipped_unclipped_plot(fig, pmt, solid=0, size=150)
+    one_plot(fig, pmt, solid=0, size=150, clip=True)
 
     fig.show()
-
-
-    
-
+    fig.savefig("/tmp/plot.png")
 

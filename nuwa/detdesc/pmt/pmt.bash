@@ -22,6 +22,11 @@ pmt-export(){
 pmt-cd(){  cd $(pmt-dir); }
 pmt-ecd(){ cd $(pmt-edir) ; }
 
+pmt-i(){
+   pmt-ecd
+   i
+}
+
 pmt-run(){ 
    pmt-export
    python $(pmt-edir)/${1:-pmt}.py  
