@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging, hashlib, sys
 import numpy as np
+np.set_printoptions(precision=2) 
 from dd import Dddb 
 
 log = logging.getLogger(__name__)
@@ -203,6 +204,8 @@ Argument handling
 if __name__ == '__main__':
     format_ = "[%(filename)s +%(lineno)3s %(funcName)20s ] %(message)s" 
     logging.basicConfig(level=logging.INFO, format=format_)
+
+
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     tree = Tree(g.logvol_("lvPmtHemi")) 
 

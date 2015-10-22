@@ -3,12 +3,14 @@
 Plotting from the serialized PMT analytic geometry data
 """
 import numpy as np
-import logging
+import logging, os
 log = logging.getLogger(__name__)
 
 import matplotlib.pyplot as plt 
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
+
+path_ = lambda _:os.path.expandvars("$IDPATH/GMergedMesh/1/%s.npy" % _)
 
 X = 0
 Y = 1
@@ -17,6 +19,19 @@ Z = 2
 ZX = [Z,X]
 ZY = [Z,Y]
 XY = [X,Y]
+
+
+class Mesh(object):
+    def __init__(self):
+        self.v = np.load(path_("vertices"))
+        self.f = np.load(path_("indices"))
+        self.i = np.load(path_("nodeinfo"))
+        self.vc = np.zeros( self.i.shape[0]+1 )
+        np.cumsum(self.i[:,1], out=self.vc[1:])
+    def verts(self, solid):
+        return self.v[self.vc[solid]:self.vc[solid+1]]
+
+
 
 class Sphere(object):
     def __init__(self, center, radius):
@@ -189,16 +204,34 @@ def clipped_unclipped_plot(fig, pmt, solid, size):
     pp.limits(size)
 
 
+def one_plot_scatter(fig, pmt, solid, size, clip, axes, mesh):
+
+    ax = fig.add_subplot(1,1,1, aspect='equal')
+    pp = PmtPlot(ax, pmt, axes) 
+    pp.plot_shape(pmt.parts(solid), clip)
+    pp.limits(size)
+
+    if mesh:
+        vv = mesh.verts(solid)
+        plt.scatter(vv[:,axes[0]],vv[:,axes[1]],c=vv[:,Y])
+
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
+
+
+    
+    mesh = Mesh()
 
     pmt = Pmt("/tmp/hemi-pmt-parts.npy")
     fig = plt.figure()
 
     #mug_plot(fig, pmt, solid=0, size=150)
     #clipped_unclipped_plot(fig, pmt, solid=0, size=150)
-    one_plot(fig, pmt, solid=0, size=150, clip=True)
+    #one_plot(fig, pmt, solid=0, size=150, clip=True)
+    one_plot_scatter(fig, pmt, solid=0, size=200, clip=False, axes=ZX, mesh=mesh)
+
 
     fig.show()
     fig.savefig("/tmp/plot.png")

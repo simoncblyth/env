@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os, re, logging, math
+import numpy as np
 import lxml.etree as ET
 import lxml.html as HT
 from math import acos
@@ -194,7 +195,7 @@ class Elem(object):
         return [p2,p1]
 
     def partition_intersection(self):
-        log.info("partition_intersection %s " % repr(self))
+        log.info(self)
 
         spheres = []
         comps = self.findall_("./*")
@@ -231,7 +232,7 @@ class Elem(object):
         * avoid a surface at the interface of tubs endcap and part Sphere
 
         """
-        log.info("partition_union %s " % repr(self))
+        log.info(self)
         comps = self.findall_("./*")
         self.link_prior_posXYZ(comps)
 
@@ -239,16 +240,18 @@ class Elem(object):
         if len(comps) == 3 and comps[0].is_intersection and comps[1].is_tubs and comps[2].is_posXYZ:
         
             sparts = Part.ascending_bbox_zleft(comps[0].partition_intersection())
-            for i, s in enumerate(sparts):
-                log.info("++++ %s +++ %s " % (i, repr(s)))
-
             tpart = comps[1].as_part()
             ts = Part.intersect_tubs_sphere("ts", tpart, sparts[0], -1)   # -ve root for leftmost
+            log.info("ts %s " % repr(ts))
+
+            for i, s in enumerate(sparts):
+                log.info("sp(%s) %s " % (i, repr(s)))
+
+            log.info("tp(0) %s " % repr(tpart))
 
             sparts[0].bbox.zleft = ts.z   
             tpart.bbox.zright = ts.z
 
-            log.info("ts %s " % repr(ts))
 
             rparts.extend(sparts)
             rparts.extend([tpart])
@@ -409,7 +412,7 @@ class Part(object):
 
             xx + yy + (z-zp)(z-zp) = RR    
 
-        Cylinder along Z axis from 0 to sizeZ
+        Cylinder along Z axis from -sizeZ/2 to sizeZ/2
            
             xx + yy = rr
 
@@ -426,7 +429,6 @@ class Part(object):
 
         iz = math.sqrt(RR_m_rr)  
         assert iz < tubs.sizeZ 
-
 
         return ZPlane(name, sphere.xyz[Z] + sign*iz, r) 
 
@@ -463,8 +465,8 @@ class Part(object):
 
 class BBox(object):
     def __init__(self, min_, max_):
-        self.min_ = min_
-        self.max_ = max_
+        self.min_ = np.array(min_)
+        self.max_ = np.array(max_)
 
     def _get_zleft(self):
         return self.min_[Z]
@@ -485,7 +487,11 @@ class BBox(object):
     xyz = property(lambda self:[self.x, self.y,self.z])
 
     def as_quads(self):
-        return [self.min_[X],self.min_[Y],self.min_[Z],0], [self.max_[X],self.max_[Y],self.max_[Z],0]
+        qmin = np.zeros(4)
+        qmin[:3] = self.min_
+        qmax = np.zeros(4)
+        qmax[:3] = self.max_
+        return qmin, qmax 
 
     def __repr__(self):
         return "BBox min:%s max:%s xyz:%s" % (repr(self.min_), repr(self.max_), repr(self.xyz) )
@@ -594,7 +600,6 @@ class Sphere(Primitive):
 
 class Tubs(Primitive):
 
-
     sizeZ = property(lambda self:self.att('sizeZ'))
 
     def __repr__(self):
@@ -605,7 +610,7 @@ class Tubs(Primitive):
         radius = self.outerRadius.value 
         z = self.xyz[2]
         p = Part('Tubs', self.name + "_part", self.xyz, radius, sizeZ )
-        p.bbox = self.bbox(z, z+sizeZ, -radius, radius)
+        p.bbox = self.bbox(z-sizeZ/2, z+sizeZ/2, -radius, radius)
         return p 
 
     def asrev(self):
