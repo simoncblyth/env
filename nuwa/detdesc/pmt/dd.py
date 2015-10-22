@@ -432,12 +432,16 @@ class Part(object):
 
 
     def __init__(self, typ, name, xyz, radius, sizeZ=0.):
+        """
+        see cu/hemi-pmt.cu for where these are used 
+        """
         self.typ = typ
         self.name = name
         self.xyz = xyz
         self.radius = radius
         self.sizeZ = sizeZ   # used for Tubs
         self.bbox = None
+        self.flags = 0   # used for Tubs endcap control
         if typ == 'Sphere':
             self.typecode = 1
         elif typ == 'Tubs':

@@ -82,6 +82,7 @@ class Node(object):
         """
         for i,part in enumerate(self.parts()):
             data[offset+i] = part.as_quads()
+            data[offset+i].view(np.int32)[1,3] = part.flags    # used in intersect_ztubs
             data[offset+i].view(np.int32)[2,3] = part.typecode 
             data[offset+i].view(np.int32)[3,3] = self.index   
  
