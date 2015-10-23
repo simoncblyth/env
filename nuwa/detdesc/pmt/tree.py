@@ -77,12 +77,12 @@ class Node(object):
         parts = self.parts()
         return len(parts)
 
-    def copy_parts(self, data, offset):
+    def copy_parts(self, data, offset, bbscale=1):
         """
         # use 4th slots of bbox min/max for integer codes
         """
         for i,part in enumerate(self.parts()):
-            data[offset+i] = part.as_quads()
+            data[offset+i] = part.as_quads(bbscale=bbscale)
             data[offset+i].view(np.int32)[1,3] = part.flags    # used in intersect_ztubs
             data[offset+i].view(np.int32)[2,3] = part.typecode 
             data[offset+i].view(np.int32)[3,3] = self.index   
@@ -137,7 +137,10 @@ class Tree(object):
         return tot
 
     @classmethod
-    def save_parts(cls, path, slice_=None):
+    def save_parts(cls, path, slice_=None, bbscale=1):
+        if bbscale != 1:
+            log.warning("bbox scaling in effect %s " % bbscale )
+
         tnodes = cls.num_nodes() 
         tparts = cls.num_parts() 
         log.info("tnodes %s tparts %s slice %s " % (tnodes, tparts, repr(slice_)))
@@ -146,7 +149,7 @@ class Tree(object):
         offset = 0 
         for i in range(tnodes):
             node = tree.get(i)
-            node.copy_parts(data, offset)    
+            node.copy_parts(data, offset, bbscale)    
             nparts = node.num_parts() 
             log.info("i %s %s %s " % (i, nparts, repr(node))) 
             offset += nparts
@@ -215,7 +218,7 @@ if __name__ == '__main__':
     else:
         s = None
     
-    tree.save_parts("/tmp/hemi-pmt-parts.npy", s)   
+    tree.save_parts("/tmp/hemi-pmt-parts.npy", s, bbscale=1)   
 
 
 

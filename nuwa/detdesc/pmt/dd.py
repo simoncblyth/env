@@ -251,7 +251,7 @@ class Elem(object):
 
             sparts[0].bbox.zleft = ts.z   
             tpart.bbox.zright = ts.z
-
+            tpart.enable_endcap("P")  # smaller Z endcap 
 
             rparts.extend(sparts)
             rparts.extend([tpart])
@@ -432,6 +432,17 @@ class Part(object):
 
         return ZPlane(name, sphere.xyz[Z] + sign*iz, r) 
 
+    def enable_endcap(self, tag):
+        ENDCAP_P = 0x1 <<  0
+        ENDCAP_Q = 0x1 <<  1 
+        pass
+        if tag == "P":
+            self.flags |= ENDCAP_P 
+        elif tag == "Q":
+            self.flags |= ENDCAP_Q 
+        else:
+            log.warning("tag is not P or Q, for the low Z endcap (P) and higher Z endcap (Q)")
+
 
     def __init__(self, typ, name, xyz, radius, sizeZ=0.):
         """
@@ -443,7 +454,10 @@ class Part(object):
         self.radius = radius
         self.sizeZ = sizeZ   # used for Tubs
         self.bbox = None
-        self.flags = 0   # used for Tubs endcap control
+
+        self.flags = 0
+        # Tubs endcap control
+
         if typ == 'Sphere':
             self.typecode = 1
         elif typ == 'Tubs':
@@ -454,11 +468,11 @@ class Part(object):
     def __repr__(self):
         return "Part %s %s %s r:%s sz:%s bb:%s" % (self.typ, self.name, repr(self.xyz), self.radius, self.sizeZ, repr(self.bbox)) 
 
-    def as_quads(self):
+    def as_quads(self, bbscale=1):
         quads = []
         quads.append( [self.xyz[0], self.xyz[1], self.xyz[2], self.radius] )
         quads.append( [self.sizeZ, 0, 0, 0] )
-        for q in self.bbox.as_quads():
+        for q in self.bbox.as_quads(scale=bbscale):
             quads.append(q)
         return quads
            
@@ -486,11 +500,11 @@ class BBox(object):
     z = property(lambda self:(self.min_[Z] + self.max_[Z])/2.)
     xyz = property(lambda self:[self.x, self.y,self.z])
 
-    def as_quads(self):
+    def as_quads(self,scale=1):
         qmin = np.zeros(4)
-        qmin[:3] = self.min_
+        qmin[:3] = self.min_*scale
         qmax = np.zeros(4)
-        qmax[:3] = self.max_
+        qmax[:3] = self.max_*scale
         return qmin, qmax 
 
     def __repr__(self):
