@@ -49,14 +49,15 @@ class ZTubs(object):
         self.position = position
         self.radius = radius 
         self.sizeZ = sizeZ 
+
     def __repr__(self):
-        return "ZTubs %s %s %s " % (repr(self.position), self.radius, self.sizeZ)
+        return "ZTubs pos %s rad %s sizeZ %s " % (repr(self.position), self.radius, self.sizeZ)
 
     def as_patch(self, axes):
         if Z == axes[0]:
             width = self.sizeZ
-            height = 2*self.radius
-            botleft = self.position[axes] - np.array([0, self.radius])
+            height = 2.*self.radius
+            botleft = self.position[axes] - np.array([self.sizeZ/2., self.radius])
             patch = mpatches.Rectangle(botleft, width, height)
         elif Z == axes[1]:
             assert 0
@@ -125,8 +126,11 @@ class Pmt(object):
         return Sphere( part[0][:3], part[0][3])
 
     def ztubs(self, p):
-        part = self.data[p]
-        return ZTubs( part[0][:3], part[0][3], part[1][0])
+        """
+        Creates *ZTubs* instance from Part data index p 
+        """
+        q0,q1,q2,q3 = self.data[p]
+        return ZTubs( q0[:3], q0[3], q1[0])
 
 
 class PmtPlot(object):
@@ -137,29 +141,39 @@ class PmtPlot(object):
         self.patches = []
         self.ec = 'none'
         self.edgecolor = ['r','g','b','c','m','y','k']
+
+    def color(self, i, other=False):
+        n = len(self.edgecolor)
+        idx = (n-i-1)%n if other else i%n
+        return self.edgecolor[idx]
         
     def plot_bbox(self, parts=[]):
-        for p in parts:
+        for i,p in enumerate(parts):
             bb = self.pmt.bbox(p)
             _bb = bb.as_patch(self.axes)
-            self.add_patch(_bb)
+            self.add_patch(_bb, self.color(i))
+
+    def plot_shape_simple(self, parts=[]):
+        for i,p in enumerate(parts):
+            sh = self.pmt.shape(p)
+            _sh = sh.as_patch(self.axes)
+            self.add_patch(_sh, self.color(i))
 
     def plot_shape(self, parts=[], clip=True):
         for i,p in enumerate(parts):
-            self.ec = self.edgecolor[i%len(self.edgecolor)]
             bb = self.pmt.bbox(p)
             _bb = bb.as_patch(self.axes)
-            self.add_patch(_bb)
+            self.add_patch(_bb, self.color(i))
 
             sh = self.pmt.shape(p)
             _sh = sh.as_patch(self.axes)
-            self.add_patch(_sh)
+            self.add_patch(_sh, self.color(i,other=True))
             if clip:
                 _sh.set_clip_path(_bb)
 
-    def add_patch(self, patch):
+    def add_patch(self, patch, ec):
         patch.set_fc('none')
-        patch.set_ec(self.ec)
+        patch.set_ec(ec)
         self.patches.append(patch)
         self.ax.add_artist(patch)
 
@@ -204,11 +218,17 @@ def clipped_unclipped_plot(fig, pmt, solid, size):
     pp.limits(size)
 
 
-def one_plot_scatter(fig, pmt, solid, size, clip, axes, mesh):
+def one_plot_scatter(fig, pmt, solid, size, clip, axes, mesh, simple=False):
 
     ax = fig.add_subplot(1,1,1, aspect='equal')
     pp = PmtPlot(ax, pmt, axes) 
-    pp.plot_shape(pmt.parts(solid), clip)
+
+    pts = pmt.parts(solid)
+    if simple:
+        pp.plot_shape_simple(pts)
+    else:
+        pp.plot_shape(pts, clip)
+    pass
     pp.limits(size)
 
     if mesh:
@@ -220,7 +240,6 @@ def one_plot_scatter(fig, pmt, solid, size, clip, axes, mesh):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-
     
     mesh = Mesh()
 
@@ -230,7 +249,7 @@ if __name__ == '__main__':
     #mug_plot(fig, pmt, solid=0, size=150)
     #clipped_unclipped_plot(fig, pmt, solid=0, size=150)
     #one_plot(fig, pmt, solid=0, size=150, clip=True)
-    one_plot_scatter(fig, pmt, solid=0, size=200, clip=False, axes=ZX, mesh=mesh)
+    one_plot_scatter(fig, pmt, solid=0, size=200, clip=True, axes=ZX, mesh=mesh, simple=False)
 
 
     fig.show()
