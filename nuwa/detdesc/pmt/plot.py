@@ -177,79 +177,83 @@ class PmtPlot(object):
         self.patches.append(patch)
         self.ax.add_artist(patch)
 
-    def limits(self, s):
+    def limits(self, s=200):
         self.ax.set_xlim(-s,s)
         self.ax.set_ylim(-s,s)
 
 
 
-def mug_plot(fig, pmt, solid, size):
-
-    ax = fig.add_subplot(1,2,1, aspect='equal')
-    pp = PmtPlot(ax, pmt, axes=ZX) 
-    pp.plot_shape(pmt.parts(solid), clip=True)
-    pp.limits(size)
-
-    ax = fig.add_subplot(1,2,2, aspect='equal')
-    pp = PmtPlot(ax, pmt, axes=XY) 
-    pp.plot_shape(pmt.parts(solid), clip=True)
-    pp.limits(size)
 
 
+def mug_plot(fig, pmt, pts):
+    for i, axes in enumerate([ZX,XY]):
+        ax = fig.add_subplot(1,2,i+1, aspect='equal')
+        pp = PmtPlot(ax, pmt, axes=axes) 
+        pp.plot_shape(pts, clip=True)
+        pp.limits()
 
-def one_plot(fig, pmt, solid, size, clip):
+def clipped_unclipped_plot(fig, pmt, pts):
+    for i, clip in enumerate([False, True]):
+        ax = fig.add_subplot(1,2,i+1, aspect='equal')
+        pp = PmtPlot(ax, pmt, axes=ZX) 
+        pp.plot_shape(pts, clip=clip)
+        pp.limits()
 
-    ax = fig.add_subplot(1,1,1, aspect='equal')
-    pp = PmtPlot(ax, pmt, axes=ZX) 
-    pp.plot_shape(pmt.parts(solid), clip)
-    pp.limits(size)
+def solids_plot(fig, pmt, solids=range(5)):
 
-
-def clipped_unclipped_plot(fig, pmt, solid, size):
-
-    ax = fig.add_subplot(1,2,1, aspect='equal')
-    pp = PmtPlot(ax, pmt, axes=ZX) 
-    pp.plot_shape(pmt.parts(solid), clip=False)
-    pp.limits(size)
-
-    ax = fig.add_subplot(1,2,2, aspect='equal')
-    pp = PmtPlot(ax, pmt, axes=ZX) 
-    pp.plot_shape(pmt.parts(solid), clip=True)
-    pp.limits(size)
-
-
-def one_plot_scatter(fig, pmt, solid, size, clip, axes, mesh, simple=False):
-
-    ax = fig.add_subplot(1,1,1, aspect='equal')
-    pp = PmtPlot(ax, pmt, axes) 
-
-    pts = pmt.parts(solid)
-    if simple:
-        pp.plot_shape_simple(pts)
+    if len(solids)>4:
+        ny,nx = 3,2
     else:
-        pp.plot_shape(pts, clip)
-    pass
-    pp.limits(size)
+        ny,nx = 2,2
 
-    if mesh:
-        vv = mesh.verts(solid)
-        plt.scatter(vv[:,axes[0]],vv[:,axes[1]],c=vv[:,Y])
+    for i,solid in enumerate(solids):
+        pts = pmt.parts(solid)
+        ax = fig.add_subplot(nx,ny,i+1, aspect='equal')
+        pp = PmtPlot(ax, pmt, axes=ZX) 
+        pp.plot_shape(pts, clip=True)
+        pp.limits()
+    pass
+
+
+def one_plot(fig, pmt, pts, clip=True, axes=ZX):
+    ax = fig.add_subplot(1,1,1, aspect='equal')
+    pp = PmtPlot(ax, pmt, axes=axes) 
+    pp.plot_shape(pts, clip=clip)
+    pp.limits()
 
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    
-    mesh = Mesh()
+    PYREX, VACUUM, CATHODE, BOTTOM, DYNODE = 0,1,2,3,4 
 
+    mesh = Mesh()
     pmt = Pmt("/tmp/hemi-pmt-parts.npy")
     fig = plt.figure()
 
-    #mug_plot(fig, pmt, solid=0, size=150)
-    #clipped_unclipped_plot(fig, pmt, solid=0, size=150)
-    #one_plot(fig, pmt, solid=0, size=150, clip=True)
-    one_plot_scatter(fig, pmt, solid=0, size=200, clip=True, axes=ZX, mesh=mesh, simple=False)
+    axes = ZX
+
+    solid = CATHODE 
+    #solid = BOTTOM 
+    #solid = DYNODE 
+
+    pts = pmt.parts(solid)
+    #pts = np.arange(8)
+    #pts = np.arange(12)
+
+    #mug_plot(fig, pmt, pts)
+    #clipped_unclipped_plot(fig, pmt, pts)
+    #one_plot(fig, pmt, pts)
+    one_plot(fig, pmt, pts, axes=axes)
+
+    # hmm not possible to split at part level, as those are sub solid
+    if mesh:
+        vv = mesh.verts(solid)
+        plt.scatter(vv[:,axes[0]],vv[:,axes[1]],c=vv[:,Y])
+
+
+    #solids_plot(fig, pmt, solids=range(5))
 
 
     fig.show()

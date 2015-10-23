@@ -39,6 +39,7 @@ class Elem(object):
     is_union = property(lambda self:type(self) in self.g.union)
     is_posXYZ = property(lambda self:type(self) in self.g.posXYZ)
     is_geometry  = property(lambda self:type(self) in self.g.geometry)
+    is_logvol  = property(lambda self:type(self) in self.g.logvol)
 
     @classmethod
     def link_posXYZ(cls, ls, posXYZ):
@@ -51,14 +52,27 @@ class Elem(object):
                 log.debug("linking %s to %s " % (posXYZ, ls[i]))
 
     @classmethod
-    def link_prior_posXYZ(cls, ls):
+    def combine_posXYZ(cls, prim, plus):
+        assert 0, "not yet implemented"
+ 
+    @classmethod
+    def link_prior_posXYZ(cls, ls, base=None):
         """
         Attach any *posXYZ* instances in the list to preceeding primitives
         """
         for i in range(len(ls)):
+            if base is not None and ls[i-1].is_primitive:
+                ls[i-1].posXYZ = base 
+            pass
             if ls[i].is_posXYZ and ls[i-1].is_primitive:
-                ls[i-1].posXYZ = ls[i] 
+                if ls[i-1].posXYZ is not None:
+                    cls.combine_posXYZ(ls[i-1], ls[i])
+                else:
+                    ls[i-1].posXYZ = ls[i] 
                 log.debug("linking %s to %s " % (ls[i], ls[i-1]))
+           
+
+
 
     def _get_desc(self):
         return "%10s %15s %s " % (type(self).__name__, self.xyz, self.name )
@@ -128,8 +142,12 @@ class Elem(object):
         but rather are constitutent to it.
         """
         if type(self) is Physvol:
+            posXYZ = self.find_("./posXYZ")
             lvn = self.logvolref.split("/")[-1]
             lv = self.g.logvol_(lvn)
+            lv.posXYZ = posXYZ
+            if posXYZ is not None:
+                log.debug("%s positioning %s  " % (self.name, repr(lv))) 
             return [lv]
         elif type(self) is Logvol:
             pvs = self.findall_("./physvol")
@@ -184,9 +202,11 @@ class Elem(object):
         """ 
         s1, s2 = spheres
 
+
         assert s1.z < s2.z 
 
         z12 = Sphere.intersect("z12",s1,s2) 
+        log.warning("z12 %s" % z12) 
         p1 = s2.part_zleft(z12)       
         p2 = s1.part_zright(z12)       
 
@@ -195,7 +215,7 @@ class Elem(object):
         return [p2,p1]
 
     def partition_intersection(self):
-        log.info(self)
+        #log.info(self)
 
         spheres = []
         comps = self.findall_("./*")
@@ -224,7 +244,7 @@ class Elem(object):
             assert 0 
 
 
-    def partition_union(self):
+    def partition_union(self, verbose=False):
         """
         union of a 3-sphere lens shape and a tubs requires:
 
@@ -232,22 +252,23 @@ class Elem(object):
         * avoid a surface at the interface of tubs endcap and part Sphere
 
         """
-        log.info(self)
         comps = self.findall_("./*")
         self.link_prior_posXYZ(comps)
 
         rparts = []
         if len(comps) == 3 and comps[0].is_intersection and comps[1].is_tubs and comps[2].is_posXYZ:
-        
+            # pmt-hemi-glass-bulb, pmt-hemi-bulb-vac        
             sparts = Part.ascending_bbox_zleft(comps[0].partition_intersection())
             tpart = comps[1].as_part()
             ts = Part.intersect_tubs_sphere("ts", tpart, sparts[0], -1)   # -ve root for leftmost
-            log.info("ts %s " % repr(ts))
 
-            for i, s in enumerate(sparts):
-                log.info("sp(%s) %s " % (i, repr(s)))
-
-            log.info("tp(0) %s " % repr(tpart))
+            if verbose:
+                log.info(self)
+                log.info("ts %s " % repr(ts))
+                for i, s in enumerate(sparts):
+                    log.info("sp(%s) %s " % (i, repr(s)))
+                log.info("tp(0) %s " % repr(tpart))
+            pass
 
             sparts[0].bbox.zleft = ts.z   
             tpart.bbox.zright = ts.z
@@ -255,6 +276,12 @@ class Elem(object):
 
             rparts.extend(sparts)
             rparts.extend([tpart])
+
+        elif len(comps) == 3 and comps[0].is_sphere and comps[1].is_sphere and comps[2].is_posXYZ:
+            pass
+            xret = self.partition_intersection_2spheres(comps[0:2])
+            rparts.extend(xret)
+            pass
         else:
             xret = self.parts()   
             rparts.extend(xret)
@@ -272,8 +299,14 @@ class Elem(object):
         if type(self) is Physvol:
             return [] 
 
+        if type(self) is Logvol:
+            base = self.posXYZ 
+        else:
+            base = None
+
+
         comps = self.findall_("./*")  # one lev only
-        self.link_prior_posXYZ(comps)
+        self.link_prior_posXYZ(comps, base)
 
         rparts = []
         for c in comps:
@@ -343,7 +376,7 @@ class Logvol(Elem):
     material = property(lambda self:self.elem.attrib.get('material', None))
     sensdet = property(lambda self:self.elem.attrib.get('sensdet', None))
     def __repr__(self):
-        return "LV %-20s %20s %s " % (self.name, self.material, self.sensdet)
+        return "LV %-20s %20s %s : %s " % (self.name, self.material, self.sensdet, repr(self.posXYZ))
 
 class Physvol(Elem):
     logvolref = property(lambda self:self.elem.attrib.get('logvol', None))
@@ -399,6 +432,13 @@ class Part(object):
     @classmethod 
     def ascending_bbox_zleft(cls, parts):
         return sorted(parts, key=lambda p:p.bbox.zleft)
+
+    @classmethod 
+    def intersect_spheres(cls, name, spheres, sign=1 ):
+        assert len(spheres) == 2
+        s0, s1 = spheres
+ 
+
 
     @classmethod 
     def intersect_tubs_sphere(cls, name, tubs, sphere, sign ):
@@ -468,11 +508,11 @@ class Part(object):
     def __repr__(self):
         return "Part %s %s %s r:%s sz:%s bb:%s" % (self.typ, self.name, repr(self.xyz), self.radius, self.sizeZ, repr(self.bbox)) 
 
-    def as_quads(self, bbscale=1):
+    def as_quads(self):
         quads = []
         quads.append( [self.xyz[0], self.xyz[1], self.xyz[2], self.radius] )
         quads.append( [self.sizeZ, 0, 0, 0] )
-        for q in self.bbox.as_quads(scale=bbscale):
+        for q in self.bbox.as_quads():
             quads.append(q)
         return quads
            
@@ -569,6 +609,14 @@ class Sphere(Primitive):
 
     def as_part(self):
         radius = self.outerRadius.value 
+
+        sta = self.startThetaAngle.value
+        dta = self.deltaThetaAngle.value
+        if sta is None:
+            sta = 0.
+
+        log.info("Sphere.as_part startThetaAngle %s deltaThetaAngle %s " % (sta, dta))
+
         z = self.xyz[2]
         p = Part('Sphere', self.name + "_part", self.xyz, radius )
         p.bbox = self.bbox(z-radius, z+radius, -radius, radius)
@@ -721,6 +769,7 @@ class Dddb(Elem):
     composite = [Union, Intersection, Physvol]
     geometry = [Sphere, Tubs, Union, Intersection]
     posXYZ= [PosXYZ]
+    logvol = [Logvol]
 
     expand = {
         "(PmtHemiFaceROCvac^2-PmtHemiBellyROCvac^2-(PmtHemiFaceOff-PmtHemiBellyOff)^2)/(2*(PmtHemiFaceOff-PmtHemiBellyOff))":
