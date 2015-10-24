@@ -199,18 +199,34 @@ class Elem(object):
         along the plane of the intersection. 
         The left part of the lens comes from the right Sphere 
         and the right part comes left Sphere.
+
+
+        For pmt-hemi-cathode-face_part pmt-hemi-cathode-belly_part the 
+        bbox of the Sphere parts from just the theta angle ranges are overlapping
+        each other very slightly with the plane of sphere intersection in between.
+        Because of the thin photocathode this creates an dangerous sharp protuding edge.
+
+        Suspect overlapping bbox may be problematic, so unoverlap by adjusting z 
+        edges of bbox, and adjust in xy. 
         """ 
         s1, s2 = spheres
-
-
         assert s1.z < s2.z 
 
-        z12 = Sphere.intersect("z12",s1,s2) 
-        log.warning("z12 %s" % z12) 
-        p1 = s2.part_zleft(z12)       
-        p2 = s1.part_zright(z12)       
+        # parts from just the theta ranges
+        p1, p2 = Part.ascending_bbox_zmin([s1.as_part(),s2.as_part()])
 
-        assert p1.bbox.z < p2.bbox.z
+        assert p1.bbox.zmin < p2.bbox.zmin
+        log.warning("p1 %s" % p1) 
+        log.warning("p2 %s" % p2) 
+
+        unoverlap = True
+        if unoverlap:
+            z12 = Sphere.intersect("z12",s1,s2) 
+            p1.bbox.zmax = z12.z
+            p2.bbox.zmin  = z12.z 
+            p2.bbox.xymax = z12.y
+            p2.bbox.xymin = -z12.y
+            
 
         return [p2,p1]
 
@@ -258,7 +274,7 @@ class Elem(object):
         rparts = []
         if len(comps) == 3 and comps[0].is_intersection and comps[1].is_tubs and comps[2].is_posXYZ:
             # pmt-hemi-glass-bulb, pmt-hemi-bulb-vac        
-            sparts = Part.ascending_bbox_zleft(comps[0].partition_intersection())
+            sparts = Part.ascending_bbox_zmin(comps[0].partition_intersection())
             tpart = comps[1].as_part()
             ts = Part.intersect_tubs_sphere("ts", tpart, sparts[0], -1)   # -ve root for leftmost
 
@@ -270,8 +286,8 @@ class Elem(object):
                 log.info("tp(0) %s " % repr(tpart))
             pass
 
-            sparts[0].bbox.zleft = ts.z   
-            tpart.bbox.zright = ts.z
+            sparts[0].bbox.zmin = ts.z   
+            tpart.bbox.zmax = ts.z
             tpart.enable_endcap("P")  # smaller Z endcap 
 
             rparts.extend(sparts)
@@ -422,16 +438,19 @@ class Rev(object):
 
 class ZPlane(object):
     def __init__(self, name, z, y):
+        """
+        xy symmetry assumed
+        """
         self.name = name
         self.z = z
-        self.y = y 
+        self.y = y   
     def __repr__(self):
         return "ZPlane %s z:%s y:%s " % (self.name, self.z, self.y )
 
 class Part(object):
     @classmethod 
-    def ascending_bbox_zleft(cls, parts):
-        return sorted(parts, key=lambda p:p.bbox.zleft)
+    def ascending_bbox_zmin(cls, parts):
+        return sorted(parts, key=lambda p:p.bbox.zmin)
 
     @classmethod 
     def intersect_spheres(cls, name, spheres, sign=1 ):
@@ -522,17 +541,36 @@ class BBox(object):
         self.min_ = np.array(min_)
         self.max_ = np.array(max_)
 
-    def _get_zleft(self):
+    def _get_zmin(self):
         return self.min_[Z]
-    def _set_zleft(self, val):
+    def _set_zmin(self, val):
         self.min_[Z] = val 
-    zleft = property(_get_zleft, _set_zleft)
+    zmin = property(_get_zmin, _set_zmin)
 
-    def _get_zright(self):
+    def _get_zmax(self):
         return self.max_[Z]
-    def _set_zright(self, val):
+    def _set_zmax(self, val):
         self.max_[Z] = val 
-    zright = property(_get_zright, _set_zright)
+    zmax = property(_get_zmax, _set_zmax)
+
+    def _get_xymin(self):
+        """
+        xy symmetry assumed
+        """ 
+        assert self.min_[X] == self.min_[Y]
+        return self.min_[X]
+    def _set_xymin(self, val):
+        self.min_[X] = val 
+        self.min_[Y] = val 
+    xymin = property(_get_xymin, _set_xymin)
+
+    def _get_xymax(self):
+        assert self.max_[X] == self.max_[Y]
+        return self.max_[X]
+    def _set_xymax(self, val):
+        self.max_[X] = val 
+        self.max_[Y] = val 
+    xymax = property(_get_xymax, _set_xymax)
 
  
     x = property(lambda self:(self.min_[X] + self.max_[X])/2.)
@@ -609,17 +647,35 @@ class Sphere(Primitive):
 
     def as_part(self):
         radius = self.outerRadius.value 
-
         sta = self.startThetaAngle.value
         dta = self.deltaThetaAngle.value
-        if sta is None:
-            sta = 0.
 
-        log.info("Sphere.as_part startThetaAngle %s deltaThetaAngle %s " % (sta, dta))
+        assert self.xyz[2] == self.z
+        z = self.z
 
-        z = self.xyz[2]
         p = Part('Sphere', self.name + "_part", self.xyz, radius )
-        p.bbox = self.bbox(z-radius, z+radius, -radius, radius)
+
+        if sta is None and dta is None:
+            thetacut = False
+            bb = self.bbox(z-radius, z+radius, -radius, radius)
+        else: 
+            # above case is equivalent to sta=0 dta=180
+            if sta is None:
+                sta = 0.
+            rta = sta
+            lta = sta + dta
+            log.info("Sphere.as_part %s  leftThetaAngle %s rightThetaAngle %s " % (self.name, lta, rta))
+            assert rta >= 0. and rta <= 180.
+            assert lta >= 0. and lta <= 180.
+            zl = radius*math.cos(lta*math.pi/180.)
+            yl = radius*math.sin(lta*math.pi/180.)
+            zr = radius*math.cos(rta*math.pi/180.)
+            yr = radius*math.sin(rta*math.pi/180.)
+            ym = max(abs(yl),abs(yr))
+            bb = self.bbox(z+zl, z+zr, -ym, ym)
+        pass
+        p.bbox = bb 
+
         return p 
 
     def part_zleft(self, zpl):

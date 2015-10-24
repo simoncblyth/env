@@ -141,6 +141,7 @@ class PmtPlot(object):
         self.patches = []
         self.ec = 'none'
         self.edgecolor = ['r','g','b','c','m','y','k']
+        self.highlight = []
 
     def color(self, i, other=False):
         n = len(self.edgecolor)
@@ -163,16 +164,21 @@ class PmtPlot(object):
         for i,p in enumerate(parts):
             bb = self.pmt.bbox(p)
             _bb = bb.as_patch(self.axes)
-            self.add_patch(_bb, self.color(i))
+
+            ec = self.color(i)
+            ec = 'none'
+            self.add_patch(_bb, ec)
 
             sh = self.pmt.shape(p)
             _sh = sh.as_patch(self.axes)
-            self.add_patch(_sh, self.color(i,other=True))
+            ec = self.color(i,other=True)
+            fc = 'r' if p in self.highlight else 'none'
+            self.add_patch(_sh, ec, fc)
             if clip:
                 _sh.set_clip_path(_bb)
 
-    def add_patch(self, patch, ec):
-        patch.set_fc('none')
+    def add_patch(self, patch, ec, fc='none'):
+        patch.set_fc(fc)
         patch.set_ec(ec)
         self.patches.append(patch)
         self.ax.add_artist(patch)
@@ -215,9 +221,10 @@ def solids_plot(fig, pmt, solids=range(5)):
     pass
 
 
-def one_plot(fig, pmt, pts, clip=True, axes=ZX):
+def one_plot(fig, pmt, pts, clip=True, axes=ZX, highlight=[]):
     ax = fig.add_subplot(1,1,1, aspect='equal')
     pp = PmtPlot(ax, pmt, axes=axes) 
+    pp.highlight = highlight
     pp.plot_shape(pts, clip=clip)
     pp.limits()
 
@@ -234,23 +241,23 @@ if __name__ == '__main__':
 
     axes = ZX
 
-    solid = CATHODE 
+    #solid = CATHODE 
     #solid = BOTTOM 
-    #solid = DYNODE 
+    solid = DYNODE 
 
-    pts = pmt.parts(solid)
+    #pts = pmt.parts(solid)
     #pts = np.arange(8)
-    #pts = np.arange(12)
+    pts = np.arange(12)
 
     #mug_plot(fig, pmt, pts)
     #clipped_unclipped_plot(fig, pmt, pts)
-    #one_plot(fig, pmt, pts)
-    one_plot(fig, pmt, pts, axes=axes)
+    one_plot(fig, pmt, pts, highlight=[10])
+    #one_plot(fig, pmt, pts, axes=axes, clip=False)
 
     # hmm not possible to split at part level, as those are sub solid
-    if mesh:
-        vv = mesh.verts(solid)
-        plt.scatter(vv[:,axes[0]],vv[:,axes[1]],c=vv[:,Y])
+    #if mesh:
+    #    vv = mesh.verts(solid)
+    #    plt.scatter(vv[:,axes[0]],vv[:,axes[1]],c=vv[:,Y])
 
 
     #solids_plot(fig, pmt, solids=range(5))

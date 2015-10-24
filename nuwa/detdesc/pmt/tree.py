@@ -148,7 +148,7 @@ class Tree(object):
             node = tree.get(i)
             node.copy_parts(data, offset)    
             nparts = node.num_parts() 
-            log.info("i %s %s %s " % (i, nparts, repr(node))) 
+            log.debug("i %s %s %s " % (i, nparts, repr(node))) 
             offset += nparts
         pass
         if slice_ is not None:
@@ -156,7 +156,7 @@ class Tree(object):
             data = data[slice_]
 
         rdata = data.reshape(-1,4) 
-        log.info("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
+        log.debug("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
         np.save(path, rdata) 
 
     def traverse(self):
