@@ -70,23 +70,19 @@ class Node(object):
         to intersects of the source gemetry.
         """
         if self._parts is None:
-            self._parts = self.lv.parts()
+            _parts = self.lv.parts()
+            for p in _parts:
+                p.node = self
+            pass
+            self._parts = _parts 
+        pass
         return self._parts
 
     def num_parts(self):
         parts = self.parts()
         return len(parts)
 
-    def copy_parts(self, data, offset):
-        """
-        # use 4th slots of bbox min/max for integer codes
-        """
-        for i,part in enumerate(self.parts()):
-            data[offset+i] = part.as_quads()
-            data[offset+i].view(np.int32)[1,3] = part.flags    # used in intersect_ztubs
-            data[offset+i].view(np.int32)[2,3] = part.typecode 
-            data[offset+i].view(np.int32)[3,3] = self.index   
- 
+
 
     def add_child(self, child):
         log.debug("add_child %s " % repr(child))
@@ -137,23 +133,45 @@ class Tree(object):
         return tot
 
     @classmethod
-    def save_parts(cls, path, slice_=None):
+    def save_parts(cls, path, explode=0.):
         tnodes = cls.num_nodes() 
         tparts = cls.num_parts() 
-        log.info("tnodes %s tparts %s slice %s " % (tnodes, tparts, repr(slice_)))
+        log.info("tnodes %s tparts %s " % (tnodes, tparts))
 
         data = np.zeros([tparts,4,4],dtype=np.float32)
-        offset = 0 
+
+        # collect parts 
+        parts = []
         for i in range(tnodes):
             node = tree.get(i)
-            node.copy_parts(data, offset)    
-            nparts = node.num_parts() 
-            log.debug("i %s %s %s " % (i, nparts, repr(node))) 
-            offset += nparts
+            parts.extend(node.parts())    
         pass
-        if slice_ is not None:
-            log.warning("save_parts sliced %s  " % repr(slice_) )
-            data = data[slice_]
+        assert len(parts) == tparts          
+
+        # serialize parts into array, converting relationships into indices
+        for i,part in enumerate(parts):
+            index = i + 1   # 1-based index, where parent 0 means None
+            if part.parent is not None:
+                parent = parts.index(part.parent) + 1   # lookup index of parent in parts list  
+            else:
+                parent = 0 
+            pass
+            data[i] = part.as_quads()
+
+            if explode>0:
+                dz = i*explode
+ 
+                data[i][0,2] += dz
+                data[i][2,2] += dz
+                data[i][3,2] += dz
+
+            data[i].view(np.int32)[1,1] = index  
+            data[i].view(np.int32)[1,2] = parent
+            data[i].view(np.int32)[1,3] = part.flags    # used in intersect_ztubs
+            # use the w slot of bb min, max for typecode and solid index
+            data[i].view(np.int32)[2,3] = part.typecode 
+            data[i].view(np.int32)[3,3] = part.node.index   
+        pass
 
         rdata = data.reshape(-1,4) 
         log.debug("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
@@ -209,13 +227,7 @@ if __name__ == '__main__':
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     tree = Tree(g.logvol_("lvPmtHemi")) 
 
-    if len(sys.argv)>1:
-        arg = sys.argv[1] 
-        s = slice(*map(int,arg.split(":")))
-    else:
-        s = None
-    
-    tree.save_parts("/tmp/hemi-pmt-parts.npy", s)   
+    tree.save_parts("/tmp/hemi-pmt-parts.npy", explode=0.)   
 
 
 

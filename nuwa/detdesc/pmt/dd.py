@@ -160,7 +160,12 @@ class Elem(object):
         :param spheres:  list of three *Sphere* in ascending center z order, which are assumed to intersect
         :return parts:  list of three sphere *Part* instances 
 
-        Extend the below two sphere intersection approach to three spheres
+        Consider splitting the lens shape made from the boolean CSG intersection 
+        of two spheres along the plane of the intersection. 
+        The left part of the lens comes from the right Sphere 
+        and the right part comes left Sphere.
+
+        Extending from two sphere intersection to three spheres
         numbered s1,s2,s3 from left to right, with two ZPlane intersections z23, z12.
 
         left
@@ -190,16 +195,10 @@ class Elem(object):
 
         return [p3,p2,p1]
 
-    def partition_intersection_2spheres(self, spheres):
+    def partition_intersection_2spheres(self, spheres, unoverlap=True):
         """
         :param spheres: list of two *Sphere* in ascending center z order
         :return parts: list of two sphere *Part* instances
-
-        Consider splitting the lens shape made from the intersection of two spheres
-        along the plane of the intersection. 
-        The left part of the lens comes from the right Sphere 
-        and the right part comes left Sphere.
-
 
         For pmt-hemi-cathode-face_part pmt-hemi-cathode-belly_part the 
         bbox of the Sphere parts from just the theta angle ranges are overlapping
@@ -212,23 +211,39 @@ class Elem(object):
         s1, s2 = spheres
         assert s1.z < s2.z 
 
+
         # parts from just the theta ranges
         p1, p2 = Part.ascending_bbox_zmin([s1.as_part(),s2.as_part()])
-
         assert p1.bbox.zmin < p2.bbox.zmin
+        p12 = Sphere.intersect("p12",s1,s2) 
+
+        if unoverlap:
+            p1.bbox.zmax = p12.z
+            p2.bbox.zmin  = p12.z 
+            p2.bbox.xymax = p12.y
+            p2.bbox.xymin = -p12.y
+
         log.warning("p1 %s" % p1) 
         log.warning("p2 %s" % p2) 
 
-        unoverlap = True
-        if unoverlap:
-            z12 = Sphere.intersect("z12",s1,s2) 
-            p1.bbox.zmax = z12.z
-            p2.bbox.zmin  = z12.z 
-            p2.bbox.xymax = z12.y
-            p2.bbox.xymin = -z12.y
-            
 
-        return [p2,p1]
+        i1, i2 = Part.ascending_bbox_zmin([s1.as_part(inner=True),s2.as_part(inner=True)])
+        i1.parent = p1
+        i2.parent = p2
+
+        assert i1.bbox.zmin < i2.bbox.zmin
+        i12 = Sphere.intersect("p12",s1,s2, inner=True)
+
+        if unoverlap:
+            i1.bbox.zmax = i12.z
+            i2.bbox.zmin  = i12.z 
+            i2.bbox.xymax = i12.y
+            i2.bbox.xymin = -i12.y
+ 
+        log.warning("i1 %s" % i1) 
+        log.warning("i2 %s" % i2) 
+
+        return [p2,i2,p1,i1]
 
     def partition_intersection(self):
         #log.info(self)
@@ -326,7 +341,12 @@ class Elem(object):
 
         rparts = []
         for c in comps:
-            if c.is_primitive:
+            if c.is_sphere and c.has_inner():
+                p = c.as_part()
+                i = c.as_part(inner=True)
+                i.parent = p
+                rparts.extend([p,i]) 
+            elif c.is_primitive:
                 rparts.extend([c.as_part()])  # assume in union, so no need for chopping ?
             elif c.is_intersection:
                 xret = c.partition_intersection() 
@@ -448,16 +468,10 @@ class ZPlane(object):
         return "ZPlane %s z:%s y:%s " % (self.name, self.z, self.y )
 
 class Part(object):
+
     @classmethod 
     def ascending_bbox_zmin(cls, parts):
         return sorted(parts, key=lambda p:p.bbox.zmin)
-
-    @classmethod 
-    def intersect_spheres(cls, name, spheres, sign=1 ):
-        assert len(spheres) == 2
-        s0, s1 = spheres
- 
-
 
     @classmethod 
     def intersect_tubs_sphere(cls, name, tubs, sphere, sign ):
@@ -513,6 +527,8 @@ class Part(object):
         self.radius = radius
         self.sizeZ = sizeZ   # used for Tubs
         self.bbox = None
+        self.parent = None
+        self.node = None
 
         self.flags = 0
         # Tubs endcap control
@@ -606,7 +622,7 @@ class Sphere(Primitive):
     deltaThetaAngle = property(lambda self:self.att('deltaThetaAngle'))
 
     @classmethod
-    def intersect(cls, name, a_, b_ ):
+    def intersect(cls, name, a_, b_, inner=False):
         """
         Find Z intersect of two Z offset spheres 
 
@@ -620,8 +636,16 @@ class Sphere(Primitive):
                      z is intersection coordinate 
                      y is radius of the intersection circle 
         """
-        R = a_.outerRadius.value
-        r = b_.outerRadius.value
+
+        if inner:
+            R = a_.innerRadius.value
+            r = b_.innerRadius.value
+        else:
+            R = a_.outerRadius.value
+            r = b_.outerRadius.value
+        pass
+        assert R is not None and r is not None
+
         a = a_.xyz
         b = b_.xyz
 
@@ -645,8 +669,19 @@ class Sphere(Primitive):
         # add a[Z] to return to original frame
         return ZPlane(name, z+a[Z], y ) 
 
-    def as_part(self):
-        radius = self.outerRadius.value 
+
+    def has_inner(self):
+        return self.innerRadius.value is not None 
+
+    def as_part(self, inner=False):
+        if inner:
+            radius = self.innerRadius.value 
+        else:
+            radius = self.outerRadius.value 
+        pass
+        if radius is None:
+            return None
+
         sta = self.startThetaAngle.value
         dta = self.deltaThetaAngle.value
 

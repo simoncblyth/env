@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 """
 Plotting from the serialized PMT analytic geometry data
+
+The very thin CATHODE and BOTTOM are composed of sphere parts (sparts) 
+with close inner and outer radii.  
+Inner sparts have parent attribute that points to outer sparts
+
+To plot that, need to clip away the inside.
+
+http://matplotlib.1069221.n5.nabble.com/removing-paths-inside-polygon-td40632.html
+
+Could also just set a width, but thats cheating and the point of the
+plotting is to check the parts...
+
+
 """
 import numpy as np
 import logging, os
@@ -90,6 +103,9 @@ class Pmt(object):
         self.all_parts = range(self.num_parts)
         self.partcode = self.data[:,2,3].view(np.int32)
         self.partnode = self.data[:,3,3].view(np.int32)
+        self.index    = self.data[:,1,1].view(np.int32)
+        self.parent   = self.data[:,1,2].view(np.int32)
+        self.flags    = self.data[:,1,3].view(np.int32)
 
     def parts(self, solid):
         """
@@ -141,7 +157,7 @@ class PmtPlot(object):
         self.patches = []
         self.ec = 'none'
         self.edgecolor = ['r','g','b','c','m','y','k']
-        self.highlight = []
+        self.highlight = {}
 
     def color(self, i, other=False):
         n = len(self.edgecolor)
@@ -162,17 +178,23 @@ class PmtPlot(object):
 
     def plot_shape(self, parts=[], clip=True):
         for i,p in enumerate(parts):
+
+            is_inner = self.pmt.parent[p] > 0
             bb = self.pmt.bbox(p)
             _bb = bb.as_patch(self.axes)
 
             ec = self.color(i)
-            ec = 'none'
+            #ec = 'none'
             self.add_patch(_bb, ec)
 
             sh = self.pmt.shape(p)
             _sh = sh.as_patch(self.axes)
             ec = self.color(i,other=True)
-            fc = 'r' if p in self.highlight else 'none'
+            fc = self.highlight.get(p, 'none')
+
+            if is_inner:
+                fc = 'w'
+
             self.add_patch(_sh, ec, fc)
             if clip:
                 _sh.set_clip_path(_bb)
@@ -183,9 +205,9 @@ class PmtPlot(object):
         self.patches.append(patch)
         self.ax.add_artist(patch)
 
-    def limits(self, s=200):
-        self.ax.set_xlim(-s,s)
-        self.ax.set_ylim(-s,s)
+    def limits(self, sx=200, sy=150):
+        self.ax.set_xlim(-sx,sx)
+        self.ax.set_ylim(-sy,sy)
 
 
 
@@ -221,7 +243,7 @@ def solids_plot(fig, pmt, solids=range(5)):
     pass
 
 
-def one_plot(fig, pmt, pts, clip=True, axes=ZX, highlight=[]):
+def one_plot(fig, pmt, pts, clip=True, axes=ZX, highlight={}):
     ax = fig.add_subplot(1,1,1, aspect='equal')
     pp = PmtPlot(ax, pmt, axes=axes) 
     pp.highlight = highlight
@@ -233,6 +255,20 @@ def one_plot(fig, pmt, pts, clip=True, axes=ZX, highlight=[]):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
+
+
+    # 0:4  PYREX
+    # 4:8  VACUUM
+    # 8:12 CATHODE
+    # 12:14 BOTTOM
+    # 14:15 DYNODE
+
+    highlight = {}
+    highlight[8] = 'r'
+    highlight[9] = 'r'
+    highlight[10] = 'r'
+    highlight[11] = 'b'
+
     PYREX, VACUUM, CATHODE, BOTTOM, DYNODE = 0,1,2,3,4 
 
     mesh = Mesh()
@@ -241,17 +277,17 @@ if __name__ == '__main__':
 
     axes = ZX
 
-    #solid = CATHODE 
+    solid = CATHODE 
     #solid = BOTTOM 
-    solid = DYNODE 
+    #solid = DYNODE 
 
-    #pts = pmt.parts(solid)
+    pts = pmt.parts(solid)
     #pts = np.arange(8)
-    pts = np.arange(12)
 
     #mug_plot(fig, pmt, pts)
     #clipped_unclipped_plot(fig, pmt, pts)
-    one_plot(fig, pmt, pts, highlight=[10])
+
+    one_plot(fig, pmt, pts, highlight=highlight)
     #one_plot(fig, pmt, pts, axes=axes, clip=False)
 
     # hmm not possible to split at part level, as those are sub solid
@@ -264,5 +300,5 @@ if __name__ == '__main__':
 
 
     fig.show()
-    fig.savefig("/tmp/plot.png")
+    #fig.savefig("/tmp/plot.png")
 
