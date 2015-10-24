@@ -150,6 +150,8 @@ class Tree(object):
 
         # serialize parts into array, converting relationships into indices
         for i,part in enumerate(parts):
+            nodeindex = part.node.index
+
             index = i + 1   # 1-based index, where parent 0 means None
             if part.parent is not None:
                 parent = parts.index(part.parent) + 1   # lookup index of parent in parts list  
@@ -159,18 +161,18 @@ class Tree(object):
             data[i] = part.as_quads()
 
             if explode>0:
-                dz = i*explode
+                dx = i*explode
  
-                data[i][0,2] += dz
-                data[i][2,2] += dz
-                data[i][3,2] += dz
+                data[i][0,0] += dx
+                data[i][2,0] += dx
+                data[i][3,0] += dx
 
             data[i].view(np.int32)[1,1] = index  
             data[i].view(np.int32)[1,2] = parent
             data[i].view(np.int32)[1,3] = part.flags    # used in intersect_ztubs
             # use the w slot of bb min, max for typecode and solid index
             data[i].view(np.int32)[2,3] = part.typecode 
-            data[i].view(np.int32)[3,3] = part.node.index   
+            data[i].view(np.int32)[3,3] = nodeindex   
         pass
 
         rdata = data.reshape(-1,4) 
