@@ -287,8 +287,8 @@ if __name__ == '__main__':
     #mug_plot(fig, pmt, pts)
     #clipped_unclipped_plot(fig, pmt, pts)
 
-    one_plot(fig, pmt, pts, highlight=highlight)
-    #one_plot(fig, pmt, pts, axes=axes, clip=False)
+    #one_plot(fig, pmt, pts, highlight=highlight)
+    one_plot(fig, pmt, pts, axes=axes, clip=False)
 
     # hmm not possible to split at part level, as those are sub solid
     #if mesh:
@@ -300,5 +300,5 @@ if __name__ == '__main__':
 
 
     fig.show()
-    #fig.savefig("/tmp/plot.png")
+    fig.savefig("/tmp/plot.png")
 

@@ -435,6 +435,17 @@ hg-forest-get(){
 }
 
 
+hg-month(){
+   local arg=${1:-6}
+   local year=$(date +"%Y") 
+   local beg=$(printf "%0.2u" $arg)
+   local end=$(printf "%0.2u" $(( $arg + 1)))
+   local cmd="hg shortlog --date \"$year-$beg-01 to $year-$end-01\" | tail -r"
+   echo $cmd
+   eval $cmd
+}
+
+
 
 hg-repos(){ find ${1:-$PWD} -type d -name '.hg' -exec dirname {} \;; }
 hg-val(){   perl -n -e "m/^$2\s*=\s*(.*)$/ && print \$1 " $1/.hg/hgrc ; }
