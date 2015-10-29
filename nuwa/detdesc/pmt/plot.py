@@ -112,7 +112,11 @@ class Pmt(object):
         :param solid: index of node/solid 
         :return parts array:
         """
-        return np.arange(len(self.partnode))[self.partnode == solid]
+        pts = np.arange(len(self.partnode))
+        if solid is not None:
+            pts = pts[self.partnode == solid]
+        pass
+        return pts
 
     def bbox(self, p):
         part = self.data[p]
@@ -277,9 +281,10 @@ if __name__ == '__main__':
 
     axes = ZX
 
-    solid = CATHODE 
+    #solid = CATHODE 
     #solid = BOTTOM 
     #solid = DYNODE 
+    solid = None
 
     pts = pmt.parts(solid)
     #pts = np.arange(8)
@@ -288,7 +293,7 @@ if __name__ == '__main__':
     #clipped_unclipped_plot(fig, pmt, pts)
 
     #one_plot(fig, pmt, pts, highlight=highlight)
-    one_plot(fig, pmt, pts, axes=axes, clip=False)
+    one_plot(fig, pmt, pts, axes=axes, clip=True)
 
     # hmm not possible to split at part level, as those are sub solid
     #if mesh:

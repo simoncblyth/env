@@ -23,6 +23,39 @@ osx-captive-wifi-disable
       disabling com.apple.captive.control makes the portal authentication go via Safari which does remember.
 
 
+osx-ss
+      path of last screen shot from today 
+
+osx-ss-cp name
+      copy last screen shot to ~/simoncblyth.bitbucket.org/env/current-relative-dir/name.png
+      where current-relative-dir is PWD relative to ENV_HOME
+
+      Thus to use:
+
+         cd ~/env/graphics/ggeoview
+
+         # take screen shot using shift-cmd-4 and dragging a rectangle
+
+         osx-ss-cp name
+
+         # copy-and-paste rst snippet into presentation
+
+
+::
+
+    simon:pmt blyth$ osx-ss-cp hemi-pmt-parts
+    cp "/Users/blyth/Desktop/Screen Shot 2015-10-29 at 11.27.18 AM.png" /Users/blyth/simoncblyth.bitbucket.org/nuwa/detdesc/pmt/hemi-pmt-parts.png
+    -rw-r--r--@ 1 blyth  staff  124671 Oct 29 11:29 /Users/blyth/simoncblyth.bitbucket.org/nuwa/detdesc/pmt/hemi-pmt-parts.png
+
+    .. image:: /env/nuwa/detdesc/pmt/hemi-pmt-parts.png
+       :width: 900px
+       :align: center
+
+    simon:pmt blyth$ pwd
+    /Users/blyth/env/nuwa/detdesc/pmt
+
+
+
 
 EOU
 }
@@ -33,6 +66,47 @@ osx-get(){
    local dir=$(dirname $(osx-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+osx-ss(){
+   echo $(ls -1t ~/Desktop/Screen\ Shot\ $(date +'%Y-%m-%d')*.png | head -1 )
+}
+
+osx-ss-cp(){
+   local nam=${1:-plot}
+   local iwd=${PWD}
+   local rel=${iwd/$ENV_HOME\/}
+
+   local src="$(osx-ss)"
+
+   local dir=$HOME/simoncblyth.bitbucket.org/env/$rel
+   local dst=$dir/$nam.png
+   [ ! -d "$dir" ] && mkdir -p $dir
+
+   ls -l $dir
+
+   local cmd="cp \"$src\" $dst"
+   echo $cmd
+
+   if [ -f "$dst" ]; then 
+       local ans
+       read -p  "Destination file exists already : enter YES to overwrite " ans
+       [ "$ans" != "YES" ] && echo skipping && return 
+   fi
+
+   eval $cmd
+   ls -l $dst
+
+   cat << EOR
+
+.. image:: /env/$rel/$nam.png
+   :width: 900px
+   :align: center
+
+EOR
+}
+
+
+
 
 
 osx-captive-wifi()
