@@ -1,4 +1,5 @@
 
+
 .. comment 
 
 .. raw:: html
@@ -335,6 +336,19 @@ Optical Photon Simulation Progress
 .. image:: /env/graphics/ggeoview/photon-torpedo-3199-2.png
    :width: 900px
    :align: center
+
+
+:small:`Photon Torpedo Splashback`
+------------------------------------------------
+
+.. class:: small
+
+   Here with no geometry represented, just 0.5M *torch* photons 
+
+.. image:: /env/graphics/ggeoview/photon-torpedo-3199-splashback.png
+   :width: 900px
+   :align: center
+
 
 
 :small:`Optical Photons now fully GPU resident`
