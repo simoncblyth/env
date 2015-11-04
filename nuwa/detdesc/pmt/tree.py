@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import logging, hashlib, sys
+import logging, hashlib, sys, os
 import numpy as np
 np.set_printoptions(precision=2) 
 from dd import Dddb 
@@ -134,6 +134,10 @@ class Tree(object):
 
     @classmethod
     def save_parts(cls, path, explode=0.):
+        pdir = os.path.dirname(path)
+        if not os.path.exists(pdir):
+            os.makedirs(pdir)
+
         tnodes = cls.num_nodes() 
         tparts = cls.num_parts() 
         log.info("tnodes %s tparts %s " % (tnodes, tparts))
@@ -177,6 +181,7 @@ class Tree(object):
 
         rdata = data.reshape(-1,4) 
         log.debug("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
+        log.info("saving to %s shape %s " % (path, repr(rdata.shape)))
         np.save(path, rdata) 
 
     def traverse(self):
@@ -229,7 +234,10 @@ if __name__ == '__main__':
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
     tree = Tree(g.logvol_("lvPmtHemi")) 
 
-    tree.save_parts("/tmp/hemi-pmt-parts.npy", explode=0.)   
+    dest = os.path.expandvars("$IDPATH/GPmt/0/GPmt.npy");
+    #dest = "/tmp/hemi-pmt-parts.npy"
+
+    tree.save_parts(dest, explode=0.)   
 
 
 
