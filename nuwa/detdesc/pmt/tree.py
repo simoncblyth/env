@@ -133,7 +133,7 @@ class Tree(object):
         return tot
 
     @classmethod
-    def save_parts(cls, path, explode=0.):
+    def save_parts(cls, path, explode=0., reshape=False):
         pdir = os.path.dirname(path)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
@@ -179,8 +179,12 @@ class Tree(object):
             data[i].view(np.int32)[3,3] = nodeindex   
         pass
 
-        rdata = data.reshape(-1,4) 
-        log.debug("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
+        if reshape:
+            rdata = data.reshape(-1,4) 
+            log.debug("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
+        else:
+            rdata = data 
+
         log.info("saving to %s shape %s " % (path, repr(rdata.shape)))
         np.save(path, rdata) 
 
