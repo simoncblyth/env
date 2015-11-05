@@ -322,6 +322,8 @@ class Elem(object):
 
     def parts(self):
         """
+        :return: list of Part instances
+
         Provides parts from a single LV only, ie not
         following pv refs. Recursion is needed 
         in order to do link posXYZ transforms with geometry
@@ -505,6 +507,10 @@ class Part(object):
 
         return ZPlane(name, sphere.xyz[Z] + sign*iz, r) 
 
+        
+
+
+
     def enable_endcap(self, tag):
         ENDCAP_P = 0x1 <<  0
         ENDCAP_Q = 0x1 <<  1 
@@ -537,8 +543,30 @@ class Part(object):
             self.typecode = 1
         elif typ == 'Tubs':
             self.typecode = 2
+        elif typ == 'Box':
+            self.typecode = 3
         else:
             assert 0
+
+
+    @classmethod
+    def make_container(cls, parts, factor=3. ):
+        """
+        create container box for all the parts 
+        optionally enlarged by a multiple of the bbox extent
+        """
+        bb = BBox([0,0,0],[0,0,0])
+        for pt in parts:
+            #print pt
+            bb.include(pt.bbox)
+        pass
+        bb.enlarge(factor)
+
+        p = Part('Box', "make_container_box", bb.xyz, 0., 0. )
+        p.bbox = bb
+        log.info(p)
+        return p 
+
 
     def __repr__(self):
         return "Part %s %s %s r:%s sz:%s bb:%s" % (self.typ, self.name, repr(self.xyz), self.radius, self.sizeZ, repr(self.bbox)) 
@@ -556,6 +584,23 @@ class BBox(object):
     def __init__(self, min_, max_):
         self.min_ = np.array(min_)
         self.max_ = np.array(max_)
+
+    def include(self, other):
+        """
+        Expand this bounding box to encompass another
+        """
+        self.min_ = np.minimum(other.min_, self.min_)
+        self.max_ = np.maximum(other.max_, self.max_)
+
+    def enlarge(self, factor):
+        """
+        Intended to duplicate ggeo-/GVector.hh/gbbox::enlarge
+        """
+        dim = self.max_ - self.min_
+        ext = dim.max()/2.0
+        vec = np.repeat(ext*factor, 3)
+        self.min_ = self.min_ - vec 
+        self.max_ = self.max_ + vec 
 
     def _get_zmin(self):
         return self.min_[Z]
@@ -616,6 +661,8 @@ class Primitive(Elem):
         assert yn < 0 and yp > 0 and zr > zl
         return BBox([yn,yn,zl], [yp,yp,zr])
  
+
+
 
 class Sphere(Primitive):
     startThetaAngle = property(lambda self:self.att('startThetaAngle'))
