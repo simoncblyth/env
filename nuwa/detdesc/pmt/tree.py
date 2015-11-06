@@ -133,7 +133,7 @@ class Tree(object):
         return tot
 
     @classmethod
-    def save_parts(cls, path, explode=0., container=False, container_factor=3., reshape=False):
+    def save_parts(cls, path, explode=0., reshape=False):
         pdir = os.path.dirname(path)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
@@ -150,25 +150,29 @@ class Tree(object):
         pass
         assert len(parts) == tparts          
 
-        if container:
-            container = Part.make_container(parts, factor=container_factor)
-            parts.extend([container])
-            # match order of what GMergedeMesh::combine does with the GTestBox
-        pass
+        # doing container boxing here is too prone to mismatches...  see:
+        #
+        #     * GGeo::modifyGeometry 
+        #     * ggv --testbox
+        #
+        # if container:
+        #     container = Part.make_container(parts, factor=container_factor)
+        #     parts.extend([container])
+        #     # match order of what GMergedeMesh::combine does with the GTestBox
+        #
+        # indices = map(lambda p:p.node.index, filter(lambda p:p.node is not None, parts))
+        # fabricated_nodeindex = max(indices) + 1  # rustle up next valid index, all fabricated parts will have this index
+        # log.info("indices: %s fabricated_nodeindex: %s " % (repr(indices), fabricated_nodeindex))
+        #
 
         # serialize parts into array, converting relationships into indices
         data = np.zeros([len(parts),4,4],dtype=np.float32)
-                 
-        indices = map(lambda p:p.node.index, filter(lambda p:p.node is not None, parts))
-        fabricated_nodeindex = max(indices) + 1  # rustle up next valid index, all fabricated parts will have this index
-        log.info("indices: %s fabricated_nodeindex: %s " % (repr(indices), fabricated_nodeindex))
 
         for i,part in enumerate(parts):
-            if part.node is None:       # eg for the fabricated container box
-                nodeindex = fabricated_nodeindex
-            else:
-                nodeindex = part.node.index
-            pass
+            #if part.node is None:       # eg for the fabricated container box
+            #    nodeindex = fabricated_nodeindex
+            #else:
+            nodeindex = part.node.index
             index = i + 1   # 1-based index, where parent 0 means None
             if part.parent is not None:
                 parent = parts.index(part.parent) + 1   # lookup index of parent in parts list  
@@ -252,9 +256,8 @@ if __name__ == '__main__':
     tree = Tree(g.logvol_("lvPmtHemi"))
 
     dest = os.path.expandvars("$IDPATH/GPmt/0/GPmt.npy");
-    #dest = "/tmp/hemi-pmt-parts.npy"
 
-    tree.save_parts(dest, explode=0., container=True, container_factor=3.) 
+    tree.save_parts(dest) 
 
 
 
