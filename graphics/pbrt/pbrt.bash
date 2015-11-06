@@ -36,6 +36,11 @@ Spectral Rendering
     instead r,g,b gaussians
 
 
+Photon Mapping
+---------------
+
+* http://www.cs.cmu.edu/afs/cs/academic/class/15462-f14/www/lec_slides/a1-jensen.pdf
+
 
 
  

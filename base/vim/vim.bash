@@ -9,12 +9,20 @@ VIM Tips
 =========
 
 
+* http://www.astrohandbook.com/ch20/vi_guide.html
+
+
 Gutter Line Numbers
 ----------------------
 
 * http://vim.wikia.com/wiki/Display_line_numbers
 
 
+
+Overwrite Mode : handy for ascii art
+--------------------------------------
+
+* shift-R
 
 
 
