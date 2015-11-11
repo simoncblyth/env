@@ -71,6 +71,11 @@ osx-ss(){
    echo $(ls -1t ~/Desktop/Screen\ Shot\ $(date +'%Y-%m-%d')*.png | head -1 )
 }
 
+osx-ss-open(){
+   open "$(osx-ss)"
+}
+
+
 osx-ss-cp(){
    local nam=${1:-plot}
    local iwd=${PWD}
