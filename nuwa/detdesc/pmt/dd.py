@@ -19,27 +19,60 @@ X,Y,Z = 0,1,2
 
 
 class Uncoincide(object):
-    def __init__(self):
+    def __init__(self, top="OUTERMATERIAL", sensor="lvPmtHemiCathodeSensorSurface"):
+         self.top = top
+         self.sensor = sensor
          pass
     def face_bottom_tubs(self, name):
         """
         Only face and bottom have coincident surfaces in literal
         translation that need fixing.
+
+        ::
+
+               tubs                      bottom                    face
+
+               OM///Pyrex                OM///Pyrex               OM///Pyrex
+
+               Pyrex///Vacuum            Pyrex///OpaqueVacuum     Pyrex/SENSOR//Bialkali
+
+               Vacuum///OpaqueVacuum     OpaqueVacuum///Vacuum    Bialkali///Vacuum
+
+
         """
         log.warning("UNCOINCIDE boundary setting for %s " % name)
         face = bottom = tubs = None
         if name == "pmt-hemi":
-            face = bottom = tubs = "MineralOil///Pyrex"   
+            pass
+            boundary = "%s///Pyrex" % self.top   
+            face = boundary 
+            bottom = boundary   
+            tubs = boundary    
+            pass
         elif name == "pmt-hemi-vac": 
-            face = "Pyrex/lvPmtHemiCathodeSensorSurface//Bialkali"
+            pass
+            face = "Pyrex/%s//Bialkali" % self.sensor
             bottom = "Pyrex///OpaqueVacuum"
             tubs = "Pyrex///Vacuum"
+            pass
         elif name == "pmt-hemi-cathode": 
+            pass
             face = "Bialkali///Vacuum"
+            bottom = None
+            tubs = None
+            pass
         elif name == "pmt-hemi-bot": 
+            pass
+            face = None
             bottom = "OpaqueVacuum///Vacuum"
+            tubs = None
+            pass
         elif name == "pmt-hemi-dynode":
+            pass
+            face = None
+            bottom = None
             tubs = "Vacuum///OpaqueVacuum"
+            pass
         else:
             assert 0
         pass
@@ -275,14 +308,10 @@ class Elem(object):
  
         log.warning("i1 %s" % i1) 
         log.warning("i2 %s" % i2) 
-
-
         if UNCOINCIDE and self.name == "pmt-hemi-cathode": 
-            log.warning("UNCOINCIDE boundary setting for %s " % self.name)
-            boundary = "Bialkali///Vacuum"
-
-            i2.boundary = boundary  
-            i1.boundary = boundary  
+            face, bottom, tubs = UNCOINCIDE.face_bottom_tubs(self.name)
+            i2.boundary = face 
+            i1.boundary = face  
             ret = [i2,i1]    # skipping the coincidents 
         else:
             i1.parent = p1
@@ -346,14 +375,14 @@ class Elem(object):
 
         if UNCOINCIDE: 
             if self.name == "pmt-hemi" or self.name == "pmt-hemi-vac":
-                boundary_face, boundary_bottom, boundary_tubs = UNCOINCIDE.face_bottom_tubs(self.name)
+                face, bottom, tubs = UNCOINCIDE.face_bottom_tubs(self.name)
             else:
                 assert 0  
             pass
-            tpart.boundary = boundary_tubs
-            sparts[0].boundary = boundary_bottom
-            sparts[1].boundary = boundary_face
-            sparts[2].boundary = boundary_face
+            tpart.boundary = tubs
+            sparts[0].boundary = bottom
+            sparts[1].boundary = face
+            sparts[2].boundary = face
         pass 
         rparts = []
         rparts.extend(sparts)
