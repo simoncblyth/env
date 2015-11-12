@@ -95,6 +95,8 @@ class Part(object):
         self.bbox = None
         self.parent = None
         self.node = None
+        self.material = None
+        self.boundary = None
 
         self.flags = 0
         # Tubs endcap control
@@ -129,7 +131,7 @@ class Part(object):
 
 
     def __repr__(self):
-        return "Part %s %s %s r:%s sz:%s bb:%s" % (self.typ, self.name, repr(self.xyz), self.radius, self.sizeZ, repr(self.bbox)) 
+        return "Part %6s %12s %32s %15s r:%6s sz:%5s %40s %s" % (self.typ, self.material, self.name, repr(self.xyz), self.radius, self.sizeZ, repr(self.bbox), self.boundary) 
 
     def as_quads(self):
         quads = []
@@ -193,11 +195,10 @@ class BBox(object):
         self.max_[Y] = val 
     xymax = property(_get_xymax, _set_xymax)
 
- 
-    x = property(lambda self:(self.min_[X] + self.max_[X])/2.)
-    y = property(lambda self:(self.min_[Y] + self.max_[Y])/2.)
-    z = property(lambda self:(self.min_[Z] + self.max_[Z])/2.)
-    xyz = property(lambda self:[self.x, self.y,self.z])
+    x = property(lambda self:self.xyz[X])
+    y = property(lambda self:self.xyz[Y])
+    z = property(lambda self:self.xyz[Z])
+    xyz = property(lambda self:(self.min_+self.max_)/2.)
 
     def as_quads(self,scale=1):
         qmin = np.zeros(4)
@@ -207,7 +208,10 @@ class BBox(object):
         return qmin, qmax 
 
     def __repr__(self):
-        return "BBox min:%s max:%s xyz:%s" % (repr(self.min_), repr(self.max_), repr(self.xyz) )
+        xyz = self.xyz 
+
+        assert xyz[X] == xyz[Y] == 0. 
+        return "BB %30s %30s z %6.2f" % (str(self.min_), str(self.max_), xyz[Z] )
 
 
 

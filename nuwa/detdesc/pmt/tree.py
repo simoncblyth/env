@@ -5,6 +5,9 @@ np.set_printoptions(precision=2)
 from dd import Dddb
 from geom import Part
 
+class Buf(np.ndarray): pass
+
+
 log = logging.getLogger(__name__)
 
 class Node(object):
@@ -173,7 +176,6 @@ class Tree(object):
            of relationships to indices demands an all at once conversion
 
         """
-
         data = np.zeros([len(parts),4,4],dtype=np.float32)
         for i,part in enumerate(parts):
             nodeindex = part.node.index
@@ -198,17 +200,26 @@ class Tree(object):
             data[i].view(np.int32)[2,3] = part.typecode 
             data[i].view(np.int32)[3,3] = nodeindex   
         pass
-        return data
+        buf = data.view(Buf) 
+        buf.boundaries = map(lambda _:_.boundary, parts) 
+        return buf
 
     @classmethod
-    def save(cls, path_, data):
+    def save(cls, path_, buf):
         path = os.path.expandvars(path_)
         pdir = os.path.dirname(path)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
         pass
-        log.info("saving to %s shape %s " % (path_, repr(data.shape)))
-        np.save(path, data) 
+        log.info("saving to %s shape %s " % (path_, repr(buf.shape)))
+        if hasattr(buf,"boundaries"):
+            names = path.replace(".npy",".txt")
+            log.info("saving boundaries to %s " % names)
+            with open(names,"w") as fp:
+                fp.write("\n".join(buf.boundaries)) 
+            pass
+        pass
+        np.save(path, buf) 
 
     def traverse(self):
         self.wrap.traverse()

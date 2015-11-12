@@ -9,12 +9,44 @@ from geom import Part, BBox, ZPlane, Rev
 
 log = logging.getLogger(__name__)
 
+
 tostring_ = lambda _:ET.tostring(_)
 parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
 fparse_ = lambda _:HT.fragments_fromstring(file(os.path.expandvars(_)).read())
 pp_ = lambda d:"\n".join([" %30s : %f " % (k,d[k]) for k in sorted(d.keys())])
 
 X,Y,Z = 0,1,2
+
+
+class Uncoincide(object):
+    def __init__(self):
+         pass
+    def face_bottom_tubs(self, name):
+        """
+        Only face and bottom have coincident surfaces in literal
+        translation that need fixing.
+        """
+        log.warning("UNCOINCIDE boundary setting for %s " % name)
+        face = bottom = tubs = None
+        if name == "pmt-hemi":
+            face = bottom = tubs = "MineralOil///Pyrex"   
+        elif name == "pmt-hemi-vac": 
+            face = "Pyrex/lvPmtHemiCathodeSensorSurface//Bialkali"
+            bottom = "Pyrex///OpaqueVacuum"
+            tubs = "Pyrex///Vacuum"
+        elif name == "pmt-hemi-cathode": 
+            face = "Bialkali///Vacuum"
+        elif name == "pmt-hemi-bot": 
+            bottom = "OpaqueVacuum///Vacuum"
+        elif name == "pmt-hemi-dynode":
+            tubs = "Vacuum///OpaqueVacuum"
+        else:
+            assert 0
+        pass
+        return face, bottom, tubs
+
+UNCOINCIDE = Uncoincide()
+
 
 class Att(object):
     def __init__(self, expr, g, evaluate=True):
@@ -157,7 +189,7 @@ class Elem(object):
         else:
             return []  
 
-    def partition_intersection_3spheres(self, spheres):
+    def partition_intersection_3spheres(self, spheres, material=None):
         """
         :param spheres:  list of three *Sphere* in ascending center z order, which are assumed to intersect
         :return parts:  list of three sphere *Part* instances 
@@ -197,10 +229,12 @@ class Elem(object):
 
         return [p3,p2,p1]
 
-    def partition_intersection_2spheres(self, spheres, unoverlap=True):
+    def partition_intersection_2spheres(self, spheres, material=None, unoverlap=True):
         """
         :param spheres: list of two *Sphere* in ascending center z order
         :return parts: list of two sphere *Part* instances
+
+        Used for the very thin photocathode
 
         For pmt-hemi-cathode-face_part pmt-hemi-cathode-belly_part the 
         bbox of the Sphere parts from just the theta angle ranges are overlapping
@@ -213,7 +247,6 @@ class Elem(object):
         s1, s2 = spheres
         assert s1.z < s2.z 
 
-
         # parts from just the theta ranges
         p1, p2 = Part.ascending_bbox_zmin([s1.as_part(),s2.as_part()])
         assert p1.bbox.zmin < p2.bbox.zmin
@@ -225,14 +258,12 @@ class Elem(object):
             p2.bbox.xymax = p12.y
             p2.bbox.xymin = -p12.y
 
-        log.warning("p1 %s" % p1) 
-        log.warning("p2 %s" % p2) 
+        log.warning("material %s name %s " % (material, self.name))
+        log.warning("p1 %s " % p1) 
+        log.warning("p2 %s " % p2) 
 
-
+        # pluck inner radii, for the insides 
         i1, i2 = Part.ascending_bbox_zmin([s1.as_part(inner=True),s2.as_part(inner=True)])
-        i1.parent = p1
-        i2.parent = p2
-
         assert i1.bbox.zmin < i2.bbox.zmin
         i12 = Sphere.intersect("p12",s1,s2, inner=True)
 
@@ -245,9 +276,22 @@ class Elem(object):
         log.warning("i1 %s" % i1) 
         log.warning("i2 %s" % i2) 
 
-        return [p2,i2,p1,i1]
 
-    def partition_intersection(self):
+        if UNCOINCIDE and self.name == "pmt-hemi-cathode": 
+            log.warning("UNCOINCIDE boundary setting for %s " % self.name)
+            boundary = "Bialkali///Vacuum"
+
+            i2.boundary = boundary  
+            i1.boundary = boundary  
+            ret = [i2,i1]    # skipping the coincidents 
+        else:
+            i1.parent = p1
+            i2.parent = p2
+            ret = [p2,i2,p1,i1]
+        pass
+        return ret
+
+    def partition_intersection(self, material=None):
         #log.info(self)
 
         spheres = []
@@ -270,14 +314,54 @@ class Elem(object):
             log.debug("s%d: %s %s " % (i, s.desc, s.outerRadius.value))
  
         if len(spheres) == 3:
-            return self.partition_intersection_3spheres(spheres) 
+            return self.partition_intersection_3spheres(spheres, material=material) 
         elif len(spheres) == 2:
-            return self.partition_intersection_2spheres(spheres) 
+            return self.partition_intersection_2spheres(spheres, material=material) 
         else:
             assert 0 
 
 
-    def partition_union(self, verbose=False):
+
+    def partition_union_intersection_tubs(self, comps, material=None, verbose=False):
+        """ 
+        """
+        log.info("material %s name %s " % (material, self.name))
+
+        sparts = Part.ascending_bbox_zmin(comps[0].partition_intersection())
+        assert len(sparts) == 3 
+        tpart = comps[1].as_part()
+        ts = Part.intersect_tubs_sphere("ts", tpart, sparts[0], -1)   # -ve root for leftmost
+
+        if verbose:
+            log.info(self)
+            log.info("ts %s " % repr(ts))
+            for i, s in enumerate(sparts):
+                log.info("sp(%s) %s " % (i, repr(s)))
+            log.info("tp(0) %s " % repr(tpart))
+        pass
+
+        sparts[0].bbox.zmin = ts.z   
+        tpart.bbox.zmax = ts.z
+        tpart.enable_endcap("P")  # smaller Z endcap 
+
+        if UNCOINCIDE: 
+            if self.name == "pmt-hemi" or self.name == "pmt-hemi-vac":
+                boundary_face, boundary_bottom, boundary_tubs = UNCOINCIDE.face_bottom_tubs(self.name)
+            else:
+                assert 0  
+            pass
+            tpart.boundary = boundary_tubs
+            sparts[0].boundary = boundary_bottom
+            sparts[1].boundary = boundary_face
+            sparts[2].boundary = boundary_face
+        pass 
+        rparts = []
+        rparts.extend(sparts)
+        rparts.extend([tpart])
+        return rparts 
+
+
+    def partition_union(self, material=None, verbose=False):
         """
         union of a 3-sphere lens shape and a tubs requires:
 
@@ -291,28 +375,11 @@ class Elem(object):
         rparts = []
         if len(comps) == 3 and comps[0].is_intersection and comps[1].is_tubs and comps[2].is_posXYZ:
             # pmt-hemi-glass-bulb, pmt-hemi-bulb-vac        
-            sparts = Part.ascending_bbox_zmin(comps[0].partition_intersection())
-            tpart = comps[1].as_part()
-            ts = Part.intersect_tubs_sphere("ts", tpart, sparts[0], -1)   # -ve root for leftmost
-
-            if verbose:
-                log.info(self)
-                log.info("ts %s " % repr(ts))
-                for i, s in enumerate(sparts):
-                    log.info("sp(%s) %s " % (i, repr(s)))
-                log.info("tp(0) %s " % repr(tpart))
-            pass
-
-            sparts[0].bbox.zmin = ts.z   
-            tpart.bbox.zmax = ts.z
-            tpart.enable_endcap("P")  # smaller Z endcap 
-
-            rparts.extend(sparts)
-            rparts.extend([tpart])
-
+            xret = self.partition_union_intersection_tubs(comps[0:3], material=material)
+            rparts.extend(xret)
         elif len(comps) == 3 and comps[0].is_sphere and comps[1].is_sphere and comps[2].is_posXYZ:
             pass
-            xret = self.partition_intersection_2spheres(comps[0:2])
+            xret = self.partition_intersection_2spheres(comps[0:2], material=material)
             rparts.extend(xret)
             pass
         else:
@@ -320,6 +387,33 @@ class Elem(object):
             rparts.extend(xret)
         pass
         return rparts  ; 
+
+    def parts_sphere_with_inner(self, c):
+        log.info("name %s " % c.name)
+
+        p = c.as_part()
+        i = c.as_part(inner=True)
+        log.info("    part   %s " % p ) 
+        log.info("    inner  %s " % i ) 
+
+        if UNCOINCIDE and c.name == "pmt-hemi-bot":
+            face, bottom, tubs = UNCOINCIDE.face_bottom_tubs(c.name)
+            i.boundary = bottom   
+            ret = [i]
+        else:
+            i.parent = p
+            ret = [p,i]
+        pass
+        return ret 
+
+    def parts_primitive(self, c):
+        log.info("name %s " % c.name)
+        p = c.as_part()
+        if UNCOINCIDE and c.name == "pmt-hemi-dynode":
+            face, bottom, tubs = UNCOINCIDE.face_bottom_tubs(c.name)
+            p.boundary = tubs
+        pass
+        return [p]
 
 
     def parts(self):
@@ -334,11 +428,16 @@ class Elem(object):
         if type(self) is Physvol:
             return [] 
 
-        if type(self) is Logvol:
+        if type(self) is Logvol and not self.is_logvol: 
+            log.warning("inconsistent LV %s " % repr(self)) 
+
+        if self.is_logvol:
             base = self.posXYZ 
+            material = self.material
         else:
             base = None
-
+            material = None
+        pass
 
         comps = self.findall_("./*")  # one lev only
         self.link_prior_posXYZ(comps, base)
@@ -346,25 +445,37 @@ class Elem(object):
         rparts = []
         for c in comps:
             if c.is_sphere and c.has_inner():
-                p = c.as_part()
-                i = c.as_part(inner=True)
-                i.parent = p
-                rparts.extend([p,i]) 
+                log.info("-> sphere with inner  %s " % c.name)
+                pts = self.parts_sphere_with_inner(c)  
+                rparts.extend(pts) 
             elif c.is_primitive:
-                rparts.extend([c.as_part()])  # assume in union, so no need for chopping ?
+                log.info("-> primitive %s " % c.name)
+                pts = self.parts_primitive(c)
+                rparts.extend(pts)
             elif c.is_intersection:
-                xret = c.partition_intersection() 
+                log.info("-> intersection %s " % c.name)
+                xret = c.partition_intersection(material=material) 
                 rparts.extend(xret)
             elif c.is_union:
-                xret = c.partition_union() 
+                log.info("-> union %s " % c.name)
+                xret = c.partition_union(material=material) 
                 rparts.extend(xret)
             elif c.is_composite:
+                log.info("-> composite %s " % c.name )
                 xret = c.parts() 
                 rparts.extend(xret)
             elif c.is_posXYZ:
                 pass
             else:
                 log.warning("skipped component %s " % repr(c))
+            pass
+
+
+        if self.is_logvol:
+            for p in rparts:
+                if p.material is None:
+                    p.material = self.material
+                pass
             pass
 
         return rparts
@@ -533,7 +644,7 @@ class Sphere(Primitive):
                 sta = 0.
             rta = sta
             lta = sta + dta
-            log.info("Sphere.as_part %s  leftThetaAngle %s rightThetaAngle %s " % (self.name, lta, rta))
+            log.debug("Sphere.as_part %s  leftThetaAngle %s rightThetaAngle %s " % (self.name, lta, rta))
             assert rta >= 0. and rta <= 180.
             assert lta >= 0. and lta <= 180.
             zl = radius*math.cos(lta*math.pi/180.)

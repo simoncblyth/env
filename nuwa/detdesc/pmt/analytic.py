@@ -20,8 +20,12 @@ if __name__ == '__main__':
 
     parts = tr.parts()
 
-    partsbuf = tr.convert(parts)
+    for pt in parts:
+        print pt
 
-    tr.save("$IDPATH/GPmt/0/GPmt.npy", partsbuf)
+    buf = tr.convert(parts)
+
+
+    tr.save("$IDPATH/GPmt/0/GPmt.npy", buf)
 
 
