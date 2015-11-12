@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+import logging
+import numpy as np
+from dd import Dddb
+from tree import Tree
+
+log = logging.getLogger(__name__)
+
+if __name__ == '__main__':
+    format_ = "[%(filename)s +%(lineno)3s %(funcName)20s ] %(message)s" 
+    logging.basicConfig(level=logging.INFO, format=format_)
+    np.set_printoptions(precision=2) 
+
+    g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
+
+    lv = g.logvol_("lvPmtHemi")
+
+    tr = Tree(lv)
+
+    parts = tr.parts()
+
+    partsbuf = tr.convert(parts)
+
+    tr.save("$IDPATH/GPmt/0/GPmt.npy", partsbuf)
+
+

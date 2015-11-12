@@ -3,7 +3,9 @@ import os, re, logging, math
 import numpy as np
 import lxml.etree as ET
 import lxml.html as HT
-from math import acos
+from math import acos   # needed for detdesc string evaluation during context building
+
+from geom import Part, BBox, ZPlane, Rev
 
 log = logging.getLogger(__name__)
 
@@ -421,8 +423,6 @@ class Physvol(Elem):
     def __repr__(self):
         return "PV %-20s %s " % (self.name, self.logvolref)
 
-
-
 class Union(Elem):
     def __repr__(self):
         return "Union %20s  " % (self.name)
@@ -430,7 +430,6 @@ class Union(Elem):
 class Intersection(Elem):
     def __repr__(self):
         return "Intersection %20s  " % (self.name)
-
 
 class Parameter(Elem):
     expr = property(lambda self:self.elem.attrib['value'])
@@ -442,216 +441,6 @@ class Parameter(Elem):
         return "%30s : %s " % ( self.name, self.expr )
 
 
-class Rev(object):
-    def __init__(self, typ, name, xyz, radius, sizeZ=None, startTheta=None, deltaTheta=None, width=None):
-        self.typ = typ
-        self.name = name
-        self.xyz = xyz 
-        self.radius = radius
-        self.sizeZ = sizeZ
-        self.startTheta = startTheta
-        self.deltaTheta = deltaTheta
-        self.width = width
-
-    def __repr__(self):
-        return "Rev('%s','%s' xyz:%s, r:%s, sz:%s, st:%s, dt:%s wi:%s)" % \
-            (self.typ, self.name, self.xyz, self.radius, self.sizeZ, self.startTheta, self.deltaTheta, self.width)
-
-
-class ZPlane(object):
-    def __init__(self, name, z, y):
-        """
-        xy symmetry assumed
-        """
-        self.name = name
-        self.z = z
-        self.y = y   
-    def __repr__(self):
-        return "ZPlane %s z:%s y:%s " % (self.name, self.z, self.y )
-
-class Part(object):
-
-    @classmethod 
-    def ascending_bbox_zmin(cls, parts):
-        return sorted(parts, key=lambda p:p.bbox.zmin)
-
-    @classmethod 
-    def intersect_tubs_sphere(cls, name, tubs, sphere, sign ):
-        """
-        :param name: identifier of ZPlane created
-        :param tubs: tubs Part instance  
-        :param sphere: sphere Part instance  
-        :param sign: 1 or -1 sign of the sqrt  
-
-        Sphere at zp on Z axis
-
-            xx + yy + (z-zp)(z-zp) = RR    
-
-        Cylinder along Z axis from -sizeZ/2 to sizeZ/2
-           
-            xx + yy = rr
-
-        Intersection is a circle in Z plane  
-
-            (z-zp) = sqrt(RR - rr) 
-
-        """ 
-        R = sphere.radius 
-        r = tubs.radius
-
-        RR_m_rr = R*R - r*r
-        assert RR_m_rr > 0
-
-        iz = math.sqrt(RR_m_rr)  
-        assert iz < tubs.sizeZ 
-
-        return ZPlane(name, sphere.xyz[Z] + sign*iz, r) 
-
-        
-
-
-
-    def enable_endcap(self, tag):
-        ENDCAP_P = 0x1 <<  0
-        ENDCAP_Q = 0x1 <<  1 
-        pass
-        if tag == "P":
-            self.flags |= ENDCAP_P 
-        elif tag == "Q":
-            self.flags |= ENDCAP_Q 
-        else:
-            log.warning("tag is not P or Q, for the low Z endcap (P) and higher Z endcap (Q)")
-
-
-    def __init__(self, typ, name, xyz, radius, sizeZ=0.):
-        """
-        see cu/hemi-pmt.cu for where these are used 
-        """
-        self.typ = typ
-        self.name = name
-        self.xyz = xyz
-        self.radius = radius
-        self.sizeZ = sizeZ   # used for Tubs
-        self.bbox = None
-        self.parent = None
-        self.node = None
-
-        self.flags = 0
-        # Tubs endcap control
-
-        if typ == 'Sphere':
-            self.typecode = 1
-        elif typ == 'Tubs':
-            self.typecode = 2
-        elif typ == 'Box':
-            self.typecode = 3
-        else:
-            assert 0
-
-
-    @classmethod
-    def make_container(cls, parts, factor=3. ):
-        """
-        create container box for all the parts 
-        optionally enlarged by a multiple of the bbox extent
-        """
-        bb = BBox([0,0,0],[0,0,0])
-        for pt in parts:
-            #print pt
-            bb.include(pt.bbox)
-        pass
-        bb.enlarge(factor)
-
-        p = Part('Box', "make_container_box", bb.xyz, 0., 0. )
-        p.bbox = bb
-        log.info(p)
-        return p 
-
-
-    def __repr__(self):
-        return "Part %s %s %s r:%s sz:%s bb:%s" % (self.typ, self.name, repr(self.xyz), self.radius, self.sizeZ, repr(self.bbox)) 
-
-    def as_quads(self):
-        quads = []
-        quads.append( [self.xyz[0], self.xyz[1], self.xyz[2], self.radius] )
-        quads.append( [self.sizeZ, 0, 0, 0] )
-        for q in self.bbox.as_quads():
-            quads.append(q)
-        return quads
-           
-
-class BBox(object):
-    def __init__(self, min_, max_):
-        self.min_ = np.array(min_)
-        self.max_ = np.array(max_)
-
-    def include(self, other):
-        """
-        Expand this bounding box to encompass another
-        """
-        self.min_ = np.minimum(other.min_, self.min_)
-        self.max_ = np.maximum(other.max_, self.max_)
-
-    def enlarge(self, factor):
-        """
-        Intended to duplicate ggeo-/GVector.hh/gbbox::enlarge
-        """
-        dim = self.max_ - self.min_
-        ext = dim.max()/2.0
-        vec = np.repeat(ext*factor, 3)
-        self.min_ = self.min_ - vec 
-        self.max_ = self.max_ + vec 
-
-    def _get_zmin(self):
-        return self.min_[Z]
-    def _set_zmin(self, val):
-        self.min_[Z] = val 
-    zmin = property(_get_zmin, _set_zmin)
-
-    def _get_zmax(self):
-        return self.max_[Z]
-    def _set_zmax(self, val):
-        self.max_[Z] = val 
-    zmax = property(_get_zmax, _set_zmax)
-
-    def _get_xymin(self):
-        """
-        xy symmetry assumed
-        """ 
-        assert self.min_[X] == self.min_[Y]
-        return self.min_[X]
-    def _set_xymin(self, val):
-        self.min_[X] = val 
-        self.min_[Y] = val 
-    xymin = property(_get_xymin, _set_xymin)
-
-    def _get_xymax(self):
-        assert self.max_[X] == self.max_[Y]
-        return self.max_[X]
-    def _set_xymax(self, val):
-        self.max_[X] = val 
-        self.max_[Y] = val 
-    xymax = property(_get_xymax, _set_xymax)
-
- 
-    x = property(lambda self:(self.min_[X] + self.max_[X])/2.)
-    y = property(lambda self:(self.min_[Y] + self.max_[Y])/2.)
-    z = property(lambda self:(self.min_[Z] + self.max_[Z])/2.)
-    xyz = property(lambda self:[self.x, self.y,self.z])
-
-    def as_quads(self,scale=1):
-        qmin = np.zeros(4)
-        qmin[:3] = self.min_*scale
-        qmax = np.zeros(4)
-        qmax[:3] = self.max_*scale
-        return qmin, qmax 
-
-    def __repr__(self):
-        return "BBox min:%s max:%s xyz:%s" % (repr(self.min_), repr(self.max_), repr(self.xyz) )
-
-
-
-
 class Primitive(Elem):
     is_rev = True
     outerRadius = property(lambda self:self.att('outerRadius'))
@@ -661,8 +450,6 @@ class Primitive(Elem):
         assert yn < 0 and yp > 0 and zr > zl
         return BBox([yn,yn,zl], [yp,yp,zr])
  
-
-
 
 class Sphere(Primitive):
     startThetaAngle = property(lambda self:self.att('startThetaAngle'))
@@ -831,10 +618,17 @@ class PosXYZ(Elem):
 
 class Context(object):
     def __init__(self, d, expand):
+        """
+        :param d: context dict pre-populated with units
+        :param expand: manual expansion dict  
+        """
         self.d = d
         self.expand = expand
 
     def build_context(self, params):
+        """
+        :param params: XML parameter elements  
+        """
         name_error = params
         type_error = []
         for wave in range(3):
@@ -851,10 +645,13 @@ class Context(object):
         except NameError, ex:
             log.fatal("%s :failed to evaluate expr %s " % (repr(ex), expr))
             val = None 
- 
+        pass 
         return val    
 
     def _build_context(self, params, wave):
+        """
+        :param params: to be evaluated into the context
+        """
         name_error = []
         type_error = []
         for p in params:
@@ -964,17 +761,18 @@ class Dddb(Elem):
 
 if __name__ == '__main__':
     format_ = "[%(filename)s +%(lineno)3s %(funcName)20s() ] %(message)s" 
-    logging.basicConfig(level=logging.INFO, format=format_)
+    logging.basicConfig(level=logging.DEBUG, format=format_)
 
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
+
     g.dump_context('PmtHemi')
 
     lv = g.logvol_("lvPmtHemi")
 
-    for maxdepth in range(4):
-        revs = lv.allrev(maxdepth=maxdepth) 
-        log.info("maxdepth %s returned %s revs " % (maxdepth, len(revs)))
-        print "\n".join(map(str,revs))
+    pts = lv.parts()
+
+    for pt in pts:
+        log.info(pt)
 
 
 

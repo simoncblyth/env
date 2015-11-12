@@ -25,6 +25,7 @@ import matplotlib.patches as mpatches
 
 path_ = lambda _:os.path.expandvars("$IDPATH/GMergedMesh/1/%s.npy" % _)
 
+
 X = 0
 Y = 1
 Z = 2
@@ -43,8 +44,6 @@ class Mesh(object):
         np.cumsum(self.i[:,1], out=self.vc[1:])
     def verts(self, solid):
         return self.v[self.vc[solid]:self.vc[solid+1]]
-
-
 
 class Sphere(object):
     def __init__(self, center, radius):
@@ -276,7 +275,9 @@ if __name__ == '__main__':
     PYREX, VACUUM, CATHODE, BOTTOM, DYNODE = 0,1,2,3,4 
 
     mesh = Mesh()
-    pmt = Pmt("/tmp/hemi-pmt-parts.npy")
+
+    path = os.path.expandvars("$IDPATH/GPmt/0/GPmt.npy")
+    pmt = Pmt(path)
     fig = plt.figure()
 
     axes = ZX

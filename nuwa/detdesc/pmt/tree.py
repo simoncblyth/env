@@ -2,7 +2,8 @@
 import logging, hashlib, sys, os
 import numpy as np
 np.set_printoptions(precision=2) 
-from dd import Dddb, Part
+from dd import Dddb
+from geom import Part
 
 log = logging.getLogger(__name__)
 
@@ -18,10 +19,16 @@ class Node(object):
 
     @classmethod
     def create(cls, volpath ):
+        """
+        Note that this parent digest approach allows the 
+        nodes to assemble themselves into the tree  
+        """
         assert len(volpath) >= 2 
+        
         node = cls(volpath) 
 
-        ndig = node.digest   ; assert ndig not in Tree.registry 
+        ndig = node.digest   
+        assert ndig not in Tree.registry, "each node must have a unique digest" 
         node.index  = len(Tree.registry)
 
         Tree.byindex[node.index] = node 
@@ -41,7 +48,18 @@ class Node(object):
         return node
 
     def __init__(self, volpath):
-        # set by Tree
+        """
+        :param volpath: list of volume instances thru the volume tree
+
+        Each node in the derived tree corresponds to two levels of the 
+        source XML nodes tree, ie the lv and pv.
+        So pdigest from backing up two levels gives access to parent node.
+        """
+        self.volpath = volpath
+        self.digest = self.md5digest( volpath[0:len(volpath)] )
+        self.pdigest = self.md5digest( volpath[0:len(volpath)-2] )
+
+        # Node constituents are set by Tree
         self.parent = None
         self.index = None
         self.posXYZ = None
@@ -50,10 +68,6 @@ class Node(object):
         self.pv = None
         self._parts = None
 
-        self.volpath = volpath
-        self.digest = self.md5digest( volpath[0:len(volpath)] )
-        self.pdigest = self.md5digest( volpath[0:len(volpath)-2] )
-
     def visit(self, depth):
         log.info("visit depth %s %s " % (depth, repr(self)))
 
@@ -61,6 +75,18 @@ class Node(object):
         self.visit(depth)
         for child in self.children:
             child.traverse(depth+1)
+
+    def add_child(self, child):
+        log.debug("add_child %s " % repr(child))
+        self.children.append(child)
+
+    def dump(self, msg="Node.dump"):
+        log.info(msg + " " + repr(self))
+        #print "\n".join(map(str, self.geometry))   
+
+    def __repr__(self):
+        return "Node %2d : dig %s pig %s : %s : %s " % (self.index, self.digest[:4], self.pdigest[:4], repr(self.volpath[-1]), repr(self.posXYZ) ) 
+
 
     def parts(self):
         """
@@ -81,19 +107,6 @@ class Node(object):
     def num_parts(self):
         parts = self.parts()
         return len(parts)
-
-
-
-    def add_child(self, child):
-        log.debug("add_child %s " % repr(child))
-        self.children.append(child)
-
-    def dump(self, msg="Node.dump"):
-        log.info(msg + " " + repr(self))
-        #print "\n".join(map(str, self.geometry))   
-
-    def __repr__(self):
-        return "Node %2d : dig %s pig %s : %s : %s " % (self.index, self.digest[:4], self.pdigest[:4], repr(self.volpath[-1]), repr(self.posXYZ) ) 
 
 
 
@@ -133,45 +146,36 @@ class Tree(object):
         return tot
 
     @classmethod
-    def save_parts(cls, path, explode=0., reshape=False):
-        pdir = os.path.dirname(path)
-        if not os.path.exists(pdir):
-            os.makedirs(pdir)
-
+    def parts(cls):
         tnodes = cls.num_nodes() 
         tparts = cls.num_parts() 
         log.info("tnodes %s tparts %s " % (tnodes, tparts))
 
-        # collect Part instances from each of the nodes into list
-        parts = []
+        pts = []
         for i in range(tnodes):
-            node = tree.get(i)
-            parts.extend(node.parts())    
+            node = cls.get(i)
+            pts.extend(node.parts())    
         pass
-        assert len(parts) == tparts          
+        assert len(pts) == tparts          
+        return pts 
 
-        # doing container boxing here is too prone to mismatches...  see:
-        #
-        #     * GGeo::modifyGeometry 
-        #     * ggv --testbox
-        #
-        # if container:
-        #     container = Part.make_container(parts, factor=container_factor)
-        #     parts.extend([container])
-        #     # match order of what GMergedeMesh::combine does with the GTestBox
-        #
-        # indices = map(lambda p:p.node.index, filter(lambda p:p.node is not None, parts))
-        # fabricated_nodeindex = max(indices) + 1  # rustle up next valid index, all fabricated parts will have this index
-        # log.info("indices: %s fabricated_nodeindex: %s " % (repr(indices), fabricated_nodeindex))
-        #
 
-        # serialize parts into array, converting relationships into indices
+    @classmethod
+    def convert(cls, parts, explode=0.):
+        """
+        :param parts: array of parts
+        :return: np.array buffer of parts
+
+        #. collect Part instances from each of the nodes into list
+        #. serialize parts into array, converting relationships into indices
+        #. this cannot live at lower level as serialization demands to 
+           allocate all at once and fill in the content, also conversion
+           of relationships to indices demands an all at once conversion
+
+        """
+
         data = np.zeros([len(parts),4,4],dtype=np.float32)
-
         for i,part in enumerate(parts):
-            #if part.node is None:       # eg for the fabricated container box
-            #    nodeindex = fabricated_nodeindex
-            #else:
             nodeindex = part.node.index
             index = i + 1   # 1-based index, where parent 0 means None
             if part.parent is not None:
@@ -183,7 +187,6 @@ class Tree(object):
 
             if explode>0:
                 dx = i*explode
- 
                 data[i][0,0] += dx
                 data[i][2,0] += dx
                 data[i][3,0] += dx
@@ -195,31 +198,38 @@ class Tree(object):
             data[i].view(np.int32)[2,3] = part.typecode 
             data[i].view(np.int32)[3,3] = nodeindex   
         pass
+        return data
 
-        if reshape:
-            rdata = data.reshape(-1,4) 
-            log.debug("save_parts to %s reshaped from %s to %s for easier GBuffer::load  " % (path, repr(data.shape), repr(rdata.shape)))
-        else:
-            rdata = data 
-
-        log.info("saving to %s shape %s " % (path, repr(rdata.shape)))
-        np.save(path, rdata) 
+    @classmethod
+    def save(cls, path_, data):
+        path = os.path.expandvars(path_)
+        pdir = os.path.dirname(path)
+        if not os.path.exists(pdir):
+            os.makedirs(pdir)
+        pass
+        log.info("saving to %s shape %s " % (path_, repr(data.shape)))
+        np.save(path, data) 
 
     def traverse(self):
         self.wrap.traverse()
 
     def __init__(self, base):
         self.base = base
-        self.wrap = None
         ancestors = [self]   # dummy top "PV", to regularize striping: TOP-LV-PV-LV 
         self.wrap = self.traverseWrap_(self.base, ancestors)
 
     def traverseWrap_(self, vol, ancestors):
         """
+        Source tree traversal, creating nodes as desired in destination tree
+
         #. vital to make a copy with [:] as need separate volpath for every node
         #. only form wrapped nodes at Logvol points in the tree
            in order to have regular TOP-LV-PV-LV ancestry, 
            but traverse over all nodes of the source tree
+        #. this is kept simple as the parent digest approach to tree hookup
+           means that the Nodes assemble themselves into the tree, just need
+           to create nodes where desired and make sure to traverse the entire 
+           source tree
         """
         volpath = ancestors[:] 
         volpath.append(vol) 
@@ -238,26 +248,22 @@ class Tree(object):
         return Node.create(volpath)
 
 
-usage = """
-Argument handling
-
-           # default is all parts  
-    0:3    # just first 3 spheres of solid 0 
-    0:4    # 3 sph and tubs of solid 0  
-
-"""
-
 if __name__ == '__main__':
     format_ = "[%(filename)s +%(lineno)3s %(funcName)20s ] %(message)s" 
     logging.basicConfig(level=logging.INFO, format=format_)
 
-
     g = Dddb.parse("$PMT_DIR/hemi-pmt.xml")
-    tree = Tree(g.logvol_("lvPmtHemi"))
 
-    dest = os.path.expandvars("$IDPATH/GPmt/0/GPmt.npy");
+    lv = g.logvol_("lvPmtHemi")
 
-    tree.save_parts(dest) 
+    tr = Tree(lv)
+
+    parts = tr.parts()
+
+    partsbuf = tr.convert(parts) 
+
+    tr.save("$IDPATH/GPmt/0/GPmt.npy", partsbuf)
+
 
 
 
