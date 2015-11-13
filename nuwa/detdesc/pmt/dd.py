@@ -19,7 +19,7 @@ X,Y,Z = 0,1,2
 
 
 class Uncoincide(object):
-    def __init__(self, top="OUTERMATERIAL", sensor="lvPmtHemiCathodeSensorSurface"):
+    def __init__(self, top="CONTAINING_MATERIAL", sensor="SENSOR_SURFACE"):
          self.top = top
          self.sensor = sensor
          pass
@@ -314,8 +314,8 @@ class Elem(object):
             i1.boundary = face  
             ret = [i2,i1]    # skipping the coincidents 
         else:
-            i1.parent = p1
-            i2.parent = p2
+            #i1.parent = p1
+            #i2.parent = p2
             ret = [p2,i2,p1,i1]
         pass
         return ret
@@ -430,7 +430,7 @@ class Elem(object):
             i.boundary = bottom   
             ret = [i]
         else:
-            i.parent = p
+            #i.parent = p
             ret = [p,i]
         pass
         return ret 

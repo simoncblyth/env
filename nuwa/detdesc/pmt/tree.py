@@ -180,11 +180,13 @@ class Tree(object):
         for i,part in enumerate(parts):
             nodeindex = part.node.index
             index = i + 1   # 1-based index, where parent 0 means None
-            if part.parent is not None:
-                parent = parts.index(part.parent) + 1   # lookup index of parent in parts list  
-            else:
-                parent = 0 
-            pass
+
+            #if part.parent is not None:
+            #    parent = parts.index(part.parent) + 1   # lookup index of parent in parts list  
+            #else:
+            #    parent = 0 
+            #pass
+
             data[i] = part.as_quads()
 
             if explode>0:
@@ -194,7 +196,7 @@ class Tree(object):
                 data[i][3,0] += dx
 
             data[i].view(np.int32)[1,1] = index  
-            data[i].view(np.int32)[1,2] = parent
+            data[i].view(np.int32)[1,2] = 0      # set to boundary index in C++ ggeo-/GPmt
             data[i].view(np.int32)[1,3] = part.flags    # used in intersect_ztubs
             # use the w slot of bb min, max for typecode and solid index
             data[i].view(np.int32)[2,3] = part.typecode 
