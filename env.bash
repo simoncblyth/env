@@ -1664,3 +1664,4 @@ csg-(){      . $(env-home)/graphics/csg/csg.bash && csg-env $* ; }
 pmt-(){      . $(env-home)/nuwa/detdesc/pmt/pmt.bash && pmt-env $* ; }
 pbrt-(){      . $(env-home)/graphics/pbrt/pbrt.bash && pbrt-env $* ; }
 ciexyz-(){      . $(env-home)/graphics/ciexyz/ciexyz.bash && ciexyz-env $* ; }
+icosahedron-(){      . $(env-home)/graphics/geometry/icosahedron/icosahedron.bash && icosahedron-env $* ; }
