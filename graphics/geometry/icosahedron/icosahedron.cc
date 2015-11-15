@@ -9,6 +9,9 @@
    This approach is arguably better than the gluSphere routine's
    approach using slices and stacks (latitude and longitude). -mjk */
 
+
+#include "icosahedron.h"
+
 #include <stdlib.h>
 #include <math.h>
 
@@ -107,26 +110,34 @@ lerp(point *a, point *b, float f, point *r) {
 
 
 
-void add(float* b, point& a, point& c, point& v)
+static void 
+V(float* b, point* a, point* c, point* v)
 {
-   point x = v ; 
+   point x  ; 
+   x.x = v->x ; 
+   x.y = v->y ; 
+   x.z = v->z ; 
 
-   normalize(&a);
-   normalize(&c);
+   normalize(a);
+   normalize(c);
    normalize(&x);
 
-   b[0] = a.x; b[1] = a.y; b[2] = a.z; 
-   b[3] = c.x; b[4] = c.y; b[5] = c.z; 
-   b[6] = x.x; b[7] = x.y; b[8] = x.z; 
+   b[0] = a->x; b[1] = a->y; b[2] = a->z; 
+   b[3] = c->x; b[4] = c->y; b[5] = c->z; 
+   b[6] = x.x;  b[7] = x.y;  b[8] = x.z; 
+
 }
 
 
 
-#define V(b, a, c, v) { add(b,a,c,v) ; b+=9; }
+int icosahedron_ntris(int maxlevel)
+{
+    int n = 20*(1 << (maxlevel * 2));
+    return n ; 
+}
 
-
-float *
-sphere_tris(int maxlevel) {
+float* icosahedron_tris(int maxlevel) 
+{
     int nrows = 1 << maxlevel;
     int s, n;
     float *buf, *b;
@@ -149,17 +160,23 @@ sphere_tris(int maxlevel) {
             lerp(&t->pt[1], &t->pt[2], (float)(i+1)/nrows, &v2);
             lerp(&t->pt[1], &t->pt[2], (float)i/nrows, &v3);
 
-
             x1 = v0;
             x2 = v1;
             for(j = 0; j < i; j++) {
                 /* calculate 2 more vertices at a time */
                 lerp(&v0, &v2, (float)(j+1)/(i+1), &va);
                 lerp(&v1, &v3, (float)(j+1)/i, &vb);
-                V(b,x1,x2,va); x1 = x2; x2 = va;
-                V(b,vb,x2,x1); x1 = x2; x2 = vb;
+
+                V(b,&x1,&x2,&va); x1 = x2; x2 = va;
+                b+=9; 
+
+                V(b,&vb,&x2,&x1); x1 = x2; x2 = vb;
+                b+=9; 
+                
             }
-            V(b,x1, x2, v2);
+            V(b, &x1, &x2, &v2);
+            b+=9; 
+
         }
     }
     return buf;
@@ -167,9 +184,11 @@ sphere_tris(int maxlevel) {
 
 
 
+/*
 int main(int argc, char** argv)
 {
     float* buf = sphere_tris(2);
 }
+*/
 
 
