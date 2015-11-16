@@ -5,7 +5,11 @@ icosahedron-vi(){       vi $(icosahedron-source) ; }
 icosahedron-env(){      elocal- ; }
 icosahedron-usage(){ cat << EOU
 
-::
+
+* http://donhavey.com/blog/tutorials/tutorial-3-the-icosahedron-sphere/
+
+* http://sarvanz.blogspot.tw/2013/07/sphere-triangulation-using-icosahedron.html
+
 
 
 EOU
