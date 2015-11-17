@@ -4,6 +4,8 @@ Graphics
 
 .. toctree::
 
+    ggeoview/index
+    oglrap/index
     meshlab/index
     collada/index
     cgal/index
