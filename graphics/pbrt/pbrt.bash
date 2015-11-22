@@ -13,6 +13,12 @@ Physically Based Ray Tracing
 * https://github.com/mmp/pbrt-v3
 
 
+Chapter PDFs
+--------------
+
+* http://www.sciencedirect.com/science/book/9780123750792
+
+
 Spectral Rendering
 --------------------
 
