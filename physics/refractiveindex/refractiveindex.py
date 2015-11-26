@@ -1,10 +1,24 @@
 #!/usr/bin/env python
 """
-import env.physics.refractiveindex.refractiveindex as ri
-a = ri.refractiveindex("tmp/glass/schott/F2.csv")
+Refractive Index
+=================
 
-plt.plot(a[:,0],a[:,1])
-plt.show()
+* https://en.wikipedia.org/wiki/Dispersive_prism
+* https://en.wikipedia.org/wiki/Flint_glass
+* http://refractiveindex.info/tmp/glass/schott/F2.csv
+* https://en.wikipedia.org/wiki/Abbe_number
+
+Crown glasses such as BK7 have a relatively small dispersion, while flint
+glasses have a much stronger dispersion (for visible light) and hence are more
+suitable for use in dispersive prisms.
+
+::
+
+    import env.physics.refractiveindex.refractiveindex as ri
+    a = ri.refractiveindex("tmp/glass/schott/F2.csv")
+
+    plt.plot(a[:,0],a[:,1])
+    plt.show()
 
 """
 import numpy as np
@@ -41,19 +55,12 @@ def parse(csv):
     firsttab = csv.split("wl,k")[0]
     lines = filter(None,firsttab.split("\r\n"))
     txt = ",".join(lines[1:])
-    a = np.fromstring(txt, sep=",").reshape(-1,2)
+    a = np.fromstring(txt, sep=",", dtype=np.float32).reshape(-1,2)
     a[:,0] *= 1000.  # to nm 
     return a 
 
 def refractiveindex(rel, base=None, cache=None):
     """
-    https://en.wikipedia.org/wiki/Dispersive_prism
-    https://en.wikipedia.org/wiki/Flint_glass
-    http://refractiveindex.info/tmp/glass/schott/F2.csv
-
-    Crown glasses such as BK7 have a relatively small dispersion, while flint
-    glasses have a much stronger dispersion (for visible light) and hence are more
-    suitable for use in dispersive prisms.
     """
 
     if base is None:
