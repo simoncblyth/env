@@ -260,6 +260,26 @@ Optical Photon Simulation Progress
    :align: center
 
 
+:small:`Simplified Analytic PMT`
+--------------------------------------
+
+.. class:: small
+
+    Volume base geometry: Pyrex/Vacuum/Bialkali  
+    puts photocathode inside vacuum with coincident boundary. 
+  
+    Simplified surface translation removes coincidents by adjusting 
+    heirarchy to Pyrex/Bialkali/Vacuum.
+
+    Zoomed view of PMT edge (units mm): showing 3mm Pyrex, 
+
+
+.. image:: /env/nuwa/detdesc/pmt/analytic-pmt-detail.png
+   :width: 900px
+   :align: center
+
+
+
 :small:`IAV, OAV mesh fixing with OpenMesh surgery`
 -----------------------------------------------------
 
@@ -372,6 +392,29 @@ Optical Photon Simulation Progress
 
 
 
+:small:`Dynamic Test Geometry`
+--------------------------------------
+
+.. class:: small
+
+   Following refactor of Material/Surface/Boundary handling
+   can now dynamically add test geometry/materials/surfaces.
+
+   Each shape requires: 
+   
+   * analytic intersection code for OptiX
+   * tesselation for OpenGL visualization
+
+   Have implemented:
+
+   * box
+   * sphere (including partial)
+   * lens (intersection of two spheres) 
+   * prism
+
+   Using to validate simulation results against analytic expectations.
+
+
 :small:`Prism S-Polarized`
 ------------------------------------------------------------------
 
@@ -465,17 +508,28 @@ Optical Photon Simulation Progress
    * fixing bad triangulations using OpenMesh surgery   
    * replace triangulated PMTs with more realistic analytic ones
 
-   **Optical physics problems expected next**
 
-   * need Geant4 comparison to find the next issue 
-   * will start validations using simple test geometries
+:small:`Progress Overview Continued`
+--------------------------------------
 
-   **Refactoring Material/Surface/Boundary code**
+.. class:: small
 
-   * enable dynamic simple test geometries, 
+   * simplified analytic PMT by removing coincident surfaces
 
-     * spheres of each material, surface
-     * PMT test black boxes 
+   * implemented dynamic test geometry: box, sphere, lens, prism
 
+   * reflection, refraction, dispersion tests so far matching, 
+     :red:`after fixing/avoiding several geometry issues`
 
+   Geometry Issues Fixed/Avoidable:
+
+   * triangulated geometry leaks when shoot millions of photons at cracks (1)
+   
+   * bounding boxes that touch geometry cause leaks, slightly   
+     enlarging the boxes avoids leak (<1 in 3M)  
+   
+
+.. class:: tiny
+
+    (1) more of a problem for testing than actual usage
 
