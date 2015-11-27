@@ -369,7 +369,90 @@ Optical Photon Simulation Progress
 .. class:: tiny
 
      Thrust/CUDA/OptiX interop used to implement
-     
+
+
+
+:small:`Prism S-Polarized`
+------------------------------------------------------------------
+
+.. class:: small
+
+    Quadrant of cylindrically directed S-polarized photons at 10 wavelengths (from 100 to 800 nm) 
+    incident from left.  
+
+.. class:: tiny
+
+    S-polarization: perpendicular to incident plane
+
+
+.. image:: /env/numerics/npy/prism-spol-ripple.png
+   :width: 900px
+   :align: center
+
+
+:small:`Prism P-Polarized`
+------------------------------------------------------------------
+
+.. class:: small
+
+    Gap in reflection at Brewsters angle is apparent where 
+    the P-polarized photons can only be transmitted. 
+
+.. class:: tiny
+
+    P-polarization: not perpendicular to incident plane
+
+
+.. image:: /env/numerics/npy/prism-ppol-ripple.png
+   :width: 900px
+   :align: center
+
+
+:small:`Monochromatic : expected vs simulated reflection`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   Comparison of simulated absolute reflection of S and P polarized single events against 
+   expectation from Fresnel formula. Using uniform planar incident cyclindrically directed light.
+
+.. image:: /env/numerics/npy/reflection.png
+   :width: 900px
+   :align: center
+
+
+:small:`Prism Deviation vs Incident angles for 10 wavelengths`
+------------------------------------------------------------------
+
+.. class:: small
+
+   Prism geometry and Snell's law at two refractions allows deviation 
+   angle vs incident angle to be predicted.  Comparison of simulation
+   results with expectations for 10 wavelengths   
+   using refractive index of Schott F2 Flint Glass.
+
+.. image:: /env/numerics/npy/prism-deviation.png
+   :width: 900px
+   :align: center
+
+
+:small:`Lens focussing`
+----------------------------------------------------------
+
+.. class:: small
+
+    Lens constructed from intersection of two spheres.
+    Disc parallel beam incident from left.
+    Color represents polarization direction.  2nd reflections 
+    are apparent. 
+
+
+.. image:: /env/graphics/ggeoview/lens-polcolor.png
+   :width: 900px
+   :align: center
+
+
+ 
 
 :small:`Progress Overview`
 -----------------------------
