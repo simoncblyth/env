@@ -16,6 +16,29 @@ Refs
 
 * http://www.physics.ucdavis.edu/~dwittman/Matplotlib-examples/
 
+ColorMaps
+----------
+
+* https://bids.github.io/colormap/
+
+* http://colorspacious.readthedocs.org/en/latest/tutorial.html
+
+
+imshow colors 
+---------------
+
+* http://stackoverflow.com/questions/24739769/matplotlib-imshow-plots-different-if-using-colormap-or-rgb-array
+
+
+MPL/Python Color Tools
+-----------------------
+
+* http://colour-science.org/blog_a_plea_for_colour_analysis_tools_in_dcc_applications.php
+
+* http://markkness.net/colorpy/ColorPy.html
+
+
+
 
 Access photons hit data 4x4
 -----------------------------
