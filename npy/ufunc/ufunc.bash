@@ -11,6 +11,26 @@ UFUNC : Simplified NumPy Extension
 
 * http://docs.scipy.org/doc/numpy/user/c-info.ufunc-tutorial.html
 
+
+
+refs
+-----
+
+* :google:`github PyUFunc_FromFuncAndData`
+
+* https://github.com/AaronParsons/aipy/blob/master/src/_cephes/_cephesmodule.c
+
+  * nice avoidance of spam variables
+
+* https://github.com/healpy/healpy/blob/master/healpy/src/_healpy_pixel_lib.cc
+* https://github.com/healpy/healpy/blob/master/healpy/pixelfunc.py
+
+  * multi lane output examples, python interface to ufunc module 
+
+
+* http://cournape.github.io/davidc-scipy-2013/#52
+
+
 ciexyz
 ------
 
