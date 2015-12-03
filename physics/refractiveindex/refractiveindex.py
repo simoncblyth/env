@@ -84,4 +84,5 @@ def refractiveindex(rel, base=None, cache=None):
 
 if __name__ == '__main__':
     a = refractiveindex("tmp/glass/schott/F2.csv")
+    b = refractiveindex("tmp/main/H2O/Hale.csv") 
 
