@@ -495,6 +495,43 @@ Optical Photon Simulation Progress
    :align: center
 
 
+
+:small:`Rainbow deviation angles`
+----------------------------------------------------------
+
+.. class:: tiny
+
+    Plot without selection of deviation angles of 3M photons. Photon wavelengths
+    from Plankian 6500K blackbody spectrum (implemented with inverse CDF GPU texture lookup).
+    Simulated "images" obtained from wavelength spectrum of each bin using CIEXYZ weighting functions 
+    converted into sRGB/D65 colorspace.   
+    The two images expose for luminance (CIE-Y) of max bin of 1st and 2nd bows.
+
+.. image:: /env/numerics/npy/rainbow16_deviation_angle.png
+   :width: 900px
+   :align: center
+
+
+:small:`Rainbow Spectrum for 1st six bows`
+----------------------------------------------------------
+
+.. class:: tiny
+
+    Spectra obtained by selecting photons by internal reflection counts. 
+    Colors obtained from spectra of each bin using CIEXYZ weighting functions 
+    converted into sRGB/D65 colorspace.  
+    Exposures by normalizing to bin with maximum luminance (CIE-Y) of each bow. 
+    White lines indicate geometric optics prediction of deviation angle ranges 
+    of the visible range 380-780nm. 180-360 degrees signifies exit on same 
+    side of droplet as incidence.  
+ 
+
+.. image:: /env/numerics/npy/rainbow6-spectrum.png
+   :width: 900px
+   :align: center
+
+
+
  
 
 :small:`Progress Overview`
