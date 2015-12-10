@@ -12,6 +12,19 @@ CHROMA
 * http://chroma.bitbucket.org/install/overview.html#common-install
 * https://bitbucket.org/chroma/chroma.bitbucket.org/src
 
+
+Update for CUDA 7, Dec 2015
+------------------------------
+
+pycuda import fails for lack of a CUDA 5.5 curand lib::
+
+   chroma-
+   pip install -b /usr/local/env/chroma_env/build/build_pycuda pycuda --upgrade
+   rm -rf /usr/local/env/chroma_env/build/build_pycuda/pycuda/
+   pip install -b /usr/local/env/chroma_env/build/build_pycuda pycuda --upgrade
+
+
+
 Installation Overview
 ----------------------
 

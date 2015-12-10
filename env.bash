@@ -1667,3 +1667,4 @@ ciexyz-(){      . $(env-home)/graphics/ciexyz/ciexyz.bash && ciexyz-env $* ; }
 icosahedron-(){      . $(env-home)/graphics/geometry/icosahedron/icosahedron.bash && icosahedron-env $* ; }
 refractiveindex-(){      . $(env-home)/physics/refractiveindex/refractiveindex.bash && refractiveindex-env $* ; }
 ufunc-(){      . $(env-home)/npy/ufunc/ufunc.bash && ufunc-env $* ; }
+cfg4-(){      . $(env-home)/graphics/ggeoview/cfg4/cfg4.bash && cfg4-env $* ; }

@@ -4,7 +4,29 @@ Chroma Geant4 Integration
 See also :doc:`geant4_background`
 
 
+Chroma Use of G4
+-----------------
 
+Chroma uses G4 for photon generation.::
+
+    simon:chroma blyth$ find ~/chroma/chroma  -name '*.py' -exec grep -H G4 {} \;
+    /Users/blyth/chroma/chroma/benchmark.py:g4generator = generator.photon.G4ParallelGenerator(4, water)
+    /Users/blyth/chroma/chroma/generator/g4gen.py:class G4Generator(object):
+    /Users/blyth/chroma/chroma/generator/g4gen.py:        self.world = g4py.ezgeom.G4EzVolume('world')
+    /Users/blyth/chroma/chroma/generator/g4gen.py:        self.world.PlaceIt(G4ThreeVector(0,0,0))
+    /Users/blyth/chroma/chroma/generator/g4gen.py:        g4material = G4Material('world_material', material.density * g / cm3,
+    /Users/blyth/chroma/chroma/generator/g4gen.py:            g4material.AddElement(G4Element.GetElement(element_name, True),
+    /Users/blyth/chroma/chroma/generator/g4gen.py:        prop_table = G4MaterialPropertiesTable()
+    /Users/blyth/chroma/chroma/generator/g4gen.py:                mass = G4ParticleTable.GetParticleTable().FindParticle(vertex.particle_name).GetPDGMass()
+    /Users/blyth/chroma/chroma/generator/g4gen.py:                self.particle_gun.SetParticlePosition(G4ThreeVector(*pos)*mm)
+    /Users/blyth/chroma/chroma/generator/g4gen.py:                self.particle_gun.SetParticleMomentumDirection(G4ThreeVector(*dir).unit())
+    /Users/blyth/chroma/chroma/generator/g4gen.py:                    self.particle_gun.SetParticlePolarization(G4ThreeVector(*vertex.pol).unit())
+    /Users/blyth/chroma/chroma/generator/photon.py:class G4GeneratorProcess(multiprocessing.Process):
+    /Users/blyth/chroma/chroma/generator/photon.py:        gen = g4gen.G4Generator(self.material, seed=self.seed)
+    /Users/blyth/chroma/chroma/generator/photon.py:class G4ParallelGenerator(object):
+    /Users/blyth/chroma/chroma/generator/photon.py:        self.processes = [ G4GeneratorProcess(i, material, self.vertex_address, self.photon_address, seed=base_seed + i) for i in xrange(nprocesses) ]
+    /Users/blyth/chroma/chroma/sim.py:            self.photon_generator = generator.photon.G4ParallelGenerator(geant4_processes, detector.detector_material, base_seed=self.seed)
+    simon:chroma blyth$ 
 
 
 
