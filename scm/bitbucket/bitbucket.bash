@@ -13,6 +13,17 @@ related
 
 * see *hg-* regarding the conversion from Subversion to Mercurial
 
+
+IP Update
+----------
+
+::
+
+    remote: We're changing our IP addresses on 15 December 2015 at 00:00 UTC.
+    remote: Please make sure your firewalls are up to date:
+    remote: https://blog.bitbucket.org/?p=2677
+
+
 Upload Mercurial repo to bitbucket
 ----------------------------------------------
 

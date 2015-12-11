@@ -25,6 +25,27 @@ latest Xcode for OSX 10.9.4 is Xcode 6.2 released March 9, 2015
 To get specific versions of Xcode use https://developer.apple.com/downloads/
 Safari downloads the ~2GB slowly (~1MB/s) as dmg 
 
+
+Installing Xcode 6.2
+~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+   open ~/Downloads/Xcode_6.2.dmg 
+
+   # suggests to drag Xcode.app to /Applications/
+   # do so after renaming old Xcode.app to Xcode-511.app   
+   # 2.5G dmg decompressed to 5.8G
+
+
+::
+
+    simon:~ blyth$ clang --version
+    Apple LLVM version 6.0 (clang-600.0.57) (based on LLVM 3.5svn)
+    Target: x86_64-apple-darwin13.3.0
+    Thread model: posix
+
+
 xcode-select
 -------------
 

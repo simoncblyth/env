@@ -1474,7 +1474,7 @@ freeglut-(){      . $(env-home)/graphics/opengl/freeglut/freeglut.bash && freegl
 g4daeview-(){     . $(env-home)/geant4/geometry/collada/g4daeview/g4daeview.bash && g4daeview-env $* ; }
 pytools-(){      . $(env-home)/python/pytools.bash && pytools-env $* ; }
 numbers-(){      . $(env-home)/osx/numbers/numbers.bash && numbers-env $* ; }
-lxe-(){          . $(env-home)/geant4/examples/lxe/lxe.bash && lxe-env $* ; }
+olxe-(){          . $(env-home)/geant4/examples/lxe/lxe.bash && lxe-env $* ; }
 
 zmqroot-(){      . $(env-home)/zmqroot/zmqroot.bash && zmqroot-env $* ; }
 cpl-(){      . $(env-home)/chroma/ChromaPhotonList/cpl.bash && cpl-env $* ; }
@@ -1667,7 +1667,12 @@ ciexyz-(){      . $(env-home)/graphics/ciexyz/ciexyz.bash && ciexyz-env $* ; }
 icosahedron-(){      . $(env-home)/graphics/geometry/icosahedron/icosahedron.bash && icosahedron-env $* ; }
 refractiveindex-(){      . $(env-home)/physics/refractiveindex/refractiveindex.bash && refractiveindex-env $* ; }
 ufunc-(){      . $(env-home)/npy/ufunc/ufunc.bash && ufunc-env $* ; }
-cfg4-(){      . $(env-home)/graphics/ggeoview/cfg4/cfg4.bash && cfg4-env $* ; }
 lxee-(){      . $(env-home)/geant4/examples/lxee/lxee.bash && lxee-env $* ; }
 g4-(){      . $(env-home)/g4/g4.bash && g4-env $* ; }
 xcode-(){      . $(env-home)/xcode/xcode.bash && xcode-env $* ; }
+g4macports-(){      . $(env-home)/g4/g4macports.bash && g4macports-env $* ; }
+g4ex-(){      . $(env-home)/g4/g4ex.bash && g4ex-env $* ; }
+cfg4-(){      . $(env-home)/optix/cfg4/cfg4.bash && cfg4-env $* ; }
+lxe-(){      . $(env-home)/optix/lxe/lxe.bash && lxe-env $* ; }
+
+
