@@ -14,6 +14,10 @@ lxe-usage(){ cat << EOU
 GEANT4 LXE EXAMPLE
 ===================
 
+
+Looks like, I complicated this with ChromaPhotonList and ZMQ based server...
+
+
 Docs
 ----
 
@@ -242,6 +246,8 @@ lxe-cp(){
    for nam in $* ; do
       local src=$(lxe-sdir)/$nam
       local tgt=$(lxe-dir)/$nam
+
+      echo $msg nam $nam src $src tgt $tgt
 
       [ ! -f "$tgt" ] && cp $src $tgt 
       [ "$src" -nt "$tgt" ] && echo $msg $src $tgt && cp $src $tgt 

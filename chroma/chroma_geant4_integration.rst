@@ -3,7 +3,6 @@ Chroma Geant4 Integration
 
 See also :doc:`geant4_background`
 
-
 Chroma Use of G4
 -----------------
 
@@ -30,7 +29,6 @@ Chroma uses G4 for photon generation.::
 
 
 
-
 Boost python C++ `_g4chroma`
 -----------------------------
 
@@ -46,6 +44,47 @@ Boost python C++ `_g4chroma`
     ./chroma/generator/g4gen.py:        self.tracking_action = _g4chroma.PhotonTrackingAction()
     ./setup.py:        Extension('chroma.generator._g4chroma',
     ./src/G4chroma.cc:BOOST_PYTHON_MODULE(_g4chroma)
+
+
+chroma/setup.py::
+
+     59 setup(
+     60     name = 'Chroma',
+     61     version = '0.5',
+     62     packages = find_packages(),
+     63     include_package_data=True,
+     64 
+     65     scripts = ['bin/chroma-sim', 'bin/chroma-cam',
+     66                'bin/chroma-geo', 'bin/chroma-bvh',
+     67                'bin/chroma-server'],
+     68     ext_modules = [
+     69         Extension('chroma.generator._g4chroma',
+     70                   ['src/G4chroma.cc'],
+     71                   include_dirs=include_dirs,
+     72                   extra_compile_args=geant4_cflags,
+     73                   extra_link_args=geant4_libs+clhep_libs,
+     74                   extra_objects=extra_objects,
+     75                   libraries=libraries,
+     76                   ),
+     77         Extension('chroma.generator.mute',
+     78                   ['src/mute.cc'],
+     79                   include_dirs=include_dirs,
+     80                   extra_compile_args=geant4_cflags,
+     81                   extra_link_args=geant4_libs+clhep_libs,
+     82                   extra_objects=extra_objects,
+     83                   libraries=libraries),
+     84         ],
+     85 
+     86     setup_requires = ['pyublas'],
+     87     install_requires = ['uncertainties','pyzmq-static','spnav', 'pycuda',
+     88                         'numpy>=1.6', 'pygame', 'nose', 'sphinx', 'unittest2'],
+     89     test_suite = 'nose.collector',
+     90 
+     91 )
+
+
+
+
 
 
 ChromaPhysicsList
@@ -188,6 +227,60 @@ chroma/generator/g4gen.py::
 
 * NB photons from all vertices passed are combined into a single `Photons` instance
 
+
+Attempt to add a PhotonSteppingAction
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Breaks g4py and even after remove the PhotonSteppingAction it stays broken!
+Too many layers, such fragility puts me off g4py, boost_python::
+
+    (chroma_env)simon:cfg4 blyth$ lldb $(which python) g4gen.py 
+    Current executable set to '/usr/local/env/chroma_env/bin/python' (x86_64).
+    (lldb) r
+    Process 48280 launched: '/usr/local/env/chroma_env/bin/python' (x86_64)
+    Process 48280 stopped
+    * thread #1: tid = 0x1545fb, 0x0000000106dea134 _g4chroma.so`boost::python::objects::polymorphic_id_generator<ChromaPhysicsList>::execute(void*) [inlined] std::type_info::name(this=0x0000000000000032) const at typeinfo:98, queue = 'com.apple.main-thread', stop reason = EXC_BAD_ACCESS (code=1, address=0x3a)
+        frame #0: 0x0000000106dea134 _g4chroma.so`boost::python::objects::polymorphic_id_generator<ChromaPhysicsList>::execute(void*) [inlined] std::type_info::name(this=0x0000000000000032) const at typeinfo:98
+       95       _LIBCPP_INLINE_VISIBILITY
+       96       const char* name() const _NOEXCEPT
+       97   #ifndef _LIBCPP_NONUNIQUE_RTTI_BIT
+    -> 98           {return __type_name;}
+       99   #else
+       100          {return reinterpret_cast<const char*>(__type_name & ~_LIBCPP_NONUNIQUE_RTTI_BIT);}
+       101  #endif
+    (lldb) bt
+    * thread #1: tid = 0x1545fb, 0x0000000106dea134 _g4chroma.so`boost::python::objects::polymorphic_id_generator<ChromaPhysicsList>::execute(void*) [inlined] std::type_info::name(this=0x0000000000000032) const at typeinfo:98, queue = 'com.apple.main-thread', stop reason = EXC_BAD_ACCESS (code=1, address=0x3a)
+      * frame #0: 0x0000000106dea134 _g4chroma.so`boost::python::objects::polymorphic_id_generator<ChromaPhysicsList>::execute(void*) [inlined] std::type_info::name(this=0x0000000000000032) const at typeinfo:98
+        frame #1: 0x0000000106dea134 _g4chroma.so`boost::python::objects::polymorphic_id_generator<ChromaPhysicsList>::execute(void*) [inlined] boost::python::type_info::type_info(id=0x0000000000000032) at type_id.hpp:122
+        frame #2: 0x0000000106dea134 _g4chroma.so`boost::python::objects::polymorphic_id_generator<ChromaPhysicsList>::execute(void*) [inlined] boost::python::type_info::type_info(__x=0x00007fff5fbfdba1, id=0x0000000000000032) at type_id.hpp:128
+        frame #3: 0x0000000106dea134 _g4chroma.so`boost::python::objects::polymorphic_id_generator<ChromaPhysicsList>::execute(p_=<unavailable>) + 20 at inheritance.hpp:43
+        frame #4: 0x000000010355903b libboost_python.dylib`boost::(anonymous namespace)::convert_type(void*, boost::python::type_info, boost::python::type_info, bool) + 395
+        frame #5: 0x00000001035534df libboost_python.dylib`boost::python::objects::find_instance_impl(_object*, boost::python::type_info, bool) + 79
+        frame #6: 0x000000010354ea67 libboost_python.dylib`boost::python::converter::get_lvalue_from_python(_object*, boost::python::converter::registration const&) + 23
+        frame #7: 0x000000010630259e G4run.so`boost::python::detail::caller_arity<2u>::impl<void (G4RunManager::*)(G4VUserPhysicsList*), boost::python::default_call_policies, boost::mpl::vector3<void, G4RunManager&, G4VUserPhysicsList*> >::operator()(_object*, _object*) + 78
+        frame #8: 0x000000010355611e libboost_python.dylib`boost::python::objects::function::call(_object*, _object*) const + 766
+        frame #9: 0x000000010355826a libboost_python.dylib`boost::detail::function::void_function_ref_invoker0<boost::python::objects::(anonymous namespace)::bind_return, void>::invoke(boost::detail::function::function_buffer&) + 26
+        frame #10: 0x000000010355dfc5 libboost_python.dylib`boost::python::handle_exception_impl(boost::function0<void>) + 85
+        frame #11: 0x0000000103557c73 libboost_python.dylib`function_call + 83
+        frame #12: 0x0000000100011ca3 Python`PyObject_Call + 99
+        frame #13: 0x00000001000afd7d Python`PyEval_EvalFrameEx + 15981
+        frame #14: 0x00000001000abc9d Python`PyEval_EvalCodeEx + 1725
+        frame #15: 0x000000010003783c Python`function_call + 364
+        frame #16: 0x0000000100011ca3 Python`PyObject_Call + 99
+        frame #17: 0x000000010001ef96 Python`instancemethod_call + 182
+        frame #18: 0x0000000100011ca3 Python`PyObject_Call + 99
+        frame #19: 0x000000010006d5dd Python`slot_tp_init + 141
+        frame #20: 0x0000000100067942 Python`type_call + 354
+        frame #21: 0x0000000100011ca3 Python`PyObject_Call + 99
+        frame #22: 0x00000001000afd7d Python`PyEval_EvalFrameEx + 15981
+        frame #23: 0x00000001000abc9d Python`PyEval_EvalCodeEx + 1725
+        frame #24: 0x00000001000ab5d6 Python`PyEval_EvalCode + 54
+        frame #25: 0x00000001000d5194 Python`PyRun_FileExFlags + 164
+        frame #26: 0x00000001000d4d11 Python`PyRun_SimpleFileExFlags + 769
+        frame #27: 0x00000001000eaa5e Python`Py_Main + 3070
+        frame #28: 0x00007fff87c165fd libdyld.dylib`start + 1
+        frame #29: 0x00007fff87c165fd libdyld.dylib`start + 1
+    (lldb) 
 
 
 

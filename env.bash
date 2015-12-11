@@ -1668,3 +1668,6 @@ icosahedron-(){      . $(env-home)/graphics/geometry/icosahedron/icosahedron.bas
 refractiveindex-(){      . $(env-home)/physics/refractiveindex/refractiveindex.bash && refractiveindex-env $* ; }
 ufunc-(){      . $(env-home)/npy/ufunc/ufunc.bash && ufunc-env $* ; }
 cfg4-(){      . $(env-home)/graphics/ggeoview/cfg4/cfg4.bash && cfg4-env $* ; }
+lxee-(){      . $(env-home)/geant4/examples/lxee/lxee.bash && lxee-env $* ; }
+g4-(){      . $(env-home)/g4/g4.bash && g4-env $* ; }
+xcode-(){      . $(env-home)/xcode/xcode.bash && xcode-env $* ; }

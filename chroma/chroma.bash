@@ -13,16 +13,24 @@ CHROMA
 * https://bitbucket.org/chroma/chroma.bitbucket.org/src
 
 
+Top Level Link
+----------------
+
+::
+
+    simon:~ blyth$ l chroma
+    lrwxr-xr-x  1 blyth  staff  36 Oct  9  2014 chroma -> /usr/local/env/chroma_env/src/chroma
+
+
 Update for CUDA 7, Dec 2015
 ------------------------------
 
-pycuda import fails for lack of a CUDA 5.5 curand lib::
+pycuda import fails for lack of a CUDA 5.5 curand lib, reinstallation of pycuda fixes this:
 
    chroma-
    pip install -b /usr/local/env/chroma_env/build/build_pycuda pycuda --upgrade
    rm -rf /usr/local/env/chroma_env/build/build_pycuda/pycuda/
    pip install -b /usr/local/env/chroma_env/build/build_pycuda pycuda --upgrade
-
 
 
 Installation Overview
@@ -679,6 +687,10 @@ Suggestion is::
     cd chroma
     python setup.py develop
 
+Chroma Rebuild
+---------------
+
+
 
 Chroma Install Rerun from my bitbucket fork
 -----------------------------------------------
@@ -923,6 +935,16 @@ chroma-build(){
    cd $VIRTUAL_ENV/src
    [ ! -d chroma ] && hg clone https://bitbucket.org/chroma/chroma
    cd chroma
+   python setup.py develop
+
+
+}
+
+
+chroma-rebuild(){
+   cd $VIRTUAL_ENV/src/chroma
+   hg paths
+   hg status
    python setup.py develop
 }
 
