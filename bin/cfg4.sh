@@ -1,0 +1,1 @@
+../optix/cfg4/cfg4.sh
