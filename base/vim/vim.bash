@@ -18,6 +18,14 @@ Gutter Line Numbers
 * http://vim.wikia.com/wiki/Display_line_numbers
 
 
+Regexp Replace
+---------------
+
+For example turning an enum into a switch statement::
+
+    .,+50s/\s*case \(\S*\):/case \1:  s="\1" ;break;/gc
+
+
 
 Overwrite Mode : handy for ascii art
 --------------------------------------
