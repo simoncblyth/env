@@ -23,7 +23,7 @@ Regexp Replace
 
 For example turning an enum into a switch statement::
 
-    .,+50s/\s*case \(\S*\):/case \1:  s="\1" ;break;/gc
+    .,+20s/\s*\(\S*\).*/case \1 : s="\1" ;break; /gc
 
 
 
