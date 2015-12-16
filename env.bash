@@ -1676,3 +1676,4 @@ cfg4-(){      . $(env-home)/optix/cfg4/cfg4.bash && cfg4-env $* ; }
 lxe-(){      . $(env-home)/optix/lxe/lxe.bash && lxe-env $* ; }
 
 
+opticks-(){      . $(env-home)/opticks/opticks.bash && opticks-env $* ; }
