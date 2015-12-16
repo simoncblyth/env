@@ -26,6 +26,15 @@ For example turning an enum into a switch statement::
     .,+20s/\s*\(\S*\).*/case \1 : s="\1" ;break; /gc
 
 
+Switch text to lower/upper case
+--------------------------------
+
+Visually select, then  
+
+* U to convert to uppercase 
+* u to convert to lowecase 
+
+
 
 Overwrite Mode : handy for ascii art
 --------------------------------------
