@@ -2438,10 +2438,16 @@ Tokamak MSE (Motional Stark Effect) : extensive polarized reflection calcs
 
 EOU
 }
-g4op-dir(){ echo $(local-base)/env/geant4/g4op/geant4/g4op-g4op ; }
+g4op-dir(){ echo $(env-home)/geant4/g4op ; }
 g4op-cd(){  cd $(g4op-dir); }
 g4op-mate(){ mate $(g4op-dir) ; }
 g4op-get(){
-   local dir=$(dirname $(g4op-dir)) &&  mkdir -p $dir && cd $dir
+    g4op-cd
 
+    g4-
+    local klss="G4OpBoundaryProcess"
+    for kls in $klss ; do 
+       cp $(g4-dir)/source/processes/optical/src/$kls.cc  .
+       cp $(g4-dir)/source/processes/optical/include/$kls.hh  .
+    done 
 }
