@@ -210,51 +210,51 @@ private:
 
 private:
 
-	G4double thePhotonMomentum;
+    G4double thePhotonMomentum;
 
-	G4ThreeVector OldMomentum;
-	G4ThreeVector OldPolarization;
+    G4ThreeVector OldMomentum;
+    G4ThreeVector OldPolarization;
 
-	G4ThreeVector NewMomentum;
-	G4ThreeVector NewPolarization;
+    G4ThreeVector NewMomentum;
+    G4ThreeVector NewPolarization;
 
-	G4ThreeVector theGlobalNormal;
-	G4ThreeVector theFacetNormal;
+    G4ThreeVector theGlobalNormal;
+    G4ThreeVector theFacetNormal;
 
-	G4Material* Material1;
-	G4Material* Material2;
+    G4Material* Material1;
+    G4Material* Material2;
 
-	G4OpticalSurface* OpticalSurface;
+    G4OpticalSurface* OpticalSurface;
 
-        G4MaterialPropertyVector* PropertyPointer;
-        G4MaterialPropertyVector* PropertyPointer1;
-        G4MaterialPropertyVector* PropertyPointer2;
+    G4MaterialPropertyVector* PropertyPointer;
+    G4MaterialPropertyVector* PropertyPointer1;
+    G4MaterialPropertyVector* PropertyPointer2;
 
-	G4double Rindex1;
-	G4double Rindex2;
+    G4double Rindex1;
+    G4double Rindex2;
 
-	G4double cost1, cost2, sint1, sint2;
+    G4double cost1, cost2, sint1, sint2;
 
-	G4OpBoundaryProcessStatus theStatus;
+    G4OpBoundaryProcessStatus theStatus;
 
-	G4OpticalSurfaceModel theModel;
+    G4OpticalSurfaceModel theModel;
 
-	G4OpticalSurfaceFinish theFinish;
+    G4OpticalSurfaceFinish theFinish;
 
-	G4double theReflectivity;
-	G4double theEfficiency;
-        G4double theTransmittance;
+    G4double theReflectivity;
+    G4double theEfficiency;
+    G4double theTransmittance;
 
-        G4double theSurfaceRoughness;
+    G4double theSurfaceRoughness;
 
-	G4double prob_sl, prob_ss, prob_bs;
+    G4double prob_sl, prob_ss, prob_bs;
 
-        G4int iTE, iTM;
+    G4int iTE, iTM;
 
-        G4double kCarTolerance;
+    G4double kCarTolerance;
 
-        size_t idx, idy;
-        G4Physics2DVector* DichroicVector;
+    size_t idx, idy;
+    G4Physics2DVector* DichroicVector;
 };
 
 ////////////////////
@@ -303,59 +303,54 @@ void G4OpBoundaryProcess::ChooseReflection()
                  }
 }
 
-inline
-void G4OpBoundaryProcess::DoAbsorption()
+inline void G4OpBoundaryProcess::DoAbsorption()
 {
-              theStatus = Absorption;
-
-              if ( G4BooleanRand(theEfficiency) ) {
-		
-                 // EnergyDeposited =/= 0 means: photon has been detected
-                 theStatus = Detection;
-                 aParticleChange.ProposeLocalEnergyDeposit(thePhotonMomentum);
-              }
-              else {
-                 aParticleChange.ProposeLocalEnergyDeposit(0.0);
-              }
-
-              NewMomentum = OldMomentum;
-              NewPolarization = OldPolarization;
-
-//              aParticleChange.ProposeEnergy(0.0);
-              aParticleChange.ProposeTrackStatus(fStopAndKill);
+    theStatus = Absorption;
+    if ( G4BooleanRand(theEfficiency) ) 
+    {
+        // EnergyDeposited =/= 0 means: photon has been detected
+        theStatus = Detection;
+        aParticleChange.ProposeLocalEnergyDeposit(thePhotonMomentum);
+    }
+    else 
+    {
+        aParticleChange.ProposeLocalEnergyDeposit(0.0);
+    }
+    NewMomentum = OldMomentum;
+    NewPolarization = OldPolarization;
+    //aParticleChange.ProposeEnergy(0.0);
+    aParticleChange.ProposeTrackStatus(fStopAndKill);
 }
 
-inline
-void G4OpBoundaryProcess::DoReflection()
+inline void G4OpBoundaryProcess::DoReflection()
 {
-        if ( theStatus == LambertianReflection ) {
-
-          NewMomentum = G4LambertianRand(theGlobalNormal);
-          theFacetNormal = (NewMomentum - OldMomentum).unit();
-
+    if ( theStatus == LambertianReflection ) 
+    {
+        NewMomentum = G4LambertianRand(theGlobalNormal);
+        theFacetNormal = (NewMomentum - OldMomentum).unit();
+    }
+    else if ( theFinish == ground ) 
+    {
+        theStatus = LobeReflection;
+        if ( PropertyPointer1 && PropertyPointer2 )
+        {
+        } 
+        else 
+        {
+            theFacetNormal = GetFacetNormal(OldMomentum,theGlobalNormal);
         }
-        else if ( theFinish == ground ) {
-
-	  theStatus = LobeReflection;
-          if ( PropertyPointer1 && PropertyPointer2 ){
-          } else {
-             theFacetNormal =
-                 GetFacetNormal(OldMomentum,theGlobalNormal);
-          }
-          G4double PdotN = OldMomentum * theFacetNormal;
-          NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
-
-        }
-        else {
-
-          theStatus = SpikeReflection;
-          theFacetNormal = theGlobalNormal;
-          G4double PdotN = OldMomentum * theFacetNormal;
-          NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
-
-        }
-        G4double EdotN = OldPolarization * theFacetNormal;
-        NewPolarization = -OldPolarization + (2.*EdotN)*theFacetNormal;
+        G4double PdotN = OldMomentum * theFacetNormal;
+        NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+    }
+    else 
+    {
+        theStatus = SpikeReflection;
+        theFacetNormal = theGlobalNormal;
+        G4double PdotN = OldMomentum * theFacetNormal;
+        NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+    }
+    G4double EdotN = OldPolarization * theFacetNormal;
+    NewPolarization = -OldPolarization + (2.*EdotN)*theFacetNormal;
 }
 
 #endif /* G4OpBoundaryProcess_h */

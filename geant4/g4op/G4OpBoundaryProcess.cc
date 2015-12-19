@@ -259,6 +259,10 @@ G4VParticleChange* G4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, cons
     OpticalSurface = NULL;
 
     G4SurfaceType type = dielectric_dielectric;
+
+
+
+    ///////// get from Surface: type, theModel, theFinish, theReflectivity, theEfficiency, theTransmittance, theSurfaceRoughness, prob_sl, prob_ss, prob_bs  ///////////////// 
     G4LogicalSurface* Surface = NULL;
 
     Surface = G4LogicalBorderSurface::GetSurface(thePrePV, thePostPV);
@@ -348,6 +352,7 @@ G4VParticleChange* G4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, cons
         }   // OpticalSurface without MPT with those finish 
     } // OpticalSurface
 
+    //////////////////////////////////////// pull parameters from surface section ends ///////////////// 
 
 
 
@@ -402,7 +407,7 @@ G4VParticleChange* G4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, cons
         else 
         {
             G4double rand = G4UniformRand();
-            if ( rand > theReflectivity )
+            if ( rand > theReflectivity )   /// default theReflectivity = 1, so doesnt happen
             {
                 if (rand > theReflectivity + theTransmittance) 
                 {
@@ -428,6 +433,7 @@ G4VParticleChange* G4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, cons
                 }
                 else 
                 {
+                    /// default path thru spagetti here
                     DielectricDielectric();
                 }
             }
@@ -919,7 +925,7 @@ void G4OpBoundaryProcess::DielectricDielectric()
             G4SwapObj(&Rindex1,&Rindex2);
         }
 
-        if ( theFinish == polished ) 
+        if ( theFinish == polished )    /// default path
         {
             theFacetNormal = theGlobalNormal;
         }
@@ -927,18 +933,23 @@ void G4OpBoundaryProcess::DielectricDielectric()
         {
             theFacetNormal = GetFacetNormal(OldMomentum,theGlobalNormal);
         }
+        /// PdotN should be  -ve 
+        /// as normal is directed from new material into the old, 
+        /// opposite to moment direction from old to new
 
-        PdotN = OldMomentum * theFacetNormal;
+        PdotN = OldMomentum * theFacetNormal; 
         EdotN = OldPolarization * theFacetNormal;
 
-        cost1 = - PdotN;
+        cost1 = - PdotN; /// cost1 +ve
         if (std::abs(cost1) < 1.0-kCarTolerance)
         {
+            /// non-normal incidence
             sint1 = std::sqrt(1.-cost1*cost1);
             sint2 = sint1*Rindex1/Rindex2;     // *** Snell's Law ***
         }
         else 
         {
+            /// normal incidence cost1 ~ 1.  the angles are zero
             sint1 = 0.0;
             sint2 = 0.0;
         }
@@ -965,17 +976,23 @@ void G4OpBoundaryProcess::DielectricDielectric()
             }
             else 
             {
+                /// default path, calculate these again (for good measure!)
                 PdotN = OldMomentum * theFacetNormal;
                 NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
                 EdotN = OldPolarization * theFacetNormal;
                 NewPolarization = -OldPolarization + (2.*EdotN)*theFacetNormal;
+                ///
+                /// ( Jackson 2nd Ed, p284 : shouldnt TIR phase change depend on ratio of indices ? )
             }
         }
         else if (sint2 < 1.0) 
         {
+            /// not-TIR
             // Calculate amplitude for transmission (Q = P x N)
             if (cost1 > 0.0) 
             {
+                /// huh ? should always be +ve if normal is correctly defined
+                /// maybe this is to handle probabalistic normals to model roughness 
                 cost2 =  std::sqrt(1.-sint2*sint2);
             }
             else 
@@ -985,15 +1002,18 @@ void G4OpBoundaryProcess::DielectricDielectric()
 
             if (sint1 > 0.0) 
             {
-                A_trans = OldMomentum.cross(theFacetNormal);
-                A_trans = A_trans.unit();
-                E1_perp = OldPolarization * A_trans;
-                E1pp    = E1_perp * A_trans;
-                E1pl    = OldPolarization - E1pp;
-                E1_parl = E1pl.mag();
+                /// primary path 
+                A_trans = OldMomentum.cross(theFacetNormal);   
+                A_trans = A_trans.unit();             /// (G4ThreeVector) A_trans : unit vector transverse to plane of incidence
+                E1_perp = OldPolarization * A_trans;  /// (G4double)      E1_perp : dot product of old polarization and transverse vector ( S-pol coefficient )
+                E1pp    = E1_perp * A_trans;          /// (G4ThreeVector) E1pp    : component of pol vec transverse to plane of incidence     
+                E1pl    = OldPolarization - E1pp;     /// (G4ThreeVector) E1pl    : component of pol vec parallel to plane of incidence
+                E1_parl = E1pl.mag();                 /// (G4double)      E1_parl : parallel magnitude
             }
             else 
             {
+                /// sint1 = 0.0 normal incidence
+
                 A_trans  = OldPolarization;
                 // Here we Follow Jackson's conventions and we set the
                 // parallel component = 1 in case of a ray perpendicular
@@ -1002,11 +1022,49 @@ void G4OpBoundaryProcess::DielectricDielectric()
                 E1_parl  = 1.0;
             }
 
+
+            /// incident angle t1, refracted angle t2, indices n1, n2   
+            ///
+            /// Fresnel (perp === S-pol) transmittance
+            ///
+            ///              E2_perp          2 n1 cost1 
+            ///              --------  =  ----------------------
+            ///              E1_perp        n1 cost1 + n2 cost2
+            ///
+
             s1 = Rindex1*cost1;
             E2_perp = 2.*s1*E1_perp/(Rindex1*cost1+Rindex2*cost2);
+
+
+            /// Fresnel (parl === P-pol) transmittance
+            ///
+            ///              E2_parl          2 n1 cost1 
+            ///              --------  =  ----------------------
+            ///              E1_parl        n1 cost2 + n2 cost1
+            ///
+
             E2_parl = 2.*s1*E1_parl/(Rindex2*cost1+Rindex1*cost2);
+
+
+            /// square amplitudes to give perp and parl intensities, and sum
+            ///
+            ///     |E|^2 = |E_perp|^2 + |E_parl|^2 
+            ///
+
             E2_total = E2_perp*E2_perp + E2_parl*E2_parl;
             s2 = Rindex2*cost2*E2_total;
+
+            ///
+            ///     Intensity =  2 n c epsilon_0 |E|^2    for medium of index n 
+            ///
+            ///     (intensity transmissivity has factors of n for each medium
+            ///      and cost1 or cost2 as defined per unit of wavefront area)
+            ///
+            ///
+            ///                      s2        n2 cost2 
+            ///      TransCoeff =  ------ =   ---------- * E2_total
+            ///                      s1        n1 cost1
+            ///
 
             if (theTransmittance > 0) TransCoeff = theTransmittance;
             else if (cost1 != 0.0) TransCoeff = s2/s1;
@@ -1014,6 +1072,8 @@ void G4OpBoundaryProcess::DielectricDielectric()
 
             if ( !G4BooleanRand(TransCoeff) ) 
             {
+                /// dice says : reflect not transmit 
+
                 if (Swap) Swap = !Swap;
 
                 theStatus = FresnelReflection;
@@ -1033,22 +1093,88 @@ void G4OpBoundaryProcess::DielectricDielectric()
                 }
                 else 
                 {
-                    PdotN = OldMomentum * theFacetNormal;
-                    NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+                    ///  dot product for 3rd time (not relevant in most cases, but necessary for rough ones) 
+
+                    PdotN = OldMomentum * theFacetNormal;                   /// PdotN should be -ve still
+                    NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;  /// OldMom changed by vector in direction of the normal, as expected for reflection
                     if (sint1 > 0.0) 
                     {   // incident ray oblique
+
+                        ///  non-normal incidence reflection
+                        ///
+                        ///  P-pol (parl) boundary condition [Lvovsky "Fresnel Equations" conventions]
+                        ///
+                        ///        Ei cost1 + Er cost1 = Et cost2     (electric field)
+                        ///
+                        ///          Hi  -  Hr         =   Ht         (magnetic field)
+                        ///
+                        ///          n1 (Ei - Er)/mu1  =   n2 Et/mu2 
+                        ///                                           (assume not magnetic mu1 = mu2 = mu0, so cancels)
+                        /// 
+                        ///                               n2 Et 
+                        ///           Ei  - Er       =   -------
+                        ///                                n1
+                        ///
+                        ///                               n2 Et 
+                        ///               - Er       =   -------   -  Ei
+                        ///                                n1
+                        ///   
+                        ///    above E2_parl corresponds to Et, but now the dice says reflect  
+                        ///    so use the above boundary condition to get Er 
+                        ///
+                        ///    Sign convention opposite, but about to be squared so
+                        ///    doesnt mater for E_total but will change polarization 
+                        ///
+
                         E2_parl   = Rindex2*E2_parl/Rindex1 - E1_parl;
+
+
+                        ///  S-pol (perp) boundary condition is 
+                        ///
+                        ///        Ei + Er = Et 
+                        ///   
+                        ///  above  E2_perp corresponds to Et, but now the dice says reflect 
+                        ///  so use the boundary condition to get Er:
+                        ///
+                        ///             Er = Et - Ei 
+                        ///
+                        ///          E2_perp = E2_perp - E1_perp 
+                        ///
+                        
                         E2_perp   = E2_perp - E1_perp;
                         E2_total  = E2_perp*E2_perp + E2_parl*E2_parl;
-                        A_paral   = NewMomentum.cross(A_trans);
-                        A_paral   = A_paral.unit();
+
                         E2_abs    = std::sqrt(E2_total);
                         C_parl    = E2_parl/E2_abs;
                         C_perp    = E2_perp/E2_abs;
+
+                        /// C_parl, C_perp:  parallel (P-pol) and perp (S-pol) amplitude fractions
+                        ///
+                        ///
+                        /// A_trans is unit vector transverse to plane of incidence 
+                        ///
+                        ///     from above:        A_trans = OldMomentum.cross(theFacetNormal);   
+                        ///                    OR  A_trans = OldPolarization;   // for TIR
+                        ///
+                        ///
+                        /// Mint a new orthogonal basis for the NewMomentum on which 
+                        /// to splay the polarization
+                        ///
+                        ///     A_trans: transverse direction, the same as for the incident         
+                        ///     A_paral: NewMomentum.cross(A_trans)  
+                        ///        
+                        ///
+ 
+                        A_paral   = NewMomentum.cross(A_trans);
+                        A_paral   = A_paral.unit();
                         NewPolarization = C_parl*A_paral + C_perp*A_trans;
                     }
                     else 
                     {   // incident ray perpendicular
+
+                        /// normal incidence reflection
+                        ///
+
                         if (Rindex2 > Rindex1) 
                         {
                             NewPolarization = - OldPolarization;
@@ -1072,10 +1198,16 @@ void G4OpBoundaryProcess::DielectricDielectric()
                 if (sint1 > 0.0) 
                 {
                     // incident ray oblique
+
+                    /// non-normal incidence transmission 
+
                     alpha = cost1 - cost2*(Rindex2/Rindex1);
                     NewMomentum = OldMomentum + alpha*theFacetNormal;
                     NewMomentum = NewMomentum.unit();
 //                    PdotN = -cost2;
+
+
+                    /// same way of rustling up a polarization as above for reflection
                     A_paral = NewMomentum.cross(A_trans);
                     A_paral = A_paral.unit();
                     E2_abs     = std::sqrt(E2_total);
@@ -1097,6 +1229,9 @@ void G4OpBoundaryProcess::DielectricDielectric()
 
         if (theStatus == FresnelRefraction) 
         {
+            /// the normal points back from new material to old, 
+            /// so refracted newMomentum should be in opposite hemisphere to the normal 
+            /// so this dot product should be -ve
             Done = (NewMomentum * theGlobalNormal <= 0.0);
         } 
         else 
