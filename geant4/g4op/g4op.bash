@@ -29,6 +29,17 @@ Objectives
     delta:include blyth$ 
 
 
+
+Fresnel References
+-------------------
+
+Very detailed slides, well presented, lots of derivations
+
+* http://www.patarnott.com/atms749/pdf/FresnelEquations.pdf
+
+
+
+
 G4 Optical Photon Reference 
 -------------------------------
 
