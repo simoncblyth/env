@@ -1677,3 +1677,4 @@ lxe-(){      . $(env-home)/optix/lxe/lxe.bash && lxe-env $* ; }
 
 
 opticks-(){      . $(env-home)/opticks/opticks.bash && opticks-env $* ; }
+opop-(){      . $(env-home)/opticksop/opop.bash && opop-env $* ; }
