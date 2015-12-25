@@ -36,8 +36,7 @@ Fresnel References
 Very detailed slides, well presented, lots of derivations
 
 * http://www.patarnott.com/atms749/pdf/FresnelEquations.pdf
-
-
+* http://www.patarnott.com/atms749/index.html
 
 
 G4 Optical Photon Reference 

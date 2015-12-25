@@ -127,7 +127,7 @@ Need 1.4
 
 EOU
 }
-mpl-dir(){ echo $(local-base)/env/matplotlib/matplotlib-mpl ; }
+mpl-dir(){ echo $(env-home)/matplotlib ; }
 mpl-cd(){  cd $(mpl-dir); }
 mpl-mate(){ mate $(mpl-dir) ; }
 mpl-get(){
