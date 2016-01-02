@@ -6,6 +6,13 @@ osx-env(){      elocal- ; }
 osx-usage(){ cat << EOU
 
 
+console login
+--------------
+
+Password:">console"
+
+
+
 
 
 FUNCTIONS
