@@ -142,7 +142,7 @@ Optical Photon Simulation Progress
    * Progress Overview
 
    |  Simon C Blyth, National Taiwan University
-   |  **October 2015** 
+   |  **January 2016** 
 
 
 
@@ -206,8 +206,7 @@ Optical Photon Simulation Progress
  
    * triangulated PMT *disco ball* too unrealistic
    * parse detdesc XML to give CSG tree of primitives (boolean intersections, unions)
-   * partition 5 CSG solids of PMT into 14 **single primitive** parts 
-     at the geometrical intersections
+   * partition 5 CSG solids of PMT into 12 **single primitive** parts at geometrical intersections 
      (avoids implementing general CSG boolean handling on GPU)   
 
 .. image:: /env/nuwa/detdesc/pmt/hemi-pmt-solids.png
@@ -215,7 +214,7 @@ Optical Photon Simulation Progress
    :align: center
 
 
-:small:`Analytic PMT in 14 parts instead of 2928 triangles`
+:small:`Analytic PMT in 12 parts instead of 2928 triangles`
 -------------------------------------------------------------
 
 .. class:: small

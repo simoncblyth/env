@@ -7,7 +7,8 @@
 presentations
 -------------
 
-* http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (May 2015)
+* http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_progress.html (Jan 2016)
+* http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
 * http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulation.html (January 2015)
 * http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html (Sept 2014)
 * http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html

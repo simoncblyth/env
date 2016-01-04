@@ -13,7 +13,6 @@ Bitbucket Static Pages
 
 * http://simoncblyth.bitbucket.org 
 
-
 Sources/Binaries
 ------------------
 
@@ -22,13 +21,11 @@ The repo ~/simoncblyth.bitbucket.org contains:
 * binaries arranged in directories
 * html pages derived from sources in ~/env
 
-
 Guidelines for binaries
 ------------------------
 
 #. not too big there is a 1GB limit on repo size
 #. use parallel folder hierarchy to the env repository  
-
 
 Index Page 
 -----------
@@ -94,6 +91,12 @@ bitbucketstatic-dir(){ echo $HOME/simoncblyth.bitbucket.org ; }
 bitbucketstatic-sdir(){ echo $HOME/env/simoncblyth.bitbucket.org ; }
 bitbucketstatic-cd(){  cd $(bitbucketstatic-dir); }
 bitbucketstatic-scd(){  cd $(bitbucketstatic-sdir); }
-bitbucketstatic-get(){
-  echo -n
+bitbucketstatic-make(){
+   bitbucketstatic-scd
+   make
 }
+
+
+
+
+
