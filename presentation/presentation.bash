@@ -37,15 +37,39 @@ s5 rst underpinning
 
 * http://docutils.sourceforge.net/docs/user/slide-shows.html#s5-theme-files
 
+presentations
+---------------
 
+g4dae_geometry_exporter.txt
+     G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
+     19th Geant4 Collaboration Meeting, Okinawa, Sept 2014
 
+gpu_optical_photon_simulation.txt
+     200x Faster Optical Photon Propagation with NuWa + Chroma ?
+     Jan 2015
 
+gpu_accelerated_geant4_simulation.txt
+     GPU Accelerated Geant4 Simulation with G4DAE and Chroma
+     Jan 2015 
+     
+optical_photon_simulation_with_nvidia_optix.txt
+     Optical Photon Simulation with NVIDIA OptiX
+     July 2015
+
+optical_photon_simulation_progress.txt
+     Opticks : GPU Optical Photon Simulation using NVIDIA OptiX
+     Jan 2016
 
 
 EOU
 }
 presentation-dir(){ echo $(env-home)/presentation ; }
 presentation-cd(){  cd $(presentation-dir); }
+
+presentation-ls(){  presentation-cd ; ls -1t *.txt ; }
+presentation-txts(){ vi $(presentation-ls) ;  }
+
+
 
 
 #presentation-name(){ echo gpu_accelerated_geant4_simulation ; }

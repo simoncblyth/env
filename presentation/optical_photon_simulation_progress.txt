@@ -114,7 +114,7 @@
 
 
 ======================================================================
-Optical Photon Simulation Progress
+Opticks : Optical Photon Simulation with NVIDIA OptiX
 ======================================================================
 
 .. class:: small
@@ -143,6 +143,124 @@ Optical Photon Simulation Progress
 
    |  Simon C Blyth, National Taiwan University
    |  **January 2016** 
+
+
+
+:small:`Brief History of GPU Optical Photon Simulation Development`
+----------------------------------------------------------------------
+
+.. sidebar:: Transition to Opticks 
+
+    .. class:: small
+    
+         **Optical Photon Problem** 
+
+         *Geant4* optical photon propagation dominates (~95%) 
+         simulation time. 
+
+         **Optical Photon Solution** 
+
+         External photon propagation made possible by  
+         isolated nature of photons in simulation chain.
+         
+         * produced only by Cerenkov/Scintillation 
+         * yielding only PMT hits 
+
+         **NVIDIA OptiX Ray tracing framework** 
+
+         * state-of-the-art GPU accelerated ray tracing
+         * performance scales across multiple GPUs, verified
+           linearity with IHEP 4 GPU workstation
+         * regular releases: improvements, new GPU tuning
+         
+
+
+.. class:: small
+
+   **winter 2014** (within *Chroma*)
+
+   * integrate G4DAE geometry exports
+   * generate Cerenkov/Scintillation photons on GPU
+
+   **spring 2015** (transition to *Opticks*)
+
+   * :red:`realize lack of efficient multi-GPU is showstopper` for *Chroma* 
+   * discover NVIDIA OptiX ray tracing framework 
+   * begin developing *Opticks* (based on OptiX) to replace *Chroma*
+
+   **summer/autumn 2015** (*Opticks*)
+
+   * infrastructure operational, G4 optical physics ported 
+   * large geometry support added using instancing  
+
+   **autumn/winter 2015**
+
+   * major geometry bug discovered, fix implemented using *OpenMesh*   
+   * develop analytic PMT description 
+   * dynamic creation of simple test geometries in *Opticks*/*Geant4* allows comparisons to begin   
+
+.. class:: tiny
+
+   Newton published Opticks in 1704
+
+
+:small:`Introducing Opticks`
+------------------------------
+
+.. sidebar:: Opticks ~15 C++ Packages 
+
+      .. class:: small
+
+          Organized by dependencies
+
+          * :red:`Recreates Geant4 context on GPU`
+          * :blue:`Optical simulation by OptiX programs` 
+          * :blue:`Photon Indexing by Thrust`
+
+          Interop between OpenGL/OptiX/Thrust/CUDA  
+
+          * :blue:`shared GPU buffers, efficient visualization`
+
+          C++ code but NumPy analysis/debugging by using 
+          :red:`NPY serialization` for all buffers 
+
+          Externals: 
+
+          * Boost + Asio-ZMQ, ZMQ
+          * CUDA 7.0, Thrust 1.8, OptiX 3.8, OpenGL 4.1 
+          * OpenMesh 
+          * ImGUI  
+          * Geant4 10.2 
+
+
+.. class:: small
+
+   **Basis packages**
+
+   * *Opticks* : definitions, configuration
+   * *NPY* : host array handling, persistency, python analysis
+   * *NumpyServer* : network IO of *NPY* arrays
+
+   **Geometry packages** 
+
+   * *AssimpWrap* : G4DAE geometry loading using forked Assimp
+   * *GGeo* : preparing geometry for GPU
+   * *OpenMeshRap* : mesh fixing 
+
+   **GPU library interface packages** 
+
+   * *OpticksOp* : high level control of GPU libs
+   * *OptiXRap* : OptiX control
+   * *ThrustRap* *CUDAWrap* : photon indexing, cuRAND RNG
+   * *OGLWrap* : OpenGL visualization
+
+   **Main packages**
+   
+   * *GGeoView* : visualization, Opticks main
+   * *CFG4* : Geant4 comparison, CfG4 main
+
+
+
 
 
 
