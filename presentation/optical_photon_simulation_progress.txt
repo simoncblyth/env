@@ -127,11 +127,17 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
 
    **Executive Summary**
 
-   * several large geometry issues solved
-   * extreme speed objective looks inevitable
-   * matching Geant4 : :blue:`still unclear how long to achieve`   
+   * Transition to NVIDIA OptiX completed (Opticks) 
+   * Validation comparisons with Geant4 started
+   * Performance factors >> 100x **so large they become irrelevant**
+   * Geant4 match achieved with simple geometries 
+   * :blue:`uncertain how long to achieve full geometry match`
 
    **Contents**
+
+   * Brief History of GPU Optical Photon Simulation Development
+   * Introducing Opticks
+   * Large Geometry/Event Techniques
 
    * Handling JUNO geometry 
    * 800x less memory with instancing
@@ -182,13 +188,13 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
    * integrate G4DAE geometry exports
    * generate Cerenkov/Scintillation photons on GPU
 
-   **spring 2015** (transition to *Opticks*)
+   **spring 2015** (start transition to *Opticks*)
 
    * :red:`realize lack of efficient multi-GPU is showstopper` for *Chroma* 
-   * discover NVIDIA OptiX ray tracing framework 
+   * discover :blue:`NVIDIA OptiX` ray tracing framework 
    * begin developing *Opticks* (based on OptiX) to replace *Chroma*
 
-   **summer/autumn 2015** (*Opticks*)
+   **summer/autumn 2015** (*Opticks* transition completed)
 
    * infrastructure operational, G4 optical physics ported 
    * large geometry support added using instancing  
@@ -197,11 +203,12 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
 
    * major geometry bug discovered, fix implemented using *OpenMesh*   
    * develop analytic PMT description 
-   * dynamic creation of simple test geometries in *Opticks*/*Geant4* allows comparisons to begin   
+   * dynamic creation of simple test geometries in *Opticks*/*Geant4* allows validation comparisons to begin   
 
 .. class:: tiny
 
    Newton published Opticks in 1704
+
 
 
 :small:`Introducing Opticks`
@@ -222,13 +229,13 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
           * :blue:`shared GPU buffers, efficient visualization`
 
           C++ code but NumPy analysis/debugging by using 
-          :red:`NPY serialization` for all buffers 
+          :red:`.npy serialization` for all buffers 
 
           Externals: 
 
           * Boost + Asio-ZMQ, ZMQ
           * CUDA 7.0, Thrust 1.8, OptiX 3.8, OpenGL 4.1 
-          * OpenMesh 
+          * OpenMesh 4.1 
           * ImGUI  
           * Geant4 10.2 
 
@@ -260,72 +267,77 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
    * *CFG4* : Geant4 comparison, CfG4 main
 
 
+:small:`Large Geometry/Event Techniques`
+------------------------------------------------------- 
+
+.. sidebar:: JUNO Geometry 
+
+   .. class:: small
+
+      289733 volumes in ``test3.dae`` 
+
+      Split into non-instanced (global) and instances 
+
+      *     0 Global     95436 faces 
+      * 36572 PMT_3inch    540 faces 
+      * 19452 PMT_20inch  3502 faces
+      *   480 lFasteners  1856 faces
+      *   124 lPlane      6252 faces 
+
+.. class:: small
+
+   **Instancing implemented for OpenGL and OptiX**
+
+   Geometry analysed to find instances
+   (repeated sub-trees with their transforms) 
+
+   * JUNO: ~90M triangles, instancing reduces to 0.1M
+
+   **Split Rendering**
+
+   * Multiple renderers: global, full instances, bbox instances
+   * GUI control of which to use
+
+   **Compute Mode**
+
+   * Pure OptiX buffers are faster and use less GPU memory 
+   * Visualize with OpenGL separately by event loading 
+      
+   **Ideas to investigate**
+
+   * Analytic PMT definition expected to improve OptiX efficiency 
+   * Culling non-visible geometry to improve OpenGL performance
 
 
+.. class:: tiny  
+
+   Forced to duplicate data on GPU as OpenGL/OptiX geometry sharing not operational
+
+
+:small:`JUNO Geometry Instance Rendering Control`
+------------------------------------------------------- 
+
+.. image:: /env/graphics/ggeoview/ggv-juno-instancing.png
+   :width: 900px
+   :align: center
 
 
 :small:`Handling JUNO Geometry`
 ------------------------------------------------------- 
-
-.. class:: small
  
-   Implemented OpenGL and OptiX instancing, to allow loading the full JUNO geometry. 
-
 .. image:: /env/graphics/ggeoview/ggeoview-cerenkov-jpmt.png
    :width: 900px
    :align: center
 
-.. class:: tiny
 
-   .. [#hw] MacBook Pro (2013), NVIDIA GeForce GT 750M 2048 MB (384 cores); 
-            Workstation GPU performance expected to scale by core count 
-
-
-:small:`800x less memory due to instancing`
-------------------------------------------------------- 
+:small:`Analytic PMT geometry : more realistic, faster, less memory`
+---------------------------------------------------------------------
 
 .. class:: small
  
-   ~90M triangles, vertex data alone too big for GPU memory,
-   mandatory instancing reduces to 0.1M
-
-   *GTreeCheck* algorithm finds repeated geometry, splitting into:
-
-   * one non-instanced mesh
-   * 4 instanced meshes corresponding 
-     to 20-inch and 3-inch PMTs and support geometry.
-
-
-   Vertex, face, solid (*transforms*) and instance counts (*itransforms*):
-
-.. raw:: html
-
-    <pre class="mypre">
- 
-     mm  0 : vertices   47864 faces   95436 transforms  289733 itransforms       0 
-     mm  1 : vertices     277 faces     540 transforms       4 itransforms   36572 
-     mm  2 : vertices    1759 faces    3502 transforms       4 itransforms   19452 
-     mm  3 : vertices     914 faces    1856 transforms       1 itransforms     480 
-     mm  4 : vertices    4168 faces    6252 transforms     521 itransforms     124 
-
-       totVertices     54982  totFaces    107586 
-
-      vtotVertices  45349928 vtotFaces  89631348 (virtual: scaling by transforms)
-
-      vfacVertices   824.814 vfacFaces   833.113 (virtual to total ratio)
-  
-    </pre>
-
-
-:small:`Analytic PMT geometry`
----------------------------------------
-
-.. class:: small
- 
-   * triangulated PMT *disco ball* too unrealistic
-   * parse detdesc XML to give CSG tree of primitives (boolean intersections, unions)
-   * partition 5 CSG solids of PMT into 12 **single primitive** parts at geometrical intersections 
-     (avoids implementing general CSG boolean handling on GPU)   
+   * parse Dayabay detdesc XML to give CSG tree : solids with boolean intersections, unions
+   * partition 5 solids into 12 **single primitive** parts 
+   * splitting at geometrical intersections avoids implementing general CSG boolean handling
 
 .. image:: /env/nuwa/detdesc/pmt/hemi-pmt-solids.png
    :width: 900px
@@ -337,11 +349,11 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
 
 .. class:: small
 
-   Implemented OptiX PMT intersection based on sphere/cylinder part
-   intersection: solve quadratic, handle cases  
+   Implement OptiX geometry with ray intersection code:
+   solves quadratic for sphere/cylinder, handles various cases  
 
 .. image:: /env/nuwa/detdesc/pmt/hemi-pmt-parts.png
-   :width: 900px
+   :width: 700px
    :align: center
 
 .. class:: tiny
@@ -377,42 +389,66 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
    :align: center
 
 
-:small:`Simplified Analytic PMT`
---------------------------------------
+:small:`Volume to Surface Translation details need validation`
+------------------------------------------------------------------
 
-.. class:: small
+.. sidebar:: PMT Edge Zoom 
 
-    Volume base geometry: Pyrex/Vacuum/Bialkali  
-    puts photocathode inside vacuum with coincident boundary. 
-  
-    Simplified surface translation removes coincidents by adjusting 
-    heirarchy to Pyrex/Bialkali/Vacuum.
-
-    Zoomed view of PMT edge (units mm): showing 3mm Pyrex, 
-
-
-.. image:: /env/nuwa/detdesc/pmt/analytic-pmt-detail.png
-   :width: 900px
-   :align: center
-
-
-
-:small:`IAV, OAV mesh fixing with OpenMesh surgery`
------------------------------------------------------
-
-.. class:: small
-
-    Photon material provided by intersection boundary, all top lid photons Acrylic(yellow), not GdLS(red)
+    .. class:: small
     
-    Issue: some CSG unions split into multiple meshes with close parallel faces
+        Zoomed view of PMT edge (mm): showing 3mm Pyrex, 
 
-    * ~25 out of 250 meshes have issues eg Eulers Characteristic ``V - E + F != 2`` 
-    * fixed two critical ones: IAV, OAV. 
+        .. image:: /env/nuwa/detdesc/pmt/analytic-pmt-detail.png
+           :width: 600px
+           :align: center
+
+        **Volume based geometry can get away with coincident
+        boundaries, Surface based geometry cannot**
+
+
+.. class:: small
+
+    **Volume Based Geometry** 
+
+    Heirarchy: Pyrex/Vacuum/Bialkali  
+
+    * photocathode inside vacuum with coincident boundary 
+
+    **Surface Based Geometry**
+
+    Adjusted heirarchy: Pyrex/Bialkali/Vacuum 
+
+    * **avoids coincidence problem**
+
+
+
+:small:`Dayabay IAV, OAV mesh fixing with OpenMesh surgery`
+------------------------------------------------------------
+
+.. sidebar:: After fix 
+
+    .. class:: small
+
+        Photon Color indicates material
+ 
+        .. image:: /env/graphics/ggeoview/mesh-fix-iav-oav.png
+           :width: 500px
+           :align: center
+
+.. class:: small
+
+    Intersection boundary determines photon material, 
+
+    * top lid photons wrongly assigned Acrylic (not GdLS)
+
+    G4Polyhedron tesselation bug:
+
+    * splits some CSG unions into multiple meshes with **close parallel faces**
+    * ~25/250 Dayabay meshes have issues eg Eulers Characteristic ``V - E + F != 2`` 
+    * two critical ones fixed: IAV, OAV. 
     * close parallel faces causes flickering OpenGL render
 
-.. image:: /env/graphics/ggeoview/mesh-fix-iav-oav.png
-   :width: 900px
-   :align: center
+
 
 
 :small:`OpenMeshRap package`

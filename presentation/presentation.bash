@@ -66,8 +66,8 @@ EOU
 presentation-dir(){ echo $(env-home)/presentation ; }
 presentation-cd(){  cd $(presentation-dir); }
 
-presentation-ls(){  presentation-cd ; ls -1t *.txt ; }
-presentation-txts(){ vi $(presentation-ls) ;  }
+presentation-ls(){   presentation-cd ; ls -1t *.txt ; }
+presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 
 
 
