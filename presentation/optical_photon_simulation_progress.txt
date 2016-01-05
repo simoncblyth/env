@@ -449,8 +449,6 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
     * close parallel faces causes flickering OpenGL render
 
 
-
-
 :small:`OpenMeshRap package`
 ------------------------------------------------
 
@@ -685,7 +683,67 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
 
 
 
- 
+:small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
+------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypre">
+    ggv-;ggv-rainbow --spol --compute 
+    ggv-;ggv-rainbow --spol --cfg4  
+    </pre>
+
+.. image:: /env/optix/cfg4/rainbow-cfg4-spol.png
+   :width: 900px
+   :align: center
+
+
+:small:`1M Rainbow P-Polarized, Comparison Opticks/Geant4`
+------------------------------------------------------------
+
+.. image:: /env/optix/cfg4/rainbow-cfg4-ppol.png
+   :width: 900px
+   :align: center
+
+
+
+:small:`Performance Comparison Opticks/Geant4`
+----------------------------------------------------------
+
+.. sidebar:: Rainbow 1M 
+
+    .. class:: small
+
+        .. image:: /env/optix/cfg4/rainbow-cfg4-2.png
+           :width: 500px
+           :align: center
+
+
+.. class:: small
+
+    **Average Propagate Time for 1M photons** 
+
+    MacBook Pro 2013, NVIDIA GeForce GT 750M 2GB (384 cores)
+
+    ====================  =================  =================  ================== 
+     Test                    Geant4 10.2       Opticks Interop     Opticks Compute      
+    ====================  =================  =================  ================== 
+     Rainbow 1M                56 s               1.62 s            0.28 s         
+    ====================  =================  =================  ================== 
+
+    * **Opticks ~200X Geant4 with only 384 cores**
+    * multi-GPU workstation up to 20x the cores 
+    * :red:`photon propagation time will become effectively zero`
+   
+    **Opticks Interop/Compute Modes**
+
+    * bit perfect identical results, monitored by digest
+    * Interop: uses OpenGL buffers allowing visualization
+    * Compute: uses OptiX buffers
+    * Compute (and G4) propagated events can be visualized 
+      by loading into interop mode viewer
+
+
 
 :small:`Progress Overview`
 -----------------------------
