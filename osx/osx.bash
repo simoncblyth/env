@@ -84,16 +84,36 @@ osx-ss-open(){
 
 
 osx-ss-cp(){
+   local msg="=== $FUNCNAME :"
    local nam=${1:-plot}
-   local iwd=${PWD}
-   local rel=${iwd/$ENV_HOME\/}
-
+   local iwd=$(realpath ${PWD})
    local src="$(osx-ss)"
 
-   local dir=$HOME/simoncblyth.bitbucket.org/env/$rel
+   local rel
+   local repo
+
+   if [ "${iwd/$ENV_HOME\/}" != ${iwd} ]; then 
+       rel=${iwd/$ENV_HOME\/}
+       repo="env"
+   elif [ "${iwd/$WORKFLOW_HOME\/}" != ${iwd} ]; then 
+       rel=${iwd/$WORKFLOW_HOME\/}
+       repo="workflow"
+   else
+       echo $msg expects to be run from within env or workfloat repos
+       return 
+   fi
+
+   local dir
+   case $repo in 
+            env) dir=$HOME/simoncblyth.bitbucket.org/env/$rel ;;
+       workflow) dir=$HOME/DELTA/wdocs/$rel ;;
+   esac
+
    local dst=$dir/$nam.png
    [ ! -d "$dir" ] && mkdir -p $dir
 
+   echo $msg iwd $iwd rel $rel repo $repo dir $dir dst $dst  
+  
    ls -l $dir
 
    local cmd="cp \"$src\" $dst"
@@ -110,7 +130,7 @@ osx-ss-cp(){
 
    cat << EOR
 
-.. image:: /env/$rel/$nam.png
+.. image:: /$repo/$rel/$nam.png
    :width: 900px
    :align: center
 

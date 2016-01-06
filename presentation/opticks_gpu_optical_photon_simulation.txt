@@ -292,6 +292,7 @@ Opticks : GPU Optical Photon Simulation
 
    * Analytic PMT definition expected to improve OptiX efficiency 
    * Culling non-visible geometry to improve OpenGL performance
+   * Level-of-detail : change geometry detail based on distance
 
 
 .. class:: tiny  
