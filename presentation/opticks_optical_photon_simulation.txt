@@ -98,19 +98,9 @@
 
 
 
-
-
-
-
 .. comment
 
-   Last 6 weeks
-
-   implemented optical physics in OptiX infrastructure
-   squeeze photon record into 128 bit 
-   record viz
-   photon history/material indexing
-
+   Placeholder
 
 
 ======================================================================
@@ -127,15 +117,15 @@ Opticks : GPU Optical Photon Simulation
    **Executive Summary**
 
    * Validation comparisons with Geant4 started, rainbow geometry validated
-   * Performance factors **so large they become irrelevant** (> 100x) 
+   * Performance factors **so large they become irrelevant** (>> 200x) 
 
    **Contents**
 
    * Brief History of GPU Optical Photon Simulation Development
    * Introducing Opticks
    * Handling JUNO geometry 
-   * Analytic PMT geometry description 
    * Dayabay IAV, OAV mesh fixing with OpenMesh surgery
+   * Analytic PMT geometry description 
    * Opticks/Geant4 : Dynamic Test Geometry
    * Rainbow Geometry Testing
    * Summary 
@@ -170,7 +160,7 @@ Opticks : GPU Optical Photon Simulation
          * state-of-the-art GPU accelerated ray tracing
          * performance scales across multiple GPUs, verified
            linearity with IHEP 4 GPU workstation
-         * regular releases: improvements, new GPU tuning
+         * regular releases: improvements, GPU tuning
          
 
 
@@ -185,7 +175,7 @@ Opticks : GPU Optical Photon Simulation
 
    * :red:`realize lack of efficient multi-GPU is showstopper` for *Chroma* 
    * discover :blue:`NVIDIA OptiX` ray tracing framework 
-   * begin developing *Opticks* (based on OptiX) to replace *Chroma*
+   * create *Opticks* (using OptiX) to replace *Chroma*
 
    **summer/autumn 2015** (*Opticks* transition completed)
 
@@ -194,9 +184,9 @@ Opticks : GPU Optical Photon Simulation
 
    **autumn/winter 2015**
 
-   * major geometry bug discovered, fix implemented using *OpenMesh*   
+   * major tesselation bug avoided with *OpenMesh*   
    * develop analytic PMT description 
-   * dynamic creation of simple test geometries in *Opticks*/*Geant4* allows validation comparisons to begin   
+   * validation machinery created *CfG4*
 
 .. class:: tiny
 
@@ -327,6 +317,55 @@ Opticks : GPU Optical Photon Simulation
    :align: center
 
 
+
+
+:small:`Dayabay IAV, OAV mesh fixing with OpenMesh surgery`
+------------------------------------------------------------
+
+.. sidebar:: After fix 
+
+    .. class:: small
+
+        .. image:: /env/graphics/ggeoview/mesh-fix-iav-oav.png
+           :width: 500px
+           :align: center
+
+        Color indicates material assigned.
+        Prior to fix, assignments incorrect for all photons 
+        heading towards top lid.
+
+        Topologically correct meshes, without holes, have:
+
+        ``V - E + F = 2``  (Eulers Characteristic) 
+
+
+.. class:: small
+
+   Intersection boundaries determines photon material, bad 
+   meshes cause incorrect material assignments
+
+   **G4Polyhedron Tesselation Bug** 
+
+   * Some union solids become cleaved meshes 
+   * **close parallel faces** cause flickering OpenGL render
+   * ~25/250 Dayabay meshes have issues 
+   * two critical ones fixed: IAV, OAV. 
+
+   **OpenMeshRap** finds/fixes cleaved meshes
+
+   * based on open source project: **OpenMesh** 
+
+   * extracts real topological meshes
+   * finds close parallel faces between the meshes
+   * deletes the extra faces
+   * stitches the split mesh together with added triangles
+
+   :red:`TODO: check/apply to JUNO geometry` 
+
+
+
+
+
 :small:`Analytic PMT geometry : more realistic, faster, less memory`
 ---------------------------------------------------------------------
 
@@ -400,51 +439,6 @@ Opticks : GPU Optical Photon Simulation
    :width: 800px
    :align: center
 
-
-:small:`Dayabay IAV, OAV mesh fixing with OpenMesh surgery`
-------------------------------------------------------------
-
-.. sidebar:: After fix 
-
-    .. class:: small
-
-        .. image:: /env/graphics/ggeoview/mesh-fix-iav-oav.png
-           :width: 500px
-           :align: center
-
-        Color indicates material assigned.
-        Prior to fix, assignments incorrect for all photons 
-        heading towards top lid.
-
-        Topologically correct meshes, without holes, have:
-
-        ``V - E + F = 2``  (Eulers Characteristic) 
-
-
-.. class:: small
-
-   Intersection boundaries determines photon material, bad 
-   meshes cause incorrect material assignments
-
-   **G4Polyhedron Tesselation Bug** 
-
-   * Some union solids become cleaved meshes 
-   * **close parallel faces** cause flickering OpenGL render
-   * ~25/250 Dayabay meshes have issues 
-   * two critical ones fixed: IAV, OAV. 
-
-   **OpenMeshRap** finds/fixes cleaved meshes
-
-   * based on open source project: **OpenMesh** 
-
-   * extracts real topological meshes
-   * finds close parallel faces between the meshes
-   * deletes the extra faces
-   * stitches the split mesh together with added triangles
-
-   :red:`TODO: check/apply to JUNO geometry` 
-
-
 :small:`Opticks/Geant4 : Dynamic Test Geometry`
 ----------------------------------------------------------------
 
@@ -496,6 +490,28 @@ Opticks : GPU Optical Photon Simulation
    :align: center
 
 
+
+:small:`Multiple Rainbows from a Single Drop of Water`
+--------------------------------------------------------
+
+.. image:: /env/presentation/rainbow-mechanism.png
+   :width: 900px
+   :align: center
+
+.. class:: small
+
+   Caustic bunching at least deviation causes rainbow 
+
+   (a) Primary bow, single reflection : ray f at bow angle
+   (b) Secondary bow, double reflection : ray g at bow angle
+   (c) Deviation angles 0:180 degrees hemisphere opposite to incident rays
+
+.. class:: tiny
+
+   Jearl D. Walker, 1975, Multiple rainbows from single drops of water and other liquids
+   http://patarnott.com/atms749/pdf/MultipleRainbowsSingleDrops.pdf
+
+
 :small:`Disc beam 1M Photons incident on Water Sphere (S-Pol)`
 ----------------------------------------------------------------
 
@@ -516,6 +532,41 @@ Opticks : GPU Optical Photon Simulation
 .. image:: /env/graphics/ggeoview/rainbow-spol-disc-several-bows.png
    :width: 900px
    :align: center
+
+
+:small:`Opticks/Geant4 Photon Step Sequence Comparison`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   * BT/BR: boundary transmit/reflect
+   * TO/SC/SA: torch/scatter/surface absorb
+
+   **1M flag sequences indexed using CUDA Thrust, 0.040 s**
+
+.. raw:: html
+
+    <pre class="mypre">
+     64-bit uint  Opticks    Geant4    chi2                                      (tag:5,-5)   
+
+            8ccd   819160    819654    0.15  [4 ] TO BT BT SA                    (cross droplet) 
+             8bd   102087    101615    1.09  [3 ] TO BR SA                       (external reflect)
+           8cbcd    61869     61890    0.00  [5 ] TO BT BR BT SA                 (bow 1)
+          8cbbcd     9618      9577    0.09  [6 ] TO BT BR BR BT SA              (bow 2)
+         8cbbbcd     2604      2687    1.30  [7 ] TO BT BR BR BR BT SA           (bow 3)
+        8cbbbbcd     1056      1030    0.32  [8 ] TO BT BR BR BR BR BT SA        (bow 4)
+           86ccd     1014      1000    0.10  [5 ] TO BT BT SC SA
+       8cbbbbbcd      472       516    1.96  [9 ] TO BT BR BR BR BR BR BT SA     (bow 5)
+             86d      498       473    0.64  [3 ] TO SC SA
+      bbbbbbbbcd      304       294    0.17  [10] TO BT BR BR BR BR BR BR BR BR  (bow 8+ truncated)
+      8cbbbbbbcd      272       247    1.20  [10] TO BT BR BR BR BR BR BR BT SA  (bow 6)
+      cbbbbbbbcd      183       161    1.41  [10] TO BT BR BR BR BR BR BR BR BT  (bow 7 truncated) 
+             4cd      161       139    1.61  [3 ] TO BT AB
+           8c6cd      153       106    8.53  [5 ] TO BT SC BT SA
+            86bd      138       142    0.06  [4 ] TO BR SC SA
+            4ccd      100       117    1.33  [4 ] TO BT BT AB
+    </pre>
+
 
 
 :small:`Rainbow deviation angles`
@@ -627,47 +678,100 @@ Opticks : GPU Optical Photon Simulation
 :small:`Summary`
 -----------------------------
 
+.. sidebar:: Opticks Performance 
+
+   .. class:: small
+     
+      * **200x Geant4** with mobile GPU
+      * **>> 200x** expected with workstation GPUs 
+      * :red:`photon propagation time --> zero`
+
 .. class:: small
 
    **Opticks Transition Complete**
 
    * squeezed JUNO geometry onto GPU with instancing
-   * fixing bad triangulations in Dayabay geometry using OpenMesh surgery   
-   * replace triangulated PMTs with more realistic analytic ones
+   * devised mesh fixing workaround for G4Polyhedron bug 
+   * developed analytic PMT representation
+   * photons fully GPU resident, only copy PMT hits to CPU
 
    **Opticks Validation**
 
+   * developed validation machinery *CfG4*
    * simple rainbow geometry matches Geant4
-
-   **Opticks Performance**
-
-   * Performance factors >> 100x **so large they become irrelevant**
 
    **Next Tests**
 
-   * Prism, Lens, Fresnel Rhomb (2x TIR) 
-   * single analytic PMT 
-   * full geometry  
+   * Prism, Lens, Fresnel Rhomb (2x TIR)
+   * Single Analytic PMT 
+   * Full geometries 
+
+
+:i:`Invisible Header of spacer page`
+--------------------------------------------------
 
 
 
+:small:`EXTRAS : Details and Tests in progress`
+--------------------------------------------------
+
+.. class:: small
+
+   **Details**
+
+   * Optical Photons now fully GPU resident
+   * Volume to Surface Translation details need validation
+   * OptiX Geometry Experience
+
+   **Tests requiring G4 comparison**
+
+   * Prism S-Polarized
+   * Prism P-Polarized
+   * Prism Deviation vs Incident angles for 10 wavelengths
+   * Lens focussing 
 
 
+:small:`Optical Photons now fully GPU resident`
+--------------------------------------------------
+
+.. class:: small
+
+     All photon operations now done on GPU:
+
+     * seeded (assigned gensteps)
+     * generated 
+     * propagated
+     * indexed material/interaction histories 
+     
+     Only PMT hits need to be copied back to CPU
 
 
-:small:`Progress Overview Continued`
+.. class:: tiny
+
+     Thrust/CUDA/OptiX interop used to implement
+
+
+:small:`Volume to Surface Translation details need validation`
+------------------------------------------------------------------
+
+.. class:: small
+    
+   Zoomed view of PMT edge (mm): showing 3mm Pyrex, 
+
+   .. image:: /env/nuwa/detdesc/pmt/analytic-pmt-detail.png
+      :width: 600px
+      :align: center
+
+   **Volume based geometry can get away with coincident
+   boundaries, Surface based geometry cannot**
+
+
+:small:`OptiX Geometry Experience`
 --------------------------------------
 
 .. class:: small
 
-   * simplified analytic PMT by removing coincident surfaces
-
-   * implemented dynamic test geometry: box, sphere, lens, prism
-
-   * reflection, refraction, dispersion tests so far matching, 
-     :red:`after fixing/avoiding several geometry issues`
-
-   Geometry Issues Fixed/Avoidable:
+   **Geometry Issues Fixed/Avoidable**
 
    * triangulated geometry leaks when shoot millions of photons at cracks (1)
    
@@ -678,9 +782,6 @@ Opticks : GPU Optical Photon Simulation
 .. class:: tiny
 
     (1) more of a problem for testing than actual usage
-
-
-
 
 
 
@@ -695,7 +796,6 @@ Opticks : GPU Optical Photon Simulation
 .. class:: tiny
 
     S-polarization: perpendicular to incident plane
-
 
 .. image:: /env/numerics/npy/prism-spol-ripple.png
    :width: 900px
@@ -720,6 +820,19 @@ Opticks : GPU Optical Photon Simulation
    :align: center
 
 
+:small:`Prism Deviation vs Incident angles for 10 wavelengths`
+------------------------------------------------------------------
+
+.. class:: small
+
+   Prism geometry and Snell's law at two refractions allows deviation 
+   angle vs incident angle to be predicted.  Comparison of simulation
+   results with expectations for 10 wavelengths   
+   using refractive index of Schott F2 Flint Glass.
+
+.. image:: /env/numerics/npy/prism-deviation.png
+   :width: 900px
+   :align: center
 
 
 :small:`Lens focussing`
@@ -736,62 +849,6 @@ Opticks : GPU Optical Photon Simulation
 .. image:: /env/graphics/ggeoview/lens-polcolor.png
    :width: 900px
    :align: center
-
-
-:small:`Prism Deviation vs Incident angles for 10 wavelengths`
-------------------------------------------------------------------
-
-.. class:: small
-
-   Prism geometry and Snell's law at two refractions allows deviation 
-   angle vs incident angle to be predicted.  Comparison of simulation
-   results with expectations for 10 wavelengths   
-   using refractive index of Schott F2 Flint Glass.
-
-.. image:: /env/numerics/npy/prism-deviation.png
-   :width: 900px
-   :align: center
-
-
-
-:small:`Volume to Surface Translation details need validation`
-------------------------------------------------------------------
-
-.. sidebar:: PMT Edge Zoom 
-
-    .. class:: small
-    
-        Zoomed view of PMT edge (mm): showing 3mm Pyrex, 
-
-        .. image:: /env/nuwa/detdesc/pmt/analytic-pmt-detail.png
-           :width: 600px
-           :align: center
-
-        **Volume based geometry can get away with coincident
-        boundaries, Surface based geometry cannot**
-
-
-
-
-:small:`Optical Photons now fully GPU resident`
---------------------------------------------------
-
-.. class:: small
-
-     All photon operations now done on GPU:
-
-     * seeded (assigned gensteps)
-     * generated 
-     * propagated
-     * indexed material/interaction histories 
-     
-     Only PMT hits need to be copied back to CPU
-
-
-.. class:: tiny
-
-     Thrust/CUDA/OptiX interop used to implement
-
 
 
 
