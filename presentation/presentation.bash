@@ -73,7 +73,7 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo gpu_accelerated_geant4_simulation ; }
 #presentation-name(){ echo optical_photon_simulation_with_nvidia_optix ; }
 #presentation-name(){ echo optical_photon_simulation_progress ; }
-presentation-name(){ echo opticks_optical_photon_simulation ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation ; }
 
 presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
 presentation-export(){
