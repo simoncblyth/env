@@ -44,6 +44,11 @@ G4 Optical Photon Reference
 
 * http://geant4.slac.stanford.edu/UsersWorkshop/PDF/Peter/OpticalPhoton.pdf
 
+Polarization Sources
+---------------------
+
+* http://fp.optics.arizona.edu/chipman/Publications/Publications.html
+
 
 Others
 -------
