@@ -76,9 +76,36 @@
 
     GGeoView Cerenkov Geom M1
     /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
-    
+   
+    JPMT Inside Wide 
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1408px_834px
+
+    JPMT Wide
+    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
+  
+    JPMT Headview
+    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
+ 
+    JPMT Backview
+    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
+ 
+    JPMT Approach 
+    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
+
+    JPMT Arrival 
+    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
+ 
+    JPMT Before Contact 
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+ 
+    JPMT After Contact 
+    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
+  
+    JPMT Inside Outside 
+    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
 
 
+ 
 .. comment 
 
     GGeoView image is 2094x1590 1047x795
@@ -100,7 +127,19 @@
 
 .. comment
 
-   Placeholder
+    Placeholder
+
+    jpmt-after-contact.png 2850px_1680px
+    jpmt-approach.png 2862px_1678px
+    jpmt-arrival.png 2854px_1682px
+    jpmt-backview.png 2298px_1588px
+    jpmt-before-contact.png 2860px_1688px
+    jpmt-headview.png 2616px_1566px
+    jpmt-inside-outside.png 2802px_1684px
+    jpmt-wide.png 2818px_1672px
+
+
+
 
 
 ======================================================================
@@ -850,6 +889,81 @@ Opticks : GPU Optical Photon Simulation
 .. image:: /env/graphics/ggeoview/lens-polcolor.png
    :width: 900px
    :align: center
+
+
+   
+:i:`JPMT Inside Wide`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
+
+
+:i:`JPMT Wide`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
+
+  
+:i:`JPMT Headview`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-headview_half.png
+
+
+:i:`JPMT Backview`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-backview_half.png
+
+
+:i:`JPMT Before Contact`
+-------------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-before-contact_half.png
+
+
+:i:`JPMT After Contact`
+-------------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-after-contact_half.png
+
+
+:i:`JPMT Approach`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-approach_half.png
+
+
+:i:`JPMT Arrival`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-arrival_half.png
+
+
+:i:`JPMT Inside Outside`
+-------------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-outside_half.png
+
+ 
 
 
 
