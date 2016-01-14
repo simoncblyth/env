@@ -2,7 +2,6 @@
 slides-src(){      echo doc/slides.bash ; }
 slides-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slides-src)} ; }
 slides-vi(){       vi $(slides-source) ; }
-slides-env(){      elocal- ; bitbucketstatic- ; presentation- ;  }
 slides-usage(){ cat << EOU
 
 CONVERT SLIDES IN S5 RST TO HTML AND PDF 
@@ -313,9 +312,23 @@ PDF CREATION FUNCTIONS
               DID NOT PURSUE THIS TECHNIQUE AS TOO MUCH STYLING REINVENTION
 
 
+::
+
+    delta:opticks_gpu_optical_photon_simulation blyth$ downsize.py *.png
+    INFO:env.doc.downsize:Resize 2  
+    INFO:env.doc.downsize:downsize 00_crop.png to create 00_crop_half.png 2682px_1498px -> 1341px_749px 
+    INFO:env.doc.downsize:downsize 01_crop.png to create 01_crop_half.png 2682px_1498px -> 1341px_749px 
+    INFO:env.doc.downsize:downsize 02_crop.png to create 02_crop_half.png 2682px_1498px -> 1341px_749px 
+    ...
+    INFO:env.doc.downsize:downsize 30_crop.png to create 30_crop_half.png 2682px_1498px -> 1341px_749px 
+    INFO:env.doc.downsize:downsize 31_crop.png to create 31_crop_half.png 2682px_1498px -> 1341px_749px 
+    INFO:env.doc.downsize:downsize 32_crop.png to create 32_crop_half.png 2682px_1498px -> 1341px_749px 
+
+
 EOU
 }
 
+slides-env(){      elocal- ; bitbucketstatic- ; presentation- ;  }
 slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
 slides-dir(){   echo $(apache-htdocs)/env/$(slides-fold) ; }
 slides-sdir(){  echo $(env-home)/$(slides-branch) ; } 

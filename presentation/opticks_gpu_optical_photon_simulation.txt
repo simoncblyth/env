@@ -78,7 +78,7 @@
     /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
    
     JPMT Inside Wide 
-    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1408px_834px
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
 
     JPMT Wide
     /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
@@ -104,7 +104,8 @@
     JPMT Inside Outside 
     /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
 
-
+    NVIDIA OptiX In Action
+    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
  
 .. comment 
 
@@ -163,7 +164,7 @@ Opticks : GPU Optical Photon Simulation
    * Brief History of GPU Optical Photon Simulation Development
    * Introducing Opticks
    * Handling JUNO geometry 
-   * Dayabay IAV, OAV mesh fixing with OpenMesh surgery
+   * Mesh Fixing with OpenMesh surgery
    * Analytic PMT geometry description 
    * Opticks/Geant4 : Dynamic Test Geometry
    * Rainbow Geometry Testing
@@ -177,14 +178,14 @@ Opticks : GPU Optical Photon Simulation
 :small:`Brief History of GPU Optical Photon Simulation Development`
 ----------------------------------------------------------------------
 
-.. sidebar:: Transition to Opticks 
+.. sidebar:: G4+Opticks Simulation ?   
 
     .. class:: small
     
          **Optical Photon Problem** 
 
-         *Geant4* optical photon propagation dominates (~95%) 
-         simulation time. 
+         *Geant4* optical photon propagation dominates 
+         simulation time ~95%
 
          **Optical Photon Solution** 
 
@@ -193,14 +194,6 @@ Opticks : GPU Optical Photon Simulation
          
          * produced only by Cerenkov/Scintillation 
          * yielding only PMT hits 
-
-         **NVIDIA OptiX Ray tracing framework** 
-
-         * state-of-the-art GPU accelerated ray tracing
-         * performance scales across multiple GPUs, verified
-           linearity with IHEP 4 GPU workstation
-         * regular releases: improvements, GPU tuning
-         
 
 
 .. class:: small
@@ -212,7 +205,7 @@ Opticks : GPU Optical Photon Simulation
 
    **spring 2015** (start transition to *Opticks*)
 
-   * :red:`realize lack of efficient multi-GPU is showstopper` for *Chroma* 
+   * :red:`decide lack of multi-GPU is showstopper` for *Chroma* 
    * discover :blue:`NVIDIA OptiX` ray tracing framework 
    * create *Opticks* (using OptiX) to replace *Chroma*
 
@@ -221,7 +214,7 @@ Opticks : GPU Optical Photon Simulation
    * infrastructure operational, G4 optical physics ported 
    * large geometry support added using instancing  
 
-   **autumn/winter 2015**
+   **autumn/winter 2015** (Validations begin)
 
    * major tesselation bug avoided with *OpenMesh*   
    * develop analytic PMT description 
@@ -229,14 +222,64 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   Newton published Opticks in 1704
+   Newton published *Opticks* in 1704
+
+
+:small:`Based on: NVIDIA OptiX Ray Tracing Engine [C++/C/CUDA]`
+-------------------------------------------------------------------
+
+.. sidebar:: OptiX *Tutorial* App
+
+    .. class:: small
+
+        Image pixels calculated by recursively bouncing rays 
+        doing shadow, reflection, refraction calculations.
+        Runs at interactive speeds with GeForce GT 750M.
+
+    .. image:: /env/optix/samples/optix-tutorial-10.png 
+       :width: 450px
+       :align: right
+
+.. class:: small
+
+    OptiX provides: :blue:`CUDA compiler optimized for Ray Tracing` 
+ 
+    * ray tracing framework, **no rendering assumptions**
+
+    * state-of-the-art GPU accelerated geometry intersection 
+
+    * regular releases, improvements, tuning for new GPUs
+
+    * shared C++/CUDA context eases development 
+
+    :red:`NVIDIA expertise on efficient GPU/multi-GPU usage` 
+
+    * persistent warps sized to fill machine
+
+    * load balancing between warps, GPUs
+
+    **IHEP Performance Check** 
+
+    Used IHEP 4 GPU workstation to verify 
+    near linear performance scaling across multiple GPUs
+
+
+.. class:: tiny
+
+    https://developer.nvidia.com/optix 
+
+    https://research.nvidia.com/publication/optix-general-purpose-ray-tracing-engine
+
+
+:i:`NVIDIA OptiX In Action`
+-------------------------------------------------------------------
 
 
 
-:small:`Introducing Opticks`
-------------------------------
+:small:`Introducing Opticks : Recreating G4 Context on GPU`
+-------------------------------------------------------------
 
-.. sidebar:: Opticks ~15 C++ Packages 
+.. sidebar:: Opticks ~15 C++ Pkgs 
 
       .. class:: small
 
@@ -256,7 +299,8 @@ Opticks : GPU Optical Photon Simulation
           Externals: 
 
           * Boost + Asio-ZMQ, ZMQ
-          * CUDA 7.0, Thrust 1.8, OptiX 3.8, OpenGL 4.1 
+          * CUDA 7.0, Thrust 1.8
+          * OptiX 3.8, OpenGL 4.1 
           * OpenMesh 4.1, ImGUI  
 
 
@@ -270,15 +314,16 @@ Opticks : GPU Optical Photon Simulation
 
    **Geometry packages** 
 
-   * *AssimpWrap* : G4DAE geometry loading using forked Assimp
+   * *AssimpWrap* : G4DAE geometry loading with Assimp fork
    * *GGeo* : preparing geometry for GPU
    * *OpenMeshRap* : mesh fixing 
 
    **GPU library interface packages** 
 
-   * *OpticksOp* : high level control of GPU libs
+   * *OpticksOp* : high level GPU control 
    * *OptiXRap* : OptiX control
-   * *ThrustRap* *CUDAWrap* : photon indexing, cuRAND RNG
+   * *ThrustRap* : photon indexing
+   * *CUDAWrap* : persist cuRAND state 
    * *OGLWrap* : OpenGL visualization
 
    **Main packages**
@@ -296,11 +341,11 @@ Opticks : GPU Optical Photon Simulation
 
       289733 volumes split into instanced: 
  
+      * name: count (faces)
       * PMT_3inch: 36572 (540) 
       * PMT_20inch: 19452 (3502)
       * lFasteners: 480 (1856)
       * lPlane: 124 (6252) 
-      * name: count (faces)
 
       And the rest:
 
@@ -325,7 +370,7 @@ Opticks : GPU Optical Photon Simulation
 
    * Pure OptiX buffers faster (~7X interop)
    * Less GPU memory (1) 
-   * Visualize with OpenGL separately by event loading 
+   * Visualize by separate event loading  
       
    **Ideas to investigate**
 
@@ -340,7 +385,6 @@ Opticks : GPU Optical Photon Simulation
 
 
 
-
 :small:`JUNO Geometry Instance Rendering Control`
 ------------------------------------------------------- 
 
@@ -348,18 +392,17 @@ Opticks : GPU Optical Photon Simulation
    :width: 900px
    :align: center
 
+   
+:i:`JPMT Inside Wide`
+----------------------
 
-:small:`Handling JUNO Geometry`
-------------------------------------------------------- 
- 
-.. image:: /env/graphics/ggeoview/ggeoview-cerenkov-jpmt.png
-   :width: 900px
-   :align: center
+.. class:: tiny
 
-
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
 
 
-:small:`Dayabay IAV, OAV mesh fixing with OpenMesh surgery`
+
+:small:`Mesh Fixing with OpenMesh surgery`
 ------------------------------------------------------------
 
 .. sidebar:: After fix 
@@ -372,9 +415,9 @@ Opticks : GPU Optical Photon Simulation
 
         Color indicates material assigned.
         Prior to fix, assignments incorrect for all photons 
-        heading towards top lid.
+        heading towards Dayabay AD top lid.
 
-        Topologically correct meshes, without holes, have:
+        For topologically correct meshes, without holes:
 
         ``V - E + F = 2``  (Eulers Characteristic) 
 
@@ -390,6 +433,7 @@ Opticks : GPU Optical Photon Simulation
    * **close parallel faces** cause flickering OpenGL render
    * ~25/250 Dayabay meshes have issues 
    * two critical ones fixed: IAV, OAV. 
+   * :red:`TODO: check/apply to JUNO geometry` 
 
    **OpenMeshRap** finds/fixes cleaved meshes
 
@@ -400,9 +444,6 @@ Opticks : GPU Optical Photon Simulation
    * deletes the extra faces
    * stitches the split mesh together with added triangles
 
-   :red:`TODO: check/apply to JUNO geometry` 
-
-
 
 
 
@@ -411,7 +452,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: small
  
-   * parse Dayabay detdesc XML to give CSG tree : solids with boolean intersections, unions
+   * parse geometry XML to give CSG tree : solids with boolean intersections, unions
    * partition 5 solids into 12 **single primitive** parts 
    * splitting at geometrical intersections avoids implementing general CSG boolean handling
 
@@ -747,8 +788,75 @@ Opticks : GPU Optical Photon Simulation
    * Full geometries 
 
 
-:i:`Invisible Header of spacer page`
---------------------------------------------------
+
+:i:`JPMT Wide`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
+
+  
+
+:i:`JPMT Before Contact`
+-------------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-before-contact_half.png
+
+
+:i:`JPMT After Contact`
+-------------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-after-contact_half.png
+
+
+:i:`JPMT Approach`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-approach_half.png
+
+
+:i:`JPMT Arrival`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-arrival_half.png
+
+
+:i:`JPMT Inside Outside`
+-------------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-outside_half.png
+
+
+.. sidebar:: Photon History Selection
+
+   Only *CK BT BT BT SA*, three boundary transmits before surface absorption 
+
+
+:i:`JPMT Headview`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-headview_half.png
+
+
+:i:`JPMT Backview`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-backview_half.png
 
 
 
@@ -889,82 +997,6 @@ Opticks : GPU Optical Photon Simulation
 .. image:: /env/graphics/ggeoview/lens-polcolor.png
    :width: 900px
    :align: center
-
-
-   
-:i:`JPMT Inside Wide`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
-
-
-:i:`JPMT Wide`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
-
-  
-:i:`JPMT Headview`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-headview_half.png
-
-
-:i:`JPMT Backview`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-backview_half.png
-
-
-:i:`JPMT Before Contact`
--------------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-before-contact_half.png
-
-
-:i:`JPMT After Contact`
--------------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-after-contact_half.png
-
-
-:i:`JPMT Approach`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-approach_half.png
-
-
-:i:`JPMT Arrival`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-arrival_half.png
-
-
-:i:`JPMT Inside Outside`
--------------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-outside_half.png
-
- 
-
 
 
 
