@@ -107,8 +107,12 @@
     NVIDIA OptiX In Action
     /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
 
-    Detecting Neutrinos via Optical Photons
+    Detecting Neutrinos via Optical Photons 1
     /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    Detecting Neutrinos via Optical Photons 2
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
 
     1024x768
     /env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
@@ -183,7 +187,11 @@ Opticks : GPU Optical Photon Simulation
 
 
 
-:i:`Detecting Neutrinos via Optical Photons`
+
+:i:`Detecting Neutrinos via Optical Photons 1`
+---------------------------------------------------------------
+
+:i:`Detecting Neutrinos via Optical Photons 2`
 ---------------------------------------------------------------
 
 .. sidebar:: Neutrino Detection via Optical Photons 
@@ -203,6 +211,10 @@ Opticks : GPU Optical Photon Simulation
 
           Detailed model of **Optical Photon Propagation**
           critical to detector design/use.
+
+
+:i:`JPMT Before Contact`
+-------------------------
 
 
 :small:`Optical Photon Simulation Problem`
@@ -603,13 +615,6 @@ Opticks : GPU Optical Photon Simulation
 
    http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
   
-
-:i:`JPMT Before Contact`
--------------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-before-contact_half.png
 
 
 :i:`JPMT After Contact`
