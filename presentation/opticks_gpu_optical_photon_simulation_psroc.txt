@@ -42,7 +42,7 @@
     #
     # first slide id is exceptionally: slide0, not the mangled title
     slide0
-    /env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    /env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
 
     g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
     /env/geant4/geometry/collada/g4daeview/20140419-170713.png
@@ -109,6 +109,10 @@
 
     Detecting Neutrinos via Optical Photons
     /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    1024x768
+    /env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+
  
 .. comment 
 
@@ -145,11 +149,12 @@
 
 
 ======================================================================
-Opticks : GPU Optical Photon Simulation 
+Opticks : GPU Optical Photon Simulation
 ======================================================================
 
-.. class:: small
+.. class:: tiny
 
+    http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_psroc.html (Jan 2016)
     http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016)
     http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
 
@@ -157,19 +162,21 @@ Opticks : GPU Optical Photon Simulation
 
    **Executive Summary**
 
-   * Validation comparisons with Geant4 started, rainbow geometry validated
-   * Performance factors **so large they become irrelevant** (>> 200x) 
+   *Opticks* integrates *Geant4* simulations with state-of-the-art GPU ray tracing from **NVIDIA OptiX**.
+   PMT neutrino detector simulations (Daya Bay, JUNO) using multi-GPU workstations can expect: 
+
+   * **Opticks > 1000X Geant4** 
+
 
    **Contents**
 
+   * Neutrino Detection via Optical Photons 
+   * Optical Photon Simulation Problem
+   * NVIDIA OptiX GPU Ray Tracing Framework
    * Brief History of GPU Optical Photon Simulation Development
-   * Introducing Opticks
-   * Handling JUNO geometry 
-   * Mesh Fixing with OpenMesh surgery
-   * Analytic PMT geometry description 
-   * Opticks/Geant4 : Dynamic Test Geometry
-   * Rainbow Geometry Testing
-   * Summary 
+   * Introducing *Opticks* : Recreating G4 Context on GPU
+   * Validating *Opticks* against *Geant4*
+   * Opticks Overview 
 
    |  Simon C Blyth, National Taiwan University
    |  **January 2016** 
@@ -183,25 +190,23 @@ Opticks : GPU Optical Photon Simulation
 
       .. class:: small
 
-          Large transparent target volumes coupled to PMTs
-          via :red:`Optical Photons` 
+          Inverse beta decay: electron anti-neutrino captured on 
+          proton producing prompt positron and delayed neutron signals.
+          Despite overburden cosmic muons remain important backgrounds.
+
+          :red:`-> large transparent target volumes coupled to Photomultiplier Tubes`
 
           **Scintillator:** DayaBay/JUNO, Double Chooz, RENO, KamLAND
       
-          **Water Cerenkov:** SuperK/HyperK, SNO, IceCube/PINGU, Antares/KM3NeT, Baikal-GVD
-
-          Despite overburden cosmic muons remain important backgrounds
-          to neutrino signal.
-
-          **Geant4 Monte Carlo Simulation**
-
-          Detailed model of detector operation. 
-          Performance limited by optical photon propagation.
+          **Water Cerenkov:** SNO, SuperK/HyperK, IceCube/PINGU, KM3NeT, Baikal-GVD
 
 
-:small:`Optical Photon Problem/Solution`
+          Detailed model of **Optical Photon Propagation**
+          critical to detector design/use.
+
+
+:small:`Optical Photon Simulation Problem`
 -----------------------------------------------------
-
 
 .. sidebar:: Geant4/Opticks Interface
 
@@ -213,123 +218,71 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: small
     
-     **Optical Photon Problem** 
-
      Cosmic muon events typically yield many millions
-     of optical photons in Daya Bay.
+     of optical photons in Daya Bay (even more in JUNO).
      *Geant4* optical photon propagation dominates 
-     simulation time ~95%
+     simulation time ~95% for Daya Bay.
 
-     **Optical Photon Solution** 
+     Cosmic Muon Sample sizes severely limited by 
+     CPU time practicalities.
 
-     External photon propagation made possible by  
-     isolated nature of photons in simulation chain.
+     **Hybrid Solution** 
+
+     External propagation made possible by  
+     isolated nature of optical photons in simulation chain.
      
-     * produced only by Cerenkov/Scintillation processes
-     * yielding only PMT hits
+     * produced by Cerenkov/Scintillation processes
+     * yield only PMT hits
 
 
 
-:small:`Apply Image Synthesis techniques to Optical Simulation`
-------------------------------------------------------------------------------------------
-
-.. sidebar:: NVIDIA OptiX Sample
-
-    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
-       :width: 450px
-       :align: right
-
-    .. class:: tiny
-
-        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
-
-
-.. class:: small
-
-    **Ray Traced Rendering**
-
-    * synthetic images calculated by refracting/reflecting rays 
-
-    * realism demands many rays per pixel -> GPU parallelism 
-
-    * fast ray tracing uses acceleration structures for 
-      :red:`geometry intersection` 
-
-    Application of techniques/hardware developed for fast ray tracing 
-    to optical photon simulation has potential for drastic > 1000x 
-    performance improvements. 
-
-
-
-:small:`Brief History of GPU Optical Photon Simulation Development`
-----------------------------------------------------------------------
-
-.. class:: small
-
-   **winter 2014** (within *Chroma*)
-
-   * integrate G4DAE geometry exports
-   * generate Cerenkov/Scintillation photons on GPU
-
-   **spring 2015** (start transition to *Opticks*)
-
-   * :red:`decide lack of multi-GPU is showstopper` for *Chroma* 
-   * discover :blue:`NVIDIA OptiX` ray tracing framework 
-   * create *Opticks* (using OptiX) to replace *Chroma*
-
-   **summer/autumn 2015** (*Opticks* transition completed)
-
-   * infrastructure operational, G4 optical physics ported 
-   * large geometry support added using instancing  
-
-   **autumn/winter 2015** (Validations begin)
-
-   * major tesselation bug avoided with *OpenMesh*   
-   * develop analytic PMT description 
-   * validation machinery created *CfG4*
-
-.. class:: tiny
-
-   Newton published *Opticks* in 1704
-
-
-:small:`Based on: NVIDIA OptiX Ray Tracing Engine [C++/C/CUDA]`
+:small:`NVIDIA OptiX GPU Ray Tracing Framework`
 -------------------------------------------------------------------
 
-.. sidebar:: OptiX *Tutorial* App
+.. sidebar:: Ray Tracing ?
 
     .. class:: small
 
-        Image pixels calculated by recursively bouncing rays 
-        doing shadow, reflection, refraction calculations.
-        Runs at interactive speeds with GeForce GT 750M.
+        Pixels calculated by tracing rays from image plane into geometry, 
+        recursively doing reflection, refraction, shadow calculations.
 
     .. image:: /env/optix/samples/optix-tutorial-10.png 
-       :width: 450px
+       :width: 400px
        :align: right
+
+    .. class:: small
+
+        Ray Tracing more realistic (closer to physics) than rasterized projection
+
 
 .. class:: small
 
-    OptiX provides: :blue:`CUDA compiler optimized for Ray Tracing` 
+    Provides: :blue:`CUDA compiler optimized for Ray Tracing` 
  
-    * ray tracing framework, **no rendering assumptions**
+    * generality: not a renderer
+ 
+    * state-of-the-art accelerated intersection 
 
-    * state-of-the-art GPU accelerated geometry intersection 
-
-    * regular releases, improvements, tuning for new GPUs
+    * regular improvements, new GPU tuning 
 
     * shared C++/CUDA context eases development 
 
-    :red:`NVIDIA expertise on efficient GPU/multi-GPU usage` 
+    :red:`NVIDIA expertise on efficient GPU(s) use` 
 
     * persistent warps sized to fill machine
 
     * load balancing between warps, GPUs
 
+
     **IHEP Performance Check** 
 
     Used IHEP 4 GPU workstation to verify 
     near linear performance scaling across multiple GPUs
+
+
+    **Photon Simulation and Image Synthesis**
+
+    Same rate determining step : **geometry intersection**    
 
 
 .. class:: tiny
@@ -339,8 +292,47 @@ Opticks : GPU Optical Photon Simulation
     https://research.nvidia.com/publication/optix-general-purpose-ray-tracing-engine
 
 
-:i:`NVIDIA OptiX In Action`
--------------------------------------------------------------------
+
+:small:`Brief History of GPU Optical Photon Simulation Development`
+----------------------------------------------------------------------
+
+.. sidebar:: Hybrid Simulation
+
+      .. class:: small
+
+            Combining G4 with external simulation
+            requires "context" duplication  
+ 
+            * geometry, materials, surfaces 
+            * runtime bridging of event data 
+
+            Ray Tracing demands translation:  
+
+            * volumes -> surfaces 
+
+
+.. class:: small
+
+   **1704** 
+
+   * Newton published *Opticks* 
+
+   **2013(Aug-)** [liberate geometry]
+
+   * Develop *G4DAE* geometry exporter that writes tesselated COLLADA 3D files, 
+     including all material and surface properties.
+
+   **2014** [integrate geometry/event data with *Chroma*]
+
+   * Integrate *G4DAE* geometries with *Chroma* 
+   * Connect event data via *G4DAEChroma* runtime bridge 
+   * Port Cerenkov/Scintillation photon generation to GPU avoiding transport overhead
+
+   **2015** [replace *Chroma* with *Opticks*]
+
+   * Develop *Opticks* based on the *NVIDIA OptiX* ray tracing framework
+   * Achieve match between *Opticks* and *Geant4* for simple geometries 
+   * Speedup factor of 200x with a mobile GPU, expected to exceed 1000x with multi-GPU workstations.  
 
 
 
@@ -377,7 +369,7 @@ Opticks : GPU Optical Photon Simulation
    **Basis packages**
 
    * *Opticks* : definitions, configuration
-   * *NPY* : host array handling, persistency, python analysis
+   * *NPY* : host array handling, persistency, analysis
    * *NumpyServer* : network IO of *NPY* arrays
 
    **Geometry packages** 
@@ -400,232 +392,6 @@ Opticks : GPU Optical Photon Simulation
    * *CFG4* : Geant4 10.2 comparison, separate main
 
 
-:small:`Large Geometry/Event Techniques`
-------------------------------------------------------- 
-
-.. sidebar:: JUNO Geometry 
-
-   .. class:: small
-
-      289733 volumes split into instanced: 
- 
-      * name: count (faces)
-      * PMT_3inch: 36572 (540) 
-      * PMT_20inch: 19452 (3502)
-      * lFasteners: 480 (1856)
-      * lPlane: 124 (6252) 
-
-      And the rest:
-
-      * Global     (95436)  
- 
-
-.. class:: small
-
-   **Instancing implemented for OpenGL and OptiX**
-
-   Geometry analysed to find instances
-
-   * repeated sub-trees with transforms for each **instance** 
-   * JUNO: ~90M triangles, instancing reduces to 0.1M
-
-   **Switchable Rendering**
-
-   * Multiple renderers: global, full instances, bbox instances
-   * Rapid switching GUI control
-
-   **Compute Mode**
-
-   * Pure OptiX buffers faster (~7X interop)
-   * Less GPU memory (1) 
-   * Visualize by separate event loading  
-      
-   **Ideas to investigate**
-
-   * Analytic PMT definition expected to improve OptiX efficiency 
-   * Culling non-visible geometry to improve OpenGL performance
-   * Level-of-detail : change geometry detail based on distance
-
-
-.. class:: tiny  
-
-   (1) Interop forced to duplicate data as OpenGL/OptiX geometry sharing not operational
-
-
-
-:small:`JUNO Geometry Instance Rendering Control`
-------------------------------------------------------- 
-
-.. image:: /env/graphics/ggeoview/ggv-juno-instancing.png
-   :width: 900px
-   :align: center
-
-   
-:i:`JPMT Inside Wide`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
-
-
-
-:small:`Mesh Fixing with OpenMesh surgery`
-------------------------------------------------------------
-
-.. sidebar:: After fix 
-
-    .. class:: small
-
-        .. image:: /env/graphics/ggeoview/mesh-fix-iav-oav.png
-           :width: 500px
-           :align: center
-
-        Color indicates material assigned.
-        Prior to fix, assignments incorrect for all photons 
-        heading towards Dayabay AD top lid.
-
-        For topologically correct meshes, without holes:
-
-        ``V - E + F = 2``  (Eulers Characteristic) 
-
-
-.. class:: small
-
-   Intersection boundaries determines photon material, bad 
-   meshes cause incorrect material assignments
-
-   **G4Polyhedron Tesselation Bug** 
-
-   * Some union solids become cleaved meshes 
-   * **close parallel faces** cause flickering OpenGL render
-   * ~25/250 Dayabay meshes have issues 
-   * two critical ones fixed: IAV, OAV. 
-   * :red:`TODO: check/apply to JUNO geometry` 
-
-   **OpenMeshRap** finds/fixes cleaved meshes
-
-   * based on open source project: **OpenMesh** 
-
-   * extracts real topological meshes
-   * finds close parallel faces between the meshes
-   * deletes the extra faces
-   * stitches the split mesh together with added triangles
-
-
-
-
-:small:`Analytic PMT geometry : more realistic, faster, less memory`
----------------------------------------------------------------------
-
-.. class:: small
- 
-   * parse geometry XML to give CSG tree : solids with boolean intersections, unions
-   * partition 5 solids into 12 **single primitive** parts 
-   * splitting at geometrical intersections avoids implementing general CSG boolean handling
-
-.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-solids.png
-   :width: 900px
-   :align: center
-
-
-:small:`Analytic PMT in 12 parts instead of 2928 triangles`
--------------------------------------------------------------
-
-.. sidebar:: Partitioned PMT 
-
-    .. class:: small
-
-        .. image:: /env/nuwa/detdesc/pmt/hemi-pmt-parts.png
-           :width: 500px
-           :align: center
-    
-.. class:: small
-
-   Geometry provided to OptiX in form of ray intersection code
-
-   PMT intersection by comparison with part intersections: 
-   cylinder and partial sphere intersection from quadratic roots  
-   
-   **Volume to Surface translation**
-
-   Volume heirarchy: Pyrex/Vacuum/Bialkali puts photocathode inside vacuum
-   but as coincident boundaries it makes no difference for volume description.
-
-   Coincident boundaries do not work for surface description, must 
-   adopt correct heirarchy: Pyrex/Bialkali/Vacuum 
-
-   :red:`TODO: single PMT testing vs G4 to check implications`
-
-
-.. class:: tiny
-
-   Sphere intersection only 2 cases, Cylinder 10 cases (axial, walls, endcap, outside/inside) 
-
-
-:small:`OptiX Ray Traced Analytic PMT geometry`
-------------------------------------------------
-
-.. class:: small
-
-.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
-   :width: 800px
-   :align: center
-
-.. class:: tiny 
-
-   Near clipped, orthographic projection.
-
-
-:small:`Analytic PMTs together with triangulated geometry`
-----------------------------------------------------------------
-
-.. class:: small
-
-   Dayabay Ray Trace: PMTs analytic, the rest triangulated 
-
-.. image:: /env/nuwa/detdesc/pmt/analytic-pmt-optix-geometry.png
-   :width: 800px
-   :align: center
-
-:small:`Opticks/Geant4 : Dynamic Test Geometry`
-----------------------------------------------------------------
-
-
-.. sidebar:: *CfG4* package 
-
-   .. class:: small
-     
-      * G4 step recorder in Opticks event format 
-      * load events into Opticks for visualization 
-
-.. class:: small
-
-   Commandline arguments parsed into geometry/material/surface description. Each test shape requires: 
-   
-   * OptiX: analytic intersection code 
-   * OpenGL: tesselation for visualization
-   * Geant4: geometry construction code in *CfG4* package
-   
-   ===========================================  =================  =================  ================== 
-     Shape                                        OptiX              OpenGL             Geant4
-   ===========================================  =================  =================  ================== 
-     sphere                                        Y                  Y                   Y
-     box                                           needs debug        Y                   Y
-     prism                                         Y                  Y                            
-     convex lens                                   Y                  Y                            
-   ===========================================  =================  =================  ================== 
-
-   Compare Opticks/Geant4 propagations with simple test geometries with: 
-
-.. raw:: html
-
-    <pre class="mypre">
-         ggv.sh        --test --testconfig "..."  --torch --torchconfig "..."   # Opticks
-         ggv.sh --cfg4 --test --testconfig "..."  --torch --torchconfig "..."   # Geant4 
-    </pre>
-
-
 :small:`Opticks Absolute Reflection compared to Fresnel expectation`
 -----------------------------------------------------------------------
 
@@ -637,6 +403,52 @@ Opticks : GPU Optical Photon Simulation
 .. image:: /env/numerics/npy/reflection.png
    :width: 700px
    :align: center
+
+
+:small:`Opticks Prism Deviation vs Incident angles for 10 wavelengths`
+------------------------------------------------------------------------
+
+.. class:: tiny
+
+   Prism geometry and Snell's law at two refractions allows deviation 
+   angle vs incident angle to be predicted.  Comparison of simulation
+   results with expectations for 10 wavelengths   
+   using refractive index of Schott F2 Flint Glass.
+
+.. image:: /env/numerics/npy/prism-deviation.png
+   :width: 900px
+   :align: center
+
+
+
+:small:`Validating Opticks against Geant4`
+----------------------------------------------------------------
+
+.. sidebar:: *CfG4* package 
+
+   .. class:: small
+     
+      * G4 step recorder in *Opticks* event format 
+      * load events into *Opticks* for visualization 
+
+.. class:: small
+
+   Compare *Opticks*/*Geant4* propagations with simple test geometries  
+   and light sources. For each test shape: 
+   
+   * *OptiX*: analytic intersection code 
+   * *OpenGL*: tesselation for visualization
+   * *Geant4*: geometry construction code in *CfG4* package
+   
+   ===========================================  =================  =================  ================== 
+     Shape                                        OptiX              OpenGL             Geant4
+   ===========================================  =================  =================  ================== 
+     sphere                                        Y                  Y                   Y
+     box                                           needs debug        Y                   Y
+     prism                                         Y                  Y                            
+     convex lens                                   Y                  Y                            
+     DayaBay PMT                                   Y                  Y                   needs port
+   ===========================================  =================  =================  ================== 
 
 
 
@@ -683,41 +495,6 @@ Opticks : GPU Optical Photon Simulation
    :align: center
 
 
-:small:`Opticks/Geant4 Photon Step Sequence Comparison`
----------------------------------------------------------------------
-
-.. class:: small
-
-   * BT/BR: boundary transmit/reflect
-   * TO/SC/SA: torch/scatter/surface absorb
-
-   **1M flag sequences indexed using CUDA Thrust, 0.040 s**
-
-.. raw:: html
-
-    <pre class="mypre">
-     64-bit uint  Opticks    Geant4    chi2                                      (tag:5,-5)   
-
-            8ccd   819160    819654    0.15  [4 ] TO BT BT SA                    (cross droplet) 
-             8bd   102087    101615    1.09  [3 ] TO BR SA                       (external reflect)
-           8cbcd    61869     61890    0.00  [5 ] TO BT BR BT SA                 (bow 1)
-          8cbbcd     9618      9577    0.09  [6 ] TO BT BR BR BT SA              (bow 2)
-         8cbbbcd     2604      2687    1.30  [7 ] TO BT BR BR BR BT SA           (bow 3)
-        8cbbbbcd     1056      1030    0.32  [8 ] TO BT BR BR BR BR BT SA        (bow 4)
-           86ccd     1014      1000    0.10  [5 ] TO BT BT SC SA
-       8cbbbbbcd      472       516    1.96  [9 ] TO BT BR BR BR BR BR BT SA     (bow 5)
-             86d      498       473    0.64  [3 ] TO SC SA
-      bbbbbbbbcd      304       294    0.17  [10] TO BT BR BR BR BR BR BR BR BR  (bow 8+ truncated)
-      8cbbbbbbcd      272       247    1.20  [10] TO BT BR BR BR BR BR BR BT SA  (bow 6)
-      cbbbbbbbcd      183       161    1.41  [10] TO BT BR BR BR BR BR BR BR BT  (bow 7 truncated) 
-             4cd      161       139    1.61  [3 ] TO BT AB
-           8c6cd      153       106    8.53  [5 ] TO BT SC BT SA
-            86bd      138       142    0.06  [4 ] TO BR SC SA
-            4ccd      100       117    1.33  [4 ] TO BT BT AB
-    </pre>
-
-
-
 :small:`Rainbow deviation angles`
 ----------------------------------------------------------
 
@@ -753,10 +530,6 @@ Opticks : GPU Optical Photon Simulation
    :align: center
 
 
-
-
-
-
 :small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
 ------------------------------------------------------------
 
@@ -770,21 +543,6 @@ Opticks : GPU Optical Photon Simulation
    :width: 800px
    :align: center
 
-:small:`1M Rainbow P-Polarized, Comparison Opticks/Geant4`
-------------------------------------------------------------
-
-.. class:: tiny
-
-   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
-   Numbered bands are visible range expectations of first 11 rainbows.
-   P-Polarized intersection (E field within plane of incidence) arranged by directing polarization tangentially.
-
-.. image:: /env/optix/cfg4/rainbow-cfg4-ppol.png
-   :width: 800px
-   :align: center
-
-
-
 :small:`Performance Comparison Opticks/Geant4`
 ----------------------------------------------------------
 
@@ -793,7 +551,7 @@ Opticks : GPU Optical Photon Simulation
     .. class:: small
 
         .. image:: /env/optix/cfg4/rainbow-cfg4-2.png
-           :width: 500px
+           :width: 400px
            :align: center
 
 
@@ -810,51 +568,32 @@ Opticks : GPU Optical Photon Simulation
      1M (P-Pol)               58 s               1.71 s            0.25 s         
     ====================  =================  =================  ================== 
 
-    * **Opticks ~200X Geant4** with only 384 core mobile GPU
-    * multi-GPU workstation up to 20x more cores 
-    * :red:`photon propagation time will become effectively zero`
+    * **Opticks ~200X Geant4** with 384 core GPU
+    * expect **> 1000X** with multi-GPU workstation 
+    * :red:`photon propagation time --> zero (effectively)`
    
     **Opticks Interop/Compute Modes**
 
+    * **Interop**: uses visualizable OpenGL buffers
+    * **Compute**: uses OptiX buffers
     * perfectly identical results, monitored by digest
-    * Interop: uses OpenGL buffers allowing visualization
-    * Compute: uses OptiX buffers
-    * Compute (and G4) propagated events can be visualized 
+    * Compute (and G4) propagated events visualizable 
       by loading into interop mode viewer
 
 
 
-:small:`Summary`
------------------------------
+   
+:i:`JPMT Inside Wide`
+----------------------
 
-.. sidebar:: Opticks Performance 
+.. sidebar:: Opticks Overview
 
    .. class:: small
      
-      * **200x Geant4** with mobile GPU
-      * **>> 200x** expected with workstation GPUs 
-      * :red:`photon propagation time --> zero`
-
-.. class:: small
-
-   **Opticks Transition Complete**
-
-   * squeezed JUNO geometry onto GPU with instancing
-   * devised mesh fixing workaround for G4Polyhedron bug 
-   * developed analytic PMT representation
-   * photons fully GPU resident, only copy PMT hits to CPU
-
-   **Opticks Validation**
-
-   * developed validation machinery *CfG4*
-   * simple rainbow geometry matches Geant4
-
-   **Next Tests**
-
-   * Prism, Lens, Fresnel Rhomb (2x TIR)
-   * Single Analytic PMT 
-   * Full geometries 
-
+       * *G4* integrated with GPU ray tracing
+       * validation against *G4* started
+       * :red:`optical propagation time --> ~zero`  
+       * high performance visualization      
 
 
 :i:`JPMT Wide`
@@ -863,7 +602,6 @@ Opticks : GPU Optical Photon Simulation
 .. class:: tiny
 
    http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
-
   
 
 :i:`JPMT Before Contact`
@@ -933,8 +671,10 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: small
 
+
    **Details**
 
+   * 1M Rainbow P-Polarized, Comparison Opticks/Geant4
    * Optical Photons now fully GPU resident
    * Volume to Surface Translation details need validation
    * OptiX Geometry Experience
@@ -943,8 +683,23 @@ Opticks : GPU Optical Photon Simulation
 
    * Prism S-Polarized
    * Prism P-Polarized
-   * Prism Deviation vs Incident angles for 10 wavelengths
    * Lens focussing 
+
+
+
+:small:`1M Rainbow P-Polarized, Comparison Opticks/Geant4`
+------------------------------------------------------------
+
+.. class:: tiny
+
+   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
+   Numbered bands are visible range expectations of first 11 rainbows.
+   P-Polarized intersection (E field within plane of incidence) arranged by directing polarization tangentially.
+
+.. image:: /env/optix/cfg4/rainbow-cfg4-ppol.png
+   :width: 800px
+   :align: center
+
 
 
 :small:`Optical Photons now fully GPU resident`
@@ -1032,21 +787,6 @@ Opticks : GPU Optical Photon Simulation
 
 
 .. image:: /env/numerics/npy/prism-ppol-ripple.png
-   :width: 900px
-   :align: center
-
-
-:small:`Prism Deviation vs Incident angles for 10 wavelengths`
-------------------------------------------------------------------
-
-.. class:: small
-
-   Prism geometry and Snell's law at two refractions allows deviation 
-   angle vs incident angle to be predicted.  Comparison of simulation
-   results with expectations for 10 wavelengths   
-   using refractive index of Schott F2 Flint Glass.
-
-.. image:: /env/numerics/npy/prism-deviation.png
    :width: 900px
    :align: center
 
