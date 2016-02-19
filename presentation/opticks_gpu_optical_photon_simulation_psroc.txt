@@ -95,7 +95,13 @@
     JPMT Arrival 
     /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
  
-    JPMT Before Contact 
+    JPMT Before Contact 1
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+ 
+    JPMT Before Contact 2
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 3
     /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
  
     JPMT After Contact 
@@ -166,10 +172,9 @@ Opticks : GPU Optical Photon Simulation
 
    **Executive Summary**
 
-   *Opticks* integrates *Geant4* simulations with state-of-the-art GPU ray tracing from **NVIDIA OptiX**.
-   PMT neutrino detector simulations (Daya Bay, JUNO) using multi-GPU workstations can expect: 
+   *Opticks* integrates *Geant4* simulations with state-of-the-art **NVIDIA OptiX** GPU ray tracing.
 
-   * **Opticks > 1000X Geant4** 
+   * DayaBay, JUNO can expect: **Opticks > 1000x G4** (on workstation GPUs) 
 
 
    **Contents**
@@ -180,7 +185,7 @@ Opticks : GPU Optical Photon Simulation
    * Brief History of GPU Optical Photon Simulation Development
    * Introducing *Opticks* : Recreating G4 Context on GPU
    * Validating *Opticks* against *Geant4*
-   * Opticks Overview 
+   * *Opticks* Overview 
 
    |  Simon C Blyth, National Taiwan University
    |  **January 2016** 
@@ -213,38 +218,46 @@ Opticks : GPU Optical Photon Simulation
           critical to detector design/use.
 
 
-:i:`JPMT Before Contact`
--------------------------
+:i:`JPMT Before Contact 1`
+--------------------------
 
 
-:small:`Optical Photon Simulation Problem`
------------------------------------------------------
+:i:`JPMT Before Contact 2`
+--------------------------
+
+
+.. sidebar:: Optical Photon Simulation Problem
+
+    .. class:: small
+        
+         Cosmic muons can yield many millions
+         of optical photons in Daya Bay (even more in JUNO).
+         Optical photon propagation dominates 
+         *Geant4* simulation time ~95% for Daya Bay.
+
+         Cosmic Muon Sample sizes severely limited by 
+         CPU time practicalities.
+
+         **Hybrid Solution** 
+
+         External propagation possible as optical photons 
+         are isolated in simulation chain.
+         
+         * produced by Cerenkov/Scintillation
+         * yield only PMT hits
+
+
+:i:`JPMT Before Contact 3`
+---------------------------
 
 .. sidebar:: Geant4/Opticks Interface
 
     .. class:: small
 
-          * collect "steps" in custom G4 Cerenkov/Scintillation processes
+          * collect "steps" in customized G4 Cerenkov/Scintillation processes
+          * massively parallel generation, propagation of optical photons costing no CPU memory
           * return PMT hits to G4 collections
           * subsequent electronics simulation unchanged
-
-.. class:: small
-    
-     Cosmic muon events typically yield many millions
-     of optical photons in Daya Bay (even more in JUNO).
-     *Geant4* optical photon propagation dominates 
-     simulation time ~95% for Daya Bay.
-
-     Cosmic Muon Sample sizes severely limited by 
-     CPU time practicalities.
-
-     **Hybrid Solution** 
-
-     External propagation made possible by  
-     isolated nature of optical photons in simulation chain.
-     
-     * produced by Cerenkov/Scintillation processes
-     * yield only PMT hits
 
 
 
@@ -269,17 +282,20 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: small
 
-    Provides: :blue:`CUDA compiler optimized for Ray Tracing` 
- 
-    * generality: not a renderer
+    **Apply Image Synthesis Tool to Photon Simulation**
+
+    Same rate determining step : **geometry intersection** 
+
+    **OptiX Provides:**
+
+    :blue:`CUDA compiler optimized for Ray Tracing` 
  
     * state-of-the-art accelerated intersection 
 
     * regular improvements, new GPU tuning 
 
-    * shared C++/CUDA context eases development 
 
-    :red:`NVIDIA expertise on efficient GPU(s) use` 
+    :red:`NVIDIA expertise on efficient GPU(s) usage` 
 
     * persistent warps sized to fill machine
 
@@ -291,10 +307,6 @@ Opticks : GPU Optical Photon Simulation
     Used IHEP 4 GPU workstation to verify 
     near linear performance scaling across multiple GPUs
 
-
-    **Photon Simulation and Image Synthesis**
-
-    Same rate determining step : **geometry intersection**    
 
 
 .. class:: tiny
@@ -668,148 +680,6 @@ Opticks : GPU Optical Photon Simulation
 .. class:: tiny
 
    http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-backview_half.png
-
-
-
-:small:`EXTRAS : Details and Tests in progress`
---------------------------------------------------
-
-.. class:: small
-
-
-   **Details**
-
-   * 1M Rainbow P-Polarized, Comparison Opticks/Geant4
-   * Optical Photons now fully GPU resident
-   * Volume to Surface Translation details need validation
-   * OptiX Geometry Experience
-
-   **Tests requiring G4 comparison**
-
-   * Prism S-Polarized
-   * Prism P-Polarized
-   * Lens focussing 
-
-
-
-:small:`1M Rainbow P-Polarized, Comparison Opticks/Geant4`
-------------------------------------------------------------
-
-.. class:: tiny
-
-   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
-   Numbered bands are visible range expectations of first 11 rainbows.
-   P-Polarized intersection (E field within plane of incidence) arranged by directing polarization tangentially.
-
-.. image:: /env/optix/cfg4/rainbow-cfg4-ppol.png
-   :width: 800px
-   :align: center
-
-
-
-:small:`Optical Photons now fully GPU resident`
---------------------------------------------------
-
-.. class:: small
-
-     All photon operations now done on GPU:
-
-     * seeded (assigned gensteps)
-     * generated 
-     * propagated
-     * indexed material/interaction histories 
-     
-     Only PMT hits need to be copied back to CPU
-
-
-.. class:: tiny
-
-     Thrust/CUDA/OptiX interop used to implement
-
-
-:small:`Volume to Surface Translation details need validation`
-------------------------------------------------------------------
-
-.. class:: small
-    
-   Zoomed view of PMT edge (mm): showing 3mm Pyrex, 
-
-   .. image:: /env/nuwa/detdesc/pmt/analytic-pmt-detail.png
-      :width: 600px
-      :align: center
-
-   **Volume based geometry can get away with coincident
-   boundaries, Surface based geometry cannot**
-
-
-:small:`OptiX Geometry Experience`
---------------------------------------
-
-.. class:: small
-
-   **Geometry Issues Fixed/Avoidable**
-
-   * triangulated geometry leaks when shoot millions of photons at cracks (1)
-   
-   * bounding boxes that touch geometry cause leaks, slightly   
-     enlarging the boxes avoids leak (<1 in 3M)  
-   
-
-.. class:: tiny
-
-    (1) more of a problem for testing than actual usage
-
-
-
-:small:`Prism S-Polarized`
-------------------------------------------------------------------
-
-.. class:: small
-
-    Quadrant of cylindrically directed S-polarized photons at 10 wavelengths (from 100 to 800 nm) 
-    incident from left.  
-
-.. class:: tiny
-
-    S-polarization: perpendicular to incident plane
-
-.. image:: /env/numerics/npy/prism-spol-ripple.png
-   :width: 900px
-   :align: center
-
-
-:small:`Prism P-Polarized`
-------------------------------------------------------------------
-
-.. class:: small
-
-    Gap in reflection at Brewsters angle is apparent where 
-    the P-polarized photons can only be transmitted. 
-
-.. class:: tiny
-
-    P-polarization: not perpendicular to incident plane
-
-
-.. image:: /env/numerics/npy/prism-ppol-ripple.png
-   :width: 900px
-   :align: center
-
-
-:small:`Lens focussing`
-----------------------------------------------------------
-
-.. class:: small
-
-    Lens constructed from intersection of two spheres.
-    Disc parallel beam incident from left.
-    Color represents polarization direction.  2nd reflections 
-    are apparent. 
-
-
-.. image:: /env/graphics/ggeoview/lens-polcolor.png
-   :width: 900px
-   :align: center
 
 
 
