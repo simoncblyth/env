@@ -1679,3 +1679,8 @@ lxe-(){      . $(env-home)/optix/lxe/lxe.bash && lxe-env $* ; }
 opticks-(){      . $(env-home)/opticks/opticks.bash && opticks-env $* ; }
 opop-(){      . $(env-home)/opticksop/opop.bash && opop-env $* ; }
 mdls-(){      . $(env-home)/osx/mdls/mdls.bash && mdls-env $* ; }
+vxgi-(){      . $(env-home)/graphics/nvidia/vxgi.bash && vxgi-env $* ; }
+rift-(){      . $(env-home)/vr/rift/rift.bash && rift-env $* ; }
+vr-(){      . $(env-home)/vr/vr.bash && vr-env $* ; }
+ios-(){      . $(env-home)/ios/ios.bash && ios-env $* ; }
+gpuhep-(){      . $(env-home)/gpuhep/gpuhep.bash && gpuhep-env $* ; }
