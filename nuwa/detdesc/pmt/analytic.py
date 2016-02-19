@@ -25,7 +25,11 @@ if __name__ == '__main__':
 
     buf = tr.convert(parts)
 
+    path = "$IDPATH/GPmt/0/GPmt.npy"
+    #path = "$IDPATH/GPmt/0/GPmt_check.npy"
 
-    tr.save("$IDPATH/GPmt/0/GPmt.npy", buf)
+    tr.dump()
+
+    tr.save(path, buf)
 
 

@@ -134,6 +134,14 @@ class Tree(object):
         return cls.byindex.get(index, None)  
 
     @classmethod
+    def description(cls):
+        return "\n".join(["%s : %s " % (k,v) for k,v in cls.byindex.items()])
+
+    @classmethod
+    def dump(cls):
+        print cls.description()
+
+    @classmethod
     def num_nodes(cls):
         assert len(cls.registry) == len(cls.byindex)
         return len(cls.registry)
