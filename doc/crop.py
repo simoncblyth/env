@@ -17,7 +17,7 @@ class Crop(object):
 
           'safari_headtail':{
                                  'description':"vertically chop the head by param[0] and tail by param[1]",
-                                 'param':(190, 30 ),  # use Preview.app measurement tool to count the pixels
+                                 'param':(148, 30 ),  # formerly (190,30) use Preview.app measurement tool to count the pixels
                             },
 
 
@@ -53,8 +53,9 @@ class Crop(object):
 
         # safari_headtail
         left = 0
-        upper = self.param[0]
         right = width
+
+        upper = self.param[0]
         lower = height - self.param[1]
 
         box = (left, upper, right, lower)

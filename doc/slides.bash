@@ -7,7 +7,6 @@ slides-usage(){ cat << EOU
 CONVERT SLIDES IN S5 RST TO HTML AND PDF 
 =========================================
 
-
 g4dae
 ------
 
@@ -22,7 +21,6 @@ g4dae
     env/presentation/g4dae_geometry_exporter_okinawa.pdf: up to 85 MB of RAM may be required to manage this file
     (use 'hg revert env/presentation/g4dae_geometry_exporter_okinawa.pdf' to cancel the pending addition)
     delta:presentation blyth$ 
-
 
 
 
