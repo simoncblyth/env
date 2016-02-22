@@ -115,6 +115,7 @@ class Elem(object):
     is_posXYZ = property(lambda self:type(self) in self.g.posXYZ)
     is_geometry  = property(lambda self:type(self) in self.g.geometry)
     is_logvol  = property(lambda self:type(self) in self.g.logvol)
+    typ = property(lambda self:self.__class__.__name__)
 
     @classmethod
     def link_posXYZ(cls, ls, posXYZ):
@@ -409,7 +410,7 @@ class Elem(object):
         # dont do that, use the best representation for the immediate problem at hand 
         # of grabbing the CSG tree into an in-memory representation
 
-        rparts.csg = CSG(self, [ipts.csg, CSG(comps[1])] )
+        rparts.csg = CSG(self, [ipts.csg, comps[1]] )
 
         return rparts 
 
@@ -461,7 +462,10 @@ class Elem(object):
             #i.parent = p
             ret = [p,i]
         pass
-        return ret 
+        pts = Parts(ret) 
+        pts.csg = CSG(c)
+        return pts
+
 
     def parts_primitive(self, c):
         log.info("name %s " % c.name)
@@ -470,7 +474,9 @@ class Elem(object):
             face, bottom, tubs = UNCOINCIDE.face_bottom_tubs(c.name)
             p.boundary = tubs
         pass
-        return [p]
+        pts = Parts([p])
+        pts.csg = CSG(c)
+        return pts 
 
 
     def parts(self):
@@ -648,6 +654,20 @@ class Sphere(Primitive):
     def has_inner(self):
         return self.innerRadius.value is not None 
 
+    def as_csg(self):
+        R = self.outerRadius.value
+        if self.has_inner():
+            r = self.innerRadius.value  
+        else: 
+            r = -1.0
+        pass
+        csg = []
+        csg.append( [self.xyz[0], self.xyz[1], self.xyz[2], R] )
+        csg.append( [0,0,0,r] )
+        csg.append( [0,0,0,0] )
+        csg.append( [0,0,0,0] )
+        return csg
+
     def as_part(self, inner=False):
         if inner:
             radius = self.innerRadius.value 
@@ -740,6 +760,16 @@ class Tubs(Primitive):
         p = Part('Tubs', self.name + "_part", self.xyz, radius, sizeZ )
         p.bbox = self.bbox(z-sizeZ/2, z+sizeZ/2, -radius, radius)
         return p 
+
+    def as_csg(self):
+        sizeZ = self.sizeZ.value
+        radius = self.outerRadius.value 
+        csg = []
+        csg.append( [self.xyz[0], self.xyz[1], self.xyz[2], radius] )
+        csg.append( [0,0,0,sizeZ] )
+        csg.append( [0,0,0,0] )
+        csg.append( [0,0,0,0] )
+        return csg
 
     def asrev(self):
         sz = self.sizeZ.value

@@ -2,7 +2,8 @@
 import logging, hashlib, sys, os
 import numpy as np
 np.set_printoptions(precision=2) 
-from dd import Dddb, Parts
+from dd import Dddb, Parts, Union, Intersection 
+from csg import CSG
 from geom import Part
 
 class Buf(np.ndarray): pass
@@ -223,8 +224,33 @@ class Tree(object):
         buf.boundaries = map(lambda _:_.boundary, parts) 
         if hasattr(parts, "csg"):
             buf.csg = parts.csg 
+        pass
         return buf
 
+
+    @classmethod
+    def csg_serialize(cls, csg):
+        flat = []
+        for cn in csg:
+            flat.extend([cn])
+            pr = cn.progeny()
+            flat.extend(pr)
+        pass
+        for k,p in enumerate(flat):
+            log.info(" %s:%s " % (k, repr(p))) 
+
+        data = np.zeros([len(flat),4,4],dtype=np.float32)
+        offset = 0 
+
+        for cn in csg:
+            assert type(cn) is CSG 
+            offset = CSG.serialize(data, offset, cn)
+        pass
+        log.info("csg_serialize tot flattened %s final offset %s " % (len(flat), offset))
+        assert offset == len(flat)
+        buf = data.view(Buf) 
+        return buf
+ 
 
     @classmethod
     def save(cls, path_, buf):
@@ -243,10 +269,17 @@ class Tree(object):
         pass
 
         if hasattr(buf,"csg"):
-            csgname = path.replace(".npy","_csg.npy")
-            log.info("saving csg to %s " % csgname)
+            csgpath = path.replace(".npy","_csg.npy")
+            csgbuf = cls.csg_serialize(buf.csg)
+            if csgbuf is not None:
+                log.info("saving csg to %s " % csgpath)
+                log.info(csgbuf.view(np.int32))
+                log.info(csgbuf)
+                np.save(csgpath, csgbuf) 
+            else:
+                log.warning("csgbuf is None skip saving to %s " % csgpath)
+            pass
         pass
-
         np.save(path, buf) 
 
 
