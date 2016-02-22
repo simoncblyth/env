@@ -2,7 +2,7 @@
 import logging, hashlib, sys, os
 import numpy as np
 np.set_printoptions(precision=2) 
-from dd import Dddb
+from dd import Dddb, Parts
 from geom import Part
 
 class Buf(np.ndarray): pass
@@ -162,12 +162,21 @@ class Tree(object):
         tparts = cls.num_parts() 
         log.info("tnodes %s tparts %s " % (tnodes, tparts))
 
-        pts = []
+        pts = Parts()
+        csg = []
+
         for i in range(tnodes):
             node = cls.get(i)
-            pts.extend(node.parts())    
+            npts = node.parts()
+            #print npts
+            pts.extend(npts)    
+
+            if hasattr(npts, 'csg') and len(npts.csg) > 0:
+                csg.extend(npts.csg)  
+
         pass
         assert len(pts) == tparts          
+        pts.csg = csg 
         return pts 
 
 
@@ -212,7 +221,10 @@ class Tree(object):
         pass
         buf = data.view(Buf) 
         buf.boundaries = map(lambda _:_.boundary, parts) 
+        if hasattr(parts, "csg"):
+            buf.csg = parts.csg 
         return buf
+
 
     @classmethod
     def save(cls, path_, buf):
@@ -229,7 +241,14 @@ class Tree(object):
                 fp.write("\n".join(buf.boundaries)) 
             pass
         pass
+
+        if hasattr(buf,"csg"):
+            csgname = path.replace(".npy","_csg.npy")
+            log.info("saving csg to %s " % csgname)
+        pass
+
         np.save(path, buf) 
+
 
     def traverse(self):
         self.wrap.traverse()
@@ -269,6 +288,11 @@ class Tree(object):
         return Node.create(volpath)
 
 
+
+
+
+
+
 if __name__ == '__main__':
     format_ = "[%(filename)s +%(lineno)3s %(funcName)20s ] %(message)s" 
     logging.basicConfig(level=logging.INFO, format=format_)
@@ -284,8 +308,5 @@ if __name__ == '__main__':
     partsbuf = tr.convert(parts) 
 
     tr.save("$IDPATH/GPmt/0/GPmt.npy", partsbuf)
-
-
-
 
 

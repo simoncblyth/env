@@ -6,9 +6,9 @@ import lxml.html as HT
 from math import acos   # needed for detdesc string evaluation during context building
 
 from geom import Part, BBox, ZPlane, Rev
+from csg import CSG
 
 log = logging.getLogger(__name__)
-
 
 tostring_ = lambda _:ET.tostring(_)
 parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
@@ -16,6 +16,14 @@ fparse_ = lambda _:HT.fragments_fromstring(file(os.path.expandvars(_)).read())
 pp_ = lambda d:"\n".join([" %30s : %f " % (k,d[k]) for k in sorted(d.keys())])
 
 X,Y,Z = 0,1,2
+
+
+class Parts(list):
+   def __repr__(self):
+       return "Parts " + list.__repr__(self)
+
+   def __init__(self, *args, **kwa):
+       list.__init__(self, *args, **kwa)
 
 
 class Uncoincide(object):
@@ -260,8 +268,9 @@ class Elem(object):
 
         assert p1.bbox.z < p2.bbox.z < p3.bbox.z
 
-        return [p3,p2,p1]
-
+        pts = Parts([p3,p2,p1])
+        return pts 
+ 
     def partition_intersection_2spheres(self, spheres, material=None, unoverlap=True):
         """
         :param spheres: list of two *Sphere* in ascending center z order
@@ -318,7 +327,7 @@ class Elem(object):
             #i2.parent = p2
             ret = [p2,i2,p1,i1]
         pass
-        return ret
+        return Parts(ret)
 
     def partition_intersection(self, material=None):
         #log.info(self)
@@ -343,12 +352,16 @@ class Elem(object):
             log.debug("s%d: %s %s " % (i, s.desc, s.outerRadius.value))
  
         if len(spheres) == 3:
-            return self.partition_intersection_3spheres(spheres, material=material) 
+            pts = self.partition_intersection_3spheres(spheres, material=material) 
         elif len(spheres) == 2:
-            return self.partition_intersection_2spheres(spheres, material=material) 
+            pts = self.partition_intersection_2spheres(spheres, material=material) 
         else:
             assert 0 
 
+
+        pts.csg = CSG(self, spheres) 
+
+        return pts
 
 
     def partition_union_intersection_tubs(self, comps, material=None, verbose=False):
@@ -356,10 +369,13 @@ class Elem(object):
         """
         log.info("material %s name %s " % (material, self.name))
 
-        sparts = Part.ascending_bbox_zmin(comps[0].partition_intersection())
+        ipts = comps[0].partition_intersection()
+        sparts = Part.ascending_bbox_zmin(ipts)
         assert len(sparts) == 3 
+
         tpart = comps[1].as_part()
         ts = Part.intersect_tubs_sphere("ts", tpart, sparts[0], -1)   # -ve root for leftmost
+
 
         if verbose:
             log.info(self)
@@ -384,9 +400,17 @@ class Elem(object):
             sparts[1].boundary = face
             sparts[2].boundary = face
         pass 
-        rparts = []
+
+        rparts = Parts()
         rparts.extend(sparts)
         rparts.extend([tpart])
+
+        # had CSG list/tree confusion here, from thinking ahead to serialization
+        # dont do that, use the best representation for the immediate problem at hand 
+        # of grabbing the CSG tree into an in-memory representation
+
+        rparts.csg = CSG(self, [ipts.csg, CSG(comps[1])] )
+
         return rparts 
 
 
@@ -401,19 +425,23 @@ class Elem(object):
         comps = self.findall_("./*")
         self.link_prior_posXYZ(comps)
 
-        rparts = []
+        rparts = Parts()
+        xret = None
+
         if len(comps) == 3 and comps[0].is_intersection and comps[1].is_tubs and comps[2].is_posXYZ:
             # pmt-hemi-glass-bulb, pmt-hemi-bulb-vac        
             xret = self.partition_union_intersection_tubs(comps[0:3], material=material)
-            rparts.extend(xret)
         elif len(comps) == 3 and comps[0].is_sphere and comps[1].is_sphere and comps[2].is_posXYZ:
-            pass
             xret = self.partition_intersection_2spheres(comps[0:2], material=material)
-            rparts.extend(xret)
-            pass
+            if not hasattr(xret, 'csg'):
+                xret.csg = CSG(self, comps[0:2])
         else:
             xret = self.parts()   
+
+        if xret is not None:
             rparts.extend(xret)
+            if hasattr(xret, 'csg'):
+                rparts.csg = xret.csg
         pass
         return rparts  ; 
 
@@ -471,34 +499,42 @@ class Elem(object):
         comps = self.findall_("./*")  # one lev only
         self.link_prior_posXYZ(comps, base)
 
-        rparts = []
+        rparts = Parts()
+
+        csg_ = []
+
         for c in comps:
+            xret = []
             if c.is_sphere and c.has_inner():
                 log.info("-> sphere with inner  %s " % c.name)
-                pts = self.parts_sphere_with_inner(c)  
-                rparts.extend(pts) 
+                xret = self.parts_sphere_with_inner(c)  
             elif c.is_primitive:
                 log.info("-> primitive %s " % c.name)
-                pts = self.parts_primitive(c)
-                rparts.extend(pts)
+                xret = self.parts_primitive(c)
             elif c.is_intersection:
                 log.info("-> intersection %s " % c.name)
                 xret = c.partition_intersection(material=material) 
-                rparts.extend(xret)
             elif c.is_union:
                 log.info("-> union %s " % c.name)
                 xret = c.partition_union(material=material) 
-                rparts.extend(xret)
             elif c.is_composite:
                 log.info("-> composite %s " % c.name )
                 xret = c.parts() 
-                rparts.extend(xret)
             elif c.is_posXYZ:
                 pass
             else:
                 log.warning("skipped component %s " % repr(c))
             pass
 
+            if len(xret) > 0:
+                rparts.extend(xret)
+                if hasattr(xret, 'csg'):
+                    csg_.append(xret.csg)
+                pass
+            pass
+        pass
+
+        log.info("%s : %s comps yield %s rparts %s csg " % (repr(self), len(comps), len(rparts), len(csg_)))
 
         if self.is_logvol:
             for p in rparts:
@@ -507,50 +543,15 @@ class Elem(object):
                 pass
             pass
 
+
+        rparts.csg = csg_
+
         return rparts
 
     def geometry(self):
         return filter(lambda c:c.is_geometry, self.components())
 
-    def allrev(self, depth=0, maxdepth=10):
-        assert 0, "no longer using this approach as not enough control over the recursion"
- 
-        if depth > maxdepth:
-            return []
-
-        if type(self) is Physvol:
-            lvn = self.logvolref.split("/")[-1]
-            log.info("physvol is special logvolref %s lvn %s " % (self.logvolref, lvn ))
-            lv = self.g.logvol_(lvn)
-            depth += 1
-            components = lv.findall_("./*")  
-            posXYZ = self.find_("./posXYZ") 
-            if posXYZ:
-                self.link_posXYZ(components, posXYZ)
-        else:
-            components = self.findall_("./*")  # one lev only
-            self.link_prior_posXYZ(components)
-        pass
-  
-
-        revs = []
-        for c in components:
-            if c.is_primitive:
-                xrev = c.asrev()
-                log.debug("allrev: primitive : %s " % repr(xrev)) 
-                revs.extend(xrev)
-            elif c.is_composite:
-                xrev = c.allrev(depth=depth+1, maxdepth=maxdepth) 
-                log.debug("allrev: composite : %s " % repr(xrev)) 
-                revs.extend(xrev)
-            elif c.is_posXYZ:
-                pass
-            else:
-                log.warning("skipped component %s " % repr(c))
-            pass
-                  
-        return revs
-    
+   
  
 class Logvol(Elem):
     material = property(lambda self:self.elem.attrib.get('material', None))

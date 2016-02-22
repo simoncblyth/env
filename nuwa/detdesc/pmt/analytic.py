@@ -23,6 +23,11 @@ if __name__ == '__main__':
     for pt in parts:
         print pt
 
+    if hasattr(parts, 'csg') and len(parts.csg) > 0:
+        for c in parts.csg:
+            print c  
+
+
     buf = tr.convert(parts)
 
     path = "$IDPATH/GPmt/0/GPmt.npy"

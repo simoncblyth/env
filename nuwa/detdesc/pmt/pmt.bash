@@ -5,7 +5,27 @@ pmt-vi(){       vi $(pmt-source) ; }
 pmt-env(){      elocal- ; }
 pmt-usage(){ cat << EOU
 
+Analytic PMT Geometry Description
+======================================
 
+
+Sources
+--------
+
+analytic.py
+     top level steering for pmt-analytic
+
+dd.py 
+     detdesc XML parsing 
+
+
+
+
+
+
+
+Usage
+------
 
 To visualize analytic PMT in a box, and test ggeo- optixrap- loading::
 
@@ -22,6 +42,17 @@ TODO debug why below is failing::
           # misses a GPmt associated to the MM
 
     ggv --test --eye 0.5,0.5,0.0 --animtimemax 10
+
+
+High Level CSG Persisting for G4 geometry
+-------------------------------------------
+
+* how to represent a single node (of the 5 separate nodes) ?
+
+  * primitives and operations
+
+* tree of nodes  
+
 
 
 
@@ -245,6 +276,12 @@ pmt-analytic(){
    pmt-export
    python $(pmt-edir)/analytic.py $*  
 }
+
+pmt-csg(){ 
+   pmt-export
+   python $(pmt-edir)/csg.py $*  
+}
+
 
 
 
