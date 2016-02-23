@@ -168,11 +168,16 @@ class Tree(object):
 
         for i in range(tnodes):
             node = cls.get(i)
+            log.debug("tree.parts node %s parent %s" % (repr(node),repr(node.parent)))
+            log.info("tree.parts node.lv %s " % (repr(node.lv)))
+            log.info("tree.parts node.pv %s " % (repr(node.pv)))
             npts = node.parts()
             #print npts
             pts.extend(npts)    
 
             if hasattr(npts, 'csg') and len(npts.csg) > 0:
+                for c in npts.csg:
+                    c.node = node
                 csg.extend(npts.csg)  
 
         pass
@@ -222,8 +227,12 @@ class Tree(object):
         pass
         buf = data.view(Buf) 
         buf.boundaries = map(lambda _:_.boundary, parts) 
+
         if hasattr(parts, "csg"):
             buf.csg = parts.csg 
+            buf.materials = map(lambda cn:cn.lv.material,filter(lambda cn:cn.lv is not None, buf.csg))
+            buf.lvnames = map(lambda cn:cn.lv.name,filter(lambda cn:cn.lv is not None, buf.csg))
+            buf.pvnames = map(lambda lvn:lvn.replace('lv','pv'), buf.lvnames)
         pass
         return buf
 
@@ -261,10 +270,33 @@ class Tree(object):
         pass
         log.info("saving to %s shape %s " % (path_, repr(buf.shape)))
         if hasattr(buf,"boundaries"):
-            names = path.replace(".npy",".txt")
+            names = path.replace(".npy","_boundaries.txt")
             log.info("saving boundaries to %s " % names)
             with open(names,"w") as fp:
                 fp.write("\n".join(buf.boundaries)) 
+            pass
+        pass
+
+        if hasattr(buf,"materials"):
+            matpath = path.replace(".npy","_materials.txt")
+            log.info("saving materials to %s " % matpath)
+            with open(matpath,"w") as fp:
+                fp.write("\n".join(buf.materials)) 
+            pass
+        pass
+
+        if hasattr(buf,"lvnames"):
+            lvnpath = path.replace(".npy","_lvnames.txt")
+            log.info("saving lvnames to %s " % lvnpath)
+            with open(lvnpath,"w") as fp:
+                fp.write("\n".join(buf.lvnames)) 
+            pass
+        pass
+        if hasattr(buf,"pvnames"):
+            pvnpath = path.replace(".npy","_pvnames.txt")
+            log.info("saving pvnames to %s " % pvnpath)
+            with open(pvnpath,"w") as fp:
+                fp.write("\n".join(buf.pvnames)) 
             pass
         pass
 

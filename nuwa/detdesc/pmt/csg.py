@@ -14,6 +14,7 @@ TYPCODE = {'Union':10, 'Intersection':20, 'Sphere':3, 'Tubs':4 }
 
 
 class CSG(object):
+    lvnodes = []
     def __init__(self, ele, children=[]):
         """
         :param ele: 
@@ -25,6 +26,7 @@ class CSG(object):
         self.children = children
         self.typ = self.ele.__class__.__name__ 
         self.lv = None
+        self.node = None
 
 
     def progeny_count(self):
@@ -40,6 +42,7 @@ class CSG(object):
     def as_csg(self):
         return [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
 
+
     @classmethod
     def serialize(cls, data, offset, obj):
         """
@@ -50,6 +53,7 @@ class CSG(object):
 
 
         (2,0) typecode
+        (2,1) nodeindex 
 
         (3,0) current offset, ie index of the serialized record  
         (3,1) number of children
@@ -59,13 +63,21 @@ class CSG(object):
         """
         pass
         nchild = 0 
+        nodeindex = 0
+        parentindex = 0 
         if type(obj) is CSG:
-            log.debug("**serialize offset %s typ %s [%s] " % (offset,obj.typ,repr(obj)))
+            log.debug("**serialize offset %s typ %s [%s] (%s)" % (offset,obj.typ,repr(obj),repr(obj.node)))
             nchild = len(obj.children)
             payload = obj.ele if nchild == 0 else obj    # CSG nodes wrapping single elem, kinda different 
             if obj.lv is not None:
-               log.info("serialize lv %s " % repr(obj.lv)) 
-
+               cls.lvnodes.append(obj.lv)
+               nodeindex = cls.lvnodes.index(obj.lv) + 1            
+               if obj.node.parent is not None:
+                   parentindex = cls.lvnodes.index(obj.node.parent.lv) + 1            
+               pass
+               log.info("serialize nodeindex %s parentindex %s " % (nodeindex, parentindex))
+               log.debug("serialize nodeindex %s lv %s no %s " % (nodeindex, repr(obj.lv), repr(obj.node)))
+               log.debug("serialize parentindex %s parent %s " % (parentindex, repr(obj.node.parent))) 
         else:
             payload = obj
         pass
@@ -73,6 +85,8 @@ class CSG(object):
 
         data[base] = payload.as_csg()
         data[base].view(np.int32)[2,0] = TYPCODE.get(payload.typ, -1 )
+        data[base].view(np.int32)[2,1] = nodeindex
+        data[base].view(np.int32)[2,2] = parentindex
         data[base].view(np.int32)[3,0] = base
         offset += 1 
 
