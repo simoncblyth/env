@@ -14,14 +14,18 @@ TYPCODE = {'Union':10, 'Intersection':20, 'Sphere':3, 'Tubs':4 }
 
 
 class CSG(object):
-    def __init__(self, elem, children=[]):
+    def __init__(self, ele, children=[]):
         """
-        :param elem: 
+        :param ele: 
         :param children: comprised of either base elements or other CSG nodes 
+
+        Hmm need to retain original node association for material assignment
         """
-        self.ele = elem
+        self.ele = ele
         self.children = children
         self.typ = self.ele.__class__.__name__ 
+        self.lv = None
+
 
     def progeny_count(self):
         n = 0 
@@ -56,9 +60,12 @@ class CSG(object):
         pass
         nchild = 0 
         if type(obj) is CSG:
-            log.info("**serialize offset %s typ %s [%s] " % (offset,obj.typ,repr(obj)))
+            log.debug("**serialize offset %s typ %s [%s] " % (offset,obj.typ,repr(obj)))
             nchild = len(obj.children)
             payload = obj.ele if nchild == 0 else obj    # CSG nodes wrapping single elem, kinda different 
+            if obj.lv is not None:
+               log.info("serialize lv %s " % repr(obj.lv)) 
+
         else:
             payload = obj
         pass
@@ -102,7 +109,7 @@ class CSG(object):
 
     def __repr__(self):
         pc = self.progeny_count()
-        return "CSG node, %s children, %s progeny [%s] " % ( len(self.children), pc, repr(self.ele)) + "\n" + "\n".join(map(lambda _:"    " + repr(_), self.children))
+        return "CSG node, lv %s, %s children, %s progeny [%s] " % ( repr(self.lv),len(self.children), pc, repr(self.ele)) + "\n" + "\n".join(map(lambda _:"    " + repr(_), self.children))
 
 
 

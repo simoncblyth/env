@@ -548,6 +548,11 @@ class Elem(object):
                     p.material = self.material
                 pass
             pass
+            for cn in csg_:
+                # associate lv to the first csg node
+                if cn.lv is None:
+                    cn.lv = self
+                    #log.info("cn lv : %s " % repr(cn.lv))
 
 
         rparts.csg = csg_

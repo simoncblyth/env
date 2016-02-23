@@ -237,7 +237,7 @@ class Tree(object):
             flat.extend(pr)
         pass
         for k,p in enumerate(flat):
-            log.info(" %s:%s " % (k, repr(p))) 
+            log.debug(" %s:%s " % (k, repr(p))) 
 
         data = np.zeros([len(flat),4,4],dtype=np.float32)
         offset = 0 
@@ -273,8 +273,8 @@ class Tree(object):
             csgbuf = cls.csg_serialize(buf.csg)
             if csgbuf is not None:
                 log.info("saving csg to %s " % csgpath)
-                log.info(csgbuf.view(np.int32))
-                log.info(csgbuf)
+                #log.info(csgbuf.view(np.int32))
+                #log.info(csgbuf)
                 np.save(csgpath, csgbuf) 
             else:
                 log.warning("csgbuf is None skip saving to %s " % csgpath)
