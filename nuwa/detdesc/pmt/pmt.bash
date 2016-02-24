@@ -255,6 +255,9 @@ pmt-export(){
 pmt-cd(){  cd $(pmt-dir); }
 pmt-ecd(){ cd $(pmt-edir) ; }
 
+pmt-xml(){ vi $(pmt-dir)/hemi-pmt.xml ; }
+
+
 pmt-i(){
    pmt-ecd
    i
