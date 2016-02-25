@@ -192,3 +192,84 @@ G4SDManager
 
 
 
+G4OpBoundaryProcess
+----------------------
+
+To get hit from G4OpBoundaryProcess DoAbsorption needs
+to be called and the rm 
+
+
+
+::
+
+    0164 
+     165 G4VParticleChange*
+     166 G4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
+     167 {
+     ...
+     540         if ( theStatus == Detection ) InvokeSD(pStep);
+     541 
+     542         return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+     543 }
+
+
+    1344 G4bool G4OpBoundaryProcess::InvokeSD(const G4Step* pStep)
+    1345 {
+    1346   G4Step aStep = *pStep;
+    1347 
+    1348   aStep.AddTotalEnergyDeposit(thePhotonMomentum);
+    1349 
+    1350   G4VSensitiveDetector* sd = aStep.GetPostStepPoint()->GetSensitiveDetector();
+    1351   if (sd) return sd->Hit(&aStep);
+    1352   else return false;
+    1353 }
+
+
+    306 inline
+    307 void G4OpBoundaryProcess::DoAbsorption()
+    308 {
+    309               theStatus = Absorption;
+    310 
+    311               if ( G4BooleanRand(theEfficiency) ) {
+    ///
+    ///                   need  u < theEfficiency
+    ///
+    312 
+    313                  // EnergyDeposited =/= 0 means: photon has been detected
+    314                  theStatus = Detection;
+    315                  aParticleChange.ProposeLocalEnergyDeposit(thePhotonMomentum);
+    316               }
+    317               else {
+    318                  aParticleChange.ProposeLocalEnergyDeposit(0.0);
+    319               }
+    320 
+    321               NewMomentum = OldMomentum;
+    322               NewPolarization = OldPolarization;
+    323 
+    324 //              aParticleChange.ProposeEnergy(0.0);
+    325               aParticleChange.ProposeTrackStatus(fStopAndKill);
+    326 }
+
+
+Huh seems like DoAbsorption never getting called as theReflectivity is defaulting to 1.0 and theTransmittance to 0.0::
+
+     483         else if (type == dielectric_dielectric) {
+     484 
+     485           if ( theFinish == polishedbackpainted ||
+     486                theFinish == groundbackpainted ) {
+     487              DielectricDielectric();
+     488           }
+     489           else {
+     490              G4double rand = G4UniformRand();
+     491              if ( rand > theReflectivity ) {
+     492                 if (rand > theReflectivity + theTransmittance) {
+     493                    DoAbsorption();
+     494                 } else {
+     495                    theStatus = Transmission;
+     496                    NewMomentum = OldMomentum;
+     497                    NewPolarization = OldPolarization;
+     498                 }
+     499              }
+
+
+
