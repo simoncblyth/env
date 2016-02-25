@@ -1684,3 +1684,4 @@ rift-(){      . $(env-home)/vr/rift/rift.bash && rift-env $* ; }
 vr-(){      . $(env-home)/vr/vr.bash && vr-env $* ; }
 ios-(){      . $(env-home)/ios/ios.bash && ios-env $* ; }
 gpuhep-(){      . $(env-home)/gpuhep/gpuhep.bash && gpuhep-env $* ; }
+openvr-(){      . $(env-home)/vr/openvr/openvr.bash && openvr-env $* ; }

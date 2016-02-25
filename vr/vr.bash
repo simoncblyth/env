@@ -14,6 +14,43 @@ VR Interface Dev Experience
 * https://www.youtube.com/watch?v=_vqNpZqnl1o&index=27&list=PLckFgM6dUP2hc4iy-IdKFtqR9TeZWMPjm
 
 
+VR Capable Laptops
+-------------------
+
+* :google:`NVIDIA GTX 980 laptops`
+
+* http://blogs.nvidia.com/blog/2015/09/22/notebooks/
+
+  * all TW companies as is HTC
+
+* :google:`Aorus ASUS MSI Clevo`
+* :google:`Aorus X7 DT`  
+* :google:`AORUS X7 G-SYNC`
+* :google:`MSI GT72 G-SYNC`
+* :google:`MSI GT80`
+* :google:`ASUS GX700VO`
+* :google:`Clevo P775DM`
+* :google:`Clevo P870DM`
+
+* http://www.anandtech.com/show/9649/nvidia-gtx-980-in-notebooks (Sept 2015)
+
+  ..full desktop-class GTX 980 (with 2048 cores) will be made available in an MXM format for notebooks..
+
+* http://arstechnica.com/gadgets/2015/09/nvidia-crams-desktop-gtx-980-gpu-into-monster-17-inch-notebooks/
+
+  ...All the launch models also only come with 1080p displays...
+
+  That's disappointing given the sheer graphics grunt of the GTX 980, which is
+  more than capable of pushing 1440p or 4K visuals at high settings. That said,
+  Asus has teased that some of its upcoming 17-inch gaming notebooks will feature
+  a 4K option.
+
+
+Gigabyte/Aorus
+~~~~~~~~~~~~~~~~
+
+* http://www.digitimes.com/news/a20140604VL200.html
+
 
 
 
