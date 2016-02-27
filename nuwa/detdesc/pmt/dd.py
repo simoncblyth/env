@@ -666,9 +666,17 @@ class Sphere(Primitive):
         else: 
             r = -1.0
         pass
+
+        sta = self.startThetaAngle.value
+        dta = self.deltaThetaAngle.value
+        if sta is None:
+            sta = 0. 
+        if dta is None:
+            dta = 180. 
+
         csg = []
         csg.append( [self.xyz[0], self.xyz[1], self.xyz[2], R] )
-        csg.append( [0,0,0,r] )
+        csg.append( [sta,dta,0,r] )
         csg.append( [0,0,0,0] )
         csg.append( [0,0,0,0] )
         return csg
@@ -768,10 +776,11 @@ class Tubs(Primitive):
 
     def as_csg(self):
         sizeZ = self.sizeZ.value
-        radius = self.outerRadius.value 
+        outer = self.outerRadius.value 
+        inner = self.innerRadius.value  
         csg = []
-        csg.append( [self.xyz[0], self.xyz[1], self.xyz[2], radius] )
-        csg.append( [0,0,0,sizeZ] )
+        csg.append( [self.xyz[0], self.xyz[1], self.xyz[2], outer] )
+        csg.append( [0,0,sizeZ, inner] )
         csg.append( [0,0,0,0] )
         csg.append( [0,0,0,0] )
         return csg
