@@ -53,11 +53,6 @@ Gigabyte/Aorus
 
 
 
-
-
-
-
-
 EOU
 }
 vr-dir(){ echo $(local-base)/env/vr/vr-vr ; }
