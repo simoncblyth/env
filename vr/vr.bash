@@ -52,6 +52,13 @@ Gigabyte/Aorus
 * http://www.digitimes.com/news/a20140604VL200.html
 
 
+NewEgg gaming laptops by GPU
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.newegg.com/Gaming-Laptops/Category/ID-363
+
+
+
 
 EOU
 }
