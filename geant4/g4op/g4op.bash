@@ -2466,3 +2466,18 @@ g4op-get(){
        cp $(g4-dir)/source/processes/optical/include/$kls.hh  .
     done 
 }
+
+
+g4op-boundary()
+{
+   g4op-kls G4OpBoundaryProcess
+}
+
+g4op-kls()
+{
+    g4-
+    local kls=${1:-G4OpBoundaryProcess} 
+    local base=$(g4-dir)/source/processes/optical
+    vi $base/src/$kls.cc $base/include/$kls.hh 
+}
+
