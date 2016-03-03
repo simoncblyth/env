@@ -96,7 +96,8 @@ class Bbox(object):
 
 
 class Pmt(object):
-    def __init__(self, path):
+    def __init__(self, path="$IDPATH/GPmt/0/GPmt.npy"):
+        path = os.path.expandvars(path)
         self.data = np.load(path).reshape(-1,4,4)
         self.num_parts = len(self.data)
         self.all_parts = range(self.num_parts)
@@ -272,12 +273,12 @@ if __name__ == '__main__':
     highlight[10] = 'r'
     highlight[11] = 'b'
 
-    PYREX, VACUUM, CATHODE, BOTTOM, DYNODE = 0,1,2,3,4 
+    ALL, PYREX, VACUUM, CATHODE, BOTTOM, DYNODE = None,0,1,2,3,4 
 
     mesh = Mesh()
 
-    path = os.path.expandvars("$IDPATH/GPmt/0/GPmt.npy")
-    pmt = Pmt(path)
+    pmt = Pmt()
+
     fig = plt.figure()
 
     axes = ZX
@@ -285,7 +286,7 @@ if __name__ == '__main__':
     #solid = CATHODE 
     #solid = BOTTOM 
     #solid = DYNODE 
-    solid = None
+    solid = ALL
 
     pts = pmt.parts(solid)
     #pts = np.arange(8)
