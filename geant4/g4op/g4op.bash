@@ -1650,6 +1650,40 @@ G4OpticalSurface
 
      G4OpBoundaryProcess::PostStepDoIt
 
+     g4op-boundary 
+     (lldb) b "G4OpBoundaryProcess::PostStepDoIt(G4Track const&, G4Step const&)"
+     (lldb) expr verboseLevel = 10 
+
+     (lldb) p pStep->GetPostStepPoint()->GetStepStatus()
+     (G4StepStatus) $2 = fGeomBoundary
+
+     (lldb) br l
+     Current breakpoints:
+     5: name = 'G4VParticleChange* G4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)', locations = 0 (pending)
+
+     6: name = 'G4OpBoundaryProcess::PostStepDoIt(G4Track const&, G4Step const&)', locations = 1, resolved = 1, hit count = 5
+
+     7: file = '/usr/local/env/g4/geant4.10.02/source/processes/optical/src/G4OpBoundaryProcess.cc', line = 491, locations = 1, resolved = 1, hit count = 0
+
+     (lldb) br del 5
+     1 breakpoints deleted; 0 breakpoint locations disabled.
+     (lldb) br del 6
+     1 breakpoints deleted; 0 breakpoint locations disabled.
+     (lldb) br l 
+     Current breakpoints:
+     7: file = '/usr/local/env/g4/geant4.10.02/source/processes/optical/src/G4OpBoundaryProcess.cc', line = 491, locations = 1, resolved = 1, hit count = 0
+
+     (lldb) 
+
+
+     [2016-Mar-04 13:05:59.051653]:info:  eV      3.263 nm     380.000 v        1.483
+
+     (lldb) p thePhotonMomentum*1e6
+     (double) $6 = 3.2627417774210459
+
+     (lldb) p Rindex1
+     (G4double) $7 = 1.4826403856277466
+
 
 
      162 G4VParticleChange*
@@ -2449,6 +2483,611 @@ Tokamak MSE (Motional Stark Effect) : extensive polarized reflection calcs
     known as the Stark effect. The polarization of the light is aligned with
     respect to the magnetic field, so a measurement of the polarization orientation
     can be used to determine the magnetic field direction in the plasma.
+
+
+
+
+Time Updating
+--------------
+
+::
+
+    264 G4Step* G4ParticleChange::UpdateStepForAlongStep(G4Step* pStep)
+    265 {
+    266   // A physics process always calculates the final state of the
+    267   // particle relative to the initial state at the beginning
+    268   // of the Step, i.e., based on information of G4Track (or
+    269   // equivalently the PreStepPoint). 
+    270   // So, the differences (delta) between these two states have to be
+    271   // calculated and be accumulated in PostStepPoint. 
+    272 
+    273   // Take note that the return type of GetMomentumDirectionChange is a
+    274   // pointer to G4ParticleMometum. Also it is a normalized 
+    275   // momentum vector.
+    276 
+
+
+    348 G4Step* G4ParticleChange::UpdateStepForPostStep(G4Step* pStep)
+    349 {
+    350   // A physics process always calculates the final state of the particle
+    351 
+    352   // Take note that the return type of GetMomentumChange is a
+    353   // pointer to G4ParticleMometum. Also it is a normalized 
+    354   // momentum vector.
+    ...
+    382   // update position and time
+    383   pPostStepPoint->SetPosition( thePositionChange  );
+    384   pPostStepPoint->AddGlobalTime(theTimeChange - theLocalTime0);
+    385   pPostStepPoint->SetLocalTime( theTimeChange );
+    386   pPostStepPoint->SetProperTime( theProperTimeChange  );
+    387 
+
+    simon:cfg4 blyth$ ggv-;ggv-box-test --cfg4 --dbg 
+    (lldb) b "G4ParticleChange::UpdateStepForPostStep(G4Step*)" 
+
+::
+
+    (lldb) b "G4StepPoint::SetGlobalTime(double)" 
+    Breakpoint 1: 3 locations.
+    (lldb) c
+    Process 54677 resuming
+    Process 54677 stopped
+    * thread #1: tid = 0x2c7642, 0x00000001027104d1 libG4tracking.dylib`G4StepPoint::SetGlobalTime(this=0x0000000108658e50, aValue=0.10000000149011612) + 17 at G4StepPoint.icc:60, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+        frame #0: 0x00000001027104d1 libG4tracking.dylib`G4StepPoint::SetGlobalTime(this=0x0000000108658e50, aValue=0.10000000149011612) + 17 at G4StepPoint.icc:60
+       57   
+       58   inline 
+       59    void G4StepPoint::SetGlobalTime(const G4double aValue)
+    -> 60    { fGlobalTime = aValue; }
+       61   
+       62   inline 
+       63    void G4StepPoint::AddGlobalTime(const G4double aValue)
+    (lldb) p aValue
+    (G4double) $0 = 0.10000000149011612
+    (lldb) bt
+    * thread #1: tid = 0x2c7642, 0x00000001027104d1 libG4tracking.dylib`G4StepPoint::SetGlobalTime(this=0x0000000108658e50, aValue=0.10000000149011612) + 17 at G4StepPoint.icc:60, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+      * frame #0: 0x00000001027104d1 libG4tracking.dylib`G4StepPoint::SetGlobalTime(this=0x0000000108658e50, aValue=0.10000000149011612) + 17 at G4StepPoint.icc:60
+        frame #1: 0x000000010270fa39 libG4tracking.dylib`G4Step::InitializeStep(this=0x0000000108658df0, aValue=0x0000000114f96b80) + 137 at G4Step.icc:200
+        frame #2: 0x000000010270eb5e libG4tracking.dylib`G4SteppingManager::SetInitialStep(this=0x0000000108658c60, valueTrack=0x0000000114f96b80) + 1774 at G4SteppingManager.cc:351
+        frame #3: 0x00000001027255fa libG4tracking.dylib`G4TrackingManager::ProcessOneTrack(this=0x0000000108658c20, apValueG4Track=0x0000000114f96b80) + 538 at G4TrackingManager.cc:89
+        frame #4: 0x0000000102602e44 libG4event.dylib`G4EventManager::DoProcessing(this=0x0000000108658b90, anEvent=0x00000001148377b0) + 3188 at G4EventManager.cc:185
+        frame #5: 0x0000000102603b2f libG4event.dylib`G4EventManager::ProcessOneEvent(this=0x0000000108658b90, anEvent=0x00000001148377b0) + 47 at G4EventManager.cc:336
+        frame #6: 0x0000000102530c75 libG4run.dylib`G4RunManager::ProcessOneEvent(this=0x000000010834dd50, i_event=3) + 69 at G4RunManager.cc:399
+        frame #7: 0x0000000102530ab5 libG4run.dylib`G4RunManager::DoEventLoop(this=0x000000010834dd50, n_event=50, macroFile=0x0000000000000000, n_select=-1) + 101 at G4RunManager.cc:367
+        frame #8: 0x000000010252f8e4 libG4run.dylib`G4RunManager::BeamOn(this=0x000000010834dd50, n_event=50, macroFile=0x0000000000000000, n_select=-1) + 196 at G4RunManager.cc:273
+        frame #9: 0x0000000100f140dd libcfg4.dylib`CfG4::propagate(this=0x0000000108212ec0) + 685 at CfG4.cc:163
+        frame #10: 0x000000010000cd45 cfg4Test`main(argc=20, argv=0x00007fff5fbfdd58) + 101 at cfg4Test.cc:9
+        frame #11: 0x00007fff8568c5fd libdyld.dylib`start + 1
+        frame #12: 0x00007fff8568c5fd libdyld.dylib`start + 1
+    (lldb) 
+
+::
+
+    (lldb) c
+    Process 62039 resuming
+    Process 62039 stopped
+    * thread #1: tid = 0x2ca879, 0x000000010571c001 libG4track.dylib`G4StepPoint::SetLocalTime(this=0x0000000108372970, aValue=1.0551967349070439) + 17 at G4StepPoint.icc:48, queue = 'com.apple.main-thread', stop reason = breakpoint 1.3
+        frame #0: 0x000000010571c001 libG4track.dylib`G4StepPoint::SetLocalTime(this=0x0000000108372970, aValue=1.0551967349070439) + 17 at G4StepPoint.icc:48
+       45   
+       46   inline 
+       47    void G4StepPoint::SetLocalTime(const G4double aValue)
+    -> 48    { fLocalTime = aValue; }
+       49   
+       50   inline 
+       51    void G4StepPoint::AddLocalTime(const G4double aValue)
+    (lldb) p aValue
+    (G4double) $1 = 1.0551967349070439
+    (lldb) bt
+    * thread #1: tid = 0x2ca879, 0x000000010571c001 libG4track.dylib`G4StepPoint::SetLocalTime(this=0x0000000108372970, aValue=1.0551967349070439) + 17 at G4StepPoint.icc:48, queue = 'com.apple.main-thread', stop reason = breakpoint 1.3
+      * frame #0: 0x000000010571c001 libG4track.dylib`G4StepPoint::SetLocalTime(this=0x0000000108372970, aValue=1.0551967349070439) + 17 at G4StepPoint.icc:48
+        frame #1: 0x000000010571861a libG4track.dylib`G4ParticleChange::UpdateStepForPostStep(this=0x00000001083ca298, pStep=0x0000000108372840) + 410 at G4ParticleChange.cc:385
+        frame #2: 0x00000001027132ba libG4tracking.dylib`G4SteppingManager::InvokePSDIP(this=0x00000001083726b0, np=4) + 186 at G4SteppingManager2.cc:533
+        frame #3: 0x00000001027130d8 libG4tracking.dylib`G4SteppingManager::InvokePostStepDoItProcs(this=0x00000001083726b0) + 232 at G4SteppingManager2.cc:502
+        frame #4: 0x000000010270e28e libG4tracking.dylib`G4SteppingManager::Stepping(this=0x00000001083726b0) + 798 at G4SteppingManager.cc:209
+        frame #5: 0x000000010272592d libG4tracking.dylib`G4TrackingManager::ProcessOneTrack(this=0x0000000108372670, apValueG4Track=0x00000001098cba70) + 1357 at G4TrackingManager.cc:126
+        frame #6: 0x0000000102602e44 libG4event.dylib`G4EventManager::DoProcessing(this=0x00000001083725e0, anEvent=0x0000000109151200) + 3188 at G4EventManager.cc:185
+        frame #7: 0x0000000102603b2f libG4event.dylib`G4EventManager::ProcessOneEvent(this=0x00000001083725e0, anEvent=0x0000000109151200) + 47 at G4EventManager.cc:336
+        frame #8: 0x0000000102530c75 libG4run.dylib`G4RunManager::ProcessOneEvent(this=0x00000001082676f0, i_event=0) + 69 at G4RunManager.cc:399
+        frame #9: 0x0000000102530ab5 libG4run.dylib`G4RunManager::DoEventLoop(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 101 at G4RunManager.cc:367
+        frame #10: 0x000000010252f8e4 libG4run.dylib`G4RunManager::BeamOn(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 196 at G4RunManager.cc:273
+        frame #11: 0x0000000100f140dd libcfg4.dylib`CfG4::propagate(this=0x0000000108212ec0) + 685 at CfG4.cc:163
+        frame #12: 0x000000010000cd45 cfg4Test`main(argc=21, argv=0x00007fff5fbfdd38) + 101 at cfg4Test.cc:9
+        frame #13: 0x00007fff8568c5fd libdyld.dylib`start + 1
+    (lldb) 
+
+    (lldb) f 1
+    frame #1: 0x000000010571861a libG4track.dylib`G4ParticleChange::UpdateStepForPostStep(this=0x00000001083ca298, pStep=0x0000000108372840) + 410 at G4ParticleChange.cc:385
+       382    // update position and time
+       383    pPostStepPoint->SetPosition( thePositionChange  );
+       384    pPostStepPoint->AddGlobalTime(theTimeChange - theLocalTime0);
+    -> 385    pPostStepPoint->SetLocalTime( theTimeChange );           
+       386    pPostStepPoint->SetProperTime( theProperTimeChange  );
+       387  
+       388    if (isParentWeightProposed ){
+    (lldb) p theTimeChange
+    (G4double) $2 = 1.0551967349070439
+    (lldb) p theLocalTime0
+    (G4double) $3 = 1.0551967349070439
+    (lldb) p thePositionChange
+    (G4ThreeVector) $4 = (dx = -86.375713348388671, dy = 1.8436908721923828, dz = 100)
+    (lldb) p theProperTimeChange
+    (G4double) $5 = 0
+
+
+::
+
+    077 class G4ParticleChange: public G4VParticleChange
+
+    161     void     ProposeGlobalTime(G4double t);
+    162     void     ProposeLocalTime(G4double t);
+    163     //  Get/Propose the final global/local Time
+    164     // NOTE: DO NOT INVOKE both methods in a step
+    165     //       Each method affects both local and global time 
+
+::
+
+    (lldb) b "G4ParticleChange::ProposeLocalTime(double)" 
+
+       159  inline 
+       160    void G4ParticleChange::ProposeLocalTime(G4double t)
+       161  {
+    -> 162    theTimeChange = t;
+       163  }
+       164     
+       165  inline
+    (lldb) p t 
+    (G4double) $6 = 2.0278695996039202
+
+::
+
+    (lldb) bt
+    * thread #1: tid = 0x2ca879, 0x0000000102a2cde1 libG4processes.dylib`G4ParticleChange::ProposeLocalTime(this=0x00000001083b1ef0, t=2.0278695996039202) + 17 at G4ParticleChange.icc:162, queue = 'com.apple.main-thread', stop reason = breakpoint 3.1
+      * frame #0: 0x0000000102a2cde1 libG4processes.dylib`G4ParticleChange::ProposeLocalTime(this=0x00000001083b1ef0, t=2.0278695996039202) + 17 at G4ParticleChange.icc:162
+        frame #1: 0x0000000103b76e43 libG4processes.dylib`G4Transportation::AlongStepDoIt(this=0x00000001083b1cd0, track=0x00000001098cba70, stepData=0x0000000108372840) + 467 at G4Transportation.cc:561
+        frame #2: 0x000000010271294f libG4tracking.dylib`G4SteppingManager::InvokeAlongStepDoItProcs(this=0x00000001083726b0) + 223 at G4SteppingManager2.cc:417
+        frame #3: 0x000000010270e168 libG4tracking.dylib`G4SteppingManager::Stepping(this=0x00000001083726b0) + 504 at G4SteppingManager.cc:191
+        frame #4: 0x000000010272592d libG4tracking.dylib`G4TrackingManager::ProcessOneTrack(this=0x0000000108372670, apValueG4Track=0x00000001098cba70) + 1357 at G4TrackingManager.cc:126
+        frame #5: 0x0000000102602e44 libG4event.dylib`G4EventManager::DoProcessing(this=0x00000001083725e0, anEvent=0x0000000109151200) + 3188 at G4EventManager.cc:185
+        frame #6: 0x0000000102603b2f libG4event.dylib`G4EventManager::ProcessOneEvent(this=0x00000001083725e0, anEvent=0x0000000109151200) + 47 at G4EventManager.cc:336
+        frame #7: 0x0000000102530c75 libG4run.dylib`G4RunManager::ProcessOneEvent(this=0x00000001082676f0, i_event=0) + 69 at G4RunManager.cc:399
+        frame #8: 0x0000000102530ab5 libG4run.dylib`G4RunManager::DoEventLoop(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 101 at G4RunManager.cc:367
+        frame #9: 0x000000010252f8e4 libG4run.dylib`G4RunManager::BeamOn(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 196 at G4RunManager.cc:273
+        frame #10: 0x0000000100f140dd libcfg4.dylib`CfG4::propagate(this=0x0000000108212ec0) + 685 at CfG4.cc:163
+        frame #11: 0x000000010000cd45 cfg4Test`main(argc=21, argv=0x00007fff5fbfdd38) + 101 at cfg4Test.cc:9
+        frame #12: 0x00007fff8568c5fd libdyld.dylib`start + 1
+    (lldb) 
+
+    (lldb) f 1
+    frame #1: 0x0000000103b76e43 libG4processes.dylib`G4Transportation::AlongStepDoIt(this=0x00000001083b1cd0, track=0x00000001098cba70, stepData=0x0000000108372840) + 467 at G4Transportation.cc:561
+       558       if ( initialVelocity > 0.0 )  { deltaTime = stepLength/initialVelocity; }
+       559  
+       560       fCandidateEndGlobalTime   = startTime + deltaTime ;
+    -> 561       fParticleChange.ProposeLocalTime(  track.GetLocalTime() + deltaTime) ;
+       562    }
+       563    else
+       564    {
+    (lldb) p stepLength
+    (G4double) $7 = 200
+    (lldb) p initialVelocity
+    (G4double) $8 = 205.61897762237669
+    (lldb) p deltaTime
+    (G4double) $9 = 0.97267286469687608
+    (lldb) p startTime
+    (G4double) $10 = 1.15519673639716
+    (lldb) p track.GetLocalTime()
+    (G4double) $11 = 1.0551967349070439
+    (lldb) 
+
+
+::
+
+    In [1]: 1.055196+0.97267
+    Out[1]: 2.027866
+
+::
+
+    525 G4VParticleChange* G4Transportation::AlongStepDoIt( const G4Track& track,
+    526                                                     const G4Step&  stepData )
+    527 {
+    ...
+    542   G4double deltaTime = 0.0 ;
+    548   G4double startTime = track.GetGlobalTime() ;
+    549  
+    550   if (!fEndGlobalTimeComputed)
+    551   {
+    552      // The time was not integrated .. make the best estimate possible
+    553      //
+    554      G4double initialVelocity = stepData.GetPreStepPoint()->GetVelocity();
+    555      G4double stepLength      = track.GetStepLength();
+    556 
+    557      deltaTime= 0.0;  // in case initialVelocity = 0 
+    558      if ( initialVelocity > 0.0 )  { deltaTime = stepLength/initialVelocity; }
+    559 
+    560      fCandidateEndGlobalTime   = startTime + deltaTime ;
+    561      fParticleChange.ProposeLocalTime(  track.GetLocalTime() + deltaTime) ;
+    562   }
+    563   else
+    564   {
+    565      deltaTime = fCandidateEndGlobalTime - startTime ;
+    566      fParticleChange.ProposeGlobalTime( fCandidateEndGlobalTime ) ;
+    567   }
+    568 
+    569 
+    570   // Now Correct by Lorentz factor to get delta "proper" Time
+    571  
+    572   G4double  restMass       = track.GetDynamicParticle()->GetMass() ;
+    573   G4double deltaProperTime = deltaTime*( restMass/track.GetTotalEnergy() ) ;
+    574 
+    575   fParticleChange.ProposeProperTime(track.GetProperTime() + deltaProperTime) ;
+    576   //fParticleChange. ProposeTrueStepLength( track.GetStepLength() ) ;
+
+
+
+    (lldb) b "G4Track::SetVelocity(double)"
+    Breakpoint 7: 2 locations.
+    (lldb) c
+    Process 62039 resuming
+    Process 62039 stopped
+    * thread #1: tid = 0x2ca879, 0x0000000102710ef1 libG4tracking.dylib`G4Track::SetVelocity(this=0x00000001098cba70, val=205.61897762237669) + 17 at G4Track.icc:124, queue = 'com.apple.main-thread', stop reason = breakpoint 7.1
+        frame #0: 0x0000000102710ef1 libG4tracking.dylib`G4Track::SetVelocity(this=0x00000001098cba70, val=205.61897762237669) + 17 at G4Track.icc:124
+       121     { return fVelocity; }
+       122  
+       123     inline void  G4Track::SetVelocity(G4double val)
+    -> 124     { fVelocity = val; } 
+       125  
+       126     inline G4bool   G4Track::UseGivenVelocity() const
+       127     { return  useGivenVelocity;}
+    (lldb) p val
+    (G4double) $12 = 205.61897762237669
+
+
+    
+
+
+
+
+    (lldb) bt
+    * thread #1: tid = 0x2ca879, 0x0000000102710ef1 libG4tracking.dylib`G4Track::SetVelocity(this=0x00000001098cba70, val=205.61897762237669) + 17 at G4Track.icc:124, queue = 'com.apple.main-thread', stop reason = breakpoint 7.1
+      * frame #0: 0x0000000102710ef1 libG4tracking.dylib`G4Track::SetVelocity(this=0x00000001098cba70, val=205.61897762237669) + 17 at G4Track.icc:124
+        frame #1: 0x000000010270f4fe libG4tracking.dylib`G4Step::UpdateTrack(this=0x0000000108372840) + 462 at G4Step.icc:251
+        frame #2: 0x0000000102712f56 libG4tracking.dylib`G4SteppingManager::InvokeAlongStepDoItProcs(this=0x00000001083726b0) + 1766 at G4SteppingManager2.cc:471
+        frame #3: 0x000000010270e168 libG4tracking.dylib`G4SteppingManager::Stepping(this=0x00000001083726b0) + 504 at G4SteppingManager.cc:191
+        frame #4: 0x000000010272592d libG4tracking.dylib`G4TrackingManager::ProcessOneTrack(this=0x0000000108372670, apValueG4Track=0x00000001098cba70) + 1357 at G4TrackingManager.cc:126
+        frame #5: 0x0000000102602e44 libG4event.dylib`G4EventManager::DoProcessing(this=0x00000001083725e0, anEvent=0x0000000109151200) + 3188 at G4EventManager.cc:185
+        frame #6: 0x0000000102603b2f libG4event.dylib`G4EventManager::ProcessOneEvent(this=0x00000001083725e0, anEvent=0x0000000109151200) + 47 at G4EventManager.cc:336
+        frame #7: 0x0000000102530c75 libG4run.dylib`G4RunManager::ProcessOneEvent(this=0x00000001082676f0, i_event=0) + 69 at G4RunManager.cc:399
+        frame #8: 0x0000000102530ab5 libG4run.dylib`G4RunManager::DoEventLoop(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 101 at G4RunManager.cc:367
+        frame #9: 0x000000010252f8e4 libG4run.dylib`G4RunManager::BeamOn(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 196 at G4RunManager.cc:273
+        frame #10: 0x0000000100f140dd libcfg4.dylib`CfG4::propagate(this=0x0000000108212ec0) + 685 at CfG4.cc:163
+        frame #11: 0x000000010000cd45 cfg4Test`main(argc=21, argv=0x00007fff5fbfdd38) + 101 at cfg4Test.cc:9
+        frame #12: 0x00007fff8568c5fd libdyld.dylib`start + 1
+    (lldb) 
+    (lldb) 
+    frame #1: 0x000000010270f4fe libG4tracking.dylib`G4Step::UpdateTrack(this=0x0000000108372840) + 462 at G4Step.icc:251
+       248  
+       249  
+       250     // set velocity 
+    -> 251     fpTrack->SetVelocity(fpPostStepPoint->GetVelocity());
+       252  }
+       253  
+       254  inline  G4int G4Step::GetNumberOfSecondariesInCurrentStep() const
+    (lldb) 
+
+    (lldb) c
+    Process 62039 resuming
+    Process 62039 stopped
+    * thread #1: tid = 0x2ca879, 0x000000010571bdd1 libG4track.dylib`G4StepPoint::SetVelocity(this=0x0000000108372970, v=189.53811491619024) + 17 at G4StepPoint.icc:124, queue = 'com.apple.main-thread', stop reason = breakpoint 8.3
+        frame #0: 0x000000010571bdd1 libG4track.dylib`G4StepPoint::SetVelocity(this=0x0000000108372970, v=189.53811491619024) + 17 at G4StepPoint.icc:124
+       121  
+       122  inline
+       123   void G4StepPoint::SetVelocity(G4double v)
+    -> 124   {  fVelocity = v; }
+       125    
+       126  inline
+       127   G4double G4StepPoint::GetBeta() const
+    (lldb) p v
+    (G4double) $15 = 189.53811491619024
+
+     Huh thats very slow...  and the right order to explain the mismatch
+
+     In [8]: 1-189./205.
+     Out[8]: 0.07804878048780484
+
+     In [9]: 1-189./202.
+     Out[9]: 0.0643564356435643
+
+
+
+    (lldb) bt
+    * thread #1: tid = 0x2ca879, 0x000000010571bdd1 libG4track.dylib`G4StepPoint::SetVelocity(this=0x0000000108372970, v=189.53811491619024) + 17 at G4StepPoint.icc:124, queue = 'com.apple.main-thread', stop reason = breakpoint 8.3
+      * frame #0: 0x000000010571bdd1 libG4track.dylib`G4StepPoint::SetVelocity(this=0x0000000108372970, v=189.53811491619024) + 17 at G4StepPoint.icc:124
+        frame #1: 0x00000001057185bc libG4track.dylib`G4ParticleChange::UpdateStepForPostStep(this=0x00000001083ca298, pStep=0x0000000108372840) + 316 at G4ParticleChange.cc:377
+        frame #2: 0x00000001027132ba libG4tracking.dylib`G4SteppingManager::InvokePSDIP(this=0x00000001083726b0, np=4) + 186 at G4SteppingManager2.cc:533
+        frame #3: 0x00000001027130d8 libG4tracking.dylib`G4SteppingManager::InvokePostStepDoItProcs(this=0x00000001083726b0) + 232 at G4SteppingManager2.cc:502
+        frame #4: 0x000000010270e28e libG4tracking.dylib`G4SteppingManager::Stepping(this=0x00000001083726b0) + 798 at G4SteppingManager.cc:209
+        frame #5: 0x000000010272592d libG4tracking.dylib`G4TrackingManager::ProcessOneTrack(this=0x0000000108372670, apValueG4Track=0x00000001098cba70) + 1357 at G4TrackingManager.cc:126
+        frame #6: 0x0000000102602e44 libG4event.dylib`G4EventManager::DoProcessing(this=0x00000001083725e0, anEvent=0x0000000109151200) + 3188 at G4EventManager.cc:185
+        frame #7: 0x0000000102603b2f libG4event.dylib`G4EventManager::ProcessOneEvent(this=0x00000001083725e0, anEvent=0x0000000109151200) + 47 at G4EventManager.cc:336
+        frame #8: 0x0000000102530c75 libG4run.dylib`G4RunManager::ProcessOneEvent(this=0x00000001082676f0, i_event=0) + 69 at G4RunManager.cc:399
+        frame #9: 0x0000000102530ab5 libG4run.dylib`G4RunManager::DoEventLoop(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 101 at G4RunManager.cc:367
+        frame #10: 0x000000010252f8e4 libG4run.dylib`G4RunManager::BeamOn(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 196 at G4RunManager.cc:273
+        frame #11: 0x0000000100f140dd libcfg4.dylib`CfG4::propagate(this=0x0000000108212ec0) + 685 at CfG4.cc:163
+        frame #12: 0x000000010000cd45 cfg4Test`main(argc=21, argv=0x00007fff5fbfdd38) + 101 at cfg4Test.cc:9
+        frame #13: 0x00007fff8568c5fd libdyld.dylib`start + 1
+    (lldb) 
+
+    (lldb) f 1
+    frame #1: 0x00000001057185bc libG4track.dylib`G4ParticleChange::UpdateStepForPostStep(this=0x00000001083ca298, pStep=0x0000000108372840) + 316 at G4ParticleChange.cc:377
+       374        theVelocityChange = 0.0;
+       375      }
+       376    }
+    -> 377    pPostStepPoint->SetVelocity(theVelocityChange);
+       378   
+       379     // update polarization
+       380    pPostStepPoint->SetPolarization( thePolarizationChange );
+    (lldb) 
+
+
+
+From Optixrap::
+
+    // mm/ns
+    #define SPEED_OF_LIGHT 299.792458f
+
+
+    In [5]: 299.792458/1.48264   # MO RINDEX(380nm)  // ggv --mat 3   #(0 based)
+    Out[5]: 202.20178735229052
+
+    In [6]: 299.792458/1.458     # Py RINDEX(380nm) // ggv --mat 13   #(0 based)
+    Out[6]: 205.61896982167355
+
+
+::
+
+    (lldb) c
+    Process 62039 resuming
+    Process 62039 stopped
+    * thread #1: tid = 0x2ca879, 0x0000000102710831 libG4tracking.dylib`G4StepPoint::SetVelocity(this=0x00000001083728a0, v=189.53811491619024) + 17 at G4StepPoint.icc:124, queue = 'com.apple.main-thread', stop reason = breakpoint 8.1
+        frame #0: 0x0000000102710831 libG4tracking.dylib`G4StepPoint::SetVelocity(this=0x00000001083728a0, v=189.53811491619024) + 17 at G4StepPoint.icc:124
+       121  
+       122  inline
+       123   void G4StepPoint::SetVelocity(G4double v)
+    -> 124   {  fVelocity = v; }
+       125    
+       126  inline
+       127   G4double G4StepPoint::GetBeta() const
+    (lldb) p v
+    (G4double) $24 = 189.53811491619024
+    (lldb) bt
+    * thread #1: tid = 0x2ca879, 0x0000000102710831 libG4tracking.dylib`G4StepPoint::SetVelocity(this=0x00000001083728a0, v=189.53811491619024) + 17 at G4StepPoint.icc:124, queue = 'com.apple.main-thread', stop reason = breakpoint 8.1
+      * frame #0: 0x0000000102710831 libG4tracking.dylib`G4StepPoint::SetVelocity(this=0x00000001083728a0, v=189.53811491619024) + 17 at G4StepPoint.icc:124
+        frame #1: 0x000000010270fcd1 libG4tracking.dylib`G4Step::InitializeStep(this=0x0000000108372840, aValue=0x00000001098cb880) + 801 at G4Step.icc:219
+        frame #2: 0x000000010270eb5e libG4tracking.dylib`G4SteppingManager::SetInitialStep(this=0x00000001083726b0, valueTrack=0x00000001098cb880) + 1774 at G4SteppingManager.cc:351
+        frame #3: 0x00000001027255fa libG4tracking.dylib`G4TrackingManager::ProcessOneTrack(this=0x0000000108372670, apValueG4Track=0x00000001098cb880) + 538 at G4TrackingManager.cc:89
+        frame #4: 0x0000000102602e44 libG4event.dylib`G4EventManager::DoProcessing(this=0x00000001083725e0, anEvent=0x0000000109151200) + 3188 at G4EventManager.cc:185
+        frame #5: 0x0000000102603b2f libG4event.dylib`G4EventManager::ProcessOneEvent(this=0x00000001083725e0, anEvent=0x0000000109151200) + 47 at G4EventManager.cc:336
+        frame #6: 0x0000000102530c75 libG4run.dylib`G4RunManager::ProcessOneEvent(this=0x00000001082676f0, i_event=0) + 69 at G4RunManager.cc:399
+        frame #7: 0x0000000102530ab5 libG4run.dylib`G4RunManager::DoEventLoop(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 101 at G4RunManager.cc:367
+        frame #8: 0x000000010252f8e4 libG4run.dylib`G4RunManager::BeamOn(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 196 at G4RunManager.cc:273
+        frame #9: 0x0000000100f140dd libcfg4.dylib`CfG4::propagate(this=0x0000000108212ec0) + 685 at CfG4.cc:163
+        frame #10: 0x000000010000cd45 cfg4Test`main(argc=21, argv=0x00007fff5fbfdd38) + 101 at cfg4Test.cc:9
+        frame #11: 0x00007fff8568c5fd libdyld.dylib`start + 1
+    (lldb) f 1
+    frame #1: 0x000000010270fcd1 libG4tracking.dylib`G4Step::InitializeStep(this=0x0000000108372840, aValue=0x00000001098cb880) + 801 at G4Step.icc:219
+       216  
+       217     // Set Velocity
+       218     //  should be placed after SetMaterial for preStep point 
+    -> 219      fpPreStepPoint->SetVelocity(fpTrack->CalculateVelocity());
+       220    
+       221     (*fpPostStepPoint) = (*fpPreStepPoint);
+       222   }
+    (lldb) 
+
+
+::
+
+    (lldb) b "G4Track::CalculateVelocity
+    Available completions:
+        G4Track::CalculateVelocity() const
+        G4Track::CalculateVelocityForOpticalPhoton() const
+    (lldb) b "G4Track::CalculateVelocityForOpticalPhoton() const"
+    Breakpoint 10: where = libG4track.dylib`G4Track::CalculateVelocityForOpticalPhoton() const + 24 at G4Track.cc:259, address = 0x0000000105728188
+    (lldb) b "G4Track::CalculateVelocity() const"
+    Breakpoint 11: where = libG4track.dylib`G4Track::CalculateVelocity() const + 16 at G4Track.cc:225, address = 0x00000001057272f0
+    (lldb) 
+
+::
+
+    (lldb) c
+    Process 62039 resuming
+    Process 62039 stopped
+    * thread #1: tid = 0x2ca879, 0x0000000102a2cc31 libG4processes.dylib`G4ParticleChange::ProposeVelocity(this=0x00000001083ca298, finalVelocity=189.53811491619024) + 17 at G4ParticleChange.icc:57, queue = 'com.apple.main-thread', stop reason = breakpoint 9.1
+        frame #0: 0x0000000102a2cc31 libG4processes.dylib`G4ParticleChange::ProposeVelocity(this=0x00000001083ca298, finalVelocity=189.53811491619024) + 17 at G4ParticleChange.icc:57
+       54   inline
+       55     void G4ParticleChange::ProposeVelocity(G4double finalVelocity)
+       56   {
+    -> 57      theVelocityChange = finalVelocity;
+       58      isVelocityChanged = true;
+       59   }
+       60   
+    (lldb) p finalVelocity
+    (G4double) $29 = 189.53811491619024
+    (lldb) bt
+    * thread #1: tid = 0x2ca879, 0x0000000102a2cc31 libG4processes.dylib`G4ParticleChange::ProposeVelocity(this=0x00000001083ca298, finalVelocity=189.53811491619024) + 17 at G4ParticleChange.icc:57, queue = 'com.apple.main-thread', stop reason = breakpoint 9.1
+      * frame #0: 0x0000000102a2cc31 libG4processes.dylib`G4ParticleChange::ProposeVelocity(this=0x00000001083ca298, finalVelocity=189.53811491619024) + 17 at G4ParticleChange.icc:57
+        frame #1: 0x0000000103b2dfcc libG4processes.dylib`G4OpBoundaryProcess::PostStepDoIt(this=0x00000001083ca280, aTrack=0x00000001098cb880, aStep=0x0000000108372840) + 140 at G4OpBoundaryProcess.cc:171
+        frame #2: 0x000000010271327b libG4tracking.dylib`G4SteppingManager::InvokePSDIP(this=0x00000001083726b0, np=4) + 123 at G4SteppingManager2.cc:530
+        frame #3: 0x00000001027130d8 libG4tracking.dylib`G4SteppingManager::InvokePostStepDoItProcs(this=0x00000001083726b0) + 232 at G4SteppingManager2.cc:502
+        frame #4: 0x000000010270e28e libG4tracking.dylib`G4SteppingManager::Stepping(this=0x00000001083726b0) + 798 at G4SteppingManager.cc:209
+        frame #5: 0x000000010272592d libG4tracking.dylib`G4TrackingManager::ProcessOneTrack(this=0x0000000108372670, apValueG4Track=0x00000001098cb880) + 1357 at G4TrackingManager.cc:126
+        frame #6: 0x0000000102602e44 libG4event.dylib`G4EventManager::DoProcessing(this=0x00000001083725e0, anEvent=0x0000000109151200) + 3188 at G4EventManager.cc:185
+        frame #7: 0x0000000102603b2f libG4event.dylib`G4EventManager::ProcessOneEvent(this=0x00000001083725e0, anEvent=0x0000000109151200) + 47 at G4EventManager.cc:336
+        frame #8: 0x0000000102530c75 libG4run.dylib`G4RunManager::ProcessOneEvent(this=0x00000001082676f0, i_event=0) + 69 at G4RunManager.cc:399
+        frame #9: 0x0000000102530ab5 libG4run.dylib`G4RunManager::DoEventLoop(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 101 at G4RunManager.cc:367
+        frame #10: 0x000000010252f8e4 libG4run.dylib`G4RunManager::BeamOn(this=0x00000001082676f0, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 196 at G4RunManager.cc:273
+        frame #11: 0x0000000100f140dd libcfg4.dylib`CfG4::propagate(this=0x0000000108212ec0) + 685 at CfG4.cc:163
+        frame #12: 0x000000010000cd45 cfg4Test`main(argc=21, argv=0x00007fff5fbfdd38) + 101 at cfg4Test.cc:9
+        frame #13: 0x00007fff8568c5fd libdyld.dylib`start + 1
+    (lldb) 
+
+
+    (lldb) c
+    Process 62039 resuming
+    Process 62039 stopped
+    * thread #1: tid = 0x2ca879, 0x0000000105727321 libG4track.dylib`G4Track::CalculateVelocity(this=0x00000001098cb770) const + 65 at G4Track.cc:229, queue = 'com.apple.main-thread', stop reason = breakpoint 13.1
+        frame #0: 0x0000000105727321 libG4track.dylib`G4Track::CalculateVelocity(this=0x00000001098cb770) const + 65 at G4Track.cc:229
+       226  
+       227    G4double velocity = c_light ;
+       228    
+    -> 229    G4double mass = fpDynamicParticle->GetMass();
+       230  
+       231    // special case for photons
+       232    if ( is_OpticalPhoton ) return CalculateVelocityForOpticalPhoton();
+    (lldb) p velocity
+    (G4double) $39 = 299.79245800000001
+    (lldb) 
+
+
+
+
+    (lldb) c
+    Process 62039 resuming
+    Process 62039 stopped
+    * thread #1: tid = 0x2ca879, 0x00000001057282b6 libG4track.dylib`G4Track::CalculateVelocityForOpticalPhoton(this=0x00000001098cb770) const + 326 at G4Track.cc:281, queue = 'com.apple.main-thread', stop reason = breakpoint 15.1
+        frame #0: 0x00000001057282b6 libG4track.dylib`G4Track::CalculateVelocityForOpticalPhoton(this=0x00000001098cb770) const + 326 at G4Track.cc:281
+       278    }
+       279    prev_mat = mat;
+       280    
+    -> 281    if  (groupvel != 0 ) {
+       282      // light velocity = c/(rindex+d(rindex)/d(log(E_phot)))
+       283      // values stored in GROUPVEL material properties vector
+       284      velocity =  prev_velocity;
+    (lldb) p groupvel
+    (G4MaterialPropertyVector *) $45 = 0x0000000109900000
+    (lldb) p *groupvel
+    (G4MaterialPropertyVector) $46 = {
+      G4PhysicsVector = {
+        type = T_G4PhysicsOrderedFreeVector
+        edgeMin = 0.0000015120022870975581
+        edgeMax = 0.000020664031256999959
+        numberOfNodes = 39
+        dataVector = size=39 {
+          [0] = 205.84485747217411
+          [1] = 205.84485747217411
+          [2] = 204.10812440289433
+          [3] = 204.10037473605965
+          [4] = 204.09974782245047
+          [5] = 204.09975045699542
+          [6] = 204.09975323998844
+          [7] = 202.92166404329791
+          [8] = 201.93672443399282
+          [9] = 201.93673242076844
+          [10] = 201.93674091474074
+          [11] = 201.93674996581169
+          [12] = 201.21267211183462
+          [13] = 200.36385790387294
+          [14] = 200.28479911876505
+          [15] = 200.10626742977158
+          [16] = 200.10628775075023
+          [17] = 199.46795765489946
+
+
+Where did GROUPVEL come from ?::
+
+    simon:source blyth$ find . -name '*.cc' -exec grep -H GROUPVEL {} \;
+    ./materials/src/G4MaterialPropertiesTable.cc:// Updated:     2005-05-12 add SetGROUPVEL(), courtesy of
+    ./materials/src/G4MaterialPropertiesTable.cc:G4MaterialPropertyVector* G4MaterialPropertiesTable::SetGROUPVEL()
+    ./materials/src/G4MaterialPropertiesTable.cc:  // check if "GROUPVEL" already exists
+    ./materials/src/G4MaterialPropertiesTable.cc:  itr = MPT.find("GROUPVEL");
+    ./materials/src/G4MaterialPropertiesTable.cc:  // add GROUPVEL vector
+    ./materials/src/G4MaterialPropertiesTable.cc:  // fill GROUPVEL vector using RINDEX values
+    ./materials/src/G4MaterialPropertiesTable.cc:    G4Exception("G4MaterialPropertiesTable::SetGROUPVEL()", "mat205",
+    ./materials/src/G4MaterialPropertiesTable.cc:      G4Exception("G4MaterialPropertiesTable::SetGROUPVEL()", "mat205",
+    ./materials/src/G4MaterialPropertiesTable.cc:        G4Exception("G4MaterialPropertiesTable::SetGROUPVEL()", "mat205",
+    ./materials/src/G4MaterialPropertiesTable.cc:  this->AddProperty( "GROUPVEL", groupvel );
+    ./processes/optical/src/G4OpBoundaryProcess.cc:           Material2->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
+    ./track/src/G4Track.cc:    //  and get new GROUPVELOCITY table if necessary 
+    ./track/src/G4Track.cc:      groupvel = mat->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
+    ./track/src/G4Track.cc:    // values stored in GROUPVEL material properties vector
+    simon:source blyth$ 
+    simon:source blyth$ 
+
+
+     materials/src/G4MaterialPropertiesTable.cc
+
+     38 // Updated:     2005-05-12 add SetGROUPVEL(), courtesy of
+     39 //              Horton-Smith (bug report #741), by P. Gumplinger
+
+     G4MaterialPropertyVector* G4MaterialPropertiesTable::SetGROUPVEL()  
+
+
+Huh does proper timing for photons require GROUPVEL ? Looks like this is auto added by G4MaterialPropertiesTable::SetGROUPVEL()::
+
+     G4OpBoundaryStatus.cc
+
+     533         if ( theStatus == FresnelRefraction || theStatus == Transmission ) {
+     534            G4MaterialPropertyVector* groupvel =
+     535            Material2->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
+     536            G4double finalVelocity = groupvel->Value(thePhotonMomentum);
+     537            aParticleChange.ProposeVelocity(finalVelocity);
+     538         }
+
+::
+
+    [2016-Mar-04 16:09:06.882047]:info: CfG4::propagate num_g4event 1 num_photons 1 steps_per_photon 10 bounce_max 9
+    Process 76399 stopped
+    * thread #1: tid = 0x2d1e62, 0x0000000105e2c498 libG4materials.dylib`G4MaterialPropertiesTable::SetGROUPVEL(this=0x000000010858df10) + 56 at G4MaterialPropertiesTable.cc:127, queue = 'com.apple.main-thread', stop reason = breakpoint 16.1
+        frame #0: 0x0000000105e2c498 libG4materials.dylib`G4MaterialPropertiesTable::SetGROUPVEL(this=0x000000010858df10) + 56 at G4MaterialPropertiesTable.cc:127
+       124  
+       125    // check if "GROUPVEL" already exists
+       126    MPTiterator itr;
+    -> 127    itr = MPT.find("GROUPVEL");
+       128    if(itr != MPT.end()) return itr->second;
+       129  
+       130    // fetch RINDEX data, give up if unavailable
+    (lldb) bt
+    * thread #1: tid = 0x2d1e62, 0x0000000105e2c498 libG4materials.dylib`G4MaterialPropertiesTable::SetGROUPVEL(this=0x000000010858df10) + 56 at G4MaterialPropertiesTable.cc:127, queue = 'com.apple.main-thread', stop reason = breakpoint 16.1
+      * frame #0: 0x0000000105e2c498 libG4materials.dylib`G4MaterialPropertiesTable::SetGROUPVEL(this=0x000000010858df10) + 56 at G4MaterialPropertiesTable.cc:127
+        frame #1: 0x000000010572943c libG4track.dylib`G4MaterialPropertiesTable::GetProperty(this=0x000000010858df10, key=0x000000010573818a) + 876 at G4MaterialPropertiesTable.icc:123
+        frame #2: 0x0000000105728298 libG4track.dylib`G4Track::CalculateVelocityForOpticalPhoton(this=0x000000010b31abc0) const + 296 at G4Track.cc:276
+        frame #3: 0x000000010572734d libG4track.dylib`G4Track::CalculateVelocity(this=0x000000010b31abc0) const + 109 at G4Track.cc:232
+        frame #4: 0x000000010270fcc5 libG4tracking.dylib`G4Step::InitializeStep(this=0x0000000108556d10, aValue=0x000000010b31abc0) + 789 at G4Step.icc:219
+        frame #5: 0x000000010270eb5e libG4tracking.dylib`G4SteppingManager::SetInitialStep(this=0x0000000108556b80, valueTrack=0x000000010b31abc0) + 1774 at G4SteppingManager.cc:351
+        frame #6: 0x00000001027255fa libG4tracking.dylib`G4TrackingManager::ProcessOneTrack(this=0x0000000108556b40, apValueG4Track=0x000000010b31abc0) + 538 at G4TrackingManager.cc:89
+        frame #7: 0x0000000102602e44 libG4event.dylib`G4EventManager::DoProcessing(this=0x0000000108556ab0, anEvent=0x000000010a39c4a0) + 3188 at G4EventManager.cc:185
+        frame #8: 0x0000000102603b2f libG4event.dylib`G4EventManager::ProcessOneEvent(this=0x0000000108556ab0, anEvent=0x000000010a39c4a0) + 47 at G4EventManager.cc:336
+        frame #9: 0x0000000102530c75 libG4run.dylib`G4RunManager::ProcessOneEvent(this=0x000000010844bb80, i_event=0) + 69 at G4RunManager.cc:399
+        frame #10: 0x0000000102530ab5 libG4run.dylib`G4RunManager::DoEventLoop(this=0x000000010844bb80, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 101 at G4RunManager.cc:367
+        frame #11: 0x000000010252f8e4 libG4run.dylib`G4RunManager::BeamOn(this=0x000000010844bb80, n_event=1, macroFile=0x0000000000000000, n_select=-1) + 196 at G4RunManager.cc:273
+        frame #12: 0x0000000100f140dd libcfg4.dylib`CfG4::propagate(this=0x0000000108212ec0) + 685 at CfG4.cc:163
+        frame #13: 0x000000010000cd45 cfg4Test`main(argc=21, argv=0x00007fff5fbfdd38) + 101 at cfg4Test.cc:9
+        frame #14: 0x00007fff8568c5fd libdyld.dylib`start + 1
+    (lldb) 
+
+
+    key GROUPVEL is special cased
+
+    (lldb) f 1
+    frame #1: 0x000000010572943c libG4track.dylib`G4MaterialPropertiesTable::GetProperty(this=0x000000010858df10, key=0x000000010573818a) + 876 at G4MaterialPropertiesTable.icc:123
+       120    MPTiterator i;
+       121    i = MPT.find(G4String(key));
+       122    if ( i != MPT.end() ) return i->second;
+    -> 123    if (G4String(key) == "GROUPVEL") return SetGROUPVEL();
+       124    return NULL;
+       125  }
+
+    (lldb) f 2
+    frame #2: 0x0000000105728298 libG4track.dylib`G4Track::CalculateVelocityForOpticalPhoton(this=0x000000010b31abc0) const + 296 at G4Track.cc:276
+       273    if ((mat != 0) && ((mat != prev_mat)||(groupvel==0))) {
+       274      groupvel = 0;
+       275      if(mat->GetMaterialPropertiesTable() != 0)
+    -> 276        groupvel = mat->GetMaterialPropertiesTable()->GetProperty("GROUPVEL");
+       277      update_groupvel = true;
+       278    }
+       279    prev_mat = mat;
+    (lldb) 
+
+    https://en.wikipedia.org/wiki/Group_velocity
+
 
 
 EOU
