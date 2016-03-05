@@ -69,6 +69,14 @@ def configure(argv=None):
     # --- WRL + GDML + DAE geometry export ---------------------------------
     from GaussTools.GaussToolsConf import GiGaRunActionExport, GiGaRunActionCommand, GiGaRunActionSequence
     export = GiGaRunActionExport("GiGa.GiGaRunActionExport")
+
+    giga.RunAction = export
+    giga.VisManager = "GiGaVisManager/GiGaVis"
+
+    import DetSim 
+    DetSim.Configure(physlist=DetSim.physics_list_basic,site=site)
+
+
     
     #   NOT WORKING :  RunSeq fails to do the vis : only the GDML+DAE gets exported
     #   so do at C++ level 
@@ -87,12 +95,6 @@ def configure(argv=None):
     #giga.RunSeq.Members += ["GiGaRunActionGDML"]
     #giga.RunAction = "GiGaRunActionSequence/RunSeq"     
     # why so many ways to address things ? Duplication is evil  
-
-    giga.RunAction = export
-    giga.VisManager = "GiGaVisManager/GiGaVis"
-
-    import DetSim 
-    DetSim.Configure(physlist=DetSim.physics_list_basic,site=site)
 
     #from Gaudi.Configuration import ApplicationMgr
     #app = ApplicationMgr()

@@ -17,6 +17,65 @@ From script usage::
    GDB=1 export.sh VGDX Far
 
 
+Relation of export-name to GCache idp dir 
+-------------------------------------------
+
+GCache dir is beneath the export-name dir as it represents, via the digest 
+in the name, the geometry volume selection used to create the cache. 
+
+::
+
+    delta:cu blyth$ export-;export-name dyb
+    /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae
+    delta:cu blyth$ idp
+    delta:g4_00.96ff965744a2f6b78c24e33c80d3a4cd.dae blyth$ 
+    delta:g4_00.96ff965744a2f6b78c24e33c80d3a4cd.dae blyth$ pwd
+    /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.96ff965744a2f6b78c24e33c80d3a4cd.dae
+
+
+How the export works
+---------------------
+
+Critical part of nuwa.py module export_all.py hooks up the export G4 RunAction::
+
+     69     # --- WRL + GDML + DAE geometry export ---------------------------------
+     70     from GaussTools.GaussToolsConf import GiGaRunActionExport, GiGaRunActionCommand, GiGaRunActionSequence
+     71     export = GiGaRunActionExport("GiGa.GiGaRunActionExport")
+     72     
+     73     giga.RunAction = export
+     74     giga.VisManager = "GiGaVisManager/GiGaVis"
+     75     
+     76     import DetSim 
+     77     DetSim.Configure(physlist=DetSim.physics_list_basic,site=site)
+
+::
+
+    delta:env blyth$ find . -name 'GiGaRunActionExport.*'
+    ./geant4/geometry/GaussTools/src/Components/GiGaRunActionExport.cpp
+    ./geant4/geometry/GaussTools/src/Components/GiGaRunActionExport.h
+
+::
+
+    530 void GiGaRunActionExport::WriteDAE(G4VPhysicalVolume* wpv, const G4String& path, G4bool recreatePoly  )
+    531 {
+    532 #ifdef EXPORT_G4DAE
+    533    if(path.length() == 0 || wpv == 0){
+    534        std::cout << "GiGaRunActionExport::WriteDAE invalid path OR NULL PV  " << path << std::endl ;
+    535        return ;
+    536    }
+    537    std::cout << "GiGaRunActionExport::WriteDAE to " << path << " recreatePoly " << recreatePoly << std::endl ;
+    538    G4DAEParser parser ;
+    539    G4bool refs = true ;
+    540    G4int nodeIndex = -1 ;   // so World is volume 0 
+    541    parser.Write(path, wpv, refs, recreatePoly, nodeIndex );
+    542 #else
+    543    std::cout << "GiGaRunActionExport::WriteDAE BUT this installation  not compiled with -DEXPORT_G4DAE " << std::endl ;
+    544 #endif
+    545 }
+
+
+
+
 Explore Id Mapping export
 --------------------------
 
