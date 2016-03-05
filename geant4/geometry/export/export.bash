@@ -261,6 +261,7 @@ export-base(){
   case $1 in 
        dyb) echo $base/DayaBay_VGDX_20140414-1300/g4_00 ;;
        dybf) echo $base/DayaBay_VGDX_20140414-1300/g4_00 ;;
+       dpib) echo $base/dpib/cfg4 ;; 
        far) echo $base/Far_VGDX_20140414-1256/g4_00 ;;
     lingao) echo $base/Lingao_VGDX_20140414-1247/g4_00 ;;
        lxe) echo $base/LXe/g4_00 ;;
@@ -288,6 +289,7 @@ export-geometry(){
        jpmt) echo 1:25000  ;;
        jtst) echo 1:25000  ;;
         lxe) echo 1:   ;;
+       dpib) echo 1:   ;;
   esac
 }
 
@@ -295,6 +297,8 @@ export-geometry(){
 export-export(){
    export DAE_NAME=$(export-name dyb)
    export DAE_NAME_DYB=$(export-name dyb)
+   export DAE_NAME_DPIB=$(export-name dpib)
+
    export DAE_NAME_DYB_GDML=$(EXPORT_EXT=gdml export-name dyb)
    export DAE_NAME_DYB_GDML_FAKESD="/dd/Geometry/PMT/lvPmtHemiCathode;/dd/Geometry/PMT/lvHeadonPmtCathode"
 
@@ -318,6 +322,7 @@ export-export(){
 
    export DAE_GEOMETRY_DYB=$(export-geometry dyb)
    export DAE_GEOMETRY_DYBF=$(export-geometry dybf)
+   export DAE_GEOMETRY_DPIB=$(export-geometry dpib)
    export DAE_GEOMETRY_JUNO=$(export-geometry juno)
    export DAE_GEOMETRY_JPMT=$(export-geometry jpmt)
    export DAE_GEOMETRY_JTST=$(export-geometry jtst)
