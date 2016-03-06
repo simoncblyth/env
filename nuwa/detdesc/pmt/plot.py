@@ -143,7 +143,14 @@ class Pmt(object):
         :return Sphere:
         """
         part = self.data[p]
-        return Sphere( part[0][:3], part[0][3])
+        sp = Sphere( part[0][:3], part[0][3])
+
+        log.info("p %2d sp %s " % (p, repr(sp)))
+      
+        #if p == 10:
+        #    sp.center = np.array([ 0.,  0.,  -69.], dtype=np.float32)
+
+        return sp
 
     def ztubs(self, p):
         """

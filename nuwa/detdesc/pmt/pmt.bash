@@ -20,10 +20,6 @@ dd.py
 
 
 
-
-
-
-
 Usage
 ------
 
@@ -52,9 +48,6 @@ High Level CSG Persisting for G4 geometry
   * primitives and operations
 
 * tree of nodes  
-
-
-
 
 
 PMT Modelling
