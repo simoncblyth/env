@@ -436,11 +436,22 @@ hg-forest-get(){
 
 
 hg-month(){
-   local arg=${1:-6}
+   # negate the month argument for prior years month 
+
+   local arg=${1:-12}
    local year=$(date +"%Y") 
+
+   [ "${arg:0:1}" == "-" ] && arg=${arg:1} && year=$(( $year - 1))
+
    local beg=$(printf "%0.2u" $arg)
    local end=$(printf "%0.2u" $(( $arg + 1)))
-   local cmd="hg shortlog --date \"$year-$beg-01 to $year-$end-01\" | tail -r"
+
+   local byear=$year
+   local eyear=$year
+
+   [ "${end}" == "13" ] && end="01" && eyear=$(( $byear + 1  ))
+
+   local cmd="hg shortlog --date \"$byear-$beg-01 to $eyear-$end-01\" | tail -r"
    echo $cmd
    eval $cmd
 }
