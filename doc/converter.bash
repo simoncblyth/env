@@ -235,8 +235,12 @@ converter-get(){
     local cmd="$SUDO ${PIP:-pip} install -e git+$(converter-url)#egg=converter"
     echo $msg $cmd
     eval $cmd 
-   
 }
+
+converter-clone(){
+    echo -n
+}
+
 
 converter-rdir(){ echo converter ; }
 
