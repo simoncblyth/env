@@ -4,14 +4,60 @@
 * http://bitbucket.org/simoncblyth
 * https://bitbucket.org/simoncblyth/env/commits/all
 
-presentations
--------------
 
-* http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016)
-* http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
-* http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulation.html (January 2015)
-* http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html (Sept 2014)
-* http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html
+Opticks Presentations 
+----------------------
+
+Early 2016
+~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016, JUNO Meeting, Xiamen)
+
+    Opticks : GPU Optical Photon Simulation
+
+http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_psroc.html (Jan 2016, PSROC Meeting, Kaoshiung)
+
+    Opticks : GPU Optical Photon Simulation 
+
+    Same ground as Xiamen talk, but aiming at more diverse audience
+
+
+Mid 2015
+~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015, JUNO Meeting, Beijing)
+
+    Optical Photon Simulation with NVIDIA OptiX
+
+    Why not Chroma ? Intro to OptiX. Developments needed to adopt it.
+
+
+Early 2015
+~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html  (Jan 2015, JUNO Meeting, Guangzhou)
+
+    200x Faster Optical Photon Propagation with NuWa + Chroma ? 
+
+    Getting Chroma operational with Dayabay Geometry, Runtime bridge development
+
+
+http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulation.html (Jan 2015, DYB Meeting, Hong Kong)
+
+    GPU Accelerated Geant4 Simulation with G4DAE and Chroma
+
+    Similar to Guangzhou talk, covers GPU generation of DYB Cerenkov and Scintillation photons
+
+
+Late 2014
+~~~~~~~~~~
+
+http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html (Sept 2014, Geant4 Meeting, Okinawa)
+
+   G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
+     
+
+
 
 reports
 --------
