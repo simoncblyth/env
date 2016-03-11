@@ -31,6 +31,18 @@ Publishing to remote:
 #. push the statics to remote 
 
 
+Incorporating retina screencaptures
+-------------------------------------
+
+::
+
+    simon:presentation blyth$ cd ~/simoncblyth.bitbucket.org/
+    simon:simoncblyth.bitbucket.org blyth$ downsize.py env/graphics/ggeoview/PmtInBox-approach.png
+    INFO:env.doc.downsize:Resize 2  
+    INFO:env.doc.downsize:downsize env/graphics/ggeoview/PmtInBox-approach.png to create env/graphics/ggeoview/PmtInBox-approach_half.png 2138px_1538px -> 1069px_769px 
+    simon:simoncblyth.bitbucket.org blyth$ 
+
+
 
 s5 rst underpinning
 --------------------
@@ -74,7 +86,9 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo optical_photon_simulation_with_nvidia_optix ; }
 #presentation-name(){ echo optical_photon_simulation_progress ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation ; }
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_psroc ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_psroc ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_march2016 ; }
+
 
 presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
 presentation-export(){
