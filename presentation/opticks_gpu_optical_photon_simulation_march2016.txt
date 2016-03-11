@@ -107,8 +107,12 @@
     NVIDIA OptiX In Action
     /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
 
-    PmtInBox test geometry
-    /env/graphics/ggeoview/PmtInBox-approach_half.png 1069px_769px 
+    PmtInBox approach
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox after
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
 
 
  
@@ -180,15 +184,16 @@ Opticks : GPU Optical Photon Simulation
 
 
 
-:i:`PmtInBox test geometry`
+:i:`PmtInBox approach`
 ---------------------------------
 
 .. sidebar:: PmtInBox test geometry 
 
     .. class:: small
     
-         0.5M photons incident on PMT in box of MineralOil,
-         colors represent the polarization direction (adhoc).
+         0.5M photons from disc source incident on Dayabay PMT in MineralOil, 
+         box inner surface perfect absorber.
+         Colors represent the polarization direction (adhoc).
 
          Composited image:
 
@@ -197,6 +202,193 @@ Opticks : GPU Optical Photon Simulation
            OpenGL/OptiX buffer
 
          Composited using Z-depth calulated for each raytrace pixel. 
+
+
+:i:`PmtInBox after`
+---------------------------------
+
+.. sidebar:: PmtInBox at 1.8ns 
+
+    .. class:: small
+    
+         GGeoView provides interactive photon selection 
+         by history or material flag sequences, such as:
+
+         TO BT SA         
+              surface absorbed without detection  
+
+         TO BT SD         
+              surface detected on photocathode
+
+         TO BT BT SA       
+              edge Pyrex crossers (outer ring) 
+
+         TO AB             
+              bulk absorbed 
+
+         TO BR SA          
+              reflected from Pyrex   
+
+         TO BT BR BR BT SA 
+              double Pyrex reflections (inner ring)
+
+
+         TO/AB/BT/BR
+               torch/bulk absorb/boundary transmit/reflect
+
+         Geant4 (CfG4) propagated events can be visualized by loading
+         into GGeoView.
+
+
+
+
+:small:`PmtInBox Opticks/Geant4 Photon Step Sequence Comparison`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   Good agreement reached, after several bug fixes: geometry, TIR, GROUPVEL, ...
+
+   * nearly identical geometries (no triangulation error)  
+
+
+.. raw:: html
+
+    <pre class="mypre">
+         64-bit uint  Opticks   Geant4   chi2    (tag:4,-4)
+
+                 8cd   340271   340273   0.00  [3 ] TO BT SA
+                 7cd   107598   107251   0.56  [3 ] TO BT SD
+                8ccd    23217    23260   0.04  [4 ] TO BT BT SA
+                  4d    18866    19048   0.87  [2 ] TO AB
+                 86d     3179     3133   0.34  [3 ] TO SC SA
+                 4cd     2204     2249   0.45  [3 ] TO BT AB
+                4ccd     1696     1732   0.38  [4 ] TO BT BT AB
+                 8bd     1446     1455   0.03  [3 ] TO BR SA
+                8c6d      382      424   2.19  [4 ] TO SC BT SA
+               86ccd      260      260   0.00  [5 ] TO BT BT SC SA
+                 46d      197      215   0.79  [3 ] TO SC AB
+              8cbbcd      190      213   1.31  [6 ] TO BT BR BR BT SA
+                 4bd      132      125   0.19  [3 ] TO BR AB
+                7c6d      111      132   1.81  [4 ] TO SC BT SD
+                866d       35       38   0.12  [4 ] TO SC SC SA
+               8cc6d       31       29   0.07  [5 ] TO SC BT BT SA
+               ...
+                       500000   500000   0.89 
+    </pre>
+
+
+:small:`PmtInBox Opticks/Geant4 step comparison TO BT [SD] : position, time`
+------------------------------------------------------------------------------
+
+.. class:: small
+
+    Photon step xyzt distributions at detection: ``[SD]`` 
+
+.. image:: /env/numerics/npy/PmtInBox_TOBTSD_xyzt.png 
+   :width: 900px
+   :align: center
+
+
+
+:small:`PmtInBox Opticks/Geant4 step comparison TO BT [SD] : polarization, radius`
+-------------------------------------------------------------------------------------
+
+.. class:: small
+
+    Photon step polarization abc, radius r distributions at detection: ``[SD]`` 
+
+.. image:: /env/numerics/npy/PmtInBox_TOBTSD_abcr.png
+   :width: 900px
+   :align: center
+
+
+
+:small:`PmtInBox Opticks/Geant4 step distribution comparisons`
+---------------------------------------------------------------------------------------
+
+
+.. sidebar:: Chi2/ndf comparison 
+
+    .. class:: small
+
+        Chi2/ndf of 200 step distribution comparisons.
+
+        * XYZT position, time
+        * R radius (from XY)
+        * ABC polarization direction
+
+        * no large discrepancies
+        * too good agreement, in single/few bin cases  
+
+
+.. class:: tiny
+
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+    4/PmtInBox/torch :             X     Y     Z     T     A     B     C     R     
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+    340271/340273  :  [TO] BT SA    1.15  1.00  0.00  0.00  1.06  1.03  0.00  1.21 
+    340271/340273  :  TO [BT] SA    1.15  1.00  1.06  0.91  1.06  1.03  0.00  1.21 
+    340271/340273  :  TO BT [SA]    0.97  1.02  1.05  0.99  1.06  1.03  0.00  1.29 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    107598/107251  :  [TO] BT SD    0.91  0.73  0.56  0.56  0.98  1.09  0.56  0.94 
+    107598/107251  :  TO [BT] SD    0.91  0.73  0.81  0.93  0.98  1.09  0.56  0.94 
+    107598/107251  :  TO BT [SD]    0.99  0.83  0.97  0.99  0.98  1.09  0.56  0.93 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    23217/23260  :  [TO] BT BT SA   0.94  0.82  0.04  0.04  0.97  0.89  0.04  0.57 
+    23217/23260  :  TO [BT] BT SA   0.94  0.82  0.70  0.50  0.97  0.89  0.04  0.57 
+    23217/23260  :  TO BT [BT] SA   0.91  0.94  0.43  0.60  0.97  0.89  0.04  0.05 
+    23217/23260  :  TO BT BT [SA]   0.94  0.88  0.04  0.35  0.97  0.89  0.04  0.72 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    18866/19048  :  [TO] AB         0.99  1.10  0.87  0.87  0.85  0.84  0.87  1.00 
+    18866/19048  :  TO [AB]         0.99  1.10  0.93  0.92  0.85  0.84  0.87  1.00 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    3179/3133  :  [TO] SC SA        1.07  0.83  0.34  0.34  0.86  0.96  0.34  0.73 
+    3179/3133  :  TO [SC] SA        1.07  0.83  0.98  1.05  0.98  1.06  0.98  0.73 
+    3179/3133  :  TO SC [SA]        0.96  1.04  0.93  0.97  0.98  1.06  0.98  1.10 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    2204/2249  :  [TO] BT AB        0.85  1.04  0.45  0.45  0.99  0.92  0.45  1.06 
+    2204/2249  :  TO [BT] AB        0.85  1.04  0.95  0.88  0.99  0.92  0.45  1.06 
+    2204/2249  :  TO BT [AB]        0.98  0.94  1.01  1.00  0.99  0.92  0.45  0.90 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    1696/1732  :  [TO] BT BT AB     1.05  0.85  0.38  0.38  0.86  1.09  0.38  0.26 
+    1696/1732  :  TO [BT] BT AB     1.05  0.85  1.48  1.28  0.86  1.09  0.38  0.26 
+    1696/1732  :  TO BT [BT] AB     0.99  0.86  1.17  1.40  0.86  1.09  0.38  0.86 
+    1696/1732  :  TO BT BT [AB]     1.15  0.88  1.08  1.06  0.86  1.09  0.38  0.79 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    1446/1455  :  [TO] BR SA        1.21  0.94  0.03  0.03  0.90  0.87  0.03  1.09 
+    1446/1455  :  TO [BR] SA        1.21  0.94  1.02  1.01  0.90  0.87  0.03  1.09 
+    1446/1455  :  TO BR [SA]        1.00  0.93  0.97  0.99  0.90  0.87  0.03  1.04 
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+
+
+
+:small:`PmtInBox issues : GROUPVEL`
+--------------------------------------
+
+.. class:: small
+
+   .. image:: /env/numerics/npy/PmtInBox_TOBTSD_groupvel_off.png
+      :width: 400px
+      :align: right 
+
+   Opticks times (c/n) low, until G4 ``GROUPVEL`` controlled, 
+
+   .. image:: /env/numerics/npy/group_velocity_dispersion.png
+      :width: 400px
+      :align: left 
+
+   (wavelengths in vacuum, not the medium) 
+
+
+.. class:: tiny
+
+   https://en.wikipedia.org/wiki/Dispersion_(optics)
+
+   G4MaterialPropertiesTable::SetGROUPVEL
+
+   G4Track::CalculateVelocityForOpticalPhoton
+
 
 
 
@@ -672,6 +864,8 @@ Opticks : GPU Optical Photon Simulation
             86bd      138       142    0.06  [4 ] TO BR SC SA
             4ccd      100       117    1.33  [4 ] TO BT BT AB
     </pre>
+
+
 
 
 
