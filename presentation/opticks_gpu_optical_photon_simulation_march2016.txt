@@ -107,10 +107,16 @@
     NVIDIA OptiX In Action
     /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
 
-    PmtInBox approach
+    PmtInBox approach 1
     /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
 
-    PmtInBox after
+    PmtInBox approach 2
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox after 1
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    PmtInBox after 2
     /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
 
 
@@ -156,16 +162,17 @@
 Opticks : GPU Optical Photon Simulation 
 ======================================================================
 
-.. class:: small
+.. class:: tiny
 
-    http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016)
+    http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016)
+    http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation.html (January 2016)
     http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
 
 .. class:: small
 
    **Executive Summary**
 
-   * Validation comparisons with Geant4 started, rainbow geometry validated
+   * Validation comparisons with Geant4 advancing, single PMT geometry validated
    * Performance factors **so large they become irrelevant** (>> 200x) 
 
    **Contents**
@@ -180,220 +187,13 @@ Opticks : GPU Optical Photon Simulation
    * Summary 
 
    |  Simon C Blyth, National Taiwan University
-   |  **January 2016** 
-
-
-
-:i:`PmtInBox approach`
----------------------------------
-
-.. sidebar:: PmtInBox test geometry 
-
-    .. class:: small
-    
-         0.5M photons from disc source incident on Dayabay PMT in MineralOil, 
-         box inner surface perfect absorber.
-         Colors represent the polarization direction (adhoc).
-
-         Composited image:
-
-         * OptiX raytrace of simulated analytic geometry
-         * OpenGL photon step representation, from shared
-           OpenGL/OptiX buffer
-
-         Composited using Z-depth calulated for each raytrace pixel. 
-
-
-:i:`PmtInBox after`
----------------------------------
-
-.. sidebar:: PmtInBox at 1.8ns 
-
-    .. class:: small
-    
-         GGeoView provides interactive photon selection 
-         by history or material flag sequences, such as:
-
-         TO BT SA         
-              surface absorbed without detection  
-
-         TO BT SD         
-              surface detected on photocathode
-
-         TO BT BT SA       
-              edge Pyrex crossers (outer ring) 
-
-         TO AB             
-              bulk absorbed 
-
-         TO BR SA          
-              reflected from Pyrex   
-
-         TO BT BR BR BT SA 
-              double Pyrex reflections (inner ring)
-
-
-         TO/AB/BT/BR
-               torch/bulk absorb/boundary transmit/reflect
-
-         Geant4 (CfG4) propagated events can be visualized by loading
-         into GGeoView.
-
-
-
-
-:small:`PmtInBox Opticks/Geant4 Photon Step Sequence Comparison`
----------------------------------------------------------------------
-
-.. class:: small
-
-   Good agreement reached, after several bug fixes: geometry, TIR, GROUPVEL, ...
-
-   * nearly identical geometries (no triangulation error)  
-
-
-.. raw:: html
-
-    <pre class="mypre">
-         64-bit uint  Opticks   Geant4   chi2    (tag:4,-4)
-
-                 8cd   340271   340273   0.00  [3 ] TO BT SA
-                 7cd   107598   107251   0.56  [3 ] TO BT SD
-                8ccd    23217    23260   0.04  [4 ] TO BT BT SA
-                  4d    18866    19048   0.87  [2 ] TO AB
-                 86d     3179     3133   0.34  [3 ] TO SC SA
-                 4cd     2204     2249   0.45  [3 ] TO BT AB
-                4ccd     1696     1732   0.38  [4 ] TO BT BT AB
-                 8bd     1446     1455   0.03  [3 ] TO BR SA
-                8c6d      382      424   2.19  [4 ] TO SC BT SA
-               86ccd      260      260   0.00  [5 ] TO BT BT SC SA
-                 46d      197      215   0.79  [3 ] TO SC AB
-              8cbbcd      190      213   1.31  [6 ] TO BT BR BR BT SA
-                 4bd      132      125   0.19  [3 ] TO BR AB
-                7c6d      111      132   1.81  [4 ] TO SC BT SD
-                866d       35       38   0.12  [4 ] TO SC SC SA
-               8cc6d       31       29   0.07  [5 ] TO SC BT BT SA
-               ...
-                       500000   500000   0.89 
-    </pre>
-
-
-:small:`PmtInBox Opticks/Geant4 step comparison TO BT [SD] : position, time`
-------------------------------------------------------------------------------
-
-.. class:: small
-
-    Photon step xyzt distributions at detection: ``[SD]`` 
-
-.. image:: /env/numerics/npy/PmtInBox_TOBTSD_xyzt.png 
-   :width: 900px
-   :align: center
-
-
-
-:small:`PmtInBox Opticks/Geant4 step comparison TO BT [SD] : polarization, radius`
--------------------------------------------------------------------------------------
-
-.. class:: small
-
-    Photon step polarization abc, radius r distributions at detection: ``[SD]`` 
-
-.. image:: /env/numerics/npy/PmtInBox_TOBTSD_abcr.png
-   :width: 900px
-   :align: center
-
-
-
-:small:`PmtInBox Opticks/Geant4 step distribution comparisons`
----------------------------------------------------------------------------------------
-
-
-.. sidebar:: Chi2/ndf comparison 
-
-    .. class:: small
-
-        Chi2/ndf of 200 step distribution comparisons.
-
-        * XYZT position, time
-        * R radius (from XY)
-        * ABC polarization direction
-
-        * no large discrepancies
-        * too good agreement, in single/few bin cases  
-
-
-.. class:: tiny
-
-    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
-    4/PmtInBox/torch :             X     Y     Z     T     A     B     C     R     
-    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
-    340271/340273  :  [TO] BT SA    1.15  1.00  0.00  0.00  1.06  1.03  0.00  1.21 
-    340271/340273  :  TO [BT] SA    1.15  1.00  1.06  0.91  1.06  1.03  0.00  1.21 
-    340271/340273  :  TO BT [SA]    0.97  1.02  1.05  0.99  1.06  1.03  0.00  1.29 
-    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
-    107598/107251  :  [TO] BT SD    0.91  0.73  0.56  0.56  0.98  1.09  0.56  0.94 
-    107598/107251  :  TO [BT] SD    0.91  0.73  0.81  0.93  0.98  1.09  0.56  0.94 
-    107598/107251  :  TO BT [SD]    0.99  0.83  0.97  0.99  0.98  1.09  0.56  0.93 
-    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
-    23217/23260  :  [TO] BT BT SA   0.94  0.82  0.04  0.04  0.97  0.89  0.04  0.57 
-    23217/23260  :  TO [BT] BT SA   0.94  0.82  0.70  0.50  0.97  0.89  0.04  0.57 
-    23217/23260  :  TO BT [BT] SA   0.91  0.94  0.43  0.60  0.97  0.89  0.04  0.05 
-    23217/23260  :  TO BT BT [SA]   0.94  0.88  0.04  0.35  0.97  0.89  0.04  0.72 
-    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
-    18866/19048  :  [TO] AB         0.99  1.10  0.87  0.87  0.85  0.84  0.87  1.00 
-    18866/19048  :  TO [AB]         0.99  1.10  0.93  0.92  0.85  0.84  0.87  1.00 
-    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
-    3179/3133  :  [TO] SC SA        1.07  0.83  0.34  0.34  0.86  0.96  0.34  0.73 
-    3179/3133  :  TO [SC] SA        1.07  0.83  0.98  1.05  0.98  1.06  0.98  0.73 
-    3179/3133  :  TO SC [SA]        0.96  1.04  0.93  0.97  0.98  1.06  0.98  1.10 
-    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
-    2204/2249  :  [TO] BT AB        0.85  1.04  0.45  0.45  0.99  0.92  0.45  1.06 
-    2204/2249  :  TO [BT] AB        0.85  1.04  0.95  0.88  0.99  0.92  0.45  1.06 
-    2204/2249  :  TO BT [AB]        0.98  0.94  1.01  1.00  0.99  0.92  0.45  0.90 
-    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
-    1696/1732  :  [TO] BT BT AB     1.05  0.85  0.38  0.38  0.86  1.09  0.38  0.26 
-    1696/1732  :  TO [BT] BT AB     1.05  0.85  1.48  1.28  0.86  1.09  0.38  0.26 
-    1696/1732  :  TO BT [BT] AB     0.99  0.86  1.17  1.40  0.86  1.09  0.38  0.86 
-    1696/1732  :  TO BT BT [AB]     1.15  0.88  1.08  1.06  0.86  1.09  0.38  0.79 
-    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
-    1446/1455  :  [TO] BR SA        1.21  0.94  0.03  0.03  0.90  0.87  0.03  1.09 
-    1446/1455  :  TO [BR] SA        1.21  0.94  1.02  1.01  0.90  0.87  0.03  1.09 
-    1446/1455  :  TO BR [SA]        1.00  0.93  0.97  0.99  0.90  0.87  0.03  1.04 
-    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
-
-
-
-:small:`PmtInBox issues : GROUPVEL`
---------------------------------------
-
-.. class:: small
-
-   .. image:: /env/numerics/npy/PmtInBox_TOBTSD_groupvel_off.png
-      :width: 400px
-      :align: right 
-
-   Opticks times (c/n) low, until G4 ``GROUPVEL`` controlled, 
-
-   .. image:: /env/numerics/npy/group_velocity_dispersion.png
-      :width: 400px
-      :align: left 
-
-   (wavelengths in vacuum, not the medium) 
-
-
-.. class:: tiny
-
-   https://en.wikipedia.org/wiki/Dispersion_(optics)
-
-   G4MaterialPropertiesTable::SetGROUPVEL
-
-   G4Track::CalculateVelocityForOpticalPhoton
-
+   |  **March 2016** 
 
 
 
 :small:`Brief History of GPU Optical Photon Simulation Development`
 ----------------------------------------------------------------------
+
 
 .. sidebar:: G4+Opticks Simulation ?   
 
@@ -415,27 +215,27 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: small
 
-   **winter 2014** (within *Chroma*)
+   **2013(Aug-)** [liberate geometry]
 
-   * integrate G4DAE geometry exports
-   * generate Cerenkov/Scintillation photons on GPU
+   * Develop *G4DAE* geometry exporter that writes tesselated COLLADA 3D files, 
+     including all material and surface properties.
 
-   **spring 2015** (start transition to *Opticks*)
+   **2014** [integrate geometry/event data with *Chroma*]
 
-   * :red:`decide lack of multi-GPU is showstopper` for *Chroma* 
-   * discover :blue:`NVIDIA OptiX` ray tracing framework 
-   * create *Opticks* (using OptiX) to replace *Chroma*
+   * Integrate *G4DAE* geometries with *Chroma* 
+   * Develop runtime event data bridge
+   * GPU Cerenkov/Scintillation photon generation
 
-   **summer/autumn 2015** (*Opticks* transition completed)
+   **2015** [replace *Chroma* with *Opticks*]
 
-   * infrastructure operational, G4 optical physics ported 
-   * large geometry support added using instancing  
+   * Develop *Opticks* with *NVIDIA OptiX* ray tracing 
+   * *Opticks/Geant4* matched for simple geometries 
+   * Speedup factor of 200x with a mobile GPU
 
-   **autumn/winter 2015** (Validations begin)
+   **2016** [*Opticks* validation against *Geant4*]
 
-   * major tesselation bug avoided with *OpenMesh*   
-   * develop analytic PMT description 
-   * validation machinery created *CfG4*
+   * Achieve match for single PMT 
+
 
 .. class:: tiny
 
@@ -459,13 +259,13 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: small
 
-    OptiX provides: :blue:`CUDA compiler optimized for Ray Tracing` 
+    *OptiX*: :blue:`Ray Trace optimized CUDA compiler` 
  
-    * ray tracing framework, **no rendering assumptions**
+    * ray tracing framework, **flexible, low level**
 
-    * state-of-the-art GPU accelerated geometry intersection 
+    * state-of-the-art GPU accelerated intersection 
 
-    * regular releases, improvements, tuning for new GPUs
+    * regular releases, improvements, new GPU tuning
 
     * shared C++/CUDA context eases development 
 
@@ -526,12 +326,12 @@ Opticks : GPU Optical Photon Simulation
    **Basis packages**
 
    * *Opticks* : definitions, configuration
-   * *NPY* : host array handling, persistency, python analysis
+   * *NPY* : array handling, persistency, py-analysis
    * *NumpyServer* : network IO of *NPY* arrays
 
    **Geometry packages** 
 
-   * *AssimpWrap* : G4DAE geometry loading with Assimp fork
+   * *AssimpWrap* : G4DAE loading with Assimp fork
    * *GGeo* : preparing geometry for GPU
    * *OpenMeshRap* : mesh fixing 
 
@@ -547,75 +347,6 @@ Opticks : GPU Optical Photon Simulation
    
    * *GGeoView* : visualization, Opticks main
    * *CFG4* : Geant4 10.2 comparison, separate main
-
-
-:small:`Large Geometry/Event Techniques`
-------------------------------------------------------- 
-
-.. sidebar:: JUNO Geometry 
-
-   .. class:: small
-
-      289733 volumes split into instanced: 
- 
-      * name: count (faces)
-      * PMT_3inch: 36572 (540) 
-      * PMT_20inch: 19452 (3502)
-      * lFasteners: 480 (1856)
-      * lPlane: 124 (6252) 
-
-      And the rest:
-
-      * Global     (95436)  
- 
-
-.. class:: small
-
-   **Instancing implemented for OpenGL and OptiX**
-
-   Geometry analysed to find instances
-
-   * repeated sub-trees with transforms for each **instance** 
-   * JUNO: ~90M triangles, instancing reduces to 0.1M
-
-   **Switchable Rendering**
-
-   * Multiple renderers: global, full instances, bbox instances
-   * Rapid switching GUI control
-
-   **Compute Mode**
-
-   * Pure OptiX buffers faster (~7X interop)
-   * Less GPU memory (1) 
-   * Visualize by separate event loading  
-      
-   **Ideas to investigate**
-
-   * Analytic PMT definition expected to improve OptiX efficiency 
-   * Culling non-visible geometry to improve OpenGL performance
-   * Level-of-detail : change geometry detail based on distance
-
-
-.. class:: tiny  
-
-   (1) Interop forced to duplicate data as OpenGL/OptiX geometry sharing not operational
-
-
-
-:small:`JUNO Geometry Instance Rendering Control`
-------------------------------------------------------- 
-
-.. image:: /env/graphics/ggeoview/ggv-juno-instancing.png
-   :width: 900px
-   :align: center
-
-   
-:i:`JPMT Inside Wide`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
 
 
 
@@ -745,24 +476,25 @@ Opticks : GPU Optical Photon Simulation
 
    .. class:: small
      
-      * G4 step recorder in Opticks event format 
-      * load events into Opticks for visualization 
+      * Records **G4** steps in **Opticks** format 
+      * load into **Opticks** for visualization 
 
 .. class:: small
 
-   Commandline arguments parsed into geometry/material/surface description. Each test shape requires: 
+   Commandline parsed into geometry. Shapes require: 
    
-   * OptiX: analytic intersection code 
-   * OpenGL: tesselation for visualization
-   * Geant4: geometry construction code in *CfG4* package
+   * **OptiX**: analytic intersection code 
+   * **OpenGL**: tesselation for visualization
+   * **Geant4**: geometry construction in *CfG4* 
    
    ===========================================  =================  =================  ================== 
      Shape                                        OptiX              OpenGL             Geant4
    ===========================================  =================  =================  ================== 
-     sphere                                        Y                  Y                   Y
-     box                                           needs debug        Y                   Y
-     prism                                         Y                  Y                            
+     **sphere**                                    Y                  Y                   Y
+     box                                           Y                  Y                   Y
+     prism                                         Y                  Y                   
      convex lens                                   Y                  Y                            
+     **Dayabay PMT**                               Y                  Y                   Y    
    ===========================================  =================  =================  ================== 
 
    Compare Opticks/Geant4 propagations with simple test geometries with: 
@@ -773,19 +505,6 @@ Opticks : GPU Optical Photon Simulation
          ggv.sh        --test --testconfig "..."  --torch --torchconfig "..."   # Opticks
          ggv.sh --cfg4 --test --testconfig "..."  --torch --torchconfig "..."   # Geant4 
     </pre>
-
-
-:small:`Opticks Absolute Reflection compared to Fresnel expectation`
------------------------------------------------------------------------
-
-.. class:: tiny
-
-   Comparison of simulated absolute reflection of S and P polarized single events against 
-   expectation from Fresnel formula. Using uniform planar incident cyclindrically directed light.
-
-.. image:: /env/numerics/npy/reflection.png
-   :width: 700px
-   :align: center
 
 
 
@@ -832,7 +551,7 @@ Opticks : GPU Optical Photon Simulation
    :align: center
 
 
-:small:`Opticks/Geant4 Photon Step Sequence Comparison`
+:small:`Opticks/Geant4 Rainbow Step Sequence Comparison`
 ---------------------------------------------------------------------
 
 .. class:: small
@@ -904,10 +623,6 @@ Opticks : GPU Optical Photon Simulation
    :align: center
 
 
-
-
-
-
 :small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
 ------------------------------------------------------------
 
@@ -921,57 +636,261 @@ Opticks : GPU Optical Photon Simulation
    :width: 800px
    :align: center
 
-:small:`1M Rainbow P-Polarized, Comparison Opticks/Geant4`
-------------------------------------------------------------
 
-.. class:: tiny
 
-   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
-   Numbered bands are visible range expectations of first 11 rainbows.
-   P-Polarized intersection (E field within plane of incidence) arranged by directing polarization tangentially.
 
-.. image:: /env/optix/cfg4/rainbow-cfg4-ppol.png
-   :width: 800px
+
+
+:i:`PmtInBox approach 1`
+---------------------------------
+
+
+:i:`PmtInBox approach 2`
+---------------------------------
+
+.. sidebar:: PmtInBox test geometry 
+
+    .. class:: small
+    
+         0.5M photons from disc source incident on Dayabay PMT in MineralOil, 
+         box inner surface perfect absorber.
+         Colors represent the polarization direction (adhoc).
+
+         Composited image:
+
+         * OptiX raytrace of simulated analytic geometry
+         * OpenGL photon step representation, from shared
+           OpenGL/OptiX buffer
+
+         Composited using Z-depth calulated for each raytrace pixel. 
+
+
+
+:i:`PmtInBox after 1`
+---------------------------------
+
+
+:i:`PmtInBox after 2`
+---------------------------------
+
+.. sidebar:: PmtInBox at 1.8ns 
+
+    .. class:: small
+    
+         GGeoView provides interactive photon selection 
+         by history or material flag sequences, such as:
+
+         TO BT SA         
+              surface absorbed without detection  
+
+         TO BT SD         
+              surface detected on photocathode
+
+         TO BT BT SA       
+              edge Pyrex crossers (outer ring) 
+
+         TO AB             
+              bulk absorbed 
+
+         TO BR SA          
+              reflected from Pyrex   
+
+         TO BT BR BR BT SA 
+              double Pyrex reflections (inner ring)
+
+
+         TO/AB/BT/BR
+               torch/bulk absorb/boundary transmit/reflect
+
+         Geant4 (CfG4) propagated events can be visualized by loading
+         into GGeoView.
+
+
+
+
+:small:`Opticks/Geant4 PmtInBox Step Sequence Comparison`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   **Good agreement reached**, after several fixes: geometry, TIR, GROUPVEL, ...
+
+   * nearly identical geometries (no triangulation error)  
+
+
+.. raw:: html
+
+    <pre class="mypre">
+         64-bit uint  Opticks   Geant4   chi2    (tag:4,-4)
+
+                 8cd   340271   340273   0.00  [3 ] TO BT SA
+                 7cd   107598   107251   0.56  [3 ] TO BT SD
+                8ccd    23217    23260   0.04  [4 ] TO BT BT SA
+                  4d    18866    19048   0.87  [2 ] TO AB
+                 86d     3179     3133   0.34  [3 ] TO SC SA
+                 4cd     2204     2249   0.45  [3 ] TO BT AB
+                4ccd     1696     1732   0.38  [4 ] TO BT BT AB
+                 8bd     1446     1455   0.03  [3 ] TO BR SA
+                8c6d      382      424   2.19  [4 ] TO SC BT SA
+               86ccd      260      260   0.00  [5 ] TO BT BT SC SA
+                 46d      197      215   0.79  [3 ] TO SC AB
+              8cbbcd      190      213   1.31  [6 ] TO BT BR BR BT SA
+                 4bd      132      125   0.19  [3 ] TO BR AB
+                7c6d      111      132   1.81  [4 ] TO SC BT SD
+                866d       35       38   0.12  [4 ] TO SC SC SA
+               8cc6d       31       29   0.07  [5 ] TO SC BT BT SA
+               ...
+                       500000   500000   0.89 
+    </pre>
+
+
+:small:`PmtInBox Opticks/Geant4 step comparison TO BT [SD] : position, time`
+------------------------------------------------------------------------------
+
+.. class:: small
+
+    Photon step xyzt distributions at detection: ``[SD]`` 
+
+.. image:: /env/numerics/npy/PmtInBox_TOBTSD_xyzt.png 
+   :width: 900px
    :align: center
 
 
 
-:small:`Performance Comparison Opticks/Geant4`
-----------------------------------------------------------
-
-.. sidebar:: Rainbow 1M S-Pol
-
-    .. class:: small
-
-        .. image:: /env/optix/cfg4/rainbow-cfg4-2.png
-           :width: 500px
-           :align: center
-
+:small:`PmtInBox Opticks/Geant4 step comparison TO BT [SD] : polarization, radius`
+-------------------------------------------------------------------------------------
 
 .. class:: small
 
-    **Average Propagate Time for 1M photons** 
+    Photon step polarization abc, radius r distributions at detection: ``[SD]`` 
 
-    MacBook Pro 2013, NVIDIA GeForce GT 750M 2GB (384 cores)
+.. image:: /env/numerics/npy/PmtInBox_TOBTSD_abcr.png
+   :width: 900px
+   :align: center
+
+
+
+:small:`PmtInBox Opticks/Geant4 Chi2/ndf distribution comparisons`
+---------------------------------------------------------------------------------------
+
+.. class:: small
+
+    **no large discrepancies**, small chi2/ndf in single/few bin cases  
+
+.. class:: tiny
+
+    XYZ position, T time, ABC polarization, R xy-radius
+
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+    4/PmtInBox/torch :             X     Y     Z     T     A     B     C     R     
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+    340271/340273  :  [TO] BT SA    1.15  1.00  0.00  0.00  1.06  1.03  0.00  1.21 
+    340271/340273  :  TO [BT] SA    1.15  1.00  1.06  0.91  1.06  1.03  0.00  1.21 
+    340271/340273  :  TO BT [SA]    0.97  1.02  1.05  0.99  1.06  1.03  0.00  1.29 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    107598/107251  :  [TO] BT SD    0.91  0.73  0.56  0.56  0.98  1.09  0.56  0.94 
+    107598/107251  :  TO [BT] SD    0.91  0.73  0.81  0.93  0.98  1.09  0.56  0.94 
+    107598/107251  :  TO BT [SD]    0.99  0.83  0.97  0.99  0.98  1.09  0.56  0.93 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    23217/23260  :  [TO] BT BT SA   0.94  0.82  0.04  0.04  0.97  0.89  0.04  0.57 
+    23217/23260  :  TO [BT] BT SA   0.94  0.82  0.70  0.50  0.97  0.89  0.04  0.57 
+    23217/23260  :  TO BT [BT] SA   0.91  0.94  0.43  0.60  0.97  0.89  0.04  0.05 
+    23217/23260  :  TO BT BT [SA]   0.94  0.88  0.04  0.35  0.97  0.89  0.04  0.72 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    18866/19048  :  [TO] AB         0.99  1.10  0.87  0.87  0.85  0.84  0.87  1.00 
+    18866/19048  :  TO [AB]         0.99  1.10  0.93  0.92  0.85  0.84  0.87  1.00 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    3179/3133  :  [TO] SC SA        1.07  0.83  0.34  0.34  0.86  0.96  0.34  0.73 
+    3179/3133  :  TO [SC] SA        1.07  0.83  0.98  1.05  0.98  1.06  0.98  0.73 
+    3179/3133  :  TO SC [SA]        0.96  1.04  0.93  0.97  0.98  1.06  0.98  1.10 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    2204/2249  :  [TO] BT AB        0.85  1.04  0.45  0.45  0.99  0.92  0.45  1.06 
+    2204/2249  :  TO [BT] AB        0.85  1.04  0.95  0.88  0.99  0.92  0.45  1.06 
+    2204/2249  :  TO BT [AB]        0.98  0.94  1.01  1.00  0.99  0.92  0.45  0.90 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    1696/1732  :  [TO] BT BT AB     1.05  0.85  0.38  0.38  0.86  1.09  0.38  0.26 
+    1696/1732  :  TO [BT] BT AB     1.05  0.85  1.48  1.28  0.86  1.09  0.38  0.26 
+    1696/1732  :  TO BT [BT] AB     0.99  0.86  1.17  1.40  0.86  1.09  0.38  0.86 
+    1696/1732  :  TO BT BT [AB]     1.15  0.88  1.08  1.06  0.86  1.09  0.38  0.79 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    1446/1455  :  [TO] BR SA        1.21  0.94  0.03  0.03  0.90  0.87  0.03  1.09 
+    1446/1455  :  TO [BR] SA        1.21  0.94  1.02  1.01  0.90  0.87  0.03  1.09 
+    1446/1455  :  TO BR [SA]        1.00  0.93  0.97  0.99  0.90  0.87  0.03  1.04 
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+
+
+
+
+:small:`PmtInBox issues : velocity of photon propagation`
+-----------------------------------------------------------
+
+.. class:: small
+
+   .. image:: /env/numerics/npy/PmtInBox_TOBTSD_groupvel_off.png
+      :width: 400px
+      :align: right 
+
+   Opticks propagating at phase velocity, Geant4 at group velocity
+
+   .. image:: /env/numerics/npy/group_velocity_dispersion.png
+      :width: 400px
+      :align: left 
+
+   (vacuum wavelengths) 
+
+   * time match obtained by kludging G4 ``GROUPVEL`` to be phase velocity 
+
+   Working on fix:
+
+   * have extended GPU texture to hold GROUPVEL
+   * need to redo G4DAE export to populate the property  
+     and adjust propagation to use it 
+
+
+.. class:: tiny
+
+   https://en.wikipedia.org/wiki/Dispersion_(optics)
+
+   G4MaterialPropertiesTable::SetGROUPVEL
+
+   G4Track::CalculateVelocityForOpticalPhoton
+
+
+
+
+
+
+
+
+
+:small:`Photon Propagation Times Geant4 cf Opticks`
+----------------------------------------------------------
+
+.. image:: /env/optix/cfg4/PmtInBox-cfg4-2.png
+   :width: 800px
+   :align: center
+
+.. class:: small
 
     ====================  =================  =================  ================== 
-     Rainbow Test            Geant4 10.2       Opticks Interop     Opticks Compute      
+     Test                  Geant4 10.2       Opticks Interop     Opticks Compute      
     ====================  =================  =================  ================== 
-     1M (S-Pol)               56 s               1.62 s            0.28 s         
-     1M (P-Pol)               58 s               1.71 s            0.25 s         
+     Rainbow 1M(S)           56 s               1.62 s            0.28 s         
+     Rainbow 1M(P)           58 s               1.71 s            0.25 s         
+     **PmtInBox 0.5M**       **41 s**           0.81 s            **0.15 s** 
     ====================  =================  =================  ================== 
 
-    * **Opticks ~200X Geant4** with only 384 core mobile GPU
+.. class:: small
+
+    * **Opticks > 200X Geant4** with only 384 core mobile GPU
     * multi-GPU workstation up to 20x more cores 
     * :red:`photon propagation time will become effectively zero`
-   
-    **Opticks Interop/Compute Modes**
 
-    * perfectly identical results, monitored by digest
-    * Interop: uses OpenGL buffers allowing visualization
-    * Compute: uses OptiX buffers
-    * Compute (and G4) propagated events can be visualized 
-      by loading into interop mode viewer
+.. class:: small
+   
+    * **Interop** uses OpenGL buffers allowing visualization, **Compute** uses OptiX buffers
+    * **Interop/Compute** : perfectly identical results, monitored by digest
+    * **Compute** (and **G4**) propagations visualized by loading into **Interop** viewer
 
 
 :small:`Summary`
@@ -1215,6 +1134,110 @@ Opticks : GPU Optical Photon Simulation
 .. image:: /env/graphics/ggeoview/lens-polcolor.png
    :width: 900px
    :align: center
+
+
+
+
+
+
+:small:`Opticks Absolute Reflection compared to Fresnel expectation`
+-----------------------------------------------------------------------
+
+.. class:: tiny
+
+   Comparison of simulated absolute reflection of S and P polarized single events against 
+   expectation from Fresnel formula. Using uniform planar incident cyclindrically directed light.
+
+.. image:: /env/numerics/npy/reflection.png
+   :width: 700px
+   :align: center
+
+
+:small:`1M Rainbow P-Polarized, Comparison Opticks/Geant4`
+------------------------------------------------------------
+
+.. class:: tiny
+
+   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
+   Numbered bands are visible range expectations of first 11 rainbows.
+   P-Polarized intersection (E field within plane of incidence) arranged by directing polarization tangentially.
+
+.. image:: /env/optix/cfg4/rainbow-cfg4-ppol.png
+   :width: 800px
+   :align: center
+
+
+
+:small:`Large Geometry/Event Techniques`
+------------------------------------------------------- 
+
+.. sidebar:: JUNO Geometry 
+
+   .. class:: small
+
+      289733 volumes split into instanced: 
+ 
+      * name: count (faces)
+      * PMT_3inch: 36572 (540) 
+      * PMT_20inch: 19452 (3502)
+      * lFasteners: 480 (1856)
+      * lPlane: 124 (6252) 
+
+      And the rest:
+
+      * Global     (95436)  
+ 
+
+.. class:: small
+
+   **Instancing implemented for OpenGL and OptiX**
+
+   Geometry analysed to find instances
+
+   * repeated sub-trees with transforms for each **instance** 
+   * JUNO: ~90M triangles, instancing reduces to 0.1M
+
+   **Switchable Rendering**
+
+   * Multiple renderers: global, full instances, bbox instances
+   * Rapid switching GUI control
+
+   **Compute Mode**
+
+   * Pure OptiX buffers faster (~7X interop)
+   * Less GPU memory (1) 
+   * Visualize by separate event loading  
+      
+   **Ideas to investigate**
+
+   * Analytic PMT definition expected to improve OptiX efficiency 
+   * Culling non-visible geometry to improve OpenGL performance
+   * Level-of-detail : change geometry detail based on distance
+
+
+.. class:: tiny  
+
+   (1) Interop forced to duplicate data as OpenGL/OptiX geometry sharing not operational
+
+
+
+:small:`JUNO Geometry Instance Rendering Control`
+------------------------------------------------------- 
+
+.. image:: /env/graphics/ggeoview/ggv-juno-instancing.png
+   :width: 900px
+   :align: center
+
+   
+:i:`JPMT Inside Wide`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
+
+
+
 
 
 
