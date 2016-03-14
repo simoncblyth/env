@@ -172,18 +172,19 @@ Opticks : GPU Optical Photon Simulation
 
    **Executive Summary**
 
+   *Opticks* integrates *Geant4* simulations with state-of-the-art **NVIDIA OptiX** GPU ray tracing.
+
+   * Can expect: **Opticks > 1000x G4** (on workstation GPUs) 
    * Validation comparisons with Geant4 advancing, single PMT geometry validated
-   * Performance factors **so large they become irrelevant** (>> 200x) 
 
    **Contents**
 
    * Brief History of GPU Optical Photon Simulation Development
-   * Introducing Opticks
-   * Handling JUNO geometry 
+   * Introducing NVIDIA OptiX and Opticks
    * Mesh Fixing with OpenMesh surgery
    * Analytic PMT geometry description 
-   * Opticks/Geant4 : Dynamic Test Geometry
-   * Rainbow Geometry Testing
+   * Opticks/Geant4 Matching using Dynamic Geometry
+   * Rainbow, Single PMT Geometry Testing
    * Summary 
 
    |  Simon C Blyth, National Taiwan University
@@ -245,27 +246,33 @@ Opticks : GPU Optical Photon Simulation
 :small:`Based on: NVIDIA OptiX Ray Tracing Engine [C++/C/CUDA]`
 -------------------------------------------------------------------
 
-.. sidebar:: OptiX *Tutorial* App
+
+.. sidebar:: Ray Tracing ?
 
     .. class:: small
 
-        Image pixels calculated by recursively bouncing rays 
-        doing shadow, reflection, refraction calculations.
-        Runs at interactive speeds with GeForce GT 750M.
+        Pixels calculated by tracing rays from image plane into geometry, 
+        recursively doing reflection, refraction, shadow calculations.
 
     .. image:: /env/optix/samples/optix-tutorial-10.png 
-       :width: 450px
+       :width: 400px
        :align: right
+
+    .. class:: small
+
+        Ray Tracing more realistic (closer to physics) than rasterized projection
+
+
 
 .. class:: small
 
     *OptiX*: :blue:`Ray Trace optimized CUDA compiler` 
  
-    * ray tracing framework, **flexible, low level**
+    * ray tracing framework: **flexible, low level**
 
     * state-of-the-art GPU accelerated intersection 
 
-    * regular releases, improvements, new GPU tuning
+    * regular releases: improvements, new GPU tuning
 
     * shared C++/CUDA context eases development 
 
@@ -345,8 +352,8 @@ Opticks : GPU Optical Photon Simulation
 
    **Main packages**
    
-   * *GGeoView* : visualization, Opticks main
-   * *CFG4* : Geant4 10.2 comparison, separate main
+   * *GGeoView* : visualization main
+   * *CFG4* : Geant4 10.2 comparison main
 
 
 
@@ -378,10 +385,9 @@ Opticks : GPU Optical Photon Simulation
    **G4Polyhedron Tesselation Bug** 
 
    * Some union solids become cleaved meshes 
-   * **close parallel faces** cause flickering OpenGL render
+   * **close parallel faces** cause flickering render
    * ~25/250 Dayabay meshes have issues 
    * two critical ones fixed: IAV, OAV. 
-   * :red:`TODO: check/apply to JUNO geometry` 
 
    **OpenMeshRap** finds/fixes cleaved meshes
 
@@ -435,8 +441,6 @@ Opticks : GPU Optical Photon Simulation
    Coincident boundaries do not work for surface description, must 
    adopt correct heirarchy: Pyrex/Bialkali/Vacuum 
 
-   :red:`TODO: single PMT testing vs G4 to check implications`
-
 
 .. class:: tiny
 
@@ -468,7 +472,7 @@ Opticks : GPU Optical Photon Simulation
    :width: 800px
    :align: center
 
-:small:`Opticks/Geant4 : Dynamic Test Geometry`
+:small:`Opticks/Geant4 Matching using Dynamic Geometry`
 ----------------------------------------------------------------
 
 
@@ -896,19 +900,19 @@ Opticks : GPU Optical Photon Simulation
 :small:`Summary`
 -----------------------------
 
-.. sidebar:: Opticks Performance 
+.. sidebar:: Opticks Overview
 
    .. class:: small
      
       * **200x Geant4** with mobile GPU
-      * **>> 200x** expected with workstation GPUs 
+      * **> 1000x** expected (workstation GPUs) 
       * :red:`photon propagation time --> zero`
+      * :blue:`analytic geometry --> precise G4 matching`
 
 .. class:: small
 
    **Opticks Transition Complete**
 
-   * squeezed JUNO geometry onto GPU with instancing
    * devised mesh fixing workaround for G4Polyhedron bug 
    * developed analytic PMT representation
    * photons fully GPU resident, only copy PMT hits to CPU
@@ -917,12 +921,27 @@ Opticks : GPU Optical Photon Simulation
 
    * developed validation machinery *CfG4*
    * simple rainbow geometry matches Geant4
+   * single PMT geometry matches Geant4
 
-   **Next Tests**
+   **Next**
 
-   * Prism, Lens, Fresnel Rhomb (2x TIR)
-   * Single Analytic PMT 
-   * Full geometries 
+   * Analytic IAV, OAV descriptions (along optical path) 
+   * AD, Full Geometry validations
+
+
+   
+:i:`JPMT Inside Wide`
+----------------------
+
+.. sidebar:: Opticks Overview
+
+   .. class:: small
+     
+      * **200x Geant4** with mobile GPU
+      * **> 1000x** expected (workstation GPUs) 
+      * :red:`photon propagation time --> zero`
+      * :blue:`analytic geometry --> precise G4 matching`
+
 
 
 
