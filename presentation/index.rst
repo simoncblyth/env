@@ -43,3 +43,11 @@ Muon Simulation Presentation
 
 For notes on how these presentations are derived see :doc:`/doc/slides` or `slides-vi`
 
+
+.. toctree::
+
+    gtc_preparation
+
+
+
+

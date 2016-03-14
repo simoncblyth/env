@@ -40,9 +40,11 @@
     # NB1 slide titles here must match those in body precisely, 
     # NB2 also ensure all slide titles are unique
     #
-    # first slide id is exceptionally: slide0, not the mangled title
+    #slide0
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    #
     slide0
-    /env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    /env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
 
     g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
     /env/geant4/geometry/collada/g4daeview/20140419-170713.png
@@ -401,6 +403,24 @@ Opticks : GPU Optical Photon Simulation
 
 
 
+:small:`Tesselated PMT geometry : convenient`
+---------------------------------------------------------------------
+
+ 
+.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
+   :width: 900px
+   :align: center
+
+
+:small:`Tesselated PMT geometry : unrealistic disco ball effect`
+---------------------------------------------------------------------
+
+.. image:: /env/graphics/ggeoview/dpib-test-disco-ball.png
+   :width: 900px
+   :align: center
+
+
+
 :small:`Analytic PMT geometry : more realistic, faster, less memory`
 ---------------------------------------------------------------------
 
@@ -712,7 +732,7 @@ Opticks : GPU Optical Photon Simulation
 
 
 
-:small:`Opticks/Geant4 PmtInBox Step Sequence Comparison`
+:small:`PMT Opticks/Geant4 Step Sequence Comparison`
 ---------------------------------------------------------------------
 
 .. class:: small
@@ -748,30 +768,20 @@ Opticks : GPU Optical Photon Simulation
     </pre>
 
 
-:small:`PmtInBox Opticks/Geant4 step comparison TO BT [SD] : position, time`
-------------------------------------------------------------------------------
-
-.. class:: small
-
-    Photon step xyzt distributions at detection: ``[SD]`` 
+:small:`PMT Opticks/Geant4 step comparison TO BT [SD] : position(xyz), time(t)`
+-------------------------------------------------------------------------------------
 
 .. image:: /env/numerics/npy/PmtInBox_TOBTSD_xyzt.png 
    :width: 900px
    :align: center
 
 
-
-:small:`PmtInBox Opticks/Geant4 step comparison TO BT [SD] : polarization, radius`
--------------------------------------------------------------------------------------
-
-.. class:: small
-
-    Photon step polarization abc, radius r distributions at detection: ``[SD]`` 
+:small:`PMT Opticks/Geant4 step comparison TO BT [SD] : polarization(abs), radius(r)`
+-----------------------------------------------------------------------------------------
 
 .. image:: /env/numerics/npy/PmtInBox_TOBTSD_abcr.png
    :width: 900px
    :align: center
-
 
 
 :small:`PmtInBox Opticks/Geant4 Chi2/ndf distribution comparisons`
