@@ -1693,3 +1693,4 @@ g4d-(){       . $HOME/g4dae/g4d.bash && g4d-env $* ; }
 
 
 
+gtc-(){      . $(env-home)/presentation/gtc2016/gtc.bash && gtc-env $* ; }

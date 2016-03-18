@@ -358,6 +358,7 @@ slides-mate(){ mate $(slides-dir) ; }
 slides-mkdir(){ mkdir -p $(slides-dir) ; }
 slides-get(){
 
+   slides-safari
    slides-capture $*
    slides-crop
    slides-convert
@@ -380,6 +381,9 @@ slides-url(){       echo ${SLIDES_URL:-http://$(slides-host)/env/$(slides-branch
 slides-ppath(){     echo $(apache-htdocs $1)/env/$(slides-branch)/$(slides-name).${2:-pdf} ; }   
 
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
+
+
+slides-safari(){  osascript $(env-home)/doc/safari.applescript ; }
 
 
 slides-screenshots-dir(){ echo $(apache-htdocs)/env/geant4/geometry/collada/g4daeview ; }

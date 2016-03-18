@@ -21,10 +21,10 @@
         pre.myfoot {
              display: block;
              font-family: monospace;
-             font-size: 20px;
+             font-size: 18px;
              white-space: pre;
              color: white;
-             position: absolute; top:75%; left:10%; width:50%; height:10% ;
+             position: absolute; top:80%; left:5%; width:50%; height:10% ;
         }
 
 
@@ -132,7 +132,11 @@
     PmtInBox after 2
     /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
 
+    Daya Bay PMT Wall Photo
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
 
+    Super-Kamiokande PMTs 
+    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
 
  
 .. comment 
@@ -205,18 +209,41 @@ Opticks : GPU Optical Photon Simulation
 
 
 
+:i:`Daya Bay PMT Wall Photo`
+----------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="myfoot">
+    © 2010 The Regents of the University of California, through the Lawrence Berkeley National Laboratory
+    </pre>
+
+
+
+:i:`Super-Kamiokande PMTs`
+----------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="myfoot">
+    © Kamioka Observatory, ICRR(Institute for Cosmic Ray Research), The University of Tokyo.
+    </pre>
+
+
+
+
 :small:`Brief History of GPU Optical Photon Simulation Development`
 ----------------------------------------------------------------------
 
 
-.. sidebar:: Why GPU simulate ?
+.. sidebar:: Why GPU Simulation ?   
 
     .. class:: small
     
          **Optical Photon Problem** 
 
          *Geant4* optical photon propagation dominates 
-         simulation time ~95%
+         simulation time ~95% (and memory expense)
 
          **Optical Photon Solution** 
 
@@ -543,6 +570,137 @@ Opticks : GPU Optical Photon Simulation
 
 
 
+:small:`Multiple Rainbows from a Single Drop of Water`
+--------------------------------------------------------
+
+.. image:: /env/presentation/rainbow-mechanism.png
+   :width: 900px
+   :align: center
+
+.. class:: small
+
+   Caustic bunching at least deviation causes rainbow 
+
+   (a) Primary bow, single reflection : ray f at bow angle
+   (b) Secondary bow, double reflection : ray g at bow angle
+   (c) Deviation angles 0:180 degrees hemisphere opposite to incident rays
+
+.. class:: tiny
+
+   Jearl D. Walker, 1975, Multiple rainbows from single drops of water and other liquids
+   http://patarnott.com/atms749/pdf/MultipleRainbowsSingleDrops.pdf
+
+
+:small:`Disc beam 1M Photons incident on Water Sphere (S-Pol)`
+----------------------------------------------------------------
+
+.. class:: tiny
+
+    Photons shown by lines with color representing polarization direction. S-Polarized (perpendicular to plane of incidence) 
+    intersection by disc radially directed polarization. Geodesic icosahedron tesselation just for OpenGL visualization, 
+    actual OptiX geometry is perfect sphere.
+
+.. image:: /env/graphics/ggeoview/rainbow-spol-disc-incident-sphere.png
+   :width: 900px
+   :align: center
+
+
+:small:`2ns later, Several Bows Apparent`
+---------------------------------------------------------------------
+
+.. image:: /env/graphics/ggeoview/rainbow-spol-disc-several-bows.png
+   :width: 900px
+   :align: center
+
+
+:small:`Opticks/Geant4 Rainbow Step Sequence Comparison`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   * BT/BR: boundary transmit/reflect
+   * TO/SC/SA: torch/scatter/surface absorb
+
+   **1M flag sequences indexed using CUDA Thrust, 0.040 s**
+
+.. raw:: html
+
+    <pre class="mypre">
+     64-bit uint  Opticks    Geant4    chi2                                      (tag:5,-5)   
+
+            8ccd   819160    819654    0.15  [4 ] TO BT BT SA                    (cross droplet) 
+             8bd   102087    101615    1.09  [3 ] TO BR SA                       (external reflect)
+           8cbcd    61869     61890    0.00  [5 ] TO BT BR BT SA                 (bow 1)
+          8cbbcd     9618      9577    0.09  [6 ] TO BT BR BR BT SA              (bow 2)
+         8cbbbcd     2604      2687    1.30  [7 ] TO BT BR BR BR BT SA           (bow 3)
+        8cbbbbcd     1056      1030    0.32  [8 ] TO BT BR BR BR BR BT SA        (bow 4)
+           86ccd     1014      1000    0.10  [5 ] TO BT BT SC SA
+       8cbbbbbcd      472       516    1.96  [9 ] TO BT BR BR BR BR BR BT SA     (bow 5)
+             86d      498       473    0.64  [3 ] TO SC SA
+      bbbbbbbbcd      304       294    0.17  [10] TO BT BR BR BR BR BR BR BR BR  (bow 8+ truncated)
+      8cbbbbbbcd      272       247    1.20  [10] TO BT BR BR BR BR BR BR BT SA  (bow 6)
+      cbbbbbbbcd      183       161    1.41  [10] TO BT BR BR BR BR BR BR BR BT  (bow 7 truncated) 
+             4cd      161       139    1.61  [3 ] TO BT AB
+           8c6cd      153       106    8.53  [5 ] TO BT SC BT SA
+            86bd      138       142    0.06  [4 ] TO BR SC SA
+            4ccd      100       117    1.33  [4 ] TO BT BT AB
+    </pre>
+
+
+
+
+
+:small:`Rainbow deviation angles`
+----------------------------------------------------------
+
+.. class:: tiny
+
+    Deviation angle distribution of all 3M photons. Photon wavelengths
+    from Plankian 6500K blackbody spectrum (implemented with inverse CDF GPU texture lookup).
+    Simulated "images" obtained from wavelength spectrum of each bin using CIEXYZ weighting functions 
+    converted into sRGB/D65 colorspace.   
+    The two images exposed for luminance (CIE-Y) of max bin of 1st and 2nd bows.
+
+.. image:: /env/numerics/npy/rainbow16_deviation_angle.png
+   :width: 900px
+   :align: center
+
+
+:small:`Rainbow Spectrum for 1st six bows`
+----------------------------------------------------------
+
+.. class:: tiny
+
+    Spectra obtained by selecting photons by internal reflection counts. 
+    Colors obtained from spectra of each bin using CIEXYZ weighting functions 
+    converted into sRGB/D65 colorspace.  
+    Exposures by normalizing to bin with maximum luminance (CIE-Y) of each bow. 
+    White lines indicate geometric optics prediction of deviation angle ranges 
+    of the visible range 380-780nm. 180-360 degrees signifies exit on same 
+    side of droplet as incidence.  
+ 
+
+.. image:: /env/numerics/npy/rainbow6-spectrum.png
+   :width: 900px
+   :align: center
+
+
+:small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
+------------------------------------------------------------
+
+.. class:: tiny
+
+   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
+   Numbered bands are visible range expectations of first 11 rainbows.
+   S-Polarized intersection (E field perpendicular to plane of incidence) arranged by directing polarization radially.
+
+.. image:: /env/optix/cfg4/rainbow-cfg4-spol.png
+   :width: 800px
+   :align: center
+
+
+
+
 
 
 :i:`PmtInBox approach 1`
@@ -751,18 +909,8 @@ Opticks : GPU Optical Photon Simulation
 
 
 
-:small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
-------------------------------------------------------------
 
-.. class:: tiny
 
-   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
-   Numbered bands are visible range expectations of first 11 rainbows.
-   S-Polarized intersection (E field perpendicular to plane of incidence) arranged by directing polarization radially.
-
-.. image:: /env/optix/cfg4/rainbow-cfg4-spol.png
-   :width: 800px
-   :align: center
 
 
 
@@ -848,124 +996,320 @@ Opticks : GPU Optical Photon Simulation
 
 
 
-External Photon Simulation Workflow
--------------------------------------
+:i:`JPMT Wide`
+----------------------
 
-
-
-:small:`Multiple Rainbows from a Single Drop of Water`
---------------------------------------------------------
-
-.. image:: /env/presentation/rainbow-mechanism.png
-   :width: 900px
-   :align: center
-
-.. class:: small
-
-   Caustic bunching at least deviation causes rainbow 
-
-   (a) Primary bow, single reflection : ray f at bow angle
-   (b) Secondary bow, double reflection : ray g at bow angle
-   (c) Deviation angles 0:180 degrees hemisphere opposite to incident rays
-
-.. class:: tiny
-
-   Jearl D. Walker, 1975, Multiple rainbows from single drops of water and other liquids
-   http://patarnott.com/atms749/pdf/MultipleRainbowsSingleDrops.pdf
-
-
-:small:`Disc beam 1M Photons incident on Water Sphere (S-Pol)`
-----------------------------------------------------------------
-
-.. class:: tiny
-
-    Photons shown by lines with color representing polarization direction. S-Polarized (perpendicular to plane of incidence) 
-    intersection by disc radially directed polarization. Geodesic icosahedron tesselation just for OpenGL visualization, 
-    actual OptiX geometry is perfect sphere.
-
-.. image:: /env/graphics/ggeoview/rainbow-spol-disc-incident-sphere.png
-   :width: 900px
-   :align: center
-
-
-:small:`2ns later, Several Bows Apparent`
----------------------------------------------------------------------
-
-.. image:: /env/graphics/ggeoview/rainbow-spol-disc-several-bows.png
-   :width: 900px
-   :align: center
-
-
-:small:`Opticks/Geant4 Rainbow Step Sequence Comparison`
----------------------------------------------------------------------
-
-.. class:: small
-
-   * BT/BR: boundary transmit/reflect
-   * TO/SC/SA: torch/scatter/surface absorb
-
-   **1M flag sequences indexed using CUDA Thrust, 0.040 s**
 
 .. raw:: html
 
-    <pre class="mypre">
-     64-bit uint  Opticks    Geant4    chi2                                      (tag:5,-5)   
-
-            8ccd   819160    819654    0.15  [4 ] TO BT BT SA                    (cross droplet) 
-             8bd   102087    101615    1.09  [3 ] TO BR SA                       (external reflect)
-           8cbcd    61869     61890    0.00  [5 ] TO BT BR BT SA                 (bow 1)
-          8cbbcd     9618      9577    0.09  [6 ] TO BT BR BR BT SA              (bow 2)
-         8cbbbcd     2604      2687    1.30  [7 ] TO BT BR BR BR BT SA           (bow 3)
-        8cbbbbcd     1056      1030    0.32  [8 ] TO BT BR BR BR BR BT SA        (bow 4)
-           86ccd     1014      1000    0.10  [5 ] TO BT BT SC SA
-       8cbbbbbcd      472       516    1.96  [9 ] TO BT BR BR BR BR BR BT SA     (bow 5)
-             86d      498       473    0.64  [3 ] TO SC SA
-      bbbbbbbbcd      304       294    0.17  [10] TO BT BR BR BR BR BR BR BR BR  (bow 8+ truncated)
-      8cbbbbbbcd      272       247    1.20  [10] TO BT BR BR BR BR BR BR BT SA  (bow 6)
-      cbbbbbbbcd      183       161    1.41  [10] TO BT BR BR BR BR BR BR BR BT  (bow 7 truncated) 
-             4cd      161       139    1.61  [3 ] TO BT AB
-           8c6cd      153       106    8.53  [5 ] TO BT SC BT SA
-            86bd      138       142    0.06  [4 ] TO BR SC SA
-            4ccd      100       117    1.33  [4 ] TO BT BT AB
+    <pre class="myfoot">
+    http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
     </pre>
 
 
 
 
 
-:small:`Rainbow deviation angles`
-----------------------------------------------------------
+:i:`JPMT Before Contact`
+-------------------------
 
 .. class:: tiny
 
-    Deviation angle distribution of all 3M photons. Photon wavelengths
-    from Plankian 6500K blackbody spectrum (implemented with inverse CDF GPU texture lookup).
-    Simulated "images" obtained from wavelength spectrum of each bin using CIEXYZ weighting functions 
-    converted into sRGB/D65 colorspace.   
-    The two images exposed for luminance (CIE-Y) of max bin of 1st and 2nd bows.
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-before-contact_half.png
 
-.. image:: /env/numerics/npy/rainbow16_deviation_angle.png
+
+:i:`JPMT After Contact`
+-------------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-after-contact_half.png
+
+
+:i:`JPMT Approach`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-approach_half.png
+
+
+:i:`JPMT Arrival`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-arrival_half.png
+
+
+:i:`JPMT Inside Outside`
+-------------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-outside_half.png
+
+
+.. sidebar:: Photon History Selection
+
+   Only *CK BT BT BT SA*, three boundary transmits before surface absorption 
+
+
+:i:`JPMT Headview`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-headview_half.png
+
+
+:i:`JPMT Backview`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-backview_half.png
+
+
+
+:small:`EXTRAS : Details and Tests in progress`
+--------------------------------------------------
+
+.. class:: small
+
+   **Details**
+
+   * Optical Photons now fully GPU resident
+   * Volume to Surface Translation details need validation
+   * OptiX Geometry Experience
+
+   **Tests requiring G4 comparison**
+
+   * Prism S-Polarized
+   * Prism P-Polarized
+   * Prism Deviation vs Incident angles for 10 wavelengths
+   * Lens focussing 
+
+
+:small:`Optical Photons now fully GPU resident`
+--------------------------------------------------
+
+.. class:: small
+
+     All photon operations now done on GPU:
+
+     * seeded (assigned gensteps)
+     * generated 
+     * propagated
+     * indexed material/interaction histories 
+     
+     Only PMT hits need to be copied back to CPU
+
+
+.. class:: tiny
+
+     Thrust/CUDA/OptiX interop used to implement
+
+
+:small:`Volume to Surface Translation details need validation`
+------------------------------------------------------------------
+
+.. class:: small
+    
+   Zoomed view of PMT edge (mm): showing 3mm Pyrex, 
+
+   .. image:: /env/nuwa/detdesc/pmt/analytic-pmt-detail.png
+      :width: 600px
+      :align: center
+
+   **Volume based geometry can get away with coincident
+   boundaries, Surface based geometry cannot**
+
+
+:small:`OptiX Geometry Experience`
+--------------------------------------
+
+.. class:: small
+
+   **Geometry Issues Fixed/Avoidable**
+
+   * triangulated geometry leaks when shoot millions of photons at cracks (1)
+   
+   * bounding boxes that touch geometry cause leaks, slightly   
+     enlarging the boxes avoids leak (<1 in 3M)  
+   
+
+.. class:: tiny
+
+    (1) more of a problem for testing than actual usage
+
+
+
+:small:`Prism S-Polarized`
+------------------------------------------------------------------
+
+.. class:: small
+
+    Quadrant of cylindrically directed S-polarized photons at 10 wavelengths (from 100 to 800 nm) 
+    incident from left.  
+
+.. class:: tiny
+
+    S-polarization: perpendicular to incident plane
+
+.. image:: /env/numerics/npy/prism-spol-ripple.png
    :width: 900px
    :align: center
 
 
-:small:`Rainbow Spectrum for 1st six bows`
-----------------------------------------------------------
+:small:`Prism P-Polarized`
+------------------------------------------------------------------
+
+.. class:: small
+
+    Gap in reflection at Brewsters angle is apparent where 
+    the P-polarized photons can only be transmitted. 
 
 .. class:: tiny
 
-    Spectra obtained by selecting photons by internal reflection counts. 
-    Colors obtained from spectra of each bin using CIEXYZ weighting functions 
-    converted into sRGB/D65 colorspace.  
-    Exposures by normalizing to bin with maximum luminance (CIE-Y) of each bow. 
-    White lines indicate geometric optics prediction of deviation angle ranges 
-    of the visible range 380-780nm. 180-360 degrees signifies exit on same 
-    side of droplet as incidence.  
+    P-polarization: not perpendicular to incident plane
+
+
+.. image:: /env/numerics/npy/prism-ppol-ripple.png
+   :width: 900px
+   :align: center
+
+
+:small:`Prism Deviation vs Incident angles for 10 wavelengths`
+------------------------------------------------------------------
+
+.. class:: small
+
+   Prism geometry and Snell's law at two refractions allows deviation 
+   angle vs incident angle to be predicted.  Comparison of simulation
+   results with expectations for 10 wavelengths   
+   using refractive index of Schott F2 Flint Glass.
+
+.. image:: /env/numerics/npy/prism-deviation.png
+   :width: 900px
+   :align: center
+
+
+:small:`Lens focussing`
+----------------------------------------------------------
+
+.. class:: small
+
+    Lens constructed from intersection of two spheres.
+    Disc parallel beam incident from left.
+    Color represents polarization direction.  2nd reflections 
+    are apparent. 
+
+
+.. image:: /env/graphics/ggeoview/lens-polcolor.png
+   :width: 900px
+   :align: center
+
+
+
+
+
+
+:small:`Opticks Absolute Reflection compared to Fresnel expectation`
+-----------------------------------------------------------------------
+
+.. class:: tiny
+
+   Comparison of simulated absolute reflection of S and P polarized single events against 
+   expectation from Fresnel formula. Using uniform planar incident cyclindrically directed light.
+
+.. image:: /env/numerics/npy/reflection.png
+   :width: 700px
+   :align: center
+
+
+:small:`1M Rainbow P-Polarized, Comparison Opticks/Geant4`
+------------------------------------------------------------
+
+.. class:: tiny
+
+   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
+   Numbered bands are visible range expectations of first 11 rainbows.
+   P-Polarized intersection (E field within plane of incidence) arranged by directing polarization tangentially.
+
+.. image:: /env/optix/cfg4/rainbow-cfg4-ppol.png
+   :width: 800px
+   :align: center
+
+
+
+:small:`Large Geometry/Event Techniques`
+------------------------------------------------------- 
+
+.. sidebar:: JUNO Geometry 
+
+   .. class:: small
+
+      289733 volumes split into instanced: 
+ 
+      * name: count (faces)
+      * PMT_3inch: 36572 (540) 
+      * PMT_20inch: 19452 (3502)
+      * lFasteners: 480 (1856)
+      * lPlane: 124 (6252) 
+
+      And the rest:
+
+      * Global     (95436)  
  
 
-.. image:: /env/numerics/npy/rainbow6-spectrum.png
+.. class:: small
+
+   **Instancing implemented for OpenGL and OptiX**
+
+   Geometry analysed to find instances
+
+   * repeated sub-trees with transforms for each **instance** 
+   * JUNO: ~90M triangles, instancing reduces to 0.1M
+
+   **Switchable Rendering**
+
+   * Multiple renderers: global, full instances, bbox instances
+   * Rapid switching GUI control
+
+   **Compute Mode**
+
+   * Pure OptiX buffers faster (~7X interop)
+   * Less GPU memory (1) 
+   * Visualize by separate event loading  
+      
+   **Ideas to investigate**
+
+   * Analytic PMT definition expected to improve OptiX efficiency 
+   * Culling non-visible geometry to improve OpenGL performance
+   * Level-of-detail : change geometry detail based on distance
+
+
+.. class:: tiny  
+
+   (1) Interop forced to duplicate data as OpenGL/OptiX geometry sharing not operational
+
+
+
+:small:`JUNO Geometry Instance Rendering Control`
+------------------------------------------------------- 
+
+.. image:: /env/graphics/ggeoview/ggv-juno-instancing.png
    :width: 900px
    :align: center
+
+   
+:i:`JPMT Inside Wide`
+----------------------
+
+.. class:: tiny
+
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
 
 
 
