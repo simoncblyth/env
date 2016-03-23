@@ -1,12 +1,22 @@
 GTC Preparation
 ================
 
-
 Stan Seibert on Chroma
 ------------------------
 
 * http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
 * http://on-demand.gputechconf.com/gtc/2013/video/S3304-Chroma-Photon-Sim-Physics-PyCUDA.mp4
+
+SK
+---
+
+* https://en.wikipedia.org/wiki/Kamioka_Observatory
+
+The Super-Kamiokande detector is massive, even by particle physics standards.
+It consists of 50,000 tons of pure water surrounded by about 11,200
+photomultiplier tubes. The detector was again designed as a cylindrical
+structure, this time 41.4 m tall and 39.3 m across.
+
 
 Census of large PMT experiments, existing and planned
 -------------------------------------------------------
@@ -34,13 +44,91 @@ NEMO,
 Antares,
 MiniBooNE, 
 Xenon, 
-Baikal,
+Baikal GVD
 Tunka,
 North Auger Observatory
 
 https://www.mpi-hd.mpg.de/hfm/CosmicRay/CosmicRaySites.html
 
 https://en.wikipedia.org/wiki/List_of_neutrino_experiments
+
+
+
+DYB
+----
+
+* http://dayabay.ihep.ac.cn/pubtalk/pubtalk.html
+* http://dayabay.ihep.ac.cn/pubtalk/APS_PMT_WeiliZhong.pdf
+
+
+Pedro
+~~~~~~
+
+* http://dayabay.ihep.ac.cn/cgi-bin/DocDB/ShowDocument?docid=8081
+* http://dayabay.ihep.ac.cn/DocDB/0080/008081/004/MasterClass_DayaBay.pdf
+
+
+Dan
+~~~~
+
+
+* http://dayabay.ihep.ac.cn/DocDB/0085/008506/001/NeutrinosAndDayaBay_DanDwyer_SLAC_29Oct2012.pdf
+
+
+LiangJan
+~~~~~~~~~
+
+* http://dayabay.ihep.ac.cn/DocDB/0052/005277/001/Overview_of_AD_optical_model.pdf
+
+
+
+Hammamatsu on SN1987a
+----------------------
+
+* http://www.hamamatsu.com/jp/en/technology/projects/exploring_neutrinos/index.html
+
+
+FT
+---
+
+Hammamatsu
+
+* http://markets.ft.com/research/Markets/Tearsheets/Business-profile?s=6965:TYO
+
+
+Reactor Neutrino expts 
+-----------------------
+
+Accelerator Neutrino expts
+----------------------------
+
+* https://en.wikipedia.org/wiki/Accelerator_Neutrino_Neutron_Interaction_Experiment
+
+
+Neutrino Telescopes
+--------------------
+
+* KM3Net
+* Baikal-GVD
+* IceCube/PINGU
+
+* https://en.wikipedia.org/wiki/Deep_Underground_Neutrino_Experiment
+
+
+Large Water Cerenkov Detectors
+--------------------------------
+
+* SNO
+* SuperKamiokande/HyperKamiokande
+
+
+Large Scintillator Detectors
+-----------------------------
+
+* 
+
+
+
 
 
 DYB Images
