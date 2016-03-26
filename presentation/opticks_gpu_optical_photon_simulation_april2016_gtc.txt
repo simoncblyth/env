@@ -24,8 +24,23 @@
              font-size: 18px;
              white-space: pre;
              color: white;
-             position: absolute; top:80%; left:5%; width:50%; height:10% ;
+             position: absolute; top:86%; left:4%; width:50%; height:10% ;
         }
+
+        div.mytitle {
+             font-size: 20px;
+             color: black;
+             position: absolute; top:0%; left:5%; width:90%; height:10% ;
+        }
+
+        div.mycredit {
+             font-size: 20px;
+             color: black;
+             position: absolute; top:90%; left:5%; width:50%; height:10% ;
+        }
+
+
+
 
 
     </style>
@@ -37,6 +52,7 @@
 .. role:: sliteral
 .. role:: mypre 
 .. role:: myfoot
+.. role:: mytitle
 
 
 .. include:: <s5defs.txt>
@@ -53,9 +69,13 @@
     #
     #slide0
     #/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    #
+    #   wide targetting 1280x720
+    #   
     #
     slide0
-    /env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
     /env/geant4/geometry/collada/g4daeview/20140419-170713.png
@@ -132,11 +152,39 @@
     PmtInBox after 2
     /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
 
-    Daya Bay PMT Wall Photo
+    Daya Bay PMT Wall Photo 1
     /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
 
-    Super-Kamiokande PMTs 
+    Daya Bay PMT Wall Photo 2
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Super-Kamiokande PMTs Not 16:9 
     /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
+
+    Super-Kamiokande PMTs 1
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 2
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Optical Photons
+    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
+
+    Hamamatsu Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    JUNO Design
+    /env/presentation/juno-schematic.png 1280px_720px
+
+    Dayabay Reactor Neutrino Expt, Far Site
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 2
+    /env/presentation/DybFar_crop.png 1280px_720px
+
 
  
 .. comment 
@@ -173,43 +221,131 @@
 
 
 
+===================================================================================
+:i:`Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
+===================================================================================
 
 
-======================================================================
-Opticks : GPU Optical Photon Simulation 
-======================================================================
+.. raw:: html
 
-.. class:: tiny
+    <div class="mytitle">
+    <h1 style="background-color:lightgrey"> Opticks : Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ </h1>
+    </div>
 
-    http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016)
-    http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation.html (January 2016)
-    http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
-
-.. class:: small
-
-   **Executive Summary**
-
-   *Opticks* integrates *Geant4* simulations with state-of-the-art **NVIDIA OptiX** GPU ray tracing.
-
-   * Can expect: **Opticks > 1000x G4** (on workstation GPUs) 
-   * Validation comparisons with Geant4 advancing, single PMT geometry validated
-
-   **Contents**
-
-   * Brief History of GPU Optical Photon Simulation Development
-   * Introducing NVIDIA OptiX and Opticks
-   * Mesh Fixing with OpenMesh surgery
-   * Analytic PMT geometry description 
-   * Opticks/Geant4 Matching using Dynamic Geometry
-   * Rainbow, Single PMT Geometry Testing
-   * Summary 
-
-   |  Simon C Blyth, National Taiwan University
-   |  **March 2016** 
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth, National Taiwan University &mdash;  GTC 2016 </h2>
+    </div>
 
 
 
-:i:`Daya Bay PMT Wall Photo`
+.. comment
+
+    **1704** 
+           Sir Isaac Newton published *Opticks* 
+
+    **2008** 
+           NVIDIA® begins OptiX™ development
+
+    **2015** 
+           *Opticks* development based on OptiX™ begins 
+
+
+Optical Photons 
+------------------
+
+Optical Photons crucial to Particle Physics Experiments:
+
+* **Neutrino detectors**
+* Proton Decay Search 
+* Particle Identification
+
+"Seeing" Neutrino interactions:
+
+* large optically transparent target 
+
+  * eg water, ice, scintillators
+ 
+* detectors sensitive to single photons
+
+  * Photomultiplier Tubes (PMTs)
+
+
+Sir Isaac Newton published *Opticks* in 1704
+
+
+
+``Hamamatsu Photomultiplier Tubes (PMTs)``
+--------------------------------------------
+
+
+``Photomultiplier Tube Operation``
+--------------------------------------------
+
+
+.. image:: /env/presentation/1px.png
+   :height: 150px
+
+.. figure:: /env/presentation/pmt-schematic.png
+   :width: 700px
+   :align: center   
+
+   ``Single photoelectron amplified by ~10 dynodes to yield measurable signal`` 
+
+
+
+:i:`Super-Kamiokande PMTs 1`
+----------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="myfoot">
+    © Kamioka Observatory, ICRR(Institute for Cosmic Ray Research), The University of Tokyo.
+    </pre>
+
+
+
+
+:i:`Super-Kamiokande PMTs 2`
+----------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="myfoot">
+    © Kamioka Observatory, ICRR(Institute for Cosmic Ray Research), The University of Tokyo.
+    </pre>
+
+
+.. sidebar:: Super-Kamiokande Water Cerenkov Detector
+
+    50,000 tons ultra pure water,
+    13,000 Photomultiplier Tubes, 
+    1,000 meter underground.
+
+    * solar neutrinos, fusion
+    * atmospheric neutrinos, cosmics
+    * accelerator neutrinos, beams 
+    * reactor neutrinos, fission
+    * supernova neutrinos (SN 1987A)
+
+    .. class:: tiny
+
+        http://www-sk.icrr.u-tokyo.ac.jp/sk/index-e.html
+
+
+
+``Dayabay Reactor Neutrino Expt, Far Site``
+----------------------------------------------------
+
+:i:`Daya Bay Far Site 2`
+-------------------------
+
+.. image:: /env/presentation/ad3.png
+   :width: 662px
+   :height: 696px 
+
+
+
+:i:`Daya Bay PMT Wall Photo 1`
 ----------------------------------------------------------------------
 
 .. raw:: html
@@ -219,15 +355,42 @@ Opticks : GPU Optical Photon Simulation
     </pre>
 
 
-
-:i:`Super-Kamiokande PMTs`
+:i:`Daya Bay PMT Wall Photo 2`
 ----------------------------------------------------------------------
+
+
+.. sidebar:: Dayabay Reactor Neutrino Experiment
+
+    Eight Antineutrino Detectors (AD) in 3 halls, 
+    within 1.9 km of six nuclear reactors, in southern China. 
+    Each AD:
+
+    * 20 tons of liquid scintillator
+    * 192 8 inch PMTs
+
+
+    Most precise measurements of:
+
+    * neutrino oscillation
+    * reactor antineutrino spectrum
+
+    .. class:: tiny
+
+        http://dayawane.ihep.ac.cn
+
 
 .. raw:: html
 
     <pre class="myfoot">
-    © Kamioka Observatory, ICRR(Institute for Cosmic Ray Research), The University of Tokyo.
+    © 2010 The Regents of the University of California, through the Lawrence Berkeley National Laboratory
     </pre>
+
+
+
+
+JUNO Design
+---------------
+
 
 
 

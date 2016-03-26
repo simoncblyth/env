@@ -88,8 +88,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_psroc ; }
 
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_march2016 ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_april2016_gtc ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_march2016 ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_april2016_gtc ; }
 
 
 

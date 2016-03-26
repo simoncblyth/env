@@ -383,7 +383,9 @@ slides-ppath(){     echo $(apache-htdocs $1)/env/$(slides-branch)/$(slides-name)
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
 
 
-slides-safari(){  osascript $(env-home)/doc/safari.applescript ; }
+slides-safari(){  osascript $(slides-safari-path) ; }
+slides-safari-edit(){  vi $(slides-safari-path) ; }
+slides-safari-path(){  echo $(env-home)/doc/safari.applescript ; }  
 
 
 slides-screenshots-dir(){ echo $(apache-htdocs)/env/geant4/geometry/collada/g4daeview ; }

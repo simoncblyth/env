@@ -1,6 +1,70 @@
 GTC Preparation
 ================
 
+
+Abstract
+---------
+
+
+::
+
+    Opticks : Optical Photon Simulation for High Energy Physics with OptiX 
+
+    Opticks is an open source project that integrates high performance GPU 
+    ray tracing from NVIDIA OptiX with existing Geant4 toolkit based simulations.
+    Advantages of separate optical photon simulation and    
+    the approaches developed to integrate it with the general Geant4
+    particle simulation are presented. Approaches to minimize overheads
+    arising from split are shown.
+    Challenges included bringing complex geometries with wavelength
+    dependent material and surface properties to the GPU.
+    Techniques for visualisation of photon propagations with
+    interactive time scrubbing and history selection using OpenGL/OptiX/Thrust
+    interoperation and geometry shaders are described.
+    Results and demonstrations are shown for the photomultiplier based 
+    Daya Bay and JUNO Neutrino detectors. 
+    Extrapolation of observed timings with test geometries to multi-GPU workstation
+    core counts suggests performance sufficient for optical photon processing time to 
+    become effectively zero compared to total simulation time is within reach.
+
+
+
+Title Image
+-------------
+
+~/simon
+
+jpmt-inside-wide.png 2864x1688
+
+::
+
+
+    delta:doc blyth$ crop.py --style custom --width 2560 --height 1440 --top 0 --left 0  ~/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide.png
+    2016-03-26 12:18:25,123 env.doc.crop INFO     Crop None custom 
+    2016-03-26 12:18:25,123 env.doc.crop INFO     cropping /Users/blyth/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide.png to create /Users/blyth/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop.png 
+    2016-03-26 12:18:25,125 env.doc.crop INFO     width 2864 height 1688 cropping to box (0, 0, 2560, 1440) 
+    delta:doc blyth$ 
+
+
+
+
+
+target     1280x720
+target*2   2560x1440
+
+
+PMT pic
+-------
+
+* http://neutron.physics.ucsb.edu/docs/High_energy_PMT_TPMO0007E01.pdf
+
+PMT review
+------------
+
+* http://www.annualreviews.org/doi/pdf/10.1146/annurev-nucl-102212-170604
+
+
+
 Stan Seibert on Chroma
 ------------------------
 
@@ -11,11 +75,64 @@ SK
 ---
 
 * https://en.wikipedia.org/wiki/Kamioka_Observatory
+* http://www-sk.icrr.u-tokyo.ac.jp/sk/gallery/wme/PH20-water-withboat-apr23-wm.jpg
 
 The Super-Kamiokande detector is massive, even by particle physics standards.
 It consists of 50,000 tons of pure water surrounded by about 11,200
 photomultiplier tubes. The detector was again designed as a cylindrical
 structure, this time 41.4 m tall and 39.3 m across.
+
+::
+ 
+    curl -L -O http://www-sk.icrr.u-tokyo.ac.jp/sk/gallery/wme/PH20-water-withboat-apr23-wm.jpg
+
+    source 3872x2592
+    target 2560x1440
+
+    width  3872 - 2560 = 1312  , 1312/2 = 656
+    height 2592 - 1440 = 1152  , 1152/2 = 576
+
+
+    crop.py --style custom --width 2560 --height 1440 --top 656 --left 576 PH20-water-withboat-apr23-wm.jpg
+
+Central crop decreases image impact::
+
+    delta:tmp blyth$ crop.py --style custom --width 2560 --height 1440 --top 656 --left 576 PH20-water-withboat-apr23-wm.jpg
+    2016-03-26 15:02:27,219 env.doc.crop INFO     Crop None custom 
+    2016-03-26 15:02:27,220 env.doc.crop INFO     cropping PH20-water-withboat-apr23-wm.jpg to create PH20-water-withboat-apr23-wm_crop.jpg 
+    2016-03-26 15:02:27,221 env.doc.crop INFO     width 3872 height 2592 cropping to box (576, 656, 3136, 2096) 
+    delta:tmp blyth$ 
+
+
+Try just trimming the base to give 16:9::
+
+    In [5]: 3872./2592.
+    Out[5]: 1.4938271604938271
+
+    In [6]: 3872./16
+    Out[6]: 242.0
+
+    In [7]: 3872./16*9
+    Out[7]: 2178.0
+
+
+    delta:tmp blyth$ crop.py --style custom --width 3872 --height 2178 --top 0 --left 0 PH20-water-withboat-apr23-wm.jpg
+    2016-03-26 15:12:30,407 env.doc.crop INFO     Crop None custom 
+    2016-03-26 15:12:30,407 env.doc.crop INFO     cropping PH20-water-withboat-apr23-wm.jpg to create PH20-water-withboat-apr23-wm_crop.jpg 
+    2016-03-26 15:12:30,408 env.doc.crop INFO     width 3872 height 2592 cropping to box (0, 0, 3872, 2178) 
+
+    delta:tmp blyth$ crop.py --style custom --width 3872 --height 2178 --top 0 --left 0 PH20-water-withboat-apr23-wm.jpg --ext .png
+    2016-03-26 15:23:26,170 env.doc.crop INFO     Crop None custom 
+    2016-03-26 15:23:26,170 env.doc.crop WARNING  converting ext from .jpg to .png 
+    2016-03-26 15:23:26,170 env.doc.crop INFO     cropping PH20-water-withboat-apr23-wm.jpg to create PH20-water-withboat-apr23-wm_crop.png 
+    2016-03-26 15:23:26,173 env.doc.crop INFO     width 3872 height 2592 cropping to box (0, 0, 3872, 2178) 
+    delta:tmp blyth$ 
+
+    3872/2 
+    2592/2
+
+
+
 
 
 Census of large PMT experiments, existing and planned
@@ -138,6 +255,28 @@ DYB Images
 
 
 * http://photos.lbl.gov/viewphoto.php?source=search&page=&searchField=ALL&searchstring=Daya%20Bay&orient=any&resolution=&resolutionOperand=min&fileSize=&fileSizeOperand=&fileWidth=&fileWidthOperand=min&fileHeight=&fileHeightOperand=min&dateAddedStart=&dateAddedEnd=&dateTakenStart=&dateTakenEnd=&dateExpirStart=&dateExpirEnd=&sort=&sortorder=&linkperpage=20&doccontents=1&albumId=&imageId=5210356&page=39&imagepos=767&sort=&sortorder=
+
+
+
+* http://photos.lbl.gov/viewphoto.php?source=search&page=&searchField=ALL&searchstring=Daya%20Bay&orient=&resolution=&resolutionOperand=&fileSize=&fileSizeOperand=&fileWidth=&fileWidthOperand=&fileHeight=&fileHeightOperand=&dateAddedStart=&dateAddedEnd=&dateTakenStart=&dateTakenEnd=&dateExpirStart=&dateExpirEnd=&sort=capturedate&sortorder=&linkperpage=20&doccontents=1&albumId=&imageId=6237550&page=32&imagepos=639&sort=capturedate&sortorder=
+
+
+Far site WP filling
+
+* http://photos.lbl.gov/viewphoto.php?source=search&page=&searchField=ALL&searchstring=Daya%20Bay&orient=&resolution=&resolutionOperand=&fileSize=&fileSizeOperand=&fileWidth=&fileWidthOperand=&fileHeight=&fileHeightOperand=&dateAddedStart=&dateAddedEnd=&dateTakenStart=&dateTakenEnd=&dateExpirStart=&dateExpirEnd=&sort=capturedate&sortorder=&linkperpage=20&doccontents=1&albumId=&imageId=6237528&page=31&imagepos=620&sort=capturedate&sortorder=
+
+
+::
+
+    delta:tmp blyth$ crop.py --style custom --ext .png --width 1600 --height 900 --left 0 --top 0 DybFar.jpg
+    2016-03-26 17:48:59,443 env.doc.crop INFO     Crop None custom 
+    2016-03-26 17:48:59,443 env.doc.crop WARNING  converting ext from .jpg to .png 
+    2016-03-26 17:48:59,443 env.doc.crop INFO     cropping DybFar.jpg to create DybFar_crop.png 
+    2016-03-26 17:48:59,445 env.doc.crop INFO     width 1600 height 900 cropping to box (0, 0, 1600, 900) 
+    delta:tmp blyth$ 
+    delta:tmp blyth$ open DybFar_crop.png 
+
+
 
 
 IMPORTANT – READ CAREFULLY: This End User License Agreement (“Agreement") is a

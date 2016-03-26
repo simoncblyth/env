@@ -5,6 +5,8 @@ to make a set of png
 
 """
 import os, logging, sys
+import argparse
+
 log = logging.getLogger(__name__)
 from PIL import Image 
 
@@ -23,13 +25,15 @@ class Crop(object):
 
             }
 
-    def __init__(self, style_ ):
-        if style_ in self.style:
-            self.style_ = style_
+    def __init__(self, args ):
+        self.args = args
+        if args.style in self.style:
+            self.style_ = args.style
             self.description = self.style[style_]['description']
             self.param = self.style[style_]['param']
         else:    
-            raise Exception("style %s not handled " % style_ )
+            self.style_ = None
+            self.description = args.style
 
     def __repr__(self):
         return "%s %s %s " % ( self.__class__.__name__ , self.style_, self.description )
@@ -45,37 +49,86 @@ class Crop(object):
         #. bottom edge
 
         """ 
+        args = self.args
         base, ext = os.path.splitext(path)
+
+        if ext != args.ext:
+            log.warning("converting ext from %s to %s " % (ext, args.ext))
+            ext = args.ext
+        pass
+
         cpath = base + "_crop" + ext 
+
         log.info( "cropping %s to create %s " % ( path, cpath ))  
         im = Image.open(path)
         width, height = im.size   
 
+
         # safari_headtail
-        left = 0
-        right = width
 
-        upper = self.param[0]
-        lower = height - self.param[1]
+        if self.style_ is None:
+            box = (args.left, args.top, args.left+args.width,  args.top + args.height )
+        elif self.style_.startswith("safari_headtail"):
+            left = 0
+            right = width
+            upper = self.param[0]
+            lower = height - self.param[1]
+            box = (left, upper, right, lower)
+        else:
+            assert "unexpected style %s " % self.style_
+        pass
 
-        box = (left, upper, right, lower)
+        log.info("width %s height %s cropping to box %s " % (width, height, repr(box)))
         pass
         im = im.crop(box)
         im.save(cpath)
 
 
+
+
+
+
+
 def main():
-    logging.basicConfig(level=logging.INFO)
-    crop = Crop("safari_headtail")
+    parser = argparse.ArgumentParser()
+    d = {}
+
+    d['level'] = "INFO"
+    d['style'] = "safari_headtail"
+    d['path'] = ""
+    d['left'] = 0
+    d['top'] = 0
+    d['width'] = 2560
+    d['height'] = 1440
+    d['ext'] = ".png"
+ 
+    parser.add_argument("--level", default=d['level'] ) 
+
+    parser.add_argument("--left", default=d['left'], type=int ) 
+    parser.add_argument("--top", default=d['top'], type=int ) 
+    parser.add_argument("--width", default=d['width'], type=int) 
+    parser.add_argument("--height", default=d['height'], type=int)
+
+    parser.add_argument("--style", default=d['style'] )
+    parser.add_argument("--ext", default=d['ext'] )
+
+    parser.add_argument("path", nargs='*', default=d['path'] )
+
+    args = parser.parse_args()
+    logging.basicConfig(level=getattr(logging, args.level.upper()),format="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
+
+    crop = Crop(args)
     log.info(crop)
-    for path in sys.argv[1:]:
+
+    for path in args.path:
         if os.path.exists(path):
-            if path[-4:] == '.png':
+            ext = path[-4:]
+            if ext in [".png",".jpg"]:
                 crop(path)
-            elif path[-4:] == '.pdf':
+            elif ext == '.pdf':
                 log.info("PIL cannot handle cropping PDF ")
             else:
-                pass
+                log.info("PIL cannot handle image type %s " % path )
 
 
 if __name__ == '__main__':
