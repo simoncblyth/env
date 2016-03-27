@@ -134,6 +134,16 @@ Try just trimming the base to give 16:9::
 
 
 
+G4
+---
+
+* https://geant4.web.cern.ch/geant4/results/talks/MC2010/MC2010-Geant4-status.pdf
+* https://geant4.web.cern.ch/geant4/results/reports.shtml
+
+* http://geant4.cern.ch/collaboration/workshops.shtml
+
+21st Geant4 Collaboration Meeting, Ferrara (Italy), 12-16 September 2016.
+
 
 Census of large PMT experiments, existing and planned
 -------------------------------------------------------
@@ -306,6 +316,22 @@ display or use the image.
 
 http://www.lbl.gov/EndUserLicenseAgreement.html
 
+
+Dyb Principal
+---------------
+
+* http://neutrino.physics.berkeley.edu/About/DetailedDetector.html
+
+
+Soeren
+
+* http://dayabay.ihep.ac.cn/docs/slides_NuFact2013_sj.pdf
+
+
+Liquid Scintillator Review
+----------------------------
+
+* https://www-opera.desy.de/publications/desyphdseminar/Neutrino_detection_with_liquid_scintillator_Daniel_Bick.pdf
 
 
 SK Images

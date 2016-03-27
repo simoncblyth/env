@@ -109,7 +109,13 @@
 
     GGeoView Cerenkov Geom M1
     /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
-   
+  
+    Detecting Neutrinos via Optical Photons 1
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    Detecting Neutrinos via Optical Photons 2
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+ 
     JPMT Inside Wide 
     /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
 
@@ -128,8 +134,15 @@
     JPMT Arrival 
     /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
  
-    JPMT Before Contact 
+    But, there is a problem...
     /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 2
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 3
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
  
     JPMT After Contact 
     /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
@@ -176,14 +189,24 @@
     Photomultiplier Tube Operation
     /env/presentation/hamamatsu-pmt.png 1099px_734px
 
-    JUNO Design
-    /env/presentation/juno-schematic.png 1280px_720px
+    Jiangmen Underground Neutrino Observatory (JUNO) 
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+    Jiangmen Underground Neutrino Observatory, Goals
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
 
     Dayabay Reactor Neutrino Expt, Far Site
     /env/presentation/DybFar_crop.png 1280px_720px
 
     Daya Bay Far Site 2
     /env/presentation/DybFar_crop.png 1280px_720px
+
+    Geant4 : Monte Carlo Simulation Toolkit 
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    "Seeing" neutrinos via scintillation + Cherenkov light
+    /env/presentation/cherenkov.png 316px_203px 850px_400px
 
 
  
@@ -229,7 +252,7 @@
 .. raw:: html
 
     <div class="mytitle">
-    <h1 style="background-color:lightgrey"> Opticks : Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ </h1>
+    <h1 style="background-color:lightgrey"> <i>Opticks</i> : Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ </h1>
     </div>
 
     <div class="mycredit">
@@ -332,6 +355,42 @@ Sir Isaac Newton published *Opticks* in 1704
         http://www-sk.icrr.u-tokyo.ac.jp/sk/index-e.html
 
 
+:blue:`Jiangmen Underground Neutrino Observatory (JUNO)` 
+------------------------------------------------------------
+
+:blue:`Jiangmen Underground Neutrino Observatory, Goals` 
+------------------------------------------------------------
+
+.. sidebar:: Under Construction
+
+    .. class:: small
+
+        20,000 ton liquid scintillator, 700 m underground, 
+        17,000 20" PMTs, 34,000 3" PMTs,
+        unprecedented energy resolution: 3% (at 1 Mev). Goals:
+
+        * **Determine neutrino mass heirarchy** from 
+          energy spectrum of reactor electron antineutrinos 
+          at ~53km from reactors.
+
+        * Measure oscillation parameters
+
+        Study:
+
+        * atmospheric neutrinos
+        * solar neutrinos
+        * geo-neutrinos
+        * supernova neutrinos
+        * exotic searches
+
+    .. class:: tiny
+
+        http://juno.ihep.ac.cn
+
+
+
+
+
 
 ``Dayabay Reactor Neutrino Expt, Far Site``
 ----------------------------------------------------
@@ -388,8 +447,144 @@ Sir Isaac Newton published *Opticks* in 1704
 
 
 
-JUNO Design
----------------
+
+.. comment
+
+    .. image:: /env/presentation/ibd-prompt-delayed.png  
+       :width: 1033px
+       :height: 228px 
+
+    .. figure:: /env/presentation/cherenkov.png
+       :width: 632px
+       :height: 406px
+
+
+
+
+"Seeing" neutrinos via scintillation + Cherenkov light
+----------------------------------------------------------
+
+.. class:: small
+
+   Antineutrinos react with protons in liquid scintillator yielding e+ and gammas. 
+   Particle energy absorbed by the scintillator is re-emitted as **optical photons**.
+   Dayabay uses 0.1% Gadolinium doped liquid scintillator.
+
+.. image:: /env/presentation/ibd-prompt-delayed.png  
+   :height: 200px 
+
+.. class:: small
+
+   **Cherenkov light** 
+ 
+   * emitted by charged particles with velocity > materials speed of light
+   * occurs in all transparent materials eg water, ice, scintillator
+
+
+   **Optical Photon Propagation Model**
+
+   Detailed **optical photon simulation** critical to detector design, achieving goals.
+
+
+
+Geant4 : Monte Carlo Simulation Toolkit 
+-------------------------------------------
+
+.. sidebar:: Leading in Particle Physics
+
+   .. class:: small
+        
+       **Geant4** simulates particles travelling through matter, 
+       with applications in high energy, nuclear and accelerator
+       physics, medical imaging, radiotherapy and space science. 
+       20 year history, ubiquitous in physics experiments.
+
+       **Simulation** essential for:
+
+       * detector design/optimization 
+       * reconstruction algorithm development
+       * reconstruction efficiency estimates
+
+       **Geant4 Model**
+
+       * geometry : **CSG tree of solids**
+       * particles : tracks 
+       * processes : nuclear, EM, weak, **optical**
+ 
+
+   .. class:: tiny
+
+      https://geant4.web.cern.ch
+ 
+
+
+
+``But, there is a problem...``
+---------------------------------
+
+:i:`JPMT Before Contact 2`
+--------------------------
+
+
+.. sidebar:: Optical Photon Simulation Problem
+
+    .. class:: small
+        
+         Cosmic muons can yield many millions
+         of optical photons in Daya Bay (even more in JUNO).
+         Optical photon propagation dominates 
+         *Geant4* simulation time ~95% for Daya Bay.
+
+         Cosmic Muon Sample sizes severely limited by 
+         CPU time and memory practicalities.
+
+         **Hybrid Solution : Geant4 + Opticks** 
+
+         External propagation possible as optical photons 
+         are isolated in simulation chain.
+         
+         * produced by Cerenkov/Scintillation
+         * yield only PMT hits
+
+
+
+
+:small:`Parallels between Realistic Image Synthesis and Optical Simulation`
+-------------------------------------------------------------------------------
+
+.. sidebar:: OptiX *Glass* Sample App
+
+    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
+       :width: 450px
+       :align: right
+
+    .. class:: tiny
+
+        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
+
+
+.. class:: small
+
+    Realistic image synthesis and optical photon simulation 
+    have the same rate determining step: :red:`geometry intersection`. 
+
+    Tools developed for fast ray tracing can be a huge benefit to optical photon simulation. 
+   
+
+    NVIDIA OptiX benefits:
+ 
+    * ray tracing framework: **flexible, low level**
+
+    * state-of-the-art GPU accelerated intersection 
+
+    * regular releases: improvements, new GPU tuning
+
+    * shared C++/CUDA context eases development 
+
+    * :red:`NVIDIA expertise on efficient GPU/multi-GPU usage` 
+
+    * linear performance scaling with CUDA cores across multiple GPUs
+
 
 
 
@@ -398,33 +593,31 @@ JUNO Design
 :small:`Brief History of GPU Optical Photon Simulation Development`
 ----------------------------------------------------------------------
 
-
-.. sidebar:: Why GPU Simulation ?   
+.. sidebar:: Aim of Opticks  
 
     .. class:: small
     
-         **Optical Photon Problem** 
+         *Opticks* aims to replace *Geant4* optical photon
+         propagation with an equivalent and drastically 
+         faster GPU implementation. 
 
-         *Geant4* optical photon propagation dominates 
-         simulation time ~95% (and memory expense)
+         This requires bridging of geometry and event data.
+         between *Geant4* and *Opticks* 
+        
+         **Side Benefit : Performant Visualization**
 
-         **Optical Photon Solution** 
-
-         External photon propagation made possible by  
-         isolated nature of photons in simulation chain.
-         
-         * produced only by Cerenkov/Scintillation 
-         * yielding only PMT hits 
-
+         Migrating Geant4 C++ CSG tree geometry to the GPU 
+         enables unprecedented visualizations.  
+       
 
 .. class:: small
 
-   **2013(Aug-)** [liberate geometry]
+   **2013(Aug-)** [liberate geometry from *Geant4*]
 
    * Develop *G4DAE* geometry exporter that writes tesselated COLLADA 3D files, 
      including all material and surface properties.
 
-   **2014** [integrate geometry/event data with *Chroma*]
+   **2014** [integrate geometry/event data with *Chroma* [1]]
 
    * Integrate *G4DAE* geometries with *Chroma* 
    * Develop runtime event data bridge
@@ -443,68 +636,12 @@ JUNO Design
 
 .. class:: tiny
 
-   Newton published *Opticks* in 1704
-
-
-:small:`Based on: NVIDIA OptiX Ray Tracing Engine [C++/C/CUDA]`
--------------------------------------------------------------------
-
-
-.. sidebar:: Ray Tracing ?
-
-    .. class:: small
-
-        Pixels calculated by tracing rays from image plane into geometry, 
-        recursively doing reflection, refraction, shadow calculations.
-
-    .. image:: /env/optix/samples/optix-tutorial-10.png 
-       :width: 400px
-       :align: right
-
-    .. class:: small
-
-        Ray Tracing more realistic (closer to physics) than rasterized projection
+   [1] http://chroma.bitbucket.org Developed by Stan Seibert, University of Pennsylvania
 
 
 
-.. class:: small
-
-    *OptiX*: :blue:`Ray Trace optimized CUDA compiler` 
- 
-    * ray tracing framework: **flexible, low level**
-
-    * state-of-the-art GPU accelerated intersection 
-
-    * regular releases: improvements, new GPU tuning
-
-    * shared C++/CUDA context eases development 
-
-    :red:`NVIDIA expertise on efficient GPU/multi-GPU usage` 
-
-    * persistent warps sized to fill machine
-
-    * load balancing between warps, GPUs
-
-    **IHEP Performance Check** 
-
-    Used IHEP 4 GPU workstation to verify 
-    near linear performance scaling across multiple GPUs
-
-
-.. class:: tiny
-
-    https://developer.nvidia.com/optix 
-
-    https://research.nvidia.com/publication/optix-general-purpose-ray-tracing-engine
-
-
-:i:`NVIDIA OptiX In Action`
--------------------------------------------------------------------
-
-
-
-:small:`Introducing Opticks : Recreating G4 Context on GPU`
--------------------------------------------------------------
+:small:`Introducing Opticks : Recreating Geant4 "Context" on GPU`
+------------------------------------------------------------------
 
 .. sidebar:: Opticks ~15 C++ Pkgs 
 
@@ -560,60 +697,35 @@ JUNO Design
 
 
 
-:small:`Mesh Fixing with OpenMesh surgery`
-------------------------------------------------------------
+:small:`Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes`
+----------------------------------------------------------------------------
+ 
+.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
+   :width: 550px
+   :align: left 
 
-.. sidebar:: After fix 
+.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
+   :width: 550px
+   :align: right
 
-    .. class:: small
-
-        .. image:: /env/graphics/ggeoview/mesh-fix-iav-oav.png
-           :width: 500px
-           :align: center
-
-        Color indicates material assigned.
-        Prior to fix, assignments incorrect for all photons 
-        heading towards Dayabay AD top lid.
-
-        For topologically correct meshes, without holes:
-
-        ``V - E + F = 2``  (Eulers Characteristic) 
+.. image:: /env/presentation/1px.png
+   :width: 1000px
+   :height: 1px
+   :align: center
 
 
 .. class:: small
 
-   Intersection boundaries determines photon material, bad 
-   meshes cause incorrect material assignments
+   Analytic : more realistic, faster, less memory, **much more effort**
 
-   **G4Polyhedron Tesselation Bug** 
+   For Dayabay PMT:
 
-   * Some union solids become cleaved meshes 
-   * **close parallel faces** cause flickering render
-   * ~25/250 Dayabay meshes have issues 
-   * two critical ones fixed: IAV, OAV. 
-
-   **OpenMeshRap** finds/fixes cleaved meshes
-
-   * based on open source project: **OpenMesh** 
-
-   * extracts real topological meshes
-   * finds close parallel faces between the meshes
-   * deletes the extra faces
-   * stitches the split mesh together with added triangles
+   * partition CSG solids into 12 **single primitive** parts (instead of 2928 triangles)
+   * splitting at geometrical intersections avoids implementing general CSG boolean handling
+   * geometry provided to OptiX in form of ray intersection code
 
 
-
-
-:small:`Tesselated PMT geometry : convenient`
----------------------------------------------------------------------
-
- 
-.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
-   :width: 900px
-   :align: center
-
-
-:small:`Tesselated PMT geometry : unrealistic disco ball effect`
+:small:`Tesselated Photomultiplier : unrealistic disco ball effect`
 ---------------------------------------------------------------------
 
 .. image:: /env/graphics/ggeoview/dpib-test-disco-ball.png
@@ -621,80 +733,21 @@ JUNO Design
    :align: center
 
 
-
-:small:`Analytic PMT geometry : more realistic, faster, less memory`
----------------------------------------------------------------------
-
-.. class:: small
- 
-   * parse geometry XML to give CSG tree : solids with boolean intersections, unions
-   * partition 5 solids into 12 **single primitive** parts 
-   * splitting at geometrical intersections avoids implementing general CSG boolean handling
-
-.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-solids.png
-   :width: 900px
-   :align: center
-
-
-:small:`Analytic PMT in 12 parts instead of 2928 triangles`
--------------------------------------------------------------
-
-.. sidebar:: Partitioned PMT 
-
-    .. class:: small
-
-        .. image:: /env/nuwa/detdesc/pmt/hemi-pmt-parts.png
-           :width: 500px
-           :align: center
-    
-.. class:: small
-
-   Geometry provided to OptiX in form of ray intersection code
-
-   PMT intersection by comparison with part intersections: 
-   cylinder and partial sphere intersection from quadratic roots  
-   
-   **Volume to Surface translation**
-
-   Volume heirarchy: Pyrex/Vacuum/Bialkali puts photocathode inside vacuum
-   but as coincident boundaries it makes no difference for volume description.
-
-   Coincident boundaries do not work for surface description, must 
-   adopt correct heirarchy: Pyrex/Bialkali/Vacuum 
-
-
-.. class:: tiny
-
-   Sphere intersection only 2 cases, Cylinder 10 cases (axial, walls, endcap, outside/inside) 
-
-
-:small:`OptiX Ray Traced Analytic PMT geometry`
-------------------------------------------------
-
-.. class:: small
-
-.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
-   :width: 800px
-   :align: center
-
-.. class:: tiny 
-
-   Near clipped, orthographic projection.
-
-
 :small:`Analytic PMTs together with triangulated geometry`
 ----------------------------------------------------------------
 
 .. class:: small
 
-   Dayabay Ray Trace: PMTs analytic, the rest triangulated 
+   Starting from convenient tesselated geometry, implement analytic geometry for 
+   critical parts in primary optical path, to allow very close *Geant4/Opticks* match.  
 
 .. image:: /env/nuwa/detdesc/pmt/analytic-pmt-optix-geometry.png
    :width: 800px
    :align: center
 
-:small:`Opticks/Geant4 Matching using Dynamic Geometry`
-----------------------------------------------------------------
+
+:small:`Validation : Opticks/Geant4 Matching using Dynamic Geometry`
+---------------------------------------------------------------------
 
 
 .. sidebar:: *CfG4* package 
@@ -721,16 +774,6 @@ JUNO Design
      convex lens                                   Y                  Y                            
      **Dayabay PMT**                               Y                  Y                   Y    
    ===========================================  =================  =================  ================== 
-
-   Compare Opticks/Geant4 propagations with simple test geometries with: 
-
-.. raw:: html
-
-    <pre class="mypre">
-         ggv.sh        --test --testconfig "..."  --torch --torchconfig "..."   # Opticks
-         ggv.sh --cfg4 --test --testconfig "..."  --torch --torchconfig "..."   # Geant4 
-    </pre>
-
 
 
 :small:`Multiple Rainbows from a Single Drop of Water`
@@ -764,14 +807,6 @@ JUNO Design
     actual OptiX geometry is perfect sphere.
 
 .. image:: /env/graphics/ggeoview/rainbow-spol-disc-incident-sphere.png
-   :width: 900px
-   :align: center
-
-
-:small:`2ns later, Several Bows Apparent`
----------------------------------------------------------------------
-
-.. image:: /env/graphics/ggeoview/rainbow-spol-disc-several-bows.png
    :width: 900px
    :align: center
 
@@ -811,43 +846,6 @@ JUNO Design
 
 
 
-
-
-:small:`Rainbow deviation angles`
-----------------------------------------------------------
-
-.. class:: tiny
-
-    Deviation angle distribution of all 3M photons. Photon wavelengths
-    from Plankian 6500K blackbody spectrum (implemented with inverse CDF GPU texture lookup).
-    Simulated "images" obtained from wavelength spectrum of each bin using CIEXYZ weighting functions 
-    converted into sRGB/D65 colorspace.   
-    The two images exposed for luminance (CIE-Y) of max bin of 1st and 2nd bows.
-
-.. image:: /env/numerics/npy/rainbow16_deviation_angle.png
-   :width: 900px
-   :align: center
-
-
-:small:`Rainbow Spectrum for 1st six bows`
-----------------------------------------------------------
-
-.. class:: tiny
-
-    Spectra obtained by selecting photons by internal reflection counts. 
-    Colors obtained from spectra of each bin using CIEXYZ weighting functions 
-    converted into sRGB/D65 colorspace.  
-    Exposures by normalizing to bin with maximum luminance (CIE-Y) of each bow. 
-    White lines indicate geometric optics prediction of deviation angle ranges 
-    of the visible range 380-780nm. 180-360 degrees signifies exit on same 
-    side of droplet as incidence.  
- 
-
-.. image:: /env/numerics/npy/rainbow6-spectrum.png
-   :width: 900px
-   :align: center
-
-
 :small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
 ------------------------------------------------------------
 
@@ -860,8 +858,6 @@ JUNO Design
 .. image:: /env/optix/cfg4/rainbow-cfg4-spol.png
    :width: 800px
    :align: center
-
-
 
 
 
@@ -1032,44 +1028,6 @@ JUNO Design
     1446/1455  :  TO [BR] SA        1.21  0.94  1.02  1.01  0.90  0.87  0.03  1.09 
     1446/1455  :  TO BR [SA]        1.00  0.93  0.97  0.99  0.90  0.87  0.03  1.04 
     ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
-
-
-
-
-:small:`PmtInBox issues : velocity of photon propagation`
------------------------------------------------------------
-
-.. class:: small
-
-   .. image:: /env/numerics/npy/PmtInBox_TOBTSD_groupvel_off.png
-      :width: 400px
-      :align: right 
-
-   Opticks propagating at phase velocity, Geant4 at group velocity
-
-   .. image:: /env/numerics/npy/group_velocity_dispersion.png
-      :width: 400px
-      :align: left 
-
-   (vacuum wavelengths) 
-
-   * time match obtained by kludging G4 ``GROUPVEL`` to be phase velocity 
-
-   Working on fix:
-
-   * have extended GPU texture to hold GROUPVEL
-   * need to redo G4DAE export to populate the property  
-     and adjust propagation to use it 
-
-
-.. class:: tiny
-
-   https://en.wikipedia.org/wiki/Dispersion_(optics)
-
-   G4MaterialPropertiesTable::SetGROUPVEL
-
-   G4Track::CalculateVelocityForOpticalPhoton
-
 
 
 
