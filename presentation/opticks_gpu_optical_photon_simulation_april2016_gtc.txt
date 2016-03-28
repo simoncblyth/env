@@ -27,6 +27,16 @@
              position: absolute; top:86%; left:4%; width:50%; height:10% ;
         }
 
+        a.mylink {
+             display: block;
+             font-family: monospace;
+             font-size: 18px;
+             white-space: pre;
+             color: black;
+             position: absolute; top:86%; left:4%; width:50%; height:10% ;
+        }
+
+
         div.mytitle {
              font-size: 20px;
              color: black;
@@ -143,6 +153,9 @@
     But, there is a problem...
     /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
 
+    JPMT Before Contact
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
     JPMT Before Contact 2
     /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
 
@@ -206,6 +219,9 @@
     /env/presentation/DybFar_crop.png 1280px_720px
 
     Daya Bay Far Site 2
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 3
     /env/presentation/DybFar_crop.png 1280px_720px
 
     Geant4 : Monte Carlo Simulation Toolkit 
@@ -407,20 +423,8 @@ Sir Isaac Newton published *Opticks* in 1704
    :height: 696px 
 
 
-
-:i:`Daya Bay PMT Wall Photo 1`
-----------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="myfoot">
-    © 2010 The Regents of the University of California, through the Lawrence Berkeley National Laboratory
-    </pre>
-
-
-:i:`Daya Bay PMT Wall Photo 2`
-----------------------------------------------------------------------
-
+:i:`Daya Bay Far Site 3`
+-------------------------
 
 .. sidebar:: Dayabay Reactor Neutrino Experiment
 
@@ -441,6 +445,9 @@ Sir Isaac Newton published *Opticks* in 1704
 
         http://dayawane.ihep.ac.cn
 
+
+:i:`Daya Bay PMT Wall Photo 1`
+----------------------------------------------------------------------
 
 .. raw:: html
 
@@ -553,7 +560,7 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 
 
-:small:`Parallels between Realistic Image Synthesis and Optical Simulation`
+:small:`Parallels : Ray Traced Image Synthesis and Optical Photon Simulation`
 -------------------------------------------------------------------------------
 
 .. sidebar:: OptiX *Glass* Sample App
@@ -569,16 +576,12 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 .. class:: small
 
-    Realistic image synthesis and optical photon simulation 
-    have the same rate determining step: :red:`geometry intersection`. 
-
-    Tools developed for fast ray tracing can be a huge benefit to optical photon simulation. 
+    * performance of both limited by :red:`geometry intersection`. 
+    * fast ray tracing tools can drastically improve optical photon simulation
    
 
-    NVIDIA OptiX benefits:
+    NVIDIA OptiX Ray Tracing Engine, benefits:
  
-    * ray tracing framework: **flexible, low level**
-
     * state-of-the-art GPU accelerated intersection 
 
     * regular releases: improvements, new GPU tuning
@@ -587,7 +590,7 @@ Geant4 : Monte Carlo Simulation Toolkit
 
     * :red:`NVIDIA expertise on efficient GPU/multi-GPU usage` 
 
-    * linear performance scaling with CUDA cores across multiple GPUs
+    * ~linear performance scaling with cores across multiple GPUs
 
 
 
@@ -609,6 +612,7 @@ Geant4 : Monte Carlo Simulation Toolkit
 
          * recreates *Geant4* "context" on GPU
          * bridges geometry/event data
+         * :red:`photons generated on GPU (no CPU memory)`
          * optical simulation by OptiX programs
          * photon Indexing by Thrust
          * interop between OpenGL/OptiX/Thrust/CUDA  
@@ -630,7 +634,7 @@ Geant4 : Monte Carlo Simulation Toolkit
 
    * Integrate *G4DAE* geometries with *Chroma* 
    * Develop runtime event data bridge
-   * GPU Cerenkov/Scintillation photon generation
+   * :red:`GPU Cerenkov/Scintillation photon generation`
 
    **2015** [replace *Chroma* with *Opticks*]
 
@@ -640,7 +644,7 @@ Geant4 : Monte Carlo Simulation Toolkit
 
    **2016** [*Opticks* validation against *Geant4*]
 
-   * Achieve match for single PMT 
+   * Achieved match for single PMT 
 
 
 .. class:: tiny
@@ -696,6 +700,51 @@ Geant4 : Monte Carlo Simulation Toolkit
     float absorption_length = material1.y ; 
     float scattering_length = material1.z ; 
     </pre>
+
+
+:small:`Large Geometry/Event Techniques`
+------------------------------------------------------- 
+
+.. sidebar:: JUNO Geometry 
+
+   .. class:: small
+
+      289733 volumes split into instanced: 
+ 
+      * name: count (faces)
+      * PMT_3inch: 36572 (540) 
+      * PMT_20inch: 19452 (3502)
+      * lFasteners: 480 (1856)
+      * lPlane: 124 (6252) 
+
+      And the rest:
+
+      * Global     (95436)  
+
+   .. class:: tiny 
+
+      MacBook Pro (2013), NVIDIA GeForce GT 750M, 2048 MB, 384 Cores
+
+
+.. class:: small
+
+   **Instancing implemented for OpenGL and OptiX**
+
+   Geometry analysed to find instances
+
+   * repeated sub-trees with transforms for each **instance** 
+   * JUNO: ~90M triangles, instancing reduces to 0.1M
+
+   **Switchable Rendering**
+
+   * Multiple renderers: global, full instances, bbox instances
+   * Rapid switching GUI control
+
+   **Compute Mode : split simulation from visualization**
+
+   * Pure OptiX buffers faster (~7X interop)
+   * Visualize by separate event loading  
+      
 
 
 
@@ -1043,69 +1092,71 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 
 
+
+.. comment
+
+
 :small:`Summary`
 -----------------------------
 
-
 .. sidebar:: Overview
 
-    *Opticks* enables particle physics to benefit from optical photon simulation 
-    **taking effectively zero time and zero CPU memory**, 
-    thanks to the massive parallelism made accessible by NVIDIA OptiX.
-
-
-.. class:: small
-     
-  * **Opticks 200x Geant4** with mobile GPU
-  * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
-  * :red:`photon propagation time --> zero`
-  * :blue:`analytic geometry --> precise Geant4 match`
-
-  * full simulation speedup factor depend on optical photon time fraction 
-
-    * 95% -> 20x
-    * 99% -> 100x  
-
-  Photomultiplier tube based experiments can benefit the most,
-  especially Neutrino experiments.
-
-  Drastic simulation speedup should allow a better understanding 
-  of detector performance to be developed, enabling more precise
-  physics meaurements.
-    
-
-
-  
-:i:`Overview`
-----------------------
-
-.. sidebar:: Opticks Overview
-
    .. class:: small
-     
-      * **200x Geant4** with mobile GPU
-      * **> 1000x** expected (workstation GPUs) 
+
+      * **Opticks 200x Geant4** with mobile GPU
+      * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
       * :red:`photon propagation time --> zero`
-      * :blue:`analytic geometry --> precise Geant4 matching`
+      * :blue:`analytic geometry --> precise Geant4 match`
 
 
-:i:`Blank Page`
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 50px
+
+..
+
+  *Opticks* enables particle physics to benefit from optical photon simulation 
+  **taking effectively zero time and zero CPU memory**, 
+  thanks to massive parallelism made accessible by NVIDIA OptiX.
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+  * The more photons the bigger the overall speedup (99% -> 100x) 
+  * Drastic speedup -> better detector understanding -> greater precision
+  * Large PMT based neutrino experiments, such as JUNO, can benefit the most
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+
+  .. class:: huge
+
+     https://bitbucket.org/simoncblyth/opticks
+
+
+
+
+:i:`Video`
 ----------------------
 
+.. raw:: html
+
+    <iframe width="1024" height="576" src="https://www.youtube.com/embed/QzH6y0pKXk4?rel=0" frameborder="0" allowfullscreen></iframe>
+
+.. class:: tiny
+
+    https://www.youtube.com/watch?v=QzH6y0pKXk4 
 
 
 :i:`JPMT Wide`
 ----------------------
 
+.. class:: tiny
 
-.. raw:: html
-
-    <pre class="myfoot">
-    http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
-    </pre>
-
-
-
+   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
 
 
 :i:`JPMT Before Contact`
@@ -1153,275 +1204,25 @@ Geant4 : Monte Carlo Simulation Toolkit
    Only *CK BT BT BT SA*, three boundary transmits before surface absorption 
 
 
-:i:`JPMT Headview`
-----------------------
 
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-headview_half.png
-
-
-:i:`JPMT Backview`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-backview_half.png
-
-
-
-:small:`EXTRAS : Details and Tests in progress`
---------------------------------------------------
-
-.. class:: small
-
-   **Details**
-
-   * Optical Photons now fully GPU resident
-   * Volume to Surface Translation details need validation
-   * OptiX Geometry Experience
-
-   **Tests requiring G4 comparison**
-
-   * Prism S-Polarized
-   * Prism P-Polarized
-   * Prism Deviation vs Incident angles for 10 wavelengths
-   * Lens focussing 
-
-
-:small:`Optical Photons now fully GPU resident`
---------------------------------------------------
-
-.. class:: small
-
-     All photon operations now done on GPU:
-
-     * seeded (assigned gensteps)
-     * generated 
-     * propagated
-     * indexed material/interaction histories 
-     
-     Only PMT hits need to be copied back to CPU
-
-
-.. class:: tiny
-
-     Thrust/CUDA/OptiX interop used to implement
-
-
-:small:`Volume to Surface Translation details need validation`
-------------------------------------------------------------------
-
-.. class:: small
-    
-   Zoomed view of PMT edge (mm): showing 3mm Pyrex, 
-
-   .. image:: /env/nuwa/detdesc/pmt/analytic-pmt-detail.png
-      :width: 600px
-      :align: center
-
-   **Volume based geometry can get away with coincident
-   boundaries, Surface based geometry cannot**
-
-
-:small:`OptiX Geometry Experience`
+:small:`OptiX Experience`
 --------------------------------------
 
 .. class:: small
 
    **Geometry Issues Fixed/Avoidable**
 
-   * triangulated geometry leaks when shoot millions of photons at cracks (1)
+   * triangulated geometry leaks when shoot millions of photons at cracks 
+     (more a problem for testing than usage)
    
    * bounding boxes that touch geometry cause leaks, slightly   
      enlarging the boxes avoids leak (<1 in 3M)  
-   
 
-.. class:: tiny
+   **Compositing OptiX Ray Trace and OpenGL Rasterized**
 
-    (1) more of a problem for testing than actual usage
-
-
-
-:small:`Prism S-Polarized`
-------------------------------------------------------------------
-
-.. class:: small
-
-    Quadrant of cylindrically directed S-polarized photons at 10 wavelengths (from 100 to 800 nm) 
-    incident from left.  
-
-.. class:: tiny
-
-    S-polarization: perpendicular to incident plane
-
-.. image:: /env/numerics/npy/prism-spol-ripple.png
-   :width: 900px
-   :align: center
-
-
-:small:`Prism P-Polarized`
-------------------------------------------------------------------
-
-.. class:: small
-
-    Gap in reflection at Brewsters angle is apparent where 
-    the P-polarized photons can only be transmitted. 
-
-.. class:: tiny
-
-    P-polarization: not perpendicular to incident plane
-
-
-.. image:: /env/numerics/npy/prism-ppol-ripple.png
-   :width: 900px
-   :align: center
-
-
-:small:`Prism Deviation vs Incident angles for 10 wavelengths`
-------------------------------------------------------------------
-
-.. class:: small
-
-   Prism geometry and Snell's law at two refractions allows deviation 
-   angle vs incident angle to be predicted.  Comparison of simulation
-   results with expectations for 10 wavelengths   
-   using refractive index of Schott F2 Flint Glass.
-
-.. image:: /env/numerics/npy/prism-deviation.png
-   :width: 900px
-   :align: center
-
-
-:small:`Lens focussing`
-----------------------------------------------------------
-
-.. class:: small
-
-    Lens constructed from intersection of two spheres.
-    Disc parallel beam incident from left.
-    Color represents polarization direction.  2nd reflections 
-    are apparent. 
-
-
-.. image:: /env/graphics/ggeoview/lens-polcolor.png
-   :width: 900px
-   :align: center
-
-
-
-
-
-
-:small:`Opticks Absolute Reflection compared to Fresnel expectation`
------------------------------------------------------------------------
-
-.. class:: tiny
-
-   Comparison of simulated absolute reflection of S and P polarized single events against 
-   expectation from Fresnel formula. Using uniform planar incident cyclindrically directed light.
-
-.. image:: /env/numerics/npy/reflection.png
-   :width: 700px
-   :align: center
-
-
-:small:`1M Rainbow P-Polarized, Comparison Opticks/Geant4`
-------------------------------------------------------------
-
-.. class:: tiny
-
-   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
-   Numbered bands are visible range expectations of first 11 rainbows.
-   P-Polarized intersection (E field within plane of incidence) arranged by directing polarization tangentially.
-
-.. image:: /env/optix/cfg4/rainbow-cfg4-ppol.png
-   :width: 800px
-   :align: center
-
-
-
-:small:`Large Geometry/Event Techniques`
-------------------------------------------------------- 
-
-.. sidebar:: JUNO Geometry 
-
-   .. class:: small
-
-      289733 volumes split into instanced: 
- 
-      * name: count (faces)
-      * PMT_3inch: 36572 (540) 
-      * PMT_20inch: 19452 (3502)
-      * lFasteners: 480 (1856)
-      * lPlane: 124 (6252) 
-
-      And the rest:
-
-      * Global     (95436)  
- 
-
-.. class:: small
-
-   **Instancing implemented for OpenGL and OptiX**
-
-   Geometry analysed to find instances
-
-   * repeated sub-trees with transforms for each **instance** 
-   * JUNO: ~90M triangles, instancing reduces to 0.1M
-
-   **Switchable Rendering**
-
-   * Multiple renderers: global, full instances, bbox instances
-   * Rapid switching GUI control
-
-   **Compute Mode**
-
-   * Pure OptiX buffers faster (~7X interop)
-   * Less GPU memory (1) 
-   * Visualize by separate event loading  
-      
-   **Ideas to investigate**
-
-   * Analytic PMT definition expected to improve OptiX efficiency 
-   * Culling non-visible geometry to improve OpenGL performance
-   * Level-of-detail : change geometry detail based on distance
-
-
-.. class:: tiny  
-
-   (1) Interop forced to duplicate data as OpenGL/OptiX geometry sharing not operational
-
-
-
-:small:`JUNO Geometry Instance Rendering Control`
-------------------------------------------------------- 
-
-.. image:: /env/graphics/ggeoview/ggv-juno-instancing.png
-   :width: 900px
-   :align: center
-
-   
-:i:`JPMT Inside Wide`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
-
-
-
-
-
-
-:small:`Compositing OptiX Ray Trace and OpenGL Rasterized`
----------------------------------------------------------------------------
-
-.. class:: small
-
-    * best of both worlds : rasterization speed, raytrace accuracy 
-    * OptiX : replace uchar4 alpha with Z clip depth
-    * OpenGL : fragment shader, set ``gl_FragDepth`` 
+   * best of both worlds : rasterization speed, raytrace accuracy 
+   * OptiX : replace uchar4 alpha with Z clip depth
+   * OpenGL : fragment shader, set ``gl_FragDepth`` 
 
 .. raw:: html
 
@@ -1441,6 +1242,5 @@ Geant4 : Monte Carlo Simulation Toolkit
        ...
 
     </pre>
-
 
 
