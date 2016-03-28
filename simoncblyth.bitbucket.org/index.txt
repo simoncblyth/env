@@ -11,6 +11,12 @@ Opticks Presentations
 Early 2016
 ~~~~~~~~~~~~
 
+
+http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html (April 2016, GPU Technology Conference, San Jose)
+
+    Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
+
 http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016, DYB Meeting, Beijing)
 
     Opticks : GPU Optical Photon Simulation
