@@ -77,6 +77,12 @@
     slide0
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
+    Visualizing An Optical Photon Simulation
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
+
+    Overview
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
     g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
     /env/geant4/geometry/collada/g4daeview/20140419-170713.png
 
@@ -390,8 +396,6 @@ Sir Isaac Newton published *Opticks* in 1704
 
 
 
-
-
 ``Dayabay Reactor Neutrino Expt, Far Site``
 ----------------------------------------------------
 
@@ -593,16 +597,21 @@ Geant4 : Monte Carlo Simulation Toolkit
 :small:`Brief History of GPU Optical Photon Simulation Development`
 ----------------------------------------------------------------------
 
-.. sidebar:: Aim of Opticks  
+.. sidebar:: Opticks  
 
     .. class:: small
-    
+
          *Opticks* aims to replace *Geant4* optical photon
          propagation with an equivalent and drastically 
          faster GPU implementation. 
 
-         This requires bridging of geometry and event data.
-         between *Geant4* and *Opticks* 
+         **Opticks : ~15 C++ Packages**
+
+         * recreates *Geant4* "context" on GPU
+         * bridges geometry/event data
+         * optical simulation by OptiX programs
+         * photon Indexing by Thrust
+         * interop between OpenGL/OptiX/Thrust/CUDA  
         
          **Side Benefit : Performant Visualization**
 
@@ -636,64 +645,57 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 .. class:: tiny
 
-   [1] http://chroma.bitbucket.org Developed by Stan Seibert, University of Pennsylvania
+   [1] http://chroma.bitbucket.org Developed by Stan Seibert, University of Pennsylvania. 
 
 
 
-:small:`Introducing Opticks : Recreating Geant4 "Context" on GPU`
-------------------------------------------------------------------
+:small:`Migrating Geometry from Geant4 to Opticks`
+----------------------------------------------------
 
-.. sidebar:: Opticks ~15 C++ Pkgs 
+.. sidebar:: Textures for all properties
 
-      .. class:: small
+    .. class:: small
 
-          Organized by dependencies
+         **Boundary** 
+              material, surface properties vs wavelength
+   
+         **Reemission**
+              generates wavelength according to measured input distribution 
+              from uniform random lookup
 
-          * :red:`Recreates Geant4 context on GPU`
-          * :blue:`Optical simulation by OptiX programs` 
-          * :blue:`Photon Indexing by Thrust`
-
-          Interop between OpenGL/OptiX/Thrust/CUDA  
-
-          * :blue:`shared GPU buffers, efficient visualization`
-
-          C++ code but NumPy analysis/debugging by using 
-          :red:`.npy serialization` for all buffers 
-
-          Externals: 
-
-          * Boost + Asio-ZMQ, ZMQ
-          * CUDA 7.0, Thrust 1.8
-          * OptiX 3.8, OpenGL 4.1 
-          * OpenMesh 4.1, ImGUI  
+         **Black Body** 
+              generates wavelength according to Plankian distribution
+              from uniform random lookup
 
 
 .. class:: small
 
-   **Basis packages**
+    Translate Geant4 CSG tree into boundaries:
 
-   * *Opticks* : definitions, configuration
-   * *NPY* : array handling, persistency, py-analysis
-   * *NumpyServer* : network IO of *NPY* arrays
+    * **inner material** : self 
+    * **outer material** : parent 
+    * **inner surface** : outwards going photons (self to parent) 
+    * **outer surface** : inwards going photons (parent to self)
 
-   **Geometry packages** 
+    Properties interpolated onto a common wavelength domain
 
-   * *AssimpWrap* : G4DAE loading with Assimp fork
-   * *GGeo* : preparing geometry for GPU
-   * *OpenMeshRap* : mesh fixing 
+    * **material** : refractive_index, absorption_length, scattering_length, reemission_prob, group_velocity
+    * **surface** : detect_prob, absorb_prob, reflect_specular, reflect_diffuse 
 
-   **GPU library interface packages** 
+    ~100 distinct boundaries in single texture
 
-   * *OpticksOp* : high level GPU control 
-   * *OptiXRap* : OptiX control
-   * *ThrustRap* : photon indexing
-   * *CUDAWrap* : persist cuRAND state 
-   * *OGLWrap* : OpenGL visualization
 
-   **Main packages**
-   
-   * *GGeoView* : visualization main
-   * *CFG4* : Geant4 10.2 comparison main
+.. raw:: html
+
+    <pre class="mypre">
+    // material property lookup from OptiX programs
+    float nmi = (nm - wavelength_domain.x)/wavelength_domain.z + 0.5f ;   
+    float4 material1 = tex2D(wavelength_texture, nmi, line + 0.5f );
+
+    float refractive_index = material1.x ; 
+    float absorption_length = material1.y ; 
+    float scattering_length = material1.z ; 
+    </pre>
 
 
 
@@ -746,69 +748,74 @@ Geant4 : Monte Carlo Simulation Toolkit
    :align: center
 
 
-:small:`Validation : Opticks/Geant4 Matching using Dynamic Geometry`
----------------------------------------------------------------------
-
-
-.. sidebar:: *CfG4* package 
-
-   .. class:: small
-     
-      * Records **G4** steps in **Opticks** format 
-      * load into **Opticks** for visualization 
+:small:`Visualizing An Optical Photon Simulation`
+----------------------------------------------------------------------------------------
 
 .. class:: small
 
-   Commandline parsed into geometry. Shapes require: 
-   
-   * **OptiX**: analytic intersection code 
-   * **OpenGL**: tesselation for visualization
-   * **Geant4**: geometry construction in *CfG4* 
-   
-   ===========================================  =================  =================  ================== 
-     Shape                                        OptiX              OpenGL             Geant4
-   ===========================================  =================  =================  ================== 
-     **sphere**                                    Y                  Y                   Y
-     box                                           Y                  Y                   Y
-     prism                                         Y                  Y                   
-     convex lens                                   Y                  Y                            
-     **Dayabay PMT**                               Y                  Y                   Y    
-   ===========================================  =================  =================  ================== 
+    Compressed Steps, OpenGL Buffer, written by OptiX
+
+    * space for 16 steps per photon 
+
+      * position, time, polarization, wavelength
+
+    OpenGL Geometry Shader: lines -> points/line_strip
+
+    * **event time is uniform input** 
+    * pair validity from step times 
+    * pair selection from step times relative to input time 
+    * interpolation between steps gives position
+
+    Interactive: time scrubbing + history/material selection
+
+.. raw:: html
+
+    <pre class="mypre">
+    // geom.glsl
+    layout (lines) in;
+    layout (line_strip, max_vertices = 2) out;
+    void main () 
+    {
+        vec4 p0 = gl_in[0].gl_Position  ;   // p0.w : step begin time 
+        vec4 p1 = gl_in[1].gl_Position  ;   // p1.w : step end time
+        ...
+    </pre>
 
 
-:small:`Multiple Rainbows from a Single Drop of Water`
---------------------------------------------------------
 
-.. image:: /env/presentation/rainbow-mechanism.png
-   :width: 900px
+:small:`Compare Opticks/Geant4 Simulations with Simple Lights/Geometries`
+---------------------------------------------------------------------------
+
+.. figure:: /env/graphics/ggeoview/rainbow-spol-disc-incident-sphere.png
+   :width: 550px
+   :align: left
+
+   .. class:: tiny
+
+       1M Photons -> Water Sphere (S-Polarized)
+
+.. figure:: /env/graphics/ggeoview/PmtInBox-approach.png 
+   :width: 450px
+   :align: right
+
+   .. class:: tiny
+
+       0.5M Photons -> Dayabay PMT 
+
+
+
+.. image:: /env/presentation/1px.png
+   :width: 1000px
+   :height: 1px
    :align: center
+
 
 .. class:: small
 
-   Caustic bunching at least deviation causes rainbow 
+   * record steps of all photons : position, time, wavelength, polarization vector, material/history codes  
+   * 128 bit per step (2*short4) : snorm/uchar compressed using known domains
 
-   (a) Primary bow, single reflection : ray f at bow angle
-   (b) Secondary bow, double reflection : ray g at bow angle
-   (c) Deviation angles 0:180 degrees hemisphere opposite to incident rays
-
-.. class:: tiny
-
-   Jearl D. Walker, 1975, Multiple rainbows from single drops of water and other liquids
-   http://patarnott.com/atms749/pdf/MultipleRainbowsSingleDrops.pdf
-
-
-:small:`Disc beam 1M Photons incident on Water Sphere (S-Pol)`
-----------------------------------------------------------------
-
-.. class:: tiny
-
-    Photons shown by lines with color representing polarization direction. S-Polarized (perpendicular to plane of incidence) 
-    intersection by disc radially directed polarization. Geodesic icosahedron tesselation just for OpenGL visualization, 
-    actual OptiX geometry is perfect sphere.
-
-.. image:: /env/graphics/ggeoview/rainbow-spol-disc-incident-sphere.png
-   :width: 900px
-   :align: center
+   * water sphere : yields multiple rainbows depending on reflections 
 
 
 :small:`Opticks/Geant4 Rainbow Step Sequence Comparison`
@@ -816,10 +823,11 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 .. class:: small
 
+   **Statistically consistent photon histories in the two simulations**
+
    * BT/BR: boundary transmit/reflect
    * TO/SC/SA: torch/scatter/surface absorb
 
-   **1M flag sequences indexed using CUDA Thrust, 0.040 s**
 
 .. raw:: html
 
@@ -838,11 +846,33 @@ Geant4 : Monte Carlo Simulation Toolkit
       bbbbbbbbcd      304       294    0.17  [10] TO BT BR BR BR BR BR BR BR BR  (bow 8+ truncated)
       8cbbbbbbcd      272       247    1.20  [10] TO BT BR BR BR BR BR BR BT SA  (bow 6)
       cbbbbbbbcd      183       161    1.41  [10] TO BT BR BR BR BR BR BR BR BT  (bow 7 truncated) 
-             4cd      161       139    1.61  [3 ] TO BT AB
-           8c6cd      153       106    8.53  [5 ] TO BT SC BT SA
-            86bd      138       142    0.06  [4 ] TO BR SC SA
-            4ccd      100       117    1.33  [4 ] TO BT BT AB
     </pre>
+
+
+.. class:: small
+
+   **1M 64 bit uint flag sequences indexed using CUDA Thrust, 0.040 s (sparse histogram sort)**
+
+
+
+:small:`Rainbow Spectrum for 1st six bows`
+----------------------------------------------------------
+
+.. class:: tiny
+
+    Spectra obtained by selecting photons by internal reflection counts. 
+    Colors obtained from spectra of each bin using CIEXYZ weighting functions 
+    converted into sRGB/D65 colorspace.  
+    Exposures by normalizing to bin with maximum luminance (CIE-Y) of each bow. 
+    White lines indicate geometric optics prediction of deviation angle ranges 
+    of the visible range 380-780nm. 180-360 degrees signifies exit on same 
+    side of droplet as incidence.  
+ 
+
+.. image:: /env/numerics/npy/rainbow6-spectrum.png
+   :width: 900px
+   :align: center
+
 
 
 
@@ -862,31 +892,6 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 
 
-:i:`PmtInBox approach 1`
----------------------------------
-
-
-:i:`PmtInBox approach 2`
----------------------------------
-
-.. sidebar:: PmtInBox test geometry 
-
-    .. class:: small
-    
-         0.5M photons from disc source incident on Dayabay PMT in MineralOil, 
-         box inner surface perfect absorber.
-         Colors represent the polarization direction (adhoc).
-
-         Composited image:
-
-         * OptiX raytrace of simulated analytic geometry
-         * OpenGL photon step representation, from shared
-           OpenGL/OptiX buffer
-
-         Composited using Z-depth calulated for each raytrace pixel. 
-
-
-
 :i:`PmtInBox after 1`
 ---------------------------------
 
@@ -898,7 +903,7 @@ Geant4 : Monte Carlo Simulation Toolkit
 
     .. class:: small
     
-         GGeoView provides interactive photon selection 
+         Interactive photon selection 
          by history or material flag sequences, such as:
 
          TO BT SA         
@@ -923,77 +928,50 @@ Geant4 : Monte Carlo Simulation Toolkit
          TO/AB/BT/BR
                torch/bulk absorb/boundary transmit/reflect
 
-         Geant4 (CfG4) propagated events can be visualized by loading
-         into GGeoView.
 
 
-
-
-:small:`PMT Opticks/Geant4 Step Sequence Comparison`
+:small:`PMT Opticks/Geant4 step distribution comparison TO BT [SD]`
 ---------------------------------------------------------------------
 
 .. class:: small
 
-   **Good agreement reached**, after several fixes: geometry, TIR, GROUPVEL, ...
-
-   * nearly identical geometries (no triangulation error)  
+   **Good agreement reached**, after several fixes: geometry, total internal reflection, group velocity
 
 
-.. raw:: html
+.. figure:: /env/numerics/npy/PmtInBox_TOBTSD_xyzt.png 
+   :width: 500px
+   :align: left
 
-    <pre class="mypre">
-         64-bit uint  Opticks   Geant4   chi2    (tag:4,-4)
-
-                 8cd   340271   340273   0.00  [3 ] TO BT SA
-                 7cd   107598   107251   0.56  [3 ] TO BT SD
-                8ccd    23217    23260   0.04  [4 ] TO BT BT SA
-                  4d    18866    19048   0.87  [2 ] TO AB
-                 86d     3179     3133   0.34  [3 ] TO SC SA
-                 4cd     2204     2249   0.45  [3 ] TO BT AB
-                4ccd     1696     1732   0.38  [4 ] TO BT BT AB
-                 8bd     1446     1455   0.03  [3 ] TO BR SA
-                8c6d      382      424   2.19  [4 ] TO SC BT SA
-               86ccd      260      260   0.00  [5 ] TO BT BT SC SA
-                 46d      197      215   0.79  [3 ] TO SC AB
-              8cbbcd      190      213   1.31  [6 ] TO BT BR BR BT SA
-                 4bd      132      125   0.19  [3 ] TO BR AB
-                7c6d      111      132   1.81  [4 ] TO SC BT SD
-                866d       35       38   0.12  [4 ] TO SC SC SA
-               8cc6d       31       29   0.07  [5 ] TO SC BT BT SA
-               ...
-                       500000   500000   0.89 
-    </pre>
+   position(xyz), time(t)
 
 
-:small:`PMT Opticks/Geant4 step comparison TO BT [SD] : position(xyz), time(t)`
--------------------------------------------------------------------------------------
+.. figure:: /env/numerics/npy/PmtInBox_TOBTSD_abcr.png
+   :width: 500px
+   :align: right
 
-.. image:: /env/numerics/npy/PmtInBox_TOBTSD_xyzt.png 
-   :width: 900px
-   :align: center
-
-
-:small:`PMT Opticks/Geant4 step comparison TO BT [SD] : polarization(abc), radius(r)`
------------------------------------------------------------------------------------------
-
-.. image:: /env/numerics/npy/PmtInBox_TOBTSD_abcr.png
-   :width: 900px
-   :align: center
+   polarization(abc), radius(r)
 
 
-:small:`PmtInBox Opticks/Geant4 Chi2/ndf distribution comparisons`
+:small:`PMT Opticks/Geant4 step distribution comparison : chi2/ndf`
 ---------------------------------------------------------------------------------------
 
-.. class:: small
+.. sidebar:: Consistent : chi2/ndf ~ 1
 
-    **no large discrepancies**, small chi2/ndf in single/few bin cases  
+   .. class:: small
+
+       Very good Opticks/Geant4 agreement 
+
+       * identical geometries
+       * identical optical physics
+
+       XYTZ: position, time
+       ABCR: polarization, radius
+
 
 .. class:: tiny
 
-    XYZ position, T time, ABC polarization, R xy-radius
-
     ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
-    4/PmtInBox/torch :             X     Y     Z     T     A     B     C     R     
+    4/PMT In Box/torch :             X     Y     Z     T     A     B     C     R     
     ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
     340271/340273  :  [TO] BT SA    1.15  1.00  0.00  0.00  1.06  1.03  0.00  1.21 
     340271/340273  :  TO [BT] SA    1.15  1.00  1.06  0.91  1.06  1.03  0.00  1.21 
@@ -1032,10 +1010,6 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 
 
-
-
-
-
 :small:`Photon Propagation Times Geant4 cf Opticks`
 ----------------------------------------------------------
 
@@ -1055,51 +1029,54 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 .. class:: small
 
-    * **Opticks > 200X Geant4** with only 384 core mobile GPU
-    * multi-GPU workstation up to 20x more cores 
+    * **Opticks > 200X Geant4** with only 384 core mobile GPU[1] (multi-GPU workstation up to 20x more cores)
     * :red:`photon propagation time will become effectively zero`
 
 .. class:: small
    
     * **Interop** uses OpenGL buffers allowing visualization, **Compute** uses OptiX buffers
     * **Interop/Compute** : perfectly identical results, monitored by digest
-    * **Compute** (and **G4**) propagations visualized by loading into **Interop** viewer
+
+.. class:: tiny
+
+    [1] MacBook Pro (2013), NVIDIA GeForce GT 750M, 2048 MB, 384 cores
+
 
 
 :small:`Summary`
 -----------------------------
 
-.. sidebar:: Opticks Overview
 
-   .. class:: small
-     
-      * **200x Geant4** with mobile GPU
-      * **> 1000x** expected (workstation GPUs) 
-      * :red:`photon propagation time --> zero`
-      * :blue:`analytic geometry --> precise G4 matching`
+.. sidebar:: Overview
+
+    *Opticks* enables particle physics to benefit from optical photon simulation 
+    **taking effectively zero time and zero CPU memory**, 
+    thanks to the massive parallelism made accessible by NVIDIA OptiX.
+
 
 .. class:: small
+     
+  * **Opticks 200x Geant4** with mobile GPU
+  * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
+  * :red:`photon propagation time --> zero`
+  * :blue:`analytic geometry --> precise Geant4 match`
 
-   **Opticks Transition Complete**
+  * full simulation speedup factor depend on optical photon time fraction 
 
-   * devised mesh fixing workaround for G4Polyhedron bug 
-   * developed analytic PMT representation
-   * photons fully GPU resident, only copy PMT hits to CPU
+    * 95% -> 20x
+    * 99% -> 100x  
 
-   **Opticks Validation**
+  Photomultiplier tube based experiments can benefit the most,
+  especially Neutrino experiments.
 
-   * developed validation machinery *CfG4*
-   * simple rainbow geometry matches Geant4
-   * single PMT geometry matches Geant4
-
-   **Next**
-
-   * Analytic IAV, OAV descriptions (along optical path) 
-   * AD, Full Geometry validations
+  Drastic simulation speedup should allow a better understanding 
+  of detector performance to be developed, enabling more precise
+  physics meaurements.
+    
 
 
-   
-:i:`JPMT Inside Wide`
+  
+:i:`Overview`
 ----------------------
 
 .. sidebar:: Opticks Overview
@@ -1109,7 +1086,7 @@ Geant4 : Monte Carlo Simulation Toolkit
       * **200x Geant4** with mobile GPU
       * **> 1000x** expected (workstation GPUs) 
       * :red:`photon propagation time --> zero`
-      * :blue:`analytic geometry --> precise G4 matching`
+      * :blue:`analytic geometry --> precise Geant4 matching`
 
 
 :i:`Blank Page`
@@ -1434,6 +1411,36 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 
 
+
+
+
+:small:`Compositing OptiX Ray Trace and OpenGL Rasterized`
+---------------------------------------------------------------------------
+
+.. class:: small
+
+    * best of both worlds : rasterization speed, raytrace accuracy 
+    * OptiX : replace uchar4 alpha with Z clip depth
+    * OpenGL : fragment shader, set ``gl_FragDepth`` 
+
+.. raw:: html
+
+    <pre class="mypre">
+
+    in vec2 texcoord;
+    out vec4 frag_colour;
+    uniform sampler2D ColorTex ;
+  
+    void main ()
+    {
+       frag_colour = texture(ColorTex, texcoord);
+       float depth = frag_colour.w ;  
+       frag_colour.w = 1.0 ;
+
+       gl_FragDepth = depth  ;
+       ...
+
+    </pre>
 
 
 
