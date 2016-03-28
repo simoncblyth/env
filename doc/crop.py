@@ -27,13 +27,16 @@ class Crop(object):
 
     def __init__(self, args ):
         self.args = args
-        if args.style in self.style:
-            self.style_ = args.style
+        style_ = args.style
+
+        if style_ in self.style:
+            self.style_ = style_
             self.description = self.style[style_]['description']
             self.param = self.style[style_]['param']
         else:    
             self.style_ = None
             self.description = args.style
+        pass
 
     def __repr__(self):
         return "%s %s %s " % ( self.__class__.__name__ , self.style_, self.description )
@@ -62,7 +65,6 @@ class Crop(object):
         log.info( "cropping %s to create %s " % ( path, cpath ))  
         im = Image.open(path)
         width, height = im.size   
-
 
         # safari_headtail
 

@@ -7,6 +7,16 @@ slides-usage(){ cat << EOU
 CONVERT SLIDES IN S5 RST TO HTML AND PDF 
 =========================================
 
+
+PDF page size : Very large because somehow 72dpi ?
+---------------------------------------------------
+
+* 2560x1440 points
+* 90.32 x 50.8 cm
+
+
+
+
 g4dae
 ------
 
@@ -358,9 +368,18 @@ slides-mate(){ mate $(slides-dir) ; }
 slides-mkdir(){ mkdir -p $(slides-dir) ; }
 slides-get(){
 
+   # adjust safari window size
    slides-safari
+
+   # capture safari window screenshots
    slides-capture $*
+
+   # default crop.py style is safari_headtail, which removes the safari chrome
    slides-crop
+
+   # on OSX invokes slided-convert-automator 
+   # this just opens folder of .pngs and gives instructions on how to use the automator 
+   # action to make .pdf from them
    slides-convert
 
 }

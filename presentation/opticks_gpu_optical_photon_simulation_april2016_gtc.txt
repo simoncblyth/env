@@ -46,7 +46,7 @@
         div.mycredit {
              font-size: 20px;
              color: black;
-             position: absolute; top:90%; left:5%; width:50%; height:10% ;
+             position: absolute; top:90%; left:5%; width:80%; height:10% ;
         }
 
 
@@ -278,7 +278,7 @@
     </div>
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth, National Taiwan University &mdash;  GTC 2016 </h2>
+    <h2 style="background-color:lightgrey"> Simon C Blyth, National Taiwan University &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; GTC 2016 </h2>
     </div>
 
 
