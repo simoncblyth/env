@@ -41,6 +41,17 @@ class Crop(object):
     def __repr__(self):
         return "%s %s %s " % ( self.__class__.__name__ , self.style_, self.description )
 
+
+    def product_path(self, path):
+        args = self.args
+        base, ext = os.path.splitext(path)
+        if ext != args.ext:
+            log.warning("converting ext from %s to %s " % (ext, args.ext))
+            ext = args.ext
+        pass
+        cpath = base + "_crop" + ext 
+        return cpath 
+
     def __call__(self, path):
         """
         All four coordinates are measured from the top/left corner, and describe the
@@ -53,14 +64,7 @@ class Crop(object):
 
         """ 
         args = self.args
-        base, ext = os.path.splitext(path)
-
-        if ext != args.ext:
-            log.warning("converting ext from %s to %s " % (ext, args.ext))
-            ext = args.ext
-        pass
-
-        cpath = base + "_crop" + ext 
+        cpath = self.product_path(path)
 
         log.info( "cropping %s to create %s " % ( path, cpath ))  
         im = Image.open(path)
@@ -124,13 +128,19 @@ def main():
 
     for path in args.path:
         if os.path.exists(path):
-            ext = path[-4:]
-            if ext in [".png",".jpg"]:
-                crop(path)
-            elif ext == '.pdf':
-                log.info("PIL cannot handle cropping PDF ")
+            cpath = crop.product_path(path)
+            if os.path.exists(cpath):
+                log.info("product path exists already %s " % cpath )
             else:
-                log.info("PIL cannot handle image type %s " % path )
+                ext = path[-4:]
+                if ext in [".png",".jpg"]:
+                    crop(path)
+                elif ext == '.pdf':
+                    log.info("PIL cannot handle cropping PDF ")
+                else:
+                    log.info("PIL cannot handle image type %s " % path )
+                pass
+            pass
 
 
 if __name__ == '__main__':

@@ -15,8 +15,6 @@ PDF page size : Very large because somehow 72dpi ?
 * 90.32 x 50.8 cm
 
 
-
-
 g4dae
 ------
 
@@ -377,12 +375,19 @@ slides-get(){
    # default crop.py style is safari_headtail, which removes the safari chrome
    slides-crop
 
+   slides-rm-uncropped
    # on OSX invokes slided-convert-automator 
    # this just opens folder of .pngs and gives instructions on how to use the automator 
    # action to make .pdf from them
    slides-convert
 
 }
+
+slides-get-gtc(){
+   slides-safari
+   slides-get 0 42
+}
+
 
 #slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
 #slides-name(){      echo ${SLIDES_NAME:-g4dae_geometry_exporter} ; }
@@ -477,22 +482,40 @@ slides-capture(){
    local page
    local url
    local zpage
+   local name
+   local cname
+
+ 
+
    for page in $pages ; do
       url=$(slides-url-page $page)
       zpage=$(printf "%0.2d" $page)
-      echo $msg opening url "$url" 
-      open "$url"
-      cmd="screencapture -T0 -t$fmt -w -i -o $zpage.$fmt"
-      #
-      #    -T<seconds>  Take the picture after a delay of <seconds>, default is 5 
-      #    -w           only allow window selection mode
-      #    -i           capture screen interactively, by selection or window
-      #    -o           in window capture mode, do not capture the shadow of the window
-      #    -t<format>   image format to create, default is png (other options include pdf, jpg, tiff and other formats)      
-      #
-      echo $msg about to do $cmd : tap browser window once loaded and highlighted blue
-      sleep 1
-      eval $cmd
+      name="${zpage}.${fmt}"
+      cname="${zpage}_crop.${fmt}"
+
+      [ -f "$HOME/QUIT" ] && echo $msg QUIT due to HOME/QUIT  && return 
+
+      slides-safari
+
+      if [ -f "$name" -o -f "$cname" ]; then 
+          echo $msg file $name or $cname from url "$url" already downloaded : delete and rerun to refresh
+      else
+
+          echo $msg opening url "$url" 
+          open "$url"
+          cmd="screencapture -T0 -t$fmt -w -i -o $name"
+          #
+          #    -T<seconds>  Take the picture after a delay of <seconds>, default is 5 
+          #    -w           only allow window selection mode
+          #    -i           capture screen interactively, by selection or window
+          #    -o           in window capture mode, do not capture the shadow of the window
+          #    -t<format>   image format to create, default is png (other options include pdf, jpg, tiff and other formats)      
+          #
+          echo $msg about to do $cmd : tap browser window once loaded and highlighted blue
+          sleep 1
+          eval $cmd
+      fi
+
    done
 }
 slides-crop(){
@@ -500,6 +523,11 @@ slides-crop(){
    slides-cd
    echo $msg cropping png
    crop.py ??.png
+}
+
+slides-rm-uncropped(){
+   slides-cd
+   rm ??.png
 }
 
 

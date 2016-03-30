@@ -230,9 +230,15 @@
     "Seeing" neutrinos via scintillation + Cherenkov light
     /env/presentation/cherenkov.png 316px_203px 850px_400px
 
+    Large Geometry/Event Techniques
+    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
 
  
 .. comment 
+
+    Large Geometry/Event Techniques
+    /env/graphics/ggeoview/ggv-juno-instancing.png 2130px_1480px -> 1065px_740px 
+
 
     GGeoView image is 2094x1590 1047x795
 
@@ -560,7 +566,7 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 
 
-:small:`Parallels : Ray Traced Image Synthesis and Optical Photon Simulation`
+:small:`Ray Traced Realistic Image Synthesis and Optical Photon Simulation`
 -------------------------------------------------------------------------------
 
 .. sidebar:: OptiX *Glass* Sample App
@@ -576,11 +582,14 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 .. class:: small
 
-    * performance of both limited by :red:`geometry intersection`. 
-    * fast ray tracing tools can drastically improve optical photon simulation
+    * parallel problems, just different focus
+    * same limit : :red:`geometry intersection`
+
+    **Fast ray tracing can revolutionize optical photon simulation**
    
 
-    NVIDIA OptiX Ray Tracing Engine, benefits:
+
+    NVIDIA OptiX Ray Tracing Engine:
  
     * state-of-the-art GPU accelerated intersection 
 
@@ -588,10 +597,14 @@ Geant4 : Monte Carlo Simulation Toolkit
 
     * shared C++/CUDA context eases development 
 
-    * :red:`NVIDIA expertise on efficient GPU/multi-GPU usage` 
+    * NVIDIA expertise on efficient GPU/multi-GPU usage
 
-    * ~linear performance scaling with cores across multiple GPUs
+      * ~linear scaling with cores across multiple GPUs
 
+
+.. class:: huge
+
+    NVIDIA OptiX makes massively parallel intersection accessible
 
 
 
@@ -662,88 +675,73 @@ Geant4 : Monte Carlo Simulation Toolkit
 
          **Boundary** 
               material, surface properties vs wavelength
-   
-         **Reemission**
-              generates wavelength according to measured input distribution 
-              from uniform random lookup
 
          **Black Body** 
               generates wavelength according to Plankian distribution
               from uniform random lookup
 
+         **Reemission**
+              generates wavelength according to measured scintillator distribution 
+              from uniform random lookup
+
 
 .. class:: small
 
-    Translate Geant4 CSG tree into boundaries:
+    Translate *Geant4* CSG tree solids into *Opticks* boundaries:
 
     * **inner material** : self 
     * **outer material** : parent 
     * **inner surface** : outwards going photons (self to parent) 
     * **outer surface** : inwards going photons (parent to self)
 
-    Properties interpolated onto a common wavelength domain
+    Properties as function of wavelength interleaved into *float4* texture.
 
-    * **material** : refractive_index, absorption_length, scattering_length, reemission_prob, group_velocity
-    * **surface** : detect_prob, absorb_prob, reflect_specular, reflect_diffuse 
+.. class:: huge
 
-    ~100 distinct boundaries in single texture
-
+   Texture lookup simplifies OptiX programs 
 
 .. raw:: html
 
     <pre class="mypre">
     // material property lookup from OptiX programs
     float nmi = (nm - wavelength_domain.x)/wavelength_domain.z + 0.5f ;   
-    float4 material1 = tex2D(wavelength_texture, nmi, line + 0.5f );
+    float4 material1 = tex2D(boundary_texture, nmi, line + 0.5f );
 
     float refractive_index = material1.x ; 
     float absorption_length = material1.y ; 
     float scattering_length = material1.z ; 
+    float reemission_probability = material1.w ;  // >0 for scintillators
     </pre>
 
 
 :small:`Large Geometry/Event Techniques`
 ------------------------------------------------------- 
 
-.. sidebar:: JUNO Geometry 
-
-   .. class:: small
-
-      289733 volumes split into instanced: 
- 
-      * name: count (faces)
-      * PMT_3inch: 36572 (540) 
-      * PMT_20inch: 19452 (3502)
-      * lFasteners: 480 (1856)
-      * lPlane: 124 (6252) 
-
-      And the rest:
-
-      * Global     (95436)  
-
-   .. class:: tiny 
-
-      MacBook Pro (2013), NVIDIA GeForce GT 750M, 2048 MB, 384 Cores
-
 
 .. class:: small
 
-   **Instancing implemented for OpenGL and OptiX**
+   **Geometry analysed to find instances**
 
-   Geometry analysed to find instances
+   JUNO: ~90M --> 0.1M triangles
 
-   * repeated sub-trees with transforms for each **instance** 
-   * JUNO: ~90M triangles, instancing reduces to 0.1M
+   * 19,000 20" PMTs
+   * 34,000 3" PMTs
+  
+   OpenGL/OptiX instancing 
+ 
 
-   **Switchable Rendering**
+   **Multiple Renderers**
 
-   * Multiple renderers: global, full instances, bbox instances
-   * Rapid switching GUI control
+   * global, full instances, bbox instances
+   * rapid switching controls
 
-   **Compute Mode : split simulation from visualization**
+   **Split simulation from visualization**
 
-   * Pure OptiX buffers faster (~7X interop)
-   * Visualize by separate event loading  
+   * compute mode
+     
+     * pure OptiX buffers ~7X interop
+
+   * visualize by separate event loading  
       
 
 
