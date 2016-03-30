@@ -127,3 +127,10 @@ reports
 
 
 
+.. raw:: html
+
+   <a href="https://www.dropbox.com/s/xkr0hoic8v7ino3/opticks_gpu_optical_photon_simulation_april2016_gtc.pdf?dl=0"> p <a>
+   <a href="https://www.dropbox.com/s/e0icy5lpgsoebwj/Opticks_GTC_001.mp4?dl=0"> m <a>
+
+
+

@@ -1,6 +1,44 @@
 GTC Preparation
 ================
 
+Talk coaching 3 (up to 52min)
+-------------------------------
+
+Starting : 1 min 
+~~~~~~~~~~~~~~~~~~
+
+In a very short time, establish:
+
+* Attention
+
+* Interest
+
+* Credibility 
+
+* Expectations 
+
+  * how my technology works and how this can change the ... industry 
+  * show you how Opticks enables particle physics (especially neutrino physics) 
+    to start to really benefit from GPUs
+
+Transitions
+~~~~~~~~~~~~~
+
+* now that i have introduced ... i will move on to using ...
+
+Concluding : 30s
+~~~~~~~~~~~~~~~~~~~~
+
+Signalling the end
+
+* recap : what you said : very high level 
+
+* bookends : the intro and conclusion should be similar
+
+* clincher statements
+
+
+
 
 Abstract
 ---------

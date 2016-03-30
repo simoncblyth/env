@@ -1139,16 +1139,29 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 
 
-:i:`Video`
+:i:`YouTube Video`
 ----------------------
 
 .. raw:: html
 
-    <iframe width="1024" height="576" src="https://www.youtube.com/embed/QzH6y0pKXk4?rel=0" frameborder="0" allowfullscreen></iframe>
+   <iframe width="1024" height="576" src="https://www.youtube.com/embed/QzH6y0pKXk4?rel=0" frameborder="0" allowfullscreen></iframe>
 
 .. class:: tiny
 
-    https://www.youtube.com/watch?v=QzH6y0pKXk4 
+   https://www.youtube.com/watch?v=QzH6y0pKXk4 
+
+
+:i:`YouKu Video`
+----------------------
+
+.. raw:: html
+
+    <iframe height=498 width=510 src="http://player.youku.com/embed/XMTUxNjM3MzA4OA==" frameborder=0 allowfullscreen></iframe>
+
+.. class:: tiny
+
+   http://v.youku.com/v_show/id_XMTUxNjM3MzA4OA==.html
+
 
 
 :i:`JPMT Wide`
@@ -1218,6 +1231,11 @@ Geant4 : Monte Carlo Simulation Toolkit
    * bounding boxes that touch geometry cause leaks, slightly   
      enlarging the boxes avoids leak (<1 in 3M)  
 
+   **Use cuRAND in OptiX without large stack**
+
+   Init in separate CUDA launch, persist cuRAND state, subsequently
+   load into OptiX context : **avoids large stack performance hit**
+
    **Compositing OptiX Ray Trace and OpenGL Rasterized**
 
    * best of both worlds : rasterization speed, raytrace accuracy 
@@ -1227,20 +1245,15 @@ Geant4 : Monte Carlo Simulation Toolkit
 .. raw:: html
 
     <pre class="mypre">
-
-    in vec2 texcoord;
     out vec4 frag_colour;
     uniform sampler2D ColorTex ;
-  
     void main ()
     {
        frag_colour = texture(ColorTex, texcoord);
        float depth = frag_colour.w ;  
        frag_colour.w = 1.0 ;
-
        gl_FragDepth = depth  ;
        ...
-
     </pre>
 
 
