@@ -1,8 +1,65 @@
 GTC Preparation
 ================
 
-Talk coaching 3 (up to 52min)
--------------------------------
+
+Intro
+-------
+
+I will introduce Opticks, an optical photon simulation based on OptiX, 
+that enables neutrino physics to benefit from 
+from massive parallelism  
+
+
+
+Dayabay Intro
+--------------
+
+*  http://www.symmetrymagazine.org/article/octobernovember-2006/catching-neutrinos-in-china
+
+
+Described as "liquid onions," each detector will contain three layers. In the
+center will be 20 tons of organic liquid scintillator that contains gadolinium,
+a heavy metal. Next is a layer of liquid scintillator without gadolinium. The
+outer layer uses mineral oil to act as shielding. When an antineutrino
+interacts with an atom inside the detector, it produces a positron and a
+neutron. The energy from the positron is deposited in the scintillator, which
+creates a burst of light. About 30 microseconds later, a second burst of light
+is produced as the gadolinium captures the neutron and amplifies the signal.
+Photomultiplier tubes that line the mineral-oil-filled outer detector tank
+record the light produced in this reaction. Both light flashes must be present
+to indicate an electron antineutrino event.
+
+
+
+Neutrino Detection
+-------------------
+
+* http://t2k-experiment.org/neutrinos/neutrino-detection/
+
+* http://neutrino.physics.berkeley.edu/About.html
+
+* http://neutrino.physics.berkeley.edu/About/DetailedDetector.html
+
+* http://www.scholarpedia.org/article/The_Daya_Bay_Experiment
+
+
+Potential Users for fast Optical Photon Simulation
+---------------------------------------------------
+
+* http://www.opengatecollaboration.org/home
+
+GATE is an advanced opensource software developed by the international OpenGATE
+collaboration and dedicated to numerical simulations in medical imaging and
+radiotherapy. It currently supports simulations of Emission Tomography
+(Positron Emission Tomography - PET and Single Photon Emission Computed
+Tomography - SPECT), Computed Tomography (CT), Optical Imaging (Bioluminescence
+and Fluorescence) and Radiotherapy experiments. 
+
+
+
+
+Talk coaching 3 
+-----------------
 
 Starting : 1 min 
 ~~~~~~~~~~~~~~~~~~
@@ -108,6 +165,13 @@ Stan Seibert on Chroma
 
 * http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
 * http://on-demand.gputechconf.com/gtc/2013/video/S3304-Chroma-Photon-Sim-Physics-PyCUDA.mp4
+
+
+
+SN1987a
+---------
+
+* http://www.astronnewsroom.com/tag/david-malin/
 
 SK
 ---

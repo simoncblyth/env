@@ -2,6 +2,54 @@
 
 .. comment 
 
+
+    Brief intro, Opticks benefits
+
+        00 : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+        01 : opticks benefits 
+
+
+    Neutrino detection context
+
+        02    : Overview : Neutrino Detection via Optical Photons
+        03/04 : hamamatsu photomultiplier tubes (pmts) + photomultiplier tube operation 
+
+    Neutrino detection examples
+
+        05/06 : super-kamiokande pmts 1 + 2
+        07/08 : jiangmen underground neutrino observatory (juno) + goals
+
+    09 : dayabay reactor neutrino expt, far site 
+    10 : daya bay far site 2 
+    11 : daya bay far site 3 
+    12 : daya bay pmt wall photo 1 
+    13 : "seeing" neutrinos via scintillation + cherenkov light 
+
+    14 : geant4 : monte carlo simulation toolkit 
+    15 : but, there is a problem... 
+    16 : jpmt before contact 2 
+    17 : ray traced realistic image synthesis and optical photon simulation 
+    18 : brief history of gpu optical photon simulation development 
+    19 : migrating geometry from geant4 to opticks 
+    20 : large geometry/event techniques 
+    21 : geometry modelling : tesselated vs analytic photomultiplier tubes 
+    22 : tesselated photomultiplier : unrealistic disco ball effect 
+    23 : analytic pmts together with triangulated geometry 
+    24 : visualizing an optical photon simulation 
+    25 : compare opticks/geant4 simulations with simple lights/geometries 
+    26 : opticks/geant4 rainbow step sequence comparison 
+    27 : rainbow spectrum for 1st six bows 
+    28 : 1m rainbow s-polarized, comparison opticks/geant4 
+    29 : pmtinbox after 1 
+    30 : pmtinbox after 2 
+    31 : pmt opticks/geant4 step distribution comparison to bt [sd] 
+    32 : pmt opticks/geant4 step distribution comparison : chi2/ndf 
+    33 : photon propagation times geant4 cf opticks 
+    34 : summary 
+
+
+
+
 .. raw:: html
 
     <style type="text/css">
@@ -85,6 +133,9 @@
     #   
     #
     slide0
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Opticks Benefits
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Visualizing An Optical Photon Simulation
@@ -199,14 +250,26 @@
     Super-Kamiokande PMTs 2
     /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
 
-    Optical Photons
+    Super-Kamiokande PMTs 3
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Fast Optical Photon Simulation
     /env/presentation/newtons-opticks.png 374px_684px 800px_0px
 
-    Hamamatsu Photomultiplier Tubes (PMTs)
-    /env/presentation/hamamatsu-pmt.png 1099px_734px
+    Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
 
     Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Old Hamamatsu Photomultiplier Tubes (PMTs)
     /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    Old Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+
+
 
     Jiangmen Underground Neutrino Observatory (JUNO) 
     /env/presentation/juno-schematic-5.png 1391px_734px
@@ -225,6 +288,9 @@
     /env/presentation/DybFar_crop.png 1280px_720px
 
     Geant4 : Monte Carlo Simulation Toolkit 
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    Geant4 : Monte Carlo Simulation Toolkit Generality
     /env/presentation/g4-hep.png 1025px_621px 100px_100px 
 
     "Seeing" neutrinos via scintillation + Cherenkov light
@@ -276,6 +342,16 @@
 :i:`Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
 ===================================================================================
 
+.. comment
+
+   I will introduce Opticks, 
+   an optical photon simulation based on NVIDIA OptiX ray tracing 
+   enabling particle physics detector simulations 
+   to benefit from OptiX ray tracing.
+
+   The image visualizes photons coming from a cosmic ray muon 
+   crossing a neutrino detector.
+
 
 .. raw:: html
 
@@ -288,49 +364,124 @@
     </div>
 
 
+:i:`Opticks Benefits`
+---------------------------
+
+.. sidebar:: Opticks Dramatic Benefits 
+
+   .. class:: small
+
+       NVIDIA OptiX applied to neutrino detector simulation :
+       **eliminates optical photon bottleneck**
+
+       * optical photon simulation time --> zero 
+       * optical photon CPU memory --> zero
+
+       zero: effectively, compared to rest of simulation
+       
+       **Plus: much improved visualizations** 
+
 
 .. comment
 
-    **1704** 
-           Sir Isaac Newton published *Opticks* 
-
-    **2008** 
-           NVIDIA® begins OptiX™ development
-
-    **2015** 
-           *Opticks* development based on OptiX™ begins 
+   Over the next few slides I will give some context 
+   of what neutrino detectors look like and how they work 
+   to understand why such benefits are possible,  
+   before getting on to how I applied OptiX to their
+   simulation.
 
 
-Optical Photons 
-------------------
+Outline
+--------
 
-Optical Photons crucial to Particle Physics Experiments:
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
 
-* **Neutrino detectors**
-* Proton Decay Search 
-* Particle Identification
-
-"Seeing" Neutrino interactions:
-
-* large optically transparent target 
-
-  * eg water, ice, scintillators
- 
-* detectors sensitive to single photons
-
-  * Photomultiplier Tubes (PMTs)
+.. comment
 
 
-Sir Isaac Newton published *Opticks* in 1704
+   374*0.8 = 299
+   684*0.8 = 547
+
+   Neutrino detectors can benefit the most as their operation
+   depends on production and propagation of sometimes many millions
+   of optical photons. 
+   
+   Neutrinos detectors need to be large, as neutrinos 
+   interact only weakly.
+
+   Interesting that most of the optical 
+   photon physics would be very familiar to Newton 
+   who published his Opticks in 1704 
+   But it remains essential to neutrino experiments
+
+
+    **Indirectly Producing Light from Neutrinos**
+
+    * neutrinos interact only weakly : large target volumes
+    * transparent materials that yield light from interaction products 
+
+      * water, ice, scintillator
+
+    * low radioactivity materials, located underground
+
+    **Measuring Light**
+
+    * photomultiplier tubes (PMTs) coupled with target  
+
+      * sensitive to single photons
+
+
+    :blue:`Optical simulation vital for detector design, event reconstruction`
 
 
 
-``Hamamatsu Photomultiplier Tubes (PMTs)``
+.. class:: large
+
+   * Context
+
+     * Photomultiplier tubes (PMTs)
+     * Neutrino detectors
+
+   * Current simulation approach, *Geant4*
+
+   * How NVIDIA OptiX can help
+
+   * *Opticks* : optical photon simulation with NVIDIA OptiX
+
+     * geometry migration
+     * porting optical physics 
+
+   * Visualization
+   * Validation, performance comparisons
+   * Summary
+   * Short video  
+
+
+
+
+``Photomultiplier Tubes (PMTs)``
 --------------------------------------------
+
+.. image:: /env/presentation/1px.png
+   :width:  1000px
+   :height: 550px
+
+.. image:: /env/presentation/hamamatsu.png
+   :height: 50px
 
 
 ``Photomultiplier Tube Operation``
 --------------------------------------------
+
+.. comment
+
+   Thin layer of material evaporated onto inside of glass 
+   has property of emitting photoelectrons in response to single photons.
+   This single electron is exponentially amplified thru a series of 
+   dynodes to produce a measurable signal.  
 
 
 .. image:: /env/presentation/1px.png
@@ -347,11 +498,48 @@ Sir Isaac Newton published *Opticks* in 1704
 :i:`Super-Kamiokande PMTs 1`
 ----------------------------------------------------------------------
 
+.. comment
+
+    In operation the cavern is filled with ultrapure water, 
+    13k 20 inch PMTs, surround the target, which is located 
+    1000 m underground in a mine in Japan 
+
+
 .. raw:: html
 
     <pre class="myfoot">
     © Kamioka Observatory, ICRR(Institute for Cosmic Ray Research), The University of Tokyo.
     </pre>
+
+
+
+
+:i:`Super-Kamiokande PMTs 3`
+----------------------------------------------------------------------
+
+.. sidebar:: Super-Kamiokande Expt
+
+    .. image:: /env/presentation/nu-int.jpg
+       :width: 454px
+       :height: 422px
+
+    .. class:: small
+        
+        * Neutrino interaction produces charged particles 
+          travelling faster than c/n ~ 0.75c 
+
+        * Cherenkov light cone seen as ring by PMTs 
+
+
+
+
+
+.. raw:: html
+
+    <pre class="myfoot">
+    © Kamioka Observatory, ICRR(Institute for Cosmic Ray Research), The University of Tokyo.
+    </pre>
+
 
 
 
@@ -359,6 +547,22 @@ Sir Isaac Newton published *Opticks* in 1704
 :i:`Super-Kamiokande PMTs 2`
 ----------------------------------------------------------------------
 
+.. comment 
+
+    Neutrinos are probably in the top 2-3 of the most 
+    common particles in the universe, produced in 
+    the sun and nuclear reactors.
+
+    The penetrating nature of neutrinos enables them 
+    to provide information about the reactions ocurring 
+    in the sun from solar neutrinos. 
+
+    Super Kamikande observed 11 neutrinos over rougly 11 seconds 
+    from a supernova collapse from a nearby galaxy in Large Magellanic Cloud 
+    some 160k light years away
+
+
+
 .. raw:: html
 
     <pre class="myfoot">
@@ -366,54 +570,52 @@ Sir Isaac Newton published *Opticks* in 1704
     </pre>
 
 
-.. sidebar:: Super-Kamiokande Water Cerenkov Detector
+.. sidebar:: Super-K Physics
 
-    50,000 tons ultra pure water,
-    13,000 Photomultiplier Tubes, 
-    1,000 meter underground.
+    .. class:: small
+        
+        * **First observation of neutrino oscillation**
+       
+          * upward going ~ 0.5 downward going   
+          * -> non-zero neutrino mass
 
-    * solar neutrinos, fusion
-    * atmospheric neutrinos, cosmics
-    * accelerator neutrinos, beams 
-    * reactor neutrinos, fission
-    * supernova neutrinos (SN 1987A)
+        .. image:: /env/presentation/sn1987a-aat-m.jpg
 
-    .. class:: tiny
+        * **Observed supernova 1987a burst neutrinos**
 
-        http://www-sk.icrr.u-tokyo.ac.jp/sk/index-e.html
+          * 11 neutrinos over 10s
+          * from nearby galaxy (~160,000 light years) 
 
 
-:blue:`Jiangmen Underground Neutrino Observatory (JUNO)` 
+
+
+``Jiangmen Underground Neutrino Observatory (JUNO)``
 ------------------------------------------------------------
 
-:blue:`Jiangmen Underground Neutrino Observatory, Goals` 
-------------------------------------------------------------
+.. comment
 
-.. sidebar:: Under Construction
+      The JUNO experiment is under construction in southern China, 
+      more that 35m diameter sphere of liquid scintillator
+      contained by acrylic and surrounded by PMTs
+
+.. sidebar:: Under construction
 
     .. class:: small
 
-        20,000 ton liquid scintillator, 700 m underground, 
-        17,000 20" PMTs, 34,000 3" PMTs,
-        unprecedented energy resolution: 3% (at 1 Mev). Goals:
+        * **neutrino mass heirarchy determination** 
 
-        * **Determine neutrino mass heirarchy** from 
-          energy spectrum of reactor electron antineutrinos 
-          at ~53km from reactors.
+          * 20 kTon liquid scintillator sphere
+          * 53km from 2 nuclear power plants
+          * energy resolution: 3% (at 1 Mev)
+          * PMTs: 17k 20", 17-35k 3"
 
-        * Measure oscillation parameters
+        .. image:: /env/presentation/juno_anti_nu_e_spectrum.png
+             :width: 400px
 
-        Study:
-
-        * atmospheric neutrinos
-        * solar neutrinos
-        * geo-neutrinos
-        * supernova neutrinos
-        * exotic searches
-
-    .. class:: tiny
-
-        http://juno.ihep.ac.cn
+        * precise oscillation parameter measurement
+       
+        * study neutrinos from many sources
+ 
 
 
 
@@ -421,35 +623,56 @@ Sir Isaac Newton published *Opticks* in 1704
 ``Dayabay Reactor Neutrino Expt, Far Site``
 ----------------------------------------------------
 
+.. comment
+
+    Daya Bay experiement is 
+    :width: 662px
+    :height: 696px 
+
+
 :i:`Daya Bay Far Site 2`
 -------------------------
 
+
+.. sidebar:: Antineutrino Detection
+
+   .. class:: small
+
+       Antineutrinos interact with proton of detector --> positron(e+) and neutron (n). 
+
+       .. image:: /env/presentation/ibd-diag.png  
+          :height: 200px 
+       
+       * e+ annihilates, energy deposited in scintillator re-emitted as flash of light
+       * delayed 2nd flash when gadolinium captures neutron and gamma energy
+         deposited in scintillator
+
+       **Distinctive double flash of light signature**
+
 .. image:: /env/presentation/ad3.png
-   :width: 662px
-   :height: 696px 
+   :width: 400px
+
 
 
 :i:`Daya Bay Far Site 3`
 -------------------------
 
-.. sidebar:: Dayabay Reactor Neutrino Experiment
+.. sidebar:: Dayabay Physics
 
-    Eight Antineutrino Detectors (AD) in 3 halls, 
-    within 1.9 km of six nuclear reactors, in southern China. 
-    Each AD:
+    .. image:: /env/presentation/dyb-layout.png 
+        :width: 400px
 
-    * 20 tons of liquid scintillator
-    * 192 8 inch PMTs
+    .. class:: small
 
+        **Reactor antineutrino measurements**
 
-    Most precise measurements of:
+        * **Most precise oscillation parameter, theta_13**  
 
-    * neutrino oscillation
-    * reactor antineutrino spectrum
+          * Far site baseline ~ 1.9km
+          * Near/Far comparison : Antineutrino Disappearance 
 
-    .. class:: tiny
+        * **Most precise antineutrino spectrum**
 
-        http://dayawane.ihep.ac.cn
 
 
 :i:`Daya Bay PMT Wall Photo 1`
@@ -478,61 +701,44 @@ Sir Isaac Newton published *Opticks* in 1704
 
 
 
-"Seeing" neutrinos via scintillation + Cherenkov light
-----------------------------------------------------------
-
-.. class:: small
-
-   Antineutrinos react with protons in liquid scintillator yielding e+ and gammas. 
-   Particle energy absorbed by the scintillator is re-emitted as **optical photons**.
-   Dayabay uses 0.1% Gadolinium doped liquid scintillator.
-
-.. image:: /env/presentation/ibd-prompt-delayed.png  
-   :height: 200px 
-
-.. class:: small
-
-   **Cherenkov light** 
- 
-   * emitted by charged particles with velocity > materials speed of light
-   * occurs in all transparent materials eg water, ice, scintillator
-
-
-   **Optical Photon Propagation Model**
-
-   Detailed **optical photon simulation** critical to detector design, achieving goals.
-
-
-
 Geant4 : Monte Carlo Simulation Toolkit 
 -------------------------------------------
+
+
+Geant4 : Monte Carlo Simulation Toolkit Generality
+---------------------------------------------------
+
+.. comment
+
+    Now you have some context of how neutrino detectors work,
+    I can sketch how to simulate them 
+
+    The standard simulation tool in the particle physics is Geant4,  
+
 
 .. sidebar:: Leading in Particle Physics
 
    .. class:: small
         
-       **Geant4** simulates particles travelling through matter, 
-       with applications in high energy, nuclear and accelerator
-       physics, medical imaging, radiotherapy and space science. 
-       20 year history, ubiquitous in physics experiments.
+       **Geant4** simulates particles travelling through matter
 
-       **Simulation** essential for:
+       * high energy, nuclear and accelerator physics
+       * medical imaging, radiotherapy 
+       * space science
 
-       * detector design/optimization 
-       * reconstruction algorithm development
-       * reconstruction efficiency estimates
-
-       **Geant4 Model**
+       **Geant4 Approach**
 
        * geometry : **CSG tree of solids**
-       * particles : tracks 
+       * particles : track position and time etc.. 
        * processes : nuclear, EM, weak, **optical**
- 
 
+       **Very General and Capable Tool**
+
+       * **mostly unused for optical photon propagation**
+ 
    .. class:: tiny
 
       https://geant4.web.cern.ch
- 
 
 
 
@@ -568,6 +774,29 @@ Geant4 : Monte Carlo Simulation Toolkit
 
 :small:`Ray Traced Realistic Image Synthesis and Optical Photon Simulation`
 -------------------------------------------------------------------------------
+
+.. comment
+
+    So how can OptiX help
+
+    image synthesis and photon simulation are parallel problems
+    just with a different focus: images synthesis focusses on the 
+    image plane (literally), whereas simulation focusses on wherever
+    the photons go especially when they hit PMTs  
+
+    The great thing about OptiX is that it does just the difficult parts: 
+
+    * acceleration with performance scaling with cores 
+      across multiple GPUs
+
+    leaving everything else for you
+
+    * including writing single ray geometry intersection 
+
+    This enables the optical simulation to be implemented 
+    as OptiX programs.
+
+
 
 .. sidebar:: OptiX *Glass* Sample App
 
@@ -946,12 +1175,11 @@ Geant4 : Monte Carlo Simulation Toolkit
 :i:`PmtInBox after 2`
 ---------------------------------
 
-.. sidebar:: PmtInBox at 1.8ns 
+.. sidebar:: Interactive selection  
 
     .. class:: small
     
-         Interactive photon selection 
-         by history or material flag sequences, such as:
+         By history or material sequences, eg:
 
          TO BT SA         
               surface absorbed without detection  
@@ -971,9 +1199,11 @@ Geant4 : Monte Carlo Simulation Toolkit
          TO BT BR BR BT SA 
               double Pyrex reflections (inner ring)
 
+         BT:boundary transmit, BR:boundary reflect
 
-         TO/AB/BT/BR
-               torch/bulk absorb/boundary transmit/reflect
+
+         **Implemented with Thrust indexing (sparse histogram sort)**
+
 
 
 
@@ -1169,13 +1399,6 @@ Geant4 : Monte Carlo Simulation Toolkit
 
    http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
 
-
-:i:`JPMT Before Contact`
--------------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-before-contact_half.png
 
 
 :i:`JPMT After Contact`
