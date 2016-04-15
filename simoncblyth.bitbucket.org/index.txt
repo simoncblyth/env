@@ -5,6 +5,29 @@
 * https://bitbucket.org/simoncblyth/env/commits/all
 
 
+
+Opticks Videos
+----------------------
+
+.. raw:: html 
+
+   <iframe width="1024" height="576" src="https://www.youtube.com/embed/QzH6y0pKXk4?rel=0" frameborder="0" allowfullscreen></iframe>
+
+.. class:: tiny 
+
+   https://www.youtube.com/watch?v=QzH6y0pKXk4 
+
+
+.. raw:: html 
+
+   <iframe height=498 width=510 src="http://player.youku.com/embed/XMTUxNjM3MzA4OA==" frameborder=0 allowfullscreen></iframe>
+
+.. class:: tiny 
+
+   http://v.youku.com/v_show/id_XMTUxNjM3MzA4OA==.html
+
+
+
 Opticks Presentations 
 ----------------------
 
@@ -15,6 +38,8 @@ Early 2016
 http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html (April 2016, GPU Technology Conference, San Jose)
 
     Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
+    http://on-demand.gputechconf.com/gtc/2016/video/S6320.html GTC Talk Video (25 mins) 
 
 
 http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016, DYB Meeting, Beijing)

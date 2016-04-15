@@ -12,9 +12,6 @@ console login
 Password:">console"
 
 
-
-
-
 FUNCTIONS
 -----------
 
@@ -60,6 +57,21 @@ osx-ss-cp name
 
     simon:pmt blyth$ pwd
     /Users/blyth/env/nuwa/detdesc/pmt
+
+
+
+Upgrade ? Mavericks/Yosemite/El Capitan
+------------------------------------------
+
+* :google:`OSX El Capitan NVIDIA GPU`
+
+* http://www.tonymacx86.com/graphics/180741-nvidia-releases-alternate-graphics-drivers-os-x-10-11-2-346-03-04-a.html
+
+
+* http://www.nvidia.com/object/macosx-cuda-7.5.25-driver.html
+
+
+
 
 
 

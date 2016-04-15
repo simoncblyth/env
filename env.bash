@@ -1695,3 +1695,4 @@ g4d-(){       . $HOME/g4dae/g4d.bash && g4d-env $* ; }
 
 gtc-(){      . $(env-home)/presentation/gtc2016/gtc.bash && gtc-env $* ; }
 vids-(){      . $(env-home)/graphics/ggeoview/vids.bash && vids-env $* ; }
+vbox-(){      . $(env-home)/virtualbox/vbox.bash && vbox-env $* ; }

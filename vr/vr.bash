@@ -14,6 +14,31 @@ VR Interface Dev Experience
 * https://www.youtube.com/watch?v=_vqNpZqnl1o&index=27&list=PLckFgM6dUP2hc4iy-IdKFtqR9TeZWMPjm
 
 
+
+HTC Vive Requirements
+----------------------
+
+RECOMMENDED PC SPECS
+
+GPU: NVIDIA GeForce® GTX 970 / AMD Radeon™ R9 290 equivalent or greater
+CPU: Intel i5-4590 / AMD FX 8350 equivalent or greater   
+RAM: 4GB+
+Video Output: HDMI 1.4 or DisplayPort 1.2 or newer
+USB Port: 1x USB 2.0 or greater port
+Operating System: Windows 7 SP1 or newer
+
+
+
+Oculus Recommended Laptops
+---------------------------
+
+* https://www.reddit.com/r/oculus/wiki/compatible_laptops
+
+* :google:`Asus ROG GX700VO`
+* :google:`Aorus X7 DT`
+* :google:`MSI GT72S Dragon`
+
+
 VR Capable Laptops
 -------------------
 
