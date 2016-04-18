@@ -34,6 +34,12 @@ OpenVR
 * http://jmonkeyengine.org/  3D engine
 
 
+Minimal Example
+----------------
+
+See ovrminimal-
+
+
 
 EOU
 }
@@ -45,3 +51,10 @@ openvr-get(){
    git clone https://github.com/ValveSoftware/openvr.git
 
 }
+
+openvr-libdir(){ echo $(openvr-dir)/lib/osx32 ; }
+
+
+
+
+
