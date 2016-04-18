@@ -1700,3 +1700,4 @@ win-(){      . $(env-home)/windows/win.bash && win-env $* ; }
 ovrminimal-(){      . $(env-home)/vr/ovrminimal/ovrminimal.bash && ovrminimal-env $* ; }
 
 
+OPTICKS-(){      . $(env-home)/./OPTICKS.bash && OPTICKS-env $* ; }

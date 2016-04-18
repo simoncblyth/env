@@ -452,15 +452,19 @@ EOF
 adm-filemap-opticks(){  cat << EOF
 # split off opticks parts of env 
 # guideline : minimal name changes at this stage, just filtering and moving directories around
-
-include numerics/npy 
-rename numerics/npy npy
+#
+# hmm if aiming for independence from env- will need lots of env machinery
+# for the externals to get copied too...
+#
 
 include boost/bpo/bcfg
 rename boost/bpo/bcfg bcfg
 
 include boost/bregex
 rename boost/bregex bregex
+
+include numerics/npy 
+rename numerics/npy npy
 
 include opticks
 
@@ -493,10 +497,34 @@ rename graphics/ggeoview ggeoview
 include optix/cfg4 
 rename optix/cfg4 cfg4
 
+EOF
+}
 
+
+adm-opticks-cmake(){ cat << EOF
+
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+project(OPTICKS)
+
+add_subdirectory(bcfg)
+add_subdirectory(bregex)
+add_subdirectory(npy)
+add_subdirectory(opticks)
+add_subdirectory(ggeo)
+add_subdirectory(assimpwrap)
+add_subdirectory(openmeshrap)
+add_subdirectory(oglrap)
+add_subdirectory(cudawrap)
+add_subdirectory(thrustrap)
+add_subdirectory(optixrap)
+add_subdirectory(opticksop)
+add_subdirectory(ggeoview)
+add_subdirectory(cfg4)
 
 EOF
 }
+
+
 
 
 adm-opticks(){
@@ -509,6 +537,7 @@ adm-opticks(){
    cd opticks
    hg update
 
+   adm-opticks-cmake > CMakeLists.txt
 
 }
 
