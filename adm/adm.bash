@@ -430,8 +430,12 @@ adm-filemap(){
        g4dae) adm-filemap-$name ;;
       heprez) adm-filemap-$name ;;
      tracdev) adm-filemap-$name ;;
+     opticks) adm-filemap-$name ;;
   esac
 }
+
+
+
 
 adm-filemap-env(){ cat << EOF
 rename thho/NuWa/python/histogram/pyhist.py thho/NuWa/python/histogram/pyhist_rename_to_avoid_degeneracy.py 
@@ -444,6 +448,71 @@ include geant4/geometry/DAE
 rename geant4/geometry/DAE .
 EOF
 }
+
+adm-filemap-opticks(){  cat << EOF
+# split off opticks parts of env 
+# guideline : minimal name changes at this stage, just filtering and moving directories around
+
+include numerics/npy 
+rename numerics/npy npy
+
+include boost/bpo/bcfg
+rename boost/bpo/bcfg bcfg
+
+include boost/bregex
+rename boost/bregex bregex
+
+include opticks
+
+include optix/ggeo
+rename optix/ggeo ggeo
+
+include graphics/assimpwrap
+rename graphics/assimpwrap assimpwrap
+
+include graphics/openmeshrap
+rename graphics/openmeshrap openmeshrap
+ 
+include graphics/oglrap
+rename graphics/oglrap oglrap
+ 
+include cuda/cudawrap
+rename cuda/cudawrap cudawrap
+ 
+include numerics/thrustrap
+rename numerics/thrustrap thrustrap
+
+include graphics/optixrap
+rename graphics/optixrap optixrap
+ 
+include opticksop
+
+include graphics/ggeoview 
+rename graphics/ggeoview ggeoview
+
+include optix/cfg4 
+rename optix/cfg4 cfg4
+
+
+
+EOF
+}
+
+
+adm-opticks(){
+
+   cd
+   rm -rf opticks
+
+   adm-env-to-opticks
+
+   cd opticks
+   hg update
+
+
+}
+
+
 
 adm-filemap-g4daeview(){ cat << EOF
 
@@ -531,14 +600,25 @@ adm-convert(){
 }
 
 
-adm-env-to-g4dae(){
+adm-env-to-g4dae(){     adm-spawn g4dae env ; }
+adm-env-to-opticks(){   adm-spawn opticks env ; }
 
-   local name=${1:-g4dae}
+adm-spawn(){
+
+   local msg="=== $FUNCNAME :"
+   local dstname=${1:-g4dae}
+   local srcname=${2:-env}
+
+   local srcdir=$HOME/$srcname
+   local dstdir=$HOME/$dstname
+
+
+   local dst=file://$dstdir 
+   local src=file://$srcdir  
+
+   local name=$dstname
    local filemap=$(adm-filemap-path $name)
    local authormap=$(adm-authormap-path $name)
-
-   local src=file:///$HOME/env    
-   local dst=file:///$HOME/g4dae    
 
    mkdir -p $(dirname $filemap)
 
@@ -547,8 +627,14 @@ adm-env-to-g4dae(){
 
    local cmd="hg convert --config convert.localtimezone=true --source-type hg --dest-type hg $src $dst --filemap $filemap --authormap $authormap "
    echo $cmd
+
+   local ans
+   read -p "$msg enter YES to proceed " ans
+   [ "$ans" != "YES" ] && return
+
    eval $cmd
 }
+
 
 
 adm-verify(){
