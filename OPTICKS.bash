@@ -1,4 +1,5 @@
 # === func-gen- : OPTICKS fgp ./OPTICKS.bash fgn OPTICKS fgh .
+OPTICKS-(){         source $(OPTICKS-source) ; }
 OPTICKS-src(){      echo OPTICKS.bash ; }
 OPTICKS-source(){   echo ${BASH_SOURCE:-$(env-home)/$(OPTICKS-src)} ; }
 OPTICKS-vi(){       vi $(OPTICKS-source) ; }
@@ -25,6 +26,12 @@ Usage
    OPTICKS-install
 
    OPTICKS-run
+
+
+Pristine cycle::
+
+   OPTICKS-;OPTICKS-wipe;OPTICKS-cmake
+
 
 
 
@@ -96,6 +103,7 @@ OPTICKS-wipe(){
 }
 
 OPTICKS-optix-install-dir(){ echo /Developer/OptiX ; }
+#OPTICKS-optix-install-dir(){ echo -n ; }
 
 
 OPTICKS-cmake(){
