@@ -52,6 +52,9 @@ To Consider
 
 * bash launcher ggv.sh is tied into the individual bash functions
 
+* enable no envvar operation, eg for running with small test geometries
+  which dont have much need for the geocache 
+
 
 
 Defaults for running with minimal envvars
