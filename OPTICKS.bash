@@ -30,13 +30,17 @@ Usage
 
 Pristine cycle::
 
-   OPTICKS-;OPTICKS-wipe;OPTICKS-cmake
+   e;. OPTICKS.bash;OPTICKS-wipe;OPTICKS-cmake;OPTICKS-install
 
 
 
 
 To Consider
 -------------
+
+
+* pull out classes from oglrap- that do not depend
+  on OpenGL and place into opticks
 
 * conditional build depending on finding OptiX
 
