@@ -22,6 +22,24 @@ Issues
     and rebuild and reinstall
 
 
+Superpackage using add_subdirectory with find_package in each
+--------------------------------------------------------------
+
+* :google:`cmake subdirectory with find_package`
+
+  * https://cmake.org/pipermail/cmake/2013-April/054415.html 
+
+  * http://mirkokiefer.com/blog/2013/03/cmake-by-example/
+
+  * https://coderwall.com/p/y3zzbq/use-cmake-enabled-libraries-in-your-cmake-project
+
+  * https://github.com/Athius/FrameworkCMakeToolkit
+
+
+Using ExternalProject looks like overkill, maybe 
+some devious relative install paths can get single project and 
+superproject builds to work together ?
+
 
 
 Best Docs encountered

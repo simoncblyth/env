@@ -110,6 +110,37 @@ and Opticks and opticks.
 Directory name and project name need to match ? 
 
 
+Dependencies
+--------------
+
+::
+
+
+   =====================  ===============  =============   ==============================================================================
+   directory              precursor        pkg name        required find package 
+   =====================  ===============  =============   ==============================================================================
+   boost/bpo/bcfg         bcfg-            Cfg             Boost
+   boost/bregex           bregex-          bregex          Boost
+   numerics/npy           npy-             NPY             Boost GLM Bregex 
+   opticks                opticks-         Opticks         Boost GLM Bregex Cfg NPY 
+   optix/ggeo             ggeo-            GGeo            Boost GLM Bregex Cfg NPY Opticks
+   graphics/assimpwrap    assimpwrap-      AssimpWrap      Boost Assimp GGeo GLM NPY Opticks
+   graphics/openmeshrap   openmeshrap-     OpenMeshRap     Boost GLM NPY GGeo Opticks OpenMesh 
+   graphics/oglrap        oglrap-          OGLRap          GLEW GLFW GLM Boost Cfg Opticks GGeo PPM NPY Bregex ImGui        
+   cuda/cudawrap          cudawrap-        CUDAWrap        CUDA (ssl)
+   numerics/thrustrap     thrustrap-       ThrustRap       CUDA Boost GLM NPY CUDAWrap 
+   graphics/optixrap      optixrap-        OptiXRap        OptiX CUDA Boost GLM NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap 
+   opticksop              opop-            OpticksOp       OptiX CUDA Boost GLM Cfg Opticks GGeo NPY OptiXRap CUDAWrap ThrustRap      
+   opticksgl              opgl-            OpticksGL       OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap OptiXRap OpticksOp
+   graphics/ggeoview      ggv-             GGeoView        OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Cfg Opticks 
+                                                           Assimp AssimpWrap OpenMesh OpenMeshRap GGeo ImGui Bregex OptiXRap CUDAWrap ThrustRap OpticksOp OpticksGL 
+   optix/cfg4             cfg4-            CfG4            Boost Bregex GLM NPY Cfg GGeo Opticks Geant4 EnvXercesC G4DAE 
+   =====================  ===============  =============   ==============================================================================
+    
+
+See cmake-
+
+
 
 EOU
 }
