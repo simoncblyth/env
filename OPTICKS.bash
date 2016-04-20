@@ -88,6 +88,28 @@ for each of the packages... but those are kinda useful
 for development. 
 
 
+Interference between granular and collective builds
+-----------------------------------------------------
+
+The collective OPTICKS-cmake is setting CMAKE_INSTALL_PREFIX
+to /usr/local/opticks which differs from
+the one in the pkg bash functions ?
+
+The collective build misses the opticks lib symbols
+because linking to outdated /usr/local/opticks/lib/libOpticks.dylib
+why didnt this get updated ?
+
+Maybe need to arrange common install dir between the granular and collective ?
+
+Checking the linking commandline ~/chk there is mixture between 
+where the libs are coming from ? Why ?
+
+Suspect name issue wrt NPY and npy 
+and Opticks and opticks.
+
+Directory name and project name need to match ? 
+
+
 
 EOU
 }
