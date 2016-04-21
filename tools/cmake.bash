@@ -41,6 +41,17 @@ some devious relative install paths can get single project and
 superproject builds to work together ?
 
 
+Policy control
+---------------
+
+::
+
+    # from ggv-
+    #cmake_policy(SET CMP0054 OLD)
+    # unfortunately this doesnt suppress the warnings, despite being advertised to do so
+    # http://www.cmake.org/Wiki/CMake/Policies
+
+
 
 Best Docs encountered
 ----------------------

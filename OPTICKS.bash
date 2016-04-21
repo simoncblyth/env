@@ -33,14 +33,12 @@ Pristine cycle::
    e;. OPTICKS.bash;OPTICKS-wipe;OPTICKS-cmake;OPTICKS-install
 
 
+See also cmake-
 
 
 To Consider
 -------------
 
-
-* pull out classes from oglrap- that do not depend
-  on OpenGL and place into opticks
 
 * conditional build depending on finding OptiX
 
@@ -55,22 +53,6 @@ To Consider
 * externals gathering, take a look at dybinst 
 
 * bash launcher ggv.sh is tied into the individual bash functions
-
-* enable no envvar operation, eg for running with small test geometries
-  which dont have much need for the geocache 
-
-
-
-Defaults for running with minimal envvars
--------------------------------------------
-
-::
-
-    export-export   ## needed to setup geokeys to find geometry files
-
-    # default OPTICKS_GEOKEY is DAE_NAME_DYB so that envvar must point at the geometry file
-
-    simon:env blyth$ /usr/local/opticks/bin/GGeoView
 
 
 
@@ -136,14 +118,29 @@ Dependencies
                                                            Assimp AssimpWrap OpenMesh OpenMeshRap GGeo ImGui Bregex OptiXRap CUDAWrap ThrustRap OpticksOp OpticksGL 
    optix/cfg4             cfg4-            CfG4            Boost Bregex GLM NPY Cfg GGeo Opticks Geant4 EnvXercesC G4DAE 
    =====================  ===============  =============   ==============================================================================
-    
-
-See cmake-
-
 
 
 EOU
 }
+
+OPTICKS-dirs(){  cat << EOL
+boost/bpo/bcfg
+boost/bregex
+numerics/npy
+opticks
+optix/ggeo
+graphics/assimpwrap
+graphics/openmeshrap
+graphics/oglrap
+cuda/cudawrap
+numerics/thrustrap
+graphics/optixrap
+opticksop
+opticksgl
+graphics/ggeoview
+EOL
+}
+
 OPTICKS-dir(){ echo $(local-base)/opticks ; }
 OPTICKS-cd(){  cd $(OPTICKS-dir); }
 
@@ -156,6 +153,17 @@ OPTICKS-scd(){  cd $(OPTICKS-sdir); }
 OPTICKS-cd(){   cd $(OPTICKS-sdir); }
 OPTICKS-icd(){  cd $(OPTICKS-idir); }
 OPTICKS-bcd(){  cd $(OPTICKS-bdir); }
+
+
+
+OPTICKS-edit(){ vi $(OPTICKS-cmakelists) ; }
+OPTICKS-cmakelists(){
+  local dir
+  OPTICKS-dirs | while read dir 
+  do
+      echo $dir/CMakeLists.txt
+  done
+}
 
 OPTICKS-wipe(){
    local bdir=$(OPTICKS-bdir)
@@ -177,6 +185,7 @@ OPTICKS-cmake(){
 
    OPTICKS-bcd
    cmake \
+       -DWITH_OPTIX:BOOL=ON \
        -DCMAKE_BUILD_TYPE=Debug \
        -DCMAKE_INSTALL_PREFIX=$(OPTICKS-idir) \
        -DOptiX_INSTALL_DIR=$(OPTICKS-optix-install-dir) \
