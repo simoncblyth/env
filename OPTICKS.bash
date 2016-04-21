@@ -141,6 +141,14 @@ graphics/ggeoview
 EOL
 }
 
+
+OPTICKS-xfinds(){ 
+  echo -n
+
+}
+
+
+
 OPTICKS-dir(){ echo $(local-base)/opticks ; }
 OPTICKS-cd(){  cd $(OPTICKS-dir); }
 
