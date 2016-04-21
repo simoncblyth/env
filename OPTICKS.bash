@@ -91,6 +91,52 @@ and Opticks and opticks.
 
 Directory name and project name need to match ? 
 
+RPATH/library confusion
+-------------------------
+
+RPATH covers all dirs including the collective, 
+unclear which libs are getting used::
+
+    simon:env blyth$ otool-;otool-rpath /usr/local/opticks/bin/GGeoView | grep path | uniq
+         path /usr/local/cuda/lib (offset 12)
+         path /usr/local/opticks/lib (offset 12)
+         path /opt/local/lib (offset 12)
+         path /usr/local/env/graphics/glew/1.12.0/lib (offset 12)
+         path /usr/local/env/boost/bpo/bcfg/lib (offset 12)
+         path /usr/local/env/boost/bregex/lib (offset 12)
+         path /usr/local/env/numerics/npy/lib (offset 12)
+         path /usr/local/env/opticks/lib (offset 12)
+         path /usr/local/env/graphics/assimpwrap/lib (offset 12)
+         path /usr/local/env/graphics/OpenMesh/4.1/lib (offset 12)
+         path /usr/local/env/graphics/openmeshrap/lib (offset 12)
+         path /usr/local/env/optix/ggeo/lib (offset 12)
+         path /usr/local/env/graphics/gui/imgui.install/lib (offset 12)
+         path /usr/local/env/graphics/oglrap/lib (offset 12)
+         path /usr/local/env/cuda/CUDAWrap/lib (offset 12)
+         path /usr/local/env/graphics/OptiXRap/lib (offset 12)
+         path /usr/local/env/numerics/ThrustRap/lib (offset 12)
+         path /usr/local/env/opticksop/lib (offset 12)
+         path /usr/local/env/opticksgl/lib (offset 12)
+         path /Developer/OptiX/lib64 (offset 12)
+
+
+* collective build installs everything to  -DCMAKE_INSTALL_PREFIX=$(local-base)/opticks 
+* individual builds install many places eg  -DCMAKE_INSTALL_PREFIX=$(local-base)/env/boost/bpo/bcfg  etc...
+* FindX.cmake returns the individual locations
+
+Centralized approach ?
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* adopt centralized location for individual builds...
+
+  * change all the FindX.cmake to give centralized position
+  * nice and simple
+  * BUT: means common namespace, so should improve classname prefixing  
+
+* individual and collective builds that operate in the same pot 
+
+* how to handle internal/external distinction ? which changes as pkg matured
+
 
 Dependencies
 --------------
@@ -141,12 +187,71 @@ graphics/ggeoview
 EOL
 }
 
-
-OPTICKS-xfinds(){ 
-  echo -n
-
+OPTICKS-internals(){  cat << EOI
+Cfg
+Bregex
+NPY
+Opticks
+GGeo
+AssimpWrap
+OpenMeshRap
+OGLRap
+CUDAWrap
+ThrustRap
+OptiXRap
+OpticksOp
+OpticksGL
+OptiXThrust
+NumpyServer
+EOI
+}
+OPTICKS-xternals(){  cat << EOX
+Boost
+GLM
+EnvXercesC
+G4DAE
+Assimp
+OpenMesh
+GLEW
+GLEQ
+GLFW
+ImGui
+ZMQ
+AsioZMQ
+PPM
+EOX
+}
+OPTICKS-other(){  cat << EOO
+OpenVR
+CNPY
+NuWaCLHEP
+NuWaGeant4
+cJSON
+RapSqlite
+SQLite3
+ChromaPhotonList
+G4DAEChroma
+NuWaDataModel
+ChromaGeant4CLHEP
+CLHEP
+ROOT
+ZMQRoot
+EOO
 }
 
+
+OPTICKS-tfind-(){ 
+  local f
+  local base=$ENV_HOME/CMake/Modules
+  OPTICKS-${1} | while read f 
+  do
+     echo $base/Find${f}.cmake
+  done 
+}
+
+OPTICKS-ifind(){ vi $(OPTICKS-tfind- internals) ; }
+OPTICKS-xfind(){ vi $(OPTICKS-tfind- xternals) ; }
+OPTICKS-ofind(){ vi $(OPTICKS-tfind- other) ; }
 
 
 OPTICKS-dir(){ echo $(local-base)/opticks ; }
