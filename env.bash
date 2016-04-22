@@ -1677,7 +1677,7 @@ lxe-(){      . $(env-home)/optix/lxe/lxe.bash && lxe-env $* ; }
 
 
 opticks-(){      . $(env-home)/opticks/opticks.bash && opticks-env $* ; }
-opop-(){      . $(env-home)/opticksop/opop.bash && opop-env $* ; }
+opticksop-(){      . $(env-home)/opticksop/opticksop.bash && opticksop-env $* ; }
 mdls-(){      . $(env-home)/osx/mdls/mdls.bash && mdls-env $* ; }
 vxgi-(){      . $(env-home)/graphics/nvidia/vxgi.bash && vxgi-env $* ; }
 rift-(){      . $(env-home)/vr/rift/rift.bash && rift-env $* ; }
@@ -1701,5 +1701,5 @@ ovrminimal-(){      . $(env-home)/vr/ovrminimal/ovrminimal.bash && ovrminimal-en
 
 
 OPTICKS-(){      . $(env-home)/OPTICKS.bash && OPTICKS-env $* ; }
-opgl-(){      . $(env-home)/opticksgl/opgl.bash && opgl-env $* ; }
+opticksgl-(){      . $(env-home)/opticksgl/opticksgl.bash && opticksgl-env $* ; }
 cmakex-(){      . $(env-home)/tools/cmakex.bash && cmakex-env $* ; }

@@ -9,14 +9,23 @@ OPTICKS-usage(){ cat << EOU
 OPTICKS : experiment with umbrella cmake building
 ====================================================
 
-Aiming for this to go in top level of a new opticks repo
-together with top level CMakeLists.txt
+Aiming for this to go in top level of a new Opticks repo
+together with top level superbuild CMakeLists.txt
 
 Intend to allow building independent of the env.
 
+See Also
+----------
 
-Dependencies
---------------
+cmake-
+    background on cmake
+
+cmakex-
+    documenting the development of the OPTICKS- cmake machinery 
+
+
+Dependencies of internals
+---------------------------
 
 ::
 
@@ -43,114 +52,6 @@ Dependencies
    =====================  ===============  =============   ==============================================================================
 
 
-Collective needs installs
---------------------------
-
-::
-
-    simon:env blyth$ OPTICKS-make
-    [  1%] Built target Cfg
-    [  2%] Built target Bregex
-    [  4%] Built target regexsearchTest
-    [  4%] Building CXX object numerics/npy/CMakeFiles/NPY.dir/NPYBase.cpp.o
-    /Users/blyth/env/numerics/npy/NPYBase.cpp:13:10: fatal error: 'regexsearch.hh' file not found
-    #include "regexsearch.hh"
-             ^
-    1 error generated.
-    make[2]: *** [numerics/npy/CMakeFiles/NPY.dir/NPYBase.cpp.o] Error 1
-    make[1]: *** [numerics/npy/CMakeFiles/NPY.dir/all] Error 2
-    make: *** [all] Error 2
-    simon:env blyth$ 
-
-
-NPY was needing Bregex installed headers, so it fails on first run ?
-
-* Workarounds look complicated, see cmake-
-* Pragmatically adjust all internal _INCLUDE_DIRS to source directories rather than install directories. 
-* That seemed to work for a while, but after a wipe OPTICKS-cmake fails as all the _LIBRARIES 
-  come back NOTFOUND at config time
-
-
-find_package assumes do not need to build/install it ? 
----------------------------------------------------------
-
-Workaround this using SUPERBUILD variable, as explained in FindBregex.cmake::
-
-    if(SUPERBUILD)
-        if(NOT Bregex_LIBRARIES)
-           set(Bregex_LIBRARIES Bregex)
-        endif()
-    endif(SUPERBUILD)
-
-    # When no lib is found at configure time : ie when cmake is run
-    # find_package normally yields NOTFOUND
-    # but here if SUPERBUILD is defined Bregex_LIBRARIES
-    # is set to the target name: Bregex. 
-    # 
-    # This allows the build to proceed if the target
-    # is included amongst the add_subdirectory of the super build.
-    #
-
-Hmm getting cycle warnings
-----------------------------
-
-All due to interloper directory /usr/local/env/numerics/npy/lib::
-
-    NOT WITH_NPYSERVER
-    -- Configuring done
-    CMake Warning at optix/ggeo/CMakeLists.txt:51 (add_library):
-      Cannot generate a safe runtime search path for target GGeo because there is
-      a cycle in the constraint graph:
-
-        dir 0 is [/opt/local/lib]
-        dir 1 is [/usr/local/env/numerics/npy/lib]
-          dir 4 must precede it due to runtime library [libNPY.dylib]
-        dir 2 is [/usr/local/opticks/build/ALL/opticks]
-        dir 3 is [/usr/local/opticks/build/ALL/boost/bpo/bcfg]
-        dir 4 is [/usr/local/opticks/build/ALL/numerics/npy]
-          dir 1 must precede it due to runtime library [libNPY.dylib]
-        dir 5 is [/usr/local/opticks/build/ALL/boost/bregex]
-
-      Some of these libraries may not be found correctly.
-
-::
-
-    simon:env blyth$ otool-;otool-rpath /usr/local/opticks/bin/GGeoView  | grep path | uniq
-         path /usr/local/cuda/lib (offset 12)
-         path /usr/local/opticks/lib (offset 12)
-         path /opt/local/lib (offset 12)
-         path /usr/local/env/graphics/glew/1.12.0/lib (offset 12)
-         path /usr/local/env/numerics/npy/lib (offset 12)
-         path /usr/local/env/graphics/OpenMesh/4.1/lib (offset 12)
-         path /usr/local/env/graphics/gui/imgui.install/lib (offset 12)
-         path /Developer/OptiX/lib64 (offset 12)
-
-
-This issue went away, pilot error ?
-
-
-Install seems to build again ?
------------------------------------
-
-::
-
-  614  rm -rf /usr/local/opticks/*
-  615  OPTICKS-
-  616  OPTICKS-cmake
-  617  OPTICKS-make
-  625  OPTICKS-install
-  626  otool-
-  627  otool-rpath /usr/local/opticks/bin/GGeoView 
-  628  /usr/local/opticks/bin/GGeoView /tmp/g4_00.dae
-
-
-
-Handling tests
-----------------
-
-All tests are bundled into /usr/local/opticks/bin/
-
-
 Usage
 -------
 
@@ -167,9 +68,6 @@ Usage
 Pristine cycle::
 
    e;. OPTICKS.bash;OPTICKS-wipe;OPTICKS-cmake;OPTICKS-install
-
-
-See also cmake-
 
 
 To Consider
@@ -213,74 +111,6 @@ Thoughts
 The umbrella cmake build avoids using the bash functions
 for each of the packages... but those are kinda useful
 for development. 
-
-
-Interference between granular and collective builds
------------------------------------------------------
-
-The collective OPTICKS-cmake is setting CMAKE_INSTALL_PREFIX
-to /usr/local/opticks which differs from
-the one in the pkg bash functions ?
-
-The collective build misses the opticks lib symbols
-because linking to outdated /usr/local/opticks/lib/libOpticks.dylib
-why didnt this get updated ?
-
-Maybe need to arrange common install dir between the granular and collective ?
-
-Checking the linking commandline ~/chk there is mixture between 
-where the libs are coming from ? Why ?
-
-Suspect name issue wrt NPY and npy 
-and Opticks and opticks.
-
-Directory name and project name need to match ? 
-
-RPATH/library confusion
--------------------------
-
-RPATH covers all dirs including the collective, 
-unclear which libs are getting used::
-
-    simon:env blyth$ otool-;otool-rpath /usr/local/opticks/bin/GGeoView | grep path | uniq
-         path /usr/local/cuda/lib (offset 12)
-         path /usr/local/opticks/lib (offset 12)
-         path /opt/local/lib (offset 12)
-         path /usr/local/env/graphics/glew/1.12.0/lib (offset 12)
-         path /usr/local/env/boost/bpo/bcfg/lib (offset 12)
-         path /usr/local/env/boost/bregex/lib (offset 12)
-         path /usr/local/env/numerics/npy/lib (offset 12)
-         path /usr/local/env/opticks/lib (offset 12)
-         path /usr/local/env/graphics/assimpwrap/lib (offset 12)
-         path /usr/local/env/graphics/OpenMesh/4.1/lib (offset 12)
-         path /usr/local/env/graphics/openmeshrap/lib (offset 12)
-         path /usr/local/env/optix/ggeo/lib (offset 12)
-         path /usr/local/env/graphics/gui/imgui.install/lib (offset 12)
-         path /usr/local/env/graphics/oglrap/lib (offset 12)
-         path /usr/local/env/cuda/CUDAWrap/lib (offset 12)
-         path /usr/local/env/graphics/OptiXRap/lib (offset 12)
-         path /usr/local/env/numerics/ThrustRap/lib (offset 12)
-         path /usr/local/env/opticksop/lib (offset 12)
-         path /usr/local/env/opticksgl/lib (offset 12)
-         path /Developer/OptiX/lib64 (offset 12)
-
-
-* collective build installs everything to  -DCMAKE_INSTALL_PREFIX=$(local-base)/opticks 
-* individual builds install many places eg  -DCMAKE_INSTALL_PREFIX=$(local-base)/env/boost/bpo/bcfg  etc...
-* FindX.cmake returns the individual locations
-
-Centralized approach ?
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-* adopt centralized location for individual builds...
-
-  * change all the FindX.cmake to give centralized position
-  * nice and simple
-  * BUT: means common namespace, so should improve classname prefixing  
-
-* individual and collective builds that operate in the same pot 
-
-* how to handle internal/external distinction ? which changes as pkg matured
 
 EOU
 }
@@ -376,7 +206,8 @@ OPTICKS-cd(){  cd $(OPTICKS-dir); }
 
 OPTICKS-sdir(){ echo $(env-home) ; }
 OPTICKS-idir(){ echo $(local-base)/opticks ; }
-OPTICKS-bdir(){ echo $(local-base)/opticks/build/${1:-ALL} ; }
+OPTICKS-bdir(){ echo $(local-base)/opticks/build ; }
+OPTICKS-tdir(){ echo /tmp/opticks ; }
 
 OPTICKS-scd(){  cd $(OPTICKS-sdir); }
 OPTICKS-cd(){   cd $(OPTICKS-sdir); }
@@ -384,13 +215,29 @@ OPTICKS-icd(){  cd $(OPTICKS-idir); }
 OPTICKS-bcd(){  cd $(OPTICKS-bdir); }
 
 
+OPTICKS-txt(){   cd $ENV_HOME ; vi $(OPTICKS-txt-list) ; }
+OPTICKS-bash(){  cd $ENV_HOME ; vi $(OPTICKS-bash-list) ; }
+OPTICKS-edit(){  cd $ENV_HOME ; vi $(OPTICKS-bash-list) $(OPTICKS-txt-list) ; } 
 
-OPTICKS-edit(){ cd $ENV_HOME ; vi $(OPTICKS-cmakelists) ; }
-OPTICKS-cmakelists(){
+OPTICKS-txt-list(){
   local dir
   OPTICKS-dirs | while read dir 
   do
       echo $dir/CMakeLists.txt
+  done
+}
+
+OPTICKS-bash-list(){
+  local dir
+  OPTICKS-dirs | while read dir 
+  do
+      local rel=$dir/$(basename $dir).bash
+      if [ -f "$rel" ]; 
+      then
+          echo $rel
+      else
+          echo MISSING $rel
+      fi
   done
 }
 
@@ -399,14 +246,7 @@ OPTICKS-wipe(){
    rm -rf $bdir
 }
 
-
-
-
-
-
 OPTICKS-optix-install-dir(){ echo /Developer/OptiX ; }
-#OPTICKS-optix-install-dir(){ echo -n ; }
-
 
 OPTICKS-cmake(){
    local msg="=== $FUNCNAME : "

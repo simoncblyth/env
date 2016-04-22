@@ -11,6 +11,13 @@ CMAKE
 * http://www.cmake.org/
 
 
+See Also
+--------
+
+cmakex-  
+    cmake examples and documenting the development of OPTICKS- cmake machinery 
+
+
 Best Docs encountered
 ----------------------
 
