@@ -69,13 +69,18 @@ NPY was needing Bregex installed headers, so it fails on first run ?
 
 * Workarounds look complicated, see cmake-
 * Pragmatically adjust all internal _INCLUDE_DIRS to source directories rather than install directories. 
+* That seemed to work for a while, but after a wipe OPTICKS-cmake fails as all the _LIBRARIES 
+  come back NOTFOUND at config time
+
+
+find_package assumes do not need to build/install it ? 
+---------------------------------------------------------
 
 
 Handling tests
 ----------------
 
 All tests are bundled into /usr/local/opticks/bin/
-
 
 
 Usage
@@ -303,7 +308,7 @@ OPTICKS-cd(){  cd $(OPTICKS-dir); }
 
 OPTICKS-sdir(){ echo $(env-home) ; }
 OPTICKS-idir(){ echo $(local-base)/opticks ; }
-OPTICKS-bdir(){ echo $(local-base)/opticks/build ; }
+OPTICKS-bdir(){ echo $(local-base)/opticks/build/${1:-ALL} ; }
 
 OPTICKS-scd(){  cd $(OPTICKS-sdir); }
 OPTICKS-cd(){   cd $(OPTICKS-sdir); }

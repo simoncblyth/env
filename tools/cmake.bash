@@ -28,7 +28,6 @@ Experience
 * https://github.com/toomuchatonce/cmake-examples/blob/master/superbuild-configtargets-direct/CMakeLists.txt
 
 
-
 Introspection
 ---------------
 
@@ -82,10 +81,6 @@ target_link_libraries
 
 * http://stackoverflow.com/questions/31537602/how-to-use-cmake-to-find-and-link-to-a-library-using-install-export-and-find-pac/31537603#31537603
 
-::
-
-   
-
 
 * https://cmake.org/cmake/help/v3.0/command/target_link_libraries.html
 
@@ -116,8 +111,6 @@ LIBRARY_OUTPUT_DIRECTORY
 --------------------------
 
 * https://cmake.org/cmake/help/git-master/prop_tgt/LIBRARY_OUTPUT_DIRECTORY.html#prop_tgt:LIBRARY_OUTPUT_DIRECTORY
-
-
 
 
 
