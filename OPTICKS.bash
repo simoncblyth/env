@@ -24,6 +24,20 @@ cmakex-
     documenting the development of the OPTICKS- cmake machinery 
 
 
+TODO
+-----
+
+* rename Opticks subpackage to OpticksCore/OpticksBase/OpticksMd for model, to avoid shouting OPTICKS for top level pkg 
+* tidy up ssl and crypto : maybe in NPY_LIBRARIES 
+* CUDAWrap: adopt standard tests approach 
+* standardize package names, Wrap to Rap for AssimpWrap and CUDAWrap
+* externalize or somehow exclude from standard building the Rap pkgs, as fairly stable
+* machinery for getting externals
+* spawn opticks repository 
+
+* investigate cpack
+
+
 Dependencies of internals
 ---------------------------
 
