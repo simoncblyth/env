@@ -20,6 +20,10 @@ Best Docs encountered
 * https://cmake.org/cmake/help/v3.0/command/add_dependencies.html
 * https://cmake.org/cmake/help/v3.0/command/target_include_directories.html
 
+* https://cmake.org/Wiki/CMake/Tutorials/Exporting_and_Importing_Targets
+* http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html
+
+
 Experience
 ------------
 

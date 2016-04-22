@@ -20,7 +20,6 @@ Dependencies
 
 ::
 
-
    =====================  ===============  =============   ==============================================================================
    directory              precursor        pkg name        required find package 
    =====================  ===============  =============   ==============================================================================
@@ -42,7 +41,6 @@ Dependencies
                                                            Assimp AssimpWrap OpenMesh OpenMeshRap GGeo ImGui Bregex OptiXRap CUDAWrap ThrustRap OpticksOp OpticksGL 
    optix/cfg4             cfg4-            CfG4            Boost Bregex GLM NPY Cfg GGeo Opticks Geant4 EnvXercesC G4DAE 
    =====================  ===============  =============   ==============================================================================
-
 
 
 Collective needs installs
@@ -75,6 +73,76 @@ NPY was needing Bregex installed headers, so it fails on first run ?
 
 find_package assumes do not need to build/install it ? 
 ---------------------------------------------------------
+
+Workaround this using SUPERBUILD variable, as explained in FindBregex.cmake::
+
+    if(SUPERBUILD)
+        if(NOT Bregex_LIBRARIES)
+           set(Bregex_LIBRARIES Bregex)
+        endif()
+    endif(SUPERBUILD)
+
+    # When no lib is found at configure time : ie when cmake is run
+    # find_package normally yields NOTFOUND
+    # but here if SUPERBUILD is defined Bregex_LIBRARIES
+    # is set to the target name: Bregex. 
+    # 
+    # This allows the build to proceed if the target
+    # is included amongst the add_subdirectory of the super build.
+    #
+
+Hmm getting cycle warnings
+----------------------------
+
+All due to interloper directory /usr/local/env/numerics/npy/lib::
+
+    NOT WITH_NPYSERVER
+    -- Configuring done
+    CMake Warning at optix/ggeo/CMakeLists.txt:51 (add_library):
+      Cannot generate a safe runtime search path for target GGeo because there is
+      a cycle in the constraint graph:
+
+        dir 0 is [/opt/local/lib]
+        dir 1 is [/usr/local/env/numerics/npy/lib]
+          dir 4 must precede it due to runtime library [libNPY.dylib]
+        dir 2 is [/usr/local/opticks/build/ALL/opticks]
+        dir 3 is [/usr/local/opticks/build/ALL/boost/bpo/bcfg]
+        dir 4 is [/usr/local/opticks/build/ALL/numerics/npy]
+          dir 1 must precede it due to runtime library [libNPY.dylib]
+        dir 5 is [/usr/local/opticks/build/ALL/boost/bregex]
+
+      Some of these libraries may not be found correctly.
+
+::
+
+    simon:env blyth$ otool-;otool-rpath /usr/local/opticks/bin/GGeoView  | grep path | uniq
+         path /usr/local/cuda/lib (offset 12)
+         path /usr/local/opticks/lib (offset 12)
+         path /opt/local/lib (offset 12)
+         path /usr/local/env/graphics/glew/1.12.0/lib (offset 12)
+         path /usr/local/env/numerics/npy/lib (offset 12)
+         path /usr/local/env/graphics/OpenMesh/4.1/lib (offset 12)
+         path /usr/local/env/graphics/gui/imgui.install/lib (offset 12)
+         path /Developer/OptiX/lib64 (offset 12)
+
+
+This issue went away, pilot error ?
+
+
+Install seems to build again ?
+-----------------------------------
+
+::
+
+  614  rm -rf /usr/local/opticks/*
+  615  OPTICKS-
+  616  OPTICKS-cmake
+  617  OPTICKS-make
+  625  OPTICKS-install
+  626  otool-
+  627  otool-rpath /usr/local/opticks/bin/GGeoView 
+  628  /usr/local/opticks/bin/GGeoView /tmp/g4_00.dae
+
 
 
 Handling tests
@@ -330,6 +398,11 @@ OPTICKS-wipe(){
    local bdir=$(OPTICKS-bdir)
    rm -rf $bdir
 }
+
+
+
+
+
 
 OPTICKS-optix-install-dir(){ echo /Developer/OptiX ; }
 #OPTICKS-optix-install-dir(){ echo -n ; }

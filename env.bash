@@ -1702,3 +1702,4 @@ ovrminimal-(){      . $(env-home)/vr/ovrminimal/ovrminimal.bash && ovrminimal-en
 
 OPTICKS-(){      . $(env-home)/OPTICKS.bash && OPTICKS-env $* ; }
 opgl-(){      . $(env-home)/opticksgl/opgl.bash && opgl-env $* ; }
+cmakex-(){      . $(env-home)/tools/cmakex.bash && cmakex-env $* ; }
