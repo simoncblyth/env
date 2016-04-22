@@ -11,6 +11,116 @@ CMAKE
 * http://www.cmake.org/
 
 
+Best Docs encountered
+----------------------
+
+* http://www.cmake.org/cmake/help/git-master/command/find_path.html
+* http://www.cmake.org/cmake/help/git-master/command/find_package.html
+* https://cmake.org/cmake/help/git-master/manual/cmake-variables.7.html?highlight=cmake_install_prefix
+* https://cmake.org/cmake/help/v3.0/command/add_dependencies.html
+* https://cmake.org/cmake/help/v3.0/command/target_include_directories.html
+
+Experience
+------------
+
+* https://rix0r.nl/blog/2015/08/13/cmake-guide/
+
+* https://github.com/toomuchatonce/cmake-examples/blob/master/superbuild-configtargets-direct/CMakeLists.txt
+
+
+
+Introspection
+---------------
+
+::
+
+    simon:env blyth$ OPTICKS-make -p
+    ...gory details of the build...
+
+    simon:env blyth$ OPTICKS-make help
+    The following are some of the valid targets for this Makefile:
+    ... all (the default if no target is provided)
+    ... clean
+    ... depend
+    ... edit_cache
+    ... rebuild_cache
+    ... list_install_components
+    ... install
+    ... install/strip
+    ... install/local
+    ... Cfg
+    ... Bregex
+    ... os_path_expandvarsTest
+    ... regexsearchTest
+    ... regex_matched_elementTest
+    ... regex_extract_quotedTest
+
+
+add_subdirectory
+----------------
+
+* https://cmake.org/cmake/help/v2.8.8/cmake.html#command:add_subdirectory
+
+If the EXCLUDE_FROM_ALL argument is provided then targets in the subdirectory
+will not be included in the ALL target of the parent directory by default, and
+will be excluded from IDE project files. Users must explicitly build targets in
+the subdirectory. This is meant for use when the subdirectory contains a
+separate part of the project that is useful but not necessary, such as a set of
+examples. Typically the subdirectory should contain its own project() command
+invocation so that a full build system will be generated in the subdirectory
+(such as a VS IDE solution file). Note that inter-target dependencies supercede
+this exclusion. If a target built by the parent project depends on a target in
+the subdirectory, the dependee target will be included in the parent project
+build system to satisfy the dependency.
+
+target_link_libraries
+----------------------
+
+* :google:`cmake add_subdirectory find_package needs install`
+
+* http://stackoverflow.com/questions/31755870/how-to-use-libraries-within-my-cmake-project-that-need-to-be-installed-first
+
+* http://stackoverflow.com/questions/31537602/how-to-use-cmake-to-find-and-link-to-a-library-using-install-export-and-find-pac/31537603#31537603
+
+::
+
+   
+
+
+* https://cmake.org/cmake/help/v3.0/command/target_link_libraries.html
+
+The PUBLIC, PRIVATE and INTERFACE keywords can be used to specify both the link
+dependencies and the link interface in one command. Libraries and targets
+following PUBLIC are linked to, and are made part of the link interface.
+Libraries and targets following PRIVATE are linked to, but are not made part of
+the link interface. Libraries following INTERFACE are appended to the link
+interface and are not used for linking <target>.
+
+
+
+
+CMAKE_INSTALL_PREFIX
+---------------------
+
+* https://cmake.org/cmake/help/git-master/variable/CMAKE_INSTALL_PREFIX.html
+
+...this directory is prepended onto all install directories. 
+This variable defaults to /usr/local on UNIX and c:/Program Files on Windows.
+
+The installation prefix is also added to CMAKE_SYSTEM_PREFIX_PATH so that
+find_package(), find_program(), find_library(), find_path(), and find_file()
+will search the prefix for other software.
+
+
+LIBRARY_OUTPUT_DIRECTORY
+--------------------------
+
+* https://cmake.org/cmake/help/git-master/prop_tgt/LIBRARY_OUTPUT_DIRECTORY.html#prop_tgt:LIBRARY_OUTPUT_DIRECTORY
+
+
+
+
+
 Issues
 -------
 
@@ -50,14 +160,6 @@ Policy control
     #cmake_policy(SET CMP0054 OLD)
     # unfortunately this doesnt suppress the warnings, despite being advertised to do so
     # http://www.cmake.org/Wiki/CMake/Policies
-
-
-
-Best Docs encountered
-----------------------
-
-* http://www.cmake.org/cmake/help/git-master/command/find_path.html
-* http://www.cmake.org/cmake/help/git-master/command/find_package.html
 
 Other
 ------

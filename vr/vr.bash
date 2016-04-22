@@ -71,6 +71,12 @@ VR Capable Laptops
   a 4K option.
 
 
+Acer
+~~~~~
+
+* http://www.laptopmag.com/articles/acer-predator-17x
+
+
 Gigabyte/Aorus
 ~~~~~~~~~~~~~~~~
 

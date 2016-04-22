@@ -15,6 +15,69 @@ together with top level CMakeLists.txt
 Intend to allow building independent of the env.
 
 
+Dependencies
+--------------
+
+::
+
+
+   =====================  ===============  =============   ==============================================================================
+   directory              precursor        pkg name        required find package 
+   =====================  ===============  =============   ==============================================================================
+   boost/bpo/bcfg         bcfg-            Cfg             Boost
+   boost/bregex           bregex-          Bregex          Boost
+   graphics/ppm           ppm-             PPM             
+   numerics/npy           npy-             NPY             Boost GLM Bregex 
+   opticks                opticks-         Opticks         Boost GLM Bregex Cfg NPY 
+   optix/ggeo             ggeo-            GGeo            Boost GLM Bregex Cfg NPY Opticks
+   graphics/assimpwrap    assimpwrap-      AssimpWrap      Boost Assimp GGeo GLM NPY Opticks
+   graphics/openmeshrap   openmeshrap-     OpenMeshRap     Boost GLM NPY GGeo Opticks OpenMesh 
+   graphics/oglrap        oglrap-          OGLRap          GLEW GLFW GLM Boost Cfg Opticks GGeo PPM NPY Bregex ImGui        
+   cuda/cudawrap          cudawrap-        CUDAWrap        CUDA (ssl)
+   numerics/thrustrap     thrustrap-       ThrustRap       CUDA Boost GLM NPY CUDAWrap 
+   graphics/optixrap      optixrap-        OptiXRap        OptiX CUDA Boost GLM NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap 
+   opticksop              opop-            OpticksOp       OptiX CUDA Boost GLM Cfg Opticks GGeo NPY OptiXRap CUDAWrap ThrustRap      
+   opticksgl              opgl-            OpticksGL       OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap OptiXRap OpticksOp
+   graphics/ggeoview      ggv-             GGeoView        OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Cfg Opticks 
+                                                           Assimp AssimpWrap OpenMesh OpenMeshRap GGeo ImGui Bregex OptiXRap CUDAWrap ThrustRap OpticksOp OpticksGL 
+   optix/cfg4             cfg4-            CfG4            Boost Bregex GLM NPY Cfg GGeo Opticks Geant4 EnvXercesC G4DAE 
+   =====================  ===============  =============   ==============================================================================
+
+
+
+Collective needs installs
+--------------------------
+
+::
+
+    simon:env blyth$ OPTICKS-make
+    [  1%] Built target Cfg
+    [  2%] Built target Bregex
+    [  4%] Built target regexsearchTest
+    [  4%] Building CXX object numerics/npy/CMakeFiles/NPY.dir/NPYBase.cpp.o
+    /Users/blyth/env/numerics/npy/NPYBase.cpp:13:10: fatal error: 'regexsearch.hh' file not found
+    #include "regexsearch.hh"
+             ^
+    1 error generated.
+    make[2]: *** [numerics/npy/CMakeFiles/NPY.dir/NPYBase.cpp.o] Error 1
+    make[1]: *** [numerics/npy/CMakeFiles/NPY.dir/all] Error 2
+    make: *** [all] Error 2
+    simon:env blyth$ 
+
+
+NPY was needing Bregex installed headers, so it fails on first run ?
+
+* Workarounds look complicated, see cmake-
+* Pragmatically adjust all internal _INCLUDE_DIRS to source directories rather than install directories. 
+
+
+Handling tests
+----------------
+
+All tests are bundled into /usr/local/opticks/bin/
+
+
+
 Usage
 -------
 
@@ -39,28 +102,37 @@ See also cmake-
 To Consider
 -------------
 
-
-* conditional build depending on finding OptiX
-
-  * package or preprocessor partialized pkg to provide 
-    viewing functionality without OptiX 
-
 * conditional cfg4 build depending on finding G4 
 
 * externals depend on env bash functions for getting and installing
   and env cmake modules for finding 
 
-* externals gathering, take a look at dybinst 
+* externals gathering
 
-* bash launcher ggv.sh is tied into the individual bash functions
 
+ggv.sh Launcher
+-----------------
+
+Bash launcher ggv.sh tied into the individual bash functions and 
+sets up envvars::
+
+   OPTICKS_GEOKEY
+   OPTICKS_QUERY
+   OPTICKS_CTRL
+   OPTICKS_MESHFIX
+   OPTICKS_MESHFIX_CFG
+
+* OpticksResource looks for a metadata sidecar .ini accompanying the .dae
+  eg for /tmp/g4_00.dae the file /tmp/g4_00.ini is looked for
+
+* TODO: enable all envvars to come in via the metadata .ini approach with 
+  potential to be overridded by the envvars 
 
 
 Umbrella CMakeLists.txt
 -------------------------
 
 * avoid tests in different pkgs with same name 
-
 
 Thoughts
 --------
@@ -137,35 +209,6 @@ Centralized approach ?
 
 * how to handle internal/external distinction ? which changes as pkg matured
 
-
-Dependencies
---------------
-
-::
-
-
-   =====================  ===============  =============   ==============================================================================
-   directory              precursor        pkg name        required find package 
-   =====================  ===============  =============   ==============================================================================
-   boost/bpo/bcfg         bcfg-            Cfg             Boost
-   boost/bregex           bregex-          bregex          Boost
-   numerics/npy           npy-             NPY             Boost GLM Bregex 
-   opticks                opticks-         Opticks         Boost GLM Bregex Cfg NPY 
-   optix/ggeo             ggeo-            GGeo            Boost GLM Bregex Cfg NPY Opticks
-   graphics/assimpwrap    assimpwrap-      AssimpWrap      Boost Assimp GGeo GLM NPY Opticks
-   graphics/openmeshrap   openmeshrap-     OpenMeshRap     Boost GLM NPY GGeo Opticks OpenMesh 
-   graphics/oglrap        oglrap-          OGLRap          GLEW GLFW GLM Boost Cfg Opticks GGeo PPM NPY Bregex ImGui        
-   cuda/cudawrap          cudawrap-        CUDAWrap        CUDA (ssl)
-   numerics/thrustrap     thrustrap-       ThrustRap       CUDA Boost GLM NPY CUDAWrap 
-   graphics/optixrap      optixrap-        OptiXRap        OptiX CUDA Boost GLM NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap 
-   opticksop              opop-            OpticksOp       OptiX CUDA Boost GLM Cfg Opticks GGeo NPY OptiXRap CUDAWrap ThrustRap      
-   opticksgl              opgl-            OpticksGL       OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap OptiXRap OpticksOp
-   graphics/ggeoview      ggv-             GGeoView        OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Cfg Opticks 
-                                                           Assimp AssimpWrap OpenMesh OpenMeshRap GGeo ImGui Bregex OptiXRap CUDAWrap ThrustRap OpticksOp OpticksGL 
-   optix/cfg4             cfg4-            CfG4            Boost Bregex GLM NPY Cfg GGeo Opticks Geant4 EnvXercesC G4DAE 
-   =====================  ===============  =============   ==============================================================================
-
-
 EOU
 }
 
@@ -190,6 +233,7 @@ EOL
 OPTICKS-internals(){  cat << EOI
 Cfg
 Bregex
+PPM
 NPY
 Opticks
 GGeo
@@ -218,7 +262,6 @@ GLFW
 ImGui
 ZMQ
 AsioZMQ
-PPM
 EOX
 }
 OPTICKS-other(){  cat << EOO
@@ -269,7 +312,7 @@ OPTICKS-bcd(){  cd $(OPTICKS-bdir); }
 
 
 
-OPTICKS-edit(){ vi $(OPTICKS-cmakelists) ; }
+OPTICKS-edit(){ cd $ENV_HOME ; vi $(OPTICKS-cmakelists) ; }
 OPTICKS-cmakelists(){
   local dir
   OPTICKS-dirs | while read dir 
