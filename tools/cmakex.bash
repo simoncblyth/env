@@ -39,12 +39,10 @@ OPTICKS MACHINERY DEV NOTES
 See opticks-
 
 
-
-
-
-
 CTest
 ------
+
+* https://cmake.org/Wiki/CMake/Testing_With_CTest
 
 Testing machinery operational with very little effort.
 
