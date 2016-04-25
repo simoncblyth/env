@@ -1703,3 +1703,5 @@ ovrminimal-(){      . $(env-home)/vr/ovrminimal/ovrminimal.bash && ovrminimal-en
 OPTICKS-(){      . $(env-home)/OPTICKS.bash && OPTICKS-env $* ; }
 opticksgl-(){      . $(env-home)/opticksgl/opticksgl.bash && opticksgl-env $* ; }
 cmakex-(){      . $(env-home)/tools/cmakex.bash && cmakex-env $* ; }
+libgit2-(){      . $(env-home)/git/libgit2.bash && libgit2-env $* ; }
+msys2-(){      . $(env-home)/windows/msys2.bash && msys2-env $* ; }

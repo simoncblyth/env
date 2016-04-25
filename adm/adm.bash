@@ -22,6 +22,12 @@ example:
 #. hgapi, programmatic access to Mercurial repository 
 
 
+Future functionality : convert hg to git 
+------------------------------------------
+
+* http://arr.gr/blog/2011/10/bitbucket-converting-hg-repositories-to-git/
+
+
 FUNCTIONS
 -----------
 

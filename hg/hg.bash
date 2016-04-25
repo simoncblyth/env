@@ -11,7 +11,7 @@ Mercurial
 Related
 --------
 
-* *adm-vi*
+* *adm-vi* for conversion from SVN, splitting repos
 
 Tips
 ----

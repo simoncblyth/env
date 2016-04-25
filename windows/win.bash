@@ -30,6 +30,50 @@ Example of windows command line building with cmake
 * http://stackoverflow.com/questions/1459482/how-to-use-cmake-for-non-interactive-build-on-windows
 
 
+M$ bash
+--------
+
+* http://techcrunch.com/2016/03/30/be-very-afraid-hell-has-frozen-over-bash-is-coming-to-windows-10/
+
+Investigating, this a bit : it isnt all that useful as not integrated with the rest of the system.   
+
+
+Virtual Windows on Mac ?
+--------------------------
+
+* http://www.tekrevue.com/2015-vm-benchmarks-parallels-11-vs-fusion-8/16/
+
+  Fusion is ahead, but still a long way behind direct usage with Bootcamp
+
+Mercurial On Windows
+---------------------
+
+* https://www.mercurial-scm.org/wiki/WindowsInstall
+
+  Too painful to go thru this kinda thing for every tool, ... need a distro  
+
+Windows Cmd Line
+------------------
+
+To start: windows-R, type cmd return 
+
+Windows Batch .cmd Scripting
+------------------------------
+
+http://steve-jansen.github.io/guides/windows-batch-scripting/part-1-getting-started.html  
+
+Very limited, have to fake functions with goto. 
+
+
+
+
+
+
+
+
+
+
+
 EOU
 }
 win-dir(){ echo $(local-base)/env/windows/windows-win ; }

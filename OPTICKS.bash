@@ -30,10 +30,13 @@ TODO
 * rename Opticks subpackage to OpticksCore/OpticksBase/OpticksMd for model, to avoid shouting OPTICKS for top level pkg 
 * tidy up ssl and crypto : maybe in NPY_LIBRARIES 
 * CUDAWrap: adopt standard tests approach 
+* standardize names: Cfg Bcfg bcfg- cfg-
 * standardize package names, Wrap to Rap for AssimpWrap and CUDAWrap
 * externalize or somehow exclude from standard building the Rap pkgs, as fairly stable
 * machinery for getting externals
 * spawn opticks repository 
+* adopt single level directories 
+* split ggv- usage from ggeoview- building
 
 * investigate cpack
 
@@ -58,8 +61,8 @@ Dependencies of internals
    cuda/cudawrap          cudawrap-        CUDAWrap        CUDA (ssl)
    numerics/thrustrap     thrustrap-       ThrustRap       CUDA Boost GLM NPY CUDAWrap 
    graphics/optixrap      optixrap-        OptiXRap        OptiX CUDA Boost GLM NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap 
-   opticksop              opop-            OpticksOp       OptiX CUDA Boost GLM Cfg Opticks GGeo NPY OptiXRap CUDAWrap ThrustRap      
-   opticksgl              opgl-            OpticksGL       OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap OptiXRap OpticksOp
+   opticksop              opticksop-       OpticksOp       OptiX CUDA Boost GLM Cfg Opticks GGeo NPY OptiXRap CUDAWrap ThrustRap      
+   opticksgl              opticksgl-       OpticksGL       OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap OptiXRap OpticksOp
    graphics/ggeoview      ggv-             GGeoView        OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Cfg Opticks 
                                                            Assimp AssimpWrap OpenMesh OpenMeshRap GGeo ImGui Bregex OptiXRap CUDAWrap ThrustRap OpticksOp OpticksGL 
    optix/cfg4             cfg4-            CfG4            Boost Bregex GLM NPY Cfg GGeo Opticks Geant4 EnvXercesC G4DAE 

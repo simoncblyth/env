@@ -30,6 +30,14 @@ Best Docs encountered
 * https://cmake.org/Wiki/CMake/Tutorials/Exporting_and_Importing_Targets
 * http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html
 
+* https://cmake.org/Wiki/CMake:How_To_Find_Libraries
+
+Unit Tests 
+------------
+
+* https://cmake.org/Wiki/CMakeEmulateMakeCheck
+* http://stackoverflow.com/questions/14446495/cmake-project-structure-with-unit-tests
+
 
 Experience
 ------------
