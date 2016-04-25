@@ -1,12 +1,12 @@
-# === func-gen- : OPTICKS fgp ./OPTICKS.bash fgn OPTICKS fgh .
-OPTICKS-(){         source $(OPTICKS-source) ; }
-OPTICKS-src(){      echo OPTICKS.bash ; }
-OPTICKS-source(){   echo ${BASH_SOURCE:-$(env-home)/$(OPTICKS-src)} ; }
-OPTICKS-vi(){       vi $(OPTICKS-source) ; }
-OPTICKS-env(){      elocal- ; }
-OPTICKS-usage(){ cat << EOU
+# === func-gen- : opticks fgp ./opticks.bash fgn opticks fgh .
+opticks-(){         source $(opticks-source) ; }
+opticks-src(){      echo opticks.bash ; }
+opticks-source(){   echo ${BASH_SOURCE:-$(env-home)/$(opticks-src)} ; }
+opticks-vi(){       vi $(opticks-source) ; }
+opticks-env(){      elocal- ; }
+opticks-usage(){ cat << EOU
 
-OPTICKS : experiment with umbrella cmake building
+opticks : experiment with umbrella cmake building
 ====================================================
 
 Aiming for this to go in top level of a new Opticks repo
@@ -21,7 +21,7 @@ cmake-
     background on cmake
 
 cmakex-
-    documenting the development of the OPTICKS- cmake machinery 
+    documenting the development of the opticks- cmake machinery 
 
 
 Fullbuild Testing
@@ -29,13 +29,13 @@ Fullbuild Testing
 
 Only needed whilst making sweeping changes::
 
-    simon:~ blyth$ rm -rf /usr/local/opticks/* ; OPTICKS- ; OPTICKS--
+    simon:~ blyth$ rm -rf /usr/local/opticks/* ; opticks- ; opticks--
 
 
 TODO
 -----
 
-* rename Opticks subpackage to OpticksCore/OpticksBase/OpticksMd for model, to avoid shouting OPTICKS for top level pkg 
+* rename Opticks subpackage to OpticksCore/OpticksBase/OpticksMd for model, to avoid shouting opticks for top level pkg 
 * tidy up ssl and crypto : maybe in NPY_LIBRARIES 
 * CUDAWrap: adopt standard tests approach 
 * standardize names: Cfg Bcfg bcfg- cfg-
@@ -82,17 +82,17 @@ Usage
 
 ::
 
-   . OPTICKS.bash 
+   . opticks.bash 
 
-   OPTICKS-cmake
-   OPTICKS-install
+   opticks-cmake
+   opticks-install
 
-   OPTICKS-run
+   opticks-run
 
 
 Pristine cycle::
 
-   e;. OPTICKS.bash;OPTICKS-wipe;OPTICKS-cmake;OPTICKS-install
+   e;. opticks.bash;opticks-wipe;opticks-cmake;opticks-install
 
 
 To Consider
@@ -140,7 +140,7 @@ for development.
 EOU
 }
 
-OPTICKS-dirs(){  cat << EOL
+opticks-dirs(){  cat << EOL
 boost/bpo/bcfg
 boost/bregex
 numerics/npy
@@ -158,7 +158,7 @@ graphics/ggeoview
 EOL
 }
 
-OPTICKS-internals(){  cat << EOI
+opticks-internals(){  cat << EOI
 Cfg
 Bregex
 PPM
@@ -177,7 +177,7 @@ OptiXThrust
 NumpyServer
 EOI
 }
-OPTICKS-xternals(){  cat << EOX
+opticks-xternals(){  cat << EOX
 Boost
 GLM
 EnvXercesC
@@ -192,7 +192,7 @@ ZMQ
 AsioZMQ
 EOX
 }
-OPTICKS-other(){  cat << EOO
+opticks-other(){  cat << EOO
 OpenVR
 CNPY
 NuWaCLHEP
@@ -211,50 +211,50 @@ EOO
 }
 
 
-OPTICKS-tfind-(){ 
+opticks-tfind-(){ 
   local f
   local base=$ENV_HOME/CMake/Modules
-  OPTICKS-${1} | while read f 
+  opticks-${1} | while read f 
   do
      echo $base/Find${f}.cmake
   done 
 }
 
-OPTICKS-ifind(){ vi $(OPTICKS-tfind- internals) ; }
-OPTICKS-xfind(){ vi $(OPTICKS-tfind- xternals) ; }
-OPTICKS-ofind(){ vi $(OPTICKS-tfind- other) ; }
+opticks-ifind(){ vi $(opticks-tfind- internals) ; }
+opticks-xfind(){ vi $(opticks-tfind- xternals) ; }
+opticks-ofind(){ vi $(opticks-tfind- other) ; }
 
 
-OPTICKS-dir(){ echo $(local-base)/opticks ; }
-OPTICKS-cd(){  cd $(OPTICKS-dir); }
+opticks-dir(){ echo $(local-base)/opticks ; }
+opticks-cd(){  cd $(opticks-dir); }
 
 
-OPTICKS-sdir(){ echo $(env-home) ; }
-OPTICKS-idir(){ echo $(local-base)/opticks ; }
-OPTICKS-bdir(){ echo $(local-base)/opticks/build ; }
-OPTICKS-tdir(){ echo /tmp/opticks ; }
+opticks-sdir(){ echo $(env-home) ; }
+opticks-idir(){ echo $(local-base)/opticks ; }
+opticks-bdir(){ echo $(local-base)/opticks/build ; }
+opticks-tdir(){ echo /tmp/opticks ; }
 
-OPTICKS-scd(){  cd $(OPTICKS-sdir); }
-OPTICKS-cd(){   cd $(OPTICKS-sdir); }
-OPTICKS-icd(){  cd $(OPTICKS-idir); }
-OPTICKS-bcd(){  cd $(OPTICKS-bdir); }
+opticks-scd(){  cd $(opticks-sdir); }
+opticks-cd(){   cd $(opticks-sdir); }
+opticks-icd(){  cd $(opticks-idir); }
+opticks-bcd(){  cd $(opticks-bdir); }
 
 
-OPTICKS-txt(){   cd $ENV_HOME ; vi $(OPTICKS-txt-list) ; }
-OPTICKS-bash(){  cd $ENV_HOME ; vi $(OPTICKS-bash-list) ; }
-OPTICKS-edit(){  cd $ENV_HOME ; vi $(OPTICKS-bash-list) $(OPTICKS-txt-list) ; } 
+opticks-txt(){   cd $ENV_HOME ; vi $(opticks-txt-list) ; }
+opticks-bash(){  cd $ENV_HOME ; vi $(opticks-bash-list) ; }
+opticks-edit(){  cd $ENV_HOME ; vi $(opticks-bash-list) $(opticks-txt-list) ; } 
 
-OPTICKS-txt-list(){
+opticks-txt-list(){
   local dir
-  OPTICKS-dirs | while read dir 
+  opticks-dirs | while read dir 
   do
       echo $dir/CMakeLists.txt
   done
 }
 
-OPTICKS-bash-list(){
+opticks-bash-list(){
   local dir
-  OPTICKS-dirs | while read dir 
+  opticks-dirs | while read dir 
   do
       local rel=$dir/$(basename $dir).bash
       if [ -f "$rel" ]; 
@@ -266,67 +266,67 @@ OPTICKS-bash-list(){
   done
 }
 
-OPTICKS-wipe(){
-   local bdir=$(OPTICKS-bdir)
+opticks-wipe(){
+   local bdir=$(opticks-bdir)
    rm -rf $bdir
 }
 
-OPTICKS-optix-install-dir(){ echo /Developer/OptiX ; }
+opticks-optix-install-dir(){ echo /Developer/OptiX ; }
 
-OPTICKS-cmake(){
+opticks-cmake(){
    local msg="=== $FUNCNAME : "
    local iwd=$PWD
 
-   local bdir=$(OPTICKS-bdir)
+   local bdir=$(opticks-bdir)
    mkdir -p $bdir
 
    [ ! -d "$bdir" ] && echo $msg NO bdir $bdir && return  
 
-   OPTICKS-bcd
+   opticks-bcd
    cmake \
        -DWITH_OPTIX:BOOL=ON \
        -DCMAKE_BUILD_TYPE=Debug \
-       -DCMAKE_INSTALL_PREFIX=$(OPTICKS-idir) \
-       -DOptiX_INSTALL_DIR=$(OPTICKS-optix-install-dir) \
-       $(OPTICKS-sdir)
+       -DCMAKE_INSTALL_PREFIX=$(opticks-idir) \
+       -DOptiX_INSTALL_DIR=$(opticks-optix-install-dir) \
+       $(opticks-sdir)
 
    cd $iwd
 }
 
-OPTICKS-bin(){ echo $(OPTICKS-idir)/bin/GGeoView ; }
+opticks-bin(){ echo $(opticks-idir)/bin/GGeoView ; }
 
 
-OPTICKS-make(){
+opticks-make(){
    local iwd=$PWD
 
-   OPTICKS-bcd
+   opticks-bcd
    make $*
 
    cd $iwd
 }
 
-OPTICKS-install(){
-   OPTICKS-make install
+opticks-install(){
+   opticks-make install
 }
 
 
-OPTICKS--()
+opticks--()
 {
-    OPTICKS-wipe
-    OPTICKS-cmake
-    #OPTICKS-make
-    OPTICKS-install
+    opticks-wipe
+    opticks-cmake
+    #opticks-make
+    opticks-install
 
     # -install seems to duplicate -make ? maybe can do with just -install
 }
 
-OPTICKS-run()
+opticks-run()
 {
 
     export-
-    export-export   ## needed to setup DAE_NAME_DYB the envvar name pointed at by the default OPTICKS_GEOKEY 
+    export-export   ## needed to setup DAE_NAME_DYB the envvar name pointed at by the default opticks_GEOKEY 
 
-    local bin=$(OPTICKS-bin)
+    local bin=$(opticks-bin)
     $bin $*         ## bare running with no bash script, for checking defaults 
 
 }

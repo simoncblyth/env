@@ -1700,7 +1700,7 @@ win-(){      . $(env-home)/windows/win.bash && win-env $* ; }
 ovrminimal-(){      . $(env-home)/vr/ovrminimal/ovrminimal.bash && ovrminimal-env $* ; }
 
 
-OPTICKS-(){      . $(env-home)/OPTICKS.bash && OPTICKS-env $* ; }
+opticks-(){      . $(env-home)/opticks.bash && opticks-env $* ; }
 opticksgl-(){      . $(env-home)/opticksgl/opticksgl.bash && opticksgl-env $* ; }
 cmakex-(){      . $(env-home)/tools/cmakex.bash && cmakex-env $* ; }
 libgit2-(){      . $(env-home)/git/libgit2.bash && libgit2-env $* ; }
