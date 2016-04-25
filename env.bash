@@ -1567,7 +1567,7 @@ cudaz-(){      . $(env-home)/cuda/cudaz/cudaz.bash && cudaz-env $* ; }
 mesa-(){      . $(env-home)/graphics/opengl/mesa/mesa.bash && mesa-env $* ; }
 libpng-(){      . $(env-home)/graphics/libpng/libpng.bash && libpng-env $* ; }
 macrosim-(){      . $(env-home)/optix/macrosim/macrosim.bash && macrosim-env $* ; }
-assimpwrap-(){      . $(env-home)/graphics/assimpwrap/assimpwrap.bash && assimpwrap-env $* ; }
+assimprap-(){      . $(env-home)/graphics/assimprap/assimprap.bash && assimprap-env $* ; }
 goofit-(){      . $(env-home)/cuda/goofit/goofit.bash && goofit-env $* ; }
 vmd-(){      . $(env-home)/optix/vmd/vmd.bash && vmd-env $* ; }
 openrl-(){      . $(env-home)/graphics/openrl/openrl.bash && openrl-env $* ; }
@@ -1576,7 +1576,7 @@ cudatex-(){      . $(env-home)/cuda/texture/cudatex.bash && cudatex-env $* ; }
 optixtex-(){      . $(env-home)/optix/optixtex/optixtex.bash && optixtex-env $* ; }
 unity-(){      . $(env-home)/graphics/unity/unity.bash && unity-env $* ; }
 pbs-(){      . $(env-home)/graphics/shading/pbs.bash && pbs-env $* ; }
-cudawrap-(){    . $(env-home)/cuda/cudawrap/cudawrap.bash && cudawrap-env $* ; }
+cudarap-(){    . $(env-home)/cuda/cudarap/cudarap.bash && cudarap-env $* ; }
 optixsamples-(){      . $(env-home)/optix/optixsamples.bash && optixsamples-env $* ; }
 iray-(){      . $(env-home)/iray/iray.bash && iray-env $* ; }
 glfw-(){      . $(env-home)/graphics/glfw/glfw.bash && glfw-env $* ; }
