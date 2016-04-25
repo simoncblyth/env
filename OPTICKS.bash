@@ -24,6 +24,14 @@ cmakex-
     documenting the development of the OPTICKS- cmake machinery 
 
 
+Fullbuild Testing
+------------------
+
+Only needed whilst making sweeping changes::
+
+    simon:~ blyth$ rm -rf /usr/local/opticks/* ; OPTICKS- ; OPTICKS--
+
+
 TODO
 -----
 
@@ -53,19 +61,19 @@ Dependencies of internals
    boost/bregex           bregex-          Bregex          Boost
    graphics/ppm           ppm-             PPM             
    numerics/npy           npy-             NPY             Boost GLM Bregex 
-   opticks                opticks-         Opticks         Boost GLM Bregex Cfg NPY 
-   optix/ggeo             ggeo-            GGeo            Boost GLM Bregex Cfg NPY Opticks
-   graphics/assimpwrap    assimpwrap-      AssimpWrap      Boost Assimp GGeo GLM NPY Opticks
-   graphics/openmeshrap   openmeshrap-     OpenMeshRap     Boost GLM NPY GGeo Opticks OpenMesh 
+   optickscore            optickscore-     OpticksCore     Boost GLM Bregex Cfg NPY 
+   optix/ggeo             ggeo-            GGeo            Boost GLM Bregex Cfg NPY OpticksCore
+   graphics/assimpwrap    assimpwrap-      AssimpWrap      Boost Assimp GGeo GLM NPY OpticksCore
+   graphics/openmeshrap   openmeshrap-     OpenMeshRap     Boost GLM NPY GGeo OpticksCore OpenMesh 
    graphics/oglrap        oglrap-          OGLRap          GLEW GLFW GLM Boost Cfg Opticks GGeo PPM NPY Bregex ImGui        
    cuda/cudawrap          cudawrap-        CUDAWrap        CUDA (ssl)
    numerics/thrustrap     thrustrap-       ThrustRap       CUDA Boost GLM NPY CUDAWrap 
-   graphics/optixrap      optixrap-        OptiXRap        OptiX CUDA Boost GLM NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap 
+   graphics/optixrap      optixrap-        OptiXRap        OptiX CUDA Boost GLM NPY OpticksCore Assimp AssimpWrap GGeo CUDAWrap ThrustRap 
    opticksop              opticksop-       OpticksOp       OptiX CUDA Boost GLM Cfg Opticks GGeo NPY OptiXRap CUDAWrap ThrustRap      
-   opticksgl              opticksgl-       OpticksGL       OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Opticks Assimp AssimpWrap GGeo CUDAWrap ThrustRap OptiXRap OpticksOp
-   graphics/ggeoview      ggv-             GGeoView        OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Cfg Opticks 
+   opticksgl              opticksgl-       OpticksGL       OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY OpticksCore Assimp AssimpWrap GGeo CUDAWrap ThrustRap OptiXRap OpticksOp
+   graphics/ggeoview      ggv-             GGeoView        OptiX CUDA Boost GLM GLEW GLFW OGLRap NPY Cfg OpticksCore 
                                                            Assimp AssimpWrap OpenMesh OpenMeshRap GGeo ImGui Bregex OptiXRap CUDAWrap ThrustRap OpticksOp OpticksGL 
-   optix/cfg4             cfg4-            CfG4            Boost Bregex GLM NPY Cfg GGeo Opticks Geant4 EnvXercesC G4DAE 
+   optix/cfg4             cfg4-            CfG4            Boost Bregex GLM NPY Cfg GGeo OpticksCore Geant4 EnvXercesC G4DAE 
    =====================  ===============  =============   ==============================================================================
 
 
@@ -136,7 +144,7 @@ OPTICKS-dirs(){  cat << EOL
 boost/bpo/bcfg
 boost/bregex
 numerics/npy
-opticks
+optickscore
 optix/ggeo
 graphics/assimpwrap
 graphics/openmeshrap
@@ -155,7 +163,7 @@ Cfg
 Bregex
 PPM
 NPY
-Opticks
+OpticksCore
 GGeo
 AssimpWrap
 OpenMeshRap
@@ -306,8 +314,10 @@ OPTICKS--()
 {
     OPTICKS-wipe
     OPTICKS-cmake
-    OPTICKS-make
+    #OPTICKS-make
     OPTICKS-install
+
+    # -install seems to duplicate -make ? maybe can do with just -install
 }
 
 OPTICKS-run()
