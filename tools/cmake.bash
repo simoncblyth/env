@@ -62,6 +62,24 @@ settings will be saved in CMakeCache.txt so that they don't have to be repeated
 every time CMake is run on the same build tree.
 
 
+cmake/make rebuilding for everytime
+-------------------------------------
+
+For example running "make package" 
+
+* https://cmake.org/pipermail/cmake/2012-October/052525.html
+* http://www.vtk.org/Wiki/CMake_Useful_Variables#Various_Options
+
+::
+
+   set (CMAKE_SKIP_RULE_DEPENDENCY TRUE)
+
+CMAKE_SKIP_RULE_DEPENDENCY 
+    set this to true if you don't want to rebuild the object files if the rules
+    have changed, but not the actual source files or headers (e.g. if you changed
+    the some compiler switches)
+
+
 
 Introspection
 ---------------

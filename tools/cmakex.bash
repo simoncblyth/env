@@ -36,7 +36,161 @@ staticlibs-add_subdir
 OPTICKS MACHINERY DEV NOTES
 =============================
 
-See OPTICKS-
+See opticks-
+
+
+
+
+
+
+CTest
+------
+
+Testing machinery operational with very little effort.
+
+Configure testing
+~~~~~~~~~~~~~~~~~~~
+
+::
+
+      1 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+      2 set(name NPYTest)
+      3 project(${name})
+      4 
+      5 file(GLOB TEST_CC_SRCS "*Test.cc")
+      6 
+      7 foreach(TEST_CC_SRC ${TEST_CC_SRCS})
+      8     get_filename_component(TGT ${TEST_CC_SRC} NAME_WE)
+      9     add_executable(${TGT} ${TEST_CC_SRC})
+     10 
+     11     # https://cmake.org/Wiki/CMakeEmulateMakeCheck
+     12     add_test(${TGT} ${TGT})
+     13     add_dependencies(check ${TGT})
+     14 
+     15     target_link_libraries(${TGT} 
+     16                ${LIBRARIES} 
+     17                NPY
+     18     )
+     19     install(TARGETS ${TGT} DESTINATION bin)
+     20 endforeach()
+
+
+Running tests
+~~~~~~~~~~~~~~~~~
+
+::
+
+    Scanning dependencies of target check
+    Test project /usr/local/opticks/build
+     ...  
+     
+    78% tests passed, 8 tests failed out of 37
+
+    Total Test time (real) =   6.30 sec
+
+    The following tests FAILED:
+          1 - _BoundariesNPYTest (SEGFAULT)
+          2 - _LookupTest (OTHER_FAULT)
+          3 - _RecordsNPYTest (SEGFAULT)
+         11 - IndexTest (SEGFAULT)
+         28 - PhotonsNPYTest (SEGFAULT)
+         29 - readFlagsTest (Failed)
+         31 - SequenceNPYTest (SEGFAULT)
+         36 - TypesTest (SEGFAULT)
+    Errors while running CTest
+    make: *** [test] Error 8
+
+Rebuild single test::
+
+   opticks-bcd
+   make readFlagsTest 
+
+Retest single test::
+
+    opticks-bcd
+
+    simon:build blyth$ ctest -R readFlagsTest -V
+    UpdateCTestConfiguration  from :/usr/local/opticks/build/DartConfiguration.tcl
+    Parse Config file:/usr/local/opticks/build/DartConfiguration.tcl
+    UpdateCTestConfiguration  from :/usr/local/opticks/build/DartConfiguration.tcl
+    Parse Config file:/usr/local/opticks/build/DartConfiguration.tcl
+    Test project /usr/local/opticks/build
+    Constructing a list of tests
+    Done constructing a list of tests
+    Checking test dependency graph...
+    Checking test dependency graph end
+    test 29
+        Start 29: readFlagsTest
+
+    29: Test command: /usr/local/opticks/build/numerics/npy/tests/readFlagsTest
+    29: Test timeout computed to be: 1500
+    29: /usr/local/opticks/build/numerics/npy/tests/readFlagsTest missing input file /tmp/GFlagIndexLocal.ini
+    1/1 Test #29: readFlagsTest ....................***Failed    0.01 sec
+
+    0% tests passed, 1 tests failed out of 1
+
+    Total Test time (real) =   0.01 sec
+
+    The following tests FAILED:
+         29 - readFlagsTest (Failed)
+    Errors while running CTest
+    simon:build blyth$ 
+
+
+
+CPack
+------
+
+::
+
+    [100%] Built target GGeoView
+    Run CPack packaging tool...
+    CPack: Create package using STGZ
+    CPack: Install projects
+    CPack: - Run preinstall target for: OPTICKS
+    CPack: - Install project: OPTICKS
+    CPack: Create package
+    CPack: - package: /usr/local/opticks/build/OPTICKS-0.1.1-Darwin.sh generated.
+    CPack: Create package using TGZ
+    CPack: Install projects
+    CPack: - Run preinstall target for: OPTICKS
+    CPack: - Install project: OPTICKS
+    CPack: Create package
+    CPack: - package: /usr/local/opticks/build/OPTICKS-0.1.1-Darwin.tar.gz generated.
+
+
+Creates a self extracting achive script::
+
+    simon:build blyth$ l OPTICKS*
+    -rw-r--r--  1 blyth  staff  5782311 Apr 25 15:32 OPTICKS-0.1.1-Darwin.tar.gz
+    -rwxrwxrwx  1 blyth  staff  5785140 Apr 25 15:32 OPTICKS-0.1.1-Darwin.sh
+    
+    simon:build blyth$ ./OPTICKS-0.1.1-Darwin.sh --help
+    Usage: ./OPTICKS-0.1.1-Darwin.sh [options]
+    Options: [defaults in brackets after descriptions]
+      --help            print this message
+      --prefix=dir      directory in which to install
+      --include-subdir  include the OPTICKS-0.1.1-Darwin subdirectory
+      --exclude-subdir  exclude the OPTICKS-0.1.1-Darwin subdirectory
+    simon:build blyth$ 
+
+::
+
+    simon:build blyth$ tar ztvf OPTICKS-0.1.1-Darwin.tar.gz
+    drwxr-xr-x  0 blyth  staff       0 Apr 25 15:32 OPTICKS-0.1.1-Darwin/bin/
+    -rwxr-xr-x  0 blyth  staff   21660 Apr 25 15:31 OPTICKS-0.1.1-Darwin/bin/cuRANDWrapperTest
+    -rwxr-xr-x  0 blyth  staff   58460 Apr 25 15:32 OPTICKS-0.1.1-Darwin/bin/GGeoView
+    -rwxr-xr-x  0 blyth  staff   27416 Apr 25 15:31 OPTICKS-0.1.1-Darwin/bin/LaunchSequenceTest
+    drwxr-xr-x  0 blyth  staff       0 Apr 25 15:32 OPTICKS-0.1.1-Darwin/gl/
+    drwxr-xr-x  0 blyth  staff       0 Apr 25 15:32 OPTICKS-0.1.1-Darwin/gl/altrec/
+    -rw-r--r--  0 blyth  staff      98 Sep 14  2015 OPTICKS-0.1.1-Darwin/gl/altrec/frag.glsl
+    -rw-r--r--  0 blyth  staff    1892 Sep 17  2015 OPTICKS-0.1.1-Darwin/gl/altrec/geom.glsl
+    -rw-r--r--  0 blyth  staff     454 Sep 14  2015 OPTICKS-0.1.1-Darwin/gl/altrec/vert.glsl
+    drwxr-xr-x  0 blyth  staff       0 Apr 25 15:32 OPTICKS-0.1.1-Darwin/gl/axis/
+    -rw-r--r--  0 blyth  staff     111 Sep 14  2015 OPTICKS-0.1.1-Darwin/gl/axis/frag.glsl
+
+
+
 
 
 RPATH/library confusion
