@@ -402,5 +402,17 @@ cmakex-cd(){  cd $(cmakex-dir); }
 cmakex-get(){
    local dir=$(dirname $(cmakex-dir)) &&  mkdir -p $dir && cd $dir
 
-   git clone https://github.com/toomuchatonce/cmake-examples
+   #git clone https://github.com/toomuchatonce/cmake-examples
+   git clone -v https://github.com/simoncblyth/cmake-examples
 }
+
+
+cmakex-wipe(){
+   local iwd=$PWD
+   local dir=$(dirname $(cmakex-dir)) &&  mkdir -p $dir && cd $dir
+
+   [ -d cmake-examples ] && rm -rf cmake-examples
+   
+   cd $iwd
+}
+
