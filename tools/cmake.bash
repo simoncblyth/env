@@ -9,6 +9,7 @@ CMAKE
 ======
 
 * http://www.cmake.org/
+* https://cmake.org/download/
 
 
 See Also
@@ -476,12 +477,28 @@ root example
 
 EOU
 }
-cmake-dir(){ echo $(local-base)/env/tools/tools-cmake ; }
+
+
+cmake-vers(){ echo v3.5 ; }
+cmake-name(){ echo cmake-3.5.2-$(uname -s)-$(uname -m) ; }
+cmake-dir(){ echo $(local-base)/env/tools/cmake/$(cmake-name) ; }
 cmake-cd(){  cd $(cmake-dir); }
-cmake-mate(){ mate $(cmake-dir) ; }
 cmake-get(){
    local dir=$(dirname $(cmake-dir)) &&  mkdir -p $dir && cd $dir
+   local url=$(cmake-url)
+   local tgz=$(basename $url)
+   local nam=${tgz/.tar.gz}
 
+   [ ! -f "$tgz" ] && curl -L -O $url
+   [ ! -d "$nam" ] && tar zxvf $tgz
+}
+
+cmake-url(){
+   echo https://cmake.org/files/$(cmake-vers)/$(cmake-name).tar.gz
+}
+
+cmake-alias(){
+   alias cmake352=$(cmake-dir)/CMake.app/Contents/bin/cmake
 }
 
 cmake-find(){
