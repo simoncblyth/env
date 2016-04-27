@@ -417,12 +417,3 @@ cmakex-wipe(){
 }
 
 
-cmakex-check(){
-   local iwd=$PWD
-   local tmpd=/tmp/$FUNCNAME 
-   mkdir -p $tmpd
-   cd $tmpd
-   cmake $(env-home)/cmakecheck
-   cd $iwd
-}
-
