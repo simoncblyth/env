@@ -493,12 +493,23 @@ cmake-get(){
    [ ! -d "$nam" ] && tar zxvf $tgz
 }
 
-cmake-url(){
-   echo https://cmake.org/files/$(cmake-vers)/$(cmake-name).tar.gz
+cmake-url(){    echo https://cmake.org/files/$(cmake-vers)/$(cmake-name).tar.gz ; }
+cmake-bindir(){ 
+   case $(uname -s) in
+     Darwin) echo $(cmake-dir)/CMake.app/Contents/bin ;;
+      Linux) echo $(cmake-dir)/bin  ;;
+          *) echo hmmm ;;
+   esac 
 }
+cmake-alias(){  alias cmake352=$(cmake-bindir)/cmake ; }
 
-cmake-alias(){
-   alias cmake352=$(cmake-dir)/CMake.app/Contents/bin/cmake
+cmake-export(){
+   local bindir=$(cmake-bindir)
+   if [ -d "$bindir" ]; then
+       if [ "${PATH/$bindir}" == "$PATH" ]; then
+           export PATH=$bindir:$PATH
+       fi 
+   fi
 }
 
 cmake-find(){
