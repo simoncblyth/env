@@ -48,6 +48,15 @@ Experience
 * https://github.com/toomuchatonce/cmake-examples/blob/master/superbuild-configtargets-direct/CMakeLists.txt
 
 
+special flags for single files
+--------------------------------
+
+* http://stackoverflow.com/questions/13638408/cmake-override-compile-flags-for-single-files
+* https://cmake.org/cmake/help/v3.3/manual/cmake-properties.7.html
+
+
+
+
 envvars
 --------
 
