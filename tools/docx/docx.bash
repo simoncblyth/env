@@ -15,11 +15,28 @@ and updating Microsoft Word (.docx) files.
 
 * https://python-docx.readthedocs.org/en/latest/user/styles-understanding.html
 
-
 Hmm looks like macports drastically out of date
 -------------------------------------------------
 
 * https://github.com/mikemaccana/python-docx
+
+
+Definition list support ?
+---------------------------
+
+Workaround by using bullet list instead.
+
+::
+
+    2016-05-08 09:43:52,691 env.doc.docutils.rst2docx INFO     reading ntu-report-may-2016.rst 
+    NotImplementedError: env.doc.docutils.rst2docx.Translator visiting unknown node type: definition_list
+
+Emphasis and Strong support 
+------------------------------
+
+Added by reworking the translation to docx.
+
+
 
 See also
 ---------
@@ -47,5 +64,12 @@ docx-ln()
     python-ln $(docx-dir)/docx
 }
 
+docx-test()
+{
+    cd ~/workflow/admin/reps
 
+    rst2docx.py test.rst /tmp/test.docx
+
+    open /tmp/test.docx
+}
 
