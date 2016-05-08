@@ -12,6 +12,26 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+Tabulating text with aligned columns
+--------------------------------------
+
+Vim ways to do this either need plugins or look too involved, so do on command line with "column"
+::
+
+    delta:~ blyth$ pbpaste | cat
+        DBNS_HALL5_TEMP DBNS_H5_Temp_PT1            Low!!!             -1.00   2016-05-06 20:05:26
+        DBNS_HALL5_TEMP        DBNS_H5_Temp_PT4            Low!!!             -1.00   2016-05-06 20:05:26
+        DBNS_HALL5_TEMP        DBNS_H5_Temp_PT2            Low!!!             -1.00   2016-05-06 20:05:26
+        DBNS_HALL5_TEMP        DBNS_H5_Temp_PT3            Low!!!             -1.00   2016-05-06 20:05:26 
+
+    delta:~ blyth$ pbpaste | column -t 
+    DBNS_HALL5_TEMP  DBNS_H5_Temp_PT1  Low!!!  -1.00  2016-05-06  20:05:26
+    DBNS_HALL5_TEMP  DBNS_H5_Temp_PT4  Low!!!  -1.00  2016-05-06  20:05:26
+    DBNS_HALL5_TEMP  DBNS_H5_Temp_PT2  Low!!!  -1.00  2016-05-06  20:05:26
+    DBNS_HALL5_TEMP  DBNS_H5_Temp_PT3  Low!!!  -1.00  2016-05-06  20:05:26
+
+
+
 Gutter Line Numbers
 ----------------------
 

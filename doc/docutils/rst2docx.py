@@ -34,6 +34,7 @@ of C# : Java verbosity of code, Microsoft boring documentation
 import os, logging, argparse
 log = logging.getLogger(__name__)
 
+
 from docx import Document
 from docx.shared import Inches
 
@@ -119,11 +120,10 @@ class Writer(writers.Writer):
 
     def __init__(self, uribase):
         writers.Writer.__init__(self) 
+
         self.translator_class = Translator
         self.uribase = uribase
         self.docx = Document()
-        #atoc = AddTOC(self.docx)
-        #print atoc
 
     def resolve(self, uri):
         path = os.path.join(self.uribase, uri)
@@ -136,6 +136,9 @@ class Writer(writers.Writer):
         log.info("docinfo %s " % repr(visitor.docinfo))
 
         self.output = visitor.astext()
+        #log.info("pformat %s " % self.document.pformat())
+        #log.info("output  %s " % self.output)
+
 
     def supports(self, format):
         """This writer supports all format-specific elements."""
@@ -145,24 +148,68 @@ class Writer(writers.Writer):
         log.info("save to %s " % path)
         self.docx.save(path)
 
+        base, ext = os.path.splitext(path)
+        pxml_path = "%s%s" % (base, ".pxml")
+
+        log.info("save pseudo-xml to %s " % pxml_path)
+
+        with open(pxml_path, "w") as fp:
+            fp.write(self.document.pformat())
+        
+
+
+        
+
+
 
 def node_astext(node):
     """avoids RST source linebreaks influencing output formatting"""
     return node.astext().replace("\n", " ")  
 
+
+class Text(list):
+    def __init__(self):
+        list.__init__(self)
+
+    def append(self, txt, msg=None):
+        list.append(self, txt)
+        len = list.__len__(self)
+        log.info("append %s %s %s " % (len,msg, txt))
+
+    def pop(self, msg=None):
+        txt = list.pop(self)
+        len = list.__len__(self)
+
+        for i in range(len):
+            print "%4d : %s " % (i, list.__getitem__(self, i))
+
+        log.info("pop %s %s %s " % (len,msg, txt))
+        return txt
+   
+
+ 
+
 class Translator(BaseTranslator):
     def __init__(self, document, docx, writer):
         BaseTranslator.__init__(self, document)
         self.docx = docx
+        self.parax = None
+
         self.writer = writer
         self.level = 0 
+
         self.intitle = False
-        self.text = []
-        self.style = []
+        self.ininfo = False
+        self.inraw = False
+
+        self.text = Text()
+        self.para_style = []
+        self.char_style = []
         self.docinfo = {}
-        self.nopara = False
+
         self.date = None
         self.title_count = 0 
+        self.newline = False 
 
     def astext(self):
         return ""
@@ -176,7 +223,7 @@ class Translator(BaseTranslator):
         pass
     def depart_title(self, node):
         self.title_count += 1  
-        text = self.text.pop()
+        text = self.text.pop(msg="depart_title")
 
         ## somewhat specifically add date to first title heading
         if self.title_count == 1 and not self.date is None:
@@ -185,33 +232,144 @@ class Translator(BaseTranslator):
         self.docx.add_heading(text, self.level)
 
     def visit_Text(self, node):
-        self.text.append(node_astext(node))
+        if self.ininfo or self.inraw:return
+        txt = node_astext(node)
+
+        if self.parax is not None:
+            self.parax.add_run(txt, self.charstyle)
+        else:
+            self.text.append(txt, msg="visit_Text")
+
+
     def depart_Text(self, node):
         pass
 
     def visit_enumerated_list(self, node):
         # list counters are not resetting, workaround: convert source document to bulleted 
-        self.style.append('List Number')   
+        self.para_style.append('List Number')   
     def depart_enumerated_list(self, node):
-        self.style.pop()
+        self.para_style.pop()
 
     def visit_bullet_list(self, node):
-        self.style.append('List Bullet')
+        self.para_style.append('List Bullet')
     def depart_bullet_list(self, node):
-        self.style.pop()
+        self.para_style.pop()
+
+    def visit_raw(self, node):
+        log.info("visit_raw node %s " % repr(dir(node)))
+        log.info("visit_raw node %s " % repr(node.attributes))
+
+        fmt = node.attributes.get('format',None)
+        self.inraw = True
+
+        txt = node_astext(node)
+        if txt == "\\newline":
+            log.info("visit_raw newline spotted")
+            if self.parax is not None:
+                self.parax.add_run("\n", self.charstyle)
+            pass
+        pass
+        self.report("visit_raw", node) 
+    def depart_raw(self, node):
+        self.report("depart_raw", node) 
+        self.inraw = False
+
+    def visit_literal(self, node):
+        txt = node_astext(node)
+
+        log.info("visit_literal [%s]" % txt)
+        if txt == "\\n":
+            log.info("literal newline spotted")
+
+        self.report("visit_literal", node) 
+        pass
+    def depart_literal(self, node):
+        self.report("depart_literal", node) 
 
 
-    def visit_paragraph(self, node):
-        if self.nopara:return
-        self.text.append(node_astext(node))
-    def depart_paragraph(self, node):
-        if self.nopara:return
-        if len(self.style): 
-            style = self.style[-1]
+    def report(self, msg, node):
+        txt = node_astext(node)
+        log.info("report %s %s %s " % (msg, len(self.text), txt)) 
+
+    def _parastyle(self):
+        """
+        https://python-docx.readthedocs.io/en/latest/user/styles-understanding.html
+
+        Examples of paragraph styles:
+ 
+           List Bullet 
+           List Number
+
+        """
+        if len(self.para_style): 
+            style = self.para_style[-1]
         else:
             style = None
         pass
-        self.docx.add_paragraph(self.text.pop(), style)
+        return style
+    parastyle = property(_parastyle)
+
+
+    def _charstyle(self):
+        """
+        https://python-docx.readthedocs.io/en/latest/user/styles-understanding.html
+
+        Examples of Character styles in default template
+
+            Body Text Char
+            Body Text 2 Char
+            Body Text 3 Char
+            Book Title
+            Default Paragraph Font
+            Emphasis
+            Heading 1 Char
+            Heading 2 Char
+            Heading 3 Char
+            Heading 4 Char
+            Heading 5 Char
+            Heading 6 Char
+            Heading 7 Char
+            Heading 8 Char
+            Heading 9 Char
+            Intense Emphasis
+            Intense Quote Char
+            Intense Reference
+            Macro Text Char
+            Quote Char
+            Strong
+            Subtitle Char
+            Subtle Emphasis
+            Subtle Reference
+            Title Char
+
+        """
+        if len(self.char_style): 
+            style = self.char_style[-1]
+        else:
+            style = None
+        pass
+        return style
+    charstyle = property(_charstyle)
+
+
+
+    def visit_paragraph(self, node):
+        if self.ininfo:return
+        self.parax = self.docx.add_paragraph("", self.parastyle)
+    def depart_paragraph(self, node):
+        if self.ininfo:return
+        self.parax = None
+        pass
+
+    def visit_emphasis(self, node):
+        self.char_style.append("Emphasis")
+    def depart_emphasis(self, node):
+        self.char_style.pop()
+
+    def visit_strong(self, node):
+        self.char_style.append("Strong")
+    def depart_strong(self, node):
+        self.char_style.pop()
 
 
     def visit_figure(self, node):
@@ -226,15 +384,15 @@ class Translator(BaseTranslator):
         pass
 
     def visit_caption(self, node):
-        self.text.append(node_astext(node))
+        self.text.append(node_astext(node), msg="visit_caption")
     def depart_caption(self, node):
-        self.docx.add_paragraph(self.text.pop())
+        self.docx.add_paragraph(self.text.pop(msg="depart_caption"))
 
  
     def visit_docinfo(self, node):
-        self.nopara = True
+        self.ininfo = True
     def depart_docinfo(self, node):
-        self.nopara = False
+        self.ininfo = False
         if 'title' in self.docinfo:
             self.docx.add_heading(self.docinfo['title'], self.level)
 
@@ -284,6 +442,8 @@ def main():
     odir = os.path.dirname(paths[1])
     if not os.path.exists(odir):
         os.makedirs(odir)
+
+
 
 
     reader=None

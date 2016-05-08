@@ -1,11 +1,16 @@
 import docutils.nodes as nodes
 
 
+
+
+
 class BaseTranslator(nodes.NodeVisitor):
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
     def default_visit(self, node):
         self.document.reporter.warning('missing visit_%s' % (node.tagname, ))
+
+ 
     def astext(self):
         return self.document.pformat()
 
@@ -13,10 +18,12 @@ class BaseTranslator(nodes.NodeVisitor):
         pass
     def depart_document(self, node):
         pass
+
     def visit_docinfo(self, node):
         pass
     def depart_docinfo(self, node):
         pass
+
     def visit_field(self, node):
         pass
     def depart_field(self, node):
@@ -76,6 +83,15 @@ class BaseTranslator(nodes.NodeVisitor):
     def visit_reference(self, node):
         pass
     def depart_reference(self, node):
+        pass
+
+    def visit_emphasis(self, node):
+        pass
+    def depart_emphasis(self, node):
+        pass
+    def visit_strong(self, node):
+        pass
+    def depart_strong(self, node):
         pass
 
 
