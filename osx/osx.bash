@@ -30,6 +30,11 @@ osx-captive-wifi-disable
 osx-ss
       path of last screen shot from today 
 
+
+osx-ss-copy name
+
+
+
 osx-ss-cp name
       copy last screen shot to ~/simoncblyth.bitbucket.org/env/current-relative-dir/name.png
       where current-relative-dir is PWD relative to ENV_HOME
@@ -94,6 +99,13 @@ osx-ss-open(){
    open "$(osx-ss)"
 }
 
+
+
+osx-ss-copy(){
+   local name=$1
+   cp "$(osx-ss)" $name.png
+   downsize.py $name.png
+}
 
 osx-ss-cp(){
    local msg="=== $FUNCNAME :"
