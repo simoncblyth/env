@@ -168,25 +168,28 @@ def node_astext(node):
 
 
 class Text(list):
-    def __init__(self):
+    def __init__(self, translator):
+        self.translator = translator
         list.__init__(self)
 
     def append(self, txt, msg=None):
         list.append(self, txt)
         len = list.__len__(self)
-        log.info("append %s %s %s " % (len,msg, txt))
+        if self.translator.incaption:
+            log.info("append %s %s %s " % (len,msg, txt))
 
     def pop(self, msg=None):
         txt = list.pop(self)
         len = list.__len__(self)
 
-        for i in range(len):
-            print "%4d : %s " % (i, list.__getitem__(self, i))
-
-        log.info("pop %s %s %s " % (len,msg, txt))
+        if self.translator.incaption:
+            for i in range(len):
+                print "%4d : %s " % (i, list.__getitem__(self, i))
+            pass
+            log.info("pop %s %s %s " % (len,msg, txt))
+        pass
         return txt
    
-
  
 
 class Translator(BaseTranslator):
@@ -201,14 +204,18 @@ class Translator(BaseTranslator):
         self.intitle = False
         self.ininfo = False
         self.inraw = False
+        self.incaption = False
 
-        self.text = Text()
+        self.title_count = 0 
+        self.caption_count = 0 
+        self.pretext = None
+
+        self.text = Text(self)
         self.para_style = []
         self.char_style = []
         self.docinfo = {}
 
         self.date = None
-        self.title_count = 0 
         self.newline = False 
 
     def astext(self):
@@ -220,25 +227,62 @@ class Translator(BaseTranslator):
         self.level -= 1
 
     def visit_title(self, node):
-        pass
-    def depart_title(self, node):
+        self.intitle = True
         self.title_count += 1  
-        text = self.text.pop(msg="depart_title")
+    def depart_title(self, node):
+        self.intitle = False
 
-        ## somewhat specifically add date to first title heading
-        if self.title_count == 1 and not self.date is None:
-            text = "%s [%s]" % (text, self.date)
 
-        self.docx.add_heading(text, self.level)
+    def visit_paragraph(self, node):
+        if self.ininfo:return
+        self.parax = self.docx.add_paragraph("", self.parastyle)
+    def depart_paragraph(self, node):
+        if self.ininfo:return
+        self.parax = None
+
+    def visit_caption(self, node):
+        self.caption_count += 1  
+        self.incaption = True
+
+        self.pretext = "Figure %s:" % self.caption_count
+        parax = self.docx.add_paragraph("", self.parastyle)
+        pfx = parax.paragraph_format 
+        pfx.left_indent = Inches(0.25)
+        pfx.space_after = Inches(0.25)
+        log.info("caption pfx %s " % repr(dir(pfx)))
+        self.parax = parax
+
+    def depart_caption(self, node):
+        self.parax = None
+        self.incaption = False
+
 
     def visit_Text(self, node):
+        """
+        Most text appears inside paragraph, the exceptions are titles
+        """
         if self.ininfo or self.inraw:return
         txt = node_astext(node)
 
+        if self.pretext is not None:
+           txt = "%s %s" % (self.pretext, txt)
+           self.pretext = None 
+        pass
+
         if self.parax is not None:
             self.parax.add_run(txt, self.charstyle)
+        elif self.intitle == True:
+            log.debug("visit_Text whilst intitle") 
+            ## somewhat specifically add date to first title heading
+            if self.title_count == 1 and not self.date is None:
+                txt = "%s [%s]" % (txt, self.date)
+            pass
+            self.docx.add_heading(txt, self.level)
         else:
+            self.report("visit_Text without parax or intitle", node) 
             self.text.append(txt, msg="visit_Text")
+            assert 0
+        pass
 
 
     def depart_Text(self, node):
@@ -256,22 +300,19 @@ class Translator(BaseTranslator):
         self.para_style.pop()
 
     def visit_raw(self, node):
-        log.info("visit_raw node %s " % repr(dir(node)))
-        log.info("visit_raw node %s " % repr(node.attributes))
-
         fmt = node.attributes.get('format',None)
         self.inraw = True
 
         txt = node_astext(node)
         if txt == "\\newline":
-            log.info("visit_raw newline spotted")
+            #log.info("visit_raw newline spotted")
             if self.parax is not None:
                 self.parax.add_run("\n", self.charstyle)
             pass
         pass
-        self.report("visit_raw", node) 
+        #self.report("visit_raw", node) 
     def depart_raw(self, node):
-        self.report("depart_raw", node) 
+        #self.report("depart_raw", node) 
         self.inraw = False
 
     def visit_literal(self, node):
@@ -352,15 +393,6 @@ class Translator(BaseTranslator):
     charstyle = property(_charstyle)
 
 
-
-    def visit_paragraph(self, node):
-        if self.ininfo:return
-        self.parax = self.docx.add_paragraph("", self.parastyle)
-    def depart_paragraph(self, node):
-        if self.ininfo:return
-        self.parax = None
-        pass
-
     def visit_emphasis(self, node):
         self.char_style.append("Emphasis")
     def depart_emphasis(self, node):
@@ -382,11 +414,6 @@ class Translator(BaseTranslator):
         self.docx.add_picture(path)
     def depart_image(self, node):
         pass
-
-    def visit_caption(self, node):
-        self.text.append(node_astext(node), msg="visit_caption")
-    def depart_caption(self, node):
-        self.docx.add_paragraph(self.text.pop(msg="depart_caption"))
 
  
     def visit_docinfo(self, node):

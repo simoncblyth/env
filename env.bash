@@ -1706,3 +1706,4 @@ cmakex-(){      . $(env-home)/tools/cmakex.bash && cmakex-env $* ; }
 libgit2-(){      . $(env-home)/git/libgit2.bash && libgit2-env $* ; }
 msys2-(){      . $(env-home)/windows/msys2.bash && msys2-env $* ; }
 cmakecheck-(){      . $(env-home)/cmakecheck/cmakecheck.bash && cmakecheck-env $* ; }
+rst2docx-(){      . $(env-home)/doc/docutils/rst2docx.bash && rst2docx-env $* ; }
