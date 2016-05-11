@@ -130,12 +130,20 @@ class Writer(writers.Writer):
         return os.path.abspath(path)
  
     def translate(self):
-        visitor = self.translator_class(self.document, self.docx, self)
+        log.info("Writer pre walkabout")
+        previsit = self.translator_class(self.document, self.docx, self, mode="pre", previsit=None)
+        self.document.walkabout(previsit)
+        #previsit.toc()
+
+        log.info("Writer create walkabout")
+        visitor = self.translator_class(self.document, self.docx, self, mode="create", previsit=previsit)
         self.document.walkabout(visitor)
 
         log.info("docinfo %s " % repr(visitor.docinfo))
 
         self.output = visitor.astext()
+        self.visitor = visitor
+
         #log.info("pformat %s " % self.document.pformat())
         #log.info("output  %s " % self.output)
 
@@ -190,14 +198,24 @@ class Text(list):
         pass
         return txt
    
- 
+
+
 
 class Translator(BaseTranslator):
-    def __init__(self, document, docx, writer):
+    def __init__(self, document, docx, writer, mode="create", previsit=None ):
         BaseTranslator.__init__(self, document)
         self.docx = docx
         self.parax = None
 
+        pre = False
+        if mode == "pre":
+            pre = True
+        pass
+        self.pre = pre
+        # "pre" mode used for preparatory walkabout 
+        # to obtain section titles for a TOC 
+        self.previsit = previsit
+       
         self.writer = writer
         self.level = 0 
 
@@ -207,6 +225,7 @@ class Translator(BaseTranslator):
         self.incaption = False
 
         self.title_count = 0 
+        self.titles = [] 
         self.caption_count = 0 
         self.pretext = None
 
@@ -232,34 +251,39 @@ class Translator(BaseTranslator):
     def depart_title(self, node):
         self.intitle = False
 
-
     def visit_paragraph(self, node):
-        if self.ininfo:return
-        self.parax = self.docx.add_paragraph("", self.parastyle)
+        if self.ininfo or self.pre:return
+        parax = self.docx.add_paragraph("", self.parastyle)
+        self.parax = parax
+
     def depart_paragraph(self, node):
-        if self.ininfo:return
+        if self.ininfo or self.pre:return
         self.parax = None
 
     def visit_caption(self, node):
+        if self.pre:return
         self.caption_count += 1  
         self.incaption = True
 
         self.pretext = "Figure %s:" % self.caption_count
+
         parax = self.docx.add_paragraph("", self.parastyle)
         pfx = parax.paragraph_format 
         pfx.left_indent = Inches(0.25)
         pfx.space_after = Inches(0.25)
-        log.info("caption pfx %s " % repr(dir(pfx)))
+        #log.info("caption pfx %s " % repr(dir(pfx)))
+
         self.parax = parax
 
     def depart_caption(self, node):
+        if self.pre:return
         self.parax = None
         self.incaption = False
 
 
     def visit_Text(self, node):
         """
-        Most text appears inside paragraph, the exceptions are titles
+        Most text nodes appears inside paragraph nodes, the exceptions are titles and captions.
         """
         if self.ininfo or self.inraw:return
         txt = node_astext(node)
@@ -270,18 +294,23 @@ class Translator(BaseTranslator):
         pass
 
         if self.parax is not None:
-            self.parax.add_run(txt, self.charstyle)
+            if not self.pre:
+                self.parax.add_run(txt, self.charstyle)
+            pass
         elif self.intitle == True:
             log.debug("visit_Text whilst intitle") 
             ## somewhat specifically add date to first title heading
             if self.title_count == 1 and not self.date is None:
                 txt = "%s [%s]" % (txt, self.date)
             pass
-            self.docx.add_heading(txt, self.level)
+            self.titles.append([self.level, txt])
+            if not self.pre:
+                self.docx.add_heading(txt, self.level)
         else:
-            self.report("visit_Text without parax or intitle", node) 
-            self.text.append(txt, msg="visit_Text")
-            assert 0
+            if not self.pre:
+                self.report("visit_Text without parax or intitle", node) 
+                self.text.append(txt, msg="visit_Text")
+                assert 0
         pass
 
 
@@ -306,8 +335,13 @@ class Translator(BaseTranslator):
         txt = node_astext(node)
         if txt == "\\newline":
             #log.info("visit_raw newline spotted")
-            if self.parax is not None:
+            if self.parax is not None and not self.pre:
                 self.parax.add_run("\n", self.charstyle)
+            pass
+        elif txt == "TOC":
+            if self.previsit is not None:
+                log.info("visit_raw TOC spotted : inserting tocx")
+                self.tocx(self.previsit) 
             pass
         pass
         #self.report("visit_raw", node) 
@@ -327,7 +361,28 @@ class Translator(BaseTranslator):
     def depart_literal(self, node):
         self.report("depart_literal", node) 
 
+    def toc(self):
+        for level, label in self.titles:
+            indent = " " * level
+            log.info( " %s %s %s " % (indent, level, label)) 
 
+    def tocx_entry(self, level, label):
+        indent = " " * level
+        log.info( "tocx %s %s %s " % (indent, level, label)) 
+        charstyle = "Heading %d Char" %  level  
+        parax = self.docx.add_paragraph("", style=None)
+        pfx = parax.paragraph_format 
+        pfx.left_indent = Inches(0.2*level)
+        pfx.space_after = Inches(0.05)
+        parax.add_run( indent + label, charstyle)
+ 
+    def tocx(self, previsit):
+        self.tocx_entry(1, "Contents") 
+        for level, label in previsit.titles:
+            if level > 1:
+                self.tocx_entry(level, label) 
+            pass
+ 
     def report(self, msg, node):
         txt = node_astext(node)
         log.info("report %s %s %s " % (msg, len(self.text), txt)) 
@@ -411,7 +466,8 @@ class Translator(BaseTranslator):
 
     def visit_image(self, node):
         path = self.writer.resolve(node.attributes['uri'])
-        self.docx.add_picture(path)
+        if not self.pre:
+            self.docx.add_picture(path)
     def depart_image(self, node):
         pass
 
@@ -420,7 +476,7 @@ class Translator(BaseTranslator):
         self.ininfo = True
     def depart_docinfo(self, node):
         self.ininfo = False
-        if 'title' in self.docinfo:
+        if 'title' in self.docinfo and not self.pre:
             self.docx.add_heading(self.docinfo['title'], self.level)
 
     def visit_field(self, node):
