@@ -12,7 +12,7 @@ python-docx is a Python library for creating
 and updating Microsoft Word (.docx) files.
 
 * https://python-docx.readthedocs.org/en/latest/
-
+* https://python-docx.readthedocs.io/en/latest/user/text.html
 * https://python-docx.readthedocs.org/en/latest/user/styles-understanding.html
 
 Hmm looks like macports drastically out of date
