@@ -383,10 +383,8 @@ slides-get(){
 
 }
 
-slides-get-gtc(){
-   slides-safari
-   slides-get 0 42
-}
+slides-get-gtc(){     slides-get 0 42 ; }
+slides-get-lecospa(){ slides-get 0 57 ; }
 
 
 #slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }

@@ -45,7 +45,7 @@ LeCosPA
 
     I will present Opticks, https://bitbucket.org/simoncblyth/opticks, an open source project 
     that is my solution to the optical photon simulation problem. 
-    Opticks works together with Geant4, replacing the the Geant4 optical photon simulation 
+    Opticks works together with Geant4, replacing the Geant4 optical photon simulation 
     with an equivalent massively parallel optical simulation implemented on the GPU 
     and accelerated with the NVIDIA OptiX ray tracing engine.
     Optical photon simulation performance with Opticks is extrapolated to exceed 1000x Geant4 
