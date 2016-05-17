@@ -39,12 +39,58 @@ OPTICKS MACHINERY DEV NOTES
 See opticks-
 
 
+
+CMake Superbuild
+-------------------
+
+* boost being "found" for all packages 
+
 CTest
 ------
 
 * https://cmake.org/Wiki/CMake/Testing_With_CTest
 
 Testing machinery operational with very little effort.
+
+
+Issue : missing debug symbols 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* somehow debug symbols often not being included for some dylib, despite the 
+  top level   -DCMAKE_BUILD_TYPE=Debug.  Observed this in the NPYTest binaries
+  
+  * http://stackoverflow.com/questions/24460486/cmake-build-type-not-being-used-in-cmakelists-txt  
+  
+
+Issue : make check : rebuilding all ? not installing ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Building the tests with make check looks to be building everything again::
+
+    simon:env blyth$ opticks-bcd
+    simon:build blyth$ make check
+
+
+Exclude from all for tests : side effects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Running into difficulties debugging failing tests
+
+* no debug symbols
+* not installed
+* not build by default
+
+
+The test building was excluded as a build optimization via
+settings in the below setting in each package CMakeLists.txt:: 
+
+    add_subdirectory(tests EXCLUDE_FROM_ALL)
+
+But this may be premature, as seems to be causing the above complications.
+
+
+
+
 
 Configure testing
 ~~~~~~~~~~~~~~~~~~~
