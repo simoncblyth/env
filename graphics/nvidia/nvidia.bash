@@ -9,11 +9,37 @@ nvidia-usage(){ cat << EOU
 NVIDIA
 ========
 
+
+10 Series
+-----------
+
+Geforce GTX 1080, 1070
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.geforce.com/hardware/10series/geforce-gtx-1080
+
+* 2560 CUDA cores
+* 8 GB GDDR5X
+* OpenGL 4.5
+* Windows 7-10, Linux, FreeBSDx86
+* Recommended System Power : 500 W
+
+
+
+* GTX 1080 599 USD  May 27   
+* GTX 1070 380 USD  June 10
+
+
+Computex  May 31 - June 4
+----------------------------
+
+* https://www.computextaipei.com.tw/en_US/member/visitor/preregister.html
+
+
 Graphics on Tesla GPUs 
 -------------------------
 
 * http://devblogs.nvidia.com/parallelforall/interactive-supercomputing-in-situ-visualization-tesla-gpus/
-
 
 GPU Achitecture history
 ------------------------
