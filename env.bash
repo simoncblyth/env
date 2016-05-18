@@ -1708,3 +1708,4 @@ msys2-(){      . $(env-home)/windows/msys2.bash && msys2-env $* ; }
 cmakecheck-(){      . $(env-home)/cmakecheck/cmakecheck.bash && cmakecheck-env $* ; }
 rst2docx-(){      . $(env-home)/doc/docutils/rst2docx.bash && rst2docx-env $* ; }
 g4opgen-(){      . $(env-home)/geant4/g4op/g4opgen.bash && g4opgen-env $* ; }
+cg4-(){      . $(env-home)/optix/cfg4/cg4.bash && cg4-env $* ; }

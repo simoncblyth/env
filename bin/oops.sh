@@ -1,4 +1,9 @@
 #!/bin/bash -l
+[ "$0" = "$BASH_SOURCE" ] && sauce=0 || sauce=1
+if [ "$sauce" == "1" ]; then 
+   oops-(){   . $BASH_SOURCE ; } 
+   oops-vi(){ vi $BASH_SOURCE ; } 
+fi
 
 cmdline="$*"
 
@@ -54,6 +59,17 @@ oops-binary-name()
            --hits) echo HitsNPYTest ;;  
    esac 
 }
+
+oops-binary-desc()
+{
+   case $1 in 
+         --tracer) echo "Fast launching OpenGL visualization and OptiX Ray tracing, BUT NO propagation : for simple geometry checking"  ;;
+            --mat) echo "Dump properties of material identified by 0-based index , eg oops --mat 0 " ;;
+           --surf) echo "Dump properties of surface identified by 0-based index , eg oops --surf 0 " ;;
+   esac 
+}
+
+
 
 oops-geometry-name()
 {
@@ -144,6 +160,19 @@ oops-geometry-unset()
     unset OPTICKS_MESHFIX_CFG
 }
 
+
+oops-binary-names(){ type oops-binary-name | perl -ne 'm,--(\w*)\), && print "$1\n" ' - ; } 
+oops-ohelp(){
+   local cmd
+   local bin
+   local hlp
+   oops-binary-names | while read cmd ; do
+      bin=$(oops-binary-name "--$cmd")
+      desc=$(oops-binary-desc "--$cmd")
+      hlp=$(printf "%s (%s)" "$desc" $bin)  
+      printf " %10s : %s \n" $cmd "$hlp"
+   done
+}
 
 
 
@@ -289,15 +318,22 @@ oops-runline()
 }
 
 
+
+
 opticks-
 oops-cmdline-parse
-env | grep OPTICKS
-
 runline=$(oops-runline)
-echo $runline
-
 oops-export
-eval $runline
+
+if [ "$sauce" == "1" ]; then
+   env | grep OPTICKS
+   echo sauce detected : assume are debugging this script
+elif [ "${cmdline/--ohelp}" != "${cmdline}" ]; then
+   oops-ohelp
+else
+   echo proceeding : $runline
+   eval $runline
+fi 
 
 
 
