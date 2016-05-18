@@ -1,5 +1,5 @@
 #!/bin/bash -l
-[ "$0" = "$BASH_SOURCE" ] && sauce=0 || sauce=1
+[ "$0" == "$BASH_SOURCE" ] && sauce=0 || sauce=1
 if [ "$sauce" == "1" ]; then 
    oops-(){   . $BASH_SOURCE ; } 
    oops-vi(){ vi $BASH_SOURCE ; } 
