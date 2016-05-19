@@ -53,6 +53,31 @@ CTest
 Testing machinery operational with very little effort.
 
 
+Issue : environment for tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Documented way to provide environment to tests not working ?
+
+* https://cmake.org/Wiki/CMake_Scripting_Of_CTest
+
+::
+
+    set (CTEST_ENVIRONMENT
+        "DAE_NAME_DYB=/tmp/dummy.dae"
+        "HELLO=world"
+       )
+
+* http://cmake.3232098.n2.nabble.com/set-CTEST-ENVIRONMENT-from-within-CMakeLists-txt-td3612090.html
+
+::
+
+    set_property(TEST TestName PROPERTY ENVIRONMENT "CMAKE_ENVIRONMENT_TEST_VAR=Happy Thanksgiving!")
+
+
+See optickscore-/tests
+
+
+
 Issue : missing debug symbols 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
