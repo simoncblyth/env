@@ -1,43 +1,50 @@
 #!/bin/bash -l
 [ "$0" == "$BASH_SOURCE" ] && sauce=0 || sauce=1
 if [ "$sauce" == "1" ]; then 
-   oops-(){   . $BASH_SOURCE ; } 
-   oops-vi(){ vi $BASH_SOURCE ; } 
+   op-(){   . $BASH_SOURCE ; } 
+   op-vi(){ vi $BASH_SOURCE ; } 
 fi
 
 cmdline="$*"
 
-oops-usage(){ cat << EOU
-oops : Opticks Operations
+op-usage(){ cat << EOU
+op : Opticks Operations
 ===========================
 
-oops.sh is intended to replace ggv.sh using 
+This script pre-parses arguments at bash level, determining:
+
+* binary to launch 
+* geometry envvars to define
+
+op.sh is intended to replace ggv.sh using 
 simplifications possible following the
 move to the superbuild approach.
 
 EOU
 }
 
-oops-binary-name-default(){ echo GGeoView ; }
-oops-binary-name()
+op-binary-name-default(){ echo GGeoView ; }
+op-binary-name()
 {
    case $1 in 
-            --cmp) echo computeTest ;; 
-     --boundaries) echo BoundariesNPYTest ;;
            --cfg4) echo cfg4Test ;;
+         --tracer) echo OTracerTest ;;
+            --mat) echo GMaterialLibTest ;;
+           --surf) echo GSurfaceLibTest ;;
+            --bnd) echo GBndLibTest ;;
+
+
+     --boundaries) echo BoundariesNPYTest ;;
        --cproplib) echo CPropLibTest ;;
       --cdetector) echo CDetectorTest ;;
            --recs) echo RecordsNPYTest ;;
-         --tracer) echo OTracerTest ;;
          --lookup) echo LookupTest ;;
-            --bnd) echo GBndLibTest ;;
        --itemlist) echo GItemListTest ;;
         --gsource) echo GSourceTest ;;
         --gsrclib) echo GSourceLibTest ;;
        --resource) echo OpticksResourceTest ;;
         --opticks) echo OpticksTest ;;
           --pybnd) echo GBndLibTest.py ;;
-            --mat) echo GMaterialLibTest ;;
              --mm) echo GMergedMeshTest ;;
         --testbox) echo GTestBoxTest ;;
          --geolib) echo GGeoLibTest ;;
@@ -45,7 +52,6 @@ oops-binary-name()
          --gmaker) echo GMakerTest ;;
             --pmt) echo GPmtTest ;;
            --attr) echo GAttrSeqTest ;;
-           --surf) echo GSurfaceLibTest ;;
          --tscint) echo GScintillatorLibTest ;;
          --oscint) echo OScintillatorLibTest ;;
           --flags) echo GFlagsTest ;;
@@ -60,18 +66,18 @@ oops-binary-name()
    esac 
 }
 
-oops-binary-desc()
+op-binary-desc()
 {
    case $1 in 
-         --tracer) echo "Fast launching OpenGL visualization and OptiX Ray tracing, BUT NO propagation : for simple geometry checking"  ;;
-            --mat) echo "Dump properties of material identified by 0-based index , eg oops --mat 0 " ;;
-           --surf) echo "Dump properties of surface identified by 0-based index , eg oops --surf 0 " ;;
+           --cfg4) echo "Geant4 comparison simulation of simple test geometries. Requires g4-export environment. " ;; 
+         --tracer) echo "Fast OpenGL viz and OptiX tracing, NO propagation. From ggeoview-/tests. Used for simple geometry/machinery checking"  ;;
+            --mat) echo "Dump properties of material identified by 0-based index , eg op --mat 0 " ;;
+           --surf) echo "Dump properties of surface identified by 0-based index , eg op --surf 0 " ;;
+            --bnd) echo "Dump boundaries of a geometry, eg op --bnd --jpmt " ;; 
    esac 
 }
 
-
-
-oops-geometry-name()
+op-geometry-name()
 {
    case $1 in 
        --dyb)  echo DYB ;; 
@@ -88,18 +94,18 @@ oops-geometry-name()
    esac
 }
 
-oops-geometry-setup()
+op-geometry-setup()
 {
     local geo=${OPTICKS_GEO:-DYB}
-    oops-geometry-unset 
+    op-geometry-unset 
     case $geo in 
-       DYB|IDYB|JDYB|KDYB|LDYB|MDYB) oops-geometry-setup-dyb  $geo  ;;
-                     JUNO|JPMT|JTST) oops-geometry-setup-juno $geo  ;;
-                          DPIB|DPMT) oops-geometry-setup-dpib $geo  ;;
+       DYB|IDYB|JDYB|KDYB|LDYB|MDYB) op-geometry-setup-dyb  $geo  ;;
+                     JUNO|JPMT|JTST) op-geometry-setup-juno $geo  ;;
+                          DPIB|DPMT) op-geometry-setup-dpib $geo  ;;
     esac
 }
 
-oops-geometry-query-dyb()
+op-geometry-query-dyb()
 {
     case $1 in 
         DYB)  echo "range:3153:12221"  ;;
@@ -112,16 +118,16 @@ oops-geometry-query-dyb()
     # range:3154:3155  SST  Stainless Steel/IWSWater not a good choice for an envelope, just get BULK_ABSORB without going anywhere
 }
 
-oops-geometry-setup-dyb()
+op-geometry-setup-dyb()
 {
     local geo=${1:-DYB}
     export OPTICKS_GEOKEY=DAE_NAME_DYB
-    export OPTICKS_QUERY=$(oops-geometry-query-dyb $geo) 
+    export OPTICKS_QUERY=$(op-geometry-query-dyb $geo) 
     export OPTICKS_CTRL="volnames"
     export OPTICKS_MESHFIX="iav,oav"
     export OPTICKS_MESHFIX_CFG="100,100,10,-0.999"   # face barycenter xyz alignment and dot face normal cuts for faces to be removed 
 }
-oops-geometry-setup-juno()
+op-geometry-setup-juno()
 {
    local geo=${1:-JPMT}
    if [ "$geo" == "JUNO" ]; then 
@@ -138,7 +144,7 @@ oops-geometry-setup-juno()
        export OPTICKS_CTRL=""
    fi
 }
-oops-geometry-setup-dpib()
+op-geometry-setup-dpib()
 {
    local geo=${1:-DPIB}
    if [ "$geo" == "DPIB" ]; then
@@ -151,7 +157,7 @@ oops-geometry-setup-dpib()
        export OPTICKS_CTRL=""
    fi 
 }
-oops-geometry-unset()
+op-geometry-unset()
 {
     unset OPTICKS_GEOKEY
     unset OPTICKS_QUERY 
@@ -161,24 +167,21 @@ oops-geometry-unset()
 }
 
 
-oops-binary-names(){ type oops-binary-name | perl -ne 'm,--(\w*)\), && print "$1\n" ' - ; } 
-oops-ohelp(){
+op-binary-names(){ type op-binary-name | perl -ne 'm,--(\w*)\), && print "$1\n" ' - ; } 
+op-help(){
    local cmd
    local bin
    local hlp
-   oops-binary-names | while read cmd ; do
-      bin=$(oops-binary-name "--$cmd")
-      desc=$(oops-binary-desc "--$cmd")
+   op-binary-names | while read cmd ; do
+      bin=$(op-binary-name "--$cmd")
+      desc=$(op-binary-desc "--$cmd")
       hlp=$(printf "%s (%s)" "$desc" $bin)  
       printf " %10s : %s \n" $cmd "$hlp"
    done
 }
 
 
-
-
-
-oops-cmdline-dump()
+op-cmdline-dump()
 {
     >&2 echo $0 $FUNCNAME
     local arg
@@ -187,11 +190,11 @@ oops-cmdline-dump()
        if [ "${arg/=}" == "${arg}" ]; then  
            >&2 printf "%s\n" $arg
        else
-           oops-dump _ $arg
+           op-dump _ $arg
        fi
     done
 }
-oops-dump(){
+op-dump(){
   local IFS="$1" ; shift  
   local elements
   read -ra elements <<< "$*" 
@@ -202,7 +205,7 @@ oops-dump(){
 }
 
 
-oops-cmdline-specials()
+op-cmdline-specials()
 {
    unset OPTICKS_DBG 
    unset OPTICKS_LOAD
@@ -219,7 +222,7 @@ oops-cmdline-specials()
    fi
 }
 
-oops-cmdline-binary-match()
+op-cmdline-binary-match()
 {
     local msg="=== $FUNCNAME : finds 1st argument with associated binary :"
     local arg
@@ -227,7 +230,7 @@ oops-cmdline-binary-match()
     unset OPTICKS_CMD
     for arg in $cmdline 
     do
-       bin=$(oops-binary-name $arg)
+       bin=$(op-binary-name $arg)
        #echo arg $arg bin $bin geo $geo 
        if [ "$bin" != "" ]; then 
            export OPTICKS_CMD=$arg
@@ -237,12 +240,12 @@ oops-cmdline-binary-match()
 }
 
 
-oops-binary-setup()
+op-binary-setup()
 {
     local msg="=== $FUNCNAME :"
     local cfm=$OPTICKS_CMD
-    local bin=$(oops-binary-name $cfm) 
-    local def=$(oops-binary-name-default)
+    local bin=$(op-binary-name $cfm) 
+    local def=$(op-binary-name-default)
 
     if [ "$bin" == "" ]; then
        bin=$def
@@ -259,7 +262,7 @@ oops-binary-setup()
 }
 
 
-oops-cmdline-geometry-match()
+op-cmdline-geometry-match()
 {
     local msg="=== $FUNCNAME : finds 1st argument with associated geometry :"
     local arg
@@ -267,7 +270,7 @@ oops-cmdline-geometry-match()
     unset OPTICKS_GEO
     for arg in $cmdline 
     do
-       geo=$(oops-geometry-name $arg)
+       geo=$(op-geometry-name $arg)
        #echo arg $arg geo $geo 
        if [ "$geo" != "" ]; then 
            export OPTICKS_GEO=$geo
@@ -277,31 +280,26 @@ oops-cmdline-geometry-match()
 }
 
 
-
-
-
-
-
-oops-cmdline-parse()
+op-cmdline-parse()
 {
-    #oops-cmdline-dump
-    oops-cmdline-specials
+    #op-cmdline-dump
+    op-cmdline-specials
 
-    oops-cmdline-binary-match
-    oops-cmdline-geometry-match
+    op-cmdline-binary-match
+    op-cmdline-geometry-match
 
-    oops-binary-setup
-    oops-geometry-setup
+    op-binary-setup
+    op-geometry-setup
 }
 
 
-oops-export()
+op-export()
 {
    export-
    export-export
 }
 
-oops-runline()
+op-runline()
 {
    local runline
    if [ "${OPTICKS_BINARY: -3}" == ".py" ]; then
@@ -312,30 +310,27 @@ oops-runline()
                *) runline="gdb  ${OPTICKS_BINARY} -- ${OPTICKS_ARGS} " ;;
       esac
    else
-      runline="${OPTICKS_BINARY} -- ${OPTICKS_ARGS}" 
+      runline="${OPTICKS_BINARY} ${OPTICKS_ARGS}" 
    fi
    echo $runline
 }
 
 
 
-
 opticks-
-oops-cmdline-parse
-runline=$(oops-runline)
-oops-export
+op-cmdline-parse
+runline=$(op-runline)
+op-export
 
 if [ "$sauce" == "1" ]; then
-   env | grep OPTICKS
    echo sauce detected : assume are debugging this script
-elif [ "${cmdline/--ohelp}" != "${cmdline}" ]; then
-   oops-ohelp
+elif [ "${cmdline/--ophelp}" != "${cmdline}" ]; then
+   op-help
 else
-   echo proceeding : $runline
+   >&2 ls -alst ${OPTICKS_BINARY}
+   env | >&2 grep OPTICKS
+   >&2 echo proceeding : $runline
    eval $runline
 fi 
-
-
-
 
 
