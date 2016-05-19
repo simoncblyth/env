@@ -17,6 +17,35 @@ From script usage::
    GDB=1 export.sh VGDX Far
 
 
+issue : not producing exports on G5 
+-------------------------------------------
+
+Seems to run but no files::
+
+    [blyth@ntugrid5 ~]$ export.sh VGDX DayaBay
+    === dyb-- : defining dyb function
+    === dyb-- : invoking "dyb dybgaudi"
+    #CMT> The tag ntu_tarurl is not used in any tag expression. Please check spelling
+    === dyb-- : invoking "dyb dybdbi"
+    #CMT> The tag ntu_tarurl is not used in any tag expression. Please check spelling
+    G4DAE_EXPORT_LOG=/home/blyth/local/env/geant4/geometry/export/DayaBay_VGDX_20160519-1934/export.log
+    G4DAE_EXPORT_SITE=DayaBay
+    G4DAE_EXPORT_DIR=/home/blyth/local/env/geant4/geometry/export/DayaBay_VGDX_20160519-1934
+    G4DAE_EXPORT_SEQUENCE=VGDX
+
+On D GDML symbols in libG4persistency.dylib::
+
+   simon:lib blyth$ nm libG4persistency.dylib | grep GDML | c++filt
+
+Huh on G5 no such lib, need DYBX perhaps::
+
+    blyth@ntugrid5 Linux-g++]$ l libG4pers*
+    ls: cannot access libG4pers*: No such file or directory
+    [blyth@ntugrid5 Linux-g++]$ pwd
+    /home/blyth/local/env/dyb/external/build/LCG/geant4.9.2.p01/lib/Linux-g++
+
+
+
 Relation of export-name to GCache idp dir 
 -------------------------------------------
 
@@ -128,8 +157,6 @@ Getting CerenkovStep/ScintillationStep files
     delta:~ blyth$ export-cerenkov-get | sh 
     1.npy                                                                                               100%  747KB 746.9KB/s   00:01    
      
-
-
 
 Administrator: Placing Exports
 -----------------------------------
