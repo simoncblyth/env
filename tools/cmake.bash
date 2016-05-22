@@ -40,6 +40,19 @@ Unit Tests
 * http://stackoverflow.com/questions/14446495/cmake-project-structure-with-unit-tests
 
 
+Experience : added test not running ? so touch tests/CMakeLists.txt
+----------------------------------------------------------------------
+
+Use of globbing in tests/CMakeLists.txt is convenient but sometimes
+results in new tests not being noticed by the build.  Force it 
+to be noticed the first time by touching the tests/CMakeLists.txt. 
+
+This is why use of globbing is not a good idea for the primary sources,
+but tis appropriate for tests as generally have lots of small sources
+so it makes sense.
+
+
+
 Experience
 ------------
 

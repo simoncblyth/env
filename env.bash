@@ -1714,3 +1714,4 @@ ggv-(){      . $(env-home)/graphics/ggeoview/ggv.bash && ggv-env $* ; }
 op-(){       . $(env-home)/bin/op.sh ; }
 
 
+lldb-(){      . $(env-home)/tools/lldb/lldb.bash && lldb-env $* ; }
