@@ -6,6 +6,15 @@ lldb-env(){      elocal- ; }
 lldb-usage(){ cat << EOU
 
 
+::
+
+    (lldb) br lis
+    (lldb) br dis 1
+    1 breakpoints disabled.
+    (lldb) br en 1
+    1 breakpoints enabled.
+
+
 
 
 

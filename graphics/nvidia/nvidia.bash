@@ -13,10 +13,19 @@ NVIDIA
 10 Series
 -----------
 
-Geforce GTX 1080, 1070
+
+Geforce GTX 1070
+~~~~~~~~~~~~~~~~~~~
+
+* http://www.anandtech.com/show/10336/nvidia-posts-full-geforce-gtx-1070-specs
+
+
+Geforce GTX 1080
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* https://developer.nvidia.com/introducing-nvidia-geforce-gtx-1080
 * http://www.geforce.com/hardware/10series/geforce-gtx-1080
+* http://international.download.nvidia.com/geforce-com/international/pdfs/GeForce_GTX_1080_Whitepaper_FINAL.pdf
 
 * 2560 CUDA cores
 * 8 GB GDDR5X

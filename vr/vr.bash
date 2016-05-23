@@ -14,11 +14,21 @@ VR Interface Dev Experience
 * https://www.youtube.com/watch?v=_vqNpZqnl1o&index=27&list=PLckFgM6dUP2hc4iy-IdKFtqR9TeZWMPjm
 
 
+
+
+
+
 VR SDKs
 --------
 
 * NVIDIA VRWorks
 * http://www.pcgamer.com/amd-liquidvr-vs-nvidia-vrworks-the-sdk-wars/
+
+
+VR System Requirements from NVIDIA
+-----------------------------------
+
+* http://www.geforce.com/hardware/technology/vr/system-requirements
 
 
 HTC Vive Requirements
