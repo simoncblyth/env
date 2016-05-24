@@ -82,6 +82,25 @@ Clone took more than 5 mins::
     [blyth@ntugrid5 ~]$ 
 
 
+Start with new Windows/NSYS2 node
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After NSYS2 and env setup::
+
+  ssh--keygen  # enter passphase and document it in normal place
+
+  cat id_rsa.pub | clip    # clip is windows equivalent of pbcopy
+
+  login to bitbucket web interface using windows chrome browser
+ 
+  right click paste into the web form for the key
+
+  
+  
+
+ 
+
+
 Passwordless Operations
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
