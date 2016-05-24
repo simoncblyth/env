@@ -326,6 +326,7 @@ local-nodetag(){
        hgpu01) echo G1  ;;
      lxslc506) echo L6  ;;
      lxslc5??) echo LX  ;;
+     ntuhep-PC) echo M ;;
             *) local-nodetag-other $(uname -n) ;;
   esac
 
