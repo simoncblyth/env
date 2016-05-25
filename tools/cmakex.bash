@@ -53,6 +53,22 @@ CTest
 Testing machinery operational with very little effort.
 
 
+Run Scripts as tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* eg pmt_test_distrib.py validation histo comparisons 
+
+* http://stackoverflow.com/questions/25627336/integrate-bash-test-scripts-in-cmake
+
+::
+
+    find_program (BASH_PROGRAM bash)
+    if (BASH_PROGRAM)
+      add_test (mytest ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/script.sh)
+    endif (BASH_PROGRAM)
+
+
+
 Issue : environment for tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
