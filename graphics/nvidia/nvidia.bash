@@ -27,6 +27,8 @@ Geforce GTX 1080
 * http://www.geforce.com/hardware/10series/geforce-gtx-1080
 * http://international.download.nvidia.com/geforce-com/international/pdfs/GeForce_GTX_1080_Whitepaper_FINAL.pdf
 
+* http://arstechnica.co.uk/gadgets/2016/05/nvidia-gtx-1080-1070-pascal-specs-price-release-date/
+
 * 2560 CUDA cores
 * 8 GB GDDR5X
 * OpenGL 4.5
