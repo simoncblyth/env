@@ -14,10 +14,6 @@ VR Interface Dev Experience
 * https://www.youtube.com/watch?v=_vqNpZqnl1o&index=27&list=PLckFgM6dUP2hc4iy-IdKFtqR9TeZWMPjm
 
 
-
-
-
-
 VR SDKs
 --------
 
@@ -25,19 +21,44 @@ VR SDKs
 * http://www.pcgamer.com/amd-liquidvr-vs-nvidia-vrworks-the-sdk-wars/
 
 
-VR System Requirements from NVIDIA
+GTX 1080 specs
+---------------
+
+* http://www.geforce.com/hardware/10series/geforce-gtx-1080
+
+Graphics Card Dimensions:
+
+ 4.376" Height
+ 10.5" Length
+2-Slot Width
+
+Thermal and Power Specs:
+   94  Maximum GPU Temperature (in C)
+ 180W  Graphics Card Power (W)
+ 500W  Recommended System Power (W)3
+8-Pin  Supplementary Power Connectors
+
+
+VR System Requirements from NVIDIA 
 -----------------------------------
 
 * http://www.geforce.com/hardware/technology/vr/system-requirements
 
+GPU: NVIDIA GeForce GTX 970 or greater
+CPU: Intel Core i5-4590 equivalent or greater
+Memory/RAM: 8GB+ RAM
+Video Output: 1x HDMI 1.3
+Ports: 3x USB 3.0
+OS: Windows 7 SP1 (64bit) or higher
+Driver: GeForce 359 or newer
 
 HTC Vive Requirements
 ----------------------
 
-RECOMMENDED PC SPECS
+* https://www.htcvive.com/us/product-optimized/
 
-GPU: NVIDIA GeForce® GTX 970 / AMD Radeon™ R9 290 equivalent or greater
-CPU: Intel i5-4590 / AMD FX 8350 equivalent or greater   
+GPU: NVIDIA GeForce® GTX 970 or greater
+CPU: Intel i5-4590 or greater   
 RAM: 4GB+
 Video Output: HDMI 1.4 or DisplayPort 1.2 or newer
 USB Port: 1x USB 2.0 or greater port
