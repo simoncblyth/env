@@ -17,6 +17,9 @@ which requires to go thru the Cygwin dll.
 * http://stackoverflow.com/questions/25019057/how-are-msys-msys2-and-msysgit-related-to-each-other
 * http://www.davidegrayson.com/windev/msys2/
 
+* http://www.mingw.org describes "predecessor" : MSYS
+
+
 * https://sourceforge.net/p/msys2/wiki/Home/
 
 Introduction
