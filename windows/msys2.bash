@@ -103,7 +103,13 @@ Having to add the mingw-w64-.. prefix is kind of strange, but
 you get used to it.
 
 
+runtime PATH
+----------------
 
+Windows treats dll like binaries, for running of .exe to find their
+dlls either have to copy the .exe and .dll into the directory with
+the dll they depend on or must set PATH. 
+It seems windows has no concept of RPATH.
 
 
 
@@ -111,8 +117,46 @@ EOU
 }
 msys2-dir(){ echo $(local-base)/env/windows/windows-msys2 ; }
 msys2-cd(){  cd $(msys2-dir); }
-msys2-mate(){ mate $(msys2-dir) ; }
-msys2-get(){
-   local dir=$(dirname $(msys2-dir)) &&  mkdir -p $dir && cd $dir
 
+msys2-orig-path-(){ cat << EOP
+/mingw64/bin
+/home/ntuhep/env/bin
+/usr/local/bin
+/usr/bin
+/bin
+/c/Windows/System32
+/c/Windows
+/c/Windows/System32/Wbem
+/c/Windows/System32/WindowsPowerShell/v1.0/
+/usr/bin/site_perl
+/usr/bin/vendor_perl
+/usr/bin/core_perl
+EOP
 }
+
+msys2-test-path-(){ cat << EOP
+/mingw64/bin
+/usr/local/opticks/bin
+/usr/local/opticks/lib
+/home/ntuhep/env/bin
+/usr/local/bin
+/usr/bin
+/bin
+/c/Windows/System32
+/c/Windows
+/c/Windows/System32/Wbem
+/c/Windows/System32/WindowsPowerShell/v1.0/
+EOP
+}
+
+msys2-path(){
+   local name=${1:-orig} 
+   local path="$(echo $(msys2-${name}-path-))"
+   echo ${path// /:}
+}
+
+msys2-export()
+{
+   export PATH=$(msys2-path ${1:-test})
+}
+

@@ -12,6 +12,14 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+Windows MSYS2 Arrow keys
+-------------------------
+
+Arrow keys introduce funny chars in insert mode unless you use::
+
+   :set term=builtin_ansi
+
+
 Tabulating text with aligned columns
 --------------------------------------
 
@@ -67,8 +75,24 @@ EOU
 }
 vim-dir(){ echo $(local-base)/env/base/vim/base/vim-vim ; }
 vim-cd(){  cd $(vim-dir); }
-vim-mate(){ mate $(vim-dir) ; }
-vim-get(){
-   local dir=$(dirname $(vim-dir)) &&  mkdir -p $dir && cd $dir
 
+
+vim-vimrc(){ cat << EOR
+syntax on
+
+set nu
+set paste
+
+set smartindent
+set tabstop=4
+set shiftwidth=4
+set expandtab
+
+set term=builtin_ansi
+
+EOR
 }
+
+
+
+
