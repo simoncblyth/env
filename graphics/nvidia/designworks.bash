@@ -8,6 +8,10 @@ designworks-usage(){ cat << EOU
 NVIDIA Designworks
 ====================
 
+* https://developer.nvidia.com/designworks
+
+* Uses common NVIDIA Registered developer login
+
 
 Solutions for creating realistic images using ray tracing, or real time rendering techniques with OpenGL®, DirectX®, or Vulkan™
 
