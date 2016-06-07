@@ -36,7 +36,6 @@ Geforce GTX 1080
 * Recommended System Power : 500 W
 
 
-
 * GTX 1080 599 USD  May 27   
 * GTX 1070 380 USD  June 10
 
@@ -45,6 +44,18 @@ Computex  May 31 - June 4
 ----------------------------
 
 * https://www.computextaipei.com.tw/en_US/member/visitor/preregister.html
+
+
+Ancient GPU On M : GeForce 8400 GS (Version 341.95)
+----------------------------------------------------
+
+* https://en.wikipedia.org/wiki/List_of_Nvidia_graphics_processing_units#GeForce_8_.288xxx.29_Series
+* https://en.wikipedia.org/wiki/GeForce_8_series
+
+  Note discrepancies in above sources.
+
+  June 15, 2007
+  Suggests OpenGL 3.3 capable
 
 
 Graphics on Tesla GPUs 
