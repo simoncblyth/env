@@ -758,6 +758,27 @@ EOT
 }
 
 
+export-copy-()
+{
+   local dest=$HOME/opticksdata/export
+   local base=$(export-home)
+   local path
+   local dpath
+   local rel
+   local cmd
+   find $base -name 'g4_00.dae' | while read path 
+   do
+      rel=${path/$base\/}
+      dpath=$dest/$rel 
+      ddir=$(dirname $dpath)
+      [ ! -d "$ddir" ] && echo mkdir -p $ddir
+      [ ! -f "$dpath" ] && echo cp $path $dpath
+   done   
+
+
+}  
+
+
 
 #export-main $*
 

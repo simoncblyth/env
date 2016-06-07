@@ -1717,3 +1717,4 @@ lldb-(){      . $(env-home)/tools/lldb/lldb.bash && lldb-env $* ; }
 vrworks-(){      . $(env-home)/vr/vrworks/vrworks.bash && vrworks-env $* ; }
 opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $* ; }
 designworks-(){      . $(env-home)/graphics/nvidia/designworks.bash && designworks-env $* ; }
+opticksdata-(){      . $(env-home)/opticksdata.bash && opticksdata-env $* ; }

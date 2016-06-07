@@ -55,6 +55,32 @@ Upload Mercurial repo to bitbucket
 #. add a README.rst at top level in bitbucket dialect reStructuredText
 
 
+Create empty opticksdata repo
+------------------------------
+
+* create in bitbucket web interface, "Repositories > Create New" naming it opticksdata
+* clone the empty repo into home ::
+
+    simon:~ blyth$ hg clone ssh://hg@bitbucket.org/simoncblyth/opticksdata
+    Enter passphrase for key '/Users/blyth/.ssh/id_rsa': 
+    destination directory: opticksdata
+    no changes found
+    updating to branch default
+    0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+
+    simon:~ blyth$ ll opticksdata/
+    total 0
+    drwxr-xr-x    6 blyth  staff   204 Jun  7 19:57 .hg
+    drwxr-xr-x@ 137 blyth  staff  4658 Jun  7 19:57 ..
+    drwxr-xr-x    3 blyth  staff   102 Jun  7 19:57 .
+
+    simon:~ blyth$ cat opticksdata/.hg/hgrc 
+    [paths]
+    default = ssh://hg@bitbucket.org/simoncblyth/opticksdata
+
+
+
+
 Draft Commits Showing in Bitbucket web interface
 --------------------------------------------------
 
