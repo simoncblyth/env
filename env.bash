@@ -709,7 +709,7 @@ env-env(){
   cd $(env-home)
  
   base-  
-  svn-
+  #svn-
  
   PATH=$(env-home)/bin:$PATH
  
