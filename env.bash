@@ -1606,7 +1606,6 @@ asiozmq-(){      . $(env-home)/network/asiozmq/asiozmq.bash && asiozmq-env $* ; 
 asiozmqtest-(){      . $(env-home)/network/asiozmqtest/asiozmqtest.bash && asiozmqtest-env $* ; }
 azmq-(){      . $(env-home)/network/azmq/azmq.bash && azmq-env $* ; }
 asiosamples-(){      . $(env-home)/boost/basio/asiosamples/asiosamples.bash && asiosamples-env $* ; }
-bcfg-(){      . $(env-home)/boost/bpo/bcfg/bcfg.bash && bcfg-env $* ; }
 bcfgtest-(){  . $(env-home)/boost/bpo/bcfg/test/bcfgtest.bash && bcfgtest-env $* ; }
 optixrap-(){      . $(env-home)/graphics/optixrap/optixrap.bash && optixrap-env $* ; }
 hrt-(){      . $(env-home)/graphics/hybrid-rendering-thesis/hrt.bash && hrt-env $* ; }
@@ -1633,6 +1632,7 @@ imgui-(){      . $(env-home)/graphics/gui/imgui/imgui.bash && imgui-env $* ; }
 imguitest-(){      . $(env-home)/graphics/gui/imguitest/imguitest.bash && imguitest-env $* ; }
 g4op-(){      . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
 bregex-(){      . $(env-home)/boost/bregex/bregex.bash && bregex-env $* ; }
+bcfg-(){        . $(env-home)/boost/bregex/bcfg.bash && bcfg-env $* ; }
 ispm-(){      . $(env-home)/graphics/ispm/ispm.bash && ispm-env $* ; }
 thrust-(){      . $(env-home)/numerics/thrust/thrust.bash && thrust-env $* ; }
 thrusthello-(){      . $(env-home)/numerics/thrust/hello/thrusthello.bash && thrusthello-env $* ; }
