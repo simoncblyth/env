@@ -83,6 +83,14 @@ Issues
 gdb : no stack
 ~~~~~~~~~~~~~~~~
 
+Asserts are not trapped, so end up with no stack.
+
+* http://stackoverflow.com/questions/2705442/debugging-mingw-program-with-gdb-on-windows-not-terminating-at-assert-failure
+
+Try breakpointing exit, add to .gdbinit file with the lines:
+
+   set breakpoint pending on
+   b exit
 
 
 
