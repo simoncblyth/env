@@ -76,6 +76,12 @@ Steps::
    pacman -S mingw-w64-x86_64-python2-numpy
    pacman -S mingw-w64-x86_64-python2-ipython 
 
+   # for g4 and g4dae
+   pacman -S mingw-w64-x86_64-xerces-c 
+
+
+
+
 
 Issues
 --------
