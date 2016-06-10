@@ -1722,3 +1722,5 @@ designworks-(){      . $(env-home)/graphics/nvidia/designworks.bash && designwor
 opticksdata-(){      . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
 optickswin-(){      . $(env-home)/./optickswin.bash && optickswin-env $* ; }
 g4win-(){      . $(env-home)/g4/g4win.bash && g4win-env $* ; }
+chocolatey-(){      . $(env-home)/windows/chocolatey.bash && chocolatey-env $* ; }
+powershell-(){      . $(env-home)/windows/powershell.bash && powershell-env $* ; }
