@@ -1721,3 +1721,4 @@ opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $
 designworks-(){      . $(env-home)/graphics/nvidia/designworks.bash && designworks-env $* ; }
 opticksdata-(){      . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
 optickswin-(){      . $(env-home)/./optickswin.bash && optickswin-env $* ; }
+g4win-(){      . $(env-home)/g4/g4win.bash && g4win-env $* ; }

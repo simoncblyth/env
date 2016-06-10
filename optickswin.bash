@@ -8,8 +8,8 @@ Opticks Windows Port Notes
 ============================
 
 
-Windows 7 MSYS2 build
------------------------
+Windows 7 MSYS2/MinGW build
+------------------------------
 
 Steps::
   
@@ -79,6 +79,39 @@ Steps::
    # for g4 and g4dae
    pacman -S mingw-w64-x86_64-xerces-c 
 
+   # g4 compilation fails at 4% with genwindef.cpp 
+   # MinGW compiler is not supported for g4 
+   # for details see g4win-
+
+
+
+Fork in road : how to proceed
+--------------------------------
+
+
+
+
+::
+
+
+    ntuhep@ntuhep-PC MINGW64 /usr/local/opticks/externals/g4
+    $ cmake -G
+    CMake Error: No generator specified for -G
+
+    Generators
+      Visual Studio 14 2015 [arch] = Generates Visual Studio 2015 project files.
+                                     Optional [arch] can be "Win64" or "ARM".
+      Visual Studio 12 2013 [arch] = Generates Visual Studio 2013 project files.
+                                     Optional [arch] can be "Win64" or "ARM".
+      ...
+      NMake Makefiles              = Generates NMake makefiles.
+      NMake Makefiles JOM          = Generates JOM makefiles.
+      ...
+      MSYS Makefiles               = Generates MSYS makefiles.
+      MinGW Makefiles              = Generates a make file for use with
+                                     mingw32-make.
+      Unix Makefiles               = Generates standard UNIX makefiles.
+
 
 
 
@@ -97,6 +130,10 @@ Try breakpointing exit, add to .gdbinit file with the lines:
 
    set breakpoint pending on
    b exit
+
+
+
+
 
 
 
