@@ -1720,7 +1720,10 @@ vrworks-(){      . $(env-home)/vr/vrworks/vrworks.bash && vrworks-env $* ; }
 opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $* ; }
 designworks-(){      . $(env-home)/graphics/nvidia/designworks.bash && designworks-env $* ; }
 opticksdata-(){      . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
-optickswin-(){      . $(env-home)/./optickswin.bash && optickswin-env $* ; }
+optickswin-(){      . $(env-home)/optickswin.bash && optickswin-env $* ; }
+opticks-failed-build-(){  . $(env-home)/opticks-failed-build.bash ; }
+opticksdev-(){  . $(env-home)/opticksdev.bash ; }
 g4win-(){      . $(env-home)/g4/g4win.bash && g4win-env $* ; }
+vs-(){      . $(env-home)/windows/vs/vs.bash && vs-env $* ; }
 chocolatey-(){      . $(env-home)/windows/chocolatey.bash && chocolatey-env $* ; }
 powershell-(){      . $(env-home)/windows/powershell.bash && powershell-env $* ; }

@@ -84,12 +84,38 @@ Steps::
    # for details see g4win-
 
 
+C Wrappers for linking MSVC and MinGW dll, exe ?
+--------------------------------------------------------------------
 
-Fork in road : how to proceed
---------------------------------
+Maybe possible, but not really an integrated solution, or sustainable approach.
+
+* http://stackoverflow.com/questions/2045774/developing-c-wrapper-api-for-object-oriented-c-code
+
+mixed linking
+~~~~~~~~~~~~~~
+
+* http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/
+
+::
+
+    cmake -G "Visual Studio 12 2013" .
+    cmake --build . --target ALL_BUILD --config Release
 
 
+If the DLL is written in C it can be linked even with applications written in
+C++. DLLs written in C++ work too, as long as you expose its symbols through a
+C interface declared with extern “C”. Extern “C” makes a function-name in C++
+have ‘C’ linkage and no compiler specific name mangling is applied. For C++
+classes this means you have to make some kind of “C wrapper” and expose those
+functions declared with extern “C”. 
 
+
+Other CMake generators 
+-------------------------
+
+CMake has lots of other generators besides the "MSYS Makefiles" which have been using.
+But that route would be a Franken-install, as 
+would require uses to install NSYS2 et al + Visual Studio ...  
 
 ::
 
@@ -111,6 +137,34 @@ Fork in road : how to proceed
       MinGW Makefiles              = Generates a make file for use with
                                      mingw32-make.
       Unix Makefiles               = Generates standard UNIX makefiles.
+
+
+
+MSVC cmd.exe or Powershell build
+---------------------------------
+
+Unfamiliar landscape, lacking tools like:
+
+* bash, pacman, curl, hg, git, zip, cmake,  ...
+
+
+Building a windows toolchain
+------------------------------
+
+Need to learn new approach. How do windows devs do installations ?
+
+* http://social.technet.microsoft.com/wiki/contents/articles/21016.how-to-install-windows-powershell-4-0.aspx
+
+Windows Management Framework includes Windows PowerShell
+
+
+MSVC : Microsoft Visual Studio 2015 Community Edition
+--------------------------------------------------------
+
+* requires as least Windows 7 SP1
+* need to sign up for Microsoft Account to use it 
+
+* has support for git
 
 
 
