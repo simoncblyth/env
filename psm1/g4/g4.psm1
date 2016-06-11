@@ -1,15 +1,12 @@
-. $(opticks-src)
 
-function g4- { Write-Host "Sourcing $(g4-src)" ; . $(g4-src) }
-function g4-src { return "${env:homepath}\env\windows\powershell\g4.ps1" }
-function g4-sdir0 { return $(Split-Path -parent $(g4-src)) }
-function g4-sdir{ return [io.path]::GetDirectoryName($(g4-src))  }
+Import-Module opticks -DisableNameChecking
 
 
+function g4-src { "${env:userprofile}\env\psm1\g4\g4.psm1" }
+function g4-sdir{ [io.path]::GetDirectoryName($(g4-src))  }
 function g4-vi{   vim $(g4-src) }
 function g4-check { Write-Host "check" }
 function g4-usage { Write-Host @"
-
 
 To update these functions in callers powershell use the
 below, seems doing that in above g4- function 
@@ -24,19 +21,18 @@ Develop function with::
 "@ }
 
 
-function g4-dir { return "$(opticks-prefix)\externals\g4\$(g4-name)" }
-function g4-fold{ return [io.path]::GetDirectoryName($(g4-dir))  }
+function g4-dir { "$(opticks-prefix)\externals\g4\$(g4-name)" }
+function g4-fold{ [io.path]::GetDirectoryName($(g4-dir))  }
 
-function g4-name{ return "geant4_10_02_p01" }
-function g4-url{  return "http://geant4.cern.ch/support/source/$(g4-name).zip" }
+function g4-name{ "geant4_10_02_p01" }
+function g4-url{  "http://geant4.cern.ch/support/source/$(g4-name).zip" }
 
 function g4-scd{ cd $(g4-sdir)  }
 function g4-cd{  cd $(g4-dir)  }
 function g4-fcd{ cd $(g4-fold) }
 
-function g4-nam{  return ([System.Uri]$(g4-url)).Segments[-1] }
-function g4-zip{  return [io.path]::combine($(g4-fold), $(g4-nam)) }
-
+function g4-nam{  ([System.Uri]$(g4-url)).Segments[-1] }
+function g4-zip{  [io.path]::combine($(g4-fold), $(g4-nam)) }
 
 function g4-get
 {
@@ -69,22 +65,21 @@ function g4-get
        $archive = $shell.namespace("C:$zip")
        $dest = $shell.namespace("C:$fold")
 
-       foreach ($item in $archive.items())
-       {
-          Write-Host "Extracting $item"
-          $dest.CopyHere($item)
-       }
+       #foreach ($item in $archive.items())
+       #{
+       #   Write-Host "Extracting $item"
+       #   $dest.CopyHere($item)
+       #}
+
+       $dest.CopyHere($archive.items())
+
    }
    else
    {
        Write-Host "Already extracted zip $zip into $dir "
    }
-
 }
 
 
-
-
-
-
+Export-ModuleMember -Function "g4-*"
 

@@ -1,3 +1,4 @@
+function clui-src{ "${env:homepath}\env\psm1\clui\clui.psm1" }
 function clui-usage{  echo @"
 
 
@@ -22,8 +23,13 @@ function clui-which
     $c.Definition
 }
 
-function clui-src{ "${env:homepath}\env\windows\powershell\clui.ps1" }
 function clui-vi{  vim $(clui-src) }
+function clui-vip{  vim $profile }
+
+
+function clui-script{ $MyInvocation.MyCommand.Path }
+
+
 
 function clui-path
 {
@@ -70,6 +76,25 @@ function clui-git-bash-run{ & $(clui-git-bash) }
 
 
 
+function clui-append-psmodulepath {
+   param([string]$abspath)
+
+   $p = ${env:psmodulepath}
+   $p += ";$abspath"
+   ${env:PSModulePath} = $p
+
+   #$p = [Environment]::GetEnvironmentVariable("PSModulePath")
+   #[Environment]::SetEnvironmentVariable("PSModulePath",$p)
+}
+
+
+New-Alias which clui-which
+New-Alias vi $(clui-which vim)
+New-Alias gitbash clui-git-bash-run
+New-Alias vip clui-vip
+
+
+Export-ModuleMember -Function "clui-*"  -Alias *
 
 
 

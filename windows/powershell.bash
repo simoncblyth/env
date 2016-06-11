@@ -33,6 +33,14 @@ Windows copy/paste
 * select then copy: ctrl-c
 * paste : shift-insert
 
+Powershell copy/paste
+------------------------
+
+* select the text, then right-click to copy to clipboard
+* paste clipboard with another right click (when into vim window get into insert mode first)
+
+
+
 Update ?
 -----------
 
