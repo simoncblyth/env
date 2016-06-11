@@ -8,6 +8,14 @@ powershell-usage(){ cat << EOU
 Windows Powershell
 =======================
 
+
+Refs
+------
+
+* https://www.simple-talk.com/dotnet/.net-tools/further-down-the-rabbit-hole-powershell-modules-and-encapsulation/
+
+
+
 PsGet : shared modules
 ------------------------
 

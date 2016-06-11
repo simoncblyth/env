@@ -11,8 +11,27 @@ clui-open .\ReadMe.html
   # open in chrome   
 
 
+
 "@
 }
+
+
+function clui-profile-example{ echo @'
+
+$oldhome = "C:\msys64\home\ntuhep"
+
+$env:PSModulePath += ";${env:userprofile}\env\psm1\"
+
+Import-Module clui    -DisableNameChecking
+Import-Module opticks -DisableNameChecking
+Import-Module g4      -DisableNameChecking
+
+'@
+}
+
+
+
+
 
 function clui-which
 {
@@ -92,6 +111,8 @@ New-Alias which clui-which
 New-Alias vi $(clui-which vim)
 New-Alias gitbash clui-git-bash-run
 New-Alias vip clui-vip
+New-Alias open clui-open
+
 
 
 Export-ModuleMember -Function "clui-*"  -Alias *

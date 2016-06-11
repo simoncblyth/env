@@ -8,6 +8,24 @@ vs-usage(){ cat << \EOU
 Microsoft Visual Studio 2015 Community Edition
 ================================================
 
+
+VS Versions
+-------------
+
+xerces-c 3.1.3 comes with various .sln files 
+corresponding to different visual C++ compilers 
+that come with various versions of visual studio
+
+Unfortunately the lastest is for VC12, not VC14::
+
+   VC14  Visual Studio 2015
+   VC12  Visual Studio 2013
+   VC11  Visual Studio 2012
+   VC10  Visual Studio 2010
+
+
+
+
 Windows Development Environment
 ---------------------------------
 
@@ -47,7 +65,6 @@ Run cmd.exe as administrator
 * Start > All Programs > Accessories
 * Right click "Command Prompt" and choose "Run as administrator" answer Y to user access control question, 
 * this gets to a prompt that looks exactly like non-admin one
-
 
 
 
