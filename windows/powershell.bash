@@ -8,6 +8,33 @@ powershell-usage(){ cat << EOU
 Windows Powershell
 =======================
 
+PsGet : shared modules
+------------------------
+
+* http://psget.net/  
+* https://github.com/psget/psget/
+* https://github.com/chaliy/psurl/blob/master/PsUrl/PsUrl.psm1
+* https://github.com/ligershark/psbuild
+
+ps1 script examples
+---------------------
+
+Pre-requisite installer
+
+* https://github.com/gadgetron/gadgetron/blob/master/doc/windows_installation/GadgetronWindowsInstallation.ps1
+
+Choco install
+
+* https://chocolatey.org/install.ps1
+
+Windows copy/paste
+---------------------
+
+* select then copy: ctrl-c
+* paste : shift-insert
+
+Update ?
+-----------
 
 There are choco pkgs powershell and powershell4 for 
 windows management framework 5.0 and 4.0.
@@ -16,17 +43,8 @@ But maybe should try the v2 that comes with Windows7 SP1 first
 * https://chocolatey.org/packages/PowerShell
 * https://chocolatey.org/packages/powershell4
 
-
-Windows copy/paste
----------------------
-
-* select then copy: ctrl-c
-* paste : shift-insert
-
-
-Allow runing scripts
+Allow running scripts
 ----------------------
-
 
 ::
 
@@ -35,18 +53,16 @@ Allow runing scripts
    get-host  # find version of powershell
 
 
-HW
-----
+Hello World Powershell
+-----------------------
 
 ::
-
 
     PS C:\Users\ntuhep\env\windows\powershell> type hello.ps1
     Write-Host "Hello World"
 
     PS C:\Users\ntuhep\env\windows\powershell> & .\hello.ps1
     Hello World
-
 
 
 Create Profile

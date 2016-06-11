@@ -95,10 +95,40 @@ After NSYS2 and env setup::
  
   right click paste into the web form for the key
 
-  
-  
 
- 
+Switch default path from http to ssh
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After cloning over http the env/.hg/hgrc defaults to http, switch that to ssh::
+
+   [paths]
+   #default = http://bitbucket.org/simoncblyth/env
+   default = ssh://hg@bitbucket.org/simoncblyth/env
+
+Also check that ~/.hgrc contains::
+
+  [ui]
+  username = Simon Blyth <simoncblyth@gmail.com>
+  ssh = ssh -C
+
+
+SSH Setup on windows
+~~~~~~~~~~~~~~~~~~~~~
+
+* https://confluence.atlassian.com/bitbucket/set-up-ssh-for-mercurial-728138122.html
+* https://confluence.atlassian.com/bitbucket/set-up-ssh-for-git-728138079.html 
+
+Bitbucket/Mercurial instructions entail installing putty and diddling with
+other GUI type applications, nasty.  
+
+Bitbucket/Git instructions use the git bash shell that comes with git-for-windows, so 
+do the ssh setup using the git-for-windows approach and can then use the keys 
+for mercurial. 
+
+This succeeds to provide passwordless push/pull from gitbash, but not from powershell. Get::
+
+   remote: 'ssh' is not recognized as an internal or external command
+
 
 
 Passwordless Operations
