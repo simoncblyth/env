@@ -1727,3 +1727,6 @@ g4win-(){      . $(env-home)/g4/g4win.bash && g4win-env $* ; }
 vs-(){      . $(env-home)/windows/vs/vs.bash && vs-env $* ; }
 chocolatey-(){      . $(env-home)/windows/chocolatey.bash && chocolatey-env $* ; }
 powershell-(){      . $(env-home)/windows/powershell.bash && powershell-env $* ; }
+nuget-(){      . $(env-home)/windows/nuget.bash && nuget-env $* ; }
+ome-(){      . $(env-home)/windows/ome/ome.bash && ome-env $* ; }
+msbuild-(){      . $(env-home)/windows/msbuild/msbuild.bash && msbuild-env $* ; }

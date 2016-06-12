@@ -33,6 +33,25 @@ Best Docs encountered
 
 * https://cmake.org/Wiki/CMake:How_To_Find_Libraries
 
+Converting autotools to CMake ?
+---------------------------------
+
+Advice for how to convert, not easy.
+
+* http://stackoverflow.com/questions/7132862/tutorial-for-converting-autotools-to-cmake
+* http://www.vtk.org/Wiki/CMake#Converters_from_other_buildsystems_to_CMake
+* https://sourceforge.net/p/vcproj2cmake/code/
+
+Powershell parse vcproj XML and spit out simple CMakeLists.txt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://nberserk.blogspot.tw/2010/11/converting-vc-projectsvcproj-to.html
+
+supports only VS2005 
+* https://github.com/nberserk/common/blob/master/vcproj2cmake.ps1
+
+
+
 Unit Tests 
 ------------
 

@@ -8,6 +8,37 @@ Opticks Windows Port Notes
 ============================
 
 
+Windows 7 Visual Studio 2015 prospects
+----------------------------------------
+
+
+
+
+To be usable on Either the project needs to provide
+
+* binaries
+* .sln files
+* 
+
+
+
+
+=====================  ===============  =============   ==============================================================================
+directory              precursor        pkg name        notes
+=====================  ===============  =============   ==============================================================================
+graphics/assimp        assimp-          Assimp           
+graphics/openmesh      openmesh-        OpenMesh        www.openmesh.org OpenMesh 4.1 tarball, cmake configured, provides VS2015 binaries http://www.openmesh.org/download/
+graphics/glm           glm-             GLM             sourceforge tarball 0.9.6.3, header only
+graphics/glew          glew-            GLEW            sourceforge tarball 1.12.0, OpenGL extensions loading library, cmake build didnt work, includes vc12 sln for windows
+graphics/glfw          glfw-            GLFW            sourceforge tarball 3.1.1, library for creating windows with OpenGL and receiving input, cmake generation    
+graphics/gleq          gleq-            GLEQ            github.com/simoncblyth/gleq : GLFW author event handling example, header only
+graphics/gui/imgui     imgui-                           github.com/simoncblyth/imgui expected to drop source into using project, simple CMakeLists.txt added by me
+=====================  ===============  =============   ==============================================================================
+
+
+
+
+
 Windows 7 MSYS2/MinGW build
 ------------------------------
 
