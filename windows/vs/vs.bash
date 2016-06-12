@@ -8,6 +8,16 @@ vs-usage(){ cat << \EOU
 Microsoft Visual Studio 2015 Community Edition
 ================================================
 
+Installation
+--------------
+
+C++ tools like the compiler cl.exe and vcvarsall.bat 
+are not included as standard, need to do a custom install OR do 
+an update as noted in the below.
+
+* https://blogs.msdn.microsoft.com/vcblog/2015/07/24/setup-changes-in-visual-studio-2015-affecting-c-developers/
+
+
 VS Versions
 -------------
 
@@ -122,6 +132,38 @@ powershell git : posh-git
 * https://github.com/dahlbyk/posh-git
 
 
+developer command prompt
+----------------------------
+
+From Start search for "Developer Command Prompt for VS2015"
+
+Unfortunately thats not powershell. but can setup env::
+
+
+    PS C:\Check2> cd $env:VS140COMNTOOLS/../../VC/bin
+    PS C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin> ls
+
+
+        Directory: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin
+
+
+    Mode                LastWriteTime     Length Name
+    ----                -------------     ------ ----
+    d----         6/12/2016   1:02 AM            1033
+    d----         6/12/2016   1:00 AM            amd64
+    d----         6/12/2016   1:02 AM            amd64_arm
+    d----         6/12/2016   1:02 AM            amd64_x86
+    d----         6/12/2016   1:02 AM            arm
+    d----         6/12/2016   1:02 AM            x86_amd64
+    d----         6/12/2016   1:02 AM            x86_arm
+    -ar--         3/17/2016  10:48 PM     174904 atlprov.dll
+    -ar--         3/17/2016  10:48 PM      92832 bscmake.exe
+    -ar--         3/17/2016  10:48 PM    1182496 c1.dll
+    -ar--         3/17/2016  10:48 PM    3970344 c1xx.dll
+    -ar--         3/17/2016  10:48 PM    5192992 c2.dll
+    -ar--         3/17/2016  10:48 PM     190096 cl.exe
+    -ar--         3/17/2016  10:12 PM        409 cl.exe.config
+
 
 
 EOU
@@ -133,3 +175,8 @@ vs-get(){
    local dir=$(dirname $(vs-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+
+vs-bindir(){ echo "/c/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin" ; }
+vs-bincd(){ cd "$(vs-bindir)" ; }
+

@@ -59,7 +59,7 @@ function clui-path
 function clui-find
 {
    param([string]$ptn = "*ssh*" )
-   Get-ChildItem $pwd -Recurse -Filter $ptn
+   Get-ChildItem $pwd -Recurse -Filter "$ptn"
 }
 
 function clui-regs

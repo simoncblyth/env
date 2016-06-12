@@ -3,7 +3,7 @@ ome-src(){      echo windows/ome/ome.bash ; }
 ome-source(){   echo ${BASH_SOURCE:-$(env-home)/$(ome-src)} ; }
 ome-vi(){       vi $(ome-source) ; }
 ome-env(){      elocal- ; }
-ome-usage(){ cat << EOU
+ome-usage(){ cat << \EOU
 
 OME 
 ====
@@ -76,11 +76,23 @@ ome-xercesc-get(){
    local tarnam=${xznam/.xz}
    local dirnam=${tarnam/.tar}
 
-   [ ! -f "$tarnam"  ] && curl -L -O $url 
-   [ -f "$xznam" -a ! -f "$tarnam" ] && xz -d $xznam
-   [ ! -d "$dirnam" ] && tar zxvf $tarnam 
 
-   if [ ! -d "$(ome-xercesc-dir)/projects/Win32/VC14" ]; then
+   echo xznam $xznam tarnam $tarnam dirnam $dirnam
+
+   [ ! -f "$tarnam"  ] && curl -L -O $url 
+
+
+   if [ -f "$xznam" -a ! -f "$tarnam" ]; then
+   
+       [ $(which xz) == "" ] && echo $msg no xz : pop over to msys2 to decompress then back here to git bash MGB && return
+       xz -d $xznam
+
+   fi
+
+   [ ! -d "$dirnam" ] && tar xvf $tarnam 
+   [ ! -d "$dirnam" ] && echo FAILED : tar xvf $tarnam && return 
+
+   if [ -d "$dirnam" -a ! -d "$(ome-xercesc-dir)/projects/Win32/VC14" ]; then
         cd $dirnam 
         patch -p1 < $(ome-xercesc-patch) 
    fi  
