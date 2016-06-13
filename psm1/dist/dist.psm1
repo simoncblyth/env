@@ -2,7 +2,7 @@ Import-Module opticks -DisableNameChecking
 
 $prefix = "$(opticks-prefix)\externals"
 
-function dist-{ Import-Module dist -DisableNameChecking }
+function dist-{     Import-Module dist -DisableNameChecking }
 function dist-src{  "${env:userprofile}\env\psm1\dist\dist.psm1" }
 function dist-vi{   vi $(dist-src) }
 function dist-filename{  param([string]$url) ([System.Uri]$url).Segments[-1] }
@@ -22,6 +22,7 @@ function dist-info
    $fold = dist-join $prefix $tag
    $dir = dist-join $fold $name
    $zip = dist-join $fold $filename
+   $bdir = $dir + ".build" 
 
    @{ 
       tag=$tag;
@@ -30,7 +31,9 @@ function dist-info
       name=$name;
       fold=$fold;
       dir=$dir;
-      zip=$zip
+      bdir=$bdir;
+      zip=$zip;
+      prefix=$prefix;
    }
 }
 

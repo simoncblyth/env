@@ -1,6 +1,4 @@
-
 Import-Module dist    -DisableNameChecking
-
 
 $tag = "xercesc"
 $url = "http://ftp.mirror.tw/pub/apache//xerces/c/3/sources/xerces-c-3.1.3.zip"
@@ -8,8 +6,10 @@ $info = $(dist-info $tag $url)
 
 function xercesc-{  
    # this fails to update from here within a function but the command works from powershell
+   # abbreviate with: ipmo -fo xercesc -DisableNameChecking
    Import-Module xercesc -DisableNameChecking -Force
- }
+}
+
 function xercesc-src{ "${env:userprofile}\env\psm1\xercesc\xercesc.psm1" }
 function xercesc-vi{   vim $(xercesc-src) }
 function xercesc-info{  $info }
@@ -51,9 +51,6 @@ Changing to "Win32" succeeds to build dll and many example .exe::
 
 
 
-
-
-
 "@ }
 
 
@@ -61,21 +58,18 @@ function xercesc-get{ dist-get $tag $url }
 function xercesc-cd{  cd $(xercesc-dir)  }
 function xercesc-fcd{ cd $(xercesc-fold) }
 
-
 #function xercesc-dir{  $info.Item("dir") }
 #function xercesc-fold{ $info.Item("fold") }
 #function xercesc-sln{  "$(xercesc-dir)\projects\Win32\VC12\xerces-all\xerces-all.sln" }
 
-function xercesc-dir{   "C:\usr\local\env\windows\ome\xerces-c-3.1.3\" }
-function xercesc-fold{  "C:\usr\local\env\windows\ome\" }
+function xercesc-dir{   "\usr\local\env\windows\ome\xerces-c-3.1.3\" }
+function xercesc-fold{  "\usr\local\env\windows\ome\" }
 function xercesc-sln{   "$(xercesc-dir)\projects\Win32\VC14\xerces-all\xerces-all.sln" }
 
 
 function xercesc-build{
-
     xercesc-cd
     msbuild $(xercesc-sln) "/p:Configuration=Debug" "/p:Platform=Win32" "/p:useenv=true" "/v:d"
-
 }
 
 function xercesc-lib{      "$(xercesc-dir)\Build\Win32\VC14\Debug\xerces-c_3_1D.dll" }

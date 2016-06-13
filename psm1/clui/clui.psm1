@@ -1,9 +1,38 @@
-function clui-src{ "${env:homepath}\env\psm1\clui\clui.psm1" }
+function global:clui- { 
+   #Remove-Module clui  ;
+   Import-Module clui  -Force  -DisableNameChecking
+ }
+
+function clui-src { $script:MyInvocation.MyCommand.Path }
+function clui-dir { Split-Path -Parent -Path $script:MyInvocation.MyCommand.Path }
+function clui-vi{  vim $(clui-src) }
+function clui-vip{  vim $profile }
+function clui-path { $p = Get-ChildItem -Path env:path ;  $p.Value.split(";") }
+
+function clui-which { param( [string]$cmd = "vim") $c = get-command $cmd ; $c.Definition }
+function clui-chrome { "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" }
+function clui-git-bash { "C:\Program Files\Git\git-bash.exe" }
+function clui-open { param([string]$url = "stackoverflow.com") & $(clui-chrome) $url }
+function clui-git-bash-run{ & $(clui-git-bash) }
+
+function clui-check{ "check9" }
+
+
+New-Alias -f which clui-which
+New-Alias -f vi $(clui-which vim)
+New-Alias -f gitbash clui-git-bash-run
+New-Alias -f vip clui-vip
+New-Alias -f open clui-open
+New-Alias -f ll Get-Child-Item
+
+
 function clui-usage{  echo @"
 
+Updating in parent scope::
 
-. `$(clui-src)
-  # update
+   ipmo clui -fo -disablenamecheck ; clui-check
+
+
 
 clui-vi
 
@@ -11,10 +40,27 @@ clui-open .\ReadMe.html
   # open in chrome   
 
 
+http://stackoverflow.com/questions/5792746/add-powershell-function-to-the-parent-scope
+
+
+https://powershellstation.com/2012/02/08/importing-modules-using-ascustomobject/
+
+
+$c = ipmo clui -AsCustomObject -DisableNameChecking
+
+ $c | gm    # dump the methods
+
+ $c."clui-check"()    # huh not very convenient to invoke
+
+
+  $m = get-module clui
+
+  $m | gm  
+
+
 
 "@
 }
-
 
 function clui-profile-example{ echo @'
 
@@ -29,44 +75,18 @@ Import-Module g4      -DisableNameChecking
 '@
 }
 
-
-
-
-
-function clui-which
+function clui-command-parameter-aliases
 {
-   param(
-     [string]$cmd = "vim"
-  )
-    $c = get-command $cmd
-    $c.Definition
+   param([string]$cmd = "ipmo")
+   (get-command $cmd).parameters.values | select name, aliases
 }
-
-function clui-vi{  vim $(clui-src) }
-function clui-vip{  vim $profile }
-
-
-function clui-script{ $MyInvocation.MyCommand.Path }
-
-
-
-function clui-path
-{
-   $p = Get-ChildItem -Path env:path
-   $p.Value.split(";")
-}
-
 function clui-find
 {
    param([string]$ptn = "*ssh*" )
    Get-ChildItem $pwd -Recurse -Filter "$ptn"
 }
 
-function clui-regs
-{
-   Get-ChildItem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall
-}
-
+function clui-regs { Get-ChildItem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall }
 function clui-regs-dump
 {
    param([string[]]$keys = @("DisplayName","InstallLocation") )
@@ -78,40 +98,6 @@ function clui-regs-dump
        }
   }
 }
-
-function clui-chrome
-{
-   "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
-}
-function clui-open
-{
-  param([string]$url = "stackoverflow.com")
-  & $(clui-chrome) $url 
-}
-
-
-function clui-git-bash { "C:\Program Files\Git\git-bash.exe" }
-function clui-git-bash-run{ & $(clui-git-bash) }
-
-
-
-function clui-append-psmodulepath {
-   param([string]$abspath)
-
-   $p = ${env:psmodulepath}
-   $p += ";$abspath"
-   ${env:PSModulePath} = $p
-
-   #$p = [Environment]::GetEnvironmentVariable("PSModulePath")
-   #[Environment]::SetEnvironmentVariable("PSModulePath",$p)
-}
-
-
-New-Alias which clui-which
-New-Alias vi $(clui-which vim)
-New-Alias gitbash clui-git-bash-run
-New-Alias vip clui-vip
-New-Alias open clui-open
 
 
 
