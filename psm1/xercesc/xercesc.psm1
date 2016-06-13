@@ -72,7 +72,8 @@ function xercesc-build{
     msbuild $(xercesc-sln) "/p:Configuration=Debug" "/p:Platform=Win32" "/p:useenv=true" "/v:d"
 }
 
-function xercesc-lib{      "$(xercesc-dir)\Build\Win32\VC14\Debug\xerces-c_3_1D.dll" }
+function xercesc-dll{      "$(xercesc-dir)\Build\Win32\VC14\Debug\xerces-c_3_1D.dll" }
+function xercesc-lib{      "$(xercesc-dir)\Build\Win32\VC14\Debug\xerces-c_3D.lib" }
 function xercesc-include{  "$(xercesc-dir)\src" } 
 
 

@@ -1,25 +1,24 @@
-function vs-vi{   vim $env:userprofile\env\psm1\vs\vs.psm1 } 
-
+function vs-src { $script:MyInvocation.MyCommand.Path }
+function vs-vi{   vim $(vs-src) }
 function vs-usage{  echo @'
-   vs-env
-       copy Visual Studio 2015 environment into powershell
 
+Visual Studio 2015 Functions
+=================================
+
+vs-export
+    export Visual Studio 2015 environment into powershell ENV
 
 '@   
 
 }
 
 
-function vs-env
+function vs-export
 {
     $dir = $env:vs140comntools
-
     $bat = "vsvars32.bat"
-
     echo "Adopting $bat environment from $dir "
-
     pushd $dir
-
     cmd /c "$bat&set" | foreach {
         
         if($_ -match "=")
