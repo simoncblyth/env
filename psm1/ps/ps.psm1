@@ -69,11 +69,10 @@ function ps-gen
    if(![io.directory]::exists($dir) -and ![io.file]::exists($path))
    { 
        $lines = ps-filltemplate $name
-       echo $lines
-       echo
-       echo Writing lines to path $path
 
-       md $dir | out-null 
+       echo "Writing lines to path $path"
+
+       md $dir > $null 
 
        $lines | out-file $path
    }
@@ -81,14 +80,35 @@ function ps-gen
    {
        echo "Module already exists at $path"
    }
-
-
-
 }
 
 
 
+function ps-profile { echo @'
 
 
+$oldhome = "C:\msys64\home\ntuhep"
+$env:LOCAL_BASE = "\usr\local"
+
+$env:PSModulePath += ";${env:userprofile}\env\psm1\"
+
+
+Import-Module -Force -DisableNameChecking ps
+function imp { param([string]$name) Import-Module -Force -DisableNameChecking $name }
+function gen { param([string]$name) ps-gen $name ; imp $name }
+
+imp vs
+imp e
+imp clui
+imp dist
+imp opticks
+imp xercesc
+imp g4
+
+
+. $env:userprofile\env\tools\cmakewin.ps1
+
+'@
+}
 
 

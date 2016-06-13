@@ -23,7 +23,8 @@ New-Alias -f vi $(clui-which vim)
 New-Alias -f gitbash clui-git-bash-run
 New-Alias -f vip clui-vip
 New-Alias -f open clui-open
-New-Alias -f ll Get-Child-Item
+New-Alias -f ll Get-ChildItem
+New-Alias -f l  Get-ChildItem
 
 
 function clui-usage{  echo @"
