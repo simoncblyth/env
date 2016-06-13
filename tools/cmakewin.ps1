@@ -18,6 +18,29 @@ Dev cycle for a function::
     . $(cmakewin-src) ; cmakewin-test
 
 
+Observe that cmake seems to handle backslashes in paths so long 
+as there is no drive letter.  Some however have needed to translate...
+
+* http://stackoverflow.com/questions/4948121/problems-with-cmake-vars
+
+
+Example of non-trival PS build system
+
+* https://github.com/TheOneRing/appVeyorHelp/blob/master/appveyorHelp.psm1
+
+How not to structure an installer, but some sytactical techniques
+
+* https://github.com/phrasz/A5_Installer/blob/master/Installer.ps1
+
+
+Syntax:
+
+* http://www.neolisk.com/techblog/powershell-specialcharactersandtokens
+
+* http://ss64.com/ps/syntax-operators.html
+
+
+
 "@
 
 }

@@ -8,13 +8,19 @@ msys2-usage(){ cat << EOU
 MSYS2
 ======
 
+Best introduction to msys2 is the yellowed comment on the below page
+
+* http://stackoverflow.com/questions/25019057/how-are-msys-msys2-and-msysgit-related-to-each-other
+
+
 Looks promising as a way of bringing a Linux like toolchain
 to Windows but yielding native windows binaries, unlike Cygwin
 which requires to go thru the Cygwin dll.
 
 * https://msys2.github.io/
 * https://sourceforge.net/p/msys2/wiki/MSYS2%20introduction/
-* http://stackoverflow.com/questions/25019057/how-are-msys-msys2-and-msysgit-related-to-each-other
+
+
 * http://www.davidegrayson.com/windev/msys2/
 
 * http://www.mingw.org describes "predecessor" : MSYS

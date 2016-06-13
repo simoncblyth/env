@@ -1730,4 +1730,4 @@ powershell-(){      . $(env-home)/windows/powershell.bash && powershell-env $* ;
 nuget-(){      . $(env-home)/windows/nuget.bash && nuget-env $* ; }
 ome-(){      . $(env-home)/windows/ome/ome.bash && ome-env $* ; }
 msbuild-(){      . $(env-home)/windows/msbuild/msbuild.bash && msbuild-env $* ; }
-cmakewin-(){      . $(env-home)/tools/cmakewin.ps1  ; }
+cmakewin-(){      vi $(env-home)/tools/cmakewin.ps1  ; }
