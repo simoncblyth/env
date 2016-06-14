@@ -1,4 +1,3 @@
-
 function opticks-src { "${env:userprofile}\env\psm1\opticks\opticks.psm1" }
 function opticks-vi {    vim $(opticks-src) }
 function opticks-prefix-former {  "${env:userprofile}\local\opticks" }
