@@ -726,8 +726,9 @@ env-env(){
   cd $iwd
   
   cmt-  
-  boost-
-  boost-export
+  
+  #boost-
+  #boost-export
 
 }
 
@@ -1741,3 +1742,4 @@ nuget-(){      . $(env-home)/windows/nuget.bash && nuget-env $* ; }
 ome-(){      . $(env-home)/windows/ome/ome.bash && ome-env $* ; }
 msbuild-(){      . $(env-home)/windows/msbuild/msbuild.bash && msbuild-env $* ; }
 cmakewin-(){      vi $(env-home)/tools/cmakewin.ps1  ; }
+cmak-(){      . $(env-home)/tools/cmak.bash && cmak-env $* ; }

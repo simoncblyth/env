@@ -1,0 +1,139 @@
+cmak-src(){      echo tools/cmak.bash ; }
+cmak-source(){   echo ${BASH_SOURCE:-$(env-home)/$(cmak-src)} ; }
+cmak-vi(){       vi $(cmak-source) ; }
+cmak-env(){      elocal- ; }
+cmak-usage(){ cat << EOU
+
+
+
+
+
+EOU
+}
+cmak-dir(){ echo $(local-base)/env/tools/cmak ; }
+cmak-bdir(){ echo $(local-base)/env/tools/cmak/build ; }
+cmak-cd(){
+    local dir=$(cmak-dir)
+    mkdir -p $dir
+    cd $dir  
+}
+
+cmak-bcd(){
+    local bdir=$(cmak-bdir)
+    mkdir -p $bdir
+    cd $bdir  
+}
+
+cmak-brm(){
+    local bdir=$(cmak-bdir)
+    rm -rf $bdir
+}
+
+
+
+cmak-txt-dev-(){ cat << EOD
+
+
+set(Boost_DEBUG 1)
+set(Boost_USE_STATIC_LIBS 1)
+set(Boost_NO_SYSTEM_PATHS 1)
+
+set(CMAKE_MODULE_PATH \$ENV{ENV_HOME}/cmake/Modules)
+set(OPTICKS_PREFIX "\$ENV{LOCAL_BASE}/opticks")
+set(BOOST_LIBRARYDIR /c/usr/local/opticks/externals/lib)
+set(BOOST_INCLUDEDIR /c/usr/local/opticks/externals/include)
+message(" OPTICKS_PREFIX  : \${OPTICKS_PREFIX} ")
+
+EOD
+}
+
+cmak-txt-(){
+     local name=$1
+     cat << EOT
+
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+project(tt)
+
+find_package($*)
+
+message("${name}_LIBRARY       : \${${name}_LIBRARY}")
+message("${name}_LIBRARIES     : \${${name}_LIBRARIES}")
+message("${name}_INCLUDE_DIRS  : \${${name}_INCLUDE_DIR}")
+message("${name}_DEFINITIONS   : \${${name}_DEFINITIONS}")
+
+EOT
+
+     case $name in
+        Boost) cmak-txt-qwns- $name ;;
+     esac  
+}
+
+cmak-txt-qwns-(){
+   local name=$1
+   for qwn in $(cmak-qwns-$name)   
+   do cat << EOQ
+message("$qwn  : \${$qwn}")
+EOQ
+   done
+}
+
+
+
+cmak-qwns-Boost(){ cat << EOV
+_Boost_MISSING_COMPONENTS
+_boost_DEBUG_NAMES
+Boost_FIND_COMPONENTS
+Boost_NUM_COMPONENTS_WANTED
+Boost_NUM_MISSING_COMPONENTS
+BOOST_ROOT
+BOOST_LIBRARYDIR
+Boost_LIB_PREFIX
+_boost_RELEASE_NAMES
+EOV
+}
+
+
+cmak-find-boost(){
+
+   type $FUNCNAME
+
+   cmak-cd
+   cmak-txt- Boost REQUIRED COMPONENTS system thread program_options log log_setup filesystem regex > CMakeLists.txt
+   cat CMakeLists.txt
+
+   cmak-brm
+   cmak-bcd
+
+   boost-
+   local prefix=$(boost-prefix)
+
+   # [ "${prefix::3}" == "/c/" ] && prefix=C:${prefix:2}   
+   # [ "${prefix::3}" == "/c/" ] && prefix=/$prefix
+   #
+   #
+   # file:///C:/Program%20Files/Git/ReleaseNotes.html
+   # 
+   #    git-for-windows gitbash path conversion kicks in for paths starting with a slash
+   #    to avoid the POSIX-to-Windows path convertion either 
+   #    temporarily set MSYS_NO_PATHCONV or use double slash 
+   #
+
+   local src=$(cmak-dir)
+
+   #MSYS_NO_PATHCONV=1 
+   cmake $src \
+           -DBOOST_ROOT=$prefix \
+           -DBoost_NO_SYSTEM_PATHS=ON \
+           -DBoost_USE_STATIC_LIBS=ON
+
+   #       -DBOOST_LIBRARYDIR=$prefix/lib  \
+   #       -DBOOST_INCLUDEDIR=$prefix/include
+   #       -DBOOST_ROOT=$prefix
+   #
+   #
+   #   twas failing to find libs due to a lib suffix
+   #   switched that on using the Boost_USE_STATIC_LIBS switch
+   #
+
+}
+
