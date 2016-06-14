@@ -43,6 +43,16 @@ clui-cd-with-history(){
   . $ENV_HOME/bash/acd_func.sh   
 }
 
+
+clui-chrome(){
+   echo "/c/Program Files (x86)/Google/Chrome/Application/chrome.exe"
+}
+
+clui-open(){
+   "$(clui-chrome)" ${1:-stackoverflow.com}
+}
+
+
 clui-alias(){
 
    alias ss-="sudo su -"

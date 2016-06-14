@@ -30,23 +30,27 @@ glew powershell module
    fold      $(($info).fold)
 
 
-PS C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0> gci -R -fi "*.lib"
+::
 
-    Directory: C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release\Win32
------         8/10/2015   9:52 PM     619228 glew32.lib
------         8/10/2015   9:52 PM    2098584 glew32s.lib
+    PS C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0> gci .\*  -R -Include *.dll,*.lib,*.h | format-table Directory,Name
 
-    Directory: C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release\x64
------         8/10/2015   9:53 PM     609776 glew32.lib
------         8/10/2015   9:53 PM    2214664 glew32s.lib
-
-    Directory: C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release MX\Win32
------         8/10/2015   9:53 PM       3542 glew32mx.lib
------         8/10/2015   9:53 PM    1551686 glew32mxs.lib
-
-    Directory: C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release MX\x64
------         8/10/2015   9:53 PM       3428 glew32mx.lib
------         8/10/2015   9:53 PM    1672122 glew32mxs.lib
+    Directory                                                                                                               Name
+    ---------                                                                                                               ----
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\bin\Release\Win32                                              glew32.dll
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\bin\Release\x64                                                glew32.dll
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\bin\Release MX\Win32                                           glew32mx.dll
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\bin\Release MX\x64                                             glew32mx.dll
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\include\GL                                                     glew.h
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\include\GL                                                     glxew.h
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\include\GL                                                     wglew.h
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release\Win32                                              glew32.lib
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release\Win32                                              glew32s.lib
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release\x64                                                glew32.lib
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release\x64                                                glew32s.lib
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release MX\Win32                                           glew32mx.lib
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release MX\Win32                                           glew32mxs.lib
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release MX\x64                                             glew32mx.lib
+    C:\Users\ntuhep\local\opticks\externals\glew\glew-1.13.0\lib\Release MX\x64                                             glew32mxs.lib
 
 
 "@}
@@ -74,6 +78,8 @@ function glew-bcd{ cd $(glew-bdir) }
 
 
 function glew-get { dist-get $tag $url }
+
+
 
 function glew-wipe
 {

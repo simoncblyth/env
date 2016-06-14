@@ -50,7 +50,8 @@ Syntax:
 
 
 
-function cmak-dir{ "${env:LOCAL_BASE}\env\tools\cmak"  }
+function cmak-dir{  "${env:LOCAL_BASE}\env\tools\cmak"  }
+function cmak-bdir{ "${env:LOCAL_BASE}\env\tools\cmak\build"  }
 
 function cmak-cd{  
    $dir = $(cmak-dir)
@@ -58,53 +59,57 @@ function cmak-cd{
    cd $dir
 }
 
-function cmak-txt 
-{ 
-   param([string]$name="XercesC")
+function cmak-bcd{
+   $bdir = $(cmak-bdir)
+   md -force $bdir > $null
+   cd $bdir
+}
 
-   echo @"
+function cmak-brm{
+   $bdir = $(cmak-bdir)
+   if([io.directory]::exists($bdir))
+   {
+      rd -R -force $bdir > $null
+   }
+}
+
+
+function cmak-txt- { param([string]$name="XercesC") echo @"
+
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(tt)
+set(CMAKE_MODULE_PATH `$ENV`{ENV_HOME`}/cmake/Modules)
+set(OPTICKS_PREFIX "`$ENV`{LOCAL_BASE`}/opticks")
 
-set(CMAKE_MODULE_PATH `$`{CMAKE_MODULE_PATH`}
-                      `$ENV`{ENV_HOME`}/cmake/Modules
-)
+message(" OPTICKS_PREFIX  : `${OPTICKS_PREFIX}` ")
+
 
 find_package($name REQUIRED)
+
+message("$($name)_LIBRARY       : `${${name}_LIBRARY}")
+message("$($name)_LIBRARIES     : `${${name}_LIBRARIES}")
+message("$($name)_INCLUDE_DIRS  : `${${name}_INCLUDE_DIR}")
+message("$($name)_DEFINITIONS   : `${${name}_DEFINITIONS}")
+
+
 "@
 }
 
+function cmak-txt { param([string]$name="XercesC")
 
-
-function cmak-txt-write
-{
-   param([string]$name="XercesC")
-   cmak-txt $name  | Out-File -Encoding ascii  CMakeLists.txt
-
-   # huh byte order marker problem with simple redirection to file 
+   cmak-txt- $name  | Out-File -Encoding ascii  CMakeLists.txt
+   # cmake complains of byte order marker problem with simple redirection to file 
 }
 
 
-function cmak-build-prep
-{
-   $bnam = "build"
-   if([io.directory]::exists($bnam))
-   {
-      rd -R -force $bnam > $null
-   }
-   mkdir $bnam > $null
-}
-
-
-function cmak-test-glew
+function cmak-glew
 {
    Import-Module glew -DisableNameChecking 
 
    cmak-cd
-   cmak-txt-write GLEW
-
-   cmak-build-prep
-   cd build > $null
+   cmak-txt GLEW
+   cmak-brm
+   cmak-bcd
  
    cmake `
            "$(cmak-dir)"   
@@ -112,23 +117,21 @@ function cmak-test-glew
 }
 
 
-function cmak-test-xercesc
+function cmak-xercesc
 {
    Import-Module xercesc -DisableNameChecking 
 
    cmak-cd
-   cmak-txt-write XercesC
-
-   cmak-build-prep
-   cd build > $null
+   cmak-txt XercesC
+   cmak-brm
+   cmak-bcd
  
-   #       --trace `
    cmake `
            "-DXercesC_LIBRARY=$(xercesc-lib)" `
            "-DXercesC_INCLUDE_DIR=$(xercesc-include)" `
            "$(cmak-dir)"   
 
+   #       --trace `
 }
-
 
 

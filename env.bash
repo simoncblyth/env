@@ -80,6 +80,16 @@ u(){
 }
 
 
+env-open(){
+  local url=${1:-stackoverflow.com}
+  if [ "$(which open 2> /dev/null)" == "" ]; then 
+      clui-
+      clui-open $url
+  else
+      open $url
+  fi
+
+}
 
 
 

@@ -21,6 +21,7 @@ function clui-check{ "check9" }
 New-Alias -f which clui-which
 New-Alias -f vi $(clui-which vim)
 New-Alias -f gitbash clui-git-bash-run
+New-Alias -f gb      clui-git-bash-run
 New-Alias -f vip clui-vip
 New-Alias -f open clui-open
 New-Alias -f ll Get-ChildItem
