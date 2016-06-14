@@ -24,9 +24,24 @@ mercurial to see the files as binary::
     GB> file hello.txt 
           Little-endian UTF-16 Unicode text, with CR line terminators
 
-    PS> echo hello | out-file hello.txt   # unspecified produces "Little-endian UTF-16 Unicode text
-    PS> echo hello | out-file -encoding ascii hello.txt
+    PS> echo hello | out-file -encoding ascii   ascii.txt
+    PS> echo hello | out-file -encoding default default.txt
+    PS> echo hello | out-file                   unspecified.txt 
 
+          # unspecified produces "Little-endian UTF-16 Unicode text
+
+Trying the out-file encoding options in powershell produces::
+
+    ntuhep@ntuhep-PC MINGW64 ~/tmp
+    $ file *
+    ascii.txt:            ASCII text, with CRLF line terminators
+    bigendianunicode.txt: Big-endian UTF-16 Unicode text, with CRLF line terminators
+    default.txt:          ASCII text, with CRLF line terminators
+    unspecified.txt:      Little-endian UTF-16 Unicode text, with CR line terminators
+    utf8.txt:             UTF-8 Unicode (with BOM) text, with CRLF line terminators
+
+
+* **CONCLUSION : SPECIFY ENCODING ASCII**
 
 
 

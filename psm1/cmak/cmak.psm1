@@ -79,7 +79,7 @@ find_package($name REQUIRED)
 function cmak-txt-write
 {
    param([string]$name="XercesC")
-   cmak-txt $name  | Out-File -Encoding "UTF8"  CMakeLists.txt
+   cmak-txt $name  | Out-File -Encoding ascii  CMakeLists.txt
 
    # huh byte order marker problem with simple redirection to file 
 }
@@ -88,7 +88,7 @@ function cmak-txt-write
 function cmak-build-prep
 {
    $bnam = "build"
-   if([io.directory]::exists($bnam)
+   if([io.directory]::exists($bnam))
    {
       rd -R -force $bnam > $null
    }

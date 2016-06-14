@@ -74,7 +74,7 @@ function ps-gen
 
        md $dir > $null 
 
-       $lines | out-file $path
+       $lines | out-file -encoding ascii $path
    }
    else
    {
