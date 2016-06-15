@@ -137,3 +137,49 @@ cmak-find-boost(){
 
 }
 
+
+
+
+
+
+cmak-cc-(){ 
+    local name=$1
+    cat << EOS
+cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+set(name $name)
+project(\${name})
+add_executable(\${name} $name.cc)
+EOS
+}
+
+
+cmak-cc(){
+
+   local name=$1
+   local iwd=$PWD
+   local cc=$name.cc
+   [ ! -f "$cc" ] && echo expecting a cc $cc && return 
+
+   cmak-cd
+
+   cp $iwd/$cc .
+   cmak-cc- $name > CMakeLists.txt
+   cat CMakeLists.txt
+
+   cmak-brm
+   cmak-bcd
+
+   local config=Debug
+   cmake ..
+   cmake --build . --config $config --target ALL_BUILD
+
+   local exe=$config/$name.exe
+   ./$exe
+
+
+   cd $iwd
+}
+
+
+
+
