@@ -1743,3 +1743,4 @@ ome-(){      . $(env-home)/windows/ome/ome.bash && ome-env $* ; }
 msbuild-(){      . $(env-home)/windows/msbuild/msbuild.bash && msbuild-env $* ; }
 cmakewin-(){      vi $(env-home)/tools/cmakewin.ps1  ; }
 cmak-(){      . $(env-home)/tools/cmak.bash && cmak-env $* ; }
+importlib-(){      . $(env-home)/windows/importlib.bash && importlib-env $* ; }
