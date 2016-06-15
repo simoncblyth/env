@@ -26,6 +26,7 @@ New-Alias -f vip clui-vip
 New-Alias -f open clui-open
 New-Alias -f ll Get-ChildItem
 New-Alias -f l  Get-ChildItem
+New-Alias -f x  Exit-PSSession 
 
 
 function clui-usage{  echo @"

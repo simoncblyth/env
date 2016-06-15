@@ -36,6 +36,93 @@ MS
 
 
 
+sharedLibsDemo
+-----------------
+
+msvc build
+~~~~~~~~~~~~~~~
+
+
+Compile shared.cpp into shared.obj with compilation flag shared_EXPORTS::
+
+       C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c
+       /I"C:\usr\local\env\windows\sharedLibsDemo\build-windows-msvc" 
+       /IC:\usr\local\env\windows\sharedLibsDemo 
+       /nologo /W3 /WX- /O2 /Ob2 /Oy- 
+       /D WIN32 /D _WINDOWS /D NDEBUG /D "CMAKE_INTDIR=\"Release\"" 
+
+       /D shared_EXPORTS 
+
+       /D _WINDLL /D _MBCS 
+       /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline 
+       /GR 
+       /Fo"shared.dir\Release\\" 
+       /Fd"shared.dir\Release\vc140.pdb" 
+       /Gd /TP /analyze- /errorReport:queue 
+       C:\usr\local\env\windows\sharedLibsDemo\shared.cpp
+
+Link shared.obj into shared.dll AND IMPLIB shared.lib::
+
+       C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe
+       /ERRORREPORT:QUEUE
+       /OUT:"C:\usr\local\env\windows\sharedLibsDemo\build-windows-msvc\Release\shared.dll" 
+       /INCREMENTAL:NO /NOLOGO 
+       kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  
+       /MANIFEST
+       /MANIFESTUAC:"level='asInvoker' uiAccess='false'" 
+       /manifest:embed
+       /PDB:"C:/usr/local/env/windows/sharedLibsDemo/build-windows-msvc/Release/shared.pdb" 
+       /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT
+       /IMPLIB:"C:/usr/local/env/windows/sharedLibsDemo/build-windows-msvc/Release/shared.lib"
+       /MACHINE:X86 /SAFESEH  /machine:X86 
+       /DLL
+       shared.dir\Release\shared.obj
+
+Compile main.cpp into main.obj WITHOUT compilation flag shared_EXPORTS::
+
+       ClCompile: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c
+       /I"C:\usr\local\env\windows\sharedLibsDemo\build-windows-msvc"
+       /IC:\usr\local\env\windows\sharedLibsDemo
+       /nologo /W3 /WX- /O2 /Ob2 /Oy- 
+
+       /D WIN32 /D _WINDOWS /D NDEBUG /D "CMAKE_INTDIR=\"Release\"" /D _MBCS 
+
+       /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR 
+       /Fo"main.dir\Release\\"
+       /Fd"main.dir\Release\vc140.pdb" 
+       /Gd /TP /analyze- /errorReport:queue
+       C:\usr\local\env\windows\sharedLibsDemo\main.cpp 
+
+
+Link main.obj and shared.lib into main.exe. 
+
+* main.lib is mentioned but not created
+* dll not mentioned,  that is discovered at runtime
+
+::
+
+  C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe
+      /ERRORREPORT:QUEUE
+      /OUT:"C:\usr\local\env\windows\sharedLibsDemo\build-windows-msvc\Release\main.exe" 
+      /INCREMENTAL:NO /NOLOGO 
+
+      kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib 
+      Release\shared.lib 
+
+      /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'"
+      /manifest:embed
+      /PDB:"C:/usr/local/env/windows/sharedLibsDemo/build-windows-msvc/Release/main.pdb" 
+      /SUBSYSTEM:CONSOLE 
+      /TLBID:1 
+      /DYNAMICBASE 
+      /NXCOMPAT
+      /IMPLIB:"C:/usr/local/env/windows/sharedLibsDemo/build-windows-msvc/Release/main.lib"
+      /MACHINE:X86 
+      /SAFESEH  
+      /machine:X86 main.dir\Release\main.obj
+
+
+
 EOU
 }
 
