@@ -142,43 +142,80 @@ cmak-find-boost(){
 
 
 
+cmak-stem(){
+    local filename=$1 
+    local stem 
+    case $filename in 
+        *.cc) echo ${filename/.cc}  ;;
+       *.cpp) echo ${filename/.cpp} ;;  
+           *) echo ERROR ;;
+    esac
+}
+
+
 cmak-cc-(){ 
-    local name=$1
+
+    local filename=$1
+    local stem=$(cmak-stem $filename)
+
     cat << EOS
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-set(name $name)
+
+set(name $stem)
+
 project(\${name})
-add_executable(\${name} $name.cc)
+
+find_package(Boost REQUIRED COMPONENTS date_time)
+
+add_executable(\${name} $filename)
+
+target_include_directories(\${name} PUBLIC \${Boost_INCLUDE_DIRS} )
+
+target_link_libraries(\${name} \${Boost_LIBRARIES} )
+
+
 EOS
 }
 
 
+cmak-config(){ echo Debug ; }
 cmak-cc(){
 
-   local name=$1
+   local filename=$1
+   local stem=$(cmak-stem $filename)
    local iwd=$PWD
-   local cc=$name.cc
-   [ ! -f "$cc" ] && echo expecting a cc $cc && return 
-
+  
    cmak-cd
 
-   cp $iwd/$cc .
-   cmak-cc- $name > CMakeLists.txt
+   cp $iwd/$filename .
+   cmak-cc- $filename > CMakeLists.txt
    cat CMakeLists.txt
 
    cmak-brm
    cmak-bcd
 
-   local config=Debug
-   cmake ..
-   cmake --build . --config $config --target ALL_BUILD
 
-   local exe=$config/$name.exe
-   ./$exe
+   boost- 
 
+   cmake \
+           -DBOOST_ROOT=$(boost-prefix) \
+           -DBoost_NO_SYSTEM_PATHS=ON \
+           -DBoost_USE_STATIC_LIBS=ON \
+           ..
+
+
+
+   cmake --build . --config $(cmak-config) --target ALL_BUILD
 
    cd $iwd
 }
+
+cmak-bin()
+{
+   echo $(cmak-bdir)/$(cmak-config)/$1.exe
+}
+
+
 
 
 
