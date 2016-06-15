@@ -1744,3 +1744,5 @@ msbuild-(){      . $(env-home)/windows/msbuild/msbuild.bash && msbuild-env $* ; 
 cmakewin-(){      vi $(env-home)/tools/cmakewin.ps1  ; }
 cmak-(){      . $(env-home)/tools/cmak.bash && cmak-env $* ; }
 importlib-(){      . $(env-home)/windows/importlib.bash && importlib-env $* ; }
+openssh-(){      . $(env-home)/tools/openssh/openssh.bash && openssh-env $* ; }
+solarmd5-(){      . $(env-home)/tools/solarmd5/solarmd5.bash && solarmd5-env $* ; }
