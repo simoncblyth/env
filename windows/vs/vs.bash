@@ -18,6 +18,63 @@ an update as noted in the below.
 * https://blogs.msdn.microsoft.com/vcblog/2015/07/24/setup-changes-in-visual-studio-2015-affecting-c-developers/
 
 
+
+
+Opening VS On a sln from Powershell
+---------------------------------------
+
+::
+
+    PS> imp vs    # this is done by $profile usually 
+    PS> vs-export # environment setup
+
+    PS> C:\usr\local\env\windows\importclient\build> devenv .\DemoClient.sln
+
+
+To ease transition from gitbash to powershell echo sln winpath 
+
+    $ importclient-slnwin
+    C:\usr\local\env\windows\importclient\build\DemoClient.sln
+
+Then can::
+
+    devenv C:\usr\local\env\windows\importclient\build\DemoClient.sln 
+
+
+
+
+Using VS GUI with A CMake Generated Solution
+-----------------------------------------------
+
+* https://cognitivewaves.wordpress.com/cmake-and-visual-studio/
+
+* in right pane "Solution Explorer" rightclick 
+  the relevant target and  "Set As Startup project" 
+
+
+Setting PATH for running debugger
+----------------------------------------
+
+Project > Properties > [Debugging]
+
+For "Environment" field set 
+
+* PATH=C:\usr\local\env\windows\sharedLibsDemo\build-windows-msvc\Release;%PATH%;$(LocalDebuggerEnvironment)
+* NB delimiters are semi-colons
+
+
+Setting Breakpoint
+-------------------
+
+Navigate to some source, right click on a line and choose "Set Breakpoint"
+
+
+Start/Continue Debugger : F5
+---------------------------------
+
+A console window should show up with the output.
+
+
 VS Versions
 -------------
 
@@ -179,4 +236,18 @@ vs-get(){
 
 vs-bindir(){ echo "/c/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin" ; }
 vs-bincd(){ cd "$(vs-bindir)" ; }
+
+
+
+vs-gitbash2win(){
+  local gbp=$1
+  local wnp
+  case $gbp in
+    /c/*) wnp=${gbp//\//\\}  ;;
+       *) echo expecting gitbash style path starting with /c ;;
+  esac
+  echo "C:${wnp:2}"
+}
+
+
 

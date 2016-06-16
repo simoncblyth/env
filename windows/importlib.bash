@@ -140,4 +140,117 @@ importlib-get(){
 }
 
 
+importlib-exports-(){ 
 
+   local lib=${1:-MyLibrary}
+   local api=${2:-MYLIB_API} 
+   local hdr=$(importlib-hdr $api)
+
+   cat << EOX
+
+#pragma once
+
+/* 
+
+Source "Generated" hdr $hdr 
+Created $(date) with commandline::
+
+    importlib-exports $lib $api  
+
+https://cmake.org/Wiki/BuildingWinDLL
+
+CMake will define ${lib}_EXPORTS on Windows when it
+configures to build a shared library. If you are going to use
+another build system on windows or create the visual studio
+projects by hand you need to define ${lib}_EXPORTS when
+building a DLL on windows.
+
+*/
+
+// TODO: probably mingw32 will need handling 
+
+#if defined (_WIN32) 
+
+   #if defined(${lib}_EXPORTS)
+       #define  $api __declspec(dllexport)
+   #else
+       #define  $api __declspec(dllimport)
+   #endif
+
+#else
+
+   #define $api
+
+#endif
+
+
+EOX
+}
+
+
+importlib-hdr(){  echo ${1}_EXPORT.hh ; }
+
+importlib-exports(){
+
+   local msg=" === $FUNCNAME "
+   local lib=${1:-MyLibrary}
+   local api=${2:-MYLIB_API} 
+   local hdr=$(importlib-hdr $api)
+
+   echo $msg lib $lib api $api hdr $hdr : generating header in PWD $PWD
+
+   importlib-exports- $lib $api > $hdr
+
+   cat $hdr
+
+   echo $msg use the header in public API classes as indicated:   
+
+   importlib-example $lib $api
+
+}
+
+
+importlib-example(){ 
+
+   local lib=${1:-MyLibrary}
+   local api=${2:-MYLIB_API} 
+   local hdr=$(importlib-hdr $api)
+
+   cat << EOX
+
+#include "$hdr"
+
+class $api Example 
+{
+   public:
+       static $api void MyExampleStaticFunc();
+
+};
+
+EOX
+}
+
+
+importlib-libdir(){ echo $(importlib-dir)/build-windows-msvc/Release ; }
+importlib-libdirwin(){ echo $(vs-gitbash2win $(importlib-libdir)) ; }
+
+importlib-lib(){ echo $(importlib-find lib) ;}
+importlib-dll(){ echo $(importlib-find dll) ;}
+importlib-find(){
+   local ext=${1:-lib}
+   local iwd
+   importlib-cd 
+   local lib=$(find $PWD  -name "*.$ext")
+   cd $iwd
+   echo $lib
+}
+
+
+importlib-include-dirs(){
+   local h
+   for h in $(importlib-find h) ; do 
+      echo $(dirname $h)
+   done
+}
+
+ 
