@@ -75,6 +75,40 @@ Start/Continue Debugger : F5
 A console window should show up with the output.
 
 
+
+Windows LDD equivalent
+------------------------
+
+* http://stackoverflow.com/questions/7378959/how-to-check-for-dll-dependency 
+* http://dependencywalker.com/
+
+
+::
+
+    PS > vs-export
+
+    PS C:\usr\local\opticks\lib> dumpbin /dependents .\BoostRapClient.exe
+    Microsoft (R) COFF/PE Dumper Version 14.00.23918.0
+    Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+    Dump of file .\BoostRapClient.exe
+
+    File Type: EXECUTABLE IMAGE
+
+      Image has the following dependencies:
+
+        BoostRap.dll
+        MSVCP140D.dll
+        VCRUNTIME140D.dll
+        ucrtbased.dll
+        KERNEL32.dll
+
+
+
+
+
+
 VS Versions
 -------------
 
@@ -238,6 +272,9 @@ vs-bindir(){ echo "/c/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin" ;
 vs-bincd(){ cd "$(vs-bindir)" ; }
 
 
+vs-wp(){  
+   echo $(vs-gitbash2win $1)
+}
 
 vs-gitbash2win(){
   local gbp=$1
