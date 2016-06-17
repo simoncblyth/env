@@ -1750,3 +1750,4 @@ importclient-(){      . $(env-home)/windows/importclient/importclient.bash && im
 brc-(){             . $(env-home)/boostrapclient/brc.bash && brc-env $* ; }
 conemu-(){      . $(env-home)/windows/conemu.bash && conemu-env $* ; }
 gitbash-(){      . $(env-home)/windows/gitbash.bash && gitbash-env $* ; }
+npc-(){      . $(env-home)/numerics/npyclient/npc.bash && npc-env $* ; }

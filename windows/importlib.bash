@@ -36,6 +36,31 @@ MS
 
 
 
+Exporting STL 
+---------------------
+
+* http://stackoverflow.com/questions/4145605/stdvector-needs-to-have-dll-interface-to-be-used-by-clients-of-class-xt-war
+
+Exporting from a DLL is platform-specific. You will have to fix this for
+Windows (basically use declspec(dllexport/dllimport) on the instantiated class
+template) and encapsulate the required code in your Windows-specific
+preprocessor macro.
+
+My experience is that exporting STL classes from DLLs on Windows is fraught
+with pain, generally I try to design the interface such that this is not
+needed.
+
+::
+
+    (ClCompile target) ->
+      c:\users\ntuhep\env\numerics\npy\NPYBase.hpp(142): warning C4251: 'NPYBase::m_shape': class 'std::vector<int,std::allocator<_Ty>>' needs to have dll-interface to be used by clients of class 'NPYBase' [C:\usr\local\opticks\build\numerics\npy\NPY.vcxproj]
+      c:\users\ntuhep\env\numerics\npy\NPYBase.hpp(143): warning C4251: 'NPYBase::m_metadata': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'NPYBase' [C:\usr\local\opticks\build\numerics\npy\NPY.vcxproj]
+      c:\users\ntuhep\env\numerics\npy\NPY.hpp(199): warning C4251: 'NPY<T>::m_data': class 'std::vector<Scalar,std::allocator<_Ty>>' needs to have dll-interface to be used by clients of class 'NPY<T>' [C:\usr\local\opticks\build\numerics\npy\NPY.vcxproj]
+
+
+
+
+
 sharedLibsDemo
 -----------------
 
