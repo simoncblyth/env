@@ -1748,3 +1748,5 @@ openssh-(){      . $(env-home)/tools/openssh/openssh.bash && openssh-env $* ; }
 solarmd5-(){      . $(env-home)/tools/solarmd5/solarmd5.bash && solarmd5-env $* ; }
 importclient-(){      . $(env-home)/windows/importclient/importclient.bash && importclient-env $* ; }
 brc-(){             . $(env-home)/boostrapclient/brc.bash && brc-env $* ; }
+conemu-(){      . $(env-home)/windows/conemu.bash && conemu-env $* ; }
+gitbash-(){      . $(env-home)/windows/gitbash.bash && gitbash-env $* ; }
