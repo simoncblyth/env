@@ -410,6 +410,9 @@ importlib-get(){
 
 importlib-exports-(){ 
 
+   # lib: exactly the cmake project name 
+   # api: capitalized project abbreviation tag + "_API"
+
    local lib=${1:-MyLibrary}
    local api=${2:-MYLIB_API} 
    local hdr=$(importlib-hdr $api)
