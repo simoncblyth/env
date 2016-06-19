@@ -255,6 +255,53 @@ MSVC : Differences from Other Implementations
 
 
 
+BFoo : Exporting a templated function
+----------------------------------------
+
+::
+
+      1 #include <iostream>
+      2
+      3 #include "BRAP_API_EXPORT.hh"
+      4 #include "BRAP_FLAGS.hh"
+      5
+      6 template<typename T>
+      7 BRAP_API void foo(T value)
+      8 {
+      9     std::cerr << "BFoo"
+     10               << " value " << value
+     11               << std::endl
+     12               ;
+     13 }
+     14
+     15 template BRAP_API void foo<int>(int);
+     16 template BRAP_API void foo<double>(double);
+     17 template BRAP_API void foo<char*>(char*);
+     18
+
+::
+
+      C:\Users\ntuhep\env\boostrap\BFoo.hh(13): error C2491: 'foo': 
+      definition of dllimport function not allowed 
+      [C:\usr\local\opticks\build\boostrap\tests\BFooTest.vcxproj]
+
+
+
+Fix by removing the export/impot from the template just apply to specialization::
+
+      6 template<typename T>
+      7 void foo(T value)
+      8 {
+ 
+
+
+* https://social.msdn.microsoft.com/Forums/vstudio/en-US/4fd49664-e28e-4f23-b1eb-b669d35ad264/function-template-instantation-export-from-dll?forum=vcgeneral
+
+* https://social.msdn.microsoft.com/Forums/vstudio/en-US/0d613b65-52ac-4fb7-bf65-8a543dfbcc6e/visual-c-error-lnk2019-unresolved-external-symbol?forum=vcgeneral
+
+
+
+
 
 
 sharedLibsDemo
