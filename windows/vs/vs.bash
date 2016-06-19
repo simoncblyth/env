@@ -18,8 +18,6 @@ an update as noted in the below.
 * https://blogs.msdn.microsoft.com/vcblog/2015/07/24/setup-changes-in-visual-studio-2015-affecting-c-developers/
 
 
-
-
 Opening VS On a sln from Powershell
 ---------------------------------------
 
@@ -41,6 +39,53 @@ Then can::
     devenv C:\usr\local\env\windows\importclient\build\DemoClient.sln 
 
 
+Import settings from commandline
+---------------------------------
+
+* http://stackoverflow.com/questions/21455741/export-import-visual-studio-settings-from-command-line
+
+::
+
+   devenv /ResetSettings c:\full\path\to\your\own.vssettings
+
+Probably for the PATH envvar would a global setting of PATH for the VS process be honoured 
+by the debug runner ?
+
+
+* http://stackoverflow.com/questions/26913714/how-to-automate-changing-the-project-settings-in-visual-studio-2005-and-later
+
+Property sheets can be added with *View -> Property Manager*
+
+
+
+Studioshell : Powershell control of VS 
+-----------------------------------------
+
+* http://studioshell.codeplex.com/
+* https://www.nuget.org/packages/StudioShell/
+
+Provides a PS drive type interface to VS objects.
+
+* Unfortunately does not support VS 2015.
+
+
+Windows Package Manager : eg for python, ipython, numpy 
+---------------------------------------------------------
+
+Currently using 
+
+* pacman in MSYS2/MinGW shell 
+
+
+VS Natively are using:
+
+* chocolatey- (trustability issue) 
+* nuget- (trustability issue) : to investigate 
+
+Another VS native approach maybe 
+
+* conda/miniconda a precooked distribution and/or pkg manager
+* http://conda.pydata.org/miniconda.html
 
 
 Using VS GUI with A CMake Generated Solution
@@ -50,6 +95,15 @@ Using VS GUI with A CMake Generated Solution
 
 * in right pane "Solution Explorer" rightclick 
   the relevant target and  "Set As Startup project" 
+
+
+Hacks to modify the .sln to avoid this 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Would be better for cmake to have some way to control target order.
+
+* http://stackoverflow.com/questions/7304625/how-do-i-change-the-startup-project-of-a-visual-studio-solution-via-cmake
+* https://github.com/rpavlik/cmake-modules/blob/master/CreateLaunchers.cmake
 
 
 Setting PATH for running debugger
