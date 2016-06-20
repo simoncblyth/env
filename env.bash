@@ -1689,7 +1689,7 @@ cfg4-(){      . $(env-home)/optix/cfg4/cfg4.bash && cfg4-env $* ; }
 lxe-(){      . $(env-home)/optix/lxe/lxe.bash && lxe-env $* ; }
 
 
-optickscore-(){    . $(env-home)/optickscore/optickscore.bash && optickscore-env $* ; }
+okc-(){    . $(env-home)/optickscore/okc.bash && okc-env $* ; }
 opticksop-(){      . $(env-home)/opticksop/opticksop.bash && opticksop-env $* ; }
 mdls-(){      . $(env-home)/osx/mdls/mdls.bash && mdls-env $* ; }
 vxgi-(){      . $(env-home)/graphics/nvidia/vxgi.bash && vxgi-env $* ; }
