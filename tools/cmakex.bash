@@ -39,11 +39,40 @@ OPTICKS MACHINERY DEV NOTES
 See opticks-
 
 
-
 CMake Superbuild
 -------------------
 
 * boost being "found" for all packages 
+
+
+Better rebuild detection ?
+----------------------------
+
+Currently the build "mis-uses" find_package 
+which is meant to handle pre-built and installed pkgs 
+by switching to the target name when the lib is not found.
+
+Perhaps doing a build lib vs installed lib age check 
+might be enough ?
+
+Considerations:
+
+* want to keep things simple, with the VS2015 sln still operational
+* not-really critical can easily script the subdir installs from bash
+
+Approaches
+~~~~~~~~~~~~~
+
+Using ExternalProject_add
+
+* https://cmake.org/pipermail/cmake/2011-May/044188.html
+
+INTERFACE libs and TARGET_OBJECTS expression
+
+* https://cmake.org/pipermail/cmake/2014-November/059212.html
+* https://cmake.org/cmake/help/v3.0/command/add_library.html
+* https://rix0r.nl/blog/2015/08/13/cmake-guide/
+
 
 CTest
 ------
@@ -66,7 +95,6 @@ Run Scripts as tests
     if (BASH_PROGRAM)
       add_test (mytest ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/script.sh)
     endif (BASH_PROGRAM)
-
 
 
 Issue : environment for tests
