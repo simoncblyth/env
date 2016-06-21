@@ -459,26 +459,57 @@ EOX
 }
 
 
-importlib-hdr(){  echo ${1}_EXPORT.hh ; }
+importlib-hdr(){   echo ${1}_EXPORT.hh ; }
+importlib-head(){  echo ${1}_HEAD.hh ; }
+importlib-tail(){  echo ${1}_TAIL.hh ; }
 
 importlib-exports(){
 
    local msg=" === $FUNCNAME "
    local lib=${1:-MyLibrary}
    local api=${2:-MYLIB_API} 
+   local tag=${api/_API}
+
    local hdr=$(importlib-hdr $api)
+   local head=$(importlib-head $tag) 
+   local tail=$(importlib-tail $tag) 
 
    echo $msg lib $lib api $api hdr $hdr : generating header in PWD $PWD
 
    importlib-exports- $lib $api > $hdr
+   importlib-head- > $head
+   importlib-tail- > $tail
 
-   cat $hdr
 
    echo $msg use the header in public API classes as indicated:   
 
    importlib-example $lib $api
 
 }
+
+
+importlib-head-(){ cat << \EOH
+
+#ifdef _MSC_VER
+#pragma warning(push)
+// members needs to have dll-interface to be used by clients
+#pragma warning( disable : 4251 )
+#endif
+
+EOH
+}
+
+importlib-tail-() { cat << \EOT
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+EOT
+}
+
+
+
 
 
 importlib-example(){ 
