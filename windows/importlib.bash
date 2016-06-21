@@ -450,7 +450,7 @@ building a DLL on windows.
 
 #else
 
-   #define $api
+   #define $api  __attribute__ ((visibility ("default")))
 
 #endif
 
