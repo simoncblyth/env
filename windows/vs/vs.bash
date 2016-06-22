@@ -139,6 +139,20 @@ are not possible in code that includes Windef.h as it defines them to nothing.
 * http://stackoverflow.com/questions/16814409/windef-h-why-are-far-and-near-still-here-c
 
 
+Perl inplace edit drops .bak when not asked
+------------------------------------------------
+
+* http://stackoverflow.com/questions/2616865/why-do-i-have-to-specify-the-i-switch-with-a-backup-extension-when-using-active
+
+Workaround example::
+
+   plog-inplace-edit(){
+       perl -pi -e 's,BLog\.hh,PLOG.hh,g' *.cc && rm *.cc.bak
+   }
+
+
+
+
 Windows LDD equivalent
 ------------------------
 
