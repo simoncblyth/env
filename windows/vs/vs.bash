@@ -129,6 +129,15 @@ Start/Continue Debugger : F5
 A console window should show up with the output.
 
 
+Windef.h near far macros
+---------------------------
+
+Identifiers "near" and "far" (maybe "NEAR" "FAR" too) 
+are not possible in code that includes Windef.h as it defines them to nothing.
+
+* Blast from the past : **AMAZING**
+* http://stackoverflow.com/questions/16814409/windef-h-why-are-far-and-near-still-here-c
+
 
 Windows LDD equivalent
 ------------------------

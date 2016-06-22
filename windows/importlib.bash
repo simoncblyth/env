@@ -35,6 +35,12 @@ MS
   Walkthrough: Creating and Using a Dynamic Link Library (C++)
 
 
+Globals, Statics, DLLs, visibility
+-----------------------------------
+
+* http://stackoverflow.com/questions/19373061/what-happens-to-global-and-static-variables-in-a-shared-library-when-it-is-dynam
+
+
 Exporting STL 
 ---------------------
 

@@ -10,9 +10,16 @@ NVIDIA
 ========
 
 
-10 Series
+Shadowplay
 -----------
 
+Video capture from NVIDIA
+
+* http://www.geforce.com/geforce-experience/shadowplay
+
+
+10 Series
+-----------
 
 Geforce GTX 1070
 ~~~~~~~~~~~~~~~~~~~
