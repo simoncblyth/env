@@ -468,6 +468,7 @@ EOX
 importlib-hdr(){   echo ${1}_EXPORT.hh ; }
 importlib-head(){  echo ${1}_HEAD.hh ; }
 importlib-tail(){  echo ${1}_TAIL.hh ; }
+importlib-body(){  echo ${1}_BODY.hh ; }
 
 importlib-exports(){
 
@@ -479,12 +480,14 @@ importlib-exports(){
    local hdr=$(importlib-hdr $api)
    local head=$(importlib-head $tag) 
    local tail=$(importlib-tail $tag) 
+   local body=$(importlib-body $tag) 
 
    echo $msg lib $lib api $api hdr $hdr : generating header in PWD $PWD
 
    importlib-exports- $lib $api > $hdr
    importlib-head- > $head
    importlib-tail- > $tail
+   importlib-body- > $body
 
 
    echo $msg use the header in public API classes as indicated:   
@@ -514,8 +517,22 @@ importlib-tail-() { cat << \EOT
 EOT
 }
 
+importlib-body-() { cat << \EOT
 
+#ifdef _MSC_VER
 
+#define strdup _strdup
+
+// object allocated on the heap may not be aligned 16
+// https://github.com/g-truc/glm/issues/235
+// apparently fixed by 0.9.7.1 Release : currently on 0.9.6.3
+
+#pragma warning( disable : 4316 )
+
+#endif
+
+EOT
+}
 
 
 importlib-example(){ 
