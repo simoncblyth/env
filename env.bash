@@ -1753,3 +1753,4 @@ gitbash-(){      . $(env-home)/windows/gitbash.bash && gitbash-env $* ; }
 npc-(){      . $(env-home)/numerics/npyclient/npc.bash && npc-env $* ; }
 plog-(){      . $(env-home)/tools/plog/plog.bash && plog-env $* ; }
 ggeodev-(){      . $(env-home)/optix/ggeo/ggeodev.bash && ggeodev-env $* ; }
+sysrap-(){      . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
