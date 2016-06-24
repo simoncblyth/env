@@ -14,6 +14,15 @@ Refs
 
 * https://www.simple-talk.com/dotnet/.net-tools/further-down-the-rabbit-hole-powershell-modules-and-encapsulation/
 
+
+Finding v2 executable
+------------------------
+
+*  http://stackoverflow.com/questions/4145232/path-to-powershell-exe-v-2-0
+
+
+
+
 Text File Encodings
 --------------------
 
