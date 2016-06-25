@@ -179,6 +179,19 @@ Split header approach.
 Suggests it might be possible to have a separte imp with explicit instantiation.
 
 
+
+nvcc says to place the API attribute after "template class"
+---------------------------------------------------------------
+
+::
+
+    /Users/blyth/env/graphics/optixrap/OBufPair_.cu:38:23: warning: attribute 'visibility' is ignored, 
+     place it after "class" to apply attribute to type declaration [-Wignored-attributes]
+
+    template __attribute((visibility("default"))) class OBufPair< unsigned> 
+
+
+
 MSVC : General Rules and Limitations
 --------------------------------------
 
@@ -577,5 +590,11 @@ importlib-include-dirs(){
       echo $(dirname $h)
    done
 }
+
+importlib-unapi(){
+   grep -L _API *.hh *.hpp
+}
+
+
 
  
