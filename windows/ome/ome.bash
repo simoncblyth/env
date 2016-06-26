@@ -8,6 +8,16 @@ ome-usage(){ cat << \EOU
 OME 
 ====
 
+TODO:
+
+* make a github repo starting from XercesC release and 
+  apply the OME patch to it, such that can just use the
+  repo to get the XercesC SLN for VS 2015  
+
+
+See also ~/env/psm1/xercesc/xercesc.psm1 OR xerces-vi from Powershell
+
+
 * http://www.openmicroscopy.org/site/support/bio-formats5.1/developers/cpp/overview.html
 * https://github.com/ome/ome-cmake-superbuild
 
@@ -100,7 +110,15 @@ ome-xercesc-get(){
 }
 
 
-ome-xercesc-sln(){
-   echo $(ome-xercesc-dir)/projects/Win32/VC14/xerces-all/xerces-all.sln
-}
+ome-xercesc-sln(){ echo $(ome-xercesc-dir)/projects/Win32/VC14/xerces-all/xerces-all.sln ; }
+ome-xercesc-dll(){ echo $(ome-xercesc-dir)/Build/Win32/VC14/Debug/xerces-c_3_1D.dll ; } 
+ome-xercesc-lib(){ echo $(ome-xercesc-dir)/Build/Win32/VC14/Debug/xerces-c_3D.lib ; } 
+ome-xercesc-include(){ echo $(ome-xercesc-dir)/src ; }
+
+
+
+
+
+
+
 
