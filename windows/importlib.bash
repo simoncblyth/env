@@ -27,6 +27,19 @@ CMake
 * http://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows
 * http://stackoverflow.com/questions/7614286/how-do-i-get-cmake-to-create-a-dll-and-its-matching-lib-file
 
+
+GCC 4.0 required for my symbol visibility approach
+----------------------------------------------------
+
+* https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/CppRuntimeEnv/Articles/SymbolVisibility.html
+
+GCC 4.0 supports a new flag for setting the default visibility of symbols in a
+file.  The -fvisibility=vis compiler option lets you set the visibility for
+symbols in the current compilation. The value for this flag can be either
+default or hidden. 
+
+
+
 MS
 ----
 
