@@ -285,6 +285,44 @@ Windows LDD equivalent
 
 
 
+Missing Dependency Debugging
+-------------------------------
+
+1. open Opticks.sln into Visual Studio, from powershell with: opticks-vs 
+2. right click the target with the issue, eg CPropLibTest, and "Set as Startup Project"
+3. hit F5 to build and launch
+
+A dialog box pops up saying eg "G4Tree.dll" and after the G4 path fix 
+xerces-c_3_1D.dll
+
+
+Append PATH to include directory of dll
+-----------------------------------------
+
+In powershell profile (vip from powershell)::
+
+
+     10
+     11 $env:OPTICKS_PREFIX_OLD = "C:\Users\ntuhep\local\opticks"
+     12 $env:OPTICKS_PREFIX = "C:\usr\local\opticks"
+     13
+     14 $env:PATH = "${env:OPTICKS_PREFIX}\lib;$env:PATH"
+     15 $env:PATH = "${env:OPTICKS_PREFIX}\externals\lib;$env:PATH"
+     16 $env:PATH = "${env:OPTICKS_PREFIX_OLD}\externals\bin;$env:PATH"
+     17
+
+
+In gitbash profile (vip from gitbash)::
+
+     16 export OPTICKS_PREFIX_OLD=/c/Users/ntuhep/local/opticks
+     17 export OPTICKS_PREFIX=/c/usr/local/opticks
+     18
+     19 PATH=$OPTICKS_PREFIX/lib:$PATH
+     20 PATH=$OPTICKS_PREFIX/externals/lib:$PATH
+     21 PATH=$OPTICKS_PREFIX_OLD/externals/bin:$PATH
+
+
+
 
 
 

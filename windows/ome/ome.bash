@@ -117,7 +117,12 @@ ome-xercesc-include(){ echo $(ome-xercesc-dir)/src ; }
 
 
 
+ome-xercesc-install(){
+   local cmd="cp $(ome-xercesc-dll) $(opticks-prefix)/externals/lib/"
+   echo $cmd
+   eval $cmd   
 
+}
 
 
 

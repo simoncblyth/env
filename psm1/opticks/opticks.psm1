@@ -17,6 +17,8 @@ Opticks Windows Powershell Definitions
 "@ }
 
 
+function opticks-cd(){ cd $env:OPTICKS_PREFIX }
+function opticks-vs { devenv /useenv ${env:OPTICKS_PREFIX}\build\Opticks.sln }
 
 Export-ModuleMember -Function "opticks-*"
 
