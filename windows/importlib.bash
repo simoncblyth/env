@@ -39,6 +39,18 @@ symbols in the current compilation. The value for this flag can be either
 default or hidden. 
 
 
+When is the importlib used ?
+------------------------------
+
+My understanding.
+
+When using implicit linking (ie not plucking functions via an API) the
+importlib is only needed when linking the executable.  At runtime only the
+.dll needs to be found (not the importlib .lib).
+
+
+* http://stackoverflow.com/questions/3573475/how-does-the-import-library-work-details
+
 
 MS
 ----

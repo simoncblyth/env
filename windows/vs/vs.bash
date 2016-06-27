@@ -69,6 +69,108 @@ Provides a PS drive type interface to VS objects.
 * Unfortunately does not support VS 2015.
 
 
+Windows BAT scripts
+---------------------
+
+* http://stackoverflow.com/questions/5034076/what-does-dp0-mean-and-how-does-it-work
+
+
+Windows envvars
+-----------------
+
+Set Via GUI
+~~~~~~~~~~~~~
+
+* Control Panel > System and Security > System > [Advanced System Settings] [Environment Variables...]
+* Or just search for environment from Control Panel
+
+* http://winaero.com/blog/how-to-see-names-and-values-of-environment-variables-in-windows-8-and-windows-7/
+
+
+Usage in GUI
+~~~~~~~~~~~~~
+
+Enter in boxes surrounded by percent %NameOfEnvvar% 
+
+Powershell
+~~~~~~~~~~~
+
+* http://stackoverflow.com/questions/23255430/how-to-change-environment-variable-powershell-and-launch-an-application
+
+::
+
+   get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+   gp "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+
+
+
+* https://blogs.technet.microsoft.com/heyscriptingguy/2011/07/23/use-powershell-to-modify-your-environmental-path/
+* http://www.computerperformance.co.uk/powershell/powershell_env_path.htm
+
+
+
+Resolving a command against App Paths
+
+* http://poshcode.org/170
+
+::
+
+    #################################################################################################
+    ## Example Usage:
+    ##    Get-App Notepad
+    ##       Finds notepad.exe using Get-Command
+    ##    Get-App pbrush
+    ##       Finds mspaint.exe using the "App Paths" registry key
+    ##    &(Get-App WinWord)
+    ##       Finds, and launches, Word (if it's installed) using the "App Paths" registry key
+    ##################################################################################################
+    ## Revision History
+    ## 1.0 - initial release
+    ##################################################################################################
+
+    function Get-App {
+       param( [string]$cmd )
+       $eap = $ErrorActionPreference
+       $ErrorActionPreference = "SilentlyContinue"
+       Get-Command $cmd
+       if(!$?) {
+          $AppPaths = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths"
+          if(!(Test-Path $AppPaths\$cmd)) {
+             $cmd = [IO.Path]::GetFileNameWithoutExtension($cmd)
+             if(!(Test-Path $AppPaths\$cmd)){
+                $cmd += ".exe"
+             }
+          }
+          if(Test-Path $AppPaths\$cmd) {
+             Get-Command (Get-ItemProperty $AppPaths\$cmd)."(default)"
+          }
+       }
+    }
+
+
+
+App Paths registry key as alternative to PATH
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://news.ycombinator.com/item?id=10449311
+* https://blogs.msdn.microsoft.com/oldnewthing/20110725-00/?p=10073/
+
+Using Registry
+
+* https://msdn.microsoft.com/en-us/ms997545.aspx
+
+Application Registration
+
+* https://msdn.microsoft.com/en-us/library/windows/desktop/ee872121#app_exe
+* seems this just allows setting the PATH for an application not other envvars the process needs
+
+
+* https://helgeklein.com/blog/2010/08/how-the-app-paths-registry-key-makes-windows-both-faster-and-safer/
+
+
+
+
+
 Windows Package Manager : eg for python, ipython, numpy 
 ---------------------------------------------------------
 

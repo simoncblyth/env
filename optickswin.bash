@@ -12,15 +12,11 @@ Windows 7 Visual Studio 2015 prospects
 ----------------------------------------
 
 
-
-
 To be usable on Either the project needs to provide
 
 * binaries
 * .sln files
 * 
-
-
 
 
 =====================  ===============  =============   ==============================================================================
@@ -36,7 +32,10 @@ graphics/gui/imgui     imgui-                           github.com/simoncblyth/i
 =====================  ===============  =============   ==============================================================================
 
 
+Does Opticks need Windows Shim ?
+----------------------------------
 
+* http://www.songho.ca/opengl/gl_mvc.html
 
 
 Windows 7 MSYS2/MinGW build
