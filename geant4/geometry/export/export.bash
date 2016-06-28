@@ -760,13 +760,14 @@ EOT
 
 export-copy-()
 {
+   local ext=${1:-dae}
    local dest=$HOME/opticksdata/export
    local base=$(export-home)
    local path
    local dpath
    local rel
    local cmd
-   find $base -name 'g4_00.dae' | while read path 
+   find $base -name "g4_00.$ext" | while read path 
    do
       rel=${path/$base\/}
       dpath=$dest/$rel 
@@ -779,26 +780,32 @@ export-copy-()
 }  
 
 
-export-gdml-copy-()
+export-copy-all-()
 {
-   local dest=$HOME/opticksdata/export
-   local base=$(export-home)
-   local path
-   local dpath
-   local rel
-   local cmd
-   find $base -name 'g4_00.gdml' | while read path 
-   do
-      rel=${path/$base\/}
-      dpath=$dest/$rel 
-      ddir=$(dirname $dpath)
-      [ ! -d "$ddir" ] && echo mkdir -p $ddir
-      [ ! -f "$dpath" ] && echo cp $path $dpath
-   done   
-
-
+   export-copy- dae
+   export-copy- gdml
+   export-copy- idmap
 }  
 
+export-copy-detector-dir-()
+{
+   local dirname=${2:-GPmt}
+   local detector=${2:-DayaBay}
+   local base=$(export-home)
+   local dest=$HOME/opticksdata/export
+   local path
+   local ddir
+   find $base -type d -name $dirname | while read path 
+   do
+       ddir=$dest/$detector/$dirname 
+       dfold=$(dirname $ddir)
+       [ ! -d "$dfold" ] && echo mkdir -p $dfold
+       [ ! -d "$ddir" ] && echo cp -r $path $dfold/
+   done
+
+
+
+}
 
 
 
