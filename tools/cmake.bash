@@ -11,12 +11,19 @@ CMAKE
 * http://www.cmake.org/
 * https://cmake.org/download/
 
+* https://gitlab.kitware.com/cmake/cmake/commit/874fdd914a646d25096c34b97caafe43e2a77748
+
+
 
 See Also
 --------
 
 cmakex-  
     cmake examples and documenting the development of OPTICKS- cmake machinery 
+
+cmak-
+    generating CMakeLists.txt to debug finding packages and flag setup etc.. 
+
 
 
 Best Docs encountered
