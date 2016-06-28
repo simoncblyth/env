@@ -1754,3 +1754,5 @@ npc-(){      . $(env-home)/numerics/npyclient/npc.bash && npc-env $* ; }
 plog-(){      . $(env-home)/tools/plog/plog.bash && plog-env $* ; }
 ggeodev-(){      . $(env-home)/optix/ggeo/ggeodev.bash && ggeodev-env $* ; }
 sysrap-(){      . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
+openmeshclient-(){      . $(env-home)/openmeshclient/openmeshclient.bash && openmeshclient-env $* ; }
+omc-(){      . $(env-home)/openmeshclient/omc.bash && omc-env $* ; }

@@ -522,9 +522,26 @@ EOU
 
 cmake-vers(){ echo v3.5 ; }
 cmake-name(){ echo cmake-3.5.2-$(uname -s)-$(uname -m) ; }
-cmake-dir(){ echo $(local-base)/env/tools/cmake/$(cmake-name) ; }
+cmake-dir(){ 
+   case $NODE_TAG in 
+       MGB) echo /c/ProgramData/chocolatey/lib/cmake.portable/tools/cmake-3.5.2-win32-x86 ;;
+         *) echo $(local-base)/env/tools/cmake/$(cmake-name) ;;
+   esac
+}
+
+
+cmake-find-package(){ 
+   local pkg=${1:-Boost}
+   echo $(cmake-dir)/share/cmake-3.5/Modules/Find${pkg}.cmake  
+}
+
+
 cmake-cd(){  cd $(cmake-dir); }
 cmake-get(){
+
+   [ "$NODE_TAG" == "MGB" ] && echo use chocolatey install on windows && return 
+
+
    local dir=$(dirname $(cmake-dir)) &&  mkdir -p $dir && cd $dir
    local url=$(cmake-url)
    local tgz=$(basename $url)

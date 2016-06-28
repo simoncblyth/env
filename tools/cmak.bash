@@ -47,13 +47,65 @@ message(" OPTICKS_PREFIX  : \${OPTICKS_PREFIX} ")
 EOD
 }
 
+
+
+cmak-vars-(){ local name=${1:-CMAKE} ; cat << EOV
+${name}_CXX_FLAGS
+${name}_CXX_FLAGS_DEBUG
+${name}_CXX_FLAGS_MINSIZEREL
+${name}_CXX_FLAGS_RELEASE
+${name}_CXX_FLAGS_RELWITHDEBINFO
+${name}_EXE_LINKER_FLAGS
+EOV
+}
+
+
+cmak-vars(){
+   local name=${1:-$FUNCNAME} 
+   local var
+   cmak-vars- CMAKE | while read var 
+   do 
+      cat << EOV
+message("\${name}.$var : \${$var} ")
+EOV
+   done
+
+}
+
+
+cmak-package-vars-(){ local name=${1:-Geant4} ; cat << EOV
+${name}_LIBRARY
+${name}_LIBRARIES
+${name}_INCLUDE_DIRS
+${name}_DEFINITIONS
+EOV
+}
+cmak-package-vars(){
+   local name=${1:-OpenMesh} 
+   local var
+   cmak-package-vars- $name | while read var 
+   do 
+      cat << EOV
+message("\${name}.$var : \${$var} ")
+EOV
+   done
+}
+
+
+
+
+
 cmak-txt-(){
      local name=$1
-     cat << EOT
-
+     cat << EOH
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(tt)
 
+EOH
+     cmak-vars 
+
+     local find=NO
+     [ "$find" == "YES" ] && cat << EOF
 find_package($*)
 
 message("${name}_LIBRARY       : \${${name}_LIBRARY}")
@@ -61,7 +113,7 @@ message("${name}_LIBRARIES     : \${${name}_LIBRARIES}")
 message("${name}_INCLUDE_DIRS  : \${${name}_INCLUDE_DIR}")
 message("${name}_DEFINITIONS   : \${${name}_DEFINITIONS}")
 
-EOT
+EOF
 
      case $name in
         Boost) cmak-txt-qwns- $name ;;
@@ -134,6 +186,71 @@ cmak-find-boost(){
    #   twas failing to find libs due to a lib suffix
    #   switched that on using the Boost_USE_STATIC_LIBS switch
    #
+
+}
+
+
+
+cmak-flags(){
+
+   cmak-cd
+   cmak-txt- > CMakeLists.txt
+   cat CMakeLists.txt
+
+   cmak-brm
+   cmak-bcd
+
+   local src=$(cmak-dir)
+   cmake $src 
+
+}
+
+
+cmak-opticks-txt-(){
+     local name=$1
+     cat << EOH
+
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+   message(FATAL_ERROR "in-source build detected : DONT DO THAT")
+endif()
+
+set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX \$ENV{ENV_HOME}/cmake/Modules/Geant4MakeRules_cxx.cmake)
+
+set(name CMakOpticksTxt)
+project(${name})
+
+set(CMAKE_MODULE_PATH "\$ENV{ENV_HOME}/cmake/Modules")
+
+
+EOH
+     cmak-vars 
+
+     local find=YES
+     [ "$find" == "YES" ] && cat << EOF
+find_package($*)
+
+EOF
+}
+
+
+
+cmak-find-OpenMesh(){
+
+   local pkg=OpenMesh 
+
+   cmak-cd
+   cmak-opticks-txt- $pkg > CMakeLists.txt
+   cmak-package-vars $pkg >> CMakeLists.txt 
+
+   cat CMakeLists.txt
+
+   cmak-brm
+   cmak-bcd
+   local src=$(cmak-dir)
+
+   cmake $src 
 
 }
 
