@@ -296,6 +296,14 @@ A dialog box pops up saying eg "G4Tree.dll" and after the G4 path fix
 xerces-c_3_1D.dll
 
 
+
+Windows Git Bash PATH and PATH length limitation 
+---------------------------------------------------
+
+* http://superuser.com/questions/607533/windows-git-bash-bash-path-to-read-windows-path-system-variable
+
+
+
 Append PATH to include directory of dll
 -----------------------------------------
 

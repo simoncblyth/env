@@ -26,6 +26,23 @@ cmak-
 
 
 
+cmake --build . --help
+-------------------------
+
+::
+
+    Usage: cmake --build <dir> [options] [-- [native-options]]
+    Options:
+      <dir>          = Project binary directory to be built.
+      --target <tgt> = Build <tgt> instead of default targets.
+      --config <cfg> = For multi-configuration tools, choose <cfg>.
+      --clean-first  = Build target 'clean' first, then build.
+                       (To clean only, use --target 'clean'.)
+      --use-stderr   = Ignored.  Behavior is default in CMake >= 3.0.
+      --             = Pass remaining options to the native tool.
+
+
+
 Best Docs encountered
 ----------------------
 
