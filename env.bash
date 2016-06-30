@@ -272,7 +272,10 @@ env-rel(){
   echo $rel
 }
 
-env-gen(){ func-;func-gen $*;}
+env-gen(){      func-;func-gen $*;}
+
+env-genproj(){  proj-;proj-gen env $*;}
+env-fgenproj(){ proj-;proj-fgen env $*;}
 
 env-toc-(){ cat << EOX
 
@@ -1755,4 +1758,18 @@ plog-(){      . $(env-home)/tools/plog/plog.bash && plog-env $* ; }
 ggeodev-(){      . $(env-home)/optix/ggeo/ggeodev.bash && ggeodev-env $* ; }
 sysrap-(){      . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
 openmeshclient-(){      . $(env-home)/openmeshclient/openmeshclient.bash && openmeshclient-env $* ; }
-omc-(){      . $(env-home)/openmeshclient/omc.bash && omc-env $* ; }
+proj-(){      . $(env-home)/base/proj.bash && proj-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
