@@ -6,6 +6,55 @@ omc-vi(){       vi $(omc-source) $(omc-sdir)/CMakeLists.txt $(omc-tdir)/CMakeLis
 omc-usage(){ cat << EOU
 
 
+OpenMeshClient
+=================
+
+Observe the assert when use "-fvisibility=hidden" on clang:: 
+
+    simon:openmeshclient blyth$ /usr/local/env/graphics/openmeshclient.install/lib/DeleteFaceTest
+    just vertices nv 8 nf 0
+     i    0 p         -1        -1         1
+     i    1 p          1        -1         1
+     i    2 p          1         1         1
+     i    3 p         -1         1         1
+     i    4 p         -1        -1        -1
+     i    5 p          1        -1        -1
+     i    6 p          1         1        -1
+     i    7 p         -1         1        -1
+    after add_face*6 nv 8 nf 6
+     i    0 p         -1        -1         1
+     i    1 p          1        -1         1
+     i    2 p          1         1         1
+     i    3 p         -1         1         1
+     i    4 p         -1        -1        -1
+     i    5 p          1        -1        -1
+     i    6 p          1         1        -1
+     i    7 p         -1         1        -1
+     f    0 idx  0 1 2 3
+     f    1 idx  7 6 5 4
+     f    2 idx  1 0 4 5
+     f    3 idx  2 1 5 6
+     f    4 idx  3 2 6 7
+     f    5 idx  0 3 7 4
+    Assertion failed: (p != NULL), function property, file /usr/local/opticks/externals/openmesh/OpenMesh-4.1/src/OpenMesh/Core/../../OpenMesh/Core/Utils/PropertyContainer.hh, line 158.
+    Abort trap: 6
+
+
+
+
+* https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/CppRuntimeEnv/Articles/SymbolVisibility.html
+
+::
+
+    #pragma GCC visibility push(default)
+    void g() { }
+    void h() { }
+    #pragma GCC visibility pop
+
+
+
+
+
 EOU
 }
 

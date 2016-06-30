@@ -322,10 +322,12 @@ EOT
 }
 
 
-proj-args-hh-(){ cat << EOH
+proj-args-hh-(){ local tag=$1 ; cat << EOH
 #pragma once
 
-struct Args {
+#include "${tag}_API_EXPORT.hh"
+
+struct ${tag}_API Args {
    int    argc ; 
    char** argv ;
     
@@ -371,6 +373,29 @@ EOX
 }
 
 
+proj-api-export-hh-(){ local tag=$1 ; local proj=$2 ; cat << EOX
+
+#pragma once
+
+#if defined (_WIN32) 
+
+   #if defined(${proj}_EXPORTS)
+       #define  ${tag}_API __declspec(dllexport)
+   #else
+       #define  ${tag}_API __declspec(dllimport)
+   #endif
+
+#else
+
+   #define ${tag}_API  __attribute__ ((visibility ("default")))
+
+#endif
+
+EOX
+}
+
+
+
 
 proj-fgen(){
   local msg="=== $FUNCNAME :"
@@ -395,7 +420,10 @@ proj-gen(){
   local fgr=$(proj-gen-repo $*)
   local pkg=$(proj-gen-pkg $*)
 
-  echo  $msg  .... fgp:$fgp fgn:$fgn fgr:$fgr pkg $pkg
+  local proj=$fgn 
+  local tag=$(echo $proj | tr "[a-z]" "[A-Z]" ) 
+
+  echo  $msg  .... fgp:$fgp fgn:$fgn fgr:$fgr pkg $pkg tag $tag
 
   local path=$($fgr-home)/$fgp  
   local dir=$(dirname $path)
@@ -431,10 +459,13 @@ proj-gen(){
   proj-cmak-tests- | perl -p -e "s,%NAME%,$fgn," -  > $tdir/CMakeLists.txt
 
 
-  proj-args-hh- > $dir/Args.hh
+
+
+  proj-args-hh- $tag > $dir/Args.hh
   proj-args-cc- > $dir/Args.cc
   proj-argstest-cc- > $tdir/ArgsTest.cc
 
+  proj-api-export-hh-  $tag $proj > $dir/${proj}_API_EXPORT.hh 
 
 
 

@@ -4,14 +4,12 @@
 #include <iostream>
 #include <iomanip>
 
-//
 // without the bookends this asserts on attempting to delete a face
 // when the -fvisibility=hidden compiler option is in use
 //
 #ifdef __clang__
 #pragma GCC visibility push(default)
 #endif
-
 
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/PolyMesh_ArrayKernelT.hh>
@@ -21,7 +19,6 @@
 #ifdef __clang__
 #pragma GCC visibility pop
 #endif
-
 
 
 

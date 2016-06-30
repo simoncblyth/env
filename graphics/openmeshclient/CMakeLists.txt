@@ -10,6 +10,9 @@ include(CTest)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+
+
 set(pkg OpenMesh)
 find_package(${pkg})
 

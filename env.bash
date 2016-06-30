@@ -1773,3 +1773,5 @@ omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
 omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
 omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
 omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }

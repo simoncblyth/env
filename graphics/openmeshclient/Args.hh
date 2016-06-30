@@ -1,6 +1,8 @@
 #pragma once
 
-struct Args {
+#include "OMC_API_EXPORT.hh"
+
+struct OMC_API Args {
    int    argc ; 
    char** argv ;
     

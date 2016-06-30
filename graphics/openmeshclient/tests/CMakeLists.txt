@@ -5,6 +5,7 @@ project(${name})
 
 set(TEST_SOURCES
     ArgsTest.cc
+    DeleteFaceTest.cc
 )
 
 foreach(SRC ${TEST_SOURCES})
