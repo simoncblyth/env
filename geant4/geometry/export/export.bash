@@ -17,6 +17,26 @@ From script usage::
    GDB=1 export.sh VGDX Far
 
 
+
+Rationalize IDPATH_DPIB_PMT
+-----------------------------
+
+::
+
+    simon:env blyth$ find . -name '*.*' -type f -exec grep -H IDPATH_DPIB_PMT {} \;
+    Binary file ./_build/doctrees/graphics/ggeoview/geometry_review.doctree matches
+    ./graphics/ggeoview/geometry_review.rst:    48 export IDPATH_DPIB_PMT=/usr/local/env/geant4/geometry/export/dpib/cfg4.6f627a3ec05405cbcfff6bd479fbdd37.dae
+    ./graphics/ggeoview/geometry_review.rst:     146                  pmtpath=$IDPATH_DPIB_PMT/GMergedMesh/0
+    ./graphics/ggeoview/ggv.bash:                 pmtpath=$IDPATH_DPIB_PMT/GMergedMesh/0
+    ./numerics/npy/analytic_cf_triangulated.py:    #base = os.path.expandvars("$IDPATH_DPIB_PMT/GMergedMesh/0")
+    ./numerics/npy/mesh.py:    DPIB_PMT = os.path.expandvars("$IDPATH_DPIB_PMT");
+    Binary file ./optix/ggeo/.GGeoTestConfig.cc.swp matches
+    ./optix/ggeo/GGeoTestConfig.cc:    "pmtpath=$IDPATH_DPIB_PMT/GMergedMesh/0_"
+    simon:env blyth$ 
+
+
+
+
 issue : not producing exports on G5 
 -------------------------------------------
 
@@ -789,9 +809,11 @@ export-copy-all-()
 
 export-copy-detector-dir-()
 {
-   local dirname=${2:-GPmt}
+   local dirname=${1:-GPmt}
    local detector=${2:-DayaBay}
-   local base=$(export-home)
+   local defbase=$(export-home)
+   local base=${3:-$defbase} 
+
    local dest=$HOME/opticksdata/export
    local path
    local ddir
@@ -802,11 +824,15 @@ export-copy-detector-dir-()
        [ ! -d "$dfold" ] && echo mkdir -p $dfold
        [ ! -d "$ddir" ] && echo cp -r $path $dfold/
    done
-
-
-
 }
 
+
+export-copy-dpib-dir-()
+{
+   local base=$IDPATH_DPIB_PMT
+   [ -z "$base" ] && echo $msg missing envvar IDPATH_DPIB_PMT && return ;
+   export-copy-detector-dir- GMergedMesh dpib $base
+}
 
 
 
