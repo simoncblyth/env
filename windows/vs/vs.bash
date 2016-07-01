@@ -254,6 +254,29 @@ Workaround example::
 
 
 
+cl.exe disable warning globally rather than via pragma
+----------------------------------------------------------
+
+Powershell after (vs-export), cl -help::
+
+    .. many pages down .. 
+
+    /nologo suppress copyright message
+    /sdl enable additional security features and warnings
+    /showIncludes show include file names   /Tc<source file> compile file as .c
+    /Tp<source file> compile file as .cpp   /TC compile all files as .c
+    /TP compile all files as .cpp           /V<string> set version string
+    /w disable all warnings                 /wd<n> disable warning n
+    /we<n> treat warning n as an error      /wo<n> issue warning n once
+    /w<l><n> set warning level 1-4 for n    /W<n> set warning level (default n=1)
+    /Wall enable all warnings               /WL enable one line diagnostics
+    /WX treat warnings as errors            /Yc[file] create .PCH file
+    /Yd put debug info in every .OBJ        /Yl[sym] inject .PCH ref for debug lib
+    /Yu[file] use .PCH file                 /Y- disable all PCH options
+
+
+
+
 
 Windows LDD equivalent
 ------------------------
