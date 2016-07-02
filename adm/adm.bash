@@ -1,10 +1,10 @@
 adm-src(){      echo adm/adm.bash ; }
 adm-source(){   echo ${BASH_SOURCE:-$(env-home)/$(adm-src)} ; }
 adm-vi(){       vi $(adm-source) ; }
-adm-usage(){ cat << EOU
+adm-usage(){ cat << \EOU
 
-ADM : Python Virtualenv for SysAdmin 
-======================================
+ADM : Repository SysAdmin with Python Virtualenv 
+=================================================
 
 Overview
 ----------
@@ -22,10 +22,130 @@ example:
 #. hgapi, programmatic access to Mercurial repository 
 
 
+adm-spawn : Spawns subset of repo into a new one, with history
+-----------------------------------------------------------------
+
+See example : adm-opticks
+
+Preparing *env* for spawning *opticks* 
+-----------------------------------------
+
+* move opticks projs up to toplevel, changing precursors
+* move bash functions for opticks externals into new top level externals folder
+
+* Migrate infrastructure such as proj precursors from env.bash into opticks.bash  
+
+
+What mappings to make in the conversion
+-----------------------------------------
+
+As few as possible. 
+
+Easier to do renames in env (in an audited fashion) 
+with standard "hg mv" prior to spawn.
+
+Transitionally the env sources will continue to exist beyond the spawn 
+for easier mapping from old to new its better to do the repositioning
+within env prior to the spawn.
+
+Avoid complicated filemap, it should just be
+inclusion of top level files and the project folders. 
+
+   include opticks.bash
+   include CMakeLists.txt
+   include Makefile
+
+   include externals
+   include sysrap
+   include boostrap
+   include npy
+   include optickscore 
+   include ggeo
+   ...   
+
+
+What to include in spawned opticks repo 
+-----------------------------------------
+
+* Everything needed to build Opticks, including bash functions for externals.
+* Sphinx documentation sources and Makefile
+* bash function infrastructure
+
+
+What to exclude 
+------------------
+
+The point of spawned Opticks repo is **CLARITY** and **SIMPLICITY** :
+so exclude as much as possible.
+*env* and *opticks* repos will coexist so no pressure to include.
+
+* dev notes not relevant to users
+* experimental stuff, eg Windows psm1 modules 
+
+
+Background on *hg convert*
+----------------------------
+
+* :google:`hg convert`
+
+
+wiki/ConvertExtension
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.mercurial-scm.org/wiki/ConvertExtension
+
+  This extension is distributed with Mercurial. 
+
+Note: 
+
+When converting to Mercurial, the destination working directory is used as a
+temporary storage for file revisions but is not updated. hg status lists all
+these temporary files as unknown. Purge them and update to get a correct view
+of the converted repository.
+
+::
+
+    delta:env blyth$ find . -type f -depth 1
+    ./.hgignore
+    ./__init__.py
+    ./__init__.pyc
+    ./CMakeLists.txt
+    ./conf.py
+    ./env.bash
+    ./index.rst
+    ./install.rst
+    ./main.scons
+    ./Makefile
+    ./opticks-failed-build.bash
+    ./opticks.bash
+    ./opticksdata.bash
+    ./opticksdev.bash
+    ./optickswin.bash
+    ./README.rst
+    ./sweep.py
+    ./TODO.rst
+
+
+
+
+
+wiki/ConvertExtensionImplementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.mercurial-scm.org/wiki/ConvertExtensionImplementation
+
+
+
+
+
 Future functionality : convert hg to git 
 ------------------------------------------
 
 * http://arr.gr/blog/2011/10/bitbucket-converting-hg-repositories-to-git/
+
+
+
+
 
 
 FUNCTIONS
@@ -463,6 +583,12 @@ adm-filemap-opticks(){  cat << EOF
 # for the externals to get copied too...
 #
 
+include CMakeLists.txt
+include Makefile
+include opticks.bash
+
+
+
 include boost/bpo/bcfg
 rename boost/bpo/bcfg bcfg
 
@@ -507,43 +633,17 @@ EOF
 }
 
 
-adm-opticks-cmake(){ cat << EOF
-
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-project(OPTICKS)
-
-add_subdirectory(bcfg)
-add_subdirectory(bregex)
-add_subdirectory(npy)
-add_subdirectory(opticks)
-add_subdirectory(ggeo)
-add_subdirectory(assimpwrap)
-add_subdirectory(openmeshrap)
-add_subdirectory(oglrap)
-add_subdirectory(cudawrap)
-add_subdirectory(thrustrap)
-add_subdirectory(optixrap)
-add_subdirectory(opticksop)
-add_subdirectory(ggeoview)
-add_subdirectory(cfg4)
-
-EOF
-}
-
-
-
 
 adm-opticks(){
 
    cd
    rm -rf opticks
 
-   adm-env-to-opticks
+   adm-spawn opticks env 
 
    cd opticks
    hg update
 
-   adm-opticks-cmake > CMakeLists.txt
 
 }
 
@@ -636,7 +736,6 @@ adm-convert(){
 
 
 adm-env-to-g4dae(){     adm-spawn g4dae env ; }
-adm-env-to-opticks(){   adm-spawn opticks env ; }
 
 adm-spawn(){
 
@@ -644,21 +743,19 @@ adm-spawn(){
    local dstname=${1:-g4dae}
    local srcname=${2:-env}
 
-   local srcdir=$HOME/$srcname
    local dstdir=$HOME/$dstname
-
+   local srcdir=$HOME/$srcname
 
    local dst=file://$dstdir 
    local src=file://$srcdir  
 
-   local name=$dstname
-   local filemap=$(adm-filemap-path $name)
-   local authormap=$(adm-authormap-path $name)
+   local filemap=$(adm-filemap-path $dstname)
+   local authormap=$(adm-authormap-path $dstname)
 
    mkdir -p $(dirname $filemap)
 
-   adm-filemap $name > $filemap
-   adm-authormap $name > $authormap
+   adm-filemap   $dstname > $filemap
+   adm-authormap $dstname > $authormap
 
    local cmd="hg convert --config convert.localtimezone=true --source-type hg --dest-type hg $src $dst --filemap $filemap --authormap $authormap "
    echo $cmd

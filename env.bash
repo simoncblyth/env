@@ -57,7 +57,7 @@ env-htdocs-rsync(){
 }
 
 
-u_(){ 
+env_u_(){ 
    # mapping directory to url 
    local dir=${1:-$PWD}
    local abs=$(realpath $dir)   # see ~/e/tools/realpath/
@@ -74,10 +74,31 @@ u_(){
    esac
 }
 u(){ 
-   local url=$(u_ $*)
+   local url=$(env_u_ $*)
    echo $msg open URL corresponding to PWD $PWD : $url
    [ "$(uname)" == "Darwin" ] && open $url 
 }
+
+env_tip_(){
+   local dir=${1:-$PWD}
+   local abs=$(realpath $dir)   # see ~/e/tools/realpath/
+
+   ## TODO: detect hg or git and set cloud url according to clone metadata
+   case $abs in
+       ${ENV_HOME}) echo https://bitbucket.org/simoncblyth/env/src/tip/ ;;
+      ${ENV_HOME}*) echo https://bitbucket.org/simoncblyth/env/src/tip/${abs/$ENV_HOME\/}/ ;;
+                 *) echo http://www.google.com ;;
+   esac 
+}
+
+tip(){
+   local url=$(env_tip_ $*)
+   echo $msg open URL corresponding to PWD $PWD : $url
+   [ "$(uname)" == "Darwin" ] && open $url 
+}
+
+
+
 
 
 env-open(){
@@ -782,7 +803,7 @@ EOD
 env-find(){
   local q=${1:-dummy}
   cd $(env-home)
-  find . -name '*.*' -exec grep -H $q {} \;  | grep -v /.svn
+  find . -name '*.*' -type f -exec grep -H $q {} \;  | grep -v /.svn
 }
 env-rstfind(){
   local q=${1:-dummy}
@@ -1343,8 +1364,6 @@ swig-(){      . $(env-home)/swig/swig.bash && swig-env $* ; }
 swigbuild-(){      . $(env-home)/swig/swigbuild.bash && swigbuild-env $* ; }
 viruscheck-(){      . $(env-home)/admin/viruscheck.bash && viruscheck-env $* ; }
 dbxml-(){      . $(env-home)/db/dbxml.bash && dbxml-env $* ; }
-boost-(){      . $(env-home)/boost/boost.bash && boost-env $* ; }
-boost-(){      . $(env-home)/boost/boost.bash && boost-env $* ; }
 boostlog-(){      . $(env-home)/boost/boostlog.bash && boostlog-env $* ; }
 docutils-(){      . $(env-home)/python/docutils.bash && docutils-env $* ; }
 fabric-(){      . $(env-home)/tools/fabric.bash && fabric-env $* ; }
@@ -1470,7 +1489,8 @@ openvpn-(){      . $(env-home)/network/openvpn.bash && openvpn-env $* ; }
 colladadom-(){      . $(env-home)/graphics/collada/colladadom/colladadom.bash && colladadom-env $* ; }
 osgdata-(){      . $(env-home)/graphics/openscenegraph/osgdata.bash && osgdata-env $* ; }
 colladadomtest-(){      . $(env-home)/graphics/collada/colladadom/testColladaDOM/colladadomtest.bash && colladadomtest-env $* ; }
-cuda-(){      . $(env-home)/cuda/cuda.bash && cuda-env $* ; }
+
+
 xquartz-(){      . $(env-home)/gui/xquartz.bash && xquartz-env $* ; }
 shrinkwrap-(){      . $(env-home)/python/shrinkwrap/shrinkwrap.bash && shrinkwrap-env $* ; }
 pip-(){      . $(env-home)/python/pip.bash && pip-env $* ; }
@@ -1535,7 +1555,8 @@ dataquality-(){      . $(env-home)/nuwa/dataquality.bash && dataquality-env $* ;
 scenekit-(){      . $(env-home)/graphics/scenekit/scenekit.bash && scenekit-env $* ; }
 g4daeplay-(){      . $(env-home)/geant4/geometry/collada/swift/g4daeplay.bash && g4daeplay-env $* ; }
 chromacpp-(){      . $(env-home)/chroma/chromacpp/chromacpp.bash && chromacpp-env $* ; }
-xercesc-(){      . $(env-home)/xml/xercesc/xercesc.bash && xercesc-env $* ; }
+
+
 mocksim-(){      . $(env-home)/geant4/mocksim/mocksim.bash && mocksim-env $* ; }
 utilities-(){      . $(env-home)/nuwa/utilities.bash && utilities-env $* ; }
 gdc-(){      . $(env-home)/chroma/G4DAEChroma/gdc.bash && gdc-env $* ; }
@@ -1567,195 +1588,249 @@ envcap-(){      . $(env-home)/base/envcap.bash && envcap-env $* ; }
 realtime-(){      . $(env-home)/base/time/realtime.bash && realtime-env $* ; }
 fdp-(){      . $(env-home)/tools/graphviz/fdp.bash && fdp-env $* ; }
 osx-(){      . $(env-home)/osx/osx.bash && osx-env $* ; }
-optix-(){      . $(env-home)/optix/optix.bash && optix-env $* ; }
-oppr-(){      . $(env-home)/optix/OppositeRenderer/oppr.bash && oppr-env $* ; }
-optixsample1-(){      . $(env-home)/cuda/optix/optix301/sample1manual/optixsample1.bash && optixsample1-env $* ; }
-assimp-(){      . $(env-home)/graphics/assimp/assimp.bash && assimp-env $* ; }
-assimptest-(){      . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && assimptest-env $* ; }
-optixtest-(){      . $(env-home)/optix/OptiXTest/optixtest.bash && optixtest-env $* ; }
-raytrace-(){      . $(env-home)/graphics/raytrace/raytrace.bash && raytrace-env $* ; }
-mercurial-(){      . $(env-home)/hg/mercurial.bash && mercurial-env $* ; }
-virtualgl-(){      . $(env-home)/graphics/virtualgl/virtualgl.bash && virtualgl-env $* ; }
-nvidia-(){      . $(env-home)/graphics/nvidia/nvidia.bash && nvidia-env $* ; }
-cudaz-(){      . $(env-home)/cuda/cudaz/cudaz.bash && cudaz-env $* ; }
-mesa-(){      . $(env-home)/graphics/opengl/mesa/mesa.bash && mesa-env $* ; }
-libpng-(){      . $(env-home)/graphics/libpng/libpng.bash && libpng-env $* ; }
-macrosim-(){      . $(env-home)/optix/macrosim/macrosim.bash && macrosim-env $* ; }
-assimprap-(){      . $(env-home)/graphics/assimprap/assimprap.bash && assimprap-env $* ; }
-goofit-(){      . $(env-home)/cuda/goofit/goofit.bash && goofit-env $* ; }
-vmd-(){      . $(env-home)/optix/vmd/vmd.bash && vmd-env $* ; }
-openrl-(){      . $(env-home)/graphics/openrl/openrl.bash && openrl-env $* ; }
-ggeo-(){      . $(env-home)/optix/ggeo/ggeo.bash && ggeo-env $* ; }
+
+
+oppr-(){         . $(env-home)/optix/OppositeRenderer/oppr.bash && oppr-env $* ; }
+optixsample1-(){ . $(env-home)/cuda/optix/optix301/sample1manual/optixsample1.bash && optixsample1-env $* ; }
+
+
+raytrace-(){     . $(env-home)/graphics/raytrace/raytrace.bash && raytrace-env $* ; }
+mercurial-(){    . $(env-home)/hg/mercurial.bash && mercurial-env $* ; }
+virtualgl-(){    . $(env-home)/graphics/virtualgl/virtualgl.bash && virtualgl-env $* ; }
+nvidia-(){       . $(env-home)/graphics/nvidia/nvidia.bash && nvidia-env $* ; }
+cudaz-(){        . $(env-home)/cuda/cudaz/cudaz.bash && cudaz-env $* ; }
+mesa-(){         . $(env-home)/graphics/opengl/mesa/mesa.bash && mesa-env $* ; }
+libpng-(){       . $(env-home)/graphics/libpng/libpng.bash && libpng-env $* ; }
+macrosim-(){     . $(env-home)/optix/macrosim/macrosim.bash && macrosim-env $* ; }
+
+
+goofit-(){       . $(env-home)/cuda/goofit/goofit.bash && goofit-env $* ; }
+vmd-(){          . $(env-home)/optix/vmd/vmd.bash && vmd-env $* ; }
+openrl-(){       . $(env-home)/graphics/openrl/openrl.bash && openrl-env $* ; }
+
+
 cudatex-(){      . $(env-home)/cuda/texture/cudatex.bash && cudatex-env $* ; }
-optixtex-(){      . $(env-home)/optix/optixtex/optixtex.bash && optixtex-env $* ; }
-unity-(){      . $(env-home)/graphics/unity/unity.bash && unity-env $* ; }
-pbs-(){      . $(env-home)/graphics/shading/pbs.bash && pbs-env $* ; }
-cudarap-(){    . $(env-home)/cuda/cudarap/cudarap.bash && cudarap-env $* ; }
-optixsamples-(){      . $(env-home)/optix/optixsamples.bash && optixsamples-env $* ; }
-iray-(){      . $(env-home)/iray/iray.bash && iray-env $* ; }
-glfw-(){      . $(env-home)/graphics/glfw/glfw.bash && glfw-env $* ; }
-glew-(){      . $(env-home)/graphics/glew/glew.bash && glew-env $* ; }
-glfwtest-(){      . $(env-home)/graphics/glfw/glfwtest/glfwtest.bash && glfwtest-env $* ; }
-vl-(){      . $(env-home)/graphics/vl/vl.bash && vl-env $* ; }
-vltest-(){      . $(env-home)/graphics/vl/vltest/vltest.bash && vltest-env $* ; }
+optixtex-(){     . $(env-home)/optix/optixtex/optixtex.bash && optixtex-env $* ; }
+unity-(){        . $(env-home)/graphics/unity/unity.bash && unity-env $* ; }
+pbs-(){          . $(env-home)/graphics/shading/pbs.bash && pbs-env $* ; }
+iray-(){         . $(env-home)/iray/iray.bash && iray-env $* ; }
+
+vl-(){           . $(env-home)/graphics/vl/vl.bash && vl-env $* ; }
+vltest-(){       . $(env-home)/graphics/vl/vltest/vltest.bash && vltest-env $* ; }
 oglplus-(){      . $(env-home)/graphics/oglplus/oglplus.bash && oglplus-env $* ; }
-oglplustest-(){      . $(env-home)/graphics/oglplus/oglplustest/oglplustest.bash && oglplustest-env $* ; }
-oglrap-(){      . $(env-home)/graphics/oglrap/oglrap.bash && oglrap-env $* ; }
-ggeoview-(){      . $(env-home)/graphics/ggeoview/ggeoview.bash && ggeoview-env $* ; }
-ggv-(){           . $(env-home)/graphics/ggeoview/ggeoview.bash && ggeoview-env $* ; }
-glm-(){      . $(env-home)/graphics/glm/glm.bash && glm-env $* ; }
-gl-(){      . $(env-home)/graphics/opengl/gl.bash && gl-env $* ; }
-wendy-(){      . $(env-home)/graphics/wendy/wendy.bash && wendy-env $* ; }
-basio-(){      . $(env-home)/boost/basio/basio.bash && basio-env $* ; }
-asio-(){      . $(env-home)/network/asio/asio.bash && asio-env $* ; }
+oglplustest-(){  . $(env-home)/graphics/oglplus/oglplustest/oglplustest.bash && oglplustest-env $* ; }
+
+
+gl-(){           . $(env-home)/graphics/opengl/gl.bash && gl-env $* ; }
+wendy-(){        . $(env-home)/graphics/wendy/wendy.bash && wendy-env $* ; }
+basio-(){        . $(env-home)/boost/basio/basio.bash && basio-env $* ; }
+asio-(){         . $(env-home)/network/asio/asio.bash && asio-env $* ; }
 numpyserver-(){  . $(env-home)/boost/basio/numpyserver/numpyserver.bash && numpyserver-env $* ; }
-photonio-(){      . $(env-home)/graphics/photonio/photonio.bash && photonio-env $* ; }
-fishtank-(){      . $(env-home)/graphics/fishtank/fishtank.bash && fishtank-env $* ; }
-sdl-(){      . $(env-home)/graphics/sdl/sdl.bash && sdl-env $* ; }
-sfml-(){      . $(env-home)/graphics/sfml/sfml.bash && sfml-env $* ; }
-gleq-(){      . $(env-home)/graphics/gleq/gleq.bash && gleq-env $* ; }
-gleqtest-(){  . $(env-home)/graphics/glfw/gleqtest/gleqtest.bash && gleqtest-env $* ; }
-bpo-(){      . $(env-home)/boost/bpo/bpo.bash && bpo-env $* ; }
+photonio-(){     . $(env-home)/graphics/photonio/photonio.bash && photonio-env $* ; }
+fishtank-(){     . $(env-home)/graphics/fishtank/fishtank.bash && fishtank-env $* ; }
+sdl-(){          . $(env-home)/graphics/sdl/sdl.bash && sdl-env $* ; }
+sfml-(){         . $(env-home)/graphics/sfml/sfml.bash && sfml-env $* ; }
+
+
+bpo-(){          . $(env-home)/boost/bpo/bpo.bash && bpo-env $* ; }
 asiozmq-(){      . $(env-home)/network/asiozmq/asiozmq.bash && asiozmq-env $* ; }
-asiozmqtest-(){      . $(env-home)/network/asiozmqtest/asiozmqtest.bash && asiozmqtest-env $* ; }
-azmq-(){      . $(env-home)/network/azmq/azmq.bash && azmq-env $* ; }
-asiosamples-(){      . $(env-home)/boost/basio/asiosamples/asiosamples.bash && asiosamples-env $* ; }
-bcfgtest-(){  . $(env-home)/boost/bpo/bcfg/test/bcfgtest.bash && bcfgtest-env $* ; }
-optixrap-(){      . $(env-home)/graphics/optixrap/optixrap.bash && optixrap-env $* ; }
-hrt-(){      . $(env-home)/graphics/hybrid-rendering-thesis/hrt.bash && hrt-env $* ; }
-ppm-(){      . $(env-home)/graphics/ppm/ppm.bash && ppm-env $* ; }
-ppmfast-(){      . $(env-home)/graphics/ppmfast/ppmfast.bash && ppmfast-env $* ; }
-blogg-(){      . $(env-home)/boost/blogg/blogg.bash && blogg-env $* ; }
-ntuwireless-(){      . $(env-home)/admin/ntuwireless.bash && ntuwireless-env $* ; }
-npy-(){      . $(env-home)/numerics/npy/npy.bash && npy-env $* ; }
-bfs-(){      . $(env-home)/boost/bfs/bfs.bash && bfs-env $* ; }
-bpt-(){      . $(env-home)/boost/bpt/bpt.bash && bpt-env $* ; }
-word-(){      . $(env-home)/tools/word/word.bash && word-env $* ; }
-pages-(){      . $(env-home)/tools/pages/pages.bash && pages-env $* ; }
-docx-(){      . $(env-home)/tools/docx/docx.bash && docx-env $* ; }
-docxbuilder-(){      . $(env-home)/tools/docxbuilder/docxbuilder.bash && docxbuilder-env $* ; }
-mono-(){      . $(env-home)/tools/mono/mono.bash && mono-env $* ; }
+asiozmqtest-(){  . $(env-home)/network/asiozmqtest/asiozmqtest.bash && asiozmqtest-env $* ; }
+azmq-(){         . $(env-home)/network/azmq/azmq.bash && azmq-env $* ; }
+asiosamples-(){  . $(env-home)/boost/basio/asiosamples/asiosamples.bash && asiosamples-env $* ; }
+bcfgtest-(){     . $(env-home)/boost/bpo/bcfg/test/bcfgtest.bash && bcfgtest-env $* ; }
+hrt-(){          . $(env-home)/graphics/hybrid-rendering-thesis/hrt.bash && hrt-env $* ; }
+blogg-(){        . $(env-home)/boost/blogg/blogg.bash && blogg-env $* ; }
+ntuwireless-(){  . $(env-home)/admin/ntuwireless.bash && ntuwireless-env $* ; }
+
+bfs-(){          . $(env-home)/boost/bfs/bfs.bash && bfs-env $* ; }
+bpt-(){          . $(env-home)/boost/bpt/bpt.bash && bpt-env $* ; }
+
+
+word-(){         . $(env-home)/tools/word/word.bash && word-env $* ; }
+pages-(){        . $(env-home)/tools/pages/pages.bash && pages-env $* ; }
+docx-(){         . $(env-home)/tools/docx/docx.bash && docx-env $* ; }
+docxbuilder-(){  . $(env-home)/tools/docxbuilder/docxbuilder.bash && docxbuilder-env $* ; }
+mono-(){         . $(env-home)/tools/mono/mono.bash && mono-env $* ; }
 openxml-(){      . $(env-home)/tools/openxml/openxml.bash && openxml-env $* ; }
-argparse-(){      . $(env-home)/python/argparse/argparse.bash && argparse-env $* ; }
-hgssh-(){      . $(env-home)/hg/hgssh.bash && hgssh-env $* ; }
-imagecapture-(){      . $(env-home)/osx/imagecapture.bash && imagecapture-env $* ; }
+argparse-(){     . $(env-home)/python/argparse/argparse.bash && argparse-env $* ; }
+hgssh-(){        . $(env-home)/hg/hgssh.bash && hgssh-env $* ; }
+imagecapture-(){ . $(env-home)/osx/imagecapture.bash && imagecapture-env $* ; }
 preview-(){      . $(env-home)/osx/preview/preview.bash && preview-env $* ; }
 brandom-(){      . $(env-home)/boost/random/brandom.bash && brandom-env $* ; }
-librocket-(){      . $(env-home)/graphics/gui/librocket/librocket.bash && librocket-env $* ; }
-imgui-(){      . $(env-home)/graphics/gui/imgui/imgui.bash && imgui-env $* ; }
-imguitest-(){      . $(env-home)/graphics/gui/imguitest/imguitest.bash && imguitest-env $* ; }
-g4op-(){      . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
+librocket-(){    . $(env-home)/graphics/gui/librocket/librocket.bash && librocket-env $* ; }
 
-brap-(){        . $(env-home)/boostrap/brap.bash && brap-env $* ; }
-bcfg-(){        . $(env-home)/boostrap/bcfg.bash && bcfg-env $* ; }
+ispm-(){         . $(env-home)/graphics/ispm/ispm.bash && ispm-env $* ; }
 
-ispm-(){      . $(env-home)/graphics/ispm/ispm.bash && ispm-env $* ; }
-thrust-(){      . $(env-home)/numerics/thrust/thrust.bash && thrust-env $* ; }
-thrusthello-(){      . $(env-home)/numerics/thrust/hello/thrusthello.bash && thrusthello-env $* ; }
-photonmap-(){      . $(env-home)/graphics/photonmap/photonmap.bash && photonmap-env $* ; }
-thrustexamples-(){      . $(env-home)/numerics/thrust/thrustexamples/thrustexamples.bash && thrustexamples-env $* ; }
-thrustrap-(){      . $(env-home)/numerics/thrustrap/thrustrap.bash && thrustrap-env $* ; }
-cudainstall-(){      . $(env-home)/cuda/cudainstall.bash && cudainstall-env $* ; }
+thrusthello-(){  . $(env-home)/numerics/thrust/hello/thrusthello.bash && thrusthello-env $* ; }
+photonmap-(){    . $(env-home)/graphics/photonmap/photonmap.bash && photonmap-env $* ; }
+thrustexamples-(){  . $(env-home)/numerics/thrust/thrustexamples/thrustexamples.bash && thrustexamples-env $* ; }
+
+
 throgl-(){      . $(env-home)/graphics/thrust_opengl_interop/throgl.bash && throgl-env $* ; }
-glfwminimal-(){      . $(env-home)/graphics/glfw/glfwminimal/glfwminimal.bash && glfwminimal-env $* ; }
+glfwminimal-(){ . $(env-home)/graphics/glfw/glfwminimal/glfwminimal.bash && glfwminimal-env $* ; }
 
-glewminimal-(){      . $(env-home)/graphics/glew/glewminimal.bash && glewminimal-env $* ; }
-glewminimal-(){      . $(env-home)/graphics/glew/glewminimal/glewminimal.bash && glewminimal-env $* ; }
-turbovnc-(){      . $(env-home)/network/turbovnc/turbovnc.bash && turbovnc-env $* ; }
-gputest-(){      . $(env-home)/network/gputest/gputest.bash && gputest-env $* ; }
-java-(){      . $(env-home)/tools/java/java.bash && java-env $* ; }
+glewminimal-(){ . $(env-home)/graphics/glew/glewminimal.bash && glewminimal-env $* ; }
+glewminimal-(){ . $(env-home)/graphics/glew/glewminimal/glewminimal.bash && glewminimal-env $* ; }
+turbovnc-(){    . $(env-home)/network/turbovnc/turbovnc.bash && turbovnc-env $* ; }
+gputest-(){     . $(env-home)/network/gputest/gputest.bash && gputest-env $* ; }
+java-(){        . $(env-home)/tools/java/java.bash && java-env $* ; }
+
 instancecull-(){      . $(env-home)/graphics/opengl/instancecull.bash && instancecull-env $* ; }
 glfwtriangle-(){      . $(env-home)/graphics/glfw/glfwtriangle/glfwtriangle.bash && glfwtriangle-env $* ; }
+
 optixminimal-(){      . $(env-home)/optix/optixminimal/optixminimal.bash && optixminimal-env $* ; }
 optixthrust-(){      . $(env-home)/optix/optixthrust/optixthrust.bash && optixthrust-env $* ; }
+
 nvcc-(){      . $(env-home)/cuda/nvcc/nvcc.bash && nvcc-env $* ; }
 gloptixthrust-(){      . $(env-home)/optix/gloptixthrust/gloptixthrust.bash && gloptixthrust-env $* ; }
 optixthrustnpy-(){      . $(env-home)/optix/optixthrustnpy/optixthrustnpy.bash && optixthrustnpy-env $* ; }
 optixthrustuse-(){      . $(env-home)/optix/optixthrustuse/optixthrustuse.bash && optixthrustuse-env $* ; }
 detdesc-(){      . $(env-home)/nuwa/detdesc/detdesc.bash && detdesc-env $* ; }
 cgal-(){      . $(env-home)/graphics/cgal/cgal.bash && cgal-env $* ; }
-openmesh-(){      . $(env-home)/graphics/openmesh/openmesh.bash && openmesh-env $* ; }
-openmeshrap-(){      . $(env-home)/graphics/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
-csg-(){      . $(env-home)/graphics/csg/csg.bash && csg-env $* ; }
-pmt-(){      . $(env-home)/nuwa/detdesc/pmt/pmt.bash && pmt-env $* ; }
+
 pbrt-(){      . $(env-home)/graphics/pbrt/pbrt.bash && pbrt-env $* ; }
 ciexyz-(){      . $(env-home)/graphics/ciexyz/ciexyz.bash && ciexyz-env $* ; }
 icosahedron-(){      . $(env-home)/graphics/geometry/icosahedron/icosahedron.bash && icosahedron-env $* ; }
 refractiveindex-(){      . $(env-home)/physics/refractiveindex/refractiveindex.bash && refractiveindex-env $* ; }
 ufunc-(){      . $(env-home)/npy/ufunc/ufunc.bash && ufunc-env $* ; }
 lxee-(){      . $(env-home)/geant4/examples/lxee/lxee.bash && lxee-env $* ; }
-g4-(){      . $(env-home)/g4/g4.bash && g4-env $* ; }
+
+
 xcode-(){      . $(env-home)/xcode/xcode.bash && xcode-env $* ; }
 g4macports-(){      . $(env-home)/g4/g4macports.bash && g4macports-env $* ; }
 g4ex-(){      . $(env-home)/g4/g4ex.bash && g4ex-env $* ; }
-cfg4-(){      . $(env-home)/optix/cfg4/cfg4.bash && cfg4-env $* ; }
 lxe-(){      . $(env-home)/optix/lxe/lxe.bash && lxe-env $* ; }
 
-
-okc-(){    . $(env-home)/optickscore/okc.bash && okc-env $* ; }
-opticksop-(){      . $(env-home)/opticksop/opticksop.bash && opticksop-env $* ; }
 mdls-(){      . $(env-home)/osx/mdls/mdls.bash && mdls-env $* ; }
+
+
 vxgi-(){      . $(env-home)/graphics/nvidia/vxgi.bash && vxgi-env $* ; }
 rift-(){      . $(env-home)/vr/rift/rift.bash && rift-env $* ; }
-vr-(){      . $(env-home)/vr/vr.bash && vr-env $* ; }
-ios-(){      . $(env-home)/ios/ios.bash && ios-env $* ; }
-gpuhep-(){      . $(env-home)/gpuhep/gpuhep.bash && gpuhep-env $* ; }
-openvr-(){      . $(env-home)/vr/openvr/openvr.bash && openvr-env $* ; }
+ios-(){       . $(env-home)/ios/ios.bash && ios-env $* ; }
+gpuhep-(){    . $(env-home)/gpuhep/gpuhep.bash && gpuhep-env $* ; }
 
-# manual interloper
-g4d-(){       . $HOME/g4dae/g4d.bash && g4d-env $* ; }
+gtc-(){            . $(env-home)/presentation/gtc2016/gtc.bash && gtc-env $* ; }
+vids-(){           . $(env-home)/graphics/ggeoview/vids.bash && vids-env $* ; }
+vbox-(){           . $(env-home)/virtualbox/vbox.bash && vbox-env $* ; }
 
-
-
-
-
-gtc-(){      . $(env-home)/presentation/gtc2016/gtc.bash && gtc-env $* ; }
-vids-(){      . $(env-home)/graphics/ggeoview/vids.bash && vids-env $* ; }
-vbox-(){      . $(env-home)/virtualbox/vbox.bash && vbox-env $* ; }
-win-(){      . $(env-home)/windows/win.bash && win-env $* ; }
-ovrminimal-(){      . $(env-home)/vr/ovrminimal/ovrminimal.bash && ovrminimal-env $* ; }
+vr-(){            . $(env-home)/vr/vr.bash && vr-env $* ; }
+ovrminimal-(){    . $(env-home)/vr/ovrminimal/ovrminimal.bash && ovrminimal-env $* ; }
+openvr-(){        . $(env-home)/vr/openvr/openvr.bash && openvr-env $* ; }
 
 
-opticks-(){      . $(env-home)/opticks.bash && opticks-env $* ; }
-opticksgl-(){      . $(env-home)/opticksgl/opticksgl.bash && opticksgl-env $* ; }
-cmakex-(){      . $(env-home)/tools/cmakex.bash && cmakex-env $* ; }
-libgit2-(){      . $(env-home)/git/libgit2.bash && libgit2-env $* ; }
-msys2-(){      . $(env-home)/windows/msys2.bash && msys2-env $* ; }
-cmakecheck-(){      . $(env-home)/cmakecheck/cmakecheck.bash && cmakecheck-env $* ; }
+libgit2-(){       . $(env-home)/git/libgit2.bash && libgit2-env $* ; }
+msys2-(){         . $(env-home)/windows/msys2.bash && msys2-env $* ; }
 rst2docx-(){      . $(env-home)/doc/docutils/rst2docx.bash && rst2docx-env $* ; }
-g4opgen-(){      . $(env-home)/geant4/g4op/g4opgen.bash && g4opgen-env $* ; }
-ggv-(){      . $(env-home)/graphics/ggeoview/ggv.bash && ggv-env $* ; }
 
-op-(){       . $(env-home)/bin/op.sh ; }
+# tools
 
+lldb-(){            . $(env-home)/tools/lldb/lldb.bash && lldb-env $* ; }
+cmak-(){            . $(env-home)/tools/cmak.bash && cmak-env $* ; }
+openssh-(){         . $(env-home)/tools/openssh/openssh.bash && openssh-env $* ; }
+cmakecheck-(){      . $(env-home)/cmakecheck/cmakecheck.bash && cmakecheck-env $* ; }
 
-lldb-(){      . $(env-home)/tools/lldb/lldb.bash && lldb-env $* ; }
-vrworks-(){      . $(env-home)/vr/vrworks/vrworks.bash && vrworks-env $* ; }
-opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $* ; }
-designworks-(){      . $(env-home)/graphics/nvidia/designworks.bash && designworks-env $* ; }
-opticksdata-(){      . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
-optickswin-(){      . $(env-home)/optickswin.bash && optickswin-env $* ; }
-opticks-failed-build-(){  . $(env-home)/opticks-failed-build.bash ; }
-opticksdev-(){  . $(env-home)/opticksdev.bash ; }
-g4win-(){      . $(env-home)/g4/g4win.bash && g4win-env $* ; }
-vs-(){      . $(env-home)/windows/vs/vs.bash && vs-env $* ; }
+# windows learning 
+
+win-(){             . $(env-home)/windows/win.bash && win-env $* ; }
+gitbash-(){         . $(env-home)/windows/gitbash.bash && gitbash-env $* ; }
+importlib-(){       . $(env-home)/windows/importlib.bash && importlib-env $* ; }
+importclient-(){    . $(env-home)/windows/importclient/importclient.bash && importclient-env $* ; }
+conemu-(){          . $(env-home)/windows/conemu.bash && conemu-env $* ; }
+vs-(){              . $(env-home)/windows/vs/vs.bash && vs-env $* ; }
 chocolatey-(){      . $(env-home)/windows/chocolatey.bash && chocolatey-env $* ; }
 powershell-(){      . $(env-home)/windows/powershell.bash && powershell-env $* ; }
-nuget-(){      . $(env-home)/windows/nuget.bash && nuget-env $* ; }
-ome-(){      . $(env-home)/windows/ome/ome.bash && ome-env $* ; }
-msbuild-(){      . $(env-home)/windows/msbuild/msbuild.bash && msbuild-env $* ; }
-cmakewin-(){      vi $(env-home)/tools/cmakewin.ps1  ; }
-cmak-(){      . $(env-home)/tools/cmak.bash && cmak-env $* ; }
-importlib-(){      . $(env-home)/windows/importlib.bash && importlib-env $* ; }
-openssh-(){      . $(env-home)/tools/openssh/openssh.bash && openssh-env $* ; }
-solarmd5-(){      . $(env-home)/tools/solarmd5/solarmd5.bash && solarmd5-env $* ; }
-importclient-(){      . $(env-home)/windows/importclient/importclient.bash && importclient-env $* ; }
-brc-(){             . $(env-home)/boostrapclient/brc.bash && brc-env $* ; }
-conemu-(){      . $(env-home)/windows/conemu.bash && conemu-env $* ; }
-gitbash-(){      . $(env-home)/windows/gitbash.bash && gitbash-env $* ; }
-npc-(){      . $(env-home)/numerics/npyclient/npc.bash && npc-env $* ; }
-plog-(){      . $(env-home)/tools/plog/plog.bash && plog-env $* ; }
-ggeodev-(){      . $(env-home)/optix/ggeo/ggeodev.bash && ggeodev-env $* ; }
-sysrap-(){      . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
-proj-(){      . $(env-home)/base/proj.bash && proj-env $* ; }
-omc-(){      . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+nuget-(){           . $(env-home)/windows/nuget.bash && nuget-env $* ; }
+ome-(){             . $(env-home)/windows/ome/ome.bash && ome-env $* ; }
+msbuild-(){         . $(env-home)/windows/msbuild/msbuild.bash && msbuild-env $* ; }
+g4win-(){           . $(env-home)/g4/g4win.bash && g4win-env $* ; }
+
+# dev projs
+
+vrworks-(){         . $(env-home)/vr/vrworks/vrworks.bash && vrworks-env $* ; }
+designworks-(){     . $(env-home)/graphics/nvidia/designworks.bash && designworks-env $* ; }
+
+# opticks dev funcs : not relevant to users
+
+cudainstall-(){           . $(env-home)/cuda/cudainstall.bash && cudainstall-env $* ; }
+bcfg-(){                  . $(env-home)/boostrap/bcfg.bash && bcfg-env $* ; }
+ppm-(){                   . $(env-home)/graphics/ppm/ppm.bash && ppm-env $* ; }
+ppmfast-(){               . $(env-home)/graphics/ppmfast/ppmfast.bash && ppmfast-env $* ; }
+gleqtest-(){              . $(env-home)/graphics/glfw/gleqtest/gleqtest.bash && gleqtest-env $* ; }
+
+csg-(){                   . $(env-home)/graphics/csg/csg.bash && csg-env $* ; }
+pmt-(){                   . $(env-home)/nuwa/detdesc/pmt/pmt.bash && pmt-env $* ; }
+okt-(){                   . $(env-home)/optickstute/okt.bash && okt-env $* ; }
+brc-(){                   . $(env-home)/boostrapclient/brc.bash && brc-env $* ; }
+npc-(){                   . $(env-home)/numerics/npyclient/npc.bash && npc-env $* ; }
+omc-(){                   . $(env-home)/graphics/openmeshclient/omc.bash && omc-env $* ; }
+ggeodev-(){               . $(env-home)/optix/ggeo/ggeodev.bash && ggeodev-env $* ; }
+proj-(){                  . $(env-home)/base/proj.bash && proj-env $* ; }
+solarmd5-(){              . $(env-home)/tools/solarmd5/solarmd5.bash && solarmd5-env $* ; }
+optickswin-(){            . $(env-home)/optickswin.bash && optickswin-env $* ; }
+opticks-failed-build-(){  . $(env-home)/opticks-failed-build.bash ; }
+opticksdev-(){            . $(env-home)/opticksdev.bash ; }
+g4opgen-(){               . $(env-home)/geant4/g4op/g4opgen.bash && g4opgen-env $* ; }
+cmakex-(){                . $(env-home)/tools/cmakex.bash && cmakex-env $* ; }
+
+g4d-(){                   . $HOME/g4dae/g4d.bash && g4d-env $* ; } # OTHER repo interloper
+
+optixsamples-(){ . $(env-home)/optix/optixsamples.bash && optixsamples-env $* ; }
+glfwtest-(){     . $(env-home)/graphics/glfw/glfwtest/glfwtest.bash && glfwtest-env $* ; }
+optixtest-(){    . $(env-home)/optix/OptiXTest/optixtest.bash && optixtest-env $* ; }
+assimptest-(){   . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && assimptest-env $* ; }
+
+imguitest-(){    . $(env-home)/graphics/gui/imguitest/imguitest.bash && imguitest-env $* ; }
+g4op-(){         . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
+
+### opticks externals ###  (cut down versions of full env func...)
+
+boost-(){           . $(env-home)/boost/boost.bash && boost-env $* ; }
+glm-(){             . $(env-home)/graphics/glm/glm.bash && glm-env $* ; }
+plog-(){            . $(env-home)/tools/plog/plog.bash && plog-env $* ; }
+
+gleq-(){            . $(env-home)/graphics/gleq/gleq.bash && gleq-env $* ; }
+glfw-(){            . $(env-home)/graphics/glfw/glfw.bash && glfw-env $* ; }
+glew-(){            . $(env-home)/graphics/glew/glew.bash && glew-env $* ; }
+imgui-(){           . $(env-home)/graphics/gui/imgui/imgui.bash && imgui-env $* ; }
+
+assimp-(){          . $(env-home)/graphics/assimp/assimp.bash && assimp-env $* ; }
+openmesh-(){        . $(env-home)/graphics/openmesh/openmesh.bash && openmesh-env $* ; }
+
+cuda-(){            . $(env-home)/cuda/cuda.bash && cuda-env $* ; }
+thrust-(){          . $(env-home)/numerics/thrust/thrust.bash && thrust-env $* ; }
+optix-(){           . $(env-home)/optix/optix.bash && optix-env $* ; }
+
+xercesc-(){         . $(env-home)/xml/xercesc/xercesc.bash && xercesc-env $* ; }
+g4-(){              . $(env-home)/g4/g4.bash && g4-env $* ; }
+
+### opticks infrastructure/launchers ###
+
+opticks-(){         . $(env-home)/opticks.bash && opticks-env $* ; }
+opticksdata-(){     . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
+ggv-(){             . $(env-home)/graphics/ggeoview/ggv.bash && ggv-env $* ; }
+op-(){              . $(env-home)/bin/op.sh ; }
+
+### opticks projs ###
+
+sysrap-(){          . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
+brap-(){            . $(env-home)/boostrap/brap.bash && brap-env $* ; }
+npy-(){             . $(env-home)/numerics/npy/npy.bash && npy-env $* ; }
+okc-(){             . $(env-home)/optickscore/okc.bash && okc-env $* ; }
+
+ggeo-(){            . $(env-home)/optix/ggeo/ggeo.bash && ggeo-env $* ; }
+assimprap-(){       . $(env-home)/graphics/assimprap/assimprap.bash && assimprap-env $* ; }
+openmeshrap-(){     . $(env-home)/graphics/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
+opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $* ; }
+
+oglrap-(){          . $(env-home)/graphics/oglrap/oglrap.bash && oglrap-env $* ; }
+cudarap-(){         . $(env-home)/cuda/cudarap/cudarap.bash && cudarap-env $* ; }
+thrustrap-(){       . $(env-home)/numerics/thrustrap/thrustrap.bash && thrustrap-env $* ; }
+optixrap-(){        . $(env-home)/graphics/optixrap/optixrap.bash && optixrap-env $* ; }
+
+opticksop-(){       . $(env-home)/opticksop/opticksop.bash && opticksop-env $* ; }
+opticksgl-(){       . $(env-home)/opticksgl/opticksgl.bash && opticksgl-env $* ; }
+ggeoview-(){        . $(env-home)/graphics/ggeoview/ggeoview.bash && ggeoview-env $* ; }
+cfg4-(){            . $(env-home)/optix/cfg4/cfg4.bash && cfg4-env $* ; }
+
+
+
