@@ -1829,7 +1829,7 @@ optixrap-(){        . $(env-home)/optixrap/optixrap.bash && optixrap-env $* ; }
 
 opticksop-(){       . $(env-home)/opticksop/opticksop.bash && opticksop-env $* ; }
 opticksgl-(){       . $(env-home)/opticksgl/opticksgl.bash && opticksgl-env $* ; }
-ggeoview-(){        . $(env-home)/graphics/ggeoview/ggeoview.bash && ggeoview-env $* ; }
+ggeoview-(){        . $(env-home)/ggeoview/ggeoview.bash && ggeoview-env $* ; }
 cfg4-(){            . $(env-home)/optix/cfg4/cfg4.bash && cfg4-env $* ; }
 
 
