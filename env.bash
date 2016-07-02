@@ -1818,8 +1818,8 @@ npy-(){             . $(env-home)/opticksnpy/npy.bash && npy-env $* ; }
 okc-(){             . $(env-home)/optickscore/okc.bash && okc-env $* ; }
 
 ggeo-(){            . $(env-home)/ggeo/ggeo.bash && ggeo-env $* ; }
-assimprap-(){       . $(env-home)/graphics/assimprap/assimprap.bash && assimprap-env $* ; }
-openmeshrap-(){     . $(env-home)/graphics/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
+assimprap-(){       . $(env-home)/assimprap/assimprap.bash && assimprap-env $* ; }
+openmeshrap-(){     . $(env-home)/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
 opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $* ; }
 
 oglrap-(){          . $(env-home)/graphics/oglrap/oglrap.bash && oglrap-env $* ; }
