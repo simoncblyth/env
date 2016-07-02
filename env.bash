@@ -1825,7 +1825,7 @@ opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $
 oglrap-(){          . $(env-home)/oglrap/oglrap.bash && oglrap-env $* ; }
 cudarap-(){         . $(env-home)/cudarap/cudarap.bash && cudarap-env $* ; }
 thrustrap-(){       . $(env-home)/thrustrap/thrustrap.bash && thrustrap-env $* ; }
-optixrap-(){        . $(env-home)/graphics/optixrap/optixrap.bash && optixrap-env $* ; }
+optixrap-(){        . $(env-home)/optixrap/optixrap.bash && optixrap-env $* ; }
 
 opticksop-(){       . $(env-home)/opticksop/opticksop.bash && opticksop-env $* ; }
 opticksgl-(){       . $(env-home)/opticksgl/opticksgl.bash && opticksgl-env $* ; }
