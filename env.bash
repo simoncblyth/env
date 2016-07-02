@@ -1782,7 +1782,7 @@ assimptest-(){   . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && ass
 imguitest-(){    . $(env-home)/graphics/gui/imguitest/imguitest.bash && imguitest-env $* ; }
 g4op-(){         . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
 
-### opticks externals ###  (cut down versions of full env func...)
+### opticks externals ###  TODO: **copy** into externals with opticks-xcollect, once spawned can remove non-essentials (dev notes etc..)  
 
 boost-(){           . $(env-home)/boost/boost.bash && boost-env $* ; }
 glm-(){             . $(env-home)/graphics/glm/glm.bash && glm-env $* ; }
@@ -1803,21 +1803,21 @@ optix-(){           . $(env-home)/optix/optix.bash && optix-env $* ; }
 xercesc-(){         . $(env-home)/xml/xercesc/xercesc.bash && xercesc-env $* ; }
 g4-(){              . $(env-home)/g4/g4.bash && g4-env $* ; }
 
-### opticks infrastructure/launchers ###
+### opticks infrastructure/launchers ###  other than opticks.bash **move** into externals (?) 
 
 opticks-(){         . $(env-home)/opticks.bash && opticks-env $* ; }
 opticksdata-(){     . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
 ggv-(){             . $(env-home)/graphics/ggeoview/ggv.bash && ggv-env $* ; }
 op-(){              . $(env-home)/bin/op.sh ; }
 
-### opticks projs ###
+### opticks projs ###  **move** projs into top level folders
 
 sysrap-(){          . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
 brap-(){            . $(env-home)/boostrap/brap.bash && brap-env $* ; }
 npy-(){             . $(env-home)/opticksnpy/npy.bash && npy-env $* ; }
 okc-(){             . $(env-home)/optickscore/okc.bash && okc-env $* ; }
 
-ggeo-(){            . $(env-home)/optix/ggeo/ggeo.bash && ggeo-env $* ; }
+ggeo-(){            . $(env-home)/ggeo/ggeo.bash && ggeo-env $* ; }
 assimprap-(){       . $(env-home)/graphics/assimprap/assimprap.bash && assimprap-env $* ; }
 openmeshrap-(){     . $(env-home)/graphics/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
 opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $* ; }
