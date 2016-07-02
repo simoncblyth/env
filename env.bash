@@ -1823,7 +1823,7 @@ openmeshrap-(){     . $(env-home)/openmeshrap/openmeshrap.bash && openmeshrap-en
 opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $* ; }
 
 oglrap-(){          . $(env-home)/oglrap/oglrap.bash && oglrap-env $* ; }
-cudarap-(){         . $(env-home)/cuda/cudarap/cudarap.bash && cudarap-env $* ; }
+cudarap-(){         . $(env-home)/cudarap/cudarap.bash && cudarap-env $* ; }
 thrustrap-(){       . $(env-home)/numerics/thrustrap/thrustrap.bash && thrustrap-env $* ; }
 optixrap-(){        . $(env-home)/graphics/optixrap/optixrap.bash && optixrap-env $* ; }
 
