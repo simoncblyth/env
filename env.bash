@@ -1807,10 +1807,10 @@ g4-(){              . $(env-home)/g4/g4.bash && g4-env $* ; }
 
 opticks-(){         . $(env-home)/opticks.bash && opticks-env $* ; }
 opticksdata-(){     . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
-ggv-(){             . $(env-home)/graphics/ggeoview/ggv.bash && ggv-env $* ; }
+ggv-(){             . $(env-home)/ggeoview/ggv.bash && ggv-env $* ; }
 op-(){              . $(env-home)/bin/op.sh ; }
 
-### opticks projs ###  **move** projs into top level folders
+### opticks projs ###  **moved** all projs into top level folders
 
 sysrap-(){          . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
 brap-(){            . $(env-home)/boostrap/brap.bash && brap-env $* ; }

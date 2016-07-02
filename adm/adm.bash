@@ -575,7 +575,13 @@ rename geant4/geometry/DAE .
 EOF
 }
 
-adm-filemap-opticks(){  cat << EOF
+adm-filemap-opticks(){  
+   opticks-
+   opticks-filemap
+}
+
+
+cat << EOF
 # split off opticks parts of env 
 # guideline : minimal name changes at this stage, just filtering and moving directories around
 #
@@ -587,50 +593,7 @@ include CMakeLists.txt
 include Makefile
 include opticks.bash
 
-
-
-include boost/bpo/bcfg
-rename boost/bpo/bcfg bcfg
-
-include boost/bregex
-rename boost/bregex bregex
-
-include numerics/npy 
-rename numerics/npy npy
-
-include opticks
-
-include optix/ggeo
-rename optix/ggeo ggeo
-
-include graphics/assimpwrap
-rename graphics/assimpwrap assimpwrap
-
-include graphics/openmeshrap
-rename graphics/openmeshrap openmeshrap
- 
-include graphics/oglrap
-rename graphics/oglrap oglrap
- 
-include cuda/cudawrap
-rename cuda/cudawrap cudawrap
- 
-include numerics/thrustrap
-rename numerics/thrustrap thrustrap
-
-include graphics/optixrap
-rename graphics/optixrap optixrap
- 
-include opticksop
-
-include graphics/ggeoview 
-rename graphics/ggeoview ggeoview
-
-include optix/cfg4 
-rename optix/cfg4 cfg4
-
 EOF
-}
 
 
 
