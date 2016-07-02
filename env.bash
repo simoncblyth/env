@@ -1814,7 +1814,7 @@ op-(){              . $(env-home)/bin/op.sh ; }
 
 sysrap-(){          . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
 brap-(){            . $(env-home)/boostrap/brap.bash && brap-env $* ; }
-npy-(){             . $(env-home)/numerics/npy/npy.bash && npy-env $* ; }
+npy-(){             . $(env-home)/opticksnpy/npy.bash && npy-env $* ; }
 okc-(){             . $(env-home)/optickscore/okc.bash && okc-env $* ; }
 
 ggeo-(){            . $(env-home)/optix/ggeo/ggeo.bash && ggeo-env $* ; }
