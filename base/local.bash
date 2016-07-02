@@ -366,6 +366,9 @@ local-nodetag-other(){
        local-nodetag-xinchun    
    elif [ "$host" == "ihep" ]; then
        echo LT
+   elif [ "$host" == "linux-h5h2" ]; then
+       # DELL Precision 7510, openSUSE 42.1
+       echo H5H2
    elif [ "$host" == "gputest.ihep.ac.cn" ]; then
        case $USER in
          lint) echo GTL ;;
