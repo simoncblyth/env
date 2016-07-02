@@ -503,6 +503,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
         K) echo /Users/heprez/local ;;
        G5) echo /home/blyth/local ;;
       GTL) echo /afs/ihep.ac.cn/soft/juno/JUNO-ALL-SLC6/GPU/20150723/local ;;
+     H5H2) echo ${MYENVTOP:-/usr}/local ;;
       MGB) echo /c/usr/local ;;
         *) echo /usr/local ;;
    esac
