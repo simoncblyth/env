@@ -64,6 +64,164 @@ inclusion of top level files and the project folders.
    ...   
 
 
+How to verify a spawed repo ?
+-------------------------------
+
+1. full opticks gathering externals and doing clean build operational 
+   out of the spawned repo 
+
+How to verify history ?
+----------------------------
+
+Local web interface to browse history::
+
+    cd ~/opticks
+    hg serve
+
+Meanwhile::
+
+    open http://delta.local:8000
+
+Issues ~/opticks history
+--------------------------
+
+Non-relevant tracts:
+
+* from prior use of "externals" and from the sphinxbuild Makefile
+
+Missing:
+
+* cmake folders
+* history from the pkgs moved to top
+
+
+*hg convert* config 
+-----------------------
+
+::
+
+    delta:~ blyth$ hg help convert
+    hg convert [OPTION]... SOURCE [DEST [REVMAP]]
+    ...
+    The Mercurial source recognizes the following configuration options, which
+    you can set on the command line with "--config":
+
+    convert.hg.ignoreerrors
+                  ignore integrity errors when reading. Use it to fix
+                  Mercurial repositories with missing revlogs, by converting
+                  from and to Mercurial. Default is False.
+    convert.hg.saverev
+                  store original revision ID in changeset (forces target IDs
+                  to change). It takes a boolean argument and defaults to
+                  False.
+    convert.hg.revs
+                  revset specifying the source revisions to convert.
+
+
+Check hgext.convert source
+-----------------------------
+
+::
+
+    In [4]: import hgext.convert as _
+
+    In [6]: _??
+
+    In [8]: _.__file__
+    Out[8]: '/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/hgext/convert/__init__.pyc'
+
+
+/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/hgext/convert/hg.py::
+
+    253         # Restrict converted revisions to startrev descendants
+    254         startnode = ui.config('convert', 'hg.startrev')
+    255         hgrevs = ui.config('convert', 'hg.revs')
+    256         if hgrevs is None:
+    257             if startnode is not None:
+    258                 try:
+    259                     startnode = self.repo.lookup(startnode)
+    260                 except error.RepoError:
+    261                     raise util.Abort(_('%s is not a valid start revision')
+    262                                      % startnode)
+    263                 startrev = self.repo.changelog.rev(startnode)
+    264                 children = {startnode: 1}
+    265                 for r in self.repo.changelog.descendants([startrev]):
+    266                     children[self.repo.changelog.node(r)] = 1
+    267                 self.keep = children.__contains__
+    268             else:
+    269                 self.keep = util.always
+    270             if rev:
+    271                 self._heads = [self.repo[rev].node()]
+    272             else:
+    273                 self._heads = self.repo.heads()
+    274         else:
+    275             if rev or startnode is not None:
+    276                 raise util.Abort(_('hg.revs cannot be combined with '
+    277                                    'hg.startrev or --rev'))
+    278             nodes = set()
+    279             parents = set()
+    280             for r in scmutil.revrange(self.repo, [hgrevs]):
+    281                 ctx = self.repo[r]
+    282                 nodes.add(ctx.node())
+    283                 parents.update(p.node() for p in ctx.parents())
+    284             self.keep = nodes.__contains__
+    285             self._heads = nodes - parents
+
+
+
+Convert Trawling
+------------------
+
+* http://stackoverflow.com/questions/3643313/mercurial-copying-one-file-and-its-history-to-another-repository
+
+
+*hg log --follow* needed to follow thru renames
+--------------------------------------------------
+
+::
+
+    delta:opticksnpy blyth$ hg shortlog NPY.hpp
+    6611e08d62cc | 2016-07-02 15:32:32 +0800 | simoncblyth: move numerics/npy up to top level opticksnpy
+
+
+    delta:opticksnpy blyth$ hg shortlog -f NPY.hpp
+    6611e08d62cc | 2016-07-02 15:32:32 +0800 | simoncblyth: move numerics/npy up to top level opticksnpy
+    aacb7eba15ae | 2016-06-24 12:57:25 +0800 | simoncblyth: avoid MSVC template complications in oglrap- Renderer  ...
+    17fef7662265 | 2016-06-17 21:08:45 +0800 | simoncblyth: testing usage of NPY subset in NPYClient npc-
+    ...
+    2f825c82a3a8 | 2015-04-15 13:59:36 +0800 | simoncblyth: G4StepNPY a friend class of NPY to avoid inheritance hassles, dumping CerenkovStep NPY
+    482d9f68f6f6 | 2015-04-15 12:16:49 +0800 | simoncblyth: NPY handling in the numpydelegate with NumpyEvt, C++ equivalent of env/g4dae/types.py
+
+
+::
+
+    delta:opticksnpy blyth$ hg flog -f NPY.hpp
+
+    482d9f68f6f6 | 2015-04-15 12:16:49 +0800 | simoncblyth: NPY handling in the numpydelegate with NumpyEvt, C++ equivalent of env/g4dae/types.py
+      boost/basio/numpyserver/CMakeLists.txt
+      boost/basio/numpyserver/NPY.hpp
+      boost/basio/numpyserver/NumpyEvt.cpp
+      boost/basio/numpyserver/NumpyEvt.hpp
+      boost/basio/numpyserver/main.cpp
+      boost/basio/numpyserver/numpydelegate.cpp
+      boost/basio/numpyserver/numpydelegate.hpp
+      boost/basio/numpyserver/numpyserver.bash
+      boost/basio/numpyserver/tests/CMakeLists.txt
+      boost/basio/numpyserver/tests/NPYTest.cc
+      boost/basio/numpyserver/tests/NumpyServerTest.cc
+      graphics/ggeoview/main.cc
+
+
+hg revsets
+-----------
+ 
+* https://www.selenic.com/blog/?p=744
+
+
+
+
+
+
 What to include in spawned opticks repo 
 -----------------------------------------
 
@@ -336,10 +494,14 @@ adm-activate(){
    local dir=$(adm-dir)
    [ -f "$dir/bin/activate" ] && source $dir/bin/activate 
 }
+adm-sdir(){ echo $(env-home)/adm ; }
 adm-dir(){ echo $(local-base)/env/adm_env ; }
 adm-sitedir(){ echo $(adm-dir)/lib/python2.7/site-packages ; }
 adm-sitedir-cd(){ cd $(adm-sitedir) ; }
+
+adm-scd(){  cd $(adm-sdir); }
 adm-cd(){  cd $(adm-dir); }
+
 adm-mate(){ mate $(adm-dir) ; }
 adm-get(){
    local dir=$(dirname $(adm-dir)) &&  mkdir -p $dir && cd $dir
@@ -576,25 +738,8 @@ EOF
 }
 
 adm-filemap-opticks(){  
-   opticks-
-   opticks-filemap
+   $ENV_HOME/adm/opticks_filemap.py 
 }
-
-
-cat << EOF
-# split off opticks parts of env 
-# guideline : minimal name changes at this stage, just filtering and moving directories around
-#
-# hmm if aiming for independence from env- will need lots of env machinery
-# for the externals to get copied too...
-#
-
-include CMakeLists.txt
-include Makefile
-include opticks.bash
-
-EOF
-
 
 
 adm-opticks(){
@@ -602,7 +747,10 @@ adm-opticks(){
    cd
    rm -rf opticks
 
-   adm-spawn opticks env 
+   local startrev=4910
+
+
+   adm-spawn opticks env $startrev
 
    cd opticks
    hg update
@@ -705,6 +853,8 @@ adm-spawn(){
    local msg="=== $FUNCNAME :"
    local dstname=${1:-g4dae}
    local srcname=${2:-env}
+   local srcstart=${3:-0}
+
 
    local dstdir=$HOME/$dstname
    local srcdir=$HOME/$srcname
@@ -720,7 +870,7 @@ adm-spawn(){
    adm-filemap   $dstname > $filemap
    adm-authormap $dstname > $authormap
 
-   local cmd="hg convert --config convert.localtimezone=true --source-type hg --dest-type hg $src $dst --filemap $filemap --authormap $authormap "
+   local cmd="hg convert --config hg.convert.startrev=$srcstart --config convert.localtimezone=true --source-type hg --dest-type hg $src $dst --filemap $filemap --authormap $authormap "
    echo $cmd
 
    local ans
