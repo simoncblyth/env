@@ -773,7 +773,6 @@ adm-spawn(){
    local srcname=${2:-env}
    local firstrev=${3:-0}
 
-
    local dstdir=$HOME/$dstname
    local srcdir=$HOME/$srcname
 
@@ -799,11 +798,6 @@ adm-spawn(){
 
    eval $cmd
 }
-
-
-
-
-
 
 
 

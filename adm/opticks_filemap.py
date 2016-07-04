@@ -33,6 +33,27 @@ Make a separate envtmp clone for safety::
     5035 files updated, 0 files merged, 0 files removed, 0 files unresolved
 
 
+Remember to pull/update envtmp following env changes
+-----------------------------------------------------
+
+::
+
+    (adm_env)delta:env blyth$ cd ~/envtmp/
+    (adm_env)delta:envtmp blyth$ pwd
+    /Users/blyth/envtmp
+    (adm_env)delta:envtmp blyth$ hg pull
+    real URL is https://bitbucket.org/simoncblyth/env
+    pulling from http://bitbucket.org/simoncblyth/env
+    searching for changes
+    adding changesets
+    adding manifests
+    adding file changes
+    added 8 changesets with 26 changes to 23 files
+    (run 'hg update' to get a working copy)
+    (adm_env)delta:envtmp blyth$ hg up
+    23 files updated, 0 files merged, 12 files removed, 0 files unresolved
+
+
 
 When did Opticks development begin ? 4910 [2015-01-20] "try out NVIDIA Optix 301"
 -----------------------------------------------------------------------------------
@@ -291,6 +312,7 @@ opticksop
 opticksgl
 ggeoview
 cfg4
+numpyserver
 """
     exclude_ = r"""
 externals/DybPolicy
