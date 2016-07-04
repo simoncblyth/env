@@ -369,6 +369,9 @@ local-nodetag-other(){
    elif [ "$host" == "linux-h5h2" ]; then
        # DELL Precision 7510, openSUSE 42.1
        echo H5H2
+   elif [ "${host:0:7}" == "junogpu" ]; then
+       # JUNO GPU 00X
+       echo GTL
    elif [ "$host" == "gputest.ihep.ac.cn" ]; then
        case $USER in
          lint) echo GTL ;;
@@ -502,7 +505,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
        XT) echo /home/tianxc ;;   
         K) echo /Users/heprez/local ;;
        G5) echo /home/blyth/local ;;
-      GTL) echo /afs/ihep.ac.cn/soft/juno/JUNO-ALL-SLC6/GPU/20150723/local ;;
+      GTL) echo ${MYENVTOP:-/afs/ihep.ac.cn/soft/juno/JUNO-ALL-SLC6/GPU/20150723}/local ;;
      H5H2) echo ${MYENVTOP:-/usr}/local ;;
       MGB) echo /c/usr/local ;;
         *) echo /usr/local ;;

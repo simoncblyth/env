@@ -353,6 +353,7 @@ opticks-xdir(){ echo $(opticks-prefix)/externals ; }
 opticks-optix-install-dir(){ 
     local t=$NODE_TAG
     case $t in 
+     GTL) echo ${MYENVTOP}/OptiX ;;
     H5H2) echo ${MYENVTOP}/OptiX ;;
        *) echo /Developer/OptiX ;;
     esac
