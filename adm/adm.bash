@@ -95,6 +95,24 @@ Missing:
 * history from the pkgs moved to top
 
 
+opticks push to bitbucket  
+---------------------------
+
+::
+
+    delta:opticks blyth$ 
+    delta:opticks blyth$ hg push ssh://hg@bitbucket.org/simoncblyth/opticks
+    pushing to ssh://hg@bitbucket.org/simoncblyth/opticks
+    searching for changes
+    remote: adding changesets
+    remote: adding manifests
+    remote: adding file changes
+    remote: added 1153 changesets with 14073 changes to 3080 files
+    delta:opticks blyth$ 
+
+
+
+
 *hg convert* config 
 -----------------------
 
