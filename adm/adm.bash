@@ -713,12 +713,13 @@ adm-filemap-path(){   echo ~/.${1}/filemap.cfg  ; }
 adm-authormap-path(){ echo ~/.${1}/authormap.cfg  ; }
 adm-filemap(){
   local name=$1
+  shift 
   case $name in 
          env) adm-filemap-$name ;;
        g4dae) adm-filemap-$name ;;
       heprez) adm-filemap-$name ;;
      tracdev) adm-filemap-$name ;;
-     opticks) adm-filemap-$name ;;
+     opticks) adm-filemap-$name  $* ;;
   esac
 }
 
@@ -737,9 +738,7 @@ rename geant4/geometry/DAE .
 EOF
 }
 
-adm-filemap-opticks(){  
-   $ENV_HOME/adm/opticks_filemap.py 
-}
+adm-filemap-opticks(){  $ENV_HOME/adm/opticks_filemap.py $* ; }
 
 
 adm-opticks(){
@@ -747,16 +746,65 @@ adm-opticks(){
    cd
    rm -rf opticks
 
-   local startrev=4910
+   local firstrev=4910
 
+   adm-spawn opticks env $firstrev 
 
-   adm-spawn opticks env $startrev
-
-   cd opticks
-   hg update
+   if [ -d "opticks" ]; then 
+      cd opticks
+      hg update
+   else
+      echo $msg FAILED TO SPAWN
+   fi
 
 
 }
+
+
+
+
+
+
+
+adm-spawn(){
+
+   local msg="=== $FUNCNAME :"
+   local dstname=${1:-g4dae}
+   local srcname=${2:-env}
+   local firstrev=${3:-0}
+
+
+   local dstdir=$HOME/$dstname
+   local srcdir=$HOME/$srcname
+
+   local dst=file://$dstdir 
+   local src=file://$srcdir  
+
+   echo $msg src $src dst $dst firstrev $firstrev  
+
+   local filemap=$(adm-filemap-path $dstname)
+   local authormap=$(adm-authormap-path $dstname)
+
+   mkdir -p $(dirname $filemap)
+
+   adm-filemap   $dstname --firstrev $firstrev > $filemap
+   adm-authormap $dstname > $authormap
+
+   local cmd="hg convert --config convert.hg.startrev=$firstrev --config convert.localtimezone=true --source-type hg --dest-type hg $src $dst --filemap $filemap --authormap $authormap "
+   echo $cmd
+
+   local ans
+   read -p "$msg enter YES to proceed " ans
+   [ "$ans" != "YES" ] && return
+
+   eval $cmd
+}
+
+
+
+
+
+
 
 
 
@@ -847,40 +895,6 @@ adm-convert(){
 
 
 adm-env-to-g4dae(){     adm-spawn g4dae env ; }
-
-adm-spawn(){
-
-   local msg="=== $FUNCNAME :"
-   local dstname=${1:-g4dae}
-   local srcname=${2:-env}
-   local srcstart=${3:-0}
-
-
-   local dstdir=$HOME/$dstname
-   local srcdir=$HOME/$srcname
-
-   local dst=file://$dstdir 
-   local src=file://$srcdir  
-
-   local filemap=$(adm-filemap-path $dstname)
-   local authormap=$(adm-authormap-path $dstname)
-
-   mkdir -p $(dirname $filemap)
-
-   adm-filemap   $dstname > $filemap
-   adm-authormap $dstname > $authormap
-
-   local cmd="hg convert --config hg.convert.startrev=$srcstart --config convert.localtimezone=true --source-type hg --dest-type hg $src $dst --filemap $filemap --authormap $authormap "
-   echo $cmd
-
-   local ans
-   read -p "$msg enter YES to proceed " ans
-   [ "$ans" != "YES" ] && return
-
-   eval $cmd
-}
-
-
 
 adm-verify(){
 

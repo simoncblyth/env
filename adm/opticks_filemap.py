@@ -1,17 +1,26 @@
 #!/usr/bin/env python
 """
+Opticks Filemap Creator
+=========================
 
-https://www.mercurial-scm.org/wiki/MercurialApi
+* https://www.mercurial-scm.org/wiki/MercurialApi
 
-To construct a useful opticks history, need a list of dirs that 
-files of interest have resided since their birth.  The set of 
-current opticks files is an appropriate starting point
-(including numpyserver).
-How to automate the construction of a list of the 
-folders in which that set have resided ?
+When using *hg convert* to spawn the opticks repo
+from the overlarge env repo find that the convert explicitly 
+includes only history within the list of folders provided.
 
+Thus construct a useful history in the spawned repositor, 
+need to obtain a list of dirs that files of interest have resided in 
+since their birth.  
 
-Make a separate clone for developing a repo crawler::
+The set of current opticks files is an appropriate starting point.
+This script automate the construction of such a list of folders
+using the dis-encouraged internal Mercurial API. 
+
+Preparation
+------------
+
+Make a separate envtmp clone for safety::
 
     delta:~ blyth$ hg clone http://bitbucket.org/simoncblyth/env envtmp
     real URL is https://bitbucket.org/simoncblyth/env
@@ -22,7 +31,6 @@ Make a separate clone for developing a repo crawler::
     added 6131 changesets with 31753 changes to 8640 files
     updating to branch default
     5035 files updated, 0 files merged, 0 files removed, 0 files unresolved
-
 
 
 
@@ -41,32 +49,8 @@ Tail of env.bash is good way to see whats happening.
 * https://bitbucket.org/simoncblyth/env/commits/7a51deb30659403a1a616bbb27da67dccd3b92c8
 
 
-
-
-
-
-* https://bitbucket.org/simoncblyth/env/commits/6032
-
-::
-
-    In [159]: run follow.py
-    rev   6031 dirs      4 
-    WARNING:__main__:failed to lookup tools/cmakewin.ps1 at rev 6032    ## correspond to a deletion
-    rev   6032 dirs     16 
-    rev   6033 dirs     18 
-    rev   6034 dirs     18 
-    rev   6035 dirs     22 
-    rev   6036 dirs     22 
-    rev   6037 dirs     23 
-    rev   6038 dirs     23 
-    rev   6039 dirs     23 
-    rev   6040 dirs     29 
-    WARNING:__main__:failed to lookup boostrap/md5crossplatform.h at rev 6041 
-    WARNING:__main__:failed to lookup boostrap/md5digest.h at rev 6041 
-    rev   6041 dirs     30 
-
-
-
+Discovering the API
+----------------------
 
 ::
 
@@ -85,7 +69,6 @@ Tail of env.bash is good way to see whats happening.
     In [31]: repo[212]
     RepoLookupError: unknown revision '212'
 
-
 Hmm not a changeset its all files in repo at that revision::
 
     In [35]: print "\n".join([f for f in repo[210]])
@@ -97,14 +80,13 @@ Hmm not a changeset its all files in repo at that revision::
     assimprap/ASIRAP_LOG.cc
     ...
 
-::
+Use files method to see changeset::
 
     In [47]: repo[100].files()
     Out[47]: ['optickscore/OpticksEvent.cc', 'optickscore/OpticksEvent.hh']
 
     In [48]: repo[100].description()
     Out[48]: 'prepare for migrating NumpyEvt up to OpticksEvent'
-
 
     In [78]: repo[210]['opticks.bash']
     Out[78]: <filectx opticks.bash@3e12299774c7>
@@ -117,9 +99,6 @@ Hmm not a changeset its all files in repo at that revision::
     In [85]: fc.parents()[0]
     Out[85]: <filectx opticks.bash@4a3b091c9adb>
 
-
-::
-
     In [128]: repo[lrev-10]["opticksnpy/NPY.hpp"]
     Out[128]: <filectx opticksnpy/NPY.hpp@6611e08d62cc>
 
@@ -130,10 +109,9 @@ Revsets
 
 
 """
-import os.path
-import logging
+import os, argparse, logging
 log = logging.getLogger(__name__)
-from mercurial import ui, hg
+from mercurial import ui, hg  ## dis-encouraged API
 
 class Follower(object):
     def __init__(self, repo, exclude=[], firstrev=0):
@@ -197,8 +175,6 @@ class ChangesetFolderHistory(Follower):
 
 
 
-
-
 class PathFolderHistory(Follower):
     def __init__(self, repo, exclude=[], firstrev=0):
         Follower.__init__(self, repo, exclude, firstrev)
@@ -237,11 +213,15 @@ class PathFolderHistory(Follower):
  
    
 class Filemap(object):
-    def __init__(self, dirs, files=["opticks.bash","CMakeLists.txt"]):
-        self.include = files + filter(None, sorted(dirs)) 
+    def __init__(self, include, exclude, files=["opticks.bash","CMakeLists.txt"]):
+        self.include = files + filter(None, sorted(include))
+        self.exclude = exclude 
 
     def __str__(self):
-        return "\n".join(map(lambda _:"include %s" % _,self.include))
+        lines = []
+        lines += map(lambda _:"include %s" % _,self.include)
+        lines += map(lambda _:"exclude %s" % _,self.exclude)
+        return "\n".join(lines)
 
 
 def opticks_full_history_filemap(repo, firstrev):
@@ -267,10 +247,32 @@ def opticks_full_history_filemap(repo, firstrev):
     fmp = Filemap(list(cfh.dirs))
     print fmp 
 
+   
+       
+
+def opticks_proj_history_filemap(repo, firstrev, dirs, exclude):
+    """
+    Find the set of folders featuring in the entire history 
+    of all files in the list of current opticks project dirs 
+    """
+    pass
+    revs = list(repo.changelog.revs())
+    lastrev = revs[-1]
+    all_paths = list(repo[lastrev])
+    sel_paths = filter(lambda _:_.startswith(tuple(dirs)), all_paths) 
+
+    pfh = PathFolderHistory(repo, exclude=exclude, firstrev=firstrev)
+
+    for path in sel_paths:
+        dirs = pfh.findRevAndFollow(path)
+        log.info("%50s : %s " % (path, repr(dirs)))
+         
+    fmp = Filemap(list(pfh.dirs), exclude)
+    return fmp 
 
 
-
-env_dirs = r"""
+class EnvOpticks(object):
+    dirs_ = r"""
 cmake
 externals
 sysrap
@@ -290,61 +292,45 @@ opticksgl
 ggeoview
 cfg4
 """
-
-env_exclude = r"""
-ggeoview/issues
+    exclude_ = r"""
+externals/DybPolicy
+externals/cmt
+externals/interfaces
+externals/policy
+externals/settings
+externals/site
+cuda/optix/OptiX_301
+optix/OptiX_301
 """
+    def __init__(self, args):
+        self.repopath = os.path.expanduser(args.repopath)
+        self.firstrev = args.firstrev 
+        self.dirs = self.dirs_.split()
+        self.exclude = self.exclude_.split()
+        log.info(" repopath %s firstrev %s dirs %s exclude %s " % (self.repopath, self.firstrev, repr(self.dirs), repr(self.exclude))) 
+      
 
-env_firstrev = 4910
-
-
-
-
-def opticks_proj_history_filemap(repo):
-    """
-    Find the set of folders featuring in the entire history 
-    of all files in the list of current opticks project dirs 
-    """
-    pass
-     
-
-
+def parse(doc):
+    parser = argparse.ArgumentParser(doc)
+    parser.add_argument(     "--loglevel", default="info")
+    parser.add_argument(     "--firstrev", default=4910, type=int )
+    parser.add_argument(     "--repopath", default="~/envtmp")
+    args = parser.parse_args()
+    logging.basicConfig(level=getattr(logging,args.loglevel.upper()))
+    return args 
 
 
 if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.INFO)
+    args = parse(__doc__)
 
-    path = os.path.expanduser("~/envtmp")
+    eo = EnvOpticks(args)
 
-    firstrev = env_firstrev
-    dirs = env_dirs.split()
-    exclude = env_exclude.split()
-    
-    u = ui.ui() 
+    repo = hg.repository(ui.ui(), eo.repopath)
 
-    repo = hg.repository(u, path)
+    fmp = opticks_proj_history_filemap(repo, eo.firstrev, eo.dirs, eo.exclude)
 
-    #opticks_full_history_filemap(repo, firstrev)
-    #opticks_proj_history_filemap(repo, firstrev)
-
-
-    revs = list(repo.changelog.revs())
-    lastrev = revs[-1]
-    all_paths = list(repo[lastrev])
-    sel_paths = filter(lambda _:_.startswith(tuple(dirs)), all_paths) 
-
-    pfh = PathFolderHistory(repo, exclude=exclude, firstrev=firstrev)
-
-    for path in sel_paths:
-        dirs = pfh.findRevAndFollow(path)
-        log.info("%50s : %s " % (path, repr(dirs)))
-         
-    fmp = Filemap(list(pfh.dirs))
     print fmp 
-
-
-
 
 
 
