@@ -218,17 +218,11 @@ hg revsets
 * https://www.selenic.com/blog/?p=744
 
 
-
-
-
-
 What to include in spawned opticks repo 
 -----------------------------------------
 
 * Everything needed to build Opticks, including bash functions for externals.
-* Sphinx documentation sources and Makefile
 * bash function infrastructure
-
 
 What to exclude 
 ------------------
@@ -239,6 +233,10 @@ so exclude as much as possible.
 
 * dev notes not relevant to users
 * experimental stuff, eg Windows psm1 modules 
+
+* Sphinx documentation sources and Makefile
+
+  * the Makefile brings with it a long irrelevant history  
 
 
 Background on *hg convert*

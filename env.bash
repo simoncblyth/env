@@ -1782,55 +1782,54 @@ assimptest-(){   . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && ass
 imguitest-(){    . $(env-home)/graphics/gui/imguitest/imguitest.bash && imguitest-env $* ; }
 g4op-(){         . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
 
-### opticks externals ###  TODO: **copy** into externals with opticks-xcollect, once spawned can remove non-essentials (dev notes etc..)  
-
-boost-(){           . $(env-home)/boost/boost.bash && boost-env $* ; }
-glm-(){             . $(env-home)/graphics/glm/glm.bash && glm-env $* ; }
-plog-(){            . $(env-home)/tools/plog/plog.bash && plog-env $* ; }
-
-gleq-(){            . $(env-home)/graphics/gleq/gleq.bash && gleq-env $* ; }
-glfw-(){            . $(env-home)/graphics/glfw/glfw.bash && glfw-env $* ; }
-glew-(){            . $(env-home)/graphics/glew/glew.bash && glew-env $* ; }
-imgui-(){           . $(env-home)/graphics/gui/imgui/imgui.bash && imgui-env $* ; }
-
-assimp-(){          . $(env-home)/graphics/assimp/assimp.bash && assimp-env $* ; }
-openmesh-(){        . $(env-home)/graphics/openmesh/openmesh.bash && openmesh-env $* ; }
-
-cuda-(){            . $(env-home)/cuda/cuda.bash && cuda-env $* ; }
-thrust-(){          . $(env-home)/numerics/thrust/thrust.bash && thrust-env $* ; }
-optix-(){           . $(env-home)/optix/optix.bash && optix-env $* ; }
-
-xercesc-(){         . $(env-home)/xml/xercesc/xercesc.bash && xercesc-env $* ; }
-g4-(){              . $(env-home)/g4/g4.bash && g4-env $* ; }
-
-### opticks infrastructure/launchers ###  other than opticks.bash **move** into externals (?) 
-
-opticks-(){         . $(env-home)/opticks.bash && opticks-env $* ; }
-opticksdata-(){     . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
-ggv-(){             . $(env-home)/ggeoview/ggv.bash && ggv-env $* ; }
-op-(){              . $(env-home)/bin/op.sh ; }
-
-### opticks projs ###  **moved** all projs into top level folders
-
-sysrap-(){          . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
-brap-(){            . $(env-home)/boostrap/brap.bash && brap-env $* ; }
-npy-(){             . $(env-home)/opticksnpy/npy.bash && npy-env $* ; }
-okc-(){             . $(env-home)/optickscore/okc.bash && okc-env $* ; }
-
-ggeo-(){            . $(env-home)/ggeo/ggeo.bash && ggeo-env $* ; }
-assimprap-(){       . $(env-home)/assimprap/assimprap.bash && assimprap-env $* ; }
-openmeshrap-(){     . $(env-home)/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
-opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $* ; }
-
-oglrap-(){          . $(env-home)/oglrap/oglrap.bash && oglrap-env $* ; }
-cudarap-(){         . $(env-home)/cudarap/cudarap.bash && cudarap-env $* ; }
-thrustrap-(){       . $(env-home)/thrustrap/thrustrap.bash && thrustrap-env $* ; }
-optixrap-(){        . $(env-home)/optixrap/optixrap.bash && optixrap-env $* ; }
-
-opticksop-(){       . $(env-home)/opticksop/opticksop.bash && opticksop-env $* ; }
-opticksgl-(){       . $(env-home)/opticksgl/opticksgl.bash && opticksgl-env $* ; }
-ggeoview-(){        . $(env-home)/ggeoview/ggeoview.bash && ggeoview-env $* ; }
-cfg4-(){            . $(env-home)/cfg4/cfg4.bash && cfg4-env $* ; }
-
-
-
+#### opticks externals ###  TODO: **copy** into externals with opticks-xcollect, once spawned can remove non-essentials (dev notes etc..)  
+#
+#boost-(){           . $(env-home)/boost/boost.bash && boost-env $* ; }
+#glm-(){             . $(env-home)/graphics/glm/glm.bash && glm-env $* ; }
+#plog-(){            . $(env-home)/tools/plog/plog.bash && plog-env $* ; }
+#
+#gleq-(){            . $(env-home)/graphics/gleq/gleq.bash && gleq-env $* ; }
+#glfw-(){            . $(env-home)/graphics/glfw/glfw.bash && glfw-env $* ; }
+#glew-(){            . $(env-home)/graphics/glew/glew.bash && glew-env $* ; }
+#imgui-(){           . $(env-home)/graphics/gui/imgui/imgui.bash && imgui-env $* ; }
+#
+#assimp-(){          . $(env-home)/graphics/assimp/assimp.bash && assimp-env $* ; }
+#openmesh-(){        . $(env-home)/graphics/openmesh/openmesh.bash && openmesh-env $* ; }
+#
+#cuda-(){            . $(env-home)/cuda/cuda.bash && cuda-env $* ; }
+#thrust-(){          . $(env-home)/numerics/thrust/thrust.bash && thrust-env $* ; }
+#optix-(){           . $(env-home)/optix/optix.bash && optix-env $* ; }
+#
+#xercesc-(){         . $(env-home)/xml/xercesc/xercesc.bash && xercesc-env $* ; }
+#g4-(){              . $(env-home)/g4/g4.bash && g4-env $* ; }
+#
+#### opticks infrastructure/launchers ###  other than opticks.bash **move** into externals (?) 
+#
+#opticks-(){         . $(env-home)/opticks.bash && opticks-env $* ; }
+#opticksdata-(){     . $(env-home)/opticksdata.bash && opticksdata-env $* ; }
+#ggv-(){             . $(env-home)/ggeoview/ggv.bash && ggv-env $* ; }
+#op-(){              . $(env-home)/bin/op.sh ; }
+#
+#### opticks projs ###  **moved** all projs into top level folders
+#
+#sysrap-(){          . $(env-home)/sysrap/sysrap.bash && sysrap-env $* ; }
+#brap-(){            . $(env-home)/boostrap/brap.bash && brap-env $* ; }
+#npy-(){             . $(env-home)/opticksnpy/npy.bash && npy-env $* ; }
+#okc-(){             . $(env-home)/optickscore/okc.bash && okc-env $* ; }
+#
+#ggeo-(){            . $(env-home)/ggeo/ggeo.bash && ggeo-env $* ; }
+#assimprap-(){       . $(env-home)/assimprap/assimprap.bash && assimprap-env $* ; }
+#openmeshrap-(){     . $(env-home)/openmeshrap/openmeshrap.bash && openmeshrap-env $* ; }
+#opticksgeo-(){      . $(env-home)/opticksgeo/opticksgeo.bash && opticksgeo-env $* ; }
+#
+#oglrap-(){          . $(env-home)/oglrap/oglrap.bash && oglrap-env $* ; }
+#cudarap-(){         . $(env-home)/cudarap/cudarap.bash && cudarap-env $* ; }
+#thrustrap-(){       . $(env-home)/thrustrap/thrustrap.bash && thrustrap-env $* ; }
+#optixrap-(){        . $(env-home)/optixrap/optixrap.bash && optixrap-env $* ; }
+#
+#opticksop-(){       . $(env-home)/opticksop/opticksop.bash && opticksop-env $* ; }
+#opticksgl-(){       . $(env-home)/opticksgl/opticksgl.bash && opticksgl-env $* ; }
+#ggeoview-(){        . $(env-home)/ggeoview/ggeoview.bash && ggeoview-env $* ; }
+#cfg4-(){            . $(env-home)/cfg4/cfg4.bash && cfg4-env $* ; }
+#
+#

@@ -70,6 +70,7 @@ Tail of env.bash is good way to see whats happening.
 * https://bitbucket.org/simoncblyth/env/commits/7a51deb30659403a1a616bbb27da67dccd3b92c8
 
 
+
 Discovering the API
 ----------------------
 
@@ -234,7 +235,7 @@ class PathFolderHistory(Follower):
  
    
 class Filemap(object):
-    def __init__(self, include, exclude, files=["opticks.bash","CMakeLists.txt"]):
+    def __init__(self, include, exclude, files="opticks.bash CMakeLists.txt opticksdata.bash bin/op.sh".split()):
         self.include = files + filter(None, sorted(include))
         self.exclude = exclude 
 
@@ -323,6 +324,8 @@ externals/settings
 externals/site
 cuda/optix/OptiX_301
 optix/OptiX_301
+cuda/optix/optix301
+optix/optix301
 """
     def __init__(self, args):
         self.repopath = os.path.expanduser(args.repopath)
