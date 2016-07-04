@@ -8,6 +8,14 @@ Hub Page and env notes
 * http://simoncblyth.bitbucket.org
 * http://simoncblyth.bitbucket.org/env/notes/
 
+Opticks Has Moved
+--------------------
+
+All Opticks developments should now happen over in
+
+* http://bitbucket.org/simoncblyth/opticks
+
+
 Overview
 ---------
 
