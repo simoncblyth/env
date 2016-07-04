@@ -67,7 +67,12 @@ Contents:
    muon_simulation/index
    chroma/index
    llvm/index
+
    graphics/index
+   ggeoview/index
+   oglrap/index
+   cfg4/index
+
    cuda/index
    opencl/index
    linux/index

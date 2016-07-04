@@ -21,9 +21,6 @@ version
     Sphinx (sphinx-build) 1.2
 
 
-
-
-
 extensions
 -----------
 

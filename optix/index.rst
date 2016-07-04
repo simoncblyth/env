@@ -5,6 +5,5 @@ optix
 .. toctree::
 
    optix
-   cfg4/index
 
 
