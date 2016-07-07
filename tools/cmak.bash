@@ -38,10 +38,10 @@ set(Boost_DEBUG 1)
 set(Boost_USE_STATIC_LIBS 1)
 set(Boost_NO_SYSTEM_PATHS 1)
 
-set(CMAKE_MODULE_PATH \$ENV{ENV_HOME}/cmake/Modules)
+set(CMAKE_MODULE_PATH \$ENV{OPTICKS_HOME}/cmake/Modules)
 set(OPTICKS_PREFIX "\$ENV{LOCAL_BASE}/opticks")
-set(BOOST_LIBRARYDIR /c/usr/local/opticks/externals/lib)
-set(BOOST_INCLUDEDIR /c/usr/local/opticks/externals/include)
+set(BOOST_LIBRARYDIR \$ENV{LOCAL_BASE}/opticks/externals/lib)
+set(BOOST_INCLUDEDIR \$ENV{LOCAL_BASE}/opticks/externals/include)
 message(" OPTICKS_PREFIX  : \${OPTICKS_PREFIX} ")
 
 EOD
@@ -56,6 +56,11 @@ ${name}_CXX_FLAGS_MINSIZEREL
 ${name}_CXX_FLAGS_RELEASE
 ${name}_CXX_FLAGS_RELWITHDEBINFO
 ${name}_EXE_LINKER_FLAGS
+${name}_PREFIX_PATH
+${name}_SYSTEM_PREFIX_PATH
+${name}_INCLUDE_PATH
+${name}_LIBRARY_PATH
+${name}_PROGRAM_PATH
 EOV
 }
 
@@ -216,12 +221,14 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
    message(FATAL_ERROR "in-source build detected : DONT DO THAT")
 endif()
 
-set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX \$ENV{ENV_HOME}/cmake/Modules/Geant4MakeRules_cxx.cmake)
+set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX \$ENV{OPTICKS_HOME}/cmake/Modules/Geant4MakeRules_cxx.cmake)
 
 set(name CMakOpticksTxt)
 project(${name})
 
-set(CMAKE_MODULE_PATH "\$ENV{ENV_HOME}/cmake/Modules")
+set(CMAKE_MODULE_PATH "\$ENV{OPTICKS_HOME}/cmake/Modules")
+
+include(EnvBuildOptions)
 
 
 EOH
@@ -236,9 +243,12 @@ EOF
 
 
 
-cmak-find-OpenMesh(){
+cmak-find-pkg(){
 
-   local pkg=OpenMesh 
+   local pkg=${1:-OpenMesh} 
+   shift
+
+   local iwd=$PWD
 
    cmak-cd
    cmak-opticks-txt- $pkg > CMakeLists.txt
@@ -250,10 +260,15 @@ cmak-find-OpenMesh(){
    cmak-bcd
    local src=$(cmak-dir)
 
-   cmake $src 
+   cmake $src $*
 
+   cd $iwd
 }
 
+
+cmak-find-GLEW(){     cmak-find-pkg GLEW $* ; }
+cmak-find-GLFW(){     cmak-find-pkg GLFW $* ; }
+cmak-find-OpenMesh(){ cmak-find-pkg OpenMesh $* ; }
 
 
 
