@@ -66,7 +66,8 @@ def refractiveindex(rel, base=None, cache=None):
     if base is None:
         base = "http://refractiveindex.info"
     if cache is None:
-        cache = os.path.expandvars("$LOCAL_BASE/env/physics/refractiveindex")
+        #cache = os.path.expandvars("$LOCAL_BASE/env/physics/refractiveindex")
+        cache = os.path.expanduser("~/opticksdata/refractiveindex")
 
     nrel = rel.replace(".csv",".npy")
     npath = os.path.join(cache, nrel)
@@ -83,6 +84,13 @@ def refractiveindex(rel, base=None, cache=None):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+
     a = refractiveindex("tmp/glass/schott/F2.csv")
     b = refractiveindex("tmp/main/H2O/Hale.csv") 
+
+    log.info("a:%s" % repr(a.shape))
+    log.info("b:%s" % repr(b.shape))
+    
+
 

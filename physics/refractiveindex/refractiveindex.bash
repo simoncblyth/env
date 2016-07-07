@@ -27,11 +27,15 @@ Refractive Indices
 
 EOU
 }
+
 refractiveindex-dir(){ echo $LOCAL_BASE/env/physics/refractiveindex ; }
 refractiveindex-edir(){ echo $(env-home)/physics/refractiveindex ; }
 refractiveindex-ecd(){  cd $(refractiveindex-edir); }
 refractiveindex-cd(){   cd $(refractiveindex-dir); }
 
+refractiveindex-get(){
+   $(refractiveindex-edir)/refractiveindex.py 
+}
 
 refractiveindex-i(){
    refractiveindex-ecd

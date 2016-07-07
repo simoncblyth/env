@@ -11,19 +11,34 @@ Opticks Tutorial Preparation Notes
 TODO
 ----
 
-* Update env notes.  http://simoncblyth.bitbucket.org/env/notes/
+Populate the docs http://simoncblyth.bitbucket.org/opticks/
 
-* bitbucketstatic- 
-
-
-* There is too much there to be useful docs. 
-* Look into opticks migration : just for docs ?
+* proj descriptions from the bash usage functions
+  these are currently mostly devnotes, separate those out 
+  and replace with short user descriptions 
 
 
 Inspiration
 -------------
 
 * http://www-public.slac.stanford.edu/geant4/PastEvents.asp
+
+
+OpenMesh Tutorial content 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.openmesh.org/media/Documentations/OpenMesh-4.1-Documentation/a00066.html
+
+
+What to get users to do ?
+--------------------------
+
+* need code samples doing different things
+
+* need analysis of simulated photon data, using numpy 
+  to make some plots
+
+
 
 Ideas
 ------

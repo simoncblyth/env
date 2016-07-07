@@ -348,7 +348,30 @@ cmak-bin()
 }
 
 
+cmak-check-threads-(){ cat << EOT
+cmake_minimum_required(VERSION 2.8.6)
+#FIND_PACKAGE (Threads)
+
+EOT
+}
+
+cmak-check-threads()
+{
+   local iwd=$PWD
+   local tmp=/tmp/env/$FUNCNAME
+   rm -rf $tmp
+   mkdir -p $tmp
+
+   cd $tmp
+   cmak-check-threads- > CMakeLists.txt 
+
+   mkdir build
+   cd build
+
+   cmake ..   
 
 
+   cd $iwd
+}
 
 

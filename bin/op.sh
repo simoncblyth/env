@@ -7,7 +7,7 @@ fi
 
 cmdline="$*"
 
-op-usage(){ cat << EOU
+op-usage(){ cat << \EOU
 op : Opticks Operations
 ===========================
 
@@ -326,9 +326,11 @@ op-cmdline-geometry-match()
     local arg
     local geo
     unset OPTICKS_GEO
+
+    ## look for argument that identifies a geometry eg: --dyb --idyb ... --juno --jpmt ...  --dpib --dpmt
     for arg in $cmdline 
     do
-       geo=$(op-geometry-name $arg)
+       geo=$(op-geometry-name $arg)  
        #echo arg $arg geo $geo 
        if [ "$geo" != "" ]; then 
            export OPTICKS_GEO=$geo
@@ -341,10 +343,10 @@ op-cmdline-geometry-match()
 op-cmdline-parse()
 {
     #op-cmdline-dump
-    op-cmdline-specials
+    op-cmdline-specials    ## --dbg --load --oac 
 
     op-cmdline-binary-match
-    op-cmdline-geometry-match
+    op-cmdline-geometry-match  ## sets OPTICKS_GEO
 
     op-binary-setup
     op-geometry-setup
@@ -353,9 +355,6 @@ op-cmdline-parse()
 
 op-export()
 {
-   #export-
-   #export-export
-
    # TODO: avoid need for any envvars (other than PATH) 
    opticksdata-
    opticksdata-export
