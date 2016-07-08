@@ -11,6 +11,12 @@ VirtualGL
 * http://www.virtualgl.org
 * http://sourceforge.net/projects/virtualgl/
 
+* https://github.com/VirtualGL/virtualgl
+
+* http://www.virtualgl.org/vgldoc/2_2_1/
+
+
+
 VirtualGL redirects 3D commands from a Unix/Linux OpenGL application onto a
 server-side GPU and converts the rendered 3D images into a video stream with
 which remote clients can interact to view and control the 3D application in
