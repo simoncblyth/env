@@ -14,11 +14,63 @@ arch argument explanation
 * http://stackoverflow.com/questions/17599189/what-is-the-purpose-of-using-multiple-arch-flags-in-nvidias-nvcc-compiler
 * http://codeyarns.com/2014/03/03/how-to-specify-architecture-to-compile-cuda-code/
 
-nvcc references
-----------------
+
+OptiX 3.8.0 Programming Guide PDF, nvcc flag mentions 
+-------------------------------------------------------
+
+Sect 5.8 Extracts p60/61
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When nvcc is used, make sure the device code bitness is targeted by using 
+the -m64 flag. The bitness of all PTX given to the OptiX API must be 64-bit.
+
+When using nvcc to generate PTX output specify the -ptx flag. Note that any
+host code in the CUDA file will not be present in the generated PTX file. Your
+CUDA files should include <optix_world.h> to gain access to functions and
+definitions required by OptiX and many useful operations for vector types and
+ray tracing.
+
+OptiX is not guaranteed to parse all debug information inserted by nvcc into
+PTX files. We recommend avoiding the --device-debug nvcc flag. Note that this
+flag is set by default on debug builds in Visual Studio.
+
+In order to provide better support for compilation of PTX to different SM
+targets, OptiX uses the .target information found in the PTX code to determine
+compatibility with the currently utilized devices. If you wish your code to run
+an sm_20 device, compiling the PTX with -arch sm_30 will generate an error even
+if no sm_30 features are present in the code. Compiling to sm_20 will run on
+sm_20 and higher targets.
+
+
+Chapter 11.Performance Guidelines, p86
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When creating PTX code using nvcc, adding --use-fast-math as a compile option
+can reduce code size and increase the performance for most OptiX programs. This
+can come at the price of slightly decreased numerical floating point accuracy.
+See the nvcc documentation for more details.
+
+
+C++11
+--------
+
+* http://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/#axzz4Dokp2W5J
+
+::
+
+   --std c++11
+
+Select a particular C++ dialect. 
+The only value currently supported is c++11. 
+Enabling C++11 mode also turns on C++11 mode for the host compiler.
+
+
+
 
 CUDA runtime issue : "invalid device function" with sm_50 and sm_52  GPUs (Maxwell 1st and 2nd generation)
 -----------------------------------------------------------------------------------------------------------
+
+RESOLVED BY MOVING TO --arch sm_30
 
 ::
 
