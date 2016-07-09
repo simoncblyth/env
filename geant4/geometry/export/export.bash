@@ -834,6 +834,44 @@ export-copy-dpib-dir-()
    export-copy-detector-dir- GMergedMesh dpib $base
 }
 
+export-copy-detector-prefs-()
+{
+   local detector=${1:-DayaBay}
+
+   local src=$HOME/.opticks ;
+   local dst=$HOME/opticksdata/export/$detector
+
+   [ ! -d "$src" ] && echo $msg no src $src && return 
+   [ ! -d "$dst" ] && echo $msg no dst $dst && return 
+
+   local tt="GMaterialLib GSourceLib GSurfaceLib GBndLib GScintillatorLib"
+   local t
+   for t in $tt ; do
+     [ ! -d $src/$t ] && continue
+     [ ! -d $dst/$t ] && echo cp -r $src/$t $dst/ 
+   done
+}
+
+export-copy-resource-prefs-()
+{
+   local src=$HOME/.opticks ;
+   local dst=$HOME/opticksdata/resource
+
+   [ ! -d "$src" ] && echo $msg no src $src && return 
+   [ ! -d "$dst" ] && mkdir -p $dst 
+
+   local tt="GFlags GCache"
+   local t
+   for t in $tt 
+   do
+       [ ! -d $src/$t ] && continue
+       [ ! -d $dst/$t ] && echo cp -r $src/$t $dst/ 
+   done
+}
+
+
+
+
 
 
 #export-main $*

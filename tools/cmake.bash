@@ -554,6 +554,14 @@ cmake-dir(){
 }
 
 
+cmake-hdir(){
+   case $NODE_TAG in 
+      D) echo /opt/local/share/cmake-3.4/Help ;;
+   esac
+}
+cmake-hcd(){ cd $(cmake-hdir) ; }
+
+
 cmake-find-package(){ 
    local pkg=${1:-Boost}
    echo $(cmake-dir)/share/cmake-3.5/Modules/Find${pkg}.cmake  

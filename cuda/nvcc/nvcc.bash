@@ -15,6 +15,36 @@ arch argument explanation
 * http://codeyarns.com/2014/03/03/how-to-specify-architecture-to-compile-cuda-code/
 
 
+Opticks Flags
+---------------
+
+::
+
+/usr/local/cuda/bin/nvcc -M -D__CUDACC__
+       /Users/blyth/opticks/cudarap/CResource_.cu -o
+             /usr/local/opticks/build/cudarap/CMakeFiles/CUDARap.dir//CUDARap_generated_CResource_.cu.o.NVCC-depend
+    -ccbin
+          /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
+         -m64 
+         -DCUDARap_EXPORTS 
+          -Xcompiler ,\"-fPIC\"
+          -gencode=arch=compute_30,code=sm_30 
+          -std=c++11 
+          -O2 
+          -DVERBOSE 
+          --use_fast_math
+          -m64 
+          -DNVCC
+           -I/usr/local/cuda/include 
+           -I/Users/blyth/opticks/cudarap
+           -I/usr/local/opticks/externals/plog/include
+           -I/usr/local/cuda/include
+           -I/Users/blyth/opticks/sysrap 
+        nvcc fatal   : redefinition of argument 'machine'
+
+
+
+
 OptiX 3.8.0 Programming Guide PDF, nvcc flag mentions 
 -------------------------------------------------------
 

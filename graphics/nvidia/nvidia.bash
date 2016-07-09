@@ -33,6 +33,7 @@ Geforce GTX 1080
 * https://developer.nvidia.com/introducing-nvidia-geforce-gtx-1080
 * http://www.geforce.com/hardware/10series/geforce-gtx-1080
 * http://international.download.nvidia.com/geforce-com/international/pdfs/GeForce_GTX_1080_Whitepaper_FINAL.pdf
+* https://www.pugetsystems.com/labs/hpc/GTX-1080-CUDA-performance-on-Linux-Ubuntu-16-04-preliminary-results-nbody-and-NAMD-803/
 
 * http://arstechnica.co.uk/gadgets/2016/05/nvidia-gtx-1080-1070-pascal-specs-price-release-date/
 
