@@ -1,9 +1,9 @@
 # === func-gen- : osx/osx fgp osx/osx.bash fgn osx fgh osx
-osx-src(){      echo osx/osx.bash ; }
-osx-source(){   echo ${BASH_SOURCE:-$(env-home)/$(osx-src)} ; }
-osx-vi(){       vi $(osx-source) ; }
-osx-env(){      elocal- ; }
-osx-usage(){ cat << EOU
+osx_src(){      echo osx/osx.bash ; }
+osx_source(){   echo ${BASH_SOURCE:-$ENV_HOME/$(osx_src)} ; }
+osx_vi(){       vi $(osx_source) ; }
+osx_env(){      elocal- ; }
+osx_usage(){ cat << EOU
 
 
 console login
@@ -12,14 +12,46 @@ console login
 Password:">console"
 
 
+Using functions via sudo su 
+------------------------------
+
+::
+
+    delta:opticks blyth$ sudo su 
+    sh-3.2# . /Users/blyth/env/osx/osx.bash
+    sh-3.2# type osx_adduser
+    osx_adduser is a function
+    osx_adduser () 
+    { 
+        local password=${1:-dummy};
+        local username=${2:-simon};
+        local realname=${3:-Simon};
+        local uniqueid=${4:-510};
+        local home=/Users/$username;
+        [ -d "$home" ] && echo $msg username $username already exists && return;
+        [ "$(osx_adduser_check_uniqueid $uniqueid)" != "0" ] && echo $msg uniqueid $uniqueid already used && return;
+        dscl . create $home;
+        dscl . create $home RealName "$realname";
+        dscl . passwd $home $password;
+        dscl . create $home UniqueID $uniqueid;
+        dscl . create $home PrimaryGroupID 20;
+        dscl . create $home NFSHomeDirectory $home;
+        dscl . create $home UserShell /bin/bash;
+        local group="staff";
+        dseditgroup -o edit -t user -a $username $group
+    }
+
+
+
+
 FUNCTIONS
 -----------
 
-osx-library-visible
+osx_library-visible
        http://gregferro.com/make-library-folder-visible-in-os-x-lion/
        http://coolestguidesontheplanet.com/show-hidden-library-and-user-library-folder-in-osx/
 
-osx-captive-wifi-disable
+osx_captive-wifi-disable
       http://apple.stackexchange.com/questions/45418/how-to-automatically-login-to-captive-portals-on-os-x
       https://discussions.apple.com/thread/525840
 
@@ -27,15 +59,15 @@ osx-captive-wifi-disable
       disabling com.apple.captive.control makes the portal authentication go via Safari which does remember.
 
 
-osx-ss
+osx_ss
       path of last screen shot from today 
 
 
-osx-ss-copy name
+osx_ss-copy name
 
 
 
-osx-ss-cp name
+osx_ss-cp name
       copy last screen shot to ~/simoncblyth.bitbucket.org/env/current-relative-dir/name.png
       where current-relative-dir is PWD relative to ENV_HOME
 
@@ -45,14 +77,14 @@ osx-ss-cp name
 
          # take screen shot using shift-cmd-4 and dragging a rectangle
 
-         osx-ss-cp name
+         osx_ss-cp name
 
          # copy-and-paste rst snippet into presentation
 
 
 ::
 
-    simon:pmt blyth$ osx-ss-cp hemi-pmt-parts
+    simon:pmt blyth$ osx_ss-cp hemi-pmt-parts
     cp "/Users/blyth/Desktop/Screen Shot 2015-10-29 at 11.27.18 AM.png" /Users/blyth/simoncblyth.bitbucket.org/nuwa/detdesc/pmt/hemi-pmt-parts.png
     -rw-r--r--@ 1 blyth  staff  124671 Oct 29 11:29 /Users/blyth/simoncblyth.bitbucket.org/nuwa/detdesc/pmt/hemi-pmt-parts.png
 
@@ -73,7 +105,7 @@ Upgrade ? Mavericks/Yosemite/El Capitan
 * http://www.tonymacx86.com/graphics/180741-nvidia-releases-alternate-graphics-drivers-os-x-10-11-2-346-03-04-a.html
 
 
-* http://www.nvidia.com/object/macosx-cuda-7.5.25-driver.html
+* http://www.nvidia.com/object/macosx_cuda-7.5.25-driver.html
 
 
 
@@ -83,35 +115,34 @@ Upgrade ? Mavericks/Yosemite/El Capitan
 
 EOU
 }
-osx-dir(){ echo $(local-base)/env/osx/osx-osx ; }
-osx-cd(){  cd $(osx-dir); }
-osx-mate(){ mate $(osx-dir) ; }
-osx-get(){
-   local dir=$(dirname $(osx-dir)) &&  mkdir -p $dir && cd $dir
+osx_dir(){ echo $(local-base)/env/osx/osx_osx ; }
+osx_cd(){  cd $(osx_dir); }
+osx_get(){
+   local dir=$(dirname $(osx_dir)) &&  mkdir -p $dir && cd $dir
 
 }
 
-osx-ss(){
+osx_ss(){
    echo $(ls -1t ~/Desktop/Screen\ Shot\ $(date +'%Y-%m-%d')*.png | head -1 )
 }
 
-osx-ss-open(){
-   open "$(osx-ss)"
+osx_ss_open(){
+   open "$(osx_ss)"
 }
 
 
 
-osx-ss-copy(){
+osx_ss_copy(){
    local name=$1
-   cp "$(osx-ss)" $name.png
+   cp "$(osx_ss)" $name.png
    downsize.py $name.png
 }
 
-osx-ss-cp(){
+osx_ss_cp(){
    local msg="=== $FUNCNAME :"
    local nam=${1:-plot}
    local iwd=$(realpath ${PWD})
-   local src="$(osx-ss)"
+   local src="$(osx_ss)"
 
    local rel
    local repo
@@ -165,7 +196,7 @@ EOR
 
 
 
-osx-captive-wifi()
+osx_captive_wifi()
 {
     type $FUNCNAME
     local arg=${1:-true}
@@ -173,18 +204,18 @@ osx-captive-wifi()
     sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.captive.control Active -boolean $arg
 }
 
-osx-captive-wifi-disable(){ osx-captive-wifi false ; }
-osx-captive-wifi-enable(){  osx-captive-wifi true ; }
+osx_captive_wifi_disable(){ osx_captive_wifi false ; }
+osx_captive_wifi_enable(){  osx_captive_wifi true ; }
 
 
 
 
-osx-library-visible(){
+osx_library_visible(){
  
    chflags nohidden ~/Library/
 }
 
-osx-prevent-ds-store-droppings-on-shares(){
+osx_prevent_ds_store_droppings_on_shares(){
   defaults write com.apple.desktopservices DSDontWriteNetworkStores true
 
   cat << EON
@@ -214,3 +245,40 @@ EON
 }
 
 
+
+osx_adduser_uniqueid_count()
+{
+   local n=$(dscl . list /Users UniqueID | grep ${1:-501} | wc -l)
+   echo $n
+}
+
+osx_adduser()
+{
+    local password=${1:-dummy}
+    local username=${2:-simon}
+    local realname=${3:-Simon}
+    local uniqueid=${4:-510}
+    local home=/Users/$username
+
+    [ -d "$home" ] && echo $msg username $username already exists && return 
+    [ "$(osx_adduser_uniqueid_count $uniqueid)" != "0" ] && echo $msg uniqueid $uniqueid already used && return 
+
+    dscl . create $home
+    dscl . create $home RealName "$realname"
+    dscl . passwd $home $password
+    dscl . create $home UniqueID $uniqueid
+    dscl . create $home PrimaryGroupID 20
+    dscl . create $home NFSHomeDirectory $home
+    dscl . create $home UserShell /bin/bash
+   
+    local group="staff"
+    dseditgroup -o edit -t user -a $username $group
+
+    createhomedir -c  
+}
+
+
+osx_simon()
+{
+    sudo su - simon
+}
