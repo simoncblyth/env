@@ -2,9 +2,7 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 set(name ThrustOpenGLInterop)
 project(${name})
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
-                      "$ENV{ENV_HOME}/cmake/Modules"
-          ) 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "$ENV{OPTICKS_HOME}/cmake/Modules") 
 
 include(EnvBuildOptions)
 

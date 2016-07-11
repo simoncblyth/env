@@ -1678,7 +1678,7 @@ java-(){        . $(env-home)/tools/java/java.bash && java-env $* ; }
 instancecull-(){      . $(env-home)/graphics/opengl/instancecull.bash && instancecull-env $* ; }
 glfwtriangle-(){      . $(env-home)/graphics/glfw/glfwtriangle/glfwtriangle.bash && glfwtriangle-env $* ; }
 
-optixminimal-(){      . $(env-home)/optix/optixminimal/optixminimal.bash && optixminimal-env $* ; }
+optixminimal-(){     . $(env-home)/optix/optixminimal/optixminimal.bash && optixminimal-env $* ; }
 optixthrust-(){      . $(env-home)/optix/optixthrust/optixthrust.bash && optixthrust-env $* ; }
 
 nvcc-(){      . $(env-home)/cuda/nvcc/nvcc.bash && nvcc-env $* ; }
@@ -1705,7 +1705,7 @@ mdls-(){      . $(env-home)/osx/mdls/mdls.bash && mdls-env $* ; }
 
 
 vxgi-(){      . $(env-home)/graphics/nvidia/vxgi.bash && vxgi-env $* ; }
-rift-(){      . $(env-home)/vr/rift/rift.bash && rift-env $* ; }
+
 ios-(){       . $(env-home)/ios/ios.bash && ios-env $* ; }
 gpuhep-(){    . $(env-home)/gpuhep/gpuhep.bash && gpuhep-env $* ; }
 
@@ -1713,9 +1713,12 @@ gtc-(){            . $(env-home)/presentation/gtc2016/gtc.bash && gtc-env $* ; }
 vids-(){           . $(env-home)/graphics/ggeoview/vids.bash && vids-env $* ; }
 vbox-(){           . $(env-home)/virtualbox/vbox.bash && vbox-env $* ; }
 
+### vr related
+
 vr-(){            . $(env-home)/vr/vr.bash && vr-env $* ; }
 ovrminimal-(){    . $(env-home)/vr/ovrminimal/ovrminimal.bash && ovrminimal-env $* ; }
 openvr-(){        . $(env-home)/vr/openvr/openvr.bash && openvr-env $* ; }
+rift-(){          . $(env-home)/vr/rift/rift.bash && rift-env $* ; }
 
 
 libgit2-(){       . $(env-home)/git/libgit2.bash && libgit2-env $* ; }
@@ -1749,7 +1752,8 @@ g4win-(){           . $(env-home)/g4/g4win.bash && g4win-env $* ; }
 vrworks-(){         . $(env-home)/vr/vrworks/vrworks.bash && vrworks-env $* ; }
 designworks-(){     . $(env-home)/graphics/nvidia/designworks.bash && designworks-env $* ; }
 
-# opticks dev funcs : not relevant to users
+
+### opticks dev projs or notes not migrated into opticks repo : as not relevant to users
 
 cudainstall-(){           . $(env-home)/cuda/cudainstall.bash && cudainstall-env $* ; }
 bcfg-(){                  . $(env-home)/boostrap/bcfg.bash && bcfg-env $* ; }
@@ -1781,6 +1785,12 @@ assimptest-(){   . $(env-home)/graphics/assimp/AssimpTest/assimptest.bash && ass
 
 imguitest-(){    . $(env-home)/graphics/gui/imguitest/imguitest.bash && imguitest-env $* ; }
 g4op-(){         . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
+
+
+
+
+
+
 
 #### opticks externals ###  TODO: **copy** into externals with opticks-xcollect, once spawned can remove non-essentials (dev notes etc..)  
 #

@@ -5,8 +5,8 @@
 //
 
 #include <GLFW/glfw3.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 
 #include <cuda_gl_interop.h>
 #include <thrust/device_vector.h>
@@ -182,8 +182,23 @@ void display_thrust(bool thrust)
 
 
 
-int main(void)
+int main(int argc, char** argv)
 {
+
+    char mode = argc > 1 && strlen(argv[1]) > 0 ? argv[1][0] : 'A' ; 
+
+    const char* msg = NULL ; 
+    switch(mode)
+    {
+       case 'A':msg="mode A : display_triangles     " ; break ;
+       case 'B':msg="mode B : display_thrust(true)  " ; break ;
+       case 'C':msg="mode C : display_thrust(false) " ; break ;
+        default:msg="unknown mode " ; break ;  
+    }
+
+    printf(" %s : %s \n", argv[0], msg );
+
+
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -208,13 +223,16 @@ int main(void)
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
                  
-
         glViewport(0, 0, width, height);
 
         setup_view(ratio);
 
-        display_triangles();
-        //display_thrust(false);
+        switch(mode)
+        {
+           case 'A':display_triangles() ;break;
+           case 'B':display_thrust(true) ;break;
+           case 'C':display_thrust(false) ;break;
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -223,8 +241,6 @@ int main(void)
     glfwTerminate();
     exit(EXIT_SUCCESS);
 }
-
-
 
 
 
