@@ -18,6 +18,39 @@ Populate the docs http://simoncblyth.bitbucket.org/opticks/
   and replace with short user descriptions 
 
 
+
+Suggestions from Tao
+-----------------------
+
+::
+
+    Hi Simon,
+
+    If I am a student, I would like to:
+
+    * Have a quick look at the application self. The visualization is more attractive. So I need to know:
+      * basic commands to control the software self.
+      * what different events would look like.
+        * how to specify an input file.
+      * options to control the Opticks.
+
+    * Is that possible to visualize detectors from different experiment.
+      * If I am not familiar with Geant4, I would like to use an example from Geant4.
+        * how to export GDML/DAE
+        * how to import it to Opticks
+
+    * Then is that possible to install the software in my own desktop/laptop with GPU.
+      * The hardware requirements.
+
+    * The architecture of Opticks.
+    * How to develop the program.
+
+    Simon, could you send me your report/tutorial to me if they are ready?
+    Thanks!
+
+    Tao
+
+
 Inspiration
 -------------
 

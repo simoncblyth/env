@@ -409,7 +409,7 @@ op-export
 if [ "$sauce" == "1" ]; then
    #echo sauce detected : assume are debugging this script
    echo -n
-elif [ "${cmdline/--ophelp}" != "${cmdline}" ]; then
+elif [ "${cmdline/--help}" != "${cmdline}" ]; then
    op-help
 else
    >&2 ls -alst ${OPTICKS_BINARY}

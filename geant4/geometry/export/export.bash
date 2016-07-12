@@ -17,6 +17,63 @@ From script usage::
    GDB=1 export.sh VGDX Far
 
 
+Promoting from export into opticksdata
+----------------------------------------
+
+Select what to promote::
+
+    simon:opticks blyth$ opticksdata-;opticksdata-find-ls
+    -rw-r--r--  1 blyth  staff  7126305 Jun  7 20:12 /Users/blyth/opticksdata/export/DayaBay_VGDX_20140414-1300/g4_00.dae
+    -rw-r--r--  1 blyth  staff  8918916 Jun  7 20:12 /Users/blyth/opticksdata/export/Far_VGDX_20140414-1256/g4_00.dae
+    -rw-r--r--  1 blyth  staff  7126139 Jun  7 20:12 /Users/blyth/opticksdata/export/Lingao_VGDX_20140414-1247/g4_00.dae
+    -rw-r--r--  1 blyth  staff  78630 Jun  7 20:12 /Users/blyth/opticksdata/export/LXe/g4_00.dae
+
+    simon:optickscore blyth$ export-;export-find-ls
+    -rw-r--r--  1 blyth  staff  7126305 Apr 14  2014 /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae
+    -rw-r--r--  1 blyth  staff  8918916 Apr 14  2014 /usr/local/env/geant4/geometry/export/Far_VGDX_20140414-1256/g4_00.dae
+    -rw-r--r--  1 blyth  staff  7126139 Apr 14  2014 /usr/local/env/geant4/geometry/export/Lingao_VGDX_20140414-1247/g4_00.dae
+    -rw-r--r--  1 blyth  wheel  78630 May  5  2014 /usr/local/env/geant4/geometry/export/LXe/g4_00.dae
+
+    -rw-r--r--  1 blyth  staff  5228932 Oct 14  2014 /usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae.noextra.dae
+    -rw-r--r--  1 blyth  staff  260565 Mar  5 15:09 /usr/local/env/geant4/geometry/export/dpib/cfg4.dae
+    -rw-r--r--  1 blyth  staff  210955 Jul 22  2015 /usr/local/env/geant4/geometry/export/juno/nopmt.dae
+    -rw-r--r--  1 blyth  staff  25782981 Aug 25  2015 /usr/local/env/geant4/geometry/export/juno/t3.dae
+    -rw-r--r--@ 1 blyth  staff  6406279 May 25  2014 /usr/local/env/geant4/geometry/export/juno/test.dae
+    -rw-r--r--@ 1 blyth  staff  4200320 Aug 21  2015 /usr/local/env/geant4/geometry/export/juno/test.nometa.dae
+    -rw-r--r--@ 1 blyth  staff  6430314 May 25  2014 /usr/local/env/geant4/geometry/export/juno/test2.dae
+    -rw-r--r--  1 blyth  staff  25782981 Jul 21  2015 /usr/local/env/geant4/geometry/export/juno/test3.dae
+    -rw-r--r--  1 blyth  staff  16262853 Aug 21  2015 /usr/local/env/geant4/geometry/export/juno/test3.nometa.dae
+
+
+Check the command, then pipe to shell::
+
+    simon:optickscore blyth$ export-copy- dae test3
+    mkdir -p /Users/blyth/opticksdata/export/juno
+    cp /usr/local/env/geant4/geometry/export/juno/test3.dae /Users/blyth/opticksdata/export/juno/test3.dae
+
+Hmm thats too big for comfort, but proceed anyhow::
+
+    simon:opticksdata blyth$ du -h  export/juno/test3.dae
+     25M    export/juno/test3.dae
+
+    simon:opticksdata blyth$ export-copy-all-  cfg4 
+    cp /usr/local/env/geant4/geometry/export/dpib/cfg4.dae /Users/blyth/opticksdata/export/dpib/cfg4.dae
+    simon:opticksdata blyth$ 
+    simon:opticksdata blyth$ export-copy-all-  cfg4  | sh 
+
+::
+
+    simon:ana blyth$ opticksdata-find-du
+    6.8M    /Users/blyth/opticksdata/export/DayaBay_VGDX_20140414-1300/g4_00.dae
+    256K    /Users/blyth/opticksdata/export/dpib/cfg4.dae
+    8.5M    /Users/blyth/opticksdata/export/Far_VGDX_20140414-1256/g4_00.dae
+     25M    /Users/blyth/opticksdata/export/juno/test3.dae
+    6.8M    /Users/blyth/opticksdata/export/Lingao_VGDX_20140414-1247/g4_00.dae
+     80K    /Users/blyth/opticksdata/export/LXe/g4_00.dae
+
+
+
+
 
 Rationalize IDPATH_DPIB_PMT
 -----------------------------
@@ -301,45 +358,38 @@ export-edit(){
    vi $path
 }
 
+
+export-find(){    find $(export-home) -type f -name '*.dae' ; }
+export-find-ls(){ find $(export-home) -type f -name '*.dae' -exec ls -l {} \; ; }
+
 export-ext(){ echo ${EXPORT_EXT:-dae} ; }
 export-name(){ echo $(export-base $1).$(export-ext) ; }
 export-base(){
   local base=$(export-home)
   case $1 in 
-       dyb) echo $base/DayaBay_VGDX_20140414-1300/g4_00 ;;
-       dybf) echo $base/DayaBay_VGDX_20140414-1300/g4_00 ;;
-       dpib) echo $base/dpib/cfg4 ;; 
-       far) echo $base/Far_VGDX_20140414-1256/g4_00 ;;
-    lingao) echo $base/Lingao_VGDX_20140414-1247/g4_00 ;;
-       lxe) echo $base/LXe/g4_00 ;;
+       dyb)  echo $base/DayaBay_VGDX_20140414-1300/g4_00 ;;
+       far)  echo $base/Far_VGDX_20140414-1256/g4_00 ;;
+    lingao)  echo $base/Lingao_VGDX_20140414-1247/g4_00 ;;
        jpmt) echo $base/juno/test3 ;;
+       lxe)  echo $base/LXe/g4_00 ;;
+
+       dpib) echo $base/dpib/cfg4 ;; 
        juno) echo $base/juno/nopmt ;;
        jtst) echo $base/juno/test ;;
+       dybf) echo $base/DayaBay_VGDX_20140414-1300/g4_00 ;;
   esac
 }
-
-export-strip-extra-meta(){
-
-   local orig=$1
-   local nometa=${orig/.dae/.nometa.dae}
-   echo $msg orig $orig nometa $nometa
-
-   xsltproc $(export-home)/strip-extra-meta.xsl $orig > $nometa
-}
-
-
 export-geometry(){
   case $1 in 
         dyb) echo 3153:12221 ;;   # skip RPC and radslabs  
-        dybf) echo 2+,3147+ ;;   
        juno) echo 1:25000  ;;
        jpmt) echo 1:25000  ;;
        jtst) echo 1:25000  ;;
         lxe) echo 1:   ;;
        dpib) echo 1:   ;;
+        dybf) echo 2+,3147+ ;;   
   esac
 }
-
 
 export-export(){
    export DAE_NAME=$(export-name dyb)
@@ -358,6 +408,7 @@ export-export(){
    export DAE_NAME_DYB_CHROMACACHE=$LOCAL_BASE/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300/g4_00.dae.29c299d81706c62884caf5c3dbdea5c1/chroma_geometry
    export DAE_NAME_DYB_CHROMACACHE_MESH=$DAE_NAME_DYB_CHROMACACHE/chroma.detector:Detector:0x10a881cd0/mesh/chroma.geometry:Mesh:0x10ea3bf50
    export DAE_NAME_DYB_NOEXTRA=$(EXPORT_EXT=dae.noextra.dae export-name dyb)
+
    export DAE_NAME_DYBF=$(export-name dybf)
    export DAE_NAME_FAR=$(export-name far)
    export DAE_NAME_LIN=$(export-name lingao)
@@ -377,6 +428,19 @@ export-export(){
 
    $FUNCNAME-templates
 }
+
+
+export-strip-extra-meta(){
+
+   local orig=$1
+   local nometa=${orig/.dae/.nometa.dae}
+   echo $msg orig $orig nometa $nometa
+
+   xsltproc $(export-home)/strip-extra-meta.xsl $orig > $nometa
+}
+
+
+
 
 export-path-template(){ 
    case $1 in
@@ -781,13 +845,14 @@ EOT
 export-copy-()
 {
    local ext=${1:-dae}
+   local nam=${2:-g4_00}
    local dest=$HOME/opticksdata/export
    local base=$(export-home)
    local path
    local dpath
    local rel
    local cmd
-   find $base -name "g4_00.$ext" | while read path 
+   find $base -name "$nam.$ext" | while read path 
    do
       rel=${path/$base\/}
       dpath=$dest/$rel 
@@ -802,10 +867,13 @@ export-copy-()
 
 export-copy-all-()
 {
-   export-copy- dae
-   export-copy- gdml
-   export-copy- idmap
+   local nam=${1:-g4_00}
+   export-copy- dae $nam
+   export-copy- gdml $nam
+   export-copy- idmap $nam
 }  
+
+
 
 export-copy-detector-dir-()
 {
@@ -868,10 +936,6 @@ export-copy-resource-prefs-()
        [ ! -d $dst/$t ] && echo cp -r $src/$t $dst/ 
    done
 }
-
-
-
-
 
 
 #export-main $*
