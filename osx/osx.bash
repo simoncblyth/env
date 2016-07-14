@@ -277,6 +277,14 @@ osx_adduser()
     createhomedir -c  
 }
 
+osx_passwd()
+{
+    local password=${1:-dummy}
+    local username=${2:-simon}
+    local home=/Users/$username
+    dscl . passwd $home $password
+}
+
 
 osx_simon()
 {

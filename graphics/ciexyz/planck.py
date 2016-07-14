@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 """
 
+env/graphics/ciexyz/planck.py
+==================================
+
 Generated photons feature a plateau from 80nm to 205nm followed 
 by step up to join the curve.  
 
