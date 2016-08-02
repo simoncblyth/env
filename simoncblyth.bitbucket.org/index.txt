@@ -35,6 +35,15 @@ Opticks Presentations
 Mid 2016
 ~~~~~~~~~~~~
 
+
+http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_jul2016_weihai.html (19 July 2016, Weihai, China)
+
+    Shandong University Particle Physics Summer School
+
+    Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
+
+
 http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_may2016_lecospa.html (16 May 2016, NTU, Taipei)
 
     Seminar, Leung Center for Cosmology and Particle Astrophysics (LeCosPA) of the National Taiwan University (NTU) 

@@ -18,6 +18,12 @@ Video capture from NVIDIA
 * http://www.geforce.com/geforce-experience/shadowplay
 
 
+Capture SDK (formerly Grid SDK)
+---------------------------------
+
+* https://developer.nvidia.com/capture-sdk
+* https://aws.amazon.com/blogs/aws/new-g2-instance-type-with-4x-more-gpu-power/
+
 10 Series
 -----------
 

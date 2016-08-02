@@ -42,6 +42,101 @@ Using functions via sudo su
     }
 
 
+osx_simon unable to run CUDA, but fast user switch simon can ?
+-----------------------------------------------------------------
+
+::
+
+    delta:build simon$ cudaGetDevicePropertiesTest 
+    CUDA Device Query...target -1 
+    There are 0 CUDA devices.
+    0
+    delta:build simon$
+
+::
+
+    delta:build simon$ env
+    TERM=xterm-256color
+    SHELL=/bin/bash
+    USER=simon
+    PATH=/Users/blyth/opticks/bin:/usr/local/opticks/lib:/opt/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin
+    PWD=/usr/local/opticks/build
+    SHLVL=1
+    HOME=/Users/simon
+    _=/usr/bin/env
+    OLDPWD=/Users/simon
+
+
+
+See cuda- : disabling automatic graphics switching, enables cuda usage.
+
+
+osx_simon : GLFW : No monitors found
+--------------------------------------
+
+::
+
+    delta:~ simon$ AxisTest
+    2016-07-15 23:38:32.147 INFO  [776196] [main@163] AxisTest
+      0 : AxisTest
+    2016-07-15 23:38:32.149 INFO  [776196] [Scene::init@199] Scene::init (config from cmake) OGLRAP_INSTALL_PREFIX /usr/local/opticks OGLRAP_SHADER_DIR /usr/local/opticks/gl OGLRAP_SHADER_INCL_PATH /usr/local/opticks/gl OGLRAP_SHADER_DYNAMIC_DIR /usr/local/opticks/gl
+    2016-07-15 23:38:32.149 INFO  [776196] [AxisTest::prepareViz@94] AxisTest::prepareViz initRenderers 
+    2016-07-15 23:38:32.154 INFO  [776196] [AxisTest::prepareViz@100] AxisTest::prepareViz initRenderers DONE 
+    No monitors found
+
+
+
+login simon : Cocoa: Failed to retrieve display name
+--------------------------------------------------------
+
+Instead of osx_simon using login from terminal window to change user gets further::
+
+    delta:2016 blyth$ login
+    login: simon
+    Password:
+    Last login: Thu Jul 14 22:27:34 on ttys000
+    delta:~ simon$ 
+    ...
+    2016-07-16 09:56:56.819 INFO  [824821] [AxisTest::prepareViz@100] AxisTest::prepareViz initRenderers DONE 
+    Cocoa: Failed to retrieve display name
+    2016-07-16 09:56:56.988 INFO  [824821] [AxisTest::prepareViz@102] AxisTest::prepareViz frame init DONE 
+    2016-07-16 09:56:56.988 INFO  [824821] [AxisTest::prepareViz@105] AxisTest::prepareViz DONE 
+
+
+::
+
+     43 static char* getDisplayName(CGDirectDisplayID displayID)
+     44 {
+     45     char* name;
+     46     CFDictionaryRef info, names;
+     47     CFStringRef value;
+     48     CFIndex size;
+     49 
+     50     // NOTE: This uses a deprecated function because Apple has
+     51     //       (as of January 2015) not provided any alternative
+     52     info = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(displayID),
+     53                                          kIODisplayOnlyPreferredName);
+     54     names = CFDictionaryGetValue(info, CFSTR(kDisplayProductName));
+     55 
+     56     if (!names || !CFDictionaryGetValueIfPresent(names, CFSTR("en_US"),
+     57                                                  (const void**) &value))
+     58     {
+     59         // This may happen if a desktop Mac is running headless
+     60         _glfwInputError(GLFW_PLATFORM_ERROR,
+     61                         "Cocoa: Failed to retrieve display name");
+     62 
+     63         CFRelease(info);
+     64         return strdup("Unknown");
+     65     }
+
+
+
+The IODisplayCreateInfoDictionary has been replaced is newer GLFW:
+
+* https://github.com/glfw/glfw/commit/8101d7a7b67fc3414769b25944dc7c02b58d53d0
+
+* http://opensource.apple.com//source/IOKitUser/IOKitUser-388.2/graphics.subproj/IODisplayTest.c
+
 
 
 FUNCTIONS

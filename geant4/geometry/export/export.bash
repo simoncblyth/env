@@ -937,6 +937,65 @@ export-copy-resource-prefs-()
    done
 }
 
+export-gensteps-()
+{
+   local name=${1:-cerenkov}
+   local tag=${2:-1}
+
+   local src=/usr/local/env/opticks
+   local dst=$HOME/opticksdata/gensteps
+
+   [ ! -d "$src" ] && echo $msg this requires D $src && return 
+   [ ! -d "$(dirname $dst)" ] && echo $msg this requires D $(dirname $dst) && return 
+
+   local dir
+   local rel
+   local npy
+   local tgt
+   local tdir
+ 
+   find  $src -type d -name $name | grep -v _backup | while read dir ; do
+
+      rel=${dir/$src\/}
+      npy=$src/$rel/$tag.npy 
+      tgt=$dst/$rel/$tag.npy
+
+      [ ! -f "$npy" ] && printf "# missing npy %s \n" $npy  && continue
+      [ -f "$tgt" ]   && printf "# already copied to tgt %s \n" $tgt  && continue
+
+     # printf "# dir %s rel %s npy %s tgt %s \n" $dir $rel $npy $tgt
+
+      tdir=$(dirname $tgt)
+      [ ! -d "$tdir" ] && echo mkdir -p $tdir
+      echo cp $npy $tgt 
+   done
+}
+
+export-ChromaMaterialMap-()
+{
+
+   local nam=ChromaMaterialMap.json 
+   local src=/usr/local/env/geant4/geometry/export/DayaBay_VGDX_20140414-1300
+   local dst=$HOME/opticksdata/export/DayaBay
+
+   [ ! -f "$src/$nam" ] && echo missing $src/$nam && return
+
+   [ ! -d "$dst" ] && echo missing $dst && return 
+
+   [ -f "$dst/$nam" ] && echo alreadt copied $dst/$name && return 
+
+   echo cp $src/$nam $dst/$nam  
+
+}
+
+
+export-gensteps()
+{
+  export-gensteps- cerenkov 
+  export-gensteps- scintillation
+}
+
+
 
 #export-main $*
 

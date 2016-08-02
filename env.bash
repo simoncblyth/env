@@ -1843,3 +1843,6 @@ g4op-(){         . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
 #cfg4-(){            . $(env-home)/cfg4/cfg4.bash && cfg4-env $* ; }
 #
 #
+sniper-(){      . $(env-home)/juno/sniper/sniper.bash && sniper-env $* ; }
+offline-(){      . $(env-home)/juno/offline/offline.bash && offline-env $* ; }
+juno-(){      . $(env-home)/juno/juno.bash && juno-env $* ; }
