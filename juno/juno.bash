@@ -46,8 +46,6 @@ Chinese Academy of Sciences
 
 
 
-
-
 EOU
 }
 juno-dir(){ echo $(local-base)/env/juno/juno-juno ; }

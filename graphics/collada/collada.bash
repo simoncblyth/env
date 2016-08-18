@@ -8,6 +8,7 @@ collada-usage(){ cat << EOU
 COLLADA
 =========
 
+* https://www.khronos.org/news/press/khronos-collada-now-recognized-as-iso-standard
 
 
 EOU

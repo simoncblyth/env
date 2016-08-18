@@ -7,7 +7,6 @@ slides-usage(){ cat << EOU
 CONVERT SLIDES IN S5 RST TO HTML AND PDF 
 =========================================
 
-
 PDF page size : Very large because somehow 72dpi ?
 ---------------------------------------------------
 
@@ -336,7 +335,7 @@ EOU
 
 slides-env(){      elocal- ; bitbucketstatic- ; presentation- ;  }
 slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
-slides-dir(){   echo $(apache-htdocs)/env/$(slides-fold) ; }
+slides-dir(){   apache- ; echo $(apache-htdocs)/env/$(slides-fold) ; }
 slides-sdir(){  echo $(env-home)/$(slides-branch) ; } 
 slides-pdir(){  echo $(env-home)/_build/dirhtml/$(slides-fold) ; }
 slides-path(){  echo $(slides-dir)/$(slides-name).${1:-pdf} ; }
@@ -383,8 +382,9 @@ slides-get(){
 
 }
 
-slides-get-gtc(){     slides-get 0 42 ; }
-slides-get-lecospa(){ slides-get 0 57 ; }
+slides-get-gtc(){       slides-get 0 42 ; }
+slides-get-lecospa(){   slides-get 0 57 ; }
+slides-get-jnu-cmake-ctest(){ slides-get 0 5 ; }
 
 
 #slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
@@ -520,7 +520,7 @@ slides-crop(){
    local msg="=== $FUNCNAME "
    slides-cd
    echo $msg cropping png
-   crop.py ??.png
+   /opt/local/bin/python $ENV_HOME/bin/crop.py ??.png
 }
 
 slides-rm-uncropped(){

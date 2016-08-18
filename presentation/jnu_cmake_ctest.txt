@@ -1,0 +1,216 @@
+.. include:: <s5defs.txt>
+
+.. raw:: html
+
+    <style type="text/css">
+        span.alarm { color: red; }
+        span.warn { color: orange; }
+        span.ok { color: green; }
+        span.i { display: none; }
+        pre.sliteral { class:"literal-block small"; }
+        pre.mypre {
+             display: block;
+             font-family: monospace;
+             font-size: 20px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+        pre.mypre_tiny {
+             display: block;
+             font-family: monospace;
+             font-size: 15px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+
+
+    </style>
+
+
+===================================================================================
+Progress with Sniper+Offline Migration to CMake (with CTest-ing) 
+===================================================================================
+
+.. class:: large
+
+   Development in SVN branches, using prior CMake work from Tao:
+
+   * http://juno.ihep.ac.cn/trac/browser/offline/branches/offline-cmake-simon
+   * http://juno.ihep.ac.cn/trac/browser/sniper/branches/sniper-cmake-simon
+
+   Utility bash functions and notes in **jnu-** Mercurial repo
+
+   * https://bitbucket.org/simoncblyth/jnu/commits
+
+   Development on macOS 10.9.4 with close to latest version externals:
+
+.. class:: small
+
+    cmake-3.4.1
+    Python-2.7.12
+    boost_1_61_0
+    root-6.06.06
+
+    xerces-c-3.1.4
+    Geant4-10.2.1
+    CLHEP-2.3.3.1
+    HepMC-2.06.09
+
+   |  Simon C Blyth,  August 2016 
+
+
+
+Sniper CTest : convenient testing any script/executable
+-----------------------------------------------------------------
+
+.. sidebar:: Adding CTests 
+ 
+   .. class:: small
+
+       CTest is integrated with CMake.
+
+       Use **add_test** within CMakeLists.txt to run scripts 
+       and executables. 
+
+       * https://cmake.org/Wiki/CMake/Testing_With_CTest
+
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+    simon:~ blyth$ sniper-        ## jnu- utility bash functions
+    simon:~ blyth$ sniper-bcd   
+    simon:sniper-cmake-simon.build blyth$ ctest   ## alternatively : sniper-t 
+    Test project /usr/local/jnu/sniper-cmake-simon.build
+          Start  1: DummySvcTest.DummySvcTest
+     1/11 Test  #1: DummySvcTest.DummySvcTest ........   Passed    0.00 sec
+          Start  2: HelloWorld.run
+     2/11 Test  #2: HelloWorld.run ...................   Passed    0.02 sec
+          Start  3: HelloWorldTest.HelloAlgTest
+     3/11 Test  #3: HelloWorldTest.HelloAlgTest ......   Passed    0.00 sec
+          Start  4: DummyAlg.run
+     4/11 Test  #4: DummyAlg.run .....................   Passed    0.23 sec
+          Start  5: tests.testSniperLoadDll
+     5/11 Test  #5: tests.testSniperLoadDll ..........   Passed    0.04 sec
+          Start  6: tests.testSniperLoadLib
+     6/11 Test  #6: tests.testSniperLoadLib ..........   Passed    0.05 sec
+          Start  7: tests.testCreateAlg
+     7/11 Test  #7: tests.testCreateAlg ..............   Passed    0.02 sec
+          Start  8: tests.testDummySvc
+     8/11 Test  #8: tests.testDummySvc ...............   Passed    0.02 sec
+          Start  9: tests.testHelloWorld
+     9/11 Test  #9: tests.testHelloWorld .............   Passed    0.02 sec
+          Start 10: tests.testHelloTask
+    10/11 Test #10: tests.testHelloTask ..............   Passed    0.02 sec
+          Start 11: tests.testRootWriter
+    11/11 Test #11: tests.testRootWriter .............   Passed    0.04 sec
+
+    100% tests passed, 0 tests failed out of 11
+
+    Total Test time (real) =   0.48 sec
+    </pre> 
+
+
+CTest add_test example from sniper/Examples/Helloworld/CMakeLists.txt
+-----------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypre">
+ 
+    set(TMP "/tmp/$ENV{USER}/sniper/${name}")
+    file(MAKE_DIRECTORY ${TMP})
+
+    add_test(NAME ${name}.run
+                WORKING_DIRECTORY ${TMP}
+                COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/share/run.py
+        )
+    </pre> 
+
+
+Offline CTest
+----------------
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+
+    simon:~ blyth$ offline-t    ## run ctest from build dir
+    Test project /usr/local/jnu/offline.build
+        Start 1: Geometry.c
+    1/5 Test #1: Geometry.c ....................................   Passed    1.81 sec
+        Start 2: IPMTSimTest.IPMTManagerTest
+    2/5 Test #2: IPMTSimTest.IPMTManagerTest ...................   Passed    0.01 sec
+        Start 3: PMTSim.HelloPMTManagerTest
+    3/5 Test #3: PMTSim.HelloPMTManagerTest ....................***Exception: Other  0.23 sec
+        Start 4: DetSimOptions.LSExpDetectorConstructionTest
+    4/5 Test #4: DetSimOptions.LSExpDetectorConstructionTest ...***Exception: Other  0.44 sec
+        Start 5: DetSimOptions.DetSimResourceTest
+    5/5 Test #5: DetSimOptions.DetSimResourceTest ..............   Passed    0.04 sec
+
+    60% tests passed, 2 tests failed out of 5
+    Total Test time (real) =   2.54 sec
+    The following tests FAILED:
+          3 - PMTSim.HelloPMTManagerTest (OTHER_FAULT)
+          4 - DetSimOptions.LSExpDetectorConstructionTest (OTHER_FAULT)
+    </pre>
+
+Running individual tests and showing output:
+
+.. raw:: html
+
+    <pre class="mypre_tiny">
+
+         ctest --help
+
+         ctest -R PMTSim.HelloPMTManagerTest \   ## regex selection
+                                         -V      ## show output
+ 
+         ctest -R DetSimOptions.LSExpDetectorConstructionTest -V  
+
+    </pre>
+
+
+Geant4 Version Flexibility
+------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypre">
+
+    #include "G4Version.hh"
+    #if ( G4VERSION_NUMBER > 1000 )
+    ...
+    #else
+    ...
+    #endif
+
+    </pre> 
+
+
+Progess Summary
+-----------------
+
+.. class:: large
+
+   Aiming for small unit(ie low level) testing at both C++ and Python level 
+
+   **Sniper**
+
+   * fully migrated to CMake, some tests
+
+   **Offline**
+
+   * partially migrated to CMake, handful of tests only, **many more needed** 
+
+   **Conclusion**
+
+   * small unit testing challenging due to tight coupling (especially for Offline) 
+
+   * need to gain more experience with Sniper/Offline to find workable approach
+ 
+
+
+
+

@@ -91,8 +91,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_march2016 ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_april2016_gtc ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_may2016_lecospa ; }
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2016_weihai ; }
-
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2016_weihai ; }
+presentation-name(){ echo jnu_cmake_ctest ; }
 
 presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
 presentation-export(){

@@ -15,6 +15,55 @@ Reference
 * http://book.git-scm.com/book.pdf 
 * http://www.git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository
 
+
+Whats all this ?
+-----------------
+
+::
+
+    simon:boost-python-examples blyth$ git add 04-ClassMembers/member.py
+    simon:boost-python-examples blyth$ git commit -m "avoid uninteresting error regards non-ascii encodings"
+    [master 1abe2be] avoid uninteresting error regards non-ascii encodings
+     1 file changed, 1 insertion(+), 1 deletion(-)
+
+    simon:boost-python-examples blyth$ git push 
+    warning: push.default is unset; its implicit value is changing in
+    Git 2.0 from 'matching' to 'simple'. To squelch this message
+    and maintain the current behavior after the default changes, use:
+
+      git config --global push.default matching
+
+    To squelch this message and adopt the new behavior now, use:
+
+      git config --global push.default simple
+
+    When push.default is set to 'matching', git will push local branches
+    to the remote branches that already exist with the same name.
+
+    In Git 2.0, Git will default to the more conservative 'simple'
+    behavior, which only pushes the current branch to the corresponding
+    remote branch that 'git pull' uses to update the current branch.
+
+    See 'git help config' and search for 'push.default' for further information.
+    (the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+    'current' instead of 'simple' if you sometimes use older versions of Git)
+
+    Username for 'https://github.com': simoncblyth
+    Password for 'https://simoncblyth@github.com': 
+    Counting objects: 7, done.
+    Delta compression using up to 8 threads.
+    Compressing objects: 100% (4/4), done.
+    Writing objects: 100% (4/4), 376 bytes | 0 bytes/s, done.
+    Total 4 (delta 3), reused 0 (delta 0)
+    To https://github.com/simoncblyth/boost-python-examples
+       90f6092..1abe2be  master -> master
+    simon:boost-python-examples blyth$ 
+    simon:boost-python-examples blyth$ 
+
+
+
+
+
 Updating from remote branch
 ----------------------------
 

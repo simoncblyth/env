@@ -75,6 +75,42 @@ supports only VS2005
 * https://github.com/nberserk/common/blob/master/vcproj2cmake.ps1
 
 
+CMake INTERFACE
+------------------
+
+* https://cmake.org/cmake/help/v3.0/prop_tgt/INTERFACE_INCLUDE_DIRECTORIES.html
+* https://github.com/yeswalrus/cmake-modules
+
+* http://stackoverflow.com/questions/26037954/cmake-target-link-libraries-interface-dependencies
+
+If you are creating a shared library and your source cpp files #include the
+headers of another library (Say, QtNetwork for example), but your header files
+don't include QtNetwork headers, then QtNetwork is a PRIVATE dependency.
+
+If your source files and your headers include the headers of another library,
+then it is a PUBLIC dependency.
+
+If your header files but not your source files include the headers of another
+library, then it is an INTERFACE dependency.
+
+
+Controlling Transitivity, ie the implicit passing along of dependencies 
+-----------------------------------------------------------------------------
+
+* https://cmake.org/cmake/help/v3.0/manual/cmake-buildsystem.7.html#transitive-usage-requirements
+
+
+CMake 3.1 target_sources
+---------------------------
+
+* https://crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
+
+
+
+
+
+
+
 
 Unit Tests 
 ------------
@@ -303,6 +339,31 @@ Finding Libs
 
 * http://www.cmake.org/Wiki/CMake:How_To_Find_Libraries
 * http://hypernews.slac.stanford.edu/HyperNews/geant4/get/installconfig/1467.html?inline=-1
+
+
+Where find_package looks
+--------------------------
+
+::
+
+      CMake Warning at CMakeLists.txt:18 (find_package):
+      By not providing "Findsniper.cmake" in CMAKE_MODULE_PATH this project has
+      asked CMake to find a package configuration file provided by "sniper", but
+      CMake did not find one.
+
+      Could not find a package configuration file provided by "sniper" with any
+      of the following names:
+
+        sniperConfig.cmake
+        sniper-config.cmake
+
+      Add the installation prefix of "sniper" to CMAKE_PREFIX_PATH or set
+      "sniper_DIR" to a directory containing one of the above files.  If "sniper"
+      provides a separate development package or SDK, be sure it has been
+      installed.
+
+
+
 
 
 Macros
