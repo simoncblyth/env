@@ -1847,3 +1847,8 @@ g4op-(){         . $(env-home)/geant4/g4op/g4op.bash && g4op-env $* ; }
 #offline-(){      . $(env-home)/juno/offline/offline.bash && offline-env $* ; }
 #juno-(){      . $(env-home)/juno/juno.bash && juno-env $* ; }
 gltf-(){      . $(env-home)/graphics/gltf/gltf.bash && gltf-env $* ; }
+unreal-(){      . $(env-home)/graphics/unreal/unreal.bash && unreal-env $* ; }
+steamvr-(){      . $(env-home)/vr/steamvr/steamvr.bash && steamvr-env $* ; }
+engine-(){      . $(env-home)/graphics/engine/engine.bash && engine-env $* ; }
+ssd-(){      . $(env-home)/hardware/ssd/ssd.bash && ssd-env $* ; }
+realpath-(){      . $(env-home)/tools/realpath/realpath.bash && realpath-env $* ; }

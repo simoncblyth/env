@@ -142,11 +142,11 @@ The IODisplayCreateInfoDictionary has been replaced is newer GLFW:
 FUNCTIONS
 -----------
 
-osx_library-visible
+osx_library_visible
        http://gregferro.com/make-library-folder-visible-in-os-x-lion/
        http://coolestguidesontheplanet.com/show-hidden-library-and-user-library-folder-in-osx/
 
-osx_captive-wifi-disable
+osx_captive_wifi_disable
       http://apple.stackexchange.com/questions/45418/how-to-automatically-login-to-captive-portals-on-os-x
       https://discussions.apple.com/thread/525840
 
@@ -158,11 +158,11 @@ osx_ss
       path of last screen shot from today 
 
 
-osx_ss-copy name
+osx_ss_copy name
 
 
 
-osx_ss-cp name
+osx_ss_cp name
       copy last screen shot to ~/simoncblyth.bitbucket.org/env/current-relative-dir/name.png
       where current-relative-dir is PWD relative to ENV_HOME
 

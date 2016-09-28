@@ -31,6 +31,22 @@ Publishing to remote:
 #. push the statics to remote 
 
 
+Creating retina screencaptures
+---------------------------------
+
+* shift-cmd-4 and drag out a marquee, this writes .png file to Desktop
+
+::
+
+   cd ~/env/presentation   ## cd to appropriate directory for the capture
+
+   osx_                    ## precursor define the functions
+   osx_ss-cp name          
+
+   ## copy last screencapture from Desktop to corresponding relative dir beneath ~/simoncblyth.bitbucket.org 
+   ## this is the local clone of the bitbucket statics repo
+
+
 Incorporating retina screencaptures
 -------------------------------------
 
@@ -92,7 +108,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_april2016_gtc ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_may2016_lecospa ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2016_weihai ; }
-presentation-name(){ echo jnu_cmake_ctest ; }
+#presentation-name(){ echo jnu_cmake_ctest ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_oct2016_chep ; }
 
 presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
 presentation-export(){

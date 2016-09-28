@@ -21,6 +21,38 @@ VR SDKs
 * http://www.pcgamer.com/amd-liquidvr-vs-nvidia-vrworks-the-sdk-wars/
 
 
+NVIDIA VR Funhouse Source on Github
+---------------------------------------
+
+
+* https://developer.nvidia.com/vr-funhouse-source-and-editor-now-available-modders
+* https://developer.nvidia.com/vr-funhouse-mod-kit
+* https://developer.nvidia.com/gameworks-source-github
+
+To gain access to source you need to agree to a license
+and provide github username whilst logged in as NVIDIA registered
+developer.
+
+After 30 min got email with invite to https://github.com/NVIDIAGameWorks
+providing a link to join.
+
+::
+
+    You’ve been added to the GameWorks_EULA_Access team for the NVIDIA GameWorks
+    organization. GameWorks_EULA_Access has 5925 members and gives pull access to
+    294 NVIDIAGameWorks repositories.
+
+    View GameWorks_EULA_Access:
+    https://github.com/orgs/NVIDIAGameWorks/teams/gameworks_eula_access
+
+    Read more about team permissions here:
+    https://help.github.com/articles/what-are-the-different-access-permissions
+
+
+
+
+
+
 GTX 1080 specs
 ---------------
 

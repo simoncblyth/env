@@ -34,6 +34,20 @@ OpenVR
 * http://jmonkeyengine.org/  3D engine
 
 
+
+Linux
+-------
+
+* https://www.gamingonlinux.com/articles/first-steps-with-openvr-and-the-vive-on-linux.7229
+* http://steamcommunity.com/app/358040/discussions/0/351660338698372108/
+
+
+Usage Example
+---------------
+
+* http://casual-effects.blogspot.tw/2016/03/opengl-sample-codeand-openvr-sample-code.html
+
+
 Minimal Example
 ----------------
 

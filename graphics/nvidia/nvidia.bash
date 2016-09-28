@@ -17,9 +17,23 @@ Video capture from NVIDIA
 
 * http://www.geforce.com/geforce-experience/shadowplay
 
+G-Sync
+-------
+
+* https://en.m.wikipedia.org/wiki/Nvidia_G-Sync
+
+G-Sync enabled monitors allow screen updates
+to be driven by the NVIDIA GPU, 
+avoiding tearing or stuttering (from V-Sync).
+
+It is particularly useful in keeping the interface 
+usable when frame rates drop below target. 
+
 
 Capture SDK (formerly Grid SDK)
 ---------------------------------
+
+Remote 
 
 * https://developer.nvidia.com/capture-sdk
 * https://aws.amazon.com/blogs/aws/new-g2-instance-type-with-4x-more-gpu-power/
