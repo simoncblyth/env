@@ -1,48 +1,34 @@
 
 .. comment 
 
-    Brief intro, Opticks benefits
+    00 : <inline classes="i">Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX</inline> 
+    01 : opticks benefits 
+    02 : outline 
 
-        00 : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
-        01 : opticks benefits 
+        Highlights teaser statement and outline
 
-    Neutrino detection context
+    03 : optical photon simulation problem... 
+    04 : jpmt before contact 2 
 
-        02    : Overview : Neutrino Detection via Optical Photons
-        03/04 : hamamatsu photomultiplier tubes (pmts) + photomultiplier tube operation 
+        Statement of problem
 
-    Neutrino detection examples
+    05 : ray traced realistic image synthesis --> optical photon simulation 
 
-        05/06 : super-kamiokande pmts 1 + 2
-        07/08 : jiangmen underground neutrino observatory (juno) + goals
+        Ray trace connection to simulation
 
-    09 : dayabay reactor neutrino expt, far site 
-    10 : daya bay far site 2 
-    11 : daya bay far site 3 
-    12 : daya bay pmt wall photo 1 
-    13 : "seeing" neutrinos via scintillation + cherenkov light 
+    06 : nvidia optix 1 
+    07 : nvidia optix 2 
 
-    14 : geant4 : monte carlo simulation toolkit 
-    15 : Neu
-    16 : jpmt before contact 2 
-    17 : ray traced realistic image synthesis and optical photon simulation 
-    18 : brief history of gpu optical photon simulation development 
-    19 : migrating geometry from geant4 to opticks 
-    20 : large geometry/event techniques 
-    21 : geometry modelling : tesselated vs analytic photomultiplier tubes 
-    22 : tesselated photomultiplier : unrealistic disco ball effect 
-    23 : analytic pmts together with triangulated geometry 
-    24 : visualizing an optical photon simulation 
-    25 : compare opticks/geant4 simulations with simple lights/geometries 
-    26 : opticks/geant4 rainbow step sequence comparison 
-    27 : rainbow spectrum for 1st six bows 
-    28 : 1m rainbow s-polarized, comparison opticks/geant4 
-    29 : pmtinbox after 1 
-    30 : pmtinbox after 2 
-    31 : pmt opticks/geant4 step distribution comparison to bt [sd] 
-    32 : pmt opticks/geant4 step distribution comparison : chi2/ndf 
-    33 : photon propagation times geant4 cf opticks 
-    34 : summary 
+        OptiX intro are refs 
+
+    08 : opticks geometry workflow : geocache 
+    09 : large geometry techniques : instancing mandatory 
+    10 : opticks geometry workflow : gpu textures 
+
+
+
+    11 : hybrid geant4/opticks event workflow 
+    12 : opticks interoperation : optix/cuda/thrust/opengl 
 
 
     ABSTRACT
@@ -343,7 +329,7 @@
     "Seeing" neutrinos via scintillation + Cherenkov light
     /env/presentation/cherenkov.png 316px_203px 850px_400px
 
-    Large Geometry/Event Techniques
+    Large Geometry Techniques : Instancing Mandatory
     /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
 
     NVIDIA OptiX 1
@@ -535,23 +521,16 @@ Outline
 
 .. class:: large
 
-   * Context : **Photomultiplier Tube based detectors** 
+   * Problem and approach to solving
 
-     * Photomultiplier tubes (PMTs)
-     * Supernova Neutrino Burst Observation
-     * Super-Kamiokande
-     * :red:`Daya Bay, JUNO`
-
-       * :red:`Liquid Scintillator measurements, modelling`
-
-   * Current simulation approach, *Geant4*
-
-   * How GPU acceleration can help
+     * Optical Photon Simulation problem
+     * Hybrid solution : Geant4 + Opticks
+     * NVIDIA OptiX Ray Tracing Engine
 
    * *Opticks* : optical photon simulation with NVIDIA OptiX
 
-     * geometry migration
-     * porting optical physics 
+     * geometry workflow : geocache, GPU textures
+     * event workflow 
 
    * Visualization
    * Validation, performance comparisons
@@ -680,6 +659,7 @@ Outline
        * **just accelerates ray-geometry intersections**
 
        * state-of-the-art GPU accelerated intersection 
+         using :red:`compiler optimized for GPU ray tracing`
 
        * regular improvements, new GPU tuning
 
@@ -689,36 +669,25 @@ Outline
 
        * free to acquire, use, distribute non-commercially 
 
-
-:i:`OpticksDocs`
--------------------------------------------------------------------------------
-
-.. sidebar:: Open Source Opticks
-
-    .. class:: small
-
-        * http://simoncblyth.bitbucket.org/opticks/
-        * http://bitbucket.org/simoncblyth/opticks/
-
-        Documentation, install instructions. Repository.
-
-        * Mac, Linux, Windows (non-CUDA so far)
-        * ~16 C++ projects, ordered by dependency
-        * ~200 "Unit" Tests (CMake/CTest) 
-        * ~12 integration tests: ``tpmt, trainbow, tprism, treflect, tlens, tnewton, tg4gun, ...``
-        * NumPy/Python analysis/debugging scripts        
-
-        Geometry/event data use NumPy serialization::
-
-             import numpy as np
-             a = np.load("photons.npy")
-
-        **Brave early adopters are welcome**
+       * :blue:`simple : single-ray programming model`
 
 
 
-:small:`Opticks Geometry Workflow : Geocache`
-------------------------------------------------
+
+.. image:: /env/presentation/1px.png
+   :width: 1px
+   :height: 100px
+   :align: center
+
+.. class:: tiny
+
+   ``https://research.nvidia.com/publication/optix-general-purpose-ray-tracing-engine``
+
+
+
+
+:small:`Opticks Geometry : Recreate Geant4 "Context" on GPU`
+---------------------------------------------------------------
 
 .. sidebar:: Opticks Boundaries
 
@@ -733,7 +702,8 @@ Outline
 
         4-int boundaries facilitate dynamic test geometry.
 
-        Geometry primitives labelled with boundary index 
+        Only ~100-200 unique boundaries (Dayabay, JUNO)
+
 
 .. class:: small
 
@@ -742,7 +712,7 @@ Outline
     * export Geant4 geometry to COLLADA/G4DAE XML https://bitbucket.org/simoncblyth/g4dae
     * parse G4DAE geometry XML file into volume tree
     * extract unique boundary list from volume tree 
-    * label tree with boundary indices
+    * label geometry primitives with boundary indices
     * analyse volume tree finding repeated geometry "instances" 
     * write NumPy serialization geocache
 
@@ -750,13 +720,36 @@ Outline
 
     * load geocache from file
     * upload OptiX textures  
-    * upload geometry buffers to GPU, used by:
+    * upload geometry buffers to GPU, read by:
 
-      * OptiX/CUDA bounding box and intersection programs
+      * OptiX bounding box and intersection programs
       * OpenGL/GLSL shaders for visualization
 
-    Geocache avoids repeated slow parsing of large geometry files
-    and drastically shortens startup time
+    **Geocache optimization:** :red:`few seconds startup, instead of few minutes`
+
+
+:small:`Large Geometry Techniques : Instancing Mandatory`
+------------------------------------------------------------- 
+
+
+.. class:: small
+
+   **Geometry analysed to find instances**
+
+   JUNO: ~90M --> 0.1M triangles
+
+   * 19,000 20" PMTs
+   * 34,000 3" PMTs
+  
+   OpenGL/OptiX instancing 
+ 
+   **Multiple Renderers**
+
+   * global, full instances, bbox instances
+   * rapid switching controls
+
+
+
 
 
 :small:`Opticks Geometry Workflow : GPU textures`
@@ -828,111 +821,85 @@ Outline
  
 
 
-.. sidebar:: Process Gensteps 
+.. sidebar:: GPU Resident Photons
 
     .. class:: small
 
-         *Genstep* records "stack" prior to photon generation 
-         loop of Scintillation and Cerenkov processes, including:
+       **Seeded on GPU** 
+          associate photons -> gensteps (via seed buffer)
+ 
+       **Generated on GPU, using gensteps:**
+          *~Stacks* collected before photon generation:
 
-         * start/end position of step
-         * number of photons to generate
-         * other quantities needed for GPU generation 
+          * number of photons to generate
+          * start/end position of step
+          * other quantities needed for GPU generation 
 
-         GPU generation avoids *photon* CPU memory use, transfer overheads
+       **Propagated on GPU**
+          :red:`Only photons hitting PMTs copied to CPU`
 
-         *Seed* buffer contains genstep indices for each photon
 
+       Thrust: **high level C++ access to CUDA**
+
+       .. figure:: /env/numerics/thrust/thrust.png
+          :width: 300px
+          :align: right
+
+       * https://developer.nvidia.com/Thrust
+       
+          
 
          
 .. class:: small
 
-    **Geant4**
+    **Geant4/Detector Simulation**
 
-    * modified Scintillation and Cerenkov processes collect *genstep*
-      and skip photon generation
-    * other processes proceed as normal
+    * modified Scintillation, Cerenkov processes 
 
-    **Opticks** 
+      * collect *genstep*
+      * skip optical photon generation
 
-    * CUDA/Thrust : distribute genstep indices into seed buffer
-    * OptiX launch : photon generation and propagation
-    * CUDA/Thrust : pullback photons that hit PMTs 
-    * CUDA/Thrust : index photon material/history step sequences (optional)
+    **Opticks (OptiX/Thrust GPU interoperation)** 
 
-    
+    * **OptiX** : upload gensteps 
+    * **Thrust** : seeding, distribute genstep indices to photons
+    * **OptiX** : launch photon generation and propagation
+    * **Thrust** : pullback photons that hit PMTs 
+    * **Thrust** : index photon step sequences (optional)
 
-    OptiX exposes a single-ray programming model
+    **Geant4/Detector Simulation**
 
-    * programs handle a single photon, from generation, prop
-
-
-
-:small:`Brief History of GPU Optical Photon Simulation Development`
-----------------------------------------------------------------------
-
-      
-
-.. class:: small
-
-   **2013(Aug-)** [liberate geometry from *Geant4*]
-
-   * Develop *G4DAE* geometry exporter that writes tesselated COLLADA 3D files, 
-     including all material and surface properties.
-
-   **2014** [integrate geometry/event data with *Chroma* [1]]
-
-   * Integrate *G4DAE* geometries with *Chroma* 
-   * Develop runtime event data bridge via message queue
-
-   **2015** [replace *Chroma* with *Opticks*]
-
-   * Develop *Opticks* with *NVIDIA OptiX* ray tracing 
-   * *Opticks/Geant4* matched for simple geometries 
-   * Speedup factor of 200x with a mobile GPU
-
-   **2016** [*Opticks* validation against *Geant4*]
-
-   * Achieved *Opticks/Geant4* match for single PMT 
-   * ports to Linux and Windows
-   * unit tests, integration tests, analysis scripts
-   * multievent buffer handling  
+    * populate standard hit collections 
+    * subsequent electronics simulation proceeds unaltered 
 
 
-.. class:: tiny
 
-   [1] http://chroma.bitbucket.org Developed by Stan Seibert, University of Pennsylvania. 
+:i:`OpticksDocs`
+-------------------------------------------------------------------------------
+
+.. sidebar:: Open Source Opticks
+
+    .. class:: small
+
+        * http://simoncblyth.bitbucket.org/opticks/
+        * http://bitbucket.org/simoncblyth/opticks/
+
+        Documentation, install instructions. Repository.
+
+        * Mac, Linux, Windows (non-CUDA so far)
+        * ~16 C++ projects, ordered by dependency
+        * ~200 "Unit" Tests (CMake/CTest) 
+        * ~12 integration tests: ``tpmt, trainbow, tprism, treflect, tlens, tnewton, tg4gun, ...``
+        * NumPy/Python analysis/debugging scripts        
+
+        Geometry/event data use NumPy serialization::
+
+             import numpy as np
+             a = np.load("photons.npy")
+
+        **Brave early adopters are welcome**
 
 
-:small:`Large Geometry/Event Techniques`
-------------------------------------------------------- 
-
-
-.. class:: small
-
-   **Geometry analysed to find instances**
-
-   JUNO: ~90M --> 0.1M triangles
-
-   * 19,000 20" PMTs
-   * 34,000 3" PMTs
-  
-   OpenGL/OptiX instancing 
- 
-
-   **Multiple Renderers**
-
-   * global, full instances, bbox instances
-   * rapid switching controls
-
-   **Split simulation from visualization**
-
-   * compute mode
-     
-     * pure OptiX buffers ~7X interop
-
-   * visualize by separate event loading  
-      
 
 
 
