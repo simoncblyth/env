@@ -444,7 +444,7 @@
 :i:`Opticks Benefits`
 ---------------------------
 
-.. sidebar:: Opticks > 1000x Geant4 
+.. sidebar:: Opticks > 1000x Geant4 (*)
 
    .. class:: small
 
@@ -464,6 +464,8 @@
        **More Photons -> More Benefit** 
 
        http://bitbucket.org/simoncblyth/opticks
+
+       (*) core extrapolated from mobile GPU speed
 
 
 .. comment
@@ -530,9 +532,9 @@ Outline
    * *Opticks* : optical photon simulation with NVIDIA OptiX
 
      * geometry workflow : geocache, GPU textures
-     * event workflow 
+     * large geometry techniques, geometry modelling  
+     * Geant4/Opticks event workflow 
 
-   * Visualization
    * Validation, performance comparisons
    * Summary
    * Short video  
@@ -549,54 +551,30 @@ Outline
 .. sidebar:: Optical Photon Problem
 
     .. class:: small
-        
-         Cosmic muons can yield many millions
-         of optical photons in Daya Bay (even more in JUNO).
-         Optical photon propagation dominates 
-         *Geant4* simulation time ~95% for Daya Bay.
+       
 
-         Cosmic Muon Sample sizes severely limited by 
-         CPU time and memory practicalities.
+         **Cosmic muon backgrounds**
+              many millions of optical photons in Daya Bay (more in JUNO)
 
-         *Geant4* generality/flexibility very costly  
-         for propagation of many millions of optical photons.
+         * optical propagation dominates *Geant4* CPU time, ~95% for Daya Bay, more for JUNO
+
+         * severe CPU memory constraint
 
          **Hybrid Solution : Geant4 + Opticks** 
 
-         Separate optical propagation possible as photons 
-         are isolated in simulation chain.
-         
+         Optical photons:
+
          * produced by Cerenkov+Scintillation processes
          * yield only Photomultiplier PMT hits
 
+         Isolated nature -> **easily separated propagation**
+         
 
 
 
-:small:`Ray Traced Realistic Image Synthesis --> Optical Photon Simulation`
+
+:small:`Ray Traced Image Synthesis ≈ Optical Photon Simulation`
 -------------------------------------------------------------------------------
-
-.. comment
-
-    So how can OptiX help
-
-    image synthesis and photon simulation are parallel problems
-    just with a different focus: images synthesis focusses on the 
-    image plane (literally), whereas simulation focusses on wherever
-    the photons go especially when they hit PMTs  
-
-    The great thing about OptiX is that it does just the difficult parts: 
-
-    * acceleration with performance scaling with cores 
-      across multiple GPUs
-
-    leaving everything else for you
-
-    * including writing single ray geometry intersection 
-
-    This enables the optical simulation to be implemented 
-    as OptiX programs.
-
-
 
 .. sidebar:: OptiX Pixel Calculation 
 
@@ -615,30 +593,36 @@ Outline
 
 .. class:: small
 
-    Ray traced image synthesis is essentially the same as optical photon simulation:
+    Geometry, light sources, optical physics ->  
+      * pixel values at image plane
+      * photon parameters at detectors (eg PMTs)
 
-    * geometry, lights, physics -> pixel values in image plane
-    * geometry, lights, physics -> photomultiplier hits  
-
-    Image synthesis, has many industrial applications:
-
-    * advertising, design, entertainment, games,...
-    * BUT: ray tracers typically just render images
-
-    NVIDIA (with its OpenGL/GPGPU/CUDA experience) had the 
-    foresight to take a more useful approach:
-
-    * **NVIDIA OptiX** exposes a general geometry intersection API
-
-    * OptiX can be regarded as the "OpenGL of ray tracing"
-
-    ::
-
-       rasterization -> OpenGL
-       ray tracing -> OptiX
+    **Ray tracing has many applications** :
+      * advertising, design, entertainment, games,...
+      * BUT : most ray tracers just render images
 
 
+    **NVIDIA OptiX** had foresight to be less specific:
+      * general geometry intersection API
+      * :red:`OptiX is to ray tracing what OpenGL is to rasterization` 
 
+
+.. raw:: html
+
+    <pre class="mypre">
+
+
+    </pre>
+ 
+.. class:: small
+
+    **rasterization**
+      project 3D primitives onto 2D image plane, combine fragments into pixel values 
+
+    **ray tracing**
+      cast rays thru image pixels into scene, recursively reflect/refract with  
+      geometry intersected, combine returns into pixel values  
+          
 
 
 
@@ -658,8 +642,7 @@ Outline
   
        * **just accelerates ray-geometry intersections**
 
-       * state-of-the-art GPU accelerated intersection 
-         using :red:`compiler optimized for GPU ray tracing`
+       * :red:`compiler optimized for GPU ray tracing`
 
        * regular improvements, new GPU tuning
 
@@ -687,45 +670,64 @@ Outline
 
 
 :small:`Opticks Geometry : Recreate Geant4 "Context" on GPU`
----------------------------------------------------------------
+----------------------------------------------------------------------
 
-.. sidebar:: Opticks Boundaries
+.. sidebar:: Volumes -> Boundaries 
 
     .. class:: small
 
-        Geant4 Volume tree -> Unique Boundary list
+      **CSG -> BREP**
+        boundaries simpler than volumes on GPU
 
-        * outer material (parent)
-        * outer surface (inward photons, parent -> self)
-        * inner surface (outward photons, self -> parent)
-        * inner material (self)
+      Material/surface boundary representation (4 indices)
 
-        4-int boundaries facilitate dynamic test geometry.
+      * outer material (parent)
+      * outer surface (inward photons, parent -> self)
+      * inner surface (outward photons, self -> parent)
+      * inner material (self)
 
-        Only ~100-200 unique boundaries (Dayabay, JUNO)
+      Primitives labelled with unique boundary index
+
+      * ray primitive intersection -> boundary index
+      * texture lookup -> material/surface properties
+
+
+      GPU textures also used for:
+
+      * scintillator reemission wavelength generation
+      * standard illuminant Plankian wavelength gen
 
 
 .. class:: small
 
-    **Construct geocache**
+    **Export Tesselated Geometry**
+      * Geant4 -> G4DAE XML https://bitbucket.org/simoncblyth/g4dae
 
-    * export Geant4 geometry to COLLADA/G4DAE XML https://bitbucket.org/simoncblyth/g4dae
-    * parse G4DAE geometry XML file into volume tree
-    * extract unique boundary list from volume tree 
-    * label geometry primitives with boundary indices
-    * analyse volume tree finding repeated geometry "instances" 
-    * write NumPy serialization geocache
+    **Load G4DAE XML**
+      * label primitives with :red:`boundary indices`
+      * find repeated geometry "instances" 
+      * write NumPy serialization ``.npy`` geocache
+
+.. raw:: html
+
+    <pre class="mypre">
+
+    </pre>
+
+.. class:: small
+
+    **Geocache optimization:** 
+      :red:`few seconds startup, instead of few minutes`
 
     **Load/upload geocache**
+      * load geocache from file
+      * upload OptiX textures to GPU 
+      * upload geometry buffers to GPU
 
-    * load geocache from file
-    * upload OptiX textures  
-    * upload geometry buffers to GPU, read by:
-
+    GPU geometry buffers read by:
       * OptiX bounding box and intersection programs
-      * OpenGL/GLSL shaders for visualization
+      * OpenGL GLSL shaders for visualization
 
-    **Geocache optimization:** :red:`few seconds startup, instead of few minutes`
 
 
 :small:`Large Geometry Techniques : Instancing Mandatory`
@@ -750,59 +752,34 @@ Outline
 
 
 
+:small:`Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes`
+----------------------------------------------------------------------------
+ 
+.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
+   :width: 550px
+   :align: left 
 
+.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
+   :width: 550px
+   :align: right
 
-:small:`Opticks Geometry Workflow : GPU textures`
-------------------------------------------------------
-
-.. sidebar:: Textures for all properties
-
-    .. class:: small
-
-         **Boundary** 
-              material, surface properties vs wavelength
-
-         **Black Body** 
-              Planckian wavelength generation
-
-         **Reemission**
-              scintillator wavelength generation
+.. image:: /env/presentation/1px.png
+   :width: 1000px
+   :height: 1px
+   :align: center
 
 
 .. class:: small
 
+   Analytic : more realistic, faster, less memory, **much more effort**  
 
-    For each propagation step, intersect ray with geometry yielding:
+   For Dayabay PMT:
 
-    * boundary texture index 
-    * angle to surface normal -> ingoing/outgoing -> texture offset
-    * -> texture line 
-
-    * texture line and wavelength -> lookup -> float4 properties 
-
-
-    Advantages:
-
-    * fast interpolation/lookup (dedicated TMU hardware)  
-    * keeps OptiX programs simple
-
-
-.. raw:: html
-
-    <pre class="mypre">
-
-    // material property lookup from OptiX programs
-    float nmi = (nm - wavelength_domain.x)/wavelength_domain.z + 0.5f ;   
-    float4 material1 = tex2D(boundary_texture, nmi, line + 0.5f );
-
-    float refractive_index = material1.x ; 
-    float absorption_length = material1.y ; 
-    float scattering_length = material1.z ; 
-    float reemission_probability = material1.w ;  // >0 for scintillators
-    </pre>
-
-
-
+   * partition CSG solids into 12 **single primitive** parts (instead of 2928 triangles)
+   * splitting at geometrical intersections avoids implementing general CSG boolean handling
+   * geometry provided to OptiX in form of ray intersection and bounding box code
+   
+   **Aim : analytic description of geometry on critical optical path, remainder tesselated**  
 
 
 
@@ -872,118 +849,9 @@ Outline
     * populate standard hit collections 
     * subsequent electronics simulation proceeds unaltered 
 
+    **Multi-event handling**
 
-
-:i:`OpticksDocs`
--------------------------------------------------------------------------------
-
-.. sidebar:: Open Source Opticks
-
-    .. class:: small
-
-        * http://simoncblyth.bitbucket.org/opticks/
-        * http://bitbucket.org/simoncblyth/opticks/
-
-        Documentation, install instructions. Repository.
-
-        * Mac, Linux, Windows (non-CUDA so far)
-        * ~16 C++ projects, ordered by dependency
-        * ~200 "Unit" Tests (CMake/CTest) 
-        * ~12 integration tests: ``tpmt, trainbow, tprism, treflect, tlens, tnewton, tg4gun, ...``
-        * NumPy/Python analysis/debugging scripts        
-
-        Geometry/event data use NumPy serialization::
-
-             import numpy as np
-             a = np.load("photons.npy")
-
-        **Brave early adopters are welcome**
-
-
-
-
-
-:small:`Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes`
-----------------------------------------------------------------------------
- 
-.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
-   :width: 550px
-   :align: left 
-
-.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
-   :width: 550px
-   :align: right
-
-.. image:: /env/presentation/1px.png
-   :width: 1000px
-   :height: 1px
-   :align: center
-
-
-.. class:: small
-
-   Analytic : more realistic, faster, less memory, **much more effort**
-
-   For Dayabay PMT:
-
-   * partition CSG solids into 12 **single primitive** parts (instead of 2928 triangles)
-   * splitting at geometrical intersections avoids implementing general CSG boolean handling
-   * geometry provided to OptiX in form of ray intersection code
-
-
-:small:`Tesselated Photomultiplier : unrealistic disco ball effect`
----------------------------------------------------------------------
-
-.. image:: /env/graphics/ggeoview/dpib-test-disco-ball.png
-   :width: 900px
-   :align: center
-
-
-:small:`Analytic PMTs together with triangulated geometry`
-----------------------------------------------------------------
-
-.. class:: small
-
-   Starting from convenient tesselated geometry, implement analytic geometry for 
-   critical parts in primary optical path, to allow very close *Geant4/Opticks* match.  
-
-.. image:: /env/nuwa/detdesc/pmt/analytic-pmt-optix-geometry.png
-   :width: 800px
-   :align: center
-
-
-:small:`Visualizing An Optical Photon Simulation`
-----------------------------------------------------------------------------------------
-
-.. class:: small
-
-    Compressed Steps, OpenGL Buffer, written by OptiX
-
-    * space for 16 steps per photon 
-
-      * position, time, polarization, wavelength
-
-    OpenGL Geometry Shader: lines -> points/line_strip
-
-    * **event time is uniform input** 
-    * pair validity from step times 
-    * pair selection from step times relative to input time 
-    * interpolation between steps gives position
-
-    Interactive: time scrubbing + history/material selection
-
-.. raw:: html
-
-    <pre class="mypre">
-    // geom.glsl
-    layout (lines) in;
-    layout (line_strip, max_vertices = 2) out;
-    void main () 
-    {
-        vec4 p0 = gl_in[0].gl_Position  ;   // p0.w : step begin time 
-        vec4 p1 = gl_in[1].gl_Position  ;   // p1.w : step end time
-        ...
-    </pre>
+    * reuse/resize OptiX buffers for each event 
 
 
 
@@ -1016,10 +884,14 @@ Outline
 
 .. class:: small
 
-   * record steps of all photons : position, time, wavelength, polarization vector, material/history codes  
-   * 128 bit per step (2*short4) : snorm/uchar compressed using known domains
+   **Photon step records**
+      128 bit per step : highly compressed position, time, wavelength, polarization vector, material/history codes  
 
-   * water sphere : yields multiple rainbows depending on reflections 
+   **Photon flag sequence** 
+      16x 4-bit step flags recorded in uint64 sequence, indexed using Thrust GPU sort (1M indexed ~0.040s)
+
+   **Sequence index** -> interactive OpenGL selection of photons by flag sequence
+      
 
 
 :small:`Opticks/Geant4 Rainbow Step Sequence Comparison`
@@ -1027,11 +899,11 @@ Outline
 
 .. class:: small
 
-   **Statistically consistent photon histories in the two simulations**
+   **Flags:**
+     * BT/BR: boundary transmit/reflect
+     * TO/SC/SA: torch/scatter/surface absorb
 
-   * BT/BR: boundary transmit/reflect
-   * TO/SC/SA: torch/scatter/surface absorb
-
+   **Statistically consistent photon histories in the two simulations : Multiple orders of rainbow apparent**
 
 .. raw:: html
 
@@ -1053,32 +925,6 @@ Outline
     </pre>
 
 
-.. class:: small
-
-   **1M 64 bit uint flag sequences indexed using CUDA Thrust, 0.040 s (sparse histogram sort)**
-
-
-
-:small:`Rainbow Spectrum for 1st six bows`
-----------------------------------------------------------
-
-.. class:: tiny
-
-    Spectra obtained by selecting photons by internal reflection counts. 
-    Colors obtained from spectra of each bin using CIEXYZ weighting functions 
-    converted into sRGB/D65 colorspace.  
-    Exposures by normalizing to bin with maximum luminance (CIE-Y) of each bow. 
-    White lines indicate geometric optics prediction of deviation angle ranges 
-    of the visible range 380-780nm. 180-360 degrees signifies exit on same 
-    side of droplet as incidence.  
- 
-
-.. image:: /env/numerics/npy/rainbow6-spectrum.png
-   :width: 900px
-   :align: center
-
-
-
 
 :small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
 ------------------------------------------------------------
@@ -1092,46 +938,6 @@ Outline
 .. image:: /env/optix/cfg4/rainbow-cfg4-spol.png
    :width: 800px
    :align: center
-
-
-
-
-:i:`PmtInBox after 1`
----------------------------------
-
-
-:i:`PmtInBox after 2`
----------------------------------
-
-.. sidebar:: Interactive selection  
-
-    .. class:: small
-    
-         By history or material sequences, eg:
-
-         TO BT SA         
-              surface absorbed without detection  
-
-         TO BT SD         
-              surface detected on photocathode
-
-         TO BT BT SA       
-              edge Pyrex crossers (outer ring) 
-
-         TO AB             
-              bulk absorbed 
-
-         TO BR SA          
-              reflected from Pyrex   
-
-         TO BT BR BR BT SA 
-              double Pyrex reflections (inner ring)
-
-         BT:boundary transmit, BR:boundary reflect
-
-
-         **Implemented with Thrust indexing (sparse histogram sort)**
-
 
 
 
@@ -1235,7 +1041,6 @@ Outline
 .. class:: small
 
     * **Opticks > 200X Geant4** with only 384 core mobile GPU[1] (multi-GPU workstation up to 20x more cores)
-    * :red:`photon propagation time will become effectively zero`
 
 .. class:: small
    
@@ -1249,7 +1054,29 @@ Outline
 
 
 
-.. comment
+:i:`OpticksDocs`
+-------------------------------------------------------------------------------
+
+.. sidebar:: Open Source Opticks
+
+    .. class:: small
+
+        * http://simoncblyth.bitbucket.org/opticks/
+        * http://bitbucket.org/simoncblyth/opticks/
+
+        Documentation, install instructions. Repository.
+
+        * Mac, Linux, Windows (non-CUDA so far)
+        * 16 C++ projects, ordered by dependency
+        * ~200 "Unit" Tests (CMake/CTest) 
+        * 12 integration tests: tpmt, trainbow, tprism, treflect, tlens, tnewton, tg4gun, ...
+        * NumPy/Python analysis/debugging scripts        
+
+        Geometry/event data use NumPy serialization::
+
+             import numpy as np
+             a = np.load("photons.npy")
+
 
 
 :small:`Summary`
@@ -1271,7 +1098,7 @@ Outline
 
 ..
 
-  *Opticks* enables particle physics to benefit from optical photon simulation 
+  *Opticks* enables *Geant4* based simulations to benefit from optical photon simulation 
   **taking effectively zero time and zero CPU memory**, 
   thanks to massive parallelism made accessible by NVIDIA OptiX.
 
@@ -1319,14 +1146,12 @@ Outline
    http://v.youku.com/v_show/id_XMTUxNjM3MzA4OA==.html
 
 
-
 :i:`JPMT Wide`
 ----------------------
 
 .. class:: tiny
 
    http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
-
 
 
 :i:`JPMT After Contact`
@@ -1352,57 +1177,5 @@ Outline
 
    http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-arrival_half.png
 
-
-:i:`JPMT Inside Outside`
--------------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-outside_half.png
-
-
-.. sidebar:: Photon History Selection
-
-   Only *CK BT BT BT SA*, three boundary transmits before surface absorption 
-
-
-
-:small:`OptiX Experience`
---------------------------------------
-
-.. class:: small
-
-   **Geometry Issues Fixed/Avoidable**
-
-   * triangulated geometry leaks when shoot millions of photons at cracks 
-     (more a problem for testing than usage)
-   
-   * bounding boxes that touch geometry cause leaks, slightly   
-     enlarging the boxes avoids leak (<1 in 3M)  
-
-   **Use cuRAND in OptiX without large stack**
-
-   Init in separate CUDA launch, persist cuRAND state, subsequently
-   load into OptiX context : **avoids large stack performance hit**
-
-   **Compositing OptiX Ray Trace and OpenGL Rasterized**
-
-   * best of both worlds : rasterization speed, raytrace accuracy 
-   * OptiX : replace uchar4 alpha with Z clip depth
-   * OpenGL : fragment shader, set ``gl_FragDepth`` 
-
-.. raw:: html
-
-    <pre class="mypre">
-    out vec4 frag_colour;
-    uniform sampler2D ColorTex ;
-    void main ()
-    {
-       frag_colour = texture(ColorTex, texcoord);
-       float depth = frag_colour.w ;  
-       frag_colour.w = 1.0 ;
-       gl_FragDepth = depth  ;
-       ...
-    </pre>
 
 

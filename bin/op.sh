@@ -39,7 +39,8 @@ TODO
 EOU
 }
 
-op-binary-name-default(){ echo GGeoViewTest ; }
+#op-binary-name-default(){ echo GGeoViewTest ; }
+op-binary-name-default(){ echo OKTest ; }
 op-binary-name()
 {
    case $1 in 
