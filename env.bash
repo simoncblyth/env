@@ -1852,3 +1852,5 @@ steamvr-(){      . $(env-home)/vr/steamvr/steamvr.bash && steamvr-env $* ; }
 engine-(){      . $(env-home)/graphics/engine/engine.bash && engine-env $* ; }
 ssd-(){      . $(env-home)/hardware/ssd/ssd.bash && ssd-env $* ; }
 realpath-(){      . $(env-home)/tools/realpath/realpath.bash && realpath-env $* ; }
+vulkan-(){      . $(env-home)/graphics/vulkan/vulkan.bash && vulkan-env $* ; }
+ioproc-(){      . $(env-home)/doc/ioproc/ioproc.bash && ioproc-env $* ; }
