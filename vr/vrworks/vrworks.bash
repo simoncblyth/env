@@ -14,6 +14,13 @@ Pascal
 * http://www.roadtovr.com/nvidia-explains-pascal-simultaneous-multi-projection-lens-matched-shading-for-vr/
 * https://blogs.nvidia.com/blog/2016/05/06/pascal-vrworks/
 
+
+New VRWorks-enabled branch of Unreal Engine Supports Pascal single pass stereo
+---------------------------------------------------------------------------------
+
+* https://developer.nvidia.com/vrworks-unreal-engine-branch-adds-support-vr-sli-lens-matched-shading-and-single-pass-stereo
+
+
 Download VRWorks-2.0-Package.zip
 ----------------------------------
 

@@ -30,6 +30,14 @@ Objectives
 
 
 
+G4 Classes
+-----------
+
+::
+
+   g4-;g4-cls G4OpBoundaryProcess
+
+
 Fresnel References
 -------------------
 
@@ -537,6 +545,143 @@ source/processes/optical/src/G4OpBoundaryProcess.cc (yuck what a tabbing mess)::
     1114       }   // handling backpainted with the leap
     1115     }
     1116 }
+
+
+
+G4 tracing reflection ?
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+oxrap-/cu/generate.cu::
+
+    ///
+    ///   surface handling is signalled by the index value in optical buffer
+    ///   
+    ///
+
+    406         if(s.optical.x > 0 )       // x/y/z/w:index/type/finish/value
+    407         {
+    408             command = propagate_at_surface(p, s, rng);
+    409             if(command == BREAK)    break ;       // SURFACE_DETECT/SURFACE_ABSORB
+    410             if(command == CONTINUE) continue ;    // SURFACE_DREFLECT/SURFACE_SREFLECT   <-- DR/SR diffuse/specular reflection
+    411         }
+    412         else
+    413         {
+    414             //propagate_at_boundary(p, s, rng);     // BOUNDARY_RELECT/BOUNDARY_TRANSMIT
+    415             propagate_at_boundary_geant4_style(p, s, rng);     // BOUNDARY_RELECT/BOUNDARY_TRANSMIT
+    416             // tacit CONTINUE
+    417         }
+
+
+G4OpBoundaryProcess::PostStepDoIt::
+
+     313 
+     314         G4LogicalSurface* Surface = NULL;
+     315 
+     316         Surface = G4LogicalBorderSurface::GetSurface(thePrePV, thePostPV);
+     ...
+     318         if (Surface == NULL){
+     319           G4bool enteredDaughter= (thePostPV->GetMotherLogical() ==
+     320                                    thePrePV ->GetLogicalVolume());
+     321       if(enteredDaughter){
+     322         Surface =
+     323               G4LogicalSkinSurface::GetSurface(thePostPV->GetLogicalVolume());
+     ...
+     ...            bla bla, trying other volume
+     ...      
+     336 
+     337     if (Surface) OpticalSurface =
+     338            dynamic_cast <G4OpticalSurface*> (Surface->GetSurfaceProperty());
+     339 
+     340     if (OpticalSurface) {
+     341 
+     342            type      = OpticalSurface->GetType();
+     343        theModel  = OpticalSurface->GetModel();
+     344        theFinish = OpticalSurface->GetFinish();
+     345 
+     346        aMaterialPropertiesTable = OpticalSurface->
+     347                     GetMaterialPropertiesTable();
+     ...
+     ...
+     366               PropertyPointer =
+     367                       aMaterialPropertiesTable->GetProperty("REFLECTIVITY");
+     ...
+     376               if (PropertyPointer) {
+     377 
+     378                  theReflectivity =
+     379                           PropertyPointer->Value(thePhotonMomentum);
+     ...
+     387               PropertyPointer =
+     388               aMaterialPropertiesTable->GetProperty("EFFICIENCY");
+     389               if (PropertyPointer) {
+     390                       theEfficiency =
+     391                       PropertyPointer->Value(thePhotonMomentum);
+     392               }
+     ...
+     406           if ( theModel == unified ) {
+     ...
+     ...                  SPECULARLOBECONSTANT ->prob_sl 
+     ...                  SPECULARSPIKECONSTANT -> prob_ss
+     ...                  BACKSCATTERCONSTANT -> prob_bs
+     ...
+     468     if (type == dielectric_metal) {
+     469 
+     470       DielectricMetal();
+     471 
+     472     }
+
+
+
+     328 inline
+     329 void G4OpBoundaryProcess::DoReflection()
+     330 {
+     331         if ( theStatus == LambertianReflection ) {
+     332 
+     333           NewMomentum = G4LambertianRand(theGlobalNormal);
+     334           theFacetNormal = (NewMomentum - OldMomentum).unit();
+     335 
+     336         }
+     337         else if ( theFinish == ground ) {
+     338 
+     339       theStatus = LobeReflection;
+     340           if ( PropertyPointer1 && PropertyPointer2 ){
+     ///
+     ///               means calculated REFLECTIVITY 
+     ///
+     341           } else {
+     342              theFacetNormal =
+     343                  GetFacetNormal(OldMomentum,theGlobalNormal);
+     ///
+     ///               smeared based on 
+     ///                         OpticalSurface->GetSigmaAlpha()   theModel = unified 
+     ///                         OpticalSurface->GetPolish()       otherwise (theModel = glisur? ) 
+     ///                     
+     ///
+     344           }
+     ///
+     ///               just like specular, but for an ensemble its diffuse from smearing of normal
+     ///               looks like can identify
+     ///                       LobeReflection -> SURFACE_DREFLECT  "DR"
+     ///
+     345           G4double PdotN = OldMomentum * theFacetNormal;
+     346           NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+     347 
+     348         }
+     349         else {
+     350 
+     351           theStatus = SpikeReflection;
+     ///
+     ///    looks like can just use "theStatus = SpikeReflection" to signal specular reflection, SURFACE_SREFLECT "SR"
+     ///
+     352           theFacetNormal = theGlobalNormal;
+     353           G4double PdotN = OldMomentum * theFacetNormal;
+     354           NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
+     355 
+     356         }
+     357         G4double EdotN = OldPolarization * theFacetNormal;
+     358         NewPolarization = -OldPolarization + (2.*EdotN)*theFacetNormal;
+     359 }
+
+
 
 
 

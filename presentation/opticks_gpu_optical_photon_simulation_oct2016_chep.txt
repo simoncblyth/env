@@ -339,7 +339,7 @@
     /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
 
     OpticksDocs
-    /env/presentation/OpticksDocs 1280px_720px
+    /env/presentation/OpticksDocs.png 1280px_720px
 
     Daya Bay Antineutrino Detection via Inverse Beta Decay 1
     /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
@@ -448,20 +448,17 @@
 
    .. class:: small
 
-       Massively parallel GPU optical photon simulation,
-       **eliminates simulation bottleneck**.
+       GPU massive parallelism **eliminates bottleneck**.
 
        * optical photon simulation time --> zero 
        * optical photon CPU memory --> zero
 
        [zero: effectively, compared to rest of simulation]
 
-       Neutrino detectors (Dayabay,JUNO,..) benefit most: 
-
-       * large volumes, 1000s of PMTs 
-       * many millions of photons to simulate   
-
        **More Photons -> More Benefit** 
+
+       * Neutrino detectors can benefit the most, eg
+         JUNO and Dayabay 
 
        http://bitbucket.org/simoncblyth/opticks
 
@@ -489,40 +486,10 @@ Outline
    :height: 547px 
    :align: right
 
-.. comment
-
-
-   374*0.8 = 299
-   684*0.8 = 547
-
-   Interesting that most of the optical 
-   photon physics would be very familiar to Newton 
-   who published his Opticks in 1704 
-   But it remains essential to neutrino experiments
-
-
-    **Indirectly Producing Light from Neutrinos**
-
-    * neutrinos interact only weakly : large target volumes
-    * transparent materials that yield light from interaction products 
-
-      * water, ice, scintillator
-
-    * low radioactivity materials, located underground
-
-    **Measuring Light**
-
-    * photomultiplier tubes (PMTs) coupled with target  
-
-      * sensitive to single photons
-
-
-    :blue:`Optical simulation vital for detector design, event reconstruction`
-
-
 
 .. class:: large
 
+   * Short video  
    * Problem and approach to solving
 
      * Optical Photon Simulation problem
@@ -537,7 +504,7 @@ Outline
 
    * Validation, performance comparisons
    * Summary
-   * Short video  
+
 
 
 
@@ -560,8 +527,6 @@ Outline
 
          * severe CPU memory constraint
 
-         **Hybrid Solution : Geant4 + Opticks** 
-
          Optical photons:
 
          * produced by Cerenkov+Scintillation processes
@@ -569,6 +534,7 @@ Outline
 
          Isolated nature -> **easily separated propagation**
          
+         **Hybrid Solution Possible : Geant4 + Opticks** 
 
 
 
@@ -716,8 +682,7 @@ Outline
 
 .. class:: small
 
-    **Geocache optimization:** 
-      :red:`few seconds startup, instead of few minutes`
+    Geocache -> :red:`few seconds startup, instead of few minutes`
 
     **Load/upload geocache**
       * load geocache from file
@@ -740,8 +705,8 @@ Outline
 
    JUNO: ~90M --> 0.1M triangles
 
-   * 19,000 20" PMTs
-   * 34,000 3" PMTs
+   * 18k 20" PMTs
+   * 36k 3" PMTs
   
    OpenGL/OptiX instancing 
  
@@ -1066,7 +1031,7 @@ Outline
 
         Documentation, install instructions. Repository.
 
-        * Mac, Linux, Windows (non-CUDA so far)
+        * Mac, Linux, Windows (*)
         * 16 C++ projects, ordered by dependency
         * ~200 "Unit" Tests (CMake/CTest) 
         * 12 integration tests: tpmt, trainbow, tprism, treflect, tlens, tnewton, tg4gun, ...
@@ -1076,6 +1041,11 @@ Outline
 
              import numpy as np
              a = np.load("photons.npy")
+
+    .. class:: tiny
+
+        (*) Windows VS2015, non-CUDA only so far  
+
 
 
 
@@ -1127,55 +1097,11 @@ Outline
 
 .. raw:: html
 
-   <iframe width="1024" height="576" src="https://www.youtube.com/embed/QzH6y0pKXk4?rel=0" frameborder="0" allowfullscreen></iframe>
+   <iframe width="1024" height="576" src="https://www.youtube.com/embed/CBpOha4RzIs?rel=0" frameborder="0" allowfullscreen></iframe>
 
 .. class:: tiny
 
-   https://www.youtube.com/watch?v=QzH6y0pKXk4 
-
-
-:i:`YouKu Video`
-----------------------
-
-.. raw:: html
-
-    <iframe height=498 width=510 src="http://player.youku.com/embed/XMTUxNjM3MzA4OA==" frameborder=0 allowfullscreen></iframe>
-
-.. class:: tiny
-
-   http://v.youku.com/v_show/id_XMTUxNjM3MzA4OA==.html
-
-
-:i:`JPMT Wide`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
-
-
-:i:`JPMT After Contact`
--------------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-after-contact_half.png
-
-
-:i:`JPMT Approach`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-approach_half.png
-
-
-:i:`JPMT Arrival`
-----------------------
-
-.. class:: tiny
-
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-arrival_half.png
+   https://www.youtube.com/watch?v=CBpOha4RzIs
 
 
 

@@ -30,6 +30,12 @@ It is particularly useful in keeping the interface
 usable when frame rates drop below target. 
 
 
+Disabling GPU Boost for deterministic benchmarking
+----------------------------------------------------
+
+* https://developer.nvidia.com/setstablepowerstateexe-%20disabling%20-gpu-boost-windows-10-getting-more-deterministic-timestamp-queries
+
+
 Capture SDK (formerly Grid SDK)
 ---------------------------------
 

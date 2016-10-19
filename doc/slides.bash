@@ -382,6 +382,8 @@ slides-get(){
 
 }
 
+slides-get-chep-highlights(){      slides-get 0 1 ; }
+slides-get-chep(){      slides-get 0 20 ; }
 slides-get-gtc(){       slides-get 0 42 ; }
 slides-get-lecospa(){   slides-get 0 57 ; }
 slides-get-jnu-cmake-ctest(){ slides-get 0 5 ; }

@@ -11,11 +11,13 @@ Opticks Videos
 
 .. raw:: html 
 
-   <iframe width="1024" height="576" src="https://www.youtube.com/embed/QzH6y0pKXk4?rel=0" frameborder="0" allowfullscreen></iframe>
+   <iframe width="1024" height="576" src="https://www.youtube.com/embed/CBpOha4RzIs?rel=0" frameborder="0" allowfullscreen></iframe>
 
 .. class:: tiny 
 
-   https://www.youtube.com/watch?v=QzH6y0pKXk4 
+   https://www.youtube.com/watch?v=CBpOha4RzIs
+
+   Longer cut: https://www.youtube.com/watch?v=QzH6y0pKXk4 
 
 
 .. raw:: html 
@@ -30,6 +32,15 @@ Opticks Videos
 
 Opticks Presentations 
 ----------------------
+
+Late 2016
+~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html (11 Oct 2016, CHEP Conference, San Francisco)
+
+    CHEP 2016 Conference
+
+    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
 
 
 Mid 2016
