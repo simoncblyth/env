@@ -1854,3 +1854,5 @@ ssd-(){      . $(env-home)/hardware/ssd/ssd.bash && ssd-env $* ; }
 realpath-(){      . $(env-home)/tools/realpath/realpath.bash && realpath-env $* ; }
 vulkan-(){      . $(env-home)/graphics/vulkan/vulkan.bash && vulkan-env $* ; }
 ioproc-(){      . $(env-home)/doc/ioproc/ioproc.bash && ioproc-env $* ; }
+tcpdump-(){      . $(env-home)/tools/tcpdump.bash && tcpdump-env $* ; }
+rootnumpy-(){      . $(env-home)/root/rootnumpy/rootnumpy.bash && rootnumpy-env $* ; }

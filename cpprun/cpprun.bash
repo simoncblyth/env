@@ -38,3 +38,6 @@ strx(){ cpprun $FUNCNAME ; }
 stream_setprecision_fixed_scientific(){ cpprun $FUNCNAME ; }
 string_replace_if(){ cpprun $FUNCNAME ; }
 string_replace_all(){ cpprun $FUNCNAME ; }
+
+non_virtual_method_hiding(){ cpprun $FUNCNAME ; }
+

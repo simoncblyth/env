@@ -32,6 +32,48 @@ profiles
     (chroma_env)delta:~ blyth$ 
 
 
+
+debugging
+-----------
+
+Seems 
+
+* need belt and braces to induce the debugger to kick in on Exception
+* CHK:asserts not caught by debugger
+
+::
+
+    simon:ana blyth$ ip
+    ...
+    In [1]: %pdb
+    Automatic pdb calling has been turned ON
+
+    In [2]: run -d tconcentric_distrib.py
+
+
+
+
+
+Commands::
+
+    ipdb> help a
+    a(rgs)
+    Print the arguments of the current function.
+    ipdb> a
+    self = CF(1,torch,concentric,['TO BT BT BT BT SA']) 
+    qwn = X
+    irec = 1
+    ipdb> up
+    > /Users/blyth/opticks/ana/cfplot.py(126)qwns_plot()
+        125 
+    --> 126         rqwn_bins, aval, bval, labels = scf.rqwn(qwn, irec)
+        127 
+
+
+
+
+
+
 plotly
 -------
 

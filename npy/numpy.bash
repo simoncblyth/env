@@ -8,6 +8,31 @@ numpy-usage(){
 
 
 
+
+* https://docs.scipy.org/doc/numpy/reference/generated/numpy.broadcast_to.html#numpy.broadcast_to
+
+New in 1.10.0
+
+::
+
+    In [43]: np.broadcast_to( a[0], (len(a), 6, 4))
+    ---------------------------------------------------------------------------
+    AttributeError                            Traceback (most recent call last)
+    <ipython-input-43-b60b43e7901f> in <module>()
+    ----> 1 np.broadcast_to( a[0], (len(a), 6, 4))
+
+    AttributeError: 'module' object has no attribute 'broadcast_to'
+
+    In [44]: np.__version__
+    Out[44]: '1.9.2'
+
+
+
+
+
+
+
+
 #. numpy 1.8.0 requires py26+
 
 ::

@@ -14,6 +14,10 @@ C++ Bindings
 * https://developer.nvidia.com/vulkan-c-bindings-reloaded
 * https://github.com/KhronosGroup/Vulkan-Hpp
 
+VR
+---
+
+* https://developer.nvidia.com/getting-vulkan-ready-vr
 
 
 

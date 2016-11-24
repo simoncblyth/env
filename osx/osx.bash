@@ -226,6 +226,11 @@ osx_ss_open(){
 }
 
 
+osx_mac_address()
+{
+   networksetup -listallhardwareports 
+}
+
 
 osx_ss_copy(){
    local name=$1
