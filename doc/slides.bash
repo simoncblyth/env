@@ -387,6 +387,7 @@ slides-get-chep(){      slides-get 0 20 ; }
 slides-get-gtc(){       slides-get 0 42 ; }
 slides-get-lecospa(){   slides-get 0 57 ; }
 slides-get-jnu-cmake-ctest(){ slides-get 0 5 ; }
+slides-get-llr(){     slides-get 0 32 ; }
 
 
 #slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }

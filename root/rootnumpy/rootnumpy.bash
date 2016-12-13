@@ -12,7 +12,7 @@ rootnumpy-usage(){ cat << EOU
 
 EOU
 }
-rootnumpy-dir(){ echo $(local-base)/env/root/rootnumpy ; }
+rootnumpy-dir(){ echo $(local-base)/env/root/root_numpy ; }
 rootnumpy-cd(){  cd $(rootnumpy-dir); }
 rootnumpy-get(){
    local dir=$(dirname $(rootnumpy-dir)) &&  mkdir -p $dir && cd $dir

@@ -1,0 +1,1528 @@
+
+.. comment 
+
+    00 : <inline classes="i">Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX</inline> 
+    01 : opticks benefits 
+    02 : outline 
+
+        Highlights teaser statement and outline
+
+    03 : optical photon simulation problem... 
+    04 : jpmt before contact 2 
+
+        Statement of problem
+
+    05 : ray traced realistic image synthesis --> optical photon simulation 
+
+        Ray trace connection to simulation
+
+    06 : nvidia optix 1 
+    07 : nvidia optix 2 
+
+        OptiX intro are refs 
+
+    08 : opticks geometry workflow : geocache 
+    09 : large geometry techniques : instancing mandatory 
+    10 : opticks geometry workflow : gpu textures 
+
+
+
+    11 : hybrid geant4/opticks event workflow 
+    12 : opticks interoperation : optix/cuda/thrust/opengl 
+
+
+    ABSTRACT
+
+    Opticks is an open source project that integrates the NVIDIA OptiX 
+    GPU ray tracing engine with Geant4 toolkit based simulations.
+    Massive parallelism brings drastic performance improvements with
+    optical photon simulation speedup expected to exceed 1000 times Geant4 
+    when using workstation GPUs. Optical photon simulation time becomes 
+    effectively zero compared to the rest of the simulation.
+
+    Optical photons from scintillation and Cherenkov processes
+    are allocated, generated and propagated entirely on the GPU, minimizing 
+    transfer overheads and allowing CPU memory usage to be restricted to
+    optical photons that hit photomultiplier tubes or other photon detectors.
+    Collecting hits into standard Geant4 hit collections then allows the 
+    rest of the simulation chain to proceed unmodified.
+
+    Optical physics processes of scattering, absorption, reemission and 
+    boundary processes are implemented as CUDA OptiX programs based on the Geant4
+    implementations. Wavelength dependent material and surface properties as well as 
+    inverse cumulative distribution functions for reemission are interleaved into 
+    GPU textures providing fast interpolated property lookup or wavelength generation.
+
+    Geometry is provided to OptiX in the form of CUDA programs that return bounding boxes 
+    for each primitive and single ray geometry intersection results. Some critical parts 
+    of the geometry such as photomultiplier tubes have been implemented analytically 
+    with the remainder being tesselated. 
+    OptiX handles the creation and application of a choice of acceleration structures
+    such as boundary volume heirarchies and the transparent use of multiple GPUs.
+
+    OptiX interoperation with OpenGL and CUDA Thrust has enabled 
+    unprecedented visualisations of photon propagations to be developed 
+    using OpenGL geometry shaders to provide interactive time scrubbing and 
+    CUDA Thrust photon indexing to provide interactive history selection.
+
+    Validation and performance results are shown for the photomultiplier based 
+    Daya Bay and JUNO Neutrino detectors.
+
+
+
+.. raw:: html
+
+    <style type="text/css">
+        span.alarm { color: red; } 
+        span.warn { color: orange; } 
+        span.ok { color: green; } 
+        span.i { display: none; } 
+        pre.sliteral { class:"literal-block small"; }   
+        pre.mypre {
+             display: block;
+             font-family: monospace;
+             font-size: 20px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.myfoot {
+             display: block;
+             font-family: monospace;
+             font-size: 18px;
+             white-space: pre;
+             color: white;
+             position: absolute; top:86%; left:4%; width:50%; height:10% ;
+        }
+
+        a.mylink {
+             display: block;
+             font-family: monospace;
+             font-size: 18px;
+             white-space: pre;
+             color: black;
+             position: absolute; top:86%; left:4%; width:50%; height:10% ;
+        }
+
+
+        div.mytitle {
+             font-size: 20px;
+             color: black;
+             position: absolute; top:0%; left:5%; width:90%; height:10% ;
+        }
+
+        div.mycredit {
+             font-size: 20px;
+             color: black;
+             position: absolute; top:90%; left:5%; width:80%; height:10% ;
+        }
+
+
+
+
+
+    </style>
+
+.. role:: i 
+.. role:: alarm
+.. role:: warn
+.. role:: ok
+.. role:: sliteral
+.. role:: mypre 
+.. role:: myfoot
+.. role:: mytitle
+
+
+.. include:: <s5defs.txt>
+
+.. s5_background_image::
+
+    #
+    # slide titles and background image urls, 
+    # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    #
+    # NB1 slide titles here must match those in body precisely, 
+    # NB2 also ensure all slide titles are unique
+    #
+    #slide0
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    #
+    #   wide targetting 1280x720
+    #   
+    #
+    slide0
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Opticks Benefits
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Visualizing An Optical Photon Simulation
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
+
+    Overview
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+
+    Cerenkov Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
+
+    Cerenkov Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
+
+    Scintillation Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
+
+    Scintillation Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
+
+    Standard Geant4 Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
+
+    External Photon Simulation Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
+
+    GGeoView
+    /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
+
+    GGeoView M1 Points
+    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
+
+    GGeoView Flag Selection 
+    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
+
+    GGeoView Cerenkov Geom M1
+    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
+  
+    Detecting Neutrinos via Optical Photons 1
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    Detecting Neutrinos via Optical Photons 2
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+ 
+    JPMT Inside Wide 
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
+
+    JPMT Wide
+    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
+  
+    JPMT Headview
+    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
+ 
+    JPMT Backview
+    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
+ 
+    JPMT Approach 
+    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
+
+    JPMT Arrival 
+    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
+ 
+    Optical Photon Simulation Problem...
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 2
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 3
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+ 
+    JPMT After Contact 
+    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
+  
+    JPMT Inside Outside 
+    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
+
+    NVIDIA OptiX In Action
+    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
+
+    PmtInBox approach 1
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox approach 2
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox after 1
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    PmtInBox after 2
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    Daya Bay PMT Wall Photo 1
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Daya Bay PMT Wall Photo 2
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Super-Kamiokande PMTs Not 16:9 
+    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
+
+    Super-Kamiokande PMTs 1
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 2
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 3
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 4
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Kamiokande II 1
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 2
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 3
+    /env/presentation/1987a.png 1280px_720px
+
+
+    Fast Optical Photon Simulation
+    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
+
+    Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Old Hamamatsu Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    Old Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+
+
+
+    Jiangmen Underground Neutrino Observatory (JUNO) 
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+    Jiangmen Underground Neutrino Observatory, Goals
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+
+    Dayabay Reactor Neutrino Expt, Far Site
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 2
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 3
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Geant4 : Monte Carlo Simulation Toolkit 
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    Geant4 : Monte Carlo Simulation Toolkit Generality
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    "Seeing" neutrinos via scintillation + Cherenkov light
+    /env/presentation/cherenkov.png 316px_203px 850px_400px
+
+    Large Geometry Techniques : Instancing Mandatory
+    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
+
+    NVIDIA OptiX 1
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    NVIDIA OptiX 2
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    OpticksDocs
+    /env/presentation/OpticksDocs.png 1280px_720px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 1
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 2
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+    # a = np.array([1676.0, 1192.0])
+    # .8*720.*a/1192.
+
+    Daya Bay Energy Response Model (1)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    Daya Bay Energy Response Model (2)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    # a = np.array([2392., 1424.]) ; .8*720*a/a[1]
+
+
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 1
+    /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
+    # a = np.array([1760., 1280.])
+    # .8*720.*a/1280.   792px_576px
+    # 693.,  504
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 2
+    /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
+    # a = np.array([1698., 1166.])
+    # .8*720.*a/1166. 
+    
+    Daya Bay nGd Analysis : Most Precise Theta13
+    /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
+    # a = np.array([2140., 1266.])
+    # .8*720.*a/1166.
+
+
+.. comment 
+
+    Large Geometry/Event Techniques
+    /env/graphics/ggeoview/ggv-juno-instancing.png 2130px_1480px -> 1065px_740px 
+
+
+    GGeoView image is 2094x1590 1047x795
+
+    GGeoView M1 Points is 2870x1696  1435x848
+
+    GGeoView Flag Selection 2872x1684 1436x842
+
+    GGeoView Cerenkov Geom M1 2832x1690 1416x845
+
+
+    Generated Scintillation Photons GPU cf Geant4
+    /env/g4dae/generated_scintillation_time_wavelength.png
+
+    G4/DetSim Generated Cerenkov Wavelength
+    /env/g4dae/g4_cerenkov_wavelength.png
+
+
+
+.. comment
+
+    Placeholder
+
+    jpmt-after-contact.png 2850px_1680px
+    jpmt-approach.png 2862px_1678px
+    jpmt-arrival.png 2854px_1682px
+    jpmt-backview.png 2298px_1588px
+    jpmt-before-contact.png 2860px_1688px
+    jpmt-headview.png 2616px_1566px
+    jpmt-inside-outside.png 2802px_1684px
+    jpmt-wide.png 2818px_1672px
+
+
+
+========================================================================================
+:i:`Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
+========================================================================================
+
+.. comment
+
+   I will introduce Opticks, 
+   an optical photon simulation based on NVIDIA OptiX ray tracing 
+   enabling particle physics detector simulations 
+   to benefit from OptiX ray tracing.
+
+   The image visualizes photons coming from a cosmic ray muon 
+   crossing a neutrino detector.
+
+
+.. raw:: html
+
+    <div class="mytitle">
+    <h1 style="background-color:lightgrey"> <i>Opticks</i> : GPU Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ </h1>
+    </div>
+
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth, National Taiwan University &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; Nov 2016, LLR</h2>
+    </div>
+
+
+
+:i:`Opticks Benefits`
+---------------------------
+
+.. sidebar:: Opticks > 1000x Geant4 (*)
+
+   .. class:: small
+
+       GPU massive parallelism **eliminates bottleneck**.
+
+       * optical photon simulation time --> zero 
+       * optical photon CPU memory --> zero
+
+       [zero: effectively, compared to rest of simulation]
+
+       **More Photons -> More Benefit** 
+
+       * Neutrino detectors can benefit the most, eg
+         JUNO and Dayabay 
+
+       http://bitbucket.org/simoncblyth/opticks
+
+       (*) core extrapolated from mobile GPU speed
+
+
+.. comment
+
+   Neutrino detectors can benefit the most as their operation
+   depends on production and propagation of sometimes many millions
+   of optical photons. 
+   
+   Neutrinos detectors need to be large, as neutrinos 
+   interact only weakly.
+
+   **Radical simulation speedup -> short development cycle -> improved understanding** 
+
+
+
+Outline
+--------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: large
+
+   * Short video  
+   * Problem and approach to solving
+
+     * Optical Photon Simulation problem
+     * Hybrid solution : Geant4 + Opticks
+     * NVIDIA OptiX Ray Tracing Engine
+
+   * *Opticks* : optical photon simulation with NVIDIA OptiX
+
+     * geometry workflow : geocache, GPU textures
+     * large geometry techniques, geometry modelling  
+     * Geant4/Opticks event workflow 
+
+   * Validation, performance comparisons
+   * Summary
+
+
+
+
+``Optical Photon Simulation Problem...``
+---------------------------------------------------------
+
+:i:`JPMT Before Contact 2`
+--------------------------
+
+
+.. sidebar:: Optical Photon Problem
+
+    .. class:: small
+       
+
+         **Cosmic muon backgrounds**
+              many millions of optical photons in Daya Bay (more in JUNO)
+
+         * optical propagation dominates *Geant4* CPU time, ~95% for Daya Bay, more for JUNO
+
+         * severe CPU memory constraint
+
+         Optical photons:
+
+         * produced by Cerenkov+Scintillation processes
+         * yield only Photomultiplier PMT hits
+
+         Isolated nature -> **easily separated propagation**
+         
+         **Hybrid Solution Possible : Geant4 + Opticks** 
+
+
+
+
+:small:`Ray Traced Image Synthesis ≈ Optical Photon Simulation`
+-------------------------------------------------------------------------------
+
+.. sidebar:: OptiX Pixel Calculation 
+
+    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
+       :width: 450px
+       :align: right
+
+    .. class:: tiny
+
+        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
+
+    .. comment
+
+       Not a photo
+
+
+.. class:: small
+
+    Geometry, light sources, optical physics ->  
+      * pixel values at image plane
+      * photon parameters at detectors (eg PMTs)
+
+    **Ray tracing has many applications** :
+      * advertising, design, entertainment, games,...
+      * BUT : most ray tracers just render images
+
+
+    **NVIDIA OptiX** had foresight to be less specific:
+      * general geometry intersection API
+      * :red:`OptiX is to ray tracing what OpenGL is to rasterization` 
+
+
+.. raw:: html
+
+    <pre class="mypre">
+
+
+    </pre>
+ 
+.. class:: small
+
+    **rasterization**
+      project 3D primitives onto 2D image plane, combine fragments into pixel values 
+
+    **ray tracing**
+      cast rays thru image pixels into scene, recursively reflect/refract with  
+      geometry intersected, combine returns into pixel values  
+          
+
+
+
+:i:`NVIDIA OptiX 1`
+-------------------------------------------------------------------------------
+
+:i:`NVIDIA OptiX 2`
+-------------------------------------------------------------------------------
+
+.. sidebar::  NVIDIA® OptiX™ 
+
+    .. class:: small
+
+       http://developer.nvidia.com/optix
+
+       * no rendering assumptions
+  
+       * **just accelerates ray-geometry intersections**
+
+       * :red:`compiler optimized for GPU ray tracing`
+
+       * regular improvements, new GPU tuning
+
+       * NVIDIA expertise on GPU/multi-GPU usage
+
+         * ~linear scaling with cores across GPUs
+
+       * free to acquire, use, distribute non-commercially 
+
+       * :blue:`simple : single-ray programming model`
+
+
+
+
+.. image:: /env/presentation/1px.png
+   :width: 1px
+   :height: 100px
+   :align: center
+
+.. class:: tiny
+
+   ``https://research.nvidia.com/publication/optix-general-purpose-ray-tracing-engine``
+
+
+
+
+:small:`Opticks Geometry : Recreate Geant4 "Context" on GPU`
+----------------------------------------------------------------------
+
+.. sidebar:: Volumes -> Boundaries 
+
+    .. class:: small
+
+      **CSG -> BREP**
+        boundaries simpler than volumes on GPU
+
+      Material/surface boundary representation (4 indices)
+
+      * outer material (parent)
+      * outer surface (inward photons, parent -> self)
+      * inner surface (outward photons, self -> parent)
+      * inner material (self)
+
+      Primitives labelled with unique boundary index
+
+      * ray primitive intersection -> boundary index
+      * texture lookup -> material/surface properties
+
+
+      GPU textures also used for:
+
+      * scintillator reemission wavelength generation
+      * standard illuminant Plankian wavelength gen
+
+
+.. class:: small
+
+    **Export Tesselated Geometry**
+      * Geant4 -> G4DAE XML https://bitbucket.org/simoncblyth/g4dae
+
+    **Load G4DAE XML**
+      * label primitives with :red:`boundary indices`
+      * find repeated geometry "instances" 
+      * write NumPy serialization ``.npy`` geocache
+
+.. raw:: html
+
+    <pre class="mypre">
+
+    </pre>
+
+.. class:: small
+
+    Geocache -> :red:`few seconds startup, instead of few minutes`
+
+    **Load/upload geocache**
+      * load geocache from file
+      * upload OptiX textures to GPU 
+      * upload geometry buffers to GPU
+
+    GPU geometry buffers read by:
+      * OptiX bounding box and intersection programs
+      * OpenGL GLSL shaders for visualization
+
+
+
+:small:`Large Geometry Techniques : Instancing Mandatory`
+------------------------------------------------------------- 
+
+
+.. class:: small
+
+   **Geometry analysed to find instances**
+
+   JUNO: ~90M --> 0.1M triangles
+
+   * 18k 20" PMTs
+   * 36k 3" PMTs
+  
+   OpenGL/OptiX instancing 
+ 
+   **Multiple Renderers**
+
+   * global, full instances, bbox instances
+   * rapid switching controls
+
+
+
+:small:`Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes`
+----------------------------------------------------------------------------
+ 
+.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
+   :width: 550px
+   :align: left 
+
+.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
+   :width: 550px
+   :align: right
+
+.. image:: /env/presentation/1px.png
+   :width: 1000px
+   :height: 1px
+   :align: center
+
+
+.. class:: small
+
+   Analytic : more realistic, faster, less memory, **much more effort**  
+
+   For Dayabay PMT:
+
+   * partition CSG solids into 12 **single primitive** parts (instead of 2928 triangles)
+   * splitting at geometrical intersections avoids implementing general CSG boolean handling
+   * geometry provided to OptiX in form of ray intersection and bounding box code
+   
+   **Aim : analytic description of geometry on critical optical path, remainder tesselated**  
+
+
+
+:small:`Hybrid Geant4/Opticks Event Workflow`
+------------------------------------------------
+
+
+.. comment
+
+   * interop between OpenGL/OptiX/Thrust/CUDA  
+        
+   **Side Benefit : Performant Visualization**
+
+   Migrating Geant4 C++ CSG tree geometry to the GPU 
+   enables unprecedented visualizations.  
+ 
+
+
+.. sidebar:: GPU Resident Photons
+
+    .. class:: small
+
+       **Seeded on GPU** 
+          associate photons -> gensteps (via seed buffer)
+ 
+       **Generated on GPU, using gensteps:**
+          *~Stacks* collected before photon generation:
+
+          * number of photons to generate
+          * start/end position of step
+          * other quantities needed for GPU generation 
+
+       **Propagated on GPU**
+          :red:`Only photons hitting PMTs copied to CPU`
+
+
+       Thrust: **high level C++ access to CUDA**
+
+       .. figure:: /env/numerics/thrust/thrust.png
+          :width: 300px
+          :align: right
+
+       * https://developer.nvidia.com/Thrust
+       
+          
+
+         
+.. class:: small
+
+    **Geant4/Detector Simulation**
+
+    * modified Scintillation, Cerenkov processes 
+
+      * collect *genstep*
+      * skip optical photon generation
+
+    **Opticks (OptiX/Thrust GPU interoperation)** 
+
+    * **OptiX** : upload gensteps 
+    * **Thrust** : seeding, distribute genstep indices to photons
+    * **OptiX** : launch photon generation and propagation
+    * **Thrust** : pullback photons that hit PMTs 
+    * **Thrust** : index photon step sequences (optional)
+
+    **Geant4/Detector Simulation**
+
+    * populate standard hit collections 
+    * subsequent electronics simulation proceeds unaltered 
+
+    **Multi-event handling**
+
+    * reuse/resize OptiX buffers for each event 
+
+
+
+:small:`Compare Opticks/Geant4 Simulations with Simple Lights/Geometries`
+---------------------------------------------------------------------------
+
+.. figure:: /env/graphics/ggeoview/rainbow-spol-disc-incident-sphere.png
+   :width: 550px
+   :align: left
+
+   .. class:: tiny
+
+       1M Photons -> Water Sphere (S-Polarized)
+
+.. figure:: /env/graphics/ggeoview/PmtInBox-approach.png 
+   :width: 450px
+   :align: right
+
+   .. class:: tiny
+
+       0.5M Photons -> Dayabay PMT 
+
+
+
+.. image:: /env/presentation/1px.png
+   :width: 1000px
+   :height: 1px
+   :align: center
+
+
+.. class:: small
+
+   **Photon step records**
+      128 bit per step : highly compressed position, time, wavelength, polarization vector, material/history codes  
+
+   **Photon flag sequence** 
+      16x 4-bit step flags recorded in uint64 sequence, indexed using Thrust GPU sort (1M indexed ~0.040s)
+
+   **Sequence index** -> interactive OpenGL selection of photons by flag sequence
+      
+
+
+:small:`Opticks/Geant4 Rainbow Step Sequence Comparison`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   **Flags:**
+     * BT/BR: boundary transmit/reflect
+     * TO/SC/SA: torch/scatter/surface absorb
+
+   **Statistically consistent photon histories in the two simulations : Multiple orders of rainbow apparent**
+
+.. raw:: html
+
+    <pre class="mypre">
+     64-bit uint  Opticks    Geant4    chi2                                      (tag:5,-5)   
+
+            8ccd   819160    819654    0.15  [4 ] TO BT BT SA                    (cross droplet) 
+             8bd   102087    101615    1.09  [3 ] TO BR SA                       (external reflect)
+           8cbcd    61869     61890    0.00  [5 ] TO BT BR BT SA                 (bow 1)
+          8cbbcd     9618      9577    0.09  [6 ] TO BT BR BR BT SA              (bow 2)
+         8cbbbcd     2604      2687    1.30  [7 ] TO BT BR BR BR BT SA           (bow 3)
+        8cbbbbcd     1056      1030    0.32  [8 ] TO BT BR BR BR BR BT SA        (bow 4)
+           86ccd     1014      1000    0.10  [5 ] TO BT BT SC SA
+       8cbbbbbcd      472       516    1.96  [9 ] TO BT BR BR BR BR BR BT SA     (bow 5)
+             86d      498       473    0.64  [3 ] TO SC SA
+      bbbbbbbbcd      304       294    0.17  [10] TO BT BR BR BR BR BR BR BR BR  (bow 8+ truncated)
+      8cbbbbbbcd      272       247    1.20  [10] TO BT BR BR BR BR BR BR BT SA  (bow 6)
+      cbbbbbbbcd      183       161    1.41  [10] TO BT BR BR BR BR BR BR BR BT  (bow 7 truncated) 
+    </pre>
+
+
+
+:small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
+------------------------------------------------------------
+
+.. class:: tiny
+
+   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
+   Numbered bands are visible range expectations of first 11 rainbows.
+   S-Polarized intersection (E field perpendicular to plane of incidence) arranged by directing polarization radially.
+
+.. image:: /env/optix/cfg4/rainbow-cfg4-spol.png
+   :width: 800px
+   :align: center
+
+
+
+:small:`PMT Opticks/Geant4 step distribution comparison TO BT [SD]`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   **Good agreement reached**, after several fixes: geometry, total internal reflection, group velocity
+
+
+.. figure:: /env/numerics/npy/PmtInBox_TOBTSD_xyzt.png 
+   :width: 500px
+   :align: left
+
+   position(xyz), time(t)
+
+
+.. figure:: /env/numerics/npy/PmtInBox_TOBTSD_abcr.png
+   :width: 500px
+   :align: right
+
+   polarization(abc), radius(r)
+
+
+:small:`PMT Opticks/Geant4 step distribution comparison : chi2/ndf`
+---------------------------------------------------------------------------------------
+
+.. sidebar:: Consistent : chi2/ndf ~ 1
+
+   .. class:: small
+
+       Very good Opticks/Geant4 agreement 
+
+       * identical geometries
+       * identical optical physics
+
+       XYTZ: position, time
+       ABCR: polarization, radius
+
+
+.. class:: tiny
+
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+    4/PMT In Box/torch :             X     Y     Z     T     A     B     C     R     
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+    340271/340273  :  [TO] BT SA    1.15  1.00  0.00  0.00  1.06  1.03  0.00  1.21 
+    340271/340273  :  TO [BT] SA    1.15  1.00  1.06  0.91  1.06  1.03  0.00  1.21 
+    340271/340273  :  TO BT [SA]    0.97  1.02  1.05  0.99  1.06  1.03  0.00  1.29 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    107598/107251  :  [TO] BT SD    0.91  0.73  0.56  0.56  0.98  1.09  0.56  0.94 
+    107598/107251  :  TO [BT] SD    0.91  0.73  0.81  0.93  0.98  1.09  0.56  0.94 
+    107598/107251  :  TO BT [SD]    0.99  0.83  0.97  0.99  0.98  1.09  0.56  0.93 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    23217/23260  :  [TO] BT BT SA   0.94  0.82  0.04  0.04  0.97  0.89  0.04  0.57 
+    23217/23260  :  TO [BT] BT SA   0.94  0.82  0.70  0.50  0.97  0.89  0.04  0.57 
+    23217/23260  :  TO BT [BT] SA   0.91  0.94  0.43  0.60  0.97  0.89  0.04  0.05 
+    23217/23260  :  TO BT BT [SA]   0.94  0.88  0.04  0.35  0.97  0.89  0.04  0.72 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    18866/19048  :  [TO] AB         0.99  1.10  0.87  0.87  0.85  0.84  0.87  1.00 
+    18866/19048  :  TO [AB]         0.99  1.10  0.93  0.92  0.85  0.84  0.87  1.00 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    3179/3133  :  [TO] SC SA        1.07  0.83  0.34  0.34  0.86  0.96  0.34  0.73 
+    3179/3133  :  TO [SC] SA        1.07  0.83  0.98  1.05  0.98  1.06  0.98  0.73 
+    3179/3133  :  TO SC [SA]        0.96  1.04  0.93  0.97  0.98  1.06  0.98  1.10 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    2204/2249  :  [TO] BT AB        0.85  1.04  0.45  0.45  0.99  0.92  0.45  1.06 
+    2204/2249  :  TO [BT] AB        0.85  1.04  0.95  0.88  0.99  0.92  0.45  1.06 
+    2204/2249  :  TO BT [AB]        0.98  0.94  1.01  1.00  0.99  0.92  0.45  0.90 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    1696/1732  :  [TO] BT BT AB     1.05  0.85  0.38  0.38  0.86  1.09  0.38  0.26 
+    1696/1732  :  TO [BT] BT AB     1.05  0.85  1.48  1.28  0.86  1.09  0.38  0.26 
+    1696/1732  :  TO BT [BT] AB     0.99  0.86  1.17  1.40  0.86  1.09  0.38  0.86 
+    1696/1732  :  TO BT BT [AB]     1.15  0.88  1.08  1.06  0.86  1.09  0.38  0.79 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    1446/1455  :  [TO] BR SA        1.21  0.94  0.03  0.03  0.90  0.87  0.03  1.09 
+    1446/1455  :  TO [BR] SA        1.21  0.94  1.02  1.01  0.90  0.87  0.03  1.09 
+    1446/1455  :  TO BR [SA]        1.00  0.93  0.97  0.99  0.90  0.87  0.03  1.04 
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+
+
+
+
+:small:`Photon Propagation Times Geant4 cf Opticks`
+----------------------------------------------------------
+
+.. image:: /env/optix/cfg4/PmtInBox-cfg4-2.png
+   :width: 800px
+   :align: center
+
+.. class:: small
+
+    ====================  =================  =================  ================== 
+     Test                  Geant4 10.2       Opticks Interop     Opticks Compute      
+    ====================  =================  =================  ================== 
+     Rainbow 1M(S)           56 s               1.62 s            0.28 s         
+     Rainbow 1M(P)           58 s               1.71 s            0.25 s         
+     **PmtInBox 0.5M**       **41 s**           0.81 s            **0.15 s** 
+    ====================  =================  =================  ================== 
+
+.. class:: small
+
+    * **Opticks > 200X Geant4** with only 384 core mobile GPU[1] (multi-GPU workstation up to 20x more cores)
+
+.. class:: small
+   
+    * **Interop** uses OpenGL buffers allowing visualization, **Compute** uses OptiX buffers
+    * **Interop/Compute** : perfectly identical results, monitored by digest
+
+.. class:: tiny
+
+    [1] MacBook Pro (2013), NVIDIA GeForce GT 750M, 2048 MB, 384 cores
+
+
+
+:small:`Opticks Event Buffers`
+----------------------------------
+
+.. class:: small
+
+
+    **Required GPU Buffers** 
+
+    *genstep*
+        (n_genstep,6,4) float32: parameters of Cerenkov, Scintillation or Torch genstep.
+        Steps collected from Geant4 are copied to GPU.
+
+    *seed*
+        (n_photon, 1) uint32, genstep_id for each photon : associates gensteps to photons
+
+    *photon*
+        (n_photon,4,4) float32: position, time, direction, polarization, wavelength, flags
+
+
+    **Debug GPU Buffers** 
+
+    *sequence*
+        (n_photon, 1, 2) uint64 : up to 16 flag and material codes 
+        packed into 2*64bits
+
+    *record*
+        (n_photon, 16, 2, 4) int16 : up to 16 propagation points :
+        highly compressed position, time, polarization, wavelength, flags 
+
+    **CPU Buffers**
+
+    *hit*
+        (n_hit, 4,4) float32 : only photons that hit PMTs copied back to CPU
+
+
+
+
+:small:`Time/Memory profile of multi-event production mode running`
+-----------------------------------------------------------------------------
+
+.. class:: small
+
+    * First event has long prelaunch of 0.37s when GPU buffers are created, 
+      subsequent events reuse the buffer, resizing as needed.
+
+    * GPU launches every ~0.11s taking ~0.07s (for 0.5M photons)
+      overhead of ~0.04s for downloadHits unusually large from high hit fraction 
+      as directly shooting PMT 
+
+
+
+.. raw:: html
+
+    <pre class="mypre">
+    tpmt-;tpmt--  --compute --multievent 10  --production    # 10x 0.5M photons incident on PMT 
+
+    2016-11-30 23:00:51.446 INFO  [224583] [TimesTable::dump@103] Opticks::postpropagate filter: NONE
+
+    2.656           2.656          2.656      30501.000      30501.000 : OpticksRun::createEvent.BEG_0
+    0.008           2.664          0.008      30504.000          3.000 : OpSeeder::seedPhotonsFromGenstepsViaOptiX_0
+    0.367           3.031          0.367      30675.000        171.000 : OPropagator::prelaunch_0
+    0.070           3.102          0.070      30675.000          0.000 : OPropagator::launch_0
+    0.031           3.133          0.031      30682.000          7.000 : OEvent::downloadHits_0
+    0.008           3.141          0.008      30682.000          0.000 : OpticksRun::resetEvent.END_0
+
+    0.070           3.211          0.070      30682.000          0.000 : OPropagator::launch_1
+    0.031           3.242          0.031      30689.000          7.000 : OEvent::downloadHits_1
+    0.008           3.250          0.008      30689.000          0.000 : OpticksRun::resetEvent.END_1
+
+    0.070           3.320          0.070      30689.000          0.000 : OPropagator::launch_2
+    0.023           3.344          0.023      30696.000          7.000 : OEvent::downloadHits_2
+    0.008           3.352          0.008      30696.000          0.000 : OpticksRun::saveEvent.END_2
+    0.008           3.359          0.008      30696.000          0.000 : OpticksRun::resetEvent.END_2
+
+    ...
+
+
+:small:`Time/Memory profile of multi-event production mode running (2)`
+--------------------------------------------------------------------------------
+
+.. class:: small
+
+   * timings of 10 GPU launches, fairly stable  
+   * time until first launch: 3.1s (loading geocache from file, uploading to GPU, creating event buffers)
+   * memory profiling suggests leaking ~7MB per event, (**Needs Investigation**)
+
+.. raw:: html
+
+    <pre class="mypre">
+
+    2016-11-30 23:00:51.447 INFO  [224583] [TimesTable::dump@103] Opticks::postpropagate filter: OPropagator::launch
+
+    3.102           3.102          0.070      30675.000          0.000 : OPropagator::launch_0
+    0.109           3.211          0.070      30682.000          0.000 : OPropagator::launch_1
+    0.109           3.320          0.070      30689.000          0.000 : OPropagator::launch_2
+    0.109           3.430          0.070      30696.000          0.000 : OPropagator::launch_3
+    0.109           3.539          0.070      30703.000          0.000 : OPropagator::launch_4
+    0.102           3.641          0.070      30710.000          0.000 : OPropagator::launch_5
+    0.109           3.750          0.070      30716.000          0.000 : OPropagator::launch_6
+    0.102           3.852          0.070      30723.000          0.000 : OPropagator::launch_7
+    0.102           3.953          0.062      30730.000          0.000 : OPropagator::launch_8
+    0.102           4.055          0.062      30737.000          0.000 : OPropagator::launch_9
+
+    </pre>
+
+
+
+:small:`tconcentric : test geometry configured via boundaries`
+------------------------------------------------------------------
+
+.. class:: small
+
+   * Idealized geometry for testing optical physics in situation with no geometry issues.
+   * Boundaries specify : outer-material/outer-surface/inner-surface/inner-material
+
+.. raw:: html
+
+    <pre class="mypre">
+    tconcentric-testconfig(){
+        local test_config=(
+            mode=BoxInBox
+            analytic=1
+            shape=sphere boundary=StainlessSteel///Acrylic         parameters=0,0,0,$(( 5000 + 5 ))
+            shape=sphere boundary=Acrylic//RSOilSurface/MineralOil parameters=0,0,0,$(( 5000 - 5 ))
+            shape=sphere boundary=MineralOil///Acrylic             parameters=0,0,0,$(( 4000 + 5 )) 
+            shape=sphere boundary=Acrylic///LiquidScintillator     parameters=0,0,0,$(( 4000 - 5 ))
+            shape=sphere boundary=LiquidScintillator///Acrylic     parameters=0,0,0,$(( 3000 + 5 ))
+            shape=sphere boundary=Acrylic///GdDopedLS              parameters=0,0,0,$(( 3000 - 5 ))
+        )   
+        echo "$(join _ ${test_config[@]})" 
+    }
+    </pre>
+
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/tip/tests/tconcentric.bash
+
+
+
+:small:`tconcentric : fixed polarization "Torch" light source`
+-------------------------------------------------------------------- 
+
+.. class:: small
+
+   **Torch** source: 1M 430nm photons (+Y polarized) shot down X axis 
+ 
+   * propagation times can be calculated from known material group velocities 
+
+
+.. raw:: html
+
+    <pre class="mypre">
+    tconcentric-torchconfig(){
+        local torch_config=(
+                     type=point
+                     photons=1000000
+                     mode=fixpol         polarization=0,1,0
+                     source=0,0,0        target=1,0,0
+                     material=GdDopedLS  wavelength=430
+                     weight=1.0
+                     time=0.1
+                     zenithazimuth=0,1,0,1
+                     radius=0
+                   ) 
+        echo "$(join _ ${torch_config[@]})" 
+    }
+    </pre>
+
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/tip/tests/tconcentric.bash
+
+
+
+:small:`tconcentric : spherical GdLS/LS/MineralOil`
+----------------------------------------------------- 
+
+.. image:: /env/presentation/tconcentric-8cccccccc9ccccd.png
+   :width: 900px
+   :align: center
+
+
+
+:small:`tconcentric : Opticks/Geant4 chi2 comparison`
+------------------------------------------------------- 
+
+.. raw:: html
+
+    <pre class="mypre">
+    .      seqhis_ana  1:concentric   -1:concentric     c2        
+    .                       1000000   1000000       373.13/356 =  1.05  (pval:0.256 prob:0.744)  
+    0000           8ccccd    669843    670001             0.02  [6 ] TO BT BT BT BT SA
+    0001               4d     83950     84149             0.24  [2 ] TO AB
+    0002          8cccc6d     45490     44770             5.74  [7 ] TO SC BT BT BT BT SA
+    0003           4ccccd     28955     28718             0.97  [6 ] TO BT BT BT BT AB
+    0004             4ccd     23187     23170             0.01  [4 ] TO BT BT AB
+    0005          8cccc5d     20238     20140             0.24  [7 ] TO RE BT BT BT BT SA
+    0006          8cc6ccd     10214     10357             0.99  [7 ] TO BT BT SC BT BT SA
+    0007          86ccccd     10176     10318             0.98  [7 ] TO BT BT BT BT SC SA
+    0008          89ccccd      7540      7710             1.90  [7 ] TO BT BT BT BT DR SA
+    0009         8cccc55d      5976      5934             0.15  [8 ] TO RE RE BT BT BT BT SA
+    0010              45d      5779      5766             0.01  [3 ] TO RE AB
+    0011  8cccccccc9ccccd      5339      5269             0.46  [15] TO BT BT BT BT DR BT BT BT BT BT BT BT BT SA
+    0012          8cc5ccd      5111      4940             2.91  [7 ] TO BT BT RE BT BT SA
+    0013              46d      4797      4886             0.82  [3 ] TO SC AB
+    0014      8cccc9ccccd      4494      4469             0.07  [11] TO BT BT BT BT DR BT BT BT BT SA
+    0015      8cccccc6ccd      3317      3302             0.03  [11] TO BT BT SC BT BT BT BT BT BT SA
+    0016         8cccc66d      2670      2675             0.00  [8 ] TO SC SC BT BT BT BT SA
+    0017          49ccccd      2432      2383             0.50  [7 ] TO BT BT BT BT DR AB
+    0018          4cccc6d      2043      1991             0.67  [7 ] TO SC BT BT BT BT AB
+    0019            4cc6d      1755      1826             1.41  [5 ] TO SC BT BT AB
+    </pre>
+
+.. class:: small
+
+    Top 20 chart above, (category 100 down to ~100 photons for propagation of 1M photons)
+
+
+
+:small:`tconcentric : Opticks/Geant4 history counts chi2/df ~ 1.0`
+--------------------------------------------------------------------- 
+
+.. class:: small
+
+    Match achieved between two optical simulations, run from single executable
+
+    *CPU* 
+        Daya Bay detsim optical physics updated to G4 10.2
+    *GPU*
+        above ported to CUDA/OptiX 
+
+
+    Match achieved only after many bug fixes, including: 
+
+    * scattering, was comparing different implementations
+    * diffuse reflection, ported G4 approach 
+    * reemission "rejoining"
+    * missing optical surfaces
+    * truncation recording discrepancy
+    * group velocity of wrong material after refraction (G4 issue 1275)  
+    * interpolation mismatches
+
+    :red:`Work guided by the next largest chi2 contributor`
+
+.. class:: tiny
+
+   https://bugzilla-geant4.kek.jp/show_bug.cgi?id=1275
+
+
+:small:`Group Velocity problems -> Time shifts`
+-----------------------------------------------------------
+
+.. class:: small
+
+   Group velocity approximated using "E dn/dE" dispersion term.
+
+   * G4 "bin shifting" for dispersion incompatible with GPU texture fixed domains,
+   * stepLength/groupvel -> propagation time, small groupvel mismatches -> time shifts
+   * following refraction G4 uses groupvel of wrong material -> time shifts : 
+     https://bugzilla-geant4.kek.jp/show_bug.cgi?id=1275
+
+
+.. raw:: html
+
+    <pre class="mypre">
+
+                c                         dn  dE          dn          n1 - n0           delta_n 
+    vg =  --------------- ,    E dn/dE =  --  --     ~  --------  ~  -----------   ~   -----------
+            n + E dn/dE                   dE  dlogE      d(logE)     logE1 - logE0      log(E1/E0)
+
+    </pre>
+
+
+.. raw:: html
+
+    <pre class="mypre">
+    ///         0  +  1  +  2  +  3  +  4  +  5        <--- 6 original values
+    ///         |    /     /     /     /      |
+    ///         |   /     /     /     /       |
+    ///         0  1     2     3     4        5        <--- still 6, dispersion term domain 
+    </pre>
+
+
+
+.. class:: small
+
+   Find photon tracks require *UseGivenVelocity=true* 
+   to get proposed velocity to be used.
+
+.. raw:: html
+
+    <pre class="mypre">
+    // eg from the G4TrackAction 
+    const_cast<G4Track*>(track)->UseGivenVelocity(true)
+    </pre>
+
+
+         
+
+
+
+
+
+
+
+:small:`tconcentric : "Unbiased" Scattering : TO SC ..`
+-----------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypre">
+    In [1]: ab.sel = "TO SC .." ; print ab.his 
+    Out[1]: 
+    .        seqhis_ana  1:concentric   -1:concentric      c2       
+    .                         66489     66126        73.48/67 =  1.10  (pval:0.274 prob:0.726)  
+    0000          8cccc6d     45490     44770             5.74  [7 ] TO SC BT BT BT BT SA
+    0001              46d      4797      4886             0.82  [3 ] TO SC AB
+    0002         8cccc66d      2670      2675             0.00  [8 ] TO SC SC BT BT BT BT SA
+    0003          4cccc6d      2043      1991             0.67  [7 ] TO SC BT BT BT BT AB
+    0004            4cc6d      1755      1826             1.41  [5 ] TO SC BT BT AB
+    0005         8cccc56d      1158      1215             1.37  [8 ] TO SC RE BT BT BT BT SA
+    0006         8cc6cc6d       817       739             3.91  [8 ] TO SC BT BT SC BT BT SA
+    0007         86cccc6d       709       756             1.51  [8 ] TO SC BT BT BT BT SC SA
+    0008         89cccc6d       538       486             2.64  [8 ] TO SC BT BT BT BT DR SA
+    0009         8cc5cc6d       381       372             0.11  [8 ] TO SC BT BT RE BT BT SA
+    0010        8cccc556d       321       369             3.34  [9 ] TO SC RE RE BT BT BT BT SA
+    0011 8cccccccc9cccc6d       348       367             0.50  [16] TO SC BT BT BT BT DR BT BT BT BT BT BT BT BT SA
+    0012             456d       292       330             2.32  [4 ] TO SC RE AB
+    0013     8cccc9cccc6d       316       319             0.01  [12] TO SC BT BT BT BT DR BT BT BT BT SA
+    0014             466d       277       302             1.08  [4 ] TO SC SC AB
+    0015     8cccccc6cc6d       255       243             0.29  [12] TO SC BT BT SC BT BT BT BT BT BT SA
+    0016         49cccc6d       162       158             0.05  [8 ] TO SC BT BT BT BT DR AB
+    0017        8cccc666d       143       156             0.57  [9 ] TO SC SC SC BT BT BT BT SA
+    0018     8cccc6cccc6d       121       135             0.77  [12] TO SC BT BT BT BT SC BT BT BT BT SA
+    0019 8cccccccc6cccc6d       126       108             1.38  [16] TO SC BT BT BT BT SC BT BT BT BT BT BT BT BT SA
+    </pre>
+
+
+:small:`tconcentric : "Unbiased" Scattering : TO SC .. polarization`
+-----------------------------------------------------------------------
+
+.. image:: /env/presentation/tconcentric_to_sc_xx.png
+   :width: 850px
+   :align: center
+
+.. class:: small
+
+   Outgoing polarization 
+   
+   * perpendicular to outgoing direction (photon stays transverse)
+   * within plane of initial polarization and outgoing direction
+
+
+
+:small:`tconcentric : Opticks/Geant4 distrib chi2/df ~ 1.0`
+--------------------------------------------------------------- 
+
+.. class:: small
+
+    * Top 100 history categories correspond to ~900 propagation points
+    * 8 quantities at each point : ~7200 histograms pairs to chi2 compare 
+    * selecting discrepant points : distchi2 > 1.1 (yields 41 out of 900 points) 
+
+
+.. class:: tiny
+
+    
+    XYZT:position/time ABCW:polarization/wavelength 
+
+    === == ===== ===== ============================================== ===== ===== ===== ===== ===== ===== ===== ===== ===== ====== 
+    iv  is na    nb    reclab                                         X     Y     Z     T     A     B     C     W     seqc2 distc2 
+    === == ===== ===== ============================================== ===== ===== ===== ===== ===== ===== ===== ===== ===== ====== 
+    26  5  20238 20140 TO [RE] BT BT BT BT SA                          0.85  0.00  0.00  1.31  1.12  1.37  1.10  0.78  0.24  1.10  
+    27  5  20238 20140 TO RE [BT] BT BT BT SA                          2.14  2.26  0.80  1.08  1.15  0.82  0.76  0.78  0.24  1.18  
+    28  5  20238 20140 TO RE BT [BT] BT BT SA                          2.01  2.23  0.79  0.83  1.17  0.83  0.83  0.78  0.24  1.17  
+    29  5  20238 20140 TO RE BT BT [BT] BT SA                          2.66  4.37  1.13  0.49  1.20  0.81  0.79  0.78  0.24  1.68  
+    30  5  20238 20140 TO RE BT BT BT [BT] SA                          2.56  4.48  1.19  1.04  1.12  0.97  0.91  0.78  0.24  1.75  
+    31  5  20238 20140 TO RE BT BT BT BT [SA]                          3.18  5.17  1.23  0.48  1.12  0.97  0.91  0.78  0.24  2.06  
+    38  6  10214 10357 TO BT BT SC BT BT [SA]                          0.79  1.37  1.43  0.55  1.00  1.33  0.97  0.00  0.99  1.16  
+    52  8  7540  7710  TO BT BT BT BT DR [SA]                          1.70  1.32  1.48  1.49  1.12  1.03  1.37  0.00  1.90  1.28  
+    56  9  5976  5934  TO RE RE [BT] BT BT BT SA                       1.26  1.51  1.21  2.36  0.99  1.40  1.10  1.65  0.15  1.24  
+    57  9  5976  5934  TO RE RE BT [BT] BT BT SA                       1.23  1.39  1.25  2.31  0.98  1.45  0.98  1.65  0.15  1.21  
+    58  9  5976  5934  TO RE RE BT BT [BT] BT SA                       1.24  0.98  1.18  1.88  0.97  1.39  1.01  1.65  0.15  1.14  
+    59  9  5976  5934  TO RE RE BT BT BT [BT] SA                       1.24  0.90  1.04  1.83  0.93  1.55  0.92  1.65  0.15  1.11  
+    60  9  5976  5934  TO RE RE BT BT BT BT [SA]                       0.95  1.03  1.50  3.12  0.93  1.55  0.92  1.65  0.15  1.18  
+    69  11 5339  5269  TO BT BT BT BT [DR] BT BT BT BT BT BT BT BT SA  0.00  0.00  0.00  0.00  1.29  1.69  2.42  0.00  0.46  1.31  
+    74  11 5339  5269  TO BT BT BT BT DR BT BT BT BT [BT] BT BT BT SA  1.10  1.45  1.02  0.67  1.42  0.83  1.38  0.00  0.46  1.12  
+    75  11 5339  5269  TO BT BT BT BT DR BT BT BT BT BT [BT] BT BT SA  0.98  1.42  1.16  0.52  1.58  0.82  1.46  0.00  0.46  1.15  
+    76  11 5339  5269  TO BT BT BT BT DR BT BT BT BT BT BT [BT] BT SA  1.46  1.66  0.79  0.65  1.69  0.89  1.46  0.00  0.46  1.21  
+    77  11 5339  5269  TO BT BT BT BT DR BT BT BT BT BT BT BT [BT] SA  1.04  1.64  0.81  0.51  2.20  0.91  1.35  0.00  0.46  1.19  
+    78  11 5339  5269  TO BT BT BT BT DR BT BT BT BT BT BT BT BT [SA]  1.10  1.56  0.73  0.21  2.20  0.91  1.35  0.00  0.46  1.17  
+    85  12 5111  4940  TO BT BT RE BT BT [SA]                          1.26  2.13  0.79  2.07  1.03  0.93  0.72  0.68  2.91  1.11  
+    94  14 4494  4469  TO BT BT BT BT [DR] BT BT BT BT SA              0.00  0.00  0.00  0.00  1.90  3.74  1.95  0.00  0.07  2.01  
+    95  14 4494  4469  TO BT BT BT BT DR [BT] BT BT BT SA              3.85  1.83  0.90  0.82  2.20  1.45  1.11  0.00  0.07  1.41  
+    96  14 4494  4469  TO BT BT BT BT DR BT [BT] BT BT SA              1.94  1.82  1.07  0.85  2.67  1.30  1.08  0.00  0.07  1.39  
+    97  14 4494  4469  TO BT BT BT BT DR BT BT [BT] BT SA              1.61  1.35  1.48  0.31  2.00  1.22  1.28  0.00  0.07  1.35  
+    98  14 4494  4469  TO BT BT BT BT DR BT BT BT [BT] SA              1.96  1.31  1.39  0.66  2.13  1.03  1.42  0.00  0.07  1.36  
+    99  14 4494  4469  TO BT BT BT BT DR BT BT BT BT [SA]              2.29  0.91  1.05  4.14  2.13  1.03  1.42  0.00  0.07  1.23  
+    104 15 3317  3302  TO BT BT SC [BT] BT BT BT BT BT SA              0.60  1.02  1.75  1.92  0.77  1.23  1.39  0.00  0.03  1.20  
+    105 15 3317  3302  TO BT BT SC BT [BT] BT BT BT BT SA              0.77  1.35  1.34  1.98  0.73  1.13  1.41  0.00  0.03  1.17  
+    108 15 3317  3302  TO BT BT SC BT BT BT BT [BT] BT SA              1.48  1.01  1.73  0.51  0.85  1.00  1.05  0.00  0.03  1.15  
+    124 17 2432  2383  TO BT BT BT BT [DR] AB                          0.00  0.00  0.00  0.00  1.64  0.92  0.71  0.00  0.50  1.20  
+    140 20 1815  1805  TO RE [RE] RE BT BT BT BT SA                    1.80  0.56  1.73  0.59  1.31  1.20  1.42  0.60  0.03  1.26  
+    141 20 1815  1805  TO RE RE [RE] BT BT BT BT SA                    1.30  1.02  2.24  1.02  1.09  1.06  1.17  1.07  0.03  1.15  
+    144 20 1815  1805  TO RE RE RE BT BT [BT] BT SA                    1.05  1.32  1.03  0.53  0.93  1.31  1.12  1.07  0.03  1.10  
+    222 29 1105  1168  TO BT BT RE BT BT [BT] BT BT BT SA              2.42  2.53  2.26  2.49  1.29  1.25  0.65  1.08  1.75  1.65  
+    223 29 1105  1168  TO BT BT RE BT BT BT [BT] BT BT SA              2.32  2.44  1.98  2.38  1.03  1.07  0.72  1.08  1.75  1.53  
+    224 29 1105  1168  TO BT BT RE BT BT BT BT [BT] BT SA              3.13  2.49  1.32  1.34  1.11  1.23  0.69  1.08  1.75  1.56  
+    225 29 1105  1168  TO BT BT RE BT BT BT BT BT [BT] SA              2.83  2.44  1.36  1.06  0.92  1.08  0.69  1.08  1.75  1.47  
+    226 29 1105  1168  TO BT BT RE BT BT BT BT BT BT [SA]              3.24  3.21  1.03  2.18  0.92  1.08  0.69  1.08  1.75  1.59  
+    241 31 1067  1013  TO BT BT BT BT DR [BT] BT AB                    1.25  1.53  0.80  0.27  2.03  0.90  1.40  0.00  1.40  1.27  
+    242 31 1067  1013  TO BT BT BT BT DR BT [BT] AB                    1.30  1.88  0.76  0.37  1.44  0.95  1.38  0.00  1.40  1.18  
+    248 32 1036  988   TO RE BT BT [AB]                                1.00  1.78  1.69  1.55  0.62  0.87  0.86  1.33  1.14  1.13  
+    === == ===== ===== ============================================== ===== ===== ===== ===== ===== ===== ===== ===== ===== ====== 
+
+
+
+
+
+
+:i:`OpticksDocs`
+-------------------------------------------------------------------------------
+
+.. sidebar:: Open Source Opticks
+
+    .. class:: small
+
+        * http://simoncblyth.bitbucket.org/opticks/
+        * http://bitbucket.org/simoncblyth/opticks/
+
+        Documentation, install instructions. Repository.
+
+        * Mac, Linux, Windows (*)
+        * 16 C++ projects, ordered by dependency
+        * ~200 "Unit" Tests (CMake/CTest) 
+        * 12 integration tests: tpmt, trainbow, tprism, treflect, tlens, tnewton, tg4gun, ...
+        * NumPy/Python analysis/debugging scripts        
+
+        Geometry/event data use NumPy serialization::
+
+             import numpy as np
+             a = np.load("photons.npy")
+
+    .. class:: tiny
+
+        (*) Windows VS2015, non-CUDA only so far  
+
+
+
+
+:small:`Summary`
+-----------------------------
+
+.. sidebar:: Overview
+
+   .. class:: small
+
+      * **Opticks 200x Geant4** with mobile GPU
+      * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
+      * :red:`photon propagation time --> zero`
+      * :blue:`analytic geometry --> precise Geant4 match`
+
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 50px
+
+..
+
+  *Opticks* enables *Geant4* based simulations to benefit from optical photon simulation 
+  **taking effectively zero time and zero CPU memory**, 
+  thanks to massive parallelism made accessible by NVIDIA OptiX.
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+  * The more photons the bigger the overall speedup (99% -> 100x) 
+  * Drastic speedup -> better detector understanding -> greater precision
+  * Large PMT based neutrino experiments, such as JUNO, can benefit the most
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+
+  .. class:: huge
+
+     https://bitbucket.org/simoncblyth/opticks
+
+
+
+
+:i:`YouTube Video`
+----------------------
+
+.. raw:: html
+
+   <iframe width="1024" height="576" src="https://www.youtube.com/embed/CBpOha4RzIs?rel=0" frameborder="0" allowfullscreen></iframe>
+
+.. class:: tiny
+
+   https://www.youtube.com/watch?v=CBpOha4RzIs
+
+
+

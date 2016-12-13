@@ -1856,3 +1856,5 @@ vulkan-(){      . $(env-home)/graphics/vulkan/vulkan.bash && vulkan-env $* ; }
 ioproc-(){      . $(env-home)/doc/ioproc/ioproc.bash && ioproc-env $* ; }
 tcpdump-(){      . $(env-home)/tools/tcpdump.bash && tcpdump-env $* ; }
 rootnumpy-(){      . $(env-home)/root/rootnumpy/rootnumpy.bash && rootnumpy-env $* ; }
+vecgeom-(){      . $(env-home)/geometry/vecgeom/vecgeom.bash && vecgeom-env $* ; }
+sso-(){      . $(env-home)/network/sso/sso.bash && sso-env $* ; }
