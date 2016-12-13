@@ -2,7 +2,6 @@
 vecgeom-src(){      echo geometry/vecgeom/vecgeom.bash ; }
 vecgeom-source(){   echo ${BASH_SOURCE:-$(env-home)/$(vecgeom-src)} ; }
 vecgeom-vi(){       vi $(vecgeom-source) ; }
-vecgeom-env(){      elocal- ; }
 vecgeom-usage(){ cat << EOU
 
 VecGeom : The vectorized geometry library for particle-detector simulation (toolkits).
@@ -63,16 +62,17 @@ If it can, then:
 Cannot access issues
 ---------------------
 
-
-Issues are hidden behind cern SSO which fails::
+Issues are hidden behind CERN SSO which fails::
 
     Microsoft.IdentityServer.Web.RequestFailedException: MSIS7000: The sign in request is not compliant to the WS-Federation language for web browser clients or the SAML 2.0 protocol WebSSO profile.
     Reference number: e3d0ecc5-2ea2-4fea-befa-dba4121ddb3f
 
 
+This issue may be related to the one I get sometimes with IHEP SSO.  Follow that up in sso-
 
-Intrinsic header compilation error
---------------------------------------
+
+Intrinsic header compilation error : WORKAROUND comment out the offending header 
+-----------------------------------------------------------------------------------
 
 VecCore/Common include of SIMD.h/x86intrin.h causes lots of compiler errors
 with nvcc from CUDA 7.0 
@@ -164,280 +164,17 @@ From build.log get lots of nvlink messages::
     1642 -- Installing: /usr/local/env/geometry/VecGeom.install/include/VecCore/Assert.h
 
 
-Benchmark asserts 
--------------------
-
-::
-
-    simon:VecGeom.build blyth$ ./TubeBenchmark
-    dyld: Library not loaded: @rpath/libcudart.7.0.dylib
-      Referenced from: /usr/local/env/geometry/VecGeom.build/./TubeBenchmark
-      Reason: image not found
-    Trace/BPT trap: 5
-    simon:VecGeom.build blyth$ 
-    simon:VecGeom.build blyth$ cuda-
-
-    simon:VecGeom.build blyth$ lldb ./TubeBenchmark 
-    (lldb) target create "./TubeBenchmark"
-    Current executable set to './TubeBenchmark' (x86_64).
-    (lldb) r
-    Process 22650 launched: './TubeBenchmark' (x86_64)
-    INFO: using default 10240 for option -npoints
-    INFO: using default 1 for option -nrep
-    INFO: using default 0 for option -rmin
-    INFO: using default 5 for option -rmax
-    INFO: using default 10 for option -dz
-    INFO: using default 0 for option -sphi
-    INFO: using default 6.28319 for option -dphi
-    PlacedVolume created after geometry is closed --> will not be registered
-    PlacedVolume created after geometry is closed --> will not be registered
-    Running Contains and Inside benchmark for 10240 points for 1 repetitions.
-    Generating points with bias 0.500000... Done in 0.006851 s.
-    Vectorized    - Inside: 0.001402s (0.001402s), Contains: 0.001406s (0.001406s), Inside/Contains: 1.00
-    Specialized   - Inside: 0.001209s (0.001209s), Contains: 0.001192s (0.001192s), Inside/Contains: 1.01
-    Unspecialized - Inside: 0.001211s (0.001211s), Contains: 0.001182s (0.001182s), Inside/Contains: 1.02
-    CUDA          - ScanGeometry found pvolumes2
-    Allocating placed volume Assertion failed: (&GeoManager::gCompactPlacedVolBuffer[i] != nullptr), function AllocatePlacedVolumesOnCoproc, file /usr/local/env/geometry/VecGeom/source/CudaManager.cpp, line 256.
-    Process 22650 stopped
-    * thread #1: tid = 0xf34e2, 0x00007fff8f97a866 libsystem_kernel.dylib`__pthread_kill + 10, queue = 'com.apple.main-thread', stop reason = signal SIGABRT
-        frame #0: 0x00007fff8f97a866 libsystem_kernel.dylib`__pthread_kill + 10
-    libsystem_kernel.dylib`__pthread_kill + 10:
-    -> 0x7fff8f97a866:  jae    0x7fff8f97a870            ; __pthread_kill + 20
-       0x7fff8f97a868:  movq   %rax, %rdi
-       0x7fff8f97a86b:  jmp    0x7fff8f977175            ; cerror_nocancel
-       0x7fff8f97a870:  retq   
-    (lldb) bt
-    * thread #1: tid = 0xf34e2, 0x00007fff8f97a866 libsystem_kernel.dylib`__pthread_kill + 10, queue = 'com.apple.main-thread', stop reason = signal SIGABRT
-      * frame #0: 0x00007fff8f97a866 libsystem_kernel.dylib`__pthread_kill + 10
-        frame #1: 0x00007fff8701735c libsystem_pthread.dylib`pthread_kill + 92
-        frame #2: 0x00007fff8dd67b1a libsystem_c.dylib`abort + 125
-        frame #3: 0x00007fff8dd319bf libsystem_c.dylib`__assert_rtn + 321
-        frame #4: 0x0000000104f1e945 libvecgeomcuda.so`vecgeom::cxx::CudaManager::AllocatePlacedVolumesOnCoproc(this=0x00000001000ac838) + 277 at CudaManager.cpp:256
-        frame #5: 0x0000000104f1c870 libvecgeomcuda.so`vecgeom::cxx::CudaManager::AllocateGeometry(this=0x00000001000ac838) + 1424 at CudaManager.cpp:311
-        frame #6: 0x0000000104f1a147 libvecgeomcuda.so`vecgeom::cxx::CudaManager::Synchronize(this=0x00000001000ac838) + 183 at CudaManager.cpp:66
-        frame #7: 0x0000000104f0f272 libvecgeomcuda.so`vecgeom::Benchmarker::GetVolumePointers(this=0x00007fff5fbfe630, volumesGpu=0x00007fff5fbfce48) + 98 at Benchmarker.cpp:2670
-        frame #8: 0x0000000104ebbda9 libvecgeomcuda.so`vecgeom::Benchmarker::RunInsideCuda(this=0x00007fff5fbfe630, posX=0x000000010b805c00, posY=0x000000010b819c00, posZ=0x000000010b82dc00, contains=0x000000010b867a00, inside=0x000000010b86a200) + 329 at Benchmarker.cu:78
-        frame #9: 0x000000010005580e TubeBenchmark`vecgeom::Benchmarker::RunInsideBenchmark(this=0x00007fff5fbfe630) + 3806 at Benchmarker.cpp:723
-        frame #10: 0x00000001000548b8 TubeBenchmark`vecgeom::Benchmarker::RunBenchmark(this=0x00007fff5fbfe630) + 104 at Benchmarker.cpp:623
-        frame #11: 0x00000001000027bb TubeBenchmark`benchmark(rmin=0, rmax=5, dz=10, sphi=0, dphi=6.2831853071795862, npoints=10240, nrep=1) + 523 at TubeBenchmark.cpp:29
-        frame #12: 0x0000000100003013 TubeBenchmark`main(argc=1, argv=0x00007fff5fbfee18) + 1827 at TubeBenchmark.cpp:42
-        frame #13: 0x00007fff8aded5fd libdyld.dylib`start + 1
-        frame #14: 0x00007fff8aded5fd libdyld.dylib`start + 1
-    (lldb) 
-
-    (lldb) f 10
-    frame #10: 0x00000001000548b8 TubeBenchmark`vecgeom::Benchmarker::RunBenchmark(this=0x00007fff5fbfe630) + 104 at Benchmarker.cpp:623
-       620  {
-       621    assert(fWorld != nullptr);
-       622    int errorcode = 0;
-    -> 623    errorcode += RunInsideBenchmark();
-       624    errorcode += RunToInBenchmark();
-       625    errorcode += RunToOutBenchmark();
-       626    if (fMeasurementCount == 1) errorcode += CompareMetaInformation();
-
-    (lldb) f 9
-    frame #9: 0x000000010005580e TubeBenchmark`vecgeom::Benchmarker::RunInsideBenchmark(this=0x00007fff5fbfe630) + 3806 at Benchmarker.cpp:723
-       720      if (fOkToRunROOT) RunInsideRoot(containsRoot);
-       721  #endif
-       722  #ifdef VECGEOM_CUDA
-    -> 723      RunInsideCuda(fPointPool->x(), fPointPool->y(), fPointPool->z(), containsCuda, insideCuda);
-       724  #endif
-       725    }
-
-    (lldb) f 8
-    frame #8: 0x0000000104ebbda9 libvecgeomcuda.so`vecgeom::Benchmarker::RunInsideCuda(this=0x00007fff5fbfe630, posX=0x000000010b805c00, posY=0x000000010b819c00, posZ=0x000000010b82dc00, contains=0x000000010b867a00, inside=0x000000010b86a200) + 329 at Benchmarker.cu:78
-       75     if (fVerbosity > 0) printf("CUDA          - ");
-       76   
-       77     std::list<CudaVolume> volumesGpu;
-    -> 78     GetVolumePointers(volumesGpu);
-       79   
-       80     vecgeom::cuda::LaunchParameters launch = vecgeom::cuda::LaunchParameters(fPointCount);
-
-    (lldb) f 7
-    frame #7: 0x0000000104f0f272 libvecgeomcuda.so`vecgeom::Benchmarker::GetVolumePointers(this=0x00007fff5fbfe630, volumesGpu=0x00007fff5fbfce48) + 98 at Benchmarker.cpp:2670
-       2667 void Benchmarker::GetVolumePointers(std::list<DevicePtr<cuda::VPlacedVolume>> &volumesGpu)
-       2668 {
-       2669   CudaManager::Instance().LoadGeometry(GetWorld());
-    -> 2670   CudaManager::Instance().Synchronize();
-       2671   for (std::list<VolumePointers>::const_iterator v = fVolumes.begin(); v != fVolumes.end(); ++v) {
-       2672     volumesGpu.push_back(CudaManager::Instance().LookupPlaced(v->Specialized()));
-       2673   }
-
-    (lldb) f 6
-    frame #6: 0x0000000104f1a147 libvecgeomcuda.so`vecgeom::cxx::CudaManager::Synchronize(this=0x00000001000ac838) + 183 at CudaManager.cpp:66
-       63   
-       64     // Populate the memory map with GPU addresses
-       65   
-    -> 66     AllocateGeometry();
-       67   
-       68     // Create new objects with pointers adjusted to point to GPU memory, then
-       69     // copy them to the allocated memory locations on the GPU.
-
-    (lldb) f 5
-    frame #5: 0x0000000104f1c870 libvecgeomcuda.so`vecgeom::cxx::CudaManager::AllocateGeometry(this=0x00000001000ac838) + 1424 at CudaManager.cpp:311
-       308  
-       309    // the allocation for placed volumes is a bit different (due to compact buffer treatment), so we call a specialized
-       310    // function
-    -> 311    AllocatePlacedVolumesOnCoproc(); // for placed volumes
-       312  
-       313    // this we should only do if not using inplace transformations
-       314    AllocateCollectionOnCoproc("transformations", transformations_);
-
-    (lldb) f 4
-    frame #4: 0x0000000104f1e945 libvecgeomcuda.so`vecgeom::cxx::CudaManager::AllocatePlacedVolumesOnCoproc(this=0x00000001000ac838) + 277 at CudaManager.cpp:256
-       253    size_t totalSize = 0;
-       254    // calculate total size of buffer on GPU to hold the GPU copies of the collection
-       255    for (unsigned int i = 0; i < size; ++i) {
-    -> 256      assert(&GeoManager::gCompactPlacedVolBuffer[i] != nullptr);
-       257      totalSize += (&GeoManager::gCompactPlacedVolBuffer[i])->DeviceSizeOf();
-       258    }
-       259  
-
-
-
-
-::
-
-    239 // a special treatment for placed volumes to ensure same order of placed volumes in compact buffer
-    240 // as on CPU
-    241 bool CudaManager::AllocatePlacedVolumesOnCoproc()
-    242 {
-    243   // check if geometry is closed
-    244   if (!GeoManager::Instance().IsClosed()) {
-    245     std::cerr << "Warning: Geometry on host side MUST be closed before copying to DEVICE\n";
-    246   }
-    247 
-    248   // we start from the compact buffer on the CPU
-    249   unsigned int size = placed_volumes_.size();
-    250 
-    251   //   if (verbose_ > 2) std::cout << "Allocating placed volume ";
-    252   std::cerr << "Allocating placed volume ";
-    253   size_t totalSize = 0;
-    254   // calculate total size of buffer on GPU to hold the GPU copies of the collection
-    255   for (unsigned int i = 0; i < size; ++i) {
-    256     assert(&GeoManager::gCompactPlacedVolBuffer[i] != nullptr);
-    257     totalSize += (&GeoManager::gCompactPlacedVolBuffer[i])->DeviceSizeOf();
-    258   }
-    259 
-
-
-::
-
-    simon:VecGeom.build blyth$ ./OrbBenchmark 
-    INFO: using default 10240 for option -npoints
-    INFO: using default 1 for option -nrep
-    INFO: using default 3 for option -r
-    PlacedVolume created after geometry is closed --> will not be registered
-    PlacedVolume created after geometry is closed --> will not be registered
-    Running Contains and Inside benchmark for 10240 points for 1 repetitions.
-    Generating points with bias 0.500000... Done in 0.007703 s.
-    Vectorized    - Inside: 0.001440s (0.001440s), Contains: 0.001325s (0.001325s), Inside/Contains: 1.09
-    Specialized   - Inside: 0.001386s (0.001386s), Contains: 0.001216s (0.001216s), Inside/Contains: 1.14
-    Unspecialized - Inside: 0.001507s (0.001507s), Contains: 0.001328s (0.001328s), Inside/Contains: 1.13
-    CUDA          - ScanGeometry found pvolumes2
-    Allocating placed volume Assertion failed: (&GeoManager::gCompactPlacedVolBuffer[i] != nullptr), function AllocatePlacedVolumesOnCoproc, file /usr/local/env/geometry/VecGeom/source/CudaManager.cpp, line 256.
-    Abort trap: 6
-
-
-Huh in debugger looks like the assert should be satisfied::
-
-    (lldb) f 4
-    frame #4: 0x0000000104f14945 libvecgeomcuda.so`vecgeom::cxx::CudaManager::AllocatePlacedVolumesOnCoproc(this=0x00000001000a8418) + 277 at CudaManager.cpp:256
-       253    size_t totalSize = 0;
-       254    // calculate total size of buffer on GPU to hold the GPU copies of the collection
-       255    for (unsigned int i = 0; i < size; ++i) {
-    -> 256      assert(&GeoManager::gCompactPlacedVolBuffer[i] != nullptr);
-       257      totalSize += (&GeoManager::gCompactPlacedVolBuffer[i])->DeviceSizeOf();
-       258    }
-       259  
-    (lldb) p i
-    (unsigned int) $0 = 0
-    (lldb) p GeoManager::gCompactPlacedVolBuffer
-    (vecgeom::cxx::VPlacedVolume *) $1 = 0x000000010b6284b0
-    (lldb) p GeoManager::gCompactPlacedVolBuffer[0]
-    (vecgeom::cxx::VPlacedVolume) $2 = {
-      id_ = 0
-      label_ = "paraboloid"
-      logical_volume_ = 0x00007fff5fbfec48
-      fTransformation = {
-        fTranslation = ([0] = 0, [1] = 0, [2] = 0)
-        fRotation = ([0] = 1, [1] = 0, [2] = 0, [3] = 0, [4] = 1, [5] = 0, [6] = 0, [7] = 0, [8] = 1)
-        fIdentity = true
-        fHasRotation = false
-        fHasTranslation = false
-      }
-      bounding_box_ = 0x0000000000000000
-    }
-    (lldb) p GeoManager::gCompactPlacedVolBuffer
-    (vecgeom::cxx::VPlacedVolume *) $3 = 0x000000010b6284b0
-    (lldb) p i
-    (unsigned int) $4 = 0
-    (lldb) p GeoManager::gCompactPlacedVolBuffer[i]
-    (vecgeom::cxx::VPlacedVolume) $5 = {
-      id_ = 0
-      label_ = "paraboloid"
-      logical_volume_ = 0x00007fff5fbfec48
-      fTransformation = {
-        fTranslation = ([0] = 0, [1] = 0, [2] = 0)
-        fRotation = ([0] = 1, [1] = 0, [2] = 0, [3] = 0, [4] = 1, [5] = 0, [6] = 0, [7] = 0, [8] = 1)
-        fIdentity = true
-        fHasRotation = false
-        fHasTranslation = false
-      }
-      bounding_box_ = 0x0000000000000000
-    }
-    (lldb) p &GeoManager::gCompactPlacedVolBuffer[i]
-    (vecgeom::cxx::VPlacedVolume *) $6 = 0x000000010b6284b0
-    (lldb) p nullptr
-    (nullptr_t) $7 = 0x0000000000000000
-    (lldb) p &GeoManager::gCompactPlacedVolBuffer[i] != nullptr
-    (bool) $8 = true
-    (lldb) 
-
-
-Smth fishy::
-
-    (lldb) p &GeoManager::gCompactPlacedVolBuffer[i]
-    (vecgeom::cxx::VPlacedVolume *) $4 = 0x000000010b628540
-    (lldb) p vpv
-    (vecgeom::cxx::VPlacedVolume *) $5 = 0x0000000000000000
-    (lldb) p size
-    (unsigned int) $6 = 2
-
-::
-
-    simon:VecGeom.build blyth$ ./OrbBenchmark
-    INFO: using default 10240 for option -npoints
-    INFO: using default 1 for option -nrep
-    INFO: using default 3 for option -r
-    PlacedVolume created after geometry is closed --> will not be registered
-    PlacedVolume created after geometry is closed --> will not be registered
-    Running Contains and Inside benchmark for 10240 points for 1 repetitions.
-    Generating points with bias 0.500000... Done in 0.008925 s.
-    Vectorized    - Inside: 0.001493s (0.001493s), Contains: 0.001388s (0.001388s), Inside/Contains: 1.08
-    Specialized   - Inside: 0.001301s (0.001301s), Contains: 0.001245s (0.001245s), Inside/Contains: 1.04
-    Unspecialized - Inside: 0.001467s (0.001467s), Contains: 0.001243s (0.001243s), Inside/Contains: 1.18
-    CUDA          - ScanGeometry found pvolumes2
-    Starting synchronization to GPU.
-    Allocating geometry on GPU...Allocating logical volumes... OK
-    Allocating unplaced volumes... OK
-    Allocating placed volume Assertion failed: (vpv != nullptr), function AllocatePlacedVolumesOnCoproc, file /usr/local/env/geometry/VecGeom/source/CudaManager.cpp, line 259.
-    Abort trap: 6
-    simon:VecGeom.build blyth$ 
-
-
-
-
-
 
 EOU
 }
+vecgeom-edir(){ echo $(env-home)/geometry/vecgeom ; }
 vecgeom-sdir(){ echo $(local-base)/env/geometry/VecGeom ; }
 vecgeom-bdir(){ echo $(vecgeom-dir).build ; }
 vecgeom-idir(){ echo $(vecgeom-dir).install ; }
 vecgeom-dir(){  echo $(vecgeom-sdir) ; }
 
 vecgeom-cd(){   cd $(vecgeom-dir); }
+vecgeom-ecd(){  cd $(vecgeom-edir); }
 vecgeom-scd(){  cd $(vecgeom-sdir); }
 vecgeom-bcd(){  cd $(vecgeom-bdir); }
 vecgeom-icd(){  cd $(vecgeom-idir); }
@@ -449,6 +186,7 @@ vecgeom-get(){
    [ ! -d "$(vecgeom-name)" ] && git clone $(vecgeom-url) 
 }
 
+vecgeom-env(){      elocal- ; cuda- ; }
 
 
 vecgeom-cmake(){
@@ -477,8 +215,19 @@ vecgeom--()
 }
 
 
-
 vecgeom-t()
+{
+    vecgeom-bcd
+
+    lldb ./OrbBenchmark
+
+
+# (lldb) b GeoManager::RegisterPlacedVolume
+
+
+}
+
+vecgeom-nvcc()
 {
     /usr/local/cuda/bin/nvcc \
           /usr/local/env/geometry/VecGeom/source/CudaManager_0.cu \

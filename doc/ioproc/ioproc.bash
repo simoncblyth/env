@@ -41,7 +41,7 @@ EOU
 }
 
 
-ioproc-conf(){ echo chep2016 ; }
+ioproc-conf(){ echo ${IOPROC_CONF:-chep2016} ; }
 ioproc-dir(){ echo $(local-base)/env/doc/ioproc/$(ioproc-conf) ; }
 ioproc-edir(){ echo $(env-home)/doc/ioproc/$(ioproc-conf) ; }
 ioproc-cd(){  cd $(ioproc-dir); }
@@ -66,6 +66,8 @@ ioproc-get(){
 
 ioproc-pdf(){  echo $(ioproc-dir)/$(ioproc-conf).pdf ; }
 ioproc-open(){ open $(ioproc-pdf) ; }
+ioproc-guide(){ open $(ioproc-dir)/JPCSLaTeXGuidelines.pdf ; }
+
 ioproc-etex(){ echo $(ioproc-edir)/$(ioproc-conf).tex ; }
 ioproc-edit(){ vi $(ioproc-etex) ; }
 ioproc-make(){
@@ -92,5 +94,14 @@ ioproc--()
     ioproc-open 
 }
 
+ioproc-info(){ cat << EOI
 
+   ioproc-conf : $(ioproc-conf)
+   ioproc-etex : $(ioproc-etex)
+   ioproc-pdf  : $(ioproc-pdf)
+
+
+
+EOI
+}
 
