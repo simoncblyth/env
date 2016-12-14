@@ -14,6 +14,15 @@ IOP Conference Proceedings Series
 * http://iopscience.iop.org/issue/1742-6596/664/7
 
 
+chep2016
+----------
+
+* Submission Deadline Monday February 6, 2017
+* All 15-minute Oral Presentations and Poster Presentations have a limit of 8 pages.
+
+See: presentation-writeup for planning and text creation
+
+
 Initialize .tex sources in env
 ---------------------------------
 
@@ -27,7 +36,6 @@ named after the conference, renaming to eg chep2016.tex
 
 FUNCTIONS
 ----------
-
 
 *ioproc-edit*
      edit env .tex sources 

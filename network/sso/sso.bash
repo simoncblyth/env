@@ -15,6 +15,19 @@ CERN SSO and IHEP SSO both giving problems from Taiwan ??
   Thus guy found a malformed date in SAML message to be the cause of same issue
 
 
+
+NVIDIA webpage informs me
+---------------------------
+
+Your browser blocks 3rd party cookies by default. Click on this page to allow
+3rd party cookies from our partner AdRoll to help tailor ads you see. Learn
+about 3rd party ads or opt out of AdRoll cookies by clicking here. This message
+only appears once.
+
+Could this setting be related to SSO difficulties
+
+
+
 CERN Single Sign-On using Google account
 -------------------------------------------
 

@@ -124,6 +124,12 @@ presentation-make(){
    make $*
 }
 
+
+presentation-writeup(){
+   presentation-cd
+   vi opticks_writeup.rst
+}
+
 presentation-remote(){
    echo simoncblyth.bitbucket.org
 }
