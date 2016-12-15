@@ -44,6 +44,47 @@ Daya Bay and JUNO Neutrino detectors.
 \section{Introduction}
 These guidelines show how to prepare articles for publication in \jpcs\ using \LaTeX\ so they can be published quickly and accurately. Articles will be refereed by the \corg s but the accepted PDF will be published with no editing, proofreading or changes to layout. It is, therefore, the author's responsibility to ensure that the content and layout are correct.  This document has been prepared using \cls\ so serves as a sample document. The class file and accompanying documentation are available from \verb"http://jpcs.iop.org".
 
+
+
+
+\section{NVIDIA\textregistered OptiX\texttrademark}
+
+NVIDIA\textregistered\ OptiX\texttrademark \cite{optixPaper} \cite{optixSite} 
+is a general-purpose ray tracing engine designed for NVIDIA GPUs
+that balances ease of use with performance by exposing a highly accessible 
+single ray programming model while still remaining competitive with manually 
+optimized custom approaches \cite{optixPaper} \cite{understanding}.  
+The core principle of OptiX is a that ray tracing algorithms can be implemented 
+from the combination of a small set of user provided programmable operations
+into a ray tracing pipeline in a manner directly analogous to how OpenGL 
+and Direct3D programmable shaders combine to create rasterization pipelines.
+These operations are provided to OptiX in the form of CUDA programs \cite{cudaPaper} \cite{cudaURL} 
+including: ray generation, object intersection and closest hit programs that operate on 
+single rays and a bounding box program that provides the bounds of each geometry primitive.   
+These programs together with a ray payload data structure are combined 
+into a ray tracing kernel by a domain optimized Just-In-Time compiler.
+
+The central data structure used by ray tracing is a spatial index known 
+as an acceleration structure which sorts a scene’s primitives 
+into spatial groups. Heirarchical tree structures are typically used
+with leaves representing the primitives.  Rejection of higher level
+volumes allows all contained volumes to be removed from the intersection
+search. OptiX provides a simple interface to associate acceleration structures 
+with different parts of a scene geometry but all the details of creation, updating 
+and traversal are handled by OptiX internally using the geometrical information provided by the 
+bounding box program.
+
+
+* workload scheduling across multiple GPUs 
+
+
+
+
+ 
+
+
+
+
 \section{Preparing your paper}
 \verb"jpconf" requires \LaTeXe\ and  can be used with other package files such
 as those loading the AMS extension fonts 
@@ -542,14 +583,24 @@ Recent developments in Geant4
 {\it Nucl Instrum Methods Phys Res} A {\bf 835} pp 186--225
 
 
-\bibitem{optixA} 
+\bibitem{understanding}
+Aila T and Laine S 
+2009
+Understanding the efficiency of ray traversal on GPUs
+{\it Proceedings of the Conference on High Performance Graphics} pp 145--149
+
+
+\bibitem{optixPaper} 
 Parker S, Bigler J, Dietrich A, Friedrich H, Hoberock J, Luebke D, McAllister D, McGuire M, Morley K, Robison A and Stich M 
 2010 
 OptiX: a general purpose ray tracing engine
 {\it ACM Trans. Graph. : Conf. Series} {\bf 29} p 66 
 
-\bibitem{optixB} 
+\bibitem{optixSite} 
 NVIDIA{\textregistered} OptiX\texttrademark~ webpage {\tt https://developer.nvidia.com/optix}
+
+\bibitem{optixGuide}
+OptiX Programming Guide 3.0.0 {\tt http://developer.download.nvidia.com/assets/tools/files/optix/3.0.0/NVIDIA-OptiX-SDK-3.0.0-OptiX\_Programming\_Guide\_3.0.0.pdf}
 
 \bibitem{newton} 
 Newton I 
@@ -569,12 +620,16 @@ Van der Walt S, Colbert S, Varoquaux G
 The NumPy array: a structure for efficient numerical computation
 {\it Comput. Sci. Eng.} {\bf 13} pp 22--30
 
-
-\bibitem{cuda}
+\bibitem{cudaPaper}
 Nickolls J, Buck I, Garland M and Skadron K 
 2008
 Scalable Parallel Programming with CUDA
 {\it ACM Queue} {\bf 6} pp 40--53
+
+\bibitem{cudaURL}
+CUDA URL {\tt http://www.nvidia.com/object/cuda\_home\_new.html}
+
+
 
 \bibitem{thrust}
 Bell N and Hoberock J 

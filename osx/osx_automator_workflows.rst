@@ -109,10 +109,25 @@ Follow along:
 
 
 
+Modifying *Combine PDFs* Automator Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Find and open, need quotes for both find and open as name contains a space::
+
+    delta:~ blyth$ mdfind "Combine PDFs.workflow"
+    /Users/blyth/Library/Services/Combine PDFs.workflow
+    delta:~ blyth$ open "`!!`"
+    open "`mdfind "Combine PDFs.workflow"`"
 
 
+Creating *Flatten_PDF* Automator Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* wanted to be able to combine a multiple page PDF eg a 2 page PDF with front/back scans
+  positioned not to overlap into a 1 page PDF with front/back scans on same page
+  But seems no Automator action can do this.
 
+* manual way is to use Keynote and drag the PDFs into it, and then print as PDF
 
 
 

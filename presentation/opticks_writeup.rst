@@ -75,6 +75,24 @@ neutrino detection special features
 * unification of graphics and computation
 
 
+Ray Tracing Refs
+-------------------
+
+* https://mediatech.aalto.fi/~timo/
+
+
+
+Ray Tracing and NVIDIA OptiX
+-----------------------------------
+
+Ray tracing is an active area of computer science research 
+
+
+NVIDIA OptiX
+--------------
+
+
+
 
 
 
