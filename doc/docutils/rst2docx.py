@@ -45,6 +45,9 @@ import docutils.nodes as nodes
 
 
 from docx.oxml.shared import OxmlElement, qn
+from docx.enum.style import WD_STYLE_TYPE
+from docx.shared import Inches 
+from docx.shared import Pt
 
 
 
@@ -125,6 +128,31 @@ class Writer(writers.Writer):
         self.uribase = uribase
         self.docx = Document()
 
+        self.make_verbatim_style("VerbatimStyle", char=False)  
+        self.make_verbatim_style("CharVerbatimStyle", char=True)  
+
+
+    def make_verbatim_style(self, name, char=False):
+
+        if char:
+            sty = self.docx.styles.add_style(name, WD_STYLE_TYPE.CHARACTER)
+        else:
+            sty = self.docx.styles.add_style(name, WD_STYLE_TYPE.PARAGRAPH) 
+        pass
+
+        font = sty.font 
+        font.name = 'Courier New'
+        font.size = Pt(8)       
+
+        if not char:
+            pfmt = sty.paragraph_format
+            pfmt.left_indent = Inches(0.0)
+            pfmt.right_indent = Inches(0.0)
+        pass
+
+        return sty
+
+
     def resolve(self, uri):
         path = os.path.join(self.uribase, uri)
         return os.path.abspath(path)
@@ -202,6 +230,13 @@ class Text(list):
 
 
 class Translator(BaseTranslator):
+
+    verbatim_start = "{\\small\\begin{verbatim}"
+    verbatim_end = "\\end{verbatim}}"
+
+    texttt_start = "\\texttt{"
+    texttt_end = "}"
+
     def __init__(self, document, docx, writer, mode="create", previsit=None ):
         BaseTranslator.__init__(self, document)
         self.docx = docx
@@ -223,6 +258,7 @@ class Translator(BaseTranslator):
         self.ininfo = False
         self.inraw = False
         self.incaption = False
+        self.inliteral = False
 
         self.title_count = 0 
         self.titles = [] 
@@ -237,8 +273,10 @@ class Translator(BaseTranslator):
         self.date = None
         self.newline = False 
 
+
     def astext(self):
         return ""
+
 
     def visit_section(self, node):
         self.level += 1
@@ -253,7 +291,10 @@ class Translator(BaseTranslator):
 
     def visit_paragraph(self, node):
         if self.ininfo or self.pre:return
-        parax = self.docx.add_paragraph("", self.parastyle)
+        self.start_paragraph( "", self.parastyle )
+
+    def start_paragraph(self, txt, parastyle):
+        parax = self.docx.add_paragraph(txt, self.parastyle)
         self.parax = parax
 
     def depart_paragraph(self, node):
@@ -285,7 +326,8 @@ class Translator(BaseTranslator):
         """
         Most text nodes appears inside paragraph nodes, the exceptions are titles and captions.
         """
-        if self.ininfo or self.inraw:return
+        if self.ininfo or self.inraw or self.inliteral:return
+
         txt = node_astext(node)
 
         if self.pretext is not None:
@@ -329,23 +371,42 @@ class Translator(BaseTranslator):
         self.para_style.pop()
 
     def visit_raw(self, node):
+
+        if self.pre:return
         fmt = node.attributes.get('format',None)
         self.inraw = True
 
-        txt = node_astext(node)
-        if txt == "\\newline":
+        text = node.astext()
+        #txt = node_astext(node)
+        if text == "\\newline":
             #log.info("visit_raw newline spotted")
             if self.parax is not None and not self.pre:
                 self.parax.add_run("\n", self.charstyle)
             pass
-        elif txt == "TOC":
+        elif text == "TOC":
             if self.previsit is not None:
                 log.info("visit_raw TOC spotted : inserting tocx")
                 self.tocx(self.previsit) 
             pass
+        elif text.startswith(self.verbatim_start) and text.endswith(self.verbatim_end):
+
+            btxt = text[len(self.verbatim_start):-len(self.verbatim_end)]  
+            log.info("found verbatim txt block, lines %d " % len(btxt.split("\n")) )
+            print "\n".join(btxt.split("\n"))
+            self.docx.add_paragraph(btxt, style="VerbatimStyle")
+
+        elif text.startswith(self.texttt_start) and text.endswith(self.texttt_end):
+            ttxt = text[len(self.texttt_start):-len(self.texttt_end)]  
+
+            self.parax.add_run(ttxt, "CharVerbatimStyle")
+            #self.docx.add_paragraph(ttxt, style="VerbatimStyle")
+            log.info("found inline texttt \"%s\" " % ttxt )
+        else:
+            log.info("skipping visit_raw node with text \"%s\" " % text) 
         pass
         #self.report("visit_raw", node) 
     def depart_raw(self, node):
+        if self.pre:return
         #self.report("depart_raw", node) 
         self.inraw = False
 
@@ -360,6 +421,26 @@ class Translator(BaseTranslator):
         pass
     def depart_literal(self, node):
         self.report("depart_literal", node) 
+
+    def visit_literal_block(self, node):
+        """
+        Although the source is cleaner with literal blocks rather than 
+        repurposing the latex visit_raw am continuing to 
+        use the latter as that means can use the standard Sphinx rst to latex
+        machinery and from the same source produce the docx with this rst2docx.py 
+        script
+        """
+        if self.pre:return
+        text = node.astext()
+        log.info("visit_literal_block lines [%d]" % len(text.split("\n")))
+        self.inliteral = True
+        self.docx.add_paragraph(text, style="VerbatimStyle")
+        log.info("visit_literal_block [%s]" % text)
+        
+    def depart_literal_block(self, node):
+        if self.pre:return
+        self.inliteral = False
+        log.info("depart_literal_block")
 
     def toc(self):
         for level, label in self.titles:
