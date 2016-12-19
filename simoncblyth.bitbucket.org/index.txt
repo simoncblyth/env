@@ -36,6 +36,14 @@ Opticks Presentations
 Late 2016
 ~~~~~~~~~~~~
 
+
+http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html (2 Dec 2016, Paris)
+
+    JUNO Workshop, LLR, Ecole Polytechnique 
+
+    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
+
 http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html (11 Oct 2016, CHEP Conference, San Francisco)
 
     CHEP 2016 Conference
@@ -129,6 +137,13 @@ http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html (
 
 reports
 --------
+
+Dec 2016
+~~~~~~~~~
+
+* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-dec-2016.docx 
+* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-dec-2016.pdf
+* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-dec-2016.rst 
 
 May 2016
 ~~~~~~~~~
