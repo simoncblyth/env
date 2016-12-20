@@ -21,6 +21,18 @@ VR SDKs
 * http://www.pcgamer.com/amd-liquidvr-vs-nvidia-vrworks-the-sdk-wars/
 
 
+Wireless Vive
+---------------
+
+* :google:`wireless vive`
+
+* https://uploadvr.com/tpcast-wireless-vive-kit-works/
+* https://techcrunch.com/2016/12/15/rivvr-brings-wireless-vr-to-the-oculus-rift-and-htc-vive/
+* https://vrworld.com/2016/11/16/htc-2017-vive-design-wireless-vr/
+
+* :google:`wireless vive tpcast rivvr`
+
+
 NVIDIA VR Funhouse Source on Github
 ---------------------------------------
 

@@ -29,6 +29,99 @@ CSG : Constructive Solid Geometry
 
 
 
+Geant4 CSG
+-----------
+
+::
+
+   g4-cls G4UnionSolid
+   g4-cls G4BooleanSolid 
+   g4-cls G4VSolid
+
+
+CSG logic picking which distance to which constituent done in eg G4UnionSolid::
+
+    097     G4double DistanceToIn( const G4ThreeVector& p,
+     98                            const G4ThreeVector& v  ) const ;
+     99 
+    100     G4double DistanceToIn( const G4ThreeVector& p ) const ;
+    101 
+    102     G4double DistanceToOut( const G4ThreeVector& p,
+    103                             const G4ThreeVector& v,
+    104                             const G4bool calcNorm=false,
+    105                                   G4bool *validNorm=0,
+    106                                   G4ThreeVector *n=0 ) const ;
+    107 
+    108     G4double DistanceToOut( const G4ThreeVector& p ) const ;
+
+
+Pure virtuals in base G4VSolid::
+
+    119     virtual EInside Inside(const G4ThreeVector& p) const = 0;
+    120       // Returns kOutside if the point at offset p is outside the shapes
+    121       // boundaries plus Tolerance/2, kSurface if the point is <= Tolerance/2
+    122       // from a surface, otherwise kInside.
+    123 
+    124     virtual G4ThreeVector SurfaceNormal(const G4ThreeVector& p) const = 0;
+    125       // Returns the outwards pointing unit normal of the shape for the
+    126       // surface closest to the point at offset p.
+    127 
+    128     virtual G4double DistanceToIn(const G4ThreeVector& p,
+    129                                   const G4ThreeVector& v) const = 0;
+    130       // Return the distance along the normalised vector v to the shape,
+    131       // from the point at offset p. If there is no intersection, return
+    132       // kInfinity. The first intersection resulting from `leaving' a
+    133       // surface/volume is discarded. Hence, it is tolerant of points on
+    134       // the surface of the shape.
+    135 
+    136     virtual G4double DistanceToIn(const G4ThreeVector& p) const = 0;
+    137       // Calculate the distance to the nearest surface of a shape from an
+    138       // outside point. The distance can be an underestimate.
+    139 
+    140     virtual G4double DistanceToOut(const G4ThreeVector& p,
+    141                    const G4ThreeVector& v,
+    142                    const G4bool calcNorm=false,
+    143                    G4bool *validNorm=0,
+    144                    G4ThreeVector *n=0) const = 0;
+    145       // Return the distance along the normalised vector v to the shape,
+    146       // from a point at an offset p inside or on the surface of the shape.
+    147       // Intersections with surfaces, when the point is < Tolerance/2 from a
+    148       // surface must be ignored.
+    149       // If calcNorm==true:
+    150       //    validNorm set true if the solid lies entirely behind or on the
+    151       //              exiting surface.
+    152       //    n set to exiting outwards normal vector (undefined Magnitude).
+    153       //    validNorm set to false if the solid does not lie entirely behind
+    154       //              or on the exiting surface
+    155       // If calcNorm==false:
+    156       //    validNorm and n are unused.
+    157       //
+    158       // Must be called as solid.DistanceToOut(p,v) or by specifying all
+    159       // the parameters.
+    160 
+    161     virtual G4double DistanceToOut(const G4ThreeVector& p) const = 0;
+    162       // Calculate the distance to the nearest surface of a shape from an
+    163       // inside point. The distance can be an underestimate.
+    164 
+
+
+
+
+
+github CSG
+------------
+
+* https://github.com/jtramm/ConstructiveSolidGeometry.jl
+* https://github.com/jtramm/ConstructiveSolidGeometry.jl/blob/master/examples/1-Introduction.ipynb
+
+
+Embree CSG : Computer Science Thesis describing Embree CSG
+-------------------------------------------------------------
+
+* https://dspace.cvut.cz/bitstream/handle/10467/65282/F3-DP-2016-Karaffova-Marketa-Efektivni_sledovani_paprsku_v_CSG_modelech.pdf?sequence=-1
+* ~/opticks_refs/F3-DP-2016-Karaffova-Marketa-Efektivni_sledovani_paprsku_v_CSG_modelech.pdf
+
+
 :google:`GPU CSG boolean Roth`
 ---------------------------------
 
@@ -182,6 +275,79 @@ leaving the task narrowing down to find the closest intersect tmin to OptiX
 
 How would a boolean_intersect look ? 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+CSG OptiX 
+--------------------------------------------------------
+
+
+
+Constructive solid geometry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://devtalk.nvidia.com/default/topic/771034/?comment=4296423
+
+sphere/box intersection, nljones:
+
+Your ray payload needs to contain a bit that indicates whether the ray is in a
+sphere. Set it to one upon entering the sphere and zero upon leaving. 
+
+## sign(N.D) determines if entering/leaving the shape
+
+Your closest hit program for the sphere sends a new ray in the same direction with
+this bit set. Your closest hit program for the box sends a new ray in the same
+direction if the bit is one and sets the color of the ray payload if the bit is
+zero.
+
+In order to render the interface between the box and shere where they touch,
+you also need to keep a bit indicating whether the ray is inside the box.
+
+
+Example code for CSG in OptiX
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://devtalk.nvidia.com/default/topic/967816/?comment=4985663
+
+dlacewell:
+
+.. haven't thought about this too much, but for a limited number of closed
+shapes, you could use per ray data (PRD) to store a hit counter, or really just
+a flag, for each shape. 
+
+## bitfield in per-ray-data with 1 or 2 bits for each basis shape could handle
+## boolean operations involving small numbers of shapes (as is usual in G4 geometries)  
+
+Use the closest hit program to either terminate the ray
+and shade, or toggle the hit flag in PRD for the current shape and continue the
+ray using rtTrace. 
+Terminate when all hit flags are toggled on at once, meaning
+that the current point is inside all the shapes.
+
+##  rtTerminateRay only available in AnyHit, so by this dlacewell presumably means 
+##  that can either accept a closest hit when per-ray-data flags are as they should
+##  be for the boolean expression being evaluated OR if not (when this is not a real surface)
+##  can call rtTrace again (from a modified starting position ? or tmin ) 
+
+For some shapes, you could use the geometric normals to determine whether the
+ray is entering or exiting, and then you might not need hit flags.
+
+It may also be possible to do this with an any-hit program for a very small
+number of shapes, by storing all intersections for the ray and sorting/shading
+them in the ray gen program. That would be slow if there were too many shapes.
+
+
+You could take optixSpherePP in the SDK and make some changes:
+
+* add another sphere to the scene, that uses the same material
+* add a geometry id variable to the sphere, and expose it as an attribute for the closest hit program
+* change the closest hit program to make one of the spheres completely 
+  transparent based on id, and continue the ray with rtTrace. 
+* Make the spheres semi-transparent. You still shoot a new ray with rtTrace, 
+  but composite the result with the current sphere color and opacity using per ray data.
+
+Once you get that all working, then it's probably not a big jump to CSG.
+
 
 
 
