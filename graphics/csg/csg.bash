@@ -29,6 +29,28 @@ CSG : Constructive Solid Geometry
 
 
 
+OpenCASCADE
+-------------
+
+* https://dev.opencascade.org/index.php?q=search/node/GPU
+* https://dev.opencascade.org/index.php?q=node/1173
+
+
+Spatially Efficient Tree for GPU ray tracing of CSG 
+-------------------------------------------------------
+
+* :google:`Spatially Efficient Tree Layout for GPU Ray-tracing of Constructive Solid Geometry Scenes`
+
+* https://scholar.google.com.tw/citations?view_op=view_citation&hl=en&user=23mu44wAAAAJ&citation_for_view=23mu44wAAAAJ:HE397vMXCloC
+
+
+Vadim Turlapov
+~~~~~~~~~~~~~~~
+
+* https://scholar.google.com.tw/citations?user=23mu44wAAAAJ&hl=en
+
+
+
 Geant4 CSG
 -----------
 
