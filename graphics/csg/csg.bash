@@ -170,16 +170,118 @@ Kensler state tables corrected in below page...
 
 * http://xrt.wikidot.com/doc:csg
 
-
 * http://xrt.wikidot.com/downloads
 
 XRT appears to be provided only as a Windows binary 
+
+
+XRT corrected Kensler algorithm pseudo-code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://xrt.wikidot.com/doc:csg
+
+Implementing the below in an intersect_boolean_solid program
+similar to those in oxrap/cu/hemi-pmt.cu seems most appropriate.
+
+The only sticky part is advancing tmin and re-intersecting, this
+probably means have to defer the rt*Intersection 
+calls to a higher level, meaning will need to pass normals
+identity and t values around. 
+
+* hmm dont want to duplicate intersect code, one version having 
+  the rt*Intersection calls and the other not though ?
+   
+* perhaps templating trickery can do this
+
+* hmm probably a higher level macro that conditionally 
+  uses the rtPotentialIntersection rtReportIntersection
+  functions based on a preprocessor switch can allow
+  the same base shape intersection code to be 
+  used as part of a boolean and as simple shape
+
+TODO: refactor hemi-pmt.cu into imp headers for each shape 
+
+
+::
+
+   // 3 action tables for Union/Intersection/Subtraction 
+
+    minA = minB = min // current nearest intersection
+
+    //
+    // rtIntersectionDistance 
+    //    parametric distance from the current ray’s origin to the closest intersection point yet discovered.
+    //    available to *intersection*, closest_hit, any_hit programs  
+    //
+
+    /// persumably for *intersection* this starts at the t value for the 
+    /// intersection of the ray with the bounding box ?
+    /// Which is why this solids primitive intersection code is being called.
+    ///
+
+
+    ( tA, NA ) = IntersectWithA( O, D, minA )
+    ( tB, NB ) = IntersectWithB( O, D, minB )
+
+    stateA = ClassifyEnterExitOrMiss( tA, NA )
+    stateB = ClassifyEnterExitOrMiss( tB, NB )
+
+
+    loop:
+         action = boolean_action_table [stateA, stateB] 
+         if 
+                   ReturnMiss ∈ action
+         then
+                   return miss
+
+         else if 
+                  ReturnA ∈ action
+             or ( ReturnAIfCloser ∈ action and tA <= tB ) 
+             or ( ReturnAIfFarther ∈ action and tA > tB ) 
+         then
+             return tA, NA
+
+         else if 
+                  ReturnB ∈ action
+             or ( ReturnBIfCloser ∈ action and tB <= tA )
+             or ( ReturnBIfFarther ∈ action and tB > tA )
+         then
+             if FlipB ∈ action then NB = -NB
+             return tB, NB
+
+         else if 
+                  AdvanceAAndLoop ∈ action
+             or ( AdvanceAAndLoopIfCloser ∈ action and tA <= tB ) 
+         then
+             minA = tA
+             ( tA, NA ) = IntersectWithA( O, D, minA ) 
+             stateA = ClassifyEnterExitOrMiss( tA, NA )
+
+         else if 
+                 AdvanceBAndLoop ∈ action
+            or ( AdvanceBAndLoopIfCloser ∈ action and tB <= tA ) 
+         then
+             minB = tB
+             ( tB, NB ) = IntersectWithB( O, D, minB ) 
+             stateB = ClassifyEnterExitOrMiss( tB, NB )
+         end if
+
+    end loop
+￼
+
+
 
 
 How to map the above described algorithm to OptiX ?
 -----------------------------------------------------
 
 
+rtTrace ?
+~~~~~~~~~~
+
+rtTrace can only be called from generate, closest_hit or miss progs
+and its too high level anyhow (it needs to take the geometry node instance
+as argument : usually top) ... so it is not appropriate for IntersectWithA 
 
 
 Selector
@@ -242,8 +344,9 @@ rtPotentialIntersection
     then rtReportIntersection will return false. Otherwise, it will return true.
 
 
-partitioned intersect
-~~~~~~~~~~~~~~~~~~~~~~~
+
+current partitioned intersect
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This assumes the primitive is chopped into single basis shape subparts.
 

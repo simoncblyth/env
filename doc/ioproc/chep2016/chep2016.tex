@@ -41,7 +41,10 @@ Validation and performance results are shown for the photomultiplier based
 Daya Bay and JUNO Neutrino detectors. 
 \end{abstract}
 
+
+
 \section{Introduction}
+% LOOK AT IDEA FLOW FROM MY PRESENTATIONS, USE THE SAME HERE
 
 A detailed understanding of the generation and propagation of optical 
 photons is vital to the design, operation and analysis of photomultiplier
@@ -49,50 +52,128 @@ based neutrino detectors such as the Daya Bay~\cite{dyb} and JUNO\cite{juno} exp
 Detailed detector simulations are essential to develop such an understanding and the 
 simulation provides crucial inputs to data analysis.  
 
+
+
+
+%
 % summarize (and reference) in a few lines the muon induced background discussion 
 % from "Neutrino physics with JUNO"
+%
 
-
-
-
-
-Adoption of parallelism at various levels has become mandatory in order to 
-fully exploit the capabilities of current computing hardware.  
-CUDA is a parallel computing platform and application programming interface  
-introduced by NVIDIA in 2006. Subsequently hundreds of millions of CUDA enabled GPUs 
-in notebooks and workstations have been shipped driven mainly by consumer demand for
-fast 3D graphics is computer games. 
-
+%
+% target audience should know the below, so dont bother
+%
+%Adoption of parallelism at various levels has become mandatory in order to 
+%fully exploit the capabilities of current computing hardware.  
+%CUDA is a parallel computing platform and application programming interface  
+%introduced by NVIDIA in 2006. Subsequently hundreds of millions of CUDA enabled GPUs 
+%in notebooks and workstations have been shipped driven mainly by consumer demand for
+%fast 3D graphics is computer games. 
+%
+%
+%
 % hmm dont mention MIC, as I know very little about it
 % In contrast the recently introduces Intel MIC processors target high end workstations only.  
 %Intel proposes the use of many integrated core (MIC) architecture coprocessors.
-
+%
 % too breathless ... relax, not an elevator pitch
-
-Opticks works together with Geant4 replacing just the optical photon simulation with
-an equivalent GPU simulation based on the NVIDIA OptiX ray tracing engine.
-Opticks optical photon simulation uses ray tracing mega-kernels generated 
-by the NVIDIA OptiX domain optimized just-in-time compiler from CUDA implementations
-of optical scattering, absorption, boundary processes and scintillator reemission.
-
-Massive GPU parallelism and state-of-the-art SBVH\cite{sbvh} geometry intersection acceleration structures
-orchestrated with multi-level load balanced execution model using persistent threads 
-combine to yield drastic performance improvements with an optical photon simulation speedup 
-expected to exceed 1000 times Geant4 when using workstation GPUs. 
-Near linear performance scaling with GPU cores across multiple GPUs is observed. 
-In addition to removing the optical photon simulation bottleneck the CPU memory 
-constraints are also removed as only photons that hit detectors need to 
-consume CPU memory.
-
-Development of GPU ray tracing algorithms remains an active area of research, NVIDIA OptiX
-
- 
-Direct application of hardware and software developed over the past 20 years 
-to feed the demands
-of the entertainment, gaming and design industries over the past 20 years 
-
-
+% BELOW CAN GO IN CONCLUSION, NOT INTRODUCTION
+%
+%Opticks works together with Geant4 replacing just the optical photon simulation with
+%an equivalent GPU simulation based on the NVIDIA OptiX ray tracing engine.
+%Opticks optical photon simulation uses ray tracing mega-kernels generated 
+%by the NVIDIA OptiX domain optimized just-in-time compiler from CUDA implementations
+%of optical scattering, absorption, boundary processes and scintillator reemission.
+%
+%Massive GPU parallelism and state-of-the-art SBVH\cite{sbvh} geometry intersection acceleration structures
+%orchestrated with multi-level load balanced execution model using persistent threads 
+%combine to yield drastic performance improvements with an optical photon simulation speedup 
+%expected to exceed 1000 times Geant4 when using workstation GPUs. 
+%Near linear performance scaling with GPU cores across multiple GPUs is observed. 
+%In addition to removing the optical photon simulation bottleneck the CPU memory 
+%constraints are also removed as only photons that hit detectors need to 
+%consume CPU memory.
+%
+%Development of GPU ray tracing algorithms remains an active area of research, NVIDIA OptiX
+%Direct application of hardware and software developed over the past 20 years 
+%to feed the demands of the entertainment, gaming and design industries over the past 20 years 
+%
   
+
+\section{Related Work}
+
+\subsection{Chroma}
+
+The Chroma project\cite{chromaURL}\cite{chromaB}  
+implements both GPU ray tracing and optical photon simulation using CUDA kernels
+that are launched via PyCUDA scripts. 
+%A message queue server is provided 
+%to facilitate use of Chroma functionality from C++ code.
+The development of Opticks was made possible by  
+the experience I gained from working with Chroma.
+
+Ray tracing performance comparisons between NVIDIA OptiX and a 
+fork of Chroma\cite{chromaFork} halted my work with Chroma.
+In addition to performance other limitations of Chroma include:
+lack of validation comparisons against Geant4, no support for multiple GPUs, 
+memory inefficient photon handling requiring the copying of photons from CPU to GPU,
+memory inefficient geometry handling due to lack of geometry instancing, python 
+implementation makes integration with Geant4 and other C++ code inconvenient. 
+
+\subsection{VecGeom and GeantV}
+
+The GeantV\cite{GeantV} (Geant-Vector) project aims 
+to develop an all-particle transport simulation package that is 
+several times faster than Geant4. The principal approach investigated 
+is the application of SIMD operations across vectors of multiple tracks 
+collected from multiple events according to locality criteria, this necessitates 
+the development of vectorised geometry algorithms.  
+The VecGeom\cite{VecGeom} project aims to provide these algorithms and also 
+to optimize the single particle scalar performance.
+VecGeom also includes CUDA implementations of the geometry algorithms.
+%
+Currently Opticks implements its own CUDA/OptiX geometry algorithms
+for the small number of solids required to provide an analytic description 
+of Photomultiplier tubes. 
+Adoption of VecGeom within Opticks is a possible future development.
+%the use of advanced architectures including (GP)GPUs and
+%Intel\textregistered\ Xeon Phi\textrademark\ coprocessors.
+
+\subsection{JUNO Fast Simulation}
+
+The implementation of a fast simulation of the JUNO central detector has 
+been studied in\cite{junoFastSim} using the voxel method. The core
+of the method is to build the connection between the visible energy
+in a voxel and the response of the photomultiplier tubes.
+Essentially the approach persists parameterized response distributions 
+of scintillation photons obtained from a full Geant4 simulation which 
+can be then sampled to form an approximation of the full simulation.
+Cerenkov photon anisotropy prevents application of this approach.
+The symmetry of the detector geometry greatly reduces the number of 
+response distributions that need to be persisted. Details such as 
+shadowing from support struts or other things that break the symmetry 
+require increases in numbers of parameter binning.  
+
+Fast simulation techniques do not provide an alternative to full simulation, 
+they merely provide an approximation of the full simulation which trade 
+simulation time with file input/output time and bookkeeping. 
+  
+\subsection{IceCube GPU Photon Propagation}
+
+IceCube\cite{IceCubeGPU} has used GPU photon tracking in production, replacing 
+a two-stage parameterized approach with full photon simulation. 
+
+
+
+%For each bin of R-theta parameter space distributions of nPE and hit time
+%are collected from a full simulation.
+
+
+
+
+
+
+
 
 
 \section{NVIDIA\textregistered OptiX\texttrademark}
@@ -147,7 +228,7 @@ bounding box program. Opticks currently uses the SBVH structure\cite{SBVH}.
 
 
 \bibitem{dyb}
-An F et al.
+An F, et al.
 2016
 The detector system of the Daya Bay reactor neutrino experiment
 {\it Nucl Instrum Methods} A {\bf 811} pp 133--161
@@ -179,6 +260,20 @@ Allison J, Amako K, Apostolakis J, Arce P, Asai M, Aso T, et al.
 2016 
 Recent developments in Geant4 
 {\it Nucl Instrum Methods Phys Res} A {\bf 835} pp 186--225
+
+
+\bibitem{VecGeom}
+Apostolakis J, Bandieramonte M, Bitzes G, Brun R, Canal P, Carminati F, et al. 
+2015
+Towards a high performance geometry library for particle-detector simulations
+{\it J. Phys.: Conf. Series} {\bf 608} 012023
+%http://iopscience.iop.org/article/10.1088/1742-6596/608/1/012023/pdf
+
+\bibitem{GeantV}
+Amadio G, Apostolakis J, Bandieramonte M, Bhattacharyya A, Bianchini C, Brun R, Canal P, et al.
+2015
+The GeantV project : preparing the future of simulation 
+{\it J. Phys.: Conf. Series} {\bf 664} 072006
 
 
 \bibitem{understanding}
@@ -262,6 +357,24 @@ Chroma URL {\tt http://chroma.bitbucket.org}
 Seibert S and LaTorre A 
 2011 
 Fast optical monte carlo simulation with surface-based geometries using Chroma {\tt http://chroma.bitbucket.org/\_downloads/chroma.pdf}
+
+\bibitem{chromaFork} 
+Fork of Chroma {\tt http://bitbucket.org/simoncblyth/chroma}
+
+\bibitem{junoFastSim}
+Lin T, Deng Z, Li W, Cao G, You Z and Li X
+2016
+Fast muon simulation in the JUNO central detector
+{\it Chin. Phys. C} {\bf 40} 8 086201
+
+\bibitem{IceCubeGPU}
+Chirkin D
+2013
+Photon tracking with GPUs in IceCube
+{\it Nucl Instrum Methods Phys Res} A {\bf 725} pp 141--143
+
+% https://arxiv.org/abs/astro-ph/0702108
+% https://arxiv.org/pdf/astro-ph/0702108v2.pdf
 
 
 \end{thebibliography}

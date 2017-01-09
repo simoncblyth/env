@@ -146,10 +146,6 @@ Muon average track length in CD LS is about 23m, suppose 2MeV/cm energy deposit,
 * http://juno.ihep.ac.cn/Dev_DocDB/0020/002058/003/Tutorial_for_muon_reconstruction.pdf
 
 
-
-
-
-
 GeantV 
 ~~~~~~~~~~~~~~~~~~~~
 

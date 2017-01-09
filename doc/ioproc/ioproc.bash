@@ -11,6 +11,14 @@ IOP Conference Proceedings Series
 * http://conferenceseries.iop.org/content/authors
 * http://chep2016.org/node/24
 
+
+
+Previous Years Proceedings
+----------------------------
+
+21st International Conference on Computing in High Energy and Nuclear Physics (CHEP2015), Japan
+
+* http://iopscience.iop.org/volume/1742-6596/664
 * http://iopscience.iop.org/issue/1742-6596/664/7
 
 
@@ -90,8 +98,13 @@ ioproc-make(){
 
    [ $etex -nt $tex ] && echo $msg UPDATING FROM ETEX $etex && cp $etex $tex || return 
 
-   latex $tex > /dev/null
-   dvipdf $dvi > /dev/null  
+   if [ -n "$VERBOSE" ]; then
+       latex $tex 
+       dvipdf $dvi
+   else
+       latex $tex > /dev/null
+       dvipdf $dvi > /dev/null  
+   fi
 
    ls -l $pdf
 }

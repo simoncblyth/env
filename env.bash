@@ -1859,3 +1859,4 @@ rootnumpy-(){      . $(env-home)/root/rootnumpy/rootnumpy.bash && rootnumpy-env 
 vecgeom-(){      . $(env-home)/geometry/vecgeom/vecgeom.bash && vecgeom-env $* ; }
 sso-(){      . $(env-home)/network/sso/sso.bash && sso-env $* ; }
 embree-(){      . $(env-home)/embree/embree.bash && embree-env $* ; }
+rst-(){      . $(env-home)/tools/rst/rst.bash && rst-env $* ; }

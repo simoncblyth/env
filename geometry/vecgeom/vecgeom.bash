@@ -11,6 +11,13 @@ Sandro Christian Wenzel
 
 * https://gitlab.cern.ch/VecGeom/VecGeom
 
+
+TODO: look into VecGeom boolean handling
+-------------------------------------------
+
+* https://gitlab.cern.ch/VecGeom/VecGeom/blob/master/volumes/SpecializedBooleanVolume.h
+
+
 Can VecGeom be made to work within OptiX programs ?
 -----------------------------------------------------
 
