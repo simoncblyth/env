@@ -43,63 +43,6 @@ Daya Bay and JUNO Neutrino detectors.
 
 
 
-\section{Introduction}
-% LOOK AT IDEA FLOW FROM MY PRESENTATIONS, USE THE SAME HERE
-
-A detailed understanding of the generation and propagation of optical 
-photons is vital to the design, operation and analysis of photomultiplier
-based neutrino detectors such as the Daya Bay~\cite{dyb} and JUNO\cite{juno} experiments. 
-Detailed detector simulations are essential to develop such an understanding and the 
-simulation provides crucial inputs to data analysis.  
-
-
-
-
-%
-% summarize (and reference) in a few lines the muon induced background discussion 
-% from "Neutrino physics with JUNO"
-%
-
-%
-% target audience should know the below, so dont bother
-%
-%Adoption of parallelism at various levels has become mandatory in order to 
-%fully exploit the capabilities of current computing hardware.  
-%CUDA is a parallel computing platform and application programming interface  
-%introduced by NVIDIA in 2006. Subsequently hundreds of millions of CUDA enabled GPUs 
-%in notebooks and workstations have been shipped driven mainly by consumer demand for
-%fast 3D graphics is computer games. 
-%
-%
-%
-% hmm dont mention MIC, as I know very little about it
-% In contrast the recently introduces Intel MIC processors target high end workstations only.  
-%Intel proposes the use of many integrated core (MIC) architecture coprocessors.
-%
-% too breathless ... relax, not an elevator pitch
-% BELOW CAN GO IN CONCLUSION, NOT INTRODUCTION
-%
-%Opticks works together with Geant4 replacing just the optical photon simulation with
-%an equivalent GPU simulation based on the NVIDIA OptiX ray tracing engine.
-%Opticks optical photon simulation uses ray tracing mega-kernels generated 
-%by the NVIDIA OptiX domain optimized just-in-time compiler from CUDA implementations
-%of optical scattering, absorption, boundary processes and scintillator reemission.
-%
-%Massive GPU parallelism and state-of-the-art SBVH\cite{sbvh} geometry intersection acceleration structures
-%orchestrated with multi-level load balanced execution model using persistent threads 
-%combine to yield drastic performance improvements with an optical photon simulation speedup 
-%expected to exceed 1000 times Geant4 when using workstation GPUs. 
-%Near linear performance scaling with GPU cores across multiple GPUs is observed. 
-%In addition to removing the optical photon simulation bottleneck the CPU memory 
-%constraints are also removed as only photons that hit detectors need to 
-%consume CPU memory.
-%
-%Development of GPU ray tracing algorithms remains an active area of research, NVIDIA OptiX
-%Direct application of hardware and software developed over the past 20 years 
-%to feed the demands of the entertainment, gaming and design industries over the past 20 years 
-%
-  
-
 \section{Related Work}
 
 \subsection{Chroma}
@@ -170,13 +113,172 @@ a two-stage parameterized approach with full photon simulation.
 
 
 
+%
+% target audience should know the below, so dont bother
+%
+%Adoption of parallelism at various levels has become mandatory in order to 
+%fully exploit the capabilities of current computing hardware.  
+%CUDA is a parallel computing platform and application programming interface  
+%introduced by NVIDIA in 2006. Subsequently hundreds of millions of CUDA enabled GPUs 
+%in notebooks and workstations have been shipped driven mainly by consumer demand for
+%fast 3D graphics is computer games. 
+%
+%
+%
+% hmm dont mention MIC, as I know very little about it
+% In contrast the recently introduces Intel MIC processors target high end workstations only.  
+%Intel proposes the use of many integrated core (MIC) architecture coprocessors.
+%
+% too breathless ... relax, not an elevator pitch
+% BELOW CAN GO IN CONCLUSION, NOT INTRODUCTION
+%
+%Opticks works together with Geant4 replacing just the optical photon simulation with
+%an equivalent GPU simulation based on the NVIDIA OptiX ray tracing engine.
+%Opticks optical photon simulation uses ray tracing mega-kernels generated 
+%by the NVIDIA OptiX domain optimized just-in-time compiler from CUDA implementations
+%of optical scattering, absorption, boundary processes and scintillator reemission.
+%
+%Massive GPU parallelism and state-of-the-art SBVH\cite{sbvh} geometry intersection acceleration structures
+%orchestrated with multi-level load balanced execution model using persistent threads 
+%combine to yield drastic performance improvements with an optical photon simulation speedup 
+%expected to exceed 1000 times Geant4 when using workstation GPUs. 
+%Near linear performance scaling with GPU cores across multiple GPUs is observed. 
+%In addition to removing the optical photon simulation bottleneck the CPU memory 
+%constraints are also removed as only photons that hit detectors need to 
+%consume CPU memory.
+%
+%Development of GPU ray tracing algorithms remains an active area of research, NVIDIA OptiX
+%Direct application of hardware and software developed over the past 20 years 
+%to feed the demands of the entertainment, gaming and design industries over the past 20 years 
+%
+  
+
+\section{Introduction}
+
+\begin{itemize}
+\item Optical Photon Simulation Problem
+\item Hybrid Solution
+\item Connection between Ray Traced Image Synth and Optical Photon Simulation
+\item external simulation cost : "context" duplication of geometry, materials, surfaces
+\item open source opticks\cite{opticksURL} \cite{newton}
+\item Opticks requirements, CUDA capability 3.0
+\end{itemize}
+
+\subsection{Optical Photon Simulation Problem}
+
+A detailed understanding of the generation and propagation of optical 
+photons is vital to the design, operation and analysis of photomultiplier
+based neutrino detectors such as the Daya Bay~\cite{dyb} and JUNO\cite{juno} experiments. 
+Detailed detector simulations are essential to develop such an understanding and the 
+simulation provides crucial inputs to data analysis.  
+
+The Geant4 based JUNO simulation was found to expend more than 99\% of CPU time
+ 
+
+A fundamental requirement of optical photon propagation is to compute 
+the next boundary intersection of a ray in the direction of travel 
+at each step of the propagation in a highly efficient manner.
+
+Geant4 uses a solid based geometry model with volumes of particular shape and material, 
+such as cylinders of acrylic, GdLS or water. These volumes form a tree of mother volumes 
+containing non-intersecting daughter volumes which in turn contain their own daughters, and so on. 
+The tree structure and containment condition limits the number of volumes which 
+must be be interrogated in order to compute the next boundary intersection, as if the 
+mother of a volume does not intersect then its daughters cannot.
+
+%
+% summarize (and reference) in a few lines the muon induced background discussion 
+% from "Neutrino physics with JUNO"
+%
+
+\subsection{Hybrid Solution}
+
+Optical photons produced by C+S processes, yield only PMT hits
 
 
+\section{Geometry}
 
+Optical photon simulation is limited by the calculation of track geometry intersections and normals.
+Once the intersection points and surface normals are known the remainder of the 
+simulation only requires generation of a few random numbers 
+
+Geometry intersection typically limits simulation performance. Geometry model
+determines techniques (and hardware) available to accelerate intersection.
+
+\begin{itemize}
+\item Geometry model implications, 
+\item G4DAE Geometry Exporter, volume tree, use extensiblity of DAE to include material/surface props as function of wavelength
+\item importing Geometry, assimpfork \cite{Assimp} \cite{AssimpFork}
+\item surface based geometry (BREP) more natural for ray tracing 
+\item Geometry model translation, volume to surface based geometry (4 indices attached to primitives) in/out G4LogicalBorderSurface
+\item mesh fixing with OpenMesh\cite{OpenMesh}
+\item geocache using NumPy serialization
+\item geometry instancing mandatory
+\item analytic primitives for PMT, manual approach 
+\item material and surface properties in GPU textures
+\end{itemize}
+
+\section{Event}
+
+\begin{itemize}
+\item cuRAND random numbers, initialization stack workaround
+\item generation of scintillation and Cerenkov photons from gensteps (explain: Geant4 process "stack")
+\item GPU resident photons, all operations done on GPU: seeded (assigned gensteps), generated, propagated, indexed 
+\item photon indexing with CUDA Thrust 
+\item integrated Geant4/Opticks workflow
+\item multi-event handling 
+\end{itemize}
+
+\section{Validation}
+
+\begin{itemize}
+\item CFG4: one executable doing two simulations: pure G4 and G4+Opticks 
+\item G4 step recorder in Opticks event format
+\item simple test geometries configured on commandline
+\item fresnel, rainbow
+\item compressed recording of propagation steps
+\item frequency count chi2 distance, distrib chi2
+\end{itemize}
+
+\section{Visualisation}
+
+\begin{itemize}
+\item small number of VBOs for entire geometry, one for non-instanced, one for each case of instanced geometry
+\item persistent viewpoint bookmarks 
+\item composited OpenGL rasterized render and OptiX ray trace, using Z-depth calulated for each raytrace pixel.
+\item OptiX/OpenGL/CUDA/Thrust interoperation, same GPU buffers shared
+\item OpenGL based visualization, GLFW
+\item OpenGL shaders
+\item time scrubbing a propagation (geometry shader with time as input)
+\item index enables interactive photon history selection
+\item GUI using ImGui\cite{ImGui}
+\item layered dependencies, visualization on non-CUDA capable GPUs
+\end{itemize}
+
+
+\section{Conclusion}
+
+\begin{itemize}
+\item performance comparison
+\item performance factors so large they become irrelevant, its the reciprocal are interested in 
+\end{itemize}
+
+
+\section{Future Developments}
+
+\begin{itemize}
+\item boolean CSG on GPU
+\item G4DAE integrated with Geant4
+\end{itemize}
 
 
 
 \section{NVIDIA\textregistered OptiX\texttrademark}
+
+\begin{itemize}
+\item linearity of ray tracing performance with CUDA cores, with figure
+\end{itemize}
+
 
 NVIDIA\textregistered\ OptiX\texttrademark \cite{optixPaper} \cite{optixSite} 
 is a general-purpose ray tracing engine designed for NVIDIA GPUs
@@ -293,7 +395,8 @@ OptiX: a general purpose ray tracing engine
 NVIDIA{\textregistered} OptiX\texttrademark~ webpage {\tt https://developer.nvidia.com/optix}
 
 \bibitem{optixGuide}
-OptiX Programming Guide 3.0.0 {\tt http://developer.download.nvidia.com/assets/tools/files/optix/3.0.0/NVIDIA-OptiX-SDK-3.0.0-OptiX\_Programming\_Guide\_3.0.0.pdf}
+OptiX Programming Guide 3.0.0 available from {\tt https://developer.nvidia.com/optix}
+%{\tt http://developer.download.nvidia.com/assets/tools/files/optix/3.0.0/NVIDIA-OptiX-SDK-3.0.0-OptiX\_Programming\_Guide\_3.0.0.pdf}
 
 \bibitem{sbvh}
 Stich M, Friedrich H and Dietrich A 
@@ -372,10 +475,21 @@ Chirkin D
 2013
 Photon tracking with GPUs in IceCube
 {\it Nucl Instrum Methods Phys Res} A {\bf 725} pp 141--143
-
+%
 % https://arxiv.org/abs/astro-ph/0702108
 % https://arxiv.org/pdf/astro-ph/0702108v2.pdf
 
+\bibitem{ImGui}
+ImGui URL {\tt https://github.com/ocornut/imgui}
+
+\bibitem{OpenMesh}
+OpenMesh URL {\tt https://www.openmesh.org}
+
+\bibitem{Assimp}
+Assimp URL {\tt http://www.assimp.org}
+
+\bibitem{AssimpFork}
+Fork of Assimp supporting G4DAE extra optical properties {\tt https://github.com/simoncblyth/assimp}
 
 \end{thebibliography}
 

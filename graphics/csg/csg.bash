@@ -401,11 +401,16 @@ leaving the task narrowing down to find the closest intersect tmin to OptiX
 How would a boolean_intersect look ? 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
 CSG OptiX 
 --------------------------------------------------------
 
+
+Implemented in oxrap/cu::
+
+   hemi-pmt.cu   # <-- NB poorly named 
+   boolean-solid.h
+   intersect_part.h
+   intersect_boolean.h
 
 
 Constructive solid geometry
@@ -474,11 +479,6 @@ You could take optixSpherePP in the SDK and make some changes:
 Once you get that all working, then it's probably not a big jump to CSG.
 
 
-
-
-
-
-
 IceSL
 ------
 
@@ -499,9 +499,6 @@ CSG Simplification
   CSG Tree Normalization and Pruning
 
 
-
-
-
 CSG Ray Tracing Techniques
 -----------------------------
 
@@ -514,9 +511,6 @@ Ray Tracing CSG Models : implementation details
 ------------------------------------------------------ 
 
 * http://web.cse.ohio-state.edu/~parent/classes/681/Lectures/19.RayTracingCSG.pdf
-
-
-
 
 
 Cool WebGL interface allowing to edit CSG geometries

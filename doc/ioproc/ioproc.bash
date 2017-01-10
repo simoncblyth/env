@@ -100,8 +100,12 @@ ioproc-make(){
 
    if [ -n "$VERBOSE" ]; then
        latex $tex 
+       latex $tex 
+       latex $tex 
        dvipdf $dvi
    else
+       latex $tex > /dev/null
+       latex $tex > /dev/null
        latex $tex > /dev/null
        dvipdf $dvi > /dev/null  
    fi
