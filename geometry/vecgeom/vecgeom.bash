@@ -18,6 +18,18 @@ TODO: look into VecGeom boolean handling
 * https://gitlab.cern.ch/VecGeom/VecGeom/blob/master/volumes/SpecializedBooleanVolume.h
 
 
+Presentations
+---------------
+
+
+Sandro Wenzel : Towards a high performance geometry library for particle-detector simulation (ACAT 2014)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://indico.cern.ch/event/258092/contributions/1588561/attachments/454205/629615/ACAT2014GeometryTalkNewStyleV2.pdf
+* ~/opticks_refs/ACAT2014GeometryTalkNewStyleV2.pdf
+
+
+
 Can VecGeom be made to work within OptiX programs ?
 -----------------------------------------------------
 

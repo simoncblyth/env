@@ -29,6 +29,84 @@ CSG : Constructive Solid Geometry
 
 
 
+* http://www.en.pms.ifi.lmu.de/publications/diplomarbeiten/Sebastian.Steuer/DA_Sebastian.Steuer.pdf
+
+Thesis
+
+
+OpenCSG : image (Z-buffer) based CSG rendering with OpenGL
+--------------------------------------------------------------
+
+
+* http://opencsg.org
+
+
+csg.js (MIT)
+--------------
+
+implements CSG operations on meshes elegantly and concisely using BSP trees,
+and is meant to serve as an easily understandable implementation of the
+algorithm.
+
+
+* https://github.com/evanw/csg.js/
+* http://evanw.github.io/csg.js/
+* http://madebyevan.com  lots of WebGL
+
+docs
+~~~~~
+
+* http://evanw.github.io/csg.js/docs/
+
+All CSG operations are implemented in terms of two functions, clipTo() and
+invert(), which remove parts of a BSP tree inside another BSP tree and swap
+solid and empty space, respectively. To find the union of a and b, we want to
+remove everything in a inside b and everything in b inside a, then combine
+polygons from a and b into one solid::
+
+    a.clipTo(b);
+    b.clipTo(a);
+    a.build(b.allPolygons());
+
+
+The only tricky part is handling overlapping coplanar polygons in both trees.
+The code above keeps both copies, but we need to keep them in one tree and
+remove them in the other tree. To remove them from b we can clip the inverse of
+b against a. The code for union now looks like this:
+
+::
+
+    a.clipTo(b);
+    b.clipTo(a);
+    b.invert();
+    b.clipTo(a);
+    b.invert();
+    a.build(b.allPolygons());
+
+Subtraction and intersection naturally follow from set operations. 
+If union is A | B, subtraction is A - B = ~(~A | B) 
+and intersection is A & B = ~(~A | ~B) where ~ is the complement operator.
+
+
+observations
+~~~~~~~~~~~~~~~
+
+* really concise imp
+* whacky triangles : probably does not matter when only using for viz
+* cool webgl interface.
+* simple api
+
+::
+
+    var a = CSG.cube();
+    var b = CSG.sphere({ radius: 1.2 });
+    a.setColor(1, 1, 0);
+    b.setColor(0, 0.5, 1);
+    return a.subtract(b);
+
+
+
+
 OpenCASCADE
 -------------
 
@@ -525,6 +603,86 @@ Cool WebGL interface allowing to edit CSG geometries
 
   three.js bridge to csg.js
 
+
+CSG to BREP mesh ?
+-------------------
+
+* :google:`BREP of CSG boolean solids`
+
+* http://stackoverflow.com/questions/2002976/constructive-solid-geometry-mesh
+
+
+Boole (public domain)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://people.mpi-inf.mpg.de/~schoemer/ECG/SS02/papers/boole2.pdf
+* http://gamma.cs.unc.edu/CSG/boole.html
+
+
+Solid and Physical Modelling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.cc.gatech.edu/~jarek/papers/SPM.pdf
+
+Converting CSG models into Meshed B-Rep Models Using Euler Operators and Propagation Based Marching Cubes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.scielo.br/pdf/jbsmse/v29n4/a01v29n4.pdf
+* ~/opticks_refs/csg_to_brep_marching_cubes_a01v29n4.pdf 
+
+
+Merging BSP Trees Yields Polyhedral Set Operations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.mcs.csueastbay.edu/~tebo/papers/siggraph90.pdf
+
+BSP : binary space partioning
+
+
+Exact and Robust (Self-)Intersections for Polygonal Meshes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.graphics.rwth-aachen.de/media/papers/campen_2010_eg_021.pdf
+
+Fast, Exact, Linear Booleans :  Gilbert Bernstein and Don Fussell
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://stackoverflow.com/questions/2002976/constructive-solid-geometry-mesh
+
+* ~/opticks_refs/booleans2009.pdf
+* http://www.gilbertbernstein.com/resources/booleans2009.pdf
+
+* http://www.gilbertbernstein.com/project_boolean.html
+
+* https://github.com/gilbo/cork   
+
+
+B-rep algorithms: 
+
+#. If A and B are the boundaries of two objects whose union, difference or
+   intersection we would like to compute, find the intersection of A and B, thus
+   dividing each surface into two components, one inside and one outside the other
+   surface. 
+
+#. Select the appropriate component of each surface, and 
+
+#. stitch these together to form the correct output. 
+
+This apparent simplicity belies the large number of special cases 
+that result from the various ways the two objects can align
+
+BSP trees afford an alternative to B-rep algorithms that avoid their
+concomitant case explosion by explicitly handling all degenerate
+configurations of geometry. 
+
+One author of Fast, Exact, Linear Booleans has a project named "cork" on github
+that implements mesh-based CSG: github.com/gilbo/cork. His site
+gilbertbernstein.com/project_boolean.html indicates that this is not the same
+method as that of the paper. 
+
+
+http://gts.sourceforge.net (LGPL)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 

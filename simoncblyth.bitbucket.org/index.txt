@@ -3,6 +3,7 @@
 
 * http://bitbucket.org/simoncblyth
 * https://bitbucket.org/simoncblyth/env/commits/all
+* https://bitbucket.org/simoncblyth/opticks/commits/all
 
 
 

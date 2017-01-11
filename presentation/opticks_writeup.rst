@@ -39,6 +39,16 @@ HEP Software Paper Tone Examples
 * http://geant4.cern.ch/results/publications.shtml#journal
 
 
+High Level View of Parallelism is HEP
+---------------------------------------
+
+The future of commodity computing and many-core versus the interests of HEP software
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://iopscience.iop.org/article/10.1088/1742-6596/396/5/052058/pdf
+
+
+
 What makes OptiX fast ?
 --------------------------
 
@@ -51,12 +61,10 @@ SBVH : Spatial Splits in Bounding Volume Hierarchies
 * http://highperformancegraphics.org/previous/www_2009/presentations/stich-spatial.pdf
 * http://highperformancegraphics.org/previous/www_2009/program.html
 
-
 OptiX talks
 ~~~~~~~~~~~~~~
 
 * http://bps11.idav.ucdavis.edu/talks/12-userDefinedRayTracingPipelines-Parker-BPS2011.pdf
-
 
 Scheduling in OptiX
 ~~~~~~~~~~~~~~~~~~~~~
@@ -66,9 +74,6 @@ Scheduling in OptiX
 
 * http://highperformancegraphics.org/previous/www_2009/presentations/aila-understanding.pdf
 * ~/opticks_refs/aila-understanding.pdf
-
-
-
 
 
 Megakernels considered harmful
@@ -95,7 +100,6 @@ Chroma
 
 Chroma implements both GPU ray tracing and optical photon simulation using CUDA kernels
 that are launched via PyCUDA scripts. The scripts make extensive use of NumPy. 
-
 
 Chroma : why not to use
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -225,15 +229,16 @@ used for different parts of the scene.
 
 
 
+HEP GPU
+~~~~~~~~~~~
 
+High energy electromagnetic particle transportation on the GPU  (CHEP2013)
 
+P Canal, D Elvira, S Y Jun, J Kowalkowski, M Paterno and J Apostolakis
 
+* https://web.fnal.gov/project/Geant4RD/Shared%20Documents/chep2013-gpu.pdf
+* syjun@fnal.gov 
 
-OptiX intersection programs use interleaved calls rtPotentialIntersection and rt
-
-::
-
-￼
 
 
 
@@ -485,5 +490,77 @@ Proceedings, GPU Computing in High-Energy Physics (GPUHEP2014) : Pisa, Italy, Se
 
 * https://bib-pubdb1.desy.de/record/291395
 * http://adsabs.harvard.edu/abs/2013NIMPA.725..141C
+
+
+
+GPU Computing in High Energy Physics (10-12 September 2014)
+-------------------------------------------------------------
+
+
+* https://agenda.infn.it/conferenceOtherViews.py?confId=7534&view=standardshort
+
+
+
+First experience with portable high-performance geometry code on GPU
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+J. de Fine Licht (CERN)
+
+* https://agenda.infn.it/getFile.py/access?contribId=34&sessionId=3&resId=0&materialId=slides&confId=7534￼
+
+Desire to support multiple architectures without having multiple
+implementations in source code of each algorithm; functionality vs.
+maintainability
+
+Will provide a CUDA API for a GeantV GPU prototype developed at Fermilab
+
+
+MY TAKE: 
+
+* direct porting CPU code to run on GPU will not lead to an performant implementation. 
+  GPUs demand rearchitecting. Nevertheless some micro-reuse (algorithms contained in headers)
+  can be done without compromise. 
+
+* too hung up on not duplicating implementations for different architectures, 
+
+  * need to think of the costs for each decision, complicating use of a new computing architecture
+    with generic programming which ties you down to the vectorised way of doing things is a mistake
+
+GeantV GPU prototype
+~~~~~~~~~~~~~~~~~~~~~
+
+* :google:`GeantV GPU prototype`
+
+* https://cdcvs.fnal.gov/redmine/projects/g4hpc/wiki/Geant_Vector_and_GPU_Prototype
+
+
+Annual Concurrency Meeting February 4-6, 2013 Fermilab
+
+* https://indico.cern.ch/event/231531/contributions/488117/attachments/384377/534650/acm_gpu_syjun.pdf
+
+
+GeantV
+~~~~~~~~~
+
+* http://geant.cern.ch/content/publications
+
+
+USolids
+~~~~~~~~~
+
+* https://indico.cern.ch/event/149557/contributions/1385755/attachments/150293/212884/usolids-chep4.pdf
+
+* Location of point either inside, outside or on surface
+* Shortest distance to surface for outside points
+* Shortest distance to surface for inside points
+
+* Distance to surface for inside points with given direction 
+* Distance to surface for outside points with given direction 
+* Normal vector for closest surface from given point
+
+
+CURIOUS:
+
+* what in Geant4 needs the shortest distance methods ?
 
 

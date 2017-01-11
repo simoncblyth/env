@@ -8,6 +8,15 @@ presentation-usage(){ cat << EOU
 Presentation preparation
 ============================
 
+
+Presentations online
+----------------------
+
+* http://simoncblyth.bitbucket.org
+
+Workflow
+-----------
+
 Preparation workflow:
 
 #. change presention name below and create the .txt
@@ -65,8 +74,8 @@ s5 rst underpinning
 
 * http://docutils.sourceforge.net/docs/user/slide-shows.html#s5-theme-files
 
-presentations 
----------------
+presentations review, highlighting new developments
+------------------------------------------------------
 
 summary
 ~~~~~~~~~
@@ -185,6 +194,11 @@ Fivefold path:
 * Chroma Stability/Efficiency Improvements Made
 * G4/Chroma Integration
 * Chroma vs G4 Validation 
+
+
+2015-01-06 : last commit to Chroma fork
+2015-01-20 : first commit to Opticks "try out NVIDIA Optix 301" https://bitbucket.org/simoncblyth/opticks/commits/bd1c43
+
  
 optical_photon_simulation_with_nvidia_optix (July 2015}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -192,7 +206,6 @@ optical_photon_simulation_with_nvidia_optix (July 2015}
 **Optical Photon Simulation with NVIDIA OptiX**
 
 *OptiX : performance scales with CUDA cores across multiple GPUs*
-
 
 * Why not Chroma ?
 * Introducing NVIDIA OptiX
@@ -338,18 +351,32 @@ opticks_gpu_optical_photon_simulation_april2016_gtc
 
 **Opticks : Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™**
 
+Nothing much new in this one.
 
 
+opticks_gpu_optical_photon_simulation_may2016_lecospa
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Nothing much new in this one. Lots of intro.
 
 
+opticks_gpu_optical_photon_simulation_oct2016_chep (20 pages, ~15 min)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+opticks_gpu_optical_photon_simulation_nov2016_llr  (32 pages, ~30 min)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* Opticks Event Buffers  (technicality)
+* Time/Memory profile of multi-event production mode running (~technicality)
 
+* tconcentric : test geometry configured via boundaries
+* tconcentric : fixed polarization "Torch" light source
+* tconcentric : spherical GdLS/LS/MineralOil
+* tconcentric : Opticks/Geant4 chi2 comparison
+* tconcentric : Opticks/Geant4 history counts chi2/df ~ 1.0
 
-
-
-
+* Group Velocity problems -> Time shifts  (~technicality)
 
 
 
