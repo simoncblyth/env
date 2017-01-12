@@ -28,10 +28,41 @@ CSG : Constructive Solid Geometry
   CG course with YouTube videos  
 
 
+CSG Thesis
+-----------
 
 * http://www.en.pms.ifi.lmu.de/publications/diplomarbeiten/Sebastian.Steuer/DA_Sebastian.Steuer.pdf
 
-Thesis
+
+CSG to BREP
+-------------
+
+Marching Cubes to define isosurface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Marching cubes: A high resolution 3D surface construction algorithm
+
+* http://dl.acm.org/citation.cfm?id=37422
+
+
+:google:`CSG BREP marching cubes`
+
+
+Dual Contour
+~~~~~~~~~~~~~~
+
+* http://faculty.cs.tamu.edu/schaefer/research/dualcontour.pdf
+* http://www.frankpetterson.com/publications/dualcontour/dualcontour.pdf
+
+
+libigl (MPL) has boolean operations on meshes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/libigl/libigl
+* http://libigl.github.io/libigl/tutorial/tutorial.html#marchingcubes
+* http://libigl.github.io/libigl/tutorial/tutorial.html#booleanoperationsonmeshes
+* http://libigl.github.io/libigl/tutorial/tutorial.html#csgtree
+
 
 
 OpenCSG : image (Z-buffer) based CSG rendering with OpenGL
