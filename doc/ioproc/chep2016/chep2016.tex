@@ -307,7 +307,9 @@ Implementing an equivalent external simulation demands that the Geant4
 context of geometry, material and surface properties is available on the GPU.
 This is achieved by first writing the tesselated geometry into a COLLADA/DAE\cite{colladaURL} XML file  
 using the G4DAE\cite{g4daeURL} geometry exporter which was implemented based upon the 
-standard GDML exporter. All material and surface properties as a function of wavelength are 
+standard GDML exporter. COLLADA is a widely supported 3D file format allowing G4DAE exported geometries 
+to be visualized and imported into many commercial and open source tools.
+All material and surface properties as a function of wavelength are 
 included in the G4DAE using the extensibility of the file format.
 Opticks reads the G4DAE geometry file using a forked version\cite{AssimpFork} of the
 Assimp\cite{Assimp} asset importer that adds handling of the extra optical material and surface
@@ -391,40 +393,124 @@ which are copied to the GPU instead of the close to 3000 triangles of the tessel
 
 \section{Event}
 
+Opticks is integrated with Geant4 by modifications to the 
+Geant4 scintillation and Cerenkov processes, instead of 
+generating photons in a loop the parameters of the so called genstep 
+are collected into a buffer. 
+The parameters include the number of photons to generate and a line segment 
+along which to generate them togther with other parameters used to the 
+define the angular and wavelength distributions.
+%
+Collecting and copying gensteps rather than photons has the
+advantage of greatly reducing transfer overheads and avoids the 
+need to allocate memory twice.
+In order to associate each photon with its genstep a seeding 
+procedure is implemented using the CUDA Thrust\cite{thrust}\cite{thrustURL} 
+library that distributes genstep indices to photons entirely on the GPU.
+
+% CURAND
+Opticks uses the cuRAND\cite{curandURL} library, which is part of the CUDA\cite{cudaPaper}\cite{cudaURL} toolkit, 
+for the concurrent generation of millions of reproducible sequences of pseudorandom numbers. Concurrent generation is handled by assigning 
+sub-sequences to each thread which maintain their position within the sub-sequence. Initialization of cuRAND within the 
+OptiX ray generation program was found to require increasing the stack size by a factor of 10 which led to 
+poor ray tracing performance. To avoid this issue a cuRAND initialization was moved to a separate CUDA launch, allowing 
+OptiX programs to use cuRAND without having to initialize it.
+
+OptiX ray generation programs form the entry point to the ray tracing pipeline. 
+A single OptiX launch conceptually creates an instanciation of the program for every photon. 
+The generation of scintillation, Cerenkov or artificial torch photons 
+are implemented in the ray generation program immediately prior to the propagation loop.
+% that limits the number of ray trace operations for the photon. 
+Within the loop a ray trace is performed that provides the distance to the closest boundary and its boundary index.
+The boundary index together with the photon wavelength yields via texture lookups material properties 
+such as absorption length, reemission probability and scattering length. 
+These quantities together with uniform random number throws determine 
+whether the photon is aborbed, scattered, undergoes reemission or survives to the boundary. 
+Scintillator reemission changes the direction, polarization and wavelength of the photon. 
+An inverted cumulative distribution function saved into a GPU texture allows reemission wavelengths 
+to be generated from uniform random number texture lookups.
+
+Photons reaching a boundary which has no associated optical surface are reflected or 
+transmitted using a simplified translation of the Geant4 boundary processing 
+with optimization techniques from the ray tracing literature that avoid the 
+use of trancendental functions. Photons reaching a surface with an associated optical 
+surface are detected, absorbed, diffusely reflected or specularly reflected following 
+the Geant4 implementations. 
+
+Keeping all photon operations on the GPU allows millions of optical photons 
+to be generated and propagated with only the small fraction that are detected 
+requiring memory allocation on the CPU to allow them to 
+be copied back, using Thrust stream compaction.
+
+%The implementation does not cover all the cases that Geant4 does.
+%\begin{itemize}
+%\item integrated Geant4/Opticks workflow
+%\item cuRAND random numbers, initialization stack workaround
+%\item generation of scintillation and Cerenkov photons from gensteps (explain: Geant4 process "stack")
+%\item GPU resident photons, all operations done on GPU: seeded (assigned gensteps), generated, propagated, indexed 
+%SKIP \item multi-event handling 
+%\end{itemize}
+
+\section{Visualisation}
+
+Opticks provides rasterized views of geometry using OpenGL shaders
+and ray traced views using OptiX camera programs.
+These views can be composited together using fragment depth information 
+that is calculated and included with each ray traced pixel.
+The OptiX camera program uses the same geometry intersection 
+code as that used by the photon simulation program.  
+
+Interoperation techniques enable buffer sharing between OpenGL and OptiX 
+that allow buffers written by OptiX programs to be directly rasterized 
+with OpenGL shaders invoked by draw commands. Such techniques 
+have been used to interactively visualize propagations of up to 16 
+steps of several millions of photons. Domain compression was used 
+to squeeze the photon step parameters position, time, polarization 
+and wavelength into 128 bits. 
+
+OpenGL geometry shaders are used to provide interactive forward/backwards propagation time scrubbing
+and interactive photon history selection. The visualization performance enabled
+screen capture videos  
+ 
+and interactive photon history selection were motivated by the requirements
+of debugging the simulation.
+
+%
+%OpenGL visualization performance on the development machine was found to decline markedly when buffer size exceeds 300 MB. 
+
+In addition to allow photon 
+indexing a GPU buffer of 64 bit integers was used to store 4 bit history flags for up to 16 steps.
+Thrust sparse histogramming techniques are used so sort the photon sequence histories 
+
+
 \begin{itemize}
-\item cuRAND random numbers, initialization stack workaround
-\item generation of scintillation and Cerenkov photons from gensteps (explain: Geant4 process "stack")
-\item GPU resident photons, all operations done on GPU: seeded (assigned gensteps), generated, propagated, indexed 
+
+\item photon step sequence recording
 \item photon indexing with CUDA Thrust 
-\item integrated Geant4/Opticks workflow
-\item multi-event handling 
+%SKIP: \item small number of VBOs for entire geometry, one for non-instanced, one for each case of instanced geometry
+%SKIP: \item persistent viewpoint bookmarks 
+%SKIP: \item composited OpenGL rasterized render and OptiX ray trace, using Z-depth calulated for each raytrace pixel.
+%\item OptiX/OpenGL/CUDA/Thrust interoperation, same GPU buffers shared
+\item OpenGL based visualization, geometry shaders time scrubbing 
+\item index enables interactive photon history selection
+\item GUI using ImGui\cite{ImGui}  % passing mention
+\item layered dependencies, visualization on non-CUDA capable GPUs
 \end{itemize}
+
+
 
 \section{Validation}
 
+
 \begin{itemize}
 \item CFG4: one executable doing two simulations: pure G4 and G4+Opticks 
+
 \item G4 step recorder in Opticks event format
 \item simple test geometries, commandline configured 
 \item torch light source, commandline configured 
 \item fresnel, rainbow, PmtInBox, tconcentric
 \item compressed recording of propagation steps
 \item frequency count chi2 distance, distrib chi2
-\end{itemize}
-
-\section{Visualisation}
-
-\begin{itemize}
-\item small number of VBOs for entire geometry, one for non-instanced, one for each case of instanced geometry
-\item persistent viewpoint bookmarks 
-\item composited OpenGL rasterized render and OptiX ray trace, using Z-depth calulated for each raytrace pixel.
-\item OptiX/OpenGL/CUDA/Thrust interoperation, same GPU buffers shared
-\item OpenGL based visualization, GLFW
-\item OpenGL shaders
-\item time scrubbing a propagation (geometry shader with time as input)
-\item index enables interactive photon history selection
-\item GUI using ImGui\cite{ImGui}
-\item layered dependencies, visualization on non-CUDA capable GPUs
 \end{itemize}
 
 \section{Conclusion}
@@ -573,11 +659,6 @@ Fork of Chroma {\tt http://bitbucket.org/simoncblyth/chroma}
 
 
 
-
-
-
-
-
 \bibitem{sbvh}
 Stich M, Friedrich H and Dietrich A 
 2009
@@ -635,6 +716,11 @@ Van der Walt S, Colbert S, Varoquaux G
 The NumPy array: a structure for efficient numerical computation
 {\it Comput. Sci. Eng.} {\bf 13} pp 22--30
 
+
+
+\bibitem{curandURL}
+cuRAND URL {\tt http://docs.nvidia.com/cuda/curand/index.html}
+
 \bibitem{cudaPaper}
 Nickolls J, Buck I, Garland M and Skadron K 
 2008
@@ -643,9 +729,6 @@ Scalable Parallel Programming with CUDA
 
 \bibitem{cudaURL}
 CUDA URL {\tt http://www.nvidia.com/object/cuda\_home\_new.html}
-
-\bibitem{curandURL}
-cuRAND URL {\tt http://docs.nvidia.com/cuda/curand/index.html}
 
 
 \bibitem{thrust}
@@ -656,6 +739,9 @@ Bell N and Hoberock J
 
 \bibitem{thrustURL} 
 Thrust URL {\tt https://developer.nvidia.com/thrust}
+
+
+
 
 \bibitem{opengl}
 Shreiner D, Sellers G, Kessenich J, Licea-Kane B 
