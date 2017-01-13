@@ -37,6 +37,41 @@ CSG Thesis
 CSG to BREP
 -------------
 
+
+
+ICESL: A GPU ACCELERATED CSG MODELER AND SLICER
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.680.4008&rep=rep1&type=pdf
+* ~/opticks_refs/icesl_2013.pdf
+
+Avoids the mesh, applies CSG operations at pixel level within OpenGL shaders
+together with A-buffer.
+
+
+A-buffer
+~~~~~~~~~~
+
+Basically an A-buffer is a simple list of fragments per pixel
+
+* Cyril Crassin (NVIDIA Research) personal blog http://blog.icare3d.org
+* http://blog.icare3d.org/2010/06/fast-and-accurate-single-pass-buffer.html
+
+The idea is very simple: Each fragment is written by the fragment shader at
+it's position into a pre-allocated 2D texture array (or a global memory region)
+with a fixed maximum number of layers. The layer to write the fragment into is
+given by a counter stored per pixel into another 2D texture and incremented
+using an atomic increment (or addition) operation ( [image]AtomicIncWrap or
+[image]AtomicAdd). After the rendering pass, the A-Buffer contains an unordered
+list of fragments per pixel with it's size. To sort these fragments per depth
+and compose them on the screen, I simply use a single screen filling quad with
+a fragment shader. This shader copy all the pixel fragments in a local array
+(probably stored in L1 on Fermi), sort them with a naive bubble sort, and then
+combine them front-to-back based on transparency.
+
+
+
+
 Marching Cubes to define isosurface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -110,7 +110,7 @@ that are critical inputs to physics analyses.
 The number of optical photons estimated to be produced by a muon of 
 typical energy 100 GeV crossing the Daya Bay detector is at the level of several millions, 
 for JUNO the estimate is an order of magnitude larger. 
-Profiling the Geant4\cite{g4A}\cite{g4B}\cite{g4C} toolkit based Daya Bay simulation 
+Profiling the Geant4 toolkit based Daya Bay simulation 
 shows the propagation of optical photons to consume more than 95\% of CPU time. 
 In addition to the CPU time the memory requirements for handling many millions 
 of photons pose severe constraints.  
@@ -257,7 +257,7 @@ simulation time with file input/output time and bookkeeping.
 OptiX\cite{optixPaper} \cite{optixSite} is a general-purpose ray tracing engine 
 designed for NVIDIA GPUs that exposes an accessible single ray programming model 
 while still providing state of the art acceleration competitive with 
-manually optimized approaches\cite{understanding}\cite{optixPaper}.  
+manually optimized approaches\cite{understanding}\cite{understandingAddendum}.  
 %
 The core principle of OptiX is a that ray tracing pipelines can be implemented 
 from the combination of a small set of user provided operations
@@ -289,44 +289,54 @@ with different parts of a scene geometry but all the details of creation, updati
 and traversal are handled by OptiX internally using the geometrical information provided by the 
 bounding box program. Opticks currently uses the SBVH (Split boundary volume heirarchy) structure\cite{sbvh}.
 
-OptiX design was informed by studies\cite{understanding} 
+The design of OptiX is informed by studies\cite{understanding}\cite{understandingAddendum}
 comparing simulated GPU performance against measurements
 for various ray tracing algorithms. The GPU simulators 
 provide hard upper bounds based on the native assembly operations
 for each algorithm, the SIMD width and work scheduling approach. 
-OptiX used a dynamically load balanced GPU execution model that enables
+OptiX uses a dynamically load balanced GPU execution model that enables
 performance to scale linearly with CUDA cores across multiple GPUs. 
 
 This scaling linearity has been verified by ray trace measurements on a 
 borrowed 4 GPU workstation (Tesla K40m) by progressively masking GPUs.
 
 
-
 \section{Geometry}
 
 Implementing an equivalent external simulation demands that the Geant4 
 context of geometry, material and surface properties is available on the GPU.
-This is achieved by first writing the tesselated geometry into a COLLADA\cite{colladaURL} or DAE file  
+This is achieved by first writing the tesselated geometry into a COLLADA/DAE\cite{colladaURL} XML file  
 using the G4DAE\cite{g4daeURL} geometry exporter which was implemented based upon the 
 standard GDML exporter. All material and surface properties as a function of wavelength are 
 included in the G4DAE using the extensibility of the file format.
 Opticks reads the G4DAE geometry file using a forked version\cite{AssimpFork} of the
 Assimp\cite{Assimp} asset importer that adds handling of the extra optical material and surface
 properties. 
+% GEOINSTANCING
+The loaded volume tree is analysed to locate repeated geometry based 
+on progeny transform digests and mesh indices, yielding geometry subtrees and transforms.
+These allow OptiX and OpenGL geometry instancing to be used, which avoids repetition of geometry 
+data on the GPU. Use of geometry instancing was found to be essential in order to fit the 
+data into the GPU memory available. 
+% GEOCACHE
+To avoid repeated parsing of XML at every initialization
+a geometry cache was implemented using the NPY\cite{NPY} serialization format, enabling 
+initialization times for the JUNO geometry to be reduced from several minutes to several seconds.
+% NPY
+The NPY format, consisting simply of a header describing array type and dimension together 
+with the serialized data buffer, is used for all Opticks serialization due
+to the ease with which data can be directly uploaded to the GPU and also 
+loaded into ipython\cite{ipython} as NumPy\cite{numpy} arrays for debugging and analysis.
 
+% BOUNDARY BASED GEOMETRY MODEL
 Optical physics and ray tracing favors the use of a boundary based geometry model 
-rather than the tree of volumes geometry model used by Geant4. 
-The G4DAE geometry file retains the full Geant4 volume tree structure, which is translated 
-at import into a boundary based model with each boundary primitive being 
-labelled with boundary index which uniquely identifies the combination of four inner/outer material and inner/outer surfaces. 
-These are listed below together with the Geant4 equivalents they are obtained from.
-\begin{itemize}
-\item outer material (parent)
-\item outer surface (inwards going photons, from parent to self)
-\item inner surface (outwards going photons, from self to parent)
-\item inner material (self)
-\end{itemize}
-
+rather than the tree of volumes model used by Geant4. 
+At initialization the volume tree is translated into a boundary based model 
+with each primitive labelled with a boundary index which uniquely identifies 
+a combination of four indices representing outer and inner materials and outer and inner surfaces.
+Outer/inner surfaces handle inwards/outwards going photons allowing the Geant4 border and skin 
+surface functionality to be translated.
+% TEX
 GPUs contain hardware dedicated to fast texture lookup and interpolation. 
 This is exploited by using a single 2d float4 texture named the boundary texture 
 that contains interleaved material and surface properties as a function of wavelength. 
@@ -339,9 +349,21 @@ obtained from a single hardware optimized texture lookup.
 The material properties include refractive index, absorption length, scattering length, reemission probability and  group velocity
 and surface properties include detection efficiency, absorption probability, specular and diffuse reflectivity.
 
+%ANALYTIC VS TESSELATED
+OptiX provides only the acceleration of geometrical intersection not the intersection itself. 
+This allows use of any primitive shape for which bounding box and ray primitive intersections can be returned.
+Use of tesselated geometry with triangle primitives allows all primitives to share the same intersection code. 
+However to improve realism for the optically critical photomultiplier tubes 
+an analytic description was developed based upon the original constructive solid geometry (CSG)
+which defines solids using boolean set operations applied to basis shapes such as spheres and cylinders.
+Implementation of general CSG boolean handling was avoided by partitioning the geometry at 
+the intersection planes of the basis shapes to form primitives 
+composed of slices of single basis shapes. The five solids representing the Daya Bay 
+photomultiplier tube are partitioned into a total of twelve single primitive parts 
+which are copied to the GPU instead of the close to 3000 triangles of the tesselated geometry. 
 
 
-
+% HMM: HOW MUCH G4 COVERAGE ???  BETTER TO KEEP TO MINIMUM, MORE SPACE FOR OPTICKS
 %
 % Smart Voxels
 % P. Kent, Pure Tracking and Geometry in Geant4,Geant4 internal note, April 1995.
@@ -350,48 +372,21 @@ and surface properties include detection efficiency, absorption probability, spe
 % 
 % http://geant4.cern.ch/results/papers/geometry-IEEE04.pdf
 % The Geant4 Geometry Modeler G. Cosmo, CERN
-%
 % 
 % A technique for optimised navigation in regulargeometriesPedro Arce, John Apostolakis and Gabriele Cosmo
 % 
-
-\begin{itemize}
-\item Geometry model implications, 
-\item G4DAE Geometry Exporter, volume tree, use extensiblity of DAE to include material/surface props as function of wavelength
-\item importing Geometry, assimpfork \cite{Assimp} \cite{AssimpFork}
-\item surface based geometry (BREP) more natural for ray tracing 
-\item Geometry model translation, volume to surface based geometry (4 indices attached to primitives) in/out G4LogicalBorderSurface
-\item mesh fixing with OpenMesh\cite{OpenMesh}
-\item geocache using NumPy serialization
-\item geometry instancing mandatory
-\item analytic primitives for PMT, manual approach 
-\item material and surface properties in GPU textures
-\end{itemize}
-
-\subsection{Geometry Model Implications}
-
-Geometry model determines techniques (and hardware) available to accelerate intersection.
-
-Geometries are defined in Geant4 by a hierarchical tree structure of volumes, each containing smaller volumes
-which may not overlap. Volumes have associated materials and solids which can be modelled using 
-the Constructive Solid Geometry (CSG) technique, allowing the use of 
-boolean combinations (union, intersection and subtraction) of basis shapes and other boolean solids.
-As an optimization Geant4 uses a smart voxelisation technique that reduces the number of volumes that
-must be intersect tested  
-
-
-
-Geant4 uses a solid based geometry model with volumes of particular shape and material,
-These volumes form a tree of mother volumes
-containing non-intersecting daughter volumes which in turn contain their own daughters, and so on.
-The tree structure and containment condition limits the number of volumes which
-must be be interrogated in order to compute the next boundary intersection, as if the
-mother of a volume does not intersect then its daughters cannot.
-
-
-
-
-
+%\begin{itemize}
+%\item Geometry model implications, 
+%\item G4DAE Geometry Exporter, volume tree, use extensiblity of DAE to include material/surface props as function of wavelength
+%\item importing Geometry, assimpfork \cite{Assimp} \cite{AssimpFork}
+%\item surface based geometry (BREP) more natural for ray tracing 
+%\item Geometry model translation, volume to surface based geometry (4 indices attached to primitives) in/out G4LogicalBorderSurface
+%SKIP \item mesh fixing with OpenMesh\cite{OpenMesh}
+%\item geocache using NumPy serialization
+%\item geometry instancing mandatory
+%\item analytic primitives for PMT, manual approach 
+%\item material and surface properties in GPU textures
+%\end{itemize}
 
 
 \section{Event}
@@ -432,10 +427,10 @@ mother of a volume does not intersect then its daughters cannot.
 \item layered dependencies, visualization on non-CUDA capable GPUs
 \end{itemize}
 
-
 \section{Conclusion}
 
 \begin{itemize}
+\item acceleration structure fully decoupled from geometry description 
 \item performance comparison
 \item performance factors so large they become irrelevant, its the reciprocal are interested in 
 \item principal contribution : context translation (geometry, materials and surfaces) from G4 into a GPU appropriate form
@@ -444,12 +439,10 @@ mother of a volume does not intersect then its daughters cannot.
 
 
 \section{Future Developments}
-
 \begin{itemize}
 \item boolean CSG on GPU
 \item G4DAE integrated with Geant4
 \end{itemize}
-
 
 
 
@@ -544,6 +537,14 @@ Aila T and Laine S
 Understanding the efficiency of ray traversal on GPUs
 {\it Proceedings of the Conference on High Performance Graphics} pp 145--149
 
+\bibitem{understandingAddendum}
+Aila T, Laine S and Karras T
+2012
+Understanding the Efficiency of Ray Tracing on GPUs – Kepler \& Fermi addendum. 
+{\it NVIDIA Technical Report NVR–2012–02}
+% https://mediatech.aalto.fi/~samuli/publications/aila2012tr1_paper.pdf
+% ray tracing is still, even with incoherent rays and more complex scenes, 
+% almost entirely limited by the available FLOPS
 
 
 \bibitem{chromaURL} 
@@ -609,20 +610,24 @@ G4DAE URL {\tt https://bitbucket.org/simoncblyth/g4dae/}
 \bibitem{colladaURL}
 COLLADA URL {\tt https://www.khronos.org/collada/}
 
-\bibitem{Assimp}
-Assimp URL {\tt http://www.assimp.org}
-
 \bibitem{AssimpFork}
 Fork of Assimp supporting G4DAE extra optical properties {\tt https://github.com/simoncblyth/assimp}
+
+\bibitem{Assimp}
+Assimp URL {\tt http://www.assimp.org}
 
 \bibitem{OpenMesh}
 OpenMesh URL {\tt https://www.openmesh.org}
 
 
+\bibitem{NPY}
+Kern R
+2007
+A Simple File Format for NumPy Arrays
+{\tt https://docs.scipy.org/doc/numpy/neps/npy-format.html}
 
-
-
-
+\bibitem{ipython}
+IPython URL {\tt https://ipython.org}
 
 \bibitem{numpy}
 Van der Walt S, Colbert S, Varoquaux G 
