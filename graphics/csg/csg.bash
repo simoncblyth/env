@@ -34,10 +34,197 @@ CSG Thesis
 * http://www.en.pms.ifi.lmu.de/publications/diplomarbeiten/Sebastian.Steuer/DA_Sebastian.Steuer.pdf
 
 
+
+CSG Tree Structure in CUDA ?
+------------------------------
+
+Series of posts from Tero Karras
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://devblogs.nvidia.com/parallelforall/thinking-parallel-part-i-collision-detection-gpu/
+* https://devblogs.nvidia.com/parallelforall/thinking-parallel-part-ii-tree-traversal-gpu/
+
+Am envisaging very small per-solid CSG trees so no need to 
+get into parallel thinking complexity.
+
+Binary tree in array
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://en.wikipedia.org/wiki/Binary_heap
+
+Let n be the number of elements in the heap and i be an arbitrary valid index
+of the array storing the heap. 
+
+If the tree root is at index 0, with valid indices 0 through n − 1, 
+then each element a at index i has children 
+at indices 2i + 1 and 2i + 2 its parent at index floor((i − 1) ∕ 2).
+
+::
+
+    // i: 0..n-1
+    //  2i+1,2i+2, floor((i − 1) ∕ 2)
+
+    0
+    1        2
+    3   4    5     6
+    7 8 9 10 11 12 13 14 
+    
+    // hmm storing multiple trees in one array requires offsets
+    // after the 1st 
+
+
+Alternatively, if the tree root is at index 1, with valid indices 1 through n, 
+then each element a at index i has children 
+at indices 2i and 2i +1 its parent at index floor(i ∕ 2).
+
+::
+
+     // i: 1..n
+     // 2i, 2i+1, floor(i ∕ 2)
+
+     1                            <-- 1
+     2           3                <-- 2
+     4    5      6       7        <-- 4
+     8 9  10 11  12 13   14 15    <-- 8  basis shapes
+
+
+* NB no need for left/right pointers, 
+  because the tree is complete can navigate just from the index, which is an input
+
+
+CSG tree into (n,4,4) buffer ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Nodes need a flag distinguishing shape(leaf-node) from operations(op-node with boolean operation and possibly transform)
+
+**shape-node** (dont call this primitive, reserving that word for OptiX primitives) 
+ 
+* basis shape codes sphere/box/... (4 bits probably enough) 
+* basis shape parameters 
+* bbox 3*2  COULD SKIP as should be calculable from the shape parameters, but
+  is convenient and have sufficient space 
+
+**operation-node**
+
+* operation-code union/intersection/difference (2 bits)
+* transform applicability none/left/right/both (2 bits)
+* 4x4 transform matrix ? 
+
+The flags can easily fit into the spare (always: 0,0,0,1 ) space in 4x4.
+
+Extra slicing operation ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* shape slicing ? ie restrict intersections to a range along an axis
+* can be parameterized very compactly : 2bits for axis and 2 floats for range
+
+
+Concatenating multiple csg trees into one buffer ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* can extend current prim/part model to hold primitves
+  that are lists of parts together with primitives that
+  are trees of parts combined by csg operations
+
+::
+     (n,1,4)  uint4 primBuffer 
+     (n,4,4) float4 partBuffer
+
+::
+
+    1184 RT_PROGRAM void bounds (int primIdx, float result[6])
+    1185 {
+    1186   // could do this offline, but as run once only 
+    1187   // its a handy place to dump things checking GPU side state
+    1188   //rtPrintf("bounds %d \n", primIdx ); 
+    1189 
+    1190   const uint4& prim    = primBuffer[primIdx];
+    1191   unsigned partOffset  = prim.x ;
+    1192   unsigned numParts    = prim.y ;
+    1193   unsigned primFlags   = prim.w ;
+
+
+
+When/how to use the transforms ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Remember the user of the CSG tree is the intersect_csg 
+code which looks up shape type, parameters, and transforms from it.
+Presumably intersect with inverse transformed ray, as thats 
+much simpler than transforming the shape.
+
+* care with normal transforms needed if allow 
+  transforms like sphere to ellipsoid
+
+Hmm there could be multiple levels of transform up the tree.
+So for a node need to look up thru the ancestors with (i-1)/2 
+to collect transform matrices to multiply.
+
+::
+
+    int p = (i-1)/2 ; // parent of current node
+    while p >= 0:
+        // collect transforms
+        p = (p-1)/2 
+
+
+
+::
+
+     03 static __device__
+     04 void intersect_sphere(const quad& q0, const float& tt_min, float3& tt_normal, float& tt  )
+     05 {
+     ..
+     11     float3 center = make_float3(q0.f);
+     12     float radius = q0.f.w;
+     13 
+     14     float3 O = ray.origin - center;
+     15     float3 D = ray.direction;
+     16 
+     17     float b = dot(O, D);
+     18     float c = dot(O, O)-radius*radius;
+     19     float disc = b*b-c;
+     20 
+     21     float sdisc = disc > 0.f ? sqrtf(disc) : 0.f ;
+     22     float root1 = -b - sdisc ;
+     23     float root2 = -b + sdisc ;
+     24 
+     25     bool valid_intersect = sdisc > 0.f ;   // ray has a segment within the sphere
+     26 
+     27     if(valid_intersect)
+     28     {
+     29         tt =  root1 > tt_min ? root1 : root2 ;
+     30         tt_normal = tt > tt_min ? (O + tt*D)/radius : tt_normal ;
+     31     }
+     32 
+     33 }
+
+
+* http://computergraphics.stackexchange.com/questions/212/why-are-inverse-transformations-applied-to-rays-rather-than-forward-transformati
+
+
+
+Compact 4x4
+~~~~~~~~~~~~~~~~
+
+* https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+
+The representation of a rotation as a quaternion (4 numbers) 
+is more compact than the representation as an orthogonal matrix (9 numbers). 
+
+* rotation quat : 4 numbers
+* translation   : 3 numbers 
+
+Hmm probably doing both rotation and translation within a CSG solid
+is rare, could split the operations to slim down nodes.
+
+:google:`csg tree with transforms`
+
+
+
+
 CSG to BREP
 -------------
-
-
 
 ICESL: A GPU ACCELERATED CSG MODELER AND SLICER
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
