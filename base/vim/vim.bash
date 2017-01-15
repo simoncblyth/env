@@ -12,6 +12,27 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+Spell Checking
+----------------
+
+* http://thejakeharding.com/tutorial/2012/06/13/using-spell-check-in-vim.html
+
+Add below to ~/.vimrc::
+
+    set spelllang=en
+    set spellfile=~/.vim/en.utf-8.add
+
+Enable spell checking with::
+
+   :set spell
+
+Navigate:
+
+   ]s   ## move to next "mispelled" word
+   zg   ## add current selected mispelling to ok list 
+
+
+
 Windows MSYS2 Arrow keys
 -------------------------
 

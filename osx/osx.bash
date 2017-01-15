@@ -250,6 +250,11 @@ osx_ss_cp(){
    if [ "${iwd/$ENV_HOME\/}" != ${iwd} ]; then 
        rel=${iwd/$ENV_HOME\/}
        repo="env"
+
+   elif [ "${iwd/$OPTICKS_HOME\/}" != ${iwd} ]; then 
+       rel=${iwd/$OPTICKS_HOME\/}
+       repo="env"    ## actually opticks repo, but still using env folder in bitbucket statics
+
    elif [ "${iwd/$WORKFLOW_HOME\/}" != ${iwd} ]; then 
        rel=${iwd/$WORKFLOW_HOME\/}
        repo="workflow"

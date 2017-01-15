@@ -22,30 +22,25 @@ transfer overheads and allowing CPU memory usage to be restricted to
 optical photons that hit photomultiplier tubes or other photon detectors.
 Collecting hits into standard Geant4 hit collections then allows the 
 rest of the simulation chain to proceed unmodified.
-Optical physics processes of scattering, absorption, reemission and 
-boundary processes are implemented as CUDA OptiX programs based on the Geant4
+Optical physics processes of scattering, absorption, scintillator reemission and 
+boundary processes are implemented in CUDA OptiX programs based on the Geant4
 implementations. Wavelength dependent material and surface properties as well as  
 inverse cumulative distribution functions for reemission are interleaved into 
 GPU textures providing fast interpolated property lookup or wavelength generation.
 Geometry is provided to OptiX in the form of CUDA programs that return bounding boxes 
-for each primitive and single ray geometry intersection results. Some critical parts 
+for each primitive and ray geometry intersection positions. Some critical parts 
 of the geometry such as photomultiplier tubes have been implemented analytically 
-with the remainder being tesselated. 
+with the remainder being tessellated. 
 OptiX handles the creation and application of a choice of acceleration structures
-such as boundary volume heirarchies and the transparent use of multiple GPUs. 
+such as boundary volume hierarchies and the transparent use of multiple GPUs. 
 OptiX supports interoperation with OpenGL and CUDA Thrust that has enabled 
 unprecedented visualisations of photon propagations to be developed 
 using OpenGL geometry shaders to provide interactive time scrubbing and    
-CUDA Thrust photon indexing to provide interactive history selection. 
+CUDA Thrust photon indexing to enable interactive history selection. 
 %Validation and performance results are shown for the photomultiplier based 
 %Daya Bay and JUNO Neutrino detectors. 
 \end{abstract}
 
-
-
-
-%
-% target audience should know the below, so dont bother
 %
 %Adoption of parallelism at various levels has become mandatory in order to 
 %fully exploit the capabilities of current computing hardware.  
@@ -55,12 +50,11 @@ CUDA Thrust photon indexing to provide interactive history selection.
 %fast 3D graphics is computer games. 
 %
 %
-%
-% hmm dont mention MIC, as I know very little about it
+% skip MIC, as I know very little about them
 % In contrast the recently introduces Intel MIC processors target high end workstations only.  
 %Intel proposes the use of many integrated core (MIC) architecture coprocessors.
 %
-% too breathless ... relax, not an elevator pitch
+% too breathless, not an elevator pitch
 % BELOW CAN GO IN CONCLUSION, NOT INTRODUCTION
 %
 %Opticks works together with Geant4 replacing just the optical photon simulation with
@@ -82,7 +76,6 @@ CUDA Thrust photon indexing to provide interactive history selection.
 %Direct application of hardware and software developed over the past 20 years 
 %to feed the demands of the entertainment, gaming and design industries over the past 20 years 
 %
-  
 
 \section{Introduction}
 
@@ -129,9 +122,9 @@ of photons pose severe constraints.
 %\begin{itemize}
 %\item Optical Photon Simulation Problem
 %\item Hybrid Solution
-%\item Connection between Ray Traced Image Synth and Optical Photon Simulation
+%\item Connection between Ray Traced Image Synthesis and Optical Photon Simulation
 %\item external simulation cost : "context" duplication of geometry, materials, surfaces
-%\item open source opticks\cite{opticksURL} \cite{newton}
+%\item open source Opticks\cite{opticksURL} \cite{newton}
 %\item Opticks requirements, CUDA capability 3.0
 %\end{itemize}
 
@@ -171,14 +164,14 @@ is understandable as the large data structures that model the geometry contrast
 markedly with the simple structures used to model the optical physics.
 
 %Computer graphics algorithms for rendering predominantly uses rasterization,
-%which projects 3d models of objects onto a 2d image plane and combines 
+%which projects 3D models of objects onto a 2D image plane and combines 
 %the contributions into pixel values using a depth buffer structure. 
 
 Image synthesis algorithms in computer graphics can be divided into 
 the two approaches of rasterization and ray tracing. 
 Ray tracing casts rays from a viewpoint through image plane pixels out 
 into the scene and recursively reflects and refracts rays with the geometry intersected 
-to compute pixel values. Rasterization projects 3d object vertices onto the image plane.
+to compute pixel values. Rasterization projects 3D object vertices onto the image plane.
 The closeness of the ray tracing algorithm to the optical physics of image formation
 makes it the preferred approach for the creation of realistic images. 
 Ray traced image synthesis and optical photon simulation have much in common, 
@@ -239,9 +232,6 @@ to optimize scalar performance; CUDA implementations are also provided.
 %they merely provide an approximation of the full simulation which trade 
 %simulation time with file input/output time and bookkeeping. 
 %
-% too much detail:
-%For each bin of R-theta parameter space distributions of nPE and hit time
-%are collected from a full simulation.
 %
 %\subsection{IceCube GPU Photon Propagation}
 %
@@ -279,15 +269,15 @@ photomultiplier tubes without repetition of information. This so called geometry
 instancing drastically reduces the GPU memory needed to contain the scene data.
 
 The central data structure enabling fast ray tracing is a geometry index
-known as an acceleration structure which sorts a scene’s primitives 
+known as an acceleration structure which sorts primitives 
 into spatial or object groups. 
-Heirarchical tree structures are typically used
+Hierarchical tree structures are typically used
 with leaves representing the primitives.  Rejection of higher level
 volumes allows all contained volumes to be removed from the intersection
 search. OptiX provides a simple interface to associate acceleration structures 
 with different parts of a scene geometry but all the details of creation, updating 
 and traversal are handled by OptiX internally using the geometrical information provided by the 
-bounding box program. Opticks currently uses the SBVH (Split boundary volume heirarchy) structure\cite{sbvh}.
+bounding box program. Opticks currently uses the SBVH (Split boundary volume hierarchy) structure\cite{sbvh}.
 
 The design of OptiX is informed by studies\cite{understanding}\cite{understandingAddendum}
 comparing simulated GPU performance against measurements
@@ -303,9 +293,25 @@ borrowed 4 GPU workstation (Tesla K40m) by progressively masking GPUs.
 
 \section{Geometry}
 
+\begin{figure}[htbp]
+\centering
+%\includegraphics[width=\textwidth]{dyb_raytrace_composite_cerenkov_half_half.png}
+\includegraphics[width=\textwidth]{dyb_raytrace_composite_cerenkov_half.png}
+%\includegraphics[width=\textwidth]{dyb_raytrace_composite_cerenkov_half_half_assign_profile.png}
+%\includegraphics[resolution=110]{dyb_raytrace_composite_cerenkov.png}
+\caption{
+Simulated Cerenkov and scintillation photons from a 100 GeV muon travelling
+across the Daya Bay antineutrino detector. The screenshot image is composited from 
+a ray traced rendering of the detector geometry with analytically defined photomultiplier tubes 
+and an OpenGL rasterized representation of an optical photon propagation directly from OptiX written GPU buffers. 
+The line colors represent the photon polarization direction. The original 4.8M pixel ray traced
+render provides interactive navigation and time scrubbing of the propagation on a 
+Macbook Pro (2013) laptop with NVIDIA GeForce GT 750M Kepler generation GPU.}
+\end{figure}
+
 Implementing an equivalent external simulation demands that the Geant4 
 context of geometry, material and surface properties is available on the GPU.
-This is achieved by first writing the tesselated geometry into a COLLADA/DAE XML file  
+This is achieved by first writing the tessellated geometry into a COLLADA/DAE XML file  
 %\cite{colladaURL} 
 using the G4DAE\cite{g4daeURL} geometry exporter which was implemented based upon the 
 standard GDML exporter. COLLADA is a widely supported 3D file format allowing G4DAE exported geometries 
@@ -341,7 +347,7 @@ Outer/inner surfaces handle inwards/outwards going photons allowing the Geant4 b
 surface functionality to be translated.
 % TEX
 GPUs contain hardware dedicated to fast texture lookup and interpolation. 
-This is exploited by using a single 2d float4 texture named the boundary texture 
+This is exploited by using a single 2D {\tt float4} texture named the boundary texture 
 that contains interleaved material and surface properties as a function of wavelength. 
 The two dimensions correspond to the wavelength of the photon and the inner/outer material/surface 
 within a particular boundary. 
@@ -352,10 +358,10 @@ obtained from a single hardware optimized texture lookup.
 The material properties include refractive index, absorption length, scattering length, reemission probability and  group velocity
 and surface properties include detection efficiency, absorption probability, specular and diffuse reflectivity.
 
-%ANALYTIC VS TESSELATED
+%ANALYTIC VS TESSELLATED
 OptiX provides only the acceleration of geometrical intersection not the intersection itself. 
 This allows use of any primitive shape for which bounding box and ray primitive intersections can be returned.
-Use of tesselated geometry with triangle primitives allows all primitives to share the same intersection code. 
+Use of tessellated geometry with triangle primitives allows all primitives to share the same intersection code. 
 However to improve realism for the optically critical photomultiplier tubes 
 an analytic description was developed based upon the original constructive solid geometry (CSG)
 which defines solids using boolean set operations applied to basis shapes such as spheres and cylinders.
@@ -363,7 +369,7 @@ Implementation of general CSG boolean handling was avoided by partitioning the g
 the intersection planes of the basis shapes to form primitives 
 composed of slices of single basis shapes. The five solids representing the Daya Bay 
 photomultiplier tube are partitioned into a total of twelve single primitive parts 
-which are copied to the GPU instead of the close to 3000 triangles of the tesselated geometry. 
+which are copied to the GPU instead of the close to 3000 triangles of the tessellated geometry. 
 
 
 % HMM: HOW MUCH G4 COVERAGE ???  BETTER TO KEEP TO MINIMUM, MORE SPACE FOR OPTICKS
@@ -376,13 +382,13 @@ which are copied to the GPU instead of the close to 3000 triangles of the tessel
 % http://geant4.cern.ch/results/papers/geometry-IEEE04.pdf
 % The Geant4 Geometry Modeler G. Cosmo, CERN
 % 
-% A technique for optimised navigation in regulargeometriesPedro Arce, John Apostolakis and Gabriele Cosmo
+% A technique for optimised navigation in regular geometries Pedro Arce, John Apostolakis and Gabriele Cosmo
 % 
 %\begin{itemize}
 %\item Geometry model implications, 
-%\item G4DAE Geometry Exporter, volume tree, use extensiblity of DAE to include material/surface props as function of wavelength
+%\item G4DAE Geometry Exporter, volume tree, use extensibility of DAE to include material/surface props as function of wavelength
 %\item importing Geometry, assimpfork \cite{Assimp} \cite{AssimpFork}
-%\item surface based geometry (BREP) more natural for ray tracing 
+%\item boundary based geometry more natural for ray tracing 
 %\item Geometry model translation, volume to surface based geometry (4 indices attached to primitives) in/out G4LogicalBorderSurface
 %SKIP \item mesh fixing with OpenMesh\cite{OpenMesh}
 %\item geocache using NumPy serialization
@@ -399,7 +405,7 @@ Geant4 scintillation and Cerenkov processes, instead of
 generating photons in a loop the parameters of the so called genstep 
 are collected into a buffer. 
 The parameters include the number of photons to generate and a line segment 
-along which to generate them togther with other parameters used to the 
+along which to generate them together with other parameters used to the 
 define the angular and wavelength distributions.
 %
 Collecting and copying gensteps rather than photons has the
@@ -427,7 +433,7 @@ Within the loop a ray trace is performed that provides the distance to the close
 The boundary index together with the photon wavelength yields via texture lookups material properties 
 such as absorption length, reemission probability and scattering length. 
 These quantities together with uniform random number throws determine 
-whether the photon is aborbed, scattered, undergoes reemission or survives to the boundary. 
+whether the photon is absorbed, scattered, undergoes reemission or survives to the boundary. 
 Scintillator reemission changes the direction, polarization and wavelength of the photon. 
 An inverted cumulative distribution function saved into a GPU texture allows reemission wavelengths 
 to be generated from uniform random number texture lookups.
@@ -435,7 +441,7 @@ to be generated from uniform random number texture lookups.
 Photons reaching a boundary which has no associated optical surface are reflected or 
 transmitted using a simplified translation of the Geant4 boundary processing 
 with optimization techniques from the ray tracing literature that avoid the 
-use of trancendental functions. Photons reaching a surface with an associated optical 
+use of transcendental functions. Photons reaching a surface with an associated optical 
 surface are detected, absorbed, diffusely reflected or specularly reflected following 
 the Geant4 implementations. 
 
@@ -458,15 +464,8 @@ be copied back, using Thrust stream compaction.
 
 \begin{figure}[htbp]
 \centering
-%\capstart
-
-%http://tex.stackexchange.com/questions/12939/png-importing-it-with-latex-pdflatex-xelatex
-%http://tex.stackexchange.com/questions/21627/image-from-includegraphics-showing-in-wrong-image-size
-% Opening in Preview shows 640x360px 72px/inch 
-
-%\includegraphics[natwidth=640bp,natheight=360bp,resolution=500]{jpmt-inside-wide_crop_half_half.png}
-%\includegraphics[angle=45]{jpmt-inside-wide.png}
-\includegraphics[resolution=100]{jpmt-inside-wide_crop_half_half.png}
+\includegraphics[width=\textwidth]{jpmt-inside-wide_crop_half_half.png}
+%\includegraphics[width=\textwidth]{jpmt-inside-wide_crop_half.png}
 \caption{Simulated Cerenkov and scintillations photons from a 100 GeV muon travelling
 across the JUNO antineutrino detector viewed from inside the spherical scintillator.
 Primary particles are simulated by Geant4, generation ``steps'' of the primaries
@@ -519,13 +518,13 @@ within the detector geometry, that have proved useful for outreach to a wide pub
 %\item photon indexing with CUDA Thrust 
 %SKIP: \item small number of VBOs for entire geometry, one for non-instanced, one for each case of instanced geometry
 %SKIP: \item persistent viewpoint bookmarks 
-%\item composited OpenGL rasterized render and OptiX ray trace, using Z-depth calulated for each raytrace pixel.
+%\item composited OpenGL rasterized render and OptiX ray trace, using Z-depth calculated for each ray traced pixel.
 %\item OptiX/OpenGL/CUDA/Thrust interoperation, same GPU buffers shared
 %\item OpenGL based visualization, geometry shaders time scrubbing 
 %\item index enables interactive photon history selection
 %\item GUI using ImGui\cite{ImGui}  % passing mention
 %SKIP:\item layered dependencies, visualization on non-CUDA capable GPUs
-%\item screenshot figures, one dyb one JUNO ? showing the GUI 
+%\item screenshot figures
 %\end{itemize}
 
 \section{Validation}
@@ -533,8 +532,8 @@ within the detector geometry, that have proved useful for outreach to a wide pub
 %\begin{itemize}
 %\item CFG4: one executable doing two simulations: pure G4 and G4+Opticks 
 %\item G4 step recorder in Opticks event format
-%\item simple test geometries, commandline configured 
-%\item torch light source, commandline configured 
+%\item simple test geometries, command-line configured 
+%\item torch light source, command-line configured 
 %SKIP, COVERED GENERALLY INSTEAD: \item fresnel, rainbow, PmtInBox, tconcentric
 %SKIP COVERED IN VIZ:\item compressed recording of propagation steps
 %\item frequency count chi2 distance, distrib chi2
@@ -561,12 +560,12 @@ These events are compared by forming $\chi^{2}$ distances for:
 Opticks aims to achieve a match between pure Geant4 simulations and the hybrid 
 Opticks/Geant4 simulation for full geometries. 
 To facilitate validation Opticks supports dynamic test geometries and light sources
-configured from the commandline that reuse materials and surfaces of a base geometry.
+configured from the command-line that reuse materials and surfaces of a base geometry.
 All relevant processes including scintillator reemission have been validated 
 when using geometries that can be fully analytically described by Opticks. 
 However, Opticks currently provides analytic CUDA intersection implementations 
 for only a few geometrical shapes and does not yet support general boolean CSG geometries.  
-This limitation complicates validation of full geometries as the tesselation 
+This limitation complicates validation of full geometries as the tessellation 
 approximation used for much of the geometry prevents precise photon history comparisons.
 
 
@@ -597,8 +596,8 @@ agreement is achieved between the Geant4 and Opticks simulations.
 \br
 Geometry & Geant4 10.2 & Opticks Interop & Opticks Compute \\
 \mr
-1M Rainbow (S polarized) &  56 & 1.62 & 0.28 \\
-1M Rainbow (P polarized) &  58 & 1.71 & 0.25 \\
+1M Rainbow (S-polarized) &  56 & 1.62 & 0.28 \\
+1M Rainbow (P-polarized) &  58 & 1.71 & 0.25 \\
 0.5M PMT in Mineral Oil  &  41 & 0.81 & 0.15 \\
 \br
 \end{tabular}

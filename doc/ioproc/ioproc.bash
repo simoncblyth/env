@@ -9,9 +9,7 @@ IOP Conference Proceedings Series
 =====================================
 
 * http://conferenceseries.iop.org/content/authors
-* http://chep2016.org/node/24
-
-
+* http://chep2016.org/node/28
 
 Previous Years Proceedings
 ----------------------------
@@ -21,12 +19,22 @@ Previous Years Proceedings
 * http://iopscience.iop.org/volume/1742-6596/664
 * http://iopscience.iop.org/issue/1742-6596/664/7
 
-
 chep2016
 ----------
 
 * Submission Deadline Monday February 6, 2017
 * All 15-minute Oral Presentations and Poster Presentations have a limit of 8 pages.
+
+         Taipei (+16)                San Fransisco                 
+   [Mon] 2305, 06 Feb 2017       [Mon] 0705, 06 Feb 2017 
+   [Tue] 0110, 07 Feb 2017       [Mon] 0910, 06 Feb 2017
+   [Tue] 0400, 07 Feb 2017       [Mon] 1210, 06 Feb 2017 
+   [Tue] 1000, 07 Feb 2017       [Mon] 1800, 06 Feb 2017 
+   [Tue] 1500, 07 Feb 2017       [Mon] 2300, 06 Feb 2017
+   [Tue] 1601, 07 Feb 2017       [Tue] 0001, 07 Feb 2017       
+
+* Assuming submissions are allowed on the San Francisco day of the deadline, 
+  have until 16:00 on Taipei's Tuesday 
 
 See: presentation-writeup for planning and text creation
 
@@ -40,6 +48,67 @@ named after the conference, renaming to eg chep2016.tex
 ::
 
     simon:chep2016 blyth$ cp JPCSLaTeXGuidelines.tex ~/e/doc/ioproc/chep2016/chep2016.tex
+
+
+
+Screenshot Figure Prep 
+---------------------------
+
+#. shift-cmd-4 take screen shot saving onto desktop       
+
+#. copy renamed png into bitbucket static folders
+
+::
+ 
+    cd ~/opticks/ok
+    osx_
+    osx_ss_cp dyb_raytrace_composite_cerenkov   
+
+    # relative path of invoking directory within opticks or env 
+    # determines the destination folder within bitbucket statics ~/simoncblyth.bitbucket.org 
+
+#. downsize the large screen shot twice 
+
+::
+
+    In [2]: 2862.*1688./1e6
+    Out[2]: 4.831056
+  
+    cd ~/simoncblyth.bitbucket.org/env/ok/
+    downsize.py dyb_raytrace_composite_cerenkov.png          # 2862px_1688px -> 1431px_844px
+    downsize.py dyb_raytrace_composite_cerenkov_half.png     # 1431px_844px -> 715px_422px 
+
+pdflatex is complaining::
+
+   libpng warning: iCCP: known incorrect sRGB profile
+
+Tried with the original screen shot, and get same warning and a much too big image.
+
+* http://stackoverflow.com/questions/11041044/convert-jpg-from-adobergb-to-srgb-using-pil
+
+
+Get warning to go away by assigning profile with Preview::
+
+    cp dyb_raytrace_composite_cerenkov_half_half.png dyb_raytrace_composite_cerenkov_half_half_assign_profile.png
+
+    open dyb_raytrace_composite_cerenkov_half_half_assign_profile.png
+
+    ## in Preview>Tools>Assign Profile..  picked "Generic RGB" 
+
+
+
+Initially had some trouble controlling size of includgraphics in latex,
+using resolution seems the easiest way.
+
+* http://tex.stackexchange.com/questions/12939/png-importing-it-with-latex-pdflatex-xelatex
+* http://tex.stackexchange.com/questions/21627/image-from-includegraphics-showing-in-wrong-image-size
+
+% Opening in Preview shows 640x360px 72px/inch 
+
+%\includegraphics[natwidth=640bp,natheight=360bp,resolution=500]{jpmt-inside-wide_crop_half_half.png}
+%\includegraphics[angle=45]{jpmt-inside-wide.png}
+
+
 
 
 FUNCTIONS
@@ -136,6 +205,7 @@ ioproc-make(){
    ioproc-make1- $tex
 
    ls -l $pdf
+   du -h $pdf
 }
 
 ioproc--()
@@ -150,45 +220,15 @@ ioproc-info(){ cat << EOI
    ioproc-etex : $(ioproc-etex)
    ioproc-pdf  : $(ioproc-pdf)
 
-
-simon:chep2016 blyth$ l $HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide*
--rw-r--r--@ 1 blyth  staff   622872 Dec 19 14:00 /Users/blyth/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop_half_half.png
--rw-r--r--  1 blyth  staff  2285892 May  8  2016 /Users/blyth/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop_half.png
--rw-r--r--@ 1 blyth  staff  6601014 Mar 26  2016 /Users/blyth/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop.png
--rw-r--r--  1 blyth  staff  2926418 Jan 13  2016 /Users/blyth/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
--rw-r--r--@ 1 blyth  staff  9162714 Jan 13  2016 /Users/blyth/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide.png
-simon:chep2016 blyth$ 
-
-
-    Make a dyb plot with ray trace sliced composited with raster ?
-
-        op -c --analyticmesh 1   # analytic PMTs
-
-        /Users/blyth/opticks/oglrap/gl/tex/frag.glsl
-
-::
-
- 15 void main ()
- 16 {
- 17    frag_colour = texture(ColorTex, texcoord);
- 18    float depth = frag_colour.w ;  // alpha is hijacked for depth in pinhole_camera.cu material1_radiance.cu
- 19    frag_colour.w = 1.0 ;
- 20 
- 21    gl_FragDepth = depth  ;
- 22 
- 23    if(NrmParam.z == 1)
- 24    {
- 25         if(depth < ScanParam.x || depth > ScanParam.y ) discard ;
- 26    }
-
-
-
 EOI
 }
 
 
 ioproc-figs-(){ cat << EOF
-$HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide.png
+$HOME/simoncblyth.bitbucket.org/env/ok/dyb_raytrace_composite_cerenkov.png
+$HOME/simoncblyth.bitbucket.org/env/ok/dyb_raytrace_composite_cerenkov_half.png
+$HOME/simoncblyth.bitbucket.org/env/ok/dyb_raytrace_composite_cerenkov_half_half.png
+$HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop_half.png
 $HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop_half_half.png
 EOF
 }

@@ -1,6 +1,26 @@
 #!/usr/bin/env python
 """
 Usage example, downsizing retina png screen captures for non-retina usage
+
+
+pdflatex is complaining about some screenshots::
+
+   libpng warning: iCCP: known incorrect sRGB profile
+
+Testing with non-downsized gives the same error so 
+presumably there are different versions of libpng being 
+used to make the screenshot PNGs and to read them 
+in pdflatex.
+
+* https://wiki.archlinux.org/index.php/Libpng_errors
+
+Some changes in libpng 1.6+ cause it issue warning or even not work correctly with the original HP/MS sRGB profile. 
+The old profile uses a D50 whitepoint, where D65 is standard.
+
+Fixed using Preview.app Tools>Assign profile.. and picking "Generic RGB"
+   
+
+
 """
 import os, logging, sys
 log = logging.getLogger(__name__)
