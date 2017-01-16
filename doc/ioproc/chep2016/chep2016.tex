@@ -250,9 +250,10 @@ OptiX ray tracing pipelines are constructed from a small set of user
 provided CUDA programs analogously to how OpenGL rasterization pipelines are 
 constructed from GLSL shaders. The programs handle different aspects of the ray 
 tracing workflow including: ray generation, object intersection and closest hit.
-The programs communicate via a ray payload data structure and GPU buffers and 
-textures many of which are copied from the CPU at initialization.
-The programs are combined into a ray tracing kernel by a domain optimized Just-In-Time compiler.
+The programs communicate via a ray payload data structure as well as GPU buffers and 
+textures which are typically uploaded to the GPU at initialization.
+The programs are combined together with the geometry traversal functionality 
+into a ray tracing kernel by a domain optimized Just-In-Time compiler.
 %OptiX geometry is represented using a scene graph with geometry instances at the
 %leaves of the tree. Multiple geometry instance nodes can share geometry objects, 
 %this together with the use of transform nodes is used to efficiently model 
@@ -262,8 +263,8 @@ The central data structure enabling fast ray tracing is a geometry index
 known as an acceleration structure which sorts primitives 
 into spatial or object groups. This structure is used by the traversal 
 algorithm to efficiently search for primitives that potentially intersect a
-given ray. Construction of GPU acceleration structures that optimize traversal
-performance and build speed remain active areas of research in computer graphics.
+given ray. Construction of GPU acceleration structures optimized for traversal
+performance and also build speed remain active areas of research in computer graphics.
 OptiX provides a simple interface to associate acceleration structures 
 with different parts of a scene geometry but all the details of creation, updating 
 and traversal are handled by OptiX internally using the geometrical information provided by the 
@@ -348,11 +349,10 @@ surface functionality to be translated.
 % TEX
 GPUs contain hardware dedicated to fast texture lookup and interpolation. 
 This is exploited by using a single 2D {\tt float4} texture named the boundary texture 
-that contains interleaved material and surface properties as a function of wavelength. 
-The two dimensions correspond to the wavelength of the photon and the inner/outer material/surface 
-within a particular boundary. 
+that contains interleaved material and surface properties as a function of wavelength for all 
+unique boundaries. 
 The boundary index returned from a ray traced primitive intersection together with 
-an orientation offset identified from the angle between the geometric normal and ray directions 
+an orientation offset identified from the angle between the geometric normal and ray direction
 %by the sign of the dot product of geometric normal and ray direction 
 enables four wavelength interpolated material or surface properties to be 
 obtained from a single hardware optimized texture lookup.
@@ -368,7 +368,8 @@ share the same intersection code, however some shapes are poorly modelled via te
 To improve realism for the optically critical photomultiplier tubes an analytic description was developed 
 using the original constructive solid geometry (CSG) which defines solids using boolean set operations applied to basis shapes.
 Implementation of general CSG boolean handling was avoided by partitioning the geometry into primitives 
-at the intersection planes of the basis shapes forming primitives with single basis shape slices.
+at the intersection planes of the basis shapes, forming sliced single basis shape primitives.
+This partitioning procedure is however not easily generalizable.
 %
 The five solids representing the Daya Bay photomultiplier tube are partitioned into a total of twelve single primitive parts 
 which are copied to the GPU instead of the close to 3000 triangles of the tessellated geometry. 
@@ -595,8 +596,9 @@ the more optical photons the more benefits.
 \caption{Comparison of photon propagation times in seconds obtained with Macbook Pro(2013) NVIDIA GeForce GT 750M, 2048MB, 384 cores.
 The first column lists photon counts and geometries. Rainbow geometry is a spherical drop of water. Opticks interop mode
 uses OpenGL buffers to allow visualizations is approximately a factor of 7 slower that Opticks compute mode which uses
-pure OptiX buffers. Perfectly identical results verified by digest are achieved for interop and compute modes. Good statistical 
-agreement is achieved between the Geant4 and Opticks simulations. 
+pure OptiX buffers. 
+%Perfectly identical results verified by digest are achieved for interop and compute modes. 
+%Good statistical agreement is achieved between the Geant4 and Opticks simulations. 
 } 
 \begin{center}
 \begin{tabular}{llll}

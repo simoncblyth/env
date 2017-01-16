@@ -436,7 +436,7 @@
     </div>
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth, National Taiwan University &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; Oct 2016, CHEP </h2>
+    <h2 style="background-color:lightgrey"> Simon Blyth, National Taiwan University &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; Jan 2017, PSROC</h2>
     </div>
 
 
@@ -521,7 +521,7 @@ Outline
        
 
          **Cosmic muon backgrounds**
-              many millions of optical photons in Daya Bay (more in JUNO)
+              many millions of optical photons in Daya Bay (10x more in JUNO)
 
          * optical propagation dominates *Geant4* CPU time, ~95% for Daya Bay, more for JUNO
 
@@ -635,15 +635,15 @@ Outline
 
 
 
-:small:`Opticks Geometry : Recreate Geant4 "Context" on GPU`
+:small:`Opticks : Translate Geant4 Geometry "Context" for GPU`
 ----------------------------------------------------------------------
 
 .. sidebar:: Volumes -> Boundaries 
 
     .. class:: small
 
-      **CSG -> BREP**
-        boundaries simpler than volumes on GPU
+      **CSG -> B-REP**
+        ray tracing favors B-REP 
 
       Material/surface boundary representation (4 indices)
 
@@ -858,39 +858,6 @@ Outline
    **Sequence index** -> interactive OpenGL selection of photons by flag sequence
       
 
-
-:small:`Opticks/Geant4 Rainbow Step Sequence Comparison`
----------------------------------------------------------------------
-
-.. class:: small
-
-   **Flags:**
-     * BT/BR: boundary transmit/reflect
-     * TO/SC/SA: torch/scatter/surface absorb
-
-   **Statistically consistent photon histories in the two simulations : Multiple orders of rainbow apparent**
-
-.. raw:: html
-
-    <pre class="mypre">
-     64-bit uint  Opticks    Geant4    chi2                                      (tag:5,-5)   
-
-            8ccd   819160    819654    0.15  [4 ] TO BT BT SA                    (cross droplet) 
-             8bd   102087    101615    1.09  [3 ] TO BR SA                       (external reflect)
-           8cbcd    61869     61890    0.00  [5 ] TO BT BR BT SA                 (bow 1)
-          8cbbcd     9618      9577    0.09  [6 ] TO BT BR BR BT SA              (bow 2)
-         8cbbbcd     2604      2687    1.30  [7 ] TO BT BR BR BR BT SA           (bow 3)
-        8cbbbbcd     1056      1030    0.32  [8 ] TO BT BR BR BR BR BT SA        (bow 4)
-           86ccd     1014      1000    0.10  [5 ] TO BT BT SC SA
-       8cbbbbbcd      472       516    1.96  [9 ] TO BT BR BR BR BR BR BT SA     (bow 5)
-             86d      498       473    0.64  [3 ] TO SC SA
-      bbbbbbbbcd      304       294    0.17  [10] TO BT BR BR BR BR BR BR BR BR  (bow 8+ truncated)
-      8cbbbbbbcd      272       247    1.20  [10] TO BT BR BR BR BR BR BR BT SA  (bow 6)
-      cbbbbbbbcd      183       161    1.41  [10] TO BT BR BR BR BR BR BR BR BT  (bow 7 truncated) 
-    </pre>
-
-
-
 :small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
 ------------------------------------------------------------
 
@@ -903,7 +870,6 @@ Outline
 .. image:: /env/optix/cfg4/rainbow-cfg4-spol.png
    :width: 800px
    :align: center
-
 
 
 :small:`PMT Opticks/Geant4 step distribution comparison TO BT [SD]`
@@ -986,6 +952,124 @@ Outline
 
 
 
+
+
+
+
+:small:`tconcentric : test geometry configured via boundaries`
+------------------------------------------------------------------
+
+.. class:: small
+
+   * Idealized geometry for testing optical physics in situation with no geometry issues.
+   * Boundaries specify : outer-material/outer-surface/inner-surface/inner-material
+
+.. raw:: html
+
+    <pre class="mypre">
+    tconcentric-testconfig(){
+        local test_config=(
+            mode=BoxInBox
+            analytic=1
+            shape=sphere boundary=StainlessSteel///Acrylic         parameters=0,0,0,$(( 5000 + 5 ))
+            shape=sphere boundary=Acrylic//RSOilSurface/MineralOil parameters=0,0,0,$(( 5000 - 5 ))
+            shape=sphere boundary=MineralOil///Acrylic             parameters=0,0,0,$(( 4000 + 5 )) 
+            shape=sphere boundary=Acrylic///LiquidScintillator     parameters=0,0,0,$(( 4000 - 5 ))
+            shape=sphere boundary=LiquidScintillator///Acrylic     parameters=0,0,0,$(( 3000 + 5 ))
+            shape=sphere boundary=Acrylic///GdDopedLS              parameters=0,0,0,$(( 3000 - 5 ))
+        )   
+        echo "$(join _ ${test_config[@]})" 
+    }
+    </pre>
+
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/tip/tests/tconcentric.bash
+
+
+
+:small:`tconcentric : spherical GdLS/LS/MineralOil`
+----------------------------------------------------- 
+
+.. image:: /env/presentation/tconcentric-8cccccccc9ccccd.png
+   :width: 900px
+   :align: center
+
+
+
+:small:`tconcentric : Opticks/Geant4 chi2 comparison`
+------------------------------------------------------- 
+
+.. raw:: html
+
+    <pre class="mypre">
+    .      seqhis_ana  1:concentric   -1:concentric     c2        
+    .                       1000000   1000000       373.13/356 =  1.05  (pval:0.256 prob:0.744)  
+    0000           8ccccd    669843    670001             0.02  [6 ] TO BT BT BT BT SA
+    0001               4d     83950     84149             0.24  [2 ] TO AB
+    0002          8cccc6d     45490     44770             5.74  [7 ] TO SC BT BT BT BT SA
+    0003           4ccccd     28955     28718             0.97  [6 ] TO BT BT BT BT AB
+    0004             4ccd     23187     23170             0.01  [4 ] TO BT BT AB
+    0005          8cccc5d     20238     20140             0.24  [7 ] TO RE BT BT BT BT SA
+    0006          8cc6ccd     10214     10357             0.99  [7 ] TO BT BT SC BT BT SA
+    0007          86ccccd     10176     10318             0.98  [7 ] TO BT BT BT BT SC SA
+    0008          89ccccd      7540      7710             1.90  [7 ] TO BT BT BT BT DR SA
+    0009         8cccc55d      5976      5934             0.15  [8 ] TO RE RE BT BT BT BT SA
+    0010              45d      5779      5766             0.01  [3 ] TO RE AB
+    0011  8cccccccc9ccccd      5339      5269             0.46  [15] TO BT BT BT BT DR BT BT BT BT BT BT BT BT SA
+    0012          8cc5ccd      5111      4940             2.91  [7 ] TO BT BT RE BT BT SA
+    0013              46d      4797      4886             0.82  [3 ] TO SC AB
+    0014      8cccc9ccccd      4494      4469             0.07  [11] TO BT BT BT BT DR BT BT BT BT SA
+    0015      8cccccc6ccd      3317      3302             0.03  [11] TO BT BT SC BT BT BT BT BT BT SA
+    0016         8cccc66d      2670      2675             0.00  [8 ] TO SC SC BT BT BT BT SA
+    0017          49ccccd      2432      2383             0.50  [7 ] TO BT BT BT BT DR AB
+    0018          4cccc6d      2043      1991             0.67  [7 ] TO SC BT BT BT BT AB
+    0019            4cc6d      1755      1826             1.41  [5 ] TO SC BT BT AB
+    </pre>
+
+.. class:: small
+
+    Top 20 chart above, (category 100 down to ~100 photons for propagation of 1M photons)
+
+
+
+:small:`tconcentric : Opticks/Geant4 history counts chi2/df ~ 1.0`
+--------------------------------------------------------------------- 
+
+.. class:: small
+
+    Match achieved between two optical simulations, run from single executable
+
+    *CPU* 
+        Daya Bay detsim optical physics updated to G4 10.2
+    *GPU*
+        above ported to CUDA/OptiX 
+
+
+    Match achieved only after many bug fixes, including: 
+
+    * scattering, was comparing different implementations
+    * diffuse reflection, ported G4 approach 
+    * reemission "rejoining"
+    * missing optical surfaces
+    * truncation recording discrepancy
+    * group velocity of wrong material after refraction (G4 issue 1275)  
+    * interpolation mismatches
+
+    :red:`Work guided by the next largest chi2 contributor`
+
+.. class:: tiny
+
+   https://bugzilla-geant4.kek.jp/show_bug.cgi?id=1275
+
+
+
+
+
+
+
+
 :small:`Photon Propagation Times Geant4 cf Opticks`
 ----------------------------------------------------------
 
@@ -1049,6 +1133,7 @@ Outline
 
 
 
+
 :small:`Summary`
 -----------------------------
 
@@ -1088,6 +1173,33 @@ Outline
   .. class:: huge
 
      https://bitbucket.org/simoncblyth/opticks
+
+
+
+:small:`OptiX ray trace of boolean CSG box-sphere, photons approaching`
+-------------------------------------------------------------------------
+
+.. class:: small
+
+   :red:`Boolean CSG may allow fully analytic GPU geometry translations` 
+
+.. image:: /env/tests/tboolean_box_minus_sphere_before.png
+   :width: 900px
+   :align: center
+
+
+:small:`tboolean box-sphere after`
+-------------------------------------
+
+.. class:: small
+
+   Photon propagation step point positions.  
+
+.. image:: /env/tests/tboolean_box_minus_sphere_after.png
+   :width: 900px
+   :align: center
+
+
 
 
 
