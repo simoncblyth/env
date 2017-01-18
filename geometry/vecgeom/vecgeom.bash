@@ -18,6 +18,19 @@ TODO: look into VecGeom boolean handling
 * https://gitlab.cern.ch/VecGeom/VecGeom/blob/master/volumes/SpecializedBooleanVolume.h
 
 
+
+VecGeom CUDA
+-------------
+
+::
+
+    simon:VecGeom blyth$ find . -type f | wc -l
+        1109
+    simon:VecGeom blyth$ find . -type f -exec grep -l CUDA {} \; | wc -l
+         241
+
+
+
 Presentations
 ---------------
 
@@ -27,6 +40,120 @@ Sandro Wenzel : Towards a high performance geometry library for particle-detecto
 
 * https://indico.cern.ch/event/258092/contributions/1588561/attachments/454205/629615/ACAT2014GeometryTalkNewStyleV2.pdf
 * ~/opticks_refs/ACAT2014GeometryTalkNewStyleV2.pdf
+
+
+GeantV Geometry: SIMD abstraction and interfacing with CUDA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Johannes de Fine Licht (johannes.definelicht@cern.ch)
+Sandro Wenzel (sandro.wenzel@cern.ch)
+
+* http://indico.cern.ch/event/289682/contributions/664274/attachments/540916/745663/johannes_concurrency_forum_3.pdf
+* ~/opticks_refs/johannes_concurrency_forum_3.pdf
+
+
+inline namespaces
+-------------------
+
+* http://stackoverflow.com/questions/11016220/what-are-inline-namespaces-for
+
+* https://msdn.microsoft.com/en-us/library/5cb46ksf.aspx
+
+Inline namespaces (C++ 11)
+
+In contrast to an ordinary nested namespace, members of an inline namespace are
+treated as members of the parent namespace. This characteristic enables
+argument dependent lookup on overloaded functions to work on functions that
+have overloads in a parent and a nested inline namespace. I
+
+You can use inline namespaces as a versioning mechanism to manage changes to
+the public interface of a library. For example, you can create a single parent
+namespace, and encapsulate each version of the interface in its own namespace
+nested inside the parent. The namespace that holds the most recent or preferred
+version is qualified as inline, and is therefore exposed as if it were a direct
+member of the parent namespace. Client code that invokes the Parent::Class will
+automatically bind to the new code. Clients that prefer to use the older
+version can still access it by using the fully qualified path to the nested
+namespace that has that code.  The inline keyword must be applied to the first
+declaration of the namespace in a compilation unit.
+
+
+source/benchmarking/Benchmarker.c::
+
+     01 /// \file Benchmarker.cu
+     02 /// \author Johannes de Fine Licht
+     03 
+     04 #include "benchmarking/Benchmarker.h"
+     05 
+     06 #include "base/Stopwatch.h"
+     07 #include "backend/cuda/Backend.h"
+     08 #include "management/CudaManager.h"
+     09 
+     10 namespace vecgeom {
+     11 inline namespace cuda {
+     12 
+     13 __global__ void ContainsBenchmarkCudaKernel(VPlacedVolume const *const volume, const SOA3D<Precision> positions,
+     14                                             const int n, bool *const contains)
+     15 {
+     16   const int i = ThreadIndex();
+     17   if (i >= n) return;
+     18   contains[i] = volume->Contains(positions[i]);
+     19 }
+     20 
+     21 __global__ void InsideBenchmarkCudaKernel(VPlacedVolume const *const volume, const SOA3D<Precision> positions,
+     22                                           const int n, Inside_t *const inside)
+     23 {
+     24   const int i = ThreadIndex();
+     25   if (i >= n) return;
+     26   inside[i] = volume->Inside(positions[i]);
+     27 }
+
+
+
+
+namespace cuda
+----------------
+
+::
+
+    simon:VecGeom blyth$ find . -type f -exec grep -H namespace\ cuda {} \;
+    ./backend/cuda/Backend.h:    namespace cuda {
+    ./backend/cuda/Interface.h:inline namespace cuda {
+    ./backend/cuda/Interface.h:namespace cuda {
+    ./base/Cuda.h:  #define VECGEOM_DEVICE_FORWARD_DECLARE(X)  namespace cuda { X }  class __QuietSemi
+    ./base/Cuda.h:     namespace cuda { classOrStruct X; }                               \
+    ./base/Cuda.h:     namespace cuda { template <ArgType Arg> classOrStruct X; }         \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }        \
+    ./base/Cuda.h:     namespace cuda { namespace NS { classOrStruct X; } }                      \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }                \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3> classOrStruct X; }              \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3> classOrStruct X; }              \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3> classOrStruct X; }                \
+    ./base/Cuda.h:    namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3,ArgType4 Arg4> classOrStruct X; }                 \
+    ./base/Cuda.h:     namespace cuda { namespace NS { classOrStruct Def; } }                      \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }                \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3> classOrStruct X; }              \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3> classOrStruct X; }              \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3> classOrStruct X; }                \
+    ./base/Cuda.h:     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3,ArgType4 Arg4> classOrStruct X; }                \
+    ./base/Map.h:namespace cuda {
+    ./base/Scale3D.h:namespace cuda {
+    ./base/Transformation3D.h:namespace cuda {
+    ./source/backend/cuda/Interface.cpp:} // End namespace cuda
+    ./source/benchmarking/Benchmarker.cu:inline namespace cuda {
+    ./source/benchmarking/NavigationBenchmarker.cu:inline namespace cuda {
+    ./source/benchmarking/NavigationBenchmarker.cu:} // end of namespace cuda
+    ./source/CudaManager.cpp:namespace cuda {
+    ./source/CudaManager.cu:inline namespace cuda {
+    ./source/CudaManager_0.cu:inline namespace cuda {
+    ./source/Vector.cpp:inline namespace cuda {
+    ./VecCore/include/VecCore/CUDA.h:#define VECCORE_DECLARE_CUDA(T) T; namespace cuda { T; }
+    simon:VecGeom blyth$ 
+
+
+VecCore/include/VecCore/CUDA.h
+     VECCORE_DECLARE_* macros branched definitions
+
 
 
 
@@ -183,6 +310,55 @@ From build.log get lots of nvlink messages::
     1642 -- Installing: /usr/local/env/geometry/VecGeom.install/include/VecCore/Assert.h
 
 
+::
+
+    simon:VecGeom.build blyth$ vecgeom-t
+    (lldb) target create "./OrbBenchmark"
+    Current executable set to './OrbBenchmark' (x86_64).
+    (lldb) r
+    Process 37696 launched: './OrbBenchmark' (x86_64)
+    INFO: using default 10240 for option -npoints
+    INFO: using default 1 for option -nrep
+    INFO: using default 3 for option -r
+    PlacedVolume created after geometry is closed --> will not be registered
+    PlacedVolume created after geometry is closed --> will not be registered
+    Running Contains and Inside benchmark for 10240 points for 1 repetitions.
+    Generating points with bias 0.500000... Done in 0.008024 s.
+    Vectorized    - Inside: 0.001403s (0.001403s), Contains: 0.001313s (0.001313s), Inside/Contains: 1.07
+    Specialized   - Inside: 0.001246s (0.001246s), Contains: 0.001184s (0.001184s), Inside/Contains: 1.05
+    Unspecialized - Inside: 0.001252s (0.001252s), Contains: 0.001198s (0.001198s), Inside/Contains: 1.05
+    CUDA          - ScanGeometry found pvolumes2
+    Starting synchronization to GPU.
+    Allocating geometry on GPU...Allocating logical volumes... OK
+    Allocating unplaced volumes... OK
+    Allocating placed volume Assertion failed: (vpv != nullptr), function AllocatePlacedVolumesOnCoproc, file /usr/local/env/geometry/VecGeom/source/CudaManager.cpp, line 259.
+    Process 37696 stopped
+    * thread #1: tid = 0x288414, 0x00007fff9643e866 libsystem_kernel.dylib`__pthread_kill + 10, queue = 'com.apple.main-thread', stop reason = signal SIGABRT
+        frame #0: 0x00007fff9643e866 libsystem_kernel.dylib`__pthread_kill + 10
+    libsystem_kernel.dylib`__pthread_kill + 10:
+    -> 0x7fff9643e866:  jae    0x7fff9643e870            ; __pthread_kill + 20
+       0x7fff9643e868:  movq   %rax, %rdi
+       0x7fff9643e86b:  jmp    0x7fff9643b175            ; cerror_nocancel
+       0x7fff9643e870:  retq   
+    (lldb) bt
+    * thread #1: tid = 0x288414, 0x00007fff9643e866 libsystem_kernel.dylib`__pthread_kill + 10, queue = 'com.apple.main-thread', stop reason = signal SIGABRT
+      * frame #0: 0x00007fff9643e866 libsystem_kernel.dylib`__pthread_kill + 10
+        frame #1: 0x00007fff8dadb35c libsystem_pthread.dylib`pthread_kill + 92
+        frame #2: 0x00007fff9482bb1a libsystem_c.dylib`abort + 125
+        frame #3: 0x00007fff947f59bf libsystem_c.dylib`__assert_rtn + 321
+        frame #4: 0x0000000104f0f96b libvecgeomcuda.so`vecgeom::cxx::CudaManager::AllocatePlacedVolumesOnCoproc(this=0x00000001000a1d98) + 283 at CudaManager.cpp:259
+        frame #5: 0x0000000104f0d890 libvecgeomcuda.so`vecgeom::cxx::CudaManager::AllocateGeometry(this=0x00000001000a1d98) + 1424 at CudaManager.cpp:315
+        frame #6: 0x0000000104f0b167 libvecgeomcuda.so`vecgeom::cxx::CudaManager::Synchronize(this=0x00000001000a1d98) + 183 at CudaManager.cpp:66
+        frame #7: 0x0000000104f00292 libvecgeomcuda.so`vecgeom::Benchmarker::GetVolumePointers(this=0x00007fff5fbfea08, volumesGpu=0x00007fff5fbfd178) + 98 at Benchmarker.cpp:2670
+        frame #8: 0x0000000104eacdc9 libvecgeomcuda.so`vecgeom::Benchmarker::RunInsideCuda(this=0x00007fff5fbfea08, posX=0x000000010c130600, posY=0x000000010c144600, posZ=0x000000010c158600, contains=0x000000010c18ce00, inside=0x000000010c18f600) + 329 at Benchmarker.cu:78
+        frame #9: 0x000000010004ef5e OrbBenchmark`vecgeom::Benchmarker::RunInsideBenchmark(this=0x00007fff5fbfea08) + 3806 at Benchmarker.cpp:723
+        frame #10: 0x000000010004e008 OrbBenchmark`vecgeom::Benchmarker::RunBenchmark(this=0x00007fff5fbfea08) + 104 at Benchmarker.cpp:623
+        frame #11: 0x00000001000030c9 OrbBenchmark`main(argc=1, argv=0x00007fff5fbfedb0) + 1257 at OrbBenchmark.cpp:45
+        frame #12: 0x00007fff918b15fd libdyld.dylib`start + 1
+    (lldb) 
+
+
+
 
 EOU
 }
@@ -207,6 +383,13 @@ vecgeom-get(){
 
 vecgeom-env(){      elocal- ; cuda- ; }
 
+
+
+vecgeom-find(){ 
+   local q=${1:-RunInsideCuda}
+   vecgeom-scd
+   find . -type f -exec grep -H $q {} \;
+}
 
 vecgeom-cmake(){
    local iwd=$PWD

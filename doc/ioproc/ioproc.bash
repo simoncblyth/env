@@ -11,6 +11,47 @@ IOP Conference Proceedings Series
 * http://conferenceseries.iop.org/content/authors
 * http://chep2016.org/node/28
 
+
+JUNO
+-----
+
+Dear Publication board members and colleagues,
+
+My CHEP 2016 proceedings paper is uploaded to:
+      http://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=2100
+
+This technical talk/proceedings was not “On behalf of the JUNO Collaboration” .
+
+The deadline for CHEP 2016 proceedings is Monday February 6th, PST(-16),
+slightly under 3 weeks from today. 
+I welcome any comments, especially ones prior to Chinese New Year.
+
+Simon
+
+DYB
+----
+
+Dear Publication board members and colleagues,
+
+My CHEP 2016 proceedings paper is uploaded to:
+     http://dayabay.ihep.ac.cn/cgi-bin/DocDB/ShowDocument?docid=11266
+
+This technical talk/proceedings was not “On behalf of the Daya Bay Collaboration”
+
+The deadline for CHEP 2016 proceedings is Monday February 6th, PST(-16),
+slightly under 3 weeks from today. 
+I welcome any comments, especially ones prior to Chinese New Year.
+
+Simon
+
+
+Dyb
+----
+
+* http://dayawane.ihep.ac.cn/twiki/pub/Internal/WebHome/DayaBay_bylaws16.pdf
+* http://dayabay.ihep.ac.cn/DocDB/0112/011232/003/PubCommReport_20161210_v3.pdf
+
+
 Previous Years Proceedings
 ----------------------------
 
@@ -127,6 +168,8 @@ EOU
 
 
 ioproc-conf(){ echo ${IOPROC_CONF:-chep2016} ; }
+ioproc-pdfname(){ echo ${IPPROC_PDFNAME:-opticks-blyth-chep2016} ; }
+
 ioproc-dir(){ echo $(local-base)/env/doc/ioproc/$(ioproc-conf) ; }
 ioproc-edir(){ echo $(env-home)/doc/ioproc/$(ioproc-conf) ; }
 ioproc-cd(){  cd $(ioproc-dir); }
@@ -149,7 +192,7 @@ ioproc-get(){
 }
 
 
-ioproc-pdf(){  echo $(ioproc-dir)/$(ioproc-conf).pdf ; }
+ioproc-pdf(){  echo $(ioproc-dir)/$(ioproc-pdfname).pdf ; }
 ioproc-open(){ open $(ioproc-pdf) ; }
 ioproc-guide(){ open $(ioproc-dir)/JPCSLaTeXGuidelines.pdf ; }
 
@@ -194,7 +237,9 @@ ioproc-make(){
    local conf=$(ioproc-conf)
    local etex=$(ioproc-etex) 
 
-   local tex=$conf.tex
+   local pdfname=$(ioproc-pdfname)
+
+   local tex=$pdfname.tex
    local pdf=${tex/.tex}.pdf
 
    [ $etex -nt $tex ] && echo $msg UPDATING FROM ETEX $etex && cp $etex $tex || return 
@@ -202,7 +247,7 @@ ioproc-make(){
    echo tex $tex
 
    #ioproc-make0- $tex
-   ioproc-make1- $tex
+   ioproc-make1- $tex 
 
    ls -l $pdf
    du -h $pdf

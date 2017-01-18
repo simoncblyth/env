@@ -6,7 +6,6 @@
 * https://bitbucket.org/simoncblyth/opticks/commits/all
 
 
-
 Opticks Videos
 ----------------------
 
@@ -33,6 +32,16 @@ Opticks Videos
 
 Opticks Presentations 
 ----------------------
+
+Early 2017
+~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_jan2017_psroc.html (17 Jan 2017, Taipei)
+
+    PSROC Annual Meeting, Tamkang University, TKU, New Taipei City, Taiwan
+
+    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
 
 Late 2016
 ~~~~~~~~~~~~
@@ -134,10 +143,13 @@ http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html (
    G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
      
 
-
-
 reports
 --------
+
+Jan 2017
+~~~~~~~~~~
+
+* http://simoncblyth.bitbucket.org/env/report/opticks-blyth-chep2016.pdf
 
 Dec 2016
 ~~~~~~~~~

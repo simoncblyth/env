@@ -281,7 +281,7 @@ for each algorithm, the SIMD width and work scheduling approach.
 OptiX uses a dynamically load balanced GPU execution model that enables
 performance to scale linearly with CUDA cores across multiple GPUs. 
 This scaling linearity has been verified by ray trace measurements on a 
-borrowed 4 GPU workstation (Tesla K40m) by progressively masking GPUs.
+borrowed 4 GPU workstation (Tesla K40M) by progressively masking GPUs.
 
 OptiX has been regularly updated, with algorithms added and improved in order 
 to make the best use of the characteristics of each generation of NVIDIA GPUs. 
@@ -302,9 +302,10 @@ Simulated Cerenkov and scintillation photons from a 100 GeV muon travelling
 across the Daya Bay antineutrino detector. The screenshot image is composited from 
 a ray traced rendering of the detector geometry with analytically defined photomultiplier tubes 
 and an OpenGL rasterized representation of an optical photon propagation directly from OptiX written GPU buffers. 
-The line colors represent the photon polarization direction. The original 4.8M pixel ray traced
-render provides interactive navigation and time scrubbing of the propagation on a 
-Macbook Pro (2013) laptop with NVIDIA GeForce GT 750M Kepler generation GPU.}
+The line colors represent the photon polarization direction. Opticks visualization
+provides interactive navigation and time scrubbing of the propagation on a 
+Macbook Pro (2013) laptop with NVIDIA GeForce GT 750M Kepler generation GPU.
+}
 \end{figure}
 
 Implementing an equivalent external OptiX based simulation demands that the Geant4 
@@ -364,7 +365,7 @@ OptiX provides only the acceleration of geometrical intersection not the interse
 Opticks implements code to return bounding box and ray primitive intersections for a small
 number of shapes such as triangles, spheres, cubes and cylinders.  
 Use of tessellated geometry is the simplest approach as all triangle primitives can
-share the same intersection code, however some shapes are poorly modelled via tessellation.
+share the same intersection code, however some shapes are poorly modelled with tessellation.
 To improve realism for the optically critical photomultiplier tubes an analytic description was developed 
 using the original constructive solid geometry (CSG) which defines solids using boolean set operations applied to basis shapes.
 Implementation of general CSG boolean handling was avoided by partitioning the geometry into primitives 
@@ -413,7 +414,8 @@ photon generation.
 Collecting and copying gensteps rather than photons greatly reduces 
 transfer overheads and avoids allocation of photon memory twice.
 In order to associate each photon with its genstep a seeding 
-procedure is implemented using CUDA Thrust\cite{thrust}\cite{thrustURL} 
+procedure is implemented using CUDA Thrust\cite{thrust}
+%\cite{thrustURL} 
 that distributes genstep indices to photons entirely on the GPU.
 
 % CURAND
@@ -530,41 +532,46 @@ within the detector geometry, that have proved useful for outreach.
 %\item frequency count chi2 distance, distrib chi2
 %\end{itemize}
 
-Opticks aims to achieve a match between pure Geant4 simulations and the hybrid Opticks simulation 
-for full geometries. 
+Opticks aims to achieve a match between pure Geant4 simulations and the 
+hybrid Opticks simulation for full geometries. 
 To facilitate validation Opticks supports dynamic test geometries and light sources
 configured from the command-line that reuse materials and surfaces of a base geometry.
-Detailed point by point validation comparisons use a single executable that performs both
+Detailed point-by-point validation comparisons use a single executable that performs both
 the Geant4 and hybrid Opticks simulations and writes two events using
-an Opticks event format that includes highly compressed information
-describing the optical photon propagations. The propagation events are compared 
-by forming $\chi^{2}$ distances for:
-\begin{itemize}
-\item photon history counts within the 100 most frequent categories
-\item photon step point distributions of position, time, wavelength and polarization 
-\end{itemize}
-which corresponds to comparisons of many thousands of histograms for each propagation.
+an event format that includes highly compressed information
+describing the optical photon propagations. Propagations of one million photons are 
+divided into the 100 most frequent history categories and $\chi^{2}$ distances 
+are formed for: photon history counts and point-by-point distributions of position, time, wavelength and polarization.
+This corresponds to comparisons of many thousands of histograms for each propagation.
+
+%\begin{itemize}
+%\item photon history counts,
+%\item point-by-point distributions of position, time, wavelength and polarization.
+%\end{itemize}
 
 After extensive development guided by the next largest $\chi^{2}$ contribution 
-a match has been achieved between the two simulation implementations. This validates 
+a match has been achieved between the two simulation implementations, validating 
 the GPU implementations of all the optical photon propagation processes relevant to Daya Bay and JUNO:
 absorption, Rayleigh scattering, Fresnel reflection and refraction, diffuse reflection
 and scintillator reemission. Similarly optical photon generation from scintillation and Cerenkov processes
 using buffers of generation step parameters collected from Geant4 have been validated.
-These validations were performed with several geometries that can be fully analytically described by Opticks.
+These validations were performed with several geometries that can be fully analytically described.
 
-The detailed point by point validation approach described above is not straightforwardly 
+The detailed point-by-point validation approach described above is not straightforwardly 
 applicable with tessellated geometries. Opticks currently has analytic CUDA intersection implementations 
 for only a few geometrical shapes and does not yet support general boolean CSG geometries.
-
-Exploratory development of an OptiX CSG boolean implementation has shown some promise\cite{CSG}.
+Development of an OptiX CSG boolean implementation using a single hit intersection
+approach is in progress.
+%\cite{CSG} 
+%has shown some promise.
 Generalized boolean CSG tree ray tracing together with a small number of additional shape intersection
-implementations might allow automated translation of Geant4 geometries into analytic OptiX geometries
-avoiding the tessellation approximation. Adaption of the VecGeom solid CUDA implementations 
+implementations may allow automated translation of Geant4 geometries into analytic OptiX geometries
+avoiding the tessellation approximation. Adaption of the VecGeom\cite{VecGeom} solid CUDA implementations 
 to work within the OptiX context is another possibility for investigation.
 
 \section{Summary}
-
+%
+%
 Photon propagation timings for validated geometries 
 obtained with a mobile Kepler generation GPU with only 384 CUDA cores are listed in Table 1.
 A speedup factor of 200 between Opticks compute and Geant4 is apparent.
@@ -579,9 +586,9 @@ Opticks implementations of GPU photon generation and propagation have been
 validated by detailed point by point comparisons with Geant4.  Validations
 of full geometries requires further geometry modelling development.
 
-Although Opticks was developed with neutrino detectors in mind 
-it can benefit any simulation that is limited by optical photons, and
-the more optical photons the more benefits.
+Although Opticks was developed for simulations of neutrino detectors
+it can benefit any simulation limited by optical photons, and
+the more optical photons the greater the benefit.
 
 %Opticks enables Geant4 based simulations to benefit from optical photob
 %simulation taking effectively zero time and 
@@ -592,11 +599,12 @@ the more optical photons the more benefits.
 %are generated and propagated entirely on the GPU with only detected photons 
 %being copied to the CPU. 
 
-\begin{table}[h]
+
+
+\begin{table}[htb]
 \caption{Comparison of photon propagation times in seconds obtained with Macbook Pro(2013) NVIDIA GeForce GT 750M, 2048MB, 384 cores.
-The first column lists photon counts and geometries. Rainbow geometry is a spherical drop of water. Opticks interop mode
-uses OpenGL buffers to allow visualizations is approximately a factor of 7 slower that Opticks compute mode which uses
-pure OptiX buffers. 
+The first column lists photon counts and geometries. Rainbow geometry is a spherical drop of water. 
+%Opticks interop mode which uses OpenGL buffers allowing visualizations is significantly slower than compute mode which uses OptiX buffer.
 %Perfectly identical results verified by digest are achieved for interop and compute modes. 
 %Good statistical agreement is achieved between the Geant4 and Opticks simulations. 
 } 
@@ -623,6 +631,14 @@ Geometry & Geant4 10.2 & Opticks Interop & Opticks Compute \\
 %\end{itemize}
 
 
+\section*{Acknowledgements}
+
+The Daya Bay and JUNO collaborations are acknowledged for the use of detector 
+geometries and simulation software. Dr Tao Lin is acknowledged for his assistance with 
+the JUNO Offline software. The Chroma authors are thanked for an excellent learning environment 
+and the NVIDIA OptiX team is acknowledged for providing a package that has been a joy to apply.
+
+\newpage
 \section*{References}
 \begin{thebibliography}{9}
 
@@ -631,7 +647,7 @@ Geometry & Geant4 10.2 & Opticks Interop & Opticks Compute \\
 Newton I 
 1704 
 Opticks: or, a treatise of the reflections, refractions, inflexions and colours of light.
-{\it Printers to Royal Society, London} 
+%{\it Printers to Royal Society, London} 
 
 %2
 \bibitem{opticksURL} 
@@ -660,7 +676,8 @@ Recent developments in Geant4
 
 %6
 \bibitem{optixPaper} 
-Parker S, Bigler J, Dietrich A, Friedrich H, Hoberock J, Luebke D, McAllister D, McGuire M, Morley K, Robison A and Stich M 
+Parker S, Bigler J, Dietrich A, Friedrich H, Hoberock J, et al.
+%Luebke D, McAllister D, McGuire M, Morley K, Robison A and Stich M 
 2010 
 OptiX: a general purpose ray tracing engine
 {\it ACM Trans. Graph. : Conf. Series} {\bf 29} p 66 
@@ -807,11 +824,11 @@ The NumPy array: a structure for efficient numerical computation
 Bell N and Hoberock J 
 2011
 {\it Thrust: a Productivity-Oriented Library for CUDA}
-(GPU Computing Gems Jade Edition) ed W W Hwu, Chapter 26   
+(GPU Computing Gems Jade Edition) ed W W Hwu, Chapter 26
 
 %26
-\bibitem{thrustURL} 
-Thrust URL {\tt https://developer.nvidia.com/thrust}
+%\bibitem{thrustURL} 
+%Thrust URL {\tt https://developer.nvidia.com/thrust}
 
 %27
 \bibitem{curandURL}
@@ -830,9 +847,9 @@ cuRAND URL {\tt http://docs.nvidia.com/cuda/curand/index.html}
 ImGui URL {\tt https://github.com/ocornut/imgui}
 
 %29
-\bibitem{CSG}
-Single Hit CSG
-{\tt http://xrt.wikidot.com/doc:csg}
+%\bibitem{CSG}
+%Single Hit CSG
+%{\tt http://xrt.wikidot.com/doc:csg}
 
 %\bibitem{junoFastSim}
 %Lin T, Deng Z, Li W, Cao G, You Z and Li X
