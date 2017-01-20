@@ -12,6 +12,37 @@ IOP Conference Proceedings Series
 * http://chep2016.org/node/28
 
 
+Submission
+
+* https://indico.cern.ch/event/505613/contributions/
+
+228. Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+ simon blyth
+ 11/10/2016, 12:15
+
+When submitting your paper, you need to know its Indico ID. 
+
+
+* https://chep2016.conferenceseries.iop.org/
+
+
+CHEP2016 submission
+----------------------
+
+Dear Simon
+Thank you for submitting the Full Paper titled "Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX". 
+The paper number of your submission is CHEP201700016. 
+Your submission will now be passed to the editor.
+
+Dear Simon,
+
+The paper entitled 'Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX' will now be passed to the editors.
+You will be able to check on the progress of your paper by logging on to submission system:
+
+https://chep2016.conferenceseries.iop.org/pdf-submitted/
+
+
+
 JUNO
 -----
 
@@ -273,11 +304,11 @@ ioproc-figs-(){ cat << EOF
 $HOME/simoncblyth.bitbucket.org/env/ok/dyb_raytrace_composite_cerenkov.png
 $HOME/simoncblyth.bitbucket.org/env/ok/dyb_raytrace_composite_cerenkov_half.png
 $HOME/simoncblyth.bitbucket.org/env/ok/dyb_raytrace_composite_cerenkov_half_half.png
+$HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop.png
 $HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop_half.png
 $HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop_half_half.png
 EOF
 }
-
 
 ioproc-figs-copy(){
 

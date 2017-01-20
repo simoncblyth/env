@@ -86,6 +86,9 @@ performance can be transformative to the design, understanding
 and operation of such machines. Opticks\cite{opticksURL} enables Geant4\cite{g4A}\cite{g4B}\cite{g4C}
 based simulations to benefit from the high performance GPU ray tracing made accessible
 by NVIDIA\textregistered\ OptiX\texttrademark\ \cite{optixPaper}\cite{optixSite}.
+Graphics Processing Units (GPUs) originally dedicated to rendering are increasingly
+used for general computing tasks that exhibit a high degree of parallelism.
+
 
 %Photons in the visible range from 390-700 nm have such low energies 3.2-1.8 eV
 %($E = hc/\lambda = 1240 eV.nm/\lambda$) that enormous numbers of photons 
@@ -95,7 +98,7 @@ Cosmic muon induced processes are crucial backgrounds for neutrino
 detectors such as Daya Bay~\cite{dyb} and JUNO\cite{juno}, 
 necessitating underground sites, water shields and muon veto systems\cite{dybmuon}.
 Minimizing the dead time and dead volume that results from applying 
-a veto requires an understanding of the detector response to the muon.
+a veto requires an understanding of the detector response to a muon.
 Large simulated samples of muon events are crucial in order to 
 develop such an understanding and also to provide efficiency estimates 
 that are critical inputs to physics analyses.
@@ -293,10 +296,13 @@ with future GPU generations simply by updating to the lastest OptiX version.
 
 \begin{figure}[htbp]
 \centering
+%
 %\includegraphics[width=\textwidth]{dyb_raytrace_composite_cerenkov_half_half.png}
-\includegraphics[width=\textwidth]{dyb_raytrace_composite_cerenkov_half.png}
+%\includegraphics[width=\textwidth]{dyb_raytrace_composite_cerenkov_half.png}
+\includegraphics[width=\textwidth]{dyb_raytrace_composite_cerenkov.png}
+%
 %\includegraphics[width=\textwidth]{dyb_raytrace_composite_cerenkov_half_half_assign_profile.png}
-%\includegraphics[resolution=110]{dyb_raytrace_composite_cerenkov.png}
+%
 \caption{
 Simulated Cerenkov and scintillation photons from a 100 GeV muon travelling
 across the Daya Bay antineutrino detector. The screenshot image is composited from 
@@ -466,8 +472,10 @@ be copied back, using Thrust stream compaction, and added to Geant4 hit collecti
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{jpmt-inside-wide_crop_half_half.png}
+%\includegraphics[width=\textwidth]{jpmt-inside-wide_crop_half_half.png}
 %\includegraphics[width=\textwidth]{jpmt-inside-wide_crop_half.png}
+\includegraphics[width=\textwidth]{jpmt-inside-wide_crop.png}
+%
 \caption{Simulated Cerenkov and scintillation photons from a 100 GeV muon travelling
 across the JUNO antineutrino detector viewed from inside the spherical scintillator.
 Primary particles are simulated by Geant4, generation ``steps'' of the primaries
@@ -634,7 +642,7 @@ Geometry & Geant4 10.2 & Opticks Interop & Opticks Compute \\
 \section*{Acknowledgements}
 
 The Daya Bay and JUNO collaborations are acknowledged for the use of detector 
-geometries and simulation software. Dr Tao Lin is acknowledged for his assistance with 
+geometries and simulation software. Dr. Tao Lin is acknowledged for his assistance with 
 the JUNO Offline software. The Chroma authors are thanked for an excellent learning environment 
 and the NVIDIA OptiX team is acknowledged for providing a package that has been a joy to apply.
 
@@ -712,6 +720,9 @@ The muon system of the Daya Bay Reactor antineutrino experiment
 {\it Nucl Instrum Methods} A {\bf 773} pp 8--20
 
 
+%\bibitem{gpu}
+%NVIDIA White Paper 
+%NVIDIA's Next Generation CUDA\texttrademark~ Compute Architecture : Kepler\texttrademark~ GK110
 
 %10
 \bibitem{megakernels}

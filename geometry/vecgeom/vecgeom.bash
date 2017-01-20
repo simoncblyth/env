@@ -18,7 +18,6 @@ TODO: look into VecGeom boolean handling
 * https://gitlab.cern.ch/VecGeom/VecGeom/blob/master/volumes/SpecializedBooleanVolume.h
 
 
-
 VecGeom CUDA
 -------------
 
@@ -28,7 +27,6 @@ VecGeom CUDA
         1109
     simon:VecGeom blyth$ find . -type f -exec grep -l CUDA {} \; | wc -l
          241
-
 
 
 Presentations
@@ -160,13 +158,35 @@ VecCore/include/VecCore/CUDA.h
 Can VecGeom be made to work within OptiX programs ?
 -----------------------------------------------------
 
-If it can, then:
+No, not practically for non-trivial shapes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+OptiX intersection inputs are PTX files compiled from 
+CUDA programs with specific signatures which get OptiX
+compiled into a mega kernel. There is no possibility 
+to link to other objects from a separate library. 
+The only way that VecGeom could be used is at source level, 
+ie if it had some real simple headers in which the intersection 
+algorithms are provided. That would only be possible for the 
+simplest shapes anyhow, that already have implementations of already.
+More complex shapes need data structure workings that VecGeom
+would use C++ constructs for, involving many files.
+
+So can use VecGeom for algorithmic inspiration, not direct usage.
+
+
+If they could be
+~~~~~~~~~~~~~~~~~~~
 
 * could avoid manual step of writing analytic geometry code
 * BUT it is not a panacea, often the transition from volume to surface based geometry
   needed some cleanups of things like touching volumes that cause coincident surfaces
   which have to be fixed
 * highly non-trivial, 
+
+
+Build Issues
+--------------
 
 
 ::
@@ -310,6 +330,317 @@ From build.log get lots of nvlink messages::
     1642 -- Installing: /usr/local/env/geometry/VecGeom.install/include/VecCore/Assert.h
 
 
+
+
+Working
+---------
+
+::
+
+   test/cuda/MapTest.cpp testing base/Map.h (stl map adapted for CUDA)
+
+All tests have rc 0::
+
+    simon:VecGeom.build blyth$ l *Test
+    -rwxr-xr-x  1 blyth  staff    53740 Jan 19 15:33 Transformation3DTest
+    -rwxr-xr-x  1 blyth  staff  1058748 Jan 19 15:33 SafetyEstimatorTest
+    -rwxr-xr-x  1 blyth  staff    47108 Jan 19 15:33 ThetaConeTest
+    -rwxr-xr-x  1 blyth  staff    54084 Jan 19 15:33 MapTest
+    -rwxr-xr-x  1 blyth  staff    31524 Jan 19 15:33 PhiWedgeTest
+    -rwxr-xr-x  1 blyth  staff  1062392 Jan 19 15:33 PlanesTest
+    -rwxr-xr-x  1 blyth  staff     9336 Jan 19 15:33 QuadrilateralTest
+    -rwxr-xr-x  1 blyth  staff  1091500 Jan 19 15:33 AssemblyTest
+    -rwxr-xr-x  1 blyth  staff    36892 Jan 19 15:33 BitSetTest
+    -rwxr-xr-x  1 blyth  staff  1205852 Jan 19 15:33 BooleanConvexityTest
+    -rwxr-xr-x  1 blyth  staff    31140 Jan 19 15:33 ContainerTest
+
+
+
+ctests
+-------
+
+All benchmark fail::
+
+    simon:VecGeom.build blyth$ make test
+    Running tests...
+    Test project /usr/local/env/geometry/VecGeom.build
+          Start  1: SafetyEstimatorTest
+     1/42 Test  #1: SafetyEstimatorTest ..............   Passed    0.00 sec
+          Start  2: ContainerTest
+     2/42 Test  #2: ContainerTest ....................   Passed    0.00 sec
+          Start  3: create_geometry
+     3/42 Test  #3: create_geometry ..................   Passed    0.01 sec
+          Start  4: PlanesTest
+     4/42 Test  #4: PlanesTest .......................   Passed    0.01 sec
+          Start  5: QuadrilateralTest
+     5/42 Test  #5: QuadrilateralTest ................   Passed    0.00 sec
+          Start  6: Transformation3DTest
+     6/42 Test  #6: Transformation3DTest .............   Passed    0.00 sec
+          Start  7: PhiWedgeTest
+     7/42 Test  #7: PhiWedgeTest .....................   Passed    0.00 sec
+          Start  8: ThetaConeTest
+     8/42 Test  #8: ThetaConeTest ....................   Passed    0.00 sec
+          Start  9: TestConvexity
+     9/42 Test  #9: TestConvexity ....................   Passed    0.02 sec
+          Start 10: BooleanConvexityTest
+    10/42 Test #10: BooleanConvexityTest .............   Passed    0.00 sec
+          Start 11: TestVecGeomPolycone
+    11/42 Test #11: TestVecGeomPolycone ..............   Passed    0.01 sec
+          Start 12: TestSExtru
+    12/42 Test #12: TestSExtru .......................   Passed    0.25 sec
+          Start 13: TestBooleans
+    13/42 Test #13: TestBooleans .....................   Passed    0.00 sec
+          Start 14: AssemblyTest
+    14/42 Test #14: AssemblyTest .....................   Passed    0.00 sec
+          Start 15: TestNavigationState
+    15/42 Test #15: TestNavigationState ..............   Passed    0.01 sec
+          Start 16: BitSetTest
+    16/42 Test #16: BitSetTest .......................   Passed    0.00 sec
+          Start 17: BoxBenchmark
+    17/42 Test #17: BoxBenchmark .....................***Exception: Other  0.58 sec
+          Start 18: SExtruBenchmark
+    18/42 Test #18: SExtruBenchmark ..................***Exception: Other  0.56 sec
+          Start 19: ConcaveSExtruBenchmark
+    19/42 Test #19: ConcaveSExtruBenchmark ...........***Exception: Other  0.57 sec
+          Start 20: ParaboloidBenchmark
+    20/42 Test #20: ParaboloidBenchmark ..............***Exception: Other  0.52 sec
+          Start 21: ParaboloidScriptBenchmark
+    21/42 Test #21: ParaboloidScriptBenchmark ........***Exception: Other  1.24 sec
+          Start 22: ParallelepipedBenchmark
+    22/42 Test #22: ParallelepipedBenchmark ..........***Exception: Other  0.59 sec
+          Start 23: PolyhedronBenchmark
+    23/42 Test #23: PolyhedronBenchmark ..............***Exception: Other  0.58 sec
+          Start 24: TubeBenchmark
+    24/42 Test #24: TubeBenchmark ....................***Exception: Other  0.56 sec
+          Start 25: TorusBenchmark2
+    25/42 Test #25: TorusBenchmark2 ..................***Exception: Other  0.54 sec
+          Start 26: TrapezoidBenchmark
+    26/42 Test #26: TrapezoidBenchmark ...............***Exception: Other  0.69 sec
+          Start 27: TrapezoidBenchmarkScript
+    27/42 Test #27: TrapezoidBenchmarkScript .........***Exception: Other  1.55 sec
+          Start 28: OrbBenchmark
+    28/42 Test #28: OrbBenchmark .....................***Exception: Other  0.53 sec
+          Start 29: SphereBenchmark
+    29/42 Test #29: SphereBenchmark ..................***Exception: Other  0.48 sec
+          Start 30: HypeBenchmark
+    30/42 Test #30: HypeBenchmark ....................***Exception: Other  0.53 sec
+          Start 31: TrdBenchmark
+    31/42 Test #31: TrdBenchmark .....................***Exception: Other  0.61 sec
+          Start 32: ConeBenchmark
+    32/42 Test #32: ConeBenchmark ....................***Exception: Other  0.52 sec
+          Start 33: GenTrapBenchmark
+    33/42 Test #33: GenTrapBenchmark .................***Exception: Other  0.52 sec
+          Start 34: ScaledBenchmark
+    34/42 Test #34: ScaledBenchmark ..................***Exception: Other  0.66 sec
+          Start 35: BoxScaledBenchmark
+    35/42 Test #35: BoxScaledBenchmark ...............***Exception: Other  0.55 sec
+          Start 36: CutTubeBenchmark
+    36/42 Test #36: CutTubeBenchmark .................***Exception: Other  0.49 sec
+          Start 37: PolyconeBenchmark
+    37/42 Test #37: PolyconeBenchmark ................***Exception: Other  0.53 sec
+          Start 38: Backend
+    38/42 Test #38: Backend ..........................   Passed    0.02 sec
+          Start 39: TypeTraits
+    39/42 Test #39: TypeTraits .......................   Passed    0.01 sec
+          Start 40: NumericLimits
+    40/42 Test #40: NumericLimits ....................   Passed    0.00 sec
+          Start 41: Math
+    41/42 Test #41: Math .............................   Passed    0.01 sec
+          Start 42: CUDAHelloWorld
+    42/42 Test #42: CUDAHelloWorld ...................   Passed    0.12 sec
+
+    50% tests passed, 21 tests failed out of 42
+
+    Total Test time (real) =  13.90 sec
+
+    The following tests FAILED:
+         17 - BoxBenchmark (OTHER_FAULT)
+         18 - SExtruBenchmark (OTHER_FAULT)
+         19 - ConcaveSExtruBenchmark (OTHER_FAULT)
+         20 - ParaboloidBenchmark (OTHER_FAULT)
+         21 - ParaboloidScriptBenchmark (OTHER_FAULT)
+         22 - ParallelepipedBenchmark (OTHER_FAULT)
+         23 - PolyhedronBenchmark (OTHER_FAULT)
+         24 - TubeBenchmark (OTHER_FAULT)
+         25 - TorusBenchmark2 (OTHER_FAULT)
+         26 - TrapezoidBenchmark (OTHER_FAULT)
+         27 - TrapezoidBenchmarkScript (OTHER_FAULT)
+         28 - OrbBenchmark (OTHER_FAULT)
+         29 - SphereBenchmark (OTHER_FAULT)
+         30 - HypeBenchmark (OTHER_FAULT)
+         31 - TrdBenchmark (OTHER_FAULT)
+         32 - ConeBenchmark (OTHER_FAULT)
+         33 - GenTrapBenchmark (OTHER_FAULT)
+         34 - ScaledBenchmark (OTHER_FAULT)
+         35 - BoxScaledBenchmark (OTHER_FAULT)
+         36 - CutTubeBenchmark (OTHER_FAULT)
+         37 - PolyconeBenchmark (OTHER_FAULT)
+    Errors while running CTest
+    make: *** [test] Error 8
+
+
+
+Many of the fails emit the below::
+
+     36 void GeoManager::RegisterPlacedVolume(VPlacedVolume *const placed_volume)
+     37 {
+     38   if (!fIsClosed)
+     39     fPlacedVolumesMap[placed_volume->id()] = placed_volume;
+     40   else {
+     41     std::cerr << "PlacedVolume created after geometry is closed --> will not be registered\n";
+     42   }
+     43 }
+
+::
+
+    simon:VecGeom blyth$ vecgeom-find RegisterPlacedVolume
+    ./management/GeoManager.h:  void RegisterPlacedVolume(VPlacedVolume *const placed_volume);
+    ./source/GeoManager.cpp:void GeoManager::RegisterPlacedVolume(VPlacedVolume *const placed_volume)
+    ./source/PlacedVolume.cpp:  GeoManager::Instance().RegisterPlacedVolume(this);
+
+
+UnplacedPolycone
+-------------------
+
+::
+
+    simon:VecGeom blyth$ vecgeom-lfind UnplacedPolycone
+    ./volumes/UnplacedPolycone.h
+    ./source/UnplacedPolycone.cpp
+
+::
+
+    312 #ifdef VECGEOM_CUDA_INTERFACE
+    313 
+    314 DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu() const
+    315 {
+    316   return CopyToGpuImpl<UnplacedPolycone>();
+    317 }
+    318 
+    319 DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const
+    320 {
+    321 
+    322   // idea: reconstruct defining arrays: copy them to GPU; then construct the
+    323   // UnplacedPolycon object from scratch
+    324   // on the GPU
+    325   std::vector<Precision> rmin, z, rmax;
+    326   ReconstructSectionArrays(z, rmin, rmax);
+    327 
+    328   // somehow this does not work:
+    329   //        Precision *z_gpu_ptr = AllocateOnGpu<Precision>( (z.size() +
+    330   // rmin.size() + rmax.size())*sizeof(Precision) );
+    331   //        Precision *rmin_gpu_ptr = z_gpu_ptr + sizeof(Precision)*z.size();
+    332   //        Precision *rmax_gpu_ptr = rmin_gpu_ptr +
+    333   // sizeof(Precision)*rmin.size();
+    334 
+    335   Precision *z_gpu_ptr    = AllocateOnGpu<Precision>(z.size() * sizeof(Precision));
+    336   Precision *rmin_gpu_ptr = AllocateOnGpu<Precision>(rmin.size() * sizeof(Precision));
+    337   Precision *rmax_gpu_ptr = AllocateOnGpu<Precision>(rmax.size() * sizeof(Precision));
+    338 
+    339   vecgeom::CopyToGpu(&z[0], z_gpu_ptr, sizeof(Precision) * z.size());
+    340   vecgeom::CopyToGpu(&rmin[0], rmin_gpu_ptr, sizeof(Precision) * rmin.size());
+    341   vecgeom::CopyToGpu(&rmax[0], rmax_gpu_ptr, sizeof(Precision) * rmax.size());
+
+
+Observations
+
+* a very chatty approach, the Opticks way would be to build a buffer CPU side 
+  and copy to GPU in one go
+
+* does far more than is needed to just ray-primitive intersect
+
+
+G4VCSGfaceted
+----------------
+
+Polycone implemented as collection of G4VCSGface::
+
+    simon:solids blyth$ g4-cls G4VCSGfaceted
+    vi -R source/geometry/solids/specific/include/G4VCSGfaceted.hh source/geometry/solids/specific/src/G4VCSGfaceted.cc
+    2 files to edit
+
+    simon:solids blyth$ g4-cls G4VCSGface
+    vi -R source/geometry/solids/specific/include/G4VCSGface.hh
+
+    simon:solids blyth$ g4-hh G4VCSGfaceted
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/solids/specific/include/G4GenericPolycone.hh:#include "G4VCSGfaceted.hh"
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/solids/specific/include/G4GenericPolycone.hh:class G4GenericPolycone : public G4VCSGfaceted 
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/solids/specific/include/G4Polycone.hh://   inherited from  class G4VCSGfaceted:
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/solids/specific/include/G4Polycone.hh:#include "G4VCSGfaceted.hh"
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/solids/specific/include/G4Polycone.hh:class G4Polycone : public G4VCSGfaceted 
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/solids/specific/include/G4Polyhedra.hh://   inherited from class G4VCSGfaceted:
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/solids/specific/include/G4Polyhedra.hh:#include "G4VCSGfaceted.hh"
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/solids/specific/include/G4Polyhedra.hh:class G4Polyhedra : public G4VCSGfaceted
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/solids/specific/include/G4VCSGface.hh://   In analogy with CalculateExtent for G4VCSGfaceted, this is
+
+Polycone with conical faces joining RZ::
+
+    102 class G4PolyconeSide : public G4VCSGface
+    103 {
+    104   public:
+    105 
+    106     G4PolyconeSide( const G4PolyconeSideRZ *prevRZ,
+    107                     const G4PolyconeSideRZ *tail,
+    108                     const G4PolyconeSideRZ *head,
+    109                     const G4PolyconeSideRZ *nextRZ,
+    110                           G4double phiStart, G4double deltaPhi,
+    111                           G4bool phiIsOpen, G4bool isAllBehind=false );
+
+::
+
+     g4-cls G4IntersectingCone  ## implements the actual intersection
+
+     51 class G4IntersectingCone
+     52 {
+     53   public:
+     54 
+     55     G4IntersectingCone( const G4double r[2], const G4double z[2] );
+
+
+
+
+G4BREPSolid
+--------------
+
+* https://indico.cern.ch/event/44566/contributions/1101956/attachments/943084/1337691/BREP_Solids.pps.pps
+* ~/opticks_refs/BREP_Solids.pdf   
+
+  * Gabriele Camellini (circa 2009) 
+  * BREPS solids construction by surfaces of extrusion & revolution
+
+  * G4BREPSolid defined by G4Surface and G4Curve (G4BREPSolid is defined by a collections of boundaried surfaces)
+  * G4SurfaceOfLinearExtrusion 
+
+* BREPS look to be expunged ? 
+
+* https://gitlab.cern.ch/geant4/geant4/tree/edb408b5618b3b1cd3f40c5759aa5da4aa56bb7b/source/geometry/solids/BREPS/src
+
+
+How come need so few methods needed  ? 
+------------------------------------------------
+
+* Dont need to know if are inside some volume ? the question never arises.
+
+  * this is needed for converting CSG into meshed B-Rep 
+
+
+For optical photons with boundary geometry the only questions are 
+
+* whats the bbox of the primitive
+
+* does a ray from here in that direction intersect with this primitive
+* if it does
+
+  * whats the distance (parametric t) at 1st intersection
+  * whats the geometric normal at the intersection
+
+* can partition solids, when that is convenient (eg manual PMT partitioning)
+
+
+Not Working
+------------
+
+
 ::
 
     simon:VecGeom.build blyth$ vecgeom-t
@@ -357,6 +688,170 @@ From build.log get lots of nvlink messages::
         frame #12: 0x00007fff918b15fd libdyld.dylib`start + 1
     (lldb) 
 
+::
+
+    239 // a special treatment for placed volumes to ensure same order of placed volumes in compact buffer
+    240 // as on CPU
+    241 bool CudaManager::AllocatePlacedVolumesOnCoproc()
+    242 {
+    243   // check if geometry is closed
+    244   if (!GeoManager::Instance().IsClosed()) {
+    245     std::cerr << "Warning: Geometry on host side MUST be closed before copying to DEVICE\n";
+    246   }
+    247 
+    248   // we start from the compact buffer on the CPU
+    249   unsigned int size = placed_volumes_.size();
+    250 
+    251   //   if (verbose_ > 2) std::cout << "Allocating placed volume ";
+    252   std::cerr << "Allocating placed volume ";
+    253   size_t totalSize = 0;
+    254   // calculate total size of buffer on GPU to hold the GPU copies of the collection
+    255   for (unsigned int i = 0; i < size; ++i) {
+    256 
+    257     VPlacedVolume* const vpv = &GeoManager::gCompactPlacedVolBuffer[i] ;
+    258     //assert(&GeoManager::gCompactPlacedVolBuffer[i] != nullptr);
+    259     assert(vpv != nullptr);
+    260     //totalSize += (&GeoManager::gCompactPlacedVolBuffer[i])->DeviceSizeOf();
+    261     totalSize += vpv->DeviceSizeOf();
+    262   }
+    263 
+    264   GpuAddress gpu_address;
+    265   gpu_address.Allocate(totalSize);
+    266 
+    267   // store this address for later access (on the host)
+    268   fPlacedVolumeBufferOnDevice = DevicePtr<vecgeom::cuda::VPlacedVolume>(gpu_address);
+    269   // this address has to be made known globally to the device side
+    270   vecgeom::cuda::InitDeviceCompactPlacedVolBufferPtr(gpu_address.GetPtr());
+    271 
+    272   allocated_memory_.push_back(gpu_address);
+    273 
+    274   // record a GPU memory location for each object in the collection to be copied
+    275   // since the pointers in GeoManager::gCompactPlacedVolBuffer are sorted by the volume id, we are
+    276   // getting the same order on the GPU/device automatically
+    277   for (unsigned int i = 0; i < size; ++i) {
+    278     VPlacedVolume const *ptr                  = &GeoManager::gCompactPlacedVolBuffer[i];
+    279     memory_map[ToCpuAddress(ptr)]             = gpu_address;
+    280     fGPUtoCPUmapForPlacedVolumes[gpu_address] = ptr;
+    281     gpu_address += ptr->DeviceSizeOf();
+    282   }
+    283 
+    284   if (verbose_ > 2) std::cout << " OK\n";
+    285 
+    286   return true;
+    287 }
+
+
+
+::
+
+    (lldb) p i
+    (unsigned int) $0 = 0
+    (lldb) p GeoManager::gCompactPlacedVolBuffer
+    (vecgeom::cxx::VPlacedVolume *) $1 = 0x000000010b63c620
+    (lldb) p GeoManager::gCompactPlacedVolBuffer[0]
+    (vecgeom::cxx::VPlacedVolume) $2 = {
+      id_ = 0
+      label_ = "p4r4"
+      logical_volume_ = 0x00007fff5fbfebc0
+      fTransformation = {
+        fTranslation = ([0] = 5, [1] = 5, [2] = 5)
+        fRotation = ([0] = 1, [1] = 0, [2] = 0, [3] = 0, [4] = 1, [5] = 0, [6] = 0, [7] = 0, [8] = 1)
+        fIdentity = false
+        fHasRotation = false
+        fHasTranslation = true
+      }
+      bounding_box_ = 0x0000000000000000
+    }
+    (lldb) p &GeoManager::gCompactPlacedVolBuffer[0]
+    (vecgeom::cxx::VPlacedVolume *) $3 = 0x000000010b63c620
+    (lldb) p vpv
+    (vecgeom::cxx::VPlacedVolume *const) $4 = 0x0000000000000000
+    (lldb) p *&GeoManager::gCompactPlacedVolBuffer[0]
+    (vecgeom::cxx::VPlacedVolume) $5 = {
+      id_ = 0
+      label_ = "p4r4"
+      logical_volume_ = 0x00007fff5fbfebc0
+      fTransformation = {
+        fTranslation = ([0] = 5, [1] = 5, [2] = 5)
+        fRotation = ([0] = 1, [1] = 0, [2] = 0, [3] = 0, [4] = 1, [5] = 0, [6] = 0, [7] = 0, [8] = 1)
+        fIdentity = false
+        fHasRotation = false
+        fHasTranslation = true
+      }
+      bounding_box_ = 0x0000000000000000
+    }
+    (lldb) expr VPlacedVolume* const vpv0=&GeoManager::gCompactPlacedVolBuffer[i]
+    error: reference to 'VPlacedVolume' is ambiguous
+    note: candidate found by name lookup is 'vecgeom::cxx::VPlacedVolume'
+    note: candidate found by name lookup is 'vecgeom::cxx::VPlacedVolume'
+    error: 1 errors parsing expression
+    (lldb) expr vecgeom::cxx::VPlacedVolume* const vpv0 = &GeoManager::gCompactPlacedVolBuffer[i]
+    error: reference to 'VPlacedVolume' is ambiguous
+    note: candidate found by name lookup is 'vecgeom::cxx::VPlacedVolume'
+    note: candidate found by name lookup is 'vecgeom::cxx::VPlacedVolume'
+    error: 1 errors parsing expression
+
+    (lldb) p *(GeoManager::gCompactPlacedVolBuffer + i)
+    (vecgeom::cxx::VPlacedVolume) $8 = {
+      id_ = 0
+      label_ = "p4r4"
+      logical_volume_ = 0x00007fff5fbfebc0
+      fTransformation = {
+        fTranslation = ([0] = 5, [1] = 5, [2] = 5)
+        fRotation = ([0] = 1, [1] = 0, [2] = 0, [3] = 0, [4] = 1, [5] = 0, [6] = 0, [7] = 0, [8] = 1)
+        fIdentity = false
+        fHasRotation = false
+        fHasTranslation = true
+      }
+      bounding_box_ = 0x0000000000000000
+    }
+
+
+::
+
+    simon:opticks blyth$ vecgeom-find gCompactPlacedVolBuffer
+    ./management/CudaManager.h:// extern __device__ VPlacedVolume *gCompactPlacedVolBuffer;
+    ./management/GeoManager.h:  static VPlacedVolume *gCompactPlacedVolBuffer;
+    ./navigation/NavigationState.h:    return &vecgeom::GeoManager::gCompactPlacedVolBuffer[index];
+    ./navigation/NavigationState.h:    // (failed preveously due to undefined symbol vecgeom::cuda::GeoManager::gCompactPlacedVolBuffer)
+    ./services/NavigationSpecializer.cpp:    outstream << "VPlacedVolume const * pvol = &GeoManager::gCompactPlacedVolBuffer[" << fTargetVolIds[transitionid]
+    ./source/CudaGlobalSymbols.cu:__device__ VPlacedVolume *gCompactPlacedVolBuffer;
+    ./source/CudaManager.cpp:           (size_t)(&GeoManager::gCompactPlacedVolBuffer[0]) + sizeof(vecgeom::cxx::VPlacedVolume) * (*i)->id());
+    ./source/CudaManager.cpp:    //VPlacedVolume* const vpv = &GeoManager::gCompactPlacedVolBuffer[i] ; 
+    ./source/CudaManager.cpp:    //assert(&GeoManager::gCompactPlacedVolBuffer[i] != nullptr);
+    ./source/CudaManager.cpp:    VPlacedVolume* vpv = GeoManager::gCompactPlacedVolBuffer + i ; 
+    ./source/CudaManager.cpp:    //totalSize += (&GeoManager::gCompactPlacedVolBuffer[i])->DeviceSizeOf();
+    ./source/CudaManager.cpp:  // since the pointers in GeoManager::gCompactPlacedVolBuffer are sorted by the volume id, we are
+    ./source/CudaManager.cpp:    VPlacedVolume const *ptr                  = &GeoManager::gCompactPlacedVolBuffer[i];
+    ./source/CudaManager.cu:static __device__ VPlacedVolume *gCompactPlacedVolBuffer = nullptr;
+    ./source/CudaManager.cu:  return gCompactPlacedVolBuffer;
+    ./source/CudaManager_0.cu:static __device__ VPlacedVolume *gCompactPlacedVolBuffer = nullptr;
+    ./source/CudaManager_0.cu:  return gCompactPlacedVolBuffer;
+    ./source/GeoManager.cpp:VPlacedVolume *GeoManager::gCompactPlacedVolBuffer = nullptr;
+    ./source/GeoManager.cpp:  gCompactPlacedVolBuffer = (VPlacedVolume *)malloc(pvolumecount * sizeof(VPlacedVolume));
+    ./source/GeoManager.cpp:    gCompactPlacedVolBuffer[volumeindex] = *v.second;
+    ./source/GeoManager.cpp:    fPlacedVolumesMap[volumeindex]       = &gCompactPlacedVolBuffer[volumeindex];
+    ./source/GeoManager.cpp:    conversionmap[v.second]              = &gCompactPlacedVolBuffer[volumeindex];
+    ./source/GeoManager.cpp:  if (GeoManager::gCompactPlacedVolBuffer != nullptr) {
+    ./source/GeoManager.cpp:    free(gCompactPlacedVolBuffer);
+    ./source/GeoManager.cpp:    gCompactPlacedVolBuffer = nullptr;
+    simon:VecGeom blyth$ 
+
+source/CudaGlobalSymbols.cu::
+
+     01 #include "base/Global.h"
+      2 
+      3 namespace vecgeom {
+      4 class VPlacedVolume;
+      5 // instantiation of global device geometry data
+      6 namespace globaldevicegeomdata {
+      7 //#ifdef VECGEOM_NVCC_DEVICE
+      8 __device__ VPlacedVolume *gCompactPlacedVolBuffer;
+      9 //#endif
+     10 }
+     11 }
+
+
 
 
 
@@ -386,10 +881,26 @@ vecgeom-env(){      elocal- ; cuda- ; }
 
 
 vecgeom-find(){ 
-   local q=${1:-RunInsideCuda}
-   vecgeom-scd
-   find . -type f -exec grep -H $q {} \;
+    local q="${1:-RunInsideCuda}"
+    vecgeom-scd
+    find . -type f -exec grep -H "$q" {} \;
 }
+
+vecgeom-cls(){ 
+    local iwd=$PWD;
+    local name=${1:-CudaManager}
+    vecgeom-scd
+    local h=$(find . -name "$name.h");
+    local hh=$(find . -name "$name.hh");
+    local cc=$(find . -name "$name.cc");
+    local cpp=$(find . -name "$name.cpp");
+    local cu=$(find . -name "$name.cu");
+    local vcmd="vi -R $h $hh $cc $cpp $cu";
+    echo $vcmd;
+    eval $vcmd;
+    cd $iwd
+}
+
 
 vecgeom-cmake(){
    local iwd=$PWD
@@ -457,5 +968,7 @@ vecgeom-nvcc()
                -I/usr/local/cuda/include
 
 }
+
+
 
 

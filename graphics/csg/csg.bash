@@ -506,6 +506,20 @@ Kensler state tables corrected in below page...
 XRT appears to be provided only as a Windows binary 
 
 
+Question : can basis shapes be concave ? what about torii ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+Kensler statement:
+
+   sub-objects must be closed, non-self-intersecting 
+   and have consistently oriented normals
+
+Intuitive guess is that concave is OK and torii too but such shapes
+will need to allow more loops over additional intersections, 
+and the intersect algorithms would need to return all roots 
+eventually as are repeatedly called with larger tmin.
+
+
 XRT corrected Kensler algorithm pseudo-code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
