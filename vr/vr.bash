@@ -33,6 +33,12 @@ Wireless Vive
 * :google:`wireless vive tpcast rivvr`
 
 
+NVIDIA Pascal VR Features
+---------------------------
+
+* https://developer.nvidia.com/pascal-vr-tech
+
+
 NVIDIA VR Funhouse Source on Github
 ---------------------------------------
 

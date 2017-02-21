@@ -1861,3 +1861,6 @@ sso-(){      . $(env-home)/network/sso/sso.bash && sso-env $* ; }
 embree-(){      . $(env-home)/embree/embree.bash && embree-env $* ; }
 rst-(){      . $(env-home)/tools/rst/rst.bash && rst-env $* ; }
 intersect-(){      . $(env-home)/graphics/intersect/intersect.bash && intersect-env $* ; }
+csgtools-(){      . $(env-home)/graphics/csg/csgtools/csgtools.bash && csgtools-env $* ; }
+csgformat-(){      . $(env-home)/graphics/csg/csgformat/csgformat.bash && csgformat-env $* ; }
+influxdb-(){      . $(env-home)/db/influxdb/influxdb.bash && influxdb-env $* ; }

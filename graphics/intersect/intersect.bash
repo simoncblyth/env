@@ -11,6 +11,13 @@ INTERSECT : ray geometry intersection notes
 A place for referencing sources and comparing implementations
 
 
+See Also
+---------
+
+* csg- for tree serialization thoughts
+* tboolean- 
+
+
 Exceptional Sources
 ---------------------
 
@@ -122,6 +129,30 @@ Intersections ray/cone
 
 * https://www.geometrictools.com/Documentation/IntersectionLineCone.pdf
 * https://www.csie.ntu.edu.tw/~cyy/courses/rendering/pbrt-2.00/html/cone_8cpp_source.html
+
+
+hemi-pmt.cu is poor name, much more general now
+------------------------------------------------
+
+* analytic.cu is better, however this needs to be sliced into focussed headers
+
+::
+
+    simon:cu blyth$ opticks-find hemi-pmt.cu 
+    ./bin/oks.bash:    ./optixrap/cu/hemi-pmt.cu
+    ./optixrap/cu/hemi-pmt.cu:  rtPrintf("hemi-pmt.cu:bounds primIdx %d min %10.4f %10.4f %10.4f max %10.4f %10.4f %10.4f \n", primIdx, 
+    ./ggeo/GParts.cc:    // see oxrap/cu/hemi-pmt.cu::intersect
+    ./ggeo/GParts.cc:    // following access pattern of oxrap/cu/hemi-pmt.cu::intersect
+    ./ggeo/GPmt.cc:which are used in cu/hemi-pmt.cu as the OptiX primitives
+    ./optixrap/OGeo.cc:    geometry->setIntersectionProgram(m_ocontext->createProgram("hemi-pmt.cu.ptx", "intersect"));
+    ./optixrap/OGeo.cc:    geometry->setBoundingBoxProgram(m_ocontext->createProgram("hemi-pmt.cu.ptx", "bounds"));
+    ./ggeo/GParts.hh:        // allowing this to copied/used on GPU in cu/hemi-pmt.cu
+    ./opticksnpy/NPrism.cpp:    // hmm more dupe of hemi-pmt.cu/make_prism
+    ./opticksnpy/NTrianglesNPY.cpp:    // hmm how to avoid duplication between here and hemi-pmt.cu/make_prism
+    ./optixrap/CMakeLists.txt:    cu/hemi-pmt.cu 
+    ./optixrap/CMakeLists.txt:    ${CMAKE_CURRENT_BINARY_DIR}/${name}_generated_hemi-pmt.cu.ptx
+    ./ana/pmt/geom.py:        see cu/hemi-pmt.cu for where these are used 
+    simon:opticks blyth$ 
 
 
 

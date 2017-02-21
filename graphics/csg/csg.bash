@@ -112,6 +112,13 @@ Nodes need a flag distinguishing shape(leaf-node) from operations(op-node with b
 
 The flags can easily fit into the spare (always: 0,0,0,1 ) space in 4x4.
 
+
+test input of the tree in tboolean ? GGeoTest
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* start by adding transform handling 
+
+
 Extra slicing operation ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
