@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 """
 
+
+
+
 Hmm descoping to support complete binary trees up to maximum depth
 of three/four would certainly cover all reasonable single 
 solid boolean combinations.
 Assuming implement transforms in a way that doesnt enlarge the tree.
 
 * http://www.geeksforgeeks.org/iterative-postorder-traversal/
-
-
+* http://www.techiedelight.com/Tags/lifo/
 
 
 
@@ -24,6 +26,14 @@ Assuming implement transforms in a way that doesnt enlarge the tree.
                                                (4         5  2)      (6         7  3)
                                                             (2                     3  1)  
 
+Discern where you are based a sequence of 1-based indices, where the 
+indices follow level order (aka breadth first order)
+
+* normal left/right/parent triple is  (i,i+1,i/2)   eg (8 9 4) (10 11 5) (12 13 6) (14 15 7) 
+* if not a triple then treat the index singly eg 2 corresponding to pseudo-triples ("4" "5" 2) ("6" "7" 3) ("2" "3" 1)
+   
+
+
 
 csg ray trace algo 
 
@@ -32,18 +42,29 @@ csg ray trace algo
 
 intersect ordering 
 
+( 8 9 4 )
+( 10 11 5 )
+( 2 )
+( 12 13 6 )
+( 14 15 7 )
+( 3 )
+( 1 )
+
+
+
+
+
 * (8   9 4)   pushLeft -> "4"   
 * (10 11 5)   pushRight -> "5"
-* (4  5  2)   popLeft/popRight -> pushLeft "2"    
+* ("4"  "5"  2)   popLeft/popRight -> pushLeft "2"    
 
     ( "4" and "5" child intersects no longer needed, after parent "2" intersect is computed)
 
 * (12 13 6)    pushLeft -> "6" 
 * (14 15 7)    pushRight -> "7"
-* (6 7 3)      popLeft,popRight -> pushRight "3" 
+* ("6" "7" 3)      popLeft,popRight -> pushRight "3" 
 
-
-* (2 3 1)     popLeft, popRight -> "1"
+* ("2" "3" 1)     popLeft, popRight -> "1"
 
 
 
@@ -84,6 +105,27 @@ intersect ordering
 
                     popL-2, popR-3  ->  1
                        1
+
+
+
+( 16 17 8 )
+( 18 19 9 )
+( 4 )
+( 20 21 10 )
+( 22 23 11 )
+( 5 )
+( 2 )
+( 24 25 12 )
+( 26 27 13 )
+( 6 )
+( 28 29 14 )
+( 30 31 15 )
+( 7 )
+( 3 )
+( 1 )
+
+
+
 
 
 It looks like using L and R intersect stacks will allow to iteratively 
@@ -149,8 +191,8 @@ def postOrderIterative(root):
         if node.r is not None :
             nodes.append(node.r)
  
-    #while len(s2) > 0:
-    #    node = s2.pop()
+    #while len(s) > 0:
+    #    node = s.pop()
     #    print node.d,
  
     return list(reversed(s))
@@ -166,6 +208,7 @@ root2 = Node(1,
                           r=Node(7)
                       ) 
             )
+root2.name = "root2"
 
 
 
@@ -190,6 +233,7 @@ root3 = Node(1,
                                 )
                       ) 
             )
+root3.name = "root3"
 
 
 root4 = Node(1, 
@@ -237,68 +281,212 @@ root4 = Node(1,
                                 )
                       ) 
             )
+root4.name = "root4"
 
 
 
 
-def binary_calc(node, left, right):
+def binary_calc(node, left=None, right=None):
     if left and right:
         return "[%s](%s,%s)" % ( node.d, left, right )
     else:
         return "%s" % node.d
 
 
-def postordereval_r(node):
+def postordereval_r(p):
     """
     * :google:`tree calculation postorder traversal`
     * http://interactivepython.org/runestone/static/pythonds/Trees/TreeTraversals.html
     """
-    if not node: return
+    if not p: return
 
-    l = postordereval_r(node.l)
-    r = postordereval_r(node.r)
+    l = postordereval_r(p.l)
+    r = postordereval_r(p.r)
 
-    return binary_calc(node, l, r )
+    return binary_calc(p, l, r )
 
 
-def portordereval_i(node):
+def postordereval_i(node):
     """
-    task is to recreate the output _r with _i without using recursion 
+    Duplicates postordereval_r recursive tree evaluation using iteration
+
+    Relies upon:
+ 
+    * complete binary tree  
+    * nodes carrying 1-based levelorder (aka breadth-first) indices 
+    * node ordering into postorder (ie left,right,parent)
+    * lhs and rhs stacks 
+
+    1-based levelorder indices::
+
+        1
+
+        2            3
+
+        4     5      6       7
+
+        8  9  10 11  12  13  14  15  
+
+    postorder visits l and r before p
+
+        8 9 4  10 11 5 2 12 13 6 14 15 7 3 1
+
+    lowest level triples of l,r,p have distinctive
+    pattern of 1-based levelorder indices
+
+        (2*p 2*p+1 p)
+
     """
     nodes = postOrderIterative(node)
 
     lhs = []
     rhs = []
-
     nn = len(nodes)
 
-       
+    # below requires levelorder indices in postorder      
         
+    c = 0
+    while c < nn: 
+        if c < nn - 2 and nodes[c+1].d - nodes[c].d == 1 and nodes[c+2].d*2 == nodes[c].d: 
+            l = nodes[c+0]
+            r = nodes[c+1]
+            p = nodes[c+2]
+            c += 3
+
+            el = "%s" % l.d  # prim 
+            er = "%s" % r.d  # prim 
+        else:
+            p = nodes[c+0]
+            c += 1
+
+            el = lhs.pop()
+            er = rhs.pop()
+        pass
+
+        ep = binary_calc(p,el,er)
+
+        if p.d % 2 == 0:
+            lhs.append(ep)
+        else:
+            rhs.append(ep)
+        pass
+    pass
+
+    assert c == nn , (c, nn)
+    assert nodes[c-1].d == 1
+    assert len(lhs) == 0, lhs
+    assert len(rhs) == 1, rhs
+
+    return ep
+        
+ 
+
+def levelorder_i(root):
+    q = []
+    q.append(root)
+
+    idx = 1 
+    while len(q) > 0:
+       node = q.pop(0)   # bottom of q (ie fifo)
+
+       assert node.d == idx
+       idx += 1
+
+       if not node.l is None:q.append(node.l)
+       if not node.r is None:q.append(node.r)
+
+
+
+def postordereval2_i(root): 
+    """
+    Iterative binary tree evaluation
+    """ 
+    assert root
+     
+    levelorder_i(root)
+
+    nodes = []
+    s = []
+     
+    nodes.append(root)
+    while len(nodes) > 0:
+        node = nodes.pop()
+        s.append(node)
+        if node.l is not None:
+            nodes.append(node.l)
+        if node.r is not None :
+            nodes.append(node.r)
+        pass
+    pass
+
+    # s collects all nodes in reverse postorder
+    # instead of reversing s, use from the back indexing  
+
+    lhs = []
+    rhs = []
+    nn = len(s)
+
+    c = nn - 1
+    while c >= 0: 
+        if c > 2 and s[c-1].d - s[c].d == 1 and s[c-2].d*2 == s[c].d: 
+            l = s[c-0]
+            r = s[c-1]
+            p = s[c-2]
+            c -= 3
+
+            # l, r are primitives
+            el = "%s" % l.d  
+            er = "%s" % r.d   
+        else:
+            p = s[c-0]
+            c -= 1
+
+            # pop results of prior lower level calculation
+            el = lhs.pop()
+            er = rhs.pop()
+        pass
+
+        ep = binary_calc(p,el,er)
+
+        if p.d % 2 == 0:
+            lhs.append(ep)
+        else:
+            rhs.append(ep)
+        pass
+    pass
+
+    assert c == -1 , (c, nn)
+    assert s[c+1].d == 1
+    assert len(lhs) == 0, lhs
+    assert len(rhs) == 1, rhs
+
+    return ep
+ 
 
 
 
 
 
 
-nodes = postOrderIterative(root2)
-print "root2 " + " ".join(map(lambda node:str(node.d), nodes))
-print 
-print postordereval_r(root2)
-print postordereval_i(root2)
 
-nodes = postOrderIterative(root3)
-print "root3 " + " ".join(map(lambda node:str(node.d), nodes))
-print 
-print postordereval_r(root3)
+for root in [root2, root3, root4]:
 
-nodes = postOrderIterative(root4)
-print "root4 " + " ".join(map(lambda node:str(node.d), nodes))
-print 
-print postordereval_r(root4)
+    nodes = postOrderIterative(root)
+    print root.name + " " + " ".join(map(lambda node:str(node.d), nodes))
+    print 
+
+    ret0 = None
+    for fn in [postordereval_r,postordereval_i,postordereval2_i]:
+        ret = fn(root) 
+        print "%20s : %s " % ( fn.__name__, ret )
+
+        if ret0 is None:
+            ret0 = ret
+        else:
+            assert ret == ret0, (ret, ret0)
+    
 
 
-for node in nodes:
-    print node
 
 
 
