@@ -70,9 +70,70 @@ Gutter Line Numbers
 Regexp Replace
 ---------------
 
+enum into switch
+~~~~~~~~~~~~~~~~~~
+
 For example turning an enum into a switch statement::
 
     .,+20s/\s*\(\S*\).*/case \1 : s="\1" ;break; /gc
+
+enum into string consts
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Replace enum codes starting ERROR in the next 10 lines with string consts::
+
+    .,+10s/\s*\(ERROR\w*\).*$/static const char* \1_ = "\1" ;/gc
+
+For example replacing::
+
+     enum {
+         ERROR_LHS_POP_EMPTY         = 0x1 << 0,  
+         ERROR_RHS_POP_EMPTY         = 0x1 << 1,  
+         ERROR_LHS_END_NONEMPTY      = 0x1 << 2,  
+         ERROR_RHS_END_EMPTY         = 0x1 << 3,
+         ERROR_BAD_CTRL              = 0x1 << 4,
+         ERROR_LHS_OVERFLOW          = 0x1 << 5,
+         ERROR_RHS_OVERFLOW          = 0x1 << 6,
+         ERROR_LHS_TRANCHE_OVERFLOW  = 0x1 << 7,
+         ERROR_RHS_TRANCHE_OVERFLOW  = 0x1 << 8
+     }
+
+With::
+
+    enum {
+    static const char* ERROR_LHS_POP_EMPTY_ = "ERROR_LHS_POP_EMPTY" ;
+    static const char* ERROR_RHS_POP_EMPTY_ = "ERROR_RHS_POP_EMPTY" ;
+    static const char* ERROR_LHS_END_NONEMPTY_ = "ERROR_LHS_END_NONEMPTY" ;
+    static const char* ERROR_RHS_END_EMPTY_ = "ERROR_RHS_END_EMPTY" ;
+    static const char* ERROR_BAD_CTRL_ = "ERROR_BAD_CTRL" ;
+    static const char* ERROR_LHS_OVERFLOW_ = "ERROR_LHS_OVERFLOW" ;
+    static const char* ERROR_RHS_OVERFLOW_ = "ERROR_RHS_OVERFLOW" ;
+    static const char* ERROR_LHS_TRANCHE_OVERFLOW_ = "ERROR_LHS_TRANCHE_OVERFLOW" ;
+    static const char* ERROR_RHS_TRANCHE_OVERFLOW_ = "ERROR_RHS_TRANCHE_OVERFLOW" ;
+    }
+
+
+enum into stringstream dump
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Similarly replace enum with stringstream-ing the consts::
+
+    .,+10s/\s*\(ERROR\w*\).*$/if(err \& \1 ) ss << \1_ << " " ;/gc
+
+    enum { 
+    if(err & ERROR_LHS_POP_EMPTY ) ss << ERROR_LHS_POP_EMPTY_ << " " ;
+    if(err & ERROR_RHS_POP_EMPTY ) ss << ERROR_RHS_POP_EMPTY_ << " " ;
+    if(err & ERROR_LHS_END_NONEMPTY ) ss << ERROR_LHS_END_NONEMPTY_ << " " ;
+    if(err & ERROR_RHS_END_EMPTY ) ss << ERROR_RHS_END_EMPTY_ << " " ;
+    if(err & ERROR_BAD_CTRL ) ss << ERROR_BAD_CTRL_ << " " ;
+    if(err & ERROR_LHS_OVERFLOW ) ss << ERROR_LHS_OVERFLOW_ << " " ;
+    if(err & ERROR_RHS_OVERFLOW ) ss << ERROR_RHS_OVERFLOW_ << " " ;
+    if(err & ERROR_LHS_TRANCHE_OVERFLOW ) ss << ERROR_LHS_TRANCHE_OVERFLOW_ << " " ;
+    if(err & ERROR_RHS_TRANCHE_OVERFLOW ) ss << ERROR_RHS_TRANCHE_OVERFLOW_ << " " ;
+    }
+
+
+
 
 
 Switch text to lower/upper case

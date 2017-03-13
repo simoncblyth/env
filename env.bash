@@ -1864,3 +1864,4 @@ intersect-(){      . $(env-home)/graphics/intersect/intersect.bash && intersect-
 csgtools-(){      . $(env-home)/graphics/csg/csgtools/csgtools.bash && csgtools-env $* ; }
 csgformat-(){      . $(env-home)/graphics/csg/csgformat/csgformat.bash && csgformat-env $* ; }
 influxdb-(){      . $(env-home)/db/influxdb/influxdb.bash && influxdb-env $* ; }
+ccsg-(){      . $(env-home)/env/graphics/csg/ccsg.bash && ccsg-env $* ; }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 
-
+Development of this moved to opticks.dev.csg
 
 
 Hmm descoping to support complete binary trees up to maximum depth
@@ -400,6 +400,17 @@ def levelorder_i(root):
 def postordereval2_i(root): 
     """
     Iterative binary tree evaluation
+
+    #. uses postorder (actually reversed postorder but 
+       from the back indexing is used against s to avoid 
+       reversing it). This means the calculation builds
+       from the leaves back to the root.
+
+    #. CSG looping with tmin advanced is equivalent to 
+       reevaluation of a subtree, but as the algo builds from the 
+       leaves it can presumably be done by rerunning the iteration
+       from an appropriately chosen earlier c  
+
     """ 
     assert root
      
@@ -418,9 +429,6 @@ def postordereval2_i(root):
             nodes.append(node.r)
         pass
     pass
-
-    # s collects all nodes in reverse postorder
-    # instead of reversing s, use from the back indexing  
 
     lhs = []
     rhs = []
@@ -459,8 +467,8 @@ def postordereval2_i(root):
     assert s[c+1].d == 1
     assert len(lhs) == 0, lhs
     assert len(rhs) == 1, rhs
-
-    return ep
+    
+    return rhs[0]
  
 
 

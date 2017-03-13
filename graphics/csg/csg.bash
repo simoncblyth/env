@@ -34,9 +34,28 @@ CSG Thesis
 * http://www.en.pms.ifi.lmu.de/publications/diplomarbeiten/Sebastian.Steuer/DA_Sebastian.Steuer.pdf
 
 
+CSG Modelling, postorder on non-perfect tree
+-----------------------------------------------
+
+* http://web.iitd.ac.in/~hegde/cad/lecture/L32_solidmcsg.pdf
+
+CSG Implementations
+---------------------
+
+* https://github.com/mit-crpg/OpenMOC
+* https://github.com/mit-crpg/OpenMOC/blob/6e434c8e235be2b5f010b87c15a32ba7dfd51ea8/docs/source/methods/track_generation.rst#ray-tracing
+
+  CSG mentioned in docs, but dont find the code 
+
+* https://github.com/search?utf8=✓&q=CSG+ray+&type=Repositories&ref=searchresults
+
+
+* http://c-csg.com
+
 
 CSG Tree Structure in CUDA ?
 ------------------------------
+
 
 Series of posts from Tero Karras
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

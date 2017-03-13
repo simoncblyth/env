@@ -19,6 +19,19 @@ Determine from::
 
 * NB user creation changed significantly between 4.1 and 5.0 
 
+
+macports MySQL
+------------------
+
+* https://trac.macports.org/wiki/howto/MySQL
+
+Need to setup PATH to find mysql client and perhaps change the client section 
+of cnf to point at desired DB.
+
+* /opt/local/lib/mysql56/bin/mysql
+* adjust ~/.my.cnf
+
+
 control options
 -----------------
 
