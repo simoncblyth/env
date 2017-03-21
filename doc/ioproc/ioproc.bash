@@ -292,11 +292,15 @@ ioproc--()
 
 ioproc-info(){ cat << EOI
 
-   ioproc-conf : $(ioproc-conf)
-   ioproc-etex : $(ioproc-etex)
-   ioproc-pdf  : $(ioproc-pdf)
+   ioproc-conf     : $(ioproc-conf)
+   ioproc-etex     : $(ioproc-etex)
+   ioproc-pdfname  : $(ioproc-pdfname)
+   ioproc-pdf      : $(ioproc-pdf)
 
 EOI
+
+    ls -l $(ioproc-pdf)
+
 }
 
 
@@ -329,5 +333,4 @@ ioproc-figs-copy(){
   done
 
 }
-
 

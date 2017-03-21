@@ -79,13 +79,13 @@ CUDA Thrust photon indexing to enable interactive history selection.
 
 \section{Introduction}
 
-Newton's Opticks\cite{newton} first elucidated the optical physics 
+Newton's Opticks treatise\cite{newton} first elucidated the optical physics 
 that is central to the operation of a wide gamut of machines from medical imaging 
 scanners to neutrino detectors. Drastically improved optical photon simulation 
 performance can be transformative to the design, understanding 
 and operation of such machines. Opticks\cite{opticksURL} enables Geant4\cite{g4A}\cite{g4B}\cite{g4C}
 based simulations to benefit from the high performance GPU ray tracing made accessible
-by NVIDIA\textregistered\ OptiX\texttrademark\ \cite{optixPaper}\cite{optixSite}.
+by NVIDIA\textregistered\ OptiX\texttrademark\ package\cite{optixPaper}\cite{optixSite}.
 Graphics Processing Units (GPUs) originally dedicated to rendering are increasingly
 used for general computing tasks that exhibit a high degree of parallelism.
 
@@ -107,7 +107,7 @@ The number of optical photons estimated to be produced by a muon of
 typical energy 100 GeV crossing the Daya Bay detector is at the level of several millions, 
 for JUNO the estimate is an order of magnitude larger. 
 Profiling the Geant4 toolkit based Daya Bay simulation 
-shows the propagation of optical photons to consume more than 95\% of CPU time. 
+shows that the propagation of optical photons consumes more than 95\% of CPU time. 
 In addition to the CPU time the memory requirements for handling many millions 
 of photons pose severe constraints.  
 

@@ -249,8 +249,188 @@ is rare, could split the operations to slim down nodes.
 
 
 
-CSG to BREP
--------------
+csgbr : CSG to BREP
+---------------------
+
+Strategy 
+~~~~~~~~~~
+
+Conversion of CSG to BREP only needs to be done 
+once for a geometry so it does not need to 
+be particularly fast. Hence doing it on CPU 
+makes more sense as being more widely applicable.
+Also it can be done in python.
+
+Procedural Modelling with signed distance functions Thesis
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://aka-san.halcy.de/distance_fields_prefinal.pdf
+* ~/opticks_refs/Procedural_Modelling_with_Signed_Distance_Functions_Thesis.pdf
+
+* p25.. distance functions for sphere, torus, cylinder, cone, box
+
+CSG Combining signed distance functions ?
+
+* Union,  min(dA,dB)
+* Intersection, max(dA,dB)
+* Difference, max(dA,-dB)   (difference is intersection of A with complement of B)
+
+* Complement negates the distance function
+
+
+Ray Marching ?
+~~~~~~~~~~~~~~~~
+
+Scene defined by an SDF 
+
+* http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
+* https://en.wikipedia.org/wiki/Volume_ray_casting
+
+
+
+Adaptive Marching Cubes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :google:`adaptive marching cubes`
+
+* http://www.acm.org/search?sort=date%3AD%3AS%3Ad1&q=Marching+Cubes&start=0
+
+Left Field Ray Marching With OptiX Approach from SpaceX
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.sc15.supercomputing.org/sites/all/themes/SC15images/sci_vis/sci_vis_files/svs111s3-file4.pdf
+* ~/opticks_refs/Extreme_Multi_Resolution_Viz_SpaceX_svs111s3-file4.pdf
+
+
+OpenVDB : Dreamworks (MPL)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Open sourced by Dreamworks in 2012
+
+* http://www.openvdb.org
+* http://www.openvdb.org/documentation/
+* https://github.com/dreamworksanimation/openvdb
+* http://www.openvdb.org/documentation/doxygen/overview.html
+
+* https://github.com/dreamworksanimation/openvdb/search?q=CSG
+
+* http://ken.museth.org/OpenVDB.html
+
+OpenVDB is an Academy Award winning open sourced C++ library comprising a
+hierarchical data structure and a suite of tools for the efficient manipulation
+of sparse, possibly time-varying, volumetric data discretized on a
+three-dimensional grid. It is based on VDB (aka DB+Grid), which was developed
+by Ken Museth at DreamWorks Animation, and it offers an effectively infinite 3D
+index space, compact storage (both in memory and on disk), fast data access
+(both random and sequential), and a collection of algorithms specifically
+optimized for the data structure for common tasks such as filtering, CSG,
+compositing, numerical simulations, sampling and voxelization from other
+geometric representations. The technical details of VDB are described in the
+paper “VDB: High-Resolution Sparse Volumes with Dynamic Topology”. See press
+releases by DreamWorks, Digital Domain and SideFX or visit the openvdb site.
+
+* http://ken.museth.org/OpenVDB_files/Museth_TOG13.pdf
+* ~/opticks_refs/OpenVDB_Dreamworks_Museth_TOG13.pdf
+
+
+* https://github.com/dreamworksanimation/openvdb/blob/b74aa6fc53b3561b8c5f6865617db56c18373a9b/openvdb/unittest/TestVolumeToMesh.cc
+
+Uniformly mesh any scalar grid that has a continuous isosurface.::
+
+    void volumeToMesh   (   const GridType &    grid,
+    std::vector< Vec3s > &  points,
+    std::vector< Vec4I > &  quads,
+    double  isovalue = 0.0 
+    )   
+
+
+
+Efficient Marching Cubes With Topological Guarantees
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www-s.ks.uiuc.edu/Research/vmd/projects/ece498/surf/lewiner.pdf
+* ~/opticks_refs/Efficient_Marching_Cubes_Topological_Guarantees_lewiner.pdf
+* paper has link to C++ implementation, that doesnt work 
+* http://www.acm.org/jgt/papers/LewinerEtAl03
+
+* :google:`Thomas Lewiner Marching Cubes` 
+
+An imp is incorporated into scikit-image, which has liberal license:
+
+* https://github.com/scikit-image/scikit-image/pull/2052
+* https://github.com/scikit-image/scikit-image/pull/2052/files
+* https://github.com/scikit-image/scikit-image/blob/master/LICENSE.txt
+
+
+That pull is a cython port of the Lewiner C++ imp and includes 
+MarchingCubes.cpp as dead code.
+
+* https://github.com/scikit-image/scikit-image/tree/master/skimage/measure/mc_meta/
+* https://github.com/scikit-image/scikit-image/blob/master/skimage/measure/mc_meta/MarchingCubes.cpp
+
+Looking for live code:
+
+* :google:`lewiner MarchingCubes.cpp` 
+
+
+
+* https://github.com/nci/drishti/blob/master/tools/paint-graphcut/marchingcubes.h
+* 
+
+
+
+
+
+
+
+PISTON
+~~~~~~~~
+
+* see env-;piston-
+
+* http://datascience.dsscale.org
+* http://viz.lanl.gov/projects/PISTON.html
+* https://github.com/lanl/PISTON
+* http://viz.lanl.gov/projects/piston.pdf
+* ~/opticks_refs/LANL_MarchingCubes_Isosurface_piston.pdf
+
+
+PyMCubes : Marching Cubes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* see env-;pymcubes-
+
+GitHub - pmneila/PyMCubes: Marching cubes (and related tools) for Python
+
+* https://github.com/pmneila/PyMCubes
+
+
+IsoEx : isosurface extraction built on OpenMesh
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* see env-;isoex-
+
+* https://www.graphics.rwth-aachen.de/IsoEx/
+* https://www.graphics.rwth-aachen.de/software/
+* https://www.graphics.rwth-aachen.de/media/resource_files/IsoEx-1.2.tar.gz
+
+The IsoEx package provides some simple classes and algorithm for isosurface
+extraction. Its main purpose is to provide a sample implementation of the
+Extended Marching Cubes algorithm:
+
+Kobbelt, Botsch, Schwanecke, Seidel, Feature Sensitive Surface Extraction from
+Volume Data, Siggraph 2001.
+
+
+
+CUDA Marching Cubes
+~~~~~~~~~~~~~~~~~~~~~~
+
+Sorting triangle soup is used as example in CUDA/Thrust presentation 
+
+* http://www.nvidia.com/content/PDF/sc_2010/theater/Bell_SC10.pdf
+
+
 
 ICESL: A GPU ACCELERATED CSG MODELER AND SLICER
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -284,7 +464,6 @@ combine them front-to-back based on transparency.
 
 
 
-
 Marching Cubes to define isosurface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -311,13 +490,40 @@ libigl (MPL) has boolean operations on meshes
 * http://libigl.github.io/libigl/tutorial/tutorial.html#booleanoperationsonmeshes
 * http://libigl.github.io/libigl/tutorial/tutorial.html#csgtree
 
+gts (LGPL)
+~~~~~~~~~~~
+
+GNU Triangulated Surface Library
+
+* http://gts.sourceforge.net
+
+
+OpenSCAD
+----------
+
+* https://github.com/openscad/openscad/wiki/Project%3A-Survey-of-CSG-algorithms
 
 
 OpenCSG : image (Z-buffer) based CSG rendering with OpenGL
 --------------------------------------------------------------
 
-
 * http://opencsg.org
+
+csgjs-cpp
+--------------
+
+CSG library for C++, port of https://github.com/evanw/csg.js/
+
+* https://github.com/dabroz/csgjs-cpp/blob/master/csgjs.cpp
+
+
+pycsg : Python port of Evan Wallace's csg.js (MIT)
+-----------------------------------------------------
+
+* https://github.com/timknip/pycsg
+* https://github.com/timknip/pycsg/blob/master/csg/core.py
+* https://github.com/timknip/pycsg/blob/master/csg/geom.py
+
 
 
 csg.js (MIT)

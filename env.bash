@@ -1865,3 +1865,9 @@ csgtools-(){      . $(env-home)/graphics/csg/csgtools/csgtools.bash && csgtools-
 csgformat-(){      . $(env-home)/graphics/csg/csgformat/csgformat.bash && csgformat-env $* ; }
 influxdb-(){      . $(env-home)/db/influxdb/influxdb.bash && influxdb-env $* ; }
 ccsg-(){      . $(env-home)/env/graphics/csg/ccsg.bash && ccsg-env $* ; }
+firerays-(){      . $(env-home)/firerays/firerays.bash && firerays-env $* ; }
+csgjscpp-(){      . $(env-home)/graphics/csg/csgjscpp/csgjscpp.bash && csgjscpp-env $* ; }
+isoex-(){      . $(env-home)/graphics/csg/isoex.bash && isoex-env $* ; }
+piston-(){      . $(env-home)/graphics/piston/piston.bash && piston-env $* ; }
+pymcubes-(){      . $(env-home)/graphics/csg/pymcubes.bash && pymcubes-env $* ; }
+openvdb-(){      . $(env-home)/graphics/openvdb/openvdb.bash && openvdb-env $* ; }
