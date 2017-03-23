@@ -1871,3 +1871,6 @@ isoex-(){      . $(env-home)/graphics/csg/isoex.bash && isoex-env $* ; }
 piston-(){      . $(env-home)/graphics/piston/piston.bash && piston-env $* ; }
 pymcubes-(){      . $(env-home)/graphics/csg/pymcubes.bash && pymcubes-env $* ; }
 openvdb-(){      . $(env-home)/graphics/openvdb/openvdb.bash && openvdb-env $* ; }
+isosurface-(){      . $(env-home)/graphics/isosurface/isosurface.bash && isosurface-env $* ; }
+dualcontouring-(){      . $(env-home)/graphics/isosurface/dualcontouring.bash && dualcontouring-env $* ; }
+dcs-(){      . $(env-home)/graphics/isosurface/dualcontouringsample/dcs.bash && dcs-env $* ; }

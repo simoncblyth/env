@@ -45,6 +45,86 @@ Uniformly mesh any scalar grid that has a continuous isosurface.::
     )   
 
 
+Toolset
+---------
+
+* http://www.openvdb.org/download/openvdb_toolset_2013.pdf
+
+::
+
+    tools::csgDifference
+    tools::csgIntersection
+    tools::csgUnion
+
+    tools::LevelSetSphere
+
+    tools::ParticlesToLevelSet
+
+           * Creates a level set from a list of points with position & radius
+
+    tools::MeshToVolume
+
+           * Requires closed (watertight) model for level set
+
+    tools::VolumeToMesh
+
+           * Mesh any scalar field that has a continuous isosurface (quads and tris)
+           * Adaptive, using local curvature
+            
+
+    Grid::signedFloodFill
+
+
+reduce compile time
+---------------------
+
+* https://groups.google.com/forum/#!topic/openvdb-forum/LLUeaDB1tgw
+
+
+createLevelSet
+---------------
+
+::
+
+    openvdb-;openvdb-find createLevelSet  # indicates: Sphere,Box,Platonic solids : but no Cylinder
+
+
+* :google:`OpenVDB createLevelSet Cylinder`
+
+
+Integrations
+---------------
+
+Lots of 3D software can import OpenVDB files, 
+eg for clouds, fire, effects etc..
+
+Houdini
+~~~~~~~~~
+
+Houdini for Astronomy 
+
+* http://www.ytini.com/getstarted.html
+
+Related
+----------
+
+yt 
+~~~~
+
+* https://bitbucket.org/yt_analysis/yt
+* http://yt-project.org/#getyt
+
+yt is an open-source, permissively-licensed python package for analyzing and
+visualizing volumetric data.
+
+yt supports structured, variable-resolution meshes, unstructured meshes, and
+discrete or sampled data such as particles. Focused on driving
+physically-meaningful inquiry, yt has been applied in domains such as
+astrophysics, seismology, nuclear engineering, molecular dynamics, and
+oceanography. Composed of a friendly community of users and developers, we want
+to make it easy to use and develop — we'd love it if you got involved!
+
+
 Examples
 ----------
 
@@ -138,3 +218,6 @@ openvdb-get(){
 
    [ ! -d "openvdb" ] && git clone https://github.com/dreamworksanimation/openvdb
 }
+
+openvdb-find(){ openvdb-cd ; find . -type f -exec grep -H ${1:-createLevelSet}  {} \; ; }
+
