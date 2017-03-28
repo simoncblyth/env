@@ -41,7 +41,7 @@ Progress with Sniper+Offline Migration to CMake (with CTest-ing)
 
    Utility bash functions and notes in **jnu-** Mercurial repo
 
-   * https://bitbucket.io/simoncblyth/jnu/commits
+   * https://bitbucket.org/simoncblyth/jnu/commits
 
    Development on macOS 10.9.4 with close to latest version externals:
 

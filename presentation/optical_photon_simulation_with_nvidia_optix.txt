@@ -222,7 +222,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
    https://bitbucket.io/chroma/chroma
 
-   https://bitbucket.io/simoncblyth/chroma  (my fork)
+   https://bitbucket.org/simoncblyth/chroma  (my fork)
 
 
 
@@ -332,7 +332,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
     .. class:: tiny
 
-        https://bitbucket.io/simoncblyth/env/src/tip/graphics/ggeoview/
+        https://bitbucket.org/simoncblyth/env/src/tip/graphics/ggeoview/
 
 
 .. class:: small
@@ -515,7 +515,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
 .. class:: tiny
   
-    https://bitbucket.io/simoncblyth/env/src/tip/graphics/ggeoview/
+    https://bitbucket.org/simoncblyth/env/src/tip/graphics/ggeoview/
 
 
 :small:`Selection of GPU development details`
@@ -596,7 +596,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
 .. class:: tiny
 
-   https://bitbucket.io/simoncblyth/env/src/tip/graphics/ggeoview/cu/generate.cu
+   https://bitbucket.org/simoncblyth/env/src/tip/graphics/ggeoview/cu/generate.cu
 
 
 
@@ -632,9 +632,9 @@ Optical Photon Simulation with NVIDIA OptiX
 
 .. class:: tiny
 
-   https://bitbucket.io/simoncblyth/env/src/tip/graphics/ggeoview/cu/rayleigh.h
+   https://bitbucket.org/simoncblyth/env/src/tip/graphics/ggeoview/cu/rayleigh.h
 
-   https://bitbucket.io/simoncblyth/env/src/tip/graphics/ggeoview/cu/propagate.h
+   https://bitbucket.org/simoncblyth/env/src/tip/graphics/ggeoview/cu/propagate.h
 
 
 :small:`Random Number Generation in OptiX programs`
@@ -662,7 +662,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
     Packaged solution into **CUDAWrap**
 
-    * https://bitbucket.io/simoncblyth/env/src/tip/cuda/cudawrap/
+    * https://bitbucket.org/simoncblyth/env/src/tip/cuda/cudawrap/
 
 
 :small:`Fast material/surface property lookup from boundary texture`  
@@ -809,7 +809,7 @@ Optical Photon Simulation with NVIDIA OptiX
 
     Packaged indexing into **ThrustRap** *ThrustIdx*
 
-    * https://bitbucket.io/simoncblyth/env/src/tip/numerics/thrustrap/
+    * https://bitbucket.org/simoncblyth/env/src/tip/numerics/thrustrap/
 
 
 
@@ -1067,11 +1067,11 @@ Next Steps
 
 .. class:: tiny
 
-   https://bitbucket.io/simoncblyth/env/src/tip/numerics/npy/
+   https://bitbucket.org/simoncblyth/env/src/tip/numerics/npy/
 
-   https://bitbucket.io/simoncblyth/env/src/tip/boost/basio/numpyserver/
+   https://bitbucket.org/simoncblyth/env/src/tip/boost/basio/numpyserver/
 
-   https://bitbucket.io/simoncblyth/env/src/tip/cuda/cudawrap/
+   https://bitbucket.org/simoncblyth/env/src/tip/cuda/cudawrap/
 
 
 
@@ -1123,13 +1123,13 @@ Next Steps
 
 .. class:: tiny
 
-    https://bitbucket.io/simoncblyth/env/src/tip/optix/ggeo/
+    https://bitbucket.org/simoncblyth/env/src/tip/optix/ggeo/
 
-    https://bitbucket.io/simoncblyth/env/src/tip/graphics/assimpwrap/
+    https://bitbucket.org/simoncblyth/env/src/tip/graphics/assimpwrap/
 
-    https://bitbucket.io/simoncblyth/env/src/tip/graphics/oglrap/
+    https://bitbucket.org/simoncblyth/env/src/tip/graphics/oglrap/
 
-    https://bitbucket.io/simoncblyth/env/src/tip/graphics/optixrap/
+    https://bitbucket.org/simoncblyth/env/src/tip/graphics/optixrap/
 
 
 

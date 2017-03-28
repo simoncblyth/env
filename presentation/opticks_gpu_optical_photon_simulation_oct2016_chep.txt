@@ -436,7 +436,7 @@
     </div>
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth, National Taiwan University &mdash; https://bitbucket.io/simoncblyth/opticks &mdash; Oct 2016, CHEP </h2>
+    <h2 style="background-color:lightgrey"> Simon C Blyth, National Taiwan University &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; Oct 2016, CHEP </h2>
     </div>
 
 
@@ -460,7 +460,7 @@
        * Neutrino detectors can benefit the most, eg
          JUNO and Dayabay 
 
-       http://bitbucket.io/simoncblyth/opticks
+       http://bitbucket.org/simoncblyth/opticks
 
        (*) core extrapolated from mobile GPU speed
 
@@ -667,7 +667,7 @@ Outline
 .. class:: small
 
     **Export Tesselated Geometry**
-      * Geant4 -> G4DAE XML https://bitbucket.io/simoncblyth/g4dae
+      * Geant4 -> G4DAE XML https://bitbucket.org/simoncblyth/g4dae
 
     **Load G4DAE XML**
       * label primitives with :red:`boundary indices`
@@ -1027,7 +1027,7 @@ Outline
     .. class:: small
 
         * http://simoncblyth.bitbucket.io/opticks/
-        * http://bitbucket.io/simoncblyth/opticks/
+        * http://bitbucket.org/simoncblyth/opticks/
 
         Documentation, install instructions. Repository.
 
@@ -1087,7 +1087,7 @@ Outline
 
   .. class:: huge
 
-     https://bitbucket.io/simoncblyth/opticks
+     https://bitbucket.org/simoncblyth/opticks
 
 
 

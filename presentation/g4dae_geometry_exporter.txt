@@ -21,7 +21,7 @@
    * need cuts 
 
    00: G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
-    1: https://bitbucket.io/simoncblyth/g4dae
+    1: https://bitbucket.org/simoncblyth/g4dae
     2: COLLADA : Standard for 3D Digital Asset Exchange (DAE)
     3: Compare DAE Exports to GDML and VRML2(WRL)
     4: Tested G4DAE reading applications and frameworks
@@ -91,7 +91,7 @@ G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
    |  **19th Geant4 Collaboration Meeting, Okinawa, Sept 2014, Parallel Session B2, Visualization Group (Invited Speaker)** 
 
 
-https://bitbucket.io/simoncblyth/g4dae 
+https://bitbucket.org/simoncblyth/g4dae 
 ---------------------------------------------------------------------------
 
 .. class:: small
@@ -207,7 +207,7 @@ https://bitbucket.io/simoncblyth/g4dae
 .. class:: tiny
 
    http://meshlab.sourceforge.net
-   https://bitbucket.io/simoncblyth/meshlab (fork improves COLLADA loading speed)
+   https://bitbucket.org/simoncblyth/meshlab (fork improves COLLADA loading speed)
 
 
 :small:`G4DAE export in OSX Finder, Interactive Quicklook (1)` 
@@ -312,9 +312,9 @@ https://bitbucket.io/simoncblyth/g4dae
 
 .. class:: tiny
 
-   https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/collada/g4daenode.py
-   https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/g4daeserver/
-   https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/g4daeview.py
+   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daenode.py
+   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/g4daeserver/
+   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/g4daeview.py
   
 
 
@@ -349,7 +349,7 @@ https://bitbucket.io/simoncblyth/g4dae
 
    .. [#vbo] Implemented with single OpenGL Vertex Buffer Object (VBO) for entire geometry  
 
-   .. [#g4daeview_code] https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
+   .. [#g4daeview_code] https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
 
 
 
@@ -401,7 +401,7 @@ https://bitbucket.io/simoncblyth/g4dae
 
    .. [#glumpy] https://code.google.com/p/glumpy/ many useful examples of pyopengl usage  
    .. [#pyopengl] http://pyopengl.sourceforge.net  cross platform Python binding to OpenGL and related APIs   
-   .. [#glumpy-obj-viewer] http://bitbucket.io/simoncblyth/env/src/tip/graphics/glumpy/glumpy_examples/obj-viewer-structured.py  
+   .. [#glumpy-obj-viewer] http://bitbucket.org/simoncblyth/env/src/tip/graphics/glumpy/glumpy_examples/obj-viewer-structured.py  
 
 
 :small:`g4daeview.py : Optical Photon (OP) Data Handling`  
@@ -456,7 +456,7 @@ https://bitbucket.io/simoncblyth/g4dae
  
    * break out into separate bitbucket repository 
    
-     * https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
+     * https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
 
 
 .. class:: small
@@ -629,7 +629,7 @@ https://bitbucket.io/simoncblyth/g4dae
 :small:`G4DAE : Conclusion`
 -------------------------------------------------------------------------------
 
-* https://bitbucket.io/simoncblyth/g4dae
+* https://bitbucket.org/simoncblyth/g4dae
 
 I propose to contribute the COLLADA/DAE geometry exporter 
 to the Geant4 collaboration, as I believe this can be 
@@ -709,8 +709,8 @@ useful for facilitating:
    http://threejs.org 
    http://pycollada.github.io 
    http://webpy.org
-   https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/g4daeserver/
-   https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/collada/g4daenode.py
+   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/g4daeserver/
+   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daenode.py
 
 
 
