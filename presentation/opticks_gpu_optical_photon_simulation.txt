@@ -149,8 +149,8 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: small
 
-    http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016)
-    http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
+    http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016)
+    http://simoncblyth.bitbucket.io/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
 
 .. class:: small
 
@@ -398,7 +398,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-inside-wide_half.png
 
 
 
@@ -794,7 +794,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-wide_half.png
 
   
 
@@ -803,7 +803,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-before-contact_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-before-contact_half.png
 
 
 :i:`JPMT After Contact`
@@ -811,7 +811,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-after-contact_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-after-contact_half.png
 
 
 :i:`JPMT Approach`
@@ -819,7 +819,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-approach_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-approach_half.png
 
 
 :i:`JPMT Arrival`
@@ -827,7 +827,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-arrival_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-arrival_half.png
 
 
 :i:`JPMT Inside Outside`
@@ -835,7 +835,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-outside_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-inside-outside_half.png
 
 
 .. sidebar:: Photon History Selection
@@ -848,7 +848,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-headview_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-headview_half.png
 
 
 :i:`JPMT Backview`
@@ -856,7 +856,7 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-backview_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-backview_half.png
 
 
 

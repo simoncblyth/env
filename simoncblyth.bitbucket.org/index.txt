@@ -1,9 +1,9 @@
-*simoncblyth.bitbucket.org*
+*simoncblyth.bitbucket.io*
 ===========================
 
-* http://bitbucket.org/simoncblyth
-* https://bitbucket.org/simoncblyth/env/commits/all
-* https://bitbucket.org/simoncblyth/opticks/commits/all
+* http://bitbucket.io/simoncblyth
+* https://bitbucket.io/simoncblyth/env/commits/all
+* https://bitbucket.io/simoncblyth/opticks/commits/all
 
 
 Opticks Videos
@@ -36,7 +36,7 @@ Opticks Presentations
 Early 2017
 ~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_jan2017_psroc.html (17 Jan 2017, Taipei)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jan2017_psroc.html (17 Jan 2017, Taipei)
 
     PSROC Annual Meeting, Tamkang University, TKU, New Taipei City, Taiwan
 
@@ -47,14 +47,14 @@ Late 2016
 ~~~~~~~~~~~~
 
 
-http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html (2 Dec 2016, Paris)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html (2 Dec 2016, Paris)
 
     JUNO Workshop, LLR, Ecole Polytechnique 
 
     Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
 
 
-http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html (11 Oct 2016, CHEP Conference, San Francisco)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html (11 Oct 2016, CHEP Conference, San Francisco)
 
     CHEP 2016 Conference
 
@@ -65,7 +65,7 @@ Mid 2016
 ~~~~~~~~~~~~
 
 
-http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_jul2016_weihai.html (19 July 2016, Weihai, China)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2016_weihai.html (19 July 2016, Weihai, China)
 
     Shandong University Particle Physics Summer School
 
@@ -73,7 +73,7 @@ http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_sim
 
 
 
-http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_may2016_lecospa.html (16 May 2016, NTU, Taipei)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_may2016_lecospa.html (16 May 2016, NTU, Taipei)
 
     Seminar, Leung Center for Cosmology and Particle Astrophysics (LeCosPA) of the National Taiwan University (NTU) 
 
@@ -83,25 +83,25 @@ http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_sim
 Early 2016
 ~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html (April 2016, GPU Technology Conference, San Jose)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html (April 2016, GPU Technology Conference, San Jose)
 
     Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
 
     http://on-demand.gputechconf.com/gtc/2016/video/S6320.html GTC Talk Video (25 mins) 
 
 
-http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016, DYB Meeting, Beijing)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016, DYB Meeting, Beijing)
 
     Opticks : GPU Optical Photon Simulation
 
     Includes single PMT validation
 
 
-http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016, JUNO Meeting, Xiamen)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016, JUNO Meeting, Xiamen)
 
     Opticks : GPU Optical Photon Simulation
 
-http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_psroc.html (Jan 2016, PSROC Meeting, Kaoshiung)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_psroc.html (Jan 2016, PSROC Meeting, Kaoshiung)
 
     Opticks : GPU Optical Photon Simulation 
 
@@ -111,7 +111,7 @@ http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_sim
 Mid 2015
 ~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015, JUNO Meeting, Beijing)
+http://simoncblyth.bitbucket.io/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015, JUNO Meeting, Beijing)
 
     Optical Photon Simulation with NVIDIA OptiX
 
@@ -121,14 +121,14 @@ http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with
 Early 2015
 ~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html  (Jan 2015, JUNO Meeting, Guangzhou)
+http://simoncblyth.bitbucket.io/env/presentation/gpu_optical_photon_simulation.html  (Jan 2015, JUNO Meeting, Guangzhou)
 
     200x Faster Optical Photon Propagation with NuWa + Chroma ? 
 
     Getting Chroma operational with Dayabay Geometry, Runtime bridge development
 
 
-http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulation.html (Jan 2015, DYB Meeting, Hong Kong)
+http://simoncblyth.bitbucket.io/env/presentation/gpu_accelerated_geant4_simulation.html (Jan 2015, DYB Meeting, Hong Kong)
 
     GPU Accelerated Geant4 Simulation with G4DAE and Chroma
 
@@ -138,7 +138,7 @@ http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulat
 Late 2014
 ~~~~~~~~~~
 
-http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html (Sept 2014, Geant4 Meeting, Okinawa)
+http://simoncblyth.bitbucket.io/env/presentation/g4dae_geometry_exporter.html (Sept 2014, Geant4 Meeting, Okinawa)
 
    G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
      
@@ -149,34 +149,34 @@ reports
 Jan 2017
 ~~~~~~~~~~
 
-* http://simoncblyth.bitbucket.org/env/report/opticks-blyth-chep2016.pdf
+* http://simoncblyth.bitbucket.io/env/report/opticks-blyth-chep2016.pdf
 
 Dec 2016
 ~~~~~~~~~
 
-* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-dec-2016.docx 
-* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-dec-2016.pdf
-* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-dec-2016.rst 
+* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-dec-2016.docx 
+* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-dec-2016.pdf
+* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-dec-2016.rst 
 
 May 2016
 ~~~~~~~~~
 
-* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-may-2016.docx 
-* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-may-2016.pdf
-* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-may-2016.rst 
+* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2016.docx 
+* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2016.pdf
+* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2016.rst 
 
 May 2015
 ~~~~~~~~~~
 
-* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-may-2015.docx 
-* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-may-2015.pdf
-* http://simoncblyth.bitbucket.org/env/report/ntu-simoncblyth-may-2015.rst 
+* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2015.docx 
+* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2015.pdf
+* http://simoncblyth.bitbucket.io/env/report/ntu-simoncblyth-may-2015.rst 
 
 
 *g4dae : Geant4 geometry exporter*
 -----------------------------------
 
-* http://bitbucket.org/simoncblyth/g4dae 
+* http://bitbucket.io/simoncblyth/g4dae 
 
 
 *Assimp fork : G4DAE extra property handling in C++*
@@ -189,34 +189,34 @@ May 2015
 -----------------------------------------------
 
 * TODO: split code from env into its own repo
-* http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
+* http://simoncblyth.bitbucket.io/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
 
 *chroma fork : GPU optical photon simulation* 
 -----------------------------------------------
 
-* http://bitbucket.org/simoncblyth/chroma
+* http://bitbucket.io/simoncblyth/chroma
 
 
 *env : Infrastructure bash/python scripts, dev cradle*
 -------------------------------------------------------------
 
-* http://bitbucket.org/simoncblyth/env 
-* https://bitbucket.org/envsys/profile/members  **envsys** team members
-* http://simoncblyth.bitbucket.org/env/notes/  Development notes
+* http://bitbucket.io/simoncblyth/env 
+* https://bitbucket.io/envsys/profile/members  **envsys** team members
+* http://simoncblyth.bitbucket.io/env/notes/  Development notes
 
 *Misc*
 -------
 
-* http://bitbucket.org/simoncblyth/heprez Machinery for the HFAG b2charm group webapp.
-* http://bitbucket.org/simoncblyth/MeshLab fork adding COLLADA loading optimization
-* http://bitbucket.org/simoncblyth/tracdev
+* http://bitbucket.io/simoncblyth/heprez Machinery for the HFAG b2charm group webapp.
+* http://bitbucket.io/simoncblyth/MeshLab fork adding COLLADA loading optimization
+* http://bitbucket.io/simoncblyth/tracdev
 * http://github.com/simoncblyth The other place
 
 *Sources for this index page*
 -------------------------------
 
-* https://bitbucket.org/simoncblyth/env/src/tip/simoncblyth.bitbucket.org/
-* https://bitbucket.org/simoncblyth/simoncblyth.bitbucket.org/src
+* https://bitbucket.io/simoncblyth/env/src/tip/simoncblyth.bitbucket.io/
+* https://bitbucket.io/simoncblyth/simoncblyth.bitbucket.io/src
 
 
 

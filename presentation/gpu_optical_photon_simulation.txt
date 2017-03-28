@@ -45,7 +45,7 @@
 
 .. class:: small
 
-    http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html
+    http://simoncblyth.bitbucket.io/env/presentation/gpu_optical_photon_simulation.html
     **Dropbox video shares banned** 
 
 .. sidebar:: Objective 
@@ -54,7 +54,7 @@
 
 Introducing Chroma 
 
-* http://chroma.bitbucket.org
+* http://chroma.bitbucket.io
 
 Fivefold path:
 
@@ -87,7 +87,7 @@ eliminate geometry code as :red:`just one code path`.
    http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
 
 
-https://bitbucket.org/simoncblyth/g4dae :small:`Exporter` 
+https://bitbucket.io/simoncblyth/g4dae :small:`Exporter` 
 ---------------------------------------------------------------------------
 
 .. class:: small
@@ -114,7 +114,7 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
    Greenfield dybinstallation required
 
    * builds Geant4 with G4DAE exporter and other necessary patches  
-   * Details on patching http://simoncblyth.bitbucket.org/env/notes/geant4/nuwa/
+   * Details on patching http://simoncblyth.bitbucket.io/env/notes/geant4/nuwa/
 
 
 .. class:: tiny
@@ -157,7 +157,7 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
 .. class:: tiny
 
     .. [#perfect] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug. 
-                  Details: http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/dae_cf_wrl/ 
+                  Details: http://simoncblyth.bitbucket.io/env/notes/geant4/geometry/collada/dae_cf_wrl/ 
 
 
 :small:`G4DAE : Triangular Advantage` 
@@ -185,12 +185,12 @@ https://bitbucket.org/simoncblyth/g4dae :small:`Exporter`
 
 .. class:: small
 
-   https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/daenode.py
+   https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/collada/daenode.py
    http://belle7.nuu.edu.tw/dae/tree/3148.html
 
 
 
-https://bitbucket.org/simoncblyth/chroma :small:`Forked:` 
+https://bitbucket.io/simoncblyth/chroma :small:`Forked:` 
 ---------------------------------------------------------------------------
 
 .. class:: small
@@ -257,11 +257,11 @@ https://bitbucket.org/simoncblyth/chroma :small:`Forked:`
  
 .. class:: tiny
 
-    .. [#cuda2d] https://bitbucket.org/simoncblyth/env/src/tip/cuda/cuda_launch.py 
+    .. [#cuda2d] https://bitbucket.io/simoncblyth/env/src/tip/cuda/cuda_launch.py 
 
     .. [#pbo] Using OpenGL pixel buffer objects (PBO) and CUDA-OpenGL interoperability techniques, 
-              https://bitbucket.org/simoncblyth/env/src/tip/pycuda/pycuda_pyopengl_interop/pixel_buffer.py
-              https://bitbucket.org/simoncblyth/env/src/tip/chroma/chroma_camera/pbo_renderer.py
+              https://bitbucket.io/simoncblyth/env/src/tip/pycuda/pycuda_pyopengl_interop/pixel_buffer.py
+              https://bitbucket.io/simoncblyth/env/src/tip/chroma/chroma_camera/pbo_renderer.py
 
     .. [#presume] Presumably Chroma was developed using fast Linux desktop GPUs where the kernel time limit can be avoided. 
 
@@ -328,11 +328,11 @@ https://bitbucket.org/simoncblyth/chroma :small:`Forked:`
 
 .. class:: tiny
 
-   .. [#g4daeview_usage] http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
+   .. [#g4daeview_usage] http://simoncblyth.bitbucket.io/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
 
    .. [#vbo] Implemented with single OpenGL Vertex Buffer Object (VBO) for entire geometry  
 
-   .. [#g4daeview_code] https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
+   .. [#g4daeview_code] https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
 
 
 
@@ -500,9 +500,9 @@ https://bitbucket.org/simoncblyth/chroma :small:`Forked:`
 
    .. [#client] http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Simulation/DetSimChroma/src/DsChromaStackAction.cc
 
-   .. [#broker] https://bitbucket.org/simoncblyth/env/src/tip/zeromq/czmq/czmq_broker.c
+   .. [#broker] https://bitbucket.io/simoncblyth/env/src/tip/zeromq/czmq/czmq_broker.c
 
-   .. [#worker] https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/daeresponder.py
+   .. [#worker] https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/daeresponder.py
 
 
 

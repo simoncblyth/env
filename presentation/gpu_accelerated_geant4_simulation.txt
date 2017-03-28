@@ -100,9 +100,9 @@ GPU Accelerated Geant4 Simulation with G4DAE and Chroma
 
 .. class:: small
 
-    http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulation.html
-    http://simoncblyth.bitbucket.org/env/presentation/g4dae_geometry_exporter.html
-    http://simoncblyth.bitbucket.org/env/presentation/gpu_optical_photon_simulation.html
+    http://simoncblyth.bitbucket.io/env/presentation/gpu_accelerated_geant4_simulation.html
+    http://simoncblyth.bitbucket.io/env/presentation/g4dae_geometry_exporter.html
+    http://simoncblyth.bitbucket.io/env/presentation/gpu_optical_photon_simulation.html
 
 .. sidebar:: Drastic 200x Potential Speedup   
 
@@ -143,7 +143,7 @@ GPU Accelerated Geant4 Simulation with G4DAE and Chroma
         05 : external photon simulation workflow 
 
     G4DAE Geometry Exporter
-        06 : https://bitbucket.org/simoncblyth/g4dae 
+        06 : https://bitbucket.io/simoncblyth/g4dae 
         07 : collada : standard for 3d digital asset exchange (dae) 
         08 : liberated geometry allows ubiquitous high peformance visualization 
         09 : g4daeview.py : fast opengl 3d viewer for g4dae files 
@@ -158,7 +158,7 @@ GPU Accelerated Geant4 Simulation with G4DAE and Chroma
         14 : g4daechroma : for implementation details... 
 
     Chroma Forked 
-        15 : https://bitbucket.org/simoncblyth/chroma forked: 
+        15 : https://bitbucket.io/simoncblyth/chroma forked: 
 
     Validating Chroma Generated Photons
         16 : chroma generated scintillation photons cf geant4 
@@ -212,7 +212,7 @@ hardware designed to work with surface based geometries.
 
 .. class:: small
 
-   * http://chroma.bitbucket.org
+   * http://chroma.bitbucket.io
 
     Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
     simulating processes like diffuse and specular reflections, 
@@ -240,9 +240,9 @@ hardware designed to work with surface based geometries.
 
    http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
 
-   https://bitbucket.org/chroma/chroma
+   https://bitbucket.io/chroma/chroma
 
-   https://bitbucket.org/simoncblyth/chroma  (my fork)
+   https://bitbucket.io/simoncblyth/chroma  (my fork)
 
 
 
@@ -347,7 +347,7 @@ External Photon Simulation Workflow
 -------------------------------------
 
 
-https://bitbucket.org/simoncblyth/g4dae 
+https://bitbucket.io/simoncblyth/g4dae 
 ---------------------------------------------------------------------------
 
 .. sidebar:: Inclusion into Geant4 
@@ -432,7 +432,7 @@ https://bitbucket.org/simoncblyth/g4dae
 .. class:: tiny
 
    http://meshlab.sourceforge.net
-   https://bitbucket.org/simoncblyth/meshlab (fork improves COLLADA loading speed)
+   https://bitbucket.io/simoncblyth/meshlab (fork improves COLLADA loading speed)
 
 
 
@@ -472,11 +472,11 @@ https://bitbucket.org/simoncblyth/g4dae
 .. class:: tiny
 
 
-   .. [#g4daeview_usage] http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
+   .. [#g4daeview_usage] http://simoncblyth.bitbucket.io/env/notes/geant4/geometry/collada/g4daeview/g4daeview_usage/
 
    .. [#vbo] Implemented with single OpenGL Vertex Buffer Object (VBO) for entire geometry  
 
-   .. [#g4daeview_code] https://bitbucket.org/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
+   .. [#g4daeview_code] https://bitbucket.io/simoncblyth/env/src/tip/geant4/geometry/collada/g4daeview/
 
 
 
@@ -516,7 +516,7 @@ https://bitbucket.org/simoncblyth/g4dae
 .. class:: tiny
 
     .. [#perfect] Maximum DAE WRL offset < 0.13 mm, after patching VRML2 export precision bug (fixed in current G4). 
-                  Details: http://simoncblyth.bitbucket.org/env/notes/geant4/geometry/collada/dae_cf_wrl/ 
+                  Details: http://simoncblyth.bitbucket.io/env/notes/geant4/geometry/collada/dae_cf_wrl/ 
     .. [#not-repeating] Geometry is not repeated, instead the COLLADA format uses geometry instancing and a tree of transforms, 
                         just like GDML  
 
@@ -571,7 +571,7 @@ https://bitbucket.org/simoncblyth/g4dae
 
 .. class:: small
 
-   https://bitbucket.org/simoncblyth/env/src/tip/chroma/G4DAEChroma/G4DAEChroma/
+   https://bitbucket.io/simoncblyth/env/src/tip/chroma/G4DAEChroma/G4DAEChroma/
 
 .. sidebar:: Transport Infrastructure
 
@@ -601,14 +601,14 @@ https://bitbucket.org/simoncblyth/g4dae
 
 .. class:: small
 
-   http://simoncblyth.bitbucket.org/env/notes/chroma/G4DAEChroma/G4DAEChroma/G4DAEChroma_implementation/
+   http://simoncblyth.bitbucket.io/env/notes/chroma/G4DAEChroma/G4DAEChroma/G4DAEChroma_implementation/
 
 .. image:: /env/chroma/G4DAEChroma/G4DAEChroma_implementation.png
    :width: 700px
    :align: center
 
 
-https://bitbucket.org/simoncblyth/chroma :small:`Forked:` 
+https://bitbucket.io/simoncblyth/chroma :small:`Forked:` 
 ---------------------------------------------------------------------------
 
 .. class:: small

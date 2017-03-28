@@ -1874,3 +1874,5 @@ openvdb-(){      . $(env-home)/graphics/openvdb/openvdb.bash && openvdb-env $* ;
 isosurface-(){      . $(env-home)/graphics/isosurface/isosurface.bash && isosurface-env $* ; }
 dualcontouring-(){      . $(env-home)/graphics/isosurface/dualcontouring.bash && dualcontouring-env $* ; }
 dcs-(){      . $(env-home)/graphics/isosurface/dualcontouringsample/dcs.bash && dcs-env $* ; }
+octree-(){      . $(env-home)/graphics/octree/octree.bash && octree-env $* ; }
+mortonlib-(){      . $(env-home)/graphics/mortonlib/mortonlib.bash && mortonlib-env $* ; }

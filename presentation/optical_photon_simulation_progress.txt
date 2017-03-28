@@ -119,9 +119,9 @@ Opticks : Optical Photon Simulation with NVIDIA OptiX
 
 .. class:: small
 
-    http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_progress.html (October 2015)
-    http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
-    http://simoncblyth.bitbucket.org/env/presentation/gpu_accelerated_geant4_simulation.html (Jan 2015)
+    http://simoncblyth.bitbucket.io/env/presentation/optical_photon_simulation_progress.html (October 2015)
+    http://simoncblyth.bitbucket.io/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
+    http://simoncblyth.bitbucket.io/env/presentation/gpu_accelerated_geant4_simulation.html (Jan 2015)
 
 .. class:: small
 

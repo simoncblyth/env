@@ -177,9 +177,9 @@ Opticks : GPU Optical Photon Simulation
 
 .. class:: tiny
 
-    http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016)
-    http://simoncblyth.bitbucket.org/env/presentation/opticks_gpu_optical_photon_simulation.html (January 2016)
-    http://simoncblyth.bitbucket.org/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
+    http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016)
+    http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation.html (January 2016)
+    http://simoncblyth.bitbucket.io/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015)
 
 .. class:: small
 

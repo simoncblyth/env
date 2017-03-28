@@ -414,7 +414,7 @@
     </div>
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth, National Taiwan University &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; May 2016 </h2>
+    <h2 style="background-color:lightgrey"> Simon C Blyth, National Taiwan University &mdash; https://bitbucket.io/simoncblyth/opticks &mdash; May 2016 </h2>
     </div>
 
 
@@ -1439,7 +1439,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. class:: tiny
 
-   [1] http://chroma.bitbucket.org Developed by Stan Seibert, University of Pennsylvania. 
+   [1] http://chroma.bitbucket.io Developed by Stan Seibert, University of Pennsylvania. 
 
 
 
@@ -1910,7 +1910,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
   .. class:: huge
 
-     https://bitbucket.org/simoncblyth/opticks
+     https://bitbucket.io/simoncblyth/opticks
 
 
 
@@ -1945,7 +1945,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-wide_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-wide_half.png
 
 
 
@@ -1954,7 +1954,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-after-contact_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-after-contact_half.png
 
 
 :i:`JPMT Approach`
@@ -1962,7 +1962,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-approach_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-approach_half.png
 
 
 :i:`JPMT Arrival`
@@ -1970,7 +1970,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-arrival_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-arrival_half.png
 
 
 :i:`JPMT Inside Outside`
@@ -1978,7 +1978,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. class:: tiny
 
-   http://simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-outside_half.png
+   http://simoncblyth.bitbucket.io/env/graphics/ggeoview/jpmt-inside-outside_half.png
 
 
 .. sidebar:: Photon History Selection

@@ -42,6 +42,73 @@ Scene defined by an SDF
 
 
 
+Morton Codes for SDF cache ?
+-------------------------------
+
+* http://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
+* http://graphics.cs.kuleuven.be/publications/BLD13OCCSVO/
+* http://graphics.cs.kuleuven.be/publications/BLD13OCCSVO/BLD13OCCSVO_paper.pdf
+* ~/opticks_refs/Sparse_Octree_Morton_BLD13OCCSVO_paper.pdf 
+
+
+Morton3D
+----------
+
+* https://devblogs.nvidia.com/parallelforall/thinking-parallel-part-iii-tree-construction-gpu/
+
+::
+
+    // 1 << 10 = 1024 = 2^10
+    //
+    // Expands a 10-bit integer into 30 bits
+    // by inserting 2 zeros after each bit.
+    unsigned int expandBits(unsigned int v)
+    {
+        v = (v * 0x00010001u) & 0xFF0000FFu;
+        v = (v * 0x00000101u) & 0x0F00F00Fu;
+        v = (v * 0x00000011u) & 0xC30C30C3u;
+        v = (v * 0x00000005u) & 0x49249249u;
+        return v;
+    }
+
+    // Calculates a 30-bit Morton code for the
+    // given 3D point located within the unit cube [0,1].
+    unsigned int morton3D(float x, float y, float z)
+    {
+        x = min(max(x * 1024.0f, 0.0f), 1023.0f);
+        y = min(max(y * 1024.0f, 0.0f), 1023.0f);
+        z = min(max(z * 1024.0f, 0.0f), 1023.0f);
+        unsigned int xx = expandBits((unsigned int)x);
+        unsigned int yy = expandBits((unsigned int)y);
+        unsigned int zz = expandBits((unsigned int)z);
+        return xx * 4 + yy * 2 + zz;
+    }
+
+
+Octree
+--------
+
+* https://geidav.wordpress.com/2014/08/18/advanced-octrees-2-node-representations/
+
+
+Octree GPU Texture 
+-------------------
+
+* http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter37.html
+
+
+Summary List of Techniques
+----------------------------
+
+* https://swiftcoder.wordpress.com/planets/isosurface-extraction/
+
+
+MDC : Manifold Dual Contouring
+--------------------------------
+
+* https://github.com/Lin20/isosurface/blob/master/Isosurface/Isosurface/ManifoldDC/Octree.cs
+
+
 Contouring
 -------------
 
@@ -217,6 +284,32 @@ Marching Cubes 33
     original algorithm, its ex- tension, and its implementation. 
 
 
+
+Cubical Marching Squares (from NTU)
+--------------------------------------
+
+* https://www.csie.ntu.edu.tw/~cyy/publications/papers/Ho2005CMS.pdf
+* ~/opticks_refs/Cubical_Marching_Squares_Ho2005CMS.pdf 
+* http://graphics.csie.ntu.edu.tw/CMS/  (GPL and at a glance not easy to integrate)
+
+* https://bitbucket.org/GRassovsky/cubical-marching-squares (BSD)
+
+* https://github.com/mkeeter/kokopelli/blob/master/libfab/asdf/cms.c
+
+
+Transvoxel
+-----------
+
+* http://transvoxel.org
+
+
+Isosurfaces Over Simplicial Partitions of Multiresolution Grids
+-----------------------------------------------------------------
+
+* http://faculty.cs.tamu.edu/schaefer/research/iso_simplicial.pdf
+* 2010, Josiah Manson and Scott Schaefer
+
+
 Dual Marching Cubes
 ---------------------
 
@@ -236,14 +329,23 @@ co-developed by Tao Ju and Scott Schaefer, and Java port is done by Jean-Denis
 Boudreault.
 
 
+
+
 * http://faculty.cs.tamu.edu/schaefer/research/dualcontour.pdf
 * http://www.frankpetterson.com/publications/dualcontour/dualcontour.pdf
+
+* https://people.eecs.berkeley.edu/~jrs/meshpapers/SchaeferWarren2.pdf
+* ~/opticks_refs/Dual_Contouring_Secret_Sauce_SchaeferWarren2.pdf 
 
 
 Tao Ju (Dual Contouring author)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * https://sourceforge.net/projects/dualcontouring/
+* https://sourceforge.net/projects/dualcontouring/
+
+Not very conveniently, this reads in a persisted octree in .sog or .dcf formats.
+
 * https://sourceforge.net/u/taoju/profile/
 
 * http://www1.cse.wustl.edu/~taoju/
@@ -253,6 +355,19 @@ Tao Ju (Dual Contouring author)
 * http://www.cs.wustl.edu/~taoju/cse554/lectures/lect04_Contouring_I.pdf
 
 * ~/opticks_refs/Manifold_Dual_Contouring_2007_dualsimp_tvcg.pdf
+
+
+GPU Dual Contouring
+---------------------
+
+Analysis and Acceleration of High Quality Isosurface Contouring
+LEONARDO AUGUSTO SCHMITZ
+
+* https://www.inf.ufrgs.br/~comba/papers/thesis/diss-leonardo.pdf
+* ~/opticks_refs/GPU_Isosurface_Schmitz_diss-leonardo.pdf
+
+GPU-based polygonization and optimization for implicit surfaces Junjie Chen · Xiaogang Jin · Zhigang Deng
+* http://graphics.cs.uh.edu/website/Publications/2014-TVC-GPUPolygonization.pdf
 
 
 Lin20 isosurface
