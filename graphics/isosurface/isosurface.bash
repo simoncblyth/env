@@ -17,10 +17,39 @@ be particularly fast. Hence doing it on CPU
 makes more sense as being more widely applicable.
 
 
+CSG Polygonalization : Cheating Idea
+----------------------------------------
+
+Am interested in polygonalization of CSG combinations
+of simple solids... 
+
+An issue with doing that in a general way is that you 
+have to grid the volume to find the composite surface based on 
+SDF samples, which is really slow even with octree multi-resolution help.
+
+BUT: the composite surface is always just one of the basis ones, 
+so could you combine parameterized scan of the basis volumes 
+and then just pick between them using a CSG operation that 
+returns an index of which basis volume is "the one".  
+
+Actually no need for such an operation...
+You could scan each of the basis shapes in turn using its natural
+parametrization (think lat/lon for spheres etc) 
+computing the SDF of the composite shape as you go : this way 
+you can collect points (or triangles) from each that are 
+exactly on the isosurface.  To try to reuse the triangles 
+however would be a difficult stitching problem.
+
+
+
+
 SDF : Signed Distance Functions and CSG
 ------------------------------------------
 
+* http://www.alanzucconi.com/2016/07/01/signed-distance-functions/
+
 * http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+
 
 * http://aka-san.halcy.de/distance_fields_prefinal.pdf
 * ~/opticks_refs/Procedural_Modelling_with_Signed_Distance_Functions_Thesis.pdf
@@ -39,6 +68,14 @@ CSG Combining signed distance functions ?
 Scene defined by an SDF 
 
 * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
+
+
+TSDF
+-----
+
+Code for integrating, raytracing, and meshing a TSDF on the CPU
+
+* https://github.com/sdmiller/cpu_tsdf
 
 
 
@@ -318,6 +355,95 @@ Dual Marching Cubes: Primal Contouring of Dual Grids
 * https://www.cs.rice.edu/-jwarren/papers/dmc.pdf
 * -/opticks_refs/jwarren_dual_marching_cubes_dmc.pdf
 
+
+CGAL (GPL)
+------------
+
+* http://doc.cgal.org/latest/Surface_mesher/index.html
+
+
+
+
+Adaptive implicit surface polygonization
+------------------------------------------
+
+* http://stackoverflow.com/questions/3894283/adaptive-implicit-surface-polygonization
+
+* http://www.sciencedirect.com/science/article/pii/S0097849305001317
+* http://dx.doi.org/10.1016/j.cag.2005.08.027
+
+
+Survey of Implicit Surface Polygonalization 
+-----------------------------------------------
+
+* http://webhome.cs.uvic.ca/~blob/publications/survey.pdf
+* ~/opticks_refs/Survey_On_Implicit_Surface_Polygonalization.pdf
+
+Implicit surfaces are commonly used in image creation, modeling environments,
+modeling objects and scientific data visualization. In this paper, we present a
+survey of different techniques for fast visualization of implicit surfaces. The
+main classes of visualization algorithms are identified along with the
+advantages of each in the context of the different types of implicit surfaces
+commonly used in Computer Graphics. We focus closely on polygonization methods
+as they are the most suited to fast visualization. Classification and
+comparison of existing approaches are presented using criteria extracted from
+current research. This enables the identification of the best strategies
+according to the number of specific requirements such as speed, accuracy,
+quality or stylization.
+
+
+
+Cuberille
+-----------
+
+* https://github.com/midas-journal/midas-journal-740
+* http://www.insight-journal.org/browse/publication/740
+* https://github.com/thewtex/ITKCuberille
+
+
+This article describes an ITK implementation of the "cuberille" method for
+poloygonization of implicit surfaces. The method operates by dividing the
+surface into a number of small cubes called cuberilles. Each cuberille is
+centered at a pixel lying on the iso-surface and then quadrilaterals are
+generated for each face. The original approach is improved by projecting the
+vertices of each cuberille onto the implicit surface, smoothing the typical
+block-like resultant mesh. Source code and examples are provided to demonstrate
+the method.
+
+
+
+Triangulation Implicit Surface
+---------------------------------
+
+* http://research.cs.queensu.ca/~jstewart/papers/cga01.pdf
+* ~/opticks_refs/Triangulation_Implicit_Function_cga01.pdf
+
+* nice meshes, slow, no code
+
+
+The algorithm operates in two phases: In the growing phase a seed triangle,
+which forms the initial polygonization, is computed. The polygonization is
+extended by incrementally growing triangles from its edges. Each new triangle
+is sized according to the local curvature, and a triangle is not added if it
+would come too close to an already–existing triangle. At the end of this phase,
+the polygonization is a connected region with long, narrow gaps between its
+branches.  In the filling phase, the gap is subdivided into small pieces by
+finding “bridges” that cross the gap. These bridges are good edges in the final
+triangulation. They separate the gap into smaller, more manageable pieces. Each
+smaller piece is triangulated with a set of heuristics.
+
+
+
+Dual Contouring Attwood
+--------------------------
+
+* http://www.tatwood.net/articles/7/dual_contour
+
+
+
+
+
+
 Dual Contouring
 ------------------
 
@@ -355,6 +481,44 @@ Not very conveniently, this reads in a persisted octree in .sog or .dcf formats.
 * http://www.cs.wustl.edu/~taoju/cse554/lectures/lect04_Contouring_I.pdf
 
 * ~/opticks_refs/Manifold_Dual_Contouring_2007_dualsimp_tvcg.pdf
+
+
+Intersection Free Contouring
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www1.cse.wustl.edu/~taoju/research/interfree_paper_final.pdf
+
+
+
+
+http://stackoverflow.com/questions/838761/robust-algorithm-for-surface-reconstruction-from-3d-point-cloud
+
+
+
+Search
+---------
+
+* :google:`isosurface extraction github`
+
+
+Unconstraind Isosurface Extraction on Arbitrary Octrees, isooctree-
+-----------------------------------------------------------------------
+
+* http://www.cs.jhu.edu/~misha/MyPapers/SGP07a.pdf
+* ~/opticks_refs/Unconstrained_IsoSurface_Extraction_Arbitary_Octree_SGP07a.pdf
+
+* http://www.cs.jhu.edu/~misha/Code/IsoOctree/
+
+Accurate Isosurface Interpolation with Hermite Data
+
+* https://github.com/mkazhdan/IsoSurfaceExtraction
+
+
+Accurate Isosurface Interpolation with Hermite Data, 
+studying effect of different interpolation approaches.
+
+* http://www.cs.jhu.edu/~misha/MyPapers/3DV15.pdf
+
 
 
 GPU Dual Contouring

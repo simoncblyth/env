@@ -10,6 +10,40 @@ C++
 ====
 
 
+Forward Declare Template Class
+-------------------------------
+
+::
+
+    template <typename T> class Constructor ;
+
+
+Explicit instanciation of template class
+------------------------------------------
+
+::
+
+    template class Constructor<OctreeNode> ;
+
+
+Forward Instanciation of template method
+-----------------------------------------
+
+::
+
+    template void TBuf::upload<float>(NPY<float>*) const ;
+
+
+Instanciation visible across libs::
+
+    270 template class THRAP_API TSparse<unsigned long long> ;
+    271 template class THRAP_API TSparse<int> ;
+    272 
+    273 template THRAP_API void TSparse<unsigned long long>::apply_lookup<unsigned char>(CBufSlice target);
+    274 template THRAP_API void TSparse<int>::apply_lookup<char>(CBufSlice target);
+
+
+
 C++11
 -------
 

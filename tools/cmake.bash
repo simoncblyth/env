@@ -537,8 +537,34 @@ Nope::
 
 
 
+CMake RPATH Handling
+------------------------
+
+Starting from scratch with a simple CMakeList.txt on OSX get::
+
+    delta:ImplicitMesher.build blyth$ implicitmesher-cmake
+    -- Configuring done
+    CMake Warning (dev):
+      Policy CMP0042 is not set: MACOSX_RPATH is enabled by default.  Run "cmake
+      --help-policy CMP0042" for policy details.  Use the cmake_policy command to
+      set the policy and suppress this warning.
+
+      MACOSX_RPATH is not specified for the following targets:
+
+       ImplicitMesher
+
+    This warning is for project developers.  Use -Wno-dev to suppress it.
+
+
+
+
+
+* https://cmake.org/Wiki/CMake_RPATH_handling
+
+
 CMAKE OSX RPATH INSTALL_NAME_TOOL ISSUE
 -----------------------------------------
+
 
 * :google:`cmake linking rpath install_name_tool`
 

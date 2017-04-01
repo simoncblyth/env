@@ -90,6 +90,7 @@ Efficient Sparse Voxel Octree, Laine and Karras
 -------------------------------------------------
 
 * https://research.nvidia.com/publication/efficient-sparse-voxel-octrees
+* ~/opticks_refs/Efficient_Sparse_Voxel_Octrees_laine2010tr1_paper.pdf
 
 
 GPU Octree
@@ -98,6 +99,19 @@ GPU Octree
 GPU-based Adaptive Octree Construction Algorithms
 * https://www.cse.iitb.ac.in/~rhushabh/publications/octree
 * ~/opticks_refs/GPU_octree.pdf
+
+
+
+Out-Of-Core Construction of Sparse Voxel Octrees - reference implementation 
+-----------------------------------------------------------------------------
+
+* streaming approach, bizarre stuff about empty nodes i didnt follow
+* https://github.com/Forceflow/ooc_svo_builder/blob/master/src/svo_builder/OctreeBuilder.cpp
+
+* http://graphics.cs.kuleuven.be/publications/BLD14OCCSVO/
+* http://graphics.cs.kuleuven.be/publications/BLD14OCCSVO/BLD14OCCSVO_paper.pdf
+* ~/opticks_refs/Sparse_Octree_Morton_Updated_BLD14OCCSVO_paper.pdf
+
 
 
 EOU

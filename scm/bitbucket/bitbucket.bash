@@ -24,10 +24,94 @@ IP Update
     remote: https://blog.bitbucket.org/?p=2677
 
 
+
+
+Create Bitbucket repo from pristine zip/tarball 
+---------------------------------------------------
+
+::
+
+    delta:isosurface blyth$ rm -rf ImplicitMesher   # remove the expanded distribition directory 
+    delta:isosurface blyth$ 
+    delta:isosurface blyth$ hg clone ssh://hg@bitbucket.org/simoncblyth/ImplicitMesher      # create an empty repo directory  
+    destination directory: ImplicitMesher
+    no changes found
+    updating to branch default
+    0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+
+    delta:isosurface blyth$ ll ImplicitMesher/
+    drwxr-xr-x   6 blyth  staff  204 Apr  1 11:39 .hg
+
+    delta:isosurface blyth$ unzip ImplicitMesher.zip     # unzip into the repo directory 
+    Archive:  ImplicitMesher.zip
+      inflating: ImplicitMesher/BlobSet.cpp  
+      inflating: ImplicitMesher/BlobSet.h  
+      inflating: ImplicitMesher/glut.h   
+      ...
+
+    delta:isosurface blyth$ cd ImplicitMesher   
+    delta:ImplicitMesher blyth$ hg st         # status shows lots of untracked files
+    ? BlobSet.cpp
+    ? BlobSet.h
+    ? ImplicitFunction.cpp
+    ? ImplicitFunction.h
+    ...
+
+    ## add them, commit with message providing the distribution URL and push 
+
+    delta:ImplicitMesher blyth$ hg commit -m "initial commit of pristine http://www.dgp.toronto.edu/~rms/software/ImplicitMesher/ImplicitMesher.zip "
+
+    delta:ImplicitMesher blyth$ hg st .
+    delta:ImplicitMesher blyth$ hg push 
+    pushing to ssh://hg@bitbucket.org/simoncblyth/ImplicitMesher
+    Enter passphrase for key '/Users/blyth/.ssh/id_rsa': 
+    searching for changes
+    remote: adding changesets
+    remote: adding manifests
+    remote: adding file changes
+    remote: added 1 changesets with 509 changes to 509 files
+    delta:ImplicitMesher blyth$ 
+
+    ## check appears on bitbucket : https://bitbucket.org/simoncblyth/implicitmesher/src
+
+    ## clone into home using ssh, to allow modification via keys
+
+    delta:~ blyth$ hg clone ssh://hg@bitbucket.org/simoncblyth/ImplicitMesher
+    Enter passphrase for key '/Users/blyth/.ssh/id_rsa': 
+    destination directory: ImplicitMesher
+    requesting all changes
+    adding changesets
+    adding manifests
+    adding file changes
+    added 1 changesets with 509 changes to 509 files
+    updating to branch default
+    509 files updated, 0 files merged, 0 files removed, 0 files unresolved
+    delta:~ blyth$ 
+
+    ## hack it into something usable.... , add README.rst and make public using "Settings" web interface
+
+    delta:ImplicitMesher blyth$ hg commit -m "remove binaries, windows cruft and WildMagic "
+    delta:ImplicitMesher blyth$ hg push 
+    pushing to ssh://hg@bitbucket.org/simoncblyth/ImplicitMesher
+    Enter passphrase for key '/Users/blyth/.ssh/id_rsa': 
+    searching for changes
+    remote: adding changesets
+    remote: adding manifests
+    remote: adding file changes
+    remote: added 1 changesets with 0 changes to 0 files
+
+        
+
+
+
 Upload Mercurial repo to bitbucket
 ----------------------------------------------
 
 #. create repo in bitbucket webinterface named "env", "tracdev", etc..
+
+   * NB old Safari I am using doesnt work with bitbucket web interface, 
+     the Create Repository button is greay out... Chrome works
+
 #. adjust paths in the bare converted repo on D
 
 ::
