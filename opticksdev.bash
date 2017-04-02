@@ -21,6 +21,81 @@ cmakecheck-
     testing CMake config
 
 
+How to add an external to Opticks
+-----------------------------------
+
+Opticks externals need to provide a name.bash 
+that follows certain conventions regarding the bash functions
+that it contains and some required functions:
+
+name-
+    required precursor, defines all the other functions
+
+name--
+    required rerunnable getter, builder and installer
+
+name-url 
+    optional distribution URL for info purposes
+
+name-dist
+    optional path to local distribution zip, tarball or clone/checkout directory for info purposes
+
+
+
+Create the .bash in ~/opticks/exterals:
+
+   cd ~/opticks/externals
+   cp gleq.bash oimplicitmesher.bash   # gleq.bash is good template as very simple
+
+Hookup the precursor function in ~/opticks/externals/externals.bash this
+is sourced by the opticks- precursor adding a line like::
+
+   oimplicitmesher-(){  . $(opticks-home)/externals/oimplicitmesher.bash   && oimplicitmesher-env $* ; }
+
+
+Follow the standard opticks locations for source and build dirs and install prefixes as 
+develop the name-get name-cmake and name-make functions, test rerunnability::
+
+    delta:implicitmesher.build blyth$ oimplicitmesher--
+    -- Configuring done
+    -- Generating done
+    -- Build files have been written to: /usr/local/opticks/externals/implicitmesher/implicitmesher.build
+    Scanning dependencies of target ImplicitMesher
+    [ 53%] Built target ImplicitMesher
+    [ 61%] Built target GenericFunctionFTest
+    [ 69%] Built target GenericFunctionTest
+    [ 76%] Built target ImplicitMesherFTest
+    [ 84%] Built target ImplicitMesherTest
+    [ 92%] Built target ImplicitPolygonizerTest
+    [100%] Built target SimpleMeshTest
+    Install the project...
+    -- Install configuration: "Debug"
+    -- Up-to-date: /usr/local/opticks/externals/lib/libImplicitMesher.dylib
+    -- Up-to-date: /usr/local/opticks/externals/include/ImplicitMesher/ImplicitMesherF.h
+    -- Up-to-date: /usr/local/opticks/externals/include/ImplicitMesher/ImplicitMesherBase.h
+    -- Up-to-date: /usr/local/opticks/externals/lib/ImplicitPolygonizerTest
+    -- Up-to-date: /usr/local/opticks/externals/lib/SimpleMeshTest
+    -- Up-to-date: /usr/local/opticks/externals/lib/GenericFunctionTest
+    -- Up-to-date: /usr/local/opticks/externals/lib/GenericFunctionFTest
+    -- Up-to-date: /usr/local/opticks/externals/lib/ImplicitMesherTest
+    -- Up-to-date: /usr/local/opticks/externals/lib/ImplicitMesherFTest
+    delta:implicitmesher.build blyth$ 
+     
+
+Make the external usable using cmake find mechanism, adding ~/opticks/cmake/Modules/FindImplicitMesher.cmake::
+
+    set(ImplicitMesher_PREFIX "${OPTICKS_PREFIX}/externals")
+
+    find_library( ImplicitMesher_LIBRARIES 
+                  NAMES ImplicitMesher
+                  PATHS ${ImplicitMesher_PREFIX}/lib )
+
+    set(ImplicitMesher_INCLUDE_DIRS "${ImplicitMesher_PREFIX}/include")
+    set(ImplicitMesher_DEFINITIONS "")
+
+
+
+
 
 Visibility inconsistency
 --------------------------

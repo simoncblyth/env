@@ -47,9 +47,21 @@ SOP : Standard Operating Procedures for Open Source usage
 * Within Opticks create a corresponding interface class to bring in 
   the functionality, and treat it as an optional external library.
    
-* Separated development promotes loose coupling 
 
+Separate Repo Dev Advantages
+------------------------------
 
+* promotes loose coupling, not tempted to use functionality 
+  from the mother ship repo 
+
+* potentially the development can be useful to others, as
+  it is separated : not entangled with a whole load of other 
+  unrelated stuff  
+
+* clearer focus of purpose : making this code have a usable interface
+
+* also changes the psychology, preventing ownership thinking 
+  and allowing an impartial evaluation  
 
 
 

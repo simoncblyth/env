@@ -25,6 +25,18 @@ IP Update
 
 
 
+Commits showing up as DRAFT
+-------------------------------
+
+* https://bitbucket.org/site/master/issues/8678/draft-status-on-commits-bb-9791
+
+The below removed all the DRAFT labels in web interface::
+
+    cd ~/ImplicitMesher
+    hg phase --public .
+    hg push
+
+
 
 Create Bitbucket repo from pristine zip/tarball 
 ---------------------------------------------------
