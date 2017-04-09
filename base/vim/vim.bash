@@ -67,6 +67,34 @@ Gutter Line Numbers
 * http://vim.wikia.com/wiki/Display_line_numbers
 
 
+Perl Tricks
+-------------
+
+String replacement in all files containing the string::
+
+    simon:opticks blyth$ opticks-lfind NGLMStream 
+    ./opticksnpy/tests/NBBoxTest.cc
+    ./opticksnpy/tests/NBoxTest.cc
+    ./opticksnpy/tests/NFieldGrid3Test.cc
+    ./opticksnpy/tests/NGLMStreamTest.cc
+    ./opticksnpy/tests/NGLMTest.cc
+    ./opticksnpy/tests/NNodeTest.cc
+    ./opticksnpy/tests/NSphereTest.cc
+    ./opticksnpy/NBox.cpp
+    ./opticksnpy/NCSG.cpp
+    ./opticksnpy/NFieldGrid3.cpp
+    ./opticksnpy/NGLMStream.cpp
+    ./opticksnpy/NGrid3.cpp
+    ./opticksnpy/NOctools.cpp
+    ./opticksnpy/NSphere.cpp
+    ./opticksnpy/CMakeLists.txt
+    ./opticksnpy/tests/CMakeLists.txt
+
+    simon:opticks blyth$ perl -pi -e 's,NGLMStream,NGLMExt,g' `!!`
+    perl -pi -e 's,NGLMStream,NGLMExt,g' `opticks-lfind NGLMStream `
+
+
+
 Regexp Replace
 ---------------
 

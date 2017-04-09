@@ -60,12 +60,63 @@ edgevmap
 EOU
 }
 
-dcs-dir(){ echo $(local-base)/env/graphics/isosurface/dualcontouringsample/DualContouringSample ; }
+
+dcs-dir(){    echo $HOME/DualContouringSample ; }
+dcs-sdir(){   echo $HOME/DualContouringSample ; }
+dcs-cd(){    cd $(dcs-dir)/$1 ; } 
+
+dcs-bdir(){   echo $LOCAL_BASE/env/graphics/DualContouringSample.build ; }
+dcs-prefix(){ echo $LOCAL_BASE/env/graphics/DualContouringSample ; }
+dcs-bcd(){    cd $(dcs-bdir) ; } 
+
+
 dcs-cd(){  cd $(dcs-dir); }
-dcs-get(){
-   local dir=$(dirname $(dcs-dir)) &&  mkdir -p $dir && cd $dir
-
-   local url=https://github.com/nickgildea/DualContouringSample
+dcs-get()
+{
+   cd $HOME
+   #local url=https://github.com/nickgildea/DualContouringSample
+   local url=https://github.com/simoncblyth/DualContouringSample
    [ ! -d $(basename $url) ] && git clone $url
-
 }
+
+
+dcs-cmake()
+{
+    local bdir=$(dcs-bdir)
+
+    mkdir -p $bdir
+    #[ -f "$bdir/CMakeCache.txt" ] && echo $msg configured already && return  
+    rm -f "$bdir/CMakeCache.txt"
+
+    dcs-bcd   
+    opticks-
+    # notice no glm precursor here, it comes it a CMake level 
+
+    cmake \
+       -DCMAKE_MODULE_PATH=$(opticks-home)/cmake/Modules \
+       -DCMAKE_BUILD_TYPE=Debug \
+       -DCMAKE_INSTALL_PREFIX=$(dcs-prefix) \
+       $* \
+       $(dcs-sdir)
+}
+
+dcs-export()
+{
+   local libdir=$(dcs-prefix)/lib
+   [ "${PATH/$libdir}" == "$PATH"  ] && export PATH=$libdir:$PATH || echo $msg libdir $libdir already in PATH
+}
+
+dcs--()
+{
+   local msg="$FUNCNAME : "
+   local iwd=$PWD
+   dcs-bcd
+
+   cmake --build . --target ${1:-install}
+
+   cd $iwd
+}
+
+
+
+
