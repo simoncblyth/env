@@ -42,43 +42,6 @@ however would be a difficult stitching problem.
 
 
 
-
-SDF : Signed Distance Functions and CSG
-------------------------------------------
-
-* http://www.alanzucconi.com/2016/07/01/signed-distance-functions/
-
-* http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
-
-
-* http://aka-san.halcy.de/distance_fields_prefinal.pdf
-* ~/opticks_refs/Procedural_Modelling_with_Signed_Distance_Functions_Thesis.pdf
-
-* p25.. distance functions for sphere, torus, cylinder, cone, box
-
-CSG Combining signed distance functions ?
-
-* Union,  min(dA,dB)
-* Intersection, max(dA,dB)
-* Difference, max(dA,-dB)   (difference is intersection of A with complement of B)
-
-* Complement negates the distance function
-
-
-Scene defined by an SDF 
-
-* http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
-
-
-TSDF
------
-
-Code for integrating, raytracing, and meshing a TSDF on the CPU
-
-* https://github.com/sdmiller/cpu_tsdf
-
-
-
 Morton Codes for SDF cache ?
 -------------------------------
 

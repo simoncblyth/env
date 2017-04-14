@@ -19,6 +19,10 @@ VR
 
 * https://developer.nvidia.com/getting-vulkan-ready-vr
 
+Driver
+----------
+
+* https://developer.nvidia.com/nvidia-gdc-vulkan-driver-available-now
 
 
 EOU

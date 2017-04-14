@@ -1882,3 +1882,4 @@ pcl-(){      . $(env-home)/graphics/isosurface/pcl.bash && pcl-env $* ; }
 dctatwood-(){      . $(env-home)/graphics/isosurface/dctatwood.bash && dctatwood-env $* ; }
 implicitmesher-(){      . $(env-home)/graphics/isosurface/implicitmesher.bash && implicitmesher-env $* ; }
 opensource-(){      . $(env-home)/strategy/opensource.bash && opensource-env $* ; }
+sdf-(){      . $(env-home)/graphics/isosurface/sdf.bash && sdf-env $* ; }
