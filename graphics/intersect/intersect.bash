@@ -14,9 +14,13 @@ A place for referencing sources and comparing implementations
 See Also
 ---------
 
-* csg- for tree serialization thoughts
-* tboolean- 
+Moved index of precursors to opticksdev-
 
+* csg- covering basic refs and serialization 
+* isosurface- for extracting polygons from CSG trees
+* tboolean- testing Opticks implementations of raytraced and polygonized CSG trees
+* sdf- signed distance functions, used to CPU side geometry modelling 
+* scene- scene description languages
 
 Exceptional Sources
 ---------------------
@@ -36,7 +40,7 @@ Thoughts on partitioning, use if it simplifies
 * OptiX primitives do not need to correspond to input solids...
   eg experience with analytic PMT
 
-* Tessellation is partitioning taken to the extreme, 
+* Polygonization into triangles is partitioning taken to the extreme (with approximation thrown in), 
   accel structures can efficiently cope with millions of triangles so do not 
   be coy about partitioning solids if that allows a simpler intersection 
   implementation.
@@ -62,6 +66,24 @@ Line Cone
 * https://www.csie.ntu.edu.tw/~cyy/courses/rendering/pbrt-2.00/html/cone_8cpp_source.html
 
   Quadratic approach
+
+
+
+Ray Sphere, Geometrical and Algebraic Approaches
+-------------------------------------------------
+
+* http://kylehalladay.com/blog/tutorial/math/2013/12/24/Ray-Sphere-Intersection.html
+
+* https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
+
+
+Numerically stable quadratic solution
+-----------------------------------------
+
+* https://people.csail.mit.edu/bkph/articles/Quadratics.pdf
+* http://www.it.uom.gr/teaching/linearalgebra/NumericalRecipiesInC/c5-6.pdf
+
+
 
 
 Surface of Revolution

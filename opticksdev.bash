@@ -8,8 +8,75 @@ Aiming for opticks.bash to go in top level of a new Opticks repo
 together with top level superbuild CMakeLists.txt
 Intend to allow building independent of the env.
 
-See Also
-----------
+
+Opticks Domain Research Notes/Refs 
+---------------------------------------------
+
+* research precursors in env- repo
+* testing precursors in opticks-
+
+
+csg- 
+    basic refs and serialization 
+
+isosurface- 
+    extracting polygons from CSG trees
+
+intersect-
+    ray geometry intersection 
+
+sdf- 
+    signed distance functions, used to CPU side geometry modelling 
+
+scene- 
+    reviewing scene description languages
+
+octree-
+    basics of Octree data structure
+
+
+Package/External precursors
+------------------------------
+
+openvdb-
+    Academy award winning hierarchical data structure for sparse volumetric data
+    from Dreamworks
+
+dcs-
+    dual contouring sample, adaptive polygonization using Octree 
+
+odcs-
+    dcs as Opticks external
+
+
+implicitmesher-
+    venerable continuation polygonizer from Bloomenthal 
+
+oimplicitmesher-
+    implicit mesher as Opticks external
+
+
+tboolean- 
+    testing Opticks implementations of raytraced and polygonized CSG trees
+
+
+Ray Tracers
+-------------
+
+povray-
+    venerable open source
+
+iray-
+    commercial from NVIDIA, uses OptiX internally 
+
+embree-
+    intel ray tracer using vectorization (SSE, AVX, AVX2, and AVX512)
+
+
+
+
+Opticks Plumbing Notes
+------------------------
 
 cmake-
     background on cmake
@@ -19,6 +86,40 @@ cmakex-
 
 cmakecheck-
     testing CMake config
+
+
+How to update an external to Opticks
+--------------------------------------
+
+Make updates and push to source repo::
+
+    simon:ImplicitMesher blyth$ hg st 
+    M ImplicitMesherBase.cpp
+    M ImplicitMesherBase.h
+    simon:ImplicitMesher blyth$ hg commit -m "split off ImplicitMesherBase reporting for verbosity control"
+    simon:ImplicitMesher blyth$ hg push 
+    searching for changes
+    remote: adding changesets
+    remote: adding manifests
+    remote: adding file changes
+    remote: added 1 changesets with 2 changes to 2 files
+
+
+Fullwipe the opticks external in question and rerun its installer::
+
+    simon:ImplicitMesher blyth$ oimplicitmesher-
+    simon:ImplicitMesher blyth$ oimplicitmesher-fullwipe 
+    simon:ImplicitMesher blyth$ oimplicitmesher--
+    real URL is https://bitbucket.org/simoncblyth/implicitmesher
+    destination directory: implicitmesher
+    requesting all changes
+    adding changesets
+    ...
+
+Then rebuild libs that depend on the external::
+
+    npy--
+
 
 
 How to add an external to Opticks

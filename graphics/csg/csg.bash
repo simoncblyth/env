@@ -253,7 +253,9 @@ csgbr : CSG to BREP
 ---------------------
 
 
-Moved to isosurface- as too long 
+Moved to isosurface- as got too long 
+
+
 OpenSCAD
 ----------
 
@@ -444,8 +446,6 @@ Pure virtuals in base G4VSolid::
     162       // Calculate the distance to the nearest surface of a shape from an
     163       // inside point. The distance can be an underestimate.
     164 
-
-
 
 
 
