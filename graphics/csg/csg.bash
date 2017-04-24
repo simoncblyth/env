@@ -8,6 +8,76 @@ csg-usage(){ cat << EOU
 CSG : Constructive Solid Geometry
 ==================================
 
+Overview : CSG to B-REP aka CSG Polygonization aka Meshing 
+--------------------------------------------------------------
+
+Have implemented within Opticks:
+
+* MC : marching cubes
+* DCS : dual contouring sample, using Octree
+* IM : implicit mesher
+
+These three all form the isosurface mesh using only the implicit 
+signed distance function for the composite CSG solid. 
+Details of the research that went into that in isosurface-.
+
+**None of these approaches cope well with very thin solids, such as the cathode.**
+
+
+Need to get more information into the algorithm ... 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* parametric descriptions of all primitives are not difficult to come up with, 
+  perhaps these can be used to guide the meshing algorithms ? 
+
+* perhaps some kind of hybrid parametric/implicit approach is called for ?
+
+Investigating this in csgparametric-
+
+
+Experience with closed/open geometry
+--------------------------------------
+
+Some primitives such as CSG_CYLINDER and CSG_ZSPHERE have 
+flags that control endcaps. Disabling caps yields primitives
+with open geometry, having a bare boundary.  
+Raytracing these allows you to see the "inside" surface of 
+the primitive from "outside", which will appear very dark
+as normals point outwards from the outer surface.
+
+Such open geometry is however little more than a curiosity.
+
+Open geometry does not have a well defined  "inside" and "outside", which 
+means that attempting to use than as CSG sub-objects will 
+yield bizarre results, typically with geometry that changes shape 
+on moving viewpoint and that you see through to whats behind.
+
+Constructive **SOLID** Geometry only works with solids 
+which are by definition closed, with a boolean notion of whether 
+a point is inside or outside.
+
+Similarly the Opticks use of indices attached to boundaries 
+that identify (outer material, outer surface, inner surface, inner material) 
+requires closed geometry.  Without closed geometry optical photon properties
+will adopt those of different materials depending on their direction, you 
+will see unphysical things like some photons going faster than nearby others.
+
+Regarding geometry modelling and whether it is OK to have open sub-objects 
+that are combined in boolean combination : the answer is NO.  
+Sub-objects MUST BE CLOSED AND BOUNDED for the CSG implementation to work. 
+
+There is no need to be concerned with "internal" surfaces between sub-objects, 
+boolean combination takes care of that. In fact it is best not to think of 
+the sub-objects as being distinct objects at all, they are just a convenient way 
+to describe combination solids. Only the combination solids have boundary indices
+assigned to them.
+
+
+
+
+
+Refs
+------
 
 * http://www.doc.ic.ac.uk/~dfg/graphics/graphics2008/GraphicsLecture10.pdf
 
@@ -26,7 +96,6 @@ CSG : Constructive Solid Geometry
 * https://www.cg.tuwien.ac.at/courses/Rendering/VU.SS2015.html
 
   CG course with YouTube videos  
-
 
 CSG Thesis
 -----------
@@ -245,15 +314,6 @@ Hmm probably doing both rotation and translation within a CSG solid
 is rare, could split the operations to slim down nodes.
 
 :google:`csg tree with transforms`
-
-
-
-
-csgbr : CSG to BREP
----------------------
-
-
-Moved to isosurface- as got too long 
 
 
 OpenSCAD

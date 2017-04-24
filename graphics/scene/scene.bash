@@ -41,14 +41,27 @@ Povray
 * see povray-  
 
 
-
 Scene Description Language Examples
 ------------------------------------
 
 * https://en.m.wikipedia.org/wiki/Scene_description_language
 
 * Pov-ray while loops
-* 
+
+
+Alembic
+-----------
+
+* http://www.alembic.io
+
+Alembic is an open computer graphics interchange framework. Alembic distills
+complex, animated scenes into a non-procedural, application-independent set of
+baked geometric results.
+
+Relation to RenderMan ?
+
+* https://github.com/alembic/alembic/tree/master/prman/Procedural
+
 
 
 gltf (recent) : aiming to be the JPEG of 3D

@@ -22,6 +22,7 @@ Lists of SDFs
 
 * http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 * http://mercury.sexy/hg_sdf/
+* https://github.com/marklundin/glsl-sdf-primitives
 
 
 Bloomenthal on Implicit surfaces: understandable intro to math foundations

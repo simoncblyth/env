@@ -1885,3 +1885,6 @@ opensource-(){      . $(env-home)/strategy/opensource.bash && opensource-env $* 
 sdf-(){      . $(env-home)/graphics/isosurface/sdf.bash && sdf-env $* ; }
 povray-(){      . $(env-home)/graphics/povray/povray.bash && povray-env $* ; }
 scene-(){      . $(env-home)/graphics/scene/scene.bash && scene-env $* ; }
+octane-(){      . $(env-home)/graphics/octane/octane.bash && octane-env $* ; }
+powervr-(){      . $(env-home)/graphics/powervr/powervr.bash && powervr-env $* ; }
+csgparametric-(){      . $(env-home)/graphics/csg/csgparametric.bash && csgparametric-env $* ; }

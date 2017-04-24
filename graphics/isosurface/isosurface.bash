@@ -41,7 +41,31 @@ exactly on the isosurface.  To try to reuse the triangles
 however would be a difficult stitching problem.
 
 
+BSP approach does CSG on basis meshes
+---------------------------------------
 
+* https://evanw.github.io/csg.js/
+
+
+Can I cheat by using ray trace intersects to do the polygonization ?
+-----------------------------------------------------------------------
+
+* :google:`polygonization using ray trace intersections`
+
+
+Topologically Accurate Dual Isosurfacing Using Ray Intersection
+
+* https://www.jvrb.org/past-issues/4.2007/1170
+
+
+Implicit Ray Tracing using Inteval Arithmetic
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Improvements in the Ray Tracing of Implicit Surfaces based on Interval Arithmetic
+by Jorge Eliecer Florez Dıaz
+
+* https://www.ensta-bretagne.fr/jaulin/these_jorge_flores.pdf
+* ~/opticks_refs/Ray_Trace_Implict_Using_Interval_these_jorge_flores.pdf
 
 
 Morton Codes for SDF cache ?

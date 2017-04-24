@@ -6,6 +6,9 @@ Network Issues
 ===============
 
 
+
+
+
 OSX : Internet sharing from G4PB to Delta over adhoc WiFi not working 
 -----------------------------------------------------------------------
 
