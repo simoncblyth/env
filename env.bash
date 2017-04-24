@@ -1888,3 +1888,4 @@ scene-(){      . $(env-home)/graphics/scene/scene.bash && scene-env $* ; }
 octane-(){      . $(env-home)/graphics/octane/octane.bash && octane-env $* ; }
 powervr-(){      . $(env-home)/graphics/powervr/powervr.bash && powervr-env $* ; }
 csgparametric-(){      . $(env-home)/graphics/csg/csgparametric.bash && csgparametric-env $* ; }
+openscad-(){      . $(env-home)/graphics/csg/openscad.bash && openscad-env $* ; }
