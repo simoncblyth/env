@@ -11,6 +11,21 @@ CSG Parametric Approaches
 * :google:`CSG Parametric Solid Algorithm`
 
 
+Overview
+----------
+
+* perhaps could just apply the technique to IM meshes for the primitives, 
+  prior to implementing parametric meshes for them : this seems workable
+  as use the implicits to find the intersecting faces
+
+  But the mesh needs to be amenable to subdivision, to handle multi-cross edged, 
+  so probably easier just to use exact parametric meshes.
+
+* current meshing just uses the CSG tree for the SDF evaluation producing 
+  a single mesh, this approach needs intermediate meshes at each 
+  node of the CSG tree 
+
+
 Boolean Operations with Implicit and Parametric Representation of Primitives Using R-Functions
 ------------------------------------------------------------------------------------------------
 

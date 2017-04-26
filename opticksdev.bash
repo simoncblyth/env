@@ -16,6 +16,20 @@ Opticks Domain Research Notes/Refs
 * testing precursors in opticks-
 
 
+Geant4
+~~~~~~~~~~~~~~~~
+
+g4op-
+   code level view of how Geant4 optical physics is implemented, and 
+   dev notes on migrating it to the GPU
+
+gdml-
+   GDML refs, version history
+
+
+Geometry
+~~~~~~~~~~
+
 csg- 
     basic refs and serialization 
 
@@ -33,6 +47,9 @@ scene-
 
 octree-
     basics of Octree data structure
+
+renderer-
+    lists of renderers
 
 
 Package/External precursors

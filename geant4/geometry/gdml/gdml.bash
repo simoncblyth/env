@@ -1,4 +1,3 @@
-# === func-gen- : geant4/geometry/gdml/gdml fgp geant4/geometry/gdml/gdml.bash fgn gdml fgh geant4/geometry/gdml
 gdml-src(){      echo geant4/geometry/gdml/gdml.bash ; }
 gdml-source(){   echo ${BASH_SOURCE:-$(env-home)/$(gdml-src)} ; }
 gdml-vi(){       vi $(gdml-source) ; }
@@ -6,6 +5,37 @@ gdml-usage(){ cat << EOU
 
 GDML testing
 =============
+
+
+
+Refs
+-----
+
+* http://gdml.web.cern.ch/GDML/
+* http://gdml.web.cern.ch/GDML/doc/GDMLmanual.pdf
+
+* ~/opticks_refs/GDMLmanual.pdf 
+
+
+Releases
+-----------
+
+* 
+
+::
+
+    02/06/2016   GDML_3_1_4 released, Updated User's Manual, release 2.6 
+    09/10/2015   GDML_3_1_3 released 
+    12/06/2015   GDML_3_1_2 released, Updated User's Manual, release 2.5 
+    18/11/2014   GDML_3_1_1 released, Updated User's Manual, release 2.4 
+    26/11/2013   GDML_3_1_0 released, Updated User's Manual, release 2.3 
+    23/11/2011   GDML_3_0_1 released, Updated User's Manual, release 2.2 
+    15/12/2010   Updated User's Manual, release 2.1 
+    18/12/2008   GDML_3_0_0 released 
+
+
+
+
 
 Build/Install issues
 ---------------------
@@ -82,11 +112,15 @@ EOU
 }
 gdml-env(){      
    elocal- 
-   case $NODE_TAG in 
-     D) chroma- ;;
-     *) nuwa- ;;
-   esac
+   #case $NODE_TAG in 
+   #  D) chroma- ;;
+   #  *) nuwa- ;;
+   #esac
 }
+
+
+gdml-pdf(){ open ~/opticks_refs/GDMLmanual.pdf  ; }
+
 gdml-dir(){ echo $(gdml-g4-bdir)/source/persistency/gdml ; }
 gdml-sdir(){ echo $(env-home)/geant4/geometry/gdml ; }
 gdml-cd(){  cd $(gdml-dir); }

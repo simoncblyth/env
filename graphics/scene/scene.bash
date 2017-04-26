@@ -83,24 +83,13 @@ Ray Tracer Scene Description, file formats
 
 * https://en.m.wikipedia.org/wiki/List_of_ray_tracing_software
 
+
+
 Describing Robots
 ---------------------
 
 * http://sdformat.org
 
-Open Source Ray Tracers with CSG ?
--------------------------------------
-
-BRL-CAD
-~~~~~~~~~~~
-
-* https://brlcad.org
-* US Military, suspect scene authoring via GUI, not separate language
-
-Povray
-~~~~~~~~
-
-* see povray-  
 
 
 Scene Description Language Examples
@@ -147,85 +136,7 @@ computer graphics. It is successor to the Virtual Reality Modeling Language
 RenderMan 
 -----------
 
-
-Terminology 
-
-* https://renderman.pixar.com/view/renderman-prman-the-rispec-and-renderman-studio
-
-* https://en.m.wikipedia.org/wiki/RenderMan_Interface_Specification
-* https://renderman.pixar.com/products/rispec/rispec_pdf/RISpec3_2.pdf
-* ~/opticks_refs/RISpec3_2.pdf (226 pages)
-
-* http://www.graphics.stanford.edu/courses/cs448-05-winter/papers/course09.pdf
-* ~/opticks_refs/RenderMan_Theory_And_Practice_2003_siggraph_course09.pdf
-
-
-The RenderMan Interface Specification, or RISpec in short, is an open API
-developed by Pixar Animation Studios to describe three-dimensional scenes and
-turn them into digital photorealistic images. It includes the RenderMan Shading
-Language.
-
-* RISpec uses ANSI C language binding
-
-
-RIB (RenderMan Interface Bytestream) is the serialization 
-of the model built with the ANSI C 
-
-* https://renderman.pixar.com/view/rib-scene-description
-
-
-RenderMan procprims for handling lots of data 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* https://scicomp.stackexchange.com/questions/14824/rendering-huge-data-with-renderman-interface-bytestream
-
-::
-
-    The approach is not to generate the RIB on disk or generate all the RIB in one step.
-
-    For such large amount of data, the first step is to organize it in some
-    hierarchy fashion so that you have an Octree like bounding box structures. This
-    is important from a memory foot print perspective.
-
-    With the above, you would use the Procedural Geometry procedural approach
-    to emit small amount of geometry when the rendering bucket hits a bounding box
-    containing your geometry (hence the importance of hierarchy bounding boxes).
-    Once a rendering bucket is done, the geometries are discard keeping the memory
-    footprint in check.
-
-    Note that the above is just the documentation from Pixar's PRMan (commercial)
-    but is implemented in open source RenderMan renderer like Aqsis.
-
-
-* https://renderman.pixar.com/resources/RenderMan_20/proceduralPrimitives.html  "procprims"
-
-::
-
-    RenderMan procedural primitives (procprims, for short) are user-provided
-    subroutines that can be called upon to generate geometry (or issue other Ri
-    requests) during the process of rendering. The advantage of procprims over
-    concrete (RIB-based) primitives is that they can represent complex geometry
-    very efficiently. Procprims can produce incredible geometric complexity from a
-    small number of inputs, and we can defer this data amplification until the
-    renderer is prepared to handle it. This may make it possible to render much
-    more complex scenes than would be possible with a non-procedural
-    representation. Procprims can also be thought of as units of memory management.
-    The renderer can elect to unload all concrete geometry associated with a
-    procprim knowing that the geometry can be regenerated should there be further
-    need for it.
-
-    To describe procedural primitives to RenderMan, use either RiProcedural or
-    RiProcedural2.
-
-
-
-
-
-Free Non-Commercial RenderMan FAQ
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* https://renderman.pixar.com/view/dp25849
-
+Moved to renderman-
 
 
 Autodesk SDL
@@ -256,15 +167,6 @@ iray
 
   "Optimize for Compute Performance" 
   February 17, 2017
-
-
-
-
-
-
-
-How has instancing been represented ?
----------------------------------------- 
 
 
 

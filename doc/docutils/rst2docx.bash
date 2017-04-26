@@ -18,6 +18,20 @@ See also
 * https://python-docx.readthedocs.io/en/latest/user/text.html
 
 
+Adding blockquote translation ?
+----------------------------------
+
+::
+
+    2017-04-26 13:23:47,226 env.doc.docutils.rst2docx INFO     reading ntu-report-may-2017.rst 
+    2017-04-26 13:23:47,396 env.doc.docutils.rst2docx INFO     Writer pre walkabout
+    NotImplementedError: env.doc.docutils.rst2docx.Translator visiting unknown node type: block_quote
+    Exiting due to error.  Use "--traceback" to diagnose.
+    Please report errors to <docutils-users@lists.sf.net>.
+
+
+
+
 
 EOU
 }

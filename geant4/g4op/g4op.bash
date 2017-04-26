@@ -30,6 +30,19 @@ Objectives
 
 
 
+Search : optical photon simulation
+-------------------------------------
+
+* :google:`optical photon simulation`
+
+
+Peculiarities of G4 Optical Photon Simulation
+-----------------------------------------------
+
+* https://arxiv.org/pdf/1612.05162.pdf
+* ~/opticks_refs/Peculiarities_G4OpticalPhoton_1612.05162.pdf
+
+
 G4 Classes
 -----------
 

@@ -46,6 +46,7 @@ import docutils.nodes as nodes
 
 from docx.oxml.shared import OxmlElement, qn
 from docx.enum.style import WD_STYLE_TYPE
+from docx.enum.text  import WD_BREAK
 from docx.shared import Inches 
 from docx.shared import Pt
 
@@ -322,6 +323,25 @@ class Translator(BaseTranslator):
         self.incaption = False
 
 
+    def visit_block_quote(self, node):
+        parax = self.docx.add_paragraph("", self.parastyle)
+        pfx = parax.paragraph_format 
+        pfx.left_indent = Inches(1.25)
+        pfx.space_after = Inches(0.25)
+        log.info("visit_block_quote")
+        self.parax = parax
+  
+    def depart_block_quote(self, node):
+        log.info("depart_block_quote")
+        self.parax = None
+
+    def visit_comment(self, node):
+        log.info("visit_comment")
+  
+    def depart_comment(self, node):
+        log.info("depart_comment")
+
+
     def visit_Text(self, node):
         """
         Most text nodes appears inside paragraph nodes, the exceptions are titles and captions.
@@ -388,6 +408,9 @@ class Translator(BaseTranslator):
                 log.info("visit_raw TOC spotted : inserting tocx")
                 self.tocx(self.previsit) 
             pass
+        elif text == "BREAK_PAGE":
+            run = self.parax.add_run()
+            run.add_break(WD_BREAK.PAGE)
         elif text.startswith(self.verbatim_start) and text.endswith(self.verbatim_end):
 
             btxt = text[len(self.verbatim_start):-len(self.verbatim_end)]  
