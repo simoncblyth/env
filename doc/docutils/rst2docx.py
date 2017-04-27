@@ -9,12 +9,15 @@ OpenXML docx (ie Word XML document).
 Usage::
 
     rst2docx.py /tmp/report.rst /tmp/report.docx
+    doctree.py /tmp/report.rst
 
 
 Dependencies
 -------------
 
 * python-docx see docx-
+
+
 
 
 See also
@@ -322,13 +325,12 @@ class Translator(BaseTranslator):
         self.parax = None
         self.incaption = False
 
-
     def visit_block_quote(self, node):
+        log.info("visit_block_quote\n%s\n" % node_astext(node))
         parax = self.docx.add_paragraph("", self.parastyle)
         pfx = parax.paragraph_format 
         pfx.left_indent = Inches(1.25)
         pfx.space_after = Inches(0.25)
-        log.info("visit_block_quote")
         self.parax = parax
   
     def depart_block_quote(self, node):
@@ -336,7 +338,7 @@ class Translator(BaseTranslator):
         self.parax = None
 
     def visit_comment(self, node):
-        log.info("visit_comment")
+        log.info("visit_comment\n%s\n" % node_astext(node))
   
     def depart_comment(self, node):
         log.info("depart_comment")

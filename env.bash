@@ -1893,3 +1893,4 @@ gate-(){      . $(env-home)/geant4/gate/gate.bash && gate-env $* ; }
 xrt-(){      . $(env-home)/graphics/xrt/xrt.bash && xrt-env $* ; }
 renderer-(){      . $(env-home)/graphics/renderer/renderer.bash && renderer-env $* ; }
 renderman-(){      . $(env-home)/graphics/renderman/renderman.bash && renderman-env $* ; }
+yoctogl-(){      . $(env-home)/graphics/yoctogl/yoctogl.bash && yoctogl-env $* ; }

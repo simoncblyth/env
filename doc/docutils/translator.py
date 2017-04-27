@@ -7,6 +7,7 @@ import docutils.nodes as nodes
 class BaseTranslator(nodes.NodeVisitor):
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
+
     def default_visit(self, node):
         self.document.reporter.warning('missing visit_%s' % (node.tagname, ))
 
