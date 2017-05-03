@@ -18,16 +18,94 @@ could be easily streamed, e.g. over the internet.
 * https://www.khronos.org/gltf
 * https://github.com/KhronosGroup/glTF#gltf-tools
 
+
+
+Specification 1.0
+-------------------
+
+* https://github.com/KhronosGroup/glTF/tree/master/specification/1.0
+
+
+* can include "extras" most anywhere for app specifics (eg CSG desc)
+
+
+2.0 
+-----
+
+* https://www.khronos.org/assets/uploads/developers/library/2017-gdc-webgl-webvr-gltf-meetup/7%20-%20glTF%20Update%20Feb17.pdf
+* https://github.com/KhronosGroup/glTF/tree/2.0/specification/2.0
+
+
 glTF Tutorials
 ----------------
 
+Best source for detailed description.
+
 * https://github.com/javagl/glTF-Tutorials/tree/master/gltfTutorial#gltf-tutorial
+
+
+Shaders included
+~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/javagl/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_012_ProgramsShaders.md
+
 
 Overview
 ---------
 
 Uses approach very similar to the Opticks geocache, for the same reasons,
 ie json and separate binary buffers.
+
+
+
+gltf Loaders and Viewers
+--------------------------
+
+* https://github.com/KhronosGroup/glTF#c
+* https://github.com/nvpro-pipeline/pipeline (Windows centric)
+
+yocto-gl
+~~~~~~~~~~~~
+
+* https://github.com/xelatihy/yocto-gl  see yoctogl-
+
+
+laugh engine
+~~~~~~~~~~~~~
+
+A Vulkan implementation of real-time PBR renderer
+
+* https://github.com/jian-ru/laugh_engine#laugh-engine
+* http://jian-ru.github.io
+* http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
+
+
+python-gltf-experiments (MIT)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A sandbox repo for prototyping Python applications utilizing glTF.
+
+* https://github.com/jzitelli/python-gltf-experiments
+
+PyOpenGL
+cyglfw3
+PIL
+NumPy (version 1.10 or later is required)
+Pyrr
+pyopenvr (optional, required for VR viewing)
+
+
+Header only C++ Tiny glTF loader. (MIT)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/syoyo/tinygltfloader
+
+Simple OpenGL viewer for glTF geometry.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/syoyo/tinygltfloader/tree/master/examples/glview
+
+
 
 Questions
 -----------
@@ -63,38 +141,12 @@ Why gltf is interesting ...
 * an emerging standard, many 3D tools and end user applications will be supporting it 
 
 
-gltf Loaders and Viewers
---------------------------
-
-* https://github.com/KhronosGroup/glTF#c
-
-* https://github.com/nvpro-pipeline/pipeline (Windows centric)
-
-yocto-gl
-~~~~~~~~~~~~
-
-* https://github.com/xelatihy/yocto-gl  see yoctogl-
-
-
-laugh engine
-~~~~~~~~~~~~~
-
-A Vulkan implementation of real-time PBR renderer
-
-* https://github.com/jian-ru/laugh_engine#laugh-engine
-* http://jian-ru.github.io
-* http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
-
-
-
-
 
 
 EOU
 }
-gltf-dir(){ echo $(local-base)/env/graphics/gltf/graphics/gltf-gltf ; }
+gltf-dir(){ echo $(env-home)/graphics/gltf/tute ; }
 gltf-cd(){  cd $(gltf-dir); }
-gltf-mate(){ mate $(gltf-dir) ; }
 gltf-get(){
    local dir=$(dirname $(gltf-dir)) &&  mkdir -p $dir && cd $dir
 

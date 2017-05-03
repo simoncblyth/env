@@ -10,6 +10,25 @@ C++
 ====
 
 
+
+Inline Template Method Decl
+-----------------------------
+
+::
+
+    template <typename T> void fill(T value) const ;
+
+
+Template Method Impl
+-----------------------
+
+::
+
+    template <typename T>
+    void TBuf::fill(T value) const
+    {
+
+
 Forward Declare Template Class
 -------------------------------
 

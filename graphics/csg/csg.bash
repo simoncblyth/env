@@ -35,6 +35,45 @@ Need to get more information into the algorithm ...
 Investigating this in csgparametric-
 
 
+Regularization
+----------------
+
+Some Regularization Problems in Ray Tracing
+John Amanatides Don P. Mitchell
+
+* http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.596.4270&rep=rep1&type=pdf
+* ~/opticks_refs/csg_ray_trace_regularization.pdf
+
+
+Regularization of a set is the closure of its interior.
+
+* http://www.cs.uky.edu/~cheng/cs535/Notes/PS-Ray-1.pdf
+* ~/opticks_refs/csg_regularization_PS-Ray-1.pdf
+
+* in/on/out classification ambiguity, remedy: regular neighborhood method
+
+
+Exact Ray tracing of CSG Models by Preserving Boundary Information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Geoff Wyvill
+Andrew Trotman
+
+* http://www.cs.otago.ac.nz/homepages/andrew/papers/g4.pdf
+* ~/opticks_refs/CSG_Preserving_Boundary_Info.pdf
+
+CST : constructuve solid trimming
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+CST: Constructive Solid Trimming for rendering BReps and CSG
+John Hable and Jarek Rossignac
+
+* http://www.cc.gatech.edu/~jarek/papers/CST.pdf
+* ~/opticks_refs/Constructive_Solid_Trimming_CST.pdf
+
+
+
+
 Experience with closed/open geometry
 --------------------------------------
 

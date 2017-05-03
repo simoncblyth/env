@@ -34,6 +34,12 @@ Big table linking to varions intersection imps
 * ~/opticks_refs/erit_intersection_collection.pdf 
 
 
+
+Many (includine surface-of-revolution), terse:
+
+* http://hugi.scene.org/online/hugi24/coding%20graphics%20chris%20dragan%20raytracing%20shapes.htm
+
+
 Thoughts on partitioning, use if it simplifies
 -------------------------------------------------
 
@@ -66,6 +72,55 @@ Line Cone
 * https://www.csie.ntu.edu.tw/~cyy/courses/rendering/pbrt-2.00/html/cone_8cpp_source.html
 
   Quadratic approach
+
+* http://lousodrome.net/blog/light/2017/01/03/intersection-of-a-ray-and-a-cone/
+
+* http://mathworld.wolfram.com/Cone.html
+
+
+Quadratic
+~~~~~~~~~~~~~~
+
+* https://everything2.com/title/Ray+Tracing%253A+intersections+with+cones
+
+t2(yD2 + zD2 - xD2) + t(2yEyD + 2zEzD - 2xExD) + (yE2 + zE2 - xE2) = 0
+which is simply a quadratic equation having roots:
+
+where a = (yD2 + zD2 - xD2)
+      b = (2yEyD + 2zEzD - 2xExD)
+      c = (yE2 + zE2 - xE2)
+
+Giving the intersections of the ray with the cone in the parameter t. To find
+the position of the first intersection in x,y,z space we must substitute back
+into either equation the value of t found at each root. Additionally, we must
+now check that the x value found lies within the x range permitted above. The
+first t root which lies in the allowed range in x space will give us the
+required position. N.B. for cones with their base closer to the y-axis than
+their point, we simply translate the other end of the double cone into that
+region of the x-axis. 
+
+**End Caps** 
+
+Assume the end cap was at the xmin end, 
+if one of the (real) x roots lies to the left of xmin and the other lies to the right of xmin, 
+then we know that the ray must have passed through the end cap, 
+and we can find the position at which it would have intersected 
+the infinite plane normal to the cone and passing through xmin by
+
+tend = xmin - xE
+     ------------
+          xD
+
+and again convert t-space to x-space in the ray equation.
+We should however consider the special case where the ray travels 
+parallel to the axis of the cone. Here, the quadratic equation will 
+have no real solutions (no cone point in x-range) or one real solution 
+(the point of the cone), but will have intersected the end cap(s). 
+Therefore, the ray tracer must be carefully coded to catch this case.
+
+
+
+
 
 
 

@@ -585,6 +585,113 @@ Polycone with conical faces joining RZ::
     109                     const G4PolyconeSideRZ *nextRZ,
     110                           G4double phiStart, G4double deltaPhi,
     111                           G4bool phiIsOpen, G4bool isAllBehind=false );
+    ...
+    117     G4bool Intersect( const G4ThreeVector &p, const G4ThreeVector &v,
+    118                             G4bool outgoing, G4double surfTolerance,
+    119                             G4double &distance, G4double &distFromSurface,
+    120                             G4ThreeVector &normal, G4bool &isAllBehind );
+    121 
+    122     G4double Distance( const G4ThreeVector &p, G4bool outgoing );
+
+
+
+Created in G4Polycone.cc::
+
+     277   // Construct conical faces
+     ...
+     281   G4PolyconeSideRZ *corner = corners,
+     282                    *prev = corners + numCorner-1,
+     283                    *nextNext;
+     284   G4VCSGface  **face = faces;
+     285   do    // Loop checking, 13.08.2015, G.Cosmo
+     286   {
+     287     next = corner+1;
+     288     if (next >= corners+numCorner) next = corners;
+     289     nextNext = next+1;
+     290     if (nextNext >= corners+numCorner) nextNext = corners;
+     291    
+     292     if (corner->r < 1/kInfinity && next->r < 1/kInfinity) continue;
+     ...
+     315     *face++ = new G4PolyconeSide( prev, corner, next, nextNext,
+     316                 startPhi, endPhi-startPhi, phiIsOpen, allBehind );
+     317   } while( prev=corner, corner=next, corner > corners );
+
+
+::
+
+     073 // Values for r1,z1 and r2,z2 should be specified in clockwise
+      74 // order in (r,z).
+      75 //
+      76 G4PolyconeSide::G4PolyconeSide( const G4PolyconeSideRZ *prevRZ,
+      77                                 const G4PolyconeSideRZ *tail,
+      78                                 const G4PolyconeSideRZ *head,
+      79                                 const G4PolyconeSideRZ *nextRZ,
+      80                                       G4double thePhiStart,
+      81                                       G4double theDeltaPhi,
+      82                                       G4bool thePhiIsOpen,
+      83                                       G4bool isAllBehind )
+      84   : ncorners(0), corners(0)
+      85 {
+      ..
+      94   //
+      95   // Record values
+      96   //
+      97   r[0] = tail->r; z[0] = tail->z;
+      98   r[1] = head->r; z[1] = head->z;
+      99  
+     138   // Make our intersecting cone
+     139   //
+     140   cone = new G4IntersectingCone( r, z );
+     141 
+
+
+
+Itersect called for all the faces, min distance one returned::
+
+    264 // DistanceToIn(p,v)
+    265 //
+    266 G4double G4VCSGfaceted::DistanceToIn( const G4ThreeVector &p,
+    267                                       const G4ThreeVector &v ) const
+    268 {
+    269   G4double distance = kInfinity;
+    270   G4double distFromSurface = kInfinity;
+    271   G4VCSGface **face = faces;
+    272   G4VCSGface *bestFace = *face;
+    273   do    // Loop checking, 13.08.2015, G.Cosmo
+    274   {
+    275     G4double   faceDistance,
+    276                faceDistFromSurface;
+    277     G4ThreeVector   faceNormal;
+    278     G4bool    faceAllBehind;
+    279     if ((*face)->Intersect( p, v, false, kCarTolerance/2,
+    280                 faceDistance, faceDistFromSurface,
+    281                 faceNormal, faceAllBehind ) )
+    282     {
+    283       //
+    284       // Intersecting face
+    285       //
+    286       if (faceDistance < distance)
+    287       {
+    288         distance = faceDistance;
+    289         distFromSurface = faceDistFromSurface;
+    290         bestFace = *face;
+    291         if (distFromSurface <= 0) { return 0; }
+    292       }
+    293     }
+    294   } while( ++face < faces + numFace );
+    295 
+    296   if (distance < kInfinity && distFromSurface<kCarTolerance/2)
+    297   {
+    298     if (bestFace->Distance(p,false) < kCarTolerance/2)  { distance = 0; }
+    299   }
+    300 
+    301   return distance;
+    302 }
+
+
+
+
+
 
 ::
 

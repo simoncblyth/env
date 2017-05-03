@@ -21,6 +21,14 @@ New VRWorks-enabled branch of Unreal Engine Supports Pascal single pass stereo
 * https://developer.nvidia.com/vrworks-unreal-engine-branch-adds-support-vr-sli-lens-matched-shading-and-single-pass-stereo
 
 
+Unity VRWorks
+---------------
+
+Unity 2017.1.0 Beta 2 enables support for VRWorks 
+
+
+* https://developer.nvidia.com/nvidia-vrworks-support-unity-engine-now-available
+
 Download VRWorks-2.0-Package.zip
 ----------------------------------
 
