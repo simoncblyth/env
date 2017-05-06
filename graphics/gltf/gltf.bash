@@ -36,6 +36,18 @@ Specification 1.0
 * https://github.com/KhronosGroup/glTF/tree/2.0/specification/2.0
 
 
+glTF Samples
+---------------
+
+* https://github.com/KhronosGroup/glTF-Sample-Models/blob/master/2.0/SimpleMeshes/glTF/SimpleMeshes.gltf
+
+  Too simple 
+
+* https://github.com/KhronosGroup/glTF-Sample-Models/blob/master/2.0/Lantern/glTF/Lantern.gltf
+
+   
+
+
 glTF Tutorials
 ----------------
 
@@ -44,10 +56,42 @@ Best source for detailed description.
 * https://github.com/javagl/glTF-Tutorials/tree/master/gltfTutorial#gltf-tutorial
 
 
+
+Scenes and Nodes
+~~~~~~~~~~~~~~~~~~
+
+* https://github.com/javagl/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_004_ScenesNodes.md
+
+
 Shaders included
 ~~~~~~~~~~~~~~~~~~~
 
 * https://github.com/javagl/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_012_ProgramsShaders.md
+
+
+glTF Node Instancing
+-----------------------
+
+Gltf node instancing not supported in Cesium
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/AnalyticalGraphicsInc/cesium/issues/1754
+
+ think that will do it. Essentially, in runtimeNode, we will transform the DAG
+into a tree, then createRuntimeNodes will just work on a tree (no need to check
+number of parents because it will always be one).
+
+
+Node hierarchy - DAG or tree? 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/KhronosGroup/glTF/issues/401
+
+
+Example of node reuse as opposed to mesh reuse
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/KhronosGroup/glTF/issues/276
 
 
 Overview
@@ -68,6 +112,23 @@ yocto-gl
 ~~~~~~~~~~~~
 
 * https://github.com/xelatihy/yocto-gl  see yoctogl-
+
+* https://github.com/xelatihy/yocto-gl/blob/master/yocto/yocto_gltf.h
+
+
+Header only C++ Tiny glTF loader. (MIT)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/syoyo/tinygltfloader
+
+Simple OpenGL viewer for glTF geometry.
+
+* https://github.com/syoyo/tinygltfloader/tree/master/examples/glview
+
+Writing gltf
+
+* https://github.com/syoyo/tinygltfloader/blob/master/examples/writer/writer.cc
+
 
 
 laugh engine
@@ -93,18 +154,6 @@ PIL
 NumPy (version 1.10 or later is required)
 Pyrr
 pyopenvr (optional, required for VR viewing)
-
-
-Header only C++ Tiny glTF loader. (MIT)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* https://github.com/syoyo/tinygltfloader
-
-Simple OpenGL viewer for glTF geometry.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* https://github.com/syoyo/tinygltfloader/tree/master/examples/glview
-
 
 
 Questions
@@ -146,8 +195,15 @@ Why gltf is interesting ...
 EOU
 }
 gltf-dir(){ echo $(env-home)/graphics/gltf/tute ; }
+gltf-minimal(){ echo $(gltf-dir)/minimal.gltf ; }
+gltf-minimal-vi(){ vi -R $(gltf-minimal) ; }
+
+
 gltf-cd(){  cd $(gltf-dir); }
 gltf-get(){
    local dir=$(dirname $(gltf-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+
+

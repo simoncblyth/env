@@ -27,6 +27,120 @@ Questions
 * How to handle instances of repeated geometry and their transforms
 
 
+Ingredients
+------------
+
+* nodes in a hierarchy 
+* bounding boxes (global, local)
+* local transforms
+* global transforms
+* geometry meshes
+
+
+Eberly : 3D Game Engine Architecture (2005) : Regards Design of "Wild Magic 3"
+-----------------------------------------------------------------------------------
+
+Ch3 : Scene Graphs and Renderers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Spatial   
+        parent link, transforms 
+
+    Node(Spatial) 
+        children 
+
+    Geometry(Spatial)  
+        only leaves, ie no children 
+
+
+p156: 
+   ... (Node) compositing of transforms is done thru depth-first 
+   traversal of the parent-child tree. Each parent node provides
+   its world transform to its child nodes in order for them to compute
+   their world transforms
+
+   [holding the composite transform at each level, avoids having to 
+    composite all the way from the top for every leaf]
+
+p157:
+    changing local transforms at a node requires updating all the transforms for the
+    subtree .. BUT also requires updates of bounds up the tree
+
+p160 3.1.2 Spatial Hierarchy Design
+    ... price for separation of concerns between Node(grouping) and Geometry 
+    is that must introduce extra grouping nodes to hold geometry as geomerty cannot
+    hold other geometry      
+ 
+p163 3.1.3 Instancing
+    Spatial hierarchy system is a tree structure
+
+    * each tree node has a single parent, except for root with None.
+    * acts a skeleton for the scene graph 
+
+    Scene graph is an abstract graph (as opposed to a tree) because the object
+    system supports sharing.  If an object is shared by two other objects, effectively 
+    there are two instances of the first object (called instancing)
+
+    ... instancing of nodes in the spatial hierarchy is **not allowed** : enforced
+    by allowing Spatial to have only a single parent link 
+    ... multiple parent DAGs are not possible 
+   
+    Rationale for "node tree" and not "node graph"... 
+    consider the case of allowing node instancing
+
+    ::
+
+            House
+           /     \ 
+        Room1   Room2
+           \     /
+          Room-Contents
+
+ 
+    * path from root to leaf has sequence of local transforms, the product
+      of which is the world transform of the leaf node. But Room-contents 
+      can be reached by 2 paths : so which transform is applicable ? Also
+      where to persist the transform (in a tree can store directly in the node)
+
+      Using DAG means you need to somehow dynamically create a tree in which to 
+      keep the global transforms... also unclear how to specify a particular node..
+      leads to complicated system of multiple parents 
+
+    * much simpler to disallow internal node instancing, allow only instancing 
+      of geometry (which cannot have children)
+
+      #. nodes are very lightweight (just transforms and lists of child indices essentially) 
+         its cheap to make copies of them 
+      #. geometry is very heavy and really needs to not to be duplicated 
+
+    ::
+
+            House
+           /     \ 
+        Room1   Room2
+          /        \
+     Room1-        Room2-
+     Contents      Contents
+          \         /
+       Shared-Geometry-Data
+
+
+
+     
+
+
+  
+
+        
+   
+      
+
+    
+
+
+
 oks : OpticksScene format
 ----------------------------
 
@@ -72,6 +186,10 @@ explosion in the way people make and use images and glTF could do that for 3D
 scenes.
 
 * https://www.khronos.org/assets/uploads/developers/library/2017-glTF-webinar/glTF-Webinar_Feb17.pdf
+
+
+
+
 
 
 

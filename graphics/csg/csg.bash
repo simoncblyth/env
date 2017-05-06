@@ -35,6 +35,257 @@ Need to get more information into the algorithm ...
 Investigating this in csgparametric-
 
 
+CSG Normalization and Pruning, Goldfeather
+---------------------------------------------
+
+* http://www.dtic.mil/dtic/tr/fulltext/u2/a201085.pdf
+* ~/opticks_refs/CSG_Normalization_and_Pruning_Goldfeather_a201085.pdf
+* ~/opticks_refs/Goldfeather_CSG_Normalization_And_Pruning.pdf 
+
+
+CSG Thesis with set theory intro
+----------------------------------
+
+* http://www.en.pms.ifi.lmu.de/publications/diplomarbeiten/Sebastian.Steuer/DA_Sebastian.Steuer.pdf
+* ~/opticks_refs/CSG_Thesis_DA_Sebastian.Steuer.pdf
+
+* Union and intersection are commutative:
+* Union and intersection are distributive over each other
+* The empty set E and the reference set R are identity elements for union and intersection
+
+* A UNION !A = ALL 
+* A INTERSECT !A = NULL
+
+
+
+CSG Book
+-----------
+
+* https://books.google.com.tw/books?id=ntnnCAAAQBAJ&pg=PA380&lpg=PA380&dq=simplify+csg+expression+with+many+differences&source=bl&ots=vlkAUhT_tW&sig=aAUJrZlaCohJKmP64-ThU5wOMlE&hl=en&sa=X&ved=0ahUKEwi_ivbQhdTTAhXLJZQKHX_3DHgQ6AEIKjAF#v=onepage&q=simplify%20csg%20expression%20with%20many%20differences&f=false
+
+Theory and Practice of Geometric Modeling
+edited by Wolfgang Strasser, Hans-Peter Seidel
+
+p376
+
+CSG Trees that do not have any difference operator are called positive trees.
+Each CSG tree can be rewritten as a positive tree by applying De Morgan's laws
+(results in complemented primitives).
+Studying active zones and S-bounds is much simpler with positive trees.
+
+
+
+CSG Thesis with extensive linked Bibliography
+------------------------------------------------
+
+* http://www.nigels.com/research/#Thesis
+
+
+CSG Tree Rotation
+-------------------
+
+My unbalanced trees are mostly mono-operator... most all diffs, some all unions
+
+I would guess that means can straightforwardly restructure the tree without changing
+its meaning...
+
+
+* https://en.wikipedia.org/wiki/Tree_rotation
+
+
+The AVL Tree Rotations Tutorial
+By John Hargrove
+Version 1.0.1, Updated Mar-22-2007
+
+* https://www.cise.ufl.edu/~nemo/cop3530/AVL-Tree-Rotations.pdf
+
+
+* http://gfx.uvic.ca/pubs/2016/blob_traversal/paper.pdf
+
+
+Blist
+~~~~~~~
+
+* http://www.cc.gatech.edu/~jarek/papers/Blist.pdf
+* ~/opticks_refs/csg_Blist.pdf
+
+The CSG-to-Blist conversion process takes as input the root-node of the binary
+tree, T, and produces the corresponding BL table. Both structures have been
+described above. The conversion performs the following steps:
+
+1. Convert T into a positive form by applying deMorgan’s laws and propagating complements to the leaves
+2. Rotate the tree by switching the left and right children at each node to make the tree left heavy
+3. Visit the leaves from left to right and for each leaf, p, fill in the corresponding fields of BL[p]
+
+
+Ulyanov
+----------------------------------
+
+* http://ceur-ws.org/Vol-1576/090.pdf
+
+CSG Converting To Positive Form
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A CSG tree T is represented in the positive form using only U and I operations
+and negation of leaf nodes.  This conversion can be easily done using the
+following transformations:
+
+    !( x U y ) = !x I !y
+    !( x I y ) = !x U !y
+       x - y   =  x I !y
+
+The above transformations are applied to the tree in a pre-order traversal, and
+thus all complements are propagated to the leaf nodes. The reverse conversion
+to general form can be performed using a post- order traversal (in this case
+all negations are first removed from the children of each node).
+
+CSG Minimizing Tree Height
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To reduce the traversal state size we desire a well-balanced CSG tree. Our next
+optimization stage is aimed to address this problem by minimizing the height of
+CSG tree using local transformations. At this stage, two types of treelets are
+considered. For brevity, let us call the child node with a greater height (in
+the whole tree T) the heavy child. The first type is formed of treelets which
+have the same Boolean operation (U or I) in root node N1 and its heavy child N2
+(see Figure 5a). 
+
+::
+       
+          (N1)     
+          U    (N2) 
+       T1     U  
+            T2 T3*     <-- T3* is heavy child of the node N2
+                         
+   
+Swap treelets T1 and T3::
+
+          (N1)     
+          U    (N2)          
+       T3     U  
+            T2 T1* 
+
+If h(T3) > h(T1) + 1 it is beneficial to transpose these subtrees
+As with the rotations for binary search trees these result in elevating subtree T3 and demoting subtree T1. 
+Thus, the height of the treelet, rooted at N1, is decreased by one.
+
+We use the multi-pass scheme, where at each pass a CSG tree is traversed in
+post-order, and appropriate restructuring patterns are applied.
+
+         
+
+
+
+* TODO: implement ldepth, rdepth        
+
+Boolean sum of products
+--------------------------
+
+* https://www.dyclassroom.com/boolean-algebra/sum-of-products-and-product-of-sums
+
+There are two forms of canonical expression.
+
+Sum of Products (SOP)
+Product of Sums (POS)
+
+* https://en.wikipedia.org/wiki/Canonical_normal_form
+
+Minterms 
+      For a boolean function of n variables a product term in which each of the n variables appears once 
+      (in either its complemented or uncomplemented form) is called a minterm. 
+      Thus, a minterm is a logical expression of n variables that employs only the complement operator 
+      and the conjunction operator (AND, INTERSECT)
+
+      Minterms are called products because they are the logical AND of a set of variables, 
+      3 of the 8 possible minterms for a boolean function of three variables:
+ 
+      * abc
+      * a'bc 
+      * ab'c   (a AND b AND NOT-c)
+
+maxterms 
+      are called sums because they are the logical OR of a set of variables. 
+
+      For a boolean function of n variables a *sum* term in which each of the n variables appears once 
+      (in either its complemented or uncomplemented form) is called a maxterm. 
+      Thus, a maxterm is a logical expression of n variables that employs only the complement operator and the 
+      disjunction operator (OR, UNION).  
+
+      Maxterms are a dual of the minterm idea (i.e., exhibiting a complementary symmetry in all respects). 
+      Instead of using ANDs and complements, we use ORs and complements and proceed similarly.
+
+      For example, the following are two of the eight maxterms of three variables:
+
+      * a + b' + c
+      * a' + b + c
+
+
+
+
+These concepts are dual because of their complementary-symmetry relationship as expressed by De Morgan's laws.
+
+The term "Sum of Products" or "SoP" is widely used for the canonical form that
+is a disjunction (OR, UNION) of minterms (AND, INTERSECT). 
+
+Its De Morgan dual is a "Product of Sums" or "PoS" for the canonical 
+form that is a conjunction (AND, INTERSECT) of maxterms (OR, UNION). 
+
+These forms can be useful for the simplification of these functions, which is of
+great importance in the optimization of Boolean formulas in general and digital
+circuits in particular.
+
+
+
+Balancing CSG trees, to make them less deep
+---------------------------------------------
+
+* http://www.cs.jhu.edu/~goodrich/cgc/pubs/csg.ps
+* ~/opticks_refs/CSG_Tree_Contraction.pdf
+* ~/opticks_refs/CSG_Tree_Contraction_With_Figs.pdf
+
+
+Optimized BList
+~~~~~~~~~~~~~~~~~~~
+
+* http://www.cc.gatech.edu/~jarek/papers/OBF.pdf
+* ~/opticks_refs/Optimized_BList_Form_CSG.pdf
+
+
+How to handle deep unbalanced trees ?
+-----------------------------------------
+
+* :google:`balance CSG expressions`
+
+* can CSG expressions be balanced to a more binary tree friendly form ?
+
+* http://www.cs.jhu.edu/~goodrich/cgc/pubs/csg.ps
+
+
+
+CSG Building Experience
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://designer.mech.yzu.edu.tw/articlesystem/article/compressedfile/(2010-12-10)%20Constructive%20solid%20geometry%20and%20sweep%20representation.aspx?ArchID=1616
+
+A CSG tree is defined as an inverted ordered binary tree whose leaf nodes are 
+primitives and interior nodes are regularized set operations. 
+
+The creation of a balanced, unbalanced, or a perfect CSG tree depends solely on the user and how 
+he/she decomposes a solid into its primitives. 
+
+The general rule to create balanced trees is to start to build the model from an  
+almost central position and branch out in two opposite directions or vice versa. 
+
+Another useful rule is that symmetric objects can lead to perfect trees 
+if they are decomposed properly. 
+Figure 9 shows a perfect CSG tree and Figure 10 shows an umbalance CSG tree.
+
+
+
+
+
+
+
 Regularization
 ----------------
 

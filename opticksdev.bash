@@ -160,7 +160,7 @@ name-dist
 
 
 
-Create the .bash in ~/opticks/exterals:
+Create the .bash in ~/opticks/externals:
 
    cd ~/opticks/externals
    cp gleq.bash oimplicitmesher.bash   # gleq.bash is good template as very simple

@@ -11,6 +11,43 @@ C++
 
 
 
+tuple and tie
+---------------
+
+* http://blog.paphus.com/blog/2012/07/25/tuple-and-tie/
+
+* *tie* provides convenient access to returned *tuple*
+
+::
+
+      #include <tuple>
+      #include <iostream>
+
+      using std::tuple;
+      using std::tie;
+      using std::make_tuple;
+      using std::cout;
+
+      class rectangle
+      {
+        public:
+          rectangle(int _width, int _height) : width(_width), height(_height) {}
+          int width, height;
+
+          tuple<int, int> get_dimensions() {return make_tuple(width, height);}
+      };
+
+      int main(int argc, char** argv)
+      {
+          rectangle r(3,4);
+          int w,h;
+          tie(w,h) = r.get_dimensions();
+          cout << w << ' ' << h << '\n';
+          return 0;
+      }
+
+
+
 Inline Template Method Decl
 -----------------------------
 
