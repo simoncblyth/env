@@ -29,11 +29,119 @@ Specification 1.0
 * can include "extras" most anywhere for app specifics (eg CSG desc)
 
 
-2.0 
------
+Specification 2.0 Draft?
+----------------------------
 
 * https://www.khronos.org/assets/uploads/developers/library/2017-gdc-webgl-webvr-gltf-meetup/7%20-%20glTF%20Update%20Feb17.pdf
 * https://github.com/KhronosGroup/glTF/tree/2.0/specification/2.0
+
+Schema Definition Using JSON Schema
+-------------------------------------
+
+* https://github.com/KhronosGroup/glTF/blob/2.0/specification/2.0/schema/glTF.schema.json
+
+::
+
+    {
+        "$schema": "http://json-schema.org/draft-04/schema",
+        "title": "glTF",
+        "type": "object",
+        "description": "The root object for a glTF asset.",
+        "allOf": [ { "$ref": "glTFProperty.schema.json" } ],  # $ref is JSON pointer, analogous to XML XPath
+        "properties": {
+            ...
+            "asset": {
+                "allOf": [ { "$ref": "asset.schema.json" } ],
+                "description": "Metadata about the glTF asset."
+            },
+            ...
+            "meshes": {
+                "type": "array",
+                "description": "An array of meshes.",
+                "items": {
+                    "$ref": "mesh.schema.json"
+                },
+                "minItems": 1,
+                "gltf_detailedDescription": "An array of meshes.  A mesh is a set of primitives to be rendered."
+            },
+            "nodes": {
+                "type": "array",
+                "description": "An array of nodes.",
+                "items": {
+                    "$ref": "node.schema.json"
+                },
+                "minItems": 1
+            },
+            ...
+            "scene": {
+                "allOf": [ { "$ref": "glTFid.schema.json" } ],
+                "description": "The index of the default scene."
+            },
+            "scenes": {
+                "type": "array",
+                "description": "An array of scenes.",
+                "items": {
+                    "$ref": "scene.schema.json"
+                },
+                "minItems": 1
+            },
+            ...
+            "extensions": { },
+            "extras": { }
+        },
+        "dependencies": {
+            "scene": [ "scenes" ]
+        },
+        "required": [ "asset" ]
+    }
+
+
+    ## glTFProperty.schema.json
+
+    {
+        "$schema": "http://json-schema.org/draft-04/schema",
+        "title": "glTF property",
+        "type": "object",
+        "properties": {
+            "extensions": {
+                "$ref": "extension.schema.json"
+            },
+            "extras": {
+                "$ref": "extras.schema.json"
+            }
+        }
+    }
+
+    ## extras.schema.json
+
+    {
+        "$schema": "http://json-schema.org/draft-04/schema",
+        "title": "extras",
+        "description": "Application-specific data."
+    }
+
+    ## means all the top level properties can have extras, what about mesh ?
+
+
+
+::
+
+
+allOf
+~~~~~~~
+
+To validate against allOf, the given data must be valid against all of the given subschemas.
+
+* https://spacetelescope.github.io/understanding-json-schema/reference/combining.html#allof
+
+
+json schema guides
+~~~~~~~~~~~~~~~~~~~~~~
+
+* http://json-schema.org
+* https://spacetelescope.github.io/understanding-json-schema/
+* https://spacetelescope.github.io/understanding-json-schema/reference/combining.html
+
 
 
 glTF Samples
