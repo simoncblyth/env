@@ -17,6 +17,33 @@ Video capture from NVIDIA
 
 * http://www.geforce.com/geforce-experience/shadowplay
 
+
+
+Mac Driver, eGPU
+--------------------
+
+* http://www.macworld.com/article/3189405/macs/nvidia-releases-mac-driver-with-support-for-titan-xp-and-geforce-gtx-1000-series.html
+* https://9to5mac.com/2017/04/11/hands-on-powering-the-macbook-pro-with-an-egpu-using-nvidias-new-pascal-drivers/
+
+
+eGPU
+-----
+
+* requires thunderbolt 3 
+
+Thoughts
+    eGPU boxes are essentially a PC chassis with big powersupply and GPU slots... it would
+    be better to find way to use the GPU from an actual Window/Linux PC 
+    (sorta like the old Firewire target disk mode) rather than purchasing a single trick device  
+
+
+* :google:`Akitio Thunder3 eGPU`
+* :google:`Akitio Node`
+
+* https://gpunerd.com/external-gpu-buyers-guide-egpu
+* https://9to5mac.com/2017/04/11/hands-on-powering-the-macbook-pro-with-an-egpu-using-nvidias-new-pascal-drivers/
+
+
 G-Sync
 -------
 

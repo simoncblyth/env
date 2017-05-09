@@ -1894,3 +1894,5 @@ xrt-(){      . $(env-home)/graphics/xrt/xrt.bash && xrt-env $* ; }
 renderer-(){      . $(env-home)/graphics/renderer/renderer.bash && renderer-env $* ; }
 renderman-(){      . $(env-home)/graphics/renderman/renderman.bash && renderman-env $* ; }
 yoctogl-(){      . $(env-home)/graphics/yoctogl/yoctogl.bash && yoctogl-env $* ; }
+sympy-(){      . $(env-home)/npy/sympy/sympy.bash && sympy-env $* ; }
+gvdb-(){      . $(env-home)/graphics/gvdb/gvdb.bash && gvdb-env $* ; }

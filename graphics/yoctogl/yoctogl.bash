@@ -7,6 +7,11 @@ yoctogl-usage(){ cat << EOU
 Yocto-gl
 ===========
 
+
+DONT USE THIS CLONE : USE THE oyoctogl ONE 
+------------------------------------------
+
+
 Yocto/GL is a collection of single-file libraries for building physically-based
 graphics applications. Yocto/GL is written in C++ and can be used from with C
 or C++ and works on OSX (clang), Linux (clang/gcc) and Windows (cl).
@@ -119,7 +124,7 @@ yoctogl-test()
     #local path=$(gltf-minimal-sample)
     local path=$TMP/nd/scene.gltf 
 
-    /tmp/blyth/opticks/yoctogl-test-dir/bin/ygltf_reader $path
+    $TMP/yoctogl-test-dir/bin/ygltf_reader $path
 }
 
 

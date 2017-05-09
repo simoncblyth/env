@@ -21,6 +21,18 @@ New VRWorks-enabled branch of Unreal Engine Supports Pascal single pass stereo
 * https://developer.nvidia.com/vrworks-unreal-engine-branch-adds-support-vr-sli-lens-matched-shading-and-single-pass-stereo
 
 
+VRWorks Audio SDK UE4 Plugin Using OptiX
+-----------------------------------------------
+
+* https://developer.nvidia.com/vrworks/vrworks-audio
+
+
+VRWorks360 Video Stitching SDK : LightField Capture
+------------------------------------------------------
+
+* https://developer.nvidia.com/vrworks/vrworks-360video 
+
+
 Unity VRWorks
 ---------------
 

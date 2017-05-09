@@ -16,6 +16,29 @@ Reference
 * http://www.git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository
 
 
+Git-hg-rosetta-stone
+--------------------------
+
+* https://github.com/sympy/sympy/wiki/Git-hg-rosetta-stone
+
+Main difference is the git *index*, a staging area for preparing commits
+
+
+================================  =======================================  ===========================================
+hg                                 git
+================================  =======================================  ===========================================
+hg revert some_file                git checkout some_file
+--------------------------------  ---------------------------------------  -------------------------------------------
+                                   git help checkout                        updates the named paths in the working tree from the index file or from a
+                                                                            named <tree-ish> (most often a commit)  
+--------------------------------  ---------------------------------------  -------------------------------------------
+hg backout                         git revert
+--------------------------------  ---------------------------------------  -------------------------------------------
+hg add                             git add                                  git adds to index
+================================  =======================================  ===========================================
+
+
+
 Whats all this ?
 -----------------
 
