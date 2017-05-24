@@ -36,6 +36,19 @@ Preparing *env* for spawning *opticks*
 * Migrate infrastructure such as proj precursors from env.bash into opticks.bash  
 
 
+svnsync
+-----------
+
+* http://www.cardinalpath.com/how-to-use-svnsync-to-create-a-mirror-backup-of-your-subversion-repository/
+
+... create a mirror repository on another server, and use the svnsync program to 
+create a replica of your primary Subversion repository,
+
+* http://svnbook.red-bean.com/en/1.7/svn.ref.svnsync.html
+
+
+
+
 What mappings to make in the conversion
 -----------------------------------------
 
@@ -371,7 +384,6 @@ Switching svnsync mirror repo source URL following network rejig
 ------------------------------------------------------------------
 
 * http://www.emreakkas.com/linux-tips/how-to-change-svnsync-url-for-source-repository
-
 
 
 

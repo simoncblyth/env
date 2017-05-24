@@ -77,7 +77,7 @@ yoctogl-get(){
    [ ! -d "yocto-gl" ] && git clone https://github.com/simoncblyth/yocto-gl
 }
 
-yoctogl-env(){      elocal- ; gltf- ;  }
+yoctogl-env(){      elocal- ; gltf- ;  echo DONT USE THIS USE oyoctogl- ; }
 yoctogl-manual()
 {
     yoctogl-ecd

@@ -1896,3 +1896,4 @@ renderman-(){      . $(env-home)/graphics/renderman/renderman.bash && renderman-
 yoctogl-(){      . $(env-home)/graphics/yoctogl/yoctogl.bash && yoctogl-env $* ; }
 sympy-(){      . $(env-home)/npy/sympy/sympy.bash && sympy-env $* ; }
 gvdb-(){      . $(env-home)/graphics/gvdb/gvdb.bash && gvdb-env $* ; }
+svn2git-(){      . $(env-home)/adm/svn2git.bash && svn2git-env $* ; }

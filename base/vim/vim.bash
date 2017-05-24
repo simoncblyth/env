@@ -98,6 +98,23 @@ String replacement in all files containing the string::
 Regexp Replace
 ---------------
 
+
+vim substitute tips
+~~~~~~~~~~~~~~~~~~~~~
+
+* http://vim.wikia.com/wiki/Search_and_replace
+
+
+vim substitute this line only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+::
+
+   :s/cls/self/g
+
+
+
 enum into switch
 ~~~~~~~~~~~~~~~~~~
 
