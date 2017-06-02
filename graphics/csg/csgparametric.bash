@@ -26,6 +26,14 @@ Overview
   node of the CSG tree 
 
 
+Adaptive Mesh Booleans, Autodesk Research
+--------------------------------------------
+
+* https://arxiv.org/pdf/1605.01760.pdf
+* ~/opticks_refs/Adaptive_Mesh_Booleans_Autodesk_Research_1605.01760.pdf
+
+
+
 Boolean Operations with Implicit and Parametric Representation of Primitives Using R-Functions
 ------------------------------------------------------------------------------------------------
 

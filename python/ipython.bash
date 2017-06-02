@@ -74,6 +74,65 @@ Commands::
 
 
 
+ipython bash
+---------------
+
+* https://stackoverflow.com/questions/15927142/execute-bash-command-from-ipython
+
+* https://ipython.org/ipython-doc/3/interactive/magics.html
+
+via file is easier
+~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    rip(){ local fnpy=$1 ; local py=$TMP/$fnpy.py ; $fnpy > $py ;  ipython --profile=g4opticks -i $py ; }
+
+    simon:opticks blyth$ rip tgltf-gdml--     # start ipython with the python script produced by the argument bash function
+
+
+
+
+Cell magics
+~~~~~~~~~~~~~
+
+::
+
+    %%bash
+    %%bash script magic
+
+    Run cells with bash in a subprocess.
+
+    This is a shortcut for %%script bash
+
+
+::
+
+    In [6]: %%bash
+       ...: source ~/.bash_profile
+       ...: tgltf-
+       ...: tgltf-gdml--     ## bash function that pipes some python
+       ...: 
+
+    import os, logging, sys, numpy as np
+    log = logging.getLogger(__name__)
+    ...
+
+
+    In [9]: %%bash --out b
+    source ~/.bash_profile ; tgltf- ; tgltf-gdml--
+       ...: 
+
+    In [10]: print b
+
+    import os, logging, sys, numpy as np
+
+    log = logging.getLogger(__name__)
+
+
+
+
+
 plotly
 -------
 

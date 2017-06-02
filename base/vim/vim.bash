@@ -95,6 +95,64 @@ String replacement in all files containing the string::
 
 
 
+
+How to paste a column in blockwise (rather than tedious linewise fashion) using VISUAL BLOCK 
+---------------------------------------------------------------------------------------------
+
+* https://stackoverflow.com/questions/9120552/how-do-i-paste-a-column-of-text-after-a-different-column-of-text-in-vim
+
+
+TIPS:
+
+* make sure there are spaces on the last line of the block to cover the 
+  entire maximum width of what you want to cut/paste
+
+* VISUAL-BLOCK (ctrl-v) is not the same as the usual VISUAL (v) mode
+
+
+::
+
+    Names                
+    Donald Knuth
+    Sebastian Thrun
+    Peter Norvig
+    Satoshi Nakamoto
+
+    Age
+    100
+    50
+    60
+    45
+
+
+    Names                    Age 
+    Donald Knuth             100
+    Sebastian Thrun          50
+    Peter Norvig             60
+    Satoshi Nakamoto         45
+
+
+
+1. Yank it in visual mode:
+
+   * Move cursor to the beginning of Age
+   * Press Ctrl + v to enter *VISUAL BLOCK* mode 
+     (a rectangular block should highlight, that you adjust via cursor positioning)  
+   * Move cursor to 5 in 45
+   * Press y to yank (or d to delete), you have now yanked in visual mode.
+
+2. Paste (in normal mode)
+
+   * Move to the end of the first line and add more spaces because it's shorter than the second line for example. 
+     If you paste a "block" without adding extra spaces, it will overwrite the "run" in Sebastian Thrun.
+
+   * Now you're on the first line, insert a few spaces after the last character. 
+     Make sure you're not in insert mode and hit p to paste the block. (If you want to paste in insert mode, use ctrl+r ")
+
+
+
+
+
 Regexp Replace
 ---------------
 
@@ -103,6 +161,14 @@ vim substitute tips
 ~~~~~~~~~~~~~~~~~~~~~
 
 * http://vim.wikia.com/wiki/Search_and_replace
+
+
+add a parameter to a method call
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Note trying to escape the brackets prevents this from working::
+
+    :.,+20s/));/),epsilon);/g
 
 
 vim substitute this line only

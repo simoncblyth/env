@@ -58,6 +58,27 @@ CSG Thesis with set theory intro
 
 
 
+Hybrid Implicit/Parametric Polygonization
+--------------------------------------------
+
+
+Cutting and stitching meshes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://mesh.brown.edu/taubin/pdfs/Gueziec-etal-tvcg01.pdf
+* ~/opticks_refs/cutting_and_stitching_meshes_Gueziec-etal-tvcg01.pdf 
+
+Ref [4] from "Boolean Operations... " Fougerolle..
+
+* http://mrl.nyu.edu/~dzorin/papers/biermann2001abo.pdf
+* ~/opticks_refs/Approximate_Boolean_Operations_biermann2001abo.pdf
+
+
+* http://igg.unistra.fr/People/allegre/publications/SMI04/allegre-smi04.pdf
+* ~/opticks_refs/Hybrid_Shape_Representation_allegre-smi04.pdf
+
+
+
 CSG Book
 -----------
 
