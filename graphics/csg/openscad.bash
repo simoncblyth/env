@@ -19,9 +19,6 @@ user interface, CGAL for CSG evaluation, OpenCSG and OpenGL for CSG previews,
 as well as boost, eigen and glew.
 
 
-
-
-
 OpenSCAD2
 ------------
 
@@ -88,10 +85,9 @@ data.
 
 EOU
 }
-openscad-dir(){ echo $(local-base)/env/graphics/csg/graphics/csg-openscad ; }
+openscad-dir(){ echo $(local-base)/env/graphics/csg/openscad ; }
 openscad-cd(){  cd $(openscad-dir); }
-openscad-mate(){ mate $(openscad-dir) ; }
 openscad-get(){
    local dir=$(dirname $(openscad-dir)) &&  mkdir -p $dir && cd $dir
-
+   [ ! -d openscad ] && git clone https://github.com/openscad/openscad
 }

@@ -29,10 +29,13 @@ Current Interest in CSG scene description languages
 
 EOU
 }
-povray-dir(){ echo $(local-base)/env/graphics/povray/graphics/povray-povray ; }
+povray-dir(){ echo $(local-base)/env/graphics/povray ; }
 povray-cd(){  cd $(povray-dir); }
-povray-mate(){ mate $(povray-dir) ; }
 povray-get(){
    local dir=$(dirname $(povray-dir)) &&  mkdir -p $dir && cd $dir
 
+   [ ! -d povray ] && git clone https://github.com/POV-Ray/povray
+
 }
+
+povray-doc(){ open http://www.povray.org/documentation/3.7.0/t2_2.html ; }

@@ -10,7 +10,6 @@ CSG Parametric Approaches
 
 * :google:`CSG Parametric Solid Algorithm`
 
-
 Overview
 ----------
 
@@ -26,12 +25,175 @@ Overview
   node of the CSG tree 
 
 
+CGAL (GPL)
+--------------
+
+3D Boolean Operations on Nef Polyhedra
+
+* http://doc.cgal.org/latest/Nef_3/index.html
+
+
+quickcsg
+---------
+
+* http://kinovis.inrialpes.fr
+* http://kinovis.inrialpes.fr/quickcsg/
+* https://hal.inria.fr/hal-01121419
+* https://hal.inria.fr/hal-01121419/document
+* http://kinovis.inrialpes.fr/static/QuickCSG/
+* ~/opticks_refs/QuickCSG_Kinovis_RR-8687.pdf
+
+
+
+
+OpenSCAD : edge coincidence between sub-objects
+--------------------------------------------------
+
+* https://github.com/openscad/openscad/issues/131
+
+
+CNRG
+-----
+
+* http://www.cc.gatech.edu/~jarek/papers/CNRG.pdf
+* ~/opticks_refs/CSG_Non_Regularized_Jarek_Requicha_CNRG.pdf
+
+
+csg.js
+--------
+
+* http://evanw.github.io/csg.js/docs/
+
+
+Subtraction and intersection naturally follow from set operations.
+with ~ the complement operator.
+
+UNION
+     A | B
+
+SUBTRACTION
+     A - B 
+     ~(~A | B) 
+
+INTERSECTION  
+     A & B 
+     ~(~A | ~B)
+
+
+
+Cork
+-----
+
+* https://github.com/gilbo/cork
+
+
+CSG BBox ?
+-------------
+
+* :google:`CSG intersection bbox`
+
+
+
+
+Philip Rideout : pbrt plugin to perform CSG intersection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://prideout.net/archive/pbrt/csg.cpp
+
+
+CSG BSP
+----------
+
+* https://github.com/mkkellogg/CSG-BSP
+* https://github.com/dabroz/csgjs-cpp
+
+Moka
+-----
+
+* http://liris.cnrs.fr/moka/operations-architecture.php
+* http://moka-modeller.sourceforge.net/docs/librairies/html/boolean-operations_8hh.html
+
+
+MEPP
+-----
+
+.. mostly based on the Polyhedron type from CGAL ..
+
+* ~/opticks_refs/MEPP_Grapp_2012.pdf
+* https://liris.cnrs.fr/mepp/pdfs/MEPP_Grapp_2012.pdf
+
+
+* ~/opticks_refs/Exact_Efficient_Booleans_for_Polyhedra_Liris-4883.pdf
+* http://liris.cnrs.fr/Documents/Liris-4883.pdf
+
+
+
+
+
+Hybrid Booleans
+------------------
+
+* https://www.graphics.rwth-aachen.de/media/papers/boolean_021.pdf
+* ~/opticks_refs/Hybrid_Booleans_RWTH_boolean_021.pdf
+
+
+Mesh Matching
+--------------
+
+* http://imr.sandia.gov/papers/imr17/Staten.pdf
+
+
+Advancing Front
+-----------------
+
+* http://www.iue.tuwien.ac.at/phd/fleischmann/node39.html
+
+
+
+
+Afront (GPL)
+-------------------------
+
+* https://sourceforge.net/projects/afront/
+* http://afront.sourceforge.net
+
+Afront is a tool for meshing and remeshing surfaces. The main application of
+Afront is the generation of high-quality meshes from a variety of surface
+descriptions, from triangle meshes themselves (remeshing) to implicit surfaces
+to point set surfaces.
+
+Ear Clipping Triangulation
+---------------------------
+
+* :google:`mesh fill triangle fan`
+* https://computergraphics.stackexchange.com/questions/4741/turn-an-enclosed-region-into-a-triangle-mesh/4747
+* https://www.geometrictools.com/Documentation/TriangulationByEarClipping.pdf
+* ~/opticks_refs/TriangulationByEarClipping.pdf
+
+* https://www.geometrictools.com/GTEngine/Include/Mathematics/GteTriangulateEC.h
+* https://www.geometrictools.com/GTEngine/Include/Mathematics/GteTriangulateCDT.h
+
+* https://www.geometrictools.com/Source/ComputationalGeometry.html
+
+
+Marching Triangles
+--------------------
+
+* https://en.wikipedia.org/wiki/Delaunay_triangulation
+* http://fab.cba.mit.edu/classes/S62.12/docs/Hilton_marching_triangles.pdf
+* ~/opticks_refs/Hilton_marching_triangles.pdf
+
+* https://scicomp.stackexchange.com/questions/25875/is-the-marching-triangles-algorithm-guaranteed-to-terminate
+
+* http://www.graphicon.ru/html/2009/conference/se1/14/14_Paper.pdf
+* ~/opticks_refs/improved_marching_triangle_14_Paper.pdf
+
+
 Adaptive Mesh Booleans, Autodesk Research
 --------------------------------------------
 
 * https://arxiv.org/pdf/1605.01760.pdf
 * ~/opticks_refs/Adaptive_Mesh_Booleans_Autodesk_Research_1605.01760.pdf
-
 
 
 Boolean Operations with Implicit and Parametric Representation of Primitives Using R-Functions

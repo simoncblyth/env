@@ -13,6 +13,19 @@ CGAL : collection of geometry packages under GPL/LGPL
 * http://doc.cgal.org/latest/Manual/packages.html
 
 
+Repo
+-----
+
+* https://github.com/CGAL/cgal
+
+CGAL Subdiv
+-------------
+
+* https://github.com/CGAL/cgal/blob/master/Subdivision_method_3/include/CGAL/Subdivision_method_3/internal/subdivision_hosts_impl_3.h
+
+Refs
+------
+
 Halfedge Data Structures
     http://doc.cgal.org/latest/HalfedgeDS/index.html#Chapter_Halfedge_Data_Structures
 
@@ -31,10 +44,13 @@ Boost Graph Library (BGL)
 
 EOU
 }
-cgal-dir(){ echo $(local-base)/env/graphics/cgal/graphics/cgal-cgal ; }
+cgal-dir(){ echo $(local-base)/env/graphics/cgal ; }
 cgal-cd(){  cd $(cgal-dir); }
-cgal-mate(){ mate $(cgal-dir) ; }
 cgal-get(){
    local dir=$(dirname $(cgal-dir)) &&  mkdir -p $dir && cd $dir
 
+   [ ! -d cgal ] && git clone https://github.com/CGAL/cgal 
+
 }
+cgal-doc(){ open http://doc.cgal.org/latest/Manual/installation.html ; }
+

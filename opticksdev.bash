@@ -105,6 +105,27 @@ cmakecheck-
     testing CMake config
 
 
+
+Checking Green Field Opticks Installation
+--------------------------------------------
+
+* add to ~/.bash_profile a temporary envvar, export OPTICKS_GREENFIELD_TEST=1
+
+This changes the result of opticks-prefix, so can test geenfield building 
+into a day stamped folder.
+
+
+::
+
+    simon:~ blyth$ opticks-prefix
+    /usr/local/opticks
+    simon:~ blyth$ OPTICKS_GREENFIELD_TEST= opticks-prefix
+    /usr/local/opticks
+    simon:~ blyth$ OPTICKS_GREENFIELD_TEST=1 opticks-prefix
+    /usr/local/opticks20170612
+
+
+
 How to update an external to Opticks
 --------------------------------------
 

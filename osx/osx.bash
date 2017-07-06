@@ -12,6 +12,13 @@ console login
 Password:">console"
 
 
+Shortcuts
+----------
+
+invert colors : ctrl-option-cmd-8
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Using functions via sudo su 
 ------------------------------
 
@@ -237,6 +244,14 @@ osx_ss_copy(){
    cp "$(osx_ss)" $name.png
    downsize.py $name.png
 }
+
+osx_ss_copy_invert(){
+   local name=$1
+   cp "$(osx_ss)" $name.png
+   downsize_invert.py $name.png
+}
+
+
 
 osx_ss_cp(){
    local msg="=== $FUNCNAME :"

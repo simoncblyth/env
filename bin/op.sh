@@ -71,6 +71,7 @@ op-binary-name()
        --resource) echo OpticksResourceTest ;;
         --opticks) echo OpticksTest ;;
           --pybnd) echo GBndLibTest.py ;;
+         --pygdml) echo tgltf_gdml.py ;;
              --mm) echo GMergedMeshTest ;;
         --testbox) echo GTestBoxTest ;;
          --geolib) echo GGeoLibTest ;;

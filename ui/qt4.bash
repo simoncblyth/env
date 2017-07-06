@@ -17,6 +17,55 @@ QT4
 Installs
 ---------
 
+
+D
+~~
+
+June 9, 2017 
+
+macports install, many "didnt change anything" warnings 
+
+   ~/macports/qt4-mac-jun9-2017.log 
+
+::
+
+    001 Last login: Fri Jun  9 12:28:30 on ttys001
+      2 simon:~ blyth$ sudo port install qt4-mac +debug
+      3 Password:
+      4 Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+      5 --->  Fetching archive for libiconv
+    ...
+    423 --->  Some of the ports you installed have notes:
+    424   dbus has the following notes:
+    425     ############################################################################
+    426     # Startup items have been generated that will aid in
+    427     # starting dbus with launchd. They are disabled
+    428     # by default. Execute the following commands to start them,
+    429     # and to cause them to launch at startup:
+    430     #
+    431     # sudo launchctl load -w
+    432     /Library/LaunchDaemons/org.freedesktop.dbus-system.plist
+    433     # launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist
+    434     ############################################################################
+    435 simon:~ blyth$
+
+::
+
+    simon:~ blyth$ port contents qt4-mac | grep .app/Contents/Info.plist
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+      /Applications/MacPorts/Qt4/Assistant.app/Contents/Info.plist
+      /Applications/MacPorts/Qt4/Designer.app/Contents/Info.plist
+      /Applications/MacPorts/Qt4/Linguist.app/Contents/Info.plist
+      /Applications/MacPorts/Qt4/QMLViewer.app/Contents/Info.plist
+      /Applications/MacPorts/Qt4/pixeltool.app/Contents/Info.plist
+      /Applications/MacPorts/Qt4/qdbusviewer.app/Contents/Info.plist
+      /Applications/MacPorts/Qt4/qhelpconverter.app/Contents/Info.plist
+      /Applications/MacPorts/Qt4/qttracereplay.app/Contents/Info.plist
+
+
+
+
+
 N
 ~~
 
@@ -236,4 +285,10 @@ qt4-docs(){
   cd `apache-htdocs`
   sudo ln -sf /opt/local/share/doc/qt4/html qt4
 }
+
+
+# macports 
+
+qt4-html(){ open /opt/local/libexec/qt4/share/doc/html/index.html ; }
+
 

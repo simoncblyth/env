@@ -193,6 +193,7 @@ enum into string consts
 
 Replace enum codes starting ERROR in the next 10 lines with string consts::
 
+    .,+10s/\s*\(FIND\w*\).*$/static const char* \1_ = "\1" ;/gc
     .,+10s/\s*\(ERROR\w*\).*$/static const char* \1_ = "\1" ;/gc
 
 For example replacing::

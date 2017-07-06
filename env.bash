@@ -1897,3 +1897,8 @@ yoctogl-(){      . $(env-home)/graphics/yoctogl/yoctogl.bash && yoctogl-env $* ;
 sympy-(){      . $(env-home)/npy/sympy/sympy.bash && sympy-env $* ; }
 gvdb-(){      . $(env-home)/graphics/gvdb/gvdb.bash && gvdb-env $* ; }
 svn2git-(){      . $(env-home)/adm/svn2git.bash && svn2git-env $* ; }
+csgbsp-(){      . $(env-home)/graphics/csg/csgbsp/csgbsp.bash && csgbsp-env $* ; }
+csgbbox-(){      . $(env-home)/graphics/csg/csgbbox.bash && csgbbox-env $* ; }
+carve-(){      . $(env-home)/graphics/csg/carve.bash && carve-env $* ; }
+libcaca-(){      . $(env-home)/graphics/txt/libcaca.bash && libcaca-env $* ; }
+gts-(){      . $(env-home)/graphics/gts/gts.bash && gts-env $* ; }

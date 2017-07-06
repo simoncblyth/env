@@ -1,9 +1,9 @@
 *simoncblyth.bitbucket.io*
 ===========================
 
-* http://bitbucket.io/simoncblyth
-* https://bitbucket.io/simoncblyth/env/commits/all
-* https://bitbucket.io/simoncblyth/opticks/commits/all
+* http://bitbucket.org/simoncblyth
+* https://bitbucket.org/simoncblyth/env/commits/all
+* https://bitbucket.org/simoncblyth/opticks/commits/all
 
 
 Opticks Videos

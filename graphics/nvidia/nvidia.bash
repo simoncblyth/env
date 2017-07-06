@@ -42,6 +42,44 @@ Thoughts
 
 * https://gpunerd.com/external-gpu-buyers-guide-egpu
 * https://9to5mac.com/2017/04/11/hands-on-powering-the-macbook-pro-with-an-egpu-using-nvidias-new-pascal-drivers/
+* https://9to5mac.com/2017/04/19/akitio-node-gtx-1080-ti-gpu-macbook-pro-gaming-egpu/
+
+
+NVIDIA Pascal Drivers for Mac OS
+---------------------------------
+
+* http://www.anandtech.com/show/11254/nvidia-to-release-pascal-drivers-for-macos
+
+
+Apple External GPU (WWDC June 2017)
+-------------------------------------
+
+APPLE TO SUPPORT EXTERNAL GRAPHICS CARD ENCLOSURES ON MACBOOK PROS, IMACS
+
+* https://www.digitaltrends.com/computing/apple-external-graphics-card-enclosure-support-soon/
+
+* http://appleinsider.com/articles/17/06/06/apple-egpu-dev-kit-requires-external-monitor-nothing-unique-about-graphics-card-or-enclosure
+
+Apple has started taking orders for its external GPU developer's kit for
+examination with macOS High Sierra, but the Apple software available to the
+wider user base until spring 2018, as released still has major caveats, and
+mandates an external monitor or VR kit for use.
+
+
+
+
+Apple Metal 2 External Graphics Development Kit  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://egpu.io/forums/thunderbolt-enclosures/apple-metal-2-external-graphics-development-kit/
+
+* Sonnet Breakaway Box enclosure
+* AMD Radeon RX 580 GPU
+* Belkin USB-C to 4-port USB-A hub
+
+
+
+
 
 
 G-Sync

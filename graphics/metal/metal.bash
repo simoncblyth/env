@@ -8,6 +8,54 @@ metal-usage(){ cat << EOU
 Metal : close to the metal OpenGL ES alternative on iOS and OSX
 =================================================================
 
+Metal 2 (WWDC June 2017)
+---------------------------
+
+* https://developer.apple.com/metal/
+
+External Graphics Development Kit
+----------------------------------
+
+* https://developer.apple.com/development-kit/external-graphics/
+
+macOS High Sierra brings support for external graphics processors to the Mac
+for the first time. The External Graphics Development Kit enables you to
+develop and test demanding graphics-intensive apps, including VR content
+creation, on any Mac with Thunderbolt 3 connectivity.
+
+Apps that use Metal, OpenCL, and OpenGL can now take advantage of the increased
+performance that external graphics processors can bring. The External Graphics
+Development Kit includes everything you need to start optimizing advanced VR
+and 3D apps on external graphics processors with macOS High Sierra.
+
+
+* Sonnet external GPU chassis with Thunderbolt 3 and 350W power supply
+* AMD Radeon RX 580 8GB graphics card
+* Belkin USB-C to 4-port USB-A hub
+* Promo code for $100 towards the purchase of HTC Vive VR headset**
+
+
+* The External Graphics Development Kit requires a Mac with Thunderbolt 3 running 
+  the latest beta version of macOS High Sierra.
+
+
+Thunderbolt 3
+~~~~~~~~~~~~~~~
+
+* https://support.apple.com/en-us/HT207256
+
+MacBook Pro models introduced in 2016 feature Thunderbolt 3 (USB-C) ports that
+let you connect devices and displays, charge your computer, and provide power
+to connected devices—all through one simple, compact USB-C connector.
+
+MacBook Pro (15-inch, 2016), MacBook Pro (13-inch, 2016, Four Thunderbolt 3
+Ports), and MacBook Pro (13-inch, 2016, Two Thunderbolt 3 Ports) come equipped
+with Thunderbolt 3, an I/O technology that connects devices to your computer at
+speeds up to 40 Gbps. Thunderbolt 3 combines data transfer, video output, and
+charging capabilities in a single, compact connector.
+
+
+
 
 Warren Moore
 -------------
