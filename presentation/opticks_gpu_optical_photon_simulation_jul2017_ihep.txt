@@ -86,6 +86,14 @@
              margin: 1em 0;
         }
 
+        pre.mypretiny {
+             display: block;
+             font-family: monospace;
+             font-size: 15px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
         pre.myfoot {
              display: block;
              font-family: monospace;
@@ -643,12 +651,258 @@
 
 .. class:: large
 
-   :red:`Classical approach not appropriate for GPU`
+   :red:`Classical approach not appropriate on GPU`
 
    
 
+:small:`Ray Tracing CSG Objects Using Single Hit Intersections (A. Kensler) [*]`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Outside/Inside Unions
+
+    .. class:: small
+
+       normal.rayDir -> Enter/Exit
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
+       :width: 300px
+       :align: center
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_inside.png
+       :width: 300px
+       :align: center
+
+    .. class:: small
+
+        * **A + B** boundary not inside other 
+        * **A * B** boundary inside other 
 
 
+.. class:: small
+
+   * Classify A,B intersects, Enter/Exit/Miss
+   * state(A,B) -> action
+   * LoopA : tMinA->tA, re-intersectA, re-classifyA (ditto LoopB)
+ 
+   ===============  ===========  ============  ============== 
+   Union, tA < tB     Enter B     Exit B        Miss B
+   ===============  ===========  ============  ==============
+   **Enter A**        ReturnA      LoopA        ReturnA
+   **Exit A**         ReturnA      ReturnB      ReturnA 
+   **Miss A**         ReturnB      ReturnB      ReturnMiss
+   ===============  ===========  ============  ==============
+
+   ===============  ===========  ============  ============== 
+   Union, tB < tA     Enter B     Exit B        Miss B
+   ===============  ===========  ============  ==============
+   **Enter A**        ReturnB      ReturnB      ReturnA
+   **Exit A**         LoopB        ReturnA      ReturnA 
+   **Miss A**         ReturnB      ReturnB      ReturnMiss
+   ===============  ===========  ============  ==============
+
+
+.. class:: small
+
+   :blue:`Recursive CSG tree python prototype of Kensler pseudocode worked after state table corrections/extensions`
+
+   * BUT GPU/OptiX demands: :red:`no recursion in intersect program`  
+
+.. class:: tiny
+
+    [*] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
+  
+
+
+:small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Bit Twiddling Navigation
+
+    .. class:: small
+
+        * parent(i) = i/2 
+
+        * leftchild(i) = 2*i 
+
+        * rightchild(i) = 2*i + 1
+
+        * leftmost(height)  =  1 << height
+
+
+.. class:: small
+
+    CSG Tree, leaf node primitives, internal node operators, 4x4 transforms on any node, 
+    serialized as :blue:`complete binary tree`:
+ 
+    * bit twiddling navigation :red:`avoids recursion`
+    * no need to deserialize
+    * no child/parent pointers
+    * BUT: very inefficient when unbalanced 
+
+    **Height 3 complete binary tree with level order indices:**
+.. raw:: html
+
+    <pre class="mypre">
+                                                       depth     elevation
+
+                         1                               0           3   
+
+              10                   11                    1           2   
+
+         100       101        110        111             2           1   
+                        
+     1000 1001  1010 1011  1100 1101  1110  1111         3           0   
+    </pre>
+    <hr/>
+
+.. class:: small
+
+    **postorder_next(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) ;**   // from pattern of bits
+ 
+.. class:: tiny
+
+   Postorder tree traverse visits all nodes, starting from leftmost, such that children 
+   are visited prior to their parents.
+
+
+:small:`Evaluative CSG Intersection Implementation`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+
+    Implementation based around two small stacks containing:
+
+    *tranches* 
+         begin/end indices slicing the full postorder traversal
+
+    *float4 intersects*
+         normals, parametric t, left/right label
+
+    Nested while loops over tranches and nodes
+    provide the same traversal order as recursion does
+    but without the memory expense.
+
+    Loop actions with advanced tmin for a sub-object require 
+    revisiting subtrees as changed tmin totally chances the 
+    intersects.
+
+
+.. class:: tiny
+
+    Parallels to binary expression tree evaluation techniques inspired the *Evaluative CSG* implementation.
+
+
+
+:small:`Iterative CSG intersection Pseudo-code`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    // pseudocode corresponding to opticks/oxrap/cu/csg_intersect_boolean.h:evaluative_csg
+    fullTree = PACK( 1 << height, 1 >> 1 )  // leftmost, parent_of_root(=0) 
+    tranche.push(fullTree, ray.tmin) 
+
+    while (!tranche.empty)
+    {
+        begin, end, tmin <- tranche.pop
+        node <- begin ;
+
+        while( node != end )
+        {
+            elevation = height - TREE_DEPTH(node) ;
+            if(is_primitive(node)){ isect <- intersect_primitive(node, tmin) ;  csg.push(isect) }
+            else{
+                i_left, i_right = csg.pop, csg.pop 
+                l_state = CLASSIFY(i_left, ray.direction, tmin)
+                r_state = CLASSIFY(i_right, ray.direction, tmin)
+                action = LUT(operator(node), leftIsCloser)(l_state, r_state) 
+
+                if(      action is ReturnLeft/Right)     csg.push(i_left or i_right)
+                else if( action is LoopLeft/Right)
+                {
+                    left = 2*node ; right = 2*node + 1 ; 
+                    endTranche = PACK( node,  end );
+                    leftTranche = PACK(  left << (elevation-1), right << (elevation-1) )
+                    rightTranche = PACK(  right << (elevation-1),  node  )
+                    loopTranche = action ? leftTranche : rightTranche
+
+                    tranche.push(endTranche, tmin)
+                    tranche.push(loopTranche, tminAdvanced )
+                    break ; // to next tranche
+                }
+            }
+            node <- postorder_next(node, elevation) 
+        }
+    } 
+    isect = csg.pop(); // winning intersect 
+    </pre>
+
+
+
+
+
+
+:small:`Implicit Geometry with Signed Distance Functions (SDF) and R-function composition`
+--------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    SDF(x,y,z) distance to solid surface, -ve/0/+ve : inside/on/outside
+
+    CSG composable using R-functions, eg **min** and **max**
+
+    * SDF(Union(A,B)) ~ min(SDF(A),SDB(B))
+    * SDF(Intersection(A,B)) ~  max(SDF(A),SDF(B))
+    * SDF(Difference(A,B)) ~ max(SDF(A),-SDF(B))
+
+    Recursive application of these combinations within CSG node trees
+    yield implicit function representations.
+
+
+.. class:: tiny 
+
+     R(Rvachev)-functions sign uniquely determined by argument signs -> R-functions parallel CSG operations
+
+
+
+:small:`Advantages of fully analytic geometry`
+-------------------------------------------------
+
+.. class:: small
+
+
+    * Geometry equivalence within numerical precision between Geant4 and Opticks on the GPU.
+
+    * Automated translation of Geant4 detector geometries into a GPU suitable form.
+
+    * Drastically simplified Opticks adoption, due to automated geometry translation.
+
+    * Allows Opticks to operate from Geant4 standard GDML files rather than tessellated G4DAE.
+
+
+
+
+:small:`Scratch`
+-------------------------------------------------------
+
+
+.. image:: /env/presentation/kensler_union_state_table.png
+   :width: 670px
+   :align: center
+
+.. image:: /env/presentation/kensler_union_action_table.png
+   :width: 400px
+   :align: left
+
+
+.. class:: tiny
+
+    Extended to complemented solids using : Miss -> Exit, never closer + flip normals
+
+    * implementation currently limited to height <= 7, maximum 255 nodes
 
 
 
