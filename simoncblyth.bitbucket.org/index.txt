@@ -33,8 +33,18 @@ Opticks Videos
 Opticks Presentations 
 ----------------------
 
-Early 2017
-~~~~~~~~~~~~
+Mid 2017 : moving to fully analytic geometry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2017_ihep.html (July 2017, Beijing)
+
+    JUNO Collaboration Meeting, IHEP, Beijing, China
+
+    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
+
+Early 2017 : optical simulation validated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jan2017_psroc.html (17 Jan 2017, Taipei)
 
@@ -43,8 +53,8 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
     Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
 
 
-Late 2016
-~~~~~~~~~~~~
+Late 2016 : optical simulation validated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html (2 Dec 2016, Paris)

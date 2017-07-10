@@ -25,6 +25,25 @@ Lists of SDFs
 * https://github.com/marklundin/glsl-sdf-primitives
 
 
+
+cylinder Deltaphi segment with SDF ?
+--------------------------------------
+
+* CSG max to intersect cylinder with two segment planes thru origin
+
+
+https://github.com/marklundin/glsl-sdf-primitives/blob/master/sdTriPrism.glsl
+
+::
+
+    float sdTriPrism( vec3 p, vec2 h )
+    {
+        vec3 q = abs(p);
+        return max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5);
+    }
+
+
+
 Bloomenthal on Implicit surfaces: understandable intro to math foundations
 -----------------------------------------------------------------------------
 

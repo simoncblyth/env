@@ -19,6 +19,15 @@ Breakpoints
     (lldb) br en 1
     1 breakpoints enabled.
 
+
+Setting Environment
+---------------------
+
+::
+
+     (lldb) env DYLD_INSERT_LIBRARIES=/usr/lib/libgmalloc.dylib
+
+
 Introspection
 ---------------
 

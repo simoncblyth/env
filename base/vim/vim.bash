@@ -180,6 +180,13 @@ vim substitute this line only
    :s/cls/self/g
 
 
+switch case into else if 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+   :.,+20s/\s*case \(\S*\):\s*$/else if(node->type == \1)/gc 
+
 
 enum into switch
 ~~~~~~~~~~~~~~~~~~

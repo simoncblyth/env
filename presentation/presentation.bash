@@ -8,11 +8,10 @@ presentation-usage(){ cat << EOU
 Presentation preparation
 ============================
 
-
 Presentations online
 ----------------------
 
-* http://simoncblyth.bitbucket.org
+* http://simoncblyth.bitbucket.io
 
 Workflow
 -----------
@@ -404,7 +403,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo jnu_cmake_ctest ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_oct2016_chep ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_nov2016_llr ; }
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_jan2017_psroc ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jan2017_psroc ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
 
 
 presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
