@@ -766,57 +766,24 @@
    are visited prior to their parents.
 
 
-:small:`Evaluative CSG Intersection Implementation`
--------------------------------------------------------------------------------------------------
-
-.. class:: small
-
-
-    Implementation based around two small stacks containing:
-
-    *tranches* 
-         begin/end indices slicing the full postorder traversal
-
-    *float4 intersects*
-         normals, parametric t, left/right label
-
-
-    Nested stack popping while loops over tranches and nodes
-
-    * :red:`duplicate recursive traverses without using recursion`
-
-    Loop actions with advanced tmin for a subtree
-
-    * re-traversal via pushing tranches onto stack  
-
-
-
-.. class:: tiny
-
-    Parallels to binary expression tree evaluation techniques inspired the *Evaluative CSG* implementation.
-
-
-:small:`Evaluative CSG intersection Pseudo-code`
+:small:`Evaluative CSG intersection Pseudocode : recursion emulated`
 -------------------------------------------------------------------------------------------------
 
 .. raw:: html 
 
     <pre class="mypretiny">
-    // pseudo-code summary of opticks/oxrap/cu/csg_intersect_boolean.h:evaluative_csg
     fullTree = PACK( 1 << height, 1 >> 1 )  // leftmost, parent_of_root(=0) 
     tranche.push(fullTree, ray.tmin) 
 
-    while (!tranche.empty)
+    while (!tranche.empty)        <b><span class="alarm"> // stack of begin/end indices </span></b>
     {
-        begin, end, tmin <- tranche.pop
-        node <- begin ;
-
-        while( node != end )
+        begin, end, tmin <- tranche.pop  ; node <- begin ;
+        while( node != end )                  <b><span class="alarm"> // over tranche of postorder traversal </span></b>
         {
             elevation = height - TREE_DEPTH(node) ;
             if(is_primitive(node)){ isect <- intersect_primitive(node, tmin) ;  csg.push(isect) }
             else{
-                i_left, i_right = csg.pop, csg.pop 
+                i_left, i_right = csg.pop, csg.pop          <b><span class="alarm">  // csg stack of intersect normals, t </span></b>
                 l_state = CLASSIFY(i_left, ray.direction, tmin)
                 r_state = CLASSIFY(i_right, ray.direction, tmin)
                 action = LUT(operator(node), leftIsCloser)(l_state, r_state) 
@@ -829,17 +796,22 @@
                     leftTranche = PACK(  left << (elevation-1), right << (elevation-1) )
                     rightTranche = PACK(  right << (elevation-1),  node  )
                     loopTranche = action ? leftTranche : rightTranche
-
-                    tranche.push(endTranche, tmin)
-                    tranche.push(loopTranche, tminAdvanced )
+                                                     
+                    tranche.push(endTranche, tmin)     
+                    tranche.push(loopTranche, tminAdvanced ) <b><span class="alarm"> // subtree re-traversal with changed tmin </span></b> 
                     break ; // to next tranche
                 }
             }
-            node <- postorder_next(node, elevation) 
+            node <- postorder_next(node, elevation)        <b><span class="alarm"> // bit twiddling postorder </span></b>
         }
     } 
-    isect = csg.pop(); // winning intersect 
+    isect = csg.pop();       <b><span class="alarm">  // winning intersect  </span></b>
     </pre>
+
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+
 
 
 
@@ -931,8 +903,59 @@
 
 
 
-:small:`Opticks CSG Primitives : Line Up Parade (TODO)`
+:small:`Opticks CSG Primitives On Parade`
 -------------------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/tboolean_parade.png
+   :width: 1000px
+   :align: center
+
+.. class:: small
+
+   Three on right (Trapezoid, Segment, Icosahedron) all represented by planes with **nconvexpolyhedron** 
+
+
+
+:small:`Opticks CSG Serialized into OpticksCSG format (numpy buffers, json)`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+ 
+    // tboolean-parade
+
+    from opticks.ana.base import opticks_main
+    from opticks.analytic.csg import CSG  
+            
+    args = opticks_main(csgpath="$TMP/$FUNCNAME")
+
+    container = CSG("box", param=[0,0,0,1200], boundary=args.container, poly="MC", nx="20" )
+
+    a = CSG("sphere", param=[0,0,0,100]) 
+    b = CSG("zsphere", param=[0,0,0,100], param1=[-50,60,0,0]) 
+    c = CSG("box3",param=[100,50,70,0]) 
+    d = CSG("box",param=[0,0,10,50])
+    e = CSG("cylinder",param=[0,0,0,100], param1=[-100,100,0,0])
+    f = CSG("disc",param=[0,0,0,100], param1=[-1,1,0,0])
+    g = CSG("cone", param=[100,-100,50,100])
+    h = CSG.MakeTrapezoid(z=100, x1=80, y1=100, x2=100, y2=80)
+    i = CSG.MakeSegment(phi0=0,phi1=45,sz=100,sr=100)
+    j = CSG.MakeIcosahedron(scale=100.)
+
+    prims = [a,b,c,d,e,f,g,h,i,j]
+
+    ...  // setting translations 
+
+    CSG.Serialize([container] + prims, args.csgpath )   <b><span class="alarm">  <-- write trees to file </span></b>
+    </pre>
+
+    
+.. class:: small
+
+    * imported into C++ **nnode** tree by **NCSG**
+
+
 
 
 :small:`Opticks CSG : Balancing Deep Trees Drastically Improves Performance`
@@ -1004,6 +1027,111 @@
 .. image:: /env/presentation/lvidx_57_esr_deep_tree_disc_with_holes.png
    :width: 1000px
    :align: center
+
+
+:small:`Subtraction of thin CSG_CYLINDER -> speckle in the  hole`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   CSG_DISC implemented to handle disc like cylinders : intersects at middle (z1+z2)/2 and offsets, :red:`avoids issue`
+
+.. image:: /env/opticks_refs/speckle_lvTopESR.png
+   :width: 600px
+   :align: left
+
+.. image:: /env/opticks_refs/tboolean_esr_speckle_centered_on_pole_delta_10-3.png
+   :width: 500px
+   :align: right
+
+
+:small:`Coincident Faces are Primary Cause of Issues : Fake Intersects`
+-------------------------------------------------------------------------------------------------
+
+.. sidebar:: Cylinder - Cone 
+
+    .. class:: small
+
+       Coincident endcaps -> issue 
+
+    .. image:: /env/opticks_refs/lvidx_83_tbool_coincidence_artifact_at_cylinder_base.png
+       :width: 450px
+       :align: center
+
+    .. class:: small
+
+       Grow subtracted cone downwards, avoids coincidence : **does not change composite solid**
+
+.. class:: small
+
+    Coincidences common (alignment too tempting?). To fix:
+
+    * **A-B** : grow correct dimension of subtracted shape
+    * **A+B** : grow smaller interface shape into bigger, making join
+
+    Automated uncoincidence finder/fixer in operation, needs work
+
+    .. image:: /env/opticks_refs/opticks_tscan_29_nzero_5_OcrGdsPrt.png
+       :width: 500px
+       :align: left
+
+
+
+:small:`Full Analytic Geometry Translation Workflow`
+-------------------------------------------------------------------------------------------------
+
+
+.. sidebar:: 3D Formats : G4DAE, GDML, OpticksCSG, glTF 
+
+    .. class:: small
+
+        G4DAE
+            approximate G4 triangulated geometry, includes all material/surface optical properties
+
+        GDML
+            analytic G4 geometry 
+
+        OpticksCSG
+            numpy buffers of nodes, transforms, planes, json metadata 
+
+        glTF
+            json node tree referring to OpticksCSG extras for each solid 
+
+
+
+.. class:: small
+
+    General CSG ray tracing on GPU allows operation from GDML files
+
+
+    **gdml2gltf.py  (opticks.analytic.sc)**
+
+    * wraps GDML in python
+    * translates G4 solids into OpticksCSG 
+    * collects structure into glTF scene tree
+    * scene tree refers to OpticksCSG solids as extras
+    * writes OpticksCSG for each solid together with glTF to file
+
+    **NScene**
+
+    * loads glTF structure into **nd** scene tree
+
+    **NCSG**
+
+    * loads OpticksCSG into **nnode** trees for each solid
+
+    **GScene/OScene**
+
+    * converts into OptiX GPU buffers  
+
+
+.. class:: tiny
+
+    glTF : (GL Transmission Format) "JPEG of 3D"), efficient transmission and loading of 3D scenes and models,
+    https://www.khronos.org/gltf
+
+
+
 
 
 
@@ -1195,6 +1323,17 @@
         (*) Windows VS2015, non-CUDA only so far  
 
 
+
+:small:`Debugging Coincident Subtractions`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   Switching subtraction into union with complemented -> can see whats subtracted.
+
+.. image:: /env/opticks_refs/lvidx_69_ring_box_cuts_artifact.png
+   :width: 900px
+   :align: center
 
 
 :i:`YouTube Video`
