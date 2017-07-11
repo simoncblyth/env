@@ -412,6 +412,8 @@ presentation-export(){
    export PRESENTATION_NAME=$(presentation-name)
 }
 presentation-edit(){ vi $(presentation-path) ; }
+presentation-ed(){ vi $(presentation-path) ~/workflow/admin/reps/ntu-report-may-2017.rst ; }
+
 presentation-make(){
    presentation-cd
    presentation-export

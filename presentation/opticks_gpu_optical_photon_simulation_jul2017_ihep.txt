@@ -662,7 +662,7 @@
 
     .. class:: small
 
-       normal.rayDir -> Enter/Exit
+       dot(normal,rayDir) -> Enter/Exit
 
     .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
        :width: 300px
@@ -780,13 +780,15 @@
     *float4 intersects*
          normals, parametric t, left/right label
 
-    Nested while loops over tranches and nodes
-    provide the same traversal order as recursion does
-    but without the memory expense.
 
-    Loop actions with advanced tmin for a sub-object require 
-    revisiting subtrees as changed tmin totally chances the 
-    intersects.
+    Nested stack popping while loops over tranches and nodes
+
+    * :red:`duplicate recursive traverses without using recursion`
+
+    Loop actions with advanced tmin for a subtree
+
+    * re-traversal via pushing tranches onto stack  
+
 
 
 .. class:: tiny
@@ -794,14 +796,13 @@
     Parallels to binary expression tree evaluation techniques inspired the *Evaluative CSG* implementation.
 
 
-
-:small:`Iterative CSG intersection Pseudo-code`
+:small:`Evaluative CSG intersection Pseudo-code`
 -------------------------------------------------------------------------------------------------
 
 .. raw:: html 
 
     <pre class="mypretiny">
-    // pseudocode corresponding to opticks/oxrap/cu/csg_intersect_boolean.h:evaluative_csg
+    // pseudo-code summary of opticks/oxrap/cu/csg_intersect_boolean.h:evaluative_csg
     fullTree = PACK( 1 << height, 1 >> 1 )  // leftmost, parent_of_root(=0) 
     tranche.push(fullTree, ray.tmin) 
 
@@ -840,6 +841,169 @@
     isect = csg.pop(); // winning intersect 
     </pre>
 
+
+
+:small:`Opticks CSG Primitives : Closed Solids, Consistent Normals`
+-------------------------------------------------------------------------------------------------
+
+
+.. class:: small 
+
+   **Closed Solid** as: :blue:`implementation requires otherside intersect`, **Rigidly attached normals**
+
+
+.. class:: small 
+
+    ==========================  ===================   ==================
+     Type code                   Python name           C++ nnode sub-struct
+    ==========================  ===================   ==================
+     CSG_BOX3,CSG_BOX            box3,box              nbox
+     CSG_SPHERE,CSG_ZSPHERE      sphere,zsphere        nsphere,nzsphere
+     CSG_CYLINDER,CSG_DISC       cylinder,disc         ncylinder,ndisc
+     CSG_CONE                    cone                  ncone
+     CSG_CONVEXPOLYHEDRON        convexpolyhedron      nconvexpolyhedron
+     CSG_TRAPEZOID,CSG_SEGMENT   trapezoid,segment     nconvexpolyhedron
+    ==========================  ===================   ==================
+
+    
+    * **zsphere, cone, cylinder, disc** : truncated shapes **closed** by endcaps 
+
+    * **disc** : avoids endcap degeneracy with very thin cylinders
+
+    * **convexpolyhedron** : defined by a set of planes, used for trapezoid and segment
+
+    * **segment** :   prism shape used for deltaphi intersection
+
+    * **!complemented** (inside<->outside) solids handled by 
+      special casing classification (cannot miss otherside).
+
+
+    Non-primitives, :red:`high level CSG definition avoids loadsa code` 
+
+    * **ellipsoid** : non-uniform scaling of sphere,  **polycone** : union of cylinders and cones
+
+    * **inner-radii** : via subtraction, **deltaphi-segment** : via intersect with **segment**
+
+
+
+:small:`Opticks CSG Primitives : What they comprise`
+-------------------------------------------------------------------------------------------------
+
+
+.. sidebar:: OptiX Geometry
+
+    .. class:: small 
+
+         OptiX provides acceleration of geometrical intersection, not the intersection itself. 
+         
+         * parametric ray : **p(t) = p0 + t rayDir**
+         * implicit surface : **f(p) = 0** 
+
+         Intersect finding next closest root:
+
+         * smallest **t**, with **t > tmin** 
+         * surface normal at **t** 
+
+
+.. class:: small 
+    
+    OptiX/CUDA functions providing:
+
+    * axis aligned bounding box (AABB)
+    * intersect ray position (parametric t), surface normal 
+
+    C++/nnode sub-struct methods
+
+    * signed distance function (SDF)
+    * parametric surface generation 
+
+   
+    **Translation/rotation/scaling on any node**
+
+    Intersect inverse-transformed ray -> intersect in primitive frame
+
+    * parametric-t same in both frames
+    * normals, **n_world = transpose(invert(TRS)) n_model**   
+
+    Inverse transform transposed brings normal back to world frame
+
+    * **rayDir** NOT normalized
+
+
+
+:small:`Opticks CSG Primitives : Line Up Parade (TODO)`
+-------------------------------------------------------------------------------------------------
+
+
+:small:`Opticks CSG : Balancing Deep Trees Drastically Improves Performance`
+-------------------------------------------------------------------------------------------------
+
+.. sidebar:: Positive form CSG Trees
+
+   .. class:: small
+
+       Apply deMorgan pushing negations down tree 
+
+       * **A - B -> A * !B**
+       * **!(A*B) -> !A + !B**
+       * **!(A+B) -> !A * !B**
+       * **!(A - B) -> !(A*!B) -> !A + B**
+
+       End with only UNION, INTERSECT operators, 
+       and some complemented leaves.
+
+       :red:`COMMUTATIVE -> easily rearranged`
+
+
+.. class:: small
+
+   Intended for solids, not scenes (tree height <8, <256 nodes[*])
+
+   * unbalanced trees inefficiently handled as complete binary trees 
+   * CSG trees non-unique, many expressions of same shape
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    Dayabay TopESRCutHols lvidx:57  (height:9 totnodes:1023)
+    di(di(di(di(di(di(di(di(di(cy,cy),cy),cy),cy),cy),cy),cy),cy),cy)  
+
+                                                                        di    
+                                                                 di          cy
+                                                         di          cy        
+                                                 di          cy                
+                                         di          cy                        
+                                 di          cy                                
+                         di          cy                                        
+                 di          cy                                                
+         di          cy                                                        
+     cy      cy                                         
+
+
+    Balanced Tree, height:4 totnodes:31  
+    in(in(in(in(cy,!cy),in(!cy,!cy)),in(in(!cy,!cy),in(!cy,!cy))),!cy) 
+
+                                                                 in    
+                                 in                                 !cy
+                 in                              in                    
+         in              in              in              in            
+     cy     !cy     !cy     !cy     !cy     !cy     !cy     !cy        
+    </pre>
+
+
+.. class:: tiny
+
+   [*] Algorithm has no inherent height limit, but use of complete binary tree imposes practical performance limitation
+
+
+
+
+:small:`Dayabay ESR reflector : Deep CSG tree : disc with 9 holes`
+-------------------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/lvidx_57_esr_deep_tree_disc_with_holes.png
+   :width: 1000px
+   :align: center
 
 
 
@@ -887,15 +1051,6 @@
 
 :small:`Scratch`
 -------------------------------------------------------
-
-
-.. image:: /env/presentation/kensler_union_state_table.png
-   :width: 670px
-   :align: center
-
-.. image:: /env/presentation/kensler_union_action_table.png
-   :width: 400px
-   :align: left
 
 
 .. class:: tiny
