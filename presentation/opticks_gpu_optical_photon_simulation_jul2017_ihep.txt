@@ -486,8 +486,8 @@
 
 
 
-:small:`Summary at LLR Workshop (Nov 2016)`
---------------------------------------------
+:small:`Summary from LLR Workshop (Nov 2016)`
+----------------------------------------------
 
 .. sidebar:: Overview
 
@@ -497,6 +497,8 @@
       * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
       * :red:`photon propagation time --> zero`
       * :blue:`analytic geometry --> precise Geant4 match`
+      
+      * **NOTE THE "ANALYTIC" CAVEAT**
 
 
 .. image:: /env/presentation/1px.png
@@ -548,7 +550,6 @@
 
 .. class:: small 
 
-    CUDA : Ray intersection, bounding box -> OptiX
 
     **Geometry Status (Nov 2016)**
  
@@ -721,11 +722,11 @@
 
     .. class:: small
 
-        * parent(i) = i/2 
+        * parent(i) = i/2 = i >> 1 
 
-        * leftchild(i) = 2*i 
+        * leftchild(i) = 2*i = i << 1
 
-        * rightchild(i) = 2*i + 1
+        * rightchild(i) = 2*i + 1 = (i << 1) + 1
 
         * leftmost(height)  =  1 << height
 
@@ -838,7 +839,7 @@
     ==========================  ===================   ==================
 
     
-    * **zsphere, cone, cylinder, disc** : truncated shapes **closed** by endcaps 
+    * **zsphere, cone, cylinder, disc** : truncated shapes **closed** by endcaps :red:`<-- NOT OPTIONAL`
 
     * **disc** : avoids endcap degeneracy with very thin cylinders
 
@@ -903,7 +904,7 @@
 
 
 
-:small:`Opticks CSG Primitives On Parade`
+:small:`Opticks CSG Primitives On Parade (GPU raytrace)`
 -------------------------------------------------------------------------------------------------
 
 .. image:: /env/presentation/tboolean_parade.png
@@ -1069,7 +1070,7 @@
     * **A-B** : grow correct dimension of subtracted shape
     * **A+B** : grow smaller interface shape into bigger, making join
 
-    Automated uncoincidence finder/fixer in operation, needs work
+    Automated coincidence finder/fixer in operation, needs work
 
     .. image:: /env/opticks_refs/opticks_tscan_29_nzero_5_OcrGdsPrt.png
        :width: 500px
@@ -1127,7 +1128,7 @@
 
 .. class:: tiny
 
-    glTF : (GL Transmission Format) "JPEG of 3D"), efficient transmission and loading of 3D scenes and models,
+    glTF : (GL Transmission Format) "JPEG of 3D" : efficient transmission and loading of 3D scenes and models,
     https://www.khronos.org/gltf
 
 
@@ -1137,26 +1138,155 @@
 
 
 
-:small:`Implicit Geometry with Signed Distance Functions (SDF) and R-function composition`
+:small:`Signed Distance Function (SDF) Modelling`
 --------------------------------------------------------------------------------------------
+
+
+.. sidebar:: SDF definition
+
+    .. class:: small
+
+         SDF(q(x,y,z) distance to solid surface
+
+         * -ve : inside
+         * 0 : on surface
+         * +ve : outside
+
+         SDF Examples:
+
+         Sphere(center,radius) :  **length(q,center) - radius**
+         Plane(normal, dist) : **dot(normal,q) - dist** 
+     
 
 .. class:: small
 
-    SDF(x,y,z) distance to solid surface, -ve/0/+ve : inside/on/outside
 
-    CSG composable using R-functions, eg **min** and **max**
+    SDFs are composable using R-functions, eg **min** and **max**
 
     * SDF(Union(A,B)) ~ min(SDF(A),SDB(B))
     * SDF(Intersection(A,B)) ~  max(SDF(A),SDF(B))
     * SDF(Difference(A,B)) ~ max(SDF(A),-SDF(B))
+    * SDF(!A) ~ -SDF(A)
 
-    Recursive application of these combinations within CSG node trees
-    yield implicit function representations.
+    Recursively applicable to CSG trees 
 
+    * -> **implicit SDF for arbitrary CSG composite solid** 
+
+    Allows:
+
+    * analytic representation of arbitrary solid
+    * classification of point wrt solid
+    * polygonization by isosurface extraction -> fast OpenGL rasterized visualization
+    
+    :red:`SDFs extremely useful for geometry debugging` 
 
 .. class:: tiny 
 
-     R(Rvachev)-functions sign uniquely determined by argument signs -> R-functions parallel CSG operations
+     Rvachev-functions (R-functions) : sign uniquely determined by signs of arguments -> parallel CSG operations
+
+
+
+:small:`SDF Isosurface Extracted Polgonization Mesh with offset GPU raytrace`
+-----------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/tboolean_interlocked_gpuoffset.png
+   :width: 1000px
+   :align: center
+
+
+:small:`Various Polygonization Approaches`
+-----------------------------------------------------------------------------------------
+
+
+.. sidebar:: Polygonization that just works ?
+
+    .. class:: small
+
+        Not a solved problem, problems with some geometry
+
+        * very thin (eg PMT cathode) 
+        * combinations of shapes of different scales
+          
+
+.. class:: small
+
+
+    **Several Integrations of Open Source Polygonizations**
+
+    Marching Cubes
+         fill bbox with cubes, generate triangles for cubes with sign changes, 
+         fixed resolution (**miss features or too many tris**)
+
+    Dual Contouring 
+         multiresolution using octree (**slow, finnicky**) 
+
+    Implicit Mesher
+         finds and follows surface, fast, fixed resolution, (**needs help in finding**)
+
+    **My own attempt (WIP)**
+
+    Hybrid Mesher
+         combining SDF classification with parametric generation, (**complicated mesh joining**)
+
+ 
+
+
+:small:`Debugging the Translation to GPU Geometry`
+-----------------------------------------------------------------------------------------
+
+
+.. sidebar:: SDF zero scanning 
+
+   .. class:: small
+
+        Consider union of shapes
+
+        * coincident faces -> internal zeros (artifact surfaces)
+        * count SDF zeros along scanlines across geometry "cage" 
+
+          * even crossings -> expected
+          * odd crossings -> 
+
+
+
+
+.. class:: small
+
+
+    **Geometry Debugging using SDFs**    
+
+    * select points on solid surface from the primitives (composite SDF~0) -> *parsurf* bounding box  
+    * SDF zero scanning 
+    * classify child volume surface points against parent volume SDF (or v.v)
+
+
+    **Codegen C++ (nnode) and Python (CSG) Debugging Workflow**
+
+    
+
+
+   **Solid Level**
+
+
+   Bounding box comparisons
+
+   * eg G4Poly(via G4DAE) vs Opticks parametric surface 
+
+
+
+   **Structure Level** 
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
