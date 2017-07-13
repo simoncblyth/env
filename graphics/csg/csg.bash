@@ -35,6 +35,48 @@ Need to get more information into the algorithm ...
 Investigating this in csgparametric-
 
 
+
+CSG Regularization : getting rid of dangling face/edges
+---------------------------------------------------------
+
+* :google:`how to implement CSG regularization`
+
+Cheng : cs slides 
+~~~~~~~~~~~~~~~~~~
+
+* http://www.cs.uky.edu/~cheng/cs535/Notes/PS-Ray-1.pdf
+* ~/opticks_refs/csg_regularization_slides_cheng.pdf
+
+Regular set is closure of its interior.
+
+My Q:
+
+* how to implement "closure of interior" ?
+* how to use *regular neighborhood method*  (?)
+
+
+Rossignac : Correct shading of CSG solids using depth interval buffer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ~/opticks_refs/csg_rossignac_regularization_DIBs.pdf
+* http://www.cc.gatech.edu/~jarek/papers/DIBs.pdf
+
+cmh CSG concepts
+~~~~~~~~~~~~~~~~~~
+
+* ~/opticks_refs/csg_cmh_chap2_concepts_regularization.pdf
+* https://www.cs.purdue.edu/homes/cmh/distribution/books/chap2.pdf
+
+Epsilon ball neighbourhood of a point
+
+* full ball : inside
+* empty ball : outside
+* hemi-ball : interior face point
+* wedge-ball : edge between two faces 
+
+
+
+
 CSG Normalization and Pruning, Goldfeather
 ---------------------------------------------
 

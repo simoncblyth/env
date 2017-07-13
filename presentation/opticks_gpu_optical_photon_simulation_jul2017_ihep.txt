@@ -486,65 +486,20 @@
 
 
 
-:small:`Summary from LLR Workshop (Nov 2016)`
-----------------------------------------------
-
-.. sidebar:: Overview
-
-   .. class:: small
-
-      * **Opticks 200x Geant4** with mobile GPU
-      * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
-      * :red:`photon propagation time --> zero`
-      * :blue:`analytic geometry --> precise Geant4 match`
-      
-      * **NOTE THE "ANALYTIC" CAVEAT**
-
-
-.. image:: /env/presentation/1px.png
-   :width: 500px
-   :height: 50px
-
-..
-
-  *Opticks* enables *Geant4* based simulations to benefit from optical photon simulation 
-  **taking effectively zero time and zero CPU memory**, 
-  thanks to massive parallelism made accessible by NVIDIA OptiX.
-
-  .. image:: /env/presentation/1px.png
-     :width: 1000px
-     :height: 20px
-
-  * The more photons the bigger the overall speedup (99% -> 100x) 
-  * Drastic speedup -> better detector understanding -> greater precision
-  * Large PMT based neutrino experiments, such as JUNO, can benefit the most
-
-  .. image:: /env/presentation/1px.png
-     :width: 1000px
-     :height: 20px
-
-
-  .. class:: huge
-
-     https://bitbucket.org/simoncblyth/opticks
-
-
-
-
 :small:`Opticks Progress : Moving to Fully Analytic GPU Geometry`
 ----------------------------------------------------------------------
 
 
-.. sidebar:: Nov 2016, Overview [1]
+.. sidebar:: Status Nov 2016, LLR [1]
 
    .. class:: small
 
       * **Opticks 200x Geant4** with mobile GPU
       * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
-      * :red:`photon propagation time --> zero`
+      * :blue:`photon propagation time --> zero`
       * :blue:`analytic geometry --> precise Geant4 match`
 
-      CAVEAT : **analytic geom needed for chi2 match**
+      **CAVEAT:** :red:`Analytic required` for chi2 match
 
 
 
@@ -559,13 +514,11 @@
     * partition CSG solids into single primitive parts 
     * splits at joins avoid general CSG boolean intersection
 
-
     **Geometry Status (July 2017)**
 
     * :red:`general CSG tree intersection implemented on GPU`
-    * automated conversion, GDML -> glTF -> Opticks GPU geometry
-    * all shape primitives used by Daya Bay geometry, on GPU
-
+    * automated conversion, GDML -> glTF -> Opticks GPU 
+    * currently debugging coincident faces
 
 
 .. class:: tiny
@@ -608,8 +561,8 @@
 
    **Ray Geometry Intersection**
 
-   * primitive -> find *t* roots of implicit eqn
-   * composite -> pick primitive intersect, depending on CSG tree
+   * primitive : find *t* roots of implicit eqn
+   * composite : :red:`pick` primitive intersect, depending on CSG tree
 
 
 .. class:: large
@@ -859,6 +812,59 @@
 
 
 
+:small:`Opticks CSG Primitives On Parade (GPU raytrace)`
+-------------------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/tboolean_parade.png
+   :width: 1000px
+   :align: center
+
+.. class:: small
+
+   Three on right (Trapezoid, Segment, Icosahedron) all represented by planes with **nconvexpolyhedron** 
+
+
+:small:`Opticks CSG Serialized into OpticksCSG format (numpy buffers, json)`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+ 
+    // tboolean-parade
+
+    from opticks.ana.base import opticks_main
+    from opticks.analytic.csg import CSG  
+            
+    args = opticks_main(csgpath="$TMP/$FUNCNAME")
+
+    container = CSG("box", param=[0,0,0,1200], boundary=args.container, poly="MC", nx="20" )
+
+    a = CSG("sphere", param=[0,0,0,100]) 
+    b = CSG("zsphere", param=[0,0,0,100], param1=[-50,60,0,0]) 
+    c = CSG("box3",param=[100,50,70,0]) 
+    d = CSG("box",param=[0,0,10,50])
+    e = CSG("cylinder",param=[0,0,0,100], param1=[-100,100,0,0])
+    f = CSG("disc",param=[0,0,0,100], param1=[-1,1,0,0])
+    g = CSG("cone", param=[100,-100,50,100])
+    h = CSG.MakeTrapezoid(z=100, x1=80, y1=100, x2=100, y2=80)
+    i = CSG.MakeSegment(phi0=0,phi1=45,sz=100,sr=100)
+    j = CSG.MakeIcosahedron(scale=100.)
+
+    prims = [a,b,c,d,e,f,g,h,i,j]
+
+    ...  // setting translations 
+
+    CSG.Serialize([container] + prims, args.csgpath )   <b><span class="alarm">  <-- write trees to file </span></b>
+    </pre>
+
+    
+.. class:: small
+
+    * imported into C++ **nnode** tree by **NCSG**
+
+
+
 :small:`Opticks CSG Primitives : What they comprise`
 -------------------------------------------------------------------------------------------------
 
@@ -901,60 +907,6 @@
     Inverse transform transposed brings normal back to world frame
 
     * **rayDir** NOT normalized
-
-
-
-:small:`Opticks CSG Primitives On Parade (GPU raytrace)`
--------------------------------------------------------------------------------------------------
-
-.. image:: /env/presentation/tboolean_parade.png
-   :width: 1000px
-   :align: center
-
-.. class:: small
-
-   Three on right (Trapezoid, Segment, Icosahedron) all represented by planes with **nconvexpolyhedron** 
-
-
-
-:small:`Opticks CSG Serialized into OpticksCSG format (numpy buffers, json)`
--------------------------------------------------------------------------------------------------
-
-.. raw:: html 
-
-    <pre class="mypretiny">
- 
-    // tboolean-parade
-
-    from opticks.ana.base import opticks_main
-    from opticks.analytic.csg import CSG  
-            
-    args = opticks_main(csgpath="$TMP/$FUNCNAME")
-
-    container = CSG("box", param=[0,0,0,1200], boundary=args.container, poly="MC", nx="20" )
-
-    a = CSG("sphere", param=[0,0,0,100]) 
-    b = CSG("zsphere", param=[0,0,0,100], param1=[-50,60,0,0]) 
-    c = CSG("box3",param=[100,50,70,0]) 
-    d = CSG("box",param=[0,0,10,50])
-    e = CSG("cylinder",param=[0,0,0,100], param1=[-100,100,0,0])
-    f = CSG("disc",param=[0,0,0,100], param1=[-1,1,0,0])
-    g = CSG("cone", param=[100,-100,50,100])
-    h = CSG.MakeTrapezoid(z=100, x1=80, y1=100, x2=100, y2=80)
-    i = CSG.MakeSegment(phi0=0,phi1=45,sz=100,sr=100)
-    j = CSG.MakeIcosahedron(scale=100.)
-
-    prims = [a,b,c,d,e,f,g,h,i,j]
-
-    ...  // setting translations 
-
-    CSG.Serialize([container] + prims, args.csgpath )   <b><span class="alarm">  <-- write trees to file </span></b>
-    </pre>
-
-    
-.. class:: small
-
-    * imported into C++ **nnode** tree by **NCSG**
 
 
 
@@ -1070,11 +1022,158 @@
     * **A-B** : grow correct dimension of subtracted shape
     * **A+B** : grow smaller interface shape into bigger, making join
 
-    Automated coincidence finder/fixer in operation, needs work
+    * case-by-case fixes straightforward, not so easy to automate
+    * WIP: automated coincidence finder/fixer 
 
     .. image:: /env/opticks_refs/opticks_tscan_29_nzero_5_OcrGdsPrt.png
        :width: 500px
        :align: left
+
+
+
+
+
+:small:`Signed Distance Function (SDF) Modelling`
+--------------------------------------------------------------------------------------------
+
+
+.. sidebar:: SDF definition
+
+    .. class:: small
+
+         SDF(q(x,y,z) distance to solid surface
+
+         * -ve : inside
+         * 0 : on surface
+         * +ve : outside
+
+         Defined for all primitives, eg:
+
+         Sphere(center,radius) :  **length(q,center) - radius**
+         Plane(normal, dist) : **dot(normal,q) - dist** 
+     
+
+.. class:: small
+
+
+    SDFs are composable using R-functions, eg **min** and **max**
+
+    * SDF(Union(A,B)) ~ min(SDF(A),SDB(B))
+    * SDF(Intersection(A,B)) ~  max(SDF(A),SDF(B))
+    * SDF(Difference(A,B)) ~ max(SDF(A),-SDF(B))
+    * SDF(!A) ~ -SDF(A)
+
+    Recursively applicable to CSG trees 
+
+    -> **analytic representation of arbitrary solid**
+
+    :red:`SDFs enable geometry querying/debugging:` 
+
+    * classification of point wrt solid
+    * select surface points from primitives
+    * obtain bounding box from surface points
+    * polygonization by isosurface extraction 
+    * fast OpenGL rasterized visualization
+ 
+
+.. class:: tiny 
+
+     Rvachev-functions (R-functions) : sign uniquely determined by signs of arguments -> parallel CSG operations
+
+
+
+:small:`SDF Isosurface Extracted Polgonization Mesh with offset GPU raytrace`
+-----------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/tboolean_interlocked_gpuoffset.png
+   :width: 1000px
+   :align: center
+
+
+:small:`Various Polygonization Approaches`
+-----------------------------------------------------------------------------------------
+
+
+.. sidebar:: Polygonization that just works ?
+
+    .. class:: small
+
+        Not a solved problem, problems with some geometry
+
+        * very thin (eg PMT cathode) 
+        * combinations of shapes of different scales
+          
+
+.. class:: small
+
+
+    **Several Integrations of Open Source Polygonizations**
+
+    Marching Cubes
+         fill bbox with cubes, generate triangles for cubes with sign changes, 
+         fixed resolution (**miss features or too many tris**)
+
+    Dual Contouring 
+         multiresolution using octree (**slow, finnicky**) 
+
+    Implicit Mesher
+         finds and follows surface, fast, fixed resolution, (**needs help in finding**)
+
+    **My own attempt (WIP)**
+
+    Hybrid Mesher
+         combining SDF classification with parametric generation, (**complicated mesh joining**)
+
+ 
+
+
+:small:`Translated Solid Debugging : Using py/bash/c++ Code Generation`
+-----------------------------------------------------------------------------------------
+
+.. sidebar:: Fast (<10s) Iteration
+
+    .. class:: small
+
+        **gdml2gltf.py** generates for every solid:
+
+        * py code defining **CSG** tree 
+        * bash functions : serialize/visualize/raytrace
+        * c++ code defining **nnode** tree 
+
+        "Interactively" modify any solids (249 DYB.Near):  
+
+        * primitive parameters
+        * CSG operators
+        * transforms
+
+
+.. class:: small
+
+    **NScanTest : Find Problem Solids by SDF Scanning**
+
+    Count SDF zero crossings along scanlines 
+
+    * even crossings : expected, odd: coincidence artifacts
+
+    :red:`~5/249 solids not yet handled` by auto-uncoincidence
+
+
+    **GScene::compareMeshes : Bounding Box comparisons**
+
+    G4Poly(via G4DAE) vs Opticks parsurf
+ 
+    * :red:`25/249 solids with max bbox dimension discrepancy > 1mm`
+    * causes of ~20 not explained by coincidence
+
+      * parsurf bbox imprecision for intersects 
+        involving very different scale shapes
+      * G4Poly bugs : eg missing cylinders in unions
+
+    * :blue:`NEXT STEP: ask CSG implementations for definitive answers`
+
+    **Direct CSG Implementation Intersect Comparison : Opticks vs G4**   Machinery in progress (CSG tree translate: Opticks -> G4)
+
+
 
 
 
@@ -1135,151 +1234,12 @@
 
 
 
-
-
-
-:small:`Signed Distance Function (SDF) Modelling`
---------------------------------------------------------------------------------------------
-
-
-.. sidebar:: SDF definition
-
-    .. class:: small
-
-         SDF(q(x,y,z) distance to solid surface
-
-         * -ve : inside
-         * 0 : on surface
-         * +ve : outside
-
-         SDF Examples:
-
-         Sphere(center,radius) :  **length(q,center) - radius**
-         Plane(normal, dist) : **dot(normal,q) - dist** 
-     
+:small:`Translated Scene Debugging`
+-------------------------------------------------
 
 .. class:: small
 
-
-    SDFs are composable using R-functions, eg **min** and **max**
-
-    * SDF(Union(A,B)) ~ min(SDF(A),SDB(B))
-    * SDF(Intersection(A,B)) ~  max(SDF(A),SDF(B))
-    * SDF(Difference(A,B)) ~ max(SDF(A),-SDF(B))
-    * SDF(!A) ~ -SDF(A)
-
-    Recursively applicable to CSG trees 
-
-    * -> **implicit SDF for arbitrary CSG composite solid** 
-
-    Allows:
-
-    * analytic representation of arbitrary solid
-    * classification of point wrt solid
-    * polygonization by isosurface extraction -> fast OpenGL rasterized visualization
-    
-    :red:`SDFs extremely useful for geometry debugging` 
-
-.. class:: tiny 
-
-     Rvachev-functions (R-functions) : sign uniquely determined by signs of arguments -> parallel CSG operations
-
-
-
-:small:`SDF Isosurface Extracted Polgonization Mesh with offset GPU raytrace`
------------------------------------------------------------------------------------------
-
-.. image:: /env/presentation/tboolean_interlocked_gpuoffset.png
-   :width: 1000px
-   :align: center
-
-
-:small:`Various Polygonization Approaches`
------------------------------------------------------------------------------------------
-
-
-.. sidebar:: Polygonization that just works ?
-
-    .. class:: small
-
-        Not a solved problem, problems with some geometry
-
-        * very thin (eg PMT cathode) 
-        * combinations of shapes of different scales
-          
-
-.. class:: small
-
-
-    **Several Integrations of Open Source Polygonizations**
-
-    Marching Cubes
-         fill bbox with cubes, generate triangles for cubes with sign changes, 
-         fixed resolution (**miss features or too many tris**)
-
-    Dual Contouring 
-         multiresolution using octree (**slow, finnicky**) 
-
-    Implicit Mesher
-         finds and follows surface, fast, fixed resolution, (**needs help in finding**)
-
-    **My own attempt (WIP)**
-
-    Hybrid Mesher
-         combining SDF classification with parametric generation, (**complicated mesh joining**)
-
- 
-
-
-:small:`Debugging the Translation to GPU Geometry`
------------------------------------------------------------------------------------------
-
-
-.. sidebar:: SDF zero scanning 
-
-   .. class:: small
-
-        Consider union of shapes
-
-        * coincident faces -> internal zeros (artifact surfaces)
-        * count SDF zeros along scanlines across geometry "cage" 
-
-          * even crossings -> expected
-          * odd crossings -> 
-
-
-
-
-.. class:: small
-
-
-    **Geometry Debugging using SDFs**    
-
-    * select points on solid surface from the primitives (composite SDF~0) -> *parsurf* bounding box  
-    * SDF zero scanning 
     * classify child volume surface points against parent volume SDF (or v.v)
-
-
-    **Codegen C++ (nnode) and Python (CSG) Debugging Workflow**
-
-    
-
-
-   **Solid Level**
-
-
-   Bounding box comparisons
-
-   * eg G4Poly(via G4DAE) vs Opticks parametric surface 
-
-
-
-   **Structure Level** 
-
-
-
-
-
 
 
 
@@ -1342,6 +1302,59 @@
 
 
     [1] LLR Workshop, https://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_nov2016_llr.html 
+
+
+
+
+
+
+
+:small:`Summary from LLR Workshop (Nov 2016)`
+----------------------------------------------
+
+.. sidebar:: Overview
+
+   .. class:: small
+
+      * **Opticks 200x Geant4** with mobile GPU
+      * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
+      * :red:`photon propagation time --> zero`
+      * :blue:`analytic geometry --> precise Geant4 match`
+      
+      * **NOTE THE "ANALYTIC" CAVEAT**
+
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 50px
+
+..
+
+  *Opticks* enables *Geant4* based simulations to benefit from optical photon simulation 
+  **taking effectively zero time and zero CPU memory**, 
+  thanks to massive parallelism made accessible by NVIDIA OptiX.
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+  * The more photons the bigger the overall speedup (99% -> 100x) 
+  * Drastic speedup -> better detector understanding -> greater precision
+  * Large PMT based neutrino experiments, such as JUNO, can benefit the most
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+
+  .. class:: huge
+
+     https://bitbucket.org/simoncblyth/opticks
+
+
+
+
+
 
 
 :i:`JPMT Before Contact 2`
