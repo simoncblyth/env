@@ -384,6 +384,28 @@
     # .8*720.*a/1166.
 
 
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
+    /env/presentation/op_full_raytrace_3.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)
+    /env/presentation/op_full_raytrace_1.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)
+    /env/presentation/op_full_raytrace_0.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
+    /env/presentation/op_full_raytrace_2.png 1280px_720px
+
+
+
+
+
+
+
+
+
+
+
 .. comment 
 
     Large Geometry/Event Techniques
@@ -460,6 +482,7 @@
 
        * optical photon simulation time --> zero 
        * optical photon CPU memory --> zero
+       * **NEW:** :red:`auto-translate GDML geometry for GPU` 
 
        [zero: effectively, compared to rest of simulation]
 
@@ -546,10 +569,10 @@
    Simple *by construction* definition, implicit geometry.
 
    * **A, B** implicit primitive **solids** 
-   * **A + B** : union 
-   * **A * B** : intersection 
-   * **A - B** : difference  
-   * **!B** : complement (inside <-> outside)
+   * **A + B** : union (OR)
+   * **A * B** : intersection (AND) 
+   * **A - B** : difference (AND NOT) 
+   * **!B** : complement (NOT) (inside <-> outside)
 
    CSG expressions 
 
@@ -865,7 +888,7 @@
 
 
 
-:small:`Opticks CSG Primitives : What they comprise`
+:small:`Opticks CSG Primitives : What is included`
 -------------------------------------------------------------------------------------------------
 
 
@@ -897,16 +920,18 @@
     * parametric surface generation 
 
    
-    **Translation/rotation/scaling on any node**
 
-    Intersect inverse-transformed ray -> intersect in primitive frame
+    **4x4 Transforms on any node (translation/rotation/scaling)**
+
+    :blue:`Intersect inverse-transformed ray with un-transformed primitive`
 
     * parametric-t same in both frames
-    * normals, **n_world = transpose(invert(TRS)) n_model**   
+    * inverse transform transposed brings normal back to world frame
 
-    Inverse transform transposed brings normal back to world frame
 
-    * **rayDir** NOT normalized
+.. class:: tiny
+
+    Supporting non-uniform scaling requires **rayDir** not be be normalized (or assumed to be normalized) by primitives.
 
 
 
@@ -1022,7 +1047,7 @@
     * **A-B** : grow correct dimension of subtracted shape
     * **A+B** : grow smaller interface shape into bigger, making join
 
-    * case-by-case fixes straightforward, not so easy to automate
+    * :red:`case-by-case fixes straightforward, not so easy to automate`
     * WIP: automated coincidence finder/fixer 
 
     .. image:: /env/opticks_refs/opticks_tscan_29_nzero_5_OcrGdsPrt.png
@@ -1033,7 +1058,7 @@
 
 
 
-:small:`Signed Distance Function (SDF) Modelling`
+:small:`Signed Distance Functions (SDF) for Primitives and Composites`
 --------------------------------------------------------------------------------------------
 
 
@@ -1056,7 +1081,7 @@
 .. class:: small
 
 
-    SDFs are composable using R-functions, eg **min** and **max**
+    :blue:`SDFs are composable` using R-functions, eg **min** and **max**
 
     * SDF(Union(A,B)) ~ min(SDF(A),SDB(B))
     * SDF(Intersection(A,B)) ~  max(SDF(A),SDF(B))
@@ -1090,42 +1115,6 @@
    :align: center
 
 
-:small:`Various Polygonization Approaches`
------------------------------------------------------------------------------------------
-
-
-.. sidebar:: Polygonization that just works ?
-
-    .. class:: small
-
-        Not a solved problem, problems with some geometry
-
-        * very thin (eg PMT cathode) 
-        * combinations of shapes of different scales
-          
-
-.. class:: small
-
-
-    **Several Integrations of Open Source Polygonizations**
-
-    Marching Cubes
-         fill bbox with cubes, generate triangles for cubes with sign changes, 
-         fixed resolution (**miss features or too many tris**)
-
-    Dual Contouring 
-         multiresolution using octree (**slow, finnicky**) 
-
-    Implicit Mesher
-         finds and follows surface, fast, fixed resolution, (**needs help in finding**)
-
-    **My own attempt (WIP)**
-
-    Hybrid Mesher
-         combining SDF classification with parametric generation, (**complicated mesh joining**)
-
- 
-
 
 :small:`Translated Solid Debugging : Using py/bash/c++ Code Generation`
 -----------------------------------------------------------------------------------------
@@ -1151,9 +1140,9 @@
 
     **NScanTest : Find Problem Solids by SDF Scanning**
 
-    Count SDF zero crossings along scanlines 
+    Count SDF zero crossings along scanlines (expect even)
 
-    * even crossings : expected, odd: coincidence artifacts
+    * odd crossings -> coincidence artifacts
 
     :red:`~5/249 solids not yet handled` by auto-uncoincidence
 
@@ -1169,34 +1158,31 @@
         involving very different scale shapes
       * G4Poly bugs : eg missing cylinders in unions
 
-    * :blue:`NEXT STEP: ask CSG implementations for definitive answers`
-
-    **Direct CSG Implementation Intersect Comparison : Opticks vs G4**   Machinery in progress (CSG tree translate: Opticks -> G4)
+    * :blue:`NEXT STEP: compare CSG intersects between Opticks/G4 implementations for definitive answers`
 
 
 
 
 
-:small:`Full Analytic Geometry Translation Workflow`
+:small:`Full Analytic GDML Geometry Translation Workflow`
 -------------------------------------------------------------------------------------------------
 
 
-.. sidebar:: 3D Formats : G4DAE, GDML, OpticksCSG, glTF 
+.. sidebar:: 3D File Formats
 
     .. class:: small
 
-        G4DAE
+        **G4DAE**
             approximate G4 triangulated geometry, includes all material/surface optical properties
 
-        GDML
+        **GDML**
             analytic G4 geometry 
 
-        OpticksCSG
+        **"OpticksCSG"**
             numpy buffers of nodes, transforms, planes, json metadata 
 
-        glTF
+        **glTF**
             json node tree referring to OpticksCSG extras for each solid 
-
 
 
 .. class:: small
@@ -1233,49 +1219,96 @@
 
 
 
-
-:small:`Translated Scene Debugging`
--------------------------------------------------
-
-.. class:: small
-
-    * classify child volume surface points against parent volume SDF (or v.v)
-
-
-
-
-
-
-
-
-
-
-:small:`Advantages of fully analytic geometry`
--------------------------------------------------
+:small:`Opticks Analytic Daya Bay Near Site, GPU Raytrace Screenshots`
+-------------------------------------------------------------------------
 
 .. class:: small
 
+   GPU Raytrace on following pages are for Daya Near Site Geometry, auto translated from GDML 
 
-    * Geometry equivalence within numerical precision between Geant4 and Opticks on the GPU.
+   * Looks similar to raytraces shown previously,  BUT: :red:`there is a huge difference`
 
-    * Automated translation of Geant4 detector geometries into a GPU suitable form.
+     * :blue:`No triangles` -> :blue:`No approximation` ->  :blue:`Fully Analytic`
+     * :red:`Intersects should match Geant4` (if not its a bug to fix)
 
-    * Drastically simplified Opticks adoption, due to automated geometry translation.
+   * Opticks CSG code runs for every pixel, picking the intersects
 
-    * Allows Opticks to operate from Geant4 standard GDML files rather than tessellated G4DAE.
+     * significantly slower that the triangulated approach (GPUs love triangles) 
+     * very new, no optimization yet  
+     * speckle effect is caused by coincident surfaces
+
+   **General Translation Machinery**
+
+   * straightforward to apply to JUNO GDML
+   * however : expect every new geometry will yield new issues 
+   * lots of geometry debugging tools ready to be used
+
+
+   **Scene Debugging : NSceneLoadTest** 
+
+   * classify child volume surface points against parent volume SDF (or v.v), 
+     look for impingments/coincidences  
+
+
+    
+
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)`
+---------------------------------------------------------------------
 
 
 
+:small:`July 2017 Summary`
+----------------------------------------------
 
-:small:`Scratch`
--------------------------------------------------------
+.. sidebar:: Overview
+
+   .. class:: small
+
+      * **Opticks 200x Geant4** with mobile GPU
+      * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
+      * :red:`photon propagation time --> zero`
+      * :blue:`automated full fidelity translation of GDML`
 
 
-.. class:: tiny
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 50px
 
-    Extended to complemented solids using : Miss -> Exit, never closer + flip normals
+..
 
-    * implementation currently limited to height <= 7, maximum 255 nodes
+  *Opticks* enables *Geant4* based simulations to benefit from optical photon simulation 
+  **taking effectively zero time and zero CPU memory**, 
+  due to massive parallelism made accessible by NVIDIA OptiX.
+  :blue:`GDML detector geometry is auto translated into a GPU optimized analytic form, 
+  fully equivalent to the source geometry`.
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+  * The more photons the bigger the overall speedup (99% -> 100x) 
+  * Drastic speedup -> better detector understanding -> greater precision
+  * Large PMT based neutrino experiments, such as JUNO, can benefit the most
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+
+  .. class:: huge
+
+     https://bitbucket.org/simoncblyth/opticks
+
 
 
 
@@ -1489,6 +1522,58 @@
 .. class:: tiny
 
    https://www.youtube.com/watch?v=CBpOha4RzIs
+
+
+
+
+
+
+:small:`Slides Booted to Backup`
+-------------------------------------------------------
+
+.. class:: large
+
+   * Various Polygonization Approaches
+
+
+
+
+:small:`Various Polygonization Approaches`
+-----------------------------------------------------------------------------------------
+
+
+.. sidebar:: Polygonization that just works ?
+
+    .. class:: small
+
+        Not a solved problem, problems with some geometry
+
+        * very thin (eg PMT cathode) 
+        * combinations of shapes of different scales
+          
+
+.. class:: small
+
+
+    **Several Integrations of Open Source Polygonizations**
+
+    Marching Cubes
+         fill bbox with cubes, generate triangles for cubes with sign changes, 
+         fixed resolution (**miss features or too many tris**)
+
+    Dual Contouring 
+         multiresolution using octree (**slow, finnicky**) 
+
+    Implicit Mesher
+         finds and follows surface, fast, fixed resolution, (**needs help in finding**)
+
+    **My own attempt (WIP)**
+
+    Hybrid Mesher
+         combining SDF classification with parametric generation, (**complicated mesh joining**)
+
+ 
+
 
 
 
