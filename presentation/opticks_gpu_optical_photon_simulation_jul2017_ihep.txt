@@ -541,7 +541,7 @@
 
     * :red:`general CSG tree intersection implemented on GPU`
     * automated conversion, GDML -> glTF -> Opticks GPU 
-    * currently debugging coincident faces
+    * currently debugging geometry (coincident faces)
 
 
 .. class:: tiny
@@ -624,7 +624,7 @@
 
    * massive parallelism -> more the merrier
    * low register usage -> keep it simple
-   * small stack size -> avoid recursion 
+   * small stack size -> **avoid recursion** 
 
 .. class:: large
 
@@ -1068,9 +1068,9 @@
 
          SDF(q(x,y,z) distance to solid surface
 
-         * -ve : inside
-         * 0 : on surface
-         * +ve : outside
+         * negative : inside
+         * zero : surface
+         * positive : outside
 
          Defined for all primitives, eg:
 
@@ -1142,25 +1142,27 @@
 
     Count SDF zero crossings along scanlines (expect even)
 
-    * odd crossings -> coincidence artifacts
+    * odd crossings -> coincidence :red:`false zeros`
 
-    :red:`~5/249 solids not yet handled` by auto-uncoincidence
+    :red:`~5/249 odd solids` : not yet handled by auto-uncoincidence
 
 
     **GScene::compareMeshes : Bounding Box comparisons**
 
-    G4Poly(via G4DAE) vs Opticks parsurf
+    G4Poly(via G4DAE) vs Opticks parsurf (parametric surface)
  
     * :red:`25/249 solids with max bbox dimension discrepancy > 1mm`
-    * causes of ~20 not explained by coincidence
+    * causes of ~20 not explained by coincidence, presume:
 
-      * parsurf bbox imprecision for intersects 
-        involving very different scale shapes
-      * G4Poly bugs : eg missing cylinders in unions
+      * G4Poly bugs(*) : some clear missing cylinders from unions
+      * parsurf bbox imprecision (very different size sub-objects)
 
-    * :blue:`NEXT STEP: compare CSG intersects between Opticks/G4 implementations for definitive answers`
+    :blue:`NEXT STEP: direct intersect comparison between Opticks/G4 CSG implementations for definitive answers`
 
 
+.. class:: tiny
+
+   (*) could also be G4DAE export of G4Poly 
 
 
 

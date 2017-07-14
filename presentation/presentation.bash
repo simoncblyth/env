@@ -39,6 +39,11 @@ Publishing to remote:
 #. push the statics to remote 
 
 
+#. creating PDFs, see slides-;slides-vi add eg "slides-get-jul2017" 
+   depending on slide count
+
+
+
 Creating retina screencaptures
 ---------------------------------
 

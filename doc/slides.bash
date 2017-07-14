@@ -389,6 +389,7 @@ slides-get-jnu-cmake-ctest(){ slides-get 0 5 ; }
 slides-get-llr(){     slides-get 0 32 ; }
 slides-get-psroc(){   slides-get 0 26 ; }
 slides-get-psroc0(){  slides-get 0 0 ; }
+slides-get-jul2017(){ slides-get 0 34 ; }
 
 
 #slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
