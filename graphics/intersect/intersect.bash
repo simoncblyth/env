@@ -39,6 +39,263 @@ Many (includine surface-of-revolution), terse:
 
 * http://hugi.scene.org/online/hugi24/coding%20graphics%20chris%20dragan%20raytracing%20shapes.htm
 
+Torus
+--------
+
+* ~/opticks_refs/don_cross_cosinekitty_raytrace_a4.pdf
+* http://www.cosinekitty.com/raytrace/chapter13_torus.html
+
+  * ~/opticks_refs/cosinekitty_The_Torus_class.pdf
+  * direct solve quartic
+
+* http://users.wowway.com/~phkahler/torus.pdf
+
+
+* https://github.com/erich666/GraphicsGems/blob/master/gemsii/intersect/inttor.c
+
+
+* https://github.com/erich666/GraphicsGems
+
+Quartic
+~~~~~~~~~
+
+* ~/opticks_refs/Wolfram_Quartic_Equation.pdf
+* http://mathworld.wolfram.com/QuarticEquation.html
+
+
+
+
+* https://github.com/AlexanderTolmachev/ray-tracer/blob/2c29012fb36dfb3aff35c4761266c6841cd43205/lib/quarticsolver/src/quarticsolver.h
+* https://github.com/AlexanderTolmachev/ray-tracer/blob/2c29012fb36dfb3aff35c4761266c6841cd43205/lib/quarticsolver/src/quarticsolver.cpp
+
+
+* http://www.sosmath.com/algebra/factor/fac12/fac12.html
+
+* http://dl.acm.org/citation.cfm?id=2245297
+* ~/opticks_refs/quartic-p94-zhao.pdf
+
+* http://users.nik.uni-obuda.hu/sanyo/publications/fulltext/sami2015_submission_60.pdf
+* ~/opticks_refs/quartic_sami2015_submission_60.pdf
+
+
+* http://www.sciencedirect.com/science/article/pii/S0377042710002128
+* ~/opticks_refs/strobach_fast_quartic.pdf
+
+
+* http://www.ijpam.eu/contents/2011-71-2/7/7.pdf
+* ~/opticks_refs/shmakov_universal_quartic.pdf
+
+* Schwarze, Jochen, Cubic and Quartic Roots, Graphics Gems, p. 404-407, code: p. 738-786, Roots3And4.c.
+* http://www.realtimerendering.com/resources/GraphicsGems/gems/Roots3And4.c
+
+* ~/opticks_refs/quartics_cubics_for_graphics_tr487.pdf
+* http://sydney.edu.au/engineering/it/research/tr/tr487.pdf
+
+* ~/opticks_refs/quartic_solver-f90-a30-flocke.pdf
+* http://dl.acm.org/citation.cfm?doid=2835205.2699468
+
+
+* https://www.gamedev.net/forums/topic/451048-best-way-of-solving-a-polynomial-of-the-fourth-degree/
+
+* :google:`github solve quartic`
+
+* https://github.com/yairchu/quartic
+
+* https://github.com/madbat/SwiftMath/blob/master/SwiftMath/Polynomial.swift
+
+* https://en.wikipedia.org/wiki/Durand–Kerner_method
+
+
+Skala
+~~~~~~~~~
+
+* http://www.wseas.org/multimedia/journals/computers/2013/025705-201.pdf
+* ~/opticks_refs/skala_torus_intersect_025705-201.pdf
+
+* https://pdfs.semanticscholar.org/a781/e21f47aae7f72ce4434fe6a360afe92b0e93.pdf
+* ~/opticks_refs/skala_torus_line_bounding.pdf
+
+
+Intersect equivalent to that between a line and swept sphere
+
+* also rotational symmetry means could rotate the line to make a cone, and
+  intersect the cone with the sphere  
+
+Ruminations
+~~~~~~~~~~~~~~~
+
+
+Use cone/sphere intersect to skip solving quartic:
+
+* testing cone (from rotating line about torus axis) 
+  against sphere (that would sweep to form torus) 
+
+* http://mathworld.wolfram.com/Cone-SphereIntersection.html
+
+  * perhaps no simplification when intersect, but gives way of classifying roots,
+    to skip solving quartic when possible
+
+* http://www.flipcode.com/archives/Frustum_Culling.shtml
+
+
+
+Sphere Cone
+~~~~~~~~~~~~~~~~
+
+* ~/opticks_refs/eberly_IntersectionSphereCone.pdf
+* https://www.geometrictools.com/Documentation/IntersectionSphereCone.pdf
+
+* https://www.gamedev.net/forums/topic/555628-sphere-cone-test-with-no-sqrt-for-frustum-culling/
+
+
+
+
+Using squared inequalities, this in turn leads to the following sqrt-free formulation:
+
+::
+
+    V = sphere.center - cone.apex_location
+    // use cone apex frame 
+
+    a = dotProduct(V, cone.direction_normal)
+    // distance of sphere along cone axis
+
+    p = a * cone_sin
+    q = cone_cos * cone_cos * dotProduct(V, V) - a * a
+    r = q - sphere_radius * sphere_radius
+    if (p<sphere_radius) || (q>0):
+         if (r < 2 * sphere_radius * p), the sphere is partially included (return -1)
+         else if q<0, the sphere is totally included (return 1)
+         else cull the sphere (return 0)
+    else:
+        if ( -r < 2 * sphere_radius * p), the sphere is partially included (return -1)
+        else if q<0, the sphere is totally included (return 1)
+        else cull the sphere (return 0)
+
+
+
+
+* https://bartwronski.com/2017/04/13/cull-that-cone/
+
+
+* https://gist.github.com/jcayzac/1241840
+
+V = sphere.center - cone.apex_location
+a = V * cone.direction_normal
+b = a * cone.tan
+c = sqrt( V*V - a*a )
+d = c - b
+e = d * cone.cos
+
+now  if ( e >= sphere.radius ) , cull the sphere
+else if ( e <=-sphere.radius ) , totally include the sphere
+else the sphere is partially included.
+
+What's going on in this cone-sphere test? Basically, I'm trying to find 'e'
+which is the shortest distance from the center of the sphere to the surface of
+the cone. You can draw some pictures and see what's going on. 'a' is how far
+along the ray of the cone the sphere's center is. 'b' is the radius of the cone
+at 'a'. 'c' is the distance from the center of the sphere to the axis of the
+cone, and 'd' is the distance from the center of the sphere to the surface of
+the cone, along a line perpendicular to the axis of the cone (which is not the
+closest distance).
+
+Note that once you compute 'a' you could tell that the sphere intersects the
+cone just by testing
+
+    Square( a ) <= V*V * Square( cone.cos )
+
+This is very fast and nice, but it can't tell us if the sphere was partially included or totally included, so it's no good for heirarchy.
+
+
+:google:`Charles Bloom algorithm for sphere-cone intersection`
+
+
+
+
+Algebraic
+~~~~~~~~~~~~~
+
+* 
+* ~/opticks_refs/ray_tracing_algebraic_surfaces_p83-hanrahan.pdf
+
+
+
+
+AlexanderTolmachev/ray-tracer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/AlexanderTolmachev/ray-tracer/blob/master/src/torus.cpp
+
+
+Thesis : Torus and Simple Surface Intersection Based on a Configuration Space Approach
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://bh.knu.ac.kr/~kujinkim/kjkim_thesis.pdf
+* ~/opticks_refs/torus_intersect_kjkim_thesis.pdf
+
+p7 image showing three cases of torus, r < R, r = R, r > R  (only interested in r < R )
+
+p31 torus-cone intersect
+
+
+
+:google:`ray trace torus`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://steve.hollasch.net/cgindex/render/raytorus.html
+
+* http://hugi.scene.org/online/hugi24/coding%20graphics%20chris%20dragan%20raytracing%20shapes.htm
+
+
+
+g4-cls G4UTorus
+~~~~~~~~~~~~~~~~~
+
+* vecgeom-;vecgeom-cls TorusImplementation2
+
+
+g4-cls G4Torus
+~~~~~~~~~~~~~~~~~
+
+::
+
+     254 // Calculate the real roots to torus surface. 
+     255 // Returns negative solutions as well.
+     256 
+     257 void G4Torus::TorusRootsJT( const G4ThreeVector& p,
+     258                             const G4ThreeVector& v,
+     259                                   G4double r,
+     260                                   std::vector<G4double>& roots ) const
+     261 {
+     262 
+     263   G4int i, num ;
+     264   G4double c[5], srd[4], si[4] ;
+     265 
+     266   G4double Rtor2 = fRtor*fRtor, r2 = r*r  ;
+     267 
+     268   G4double pDotV = p.x()*v.x() + p.y()*v.y() + p.z()*v.z() ;
+     269   G4double pRad2 = p.x()*p.x() + p.y()*p.y() + p.z()*p.z() ;
+     270 
+     271   c[0] = 1.0 ;
+     272   c[1] = 4*pDotV ;
+     273   c[2] = 2*(pRad2 + 2*pDotV*pDotV - Rtor2 - r2 + 2*Rtor2*v.z()*v.z()) ;
+     274   c[3] = 4*(pDotV*(pRad2 - Rtor2 - r2) + 2*Rtor2*p.z()*v.z()) ;
+     275   c[4] = pRad2*pRad2 - 2*pRad2*(Rtor2+r2)
+     276        + 4*Rtor2*p.z()*p.z() + (Rtor2-r2)*(Rtor2-r2) ;
+     277 
+     278   G4JTPolynomialSolver  torusEq;
+     279 
+     280   num = torusEq.FindRoots( c, 4, srd, si );
+     281 
+     282   for ( i = 0; i < num; i++ )
+     283   {
+     284     if( si[i] == 0. )  { roots.push_back(srd[i]) ; }  // store real roots
+     285   }
+     286 
+     287   std::sort(roots.begin() , roots.end() ) ;  // sorting  with <
+     288 }
+
 
 Thoughts on partitioning, use if it simplifies
 -------------------------------------------------

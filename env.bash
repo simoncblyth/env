@@ -1902,3 +1902,6 @@ csgbbox-(){      . $(env-home)/graphics/csg/csgbbox.bash && csgbbox-env $* ; }
 carve-(){      . $(env-home)/graphics/csg/carve.bash && carve-env $* ; }
 libcaca-(){      . $(env-home)/graphics/txt/libcaca.bash && libcaca-env $* ; }
 gts-(){      . $(env-home)/graphics/gts/gts.bash && gts-env $* ; }
+cosinekitty-(){      . $(env-home)/graphics/cosinekitty.bash && cosinekitty-env $* ; }
+quartic-(){      . $(env-home)/geometry/quartic/quartic.bash && quartic-env $* ; }
+gems-(){      . $(env-home)/graphics/gems/gems.bash && gems-env $* ; }

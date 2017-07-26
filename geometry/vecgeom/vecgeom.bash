@@ -970,6 +970,7 @@ vecgeom-bdir(){ echo $(vecgeom-dir).build ; }
 vecgeom-idir(){ echo $(vecgeom-dir).install ; }
 vecgeom-dir(){  echo $(vecgeom-sdir) ; }
 
+vecgeom-c(){    cd $(vecgeom-dir); }
 vecgeom-cd(){   cd $(vecgeom-dir); }
 vecgeom-ecd(){  cd $(vecgeom-edir); }
 vecgeom-scd(){  cd $(vecgeom-sdir); }

@@ -47,6 +47,27 @@ floating-point arithmetic with arbitrary precision. It has been developed by
 Fredrik Johansson since 2007, with help from many contributors.
 
 
+basic operations
+------------------
+
+* http://docs.sympy.org/latest/tutorial/basic_operations.html
+
+substitution
+~~~~~~~~~~~~~~
+
+
+
+
+
+
+D : port install py27-sympy :  ~/macports/py27-sympy.log 
+----------------------------------------------------------
+
+
+
+
+
+
 
 
 EOU

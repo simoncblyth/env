@@ -15,6 +15,24 @@ Reference
 * http://book.git-scm.com/book.pdf 
 * http://www.git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository
 
+* https://www.rath.org/mercurial-for-git-users-and-vice-versa.html
+
+
+Github Merging a pull request via web interface
+--------------------------------------------------
+
+* click on title of the pull request (not the selection button)
+* use the dropdown to right to pick the type of merge then click the button to left
+* add commit message and confirm the merge
+
+
+git pull
+-----------
+
+* combined fetch and merge
+
+
+
 
 Git-hg-rosetta-stone
 --------------------------
