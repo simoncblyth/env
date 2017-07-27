@@ -216,6 +216,7 @@ root-build(){
    screen make
 }
 
+root-c(){ cd $(root-rootsys)/$1 ; }
 root-cd(){ cd $(root-rootsys)/$1 ; }
 root-eve(){ cd $(root-rootsys)/tutorials/eve ; }
 

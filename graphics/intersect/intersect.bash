@@ -59,52 +59,7 @@ Torus
 Quartic
 ~~~~~~~~~
 
-* ~/opticks_refs/Wolfram_Quartic_Equation.pdf
-* http://mathworld.wolfram.com/QuarticEquation.html
-
-
-
-
-* https://github.com/AlexanderTolmachev/ray-tracer/blob/2c29012fb36dfb3aff35c4761266c6841cd43205/lib/quarticsolver/src/quarticsolver.h
-* https://github.com/AlexanderTolmachev/ray-tracer/blob/2c29012fb36dfb3aff35c4761266c6841cd43205/lib/quarticsolver/src/quarticsolver.cpp
-
-
-* http://www.sosmath.com/algebra/factor/fac12/fac12.html
-
-* http://dl.acm.org/citation.cfm?id=2245297
-* ~/opticks_refs/quartic-p94-zhao.pdf
-
-* http://users.nik.uni-obuda.hu/sanyo/publications/fulltext/sami2015_submission_60.pdf
-* ~/opticks_refs/quartic_sami2015_submission_60.pdf
-
-
-* http://www.sciencedirect.com/science/article/pii/S0377042710002128
-* ~/opticks_refs/strobach_fast_quartic.pdf
-
-
-* http://www.ijpam.eu/contents/2011-71-2/7/7.pdf
-* ~/opticks_refs/shmakov_universal_quartic.pdf
-
-* Schwarze, Jochen, Cubic and Quartic Roots, Graphics Gems, p. 404-407, code: p. 738-786, Roots3And4.c.
-* http://www.realtimerendering.com/resources/GraphicsGems/gems/Roots3And4.c
-
-* ~/opticks_refs/quartics_cubics_for_graphics_tr487.pdf
-* http://sydney.edu.au/engineering/it/research/tr/tr487.pdf
-
-* ~/opticks_refs/quartic_solver-f90-a30-flocke.pdf
-* http://dl.acm.org/citation.cfm?doid=2835205.2699468
-
-
-* https://www.gamedev.net/forums/topic/451048-best-way-of-solving-a-polynomial-of-the-fourth-degree/
-
-* :google:`github solve quartic`
-
-* https://github.com/yairchu/quartic
-
-* https://github.com/madbat/SwiftMath/blob/master/SwiftMath/Polynomial.swift
-
-* https://en.wikipedia.org/wiki/Durand–Kerner_method
-
+Moved to quartic-
 
 Skala
 ~~~~~~~~~
