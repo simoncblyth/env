@@ -35,6 +35,16 @@ Lectures on Ray Tracing
 
   55 pages, good detail on intersections and view rays  
 
+
+Alt
+----
+
+
+* https://pdfs.semanticscholar.org/3e3a/0a92e9a8533b306ed6d75c7a08da700be8a7.pdf
+* ~/opticks_refs/knoll_raytrace_implicit_via_interval.pdf 
+
+
+
 Intersections
 ---------------
 

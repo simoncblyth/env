@@ -19,6 +19,8 @@ NEXT
 Approaches Investigated
 ----------------------------
 
+
+
 yairchu/quartic fork : flexi approach with normalization, reciprocation, stableness test...
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -60,11 +62,83 @@ vecgeom-;vecgeom-cls TorusImplementation2 : simple no robustness
 
 * SolveQuartic : looks simple
 
+Cubic
+-------
+
+* http://mathworld.wolfram.com/CubicFormula.html
+* ~/opticks_refs/Cubic_Formula_Wolfram_MathWorld.pdf
+
+* http://pages.mtu.edu/~tbco/cm3230/Real_Roots_of_Cubic_Equation.pdf
+* ~/opticks_refs/Real_Roots_of_Cubic_Equation.pdf
+
+
+* ~/opticks_refs/nickalls_cubic1993.pdf
+* http://www.nickalls.org/dick/papers/maths/cubic1993.pdf
+
+* ~/opticks_refs/nickalls_quartic2009.pdf
+* http://www.nickalls.org/dick/papers/maths/quartic2009.pdf
+
+
+opencv solveCubic
+~~~~~~~~~~~~~~~~~~~
+
+* http://docs.opencv.org/3.0-beta/search.html?q=solveCubic&check_keywords=yes&area=default
+* https://github.com/opencv/opencv/blob/26be2402a3ad6c9eacf7ba7ab2dfb111206fffbb/modules/core/src/mathfuncs.cpp
+
+
+Poly34
+--------
+
+* http://math.ivanovo.ac.ru/dalgebra/Khashin/poly/index.html
+* https://brownmath.com/alge/polysol.htm
+
+
+Neumark
+---------
+
+* :google:`quartic neumark`
+ 
+
+Don Herbison-Evans
+-------------------
+
+Test of a quartic solving routine, 24 June 1994
+
+* http://www.realtimerendering.com/resources/GraphicsGems/gemsv/ch1-1/quarcube.c
+
+* http://index-of.co.uk/Game-Development/Programming/Graphics%20Gems%205.pdf
+* ~/opticks_refs/Graphics_Gems_5.pdf
+
+* ~/opticks_refs/Graphics_Gems_5_QuarticCubic.pdf
+
+
+Numerics
+----------
+
+* https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
+
+The expression x^2 - y^2 is another formula that exhibits catastrophic cancellation. 
+It is more accurate to evaluate it as (x - y)(x + y).
+
+
+Why sqrt(epsilon) ?
+~~~~~~~~~~~~~~~~~~~~~
+
+* https://scicomp.stackexchange.com/questions/14355/choosing-epsilons
+
+* https://en.wikipedia.org/wiki/Numerical_differentiation#Practical_considerations_using_floating_point_arithmetic
+
+  * Numerical differenciation: f(x+h)-f(x)   suggests to use h=sqrt(eps)*x for x!=0
+
+* http://www.maths.manchester.ac.uk/~higham/talks/asna13_cardiff.pdf
 
 
 Refs
 ------
 
+* https://archive.org/details/SolutionOfCubicQuarticEquations
+* https://ia802707.us.archive.org/32/items/SolutionOfCubicQuarticEquations/Neumark-SolutionOfCubicQuarticEquations.pdf
+* ~/opticks_refs/Neumark-SolutionOfCubicQuarticEquations.pdf
 
 * https://www.jstor.org/stable/2975214
 * ~/opticks_refs/quartic_geometric_faucette_2975214.pdf

@@ -97,8 +97,8 @@ Can SDFs model a bounded cylinder with no endcaps ?
 * https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3659211/
 
 Indeed, in the codimension one case, there is a clearly defined interior and a
-clearly defined exterior of the given object of interest (if the surface is
-closed). In this case, a signed distance function can be used for a level set
+clearly defined exterior of the given object of interest, if the surface is
+closed. In this case, a signed distance function can be used for a level set
 implementation of the evolution equation.
 
 

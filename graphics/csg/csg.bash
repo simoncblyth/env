@@ -891,6 +891,17 @@ Ray Tracing CSG Objects Using Single Hit Intersections
 
 * http://xrt.wdfiles.com/local--files/doc%3Acsg/CSG.pdf
 
+* http://www.cs.utah.edu/~aek/
+* http://www.cs.utah.edu/~aek/research/
+
+
+* http://www.cs.utah.edu/~aek/research/csgimplicits.pdf
+* ~/opticks_refs/aek_csgimplicits.pdf
+
+* http://www.cs.utah.edu/~aek/research/tree.pdf
+* ~/opticks_refs/aek_tree_rotation.pdf
+
+
 
 XRT Renderer : simpler? way of handling CSG trees
 ---------------------------------------------------
