@@ -16,6 +16,20 @@ NEXT
   the quartic imp ... torus/ray coeff prep can live in primitive 
 
 
+Cubic
+--------
+
+
+* https://www.researchgate.net/publication/220389759_Solving_cubics_by_polynomial_fitting
+* ~/opticks_refs/Strobach_cubic_root_fitting.pdf
+
+
+* ~/opticks_refs/polynomial_scaling_0727007.pdf
+* http://epubs.siam.org/doi/abs/10.1137/0727007
+
+
+
+
 Approaches Investigated
 ----------------------------
 
@@ -86,6 +100,17 @@ opencv solveCubic
 * https://github.com/opencv/opencv/blob/26be2402a3ad6c9eacf7ba7ab2dfb111206fffbb/modules/core/src/mathfuncs.cpp
 
 
+CUDA Complex
+--------------------
+
+* #include <cuComplex.h>
+
+CUDA Floating Point
+--------------------
+
+* ~/opticks_refs/NVIDIA-CUDA-Floating-Point.pdf
+* http://developer.download.nvidia.com/assets/cuda/files/NVIDIA-CUDA-Floating-Point.pdf
+
 Poly34
 --------
 
@@ -110,6 +135,92 @@ Test of a quartic solving routine, 24 June 1994
 * ~/opticks_refs/Graphics_Gems_5.pdf
 
 * ~/opticks_refs/Graphics_Gems_5_QuarticCubic.pdf
+
+
+
+
+Eberly : approach using Rational type
+---------------------------------------
+
+* https://www.geometrictools.com/Documentation/LowDegreePolynomialRoots.pdf
+
+
+Roots of low order polynomials, Terence R.F.Nonweiler
+--------------------------------------------------------
+
+* http://dl.acm.org/citation.cfm?id=363039
+
+P51
+------
+
+* http://iowahills.com/Downloads/Iowa%20Hills%20P51%20Root%20Finder.zip
+
+
+
+
+g4-cls G4AnalyticalPolSolver
+-----------------------------
+
+
+* this appears not to be used for G4Torus, the iterative Jenkins-Traub is used 
+
+::
+
+
+     29 // Class description:
+     30 //
+     31 // G4AnalyticalPolSolver allows the user to solve analytically a polynomial
+     32 // equation up to the 4th order. This is used by CSG solid tracking functions
+     33 // like G4Torus.
+     34 //
+     35 // The algorithm has been adapted from the CACM Algorithm 326:
+     36 //
+     37 //   Roots of low order polynomials
+     38 //   Author: Terence R.F.Nonweiler
+     39 //   CACM  (Apr 1968) p269
+     40 //   Translated into C and programmed by M.Dow
+     41 //   ANUSF, Australian National University, Canberra, Australia
+     42 //   m.dow@anu.edu.au
+     43 //
+     44 // Suite of procedures for finding the (complex) roots of the quadratic,
+     45 // cubic or quartic polynomials by explicit algebraic methods.
+     46 // Each Returns:
+     47 //
+     48 //   x=r[1][k] + i r[2][k]  k=1,...,n, where n={2,3,4}
+     49 //
+     50 // as roots of:
+     51 // sum_{k=0:n} p[k] x^(n-k) = 0
+     52 // Assumes p[0] != 0. (< or > 0) (overflows otherwise)
+     53 
+     54 // --------------------------- HISTORY --------------------------------------
+     55 //
+     56 // 13.05.05 V.Grichine ( Vladimir.Grichine@cern.ch )
+     57 //          First implementation in C++
+
+
+     64 class G4AnalyticalPolSolver
+     65 {
+     66   public:  // with description
+     67 
+     68     G4AnalyticalPolSolver();
+     69     ~G4AnalyticalPolSolver();
+     70 
+     71     G4int QuadRoots(    G4double p[5], G4double r[3][5]);
+     72     G4int CubicRoots(   G4double p[5], G4double r[3][5]);
+     73     G4int BiquadRoots(  G4double p[5], G4double r[3][5]);
+     74     G4int QuarticRoots( G4double p[5], G4double r[3][5]);
+     75 };
+
+
+
+P51
+----
+
+* http://iowahills.com/P51RootFinder.html
+
+* Roots of Low Order Polynomials" by Terence R.F.Nonweiler CACM
+
+* http://www.apc.univ-paris7.fr/~franco/g4doxy/html/G4AnalyticalPolSolver_8hh-source.html
 
 
 Numerics
@@ -223,6 +334,22 @@ quartic-get(){
    #[ ! -f Roots3And4.c ] && curl -L -O http://www.realtimerendering.com/resources/GraphicsGems/gems/Roots3And4.c
 
    [ ! -d quartic ] && git clone https://github.com/simoncblyth/quartic
+
+   
+
+}
+
+quartic-p51(){
+
+   local dir=$(dirname $(quartic-dir)) &&  mkdir -p $dir && cd $dir
+   local url="http://iowahills.com/Downloads/Iowa%20Hills%20P51%20Root%20Finder.zip"
+
+   [ ! -f p51.zip ] && curl -L -o p51.zip "$url"
+   [ ! -d p51 ] && unzip p51.zip -d p51  
+   
+   cd p51
+
+
 }
 
 quartic-cmake(){

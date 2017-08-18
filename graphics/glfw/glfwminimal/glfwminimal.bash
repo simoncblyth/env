@@ -6,6 +6,8 @@ glfwminimal-usage(){ cat << EOU
 
 
 
+See also txf- which minimally uses OpenGL 4.0 features
+
 
 EOU
 }
@@ -19,6 +21,7 @@ glfwminimal-bindir(){ echo $(glfwminimal-idir)/bin ; }
 
 glfwminimal-scd(){  cd $(glfwminimal-sdir); }
 glfwminimal-cd(){   cd $(glfwminimal-sdir); }
+glfwminimal-c(){    cd $(glfwminimal-sdir); }
 
 glfwminimal-icd(){  cd $(glfwminimal-idir); }
 glfwminimal-bcd(){  cd $(glfwminimal-bdir); }

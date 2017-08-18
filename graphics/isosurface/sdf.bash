@@ -9,13 +9,11 @@ sdf-usage(){ cat << EOU
 SDF : Signed Distance Functions
 ==================================
 
-
 Introductions
 ----------------
 
 * http://www.alanzucconi.com/2016/07/01/signed-distance-functions/
 * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
-
 
 Lists of SDFs
 --------------
@@ -24,6 +22,28 @@ Lists of SDFs
 * http://mercury.sexy/hg_sdf/
 * https://github.com/marklundin/glsl-sdf-primitives
 
+
+Hyperboloid SDF ?
+-------------------
+
+* https://en.wikipedia.org/wiki/Hyperboloid_model
+* https://en.wikipedia.org/wiki/Hyperboloid
+
+::
+
+    (x/a)^2 + (y/b)^2 - (z/c)^2 = 1    # one sheet hyperbol
+
+At constant z, just get circles.
+
+So approx bound for point p 
+is just distance to the circle at that p.z ? 
+
+
+Use a = b = 1, so rsq:: 
+
+     x^2 + y^2 = 1 + (z/c)^2    
+ 
+    
 
 
 cylinder Deltaphi segment with SDF ?

@@ -1905,3 +1905,6 @@ gts-(){      . $(env-home)/graphics/gts/gts.bash && gts-env $* ; }
 cosinekitty-(){      . $(env-home)/graphics/cosinekitty.bash && cosinekitty-env $* ; }
 quartic-(){      . $(env-home)/geometry/quartic/quartic.bash && quartic-env $* ; }
 gems-(){      . $(env-home)/graphics/gems/gems.bash && gems-env $* ; }
+rayce-(){      . $(env-home)/graphics/rayce/rayce.bash && rayce-env $* ; }
+mountains-(){      . $(env-home)/graphics/opengl/mountains/mountains.bash && mountains-env $* ; }
+txf-(){      . $(env-home)/graphics/opengl/txf/txf.bash && txf-env $* ; }

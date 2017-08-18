@@ -39,6 +39,125 @@ Many (includine surface-of-revolution), terse:
 
 * http://hugi.scene.org/online/hugi24/coding%20graphics%20chris%20dragan%20raytracing%20shapes.htm
 
+
+
+Approximate Roots
+-------------------
+
+* https://en.wikipedia.org/wiki/Durand–Kerner_method
+* sympy.mpmath.polyroots??
+* https://github.com/scijs/durand-kerner/blob/master/roots.js
+
+* :google:`CUDA Durand Kerner`
+
+* ~/opticks_refs/Guidoche_approx_roots.pdf
+
+
+
+SOR : Surface of Revolution
+------------------------------
+
+* http://zemax.com/os/resources/learn/knowledgebase/how-to-create-surfaces-of-revolution-via-user-defi
+
+* ~/opticks_refs/Surfaces_of_revolution-c2.pdf 
+
+povray SOR
+~~~~~~~~~~~~~~
+
+* http://www.povray.org/documentation/view/3.6.1/286/
+
+...Since this is a cubic function in h it has enough flexibility to allow smooth
+curves.  The curve itself is defined by a set of n points P(i), i=0...n-1,
+which are interpolated using one function for every segment of the curve. A
+segment j, j=1...n-3, goes from point P(j) to point P(j+1) and uses points
+P(j-1) and P(j+2) to determine the slopes at the endpoints. If there are n
+points we will have n-3 segments. This means that we need at least four points
+to get a proper curve. The coefficients A(j), B(j), C(j) and D(j) are
+calculated for every segment using the equation
+
+
+Spline Interpolation
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://en.m.wikipedia.org/wiki/Spline_interpolation
+
+Cubic Bezier Curve 
+~~~~~~~~~~~~~~~~~~~~
+
+* :google:`interactive bezier curve`
+* https://www.desmos.com/calculator/cahqdxeshd
+
+
+Skala Segment Clipping
+------------------------
+
+* https://link.springer.com/article/10.1007/s00371-005-0305-3
+* ~/opticks_refs/Skala_Segment_Clipping_Homogeous.pdf
+
+
+* ~/opticks_refs/Skala_VR_Duality.pdf
+
+* http://www.vaclavskala.eu
+
+* ~/opticks_refs/Skala_Intersection_In_Projective_Space.pdf
+
+
+Quad surf intersect
+--------------------
+
+* https://link.springer.com/content/pdf/10.1007%2F0-387-29550-X.pdf
+* ~/opticks_refs/Chan_4D_quad_intersect.pdf   (A book)
+* ~/opticks_refs/Chan_4D_quad_intersect_only.pdf (28 pages)
+
+
+
+Projective intro 
+------------------
+
+* ~/opticks_refs/intro_projective_geometry_birch.pdf
+
+
+E2 (x,y,w)
+~~~~~~~~~~~~~
+
+* ideal line at infinity : (0,0,1)
+
+
+
+Homogenous Advantage
+----------------------
+
+* http://groups.csail.mit.edu/graphics/classes/6.838/S98/meetings/m3/duality.htm
+
+
+* cartesian point becomes homogenous (projective space) line 
+* can represent point at infinity
+
+
+Lagrange
+------------
+
+
+* https://www.semanticscholar.org/paper/Ray-tracing-complex-scenes-Kay-Kajiya/8b27bdee42064219da807c5dfd1817571f79a0bd
+* ~/opticks_refs/Kay_Kajiya_Ray_Tracing_Complex_Scenes_Lagrange.pdf
+
+
+* http://dl.acm.org/citation.cfm?id=801136
+* ~/opticks_refs/Ray_Trace_Algebraic_p83-hanrahan.pdf
+
+4D
+----
+
+* http://graphics.cs.aueb.gr/graphics/docs/Ray_Tracing_Acceleration_using_Displacement_Fields_on_GPU.pdf
+* ~/opticks_refs/Ray_Tracing_Acceleration_using_Displacement_Fields_on_GPU.pdf
+
+Parametric
+-------------
+
+* http://www.idt.mdh.se/utbildning/exjobb/files/TR1934.pdf
+* ~/opticks_refs/ray_trace_parametric_thesis_TR1934.pdf
+
+
 Torus
 --------
 
@@ -55,6 +174,41 @@ Torus
 
 
 * https://github.com/erich666/GraphicsGems
+
+
+Jordan Curve Theorem CSG
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :google:`Jordan Curve Theorem CSG`
+
+
+
+Swept Sphere
+~~~~~~~~~~~~~~~
+
+* :google:`torus line intersection swept sphere`
+* https://mathoverflow.net/questions/43552/anuloid-torus-x-line-intersection
+
+
+Ray tracing objects defined by sweeping a sphere
+J.J.Van Wijk
+
+* http://www.sciencedirect.com/science/article/pii/009784938590055X
+* ~/opticks_refs/Wijk_Swept_Sphere.pdf
+
+
+* https://hanwen.home.xs4all.nl/public/software/rayce-3.0.tar.gz
+
+
+Torus Numerical Problem
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://stackoverflow.com/questions/31100965/numerical-bug-in-intersecting-the-equation-of-ray-and-torus-when-the-camera-is-f
+* https://stackoverflow.com/questions/25470493/ray-and-ellipsoid-intersection-accuracy-improvement
+
+* ~/opticks_refs/phkahler_torus.pdf
+* http://users.wowway.com/~phkahler/torus.pdf
+
 
 Quartic
 ~~~~~~~~~

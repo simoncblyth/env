@@ -1,13 +1,13 @@
 #!/bin/bash -l
 [ "$0" == "$BASH_SOURCE" ] && sauce=0 || sauce=1
 if [ "$sauce" == "1" ]; then 
-   op-(){   . $BASH_SOURCE ; } 
-   op-vi(){ vi $BASH_SOURCE ; } 
+   eop-(){   . $BASH_SOURCE ; } 
+   eop-vi(){ vi $BASH_SOURCE ; } 
 fi
 
 cmdline="$*"
 
-op-usage(){ cat << \EOU
+eop-usage(){ cat << \EOU
 op : Opticks Operations
 ===========================
 
@@ -39,9 +39,9 @@ TODO
 EOU
 }
 
-#op-binary-name-default(){ echo GGeoViewTest ; }
-op-binary-name-default(){ echo OKTest ; }
-op-binary-name()
+#eop-binary-name-default(){ echo GGeoViewTest ; }
+eop-binary-name-default(){ echo OKTest ; }
+eop-binary-name()
 {
    case $1 in 
           --tcfg4) echo CG4Test ;;
@@ -72,6 +72,7 @@ op-binary-name()
         --opticks) echo OpticksTest ;;
           --pybnd) echo GBndLibTest.py ;;
          --pygdml) echo tgltf_gdml.py ;;
+         --extras) echo extras.py ;;
              --mm) echo GMergedMeshTest ;;
         --testbox) echo GTestBoxTest ;;
          --geolib) echo GGeoLibTest ;;
@@ -91,11 +92,11 @@ op-binary-name()
            --hits) echo HitsNPYTest ;;  
    esac 
    # no default as its important this return blank for unidentified commands
-   #      *) echo $(op-binary-name-default) ;;
+   #      *) echo $(eop-binary-name-default) ;;
       
 }
 
-op-binary-desc()
+eop-binary-desc()
 {
    case $1 in 
            -tcfg4) echo "Geant4 comparison simulation of simple test geometries. Requires g4-export environment. " ;; 
@@ -118,7 +119,7 @@ op-binary-desc()
    esac 
 }
 
-op-geometry-name()
+eop-geometry-name()
 {
    case $1 in 
        --dyb)  echo DYB ;; 
@@ -135,18 +136,18 @@ op-geometry-name()
    esac
 }
 
-op-geometry-setup()
+eop-geometry-setup()
 {
     local geo=${OPTICKS_GEO:-DYB}
-    op-geometry-unset 
+    eop-geometry-unset 
     case $geo in 
-       DYB|IDYB|JDYB|KDYB|LDYB|MDYB) op-geometry-setup-dyb  $geo  ;;
-                     JUNO|JPMT|JTST) op-geometry-setup-juno $geo  ;;
-                          DPIB|DPMT) op-geometry-setup-dpib $geo  ;;
+       DYB|IDYB|JDYB|KDYB|LDYB|MDYB) eop-geometry-setup-dyb  $geo  ;;
+                     JUNO|JPMT|JTST) eop-geometry-setup-juno $geo  ;;
+                          DPIB|DPMT) eop-geometry-setup-dpib $geo  ;;
     esac
 }
 
-op-geometry-query-dyb()
+eop-geometry-query-dyb()
 {
     case $1 in 
         DYB)  echo "range:3153:12221"  ;;
@@ -159,16 +160,16 @@ op-geometry-query-dyb()
     # range:3154:3155  SST  Stainless Steel/IWSWater not a good choice for an envelope, just get BULK_ABSORB without going anywhere
 }
 
-op-geometry-setup-dyb()
+eop-geometry-setup-dyb()
 {
     local geo=${1:-DYB}
     export OPTICKS_GEOKEY=DAE_NAME_DYB
-    export OPTICKS_QUERY=$(op-geometry-query-dyb $geo) 
+    export OPTICKS_QUERY=$(eop-geometry-query-dyb $geo) 
     export OPTICKS_CTRL="volnames"
     export OPTICKS_MESHFIX="iav,oav"
     export OPTICKS_MESHFIX_CFG="100,100,10,-0.999"   # face barycenter xyz alignment and dot face normal cuts for faces to be removed 
 }
-op-geometry-setup-juno()
+eop-geometry-setup-juno()
 {
    local geo=${1:-JPMT}
    if [ "$geo" == "JUNO" ]; then 
@@ -185,7 +186,7 @@ op-geometry-setup-juno()
        export OPTICKS_CTRL=""
    fi
 }
-op-geometry-setup-dpib()
+eop-geometry-setup-dpib()
 {
    local geo=${1:-DPIB}
    if [ "$geo" == "DPIB" ]; then
@@ -198,7 +199,7 @@ op-geometry-setup-dpib()
        export OPTICKS_CTRL=""
    fi 
 }
-op-geometry-unset()
+eop-geometry-unset()
 {
     unset OPTICKS_GEOKEY
     unset OPTICKS_QUERY 
@@ -208,20 +209,20 @@ op-geometry-unset()
 }
 
 
-op-binary-names(){ type op-binary-name | perl -ne 'm,--(\w*)\), && print "$1\n" ' - ; } 
-op-help(){
+eop-binary-names(){ type op-binary-name | perl -ne 'm,--(\w*)\), && print "$1\n" ' - ; } 
+eop-help(){
    local cmd
    local bin
    local hlp
-   op-binary-names | while read cmd ; do
-      bin=$(op-binary-name "--$cmd")
-      desc=$(op-binary-desc "--$cmd")
+   eop-binary-names | while read cmd ; do
+      bin=$(eop-binary-name "--$cmd")
+      desc=$(eop-binary-desc "--$cmd")
       printf " %20s : %25s : %s \n" $cmd  $bin  "$desc"
    done
 }
 
 
-op-cmdline-dump()
+eop-cmdline-dump()
 {
     >&2 echo $0 $FUNCNAME
     local arg
@@ -230,11 +231,11 @@ op-cmdline-dump()
        if [ "${arg/=}" == "${arg}" ]; then  
            >&2 printf "%s\n" $arg
        else
-           op-dump _ $arg
+           eop-dump _ $arg
        fi
     done
 }
-op-dump(){
+eop-dump(){
   local IFS="$1" ; shift  
   local elements
   read -ra elements <<< "$*" 
@@ -245,7 +246,7 @@ op-dump(){
 }
 
 
-op-cmdline-specials()
+eop-cmdline-specials()
 {
    unset OPTICKS_DBG 
    unset OPTICKS_LOAD
@@ -262,7 +263,7 @@ op-cmdline-specials()
    fi
 }
 
-op-cmdline-binary-match()
+eop-cmdline-binary-match()
 {
     local msg="=== $FUNCNAME : finds 1st argument with associated binary :"
     local arg
@@ -271,22 +272,23 @@ op-cmdline-binary-match()
 
     for arg in $cmdline 
     do
-       bin=$(op-binary-name $arg)
+       bin=$(eop-binary-name $arg)
        #echo arg $arg bin $bin geo $geo 
        if [ "$bin" != "" ]; then 
            export OPTICKS_CMD=$arg
+           #echo $msg arg $arg bin $bin 
            return 
        fi
     done
 }
 
 
-op-binary-setup()
+eop-binary-setup()
 {
     local msg="=== $FUNCNAME :"
     local cfm=$OPTICKS_CMD
-    local bin=$(op-binary-name $cfm) 
-    local def=$(op-binary-name-default)
+    local bin=$(eop-binary-name $cfm) 
+    local def=$(eop-binary-name-default)
 
     if [ "$bin" == "" ]; then
        bin=$def
@@ -301,7 +303,9 @@ op-binary-setup()
     unset OPTICKS_BINARY 
     unset OPTICKS_ARGS
 
-    if [ "$bin" != "" ]; then
+    if [ "${bin: -3}" == ".py" ]; then
+       export OPTICKS_BINARY=$bin
+    elif [ "$bin" != "" ]; then
        export OPTICKS_BINARY=$(opticks-bindir)/$bin
        # some commands should not be removed from the commandline
        # as they are needed by the binary 
@@ -322,7 +326,7 @@ op-binary-setup()
 }
 
 
-op-cmdline-geometry-match()
+eop-cmdline-geometry-match()
 {
     local msg="=== $FUNCNAME : finds 1st argument with associated geometry :"
     local arg
@@ -332,7 +336,7 @@ op-cmdline-geometry-match()
     ## look for argument that identifies a geometry eg: --dyb --idyb ... --juno --jpmt ...  --dpib --dpmt
     for arg in $cmdline 
     do
-       geo=$(op-geometry-name $arg)  
+       geo=$(eop-geometry-name $arg)  
        #echo arg $arg geo $geo 
        if [ "$geo" != "" ]; then 
            export OPTICKS_GEO=$geo
@@ -342,20 +346,20 @@ op-cmdline-geometry-match()
 }
 
 
-op-cmdline-parse()
+eop-cmdline-parse()
 {
-    #op-cmdline-dump
-    op-cmdline-specials    ## --dbg --load --oac 
+    #eop-cmdline-dump
+    eop-cmdline-specials    ## --dbg --load --oac 
 
-    op-cmdline-binary-match
-    op-cmdline-geometry-match  ## sets OPTICKS_GEO
+    eop-cmdline-binary-match
+    eop-cmdline-geometry-match  ## sets OPTICKS_GEO
 
-    op-binary-setup
-    op-geometry-setup
+    eop-binary-setup
+    eop-geometry-setup
 }
 
 
-op-export()
+eop-export()
 {
    # TODO: avoid need for any envvars (other than PATH) 
    opticksdata-
@@ -363,7 +367,7 @@ op-export()
 }
 
 
-op-windows-debug(){ cat << \EOM
+eop-windows-debug(){ cat << \EOM
 
 Windows debugging from commandline not yet implemented.
 Instead try Visual Studio, from Powershell with 
@@ -382,12 +386,16 @@ TODO: work out way of passing commandline args into Visual Studio
 EOM
 }
 
-op-runline()
+eop-runline()
 {
    local runline
-   if [ "${OPTICKS_BINARY: -3}" == ".py" ]; then
-      runline="python ${OPTICKS_BINARY} ${OPTICKS_ARGS} "
-   elif [ "${OPTICKS_DBG}" == "1" ]; then 
+
+   #  moving to requiring python to be in PATH
+   #if [ "${OPTICKS_BINARY: -3}" == ".py" ]; then
+   #   runline="${OPTICKS_BINARY} ${OPTICKS_ARGS} "
+   #   #runline="python ${OPTICKS_BINARY} ${OPTICKS_ARGS} "
+
+   if [ "${OPTICKS_DBG}" == "1" ]; then 
       case $(uname) in
           Darwin) runline="lldb ${OPTICKS_BINARY} -- ${OPTICKS_ARGS} " ;;
            MING*) runline="     ${OPTICKS_BINARY} -- ${OPTICKS_ARGS} " ;; 
@@ -402,19 +410,24 @@ op-runline()
 
 
 opticks-
-op-cmdline-parse
-runline=$(op-runline)
+eop-cmdline-parse
+runline=$(eop-runline)
 
 
-op-export
+eop-export
+
 
 if [ "$sauce" == "1" ]; then
    #echo sauce detected : assume are debugging this script
    echo -n
 elif [ "${cmdline/--help}" != "${cmdline}" ]; then
-   op-help
+   eop-help
 else
-   >&2 ls -alst ${OPTICKS_BINARY}
+   if [ ${OPTICKS_BINARY/\/} == ${OPTICKS_BINARY} ]; then 
+       >&2 ls -alst $(which ${OPTICKS_BINARY})
+   else 
+       >&2 ls -alst ${OPTICKS_BINARY}
+   fi 
    env | >&2 grep OPTICKS
    >&2 echo proceeding : $runline
    eval $runline

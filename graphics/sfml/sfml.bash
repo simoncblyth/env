@@ -12,6 +12,9 @@ SFML : Simple and Fast Multimedia Library
 * http://www.sfml-dev.org
 * http://www.sfml-dev.org/learn.php
 
+* https://www.sfml-dev.org/tutorials/2.4/window-opengl.php
+
+
 SFML provides a simple interface to the various components of your PC, to ease
 the development of games and multimedia applications. It is composed of five
 modules: system, window, graphics, audio and network.

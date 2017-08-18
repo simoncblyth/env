@@ -1,3 +1,4 @@
+opticksdev-src(){ echo $BASH_SOURCE ; }
 opticksdev-vi(){ vi $BASH_SOURCE ; }
 opticksdev-usage(){ cat << \EOU
 
