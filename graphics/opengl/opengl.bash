@@ -19,16 +19,68 @@ OPENGL
 
 
 
+OSX Stuck At 4.1
+------------------
+
+* https://forum.unity3d.com/threads/opengl-4-3-or-apple-metal-gpu-offload-on-mac.396414/
+
+
+18/08/2010 OpenGL 4.1 review
+-------------------------------
+
+* https://www.g-truc.net/post-0320.html
+
 23/03/2010 OpenGL 4.0 review 
 -------------------------------
 
 * http://www.g-truc.net/post-0269.html
 
 
+GLSL Compatibility
+---------------------
+
+* https://stackoverflow.com/questions/26266198/glsl-invalid-call-of-undeclared-identifier-texture2d
+
+Cripes. Finally found the answer right after I posted the question. texture2D has been replaced by texture.
+
+Yes, be aware that on OS X #version 150 can only mean #version 150 core. On
+other platforms where compatibility profiles are implemented, you can continue
+to use things that were deprecated beginning in GLSL 1.30 such as texture2D if
+you write #version 150 compatibility. You really don't want that, but it's
+worth mentioning ;) – Andon M. Coleman
+
+
+
+
+
+
 Excellent Sources
 ------------------
 
 * https://open.gl/
+
+
+Primitive Restart
+-------------------
+
+GL_PRIMITIVE_RESTART
+
+Enables primitive restarting. If enabled, any one of the draw commands which
+transfers a set of generic attribute array elements to the GL will restart the
+primitive when the index of the vertex is equal to the primitive restart index.
+See glPrimitiveRestartIndex.
+
+
+GL_CULL_FACE
+
+If enabled, cull polygons based on their winding in window coordinates. See glCullFace.
+
+* https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glCullFace.xhtml
+
+Specifies whether front- or back-facing facets are candidates for culling.
+Symbolic constants GL_FRONT, GL_BACK, and GL_FRONT_AND_BACK are accepted. The
+initial value is GL_BACK.
+
 
 
 Transform Feedback

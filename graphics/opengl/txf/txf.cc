@@ -1,28 +1,6 @@
 /*
-
 https://open.gl/feedback
 https://open.gl/content/code/c8_geometry.txt
-
-simon:txf blyth$ TXF
-Frame::gl_init_window Renderer: NVIDIA GeForce GT 750M OpenGL Engine
-Frame::gl_init_window OpenGL version supported 4.1 NVIDIA-8.26.26 310.40.45f01
-1.000000
-2.000000
-3.000000
-1.414214
-2.414214
-3.414214
-1.732051
-2.732051
-3.732051
-2.000000
-3.000000
-4.000000
-2.236068
-3.236068
-4.236068
-
-
 
 */
 

@@ -16,6 +16,7 @@ message("OPTICKS_PREFIX:${OPTICKS_PREFIX}")
 
 find_package(GLEW REQUIRED)
 find_package(GLFW REQUIRED)
+find_package(GLM    REQUIRED)
 find_library(OpenGL_LIBRARY NAMES GL )
 
 
@@ -23,16 +24,19 @@ set(INCLUDE_DIRS
    ${CMAKE_CURRENT_SOURCE_DIR}
    ${GLEW_INCLUDE_DIRS} 
    ${GLFW_INCLUDE_DIRS} 
+   ${GLM_INCLUDE_DIRS} 
 )
 
 set(DEFINITIONS
    ${GLEW_DEFINITIONS}
    ${GLFW_DEFINITIONS}
+   ${GLM_DEFINITIONS}
 )
 
 set(LIBRARIES
       ${GLEW_LIBRARIES}
       ${GLFW_LIBRARIES}
+      ${GLM_LIBRARIES}
       ${OpenGL_LIBRARY}
 )
 
