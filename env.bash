@@ -1908,3 +1908,5 @@ gems-(){      . $(env-home)/graphics/gems/gems.bash && gems-env $* ; }
 rayce-(){      . $(env-home)/graphics/rayce/rayce.bash && rayce-env $* ; }
 mountains-(){      . $(env-home)/graphics/opengl/mountains/mountains.bash && mountains-env $* ; }
 txf-(){      . $(env-home)/graphics/opengl/txf/txf.bash && txf-env $* ; }
+instance-(){      . $(env-home)/graphics/opengl/instance/instance.bash && instance-env $* ; }
+oas-(){      . $(env-home)/graphics/optix_advanced_samples/oas.bash && oas-env $* ; }

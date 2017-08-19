@@ -18,6 +18,15 @@ Issues
 * timing, navigation
 * retina in quad corner problem when press SPACE
 
+Instance Culling via Geometry Shader
+---------------------------------------
+
+* http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
+
+Examples
+----------
+
+* https://github.com/nvpro-samples/gl_occlusion_culling
 
 
 Start Converting to GLFW/GLEQ in bitbucket
