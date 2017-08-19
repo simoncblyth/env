@@ -12,6 +12,7 @@ GLuint _upload(GLenum target, unsigned num_bytes, void* ptr, GLenum usage )
     glGenBuffers(1, &buffer_id);
     glBindBuffer(target, buffer_id);
     glBufferData(target, num_bytes, ptr, usage);
+    glBindBuffer(target, 0);
     return buffer_id ;
 }
 

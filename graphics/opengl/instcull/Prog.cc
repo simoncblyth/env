@@ -1,7 +1,23 @@
-#include "Prog.hh"
-
+#include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include "Prog.hh"
+
+
+// http://antongerdelan.net/opengl/shaders.html
+
+const char* Prog::ShaderType(GLenum type)
+{
+    const char* s = NULL;
+    switch(type)
+    {
+        case GL_VERTEX_SHADER  : s = "vertex"   ; break;
+        case GL_GEOMETRY_SHADER: s = "geometry" ; break;
+        case GL_FRAGMENT_SHADER: s = "fragment" ; break;
+    }
+    return s ; 
+}
 
 Prog::Prog(const char* vertSrc_, const char* geomSrc_,  const char* fragSrc_)
         :
@@ -16,26 +32,40 @@ Prog::Prog(const char* vertSrc_, const char* geomSrc_,  const char* fragSrc_)
 
 void Prog::compile()
 {
-    if(vert)
-    {
-        vertShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertShader, 1, &vertSrc, nullptr);
-        glCompileShader(vertShader);
-    }
-    if(geom)
-    {
-        geomShader = glCreateShader(GL_GEOMETRY_SHADER);
-        glShaderSource(geomShader, 1, &geomSrc, nullptr);
-        glCompileShader(geomShader); 
-    }
-    if(frag)
-    {
-        fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragShader, 1, &fragSrc, nullptr);
-        glCompileShader(fragShader); 
-    }
-
+    if(vert) vertShader = compile(GL_VERTEX_SHADER,  vertSrc ) ;
+    if(geom) geomShader = compile(GL_GEOMETRY_SHADER, geomSrc ) ;
+    if(frag) fragShader = compile(GL_FRAGMENT_SHADER, fragSrc );
 }
+
+unsigned Prog::compile(GLenum type, const char* src)
+{
+    std::cerr << "\n\n//////////// Compile " <<  ShaderType(type) << "\n" ;
+    std::cerr << src << "\n" ; 
+
+    unsigned shader = glCreateShader(type);
+    glShaderSource(shader, 1, &src, nullptr);
+    glCompileShader(shader);
+
+    GLint status;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    if (status == GL_FALSE)
+    {
+        GLint infoLogLength;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+        
+        GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+        glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
+
+        std::cerr << "Compile failure in shader: " <<  ShaderType(type) << "\n" <<  strInfoLog << "\n" ;
+        delete[] strInfoLog;
+    }
+    else
+    {
+        std::cerr << "Compile OK shader: " <<  ShaderType(type) << "\n" ;
+    }
+    return shader ; 
+}
+
 
 void Prog::create()
 {
@@ -48,6 +78,20 @@ void Prog::create()
 void Prog::link()
 {
     glLinkProgram(program);
+
+    GLint status;
+    glGetProgramiv (program, GL_LINK_STATUS, &status);
+    if (status == GL_FALSE)
+    {
+        GLint infoLogLength;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
+        
+        GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+        glGetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
+        std::cerr <<  "Linker failure: \n" <<  strInfoLog << "\n"  ;
+        delete[] strInfoLog;
+    }
+
     glUseProgram(program);
 } 
 

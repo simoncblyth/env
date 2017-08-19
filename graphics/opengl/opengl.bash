@@ -16,7 +16,12 @@ OPENGL
 * https://www.opengl.org/discussion_boards/showthread.php/176296-glDrawElements-multiple-calls-one-index-array
 * http://www.opengl.org/wiki/Vertex_Buffer_Object#Vertex_Buffer_Object
 
+Tute
+------
 
+* https://alfonse.bitbucket.io/oldtut/Basics/Intro%20What%20is%20OpenGL.html
+
+* http://github.prideout.net/modern-opengl-prezo/
 
 
 OSX Stuck At 4.1

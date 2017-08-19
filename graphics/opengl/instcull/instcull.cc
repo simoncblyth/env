@@ -20,7 +20,20 @@ Status
 ---------
 
 * transform feedback succeeds to cull instances writing to the buffer
-* BUT: subsequent render appears to not see the content ??
+* subsequent render now sees just the selected instances transforms
+
+
+What Not Working 
+--------------------
+
+Trying to render from the GL_TRANSFORM_FEEDBACK_BUFFER
+with something like::
+
+   glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, cbuf.id);    
+ 
+Results in the render not seeing the instance postitions, 
+gets all zeros resulting in all instances on top of
+each other.
 
     
 */
@@ -40,34 +53,33 @@ Status
 
 const char* vertCullSrc = R"glsl(
 
-    #version 330 core
+    #version 400
     in vec4 InstancePosition;
-    out vec4 OrigPosition;
-    flat out int objectVisible;
+    out int objectVisible;
        
     void main() 
     {      
-       OrigPosition = InstancePosition;
-       objectVisible = InstancePosition.x > 0.5 ? 1 : 0;
+       gl_Position = InstancePosition;
+       objectVisible = InstancePosition.z > 0.0 ? 1 : 0;
     }
 
 )glsl";
 
 const char* geomCullSrc = R"glsl(
 
-    #version 330 core
+    #version 400
     layout(points) in; 
     layout(points, max_vertices = 1) out;
 
-    in vec4 OrigPosition[1];
-    flat in int objectVisible[1];
+    in int objectVisible[1] ;
+
     out vec4 CulledPosition;
 
     void main() 
     {
        if ( objectVisible[0] == 1 ) 
        {   
-          CulledPosition = OrigPosition[0];
+          CulledPosition = gl_in[0].gl_Position ;
           EmitVertex();
           EndPrimitive();
        }   
@@ -75,10 +87,9 @@ const char* geomCullSrc = R"glsl(
 
 )glsl";
 
-
 const char* vertNormSrc = R"glsl(
 
-    #version 330 core
+    #version 400 core
     in vec4 VertexPosition;
     in vec4 VizInstancePosition;
 
@@ -87,12 +98,11 @@ const char* vertNormSrc = R"glsl(
         gl_Position = vec4( VertexPosition.x + VizInstancePosition.x, VertexPosition.y + VizInstancePosition.y, VertexPosition.z + VizInstancePosition.z, 1.0 ) ;  
     }
 
-
 )glsl";
 
 const char* fragNormSrc = R"glsl(
 
-    #version 330 core 
+    #version 400 core 
     out vec4 fColor ; 
     void main()
     {
@@ -118,13 +128,13 @@ V vpos[NUM_VPOS] =
 static const unsigned NUM_IPOS = 8 ; 
 V ipos[NUM_IPOS] = 
 {
-    {   0.5f ,  -0.5f,   0.f,  1.f },
+    {   0.5f ,  -0.5f,   0.1f,  1.f },
     {   0.6f ,  -0.6f,   0.f,  1.f }, 
-    {   0.3f ,  -0.3f,   0.f,  1.f },
+    {   0.3f ,  -0.3f,   0.1f,  1.f },
     {   0.4f ,  -0.4f,   0.f,  1.f },
-    {  -0.1f ,   0.1f,   0.f,  1.f }, 
+    {  -0.1f ,   0.1f,   0.1f,  1.f }, 
     {  -0.2f ,   0.2f,   0.f,  1.f },
-    {  -0.3f ,   0.3f,   0.f,  1.f },
+    {  -0.3f ,   0.3f,   0.1f,  1.f },
     {  -0.4f ,   0.4f,   0.f,  1.f }
 };
 
@@ -142,8 +152,7 @@ Att::Att(const Prog& prog_ , const char* name_ )
     prog(prog_),
     loc(prog.getAttribLocation(name_))
 {
-    glEnableVertexAttribArray(loc);
-    
+   
     GLuint index = loc ; 
     GLint  size = 4 ;         // Specifies the number of components per generic vertex attribute. Must be 1, 2, 3, 4.
     GLenum type = GL_FLOAT ;
@@ -176,14 +185,20 @@ int main()
 
     GLfloat feedback[NUM_IPOS*4];
 
-    Buf v( sizeof(vpos),vpos ) ; 
-    Buf i( sizeof(ipos),ipos ) ; 
-    Buf c( sizeof(ipos),NULL ) ;   // CulledPosition subset of InstancePosition are copied in here
+    Buf vbuf( sizeof(vpos),vpos ) ; 
+    Buf ibuf( sizeof(ipos),ipos ) ; 
+    Buf cbuf( sizeof(ipos),NULL ) ;   // CulledPosition subset of InstancePosition are copied in here
 
     Renderer rdr ; 
-    rdr.upload(&v, GL_ARRAY_BUFFER             , GL_STATIC_DRAW);
-    rdr.upload(&i, GL_ARRAY_BUFFER             , GL_STATIC_DRAW);
-    rdr.upload(&c, GL_TRANSFORM_FEEDBACK_BUFFER, GL_STATIC_READ);
+    rdr.upload( &ibuf , GL_ARRAY_BUFFER             , GL_STATIC_DRAW);
+    //rdr.upload( &cbuf , GL_TRANSFORM_FEEDBACK_BUFFER, GL_STATIC_READ);
+    rdr.upload( &cbuf , GL_ARRAY_BUFFER, GL_STREAM_DRAW);
+
+    /// hmm: seems you only call it a GL_TRANSFORM_FEEDBACK_BUFFER 
+    ///     when using glBindBufferBase and runing the TransformFeedback 
+    //      not in general buffer creation and rendering  ?
+    //  this gleaned from : http://github.prideout.net/modern-opengl-prezo/
+ 
 
 
     ///////////////////////// PASS 1 : CULLING /////////////
@@ -191,14 +206,16 @@ int main()
     glUseProgram(cull.program);
 
     // culling pass needs access to instance positions in non-instanced manner
-    glBindBuffer(GL_ARRAY_BUFFER, i.id);
+    glBindBuffer(GL_ARRAY_BUFFER, ibuf.id);
+
     Att ci(cull, "InstancePosition");
+    glEnableVertexAttribArray(ci.loc);
 
     GLuint query;
     glGenQueries(1, &query);
 
     glEnable(GL_RASTERIZER_DISCARD);
-    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, c.id );
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, cbuf.id );
     glBeginTransformFeedback(GL_POINTS);
     {
         glBeginQuery(GL_PRIMITIVES_GENERATED, query );
@@ -216,39 +233,20 @@ int main()
     std::cout << " GL_PRIMITIVES_GENERATED: " << primitives << std::endl ; 
 
    // Fetch and print results
+   
     glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(feedback), feedback);
     for (int i = 0; i < NUM_IPOS; i++) 
     {
         printf("%f %f %f %f \n", feedback[i*4+0], feedback[i*4+1], feedback[i*4+2], feedback[i*4+3] );
     }
-
+    
+    glUseProgram(0);
     ///////////////////////// PASS 2 : RENDER //////////////////////////
 
-    glUseProgram(norm.program);
-    glBindVertexArray(rdr.vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, v.id);
-    Att vp(norm, "VertexPosition"); 
 
-    bool use_cull = true ; 
-    //bool use_cull = false ; 
-    if(use_cull)
-    {
-        glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, c.id);     
-    }
-    else
-    { 
-        primitives = NUM_IPOS ; 
-        glBindBuffer(GL_ARRAY_BUFFER, i.id);
-    }
- 
-    Att ip(norm, "VizInstancePosition"); 
-    glVertexAttribDivisor(ip.loc, 1 );
-    
+    rdr.upload( &vbuf , GL_ARRAY_BUFFER             , GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(ip.loc);
-    glEnableVertexAttribArray(vp.loc);
-  
 
     while (!glfwWindowShouldClose(frame.window)  && primitives > 0)
     {
@@ -258,14 +256,25 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         {
-            GLenum mode = GL_TRIANGLES ;
-            GLint first = 0 ; 
-            GLsizei count = NUM_VPOS ;  // number of indices to render, NB not number of prim
-            GLsizei primCount = primitives  ;  
-            glDrawArraysInstanced(mode, first, count, primCount );
-            //glDrawArrays(mode, first, count );
-        }
+            glUseProgram(norm.program);
+            glBindVertexArray(rdr.vao);
 
+            glBindBuffer(GL_ARRAY_BUFFER, vbuf.id);
+            Att vp(norm, "VertexPosition"); 
+            glEnableVertexAttribArray(vp.loc);
+ 
+            bool use_cull = true ; 
+            //bool use_cull = false ; 
+              
+            glBindBuffer(GL_ARRAY_BUFFER, use_cull ? cbuf.id : ibuf.id);         
+            Att ip(norm, "VizInstancePosition"); 
+            glEnableVertexAttribArray(ip.loc);  
+            glVertexAttribDivisor(ip.loc, 1 );
+            
+            glEnableVertexAttribArray(ip.loc);
+
+            glDrawArraysInstanced( GL_TRIANGLES, 0, NUM_VPOS, use_cull ? primitives : NUM_IPOS  );
+        }
 
         glfwSwapBuffers(frame.window);
         glfwPollEvents();
