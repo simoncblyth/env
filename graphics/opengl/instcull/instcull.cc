@@ -54,42 +54,46 @@ each other.
 #include "Transforms.hh"
 
 
-
-//const unsigned LOC_InstancePosition = 0 ;  
 const unsigned LOC_InstanceTransform = 0 ;  
 
 const char* vertCullSrc = R"glsl(
 
     #version 400
-    //layout( location = 0) in vec4 InstancePosition;
+
     layout( location = 0) in mat4 InstanceTransform ;
-    out int objectVisible;
-       
+    out mat4 ITransform ;       
+
     void main() 
     {      
-        //gl_Position = InstancePosition;
-        vec4 tlate = InstanceTransform[3] ;
-        gl_Position = tlate ; 
-        objectVisible = tlate.x >= 0.f ? 1 : 0;
+        ITransform = InstanceTransform ; 
     }
+    // pass transform thru into geometry shader
 
 )glsl";
 
 const char* geomCullSrc = R"glsl(
 
     #version 400
+
     layout(points) in; 
     layout(points, max_vertices = 1) out;
 
-    in int objectVisible[1] ;
+    in mat4 ITransform[1] ;
 
-    out vec4 CulledPosition;
+    out vec4 VizTransform0 ;
+    out vec4 VizTransform1 ;
+    out vec4 VizTransform2 ;
+    out vec4 VizTransform3 ;
 
     void main() 
     {
-        if ( objectVisible[0] == 1 ) 
-        {   
-            CulledPosition = gl_in[0].gl_Position ;
+        if ( ITransform[0][3].x >= 0.f )   // arbitrary visibility criteria
+        {    
+            VizTransform0 = ITransform[0][0]  ;
+            VizTransform1 = ITransform[0][1]  ;
+            VizTransform2 = ITransform[0][2]  ;
+            VizTransform3 = ITransform[0][3]  ;
+
             EmitVertex();
             EndPrimitive();
         }   
@@ -101,17 +105,16 @@ const char* geomCullSrc = R"glsl(
 
 
 const unsigned LOC_VertexPosition = 0 ;  
-const unsigned LOC_VizInstancePosition = 1 ;  
+const unsigned LOC_VizInstanceTransform = 1 ;  
 
 const char* vertNormSrc = R"glsl(
 
     #version 400 core
     layout (location = 0) in vec4 VertexPosition;
-    layout (location = 1) in vec4 VizInstancePosition;
-
+    layout (location = 1) in mat4 VizInstanceTransform ;
     void main()
     {
-        gl_Position = vec4( VertexPosition.x + VizInstancePosition.x, VertexPosition.y + VizInstancePosition.y, VertexPosition.z + VizInstancePosition.z, 1.0 ) ;  
+        gl_Position = VizInstanceTransform * VertexPosition ;
     }
 
 )glsl";
@@ -143,21 +146,6 @@ V vpos[NUM_VPOS] =
     {  0.00f ,   0.00f,  0.00f,  1.f }
 };
 
-static const unsigned NUM_IPOS = 8 ; 
-V ipos_fix[NUM_IPOS] = 
-{
-    {   0.5f ,  -0.5f,   0.1f,  1.f },
-    {  -0.1f ,   0.1f,   0.1f,  1.f }, 
-    {   0.6f ,  -0.6f,   0.f,   1.f }, 
-    {  -0.2f ,   0.2f,   0.f,   1.f },
-    {   0.3f ,  -0.3f,   0.1f,  1.f },
-    {  -0.3f ,   0.3f,   0.1f,  1.f },
-    {   0.4f ,  -0.4f,   0.f,   1.f },
-    {  -0.4f ,   0.4f,   0.f,   1.f }
-};
-
-
-
 
 
 int main()
@@ -173,7 +161,8 @@ int main()
     cull.create();
 
     // spacing the output from cull phase to write last vec4 of mat4
-    const char *vars[] = { "gl_SkipComponents4", "gl_SkipComponents4", "gl_SkipComponents4",  "CulledPosition" };
+    //const char *vars[] = { "gl_SkipComponents4", "gl_SkipComponents4", "gl_SkipComponents4",  "CulledPosition" };
+    const char *vars[] = { "VizTransform0", "VizTransform1", "VizTransform2",  "VizTransform3" };
     glTransformFeedbackVaryings(cull.program, 4, vars, GL_INTERLEAVED_ATTRIBS); 
     cull.link();
 
@@ -182,7 +171,7 @@ int main()
     norm.create();
     norm.link();
 
-    unsigned num_inst = 10 ; 
+    unsigned num_inst = 200 ; 
     Transforms tr(num_inst, 4, 4, NULL) ; 
     tr.dump(); 
 
@@ -203,7 +192,6 @@ int main()
 
     // culling pass needs access to instance positions in non-instanced manner
     glBindBuffer(GL_ARRAY_BUFFER, ibuf.id);
-
 
     unsigned QSIZE = 4*sizeof(float) ;
 
@@ -239,8 +227,7 @@ int main()
     glGetQueryObjectuiv(query, GL_QUERY_RESULT, &nviz);
     std::cout << " GL_PRIMITIVES_GENERATED: " << nviz << std::endl ; 
 
-   // Fetch and print results
-
+    // Fetch and print results
 
     float* viz_ = new float[nviz*4*4] ;
     Transforms viz(nviz, 4, 4, viz_ );    
@@ -250,11 +237,9 @@ int main()
 
     viz.dump();    
 
-
    
     glUseProgram(0);
     ///////////////////////// PASS 2 : RENDER //////////////////////////
-
 
     rdr.upload( &vbuf , GL_ARRAY_BUFFER             , GL_STATIC_DRAW);
 
@@ -273,18 +258,26 @@ int main()
             Att vp(norm, LOC_VertexPosition, 4, QSIZE, 0); 
             glEnableVertexAttribArray(vp.loc);
  
-            bool use_cull = true ; 
-            //bool use_cull = false ; 
+            //bool use_cull = true ; 
+            bool use_cull = false ; 
               
-            glBindBuffer(GL_ARRAY_BUFFER, use_cull ? cbuf.id : ibuf.id);         
-            Att vip(norm, LOC_VizInstancePosition, 4, 4*QSIZE, 3*QSIZE ); 
-
-            glEnableVertexAttribArray(vip.loc);  
+            glBindBuffer(GL_ARRAY_BUFFER, use_cull ? cbuf.id : ibuf.id);    
+     
+            Att vip0(norm, LOC_VizInstanceTransform + 0, 4, 4*QSIZE, 0*QSIZE ); 
+            Att vip1(norm, LOC_VizInstanceTransform + 1, 4, 4*QSIZE, 1*QSIZE ); 
+            Att vip2(norm, LOC_VizInstanceTransform + 2, 4, 4*QSIZE, 2*QSIZE ); 
+            Att vip3(norm, LOC_VizInstanceTransform + 3, 4, 4*QSIZE, 3*QSIZE ); 
 
             GLuint divisor = 1 ;   // number of instances between updates of ip.loc attribute , >1 will land that many instances on top of each other
-            glVertexAttribDivisor(vip.loc, divisor );
+            glVertexAttribDivisor(vip0.loc, divisor );
+            glVertexAttribDivisor(vip1.loc, divisor );
+            glVertexAttribDivisor(vip2.loc, divisor );
+            glVertexAttribDivisor(vip3.loc, divisor );
             
-            glEnableVertexAttribArray(vip.loc);
+            glEnableVertexAttribArray(vip0.loc);  
+            glEnableVertexAttribArray(vip1.loc);  
+            glEnableVertexAttribArray(vip2.loc);  
+            glEnableVertexAttribArray(vip3.loc);  
 
             glDrawArraysInstanced( GL_TRIANGLES, 0, NUM_VPOS, use_cull ? nviz : num_inst  );
         }
