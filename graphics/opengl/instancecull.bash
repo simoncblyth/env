@@ -8,6 +8,14 @@ instancecull-usage(){ cat << EOU
 OpenGL Instance Culling
 ========================
 
+See also
+
+* instcull-
+* mountains-
+* nature-
+
+
+
 * http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
 
 Frustum Culling with instanced rendereing done on GPU 

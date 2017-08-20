@@ -45,7 +45,9 @@ set(SOURCES
      Prog.cc
      Frame.cc
      Buf.cc
+     Att.cc
      Renderer.cc
+     Transforms.cc
 )
  
 

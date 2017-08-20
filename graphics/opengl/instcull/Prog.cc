@@ -1,4 +1,6 @@
+#include <cassert>
 #include <iostream>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -63,6 +65,7 @@ unsigned Prog::compile(GLenum type, const char* src)
     {
         std::cerr << "Compile OK shader: " <<  ShaderType(type) << "\n" ;
     }
+    assert(status == GL_TRUE) ;
     return shader ; 
 }
 

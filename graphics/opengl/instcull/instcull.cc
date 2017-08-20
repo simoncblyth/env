@@ -40,6 +40,7 @@ each other.
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <cassert>
 
 #include <GL/glew.h>
@@ -49,18 +50,27 @@ each other.
 #include "Frame.hh"
 #include "Buf.hh"
 #include "Renderer.hh"
+#include "Att.hh"
+#include "Transforms.hh"
 
+
+
+//const unsigned LOC_InstancePosition = 0 ;  
+const unsigned LOC_InstanceTransform = 0 ;  
 
 const char* vertCullSrc = R"glsl(
 
     #version 400
-    in vec4 InstancePosition;
+    //layout( location = 0) in vec4 InstancePosition;
+    layout( location = 0) in mat4 InstanceTransform ;
     out int objectVisible;
        
     void main() 
     {      
-       gl_Position = InstancePosition;
-       objectVisible = InstancePosition.z > 0.0 ? 1 : 0;
+        //gl_Position = InstancePosition;
+        vec4 tlate = InstanceTransform[3] ;
+        gl_Position = tlate ; 
+        objectVisible = tlate.x >= 0.f ? 1 : 0;
     }
 
 )glsl";
@@ -77,21 +87,27 @@ const char* geomCullSrc = R"glsl(
 
     void main() 
     {
-       if ( objectVisible[0] == 1 ) 
-       {   
-          CulledPosition = gl_in[0].gl_Position ;
-          EmitVertex();
-          EndPrimitive();
-       }   
+        if ( objectVisible[0] == 1 ) 
+        {   
+            CulledPosition = gl_in[0].gl_Position ;
+            EmitVertex();
+            EndPrimitive();
+        }   
     }
 
 )glsl";
 
+
+
+
+const unsigned LOC_VertexPosition = 0 ;  
+const unsigned LOC_VizInstancePosition = 1 ;  
+
 const char* vertNormSrc = R"glsl(
 
     #version 400 core
-    in vec4 VertexPosition;
-    in vec4 VizInstancePosition;
+    layout (location = 0) in vec4 VertexPosition;
+    layout (location = 1) in vec4 VizInstancePosition;
 
     void main()
     {
@@ -116,52 +132,30 @@ const char* fragNormSrc = R"glsl(
 
 
 struct V { float x,y,z,w ; };
+
+
 static const unsigned NUM_VPOS = 3 ; 
 
 V vpos[NUM_VPOS] = 
 {
-    { -0.05f , -0.05f,  0.00f,  1.f }, 
-    { -0.05f ,  0.05f,  0.00f,  1.f },
-    {  0.00f ,  0.00f,  0.00f,  1.f }
+    {  0.05f ,   0.05f,  0.00f,  1.f }, 
+    {  0.05f ,  -0.05f,  0.00f,  1.f },
+    {  0.00f ,   0.00f,  0.00f,  1.f }
 };
 
 static const unsigned NUM_IPOS = 8 ; 
-V ipos[NUM_IPOS] = 
+V ipos_fix[NUM_IPOS] = 
 {
     {   0.5f ,  -0.5f,   0.1f,  1.f },
-    {   0.6f ,  -0.6f,   0.f,  1.f }, 
-    {   0.3f ,  -0.3f,   0.1f,  1.f },
-    {   0.4f ,  -0.4f,   0.f,  1.f },
     {  -0.1f ,   0.1f,   0.1f,  1.f }, 
-    {  -0.2f ,   0.2f,   0.f,  1.f },
+    {   0.6f ,  -0.6f,   0.f,   1.f }, 
+    {  -0.2f ,   0.2f,   0.f,   1.f },
+    {   0.3f ,  -0.3f,   0.1f,  1.f },
     {  -0.3f ,   0.3f,   0.1f,  1.f },
-    {  -0.4f ,   0.4f,   0.f,  1.f }
+    {   0.4f ,  -0.4f,   0.f,   1.f },
+    {  -0.4f ,   0.4f,   0.f,   1.f }
 };
 
-
-
-struct Att
-{
-   const Prog& prog ; 
-   GLint       loc ; 
-   Att(const Prog& prog_ , const char* name_ );
-};
-
-Att::Att(const Prog& prog_ , const char* name_ )
-    :
-    prog(prog_),
-    loc(prog.getAttribLocation(name_))
-{
-   
-    GLuint index = loc ; 
-    GLint  size = 4 ;         // Specifies the number of components per generic vertex attribute. Must be 1, 2, 3, 4.
-    GLenum type = GL_FLOAT ;
-    GLboolean normalized = GL_FALSE ;
-    GLsizei stride = 4*sizeof(float) ;  // byte offset between consecutive generic vertex attributes
-    const GLvoid* offset = NULL ;
-
-    glVertexAttribPointer(index, size, type, normalized, stride, offset);
-}
 
 
 
@@ -169,13 +163,18 @@ Att::Att(const Prog& prog_ , const char* name_ )
 int main()
 {
     Frame frame ; 
+       
+    Q qq0("GL_MAX_TEXTURE_BUFFER_SIZE(texels)", GL_MAX_TEXTURE_BUFFER_SIZE);
+    Q qq1("GL_MAX_UNIFORM_BLOCK_SIZE", GL_MAX_UNIFORM_BLOCK_SIZE);
+
 
     Prog cull(vertCullSrc, geomCullSrc, NULL ) ; 
     cull.compile();
     cull.create();
-    const char *vars[] = { "CulledPosition" };
-    //glTransformFeedbackVaryings(cull.program, 1, vars, GL_SEPARATE_ATTRIBS);  
-    glTransformFeedbackVaryings(cull.program, 1, vars, GL_INTERLEAVED_ATTRIBS); 
+
+    // spacing the output from cull phase to write last vec4 of mat4
+    const char *vars[] = { "gl_SkipComponents4", "gl_SkipComponents4", "gl_SkipComponents4",  "CulledPosition" };
+    glTransformFeedbackVaryings(cull.program, 4, vars, GL_INTERLEAVED_ATTRIBS); 
     cull.link();
 
     Prog norm(vertNormSrc, NULL, fragNormSrc ) ; 
@@ -183,22 +182,19 @@ int main()
     norm.create();
     norm.link();
 
-    GLfloat feedback[NUM_IPOS*4];
+    unsigned num_inst = 10 ; 
+    Transforms tr(num_inst, 4, 4, NULL) ; 
+    tr.dump(); 
+
+    Buf ibuf( tr.num_bytes(), tr.itra ) ; 
+    Buf cbuf( tr.num_bytes(), NULL ) ;   // CulledPosition subset of InstancePosition are copied in here
+
 
     Buf vbuf( sizeof(vpos),vpos ) ; 
-    Buf ibuf( sizeof(ipos),ipos ) ; 
-    Buf cbuf( sizeof(ipos),NULL ) ;   // CulledPosition subset of InstancePosition are copied in here
 
     Renderer rdr ; 
-    rdr.upload( &ibuf , GL_ARRAY_BUFFER             , GL_STATIC_DRAW);
-    //rdr.upload( &cbuf , GL_TRANSFORM_FEEDBACK_BUFFER, GL_STATIC_READ);
+    rdr.upload( &ibuf , GL_ARRAY_BUFFER, GL_STATIC_DRAW);
     rdr.upload( &cbuf , GL_ARRAY_BUFFER, GL_STREAM_DRAW);
-
-    /// hmm: seems you only call it a GL_TRANSFORM_FEEDBACK_BUFFER 
-    ///     when using glBindBufferBase and runing the TransformFeedback 
-    //      not in general buffer creation and rendering  ?
-    //  this gleaned from : http://github.prideout.net/modern-opengl-prezo/
- 
 
 
     ///////////////////////// PASS 1 : CULLING /////////////
@@ -208,8 +204,19 @@ int main()
     // culling pass needs access to instance positions in non-instanced manner
     glBindBuffer(GL_ARRAY_BUFFER, ibuf.id);
 
-    Att ci(cull, "InstancePosition");
-    glEnableVertexAttribArray(ci.loc);
+
+    unsigned QSIZE = 4*sizeof(float) ;
+
+    Att ci0(cull, LOC_InstanceTransform + 0 , 4, 4*QSIZE, 0 ); 
+    Att ci1(cull, LOC_InstanceTransform + 1 , 4, 4*QSIZE, 1*QSIZE ); 
+    Att ci2(cull, LOC_InstanceTransform + 2 , 4, 4*QSIZE, 2*QSIZE ); 
+    Att ci3(cull, LOC_InstanceTransform + 3 , 4, 4*QSIZE, 3*QSIZE ); 
+
+    glEnableVertexAttribArray(ci0.loc);
+    glEnableVertexAttribArray(ci1.loc);
+    glEnableVertexAttribArray(ci2.loc);
+    glEnableVertexAttribArray(ci3.loc);
+
 
     GLuint query;
     glGenQueries(1, &query);
@@ -220,7 +227,7 @@ int main()
     {
         glBeginQuery(GL_PRIMITIVES_GENERATED, query );
         {
-            glDrawArrays(GL_POINTS, 0, NUM_IPOS );
+            glDrawArrays(GL_POINTS, 0, tr.num_items() );
         }
         glEndQuery(GL_PRIMITIVES_GENERATED); 
     }
@@ -228,27 +235,30 @@ int main()
     glDisable(GL_RASTERIZER_DISCARD);
 
     glFlush();
-    GLuint primitives;
-    glGetQueryObjectuiv(query, GL_QUERY_RESULT, &primitives);
-    std::cout << " GL_PRIMITIVES_GENERATED: " << primitives << std::endl ; 
+    GLuint nviz ;
+    glGetQueryObjectuiv(query, GL_QUERY_RESULT, &nviz);
+    std::cout << " GL_PRIMITIVES_GENERATED: " << nviz << std::endl ; 
 
    // Fetch and print results
+
+
+    float* viz_ = new float[nviz*4*4] ;
+    Transforms viz(nviz, 4, 4, viz_ );    
+    assert( viz.num_bytes() == sizeof(float)*4*4*nviz ); 
+
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, viz.num_bytes(), viz_ );
+
+    viz.dump();    
+
+
    
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(feedback), feedback);
-    for (int i = 0; i < NUM_IPOS; i++) 
-    {
-        printf("%f %f %f %f \n", feedback[i*4+0], feedback[i*4+1], feedback[i*4+2], feedback[i*4+3] );
-    }
-    
     glUseProgram(0);
     ///////////////////////// PASS 2 : RENDER //////////////////////////
 
 
-
     rdr.upload( &vbuf , GL_ARRAY_BUFFER             , GL_STATIC_DRAW);
 
-
-    while (!glfwWindowShouldClose(frame.window)  && primitives > 0)
+    while (!glfwWindowShouldClose(frame.window)  && nviz > 0)
     {
         int width, height;
         glfwGetFramebufferSize(frame.window, &width, &height);
@@ -260,20 +270,23 @@ int main()
             glBindVertexArray(rdr.vao);
 
             glBindBuffer(GL_ARRAY_BUFFER, vbuf.id);
-            Att vp(norm, "VertexPosition"); 
+            Att vp(norm, LOC_VertexPosition, 4, QSIZE, 0); 
             glEnableVertexAttribArray(vp.loc);
  
             bool use_cull = true ; 
             //bool use_cull = false ; 
               
             glBindBuffer(GL_ARRAY_BUFFER, use_cull ? cbuf.id : ibuf.id);         
-            Att ip(norm, "VizInstancePosition"); 
-            glEnableVertexAttribArray(ip.loc);  
-            glVertexAttribDivisor(ip.loc, 1 );
-            
-            glEnableVertexAttribArray(ip.loc);
+            Att vip(norm, LOC_VizInstancePosition, 4, 4*QSIZE, 3*QSIZE ); 
 
-            glDrawArraysInstanced( GL_TRIANGLES, 0, NUM_VPOS, use_cull ? primitives : NUM_IPOS  );
+            glEnableVertexAttribArray(vip.loc);  
+
+            GLuint divisor = 1 ;   // number of instances between updates of ip.loc attribute , >1 will land that many instances on top of each other
+            glVertexAttribDivisor(vip.loc, divisor );
+            
+            glEnableVertexAttribArray(vip.loc);
+
+            glDrawArraysInstanced( GL_TRIANGLES, 0, NUM_VPOS, use_cull ? nviz : num_inst  );
         }
 
         glfwSwapBuffers(frame.window);

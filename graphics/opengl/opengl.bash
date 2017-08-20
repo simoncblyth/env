@@ -24,6 +24,13 @@ Tute
 * http://github.prideout.net/modern-opengl-prezo/
 
 
+Books
+-------
+
+ogli
+    https://github.com/OpenGLInsights/OpenGLInsightsCode
+
+
 OSX Stuck At 4.1
 ------------------
 

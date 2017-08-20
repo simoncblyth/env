@@ -12,11 +12,99 @@ Best source on transform feedback
 
 
 
+
+
+* https://github.com/OpenGLInsights/OpenGLInsightsCode
+
+Buffer types other than GL_ARRAY_BUFFER for instance transforms ?
+--------------------------------------------------------------------
+
+* http://rastergrid.com/blog/2010/01/uniform-buffers-vs-texture-buffers/
+
+
+
+GearVR Culling
+~~~~~~~~~~~~~~~~~
+
+* https://github.com/Samsung/GearVRf/issues/89
+
+Hmm what about a visibility bitmask : small enough to go in uniforms or texture
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+   18k bits ->  18000/8 = 2250 bytes
+   36k bits ->  36000/8 = 4500 bytes
+
+
+Would this actually help though,  need to send the
+geometry verts down pipe ?
+
+
+How big for 18k, 36k transforms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    sizeof(float) = 4 bytes
+ 
+    4*4*4 = 64 bytes    per 4x4 matrix of floats
+
+    64*18k = 1152 k  ~ 1.1M
+    64*36k = 2304 k  ~ 2.3M
+
+
+
+* https://stackoverflow.com/questions/29855353/how-to-know-max-buffer-storage-size-using-opengl-on-a-specific-device
+
+::
+
+    Frame::gl_init_window Renderer: NVIDIA GeForce GT 750M OpenGL Engine
+    Frame::gl_init_window OpenGL version supported 4.1 NVIDIA-8.26.26 310.40.45f01
+     name     GL_MAX_TEXTURE_BUFFER_SIZE val 134217728 val/1e6 134.218
+     name      GL_MAX_UNIFORM_BLOCK_SIZE val 65536 val/1e6 0.065536
+
+
+texel fetch faster than attrib access ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://stackoverflow.com/questions/37797240/why-is-texture-buffer-faster-than-vertex-inputs-when-using-instancing-in-glsl
+
+::
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, size, buffer, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribDivisor(0, 1); // this makes the buffer instanced
+
+    layout (location = 1) in vec3 perInstanceVector; // VBO instanced attribute
+    outputVector = perInstanceVector;
+
+::
+
+    glBindTexture(GL_TEXTURE_BUFFER, textureVBO);
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_RGB32F, VBO);
+
+    uniform samplerBuffer textureBuffer; // texture buffer which has the same data as the previous VBO instanced attribute
+    outputVector = texelFetch(textureBuffer, gl_InstanceID).xyz
+
+
+
+
+
+UBO : GL_UNIFORM_BUFFER
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.geeks3d.com/20140704/gpu-buffers-introduction-to-opengl-3-1-uniform-buffers-objects/
+
+From a GLSL shader point of view, an uniform buffer is a read-only memory buffer.
+
+
 Projection Matrix Tricks
 ---------------------------
 
 * http://www.terathon.com/gdc07_lengyel.pdf
-
 
 
 
