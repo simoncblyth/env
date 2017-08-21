@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "Att.hh"
 #include "Frame.hh"
 
 
@@ -59,6 +60,12 @@ void Frame::init()
     const GLubyte* version = glGetString (GL_VERSION); // version as a string
     std::cout << "Frame::gl_init_window Renderer: " << renderer << std::endl ; 
     std::cout << "Frame::gl_init_window OpenGL version supported " <<  version << std::endl ;
+
+
+    Q qq0("GL_MAX_TEXTURE_BUFFER_SIZE(texels)", GL_MAX_TEXTURE_BUFFER_SIZE);
+    Q qq1("GL_MAX_UNIFORM_BLOCK_SIZE", GL_MAX_UNIFORM_BLOCK_SIZE);
+
+
 }
 
 

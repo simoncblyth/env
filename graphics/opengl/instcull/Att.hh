@@ -1,13 +1,9 @@
 #pragma once
 
-
-struct Prog ; 
-
 struct Att
 {
-   const Prog& prog ; 
    GLuint loc ; 
-   Att(const Prog& prog_ , unsigned loc_, unsigned ncomp_, unsigned stride_, unsigned offset_);
+   Att(unsigned loc_, unsigned ncomp_, unsigned stride_, unsigned offset_);
 };
 
 

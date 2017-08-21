@@ -10,26 +10,55 @@ Best source on transform feedback
 
 * http://github.prideout.net/modern-opengl-prezo/
 
+Refs
+------
 
+* :google:`opengl instance culling`
 
+* http://www.geeks3d.com/20100210/opengl-3-2-geometry-instancing-culling-on-gpu-demo/
+* https://www.gamedev.net/articles/programming/graphics/opengl-instancing-demystified-r3226/
 
 
 * https://github.com/OpenGLInsights/OpenGLInsightsCode
+* https://github.com/Samsung/GearVRf/issues/89
+
+
+aqnuep / rastergrid  (AMD driver developer) 
+-------------------------------------------------
+
+* https://www.opengl.org/discussion_boards/showthread.php/175530-Gemoetry-shader-view-frustum-culling
+
+* http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
+* http://rastergrid.com/blog/2010/06/instance-cloud-reduction-reloaded/
+* http://rastergrid.com/blog/downloads/mountains-demo/
+
 
 Buffer types other than GL_ARRAY_BUFFER for instance transforms ?
---------------------------------------------------------------------
 
 * http://rastergrid.com/blog/2010/01/uniform-buffers-vs-texture-buffers/
 
 
+Dynamic Instanced LOD
+---------------------------
 
-GearVR Culling
-~~~~~~~~~~~~~~~~~
+* http://rastergrid.com/blog/2010/10/gpu-based-dynamic-geometry-lod/
 
-* https://github.com/Samsung/GearVRf/issues/89
+Instead of the visibility filtering of instance transforms (like instcull- and nature-)
+partition the visible instance transforms into three LOD streams according to distance.  
+Thus updating GPU buffers of instance transforms for each LOD level.
+
+Then at render just make three instanced draw calls, to show all visible instances
+at their appropriate LOD level.
+
+
+
+Approaches
+------------
+
 
 Hmm what about a visibility bitmask : small enough to go in uniforms or texture
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 ::
 
@@ -37,8 +66,16 @@ Hmm what about a visibility bitmask : small enough to go in uniforms or texture
    36k bits ->  36000/8 = 4500 bytes
 
 
-Would this actually help though,  need to send the
-geometry verts down pipe ?
+Its possible to stuff the requisite instance mask bits into a few MB of uniform or texture...
+
+* BUT: Would the instance mask actually help though ?
+
+* filtering via a mask would require a geometry shader
+
+* seems like filtering instance transforms is best way (as of OpenGL 4.1) 
+  as rendering pass is unchanged (hence pays no price)
+
+* render just needs to grab instance transforms from the filtered buffer
 
 
 How big for 18k, 36k transforms

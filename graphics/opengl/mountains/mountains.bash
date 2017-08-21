@@ -18,6 +18,41 @@ Issues
 * timing, navigation
 * retina in quad corner problem when press SPACE
 
+
+Approach
+-----------
+
+* http://rastergrid.com/blog/2010/10/gpu-based-dynamic-geometry-lod/
+
+Instead of the visibility filtering of instance transforms (like instcull- and nature-)
+partition the visible instance transforms into three LOD streams according to distance.  
+Thus updating GPU buffers of instance transforms for each LOD level.
+
+Then at render just make three instanced draw calls, to show all visible instances
+at their appropriate LOD level.
+
+
+Occlusion Culling : ie skipping in frustum objects that are obscured by other objects
+----------------------------------------------------------------------------------------
+
+* http://rastergrid.com/blog/2010/10/hierarchical-z-map-based-occlusion-culling/
+
+At first, this may sound stupid as you have to draw the object in order to tell
+whether it is visible or not. While in this form it really sounds silly, in
+practice occlusion query can save a lot of work for the GPU. Think about you
+have a complex object with several thousands of triangles
+If you would like to determine the visibility of it using occlusion query you
+would simply render e.g. the bounding box of the object and if the bounding box
+is visible (occlusion query returns that some samples have passed) then it
+means the object itself is most probably visible. This way you can save the GPU
+from the unnecessary processing of large amount of geometry.
+
+So what we expect from an occlusion culling algorithm is to give one of the
+following results: the object is not visible or the object is most probably
+visible. The bigger this probability is the better the occlusion culling
+effectiveness is.
+
+
 Instance Culling via Geometry Shader
 ---------------------------------------
 

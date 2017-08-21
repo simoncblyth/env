@@ -10,7 +10,10 @@ struct Transforms
 
     Transforms(unsigned ni_, unsigned nj_, unsigned nk_, float* itra_=NULL ) ;
     void mockup();
-    void dump();
+    void mockup_spiral( glm::mat4& m , float fr );
+    void mockup_diagonal( glm::mat4& m , float fr );
+
+    void dump(unsigned n=0);
 
     unsigned num_items() const ;
     unsigned num_bytes() const ;

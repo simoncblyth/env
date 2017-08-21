@@ -5,12 +5,10 @@
 #include <GLFW/glfw3.h>
 
 #include "Att.hh"
-#include "Prog.hh"
 
 
-Att::Att(const Prog& prog_ , unsigned loc_, unsigned ncomp, unsigned stride_ , unsigned offset_)
+Att::Att(unsigned loc_, unsigned ncomp, unsigned stride_ , unsigned offset_)
     :
-    prog(prog_),
     loc(loc_)
 {
    

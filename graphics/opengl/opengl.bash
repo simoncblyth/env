@@ -48,6 +48,77 @@ OSX Stuck At 4.1
 * http://www.g-truc.net/post-0269.html
 
 
+What State is held in VAO ?
+------------------------------
+
+* https://gamedev.stackexchange.com/questions/99236/what-state-is-stored-in-an-opengl-vertex-array-object-vao-and-how-do-i-use-the
+
+glVertexAttribPointer
+-------------------------
+
+* https://stackoverflow.com/questions/17149728/when-should-glvertexattribpointer-be-called
+
+Stores the offset of the attribute data with the buffer object to be used for that
+attribute (as well as format information and stride data for it). – Nicol Bolas (Jun 17 '13 at 15:26)
+
+
+opengl workflow
+-------------------
+
+* https://stackoverflow.com/questions/17149728/when-should-glvertexattribpointer-be-called
+
+The function glVertexAttribPointer specifies the format and source buffer
+(ignoring the deprecated usage of client arrays) of a vertex attribute that is
+used when rendering something (i.e. the next glDraw... call).
+
+Now there are two scenarios. You either use vertex array objects (VAOs) or you
+don't (though not using VAOs is deprecated and discouraged/prohibited in modern
+OpenGL). If you're not using VAOs, then you would usually call
+glVertexAttribPointer (and the corresponding glEnableVertexAttribArray) right
+before rendering to setup the state properly. If using VAOs though, you
+actually call it (and the enable function) inside the VAO creation code (which
+is usually part of some initialization or object creation), since its settings
+are stored inside the VAO and all you need to do when rendering is bind the VAO
+and call a draw function.
+
+But no matter when you call glVertexAttribPointer, you should bind the
+corresponding buffer right before (no matter when that was actually created and
+filled), since the glVertexAttribPointer function sets the currently bound
+GL_ARRAY_BUFFER as source buffer for this attribute (and stores this setting,
+so afterwards you can freely bind another VBO).
+
+So in modern OpenGL using VAOs (which is recommended), it's usually similar to
+this workflow:
+
+
+::
+
+    //initialization
+    glGenVertexArrays
+    glBindVertexArray
+
+    glGenBuffers
+    glBindBuffer
+    glBufferData
+
+    glVertexAttribPointer
+    glEnableVertexAttribArray
+
+    glBindVertexArray(0)
+
+    glDeleteBuffers //you can already delete it after the VAO is unbound, since the
+                    //VAO still references it, keeping it alive (see comments below).
+
+    ...
+
+    //rendering
+    glBindVertexArray
+    glDrawWhatever
+
+
+
+
+
 GLSL Compatibility
 ---------------------
 

@@ -10,6 +10,8 @@ OpenGL Instance Culling Using Geometry Shaders Demo
 
 * http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
 
+* http://rastergrid.com/blog/2010/06/instance-cloud-reduction-reloaded/
+
 
 EOU
 }
@@ -19,7 +21,9 @@ nature-c(){   cd $(nature-dir); }
 nature-get(){
    local dir=$(nature-dir) &&  mkdir -p $dir && cd $dir
 
-   local url=http://rastergrid.com/blog/wp-content/uploads/2010/06/nature12_src.zip
+   #local url=http://rastergrid.com/blog/wp-content/uploads/2010/06/nature12_src.zip
+   local url=http://rastergrid.com/blog/wp-content/uploads/2010/06/nature20_src.zip
+
    local dst=$(basename $url)
 
    [ ! -f $dst ] && curl -L -O $url

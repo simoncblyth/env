@@ -3,6 +3,7 @@
 
 
 #include <glm/glm.hpp>
+
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -29,27 +30,42 @@ unsigned Transforms::num_bytes() const
 }
 
 
+void Transforms::mockup_spiral( glm::mat4& mat , float fr )
+{
+    glm::vec3 axis(0,0,1);
+    glm::vec3 scal(0.9);
+
+    float angle = glm::pi<float>()*2.f*fr ;  // 0->2pi
+    glm::vec3 tlat( fr*glm::cos(3*angle),fr*glm::sin(3*angle),0);
+
+    mat = glm::scale(mat, scal) ; 
+    mat = glm::translate(mat, tlat );   // curious to get expected matrix form need to translate first
+    mat = glm::rotate(mat, angle , axis) ; 
+}
+
+void Transforms::mockup_diagonal( glm::mat4& mat , float fr )
+{
+    float f = 2.f*fr - 1.0f ;  // -1:1  
+    glm::vec3 tlat( f, f, 0);
+    mat = glm::translate(mat, tlat );   // curious to get expected matrix form need to translate first
+}
+
+
 void Transforms::mockup()
 {
     itra = new float[ni*nj*nk] ;
 
-    glm::vec3 axis(0,0,1);
-    glm::vec3 scal(0.9);
     bool transpose = false ; 
 
     for(unsigned i=0 ; i < ni ; i++)
     {
         float fr = float(i)/float(ni)  ;  // 0->1  
-        //float f = 2.f*fr - 1.0f ;  // -1:1  
-
-        float angle = glm::pi<float>()*2.f*fr ;  // 0->2pi
-        glm::vec3 tlat( fr*glm::cos(3*angle),fr*glm::sin(3*angle),0);
 
         glm::mat4 mat(1.f) ;
-        mat = glm::scale(mat, scal) ; 
-        mat = glm::translate(mat, tlat );   // curious to get expected matrix form need to translate first
-        mat = glm::rotate(mat, angle , axis) ; 
+        //mockup_spiral(mat, fr );
+        mockup_diagonal(mat, fr );
 
+          
         for(unsigned j=0 ; j < nj ; j++)
         {
             for(unsigned k=0 ; k < nk ; k++)   
@@ -62,9 +78,19 @@ void Transforms::mockup()
 }
 
 
-void Transforms::dump()
+void Transforms::dump(unsigned n)
 {
-    for(unsigned i=0 ; i < ni ; i++)
+    unsigned ndump = n > 0 ? n : ni ; 
+
+    std::cout << "Transforms::dump " 
+              << " n " << n 
+              << " ni " << ni
+              << " ndump " << ndump
+              << std::endl
+              ;
+  
+
+    for(unsigned i=0 ; i < ndump ; i++)
     {
         for(unsigned j=0 ; j < nj ; j++)
         {
