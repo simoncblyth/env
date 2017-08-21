@@ -1,6 +1,9 @@
 #pragma once
 
-struct Prog
+#include "DEMO_API_EXPORT.hh"
+
+
+struct DEMO_API Prog
 {
     static const char* ShaderType(GLenum type);
     const char* vertSrc ;

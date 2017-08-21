@@ -1,6 +1,8 @@
 #pragma once
 
-struct Transforms
+#include "DEMO_API_EXPORT.hh"
+
+struct DEMO_API Transforms
 {
     unsigned ni ; 
     unsigned nj ; 

@@ -7,6 +7,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#define GLEQ_IMPLEMENTATION
+#include "GLEQ.hh"
+
+
+
 #include "Att.hh"
 #include "Frame.hh"
 
@@ -15,11 +20,14 @@ static void error_callback(int error, const char* description)
 {
     fputs(description, stderr);
 }
+
+/*
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
 }
+*/
 
 Frame::Frame()  
   :
@@ -49,6 +57,8 @@ void Frame::init()
     }
     glfwMakeContextCurrent(window);
 
+    gleqTrackWindow(window);  // hookup the callbacks and arranges outcomes into event queue 
+
 
     // Initialize GLEW
     glewExperimental = GL_TRUE;
@@ -65,7 +75,55 @@ void Frame::init()
     Q qq0("GL_MAX_TEXTURE_BUFFER_SIZE(texels)", GL_MAX_TEXTURE_BUFFER_SIZE);
     Q qq1("GL_MAX_UNIFORM_BLOCK_SIZE", GL_MAX_UNIFORM_BLOCK_SIZE);
 
+}
 
+
+void Frame::listen()
+{
+    glfwPollEvents();
+    GLEQevent event;
+    while (gleqNextEvent(&event))
+    {   
+        handle_event(event);
+        gleqFreeEvent(&event);
+    }   
+}
+
+void Frame::handle_event(GLEQevent& event)
+{
+    std::cerr <<"Frame::handle_event" << std::endl ;
+    switch (event.type)
+    {   
+        case GLEQ_KEY_PRESSED:
+             key_pressed(event.key.key);
+             break;
+        case GLEQ_KEY_RELEASED:
+             key_released(event.key.key);
+             break;
+        default:
+             std::cerr <<"Frame::handle_event (other)" << std::endl ;
+             break; 
+    }   
+}
+
+void Frame::key_pressed(unsigned key)
+{
+    std::cerr <<"Frame::key_pressed" << std::endl ;
+    if( key == GLFW_KEY_ESCAPE)
+    {   
+        std::cerr <<"Frame::key_pressed escape" << std::endl ;
+        glfwSetWindowShouldClose (window, 1); 
+    }
+    else
+    {
+        if(key < NUM_KEYS) keys_down[key] = true ; 
+        std::cerr <<"Frame::key_pressed " <<  key << std::endl ;
+    }
+}
+
+void Frame::key_released(unsigned key)
+{
+    if(key < NUM_KEYS) keys_down[key] = false ; 
 }
 
 

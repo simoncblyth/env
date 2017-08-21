@@ -62,8 +62,8 @@ void Transforms::mockup()
         float fr = float(i)/float(ni)  ;  // 0->1  
 
         glm::mat4 mat(1.f) ;
-        //mockup_spiral(mat, fr );
-        mockup_diagonal(mat, fr );
+        mockup_spiral(mat, fr );
+        //mockup_diagonal(mat, fr );
 
           
         for(unsigned j=0 ; j < nj ; j++)

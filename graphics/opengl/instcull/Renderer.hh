@@ -3,7 +3,10 @@
 #include <vector>
 struct Buf ; 
 
-struct Renderer
+#include "DEMO_API_EXPORT.hh"
+
+
+struct DEMO_API  Renderer
 {
     unsigned vao;
     std::vector<Buf*> buffers ; 

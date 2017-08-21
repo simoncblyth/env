@@ -6,9 +6,29 @@ OpenGL Instance Culling
 ========================
 
 
-Best source on transform feedback
+Demo Project Exploring How Best to Arrange OpenGL Instance Culling Rendering
+----------------------------------------------------------------------------------
 
-* http://github.prideout.net/modern-opengl-prezo/
+tests/instance.cc
+    just instancing with no culling derived from instance-
+    demonstrates encapsulation provided by VertexArray, by combining 2 vbo A,B 
+    and 2 sets of instance transforms I, J in four ways AI,AJ,BI,BJ
+
+tests/instcull0.cc
+    older fashioned approach (repeatedly describing the atts) 
+    succeeds to filter instance transforms once only, trips up 
+    subsequently yielding repeated transforms
+
+tests/instcull1.cc
+    adapt instcull0 to use modern attribute style of nature- with
+    att props captured into the vertex array
+
+    * http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
+
+    seems to be succeeding to filter continuously : 
+    TODO: changing criteria test to be sure
+
+
 
 Refs
 ------
@@ -18,6 +38,10 @@ Refs
 * http://www.geeks3d.com/20100210/opengl-3-2-geometry-instancing-culling-on-gpu-demo/
 * https://www.gamedev.net/articles/programming/graphics/opengl-instancing-demystified-r3226/
 
+
+Best source on transform feedback
+
+* http://github.prideout.net/modern-opengl-prezo/
 
 * https://github.com/OpenGLInsights/OpenGLInsightsCode
 * https://github.com/Samsung/GearVRf/issues/89

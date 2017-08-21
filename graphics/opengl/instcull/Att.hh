@@ -1,13 +1,16 @@
 #pragma once
 
-struct Att
+#include "DEMO_API_EXPORT.hh"
+
+
+struct DEMO_API Att
 {
    GLuint loc ; 
    Att(unsigned loc_, unsigned ncomp_, unsigned stride_, unsigned offset_);
 };
 
 
-struct Q
+struct DEMO_API Q
 {
     const char* name ; 
     GLenum      key ; 
