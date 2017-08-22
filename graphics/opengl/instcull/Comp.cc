@@ -13,30 +13,45 @@
 
 Comp::Comp()
     :
+    center_extent(0.f),
+    model2world(1.f),
+    world2model(1.f),
+    projection(1.f),
+    world2camera(1.f),
+    gaze(0.f),
+    world2clip(1.f),
+    world2eye(1.f),
     vue(new Vue),
     cam(new Cam)
 {
 }
 
 
-void Comp::setCenterExtent(float x, float y, float z, float w)
-{
-    glm::vec4 ce(x,y,z,w);
-    setCenterExtent(ce);
-}
-
 void Comp::setCenterExtent(const glm::vec4& ce)
 {
-    center_extent = ce ; 
+    setCenterExtent(ce.x, ce.y, ce.z, ce.w );
+}
 
-    glm::vec3 tr(ce.x, ce.y, ce.z);
-    glm::vec3 sc(ce.w);
-    glm::vec3 isc(1.f/ce.w);
+
+void Comp::setCenterExtent(float x, float y, float z, float w)
+{
+    center_extent.x = x ; 
+    center_extent.y = y ; 
+    center_extent.z = z ; 
+    center_extent.w = w ; 
+
+    glm::vec3 tr(x, y, z);
+    glm::vec3 sc(w);
+    glm::vec3 isc(1.f/w);
 
     model2world = glm::scale(glm::translate(glm::mat4(1.0), tr), sc);     // translate then blowup full size
     world2model = glm::translate( glm::scale(glm::mat4(1.0), isc), -tr);   // shrink then translate 
 
 }
+
+
+
+
 
 
 void Comp::update()

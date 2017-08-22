@@ -72,8 +72,8 @@ int main()
     prog.create();
     prog.link();
 
-    Buf v( sizeof(vpos),vpos ) ; 
-    Buf i( sizeof(ipos),ipos ) ; 
+    Buf v( NUM_VPOS, sizeof(vpos),vpos ) ; 
+    Buf i( NUM_IPOS, sizeof(ipos),ipos ) ; 
 
     Renderer rdr ; 
     rdr.upload(&v, GL_ARRAY_BUFFER, GL_STATIC_DRAW);

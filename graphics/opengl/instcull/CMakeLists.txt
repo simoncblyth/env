@@ -45,16 +45,19 @@ set(LIBRARIES
 )
 
 set(SOURCES
+     Demo.cc
      Prog.cc
      Frame.cc
      Buf.cc
      Att.cc
      Renderer.cc
-     Transforms.cc
+     Tra.cc
      Cam.cc
      Vue.cc
      Comp.cc
+     Geom.cc
      G.cc
+     BB.cc
 )
  
 

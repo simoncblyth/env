@@ -1,16 +1,18 @@
 #pragma once
 
 #include "DEMO_API_EXPORT.hh"
+#include <glm/glm.hpp>
 
-struct DEMO_API Transforms
+struct DEMO_API Tra
 {
     unsigned ni ; 
     unsigned nj ; 
     unsigned nk ; 
 
-    float* itra ; 
+    float* data ; 
 
-    Transforms(unsigned ni_, unsigned nj_, unsigned nk_, float* itra_=NULL ) ;
+    Tra(unsigned ni_, unsigned nj_, unsigned nk_) ;
+
     void mockup();
     void mockup_spiral( glm::mat4& m , float fr );
     void mockup_diagonal( glm::mat4& m , float fr );

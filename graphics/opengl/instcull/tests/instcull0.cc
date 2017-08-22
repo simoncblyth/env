@@ -66,7 +66,7 @@ each other.
 #include "Buf.hh"
 #include "Renderer.hh"
 #include "Att.hh"
-#include "Transforms.hh"
+#include "Tra.hh"
 
 
 const unsigned LOC_InstanceTransform = 0 ;  
@@ -158,8 +158,8 @@ struct Demo
     unsigned num_inst ; 
     unsigned num_vert ; 
 
-    Transforms* tr ; 
-    Transforms* trviz ;
+    Tra* tr ; 
+    Tra* trviz ;
  
     Buf* vbuf ; 
     Buf* ibuf ; 
@@ -192,11 +192,11 @@ Demo::Demo(Prog* cull_, Prog* norm_)
     num_viz(0),
     num_inst(10),
     num_vert(3),
-    tr(new Transforms(num_inst, 4, 4, NULL)),
-    trviz(new Transforms(num_inst, 4, 4, new float[num_inst*4*4])),
-    vbuf(new Buf(sizeof(float)*4*num_vert, NULL )),  
-    ibuf(new Buf(tr->num_bytes(), tr->itra )), 
-    cbuf(new Buf(tr->num_bytes(), NULL )),
+    tr(new Tra(num_inst, 4, 4)),
+    trviz(new Tra(num_inst, 4, 4)),
+    vbuf(new Buf(num_vert, sizeof(float)*4*num_vert, NULL )),  
+    ibuf(new Buf(num_inst, tr->num_bytes(), tr->data )), 
+    cbuf(new Buf(num_inst, tr->num_bytes(), trviz->data )),
     rdr(new Renderer)
 {
     init();
@@ -313,7 +313,7 @@ void Demo::instcull()
             << std::endl 
             ; 
 
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, viz_bytes, trviz->itra );
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, viz_bytes, trviz->data );
 
     if(num_viz > 0)
     {

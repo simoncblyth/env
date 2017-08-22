@@ -8,7 +8,7 @@
 #include "Cam.hh"
 
 
-std::string Cam::desc()
+std::string Cam::desc() const 
 {
     std::stringstream ss ; 
 
@@ -16,7 +16,7 @@ std::string Cam::desc()
         << " near " << near << std::endl 
         << " far " << far << std::endl 
         << " zoom " << zoom << std::endl 
-        << " aspect " << aspect << std::endl 
+        << " aspect " << getAspect() << std::endl 
         << " parallel " << parallel << std::endl 
         << " left " << getLeft() << std::endl 
         << " right " << getRight() << std::endl 
@@ -28,21 +28,20 @@ std::string Cam::desc()
 }
 
 
-Cam::Cam(int width, int height, float basis )
+Cam::Cam(int width_, int height_, float basis )
     :
     zoom(1.f),
     parallel(false),
     parascale(1.f)
 {
-    setSize(width, height);
+    setSize(width_, height_);
     setFocus(basis);
 }
 
-void Cam::setSize(int width, int height )
+void Cam::setSize(int width_, int height_ )
 {
-    size[0] = width ;
-    size[1] = height ;
-    aspect  = (float)width/(float)height ;   // (> 1 for landscape) 
+    width = width_ ;
+    height = height_ ;
 }
 
 void Cam::setFocus(float basis_ )
@@ -53,11 +52,12 @@ void Cam::setFocus(float basis_ )
 }
 
 
-float Cam::getScale(){ return parallel ? parascale  : near ; }
-float Cam::getTop(){    return getScale() / zoom ; }
-float Cam::getBottom(){ return -getScale() / zoom ; }
-float Cam::getLeft(){   return -aspect * getScale() / zoom ; }
-float Cam::getRight(){  return  aspect * getScale() / zoom ; }
+float Cam::getAspect() const { return (float)width/(float)height ; }  //  (> 1 for landscape) 
+float Cam::getScale() const { return parallel ? parascale  : near ; }
+float Cam::getTop() const {    return getScale() / zoom ; }
+float Cam::getBottom() const { return -getScale() / zoom ; }
+float Cam::getLeft() const {   return -getAspect() * getScale() / zoom ; }
+float Cam::getRight() const {  return  getAspect() * getScale() / zoom ; }
 
 void Cam::setYfov(float yfov_deg)
 {
@@ -68,30 +68,27 @@ void Cam::setYfov(float yfov_deg)
     zoom = 1.f/glm::tan(yfov_deg*0.5f*glm::pi<float>()/180.f );
 }
 
-float Cam::getYfov()
+float Cam::getYfov() const 
 {
     float yfov_deg = 2.f*glm::atan(1.f/zoom)*180.f/glm::pi<float>() ;
     return yfov_deg ;
 }
 
-glm::mat4 Cam::getPerspective()  // seems not used
+glm::mat4 Cam::getPerspective() const   // seems not used
 {
-    return glm::perspective(getYfov(), aspect, near, far);
+    return glm::perspective(getYfov(), getAspect(), near, far);
 }
 
-glm::mat4 Cam::getProjection()
+glm::mat4 Cam::getProjection() const 
 {
     return parallel ? getOrtho() : getFrustum() ;
 }
-glm::mat4 Cam::getOrtho()
+glm::mat4 Cam::getOrtho() const 
 {
     return glm::ortho( getLeft(), getRight(), getBottom(), getTop(), near, far );
 }
-glm::mat4 Cam::getFrustum()
-{
+glm::mat4 Cam::getFrustum() const 
+{ 
     return glm::frustum( getLeft(), getRight(), getBottom(), getTop(), near, far );
 }
-
-
-
 

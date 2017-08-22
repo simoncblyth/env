@@ -5,8 +5,8 @@
 
 struct DEMO_API Cam
 {
-    int size[2];  
-    float aspect ; 
+    int   width ;  
+    int   height ;  
     float basis ; 
     float near ; 
     float far ; 
@@ -15,27 +15,28 @@ struct DEMO_API Cam
     bool parallel ; 
     float parascale ; 
 
-    Cam( int width=1024, int height=768, float basis=1000.f );
+    Cam( int width_=1024, int height_=768, float basis=1000.f );
 
     void setSize(int width, int height );
     void setFocus(float basis);
     void setYfov(float yfov_deg);
 
-    float getScale(); 
-    float getTop();
-    float getBottom();
-    float getLeft();
-    float getRight();
-    float getYfov();
+    float getAspect() const ; 
+    float getScale() const ; 
+    float getTop() const ;
+    float getBottom() const ;
+    float getLeft() const ;
+    float getRight() const ;
+    float getYfov() const ;
 
-    glm::mat4 getProjection();
-    glm::mat4 getPerspective();
-    glm::mat4 getOrtho();
-    glm::mat4 getFrustum();
+    glm::mat4 getProjection() const ;
+    glm::mat4 getPerspective() const ;
+    glm::mat4 getOrtho() const ;
+    glm::mat4 getFrustum() const ;
 
-    std::string desc();
+    std::string desc() const ;
 
-};
+} ;
 
 
 

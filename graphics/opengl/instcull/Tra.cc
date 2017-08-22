@@ -7,30 +7,35 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Transforms.hh"
+#include "Tra.hh"
 
 
-Transforms::Transforms(unsigned ni_, unsigned nj_, unsigned nk_, float* itra_ ) : ni(ni_), nj(nj_), nk(nk_), itra(itra_)
+Tra::Tra(unsigned ni_, unsigned nj_, unsigned nk_) 
+    : 
+    ni(ni_), 
+    nj(nj_), 
+    nk(nk_), 
+    data(new float[ni*nj*nk]) 
 {
-    if(itra == NULL) mockup();        
+    mockup();        
 }
 
 
-unsigned Transforms::num_items() const 
+unsigned Tra::num_items() const 
 {
     return ni ;
 }
-unsigned Transforms::num_floats() const 
+unsigned Tra::num_floats() const 
 {
     return ni*nj*nk ;
 }
-unsigned Transforms::num_bytes() const 
+unsigned Tra::num_bytes() const 
 {
     return sizeof(float)*num_floats() ; 
 }
 
 
-void Transforms::mockup_spiral( glm::mat4& mat , float fr )
+void Tra::mockup_spiral( glm::mat4& mat , float fr )
 {
     glm::vec3 axis(0,0,1);
     glm::vec3 scal(0.9);
@@ -43,7 +48,7 @@ void Transforms::mockup_spiral( glm::mat4& mat , float fr )
     mat = glm::rotate(mat, angle , axis) ; 
 }
 
-void Transforms::mockup_diagonal( glm::mat4& mat , float fr )
+void Tra::mockup_diagonal( glm::mat4& mat , float fr )
 {
     float f = 2.f*fr - 1.0f ;  // -1:1  
     glm::vec3 tlat( f, f, 0);
@@ -51,10 +56,9 @@ void Transforms::mockup_diagonal( glm::mat4& mat , float fr )
 }
 
 
-void Transforms::mockup()
+void Tra::mockup()
 {
-    itra = new float[ni*nj*nk] ;
-
+ 
     bool transpose = false ; 
 
     for(unsigned i=0 ; i < ni ; i++)
@@ -71,18 +75,18 @@ void Transforms::mockup()
             for(unsigned k=0 ; k < nk ; k++)   
             {
                 unsigned idx = i*nj*nk + j*nk + k ;
-                itra[idx] = transpose ? mat[k][j] : mat[j][k] ; 
+                data[idx] = transpose ? mat[k][j] : mat[j][k] ; 
             }
         }
     }   
 }
 
 
-void Transforms::dump(unsigned n)
+void Tra::dump(unsigned n)
 {
     unsigned ndump = n > 0 ? n : ni ; 
 
-    std::cout << "Transforms::dump " 
+    std::cout << "Tra::dump " 
               << " n " << n 
               << " ni " << ni
               << " ndump " << ndump
@@ -97,7 +101,7 @@ void Transforms::dump(unsigned n)
             for(unsigned k=0 ; k < nk ; k++)   
             {
                 unsigned idx = i*nj*nk + j*nk + k ;
-                std::cout << std::setw(10) << itra[idx] << " " ;                
+                std::cout << std::setw(10) << data[idx] << " " ;                
             }
             std::cout << std::endl  ; 
         }

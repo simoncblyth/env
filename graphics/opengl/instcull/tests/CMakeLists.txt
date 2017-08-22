@@ -8,6 +8,7 @@ set(TEST_SOURCES
     instance0.cc
     instance.cc
     CompTest.cc
+    GeomTest.cc
 )
  
 foreach(TEST_SOURCE ${TEST_SOURCES})

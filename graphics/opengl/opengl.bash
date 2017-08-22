@@ -74,6 +74,34 @@ same data.
 From a GLSL shader point of view, an uniform buffer is a read-only memory buffer.
 
 
+Nicol Bolas
+~~~~~~~~~~~~~~~~
+
+* https://stackoverflow.com/questions/10020679/how-does-glgetuniformblockindex-know-whether-to-look-in-the-vertex-shader-or-the
+
+Assuming the program has been fully linked, it doesn't matter. Here are the
+possibilities for glGetUniformBlockIndex and their consequences:
+
+* The uniform block name given is not in any of the shaders. Then you get back
+GL_INVALID_INDEX.
+
+* The uniform block name given is used in one of the shaders. Then you get back
+the block index for it, to be used with glUniformBlockBinding.
+
+* The uniform block name given is used in multiple shaders. Then you get back
+the block index that means all of them, to be used with glUniformBlockBinding.
+
+The last part is key. If you specify a uniform block in two shaders, with the
+same name, then GLSL requires that the definitions of those uniform blocks be
+the same. If they aren't, then you get an error in glLinkProgram. Since they
+are the same (otherwise you wouldn't have gotten here), GLSL considers them to
+be the same uniform block.
+
+Even if they're in two shader stages, they're still the same uniform block. So
+you can share uniform blocks between stages, all with one block binding. As
+long as it truly is the same uniform block.
+
+
 
 opengl workflow
 -------------------

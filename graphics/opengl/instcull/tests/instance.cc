@@ -12,10 +12,28 @@ Using glVertexAttribDivisor, glDrawArraysInstanced
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include "Prog.hh"
 #include "Frame.hh"
 #include "Buf.hh"
+
+
+
+struct Uniform
+{
+    glm::mat4 ModelView ; 
+    glm::mat4 ModelViewProjection ;
+
+    Uniform() 
+        :   
+        ModelView(1.f), 
+        ModelViewProjection(1.f)
+    {}  ;
+
+};
+
+
 
 void errcheck(const char* msg)
 {
@@ -85,6 +103,9 @@ struct App
     static const char*    vertSrc ; 
     static const char*    fragSrc ; 
 
+    Uniform* uniform ; 
+    GLuint ubo ; 
+
     Buf* a ; 
     Buf* b ; 
     Buf* i ; 
@@ -98,6 +119,12 @@ struct App
     App( Buf* a_, Buf* b_, Buf* i_, Buf* j_);
     void upload(Buf* buf);
     GLuint makeVertexArray( GLuint vbo, GLuint ibo );
+
+    void updateUniform();
+    void setupUniformBuffer();
+
+
+
 };
 
 const unsigned App::QSIZE = 4*sizeof(float) ; 
@@ -107,6 +134,13 @@ const unsigned App::LOC_iPosition = 1 ;
 const char* App::vertSrc = R"glsl(
 
     #version 400 core
+
+    uniform MatrixBlock
+    {
+        mat4 ModelView;
+        mat4 ModelViewProjection;
+    }  matrices  ;
+
     layout(location = 0) in vec4 vPosition ;
     layout(location = 1) in vec4 iPosition ;
     void main()
@@ -128,6 +162,8 @@ const char* App::fragSrc = R"glsl(
 
 App::App(  Buf* a_, Buf* b_, Buf* i_, Buf* j_ )
     :
+    uniform(new Uniform),
+    ubo(0),
     a(a_),
     b(b_),
     i(i_),
@@ -142,6 +178,8 @@ App::App(  Buf* a_, Buf* b_, Buf* i_, Buf* j_ )
     aj = makeVertexArray(a->id,j->id);
     bi = makeVertexArray(b->id,i->id);
     bj = makeVertexArray(b->id,j->id);
+
+    setupUniformBuffer();
 }
 
 void App::upload(Buf* buf)
@@ -151,6 +189,32 @@ void App::upload(Buf* buf)
     glBufferData(GL_ARRAY_BUFFER, buf->num_bytes, buf->ptr,  GL_STATIC_DRAW );
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
+void App::setupUniformBuffer()
+{
+     // same UBO can be used from all shaders
+    glGenBuffers(1, &this->ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, this->ubo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(Uniform), this->uniform, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    std::cout << "sizeof(Uniform) " << sizeof(Uniform) << std::endl ; 
+
+
+    GLuint binding_point_index = 0 ;
+    glBindBufferBase(GL_UNIFORM_BUFFER, binding_point_index, ubo);
+}
+
+void App::updateUniform()
+{
+    uniform->ModelView = glm::mat4(1.) ;
+    uniform->ModelViewProjection = glm::mat4(1.)  ;
+
+    glBindBuffer(GL_UNIFORM_BUFFER, this->ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Uniform), this->uniform);
+}
+
+
 
 GLuint App::makeVertexArray( GLuint vbo, GLuint ibo )
 {
@@ -184,12 +248,20 @@ int main()
     glBindAttribLocation(draw.program, App::LOC_iPosition , "iPosition");
 
     draw.link();
+
+    GLuint uniformBlockIndex = glGetUniformBlockIndex(draw.program, "matrices") ;
+    assert(uniformBlockIndex != GL_INVALID_INDEX);
+
+    GLuint uniformBlockBinding = 0 ; 
+    glUniformBlockBinding(draw.program, uniformBlockIndex,  uniformBlockBinding );
+
+
     errcheck("main0");
 
-    Buf a( sizeof(apos),apos ) ; 
-    Buf b( sizeof(bpos),bpos ) ; 
-    Buf i( sizeof(ipos),ipos ) ; 
-    Buf j( sizeof(jpos),jpos ) ; 
+    Buf a( NUM_VPOS, sizeof(apos),apos ) ; 
+    Buf b( NUM_VPOS, sizeof(bpos),bpos ) ; 
+    Buf i( NUM_INST, sizeof(ipos),ipos ) ; 
+    Buf j( NUM_INST, sizeof(jpos),jpos ) ; 
 
     App app(&a, &b, &i, &j );
     unsigned count(0) ; 
@@ -198,10 +270,15 @@ int main()
 
     while (!glfwWindowShouldClose(frame.window) && count++ < 100)
     {
+
+    
         int width, height;
         glfwGetFramebufferSize(frame.window, &width, &height);
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        app.updateUniform(); 
+
 
         glBindVertexArray( va );
         glDrawArraysInstanced(GL_TRIANGLES, 0, NUM_VPOS, NUM_INST );
