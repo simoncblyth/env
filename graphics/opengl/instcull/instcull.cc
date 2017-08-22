@@ -1,4 +1,55 @@
-// see  instcull-vi for notes
+/*
+Attempt Culling OpenGL Instances Via Geometry Shader and Transform Feedback 
+=============================================================================
+
+Aiming for a minimalist imp following technique of nature-
+
+* http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
+
+Multi-pass technique
+
+1. cull against view frustum (or some arbitrary criteria in demo)
+   using instance transforms (or simply offsets in demo) and extents of the instance
+  
+2. renders only those instances that are likely to be visible in the final scene
+
+This can drastically reduce the amount of vertex data sent through the graphics pipeline.
+
+
+Status
+---------
+
+* transform feedback succeeds to cull instances writing to the buffer
+* subsequent render now sees just the selected instances transforms
+
+
+Culling gives expected on 1st call, not on subsequent
+
+::
+
+     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 100 viz_bytes 6400
+     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
+     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
+     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
+     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
+     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
+
+
+
+What Not Working 
+--------------------
+
+Trying to render from the GL_TRANSFORM_FEEDBACK_BUFFER
+with something like::
+
+   glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, cbuf.id);    
+ 
+Results in the render not seeing the instance postitions, 
+gets all zeros resulting in all instances on top of
+each other.
+
+    
+*/
 
 #include <vector>
 #include <iostream>
@@ -9,9 +60,12 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+
 #include "Prog.hh"
 #include "Frame.hh"
 #include "Buf.hh"
+//#include "Renderer.hh"
+//#include "Att.hh"
 #include "Transforms.hh"
 
 
@@ -50,7 +104,7 @@ const char* geomCullSrc = R"glsl(
         mat4 tr = ITransform[0] ;
         vec4 tla = tr[3] ; 
 
-        if ( tla.x > 0.f )   // arbitrary visibility criteria
+        if ( tla.x > -2.f )   // arbitrary visibility criteria
         {    
             VizTransform0 = tr[0]  ;
             VizTransform1 = tr[1]  ;
@@ -75,8 +129,8 @@ const char* vertDrawSrc = R"glsl(
     layout (location = 1) in mat4 VizInstanceTransform ;
     void main()
     {
-        gl_Position = VizInstanceTransform * VertexPosition ;
-        //gl_Position = VertexPosition ;
+        //gl_Position = VizInstanceTransform * VertexPosition ;
+        gl_Position = VertexPosition ;
     }
 
 )glsl";
@@ -93,21 +147,9 @@ const char* fragDrawSrc = R"glsl(
 )glsl";
 
 
-
-
-struct Uniform
-{
-    glm::mat4 ModelView ; 
-    glm::mat4 ModelViewProjection ;
-};
-
-
 struct Demo 
 {
     static const unsigned QSIZE ; 
-
-    Uniform uniform ; 
-    GLuint  uniformBO ; 
 
     Frame*  frame ;   
     Prog*   cull ; 
@@ -126,7 +168,6 @@ struct Demo
 
     GLuint cullVertexArray ;   
     GLuint drawVertexArray ;   
-    GLuint allVertexArray ;   
 
     GLuint vertexBO ;   
     GLuint transformBO ;   
@@ -138,11 +179,6 @@ struct Demo
     Demo(Prog* cull_, Prog* draw_);
 
     void init();
-
-    void setupUniformBuffer();
-    void updateUniformBuffer();
-    void updateUniform();
-
     void loadMeshData();
     void loadShaders();
     void createInstances();
@@ -150,24 +186,15 @@ struct Demo
     void renderLoop();
     void errcheck(const char* msg );
     GLuint createVertexArray(GLuint instanceBO) ;
-    void pullback(GLenum target);
+
+    //void instcull();
+    //void render();
+
     void destroy();
 
 };
 
-void Demo::errcheck(const char* msg)
-{
-    GLenum glError;
-    if ((glError = glGetError()) != GL_NO_ERROR) 
-     {
-        std::cout 
-            << msg 
-            << " : Warning: OpenGL error code: " 
-            << glError 
-            << std::endl
-            ;
-    }   
-}
+
 
 Demo::Demo(Prog* cull_, Prog* draw_) 
     :
@@ -175,7 +202,7 @@ Demo::Demo(Prog* cull_, Prog* draw_)
     cull(cull_),
     draw(draw_),
     num_viz(0),
-    num_inst(300),
+    num_inst(10),
     num_vert(3),
     tr(new Transforms(num_inst, 4, 4, NULL)),
     trviz(new Transforms(num_inst, 4, 4, new float[num_inst*4*4])),
@@ -195,15 +222,17 @@ void Demo::destroy()
     frame->destroy();
 }
 
-/*
-void Demo::upload(Buf* buf)
+void Demo::init()
 {
-    glGenBuffers(1, &buf->id);
-    glBindBuffer(GL_ARRAY_BUFFER, buf->id);
-    glBufferData(GL_ARRAY_BUFFER, buf->num_bytes, buf->ptr,  GL_STATIC_DRAW );
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    loadShaders();
+
+    loadMeshData();
+    createInstances();
+
+    this->drawVertexArray = createVertexArray(this->culledTransformBO); 
+
+    errcheck("Demo::init");
 }
-*/
 
 void Demo::loadMeshData()
 {
@@ -223,6 +252,7 @@ void Demo::loadMeshData()
 
     errcheck("Demo::loadMeshData");
 }
+
 
 void Demo::loadShaders()
 {
@@ -247,28 +277,14 @@ void Demo::loadShaders()
 
 void Demo::createInstances()
 {
-    // original instance transforms
-
     glGenBuffers(1, &this->transformBO);
     glBindBuffer(GL_ARRAY_BUFFER, this->transformBO);
     glBufferData(GL_ARRAY_BUFFER, ibuf->num_bytes, ibuf->ptr, GL_STATIC_DRAW); 
 
-    // allocate space for culled instance transforms
-
-    glGenBuffers(1, &this->culledTransformBO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->culledTransformBO);
-    glBufferData(GL_ARRAY_BUFFER, ibuf->num_bytes, NULL, GL_DYNAMIC_COPY); 
-
-    // query for counting the surviving transforms
-
-    glGenQueries(1, &this->culledTransformQuery);
-
-    // vertex array for culling instance transforms, via vertex+geometry shader
-
     glGenVertexArrays(1, &cullVertexArray );
     glBindVertexArray(this->cullVertexArray );
 
-    glBindBuffer(GL_ARRAY_BUFFER, this->transformBO); // original transforms fed in 
+    glBindBuffer(GL_ARRAY_BUFFER, this->transformBO);
 
     glEnableVertexAttribArray(LOC_InstanceTransform + 0);
     glVertexAttribPointer(    LOC_InstanceTransform + 0, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(0*QSIZE) );
@@ -282,64 +298,30 @@ void Demo::createInstances()
     glEnableVertexAttribArray(LOC_InstanceTransform + 3);
     glVertexAttribPointer(    LOC_InstanceTransform + 3, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(3*QSIZE) );
 
+
+    glGenBuffers(1, &this->culledTransformBO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->culledTransformBO);
+    glBufferData(GL_ARRAY_BUFFER, ibuf->num_bytes, NULL, GL_DYNAMIC_COPY); 
+
+    glGenQueries(1, &this->culledTransformQuery);
+
     errcheck("Demo::createInstances");
 }
 
-void Demo::setupUniformBuffer()
-{
-    glGenBuffers(1, &this->uniformBO);
-    glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(this->uniform), &this->uniform, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    GLuint binding_point_index = 0 ;
-    glBindBufferBase(GL_UNIFORM_BUFFER, binding_point_index, this->uniformBO);
-}
-
-void Demo::updateUniformBuffer()
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(this->uniform), &this->uniform);
-}
-
-void Demo::updateUniform()
-{
-
-
-}
-
-
-
-void Demo::init()
-{
-    setupUniformBuffer();
-
-    loadShaders();
-
-    loadMeshData();
-    createInstances();
-
-    this->allVertexArray = createVertexArray(this->transformBO); 
-    this->drawVertexArray = createVertexArray(this->culledTransformBO); 
-
-    errcheck("Demo::init");
-}
 
 GLuint Demo::createVertexArray(GLuint instanceBO) 
 {
-    // instanced vertex array for rendering, incorporating 
-    // both the mesh vertices and the transforms 
-
     GLuint vertexArray;
+
     glGenVertexArrays(1, &vertexArray);
-    glBindVertexArray(vertexArray);
 
     glBindBuffer(GL_ARRAY_BUFFER, this->vertexBO);
     glEnableVertexAttribArray(LOC_VertexPosition); 
     glVertexAttribPointer(LOC_VertexPosition, 4, GL_FLOAT, GL_FALSE, QSIZE, (void*)0);
 
-    GLuint divisor = 1 ;   // number of instances between updates of attribute , >1 will land that many instances on top of each other
     glBindBuffer(GL_ARRAY_BUFFER, instanceBO);
+
+    GLuint divisor = 1 ;   // number of instances between updates of attribute , >1 will land that many instances on top of each other
 
     glEnableVertexAttribArray(LOC_VizInstanceTransform + 0);
     glVertexAttribPointer(    LOC_VizInstanceTransform + 0, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(0*QSIZE) );
@@ -363,19 +345,32 @@ GLuint Demo::createVertexArray(GLuint instanceBO)
 }
 
 
+void Demo::errcheck(const char* msg)
+{
+    GLenum glError;
+    if ((glError = glGetError()) != GL_NO_ERROR) 
+     {
+        std::cout 
+            << msg 
+            << " : Warning: OpenGL error code: " 
+            << glError 
+            << std::endl
+            ;
+    }   
+}
+
+
+
+
 void Demo::renderScene()
 {
-    updateUniform();
-    updateUniformBuffer();  // same UBO can be used from all shaders
-
-    /////////// 1st pass : filter instance transforms into culledTransformBO via transform feedback 
 
     glUseProgram(cull->program);
+    glEnable(GL_RASTERIZER_DISCARD);
+
     glBindVertexArray(this->cullVertexArray);
 
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, this->culledTransformBO );
-
-    glEnable(GL_RASTERIZER_DISCARD);
     glBeginTransformFeedback(GL_POINTS);
     {
         glBeginQuery(GL_PRIMITIVES_GENERATED, this->culledTransformQuery  );
@@ -391,46 +386,47 @@ void Demo::renderScene()
 
     glGetQueryObjectuiv(this->culledTransformQuery, GL_QUERY_RESULT, &num_viz);
   
-    bool use_cull = true ; 
-/*
-    std::cout 
-          << " num_inst " << this->num_inst 
-          << " num_viz(GL_PRIMITIVES_GENERATED) " << this->num_viz 
-          << std::endl 
-          ;
-*/
- 
-    /////////// 2nd pass : render just the surviving instances
+
+
+    //num_viz = num_inst ;  
 
     glUseProgram(draw->program);
-    glBindVertexArray( use_cull ? this->drawVertexArray : this->allVertexArray);
 
-    unsigned num_draw = use_cull ? num_viz : num_inst ; 
+    glBindVertexArray(this->drawVertexArray);
 
-    if(num_draw > 0)    
-    {  
-        glDrawArraysInstanced( GL_TRIANGLES, 0, num_vert,  num_draw );
-        //pullback(GL_TRANSFORM_FEEDBACK_BUFFER);
-     }   
+
+        std::cout 
+                << " num_inst " << this->num_inst 
+                << " num_viz(GL_PRIMITIVES_GENERATED) " << this->num_viz 
+                << std::endl 
+                ;
+ 
+
+    if(num_viz > 0)
+    {
+        unsigned viz_bytes = num_viz*4*QSIZE ; 
+        std::cout 
+                << " num_inst " << this->num_inst 
+                << " num_viz(GL_PRIMITIVES_GENERATED) " << this->num_viz 
+                << " viz_bytes " << viz_bytes
+                << std::endl 
+                ; 
+
+        glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, viz_bytes, trviz->itra );
+        glGetBufferSubData(GL_ARRAY_BUFFER, 0, viz_bytes, trviz->itra );
+
+        trviz->dump(num_viz);    
+
+        glDrawArraysInstanced( GL_TRIANGLES, 0, num_vert,  num_viz );
+    }
 }
-
-void Demo::pullback(GLenum target)
-{
-    if(num_viz == 0) return ; 
-    unsigned viz_bytes = num_viz*4*QSIZE ; 
-    glGetBufferSubData( target , 0, viz_bytes, trviz->itra );
-    trviz->dump(num_viz);    
-}
-
 
 void Demo::renderLoop()
 {
     unsigned count(0); 
-    while (!glfwWindowShouldClose(frame->window) && count++ < 2000 )
+    while (!glfwWindowShouldClose(frame->window) && count++ < 10 )
     {
-        frame->listen();
-
-        //std::cout << "Demo::renderLoop count " << count << std::endl ; 
+        std::cout << "Demo::renderLoop count " << count << std::endl ; 
 
         int width, height;
         glfwGetFramebufferSize(frame->window, &width, &height);
@@ -440,6 +436,7 @@ void Demo::renderLoop()
         renderScene();
 
         glfwSwapBuffers(frame->window);
+        glfwPollEvents();
     }
 }
 

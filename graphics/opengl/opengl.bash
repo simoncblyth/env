@@ -62,6 +62,19 @@ Stores the offset of the attribute data with the buffer object to be used for th
 attribute (as well as format information and stride data for it). – Nicol Bolas (Jun 17 '13 at 15:26)
 
 
+GL_UNIFORM_BUFFER
+-----------------------
+
+* http://www.geeks3d.com/20140704/gpu-buffers-introduction-to-opengl-3-1-uniform-buffers-objects/
+
+The main advantage of using uniform buffers is that they can be shared between
+several GLSL shaders. Then, a single UBO is enough for all shaders that use the
+same data.
+
+From a GLSL shader point of view, an uniform buffer is a read-only memory buffer.
+
+
+
 opengl workflow
 -------------------
 

@@ -51,6 +51,10 @@ set(SOURCES
      Att.cc
      Renderer.cc
      Transforms.cc
+     Cam.cc
+     Vue.cc
+     Comp.cc
+     G.cc
 )
  
 

@@ -7,6 +7,7 @@ set(TEST_SOURCES
     instcull1.cc
     instance0.cc
     instance.cc
+    CompTest.cc
 )
  
 foreach(TEST_SOURCE ${TEST_SOURCES})
