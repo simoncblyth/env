@@ -16,7 +16,8 @@ Using glVertexAttribDivisor, glDrawArraysInstanced
 #include "Prog.hh"
 #include "Frame.hh"
 #include "Buf.hh"
-#include "Renderer.hh"
+#include "Pos.hh"
+#include "Box.hh"
 
 const char* vertSrc = R"glsl(
 
@@ -40,29 +41,14 @@ const char* fragSrc = R"glsl(
     }
 )glsl";
 
-struct V { float x,y,z,w ; };
-static const unsigned NUM_VPOS = 3 ; 
 
-V vpos[NUM_VPOS] = 
+void upload(Buf* buf, GLenum target, GLenum usage )
 {
-    { -0.1f , -0.1f,  0.f,  1.f }, 
-    { -0.1f ,  0.1f,  0.f,  1.f },
-    {  0.f ,   0.f,   0.f,  1.f }
-};
-
-static const unsigned NUM_IPOS = 8 ; 
-V ipos[NUM_IPOS] = 
-{
-    {   0.1f ,   0.1f,   0.f,  1.f }, 
-    {   0.2f ,   0.2f,   0.f,  1.f },
-    {   0.3f ,   0.3f,   0.f,  1.f },
-    {   0.4f ,   0.4f,   0.f,  1.f },
-    {  -0.1f ,  -0.1f,   0.f,  1.f }, 
-    {  -0.2f ,  -0.2f,   0.f,  1.f },
-    {  -0.3f ,  -0.3f,   0.f,  1.f },
-    {  -0.4f ,  -0.4f,   0.f,  1.f }
-};
-
+    glGenBuffers(1, &buf->id);
+    glBindBuffer(target, buf->id);
+    glBufferData(target, buf->num_bytes, buf->ptr, usage);
+    glBindBuffer(target, 0);
+}
 
 int main()
 {
@@ -72,39 +58,50 @@ int main()
     prog.create();
     prog.link();
 
-    Buf v( NUM_VPOS, sizeof(vpos),vpos ) ; 
-    Buf i( NUM_IPOS, sizeof(ipos),ipos ) ; 
+    Box box(0, 0.05f );
 
-    Renderer rdr ; 
-    rdr.upload(&v, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    rdr.upload(&i, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    //Buf* a = Pos::a();
+    Buf* a = box.buf();
+
+
+
+    Buf* i = Pos::i();
+
+    GLuint vao ; 
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    upload(a, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    upload(i, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
 
     GLint vPosition = prog.getAttribLocation("vPosition");
-    glBindBuffer(GL_ARRAY_BUFFER, v.id);
+    glBindBuffer(GL_ARRAY_BUFFER, a->id);
     glEnableVertexAttribArray(vPosition);
     glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float),  NULL);
     
     GLint iPosition = prog.getAttribLocation("iPosition");
-    glBindBuffer(GL_ARRAY_BUFFER, i.id);
+    glBindBuffer(GL_ARRAY_BUFFER, i->id);
     glEnableVertexAttribArray(iPosition);
     glVertexAttribPointer(iPosition, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float),  NULL);
     glVertexAttribDivisor(iPosition, 1 );
+
+
+    glEnable(GL_DEPTH_TEST);
 
     while (!glfwWindowShouldClose(frame.window))
     {
         int width, height;
         glfwGetFramebufferSize(frame.window, &width, &height);
         glViewport(0, 0, width, height);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-        glDrawArraysInstanced(GL_TRIANGLES, 0, NUM_VPOS, NUM_IPOS );
+        glDrawArraysInstanced(GL_TRIANGLES, 0, a->num_items, i->num_items );
 
         glfwSwapBuffers(frame.window);
         glfwPollEvents();
     }
 
     prog.destroy();
-    rdr.destroy();
     frame.destroy();
 
     exit(EXIT_SUCCESS);

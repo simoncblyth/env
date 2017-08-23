@@ -60,6 +60,8 @@ set(SOURCES
      GU.cc
      BB.cc
      Pos.cc
+     UV.cc
+     Box.cc
 )
  
 

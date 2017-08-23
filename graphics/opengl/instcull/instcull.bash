@@ -306,7 +306,7 @@ instcull-install(){
 
 instcull--()
 {
-    instcull-wipe
+    #instcull-wipe
     instcull-cmake
     instcull-make
     instcull-install

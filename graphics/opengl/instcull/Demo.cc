@@ -19,14 +19,15 @@
 #include "Cam.hh"
 #include "Vue.hh"
 #include "BB.hh"
+#include "G.hh"
 
 
 
 
-Demo::Demo(Geom* geom_) 
+Demo::Demo() 
     :
     uniform(new Uniform),
-    geom(geom_),
+    geom(new Geom(3,300)),
     comp(new Comp),
     frame(new Frame),
     cull(new Prog(vertCullSrc, geomCullSrc, NULL )), 
@@ -256,16 +257,50 @@ void Demo::setupUniformBuffer()
 
 void Demo::updateUniform(float t)
 {
+//
+
     comp->update();
     uniform->ModelView = comp->world2eye ; 
-    uniform->ModelViewProjection = comp->world2clip ;  
+    //uniform->ModelViewProjection = glm::transpose(comp->world2clip) ;  
+    //uniform->ModelViewProjection = comp->world2clip ;  
+    uniform->ModelViewProjection = comp->world2eye ;  
 
 /*
+
     glm::vec3 tla(-0.25f,-0.25f,0.f);
     tla *= t ; 
     glm::mat4 m = glm::translate(glm::mat4(1.f), tla);
     uniform->ModelView = m ;
     uniform->ModelViewProjection = m  ;
+*/
+
+/*
+    glm::mat4 m ; 
+
+    m[0] = {  0.596, 0.000, 0.608, 0.607 } ;
+    m[1] = { -0.456, 0.000, 0.795, 0.794 } ;
+    m[2] = { 0.000, 1.000, 0.000, 0.000 } ;
+
+    m[3] = {-0.5,0,0,2.5} ;
+
+   0.794   0.000  -0.607   0.000 
+                          -0.607   0.000  -0.794   0.000 
+                           0.000   1.000   0.000   0.000 
+                          -0.103   0.000  -1.778   1.000 
+
+
+
+
+    m[0] = {   0.794,   0.000,  -0.607,   0.000,  } ; 
+    m[1] = {  -0.607,   0.000,  -0.794,   0.000,  } ; 
+    m[2] = {   0.000,   1.000,   0.000,   0.000,  } ; 
+    m[3] = {  -0.103,   0.000,  -1.778,   3.000,  } ; 
+
+
+    uniform->ModelViewProjection = m  ;
+
+
+
 */
 
 
@@ -279,17 +314,20 @@ void Demo::targetGeometry()
     BB* ibb = geom->ibb ; 
     glm::vec4 ice = ibb->get_center_extent();
 
-    comp->setCenterExtent(ice);      
-    comp->vue->setEye(-1.3, -1.7, 0);      
-    comp->cam->setFocus(ice.w);      
-    comp->update();
-
     std::cout << "Demo::targetGeometry" 
-              << std::endl
-              << comp->desc()
+              << G::gpresent("ice", ice)
               << std::endl
               ;
+
+    comp->setCenterExtent(ice);      
+    comp->vue->setEye(-1.3, -1.7, 0);      
+    comp->cam->setFocus(ice.w, 100.f);      
+    comp->update();
+    comp->dump();
+
 }
+
+
 
 
 void Demo::init()
@@ -409,6 +447,10 @@ void Demo::pullback()
 void Demo::renderLoop()
 {
     unsigned count(0); 
+
+    glEnable(GL_DEPTH_TEST);
+    
+
     while (!glfwWindowShouldClose(frame->window) && count++ < 2000 )
     {
         frame->listen();
@@ -417,7 +459,7 @@ void Demo::renderLoop()
 
         glfwGetFramebufferSize(frame->window, &comp->cam->width, &comp->cam->height);
         glViewport(0, 0, comp->cam->width, comp->cam->height);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         double t = glfwGetTime();
 
         renderScene((float)t);

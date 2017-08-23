@@ -9,6 +9,9 @@ set(TEST_SOURCES
     instanceVA.cc
     CompTest.cc
     GeomTest.cc
+    BBTest.cc
+    BoxTest.cc
+    CamTest.cc
 )
  
 foreach(TEST_SOURCE ${TEST_SOURCES})

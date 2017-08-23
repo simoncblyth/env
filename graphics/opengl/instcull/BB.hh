@@ -7,7 +7,9 @@ struct DEMO_API BB
     glm::vec3 min ; 
     glm::vec3 max ; 
 
-    BB();
+    BB(float extent=0.f);
+
+    //static BB make_BB(float extent);
 
     std::string desc() const ;
     glm::vec4 get_center_extent() const  ;

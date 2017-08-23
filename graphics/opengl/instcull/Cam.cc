@@ -5,14 +5,19 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "G.hh"
 #include "Cam.hh"
 
 
 std::string Cam::desc() const 
 {
     std::stringstream ss ; 
+    glm::mat4 projection = getProjection() ;
+
 
     ss 
+        << " basis " << basis << std::endl 
+        << " factor " << factor << std::endl 
         << " near " << near << std::endl 
         << " far " << far << std::endl 
         << " zoom " << zoom << std::endl 
@@ -22,7 +27,12 @@ std::string Cam::desc() const
         << " right " << getRight() << std::endl 
         << " bottom " << getBottom() << std::endl 
         << " top " << getTop() << std::endl 
+        << " yfov " << getYfov() 
+        << std::endl 
+        << G::gpresent("proj", projection )
+        << std::endl 
         ;
+
 
     return ss.str();
 }
@@ -44,11 +54,12 @@ void Cam::setSize(int width_, int height_ )
     height = height_ ;
 }
 
-void Cam::setFocus(float basis_ )
+void Cam::setFocus(float basis_, float factor_)
 {
     basis = basis_ ; 
-    near = basis/10.f ; 
-    far = basis*5.f ; 
+    factor = factor_ ; 
+    near = basis/factor_ ; 
+    far = basis*factor_ ; 
 }
 
 

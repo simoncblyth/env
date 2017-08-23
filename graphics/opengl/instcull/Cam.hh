@@ -8,6 +8,7 @@ struct DEMO_API Cam
     int   width ;  
     int   height ;  
     float basis ; 
+    float factor ; 
     float near ; 
     float far ; 
     float zoom ; 
@@ -18,7 +19,7 @@ struct DEMO_API Cam
     Cam( int width_=1024, int height_=768, float basis=1000.f );
 
     void setSize(int width, int height );
-    void setFocus(float basis);
+    void setFocus(float basis, float factor=10.);
     void setYfov(float yfov_deg);
 
     float getAspect() const ; 

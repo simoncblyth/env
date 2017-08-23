@@ -7,10 +7,10 @@
 #include <glm/gtx/component_wise.hpp>
 
 
-BB::BB()
+BB::BB(float extent)
    :
-   min(0.),
-   max(0.)
+   min(-extent),
+   max(extent)
 {
 }
 

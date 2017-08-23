@@ -56,7 +56,7 @@ struct DEMO_API Demo
     unsigned culledTransformBO ;   
     unsigned culledTransformQuery ;   
 
-    Demo(Geom* geom_);
+    Demo();
 
     void init();
 

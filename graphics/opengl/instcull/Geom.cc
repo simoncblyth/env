@@ -49,6 +49,11 @@ void Geom::init()
 
         update_bounds();
     }
+    else
+    {
+
+
+    }
 
 
     
