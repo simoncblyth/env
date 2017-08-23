@@ -6,6 +6,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+
 
 #include "Demo.hh"
 #include "Prog.hh"
@@ -96,13 +98,13 @@ const char* Demo::vertDrawSrc = R"glsl(
     {
         mat4 ModelView;
         mat4 ModelViewProjection;
-    }  matrices  ;
+    } ;
 
     layout (location = 0) in vec4 VertexPosition;
     layout (location = 1) in mat4 VizInstanceTransform ;
     void main()
     {
-        gl_Position = matrices.ModelViewProjection * VizInstanceTransform * VertexPosition ;
+        gl_Position = ModelViewProjection * VizInstanceTransform * VertexPosition ;
         //gl_Position = VertexPosition ;
     }
 
@@ -252,11 +254,20 @@ void Demo::setupUniformBuffer()
 }
 
 
-void Demo::updateUniform()
+void Demo::updateUniform(float t)
 {
     comp->update();
     uniform->ModelView = comp->world2eye ; 
     uniform->ModelViewProjection = comp->world2clip ;  
+
+/*
+    glm::vec3 tla(-0.25f,-0.25f,0.f);
+    tla *= t ; 
+    glm::mat4 m = glm::translate(glm::mat4(1.f), tla);
+    uniform->ModelView = m ;
+    uniform->ModelViewProjection = m  ;
+*/
+
 
     glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Uniform), this->uniform);
@@ -335,9 +346,9 @@ GLuint Demo::createVertexArray(GLuint instanceBO)
 }
 
 
-void Demo::renderScene()
+void Demo::renderScene(float t)
 {
-    //updateUniform();
+    updateUniform(t);
 
     /////////// 1st pass : filter instance transforms into culledTransformBO via transform feedback 
 
@@ -407,8 +418,9 @@ void Demo::renderLoop()
         glfwGetFramebufferSize(frame->window, &comp->cam->width, &comp->cam->height);
         glViewport(0, 0, comp->cam->width, comp->cam->height);
         glClear(GL_COLOR_BUFFER_BIT);
+        double t = glfwGetTime();
 
-        renderScene();
+        renderScene((float)t);
 
         glfwSwapBuffers(frame->window);
     }

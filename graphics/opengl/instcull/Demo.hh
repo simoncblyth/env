@@ -62,13 +62,13 @@ struct DEMO_API Demo
 
     void targetGeometry();
     void setupUniformBuffer();
-    void updateUniform();
+    void updateUniform(float t);
 
     void loadMeshData();
     void upload(Buf* buf);
     void loadShaders();
     void createInstances();
-    void renderScene();
+    void renderScene(float t);
     void renderLoop();
     void errcheck(const char* msg );
     void pullback();

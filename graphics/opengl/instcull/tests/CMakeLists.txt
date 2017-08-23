@@ -5,8 +5,8 @@ project(${name})
 set(TEST_SOURCES
     instcull0.cc
     instcull1.cc
-    instance0.cc
-    instance.cc
+    instanceMinimal.cc
+    instanceVA.cc
     CompTest.cc
     GeomTest.cc
 )

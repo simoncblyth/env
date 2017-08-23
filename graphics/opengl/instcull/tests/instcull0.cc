@@ -1,56 +1,5 @@
-/*
-Attempt Culling OpenGL Instances Via Geometry Shader and Transform Feedback 
-=============================================================================
-
-Aiming for a minimalist imp following technique of nature-
-
-* http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
-
-Multi-pass technique
-
-1. cull against view frustum (or some arbitrary criteria in demo)
-   using instance transforms (or simply offsets in demo) and extents of the instance
-  
-2. renders only those instances that are likely to be visible in the final scene
-
-This can drastically reduce the amount of vertex data sent through the graphics pipeline.
-
-
-Status
----------
-
-* transform feedback succeeds to cull instances writing to the buffer
-* subsequent render now sees just the selected instances transforms
-
-
-Culling gives expected on 1st call, not on subsequent
-
-::
-
-     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 100 viz_bytes 6400
-     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
-     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
-     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
-     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
-     num_tr 200 num_viz(GL_PRIMITIVES_GENERATED) 200 viz_bytes 12800
-
-
-
-What Not Working 
---------------------
-
-Trying to render from the GL_TRANSFORM_FEEDBACK_BUFFER
-with something like::
-
-   glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, cbuf.id);    
- 
-Results in the render not seeing the instance postitions, 
-gets all zeros resulting in all instances on top of
-each other.
-
-    
-*/
-
+// notes in instcull-vi
+   
 #include <vector>
 #include <iostream>
 #include <iomanip>

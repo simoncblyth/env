@@ -82,31 +82,13 @@ int main()
     GLint vPosition = prog.getAttribLocation("vPosition");
     glBindBuffer(GL_ARRAY_BUFFER, v.id);
     glEnableVertexAttribArray(vPosition);
-    {
-        GLuint index = vPosition ; 
-        GLint  size = 4 ;         // Specifies the number of components per generic vertex attribute. Must be 1, 2, 3, 4.
-        GLenum type = GL_FLOAT ;
-        GLboolean normalized = GL_FALSE ;
-        GLsizei stride = 4*sizeof(float) ;  // byte offset between consecutive generic vertex attributes
-        const GLvoid* offset = NULL ;
-
-        glVertexAttribPointer(index, size, type, normalized, stride, offset);
-    }
-
+    glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float),  NULL);
+    
     GLint iPosition = prog.getAttribLocation("iPosition");
     glBindBuffer(GL_ARRAY_BUFFER, i.id);
     glEnableVertexAttribArray(iPosition);
-    {
-        GLuint index = iPosition ; 
-        GLint  size = 4 ;         // Specifies the number of components per generic vertex attribute. Must be 1, 2, 3, 4.
-        GLenum type = GL_FLOAT ;
-        GLboolean normalized = GL_FALSE ;
-        GLsizei stride = 4*sizeof(float) ;  // byte offset between consecutive generic vertex attributes
-        const GLvoid* offset = NULL ;
-
-        glVertexAttribPointer(index, size, type, normalized, stride, offset);
-        glVertexAttribDivisor(index, 1 );
-    }
+    glVertexAttribPointer(iPosition, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float),  NULL);
+    glVertexAttribDivisor(iPosition, 1 );
 
     while (!glfwWindowShouldClose(frame.window))
     {
@@ -115,14 +97,7 @@ int main()
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        {
-            GLenum mode = GL_TRIANGLES ;
-            GLint first = 0 ; 
-            GLsizei count = NUM_VPOS ;  // number of indices to render, NB not number of prim
-            GLsizei primCount = NUM_IPOS ;  
-            glDrawArraysInstanced(mode, first, count, primCount );
-            //glDrawArrays(mode, first, count );
-        }
+        glDrawArraysInstanced(GL_TRIANGLES, 0, NUM_VPOS, NUM_IPOS );
 
         glfwSwapBuffers(frame.window);
         glfwPollEvents();

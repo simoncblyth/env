@@ -9,10 +9,17 @@ OpenGL Instance Culling
 Demo Project Exploring How Best to Arrange OpenGL Instance Culling Rendering
 ----------------------------------------------------------------------------------
 
-tests/instance.cc
+
+tests/instanceMinimal.cc
+    minimal instancing 
+
+tests/instanceVA.cc
     just instancing with no culling derived from instance-
     demonstrates encapsulation provided by VertexArray, by combining 2 vbo A,B 
     and 2 sets of instance transforms I, J in four ways AI,AJ,BI,BJ
+
+    Also shows UBO in operation.
+
 
 tests/instcull0.cc
     older fashioned approach (repeatedly describing the atts) 

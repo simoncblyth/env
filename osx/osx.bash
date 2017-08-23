@@ -15,6 +15,24 @@ Password:">console"
 Shortcuts
 ----------
 
+
+FN key mappings : for failed d D key with F1 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+* http://www.makeuseof.com/tag/remap-macs-function-keys-anything-want/
+
+
+* SysPrefs > Keyboard > Keyboard, check "Use all F1, F2 etc keys as standard function keys"
+
+  * this disables the special functions of the keys
+  * to still use them (change volume/brightness etc)  combine with "fn" 
+  * this means pressing those keys enters: <F3><F4>
+
+  * in Terminal > Prefs > Keyboard  then enter that F1 should enter a "d" "D"
+
+
+
 invert colors : ctrl-option-cmd-8
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -13,13 +13,18 @@ Using glVertexAttribDivisor, glDrawArraysInstanced
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "Prog.hh"
 #include "Frame.hh"
 #include "Buf.hh"
+#include "Pos.hh"
+#include "GU.hh"
 
 
+#define WITH_UBO 1
 
+#ifdef WITH_UBO
 struct Uniform
 {
     glm::mat4 ModelView ; 
@@ -27,72 +32,13 @@ struct Uniform
 
     Uniform() 
         :   
-        ModelView(1.f), 
-        ModelViewProjection(1.f)
+        ModelView(0.1f), 
+        ModelViewProjection(0.1f)
     {}  ;
 
 };
 
-
-
-void errcheck(const char* msg)
-{
-    GLenum glError;
-    if ((glError = glGetError()) != GL_NO_ERROR) 
-     {
-        std::cout 
-            << msg 
-            << " : Warning: OpenGL error code: " 
-            << glError 
-            << std::endl
-            ;
-    }   
-}
-
-struct V { float x,y,z,w ; };
-static const unsigned NUM_VPOS = 3 ; 
-
-V apos[NUM_VPOS] = 
-{
-    { -0.1f , -0.1f,  0.f,  1.f }, 
-    { -0.1f ,  0.1f,  0.f,  1.f },
-    {  0.f ,   0.f,   0.f,  1.f }
-};
-
-V bpos[NUM_VPOS] = 
-{
-    {  0.2f , -0.2f,  0.f,  1.f }, 
-    {  0.2f ,  0.2f,  0.f,  1.f },
-    {  0.f ,   0.f,   0.f,  1.f }
-};
-
-
-static const unsigned NUM_INST = 8 ; 
-V ipos[NUM_INST] = 
-{
-    {   0.1f ,   0.1f,   0.f,  1.f }, 
-    {   0.2f ,   0.2f,   0.f,  1.f },
-    {   0.3f ,   0.3f,   0.f,  1.f },
-    {   0.4f ,   0.4f,   0.f,  1.f },
-    {  -0.1f ,  -0.1f,   0.f,  1.f }, 
-    {  -0.2f ,  -0.2f,   0.f,  1.f },
-    {  -0.3f ,  -0.3f,   0.f,  1.f },
-    {  -0.4f ,  -0.4f,   0.f,  1.f }
-};
-
-
-V jpos[NUM_INST] = 
-{
-    {   0.1f ,   -0.1f,   0.f,  1.f }, 
-    {   0.2f ,   -0.2f,   0.f,  1.f },
-    {   0.3f ,   -0.3f,   0.f,  1.f },
-    {   0.4f ,   -0.4f,   0.f,  1.f },
-    {  -0.1f ,    0.1f,   0.f,  1.f }, 
-    {  -0.2f ,    0.2f,   0.f,  1.f },
-    {  -0.3f ,    0.3f,   0.f,  1.f },
-    {  -0.4f ,    0.4f,   0.f,  1.f }
-};
-
+#endif
 
 
 struct App 
@@ -103,8 +49,13 @@ struct App
     static const char*    vertSrc ; 
     static const char*    fragSrc ; 
 
+#ifdef WITH_UBO
     Uniform* uniform ; 
     GLuint ubo ; 
+
+    void updateUniform(float t);
+    void setupUniformBuffer();
+#endif
 
     Buf* a ; 
     Buf* b ; 
@@ -120,17 +71,18 @@ struct App
     void upload(Buf* buf);
     GLuint makeVertexArray( GLuint vbo, GLuint ibo );
 
-    void updateUniform();
-    void setupUniformBuffer();
-
-
-
 };
 
 const unsigned App::QSIZE = 4*sizeof(float) ; 
 const unsigned App::LOC_vPosition = 0 ; 
 const unsigned App::LOC_iPosition = 1 ; 
 
+
+// seems preprocessor macros not woking inside raw blocks
+// tokenization happens before preprocessor
+// https://stackoverflow.com/questions/30997129/in-c11-what-should-happen-first-raw-string-expansion-or-macros
+
+#ifdef WITH_UBO
 const char* App::vertSrc = R"glsl(
 
     #version 400 core
@@ -139,7 +91,24 @@ const char* App::vertSrc = R"glsl(
     {
         mat4 ModelView;
         mat4 ModelViewProjection;
-    }  matrices  ;
+    } ;
+
+    layout(location = 0) in vec4 vPosition ;
+    layout(location = 1) in vec4 iPosition ;
+    void main()
+    {
+        vec4 pos = vec4( vPosition.x + iPosition.x, vPosition.y + iPosition.y, vPosition.z + iPosition.z, 1.0 ) ;  
+        gl_Position = ModelViewProjection * pos  ;
+
+        //gl_Position = vec4( vPosition.x, vPosition.y, vPosition.z, 1.0 ) ;  
+        //gl_Position = vec4( vPosition.x + iPosition.x, vPosition.y + iPosition.y, vPosition.z + iPosition.z, 1.0 ) ;  
+    }
+)glsl";
+
+#else
+const char* App::vertSrc = R"glsl(
+
+    #version 400 core
 
     layout(location = 0) in vec4 vPosition ;
     layout(location = 1) in vec4 iPosition ;
@@ -149,6 +118,10 @@ const char* App::vertSrc = R"glsl(
         gl_Position = vec4( vPosition.x + iPosition.x, vPosition.y + iPosition.y, vPosition.z + iPosition.z, 1.0 ) ;  
     }
 )glsl";
+
+#endif
+
+
 
 const char* App::fragSrc = R"glsl(
     #version 400 core 
@@ -162,8 +135,10 @@ const char* App::fragSrc = R"glsl(
 
 App::App(  Buf* a_, Buf* b_, Buf* i_, Buf* j_ )
     :
+#ifdef WITH_UBO
     uniform(new Uniform),
     ubo(0),
+#endif
     a(a_),
     b(b_),
     i(i_),
@@ -179,7 +154,9 @@ App::App(  Buf* a_, Buf* b_, Buf* i_, Buf* j_ )
     bi = makeVertexArray(b->id,i->id);
     bj = makeVertexArray(b->id,j->id);
 
+#ifdef WITH_UBO
     setupUniformBuffer();
+#endif
 }
 
 void App::upload(Buf* buf)
@@ -190,30 +167,43 @@ void App::upload(Buf* buf)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+#ifdef WITH_UBO
 void App::setupUniformBuffer()
 {
-     // same UBO can be used from all shaders
+    // same UBO can be used from all shaders
     glGenBuffers(1, &this->ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, this->ubo);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(Uniform), this->uniform, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    std::cout << "sizeof(Uniform) " << sizeof(Uniform) << std::endl ; 
+    unsigned size = sizeof(Uniform) ;
+    unsigned x_size = sizeof(float)*4*4*2 ; 
 
+    std::cout 
+         << "App::setupUniformBuffer"
+         << " sizeof(Uniform) " << size 
+         << " x_size " << x_size
+         << std::endl 
+         ; 
 
     GLuint binding_point_index = 0 ;
     glBindBufferBase(GL_UNIFORM_BUFFER, binding_point_index, ubo);
 }
 
-void App::updateUniform()
+void App::updateUniform(float t)
 {
-    uniform->ModelView = glm::mat4(1.) ;
-    uniform->ModelViewProjection = glm::mat4(1.)  ;
+    glm::vec3 tla(-0.25f,-0.25f,0.f);
+    tla *= t ; 
+
+    glm::mat4 m = glm::translate(glm::mat4(1.f), tla);
+
+    uniform->ModelView = m ;
+    uniform->ModelViewProjection = m  ;
 
     glBindBuffer(GL_UNIFORM_BUFFER, this->ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Uniform), this->uniform);
 }
-
+#endif
 
 
 GLuint App::makeVertexArray( GLuint vbo, GLuint ibo )
@@ -249,21 +239,30 @@ int main()
 
     draw.link();
 
-    GLuint uniformBlockIndex = glGetUniformBlockIndex(draw.program, "matrices") ;
-    assert(uniformBlockIndex != GL_INVALID_INDEX);
+
+    GU::errchk("main0");
+
+#ifdef WITH_UBO
+    GLuint uniformBlockIndex = glGetUniformBlockIndex(draw.program, "MatrixBlock") ;
+    assert(uniformBlockIndex != GL_INVALID_INDEX && "NB must use the uniform in shader otherwise it is optimized away and this will fail");
+
+    std::cout 
+         << " uniformBlockIndex " << uniformBlockIndex
+         << " GL_INVALID_INDEX " << GL_INVALID_INDEX
+         << std::endl
+         ;
 
     GLuint uniformBlockBinding = 0 ; 
     glUniformBlockBinding(draw.program, uniformBlockIndex,  uniformBlockBinding );
+#endif
 
 
-    errcheck("main0");
+    Buf* a = Pos::a();
+    Buf* b = Pos::b();
+    Buf* i = Pos::i();
+    Buf* j = Pos::j();
 
-    Buf a( NUM_VPOS, sizeof(apos),apos ) ; 
-    Buf b( NUM_VPOS, sizeof(bpos),bpos ) ; 
-    Buf i( NUM_INST, sizeof(ipos),ipos ) ; 
-    Buf j( NUM_INST, sizeof(jpos),jpos ) ; 
-
-    App app(&a, &b, &i, &j );
+    App app(a, b, i, j );
     unsigned count(0) ; 
 
     GLuint va = app.bj ; 
@@ -271,17 +270,18 @@ int main()
     while (!glfwWindowShouldClose(frame.window) && count++ < 100)
     {
 
-    
         int width, height;
         glfwGetFramebufferSize(frame.window, &width, &height);
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
+        double t = glfwGetTime();
 
-        app.updateUniform(); 
-
+#ifdef WITH_UBO
+        app.updateUniform((float)t); 
+#endif
 
         glBindVertexArray( va );
-        glDrawArraysInstanced(GL_TRIANGLES, 0, NUM_VPOS, NUM_INST );
+        glDrawArraysInstanced(GL_TRIANGLES, 0, a->num_items, i->num_items );
 
         glfwSwapBuffers(frame.window);
         glfwPollEvents();

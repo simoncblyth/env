@@ -57,7 +57,9 @@ set(SOURCES
      Comp.cc
      Geom.cc
      G.cc
+     GU.cc
      BB.cc
+     Pos.cc
 )
  
 
