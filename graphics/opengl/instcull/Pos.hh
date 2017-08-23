@@ -14,11 +14,13 @@ struct DEMO_API Pos
     static const V bpos[NUM_VPOS] ; 
     static const V ipos[NUM_INST] ; 
     static const V jpos[NUM_INST] ; 
+   // static const V onetri[3] ; 
 
     static Buf* a();
     static Buf* b();
     static Buf* i();
     static Buf* j();
+    static Buf* onetriangle(float x=0.5f, float y=0.5f, float z=-1.f);
 
 };
 

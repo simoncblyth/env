@@ -20,6 +20,7 @@ model frame
 
 #include "DEMO_API_EXPORT.hh"
 
+#include <vector>
 #include <string>
 #include <glm/glm.hpp>
 
@@ -58,6 +59,9 @@ struct DEMO_API Comp
     void update();
     void dump();
     void dumpCorners();
+    void dumpFrustum();
+    void dumpTri(float x, float y, float z);
+    void dumpPoints(const std::vector<glm::vec4>& world);
 
     glm::vec3 getNDC(const glm::vec4& world);
     glm::vec3 getNDC2(const glm::vec4& world);

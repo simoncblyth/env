@@ -111,17 +111,35 @@ void Comp::dump()
 {
     std::cout << desc() << std::endl ;
 
-    dumpCorners() ;
 }
 
+void Comp::dumpFrustum()
+{
+    std::cout << "Comp::dumpFrustum" << std::endl ;
+
+    std::vector<glm::vec4> world ; 
+    cam->getFrustumVert(world) ;
+    dumpPoints(world);
+}
+
+void Comp::dumpTri(float x, float y, float z)
+{
+    std::cout << "Comp::dumpTri" 
+              << " x " << x 
+              << " y " << y 
+              << " z " << z 
+              << std::endl ;
+    std::vector<glm::vec4> world ;
+    world.push_back( { -x ,   -y  , z , 1.0 } );
+    world.push_back( { -x ,    y  , z , 1.0 } );
+    world.push_back( {  x ,   0.f , z , 1.0 } );
+    dumpPoints(world);
+}
 
 void Comp::dumpCorners()
 {
     std::vector<glm::vec4> world ;
-
     glm::vec4& ce = center_extent ; 
-
-
 
     world.push_back( { ce.x       , ce.y        , ce.z       , 1.0 } );
 
@@ -136,6 +154,11 @@ void Comp::dumpCorners()
             });
     }
 
+    dumpPoints(world);
+}
+
+void Comp::dumpPoints(const std::vector<glm::vec4>& world)
+{
    for(unsigned i=0 ; i < world.size() ; i++)
    {
        const glm::vec4& wpos = world[i] ;

@@ -10,6 +10,7 @@ int main()
     cam.zoom = 0.1 ;
     std::cout << cam.desc() << std::endl ;    
 
+    std::cout << Cam::doc << std::endl ;    
 
     return 0 ; 
 }

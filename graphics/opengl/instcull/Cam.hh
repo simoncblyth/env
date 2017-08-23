@@ -2,9 +2,12 @@
 
 #include "DEMO_API_EXPORT.hh"
 #include <string>
+#include <vector>
 
 struct DEMO_API Cam
 {
+    static const char* doc ; 
+    
     int   width ;  
     int   height ;  
     float basis ; 
@@ -28,12 +31,16 @@ struct DEMO_API Cam
     float getBottom() const ;
     float getLeft() const ;
     float getRight() const ;
+    float getNear() const ;
+    float getFar() const ;
     float getYfov() const ;
 
     glm::mat4 getProjection() const ;
     glm::mat4 getPerspective() const ;
     glm::mat4 getOrtho() const ;
     glm::mat4 getFrustum() const ;
+
+    void getFrustumVert(std::vector<glm::vec4>& corners);
 
     std::string desc() const ;
 

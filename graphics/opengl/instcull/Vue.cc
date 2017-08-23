@@ -105,10 +105,20 @@ void Vue::getTransforms(const glm::mat4& m2w, glm::mat4& world2camera, glm::mat4
 
 std::string Vue::desc()
 {
+    glm::mat4 m2w(1.f);
+    glm::mat4 w2c ; 
+    glm::mat4 c2w ; 
+    glm::vec4 gze ; 
+    getTransforms(m2w, w2c, c2w, gze) ; 
+
     std::stringstream ss; 
     ss << G::gpresent( "eye", eye ) << std::endl ;
     ss << G::gpresent( "look", look ) << std::endl ;
     ss << G::gpresent( "up", up ) << std::endl ;
+    ss << G::gpresent( "m2w", m2w ) << std::endl ;
+    ss << G::gpresent( "w2c", w2c ) << std::endl ;
+    ss << G::gpresent( "gze", gze ) << std::endl ;
+
     return ss.str();
 }
 
