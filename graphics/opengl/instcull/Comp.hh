@@ -54,9 +54,21 @@ struct DEMO_API Comp
 
     Comp();
 
+    void aim(const glm::vec4& ce);
+
+
     void setCenterExtent(float x, float y, float z, float w);
     void setCenterExtent(const glm::vec4& ce);  
+    // vue
+    void setEye(float x, float y, float z);
+    void setLook(float x, float y, float z);
+    void setUp(float x, float y, float z);
+    // cam
+    void setFocus(float extent, float factor);
+    void setNearFar(float near, float far);
+
     void update();
+
     void dump();
     void dumpCorners();
     void dumpFrustum();

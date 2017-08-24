@@ -3,11 +3,12 @@ set(name INSTCULLTest)
 project(${name})
 
 set(TEST_SOURCES
-    instcull0.cc
     instcull1.cc
     instanceMinimal.cc
+    instElemUBO.cc
     onetriangleMinimal.cc
     onetriangleElementMinimal.cc
+    primRender.cc
     oneCubeMinimal.cc
     instanceVA.cc
     CompTest.cc
@@ -16,6 +17,7 @@ set(TEST_SOURCES
     BoxTest.cc
     CamTest.cc
     VueTest.cc
+    TraTest.cc
 )
  
 foreach(TEST_SOURCE ${TEST_SOURCES})

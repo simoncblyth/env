@@ -12,11 +12,16 @@
 #include "Prog.hh"
 #include "Frame.hh"
 #include "Buf.hh"
+
 #include "Cube.hh"
+#include "Sphere.hh"
 
 #include "Comp.hh"
 #include "Vue.hh"
 #include "Cam.hh"
+
+
+
 
 const char* vertSrc = R"glsl(
 
@@ -45,6 +50,8 @@ const char* fragSrc = R"glsl(
 )glsl";
 
 
+
+
 void upload(Buf* buf, GLenum target, GLenum usage )
 {
     glGenBuffers(1, &buf->id);
@@ -64,17 +71,22 @@ struct Uniform
 int main()
 {
     Frame frame ; 
+
+
     Prog draw(vertSrc, NULL, fragSrc ) ; 
     draw.compile();
     draw.create();
     draw.link();
 
-    float cz = -100.f ; 
+
+
+    //float cz = -100.f ; 
 
     bool wire = true ; 
 
-    Cube* cube = new Cube(1.f, 1.f, 1.f,  0.f, 0.f, cz ); 
-    Prim* prim = (Prim*)cube ;
+    //Cube* cube = new Cube(1.f, 1.f, 1.f,  0.f, 0.f, cz ); 
+    Sphere* sphere = new Sphere(); 
+    Prim* prim = (Prim*)sphere ;
 
     Buf* a = prim->vbuf ;
     Buf* e = prim->ebuf ; 
@@ -139,7 +151,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         float angle = (float)glfwGetTime(); 
-        vue.setEye( 5*glm::cos(angle), 0, 5*glm::sin(angle) )  ; 
+        vue.setEye( 1.5*glm::cos(angle), 0, 1.5*glm::sin(angle) )  ; 
         comp.update();
 
         //uniform.ModelViewProjection = glm::translate(glm::mat4(1.f), glm::vec3(-0.25f, -0.25f, 0.f) );

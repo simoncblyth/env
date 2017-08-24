@@ -10,30 +10,60 @@ Demo Project Exploring How Best to Arrange OpenGL Instance Culling Rendering
 ----------------------------------------------------------------------------------
 
 
-tests/instanceMinimal.cc
-    minimal instancing 
+Encapsulated Renderer Tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-tests/instanceVA.cc
-    just instancing with no culling derived from instance-
-    demonstrates encapsulation provided by VertexArray, by combining 2 vbo A,B 
-    and 2 sets of instance transforms I, J in four ways AI,AJ,BI,BJ
-
-    Also shows UBO in operation.
-
-
-tests/instcull0.cc
-    older fashioned approach (repeatedly describing the atts) 
-    succeeds to filter instance transforms once only, trips up 
-    subsequently yielding repeated transforms
-
-tests/instcull1.cc
-    adapt instcull0 to use modern attribute style of nature- with
-    att props captured into the vertex array
+instElemUBO.cc
+    exercise the encapsulated InstRenderer.hh allowing any Prim to be instanced
+primRender.cc
+    exercise the encapsulated Renderer.hh 
+ 
+instcull1.cc
+    monolith Demo class approach using modern attribute style of nature- with
+    att props captured into the vertex array seems to be succeeding 
+    to filter continuously 
 
     * http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
 
-    seems to be succeeding to filter continuously : 
-    TODO: changing criteria test to be sure
+
+Spell-it-out Renderer Tests for OpenGL usage debugging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+instanceMinimal.cc
+    minimal instancing with glDrawArraysInstanced
+
+instanceVA.cc
+    just instancing with no culling derived from instance-
+    demonstrates encapsulation provided by VertexArray, by combining 2 vbo A,B 
+    and 2 sets of instance transforms I, J in four ways AI,AJ,BI,BJ
+    Also shows UBO in operation.
+
+oneCubeMinimal.cc
+     non-encapsulated glDrawElements 
+
+onetriangleMinimal.cc
+    non-encapsulated glDrawArrays
+
+onetriangleElementMinimal.cc
+    non-encapsulated spell everything out rendering 
+    using glDrawElements and UBO for matrix updating 
+ 
+
+Unit Tests
+~~~~~~~~~~~~
+
+::
+
+    BBTest.cc
+    BoxTest.cc
+    CamTest.cc
+    CompTest.cc
+    GeomTest.cc
+    VueTest.cc
+
+
+
+
 
 
 

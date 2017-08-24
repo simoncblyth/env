@@ -10,6 +10,7 @@ struct DEMO_API BB
 
     BB(float extent=0.f);
     static BB* FromVert(const std::vector<glm::vec4>& vert);  
+    static BB* FromMat( const std::vector<glm::mat4>& mat );  
 
     std::string desc() const ;
     glm::vec4 get_center_extent() const  ;

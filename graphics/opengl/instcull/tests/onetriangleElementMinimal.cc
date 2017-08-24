@@ -45,15 +45,6 @@ const char* fragSrc = R"glsl(
 )glsl";
 
 
-void upload(Buf* buf, GLenum target, GLenum usage )
-{
-    glGenBuffers(1, &buf->id);
-    glBindBuffer(target, buf->id);
-    glBufferData(target, buf->num_bytes, buf->ptr, usage);
-    glBindBuffer(target, 0);
-}
-
-
 
 struct Uniform
 {  
@@ -61,30 +52,10 @@ struct Uniform
 };
 
 
-/*
-
-http://www.songho.ca/opengl/gl_projectionmatrix.html
-
-Note that the frustum culling (clipping) is performed in the clip coordinates,
-just before dividing by wc. The clip coordinates, xc, yc and zc are tested by
-comparing with wc. If any clip coordinate is less than -wc, or greater than wc,
-then the vertex will be discarded. 
-
-
-Have observed that placing geometry precisely on near or far planes
-usually results in clipping, need to use small delta to make visible. 
-
-    //float cz = -c.getFar() + 1e-4f ;    // triangle at z = -far is clipped (ndc_z = +1) , need to add some delta to be visible    (small tri in center of screen)
-    //float cz = -c.getNear() - 1e-4f ;   // triangle at z = -near is clipped (ndc_z = -1) , need to subtract some delta to be visible (fills screen)
-    //float cz = -(c.getFar() + c.getNear())/2.f ; 
-
-
-
-*/
-
 int main()
 {
     Frame frame ; 
+
     Prog draw(vertSrc, NULL, fragSrc ) ; 
     draw.compile();
     draw.create();
@@ -100,16 +71,10 @@ int main()
 
     Comp comp ; 
     comp.setCenterExtent( ce );
-
-    Vue& vue = *comp.vue ; 
-    Cam& cam = *comp.cam ; 
-
-    vue.setEye( 0, 0,  1)  ;   // position eye along +z 
-    vue.setLook(0, 0,  0)  ;   // center of region
-    vue.setUp(  0, 1,  0)  ; 
-
-    float factor = 10.f ; 
-    cam.setFocus( ce.w, factor );  // near/far heuristic from extent of region of interest, near = extent/factor ; far = extent*factor
+    comp.setEye( 0, 0,  1)  ;   // position eye along +z 
+    comp.setLook(0, 0,  0)  ;   // center of region
+    comp.setUp(  0, 1,  0)  ; 
+    comp.setFocus( ce.w, 10.f );  // near/far heuristic from extent of region of interest, near = extent/factor ; far = extent*factor
 
     comp.update();
     comp.dump();
@@ -137,8 +102,9 @@ int main()
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    upload(a, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    upload(e, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    a->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    e->upload(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+
 
     GLint vPosition = draw.getAttribLocation("vPosition");
     glBindBuffer(GL_ARRAY_BUFFER, a->id);
@@ -155,7 +121,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         float angle = (float)glfwGetTime(); 
-        vue.setEye( 2*glm::cos(angle), 0, 2*glm::sin(angle) )  ; 
+        comp.setEye( 2*glm::cos(angle), 0, 2*glm::sin(angle) )  ; 
         comp.update();
 
         //uniform.ModelViewProjection = glm::translate(glm::mat4(1.f), glm::vec3(-0.25f, -0.25f, 0.f) );

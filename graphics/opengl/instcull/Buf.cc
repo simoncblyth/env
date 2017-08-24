@@ -25,6 +25,14 @@ std::string Buf::desc()
     return ss.str();
 }
 
+void Buf::upload(GLenum target, GLenum usage )
+{
+    glGenBuffers(1, &this->id);
+    glBindBuffer(target, this->id);
+    glBufferData(target, this->num_bytes, this->ptr, usage);
+    glBindBuffer(target, 0);
+}
+
 
 
 Buf* Buf::Make(const std::vector<glm::vec4>& vert) 

@@ -28,6 +28,21 @@ BB* BB::FromVert(const std::vector<glm::vec4>& vert)
 }  
 
 
+BB* BB::FromMat(const std::vector<glm::mat4>& mat)
+{
+    BB* bb = new BB ; 
+    for(unsigned i=0 ; i < mat.size() ; i++) 
+    {
+        const glm::mat4& m = mat[i] ;
+
+        glm::vec3 p(m[3]);
+        bb->include(p);
+    }
+    return bb ; 
+} 
+
+
+
 
 void BB::include(const glm::vec3& p)
 {

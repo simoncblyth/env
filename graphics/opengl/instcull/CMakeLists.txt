@@ -65,6 +65,9 @@ set(SOURCES
      Tri.cc
      Prim.cc
      Cube.cc
+     Sphere.cc
+     InstRenderer.cc
+     Renderer.cc
 )
  
 

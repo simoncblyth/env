@@ -63,8 +63,6 @@ int main()
     //Buf* a = Pos::a();
     Buf* a = box.buf();
 
-
-
     Buf* i = Pos::i();
 
     GLuint vao ; 

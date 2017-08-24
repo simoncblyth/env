@@ -18,6 +18,10 @@ struct DEMO_API Prim
     std::vector<unsigned>  elem ; 
 
     Prim();
+
+    unsigned add_vert(float x, float y ,float z);
+    unsigned add_vert(const glm::vec3& p);
+
     void add_tri(unsigned v0, unsigned v1, unsigned v2);
     void add_quad(unsigned v0, unsigned v1, unsigned v2, unsigned v3);
 

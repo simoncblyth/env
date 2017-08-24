@@ -21,16 +21,16 @@ Geom::Geom(unsigned num_vert_, unsigned num_inst_)
     num_inst(num_inst_),
     num_viz(0),
 
-    itra(new Tra(num_inst, 4, 4)),
-    ctra(new Tra(num_inst, 4, 4)),
+    itra(new Tra(num_inst, 'S')),
+    ctra(new Tra(num_inst, 'S')),
 
     vbuf(new Buf(num_vert, QSIZE*1*num_vert,   NULL )),  
     vbb(new BB),
 
-    ibuf(new Buf(num_inst, QSIZE*4*num_inst, itra->data )),  
+    ibuf(itra->buf),  
     ibb(new BB),
 
-    cbuf(new Buf(num_inst, QSIZE*4*num_inst, ctra->data ))
+    cbuf(ctra->buf)
 {
     init();
 }
@@ -53,10 +53,7 @@ void Geom::init()
     {
 
 
-    }
-
-
-    
+    }    
 }
 
 

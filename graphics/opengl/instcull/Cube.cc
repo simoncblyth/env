@@ -54,9 +54,6 @@ void Cube::init()
               i & 4 ? cz + sz : cz - sz ,
               1.f
             } );
-
-
-
    
     add_quad( 0, 1, 3, 2);  // front    NB consistent winding
     add_quad( 5, 4, 6, 7);  // back 

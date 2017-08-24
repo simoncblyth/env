@@ -26,6 +26,17 @@ Comp::Comp()
 {
 }
 
+void Comp::aim(const glm::vec4& ce)
+{
+    setCenterExtent( ce );
+
+    setEye( 0, 0,  2)  ;   // position eye along +z 
+    setLook(0, 0,  0)  ;   // center of region
+    setUp(  0, 1,  0)  ;
+
+    const float& extent = ce.w ; 
+    setNearFar( extent/2, extent*20 );
+}
 
 void Comp::setCenterExtent(const glm::vec4& ce)
 {
@@ -49,6 +60,26 @@ void Comp::setCenterExtent(float x, float y, float z, float w)
 
 }
 
+void Comp::setEye(float x, float y, float z)
+{
+    vue->setEye(x,y,z);
+}
+void Comp::setLook(float x, float y, float z)
+{
+    vue->setLook(x,y,z);
+}
+void Comp::setUp(float x, float y, float z)
+{
+    vue->setUp(x,y,z);
+}
+void Comp::setFocus(float extent, float factor)
+{
+    cam->setFocus(extent, factor);
+}
+void Comp::setNearFar(float near, float far)
+{
+    cam->setNearFar(near, far);
+}
 
 
 
