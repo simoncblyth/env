@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <glm/glm.hpp>
+
 #include "DEMO_API_EXPORT.hh"
 
 struct DEMO_API Buf
@@ -12,6 +15,8 @@ struct DEMO_API Buf
     Buf(unsigned num_items_, unsigned num_bytes_, void* ptr_) ;
 
     std::string desc();
+
+    static Buf* Make(const std::vector<glm::vec4>& vert) ;
 
 };
 

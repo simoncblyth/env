@@ -77,30 +77,61 @@ void Cam::setFocus(float basis_, float factor_)
 {
     basis = basis_ ; 
     factor = factor_ ; 
-    near = basis/factor_ ; 
-    far = basis*factor_ ; 
+
+    setNearFar( basis/factor_ , basis*factor_ );
 }
+
+void Cam::setNearFar(float near_, float far_)
+{
+    near = near_ ; 
+    far = far_ ; 
+}
+
+
+
 
 
 float Cam::getAspect() const { return (float)width/(float)height ; }  //  (> 1 for landscape) 
 float Cam::getScale() const { return parallel ? parascale  : near ; }
+
+// use of scale=near in perspective like this 
+// is a non-standard trick to prevent the FOV from changing 
+// as near is changed by scaling the size of the image plane
+// according to the near 
+
 float Cam::getTop() const {    return getScale() / zoom ; }
 float Cam::getBottom() const { return -getScale() / zoom ; }
 float Cam::getLeft() const {   return -getAspect() * getScale() / zoom ; }
 float Cam::getRight() const {  return  getAspect() * getScale() / zoom ; }
+
 float Cam::getNear() const { return near ; }
 float Cam::getFar()  const { return far  ; }
+float Cam::getQ()  const {  return far/near  ; }
 
 void Cam::getFrustumVert(std::vector<glm::vec4>& vert)
 {
-    vert.push_back( { getLeft(),  getBottom(), getNear() , 1.f } );
-    vert.push_back( { getRight(), getBottom(), getNear() , 1.f } );
-    vert.push_back( { getRight(), getTop(),    getNear() , 1.f } );
-    vert.push_back( { getLeft(),  getTop(),    getNear() , 1.f } );
-    vert.push_back( { getLeft(),  getBottom(), getFar()  , 1.f } );
-    vert.push_back( { getRight(), getBottom(), getFar()  , 1.f } );
-    vert.push_back( { getRight(), getTop(),    getFar()  , 1.f } );
-    vert.push_back( { getLeft(),  getTop(),    getFar()  , 1.f } );
+    /*
+      Near and far are defined as positive 
+      but the position of near and far planes
+      in the camera frame is along -ve z at 
+    
+              z = -near 
+              z = -far 
+    */
+
+    float near_ = getNear();
+    float far_ = getFar();
+    float q = getQ();
+
+    vert.push_back( { getLeft(),  getBottom(), -near_ , 1.f } );
+    vert.push_back( { getRight(), getBottom(), -near_ , 1.f } );
+    vert.push_back( { getRight(), getTop(),    -near_ , 1.f } );
+    vert.push_back( { getLeft(),  getTop(),    -near_ , 1.f } );
+
+    vert.push_back( { q*getLeft(),  q*getBottom(), -far_  , 1.f } );
+    vert.push_back( { q*getRight(), q*getBottom(), -far_  , 1.f } );
+    vert.push_back( { q*getRight(), q*getTop(),    -far_  , 1.f } );
+    vert.push_back( { q*getLeft(),  q*getTop(),    -far_  , 1.f } );
 }
 
 

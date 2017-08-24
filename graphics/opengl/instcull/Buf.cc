@@ -24,4 +24,22 @@ std::string Buf::desc()
 
     return ss.str();
 }
+
+
+
+Buf* Buf::Make(const std::vector<glm::vec4>& vert) 
+{ 
+    
+    unsigned num_vert = vert.size();
+    unsigned num_float = num_vert*4 ; 
+    unsigned num_byte = num_float*sizeof(float) ; 
+
+    float* dest = new float[num_float] ; 
+    memcpy(dest, vert.data(), num_byte ) ; 
+
+    return new Buf( num_vert, num_byte, (void*)dest ) ; 
+} 
+
+
+
  

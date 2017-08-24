@@ -62,6 +62,7 @@ set(SOURCES
      Pos.cc
      UV.cc
      Box.cc
+     Tri.cc
 )
  
 

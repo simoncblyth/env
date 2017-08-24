@@ -23,6 +23,7 @@ struct DEMO_API Cam
 
     void setSize(int width, int height );
     void setFocus(float basis, float factor=10.);
+    void setNearFar(float near_, float far_);
     void setYfov(float yfov_deg);
 
     float getAspect() const ; 
@@ -33,6 +34,7 @@ struct DEMO_API Cam
     float getRight() const ;
     float getNear() const ;
     float getFar() const ;
+    float getQ() const ;
     float getYfov() const ;
 
     glm::mat4 getProjection() const ;

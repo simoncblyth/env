@@ -19,7 +19,7 @@ Using glVertexAttribDivisor, glDrawArraysInstanced
 #include "Prog.hh"
 #include "Frame.hh"
 #include "Buf.hh"
-#include "Pos.hh"
+#include "Tri.hh"
 
 #include "Comp.hh"
 #include "Vue.hh"
@@ -78,8 +78,6 @@ just before dividing by wc. The clip coordinates, xc, yc and zc are tested by
 comparing with wc. If any clip coordinate is less than -wc, or greater than wc,
 then the vertex will be discarded. 
 
-Suspect my idea of clip space is off by factor of 2 ?
-
 
 */
 
@@ -93,34 +91,37 @@ int main()
     draw.link();
 
 
+    
+    //float cz = -c.getFar() + 1e-4f ;    // triangle at z = -far is clipped (ndc_z = +1) , need to add some delta to be visible    (small tri in center of screen)
+    //float cz = -c.getNear() - 1e-4f ;   // triangle at z = -near is clipped (ndc_z = -1) , need to subtract some delta to be visible (fills screen)
+    //float cz = -(c.getFar() + c.getNear())/2.f ; 
+    float cz = -1000.f ; 
+
+    Tri tri(1.3333f, 1.f, 0.f,  0.f, 0.f, cz ); 
+    Buf* a = tri.buf ;
+    const glm::vec4& ce = tri.ce ; 
+
+
 
     Comp comp ; 
+    comp.setCenterExtent( ce );
+
+    Vue& vue = *comp.vue ; 
+    Cam& cam = *comp.cam ; 
+
+    vue.setEye( 0, 0,  1)  ;   // position eye along +z 
+    vue.setLook(0, 0,  0)  ;   // center of region
+    vue.setUp(  0, 1,  0)  ; 
 
     float factor = 10.f ; 
-    float extent = 1.f ; 
-
-    //comp.setCenterExtent( 100, 100, 100, 10 );
-    comp.setCenterExtent(  0,  0,  -1,  extent );
-
-    Vue& v = *comp.vue ; 
-    Cam& c = *comp.cam ; 
-
-    v.setEye( 0, 0,  1)  ;   // position eye along +z 
-    v.setLook(0, 0,  0)  ;   // center of region
-    v.setUp(  0, 1,  0)  ; 
-    c.setFocus( extent, factor );  // near/far heuristic from extent of region of interest, near = extent/factor ; far = extent*factor
-
+    cam.setFocus( ce.w, factor );  // near/far heuristic from extent of region of interest, near = extent/factor ; far = extent*factor
 
     comp.update();
     comp.dump();
-
-    float x =  1.3333f ; 
-    float y =  1.0f ; 
-    float z = -1.0f ; 
-    Buf* a = Pos::onetriangle(x, y, z);  // (-x,-y,z,1) (-x,+y,z,1) (x,0,z,1)
-
-    comp.dumpTri(x,y,z);
+    comp.dumpPoints(tri.vert);
     comp.dumpFrustum();
+
+ 
 
 
 

@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 
     Comp comp ; 
 
-    float factor = 10.f ; 
+    float factor = 2.f ; 
     float extent = 1.f ; 
 
     //comp.setCenterExtent( 100, 100, 100, 10 );
@@ -45,11 +45,13 @@ int main(int argc, char** argv)
     v.setUp(  0, 1,  0)  ; 
     c.setFocus( extent, factor );  // near/far heuristic from extent of region of interest, near = extent/factor ; far = extent*factor
 
+      
+
 
     comp.update();
 
-    comp.dump();
-    
+    comp.dump(); 
+    comp.dumpFrustum();
 
    
 

@@ -122,20 +122,6 @@ void Comp::dumpFrustum()
     dumpPoints(world);
 }
 
-void Comp::dumpTri(float x, float y, float z)
-{
-    std::cout << "Comp::dumpTri" 
-              << " x " << x 
-              << " y " << y 
-              << " z " << z 
-              << std::endl ;
-    std::vector<glm::vec4> world ;
-    world.push_back( { -x ,   -y  , z , 1.0 } );
-    world.push_back( { -x ,    y  , z , 1.0 } );
-    world.push_back( {  x ,   0.f , z , 1.0 } );
-    dumpPoints(world);
-}
-
 void Comp::dumpCorners()
 {
     std::vector<glm::vec4> world ;

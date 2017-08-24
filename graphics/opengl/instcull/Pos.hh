@@ -1,6 +1,8 @@
 #pragma once
 
 #include "DEMO_API_EXPORT.hh"
+#include <vector>
+#include <glm/glm.hpp>
 
 struct DEMO_API V { float x,y,z,w ; };
 
@@ -20,7 +22,9 @@ struct DEMO_API Pos
     static Buf* b();
     static Buf* i();
     static Buf* j();
-    static Buf* onetriangle(float x=0.5f, float y=0.5f, float z=-1.f);
+    static Buf* onetriangle(float sx, float sy, float sz, float cx, float cy, float cz);
+    static void getTriVert(std::vector<glm::vec4>& vert, float sx, float sy, float sz, float cx, float cy, float cz) ;
+
 
 };
 

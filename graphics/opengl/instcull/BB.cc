@@ -16,6 +16,19 @@ BB::BB(float extent)
 
 
 
+BB* BB::FromVert(const std::vector<glm::vec4>& vert)
+{
+    BB* bb = new BB ; 
+    for(unsigned i=0 ; i < vert.size() ; i++) 
+    {
+        glm::vec3 p(vert[i]);
+        bb->include(p);
+    }
+    return bb ; 
+}  
+
+
+
 void BB::include(const glm::vec3& p)
 {
     if(is_empty())
@@ -85,6 +98,5 @@ glm::vec4 BB::get_center_extent() const
 
     return ce ; 
 }
-
 
 
