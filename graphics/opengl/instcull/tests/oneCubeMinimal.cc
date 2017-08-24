@@ -12,12 +12,11 @@
 #include "Prog.hh"
 #include "Frame.hh"
 #include "Buf.hh"
-#include "Tri.hh"
+#include "Cube.hh"
 
 #include "Comp.hh"
 #include "Vue.hh"
 #include "Cam.hh"
-
 
 const char* vertSrc = R"glsl(
 
@@ -62,17 +61,6 @@ struct Uniform
 };
 
 
-/*
-
-http://www.songho.ca/opengl/gl_projectionmatrix.html
-
-Note that the frustum culling (clipping) is performed in the clip coordinates,
-just before dividing by wc. The clip coordinates, xc, yc and zc are tested by
-comparing with wc. If any clip coordinate is less than -wc, or greater than wc,
-then the vertex will be discarded. 
-
-*/
-
 int main()
 {
     Frame frame ; 
@@ -81,14 +69,16 @@ int main()
     draw.create();
     draw.link();
 
-    //float cz = -c.getFar() + 1e-4f ;    // triangle at z = -far is clipped (ndc_z = +1) , need to add some delta to be visible    (small tri in center of screen)
-    //float cz = -c.getNear() - 1e-4f ;   // triangle at z = -near is clipped (ndc_z = -1) , need to subtract some delta to be visible (fills screen)
-    //float cz = -(c.getFar() + c.getNear())/2.f ; 
-    float cz = -1000.f ; 
+    float cz = -100.f ; 
 
-    Tri tri(1.3333f, 1.f, 0.f,  0.f, 0.f, cz ); 
-    Buf* a = tri.vbuf ;
-    const glm::vec4& ce = tri.ce ; 
+    bool wire = true ; 
+
+    Cube* cube = new Cube(1.f, 1.f, 1.f,  0.f, 0.f, cz ); 
+    Prim* prim = (Prim*)cube ;
+
+    Buf* a = prim->vbuf ;
+    Buf* e = prim->ebuf ; 
+    const glm::vec4& ce = prim->ce ; 
 
     Comp comp ; 
     comp.setCenterExtent( ce );
@@ -96,7 +86,9 @@ int main()
     Vue& vue = *comp.vue ; 
     Cam& cam = *comp.cam ; 
 
-    vue.setEye( 0, 0,  1)  ;   // position eye along +z 
+    //cam.zoom = 2.0 ; 
+
+    vue.setEye( 0, 0,  2)  ;   // position eye along +z 
     vue.setLook(0, 0,  0)  ;   // center of region
     vue.setUp(  0, 1,  0)  ; 
 
@@ -105,7 +97,7 @@ int main()
 
     comp.update();
     comp.dump();
-    comp.dumpPoints(tri.vert);
+    comp.dumpPoints(prim->vert);
     comp.dumpFrustum();
 
     GLuint uniformBlockIndex = glGetUniformBlockIndex(draw.program, "MatrixBlock") ;
@@ -130,6 +122,7 @@ int main()
     glBindVertexArray(vao);
 
     upload(a, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    upload(e, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
 
     GLint vPosition = draw.getAttribLocation("vPosition");
     glBindBuffer(GL_ARRAY_BUFFER, a->id);
@@ -146,7 +139,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         float angle = (float)glfwGetTime(); 
-        vue.setEye( 2*glm::cos(angle), 0, 2*glm::sin(angle) )  ; 
+        vue.setEye( 5*glm::cos(angle), 0, 5*glm::sin(angle) )  ; 
         comp.update();
 
         //uniform.ModelViewProjection = glm::translate(glm::mat4(1.f), glm::vec3(-0.25f, -0.25f, 0.f) );
@@ -154,8 +147,14 @@ int main()
 
         glBindBuffer(GL_UNIFORM_BUFFER, ubo);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Uniform), &uniform);
-    
-        glDrawArrays(GL_TRIANGLES, 0, a->num_items);
+   
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, e->id);
+
+        if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glDrawElements(GL_TRIANGLES, e->num_items, GL_UNSIGNED_INT, (void*)0 );
+
+        if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         glfwSwapBuffers(frame.window);
         glfwPollEvents();

@@ -10,20 +10,13 @@ struct Prog  ;
 struct Buf  ; 
 struct Geom  ; 
 struct Comp  ; 
+struct BB  ; 
 
 struct DEMO_API Uniform
 {
     glm::mat4 ModelView ; 
     glm::mat4 ModelViewProjection ;
-
-    Uniform() 
-        : 
-        ModelView(1.f), 
-        ModelViewProjection(1.f)
-    {}  ;
-
 };
-
 
 struct DEMO_API Demo 
 {
@@ -60,23 +53,21 @@ struct DEMO_API Demo
 
     void init();
 
-    void targetGeometry();
+    void targetGeometry(BB* bb);
     void setupUniformBuffer();
     void updateUniform(float t);
 
-    void loadMeshData();
+    void loadMeshData(Buf* vbuf);
     void upload(Buf* buf);
     void loadShaders();
-    void createInstances();
+    void createInstances(Buf* ibuf);
     void renderScene(float t);
     void renderLoop();
-    void errcheck(const char* msg );
     void pullback();
     void destroy();
 
-    unsigned createVertexArray(unsigned instanceBO) ;
-
-
+    unsigned createTransformCullVertexArray(unsigned instanceBO, unsigned loc) ;
+    unsigned createInstancedRenderVertexArray(unsigned instanceBO) ;
 
 };
 

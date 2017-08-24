@@ -18,7 +18,6 @@
 #include "Vue.hh"
 #include "Cam.hh"
 
-
 const char* vertSrc = R"glsl(
 
     #version 400 core
@@ -71,6 +70,16 @@ just before dividing by wc. The clip coordinates, xc, yc and zc are tested by
 comparing with wc. If any clip coordinate is less than -wc, or greater than wc,
 then the vertex will be discarded. 
 
+
+Have observed that placing geometry precisely on near or far planes
+usually results in clipping, need to use small delta to make visible. 
+
+    //float cz = -c.getFar() + 1e-4f ;    // triangle at z = -far is clipped (ndc_z = +1) , need to add some delta to be visible    (small tri in center of screen)
+    //float cz = -c.getNear() - 1e-4f ;   // triangle at z = -near is clipped (ndc_z = -1) , need to subtract some delta to be visible (fills screen)
+    //float cz = -(c.getFar() + c.getNear())/2.f ; 
+
+
+
 */
 
 int main()
@@ -81,13 +90,12 @@ int main()
     draw.create();
     draw.link();
 
-    //float cz = -c.getFar() + 1e-4f ;    // triangle at z = -far is clipped (ndc_z = +1) , need to add some delta to be visible    (small tri in center of screen)
-    //float cz = -c.getNear() - 1e-4f ;   // triangle at z = -near is clipped (ndc_z = -1) , need to subtract some delta to be visible (fills screen)
-    //float cz = -(c.getFar() + c.getNear())/2.f ; 
     float cz = -1000.f ; 
 
     Tri tri(1.3333f, 1.f, 0.f,  0.f, 0.f, cz ); 
     Buf* a = tri.vbuf ;
+    Buf* e = tri.ebuf ; 
+
     const glm::vec4& ce = tri.ce ; 
 
     Comp comp ; 
@@ -130,6 +138,7 @@ int main()
     glBindVertexArray(vao);
 
     upload(a, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    upload(e, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
 
     GLint vPosition = draw.getAttribLocation("vPosition");
     glBindBuffer(GL_ARRAY_BUFFER, a->id);
@@ -155,7 +164,10 @@ int main()
         glBindBuffer(GL_UNIFORM_BUFFER, ubo);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Uniform), &uniform);
     
-        glDrawArrays(GL_TRIANGLES, 0, a->num_items);
+        //glDrawArrays(GL_TRIANGLES, 0, a->num_items);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, e->id);
+        glDrawElements(GL_TRIANGLES, e->num_items, GL_UNSIGNED_INT, (void*)0 );
 
         glfwSwapBuffers(frame.window);
         glfwPollEvents();

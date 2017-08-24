@@ -17,6 +17,7 @@ struct DEMO_API Buf
     std::string desc();
 
     static Buf* Make(const std::vector<glm::vec4>& vert) ;
+    static Buf* Make(const std::vector<unsigned>&  elem) ;
 
 };
 

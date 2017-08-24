@@ -7,6 +7,8 @@ set(TEST_SOURCES
     instcull1.cc
     instanceMinimal.cc
     onetriangleMinimal.cc
+    onetriangleElementMinimal.cc
+    oneCubeMinimal.cc
     instanceVA.cc
     CompTest.cc
     GeomTest.cc

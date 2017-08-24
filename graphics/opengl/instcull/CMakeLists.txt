@@ -63,6 +63,8 @@ set(SOURCES
      UV.cc
      Box.cc
      Tri.cc
+     Prim.cc
+     Cube.cc
 )
  
 

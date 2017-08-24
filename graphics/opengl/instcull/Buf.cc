@@ -28,8 +28,7 @@ std::string Buf::desc()
 
 
 Buf* Buf::Make(const std::vector<glm::vec4>& vert) 
-{ 
-    
+{     
     unsigned num_vert = vert.size();
     unsigned num_float = num_vert*4 ; 
     unsigned num_byte = num_float*sizeof(float) ; 
@@ -38,6 +37,18 @@ Buf* Buf::Make(const std::vector<glm::vec4>& vert)
     memcpy(dest, vert.data(), num_byte ) ; 
 
     return new Buf( num_vert, num_byte, (void*)dest ) ; 
+} 
+
+Buf* Buf::Make(const std::vector<unsigned>& elem) 
+{     
+    unsigned num_elem = elem.size();
+    unsigned num_unsigned = num_elem ; 
+    unsigned num_byte = num_unsigned*sizeof(unsigned) ; 
+
+    unsigned* dest = new unsigned[num_unsigned] ; 
+    memcpy(dest, elem.data(), num_byte ) ; 
+
+    return new Buf( num_elem, num_byte, (void*)dest ) ; 
 } 
 
 
