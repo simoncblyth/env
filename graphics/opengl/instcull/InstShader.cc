@@ -4,6 +4,7 @@
 
 #include "GU.hh"
 #include "Prog.hh"
+#include "SContext.hh"
 #include "InstShader.hh"
 
 
@@ -13,10 +14,9 @@ const unsigned InstShader::LOC_VizInstanceTransform = 1 ;
 const char* InstShader::vertSrc = R"glsl(
 
     #version 400 core
-    uniform MatrixBlock  
-    {
-        mat4 ModelViewProjection;
-    } ;
+    // InstShader::vertSrc
+
+    $UniformBlock 
 
     layout (location = 0) in vec4 VertexPosition;
     layout (location = 1) in mat4 VizInstanceTransform ;
@@ -30,6 +30,7 @@ const char* InstShader::vertSrc = R"glsl(
 
 const char* InstShader::fragSrc = R"glsl(
     #version 400 core 
+    // InstShader::fragSrc
     out vec4 fColor ; 
     void main()
     {
@@ -40,13 +41,13 @@ const char* InstShader::fragSrc = R"glsl(
 
 const unsigned InstShader::QSIZE = sizeof(float)*4 ; 
 
-InstShader::InstShader()
+InstShader::InstShader(SContext* context_)
     :
-    prog(new Prog(vertSrc, NULL, fragSrc )),
-    uniform(new InstShaderUniform)
+    context(context_),
+    prog(new Prog(SContext::ReplaceUniformBlockToken(vertSrc), NULL, fragSrc ))
 {
     initProgram();
-    initUniformBuffer();
+    //initUniformBuffer();
 }
 
 void InstShader::destroy()
@@ -55,7 +56,7 @@ void InstShader::destroy()
 }
 
 void InstShader::initProgram()
-{
+{   
     prog->compile();
     prog->create();
 
@@ -64,34 +65,9 @@ void InstShader::initProgram()
 
     prog->link();
 
-    GLuint uniformBlockIndex = glGetUniformBlockIndex(prog->program, "MatrixBlock") ;
-    assert(uniformBlockIndex != GL_INVALID_INDEX && "NB must use the uniform otherwise it gets optimized away") ;
-    GLuint uniformBlockBinding = 0 ; 
-    glUniformBlockBinding(prog->program, uniformBlockIndex,  uniformBlockBinding );
+    context->bindUniformBlock(prog->program);
 
     GU::errchk("InstShader::init");
-}
-
-void InstShader::initUniformBuffer()
-{
-     // same UBO can be used from all shaders
-    glGenBuffers(1, &this->uniformBO);
-    glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(InstShaderUniform), this->uniform, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    GLuint binding_point_index = 0 ;
-    glBindBufferBase(GL_UNIFORM_BUFFER, binding_point_index, this->uniformBO);
-
-    GU::errchk("InstShader::initUniformBuffer");
-}
-
-void InstShader::updateMVP( const glm::mat4& w2c)
-{
-    uniform->ModelViewProjection = w2c  ;  
-
-    glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(InstShaderUniform), this->uniform);
 }
 
 

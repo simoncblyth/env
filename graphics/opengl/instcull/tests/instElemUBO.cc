@@ -13,12 +13,15 @@
 #include "Comp.hh"
 #include "Cam.hh"
 
+#include "SContext.hh"
 #include "InstShader.hh"
 
 int main(int argc, char** argv)
 {
     Frame frame(argv[0],2880,1800) ; 
-    InstShader is ; 
+
+    SContext context ;
+    InstShader is(&context) ; 
 
     bool wire = true ; 
     Geom* geom = new Geom('G');
@@ -57,7 +60,7 @@ int main(int argc, char** argv)
         comp.update();
 
         std::cout << " count " << count << " t " << t << std::endl ;
-        is.updateMVP(comp.world2clip);
+        context.updateMVP(comp.world2clip);
 
         if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 

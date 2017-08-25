@@ -1,3 +1,13 @@
+/*
+
+NEXT:
+
+* realistic MVP dependent frustum culling 
+* lod streaming, starting with 2 lod levels : original and bbox
+
+*/
+
+
 #include <vector>
 #include <iostream>
 #include <iomanip>
@@ -21,31 +31,26 @@
 #include "G.hh"
 #include "GU.hh"
 
+#include "SContext.hh"
 #include "CullShader.hh"
 #include "InstShader.hh"
 
 
-/*
-
-NEXT:
-
-* realistic MVP dependent frustum culling 
-* lod streaming, starting with 2 lod levels : original and bbox
-
-*/
+const unsigned ICDemo::QSIZE = 4*sizeof(float) ;
 
 ICDemo::ICDemo(const char* title) 
     :
     geom(new Geom('G')),
     comp(new Comp),
     frame(new Frame(title,2880,1800)),
-    cull(new CullShader), 
-    draw(new InstShader)
+    context(new SContext),
+    cull(new CullShader(context)), 
+    draw(new InstShader(context)),
+    use_cull(true)  
+    //use_cull(false)  
 {
     init();
 }
-
-const unsigned ICDemo::QSIZE = 4*sizeof(float) ;
 
 void ICDemo::init()
 {
@@ -54,17 +59,16 @@ void ICDemo::init()
     geom->ibuf->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
     geom->cbuf->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
 
-    GU::errchk("ICDemo::init");
-
     cull->setupTransformFilter(geom->ibuf) ;
 
     comp->aim(geom->ce);
-    comp->setEye( -0.01, 1, 1);  // avoid zeros, they tend to cause no-viz geometry 
+
+    GU::errchk("ICDemo::init.0");
 
     this->allVertexArray = draw->createVertexArray(geom->ibuf->id, geom->vbuf->id); 
     this->drawVertexArray = draw->createVertexArray(geom->cbuf->id, geom->vbuf->id ); 
 
-    GU::errchk("ICDemo::init");
+    GU::errchk("ICDemo::init.1");
 }
 
 void ICDemo::updateUniform(float t)
@@ -80,51 +84,27 @@ void ICDemo::updateUniform(float t)
         comp->setLook(       -t*0.1, 0, 0 );
         // getting tunnel vision at the end of the glide ??
     }
-
     comp->update();
-    draw->updateMVP(comp->world2clip);
+    context->updateMVP(comp->world2clip);
 }
 
 void ICDemo::renderScene(float t)
 {
     updateUniform(t);
-
     /////////// 1st pass : culling instance transforms 
 
-    cull->applyTransformFilter(geom->cbuf) ;
- 
-    //bool use_cull = false ; 
-    bool use_cull = true ; 
+    cull->applyTransformFilter(geom->cbuf) ; 
+    std::cout << " num_inst " << this->geom->num_inst << " num_viz  " << cull->num_viz << std::endl ; 
 
-    std::cout 
-          << " num_inst " << this->geom->num_inst 
-          << " num_viz(GL_PRIMITIVES_GENERATED) " << cull->num_viz 
-          << std::endl 
-          ;
- 
     /////////// 2nd pass : render just the surviving instances
 
-    glUseProgram(draw->prog->program);
-    glBindVertexArray( use_cull ? this->drawVertexArray : this->allVertexArray);
-
     unsigned num_draw = use_cull ? cull->num_viz : geom->num_inst ; 
+    if(num_draw == 0) return ; 
 
-    if(num_draw > 0)    
-    {  
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geom->ebuf->id ); 
-        glDrawElementsInstanced(GL_TRIANGLES, geom->ebuf->num_items, GL_UNSIGNED_INT, NULL, num_draw  ) ;
-        //glDrawArraysInstanced( GL_TRIANGLES, 0, geom->num_vert,  num_draw );
-     }   
-}
-
-void ICDemo::pullback()
-{
-    GLenum target = GL_TRANSFORM_FEEDBACK_BUFFER ;
-
-    if(geom->num_viz == 0) return ; 
-    unsigned viz_bytes = geom->num_viz*4*QSIZE ; 
-    glGetBufferSubData( target , 0, viz_bytes, geom->ctra );
-    geom->ctra->dump(geom->num_viz);    
+    glUseProgram(draw->prog->program);
+    glBindVertexArray( use_cull ? this->drawVertexArray : this->allVertexArray);  
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geom->ebuf->id ); 
+    glDrawElementsInstanced(GL_TRIANGLES, geom->ebuf->num_items, GL_UNSIGNED_INT, NULL, num_draw  ) ;       
 }
 
 void ICDemo::renderLoop()
@@ -135,7 +115,6 @@ void ICDemo::renderLoop()
     while (!glfwWindowShouldClose(frame->window) && count++ < 2000 )
     {
         frame->listen();
-        //std::cout << "ICDemo::renderLoop count " << count << std::endl ; 
 
         glfwGetFramebufferSize(frame->window, &comp->cam->width, &comp->cam->height);
         glViewport(0, 0, comp->cam->width, comp->cam->height);
@@ -147,11 +126,19 @@ void ICDemo::renderLoop()
     }
 }
 
+void ICDemo::pullback()
+{
+    GLenum target = GL_TRANSFORM_FEEDBACK_BUFFER ;
+    if(cull->num_viz == 0) return ; 
+    unsigned viz_bytes = cull->num_viz*4*QSIZE ; 
+    glGetBufferSubData( target , 0, viz_bytes, geom->ctra );
+    geom->ctra->dump(cull->num_viz);    
+}
+
 void ICDemo::destroy()
 {
     cull->destroy();
     draw->destroy();
     frame->destroy();
 }
-
 

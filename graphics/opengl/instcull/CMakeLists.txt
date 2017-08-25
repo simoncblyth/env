@@ -69,6 +69,7 @@ set(SOURCES
      Sphere.cc
      InstShader.cc
      CullShader.cc
+     SContext.cc
 
 )
  

@@ -5,6 +5,7 @@
 struct Geom  ; 
 struct Comp  ; 
 struct Frame ; 
+struct SContext  ; 
 struct CullShader  ; 
 struct InstShader  ; 
 
@@ -15,8 +16,10 @@ struct DEMO_API ICDemo
     Geom*        geom ; 
     Comp*        comp ; 
     Frame*       frame ;   
+    SContext*    context ; 
     CullShader*  cull ; 
     InstShader*  draw ; 
+    bool         use_cull ; 
 
     unsigned drawVertexArray ;   
     unsigned allVertexArray ;   

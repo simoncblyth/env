@@ -5,6 +5,7 @@
 #include "GU.hh"
 #include "Prog.hh"
 #include "Buf.hh"
+#include "SContext.hh"
 #include "CullShader.hh"
 
 
@@ -13,12 +14,27 @@ const unsigned CullShader::LOC_InstanceTransform = 0 ;
 const char* CullShader::vertSrc = R"glsl(
 
     #version 400
+    // CullShader::vertSrc
+
+    $UniformBlock 
 
     layout( location = 0) in mat4 InstanceTransform ;
     out mat4 ITransform ;       
+    flat out int objectVisible;
 
     void main() 
     {      
+        vec4 InstancePosition = InstanceTransform[3] ; 
+        vec4 IClip = ModelViewProjection * InstancePosition ;    
+        
+        float f = 0.8f ; 
+        objectVisible = 
+             ( IClip.x < IClip.w*f && IClip.x > -IClip.w*f  ) &&
+             ( IClip.y < IClip.w*f && IClip.y > -IClip.w*f  ) &&
+             ( IClip.z < IClip.w*f && IClip.z > -IClip.w*f  ) ? 1 : 0 ; 
+        
+        //objectVisible = InstancePosition.z < 0.f ? 1 : 0 ;  // arbitrary visibility criteria
+
         ITransform = InstanceTransform ; 
     }
 
@@ -30,8 +46,9 @@ const char* CullShader::geomSrc = R"glsl(
 
     layout(points) in; 
     layout(points, max_vertices = 1) out;
-
+    
     in mat4 ITransform[1] ;
+    flat in int objectVisible[1]; 
 
     out vec4 VizTransform0 ;
     out vec4 VizTransform1 ;
@@ -41,9 +58,8 @@ const char* CullShader::geomSrc = R"glsl(
     void main() 
     {
         mat4 tr = ITransform[0] ;
-        vec4 tla = tr[3] ; 
 
-        if ( tla.y > 0.f )   // arbitrary visibility criteria
+        if(objectVisible[0] == 1)
         {    
             VizTransform0 = tr[0]  ;
             VizTransform1 = tr[1]  ;
@@ -57,14 +73,12 @@ const char* CullShader::geomSrc = R"glsl(
 
 )glsl";
 
-
-const char* CullShader::fragSrc = NULL ; 
-
 const unsigned CullShader::QSIZE = sizeof(float)*4 ; 
 
-CullShader::CullShader()
+CullShader::CullShader(SContext* context_)
     :
-    prog(new Prog(vertSrc, geomSrc, fragSrc )),
+    context(context_),
+    prog(new Prog(SContext::ReplaceUniformBlockToken(vertSrc), geomSrc, NULL )),
     src(NULL),
     dst(NULL)
 {

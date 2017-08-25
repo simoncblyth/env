@@ -4,11 +4,7 @@
 #include <glm/glm.hpp>
 
 struct Prog ; 
-
-struct DEMO_API InstShaderUniform
-{  
-    glm::mat4 ModelViewProjection ;
-};
+struct SContext ; 
 
 struct DEMO_API InstShader 
 {
@@ -18,19 +14,18 @@ struct DEMO_API InstShader
     static const char*    vertSrc ; 
     static const char*    fragSrc ; 
 
-    InstShader();
+    InstShader(SContext* context);
 
     void initProgram();
-    void initUniformBuffer();
+    //void initUniformBuffer();
     GLuint createVertexArray(GLuint instanceBO, GLuint vertexBO) ;
     void destroy();
 
 
+    SContext*            context ; 
     Prog*                prog ; 
-    InstShaderUniform*   uniform ; 
-    GLuint               uniformBO ; 
 
-    void updateMVP( const glm::mat4& w2c);
+
 };
 
 

@@ -2,6 +2,7 @@
 
 #include "DEMO_API_EXPORT.hh"
 
+struct SContext ; 
 struct Prog ; 
 struct Buf ; 
 
@@ -11,9 +12,8 @@ struct DEMO_API CullShader
     static const unsigned LOC_InstanceTransform ;  
     static const char* vertSrc ; 
     static const char* geomSrc ; 
-    static const char* fragSrc ; 
 
-    CullShader();
+    CullShader(SContext* context);
 
     void init();
     void destroy();
@@ -24,6 +24,7 @@ struct DEMO_API CullShader
 
     GLuint createTransformCullVertexArray(GLuint instanceBO) ;
 
+    SContext* context ; 
     Prog* prog ;
  
     Buf*  src ; 
