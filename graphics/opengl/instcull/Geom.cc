@@ -3,94 +3,94 @@
 #include "Buf.hh"
 #include "BB.hh"
 #include "Tra.hh"
+
+#include "Primitives.hh"
+
+
 #include "Geom.hh"
 
-#include <glm/gtc/type_ptr.hpp>
 
-const unsigned Geom::QSIZE = sizeof(float)*4 ; 
-
-
-struct V { float x,y,z,w ; };
-struct V4 { V x,y,z,w ; };
-
-
-
-Geom::Geom(unsigned num_vert_, unsigned num_inst_)
+Geom::Geom(char shape_)
     :
-    num_vert(num_vert_),
-    num_inst(num_inst_),
+    shape(shape_),
+    num_vert(0),
+    num_inst(0),
     num_viz(0),
-
-    itra(new Tra(num_inst, 'S')),
-    ctra(new Tra(num_inst, 'S')),
-
-    vbuf(new Buf(num_vert, QSIZE*1*num_vert,   NULL )),  
-    vbb(new BB),
-
-    ibuf(itra->buf),  
-    ibb(new BB),
-
-    cbuf(ctra->buf)
+    itra(NULL),
+    ctra(NULL),
+    vbuf(NULL),  
+    ebuf(NULL),  
+    vbb(NULL),
+    ibuf(NULL),  
+    ibb(NULL),
+    cbuf(NULL)
 {
     init();
 }
 
 void Geom::init()
 {
-    if( num_vert == 3 )
+    if(shape == 'S')
     {
-        vbuf->ptr = new V[num_vert] ; 
-
-        V* vptr = (V*)vbuf->ptr ; 
-
-        vptr[0] = {  0.05f ,   0.05f,  0.00f,  1.f } ;
-        vptr[1] = {  0.05f ,  -0.05f,  0.00f,  1.f } ;
-        vptr[2] = {  0.00f ,   0.00f,  0.00f,  1.f } ;
-
-        update_bounds();
+        initSpiral();
     }
-    else
+    else if(shape == 'G')
     {
-
-
-    }    
+        initGlobe();
+    }
 }
 
-
-void Geom::update_bounds()
+void Geom::setTransforms(Tra* tra)
 {
-    for(unsigned i=0 ; i < num_vert ; i++)
-    {
-         V* vptr = (V*)vbuf->ptr ; 
-         glm::vec3 p = glm::make_vec3( (float*)(vptr + i) );
-         vbb->include(p);
-    }
+    num_inst = tra->num_items() ; 
+    ibuf = tra->buf ; 
+    ibb = tra->bb ; 
+    ce = ibb->get_center_extent();
 
+    ctra = new Tra(num_inst, 'I') ;   // identity mat4 
+    cbuf = ctra->buf ;
+}
 
-    for(unsigned i=0 ; i < num_inst ; i++)
-    {
-         V4* iptr = ((V4*)ibuf->ptr) + i ; 
-         V*  vptr = ((V*)iptr + 3 );
+void Geom::setPrim(Prim* prim)
+{
+    vbuf = prim->vbuf ; 
+    ebuf = prim->ebuf ; 
+    vbb = prim->bb ; 
 
-         glm::vec3 p = glm::make_vec3( (float*)(vptr) );
-         ibb->include(p);
-    }
-
-    std::cout << "Geom::update_bounds "
-              << std::endl 
-              << " vbb " << vbb->desc()
-              << std::endl 
-              << " ibb " << ibb->desc()
-              << std::endl 
-              ;
-
+    num_vert = vbuf->num_items ; 
 }
 
 
+void Geom::initSpiral()
+{
+    itra = new Tra(300, 'S') ;
+    setTransforms(itra);
+
+    Tri*  tri = new Tri(0.05f, 0.05f, 0.f,  0.f, 0.f, 0.f ); 
+    setPrim((Prim*)tri);
+}
 
 
+void Geom::initGlobe()
+{
+    //Tri*  tri = new Tri(1.3333f, 1.f, 0.f,  0.f, 0.f, 0.f ); 
+    //Prim* prim = (Prim*)tri ;
+
+    Cube* cube = new Cube(5.f, 5.f, 5.f,  0.f, 0.f, 0.f ); 
+    Prim* prim = (Prim*)cube ;
+
+    //Sphere* sphere = new Sphere(5.f); 
+    //Prim* prim = (Prim*)sphere ;
 
 
+    setPrim(prim);
+
+    unsigned num_polar = 100 ; 
+    unsigned num_azimuth = 100 ; 
+    Tra* tra = Tra::MakeGlobe(1000.f, num_azimuth, num_polar );
+
+    setTransforms(tra);
+}
 
 
 

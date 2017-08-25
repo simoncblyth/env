@@ -46,11 +46,12 @@ set(LIBRARIES
 
 set(SOURCES
      Demo.cc
+     ICDemo.cc
      Prog.cc
      Frame.cc
      Buf.cc
      Att.cc
-     Renderer.cc
+     Shader.cc
      Tra.cc
      Cam.cc
      Vue.cc
@@ -66,8 +67,9 @@ set(SOURCES
      Prim.cc
      Cube.cc
      Sphere.cc
-     InstRenderer.cc
-     Renderer.cc
+     InstShader.cc
+     CullShader.cc
+
 )
  
 

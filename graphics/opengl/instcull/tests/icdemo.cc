@@ -1,11 +1,11 @@
 // see  instcull-vi for notes
-#include "Demo.hh"
+#include "ICDemo.hh"
 
 int main(int, char** argv)
 {
-    Demo app(argv[0]) ; 
+    ICDemo app(argv[0]) ; 
     app.renderLoop();      
-    exit(EXIT_SUCCESS);
+    return 0; 
 }
 
 

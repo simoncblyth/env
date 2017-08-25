@@ -19,10 +19,12 @@ struct DEMO_API Buf
     Buf(unsigned num_items_, unsigned num_bytes_, void* ptr_) ;
 
     void upload(GLenum target, GLenum usage );
+    void uploadNull(GLenum target, GLenum usage );
 
 
     std::string desc();
 
+    static Buf* Make(const std::vector<glm::mat4>& mat) ;
     static Buf* Make(const std::vector<glm::vec4>& vert) ;
     static Buf* Make(const std::vector<unsigned>&  elem) ;
 

@@ -50,9 +50,9 @@ void upload(Buf* buf, GLenum target, GLenum usage )
     glBindBuffer(target, 0);
 }
 
-int main()
+int main(int , char** argv)
 {
-    Frame frame ; 
+    Frame frame(argv[0]) ; 
     Prog prog(vertSrc, NULL, fragSrc ) ; 
     prog.compile();
     prog.create();

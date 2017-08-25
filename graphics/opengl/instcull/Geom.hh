@@ -3,12 +3,14 @@
 #include <glm/glm.hpp>
 
 struct Tra ; 
+struct Prim ; 
 struct Buf  ;
 struct BB ;  
 
 struct DEMO_API Geom
 {  
-    static const unsigned QSIZE ; 
+    char     shape ; 
+
     unsigned num_vert ; 
     unsigned num_inst ; 
     unsigned num_viz ; 
@@ -17,17 +19,27 @@ struct DEMO_API Geom
     Tra* ctra ; 
 
     Buf* vbuf ;  
+    Buf* ebuf ;  
     BB*  vbb ; 
 
     Buf* ibuf  ;  
     BB*  ibb ; 
 
-
     Buf* cbuf  ;  
 
-    Geom(unsigned num_vert, unsigned num_inst);
+    glm::vec4 ce ; 
+
+
+    Geom(char shape_);
+
     void init();
-    void update_bounds();
+    void initGlobe();
+    void initSpiral();
+
+    void setPrim(Prim* prim);
+    void setTransforms(Tra* tra);
+
+
 
 };
  

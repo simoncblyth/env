@@ -9,68 +9,60 @@
 #include "Primitives.hh"
 #include "Tra.hh"
 
+#include "Geom.hh"
 #include "Comp.hh"
 #include "Cam.hh"
 
-#include "InstRenderer.hh"
+#include "InstShader.hh"
 
-int main()
+int main(int argc, char** argv)
 {
-    Frame frame ; 
-    InstRenderer ir ; 
+    Frame frame(argv[0],2880,1800) ; 
+    InstShader is ; 
 
     bool wire = true ; 
-    float eyera = 3.f ; 
-
-    //Tri*  tri = new Tri(1.3333f, 1.f, 0.f,  0.f, 0.f, -10.f ); 
-    //Prim* prim = (Prim*)tri ;
-
-    Cube* cube = new Cube(1.f, 1.f, 1.f,  0.f, 0.f, 0.f ); 
-    Prim* prim = (Prim*)cube ;
-
-    //Sphere* sphere = new Sphere(); 
-    //Prim* prim = (Prim*)sphere ;
-
-    Tra* tr = new Tra(10*10,'G' );
-
-    Buf* i = tr->buf ;
-    Buf* a = prim->vbuf ;
-    Buf* e = prim->ebuf ; 
+    Geom* geom = new Geom('G');
 
     Comp comp ;
-    comp.aim(tr->ce);
+    comp.aim(geom->ce);
+    comp.setUp( 0., 0., 1. ); 
+    comp.setEye(   1, 0., 0. )  ; 
+    comp.setLook( -1, 0., 0. )  ; 
     comp.update();
-
     comp.dump();
-    comp.dumpPoints(prim->vert);
-    comp.dumpFrustum();
 
-    a->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    e->upload(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
-    i->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    geom->vbuf->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    geom->ebuf->upload(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    geom->ibuf->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
 
-    GLuint vao = ir.createVertexArray(  i->id, a->id );
+    GLuint vao = is.createVertexArray(  geom->ibuf->id, geom->vbuf->id );
 
     glEnable(GL_DEPTH_TEST);
-    glUseProgram(ir.draw->program);
+    glUseProgram(is.prog->program);
     glBindVertexArray( vao );
 
-    while (!glfwWindowShouldClose(frame.window))
+    int count(0) ; 
+
+    while (!glfwWindowShouldClose(frame.window) && count++ < 3000 )
     {
         glfwGetFramebufferSize(frame.window, &comp.cam->width, &comp.cam->height);
         glViewport(0, 0, comp.cam->width, comp.cam->height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-        float angle = (float)glfwGetTime(); 
-        comp.setEye( eyera*glm::cos(angle), 0, eyera*glm::sin(angle) )  ; 
+        float t = (float)glfwGetTime(); 
+        //comp.setEye( glm::cos(t), glm::sin(t), 0 )  ; 
+        comp.setEye(  1.f - t*0.1f, 0.f, 0.f )  ; 
+        //float near = geom->ce.w*(0.5f + t*0.1f) ; 
+        //comp.setNearFar( near, near*10. );
         comp.update();
 
-        ir.updateMVP(comp.world2clip);
+        std::cout << " count " << count << " t " << t << std::endl ;
+        is.updateMVP(comp.world2clip);
 
         if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, e->id); 
-        glDrawElementsInstanced(GL_TRIANGLES, e->num_items, GL_UNSIGNED_INT, NULL, i->num_items  ) ;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geom->ebuf->id); 
+        glDrawElementsInstanced(GL_TRIANGLES, geom->ebuf->num_items, GL_UNSIGNED_INT, NULL, geom->ibuf->num_items  ) ;
 
         if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); 
 
@@ -78,7 +70,7 @@ int main()
         glfwPollEvents();
     }
 
-    ir.destroy();
+    is.destroy();
     frame.destroy();
 
     exit(EXIT_SUCCESS);

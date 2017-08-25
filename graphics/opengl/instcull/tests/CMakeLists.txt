@@ -4,6 +4,7 @@ project(${name})
 
 set(TEST_SOURCES
     instcull1.cc
+    icdemo.cc
     instanceMinimal.cc
     instElemUBO.cc
     onetriangleMinimal.cc

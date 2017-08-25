@@ -4,12 +4,12 @@
 
 #include "GU.hh"
 #include "Prog.hh"
-#include "Renderer.hh"
+#include "Shader.hh"
 
 
-const unsigned Renderer::LOC_VertexPosition = 0 ; 
+const unsigned Shader::LOC_VertexPosition = 0 ; 
 
-const char* Renderer::vertSrc = R"glsl(
+const char* Shader::vertSrc = R"glsl(
 
     #version 400 core
     uniform MatrixBlock  
@@ -26,7 +26,7 @@ const char* Renderer::vertSrc = R"glsl(
 
 )glsl";
 
-const char* Renderer::fragSrc = R"glsl(
+const char* Shader::fragSrc = R"glsl(
     #version 400 core 
     out vec4 fColor ; 
     void main()
@@ -36,23 +36,23 @@ const char* Renderer::fragSrc = R"glsl(
 )glsl";
 
 
-const unsigned Renderer::QSIZE = sizeof(float)*4 ; 
+const unsigned Shader::QSIZE = sizeof(float)*4 ; 
 
-Renderer::Renderer()
+Shader::Shader()
     :
     draw(new Prog(vertSrc, NULL, fragSrc )),
-    uniform(new RendererUniform)
+    uniform(new ShaderUniform)
 {
     init();
     initUniformBuffer();
 }
 
-void Renderer::destroy()
+void Shader::destroy()
 {
     draw->destroy();
 }
 
-void Renderer::init()
+void Shader::init()
 {
     draw->compile();
     draw->create();
@@ -66,33 +66,33 @@ void Renderer::init()
     GLuint uniformBlockBinding = 0 ; 
     glUniformBlockBinding(draw->program, uniformBlockIndex,  uniformBlockBinding );
 
-    GU::errchk("Renderer::init");
+    GU::errchk("Shader::init");
 }
 
-void Renderer::initUniformBuffer()
+void Shader::initUniformBuffer()
 {
      // same UBO can be used from all shaders
     glGenBuffers(1, &this->uniformBO);
     glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(RendererUniform), this->uniform, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(ShaderUniform), this->uniform, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     GLuint binding_point_index = 0 ;
     glBindBufferBase(GL_UNIFORM_BUFFER, binding_point_index, this->uniformBO);
 
-    GU::errchk("Renderer::initUniformBuffer");
+    GU::errchk("Shader::initUniformBuffer");
 }
 
-void Renderer::updateMVP( const glm::mat4& w2c)
+void Shader::updateMVP( const glm::mat4& w2c)
 {
     uniform->ModelViewProjection = w2c  ;  
 
     glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RendererUniform), this->uniform);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ShaderUniform), this->uniform);
 }
 
 
-GLuint Renderer::createVertexArray(GLuint vertexBO) 
+GLuint Shader::createVertexArray(GLuint vertexBO) 
 {
     GLuint vloc =  LOC_VertexPosition ;
 
@@ -104,7 +104,7 @@ GLuint Renderer::createVertexArray(GLuint vertexBO)
     glEnableVertexAttribArray( vloc ); 
     glVertexAttribPointer( vloc , 4, GL_FLOAT, GL_FALSE, QSIZE, (void*)0);
 
-    GU::errchk("Renderer::createVertexArray");
+    GU::errchk("Shader::createVertexArray");
 
     return vertexArray;
 }

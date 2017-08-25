@@ -10,8 +10,8 @@ struct DEMO_API Frame
    bool keys_down[NUM_KEYS] ; 
 
    GLFWwindow* window ;
-   Frame();
-   void init();
+   Frame(const char* title, int width=1024, int height=768);
+   void init(const char* title, int width, int height);
 
    void listen();
    void handle_event(GLEQevent& event);

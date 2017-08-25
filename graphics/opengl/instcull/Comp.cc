@@ -28,6 +28,7 @@ Comp::Comp()
 
 void Comp::aim(const glm::vec4& ce)
 {
+    std::cout << "Comp::aim " << G::gpresent("ce", ce) << std::endl ; 
     setCenterExtent( ce );
 
     setEye( 0, 0,  2)  ;   // position eye along +z 

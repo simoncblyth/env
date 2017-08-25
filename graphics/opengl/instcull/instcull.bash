@@ -17,7 +17,7 @@ instElemUBO.cc
     exercise the encapsulated InstRenderer.hh allowing any Prim to be instanced
 primRender.cc
     exercise the encapsulated Renderer.hh 
- 
+
 instcull1.cc
     monolith Demo class approach using modern attribute style of nature- with
     att props captured into the vertex array seems to be succeeding 
@@ -25,7 +25,11 @@ instcull1.cc
 
     * http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
 
+icdemo
+    using ICDemo class, aiming to break up the monolith using InstRen
 
+ 
+ 
 Spell-it-out Renderer Tests for OpenGL usage debugging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

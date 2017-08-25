@@ -73,9 +73,9 @@ then the vertex will be discarded.
 
 */
 
-int main()
+int main(int, char** argv)
 {
-    Frame frame ; 
+    Frame frame(argv[0]) ; 
     Prog draw(vertSrc, NULL, fragSrc ) ; 
     draw.compile();
     draw.create();

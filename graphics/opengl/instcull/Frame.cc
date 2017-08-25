@@ -29,14 +29,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 */
 
-Frame::Frame()  
-  :
-  window(NULL)
+Frame::Frame(const char* title, int width, int height)  
+    :
+    window(NULL)
 {
-   init();
+    init(title, width, height);
 } 
 
-void Frame::init()
+void Frame::init(const char* title, int width, int height)
 {
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -49,7 +49,7 @@ void Frame::init()
     glfwWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint (GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+    window = glfwCreateWindow(width, height,  title, NULL, NULL);
     if (!window)
     {
         glfwTerminate();

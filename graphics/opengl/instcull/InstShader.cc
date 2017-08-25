@@ -4,13 +4,13 @@
 
 #include "GU.hh"
 #include "Prog.hh"
-#include "InstRenderer.hh"
+#include "InstShader.hh"
 
 
-const unsigned InstRenderer::LOC_VertexPosition = 0 ; 
-const unsigned InstRenderer::LOC_InstanceTransform = 1 ; 
+const unsigned InstShader::LOC_VertexPosition = 0 ; 
+const unsigned InstShader::LOC_VizInstanceTransform = 1 ; 
 
-const char* InstRenderer::vertSrc = R"glsl(
+const char* InstShader::vertSrc = R"glsl(
 
     #version 400 core
     uniform MatrixBlock  
@@ -19,16 +19,16 @@ const char* InstRenderer::vertSrc = R"glsl(
     } ;
 
     layout (location = 0) in vec4 VertexPosition;
-    layout (location = 1) in mat4 InstanceTransform ;
+    layout (location = 1) in mat4 VizInstanceTransform ;
 
     void main()
     {
-        gl_Position = ModelViewProjection * InstanceTransform * VertexPosition ;
+        gl_Position = ModelViewProjection * VizInstanceTransform * VertexPosition ;
     }
 
 )glsl";
 
-const char* InstRenderer::fragSrc = R"glsl(
+const char* InstShader::fragSrc = R"glsl(
     #version 400 core 
     out vec4 fColor ; 
     void main()
@@ -38,67 +38,67 @@ const char* InstRenderer::fragSrc = R"glsl(
 )glsl";
 
 
-const unsigned InstRenderer::QSIZE = sizeof(float)*4 ; 
+const unsigned InstShader::QSIZE = sizeof(float)*4 ; 
 
-InstRenderer::InstRenderer()
+InstShader::InstShader()
     :
-    draw(new Prog(vertSrc, NULL, fragSrc )),
-    uniform(new InstRendererUniform)
+    prog(new Prog(vertSrc, NULL, fragSrc )),
+    uniform(new InstShaderUniform)
 {
-    init();
+    initProgram();
     initUniformBuffer();
 }
 
-void InstRenderer::destroy()
+void InstShader::destroy()
 {
-    draw->destroy();
+    prog->destroy();
 }
 
-void InstRenderer::init()
+void InstShader::initProgram()
 {
-    draw->compile();
-    draw->create();
+    prog->compile();
+    prog->create();
 
-    glBindAttribLocation(draw->program, LOC_VertexPosition , "VertexPosition");
-    glBindAttribLocation(draw->program, LOC_InstanceTransform , "InstanceTransform");
+    glBindAttribLocation(prog->program, LOC_VertexPosition , "VertexPosition");
+    glBindAttribLocation(prog->program, LOC_VizInstanceTransform , "VizInstanceTransform");
 
-    draw->link();
+    prog->link();
 
-    GLuint uniformBlockIndex = glGetUniformBlockIndex(draw->program, "MatrixBlock") ;
+    GLuint uniformBlockIndex = glGetUniformBlockIndex(prog->program, "MatrixBlock") ;
     assert(uniformBlockIndex != GL_INVALID_INDEX && "NB must use the uniform otherwise it gets optimized away") ;
     GLuint uniformBlockBinding = 0 ; 
-    glUniformBlockBinding(draw->program, uniformBlockIndex,  uniformBlockBinding );
+    glUniformBlockBinding(prog->program, uniformBlockIndex,  uniformBlockBinding );
 
-    GU::errchk("InstRenderer::init");
+    GU::errchk("InstShader::init");
 }
 
-void InstRenderer::initUniformBuffer()
+void InstShader::initUniformBuffer()
 {
      // same UBO can be used from all shaders
     glGenBuffers(1, &this->uniformBO);
     glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(InstRendererUniform), this->uniform, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(InstShaderUniform), this->uniform, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     GLuint binding_point_index = 0 ;
     glBindBufferBase(GL_UNIFORM_BUFFER, binding_point_index, this->uniformBO);
 
-    GU::errchk("InstRenderer::initUniformBuffer");
+    GU::errchk("InstShader::initUniformBuffer");
 }
 
-void InstRenderer::updateMVP( const glm::mat4& w2c)
+void InstShader::updateMVP( const glm::mat4& w2c)
 {
     uniform->ModelViewProjection = w2c  ;  
 
     glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(InstRendererUniform), this->uniform);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(InstShaderUniform), this->uniform);
 }
 
 
-GLuint InstRenderer::createVertexArray(GLuint instanceBO, GLuint vertexBO) 
+GLuint InstShader::createVertexArray(GLuint instanceBO, GLuint vertexBO) 
 {
     GLuint vloc =  LOC_VertexPosition ;
-    GLuint iloc =  LOC_InstanceTransform ;
+    GLuint iloc =  LOC_VizInstanceTransform ;
 
     GLuint vertexArray;
     glGenVertexArrays(1, &vertexArray);
@@ -127,12 +127,9 @@ GLuint InstRenderer::createVertexArray(GLuint instanceBO, GLuint vertexBO)
     glVertexAttribPointer(    iloc + 3, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(3*QSIZE) );
     glVertexAttribDivisor(    iloc + 3, divisor );
 
-    GU::errchk("InstRenderer::createVertexArray");
+    GU::errchk("InstShader::createVertexArray");
 
     return vertexArray;
 }
-
-
-
 
 

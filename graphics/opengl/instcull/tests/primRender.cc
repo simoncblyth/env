@@ -17,13 +17,12 @@
 #include "Cam.hh"
 
 #include "Prog.hh"
-#include "Renderer.hh"
+#include "Shader.hh"
 
-int main()
+int main(int, char** argv)
 {
-    Frame frame ; 
-    Renderer rdr ; 
-
+    Frame frame(argv[0]) ; 
+    Shader sh ; 
 
     bool wire = true ; 
     //-----
@@ -58,9 +57,9 @@ int main()
     v->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
     e->upload(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
 
-    GLuint vao = rdr.createVertexArray( v->id );
+    GLuint vao = sh.createVertexArray( v->id );
 
-    glUseProgram( rdr.draw->program );
+    glUseProgram( sh.draw->program );
     glBindVertexArray( vao );
     
     glEnable(GL_DEPTH_TEST);
@@ -71,23 +70,24 @@ int main()
         glViewport(0, 0, comp.cam->width, comp.cam->height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-        float angle = (float)glfwGetTime(); 
-        comp.setEye( 2*glm::cos(angle), 0, 2*glm::sin(angle) )  ; 
+        float t = (float)glfwGetTime(); 
+        comp.setEye( 2*glm::cos(t), 0, 2*glm::sin(t) )  ; 
         comp.update();
 
-        rdr.updateMVP(comp.world2clip) ; 
+        sh.updateMVP(comp.world2clip) ; 
 
         if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, e->id);
         glDrawElements(GL_TRIANGLES, e->num_items, GL_UNSIGNED_INT, (void*)0 );
-        if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+        if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         glfwSwapBuffers(frame.window);
         glfwPollEvents();
     }
 
-    rdr.destroy();
+    sh.destroy();
     frame.destroy();
 
     exit(EXIT_SUCCESS);

@@ -226,9 +226,9 @@ GLuint App::makeVertexArray( GLuint vbo, GLuint ibo )
 }
 
 
-int main()
+int main(int, char** argv)
 {
-    Frame frame ; 
+    Frame frame(argv[0]) ; 
 
     Prog draw(App::vertSrc, NULL, App::fragSrc ) ; 
     draw.compile();

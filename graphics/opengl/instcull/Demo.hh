@@ -44,20 +44,21 @@ struct DEMO_API Demo
 
     unsigned uniformBO ; 
     unsigned vertexBO ;   
+    unsigned elementBO ;   
     unsigned transformBO ;   
 
     unsigned culledTransformBO ;   
     unsigned culledTransformQuery ;   
 
-    Demo();
+    Demo(const char* title);
 
     void init();
 
-    void targetGeometry(BB* bb);
+    //void targetGeometry(BB* bb);
     void setupUniformBuffer();
     void updateUniform(float t);
 
-    void loadMeshData(Buf* vbuf);
+    void loadMeshData(Geom* geom);
     void upload(Buf* buf);
     void loadShaders();
     void createInstances(Buf* ibuf);

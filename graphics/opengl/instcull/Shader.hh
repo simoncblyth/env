@@ -5,19 +5,19 @@
 
 struct Prog ; 
 
-struct DEMO_API RendererUniform
+struct DEMO_API ShaderUniform
 {  
     glm::mat4 ModelViewProjection ;
 };
 
-struct DEMO_API Renderer 
+struct DEMO_API Shader 
 {
     static const unsigned QSIZE ;  
     static const unsigned LOC_VertexPosition ;  
     static const char*    vertSrc ; 
     static const char*    fragSrc ; 
 
-    Renderer();
+    Shader();
 
     void init();
     void initUniformBuffer();
@@ -26,7 +26,7 @@ struct DEMO_API Renderer
     void destroy();
 
     Prog*                draw ; 
-    RendererUniform*     uniform ; 
+    ShaderUniform*     uniform ; 
     GLuint               uniformBO ; 
 
     void updateMVP( const glm::mat4& w2c);

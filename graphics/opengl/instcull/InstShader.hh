@@ -5,29 +5,29 @@
 
 struct Prog ; 
 
-struct DEMO_API InstRendererUniform
+struct DEMO_API InstShaderUniform
 {  
     glm::mat4 ModelViewProjection ;
 };
 
-struct DEMO_API InstRenderer 
+struct DEMO_API InstShader 
 {
     static const unsigned QSIZE ;  
     static const unsigned LOC_VertexPosition ;  
-    static const unsigned LOC_InstanceTransform ;  
-    static const char* vertSrc ; 
-    static const char* fragSrc ; 
+    static const unsigned LOC_VizInstanceTransform ;  
+    static const char*    vertSrc ; 
+    static const char*    fragSrc ; 
 
-    InstRenderer();
+    InstShader();
 
-    void init();
+    void initProgram();
     void initUniformBuffer();
     GLuint createVertexArray(GLuint instanceBO, GLuint vertexBO) ;
     void destroy();
 
 
-    Prog*                draw ; 
-    InstRendererUniform* uniform ; 
+    Prog*                prog ; 
+    InstShaderUniform*   uniform ; 
     GLuint               uniformBO ; 
 
     void updateMVP( const glm::mat4& w2c);

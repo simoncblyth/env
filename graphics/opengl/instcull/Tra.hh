@@ -16,20 +16,21 @@ struct DEMO_API Tra
     unsigned nj ; 
     unsigned nk ; 
 
-    std::vector<glm::mat4> mat ; 
     Buf*      buf ; 
     BB*       bb ; 
     glm::vec4 ce ; 
 
+    static Tra* MakeGlobe(float radius, unsigned nu, unsigned nv ) ;
+    static glm::vec3 SpherePos(const UV& uv, float radius);
+
 
     Tra(unsigned ni_, char shape_) ;
+    Tra(const std::vector<glm::mat4>& mat) ;
 
-    void mockup(char shape_);
+    void populate(const std::vector<glm::mat4>& mat) ;
+    void mockup(std::vector<glm::mat4>& mat, char shape);
     void mockup_spiral( glm::mat4& m , float fr );
     void mockup_diagonal( glm::mat4& m , float fr );
-
-    void mockup_globe( unsigned nu, unsigned nv, float radius);
-    glm::vec3 sphere_pos(const UV& uv, float radius);
 
 
     void dump(unsigned n=0);

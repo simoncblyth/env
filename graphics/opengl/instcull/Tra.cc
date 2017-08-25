@@ -15,21 +15,6 @@
 
 const unsigned Tra::QSIZE = sizeof(float)*4 ; 
 
-Tra::Tra(unsigned ni_, char shape_) 
-    : 
-    ni(ni_), 
-    nj(4), 
-    nk(4), 
-    buf(NULL),
-    bb(NULL)
-{
-    mockup(shape_);        
-    assert( mat.size() == ni );
-    buf = new Buf(ni, QSIZE*4*ni, mat.data() );
-    bb = BB::FromMat(mat);
-    ce = bb->get_center_extent();
-}
-
 unsigned Tra::num_items() const 
 {
     return ni ;
@@ -41,6 +26,87 @@ unsigned Tra::num_floats() const
 unsigned Tra::num_bytes() const 
 {
     return sizeof(float)*num_floats() ; 
+}
+
+
+Tra::Tra(unsigned ni_, char shape_) 
+    : 
+    ni(ni_), 
+    nj(4), 
+    nk(4), 
+    buf(NULL),
+    bb(NULL)
+{
+    std::vector<glm::mat4> mat ; 
+    mockup(mat, shape_);        
+    populate(mat);
+}
+
+
+Tra::Tra(const std::vector<glm::mat4>& mat) 
+    :
+    ni(mat.size()),
+    nj(4),
+    nk(4),
+    buf(NULL),
+    bb(NULL) 
+{
+    populate(mat);
+}
+
+void Tra::populate(const std::vector<glm::mat4>& mat)
+{
+    buf = Buf::Make(mat);
+    bb = BB::FromMat(mat);
+    ce = bb->get_center_extent();
+}
+
+
+glm::vec3 Tra::SpherePos(const UV& uv, float radius)
+{
+    glm::vec3 pos(0.f);
+    Sphere::_par_pos_body(pos,  uv,  radius ) ;
+    return pos ; 
+}
+
+Tra* Tra::MakeGlobe(float radius, unsigned nu, unsigned nv ) 
+{
+    std::vector<glm::mat4> mat ; 
+    unsigned s = 0 ; 
+
+    for(unsigned v=0 ; v < nv ; v++)  // polar
+    { 
+        bool is_pole = v == 0 || v == nv - 1 ; 
+        unsigned unu = is_pole ? 1 : nu ;    // only one position at poles
+
+        for(unsigned u=0 ; u < unu; u++)  // azimuthal
+        {
+            UV uv = make_UV(s,u+0,v+0,nu,nv, 0);
+            glm::vec3 pos = SpherePos(uv, radius);
+            glm::mat4 m = glm::translate( glm::mat4(1.f), pos ) ;
+            mat.push_back(m);          
+        }
+    }
+    Tra* tra = new Tra(mat);
+    return tra ; 
+}
+
+
+
+void Tra::mockup(std::vector<glm::mat4>& mat, char shape)
+{ 
+    for(unsigned i=0 ; i < ni ; i++)
+    {
+        float fr = float(i)/float(ni)  ;  // 0->1  
+        glm::mat4 m(1.f) ;
+        switch(shape)
+        {
+           case 'S': mockup_spiral(m, fr ); break ; 
+           case 'D': mockup_diagonal(m, fr ); break ;
+           case 'I': break ;
+       } 
+       mat.push_back(m);          
+    }
 }
 
 void Tra::mockup_spiral( glm::mat4& m , float fr )
@@ -63,57 +129,6 @@ void Tra::mockup_diagonal( glm::mat4& m , float fr )
     m = glm::translate(m, tlat );   // curious to get expected mrix form need to translate first
 }
 
-void Tra::mockup_globe( unsigned nu, unsigned nv, float radius)
-{
-     unsigned s = 0 ; 
-     for(unsigned v=0 ; v < nv ; v++)
-     {
-     for(unsigned u=0 ; u < nu; u++)
-     {
-         UV uv = make_UV(s,u+0,v+0,nu,nv, 0);
-         glm::vec3 pos = sphere_pos(uv, radius);
-         glm::mat4 m = glm::translate( glm::mat4(1.f), pos ) ;
-         mat.push_back(m);          
-     }
-     }
-}
-
-
-glm::vec3 Tra::sphere_pos(const UV& uv, float radius)
-{
-    glm::vec3 pos(0.f);
-    Sphere::_par_pos_body(pos,  uv,  radius ) ;
-    return pos ; 
-}
-
-void Tra::mockup(char shape)
-{ 
-    if(shape == 'G')
-    {
-         float radius = 10.f ; 
-         unsigned nisq = unsigned(sqrt(float(ni)));
-         assert( nisq*nisq == ni  && "shape G expects perfect square ni ");
-         unsigned nu = nisq ; 
-         unsigned nv = nisq ; 
-         mockup_globe(nu, nv, radius);  
-    }
-    else
-    {
-        for(unsigned i=0 ; i < ni ; i++)
-        {
-            float fr = float(i)/float(ni)  ;  // 0->1  
-            glm::mat4 m(1.f) ;
-            switch(shape)
-            {
-               case 'S': mockup_spiral(m, fr ); break ; 
-               case 'D': mockup_diagonal(m, fr ); break ;
-           } 
-           mat.push_back(m);          
-        }
-    }
-   
-}
-
 
 
 void Tra::dump(unsigned n)
@@ -133,7 +148,7 @@ void Tra::dump(unsigned n)
               ; 
 
  
-    float* data = (float*)mat.data();
+    float* data = (float*)buf->ptr;
     for(unsigned i=0 ; i < ndump ; i++)
     {
         for(unsigned j=0 ; j < nj ; j++)

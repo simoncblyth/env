@@ -32,12 +32,12 @@ NEXT:
 
 */
 
-Demo::Demo() 
+Demo::Demo(const char* title) 
     :
     uniform(new Uniform),
-    geom(new Geom(3,300)),
+    geom(new Geom('G')),
     comp(new Comp),
-    frame(new Frame),
+    frame(new Frame(title,2880,1800)),
     cull(new Prog(vertCullSrc, geomCullSrc, NULL )), 
     draw(new Prog(vertDrawSrc, NULL, fragDrawSrc ))
 {
@@ -134,9 +134,19 @@ void Demo::init()
     setupUniformBuffer();
     loadShaders();
 
-    loadMeshData(geom->vbuf);
+    loadMeshData(geom);
     createInstances(geom->ibuf);
-    targetGeometry(geom->ibb);
+
+    const glm::vec4& ce = geom->ce ; 
+
+    std::cout << "Demo::init" 
+              << G::gpresent("ce", ce)
+              << std::endl
+              ;
+
+    comp->aim(ce);
+    comp->setEye( -0.01, 1, 1);  // avoid zeros, they tend to cause no-viz geometry 
+
 
     this->allVertexArray = createInstancedRenderVertexArray(this->transformBO); 
     this->drawVertexArray = createInstancedRenderVertexArray(this->culledTransformBO); 
@@ -159,7 +169,19 @@ void Demo::setupUniformBuffer()
 void Demo::updateUniform(float t)
 {
     float angle = t ; 
-    comp->vue->setEye( glm::cos(angle), 1, glm::sin(angle) );
+
+    if(geom->shape == 'S')
+    {
+        comp->setEye( glm::cos(angle), 1, glm::sin(angle) );
+    }
+    else
+    {
+        comp->setUp(     0, 0, 1 );
+        comp->setEye(    1. - t*0.1, 0, 0 );
+        comp->setLook(       -t*0.1, 0, 0 );
+        // getting tunnel vision at the end of the glide ??
+    }
+
     comp->update();
 
     uniform->ModelView = comp->world2eye ;  
@@ -202,11 +224,15 @@ void Demo::upload(Buf* buf)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Demo::loadMeshData(Buf* vbuf)
+void Demo::loadMeshData(Geom* geom)
 {
     glGenBuffers(1, &this->vertexBO);
     glBindBuffer(GL_ARRAY_BUFFER, this->vertexBO);
-    glBufferData(GL_ARRAY_BUFFER, vbuf->num_bytes, vbuf->ptr, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, geom->vbuf->num_bytes, geom->vbuf->ptr, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &this->elementBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->elementBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, geom->ebuf->num_bytes, geom->ebuf->ptr, GL_STATIC_DRAW);
 
     GU::errchk("Demo::loadMeshData");
 }
@@ -294,22 +320,6 @@ GLuint Demo::createTransformCullVertexArray(GLuint instanceBO, GLuint loc)
 }
 
 
-void Demo::targetGeometry(BB* bb)
-{
-    glm::vec4 ce = bb->get_center_extent();
-
-    std::cout << "Demo::targetGeometry" 
-              << G::gpresent("ce", ce)
-              << std::endl
-              ;
-
-    comp->setCenterExtent(ce);      
-    comp->vue->setEye( -0.01, 1, 1);       // avoid zeros, tend to cause no-viz geometry 
-    comp->cam->setFocus( ce.w, 10.f);      
-    comp->update();
-    comp->dump();
-}
-
 
 void Demo::renderScene(float t)
 {
@@ -355,7 +365,11 @@ void Demo::renderScene(float t)
 
     if(num_draw > 0)    
     {  
-        glDrawArraysInstanced( GL_TRIANGLES, 0, geom->num_vert,  num_draw );
+        //glDrawArraysInstanced( GL_TRIANGLES, 0, geom->num_vert,  num_draw );
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->elementBO); 
+        glDrawElementsInstanced(GL_TRIANGLES, geom->ebuf->num_items, GL_UNSIGNED_INT, NULL, num_draw  ) ;
+
         //pullback();
      }   
 }
