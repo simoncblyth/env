@@ -71,22 +71,25 @@ void Geom::initSpiral()
 }
 
 
+
+
+
 void Geom::initGlobe()
 {
     //Tri*  tri = new Tri(1.3333f, 1.f, 0.f,  0.f, 0.f, 0.f ); 
     //Prim* prim = (Prim*)tri ;
 
-    Cube* cube = new Cube(5.f, 5.f, 5.f,  0.f, 0.f, 0.f ); 
-    Prim* prim = (Prim*)cube ;
+    //Cube* cube = new Cube(5.f, 5.f, 5.f,  0.f, 0.f, 0.f ); 
+    //Prim* prim = (Prim*)cube ;
 
-    //Sphere* sphere = new Sphere(5.f); 
-    //Prim* prim = (Prim*)sphere ;
+    Sphere* sphere = new Sphere(5.f); 
+    Prim* prim = (Prim*)sphere ;
 
 
     setPrim(prim);
 
-    unsigned num_polar = 100 ; 
-    unsigned num_azimuth = 100 ; 
+    unsigned num_polar = 300 ; 
+    unsigned num_azimuth = 300 ; 
     Tra* tra = Tra::MakeGlobe(1000.f, num_azimuth, num_polar );
 
     setTransforms(tra);

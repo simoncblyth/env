@@ -10,6 +10,14 @@ Buf::Buf(unsigned num_items_, unsigned num_bytes_, void* ptr_)
     ptr(ptr_)
 {
 }
+
+Buf* Buf::cloneEmpty() const 
+{
+    Buf* b = new Buf(num_items, num_bytes, NULL) ;
+    return b ; 
+}
+
+
     
 std::string Buf::desc()
 {

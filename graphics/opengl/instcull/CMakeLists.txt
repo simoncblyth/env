@@ -50,6 +50,7 @@ set(SOURCES
      Prog.cc
      Frame.cc
      Buf.cc
+     Buf4.cc
      Att.cc
      Shader.cc
      Tra.cc
@@ -69,6 +70,7 @@ set(SOURCES
      Sphere.cc
      InstShader.cc
      CullShader.cc
+     LODCullShader.cc
      SContext.cc
 
 )

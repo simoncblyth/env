@@ -9,6 +9,7 @@ NEXT:
 
 
 #include <vector>
+#include <sstream>
 #include <iostream>
 #include <iomanip>
 #include <cassert>
@@ -32,8 +33,16 @@ NEXT:
 #include "GU.hh"
 
 #include "SContext.hh"
+
+#ifdef WITH_LOD
+#include "Buf4.hh"
+#include "LODCullShader.hh"
+#else
 #include "CullShader.hh"
+#endif
+
 #include "InstShader.hh"
+
 
 
 const unsigned ICDemo::QSIZE = 4*sizeof(float) ;
@@ -44,7 +53,12 @@ ICDemo::ICDemo(const char* title)
     comp(new Comp),
     frame(new Frame(title,2880,1800)),
     context(new SContext),
+#ifdef WITH_LOD
+    cull(new LODCullShader(context)), 
+    clod(new Buf4),
+#else
     cull(new CullShader(context)), 
+#endif
     draw(new InstShader(context)),
     use_cull(true)  
     //use_cull(false)  
@@ -57,9 +71,17 @@ void ICDemo::init()
     geom->vbuf->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
     geom->ebuf->upload(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
     geom->ibuf->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    geom->cbuf->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
 
+#ifdef WITH_LOD
+    clod->x = geom->ibuf->cloneEmpty();
+    clod->y = geom->ibuf->cloneEmpty();
+    clod->x->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
+    clod->y->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
+    cull->setupFork(geom->ibuf, clod) ;
+#else
+    geom->cbuf->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
     cull->setupTransformFilter(geom->ibuf) ;
+#endif
 
     comp->aim(geom->ce);
 
@@ -82,20 +104,26 @@ void ICDemo::updateUniform(float t)
         comp->setUp(     0, 0, 1 );
         comp->setEye(    1. - t*0.1, 0, 0 );
         comp->setLook(       -t*0.1, 0, 0 );
-        // getting tunnel vision at the end of the glide ??
+        // getting tunnel vision at the end of the glide ?? just near clip perhaps?
     }
     comp->update();
     context->updateMVP(comp->world2clip);
 }
 
-void ICDemo::renderScene(float t)
+void ICDemo::renderScene()
 {
+    std::string status = getStatus();
+    float t = frame->updateWindowTitle(status.c_str());
+    //std::cout << status << std::endl ; 
+
     updateUniform(t);
     /////////// 1st pass : culling instance transforms 
 
+#ifdef WITH_LOD
+    cull->applyFork() ; 
+#else
     cull->applyTransformFilter(geom->cbuf) ; 
-    std::cout << " num_inst " << this->geom->num_inst << " num_viz  " << cull->num_viz << std::endl ; 
-
+#endif
     /////////// 2nd pass : render just the surviving instances
 
     unsigned num_draw = use_cull ? cull->num_viz : geom->num_inst ; 
@@ -105,7 +133,20 @@ void ICDemo::renderScene(float t)
     glBindVertexArray( use_cull ? this->drawVertexArray : this->allVertexArray);  
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geom->ebuf->id ); 
     glDrawElementsInstanced(GL_TRIANGLES, geom->ebuf->num_items, GL_UNSIGNED_INT, NULL, num_draw  ) ;       
+
 }
+
+std::string ICDemo::getStatus()
+{
+    std::stringstream ss ; 
+    ss 
+        << " num_inst " << geom->num_inst 
+        << " num_viz " << cull->num_viz
+        ; 
+
+    return ss.str();
+}
+
 
 void ICDemo::renderLoop()
 {
@@ -120,7 +161,7 @@ void ICDemo::renderLoop()
         glViewport(0, 0, comp->cam->width, comp->cam->height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-        renderScene((float)glfwGetTime());
+        renderScene();
 
         glfwSwapBuffers(frame->window);
     }

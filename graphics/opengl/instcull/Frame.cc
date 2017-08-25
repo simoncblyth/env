@@ -16,6 +16,8 @@
 #include "Frame.hh"
 
 
+
+
 static void error_callback(int error, const char* description)
 {
     fputs(description, stderr);
@@ -29,12 +31,33 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 */
 
-Frame::Frame(const char* title, int width, int height)  
+Frame::Frame(const char* title_, int width, int height)  
     :
+    title(title_),
     window(NULL)
 {
     init(title, width, height);
 } 
+
+float Frame::updateWindowTitle(const char* status)
+{
+    static double previous_seconds = glfwGetTime (); 
+    static int frame_count;
+    double current_seconds = glfwGetTime (); 
+    double elapsed_seconds = current_seconds - previous_seconds;
+    if (elapsed_seconds > 0.25) 
+    {
+        previous_seconds = current_seconds;
+        double fps = (double)frame_count / elapsed_seconds;
+        char tmp[128];
+        sprintf (tmp, "%s %s fps: %.2f ", title, status ? status : "-" , fps );
+        glfwSetWindowTitle (window, tmp);
+        frame_count = 0;
+    }
+    frame_count++;
+    return (float)current_seconds ; 
+}
+
 
 void Frame::init(const char* title, int width, int height)
 {

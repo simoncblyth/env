@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include <vector>
 #include <glm/glm.hpp>
 
@@ -8,8 +9,15 @@
 struct Buf ; 
 struct BB ; 
 
+
+struct DEMO_API PV { float x, y, z, w ; } ;
+
 struct DEMO_API Prim 
 {
+    static Prim* Concatenate( std::vector<Prim*> prims );
+    static void Concatenate(uint32_t* ptr, uint32_t& eOffset, uint32_t& vOffset, Prim* prim ) ;
+    static void Concatenate(PV*       ptr, uint32_t& eOffset, uint32_t& vOffset, Prim* prim ) ;
+
     BB* bb ; 
     Buf* vbuf ; 
     Buf* ebuf ; 

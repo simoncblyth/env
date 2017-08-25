@@ -9,7 +9,9 @@ struct DEMO_API Frame
    enum{ NUM_KEYS = 512 } ; 
    bool keys_down[NUM_KEYS] ; 
 
+   const char* title ; 
    GLFWwindow* window ;
+
    Frame(const char* title, int width=1024, int height=768);
    void init(const char* title, int width, int height);
 
@@ -17,6 +19,7 @@ struct DEMO_API Frame
    void handle_event(GLEQevent& event);
    void key_pressed(unsigned key);
    void key_released(unsigned key);
+   float updateWindowTitle(const char* status=NULL);
 
    void destroy();
 };

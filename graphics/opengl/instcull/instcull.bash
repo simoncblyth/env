@@ -18,6 +18,7 @@ instElemUBO.cc
 primRender.cc
     exercise the encapsulated Renderer.hh 
 
+
 instcull1.cc
     monolith Demo class approach using modern attribute style of nature- with
     att props captured into the vertex array seems to be succeeding 
@@ -26,7 +27,14 @@ instcull1.cc
     * http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
 
 icdemo
-    using ICDemo class, aiming to break up the monolith using InstRen
+    using non-monolithic ICDemo class, with CullShader, InstShader, SContext 
+
+
+
+LOD ?
+~~~~~~~~
+
+* http://rastergrid.com/blog/2010/10/gpu-based-dynamic-geometry-lod/
 
  
  

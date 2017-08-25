@@ -5,16 +5,17 @@
 #include "GU.hh"
 #include "Prog.hh"
 #include "Buf.hh"
+#include "Buf4.hh"
 #include "SContext.hh"
-#include "CullShader.hh"
+#include "LODCullShader.hh"
 
 
-const unsigned CullShader::LOC_InstanceTransform = 0 ;  
+const unsigned LODCullShader::LOC_InstanceTransform = 0 ;  
 
-const char* CullShader::vertSrc = R"glsl(
+const char* LODCullShader::vertSrc = R"glsl(
 
     #version 400
-    // CullShader::vertSrc
+    // LODCullShader::vertSrc
 
     $UniformBlock 
 
@@ -41,7 +42,7 @@ const char* CullShader::vertSrc = R"glsl(
 
 )glsl";
 
-const char* CullShader::geomSrc = R"glsl(
+const char* LODCullShader::geomSrc = R"glsl(
 
     #version 400
 
@@ -74,24 +75,26 @@ const char* CullShader::geomSrc = R"glsl(
 
 )glsl";
 
-const unsigned CullShader::QSIZE = sizeof(float)*4 ; 
+const unsigned LODCullShader::QSIZE = sizeof(float)*4 ; 
 
-CullShader::CullShader(SContext* context_)
+LODCullShader::LODCullShader(SContext* context_)
     :
     context(context_),
     prog(new Prog(SContext::ReplaceUniformBlockToken(vertSrc), geomSrc, NULL )),
     src(NULL),
-    dst(NULL)
+    dst(NULL),
+    num_lod(0),
+    num_viz(0)
 {
     init();
 }
 
-void CullShader::destroy()
+void LODCullShader::destroy()
 {
     prog->destroy();
 }
 
-void CullShader::init()
+void LODCullShader::init()
 {
     prog->compile();
     prog->create();
@@ -100,50 +103,59 @@ void CullShader::init()
     glBindAttribLocation(prog->program, LOC_InstanceTransform, "InstanceTransform");
     prog->link();
 
-    GU::errchk("CullShader::init");
+    GU::errchk("LODCullShader::init");
 }
 
 
-void CullShader::setupTransformFilter(Buf* src_)
+void LODCullShader::setupFork(Buf* src_, Buf4* dst_)
 {
     src = src_ ; 
+    dst = dst_ ;
 
-    // query for counting the surviving transforms
-    glGenQueries(1, &this->culledTransformQuery);
-    cullVertexArray = createTransformCullVertexArray(src->id);
+    num_lod = dst->num_buf() ; 
+    assert(num_lod <= LOD_MAX);
+
+    for(int i=0 ; i < num_lod ; i++)
+        glGenQueries(1, &this->lodQuery[i]);
+
+    forkVertexArray = createForkVertexArray(src->id);
+
+    for (int i=0; i< num_lod; i++) 
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, i, dst->at(i)->id );
+
 }
 
 
-void CullShader::applyTransformFilter(Buf* dst)
+void LODCullShader::applyFork()
 {
+    // http://rastergrid.com/blog/2010/10/gpu-based-dynamic-geometry-lod/
     assert(src);
 
     glUseProgram(this->prog->program);
-    glBindVertexArray(this->cullVertexArray);
-
-    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, dst->id );
-
+    glBindVertexArray(this->forkVertexArray);
     glEnable(GL_RASTERIZER_DISCARD);
+
+    for(int i=0 ; i < num_lod ; i++)
+        glBeginQueryIndexed(GL_PRIMITIVES_GENERATED, i, this->lodQuery[i]  );
+
     glBeginTransformFeedback(GL_POINTS);
-    {
-        glBeginQuery(GL_PRIMITIVES_GENERATED, this->culledTransformQuery  );
-        {
-            glDrawArrays(GL_POINTS, 0, src->num_items );
-        }
-        glEndQuery(GL_PRIMITIVES_GENERATED); 
-    }
+    glDrawArrays(GL_POINTS, 0, src->num_items );
     glEndTransformFeedback();
+
+    for(int i=0 ; i < num_lod ; i++)
+        glEndQueryIndexed(GL_PRIMITIVES_GENERATED, i );
+
     glDisable(GL_RASTERIZER_DISCARD);
 
     glFlush();
 
-    glGetQueryObjectuiv(this->culledTransformQuery, GL_QUERY_RESULT, &num_viz);
+    for (int i=0; i< num_lod; i++) 
+        glGetQueryObjectiv(lodQuery[i], GL_QUERY_RESULT, &this->lodCount[i]);
+
 }
 
 
-
-
-GLuint CullShader::createTransformCullVertexArray(GLuint instanceBO) 
+GLuint LODCullShader::createForkVertexArray(GLuint instanceBO) 
 {
     GLuint loc = LOC_InstanceTransform ;
 
@@ -167,7 +179,7 @@ GLuint CullShader::createTransformCullVertexArray(GLuint instanceBO)
 
     // NB no divisor, are accessing instance transforms in a non-instanced manner to do the culling 
 
-    GU::errchk("CullShader::createTransformCullVertexArray");
+    GU::errchk("LODCullShader::createForkVertexArray");
     return vertexArray;
 }
 

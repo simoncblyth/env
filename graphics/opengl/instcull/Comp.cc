@@ -36,7 +36,9 @@ void Comp::aim(const glm::vec4& ce)
     setUp(  0, 1,  0)  ;
 
     const float& extent = ce.w ; 
-    setNearFar( extent/2, extent*20 );
+    setNearFar( extent/5, extent*20 );
+
+    // dont understand why have to push far out so far to avoid clipping ?
 }
 
 void Comp::setCenterExtent(const glm::vec4& ce)
