@@ -1,5 +1,6 @@
 #pragma once
 #include "DEMO_API_EXPORT.hh"
+#include <vector>
 #include <glm/glm.hpp>
 
 struct Tra ; 
@@ -18,6 +19,9 @@ struct DEMO_API Geom
     Tra* itra ; 
     Tra* ctra ; 
 
+    Prim* prim ;
+    std::vector<glm::uvec4>* eidx ; 
+  
     Buf* vbuf ;  
     Buf* ebuf ;  
     BB*  vbb ; 
@@ -33,8 +37,9 @@ struct DEMO_API Geom
     Geom(char shape_);
 
     void init();
-    void initGlobe();
     void initSpiral();
+    void initGlobe();
+    void initGlobeLOD();
 
     void setPrim(Prim* prim);
     void setTransforms(Tra* tra);

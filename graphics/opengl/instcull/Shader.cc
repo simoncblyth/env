@@ -92,7 +92,7 @@ void Shader::updateMVP( const glm::mat4& w2c)
 }
 
 
-GLuint Shader::createVertexArray(GLuint vertexBO) 
+GLuint Shader::createVertexArray(GLuint vertexBO, GLuint elementBO) 
 {
     GLuint vloc =  LOC_VertexPosition ;
 
@@ -104,10 +104,15 @@ GLuint Shader::createVertexArray(GLuint vertexBO)
     glEnableVertexAttribArray( vloc ); 
     glVertexAttribPointer( vloc , 4, GL_FLOAT, GL_FALSE, QSIZE, (void*)0);
 
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBO);
+    // https://stackoverflow.com/questions/8973690/vao-and-element-array-buffer-state
+
     GU::errchk("Shader::createVertexArray");
 
     return vertexArray;
 }
+
 
 
 

@@ -71,7 +71,7 @@ void InstShader::initProgram()
 }
 
 
-GLuint InstShader::createVertexArray(GLuint instanceBO, GLuint vertexBO) 
+GLuint InstShader::createVertexArray(GLuint instanceBO, GLuint vertexBO, GLuint elementBO ) 
 {
     GLuint vloc =  LOC_VertexPosition ;
     GLuint iloc =  LOC_VizInstanceTransform ;
@@ -79,6 +79,8 @@ GLuint InstShader::createVertexArray(GLuint instanceBO, GLuint vertexBO)
     GLuint vertexArray;
     glGenVertexArrays(1, &vertexArray);
     glBindVertexArray(vertexArray);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBO ); 
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBO);
     glEnableVertexAttribArray( vloc ); 

@@ -38,7 +38,7 @@ struct DEMO_API ICDemo
     InstShader*  draw ; 
     bool         use_cull ; 
 
-    unsigned drawVertexArray ;   
+    unsigned drawVertexArray[4] ;   
     unsigned allVertexArray ;   
 
     ICDemo(const char* title);

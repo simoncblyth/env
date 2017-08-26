@@ -9,6 +9,12 @@
 #include "InstShader.hh"
 
 
+struct SContextUniform
+{  
+    glm::mat4 ModelViewProjection ;
+    glm::mat4 ModelView  ;
+};
+
 const char* SContext::uniformBlockName = "MatrixBlock" ; 
 const char* SContext::uniformBlockSrc = R"glsl(
 
@@ -16,6 +22,7 @@ const char* SContext::uniformBlockSrc = R"glsl(
     uniform MatrixBlock  
     {
         mat4 ModelViewProjection;
+        mat4 ModelView ;
     } ;
 
 )glsl";
@@ -65,9 +72,10 @@ void SContext::bindUniformBlock(GLuint program)
 
 
 
-void SContext::updateMVP( const glm::mat4& w2c)
+void SContext::update( const glm::mat4& world2clip, const glm::mat4& world2eye)
 {
-    uniform->ModelViewProjection = w2c  ;  
+    uniform->ModelViewProjection = world2clip  ;  
+    uniform->ModelView = world2eye  ;  
 
     glBindBuffer(GL_UNIFORM_BUFFER, this->uniformBO);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SContextUniform), this->uniform);

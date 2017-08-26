@@ -17,8 +17,7 @@ struct DEMO_API InstShader
     InstShader(SContext* context);
 
     void initProgram();
-    //void initUniformBuffer();
-    GLuint createVertexArray(GLuint instanceBO, GLuint vertexBO) ;
+    GLuint createVertexArray(GLuint instanceBO, GLuint vertexBO, GLuint elementBO) ;
     void destroy();
 
 

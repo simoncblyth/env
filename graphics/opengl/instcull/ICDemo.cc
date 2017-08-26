@@ -2,7 +2,6 @@
 
 NEXT:
 
-* realistic MVP dependent frustum culling 
 * lod streaming, starting with 2 lod levels : original and bbox
 
 */
@@ -49,7 +48,7 @@ const unsigned ICDemo::QSIZE = 4*sizeof(float) ;
 
 ICDemo::ICDemo(const char* title) 
     :
-    geom(new Geom('G')),
+    geom(new Geom('L')),
     comp(new Comp),
     frame(new Frame(title,2880,1800)),
     context(new SContext),
@@ -73,22 +72,26 @@ void ICDemo::init()
     geom->ibuf->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
 
 #ifdef WITH_LOD
+    // clod houses multiple buffers to grab the LOD forked instance transforms
     clod->x = geom->ibuf->cloneEmpty();
     clod->y = geom->ibuf->cloneEmpty();
     clod->x->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
     clod->y->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
     cull->setupFork(geom->ibuf, clod) ;
+    this->drawVertexArray[0] = draw->createVertexArray(clod->x->id, geom->vbuf->id, geom->ebuf->id ); 
+    this->drawVertexArray[1] = draw->createVertexArray(clod->y->id, geom->vbuf->id, geom->ebuf->id ); 
 #else
     geom->cbuf->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
     cull->setupTransformFilter(geom->ibuf) ;
+
+    this->drawVertexArray[0] = draw->createVertexArray(geom->cbuf->id, geom->vbuf->id, geom->ebuf->id ); 
 #endif
+    this->allVertexArray = draw->createVertexArray(geom->ibuf->id, geom->vbuf->id, geom->ebuf->id); 
+
 
     comp->aim(geom->ce);
 
     GU::errchk("ICDemo::init.0");
-
-    this->allVertexArray = draw->createVertexArray(geom->ibuf->id, geom->vbuf->id); 
-    this->drawVertexArray = draw->createVertexArray(geom->cbuf->id, geom->vbuf->id ); 
 
     GU::errchk("ICDemo::init.1");
 }
@@ -107,7 +110,7 @@ void ICDemo::updateUniform(float t)
         // getting tunnel vision at the end of the glide ?? just near clip perhaps?
     }
     comp->update();
-    context->updateMVP(comp->world2clip);
+    context->update(comp->world2clip, comp->world2eye);
 }
 
 void ICDemo::renderScene()
@@ -117,22 +120,37 @@ void ICDemo::renderScene()
     //std::cout << status << std::endl ; 
 
     updateUniform(t);
-    /////////// 1st pass : culling instance transforms 
 
 #ifdef WITH_LOD
     cull->applyFork() ; 
+
+
+    glUseProgram(draw->prog->program);
+
+    for(unsigned lod=0 ; lod < 2 ; lod++)
+    {
+        glBindVertexArray( use_cull ? this->drawVertexArray[lod] : this->allVertexArray);  
+
+        unsigned num_draw = use_cull ? cull->lodCount[lod] : geom->num_inst ; 
+        if(num_draw == 0) continue ;
+ 
+        const glm::uvec4& eidx = (*geom->eidx)[lod] ; 
+        glDrawElementsInstanced(GL_TRIANGLES, eidx.y, GL_UNSIGNED_INT, (void*)(eidx.x*sizeof(unsigned)), num_draw  ) ;
+    }
+
 #else
     cull->applyTransformFilter(geom->cbuf) ; 
-#endif
-    /////////// 2nd pass : render just the surviving instances
 
     unsigned num_draw = use_cull ? cull->num_viz : geom->num_inst ; 
     if(num_draw == 0) return ; 
 
     glUseProgram(draw->prog->program);
-    glBindVertexArray( use_cull ? this->drawVertexArray : this->allVertexArray);  
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geom->ebuf->id ); 
+    glBindVertexArray( use_cull ? this->drawVertexArray[0] : this->allVertexArray);  
+
     glDrawElementsInstanced(GL_TRIANGLES, geom->ebuf->num_items, GL_UNSIGNED_INT, NULL, num_draw  ) ;       
+
+#endif
+
 
 }
 
@@ -141,7 +159,12 @@ std::string ICDemo::getStatus()
     std::stringstream ss ; 
     ss 
         << " num_inst " << geom->num_inst 
+#ifdef WITH_LOD
+        << " lodCount[0] " << cull->lodCount[0]
+        << " lodCount[1] " << cull->lodCount[1]
+#else
         << " num_viz " << cull->num_viz
+#endif
         ; 
 
     return ss.str();
@@ -151,7 +174,9 @@ std::string ICDemo::getStatus()
 void ICDemo::renderLoop()
 {
     unsigned count(0); 
+    bool wire = true ; 
     glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, wire ? GL_LINE : GL_FILL );
     
     while (!glfwWindowShouldClose(frame->window) && count++ < 2000 )
     {

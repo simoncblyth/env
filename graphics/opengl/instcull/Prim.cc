@@ -1,14 +1,20 @@
+#include <cassert>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+
 
 #include "Prim.hh"
 #include "Buf.hh"
 #include "BB.hh"
+#include "G.hh"
 
 
 Prim::Prim()
     :
-    bb(NULL),
     vbuf(NULL),
-    ebuf(NULL)
+    ebuf(NULL),
+    bb(NULL)
 {
 }
 
@@ -50,53 +56,74 @@ void Prim::populate()
     vbuf = Buf::Make(vert);
     ebuf = Buf::Make(elem);
     ce = bb->get_center_extent();
-}
 
+    unsigned eOffset = 0u ;
+    unsigned num_elem = ebuf->num_items ;
+    unsigned vOffset = 0u ;
+    unsigned num_vert = vbuf->num_items ;
+
+    eidx.push_back( {  eOffset, num_elem, vOffset, num_vert } );
+}
 
 
 Prim* Prim::Concatenate( std::vector<Prim*> prims )
 {
     uint32_t ebufSize = 0;
-    for(uint32_t i=0 ; i < prims.size() ; i++) 
-        ebufSize += prims[i]->ebuf->num_items ; 
+    uint32_t vbufSize = 0;
+
+    for(uint32_t p=0 ; p < prims.size() ; p++) 
+    {
+        Prim* prim = prims[p];
+        ebufSize += prim->ebuf->num_items ; 
+        vbufSize += prim->vbuf->num_items ; 
+    }
        
     uint32_t* edat =  new uint32_t[ebufSize] ;
-    Buf* ebuf = new Buf( ebufSize , sizeof(uint32_t)*ebufSize , edat );
+    glm::vec4* vdat = new glm::vec4[vbufSize];
+
+    Prim* concat = new Prim ; 
+
+    std::vector<glm::uvec4>& eidx = concat->eidx ; 
+    concat->ebuf = new Buf( ebufSize , sizeof(uint32_t)*ebufSize , edat );
+    concat->vbuf = new Buf( vbufSize , sizeof(glm::vec4)*vbufSize , vdat );
 
     unsigned eOffset = 0;
     unsigned vOffset = 0;
-    for(uint32_t i=0 ; i < prims.size() ; i++) 
-        Concatenate(edat, eOffset, vOffset, prims[i]);
 
+    for(uint32_t p=0 ; p < prims.size() ; p++) 
+    {
+        Prim* prim = prims[p];
+        uint32_t num_elem = prim->ebuf->num_items ;
+        uint32_t num_vert = prim->vbuf->num_items ;
 
-    uint32_t vbufSize = 0;
-    for(uint32_t i=0 ; i < prims.size() ; i++) 
-        vbufSize += prims[i]->vbuf->num_items ; 
+        for (uint32_t e=0; e < num_elem ; e++) edat[eOffset+e] = *((uint32_t*)prim->ebuf->ptr + e) + vOffset ;
+
+        eidx.push_back( {  eOffset, num_elem, vOffset, num_vert } );
+        
+        memcpy( (void*)( vdat + vOffset ), prim->vbuf->ptr , prim->vbuf->num_bytes );
+        eOffset += num_elem ;
+        vOffset += num_vert ;
+    }
+
+    concat->bb = BB::FromBuf(concat->vbuf);
+    concat->ce = concat->bb->get_center_extent();
  
-    PV* vdat = new PV[vbufSize]; 
-
-    return NULL ;     
-}
-
-void Prim::Concatenate(uint32_t* ptr, uint32_t& eOffset, uint32_t& vOffset, Prim* prim ) 
-{
-    for (uint32_t i=0; i < prim->ebuf->num_items ; i++)
-        ptr[eOffset+i] = *((uint32_t*)prim->ebuf->ptr) + vOffset ;
-
-    eOffset += prim->ebuf->num_items ;
-    vOffset += prim->vbuf->num_items ;
+    return concat ;     
 }
 
 
-void Prim::Concatenate(PV* ptr, uint32_t& eOffset, uint32_t& vOffset, Prim* prim ) 
+void Prim::dump(const char* msg)
 {
-    //for (uint32_t i=0; i < prim->vbuf->num_items ; i++)
-    //{
-    //    ptr[eOffset+i].x = ((V*)prim->vbuf->ptr) + vOffset ;
-    //} 
-    //
-    //eOffset += prim->ebuf->num_items ;
-    //vOffset += prim->vbuf->num_items ;
+    std::cout << msg << std::endl ; 
+    std::cout << bb->desc() << std::endl ; 
+    std::cout << G::gpresent("ce", ce) << std::endl ; 
+
+    for(unsigned i=0 ; i < eidx.size() ; i++)
+        std::cout << G::gpresent("eidx", eidx[i]) << std::endl ; 
+
+    ebuf->dump("ebuf");
+    vbuf->dump("vbuf");
+
 }
 
 

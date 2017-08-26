@@ -1,9 +1,10 @@
 
-
 #include <sstream>
 #include "G.hh"
+#include "Buf.hh"
 #include "BB.hh"
 
+// must be included after glm
 #include <glm/gtx/component_wise.hpp>
 
 
@@ -34,14 +35,36 @@ BB* BB::FromMat(const std::vector<glm::mat4>& mat)
     for(unsigned i=0 ; i < mat.size() ; i++) 
     {
         const glm::mat4& m = mat[i] ;
-
         glm::vec3 p(m[3]);
         bb->include(p);
     }
     return bb ; 
 } 
 
-
+BB* BB::FromBuf(const Buf* buf )
+{
+    BB* bb = new BB ; 
+    unsigned ib = buf->item_bytes();
+    if( ib == sizeof(float)*4 )
+    {
+        for(unsigned i=0 ; i < buf->num_items ; i++ ) 
+        {        
+            const glm::vec4& v = *((glm::vec4*)buf->ptr + i ) ;  
+            glm::vec3 p(v);
+            bb->include(p);
+        }
+    }
+    else if( ib == sizeof(float)*4*4 )
+    {
+        for(unsigned i=0 ; i < buf->num_items ; i++ ) 
+        {        
+            const glm::mat4& m = *((glm::mat4*)buf->ptr + i ) ;  
+            glm::vec3 p(m[3]);
+            bb->include(p);
+        }
+    }
+    return bb ; 
+}
 
 
 void BB::include(const glm::vec3& p)
@@ -79,15 +102,10 @@ std::string BB::desc() const
 {
     std::stringstream ss ; 
 
-
-    glm::vec4 ce = get_center_extent() ;
-
     ss 
         << G::gpresent("min", min) 
         << " " 
         << G::gpresent("max", max) 
-        << " " 
-        << G::gpresent("ce", ce) 
         << " " 
         ;
 

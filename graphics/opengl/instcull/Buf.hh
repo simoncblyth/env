@@ -16,14 +16,17 @@ struct DEMO_API Buf
     unsigned num_items ;
     unsigned num_bytes ;
     void*    ptr ;
+
+    unsigned item_bytes() const ;
+
     Buf(unsigned num_items_, unsigned num_bytes_, void* ptr_) ;
     Buf* cloneEmpty() const ;
     
     void upload(GLenum target, GLenum usage );
     void uploadNull(GLenum target, GLenum usage );
 
-
-    std::string desc();
+    std::string desc() const ;
+    void dump(const char* msg) const ; 
 
     static Buf* Make(const std::vector<glm::mat4>& mat) ;
     static Buf* Make(const std::vector<glm::vec4>& vert) ;

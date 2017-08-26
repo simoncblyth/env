@@ -18,6 +18,8 @@ Geom::Geom(char shape_)
     num_viz(0),
     itra(NULL),
     ctra(NULL),
+    prim(NULL),
+    eidx(NULL),
     vbuf(NULL),  
     ebuf(NULL),  
     vbb(NULL),
@@ -30,14 +32,9 @@ Geom::Geom(char shape_)
 
 void Geom::init()
 {
-    if(shape == 'S')
-    {
-        initSpiral();
-    }
-    else if(shape == 'G')
-    {
-        initGlobe();
-    }
+    if(shape == 'S')      initSpiral();
+    else if(shape == 'G') initGlobe();
+    else if(shape == 'L') initGlobeLOD();    
 }
 
 void Geom::setTransforms(Tra* tra)
@@ -51,15 +48,17 @@ void Geom::setTransforms(Tra* tra)
     cbuf = ctra->buf ;
 }
 
-void Geom::setPrim(Prim* prim)
+void Geom::setPrim(Prim* prim_)
 {
+    prim = prim_ ; 
+    eidx = &prim->eidx ; 
+
     vbuf = prim->vbuf ; 
     ebuf = prim->ebuf ; 
     vbb = prim->bb ; 
 
     num_vert = vbuf->num_items ; 
 }
-
 
 void Geom::initSpiral()
 {
@@ -71,9 +70,6 @@ void Geom::initSpiral()
 }
 
 
-
-
-
 void Geom::initGlobe()
 {
     //Tri*  tri = new Tri(1.3333f, 1.f, 0.f,  0.f, 0.f, 0.f ); 
@@ -82,9 +78,8 @@ void Geom::initGlobe()
     //Cube* cube = new Cube(5.f, 5.f, 5.f,  0.f, 0.f, 0.f ); 
     //Prim* prim = (Prim*)cube ;
 
-    Sphere* sphere = new Sphere(5.f); 
+    Sphere* sphere = new Sphere(4u, 5.f); 
     Prim* prim = (Prim*)sphere ;
-
 
     setPrim(prim);
 
@@ -96,6 +91,25 @@ void Geom::initGlobe()
 }
 
 
+void Geom::initGlobeLOD()
+{
+    Tri*  tri = new Tri(1.3333f, 1.f, 0.f,  0.f, 0.f, -2.f ); 
+    Cube* cube = new Cube(1.f, 1.f, 1.f,  0.f, 0.f, 0.f ); 
+    Sphere* sphere = new Sphere(4u, 0.5f, 0.f, 0.f, 0.f ); 
 
+    std::vector<Prim*> prims ; 
+    prims.push_back(tri);
+    prims.push_back(cube);
+    prims.push_back(sphere);
+
+    Prim* prim = Prim::Concatenate(prims);
+    setPrim(prim);
+
+    unsigned num_polar = 100 ; 
+    unsigned num_azimuth = 100 ; 
+    Tra* tra = Tra::MakeGlobe(100.f, num_azimuth, num_polar );
+
+    setTransforms(tra);
+}
 
 

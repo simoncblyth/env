@@ -7,6 +7,7 @@
 #include "Prog.hh"
 
 
+
 // http://antongerdelan.net/opengl/shaders.html
 
 const char* Prog::ShaderType(GLenum type)
@@ -84,7 +85,7 @@ void Prog::link()
 
     GLint status;
     glGetProgramiv (program, GL_LINK_STATUS, &status);
-    if (status == GL_FALSE)
+    if (status != GL_TRUE)
     {
         GLint infoLogLength;
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
@@ -97,6 +98,7 @@ void Prog::link()
 
     glUseProgram(program);
 } 
+
 
 void Prog::destroy()
 {

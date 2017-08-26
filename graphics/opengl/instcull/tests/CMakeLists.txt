@@ -3,6 +3,8 @@ set(name INSTCULLTest)
 project(${name})
 
 set(TEST_SOURCES
+    txf.cc
+    txfStream.cc
     instcull1.cc
     icdemo.cc
     instanceMinimal.cc
@@ -15,6 +17,7 @@ set(TEST_SOURCES
     CompTest.cc
     GeomTest.cc
     BBTest.cc
+    PrimTest.cc
     BoxTest.cc
     CamTest.cc
     VueTest.cc

@@ -21,22 +21,23 @@
 
 int main(int, char** argv)
 {
+    Tri*  tri = new Tri(1.3333f, 1.f, 0.f,  0.f, 0.f, -2.f ); 
+    Cube* cube = new Cube(1.f, 1.f, 1.f,  0.f, 0.f, 0.f ); 
+    Sphere* sphere = new Sphere(4u, 0.5f, 0.f, 0.f, 0.f ); 
+
+    std::vector<Prim*> prims ; 
+    prims.push_back(tri);
+    prims.push_back(cube);
+    prims.push_back(sphere);
+
+    Prim* prim = Prim::Concatenate(prims);
+
+
+
     Frame frame(argv[0]) ; 
     Shader sh ; 
 
     bool wire = true ; 
-    //-----
- 
-    //Tri*  tri = new Tri(1.3333f, 1.f, 0.f,  0.f, 0.f, -100.f ); 
-    //Prim* prim = (Prim*)tri ; 
-
-    Cube* cube = new Cube(1.f, 1.f, 1.f,  0.f, 0.f, 0.f ); 
-    Prim* prim = (Prim*)cube ; 
-
-    //Sphere* sphere = new Sphere(1.f, 0.f, 0.f, 0.f, 4 ); 
-    //Prim* prim = (Prim*)sphere ; 
-
-    //--------
 
     Buf* v = prim->vbuf ;
     Buf* e = prim->ebuf ;
@@ -50,19 +51,16 @@ int main(int, char** argv)
 
     comp.update();
 
-    comp.dump();
-    comp.dumpPoints(prim->vert);
-    comp.dumpFrustum();
-
     v->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
     e->upload(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
 
-    GLuint vao = sh.createVertexArray( v->id );
+    GLuint vao = sh.createVertexArray( v->id, e->id );
 
     glUseProgram( sh.draw->program );
     glBindVertexArray( vao );
     
     glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, wire ? GL_LINE : GL_FILL );
 
     while (!glfwWindowShouldClose(frame.window))
     {
@@ -76,21 +74,23 @@ int main(int, char** argv)
 
         sh.updateMVP(comp.world2clip) ; 
 
-        if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        // gives same outcome when all elements are drawn together or separate
+        //glDrawElements(GL_TRIANGLES, e->num_items, GL_UNSIGNED_INT, (void*)0 );
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, e->id);
-        glDrawElements(GL_TRIANGLES, e->num_items, GL_UNSIGNED_INT, (void*)0 );
-
-        if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+        for(unsigned lod=0 ; lod < prim->eidx.size() ; lod++)
+        {
+            const glm::uvec4& eidx = prim->eidx[lod] ;
+            unsigned elem_offset = eidx.x ; 
+            unsigned elem_count  = eidx.y ; 
+            glDrawElements(GL_TRIANGLES, elem_count, GL_UNSIGNED_INT, (void*)(elem_offset*sizeof(unsigned)) );
+        }
+    
         glfwSwapBuffers(frame.window);
         glfwPollEvents();
     }
-
     sh.destroy();
     frame.destroy();
-
-    exit(EXIT_SUCCESS);
+    return 0 ; 
 }
 
 

@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     InstShader is(&context) ; 
 
     bool wire = true ; 
-    Geom* geom = new Geom('G');
+    Geom* geom = new Geom('L');
 
     Comp comp ;
     comp.aim(geom->ce);
@@ -38,9 +38,11 @@ int main(int argc, char** argv)
     geom->ebuf->upload(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
     geom->ibuf->upload(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
 
-    GLuint vao = is.createVertexArray(  geom->ibuf->id, geom->vbuf->id );
+    GLuint vao = is.createVertexArray(  geom->ibuf->id, geom->vbuf->id, geom->ebuf->id );
 
     glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, wire ? GL_LINE : GL_FILL );
+
     glUseProgram(is.prog->program);
     glBindVertexArray( vao );
 
@@ -60,14 +62,17 @@ int main(int argc, char** argv)
         comp.update();
 
         std::cout << " count " << count << " t " << t << std::endl ;
-        context.updateMVP(comp.world2clip);
+        context.update(comp.world2clip, comp.world2eye);
 
-        if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //glDrawElementsInstanced(GL_TRIANGLES, geom->ebuf->num_items, GL_UNSIGNED_INT, NULL, geom->ibuf->num_items  ) ;
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geom->ebuf->id); 
-        glDrawElementsInstanced(GL_TRIANGLES, geom->ebuf->num_items, GL_UNSIGNED_INT, NULL, geom->ibuf->num_items  ) ;
+        for(unsigned lod=0 ; lod < geom->eidx->size() ; lod++)
+        //unsigned lod=2 ;
+        {
+            const glm::uvec4& eidx = (*geom->eidx)[lod] ; 
+            glDrawElementsInstanced(GL_TRIANGLES, eidx.y, GL_UNSIGNED_INT, (void*)(eidx.x*sizeof(unsigned)), geom->ibuf->num_items  ) ;
+        }
 
-        if(wire) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); 
 
         glfwSwapBuffers(frame.window);
         glfwPollEvents();

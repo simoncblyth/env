@@ -22,7 +22,7 @@ struct DEMO_API Shader
     void init();
     void initUniformBuffer();
 
-    GLuint createVertexArray(GLuint vertexBO) ;
+    GLuint createVertexArray(GLuint vertexBO, GLuint elementBO) ;
     void destroy();
 
     Prog*                draw ; 

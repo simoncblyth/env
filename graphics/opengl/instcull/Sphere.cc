@@ -1,12 +1,12 @@
 #include "Sphere.hh"
 #include "UV.hh"
 
-Sphere::Sphere(float radius_ , float cx, float cy, float cz, int level_ ) 
+Sphere::Sphere(int level_, float radius_ , float cx, float cy, float cz) 
     :
     Prim(),
+    level(level_),
     radius(radius_),
-    center(cx,cy,cz),
-    level(level_)
+    center(cx,cy,cz)
 {
     init(); 
 }

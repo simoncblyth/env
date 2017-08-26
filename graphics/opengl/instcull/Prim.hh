@@ -9,21 +9,22 @@
 struct Buf ; 
 struct BB ; 
 
-
-struct DEMO_API PV { float x, y, z, w ; } ;
-
 struct DEMO_API Prim 
 {
     static Prim* Concatenate( std::vector<Prim*> prims );
-    static void Concatenate(uint32_t* ptr, uint32_t& eOffset, uint32_t& vOffset, Prim* prim ) ;
-    static void Concatenate(PV*       ptr, uint32_t& eOffset, uint32_t& vOffset, Prim* prim ) ;
 
-    BB* bb ; 
     Buf* vbuf ; 
     Buf* ebuf ; 
+    std::vector<glm::uvec4> eidx ; 
+
+
+    // derived
+    BB* bb ; 
     glm::vec4 ce ; 
-    std::vector<glm::vec4> vert ; 
-    std::vector<unsigned>  elem ; 
+
+    // temporary inputs 
+    std::vector<glm::vec4>  vert ; 
+    std::vector<unsigned>   elem ; 
 
     Prim();
 
@@ -34,6 +35,9 @@ struct DEMO_API Prim
     void add_quad(unsigned v0, unsigned v1, unsigned v2, unsigned v3);
 
     void populate();  // call after vert and elem are filled
+
+    void dump(const char* msg);
+
 
 };
 
