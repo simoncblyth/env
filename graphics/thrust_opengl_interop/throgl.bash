@@ -58,6 +58,7 @@ throgl-bindir(){ echo $(throgl-idir)/bin ; }
 
 throgl-scd(){  cd $(throgl-sdir); }
 throgl-cd(){   cd $(throgl-sdir); }
+throgl-c(){   cd $(throgl-sdir); }
 
 throgl-icd(){  cd $(throgl-idir); }
 throgl-bcd(){  cd $(throgl-bdir); }

@@ -95,7 +95,7 @@ void Geom::initGlobeLOD()
 {
     Tri*  tri = new Tri(1.3333f, 1.f, 0.f,  0.f, 0.f, -2.f ); 
     Cube* cube = new Cube(1.f, 1.f, 1.f,  0.f, 0.f, 0.f ); 
-    Sphere* sphere = new Sphere(4u, 0.5f, 0.f, 0.f, 0.f ); 
+    Sphere* sphere = new Sphere(4u, 1.5f, 0.f, 0.f, 0.f ); 
 
     std::vector<Prim*> prims ; 
     prims.push_back(tri);
@@ -105,8 +105,8 @@ void Geom::initGlobeLOD()
     Prim* prim = Prim::Concatenate(prims);
     setPrim(prim);
 
-    unsigned num_polar = 100 ; 
-    unsigned num_azimuth = 100 ; 
+    unsigned num_polar = 200 ; 
+    unsigned num_azimuth = 200 ; 
     Tra* tra = Tra::MakeGlobe(100.f, num_azimuth, num_polar );
 
     setTransforms(tra);

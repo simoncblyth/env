@@ -74,6 +74,9 @@ Tra* Tra::MakeGlobe(float radius, unsigned nu, unsigned nv )
     std::vector<glm::mat4> mat ; 
     unsigned s = 0 ; 
 
+    glm::vec3 axis(0,0,1);
+    glm::vec3 scal(0.9);
+
     for(unsigned v=0 ; v < nv ; v++)  // polar
     { 
         bool is_pole = v == 0 || v == nv - 1 ; 
@@ -82,8 +85,16 @@ Tra* Tra::MakeGlobe(float radius, unsigned nu, unsigned nv )
         for(unsigned u=0 ; u < unu; u++)  // azimuthal
         {
             UV uv = make_UV(s,u+0,v+0,nu,nv, 0);
-            glm::vec3 pos = SpherePos(uv, radius);
-            glm::mat4 m = glm::translate( glm::mat4(1.f), pos ) ;
+
+            glm::mat4 m(1.f);
+            float angle = uv.fu2pi() ;
+
+            glm::vec3 tlat = SpherePos(uv, radius);
+
+            m = glm::scale(m, scal) ; 
+            m = glm::translate( m, tlat ) ;
+            m = glm::rotate(m, angle , axis) ; 
+
             mat.push_back(m);          
         }
     }

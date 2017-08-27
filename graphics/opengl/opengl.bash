@@ -24,6 +24,19 @@ Tute
 * http://github.prideout.net/modern-opengl-prezo/
 
 
+Samples Pack / Driver Bugs 
+---------------------------
+
+* https://www.opengl.org/sdk/docs/tutorials/OGLSamples/
+* http://www.g-truc.net/project-0026.html
+* http://www.g-truc.net/post-0373.html
+
+OSX OpenGL Driver Bugs
+-------------------------
+
+* http://renderingpipeline.com/2012/07/macos-x-opengl-driver-bugs/ 
+
+
 Books
 -------
 
@@ -34,7 +47,11 @@ ogli
 OSX Stuck At 4.1
 ------------------
 
+* https://apple.stackexchange.com/questions/213892/why-doesnt-os-x-require-graphics-card-driver-updates
+
 * https://forum.unity3d.com/threads/opengl-4-3-or-apple-metal-gpu-offload-on-mac.396414/
+
+* https://support.apple.com/en-us/HT202823
 
 
 18/08/2010 OpenGL 4.1 review
@@ -486,10 +503,27 @@ CPU half
 
 EOU
 }
-opengl-dir(){ echo $(local-base)/env/graphics/opengl/graphics/opengl-opengl ; }
+opengl-dir(){ echo $(local-base)/env/graphics/opengl/ogl-samples ; }
+opengl-fold(){ echo $(dirname $(opengl-dir)) ; }
 opengl-cd(){  cd $(opengl-dir); }
-opengl-mate(){ mate $(opengl-dir) ; }
+opengl-c(){  cd $(opengl-dir); }
 opengl-get(){
    local dir=$(dirname $(opengl-dir)) &&  mkdir -p $dir && cd $dir
 
+   #local url=https://downloads.sourceforge.net/project/ogl-samples/OpenGL%20Samples%20Pack%204.1.7.2/ogl-samples-4.1.7.2.zip
+   local url=https://github.com/g-truc/ogl-samples/releases/download/4.5.3.0/ogl-samples-4.5.3.0.zip
+   [ ! -f $(basename $url) ] && curl -L -O $url 
+   [ ! -d ogl-samples ] && unzip $(basename $url)  
+
 }
+
+opengl-ref-get()
+{ 
+   cd $(opengl-fold) 
+   local url=https://www.khronos.org/registry/OpenGL/specs/gl/glspec41.core.pdf
+   [ ! -f $(basename $url) ] && curl -L -O $url
+}
+
+opengl-ref(){ open $(opengl-fold)/${1:-glspec41.core.pdf} ; }
+
+

@@ -1,4 +1,6 @@
+#include <sstream>
 #include <cstddef>
+#include "Buf.hh"
 #include "Buf4.hh"
 
 Buf4::Buf4()
@@ -6,7 +8,8 @@ Buf4::Buf4()
     x(NULL),
     y(NULL),
     z(NULL),
-    w(NULL)
+    w(NULL),
+    devnull(NULL)
 {
 }
 
@@ -27,3 +30,21 @@ unsigned Buf4::num_buf() const
 {
     return ( x ? 1 : 0 ) + ( y ? 1 : 0 ) + ( z ? 1 : 0 ) + ( w ? 1 : 0 ) ;
 }
+
+
+std::string Buf4::desc() const 
+{
+    std::stringstream ss ; 
+
+    ss << "Buf4"  
+       << " num_buf " << num_buf()
+       << " x " << ( x ? x->brief() : "-" )
+       << " y " << ( y ? y->brief() : "-" )
+       << " z " << ( z ? z->brief() : "-" )
+       << " w " << ( w ? w->brief() : "-" )
+       << " devnull " << ( devnull ? devnull->brief() : "-" )
+       ;
+
+    return ss.str();
+}
+

@@ -31,6 +31,7 @@ struct DEMO_API ICDemo
 #ifdef WITH_LOD
     LODCullShader*  cull ; 
     Buf4*           clod ; 
+    unsigned        num_lod ; 
 #else
     CullShader*  cull ; 
 #endif

@@ -23,6 +23,9 @@ struct DEMO_API LODCullShader
 
     void setupFork(Buf* src_, Buf4* dst_);
     void applyFork();
+    void applyForkStreamQueryWorkaround();
+    void pullback();
+    void dump(const char* msg);
 
     GLuint createForkVertexArray(GLuint instanceBO) ;
 
@@ -33,13 +36,14 @@ struct DEMO_API LODCullShader
     Buf4*  dst ; 
 
     GLuint lodQuery[LOD_MAX] ; 
-    int    lodCount[LOD_MAX] ; 
-
     GLuint forkVertexArray ; 
 
-    int num_lod ; 
-    int num_viz ;    
+    int num_lod ;
 
+    GLuint LOC_WORKAROUND ;
+    GLint WORKAROUND ; 
+ 
+ 
 };
 
 

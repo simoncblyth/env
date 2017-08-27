@@ -12,6 +12,7 @@ Buf::Buf(unsigned num_items_, unsigned num_bytes_, void* ptr_)
     id(-1),
     num_items(num_items_),
     num_bytes(num_bytes_),
+    query_count(-1),
     ptr(ptr_)
 {
 }
@@ -23,11 +24,21 @@ unsigned Buf::item_bytes() const
 }
 
 
-Buf* Buf::cloneEmpty() const 
+Buf* Buf::cloneNull() const 
 {
     Buf* b = new Buf(num_items, num_bytes, NULL) ;
     return b ; 
 }
+
+Buf* Buf::cloneZero() const 
+{
+    Buf* b = new Buf(num_items, num_bytes, new char[num_bytes]) ;
+    memset(b->ptr, 0, num_bytes );
+    return b ; 
+}
+
+
+
 
 void Buf::dump(const char* msg) const 
 {
@@ -53,7 +64,7 @@ void Buf::dump(const char* msg) const
     }
     else if( ib == sizeof(float)*4 )
     {
-        for(unsigned i=0 ; i < num_items ; i++ ) 
+        for(unsigned i=0 ; i < std::min(num_items,20u) ; i++ ) 
         {        
              const glm::vec4& v = *((glm::vec4*)ptr + i ) ;  
              std::cout << G::gpresent("v",v) << std::endl ; 
@@ -61,12 +72,24 @@ void Buf::dump(const char* msg) const
     }
     else if( ib == sizeof(float)*4*4 )
     {
-        for(unsigned i=0 ; i < num_items ; i++ ) 
+        for(unsigned i=0 ; i < std::min(num_items, 10u) ; i++ ) 
         {        
              const glm::mat4& m = *((glm::mat4*)ptr + i ) ;  
              std::cout << G::gpresent("m",m) << std::endl ; 
         }
     }
+}
+
+
+
+std::string Buf::brief() const 
+{
+    std::stringstream ss ; 
+
+    //ss << " (" << num_items << "/" << query_count << ") " ; 
+    ss << " (" << query_count << ") " ; 
+
+    return ss.str();
 }
 
     
@@ -79,6 +102,7 @@ std::string Buf::desc() const
        << " num_items " << num_items  
        << " num_bytes " << num_bytes
        << " item_bytes() " << item_bytes()
+       << " query_count " << query_count
        ; 
 
     return ss.str();

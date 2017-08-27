@@ -31,8 +31,6 @@ struct DEMO_API CullShader
     Buf*  dst ; 
     GLuint culledTransformQuery ; 
     GLuint cullVertexArray ; 
-    unsigned num_viz ; 
-
    
 
 };

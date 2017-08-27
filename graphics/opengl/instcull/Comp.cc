@@ -36,8 +36,12 @@ void Comp::aim(const glm::vec4& ce)
     setUp(  0, 1,  0)  ;
 
     const float& extent = ce.w ; 
-    setNearFar( extent/5, extent*20 );
+    //setNearFar( 2.f , extent*20 );
+    setNearFar( 2.f , 200. );
 
+    // setting near according to extent of instance transforms 
+    // ignores extent of each instance
+    //
     // dont understand why have to push far out so far to avoid clipping ?
 }
 

@@ -73,13 +73,26 @@ void ICDemo::init()
 
 #ifdef WITH_LOD
     // clod houses multiple buffers to grab the LOD forked instance transforms
-    clod->x = geom->ibuf->cloneEmpty();
-    clod->y = geom->ibuf->cloneEmpty();
-    clod->x->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
+    clod->x = geom->ibuf->cloneZero(); // CPU allocates and fills with zeros
+    clod->y = geom->ibuf->cloneZero();
+    clod->z = geom->ibuf->cloneZero();
+
+    clod->x->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);  // GPU allocates only, no copying 
     clod->y->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
+    clod->z->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
+
+    //clod->devnull = new Buf(0,0,NULL);  // suspect zero-sized buffer is handled different, so use 1-byte buffer
+    clod->devnull = new Buf(0,1,NULL);
+    clod->devnull->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);  // zero sized buffer used with workaround
+
+
     cull->setupFork(geom->ibuf, clod) ;
-    this->drawVertexArray[0] = draw->createVertexArray(clod->x->id, geom->vbuf->id, geom->ebuf->id ); 
-    this->drawVertexArray[1] = draw->createVertexArray(clod->y->id, geom->vbuf->id, geom->ebuf->id ); 
+
+    num_lod = clod->num_buf(); 
+
+    for(int i=0 ; i < num_lod ; i++) 
+        this->drawVertexArray[i] = draw->createVertexArray(clod->at(i)->id, geom->vbuf->id, geom->ebuf->id ); 
+
 #else
     geom->cbuf->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);
     cull->setupTransformFilter(geom->ibuf) ;
@@ -91,9 +104,7 @@ void ICDemo::init()
 
     comp->aim(geom->ce);
 
-    GU::errchk("ICDemo::init.0");
-
-    GU::errchk("ICDemo::init.1");
+    GU::errchk("ICDemo::init");
 }
 
 void ICDemo::updateUniform(float t)
@@ -105,7 +116,7 @@ void ICDemo::updateUniform(float t)
     else
     {
         comp->setUp(     0, 0, 1 );
-        comp->setEye(    1. - t*0.1, 0, 0 );
+        comp->setEye(    3. - t*0.1, 0, 0 );
         comp->setLook(       -t*0.1, 0, 0 );
         // getting tunnel vision at the end of the glide ?? just near clip perhaps?
     }
@@ -123,15 +134,17 @@ void ICDemo::renderScene()
 
 #ifdef WITH_LOD
     cull->applyFork() ; 
-
+    cull->applyForkStreamQueryWorkaround() ; 
+    cull->dump("ICDemo::renderScene");
+    //cull->pullback() ; 
 
     glUseProgram(draw->prog->program);
 
-    for(unsigned lod=0 ; lod < 2 ; lod++)
+    for(unsigned lod=0 ; lod < num_lod ; lod++)
     {
         glBindVertexArray( use_cull ? this->drawVertexArray[lod] : this->allVertexArray);  
 
-        unsigned num_draw = use_cull ? cull->lodCount[lod] : geom->num_inst ; 
+        unsigned num_draw = use_cull ? clod->at(lod)->query_count : geom->num_inst ; 
         if(num_draw == 0) continue ;
  
         const glm::uvec4& eidx = (*geom->eidx)[lod] ; 
@@ -141,7 +154,7 @@ void ICDemo::renderScene()
 #else
     cull->applyTransformFilter(geom->cbuf) ; 
 
-    unsigned num_draw = use_cull ? cull->num_viz : geom->num_inst ; 
+    unsigned num_draw = use_cull ? geom->cbuf->query_count : geom->num_inst ; 
     if(num_draw == 0) return ; 
 
     glUseProgram(draw->prog->program);
@@ -160,10 +173,9 @@ std::string ICDemo::getStatus()
     ss 
         << " num_inst " << geom->num_inst 
 #ifdef WITH_LOD
-        << " lodCount[0] " << cull->lodCount[0]
-        << " lodCount[1] " << cull->lodCount[1]
+        << " clod " << clod->desc()
 #else
-        << " num_viz " << cull->num_viz
+        << " geom.cbuf.query_count " << geom->cbuf->query_count
 #endif
         ; 
 
@@ -194,11 +206,13 @@ void ICDemo::renderLoop()
 
 void ICDemo::pullback()
 {
+/*
     GLenum target = GL_TRANSFORM_FEEDBACK_BUFFER ;
     if(cull->num_viz == 0) return ; 
     unsigned viz_bytes = cull->num_viz*4*QSIZE ; 
     glGetBufferSubData( target , 0, viz_bytes, geom->ctra );
     geom->ctra->dump(cull->num_viz);    
+*/
 }
 
 void ICDemo::destroy()

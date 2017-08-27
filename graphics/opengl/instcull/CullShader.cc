@@ -135,9 +135,9 @@ void CullShader::applyTransformFilter(Buf* dst)
     glEndTransformFeedback();
     glDisable(GL_RASTERIZER_DISCARD);
 
-    glFlush();
+    //glFlush();
 
-    glGetQueryObjectuiv(this->culledTransformQuery, GL_QUERY_RESULT, &num_viz);
+    glGetQueryObjectiv(this->culledTransformQuery, GL_QUERY_RESULT, &dst->query_count );
 }
 
 

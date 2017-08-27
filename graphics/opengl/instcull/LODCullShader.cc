@@ -2,6 +2,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "GU.hh"
 #include "Prog.hh"
 #include "Buf.hh"
@@ -28,14 +31,13 @@ const char* LODCullShader::vertSrc = R"glsl(
         vec4 InstancePosition = InstanceTransform[3] ; 
         vec4 IClip = ModelViewProjection * InstancePosition ;    
         
-        float f = 0.8f ; 
-        //float f = 1.0f ; 
+        //float f = 0.8f ; 
+        float f = 1.0f ; 
         objectVisible = 
              ( IClip.x < IClip.w*f && IClip.x > -IClip.w*f  ) &&
              ( IClip.y < IClip.w*f && IClip.y > -IClip.w*f  ) &&
              ( IClip.z < IClip.w*f && IClip.z > -IClip.w*f  ) ? 1 : 0 ; 
         
-        //objectVisible = InstancePosition.z < 0.f ? 1 : 0 ;  // arbitrary visibility criteria
 
         ITransform = InstanceTransform ; 
     }
@@ -49,6 +51,8 @@ const char* LODCullShader::geomSrc = R"glsl(
 
     $UniformBlock 
 
+    uniform vec4 CUT ; 
+    //uniform int WORKAROUND ; 
 
     layout(points) in; 
     layout(points, max_vertices = 1) out;
@@ -66,6 +70,11 @@ const char* LODCullShader::geomSrc = R"glsl(
     layout(stream=1) out vec4 VizTransform2LOD1 ;
     layout(stream=1) out vec4 VizTransform3LOD1 ;
 
+    layout(stream=2) out vec4 VizTransform0LOD2 ;
+    layout(stream=2) out vec4 VizTransform1LOD2 ;
+    layout(stream=2) out vec4 VizTransform2LOD2 ;
+    layout(stream=2) out vec4 VizTransform3LOD2 ;
+
 
     void main() 
     {
@@ -75,28 +84,42 @@ const char* LODCullShader::geomSrc = R"glsl(
         {    
             vec4 InstancePosition = tr[3] ; 
             vec4 IEye = ModelView * InstancePosition ;    
-            float distance = IEye.y ;
+            float distance = length(IEye.xyz) ;
 
-            if( distance < 0.f ) 
+            int lod = distance < CUT.x ? 2 : ( distance < CUT.y ? 1 : 0 ) ;  
+
+            switch(lod)
             {
-                VizTransform0LOD0 = tr[0]  ;
-                VizTransform1LOD0 = tr[1]  ;
-                VizTransform2LOD0 = tr[2]  ;
-                VizTransform3LOD0 = tr[3]  ;
+               case 0:                       
+                    VizTransform0LOD0 = tr[0]  ;
+                    VizTransform1LOD0 = tr[1]  ;
+                    VizTransform2LOD0 = tr[2]  ;
+                    VizTransform3LOD0 = tr[3]  ;
 
-                EmitStreamVertex(0);
-                EndStreamPrimitive(0);
-            }   
-            else
-            {
-                VizTransform0LOD1 = tr[0]  ;
-                VizTransform1LOD1 = tr[1]  ;
-                VizTransform2LOD1 = tr[2]  ;
-                VizTransform3LOD1 = tr[3]  ;
+                    EmitStreamVertex(0);
+                    EndStreamPrimitive(0);
+                    break ; 
 
-                EmitStreamVertex(1);
-                EndStreamPrimitive(1);
-            }
+               case 1:  
+                    VizTransform0LOD1 = tr[0]  ;
+                    VizTransform1LOD1 = tr[1]  ;
+                    VizTransform2LOD1 = tr[2]  ;
+                    VizTransform3LOD1 = tr[3]  ;
+
+                    EmitStreamVertex(1);
+                    EndStreamPrimitive(1);
+                    break ; 
+
+               case 2:  
+                    VizTransform0LOD2 = tr[0]  ;
+                    VizTransform1LOD2 = tr[1]  ;
+                    VizTransform2LOD2 = tr[2]  ;
+                    VizTransform3LOD2 = tr[3]  ;
+
+                    EmitStreamVertex(2);
+                    EndStreamPrimitive(2);
+                    break ; 
+            } 
         }
     }
 
@@ -114,10 +137,9 @@ LODCullShader::LODCullShader(SContext* context_)
     src(NULL),
     dst(NULL),
     num_lod(0),
-    num_viz(0)
+    LOC_WORKAROUND(0),
+    WORKAROUND(-1)
 {
-    for(unsigned i=0 ; i < LOD_MAX ; i++ ) lodCount[i] = 0u ; 
-
     init();
 }
 
@@ -139,12 +161,30 @@ void LODCullShader::init()
                            "VizTransform0LOD1", 
                            "VizTransform1LOD1", 
                            "VizTransform2LOD1",  
-                           "VizTransform3LOD1"
+                           "VizTransform3LOD1",
+                           "gl_NextBuffer",
+                           "VizTransform0LOD2", 
+                           "VizTransform1LOD2", 
+                           "VizTransform2LOD2",  
+                           "VizTransform3LOD2"
                          };
-    glTransformFeedbackVaryings(prog->program, 9, vars, GL_INTERLEAVED_ATTRIBS); 
+    glTransformFeedbackVaryings(prog->program, 14, vars, GL_INTERLEAVED_ATTRIBS); 
 
     glBindAttribLocation(prog->program, LOC_InstanceTransform, "InstanceTransform");
     prog->link();
+
+
+    GLuint LOC_LodDistance = glGetUniformLocation(prog->program, "CUT" );
+    glm::vec4 LodDistance(20.f, 100.f, 0.f, 0.f );
+    // hmm if lowest LOD dist is less than near, never get to see the best level 
+   
+    glUniform4fv( LOC_LodDistance, 1, glm::value_ptr(LodDistance));
+
+
+    //LOC_WORKAROUND = glGetUniformLocation(prog->program, "WORKAROUND" );
+    //WORKAROUND = -1 ; 
+    //glUniform1i( LOC_WORKAROUND, WORKAROUND );
+
 
     GU::errchk("LODCullShader::init");
 }
@@ -185,6 +225,117 @@ void LODCullShader::setupFork(Buf* src_, Buf4* dst_)
 }
 
 
+void LODCullShader::pullback()
+{
+    for(int i=0 ; i < num_lod ; i++)
+    {
+        Buf* tbuf = dst->at(i) ;
+
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, i, tbuf->id ); // <-- without thus pullback same content each time
+        glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, tbuf->num_bytes, tbuf->ptr );
+
+        std::cout << "LODCullShader::pullback" << i << std::endl ; 
+        tbuf->dump("LODCullShader::pullback");
+        
+    }
+}
+
+void LODCullShader::applyFork()
+{
+    // http://rastergrid.com/blog/2010/10/gpu-based-dynamic-geometry-lod/
+    assert(src);
+
+    glUseProgram(this->prog->program);
+    glBindVertexArray(this->forkVertexArray);
+    glEnable(GL_RASTERIZER_DISCARD);
+
+    for(int i=0 ; i < num_lod ; i++)
+        glBeginQueryIndexed(GL_PRIMITIVES_GENERATED, i, this->lodQuery[i]  );
+
+    glBeginTransformFeedback(GL_POINTS);
+    glDrawArrays(GL_POINTS, 0, src->num_items );
+    glEndTransformFeedback();
+
+    for(int i=0 ; i < num_lod ; i++)
+        glEndQueryIndexed(GL_PRIMITIVES_GENERATED, i );
+
+    glDisable(GL_RASTERIZER_DISCARD);
+
+    for (int i=0; i< num_lod; i++) 
+    {
+        Buf* tbuf = dst->at(i) ;
+        glGetQueryObjectiv(lodQuery[i], GL_QUERY_RESULT, &tbuf->query_count);
+    }
+
+        
+}
+
+
+void LODCullShader::applyForkStreamQueryWorkaround()
+{
+/* 
+    As investigated in tests/txfStream.cc
+
+    Forking into 4 separate streams works, but the 
+    query counts only work for stream 0 ? The others 
+    yielding zero.
+
+    Looks like a driver bug...
+
+    This workaround run the transform 
+    feedback again to get the counts for streams > 0
+
+    In an attempt to minimize the time to do that 
+    "devnull" zero-sized buffers are attached 
+    to avoid data movement.
+
+*/
+
+    glUseProgram(this->prog->program);
+    glBindVertexArray(this->forkVertexArray);
+
+    int i0 = 1 ; 
+
+    for (int i=i0; i< dst->num_buf() ; i++) 
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, i, dst->devnull->id );
+
+    glEnable(GL_RASTERIZER_DISCARD);
+    for(int i=i0 ; i < num_lod ; i++)
+    {
+        glBeginQueryIndexed(GL_PRIMITIVES_GENERATED, i, this->lodQuery[i]  );
+        glBeginTransformFeedback(GL_POINTS);
+        glDrawArrays(GL_POINTS, 0, src->num_items );
+        glEndTransformFeedback();
+        glEndQueryIndexed(GL_PRIMITIVES_GENERATED, i );
+    }
+    glDisable(GL_RASTERIZER_DISCARD);
+
+    for (int i=i0; i< num_lod; i++) 
+    {
+        Buf* tbuf = dst->at(i) ;
+        glGetQueryObjectiv(lodQuery[i], GL_QUERY_RESULT, &tbuf->query_count);
+    }
+
+    for (int i=i0; i< dst->num_buf() ; i++) 
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, i, dst->at(i)->id );
+         
+}
+
+void LODCullShader::dump(const char* msg)
+{
+    std::cout << msg 
+              << " num_lod " << num_lod
+              << " src " << src->brief()
+              << " dst " << dst->desc() 
+              << std::endl ; 
+               ;
+}
+
+
+
+
+
+
 GLuint LODCullShader::createForkVertexArray(GLuint instanceBO) 
 {
     GLuint loc = LOC_InstanceTransform ;
@@ -211,47 +362,6 @@ GLuint LODCullShader::createForkVertexArray(GLuint instanceBO)
 
     GU::errchk("LODCullShader::createForkVertexArray");
     return vertexArray;
-}
-
-
-
-void LODCullShader::applyFork()
-{
-    // http://rastergrid.com/blog/2010/10/gpu-based-dynamic-geometry-lod/
-    assert(src);
-
-    glUseProgram(this->prog->program);
-    glBindVertexArray(this->forkVertexArray);
-    glEnable(GL_RASTERIZER_DISCARD);
-
-    for(int i=0 ; i < num_lod ; i++)
-        glBeginQueryIndexed(GL_PRIMITIVES_GENERATED, i, this->lodQuery[i]  );
-
-    glBeginTransformFeedback(GL_POINTS);
-    glDrawArrays(GL_POINTS, 0, src->num_items );
-    glEndTransformFeedback();
-
-    for(int i=0 ; i < num_lod ; i++)
-        glEndQueryIndexed(GL_PRIMITIVES_GENERATED, i );
-
-    glDisable(GL_RASTERIZER_DISCARD);
-
-    glFlush();
-
-    for (int i=0; i< num_lod; i++) 
-        glGetQueryObjectiv(lodQuery[i], GL_QUERY_RESULT, &this->lodCount[i]);
-
-
-    std::cout << "LODCullShader::applyFork"
-              << " num_lod " << num_lod
-              << " src->num_items " << src->num_items
-              << " lodCount[0] " << lodCount[0]
-              << " lodCount[1] " << lodCount[1]
-              << " lodCount[2] " << lodCount[2]
-              << " lodCount[3] " << lodCount[3]
-              << std::endl ; 
-
-
 }
 
 
