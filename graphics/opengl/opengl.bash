@@ -31,6 +31,58 @@ Samples Pack / Driver Bugs
 * http://www.g-truc.net/project-0026.html
 * http://www.g-truc.net/post-0373.html
 
+OpenGL Test Suites, Piglit 
+---------------------------
+
+* https://archive.fosdem.org/2015/schedule/event/gl_testing/attachments/slides/670/export/events/attachments/gl_testing/slides/670/slides.pdf
+
+
+OpenGL Super Bible
+---------------------
+
+* http://www.openglsuperbible.com
+* http://apprize.info/programming/opengl_1/index.html
+
+glQueryIndexed Suspected Bug
+--------------------------------
+
+Interesting to see an OpenGL implementation
+
+* https://www.mesa3d.org/intro.html
+
+* https://patchwork.freedesktop.org/patch/33317/
+* https://cgit.freedesktop.org/mesa/mesa/tree/src/mesa/drivers/dri/i965
+* https://cgit.freedesktop.org/mesa/mesa/tree/src/mesa/drivers/dri/i965/gen6_queryobj.c
+
+
+Am I misunderstanding glQueryIndexed ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://apprize.info/programming/opengl_1/13.html
+
+openGL can only count and add up results into one query object at a time, but
+it can manage several query objects and perform many queries back-to-back.
+
+
+OpenGL is modeled as a pipeline and can have many things going on at the same
+time. If you draw something simple such as a bounding box, it’s likely that
+won’t have reached the end of the pipeline by the time you need the result of
+your query. This means that when you call glGetQueryObjectuiv(), your
+application may have to wait a while for OpenGL to finish working on your
+bounding box before it can give you the answer and you can act on it.
+
+In our next example, we render ten bounding boxes before we ask for the result
+of the first query. This means that OpenGL’s pipeline can be filled, and it can
+have a lot of work to do and is therefore much more likely to have finished
+working on the first bounding box before we ask for the result of the first
+query. In short, the more time we give OpenGL to finish working on what we’ve
+asked it for, the more likely it is that it’ll have the result of your query
+and the less likely it is that your application will have to wait for results.
+Some complex applications take this to the extreme and use the results of
+queries from the previous frame to make decisions about the new frame.
+
+
+
 OSX OpenGL Driver Bugs
 -------------------------
 

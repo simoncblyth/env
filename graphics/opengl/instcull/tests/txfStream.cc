@@ -1,23 +1,24 @@
 /*
 
-        LodDistance       3.000   5.000   7.000   0.000 
+         LodDistance       3.000   5.000   7.000   0.000 
  feedback 0 (          1          2          0          0          0          0          0          0          0          0  ) 
  feedback 1 (        103        104          0          0          0          0          0          0          0          0  ) 
  feedback 2 (        205        206          0          0          0          0          0          0          0          0  ) 
  feedback 3 (        307        308        309        310          0          0          0          0          0          0  ) 
- qiv 0
- qiv 32
- qiv 0
- qiv 32
- count[ 0] = 2 count[ 1] = 2    <<<< 
+ count[ 0] = 2 count[ 1] = 2
  count[ 2] = 0 count[ 3] = 0
  count[ 4] = 0 count[ 5] = 0
  count[ 6] = 0 count[ 7] = 0
+ ///////// WORKAROUND ... REPEATING TransformFeedback against a 1-byte buffer (just for counts) 
+ count2[ 0] = 0 count2[ 1] = 0
+ count2[ 2] = 2 count2[ 3] = 0
+ count2[ 4] = 2 count2[ 5] = 0
+ count2[ 6] = 4 count2[ 7] = 0
+
 
 
 As shown by above feedback pullbacks the LOD forking into 4 separate streams works, 
 but the query counts only work for stream 0 ? The others yielding zero.
-
 
 Looks like a driver bug...
 
@@ -45,12 +46,6 @@ Could just use interop buffer and CUDA ? To do all the counts
 ... hmm actually very simple task, essentially just histogramming a value  
 into 2~4 bins : could do with thrust. Check throgl- 
             
-            
-
-
-
-
-
 
 
 * http://www.g-truc.net/post-0373.html

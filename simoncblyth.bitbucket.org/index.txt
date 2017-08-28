@@ -5,6 +5,11 @@
 * https://bitbucket.org/simoncblyth/env/commits/all
 * https://bitbucket.org/simoncblyth/opticks/commits/all
 
+Opticks Documentation
+
+* https://simoncblyth.bitbucket.io/opticks/
+
+
 
 Opticks Videos
 ----------------------

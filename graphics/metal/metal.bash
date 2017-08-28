@@ -13,6 +13,13 @@ Metal 2 (WWDC June 2017)
 
 * https://developer.apple.com/metal/
 
+
+Geometry Shader equivalent ?
+---------------------------------
+
+* https://forums.developer.apple.com/thread/4818
+
+
 External Graphics Development Kit
 ----------------------------------
 

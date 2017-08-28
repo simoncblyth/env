@@ -267,6 +267,23 @@ void LODCullShader::applyFork()
         glGetQueryObjectiv(lodQuery[i], GL_QUERY_RESULT, &tbuf->query_count);
     }
 
+   //  http://apprize.info/programming/opengl_1/13.html
+   //
+   //    querying will likely stall the pipeline
+   //    to avoid that could check if the result is available 
+   //    first with GL_QUERY_RESULT_AVAILABLE
+   //    before making the actual query ...
+   //
+   //    The outcome of applyFork is updated instance buffers for 
+   //    each LOD and corresponding counts..   Need to know
+   //    the counts to properly use these buffers.
+   //
+   //    
+   //    But how to organize deferred querying ?
+   //
+   //    Hmm would be complicated... would need to have a 2nd set of
+   //    instance buffers and ping-pong between them ?
+
         
 }
 
