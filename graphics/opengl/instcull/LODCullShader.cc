@@ -52,7 +52,6 @@ const char* LODCullShader::geomSrc = R"glsl(
     $UniformBlock 
 
     uniform vec4 CUT ; 
-    //uniform int WORKAROUND ; 
 
     layout(points) in; 
     layout(points, max_vertices = 1) out;
@@ -181,10 +180,6 @@ void LODCullShader::init()
     glUniform4fv( LOC_LodDistance, 1, glm::value_ptr(LodDistance));
 
 
-    //LOC_WORKAROUND = glGetUniformLocation(prog->program, "WORKAROUND" );
-    //WORKAROUND = -1 ; 
-    //glUniform1i( LOC_WORKAROUND, WORKAROUND );
-
 
     GU::errchk("LODCullShader::init");
 }
@@ -214,8 +209,6 @@ void LODCullShader::setupFork(Buf* src_, Buf4* dst_)
     }
 
     for(int i=0 ; i < num_lod ; i++) glGenQueries(1, &this->lodQuery[i]);
-
-    //glGenQueries(num_lod, this->lodQuery);
 
     forkVertexArray = createForkVertexArray(src->id);
 

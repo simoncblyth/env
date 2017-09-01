@@ -74,7 +74,7 @@ void ICDemo::init()
 #ifdef WITH_LOD
     // clod houses multiple buffers to grab the LOD forked instance transforms
     clod->x = geom->ibuf->cloneZero(); // CPU allocates and fills with zeros
-    clod->y = geom->ibuf->cloneZero();
+    clod->y = geom->ibuf->cloneZero(); // CPU side allocation not really needed 
     clod->z = geom->ibuf->cloneZero();
 
     clod->x->uploadNull(GL_ARRAY_BUFFER, GL_DYNAMIC_COPY);  // GPU allocates only, no copying 
