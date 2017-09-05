@@ -21,6 +21,7 @@ struct DEMO_API Buf4
     unsigned num_buf() const ;
 
     std::string desc() const ;
+    void dump() const ;
 
 
 };

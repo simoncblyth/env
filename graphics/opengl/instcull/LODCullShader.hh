@@ -21,7 +21,9 @@ struct DEMO_API LODCullShader
     void init();
     void destroy();
 
+    // for each LOD level generate queries and bind tranform feedback stream output buffers, create single forking VAO
     void setupFork(Buf* src_, Buf4* dst_);
+
     void applyFork();
     void applyForkStreamQueryWorkaround();
     void pullback();

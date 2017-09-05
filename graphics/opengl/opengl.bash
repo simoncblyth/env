@@ -37,6 +37,17 @@ OpenGL Test Suites, Piglit
 * https://archive.fosdem.org/2015/schedule/event/gl_testing/attachments/slides/670/export/events/attachments/gl_testing/slides/670/slides.pdf
 
 
+GLSL Common Mistakes
+-----------------------
+
+* https://www.khronos.org/opengl/wiki/GLSL_:_common_mistakes
+
+
+OpenGL Ref Pages
+------------------
+
+* https://www.khronos.org/registry/OpenGL-Refpages/
+
 OpenGL Super Bible
 ---------------------
 
@@ -81,6 +92,32 @@ and the less likely it is that your application will have to wait for results.
 Some complex applications take this to the extreme and use the results of
 queries from the previous frame to make decisions about the new frame.
 
+
+
+Querying without stalling ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+http://apprize.info/programming/opengl_1/13.html
+     
+querying will likely stall the pipeline
+to avoid that could check if the result is available 
+first with GL_QUERY_RESULT_AVAILABLE
+before making the actual query ...
+     
+The outcome of applyFork is updated instance buffers for 
+each LOD and corresponding counts..   Need to know
+the counts to properly use these buffers.
+     
+       
+But how to organize deferred querying ?
+    
+Hmm would be complicated... would need to have a 2nd set of
+instance buffers and ping-pong between them ?
+    
+Actually could simply not launch the culling for every frame...
+it does not matter if LOD piles/culling are a bit behind
+    
 
 
 OSX OpenGL Driver Bugs

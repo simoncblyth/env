@@ -48,3 +48,18 @@ std::string Buf4::desc() const
     return ss.str();
 }
 
+
+void Buf4::dump() const 
+{
+    unsigned nb = num_buf();
+    for(int i=0 ; i < nb ; i++) 
+    {
+         std::cout << " i " << i 
+                   << " at(i)->id  " << at(i)->id 
+                   << std::endl ; 
+ 
+    }
+}
+
+
+

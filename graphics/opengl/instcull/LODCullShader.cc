@@ -187,6 +187,10 @@ void LODCullShader::init()
 
 void LODCullShader::setupFork(Buf* src_, Buf4* dst_)
 {
+    // invoked from ICDemo::init, for each LOD level generate output count queries 
+    // and bind tranform feedback stream output buffers, 
+    // create single forking VAO
+
     src = src_ ; 
     dst = dst_ ;
 
@@ -199,14 +203,7 @@ void LODCullShader::setupFork(Buf* src_, Buf4* dst_)
               << " num_lod " << num_lod
               << std::endl ; 
 
-
-    for(int i=0 ; i < num_lod ; i++) 
-    {
-         std::cout << " i " << i 
-                   << " dst->at(i)->id  " << dst->at(i)->id 
-                   << std::endl ; 
- 
-    }
+    dst->dump();
 
     for(int i=0 ; i < num_lod ; i++) glGenQueries(1, &this->lodQuery[i]);
 
@@ -216,6 +213,37 @@ void LODCullShader::setupFork(Buf* src_, Buf4* dst_)
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, i, dst->at(i)->id );
 
 }
+
+GLuint LODCullShader::createForkVertexArray(GLuint instanceBO) 
+{
+    GLuint loc = LOC_InstanceTransform ;
+
+    GLuint vertexArray;
+    glGenVertexArrays(1, &vertexArray);
+    glBindVertexArray(vertexArray);
+
+    glBindBuffer(GL_ARRAY_BUFFER, instanceBO); // original transforms fed in 
+
+    glEnableVertexAttribArray(loc + 0);
+    glVertexAttribPointer(    loc + 0, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(0*QSIZE) );
+
+    glEnableVertexAttribArray(loc + 1);
+    glVertexAttribPointer(    loc + 1, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(1*QSIZE) );
+
+    glEnableVertexAttribArray(loc + 2);
+    glVertexAttribPointer(    loc + 2, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(2*QSIZE) );
+
+    glEnableVertexAttribArray(loc + 3);
+    glVertexAttribPointer(    loc + 3, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(3*QSIZE) );
+
+    // NB no divisor, are accessing instance transforms in a non-instanced manner to do the culling 
+
+    GU::errchk("LODCullShader::createForkVertexArray");
+    return vertexArray;
+}
+
+
+
 
 
 void LODCullShader::pullback()
@@ -343,36 +371,6 @@ void LODCullShader::dump(const char* msg)
 
 
 
-
-
-
-GLuint LODCullShader::createForkVertexArray(GLuint instanceBO) 
-{
-    GLuint loc = LOC_InstanceTransform ;
-
-    GLuint vertexArray;
-    glGenVertexArrays(1, &vertexArray);
-    glBindVertexArray(vertexArray);
-
-    glBindBuffer(GL_ARRAY_BUFFER, instanceBO); // original transforms fed in 
-
-    glEnableVertexAttribArray(loc + 0);
-    glVertexAttribPointer(    loc + 0, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(0*QSIZE) );
-
-    glEnableVertexAttribArray(loc + 1);
-    glVertexAttribPointer(    loc + 1, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(1*QSIZE) );
-
-    glEnableVertexAttribArray(loc + 2);
-    glVertexAttribPointer(    loc + 2, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(2*QSIZE) );
-
-    glEnableVertexAttribArray(loc + 3);
-    glVertexAttribPointer(    loc + 3, 4, GL_FLOAT, GL_FALSE, 4*QSIZE, (void*)(3*QSIZE) );
-
-    // NB no divisor, are accessing instance transforms in a non-instanced manner to do the culling 
-
-    GU::errchk("LODCullShader::createForkVertexArray");
-    return vertexArray;
-}
 
 
 
