@@ -38,7 +38,15 @@ Avoid folder deletions by
 Issues
 ~~~~~~~~
 
-#. .numbers "files" are seen as directories and thus skipped from the sweep
+#. .numbers and .key "files" are seen as directories and thus skipped from the sweep
+
+Workaround is to sweep/check/clean manually::
+
+    simon:workflow blyth$ cp -R admin/address/Domicile.key ~/WDOCS/admin/address/
+    simon:workflow blyth$ open ~/WDOCS/admin/address/Domicile.key # check it is OK
+    simon:workflow blyth$ rm -rf admin/address/Domicile.key
+
+
 
 
 This script just looks and suggests the commands to run, it does not do anything.  

@@ -14,6 +14,136 @@ Presentations online
 * http://simoncblyth.bitbucket.io
 
 
+
+Sep 2017 Wollongong 
+---------------------
+
+22nd Geant4 Collaboration Meeting, UOW Campus, Wollongong (Australia), 25-29 September 2017.
+
+
+renders to make
+~~~~~~~~~~~~~~~~~~
+
+* j1707 InstLODCull 
+* j1707 analytic
+
+
+
+Dear Visualisation, Geometry and EM Coordinators,..
+
+I think my ongoing work on accelerating optical photon simulation
+using the NVIDIA OptiX GPU ray tracer in the context of PMT based
+neutrino detectors such as JUNO or Daya Bay may be of interest 
+to your subgroups. 
+
+I presented my work at the 2014 Okinawa Collaboration Meeting.
+My work has matured greatly since then, if I were to receive an
+invitation to attend the upcoming Geant4 Collaboration Meeting in Australia
+I may be able to secure funding to attend, enabling me to present/discuss
+my work with everyone interested in GPU accelerated optical photon 
+simulation and GPU visualization. 
+
+My work is available in the open source Opticks project
+
+* https://bitbucket.org/simoncblyth/opticks/
+
+Numerous status reports, conference presentations and videos 
+are linked from https://simoncblyth.bitbucket.io including the 
+latest focusing on CSG on GPU.
+
+* https://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2017_ihep.html
+ (it takes a several seconds for the slide presentation to load)
+
+Over the past 6 months I have succeeded to implement general 
+CSG binary tree intersection on the GPU within an NVIDIA OptiX 
+intersect "shader" and have used this capability to develop 
+automatic translation of GDML geometries into a fully 
+analytic GPU appropriate forms, using the glTF 3D file format 
+as an intermediate format.
+Entire detector geometries including all material and optical surface properties
+are translated, serialized into buffers and copied to the GPU 
+at initialization. 
+
+This allows full analytic geometries, without triangulation approximation, 
+to be auto-translated and copied to the GPU meaning that in principal 
+GPU ray intersections should very closely match those obtained with Geant4, 
+as the GPU and CPU are doing the same thing, finding roots of  
+polynomials with the same coefficients.  OpenGL/OptiX GPU instancing 
+techniques are used to efficiently handle geometries with ~30k PMTs and 
+BVH (boundary volume heirarchy) structure acceleration comes
+for free with the NVIDIA OptiX ray tracing framework.
+
+GPU CSG geometry together with CUDA/OptiX ports of optical photon 
+physics allows optical photons to be simulated entirely on the GPU. 
+Photon generation (from G4Cerenkov, G4Scintillation) 
+and propagation (G4OpAbsorption, G4OpBoundaryProcess, G4OpRayleigh)
+have been ported.
+Of the many millions of optical photons simulated per event
+only the small fraction that hit photon detectors need to be copied 
+to the CPU where they can populate the standard Geant4 hit collections.
+Integration with Geant4 is currently done via modified G4Scintillation
+and G4Cerenkov processes which collect "gensteps" that are copied to the GPU.
+
+Simulations limited by optical photons can benefit hugely from 
+the GPU parallelism that Opticks makes accessible with optical
+photon speedup factors estimated to exceed 1000x for the JUNO 
+experiment.
+
+Opticks needs to mature through production usage within the JUNO
+experiment(and perhaps others) before it makes sense to consider details
+of any "formal" integration, nevertheless looking ahead
+I am interested to learn opinions of Geant4 members as to whether
+that direction is even feasible ? And what form it might take if it were.
+
+The bottom line is that I think a significant number of experiments
+can benefit greatly from using Opticks together with Geant4 and I would
+like to help them do so.
+
+Simon C. Blyth,  National Taiwan University
+
+
+update CHEP talk : ie intro to someone never having seen Opticks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* review progress since CHEP (~1 year) doing appropriate updates, analytic CSG  
+
+
+
+Dear Laurent, 
+
+Thanks.   I’ve recently made some progress that I guess will be particularly interesting 
+to you and the Visualisation group,  on improving OpenGL performance for very large geometries,
+specifically the JUNO Neutrino detector: 
+
+   18,000 20inch PMTs of ~5000 triangles each, 
+    36,000 3inch PMTs of ~1500 triangles each,
+   nominal total of ~150M triangles
+
+Using dynamic instance culling and variable level-of-detail meshes for instances ( the PMTs) 
+based on distance to the instance.  These use GPU compute 
+(OpenGL transform feedback streams with geometry shader, so not NVIDIA specific) 
+prior to rendering each frame in order to skip instances that are not visible and replace 
+distant instances with simpler geometry.   
+
+On my Macbook Pro 2013 laptop with NVIDIA GT 750M the optimisation turns a formerly painful ~2fps
+experience into  >30fps  of comfortable interactivity. Plus the performance can be tuned for the available
+GPU by adjusting the distances at which to switch on different levels of detail.  
+
+Its a rather neat technique as the optimisation is cleanly split from the actual rendering,
+which remains unchanged other that getting its 4x4 instance transforms from the dynamic buffers
+for each level of detail.
+
+I’ll hope we’ll find you a time slot to present your work.
+
+Me too!  How long a presentation would you like ?
+
+
+Simon
+
+
+
+
+
 Jul 2017 IHEP : Page by page
 -------------------------------
 
@@ -236,15 +366,109 @@ s5 rst underpinning
 
 * http://docutils.sourceforge.net/docs/user/slide-shows.html#s5-theme-files
 
+
+Presentation Structure
+------------------------
+
+* https://hbr.org/2012/10/structure-your-presentation-li
+
+* What-Is/What-could-be 
+
+
+Opticks Overview : Narrative Arc
+-----------------------------------
+
+
+* optical photon problem of neutrino detectors
+
+* NVIDIA OptiX
+
+Let me pick up the story from ~1yr ago Oct 2016 (CHEP) 
+
+* approx 1yr ago, Opticks was mostly using tesselated approximate geometries
+  with some manual PMT analytic conversions
+
+* after lots of work : validation chi-sq comparisons were showing an excellent 
+  match between the GPU ported simulation and standard G4,
+  BUT with a great big CAVEAT : **purely analytic geometry**
+
+  * so i had got the optical physics to the GPU  
+  * BUT: only approximate tesselated geometry, with some manual analytic  
+
+
+Requirements were clear:
+
+* intersection code for rays with CSG trees 
+* auto-conversion of GDML into OpticksCSG for upload to GPU 
+
+
+Additions
+------------
+
+* Large Geometry Techniques : instance culling, LOD
+* Primitives : Torus, Ellipsoid
+* CSG non-primitives, complement 
+
+ 
+
 presentations review, highlighting new developments
 ------------------------------------------------------
 
-summary
-~~~~~~~~~
+2017
+~~~~~
 
-g4dae_geometry_exporter.txt
-     G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
-     19th Geant4 Collaboration Meeting, Okinawa, Sept 2014
+
+opticks_gpu_optical_photon_simulation_sep2017_wollongong.txt
+     update oct2016_chep with 1 year of progress (mainly analytic CSG)
+
+opticks_gpu_optical_photon_simulation_jul2017_ihep.txt
+     mostly on CSG
+
+opticks_gpu_optical_photon_simulation_jan2017_psroc.txt
+     same as LLR 
+
+2016
+~~~~~~
+
+opticks_gpu_optical_photon_simulation_nov2016_llr.txt
+    focus on optical photon validation comparisons in simple analytic geomtry
+
+    * tconcentric : message "match achieved after many fixes" 
+    * excellent match, loath to loose that with approximate geometry -> analytic implementation
+
+
+opticks_gpu_optical_photon_simulation_oct2016_chep.txt
+    validation start, chisq minimization
+    
+    * ioproc-open
+
+
+opticks_gpu_optical_photon_simulation_jul2016_weihai.txt
+
+opticks_gpu_optical_photon_simulation_may2016_lecospa.txt
+
+opticks_gpu_optical_photon_simulation_april2016_gtc.txt
+
+opticks_gpu_optical_photon_simulation_march2016.txt
+
+optical_photon_simulation_progress.txt
+     Opticks : GPU Optical Photon Simulation using NVIDIA OptiX
+     Jan 2016
+
+opticks_gpu_optical_photon_simulation_psroc.txt
+     Jan 2016 
+
+opticks_gpu_optical_photon_simulation.txt
+     Jan 2016 
+
+
+
+2015
+~~~~~
+    
+optical_photon_simulation_with_nvidia_optix.txt
+     Optical Photon Simulation with NVIDIA OptiX
+     July 2015
 
 gpu_optical_photon_simulation.txt
      200x Faster Optical Photon Propagation with NuWa + Chroma ?
@@ -253,14 +477,17 @@ gpu_optical_photon_simulation.txt
 gpu_accelerated_geant4_simulation.txt
      GPU Accelerated Geant4 Simulation with G4DAE and Chroma
      Jan 2015 
-     
-optical_photon_simulation_with_nvidia_optix.txt
-     Optical Photon Simulation with NVIDIA OptiX
-     July 2015
+ 
+2014
+~~~~~
 
-optical_photon_simulation_progress.txt
-     Opticks : GPU Optical Photon Simulation using NVIDIA OptiX
-     Jan 2016
+g4dae_geometry_exporter.txt
+     G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
+     19th Geant4 Collaboration Meeting, Okinawa, Sept 2014
+
+
+
+
 
 
 g4dae_geometry_exporter (Sept 2014)
@@ -567,13 +794,16 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_oct2016_chep ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_nov2016_llr ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jan2017_psroc ; }
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
+
 
 
 presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
 presentation-export(){
    export PRESENTATION_NAME=$(presentation-name)
 }
+presentation-e(){ vi $(presentation-path) ; }
 presentation-edit(){ vi $(presentation-path) ; }
 presentation-ed(){ vi $(presentation-path) ~/workflow/admin/reps/ntu-report-may-2017.rst ; }
 

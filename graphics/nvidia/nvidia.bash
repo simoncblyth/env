@@ -9,7 +9,6 @@ nvidia-usage(){ cat << EOU
 NVIDIA
 ========
 
-
 Shadowplay
 -----------
 
@@ -18,19 +17,16 @@ Video capture from NVIDIA
 * http://www.geforce.com/geforce-experience/shadowplay
 
 
-
 Mac Driver, eGPU
 --------------------
 
 * http://www.macworld.com/article/3189405/macs/nvidia-releases-mac-driver-with-support-for-titan-xp-and-geforce-gtx-1000-series.html
 * https://9to5mac.com/2017/04/11/hands-on-powering-the-macbook-pro-with-an-egpu-using-nvidias-new-pascal-drivers/
 
-
 Gameworks
 -----------
 
 * http://docs.nvidia.com/gameworks/
-
 
 eGPU
 -----
@@ -72,8 +68,6 @@ wider user base until spring 2018, as released still has major caveats, and
 mandates an external monitor or VR kit for use.
 
 
-
-
 Apple Metal 2 External Graphics Development Kit  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -82,10 +76,6 @@ Apple Metal 2 External Graphics Development Kit
 * Sonnet Breakaway Box enclosure
 * AMD Radeon RX 580 GPU
 * Belkin USB-C to 4-port USB-A hub
-
-
-
-
 
 
 G-Sync
@@ -227,6 +217,129 @@ IHEP hgpu01
     NVIDIA-SMI has failed because it couldn't communicate with NVIDIA driver. Make sure that latest NVIDIA driver is installed and running.
 
 
+
+Server Side Rendering
+-----------------------
+
+
+There are ways of using remote viz with GPU server machines
+connected to clients, however my impression is that these are 
+complicated to setup, even requiring some development work.
+So it is much easier to develop/debug locally. 
+
+* http://www.nvidia.com/content/PDF/remote-viz-tesla-gpus.pdf
+* https://devblogs.nvidia.com/parallelforall/linking-opengl-server-side-rendering/
+* https://devblogs.nvidia.com/parallelforall/hpc-visualization-nvidia-tesla-gpus/
+
+
+* https://devblogs.nvidia.com/parallelforall/egl-eye-opengl-visualization-without-x-server/
+* http://on-demand.gputechconf.com/gtc/2015/presentation/S5660-Peter-Messmer.pdf
+
+
+EGL
+~~~~
+
+* https://devblogs.nvidia.com/parallelforall/egl-eye-opengl-visualization-without-x-server/
+
+With the release of NVIDIA Driver 355, full (desktop) OpenGL is now available
+on every GPU-enabled system, with or without a running X server. The latest
+driver (358) enables multi-GPU rendering support.
+
+
+[simon@GPU cuda-8.0-samples]$ nvidia-smi
+Thu Sep  7 19:31:34 2017       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 367.48                 Driver Version: 367.48                    |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  Tesla K80           Off  | 0000:05:00.0     Off |                    0 |
+| N/A   39C    P0    56W / 149W |      0MiB / 11439MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   1  Tesla K80           Off  | 0000:06:00.0     Off |                    0 |
+| N/A   32C    P0    66W / 149W |      0MiB / 11439MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   2  Tesla K80           Off  | 0000:84:00.0     Off |                    0 |
+| N/A   32C    P0    56W / 149W |      0MiB / 11439MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   3  Tesla K80           Off  | 0000:85:00.0     Off |                    0 |
+| N/A   31C    P0    73W / 149W |      0MiB / 11439MiB |     99%      Default |
++-------------------------------+----------------------+----------------------+
+
+
+
+
+SDU 4*K80
+------------
+
+* https://devtalk.nvidia.com/default/topic/525927/display-driver-failed-installation-with-cuda-5-0/
+
+If use see:
+
+GPU Operation Mode
+        Current                 : N/A
+        Pending                 : N/A
+
+Then you're board doesn't support changing GOM and it's a compute only board
+
+
+If you see:
+
+GPU Operation Mode
+        Current                 : Compute
+        Pending                 : Compute
+
+Than you can change GOM. Just switch to Administrator user 
+(or just run console with Administrator privileges):
+
+nvidia-smi --gom=ALL_ON
+
+
+
+[simon@GPU cuda-8.0-samples]$ nvidia-smi --format=csv --query-gpu=gom.current
+gom.current
+[Not Supported]
+[Not Supported]
+[Not Supported]
+[Not Supported]
+
+
+
+::
+
+    [simon@GPU cuda-8.0-samples]$ nvidia-smi -q 
+
+    ==============NVSMI LOG==============
+
+    Timestamp                           : Thu Sep  7 19:19:58 2017
+    Driver Version                      : 367.48
+
+    Attached GPUs                       : 4
+    GPU 0000:05:00.0
+        Product Name                    : Tesla K80
+        Product Brand                   : Tesla
+        Display Mode                    : Disabled
+        Display Active                  : Disabled
+        Persistence Mode                : Disabled
+        Accounting Mode                 : Disabled
+        Accounting Mode Buffer Size     : 1920
+        Driver Model
+            Current                     : N/A
+            Pending                     : N/A
+        Serial Number                   : 0323416134647
+        GPU UUID                        : GPU-5d468d1c-4386-a379-6575-cfc0f222abfa
+        Minor Number                    : 0
+        VBIOS Version                   : 80.21.1F.00.01
+        MultiGPU Board                  : Yes
+        Board ID                        : 0x300
+        GPU Part Number                 : 900-22080-0100-000
+        Inforom Version
+            Image Version               : 2080.0200.00.04
+
+
+
+
 Flavors of NVIDIA Tesla K20
 ------------------------------
 
@@ -250,6 +363,14 @@ NVIDIA On Linux
     03:00.0 3D controller: NVIDIA Corporation GK110GL [Tesla K20m] (rev a1)
     84:00.0 3D controller: NVIDIA Corporation GK110GL [Tesla K20m] (rev a1)
     -bash-4.1$ 
+
+
+    [root@GPU ~]# lspci | grep -i nvidia
+    05:00.0 3D controller: NVIDIA Corporation Device 102d (rev a1)
+    06:00.0 3D controller: NVIDIA Corporation Device 102d (rev a1)
+    84:00.0 3D controller: NVIDIA Corporation Device 102d (rev a1)
+    85:00.0 3D controller: NVIDIA Corporation Device 102d (rev a1)
+    [root@GPU ~]# 
 
 
 Checking NVIDIA Driver and CUDA Versions On Linux
@@ -295,6 +416,84 @@ Checking NVIDIA Driver and CUDA Versions On Linux
     Built on Wed_Jul_17_18:36:13_PDT_2013
     Cuda compilation tools, release 5.5, V5.5.0
     -bash-4.1$ 
+
+
+
+SDU
+-----
+
+::
+
+    
+
+    RHEL 6.x    2.6.32  4.4.7   2.12
+
+
+* https://devtalk.nvidia.com/default/topic/493290/multiple-cuda-versions-can-they-coexist-/
+
+Multiple CUDA versions
+
+* http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#axzz4ryi9lITf
+
+::
+
+    [root@GPU ~]# cat /etc/redhat-release 
+    Scientific Linux release 6.5 (Carbon)
+
+    [root@GPU ~]# uname -a
+    Linux GPU 2.6.32-431.el6.x86_64 #1 SMP Thu Nov 21 13:35:52 CST 2013 x86_64 x86_64 x86_64 GNU/Linux
+
+    [root@GPU ~]# gcc --version
+    gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-17)
+    Copyright (C) 2010 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+    [root@GPU ~]# cat /proc/version
+    Linux version 2.6.32-431.el6.x86_64 (mockbuild@sl6.fnal.gov) (gcc version 4.4.7 20120313 (Red Hat 4.4.7-3) (GCC) ) #1 SMP Thu Nov 21 13:35:52 CST 2013
+
+    [root@GPU ~]# uname -a
+    Linux GPU 2.6.32-431.el6.x86_64 #1 SMP Thu Nov 21 13:35:52 CST 2013 x86_64 x86_64 x86_64 GNU/Linux
+
+    [root@GPU ~]# cat /etc/redhat-release 
+    Scientific Linux release 6.5 (Carbon)
+
+    [root@GPU ~]# uname -r
+    2.6.32-431.el6.x86_64
+
+
+::
+
+    [root@GPU ~]# nvidia-smi
+    Thu Sep  7 16:58:37 2017       
+    +-----------------------------------------------------------------------------+
+    | NVIDIA-SMI 367.48                 Driver Version: 367.48                    |
+    |-------------------------------+----------------------+----------------------+
+    | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+    | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+    |===============================+======================+======================|
+    |   0  Tesla K80           Off  | 0000:05:00.0     Off |                    0 |
+    | N/A   39C    P0    57W / 149W |      0MiB / 11439MiB |      0%      Default |
+    +-------------------------------+----------------------+----------------------+
+    |   1  Tesla K80           Off  | 0000:06:00.0     Off |                    0 |
+    | N/A   32C    P0    66W / 149W |      0MiB / 11439MiB |      0%      Default |
+    +-------------------------------+----------------------+----------------------+
+    |   2  Tesla K80           Off  | 0000:84:00.0     Off |                    0 |
+    | N/A   32C    P0    57W / 149W |      0MiB / 11439MiB |      0%      Default |
+    +-------------------------------+----------------------+----------------------+
+    |   3  Tesla K80           Off  | 0000:85:00.0     Off |                    0 |
+    | N/A   31C    P0    73W / 149W |      0MiB / 11439MiB |     99%      Default |
+    +-------------------------------+----------------------+----------------------+
+                                                                                   
+    +-----------------------------------------------------------------------------+
+    | Processes:                                                       GPU Memory |
+    |  GPU       PID  Type  Process name                               Usage      |
+    |=============================================================================|
+    |  No running processes found                                                 |
+    +-----------------------------------------------------------------------------+
+
+
 
 
 
