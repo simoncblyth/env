@@ -574,17 +574,17 @@ Outline
       * advertising, design, entertainment, games,...
       * BUT : most ray tracers just render images
 
+    **Ray-geometry intersection**
+      * hw+sw continuously optimized over 30 years
+      * performance > 100M intersections per second per GPU
 
-    **NVIDIA OptiX** had foresight to be less specific:
+    **NVIDIA OptiX** 
       * general geometry intersection API
       * :red:`OptiX is to ray tracing what OpenGL is to rasterization` 
-
 
 .. raw:: html
 
     <pre class="mypre">
-
-
     </pre>
  
 .. class:: small
@@ -725,6 +725,62 @@ Outline
 
 
 
+
+
+:small:`Opticks : GPU Optical photon simulation with NVIDIA OptiX. How ?`
+--------------------------------------------------------------------------
+
+
+.. sidebar:: Moving to GPU simulation
+
+    .. class:: small
+   
+       **Straightforward**
+
+       * translation of optical physics to CUDA
+       * interleave material/surface properties into GPU textures 
+
+       **Much more difficult** 
+
+       * develop general GPU CSG tree intersection 
+       * develop auto conversion from GDML
+
+
+
+.. class:: small
+
+
+   **Optical Photon Generation**
+
+   * translate G4Cerenkov, G4Scintillation optical photon generation loop 
+     into parallel CUDA form (:red:`only generation loop ported`)
+
+   * "genstep" parameters collected, copied to GPU for propagation 
+     at end of event 
+
+   * just photomultiplier hits copied to CPU, included into standard G4 
+     hit collections
+
+   **Optical Photon Propagation + Scintillator Reemission**
+
+   * CUDA port of G4OpAbsorption, G4OpRayleigh, G4OpBoundaryProcess 
+     (small subset for optical surfaces in use) 
+
+   * scintillator reemission handled as fraction of bulk absorbed 
+     being "reborn" within same GPU thread
+ 
+   **Geometry converted into GPU appropriate form**
+
+   * geometry serialized into buffers, uploaded to GPU at initialization
+   * CUDA intersect + bounding box programs using geometry buffers
+     communicate geometry to OptiX 
+
+   * general ray intersection with CSG trees implemented within OptiX primitive
+
+
+
+
+
 :small:`Geometry : Geant4 -> Opticks Geocache -> OptiX GPU`
 -------------------------------------------------------------
 
@@ -785,6 +841,9 @@ Outline
 .. class:: tiny
 
    https://bitbucket.org/simoncblyth/g4dae
+
+
+
 
 
 
@@ -1080,13 +1139,13 @@ Outline
 :small:`Opticks CSG Primitives On Parade (GPU raytrace)`
 -------------------------------------------------------------------------------------------------
 
-.. image:: /env/presentation/tboolean_parade.png
+.. image:: /env/presentation/tboolean_parade_sep2017.png
    :width: 1000px
    :align: center
 
 .. class:: small
 
-   Three on right (Trapezoid, Segment, Icosahedron) all represented by planes with **nconvexpolyhedron** 
+   Trapezoid + Icosahedron both represented by planes with **nconvexpolyhedron** 
 
 
 :small:`Opticks CSG Serialized into OpticksCSG format (numpy buffers, json)`
@@ -1108,12 +1167,12 @@ Outline
     a = CSG("sphere", param=[0,0,0,100]) 
     b = CSG("zsphere", param=[0,0,0,100], param1=[-50,60,0,0]) 
     c = CSG("box3",param=[100,50,70,0]) 
-    d = CSG("box",param=[0,0,10,50])
+    d = CSG.MakeTrapezoid(z=100, x1=80, y1=100, x2=100, y2=80)
     e = CSG("cylinder",param=[0,0,0,100], param1=[-100,100,0,0])
     f = CSG("disc",param=[0,0,0,100], param1=[-1,1,0,0])
     g = CSG("cone", param=[100,-100,50,100])
-    h = CSG.MakeTrapezoid(z=100, x1=80, y1=100, x2=100, y2=80)
-    i = CSG.MakeSegment(phi0=0,phi1=45,sz=100,sr=100)
+    h = CSG.MakeTorus(R=70, r=30)
+    i = CSG.MakeHyperboloid(r0=80, zf=100, z1=-100, z2=100)
     j = CSG.MakeIcosahedron(scale=100.)
 
     prims = [a,b,c,d,e,f,g,h,i,j]
@@ -1129,156 +1188,47 @@ Outline
     * imported into C++ **nnode** tree by **NCSG**
 
 
-
-
-
-:small:`Torus : much more difficult that other primitives`
+:small:`Torus : much more difficult/expensive than other primitives`
 ------------------------------------------------------------------------
 
 
 .. sidebar:: Torus artifacts
 
     .. image:: /env/presentation/tboolean_torus_orthographic_artifact.png
-       :width: 500px
+       :width: 400px
        :align: right
-
-
-.. class:: small
 
    .. image:: /env/presentation/torus_eqn_sqrt.png
        :width: 400px
-       :align: left
+       :align: right
 
    .. image:: /env/presentation/torus_eqn_quartic.png
        :width: 400px
-       :align: left
+       :align: right
 
-
-
-
-
-
-:small:`Opticks CSG Primitives : What is included`
--------------------------------------------------------------------------------------------------
-
-
-.. sidebar:: OptiX Geometry
-
-    .. class:: small 
-
-         OptiX provides acceleration of geometrical intersection, not the intersection itself. 
-         
-         * parametric ray : **p(t) = p0 + t rayDir**
-         * implicit surface : **f(p) = 0** 
-
-         Intersect finding next closest root:
-
-         * smallest **t**, with **t > tmin** 
-         * surface normal at **t** 
-
-
-.. class:: small 
-    
-    OptiX/CUDA functions providing:
-
-    * axis aligned bounding box (AABB)
-    * intersect ray position (parametric t), surface normal 
-
-    C++/nnode sub-struct methods
-
-    * signed distance function (SDF)
-    * parametric surface generation 
-
-   
-
-    **4x4 Transforms on any node (translation/rotation/scaling)**
-
-    :blue:`Intersect inverse-transformed ray with un-transformed primitive`
-
-    * parametric-t same in both frames
-    * inverse transform transposed brings normal back to world frame
-
-
-.. class:: tiny
-
-    Supporting non-uniform scaling requires **rayDir** not be be normalized (or assumed to be normalized) by primitives.
-
-
-
-
-:small:`Opticks CSG : Balancing Deep Trees Drastically Improves Performance`
--------------------------------------------------------------------------------------------------
-
-.. sidebar:: Positive form CSG Trees
-
-   .. class:: small
-
-       Apply deMorgan pushing negations down tree 
-
-       * **A - B -> A * !B**
-       * **!(A*B) -> !A + !B**
-       * **!(A+B) -> !A * !B**
-       * **!(A - B) -> !(A*!B) -> !A + B**
-
-       End with only UNION, INTERSECT operators, 
-       and some complemented leaves.
-
-       :red:`COMMUTATIVE -> easily rearranged`
 
 
 .. class:: small
 
-   Intended for solids, not scenes (tree height <8, <256 nodes[*])
+   3D Parametric Ray : **ray(t) = r0 + t rDir**  
 
-   * unbalanced trees inefficiently handled as complete binary trees 
-   * CSG trees non-unique, many expressions of same shape
+   * ray-torus intersection -> solve quartic polynomial in **t**  
+   *  A t^4 + B t^3 + C t^2 + D t + E = 0 
 
-.. raw:: html
+   High order equation 
 
-    <pre class="mypretiny">
-    Dayabay TopESRCutHols lvidx:57  (height:9 totnodes:1023)
-    di(di(di(di(di(di(di(di(di(cy,cy),cy),cy),cy),cy),cy),cy),cy),cy)  
-
-                                                                        di    
-                                                                 di          cy
-                                                         di          cy        
-                                                 di          cy                
-                                         di          cy                        
-                                 di          cy                                
-                         di          cy                                        
-                 di          cy                                                
-         di          cy                                                        
-     cy      cy                                         
-
-
-    Balanced Tree, height:4 totnodes:31  
-    in(in(in(in(cy,!cy),in(!cy,!cy)),in(in(!cy,!cy),in(!cy,!cy))),!cy) 
-
-                                                                 in    
-                                 in                                 !cy
-                 in                              in                    
-         in              in              in              in            
-     cy     !cy     !cy     !cy     !cy     !cy     !cy     !cy        
-    </pre>
+   * very large difference between coefficients 
+   * numerically problematic, requires double precision 
+   * varying ray parameters -> very different coefficients
+   * several approaches attempted, work in progress
+   * :red:`if possible avoid using torus, eg use hyperboloid to model PMT neck !`  
 
 
 .. class:: tiny
 
-   [*] Algorithm has no inherent height limit, but use of complete binary tree imposes practical performance limitation
+   Quartic : factorize using resolvent cubic 
+        
 
-
-
-
-:small:`Dayabay ESR reflector : Deep CSG tree : disc with 9 holes`
--------------------------------------------------------------------------------------------------
-
-.. image:: /env/presentation/lvidx_57_esr_deep_tree_disc_with_holes.png
-   :width: 1000px
-   :align: center
-
-
-
- 
 
 
 
@@ -1302,109 +1252,6 @@ Outline
 
    * global, full instances, bbox instances
    * rapid switching controls
-
-
-
-:small:`Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes`
-----------------------------------------------------------------------------
- 
-.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
-   :width: 550px
-   :align: left 
-
-.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
-   :width: 550px
-   :align: right
-
-.. image:: /env/presentation/1px.png
-   :width: 1000px
-   :height: 1px
-   :align: center
-
-
-.. class:: small
-
-   Analytic : more realistic, faster, less memory, **much more effort**  
-
-   For Dayabay PMT:
-
-   * partition CSG solids into 12 **single primitive** parts (instead of 2928 triangles)
-   * splitting at geometrical intersections avoids implementing general CSG boolean handling
-   * geometry provided to OptiX in form of ray intersection and bounding box code
-   
-   **Aim : analytic description of geometry on critical optical path, remainder tesselated**  
-
-
-
-:small:`Hybrid Geant4/Opticks Event Workflow`
-------------------------------------------------
-
-
-.. comment
-
-   * interop between OpenGL/OptiX/Thrust/CUDA  
-        
-   **Side Benefit : Performant Visualization**
-
-   Migrating Geant4 C++ CSG tree geometry to the GPU 
-   enables unprecedented visualizations.  
- 
-
-
-.. sidebar:: GPU Resident Photons
-
-    .. class:: small
-
-       **Seeded on GPU** 
-          associate photons -> gensteps (via seed buffer)
- 
-       **Generated on GPU, using gensteps:**
-          *~Stacks* collected before photon generation:
-
-          * number of photons to generate
-          * start/end position of step
-          * other quantities needed for GPU generation 
-
-       **Propagated on GPU**
-          :red:`Only photons hitting PMTs copied to CPU`
-
-
-       Thrust: **high level C++ access to CUDA**
-
-       .. figure:: /env/numerics/thrust/thrust.png
-          :width: 300px
-          :align: right
-
-       * https://developer.nvidia.com/Thrust
-       
-          
-
-         
-.. class:: small
-
-    **Geant4/Detector Simulation**
-
-    * modified Scintillation, Cerenkov processes 
-
-      * collect *genstep*
-      * skip optical photon generation
-
-    **Opticks (OptiX/Thrust GPU interoperation)** 
-
-    * **OptiX** : upload gensteps 
-    * **Thrust** : seeding, distribute genstep indices to photons
-    * **OptiX** : launch photon generation and propagation
-    * **Thrust** : pullback photons that hit PMTs 
-    * **Thrust** : index photon step sequences (optional)
-
-    **Geant4/Detector Simulation**
-
-    * populate standard hit collections 
-    * subsequent electronics simulation proceeds unaltered 
-
-    **Multi-event handling**
-
-    * reuse/resize OptiX buffers for each event 
 
 
 
@@ -1680,16 +1527,238 @@ Outline
 
 
 
-:i:`YouTube Video`
-----------------------
 
-.. raw:: html
+:small:`Pushed to backup as too detailed or duplicated`
+-------------------------------------------------------------------------------------------------
 
-   <iframe width="1024" height="576" src="https://www.youtube.com/embed/CBpOha4RzIs?rel=0" frameborder="0" allowfullscreen></iframe>
+
+
+
+
+:small:`Opticks CSG Primitives : What is included`
+-------------------------------------------------------------------------------------------------
+
+
+.. sidebar:: OptiX Geometry
+
+    .. class:: small 
+
+         OptiX provides acceleration of geometrical intersection, not the intersection itself. 
+         
+         * parametric ray : **p(t) = p0 + t rayDir**
+         * implicit surface : **f(p) = 0** 
+
+         Intersect finding next closest root:
+
+         * smallest **t**, with **t > tmin** 
+         * surface normal at **t** 
+
+
+.. class:: small 
+    
+    OptiX/CUDA functions providing:
+
+    * axis aligned bounding box (AABB)
+    * intersect ray position (parametric t), surface normal 
+
+    C++/nnode sub-struct methods
+
+    * signed distance function (SDF)
+    * parametric surface generation 
+
+   
+
+    **4x4 Transforms on any node (translation/rotation/scaling)**
+
+    :blue:`Intersect inverse-transformed ray with un-transformed primitive`
+
+    * parametric-t same in both frames
+    * inverse transform transposed brings normal back to world frame
+
 
 .. class:: tiny
 
-   https://www.youtube.com/watch?v=CBpOha4RzIs
+    Supporting non-uniform scaling requires **rayDir** not be be normalized (or assumed to be normalized) by primitives.
+
+
+
+
+:small:`Opticks CSG : Balancing Deep Trees Drastically Improves Performance`
+-------------------------------------------------------------------------------------------------
+
+.. sidebar:: Positive form CSG Trees
+
+   .. class:: small
+
+       Apply deMorgan pushing negations down tree 
+
+       * **A - B -> A * !B**
+       * **!(A*B) -> !A + !B**
+       * **!(A+B) -> !A * !B**
+       * **!(A - B) -> !(A*!B) -> !A + B**
+
+       End with only UNION, INTERSECT operators, 
+       and some complemented leaves.
+
+       :red:`COMMUTATIVE -> easily rearranged`
+
+
+.. class:: small
+
+   Intended for solids, not scenes (tree height <8, <256 nodes[*])
+
+   * unbalanced trees inefficiently handled as complete binary trees 
+   * CSG trees non-unique, many expressions of same shape
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    Dayabay TopESRCutHols lvidx:57  (height:9 totnodes:1023)
+    di(di(di(di(di(di(di(di(di(cy,cy),cy),cy),cy),cy),cy),cy),cy),cy)  
+
+                                                                        di    
+                                                                 di          cy
+                                                         di          cy        
+                                                 di          cy                
+                                         di          cy                        
+                                 di          cy                                
+                         di          cy                                        
+                 di          cy                                                
+         di          cy                                                        
+     cy      cy                                         
+
+
+    Balanced Tree, height:4 totnodes:31  
+    in(in(in(in(cy,!cy),in(!cy,!cy)),in(in(!cy,!cy),in(!cy,!cy))),!cy) 
+
+                                                                 in    
+                                 in                                 !cy
+                 in                              in                    
+         in              in              in              in            
+     cy     !cy     !cy     !cy     !cy     !cy     !cy     !cy        
+    </pre>
+
+
+.. class:: tiny
+
+   [*] Algorithm has no inherent height limit, but use of complete binary tree imposes practical performance limitation
+
+
+
+
+:small:`Dayabay ESR reflector : Deep CSG tree : disc with 9 holes`
+-------------------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/lvidx_57_esr_deep_tree_disc_with_holes.png
+   :width: 1000px
+   :align: center
+
+
+
+
+:small:`Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes`
+----------------------------------------------------------------------------
+ 
+.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
+   :width: 550px
+   :align: left 
+
+.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
+   :width: 550px
+   :align: right
+
+.. image:: /env/presentation/1px.png
+   :width: 1000px
+   :height: 1px
+   :align: center
+
+
+.. class:: small
+
+   Analytic : more realistic, faster, less memory, **much more effort**  
+
+   For Dayabay PMT:
+
+   * partition CSG solids into 12 **single primitive** parts (instead of 2928 triangles)
+   * splitting at geometrical intersections avoids implementing general CSG boolean handling
+   * geometry provided to OptiX in form of ray intersection and bounding box code
+   
+   **Aim : analytic description of geometry on critical optical path, remainder tesselated**  
+
+
+
+:small:`Hybrid Geant4/Opticks Event Workflow`
+------------------------------------------------
+
+
+.. comment
+
+   * interop between OpenGL/OptiX/Thrust/CUDA  
+        
+   **Side Benefit : Performant Visualization**
+
+   Migrating Geant4 C++ CSG tree geometry to the GPU 
+   enables unprecedented visualizations.  
+ 
+
+
+.. sidebar:: GPU Resident Photons
+
+    .. class:: small
+
+       **Seeded on GPU** 
+          associate photons -> gensteps (via seed buffer)
+ 
+       **Generated on GPU, using gensteps:**
+          *~Stacks* collected before photon generation:
+
+          * number of photons to generate
+          * start/end position of step
+          * other quantities needed for GPU generation 
+
+       **Propagated on GPU**
+          :red:`Only photons hitting PMTs copied to CPU`
+
+
+       Thrust: **high level C++ access to CUDA**
+
+       .. figure:: /env/numerics/thrust/thrust.png
+          :width: 300px
+          :align: right
+
+       * https://developer.nvidia.com/Thrust
+       
+          
+
+         
+.. class:: small
+
+    **Geant4/Detector Simulation**
+
+    * modified Scintillation, Cerenkov processes 
+
+      * collect *genstep*
+      * skip optical photon generation
+
+    **Opticks (OptiX/Thrust GPU interoperation)** 
+
+    * **OptiX** : upload gensteps 
+    * **Thrust** : seeding, distribute genstep indices to photons
+    * **OptiX** : launch photon generation and propagation
+    * **Thrust** : pullback photons that hit PMTs 
+    * **Thrust** : index photon step sequences (optional)
+
+    **Geant4/Detector Simulation**
+
+    * populate standard hit collections 
+    * subsequent electronics simulation proceeds unaltered 
+
+    **Multi-event handling**
+
+    * reuse/resize OptiX buffers for each event 
+
+
+ 
 
 
 
