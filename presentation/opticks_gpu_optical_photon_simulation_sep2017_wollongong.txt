@@ -1191,7 +1191,6 @@ Outline
 :small:`Torus : much more difficult/expensive than other primitives`
 ------------------------------------------------------------------------
 
-
 .. sidebar:: Torus artifacts
 
     .. image:: /env/presentation/tboolean_torus_orthographic_artifact.png
@@ -1252,6 +1251,30 @@ Outline
 
    * global, full instances, bbox instances
    * rapid switching controls
+
+
+
+
+:small:`Validation : Comparing Geant4 to hybrid Geant4 + Opticks simulations`
+--------------------------------------------------------------------------------
+
+.. class:: small
+
+
+    **point-by-point validation** 
+
+    * single executable performs both simulations, writes two Opticks events 
+
+    **Opticks Event Format**
+
+    * highly compressed record of up to 16 steps of optical photon propagation
+  
+    **Chi2 distance comparisons, for 1M photons divided into top 100 most frequent propagation history categories** 
+
+    * photon history counts 
+    * point-by-point distributions of position, time, wavelength and polarization. 
+
+    This corresponds to comparisons of many thousands of histograms for each propagation.
 
 
 
