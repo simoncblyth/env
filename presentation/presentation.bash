@@ -774,6 +774,7 @@ opticks_gpu_optical_photon_simulation_nov2016_llr  (32 pages, ~30 min)
 EOU
 }
 presentation-dir(){ echo $(env-home)/presentation ; }
+presentation-c(){   cd $(presentation-dir); }
 presentation-cd(){  cd $(presentation-dir); }
 
 presentation-ls(){   presentation-cd ; ls -1t *.txt ; }

@@ -245,27 +245,145 @@ With the release of NVIDIA Driver 355, full (desktop) OpenGL is now available
 on every GPU-enabled system, with or without a running X server. The latest
 driver (358) enables multi-GPU rendering support.
 
+GLX and EGL use the Same OpenGL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[simon@GPU cuda-8.0-samples]$ nvidia-smi
-Thu Sep  7 19:31:34 2017       
-+-----------------------------------------------------------------------------+
-| NVIDIA-SMI 367.48                 Driver Version: 367.48                    |
-|-------------------------------+----------------------+----------------------+
-| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
-|===============================+======================+======================|
-|   0  Tesla K80           Off  | 0000:05:00.0     Off |                    0 |
-| N/A   39C    P0    56W / 149W |      0MiB / 11439MiB |      0%      Default |
-+-------------------------------+----------------------+----------------------+
-|   1  Tesla K80           Off  | 0000:06:00.0     Off |                    0 |
-| N/A   32C    P0    66W / 149W |      0MiB / 11439MiB |      0%      Default |
-+-------------------------------+----------------------+----------------------+
-|   2  Tesla K80           Off  | 0000:84:00.0     Off |                    0 |
-| N/A   32C    P0    56W / 149W |      0MiB / 11439MiB |      0%      Default |
-+-------------------------------+----------------------+----------------------+
-|   3  Tesla K80           Off  | 0000:85:00.0     Off |                    0 |
-| N/A   31C    P0    73W / 149W |      0MiB / 11439MiB |     99%      Default |
-+-------------------------------+----------------------+----------------------+
+* https://devblogs.nvidia.com/parallelforall/linking-opengl-server-side-rendering/
+
+The separation of OpenGL functions and context management functions into
+separate libraries allows developers to build applications supporting multiple
+context creation mechanisms.
+
+For instance, this enables you to add an EGL backend to your glX-based
+application to deliver cloud-based rendering capabilities. You need to modify
+the context creation mechanism, as described in a previous post, to initialize
+either glX or EGL. All the other rendering code remains the same. But now you
+need to link against libOpenGL.so, libGLX.so, and libEGL.so.
+
+If your application uses OpenGL extension functions, it is your responsibility
+to use the correct extension function loader mechanism for the initialized
+context. A GLX-based context should use glXGetProcAddress, whereas an EGL-based
+context should use eglGetProcAddress. Note that the use of a particular loader
+may be implicit: GLEW, for example, uses the GLEW_EGL C preprocessor macro to
+choose the loader.
+
+
+GLVND support in CMake
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+For larger projects you probably don’t want to add the different libraries
+manually, but rather delegate this to a build system like Kitware’s CMake.
+Starting with version 3.10.0, CMake supports GLVND natively through its
+FindOpenGL module. To utilize a specific context library, just specify it in
+COMPONENTS and use the appropriate import targets. For example, the following
+snippet compiles an application with support for both EGL and GLX contexts.
+
+::
+
+    find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL GLX)
+    add_executable(your_binary_name main.c)
+    target_link_libraries(your_binary_name PRIVATE OpenGL::OpenGL OpenGL::EGL OpenGL::GLX)
+
+
+To link against EGL only, simply drop GLX from COMPONENTS and remove OpenGL::GLX as an import target in target_link_libraries.
+
+::
+
+    find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL)
+    add_executable(your_binary_name main.c)
+    target_link_libraries(your_binary_name PRIVATE OpenGL::OpenGL OpenGL::EGL)
+
+
+GLVND : The GL Vendor-Neutral Dispatch library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/NVIDIA/libglvnd
+* https://github.com/NVIDIA/libglvnd/issues/63
+
+
+OpenGL without X using EGL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://devtalk.nvidia.com/default/topic/1005748/opengl/opengl-without-x-using-egl/
+
+* https://github.com/VirtualGL/virtualgl/issues/10
+
+* https://gist.github.com/dcommander/ee1247362201552b2532
+
+Movie from images
+~~~~~~~~~~~~~~~~~~~~
+
+* https://superuser.com/questions/249101/how-can-i-combine-30-000-images-into-a-timelapse-movie
+* http://fixounet.free.fr/avidemux/
+* http://mariovalle.name/mencoder/mencoder.html
+
+
+
+Learn more about server-side rendering
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://devblogs.nvidia.com/parallelforall/linking-opengl-server-side-rendering/
+
+The preferred way to use OpenGL on a headless server is via EGL, obviating the
+need for an X server. In addition to modifying your application’s context
+creation mechanism, this requires using the new GLVND ABI. Using GLVND is as
+simple as changing your application to link against libOpenGL and libEGL
+instead of libGL.
+
+GLVND was first enabled in NVIDIA driver version 361.28, released in February
+2016 and now widely available. In addition to an EGL ABI, the library also
+allows for a number of OpenGL implementations to live side-by-side on a system,
+simplifying deployment for your OpenGL applications.
+
+Server-side rendering offers a range of advantages for large-scale
+visualization, including reduced data transfer cost, simplified application
+deployment and support for a wider client base.
+
+
+
+
+::
+
+    [simon@GPU cuda-8.0-samples]$ nvidia-smi
+    Thu Sep  7 19:31:34 2017       
+    +-----------------------------------------------------------------------------+
+    | NVIDIA-SMI 367.48                 Driver Version: 367.48                    |
+    |-------------------------------+----------------------+----------------------+
+    | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+    | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+    |===============================+======================+======================|
+    |   0  Tesla K80           Off  | 0000:05:00.0     Off |                    0 |
+    | N/A   39C    P0    56W / 149W |      0MiB / 11439MiB |      0%      Default |
+    +-------------------------------+----------------------+----------------------+
+    |   1  Tesla K80           Off  | 0000:06:00.0     Off |                    0 |
+    | N/A   32C    P0    66W / 149W |      0MiB / 11439MiB |      0%      Default |
+    +-------------------------------+----------------------+----------------------+
+    |   2  Tesla K80           Off  | 0000:84:00.0     Off |                    0 |
+    | N/A   32C    P0    56W / 149W |      0MiB / 11439MiB |      0%      Default |
+    +-------------------------------+----------------------+----------------------+
+    |   3  Tesla K80           Off  | 0000:85:00.0     Off |                    0 |
+    | N/A   31C    P0    73W / 149W |      0MiB / 11439MiB |     99%      Default |
+    +-------------------------------+----------------------+----------------------+
+
+
+
+Versions
+-----------
+
+    
+============  ==========================  ======= =====================  ========
+Tag            GPU                         Driver  CUDA Driver/Runtime    OptiX
+============  ==========================  ======= =====================  ========
+Tao            Quadro Maxell 2000 Mobile   375.39   8.0/7.5               4.0.0
+junogpu002     Tesla 4*K40m                384.66   9.0/7.5               4.1.1
+SDU server     Tesla 4*K80                 367.48   8.0/8.0             
+============  ==========================  ======= =====================  ========
+
+
+
 
 
 
