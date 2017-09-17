@@ -229,6 +229,7 @@ ioproc-guide(){ open $(ioproc-dir)/JPCSLaTeXGuidelines.pdf ; }
 
 ioproc-etex(){ echo $(ioproc-edir)/$(ioproc-conf).tex ; }
 ioproc-edit(){ vi $(ioproc-etex) ; }
+ioproc-e(){ vi $(ioproc-etex) ; }
 
 ioproc-make-verbose(){ export VERBOSE=1 ; ioproc-make ; }
 
