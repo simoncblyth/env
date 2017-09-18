@@ -1912,3 +1912,4 @@ instance-(){      . $(env-home)/graphics/opengl/instance/instance.bash && instan
 instcull-(){      . $(env-home)/graphics/opengl/instcull/instcull.bash && instcull-env $* ; }
 oas-(){      . $(env-home)/graphics/optix_advanced_samples/oas.bash && oas-env $* ; }
 nature-(){      . $(env-home)/graphics/opengl/nature/nature.bash && nature-env $* ; }
+icu-(){      . $(env-home)/intro_to_cuda/icu.bash && icu-env $* ; }

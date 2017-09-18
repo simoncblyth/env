@@ -402,7 +402,8 @@
     Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)
     /env/presentation/j1707-okop-snap.png 1280px_720px
 
-
+    GPU Instance Culling with Level Of Detail
+    /env/presentation/j1707_lod_oglrap_instcull.png 1280px_720px
 
 
 
@@ -1207,12 +1208,28 @@ Outline
    * 18k 20" PMTs
    * 36k 3" PMTs
   
-   OpenGL/OptiX instancing 
- 
-   **Multiple Renderers**
+   **OpenGL instanced rendering** 
 
-   * global, full instances, bbox instances
-   * rapid switching controls
+   * drastic reduction in GPU memory 
+   * one set of vertices for each PMT type
+   * 4x4 matrices position each PMT 
+
+
+   **Optimizations** 
+
+   * cull non-visible instances
+   * level of detail (LOD) meshes
+
+     * full/simplified/bbox
+ 
+   * switch mesh based on distance to PMT  
+
+
+
+
+
+:i:`GPU Instance Culling with Level Of Detail`
+------------------------------------------------------------- 
 
 
 
@@ -1479,7 +1496,7 @@ Outline
 
 
 
-:small:`Sept 2017 Summary`
+:small:`Summary`
 ----------------------------------------------
 
 .. sidebar:: Overview
