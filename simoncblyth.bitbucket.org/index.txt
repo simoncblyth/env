@@ -10,6 +10,15 @@ Opticks Documentation
 * https://simoncblyth.bitbucket.io/opticks/
 
 
+Introduction to CUDA
+----------------------
+
+Repository with some hello world examples for CUDA and Thrust, 
+linking to some excellent presentations by NVIDIA Engineers.
+
+* https://bitbucket.org/simoncblyth/intro_to_cuda/ 
+
+
 
 Opticks Videos
 ----------------------
@@ -38,8 +47,33 @@ Opticks Videos
 Opticks Presentations 
 ----------------------
 
-Mid 2017 : moving to fully analytic geometry
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Brief Opticks Introductory presentation, with many backup slides
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_sep2017_wollongong.html (Sep 2017, Wollongong)
+
+    Geant4 Collaboration Meeting,  University of Wollongong, Australia
+
+    A brief introduction to Opticks, presented in plenary session despite being listed in parallel. 
+
+    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
+
+
+Autumn 2017 : Opticks Introductory presentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_sep2017_jinan.html (Sep 2017, Jinan)
+
+    Shandong University, Physics Dept, Jinan, China
+
+    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
+
+
+Summer 2017 : moving to fully analytic geometry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2017_ihep.html (July 2017, Beijing)
 

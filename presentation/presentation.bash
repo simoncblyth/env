@@ -15,10 +15,43 @@ Presentations online
 
 
 
+Potential Customers
+-----------------------
+
+::
+
+    SNO+     : large scale liquid scintillator expt 
+    WATCHMAN : 
+    THEIA
+    CheSS   
+
+
+
+
 Sep 2017 Wollongong 
 ---------------------
 
 22nd Geant4 Collaboration Meeting, UOW Campus, Wollongong (Australia), 25-29 September 2017.
+
+
+intro
+~~~~~~
+
+The main detector consists of a 35.4 m (116 ft) diameter transparent acrylic
+glass sphere containing 20,000 tonnes of linear alkylbenzene liquid
+scintillator, surrounded by a stainless steel truss supporting approximately
+53,000 photomultiplier tubes (17,000 large 20-inch (51 cm) diameter tubes, and
+36,000 3-inch (7.6 cm) tubes filling in the gaps between them), immersed in a
+water pool instrumented with 2000 additional photomultiplier tubes as a muon
+veto.[8]:9 Deploying this 700 m (2,300 ft) underground will detect neutrinos
+with excellent energy resolution.[3] The overburden includes 270 m of granite
+mountain, which will reduce cosmic muon background.[9]
+
+The much larger distance to the reactors (compared to less than 2 km for the
+Daya Bay far detector) makes the experiment better able to distinguish neutrino
+oscillations, but requires a much larger, and better-shielded, detector to
+detect a sufficient number of reactor neutrinos.
+
 
 
 renders to make
@@ -796,8 +829,19 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_nov2016_llr ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jan2017_psroc ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_jinan ; }
 presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
 
+
+presentation-info(){ cat << EOI
+
+    presentation-name        : $(presentation-name)
+    presentation-path        : $(presentation-path)
+    presentation-url-remote  : $(presentation-url-remote)
+    presentation-url-local   : $(presentation-url-local)
+
+EOI
+}
 
 
 presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
@@ -825,14 +869,25 @@ presentation-remote(){
    echo simoncblyth.bitbucket.org
 }
 
+presentation-url-local(){ echo http://localhost/env/presentation/$(presentation-name).html?page=${1:-0} ; }
 presentation-open(){
-   open http://localhost/env/presentation/$(presentation-name).html?page=${1:-0}
+   open $(presentation-url-local $*)
    sleep 0.3
    slides-
    slides-safari 
 } 
 
-presentation-open-remote(){
-   open http://$(presentation-remote)/env/presentation/$(presentation-name).html?page=${1:-0}
+
+presentation-url-remote(){   echo http://$(presentation-remote)/env/presentation/$(presentation-name).html?page=${1:-0} ; }
+presentation-open-remote(){  open $(presentation-url-remote $*) ; }
+
+presentation--(){
+   presentation-
+   presentation-info
+   presentation-make
+   presentation-open
 }
+
+
+
 

@@ -391,6 +391,7 @@ slides-get-psroc(){   slides-get 0 26 ; }
 slides-get-psroc0(){  slides-get 0 0 ; }
 slides-get-jul2017(){ slides-get 0 34 ; }
 slides-get-sep2017sdu(){ slides-get 0 36 ; }
+slides-get-sep2017wol(){ slides-get 0 47 ; }
 
 
 #slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }

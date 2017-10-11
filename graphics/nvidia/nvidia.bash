@@ -17,6 +17,14 @@ Video capture from NVIDIA
 * http://www.geforce.com/geforce-experience/shadowplay
 
 
+NPP : NVIDIA Performance Primitives
+-------------------------------------
+
+* https://developer.nvidia.com/npp
+
+GPU-accelerated image, video, and signal processing functions that perform up to 30x faster than CPU-only implementations
+
+
 Mac Driver, eGPU
 --------------------
 
@@ -384,6 +392,13 @@ SDU server     Tesla 4*K80                 367.48   8.0/8.0
 
 
 
+nvenc : hardware video encode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://developer.nvidia.com/nvidia-video-codec-sdk
+
+NVIDIA Linux display driver 378.13 or newer
+NVIDIA Windows display driver 378.66 or newer 
 
 
 
