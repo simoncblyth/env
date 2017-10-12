@@ -1913,3 +1913,9 @@ instcull-(){      . $(env-home)/graphics/opengl/instcull/instcull.bash && instcu
 oas-(){      . $(env-home)/graphics/optix_advanced_samples/oas.bash && oas-env $* ; }
 nature-(){      . $(env-home)/graphics/opengl/nature/nature.bash && nature-env $* ; }
 icu-(){      . $(env-home)/intro_to_cuda/icu.bash && icu-env $* ; }
+ffmpeg-(){      . $(env-home)/video/ffmpeg/ffmpeg.bash && ffmpeg-env $* ; }
+nvenc-(){      . $(env-home)/graphics/nvidia/nvenc.bash && nvenc-env $* ; }
+capturesdk-(){      . $(env-home)/graphics/nvidia/capturesdk.bash && capturesdk-env $* ; }
+yum-(){      . $(env-home)/tools/yum/yum.bash && yum-env $* ; }
+nasm-(){      . $(env-home)/tools/nasm.bash && nasm-env $* ; }
+x264-(){      . $(env-home)/video/x264.bash && x264-env $* ; }
