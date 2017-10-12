@@ -26,12 +26,65 @@ Github Merging a pull request via web interface
 * add commit message and confirm the merge
 
 
+Avoid http blockages by cloning over SSH 
+-------------------------------------------
+
+* Sometimes can avoid "http" blockage by using "https" to use a different port 
+
+
+* https://stackoverflow.com/questions/6167905/git-clone-through-ssh
+
+Git URL in one of two forms:
+
+ssh://username@host.xz/absolute/path/to/repo.git/ 
+    just a forward slash for absolute path on server
+
+username@host.xz:relative/path/to/repo.git/ 
+    just a colon (it mustn't have the ssh:// for relative path on server (relative to home dir of username on server machine)
+
+
+Note this did not work with shallow (--depth 1) clones, possibly as git version
+on one of the machines is too old.
+ 
+
+clone into home on unblocked machine 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  
+::
+
+    simon:~ blyth$ git clone http://git.videolan.org/git/x264
+    Cloning into 'x264'...
+    remote: Counting objects: 20569, done.
+    remote: Compressing objects: 100% (4266/4266), done.
+    remote: Total 20569 (delta 17005), reused 19712 (delta 16260)
+    Receiving objects: 100% (20569/20569), 4.83 MiB | 76.00 KiB/s, done.
+    Resolving deltas: 100% (17005/17005), done.
+    Checking connectivity... done.
+    simon:~ blyth$ 
+
+
+clone over ssh from http blocked machine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [simon@localhost x264]$ git clone blyth@simon.phys.ntu.edu.tw:x264
+    Initialized empty Git repository in /usr/local/env/video/x264/x264/.git/
+    Password:
+    remote: Counting objects: 20569, done.
+    remote: Compressing objects: 100% (3521/3521), done.
+    remote: Total 20569 (delta 17005), reused 20569 (delta 17005)
+    Receiving objects: 100% (20569/20569), 4.83 MiB | 547 KiB/s, done.
+    Resolving deltas: 100% (17005/17005), done.
+    [simon@localhost x264]$ 
+
+
+
 git pull
 -----------
 
 * combined fetch and merge
-
-
 
 
 Git-hg-rosetta-stone
