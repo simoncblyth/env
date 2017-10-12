@@ -17,6 +17,31 @@ Video capture from NVIDIA
 * http://www.geforce.com/geforce-experience/shadowplay
 
 
+Install Logging Linux
+----------------------
+
+* /var/log/nvidia-installer.log 
+
+::
+
+     .1 nvidia-installer log file '/var/log/nvidia-installer.log'
+      2 creation time: Wed Mar  8 11:03:32 2017
+      3 installer version: 367.48
+      4 
+      5 PATH: /usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+      6 
+      7 nvidia-installer command line:
+      8     ./nvidia-installer
+      9     --ui=none
+     10     --no-questions
+     11     --accept-license
+     12     --disable-nouveau
+     13     --run-nvidia-xconfig
+     14 
+     ...
+
+
+
 NPP : NVIDIA Performance Primitives
 -------------------------------------
 
