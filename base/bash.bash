@@ -1,4 +1,4 @@
-
+bash-vi(){ vi $BASH_SOURCE ; }
 
 bash-env(){
   elocal-
@@ -100,6 +100,36 @@ rebuild=
 EOW
 
 }
+
+
+bash-heredoc(){
+
+  cat << EOS
+
+Backticks do get expanded 
+
+  uname :  `uname`
+  date  :  `date`
+
+EOS
+
+}
+
+
+bash-heredoc-quoted(){
+
+  cat << 'EOS'
+
+Backticks do NOT get expanded when quote the end token
+
+  uname :  `uname`
+  date  :  `date`
+
+EOS
+
+}
+
+
 
 
 

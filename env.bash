@@ -1583,6 +1583,7 @@ cjs-(){      . $(env-home)/messaging/cjson/cjs.bash && cjs-env $* ; }
 sqliteswift-(){      . $(env-home)/sqlite/sqliteswift/sqliteswift.bash && sqliteswift-env $* ; }
 lineprofiler-(){      . $(env-home)/python/lineprofiler/lineprofiler.bash && lineprofiler-env $* ; }
 wt-(){      . $(env-home)/web/wt.bash && wt-env $* ; }
+bash-(){      . $(env-home)/base/bash.bash && bash-env $* ; }
 vim-(){      . $(env-home)/base/vim/vim.bash && vim-env $* ; }
 envcap-(){      . $(env-home)/base/envcap.bash && envcap-env $* ; }
 realtime-(){      . $(env-home)/base/time/realtime.bash && realtime-env $* ; }

@@ -388,6 +388,7 @@ Tag            GPU                         Driver  CUDA Driver/Runtime    OptiX
 Tao            Quadro Maxell 2000 Mobile   375.39   8.0/7.5               4.0.0
 junogpu002     Tesla 4*K40m                384.66   9.0/7.5               4.1.1
 SDU server     Tesla 4*K80                 367.48   8.0/8.0             
+Axel           NVIDIA Quadro M5000
 ============  ==========================  ======= =====================  ========
 
 
