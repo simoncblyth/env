@@ -10,7 +10,9 @@ ffmpeg : video tools
 
 * https://ffmpeg.org/download.html
 * https://trac.ffmpeg.org/wiki/Slideshow
-# https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
+* https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
+
+* https://en.wikibooks.org/wiki/FFMPEG_An_Intermediate_Guide/image_sequence
 
 Overview
 ---------
@@ -169,25 +171,56 @@ Encoding high-quality HEVC content with FFmpeg - based NVENC encoder on supporte
 
 EOU
 }
-ffmpeg-dir(){ echo $HOME/ffmpeg_sources ; }
+ffmpeg-dir(){ echo $(local-base)/env/video/ffmpeg/ffmpeg ; }
 ffmpeg-cd(){  cd $(ffmpeg-dir); }
 ffmpeg-get(){
-   local dir=$(ffmpeg-dir) &&  mkdir -p $dir && cd $dir
+   local dir=$(dirname $(ffmpeg-dir)) &&  mkdir -p $dir && cd $dir
 
    [ ! -d ffmpeg ] && git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
-
 }
 
 ffmpeg-preqs()
 {
    nasm-
-   nasm--
+   nasm--   # recent nasm required by x264
    
    x264-
    x264--
 }
 
 
+ffmpeg-prefix(){ echo $(local-base)/env  ; }
 
+ffmpeg-configure()
+{
+   ffmpeg-cd
+
+   # https://trac.ffmpeg.org/wiki/CompilationGuide/Centos#x264
+   # x264 : Requires ffmpeg to be configured with --enable-gpl --enable-libx264 
+
+    PKG_CONFIG_PATH="$(ffmpeg-prefix)/lib/pkgconfig" ./configure \
+           --prefix="$(ffmpeg-prefix)" \
+           --extra-cflags="-I$(ffmpeg-prefix)/include" \
+           --extra-ldflags="-L$(ffmpeg-prefix)/lib -ldl" \
+           --pkg-config-flags="--static" \
+           --enable-gpl \
+           --enable-libx264 
+
+}
+
+ffmpeg-configure-scratch(){ cat << EOS
+
+    --enable-libfdk_aac \
+    --enable-libfreetype \
+    --enable-libmp3lame \
+    --enable-libopus \
+    --enable-libvorbis \
+    --enable-libvpx \
+    --enable-libx264 \
+    --enable-libx265 \
+    --enable-nonfree
+
+EOS
+}
 
 

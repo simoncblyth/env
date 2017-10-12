@@ -90,6 +90,10 @@ nasm-url(){ echo http://www.nasm.us/pub/nasm/releasebuilds/$(nasm-ver)/nasm-$(na
 nasm-dir(){ echo $(local-base)/env/tools/nasm/$(nasm-nam) ; }
 nasm-cd(){  cd $(nasm-dir); }
 
+nasm-tcd(){ cd $(env-home)/tools/nasm ; }
+nasm-tc(){  cd $(env-home)/tools/nasm ; }
+
+
 nasm-env(){      elocal- ; nasm-path ;  }
 nasm-path(){  PATH=$LOCAL_BASE/env/bin:$PATH ; }
 nasm-info(){ nasm -v ; which nasm ;  }
@@ -123,5 +127,11 @@ nasm--()
 
 }
 
+nasm-hello()
+{
+   nasm-tcd
+   nasm -felf64 hello.asm && ld hello.o && ./a.out
+   # no C library, just system calls 
 
+}
 
