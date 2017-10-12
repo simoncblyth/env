@@ -12,6 +12,34 @@ EGL : OpenGL on headless GPU server nodes
 * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglIntro.xhtml
 
 
+
+Search
+--------
+
+* :google:`nvidia egl without x11`
+
+* https://devtalk.nvidia.com/default/topic/947656/create-a-gl-3-context-without-x/?offset=8
+
+
+demotomohiro : EGL + OpenGL + GLEW (offline rendering)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://devtalk.nvidia.com/default/topic/1005748/opengl/opengl-without-x-using-egl/
+
+When you use EGL and (desktop)OpenGL with GLEW, you need GLEW 2.0.0 or newer.
+And GLEW must be built with::
+
+   make SYSTEM=linux-egl
+
+Here is my working EGL + OpenGL + GLEW initialize/uninitialize code for off-line rendering(Only render to frame buffer object).
+
+* https://github.com/demotomohiro/Reflection-Refraction-less-Ronpa-Raytracing-Renderer/blob/master/src/glcontext_egl.cpp
+* https://github.com/demotomohiro/Reflection-Refraction-less-Ronpa-Raytracing-Renderer
+
+
+Tao EGL ppm demo
+~~~~~~~~~~~~~~~~~
+
 Example from Tao.
 
    I have a try, and it works finally. The attachment is an example.
@@ -29,6 +57,9 @@ Example from Tao.
     [simon@localhost egl]$ python -c "print 0x3000 "   ## thats  EGL_SUCCESS
     12288
 
+
+Mine at SDUGPU (SG)
+~~~~~~~~~~~~~~~~~~~~~~~
 
 I get EGL_NOT_INITIALIZED 0x3001::
 
@@ -56,6 +87,10 @@ Getting all zeros on SG in the ppm::
    [simon@localhost egl]$ xxd -l 100 fig-myfirst00.ppm
    [simon@localhost egl]$ xxd -l 100 fig-myfirst10.ppm
    [simon@localhost egl]$ xxd -l 100 fig-myfirst99.ppm
+
+
+EGL Wrong Libs ?
+~~~~~~~~~~~~~~~~~~~~~
 
 Perhaps are defaulting to the wrong libs ?::
 
@@ -117,7 +152,7 @@ Huh looks like depending in X11::
 
 This log suggestes all them libs coming from nvidia install, or maybe
 that they are being backed up ? 
-Hmm perhaps a subsequent install replaced ? Seems unlikely.
+Hmm perhaps a subsequent install replaced libs ? Seems unlikely.
 
 ::
 
@@ -172,7 +207,10 @@ https://devtalk.nvidia.com/default/topic/786590/?comment=4352915
 
 http://us.download.nvidia.com/XFree86/Linux-x86/375.26/README/installedcomponents.html
 
-Vendor neutral graphics libraries provided by libglvnd (/usr/lib/libOpenGL.so.0, /usr/lib/libGLX.so.0, and /usr/lib/libGLdispatch.so.0); these libraries are currently used to provide full OpenGL dispatching support to NVIDIA's implementation of EGL.
+Vendor neutral graphics libraries provided by libglvnd
+(/usr/lib/libOpenGL.so.0, /usr/lib/libGLX.so.0, and
+/usr/lib/libGLdispatch.so.0); these libraries are currently used to provide
+full OpenGL dispatching support to NVIDIA's implementation of EGL.
 
 Source code for libglvnd is available at https://github.com/NVIDIA/libglvnd
 
