@@ -2,7 +2,6 @@
 x264-src(){      echo video/x264.bash ; }
 x264-source(){   echo ${BASH_SOURCE:-$(env-home)/$(x264-src)} ; }
 x264-vi(){       vi $(x264-source) ; }
-x264-env(){      elocal- ; }
 x264-usage(){ cat << EOU
 
 X264
@@ -14,6 +13,63 @@ GNU GPL
 
 https://www.videolan.org/developers/x264.html
 
+::
+
+    simon:x264 blyth$ nasm -v
+    NASM version 0.98.40 (Apple Computer, Inc. build 11) compiled on Feb 24 2015
+    simon:x264 blyth$ PATH=$LOCAL_BASE/env/bin:$PATH which nasm
+    /usr/local/env/bin/nasm
+
+    simon:x264 blyth$ PATH=$LOCAL_BASE/env/bin:$PATH nasm -v
+    NASM version 2.13.01 compiled on Oct 11 2017
+    simon:x264 blyth$ 
+
+
+::
+
+    simon:x264 blyth$ x264-build
+    platform:      X86_64
+    byte order:    little-endian
+    system:        MACOSX
+    cli:           yes
+    libx264:       internal
+    shared:        no
+    static:        yes
+    asm:           yes
+    interlaced:    yes
+    avs:           avxsynth
+    lavf:          no
+    ffms:          no
+    mp4:           no
+    gpl:           yes
+    thread:        posix
+    opencl:        yes
+    filters:       crop select_every 
+    lto:           no
+    debug:         no
+    gprof:         no
+    strip:         no
+    PIC:           no
+    bit depth:     8
+    chroma format: all
+
+    You can run 'make' or 'make fprofiled' now.
+
+::
+
+    simon:x264 blyth$ make install
+    install -d /usr/local/env/bin
+    install x264 /usr/local/env/bin
+    install -d /usr/local/env/include
+    install -d /usr/local/env/lib
+    install -d /usr/local/env/lib/pkgconfig
+    install -m 644 ./x264.h /usr/local/env/include
+    install -m 644 x264_config.h /usr/local/env/include
+    install -m 644 x264.pc /usr/local/env/lib/pkgconfig
+    install -m 644 libx264.a /usr/local/env/lib
+    ranlib /usr/local/env/lib/libx264.a
+
+
 
 EOU
 }
@@ -23,7 +79,26 @@ x264-get(){
    local dir=$(dirname $(x264-dir)) &&  mkdir -p $dir && cd $dir
 
    [ ! -d x264 ] && git clone --depth 1 http://git.videolan.org/git/x264
-
-    # PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static
-
 }
+x264-env(){      elocal- ; x264-path ; }
+x264-path(){  PATH=$LOCAL_BASE/env/bin:$PATH ; }
+
+x264-configure()
+{
+   x264-cd
+   ./configure --prefix="$(local-base)/env" --enable-static
+
+
+   ##  https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
+   ##  PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static
+}
+
+x264--()
+{
+   x264-get
+   x264-configure
+   make
+   make install
+}
+
+

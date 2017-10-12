@@ -5,7 +5,13 @@ nasm-vi(){       vi $(nasm-source) ; }
 nasm-env(){      elocal- ; }
 nasm-usage(){ cat << EOU
 
+
+NASM - The Netwide Assembler
+===============================
+
 * http://www.nasm.us
+
+* http://cs.lmu.edu/~ray/notes/nasmtutorial/
 
 
 EOU
@@ -17,6 +23,8 @@ nasm-url(){ echo http://www.nasm.us/pub/nasm/releasebuilds/$(nasm-ver)/nasm-$(na
 nasm-dir(){ echo $(local-base)/env/tools/nasm/$(nasm-nam) ; }
 nasm-cd(){  cd $(nasm-dir); }
 
+nasm-path(){  PATH=$LOCAL_BASE/env/bin:$PATH ; }
+nasm-info(){ nasm -v ; which nasm ;  }
 
 nasm-get(){
    local dir=$(dirname $(nasm-dir)) &&  mkdir -p $dir && cd $dir
@@ -29,10 +37,17 @@ nasm-get(){
    [ ! -d $nam ] && tar zxvf $dst
 }
 
-nasm-build(){
+nasm-configure(){
 
    nasm-cd
    ./configure --prefix=$(local-base)/env
+
+}
+
+nasm--()
+{
+   nasm-get
+   nasm-configure
 
    make          
    #make everything    # building docs fails on OSX for "cp -ufv" no -u option, and lack of some perl deps

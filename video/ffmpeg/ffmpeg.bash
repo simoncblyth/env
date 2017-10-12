@@ -10,6 +10,7 @@ ffmpeg : video tools
 
 * https://ffmpeg.org/download.html
 * https://trac.ffmpeg.org/wiki/Slideshow
+# https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
 
 Overview
 ---------
@@ -20,9 +21,7 @@ configure to use hw accel such as nvenc
 
 
 * x264 requires minimum nasm-2.13, 
-* try update nasm via its repo requires, glibc l
-  nasm-2.13.01-0.fc24.x86_64 (nasm)  requires
-
+* trying to update nasm via its repo dependency fails for newer glibc, so build nasm from source
 
 
 Compilation
@@ -168,64 +167,6 @@ Encoding high-quality HEVC content with FFmpeg - based NVENC encoder on supporte
 * https://gist.github.com/Brainiarc7/8b471ff91319483cdb725f615908286e
 
 
-x264 : repo nasm not found and too old
--------------------------------------------
-
-::
-
-    [simon@localhost x264]$ PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static
-    Found no assembler
-    Minimum version is nasm-2.13
-    If you really want to compile without asm, configure with --disable-asm.
-    [simon@localhost x264]$ 
-
-
-    [simon@localhost x264]$ yum info nasm
-    Loaded plugins: priorities, refresh-packagekit, security
-    Installed Packages
-    Name        : nasm
-    Arch        : x86_64
-    Version     : 2.07
-    Release     : 7.el6
-    Size        : 1.2 M
-    Repo        : installed
-    From repo   : sl
-    Summary     : A portable x86 assembler which uses Intel-like syntax
-    URL         : http://www.nasm.us/
-    License     : BSD and LGPLv2+ and GPLv2+
-    Description : NASM is the Netwide Assembler, a free portable assembler for the Intel
-                : 80x86 microprocessor series, using primarily the traditional Intel
-                : instruction mnemonics and syntax.
-
-
-::
-
-    [root@localhost yum.repos.d]# yum install nasm
-    Loaded plugins: priorities, refresh-packagekit, security
-    nasm                                                                                                                                                                                 | 3.0 kB     00:00     
-    nasm/primary_db                                                                                                                                                                      | 5.1 kB     00:00     
-    Setting up Install Process
-    Resolving Dependencies
-    --> Running transaction check
-    ---> Package nasm.x86_64 0:2.07-7.el6 will be updated
-    ---> Package nasm.x86_64 0:2.13.01-0.fc24 will be an update
-    --> Processing Dependency: libc.so.6(GLIBC_2.14)(64bit) for package: nasm-2.13.01-0.fc24.x86_64
-    --> Finished Dependency Resolution
-    Error: Package: nasm-2.13.01-0.fc24.x86_64 (nasm)
-               Requires: libc.so.6(GLIBC_2.14)(64bit)
-     You could try using --skip-broken to work around the problem
-    ** Found 19 pre-existing rpmdb problem(s), 'yum check' output follows:
-    cyrus-sasl-lib-2.1.23-15.el6_6.2.x86_64 is a duplicate with cyrus-sasl-lib-2.1.23-13.el6_3.1.x86_64
-    keyutils-libs-1.4-5.el6.x86_64 is a duplicate with keyutils-libs-1.4-4.el6.x86_64
-    krb5-libs-1.10.3-65.el6.x86_64 is a duplicate with krb5-libs-1.10.3-10.el6_4.6.x86_64
-    libX11-1.6.4-3.el6.x86_64 is a duplicate with libX11-1.6.3-2.el6.x86_64
-
-
-
-
-* https://developers.redhat.com/blog/2016/02/17/upgrading-the-gnu-c-library-within-red-hat-enterprise-linux/
-
-
 EOU
 }
 ffmpeg-dir(){ echo $HOME/ffmpeg_sources ; }
@@ -237,21 +178,16 @@ ffmpeg-get(){
 
 }
 
-ffmpeg-preq-get()
+ffmpeg-preqs()
 {
-   ffmpeg-libx264-get
+   nasm-
+   nasm--
+   
+   x264-
+   x264--
 }
 
-# https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
 
-ffmpeg-libx264-get()
-{
-   ffmpeg-cd
-   git clone --depth 1 http://git.videolan.org/git/x264
-   cd x264
 
-   PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static
-
-}
 
 
