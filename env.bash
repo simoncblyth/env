@@ -1920,3 +1920,4 @@ capturesdk-(){      . $(env-home)/graphics/nvidia/capturesdk.bash && capturesdk-
 yum-(){      . $(env-home)/tools/yum/yum.bash && yum-env $* ; }
 nasm-(){      . $(env-home)/tools/nasm.bash && nasm-env $* ; }
 x264-(){      . $(env-home)/video/x264.bash && x264-env $* ; }
+egl-(){      . $(env-home)/graphics/egl/egl.bash && egl-env $* ; }
