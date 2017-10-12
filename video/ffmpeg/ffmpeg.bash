@@ -169,6 +169,24 @@ Encoding high-quality HEVC content with FFmpeg - based NVENC encoder on supporte
 * https://gist.github.com/Brainiarc7/8b471ff91319483cdb725f615908286e
 
 
+
+Making mp4 from ppm snaps
+---------------------------
+
+See below functions for example of making a mp4 H.264 video from ppm snaps using ffmpeg 
+
+::
+
+    okop-
+    okop-snap
+    okop-snap-mp4
+
+
+
+
+
+
+
 EOU
 }
 ffmpeg-dir(){ echo $(local-base)/env/video/ffmpeg/ffmpeg ; }
