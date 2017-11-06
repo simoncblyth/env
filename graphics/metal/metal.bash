@@ -14,6 +14,14 @@ Metal 2 (WWDC June 2017)
 * https://developer.apple.com/metal/
 
 
+mtlpp : Metal C++ Wrapper
+---------------------------
+
+* https://github.com/naleksiev/mtlpp
+
+* https://forums.developer.apple.com/thread/18860
+
+
 Geometry Shader equivalent ?
 ---------------------------------
 
