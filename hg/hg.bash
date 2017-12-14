@@ -483,6 +483,16 @@ hg-forest-get(){
 }
 
 
+
+hg-par(){ hg parent --template '{node}' ; }  ## full hash of current update
+hg-id(){ hg --debug id -i ; }                ## lastest update longhash  
+
+hg-ll(){ hg log -l1 ; }
+hg-timestamp(){ TZ=UTC $FUNCNAME- ; }    ## suspect log -l1 is latest in repo, not necessary the current one
+hg-timestamp-(){ hg log -l1 --template '{date(date|localdate, "%c")}\n' ; }
+
+
+
 hg-month(){
    # negate the month argument for prior years month 
 

@@ -1728,7 +1728,7 @@ rst2docx-(){      . $(env-home)/doc/docutils/rst2docx.bash && rst2docx-env $* ; 
 
 # tools
 
-lldb-(){            . $(env-home)/tools/lldb/lldb.bash && lldb-env $* ; }
+lldb-(){            . $(env-home)/tools/lldb_/lldb.bash && lldb-env $* ; }
 cmak-(){            . $(env-home)/tools/cmak.bash && cmak-env $* ; }
 openssh-(){         . $(env-home)/tools/openssh/openssh.bash && openssh-env $* ; }
 cmakecheck-(){      . $(env-home)/cmakecheck/cmakecheck.bash && cmakecheck-env $* ; }

@@ -19,6 +19,14 @@ linking to some excellent presentations by NVIDIA Engineers.
 * https://bitbucket.org/simoncblyth/intro_to_cuda/ 
 
 
+Opticks CHEP 2017 Proceedings
+-------------------------------
+
+Blyth, Simon C, 2017 J. Phys.: Conf. Ser. 898 042001
+
+* http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
+
+
 
 Opticks Videos
 ----------------------

@@ -33,6 +33,35 @@ profiles
 
 
 
+to avoid having to specifiy profiles
+-------------------------------------
+
+::
+
+    simon:.ipython blyth$ mv profile_default profile_default_orig
+    simon:.ipython blyth$ mv profile_g4opticks profile_default
+    simon:.ipython blyth$ 
+
+    simon:cfg4 blyth$ opticks-find profile=g4opticks
+    ./ana/ana.bash:    args: /opt/local/bin/ipython --profile=g4opticks
+    ./tests/tconcentric.bash:tconcentric-i(){     ipython --profile=g4opticks -i $(which tconcentric.py) --  $(tconcentric-args) $* ; } 
+    ./tests/tconcentric.bash:tconcentric-d(){     ipython --profile=g4opticks -i $(which tconcentric_distrib.py) --  $(tconcentric-args) $* ; } 
+    ./tests/tg4gun.bash:tg4gun-i(){     ipython --profile=g4opticks -i $(which g4gun.py) --  $(tg4gun-args) $* ; }
+    ./tests/tgltf.bash:tgltf-rip(){ local fnpy=$1 ; local py=$TMP/$fnpy.py ; $fnpy > $py ;  ipython --profile=g4opticks -i $py ; }
+    simon:opticks blyth$ 
+    simon:opticks blyth$ 
+    simon:opticks blyth$ vi ana/ana.bash
+    simon:opticks blyth$ vi tests/tconcentric.bash
+    simon:opticks blyth$ vi tests/tg4gun.bash
+    simon:opticks blyth$ vi tests/tgltf.bash
+    simon:opticks blyth$ 
+    simon:opticks blyth$ 
+    simon:opticks blyth$ opticks-find profile=g4opticks
+    simon:opticks blyth$ 
+
+
+
+
 debugging
 -----------
 

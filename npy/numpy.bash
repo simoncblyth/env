@@ -8,6 +8,8 @@ numpy-usage(){
 
 
 
+
+
 * https://docs.scipy.org/doc/numpy/reference/generated/numpy.broadcast_to.html#numpy.broadcast_to
 
 New in 1.10.0

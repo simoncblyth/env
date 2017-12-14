@@ -194,7 +194,7 @@ source/track/include/G4VParticleChange.hh::
 
 
 
-vector treatment of fresnel eqns with polrization
+vector treatment of fresnel eqns with polarization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * http://www.classe.cornell.edu/~ib38/tmp/reading/syn_rad/wigner_dist/polarized_light/DKE498_ch8.pdf

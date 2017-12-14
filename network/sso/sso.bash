@@ -1,5 +1,9 @@
 # === func-gen- : network/sso/sso fgp network/sso/sso.bash fgn sso fgh network/sso
 sso-src(){      echo network/sso/sso.bash ; }
+
+sso-sdir(){ echo $(env-home)/network/sso ; }
+sso-scd(){ cd $(sso-sdir) ; }
+
 sso-source(){   echo ${BASH_SOURCE:-$(env-home)/$(sso-src)} ; }
 sso-vi(){       vi $(sso-source) ; }
 sso-env(){      elocal- ; }
@@ -105,6 +109,8 @@ sso-cd(){  mkdir -p $(sso-dir) && cd $(sso-dir); }
 sso-un(){ echo $SSO_UN ; }
 sso-pw(){ echo $SSO_PW ; }
 
+
+sso-open(){ open $(sso-url) ; }
 sso-url(){ echo http://juno.ihep.ac.cn/Dev_DocDB/0020/002046/001/llr_tutorial.htm ; }
 sso-aurl(){ echo https://idp.ihep.ac.cn:443/idp/Authn/UserPassword ; }
 
@@ -114,12 +120,13 @@ sso-cook(){ echo cookies.txt ; }
 sso-cmd-(){ cat << EOC
 
 curl \
-       --data-urlencode "j_username=$(sso-un)" \
-       --data-urlencode "j_password=$(sso-pw)" \
+       -X POST \
+       -F "j_username=$(sso-un)" \
+       -F "j_password=$(sso-pw)" \
        --cookie $(sso-cook) \
        --cookie-jar $(sso-cook) \
-       -X POST \
-       -L -v $(sso-aurl) 
+       -L \
+       -v $(sso-aurl) 
 
 EOC
 }
