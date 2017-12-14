@@ -20,59 +20,143 @@ import lldb
 
 from env.tools.lldb_.evaluate import evaluate_frame, evaluate_var, evaluate_obj
 
-nam = "standalone"
-exe = "/tmp/%s" % nam
-src = "%s.cc" % nam
-cmd = "cc %(src)s -g -lc++ -o %(exe)s " % locals() # without -g fails to find breakpoints
-print "compiling : %s " % cmd 
-rc = os.system(cmd)
-assert rc == 0, rc
+class Code(dict):
+    @classmethod
+    def find_bpline(cls, path, mkr ):
+        marker = "// (*lldb*) %s" % mkr
 
-def find_bpline(path, mkr ):
-    marker = "// (*lldb*) %s" % mkr
-    nls = filter( lambda nl:nl[1].find(marker) > -1, enumerate(file(path).readlines()) )
-    assert len(nls) == 1
-    return int(nls[0][0])+1, nls[0][1]
+        lines = file(path).readlines()
+        #print "\n".join(lines)
+        nls = filter( lambda nl:nl[1].find(marker) > -1, enumerate(lines) )
+        assert len(nls) == 1
+        return int(nls[0][0])+1 
+
+    def compile_(self):
+        print "compiling : %(cmd)s " % self
+        rc = os.system(self["cmd"])
+        assert rc == 0, rc
+
+    mkr = property(lambda self:self["mkr"])
+    nam = property(lambda self:self["nam"])
+    exe = property(lambda self:self["exe"])
+    src = property(lambda self:self["src"])
+    bpl = property(lambda self:self["bpl"])
+
+    def __repr__(self):
+        return r"""
+
+             nam : %(nam)s
+             mkr : %(mkr)s
+             exe : %(exe)s
+             src : %(src)s
+             cmd : %(cmd)s
+             bpl : %(bpl)s
 
 
-debugger = lldb.SBDebugger.Create()
-debugger.SetAsync (False)
+        """ % self 
 
-target = debugger.CreateTargetWithFileAndArch (exe, lldb.LLDB_ARCH_DEFAULT)
-print "target:", target
-assert target
 
-filename = target.GetExecutable().GetFilename()
-print "filename ", filename
+    def __init__(self, *args, **kwa):
+        """
+        When using an existing executable, 
+        require *exe* path to the binary and *src* path to the source.
 
-bpln, bpline = find_bpline(src, "Exit")
-print "bpline:%s" % bpline
-bp = target.BreakpointCreateByLocation(src, bpln )  
-print bp
+        When compiling standalone code 
+        provide only the *src*  path.
+        """
+        dict.__init__(self, *args, **kwa)
 
-process = target.LaunchSimple (None, None, os.getcwd())   # synchronous mode returns at bp 
-print "process:", process
-assert process
+        assert hasattr(self, "src")
+        assert os.path.isfile(self["src"])
+        self["nam"] = os.path.splitext(os.path.basename(self["src"]))[0]
 
-state = process.GetState ()
-print "state:", state
-assert state == lldb.eStateStopped
+        if not hasattr(self,"exe"):
+            self["exe"] = "/tmp/%(nam)s" % self     
+            self["cmd"] = "cc %(src)s -g -lc++ -o %(exe)s " % self # without -g fails to find breakpoints
+            self.compile_()
+        else:
+            self["cmd"] = "-"
+        pass
+        if not hasattr(self, "mkr"):
+            self["mkr"] = "Exit"
+        pass
+        self["bpl"] = self.find_bpline(self.src, self.mkr)
 
-thread = process.GetThreadAtIndex (0)
-print "thread:", thread
-assert thread
+        
 
-frame = thread.GetFrameAtIndex (0)
-assert frame
-print "frame", frame
 
-function = frame.GetFunction()
-assert function
-print "function:", function
-    
 
-error = lldb.SBError()
-ef = evaluate_frame(frame, vdump=True, error=error)
-print ef 
-print ef["o"]["_s"]
+class Standalone(object):
+    def __init__(self, code, dump=False):
+
+        exe = code.exe
+        bpl = code.bpl
+        src = code.src
+
+        debugger = lldb.SBDebugger.Create()
+        debugger.SetAsync (False)
+
+        target = debugger.CreateTargetWithFileAndArch (exe, lldb.LLDB_ARCH_DEFAULT)
+        if dump:
+            print "target:", target
+        assert target
+
+        filename = target.GetExecutable().GetFilename()
+        if dump:
+            print "filename ", filename
+
+        bp = target.BreakpointCreateByLocation(src, bpl )    # needs name.cc filename lacks .cc
+        if dump:
+            print bp
+
+        process = target.LaunchSimple (None, None, os.getcwd())   # synchronous mode returns at bp 
+        if dump:
+            print "process:", process
+        assert process
+
+        state = process.GetState ()
+        if dump:
+            print "state:", state
+        assert state == lldb.eStateStopped
+
+        thread = process.GetThreadAtIndex (0)
+        if dump:
+            print "thread:", thread
+        assert thread
+
+        frame = thread.GetFrameAtIndex (0)
+        if dump:
+            print "frame", frame
+        assert frame
+
+        function = frame.GetFunction()
+        if dump:
+            print "function:", function
+        assert function
+            
+
+        self.code = code
+        self.debugger = debugger
+        self.target = target
+        self.process = process
+        self.thread = thread
+        self.frame = frame
+        self.function = function
+
+
+if __name__ == '__main__':
+
+    #co = Code(src="standalone.cc")  ## when compiling 
+    co = Code(src="standalone.cc", exe="/tmp/standalone")  ## when using preexistinge exe
+    print co
+
+    st = Standalone(co)  
+    error = lldb.SBError()
+    ef = evaluate_frame(st.frame, vdump=True, error=error)
+
+    print ef 
+    print ef["o"]["_s"]
+
+    ##  /usr/bin/python -i standalone.py   OR lldb-i 
+   
 

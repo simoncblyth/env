@@ -204,3 +204,12 @@ EOU
 lldb-dir(){ echo $(env-home)/tools/lldb_ ; }
 lldb-cd(){  cd $(lldb-dir); }
 lldb-c(){  cd $(lldb-dir); }
+
+
+lldb-i(){
+
+    lldb-c
+   /usr/bin/python -i standalone.py
+
+}
+
