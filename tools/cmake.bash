@@ -26,6 +26,32 @@ cmak-
 
 
 
+
+add_custom_target
+--------------------
+
+* https://stackoverflow.com/questions/35300833/cmake-get-output-of-some-command-every-build-and-reconfigure-files-that-depends
+* https://cmake.org/cmake/help/v3.0/command/add_custom_target.html
+
+Adds a target with the given name that executes the given commands. The target
+has no output file and is ALWAYS CONSIDERED OUT OF DATE even if the commands
+try to create a file with the name of the target. Use ADD_CUSTOM_COMMAND to
+generate a file with dependencies. By default nothing depends on the custom
+target. Use ADD_DEPENDENCIES to add dependencies to or from other targets. If
+the ALL option is specified it indicates that this target should be added to
+the default build target so that it will be run every time (the command cannot
+be called ALL). The command and arguments are optional and if not specified an
+empty target will be created. If WORKING_DIRECTORY is set, then the command
+will be run in that directory. If it is a relative path it will be interpreted
+relative to the build tree directory corresponding to the current source
+directory. If COMMENT is set, the value will be displayed as a message before
+the commands are executed at build time. Dependencies listed with the DEPENDS
+argument may reference files and outputs of custom commands created with
+add_custom_command() in the same directory (CMakeLists.txt file).
+
+
+
+
 cmake --build . --help
 -------------------------
 
