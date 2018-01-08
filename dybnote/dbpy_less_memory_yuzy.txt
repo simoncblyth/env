@@ -1,0 +1,107 @@
+
+Dear Simon
+
+I am trying to dump my temporary database to the temorary offline database with 
+
+db.py my_db rdumpcat ./tmp_offline_db --LESSMEMORY
+
+The table CalibPmtFineGain is 380 MB now, and it seems a memory crash happens, as you can see the error message in the log file.
+
+I have assigned 4.8 GB memory for the command..
+
+Could you help us to check? It is urgent since the PMT gains and energy scales are related to the new production P17B, which should start asap.
+
+Thanks
+
+
+
+
+
+INFO:DybPython.db:{'VERSION()': '5.0.45-log', 'CURRENT_USER()': 'yuzy@%', 'DATABASE()': 'tmp_yuzy_offline_db', 'CONNECTION_ID()': 4002953L}
+INFO:DybPython.db:performing decoupled rdumpcat into existing directory ./tmp_offline_db  
+INFO:DybPython.db:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+Traceback (most recent call last):
+  File "/afs/.ihep.ac.cn/soft/dayabay/NuWa-slc6/opt/NuWa-trunk/dybgaudi/InstallArea/scripts/db.py", line 4, in <module>
+    main()
+  File "/afs/.ihep.ac.cn/soft/dayabay/NuWa-slc6/opt/NuWa-trunk/dybgaudi/InstallArea/python/DybPython/db.py", line 1476, in main
+    getattr( db , cmd)( *args[2:], **opts )   
+  File "/afs/.ihep.ac.cn/soft/dayabay/NuWa-slc6/opt/NuWa-trunk/dybgaudi/InstallArea/python/DybPython/db.py", line 774, in rdumpcat_
+    self._write_csvdirect( select , tf )   ## result of select is returned to python and thence formatted directly into csv, works remotely 
+  File "/afs/.ihep.ac.cn/soft/dayabay/NuWa-slc6/opt/NuWa-trunk/dybgaudi/InstallArea/python/DybPython/db.py", line 900, in _write_csvdirect
+    for row in result.fetch_row(maxrows=0, how=0):   ## all rows as tuples
+MemoryError
+
+
+
+simon:DybPython blyth$ ./db.py offline_db rdumpcat ~/dybaux/catalog/tmp_offline_db --LESSMEMORY 
+INFO:__main__:{'VERSION()': '5.0.45', 'CURRENT_USER()': 'dayabay@%', 'DATABASE()': 'offline_db', 'CONNECTION_ID()': 6189341L}
+INFO:__main__:performing decoupled rdumpcat into existing directory /Users/blyth/dybaux/catalog/tmp_offline_db  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+
+simon:DybPython blyth$ ./db.py offline_db rdumpcat ~/dybaux/catalog/tmp_offline_db --LESSMEMORY -l DEBUG
+INFO:__main__:{'VERSION()': '5.0.45', 'CURRENT_USER()': 'dayabay@%', 'DATABASE()': 'offline_db', 'CONNECTION_ID()': 6189593L}
+DEBUG:__main__:rdumpcat offline_db ('/Users/blyth/dybaux/catalog/tmp_offline_db',) {'all': False, 'EXTRA_PAYLOAD_CHECKS': False, 'verbose': False, 'tselect': 'CalibFeeSpec,CalibPmtSpec,FeeCableMap,SimPmtSpec,HardwareID,CableMap,CoordinateAd,CoordinateReactor,PhysAd,Reactor,CalibPmtHighGain,CalibPmtPedBias,CalibSrcEnergy,EnergyRecon,CalibPmtFineGain,CalibPmtTiming,AdWpHvMap,AdWpHvToFee,AdWpHvSetting,GoodRunList,McsPos,DqChannelStatus', 'RESTRICT': None, 'NOLOCALSEQNO': False, 'APPENDLOAD': False, 'DROP': False, 'SKIP_PAY_CHECK': True, 'OVERRIDE': False, 'NOPAIRING': False, 'tmpbase': '/tmp', 'local': False, 'nocheck': False, 'safe': True, 'LESSMEMORY': True, 'nolog': False, 'noconfirm': False, 'nolock': False, 'loglevel': 'DEBUG', 'ALLOW_PARTIAL': False, 'decoupled': True} 
+INFO:__main__:performing decoupled rdumpcat into existing directory /Users/blyth/dybaux/catalog/tmp_offline_db  
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvMap/AdWpHvMap.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM AdWpHvMap    order by SEQNO,ROW_COUNTER    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvMap/AdWpHvMap.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvMap/AdWpHvMap.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvMap/AdWpHvMapVld.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM AdWpHvMapVld    order by SEQNO    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvMap/AdWpHvMapVld.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvMap/AdWpHvMapVld.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvSetting/AdWpHvSetting.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM AdWpHvSetting    order by SEQNO,ROW_COUNTER    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvSetting/AdWpHvSetting.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvSetting/AdWpHvSetting.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvSetting/AdWpHvSettingVld.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM AdWpHvSettingVld    order by SEQNO    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvSetting/AdWpHvSettingVld.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvSetting/AdWpHvSettingVld.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvToFee/AdWpHvToFee.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM AdWpHvToFee    order by SEQNO,ROW_COUNTER    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvToFee/AdWpHvToFee.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvToFee/AdWpHvToFee.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvToFee/AdWpHvToFeeVld.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM AdWpHvToFeeVld    order by SEQNO    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvToFee/AdWpHvToFeeVld.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/AdWpHvToFee/AdWpHvToFeeVld.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/CableMap/CableMap.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM CableMap    order by SEQNO,ROW_COUNTER    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/CableMap/CableMap.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/CableMap/CableMap.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/CableMap/CableMapVld.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM CableMapVld    order by SEQNO    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/CableMap/CableMapVld.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/CableMap/CableMapVld.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/CalibFeeSpec/CalibFeeSpec.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM CalibFeeSpec    order by SEQNO,ROW_COUNTER    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/CalibFeeSpec/CalibFeeSpec.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/CalibFeeSpec/CalibFeeSpec.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/CalibFeeSpec/CalibFeeSpecVld.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM CalibFeeSpecVld    order by SEQNO    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+DEBUG:__main__:renaming /Users/blyth/dybaux/catalog/tmp_offline_db/CalibFeeSpec/CalibFeeSpecVld.csv._safe into /Users/blyth/dybaux/catalog/tmp_offline_db/CalibFeeSpec/CalibFeeSpecVld.csv 
+DEBUG:__main__:rdumpcat_ writing /Users/blyth/dybaux/catalog/tmp_offline_db/CalibPmtFineGain/CalibPmtFineGain.csv pre-exists True safe_write True  
+DEBUG:__main__:_write_csvdirect SELECT * FROM CalibPmtFineGain    order by SEQNO,ROW_COUNTER    
+INFO:__main__:using `--LESSMEMORY` option : less memory expensive but more network expensive 'use_result'  
+
+
+simon:DybPython blyth$ ipython -i ./db.py  -- offline_db noop
+args: /opt/local/bin/ipython -i ./db.py -- offline_db noop
+[2017-11-16 15:43:51,914] p20562 {/Users/blyth/dybgaudi/DybPython/python/DybPython/db.py:1469} INFO - {'VERSION()': '5.0.45', 'CURRENT_USER()': 'dayabay@%', 'DATABASE()': 'offline_db', 'CONNECTION_ID()': 6189727L}
+
+In [1]: 
+
+
+

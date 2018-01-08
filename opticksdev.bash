@@ -166,6 +166,32 @@ Then rebuild libs that depend on the external::
 
 
 
+delta OSX
+-----------
+
+::
+
+    delta:/ blyth$ date
+    Mon Jan  8 16:27:03 CST 2018
+
+    delta:/ blyth$ l Developer/
+    total 8
+    lrwxr-xr-x  1 root  wheel    9 Oct 16 12:00 OptiX -> OptiX_411
+    drwxr-xr-x  8 root  admin  272 Sep 22 11:33 OptiX_411
+    drwxr-xr-x  8 root  admin  272 Jul 22  2016 OptiX_400
+    drwxr-xr-x  7 root  admin  238 May 29  2015 OptiX_380
+    drwxr-xr-x  7 root  admin  238 Jan 22  2015 OptiX_301
+    drwxr-xr-x  7 root  admin  238 Dec 18  2014 OptiX_370b2
+    drwxr-xr-x  4 root  wheel  136 Jun 29  2015 NVIDIA
+
+    delta:/ blyth$ l Developer/NVIDIA/
+    total 0
+    drwxrwxrwx  15 root  wheel  510 Jun 29  2015 CUDA-7.0
+    drwxrwxrwx  16 root  wheel  544 Jan 15  2014 CUDA-5.5
+    delta:/ blyth$ 
+
+
+
 How to add an external to Opticks
 -----------------------------------
 

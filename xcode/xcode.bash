@@ -10,6 +10,12 @@ XCODE
 Updating Xcode
 -----------------
 
+Latest (Jan 2018) Version : Xcode 9.2 (includes Swift 4)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Compatibility : macOS 10.12.6 or later
+
+
 Latest
 ~~~~~~~~~
 

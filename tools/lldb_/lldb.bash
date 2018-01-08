@@ -35,6 +35,35 @@ Check the file::
     command source ~/.lldbinit
 
 
+numpy into system python for use from lldb ?
+-----------------------------------------------
+
+::
+
+    delta:ana blyth$ /usr/bin/python -i
+    Python 2.7.5 (default, Mar  9 2014, 22:15:05) 
+    [GCC 4.2.1 Compatible Apple LLVM 5.0 (clang-500.0.68)] on darwin
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> 
+    >>> print "\n".join(sys.path)
+
+    /Users/blyth
+    /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python27.zip
+    /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7
+    /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/plat-darwin
+    /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/plat-mac
+    /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/plat-mac/lib-scriptpackages
+    /System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python
+    /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk
+    /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-old
+    /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-dynload
+    /System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/PyObjC
+    /Library/Python/2.7/site-packages
+    >>> 
+    delta:ana blyth$ cat /Library/Python/2.7/site-packages/README 
+    This directory exists so that 3rd party packages can be installed
+    here.  Read the source for site.py for more details.
+    delta:ana blyth$ 
 
 
 

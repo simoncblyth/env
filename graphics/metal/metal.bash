@@ -14,6 +14,30 @@ Metal 2 (WWDC June 2017)
 * https://developer.apple.com/metal/
 
 
+Metal 2 Compatibility
+-----------------------
+
+* https://arstechnica.com/gadgets/2017/09/macos-10-13-high-sierra-the-ars-technica-review/
+* ~/metal/Metal-Feature-Set-Tables.pdf
+
+iOS
+~~~~~
+
+GPU Family 1 refers to the Apple A7. 
+     iOS_GPUFamily1_v4 is the under-the-hood name for “Metal 2,” since it’s the fourth Metal release to cover the A7.
+
+GPU Family 2 refers to the Apple A8. 
+    iOS_GPUFamily 2_v4 refers to Metal 2.
+
+GPU Family 3 refers to the Apple A9 and A10. 
+    iOS_GPUFamily 3_v3 refers to Metal 2, since the A9 and A10 weren’t around for the first release of Metal back in iOS 8.
+
+GPU Family 4 refers to the A11. 
+    iOS_GPUFamily4_v1 refers to Metal 2, since the A11 is brand new in iOS 11.
+
+
+
+
 mtlpp : Metal C++ Wrapper
 ---------------------------
 

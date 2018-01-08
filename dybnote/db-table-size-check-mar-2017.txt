@@ -1,0 +1,24 @@
+
+
+
+
+::
+
+    mysql> select table_name, round(data_length/1024/1024,2) as data_length_MB, round(index_length/1024/1024,2) as index_length_MB, round((data_length+index_length)/1024/1024,2) as total_MB from information_schema.TABLES order by(data_length+index_length) desc limit 10 ;
+    +-----------------------+----------------+-----------------+----------+
+    | table_name            | data_length_MB | index_length_MB | total_MB |
+    +-----------------------+----------------+-----------------+----------+
+    | DcsPmtHv              |         293.68 |          249.07 |   542.75 |
+    | CalibPmtFineGain      |         242.07 |          120.34 |   362.42 |
+    | DcsAdLidSensor        |         146.12 |            3.52 |   149.63 |
+    | DcsAdWpHv             |          74.76 |           56.73 |   131.49 |
+    | DaqRawDataFileInfo    |         117.67 |           11.73 |   129.40 |
+    | DqChannelPackedVld    |          71.80 |           14.45 |    86.24 |
+    | DqChannelPacked       |          64.76 |           20.30 |    85.05 |
+    | GoodRunList           |          40.08 |           27.51 |    67.59 |
+    | DaqRawDataFileInfoVld |          36.57 |            8.34 |    44.91 |
+    | DaqRunConfig          |          19.33 |            9.15 |    28.48 |
+    +-----------------------+----------------+-----------------+----------+
+    10 rows in set (0.24 sec)
+
+

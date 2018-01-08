@@ -289,7 +289,7 @@ numpy-tute(){
    ## hmmm needs : scipy.interpolate
    
 
-}
+# git clone https://github.com/numpy/numpy.git numpy
 
 numpy-get(){
    local msg="=== $FUNCNAME :"

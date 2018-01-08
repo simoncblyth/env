@@ -31,6 +31,45 @@ complications
 of C# : Java verbosity of code, Microsoft boring documentation  
 
 
+Document debugging
+---------------------
+
+
+asciicheck.py : non-ascii character check
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    simon:dec2017-lon blyth$ asciicheck.py index.rst
+    index.rst 290     In the next 10 minutes you[?][?][?]ll receive an email containing your booking details and Hotel voucher/s.
+
+    index.rst 303     Dec 21 - 23, 2017 [?][?][?] 1 guest
+
+
+doctree.py : rst debugging by examination of intermediate pseudo-xml doctree
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* generally fix issues using literal blocks to avoid rst ctrl chars 
+
+::
+
+    simon:dec2017-lon blyth$ rst2docx.py index.rst
+    2017-12-18 13:55:38,664 env.doc.docutils.rst2docx INFO     appending docxpath : /Users/blyth/workflow/notes/travel/2017/dec2017-lon/index.docx 
+    2017-12-18 13:55:38,664 env.doc.docutils.rst2docx INFO     reading /Users/blyth/workflow/notes/travel/2017/dec2017-lon/index.rst 
+    /Users/blyth/workflow/notes/travel/2017/dec2017-lon/index.rst:158: (WARNING/2) Inline strong start-string without end-string.
+    /Users/blyth/workflow/notes/travel/2017/dec2017-lon/index.rst:158: (WARNING/2) Inline strong start-string without end-string.
+    /Users/blyth/workflow/notes/travel/2017/dec2017-lon/index.rst:158: (WARNING/2) Inline strong start-string without end-string.
+    2017-12-18 13:55:38,893 env.doc.docutils.rst2docx INFO     Writer pre walkabout
+    NotImplementedError: env.doc.docutils.rst2docx.Translator visiting unknown node type: problematic
+    Exiting due to error.  Use "--traceback" to diagnose.
+    Please report errors to <docutils-users@lists.sf.net>.
+    Include "--traceback" output, Docutils version (0.12 [release]),
+    Python version (2.7.13), your OS type & version, and the
+    command line used.
+    simon:dec2017-lon blyth$ 
+
+
+
 
 """
 
@@ -623,7 +662,17 @@ def main():
     uribase = os.environ.get('URIBASE',"/Library/WebServer/Documents")
 
     config = Config(__doc__)
-    paths = config.args.paths
+    paths = map(lambda _:os.path.abspath(_), config.args.paths)
+
+    if len(paths) == 1:
+        assert paths[0].endswith(".rst")
+        rstpath = paths[0]
+        assert os.path.isfile(rstpath)
+        docxpath = rstpath.replace(".rst",".docx") 
+        log.info("appending docxpath : %s " % docxpath )
+        paths.append(docxpath)
+    pass
+
     assert len(paths) == 2
 
     log.info("reading %s " % paths[0])

@@ -101,10 +101,12 @@ EOU
 }
 
 rst2pdf-dir(){ echo $(local-base)/env/doc/$(rst2pdf-name) ; }
-rst2pdf-name(){ echo rst2pdf-0.93 ; }
+#rst2pdf-name(){ echo rst2pdf-0.93 ; }
+rst2pdf-name(){ echo rst2pdf ; }
 rst2pdf-cd(){  cd $(rst2pdf-dir); }
-rst2pdf-mate(){ mate $(rst2pdf-dir) ; }
-rst2pdf-get(){
+
+
+rst2pdf-old-get(){
    local dir=$(dirname $(rst2pdf-dir)) &&  mkdir -p $dir && cd $dir
 
    local url=https://rst2pdf.googlecode.com/files/$(rst2pdf-name).tar.gz
@@ -113,7 +115,17 @@ rst2pdf-get(){
 
    [ ! -f "$tgz" ] && curl -L -O $url 
    [ ! -d "$nam" ] && tar zxvf $tgz
+}
 
+
+rst2pdf-get(){
+   local dir=$(dirname $(rst2pdf-dir)) &&  mkdir -p $dir && cd $dir
+
+   local nam=$(rst2pdf-name)
+
+   [ ! -d $nam ] && git clone https://github.com/rst2pdf/rst2pdf $nam
+   cd $nam
+   
 }
 
 
