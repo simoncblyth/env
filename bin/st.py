@@ -8,13 +8,27 @@ import os, commands
 class Status(object):
 
     @classmethod
-    def command(cls, _):
+    def identify(cls, _):
         if os.path.isdir(os.path.join(_, ".hg")):
-            cmd = "hg status %s " % _
+            typ = "hg"
         elif os.path.isdir(os.path.join(_, ".svn")):
-            cmd = "svn status %s " % _
+            typ = "svn"
         elif os.path.isdir(os.path.join(_, ".git")):
-            cmd = "git --work-tree=%(_)s --git-dir=%(_)s/.git status " % locals()
+            typ = "git"
+        else:
+            typ = None
+        pass
+        return typ
+ 
+    @classmethod
+    def command(cls, _):
+        typ = cls.identify(_)
+        if typ == "hg":
+            cmd = "hg status %s " % _
+        elif typ == "svn":
+            cmd = "svn status %s " % _
+        elif typ == "git":
+            cmd = "git --work-tree=%(_)s --git-dir=%(_)s/.git status --porcelain " % locals()
         else:
             cmd = None
         pass
