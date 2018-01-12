@@ -56,7 +56,7 @@ class IPath(object):
         Identity repository type as svn/git/hg for path argument 
         and provide base directory of the repo.
         """
-        log.debug("repotype %2d %s " % (up, _) )
+        #log.debug("repotype %2d %s " % (up, _) )
 
         if os.path.isfile(_):
             typ, base = cls.repotype( os.path.dirname(_) )
@@ -145,12 +145,17 @@ class IPath(object):
         xx_ = lambda _:os.path.abspath(os.path.expandvars(os.path.expanduser(_)))
         path = xx_(path_)
         typ, base = self.repotype(path)
+
+        log.debug(" IPath path:%s typ:%s base:%s " % ( path, typ, base) )
+
         dig = digest_(path)
         isdir = os.path.isdir(path)
 
         cwd = os.getcwd()
         cpath = path[len(cwd)+1:]   # relative to cwd
     
+      
+
 
         cmd, out, ptn, rpath, sub = None, None, None, None, []
 

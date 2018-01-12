@@ -1922,3 +1922,10 @@ nasm-(){      . $(env-home)/tools/nasm.bash && nasm-env $* ; }
 x264-(){      . $(env-home)/video/x264.bash && x264-env $* ; }
 egl-(){      . $(env-home)/graphics/egl/egl.bash && egl-env $* ; }
 macos-(){      . $(env-home)/osx/macos.bash && macos-env $* ; }
+tmutil-(){      . $(env-home)/osx/tmutil/tmutil.bash && tmutil-env $* ; }
+
+dotfiler-(){      . $(env-home)/tools/dotfiler.bash && dotfiler-env $* ; }
+
+
+
+

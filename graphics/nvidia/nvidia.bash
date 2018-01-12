@@ -42,6 +42,12 @@ Install Logging Linux
 
 
 
+Titan V : late 2017, 5120 CUDA cores, 3000 USD compute monster, still able to do graphics
+-------------------------------------------------------------------------------------------
+
+* https://www.anandtech.com/show/12170/nvidia-titan-v-preview-titanomachy
+
+
 NPP : NVIDIA Performance Primitives
 -------------------------------------
 

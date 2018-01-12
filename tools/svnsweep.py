@@ -113,8 +113,11 @@ class Sweeper(list):
         :param skip: space delimited list of dirnames to skip in the dir_walk (ignored in status_walk) eg "_build _sources"
 
         """
+        log.debug("Sweeper.__init__ START  " )
         self.src = IPath(src)
+        log.debug("Sweeper.__init__ src instanciated " )
         self.tgt = IPath(tgt)
+        log.debug("Sweeper.__init__ tgt instanciated " )
 
         self.cmds = []
         self.skipd = skipd.split() if skipd else []
@@ -198,8 +201,8 @@ class Sweeper(list):
 
         tpath = os.path.join(self.tgt.path,rpath)
         tp = IPath(tpath, stat="-") 
-        log.info("sp %s" % sp )
-        log.info("tp %s" % tp )
+        log.debug("sp %s" % sp )
+        log.debug("tp %s" % tp )
 
         if sp.digest == tp.digest:
             cmd = "rm -f \"%s\" " % ( spath )         
@@ -220,7 +223,7 @@ def parse_args_(doc):
     op.add_option("-s", "--cnfsect", default=os.environ['SVNSWEEP_CNFSECT'], help="Comma delimeted list of config file sections to read, default %default " )
     op.add_option("-g", "--logpath", default=None )
     op.add_option(      "--PROCEED", action="store_true", default=False, help="Proceed to run the commands, default %default " )
-    op.add_option("-t", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
+    op.add_option("-t", "--logformat", default="%(asctime)s %(name)s:%(lineno)4d %(levelname)-8s %(message)s" )
     op.add_option("-l", "--loglevel", default="INFO", help=" default %default " )
     opts, args = op.parse_args()
     opts.cnf = read_cnf_( opts.cnfpath )
@@ -247,7 +250,10 @@ def read_cnf_( path ):
 def main():
     opts, args = parse_args_(__doc__)
 
+    log.warning("PIPING BELOW STDOUT TO SH DOES THE COPIES IN 1st PASS AND DELETES IN 2nd PASS, NO STDOUT WHEN COMPLETE  ")
+
     for sect in opts.cnfsect.split(","):
+        log.debug("sect %s " % sect )
         cfg = dict(opts.cnf.items(sect))
         argv0 = os.path.basename(sys.argv[0])
         assert argv0 == cfg['argv0'], ( argv0, cfg, "config argv0 mismatch with script" )

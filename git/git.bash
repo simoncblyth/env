@@ -26,6 +26,99 @@ Github Merging a pull request via web interface
 * add commit message and confirm the merge
 
 
+Status
+--------
+
+::
+
+    # porcelain: line-by-line format for scripts , branch: show the branch and tracking info
+    delta:assimp-fork blyth$ git status --porcelain --branch   
+    ## master...origin/master
+     M Readme.md
+    ?? hello.txt
+
+
+Config
+--------
+
+::
+
+    delta:~ blyth$ git config --list
+    user.name=Simon C Blyth
+    user.email=simon.c.blyth@gmail.com
+    color.diff=auto
+    color.status=auto
+    color.branch=auto
+    core.repositoryformatversion=0
+    core.filemode=true
+    core.bare=false
+    core.logallrefupdates=true
+    core.ignorecase=true
+    core.precomposeunicode=true
+    remote.origin.url=git@bitbucket.org:simoncblyth/testhome.git
+    remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+    branch.master.remote=origin
+    branch.master.merge=refs/heads/master
+    delta:~ blyth$ 
+
+    delta:hometest blyth$ git config --list
+    user.name=Simon C Blyth
+    user.email=simon.c.blyth@gmail.com
+    color.diff=auto
+    color.status=auto
+    color.branch=auto
+    core.repositoryformatversion=0
+    core.filemode=true
+    core.bare=false
+    core.logallrefupdates=true
+    core.ignorecase=true
+    core.precomposeunicode=true
+    push.default=simple
+    remote.origin.url=gcrypt::blyth@192.168.0.200:testhomecrypt.git
+    remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+    remote.origin.gcrypt-id=:id:poByIm5T1tjn3sXlDiVg
+    delta:hometest blyth$ 
+
+
+
+
+
+Git Remote Helpers
+--------------------
+
+* https://git-scm.com/docs/git-remote-helpers
+
+Remote helper programs are normally not used directly by end users, but they
+are invoked by git when it needs to interact with remote repositories git does
+not support natively. A given helper will implement a subset of the
+capabilities documented here. When git needs to interact with a repository
+using a remote helper, it spawns the helper as an independent process, sends
+commands to the helper’s standard input, and expects results from the helper’s
+standard output. Because a remote helper runs as an independent process from
+git, there is no need to re-link git to add a new helper, nor any need to link
+the helper with the implementation of git.
+
+When git encounters a URL of the form <transport>://<address>, where
+<transport> is a protocol that it cannot handle natively, it automatically
+invokes git remote-<transport> with the full URL as the second argument.
+
+
+Encrypted Git Repo ?
+---------------------
+
+* see w-/gcrypt-
+
+
+git remote show
+----------------
+
+::
+
+    delta:~ blyth$ git remote -v show
+    origin  git@bitbucket.org:simoncblyth/testhome.git (fetch)
+    origin  git@bitbucket.org:simoncblyth/testhome.git (push)
+
+
 Avoid http blockages by cloning over SSH 
 -------------------------------------------
 
@@ -49,7 +142,6 @@ on one of the machines is too old.
 
 clone into home on unblocked machine 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
   
 ::
 
@@ -79,6 +171,16 @@ clone over ssh from http blocked machine
     Resolving deltas: 100% (17005/17005), done.
     [simon@localhost x264]$ 
 
+
+git remote add
+---------------
+
+* https://caolan.org/posts/encrypted_git_repositories.html
+
+::
+
+    git remote add origin gcrypt::rsync://username@your-server.com:example-crypt
+    git remote add origin gcrypt::rsync://username@your-server.com:example-crypt
 
 
 git pull
