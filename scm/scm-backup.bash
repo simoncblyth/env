@@ -973,7 +973,9 @@ scm-backup-rsync-all-to-node(){
    local tag=${1:-$BACKUP_TAG}
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
    
-   local cmd="rsync -e ssh -razvt $(scm-backup-dir) $tag:$(scm-backup-dir $tag) "
+   local cmd="rsync -e ssh -razvt $(scm-backup-dir)/ $tag:$(scm-backup-dir $tag) "
+   ## need trailing slash on source dir to avoid duplicating the backup dir
+
    echo $cmd
 
    read -p "$msg Enter YES to proceed " ans
