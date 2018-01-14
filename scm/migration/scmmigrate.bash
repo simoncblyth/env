@@ -11,7 +11,6 @@ SCM MIGRATE
 Uses standard scm repos/tracs/backup layout adopted 
 by all my SVN/Trac instances to facilitate migrations.
 
-
 FUNCTIONS
 ----------
 
@@ -19,12 +18,8 @@ FUNCTIONS
     transfers backup tarballs from remote hub node, verifies and unpacks them  
     into same directory layout as source, namely beneath /var/scm/backup
 
-
 *scmmigrate-tickets*
     
-
-
-
 EOU
 }
 scmmigrate-mate(){ mate $(scmmigrate-dir) ; }
@@ -152,3 +147,5 @@ scmmigrate-tickets(){
    trac2bitbucket-
    trac2bitbucket-tickets $repodir 
 }
+
+

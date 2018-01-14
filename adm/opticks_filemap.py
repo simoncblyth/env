@@ -9,12 +9,12 @@ When using *hg convert* to spawn the opticks repo
 from the overlarge env repo find that the convert explicitly 
 includes only history within the list of folders provided.
 
-Thus construct a useful history in the spawned repositor, 
+Thus to construct a useful history in the spawned repository, 
 need to obtain a list of dirs that files of interest have resided in 
 since their birth.  
 
 The set of current opticks files is an appropriate starting point.
-This script automate the construction of such a list of folders
+This script automates the construction of such a list of folders
 using the dis-encouraged internal Mercurial API. 
 
 Preparation
@@ -54,7 +54,6 @@ Remember to pull/update envtmp following env changes
     23 files updated, 0 files merged, 12 files removed, 0 files unresolved
 
 
-
 When did Opticks development begin ? 4910 [2015-01-20] "try out NVIDIA Optix 301"
 -----------------------------------------------------------------------------------
 
@@ -68,7 +67,6 @@ Tail of env.bash is good way to see whats happening.
 
 * https://bitbucket.org/simoncblyth/env/commits/4910/   2015-01-20  try out NVIDIA Optix 301
 * https://bitbucket.org/simoncblyth/env/commits/7a51deb30659403a1a616bbb27da67dccd3b92c8
-
 
 
 Discovering the API
@@ -270,12 +268,16 @@ def opticks_full_history_filemap(repo, firstrev):
     print fmp 
 
    
-       
-
 def opticks_proj_history_filemap(repo, firstrev, dirs, exclude):
     """
     Find the set of folders featuring in the entire history 
     of all files in the list of current opticks project dirs 
+
+    ::
+
+        In [10]: map(lambda _:_.startswith(("a","b","c")), list("abcde"))
+        Out[10]: [True, True, True, False, False]
+
     """
     pass
     revs = list(repo.changelog.revs())

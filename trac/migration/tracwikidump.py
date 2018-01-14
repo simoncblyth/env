@@ -271,7 +271,7 @@ def trac_ticket_dump( server, outd="."):
 def main():
    logging.basicConfig(level=logging.INFO)
    from env.web.cnf import cnf_ 
-   cnf = cnf_(__doc__)
+   cnf = cnf_(__doc__)   # argument parsed in cnf_ 
    url = cnf['xmlrpc_url']
    outd = cnf.get('tracdump_outd', cnf.outd)
 

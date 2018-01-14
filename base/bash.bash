@@ -4,22 +4,11 @@ bash-env(){
   elocal-
 }
 
-bash-usage(){
-
-cat << EOU
-
-  This just gives the filename ... not much use ... i want the directory 
-      BASH_SOURCE  : $BASH_SOURCE
-
-  the problem with bash functions is that they do not have a $0 to 
-  tell them where they come from 
-   ... problem arises as i like to provide a suite of functions to
-  
-  http://www.gnu.org/software/bash/manual/bashref.html#Invoking-Bash
-
+bash-usage(){ cat << EOU
+ 
+http://www.gnu.org/software/bash/manual/bashref.html#Invoking-Bash
 
 EOU
-
 }
 
 bash-dir(){

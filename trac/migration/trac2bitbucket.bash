@@ -22,7 +22,7 @@ EOU
 }
 trac2bitbucket-dir(){ echo $(local-base)/env/trac/migration/trac2bitbucket ; }
 trac2bitbucket-cd(){  cd $(trac2bitbucket-dir); }
-trac2bitbucket-mate(){ mate $(trac2bitbucket-dir) ; }
+trac2bitbucket-c(){  cd $(trac2bitbucket-dir); }
 trac2bitbucket-get(){
    local dir=$(dirname $(trac2bitbucket-dir)) &&  mkdir -p $dir && cd $dir
 
@@ -38,6 +38,9 @@ trac2bitbucket-wiki(){
    #python $(trac2bitbucket-dir)/wiki.py 
 
    python $(trac2bitbucket-dir)/wiki.py --tracdir /tmp/t/env --output-dir /tmp/t/envhg
+
+
+    # see also ~/env/trac/migration/tracwikidump.py  .sh
 }
 
 
@@ -74,9 +77,7 @@ trac2bitbucket-tickets(){
    local sdir=$(trac2bitbucket-sdir)
    python $sdir/issues_json.py   $json
 
-
 }
-
 
 trac2bitbucket-tickets-check(){
    local tracdir=$1
@@ -84,7 +85,5 @@ trac2bitbucket-tickets-check(){
    echo tracdir $tracdir json $json
 
 }
-
-
 
 

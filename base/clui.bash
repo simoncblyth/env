@@ -52,6 +52,23 @@ clui-open(){
    "$(clui-chrome)" ${1:-stackoverflow.com}
 }
 
+clui-st()
+{
+   local msg="$FUNCNAME :"
+   local cmd
+   if [ -d .hg ]; then 
+      cmd="hg status"
+   elif [ -d .svn ]; then 
+      cmd="svn status"
+   elif [ -d .git ]; then 
+      cmd="git status"
+   else
+      cmd="st.py" 
+   fi 
+   echo $msg $cmd
+   eval $cmd
+}
+
 
 clui-alias(){
 
@@ -65,8 +82,7 @@ clui-alias(){
    alias n="nosetests"
    alias ns="nosetests -s"
    alias nsv="nosetests -s -v"
-   alias st="hg st"
-   alias sst="svn st"
+   alias st="clui-st"
    alias stu="svn st -u"
    alias up="svn up"
    alias sci="svn --username $USER ci "

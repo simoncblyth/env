@@ -68,39 +68,46 @@ Repositioning inside svn2git
     -rw-r--r--    1 blyth  staff      48 May 11 14:03 authors-transform.txt
 
 
-
-
-
 EOU
 }
-svn2git-dir(){ echo $(local-base)/env/adm/adm-svn2git ; }
-svn2git-cd(){  cd $(svn2git-dir); }
-svn2git-mate(){ mate $(svn2git-dir) ; }
-svn2git-get(){
-   local dir=$(dirname $(svn2git-dir)) &&  mkdir -p $dir && cd $dir
+svn2git-repo(){ echo workflow ; }
+svn2git-sdir(){ echo $HOME/$(svn2git-repo) ; }
+svn2git-base(){ echo $(local-base)/env/adm/svn2git ; } # formerly ~/svn2git/workflow
+svn2git-gdir(){ echo $(svn2git-base)/$(svn2git-repo) ; } # formerly ~/svn2git/workflow
+svn2git-auth(){ echo $(svn2git-repo)-authors.txt ; }
+svn2git-authpath(){ echo $(svn2git-base)/$(svn2git-auth) ; }
 
+svn2git-svnurl(){ echo http://g4pb.local/repos/workflow ; }
+
+svn2git-scd(){   
+    local sdir=$(svn2git-sdir)
+    [ ! -d $sdir ] && echo expecting repo in sdir $sdir && return 
+    cd $sdir
 }
-
-svn2git-workingcopy(){       echo ~/workflow ; }
-svn2git-svnurl(){            echo http://g4pb.local/repos/workflow ; }
-svn2git-gitdir(){            echo ~/svn2git/workflow ; }
-svn2git-authors-transform(){ echo ~/svn2git/authors-transform.txt ; }
+svn2git-cd(){  
+    local gdir=$(svn2git-gdir)
+    [ ! -d $gdir ] && mkdir -p $gdir
+    cd $gdir
+}
 
 svn2git-authors-()
 {
-    cd $(svn2git-workingcopy)
     svn log -q | awk -F '|' '/^r/ {sub("^ ", "", $2); sub(" $", "", $2); print $2" = "$2" <"$2">"}' | sort -u
 }
 svn2git-authors()
 {
-    $FUNCNAME- | cat > $(svn2git-authors-transform) 
+    local auth=$(svn2git-authpath)
+    [ -f "$auth" ] && echo auth $auth exists already && return 
+
+    local iwd=$PWD
+    svn2git-scd
+    $FUNCNAME- | cat > $(svn2git-authpath)
+    cd $iwd
 }
-svn2git-authors-vi()
-{
-    vi $(svn2git-authors-transform) 
-}
+svn2git-authors-vi(){ vi $(svn2git-authpath)  ;}
+
 svn2git-clone(){
     cd 
-    git svn clone $(svn2git-svnurl) --prefix=origin/ --no-metadata -A $(svn2git-authors-transform) --stdlayout $(svn2git-gitdir) 
+    git svn clone $(svn2git-svnurl) --prefix=origin/ --no-metadata -A $(svn2git-authpath) --stdlayout $(svn2git-gdir) 
 }
 

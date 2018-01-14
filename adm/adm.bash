@@ -35,7 +35,6 @@ Preparing *env* for spawning *opticks*
 
 * Migrate infrastructure such as proj precursors from env.bash into opticks.bash  
 
-
 svnsync
 -----------
 
@@ -45,7 +44,6 @@ svnsync
 create a replica of your primary Subversion repository,
 
 * http://svnbook.red-bean.com/en/1.7/svn.ref.svnsync.html
-
 
 
 
@@ -122,8 +120,6 @@ opticks push to bitbucket
     remote: adding file changes
     remote: added 1153 changesets with 14073 changes to 3080 files
     delta:opticks blyth$ 
-
-
 
 
 *hg convert* config 
@@ -313,26 +309,16 @@ of the converted repository.
     ./TODO.rst
 
 
-
-
-
 wiki/ConvertExtensionImplementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * https://www.mercurial-scm.org/wiki/ConvertExtensionImplementation
 
 
-
-
-
 Future functionality : convert hg to git 
 ------------------------------------------
 
 * http://arr.gr/blog/2011/10/bitbucket-converting-hg-repositories-to-git/
-
-
-
-
 
 
 FUNCTIONS
@@ -373,7 +359,6 @@ FUNCTIONS
 
      from SVN username into Mercurial/Bitbucket name/email
 
-
 *adm-utilities*
 
      Installs basic utilities: eg readline, ipython 
@@ -384,8 +369,6 @@ Switching svnsync mirror repo source URL following network rejig
 ------------------------------------------------------------------
 
 * http://www.emreakkas.com/linux-tips/how-to-change-svnsync-url-for-source-repository
-
-
 
 
 Setup local SVN mirror for faster SVN to HG conversions
@@ -423,7 +406,6 @@ Simple check::
     diff: heprez_svn/sources/belle/orig: No such file or directory
     diff: heprez_rsvn/sources/belle/orig: No such file or directory
     # warning due a broken link in both cases,  orig -> /Users/blyth/hf/sources/belle
-
 
 
 Perform conversion::
@@ -530,7 +512,6 @@ adm-sitedir-cd(){ cd $(adm-sitedir) ; }
 adm-scd(){  cd $(adm-sdir); }
 adm-cd(){  cd $(adm-dir); }
 
-adm-mate(){ mate $(adm-dir) ; }
 adm-get(){
    local dir=$(dirname $(adm-dir)) &&  mkdir -p $dir && cd $dir
    local nam=$(basename $(adm-dir))
@@ -568,14 +549,11 @@ adm-site-packages(){
    echo /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages > $(adm-sitedir)/site-packages.pth
 }
 
-
-
 adm-svnrepodbdir(){
   case $1 in 
     env) echo /var/scm/backup/cms02/repos/env/2014/07/20/173006/env-4637 ;; 
   esac
 }
-
 
 adm-svnurl(){
   local repo=$1
@@ -588,7 +566,37 @@ adm-svnurl(){
   esac
 }
 
-adm-svnreposurl(){ echo ${ADM_SVNREPOSURL:-http://dayabay.phys.ntu.edy.tw/repos} ; }
+adm-svnreposurl(){ echo ${ADM_SVNREPOSURL:-http://dayabay.phys.ntu.edu.tw.notused.always.envvar/repos} ; }
+
+adm-svnmirror-init-notes(){ cat << EON
+
+(adm_env)delta:~ blyth$ svnsync help init
+initialize (init): usage: svnsync initialize DEST_URL SOURCE_URL
+
+Initialize a destination repository for synchronization from
+another repository.
+
+If the source URL is not the root of a repository, only the
+specified part of the repository will be synchronized.
+
+The destination URL must point to the root of a repository which
+has been configured to allow revision property changes.  In
+the general case, the destination repository must contain no
+committed revisions.  Use --allow-non-empty to override this
+restriction, which will cause svnsync to assume that any revisions
+already present in the destination repository perfectly mirror
+their counterparts in the source repository.  (This is useful
+when initializing a copy of a repository as a mirror of that same
+repository, for example.)
+
+You should not commit to, or make revision property changes in,
+the destination repository by any method other than 'svnsync'.
+In other words, the destination repository should be a read-only
+mirror of the source repository.
+
+EON
+}
+
 adm-svnmirror-init(){
     local name=$1
     local fold=/var/scm/subversion
@@ -622,16 +630,12 @@ adm-svnmirror-set-url(){
     echo $msg $cmd 
 } 
 
-
 adm-svnmirror-get-uuid(){
     local name=${1:-env}
     local fold=/var/scm/subversion
     local repo=$fold/$name
     svn propget svn:sync-from-uuid --revprop -r 0 file://$repo
 }
-
-
-
 
 adm-svnmirror-sync(){
     local name=${1:-env}
@@ -642,7 +646,6 @@ adm-svnmirror-sync(){
     echo $cmd
     eval $cmd
 }
-
 
 adm-hgsvnrev(){
   ## SVN rev 1 presumably creates the trunk folder, this presumably aligns history to trunkless hg  
@@ -683,16 +686,15 @@ adm-prep-hg(){
    [ ! -d "$tmpd" ] && hg --cwd $(dirname $tmpd) clone $vard 
 }
 
-
 adm-prep-svn(){
 
    local name=${1:-env}
    local vard=/var/scm/subversion/$name
-   local repd=$HOME/${name}_svn
+   #local repd=$HOME/${name}_svn
    local tmpd=/tmp/subversion/$name
 
    [ ! -d "$vard" ] && echo $msg ERROR no $vard && return
-   [ ! -d "$repd" ] && ( cd $(dirname $repd) && svn co file://$vard ${name}_svn )
+   #[ ! -d "$repd" ] && ( cd $(dirname $repd) && svn co file://$vard ${name}_svn )
 
    rm -rf $tmpd
    [ ! -d "$tmpd" ] && ( cd $(dirname $tmpd) && svn co file://$vard ${name}     )
@@ -748,6 +750,7 @@ adm-filemap(){
       heprez) adm-filemap-$name ;;
      tracdev) adm-filemap-$name ;;
      opticks) adm-filemap-$name  $* ;;
+    workflow) adm-filemap-$name  $* ;;
   esac
 }
 
@@ -768,8 +771,18 @@ EOF
 
 adm-filemap-opticks(){  $ENV_HOME/adm/opticks_filemap.py $* ; }
 
+adm-filemap-workflow(){ cat << EOF
+# placeholder $FUNCNAME
+EOF
+}
 
 adm-opticks(){
+
+   type $FUNCNAME
+
+   local ans
+   read -p "$msg Are you sure ? enter YES to proceed " ans
+   [ "$ans" != "YES" ] && return
 
    cd
    rm -rf opticks
@@ -784,20 +797,44 @@ adm-opticks(){
    else
       echo $msg FAILED TO SPAWN
    fi
-
-
 }
 
 
+adm-spawn-notes(){ cat << EON
+
+adm-spawn vs adm-convert
+===========================
+
+adm-convert 
+    full history conversion between 
+    standardly positioned svn and hg repos:
+
+    * /var/scm/subversion/name 
+    * /var/scm/mercurial/name
+
+adm-spawn 
+
+    spawns between two hg repos in HOME, 
+    with firstrev argument to cut history 
+ 
+    As demonstrated by ~/env/adm/opticks_filemap.py
+    it is possible to exercise great control over 
+    what gets spawned.
 
 
+For ease of validation of the conversion 
+it seems a good idea to keep the convert svn->hg 
+as simple as possible, doing any complicated splitting 
+in a subsequent hg->hg spawn step.
 
+EON
+}
 
-
+adm-env-to-g4dae(){ adm-spawn g4dae env ; }
 adm-spawn(){
 
    local msg="=== $FUNCNAME :"
-   local dstname=${1:-g4dae}
+   local dstname=${1:-destination}
    local srcname=${2:-env}
    local firstrev=${3:-0}
 
@@ -828,8 +865,6 @@ adm-spawn(){
 }
 
 
-
-
 adm-filemap-g4daeview(){ cat << EOF
 
 # see g4daeview-transmogrify 
@@ -839,7 +874,6 @@ rename geant4/geometry/collada/g4daeview g4daeview
 
 EOF
 }
-
 
 adm-filemap-heprez(){ cat << EOF
 #placeholder
@@ -868,11 +902,10 @@ to start from scratch by first deleting:
 #. /var/scm/mercurial/tracdev 
 #. /tmp/mercurial/tracdev
 
-
 EON
 }
 
-adm-authormap(){ cat << EOF
+adm-authormap-env(){ cat << EOF
 blyth = Simon C Blyth <simoncblyth@gmail.com>
 lint = Tao Lin <lintao51@gmail.com>
 jimmy = Jimmy Ngai <jimngai@hku.hk>
@@ -881,17 +914,32 @@ thho = Taihsiang Ho <thho@hep1.phys.ntu.edu.tw>
 EOF
 }
 
+adm-authormap-scb(){ cat << EOF
+blyth = Simon C Blyth <simoncblyth@gmail.com>
+EOF
+}
+
+
+adm-authormap(){ 
+  local name=$1
+  shift 
+  case $name in 
+         env) adm-authormap-$name ;;
+           *) adm-authormap-scb ;;
+  esac
+}
+
 adm-convert(){
    local msg="=== $FUNCNAME :"
    local name=${1:-env}
    local hgr=/var/scm/mercurial/${name:-env} 
    local svr=/var/scm/subversion/${name:-env} 
    
-   #local url=http://dayabay.phys.ntu.edu.tw/repos/$repo    # NB no trunk 
    local url=file:///$svr    
 
    local filemap=$(adm-filemap-path $name)
    local authormap=$(adm-authormap-path $name)
+
    mkdir -p $(dirname $filemap)
    adm-filemap $name > $filemap
    adm-authormap $name > $authormap
@@ -910,18 +958,16 @@ adm-convert(){
 
    local ans
    read -p "$msg enter YES to proceed " ans
-   [ "$ans" != "YES" ] && return
+   [ "$ans" != "YES" ] && echo $msg SKIPPING... && return
 
+   echo $msg proceeding
    eval $cmd
 }
 
 
-adm-env-to-g4dae(){     adm-spawn g4dae env ; }
 
 adm-verify(){
-
   echo  
-
 }
 
 

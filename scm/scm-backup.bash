@@ -267,9 +267,6 @@ ISSUE : fabric run fails
     Fatal error: run() received nonzero return code 1 while executing!
 
 
-
-
-
 ISSUES WITH NEW INTEGRITY TESTS
 ----------------------------------
 
@@ -973,7 +970,7 @@ scm-backup-tdir(){
 scm-backup-rsync-all-to-node(){
 
    local msg="# === $FUNCNAME : "
-   local tag=$1
+   local tag=${1:-$BACKUP_TAG}
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
    
    local cmd="rsync -e ssh -razvt $(scm-backup-dir) $tag:$(scm-backup-dir $tag) "
