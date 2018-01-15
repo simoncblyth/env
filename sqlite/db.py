@@ -14,6 +14,27 @@ TODO:
 * adopt a DBCONF equivalent approach for SQLite DB  
 
 
+
+Check the encoding of sqlite db with::
+
+    sqlite> PRAGMA encoding; 
+    encoding  
+    ----------
+    UTF-8     
+
+
+* https://stackoverflow.com/questions/2392732/sqlite-python-unicode-and-non-utf-data
+
+Let me first state the goal as I understand it. The goal in processing various
+encodings, if you are trying to convert between them, is to understand what
+your source encoding is, then convert it to unicode using that source encoding,
+then convert it to your desired encoding. Unicode is a base and encodings are
+mappings of subsets of that base. utf_8 has room for every character in
+unicode, but because they aren't in the same place as, for instance, latin_1, a
+string encoded in utf_8 and sent to a latin_1 console will not look the way you
+expect. In python the process of getting to unicode and into another encoding
+looks like:
+
 """
 
 try:

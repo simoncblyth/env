@@ -51,6 +51,13 @@ python-mail-test
         NB for the mailing to work, a mailer needs to be running, eg on G : *sudo postfix start*
 
 
+Unicode
+---------
+
+* https://stackoverflow.com/questions/9942594/unicodeencodeerror-ascii-codec-cant-encode-character-u-xa0-in-position-20
+* https://docs.python.org/2.7/howto/unicode.html
+
+
 Python lib structure
 ---------------------
           
