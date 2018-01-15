@@ -33,6 +33,24 @@ profiles
 
 
 
+Careful where to put the -- 
+------------------------------
+
+When out front get error::
+
+    delta:wtracdb blyth$ wtracdb-i
+    INFO:env.sqlite.db:opening /usr/local/workflow/sysadmin/wtracdb/workflow/db/trac.db 
+    args: /opt/local/bin/ipython -i -- [u'system', u'permission', u'auth_cookie', u'session', u'session_attribute', u'attachment', u'wiki', u'revision', u'node_change', u'ticket', u'ticket_change', u'ticket_custom', u'enum', u'component', u'milestone', u'version', u'report', u'tags', u'bitten_config', u'bitten_platform', u'bitten_rule', u'bitten_build', u'bitten_slave', u'bitten_step', u'bitten_error', u'bitten_log', u'bitten_log_message', u'bitten_report', u'bitten_report_item', u'fullblog_posts', u'fullblog_comments']
+    [TerminalIPythonApp] WARNING | File not found: u"[u'system',"
+
+Different invokation for interactive python and ipython::
+
+     88 wtracdb-s(){ sqlite3 $(wtracdb-path) ; }
+     89 wtracdb-p(){ python -i $(workflow-home)/sysadmin/wtracdb/wtracdb.py $(wtracdb-path) ; }
+     90 wtracdb-i(){ ipython -i $(workflow-home)/sysadmin/wtracdb/wtracdb.py -- $(wtracdb-path) ; }
+
+
+
 to avoid having to specifiy profiles
 -------------------------------------
 
