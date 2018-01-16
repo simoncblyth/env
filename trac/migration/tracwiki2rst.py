@@ -14,11 +14,17 @@ import logging, sys, re, os
 log = logging.getLogger(__name__)
 from env.sqlite.db import DB
 
-from env.trac.migration.doclite import Para, Head, Toc, Literal, Page
+from env.trac.migration.doclite import Para, Head, ListTagged, Toc, Literal, Page
 
 
-class WikiPage(object):
+class WikiContent(object):
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+
+class WikiPage(WikiContent):
     def __init__(self, db, name):
+        WikiContent.__init__(self)
+        self.db = db 
         self.name = name
         self.tags = map(lambda _:str(_[0]), db("select tag from tags where tagspace=\"wiki\" and name=\"%s\" " % name ))
 
@@ -37,18 +43,54 @@ class WikiPage(object):
         self.author = author
         self.text = text
         self.comment = comment
+      
 
-              
+    def complete_ListTagged(self, tgls):
+        """
+        http://www.sphinx-doc.org/en/stable/markup/inline.html#cross-referencing-documents
+        """
+        assert type(tgls) is ListTagged, type(tgls)
+    
+        skips = r"""
+        or
+        operator=union
+        operation=union
+        action=union
+        """.lstrip().rstrip().split("\n")
+
+        targ = tgls.tags.lstrip().rstrip().replace(","," ")
+        tags = filter(lambda _:not _ in skips, targ.split())
+
+        stags = ",".join(map(lambda _:"'%s'" % _, tags ))
+        sql = "select distinct name from tags where tagspace=\"wiki\" and tag in (%s) order by name ;" % stags 
+        rec = self.db(sql)
+
+        wikitagged = map(lambda _:_[0], rec )
+        for nm in wikitagged: 
+
+            psql = "select tag from tags where name = \"%s\" order by tag ;" % nm  
+            prec = self.db(psql)
+            prec = map(lambda _:_[0], prec )
+            ## hmm even when generate taglist only pages, still need to distingish 
+
+            prst = " ".join(["("] + map(lambda _:":doc:`%s <%s>`" % (_,_), prec ) + [")"])
+            # :doc:`Monty Python members </people>`
+
+            tgls.append("%s :doc:`%s` %s " % (nm,nm, prst) )
+        pass
+        """  
+        select distinct tag as t from tags order by tag ;
+        select distinct tag as t from tags where t not in ( select distinct name from wiki ) order by tag ;
+        """
+
+
     def __repr__(self):
         return "%5s : %30s : %10s : %15s : %60s : %s " % ( self.version, self.name, self.author, self.time, ",".join(self.tags), self.comment )
 
     def __unicode__(self):
         return "\n\n".join( [repr(self), unicode(self.text) ] ) 
 
-    def __str__(self):
-        return unicode(self).encode('utf-8')
-
-
+        
 class Wiki2RST(object):
     """
     Other things to translate::
@@ -62,37 +104,56 @@ class Wiki2RST(object):
 
 
     @classmethod
+    def dbg_top(cls, wp, pg, args):
+        top = Para()
+        top.append(":orphan:")
+        top.append("")
+        if args.origtmpl is not None:
+            top.append("* %s " % (args.origtmpl % wp.name) )
+        pass
+        pg.append(top)
+     
+    @classmethod
+    def dbg_tail(cls, wp, pg):
+        """
+        This would be wrong (fails with non-ascii) as it mixes byte strings and unicode::
+
+           pg.append(Literal(str(pg).split("\n"))) 
+
+        """
+        rst = pg.rst   # do here to avoid including all the below debug additions to page
+
+        pg.append(Head("%s dbg_tail" % wp.name,1))
+
+        pg.append(Head("Literal converted rst",2))
+        pg.append(Literal(rst.split("\n")))
+
+        pg.append(Head("Literal tracwiki text",2))
+        pg.append(Literal(wp.text.split("\r\n")))
+
+        pg.append(Head("Literal repr(pg)",2))
+        pg.append(Literal(repr(pg).split("\n")))
+
+        pg.append(Head("Literal unicode(pg)",2))
+        pg.append(Literal(unicode(pg).split("\n")))
+
+    @classmethod
     def page_from_tracwiki(cls, wp, args, dbg=True):
         name = wp.name
         pg = Page(name)
 
         if dbg:
-            top = Para()
-            top.append(":orphan:")
-            top.append("")
-            if args.origtmpl is not None:
-                top.append("* %s " % (args.origtmpl % name) )
-            pass
-            pg.append(top)
+            cls.dbg_top(wp, pg, args) 
         pass
 
         conv = cls(wp.text, pg)
 
+        for i in pg.incomplete_instances():
+            wp.complete_ListTagged(i)
+        pass
+
         if dbg:
-            pg.append(Head("original tracwiki text",1))
-            pg.append(Literal(wp.text.split("\r\n")))
-
-            # BELOW REQUIRED CLEAR THINKING REGARDS ENCODINGS
-            pg.append(Head("Page content repr",1))
-            pg.append(Literal(repr(pg).split("\n")))
-
-            pg.append(Head("Page content str",1))
-            #pg.append(Literal(str(pg).split("\n")))  # << mixing byte strings and unicode is unhealthy 
-            pg.append(Literal(unicode(pg).split("\n")))
- 
-            rst = pg.rst   # dont recurse 
-            pg.append(Head("converted rst",1))
-            pg.append(Literal(rst.split("\n")))
+            cls.dbg_tail(wp, pg) 
         pass
         return pg 
 
@@ -109,21 +170,24 @@ class Wiki2RST(object):
         self.orig = text
         self.content = content
 
-        log.debug("Wiki2RST __init__ " ) 
-
         lines = filter(lambda _:not(_.startswith(tuple(self.skips))), text.split("\r\n"))
 
         self.cur_para = None
         self.cur_literal = None
 
         for line in lines:
-            if self.cur_literal is None and Head.is_head(line):  # avoid looking for head inside literal blocks 
+            # cur_literal None avoids looking inside literal blocks for Heads OR ListTagged
+            if self.cur_literal is None and Head.is_match(line):  
+                self.end_para()
                 head = Head.from_line(line)
                 self.content.append(head) 
+            elif self.cur_literal is None and ListTagged.is_match(line):
                 self.end_para()
+                tgls = ListTagged.from_line(line)
+                self.content.append(tgls) 
             elif Literal.is_start(line):
-                self.cur_literal = Literal()
                 self.end_para()
+                self.cur_literal = Literal()
             elif Literal.is_end(line):
                 self.end_literal()
             else:
@@ -138,7 +202,6 @@ class Wiki2RST(object):
             pass
         pass
         self.end_para()
-
 
 
 
@@ -239,12 +302,14 @@ def parse_args(doc):
     d['origtmpl'] = None
     d['level'] = "INFO"
     d['dev'] = False
+    d['tags'] = None
 
     parser.add_argument("dbpath", default=None, help="path to trac.db"  ) 
     parser.add_argument("--onepage", default=d['onepage'], help="restrict conversion to single named page for debugging")  
     parser.add_argument("--rstdir", default=d['rstdir'], help="directory to write the converted RST")  
     parser.add_argument("--origtmpl", default=d['origtmpl'], help="template of original tracwiki url to provide backlink for debugging, eg http://localhost/tracs/worklow/wiki/%s ")  
     parser.add_argument("--title", default=d['title'] )  
+    parser.add_argument("--tags", default=d['tags'] )  
     parser.add_argument("--dev", action="store_true", default=d['dev'] )  
     parser.add_argument("-l","--level", default=d['level'], help="INFO/DEBUG/WARN/..")  
     

@@ -95,6 +95,9 @@ class Lines(list):
     def indent(self, n):
         return map(lambda _:" "*n + _, list(self)) 
 
+    def bullet(self, n):
+        return map(lambda _:" "*n + "* " + _, list(self)) 
+
     def _get_rst(self):
         """placeholder to potentially be overridden"""
         return "\n".join(self)
@@ -125,6 +128,39 @@ class Toc(Lines):
         return "\n".join(["",".. toctree::", ""] + self.indent(3) + ["",""] )
     rst = property(_get_rst)
 
+
+class ListTagged(Lines):
+
+    ptn = re.compile("\[\[ListTagged\(([^\)]*)\)\]\]") 
+
+    @classmethod 
+    def is_match(cls, line):
+        m = cls.ptn.match(line)
+        return m is not None
+
+    @classmethod 
+    def match(cls, line):
+        m = cls.ptn.match(line)
+        assert m , "match failed for line [%s] " % line
+        tags, = m.groups()
+        return tags
+
+    @classmethod
+    def from_line(cls, line):
+        assert cls.is_match(line)
+        tags = cls.match(line) 
+        tgls = cls(tags )
+        return tgls
+
+    def __init__(self, tags):
+        self.tags = tags
+
+    def _get_rst(self):
+        return "\n".join(["","ListTagged(%s):" % self.tags, ""] + self.bullet(0) + [""] )
+    rst = property(_get_rst)
+
+  
+
 class Head(Lines):
     """
     http://docutils.sourceforge.net/docs/user/rst/quickref.html#section-structure
@@ -145,7 +181,7 @@ class Head(Lines):
         return "<Head %s %s %s lines> " % (self.title, self.level, len(self))
 
     @classmethod 
-    def is_head(cls, line):
+    def is_match(cls, line):
         m = cls.ptn.match(line)
         return m is not None
 
@@ -168,7 +204,7 @@ class Head(Lines):
 
     @classmethod
     def from_line(cls, line):
-        assert cls.is_head(line)
+        assert cls.is_match(line)
         title, level = cls.match(line) 
         head = cls(title, level, line=line)
         head.append(line)
@@ -198,17 +234,25 @@ class Page(list):
     * Literal 
 
     """
+    INCOMPLETE = [ListTagged]
+
     def __init__(self, name):
         list.__init__(self)
         self.name = name
 
+    def incomplete_instances(self):
+        return filter(lambda _:type(_) in self.INCOMPLETE, self)
+
+    def _get_title(self):
+        """first Head title, or name if no Head"""
+        for _ in self:
+            if type(_) is Head:
+                return _.title
+            pass
+        return self.name
+    title = property(_get_title)
+
     def __repr__(self):
-
-        #for _ in self:
-        #    print type(_)
-        #    if type(_) is Head:print "TITLE:%s: LINE:%s:" % ( _.title, _[0] if len(_) > 0 else "??" ) 
-        #    print repr(_)
-
         return "\n".join(map(repr, list(self)))
 
     def __str__(self):
@@ -248,6 +292,9 @@ def test_page():
     pg.append(Head("Demo SubTitle Second", 2))
     pg.append(Para( ["red2","green2","blue2"]  ))
     pg.append(Literal( ["red2","green2","blue2"]  ))
+
+    assert pg.title == "Demo Title" 
+
 
     dump(pg)
 
