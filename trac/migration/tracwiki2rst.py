@@ -3,14 +3,22 @@
 tracwiki2rst.py
 =================
 
+::
+
+   ./tracwiki2rst.py $(wtracdb-path) --onepage 3D
+
 
 """
+
 import logging, sys, re, os
 log = logging.getLogger(__name__)
 from env.sqlite.db import DB
 
+from env.trac.migration.doclite import Para, Head, Toc, Literal, Page
+
+
 class WikiPage(object):
-    def __init__(self, db, name, encoding="UTF-8"):
+    def __init__(self, db, name):
         self.name = name
         self.tags = map(lambda _:str(_[0]), db("select tag from tags where tagspace=\"wiki\" and name=\"%s\" " % name ))
 
@@ -22,7 +30,6 @@ class WikiPage(object):
 
         assert type(author) is unicode
         assert type(text) is unicode
-
         if comment is not None:
             assert type(comment) is unicode
         pass
@@ -31,120 +38,15 @@ class WikiPage(object):
         self.text = text
         self.comment = comment
 
-        #self.author = author.encode(encoding)
-        #self.text = text.encode(encoding)
-        #self.comment = comment.encode(encoding)
-        #assert type(self.author) is str
-        #assert type(self.text) is str
-        #assert type(self.comment) is str
-
-        
+              
     def __repr__(self):
         return "%5s : %30s : %10s : %15s : %60s : %s " % ( self.version, self.name, self.author, self.time, ",".join(self.tags), self.comment )
 
-    def __str__(self):
-        return "\n\n".join( [repr(self), repr(self.text) ] ) 
-
-
-class Lines(list):
-    def __init__(self, *args, **kwa):
-        list.__init__(self, *args, **kwa)
-    def __repr__(self):
-        return "<%s %s lines> " % (self.__class__.__name__, len(self))
-    def __str__(self):
-        return "\n".join([repr(self)] + list(self))
-    def indent(self, n):
-        return map(lambda _:" "*n + _, list(self)) 
-  
-class Para(Lines):
-    def as_rst(self):
-        return "\n".join(self)
-
-class Literal(Lines):
-    start = "{{{"
-    end = "}}}"
-
-    @classmethod 
-    def is_start(cls, line):
-        return line.startswith(cls.start)
-    @classmethod 
-    def is_end(cls, line):
-        return line.startswith(cls.end)
-
-    def as_rst(self):
-        return "\n".join(["","::", ""] + self.indent(4) )
-
-
-class Toc(Lines):     
-    def as_rst(self):
-        return "\n".join(["",".. toctree::", ""] + self.indent(3) + ["",""] )
-
-
-class Head(Lines):
-    """
-    http://docutils.sourceforge.net/docs/user/rst/quickref.html#section-structure
-    """
-    ptn = re.compile("^(=*) ([^=]*) (=*)$")
-    mkr = list("=-~+#<>")   
-
-    def as_rst(self):
-        level = int(self.level)-1
-        if level >= len(self.mkr):
-            log.warning("Head level %d too large for %r  " % (level, self) ) 
-            level = len(self.mkr)-1
-        pass
-        return "\n".join(["", self.title, self.mkr[level] * len(self.title) ])
-
-    def __repr__(self):
-        return "<Head %s %s %s lines> " % (self.title, self.level, len(self))
-
-    @classmethod 
-    def is_head(cls, line):
-        m = cls.ptn.match(line)
-        return m is not None
-        #return len(line) > 0 and line[0] == "=" and line[-1] == "=" 
-
-    @classmethod 
-    def match(cls, line):
-        m = cls.ptn.match(line)
-        assert m , "match failed for line [%s] " % line
-        a, title, b = m.groups()
-
-        if len(a) != len(b):
-           log.warning("got unequal a, b  %s %s %s " % (a,b, line))
-        pass
-        #assert a == b, (a, b, "expect same", line) 
-        level = max(len(a), len(b))
-
-        if int(level)-1 > len(cls.mkr):
-            log.fatal("Head level %d too large for line [%s]  " % (level, line ))
-            assert 0   
-        pass
-        return title, level
-
-    @classmethod
-    def from_line(cls, line):
-        assert cls.is_head(line)
-        title, level = cls.match(line) 
-        head = cls(title, level)
-        head.append(line)
-        return head
-
-    def __init__(self, title, level):
-        self.title = title
-        self.level = level
-
-
-
-class Content(list):
-    def __repr__(self):
-        return "\n".join(map(repr, list(self)))
+    def __unicode__(self):
+        return "\n\n".join( [repr(self), unicode(self.text) ] ) 
 
     def __str__(self):
-        return "\n".join(map(str, list(self)))
-
-    def as_rst(self):
-        return "\n".join(map(lambda _:_.as_rst(), list(self)))
+        return unicode(self).encode('utf-8')
 
 
 class Wiki2RST(object):
@@ -157,6 +59,42 @@ class Wiki2RST(object):
     skips = r"""
     [[TracNav
     """.lstrip().rstrip().split()
+
+
+    @classmethod
+    def page_from_tracwiki(cls, wp, args, dbg=True):
+        name = wp.name
+        pg = Page(name)
+
+        if dbg:
+            top = Para()
+            top.append(":orphan:")
+            top.append("")
+            if args.origtmpl is not None:
+                top.append("* %s " % (args.origtmpl % name) )
+            pass
+            pg.append(top)
+        pass
+
+        conv = cls(wp.text, pg)
+
+        if dbg:
+            pg.append(Head("original tracwiki text",1))
+            pg.append(Literal(wp.text.split("\r\n")))
+
+            # BELOW REQUIRED CLEAR THINKING REGARDS ENCODINGS
+            pg.append(Head("Page content repr",1))
+            pg.append(Literal(repr(pg).split("\n")))
+
+            pg.append(Head("Page content str",1))
+            #pg.append(Literal(str(pg).split("\n")))  # << mixing byte strings and unicode is unhealthy 
+            pg.append(Literal(unicode(pg).split("\n")))
+ 
+            rst = pg.rst   # dont recurse 
+            pg.append(Head("converted rst",1))
+            pg.append(Literal(rst.split("\n")))
+        pass
+        return pg 
 
     def end_para(self):
         if self.cur_para is None:return
@@ -201,45 +139,6 @@ class Wiki2RST(object):
         pass
         self.end_para()
 
-class Page(Content):
-    @classmethod
-    def from_tracwiki(cls, wikipage, args, dbg=True):
-        name = wikipage.name
-        page = cls(name)
-
-        if dbg:
-            top = Para()
-            top.append(":orphan:")
-            top.append("")
-            if args.origtmpl is not None:
-                top.append("* %s " % (args.origtmpl % name) )
-            pass
-            page.append(top)
-        pass
-
-        conv = Wiki2RST(wikipage.text, page)
-
-        if dbg:
-            page.append(Head("original tracwiki text",1))
-            page.append(Literal(wikipage.text.split("\r\n")))
-
-            # BELOW ARE PROBLEMATIC FOR ENCODING
-            #page.append(Head("Page content repr",1))
-            #page.append(Literal(repr(page).split("\n")))
-
-            #page.append(Head("Page content str",1))
-            #page.append(Literal(str(page).split("\n")))
- 
-            #rst = page.as_rst()   # dont recurse 
-            #page.append(Head("converted rst",1))
-            #page.append(Literal(rst.split("\n")))
-        pass
-        return page 
-
-    def __init__(self, name):
-        Content.__init__(self)
-        self.name = name
-
 
 
 
@@ -270,15 +169,17 @@ class Sphinx(object):
         """
         rstpath = self.getpath(page.name, ".rst") 
         log.info("write %s " % rstpath )
-        rst = page.as_rst()
-        open(rstpath, "w").write(rst.encode('utf-8'))   
+   
+        rst = page.rst
+        assert type(rst) is unicode
+        open(rstpath, "w").write(rst.encode("utf-8"))  
 
     def write(self):
         idx = self.make_index("index", self.title)
-        self.write_(idx) 
         for page in self.pages:
             self.write_(page)
         pass
+        self.write_(idx) 
 
     def make_index(self, name, title):
         idx = Page(name)        
@@ -291,7 +192,7 @@ class Sphinx(object):
         foot = Head("indices and tables", 1)
 
         para = Para()
-        para.append("")
+        para.append(u"")   # some unicode is needed, to get the py2 coercion to kick in 
         para.append("* :ref:`genindex`")
         para.append("* :ref:`modindex`")
         para.append("* :ref:`modindex`")
@@ -301,6 +202,7 @@ class Sphinx(object):
         idx.append(toc) 
         idx.append(foot) 
         idx.append(para) 
+
         return idx
 
     def trac2rst(self):
@@ -309,18 +211,19 @@ class Sphinx(object):
             names = self.db("select distinct name from wiki") 
             for name, in names:
                 log.debug("converting %s " % name )
-                wikipage = WikiPage(self.db, name)
-                print repr(wikipage)
+                wp = WikiPage(self.db, name)
+                print repr(wp)
                 txtpath = self.getpath(name, ".txt") 
-                open(txtpath, "w").write(wikipage.text.encode('utf-8'))   
+                assert type(wp.text) is unicode
+                open(txtpath, "w").write(wp.text.encode('utf-8'))   
 
-                page = Page.from_tracwiki(wikipage, self.args)
-                self.add(page)
+                pg = Wiki2RST.page_from_tracwiki(wp, self.args)
+                self.add(pg)
             pass
         else:
-            wikipage = WikiPage(self.db, name)
-            page = Page.from_tracwiki(wikipage, self.args) 
-            self.add(page)
+            wp = WikiPage(self.db, name)
+            pg = Wiki2RST.page_from_tracwiki(wp, self.args) 
+            self.add(pg)
         pass
 
 
@@ -350,16 +253,21 @@ def parse_args(doc):
     return args
 
 
-
-
-
 if __name__ == '__main__':
     args = parse_args(__doc__)
     dbpath = args.dbpath
     db = DB(dbpath)
-    sphinx = Sphinx(args, db)
-    sphinx.trac2rst()
-    sphinx.write()
+
+    if args.onepage is not None:
+        wp = WikiPage(db, args.onepage)
+        print str(wp)
+        pg = Wiki2RST.page_from_tracwiki(wp, args)
+        print str(pg)
+    else:
+        sphinx = Sphinx(args, db)
+        sphinx.trac2rst()
+        sphinx.write()
+    pass
 
 
 
