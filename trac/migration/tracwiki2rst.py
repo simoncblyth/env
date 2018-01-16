@@ -10,11 +10,11 @@ tracwiki2rst.py
 
 """
 
-import logging, sys, re, os
+import logging, sys, re, os, collections, datetime
 log = logging.getLogger(__name__)
 from env.sqlite.db import DB
 
-from env.trac.migration.doclite import Para, Head, ListTagged, Toc, Literal, Page
+from env.trac.migration.doclite import Para, Head, ListTagged, Toc, Literal, CodeBlock, Meta, Anchor, Contents, Sidebar, Page
 
 
 class WikiContent(object):
@@ -24,26 +24,39 @@ class WikiContent(object):
 class WikiPage(WikiContent):
     def __init__(self, db, name):
         WikiContent.__init__(self)
-        self.db = db 
-        self.name = name
-        self.tags = map(lambda _:str(_[0]), db("select tag from tags where tagspace=\"wiki\" and name=\"%s\" " % name ))
 
+        tags = map(lambda _:str(_[0]), db("select tag from tags where tagspace=\"wiki\" and name=\"%s\" " % name ))
         rec = db("SELECT version,time,author,text,comment,readonly FROM wiki WHERE name=\"%s\" ORDER BY version DESC LIMIT 1" % name ) 
         version,time,author,text,comment,readonly = rec[0] 
-
-        self.version = version
-        self.time = time
 
         assert type(author) is unicode
         assert type(text) is unicode
         if comment is not None:
             assert type(comment) is unicode
         pass
+        ftime = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%dT%H:%M:%S' )
 
+        md = collections.OrderedDict()  
+        md["name"] = name
+        md["version"] = version
+        md["time"] = time
+        md["ftime"] = ftime
+        md["author"] = author
+        md["comment"] = comment if comment is not None else ""
+        md["tags"] = " ".join(tags)
+
+        self.db = db 
+
+        self.name = name
+        self.version = version
+        self.time = time
+        self.ftime = ftime
         self.author = author
         self.text = text
         self.comment = comment
-      
+        self.tags = tags 
+
+        self.metadict = md      
 
     def complete_ListTagged(self, tgls):
         """
@@ -74,13 +87,18 @@ class WikiPage(WikiContent):
             ## hmm even when generate taglist only pages, still need to distingish 
 
             prst = " ".join(["("] + map(lambda _:":doc:`%s <%s>`" % (_,_), prec ) + [")"])
-            # :doc:`Monty Python members </people>`
+            #prst2 = " ".join(["("] + map(lambda _:":ref:`%s`" % _, prec ) + [")"])
+            #prst3 = " ".join(["("] + map(lambda _:":%s_" % _, prec ) + [")"])
+            prst2 = ""
+            prst3 = ""
 
-            tgls.append("%s :doc:`%s` %s " % (nm,nm, prst) )
+
+            tgls.append("%s :doc:`%s` %s %s %s" % (nm,nm, prst, prst2, prst3) )
         pass
         """  
         select distinct tag as t from tags order by tag ;
         select distinct tag as t from tags where t not in ( select distinct name from wiki ) order by tag ;
+        select name, count(tag) as n from tags group by tag order by n desc ;
         """
 
 
@@ -104,14 +122,32 @@ class Wiki2RST(object):
 
 
     @classmethod
-    def dbg_top(cls, wp, pg, args):
-        top = Para()
-        top.append(":orphan:")
-        top.append("")
-        if args.origtmpl is not None:
-            top.append("* %s " % (args.origtmpl % wp.name) )
+    def meta_top(cls, wp, pg, args):
+        origurl = args.origtmpl % wp.name if args.origtmpl is not None else None
+
+        md = wp.metadict
+
+        anchor = Anchor(wp.name, md["tags"])
+        pg.append(anchor)
+
+        sidebar = Sidebar(md)
+        pg.append(sidebar) 
+
+        contents = Contents(depth=2)
+        pg.append(contents)
+
+        meta = Meta(md)
+        meta.append(":orphan:")
+        if not origurl is None:
+            meta.append(":origurl: %s" % origurl)
         pass
-        pg.append(top)
+        pg.append(meta)
+
+        if not origurl is None:
+            para = Para(["", "* %s " % origurl, ""])
+            pg.append(para)
+        pass
+
      
     @classmethod
     def dbg_tail(cls, wp, pg):
@@ -126,25 +162,23 @@ class Wiki2RST(object):
         pg.append(Head("%s dbg_tail" % wp.name,1))
 
         pg.append(Head("Literal converted rst",2))
-        pg.append(Literal(rst.split("\n")))
+        pg.append(CodeBlock(rst.split("\n"), lang="rst", linenos=True))
 
         pg.append(Head("Literal tracwiki text",2))
-        pg.append(Literal(wp.text.split("\r\n")))
+        pg.append(CodeBlock(wp.text.split("\r\n"),lang="bash", linenos=True))
 
         pg.append(Head("Literal repr(pg)",2))
-        pg.append(Literal(repr(pg).split("\n")))
+        pg.append(CodeBlock(repr(pg).split("\n"), lang="pycon", linenos=True))
 
         pg.append(Head("Literal unicode(pg)",2))
-        pg.append(Literal(unicode(pg).split("\n")))
+        pg.append(CodeBlock(unicode(pg).split("\n"), lang="pycon", linenos=True))
 
     @classmethod
     def page_from_tracwiki(cls, wp, args, dbg=True):
         name = wp.name
         pg = Page(name)
 
-        if dbg:
-            cls.dbg_top(wp, pg, args) 
-        pass
+        cls.meta_top(wp, pg, args) 
 
         conv = cls(wp.text, pg)
 

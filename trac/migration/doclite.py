@@ -81,6 +81,7 @@ assert type(U) is unicode
 
 class Lines(list):
     def __init__(self, *args, **kwa):
+        self.rawlinenos = kwa.pop("rawlinenos", False) 
         list.__init__(self, *args, **kwa)
 
     def __repr__(self):
@@ -93,7 +94,13 @@ class Lines(list):
         return unicode(self).encode('utf-8')
 
     def indent(self, n):
-        return map(lambda _:" "*n + _, list(self)) 
+        if not self.rawlinenos:
+            fmt_ = lambda _:" "*n + _[1]
+        else:
+            fmt_ = lambda _:"%3d" % (_[0]+1) + " "*n + _[1]
+        pass
+
+        return map(fmt_, enumerate(list(self))) 
 
     def bullet(self, n):
         return map(lambda _:" "*n + "* " + _, list(self)) 
@@ -111,6 +118,9 @@ class Literal(Lines):
     start = "{{{"
     end = "}}}"
 
+    def __init__(self, *args, **kwa):
+        Lines.__init__(self, *args, **kwa)
+
     @classmethod 
     def is_start(cls, line):
         return line.startswith(cls.start)
@@ -123,7 +133,30 @@ class Literal(Lines):
     rst = property(_get_rst)
 
 
+class CodeBlock(Lines):
+    def __init__(self, *args, **kwa):
+        lang = kwa.pop("lang", "bash")
+        linenos = kwa.pop("linenos", False)
+        Lines.__init__(self, *args, **kwa)
+
+        log.info("CodeBlock lang:%s linenos:%s " % (lang, linenos)) 
+        self.lang = lang
+        self.linenos = linenos
+
+    def _get_rst(self):
+        pst = ["   :linenos:",""] if self.linenos else ["" ]
+        return "\n".join(["",".. code-block:: %s" % self.lang] + pst + self.indent(4) + [""] )
+    rst = property(_get_rst)
+
+    def __repr__(self):
+         return "<%s lang::%s linenos:%s lines:%s>" % (self.__class__.__name__, self.lang, self.linenos, len(self)) 
+        
+
+
 class Toc(Lines):     
+    def __init__(self, *args, **kwa):
+        Lines.__init__(self, *args, **kwa)
+
     def _get_rst(self):
         return "\n".join(["",".. toctree::", ""] + self.indent(3) + ["",""] )
     rst = property(_get_rst)
@@ -159,6 +192,61 @@ class ListTagged(Lines):
         return "\n".join(["","ListTagged(%s):" % self.tags, ""] + self.bullet(0) + [""] )
     rst = property(_get_rst)
 
+
+
+class Meta(Lines):
+    def __init__(self, md):
+        Lines.__init__(self)
+        self.md = md
+
+    def _get_rst(self):
+        return "\n".join([""]+[":%s: %s" % ( k, v ) for k,v in self.md.items()]+self.indent(0)+[""])
+    rst = property(_get_rst)
+
+    def __repr__(self):
+        return "<Meta %s> " % (self.md)
+
+
+class Sidebar(Lines):
+
+    M = {"ftime":"Date", "author":"Authors" } 
+    def __init__(self, md):
+        Lines.__init__(self)
+        self.md = md
+    def _get_rst(self):
+        return "\n".join([""]+[".. sidebar:: %s" % self.md["name"], ""] + [ "   :%s: %s" % (self.M[k],v) for k,v in self.md.items() if k in self.M]+[""])
+    rst = property(_get_rst)
+
+    def __repr__(self):
+        return "<Sidebar %s> " % (self.md)
+
+class Contents(Lines):
+    def __init__(self, depth):
+        Lines.__init__(self)
+        self.depth = depth
+    def _get_rst(self):
+        return "\n".join([""]+[".. contents::"] + [ "   :depth: %s" % self.depth ]+[""])
+    rst = property(_get_rst)
+
+    def __repr__(self):
+        return "<Contents %s> " % (self.depth)
+
+      
+class Anchor(Lines):
+    """
+    See w-:SOP/sphinxuse.rst
+    """
+    def __init__(self, name, tags):
+        Lines.__init__(self)
+        self.tags = list(set(tags.split() + [name])) 
+
+    def _get_rst(self):
+        fidx = ", ".join(self.tags)
+        return "\n".join([""]+[".. index:: %s" % fidx ]+[""])
+    rst = property(_get_rst)
+
+    def __repr__(self):
+        return "<Anchor %s> " % (self.tags)
   
 
 class Head(Lines):
@@ -211,6 +299,7 @@ class Head(Lines):
         return head
 
     def __init__(self, title, level, line=None):
+        Lines.__init__(self)
         self.title = title
         self.level = level
         if line is None:
