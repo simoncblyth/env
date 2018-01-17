@@ -23,6 +23,8 @@ def cnf_(doc):
     parser.add_option("-n", "--npull", type=int, help="restrict retreival to first n links", default=10 )
     parser.add_option("-o", "--outd", default=None, help="directory in which to output retreived files, the default is based on configured base and the target url")
     parser.add_option("-s", "--site", type=str, help="default site if no argument supplied", default="shiftcheck" )
+    parser.add_option("--only", help="string with comma delimited list of item names restricting operations", default="" )
+
     (opts, args) = parser.parse_args()
     logging.basicConfig(level=getattr(logging,opts.level.upper()))
 
@@ -34,6 +36,7 @@ def cnf_(doc):
     d.site = site
     d.outd = opts.outd
     d.npull = opts.npull
+    d.only = opts.only 
     return d
 
 if __name__ == '__main__':

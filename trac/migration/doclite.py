@@ -71,11 +71,17 @@ import logging, sys, re, os
 log = logging.getLogger(__name__)
 
 
+
 U = "".join(map(unichr,range(0xa7,0xff+1)))
 #U = u"abc" 
 #U = "abc"
 
 assert type(U) is unicode
+
+
+from env.trac.migration.rsturl import EscapeURL 
+
+EU = EscapeURL()
 
 
 
@@ -102,6 +108,9 @@ class Lines(list):
 
         return map(fmt_, enumerate(list(self))) 
 
+    def url_escape(self):
+        return map(EU, self) 
+
     def bullet(self, n):
         return map(lambda _:" "*n + "* " + _, list(self)) 
 
@@ -113,6 +122,10 @@ class Lines(list):
 
 class Para(Lines):
     pass 
+    def _get_rst(self):
+        return "\n".join(self.url_escape())
+    rst = property(_get_rst)
+
 
 class Literal(Lines):
     start = "{{{"
@@ -139,7 +152,7 @@ class CodeBlock(Lines):
         linenos = kwa.pop("linenos", False)
         Lines.__init__(self, *args, **kwa)
 
-        log.info("CodeBlock lang:%s linenos:%s " % (lang, linenos)) 
+        log.debug("CodeBlock lang:%s linenos:%s " % (lang, linenos)) 
         self.lang = lang
         self.linenos = linenos
 
@@ -151,7 +164,6 @@ class CodeBlock(Lines):
     def __repr__(self):
          return "<%s lang::%s linenos:%s lines:%s>" % (self.__class__.__name__, self.lang, self.linenos, len(self)) 
         
-
 
 class Toc(Lines):     
     def __init__(self, *args, **kwa):
@@ -247,13 +259,26 @@ class Anchor(Lines):
 
     def __repr__(self):
         return "<Anchor %s> " % (self.tags)
-  
+
+
+
+class HorizontalRule(Lines):
+    ptn = re.compile("^-{4,100}\s*$")
+    @classmethod 
+    def is_match(cls, line):
+        m = cls.ptn.match(line)
+        return m is not None
+
+    def __init__(self):
+        Lines.__init__(self, ["","----", ""] )
+
+
 
 class Head(Lines):
     """
     http://docutils.sourceforge.net/docs/user/rst/quickref.html#section-structure
     """
-    ptn = re.compile("^(=+) ([^=]*) (=+)$")
+    ptn = re.compile("^(=+) ([^=]*) (=+)\s*$")
     mkr = list("=-~+#<>")   
 
     def _get_rst(self):
@@ -266,7 +291,12 @@ class Head(Lines):
     rst = property(_get_rst)
 
     def __repr__(self):
-        return "<Head %s %s %s lines> " % (self.title, self.level, len(self))
+        """ 
+        including title in repr is problematic, as might contain non-ascii 
+        """
+        title = unicode(self.title)
+        btitle = title.encode("ascii", "replace")
+        return "<Head %s %s %s lines> " % (btitle, self.level, len(self))
 
     @classmethod 
     def is_match(cls, line):
@@ -274,13 +304,13 @@ class Head(Lines):
         return m is not None
 
     @classmethod 
-    def match(cls, line):
+    def match(cls, line, name=None):
         m = cls.ptn.match(line)
         assert m , "match failed for line [%s] " % line
         a, title, b = m.groups()
 
         if len(a) != len(b):
-           log.warning("got unequal a, b  %s %s for header: %s " % (a,b, line))
+           log.warning("(%s) got unequal a, b  %s %s for header: %s " % (name, a,b, line))
         pass
         level = max(len(a), len(b))
 
@@ -288,12 +318,12 @@ class Head(Lines):
             log.fatal("Head level %d too large for line [%s]  " % (level, line ))
             assert 0   
         pass
-        return title, level
+        return title.strip(), level
 
     @classmethod
-    def from_line(cls, line):
+    def from_line(cls, line, name=None):
         assert cls.is_match(line)
-        title, level = cls.match(line) 
+        title, level = cls.match(line, name=name) 
         head = cls(title, level, line=line)
         head.append(line)
         return head
@@ -378,14 +408,16 @@ def test_page():
     pg.append(Head("Demo SubTitle First", 2))
     pg.append(Para( ["red","green","blue", U ]  ))
     pg.append(Literal( ["red","green","blue"]  ))
+    pg.append(HorizontalRule())
     pg.append(Head("Demo SubTitle Second", 2))
     pg.append(Para( ["red2","green2","blue2"]  ))
     pg.append(Literal( ["red2","green2","blue2"]  ))
 
+    pg.append(Para( [""," * http://www.google.com/some/funny_path_", " * oyster "]  ))
+
     assert pg.title == "Demo Title" 
-
-
     dump(pg)
+    return pg  
 
 def test_para():
     log.info("test_para")
@@ -403,7 +435,16 @@ if __name__ == '__main__':
 
     #test_lines() 
     #test_para() 
-    test_page() 
+    pg = test_page() 
+
+
+    from env.doc.rstutil import rst2html_open    
+
+    rst = pg.rst
+    assert type(rst) is unicode
+
+    rst2html_open(rst, "pg")
+
     
 
 

@@ -184,7 +184,7 @@ def check_case_degeneracy( pages ):
         IPython.embed()
         #raise Exception(msg)  
 
-def trac_wiki_dump( server , outd=".", dbgpages=[]):
+def trac_wiki_dump( server , outd=".", dbgpages=[], only=""):
    """
    :param server:
    :param dbgpages: list of pages on which to use a monkey patched ExpatParser with extra debug
@@ -198,24 +198,32 @@ def trac_wiki_dump( server , outd=".", dbgpages=[]):
    """
    pages = server.wiki.getAllPages()
    npage = len(pages) 
-   log.info("pages %s %s " % ( npage, pages )) 
+   log.info("pages %s %s..%s " % ( npage, pages[0], pages[-1] )) 
    check_case_degeneracy(pages)
 
+   only = filter(None,only.split(","))
+   log.info("trac_wiki_dump only %s " % repr(only))
+
    for i, page in enumerate(sorted(pages)):
+
+       if len(only) > 0 and page not in only:continue 
+
        if page in dbgpages:
            log.warn("extra debug for  %s " % page )
            xmlrpclib.ExpatParser = DbgExpatParser
        else:
            xmlrpclib.ExpatParser = ExpatParser
 
+       
        path = os.path.join(outd,"%s.txt" % page)
        odir = os.path.dirname(path)
+
 
        if not os.path.exists(odir):
            log.info("creating directory %s " % odir )
            os.makedirs(odir)
 
-       if os.path.exists(path):
+       if os.path.exists(path) and len(only) == 0:
            log.info("skip preexisting file %s " % path )    
        else:
            info=server.wiki.getPageInfo(page)
@@ -224,6 +232,7 @@ def trac_wiki_dump( server , outd=".", dbgpages=[]):
            out=file(path,'w')
            out.write( content.encode("utf-8"))
            out.close()
+
 
 
 def trac_ticket_dump( server, outd="."):
@@ -272,14 +281,24 @@ def main():
    logging.basicConfig(level=logging.INFO)
    from env.web.cnf import cnf_ 
    cnf = cnf_(__doc__)   # argument parsed in cnf_ 
+
+   log.info("tracwikidump.py %s " % cnf )
+
    url = cnf['xmlrpc_url']
    outd = cnf.get('tracdump_outd', cnf.outd)
 
    server = ServerProxy(url)
    log.info("API version %s " % server.system.getAPIVersion())
 
-   trac_wiki_dump(server, os.path.join(outd,'wiki') , dbgpages=[])
+   #trac_wiki_dump(server, os.path.join(outd,'wiki') , dbgpages=[])
    #trac_ticket_dump(server, os.path.join(outd,'ticket') )
+
+
+   trac_wiki_dump(server, outd, dbgpages=[], only=cnf.only)
+
+
+
+
 
 
 if __name__ == '__main__':

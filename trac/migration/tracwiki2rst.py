@@ -1,29 +1,15 @@
 #!/usr/bin/env python
 """
-tracwiki2rst.py
-=================
-
-::
-
-   ./tracwiki2rst.py $(wtracdb-path) --onepage 3D
-
-
 """
-
-import logging, sys, re, os, collections, datetime
+import logging, sys, re, os, collections, datetime, codecs
 log = logging.getLogger(__name__)
 from env.sqlite.db import DB
 
-from env.trac.migration.doclite import Para, Head, ListTagged, Toc, Literal, CodeBlock, Meta, Anchor, Contents, Sidebar, Page
+from env.trac.migration.doclite import Para, Head, HorizontalRule, ListTagged, Toc, Literal, CodeBlock, Meta, Anchor, Contents, Sidebar, Page
+from env.trac.migration.rsturl import EscapeURL
 
-
-class WikiContent(object):
-    def __str__(self):
-        return unicode(self).encode('utf-8')
-
-class WikiPage(WikiContent):
+class WikiPage(object):
     def __init__(self, db, name):
-        WikiContent.__init__(self)
 
         tags = map(lambda _:str(_[0]), db("select tag from tags where tagspace=\"wiki\" and name=\"%s\" " % name ))
         rec = db("SELECT version,time,author,text,comment,readonly FROM wiki WHERE name=\"%s\" ORDER BY version DESC LIMIT 1" % name ) 
@@ -52,7 +38,7 @@ class WikiPage(WikiContent):
         self.time = time
         self.ftime = ftime
         self.author = author
-        self.text = text
+        self.text = text.replace('\r\n','\n')
         self.comment = comment
         self.tags = tags 
 
@@ -86,9 +72,11 @@ class WikiPage(WikiContent):
             prec = map(lambda _:_[0], prec )
             ## hmm even when generate taglist only pages, still need to distingish 
 
-            prst = " ".join(["("] + map(lambda _:":doc:`%s <%s>`" % (_,_), prec ) + [")"])
+            #prst = " ".join(["("] + map(lambda _:":doc:`%s <%s>`" % (_,_), prec ) + [")"])
             #prst2 = " ".join(["("] + map(lambda _:":ref:`%s`" % _, prec ) + [")"])
             #prst3 = " ".join(["("] + map(lambda _:":%s_" % _, prec ) + [")"])
+
+            prst = ""
             prst2 = ""
             prst3 = ""
 
@@ -101,12 +89,16 @@ class WikiPage(WikiContent):
         select name, count(tag) as n from tags group by tag order by n desc ;
         """
 
-
     def __repr__(self):
         return "%5s : %30s : %10s : %15s : %60s : %s " % ( self.version, self.name, self.author, self.time, ",".join(self.tags), self.comment )
 
     def __unicode__(self):
         return "\n\n".join( [repr(self), unicode(self.text) ] ) 
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+
+
 
         
 class Wiki2RST(object):
@@ -165,7 +157,7 @@ class Wiki2RST(object):
         pg.append(CodeBlock(rst.split("\n"), lang="rst", linenos=True))
 
         pg.append(Head("Literal tracwiki text",2))
-        pg.append(CodeBlock(wp.text.split("\r\n"),lang="bash", linenos=True))
+        pg.append(CodeBlock(wp.text.split("\n"),lang="bash", linenos=True))
 
         pg.append(Head("Literal repr(pg)",2))
         pg.append(CodeBlock(repr(pg).split("\n"), lang="pycon", linenos=True))
@@ -174,13 +166,13 @@ class Wiki2RST(object):
         pg.append(CodeBlock(unicode(pg).split("\n"), lang="pycon", linenos=True))
 
     @classmethod
-    def page_from_tracwiki(cls, wp, args, dbg=True):
+    def page_from_tracwiki(cls, wp, text, args, dbg=True):
         name = wp.name
         pg = Page(name)
 
         cls.meta_top(wp, pg, args) 
 
-        conv = cls(wp.text, pg)
+        conv = cls(text, pg, name=name)
 
         for i in pg.incomplete_instances():
             wp.complete_ListTagged(i)
@@ -200,11 +192,12 @@ class Wiki2RST(object):
         self.content.append(self.cur_literal)
         self.cur_literal = None
 
-    def __init__(self, text, content):
+    def __init__(self, text, content, name=None):
         self.orig = text
         self.content = content
+        self.name = name
 
-        lines = filter(lambda _:not(_.startswith(tuple(self.skips))), text.split("\r\n"))
+        lines = filter(lambda _:not(_.startswith(tuple(self.skips))), text.split("\n"))
 
         self.cur_para = None
         self.cur_literal = None
@@ -213,8 +206,12 @@ class Wiki2RST(object):
             # cur_literal None avoids looking inside literal blocks for Heads OR ListTagged
             if self.cur_literal is None and Head.is_match(line):  
                 self.end_para()
-                head = Head.from_line(line)
+                head = Head.from_line(line, name=self.name)
                 self.content.append(head) 
+            elif self.cur_literal is None and HorizontalRule.is_match(line):
+                self.end_para()
+                hr = HorizontalRule()
+                self.content.append(hr) 
             elif self.cur_literal is None and ListTagged.is_match(line):
                 self.end_para()
                 tgls = ListTagged.from_line(line)
@@ -265,8 +262,7 @@ class Sphinx(object):
         Sphinx assumes source files to be encoded in UTF-8 by default
         """
         rstpath = self.getpath(page.name, ".rst") 
-        log.info("write %s " % rstpath )
-   
+        log.debug("write %s " % rstpath )
         rst = page.rst
         assert type(rst) is unicode
         open(rstpath, "w").write(rst.encode("utf-8"))  
@@ -277,6 +273,7 @@ class Sphinx(object):
             self.write_(page)
         pass
         self.write_(idx) 
+        log.info("wrote %s pages  %s...%s " % (len(self.pages), self.pages[0].name, self.pages[-1].name))
 
     def make_index(self, name, title):
         idx = Page(name)        
@@ -302,27 +299,40 @@ class Sphinx(object):
 
         return idx
 
-    def trac2rst(self):
-        name = self.args.onepage
-        if name is None:
-            names = self.db("select distinct name from wiki") 
-            for name, in names:
-                log.debug("converting %s " % name )
-                wp = WikiPage(self.db, name)
-                print repr(wp)
-                txtpath = self.getpath(name, ".txt") 
-                assert type(wp.text) is unicode
-                open(txtpath, "w").write(wp.text.encode('utf-8'))   
+    def trac2rst_one(self, name):
+        log.debug("converting %s " % name )
+        txtpath = self.getpath(name, ".txt") 
 
-                pg = Wiki2RST.page_from_tracwiki(wp, self.args)
-                self.add(pg)
+        wp = WikiPage(self.db, name)
+        text_from_db = wp.text
+        assert type(text_from_db) is unicode
+
+        text_from_file = codecs.open(txtpath, encoding='utf-8').read() if os.path.exists(txtpath) else None
+        assert type(text_from_file) in [unicode, type(None)], (txtpath, type(text_from_file) )
+
+        if text_from_file:
+            if text_from_db != text_from_file:
+                log.warning("difference between wikitext from db and xmlrpc for %s " % name)
             pass
-        else:
-            wp = WikiPage(self.db, name)
-            pg = Wiki2RST.page_from_tracwiki(wp, self.args) 
-            self.add(pg)
+        pass
+        use_text = text_from_file if text_from_file is not None else text_from_db 
+
+        pg = Wiki2RST.page_from_tracwiki(wp, use_text, self.args)
+        self.add(pg)
+
+    def trac2rst_all(self):
+        names = self.db("select distinct name from wiki") 
+        for name, in names:
+            self.trac2rst_one(name)
         pass
 
+    def tracdb2rst(self):
+        name = self.args.onepage
+        if name is None:
+            self.trac2rst_all()
+        else:
+            self.trac2rst_one(name)
+        pass
 
 
 def parse_args(doc):
@@ -337,12 +347,14 @@ def parse_args(doc):
     d['level'] = "INFO"
     d['dev'] = False
     d['tags'] = None
+    #d['txtsrc'] = False
 
     parser.add_argument("dbpath", default=None, help="path to trac.db"  ) 
     parser.add_argument("--onepage", default=d['onepage'], help="restrict conversion to single named page for debugging")  
     parser.add_argument("--rstdir", default=d['rstdir'], help="directory to write the converted RST")  
     parser.add_argument("--origtmpl", default=d['origtmpl'], help="template of original tracwiki url to provide backlink for debugging, eg http://localhost/tracs/worklow/wiki/%s ")  
     parser.add_argument("--title", default=d['title'] )  
+    #parser.add_argument("--txtsrc", action="store_true", default=d['txtsrc'], help="Instead of getting wiki text from the scm backup trac.db, get from .txt file"   )  
     parser.add_argument("--tags", default=d['tags'] )  
     parser.add_argument("--dev", action="store_true", default=d['dev'] )  
     parser.add_argument("-l","--level", default=d['level'], help="INFO/DEBUG/WARN/..")  
@@ -356,18 +368,7 @@ if __name__ == '__main__':
     args = parse_args(__doc__)
     dbpath = args.dbpath
     db = DB(dbpath)
-
-    if args.onepage is not None:
-        wp = WikiPage(db, args.onepage)
-        print str(wp)
-        pg = Wiki2RST.page_from_tracwiki(wp, args)
-        print str(pg)
-    else:
-        sphinx = Sphinx(args, db)
-        sphinx.trac2rst()
-        sphinx.write()
-    pass
-
+    print db 
 
 
 
