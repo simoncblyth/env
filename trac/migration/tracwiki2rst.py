@@ -6,7 +6,6 @@ log = logging.getLogger(__name__)
 from env.sqlite.db import DB
 
 from env.trac.migration.doclite import Para, Head, HorizontalRule, ListTagged, Toc, Literal, CodeBlock, Meta, Anchor, Contents, Sidebar, Page
-from env.trac.migration.rsturl import EscapeURL
 
 class WikiPage(object):
     def __init__(self, db, name):
@@ -115,7 +114,6 @@ class Wiki2RST(object):
 
     @classmethod
     def meta_top(cls, wp, pg, args):
-        origurl = args.origtmpl % wp.name if args.origtmpl is not None else None
 
         md = wp.metadict
 
@@ -130,9 +128,14 @@ class Wiki2RST(object):
 
         meta = Meta(md)
         meta.append(":orphan:")
-        if not origurl is None:
+
+        if args.origtmpl is not None:
+            origurl = args.origtmpl % wp.name 
+            editurl = "%s?action=edit" % origurl 
             meta.append(":origurl: %s" % origurl)
+            meta.append(":editurl: %s" % editurl)
         pass
+
         pg.append(meta)
 
         if not origurl is None:
@@ -142,7 +145,7 @@ class Wiki2RST(object):
 
      
     @classmethod
-    def dbg_tail(cls, wp, pg):
+    def dbg_tail(cls, wp, text, pg):
         """
         This would be wrong (fails with non-ascii) as it mixes byte strings and unicode::
 
@@ -157,7 +160,8 @@ class Wiki2RST(object):
         pg.append(CodeBlock(pg0.rst.split("\n"), lang="rst", linenos=True))
 
         pg.append(Head("Literal tracwiki text",2))
-        pg.append(CodeBlock(wp.text.split("\n"),lang="bash", linenos=True))
+        pg.append(CodeBlock(text.split("\n"),lang="bash", linenos=True)) 
+        # NB not wp.text as need to obey .txt file overrides of DB content, see wtracdb-edtest
 
         pg.append(Head("Literal repr(pg)",2))
         pg.append(CodeBlock(repr(pg0).split("\n"), lang="pycon", linenos=True))
@@ -181,7 +185,7 @@ class Wiki2RST(object):
         pass
 
         if dbg:
-            cls.dbg_tail(wp, pg) 
+            cls.dbg_tail(wp, text, pg) 
         pass
         return pg 
 
@@ -280,10 +284,7 @@ class Sphinx(object):
     def make_index(self, name, title):
         idx = Page(name)        
         hdr = Head(title, 1)
-        toc = Toc()
-        for page in self.pages:
-            toc.append(page.name)
-        pass
+        toc = Toc(map(lambda page:page.name,self.pages),maxdepth=1)
 
         foot = Head("indices and tables", 1)
 

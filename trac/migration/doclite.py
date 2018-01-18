@@ -85,6 +85,9 @@ from env.trac.migration.inlinetracwiki2rst import InlineTracWiki2RST
 EURL = EscapeURL()
 INLI = InlineTracWiki2RST()
 
+inline_tracwiki2rst_ = lambda line:INLI(EURL(line)) 
+    
+
 
 
 class Lines(list):
@@ -101,17 +104,21 @@ class Lines(list):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
+    def directive(self, name, args, kwa):
+        fargs = " ".join(args)
+        fqwa = map(lambda _:"   :%s: %s" % (_[0], _[1]), kwa.items() )
+        return "\n".join(["",".. %s:: %s" % (name, fargs)] + fqwa + [""] + self.indent(3) + ["",""] )
+
     def indent(self, n):
         if not self.rawlinenos:
             fmt_ = lambda _:" "*n + _[1]
         else:
             fmt_ = lambda _:"%3d" % (_[0]+1) + " "*n + _[1]
         pass
-
         return map(fmt_, enumerate(list(self))) 
 
     def inlined(self):
-        return map(INLI,map(EURL, self)) 
+        return map(inline_tracwiki2rst_, self ) 
 
     def bullet(self, n):
         return map(lambda _:" "*n + "* " + _, list(self)) 
@@ -174,10 +181,13 @@ class CodeBlock(Lines):
 
 class Toc(Lines):     
     def __init__(self, *args, **kwa):
-        Lines.__init__(self, *args, **kwa)
+        self.kwa = kwa
+        Lines.__init__(self, *args)
 
     def _get_rst(self):
-        return "\n".join(["",".. toctree::", ""] + self.indent(3) + ["",""] )
+        #return "\n".join(["",".. toctree::", ""] + self.indent(3) + ["",""] )
+        return self.directive("toctree", "", self.kwa )
+
     rst = property(_get_rst)
 
 
@@ -315,7 +325,7 @@ class Head(Lines):
         """ 
         including title in repr is problematic, as might contain non-ascii 
         """
-        title = unicode(self.title)
+        title = unicode(self.rawtitle)
         btitle = title.encode("ascii", "replace")
         return "<Head %s %s %s lines> " % (btitle, self.level, len(self))
 
@@ -329,12 +339,6 @@ class Head(Lines):
         m = cls.ptn.match(line)
         assert m , "match failed for line [%s] " % line
         d = m.groupdict()
-
-        #if len(a) != len(b):
-        #   log.warning("(%s) got unequal a, b  %s %s for header: %s " % (name, a,b, line))
-        #pass
-        #level = max(len(a), len(b))
-
         title = d["title"]
         level = len(d["hdepth"])
 
@@ -354,7 +358,8 @@ class Head(Lines):
 
     def __init__(self, title, level, line=None):
         Lines.__init__(self)
-        self.title = title
+        self.rawtitle = title
+        self.title = inline_tracwiki2rst_(title)
         self.level = level
         if line is None:
             mk = "f" * level 
@@ -454,24 +459,28 @@ def test_lines():
     li = Lines( ["red","green","blue", U ] ) 
     dump(li)
 
+def test_Toc():
+    toc = Toc(["red","green","blue"], maxdepth=1)
+    print toc.rst
+
+
+
+
 if __name__ == '__main__':
     pass
     logging.basicConfig(level=logging.INFO)
 
     #test_lines() 
     #test_para() 
+
+    test_Toc()
+
+
+if 0:
     pg = test_page() 
-
-
-
-
-
-
     from env.doc.rstutil import rst2html_open    
-
     rst = pg.rst
     assert type(rst) is unicode
-
     rst2html_open(rst, "pg")
 
     
