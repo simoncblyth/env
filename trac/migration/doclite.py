@@ -80,8 +80,10 @@ assert type(U) is unicode
 
 
 from env.trac.migration.rsturl import EscapeURL 
+from env.trac.migration.inlinetracwiki2rst import InlineTracWiki2RST
 
-EU = EscapeURL()
+EURL = EscapeURL()
+INLI = InlineTracWiki2RST()
 
 
 
@@ -108,8 +110,8 @@ class Lines(list):
 
         return map(fmt_, enumerate(list(self))) 
 
-    def url_escape(self):
-        return map(EU, self) 
+    def inlined(self):
+        return map(INLI,map(EURL, self)) 
 
     def bullet(self, n):
         return map(lambda _:" "*n + "* " + _, list(self)) 
@@ -123,11 +125,16 @@ class Lines(list):
 class Para(Lines):
     pass 
     def _get_rst(self):
-        return "\n".join(self.url_escape())
+        return "\n".join(self.inlined())
     rst = property(_get_rst)
 
 
 class Literal(Lines):
+    """
+    * permit indented literal, eg as used on WikiRestructuredText
+      this page also has nested literal blocks : which are not worthy of supporting
+
+    """
     start = "{{{"
     end = "}}}"
 
@@ -136,10 +143,10 @@ class Literal(Lines):
 
     @classmethod 
     def is_start(cls, line):
-        return line.startswith(cls.start)
+        return line.lstrip().startswith(cls.start)
     @classmethod 
     def is_end(cls, line):
-        return line.startswith(cls.end)
+        return line.lstrip().startswith(cls.end)
 
     def _get_rst(self):
         return "\n".join(["","::", ""] + self.indent(4) + [""] )
@@ -277,8 +284,22 @@ class HorizontalRule(Lines):
 class Head(Lines):
     """
     http://docutils.sourceforge.net/docs/user/rst/quickref.html#section-structure
+
+    g4pb:/usr/local/env/trac/package/tractrac/trac-0.11/trac/wiki/parser.py 
+
+    ""
+
+        In [16]: re.compile("(?P<heading>^\s*(?P<hdepth>=+)\s*(?P<title>.*?)\s*(?P=hdepth)\s*)").match(line).groupdict()
+        Out[16]: 
+        {'hdepth': '===',
+         'heading': '=== --log=error : smartctl -d ata -l error /dev/hda === ',
+         'title': '--log=error : smartctl -d ata -l error /dev/hda'}
+
+
     """
-    ptn = re.compile("^(=+) ([^=]*) (=+)\s*$")
+    #ptn = re.compile("^(=+)\s*([^=]*)\s*(=+)\s*$")  ## NOPE some titles contain "="
+    ptn = re.compile("(?P<heading>^\s*(?P<hdepth>=+)\s*(?P<title>.*?)\s*(?P=hdepth)\s*)")
+ 
     mkr = list("=-~+#<>")   
 
     def _get_rst(self):
@@ -307,12 +328,15 @@ class Head(Lines):
     def match(cls, line, name=None):
         m = cls.ptn.match(line)
         assert m , "match failed for line [%s] " % line
-        a, title, b = m.groups()
+        d = m.groupdict()
 
-        if len(a) != len(b):
-           log.warning("(%s) got unequal a, b  %s %s for header: %s " % (name, a,b, line))
-        pass
-        level = max(len(a), len(b))
+        #if len(a) != len(b):
+        #   log.warning("(%s) got unequal a, b  %s %s for header: %s " % (name, a,b, line))
+        #pass
+        #level = max(len(a), len(b))
+
+        title = d["title"]
+        level = len(d["hdepth"])
 
         if int(level)-1 > len(cls.mkr):
             log.fatal("Head level %d too large for line [%s]  " % (level, line ))
@@ -358,6 +382,7 @@ class Page(list):
     def __init__(self, name):
         list.__init__(self)
         self.name = name
+
 
     def incomplete_instances(self):
         return filter(lambda _:type(_) in self.INCOMPLETE, self)
@@ -436,6 +461,10 @@ if __name__ == '__main__':
     #test_lines() 
     #test_para() 
     pg = test_page() 
+
+
+
+
 
 
     from env.doc.rstutil import rst2html_open    

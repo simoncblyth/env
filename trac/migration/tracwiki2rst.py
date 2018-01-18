@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 """
-import logging, sys, re, os, collections, datetime, codecs
+import logging, sys, re, os, collections, datetime, codecs, copy
 log = logging.getLogger(__name__)
 from env.sqlite.db import DB
 
@@ -149,25 +149,27 @@ class Wiki2RST(object):
            pg.append(Literal(str(pg).split("\n"))) 
 
         """
-        rst = pg.rst   # do here to avoid including all the below debug additions to page
+        pg0 = copy.copy(pg) # avoid including these debug additions in the dump 
 
         pg.append(Head("%s dbg_tail" % wp.name,1))
 
         pg.append(Head("Literal converted rst",2))
-        pg.append(CodeBlock(rst.split("\n"), lang="rst", linenos=True))
+        pg.append(CodeBlock(pg0.rst.split("\n"), lang="rst", linenos=True))
 
         pg.append(Head("Literal tracwiki text",2))
         pg.append(CodeBlock(wp.text.split("\n"),lang="bash", linenos=True))
 
         pg.append(Head("Literal repr(pg)",2))
-        pg.append(CodeBlock(repr(pg).split("\n"), lang="pycon", linenos=True))
+        pg.append(CodeBlock(repr(pg0).split("\n"), lang="pycon", linenos=True))
 
         pg.append(Head("Literal unicode(pg)",2))
-        pg.append(CodeBlock(unicode(pg).split("\n"), lang="pycon", linenos=True))
+        pg.append(CodeBlock(unicode(pg0).split("\n"), lang="pycon", linenos=True))
 
     @classmethod
     def page_from_tracwiki(cls, wp, text, args, dbg=True):
         name = wp.name
+        log.info("page_from_tracwiki %s " % name)
+
         pg = Page(name)
 
         cls.meta_top(wp, pg, args) 
