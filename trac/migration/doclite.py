@@ -80,15 +80,14 @@ assert type(U) is unicode
 
 
 from env.trac.migration.rsturl import EscapeURL 
-from env.trac.migration.inlinetracwiki2rst import InlineTracWiki2RST
+from env.trac.migration.inlinetracwiki2rst import InlineTracWiki2RST, InlineEscapeRST
 
 EURL = EscapeURL()
 INLI = InlineTracWiki2RST()
+ERST = InlineEscapeRST()
 
-inline_tracwiki2rst_ = lambda line:INLI(EURL(line)) 
+inline_tracwiki2rst_ = lambda line:ERST(INLI(EURL(line))) 
     
-
-
 
 class Lines(list):
     def __init__(self, *args, **kwa):

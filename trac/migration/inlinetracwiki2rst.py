@@ -4,7 +4,96 @@ import re, logging
 log = logging.getLogger(__name__)
 
 
-class InlineTracWiki2RST(object):
+class ReReplacer(object):
+    def __init__(self):
+        self._compiled_rules = None
+        self._line = None
+
+    def _get_rules(self):
+        self._prepare_rules()
+        return self._compiled_rules
+    rules = property(_get_rules)
+
+    def _prepare_rules(self):
+        if not self._compiled_rules:
+            syntax = self._rules[:]
+            rules = re.compile('(?:' + '|'.join(syntax) + ')', re.UNICODE)
+            self._compiled_rules = rules
+
+    def __call__(self, line):
+        self._line = line
+        result = re.sub(self.rules, self.replace, line)        
+        return result
+
+    def replace(self, fullmatch):
+        """Replace one match with its corresponding expansion"""
+        replacement = self.handle_match(fullmatch)
+        return replacement
+
+
+class InlineEscapeRST(ReReplacer):
+    BOLD_TOKEN = "**"
+    BOLD_TOKEN_ESCAPE = "\*\*"
+    ITALIC_TOKEN = "*"
+    ITALIC_TOKEN_ESCAPE = "\*"
+
+    _rules = [ 
+        r"(?P<bold>%s)" % BOLD_TOKEN_ESCAPE,
+        r"(?P<italic>%s)" % ITALIC_TOKEN_ESCAPE
+        ]
+ 
+    _find_bold = re.compile("(?P<findbold>\*{2})")
+    _find_italic = re.compile("(?P<finditalic>\*{1})")
+
+    def __init__(self):
+        ReReplacer.__init__(self)
+
+    def handle_match(self, fullmatch):
+        d = fullmatch.groupdict()
+        #print "handle_match:", d
+        internal_handler = None
+        for itype, match in d.items():
+            if not match:continue
+            internal_handler = getattr(self, '_%s_formatter' % itype)
+        pass
+        assert internal_handler
+        result = internal_handler(match, fullmatch)
+        return result
+
+
+    def __call__(self, line):
+        inset = 0 
+        if line.lstrip()[0:2] == "* ":   # guessing a bullet list 
+            inset = line.index("*")+1
+        pass
+        self._line = line[inset:]
+        result = re.sub(self.rules, self.replace, line[inset:])        
+        return line[:inset] + result
+
+    def _bold_formatter(self, match, fullmatch):
+        """
+        Escape tokens than do not appear in pairs for the line
+        """
+        num = len(self._find_bold.findall(self._line))
+        if num % 2 == 1:
+            replace = self.BOLD_TOKEN_ESCAPE
+        else:
+            replace = self.BOLD_TOKEN
+        pass
+        return replace 
+
+    def _italic_formatter(self, match, fullmatch):
+        num = len(self._find_italic.findall(self._line))
+        if num % 2 == 1:
+            replace = self.ITALIC_TOKEN_ESCAPE
+        else:
+            replace = self.ITALIC_TOKEN
+        pass
+        return replace 
+
+       
+
+class InlineTracWiki2RST(ReReplacer):
     """
     Using extracts from Trac 0.11 WikiParser to facilitate wikitxt interpretation 
 
@@ -46,7 +135,7 @@ class InlineTracWiki2RST(object):
 
     # Sequence of regexps used by the engine
 
-    _pre_rules = [ 
+    _rules = [ 
         # Font styles
         r"(?P<bolditalic>!?%s)" % BOLDITALIC_TOKEN,
         r"(?P<boldpair>!?%s(?:.*?)%s)" % ( BOLD_TOKEN, BOLD_TOKEN ),
@@ -62,28 +151,9 @@ class InlineTracWiki2RST(object):
         r"(?P<inlinecode2>!?%s(?:.*?)%s)" \
         % (INLINE_TOKEN, INLINE_TOKEN)]
 
+
     def __init__(self):
-        self._compiled_rules = None
-
-    def _get_rules(self):
-        self._prepare_rules()
-        return self._compiled_rules
-    rules = property(_get_rules)
-
-    def _prepare_rules(self):
-        if not self._compiled_rules:
-            syntax = self._pre_rules[:]
-            rules = re.compile('(?:' + '|'.join(syntax) + ')', re.UNICODE)
-            self._compiled_rules = rules
-
-    def __call__(self, line):
-        result = re.sub(self.rules, self.replace, line)        
-        return result
-
-    def replace(self, fullmatch):
-        """Replace one match with its corresponding expansion"""
-        replacement = self.handle_match(fullmatch)
-        return replacement
+        ReReplacer.__init__(self)
 
     def handle_match(self, fullmatch):
         d = fullmatch.groupdict()
@@ -151,8 +221,8 @@ class InlineTracWiki2RST(object):
 
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+
+def test_InlineTracWiki2RST():
     conv = InlineTracWiki2RST()
 
     text = r"""
@@ -176,7 +246,30 @@ if __name__ == '__main__':
 
     * '''Item'''s flush to text 
 
+    """
 
+    lines = map(lambda _:_.lstrip(), text.strip().split("\n"))
+
+    div = "\n" + "*" * 100 + "\n"
+
+    print div
+    print "\n".join(lines)
+    print div
+    print "\n".join(map(conv, lines))
+    print div
+  
+
+
+def test_InlineEscapeRST():
+    conv = InlineEscapeRST()
+
+    text = r"""
+
+    * line with a correct *italic-1*  and *italic-2*
+    * line with marker needing escape *nix 
+
+    * line with a correct **bold**  and *italic*
+    * line with marker needing escape **nix 
 
     """
 
@@ -192,4 +285,10 @@ if __name__ == '__main__':
   
 
 
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+
+    test_InlineTracWiki2RST()
+    test_InlineEscapeRST()    
 
