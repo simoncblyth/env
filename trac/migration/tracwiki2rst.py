@@ -1,18 +1,39 @@
 #!/usr/bin/env python
 """
+
+
+
+* 
+
+::
+
+I think you have either accidentally created some anonymous hyperlinks 
+[1] or created ones without a matching target. 
+
+The "backrefs" info can be seen by looking at the output of running 
+rst2pseudoxml on the file in question. 
+
+[1] http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks 
+
+
+
 """
 import logging, sys, re, os, collections, datetime, codecs, copy
 log = logging.getLogger(__name__)
 
 from env.doc.rstutil import rst2html_open    
+from env.trac.migration.resolver import Resolver
 from env.trac.migration.doclite import Para, Head, HorizontalRule, ListTagged, Toc, Literal, CodeBlock, Meta
-from env.trac.migration.doclite import Anchor, Contents, Sidebar, Page, SimpleTable
-        
+from env.trac.migration.doclite import Anchor, Contents, Sidebar, Page, SimpleTable, Image
+
+
+       
 class TracWiki2RST(object):
     """
     """ 
     skips = r"""
     [[TracNav
+    [[PageOutline
     """.lstrip().rstrip().split()
 
     @classmethod
@@ -77,7 +98,7 @@ class TracWiki2RST(object):
         pg = Page(name)
         cls.meta_top(wp, pg, args) 
 
-        conv = cls(text, pg, name=name)
+        conv = cls(text, pg, args, name=name)
 
         for i in pg.incomplete_instances():
             wp.complete_ListTagged(i)
@@ -124,9 +145,10 @@ class TracWiki2RST(object):
         pass
         self.cur_para.append(line) 
 
-    def __init__(self, text, content, name=None):
+    def __init__(self, text, content, args, name=None):
         self.orig = text
         self.content = content
+        self.args = args
         self.name = name
 
         lines = filter(lambda _:not(_.startswith(tuple(self.skips))), text.split("\n"))
@@ -141,6 +163,10 @@ class TracWiki2RST(object):
                 self.end_para()
                 head = Head.from_line(line, name=self.name)
                 self.content.append(head) 
+            elif self.cur_literal is None and Image.is_match(line):  
+                self.end_para()
+                img = Image.from_line(line, self.args.resolver, pagename=self.name)
+                self.content.append(img) 
             elif self.cur_literal is None and HorizontalRule.is_match(line):
                 self.end_para()
                 hr = HorizontalRule()
@@ -149,6 +175,13 @@ class TracWiki2RST(object):
                 self.end_para()
                 tgls = ListTagged.from_line(line)
                 self.content.append(tgls) 
+            elif self.cur_literal is None and SimpleTable.is_simpletable(line):
+                self.end_para()
+                if self.cur_table is None:
+                    log.debug("start SimpleTable")
+                    self.cur_table = SimpleTable(pagename=name,inline=True) 
+                pass
+                self.cur_table.append(line)
             elif Literal.is_start(line):
                 log.debug("start Literal")
                 self.end_para()
@@ -156,17 +189,6 @@ class TracWiki2RST(object):
             elif Literal.is_end(line):
                 log.debug("end Literal")
                 self.end_literal()
-            elif SimpleTable.is_simpletable(line):
-                # the handling of literated tables is a bit of a kludge, 
-                # but to do better would need to complicate things with 
-                # trees rather than the simplifying global list 
-                if self.cur_table is None:
-                    log.debug("start SimpleTable")
-                    self.cur_table = SimpleTable(pagename=name,literal=self.cur_literal is not None) 
-                    self.end_para()
-                    self.end_literal()
-                pass
-                self.cur_table.append(line)
             elif self.cur_table is not None:  # have just left the table 
                 self.content.append(self.cur_table)
                 self.cur_table = None 
@@ -184,18 +206,27 @@ class TracWiki2RST(object):
 
 class DummyWikiPage(object):
     metadict = {'tags':"Red Green Blue", 'name':"DummyWikiPage"} 
-    name = "DummyWikiPage"
+    name = "MailDebug"
  
+class DummyResolver(object):
+    def __call__(self, ref, pagename):
+        return ref 
+
 class DummyArgs(object):
     origtmpl = None
     origurl = None
     vanilla = True
+    rstdir = "/usr/local/workflow/sysadmin/wtracdb/wiki2rst"
+    tracdir = "/usr/local/workflow/sysadmin/wtracdb/workflow"
+
 
 class TestSnippet(object):
     def __call__(self, txt, open_=False, skip=True):
         if skip:return
         wp = DummyWikiPage()
         args = DummyArgs()
+        resolver = Resolver(args)
+        args.resolver = resolver
 
         text = "\n".join(map(lambda _:_[4:], txt.split("\n")[1:-1]))
 
@@ -220,7 +251,8 @@ class TestSnippet(object):
 
 
 if __name__ == '__main__':
-    level = 'DEBUG'
+    #level = 'DEBUG'
+    level = 'INFO'
     logging.basicConfig(level=getattr(logging,level))
  
     ts = TestSnippet()     
@@ -275,14 +307,16 @@ if __name__ == '__main__':
     || ..       || E  ||                                                   ||          ||     ||       ||           ||
     || ..       || F  || josh oli / xmas2007 / hkjan08                     || CF-00019 || 118 || 80.8G || raw_1019  ||
 
-    * note the RST empty comments placeholders in 1st columns, prior to automating this table layout was messed up 
+    * note the {{{..}}} RST empty comments placeholders in otherwise empty 1st columns, 
+      prior to automating the addition of this tables without had layout messed up 
     
     """,open_=False, skip=True)
 
     ts(r"""
 
-    Hmm literated tables giving: Inconsistent literal block quoting.
-
+    Decide that attemping to translate inside literal blocks
+    is a can of worms... so simply leave asis, no translation
+ 
     Literal:
 
     {{{
@@ -297,7 +331,7 @@ if __name__ == '__main__':
 
 
     Last Line
-    """,open_=True, skip=False)
+    """,open_=False, skip=True)
 
 
     ts(r"""
@@ -315,8 +349,57 @@ if __name__ == '__main__':
 
     0123456789
 
+    """,open_=False, skip=True)
+
+
+
+    ts(r"""
+
+
+    ||  __DAS Prime__  ||    __DAS Backup__  ||         ||  
+    ||  ArchiveA        ||  BackupArchiveA ||  250 ||
+    ||  ArchiveB        || BackupArchiveB   ||  250 ||
+
+    Before inlining table cells this gave the below error as Trac underscore 
+    misinterpreted as anonymous-hyperlinks. See rst-
+    {{{
+    System Message: ERROR/3 (/tmp/pg.rst); backlinks: 1, 2
+    Anonymous hyperlink mismatch: 2 references but 0 targets. See "backrefs" attribute for IDs.
+    }}}
+
+    * http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks
+
+ 
+    """,open_=False, skip=True)
+
+
+
+    ts(r"""
+
+       || '''raw_''' || CF          || '''big dry cabinet''' || '''small dry cabinet''' ||                     ||  
+       || 0001:3     ||             ||      blue-12 box      ||                         ||                     ||  
+       || 1001:1024  ||             ||      blue-24 box      ||                         ||                     ||  
+       || 1025       || CF-00031:33 ||      blue-12 box      ||                         ||                     ||  
+       || 1026       || CF-00034:35 ||      blue-12 box      ||                         ||                     ||  
+       || 1027       || CF-00036:38 ||      blue-12 box      ||                         ||                     ||    
+       || 1028       || CF-00039:40 ||      blue-12 box      ||   purple folder         ||                     ||   
+       || 1029       || CF-00041:42 ||  -2-                  ||                         ||                     ||    
+       || 1030       || CF-00043:44 ||  -3-                  ||                         ||                     ||    
+       || 1031       || CF-00045:47 ||  -4-                  ||                         ||                         ||  
+       || 1032       || CF-00048:49 ||  -5-                  ||                         ||  End 2009/2010 jan      ||  
+       || 1033       || CF-00050:51 ||  -6-                  ||                         ||                         ||  
+
+
     """,open_=True, skip=True)
 
+
+    ts(r"""
+
+
+    [[Image(EnterPassword.png)]] 
+
+
+    """, open_=True, skip=False)
 
 
 

@@ -14,6 +14,7 @@ Canonical usage is from wtracdb.py
 import logging, sys, re, os, collections, datetime, codecs, copy
 log = logging.getLogger(__name__)
 
+from env.trac.migration.resolver import Resolver
 from env.trac.migration.tracwiki2rst import TracWiki2RST, ListTagged
 
 class WikiPage(object):
@@ -107,22 +108,14 @@ class WikiPage(object):
         return unicode(self).encode('utf-8')
 
 
+
 class Sphinx(object):
     def __init__(self, args, db):
         self.args = args 
+        
         self.db = db
-        self.base = args.rstdir
-        log.info("rstdir:%s" % self.base)
         self.title = args.title
         self.pages = []
-
-    def getpath(self, name, ext=".rst"):
-        path = os.path.join(self.base, "%s%s" % (name,ext) )
-        dir_ = os.path.dirname(path)
-        if not os.path.isdir(dir_):
-            os.makedirs(dir_)
-        pass
-        return path
 
     def add(self, page):
         self.pages.append(page)  
@@ -132,7 +125,7 @@ class Sphinx(object):
         http://www.sphinx-doc.org/en/stable/rest.html#source-encoding
         Sphinx assumes source files to be encoded in UTF-8 by default
         """
-        rstpath = self.getpath(page.name, ".rst") 
+        rstpath = self.args.resolver.getpath(page.name, ".rst") 
         log.debug("write %s " % rstpath )
         rst = page.rst
         assert type(rst) is unicode
@@ -149,7 +142,7 @@ class Sphinx(object):
 
     def trac2rst_one(self, name):
         log.debug("converting %s " % name )
-        txtpath = self.getpath(name, ".txt") 
+        txtpath = self.args.resolver.getpath(name, ".txt") 
 
         wp = WikiPage(self.db, name)
         text_from_db = wp.text
@@ -184,6 +177,8 @@ class Sphinx(object):
         pass
 
 
+
+
 def parse_args(doc):
     import argparse
     parser = argparse.ArgumentParser(doc)
@@ -191,6 +186,7 @@ def parse_args(doc):
     d = {}
     d['onepage'] = None
     d['rstdir'] = None
+    d['tracdir'] = None
     d['title'] = "trac2sphinx.py conversion"
     d['origtmpl'] = None
     d['level'] = "INFO"
@@ -201,6 +197,7 @@ def parse_args(doc):
     parser.add_argument("dbpath", default=None, help="path to trac.db"  ) 
     parser.add_argument("--onepage", default=d['onepage'], help="restrict conversion to single named page for debugging")  
     parser.add_argument("--rstdir", default=d['rstdir'], help="directory to write the converted RST")  
+    parser.add_argument("--tracdir", default=d['tracdir'], help="directory named after the repo containing db/trac.db as well as attachements etc.. ")  
     parser.add_argument("--origtmpl", default=d['origtmpl'], help="template of original tracwiki url to provide backlink for debugging, eg http://localhost/tracs/worklow/wiki/%s ")  
     parser.add_argument("--title", default=d['title'] )  
     parser.add_argument("--vanilla", action="store_true", default=d['vanilla'], help="Skip Sphinx extensions to allow plain vanilla RST processing"   )  
@@ -210,12 +207,19 @@ def parse_args(doc):
     
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.level.upper()))
+
+    args.resolver = Resolver(args)
+
     return args
+
+
+
 
 
 class DummyArgs(object):
     title = "DummyArgs"
     rstdir = "/tmp/env/trac2sphinx"
+    tracdir = "/tmp/env/trac2sphinx"
     origtmpl = None
     origurl = None
 

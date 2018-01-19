@@ -10,43 +10,6 @@ Refs
 
 * :doc:`/python/python_unicode`
 
-
-Initial Observations
-------------------------
-
-1. seems cannot return unicode from __str__ always returns str (bytes)
-2. **overloading __str__ is bad practice when dealing with unicode**
-
-
-All py2 ascii byte strings get implicitly decoded into unicode 
-**assuming that they are ascii** when those str(py2) 
-are combined with unicode.
-
-
-
-Python2 has __unicode__ for precisely this purpose, return encoded bytes from __str__
-----------------------------------------------------------------------------------------
-
-* https://stackoverflow.com/questions/1307014/python-str-versus-unicode
-
-
-**John Millikin:**
-
-* __str__() is the old method -- it returns bytes
-* __unicode__() is the new, preferred method -- it returns characters. 
-
-The names are a bit confusing, but in 2.x we're stuck with them for compatibility reasons. 
-Generally, you should put all your string formatting in __unicode__(), and create a stub __str__() method:
-
-::
-
-    def __str__(self):
-        return unicode(self).encode('utf-8')
-
-In 3.0, str contains characters, so the same methods are 
-named __bytes__() and __str__(). These behave as expected.
-
-
 Classes
 -----------
 
@@ -57,8 +20,24 @@ Para
     block of text
 Literal
     literal block 
+SimpleTable
+    produces non-grid RST table from simple Trac one
+CodeBlock
+    literal code with lang syntax coloring 
 Toc
     table of contents
+ListTagged
+    an incomplete element of the page, filled in later up where there is DB access
+Meta
+    field list from a dict  
+Sidebar
+    some metadata off to side
+Contents
+    in body contents, showing list of section titles
+Anchor
+    Sphinx index anchor using tags and the page name
+HorizontalRule
+    transition line 
 Head
      header text  
 
@@ -81,19 +60,12 @@ assert type(U) is unicode
 
 import copy 
 
-from env.trac.migration.rsturl import EscapeURL 
-from env.trac.migration.inlinetracwiki2rst import InlineTracWiki2RST, InlineEscapeRST, TableTracWiki2RST
+from env.trac.migration.inlinetracwiki2rst import inline_tracwiki2rst_, TableTracWiki2RST
 
-EURL = EscapeURL()
-INLI = InlineTracWiki2RST()
-ERST = InlineEscapeRST()
-
-inline_tracwiki2rst_ = lambda line:ERST(INLI(EURL(line))) 
-    
+   
 
 class Lines(list):
     def __init__(self, *args, **kwa):
-        self.rawlinenos = kwa.pop("rawlinenos", False) 
         list.__init__(self, *args, **kwa)
 
     def __repr__(self):
@@ -111,12 +83,8 @@ class Lines(list):
         return "\n".join(["",".. %s:: %s" % (name, fargs)] + fqwa + [""] + self.indent(3) + ["",""] )
 
     def indent(self, n):
-        if not self.rawlinenos:
-            fmt_ = lambda _:" "*n + _[1]
-        else:
-            fmt_ = lambda _:"%3d" % (_[0]+1) + " "*n + _[1]
-        pass
-        return map(fmt_, enumerate(list(self))) 
+        fmt_ = lambda _:" "*n + _
+        return map(fmt_, self) 
 
     def inlined(self):
         return map(inline_tracwiki2rst_, self ) 
@@ -170,27 +138,31 @@ class SimpleTable(Lines):
 
     def __init__(self, *args, **kwa):
         self.pagename = kwa.pop('pagename', None)
-        self.literal = kwa.pop('literal', False)
+        self.inline_ = inline_tracwiki2rst_ if kwa.pop('inline', False) else None
         self.conv = TableTracWiki2RST() 
         Lines.__init__(self, *args, **kwa)
 
     def _get_rst(self):
-        map(self.conv, self)  ## collects unprocessed tracwiki text cells into list of lists 
+        map(self.conv, self)  ## collects possibly inline converted tracwiki text cells into list of lists 
+
+        tab = self.conv._table
+        tab.apply_func(self.inline_)  ## inline replacements 
+ 
+        topleftcell = tab[0][0].lstrip()
+
+        if len(topleftcell) > 2 and topleftcell[0:2] == "**":  # heuristic 
+            tab.hdr = True
+        pass 
 
         try:
-            urst = unicode(self.conv._table)
+            urst = unicode(tab)
         except AssertionError as err:
             log.fatal("SimpleTable caught assert for page %s " % self.pagename)
             log.fatal(" err : %s " % err )
             sys.exit(1)
         pass
         self[:] = urst.split("\n")
-
-        if self.literal:
-            return "\n".join(["","::", ""] + self.indent(4) + [""] )  
-        else:
-            return "\n".join(self)
-        pass
+        return "\n".join(self)
 
     rst = property(_get_rst)
 
@@ -202,12 +174,30 @@ class SimpleTable(Lines):
 class CodeBlock(Lines):
     def __init__(self, *args, **kwa):
         lang = kwa.pop("lang", "bash")
+        vanilla = kwa.pop("vanilla", False)
         linenos = kwa.pop("linenos", False)
+        rawlinenos = kwa.pop("rawlinenos", False) 
+
+        if vanilla and linenos:
+            log.warning("CodeBlock linenos is a Sphinx extension, switching off as vanilla RST is selected ")
+            linenos = False
+        pass
+
         Lines.__init__(self, *args, **kwa)
 
-        log.debug("CodeBlock lang:%s linenos:%s " % (lang, linenos)) 
+        log.debug("CodeBlock lang:%s linenos:%s vanilla:%s " % (lang, linenos, vanilla)) 
         self.lang = lang
         self.linenos = linenos
+        self.rawlinenos = rawlinenos
+        self.vanilla = vanilla
+
+    def indent(self, n):
+        if not self.rawlinenos:
+            fmt_ = lambda _:" "*n + _[1]
+        else:
+            fmt_ = lambda _:"%3d" % (_[0]+1) + " "*n + _[1]
+        pass
+        return map(fmt_, enumerate(list(self))) 
 
     def _get_rst(self):
         pst = ["   :linenos:",""] if self.linenos else ["" ]
@@ -259,6 +249,41 @@ class ListTagged(Lines):
     def _get_rst(self):
         return "\n".join(["","ListTagged(%s):" % self.tags, ""] + self.bullet(0) + [""] )
     rst = property(_get_rst)
+
+
+class Image(Lines):
+    ptn = re.compile("\[\[Image\(([^\)]*)\)\]\]") 
+
+    @classmethod 
+    def is_match(cls, line):
+        m = cls.ptn.search(line)
+        return m is not None
+
+    @classmethod 
+    def match(cls, line):
+        m = cls.ptn.search(line)
+        assert m is not None
+        refs = m.groups()
+        assert len(refs) == 1
+        return refs[0]
+
+    @classmethod
+    def from_line(cls, line, resolver, pagename=None):
+        assert cls.is_match(line)
+        ref = cls.match(line) 
+        url = resolver(ref, pagename) if resolver is not None else ref
+        img = cls(url)
+        return img
+
+    def __init__(self, url):
+        self.url = url
+
+    def _get_rst(self):
+        return self.directive("image", [self.url], {} )
+    rst = property(_get_rst)
+
+    def __repr__(self):
+        return "<Image %s> " % (self.url)
 
 
 

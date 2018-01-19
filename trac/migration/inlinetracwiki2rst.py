@@ -3,8 +3,9 @@
 import re, logging
 log = logging.getLogger(__name__)
 
-from env.doc.tabrst import Table
 
+from env.doc.tabrst import Table
+from env.trac.migration.rsturl  import EscapeURL
 
 
 class ReReplacer(object):
@@ -38,6 +39,9 @@ class ReReplacer(object):
 
 
 class InlineEscapeRST(ReReplacer):
+    """
+    Heuristically avoid unpaired * and ** messing up RST products by escaping them 
+    """
     BOLD_TOKEN = "**"
     BOLD_TOKEN_ESCAPE = "\*\*"
     ITALIC_TOKEN = "*"
@@ -100,6 +104,10 @@ class InlineEscapeRST(ReReplacer):
        
 
 class TableTracWiki2RST(ReReplacer):
+    """
+    NB this just grabs the cells of the table into a list of lists within Table
+    subsequent processing such as inline replacements should happen elsewhere 
+    """
 
     TABLE_TOKEN = "||"
     _rules = [ 
@@ -285,6 +293,16 @@ class InlineTracWiki2RST(ReReplacer):
     def _indent_formatter(self, match, fullmatch):
         indent = fullmatch.group('indent')
         return indent
+
+
+
+
+EURL = EscapeURL()
+INLI = InlineTracWiki2RST()
+ERST = InlineEscapeRST()
+
+inline_tracwiki2rst_ = lambda line:ERST(INLI(EURL(line))) 
+ 
 
 
 def test_translate( cls, text ):

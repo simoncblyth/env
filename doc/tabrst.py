@@ -35,6 +35,14 @@ class Table(list):
     div = property(lambda self:self.make_div("="))
     sep = property(lambda self:self.make_div("-"))
 
+    def apply_func(self, func_):
+        if func_ is None:return
+        for ir in range(len(self)):
+            for ic in range(len(self[ir])):
+                self[ir][ic] = func_(self[ir][ic]) 
+            pass
+        pass
+
     def __repr__(self):
         return "<Table rows:%d pad:%s row0:%s  extracolumn:%s>" % (len(self), self.pad, ",".join(self[0]), self._extracolumn )
 

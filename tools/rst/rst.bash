@@ -19,6 +19,18 @@ Compare raw and github rendered rst-cheatsheet
 * https://github.com/ralsina/rst-cheatsheet/blob/master/rst-cheatsheet.rst
 
 
+Anonymous Hyperlinks
+----------------------
+
+* http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks
+
+Translation of tracwiki table leads to the Trac underscores coming thru and
+confusing RST.
+
+To debug::
+
+    rst2pseudoxml.py Storage.rst Storage.pxml
+
 
 EOU
 }
@@ -38,14 +50,22 @@ rst-get(){
 }
 
 rst-url-(){ cat << EOU
-rst-refurl
-rst-cheaturl
+rst-ref-url
+rst-cheat-url
+rst-directives-url
+rst-rest-url
 EOU
 }
 
-rst-cheaturl(){ echo https://raw.githubusercontent.com/ralsina/rst-cheatsheet/master/rst-cheatsheet.rst ; }
-rst-refurl(){   echo http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html ; }
+rst-cheat-url(){        echo https://raw.githubusercontent.com/ralsina/rst-cheatsheet/master/rst-cheatsheet.rst ; }
+rst-ref-url(){          echo http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html ; }
+rst-directives-url(){   echo http://docutils.sourceforge.net/docs/ref/rst/directives.html ; }
+rst-rest-url(){         echo http://www.sphinx-doc.org/en/stable/rest.html ; }
 
-rst-ref(){ open $(rst-dir)/$(basename $(rst-refurl)) ; }
-rst-cheat(){ vi $(rst-dir)/$(basename $(rst-cheaturl)); }
+rst-ref(){        open $(rst-dir)/$(basename $(rst-ref-url)) ; }
+rst-cheat(){      vi   $(rst-dir)/$(basename $(rst-cheat-url)); }
+rst-directives(){ open $(rst-dir)/$(basename $(rst-directives-url)); }
+rst-rest(){       open $(rst-dir)/$(basename $(rst-rest-url)); }
+
+
 

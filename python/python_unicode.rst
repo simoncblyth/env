@@ -1,6 +1,43 @@
 Python Unicode
 =================
 
+Experience
+------------
+
+Initial Observations
+~~~~~~~~~~~~~~~~~~~~~~~
+
+1. seems cannot return unicode from __str__ always returns str (bytes)
+2. **overloading __str__ is bad practice when dealing with unicode**
+
+All py2 ascii byte strings get implicitly decoded into unicode 
+**assuming that they are ascii** when those str(py2) 
+are combined with unicode such as ``u""``
+
+
+Python2 has __unicode__ for precisely this purpose, return encoded bytes from __str__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://stackoverflow.com/questions/1307014/python-str-versus-unicode
+
+
+**John Millikin:**
+
+* __str__() is the old method -- it returns bytes
+* __unicode__() is the new, preferred method -- it returns characters. 
+
+The names are a bit confusing, but in 2.x we're stuck with them for compatibility reasons. 
+Generally, you should put all your string formatting in __unicode__(), and create a stub __str__() method:
+
+::
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+
+In 3.0, str contains characters, so the same methods are 
+named __bytes__() and __str__(). These behave as expected.
+
+
 
 refs
 ------
