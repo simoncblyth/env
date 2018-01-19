@@ -1,6 +1,7 @@
 #!/usr/bin/env python
     
-import os, commands
+import os, commands, logging
+log = logging.getLogger(__name__)
 
    
 def rst2html_open(rst, name, dir_="/tmp"):
@@ -17,7 +18,10 @@ def rst2html_open(rst, name, dir_="/tmp"):
         cmd = cmd_ % locals()
         print cmd 
         rc, out = commands.getstatusoutput(cmd)
-        assert rc == 0, (rc, out) 
+        if rc != 0:
+            log.fatal(" non-zero rc %s : %s " % (rc, out )) 
+        pass
+        #assert rc == 0, (rc, out) 
     pass
 
 

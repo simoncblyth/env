@@ -18,6 +18,15 @@ Reference
 * https://www.rath.org/mercurial-for-git-users-and-vice-versa.html
 
 
+
+
+
+
+
+
+
+
+
 Github Merging a pull request via web interface
 --------------------------------------------------
 
@@ -181,6 +190,50 @@ git remote add
 
     git remote add origin gcrypt::rsync://username@your-server.com:example-crypt
     git remote add origin gcrypt::rsync://username@your-server.com:example-crypt
+
+
+git push : setting push.default
+-----------------------------------
+
+::
+
+    delta:hometest blyth$ git push 
+    warning: push.default is unset; its implicit value is changing in
+    Git 2.0 from 'matching' to 'simple'. To squelch this message
+    and maintain the current behavior after the default changes, use:
+
+      git config --global push.default matching
+
+    To squelch this message and adopt the new behavior now, use:
+
+      git config --global push.default simple
+
+    When push.default is set to 'matching', git will push local branches
+    to the remote branches that already exist with the same name.
+
+    In Git 2.0, Git will default to the more conservative 'simple'
+    behavior, which only pushes the current branch to the corresponding
+    remote branch that 'git pull' uses to update the current branch.
+
+    See 'git help config' and search for 'push.default' for further information.
+    (the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+    'current' instead of 'simple' if you sometimes use older versions of Git)
+
+    blyth@192.168.0.200's password: 
+    Everything up-to-date
+
+::
+
+    delta:hometest blyth$ git config push.default simple
+    delta:hometest blyth$ git push 
+    blyth@192.168.0.200's password: 
+    Everything up-to-date
+
+After adding key to .ssh/authorized_keys2 on server, and starting ssh agent : works without password::
+
+    delta:hometest blyth$ git push 
+    Everything up-to-date
+
 
 
 git pull

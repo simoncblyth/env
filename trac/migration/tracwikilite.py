@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 
 from env.doc.tabrst import Table
 
-#from env.sqlite.db import DB
 
 
 class TracWikiLite(object):

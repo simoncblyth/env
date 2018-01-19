@@ -79,8 +79,10 @@ U = "".join(map(unichr,range(0xa7,0xff+1)))
 assert type(U) is unicode
 
 
+import copy 
+
 from env.trac.migration.rsturl import EscapeURL 
-from env.trac.migration.inlinetracwiki2rst import InlineTracWiki2RST, InlineEscapeRST
+from env.trac.migration.inlinetracwiki2rst import InlineTracWiki2RST, InlineEscapeRST, TableTracWiki2RST
 
 EURL = EscapeURL()
 INLI = InlineTracWiki2RST()
@@ -155,9 +157,47 @@ class Literal(Lines):
         return line.lstrip().startswith(cls.end)
 
     def _get_rst(self):
-        return "\n".join(["","::", ""] + self.indent(4) + [""] )
+        if len(self) == 0:
+            return None
+        else:
+            return "\n".join(["","::", ""] + self.indent(4) + [""] )
+        pass
     rst = property(_get_rst)
 
+
+class SimpleTable(Lines):
+    TABLE_ROW_TOKEN = "||"
+
+    def __init__(self, *args, **kwa):
+        self.pagename = kwa.pop('pagename', None)
+        self.literal = kwa.pop('literal', False)
+        self.conv = TableTracWiki2RST() 
+        Lines.__init__(self, *args, **kwa)
+
+    def _get_rst(self):
+        map(self.conv, self)  ## collects unprocessed tracwiki text cells into list of lists 
+
+        try:
+            urst = unicode(self.conv._table)
+        except AssertionError as err:
+            log.fatal("SimpleTable caught assert for page %s " % self.pagename)
+            log.fatal(" err : %s " % err )
+            sys.exit(1)
+        pass
+        self[:] = urst.split("\n")
+
+        if self.literal:
+            return "\n".join(["","::", ""] + self.indent(4) + [""] )  
+        else:
+            return "\n".join(self)
+        pass
+
+    rst = property(_get_rst)
+
+    @classmethod 
+    def is_simpletable(cls, line):
+        return line.lstrip().startswith(cls.TABLE_ROW_TOKEN)
+     
 
 class CodeBlock(Lines):
     def __init__(self, *args, **kwa):
@@ -410,8 +450,11 @@ class Page(list):
         return "\n".join(map(unicode, list(self)))
        
     def _get_rst(self):
-        return "\n".join(map(lambda _:_.rst, list(self)))
+        return "\n".join(filter(lambda _:_ is not None, map(lambda _:_.rst, list(self))))
     rst = property(_get_rst)
+
+
+
 
 
 

@@ -3,11 +3,15 @@
 import re, logging
 log = logging.getLogger(__name__)
 
+from env.doc.tabrst import Table
+
+
 
 class ReReplacer(object):
     def __init__(self):
         self._compiled_rules = None
         self._line = None
+        self._table = None
 
     def _get_rules(self):
         self._prepare_rules()
@@ -21,8 +25,10 @@ class ReReplacer(object):
             self._compiled_rules = rules
 
     def __call__(self, line):
+        log.debug("ReReplacer(%s) line:[%s]" % (self.__class__.__name__, line))
         self._line = line
         result = re.sub(self.rules, self.replace, line)        
+        log.debug("ReReplacer(%s) line:[%s] result:[%s]" % (self.__class__.__name__, line, result ))
         return result
 
     def replace(self, fullmatch):
@@ -93,6 +99,68 @@ class InlineEscapeRST(ReReplacer):
 
        
 
+class TableTracWiki2RST(ReReplacer):
+
+    TABLE_TOKEN = "||"
+    _rules = [ 
+        # || table ||
+        r"(?P<last_table_cell>\|\|\s*$)",
+        r"(?P<table_cell>\|\|.*?)(?=\|\|)",
+        r"(?P<blankline>^$)"
+        ]
+
+    def handle_match(self, fullmatch):
+        d = dict(filter( lambda kv:kv[1] is not None, fullmatch.groupdict().items() ))
+        log.debug("handle_match: %s" %  d)
+        internal_handler = None
+        if d.has_key('table_cell'):
+            itype, match = "table_cell", d['table_cell']
+            internal_handler = getattr(self, '_%s_formatter' % itype)
+        elif d.has_key('last_table_cell'):
+            itype, match = "last_table_cell", d['last_table_cell']
+            internal_handler = getattr(self, '_%s_formatter' % itype)
+        else:
+            for itype, match in d.items():
+                internal_handler = getattr(self, '_%s_formatter' % itype)
+            pass
+        pass
+        assert internal_handler, ("no handler for %s " % d )
+        result = internal_handler(match, fullmatch)
+        return result
+
+    def _last_table_cell_formatter(self, match, fullmatch):
+        return self.do_table_cell(match, fullmatch, last=True)
+
+    def _table_cell_formatter(self, match, fullmatch):
+        return self.do_table_cell(match, fullmatch, last=False)
+
+    def do_table_cell(self, match, fullmatch, last=False):
+        if self._table is None:
+            self._table = Table()
+            self._row = []
+        pass
+        if last:
+            self._table.append(self._row)
+            self._row = [] 
+        else:
+            content = match[2:]
+            self._row.append(content)
+            log.debug("do_table_cell match:%s content:%s " % (match, content))
+        pass
+        return ''
+
+    def _blankline_formatter(self, match, fullmatch):
+        if self._table is not None:
+            replacement = "\n"+unicode(self._table) 
+            self._table = None
+        else:
+            replacement = ''
+        pass
+        return replacement
+ 
+
+ 
+
 class InlineTracWiki2RST(ReReplacer):
     """
     Using extracts from Trac 0.11 WikiParser to facilitate wikitxt interpretation 
@@ -135,7 +203,12 @@ class InlineTracWiki2RST(ReReplacer):
 
     # Sequence of regexps used by the engine
 
+    #    (?:...)  Non-grouping version of regular parentheses.
+    #    (?P<name>...) The substring matched by the group is accessible by name.
+    #    (?P=name)     Matches the text matched earlier by the group named name.
+
     _rules = [ 
+        r"(?P<indent>^(?:\s+)(?=\S))",
         # Font styles
         r"(?P<bolditalic>!?%s)" % BOLDITALIC_TOKEN,
         r"(?P<boldpair>!?%s(?:.*?)%s)" % ( BOLD_TOKEN, BOLD_TOKEN ),
@@ -151,29 +224,19 @@ class InlineTracWiki2RST(ReReplacer):
         r"(?P<inlinecode2>!?%s(?:.*?)%s)" \
         % (INLINE_TOKEN, INLINE_TOKEN)]
 
-
+      
     def __init__(self):
         ReReplacer.__init__(self)
 
     def handle_match(self, fullmatch):
-        d = fullmatch.groupdict()
-        #print "handle_match:", d
+        d = dict(filter( lambda kv:kv[1] is not None, fullmatch.groupdict().items() ))
 
+        log.debug("handle_match: %s" %  d)
         internal_handler = None
-
-        if d.get('table_cell', None) != None:
-            itype, match = "table_cell", d['table_cell']
+        for itype, match in d.items():
             internal_handler = getattr(self, '_%s_formatter' % itype)
-        elif d.get('last_table_cell', None) != None:
-            itype, match = "last_table_cell", d['last_table_cell']
-            internal_handler = getattr(self, '_%s_formatter' % itype)
-        else:
-            for itype, match in d.items():
-                if not match:continue
-                internal_handler = getattr(self, '_%s_formatter' % itype)
-            pass
         pass
-        assert internal_handler
+        assert internal_handler, ("no handler for %s " % d )
         result = internal_handler(match, fullmatch)
         return result
 
@@ -219,13 +282,63 @@ class InlineTracWiki2RST(ReReplacer):
         c = fullmatch.group('italicpair')[l:-l]
         return "*%s* " % c.strip()
 
+    def _indent_formatter(self, match, fullmatch):
+        indent = fullmatch.group('indent')
+        return indent
 
+
+def test_translate( cls, text ):
+    conv = cls() 
+    lines = map(lambda _:_[4:], text.split("\n")[1:-1])
+    rst = "\n".join(filter(lambda _:_ is not None,map(conv, lines)))   # avoid blanks lines from table rows
+
+    div = "\n" + "*" * 100 + "\n"
+    print div
+    print "\n".join(lines)
+    print div
+    print rst 
+    print div
+    return rst
+ 
+
+def test_InlineEscapeRST():
+    text = r"""
+
+    * line with a correct *italic-1*  and *italic-2*
+    * line with marker needing escape *nix 
+
+    * line with a correct **bold**  and *italic*
+    * line with marker needing escape **nix 
+
+    """
+    return test_translate( InlineEscapeRST, text )
+
+def test_TableTracWiki2RST():
+    text = r"""
+    = test_TableTracWiki2RST =
+
+    Text on line before table
+    || red || green || blue ||
+    || red || green || blue ||
+    || red || green || blue ||
+    || red || green || blue ||
+    || red || green || blue ||
+
+    || '''red''' || green || blue ||
+    ||    red    || green || blue ||
+    ||    red    || green || blue ||
+    ||    red    || green || blue ||
+    ||    red    || green || blue ||
+
+    """
+    return test_translate( TableTracWiki2RST, text )
 
 
 def test_InlineTracWiki2RST():
-    conv = InlineTracWiki2RST()
-
     text = r"""
+    = test_InlineTracWiki2RST =
+
+    * headings are not handled inline (yet)
 
     * inlinecode blocks {{{cron-*}}} via triple curlies 
     * inlinecode2 blocks with `backticks`
@@ -240,55 +353,38 @@ def test_InlineTracWiki2RST():
     * ^superscript^ 
     * ,,subscript,,
 
-
     * ''' Bold blocks starting/ending with one or more spaces  '''
     * '' italic blocks starting/ending with one or more spaces  ''
 
     * '''Item'''s flush to text 
 
-    """
-
-    lines = map(lambda _:_.lstrip(), text.strip().split("\n"))
-
-    div = "\n" + "*" * 100 + "\n"
-
-    print div
-    print "\n".join(lines)
-    print div
-    print "\n".join(map(conv, lines))
-    print div
-  
+       * indented
 
 
-def test_InlineEscapeRST():
-    conv = InlineEscapeRST()
+    * hmm to support expansion inside cells need to retain 
+      the table rather than collapsing down to rst ?
 
-    text = r"""
-
-    * line with a correct *italic-1*  and *italic-2*
-    * line with marker needing escape *nix 
-
-    * line with a correct **bold**  and *italic*
-    * line with marker needing escape **nix 
+      * see how often this is used
 
     """
-
-    lines = map(lambda _:_.lstrip(), text.strip().split("\n"))
-
-    div = "\n" + "*" * 100 + "\n"
-
-    print div
-    print "\n".join(lines)
-    print div
-    print "\n".join(map(conv, lines))
-    print div
-  
+    return test_translate( InlineTracWiki2RST, text )
+ 
 
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    #level = 'DEBUG'
+    level = 'INFO'
+    logging.basicConfig(level=getattr(logging, level))
 
-    test_InlineTracWiki2RST()
-    test_InlineEscapeRST()    
+    #test_InlineTracWiki2RST()
+    #test_InlineEscapeRST()    
+    rst = test_TableTracWiki2RST()
+
+    from env.doc.rstutil import rst2html_open    
+    assert type(rst) is unicode
+    rst2html_open(rst, "pg")
+
+
+
 
