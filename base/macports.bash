@@ -1,16 +1,71 @@
 # === func-gen- : base/macports fgp base/macports.bash fgn macports fgh base
 macports-src(){      echo base/macports.bash ; }
 macports-source(){   echo ${BASH_SOURCE:-$(env-home)/$(macports-src)} ; }
-macports-vi(){       vi $(macports-source) ; }
+macports-vi(){       vi $(macports-source) $(port-source) ; }
+macports-env(){
+   elocal- 
+   port- 
+
+   ## avoid stomping on the virtualenv
+   if [ -z "$VIRTUAL_ENV" ]; then
+       export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+       export MANPATH=/opt/local/share/man:$MANPATH
+   fi
+}
+
+
 macports-usage(){ cat << EOU
 
 MACPORTS
 ===========
 
+Listing Versions Installed/Available
+---------------------------------------
 ::
 
-       port installed
-       port list installed     ## not the same as above, and much slower 
+    port installed
+        ## fast, lists versions of currently installed ports
+
+    port list installed     
+        ## slow, lists latest versions of every version of ports installed (so it repeats a lot) 
+
+::
+
+    port list installed > ~/macports/port_list_installed_20jan2018.log
+    port installed > ~/macports/port_installed_20jan2018.log
+    ## after trimming some warnings, get same number of lines
+
+
+Migration At System Upgrades : requires uninstall/install of all packages
+----------------------------------------------------------------------------
+
+* http://trac.macports.org/wiki/Migration
+
+Thoughts:
+
+* running this would take a very long time, better to extract the
+  correct dependency order of the ports to install using a hacked version
+  of the script and chunk the list up to ease debugging fails
+
+In brief::
+
+   port -qv installed > ~/macports/port-qv-installed.log   # list installed 
+   sudo port -f uninstall installed  # uninstall all installed ports
+   sudo rm -rf /opt/local/var/macports/build/*    # clean partials 
+
+::
+
+    curl --location --remote-name \
+        https://github.com/macports/macports-contrib/raw/master/restore_ports/restore_ports.tcl
+    chmod +x restore_ports.tcl
+    sudo ./restore_ports.tcl ~/macports/port-qv-installed.log
+
+* https://github.com/macports/macports-contrib/raw/master/restore_ports/restore_ports.tcl
+
+Script using /opt/local/bin/port-tclsh::
+
+    # Install a list of ports given in the form produced by 'port installed', in
+    # correct dependency order so as to preserve the selected variants.
 
 
 Package Manager Installation from source distribution
@@ -270,21 +325,31 @@ Functions
 
 EOU
 }
-macports-dir(){ echo $(local-base)/env/base/$(macports-name) ; }
+macports-dir(){ echo $(local-base)/env/base/macports ; }
 macports-cd(){  cd $(macports-dir); }
-macports-name(){ echo MacPorts-2.1.3 ; }
-macports-mate(){ mate $(macports-dir) ; }
-macports-get(){
-   local dir=$(dirname $(macports-dir)) &&  mkdir -p $dir && cd $dir
 
-   local nam=$(macports-name)
-   local tgz=$nam.tar.gz
-   local url=https://distfiles.macports.org/MacPorts/$tgz
-
-   [ ! -f "$tgz" ] && curl -L -O "$url"
-   [ ! -d "$nam" ] && tar zxvf $tgz 
-
+macports-get-restore-ports()
+{    
+    local dir=$(macports-dir) &&  mkdir -p $dir 
+    macports-cd
+    curl --location --remote-name \
+        https://github.com/macports/macports-contrib/raw/master/restore_ports/restore_ports.tcl
 }
+
+
+#macports-name(){ echo MacPorts-2.1.3 ; }
+# 
+#macports-get(){
+#   local dir=$(dirname $(macports-dir)) &&  mkdir -p $dir && cd $dir
+#
+#   local nam=$(macports-name)
+#   local tgz=$nam.tar.gz
+#   local url=https://distfiles.macports.org/MacPorts/$tgz
+#
+#   [ ! -f "$tgz" ] && curl -L -O "$url"
+#   [ ! -d "$nam" ] && tar zxvf $tgz 
+#
+#}
 
 macports-clean(){
    local msg="=== $FUNCNAME :"
@@ -302,14 +367,5 @@ macports-space(){
    grep MiB $space | sort -g -r | head -40
 }
 
-
-macports-env(){
-   elocal- 
-   ## avoid stomping on the virtualenv
-   if [ -z "$VIRTUAL_ENV" ]; then
-       export PATH=/opt/local/bin:/opt/local/sbin:$PATH
-       export MANPATH=/opt/local/share/man:$MANPATH
-   fi
-}
 
 

@@ -9,6 +9,122 @@ sphinx-usage(){
 Sphinx
 ======
 
+
+TODO
+-----
+
+* try to avoid the mods, via adding sphinxext  
+* update to latest Sphinx, using github fork 
+
+
+extlinks
+-----------
+
+* http://www.sphinx-doc.org/en/stable/ext/extlinks.html
+
+
+quelling WARNING: nonlocal image URI found:
+----------------------------------------------
+
+::
+
+    # warning suppresion that works in 1.2
+    # https://stackoverflow.com/questions/12772927/specifying-an-online-image-in-sphinx-restructuredtext-format
+
+    import sphinx.environment
+    from docutils.utils import get_source_line
+
+    def _warn_node(self, msg, node):
+        if not msg.startswith('nonlocal image URI found:'):
+            self._warnfunc(msg, '%s:%s' % get_source_line(node))
+
+    sphinx.environment.BuildEnvironment.warn_node = _warn_node
+
+
+
+CAUTION : Uncommitted mods in macports installed Sphinx
+---------------------------------------------------------
+::
+
+    delta:sphinx blyth$ pwd
+    /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx
+
+    delta:sphinx blyth$ find . -name '*.py'  -exec grep -H SCB {} \;
+    ...
+
+::
+
+    delta:sphinx blyth$ diff -y original_environment.py environment.py
+
+    def process_images(self, docname, doctree):             def process_images(self, docname, doctree):
+        """Process and rewrite image URIs."""                   """Process and rewrite image URIs."""
+        for node in doctree.traverse(nodes.image):              for node in doctree.traverse(nodes.image):
+            # Map the mimetype to the corresponding image.  T               # Map the mimetype to the corresponding image.  T
+            # choose the best image from these candidates.  T               # choose the best image from these candidates.  T
+            # set if there is only single candidate to be use               # set if there is only single candidate to be use
+            # The special key ? is set for nonlocal URIs.               # The special key ? is set for nonlocal URIs.
+            node['candidates'] = candidates = {}                    node['candidates'] = candidates = {}
+            imguri = node['uri']                            imguri = node['uri']
+            if imguri.find('://') != -1:                        if imguri.find('://') != -1:
+                self.warn_node('nonlocal image URI found: %s'                   self.warn_node('nonlocal image URI found: %s'
+                candidates['?'] = imguri                            candidates['?'] = imguri
+                continue                                    continue
+                                  >             elif imguri[0] == "@":       # SCB 
+                                  >                 node['uri'] = imguri[1:]  # SCB
+                                  >                 candidates['?'] = node['uri']  # SCB
+                                  >                 self.warn_node('SCB DIRTY FIX asis image URI 
+                                  >                 continue  # SCB
+                                  >             else:   # SCB
+                                  >                 pass   # SCB
+                                  >             pass       # SCB
+            rel_imgpath, full_imgpath = self.relfn2path(imgur               rel_imgpath, full_imgpath = self.relfn2path(imgur
+            # set imgpath as default URI                        # set imgpath as default URI
+            node['uri'] = rel_imgpath                           node['uri'] = rel_imgpath
+            if rel_imgpath.endswith(os.extsep + '*'):                   if rel_imgpath.endswith(os.extsep + '*'):
+                for filename in glob(full_imgpath):                     for filename in glob(full_imgpath):
+
+
+Establish the actual diff
+---------------------------
+
+* actually no need, found original_environment.py 
+
+::
+
+    delta:sphinx blyth$ git checkout tags/1.2
+    Note: checking out 'tags/1.2'.
+
+    You are in 'detached HEAD' state. You can look around, make experimental
+    changes and commit them, and you can discard any commits you make in this
+    state without impacting any branches by performing another checkout.
+
+    If you want to create a new branch to retain commits you create, you may
+    do so (now or later) by using -b with the checkout command again. Example:
+
+      git checkout -b new_branch_name
+
+    HEAD is now at 2a86eff... Changelog bump.
+    delta:sphinx blyth$ 
+
+
+
+which one
+-----------
+
+* Every Sphinx page lists version at bottom right (currently 1.2)
+
+::
+
+    delta:wiki2rst blyth$ port installed 2>/dev/null | grep sphinx 
+      py27-sphinx @1.2_0 (active)
+      sphinx_select @0.1_0 (active)
+
+    delta:wiki2rst blyth$ port contents py27-sphinx
+    Port py27-sphinx contains:
+      ...
+      /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/Sphinx-1.2-py2.7.egg-info/PKG-INFO
+
+
 version
 --------
 
@@ -580,7 +696,10 @@ Had to force install it::
 EOU
 }
 sphinx-dir(){ echo $(local-base)/env/doc/sphinx ; }
-sphinx-cd(){  cd $(sphinx-dir)/$1; }
+sphinx-cd(){  
+   echo $msg WARNING THIS THIS NOT THE CURRENTLY USED SPHINX : use sphinx-scd instead for the macports sphinx
+   cd $(sphinx-dir)/$1; 
+}
 
 
 sphinx-sdir(){ 
@@ -592,11 +711,15 @@ sphinx-sdir(){
 
 sphinx-scd(){ cd $(sphinx-sdir) ; }
 
-sphinx-mate(){ mate $(sphinx-dir) ; }
 sphinx-get(){
    local dir=$(dirname $(sphinx-dir)) &&  mkdir -p $dir && cd $dir
-   hg clone http://bitbucket.org/birkenfeld/sphinx 
+   #hg clone http://bitbucket.org/birkenfeld/sphinx   ## they migrated to github, where i forked it
+   [ ! -d sphinx ] && git clone https://github.com/simoncblyth/sphinx
 }
+
+
+
+
 
 sphinx-install(){
    sphinx-cd

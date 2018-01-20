@@ -18,12 +18,40 @@ Reference
 * https://www.rath.org/mercurial-for-git-users-and-vice-versa.html
 
 
+Take a look at Sphinx tags/1.2, then return to latest, see sphinx-
+---------------------------------------------------------------------------
 
+::
 
+    delta:sphinx blyth$ git checkout tags/1.2
+    Note: checking out 'tags/1.2'.
 
+    You are in 'detached HEAD' state. You can look around, make experimental
+    changes and commit them, and you can discard any commits you make in this
+    state without impacting any branches by performing another checkout.
 
+    If you want to create a new branch to retain commits you create, you may
+    do so (now or later) by using -b with the checkout command again. Example:
 
+      git checkout -b new_branch_name
 
+    HEAD is now at 2a86eff... Changelog bump.
+    delta:sphinx blyth$ 
+
+    delta:sphinx blyth$ git status
+    HEAD detached at 1.2
+    nothing to commit, working directory clean
+
+    delta:sphinx blyth$ git checkout master
+    Previous HEAD position was 2a86eff... Changelog bump.
+    Switched to branch 'master'
+    Your branch is up-to-date with 'origin/master'.
+
+    delta:sphinx blyth$ git status
+    On branch master
+    Your branch is up-to-date with 'origin/master'.
+
+    nothing to commit, working directory clean
 
 
 

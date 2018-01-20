@@ -49,24 +49,22 @@ Page
 import logging, sys, re, os
 log = logging.getLogger(__name__)
 
-
-
 U = "".join(map(unichr,range(0xa7,0xff+1)))
-#U = u"abc" 
-#U = "abc"
-
 assert type(U) is unicode
 
-
 import copy 
-
 from env.trac.migration.inlinetracwiki2rst import inline_tracwiki2rst_, TableTracWiki2RST
 
-   
+
 
 class Lines(list):
     def __init__(self, *args, **kwa):
+        fmt = kwa.pop('fmt', "tracwiki")
+       
         list.__init__(self, *args, **kwa)
+        #log.info("Lines %s fmt:%s " % (self.__class__.__name__, fmt) )
+        self.fmt = fmt
+     
 
     def __repr__(self):
         return "<%s %s lines> " % (self.__class__.__name__, len(self))
@@ -77,17 +75,19 @@ class Lines(list):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def directive(self, name, args, kwa):
+    def directive(self, name, args, **kwa):
+        tail = kwa.pop("tail", [])
         fargs = " ".join(args)
         fqwa = map(lambda _:"   :%s: %s" % (_[0], _[1]), kwa.items() )
-        return "\n".join(["",".. %s:: %s" % (name, fargs)] + fqwa + [""] + self.indent(3) + ["",""] )
+        return "\n".join(["",".. %s:: %s" % (name, fargs)] + fqwa + [""] + self.indent(3) + [""] + tail )
 
     def indent(self, n):
         fmt_ = lambda _:" "*n + _
         return map(fmt_, self) 
 
     def inlined(self):
-        return map(inline_tracwiki2rst_, self ) 
+        inline_ = inline_tracwiki2rst_ if self.fmt == "tracwiki" else lambda _:_
+        return map(inline_, self ) 
 
     def bullet(self, n):
         return map(lambda _:" "*n + "* " + _, list(self)) 
@@ -99,7 +99,9 @@ class Lines(list):
 
 
 class Para(Lines):
-    pass 
+    def __init__(self, *args, **kwa):
+        Lines.__init__(self, *args, **kwa)
+
     def _get_rst(self):
         return "\n".join(self.inlined())
     rst = property(_get_rst)
@@ -215,7 +217,7 @@ class Toc(Lines):
 
     def _get_rst(self):
         #return "\n".join(["",".. toctree::", ""] + self.indent(3) + ["",""] )
-        return self.directive("toctree", "", self.kwa )
+        return self.directive("toctree", [], **self.kwa )
 
     rst = property(_get_rst)
 
@@ -245,6 +247,7 @@ class ListTagged(Lines):
 
     def __init__(self, tags):
         self.tags = tags
+        Lines.__init__(self)
 
     def _get_rst(self):
         return "\n".join(["","ListTagged(%s):" % self.tags, ""] + self.bullet(0) + [""] )
@@ -268,18 +271,37 @@ class Image(Lines):
         return refs[0]
 
     @classmethod
-    def from_line(cls, line, resolver, pagename=None):
+    def from_line(cls, line, ctx, docname=None):
+        """
+        Note that resolving of links is left to the Sphinx/sphinxext machinery,
+        this just re-formats the link layout to sphinx form. 
+        """
         assert cls.is_match(line)
-        ref = cls.match(line) 
-        url = resolver(ref, pagename) if resolver is not None else ref
-        img = cls(url)
+        tlnk = cls.match(line) 
+
+        xlnk = ctx.extlinks.trac2sphinx_link(tlnk, typ_default="tracwiki")
+
+        log.info("Image.from_line  translating tlnk to xlnk %s -> %s  (%s) " % (tlnk, xlnk, docname))
+
+        img = cls(xlnk, docname)
         return img
 
-    def __init__(self, url):
+    def __init__(self, url, docname):
         self.url = url
+        self.docname = docname
+        Lines.__init__(self)
 
     def _get_rst(self):
-        return self.directive("image", [self.url], {} )
+        """
+        The comment after the image avoids error from following indented 
+        content causing a "no content permitted" error.
+        """
+        comment = ["..", "   image url:%s docname:%s  " % (self.url, self.docname), "" ]
+
+        #dr = "image"
+        dr = "wimg"
+        return self.directive(dr, [self.url], tail=comment) 
+
     rst = property(_get_rst)
 
     def __repr__(self):
@@ -448,10 +470,14 @@ class Page(list):
     """
     INCOMPLETE = [ListTagged]
 
-    def __init__(self, name):
-        list.__init__(self)
+    def __init__(self, *args, **kwa):
+        name = kwa.pop('name',None)
+        assert name is not None
+        list.__init__(self, *args, **kwa)
         self.name = name
 
+    def count(self, cls):
+        return len(filter(lambda _:type(_) is cls, self))
 
     def incomplete_instances(self):
         return filter(lambda _:type(_) in self.INCOMPLETE, self)
@@ -481,22 +507,21 @@ class Page(list):
 
 
 
-
+def banner(msg):
+    print "#" * 50 + " %-30s " % msg + "#" * 50 
 
 def dump(obj):
-    log.info("repr")
+    banner("repr(obj)")
     print repr(obj)
-    log.info("str")
+    banner("str(obj)")
     print str(obj)    
-    log.info("unicode")
+    banner("unicode(obj)")
     print unicode(obj)    
-    log.info("rst")
-
+    banner("obj.rst")
     rst = obj.rst
     assert type(rst) is unicode
     print rst    
   
-
 
 def test_page():
     log.info("test_page")
@@ -516,14 +541,18 @@ def test_page():
     dump(pg)
     return pg  
 
+
 def test_para():
+    """
+    Using fmt=rst prevents the tracwiki2rst inlining 
+    """
     log.info("test_para")
-    pa = Para( ["red","green","blue", U ] ) 
+    pa = Para( ["red","green","blue", U, ":strong:`strong`" ], fmt="rst") 
     dump(pa)
- 
+  
 def test_lines():
     log.info("test_lines")
-    li = Lines( ["red","green","blue", U ] ) 
+    li = Lines( ["red","green","blue", U, ":strong:`strong`" ], fmt="rst" ) 
     dump(li)
 
 def test_Toc():
@@ -538,9 +567,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     #test_lines() 
-    #test_para() 
+    test_para() 
 
-    test_Toc()
+    #test_Toc()
 
 
 if 0:
