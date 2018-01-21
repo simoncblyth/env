@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 """
+::
+
+   ./test_tracwiki2rst.py 
+
 
 """
 import logging
 log = logging.getLogger(__name__)
+from env.trac.migration.resolver import Resolver
 from env.doc.rstutil import rst2html_open    
 from env.trac.migration.tracwiki2rst import TracWiki2RST
 
@@ -27,13 +32,12 @@ class TestTracWiki2RST(object):
     def __call__(self, txt, open_=False, skip=True):
         if skip:return
         wp = DummyWikiPage()
-        args = DummyArgs()
-        resolver = Resolver(args)
-        args.resolver = resolver
+        ctx = DummyArgs()
+        ctx.resolver = Resolver(tracdir=ctx.tracdir, rstdir=ctx.rstdir)
 
         text = "\n".join(map(lambda _:_[4:], txt.split("\n")[1:-1]))
 
-        pg = TracWiki2RST.page_from_tracwiki(wp, text, args)
+        pg = TracWiki2RST.page_from_tracwiki(wp, text, ctx)
         rst = pg.rst
         assert type(rst) is unicode
 
@@ -234,7 +238,7 @@ if __name__ == '__main__':
        || 1033       || CF-00050:51 ||  -6-                  ||                         ||                         ||  
 
 
-    """,open_=True, skip=True)
+    """,open_=False, skip=True)
 
 
     ts(r"""
@@ -243,7 +247,7 @@ if __name__ == '__main__':
     [[Image(EnterPassword.png)]] 
 
 
-    """, open_=True, skip=True)
+    """, open_=False, skip=True)
 
 
     trst(r"""
@@ -265,7 +269,7 @@ if __name__ == '__main__':
     :tail: tail
     :tail2: tail2
 
-    """, open_=True, skip=True)
+    """, open_=False, skip=True)
 
 
     ts(r"""
@@ -281,6 +285,36 @@ if __name__ == '__main__':
     Error in "image" directive: no content permitted.
     }}}
 
-    """, open_=True, skip=True)
+    """, open_=False, skip=True)
 
-    test_make_index()
+
+
+    ts(r"""
+    = Indented bullet list after literal block = 
+
+    Anything indented following the literal block gets 
+    incorporated into the literal block. Tried to add an
+    RST comment, this then causes the indented block to get commented.
+
+    Hmm seems unavoidable, I have to take control of the indent, and 
+    offset it to zero 
+
+    {{{
+    #!py
+           def _DayaBay__HepMCEvent(self):
+                 return "<%s  generatorName:%s >" % ( self.__class__.__name__ , self.generatorName() ) 
+
+           kls=PyCintex.makeClass('DayaBay::HepMCEvent')
+           kls.__repr__ = _DayaBay__HepMCEvent
+    }}}
+       
+    * source:/trunk/dybpy/dybpy/
+    * source:/trunk/dybpy/dybpy/genrepr.py
+    * source:/trunk/dybpy/dybpy/geneventlook.py     
+
+    """, open_=True, skip=False)
+
+
+    #test_make_index()
+
+

@@ -7,7 +7,14 @@ Canonical usage is from wtracdb.py
 
 ::
 
-    ./trac2sphinx.py $(wtracdb-path) --onepage 3D --level DEBUG
+    wtracdb- ; ./trac2sphinx.py $(wtracdb-path) --onepage 3D --level DEBUG
+    wtracdb- ; ./trac2sphinx.py $(wtracdb-path) --onepage 3D --level debug --logformat "%(message).100s"   ## truncate message length 
+    wtracdb- ; ./trac2sphinx.py $(wtracdb-path) --onepage 3D --level debug -F0
+    wtracdb- ; ./trac2sphinx.py $(wtracdb-path) --onepage 3D --level debug -F1
+    wtracdb- ; ./trac2sphinx.py $(wtracdb-path) --onepage 3D --level debug -F2  ## shorthand way to pick logformat 
+
+    wtracdb- ; ./trac2sphinx.py $(wtracdb-path) --onepage WikiFormatting --level debug -F2
+    wtracdb- ; ./trac2sphinx.py $(wtracdb-path) --onepage WikiFormatting -LD -F2
 
 
 """
@@ -15,6 +22,7 @@ import logging, sys, re, os, collections, datetime, codecs, copy
 log = logging.getLogger(__name__)
 
 from env.sqlite.db import DB
+from env.trac.migration.resolver import Resolver
 from env.trac.migration.tracwikipage import TracWikiPage
 from env.trac.migration.tracwiki2rst import TracWiki2RST
 from env.doc.extlinks import SphinxExtLinks
@@ -32,11 +40,19 @@ class Trac2Sphinx(object):
         d['tracdir'] = "/tmp/env/trac2sphinx"
         d['title'] = "trac2sphinx.py conversion"
         d['origtmpl'] = None
-        d['level'] = "INFO"
         d['dev'] = False
         d['tags'] = None
         d['vanilla'] = False
 
+        fmt = {} 
+        fmt['0'] = "%(asctime)-15s %(levelname)-7s %(name)-20s:%(lineno)-3d %(message)s"
+        fmt['1'] = "%(levelname).1s %(name)-20s:%(lineno)-3d %(message).100s"
+        fmt['2'] = "%(levelname).1s %(lineno)-3d %(message).200s"
+        d['logformat'] = '2'
+
+        lvl = dict(I="INFO",D="DEBUG",W="WARN")
+        d['level'] = "I"
+    
         parser.add_argument("dbpath", default=None, help="path to trac.db"  ) 
         parser.add_argument("--onepage", default=d['onepage'], help="restrict conversion to single named page for debugging")  
         parser.add_argument("--rstdir", default=d['rstdir'], help="directory to write the converted RST")  
@@ -46,12 +62,13 @@ class Trac2Sphinx(object):
         parser.add_argument("--vanilla", action="store_true", default=d['vanilla'], help="Skip Sphinx extensions to allow plain vanilla RST processing"   )  
         parser.add_argument("--tags", default=d['tags'] )  
         parser.add_argument("--dev", action="store_true", default=d['dev'] )  
-        parser.add_argument("-l","--level", default=d['level'], help="INFO/DEBUG/WARN/..")  
+        parser.add_argument("-F","--logformat", default=d['logformat'] )
+        parser.add_argument("-L","--level", default=d['level'], help="I/D/W/INFO/DEBUG/WARN/..")  
         
         ctx = parser.parse_args()
-        logging.basicConfig(level=getattr(logging, ctx.level.upper()))
+        logging.basicConfig(format=fmt.get(ctx.logformat, ctx.logformat), level=getattr(logging, lvl.get(ctx.level,ctx.level).upper()))
 
-        ctx.resolver = Resolver(tracdir=args.tracdir, rstdir=args.rstdir)
+        ctx.resolver = Resolver(tracdir=ctx.tracdir, rstdir=ctx.rstdir)
         ctx.db = DB(ctx.dbpath)
         ctx.extlinks = SphinxExtLinks(extlinks)
 

@@ -711,6 +711,15 @@ sphinx-sdir(){
 
 sphinx-scd(){ cd $(sphinx-sdir) ; }
 
+sphinx-find()
+{
+   sphinx-scd
+   pwd
+   find . -name '*.py' -exec grep -H ${1:-sphinx-build} {} \;
+}
+
+
+
 sphinx-get(){
    local dir=$(dirname $(sphinx-dir)) &&  mkdir -p $dir && cd $dir
    #hg clone http://bitbucket.org/birkenfeld/sphinx   ## they migrated to github, where i forked it

@@ -127,10 +127,11 @@ class Literal(Lines):
         return line.lstrip().startswith(cls.end)
 
     def _get_rst(self):
+        comment = ["..", "   end-literal ", "" ]
         if len(self) == 0:
             return None
         else:
-            return "\n".join(["","::", ""] + self.indent(4) + [""] )
+            return "\n".join(["","::", ""] + self.indent(4) + [""] + comment )
         pass
     rst = property(_get_rst)
 
@@ -259,8 +260,18 @@ class Image(Lines):
 
     @classmethod 
     def is_match(cls, line):
+        """
+        Uses kludgy way to avoid matching literal-ized Image macro
+        """
         m = cls.ptn.search(line)
-        return m is not None
+        if m is None:
+            return False 
+        pass
+        lhs = line[:m.start()]
+        if lhs.find("`") > -1 or lhs.find("{{{") > -1:
+            return False 
+        pass 
+        return True
 
     @classmethod 
     def match(cls, line):
@@ -279,7 +290,7 @@ class Image(Lines):
         assert cls.is_match(line)
         tlnk = cls.match(line) 
 
-        xlnk = ctx.extlinks.trac2sphinx_link(tlnk, typ_default="tracwiki")
+        xlnk = ctx.extlinks.trac2sphinx_link(tlnk, typ_default="wikidocs")
 
         log.info("Image.from_line  translating tlnk to xlnk %s -> %s  (%s) " % (tlnk, xlnk, docname))
 
@@ -297,7 +308,6 @@ class Image(Lines):
         content causing a "no content permitted" error.
         """
         comment = ["..", "   image url:%s docname:%s  " % (self.url, self.docname), "" ]
-
         #dr = "image"
         dr = "wimg"
         return self.directive(dr, [self.url], tail=comment) 

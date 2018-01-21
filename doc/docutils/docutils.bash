@@ -66,8 +66,29 @@ Why is the world still:
 
 EOU
 }
+
+docutils-dir-svn(){ echo $LOCAL_BASE/env/doc/docutils ; }
+docutils-get-svn(){
+   local dir=$(dirname $(docutils-dir-svn))
+   mkdir -p $dir 
+   cd $dir
+   [ ! -d docutils ] && svn checkout http://svn.code.sf.net/p/docutils/code/trunk docutils
+}
+docutils-cd-svn()
+{
+   cd $(docutils-dir-svn)
+}
+
+
+
 docutils-dir(){ python -c "import os, docutils ; print os.path.dirname(docutils.__file__)" ; }
 docutils-cd(){  cd $(docutils-dir); }
+
+docutils-find(){
+  docutils-cd 
+  pwd
+  find . -name '*.py' -exec grep -H ${1:-Unknown\ interpreted\ text\ role} {} \;
+}
 
 
 docutils-sdir(){ echo $(env-home)/doc/docutils ; }

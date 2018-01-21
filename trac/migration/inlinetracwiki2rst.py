@@ -1,4 +1,21 @@
 #!/usr/bin/env python
+"""
+
+ISSUES
+--------
+
+Inline literalization of Image macros not honoured.
+
+* `Image[[path.png]]` 
+
+
+Anything indented following a literal gets commented, 
+real world example.
+
+* http://g4pb.local/tracs/workflow/wiki/ArcNetworkBackup#ObserveOnArc:SetupNetworkBackupforsmallwebshareinArcDSM2.1-0835
+
+
+"""
 
 import re, logging
 log = logging.getLogger(__name__)
@@ -26,16 +43,34 @@ class ReReplacer(object):
             self._compiled_rules = rules
 
     def __call__(self, line):
-        log.debug("ReReplacer(%s) line:[%s]" % (self.__class__.__name__, line))
         self._line = line
         result = re.sub(self.rules, self.replace, line)        
-        log.debug("ReReplacer(%s) line:[%s] result:[%s]" % (self.__class__.__name__, line, result ))
+        if result != line: 
+            log.debug("[%s]%s" % (self.__class__.__name__, line))
+            log.debug("[%s]%s" % (self.__class__.__name__, result))
+        pass
         return result
 
     def replace(self, fullmatch):
         """Replace one match with its corresponding expansion"""
         replacement = self.handle_match(fullmatch)
         return replacement
+
+    def handle_match(self, fullmatch):
+        """
+        Subclasses may need to override if particular ordering is needed
+        """
+        d = dict(filter( lambda kv:kv[1] is not None, fullmatch.groupdict().items() ))
+
+        #log.debug("handle_match: %s" %  d)
+        internal_handler = None
+        for itype, match in d.items():
+            internal_handler = getattr(self, '_%s_formatter' % itype)
+        pass
+        assert internal_handler, ("no handler for %s " % d )
+        result = internal_handler(match, fullmatch)
+        return result
+
 
 
 class InlineEscapeRST(ReReplacer):
@@ -58,20 +93,11 @@ class InlineEscapeRST(ReReplacer):
     def __init__(self):
         ReReplacer.__init__(self)
 
-    def handle_match(self, fullmatch):
-        d = fullmatch.groupdict()
-        #print "handle_match:", d
-        internal_handler = None
-        for itype, match in d.items():
-            if not match:continue
-            internal_handler = getattr(self, '_%s_formatter' % itype)
-        pass
-        assert internal_handler
-        result = internal_handler(match, fullmatch)
-        return result
-
 
     def __call__(self, line):
+        """
+        Override to handle bullet lists
+        """
         inset = 0 
         if line.lstrip()[0:2] == "* ":   # guessing a bullet list 
             inset = line.index("*")+1
@@ -167,6 +193,110 @@ class TableTracWiki2RST(ReReplacer):
         return replacement
  
 
+
+
+def test_InlineTrac2SphinxLink():
+    """
+    use ":set list" in vim to see the trailing whitespace 
+    that is also required to match
+    """
+    text = u"""
+    * source:/trunk/pyrex/main/Makefile
+    * source:trunk/pyrex/main/Makefile 
+    * source:trunk/autosurvey/autosurvey.py 
+    * source:trunk/python/ipython.bash@24
+    * source:trunk/autosurvey/autosurvey.py source:trunk/python/ipython.bash
+
+    * env:/trunk/base/cron.bash
+
+    * wiki:LXML
+    * htdocs:db2trac.xsl
+
+    * google:"osx install kext"
+    * google:"rsync.plist"
+
+    * http://www.google.com
+    * https://www.google.com
+    * file:///tmp/dummy.txt
+    * x-man-page://osascript
+    * smb://user@server/test
+    * afp://user@server/test
+
+    * 14:00
+
+    """
+
+    x_text = u"""
+    * :source:`/trunk/pyrex/main/Makefile`
+    * :source:`trunk/pyrex/main/Makefile` 
+    * :source:`trunk/autosurvey/autosurvey.py` 
+    * :source:`trunk/python/ipython.bash@24`
+    * :source:`trunk/autosurvey/autosurvey.py` :source:`trunk/python/ipython.bash`
+
+    * :env:`/trunk/base/cron.bash`
+
+    * :wiki:`LXML`
+    * :htdocs:`db2trac.xsl`
+
+    * :google:`osx install kext`
+    * :google:`rsync.plist`
+
+    * http://www.google.com
+    * https://www.google.com
+    * file:///tmp/dummy.txt
+    * x-man-page://osascript
+    * smb://user@server/test
+    * afp://user@server/test
+
+    * 14:00
+
+    """
+    return test_translate( InlineTrac2SphinxLink, text, x_text )
+
+ 
+class InlineTrac2SphinxLink(ReReplacer):
+
+    EXCLUDE = ["http", "https", "file", "x-man-page", "smb", "afp", "mail", "ftp", "xmpp"]
+    LINKTYPE = "[a-zA-Z_-]+"
+
+    LINK_TOKEN = ":"
+    ESCAPED_LINK_TOKEN = "\:"
+
+    _rules = [ 
+       r"(?P<link>%s%s[\w\/]\S+)" % (LINKTYPE, ESCAPED_LINK_TOKEN) ,      # 2nd \w disallows quote after colon
+       r"(?P<qlink>\w+%s\"[\S ]+\")" % ESCAPED_LINK_TOKEN , 
+           ]
+
+    def __init__(self):
+        ReReplacer.__init__(self)
+
+    def _qlink_formatter(self, match, fullmatch):
+        tlnk = fullmatch.group('qlink')
+        assert tlnk == match 
+
+        f = tlnk.index(self.LINK_TOKEN)
+        typ = tlnk[:f]
+        arg = tlnk[f+1:]
+        assert arg[0] == '"' and arg[-1] == '"'
+        uarg = arg[1:-1]
+        xlnk = ":%s:`%s`" % (typ, uarg)
+        #log.debug("(qlink) tlnk:[%(tlnk)s] typ:[%(typ)s] arg:[%(arg)s] uarg:[%(uarg)s] xlnk:[%(xlnk)s]" % locals())
+        return xlnk
+
+    def _link_formatter(self, match, fullmatch):
+        tlnk = fullmatch.group('link')
+        assert tlnk == match 
+
+        f = tlnk.index(self.LINK_TOKEN)
+        typ = tlnk[:f]
+        arg = tlnk[f+1:]
+        xlnk = ":%s:`%s`" % (typ, arg)
+
+        exclude = typ in self.EXCLUDE
+  
+        #log.debug("(link) tlnk:[%(tlnk)s] typ:[%(typ)s] arg:[%(arg)s] xlnk:[%(xlnk)s]" % locals())
+        return xlnk if not exclude else match
+
  
 
 class InlineTracWiki2RST(ReReplacer):
@@ -236,18 +366,6 @@ class InlineTracWiki2RST(ReReplacer):
     def __init__(self):
         ReReplacer.__init__(self)
 
-    def handle_match(self, fullmatch):
-        d = dict(filter( lambda kv:kv[1] is not None, fullmatch.groupdict().items() ))
-
-        log.debug("handle_match: %s" %  d)
-        internal_handler = None
-        for itype, match in d.items():
-            internal_handler = getattr(self, '_%s_formatter' % itype)
-        pass
-        assert internal_handler, ("no handler for %s " % d )
-        result = internal_handler(match, fullmatch)
-        return result
-
 
     def _inlinecode_formatter(self, match, fullmatch):
         l = len(self.STARTBLOCK)
@@ -298,25 +416,50 @@ class InlineTracWiki2RST(ReReplacer):
 
 
 EURL = EscapeURL()
+ILNK = InlineTrac2SphinxLink()
 INLI = InlineTracWiki2RST()
 ERST = InlineEscapeRST()
 
-inline_tracwiki2rst_ = lambda line:ERST(INLI(EURL(line))) 
+inline_tracwiki2rst_ = lambda line:ERST(ILNK(INLI(EURL(line)))) 
  
 
+def unindent_split_(text):
+    return map(lambda _:_[4:], text.split("\n")[1:-1])
 
-def test_translate( cls, text ):
-    conv = cls() 
-    lines = map(lambda _:_[4:], text.split("\n")[1:-1])
-    rst = "\n".join(filter(lambda _:_ is not None,map(conv, lines)))   # avoid blanks lines from table rows
+def test_translate( cls, text, x_text=None ):
+    translator = cls() 
+    not_None_ = lambda _:_ is not None  # avoid blanks lines from table rows
 
+    lines = unindent_split_(text)
+    r_lines = filter(not_None_,map(translator, lines))   
+
+    rst = "\n".join(r_lines)
     div = "\n" + "*" * 100 + "\n"
     print div
     print "\n".join(lines)
     print div
-    print rst 
+    print rst
     print div
-    return rst
+
+
+    if x_text is not None:
+        x_lines = unindent_split_(x_text)
+        dif = 0
+        for i, (rl, xl) in enumerate(zip(r_lines, x_lines)):
+            if rl != xl:
+                dif += 1
+                log.warning(" unexpected translation at line %s " % i )
+                print "r: [%s]" % rl
+                print "x: [%s]" % xl
+            pass
+        pass
+        log.info("line by line comparison dif:%s r:%s x:%s " % (dif, len(r_lines), len(x_lines)))
+        pass
+        x_rst = "\n".join(x_lines)
+        assert x_rst == rst 
+    pass
+
+    return rst 
  
 
 def test_InlineEscapeRST():
@@ -391,13 +534,14 @@ def test_InlineTracWiki2RST():
 
 
 if __name__ == '__main__':
-    #level = 'DEBUG'
-    level = 'INFO'
-    logging.basicConfig(level=getattr(logging, level))
+    level = 'DEBUG'
+    #level = 'INFO'
+    logging.basicConfig(level=getattr(logging, level), format="%(name)s %(lineno)s %(message)s")
 
-    #test_InlineTracWiki2RST()
-    #test_InlineEscapeRST()    
+    test_InlineTracWiki2RST()
+    test_InlineEscapeRST()    
     rst = test_TableTracWiki2RST()
+    rst = test_InlineTrac2SphinxLink()
 
     from env.doc.rstutil import rst2html_open    
     assert type(rst) is unicode

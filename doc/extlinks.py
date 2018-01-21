@@ -13,6 +13,7 @@ class SphinxExtLinks(dict):
     TRAC_LINK = re.compile("^(?P<typ>\w+)\:(?P<arg>\S+)$")   
     RST_ROLE = re.compile("^\:(?P<typ>\w+)\:\`(?P<arg>\S+)\`$")  
 
+
     def __init__(self, *args, **kwa):
         dict.__init__(self, *args, **kwa)
 
@@ -32,6 +33,9 @@ class SphinxExtLinks(dict):
         pass
         url = tmpl % arg 
         return url 
+
+    def __repr__(self):
+        return "\n".join(["%10s  :  %100s   : %50s " % ( k, self[k][0], self[k][1] ) for k in self ])
 
     @classmethod
     def identify_rst_role(cls, txt):

@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-
+"""
+This is separate to allow usage from both high (trac2sphinx.py) 
+and low (test_tracwiki2rst.py) levels.
+"""
 import os, logging
 log = logging.getLogger(__name__)
 
