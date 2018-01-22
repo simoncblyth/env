@@ -25,8 +25,30 @@ from env.doc.tabrst import Table
 from env.trac.migration.rsturl  import EscapeURL
 
 
+
+class InlineTrac2Sphinx(object):
+    """ 
+    # inline_tracwiki2rst_ = lambda line:ERST(ILNK(INLI(EURL(line)))) 
+    """
+    def __init__(self, ctx):
+        self.ctx = ctx
+        self.eurl = EscapeURL(ctx)
+        self.ilnk = InlineTrac2SphinxLink(ctx) 
+        self.inli = InlineTracWiki2RST(ctx)
+        self.erst = InlineEscapeRST(ctx)
+
+    def __call__(self, line):
+        iline = self.erst(self.ilnk(self.inli(self.eurl(line)))) 
+        if iline.strip() != "":
+            iline = "%s (%s)" % (iline, self.ctx.indent)
+        pass
+        return iline
+
+
+
 class ReReplacer(object):
-    def __init__(self):
+    def __init__(self, ctx):
+        self.ctx = ctx
         self._compiled_rules = None
         self._line = None
         self._table = None
@@ -90,9 +112,8 @@ class InlineEscapeRST(ReReplacer):
     _find_bold = re.compile("(?P<findbold>\*{2})")
     _find_italic = re.compile("(?P<finditalic>\*{1})")
 
-    def __init__(self):
-        ReReplacer.__init__(self)
-
+    def __init__(self, ctx):
+        ReReplacer.__init__(self, ctx)
 
     def __call__(self, line):
         """
@@ -142,6 +163,10 @@ class TableTracWiki2RST(ReReplacer):
         r"(?P<table_cell>\|\|.*?)(?=\|\|)",
         r"(?P<blankline>^$)"
         ]
+
+
+    def __init__(self, ctx):
+        ReReplacer.__init__(self, ctx)
 
     def handle_match(self, fullmatch):
         d = dict(filter( lambda kv:kv[1] is not None, fullmatch.groupdict().items() ))
@@ -282,8 +307,9 @@ class InlineTrac2SphinxLink(ReReplacer):
        r"(?P<qlink>[%s]?\w+%s\"[\S ]+\")" % (DISALLOW_CHARS, ESCAPED_LINK_TOKEN ), 
            ]
 
-    def __init__(self):
-        ReReplacer.__init__(self)
+    def __init__(self, ctx):
+        ReReplacer.__init__(self, ctx)
+
 
 
     def _escaped(self, match):
@@ -402,9 +428,8 @@ class InlineTracWiki2RST(ReReplacer):
         % (INLINE_TOKEN, INLINE_TOKEN)]
 
       
-    def __init__(self):
-        ReReplacer.__init__(self)
-
+    def __init__(self, ctx):
+        ReReplacer.__init__(self, ctx)
 
     def _inlinecode_formatter(self, match, fullmatch):
         l = len(self.STARTBLOCK)
@@ -449,24 +474,18 @@ class InlineTracWiki2RST(ReReplacer):
 
     def _indent_formatter(self, match, fullmatch):
         indent = fullmatch.group('indent')
+        self.ctx.indent = len(indent)
         return indent
 
 
-
-
-EURL = EscapeURL()
-ILNK = InlineTrac2SphinxLink()
-INLI = InlineTracWiki2RST()
-ERST = InlineEscapeRST()
-
-inline_tracwiki2rst_ = lambda line:ERST(ILNK(INLI(EURL(line)))) 
- 
 
 def unindent_split_(text):
     return map(lambda _:_[4:], text.split("\n")[1:-1])
 
 def test_translate( cls, text, x_text=None ):
-    translator = cls() 
+
+    ctx = {}
+    translator = cls(ctx) 
     not_None_ = lambda _:_ is not None  # avoid blanks lines from table rows
 
     lines = unindent_split_(text)

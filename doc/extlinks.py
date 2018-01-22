@@ -10,6 +10,10 @@ log = logging.getLogger(__name__)
 
 
 class SphinxExtLinks(dict):
+    """
+    Uses extlink mappings to resolve RST role refs
+    into actual urls.
+    """
     TRAC_LINK = re.compile("^(?P<typ>\w+)\:(?P<arg>\S+)$")   
     RST_ROLE = re.compile("^\:(?P<typ>\w+)\:\`(?P<arg>\S+)\`$")  
 

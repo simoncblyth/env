@@ -15,8 +15,8 @@ class TracWiki2RST(object):
     skips = r"""
     [[TracNav
     [[PageOutline
+    [[TOC
     """.lstrip().rstrip().split()
-
 
     @classmethod
     def meta_top(cls, wp, args):
@@ -25,16 +25,16 @@ class TracWiki2RST(object):
         md = wp.metadict
 
         if not args.vanilla:
-            anchor = Anchor(wp.name, md["tags"])
+            anchor = Anchor(name=wp.name, tags=md["tags"])
             out.append(anchor)
-            sidebar = Sidebar(md)
+            sidebar = Sidebar(md=md)
             out.append(sidebar) 
         pass
 
         contents = Contents(depth=2)
         out.append(contents)
 
-        meta = Meta(md)
+        meta = Meta(md=md)
         meta.append(":orphan:")
 
         if args.origtmpl is not None:
@@ -59,20 +59,20 @@ class TracWiki2RST(object):
         """
         pg0 = copy.deepcopy(pg) # avoid including these debug additions in the dump 
 
-        pg.append(Head("%s dbg_tail" % wp.name,1))
+        pg.append(Head("%s dbg_tail" % wp.name,level=1))
 
-        pg.append(Head("Literal converted rst",2))
+        pg.append(Head("Literal converted rst",level=2))
         pg.append(CodeBlock(pg0.rst.split("\n"), lang="rst", linenos=True))
 
-        pg.append(Head("Literal tracwiki text",2))
+        pg.append(Head("Literal tracwiki text",level=2))
         pg.append(CodeBlock(text.split("\n"),lang="bash", linenos=True)) 
         # NB not wp.text as need to obey .txt file overrides of DB content, see wtracdb-edtest
 
-        pg.append(Head("Literal repr(pg)",2))
+        pg.append(Head("Literal repr(pg)",level=2))
         pg.append(CodeBlock(repr(pg0).split("\n"), lang="pycon", linenos=True))
         ## repr always fits in ascii ?
 
-        pg.append(Head("Literal unicode(pg)",2))
+        pg.append(Head("Literal unicode(pg)",level=2))
         pg.append(CodeBlock(unicode(pg0).split("\n"), lang="pycon", linenos=True))
 
     @classmethod
@@ -82,13 +82,13 @@ class TracWiki2RST(object):
 
         mtop = cls.meta_top(wp, ctx) 
 
-        pg = Page(mtop, name=name)
+        pg = Page(mtop, name=name, ctx=ctx)
 
         conv = cls(text, pg, ctx)
 
         ## if page lacks a Header, insert one after metadata
         if pg.count(Head) == 0:   
-            pg.insert( len(mtop), Head(name, 1))
+            pg.insert( len(mtop), Head(name, level=1, ctx=ctx))
         pass
 
         ## ListTagged requires db access so done here
@@ -102,14 +102,14 @@ class TracWiki2RST(object):
         return pg 
 
     @classmethod
-    def make_index(self, name, title, pagenames):
+    def make_index(cls, name, title, pagenames, ctx):
         idx = Page(name=name)        
-        hdr = Head(title, 1)
-        toc = Toc( pagenames, maxdepth=1)
+        hdr = Head(title, level=1, ctx=ctx)
+        toc = Toc( pagenames, maxdepth=1 )
 
-        foot = Head("indices and tables", 1)
+        foot = Head("indices and tables", level=1, ctx=ctx)
 
-        para = Para(fmt="rst")   # specifying rst prevents tracwiki2rst inlining/escaping etc..
+        para = Para(fmt="rst", ctx=ctx)   # specifying rst prevents tracwiki2rst inlining/escaping etc..
         para.append(u"")         # some unicode is needed, to get the py2 coercion to kick in 
         para.append("* :ref:`genindex`")
         para.append("* :ref:`modindex`")
@@ -134,7 +134,7 @@ class TracWiki2RST(object):
 
     def add_line(self, line):
         if self.cur_para is None:
-             self.cur_para = Para()
+             self.cur_para = Para(ctx=self.ctx)
         pass
         self.cur_para.append(line) 
 
@@ -154,32 +154,32 @@ class TracWiki2RST(object):
             # cur_literal None avoids looking inside literal blocks for Heads OR ListTagged
             if self.cur_literal is None and Head.is_match(line):  
                 self.end_para()
-                head = Head.from_line(line, name=self.name)
+                head = Head.from_line(line, name=self.name, ctx=self.ctx)
                 self.content.append(head) 
             elif self.cur_literal is None and Image.is_match(line):  
                 self.end_para()
-                img = Image.from_line(line, self.ctx, docname=self.name)
+                img = Image.from_line(line, docname=self.name, ctx=self.ctx)
                 self.content.append(img) 
             elif self.cur_literal is None and HorizontalRule.is_match(line):
                 self.end_para()
-                hr = HorizontalRule()
+                hr = HorizontalRule(ctx=self.ctx)
                 self.content.append(hr) 
             elif self.cur_literal is None and ListTagged.is_match(line):
                 self.end_para()
-                tgls = ListTagged.from_line(line)
+                tgls = ListTagged.from_line(line, ctx=self.ctx)
                 self.content.append(tgls) 
             elif self.cur_literal is None and SimpleTable.is_simpletable(line):
                 self.end_para()
                 if self.cur_table is None:
                     log.debug("start SimpleTable")
-                    self.cur_table = SimpleTable(pagename=self.name,inline=True) 
+                    self.cur_table = SimpleTable(pagename=self.name,inline=True, ctx=self.ctx) 
                 pass
                 self.cur_table.append(line)
-            elif Literal.is_start(line):
+            elif Literal.is_start(line, ctx=self.ctx):
                 log.debug("start Literal")
                 self.end_para()
-                self.cur_literal = Literal()
-            elif Literal.is_end(line):
+                self.cur_literal = Literal(ctx=self.ctx)
+            elif Literal.is_end(line, ctx=self.ctx):
                 log.debug("end Literal")
                 self.end_literal()
             elif self.cur_table is not None:  # have just left the table 

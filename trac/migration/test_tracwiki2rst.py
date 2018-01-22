@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 from env.trac.migration.resolver import Resolver
 from env.doc.rstutil import rst2html_open    
 from env.trac.migration.tracwiki2rst import TracWiki2RST
+from env.trac.migration.inlinetracwiki2rst import InlineTrac2Sphinx
 
 class DummyWikiPage(object):
     metadict = {'tags':"Red Green Blue", 'name':"DummyWikiPage"} 
@@ -26,8 +27,7 @@ class DummyArgs(object):
     vanilla = True
     rstdir = "/usr/local/workflow/sysadmin/wtracdb/wiki2rst"
     tracdir = "/usr/local/workflow/sysadmin/wtracdb/workflow"
-
-
+    indent = 0 
 
 
 def prep(txt):
@@ -43,6 +43,7 @@ class TestTracWiki2RST(object):
         wp = DummyWikiPage()
         ctx = DummyArgs()
         ctx.resolver = Resolver(tracdir=ctx.tracdir, rstdir=ctx.rstdir)
+        ctx.inliner_ = InlineTrac2Sphinx(ctx)
 
         text = prep(txt)
 
@@ -314,29 +315,49 @@ if __name__ == '__main__':
 
 
     ts(r"""
-    = Indented bullet list after literal block = 
+    = Anything indented after literal block = 
 
-    Anything indented following the literal block gets 
-    incorporated into the literal block. Tried to add an
-    RST comment, this then causes the indented block to get commented.
+    Line
 
-    Hmm seems unavoidable, I have to take control of the indent, and 
-    offset it to zero 
+     Line
+     Line
+     Line
+     Line
 
-    {{{
-    #!py
-           def _DayaBay__HepMCEvent(self):
-                 return "<%s  generatorName:%s >" % ( self.__class__.__name__ , self.generatorName() ) 
+      Line
+      Line
+      Line
 
-           kls=PyCintex.makeClass('DayaBay::HepMCEvent')
-           kls.__repr__ = _DayaBay__HepMCEvent
-    }}}
-       
-    * source:/trunk/dybpy/dybpy/
-    * source:/trunk/dybpy/dybpy/genrepr.py
-    * source:/trunk/dybpy/dybpy/geneventlook.py     
+       Line
 
-    """, open_=True, skip=True)
+        Line
+
+         Line
+
+          Line
+
+           Line
+
+            Line
+
+
+     Anything indented following the literal block gets 
+     incorporated into the literal block. Tried to add an
+     RST comment, this then causes the indented block to get commented.
+
+     Hmm seems unavoidable, I have to take control of the indent, and 
+     offset it to zero 
+
+     Line Before Literal Block   
+
+     {{{
+     Literal Block 
+     Literal Block 
+     Literal Block 
+     }}}
+     Line After Literal Block   
+
+    """, open_=True, skip=False)
 
  
 
@@ -365,7 +386,7 @@ if __name__ == '__main__':
 
     * :trac:`wiki:InterTrac`
 
-    """, open_=True, skip=False)
+    """, open_=True, skip=True)
 
 
     #test_make_index()

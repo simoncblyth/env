@@ -27,12 +27,16 @@ from env.trac.migration.xmlrpcproxy import Proxy
 from env.trac.migration.resolver import Resolver
 from env.trac.migration.tracwikipage import TracWikiPage
 from env.trac.migration.tracwiki2rst import TracWiki2RST
+from env.trac.migration.inlinetracwiki2rst import InlineTrac2Sphinx
 from env.doc.extlinks import SphinxExtLinks
 
 
 class Trac2Sphinx(object):
     @classmethod
     def make_context(cls, doc, extlinks={}):
+        """
+        The extlinks dict shold match that supplied to Sphinx in conf.py.
+        """
         import argparse
         parser = argparse.ArgumentParser(doc)
 
@@ -57,10 +61,15 @@ class Trac2Sphinx(object):
     
         parser.add_argument("dbpath", default=None, help="path to trac.db"  ) 
         parser.add_argument("--onepage", default=d['onepage'], help="restrict conversion to single named page for debugging")  
+
+        # TODO: get these from an ini file, not commandline as rather constant 
         parser.add_argument("--rstdir", default=d['rstdir'], help="directory to write the converted RST")  
         parser.add_argument("--tracdir", default=d['tracdir'], help="directory named after the repo containing db/trac.db as well as attachements etc.. ")  
-        parser.add_argument("--origtmpl", default=d['origtmpl'], help="template of original tracwiki url to provide backlink for debugging, eg http://localhost/tracs/worklow/wiki/%s ")  
         parser.add_argument("--title", default=d['title'] )  
+
+        # TODO: eliminate using the extlinks 
+        parser.add_argument("--origtmpl", default=d['origtmpl'], help="template of original tracwiki url to provide backlink for debugging, eg http://localhost/tracs/worklow/wiki/%s ")  
+
         parser.add_argument("--vanilla", action="store_true", default=d['vanilla'], help="Skip Sphinx extensions to allow plain vanilla RST processing"   )  
         parser.add_argument("--tags", default=d['tags'] )  
         parser.add_argument("--dev", action="store_true", default=d['dev'] )  
@@ -74,7 +83,7 @@ class Trac2Sphinx(object):
         ctx.db = DB(ctx.dbpath)
         ctx.proxy = Proxy.create("workflow_trac", "~/.env.cnf")
         ctx.extlinks = SphinxExtLinks(extlinks)
-
+        ctx.inliner_ = InlineTrac2Sphinx(ctx)
         return ctx
 
     def __init__(self, ctx):
@@ -125,7 +134,7 @@ class Trac2Sphinx(object):
             self.write_(page)
         pass
         pagenames = map(lambda _:_.name,self.pages)
-        idx = TracWiki2RST.make_index("index", self.ctx.title, pagenames)
+        idx = TracWiki2RST.make_index("index", self.ctx.title, pagenames, ctx=self.ctx)
         self.write_(idx) 
         log.info("wrote %s pages  %s...%s " % (len(self.pages), self.pages[0].name, self.pages[-1].name))
 

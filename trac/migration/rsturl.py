@@ -8,6 +8,9 @@ class EscapeURL(object):
     """
     urlptn = re.compile('(?P<url>http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)', re.UNICODE)
 
+    def __init__(self, ctx):
+        self.ctx = ctx
+
     def replace(self, fullmatch):
         d = fullmatch.groupdict()
         url = d['url']
