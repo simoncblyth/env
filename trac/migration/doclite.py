@@ -486,8 +486,15 @@ class Page(list):
         list.__init__(self, *args, **kwa)
         self.name = name
 
+    def findall(self, cls):
+        if type(cls) is str:  
+            return filter(lambda _:type(_).__name__ is cls, self)
+        else:
+            return filter(lambda _:type(_) is cls, self)
+        pass
+
     def count(self, cls):
-        return len(filter(lambda _:type(_) is cls, self))
+        return len(self.findall(cls))
 
     def incomplete_instances(self):
         return filter(lambda _:type(_) in self.INCOMPLETE, self)

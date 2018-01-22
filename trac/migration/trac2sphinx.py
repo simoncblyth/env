@@ -22,6 +22,8 @@ import logging, sys, re, os, collections, datetime, codecs, copy
 log = logging.getLogger(__name__)
 
 from env.sqlite.db import DB
+from env.trac.migration.xmlrpcproxy import Proxy
+
 from env.trac.migration.resolver import Resolver
 from env.trac.migration.tracwikipage import TracWikiPage
 from env.trac.migration.tracwiki2rst import TracWiki2RST
@@ -70,6 +72,7 @@ class Trac2Sphinx(object):
 
         ctx.resolver = Resolver(tracdir=ctx.tracdir, rstdir=ctx.rstdir)
         ctx.db = DB(ctx.dbpath)
+        ctx.proxy = Proxy.create("workflow_trac", "~/.env.cnf")
         ctx.extlinks = SphinxExtLinks(extlinks)
 
         return ctx
@@ -77,6 +80,27 @@ class Trac2Sphinx(object):
     def __init__(self, ctx):
         self.ctx = ctx
         self.pages = []
+        self.dnames = sorted(map(lambda _:_[0],self.ctx.db("select distinct name from wiki")))
+        self.pnames = sorted(map(unicode,self.ctx.proxy.pages)) if self.ctx.proxy is not None else []
+        if len(self.pnames) > 0:
+            self.compare_names()
+            self.names = self.pnames
+            self.ctx.skipdoc = self.dbonly   ## web interface ahead of db, so these are deletes thru web interface
+            log.warning("adopt wiki page list from xmlrpc proxy ")
+        else:
+            self.names = self.dnames
+            self.ctx.skipdoc = []
+        pass
+            
+    def compare_names(self):
+        log.info("dnames[:10] " + str(self.dnames[:10]))
+        log.info("pnames[:10] " + str(self.pnames[:10]))
+        log.info("compare_db_proxy db %s pr %s " % (len(self.dnames), len(self.pnames)))
+        self.dbonly = list(set(self.dnames) - set(self.pnames))  ## db (from scm backup) often behind live instance
+        self.pronly = list(set(self.pnames) - set(self.dnames))
+        log.info("db only  %s : %s " % (len(self.dbonly), str(self.dbonly)) )
+        log.info("pr only  %s : %s " % (len(self.pronly), str(self.pronly)) )
+        pass
 
     def add(self, page):
         self.pages.append(page)  
@@ -138,8 +162,7 @@ class Trac2Sphinx(object):
        
 
     def trac2rst_all(self):
-        names = self.ctx.db("select distinct name from wiki") 
-        for name, in names:
+        for name in self.names:
             self.trac2rst_one(name)
         pass
 
@@ -155,8 +178,10 @@ class Trac2Sphinx(object):
     
 if __name__ == '__main__':
 
+
     extlinks = {}
     ctx = Trac2Sphinx.make_context(__doc__, extlinks)
+
     t2s = Trac2Sphinx(ctx)
     t2s.trac2rst_one(t2s.ctx.onepage)
     t2s.write_(t2s.pages[0])

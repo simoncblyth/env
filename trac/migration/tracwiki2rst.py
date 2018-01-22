@@ -92,8 +92,8 @@ class TracWiki2RST(object):
         pass
 
         ## ListTagged requires db access so done here
-        for i in pg.incomplete_instances():
-            wp.complete_ListTagged(i)
+        for lti in pg.incomplete_instances():
+            wp.complete_ListTagged(lti, skipdoc=ctx.skipdoc)
         pass
 
         if dbg and not ctx.vanilla:

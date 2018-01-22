@@ -28,33 +28,58 @@ class DummyArgs(object):
     tracdir = "/usr/local/workflow/sysadmin/wtracdb/workflow"
 
 
+
+
+def prep(txt):
+    return "\n".join(map(lambda _:_[4:], txt.split("\n")[1:-1]))
+
 class TestTracWiki2RST(object):
-    def __call__(self, txt, open_=False, skip=True):
+
+    def banner(self, msg):
+        return "#" * 50 + " %50s " % msg + "#" * 50 
+
+    def __call__(self, txt, x_firstpara=None, open_=False, skip=True):
         if skip:return
         wp = DummyWikiPage()
         ctx = DummyArgs()
         ctx.resolver = Resolver(tracdir=ctx.tracdir, rstdir=ctx.rstdir)
 
-        text = "\n".join(map(lambda _:_[4:], txt.split("\n")[1:-1]))
+        text = prep(txt)
 
         pg = TracWiki2RST.page_from_tracwiki(wp, text, ctx)
         rst = pg.rst
         assert type(rst) is unicode
-
-        div = "\n" +  "#" * 100 + "\n"
     
-        print div
+        print self.banner("text")
         print text
-        print div
+        print self.banner("rst")
         print rst 
-        print div
+        print self.banner("repr(pg)")
         print repr(pg)
-        print div
+        print self.banner("")
+
+
+        if x_firstpara is not None:
+            fprst = pg.findall("Para")[0].rst 
+            x_fprst = prep(x_firstpara) 
+            self.compare(text, fprst, x_fprst)
+        pass
         
         # hmm this only works for Vanilla RST, not Sphinx extensions
         if open_:
             rst2html_open(rst, "pg")  
         pass
+    def compare(self, text, rst, x_rst):
+        log.info("compare")
+        print self.banner("original tracwiki text") 
+        print text
+        print self.banner("result of translation to rst") 
+        print rst 
+        print self.banner("expected translation") 
+        print x_rst 
+        print self.banner("") 
+        assert rst == x_rst
+
 
 
 class TestRST(object):
@@ -221,7 +246,6 @@ if __name__ == '__main__':
     """,open_=False, skip=True)
 
 
-
     ts(r"""
 
        || '''raw_''' || CF          || '''big dry cabinet''' || '''small dry cabinet''' ||                     ||  
@@ -311,6 +335,35 @@ if __name__ == '__main__':
     * source:/trunk/dybpy/dybpy/
     * source:/trunk/dybpy/dybpy/genrepr.py
     * source:/trunk/dybpy/dybpy/geneventlook.py     
+
+    """, open_=True, skip=True)
+
+ 
+
+    ts(r"""
+
+    * `inline literal`
+
+    * `trac:wiki:InterTrac`
+    * !trac:wiki:InterTrac
+    * {{{trac:wiki:InterTrac}}}
+
+    * '''!ticket:1'''
+
+    * trac:wiki:InterTrac
+
+    """,
+    x_firstpara=r"""
+
+    * ``inline literal``
+
+    * ``trac:wiki:InterTrac``
+    * ``trac:wiki:InterTrac``
+    * ``trac:wiki:InterTrac``
+
+    * **ticket:1**
+
+    * :trac:`wiki:InterTrac`
 
     """, open_=True, skip=False)
 

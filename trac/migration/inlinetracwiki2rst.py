@@ -211,6 +211,7 @@ def test_InlineTrac2SphinxLink():
 
     * wiki:LXML
     * htdocs:db2trac.xsl
+    * NTU:something
 
     * google:"osx install kext"
     * google:"rsync.plist"
@@ -237,6 +238,7 @@ def test_InlineTrac2SphinxLink():
 
     * :wiki:`LXML`
     * :htdocs:`db2trac.xsl`
+    * :ntu:`something`
 
     * :google:`osx install kext`
     * :google:`rsync.plist`
@@ -255,24 +257,54 @@ def test_InlineTrac2SphinxLink():
 
  
 class InlineTrac2SphinxLink(ReReplacer):
+    """
+    Doing a replacement that can be switched off with a preceeding escape character, 
+    easiest to maybe capture the escape and put the logic into the replace callable::
 
-    EXCLUDE = ["http", "https", "file", "x-man-page", "smb", "afp", "mail", "ftp", "xmpp"]
-    LINKTYPE = "[a-zA-Z_-]+"
+        In [30]: re.sub(re.compile('(?:(?P<the_a>[!`]?a)|(?P<the_b>b))', re.UNICODE), lambda m:"["+m.group(0)+"]", " some !ab line ab `a b ")
+        Out[30]: ' some [!a][b] line [a][b] [`a] [b] '
+
+    """
+    EXCLUDE = ["http", "https", "file", "x-man-page", "smb", "afp", "mail", "ftp", "xmpp", "svn", "git", "message" ]
+    TRAC_EXCLUDE = ["milestone", "query", "comment", "changeset", "log", "diff", "attachment", "tagged"]
+    EXCLUDE += TRAC_EXCLUDE
+
+
+    LINKTYPE = "[a-z-]+"   # numbers and underscore are not permissible in RST role types 
 
     LINK_TOKEN = ":"
     ESCAPED_LINK_TOKEN = "\:"
+    
+    DISALLOW_CHARS = "!`*"
 
     _rules = [ 
-       r"(?P<link>%s%s[\w\/]\S+)" % (LINKTYPE, ESCAPED_LINK_TOKEN) ,      # 2nd \w disallows quote after colon
-       r"(?P<qlink>\w+%s\"[\S ]+\")" % ESCAPED_LINK_TOKEN , 
+       r"(?P<link>[%s]?%s%s[\w\/]\S+)" % (DISALLOW_CHARS, LINKTYPE, ESCAPED_LINK_TOKEN) ,      # 2nd \w disallows quote after colon
+       r"(?P<qlink>[%s]?\w+%s\"[\S ]+\")" % (DISALLOW_CHARS, ESCAPED_LINK_TOKEN ), 
            ]
 
     def __init__(self):
         ReReplacer.__init__(self)
 
+
+    def _escaped(self, match):
+        escaped = match[0] in self.DISALLOW_CHARS 
+        if escaped:
+            if match[0] == "!":
+                return match[1:]
+            else:
+                return match
+            pass
+        else:
+            return None
+        pass
+
     def _qlink_formatter(self, match, fullmatch):
         tlnk = fullmatch.group('qlink')
         assert tlnk == match 
+        escaped = self._escaped(match)
+        if escaped is not None:
+            return escaped
+        pass        
 
         f = tlnk.index(self.LINK_TOKEN)
         typ = tlnk[:f]
@@ -286,16 +318,23 @@ class InlineTrac2SphinxLink(ReReplacer):
     def _link_formatter(self, match, fullmatch):
         tlnk = fullmatch.group('link')
         assert tlnk == match 
+        escaped = self._escaped(match)
+        if escaped is not None:
+            return escaped
+        pass        
 
         f = tlnk.index(self.LINK_TOKEN)
         typ = tlnk[:f]
+        exclude = typ in self.EXCLUDE 
+        if exclude:
+            return match
+        pass
+
         arg = tlnk[f+1:]
         xlnk = ":%s:`%s`" % (typ, arg)
 
-        exclude = typ in self.EXCLUDE
-  
         #log.debug("(link) tlnk:[%(tlnk)s] typ:[%(typ)s] arg:[%(arg)s] xlnk:[%(xlnk)s]" % locals())
-        return xlnk if not exclude else match
+        return xlnk 
 
  
 

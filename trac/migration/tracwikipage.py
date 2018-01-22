@@ -50,11 +50,13 @@ class TracWikiPage(object):
 
         self.metadict = md      
 
-    def complete_ListTagged(self, tgls):
+    def complete_ListTagged(self, lti, skipdoc=[]):
         """
+        This appends the list of documents to the lti ListTagged instance
+
         http://www.sphinx-doc.org/en/stable/markup/inline.html#cross-referencing-documents
         """
-        assert type(tgls) is ListTagged, type(tgls)
+        assert type(lti) is ListTagged, type(lti)
     
         skips = r"""
         or
@@ -63,7 +65,7 @@ class TracWikiPage(object):
         action=union
         """.lstrip().rstrip().split("\n")
 
-        targ = tgls.tags.lstrip().rstrip().replace(","," ")
+        targ = lti.tags.lstrip().rstrip().replace(","," ")
         tags = filter(lambda _:not _ in skips, targ.split())
 
         stags = ",".join(map(lambda _:"'%s'" % _, tags ))
@@ -72,6 +74,7 @@ class TracWikiPage(object):
 
         wikitagged = map(lambda _:_[0], rec )
         for nm in wikitagged: 
+            if nm in skipdoc:continue
 
             psql = "select tag from tags where name = \"%s\" order by tag ;" % nm  
             prec = self.db(psql)
@@ -87,7 +90,7 @@ class TracWikiPage(object):
             prst3 = ""
 
 
-            tgls.append("%s :doc:`%s` %s %s %s" % (nm,nm, prst, prst2, prst3) )
+            lti.append("%s :doc:`%s` %s %s %s" % (nm,nm, prst, prst2, prst3) )
         pass
         """  
         select distinct tag as t from tags order by tag ;

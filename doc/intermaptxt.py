@@ -21,11 +21,11 @@ from collections import OrderedDict
 
 
 class InterMapTxt(OrderedDict):
+     EXCLUDE = ["doc",]
      PTN = re.compile("^(?P<label>[a-zA-Z0-9_-]+)\s*(?P<tmpl>\S*://\S*)\s*(?P<tail>.*)$")
      FMT = "%(idx)2d : %(label)20s : %(tmpl)100s : %(tail).50s " 
      QDC = ["%3A%3Fq%3D", ":?q="]   # urlencoded/decoded  
   
-
      @classmethod
      def from_parse(cls, path=None):
          if path is None:
@@ -40,6 +40,18 @@ class InterMapTxt(OrderedDict):
              match = cls.PTN.match(line)
              if not match:continue
              d = match.groupdict()
+             label = d["label"]
+
+             label = label.lower()                          # rst role "keys" must be lowercase 
+             label = label.replace("_","u")                 # underscore not allowed 
+             label = re.sub(re.compile("\d"), "x", label)   # no numbers either
+             d["label"] = label 
+
+
+             if d["label"] in cls.EXCLUDE:
+                 log.warning("InterMapTxt mapping %s is not permitted as it would override a standard RST or Sphinx role" % d ) 
+                 continue
+             pass
              d['idx'] = len(imt)
              imt[d["label"]] = d 
          pass

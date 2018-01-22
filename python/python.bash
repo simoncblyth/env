@@ -51,6 +51,19 @@ python-mail-test
         NB for the mailing to work, a mailer needs to be running, eg on G : *sudo postfix start*
 
 
+
+
+Regexp re.sub
+----------------
+
+Doing a replacement that can be switched off with an escape::
+
+    In [30]: re.sub(re.compile('(?:(?P<the_a>[!`]?a)|(?P<the_b>b))', re.UNICODE), lambda m:"["+m.group(0)+"]", " some !ab line ab `a b ")
+    Out[30]: ' some [!a][b] line [a][b] [`a] [b] '
+
+
+
+
 Unicode
 ---------
 

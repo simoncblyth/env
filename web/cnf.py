@@ -7,7 +7,20 @@ from ConfigParser import RawConfigParser
 from optparse import OptionParser
 log = logging.getLogger(__name__)
 
-class Cnf(dict):pass
+class Cnf(dict):
+    @classmethod 
+    def read(cls, sect, path="~/.env.cnf"):
+        cpr=RawConfigParser()
+        cpr.read(os.path.expanduser(path))
+        d = cls(cpr.items(sect))
+        d['cnfsect'] = sect
+        d['cnfpath'] = path
+        return d 
+
+    def __init__(self, *args, **kwa):
+        dict.__init__(self, *args, **kwa)
+    def __repr__(self):
+        return "<Cnf %(cnfsect)s %(cnfpath)s>" % self
 
 def cnf_(doc):
     """
@@ -28,16 +41,18 @@ def cnf_(doc):
     (opts, args) = parser.parse_args()
     logging.basicConfig(level=getattr(logging,opts.level.upper()))
 
-    #assert len(args) == 1, "must supply siteconf section name present in %s " % opts.cnfpath
-    cpr=RawConfigParser()
+    cnfpath = opts.cnfpath
+
     site = args[0] if len(args)>0 else opts.site
-    cpr.read(os.path.expanduser(opts.cnfpath))
-    d = Cnf(cpr.items(site))
-    d.site = site
+
+    d = Cnf.read(site, opts.cnfpath )
     d.outd = opts.outd
     d.npull = opts.npull
     d.only = opts.only 
+
     return d
+
+
 
 if __name__ == '__main__':
     cnf = cnf_(__doc__)
