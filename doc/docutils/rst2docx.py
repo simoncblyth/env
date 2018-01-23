@@ -8,7 +8,13 @@ OpenXML docx (ie Word XML document).
 
 Usage::
 
-    rst2docx.py /tmp/report.rst /tmp/report.docx
+
+    rst2docx.py /tmp/report.rst
+    open /tmp/report.docx
+
+    rst2docx.py index.rst /tmp/test.docx
+
+
     doctree.py /tmp/report.rst
 
 
@@ -233,7 +239,9 @@ class Writer(writers.Writer):
         log.info("save pseudo-xml to %s " % pxml_path)
 
         with open(pxml_path, "w") as fp:
-            fp.write(self.document.pformat())
+            text = self.document.pformat()
+            assert type(text) is unicode
+            fp.write(text.encode("utf-8"))
         
 
 

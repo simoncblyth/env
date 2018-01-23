@@ -18,6 +18,16 @@ See also
 * https://python-docx.readthedocs.io/en/latest/user/text.html
 
 
+Typical Usage
+---------------
+
+::
+
+    rst2docx.py index.rst /tmp/test.docx
+    open /tmp/test.docx    
+    # then print from Pages to make .pdf
+
+
 Adding blockquote translation ?
 ----------------------------------
 

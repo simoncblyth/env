@@ -84,6 +84,7 @@ class Trac2Sphinx(object):
         ctx.proxy = Proxy.create("workflow_trac", "~/.env.cnf")
         ctx.extlinks = SphinxExtLinks(extlinks)
         ctx.inliner_ = InlineTrac2Sphinx(ctx)
+        ctx.indent = 0   ## hmm better to write into elem ?
         return ctx
 
     def __init__(self, ctx):

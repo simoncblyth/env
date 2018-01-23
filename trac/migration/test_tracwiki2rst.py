@@ -21,13 +21,17 @@ class DummyResolver(object):
     def __call__(self, ref, pagename):
         return ref 
 
-class DummyArgs(object):
+class DummyElem(object):
+    ind_ = {}
+
+class DummyCtx(object):
     origtmpl = None
     origurl = None
     vanilla = True
     rstdir = "/usr/local/workflow/sysadmin/wtracdb/wiki2rst"
     tracdir = "/usr/local/workflow/sysadmin/wtracdb/workflow"
     indent = 0 
+    elem = DummyElem()
 
 
 def prep(txt):
@@ -41,7 +45,7 @@ class TestTracWiki2RST(object):
     def __call__(self, txt, x_firstpara=None, open_=False, skip=True):
         if skip:return
         wp = DummyWikiPage()
-        ctx = DummyArgs()
+        ctx = DummyCtx()
         ctx.resolver = Resolver(tracdir=ctx.tracdir, rstdir=ctx.rstdir)
         ctx.inliner_ = InlineTrac2Sphinx(ctx)
 
@@ -317,6 +321,9 @@ if __name__ == '__main__':
     ts(r"""
     = Anything indented after literal block = 
 
+    * wiki:Testing is good example of many such issues
+
+
     Line
 
      Line
@@ -355,7 +362,8 @@ if __name__ == '__main__':
      Literal Block 
      Literal Block 
      }}}
-     Line After Literal Block   
+
+       Line After Literal Block   
 
     """, open_=True, skip=False)
 

@@ -50,30 +50,30 @@ class TracWiki2RST(object):
 
      
     @classmethod
-    def dbg_tail(cls, wp, text, pg):
+    def dbg_tail(cls, wp, text, page):
         """
         This would be wrong (fails with non-ascii) as it mixes byte strings and unicode::
 
            pg.append(Literal(str(pg).split("\n"))) 
 
         """
-        pg0 = copy.deepcopy(pg) # avoid including these debug additions in the dump 
+        page0 = copy.deepcopy(page) # avoid including these debug additions in the dump 
 
-        pg.append(Head("%s dbg_tail" % wp.name,level=1))
+        page.add(Head("%s dbg_tail" % wp.name,level=1))
 
-        pg.append(Head("Literal converted rst",level=2))
-        pg.append(CodeBlock(pg0.rst.split("\n"), lang="rst", linenos=True))
+        page.add(Head("Literal converted rst",level=2))
+        page.add(CodeBlock(pg0.rst.split("\n"), lang="rst", linenos=True))
 
-        pg.append(Head("Literal tracwiki text",level=2))
-        pg.append(CodeBlock(text.split("\n"),lang="bash", linenos=True)) 
+        page.add(Head("Literal tracwiki text",level=2))
+        page.add(CodeBlock(text.split("\n"),lang="bash", linenos=True)) 
         # NB not wp.text as need to obey .txt file overrides of DB content, see wtracdb-edtest
 
-        pg.append(Head("Literal repr(pg)",level=2))
-        pg.append(CodeBlock(repr(pg0).split("\n"), lang="pycon", linenos=True))
+        page.add(Head("Literal repr(pg)",level=2))
+        page.add(CodeBlock(repr(page0).split("\n"), lang="pycon", linenos=True))
         ## repr always fits in ascii ?
 
-        pg.append(Head("Literal unicode(pg)",level=2))
-        pg.append(CodeBlock(unicode(pg0).split("\n"), lang="pycon", linenos=True))
+        page.add(Head("Literal unicode(pg)",level=2))
+        page.add(CodeBlock(unicode(page0).split("\n"), lang="pycon", linenos=True))
 
     @classmethod
     def page_from_tracwiki(cls, wp, text, ctx, dbg=False):
@@ -82,13 +82,19 @@ class TracWiki2RST(object):
 
         mtop = cls.meta_top(wp, ctx) 
 
-        pg = Page(mtop, name=name, ctx=ctx)
+        pg = Page(name=name, ctx=ctx)
+
+        for _ in mtop:
+            pg.add(_)
+        pass
 
         conv = cls(text, pg, ctx)
 
         ## if page lacks a Header, insert one after metadata
         if pg.count(Head) == 0:   
-            pg.insert( len(mtop), Head(name, level=1, ctx=ctx))
+            head =  Head(name, level=1, ctx=ctx)
+            head.page = pg  # normally done by add
+            pg.insert( len(mtop), head)
         pass
 
         ## ListTagged requires db access so done here
@@ -125,11 +131,15 @@ class TracWiki2RST(object):
 
     def end_para(self):
         if self.cur_para is None:return
-        self.content.append(self.cur_para)
+        self.page.add(self.cur_para)
         self.cur_para = None
     def end_literal(self):
         if self.cur_literal is None:return
-        self.content.append(self.cur_literal)
+        #assert self.cur_literal.in_ == self.ctx.indent, ("literal indent inconsistent", self.cur_literal.in_, self.ctx.indent )
+        if self.cur_literal.in_ != self.ctx.indent:
+            log.warning("(%s:%s) literal indent inconsistent  %s %s " % (self.name, self.ctx.eli, self.cur_literal.in_, self.ctx.indent ))
+        pass
+        self.page.add(self.cur_literal)
         self.cur_literal = None
 
     def add_line(self, line):
@@ -138,36 +148,37 @@ class TracWiki2RST(object):
         pass
         self.cur_para.append(line) 
 
-    def __init__(self, text, pg, ctx ):
+    def __init__(self, text, page, ctx ):
         self.orig = text
-        self.content = pg
+        self.page = page
         self.ctx = ctx
-        self.name = pg.name
+        self.name = page.name
 
-        lines = filter(lambda _:not(_.startswith(tuple(self.skips))), text.split("\n"))
+        lines = filter(lambda _:not(_[1].startswith(tuple(self.skips))), enumerate(text.split("\n")) )
 
         self.cur_para = None
         self.cur_literal = None
         self.cur_table = None
 
-        for line in lines:
+        for (eli,line) in lines:
+            self.ctx.eli = eli
             # cur_literal None avoids looking inside literal blocks for Heads OR ListTagged
             if self.cur_literal is None and Head.is_match(line):  
                 self.end_para()
                 head = Head.from_line(line, name=self.name, ctx=self.ctx)
-                self.content.append(head) 
+                self.page.add(head) 
             elif self.cur_literal is None and Image.is_match(line):  
                 self.end_para()
                 img = Image.from_line(line, docname=self.name, ctx=self.ctx)
-                self.content.append(img) 
+                self.page.add(img) 
             elif self.cur_literal is None and HorizontalRule.is_match(line):
                 self.end_para()
                 hr = HorizontalRule(ctx=self.ctx)
-                self.content.append(hr) 
+                self.page.add(hr) 
             elif self.cur_literal is None and ListTagged.is_match(line):
                 self.end_para()
                 tgls = ListTagged.from_line(line, ctx=self.ctx)
-                self.content.append(tgls) 
+                self.page.add(tgls) 
             elif self.cur_literal is None and SimpleTable.is_simpletable(line):
                 self.end_para()
                 if self.cur_table is None:
@@ -178,12 +189,12 @@ class TracWiki2RST(object):
             elif Literal.is_start(line, ctx=self.ctx):
                 log.debug("start Literal")
                 self.end_para()
-                self.cur_literal = Literal(ctx=self.ctx)
+                self.cur_literal = Literal(ctx=self.ctx, in_=self.ctx.indent)  # the Literal.is_start sets indent into context
             elif Literal.is_end(line, ctx=self.ctx):
                 log.debug("end Literal")
                 self.end_literal()
             elif self.cur_table is not None:  # have just left the table 
-                self.content.append(self.cur_table)
+                self.page.add(self.cur_table)
                 self.cur_table = None 
                 self.add_line(line)   # avoid chomping the blank line following tables
             else:

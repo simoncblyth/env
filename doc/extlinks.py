@@ -16,19 +16,33 @@ class SphinxExtLinks(dict):
     """
     TRAC_LINK = re.compile("^(?P<typ>\w+)\:(?P<arg>\S+)$")   
     RST_ROLE = re.compile("^\:(?P<typ>\w+)\:\`(?P<arg>\S+)\`$")  
-
+    DEFAULT_TYP = "wiki" 
 
     def __init__(self, *args, **kwa):
-        dict.__init__(self, *args, **kwa)
+        if len(args) == 1 and callable(args[0]):
+            func = args[0]
+            args = func()
+            log.info("calling func %s yields %s extlinks " % (func, len(args)) )
+            dict.__init__(self, args, **kwa)
+        else:
+            dict.__init__(self, *args, **kwa)
+        pass
 
     def resolve(self, txt, docname=None):
+        """
+        :param txt: rst interpreted text reference, eg :wiki:`SomePage`
+        :param docname: use
+        :return url:
+
+        Convert role reference into absolute URL using the Sphinx extlinks mappings. 
+        """
         typ, arg = self.identify_rst_role(txt)
         if not typ in self:
             return txt 
         pass
         tmpl, pfx = self[typ] 
 
-        if typ == "tracwiki" and arg.find("/") == -1: 
+        if typ == "wikidocs" and arg.find("/") == -1: 
             if docname is not None:
                 arg = "%s/%s" % (docname, arg)
             else:
@@ -55,11 +69,11 @@ class SphinxExtLinks(dict):
     def from_traclink(cls, txt):
         m = cls.TRAC_LINK.match(txt)
         if m is None:
-            typ, arg, extlnk = None, None, txt 
+            typ, arg = cls.DEFAULT_TYP, txt 
         else: 
             typ, arg = m.groups()
-            xlnk = ":%s:`%s`" % (typ, arg)
         pass
+        xlnk = ":%s:`%s`" % (typ, arg)
         return typ, arg, xlnk
 
     @classmethod
@@ -78,20 +92,26 @@ class SphinxExtLinks(dict):
         xlnk = ":%s:`%s`" % (typ, arg) 
         return xlnk
 
-    def test(self, args):
-        for a in args:
-            if a.find("`") != -1:
-                url = self.resolve(a)
-                print "(resolve)   %50s -> %s " % ( a, url )
-            else:
-                typ, arg, xlnk  = self.from_traclink(a)
-                print "(translate) %50s -> %s " % ( a, xlnk )
-                url = self.resolve(xlnk)
-                print "(resolve)   %50s -> %s " % ( xlnk, url )
-            pass
-        pass 
+    tractable = property(lambda self:"\n".join(map(lambda k:" || %s:something || {{{%s}}} || {{{%s}}} ||  " % (k, self[k][0], self[k][1] ) , self)))
+
+    def __call__(self, a):
+        """
+        :param a: TracLink (eg wiki:SomePage) or RST role link (eg :wiki:`SomePage`)
+        :return url: 
+        """
+        if a.find("`") != -1:
+            url = self.resolve(a)
+            log.debug("(resolve)   %50s -> %s " % ( a, url ))
+        else:
+            typ, arg, xlnk  = self.from_traclink(a)
+            log.debug("(translate) %50s -> %s " % ( a, xlnk ))
+            url = self.resolve(xlnk)
+            log.debug("(resolve)   %50s -> %s " % ( xlnk, url ))
+        pass
+        return url
 
 
+  
 
 
 if __name__ == '__main__':
@@ -118,5 +138,6 @@ if __name__ == '__main__':
                  ]
     pass
     XLNK = SphinxExtLinks(SPHINX_EXTLINKS)
-    XLNK.test(args)
+    print "\n".join(map(XLNK,args))
+
 

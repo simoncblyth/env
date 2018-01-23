@@ -47,6 +47,7 @@ Page
 """
 
 import logging, sys, re, os
+from collections import OrderedDict 
 log = logging.getLogger(__name__)
 
 U = "".join(map(unichr,range(0xa7,0xff+1)))
@@ -56,16 +57,47 @@ import copy
 from env.trac.migration.inlinetracwiki2rst import InlineTrac2Sphinx, TableTracWiki2RST
 
 
+def indent_lines_(lines, n):
+    return map(lambda _:" "*n + _, lines) 
+
+
+
 class Lines(list):
     def __init__(self, *args, **kwa):
         fmt = kwa.pop('fmt', "tracwiki")
         ctx = kwa.pop('ctx', None)
+        in_ = kwa.pop("in_", 0)
         list.__init__(self, *args )
         self.fmt = fmt
         self.ctx = ctx
+        self._page = None
+        self._index = None
+        self.in_  = in_
+        self.ind_  = OrderedDict()
+
+    def _get_page(self):
+        return self._page
+    def _set_page(self, page):
+        self._page = page
+    page = property(_get_page, _set_page)
+
+    def _get_index(self):
+        return self._page.index(self) if self._page else None
+    index = property(_get_index)
+
+    def _get_above(self):
+        idx = self.index
+        return self._page[idx-1] if idx-1 > -1 else None
+    above = property(_get_above)
+
+    def _get_below(self):
+        idx = self.index
+        return self._page[idx+1] if idx+1 < len(self._page) else None
+    below = property(_get_below)
+
 
     def __repr__(self):
-        return "<%s %s lines> " % (self.__class__.__name__, len(self))
+        return "<%s : %s lines : pageIdx %s in_ %s ind_ %s > " % (self.__class__.__name__, len(self), self.index, self.in_, self.ind_ )
 
     def __unicode__(self):
         return "\n".join([repr(self)] + list(self))
@@ -80,12 +112,14 @@ class Lines(list):
         return "\n".join(["",".. %s:: %s" % (name, fargs)] + fqwa + [""] + self.indent(3) + [""] + tail )
 
     def indent(self, n):
-        fmt_ = lambda _:" "*n + _
-        return map(fmt_, self) 
+        return indent_lines_(self, n )
 
     def inlined(self):
-        inliner_ = self.ctx.inliner_ if self.fmt == "tracwiki" else lambda _:_
-        return map(inliner_, self ) 
+        inliner_ = self.ctx.inliner_ if self.fmt == "tracwiki" else lambda _:_[1]
+        self.ctx.elem = self
+        result =  map(inliner_, enumerate(self) ) 
+        self.ctx.elem = None
+        return result
 
     def bullet(self, n):
         return map(lambda _:" "*n + "* " + _, list(self)) 
@@ -117,7 +151,6 @@ class Literal(Lines):
 
     def __init__(self, *args, **kwa):
         Lines.__init__(self, *args, **kwa)
-        self.indent_ = self.ctx.indent
 
     @classmethod 
     def check_match(cls, line, token, ctx):
@@ -136,13 +169,18 @@ class Literal(Lines):
         return cls.check_match(line, cls.end, ctx)
 
     def _get_rst(self):
-        comment = ["..", "   end-literal indent:%s " % self.indent_, "" ]
+        #comment = ["..", "   end-literal indent:%s " % self.in_, "" ]
+        comment = []   # this hides the problem of unintended indents following literal blocks
         if len(self) == 0:
             return None
         else:
-            return "\n".join(["","::", ""] + self.indent(4) + [""] + comment )
+            return "\n".join( indent_lines_( ["","::", ""], self.in_ ) + indent_lines_(self, 4+self.in_) + indent_lines_([""] + comment, self.in_) )
         pass
     rst = property(_get_rst)
+
+
+
+#class Comment(Lines):
 
 
 class SimpleTable(Lines):
@@ -161,7 +199,9 @@ class SimpleTable(Lines):
         map(self.conv, self)  ## collects possibly inline converted tracwiki text cells into list of lists 
 
         tab = self.conv._table
+        self.ctx.elem = self
         tab.apply_func(self.inliner_)  ## inline replacements 
+        self.ctx.elem = None
  
         topleftcell = tab[0][0].lstrip()
 
@@ -220,8 +260,9 @@ class CodeBlock(Lines):
     rst = property(_get_rst)
 
     def __repr__(self):
-         return "<%s lang::%s linenos:%s lines:%s>" % (self.__class__.__name__, self.lang, self.linenos, len(self)) 
-        
+        return Lines.__repr__(self) + " lang::%s linenos:%s " % (self.lang, self.linenos ) 
+
+       
 
 class Toc(Lines):     
     def __init__(self, *args, **kwa):
@@ -266,6 +307,10 @@ class ListTagged(Lines):
     def _get_rst(self):
         return "\n".join(["","ListTagged(%s):" % self.tags, ""] + self.bullet(0) + [""] )
     rst = property(_get_rst)
+
+    def __repr__(self):
+        return Lines.__repr__(self) + " tags:%s " % self.tags
+
 
 
 class Image(Lines):
@@ -330,7 +375,7 @@ class Image(Lines):
     rst = property(_get_rst)
 
     def __repr__(self):
-        return "<Image %s> " % (self.url)
+        return Lines.__repr__(self) + " url:%s " % self.url
 
 
 
@@ -345,7 +390,8 @@ class Meta(Lines):
     rst = property(_get_rst)
 
     def __repr__(self):
-        return "<Meta %s> " % (self.md)
+        return Lines.__repr__(self) + " md:%s " % self.md
+
 
 
 class Sidebar(Lines):
@@ -372,7 +418,7 @@ class Contents(Lines):
     rst = property(_get_rst)
 
     def __repr__(self):
-        return "<Contents %s> " % (self.depth)
+        return Lines.__repr__(self) + " depth:%s " % self.depth 
 
       
 class Anchor(Lines):
@@ -425,7 +471,7 @@ class Head(Lines):
 
     """
     #ptn = re.compile("^(=+)\s*([^=]*)\s*(=+)\s*$")  ## NOPE some titles contain "="
-    ptn = re.compile("(?P<heading>^\s*(?P<hdepth>=+)\s*(?P<title>.*?)\s*(?P=hdepth)\s*)")
+    ptn = re.compile("(?P<heading>(?P<indent>^\s*)(?P<hdepth>=+)\s*(?P<title>.*?)\s*(?P=hdepth)\s*)")
  
     mkr = list("=-~+#<>")   
 
@@ -444,7 +490,7 @@ class Head(Lines):
         """
         title = unicode(self.rawtitle)
         btitle = title.encode("ascii", "replace")
-        return "<Head %s %s %s lines> " % (btitle, self.level, len(self))
+        return Lines.__repr__(self) + " btitle: %s level:%s " % (btitle, self.level )
 
     @classmethod 
     def is_match(cls, line):
@@ -458,22 +504,22 @@ class Head(Lines):
         d = m.groupdict()
         title = d["title"]
         level = len(d["hdepth"])
+        indent = len(d["indent"])
 
         if int(level)-1 > len(cls.mkr):
             log.fatal("Head level %d too large for line [%s]  " % (level, line ))
             assert 0   
         pass
-        return title.strip(), level
+        return title.strip(), level, indent
 
     @classmethod
     def from_line(cls, line, name=None, ctx=None):
         assert cls.is_match(line)
-        title, level = cls.match(line, name=name) 
-        head = cls(title, level=level, line=line, ctx=ctx)
+        title, level, indent = cls.match(line, name=name) 
+        head = cls(title, level=level, line=line, in_=indent, ctx=ctx)
         head.append(line)
         return head
 
-    #def __init__(self, title, level, line=None, inliner_=lambda _:_):
     def __init__(self, *args, **kwa):
 
         assert len(args) == 1
@@ -485,7 +531,11 @@ class Head(Lines):
      
         Lines.__init__(self, *args, **kwa)
         self.rawtitle = title
-        self.title = self.ctx.inliner_(title)
+
+        self.ctx.elem = self
+        self.title = self.ctx.inliner_(title)  # hmm invoking inliner at instanciation is non-standard, usually done in .rst
+        self.ctx.elem = None
+
         self.level = level
         if line is None:
             mk = "f" * level 
@@ -525,6 +575,11 @@ class Page(list):
             return filter(lambda _:type(_) is cls, self)
         pass
 
+    def add(self, instance):
+        assert isinstance(instance, Lines)
+        instance.page = self
+        self.append(instance)
+
     def count(self, cls):
         return len(self.findall(cls))
 
@@ -541,16 +596,16 @@ class Page(list):
     title = property(_get_title)
 
     def __repr__(self):
-        return "\n".join(map(repr, list(self)))
+        return "\n".join(map(repr, self))
 
     def __str__(self):
-        return "\n".join(map(str, list(self)))
+        return "\n".join(map(str, self))
 
     def __unicode__(self):
-        return "\n".join(map(unicode, list(self)))
+        return "\n".join(map(unicode, self))
        
     def _get_rst(self):
-        return "\n".join(filter(lambda _:_ is not None, map(lambda _:_.rst, list(self))))
+        return "\n".join(filter(lambda _:_ is not None, map(lambda _:_.rst, self)))
     rst = property(_get_rst)
 
 

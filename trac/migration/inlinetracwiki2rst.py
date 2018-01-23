@@ -28,7 +28,16 @@ from env.trac.migration.rsturl  import EscapeURL
 
 class InlineTrac2Sphinx(object):
     """ 
-    # inline_tracwiki2rst_ = lambda line:ERST(ILNK(INLI(EURL(line)))) 
+    The ctx.inliner_  canonical instance of this is instanciated on high, 
+    up in Trac2Sphinx.make_context, and is used throughout via ctx passing.
+
+    Para.rst
+       calls inline() which invokes the inliner_
+
+    SimpleTable.rst
+       applys the inliner_ across all table cells
+    
+
     """
     def __init__(self, ctx):
         self.ctx = ctx
@@ -37,13 +46,19 @@ class InlineTrac2Sphinx(object):
         self.inli = InlineTracWiki2RST(ctx)
         self.erst = InlineEscapeRST(ctx)
 
-    def __call__(self, line):
+    def __call__(self, enu_line):
+        if type(enu_line) is tuple:
+            enu, line = enu_line
+        else:
+            enu, line = -1, enu_line
+        pass 
         iline = self.erst(self.ilnk(self.inli(self.eurl(line)))) 
+
+        self.ctx.elem.ind_[enu] = self.ctx.indent
         if iline.strip() != "":
-            iline = "%s (%s)" % (iline, self.ctx.indent)
+            iline = "%s (%s)(%s)" % (iline, self.ctx.indent, enu)
         pass
         return iline
-
 
 
 class ReReplacer(object):
