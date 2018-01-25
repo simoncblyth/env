@@ -15,7 +15,7 @@ from env.trac.migration.inlinetracwiki2rst import InlineTrac2Sphinx
 
 class DummyWikiPage(object):
     metadict = {'tags':"Red Green Blue", 'name':"DummyWikiPage"} 
-    name = "MailDebug"
+    name = u"MailDebug"
  
 class DummyResolver(object):
     def __call__(self, ref, pagename):
@@ -52,11 +52,13 @@ class TestTracWiki2RST(object):
         text = prep(txt)
 
         pg = TracWiki2RST.page_from_tracwiki(wp, text, ctx)
-        rst = pg.rst
+        rst = pg.rst 
         assert type(rst) is unicode
     
         print self.banner("text")
         print text
+        print self.banner("ls")
+        print pg.ls
         print self.banner("rst")
         print rst 
         print self.banner("repr(pg)")
@@ -74,6 +76,9 @@ class TestTracWiki2RST(object):
         if open_:
             rst2html_open(rst, "pg")  
         pass
+        return pg  
+
+
     def compare(self, text, rst, x_rst):
         log.info("compare")
         print self.banner("original tracwiki text") 
@@ -83,6 +88,15 @@ class TestTracWiki2RST(object):
         print self.banner("expected translation") 
         print x_rst 
         print self.banner("") 
+        if rst != x_rst:
+            lines = rst.split("\n")
+            x_lines = x_rst.split("\n")
+            assert len(lines) == len(x_lines), ( len(lines), len(x_lines)) 
+            for i,(l,xl) in enumerate(zip(lines, x_lines)):
+                msg = "X" if l != xl else " "
+                print "%s : %-80s : %-80s " % ( msg, "["+l+"]", "["+xl+"]" )
+            pass
+        pass
         assert rst == x_rst
 
 
@@ -135,18 +149,24 @@ if __name__ == '__main__':
     ts = TestTracWiki2RST()     
     trst = TestRST()     
 
-    ts(r"""
+    ts(u"""
     First Line
 
     = Hello =
 
     == World ==
 
-    * red
+    * red {{{monospace}}} 
     * green
     * blue
 
-    """,open_=False, skip=True)
+    * some longer text
+      spanning a few lines
+
+    * followed by another bullet
+
+
+    """,open_=True, skip=True)
 
     ts(r"""
     == Simple Table ==
@@ -318,68 +338,58 @@ if __name__ == '__main__':
 
 
 
-    ts(r"""
+    pg = ts(r"""
     = Anything indented after literal block = 
 
     * wiki:Testing is good example of many such issues
 
+    Anything indented following the literal block gets 
+    incorporated into the literal block. Tried to add an
+    RST comment, this then causes the indented block to get commented.
 
-    Line
+    Hmm seems unavoidable, I have to take control of the indent, and 
+    offset it to zero 
 
-     Line
-     Line
-     Line
-     Line
+      Line Before Literal Block   
 
-      Line
-      Line
-      Line
-
-       Line
-
-        Line
-
-         Line
-
-          Line
-
-           Line
-
-            Line
-
-
-     Anything indented following the literal block gets 
-     incorporated into the literal block. Tried to add an
-     RST comment, this then causes the indented block to get commented.
-
-     Hmm seems unavoidable, I have to take control of the indent, and 
-     offset it to zero 
-
-     Line Before Literal Block   
-
-     {{{
-     Literal Block 
-     Literal Block 
-     Literal Block 
-     }}}
+      {{{
+      Literal Block 
+      Literal Block 
+      Literal Block 
+      }}}
 
        Line After Literal Block   
 
-    """, open_=True, skip=False)
+    """, open_=True, skip=True)
 
- 
 
-    ts(r"""
 
-    * `inline literal`
+    pg = ts(r"""
 
-    * `trac:wiki:InterTrac`
-    * !trac:wiki:InterTrac
-    * {{{trac:wiki:InterTrac}}}
+    = Bullet lists need preceeding blank in RST but not Tracwiki = 
 
-    * '''!ticket:1'''
+    For source perusal only :   
+    * http://downloads.sourceforge.net/project/blah/blah
 
-    * trac:wiki:InterTrac
+    For source perusal only :   
+
+    * http://downloads.sourceforge.net/project/blah/blah
+
+    """, open_=True, skip=True)
+
+
+
+    ts(u"""
+
+     * `inline literal`
+
+     * `trac:wiki:InterTrac`
+     * !trac:wiki:InterTrac
+     * {{{trac:wiki:InterTrac}}}
+
+     * '''!ticket:1'''
+
+     * trac:wiki:InterTrac
 
     """,
     x_firstpara=r"""
@@ -387,14 +397,14 @@ if __name__ == '__main__':
     * ``inline literal``
 
     * ``trac:wiki:InterTrac``
-    * ``trac:wiki:InterTrac``
+    * trac:wiki:InterTrac
     * ``trac:wiki:InterTrac``
 
-    * **ticket:1**
+    * **ticket:1** 
 
     * :trac:`wiki:InterTrac`
 
-    """, open_=True, skip=True)
+    """, open_=True, skip=False)
 
 
     #test_make_index()

@@ -7,16 +7,20 @@ log = logging.getLogger(__name__)
 
 from env.trac.migration.doclite import Para, Head, HorizontalRule, ListTagged, Toc, Literal, CodeBlock, Meta
 from env.trac.migration.doclite import Anchor, Contents, Sidebar, Page, SimpleTable, Image
+from env.trac.migration.ls import LS
+from env.trac.migration.bulletspacer import BulletSpacer
 
        
 class TracWiki2RST(object):
     """
     """ 
+
     skips = r"""
     [[TracNav
     [[PageOutline
     [[TOC
     """.lstrip().rstrip().split()
+
 
     @classmethod
     def meta_top(cls, wp, args):
@@ -82,13 +86,23 @@ class TracWiki2RST(object):
 
         mtop = cls.meta_top(wp, ctx) 
 
-        pg = Page(name=name, ctx=ctx)
+        try:
+            s_text = BulletSpacer.spaced_out(text)
+        except AssertionError:
+            log.fatal("caught assertion in BulletSpacer for page %s " % name)
+            sys.exit(1)
+        pass
+
+        ls = LS(s_text, skips=cls.skips)
+
+        pg = Page(name=name, ctx=ctx, ls=ls)
 
         for _ in mtop:
             pg.add(_)
         pass
 
-        conv = cls(text, pg, ctx)
+        conv = cls(pg)
+        #print ls 
 
         ## if page lacks a Header, insert one after metadata
         if pg.count(Head) == 0:   
@@ -113,7 +127,7 @@ class TracWiki2RST(object):
         hdr = Head(title, level=1, ctx=ctx)
         toc = Toc( pagenames, maxdepth=1 )
 
-        foot = Head("indices and tables", level=1, ctx=ctx)
+        foot = Head(u"indices and tables", level=1, ctx=ctx)
 
         para = Para(fmt="rst", ctx=ctx)   # specifying rst prevents tracwiki2rst inlining/escaping etc..
         para.append(u"")         # some unicode is needed, to get the py2 coercion to kick in 
@@ -133,79 +147,115 @@ class TracWiki2RST(object):
         if self.cur_para is None:return
         self.page.add(self.cur_para)
         self.cur_para = None
-    def end_literal(self):
+    def end_literal(self, l):
         if self.cur_literal is None:return
-        #assert self.cur_literal.in_ == self.ctx.indent, ("literal indent inconsistent", self.cur_literal.in_, self.ctx.indent )
-        if self.cur_literal.in_ != self.ctx.indent:
-            log.warning("(%s:%s) literal indent inconsistent  %s %s " % (self.name, self.ctx.eli, self.cur_literal.in_, self.ctx.indent ))
-        pass
+
         self.page.add(self.cur_literal)
+        self.last_literal = self.cur_literal
+
+        if self.cur_literal.in_ != l['indent']:
+            print self.page.ls
+            log.fatal("%s:%s literal with inconsistent indents %s %s line %s " % (self.name, l['idx'], self.cur_literal.in_, l['indent'], l['line'] )) 
+            assert self.cur_literal.in_ == l['indent'], (self.cur_literal.in_, l['indent'], l['line'], l['idx'] ) 
+        pass
         self.cur_literal = None
 
-    def add_line(self, line):
+
+    def add_line(self, l):
         if self.cur_para is None:
              self.cur_para = Para(ctx=self.ctx)
         pass
-        self.cur_para.append(line) 
+        self.cur_para.append(l) 
 
-    def __init__(self, text, page, ctx ):
-        self.orig = text
+    def __init__(self, page ):
         self.page = page
-        self.ctx = ctx
+        self.ctx = page.ctx
         self.name = page.name
-
-        lines = filter(lambda _:not(_[1].startswith(tuple(self.skips))), enumerate(text.split("\n")) )
 
         self.cur_para = None
         self.cur_literal = None
+        self.last_literal = None
         self.cur_table = None
+        self.postliteral = False
 
-        for (eli,line) in lines:
-            self.ctx.eli = eli
-            # cur_literal None avoids looking inside literal blocks for Heads OR ListTagged
-            if self.cur_literal is None and Head.is_match(line):  
+        ls = self.page.ls
+
+        for l in ls:
+            self.ctx.l = l 
+            if l['skip']: 
+                l['kls'] = 'Skip' 
+                continue
+
+            line = l['line']
+
+            if self.cur_literal is None and Head.is_match(l):  
                 self.end_para()
-                head = Head.from_line(line, name=self.name, ctx=self.ctx)
+                head = Head.from_line(l, name=self.name, ctx=self.ctx)
                 self.page.add(head) 
-            elif self.cur_literal is None and Image.is_match(line):  
+                l['kls'] = 'Head' 
+                self.last_literal = None   # sectioning from Head avoids problem of postliteral indent greediness
+            elif self.cur_literal is None and Image.is_match(l):  
                 self.end_para()
-                img = Image.from_line(line, docname=self.name, ctx=self.ctx)
+                img = Image.from_line(l, docname=self.name, ctx=self.ctx)
                 self.page.add(img) 
-            elif self.cur_literal is None and HorizontalRule.is_match(line):
+                l['kls'] = 'Image' 
+            elif self.cur_literal is None and HorizontalRule.is_match(l):
                 self.end_para()
                 hr = HorizontalRule(ctx=self.ctx)
                 self.page.add(hr) 
-            elif self.cur_literal is None and ListTagged.is_match(line):
+                l['kls'] = 'HorizontalRule' 
+            elif self.cur_literal is None and ListTagged.is_match(l):
                 self.end_para()
-                tgls = ListTagged.from_line(line, ctx=self.ctx)
+                tgls = ListTagged.from_line(l, ctx=self.ctx)
                 self.page.add(tgls) 
-            elif self.cur_literal is None and SimpleTable.is_simpletable(line):
+                l['kls'] = 'ListTagged' 
+            elif self.cur_literal is None and SimpleTable.is_simpletable(l):
                 self.end_para()
                 if self.cur_table is None:
-                    log.debug("start SimpleTable")
+                    l['kls'] = 'SimpleTable.Start' 
                     self.cur_table = SimpleTable(pagename=self.name,inline=True, ctx=self.ctx) 
+                else:
+                    l['kls'] = 'SimpleTable.Ctd' 
                 pass
                 self.cur_table.append(line)
-            elif Literal.is_start(line, ctx=self.ctx):
-                log.debug("start Literal")
+            elif Literal.is_start(l):
                 self.end_para()
-                self.cur_literal = Literal(ctx=self.ctx, in_=self.ctx.indent)  # the Literal.is_start sets indent into context
-            elif Literal.is_end(line, ctx=self.ctx):
-                log.debug("end Literal")
-                self.end_literal()
+                self.cur_literal = Literal(ctx=self.ctx, in_=l['indent']) 
+                l['kls'] = 'Literal.Start' 
+            elif Literal.is_end(l):
+                self.end_literal(l)
+                l['kls'] = 'Literal.End' 
             elif self.cur_table is not None:  # have just left the table 
                 self.page.add(self.cur_table)
                 self.cur_table = None 
-                self.add_line(line)   # avoid chomping the blank line following tables
+                self.add_line(l)   # avoid chomping the blank line following tables
+                l['kls'] = 'LineAfterTable' 
             else:
                 if self.cur_literal is not None:
+                    l['kls'] = 'Literal.Ctd' 
                     self.cur_literal.append(line)
                 else:
-                    self.add_line(line)
+                    self.add_line(l)
+                    l['kls'] = 'Para' 
+                    if self.last_literal is not None and not len(line.strip()) == 0:  # first non-blank line after last literal
+                        l['kls'] = "Para.postliteral" 
+                        if l['indent'] > self.last_literal.in_: 
+                            self.ctx.stats["fix_postliteral_indent"] += 1 
+                            msg = "%s.txt:%d postliteral indent %s > %s line [%s] " 
+                            log.debug(msg % ( self.name, l['idx'], l['indent'], self.last_literal.in_, l['line'] ))
+                            l['offset'] = self.last_literal.in_ - l['indent']
+                            ls._sli = slice( max(0, l['idx']-10), min( l['idx']+10, len(ls) ), 1 )
+                            #print ls
+                        pass
+                        self.last_literal = None
+                    pass      
                 pass 
             pass
         pass
         self.end_para()
+
+
+       
 
 
 if __name__ == '__main__':

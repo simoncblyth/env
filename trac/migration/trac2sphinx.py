@@ -44,7 +44,7 @@ class Trac2Sphinx(object):
         d['onepage'] = None
         d['rstdir'] = "/tmp/env/trac2sphinx"
         d['tracdir'] = "/tmp/env/trac2sphinx"
-        d['title'] = "trac2sphinx.py conversion"
+        d['title'] = u"trac2sphinx.py conversion"
         d['origtmpl'] = None
         d['dev'] = False
         d['tags'] = None
@@ -84,7 +84,8 @@ class Trac2Sphinx(object):
         ctx.proxy = Proxy.create("workflow_trac", "~/.env.cnf")
         ctx.extlinks = SphinxExtLinks(extlinks)
         ctx.inliner_ = InlineTrac2Sphinx(ctx)
-        ctx.indent = 0   ## hmm better to write into elem ?
+        ctx.stats = collections.defaultdict(lambda:0)
+
         return ctx
 
     def __init__(self, ctx):
@@ -174,6 +175,14 @@ class Trac2Sphinx(object):
     def trac2rst_all(self):
         for name in self.names:
             self.trac2rst_one(name)
+        pass
+        self.dumpstats()
+
+
+    def dumpstats(self):
+        log.info("dumpstats")
+        for k,v in self.ctx.stats.items():
+            print " %20s : %s " % (k, v )
         pass
 
     def tracdb2rst(self):

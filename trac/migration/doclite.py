@@ -54,7 +54,7 @@ U = "".join(map(unichr,range(0xa7,0xff+1)))
 assert type(U) is unicode
 
 import copy 
-from env.trac.migration.inlinetracwiki2rst import InlineTrac2Sphinx, TableTracWiki2RST
+from env.trac.migration.inlinetracwiki2rst import TableTracWiki2RST
 
 
 def indent_lines_(lines, n):
@@ -73,7 +73,6 @@ class Lines(list):
         self._page = None
         self._index = None
         self.in_  = in_
-        self.ind_  = OrderedDict()
 
     def _get_page(self):
         return self._page
@@ -97,10 +96,10 @@ class Lines(list):
 
 
     def __repr__(self):
-        return "<%s : %s lines : pageIdx %s in_ %s ind_ %s > " % (self.__class__.__name__, len(self), self.index, self.in_, self.ind_ )
+        return "<%s : %s lines : pageIdx %s in_ %s  > " % (self.__class__.__name__, len(self), self.index, self.in_ )
 
     def __unicode__(self):
-        return "\n".join([repr(self)] + list(self))
+        return "\n".join([repr(self)] + self)
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -114,12 +113,11 @@ class Lines(list):
     def indent(self, n):
         return indent_lines_(self, n )
 
+       
+
     def inlined(self):
-        inliner_ = self.ctx.inliner_ if self.fmt == "tracwiki" else lambda _:_[1]
-        self.ctx.elem = self
-        result =  map(inliner_, enumerate(self) ) 
-        self.ctx.elem = None
-        return result
+        inliner_ = self.ctx.inliner_ if self.fmt == "tracwiki" else lambda _:_
+        return map(inliner_, self ) 
 
     def bullet(self, n):
         return map(lambda _:" "*n + "* " + _, list(self)) 
@@ -133,7 +131,6 @@ class Lines(list):
 class Para(Lines):
     def __init__(self, *args, **kwa):
         Lines.__init__(self, *args, **kwa)
-        assert self.ctx is not None
 
     def _get_rst(self):
         return "\n".join(self.inlined())
@@ -153,20 +150,19 @@ class Literal(Lines):
         Lines.__init__(self, *args, **kwa)
 
     @classmethod 
-    def check_match(cls, line, token, ctx):
-        indent = line.find(token)
-        if indent > -1:
-            ctx.indent = indent
-        pass
-        return indent > -1
+    def check_match(cls, line, token):
+        tpos = line.find(token)
+        return tpos > -1 and len(line[:tpos].strip()) == 0 
 
     @classmethod 
-    def is_start(cls, line, ctx):
-        return cls.check_match(line, cls.start, ctx)
+    def is_start(cls, l):
+        line = l['line']
+        return cls.check_match(line, cls.start)
 
     @classmethod 
-    def is_end(cls, line, ctx):
-        return cls.check_match(line, cls.end, ctx)
+    def is_end(cls, l):
+        line = l['line']
+        return cls.check_match(line, cls.end)
 
     def _get_rst(self):
         #comment = ["..", "   end-literal indent:%s " % self.in_, "" ]
@@ -178,9 +174,6 @@ class Literal(Lines):
         pass
     rst = property(_get_rst)
 
-
-
-#class Comment(Lines):
 
 
 class SimpleTable(Lines):
@@ -199,9 +192,7 @@ class SimpleTable(Lines):
         map(self.conv, self)  ## collects possibly inline converted tracwiki text cells into list of lists 
 
         tab = self.conv._table
-        self.ctx.elem = self
         tab.apply_func(self.inliner_)  ## inline replacements 
-        self.ctx.elem = None
  
         topleftcell = tab[0][0].lstrip()
 
@@ -222,7 +213,8 @@ class SimpleTable(Lines):
     rst = property(_get_rst)
 
     @classmethod 
-    def is_simpletable(cls, line):
+    def is_simpletable(cls, l):
+        line = l['line']
         return line.lstrip().startswith(cls.TABLE_ROW_TOKEN)
      
 
@@ -270,7 +262,6 @@ class Toc(Lines):
         self.kwa = kwa
 
     def _get_rst(self):
-        #return "\n".join(["",".. toctree::", ""] + self.indent(3) + ["",""] )
         return self.directive("toctree", [], **self.kwa )
 
     rst = property(_get_rst)
@@ -281,7 +272,8 @@ class ListTagged(Lines):
     ptn = re.compile("\[\[ListTagged\(([^\)]*)\)\]\]") 
 
     @classmethod 
-    def is_match(cls, line):
+    def is_match(cls, l):
+        line = l['line']
         m = cls.ptn.match(line)
         return m is not None
 
@@ -293,8 +285,9 @@ class ListTagged(Lines):
         return tags
 
     @classmethod
-    def from_line(cls, line, ctx=None):
-        assert cls.is_match(line)
+    def from_line(cls, l, ctx=None):
+        line = l['line']
+        assert cls.is_match(l)
         tags = cls.match(line) 
         tgls = cls(tags=tags, ctx=ctx )
         return tgls
@@ -305,7 +298,8 @@ class ListTagged(Lines):
         self.tags = tags
 
     def _get_rst(self):
-        return "\n".join(["","ListTagged(%s):" % self.tags, ""] + self.bullet(0) + [""] )
+        label = "ListTagged(%s):" % self.tags
+        return "\n".join([""] + self.bullet(0) + [""] )
     rst = property(_get_rst)
 
     def __repr__(self):
@@ -317,10 +311,11 @@ class Image(Lines):
     ptn = re.compile("\[\[Image\(([^\)]*)\)\]\]") 
 
     @classmethod 
-    def is_match(cls, line):
+    def is_match(cls, l):
         """
         Uses kludgy way to avoid matching literal-ized Image macro
         """
+        line = l['line']
         m = cls.ptn.search(line)
         if m is None:
             return False 
@@ -340,12 +335,13 @@ class Image(Lines):
         return refs[0]
 
     @classmethod
-    def from_line(cls, line, ctx=None, docname=None):
+    def from_line(cls, l, ctx=None, docname=None):
         """
         Note that resolving links is left to the Sphinx/sphinxext machinery,
         this just re-formats the link layout to sphinx role form. 
         """
-        assert cls.is_match(line)
+        line = l['line']
+        assert cls.is_match(l)
         tlnk = cls.match(line) 
 
         xlnk = ctx.extlinks.trac2sphinx_link(tlnk, typ_default="wikidocs")
@@ -408,11 +404,13 @@ class Sidebar(Lines):
     def __repr__(self):
         return "<Sidebar %s> " % (self.md)
 
+
 class Contents(Lines):
     def __init__(self, *args, **kwa):
         depth = kwa.pop("depth", 1)
         Lines.__init__(self, *args, **kwa)
         self.depth = depth
+
     def _get_rst(self):
         return "\n".join([""]+[".. contents::"] + [ "   :depth: %s" % self.depth ]+[""])
     rst = property(_get_rst)
@@ -444,7 +442,8 @@ class Anchor(Lines):
 class HorizontalRule(Lines):
     ptn = re.compile("^-{4,100}\s*$")
     @classmethod 
-    def is_match(cls, line):
+    def is_match(cls, l):
+        line = l['line']
         m = cls.ptn.match(line)
         return m is not None
 
@@ -470,10 +469,28 @@ class Head(Lines):
 
 
     """
-    #ptn = re.compile("^(=+)\s*([^=]*)\s*(=+)\s*$")  ## NOPE some titles contain "="
     ptn = re.compile("(?P<heading>(?P<indent>^\s*)(?P<hdepth>=+)\s*(?P<title>.*?)\s*(?P=hdepth)\s*)")
  
     mkr = list("=-~+#<>")   
+
+
+    def __init__(self, *args, **kwa):
+
+        assert len(args) == 1
+        title = args[0]
+        args = () 
+
+        level = kwa.pop("level", 1)
+        l = kwa.pop("l", None)
+     
+        Lines.__init__(self, *args, **kwa)
+
+        self.rawtitle = title
+        self.title = self.ctx.inliner_(title)  # hmm invoking inliner at instanciation is non-standard, usually done in .rst
+
+        self.level = level
+
+
 
     def _get_rst(self):
         level = int(self.level)-1
@@ -493,56 +510,32 @@ class Head(Lines):
         return Lines.__repr__(self) + " btitle: %s level:%s " % (btitle, self.level )
 
     @classmethod 
-    def is_match(cls, line):
+    def is_match(cls, l):
+        line = l['line']
         m = cls.ptn.match(line)
         return m is not None
 
     @classmethod 
-    def match(cls, line, name=None):
+    def match(cls, l, name=None):
+        line = l['line']
         m = cls.ptn.match(line)
         assert m , "match failed for line [%s] " % line
         d = m.groupdict()
         title = d["title"]
         level = len(d["hdepth"])
-        indent = len(d["indent"])
 
         if int(level)-1 > len(cls.mkr):
-            log.fatal("Head level %d too large for line [%s]  " % (level, line ))
+            log.fatal("%s:%s : Head level %d too large for line [%s]  " % (name,l['idx'], level, line ))
             assert 0   
         pass
-        return title.strip(), level, indent
+        return title.strip(), level
 
     @classmethod
-    def from_line(cls, line, name=None, ctx=None):
-        assert cls.is_match(line)
-        title, level, indent = cls.match(line, name=name) 
-        head = cls(title, level=level, line=line, in_=indent, ctx=ctx)
-        head.append(line)
+    def from_line(cls, l, name=None, ctx=None):
+        assert cls.is_match(l)
+        title, level = cls.match(l, name=name) 
+        head = cls(title, level=level, l=l, ctx=ctx)
         return head
-
-    def __init__(self, *args, **kwa):
-
-        assert len(args) == 1
-        title = args[0]
-        args = () 
-
-        level = kwa.pop("level", 1)
-        line = kwa.pop("line", None)
-     
-        Lines.__init__(self, *args, **kwa)
-        self.rawtitle = title
-
-        self.ctx.elem = self
-        self.title = self.ctx.inliner_(title)  # hmm invoking inliner at instanciation is non-standard, usually done in .rst
-        self.ctx.elem = None
-
-        self.level = level
-        if line is None:
-            mk = "f" * level 
-            fab = "%s %s %s" % (mk,title,mk)
-            line = fab 
-        pass 
-        self.append(line)
 
 
 
@@ -563,10 +556,12 @@ class Page(list):
     def __init__(self, *args, **kwa):
         name = kwa.pop('name',None)
         ctx  = kwa.pop('ctx',None)
+        ls  = kwa.pop('ls',None)   # source text LS instance
         assert name is not None
         list.__init__(self, *args, **kwa)
         self.name = name
         self.ctx = ctx
+        self.ls = ls  
 
     def findall(self, cls):
         if type(cls) is str:  
@@ -669,9 +664,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     #test_lines() 
-    #test_para() 
+    test_para() 
 
-    test_Toc()
+    #test_Toc()
 
 
 if 0:

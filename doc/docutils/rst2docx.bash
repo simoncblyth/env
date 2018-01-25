@@ -28,6 +28,16 @@ Typical Usage
     # then print from Pages to make .pdf
 
 
+ISSUES
+--------
+
+* many directives not implemented eg contents
+
+::
+
+   .. contents::
+
+
 Adding blockquote translation ?
 ----------------------------------
 

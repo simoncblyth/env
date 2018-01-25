@@ -46,19 +46,32 @@ class InlineTrac2Sphinx(object):
         self.inli = InlineTracWiki2RST(ctx)
         self.erst = InlineEscapeRST(ctx)
 
-    def __call__(self, enu_line):
+    def old__call__(self, enu_line):
         if type(enu_line) is tuple:
+            assert 0
             enu, line = enu_line
         else:
             enu, line = -1, enu_line
         pass 
         iline = self.erst(self.ilnk(self.inli(self.eurl(line)))) 
-
-        self.ctx.elem.ind_[enu] = self.ctx.indent
-        if iline.strip() != "":
-            iline = "%s (%s)(%s)" % (iline, self.ctx.indent, enu)
-        pass
         return iline
+
+
+    def __call__(self, arg):
+        if type(arg).__name__ == 'L':
+            dline = arg.dline
+            #print "dline:%s " % dline
+        elif type(arg) is unicode:  # eg for Head title
+            #print "uni:%s " % arg
+            dline = arg
+        else:
+            assert 0, (arg, type(arg))
+        pass
+        iline = self.erst(self.ilnk(self.inli(self.eurl(dline)))) 
+        return iline
+
+
+
 
 
 class ReReplacer(object):
@@ -489,7 +502,7 @@ class InlineTracWiki2RST(ReReplacer):
 
     def _indent_formatter(self, match, fullmatch):
         indent = fullmatch.group('indent')
-        self.ctx.indent = len(indent)
+        #self.ctx.indent = len(indent)
         return indent
 
 
