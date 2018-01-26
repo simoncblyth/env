@@ -6,7 +6,7 @@ import logging, sys, re, os, collections, datetime, codecs, copy
 log = logging.getLogger(__name__)
 
 from env.trac.migration.doclite import Para, Head, HorizontalRule, ListTagged, Toc, Literal, CodeBlock, Meta
-from env.trac.migration.doclite import Anchor, Contents, Sidebar, Page, SimpleTable, Image, WikiPageHistory
+from env.trac.migration.doclite import Anchor, Contents, Sidebar, Page, SimpleTable, Image, WikiPageHistory, PrecookedTable
 from env.trac.migration.ls import LS
 from env.trac.migration.bulletspacer import BulletSpacer
 
@@ -21,13 +21,17 @@ class TracWiki2RST(object):
     """.lstrip().rstrip().split()
 
     @classmethod
-    def meta_top(cls, wp, args):
+    def meta_top(cls, wp, ctx):
+        is_wiki = type(wp).__name__ == 'TracWikiPage'
+        is_ticket = type(wp).__name__ == 'TracTicketPage'  
 
         out = []
         md = wp.metadict
 
-        if not args.vanilla:
-            anchor = Anchor(name=wp.name, tags=md["tags"])
+        if not ctx.vanilla:
+            aname = unicode(wp.name) if is_wiki else None 
+            anchor = Anchor(name=aname, tags=md["tags"])
+            pass
             out.append(anchor)
             sidebar = Sidebar(md=md)
             out.append(sidebar) 
@@ -39,11 +43,18 @@ class TracWiki2RST(object):
         meta = Meta(md=md)
         meta.append(":orphan:")
 
-        if args.origtmpl is not None:
-            origurl = args.origtmpl % wp.name 
-            editurl = "%s?action=edit" % origurl 
-            meta.append(":origurl: %s" % origurl)
-            meta.append(":editurl: %s" % editurl)
+        if ctx.extlinks is not None:
+            if is_wiki:
+                origurl = ctx.extlinks("tracwiki:%s" % wp.name)
+                editurl = ctx.extlinks("etracwiki:%s" % wp.name)
+                meta.append(":origurl: %s" % origurl)
+                meta.append(":editurl: %s" % editurl)
+            elif is_ticket:
+                origurl = ctx.extlinks("tracticket:%s" % wp.name)
+                meta.append(":origurl: %s" % origurl)
+            else:
+                assert 0, (wp, type(wp))
+            pass
         pass
         meta.append(u"")  # ensure some unicode, to kick in coercion
         out.append(meta)
@@ -76,6 +87,41 @@ class TracWiki2RST(object):
 
         page.add(Head("Literal unicode(pg)",level=2))
         page.add(CodeBlock(unicode(page0).split("\n"), lang="pycon", linenos=True))
+
+
+    @classmethod
+    def page_from_tracticket(cls, tp, ctx):
+        pass
+        name = tp.name
+        log.info("page_from_tracticket %s %s " % (name, type(name)))
+        text = unicode(tp)
+        mtop = cls.meta_top(tp, ctx) 
+        try:
+            s_text = BulletSpacer.spaced_out(text)
+        except AssertionError:
+            log.fatal("caught assertion in BulletSpacer for page %s " % name)
+            sys.exit(1)
+        pass        
+
+        ls = LS(s_text, skips=cls.skips)
+        if name == 43:
+            print ls 
+            print ls[27], type(ls[27])
+        pass
+
+        pg = Page(name=name, ctx=ctx, ls=ls)
+
+        for _ in mtop:
+            pg.add(_)
+        pass
+
+        pg.add(PrecookedTable( unicode(tp.tkt_table).split("\n") ))  
+        pg.add(PrecookedTable( unicode(tp.edits_table).split("\n") ))  
+
+        conv = cls(pg)
+ 
+        return pg 
+
 
     @classmethod
     def page_from_tracwiki(cls, wp, text, ctx, dbg=False):

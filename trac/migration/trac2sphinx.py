@@ -56,6 +56,7 @@ class Trac2Sphinx(object):
         d['dev'] = False
         d['tags'] = None
         d['vanilla'] = False
+        d['proxy'] = True
 
         fmt = {} 
         fmt['0'] = "%(asctime)-15s %(levelname)-7s %(name)-20s:%(lineno)-3d %(message)s"
@@ -77,6 +78,8 @@ class Trac2Sphinx(object):
         parser.add_argument("--vanilla", action="store_true", default=d['vanilla'], help="Skip Sphinx extensions to allow plain vanilla RST processing"   )  
         parser.add_argument("--tags", default=d['tags'] )  
         parser.add_argument("--dev", action="store_true", default=d['dev'] )  
+        parser.add_argument("-P", "--noproxy", dest="proxy", action="store_false", default=d['proxy'] )  
+        
         parser.add_argument("-F","--logformat", default=d['logformat'] )
         parser.add_argument("-L","--level", default=d['level'], help="I/D/W/INFO/DEBUG/WARN/..")  
         
@@ -86,7 +89,13 @@ class Trac2Sphinx(object):
         ctx.resolver = Resolver(sphinxdir=ctx.sphinxdir)
         ctx.db = DB(ctx.tracdb, asdict=True)
         log.info("opened backup Trac DB %s " % ctx.tracdb)  
-        ctx.proxy = Proxy.create("workflow_trac", cnfpath )
+
+        if ctx.proxy is True:
+            ctx.proxy = Proxy.create("workflow_trac", cnfpath )
+        else:
+            ctx.proxy = None
+        pass
+
         ctx.extlinks = SphinxExtLinks(extlinks)
         ctx.inliner_ = InlineTrac2Sphinx(ctx)
         ctx.stats = collections.defaultdict(lambda:0)
@@ -142,7 +151,7 @@ class Trac2Sphinx(object):
         for page in self.pages:
             self.write_(page)
         pass
-        pagenames = map(lambda _:_.name,self.pages)
+        pagenames = map(lambda _:unicode(_.name),self.pages)
         idx = TracWiki2RST.make_index("index", self.ctx.title, pagenames, ctx=self.ctx)
         self.write_(idx) 
 
@@ -151,8 +160,9 @@ class Trac2Sphinx(object):
         pass
 
     def trac2rst_one_ticket(self, id_):
-        tk = TracTicketPage(self.ctx.db, id_)
-        print tk 
+        tp = TracTicketPage(self.ctx.db, id_)
+        pg = TracWiki2RST.page_from_tracticket(tp, self.ctx)
+        self.add(pg)
 
     def trac2rst_one(self, name):
         """
@@ -190,7 +200,13 @@ class Trac2Sphinx(object):
         #for name in self.names:
         #    self.trac2rst_one(name)
         #pass
+
+        skips = [43,]
+
         for id_ in self.tickets:
+            if id_ in skips:
+                log.warning("skipped page for ticket %s" % id_ ) 
+                continue
             self.trac2rst_one_ticket(id_)
         pass
         self.dumpstats()

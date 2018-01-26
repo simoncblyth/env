@@ -211,6 +211,13 @@ class Literal(Lines):
 
 
 
+
+class PrecookedTable(Lines):
+    def __init__(self, *args, **kwa):
+        Lines.__init__(self, *args, **kwa)
+
+         
+
 class SimpleTable(Lines):
     TABLE_ROW_TOKEN = "||"
 
@@ -228,13 +235,17 @@ class SimpleTable(Lines):
 
         tab = self.conv._table
         tab.apply_func(self.inliner_)  ## inline replacements 
- 
-        topleftcell = tab[0][0].lstrip()
 
-        if len(topleftcell) > 2 and topleftcell[0:2] == "**":  # heuristic 
-            tab.hdr = True
-        pass 
+        if len(tab) == 0:
+            log.warning("empty table on page %s " % self.pagename )
+        else:
+            topleftcell = tab[0][0].lstrip()
+            if len(topleftcell) > 2 and topleftcell[0:2] == "**":  # heuristic 
+                tab.hdr = True
+            pass 
+        pass
 
+        #urst = unicode(tab)
         try:
             urst = unicode(tab)
         except AssertionError as err:
@@ -462,8 +473,12 @@ class Anchor(Lines):
     def __init__(self, *args, **kwa):
         name = kwa.pop("name", None)
         tags = kwa.pop("tags", None)
+        utags = filter(None, tags.split() + [name])
+
+        #log.info("Anchor utags: %s " % utags )
+
         Lines.__init__(self, *args, **kwa)
-        self.tags = list(set(tags.split() + [name])) 
+        self.tags = list(set(utags)) 
 
     def _get_rst(self):
         fidx = ", ".join(self.tags)

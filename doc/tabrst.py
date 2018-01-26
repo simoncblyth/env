@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+import logging
+log = logging.getLogger(__name__)
     
 
 class Table(list):
@@ -15,9 +18,18 @@ class Table(list):
         list.__init__(self,*args, **kwa)
 
     def _get_widths(self): 
+        if len(self) == 0:
+           log.fatal("_get_widths on empty table" )
+           assert 0
+        pass
+
         wid = map(len, self[0])
         for row in self[1:]:
             w = map(len, row) 
+            if len(w) == len(wid) - 1:  # try to fixup table rows with one missing column
+                row.append("") 
+                w = map(len, row) 
+            pass
             assert len(wid) == len(w), ( len(wid), len(w), repr(self), ",".join(row) ) 
             for i,c in enumerate(w):
                 wid[i] = max(wid[i], w[i])

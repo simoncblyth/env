@@ -74,16 +74,65 @@ ftime_ = lambda _:datetime.datetime.fromtimestamp(_).strftime('%Y-%m-%dT%H:%M:%S
 
 
 class TracTicketPage(object):
+    """
+    http://g4pb.local/tracs/workflow/ticket/16
+
+    Are missing attachments message/link
+    """
     def __init__(self, db, id_):
+        self.db = db
+        self.id_ = id_ 
+        self.name = id_
+        recs = db("select keywords from ticket where id=%(id_)s ;" % locals() )
+        assert len(recs) == 1
+        tags = recs[0]["keywords"].split()
+
+       
+
+
+        tkt, tktTab = self.make_ticket_table(db, id_)
+        self.tkt = tkt
+        self.tkt_table = tktTab
+
+        md = collections.OrderedDict()  
+        md["name"] = id_
+        md["time"] = tkt["time"] 
+        md["ftime"] = tkt["ftime"] 
+        md["tags"] = " ".join(tags)
+ 
+        self.tags = tags      
+        self.metadict = md      
+
+
+        edits, editsTab = self.make_edits_table(db, id_)
+        self.edits = edits
+        self.edits_table = editsTab
+
+        changes = self.make_changes(db, id_, edits)
+        self.changes = changes
+
+        pass
+
+    def __repr__(self):
+        return "<TracTicketPage %3d edits %d  changes %d> " % ( self.id_, len(self.edits), len(self.changes) )
+
+    def __unicode__(self):
+        """
+        The tables are already rst so incorporate them after description and changes have been translated
+        """
+        return "\n".join(["= %s =" % self.title, "", self.description, "","" ] + map(unicode, self.changes))
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+ 
+    title = property(lambda self:"Ticket %(id)s : %(summary)s " % self.tkt )
+    description = property(lambda self:self.tkt["description"].replace('\r\n','\n') )
+
+
+    def make_ticket_table(self, db, id_):
         tkt_ = db("select * from ticket where id=%d" % id_ )
         assert len(tkt_) == 1
         tkt = tkt_[0]
-
-        chgs = db("select * from ticket_change where ticket=%d" % id_ )
-
-        self.id_ = id_ 
-        self.tkt = tkt
-        self.chgs = chgs
 
         fields0 = "id type status resolution severity reporter owner ftime fchangetime priority resolution milestone component cc keywords version"
         fields1 = "description summary"
@@ -95,15 +144,76 @@ class TracTicketPage(object):
         cols = ["qty", "value"]
         tab.append(cols)
         for k in fields0.split():
-            tab.append([k, unicode(self.tkt[k])])
+            tab.append([k, unicode(tkt[k])])
         pass
-        self.tab = tab 
-        self.title = "Ticket %(id)s : %(summary)s " % tkt
+        return tkt, tab
+       
+
+    def make_edits_table(self, db, id_):
+        fields = map(lambda _:_.strip(), filter(lambda _:len(_.strip()),r"""
+        time
+        datetime(time, 'unixepoch', 'localtime') as timeLocal
+        group_concat(author) as author
+        group_concat(field) as fields
+        """.split("\n")))
+
+        fields = ",".join(fields)
+
+        sql = "select %(fields)s from ticket_change where ticket='%(id_)s' group by time" % locals() 
+        edits = db(sql)
+
+        tab = Table(hdr=True)
+        cols = ["time", "timeLocal", "author", "fields" ]
+        tab.append(cols)
+
+        for edit in edits:
+            tab.append([unicode(edit[k]) for k in cols]) 
+        pass
+        return edits, tab
+
+
+    def make_changes(self, db, id_, edits):
+        changes = []
+        for edit in edits:
+            time = edit["time"]
+            fields = edit["fields"]
+            tc = TicketChange(time=time, fields=fields) 
+            for field in fields.split(","):
+                sql = "select oldvalue, newvalue from ticket_change where ticket='%(id_)s' and field='%(field)s' and time='%(time)s'" % locals()
+                recs = db(sql)
+                assert len(recs) == 1
+                rec = recs[0]
+                tc.append(FieldChange(field=field, oldvalue=rec['oldvalue'], newvalue=rec['newvalue'] ))
+            pass
+            changes.append(tc)
+        pass
+        return changes
 
 
 
-    def __repr__(self):
-        return "<TracTicketPage %3d chgs %d > " % ( self.id_, len(self.chgs) )
+class FieldChange(dict):
+    def __init__(self, *args, **kwa):
+        dict.__init__(self, *args, **kwa)
+    def __unicode__(self):
+        if self["field"] == "comment":
+             ret = self["newvalue"].replace('\r\n','\n') 
+        else:
+             ret = " * %(field)s : %(oldvalue)s -> %(newvalue)s " % self
+        pass
+        return ret
+
+class TicketChange(list):
+    def __init__(self, *args, **kwa):
+        time = kwa.pop("time")
+        fields = kwa.pop("fields")
+        list.__init__(self, *args, **kwa)
+        self.time = time
+        self.fields = fields
+   
+    def __unicode__(self):
+        return "\n".join(["","","== TC %s : %s ==" % (ftime_(self.time), self.fields)] + [""] + map(unicode, self))
+        
+
 
 
 if __name__ == '__main__':
@@ -117,13 +227,9 @@ if __name__ == '__main__':
 
     db = DB(cnf["tracdb"], asdict=True)
  
-    tktid = int(sys.argv[1])
-    tp = TracTicketPage(db, tktid)
-
+    tp = TracTicketPage(db,  int(sys.argv[1]) )
     print tp
-    print tp.title
-    print tp.tab
-    
+        
 
 
 
