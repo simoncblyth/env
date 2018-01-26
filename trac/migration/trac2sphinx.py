@@ -26,26 +26,33 @@ from env.trac.migration.xmlrpcproxy import Proxy
 
 from env.trac.migration.resolver import Resolver
 from env.trac.migration.tracwikipage import TracWikiPage
+from env.trac.migration.tracticketpage import TracTicketPage
 from env.trac.migration.tracwiki2rst import TracWiki2RST
 from env.trac.migration.inlinetracwiki2rst import InlineTrac2Sphinx
 from env.doc.extlinks import SphinxExtLinks
+from env.web.cnf import Cnf 
 
 
 class Trac2Sphinx(object):
     @classmethod
-    def make_context(cls, doc, extlinks={}):
+    def make_context(cls, doc, extlinks={}, repo="workflow"):
         """
         The extlinks dict shold match that supplied to Sphinx in conf.py.
         """
         import argparse
         parser = argparse.ArgumentParser(doc)
 
+        cnfpath = "~/.%s.cnf" % repo
+        cnfsect = "%s_trac2sphinx" % repo
+        cnf = Cnf.read(cnfsect, cnfpath) 
+ 
         d = {}
+        d['tracdb'] = cnf["tracdb"]
+        d['sphinxdir'] = cnf["sphinxdir"]
+        d['title'] = unicode(cnf["title"])
+        d['origtmpl'] = cnf["origtmpl"]
+
         d['onepage'] = None
-        d['rstdir'] = "/tmp/env/trac2sphinx"
-        d['tracdir'] = "/tmp/env/trac2sphinx"
-        d['title'] = u"trac2sphinx.py conversion"
-        d['origtmpl'] = None
         d['dev'] = False
         d['tags'] = None
         d['vanilla'] = False
@@ -59,17 +66,14 @@ class Trac2Sphinx(object):
         lvl = dict(I="INFO",D="DEBUG",W="WARN")
         d['level'] = "I"
     
-        parser.add_argument("dbpath", default=None, help="path to trac.db"  ) 
-        parser.add_argument("--onepage", default=d['onepage'], help="restrict conversion to single named page for debugging")  
-
-        # TODO: get these from an ini file, not commandline as rather constant 
-        parser.add_argument("--rstdir", default=d['rstdir'], help="directory to write the converted RST")  
-        parser.add_argument("--tracdir", default=d['tracdir'], help="directory named after the repo containing db/trac.db as well as attachements etc.. ")  
+        parser.add_argument("--tracdb", default=d["tracdb"], help="path to trac.db"  ) 
+        parser.add_argument("--sphinxdir", default=d['sphinxdir'], help="directory containing the Sphinx conf.py beneath which converted RST files are written")  
         parser.add_argument("--title", default=d['title'] )  
-
         # TODO: eliminate using the extlinks 
         parser.add_argument("--origtmpl", default=d['origtmpl'], help="template of original tracwiki url to provide backlink for debugging, eg http://localhost/tracs/worklow/wiki/%s ")  
 
+        # options for debugging 
+        parser.add_argument("--onepage", default=d['onepage'], help="restrict conversion to single named page for debugging")  
         parser.add_argument("--vanilla", action="store_true", default=d['vanilla'], help="Skip Sphinx extensions to allow plain vanilla RST processing"   )  
         parser.add_argument("--tags", default=d['tags'] )  
         parser.add_argument("--dev", action="store_true", default=d['dev'] )  
@@ -79,9 +83,10 @@ class Trac2Sphinx(object):
         ctx = parser.parse_args()
         logging.basicConfig(format=fmt.get(ctx.logformat, ctx.logformat), level=getattr(logging, lvl.get(ctx.level,ctx.level).upper()))
 
-        ctx.resolver = Resolver(tracdir=ctx.tracdir, rstdir=ctx.rstdir)
-        ctx.db = DB(ctx.dbpath)
-        ctx.proxy = Proxy.create("workflow_trac", "~/.env.cnf")
+        ctx.resolver = Resolver(sphinxdir=ctx.sphinxdir)
+        ctx.db = DB(ctx.tracdb, asdict=True)
+        log.info("opened backup Trac DB %s " % ctx.tracdb)  
+        ctx.proxy = Proxy.create("workflow_trac", cnfpath )
         ctx.extlinks = SphinxExtLinks(extlinks)
         ctx.inliner_ = InlineTrac2Sphinx(ctx)
         ctx.stats = collections.defaultdict(lambda:0)
@@ -91,7 +96,7 @@ class Trac2Sphinx(object):
     def __init__(self, ctx):
         self.ctx = ctx
         self.pages = []
-        self.dnames = sorted(map(lambda _:_[0],self.ctx.db("select distinct name from wiki")))
+        self.dnames = sorted(map(lambda _:_["name"],self.ctx.db("select distinct name from wiki")))
         self.pnames = sorted(map(unicode,self.ctx.proxy.pages)) if self.ctx.proxy is not None else []
         if len(self.pnames) > 0:
             self.compare_names()
@@ -102,6 +107,8 @@ class Trac2Sphinx(object):
             self.names = self.dnames
             self.ctx.skipdoc = []
         pass
+        self.tickets = map(lambda _:_["id"], self.ctx.db("select id from ticket"))
+
             
     def compare_names(self):
         log.info("dnames[:10] " + str(self.dnames[:10]))
@@ -138,7 +145,14 @@ class Trac2Sphinx(object):
         pagenames = map(lambda _:_.name,self.pages)
         idx = TracWiki2RST.make_index("index", self.ctx.title, pagenames, ctx=self.ctx)
         self.write_(idx) 
-        log.info("wrote %s pages  %s...%s " % (len(self.pages), self.pages[0].name, self.pages[-1].name))
+
+        if len(self.pages) > 0:
+            log.info("wrote %s pages  %s...%s " % (len(self.pages), self.pages[0].name, self.pages[-1].name))
+        pass
+
+    def trac2rst_one_ticket(self, id_):
+        tk = TracTicketPage(self.ctx.db, id_)
+        print tk 
 
     def trac2rst_one(self, name):
         """
@@ -173,8 +187,11 @@ class Trac2Sphinx(object):
        
 
     def trac2rst_all(self):
-        for name in self.names:
-            self.trac2rst_one(name)
+        #for name in self.names:
+        #    self.trac2rst_one(name)
+        #pass
+        for id_ in self.tickets:
+            self.trac2rst_one_ticket(id_)
         pass
         self.dumpstats()
 
@@ -185,10 +202,20 @@ class Trac2Sphinx(object):
             print " %20s : %s " % (k, v )
         pass
 
+    def is_ticket(self, name):
+        try:
+            int(name)
+            ret = True 
+        except ValueError:
+            ret = False
+        return ret
+
     def tracdb2rst(self):
         name = self.ctx.onepage
         if name is None:
             self.trac2rst_all()
+        elif self.is_ticket(name):
+            self.trac2rst_one_ticket(int(name))
         else:
             self.trac2rst_one(name)
         pass

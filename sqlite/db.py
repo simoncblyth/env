@@ -56,8 +56,17 @@ except ImportError:
 import logging, sys
 log = logging.getLogger(__name__)
 
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    pass
+    return d
+
+
 class DB(object):
-    def __init__(self, path=None, skip=None):
+    def __init__(self, path=None, skip=None, asdict=False):
         """ 
         :param path: to DB file
         :param skip: prefix of table names to not include in counting, for faster testing
@@ -65,8 +74,15 @@ class DB(object):
         if not path:
             path = 'dybsvn/db/trac.db'   # specific leaking in as default
 
+        row_factory = sqlite.Row if asdict else None
+
         log.info("opening %s " % path )
         conn=sqlite.connect(path)
+        if asdict:
+            conn.row_factory = dict_factory
+        pass
+        self.asdict = asdict
+
         cur=conn.cursor()
         self.conn = conn
         self.path = path
@@ -111,7 +127,9 @@ class DB(object):
     def tables_(self):
         tabs = []
         for _ in self("select name from sqlite_master where type='table'"):
-            tabs.append(_[0])
+            key = "name" if self.asdict else 0
+            tabs.append(_[key])
+        pass
         return tabs
 
     def count_(self):

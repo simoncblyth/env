@@ -138,6 +138,8 @@ def parse_args(doc):
     op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
     op.add_option("-f", "--format",   default="bashfn", help="output format ... Default %default"  )
     op.add_option("-s", "--sect",      default=None, help="section of config file... Default %default"  )
+    op.add_option("--sections", action="store_true", default=False, help="include list of all sections in the config file... Default %default"  )
+
     opts, args = op.parse_args()
     loglevel = getattr( logging, opts.loglevel.upper() )
     logging.basicConfig(level=loglevel)
@@ -146,7 +148,9 @@ def parse_args(doc):
 
     d = cnf.sectiondict(opts.sect)
     d['sect'] = opts.sect
-    d['sections'] = cnf.sections()
+    if opts.sections: 
+        d['sections'] = cnf.sections()
+    pass
     d.update(vars(opts))
 
     log.debug("reading config from sect %s of %s :\n%s " % (opts.sect, opts.cnfpath, pformat(d) ))  

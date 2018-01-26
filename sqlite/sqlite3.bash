@@ -20,6 +20,16 @@ regexp extension
 * https://github.com/ralight/sqlite3-pcre
 
 
+compound statements, group by statements
+------------------------------------------
+
+::
+
+    select distinct tag as t from tags order by tag ;
+    select distinct tag as t from tags where t not in ( select distinct name from wiki ) order by tag ;
+    select name, count(tag) as n from tags group by tag order by n desc ;
+
+
 
 timezone documentation extracts
 --------------------------------
@@ -105,6 +115,30 @@ Unix time (a.k.a. POSIX time or Epoch time) is a system for describing instants
 in time, defined as the number of seconds that have elapsed since 00:00:00
 Coordinated Universal Time (UTC), Thursday, 1 January 1970 not
 counting leap seconds
+
+
+Example : Trac wiki modification times
+----------------------------------------
+
+::
+
+    sqlite> select version, datetime(time, 'unixepoch') from wiki where name='3D' ;
+    version     datetime(time, 'unixepoch')
+    ----------  ---------------------------
+    1           2009-02-18 03:20:11        
+    2           2009-02-18 03:32:53        
+    3           2009-02-18 05:33:07        
+    4           2009-03-17 10:23:16        
+
+    sqlite> select version, datetime(time, 'unixepoch', 'localtime') from wiki where name='3D' ;
+    version     datetime(time, 'unixepoch', 'localtime')
+    ----------  ----------------------------------------
+    1           2009-02-18 11:20:11                     
+    2           2009-02-18 11:32:53                     
+    3           2009-02-18 13:33:07                     
+    4           2009-03-17 18:23:16                     
+    sqlite> 
+
 
 
 

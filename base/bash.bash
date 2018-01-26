@@ -5,7 +5,28 @@ bash-env(){
 }
 
 bash-usage(){ cat << EOU
- 
+
+bash
+=====
+
+Redirect bug in bash 3.2
+---------------------------
+
+* https://stackoverflow.com/questions/1279953/how-to-execute-the-output-of-a-command-within-the-current-shell
+
+::
+
+   $ ls | sed ... | source /dev/stdin
+
+UPDATE: This works in bash 4.0, as well as tcsh, and dash (if you change source to .). 
+Apparently this was buggy in bash 3.2. From the bash 4.0 release notes::
+
+    Fixed a bug that caused `.' to fail to read and execute commands 
+    from non-regular files such as devices or named pipes.
+
+Ref
+----
+
 http://www.gnu.org/software/bash/manual/bashref.html#Invoking-Bash
 
 EOU

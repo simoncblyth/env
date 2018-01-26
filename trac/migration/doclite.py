@@ -13,6 +13,10 @@ Refs
 Classes
 -----------
 
+
+Lines subclasses
+~~~~~~~~~~~~~~~~~~
+
 Lines
     base class list of strings of all the below
 
@@ -26,8 +30,8 @@ CodeBlock
     literal code with lang syntax coloring 
 Toc
     table of contents
-ListTagged
-    an incomplete element of the page, filled in later up where there is DB access
+
+
 Meta
     field list from a dict  
 Sidebar
@@ -41,8 +45,28 @@ HorizontalRule
 Head
      header text  
 
+
+Incomplete Lines classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These require db access, and are filled in later at higher level
+
+
+ListTagged
+    list of doc references with tags
+WikiPageHistory
+    table with wikipage history  
+
+
+Container
+~~~~~~~~~~~~~
+
 Page
-    container of content instances of the above
+    list of Lines instances 
+
+
+
+
 
 """
 
@@ -126,6 +150,17 @@ class Lines(list):
         """placeholder to potentially be overridden"""
         return "\n".join(self)
     rst = property(_get_rst)
+
+
+
+
+
+class WikiPageHistory(Lines):
+    def __init__(self, *args, **kwa):
+        Lines.__init__(self, *args, **kwa)
+
+         
+
 
 
 class Para(Lines):
@@ -298,12 +333,13 @@ class ListTagged(Lines):
         self.tags = tags
 
     def _get_rst(self):
-        label = "ListTagged(%s):" % self.tags
+        #label = "ListTagged(%s):" % self.tags
         return "\n".join([""] + self.bullet(0) + [""] )
     rst = property(_get_rst)
 
     def __repr__(self):
         return Lines.__repr__(self) + " tags:%s " % self.tags
+
 
 
 

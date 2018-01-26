@@ -3,6 +3,8 @@
 
 class Table(list):
     """
+    Preparation of RST Simple Tables from a list of lists 
+
     Padding is workaround for non-ascii unicode char widths poking outside RST table
     """
     def __init__(self, *args, **kwa):

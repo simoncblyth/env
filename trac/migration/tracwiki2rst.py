@@ -6,7 +6,7 @@ import logging, sys, re, os, collections, datetime, codecs, copy
 log = logging.getLogger(__name__)
 
 from env.trac.migration.doclite import Para, Head, HorizontalRule, ListTagged, Toc, Literal, CodeBlock, Meta
-from env.trac.migration.doclite import Anchor, Contents, Sidebar, Page, SimpleTable, Image
+from env.trac.migration.doclite import Anchor, Contents, Sidebar, Page, SimpleTable, Image, WikiPageHistory
 from env.trac.migration.ls import LS
 from env.trac.migration.bulletspacer import BulletSpacer
 
@@ -14,13 +14,11 @@ from env.trac.migration.bulletspacer import BulletSpacer
 class TracWiki2RST(object):
     """
     """ 
-
     skips = r"""
     [[TracNav
     [[PageOutline
     [[TOC
     """.lstrip().rstrip().split()
-
 
     @classmethod
     def meta_top(cls, wp, args):
@@ -116,10 +114,25 @@ class TracWiki2RST(object):
             wp.complete_ListTagged(lti, skipdoc=ctx.skipdoc)
         pass
 
+        cls.add_WikiPageHistory(wp, pg, ctx)
+
         if dbg and not ctx.vanilla:
             cls.dbg_tail(wp, text, pg) 
         pass
         return pg 
+
+
+    @classmethod
+    def add_WikiPageHistory(cls, wp, pg, ctx):
+        title = "%s : Wiki Page History " % pg.name 
+        hdr = Head(title, level=2, ctx=ctx)
+        pg.add(hdr)
+
+        tab = wp.history_table
+        lines = unicode(tab).split("\n")
+        wph = WikiPageHistory(lines, fmt="rst")
+        pg.add(wph)
+
 
     @classmethod
     def make_index(cls, name, title, pagenames, ctx):

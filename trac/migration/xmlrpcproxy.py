@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import logging
+import logging, sys
 log = logging.getLogger(__name__)
 import xmlrpclib 
 import socket
@@ -8,7 +8,7 @@ from env.web.cnf import Cnf
 
 class Proxy(object):
     @classmethod
-    def create(cls, sect="workflow_trac", cnfpath="~/.env.cnf"):
+    def create(cls, sect="workflow_trac", cnfpath="~/.workflow.cnf"):
         cnf = Cnf.read(sect, cnfpath)
         return cls(cnf)
 
@@ -34,6 +34,12 @@ class Proxy(object):
             pages = proxy.wiki.getAllPages()  
             log.info("found %s pages " % len(pages))
         pass
+
+        if proxy is None:
+            log.fatal("ABORT : failed to create proxy to Trac server") 
+            sys.exit(1)
+        pass
+
         self.proxy = proxy
         self.pages = sorted(pages)
 
