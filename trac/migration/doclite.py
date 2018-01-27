@@ -137,8 +137,6 @@ class Lines(list):
     def indent(self, n):
         return indent_lines_(self, n )
 
-       
-
     def inlined(self):
         inliner_ = self.ctx.inliner_ if self.fmt == "tracwiki" else lambda _:_
         return map(inliner_, self ) 
@@ -238,6 +236,7 @@ class SimpleTable(Lines):
 
         if len(tab) == 0:
             log.warning("empty table on page %s " % self.pagename )
+            print "\n".join(self)
         else:
             topleftcell = tab[0][0].lstrip()
             if len(topleftcell) > 2 and topleftcell[0:2] == "**":  # heuristic 
@@ -391,11 +390,11 @@ class Image(Lines):
         assert cls.is_match(l)
         tlnk = cls.match(line) 
 
-        xlnk = ctx.extlinks.trac2sphinx_link(tlnk, typ_default="wikidocs")
+        xlnk = ctx.extlinks.trac2sphinx_link(tlnk, reldoc=docname, typ_default="tracdocs")
 
-        log.info("Image.from_line  translating tlnk to xlnk %s -> %s  (%s) " % (tlnk, xlnk, docname))
+        log.debug("Image.from_line  translating tlnk to xlnk %s -> %s  (%s) " % (tlnk, xlnk, docname))
 
-        img = cls(url=xlnk, docname=docname, ctx=ctx)
+        img = cls(url=xlnk, docname=None, ctx=ctx)
         return img
 
     def __init__(self, *args, **kwa):
@@ -608,11 +607,20 @@ class Page(list):
         name = kwa.pop('name',None)
         ctx  = kwa.pop('ctx',None)
         ls  = kwa.pop('ls',None)   # source text LS instance
+        typ = kwa.pop('typ', "wiki")
+
         assert name is not None
         list.__init__(self, *args, **kwa)
+        self.typ = typ
         self.name = name
         self.ctx = ctx
         self.ls = ls  
+        if ctx is not None:
+            ctx.page = self
+        pass
+
+    docrel = property(lambda self:"%s/%s" % (self.typ, self.name))
+
 
     def findall(self, cls):
         if type(cls) is str:  
@@ -651,7 +659,10 @@ class Page(list):
         return "\n".join(map(unicode, self))
        
     def _get_rst(self):
-        return "\n".join(filter(lambda _:_ is not None, map(lambda _:_.rst, self)))
+        self.ctx.page = self
+        ret = "\n".join(filter(lambda _:_ is not None, map(lambda _:_.rst, self)))
+        self.ctx.page = None
+        return ret
     rst = property(_get_rst)
 
 

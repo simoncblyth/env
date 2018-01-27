@@ -49,7 +49,7 @@ class InterMapTxt(OrderedDict):
 
 
              if d["label"] in cls.EXCLUDE:
-                 log.warning("InterMapTxt mapping %s is not permitted as it would override a standard RST or Sphinx role" % d ) 
+                 log.debug("InterMapTxt mapping %s is not permitted as it would override a standard RST or Sphinx role" % d ) 
                  continue
              pass
              d['idx'] = len(imt)

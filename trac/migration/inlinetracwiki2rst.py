@@ -46,17 +46,6 @@ class InlineTrac2Sphinx(object):
         self.inli = InlineTracWiki2RST(ctx)
         self.erst = InlineEscapeRST(ctx)
 
-    def old__call__(self, enu_line):
-        if type(enu_line) is tuple:
-            assert 0
-            enu, line = enu_line
-        else:
-            enu, line = -1, enu_line
-        pass 
-        iline = self.erst(self.ilnk(self.inli(self.eurl(line)))) 
-        return iline
-
-
     def __call__(self, arg):
         if type(arg).__name__ == 'L':
             dline = arg.dline
@@ -69,8 +58,6 @@ class InlineTrac2Sphinx(object):
         pass
         iline = self.erst(self.ilnk(self.inli(self.eurl(dline)))) 
         return iline
-
-
 
 
 
@@ -364,7 +351,7 @@ class InlineTrac2SphinxLink(ReReplacer):
         typ = tlnk[:f]
         arg = tlnk[f+1:]
         assert arg[0] == '"' and arg[-1] == '"'
-        uarg = arg[1:-1]
+        uarg = arg[1:-1].strip()
         xlnk = ":%s:`%s`" % (typ, uarg)
         #log.debug("(qlink) tlnk:[%(tlnk)s] typ:[%(typ)s] arg:[%(arg)s] uarg:[%(uarg)s] xlnk:[%(xlnk)s]" % locals())
         return xlnk
@@ -379,12 +366,23 @@ class InlineTrac2SphinxLink(ReReplacer):
 
         f = tlnk.index(self.LINK_TOKEN)
         typ = tlnk[:f]
+
+        if typ == "raw-attachment":
+            typ = "tracdocs"
+        pass
+
         exclude = typ in self.EXCLUDE 
         if exclude:
             return match
         pass
 
         arg = tlnk[f+1:]
+        if arg.find("/") == -1 and typ == "tracdocs":
+            docrel = self.ctx.page.docrel
+            arg = "%s/%s" % (docrel, arg )
+            log.info("apply docrel %s " % arg )
+        pass
+
         xlnk = ":%s:`%s`" % (typ, arg)
 
         #log.debug("(link) tlnk:[%(tlnk)s] typ:[%(typ)s] arg:[%(arg)s] xlnk:[%(xlnk)s]" % locals())

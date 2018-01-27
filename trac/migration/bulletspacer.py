@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+log = logging.getLogger(__name__)
 
 class BulletSpacer(object):
     TOKEN = "* "
@@ -42,6 +43,24 @@ class BulletSpacer(object):
             pass
         pass
         return "\n".join(s_lines)
+
+    @classmethod
+    def applyfix(cls, text, fix_ = lambda line:line):
+        lines = text.split("\n")
+        f_lines = lines[:]
+        for i in range(len(lines)):
+            fixline = fix_(lines[i])
+            if fixline != lines[i]:
+               f_lines[i] = fixline
+               log.info("applyfix changed line %s " % i )  
+               log.info("bef [%s] " % lines[i] )  
+               log.info("aft [%s] " % f_lines[i] )  
+            pass
+        pass
+        return "\n".join(f_lines) 
+ 
+        
+
 
 def prep(txt):
     return "\n".join(map(lambda _:_[4:], txt.split("\n")[1:-1]))

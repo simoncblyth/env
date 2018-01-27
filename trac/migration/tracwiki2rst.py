@@ -22,14 +22,21 @@ class TracWiki2RST(object):
 
     @classmethod
     def meta_top(cls, wp, ctx):
-        is_wiki = type(wp).__name__ == 'TracWikiPage'
-        is_ticket = type(wp).__name__ == 'TracTicketPage'  
+
+        if type(wp).__name__ == 'TracWikiPage':
+            typ = "wiki"
+        elif type(wp).__name__ == 'TracTicketPage':
+            typ = "ticket"
+        else:
+            assert 0, (wp, type(wp))
+        pass
+
 
         out = []
         md = wp.metadict
 
         if not ctx.vanilla:
-            aname = unicode(wp.name) if is_wiki else None 
+            aname = unicode(wp.name) 
             anchor = Anchor(name=aname, tags=md["tags"])
             pass
             out.append(anchor)
@@ -44,12 +51,12 @@ class TracWiki2RST(object):
         meta.append(":orphan:")
 
         if ctx.extlinks is not None:
-            if is_wiki:
+            if typ == "wiki":
                 origurl = ctx.extlinks("tracwiki:%s" % wp.name)
                 editurl = ctx.extlinks("etracwiki:%s" % wp.name)
                 meta.append(":origurl: %s" % origurl)
                 meta.append(":editurl: %s" % editurl)
-            elif is_ticket:
+            elif typ == "ticket":
                 origurl = ctx.extlinks("tracticket:%s" % wp.name)
                 meta.append(":origurl: %s" % origurl)
             else:
@@ -59,6 +66,12 @@ class TracWiki2RST(object):
         meta.append(u"")  # ensure some unicode, to kick in coercion
         out.append(meta)
 
+        ctx.attachment.setPage(typ=typ, id_=wp.name)        
+        tab = ctx.attachment.tab
+        if len(tab) > 1:
+            log.info("meta_top attachment table for %s %s entries %s " % (typ, wp.name, len(tab)))
+            out.append(PrecookedTable(unicode(tab).split("\n")))
+        pass
         return out 
 
      
@@ -93,7 +106,7 @@ class TracWiki2RST(object):
     def page_from_tracticket(cls, tp, ctx):
         pass
         name = tp.name
-        log.info("page_from_tracticket %s %s " % (name, type(name)))
+        log.debug("page_from_tracticket %s %s " % (name, type(name)))
         text = unicode(tp)
         mtop = cls.meta_top(tp, ctx) 
         try:
@@ -103,13 +116,12 @@ class TracWiki2RST(object):
             sys.exit(1)
         pass        
 
-        ls = LS(s_text, skips=cls.skips)
-        if name == 43:
-            print ls 
-            print ls[27], type(ls[27])
-        pass
+        fix_maltab_ = lambda _:_ + "|" if _.lstrip()[0:2] == "||" and _.rstrip()[-2:] == " |" else _
 
-        pg = Page(name=name, ctx=ctx, ls=ls)
+        s_text = BulletSpacer.applyfix(s_text, fix_=fix_maltab_ ) # fix malformed table in description of ticket 43
+        ls = LS(s_text, skips=cls.skips)
+
+        pg = Page(name=name, ctx=ctx, ls=ls, typ="ticket" )
 
         for _ in mtop:
             pg.add(_)
@@ -119,6 +131,13 @@ class TracWiki2RST(object):
         pg.add(PrecookedTable( unicode(tp.edits_table).split("\n") ))  
 
         conv = cls(pg)
+
+        if ctx.dump:
+            log.info("post conv [-D, --dump] for name %s START " % name)
+            print ls._sli
+            print ls 
+            log.info("post conv [-D, --dump] for name %s DONE " % name)
+        pass
  
         return pg 
 
@@ -139,7 +158,7 @@ class TracWiki2RST(object):
 
         ls = LS(s_text, skips=cls.skips)
 
-        pg = Page(name=name, ctx=ctx, ls=ls)
+        pg = Page(name=name, ctx=ctx, ls=ls, typ="wiki" )
 
         for _ in mtop:
             pg.add(_)
@@ -170,7 +189,7 @@ class TracWiki2RST(object):
 
     @classmethod
     def add_WikiPageHistory(cls, wp, pg, ctx):
-        title = "%s : Wiki Page History " % pg.name 
+        title = u"%s : Wiki Page History " % pg.name 
         hdr = Head(title, level=2, ctx=ctx)
         pg.add(hdr)
 
@@ -181,8 +200,8 @@ class TracWiki2RST(object):
 
 
     @classmethod
-    def make_index(cls, name, title, pagenames, ctx):
-        idx = Page(name=name)        
+    def make_index(cls, name, title, pagenames, ctx, typ="wiki"):
+        idx = Page(name=name, ctx=ctx, typ=typ )        
         hdr = Head(title, level=1, ctx=ctx)
         toc = Toc( pagenames, maxdepth=1 )
 
@@ -255,7 +274,7 @@ class TracWiki2RST(object):
                 self.last_literal = None   # sectioning from Head avoids problem of postliteral indent greediness
             elif self.cur_literal is None and Image.is_match(l):  
                 self.end_para()
-                img = Image.from_line(l, docname=self.name, ctx=self.ctx)
+                img = Image.from_line(l, docname=page.docrel, ctx=self.ctx )
                 self.page.add(img) 
                 l['kls'] = 'Image' 
             elif self.cur_literal is None and HorizontalRule.is_match(l):
@@ -288,7 +307,7 @@ class TracWiki2RST(object):
                 self.page.add(self.cur_table)
                 self.cur_table = None 
                 self.add_line(l)   # avoid chomping the blank line following tables
-                l['kls'] = 'LineAfterTable' 
+                l['kls'] = 'LineAfterTable'
             else:
                 if self.cur_literal is not None:
                     l['kls'] = 'Literal.Ctd' 
@@ -303,7 +322,7 @@ class TracWiki2RST(object):
                             msg = "%s.txt:%d postliteral indent %s > %s line [%s] " 
                             log.debug(msg % ( self.name, l['idx'], l['indent'], self.last_literal.in_, l['line'] ))
                             l['offset'] = self.last_literal.in_ - l['indent']
-                            ls._sli = slice( max(0, l['idx']-10), min( l['idx']+10, len(ls) ), 1 )
+                            #ls._sli = slice( max(0, l['idx']-10), min( l['idx']+10, len(ls) ), 1 )
                             #print ls
                         pass
                         self.last_literal = None

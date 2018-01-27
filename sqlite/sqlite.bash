@@ -8,6 +8,9 @@ sqlite-usage(){ cat << EOU
 SQLite for Trac
 =================
 
+See also sqlite3- for general usage of sqlite
+
+
 These functions and the precursors: sqlitebuild- and pysqlite-
 were prepared with Trac usage in mind. 
 

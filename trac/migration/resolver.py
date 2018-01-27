@@ -11,8 +11,9 @@ class Resolver(dict):
     def __init__(self, *args, **kwa):
         dict.__init__(self, *args, **kwa)
 
-    def getpath(self, name, ext=".rst"):
-        path = os.path.join(self["sphinxdir"], "%s%s" % (name,ext) )
+    def getpath(self, name, ext=".rst", typ="wiki"):
+        assert typ in ["wiki", "ticket"], (typ)
+        path = os.path.join(self["sphinxdir"], typ, "%s%s" % (name,ext) )
         dir_ = os.path.dirname(path)
         if not os.path.isdir(dir_):
             os.makedirs(dir_)

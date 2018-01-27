@@ -77,7 +77,12 @@ class SphinxExtLinks(dict):
         return typ, arg, xlnk
 
     @classmethod
-    def trac2sphinx_link(cls, tlnk, typ_default="tracwiki"):
+    def trac2sphinx_link(cls, tlnk, reldoc=None, typ_default="tracwiki"):
+        """
+        :param tlnk: trac link of form typ:arg
+        :param reldoc:  when defined is typically used to make the link absolute to the trac instance
+        :param typ_default:
+        """
         if tlnk.find("://") != -1:
             return tlnk   # already absolute  
         pass
@@ -88,6 +93,9 @@ class SphinxExtLinks(dict):
         else:
             typ = typ_default
             arg = tlnk
+        pass
+        if reldoc is not None:
+           arg = "%s/%s" % (reldoc, arg )
         pass
         xlnk = ":%s:`%s`" % (typ, arg) 
         return xlnk

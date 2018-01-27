@@ -279,8 +279,8 @@ def trac_ticket_dump( server, outd="."):
 
 def main():
    logging.basicConfig(level=logging.INFO)
-   from env.web.cnf import cnf_ 
-   cnf = cnf_(__doc__)   # argument parsed in cnf_ 
+   from env.web.cnf import cnf_
+   cnf = cnf_(__doc__, cnfpath="~/.workflow.cnf")   # argument parsed in cnf_ 
 
    log.info("tracwikidump.py %s " % cnf )
 

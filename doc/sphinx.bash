@@ -17,6 +17,35 @@ TODO
 * update to latest Sphinx, using github fork 
 
 
+How to structure a large set of Sphinx docs ?
+-----------------------------------------------
+
+Python2
+~~~~~~~~
+
+* https://docs.python.org/2/contents.html
+* https://docs.python.org/2/_sources/contents.txt
+
+
+Python3
+~~~~~~~~
+
+* https://docs.python.org/3/contents.html
+* https://docs.python.org/3/_sources/contents.txt
+
+
+Salishsea
+~~~~~~~~~~~~
+
+Example:
+
+* http://salishsea-meopar-docs.readthedocs.io/en/latest/code-notes/salishsea-nemo/index.html
+
+
+
+
+
+
 extlinks
 -----------
 
@@ -756,3 +785,39 @@ sphinx-build-speed(){
 #sphinx-build(){
 #   /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
 #}
+
+
+sphinx-salishsea-note(){ cat << EON
+
+This is an example of a large set of Sphinx docs 
+structured and presented in a well thought out manner.
+
+* https://salishsea-meopar-docs.readthedocs.io/en/latest/
+
+* https://github.com/rtfd/sphinx_rtd_theme
+
+
+EON
+}
+
+sphinx-salishsea-url(){ echo https://bitbucket.org/salishsea/docs ; }
+sphinx-salishsea-dir(){ echo $LOCAL_BASE/env/doc/salishsea-docs ; }
+sphinx-salishsea-cd(){  cd $(sphinx-salishsea-dir) ; }
+
+sphinx-salishsea-get()
+{
+    local iwd=$PWD
+    local dir=$(sphinx-salishsea-dir)
+    local fold=$(dirname $dir)
+
+    local url=$(sphinx-salishsea-url)
+    local nam=$(basename $dir)
+
+    [ ! -d $fold ] && mkdir -p $fold
+    cd $fold
+    [ ! -d $nam ] && hg clone $url $nam
+
+    cd $iwd
+}
+
+

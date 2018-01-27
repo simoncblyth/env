@@ -56,7 +56,7 @@ class TracWikiPage(object):
         history_table = smry_table if pick_smry else full_table
 
         if pick_smry:
-            log.info(" %s : pick smry table :  full_table:%s smry_table:%s history_table:%s " % (name, len(full_table), len(smry_table), len(history_table) ))
+            log.debug(" %s : pick smry table :  full_table:%s smry_table:%s history_table:%s " % (name, len(full_table), len(smry_table), len(history_table) ))
         pass
 
         self.history_table = history_table

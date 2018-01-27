@@ -44,7 +44,7 @@ class Cnf(dict):
   
 
 
-def cnf_(doc):
+def cnf_(doc, **kwa):
     """
     Config from `--cnfpath` is potentially overridden by commandline settings
 
@@ -52,12 +52,20 @@ def cnf_(doc):
     :return: `Cnf` instance holding config from file and commandline
 
     """ 
+
+    dflt = {}
+    dflt["cnfpath"] = kwa.get("cnfpath", "~/.env.cnf" )
+    dflt["level"] = kwa.get("level", "INFO" )
+    dflt["npull"] = kwa.get("npull", 10 )
+    dflt["outd"] = kwa.get("outd", None )
+    dflt["site"] = kwa.get("site", "shiftcheck" )
+
     parser = OptionParser(doc)
-    parser.add_option("-c", "--cnfpath", help="file from which to load config setting.", default="~/.env.cnf" )
-    parser.add_option("-l", "--level", help="loglevel", default="INFO" )
-    parser.add_option("-n", "--npull", type=int, help="restrict retreival to first n links", default=10 )
-    parser.add_option("-o", "--outd", default=None, help="directory in which to output retreived files, the default is based on configured base and the target url")
-    parser.add_option("-s", "--site", type=str, help="default site if no argument supplied", default="shiftcheck" )
+    parser.add_option("-c", "--cnfpath", help="file from which to load config setting.", default=dflt["cnfpath"] )
+    parser.add_option("-l", "--level", help="loglevel", default=dflt["level"] )
+    parser.add_option("-n", "--npull", type=int, help="restrict retreival to first n links", default=dflt["npull"] )
+    parser.add_option("-o", "--outd", default=dflt["outd"], help="directory in which to output retreived files, the default is based on configured base and the target url")
+    parser.add_option("-s", "--site", type=str, help="default site if no argument supplied", default=dflt["site"] )
     parser.add_option("-k", "--key",   default=None, help="output to stdout just the value of the key"  )
     parser.add_option("--only", help="string with comma delimited list of item names restricting operations", default="" )
 

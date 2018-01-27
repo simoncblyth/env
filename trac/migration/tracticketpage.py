@@ -14,6 +14,32 @@ tracticketpage.py
 ``ticket_change`` table has entries for every field that is changed, 
 so it has lots of duplicated dates from each field changed by web edits. 
 
+
+Does a description change cause an update in ticket.description field ?
+
+::
+
+    sqlite> select ticket from ticket_change where field='description' ;
+    ticket    
+    ----------
+    5         
+    9         
+    10        
+    13        
+    17        
+    27        
+    29        
+    34        
+    48        
+    56        
+    56        
+    59        
+    60        
+    sqlite> 
+
+
+
+
 Best to express this with a group by time ? 
 
 ::
@@ -69,6 +95,8 @@ from env.doc.tabrst import Table
 log = logging.getLogger(__name__)
 
 
+fix_line_ending_ = lambda _:_.replace('\r\n','\n')
+
 
 ftime_ = lambda _:datetime.datetime.fromtimestamp(_).strftime('%Y-%m-%dT%H:%M:%S' )
 
@@ -86,8 +114,6 @@ class TracTicketPage(object):
         recs = db("select keywords from ticket where id=%(id_)s ;" % locals() )
         assert len(recs) == 1
         tags = recs[0]["keywords"].split()
-
-       
 
 
         tkt, tktTab = self.make_ticket_table(db, id_)
@@ -126,7 +152,7 @@ class TracTicketPage(object):
         return unicode(self).encode('utf-8')
  
     title = property(lambda self:"Ticket %(id)s : %(summary)s " % self.tkt )
-    description = property(lambda self:self.tkt["description"].replace('\r\n','\n') )
+    description = property(lambda self:fix_line_ending_(self.tkt["description"]))
 
 
     def make_ticket_table(self, db, id_):
@@ -195,8 +221,8 @@ class FieldChange(dict):
     def __init__(self, *args, **kwa):
         dict.__init__(self, *args, **kwa)
     def __unicode__(self):
-        if self["field"] == "comment":
-             ret = self["newvalue"].replace('\r\n','\n') 
+        if self["field"] in ["comment", "description"]:
+             ret = fix_line_ending_(self["newvalue"])
         else:
              ret = " * %(field)s : %(oldvalue)s -> %(newvalue)s " % self
         pass
