@@ -5,7 +5,7 @@
     ~/e/doc/extlinks.py 
 
 """
-import re, logging
+import re, logging, os
 log = logging.getLogger(__name__)
 
 
@@ -14,9 +14,13 @@ class SphinxExtLinks(dict):
     Uses extlink mappings to resolve RST role refs
     into actual urls.
     """
-    TRAC_LINK = re.compile("^(?P<typ>\w+)\:(?P<arg>\S+)$")   
-    RST_ROLE = re.compile("^\:(?P<typ>\w+)\:\`(?P<arg>\S+)\`$")  
-    DEFAULT_TYP = "wiki" 
+    TRAC_LINK = re.compile("^(?P<typ>\w+)\:(?P<arg>\S*)$")   
+    RST_ROLE = re.compile("^\:(?P<typ>\w+)\:\`(?P<arg>\S*)\`$")  
+    #DEFAULT_TYP = "wiki" 
+    DEFAULT_TYP = "w" 
+
+    LINKREL_TYPS = ["tracdocs", "spx"]
+
 
     def __init__(self, *args, **kwa):
         if len(args) == 1 and callable(args[0]):
@@ -28,28 +32,36 @@ class SphinxExtLinks(dict):
             dict.__init__(self, *args, **kwa)
         pass
 
-    def resolve(self, txt, docname=None):
+    def resolve(self, txt, docname=None, srcdir=None):
         """
         :param txt: rst interpreted text reference, eg :wiki:`SomePage`
         :param docname: use
         :return url:
 
         Convert role reference into absolute URL using the Sphinx extlinks mappings. 
+
+        http://localhost/w/sphinxtest/links/sublinks/zh_previous_step.png
+
         """
-        typ, arg = self.identify_rst_role(txt)
+        typ, arg_ = self.identify_rst_role(txt)
         if not typ in self:
             return txt 
         pass
         tmpl, pfx = self[typ] 
 
-        if typ == "wikidocs" and arg.find("/") == -1: 
-            if docname is not None:
-                arg = "%s/%s" % (docname, arg)
-            else:
-                log.warning("page relative tracwiki link, but no docname provided")
-            pass 
+        if docname is not None and arg_.find("/") == -1:  # looks like a relative link from Sphinx document
+            srcname = os.path.basename(srcdir) if srcdir is not None else None
+            if srcname == "workflow":  
+                srcname = None
+            pass
+            docdir = os.path.dirname(docname)  # final component of docname is document name not a dir 
+            arg = "/".join(filter(None,(srcname, docdir, arg_)))
+            log.info("(%s) srcname:%s docname:%s resolved arg   %s -> %s " %  ( typ,srcname, docname,  arg_, arg ))
+        else:
+            arg = arg_
         pass
         url = tmpl % arg 
+        log.info("(%s:%s)[%s] url %s " %  (typ, arg_, [docname,"-"][docname is None], url ))
         return url 
 
     def __repr__(self):
@@ -102,18 +114,18 @@ class SphinxExtLinks(dict):
 
     tractable = property(lambda self:"\n".join(map(lambda k:" || %s:something || {{{%s}}} || {{{%s}}} ||  " % (k, self[k][0], self[k][1] ) , self)))
 
-    def __call__(self, a):
+    def __call__(self, a, docname=None, srcdir=None):
         """
         :param a: TracLink (eg wiki:SomePage) or RST role link (eg :wiki:`SomePage`)
         :return url: 
         """
         if a.find("`") != -1:
-            url = self.resolve(a)
+            url = self.resolve(a, docname=docname, srcdir=srcdir)
             log.debug("(resolve)   %50s -> %s " % ( a, url ))
         else:
             typ, arg, xlnk  = self.from_traclink(a)
             log.debug("(translate) %50s -> %s " % ( a, xlnk ))
-            url = self.resolve(xlnk)
+            url = self.resolve(xlnk, docname=docname, srcdir=srcdir)
             log.debug("(resolve)   %50s -> %s " % ( xlnk, url ))
         pass
         return url

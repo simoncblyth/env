@@ -1365,7 +1365,7 @@ swigbuild-(){      . $(env-home)/swig/swigbuild.bash && swigbuild-env $* ; }
 viruscheck-(){      . $(env-home)/admin/viruscheck.bash && viruscheck-env $* ; }
 dbxml-(){      . $(env-home)/db/dbxml.bash && dbxml-env $* ; }
 boostlog-(){      . $(env-home)/boost/boostlog.bash && boostlog-env $* ; }
-docutils-(){      . $(env-home)/python/docutils.bash && docutils-env $* ; }
+edocutils-(){      . $(env-home)/python/edocutils.bash && edocutils-env $* ; }
 fabric-(){      . $(env-home)/tools/fabric.bash && fabric-env $* ; }
 cuisine-(){      . $(env-home)/tools/cuisine.bash && cuisine-env $* ; }
 daemonwatch-(){      . $(env-home)/tools/daemonwatch.bash && daemonwatch-env $* ; }
@@ -1542,7 +1542,7 @@ bitbucket-(){      . $(env-home)/scm/bitbucket/bitbucket.bash && bitbucket-env $
 bitbucketstatic-(){      . $(env-home)/simoncblyth.bitbucket.org/bitbucketstatic.bash && bitbucketstatic-env $* ; }
 b2c-(){      . $(env-home)/b2c/b2c.bash && b2c-env $* ; }
 rst2html-(){      . $(env-home)/doc/rst2html/rst2html.bash && rst2html-env $* ; }
-docutils-(){      . $(env-home)/doc/docutils/docutils.bash && docutils-env $* ; }
+docutils-(){      . $(env-home)/doc/docutils_/docutils.bash && docutils-env $* ; }
 postfix-(){      . $(env-home)/mail/postfix.bash && postfix-env $* ; }
 de-(){      . $(env-home)/nuwa/de.bash && de-env $* ; }
 
@@ -1724,7 +1724,7 @@ rift-(){          . $(env-home)/vr/rift/rift.bash && rift-env $* ; }
 
 libgit2-(){       . $(env-home)/git/libgit2.bash && libgit2-env $* ; }
 msys2-(){         . $(env-home)/windows/msys2.bash && msys2-env $* ; }
-rst2docx-(){      . $(env-home)/doc/docutils/rst2docx.bash && rst2docx-env $* ; }
+rst2docx-(){      . $(env-home)/doc/docutils_/rst2docx.bash && rst2docx-env $* ; }
 
 # tools
 
@@ -1929,3 +1929,4 @@ dotfiler-(){      . $(env-home)/tools/dotfiler.bash && dotfiler-env $* ; }
 
 
 
+sphinxtest-(){      . $(env-home)/doc/sphinxtest.bash && sphinxtest-env $* ; }

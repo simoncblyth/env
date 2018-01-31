@@ -216,11 +216,22 @@ class Sweeper(list):
         
 
 
-def parse_args_(doc):
+def parse_args_(doc, **kwa):
     from optparse import OptionParser
     op = OptionParser(usage=doc)
-    op.add_option("-c", "--cnfpath", default=os.environ['SVNSWEEP_CNFPATH'], help="Path to config file, default %default " )
-    op.add_option("-s", "--cnfsect", default=os.environ['SVNSWEEP_CNFSECT'], help="Comma delimeted list of config file sections to read, default %default " )
+
+    d={}
+    d["cnfpath"] = kwa.get("cnfpath", None)
+    d["cnfsect"] = kwa.get("cnfsect", None)
+    if d["cnfpath"] is None:
+        d["cnfpath"] = os.environ['SVNSWEEP_CNFPATH']
+    pass
+    if d["cnfsect"] is None:
+        d["cnfsect"] = os.environ['SVNSWEEP_CNFSECT']
+    pass
+ 
+    op.add_option("-c", "--cnfpath", default=d["cnfpath"], help="Path to config file, default %default " )
+    op.add_option("-s", "--cnfsect", default=d["cnfsect"], help="Comma delimeted list of config file sections to read, default %default " )
     op.add_option("-g", "--logpath", default=None )
     op.add_option(      "--PROCEED", action="store_true", default=False, help="Proceed to run the commands, default %default " )
     op.add_option("-t", "--logformat", default="%(asctime)s %(name)s:%(lineno)4d %(levelname)-8s %(message)s" )
@@ -247,8 +258,8 @@ def read_cnf_( path ):
     return cnf
 
 
-def main():
-    opts, args = parse_args_(__doc__)
+def main(**kwa):
+    opts, args = parse_args_(__doc__, **kwa)
 
     log.warning("PIPING BELOW STDOUT TO SH DOES THE COPIES IN 1st PASS AND DELETES IN 2nd PASS, NO STDOUT WHEN COMPLETE  ")
 

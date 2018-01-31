@@ -160,9 +160,12 @@ class Parallelize(list):
     def __call__(self):
         n = len(self.cmds)
         for i, cmd in enumerate(self.cmds):
-            log.info("[%0.3d/%0.3d] %s " % ( i+1, n, cmd))
+            if i % 100 == 0:
+                log.info("[%0.3d/%0.3d] %s " % ( i+1, n, cmd))
+            pass
             for line in os.popen(cmd).readlines():
                 log.info("    %s " % line.strip())
+            pass
 
 
 

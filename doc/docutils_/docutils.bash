@@ -8,6 +8,10 @@ docutils-usage(){ cat << EOU
 DOCUTILS
 ==========
 
+ref
+----
+
+see also edocutils-
 
 rst2odt.py
 -----------

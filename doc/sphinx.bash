@@ -731,13 +731,14 @@ sphinx-cd(){
 }
 
 
-sphinx-sdir(){ 
+sphinx-sdir-old(){ 
   case $NODE_TAG in 
     G) echo /opt/local/lib/python2.5/site-packages/sphinx  ;;
     D) echo /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx ;; 
   esac
 }
 
+sphinx-sdir(){ python -c "import os, sphinx ; print os.path.dirname(sphinx.__file__) " ; }
 sphinx-scd(){ cd $(sphinx-sdir) ; }
 
 sphinx-find()
