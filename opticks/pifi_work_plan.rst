@@ -123,3 +123,7 @@ tool, for example to simplify the creation of event display animations.
 These animations can be used to convey the principals of JUNO detector operation 
 in an engaging manner that is accessible to general audiences. 
 
+Developing a Geant4 advanced example demonstrating Opticks with JUNO geometry
+for potential inclusion with the Geant4 distribution would provide an excellent
+way to introduce the benefits of Opticks to a wide audience.
+
