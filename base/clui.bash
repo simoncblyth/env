@@ -86,7 +86,7 @@ clui-alias(){
    alias stu="svn st -u"
    alias up="svn up"
    alias sci="svn --username $USER ci "
-   alias h='history'
+   alias hh='history'
    alias bh='cat ~/.bash_history'
    alias ini='. ~/.bash_profile'
    alias t='type'

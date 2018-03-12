@@ -8,6 +8,21 @@ rst-usage(){ cat << EOU
 RST references
 =================
 
+Online RST renderer
+-------------------
+
+* http://www.tele3.cz/jbar/rest/rest.html
+
+Links in RST
+---------------
+ 
+hello_ cruel_
+
+.. _cruel: world
+.. _hello: there
+
+
+
 Compare raw and github rendered rst-cheatsheet 
 ------------------------------------------------
 

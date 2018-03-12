@@ -53,14 +53,23 @@ class TracAttachment(object):
         return sql 
 
     def _get_tab(self):
+
+
+        absolute = False
         tab = Table(hdr=True)
         cols = ["doclnk", "size", "ftime", "description" ]
         tab.append(cols)
         for rec in self.recs:
             if self.typ is not None and rec["type"] != self.typ: continue 
             if self.id_ is not None and str(rec["id"]) != str(self.id_): continue 
-            docref = "%(type)s/%(id)s/%(filename)s" % rec 
-            doclnk = ":tracdocs:`%s`" % docref
+
+            if absolute:
+                docref = "%(type)s/%(id)s/%(filename)s" % rec 
+                doclnk = ":tracdocs:`%s`" % docref
+            else:
+                docref = "%(id)s/%(filename)s" % rec   # eg relative link from doc within the wiki or ticket Sphinx folders
+                doclnk = ":wrel:`%s`" % docref
+            pass 
             rec["ftime"] = ftime_(rec["time"])
             tab.append([doclnk] + [unicode(rec[k]) for k in cols[1:]])
         pass

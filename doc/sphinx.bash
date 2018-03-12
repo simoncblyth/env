@@ -42,6 +42,58 @@ Example:
 * http://salishsea-meopar-docs.readthedocs.io/en/latest/code-notes/salishsea-nemo/index.html
 
 
+Coding Guide
+--------------
+
+* http://www.sphinx-doc.org/en/stable/devguide.html#coding-guide
+
+From the forked git clone::
+
+   sphinx-cd
+
+   git checkout master 
+
+
+Create virtual environment python site::
+
+    delta:~ blyth$ virtualenv /usr/local/env/doc/sphinx.env
+    New python executable in /usr/local/env/doc/sphinx.env/bin/python
+    Installing Setuptools..............................................................................................................................................................................................................................done.
+    Installing Pip.....................................................................................................................................................................................................................................................................................................................................done.
+    delta:~ blyth$ 
+
+
+Set the envvars for the site::
+
+    sphinx-cd   # check there the setup.py 
+
+    . /usr/local/env/doc/sphinx.env/bin/activate  # get into environment
+
+    pip install --editable .
+
+    ## fails : presumably virtualenv/pip/setuptools installed from macports 
+    ##         long ago is outdated 
+
+
+::
+
+    delta:sphinx blyth$ sphinx-cd
+    WARNING THIS THIS NOT THE CURRENTLY USED SPHINX : use sphinx-scd instead for the macports sphinx
+    delta:sphinx blyth$ 
+    delta:sphinx blyth$ 
+    delta:sphinx blyth$ . /usr/local/env/doc/sphinx.env/bin/activate 
+    (sphinx.env)delta:sphinx blyth$ pip install --editable .
+    Obtaining file:///usr/local/env/doc/sphinx
+      Running setup.py egg_info for package from file:///usr/local/env/doc/sphinx
+        error in Sphinx setup command: Invalid environment marker: python_version<"3.5"
+        Complete output from command python setup.py egg_info:
+        error in Sphinx setup command: Invalid environment marker: python_version<"3.5"
+
+    ----------------------------------------
+    Cleaning up...
+    Command python setup.py egg_info failed with error code 1 in /usr/local/env/doc/sphinx
+    Storing complete log in /Users/blyth/.pip/pip.log
+    (sphinx.env)delta:sphinx blyth$ 
 
 
 
@@ -460,116 +512,120 @@ Try test edit '''utf8x --> utf8''' in {{{/home/blyth/rst/lib/python2.7/site-pack
    * it works for simple math 
 
 
+tryout sphinx 
+===============
+
+1.from directory with .rst
+   
+  :: 
+
+     sphinx-quickstart    
+         answered defaults for almost all questions asked
+         creates conf.py + Makefile ... 
+
+2. add basenames of the rst to the toctree in the index.rst 
+   created by quickstart  (same indentation and spacing is required) 
+
+   rst sources::
+
+     .. toctree::
+           :maxdepth: 2
+
+           database_interface 
+           database_maintanence
+
+3. html::
+
+         make html
+         open _build/html/index.html  
+         file:///tmp/env/converter-test/database/_build/html/database_interface.html
+
+4. pdf:: 
+    
+         make latexpdf
+
+5. publish with nginx:: 
+
+        cd `nginx-htdocs`
+        sudo ln -s /tmp/out/_build/html sphinxdemo 
+        nginx-edit
+        nginx-stop  ## sv will auto re-start with new comnfig
+
+        http://cms01.phys.ntu.edu.tw/sphinxdemo/database_interface.html#concepts
 
 
-
-  == tryout sphinx ==
-
-      1) from directory with .rst
-             sphinx-quickstart    
-                   answered defaults for almost all questions asked
-                   creates conf.py + Makefile ... 
-
-      2) add basenames of the rst to the toctree in the index.rst 
-         created by quickstart  (same indentation and spacing is required) 
-
-         .. toctree::
-               :maxdepth: 2
-
-               database_interface 
-               database_maintanence
-
-       3) make html
-             open _build/html/index.html  
-             file:///tmp/env/converter-test/database/_build/html/database_interface.html
-
-       4) make latexpdf
- 
-       5) publish with nginx 
-
-            cd `nginx-htdocs`
-            sudo ln -s /tmp/out/_build/html sphinxdemo 
-            nginx-edit
-            nginx-stop  ## sv will auto re-start with new comnfig
-
-            http://cms01.phys.ntu.edu.tw/sphinxdemo/database_interface.html#concepts
+OSX install with macports py26
+=================================
 
 
-  == OSX install with macports py26 ==
-
-     Install plucked Jinja2 and Pygments 
+Install plucked Jinja2 and Pygments::
 
      Installing sphinx-build script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
      Installing sphinx-quickstart script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
      Installing sphinx-autogen script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
-  
-     Need to sphinx-path on OSX to put these in PATH 
 
-  == about reStructured text  ==
-
-    Online rst renderer
-       http://www.tele3.cz/jbar/rest/rest.html
-
-   Links in reStructured text 
-
-  hello_ cruel_
-
-.. _cruel: world
-.. _hello: there
+Need to sphinx-path on OSX to put these in PATH 
 
 
+ C1 : pip  : mathjax issue
+=============================
+
+PROBABLY NEEDS A NEWER PYTHON ???
+
+::
+
+     [blyth@cms01 docs]$ make
+     sphinx-build -b dirhtml -d _build/doctrees   . _build/dirhtml
+     Making output directory...
+     Running Sphinx v1.0.5
+
+     Extension error:
+     Could not import extension sphinx.ext.mathjax (exception: No module named mathjax)
+     make: *** [dirhtml] Error 1
+
+::
 
 
- == C1 : pip ==
+     [blyth@cms01 docs]$ which sphinx-build
+     /data/env/system/python/Python-2.5.1/bin/sphinx-build
+     [blyth@cms01 docs]$ ll /data/env/system/python/Python-2.5.1/bin/sphinx-build
+     -rwxr-xr-x  1 blyth blyth 300 Dec  2  2010 /data/env/system/python/Python-2.5.1/bin/sphinx-build
+     [blyth@cms01 docs]$ 
 
- [blyth@cms01 docs]$ make
- sphinx-build -b dirhtml -d _build/doctrees   . _build/dirhtml
- Making output directory...
- Running Sphinx v1.0.5
+     [blyth@cms01 docs]$ pip install --upgrade sphinx
 
- Extension error:
- Could not import extension sphinx.ext.mathjax (exception: No module named mathjax)
- make: *** [dirhtml] Error 1
-
- [blyth@cms01 docs]$ which sphinx-build
- /data/env/system/python/Python-2.5.1/bin/sphinx-build
- [blyth@cms01 docs]$ ll /data/env/system/python/Python-2.5.1/bin/sphinx-build
- -rwxr-xr-x  1 blyth blyth 300 Dec  2  2010 /data/env/system/python/Python-2.5.1/bin/sphinx-build
- [blyth@cms01 docs]$ 
-
- [blyth@cms01 docs]$ pip install --upgrade sphinx
-
-  Running setup.py install for Pygments
-      Sorry: UnicodeDecodeError: ('rawunicodeescape', '[\\U00010000-\\U0010FFFF]', 12, -1075636440, '\\Uxxxxxxxx out of range')
-          Installing pygmentize script to /data/env/system/python/Python-2.5.1/bin
-	    Found existing installation: Sphinx 1.0.5
-	        Uninstalling Sphinx:
+      Running setup.py install for Pygments
+          Sorry: UnicodeDecodeError: ('rawunicodeescape', '[\\U00010000-\\U0010FFFF]', 12, -1075636440, '\\Uxxxxxxxx out of range')
+              Installing pygmentize script to /data/env/system/python/Python-2.5.1/bin
+            Found existing installation: Sphinx 1.0.5
+                Uninstalling Sphinx:
 
 
-		[blyth@cms01 docs]$ make
-		sphinx-build -b dirhtml -d _build/doctrees   . _build/dirhtml
-		Running Sphinx v1.1.3
+            [blyth@cms01 docs]$ make
+            sphinx-build -b dirhtml -d _build/doctrees   . _build/dirhtml
+            Running Sphinx v1.1.3
 
-		Exception occurred:
-		  File "/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/pygments/lexers/other.py", line 18, in <module>
-		      from pygments.lexers.web import HtmlLexer
-		      UnicodeDecodeError: 'rawunicodeescape' codec can't decode bytes in position 12-0: \Uxxxxxxxx out of range
-		      The full traceback has been saved in /tmp/sphinx-err-vfrOOA.log, if you want to report the issue to the developers.
-		      Please also report this if it was a user error, so that a better error message can be provided next time.
-		      Either send bugs to the mailing list at <http://groups.google.com/group/sphinx-dev/>,
-		      or report them in the tracker at <http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!
-		      make: *** [dirhtml] Error 1
-		      [blyth@cms01 docs]$ 
-
-
-       PROBABLY NEEDS A NEWER PYTHON ???
+            Exception occurred:
+              File "/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/pygments/lexers/other.py", line 18, in <module>
+                  from pygments.lexers.web import HtmlLexer
+                  UnicodeDecodeError: 'rawunicodeescape' codec can't decode bytes in position 12-0: \Uxxxxxxxx out of range
+                  The full traceback has been saved in /tmp/sphinx-err-vfrOOA.log, if you want to report the issue to the developers.
+                  Please also report this if it was a user error, so that a better error message can be provided next time.
+                  Either send bugs to the mailing list at <http://groups.google.com/group/sphinx-dev/>,
+                  or report them in the tracker at <http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!
+                  make: *** [dirhtml] Error 1
+                  [blyth@cms01 docs]$ 
 
 
 
-  == C2 : pip ==
 
-   Hmm better not to do much on repository holding machine anyhow.
 
+C2 : pip : unicode issue with old python
+===========================================
+
+Hmm better not to do much on repository holding machine anyhow.
+
+::
 
     [blyth@cms02 ~]$ pip install sphinx
     Downloading/unpacking sphinx
@@ -598,31 +654,35 @@ Try test edit '''utf8x --> utf8''' in {{{/home/blyth/rst/lib/python2.7/site-pack
 							Successfully installed docutils Jinja2 Pygments sphinx
 
 
-[blyth@cms02 docs]$ make
-sphinx-build -b dirhtml -d _build/doctrees   . _build/dirhtml
-Making output directory...
-Running Sphinx v1.1.3
+::
 
-Exception occurred:
-File "/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/pygments/lexers/other.py", line 18, in <module>
-from pygments.lexers.web import HtmlLexer
-UnicodeDecodeError: 'rawunicodeescape' codec can't decode bytes in position 12-0: \Uxxxxxxxx out of range
-The full traceback has been saved in /tmp/sphinx-err-pp6il1.log, if you want to report the issue to the developers.
-Please also report this if it was a user error, so that a better error message can be provided next time.
-Either send bugs to the mailing list at <http://groups.google.com/group/sphinx-dev/>,
-or report them in the tracker at <http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!
-make: *** [dirhtml] Error 1
-[blyth@cms02 docs]$ 
+    [blyth@cms02 docs]$ make
+    sphinx-build -b dirhtml -d _build/doctrees   . _build/dirhtml
+    Making output directory...
+    Running Sphinx v1.1.3
+
+    Exception occurred:
+    File "/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/pygments/lexers/other.py", line 18, in <module>
+    from pygments.lexers.web import HtmlLexer
+    UnicodeDecodeError: 'rawunicodeescape' codec can't decode bytes in position 12-0: \Uxxxxxxxx out of range
+    The full traceback has been saved in /tmp/sphinx-err-pp6il1.log, if you want to report the issue to the developers.
+    Please also report this if it was a user error, so that a better error message can be provided next time.
+    Either send bugs to the mailing list at <http://groups.google.com/group/sphinx-dev/>,
+    or report them in the tracker at <http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!
+    make: *** [dirhtml] Error 1
+    [blyth@cms02 docs]$ 
 
 
+G : macports 
+--------------
 
+To make the Python 2.5 version of Sphinx the one that is run
+when you execute the commands without a version suffix, e.g. 'sphinx-build',
+run::
 
-  == G : macports ==
+	port select --set sphinx py25-sphinx
 
-    To make the Python 2.5 version of Sphinx the one that is run
-    when you execute the commands without a version suffix, e.g. 'sphinx-build',
-        run:
-	        port select --set sphinx py25-sphinx
+Find entry point "binaries"::
 
      g4pb-2:docs blyth$ port contents py25-sphinx | grep bin 
 	/opt/local/bin/sphinx-apidoc-2.5
@@ -630,8 +690,7 @@ make: *** [dirhtml] Error 1
 	/opt/local/bin/sphinx-build-2.5
 	/opt/local/bin/sphinx-quickstart-2.5
 
-
-   Problem with ``_md5``::
+Problem with ``_md5``::
 
 	g4pb-2:docs blyth$ sphinx-quickstart-2.5 
 	Traceback (most recent call last):
@@ -650,7 +709,7 @@ make: *** [dirhtml] Error 1
 	import _md5
 	ImportError: No module named _md5
 
-   Resolved by installing the **py25-haslib** stub::
+Resolved by installing the **py25-haslib** stub::
 
 	   simon:~ blyth$ sudo port install py25-hashlib
 	   --->  Computing dependencies for py25-hashlib
@@ -659,7 +718,6 @@ make: *** [dirhtml] Error 1
 	   ...
            --->  Activating py25-hashlib @2.5.4_1
 	   --->  Cleaning py25-hashlib
-
 
 
 G macports py26-sphinx
@@ -703,19 +761,7 @@ Had to force install it::
     --->  Activating py26-docutils @0.11_0
     Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/rst2xetex.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/rst2xetex.py.mp_1383719108.
     Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/languages/lt.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/languages/lt.py.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/languages/lt.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/languages/lt.pyc.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/parsers/rst/languages/lt.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/parsers/rst/languages/lt.py.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/parsers/rst/languages/lt.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/parsers/rst/languages/lt.pyc.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/__init__.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/__init__.py.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/__init__.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/__init__.pyc.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/code_analyzer.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/code_analyzer.py.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/code_analyzer.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/code_analyzer.pyc.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/punctuation_chars.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/punctuation_chars.py.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/punctuation_chars.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/punctuation_chars.pyc.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/roman.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/roman.py.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/roman.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/roman.pyc.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/latex2e/xelatex.tex already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/latex2e/xelatex.tex.mp_1383719108.
-    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/xetex/__init__.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/xetex/__init__.py.mp_1383719108.
+    ...
     Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/xetex/__init__.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/xetex/__init__.pyc.mp_1383719108.
     --->  Cleaning py26-docutils
 
@@ -739,7 +785,7 @@ sphinx-sdir-old(){
 }
 
 sphinx-sdir(){ python -c "import os, sphinx ; print os.path.dirname(sphinx.__file__) " ; }
-sphinx-scd(){ cd $(sphinx-sdir) ; }
+sphinx-scd(){ cd ; cd $(sphinx-sdir) ; }   ## cd home to avoid getting confused by dirs called sphinx
 
 sphinx-find()
 {

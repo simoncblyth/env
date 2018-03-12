@@ -1,12 +1,14 @@
 svn-source(){ echo ${BASH_SOURCE:-$ENV_HOME/svn/svn.bash} ; }
 svn-vi(){        vim $(svn-source) ; }
 svn-sourcelink(){ env-sourcelink $(svn-source) ; }
-svn-usage(){
-  
-   cat << EOU
+svn-usage(){  cat << EOU
+$FUNCNAME
+===============
 
-    For global settings that are above the details of building and
-    configuring 
+For global settings that are above the details of building and
+configuring 
+
+::
 
      svn-setupdir  : $(svn-setupdir)
      svn-authzpath : $(svn-authzpath)
@@ -118,6 +120,21 @@ PRE-COMMIT HOOK IDEAS
 Disallowing tabs in python files
 
 #. http://wordaligned.org/articles/a-subversion-pre-commit-hook
+
+Ignoring Directories
+----------------------
+
+::
+
+    delta:workflow blyth$ svn propedit svn:ignore .
+    Set new value for property 'svn:ignore' on '.'
+
+    ## added the translated wiki, ticket directories to the ignores list 
+    ## add not yet ready to add to repo, but need to test integrated sphinx 
+    ## builds of full docs
+
+
+
 
                          
 EOU

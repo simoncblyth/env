@@ -274,7 +274,10 @@ class TracWiki2RST(object):
                 self.last_literal = None   # sectioning from Head avoids problem of postliteral indent greediness
             elif self.cur_literal is None and Image.is_match(l):  
                 self.end_para()
-                img = Image.from_line(l, docname=page.docrel, ctx=self.ctx )
+                img = Image.from_line(l, docname=page.name, ctx=self.ctx )  
+                # switch from page.docrel with typ to page.name without typ as 
+                # the output wiki or ticket folder implicitly holds typ, and as
+                # aiming for relative links as far as possible 
                 self.page.add(img) 
                 l['kls'] = 'Image' 
             elif self.cur_literal is None and HorizontalRule.is_match(l):

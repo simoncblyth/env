@@ -48,11 +48,11 @@ Clone the Subversion repository using git-svn
 * http://stackoverflow.com/questions/31806817/how-to-choose-prefix-for-git-svn-clone
 * https://bitbucket.org/atlassian/svn-migration-scripts/pull-requests/36
 
-Saved terminal output to 
 
-~/svn2git/svn2git-workflow.log
-~/svn2git/svn2git-workflow-with-prefix.log
+Timings for workflow : 5 min with ~1200 commits 
+--------------------------------------------------
 
+Considerable variability in timing, as depends on network.
 
 Repositioning inside svn2git
 ------------------------------
@@ -68,16 +68,49 @@ Repositioning inside svn2git
     -rw-r--r--    1 blyth  staff      48 May 11 14:03 authors-transform.txt
 
 
+Partial svn2git Conversion ?
+-------------------------------
+
+* https://daneomatic.com/2010/11/01/svn-to-multiple-git-repos/
+
+Seems can easily convert a single svn folder into a git repo,
+but not a selection of folders, unlike svn to mercurial.  
+But can use gitfilter- to subsequently partition the fully 
+converted git repo instead.
+
+
+
 EOU
 }
 svn2git-repo(){ echo workflow ; }
 svn2git-sdir(){ echo $HOME/$(svn2git-repo) ; }
-svn2git-base(){ echo $(local-base)/env/adm/svn2git ; } # formerly ~/svn2git/workflow
-svn2git-gdir(){ echo $(svn2git-base)/$(svn2git-repo) ; } # formerly ~/svn2git/workflow
+svn2git-base(){ echo $(local-base)/env/adm/svn2git ; } 
+svn2git-gdir(){ echo $(svn2git-base)/$(svn2git-repo) ; } 
 svn2git-auth(){ echo $(svn2git-repo)-authors.txt ; }
 svn2git-authpath(){ echo $(svn2git-base)/$(svn2git-auth) ; }
 
 svn2git-svnurl(){ echo http://g4pb.local/repos/workflow ; }
+
+svn2git-info(){ cat << EOI
+$FUNCNAME
+================
+
+svn2git-base     : $(svn2git-base)
+svn2git-sdir     : $(svn2git-sdir)
+svn2git-gdir     : $(svn2git-gdir)
+svn2git-authpath : $(svn2git-authpath)
+svn2git-svnurl   : $(svn2git-svnurl)
+
+Conversion of SVN repo, accessed via url into a full corresponding git repo 
+with all the history revisions.
+
+The git repo is written revision by revision into dir 
+beneath svn2git-base : $(svn2git-base)
+
+svn2git-clone-   : $(svn2git-clone-)
+
+EOI
+}
 
 svn2git-scd(){   
     local sdir=$(svn2git-sdir)
@@ -85,9 +118,9 @@ svn2git-scd(){
     cd $sdir
 }
 svn2git-cd(){  
-    local gdir=$(svn2git-gdir)
-    [ ! -d $gdir ] && mkdir -p $gdir
-    cd $gdir
+    local base=$(svn2git-base)
+    [ ! -d $base ] && mkdir -p $base
+    cd $base
 }
 
 svn2git-authors-()
@@ -106,8 +139,46 @@ svn2git-authors()
 }
 svn2git-authors-vi(){ vi $(svn2git-authpath)  ;}
 
+svn2git-clone-(){ cat << EOC
+git svn clone $(svn2git-svnurl) --prefix=origin/ --no-metadata -A $(svn2git-authpath) --stdlayout $(svn2git-repo) 
+EOC
+}
 svn2git-clone(){
-    cd 
-    git svn clone $(svn2git-svnurl) --prefix=origin/ --no-metadata -A $(svn2git-authpath) --stdlayout $(svn2git-gdir) 
+    local msg="=== $FUNCNAME :"
+    svn2git-cd 
+    local repo=$(svn2git-repo)
+    [ -d "$repo" ] && echo $msg PWD $PWD repo $repo already converted : use svn2git-clone-wipe to scrub it  && return 
+
+    $FUNCNAME-
+    local cmd=$($FUNCNAME-)
+    echo $cmd
+    date 
+    eval $cmd 
+    date 
+}
+
+svn2git-clone-wipe(){
+    local msg="=== $FUNCNAME :"
+    svn2git-cd 
+    local repo=$(svn2git-repo)
+    [ ! -d "$repo" ] && echo $msg PWD $PWD repo $repo : no such directory to wipe && return 
+
+    local cmd="rm -rf $repo"
+
+    local ans
+    read -p "$msg PWD $PWD : enter Y to proceed with [$cmd] : " ans
+
+    [ "$ans" != "Y" ] && echo $msg OK skip && return 
+
+    echo $msg proceed 
+    eval $cmd 
+
+}
+
+
+svn2git--()
+{   
+   svn2git-clone-wipe
+   svn2git-clone 
 }
 

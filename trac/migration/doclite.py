@@ -390,9 +390,17 @@ class Image(Lines):
         assert cls.is_match(l)
         tlnk = cls.match(line) 
 
-        xlnk = ctx.extlinks.trac2sphinx_link(tlnk, reldoc=docname, typ_default="tracdocs")
+        assert tlnk.find("http://") == -1, (tlnk, docname)
+        assert tlnk.find(":") == -1, (tlnk, docname)
 
-        log.debug("Image.from_line  translating tlnk to xlnk %s -> %s  (%s) " % (tlnk, xlnk, docname))
+        if docname is not None:
+            xlnk = "%s/%s" % (docname, tlnk)
+        else:
+            xlnk = tlnk 
+        pass
+        #xlnk = ctx.extlinks.trac2sphinx_link(tlnk, reldoc=docname, typ_default="bare-relative")
+
+        log.info("Image.from_line  translating tlnk to xlnk %s -> %s  (%s) " % (tlnk, xlnk, docname))
 
         img = cls(url=xlnk, docname=None, ctx=ctx)
         return img
@@ -410,8 +418,8 @@ class Image(Lines):
         content causing a "no content permitted" error.
         """
         comment = ["..", "   image url:%s docname:%s  " % (self.url, self.docname), "" ]
-        #dr = "image"
-        dr = "wimg"
+        dr = "image"
+        #dr = "wimg"
         return self.directive(dr, [self.url], tail=comment) 
 
     rst = property(_get_rst)

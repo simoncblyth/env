@@ -89,7 +89,7 @@ class SphinxExtLinks(dict):
         return typ, arg, xlnk
 
     @classmethod
-    def trac2sphinx_link(cls, tlnk, reldoc=None, typ_default="tracwiki"):
+    def trac2sphinx_link(cls, tlnk, reldoc=None, typ_default="wrel"):
         """
         :param tlnk: trac link of form typ:arg
         :param reldoc:  when defined is typically used to make the link absolute to the trac instance
@@ -109,8 +109,14 @@ class SphinxExtLinks(dict):
         if reldoc is not None:
            arg = "%s/%s" % (reldoc, arg )
         pass
-        xlnk = ":%s:`%s`" % (typ, arg) 
+
+        if typ_default == "bare-relative":
+            xlnk = arg
+        else:
+            xlnk = ":%s:`%s`" % (typ, arg) 
+        pass
         return xlnk
+
 
     tractable = property(lambda self:"\n".join(map(lambda k:" || %s:something || {{{%s}}} || {{{%s}}} ||  " % (k, self[k][0], self[k][1] ) , self)))
 

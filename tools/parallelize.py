@@ -178,15 +178,23 @@ def read_cnf_( path ):
     cnf.read(path)
     return cnf
 
-def parse_args_(doc):
+def parse_args_(doc, **kwa):
+
+    d = {}
+    d["cnfpath"] = "~/.workflow.cnf"
+    d["cnfsect"] = "html2wdocs"
+    d["logformat"] = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
+    d["loglevel"] = "INFO"
+    d.update(kwa)
+
     from optparse import OptionParser
     op = OptionParser(usage=doc)
-    op.add_option("-c", "--cnfpath", default="~/.workflow.cnf", help="Path to config file, default %default, that holds URLs and access keys for the API" )
-    op.add_option("-s", "--cnfsect", default="html2wdocs", help="Section of config file to read, default %default " )
+    op.add_option("-c", "--cnfpath", default=d["cnfpath"], help="Path to config file, default %default, that holds URLs and access keys for the API" )
+    op.add_option("-s", "--cnfsect", default=d["cnfsect"], help="Section of config file to read, default %default " )
     op.add_option("-g", "--logpath", default=None )
     op.add_option(      "--PROCEED", action="store_true", default=False, help="Proceed to run the commands, default %default " )
-    op.add_option("-t", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
-    op.add_option("-l", "--loglevel", default="INFO", help=" default %default " )
+    op.add_option("-t", "--logformat", default=d["logformat"] )
+    op.add_option("-l", "--loglevel", default=d["loglevel"], help=" default %default " )
     opts, args = op.parse_args()
     opts.cnf = read_cnf_( opts.cnfpath )
 
@@ -198,8 +206,8 @@ def parse_args_(doc):
 
     return opts, args
 
-def main():
-    opts, args = parse_args_(__doc__)
+def main(**kwa):
+    opts, args = parse_args_(__doc__, **kwa)
     cfg = dict(opts.cnf.items(opts.cnfsect))
     argv0 = os.path.basename(sys.argv[0])
     assert argv0 == cfg['argv0'], ( argv0, cfg, "config argv0 mismatch with script" )

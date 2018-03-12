@@ -38,7 +38,7 @@ class Trac2Sphinx(object):
     @classmethod
     def make_context(cls, doc, extlinks={}, repo="workflow"):
         """
-        The extlinks dict shold match that supplied to Sphinx in conf.py.
+        The extlinks dict should match that supplied to Sphinx in conf.py.
         """
         import argparse
         parser = argparse.ArgumentParser(doc)
