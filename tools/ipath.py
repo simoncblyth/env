@@ -54,7 +54,8 @@ class IPath(object):
         :return typ, base:  repo type and base directory  
 
         Identity repository type as svn/git/hg for path argument 
-        and provide base directory of the repo.
+        and provide base directory of the repo.   This works by recursively 
+        moving up the directory tree looking for special folders .hg .svn .git 
         """
         #log.debug("repotype %2d %s " % (up, _) )
 
@@ -80,19 +81,24 @@ class IPath(object):
         return typ, base
 
     @classmethod
-    def status_command(cls, _, typ, base=None):
+    def status_command(cls, _, typ, rbase=None):
         """
         :param _: directory path
+        :param typ: repo type
+        :param rbase: repodir expressed relative to cwd  
         :return: status command for the repository 
 
         """
         if typ == "svn":
             cmd = "svn status %s " % _
         elif typ == "git":
-            if _ == base:
-                _ = ""
-            pass
-            cmd = "git --work-tree=%(base)s --git-dir=%(base)s/.git status --porcelain %(_)s " % locals()
+            #if _ == rbase:
+            #    _ = ""
+            #pass
+            if len(rbase) == 0:  ## cwd is the repodir
+                cmd = "git status --porcelain %(_)s " % locals()
+            else:
+                cmd = "git --work-tree=%(rbase)s --git-dir=%(rbase)s/.git status --porcelain %(_)s " % locals()
             pass
         elif typ == "hg":
             cmd = "hg status %s " % _
@@ -140,30 +146,31 @@ class IPath(object):
 
     def __init__(self, path_, stat=None):
         """
-        :param path: 
+        :param path: relative or absolute, tilde or envvars are expanded
         """
         xx_ = lambda _:os.path.abspath(os.path.expandvars(os.path.expanduser(_)))
         path = xx_(path_)
-        typ, base = self.repotype(path)
+        typ, repodir = self.repotype(path)  
+        #log.info(" typ:%s repodir:%s " % (typ, repodir))
+        reponame = os.path.basename(repodir) if repodir is not None else None 
 
-        log.debug(" IPath path:%s typ:%s base:%s " % ( path, typ, base) )
+        log.debug(" IPath path_:%s path:%s typ:%s repodir:%s reponame:%s " % ( path_, path, typ, repodir, reponame) )
 
         dig = digest_(path)
         isdir = os.path.isdir(path)
 
         cwd = os.getcwd()
-        cpath = path[len(cwd)+1:]   # relative to cwd
-    
+        cpath = path[len(cwd)+1:]   # path relative to cwd
       
-
-
         cmd, out, ptn, rpath, sub = None, None, None, None, []
 
         if typ is not None and stat is None:
-            rpath = path[len(base)+1:]   # relative to repo base
-            rbase = base[len(cwd)+1:]   # base dir relative to cwd 
+            rpath = path[len(repodir)+1:]   # path relative to repodir
+            rbase = repodir[len(cwd)+1:]    # repodir expressed relative to cwd 
 
             cmd = self.status_command( cpath, typ, rbase)   
+            log.debug("cpath:%s rpath:%s rbase:%s cmd:%s " % (cpath, rpath, rbase, cmd))
+
             out = self.run(cmd) 
 
             # git uses relative to base paths in status, hg/svn use relative to cwd
@@ -187,7 +194,8 @@ class IPath(object):
         self.path = path 
         self.rpath = rpath 
         self.typ = typ
-        self.base = base
+        self.repodir = repodir
+        self.reponame = reponame
         self.digest = dig
         self.isdir = isdir
         self.cmd = cmd 
@@ -207,19 +215,23 @@ class IPath(object):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+
+    level = "INFO"
+    #level = "DEBUG"
+
+    logging.basicConfig(level=getattr(logging, level))
     assert len(sys.argv) > 1      
 
     path = os.path.abspath(sys.argv[1])
  
-    typ = IPath.repotype(path)
-    print typ
+    typ, base = IPath.repotype(path)
+    log.info("typ:%s base:%s " % (typ,base) )
 
     p = IPath(path)
-    print repr(p) 
+    log.info("p:%r " % (p,) )
 
     for s in p.sub:
-        print repr(s) 
+        log.info("s:%r " % (s,) ) 
 
 
 

@@ -51,7 +51,7 @@ class SphinxExtLinks(dict):
 
         if docname is not None and arg_.find("/") == -1:  # looks like a relative link from Sphinx document
             srcname = os.path.basename(srcdir) if srcdir is not None else None
-            if srcname == "workflow":  
+            if srcname == "workflow" or srcname == "home":  
                 srcname = None
             pass
             docdir = os.path.dirname(docname)  # final component of docname is document name not a dir 

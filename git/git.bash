@@ -18,6 +18,111 @@ Reference
 * https://www.rath.org/mercurial-for-git-users-and-vice-versa.html
 
 
+
+Getting Git on Server
+-----------------------
+
+* https://git-scm.com/book/en/v2/Git-on-the-Server-Getting-Git-on-a-Server#_getting_git_on_a_server
+
+
+Git Basics
+-----------
+
+* https://git-scm.com/book/en/v2/Getting-Started-Git-Basics
+
+SVN, Hg are delta-based version control.
+Git conceptually is snapshot-based (not delta).
+
+
+`git status -s/--short`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Two column output 
+
+- left column indicates status of staging area 
+- right column indicates status of working tree
+
+
+`git diff`
+~~~~~~~~~~~~
+
+Compare working tree with staging area (aka index).
+
+
+`git diff --staged/--cached`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Compare staging area with last commit.
+ 
+
+
+
+Working with multiple remotes
+------------------------------
+
+* https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
+* https://git-scm.com/book/id/v2/Git-Branching-Remote-Branches
+
+git pull
+~~~~~~~~~~
+
+If your current branch is set up to track a remote branch (see the next section
+and Git Branching for more information), you can use the git pull command to
+automatically fetch and then merge that remote branch into your current branch.
+
+
+`git push -u/--set-upstream`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For every branch that is up to date or successfully pushed, add upstream
+(tracking) reference, used by argument-less git-pull(1) and other commands. For
+more information, see branch.<name>.merge in git-config(1).
+
+Note only one remote can be the default upstream, for that one 
+the argument-less::
+
+    git push -v   
+    git pull -v
+
+is equivalent to::
+
+    git push g4pb master -v
+    git pull g4pb master -v
+
+For other remotes need to use full form, eg::
+
+    git push arc master -v     
+    git pull arc master -v
+
+
+`git show-branch *master`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://git-scm.com/book/id/v2/Git-Branching-Remote-Branches
+
+::
+
+    delta:home blyth$ git show-branch *master
+    * [master] in all bash functions switch the informational workflow-home to home-home
+     ! [refs/remotes/arc/master] in all bash functions switch the informational workflow-home to home-home
+      ! [refs/remotes/g4pb/master] in all bash functions switch the informational workflow-home to home-home
+    ---
+    *++ [master] in all bash functions switch the informational workflow-home to home-home
+    delta:home blyth$ 
+        
+
+`git rev-parse master g4pb/master arc/master`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    delta:home blyth$ git rev-parse master g4pb/master arc/master 
+    5f5247608802bebd17a7952167d3cbd24a6912bd
+    5f5247608802bebd17a7952167d3cbd24a6912bd
+    5f5247608802bebd17a7952167d3cbd24a6912bd
+
+
+
 Take a look at Sphinx tags/1.2, then return to latest, see sphinx-
 ---------------------------------------------------------------------------
 
