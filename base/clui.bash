@@ -91,7 +91,6 @@ clui-alias(){
    alias ini='. ~/.bash_profile'
    alias t='type'
    alias f='typeset -F'   ## list functions 
-   alias e='cd $ENV_HOME ; hg st '
    alias s='hg st '
    alias vip='vi ~/.bash_profile'
    alias vips='grep BUILD_PATH ~/.bash_profile | grep -v grep '

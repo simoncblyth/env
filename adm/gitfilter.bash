@@ -8,75 +8,70 @@ gitfilter-usage(){ cat << EOU
 gitfilter : using filter-branch subcommand
 ===========================================
 
-Extract some folders from a git repo into a new one
------------------------------------------------------
+overview
+----------
+
+* extract some folders from a git repo into a new one
+* chop the history 
+
+
+procedure for workflow_home was automated
+-------------------------------------------
+
+* check gitfilter-repo is *workflow_home*
+* run the partition:
+
+::
+
+   gitfilter-;gitfilter--
+
+* say YES to cloning into HOME
+
+
+procedure for workflow_workflow is semi-automated
+---------------------------------------------------
+
+* check gitfilter-repo is *workflow_workflow*
+* run the partition::
+
+     gitfilter-;gitfilter--
+
+* say N to cloning into HOME, as need to chop first
+
+* examine the logs see gitfilter-chop-notes to pick the 
+  SHA1 of the last commit to chop, set gitfilter-chop-last
+
+* run the chop::
+
+     gitfilter-;gitfilter-chop
+
+* do the clone into home::
+
+     gitfilter-;gitfilter-partition-clone
+ 
+
+Background refs
+-----------------
+
+::
+
+     git help filter-branch
 
 * https://confluence.atlassian.com/bitbucket/split-a-repository-in-two-313464964.html
 * https://help.github.com/articles/splitting-a-subfolder-out-into-a-new-repository/
 * https://stackoverflow.com/questions/359424/detach-move-subdirectory-into-separate-git-repository/17864475#17864475
 * https://stackoverflow.com/questions/359424/detach-move-subdirectory-into-separate-git-repository
 * https://stackoverflow.com/questions/2982055/detach-many-subdirectories-into-a-new-separate-git-repository
-
-::
-
-    git filter-branch --index-filter "git rm -r -f --cached --ignore-unmatch $(ls -xd apps/!(AAA) libs/!(XXX))" --prune-empty -- --all
-
-
 * https://www.atlassian.com/blog/git/tear-apart-repository-git-way
 
-
-TODO
-------
-
-* peruse history to check what else can be removed 
-* check repo sizes, try some shrinkage : repacking 
-
-
-gitfilter-filter
------------------
-
-::
-
-    delta:gitfilter blyth$ gitfilter-;gitfilter-filter
-    === gitfilter-test : Fri Mar 9 22:58:13 CST 2018 PWD /usr/local/env/adm/gitfilter/workflow : START
-    Rewrite b20eadf16b36edf9efc175881c4665390b9360d5 (1213/1213)
-    Ref 'refs/heads/master' was rewritten
-    Ref 'refs/remotes/origin/master' was rewritten
-    WARNING: Ref 'refs/remotes/origin/master' is unchanged
-    === gitfilter-test : Fri Mar 9 22:59:01 CST 2018 PWD /usr/local/env/adm/gitfilter/workflow : DONE
-    delta:workflow blyth$ 
-
-
-
 Rewriting means are changing entrire history so the connection with origin
-is broken, or at least weakened::
+is broken::
 
     delta:workflow blyth$ git remote -v
     origin  file:///usr/local/env/adm/svn2git/workflow (fetch)
     origin  file:///usr/local/env/adm/svn2git/workflow (push)
     delta:workflow blyth$ git remote remove origin
     delta:workflow blyth$ git remote -v
-
-
-clone it into new home
-------------------------
-
-::
-
-    delta:gitfilter blyth$ git clone file://$PWD/workflow home 
-    Cloning into 'home'...
-    remote: Counting objects: 10879, done.
-    remote: Compressing objects: 100% (3524/3524), done.
-    remote: Total 10879 (delta 6688), reused 10879 (delta 6688)
-    Receiving objects: 100% (10879/10879), 3.77 MiB | 0 bytes/s, done.
-    Resolving deltas: 100% (6688/6688), done.
-    Checking connectivity... done.
-    delta:gitfilter blyth$ 
-
-
-wdocs and Sphinx build need to jump ship from workflow to home
------------------------------------------------------------------ 
-
 
 
 log check
@@ -130,37 +125,58 @@ After pruning get down to the same size as the clone::
     152   16    085a188b28a27da4b84ed615b095e877c5fa43f0  workflow.xcodeproj/project.pbxproj
 
 
-Hmm one of the first commits was inadvertent::
-
-    delta:workflow blyth$ git log --name-only -- workflow
-    commit 426ba7eae67c84843913d480a694e472c3b6fda2
-    Author: Simon C Blyth <simon.c.blyth@gmail.com>
-    Date:   Sat Jun 16 09:14:27 2007 +0000
-
-        remove bad xcodeproj
-
-    workflow/build/workflow.build/workflow.pbxindex/categories.pbxbtree
-    workflow/build/workflow.build/workflow.pbxindex/cdecls.pbxbtree
-    ..
-
-    commit d9e26d24cbeaa2268da37bb7df9523d1e1c6bb90
-    Author: Simon C Blyth <simon.c.blyth@gmail.com>
-    Date:   Fri Jun 15 15:51:11 2007 +0000
-
-        initial scm-import
-
-    workflow/build/workflow.build/workflow.pbxindex/categories.pbxbtree
-    workflow/build/workflow.build/workflow.pbxindex/cdecls.pbxbtree
-    ..
-
-
 
 EOU
 }
 
-gitfilter-repo(){ echo workflow ; }
+#gitfilter-repo(){ echo workflow_home ; }
+gitfilter-repo(){ echo workflow_workflow ; }
+
+gitfilter-target()
+{
+   case $(gitfilter-repo) in 
+     workflow_home)     echo home ;; 
+     workflow_workflow) echo workflow ;; 
+   esac
+}
+
+gitfilter-srcrepo()
+{
+   case $(gitfilter-repo) in 
+     workflow_home)     echo workflow ;; 
+     workflow_workflow) echo workflow ;; 
+   esac
+}
+
+
+gitfilter-index-filter-note(){ cat << EON
+
+$FUNCNAME
+==============================
+
+Switch between which repo to create by changing gitfilter-repo
+Which changes the dirs that are dropped.
+
+
+EON
+}
+
+
+gitfilter-index-filter-(){ 
+
+   local tgt=$(gitfilter-target)
+   case $tgt in 
+         home) ~/h/census.py --paths --cat drop workflow  2>/dev/null ;; 
+     workflow) ~/h/census.py --paths --cat drop home      2>/dev/null ;; 
+   esac
+}
+gitfilter-index-filter(){  cat << EOC
+git rm --quiet --cached --ignore-unmatch -r $(echo $($FUNCNAME-)) 
+EOC
+} 
+
 gitfilter-dir(){  echo $(local-base)/env/adm/gitfilter ; }
-gitfilter-srcr(){  echo $(local-base)/env/adm/svn2git ; }
+gitfilter-srcfold(){  echo $(local-base)/env/adm/svn2git ; }
 gitfilter-cd(){   local dir=$(gitfilter-dir) && mkdir -p $dir && cd $dir ;  }
 
 gitfilter-rcd(){ cd $(gitfilter-dir)/$(gitfilter-repo) ; }
@@ -170,9 +186,11 @@ gitfilter-info(){ cat << EOI
 $FUNCNAME
 =================
 
-gitfilter-dir  : $(gitfilter-dir)
-gitfilter-repo : $(gitfilter-repo)
-gitfilter-srcr : $(gitfilter-srcr)
+gitfilter-dir    : $(gitfilter-dir)
+gitfilter-repo   : $(gitfilter-repo)
+gitfilter-target : $(gitfilter-target)
+gitfilter-srcrepo   : $(gitfilter-srcrepo)
+gitfilter-srcfold   : $(gitfilter-srcfold)
 
 
 EOI
@@ -199,8 +217,8 @@ gitfilter--()
    gitfilter-find-big
       ## check to find the largest items
 
-   gitfilter-home
-      ## clone into HOME/home 
+   gitfilter-partition-clone
+      ## clone into HOME/tgt 
 }
 
 
@@ -224,9 +242,10 @@ gitfilter-clone()
    echo $msg clone svn2hg workflow repo for compartmentalization 
    gitfilter-cd 
    local repo=$(gitfilter-repo)
-   local srcr=$(gitfilter-srcr)
+   local srcrepo=$(gitfilter-srcrepo)
+   local srcfold=$(gitfilter-srcfold)
 
-   local cmd="git clone file://$srcr/$repo $repo "
+   local cmd="git clone file://$srcfold/$srcrepo $repo "
    [ ! -d $repo ] && echo $cmd && eval $cmd
 }
 
@@ -248,12 +267,6 @@ gitfilter-wipe()
 }
 
 
-
-gitfilter-index-filter-(){ ~/w/census.py --dirs --cat drop workflow  2>/dev/null ; }
-gitfilter-index-filter(){  cat << EOC
-git rm --quiet --cached --ignore-unmatch -r $(echo $($FUNCNAME-)) 
-EOC
-} 
 
 
 gitfilter-filter()
@@ -292,7 +305,6 @@ gitfilter-disconnect()
    git remote -v
 }
 
-
 gitfilter-find-big()
 {
    gitfilter-cd
@@ -301,7 +313,6 @@ gitfilter-find-big()
 
    which git_find_big.sh   
    git_find_big.sh   
-
 }
 
 gitfilter-size()
@@ -313,19 +324,158 @@ gitfilter-size()
 
    echo $msg PWD $PWD
    du -hs .git 
-
-   
-
 }
 
-
-gitfilter-home()
+gitfilter-partition-clone()
 {
+   local tgt=$(gitfilter-target)
+   gitfilter-partition-clone- $tgt 
+}
+
+gitfilter-partition-clone-()
+{
+   local tgt=${1:-home}
    local msg="=== $FUNCNAME :"
    cd
-   [ -d home ] && echo $msg home exists already : first delete it and then rerun : $FUNCNAME   && return  
-   git clone file://$(gitfilter-dir)/workflow home 
+   [ -d $tgt ] && echo $msg target $tgt exists already : first delete it and then rerun : $FUNCNAME   && return  
+
+   local cmd="git clone file://$(gitfilter-dir)/$(gitfilter-repo) $tgt "
+
+   local ans
+   read -p "$msg : enter YES to proceed with : $cmd " ans
+
+   [ "$ans" != "YES" ] && echo $msg skipping && return 
+   echo $msg proceeding
+   eval $cmd
 }
+
+gitfilter-chop-notes(){ cat << EON
+
+$FUNCNAME
+======================
+
+Want to in addition to chopping folders, also chop the history 
+to just grab the last few commits.  
+
+Brief log::
+
+    delta:workflow_workflow blyth$ git log --oneline --decorate -n 10
+    a0e89d8 (HEAD, master) prep for scm-backup-all-as-root on g4pb
+    622b9d7 prep for partitioning home from workflow with history, split off and svn2git conversion testing
+    feb2b37 prepare to split off the new bitbucket private mercurial workflow repo dirs
+    682b2a9 complete 1st pass preparation of home/workflow partitioning
+    1e21feb purge/cleanup resulting from workflow/home partitioning progress
+    d56300e workflow partitioning cleanups
+    c043b04 tidy up during census review, remove some binaries
+    692b518 notes and moving towards all relative links
+    8aad493 trying to ignore wiki and ticket dirs as not yet ready to commit the translations
+    d1e2716 start integrating the Trac translation rst into workflow
+    delta:workflow_workflow blyth$ 
+
+
+After exclude census machinery, the top 2 commits are skipped::
+
+    delta:workflow_workflow blyth$ git log --oneline --decorate -n 5
+    7640140 (HEAD, master) complete 1st pass preparation of home/workflow partitioning
+    9767f2b purge/cleanup resulting from workflow/home partitioning progress
+    554289b workflow partitioning cleanups
+    24c4afe tidy up during census review, remove some binaries
+    ede0316 notes and moving towards all relative links
+    delta:workflow_workflow blyth$ 
+
+
+Detailed log::
+
+    git log --name-status -n 5
+
+From the detailed log, want all commits before and including the below 
+to be dropped from the recent history repo.::
+
+    1e21feb "purge/cleanup resulting from workflow/home partitioning progress"
+    9767f2b purge/cleanup resulting from workflow/home partitioning progress 
+
+    ## note that after changing the exclude all the SHA1 have changed
+
+
+After running the chop, 1st try::
+
+    delta:workflow_workflow blyth$ git log --oneline --decorate
+    ac4a032 (HEAD, master) prep for scm-backup-all-as-root on g4pb
+    9c102b0 prep for partitioning home from workflow with history, split off and svn2git conversion testing
+    79e2084 prepare to split off the new bitbucket private mercurial workflow repo dirs
+    875520e complete 1st pass preparation of home/workflow partitioning
+    9b08f30 gitfilter-chop-orphan from last 1e21feb
+
+
+2nd try::
+
+    delta:workflow_workflow blyth$ git log --oneline --decorate
+    0ecf4ed (HEAD, master) complete 1st pass preparation of home/workflow partitioning
+    3252d74 gitfilter-chop-orphan from last 9767f2b
+
+
+Created gitfilter-chop by following the instructions from https://git-scm.com/book/en/v2/Git-Tools-Replace
+
+* create an initial commit object as our base point with instructions, 
+  then rebase the remaining commits we wish to keep on top of it.
+
+* truncating our recent history down so it’s smaller. We need an overlap so we
+  can replace a commit in one with an equivalent commit in the other, so we’re
+  going to truncate this to just a few commits.
+
+* We can create our base commit using the commit-tree command, which just takes a
+  tree and will give us a brand new, parentless commit object SHA-1 back *orphan*.
+
+* OK, so now that we have a base commit, we can rebase the rest of our history on
+  top of that with git rebase --onto. The --onto argument will be the SHA-1 we
+  just got back from commit-tree and the rebase point will be the 
+  parent of the first commit we want to keep *last*
+
+1st try::
+
+    delta:workflow_workflow blyth$ gitfilter-chop
+    == gitfilter-chop : git rebase --onto 9b08f309ba5ca56a83ed7fc833789c12233fc8df 1e21feb
+    First, rewinding head to replay your work on top of it...
+    Applying: complete 1st pass preparation of home/workflow partitioning 
+    Applying: prepare to split off the new bitbucket private mercurial workflow repo dirs
+    Applying: prep for partitioning home from workflow with history, split off and svn2git conversion testing
+    Applying: prep for scm-backup-all-as-root on g4pb 
+    delta:workflow_workflow blyth$ 
+
+2nd try with census excluded::
+
+    delta:workflow_workflow blyth$ gitfilter-;gitfilter-chop
+    == gitfilter-chop : git rebase --onto 3252d7425449b358a28c679f5b186aab7c9a49dc 9767f2b
+    First, rewinding head to replay your work on top of it...
+    Applying: complete 1st pass preparation of home/workflow partitioning 
+    delta:workflow_workflow blyth$ 
+
+
+EON
+}
+
+
+#gitfilter-chop-last(){ echo 1e21feb ; }
+gitfilter-chop-last(){ echo 9767f2b ; }
+
+gitfilter-chop-orphan(){  echo $FUNCNAME from last $1 | git commit-tree $1^{tree} ; }
+gitfilter-chop()
+{
+    local msg="== $FUNCNAME :"
+
+    gitfilter-cd
+    local repo=$(gitfilter-repo)
+    cd $repo
+
+    local last=$(gitfilter-chop-last)
+    local orphan=$(gitfilter-chop-orphan $last) 
+    local rebase="git rebase --onto $orphan $last  "
+    echo $msg $rebase
+    eval $rebase
+}
+
+
+   
 
 
 

@@ -18,11 +18,143 @@ Reference
 * https://www.rath.org/mercurial-for-git-users-and-vice-versa.html
 
 
+Git Books
+-----------
+
+* https://git-scm.com/book/en/v2
 
 Getting Git on Server
 -----------------------
 
 * https://git-scm.com/book/en/v2/Git-on-the-Server-Getting-Git-on-a-Server#_getting_git_on_a_server
+
+
+Fixing ssh environment to find newer than system git
+-----------------------------------------------------
+
+Cloning a bare repo over ssh from g4pb initially fails for lack 
+of git-upload-pack in sshd PATH environment.
+Succeeds after setup environment of sshd in g4pb (see dsmgit-).
+
+
+Git And Filemodes
+--------------------
+
+* https://stackoverflow.com/questions/4832346/how-to-use-group-file-permissions-correctly-on-a-git-repository
+
+::
+
+    git archive --format=tar --prefix=junk/ HEAD | (cd /var/tmp/ && tar xf -)
+
+
+
+Git just seems to distinguish executable or not, other modes not preserved::
+
+    delta:test blyth$ git ls-files --stage
+    100644 e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 0   a.txt
+    100644 e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 0   b.txt
+    100755 e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 0   c.txt
+    100755 e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 0   d.txt
+    delta:test blyth$ l *.txt
+    -rwxrwxrwx  1 blyth  wheel  0 Mar 15 13:24 d.txt
+    -rwxr-xr-x  1 blyth  wheel  0 Mar 15 13:23 c.txt
+    -rw-------  1 blyth  wheel  0 Mar 15 13:22 b.txt
+    -rw-r--r--  1 blyth  wheel  0 Mar 15 13:21 a.txt
+    delta:test blyth$ 
+
+
+* https://git-scm.com/docs/git-archive
+* https://git-scm.com/docs/git-archive#ATTRIBUTES
+
+* https://github.com/dr4Ke/git-preserve-permissions/blob/master/git-preserve-permissions
+
+  overcomplicated perl approach  
+
+
+Git and deployment
+--------------------
+
+
+* https://github.com/git-deploy/git-deploy
+
+  over the top approach
+
+* http://gitolite.com/deploy.html
+
+  run down of different approaches
+
+
+git archive --format=tar --prefix=junk/ HEAD | (cd /var/tmp/ && tar xf -)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://feeding.cloud.geek.nz/posts/excluding-files-from-git-archive/
+
+* https://github.com/git/git/blob/master/builtin/archive.c
+
+
+
+extending git with custom commands
+--------------------------------------
+
+* https://www.atlassian.com/blog/git/extending-git
+
+::
+
+    delta:home blyth$ git demo one two three
+    ['/Users/blyth/env/bin/git-demo', 'one', 'two', 'three']
+
+    delta:home blyth$ cat ~/env/bin/git-demo 
+    #!/usr/bin/env python
+    import sys
+    print sys.argv
+
+
+
+
+Log Alias
+------------
+
+* https://coderwall.com/p/euwpig/a-better-git-log
+
+::
+
+    git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+
+    git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+    git config --global alias.lga "log --graph --pretty=format:'%h -%d %s (%cr) <%an>' --abbrev-commit"
+
+
+::
+
+    git lg 
+    git lg -p
+
+
+
+Remove Old history from git repo ?
+-------------------------------------
+
+Via replace
+~~~~~~~~~~~~~
+
+* https://git-scm.com/book/en/v2/Git-Tools-Replace
+
+Via graft
+~~~~~~~~~~~
+
+* https://stackoverflow.com/questions/4515580/how-do-i-remove-the-old-history-from-a-git-repository
+
+* https://git.wiki.kernel.org/index.php/GraftPoint
+
+.git/info/grafts has two sha1 separated by space and terminated by newline.
+
+from `git help branch-rewrite`::
+
+    NOTE: This command honors .git/info/grafts file and refs in the refs/replace/
+    namespace. If you have any grafts or replacement refs defined, running this
+    command will make them permanent.
+     
 
 
 Git Basics
