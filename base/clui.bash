@@ -163,10 +163,10 @@ clui-pyc(){
    local msg="=== $FUNCNAME : "
    local root=$(clui-root)
    if [ "$root" == "" ]; then
-      echo $msg not in hg repo : remove pyc beneath pwd $PWD
+      echo $msg not in hg/svn/git repo : remove pyc beneath pwd $PWD
       root="."
    else
-      echo $msg in hg repo : remove pyc beneath root $root
+      echo $msg in hg/svn/git repo : remove pyc beneath root $root
    fi    
    find $root -name '*.pyc' -exec rm -f {} \;
    find $root -name '*.DS_Store' -exec rm -f {} \;
