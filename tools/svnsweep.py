@@ -116,7 +116,7 @@ class Sweeper(list):
         log.debug("Sweeper.__init__ START  " )
         self.src = IPath(src)
         log.debug("Sweeper.__init__ src instanciated " )
-        self.tgt = IPath(tgt)
+        self.tgt = IPath(tgt, noup=True)
         log.debug("Sweeper.__init__ tgt instanciated " )
 
         self.cmds = []

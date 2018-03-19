@@ -1933,3 +1933,4 @@ dotfiler-(){      . $(env-home)/tools/dotfiler.bash && dotfiler-env $* ; }
 sphinxtest-(){      . $(env-home)/doc/sphinxtest.bash && sphinxtest-env $* ; }
 gitsplit-(){      . $(env-home)/adm/gitsplit.bash && gitsplit-env $* ; }
 gitfilter-(){      . $(env-home)/adm/gitfilter.bash && gitfilter-env $* ; }
+terminal-(){      . $(env-home)/base/terminal/terminal.bash && terminal-env $* ; }

@@ -13,6 +13,8 @@ iOS
 
 * iOS 8 WKWebView exposes faster Nitro rendering than UIWebView
 
+* https://iosdevdirectory.com/
+
 
 
 EOU

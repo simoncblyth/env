@@ -47,7 +47,7 @@ class IPath(object):
     """
 
     @classmethod
-    def repotype(cls, _, up=0):
+    def repotype(cls, _, up=0, noup=False):
         """
         :param _: absolute path 
         :param up: number of directories up from original
@@ -71,7 +71,7 @@ class IPath(object):
             else:
                 typ, base = None, None
             pass
-            if typ is None and up < 10 and os.path.dirname(_) != _:
+            if noup == False and typ is None and up < 10 and os.path.dirname(_) != _:
                 typ, base = cls.repotype( os.path.dirname(_), up=up+1 ) 
             pass
         else:
@@ -113,7 +113,7 @@ class IPath(object):
         if rc != 0:
             log.fatal("non-zero RC from cmd : %s " % cmd ) 
         pass     
-        assert rc == 0 
+        assert rc == 0,  rc
         log.debug("cmd:[%s] out:%d " % (cmd, len(out)) ) 
         return out 
 
@@ -144,14 +144,14 @@ class IPath(object):
         pass
         return sub
 
-    def __init__(self, path_, stat=None):
+    def __init__(self, path_, stat=None, noup=False):
         """
         :param path: relative or absolute, tilde or envvars are expanded
         """
         xx_ = lambda _:os.path.abspath(os.path.expandvars(os.path.expanduser(_)))
         path = xx_(path_)
-        typ, repodir = self.repotype(path)  
-        #log.info(" typ:%s repodir:%s " % (typ, repodir))
+        typ, repodir = self.repotype(path, noup=noup)  
+        log.debug(" HERE path_:%s typ:%s repodir:%s " % (path_, typ, repodir))
         reponame = os.path.basename(repodir) if repodir is not None else None 
 
         log.debug(" IPath path_:%s path:%s typ:%s repodir:%s reponame:%s " % ( path_, path, typ, repodir, reponame) )

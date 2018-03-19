@@ -37,6 +37,75 @@ of git-upload-pack in sshd PATH environment.
 Succeeds after setup environment of sshd in g4pb (see dsmgit-).
 
 
+Fetch a remote repo into an existing directory with bystanders
+----------------------------------------------------------------
+
+* avoid accidents by setting .gitignore to "*" so must always force to add things to repo
+
+::
+
+    cd /to/the/dir/
+    git init                      ## creates .git dir
+    git remote add <rnam> <url>    ## configure the remote
+    git fetch <rnam> master        ## fetch objects from remote, without yet changing working copy
+
+    git diff <rnam>/master                 ## compare current with what about to checkout
+    git show <rnam>/master:.workflow.cnf   ## take a closer look
+
+    git checkout master           ## now update working copy 
+    ## hmm merge : shouldnt be needed, only one line ...
+
+
+* note that this doesnt use "clone" as that creates a new dir, fetches and merges 
+
+
+
+fetch into non empty dir
+--------------------------
+
+* https://stackoverflow.com/questions/2411031/how-do-i-clone-into-a-non-empty-directory
+
+::
+
+    git init
+
+    git remote add origin PATH/TO/REPO
+
+    git fetch
+
+    git reset origin/master         
+        # copies entries from origin/master  to the index
+        # this is required if files in the non-empty directory are in the repo
+
+    git checkout -t origin/master   # -t for --track
+        # from index to working tree
+
+
+git help reset
+----------------
+
+::
+
+   git reset [-q] [<tree-ish>] [--] <paths>...
+
+       This form resets the index entries for all <paths> to their state at
+       <tree-ish>. (It does not affect the working tree, nor the current branch.)
+
+       This means that git reset <paths> is the opposite of git add <paths>.
+
+       After running git reset <paths> to update the index entry, you can use
+       git-checkout(1) to check the contents out of the index to the working tree.
+       Alternatively, using git-checkout(1) and specifying a commit, you can copy the
+       contents of a path out of a commit to the index and to the working tree in one go.
+
+
+So *reset* used like this enables a more controlled way of 
+updating the working tree.  First from treeish into index and then checkout 
+from index into working tree.
+
+
+
+
 .gitignore vs .git/info/exclude
 ----------------------------------
 
@@ -57,6 +126,20 @@ Patterns which a user wants Git to ignore in all situations
 specified by core.excludesfile in the user's ~/.gitconfig. Its default value is $XDG_CONFIG_HOME/git/ignore. 
 If $XDG_CONFIG_HOME is either not set or empty,
 $HOME/.config/git/ignore is used instead.
+
+
+
+Showing old versions of a file
+---------------------------------
+
+::
+
+    delta:bin blyth$ git lg dot.py 
+    * 1a20d0b - (uow/master, g4pb/master, arc/master) try direct HOME/.git approach to dot-backup with file/dir permission fixing (15 hours ago) <Simon C Blyth>
+    * 6c48db5 - dot-backup dot-recover machinery using USB stick remote (2 days ago) <Simon C Blyth>
+    * 5f5861b - dot machinery working to some extent, need to test permission recovery from fresh clones of dot repo (3 days ago) <Simon C Blyth>
+    * 4a07bea - start dot backup/recover machinery (3 days ago) <Simon C Blyth>
+    delta:bin blyth$ git show 4a07bea:bin/dot.py 
 
 
 

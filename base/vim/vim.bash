@@ -33,6 +33,7 @@ Navigate:
 
 
 
+
 Windows MSYS2 Arrow keys
 -------------------------
 
@@ -58,6 +59,28 @@ Vim ways to do this either need plugins or look too involved, so do on command l
     DBNS_HALL5_TEMP  DBNS_H5_Temp_PT4  Low!!!  -1.00  2016-05-06  20:05:26
     DBNS_HALL5_TEMP  DBNS_H5_Temp_PT2  Low!!!  -1.00  2016-05-06  20:05:26
     DBNS_HALL5_TEMP  DBNS_H5_Temp_PT3  Low!!!  -1.00  2016-05-06  20:05:26
+
+
+Key remapping now that w key is playing up, to move between splits
+--------------------------------------------------------------------
+
+* :google:`vim move between splits`
+* https://stackoverflow.com/questions/3776117/what-is-the-difference-between-the-remap-noremap-nnoremap-and-vnoremap-mapping
+
+nnoremap
+   is a normal mode non-recursive mapping 
+
+Add to .vimrc::
+
+    " https://robots.thoughtbot.com/vim-splits-move-faster-and-more-naturally
+    " https://github.com/thoughtbot/dotfiles/blob/master/vimrc
+    " navigate splits with ctrl-j/k/l/h
+    nnoremap <C-J> <C-W><C-J>
+    nnoremap <C-K> <C-W><C-K>
+    nnoremap <C-L> <C-W><C-L>
+    nnoremap <C-H> <C-W><C-H>
+
+
 
 
 
