@@ -144,7 +144,19 @@ class Repo(object):
         self.gdi = gdi
 
     def __str__(self):  
-        lines = ["### %s ###"  % self.base, "" ] + str(self.remote).split("\n") + [""] + str(self.status).split("\n") + [""]
+
+        rem = str(self.remote).split("\n")
+        sta = str(self.status).split("\n") 
+        if len(rem) == 1:
+            lines = ["## %20s : %s  (%s,%s)"  % (self.base, rem[0], len(sta), len(self.status)) ] 
+        else:
+            lines = ["## %20s (%s)"  % (self.base, len(sta)) , "" ] + rem 
+        pass
+        lines += [""]
+        
+        if len(self.status) > 0:
+            lines += sta + ["",""]
+        pass
         return "\n".join(lines)
 
 

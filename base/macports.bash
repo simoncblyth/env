@@ -328,6 +328,13 @@ EOU
 macports-dir(){ echo $(local-base)/env/base/macports ; }
 macports-cd(){  cd $(macports-dir); }
 
+
+macports-list-save()
+{
+   port -qv installed 
+}
+
+
 macports-get-restore-ports()
 {    
     local dir=$(macports-dir) &&  mkdir -p $dir 

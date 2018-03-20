@@ -26,6 +26,11 @@ even more integrated into the creative process of these industries.
 It is the first commercially available unbiased renderer to work exclusively on the GPU 
 
 
+OTOY : CUDA on AMD/ARM 
+------------------------
+
+* https://venturebeat.com/2018/03/19/otoys-octane-4-blends-cinematic-video-and-games-using-ai/
+* https://venturebeat.com/2016/03/09/otoy-breakthrough-lets-game-developers-run-the-best-graphics-software-across-platforms/
 
 
 
