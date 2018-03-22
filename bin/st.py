@@ -23,6 +23,11 @@ the list of untracked accounts for that.
 TODO
 -----
 
+* just give the TrackingRemote (where pushes will go) 
+  rather than listing all unless extra detail is requested, 
+  persist this into metadata : to pick which to clone from
+  on recovery 
+
 * status vs upstream for mercurial and git ? need to push ?
   but do not want to go out to network, as st.py 
   is used often and needs to stay local and fast
@@ -121,6 +126,17 @@ class Repo(object):
             cmd = None
         pass
         return cmd
+
+    @classmethod
+    def TrackingRemote(cls, _):
+        typ = cls.Identify(_)
+        if typ == "git":
+            cmd = "cd %(_)s ; git rev-parse --abbrev-ref --symbolic-full-name @{u} "   ## eg uow/master
+        else:
+            cmd = None
+        pass
+        return cmd
+
 
     @classmethod
     def Make(cls, base):
