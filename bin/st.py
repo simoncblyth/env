@@ -174,9 +174,9 @@ class Repo(object):
         rem = str(self.remote).split("\n")
         sta = str(self.status).split("\n") 
         if len(rem) == 1:
-            lines = ["## %20s : %s  (%s,%s)"  % (self.base, rem[0], len(sta), len(self.status)) ] 
+            lines = ["## %20s : %s "  % (self.base, rem[0] ) ] 
         else:
-            lines = ["## %20s (%s)"  % (self.base, len(sta)) , "" ] + rem 
+            lines = ["## %20s : %s "  % (self.base, " ".join(rem)) ]  
         pass
         lines += [""]
         
