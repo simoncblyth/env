@@ -177,6 +177,31 @@ Git just seems to distinguish executable or not, other modes not preserved::
   overcomplicated perl approach  
 
 
+
+
+
+
+list authors of a git repository including commit count and email
+-------------------------------------------------------------------
+
+::
+
+   git shortlog -e -s -n
+   git shortlog -esn
+
+
+-n, --numbered
+   Sort output according to the number of commits per author instead of author alphabetic order.
+
+-s, --summary
+   Suppress commit description and provide a commit count summary only.
+
+-e, --email
+   Show the email address of each author.
+
+
+
+
 Git and deployment
 --------------------
 

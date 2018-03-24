@@ -40,10 +40,15 @@ log = logging.getLogger(__name__)
 
 
 class Remote(object):
-    def __init__(self, cmd, typ):
+    def __init__(self, cmd, typ, detail):
         meta = OrderedDict()
         lines = commands.getoutput(cmd).split("\n")
-        for line in lines: 
+
+        if detail > 3:
+            log.info("cmd : %s " % cmd )
+            log.info("lines : %s " % "\n".join(lines) )
+        pass
+        for line in filter(None,lines): 
             if typ == "git":
                 rem, url = self.git_parse(line) 
             elif typ == "hg":
@@ -63,7 +68,12 @@ class Remote(object):
         self.meta = meta
 
     def git_parse(self, line):
-        rem, val = line.split("\t")
+        elem = line.split("\t")
+        if len(elem) != 2:
+            log.fatal("expecting two tabsep elem \"%s\" got %s " % ( line, repr(elem)))      
+            assert 0 
+        pass
+        rem, val = elem
         url, bkt = val.split()
         return rem, url
 
@@ -139,19 +149,19 @@ class Repo(object):
 
 
     @classmethod
-    def Make(cls, base):
+    def Make(cls, base, detail):
         typ = cls.Identify(base)
-        repo = cls(base, typ) if not typ is None else None 
+        repo = cls(base, typ, detail) if not typ is None else None 
         return repo 
 
-    def __init__(self, base, typ):
+    def __init__(self, base, typ, detail):
         self.base = base
         self.typ = typ
         self.status_command = self.Status(base)
         self.remote_command = self.Remote(base)
 
         self.status = commands.getoutput(self.status_command)
-        self.remote = Remote(self.remote_command, typ)
+        self.remote = Remote(self.remote_command, typ, detail)
 
         gls = commands.getoutput("git ls-files").split("\n") if typ == "git" else []
         gdi = set(map(lambda _:_.split("/")[0], filter(lambda _:_.find("/") > -1, gls)))
@@ -236,12 +246,13 @@ class Home(object):
 
         self.args = args 
         base = args.base
+        detail = args.detail
         assert os.path.isdir(base)       
 
         remo = OrderedDict()
         repos = []
 
-        repo = Repo.Make(base)
+        repo = Repo.Make(base, detail)
 
         if repo is not None:
             gls = repo.gls
@@ -263,7 +274,11 @@ class Home(object):
         pass
         
         for _ in filter(lambda _:os.path.isdir(_) and not os.path.islink(_), ls):
-            repo = Repo.Make(_)
+
+            if detail > 1:
+                log.info("checking dir %s " %  _ )
+            pass
+            repo = Repo.Make(_, detail)
             if repo is None: 
                 other.add(_)
                 continue
