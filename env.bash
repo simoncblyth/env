@@ -39,6 +39,26 @@ env-touch-index(){
 }
 
 
+env-clean-build()
+{
+   cd $LOCAL_BASE/env
+
+   local msg="=== $FUNCNAME $PWD :"
+   find . -type d -name '*.build'  -exec du -hs {} \;
+
+   local ans
+   read -p "$msg enter YES to proceed with deleting the above .build folders : " ans
+   [ "$ans" != "YES" ] && echo $msg skipped && return 
+
+   local name
+   find . -type d -name '*.build' | while read name ; do
+      echo \"$name\"
+      rm -rf "$name"
+   done
+
+}
+
+
 env-anewer(){
    cd $(env-home)
    local path=${1:-graphics/openscenegraph/osg.bash}

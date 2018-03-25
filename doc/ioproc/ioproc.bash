@@ -313,6 +313,9 @@ $HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop.png
 $HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop_half.png
 $HOME/simoncblyth.bitbucket.org/env/graphics/ggeoview/jpmt-inside-wide_crop_half_half.png
 EOF
+
+# note thanks to top level symbolic link can just start these paths from /env
+
 }
 
 ioproc-figs-copy(){
