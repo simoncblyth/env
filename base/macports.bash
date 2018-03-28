@@ -19,6 +19,14 @@ macports-usage(){ cat << EOU
 MACPORTS
 ===========
 
+
+Install the Macports corresponding to macOS version
+-----------------------------------------------------
+
+* https://www.macports.org/install.php
+
+
+
 Listing Versions Installed/Available
 ---------------------------------------
 ::
@@ -342,6 +350,11 @@ macports-get-restore-ports()
     curl --location --remote-name \
         https://github.com/macports/macports-contrib/raw/master/restore_ports/restore_ports.tcl
 }
+
+
+macports-url(){ echo https://github.com/macports/macports-base/releases/download/v2.4.2/MacPorts-2.4.2-10.13-HighSierra.pkg ; }
+
+
 
 
 #macports-name(){ echo MacPorts-2.1.3 ; }
