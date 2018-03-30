@@ -1956,3 +1956,4 @@ gitfilter-(){      . $(env-home)/adm/gitfilter.bash && gitfilter-env $* ; }
 terminal-(){      . $(env-home)/base/terminal/terminal.bash && terminal-env $* ; }
 dxr-(){      . $(env-home)/graphics/directx/dxr.bash && dxr-env $* ; }
 fastexport-(){      . $(env-home)/tools/hg2git/fastexport.bash && fastexport-env $* ; }
+edefaults-(){      . $(env-home)/osx/defaults/edefaults.bash && edefaults-env $* ; }
