@@ -81,6 +81,7 @@ func-gen-(){
   local fgn=$(func-gen-name $*)
   local fgr=$(func-gen-repo $*)
   local fgh=$(func-gen-heading $*)
+  local fgr0=${fgr:0:1}   ## first char of repo name
 
   echo \# $msg $* fgp $fgp fgn $fgn fgh $fgh
 
@@ -90,6 +91,7 @@ func-gen-(){
          | perl -p -e "s,env-home,$fgr-home,g" - \
          | perl -p -e "s,/env,/$fgr,g" - \
          | perl -p -e "s,heading,$fgh,g" - \
+         | perl -p -e "s,elocal-,${fgr0}local-,g" - \
          | cat 
 
 }

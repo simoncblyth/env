@@ -9,6 +9,95 @@ nvidia-usage(){ cat << EOU
 NVIDIA
 ========
 
+
+NVIDIA RTX at GTC 2018
+------------------------
+
+* https://developer.nvidia.com/rtx
+
+NVIDIA RTX is the product of 10 years of work in computer graphics algorithms
+and GPU architectures. It consists of a highly scalable ray tracing technology
+running on NVIDIA Volta architecture GPUs. Developers can access NVIDIA RTX
+technology through the NVIDIA OptiX application programming interface, through
+Microsoft’s new DirectX Raytracing API and, soon, Vulkan, the new generation,
+cross-platform graphics standard.
+
+...
+
+10 years ago OptiX introduced the programmable shader model for ray tracing
+(OptiX GPU Ray Tracing ACM paper). NVIDIA has continued to invest in hardware,
+software and algorithms to accelerate that programming model on our GPUs.
+
+The OptiX API is an application framework that leverages RTX Technology to
+achieve optimal ray tracing performance on the GPU. It provides a simple,
+recursive, and flexible pipeline for accelerating ray tracing algorithms.
+Additionally the post processing API includes an AI-accelerated denoiser, which
+also leverages RTX Technology. The post processing API can be used
+independently from the ray tracing portion of the pipeline.
+
+
+
+NVIDIA pushing Volta, or is it really needed for RTX ?
+--------------------------------------------------------
+
+* https://devblogs.nvidia.com/introduction-nvidia-rtx-directx-raytracing/
+
+So will ray tracing always remain a dream of the future, and never arrive in
+the present? At GDC 2018, NVIDIA unveiled RTX, a high-performance
+implementation that will power all ray tracing APIs supported by NVIDIA on
+Volta and future GPUs. At the same event, Microsoft announced the integration
+of ray tracing as a first-class citizen into their industry standard DirectX
+API.
+
+Putting these two technologies together forms such a powerful combination that
+we can confidently answer the above question: the future is here! This is not a
+hyperbole: leading game studios are developing upcoming titles using RTX
+through DirectX — today. Ray tracing in games is no longer a pipe dream. It’s
+happening, and it will usher in a new era of real-time graphics.
+
+* https://developer.nvidia.com/gameworks-ray-tracing
+
+
+NVIDIA RTX hardware implementation (from Volta) exposed by DXR
+----------------------------------------------------------------
+
+* see dxr-
+
+* https://www.anandtech.com/show/12546/nvidia-unveils-rtx-technology-real-time-ray-tracing-acceleration-for-volta-gpus-and-later
+
+In conjunction with Microsoft’s new DirectX Raytracing (DXR) API announcement,
+today NVIDIA is unveiling their RTX technology, providing ray tracing
+acceleration for Volta and later GPUs. Intended to enable real-time ray tracing
+for games and other applications, RTX is essentially NVIDIA's DXR backend
+implementation. For this NVIDIA is utilizing a mix of software and hardware –
+including new microarchitectural features – though the company is not
+disclosing further details. Alongside RTX, NVIDIA is also announcing their new
+GameWorks ray tracing tools, currently in early access to select development
+partners.
+
+With NVIDIA working with Microsoft, RTX is fully supported by DXR, meaning that
+all RTX functionality is exposed through the API. And while only Volta and
+newer architectures have the specific hardware features required for hardware
+acceleration of DXR/RTX, DXR's compatibility mode means that a DirectCompute
+path will be available for non-Volta hardware. Beyond Microsoft, a number of
+developers and game engines are supporting RTX, with DXR and RTX tech demos at
+GDC 2018.
+
+On that note, since the entire “GPU – RTX – DXR – GameWorks Ray Tracing” stack
+only applies to Volta, the broader public is essentially limited to the Titan
+V, and NVIDIA likewise noted that RTX technology of present was primarily
+intended for developer use. For possible ray tracing acceleration on pre-Volta
+architectures, NVIDIA only referred back to DXR, though Microsoft has equally
+referred back to vendors for hardware-related technical details. And while
+strict performance numbers aren’t being disclosed, NVIDIA stated that real time
+ray tracing with RTX on Volta would be “integer multiples faster” than with DXR
+on older hardware.
+
+
+
+
+
+
 Shadowplay
 -----------
 
