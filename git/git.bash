@@ -36,6 +36,56 @@ Cloning a bare repo over ssh from g4pb initially fails for lack
 of git-upload-pack in sshd PATH environment.
 Succeeds after setup environment of sshd in g4pb (see dsmgit-).
 
+Handling pull Aborted
+------------------------
+
+::
+
+    delta:home blyth$ git pull
+    remote: Counting objects: 13, done.
+    remote: Compressing objects: 100% (7/7), done.
+    remote: Total 7 (delta 6), reused 0 (delta 0)
+    Unpacking objects: 100% (7/7), done.
+    From file:///Volumes/UOWStick/var/scm/git/home
+       da974ca..4205a75  master     -> uow/master
+    Updating da974ca..4205a75
+    error: Your local changes to the following files would be overwritten by merge:
+        sysadmin/defaults.bash
+        sysadmin/migration.bash
+    Please, commit your changes or stash them before you can merge.
+    Aborting
+    delta:home blyth$ 
+
+
+Comparisons suggest identical changes already there, but not committed::
+
+    git show uow/master:sysadmin/defaults.bash
+    git diff uow/master:sysadmin/defaults.bash sysadmin/defaults.bash
+
+Hmm this arises from using one macOS but 
+changing files from the older macOS volume.
+So drop the changes, but make a safety copy to /tmp::
+
+    delta:home blyth$ cp sysadmin/migration.bash /tmp/
+    delta:home blyth$ cp sysadmin/defaults.bash /tmp/
+
+    git checkout -- sysadmin/defaults.bash
+    git checkout -- sysadmin/migration.bash
+
+Now the pulling completes::
+
+    delta:home blyth$ git pull
+    Updating da974ca..4205a75
+    Fast-forward
+     sysadmin/defaults.bash    |   3 +++
+     sysadmin/diskutility.bash |  63 +++++++++++++++++++++++++++++++++++++++++++++++
+     sysadmin/migration.bash   |  51 +++++++++++++++++++++++++++++++++++++-
+     sysadmin/upgrade.bash     | 189 ++++++++++++++++++++++++++++++++++++++++++--------------------------------------------------------------------------------------------------
+     4 files changed, 172 insertions(+), 134 deletions(-)
+    delta:home blyth$ 
+
+
+
 
 Fetch a remote repo into an existing directory with bystanders
 ----------------------------------------------------------------
