@@ -22,12 +22,34 @@ OS X Mavericks        10.9    October 22, 2013
 ==================== ======  ====================
 
 
+Point releases of High Sierra
+--------------------------------
+
+* https://robservatory.com/a-useless-analysis-of-os-x-release-dates/
+
+::
+
+    2018 : Mar 29   37   10.13.4     2.36GB
+    2018 : Feb 20   28   10.13.3SU   40.4MB
+    2018 : Jan 23   33   10.13.3     1.97GB
+    2018 : Jan 8    33   10.13.2SU   633.6MB
+    2017 : Dec 6    36   10.13.2     2.08GB
+    2017 : Oct 31   26   10.13.1     1.47GB
+    2017 : Oct 5    10   10.13SU     915MB
+    2017 : Sep 25   68   10.13       4.8GB
+
+
+
+CUDA mac drivers
+-------------------
+
+Moved into opticks- cudamac-
+
 macOS High Sierra 10.13.2 December 6 2017 Size 4.8 GB
 ---------------------------------------------------------
 
 * https://itunes.apple.com/tw/app/macos-high-sierra/id1246284741?l=en&mt=12
 * Metal 2
-
     
 
 Mac App Store Install

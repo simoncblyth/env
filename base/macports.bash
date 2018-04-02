@@ -356,20 +356,37 @@ macports-url(){ echo https://github.com/macports/macports-base/releases/download
 
 
 
+macports-url(){
+    echo https://github.com/macports/macports-base/releases/download/v2.4.2/MacPorts-2.4.2-10.13-HighSierra.pkg 
+}
 
-#macports-name(){ echo MacPorts-2.1.3 ; }
-# 
-#macports-get(){
-#   local dir=$(dirname $(macports-dir)) &&  mkdir -p $dir && cd $dir
-#
-#   local nam=$(macports-name)
-#   local tgz=$nam.tar.gz
-#   local url=https://distfiles.macports.org/MacPorts/$tgz
-#
-#   [ ! -f "$tgz" ] && curl -L -O "$url"
-#   [ ! -d "$nam" ] && tar zxvf $tgz 
-#
-#}
+
+macports-get-notes(){ cat << EON
+
+https://trac.macports.org/wiki/Migration
+
+https://www.macports.org/install.php
+
+   macports-url : $(macports-url)
+
+EON
+}
+
+macports-get(){
+
+    local url=$(macports-url)
+    $FUNCNAME-notes
+
+    local dst=$(basename $url)    
+
+    local tmp=/tmp/$USER/env/$FUNCNAME
+    mkdir -p $tmp && cd $tmp
+
+    [ ! -f "$dst" ] && curl -L -O $url
+
+    open $dst 
+
+}
 
 macports-clean(){
    local msg="=== $FUNCNAME :"
@@ -388,4 +405,63 @@ macports-space(){
 }
 
 
+
+
+macports-clear-software-notes(){ cat << EON
+
+
+1.5G for 242 .tbz2 archives::
+
+    epsilon:example-package-dealer blyth$ du -hs /opt/local/var/macports/software 
+    1.5G	/opt/local/var/macports/software
+
+    epsilon:example-package-dealer blyth$ find /opt/local/var/macports/software  -type f  | wc -l
+         242
+
+    epsilon:example-package-dealer blyth$ find /opt/local/var/macports/software  -type f  -exec du -h {} \;
+    8.0K	/opt/local/var/macports/software/py27-errorhandler/py27-errorhandler-1.1.1_0.darwin_13.noarch.tbz2
+     12K	/opt/local/var/macports/software/xorg-fixesproto/xorg-fixesproto-5.0_0.darwin_13.noarch.tbz2
+    1.6M	/opt/local/var/macports/software/capnproto/capnproto-0.4.0_0.darwin_13.x86_64.tbz2
+     36K	/opt/local/var/macports/software/libsdl_image/libsdl_image-1.2.12_4.darwin_13.x86_64.tbz2
+    804K	/opt/local/var/macports/software/libtool/libtool-2.4.6_2.darwin_13.x86_64.tbz2
+    4.0K	/opt/local/var/macports/software/libcxx/libcxx-3.7.0_0.darwin_13.x86_64.tbz2
+    648K	/opt/local/var/macports/software/gmp/gmp-6.1.2_0.darwin_13.x86_64.tbz2
+    ..
+
+
+EON
+}
+
+
+
+macports-wipe-dirs-(){  cat << EOD
+/opt/local 
+/Applications/DarwinPorts
+/Applications/MacPorts
+/Library/LaunchDaemons/org.macports.*
+/Library/Receipts/DarwinPorts*.pkg 
+/Library/Receipts/MacPorts*.pkg
+/Library/StartupItems/DarwinPortsStartup
+/Library/Tcl/darwinports1.0
+/Library/Tcl/macports1.0
+~/.macports
+EOD
+}
+
+macports-wipe-notes(){ cat << EON
+
+* https://guide.macports.org/chunked/installing.macports.uninstalling.html
+
+EON
+}
+
+macports-wipe(){
+
+   local dir
+   macports-wipe-dirs- | while read dir ; do 
+      echo dir $dir
+      #ls $dir
+      sudo rm -rf $dir
+   done 
+}
 

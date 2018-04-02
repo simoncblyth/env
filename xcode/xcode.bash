@@ -14,6 +14,47 @@ See Also
 
 
 
+cannot run a playground in debugger !
+----------------------------------------
+
+* this makes them fit for snippets only 
+* https://stackoverflow.com/questions/34186805/swift-playground-with-debugger-support
+
+
+xcodeproj into repo ?
+------------------------
+
+* https://cocoacasts.com/setting-up-a-brand-new-project-in-xcode
+
+
+* http://shanesbrain.net/2008/7/9/using-xcode-with-git
+
+
+.gitattributes to treat as binary::
+
+    *.pbxproj -crlf -diff -merge
+
+The line in .gitattributes treats your Xcode project file as a binary. This
+prevents Git from trying to fix newlines, show it in diffs, and excludes it
+from merges. Note that you will still see it shown as a conflict in merges,
+although the file won't have changed. Simply commit it and things should be
+good.
+
+
+* :google:`xcodeproj gitattributes`
+
+* https://robots.thoughtbot.com/xcode-and-git-bridging-the-gap
+
+::
+
+   *.pbxproj binary merge=union
+
+
+* https://stackoverflow.com/questions/8026429/should-i-git-ignore-xcodeproject-project-pbxproj-file
+* https://github.com/github/gitignore/blob/master/Global/Xcode.gitignore
+* https://peterwitham.com/swift-archives/create-a-gitignore-for-swift/
+
+
 Preserving Xcode 9.2
 -----------------------
 
