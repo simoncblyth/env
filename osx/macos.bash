@@ -8,6 +8,12 @@ macos-usage(){ cat << EOU
 macOS
 ========
 
+
+Point Releases
+----------------
+
+* https://robservatory.com/a-useless-analysis-of-os-x-release-dates/
+
 History
 ---------
 
@@ -20,6 +26,18 @@ OS X El Capitan       10.11   September 30, 2015
 OS X Yosemite         10.10   October 16, 2014
 OS X Mavericks        10.9    October 22, 2013
 ==================== ======  ====================
+
+
+current versions installed on HFS volumes, the Epsilon APFS not visible from Mavericks
+----------------------------------------------------------------------------------------
+
+::
+
+    delta:~ blyth$ macos-;macos-volumes-smry
+         10.9.4      13E28   YES : /Volumes/Delta
+         10.9.4      13E28    NO : /Volumes/DeltaClone
+        10.13.3     17D102    NO : /Volumes/TestHighSierra
+
 
 
 macOS High Sierra 10.13.2 December 6 2017 Size 4.8 GB
@@ -309,3 +327,42 @@ macos-get(){
    local dir=$(dirname $(macos-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+macos-version-(){
+  local key=${1:-ProductVersion} 
+  local plist=$(macos-plist)
+  [ ! -f "$plist" ] && return 
+  /usr/libexec/PlistBuddy -c "Print $key" $plist
+}
+
+macos-root(){               echo ${MACOS_ROOT:-/} ; }
+macos-plist(){              echo $(macos-root)/System/Library/CoreServices/SystemVersion.plist ; }
+macos-isBooted(){           local vol=$(macos-root) ; [ -L "$vol" -a "$(readlink $vol)" == "/" ] && echo "YES" || echo "NO" ; }  
+macos-ProductBuildVersion(){ macos-version- ${FUNCNAME/macos-} ; }
+macos-ProductVersion(){      macos-version- ${FUNCNAME/macos-} ; }
+macos-info(){  cat << EOI
+
+   MACOS_ROOT                : $MACOS_ROOT
+   macos-plist               : $(macos-plist)
+   macos-isBooted            : $(macos-isBooted)
+
+   macos-root                : $(macos-root)
+   macos-ProductVersion      : $(macos-ProductVersion)
+   macos-ProductBuildVersion : $(macos-ProductBuildVersion)
+
+EOI
+}
+
+macos-smry(){ printf " %10s %10s %5s : %s\n" "$(macos-ProductVersion)" "$(macos-ProductBuildVersion)" "$(macos-isBooted)" "$(macos-root)" ; } 
+
+macos-volumes-(){
+   local func=${1:-info}
+   local volname
+   ls -1 /Volumes | while read volname ; do 
+      MACOS_ROOT=/Volumes/$volname macos-$func
+   done
+}
+
+macos-volumes-info(){ macos-volumes- info ; }
+macos-volumes-smry(){ macos-volumes- smry ; }
+
