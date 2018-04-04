@@ -14,6 +14,27 @@ See Also
 
 
 
+xcode clang version sequence
+-------------------------------
+
+* https://trac.macports.org/wiki/XcodeVersionInfo
+
+::
+
+    ## following xcode-;xcode-92 (93 is default)
+
+    epsilon:~ blyth$ /usr/bin/xcodebuild -version
+    Xcode 9.2
+    Build version 9C40b
+
+    epsilon:~ blyth$ clang --version
+    Apple LLVM version 9.0.0 (clang-900.0.39.2)
+    Target: x86_64-apple-darwin17.5.0
+    Thread model: posix
+    InstalledDir: /Applications/Xcode/Xcode_9_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+
+ 
+
 cannot run a playground in debugger !
 ----------------------------------------
 

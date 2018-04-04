@@ -18,6 +18,100 @@ Reference
 * https://www.rath.org/mercurial-for-git-users-and-vice-versa.html
 
 
+
+
+github pull request from a fork
+----------------------------------
+
+* https://help.github.com/articles/creating-a-pull-request-from-a-fork/
+
+
+git syncing a fork
+---------------------
+
+* https://help.github.com/articles/syncing-a-fork/
+
+add remote for the upstream repo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    epsilon:plog blyth$ git remote -v
+    origin	https://github.com/simoncblyth/plog (fetch)
+    origin	https://github.com/simoncblyth/plog (push)
+    epsilon:plog blyth$ 
+    epsilon:plog blyth$ git remote add upstream https://github.com/SergiusTheBest/plog
+    epsilon:plog blyth$ git remote -v
+    origin	https://github.com/simoncblyth/plog (fetch)
+    origin	https://github.com/simoncblyth/plog (push)
+    upstream	https://github.com/SergiusTheBest/plog (fetch)
+    upstream	https://github.com/SergiusTheBest/plog (push)
+    epsilon:plog blyth$ 
+
+
+fetch the changes
+~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    epsilon:plog blyth$ git fetch upstream
+    remote: Counting objects: 517, done.
+    remote: Compressing objects: 100% (28/28), done.
+    remote: Total 517 (delta 201), reused 215 (delta 194), pack-reused 288
+    Receiving objects: 100% (517/517), 108.88 KiB | 518.00 KiB/s, done.
+    Resolving deltas: 100% (312/312), completed with 28 local objects.
+    From https://github.com/SergiusTheBest/plog
+     * [new branch]      master     -> upstream/master
+     * [new tag]         1.1.4      -> 1.1.4
+     * [new tag]         1.0.2      -> 1.0.2
+     * [new tag]         1.1.0      -> 1.1.0
+     * [new tag]         1.1.1      -> 1.1.1
+     * [new tag]         1.1.2      -> 1.1.2
+     * [new tag]         1.1.3      -> 1.1.3
+    epsilon:plog blyth$ 
+
+
+Merge
+~~~~~~~~
+
+::
+
+    epsilon:plog blyth$ git merge upstream/master
+    Updating 003f3c6..dcbcca7
+    Fast-forward
+     .appveyor.yml                                  |  31 ++++++++++++
+     ...
+     samples/NativeEOL/Main.cpp                     |  21 ++++++++
+     samples/Performance/Main.cpp                   |   2 +-
+     35 files changed, 1527 insertions(+), 352 deletions(-)
+     create mode 100644 .appveyor.yml
+     create mode 100644 .circleci/config.yml
+     delete mode 100644 appveyor.yml
+     create mode 100644 include/plog/Appenders/DebugOutputAppender.h
+     ...
+     create mode 100644 samples/NativeEOL/Main.cpp
+    epsilon:plog blyth$ 
+
+
+
+
+
+
+
+git ignores with Xcode 
+------------------------
+
+* https://www.raywenderlich.com/153084/use-git-source-control-xcode-9
+* https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
+
+::
+
+    git config --global alias.ignore '!gi() { curl -L -s https://www.gitignore.io/api/$@ ;}; gi'
+    git ignore swift,macos >.gitignore
+
+Global aliases are stored in ~/.gitconfig 
+
+
 Git Books
 -----------
 

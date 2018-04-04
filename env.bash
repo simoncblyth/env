@@ -1958,3 +1958,4 @@ dxr-(){      . $(env-home)/graphics/directx/dxr.bash && dxr-env $* ; }
 fastexport-(){      . $(env-home)/tools/hg2git/fastexport.bash && fastexport-env $* ; }
 edefaults-(){      . $(env-home)/osx/defaults/edefaults.bash && edefaults-env $* ; }
 clt-(){      . $(env-home)/xcode/commandlinetools/clt.bash && clt-env $* ; }
+conda-(){      . $(env-home)/tools/conda.bash && conda-env $* ; }

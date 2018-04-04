@@ -10,6 +10,31 @@ SceneKit
 =========
 
 
+
+Xcode 9.3 : SCNScene 
+----------------------
+
+How to overlay HUD ?
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://stackoverflow.com/questions/24419193/how-do-i-create-a-hud-on-top-of-my-scenekit-scene
+
++1 :) You can find more info in the docs and in the Bananas and Vehicle sample
+code projects. Another benefit of SK overlays is you can make your HUD cross
+platform, instead of using UIKit on iOS and AppKit on OS X. – rickster Jun 26 2014 at 16:31
+
+* https://developer.apple.com/documentation/scenekit/scnscenerenderer/1524051-overlayskscene
+
+::
+
+    SKContainerOverlay *skContainerOverlay = [[SKContainerOverlay alloc] initWithSize:self.sceneView.bounds.size];
+    self.sceneView.overlaySKScene = skContainerOverlay;
+    self.sceneView.overlaySKScene.hidden = NO;
+    self.sceneView.overlaySKScene.scaleMode = SKSceneScaleModeResizeFill; // Make sure SKScene bounds are the same as our SCNScene
+    self.sceneView.overlaySKScene.userInteractionEnabled = YES;
+
+
+
 Dynamic Loading
 ----------------
 

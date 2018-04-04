@@ -25,6 +25,13 @@ cmak-
     generating CMakeLists.txt to debug finding packages and flag setup etc.. 
 
 
+Epsilon : macOS 10.13.4 : cmake @3.11.0
+------------------------------------------
+
+::
+
+    sudo port install -v cmake +docs +python27
+
 
 
 add_custom_target
@@ -130,12 +137,6 @@ CMake 3.1 target_sources
 ---------------------------
 
 * https://crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
-
-
-
-
-
-
 
 
 Unit Tests 

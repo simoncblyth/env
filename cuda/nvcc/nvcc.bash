@@ -334,3 +334,72 @@ nvcc-get(){
    local dir=$(dirname $(nvcc-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+
+nvcc-hello-(){ cat << EOH
+#include <stdio.h>
+
+int main() 
+{
+    printf( "running... $FUNCNAME\n" );
+    return 0;
+}
+EOH
+}
+
+
+nvcc-hello(){
+   local tmp=/tmp/$USER/env/cuda/nvcc/$FUNCNAME
+   mkdir -p $tmp && cd $tmp
+
+   local nam="hello"
+
+   cuda- 
+
+
+   $FUNCNAME- > $nam.cc
+   nvcc $nam.cc -o $nam  && ./$nam
+
+  
+   which clang
+   clang --version
+
+}
+
+nvcc-hello-notes(){ cat << EON
+
+epsilon:nvcc-hello blyth$ nvcc-;nvcc-hello
+nvcc fatal   : The version ('90100') of the host compiler ('Apple clang') is not supported
+
+/usr/bin/clang
+Apple LLVM version 9.1.0 (clang-902.0.39.1)
+Target: x86_64-apple-darwin17.5.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+epsilon:nvcc-hello blyth$ 
+
+
+epsilon:nvcc-hello blyth$ xcode-;xcode-92
+sudo xcode-select --switch /Applications/Xcode/Xcode_9_2.app/Contents/Developer
+
+
+epsilon:nvcc-hello blyth$ nvcc-;nvcc-hello
+running... nvcc-hello-
+
+/usr/bin/clang
+Apple LLVM version 9.0.0 (clang-900.0.39.2)
+Target: x86_64-apple-darwin17.5.0
+Thread model: posix
+InstalledDir: /Applications/Xcode/Xcode_9_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+epsilon:nvcc-hello blyth$ 
+
+
+
+
+EON
+}
+
+
+
+
+
