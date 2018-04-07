@@ -74,7 +74,7 @@ clui-alias(){
 
    alias ss-="sudo su -"
    alias x='exit'
-   alias l="ls -lt "
+   alias l="ls -ltO "
    alias lz="ls -la -Z"
    alias ll="ls -ltra "
    alias lt="ls -lt $se "

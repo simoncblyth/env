@@ -22,6 +22,18 @@ OS X Mavericks        10.9    October 22, 2013
 ==================== ======  ====================
 
 
+Summary of Installs in mounted volumes
+----------------------------------------
+
+::
+
+    epsilon:home blyth$ macos-;macos-smry 
+             10.9.4 :           13E28  : /Volumes/Delta/System/Library/CoreServices/SystemVersion.plist 
+            10.13.4 :          17E199  : /Volumes/Epsilon/System/Library/CoreServices/SystemVersion.plist 
+            10.13.4 :          17E199  : /Volumes/EpsilonClone/System/Library/CoreServices/SystemVersion.plist 
+            10.13.3 :          17D102  : /Volumes/TestHighSierra/System/Library/CoreServices/SystemVersion.plist 
+
+
 Point releases of High Sierra
 --------------------------------
 
@@ -331,3 +343,23 @@ macos-get(){
    local dir=$(dirname $(macos-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+
+
+macos-pl(){ echo /System/Library/CoreServices/SystemVersion.plist ; }
+macos-ver(){ /usr/libexec/PlistBuddy -c 'Print ProductVersion'   ${1:-$(macos-pl)} ; }
+macos-bld(){ /usr/libexec/PlistBuddy -c 'Print ProductBuildVersion'  ${1:-$(macos-pl)} ; }
+
+macos-smry(){
+
+  local ver
+  local bld
+  local pli 
+  ls -1 /Volumes/*$(macos-pl) | while read pli ; do 
+      ver=$(macos-ver $pli)
+      bld=$(macos-bld $pli)
+      printf "%15s : %15s  : %s \n"  $ver $bld $pli
+  done
+
+}
+
