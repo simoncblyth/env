@@ -1020,6 +1020,8 @@ git-origin(){
 }
 
 
+git-edit(){ vi ~/.gitconfig ; }
+
 git-conf(){
 
 git config --global user.name "Simon C Blyth"
