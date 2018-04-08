@@ -22,6 +22,36 @@ OS X Mavericks        10.9    October 22, 2013
 ==================== ======  ====================
 
 
+High Sierra : permissions beyond root
+---------------------------------------
+
+::
+  
+    cd / ; sudo du -hs * 
+    ...
+    du: private/var/db/ConfigurationProfiles/Store: Operation not permitted
+    du: private/var/folders/vs/k9y1g_4n7pjfmvjtxh3drc_r0000gq/0/com.apple.LaunchServices.dv: Operation not permitted
+    du: private/var/folders/08/zxtsfp85461g1t1g32zglm1w0000gn/0/SafariFamily: Operation not permitted
+    du: private/var/folders/08/zxtsfp85461g1t1g32zglm1w0000gn/0/com.apple.LaunchServices.dv: Operation not permitted
+    du: private/var/folders/08/zxtsfp85461g1t1g32zglm1w0000gn/0/com.apple.nsurlsessiond: Operation not permitted
+    du: private/var/folders/08/zxtsfp85461g1t1g32zglm1w0000gn/0/com.apple.routined: Operation not permitted
+    du: private/var/folders/zz/zyxvpxvq6csfxvn_n00000y800007k/0/com.apple.nsurlsessiond: Operation not permitted
+    du: private/var/folders/zz/zyxvpxvq6csfxvn_n00000z000007r/0/com.apple.nsurlsessiond: Operation not permitted
+    du: private/var/folders/zz/zyxvpxvq6csfxvn_n00000z000007r/0/com.apple.routined: Operation not permitted
+    du: private/var/folders/kz/fkn2sgfs7ys_z9r04dgrtpw80000gr/0/SafariFamily: Operation not permitted
+    du: private/var/folders/kz/fkn2sgfs7ys_z9r04dgrtpw80000gr/0/com.apple.LaunchServices.dv: Operation not permitted
+    du: private/var/folders/kz/fkn2sgfs7ys_z9r04dgrtpw80000gr/0/com.apple.nsurlsessiond: Operation not permitted
+    du: private/var/folders/kz/fkn2sgfs7ys_z9r04dgrtpw80000gr/0/com.apple.routined: Operation not permitted
+    du: private/var/folders/1b/dh29_bdd6ws7qn4ww42mmkjc0000gp/0/com.apple.LaunchServices.dv: Operation not permitted
+    du: private/var/folders/1b/dh29_bdd6ws7qn4ww42mmkjc0000gp/0/com.apple.nsurlsessiond: Operation not permitted
+    du: private/var/folders/1b/dh29_bdd6ws7qn4ww42mmkjc0000gp/0/com.apple.routined: Operation not permitted
+    du: private/var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/0/SafariFamily: Operation not permitted
+    du: private/var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/0/com.apple.LaunchServices.dv: Operation not permitted
+    du: private/var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/0/com.apple.nsurlsessiond: Operation not permitted
+    du: private/var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/0/com.apple.routined: Operation not permitted
+
+
+
 Summary of Installs in mounted volumes
 ----------------------------------------
 

@@ -14,6 +14,60 @@ See Also
 
 
 
+Huh : copied Xcode bloated to 17G from original 5.3G  ? 
+-----------------------------------------------------------------
+
+Wow compression is having a huge effect ?
+
+
+    epsilon:home blyth$ diff -r --brief /Volumes/TestHighSierra/Applications/Xcode_9_2.app /Applications/Xcode/Xcode_9_2.app
+    Only in /Volumes/TestHighSierra/Applications/Xcode_9_2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Ruby.framework/Headers/ruby: ruby
+    Only in /Volumes/TestHighSierra/Applications/Xcode_9_2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Ruby.framework/Versions/2.3/Headers/ruby: ruby
+    Only in /Volumes/TestHighSierra/Applications/Xcode_9_2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Ruby.framework/Versions/Current/Headers/ruby: ruby
+    Only in /Volumes/TestHighSierra/Applications/Xcode_9_2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/Ruby.framework/Headers/ruby: ruby
+    Only in /Volumes/TestHighSierra/Applications/Xcode_9_2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/Ruby.framework/Versions/2.3/Headers/ruby: ruby
+    Only in /Volumes/TestHighSierra/Applications/Xcode_9_2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/Ruby.framework/Versions/Current/Headers/ruby: ruby
+
+
+    epsilon:~ blyth$ l /Applications/Xcode/Xcode_9_2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Ruby.framework/Headers/ruby/
+    total 504
+    -rw-r--r--  1 blyth  admin  -  1684 Mar 31 15:18 vm.h
+    ...
+
+    epsilon:~ blyth$ l /Volumes/TestHighSierra/Applications/Xcode_9_2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Ruby.framework/Headers/ruby/
+    total 112
+    lrwxr-xr-x  1 blyth  staff  -              1 Mar 23 21:02 ruby -> .
+    -rw-r--r--  2 blyth  staff  compressed  1684 Jul 16  2017 vm.h
+    ...
+
+    * https://superuser.com/questions/382120/mac-os-x-not-reporting-directory-sizes-correctly
+
+
+Fix by using ditto to copy Xcode.app
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    cd /Applications/Xcode
+
+    mv Xcode_9_2.app Xcode_9_2_bloated.app
+
+    ditto /Volumes/TestHighSierra/Applications/Xcode_9_2.app /Applications/Xcode/Xcode_9_2.app
+
+    epsilon:Xcode blyth$ du -hs /Applications/Xcode/Xcode_9_2.app
+    5.3G	/Applications/Xcode/Xcode_9_2.app
+
+    epsilon:Xcode blyth$ du -hs /Volumes/TestHighSierra/Applications/Xcode_9_2.app
+    5.3G	/Volumes/TestHighSierra/Applications/Xcode_9_2.app
+
+    epsilon:Xcode blyth$ du -hs Xcode_9_2_bloated.app
+     17G	Xcode_9_2_bloated.app
+
+    epsilon:Xcode blyth$ sudo rm -rf Xcode_9_2_bloated.app
+
+
+
+
 xcode clang version sequence
 -------------------------------
 
