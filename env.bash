@@ -1961,3 +1961,7 @@ clt-(){      . $(env-home)/xcode/commandlinetools/clt.bash && clt-env $* ; }
 conda-(){      . $(env-home)/tools/conda.bash && conda-env $* ; }
 spritekit-(){      . $(env-home)/graphics/spritekit/spritekit.bash && spritekit-env $* ; }
 ditto-(){      . $(env-home)/osx/ditto.bash && ditto-env $* ; }
+
+rsync-(){      . $(env-home)/tools/rsync.bash && rsync-env $* ; }
+
+
