@@ -13,6 +13,69 @@ See Also
 * clt- regarding CommandLineTools, xcode-select, xcrun
 
 
+Good Blogs on Xcode/Swift
+---------------------------
+
+* https://useyourloaf.com/archives/
+
+
+Alternative : cmake
+---------------------
+
+* https://github.com/sheldonth/ios-cmake
+
+
+Workspaces vs Projects vs SubProjects
+----------------------------------------
+
+* https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Workspace.html
+
+The workspace document contains pointers to the included projects and other
+files, but no other data. A project can belong to more than one workspace.
+
+
+Resources from a Framework
+----------------------------
+
+* https://useyourloaf.com/blog/loading-resources-from-a-framework/
+
+
+Playground + Project + Workspace
+-----------------------------------
+
+* https://useyourloaf.com/blog/adding-playgrounds-to-xcode-projects/ 
+
+Placing classes into a Framework inside the project, with public access,
+allows them to be imported into the playground thats in the same 
+workspace.
+
+
+Code Folding in Xcode 9.3
+-----------------------------
+
+* See *Editor > Code Folding* 
+
+* opt-shift-cmd-left Fold all funcs and methods, handy for header like view 
+
+* https://stackoverflow.com/questions/44401963/xcode-9-expand-collapse-braces-brackets-side-bar-missing/45756408
+
+* cmd-click on opening or closing curly, it gets highlighted, 
+  hold a while and then can then select fold from menu
+
+
+Swift Package Manager : Package.swift
+-----------------------------------------
+
+* reminiscent of setup.py 
+
+::
+
+    swift package help 
+    swift package show-dependencies
+    swift package resolve
+    swift package generate-xcodeproj
+
+
 
 Huh : copied Xcode bloated to 17G from original 5.3G  ? 
 -----------------------------------------------------------------

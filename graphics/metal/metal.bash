@@ -8,6 +8,18 @@ metal-usage(){ cat << EOU
 Metal : close to the metal OpenGL ES alternative on iOS and OSX
 =================================================================
 
+
+MetalKit
+-----------
+
+* http://metalbyexample.com/first-look-at-metalkit/#more-548
+
+
+Tutorial
+----------
+
+* https://www.raywenderlich.com/146414/metal-tutorial-swift-3-part-1-getting-started
+
 Metal 2 (WWDC June 2017)
 ---------------------------
 

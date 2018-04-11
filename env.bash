@@ -1965,3 +1965,7 @@ ditto-(){      . $(env-home)/osx/ditto.bash && ditto-env $* ; }
 rsync-(){      . $(env-home)/tools/rsync.bash && rsync-env $* ; }
 
 
+docker-(){      . $(env-home)/tools/docker.bash && docker-env $* ; }
+cocoapods-(){      . $(env-home)/tools/cocoapods.bash && cocoapods-env $* ; }
+carthage-(){      . $(env-home)/tools/carthage.bash && carthage-env $* ; }
+brew-(){      . $(env-home)/tools/brew.bash && brew-env $* ; }

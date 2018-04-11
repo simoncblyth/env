@@ -17,6 +17,24 @@ TODO
 * update to latest Sphinx, using github fork 
 
 
+New Sphinx breakage of modified todo
+--------------------------------------
+
+::
+
+    epsilon:home blyth$ find /Volumes/Delta/opt/local/Library/Frameworks/Python.framework -name todo.py
+
+    /Volumes/Delta/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx/ext/todo.py
+
+    diff /Volumes/Delta/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx/ext/todo.py sphinxext/todo.py
+
+    path=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx/ext/todo.py
+
+    vimdiff /Volumes/Delta$path $path
+
+
+
+
 How to structure a large set of Sphinx docs ?
 -----------------------------------------------
 
