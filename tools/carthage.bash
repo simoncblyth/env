@@ -8,6 +8,13 @@ carthage-usage(){ cat << EOU
 Carthage
 ==========
 
+
+* https://github.com/Carthage/Carthage
+
+
+brew install
+---------------
+
 ::
 
     epsilon:~ blyth$ brew info carthage

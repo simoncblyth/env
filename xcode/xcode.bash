@@ -13,10 +13,36 @@ See Also
 * clt- regarding CommandLineTools, xcode-select, xcrun
 
 
+Vids
+-----
+
+* https://developer.apple.com/videos/wwdc2016/
+
+
+UI Hookup to Code
+-------------------
+
+* https://developer.apple.com/library/content/referencelibrary/GettingStarted/DevelopiOSAppsSwift/ConnectTheUIToCode.html
+
+
+iOS/macOS Cross platform approaches
+-------------------------------------
+
+* https://stackoverflow.com/questions/3596455/whats-a-suitable-cross-platform-methodology-for-ios-and-mac-os-x
+
+* https://developer.apple.com/videos/play/wwdc2014/233/
+
+  Sharing code between iOS and macOS
+
+
 Good Blogs on Xcode/Swift
 ---------------------------
 
 * https://useyourloaf.com/archives/
+
+* http://mhorga.org/archive/
+
+* http://metalkit.org/ Tutorial series 
 
 
 Alternative : cmake
@@ -61,6 +87,12 @@ Code Folding in Xcode 9.3
 
 * cmd-click on opening or closing curly, it gets highlighted, 
   hold a while and then can then select fold from menu
+
+
+Cocoapods vs carthage (emacs vs vim)
+----------------------------------------
+
+* https://medium.com/xcblog/carthage-or-cocoapods-that-is-the-question-1074edaafbcb
 
 
 Swift Package Manager : Package.swift

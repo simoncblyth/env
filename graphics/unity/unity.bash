@@ -8,6 +8,12 @@ unity-usage(){ cat << EOU
 Unity 5 : free personal edition
 =================================
 
+Introductions
+--------------
+
+* https://www.raywenderlich.com/142603/unity-tutorial-part-1-getting-started
+
+
 Fully featured free version
 -----------------------------
 
