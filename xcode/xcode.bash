@@ -13,6 +13,82 @@ See Also
 * clt- regarding CommandLineTools, xcode-select, xcrun
 
 
+empty app (no storyboard or xib)
+----------------------------------
+
+* https://stackoverflow.com/questions/25783282/how-to-create-an-empty-application-in-xcode-without-storyboard
+
+
+* https://stackoverflow.com/questions/28792722/osx-application-without-storyboard-or-xib-files-using-swift
+
+
+macOS : main.swift + AppDelegate.swift
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    import Cocoa
+
+    let delegate = AppDelegate()
+    NSApplication.shared.delegate = delegate
+
+    NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
+
+
+
+
+
+
+Renaming groups breaks the build
+-----------------------------------
+
+Renamed the yellow groups, replacing spaces in the names with underscores.
+eg renamed "MetalCross2 Shared" -> "MetalCross2_Shared"
+
+* observe xcode 9.3 does git renaming in this circumstance (although my 
+  git repo was not setup by xcode).
+
+* build broken, in macOS had to relocate the Info.plist  
+* still broken at "precompile bridging header" stage for macOS
+
+A kludge symbolic link fixes this::
+
+   ln -s MetalCross2_Shared MetalCross2\ Shared
+
+But better to avoid such kludge. Search reveals the 
+setting thats wrong as SWIFT_OBJC_BRIDGING_HEADER::
+
+    epsilon:MetalCross2 blyth$ find . -type f -exec grep -H ShaderTypes.h {} \;
+    ./MetalCross2_Shared/Mandelbrot.metal:#import "ShaderTypes.h"
+    ./MetalCross2_Shared/ShaderTypes.h://  ShaderTypes.h
+    ./MetalCross2_Shared/ShaderTypes.h:#ifndef ShaderTypes_h
+    ./MetalCross2_Shared/ShaderTypes.h:#define ShaderTypes_h
+    ./MetalCross2_Shared/ShaderTypes.h:#endif /* ShaderTypes_h */
+    ./MetalCross2.xcodeproj/project.pbxproj:		F959CDE2207F6F0F00B7DCF6 /* ShaderTypes.h in Resources */ = {isa = PBXBuildFile; fileRef = F959CDBC207F6F0D00B7DCF6 /* ShaderTypes.h */; };
+    ./MetalCross2.xcodeproj/project.pbxproj:		F959CDE3207F6F0F00B7DCF6 /* ShaderTypes.h in Resources */ = {isa = PBXBuildFile; fileRef = F959CDBC207F6F0D00B7DCF6 /* ShaderTypes.h */; };
+    ./MetalCross2.xcodeproj/project.pbxproj:		F959CDBC207F6F0D00B7DCF6 /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
+    ./MetalCross2.xcodeproj/project.pbxproj:				F959CDBC207F6F0D00B7DCF6 /* ShaderTypes.h */,
+    ./MetalCross2.xcodeproj/project.pbxproj:				F959CDE2207F6F0F00B7DCF6 /* ShaderTypes.h in Resources */,
+    ./MetalCross2.xcodeproj/project.pbxproj:				F959CDE3207F6F0F00B7DCF6 /* ShaderTypes.h in Resources */,
+    ./MetalCross2.xcodeproj/project.pbxproj:				SWIFT_OBJC_BRIDGING_HEADER = MetalCross2_Shared/ShaderTypes.h;
+    ./MetalCross2.xcodeproj/project.pbxproj:				SWIFT_OBJC_BRIDGING_HEADER = MetalCross2_Shared/ShaderTypes.h;
+    ./MetalCross2.xcodeproj/project.pbxproj:				SWIFT_OBJC_BRIDGING_HEADER = "MetalCross2 Shared/ShaderTypes.h";
+    ./MetalCross2.xcodeproj/project.pbxproj:				SWIFT_OBJC_BRIDGING_HEADER = "MetalCross2 Shared/ShaderTypes.h";
+    Binary file ./MetalCross2.xcodeproj/project.xcworkspace/xcuserdata/blyth.xcuserdatad/UserInterfaceState.xcuserstate matches
+    epsilon:MetalCross2 blyth$ 
+
+
+To find that in settings using the "Levels" view and flip between the iOS and macOS targets
+to observe the differences.
+
+For macOS target the  "Swift Compiler - General" > "ObjC generated Interface Header Name"
+(aka SWIFT_OBJC_INTERFACE_HEADER_NAME  : use option-click on the title to see the underlying key name)
+note that the old "MetalCross2 Shared" name is still in the path.
+
+
+
+
+
 Vids
 -----
 
