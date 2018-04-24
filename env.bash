@@ -1969,3 +1969,4 @@ docker-(){      . $(env-home)/tools/docker.bash && docker-env $* ; }
 cocoapods-(){      . $(env-home)/tools/cocoapods.bash && cocoapods-env $* ; }
 carthage-(){      . $(env-home)/tools/carthage.bash && carthage-env $* ; }
 brew-(){      . $(env-home)/tools/brew.bash && brew-env $* ; }
+open-(){      . $(env-home)/osx/open.bash && open-env $* ; }
