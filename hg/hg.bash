@@ -29,6 +29,241 @@ Tips
      select entries in a date range
 
 
+new commits still draft : manually set them public
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    epsilon:opticks-cmake-overhaul blyth$ hg phase 
+    2299: draft
+    epsilon:opticks-cmake-overhaul blyth$ hg phase -p
+    epsilon:opticks-cmake-overhaul blyth$ hg phase 
+    2299: public
+    epsilon:opticks-cmake-overhaul blyth$ hg push 
+    pushing to ssh://hg@bitbucket.org/simoncblyth/opticks-cmake-overhaul
+    searching for changes
+    no changes found
+    epsilon:opticks-cmake-overhaul blyth$ 
+
+
+
+hg phases : bitbucket commits showing up DRAFT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.mercurial-scm.org/wiki/Phases
+
+Introduction To Mercurial Phases (Part II)
+
+* https://www.logilab.org/blogentry/88219
+
+
+commandline + bitbucket commits showing up DRAFT 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Manually changed them to public and pushed gets them 
+to show up normally on bitbucket.
+
+The repo was pushed to bitbucket from a local clone::
+
+    epsilon:opticks-cmake-overhaul blyth$ hg phase -r 2290:2298
+    2290: public
+    2291: public
+    2292: public
+    2293: public
+    2294: draft
+    2295: draft
+    2296: draft
+    2297: draft
+    2298: draft
+
+    epsilon:opticks-cmake-overhaul blyth$ hg phase --public 2294
+    epsilon:opticks-cmake-overhaul blyth$ hg phase -r 2290:2298
+    2290: public
+    2291: public
+    2292: public
+    2293: public
+    2294: public
+    2295: draft
+    2296: draft
+    2297: draft
+    2298: draft
+    epsilon:opticks-cmake-overhaul blyth$ hg phase --public 2295
+    epsilon:opticks-cmake-overhaul blyth$ hg phase --public 2296
+    epsilon:opticks-cmake-overhaul blyth$ hg phase --public 2297
+    epsilon:opticks-cmake-overhaul blyth$ hg phase --public 2298
+    epsilon:opticks-cmake-overhaul blyth$ hg phase -r 2290:2298
+    2290: public
+    2291: public
+    2292: public
+    2293: public
+    2294: public
+    2295: public
+    2296: public
+    2297: public
+    2298: public
+    epsilon:opticks-cmake-overhaul blyth$ 
+
+    epsilon:opticks-cmake-overhaul blyth$ hg push 
+    pushing to ssh://hg@bitbucket.org/simoncblyth/opticks-cmake-overhaul
+    searching for changes
+    no changes found
+    epsilon:opticks-cmake-overhaul blyth$ 
+
+
+hg equivalent of git push -u
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+   vi .hg/hgrc 
+    
+Then edit the paths:: 
+
+  2 [paths]
+  3 default = ssh://hg@bitbucket.org/simoncblyth/opticks-cmake-overhaul
+  4 #default = /Users/blyth/opticks
+
+
+
+opticks-cmake-overhaul
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overhauling CMake infrastructure is bound to cause 
+build breakage potentially for an extended period, 
+so are unwilling to commit/push the CMake related changes.
+
+Instead: 
+
+1. commit/push all unrelated non-breaking changes are willing to, leaving 
+   just the CMake related ones::
+
+::
+
+    epsilon:opticks blyth$ hg st .
+    M CMakeLists.txt
+    M cmake/Templates/opticks-config.in
+    M okop/okop.bash
+    M opticks.bash
+    M opticksnpy/CMakeLists.txt
+    M sysrap/CMakeLists.txt
+    ? cmake/Modules/FindOpticks.cmake
+    ? cmake/Modules/OpticksConfigureCMakeHelpers.cmake
+    ? cmake/Templates/OpticksConfig.cmake.in
+    ? examples/FindOpticks/CMakeLists.txt
+    ? examples/FindOpticks/FindOpticks.cc
+    ? examples/FindOpticks/README.rst
+    ? examples/FindOpticks/go.sh
+    ? examples/UseNPY/CMakeLists.txt
+    ? examples/UseNPY/UseNPY.cc
+    ? examples/UseNPY/go.sh
+    ? examples/UseSysRap/CMakeLists.txt
+    ? examples/UseSysRap/UseSysRap.cc
+    ? examples/UseSysRap/go.sh
+    epsilon:opticks blyth$ 
+
+2. make a local clone::
+
+    cd ; hg clone opticks opticks-cmake-overhaul    ## apparently this uses hardlinks
+
+    epsilon:opticks-cmake-overhaul blyth$ hg paths -v    ## can pull/update from "mainline" into the overhaul clone 
+    default = /Users/blyth/opticks
+
+    epsilon:opticks blyth$ mv examples ../opticks-cmake-overhaul/
+
+
+3. caveman move CMake development over to the local overhaul clone::
+
+    epsilon:opticks blyth$ hg st .
+    M CMakeLists.txt
+    M cmake/Templates/opticks-config.in
+    M okop/okop.bash
+    M opticks.bash
+    M opticksnpy/CMakeLists.txt
+    M sysrap/CMakeLists.txt
+    ? cmake/Modules/FindOpticks.cmake
+    ? cmake/Modules/OpticksConfigureCMakeHelpers.cmake
+    ? cmake/Templates/OpticksConfig.cmake.in
+    epsilon:opticks blyth$ 
+    epsilon:opticks blyth$ mv cmake/Modules/FindOpticks.cmake ../opticks-cmake-overhaul/cmake/Modules/
+    epsilon:opticks blyth$ mv cmake/Modules/OpticksConfigureCMakeHelpers.cmake ../opticks-cmake-overhaul/cmake/Modules/
+    epsilon:opticks blyth$ mv cmake/Templates/OpticksConfig.cmake.in ../opticks-cmake-overhaul/cmake/Templates/
+    epsilon:opticks blyth$ 
+    epsilon:opticks blyth$ cp CMakeLists.txt ../opticks-cmake-overhaul/
+    epsilon:opticks blyth$ cp cmake/Templates/opticks-config.in ../opticks-cmake-overhaul/cmake/Templates/
+    epsilon:opticks blyth$ cp okop/okop.bash ../opticks-cmake-overhaul/okop/
+    epsilon:opticks blyth$ cp opticks.bash ../opticks-cmake-overhaul/
+    epsilon:opticks blyth$ cp opticksnpy/CMakeLists.txt ../opticks-cmake-overhaul/opticksnpy/
+    epsilon:opticks blyth$ cp sysrap/CMakeLists.txt ../opticks-cmake-overhaul/sysrap/
+    epsilon:opticks blyth$ 
+
+4. revert the changes and rm .orig to return to pristine opticks::  
+
+    epsilon:opticks blyth$ hg revert CMakeLists.txt
+    epsilon:opticks blyth$ hg revert cmake/Templates/opticks-config.in
+    epsilon:opticks blyth$ hg revert okop/okop.bash
+    epsilon:opticks blyth$ hg revert opticks.bash
+    epsilon:opticks blyth$ hg revert opticksnpy/CMakeLists.txt
+    epsilon:opticks blyth$ hg revert sysrap/CMakeLists.txt
+
+
+5. check opticks still builds, and the tests run::
+
+   opticks--
+   opticks-t   ## one (1/300) familiar fail from GSceneTest
+
+
+opticks-cmake-overhaul
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. pick via .bash_profile::
+
+    308 #export OPTICKS_HOME=$HOME/opticks
+    309 export OPTICKS_HOME=$HOME/opticks-cmake-overhaul
+
+
+
+
+branches
+~~~~~~~~~~~
+
+* http://stevelosh.com/blog/2009/08/a-guide-to-branching-in-mercurial/
+
+When you commit the newly created changeset will be on the same branch as its
+parent, unless you’ve used hg branch to mark it as being on a different one.
+
+bookmarks
+~~~~~~~~~~~
+
+* https://www.mercurial-scm.org/wiki/Bookmarks
+
+Mercurial's bookmark feature is analogous to Git's branching scheme, but can
+also be used in conjunction with Mercurial's traditional named branches.
+
+* http://mercurial.aragost.com/kick-start/en/bookmarks/
+
+Tags also add new names to existing changesets, but unlike tags, bookmarks are
+mutable and transient: you can move, rename, or delete them and they are not
+stored in history. This means that there is no audit trail for bookmarks.
+
+::
+
+    hg bookmarks   ## list bookmarks
+
+The asterisk (*) indicates that the bookmark is active, which means that it
+will move along if she makes a new commit. Because the active bookmark moves
+along when you commit, it will always point to the head of the branch you’re
+working on.
+
+
+
+mercurial branch merge workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.mercurial-scm.org/wiki/Workflows
+
+
+
+
 log templates
 ~~~~~~~~~~~~~~
 

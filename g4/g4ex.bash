@@ -8,6 +8,25 @@ g4ex-usage(){ cat << EOU
 EOU
 }
 
+
+g4ex-info(){ cat << EOI
+
+g4-examples-dir : $(g4-examples-dir)
+g4-cmake-dir    : $(g4-cmake-dir)
+
+
+g4ex-name         : $(g4ex-name)
+g4ex-prefix       : $(g4ex-prefix)
+
+g4ex-dir (source)   : $(g4ex-dir)
+g4ex-bdir (build)   : $(g4ex-bdir)
+g4ex-idir (install) : $(g4ex-idir)
+
+
+EOI
+}
+
+
 g4ex-env(){    
    elocal- 
    g4- 
@@ -15,8 +34,8 @@ g4ex-env(){
 
 }
 
-g4ex-name(){ echo basic/B1 ; }
-#g4ex-name(){ echo extended/optical/LXe ; }
+#g4ex-name(){ echo basic/B1 ; }
+g4ex-name(){ echo extended/optical/LXe ; }
 #g4ex-name(){ echo extended/optical/OpNovice ; }
 #g4ex-name(){ echo extended/optical/wls ; }
 #g4ex-name(){ echo extended/eventgenerator/exgps ; }
@@ -24,9 +43,13 @@ g4ex-name(){ echo basic/B1 ; }
 
 
 g4ex-cd(){   cd $(g4ex-dir); }
+g4ex-bcd(){  cd $(g4ex-bdir); }
+g4ex-icd(){  cd $(g4ex-idir); }
+
 g4ex-dir(){  echo $(g4-examples-dir)/$(g4ex-name) ; }
 g4ex-bdir(){ echo $(local-base)/env/g4ex/$(g4ex-name).build   ; }
 g4ex-idir(){ echo $(local-base)/env/g4ex/$(g4ex-name).install ; }
+
 g4ex-prefix(){ echo $(local-base)/env/g4ex ; }
 
 
@@ -57,7 +80,6 @@ g4ex-cmake(){
    mkdir -p $bdir  
    cd $bdir
 
-
    cmake \
          -DGeant4_DIR=$(g4-cmake-dir) \
          -DWITH_GEANT4_UIVIS=OFF \
@@ -86,6 +108,9 @@ g4ex-make(){
 g4ex-run(){
    local bdir=$(g4ex-bdir)
    cd $bdir
+
+   g4-export
+
    case $(g4ex-name) in 
       "basic/B1") ./exampleB1 ;;
       "extended/optical/LXe") ./LXe ;;

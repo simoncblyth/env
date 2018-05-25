@@ -1970,3 +1970,7 @@ cocoapods-(){      . $(env-home)/tools/cocoapods.bash && cocoapods-env $* ; }
 carthage-(){      . $(env-home)/tools/carthage.bash && carthage-env $* ; }
 brew-(){      . $(env-home)/tools/brew.bash && brew-env $* ; }
 open-(){      . $(env-home)/osx/open.bash && open-env $* ; }
+bcm-(){      . $(env-home)/tools/bcm.bash && bcm-env $* ; }
+cct-(){      . $(env-home)/cuda/cmake_cuda_tests/cct.bash && cct-env $* ; }
+cuda_samples-(){      . $(env-home)/cuda/cuda_samples.bash && cuda_samples-env $* ; }
+cudasamples-(){      . $(env-home)/cuda/cudasamples.bash && cudasamples-env $* ; }

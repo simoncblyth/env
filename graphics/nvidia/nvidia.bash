@@ -10,6 +10,12 @@ NVIDIA
 ========
 
 
+NVIDIA V100
+-------------
+
+* https://www.anandtech.com/show/11367/nvidia-volta-unveiled-gv100-gpu-and-tesla-v100-accelerator-announced
+
+
 NVIDIA RTX at GTC 2018
 ------------------------
 

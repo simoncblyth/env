@@ -18,6 +18,21 @@ Reference
 * https://www.rath.org/mercurial-for-git-users-and-vice-versa.html
 
 
+May 2018 : github permission denied with DSA keys ? RSA still working 
+-------------------------------------------------------------------------
+
+Git permission denied over SSH with::
+
+   git clone git@github.com:simoncblyth/bcm.git
+
+Following instructions from https://help.github.com/articles/error-permission-denied-publickey/
+Reveals dsa keys no longer working::
+
+   epsilon:~ blyth$ ssh -vT git@github.com
+   ...
+   debug1: Skipping ssh-dss key /Users/blyth/.ssh/id_dsa - not in PubkeyAcceptedKeyTypes
+
+After adding id_rsa.pub to github webinterface succeed to regain ssh cloning access.
 
 
 github pull request from a fork
