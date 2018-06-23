@@ -14,6 +14,54 @@ Presentations online
 * http://simoncblyth.bitbucket.io
 
 
+CHEP 2018, Sofia, Bulgaria
+----------------------------
+
+* review developments since last CHEP,  
+ 
+  * okc-vi has some month-by-month history
+  * suspect there is another pile of progress reports too : consolidate them 
+
+
+Timeline
+------------
+
+::
+
+    Mon June 25  * start preparing talk, submit a version of presentation before July 02 
+    Mon July 02  
+    Mon July 09  * 1st day of CHEP
+
+
+
+::
+
+    Dear simon blyth,
+
+    The CHEP 2018 Program Committee and Track Conveners are happy to announce
+    that the parallel and poster sessions are published in Indico at
+    https://indico.cern.ch/event/587955/timetable/#all.detailed
+    Please check your assigned slot and contact us if:
+
+    1. There is an error in the speaker name or incorrect speaker is assigned;
+    2. The speaker is "For the <xxx> collaboration", we need the real speaker name;
+    3. You have found another error.
+
+    Note that you can upload your presentation/poster at any time, but please do so
+    at the latest one week before the start of the conference, i.e. by 2 July 2018.
+    Else your contribution risks not being taken into account for the summary of its track.
+
+    We take this opportunity to remind you that:
+
+    - the parallel presentation time format is 15 min - 12' presentation + 3' Q/A.
+    - the posters should be in A0 format and will be displayed for the duration
+    of the conference.
+
+    Thank you for your help and see you soon in Sofia!
+
+                                         Best Regards, the Program Committee.
+
+
 
 Potential Customers
 -----------------------
@@ -24,8 +72,6 @@ Potential Customers
     WATCHMAN : 
     THEIA
     CheSS   
-
-
 
 
 Sep 2017 Wollongong 

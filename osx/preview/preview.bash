@@ -12,6 +12,15 @@ Preview.app image editing
 * https://support.apple.com/en-us/HT201740
 
 
+
+Printing a PDF that gives errors with a printer
+-------------------------------------------------
+
+* File > Export then select PNG as format 
+  (it manages to have multiple pages in the PNG) 
+
+
+
 Scaledown retina screen capture by factor 2
 ----------------------------------------------
 

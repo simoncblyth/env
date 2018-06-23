@@ -1495,7 +1495,7 @@ reportlab-(){      . $(env-home)/doc/reportlab.bash && reportlab-env $* ; }
 vcglib-(){      . $(env-home)/graphics/meshlab/vcglib.bash && vcglib-env $* ; }
 qt4-(){      . $(env-home)/ui/qt4.bash && qt4-env $* ; }
 slides-(){      . $(env-home)/doc/slides.bash && slides-env $* ; }
-g4dae-(){      . $(env-home)/geant4/geometry/collada/g4dae.bash && g4dae-env $* ; }
+eg4dae-(){     . $(env-home)/geant4/geometry/collada/g4dae.bash && eg4dae-env $* ; }
 dns-(){      . $(env-home)/sysadmin/dns.bash && dns-env $* ; }
 gausstools-(){      . $(env-home)/geant4/geometry/GaussTools/gausstools.bash && gausstools-env $* ; }
 vrml-(){      . $(env-home)/geant4/geometry/VRML/vrml.bash && vrml-env $* ; }
@@ -1974,3 +1974,5 @@ bcm-(){      . $(env-home)/tools/bcm.bash && bcm-env $* ; }
 cct-(){      . $(env-home)/cuda/cmake_cuda_tests/cct.bash && cct-env $* ; }
 cuda_samples-(){      . $(env-home)/cuda/cuda_samples.bash && cuda_samples-env $* ; }
 cudasamples-(){      . $(env-home)/cuda/cudasamples.bash && cudasamples-env $* ; }
+gltfkit-(){      . $(env-home)/graphics/gltf/gltfkit.bash && gltfkit-env $* ; }
+gltfscenekit-(){      . $(env-home)/graphics/gltf/gltfscenekit.bash && gltfscenekit-env $* ; }

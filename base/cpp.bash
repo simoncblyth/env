@@ -10,6 +10,70 @@ C++
 ====
 
 
+pragma once is non-standard
+-----------------------------
+
+* https://en.wikipedia.org/wiki/Pragma_once
+
+
+cpp std::unique_ptr tis ok to return from functions
+-----------------------------------------------------
+
+* https://stackoverflow.com/questions/4316727/returning-unique-ptr-from-functions
+
+
+cpp std::tie
+--------------
+
+* https://stackoverflow.com/questions/19800303/what-is-the-difference-between-assigning-to-stdtie-and-tuple-of-references
+
+The goal of tie is making a temporary tuple to avoid temporary copies of tied
+objects, the bad effect is, you can not return a tie if entry objects are local
+temporary.
+
+* http://blog.paphus.com/blog/2012/07/25/tuple-and-tie/
+
+
+
+cpp streambufs : subverting a method that wants to write to a file to write to a buffer
+-----------------------------------------------------------------------------------------
+
+* https://stackoverflow.com/questions/8116541/what-exactly-is-streambuf-how-do-i-use-it
+
+* http://wordaligned.org/articles/cpp-streambufs
+
+::
+
+    class redirecter
+    // http://wordaligned.org/articles/cpp-streambufs
+    {
+    public:
+        redirecter(std::ostream & dst, std::ostream & src)
+            :   
+            src(src), 
+            sbuf(src.rdbuf(dst.rdbuf())) 
+        {   
+        }   
+
+        ~redirecter() { src.rdbuf(sbuf); }
+    private:
+        std::ostream & src;
+        std::streambuf * const sbuf;
+    };
+
+    void test_redirected( G4PhysicsOrderedFreeVector& vec, bool ascii )
+    {
+        std::ofstream fp("/dev/null", std::ios::out); 
+
+        std::stringstream ss ;    
+        redirecter rdir(ss,fp);    // redirect writes to the file to instead go to the stringstream 
+        
+        vec.Store(fp, ascii );
+
+        std::cout <<  ss.str() << std::endl ; 
+    }
+
+
 
 tuple and tie
 ---------------

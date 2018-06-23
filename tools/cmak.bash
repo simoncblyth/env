@@ -4,6 +4,9 @@ cmak-vi(){       vi $(cmak-source) ; }
 cmak-env(){      elocal- ; }
 cmak-usage(){ cat << \EOU
 
+cmak : usage of CMake
+========================
+
 
 Release History
 -------------------
@@ -36,8 +39,6 @@ Release History
 
 * https://cmake.org/files/
 
-
-
 Reference
 ----------
 
@@ -49,6 +50,22 @@ CMake cxx features
 * https://cmake.org/cmake/help/v3.1/command/target_compile_features.html#command:target_compile_features
 * https://cmake.org/cmake/help/v3.1/prop_gbl/CMAKE_CXX_KNOWN_FEATURES.html
 * https://cmake.org/cmake/help/v3.1/manual/cmake-compile-features.7.html#manual:cmake-compile-features(7)
+
+Building Multiple CMake Projects In Umbrella "Integrated" Build
+-----------------------------------------------------------------
+
+* http://techminded.net/blog/modular-c-projects-with-cmake.html
+
+* https://cds.cern.ch/record/2243765/files/ATL-SOFT-PROC-2017-033.pdf
+
+  Large Scale Software Building with CMake in ATLAS
+
+
+
+
+
+ 
+
 
 
 CMake RPATH handling 

@@ -18,6 +18,157 @@ could be easily streamed, e.g. over the internet.
 * https://www.khronos.org/gltf
 * https://github.com/KhronosGroup/glTF#gltf-tools
 
+* ~/opticks_refs/gltfOverview-2.0.0a.png
+
+* https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md
+
+* https://www.khronos.org/files/gltf20-reference-guide.pdf
+
+* https://docs.microsoft.com/en-us/windows/mixed-reality/creating-3d-models-for-use-in-the-windows-mixed-reality-home
+
+
+Double Sided
+--------------
+
+* https://github.com/KhronosGroup/glTF-Blender-Exporter/issues/58
+
+Correct, but it is not a bug.
+It has been decided - in glTF 2.0 - that double sided is a material and not a mesh attribute:
+https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/material.schema.json
+If you need double sided, please use the the glTF 2.0 PBR node groups.
+
+* https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/material.schema.json
+
+
+Looks like I need to update my oyocto ? Are missing doubleSided::
+
+     644 struct material_t : glTFChildOfRootProperty_t {
+     645     /// The emissive color of the material.
+     646     std::array<float, 3> emissiveFactor = {{0, 0, 0}};
+     647     /// The emissive map texture.
+     648     textureInfo_t emissiveTexture = {};
+     649     /// The normal map texture.
+     650     material_normalTextureInfo_t normalTexture = {};
+     651     /// The occlusion map texture.
+     652     material_occlusionTextureInfo_t occlusionTexture = {};
+     653     /// A set of parameter values that are used to define the metallic-roughness
+     654     /// material model from Physically-Based Rendering (PBR) methodology.
+     655     material_pbrMetallicRoughness_t pbrMetallicRoughness = {};
+     656 };
+
+
+Yep, latest yoctogl has it : and looks very changed, and simpler from before.
+
+* https://github.com/xelatihy/yocto-gl/blob/master/yocto/yocto_gltf.h
+
+
+
+Spec
+-----
+
+* https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#nodes-and-hierarchy
+  
+  nodes can have an optional name property
+
+
+names, extensions, extras
+---------------------------
+
+::
+
+     218 ///
+     219 /// Extensions
+     220 ///
+     221 using extension_t = std::map<std::string, json>;
+     222 
+     223 ///
+     224 /// Extras
+     225 ///
+     226 using extras_t = json;
+     227 
+     228 // #codegen begin type ---------------------------------------------------------
+     229 ///
+     230 /// No description in schema.
+     231 ///
+     232 struct glTFProperty_t {
+     233     /// No description in schema.
+     234     //extension_t extensions = {};
+     235     extension_t extensions{};
+     236     /// No description in schema.
+     237     extras_t extras = {};
+     238 };
+     239 
+     240 ///
+     241 /// No description in schema.
+     242 ///
+     243 struct glTFChildOfRootProperty_t : glTFProperty_t {
+     244     /// The user-defined name of this object.
+     245     std::string name = "";
+     246 };
+
+
+
+glTFChildOfRootProperty_t can have an optional name::
+
+    epsilon:yocto blyth$ grep :\ glTFChildOfRootProperty_t yocto_gltf.h
+    struct accessor_t : glTFChildOfRootProperty_t {
+    struct animation_t : glTFChildOfRootProperty_t {
+    struct buffer_t : glTFChildOfRootProperty_t {
+    struct bufferView_t : glTFChildOfRootProperty_t {
+    struct camera_t : glTFChildOfRootProperty_t {
+    struct image_t : glTFChildOfRootProperty_t {
+    struct texture_t : glTFChildOfRootProperty_t {
+    struct material_t : glTFChildOfRootProperty_t {
+    struct mesh_t : glTFChildOfRootProperty_t {
+    struct node_t : glTFChildOfRootProperty_t {
+    struct sampler_t : glTFChildOfRootProperty_t {
+    struct scene_t : glTFChildOfRootProperty_t {
+    struct skin_t : glTFChildOfRootProperty_t {
+
+
+glTFProperty_t can have extras (unspecified json) and extensions (string keyed map of unspecified json).
+
+
+
+extensions vs extras
+~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#specifying-extensions
+* https://github.com/KhronosGroup/glTF/blob/master/extensions/README.md
+
+In addition to extensions, the extras object can also be used to extend glTF.
+This is completely separate from extensions.  This enables glTF models to
+contain application-specific properties without creating a full glTF extension.
+This may be preferred for niche use cases where an extension would not be
+widely adopted.
+
+* extensions are formal, following similar pattern to OpenGL extensions (Vendor, EXT, etc)
+
+
+
+Tools
+-------
+
+* https://github.com/magicien/GLTFSceneKit
+
+  glTF loader for SceneKit, in Swift
+
+* https://github.com/magicien/GLTFQuickLook
+ 
+  macOS QuickLook plugin for glTF files
+
+
+
+Tutorial
+-----------
+
+* https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/README.md
+
+* https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_003_MinimalGltfFile.md
+
+* https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_005_BuffersBufferViewsAccessors.md
+
+* https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_010_Materials.md
 
 
 Specification 1.0
@@ -312,6 +463,9 @@ gltf-get(){
    local dir=$(dirname $(gltf-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+gltf-png(){ open ~/opticks_refs/gltfOverview-2.0.0a.png ; }
+
 
 
 

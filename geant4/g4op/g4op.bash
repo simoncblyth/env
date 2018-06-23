@@ -585,6 +585,312 @@ oxrap-/cu/generate.cu::
     417         }
 
 
+
+G4 surface priority order
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Check the surface logic/priority order::
+
+     314         G4LogicalSurface* Surface = NULL;
+     315 
+     316         Surface = G4LogicalBorderSurface::GetSurface(thePrePV, thePostPV);
+     317 
+     318         if (Surface == NULL)
+                 {
+     319               G4bool enteredDaughter= (thePostPV->GetMotherLogical() ==
+     320                                        thePrePV ->GetLogicalVolume());
+     ///
+     ///
+
+     321               if(enteredDaughter)  
+     ///                     stepping inwards
+                       {
+     322                    Surface =
+     323                               G4LogicalSkinSurface::GetSurface(thePostPV->GetLogicalVolume());
+     324                    if(Surface == NULL)
+     325                          Surface =
+     326                                   G4LogicalSkinSurface::GetSurface(thePrePV->GetLogicalVolume());
+     327               }
+     328               else 
+                       {
+     329                   Surface =
+     330                               G4LogicalSkinSurface::GetSurface(thePrePV->GetLogicalVolume());
+     331                   if(Surface == NULL)
+     332                         Surface =
+     333                                  G4LogicalSkinSurface::GetSurface(thePostPV->GetLogicalVolume());
+     334               }
+     335         }
+
+
+
+G4 Surface docs
+~~~~~~~~~~~~~~~~~
+
+* http://geant4-userdoc.web.cern.ch/geant4-userdoc/UsersGuides/ForApplicationDeveloper/BackupVersions/V9.4/html/ch05s02.html#sect.PhysProc.Photo
+
+Surface objects of the second type are stored in a related table and can be
+retrieved by either specifying the two ordered pairs of physical volumes
+touching at the surface, or by the logical volume entirely surrounded by this
+surface. The former is called a border surface while the latter is referred to
+as the skin surface. **This second type of surface is useful in situations where
+a volume is coded with a reflector and is placed into many different mother
+volumes**. A limitation is that the skin surface can only have one and the same
+optical property for all of the enclosed volume's sides. The border surface is
+an ordered pair of physical volumes, so in principle, the user can choose
+different optical properties for photons arriving from the reverse side of the
+same interface. For the optical boundary process to use a border surface, the
+two volumes must have been positioned with G4PVPlacement. The ordered
+combination can exist at many places in the simulation. When the surface
+concept is not needed, and a perfectly smooth surface exists beteen two
+dielectic materials, the only relevant property is the index of refraction, a
+quantity stored with the material, and no restriction exists on how the volumes
+were positioned.
+
+
+Priority order, when stepping inwards (ie motherLV of postPV is prePV_lv) 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+     ///
+
+     321               if(enteredDaughter)  
+     ///                     stepping inwards
+                       {
+     322                    Surface =
+     323                               G4LogicalSkinSurface::GetSurface(thePostPV->GetLogicalVolume());
+     324                    if(Surface == NULL)
+     325                          Surface =
+     326                                   G4LogicalSkinSurface::GetSurface(thePrePV->GetLogicalVolume());
+     327               }
+
+
+
+
+1. border surface prePV->postPV  <-- this makes sense
+2. skin surface of postPV_LV  (inner surface where are headed)  
+3. skin surface of prePV_LV   (outer surface where are coming from)
+
+::
+
+           parent prePV              /
+                                    /
+                   ~~~~~~~~~~~~~~~~/~~~~~(3)~~~~~~  osur
+            ______(1)_____________/_____________________________
+                                 /
+                   ~~~~~~~~~~~~~/~~~~~(2)~~~~~~~~~~~isur 
+           child postPV        /
+                             \/_
+
+
+
+When stepping outwards:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+     328               else 
+                       {
+     329                   Surface =
+     330                               G4LogicalSkinSurface::GetSurface(thePrePV->GetLogicalVolume());
+     331                   if(Surface == NULL)
+     332                         Surface =
+     333                                  G4LogicalSkinSurface::GetSurface(thePostPV->GetLogicalVolume());
+     334               }
+     335         }
+
+
+1. border surface prePV->postPV  (opposite pair of volumes to inwards, makes sense)
+2. skin surface of prePV_LV     (inner surface where are coming from)   
+3. skin surface of postPV_LV    (outer surface where are headed)
+
+::
+     
+                                     _ 
+                                      /\
+           parent postPV             /
+                                    /
+                   ~~~~~~~~~~~~~~~~/~~~~~(3)~~~~~~ osur
+            ______(1)_____________/_____________________________
+                                 /
+                   ~~~~~~~~~~~~~/~~~~~(2)~~~~~~~~~ isur
+           child prePV         /
+                              /
+
+
+Without border surface the inner skin has priority over the outer skin, for 
+both inwards and outwards going photons.
+Only if the inner skin has no surface does the outer skin get a chance.
+
+Given that logical volumes proliferate, its much safer to use a 
+border surface to target just the desired volume pairs.
+
+   
+Opticks/G4 difference
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Opticks boundary orientation (ie what inner/outer mean) 
+is based on the geometric normal to the surface. The sign of 
+boundary index comes from the dot product of the photon direction 
+and the outwards pointing normal to the surface.
+
+
+But G4 pre/post is just from the stepping direction of the photon, 
+so maybe causes a double flip(?) brings Opticks and G4.
+
+TODO: experiment with double skin surface interface, 
+      to try to exercise this : to see if there really is a difference
+
+
+All solids have rigidly attached normals pointing outwards
+
+
+* at a boundary Opticks will use either isur or osur depending on 
+  photon direction relative to surface normal, 
+
+  * it doesnt try using one and then the other if the first was not set 
+  * it could do this fairly easily to duplicate G4, but it doesnt now
+    (the G4 logic needs some clarification) 
+
+
+
+
+Can Opticks boundary model fully translate the Geant4 model ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Opticks boundary: omat/osur/isur/imat 
+
+* outwards (child to parent) going photons use ISUR
+* inwards (from parent to child) going photons use OSUR
+
+* ISUR and OSUR can point to the same or different surface, or be unset 
+
+::
+
+     22 enum {  
+     23     OMAT,
+     24     OSUR,
+     25     ISUR,
+     26     IMAT 
+     27 };
+     28 
+     29 __device__ void fill_state( State& s, int boundary, uint4 identity, float wavelength )
+     30 {       
+     31     // boundary : 1 based code, signed by cos_theta of photon direction to outward geometric normal
+     32     // >0 outward going photon
+     33     // <0 inward going photon
+     34     //  
+     35     // NB the line is above the details of the payload (ie how many float4 per matsur) 
+     36     //    it is just 
+     37     //                boundaryIndex*4  + 0/1/2/3     for OMAT/OSUR/ISUR/IMAT 
+     38     //  
+     39         
+     40     int line = boundary > 0 ? (boundary - 1)*BOUNDARY_NUM_MATSUR : (-boundary - 1)*BOUNDARY_NUM_MATSUR  ;
+     41 
+     42     // pick relevant lines depening on boundary sign, ie photon direction relative to normal
+     43     // 
+     44     int m1_line = boundary > 0 ? line + IMAT : line + OMAT ;
+     45     int m2_line = boundary > 0 ? line + OMAT : line + IMAT ;   
+     46     int su_line = boundary > 0 ? line + ISUR : line + OSUR ;   
+
+     //    outward going photon uses ISUR
+     //    inward going photon uses OSUR
+
+     47         
+     48     //  consider photons arriving at PMT cathode surface
+     49     //  geometry normals are expected to be out of the PMT 
+     50     //
+     51     //  boundary sign will be -ve : so line+3 outer-surface is the relevant one
+     52 
+     53     s.material1 = boundary_lookup( wavelength, m1_line, 0);
+     54     s.m1group2  = boundary_lookup( wavelength, m1_line, 1);
+     55 
+     56     s.material2 = boundary_lookup( wavelength, m2_line, 0);
+     57     s.surface   = boundary_lookup( wavelength, su_line, 0);
+     58 
+     59     s.optical = optical_buffer[su_line] ;   // index/type/finish/value
+     60 
+     61     s.index.x = optical_buffer[m1_line].x ; // m1 index
+     62     s.index.y = optical_buffer[m2_line].x ; // m2 index 
+     63     s.index.z = optical_buffer[su_line].x ; // su index
+     64     s.index.w = identity.w   ;
+
+      
+
+To use the surface needs s.optical.x > 0 indicating a non-"NULL" surface::
+
+    555         if(s.optical.x > 0 )       // x/y/z/w:index/type/finish/value
+    556         {
+    557             command = propagate_at_surface(p, s, rng);
+    558             if(command == BREAK)    break ;       // SURFACE_DETECT/SURFACE_ABSORB
+    559             if(command == CONTINUE) continue ;    // SURFACE_DREFLECT/SURFACE_SREFLECT
+    560         }
+    561         else
+    562         {
+    563             //propagate_at_boundary(p, s, rng);     // BOUNDARY_RELECT/BOUNDARY_TRANSMIT
+    564             propagate_at_boundary_geant4_style(p, s, rng);     // BOUNDARY_RELECT/BOUNDARY_TRANSMIT
+    565             // tacit CONTINUE
+    566         }
+
+
+
+
+
+
+
+
+
+
+::
+
+    epsilon:ggeo blyth$ g4-cc SetMotherLogical
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/divisions/src/G4PVDivision.cc:  SetMotherLogical(pMotherLogical);
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/divisions/src/G4PVDivision.cc:  SetMotherLogical(pMotherLogical);
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/divisions/src/G4PVDivision.cc:  SetMotherLogical(pMotherLogical);
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/divisions/src/G4ReplicatedSlice.cc:  SetMotherLogical(pMotherLogical);
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/volumes/src/G4PVPlacement.cc:    SetMotherLogical(motherLogical);
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/volumes/src/G4PVPlacement.cc:    SetMotherLogical(motherLogical);
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/volumes/src/G4PVPlacement.cc:  SetMotherLogical(pMotherLogical);
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/volumes/src/G4PVPlacement.cc:  SetMotherLogical(pMotherLogical);
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/volumes/src/G4PVReplica.cc:  SetMotherLogical(motherLogical);
+    /usr/local/opticks/externals/g4/geant4_10_02_p01/source/geometry/volumes/src/G4PVReplica.cc:  SetMotherLogical(pMotherLogical);
+    epsilon:ggeo blyth$ 
+
+
+
+::
+
+     43 G4PVPlacement::G4PVPlacement( G4RotationMatrix *pRot,
+     44                         const G4ThreeVector &tlate,
+     45                         const G4String& pName,
+     46                               G4LogicalVolume *pLogical,
+     47                               G4VPhysicalVolume *pMother,
+     48                               G4bool pMany,
+     49                               G4int pCopyNo,
+     50                               G4bool pSurfChk )
+     51   : G4VPhysicalVolume(pRot,tlate,pName,pLogical,pMother),
+     52     fmany(pMany), fallocatedRotM(false), fcopyNo(pCopyNo)
+     53 {
+     54   if (pMother)
+     55   {
+     56     G4LogicalVolume* motherLogical = pMother->GetLogicalVolume();
+     57     if (pLogical == motherLogical)
+     58     {
+     59       G4Exception("G4PVPlacement::G4PVPlacement()", "GeomVol0002",
+     60                   FatalException, "Cannot place a volume inside itself!");
+     61     }
+     62     SetMotherLogical(motherLogical);
+     63     motherLogical->AddDaughter(this);
+     64     if (pSurfChk) { CheckOverlaps(); }
+     65   }
+     66 }
+
+
+
+
+
+
+
 G4OpBoundaryProcess::PostStepDoIt::
 
      313 
@@ -593,11 +899,11 @@ G4OpBoundaryProcess::PostStepDoIt::
      316         Surface = G4LogicalBorderSurface::GetSurface(thePrePV, thePostPV);
      ...
      318         if (Surface == NULL){
-     319           G4bool enteredDaughter= (thePostPV->GetMotherLogical() ==
+     319             G4bool enteredDaughter= (thePostPV->GetMotherLogical() ==
      320                                    thePrePV ->GetLogicalVolume());
-     321       if(enteredDaughter){
-     322         Surface =
-     323               G4LogicalSkinSurface::GetSurface(thePostPV->GetLogicalVolume());
+     321             if(enteredDaughter){
+     322                  Surface =
+     323                       G4LogicalSkinSurface::GetSurface(thePostPV->GetLogicalVolume());
      ...
      ...            bla bla, trying other volume
      ...      
