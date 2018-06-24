@@ -1976,3 +1976,5 @@ cuda_samples-(){      . $(env-home)/cuda/cuda_samples.bash && cuda_samples-env $
 cudasamples-(){      . $(env-home)/cuda/cudasamples.bash && cudasamples-env $* ; }
 gltfkit-(){      . $(env-home)/graphics/gltf/gltfkit.bash && gltfkit-env $* ; }
 gltfscenekit-(){      . $(env-home)/graphics/gltf/gltfscenekit.bash && gltfscenekit-env $* ; }
+slack-(){      . $(env-home)/comms/slack/slack.bash && slack-env $* ; }
+gio-(){      . $(env-home)/comms/groups_io_opticks/gio.bash && gio-env $* ; }
