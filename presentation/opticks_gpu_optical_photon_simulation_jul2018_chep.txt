@@ -1,0 +1,2253 @@
+
+.. comment 
+
+    00 : <inline classes="i">Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX</inline> 
+    01 : opticks benefits 
+    02 : outline 
+
+        Highlights teaser statement and outline
+
+    03 : optical photon simulation problem... 
+    04 : jpmt before contact 2 
+
+        Statement of problem
+
+    05 : ray traced realistic image synthesis --> optical photon simulation 
+
+        Ray trace connection to simulation
+
+    06 : nvidia optix 1 
+    07 : nvidia optix 2 
+
+        OptiX intro are refs 
+
+    08 : opticks geometry workflow : geocache 
+    09 : large geometry techniques : instancing mandatory 
+    10 : opticks geometry workflow : gpu textures 
+
+
+
+    11 : hybrid geant4/opticks event workflow 
+    12 : opticks interoperation : optix/cuda/thrust/opengl 
+
+
+    ABSTRACT
+
+    Opticks is an open source project that integrates the NVIDIA OptiX 
+    GPU ray tracing engine with Geant4 toolkit based simulations.
+    Massive parallelism brings drastic performance improvements with
+    optical photon simulation speedup expected to exceed 1000 times Geant4 
+    when using workstation GPUs. Optical photon simulation time becomes 
+    effectively zero compared to the rest of the simulation.
+
+    Optical photons from scintillation and Cherenkov processes
+    are allocated, generated and propagated entirely on the GPU, minimizing 
+    transfer overheads and allowing CPU memory usage to be restricted to
+    optical photons that hit photomultiplier tubes or other photon detectors.
+    Collecting hits into standard Geant4 hit collections then allows the 
+    rest of the simulation chain to proceed unmodified.
+
+    Optical physics processes of scattering, absorption, reemission and 
+    boundary processes are implemented as CUDA OptiX programs based on the Geant4
+    implementations. Wavelength dependent material and surface properties as well as 
+    inverse cumulative distribution functions for reemission are interleaved into 
+    GPU textures providing fast interpolated property lookup or wavelength generation.
+
+    Geometry is provided to OptiX in the form of CUDA programs that return bounding boxes 
+    for each primitive and single ray geometry intersection results. Some critical parts 
+    of the geometry such as photomultiplier tubes have been implemented analytically 
+    with the remainder being tesselated. 
+    OptiX handles the creation and application of a choice of acceleration structures
+    such as boundary volume heirarchies and the transparent use of multiple GPUs.
+
+    OptiX interoperation with OpenGL and CUDA Thrust has enabled 
+    unprecedented visualisations of photon propagations to be developed 
+    using OpenGL geometry shaders to provide interactive time scrubbing and 
+    CUDA Thrust photon indexing to provide interactive history selection.
+
+    Validation and performance results are shown for the photomultiplier based 
+    Daya Bay and JUNO Neutrino detectors.
+
+
+
+.. raw:: html
+
+    <style type="text/css">
+        span.alarm { color: red; } 
+        span.warn { color: orange; } 
+        span.ok { color: green; } 
+        span.i { display: none; } 
+        pre.sliteral { class:"literal-block small"; }   
+        pre.mypre {
+             display: block;
+             font-family: monospace;
+             font-size: 20px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.mypretiny {
+             display: block;
+             font-family: monospace;
+             font-size: 15px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.myfoot {
+             display: block;
+             font-family: monospace;
+             font-size: 18px;
+             white-space: pre;
+             color: white;
+             position: absolute; top:86%; left:4%; width:50%; height:10% ;
+        }
+
+        a.mylink {
+             display: block;
+             font-family: monospace;
+             font-size: 18px;
+             white-space: pre;
+             color: black;
+             position: absolute; top:86%; left:4%; width:50%; height:10% ;
+        }
+
+
+        div.mytitle {
+             font-size: 20px;
+             color: black;
+             position: absolute; top:0%; left:5%; width:90%; height:10% ;
+        }
+
+        div.mycredit {
+             font-size: 20px;
+             color: black;
+             position: absolute; top:90%; left:5%; width:80%; height:10% ;
+        }
+
+
+
+
+
+    </style>
+
+.. role:: i 
+.. role:: alarm
+.. role:: warn
+.. role:: ok
+.. role:: sliteral
+.. role:: mypre 
+.. role:: myfoot
+.. role:: mytitle
+
+
+.. include:: <s5defs.txt>
+
+.. s5_background_image::
+
+    #
+    # slide titles and background image urls, 
+    # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    #
+    # NB1 slide titles here must match those in body precisely, 
+    # NB2 also ensure all slide titles are unique
+    #
+    #slide0
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    #
+    #   wide targetting 1280x720
+    #   
+    #
+    slide0
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Opticks Benefits
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Visualizing An Optical Photon Simulation
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
+
+    Overview
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+
+    Cerenkov Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
+
+    Cerenkov Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
+
+    Scintillation Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
+
+    Scintillation Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
+
+    Standard Geant4 Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
+
+    External Photon Simulation Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
+
+    GGeoView
+    /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
+
+    GGeoView M1 Points
+    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
+
+    GGeoView Flag Selection 
+    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
+
+    GGeoView Cerenkov Geom M1
+    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
+  
+    Detecting Neutrinos via Optical Photons 1
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    Detecting Neutrinos via Optical Photons 2
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+ 
+    JPMT Inside Wide 
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
+
+    JPMT Wide
+    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
+  
+    JPMT Headview
+    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
+ 
+    JPMT Backview
+    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
+ 
+    JPMT Approach 
+    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
+
+    JPMT Arrival 
+    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
+ 
+    Optical Photon Simulation Problem...
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 2
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 3
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+ 
+    JPMT After Contact 
+    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
+  
+    JPMT Inside Outside 
+    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
+
+    NVIDIA OptiX In Action
+    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
+
+    PmtInBox approach 1
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox approach 2
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox after 1
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    PmtInBox after 2
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    Daya Bay PMT Wall Photo 1
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Daya Bay PMT Wall Photo 2
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Super-Kamiokande PMTs Not 16:9 
+    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
+
+    Super-Kamiokande PMTs 1
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 2
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 3
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 4
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Kamiokande II 1
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 2
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 3
+    /env/presentation/1987a.png 1280px_720px
+
+
+    Fast Optical Photon Simulation
+    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
+
+    Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Old Hamamatsu Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    Old Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+
+
+
+    Jiangmen Underground Neutrino Observatory (JUNO) 
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+    Jiangmen Underground Neutrino Observatory, Goals
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+
+    Dayabay Reactor Neutrino Expt, Far Site
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 2
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 3
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Geant4 : Monte Carlo Simulation Toolkit 
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    Geant4 : Monte Carlo Simulation Toolkit Generality
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    "Seeing" neutrinos via scintillation + Cherenkov light
+    /env/presentation/cherenkov.png 316px_203px 850px_400px
+
+    Large Geometry Techniques : Instancing Mandatory
+    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
+
+    NVIDIA OptiX 1
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px 0px_30px
+
+    NVIDIA OptiX 2
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px 0px_30px
+
+    Opticks Users Group
+    /env/presentation/groups_io_opticks_half.png 1120px_auto 50px_30px
+
+    OpticksDocs
+    /env/presentation/OpticksDocs.png 1280px_720px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 1
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 2
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+    # a = np.array([1676.0, 1192.0])
+    # .8*720.*a/1192.
+
+    Daya Bay Energy Response Model (1)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    Daya Bay Energy Response Model (2)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    # a = np.array([2392., 1424.]) ; .8*720*a/a[1]
+
+
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 1
+    /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
+    # a = np.array([1760., 1280.])
+    # .8*720.*a/1280.   792px_576px
+    # 693.,  504
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 2
+    /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
+    # a = np.array([1698., 1166.])
+    # .8*720.*a/1166. 
+    
+    Daya Bay nGd Analysis : Most Precise Theta13
+    /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
+    # a = np.array([2140., 1266.])
+    # .8*720.*a/1166.
+
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
+    /env/presentation/op_full_raytrace_3.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)
+    /env/presentation/op_full_raytrace_1.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)
+    /env/presentation/op_full_raytrace_0.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
+    /env/presentation/op_full_raytrace_2.png 1280px_720px
+
+    Opticks Analytic JUNO Chimney, GPU Raytrace (0)
+    /env/presentation/j1707_chimney_analytic_raytrace.png 1280px_720px
+
+    Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)
+    /env/presentation/j1707-okop-snap.png 1280px_720px
+
+    GPU Instance Culling with Level Of Detail
+    /env/presentation/j1707_lod_oglrap_instcull.png 1280px_720px
+
+    Opticks Export of G4 geometry to glTF 2.0
+    /env/yoctoglrap/dyb_near_venice_half.png 1020px_737px
+
+
+
+
+
+.. comment 
+
+    Large Geometry/Event Techniques
+    /env/graphics/ggeoview/ggv-juno-instancing.png 2130px_1480px -> 1065px_740px 
+
+
+    GGeoView image is 2094x1590 1047x795
+
+    GGeoView M1 Points is 2870x1696  1435x848
+
+    GGeoView Flag Selection 2872x1684 1436x842
+
+    GGeoView Cerenkov Geom M1 2832x1690 1416x845
+
+
+    Generated Scintillation Photons GPU cf Geant4
+    /env/g4dae/generated_scintillation_time_wavelength.png
+
+    G4/DetSim Generated Cerenkov Wavelength
+    /env/g4dae/g4_cerenkov_wavelength.png
+
+
+
+.. comment
+
+    Placeholder
+
+    jpmt-after-contact.png 2850px_1680px
+    jpmt-approach.png 2862px_1678px
+    jpmt-arrival.png 2854px_1682px
+    jpmt-backview.png 2298px_1588px
+    jpmt-before-contact.png 2860px_1688px
+    jpmt-headview.png 2616px_1566px
+    jpmt-inside-outside.png 2802px_1684px
+    jpmt-wide.png 2818px_1672px
+
+
+
+========================================================================================
+:i:`Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
+========================================================================================
+
+.. comment
+
+   I will introduce Opticks, 
+   an optical photon simulation based on NVIDIA OptiX ray tracing 
+   enabling particle physics detector simulations 
+   to benefit from OptiX ray tracing.
+
+   The image visualizes photons coming from a cosmic ray muon 
+   crossing a neutrino detector.
+
+
+.. raw:: html
+
+    <div class="mytitle">
+    <h1 style="background-color:lightgrey"> <i>Opticks</i> : GPU Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ </h1>
+    </div>
+
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; July 2018, CHEP </h2>
+    </div>
+
+
+
+:i:`Opticks Benefits`
+---------------------------
+
+.. sidebar:: Opticks > 1000x Geant4 (*)
+
+   .. class:: small
+
+       GPU massive parallelism **eliminates bottleneck**.
+
+       * optical photon simulation time --> zero 
+       * optical photon CPU memory --> zero
+
+       [zero: effectively, compared to rest of simulation]
+
+       **More Photons -> More Benefit** 
+
+       * huge benefits for JUNO neutrino detector
+
+       http://bitbucket.org/simoncblyth/opticks
+
+       (*) core extrapolated from mobile GPU speed
+
+
+.. comment
+
+   Neutrino detectors can benefit the most as their operation
+   depends on production and propagation of sometimes many millions
+   of optical photons. 
+   
+   Neutrinos detectors need to be large, as neutrinos 
+   interact only weakly.
+
+   **Radical simulation speedup -> short development cycle -> improved understanding** 
+
+
+
+Outline
+--------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: large
+
+
+   * Introduction
+
+     * Optical Photon Simulation problem
+     * GPU ray tracing solution 
+     * NVIDIA OptiX Ray Tracing Engine
+
+   * Geometry
+
+     * :red:`General CSG boolean intersection on GPU`
+     * :red:`Geant4 geometry auto-translated to GPU without approximation` 
+      
+   * Optical Physics
+
+     * CUDA port 
+
+   * Validation 
+ 
+     * random sequence aligned running  
+
+
+
+``Optical Photon Simulation Problem...``
+---------------------------------------------------------
+
+:i:`JPMT Before Contact 2`
+--------------------------
+
+
+.. sidebar:: Optical Photon Problem
+
+    .. class:: small
+       
+
+         **Cosmic muon backgrounds**
+              many millions of optical photons in JUNO scintillator
+
+         **Simulation Bottleneck**
+              ~99% CPU time, memory constraints
+
+         Optical photons:
+
+         * produced by Cerenkov+Scintillation processes
+         * yield only Photomultiplier hits
+
+         Isolated nature -> **easily separated propagation**
+         
+         **Hybrid Solution Possible : Geant4 + Opticks** 
+
+
+
+
+:small:`Ray Traced Image Synthesis ≈ Optical Photon Simulation`
+-------------------------------------------------------------------------------
+
+.. sidebar:: OptiX Pixel Calculation 
+
+    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
+       :width: 450px
+       :align: right
+
+    .. class:: tiny
+
+        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
+
+    .. comment
+
+       Not a photo
+
+
+.. class:: small
+
+    Geometry, light sources, optical physics ->  
+      * pixel values at image plane
+      * photon parameters at detectors (eg PMTs)
+
+    **Ray tracing has many applications** :
+      * advertising, design, entertainment, games,...
+      * BUT : most ray tracers just render images
+
+    **Ray-geometry intersection**
+      * hw+sw continuously optimized over 30 years
+      * performance > 100M intersections per second per GPU
+
+    **NVIDIA OptiX** 
+      * general geometry intersection API
+      * :red:`OptiX is to ray tracing what OpenGL is to rasterization` 
+
+.. raw:: html
+
+    <pre class="mypre">
+    </pre>
+ 
+.. class:: small
+
+    **rasterization**
+      project 3D primitives onto 2D image plane, combine fragments into pixel values 
+
+    **ray tracing**
+      cast rays thru image pixels into scene, recursively reflect/refract with  
+      geometry intersected, combine returns into pixel values  
+          
+
+
+
+
+:small:`NVIDIA® OptiX™ : CUDA Raytracing Pipeline`
+-------------------------------------------------------------------
+
+.. sidebar:: OptiX Control Flow 
+
+    .. class:: small
+
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+   http://developer.nvidia.com/optix
+
+   * no rendering assumptions
+
+   * analogous to OpenGL rasterization pipeline
+
+   * **just accelerates ray-geometry intersections**
+
+   * :red:`compiler optimized for GPU ray tracing`
+
+   * regular updates, profit from new GPU tuning/features
+     eg Volta tensor cores 
+
+   * NVIDIA expertise on GPU/multi-GPU usage
+
+     * ~linear scaling with cores across GPUs
+
+   * free to acquire, use, distribute non-commercially 
+
+   * :blue:`simple : single-ray programming model`
+
+
+.. class:: small
+
+    Handled by NVIDIA OptiX (Blue) ->
+
+    * acceleration structure creation + traversal 
+    * instanced sharing of geometry + acceleration structures 
+    * optimized combination of CUDA programs into kernel
+    * cross GPU work scheduling
+
+    Everything else : user supplied (Yellow) ->
+
+.. class:: tiny
+
+   ``https://research.nvidia.com/publication/optix-general-purpose-ray-tracing-engine``
+
+
+
+
+:small:`Opticks : GPU Geometry starts from ray-primitive intersection`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * 3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
+   * implicit equation of primitive : **f(x,y,z) = 0**  
+   * -> polynomial in **t** , roots: **t > t_min**  -> intersection positions + surface normals
+
+.. figure:: /env/presentation/tboolean_parade_sep2017.png
+   :width: 900px
+   :align: center
+
+   :red:`CUDA/OptiX intersection for ~10 primitives` -> :blue:`Exact geometry translation`
+
+
+
+
+:small:`Ray intersection with general CSG binary trees within OptiX intersect`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Outside/Inside Unions
+
+    .. class:: small
+
+       dot(normal,rayDir) -> Enter/Exit
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
+       :width: 300px
+       :align: center
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_inside.png
+       :width: 300px
+       :align: center
+
+    .. class:: small
+
+        * **A + B** boundary not inside other 
+        * **A * B** boundary inside other 
+
+
+.. class:: small
+
+   CSG evaluation -> :blue:`pick the primitive intersect`, lookup table:
+
+   ===============  ===========  ============  ============== 
+   Union, tA < tB     Enter B     Exit B        Miss B
+   ===============  ===========  ============  ==============
+   **Enter A**        ReturnA      LoopA        ReturnA
+   **Exit A**         ReturnA      ReturnB      ReturnA 
+   **Miss A**         ReturnB      ReturnB      ReturnMiss
+   ===============  ===========  ============  ==============
+
+   * single hit intersection[1] avoids state, BUT: 
+     sometimes advance **t_min** and re-intersect 
+   * "Evaluative"[2] approach avoiding recursion: 
+
+     * bit twiddle navigation of complete binary tree
+     * stacks of postorder slices and intersects 
+
+   * :red:`Identical geometry to Geant4` 
+
+     * near perfect intersection match
+
+
+
+.. class:: tiny
+
+    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
+ 
+    [2] Similar to binary expression tree evaluation using postorder traverse. 
+
+
+
+
+:small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Bit Twiddling Navigation
+
+    .. class:: small
+
+        * parent(i) = i/2 = i >> 1 
+
+        * leftchild(i) = 2*i = i << 1
+
+        * rightchild(i) = 2*i + 1 = (i << 1) + 1
+
+        * leftmost(height)  =  1 << height
+
+
+.. class:: small
+
+    Geant4 solid -> CSG binary tree (leaf primitives, non-leaf operators, 4x4 transforms on any node)
+
+    Serialize to **complete binary tree** buffer:
+ 
+    * no need to deserialize, no child/parent pointers
+    * bit twiddling navigation :red:`avoids recursion`
+    * simple approach profits from small size of binary trees 
+    * BUT: very inefficient when unbalanced 
+
+    **Height 3 complete binary tree with level order indices:**
+.. raw:: html
+
+    <pre class="mypre">
+                                                       depth     elevation
+
+                         1                               0           3   
+
+              10                   11                    1           2   
+
+         100       101        110        111             2           1   
+                        
+     1000 1001  1010 1011  1100 1101  1110  1111         3           0   
+    </pre>
+    <hr/>
+
+.. class:: small
+
+    **postorder_next(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) ;**   // from pattern of bits
+ 
+.. class:: tiny
+
+   Postorder tree traverse visits all nodes, starting from leftmost, such that children 
+   are visited prior to their parents.
+
+
+
+
+
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic JUNO Chimney, GPU Raytrace (0)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)`
+---------------------------------------------------------------------
+
+
+
+
+:small:`Geometry : Geant4 -> Opticks Geocache -> OptiX GPU`
+-------------------------------------------------------------
+
+.. sidebar:: Volumes -> Boundaries 
+
+    .. class:: small
+
+      **Ray tracing favors Boundaries**
+
+      Material/surface boundary : 4 indices
+
+      * outer material (parent)
+      * outer surface (inward photons, parent -> self)
+      * inner surface (outward photons, self -> parent)
+      * inner material (self)
+
+      Primitives labelled with unique boundary index
+
+      * ray primitive intersection -> boundary index
+      * texture lookup -> material/surface properties
+
+
+.. class:: small
+
+    **Material/Surface/Scintillator properties**
+      * interpolated to standard wavelength domain
+      * interleaved into "boundary" texture  
+      * "reemission" texture for wavelength generation 
+
+    **Solids**
+      * converted to Opticks CSG complete binary trees
+
+    **Structure**
+      * repeated geometry instances identified (progeny digests)
+      * instance transforms used in OptiX/OpenGL geometry 
+
+    **Geocache Optimization**
+      * persist GPU ready NumPy buffers
+      * startup in seconds rather than minutes
+
+    .. image:: /env/presentation/1px.png
+       :width: 300px
+       :height: 1px
+       :align: center
+
+    **(WIP) New Direct from G4 Workflow**
+      * removes need for G4DAE+GDML export/import
+      * :red:`greatly simplifies Opticks adoption`  
+
+
+
+
+
+:small:`Opticks : GPU Optical photon simulation with NVIDIA OptiX. How ?`
+--------------------------------------------------------------------------
+
+
+.. sidebar:: G4 "Context" -> GPU 
+
+    .. class:: small
+   
+       **Straightforward : just translation**
+
+       * translation of optical physics to CUDA
+       * interleave material/surface properties into GPU textures 
+
+       **Difficult : novel development was required** 
+
+       * develop general GPU CSG tree intersection 
+       * develop auto conversion from GDML
+       * ~10 CUDA ray-primitive intersection programs: sphere, box, cone, torus, ... 
+
+
+.. class:: small
+
+
+   **Optical Photon Generation**
+
+   * translate G4Cerenkov, G4Scintillation optical photon generation loop 
+     into parallel CUDA form (:red:`only generation loop ported`)
+
+   * "genstep" parameters collected, copied to GPU for propagation 
+     at end of event 
+
+   **Optical Photon Propagation + Scintillator Reemission**
+
+   * CUDA port of G4OpAbsorption, G4OpRayleigh, G4OpBoundaryProcess 
+     (small subset for optical surfaces in use) 
+
+   * scintillator reemission handled as fraction of bulk absorbed 
+     being "reborn" within same GPU thread
+
+
+   **Collect PMT hits into standard G4 Hit collections**
+
+   * just photomultiplier hits copied to CPU
+
+
+ 
+   **Requires : Geometry converted into GPU appropriate form**
+
+   * geometry serialized into buffers, uploaded to GPU at initialization
+   * CUDA intersect + bounding box programs using geometry buffers
+     communicate geometry to OptiX 
+
+   * general ray intersection with CSG trees implemented within OptiX primitive
+
+
+
+
+:small:`New geometry workflow : direct from Geant4`
+---------------------------------------------------------
+
+.. sidebar:: Ease of use
+
+   .. class:: small
+
+       * Minimal code to add Opticks 
+       * Modern CMake -> simple configuration
+         
+
+.. class:: small
+
+    **Direct geometry workflow** 
+
+    * Geant4 "World" -> Opticks GPU Geometry 
+
+    **Old Way**
+
+    1. export G4DAE COLLADA + GDML 
+    2. parse COLLADA, GDML   
+   
+
+
+
+``Opticks Export of G4 geometry to glTF 2.0``
+-------------------------------------------------------------------------------------------------
+
+.. sidebar:: Emerging 3D Standard 
+
+     "JPEG" of 3D
+
+    .. image:: /env/presentation/gltf.png
+       :width: 300px
+       :align: center
+
+    .. class:: small
+
+       **Growing Adoption**
+         https://github.com/KhronosGroup/glTF
+         https://www.khronos.org/gltf/
+
+       **<-- eg:Metal Renderer from GLTFKit**  
+         https://github.com/warrenm/GLTFKit
+
+       **Similar to Opticks geocache**
+         JSON + binary buffers (eg NPY) 
+
+
+
+
+
+
+
+:small:`Large Geometry Techniques : Instancing Mandatory`
+------------------------------------------------------------- 
+
+.. class:: small
+
+   **Geometry analysed to find repeats**
+
+   JUNO: 18k 20" PMTs, 36k 3" PMTs
+
+   Instances used by: 
+
+   * OptiX geometry
+   * OptiX acceleration structures
+   * OpenGL visualization 
+  
+   **Advantages** 
+
+   * drastic reduction in GPU memory 
+   * one set of vertices for each PMT type
+   * 4x4 matrices position each PMT 
+
+   **Viz Optimizations (OpenGL 4+)** 
+
+   Use geometry shader transform feedback:
+
+   * cull non-visible instances
+   * level of detail (LOD) meshes
+
+     * full/simplified/bbox
+ 
+   * switch mesh based on distance to PMT  
+   
+
+
+:i:`GPU Instance Culling with Level Of Detail`
+------------------------------------------------------------- 
+
+
+
+
+:small:`Hybrid Geant4/Opticks Event Workflow`
+------------------------------------------------
+
+
+.. comment
+
+   * interop between OpenGL/OptiX/Thrust/CUDA  
+        
+   **Side Benefit : Performant Visualization**
+
+   Migrating Geant4 C++ CSG tree geometry to the GPU 
+   enables unprecedented visualizations.  
+ 
+
+
+.. sidebar:: GPU Resident Photons
+
+    .. class:: small
+
+       **Seeded on GPU** 
+          associate photons -> gensteps (via seed buffer)
+ 
+       **Generated on GPU, using gensteps:**
+          *~Stacks* collected before photon generation:
+
+          * number of photons to generate
+          * start/end position of step
+          * other quantities needed for GPU generation 
+
+       **Propagated on GPU**
+          :red:`Only photons hitting PMTs copied to CPU`
+
+
+       Thrust: **high level C++ access to CUDA**
+
+       .. figure:: /env/numerics/thrust/thrust.png
+          :width: 300px
+          :align: right
+
+       * https://developer.nvidia.com/Thrust
+       
+          
+
+         
+.. class:: small
+
+    **Geant4/Detector Simulation**
+
+    * modified Scintillation, Cerenkov processes 
+
+      * collect *genstep*
+      * skip optical photon generation
+
+    **Opticks (OptiX/Thrust GPU interoperation)** 
+
+    * **OptiX** : upload gensteps 
+    * **Thrust** : seeding, distribute genstep indices to photons
+    * **OptiX** : launch photon generation and propagation
+    * **Thrust** : pullback photons that hit PMTs 
+    * **Thrust** : index photon step sequences (optional)
+
+    **Geant4/Detector Simulation**
+
+    * populate standard hit collections 
+    * subsequent electronics simulation proceeds unaltered 
+
+    **Multi-event handling**
+
+    * reuse/resize OptiX buffers for each event 
+
+
+
+
+
+
+:small:`Idealized geometry tests : photon generation, propagation, reemission`
+--------------------------------------------------------------------------------------- 
+
+.. sidebar:: Match achieved after many fixes
+
+    .. class:: small
+
+        * scattering, was comparing different implementations
+        * diffuse reflection, ported G4 approach 
+        * reemission "rejoining"
+        * missing optical surfaces
+        * truncation recording discrepancy
+        * group velocity of wrong material after refraction (G4 issue 1275)  
+        * interpolation mismatches
+
+        :red:`Work guided by the next largest chi2 contributor`
+
+
+.. class:: small
+
+    **Idealized "tconcentric" scintillator detector avoids any geometry issues, tests optical physics in isolation** 
+
+    Single executable (cfg4 package):
+
+    * performs both pure G4 and hybrid G4+Opticks simulations
+    * writes two events recording up to 16 steps of each photon 
+    * photons indexed on GPU by history and material sequences
+    * history category counts comparison, Opticks/G4 chi2/df ~ 1.0
+    * position, time, polarization, wavelength recorded at each step
+
+    point-by-point chi2-distance comparisons of 8 photon properties for top 100 history categories
+
+    * details in backup
+
+    **NEXT STEPS**
+
+    * JUNO integration + full JUNO geometry validation 
+
+
+.. class:: tiny
+
+   https://bugzilla-geant4.kek.jp/show_bug.cgi?id=1275
+
+
+
+
+:small:`Photon Propagation Times Geant4 cf Opticks`
+----------------------------------------------------------
+
+.. image:: /env/optix/cfg4/PmtInBox-cfg4-2.png
+   :width: 800px
+   :align: center
+
+.. class:: small
+
+    ====================  =================  =================  ================== 
+     Test                  Geant4 10.2       Opticks Interop     Opticks Compute      
+    ====================  =================  =================  ================== 
+     Rainbow 1M(S)           56 s               1.62 s            0.28 s         
+     Rainbow 1M(P)           58 s               1.71 s            0.25 s         
+     **PmtInBox 0.5M**       **41 s**           0.81 s            **0.15 s** 
+    ====================  =================  =================  ================== 
+
+.. class:: small
+
+    * **Opticks > 200X Geant4** with only 384 core mobile GPU[1] (multi-GPU workstation up to 20x more cores)
+
+.. class:: small
+   
+    * **Interop** uses OpenGL buffers allowing visualization, **Compute** uses OptiX buffers
+    * **Interop/Compute** : perfectly identical results, monitored by digest
+
+.. class:: tiny
+
+    [1] MacBook Pro (2013), NVIDIA GeForce GT 750M, 2048 MB, 384 cores
+
+
+
+
+
+
+
+
+
+:small:`Summary`
+----------------------------------------------
+
+.. sidebar:: Overview
+
+   .. class:: small
+
+      * **Opticks 200x Geant4** with mobile GPU
+      * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
+      * :red:`photon propagation time --> zero`
+      * :blue:`automated full fidelity translation of GDML`
+
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 50px
+
+..
+
+  *Opticks* enables *Geant4* based simulations to benefit from optical photon simulation 
+  **taking effectively zero time and zero CPU memory**, 
+  due to massive parallelism made accessible by NVIDIA OptiX.
+  GDML detector geometry is auto translated into a GPU optimized analytic form, 
+  equivalent to the source geometry.
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+  * The more photons the bigger the overall speedup (99% -> 100x) 
+  * Drastic speedup -> better detector understanding -> greater precision
+  * Simulations limited by optical photons can benefit greatly from Opticks+Geant4
+
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 20px
+
+
+  .. class:: huge
+
+     https://bitbucket.org/simoncblyth/opticks
+
+
+
+
+:i:`Opticks Users Group`
+----------------------------------------------------------------------------------------
+
+.. sidebar:: ``https://groups.io/g/opticks``
+
+    .. class:: small
+
+         * Post : ``opticks@groups.io``
+
+         * ``opticks+subscribe@groups.io``
+
+
+
+
+
+
+
+
+
+:small:`List of "backup" slides`
+-------------------------------------------------------------------------------------------------
+
+.. class:: tiny
+
+   **CSG**
+
+   * Constructive Solid Geometry (CSG) : Shapes defined "by construction"
+   * CSG : Which primitive intersect to pick 
+   * Ray Tracing CSG Objects Using Single Hit Intersections (A. Kensler)
+   * CSG Complete Binary Tree Serialization -> simplifies GPU side    
+   * Evaluative CSG intersection Pseudocode : recursion emulated
+   * Opticks CSG Primitives : Closed Solids, Consistent Normals
+   * Opticks CSG Primitives : What is included
+   * Opticks CSG : Balancing Deep Trees Drastically Improves Performance
+   * Dayabay ESR reflector : Deep CSG tree : disc with 9 holes
+   * Opticks CSG Serialized into OpticksCSG format (numpy buffers, json)
+
+   **Validation**  
+
+   * tconcentric : spherical GdLS/LS/MineralOil
+   * tconcentric : Opticks/Geant4 chi2 comparison 
+   * tconcentric : Opticks/Geant4 distrib chi2/df ~ 1.0 
+   * PMT Opticks/Geant4 step distribution comparison TO BT [SD] 
+   * PMT Opticks/Geant4 step distribution comparison : chi2/ndf
+   * Opticks/Geant4 Rainbow Step Sequence Comparison
+   * 1M Rainbow S-Polarized, Comparison Opticks/Geant4
+   * Compare Opticks/Geant4 Simulations with Simple Lights/Geometries
+
+   **Misc**
+
+   * OptiX Performance Scaling with GPU cores
+   * Torus : much more difficult/expensive than other primitives
+   * Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes
+   * Hybrid Geant4/Opticks Event Workflow
+   * Open Source Opticks
+
+
+
+:small:`Constructive Solid Geometry (CSG) : Shapes defined "by construction"`
+-------------------------------------------------------------------------------
+
+.. sidebar:: CSG Binary Tree
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg.png
+       :width: 450px
+       :align: right
+
+    .. class:: small
+
+       Primitives combined via binary operators 
+
+
+.. class:: small
+
+   Simple *by construction* definition, implicit geometry.
+
+   * **A, B** implicit primitive **solids** 
+   * **A + B** : union (OR)
+   * **A * B** : intersection (AND) 
+   * **A - B** : difference (AND NOT) 
+   * **!B** : complement (NOT) (inside <-> outside)
+
+   CSG expressions 
+
+   * non-unique: **A - B == A * !B**
+   * represented by binary tree, primitives at leaves
+
+   3D Parametric Ray : **ray(t) = r0 + t rDir**  
+
+
+   **Ray Geometry Intersection**
+
+   * primitive : find *t* roots of implicit eqn
+   * composite : :red:`pick` primitive intersect, depending on CSG tree
+
+
+.. class:: large
+
+   :red:`How to pick exactly ?`
+
+
+
+:small:`CSG : Which primitive intersect to pick ?`
+-------------------------------------------------------
+    
+
+.. sidebar:: In/On/Out transitions
+
+    .. class:: small
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg_roth_diagram.png
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+   Classical Roth diagram approach
+
+   * find all ray/primitive intersects
+   * recursively combine inside intervals using CSG operator
+   * works from leaves upwards
+
+   Computational requirements:
+
+   * find all intersects, store them, order them
+   * recursive traverse
+
+   BUT : **High performance on GPU requires**:
+
+   * massive parallelism -> more the merrier
+   * low register usage -> keep it simple
+   * small stack size -> **avoid recursion** 
+
+.. class:: large
+
+   :red:`Classical approach not appropriate on GPU`
+
+   
+
+:small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Bit Twiddling Navigation
+
+    .. class:: small
+
+        * parent(i) = i/2 = i >> 1 
+
+        * leftchild(i) = 2*i = i << 1
+
+        * rightchild(i) = 2*i + 1 = (i << 1) + 1
+
+        * leftmost(height)  =  1 << height
+
+
+.. class:: small
+
+    CSG Tree, leaf node primitives, internal node operators, 4x4 transforms on any node, 
+    serialized as :blue:`complete binary tree`:
+ 
+    * bit twiddling navigation :red:`avoids recursion`
+    * no need to deserialize
+    * no child/parent pointers
+    * BUT: very inefficient when unbalanced 
+
+    **Height 3 complete binary tree with level order indices:**
+.. raw:: html
+
+    <pre class="mypre">
+                                                       depth     elevation
+
+                         1                               0           3   
+
+              10                   11                    1           2   
+
+         100       101        110        111             2           1   
+                        
+     1000 1001  1010 1011  1100 1101  1110  1111         3           0   
+    </pre>
+    <hr/>
+
+.. class:: small
+
+    **postorder_next(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) ;**   // from pattern of bits
+ 
+.. class:: tiny
+
+   Postorder tree traverse visits all nodes, starting from leftmost, such that children 
+   are visited prior to their parents.
+
+
+:small:`Evaluative CSG intersection Pseudocode : recursion emulated`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    fullTree = PACK( 1 << height, 1 >> 1 )  // leftmost, parent_of_root(=0) 
+    tranche.push(fullTree, ray.tmin) 
+
+    while (!tranche.empty)        <b><span class="alarm"> // stack of begin/end indices </span></b>
+    {
+        begin, end, tmin <- tranche.pop  ; node <- begin ;
+        while( node != end )                  <b><span class="alarm"> // over tranche of postorder traversal </span></b>
+        {
+            elevation = height - TREE_DEPTH(node) ;
+            if(is_primitive(node)){ isect <- intersect_primitive(node, tmin) ;  csg.push(isect) }
+            else{
+                i_left, i_right = csg.pop, csg.pop          <b><span class="alarm">  // csg stack of intersect normals, t </span></b>
+                l_state = CLASSIFY(i_left, ray.direction, tmin)
+                r_state = CLASSIFY(i_right, ray.direction, tmin)
+                action = LUT(operator(node), leftIsCloser)(l_state, r_state) 
+
+                if(      action is ReturnLeft/Right)     csg.push(i_left or i_right)
+                else if( action is LoopLeft/Right)
+                {
+                    left = 2*node ; right = 2*node + 1 ; 
+                    endTranche = PACK( node,  end );
+                    leftTranche = PACK(  left << (elevation-1), right << (elevation-1) )
+                    rightTranche = PACK(  right << (elevation-1),  node  )
+                    loopTranche = action ? leftTranche : rightTranche
+                                                     
+                    tranche.push(endTranche, tmin)     
+                    tranche.push(loopTranche, tminAdvanced ) <b><span class="alarm"> // subtree re-traversal with changed tmin </span></b> 
+                    break ; // to next tranche
+                }
+            }
+            node <- postorder_next(node, elevation)        <b><span class="alarm"> // bit twiddling postorder </span></b>
+        }
+    } 
+    isect = csg.pop();       <b><span class="alarm">  // winning intersect  </span></b>
+    </pre>
+
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+
+
+
+
+:small:`Opticks CSG Primitives : Closed Solids, Consistent Normals`
+-------------------------------------------------------------------------------------------------
+
+
+.. class:: small 
+
+   **Closed Solid** as: :blue:`implementation requires otherside intersect`, **Rigidly attached normals**
+
+
+.. class:: small 
+
+    ==========================  ===================   ==================
+     Type code                   Python name           C++ nnode sub-struct
+    ==========================  ===================   ==================
+     CSG_BOX3,CSG_BOX            box3,box              nbox
+     CSG_SPHERE,CSG_ZSPHERE      sphere,zsphere        nsphere,nzsphere
+     CSG_CYLINDER,CSG_DISC       cylinder,disc         ncylinder,ndisc
+     CSG_CONE                    cone                  ncone
+     CSG_CONVEXPOLYHEDRON        convexpolyhedron      nconvexpolyhedron
+     CSG_TRAPEZOID,CSG_SEGMENT   trapezoid,segment     nconvexpolyhedron
+     CSG_TORUS                   torus                 ntorus
+     CSG_HYPERBOLOID             hyperboloid           nhyperboloid
+    ==========================  ===================   ==================
+
+    
+    * **zsphere, cone, cylinder, disc** : truncated shapes **closed** by endcaps :red:`<-- NOT OPTIONAL`
+
+    * **disc** : avoids endcap degeneracy with very thin cylinders
+
+    * **convexpolyhedron** : defined by a set of planes, used for trapezoid and segment
+
+    * **segment** :   prism shape used for deltaphi intersection
+
+    * **!complemented** (inside<->outside) solids handled by 
+      special casing classification (cannot miss otherside).
+
+
+    Non-primitives, :red:`high level CSG definition avoids loadsa code` 
+
+    * **ellipsoid** : non-uniform scaling of sphere,  **polycone** : union of cylinders and cones
+
+    * **inner-radii** : via subtraction, **deltaphi-segment** : via intersect with **segment**
+
+
+
+
+
+:small:`Opticks CSG Primitives : What is included`
+-------------------------------------------------------------------------------------------------
+
+
+.. sidebar:: OptiX Geometry
+
+    .. class:: small 
+
+         OptiX provides acceleration of geometrical intersection, not the intersection itself. 
+         
+         * parametric ray : **p(t) = p0 + t rayDir**
+         * implicit surface : **f(p) = 0** 
+
+         Intersect finding next closest root:
+
+         * smallest **t**, with **t > tmin** 
+         * surface normal at **t** 
+
+
+.. class:: small 
+    
+    OptiX/CUDA functions providing:
+
+    * axis aligned bounding box (AABB)
+    * intersect ray position (parametric t), surface normal 
+
+    C++/nnode sub-struct methods
+
+    * signed distance function (SDF)
+    * parametric surface generation 
+
+   
+
+    **4x4 Transforms on any node (translation/rotation/scaling)**
+
+    :blue:`Intersect inverse-transformed ray with un-transformed primitive`
+
+    * parametric-t same in both frames
+    * inverse transform transposed brings normal back to world frame
+
+
+.. class:: tiny
+
+    Supporting non-uniform scaling requires **rayDir** not be be normalized (or assumed to be normalized) by primitives.
+
+
+
+
+
+:small:`Opticks CSG : Balancing Deep Trees Drastically Improves Performance`
+-------------------------------------------------------------------------------------------------
+
+.. sidebar:: Positive form CSG Trees
+
+   .. class:: small
+
+       Apply deMorgan pushing negations down tree 
+
+       * **A - B -> A * !B**
+       * **!(A*B) -> !A + !B**
+       * **!(A+B) -> !A * !B**
+       * **!(A - B) -> !(A*!B) -> !A + B**
+
+       End with only UNION, INTERSECT operators, 
+       and some complemented leaves.
+
+       :red:`COMMUTATIVE -> easily rearranged`
+
+
+.. class:: small
+
+   Intended for solids, not scenes (tree height <8, <256 nodes[*])
+
+   * unbalanced trees inefficiently handled as complete binary trees 
+   * CSG trees non-unique, many expressions of same shape
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    Dayabay TopESRCutHols lvidx:57  (height:9 totnodes:1023)
+    di(di(di(di(di(di(di(di(di(cy,cy),cy),cy),cy),cy),cy),cy),cy),cy)  
+
+                                                                        di    
+                                                                 di          cy
+                                                         di          cy        
+                                                 di          cy                
+                                         di          cy                        
+                                 di          cy                                
+                         di          cy                                        
+                 di          cy                                                
+         di          cy                                                        
+     cy      cy                                         
+
+
+    Balanced Tree, height:4 totnodes:31  
+    in(in(in(in(cy,!cy),in(!cy,!cy)),in(in(!cy,!cy),in(!cy,!cy))),!cy) 
+
+                                                                 in    
+                                 in                                 !cy
+                 in                              in                    
+         in              in              in              in            
+     cy     !cy     !cy     !cy     !cy     !cy     !cy     !cy        
+    </pre>
+
+
+.. class:: tiny
+
+   [*] Algorithm has no inherent height limit, but use of complete binary tree imposes practical performance limitation
+
+
+
+
+:small:`Dayabay ESR reflector : Deep CSG tree : disc with 9 holes`
+-------------------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/lvidx_57_esr_deep_tree_disc_with_holes.png
+   :width: 1000px
+   :align: center
+
+
+
+
+:small:`Opticks CSG Serialized into OpticksCSG format (numpy buffers, json)`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+ 
+    // tboolean-parade
+
+    from opticks.ana.base import opticks_main
+    from opticks.analytic.csg import CSG  
+            
+    args = opticks_main(csgpath="$TMP/$FUNCNAME")
+
+    container = CSG("box", param=[0,0,0,1200], boundary=args.container, poly="MC", nx="20" )
+
+    a = CSG("sphere", param=[0,0,0,100]) 
+    b = CSG("zsphere", param=[0,0,0,100], param1=[-50,60,0,0]) 
+    c = CSG("box3",param=[100,50,70,0]) 
+    d = CSG.MakeTrapezoid(z=100, x1=80, y1=100, x2=100, y2=80)
+    e = CSG("cylinder",param=[0,0,0,100], param1=[-100,100,0,0])
+    f = CSG("disc",param=[0,0,0,100], param1=[-1,1,0,0])
+    g = CSG("cone", param=[100,-100,50,100])
+    h = CSG.MakeTorus(R=70, r=30)
+    i = CSG.MakeHyperboloid(r0=80, zf=100, z1=-100, z2=100)
+    j = CSG.MakeIcosahedron(scale=100.)
+
+    prims = [a,b,c,d,e,f,g,h,i,j]
+
+    ...  // setting translations 
+
+    CSG.Serialize([container] + prims, args.csgpath )   <b><span class="alarm">  <-- write trees to file </span></b>
+    </pre>
+
+    
+.. class:: small
+
+    * imported into C++ **nnode** tree by **NCSG**
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+:small:`tconcentric : spherical GdLS/LS/MineralOil`
+----------------------------------------------------- 
+
+.. image:: /env/presentation/tconcentric-8cccccccc9ccccd.png
+   :width: 900px
+   :align: center
+
+
+
+:small:`tconcentric : Opticks/Geant4 chi2 comparison`
+------------------------------------------------------- 
+
+.. raw:: html
+
+    <pre class="mypre">
+    .      seqhis_ana  1:concentric   -1:concentric     c2        
+    .                       1000000   1000000       373.13/356 =  1.05  (pval:0.256 prob:0.744)  
+    0000           8ccccd    669843    670001             0.02  [6 ] TO BT BT BT BT SA
+    0001               4d     83950     84149             0.24  [2 ] TO AB
+    0002          8cccc6d     45490     44770             5.74  [7 ] TO SC BT BT BT BT SA
+    0003           4ccccd     28955     28718             0.97  [6 ] TO BT BT BT BT AB
+    0004             4ccd     23187     23170             0.01  [4 ] TO BT BT AB
+    0005          8cccc5d     20238     20140             0.24  [7 ] TO RE BT BT BT BT SA
+    0006          8cc6ccd     10214     10357             0.99  [7 ] TO BT BT SC BT BT SA
+    0007          86ccccd     10176     10318             0.98  [7 ] TO BT BT BT BT SC SA
+    0008          89ccccd      7540      7710             1.90  [7 ] TO BT BT BT BT DR SA
+    0009         8cccc55d      5976      5934             0.15  [8 ] TO RE RE BT BT BT BT SA
+    0010              45d      5779      5766             0.01  [3 ] TO RE AB
+    0011  8cccccccc9ccccd      5339      5269             0.46  [15] TO BT BT BT BT DR BT BT BT BT BT BT BT BT SA
+    0012          8cc5ccd      5111      4940             2.91  [7 ] TO BT BT RE BT BT SA
+    0013              46d      4797      4886             0.82  [3 ] TO SC AB
+    0014      8cccc9ccccd      4494      4469             0.07  [11] TO BT BT BT BT DR BT BT BT BT SA
+    0015      8cccccc6ccd      3317      3302             0.03  [11] TO BT BT SC BT BT BT BT BT BT SA
+    0016         8cccc66d      2670      2675             0.00  [8 ] TO SC SC BT BT BT BT SA
+    0017          49ccccd      2432      2383             0.50  [7 ] TO BT BT BT BT DR AB
+    0018          4cccc6d      2043      1991             0.67  [7 ] TO SC BT BT BT BT AB
+    0019            4cc6d      1755      1826             1.41  [5 ] TO SC BT BT AB
+    </pre>
+
+.. class:: small
+
+    Top 20 chart above, (category 100 down to ~100 photons for propagation of 1M photons)
+
+
+
+:small:`tconcentric : Opticks/Geant4 distrib chi2/df ~ 1.0`
+--------------------------------------------------------------- 
+
+.. class:: small
+
+    * Top 100 history categories correspond to ~900 propagation points
+    * 8 quantities at each point : ~7200 histograms pairs to chi2 compare 
+    * selecting discrepant points : distchi2 > 1.1 (yields 41 out of 900 points) 
+
+
+.. class:: tiny
+
+    
+    XYZT:position/time ABCW:polarization/wavelength 
+
+    === == ===== ===== ============================================== ===== ===== ===== ===== ===== ===== ===== ===== ===== ====== 
+    iv  is na    nb    reclab                                         X     Y     Z     T     A     B     C     W     seqc2 distc2 
+    === == ===== ===== ============================================== ===== ===== ===== ===== ===== ===== ===== ===== ===== ====== 
+    26  5  20238 20140 TO [RE] BT BT BT BT SA                          0.85  0.00  0.00  1.31  1.12  1.37  1.10  0.78  0.24  1.10  
+    27  5  20238 20140 TO RE [BT] BT BT BT SA                          2.14  2.26  0.80  1.08  1.15  0.82  0.76  0.78  0.24  1.18  
+    28  5  20238 20140 TO RE BT [BT] BT BT SA                          2.01  2.23  0.79  0.83  1.17  0.83  0.83  0.78  0.24  1.17  
+    29  5  20238 20140 TO RE BT BT [BT] BT SA                          2.66  4.37  1.13  0.49  1.20  0.81  0.79  0.78  0.24  1.68  
+    30  5  20238 20140 TO RE BT BT BT [BT] SA                          2.56  4.48  1.19  1.04  1.12  0.97  0.91  0.78  0.24  1.75  
+    31  5  20238 20140 TO RE BT BT BT BT [SA]                          3.18  5.17  1.23  0.48  1.12  0.97  0.91  0.78  0.24  2.06  
+    38  6  10214 10357 TO BT BT SC BT BT [SA]                          0.79  1.37  1.43  0.55  1.00  1.33  0.97  0.00  0.99  1.16  
+    52  8  7540  7710  TO BT BT BT BT DR [SA]                          1.70  1.32  1.48  1.49  1.12  1.03  1.37  0.00  1.90  1.28  
+    56  9  5976  5934  TO RE RE [BT] BT BT BT SA                       1.26  1.51  1.21  2.36  0.99  1.40  1.10  1.65  0.15  1.24  
+    57  9  5976  5934  TO RE RE BT [BT] BT BT SA                       1.23  1.39  1.25  2.31  0.98  1.45  0.98  1.65  0.15  1.21  
+    58  9  5976  5934  TO RE RE BT BT [BT] BT SA                       1.24  0.98  1.18  1.88  0.97  1.39  1.01  1.65  0.15  1.14  
+    59  9  5976  5934  TO RE RE BT BT BT [BT] SA                       1.24  0.90  1.04  1.83  0.93  1.55  0.92  1.65  0.15  1.11  
+    60  9  5976  5934  TO RE RE BT BT BT BT [SA]                       0.95  1.03  1.50  3.12  0.93  1.55  0.92  1.65  0.15  1.18  
+    69  11 5339  5269  TO BT BT BT BT [DR] BT BT BT BT BT BT BT BT SA  0.00  0.00  0.00  0.00  1.29  1.69  2.42  0.00  0.46  1.31  
+    74  11 5339  5269  TO BT BT BT BT DR BT BT BT BT [BT] BT BT BT SA  1.10  1.45  1.02  0.67  1.42  0.83  1.38  0.00  0.46  1.12  
+    75  11 5339  5269  TO BT BT BT BT DR BT BT BT BT BT [BT] BT BT SA  0.98  1.42  1.16  0.52  1.58  0.82  1.46  0.00  0.46  1.15  
+    76  11 5339  5269  TO BT BT BT BT DR BT BT BT BT BT BT [BT] BT SA  1.46  1.66  0.79  0.65  1.69  0.89  1.46  0.00  0.46  1.21  
+    77  11 5339  5269  TO BT BT BT BT DR BT BT BT BT BT BT BT [BT] SA  1.04  1.64  0.81  0.51  2.20  0.91  1.35  0.00  0.46  1.19  
+    78  11 5339  5269  TO BT BT BT BT DR BT BT BT BT BT BT BT BT [SA]  1.10  1.56  0.73  0.21  2.20  0.91  1.35  0.00  0.46  1.17  
+    85  12 5111  4940  TO BT BT RE BT BT [SA]                          1.26  2.13  0.79  2.07  1.03  0.93  0.72  0.68  2.91  1.11  
+    94  14 4494  4469  TO BT BT BT BT [DR] BT BT BT BT SA              0.00  0.00  0.00  0.00  1.90  3.74  1.95  0.00  0.07  2.01  
+    95  14 4494  4469  TO BT BT BT BT DR [BT] BT BT BT SA              3.85  1.83  0.90  0.82  2.20  1.45  1.11  0.00  0.07  1.41  
+    96  14 4494  4469  TO BT BT BT BT DR BT [BT] BT BT SA              1.94  1.82  1.07  0.85  2.67  1.30  1.08  0.00  0.07  1.39  
+    97  14 4494  4469  TO BT BT BT BT DR BT BT [BT] BT SA              1.61  1.35  1.48  0.31  2.00  1.22  1.28  0.00  0.07  1.35  
+    98  14 4494  4469  TO BT BT BT BT DR BT BT BT [BT] SA              1.96  1.31  1.39  0.66  2.13  1.03  1.42  0.00  0.07  1.36  
+    99  14 4494  4469  TO BT BT BT BT DR BT BT BT BT [SA]              2.29  0.91  1.05  4.14  2.13  1.03  1.42  0.00  0.07  1.23  
+    104 15 3317  3302  TO BT BT SC [BT] BT BT BT BT BT SA              0.60  1.02  1.75  1.92  0.77  1.23  1.39  0.00  0.03  1.20  
+    105 15 3317  3302  TO BT BT SC BT [BT] BT BT BT BT SA              0.77  1.35  1.34  1.98  0.73  1.13  1.41  0.00  0.03  1.17  
+    108 15 3317  3302  TO BT BT SC BT BT BT BT [BT] BT SA              1.48  1.01  1.73  0.51  0.85  1.00  1.05  0.00  0.03  1.15  
+    124 17 2432  2383  TO BT BT BT BT [DR] AB                          0.00  0.00  0.00  0.00  1.64  0.92  0.71  0.00  0.50  1.20  
+    140 20 1815  1805  TO RE [RE] RE BT BT BT BT SA                    1.80  0.56  1.73  0.59  1.31  1.20  1.42  0.60  0.03  1.26  
+    141 20 1815  1805  TO RE RE [RE] BT BT BT BT SA                    1.30  1.02  2.24  1.02  1.09  1.06  1.17  1.07  0.03  1.15  
+    144 20 1815  1805  TO RE RE RE BT BT [BT] BT SA                    1.05  1.32  1.03  0.53  0.93  1.31  1.12  1.07  0.03  1.10  
+    222 29 1105  1168  TO BT BT RE BT BT [BT] BT BT BT SA              2.42  2.53  2.26  2.49  1.29  1.25  0.65  1.08  1.75  1.65  
+    223 29 1105  1168  TO BT BT RE BT BT BT [BT] BT BT SA              2.32  2.44  1.98  2.38  1.03  1.07  0.72  1.08  1.75  1.53  
+    224 29 1105  1168  TO BT BT RE BT BT BT BT [BT] BT SA              3.13  2.49  1.32  1.34  1.11  1.23  0.69  1.08  1.75  1.56  
+    225 29 1105  1168  TO BT BT RE BT BT BT BT BT [BT] SA              2.83  2.44  1.36  1.06  0.92  1.08  0.69  1.08  1.75  1.47  
+    226 29 1105  1168  TO BT BT RE BT BT BT BT BT BT [SA]              3.24  3.21  1.03  2.18  0.92  1.08  0.69  1.08  1.75  1.59  
+    241 31 1067  1013  TO BT BT BT BT DR [BT] BT AB                    1.25  1.53  0.80  0.27  2.03  0.90  1.40  0.00  1.40  1.27  
+    242 31 1067  1013  TO BT BT BT BT DR BT [BT] AB                    1.30  1.88  0.76  0.37  1.44  0.95  1.38  0.00  1.40  1.18  
+    248 32 1036  988   TO RE BT BT [AB]                                1.00  1.78  1.69  1.55  0.62  0.87  0.86  1.33  1.14  1.13  
+    === == ===== ===== ============================================== ===== ===== ===== ===== ===== ===== ===== ===== ===== ====== 
+
+
+
+
+:small:`PMT Opticks/Geant4 step distribution comparison TO BT [SD]`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   **Good agreement reached**, after several fixes: geometry, total internal reflection, group velocity
+
+
+.. figure:: /env/numerics/npy/PmtInBox_TOBTSD_xyzt.png 
+   :width: 500px
+   :align: left
+
+   position(xyz), time(t)
+
+
+.. figure:: /env/numerics/npy/PmtInBox_TOBTSD_abcr.png
+   :width: 500px
+   :align: right
+
+   polarization(abc), radius(r)
+
+
+:small:`PMT Opticks/Geant4 step distribution comparison : chi2/ndf`
+---------------------------------------------------------------------------------------
+
+.. sidebar:: Consistent : chi2/ndf ~ 1
+
+   .. class:: small
+
+       Very good Opticks/Geant4 agreement 
+
+       * identical geometries
+       * identical optical physics
+
+       XYTZ: position, time
+       ABCR: polarization, radius
+
+
+.. class:: tiny
+
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+    4/PMT In Box/torch :             X     Y     Z     T     A     B     C     R     
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+    340271/340273  :  [TO] BT SA    1.15  1.00  0.00  0.00  1.06  1.03  0.00  1.21 
+    340271/340273  :  TO [BT] SA    1.15  1.00  1.06  0.91  1.06  1.03  0.00  1.21 
+    340271/340273  :  TO BT [SA]    0.97  1.02  1.05  0.99  1.06  1.03  0.00  1.29 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    107598/107251  :  [TO] BT SD    0.91  0.73  0.56  0.56  0.98  1.09  0.56  0.94 
+    107598/107251  :  TO [BT] SD    0.91  0.73  0.81  0.93  0.98  1.09  0.56  0.94 
+    107598/107251  :  TO BT [SD]    0.99  0.83  0.97  0.99  0.98  1.09  0.56  0.93 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    23217/23260  :  [TO] BT BT SA   0.94  0.82  0.04  0.04  0.97  0.89  0.04  0.57 
+    23217/23260  :  TO [BT] BT SA   0.94  0.82  0.70  0.50  0.97  0.89  0.04  0.57 
+    23217/23260  :  TO BT [BT] SA   0.91  0.94  0.43  0.60  0.97  0.89  0.04  0.05 
+    23217/23260  :  TO BT BT [SA]   0.94  0.88  0.04  0.35  0.97  0.89  0.04  0.72 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    18866/19048  :  [TO] AB         0.99  1.10  0.87  0.87  0.85  0.84  0.87  1.00 
+    18866/19048  :  TO [AB]         0.99  1.10  0.93  0.92  0.85  0.84  0.87  1.00 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    3179/3133  :  [TO] SC SA        1.07  0.83  0.34  0.34  0.86  0.96  0.34  0.73 
+    3179/3133  :  TO [SC] SA        1.07  0.83  0.98  1.05  0.98  1.06  0.98  0.73 
+    3179/3133  :  TO SC [SA]        0.96  1.04  0.93  0.97  0.98  1.06  0.98  1.10 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    2204/2249  :  [TO] BT AB        0.85  1.04  0.45  0.45  0.99  0.92  0.45  1.06 
+    2204/2249  :  TO [BT] AB        0.85  1.04  0.95  0.88  0.99  0.92  0.45  1.06 
+    2204/2249  :  TO BT [AB]        0.98  0.94  1.01  1.00  0.99  0.92  0.45  0.90 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    1696/1732  :  [TO] BT BT AB     1.05  0.85  0.38  0.38  0.86  1.09  0.38  0.26 
+    1696/1732  :  TO [BT] BT AB     1.05  0.85  1.48  1.28  0.86  1.09  0.38  0.26 
+    1696/1732  :  TO BT [BT] AB     0.99  0.86  1.17  1.40  0.86  1.09  0.38  0.86 
+    1696/1732  :  TO BT BT [AB]     1.15  0.88  1.08  1.06  0.86  1.09  0.38  0.79 
+    ------------------------------ ----- ----- ----- ----- ----- ----- ----- ----- 
+    1446/1455  :  [TO] BR SA        1.21  0.94  0.03  0.03  0.90  0.87  0.03  1.09 
+    1446/1455  :  TO [BR] SA        1.21  0.94  1.02  1.01  0.90  0.87  0.03  1.09 
+    1446/1455  :  TO BR [SA]        1.00  0.93  0.97  0.99  0.90  0.87  0.03  1.04 
+    ============================== ===== ===== ===== ===== ===== ===== ===== ===== 
+
+
+
+
+
+
+
+
+
+:small:`Opticks/Geant4 Rainbow Step Sequence Comparison`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   **Flags:**
+     * BT/BR: boundary transmit/reflect
+     * TO/SC/SA: torch/scatter/surface absorb
+
+   **Statistically consistent photon histories in the two simulations : Multiple orders of rainbow apparent**
+
+.. raw:: html
+
+    <pre class="mypre">
+     64-bit uint  Opticks    Geant4    chi2                                      (tag:5,-5)   
+
+            8ccd   819160    819654    0.15  [4 ] TO BT BT SA                    (cross droplet) 
+             8bd   102087    101615    1.09  [3 ] TO BR SA                       (external reflect)
+           8cbcd    61869     61890    0.00  [5 ] TO BT BR BT SA                 (bow 1)
+          8cbbcd     9618      9577    0.09  [6 ] TO BT BR BR BT SA              (bow 2)
+         8cbbbcd     2604      2687    1.30  [7 ] TO BT BR BR BR BT SA           (bow 3)
+        8cbbbbcd     1056      1030    0.32  [8 ] TO BT BR BR BR BR BT SA        (bow 4)
+           86ccd     1014      1000    0.10  [5 ] TO BT BT SC SA
+       8cbbbbbcd      472       516    1.96  [9 ] TO BT BR BR BR BR BR BT SA     (bow 5)
+             86d      498       473    0.64  [3 ] TO SC SA
+      bbbbbbbbcd      304       294    0.17  [10] TO BT BR BR BR BR BR BR BR BR  (bow 8+ truncated)
+      8cbbbbbbcd      272       247    1.20  [10] TO BT BR BR BR BR BR BR BT SA  (bow 6)
+      cbbbbbbbcd      183       161    1.41  [10] TO BT BR BR BR BR BR BR BR BT  (bow 7 truncated) 
+    </pre>
+
+
+
+:small:`1M Rainbow S-Polarized, Comparison Opticks/Geant4`
+------------------------------------------------------------
+
+.. class:: tiny
+
+   Deviation angle(degrees) of 1M parallel monochromatic photons in disc shaped beam incident on water sphere.
+   Numbered bands are visible range expectations of first 11 rainbows.
+   S-Polarized intersection (E field perpendicular to plane of incidence) arranged by directing polarization radially.
+
+.. image:: /env/optix/cfg4/rainbow-cfg4-spol.png
+   :width: 800px
+   :align: center
+
+
+
+:small:`Compare Opticks/Geant4 Simulations with Simple Lights/Geometries`
+---------------------------------------------------------------------------
+
+.. figure:: /env/graphics/ggeoview/rainbow-spol-disc-incident-sphere.png
+   :width: 550px
+   :align: left
+
+   .. class:: tiny
+
+       1M Photons -> Water Sphere (S-Polarized)
+
+.. figure:: /env/graphics/ggeoview/PmtInBox-approach.png 
+   :width: 450px
+   :align: right
+
+   .. class:: tiny
+
+       0.5M Photons -> Dayabay PMT 
+
+
+
+.. image:: /env/presentation/1px.png
+   :width: 1000px
+   :height: 1px
+   :align: center
+
+
+.. class:: small
+
+   **Photon step records**
+      128 bit per step : highly compressed position, time, wavelength, polarization vector, material/history codes  
+
+   **Photon flag sequence** 
+      16x 4-bit step flags recorded in uint64 sequence, indexed using Thrust GPU sort (1M indexed ~0.040s)
+
+   **Sequence index** -> interactive OpenGL selection of photons by flag sequence
+      
+
+
+
+
+
+
+
+
+
+:small:`OptiX Performance Scaling with GPU cores`
+---------------------------------------------------------------------------
+
+.. sidebar:: Performance Linearity with CUDA cores 
+
+    .. image:: /env/g4dae/core_linearity.png
+       :width: 500px
+       :align: right
+
+.. class:: small
+
+    OptiX sample rendering with 2 GPU IHEP workstation,
+
+    * 2 Tesla K20m (4992 cores) 28.0 ms/f
+    * 1 Tesla K20m (2496 cores) 49.1 ms/f
+    * 1 GeForce GT 750m (384 cores) 345.1 ms/f
+ 
+    :red:`Performance linear with GPU cores`, compared to laptop:
+
+    * 13x cores, 12x performance
+    * performance scales across GPUs
+
+    Benefit from multiple GPUs with no development effort. 
+
+
+
+
+
+:small:`Torus : much more difficult/expensive than other primitives`
+------------------------------------------------------------------------
+
+.. sidebar:: Torus artifacts
+
+    .. image:: /env/presentation/tboolean_torus_orthographic_artifact.png
+       :width: 400px
+       :align: right
+
+   .. image:: /env/presentation/torus_eqn_sqrt.png
+       :width: 400px
+       :align: right
+
+   .. image:: /env/presentation/torus_eqn_quartic.png
+       :width: 400px
+       :align: right
+
+
+
+.. class:: small
+
+   3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
+
+   * ray-torus intersection -> solve quartic polynomial in **t**  
+   *  A t^4 + B t^3 + C t^2 + D t + E = 0 
+
+   High order equation 
+
+   * very large difference between coefficients 
+   * varying ray -> wide range of very coefficients
+   * numerically problematic, requires double precision 
+   * several mathematical approaches used, work in progress
+
+   **Best Solution : replace torus**
+
+   * eg model PMT neck with hyperboloid, not cylinder-torus
+
+
+
+:small:`Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes`
+----------------------------------------------------------------------------
+ 
+.. image:: /env/graphics/ggeoview/dpib-triangulated-pmt.png
+   :width: 550px
+   :align: left 
+
+.. image:: /env/nuwa/detdesc/pmt/hemi-pmt-analytic-near-clipped.png
+   :width: 550px
+   :align: right
+
+.. image:: /env/presentation/1px.png
+   :width: 1000px
+   :height: 1px
+   :align: center
+
+
+.. class:: small
+
+   Analytic : more realistic, faster, less memory, **much more effort**  
+
+   For Dayabay PMT:
+
+   * partition CSG solids into 12 **single primitive** parts (instead of 2928 triangles)
+   * splitting at geometrical intersections avoids implementing general CSG boolean handling
+   * geometry provided to OptiX in form of ray intersection and bounding box code
+   
+   **Aim : analytic description of geometry on critical optical path, remainder tesselated**  
+
+
+
+
+:i:`OpticksDocs`
+-------------------------------------------------------------------------------
+
+.. sidebar:: Open Source Opticks
+
+    .. class:: small
+
+        * http://simoncblyth.bitbucket.io/opticks/
+        * http://bitbucket.org/simoncblyth/opticks/
+
+        Documentation, install instructions. Repository.
+
+        * Mac, Linux, Windows (*)
+        * 16 C++ projects, ordered by dependency
+        * ~200 "Unit" Tests (CMake/CTest) 
+        * 12 integration tests: tpmt, trainbow, tprism, treflect, tlens, tnewton, tg4gun, ...
+        * NumPy/Python analysis/debugging scripts        
+
+        Geometry/event data use NumPy serialization::
+
+             import numpy as np
+             a = np.load("photons.npy")
+
+    .. class:: tiny
+
+        (*) Windows VS2015, non-CUDA only so far  
+
+
+
+
+
+:i:`NVIDIA OptiX 1`
+-------------------------------------------------------------------------------
+
+:i:`NVIDIA OptiX 2`
+-------------------------------------------------------------------------------
+
+.. sidebar::  NVIDIA® OptiX™ 
+
+    .. class:: small
+
+       http://developer.nvidia.com/optix
+
+       * no rendering assumptions
+  
+       * **just accelerates ray-geometry intersections**
+
+       * :red:`compiler optimized for GPU ray tracing`
+
+       * regular improvements, new GPU tuning
+
+       * NVIDIA expertise on GPU/multi-GPU usage
+
+         * ~linear scaling with cores across GPUs
+
+       * free to acquire, use, distribute non-commercially 
+
+       * :blue:`simple : single-ray programming model`
+
+
+.. image:: /env/presentation/1px.png
+   :width: 1px
+   :height: 100px
+   :align: center
+
+.. class:: tiny
+
+   ``https://research.nvidia.com/publication/optix-general-purpose-ray-tracing-engine``
+
+
+
+
+
+
+:small:`Ray intersection with general CSG binary tree solids within OptiX`
+-------------------------------------------------------------------------------
+
+.. sidebar:: Very close GPU/CPU match is possible
+
+    .. class:: small
+
+        * same analytic geometry 
+        * same optical physics
+        
+
+.. class:: small
+
+   **Performance on GPU requires**
+
+   * massive parallelism -> more the merrier
+   * low register usage -> keep it simple
+   * small stack size -> **avoid recursion** : OptiX demands: :red:`no recursion in intersect`  
+
+   **Approach (details in backup)**
+
+   * Complete Binary Tree Serialization 
+
+     * postorder tree traversal, just by bit twiddling (avoids recursion)    
+
+   * Ray Tracing CSG Objects Using Single Hit Intersections (A. Kensler)[1]
+
+     * binary intersect classification, lookup table
+     * avoids lots of state, BUT: sometimes advance **t_min** and re-intersect 
+     * converted recursive pseudocode into "Evaluative" implementation [2]
+
+   * Auto translation of GDML into GPU appropriate form
+
+     * entire geometry translated, serialized, uploaded to GPU
+
+ 
+.. class:: tiny
+
+    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
+  
+    [2] Similar to binary expression tree evaluation using postorder traverse. 
+
+
+
+
+
+:small:`Opticks : Whats New ?`
+-------------------------------------------------------------------------------
+
+.. class:: large
+
+
+    **Geometry Handling**
+
+    * General CSG boolean geometry intersection on GPU 
+ 
+      * :red:`Geant4 geometry auto-translated to GPU without approximation` 
+
+    * Geometry direct from Geant4, no export/import needed 
+    * Export Geant4 geometry to glTF 2.0 for visualization
+
+    **Validation**
+
+    * make any solid emit CPU generated "input" photons 
+    * random sequence aligned validations 
+
+    **Configuration**
+
+    * Modern CMake 3.5 target export -> easy integration with your code
+
+    **Community**
+
+    * Opticks mailing list : https://groups.io/g/opticks
+
+
+
+
+
+

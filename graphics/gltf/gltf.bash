@@ -27,6 +27,50 @@ could be easily streamed, e.g. over the internet.
 * https://docs.microsoft.com/en-us/windows/mixed-reality/creating-3d-models-for-use-in-the-windows-mixed-reality-home
 
 
+Fabricated Top Node, switching Z<->Y 
+-------------------------------------------
+
+::
+
+    343469     {
+    343470       "name": "Fabricated top node 12230",
+    343471       "children": [
+    343472         3152
+    343473       ],
+    343474       "matrix": [
+    343475         1.0, 0.0, 0.0, 0.0,
+    343476         0.0, 0.0, 1.0, 0.0,
+    343477         0.0, 1.0, 0.0, 0.0,
+    343478         0.0, 0.0, 0.0, 1.0
+    343479       ],
+    343480     } 
+    343481   ],
+    343482   "scenes": [
+    343483     {
+    343484       "nodes": [
+    343485         12230
+    343486       ] 
+    343487     } 
+    343488   ] 
+
+
+
+
+2018 Web3D Conference Keynote, Neil Trevett 
+----------------------------------------------
+
+* https://www.khronos.org/assets/uploads/developers/library/2018-web3d/Web3D-Keynote-Poznan-2D_Jun18.pdf
+
+
+* https://www.anandtech.com/show/12894/apple-deprecates-opengl-across-all-oses
+
+* https://moltengl.com/moltenvk/
+
+  MoltenVK : bringing Vulkan to macOS/iOS 
+
+* https://github.com/KhronosGroup/MoltenVK
+
+
 Double Sided
 --------------
 

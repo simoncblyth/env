@@ -28,6 +28,44 @@ Tips
 *hg log --date "2014-05-01 to 2015-04-21"*
      select entries in a date range
 
+merging
+~~~~~~~~~~
+
+* https://swcarpentry.github.io/hg-novice/12-merges/
+
+
+case wierdness
+~~~~~~~~~~~~~~~~~
+
+Capitalized in file system, but not in mercurial ?::
+
+    epsilon:npy blyth$ ll No.*
+    -rw-r--r--  1 blyth  staff  1334 Jun 21 14:38 No.cpp
+    -rw-r--r--  1 blyth  staff  1070 Jun 21 15:39 No.hpp
+    epsilon:npy blyth$ hg revert No.cpp
+    no changes needed to no.cpp
+
+    epsilon:npy blyth$ rm no.cpp no.hpp
+    epsilon:npy blyth$ hg revert no.cpp
+    epsilon:npy blyth$ hg revert no.hpp
+    epsilon:npy blyth$ ll No.*
+    ls: No.*: No such file or directory
+    epsilon:npy blyth$ ll no.*
+    -rw-r--r--  1 blyth  staff  1334 Jun 25 13:40 no.cpp
+    -rw-r--r--  1 blyth  staff  1070 Jun 25 13:41 no.hpp
+    epsilon:npy blyth$ 
+
+    epsilon:npy blyth$ hg rename no.cpp No.cpp
+    epsilon:npy blyth$ hg rename no.hpp No.hpp
+    epsilon:npy blyth$ hg st .
+    M tests/NPYreshapeTest.cc
+    A No.cpp
+    A No.hpp
+    R no.cpp
+    R no.hpp
+    epsilon:npy blyth$ 
+
+
 
 new commits still draft : manually set them public
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,6 +160,78 @@ Then edit the paths::
   2 [paths]
   3 default = ssh://hg@bitbucket.org/simoncblyth/opticks-cmake-overhaul
   4 #default = /Users/blyth/opticks
+
+
+
+merging opticks-cmake-overhaul back into opticks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* there are no commits in opticks, all commits done into opticks-cmake-overhaul
+  over the past 6 weeks
+
+In brief::
+
+   cd ~/opticks
+   hg pull ../opticks-cmake-overhaul
+   hg update
+   hg outgoing   ## shows what will push, about 100 commits from the past 6 weeks
+   hg push       ## 98 changesets with 2274 changes to 1223 files
+
+
+::
+
+    epsilon:opticks blyth$ hg pull ../opticks-cmake-overhaul
+    pulling from ../opticks-cmake-overhaul
+    searching for changes
+    adding changesets
+    adding manifests
+    adding file changes
+    added 98 changesets with 2274 changes to 1223 files
+    new changesets 92cfcc4149af:24f381236afe
+    (run 'hg update' to get a working copy)
+    epsilon:opticks blyth$ 
+    epsilon:opticks blyth$ hg update
+    1164 files updated, 0 files merged, 474 files removed, 0 files unresolved
+    epsilon:opticks blyth$ 
+
+
+    epsilon:opticks blyth$ hg outgoing   ## shows what will push, about 100 commits from the past 6 weeks
+    comparing with ssh://hg@bitbucket.org/simoncblyth/opticks
+    searching for changes
+    changeset:   2294:92cfcc4149af
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Wed May 16 21:03:57 2018 +0800
+    summary:     exploring approaches to modern CMake with exported/imported targets, and using bcm- to avoid the boilerplate
+
+    changeset:   2295:351c13fb857a
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Thu May 17 19:31:52 2018 +0800
+    summary:     finding a way use my BCM fork with unchanged Opticks header locations in source and installation, so far works in the simple UseGLMViaBCM example
+
+    ...
+
+    changeset:   2390:2e86e80d2d37
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Mon Jun 25 13:43:49 2018 +0800
+    summary:     preparing to bring developments from opticks-cmake-overhaul back home to opticks using transient opticks-test-copy to check first
+
+    changeset:   2391:24f381236afe
+    tag:         tip
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Mon Jun 25 14:01:21 2018 +0800
+    summary:     move opticks-full to use om-install
+
+
+::
+
+    epsilon:opticks blyth$ hg push 
+    pushing to ssh://hg@bitbucket.org/simoncblyth/opticks
+    searching for changes
+    remote: adding changesets
+    remote: adding manifests
+    remote: adding file changes
+    remote: added 98 changesets with 2274 changes to 1223 files
+    epsilon:opticks blyth$ 
 
 
 

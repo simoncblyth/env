@@ -8,12 +8,14 @@ Groups.io Opticks
 
 * https://groups.io/g/opticks
 
+* enable issues on bitbucket for installation debugging ? 
+  to keep that out of the mailing list : aiming for 
+  very low volume of mails 
 
-TODO
-------
+Setup
+-------
 
-* make logo for Opticks (900 x 300 pixels) for the coverphoto
-* https://groups.io/g/opticks/coverphoto
+* DONE: make Opticks banner (900 x 300 pixels) for coverphoto
 
 
 EOU

@@ -18,8 +18,12 @@ PYTHON?=/opt/local/bin/python
 FOOTNOTE_REFERENCES="brackets"
 
 PAGE=0
-REMOTEHOST=simoncblyth.bitbucket.org
-DOCBASE=$(HOME)/simoncblyth.bitbucket.org
+#REMOTEHOST=simoncblyth.bitbucket.org
+#DOCBASE=$(HOME)/simoncblyth.bitbucket.org
+
+REMOTEHOST=simoncblyth.bitbucket.io
+DOCBASE=$(HOME)/simoncblyth.bitbucket.io
+
 
 SOURCES=$(PRESENTATION_NAME).txt
 

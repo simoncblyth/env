@@ -14,14 +14,20 @@ Presentations online
 * http://simoncblyth.bitbucket.io
 
 
+Machinery Fixes
+----------------
+
+* Makefile had some old simoncblyth.bitbucket.org rather than simoncblyth.bitbucket.io
+* apache changes in High Sierra, see hapache-
+
+
 CHEP 2018, Sofia, Bulgaria
 ----------------------------
 
 * review developments since last CHEP,  
  
+  * notes/progress.rst 
   * okc-vi has some month-by-month history
-  * suspect there is another pile of progress reports too : consolidate them 
-
 
 Timeline
 ------------
@@ -31,7 +37,6 @@ Timeline
     Mon June 25  * start preparing talk, submit a version of presentation before July 02 
     Mon July 02  
     Mon July 09  * 1st day of CHEP
-
 
 
 ::
@@ -394,6 +399,8 @@ Preparation workflow:
 #. static .png etc.. are managed within bitbucket static repo, 
    local clone at ~/simoncblyth.bitbucket.org
 
+   * HMM NOW ~/simoncblyth.bitbucket.io 
+
    * remember not too big, there is 1GB total repo limit 
 
 #. running presentation.sh updates the derived html within
@@ -563,10 +570,6 @@ gpu_accelerated_geant4_simulation.txt
 g4dae_geometry_exporter.txt
      G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
      19th Geant4 Collaboration Meeting, Okinawa, Sept 2014
-
-
-
-
 
 
 g4dae_geometry_exporter (Sept 2014)
@@ -876,7 +879,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jan2017_psroc ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_jinan ; }
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
 
 
 presentation-info(){ cat << EOI
@@ -885,6 +889,8 @@ presentation-info(){ cat << EOI
     presentation-path        : $(presentation-path)
     presentation-url-remote  : $(presentation-url-remote)
     presentation-url-local   : $(presentation-url-local)
+    presentation-dir         : $(presentation-dir)
+
 
 EOI
 }
@@ -912,7 +918,8 @@ presentation-writeup(){
 }
 
 presentation-remote(){
-   echo simoncblyth.bitbucket.org
+   #echo simoncblyth.bitbucket.org
+   echo simoncblyth.bitbucket.io
 }
 
 presentation-url-local(){ echo http://localhost/env/presentation/$(presentation-name).html?page=${1:-0} ; }
@@ -920,7 +927,7 @@ presentation-open(){
    open $(presentation-url-local $*)
    sleep 0.3
    slides-
-   slides-safari 
+   slides-safari    ## just resizes browser
 } 
 
 

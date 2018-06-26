@@ -15,6 +15,42 @@ C++ Bindings
 * https://github.com/KhronosGroup/Vulkan-Hpp
 
 
+Vulkan Tutorial
+----------------
+
+* https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Validation_layers
+* https://vulkan-tutorial.com/Development_environment
+
+
+MoltenVK with GLFW
+--------------------
+
+* https://github.com/glfw/glfw/issues/870
+
+
+LunarG Vulkan SDK
+-------------------
+
+* https://vulkan.lunarg.com/doc/sdk/latest/mac/getting_started.html
+* https://vulkan.lunarg.com/sdk/home#mac
+* https://github.com/LunarG
+
+
+MoltenVK goes open source, Feb 2018
+-------------------------------------
+
+* https://www.neowin.net/news/moltenvk-popular-vulkan-development-tool-for-macos-goes-open-source
+* https://www.anandtech.com/show/12465/khronos-group-extends-vulkan-portability-with-opensource
+* https://arstechnica.com/gadgets/2018/02/vulkan-is-coming-to-macos-ios-but-no-thanks-to-apple/
+
+
+Vulkan Portability Initiative
+-------------------------------
+
+Tools and Libraries for Bringing Vulkan Applications to macOS and iOS
+
+* https://www.khronos.org/vulkan/portability-initiative
+
 
 Khronos 3D portability exploratory group
 -------------------------------------------

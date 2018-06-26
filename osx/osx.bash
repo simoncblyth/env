@@ -289,19 +289,19 @@ osx_ss_cp(){
 
    elif [ "${iwd/$OPTICKS_HOME\/}" != ${iwd} ]; then 
        rel=${iwd/$OPTICKS_HOME\/}
-       repo="env"    ## actually opticks repo, but still using env folder in bitbucket statics
+       repo="env"     ## opticks still using env folder in bitbucket statics
 
    elif [ "${iwd/$WORKFLOW_HOME\/}" != ${iwd} ]; then 
        rel=${iwd/$WORKFLOW_HOME\/}
        repo="workflow"
    else
-       echo $msg expects to be run from within env or workfloat repos
+       echo $msg expects to be run from within env, opticks or workflow repos
        return 
    fi
 
    local dir
    case $repo in 
-            env) dir=$HOME/simoncblyth.bitbucket.org/env/$rel ;;
+            env) dir=$HOME/simoncblyth.bitbucket.io/env/$rel ;;
        workflow) dir=$HOME/DELTA/wdocs/$rel ;;
    esac
 

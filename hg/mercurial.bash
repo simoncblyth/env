@@ -8,7 +8,7 @@ mercurial-usage(){ cat << EOU
 Mercurial Installation
 =======================
 
-Get and build mercurial locally
+Get and build mercurial locally, see hg-vi for usage tips/refs.
 
 ::
 
