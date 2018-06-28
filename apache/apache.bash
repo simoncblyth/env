@@ -289,7 +289,7 @@ apache-user(){
 
 apache-user-default(){
    case ${1:-$NODE_TAG} in 
-     G) echo www ;;
+   G|E) echo www ;;
   C|C2) echo nobody ;;
   P|G1) echo dayabaysoft ;;
      N) echo apache ;;
@@ -398,7 +398,7 @@ EOI
 
 apache-mode-default(){
    case ${1:-$NODE_TAG} in
-       G|D) echo systemapple      ;;
+     G|D|E) echo systemapple      ;;
          K) echo systemapple      ;;
 C|N|ZZ|WW|Y1|Y2) echo system      ;;
         C2) echo source      ;;

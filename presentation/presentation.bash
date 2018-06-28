@@ -14,6 +14,44 @@ Presentations online
 * http://simoncblyth.bitbucket.io
 
 
+Shrinking PDFs with ColorSync Utility
+---------------------------------------
+
+* https://www.cultofmac.com/481247/shrink-pdfs-colorsync-utility/
+
+* use "Live update from filter inspector"
+* copied the existing "Reduce File Size" filter
+* modified "Reduce File Size Copy" removed Image Sampling, set Image Compression to JPEG 75% 
+  
+  * PDF size reduced from 49M to 15M and quality reduction difficult to notice
+
+::
+
+    epsilon:Desktop blyth$ du -hs opticks*
+     49M	opticks_gpu_optical_photon_simulation_jul2018_chep.pdf
+     15M	opticks_gpu_optical_photon_simulation_jul2018_chep_j75.pdf
+
+
+
+TODO
+-----
+
+* DONE : enable issues on bitbucket
+* prepare a list of email addresses of the Opticks interested
+* write Opticks News
+
+  * whats new : CMake 3.5+, BCM, target export -> easy config 
+  * WIP : direct from G4 geometry
+  * issues enabled on bitbucket
+  * mailing list : ground rules, not an issue tracker : use bitbucket for that
+
+* send Opticks News to the interested list, invite to mailing list, inform on issue tracker
+
+* https://groups.io/g/opticks/promote
+
+  * embed signup form into bitbucket 
+
+
 Machinery Fixes
 ----------------
 

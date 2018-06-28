@@ -20,6 +20,26 @@ Breakpoints
     1 breakpoints enabled.
 
 
+
+adding python breakpoint func
+--------------------------------
+
+Little information provided by google, perhaps because the help is informative::
+
+
+    (lldb) help br com add
+         Add a set of commands to a breakpoint, to be executed whenever the breakpoint is hit.
+
+    Syntax: breakpoint command add <cmd-options> <breakpt-id>
+
+    ...
+
+       -F <python-function> ( --python-function <python-function> )
+            Give the name of a Python function to run as command for this breakpoint. Be sure to give a module name if appropriate.
+
+
+
+
 Setting Environment
 ---------------------
 
@@ -213,18 +233,6 @@ Python Scripting
     OKG4Test
     >>> print dir(lldb.target)
 
-
-
-
-
-
-adding python breakpoint func
---------------------------------
-
-(lldb) help br com add
-     Add a set of commands to a breakpoint, to be executed whenever the breakpoint is hit.
-
-Syntax: breakpoint command add <cmd-options> <breakpt-id>
 
 
 

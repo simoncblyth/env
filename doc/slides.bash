@@ -13,6 +13,36 @@ PDF page size : Very large because somehow 72dpi ?
 * 2560x1440 points
 * 90.32 x 50.8 cm
 
+
+aspect check
+--------------
+
+* slides safari sets aspect to 16/9
+* use cross-hairs (shift-cmd-4) to check 
+
+
+::
+
+    tell application "Safari"
+
+        set width to  1280
+        set height to  720
+
+
+::
+
+    In [8]: 1280./720.
+    Out[8]: 1.7777777777777777
+
+    In [1]: 2560./1440.
+    Out[1]: 1.7777777777777777
+
+    In [3]: 16./9.
+    Out[3]: 1.7777777777777777
+
+
+
+
 g4dae
 ------
 
@@ -334,7 +364,10 @@ EOU
 
 slides-env(){      elocal- ; bitbucketstatic- ; presentation- ;  }
 slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
-slides-dir(){   apache- ; echo $(apache-htdocs)/env/$(slides-fold) ; }
+
+#slides-dir(){   apache- ; echo $(apache-htdocs)/env/$(slides-fold) ; }
+slides-dir(){   echo $HOME/simoncblyth.bitbucket.io/env/$(slides-fold) ; }
+
 slides-sdir(){  echo $(env-home)/$(slides-branch) ; } 
 slides-pdir(){  echo $(env-home)/_build/dirhtml/$(slides-fold) ; }
 slides-path(){  echo $(slides-dir)/$(slides-name).${1:-pdf} ; }
@@ -381,8 +414,6 @@ slides-get(){
 
 }
 
-slides-get-chep-highlights(){      slides-get 0 1 ; }
-slides-get-chep(){      slides-get 0 20 ; }
 slides-get-gtc(){       slides-get 0 42 ; }
 slides-get-lecospa(){   slides-get 0 57 ; }
 slides-get-jnu-cmake-ctest(){ slides-get 0 5 ; }
@@ -392,6 +423,7 @@ slides-get-psroc0(){  slides-get 0 0 ; }
 slides-get-jul2017(){ slides-get 0 34 ; }
 slides-get-sep2017sdu(){ slides-get 0 36 ; }
 slides-get-sep2017wol(){ slides-get 0 47 ; }
+slides-get-chep(){ slides-get 0 21 ; }
 
 
 #slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
@@ -410,6 +442,9 @@ slides-url(){       echo ${SLIDES_URL:-http://$(slides-host)/env/$(slides-branch
 slides-ppath(){     echo $(apache-htdocs $1)/env/$(slides-branch)/$(slides-name).${2:-pdf} ; }   
 
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
+
+
+
 
 
 slides-safari(){  osascript $(slides-safari-path) ; }

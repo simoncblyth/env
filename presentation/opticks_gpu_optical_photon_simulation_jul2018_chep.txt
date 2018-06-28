@@ -94,6 +94,16 @@
              margin: 1em 0;
         }
 
+        pre.mypretinytiny {
+             display: block;
+             font-family: monospace;
+             font-size: 10px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+
+
         pre.myfoot {
              display: block;
              font-family: monospace;
@@ -475,7 +485,7 @@
     </div>
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; July 2018, CHEP </h2>
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; July 2018, CHEP, Sofia </h2>
     </div>
 
 
@@ -528,24 +538,27 @@ Outline
 .. class:: large
 
 
-   * Introduction
+   * Problem and approach to solving
 
-     * Optical Photon Simulation problem
+     * optical photon simulation problem
      * GPU ray tracing solution 
-     * NVIDIA OptiX Ray Tracing Engine
+     * NVIDIA OptiX ray tracing engine
 
    * Geometry
 
-     * :red:`General CSG boolean intersection on GPU`
+     * :red:`general CSG boolean intersection on GPU`
      * :red:`Geant4 geometry auto-translated to GPU without approximation` 
-      
-   * Optical Physics
 
-     * CUDA port 
+   * Hybrid Geant4/Opticks event workflow 
 
-   * Validation 
+   * Validation with random sequence aligned running
  
-     * random sequence aligned running  
+     * perfect match for simple geometries 
+
+   * Summary
+
+
+
 
 
 
@@ -559,22 +572,19 @@ Outline
 .. sidebar:: Optical Photon Problem
 
     .. class:: small
-       
 
          **Cosmic muon backgrounds**
-              many millions of optical photons in JUNO scintillator
+           many millions of optical photons in JUNO scintillator
 
          **Simulation Bottleneck**
-              ~99% CPU time, memory constraints
+           ~99% CPU time, memory constraints
 
-         Optical photons:
+         **Optical photons : simple lifecycle**
+           * produced by Cerenkov+Scintillation 
+           * yield only Photomultiplier hits
+           * parallel nature
 
-         * produced by Cerenkov+Scintillation processes
-         * yield only Photomultiplier hits
-
-         Isolated nature -> **easily separated propagation**
-         
-         **Hybrid Solution Possible : Geant4 + Opticks** 
+         **-> Hybrid Solution : Geant4 + Opticks** 
 
 
 
@@ -582,7 +592,7 @@ Outline
 :small:`Ray Traced Image Synthesis ≈ Optical Photon Simulation`
 -------------------------------------------------------------------------------
 
-.. sidebar:: OptiX Pixel Calculation 
+.. sidebar:: Not a Photo, a Calculation
 
     .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
        :width: 450px
@@ -606,18 +616,16 @@ Outline
     **Ray tracing has many applications** :
       * advertising, design, entertainment, games,...
       * BUT : most ray tracers just render images
+      * **NVIDIA OptiX** :red:`general intersection acceleration API`  
 
     **Ray-geometry intersection**
       * hw+sw continuously optimized over 30 years
       * performance > 100M intersections per second per GPU
 
-    **NVIDIA OptiX** 
-      * general geometry intersection API
-      * :red:`OptiX is to ray tracing what OpenGL is to rasterization` 
-
 .. raw:: html
 
     <pre class="mypre">
+
     </pre>
  
 .. class:: small
@@ -633,10 +641,10 @@ Outline
 
 
 
-:small:`NVIDIA® OptiX™ : CUDA Raytracing Pipeline`
+:small:`NVIDIA® OptiX™ Ray Tracing Engine`
 -------------------------------------------------------------------
 
-.. sidebar:: OptiX Control Flow 
+.. sidebar:: OptiX Raytracing Pipeline
 
     .. class:: small
 
@@ -658,7 +666,7 @@ Outline
    * :red:`compiler optimized for GPU ray tracing`
 
    * regular updates, profit from new GPU tuning/features
-     eg Volta tensor cores 
+     eg Volta tensor cores, RTX 
 
    * NVIDIA expertise on GPU/multi-GPU usage
 
@@ -835,9 +843,6 @@ Outline
 :i:`Opticks Analytic JUNO Chimney, GPU Raytrace (0)`
 ---------------------------------------------------------------------
 
-:i:`Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)`
----------------------------------------------------------------------
-
 
 
 
@@ -879,100 +884,19 @@ Outline
 
     **Geocache Optimization**
       * persist GPU ready NumPy buffers
-      * startup in seconds rather than minutes
+      * startup in seconds rather than minutes 
 
     .. image:: /env/presentation/1px.png
        :width: 300px
        :height: 1px
        :align: center
 
-    **(WIP) New Direct from G4 Workflow**
+    **New Direct from G4 Workflow (Currently Debugging)**
       * removes need for G4DAE+GDML export/import
       * :red:`greatly simplifies Opticks adoption`  
+      * glTF 2.0 export -> 3D renders with many tools 
 
 
-
-
-
-:small:`Opticks : GPU Optical photon simulation with NVIDIA OptiX. How ?`
---------------------------------------------------------------------------
-
-
-.. sidebar:: G4 "Context" -> GPU 
-
-    .. class:: small
-   
-       **Straightforward : just translation**
-
-       * translation of optical physics to CUDA
-       * interleave material/surface properties into GPU textures 
-
-       **Difficult : novel development was required** 
-
-       * develop general GPU CSG tree intersection 
-       * develop auto conversion from GDML
-       * ~10 CUDA ray-primitive intersection programs: sphere, box, cone, torus, ... 
-
-
-.. class:: small
-
-
-   **Optical Photon Generation**
-
-   * translate G4Cerenkov, G4Scintillation optical photon generation loop 
-     into parallel CUDA form (:red:`only generation loop ported`)
-
-   * "genstep" parameters collected, copied to GPU for propagation 
-     at end of event 
-
-   **Optical Photon Propagation + Scintillator Reemission**
-
-   * CUDA port of G4OpAbsorption, G4OpRayleigh, G4OpBoundaryProcess 
-     (small subset for optical surfaces in use) 
-
-   * scintillator reemission handled as fraction of bulk absorbed 
-     being "reborn" within same GPU thread
-
-
-   **Collect PMT hits into standard G4 Hit collections**
-
-   * just photomultiplier hits copied to CPU
-
-
- 
-   **Requires : Geometry converted into GPU appropriate form**
-
-   * geometry serialized into buffers, uploaded to GPU at initialization
-   * CUDA intersect + bounding box programs using geometry buffers
-     communicate geometry to OptiX 
-
-   * general ray intersection with CSG trees implemented within OptiX primitive
-
-
-
-
-:small:`New geometry workflow : direct from Geant4`
----------------------------------------------------------
-
-.. sidebar:: Ease of use
-
-   .. class:: small
-
-       * Minimal code to add Opticks 
-       * Modern CMake -> simple configuration
-         
-
-.. class:: small
-
-    **Direct geometry workflow** 
-
-    * Geant4 "World" -> Opticks GPU Geometry 
-
-    **Old Way**
-
-    1. export G4DAE COLLADA + GDML 
-    2. parse COLLADA, GDML   
-   
 
 
 
@@ -1001,63 +925,8 @@ Outline
 
 
 
-
-
-
-
-:small:`Large Geometry Techniques : Instancing Mandatory`
-------------------------------------------------------------- 
-
-.. class:: small
-
-   **Geometry analysed to find repeats**
-
-   JUNO: 18k 20" PMTs, 36k 3" PMTs
-
-   Instances used by: 
-
-   * OptiX geometry
-   * OptiX acceleration structures
-   * OpenGL visualization 
-  
-   **Advantages** 
-
-   * drastic reduction in GPU memory 
-   * one set of vertices for each PMT type
-   * 4x4 matrices position each PMT 
-
-   **Viz Optimizations (OpenGL 4+)** 
-
-   Use geometry shader transform feedback:
-
-   * cull non-visible instances
-   * level of detail (LOD) meshes
-
-     * full/simplified/bbox
- 
-   * switch mesh based on distance to PMT  
-   
-
-
-:i:`GPU Instance Culling with Level Of Detail`
-------------------------------------------------------------- 
-
-
-
-
 :small:`Hybrid Geant4/Opticks Event Workflow`
 ------------------------------------------------
-
-
-.. comment
-
-   * interop between OpenGL/OptiX/Thrust/CUDA  
-        
-   **Side Benefit : Performant Visualization**
-
-   Migrating Geant4 C++ CSG tree geometry to the GPU 
-   enables unprecedented visualizations.  
- 
 
 
 .. sidebar:: GPU Resident Photons
@@ -1065,14 +934,11 @@ Outline
     .. class:: small
 
        **Seeded on GPU** 
-          associate photons -> gensteps (via seed buffer)
+          associate photons -> *gensteps* (via seed buffer)
  
-       **Generated on GPU, using gensteps:**
-          *~Stacks* collected before photon generation:
-
-          * number of photons to generate
-          * start/end position of step
-          * other quantities needed for GPU generation 
+       **Generated on GPU, using genstep param:**
+         * number of photons to generate
+         * start/end position of step
 
        **Propagated on GPU**
           :red:`Only photons hitting PMTs copied to CPU`
@@ -1091,30 +957,255 @@ Outline
          
 .. class:: small
 
-    **Geant4/Detector Simulation**
+    :blue:`OptiX : single-ray programming model` allows line-by-line translation
 
-    * modified Scintillation, Cerenkov processes 
+    **CUDA Ports of Geant4 classes**
+      * G4Cerenkov (only generation loop) 
+      * G4Scintillation (only generation loop) 
+      * G4OpAbsorption
+      * G4OpRayleigh 
+      * G4OpBoundaryProcess (only a few surface types)
 
-      * collect *genstep*
-      * skip optical photon generation
+    **Modify Cerenkov + Scintillation Processes**
+      * collect *genstep*, copy to GPU for generation
+      * :red:`avoids copying millions of photons to GPU`
+
+    **Scintillator Reemission**
+      * fraction of bulk absorbed "reborn" within same thread
+      * wavelength generated by reemission texture lookup
 
     **Opticks (OptiX/Thrust GPU interoperation)** 
+      * **OptiX** : upload gensteps 
+      * **Thrust** : seeding, distribute genstep indices to photons
+      * **OptiX** : launch photon generation and propagation
+      * **Thrust** : pullback photons that hit PMTs 
+      * **Thrust** : index photon step sequences (optional)
 
-    * **OptiX** : upload gensteps 
-    * **Thrust** : seeding, distribute genstep indices to photons
-    * **OptiX** : launch photon generation and propagation
-    * **Thrust** : pullback photons that hit PMTs 
-    * **Thrust** : index photon step sequences (optional)
 
-    **Geant4/Detector Simulation**
 
-    * populate standard hit collections 
-    * subsequent electronics simulation proceeds unaltered 
+:small:`Validation : Aligning CPU and GPU Simulations`
+-------------------------------------------------------------------------------
 
-    **Multi-event handling**
+.. sidebar:: lldb python scripting
 
-    * reuse/resize OptiX buffers for each event 
+    .. class:: small
+ 
+       * access C++ program state from python 
+       * step-by-step compare photon parameters with expectations, break at deviations
 
+       Auto-configure breakpoints using code markers:
+
+       ``opticks/tools/autobreakpoint.py``
+       ``opticks/tools/g4lldb.py``
+
+
+       **Ubiquitous Data access with NPY** 
+
+       All Opticks data managed in NumPy buffers, 
+       easy access from python,C++,CUDA,lldb-python 
+
+
+
+
+.. class:: small
+
+   **Aligned zipping together of code and RNG values**
+
+   * common input photon sample generated on **CPU**  
+   * random number sequences generated on **GPU** (cuRAND)
+     and persisted to file (NPY buffers)
+  
+   Single executable ``lldb OKG4Test``:
+
+   1. run Opticks GPU simulation, persist event  
+   2. run Geant4 simulation 
+
+      * step-by-step check each G4 photon follows Opticks 
+        history and parameters, break at deviations
+      
+   3. fix cause of misaligned RNG consumption, or other deviation  
+
+      * tricks needed on both sides : burning RNGs, jump backs
+
+   :red:`simplest possible direct comparison validation`
+
+
+
+.. class:: tiny
+
+   http://bitbucket.com/simoncblyth/opticks/src/tip/tools/autobreakpoint.py 
+
+   (lldb) help breakpoint command add
+
+
+
+:small:`Validation : Direct comparison of GPU/CPU NumPy arrays`
+------------------------------------------------------------------------------------
+
+
+.. sidebar:: CPU/GPU matching
+
+    .. class:: small
+
+        **Simple geometries**
+          same geometry, same physics, same results 
+
+        **Full geometries**
+          aligned running will find geometry issues    
+          eg coincident surface ambiguity
+
+        **NEXT:**
+           align generation, reemission, more geometries
+
+
+ 
+.. class:: small
+
+   **tboolean-box simple geometry test**
+
+   * 100k photons : position, time, polarization : 1.2M floats
+   * 34 deviations > 1e-4 (mm or ns), largest 4e-4
+   * deviants all involve scattering (more flops?)
+
+.. raw:: html
+
+    <pre class="mypretiny">
+
+    In [11]: pdv = np.where(dv > 0.0001)[0]
+    In [12]: ab.dumpline(pdv)
+          0   1230 : TO BR SC BT BR BT SA         
+          1   2413 : TO BT BT SC BT BR BR BT SA  
+          2   9041 : TO BT SC BR BR BR BR BT SA 
+          3  14510 : TO SC BT BR BR BT SA      
+          4  14747 : TO BT SC BR BR BR BR BR BR BR 
+          5  14747 : TO BT SC BR BR BR BR BR BR BR
+        ...
+
+    In [20]: ab.b.ox[pdv,0]                                 In [21]: ab.a.ox[pdv,0]
+    Out[20]:                                                Out[21]: 
+    A()sliced                                               A()sliced
+    A([    [-191.6262, -240.3634,  450.    ,    5.566 ],    A([    [-191.626 , -240.3634,  450.    ,    5.566 ],
+           [ 185.7708, -133.8457,  450.    ,    7.3141],           [ 185.7708, -133.8456,  450.    ,    7.3141],
+           [-450.    , -104.4142,  311.143 ,    9.0581],           [-450.    , -104.4142,  311.1431,    9.0581],
+           [  83.6955,  208.9171, -450.    ,    5.6188],           [  83.6954,  208.9172, -450.    ,    5.6188],
+           [  32.8972,  150.    ,   24.9922,    7.6757],           [  32.8973,  150.    ,   24.992 ,    7.6757],
+           [  32.8972,  150.    ,   24.9922,    7.6757],           [  32.8973,  150.    ,   24.992 ,    7.6757],
+           [ 450.    , -186.7449,  310.6051,    5.0707],           [ 450.    , -186.7451,  310.605 ,    5.0707],
+           [ 299.2227,  318.1443, -450.    ,    4.8717],           [ 299.2229,  318.144 , -450.    ,    4.8717],
+     ...
+    </pre>
+
+.. class:: tiny
+
+    http://bitbucket.com/simoncblyth/opticks/src/tip/notes/issues/tboolean_box_perfect_alignment_small_deviations.rst
+
+
+
+
+
+:small:`Summary`
+----------------------------------------------
+
+.. sidebar:: Overview
+
+   .. class:: small
+
+      * **Opticks 200x Geant4** with mobile GPU
+      * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
+      * :red:`photon propagation time --> zero`
+      * :blue:`automated full fidelity geometry translation`
+
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 50px
+
+..
+
+  *Opticks* enables *Geant4* based simulations to benefit from 
+  **effectively zero time and zero CPU memory** optical photon simulation, 
+  due to massive parallelism made accessible by NVIDIA OptiX.
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 10px
+
+  * The more photons the bigger the overall speedup (99% -> 100x) 
+  * Drastic speedup -> better detector understanding -> greater precision
+  * Simulations limited by optical photons can benefit greatly 
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 10px
+
+  .. class:: huge
+
+     opticks+subscribe@groups.io 
+
+     https://groups.io/g/opticks
+
+     https://bitbucket.org/simoncblyth/opticks
+
+
+
+
+
+
+:i:`Opticks Users Group`
+----------------------------------------------------------------------------------------
+
+.. sidebar:: ``https://groups.io/g/opticks``
+
+    .. class:: small
+
+         * Post : ``opticks@groups.io``
+
+         * ``opticks+subscribe@groups.io``
+
+
+
+
+
+
+
+
+
+:small:`List of "backup" slides`
+-------------------------------------------------------------------------------------------------
+
+.. class:: tiny
+
+   **CSG**
+
+   * Constructive Solid Geometry (CSG) : Shapes defined "by construction"
+   * CSG : Which primitive intersect to pick 
+   * Ray Tracing CSG Objects Using Single Hit Intersections (A. Kensler)
+   * CSG Complete Binary Tree Serialization -> simplifies GPU side    
+   * Evaluative CSG intersection Pseudocode : recursion emulated
+   * Opticks CSG Primitives : Closed Solids, Consistent Normals
+   * Opticks CSG Primitives : What is included
+   * Opticks CSG : Balancing Deep Trees Drastically Improves Performance
+   * Dayabay ESR reflector : Deep CSG tree : disc with 9 holes
+   * Opticks CSG Serialized into OpticksCSG format (numpy buffers, json)
+
+   **Validation**  
+
+   * tconcentric : spherical GdLS/LS/MineralOil
+   * tconcentric : Opticks/Geant4 chi2 comparison 
+   * tconcentric : Opticks/Geant4 distrib chi2/df ~ 1.0 
+   * PMT Opticks/Geant4 step distribution comparison TO BT [SD] 
+   * PMT Opticks/Geant4 step distribution comparison : chi2/ndf
+   * Opticks/Geant4 Rainbow Step Sequence Comparison
+   * 1M Rainbow S-Polarized, Comparison Opticks/Geant4
+   * Compare Opticks/Geant4 Simulations with Simple Lights/Geometries
+
+   **Misc**
+
+   * OptiX Performance Scaling with GPU cores
+   * Torus : much more difficult/expensive than other primitives
+   * Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes
+   * Hybrid Geant4/Opticks Event Workflow
+   * Open Source Opticks
 
 
 
@@ -1199,112 +1290,6 @@ Outline
 
 
 
-
-
-
-
-
-:small:`Summary`
-----------------------------------------------
-
-.. sidebar:: Overview
-
-   .. class:: small
-
-      * **Opticks 200x Geant4** with mobile GPU
-      * Expect: **Opticks > 1000x Geant4** (with workstation GPUs) 
-      * :red:`photon propagation time --> zero`
-      * :blue:`automated full fidelity translation of GDML`
-
-
-.. image:: /env/presentation/1px.png
-   :width: 500px
-   :height: 50px
-
-..
-
-  *Opticks* enables *Geant4* based simulations to benefit from optical photon simulation 
-  **taking effectively zero time and zero CPU memory**, 
-  due to massive parallelism made accessible by NVIDIA OptiX.
-  GDML detector geometry is auto translated into a GPU optimized analytic form, 
-  equivalent to the source geometry.
-
-  .. image:: /env/presentation/1px.png
-     :width: 1000px
-     :height: 20px
-
-  * The more photons the bigger the overall speedup (99% -> 100x) 
-  * Drastic speedup -> better detector understanding -> greater precision
-  * Simulations limited by optical photons can benefit greatly from Opticks+Geant4
-
-
-  .. image:: /env/presentation/1px.png
-     :width: 1000px
-     :height: 20px
-
-
-  .. class:: huge
-
-     https://bitbucket.org/simoncblyth/opticks
-
-
-
-
-:i:`Opticks Users Group`
-----------------------------------------------------------------------------------------
-
-.. sidebar:: ``https://groups.io/g/opticks``
-
-    .. class:: small
-
-         * Post : ``opticks@groups.io``
-
-         * ``opticks+subscribe@groups.io``
-
-
-
-
-
-
-
-
-
-:small:`List of "backup" slides`
--------------------------------------------------------------------------------------------------
-
-.. class:: tiny
-
-   **CSG**
-
-   * Constructive Solid Geometry (CSG) : Shapes defined "by construction"
-   * CSG : Which primitive intersect to pick 
-   * Ray Tracing CSG Objects Using Single Hit Intersections (A. Kensler)
-   * CSG Complete Binary Tree Serialization -> simplifies GPU side    
-   * Evaluative CSG intersection Pseudocode : recursion emulated
-   * Opticks CSG Primitives : Closed Solids, Consistent Normals
-   * Opticks CSG Primitives : What is included
-   * Opticks CSG : Balancing Deep Trees Drastically Improves Performance
-   * Dayabay ESR reflector : Deep CSG tree : disc with 9 holes
-   * Opticks CSG Serialized into OpticksCSG format (numpy buffers, json)
-
-   **Validation**  
-
-   * tconcentric : spherical GdLS/LS/MineralOil
-   * tconcentric : Opticks/Geant4 chi2 comparison 
-   * tconcentric : Opticks/Geant4 distrib chi2/df ~ 1.0 
-   * PMT Opticks/Geant4 step distribution comparison TO BT [SD] 
-   * PMT Opticks/Geant4 step distribution comparison : chi2/ndf
-   * Opticks/Geant4 Rainbow Step Sequence Comparison
-   * 1M Rainbow S-Polarized, Comparison Opticks/Geant4
-   * Compare Opticks/Geant4 Simulations with Simple Lights/Geometries
-
-   **Misc**
-
-   * OptiX Performance Scaling with GPU cores
-   * Torus : much more difficult/expensive than other primitives
-   * Geometry Modelling : Tesselated vs Analytic Photomultiplier Tubes
-   * Hybrid Geant4/Opticks Event Workflow
-   * Open Source Opticks
 
 
 
@@ -2218,6 +2203,52 @@ Outline
 
 
 
+:i:`Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)`
+---------------------------------------------------------------------
+
+
+
+:i:`GPU Instance Culling with Level Of Detail`
+------------------------------------------------------------- 
+
+
+
+
+
+:small:`Large Geometry Techniques : Instancing Mandatory`
+------------------------------------------------------------- 
+
+.. class:: small
+
+   **Geometry analysed to find repeats**
+
+   JUNO: 18k 20" PMTs, 36k 3" PMTs
+
+   Instances used by: 
+
+   * OptiX geometry
+   * OptiX acceleration structures
+   * OpenGL visualization 
+  
+   **Advantages** 
+
+   * drastic reduction in GPU memory 
+   * one set of vertices for each PMT type
+   * 4x4 matrices position each PMT 
+
+   **Viz Optimizations (OpenGL 4+)** 
+
+   Use geometry shader transform feedback:
+
+   * cull non-visible instances
+   * level of detail (LOD) meshes
+
+     * full/simplified/bbox
+ 
+   * switch mesh based on distance to PMT  
+   
+
+
 :small:`Opticks : Whats New ?`
 -------------------------------------------------------------------------------
 
@@ -2245,7 +2276,6 @@ Outline
     **Community**
 
     * Opticks mailing list : https://groups.io/g/opticks
-
 
 
 
