@@ -1,11 +1,11 @@
 #
 # Convert RST index.txt into index.html within $(BITBUCKET_HTDOCS) 
-# to go live at http://simoncblyth.bitbucket.org
+# to go live at http://simoncblyth.bitbucket.io
 #
 # See bitbucketstatic-vi for how this is used
 #
 
-BITBUCKET_HTDOCS=$(HOME)/simoncblyth.bitbucket.org
+BITBUCKET_HTDOCS=$(HOME)/simoncblyth.bitbucket.io
 
 .PHONY: all 
 

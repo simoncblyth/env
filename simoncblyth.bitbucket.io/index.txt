@@ -56,6 +56,17 @@ Opticks Presentations
 ----------------------
 
 
+Summer 2018 : Opticks Progress : Direct workflow, aligned validation  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_july2018_chep.html (10 July 2018, Sofia)
+
+    CHEP 2018 Conference
+
+    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
+
+
 Brief Opticks Introductory presentation, with many backup slides
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
