@@ -32,6 +32,24 @@ Shrinking PDFs with ColorSync Utility
      15M	opticks_gpu_optical_photon_simulation_jul2018_chep_j75.pdf
 
 
+Steps
+~~~~~~~
+
+1. spotlight search for "ColorSync Utility.app"
+2. select "Filters" tab
+3. find the "Reduce File Size Copy" filter, open the 
+   disclosure to see the JPEG compression factor that will be applied
+4. use "File > Open" in "ColorSync Utility" to open the uncompressed PDF
+5. pick the "Reduce File Size Copy" using drop down menu at bottom left
+6. press the "Apply" button at bottom right
+7. use "File > Save As" to save the result to a different name
+
+Compare sizes::
+
+    epsilon:Desktop blyth$ du -hs opticks_gpu_optical_photon_simulation_jul2018_chep*
+     15M	opticks_gpu_optical_photon_simulation_jul2018_chep.pdf
+     49M	opticks_gpu_optical_photon_simulation_jul2018_chep_uncompressed.pdf 
+
 
 TODO
 -----

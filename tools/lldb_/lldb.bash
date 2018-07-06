@@ -46,6 +46,7 @@ Setting Environment
 ::
 
      (lldb) env DYLD_INSERT_LIBRARIES=/usr/lib/libgmalloc.dylib
+     (lldb) env OPTICKS_QUERY_LIVE="range:0:1"
 
 lldbinit
 -----------
