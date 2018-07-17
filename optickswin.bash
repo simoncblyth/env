@@ -7,10 +7,14 @@ optickswin-usage(){ cat << EOU
 Opticks Windows Port Notes
 ============================
 
+See also 
+----------
+
+These notes are from 2016, see the 2018 attempt at  optickswin2-
+
 
 Windows 7 Visual Studio 2015 prospects
 ----------------------------------------
-
 
 To be usable on Either the project needs to provide
 
@@ -38,8 +42,8 @@ Does Opticks need Windows Shim ?
 * http://www.songho.ca/opengl/gl_mvc.html
 
 
-Windows 7 MSYS2/MinGW build
-------------------------------
+Windows 7 MSYS2/MinGW build using pacman : ABORTED as Geant4 doesnt support MinGW compiler
+---------------------------------------------------------------------------------------------
 
 Steps::
   
@@ -145,7 +149,7 @@ Other CMake generators
 
 CMake has lots of other generators besides the "MSYS Makefiles" which have been using.
 But that route would be a Franken-install, as 
-would require uses to install NSYS2 et al + Visual Studio ...  
+would require uses to install MSYS2 et al + Visual Studio ...  
 
 ::
 
@@ -198,8 +202,6 @@ MSVC : Microsoft Visual Studio 2015 Community Edition
 
 
 
-
-
 Issues
 --------
 
@@ -214,11 +216,6 @@ Try breakpointing exit, add to .gdbinit file with the lines:
 
    set breakpoint pending on
    b exit
-
-
-
-
-
 
 
 

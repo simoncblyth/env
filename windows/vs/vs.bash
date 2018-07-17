@@ -5,8 +5,65 @@ vs-vi(){       vi $(vs-source) ; }
 vs-env(){      elocal- ; }
 vs-usage(){ cat << \EOU
 
+
+Microsoft Visual Studio 2017 Community Edition
+================================================
+
+* see also optickswin2-
+
+* https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio
+
+Installer offers several Workloads including::
+
+   Windows
+       Universal Windows Platform development  
+       .NET desktop development
+       Desktop development with C++ [6.67 GB] [PICKED JUST THIS ONE]
+
+   Web & Cloud
+       ASP.NET ..
+       Azure ..
+       Python .. [1.92 GB]
+       Node.js
+       Data storage
+       Data science and analytical applications (Python, R and F#) [8.97 GB]
+       Office/SharePoint ...
+
+   Mobile & Gaming
+       Mobile development with .NET
+       Game development with Unity [3.91 GB]
+       Mobile development with JavaScript (Android, iOS, UWP apps using Tools for Apache Cordova) [1.66 GB]
+       Mobile development with C++ (cross-platform iOS, Android or Windows using C++) [10 GB]
+       Game development with C++ (DirectX, Unreal or Cocos2d) [6.22 GB]
+
+   Other Toolsets
+       Visual studio extension development
+       Linux development with C++ (Create and debug applications running in a Linux environment) [6.07 GB] 
+       .NET Core cross-platform development
+
+
+Visual Studio CMake support
+-----------------------------
+
+* https://blogs.msdn.microsoft.com/vcblog/2016/10/05/cmake-support-in-visual-studio/
+
+Visual Studio 2017 introduces built-in support for handling CMake projects.
+This makes it a lot simpler to develop C++ projects built with CMake without
+the need to generate VS projects and solutions from the command line. This post
+gives you an overview of the CMake support, how to easily get started and stay
+productive in Visual Studio.
+
+
+* https://dmerej.info/blog/post/cmake-visual-studio-and-the-command-line/
+
+
+
+
+
 Microsoft Visual Studio 2015 Community Edition
 ================================================
+
+* see also optickswin-
 
 Installation
 --------------
@@ -168,9 +225,6 @@ Application Registration
 * https://helgeklein.com/blog/2010/08/how-the-app-paths-registry-key-makes-windows-both-faster-and-safer/
 
 
-
-
-
 Windows Package Manager : eg for python, ipython, numpy 
 ---------------------------------------------------------
 
@@ -319,12 +373,10 @@ A dialog box pops up saying eg "G4Tree.dll" and after the G4 path fix
 xerces-c_3_1D.dll
 
 
-
 Windows Git Bash PATH and PATH length limitation 
 ---------------------------------------------------
 
 * http://superuser.com/questions/607533/windows-git-bash-bash-path-to-read-windows-path-system-variable
-
 
 
 Append PATH to include directory of dll
@@ -351,10 +403,6 @@ In gitbash profile (vip from gitbash)::
      19 PATH=$OPTICKS_PREFIX/lib:$PATH
      20 PATH=$OPTICKS_PREFIX/externals/lib:$PATH
      21 PATH=$OPTICKS_PREFIX_OLD/externals/bin:$PATH
-
-
-
-
 
 
 VS Versions
@@ -394,7 +442,6 @@ required to run C++ applications built using Visual Studio 2015.
 * https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 
-
 Windows Building On Command Line
 -----------------------------------
 
@@ -410,7 +457,6 @@ Modifying a simple Linux Makefile to work on windows
 VS generation example
 
 * https://cognitivewaves.wordpress.com/cmake-and-visual-studio/
-
 
 
 Windows Development Environment

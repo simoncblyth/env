@@ -27,6 +27,63 @@ could be easily streamed, e.g. over the internet.
 * https://docs.microsoft.com/en-us/windows/mixed-reality/creating-3d-models-for-use-in-the-windows-mixed-reality-home
 
 
+glTF viewer/tools on Windows ? Because NVIDIA ShadowPlay movie capture is on windows only
+-------------------------------------------------------------------------------------------------
+
+
+Lugdunum, a modern 3D engine using the Vulkan API
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/Lugdunum3D/Lugdunum
+* https://lugdunum3d.github.io
+* https://lugdunum3d.github.io/doc/build.html
+
+
+
+Microsoft.glTF.CPP
+~~~~~~~~~~~~~~~~~~~~
+
+* https://www.nuget.org/packages/Microsoft.glTF.CPP/
+
+
+Paint 3D support for GLB
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Microsoft has announced support for glTF in Paint 3D
+
+* https://github.com/KhronosGroup/glTF/issues/1037
+* https://blogs.windows.com/windowsexperience/2017/07/12/announcing-more-updates-to-paint-3d-magic-select-enhancements-drawing-tools/
+
+Paint 3D also now supports a new industry-wide open standard for 3D file
+sharing called GLB, a part of gLTF (GL Transmission Format). This allows for
+faster and more efficient transfer of 3D assets by outputting only one
+container for all assets, minimizing the file size and the ability to use the
+files across other programs as a universal format.
+
+
+Windows glTF toolkit
+~~~~~~~~~~~~~~~~~~~~~~~
+
+convert a glTF 2.0 core asset for use in the Windows Mixed Reality home
+
+* https://github.com/microsoft/gltf-toolkit
+
+* https://docs.microsoft.com/en-us/windows/mixed-reality/creating-3d-models-for-use-in-the-windows-mixed-reality-home
+
+
+Windows Mixed Reality **home** (app launcher 3D environment) has restrictions on models:
+
+* Assets must be delivered in the .glb file format (binary glTF)
+* Assets must be less than 10k triangles, have no more than 64 nodes and 32 submeshes per LOD) 
+
+
+
+PBR
+-----
+
+* https://www.khronos.org/assets/uploads/developers/library/2017-gtc/glTF-2.0-and-PBR-GTC_May17.pdf
+
+
 Fabricated Top Node, switching Z<->Y 
 -------------------------------------------
 

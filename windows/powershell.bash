@@ -21,8 +21,6 @@ Finding v2 executable
 *  http://stackoverflow.com/questions/4145232/path-to-powershell-exe-v-2-0
 
 
-
-
 Text File Encodings
 --------------------
 

@@ -1978,3 +1978,5 @@ gltfkit-(){      . $(env-home)/graphics/gltf/gltfkit.bash && gltfkit-env $* ; }
 gltfscenekit-(){      . $(env-home)/graphics/gltf/gltfscenekit.bash && gltfscenekit-env $* ; }
 slack-(){      . $(env-home)/comms/slack/slack.bash && slack-env $* ; }
 gio-(){      . $(env-home)/comms/groups_io_opticks/gio.bash && gio-env $* ; }
+gitforwindows-(){      . $(env-home)/windows/gitforwindows.bash && gitforwindows-env $* ; }
+optickswin2-(){      . $(env-home)/windows/optickswin/optickswin2.bash && optickswin2-env $* ; }

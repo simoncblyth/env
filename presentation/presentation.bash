@@ -8,11 +8,24 @@ presentation-usage(){ cat << EOU
 Presentation preparation
 ============================
 
+
+IDEAS : JUNO Collab Meeting Plenary July 2018
+----------------------------------------------
+
+Objective : drum up interest sufficient to get some profs to assign some workers
+
+* interest in Opticks, expts 
+* Opticks roadmap
+
+
+
+
+
+
 Presentations online
 ----------------------
 
 * http://simoncblyth.bitbucket.io
-
 
 Shrinking PDFs with ColorSync Utility
 ---------------------------------------

@@ -65,15 +65,6 @@ http://steve-jansen.github.io/guides/windows-batch-scripting/part-1-getting-star
 Very limited, have to fake functions with goto. 
 
 
-
-
-
-
-
-
-
-
-
 EOU
 }
 win-dir(){ echo $(local-base)/env/windows/windows-win ; }

@@ -30,7 +30,6 @@ Need to run as Administrator, then can install pkgs with::
    choco install hg   # can choose to print the script to check urls before running
 
 
-
 Check web for more info on packages eg:
 
 * http://chocolatey.org/packages?q=hg

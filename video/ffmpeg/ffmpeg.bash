@@ -140,7 +140,6 @@ On September 25, 2017, Apple released macOS High Sierra with HEVC encoding & dec
 On September 28, 2017, GoPro released the Hero6 Black action camera, with 4K60P HEVC video encoding.[90]
 
 
-
 HEVC Competitor : AV1
 -----------------------
 
@@ -180,10 +179,6 @@ See below functions for example of making a mp4 H.264 video from ppm snaps using
     okop-
     okop-snap
     okop-snap-mp4
-
-
-
-
 
 
 
