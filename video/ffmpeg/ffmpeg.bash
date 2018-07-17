@@ -8,22 +8,32 @@ ffmpeg-usage(){ cat << EOU
 ffmpeg : video tools
 =======================
 
+See also
+--------
+
+* nvenc-
+* nasm-
+* x264-
+
+
+Refs
+-----
+
 * https://ffmpeg.org/download.html
 * https://trac.ffmpeg.org/wiki/Slideshow
 * https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
 
 * https://en.wikibooks.org/wiki/FFMPEG_An_Intermediate_Guide/image_sequence
 
-Overview
----------
+Overview (2016)
+------------------
 
 Compiling by self rather than getting from distro
 appears the preferred approach as liable to want to
 configure to use hw accel such as nvenc
 
-
 * x264 requires minimum nasm-2.13, 
-* trying to update nasm via its repo dependency fails for newer glibc, so build nasm from source
+* trying to update nasm via its repo dependency fails for newer glibc, so build nasm from source with nasm-
 
 
 Compilation
@@ -33,8 +43,43 @@ Compilation
 * https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
 
 
-SDU GPU manual install
--------------------------
+IHEP GPU Workstation (2018-7-18)
+----------------------------------
+
+Following https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
+
+::
+
+   yum info autoconf automake bzip2 cmake freetype-devel gcc gcc-c++ git libtool make mercurial pkgconfig zlib-devel
+
+   sudo yum install autoconf
+   sudo yum install automake
+
+   # bzip2  1.0.6 already installed
+   # cmake3 3.11.2 already installed
+
+   sudo yum install freetype-devel
+
+   # gcc 4.8.5 already installed
+   # gcc-c++ 4.8.5 already installed
+   # git 1.8.3.1 already installed
+
+   sudo yum install libtool
+
+   # make 3.82 already installed
+   # mercurial 2.6.2 already installed
+   # pkgconfig 0.27.1 already installed (from anaconda)
+   # zlib-devel 1.2.7 already installed
+
+
+::
+
+    yum info nasm #  2.10.07 is too old for x264, so install from source with nasm-
+
+
+
+SDU GPU manual install (2016-?)
+-------------------------------------
 
 Following https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
 
@@ -86,8 +131,10 @@ Video from images
 * https://superuser.com/questions/624567/how-to-create-a-video-from-images-using-ffmpeg
 
 
-HW Acceleration : NVENV
+HW Acceleration : NVENC
 -------------------------
+
+* see nvenc-
 
 * https://trac.ffmpeg.org/wiki/HWAccelIntro
 
@@ -117,6 +164,20 @@ You can see available presets, other options, and encoder info with::
 
 Note: If you get the No NVENC capable devices found error make sure you're 
 encoding to a supported pixel format. See encoder info as shown above.
+
+
+
+NVIDIA VIDEO CODEC SDK
+---------------------------
+
+NVIDIA directs most users to FFmpeg to use the SDK at higher level 
+
+* https://developer.nvidia.com/nvidia-video-codec-sdk
+* https://developer.nvidia.com/FFmpeg
+
+You can now use FFMPEG to accelerate video encoding and decoding using NVENC
+and NVDEC, respectively.
+
 
 
 HEVC
@@ -192,6 +253,17 @@ ffmpeg-get(){
    [ ! -d ffmpeg ] && git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
 }
 
+ffmpeg-info(){ cat << EOI
+ 
+   ffmpeg-dir    : $(ffmpeg-dir)
+   ffmpeg-prefix : $(ffmpeg-prefix)
+   uname -a      : $(uname -a)
+   date          : $(date) 
+
+EOI
+}
+
+
 ffmpeg-preqs()
 {
    nasm-
@@ -204,12 +276,54 @@ ffmpeg-preqs()
 
 ffmpeg-prefix(){ echo $(local-base)/env  ; }
 
+ffmpeg-configure-notes(){ cat << EON
+
+https://trac.ffmpeg.org/wiki/CompilationGuide/Centos#x264
+
+x264 : Requires ffmpeg to be configured with --enable-gpl --enable-libx264 
+
+
+Note that the configure appears to hang for several minutes 
+before producing any output, before dumping 298 lines to stdout 
+
+/home/blyth/local/env/video/ffmpeg/ffmpeg/ffmpeg-configure.log
+
+::
+
+    [blyth@localhost ffmpeg]$ wc -l ffmpeg-configure.log
+    298 ffmpeg-configure.log
+
+    [blyth@localhost ffmpeg]$ head -20 ffmpeg-configure.log
+    [blyth@localhost ffmpeg]$ ffmpeg-configure
+    install prefix            /home/blyth/local/env
+    source path               .
+    C compiler                gcc
+    C library                 glibc
+    ARCH                      x86 (generic)
+    big-endian                no
+    runtime cpu detection     yes
+    standalone assembly       yes
+    x86 assembler             nasm
+    MMX enabled               yes
+    MMXEXT enabled            yes
+    3DNow! enabled            yes
+    3DNow! extended enabled   yes
+    SSE enabled               yes
+    SSSE3 enabled             yes
+    AESNI enabled             yes
+    AVX enabled               yes
+    AVX2 enabled              yes
+    AVX-512 enabled           yes
+
+
+
+
+
+EON
+}
 ffmpeg-configure()
 {
-   ffmpeg-cd
-
-   # https://trac.ffmpeg.org/wiki/CompilationGuide/Centos#x264
-   # x264 : Requires ffmpeg to be configured with --enable-gpl --enable-libx264 
+    ffmpeg-cd
 
     PKG_CONFIG_PATH="$(ffmpeg-prefix)/lib/pkgconfig" ./configure \
            --prefix="$(ffmpeg-prefix)" \
@@ -236,4 +350,10 @@ ffmpeg-configure-scratch(){ cat << EOS
 EOS
 }
 
-
+ffmpeg--()
+{
+    ffmpeg-get
+    ffmpeg-configure
+    make
+    make install
+}

@@ -509,7 +509,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
      H5H2) echo ${MYENVTOP:-/usr}/local ;;
       MGB) echo /c/usr/local ;;
         X) echo $HOME/local ;;
-        *) echo /usr/local ;;
+        *) echo ${LOCAL_BASE:-/usr/local} ;;
    esac
 }
 

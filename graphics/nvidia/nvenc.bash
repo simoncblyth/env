@@ -9,6 +9,9 @@ nvenc-usage(){ cat << EOU
 NVENV : NVIDIA GPU H.264/265 video encoding
 ================================================  
 
+* see ffmpeg-
+
+
 * perhaps should use higher level : Capture SDK (formerly GRID SDK) 
 * https://developer.nvidia.com/capture-sdk
 

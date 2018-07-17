@@ -74,7 +74,8 @@ clui-alias(){
 
    alias ss-="sudo su -"
    alias x='exit'
-   alias l="ls -ltO "
+   #alias l="ls -ltO "
+   alias l="ls -lt "
    alias lz="ls -la -Z"
    alias ll="ls -ltra "
    alias lt="ls -lt $se "
@@ -88,12 +89,12 @@ clui-alias(){
    alias sci="svn --username $USER ci "
    alias hh='history'
    alias bh='cat ~/.bash_history'
-   alias ini='. ~/.bash_profile'
+   #alias ini='. ~/.bash_profile'
    alias t='type'
    alias f='typeset -F'   ## list functions 
    alias s='cd && st.py'
-   alias vip='vi ~/.bash_profile'
-   alias vips='grep BUILD_PATH ~/.bash_profile | grep -v grep '
+   #alias vip='vi ~/.bash_profile'
+   #alias vips='grep BUILD_PATH ~/.bash_profile | grep -v grep '
    alias eu="env-u"
    #alias pyc="find $ENV_HOME -name '*.pyc' -exec rm -f {} \;"
    alias pyc="clui-pyc"

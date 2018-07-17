@@ -109,6 +109,17 @@ nasm-get(){
    [ ! -d $nam ] && tar zxvf $dst
 }
 
+nasm-info(){ cat << EOI
+
+   nasm-dir : $(nasm-dir)
+   nasm-url : $(nasm-url)
+
+
+
+EOI
+}
+
+
 nasm-configure(){
 
    nasm-cd
@@ -127,11 +138,42 @@ nasm--()
 
 }
 
+nasm-hello-notes(){ cat << EON
+
+::
+
+    nasm -felf64 hello.asm   # creates hello.o
+    ld hello.o               # creates a.out 
+
+    [blyth@localhost nasm]$ ll 
+    total 20
+    -rw-rw-r--.  1 blyth blyth  932 Jul 17 14:33 hola.asm
+    -rw-rw-r--.  1 blyth blyth 1118 Jul 17 14:33 hello.asm
+    drwxrwxr-x. 28 blyth blyth 4096 Jul 17 15:22 ..
+    -rw-rw-r--.  1 blyth blyth  752 Jul 17 15:22 hello.o
+    drwxrwxr-x.  2 blyth blyth   67 Jul 17 15:23 .
+    -rwxrwxr-x.  1 blyth blyth  776 Jul 17 15:23 a.out
+    [blyth@localhost nasm]$ 
+
+EON
+}
+
 nasm-hello()
 {
    nasm-tcd
-   nasm -felf64 hello.asm && ld hello.o && ./a.out
-   # no C library, just system calls 
+   nasm -felf64 hello.asm && ld hello.o && ./a.out 
 
+   ls -l hello.o a.out 
+
+   xxd hello.o > hello.o.xxd
+   xxd a.out > a.out.xxd
+
+   diff -y hello.o.xxd a.out.xxd
+
+   rm hello.o a.out hello.o.xxd a.out.xxd
+
+   # no C library, just system calls 
 }
+
+
 
