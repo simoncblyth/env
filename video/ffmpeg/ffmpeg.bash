@@ -316,14 +316,24 @@ before producing any output, before dumping 298 lines to stdout
     AVX-512 enabled           yes
 
 
+ffmpeg-configure-0
+    worked to build ffmpeg which succeeded to make an mp4 from some ppm
+    but fails to link in obs- lots of missing symbols
 
 
+Observations : this is an old school dirty configure build, not 
+a CMake separated bdir from sdir. So on changing configure options 
+have to blow away the distribution and get it again, to be sure do not have 
+a mixed configuration.
 
 EON
 }
-ffmpeg-configure()
+
+ffmpeg-configure-0()
 {
     ffmpeg-cd
+    echo $FUNCNAME : this configure takes some time before any output appears... 
+    date
 
     PKG_CONFIG_PATH="$(ffmpeg-prefix)/lib/pkgconfig" ./configure \
            --prefix="$(ffmpeg-prefix)" \
@@ -333,9 +343,36 @@ ffmpeg-configure()
            --enable-gpl \
            --enable-libx264 
 
+    date
+}
+
+
+
+
+ffmpeg-configure()
+{
+    ffmpeg-cd
+    echo $FUNCNAME : this configure takes some time before any output appears... 
+    date
+
+    PKG_CONFIG_PATH="$(ffmpeg-prefix)/lib/pkgconfig" ./configure \
+           --pkg-config-flags="--static" \
+           --prefix="$(ffmpeg-prefix)" \
+           --extra-cflags="-I$(ffmpeg-prefix)/include" \
+           --extra-ldflags="-L$(ffmpeg-prefix)/lib -ldl" \
+           --extra-libs=-lpthread \
+           --extra-libs=-lm \
+           --enable-pic \
+           --enable-shared \
+           --enable-gpl \
+           --enable-libx264 
+
+    date
 }
 
 ffmpeg-configure-scratch(){ cat << EOS
+
+    libavutil/x86/float_dsp.o: relocation R_X86_64_32S against .rodata can not be used when making a shared object; recompile with -fPIC
 
     --enable-libfdk_aac \
     --enable-libfreetype \
@@ -347,13 +384,27 @@ ffmpeg-configure-scratch(){ cat << EOS
     --enable-libx265 \
     --enable-nonfree
 
+    https://trac.ffmpeg.org/ticket/2784
+
 EOS
+}
+
+ffmpeg-install()
+{
+    ffmpeg-cd
+
+    make
+    make install
 }
 
 ffmpeg--()
 {
     ffmpeg-get
     ffmpeg-configure
-    make
-    make install
+    ffmpeg-install
+}
+
+ffmpeg-export()
+{
+   export LD_LIBRARY_PATH=$(ffmpeg-prefix)/lib:$LD_LIBRARY_PATH
 }

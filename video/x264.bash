@@ -238,14 +238,39 @@ x264-get-workaround-()
 
 x264-env(){      elocal- ; nasm- ; }   ## need recent nasm in PATH
 
-x264-configure()
+x264-configure-0()
 {
    x264-cd
-   ./configure --prefix="$(local-base)/env" --enable-static
+   ./configure --prefix="$(local-base)/env" \
+               --enable-static
 
    ##  https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
    ##  PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static
 }
+
+x264-configure()
+{
+   x264-cd
+   make distclean
+   ./configure --prefix="$(local-base)/env" \
+               --enable-shared \
+               --enable-pic
+}
+
+x264-install()
+{
+   x264-cd
+   make
+   make install
+}
+
+x264--()
+{
+   x264-get
+   x264-configure
+   x264-install
+}
+
 
 x264-info(){ cat << EOI
 
@@ -258,12 +283,5 @@ x264-info(){ cat << EOI
 EOI
 }
 
-x264--()
-{
-   x264-get
-   x264-configure
-   make
-   make install
-}
 
 
