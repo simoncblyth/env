@@ -1981,3 +1981,4 @@ gio-(){      . $(env-home)/comms/groups_io_opticks/gio.bash && gio-env $* ; }
 gitforwindows-(){      . $(env-home)/windows/gitforwindows.bash && gitforwindows-env $* ; }
 optickswin2-(){      . $(env-home)/windows/optickswin/optickswin2.bash && optickswin2-env $* ; }
 obs-(){      . $(env-home)/video/obs-studio/obs.bash && obs-env $* ; }
+gnome-(){      . $(env-home)/linux/gnome/gnome.bash && gnome-env $* ; }

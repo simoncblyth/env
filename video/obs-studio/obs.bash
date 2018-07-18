@@ -5,16 +5,20 @@ obs-vi(){       vi $(obs-source) ; }
 obs-env(){      elocal- ; }
 obs-usage(){ cat << EOU
 
-OBS : Open Broadcaster Software
-=================================
+OBS Studio : Open Broadcaster Software
+=========================================
+
+OBS Studio is free and open source software for video recording and live streaming.
 
 * https://obsproject.com
+* https://obsproject.com/help/
+* https://obsproject.com/wiki/
 * https://obsproject.com/forum/search/
 
 * paid alternatives : Camtasia, Screenflow
 
-Usage for screen recording
---------------------------
+Usage Guides for screen recording
+-------------------------------------
 
 * https://photography.tutsplus.com/tutorials/obs-for-screen-recording-quick-start--cms-28549
 
@@ -22,6 +26,38 @@ Before you can start recording you'll also need to add a source inside this
 scene. With the default Scene selected (it will be highlighted) click the +
 button at the bottom of the panel labeled *Sources*, then select Screen Capture
 on Linux or Display Capture on Mac and Windows.
+
+* https://photography.tutsplus.com/tutorials/obs-for-screen-recording-video-and-output-settings--cms-28542
+
+
+Precise Screen Recording (Linux) 
+------------------------------------
+
+1. ~/local/env/bin/obs
+2. add a Source : Screen Capture (XSHM)
+3.(nope) right click on the source, enter the Transform menu and select "Edit Transform"
+   (shortcut ctrl-E)  
+
+   * hmm this is transforming the full screen, not picking the region of the screen to record 
+
+3.(yep) right click on the source, select "Filters", "+" to add one, choose "Crop/Pad", 
+  deselect "Relative" for absolute positioning, enter x:100 y:100 w:1920 h:1080 and "Close" 
+
+
+::
+
+   OKTest --size 1920,1080,1 --position 100,100 
+
+
+Unlock the OBS GUI so can place widgets around the captured portion
+---------------------------------------------------------------------
+
+* https://obsproject.com/blog/whats-new-in-obs-studio-20-0
+
+* View > Docks > "Lock UI" (uncheck)
+* then can reposition the widgets, avoiding the captured portion
+* then check "Lock UI" 
+
 
 macOS
 -------
