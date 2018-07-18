@@ -1982,3 +1982,4 @@ gitforwindows-(){      . $(env-home)/windows/gitforwindows.bash && gitforwindows
 optickswin2-(){      . $(env-home)/windows/optickswin/optickswin2.bash && optickswin2-env $* ; }
 obs-(){      . $(env-home)/video/obs-studio/obs.bash && obs-env $* ; }
 gnome-(){      . $(env-home)/linux/gnome/gnome.bash && gnome-env $* ; }
+vlc-(){      . $(env-home)/video/vlc/vlc.bash && vlc-env $* ; }

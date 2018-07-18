@@ -17,6 +17,48 @@ OBS Studio is free and open source software for video recording and live streami
 
 * paid alternatives : Camtasia, Screenflow
 
+
+Following rpmfusion install of vlc (and the ffmpeg-libs, x264-libs that come with it)
+--------------------------------------------------------------------------------------
+
+* find that need to obs-export (setup LD_LIBRARY_PATH) to find obs libs
+
+Hmm maybe can get obs from rpmfusion too ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux
+
+With some translation based on https://rpmfusion.org/Configuration
+
+::
+
+    sudo yum install https://download1.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm -E %centos).noarch.rpm 
+    sudo yum install https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm -E %centos).noarch.rpm
+
+    ## switched 
+    ##     %fedora -> %centos
+    ##     fedora->el  
+ 
+    rpm -E %centos  ## evaluates the expression giving "7" 
+
+    sudo yum install obs-studio
+       ## failed to find this
+
+    sudo yum install xorg-x11-drv-nvidia-cuda
+
+
+
+rpmfusion
+-----------
+
+* https://rpmfusion.org/Configuration
+
+* https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
+* https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-7.noarch.rpm
+
+
+
+
 Usage Guides for screen recording
 -------------------------------------
 
@@ -30,19 +72,29 @@ on Linux or Display Capture on Mac and Windows.
 * https://photography.tutsplus.com/tutorials/obs-for-screen-recording-video-and-output-settings--cms-28542
 
 
+Linux runtime, many "QXcbConnection: XCB error 8..." when mousing around over the OBS window
+----------------------------------------------------------------------------------------------
+
+::
+
+    QXcbConnection: XCB error: 8 (BadMatch), sequence: 19527, resource id: 54794349, major code: 130 (Unknown), minor code: 3
+    QXcbConnection: XCB error: 8 (BadMatch), sequence: 31741, resource id: 54795203, major code: 130 (Unknown), minor code: 3
+    QXcbConnection: XCB error: 8 (BadMatch), sequence: 31772, resource id: 54795203, major code: 130 (Unknown), minor code: 3
+
+* https://forum.qt.io/topic/86643/qxcbconnection-xcb-error-8-badmatch
+
+Claims its just a deprecation warning.
+
+
 Precise Screen Recording (Linux) 
 ------------------------------------
 
 1. ~/local/env/bin/obs
 2. add a Source : Screen Capture (XSHM)
-3.(nope) right click on the source, enter the Transform menu and select "Edit Transform"
-   (shortcut ctrl-E)  
-
-   * hmm this is transforming the full screen, not picking the region of the screen to record 
-
-3.(yep) right click on the source, select "Filters", "+" to add one, choose "Crop/Pad", 
+3.(yes:this works) right click on the source, select "Filters", "+" to add one, choose "Crop/Pad", 
   deselect "Relative" for absolute positioning, enter x:100 y:100 w:1920 h:1080 and "Close" 
 
+* this filter is persisted between OBS runs 
 
 ::
 
@@ -57,6 +109,8 @@ Unlock the OBS GUI so can place widgets around the captured portion
 * View > Docks > "Lock UI" (uncheck)
 * then can reposition the widgets, avoiding the captured portion
 * then check "Lock UI" 
+
+* this setup (breakout+place GUI windows) is persisted, so long as exit OBS cleanly  
 
 
 macOS
@@ -347,7 +401,6 @@ EON
 
 obs-install()
 {
-   export LD_LIBRARY_PATH=$(obs-prefix)/lib:$LD_LIBRARY_PATH 
    obs-bcd
 
    obs-make -j4
@@ -362,4 +415,8 @@ obs--()
 }
 
 
+obs-export()
+{
+   export LD_LIBRARY_PATH=$(obs-prefix)/lib:$LD_LIBRARY_PATH 
+}
 

@@ -9,16 +9,25 @@ GNOME : Linux Desktop
 =======================
 
 
-Restart from a freeze
-------------------------
+Issue : Frozen GUI 
+---------------------
 
-* https://www.addictivetips.com/ubuntu-linux-tips/three-ways-to-restart-gnome-without-rebooting-system/
+After using obs- find that gnome GUI is stuck, can enter text in terminals, 
+and can connect via ssh. But cannot move windows around.   
 
-Save all your open files, commit to repos etc,  then either:
+Fix : kill the gnome-shell
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. press Ctrl–Alt–Backspace.
-2. sudo /etc/init.d/gdm restart
-3. sudo killall gnome-panel
+It comes back automatically with interactivity regained.
+
+::
+
+    ps aux | grep gnome   
+
+    blyth      2628  9.5  0.7 7279536 478844 ?      Sl   Jul17 147:08 /usr/bin/gnome-shell 
+    ## reveals /usr/bin/gnome-shell as the one taking the CPU cycles
+
+    sudo kill -9 2628
 
 
 
