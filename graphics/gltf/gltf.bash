@@ -30,6 +30,29 @@ could be easily streamed, e.g. over the internet.
 glTF viewer/tools on Windows ? Because NVIDIA ShadowPlay movie capture is on windows only
 -------------------------------------------------------------------------------------------------
 
+* https://github.com/KhronosGroup/glTF/blob/master/README.md#gltf-tools
+
+
+glTF 2.0 Viewer written in Rust
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/bwasty/gltf-viewer/blob/master/CHANGELOG.md#031---2018-03-16
+
+::
+
+   epsilon:Downloads blyth$ ./gltf-viewer /tmp/X4SolidTest/cathode.gltf 
+   [ERROR] glTF import failed: Validation([(Path("meshes[0].primitives[0].material"), IndexOutOfBounds)])
+   epsilon:Downloads blyth$ 
+
+Hmm, unlike other viewers this one doesnt accept material:"0" as a default material. Removing that 
+line can see the cathode.
+
+Same issue and fix with::
+
+    ./gltf-viewer -v -v -v /tmp/X4MeshTest/X4MeshTest.gltf 
+
+TODO: try with larger geometry 
+
 
 Lugdunum, a modern 3D engine using the Vulkan API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
