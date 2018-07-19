@@ -480,7 +480,10 @@ local-root(){
 
 local-base-workflow(){ echo $(local-base $*)/workflow ; }
 local-base-env(){      echo $(local-base $*)/env ; }
-local-base(){
+local-base(){ echo ${LOCAL_BASE:-$(local-base-)} ; }
+
+local-base-(){
+    ## NB a LOCAL_BASE in the enviroment trumps these defaults
     local t=${1:-$NODE_TAG}
     case $t in 
        WW) echo /home/blyth/local ;;
@@ -509,7 +512,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
      H5H2) echo ${MYENVTOP:-/usr}/local ;;
       MGB) echo /c/usr/local ;;
         X) echo $HOME/local ;;
-        *) echo ${LOCAL_BASE:-/usr/local} ;;
+        *) echo /tmp ;;
    esac
 }
 
