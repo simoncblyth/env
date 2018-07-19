@@ -3,6 +3,7 @@ g4op-src(){      echo geant4/g4op/g4op.bash ; }
 g4op-source(){   echo ${BASH_SOURCE:-$(env-home)/$(g4op-src)} ; }
 g4op-vi(){       vi $(g4op-source) ; }
 g4op-env(){      elocal- ; }
+g4op-news(){ open http://hypernews.slac.stanford.edu/HyperNews/geant4/get/opticalphotons.html ; }
 g4op-usage(){ cat << EOU
 
 
@@ -28,6 +29,11 @@ Objectives
     G4OpWLS.hh:class G4OpWLS : public G4VDiscreteProcess 
     delta:include blyth$ 
 
+
+Geant4 Optical Photon Hypernews
+-------------------------------------
+
+* http://hypernews.slac.stanford.edu/HyperNews/geant4/get/opticalphotons.html?
 
 
 Search : optical photon simulation

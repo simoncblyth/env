@@ -18,10 +18,6 @@ Objective : drum up interest sufficient to get some profs to assign some workers
 * Opticks roadmap
 
 
-
-
-
-
 Presentations online
 ----------------------
 
@@ -949,7 +945,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_jinan ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_ihep ; }
 
 
 presentation-info(){ cat << EOI
