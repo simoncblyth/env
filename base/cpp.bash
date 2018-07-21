@@ -16,6 +16,12 @@ pragma once is non-standard
 * https://en.wikipedia.org/wiki/Pragma_once
 
 
+thread-safety reentrant 
+--------------------------
+
+* https://www.ibm.com/support/knowledgecenter/en/ssw_aix_72/com.ibm.aix.genprogc/writing_reentrant_thread_safe_code.htm
+
+
 cpp std::unique_ptr tis ok to return from functions
 -----------------------------------------------------
 

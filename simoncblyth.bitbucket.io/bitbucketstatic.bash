@@ -1,9 +1,5 @@
-# === func-gen- : simoncblyth.bitbucket.org/bitbucketstatic fgp simoncblyth.bitbucket.org/bitbucketstatic.bash fgn bitbucketstatic fgh simoncblyth.bitbucket.org
 
-
-
-bitbucketstatic-src(){      echo simoncblyth.bitbucket.org/bitbucketstatic.bash ; }
-bitbucketstatic-source(){   echo ${BASH_SOURCE:-$(env-home)/$(bitbucketstatic-src)} ; }
+bitbucketstatic-source(){   echo ${BASH_SOURCE} ; }
 bitbucketstatic-vi(){       vi $(bitbucketstatic-source) ; }
 bitbucketstatic-env(){      elocal- ; }
 bitbucketstatic-usage(){ cat << EOU

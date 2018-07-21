@@ -421,10 +421,15 @@
     Opticks Export of G4 geometry to glTF 2.0
     /env/yoctoglrap/dyb_near_venice_half.png 1020px_737px
 
+    NVIDIA TITAN V 
+    /env/presentation/titan_v.png 1280px_720px 0px_10px
 
+    NVIDIA TITAN V (2)
+    /env/presentation/titan_v.png 1280px_720px 0px_10px
 
-
-
+    optix-denoiser
+    /env/presentation/optix5_ai_denoiser.png 1280px_720px 0px_10px
+    
 .. comment 
 
     Large Geometry/Event Techniques
@@ -536,7 +541,6 @@
 
 .. class:: small
 
-    https://bitbucket.org/simoncblyth/opticks/src/default/notes/progress.rst
 
     2018 July
       * discuss proposed extended optical example with Geant4 members
@@ -558,80 +562,11 @@
     2017 Aug : primitives for JUNO : ellipsoid, torus, hyperboloid : solve-quartic troubles
 
 
+.. class:: large
 
-:small:`Opticks 2018 July-Nov : Steps into Production` 
------------------------------------------------------------------------
-
-
-.. sidebar::  2019 : Beyond Production
-
-    .. class:: small
+    https://bitbucket.org/simoncblyth/opticks/src/default/notes/progress.rst
 
 
-        **Outreach/education via 3D visualization** 
-
-        **Photo-realistic JUNO PR images : with OptiX raytrace ?**
-
-        * improve current minimal Lambertian raytrace 
-        * OptiX 5 AI denoiser (using Volta tensor cores) 
-
-
-         glTF standard -> JUNO into:
-    
-         * many existing renderers (OpenGL/DirectX/Vulkan/Metal)
-         * game engines (Unity/Unreal)
-         * Virtual/Augmented Reality systems
-
-         glTF PBR(*) materials -> realism  
-
-         :red:`ATLAS/CMS/Belle2 all using VR for Outreach` 
-
-    .. class:: tiny
-
-       (*) PBR : Physically Based Render
-
-
-
-
-.. class:: small
-
-    **Development**
- 
-    * debug direct geometry translation
-    * extend aligned running to generation, perhaps reemission
-    * Geant4 extended optical example : complete *G4OK* integration
-
-    **Validation** 
-
-    Aligned *bi-simulation* of millions of photons 
-
-    1. all JUNO solids individually 
-    2. sub-trees with issues 
-    3. JUNO full geometry
-
-    :red:`find/fix discrepancies`
-  
-    **Production**
-
-    * apply *G4OK* integration to JUNO simulation 
-    * performance testing on workstation + GPU server
-
-
-:small:`2019 : Capitalize/Evangelize Simulation+Visualization performance leap` 
---------------------------------------------------------------------------------
-
-.. sidebar:: glTF shortcuts : import + realism 
-
-    .. class:: small
-
-
-.. class:: small
-
-    **Evangelize Opticks**
-
-    * pre-installed Opticks in cloud containers 
-
- 
 
 
 ``Optical Photon Simulation Problem...``
@@ -904,15 +839,6 @@
 ``GPU raytrace : purely analytic geometry (Daya Bay Near Site)``
 
 
-:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)`
----------------------------------------------------------------------
-
-:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)`
----------------------------------------------------------------------
-
-``Cutaway view of Daya Bay Antineutrino-detector``
-
-
 :i:`Opticks Analytic JUNO Chimney, GPU Raytrace (0)`
 ---------------------------------------------------------------------
 
@@ -1177,14 +1103,14 @@
 
 
 
-:small:`Coincident Faces are Primary Cause of Issues : Fake Intersects`
+:small:`Coincident Faces are Primary Cause of Issues : Spurious Intersects`
 -------------------------------------------------------------------------------------------------
 
 .. sidebar:: Cylinder - Cone 
 
     .. class:: small
 
-       Coincident endcaps -> issue 
+       Coincident endcaps -> spurious intersects 
 
     .. image:: /env/opticks_refs/lvidx_83_tbool_coincidence_artifact_at_cylinder_base.png
        :width: 450px
@@ -1212,6 +1138,119 @@
 
 
 
+
+:small:`Opticks 2018 July-Nov : Steps into Production` 
+-----------------------------------------------------------------------
+
+.. sidebar:: *G4OK* Interface Package
+
+    .. class:: small
+        
+        Interface G4 user code to embedded Opticks
+
+        * BeginOfRun : pass "World" to Opticks
+        * EveryStep of G4Cerenkov, G4Scintillation : pass gensteps  
+        * EndOfEvent : populate hit collections
+
+
+.. sidebar:: Production Simplified ?
+
+   .. class:: small
+
+       **Opticks Docker Container**
+
+       * Users from LZ (dark matter expt) are trying
+       * installation difficulties "contained"
+
+       **Distributed GPU jobs ?**
+
+       * CVMFS ? Event Storage ? Bookkeeping ? 
+
+
+
+.. class:: small
+
+    **Development Plan**
+ 
+    * debug+validate direct geometry translation
+    * extend aligned running to generation (perhaps reemission)
+
+      * -> input gensteps, not photons  
+
+    * finalize *G4OK* for Geant4 extended optical example 
+    * tentative Windows port : for G4 example + GPU tools
+    * add tests, currently : ~330 unit tests, ~30 integration tests
+
+      * -> reduce surprises from OptiX/Geant4 updates
+
+
+    **Validation Plan : using millions of photons** 
+
+    Aligned *bi-simulation* to :red:`find/fix discrepancies`
+
+    1. all JUNO solids individually (via code generation)
+    2. full JUNO geometry + sub-trees with issues 
+  
+    **Production Plan**
+
+    * apply *G4OK* integration to JUNO simulation 
+    * performance testing on GPU server, workstation, laptop
+    * small scale deployment [IHEP, SDU] (improve scripts)
+    * wider deployment : **CAN YOU HELP ?** 
+
+      * need recent NVIDIA GPU workstation or server 
+
+
+:small:`Opticks Potential for Outreach : Photorealistic Images/Video/VR`
+-------------------------------------------------------------------------------------
+
+.. sidebar::  glTF 3D file format
+
+   .. class:: small
+
+      Supported by many tools:
+    
+      * renderers (OpenGL/DirectX/Vulkan/Metal)
+      * game engines (Unity/Unreal)
+      * Virtual/Augmented Reality systems
+
+      **glTF standard -> shortcut** 
+
+
+.. class:: small
+
+    **Compelling visualization -> effective Outreach/Education**
+
+    * attract students, interest public
+    * :red:`ATLAS/CMS/Belle2 all using VR for Outreach` 
+
+    Two approaches:
+
+    **1. rasterized : fast, approximate**
+   
+    * apply glTF Physically Based Rendering (PBR)
+    * material/surface properties *f([nm])* -> PBR parameters
+    * incorporate into Opticks glTF export 
+    * find/install/test open source glTF PBR renderers 
+    * separate OpenGL shaders for event display  
+
+    **2. ray-traced : highest quality**  
+
+    * "simulate" taking photograph : improve current minimal Lambertian shading 
+    * NVIDIA® OptiX™ AI-Accelerated Denoiser : exploits Volta tensor cores :small:`https://developer.nvidia.com/optix-denoiser`
+    * Event display : overlay via compositing
+
+
+
+.. comment
+
+    * NVIDIA® Material Definition Language (MDL) : BSDF based, renderer independent :small:`https://developer.nvidia.com/mdl-sdk`
+
+    BSDF : Bidirectional Scattering Distribution Functions  
+
+
+:i:`optix-denoiser`
+---------------------
 
 
 
@@ -1265,6 +1304,38 @@
      https://groups.io/g/opticks
 
      https://bitbucket.org/simoncblyth/opticks
+
+
+
+
+:i:`NVIDIA TITAN V`
+-------------------- 
+
+:i:`NVIDIA TITAN V (2)`
+-----------------------
+
+.. sidebar:: NVIDIA TITAN V (Volta)
+
+    .. class:: small
+
+         ===================  =================
+           CUDA cores           **5120**
+           Tensor cores         640
+           Transistors          21 Billion 
+           VRAM                 12 GB
+           Single Precision     13.8 TFLOPS
+           Double Precision     6.9 TFLOPS
+           Launch               2017/12/07
+           Price                2999 USD                
+           GPU                  GV100 (815mm2)
+         ===================  =================
+
+         "salvage part" from *Tesla V100* server, same GV100
+
+         * less VRAM, graphics enabled, 1/3 price
+         
+         **Volta GPUs : Recommended for Opticks**  
+
 
 
 
@@ -2403,5 +2474,17 @@
 
 :i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)`
 ---------------------------------------------------------------------
+
+
+
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)`
+---------------------------------------------------------------------
+
+``Cutaway view of Daya Bay Antineutrino-detector``
+
 
 

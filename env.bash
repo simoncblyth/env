@@ -1561,7 +1561,7 @@ adm-(){      . $(env-home)/adm/adm.bash && adm-env $* ; }
 scmmigrate-(){      . $(env-home)/scm/migration/scmmigrate.bash && scmmigrate-env $* ; }
 pysvn-(){      . $(env-home)/svn/pysvn.bash && pysvn-env $* ; }
 bitbucket-(){      . $(env-home)/scm/bitbucket/bitbucket.bash && bitbucket-env $* ; }
-bitbucketstatic-(){      . $(env-home)/simoncblyth.bitbucket.org/bitbucketstatic.bash && bitbucketstatic-env $* ; }
+bitbucketstatic-(){      . $(env-home)/simoncblyth.bitbucket.io/bitbucketstatic.bash && bitbucketstatic-env $* ; }
 b2c-(){      . $(env-home)/b2c/b2c.bash && b2c-env $* ; }
 rst2html-(){      . $(env-home)/doc/rst2html/rst2html.bash && rst2html-env $* ; }
 docutils-(){      . $(env-home)/doc/docutils_/docutils.bash && docutils-env $* ; }
@@ -1983,3 +1983,4 @@ optickswin2-(){      . $(env-home)/windows/optickswin/optickswin2.bash && optick
 obs-(){      . $(env-home)/video/obs-studio/obs.bash && obs-env $* ; }
 gnome-(){      . $(env-home)/linux/gnome/gnome.bash && gnome-env $* ; }
 vlc-(){      . $(env-home)/video/vlc/vlc.bash && vlc-env $* ; }
+imovie-(){      . $(env-home)/video/imovie/imovie.bash && imovie-env $* ; }

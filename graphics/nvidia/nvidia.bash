@@ -10,6 +10,84 @@ NVIDIA
 ========
 
 
+Issue : disabling G-SYNC gives black screen, reboot doesnt fix
+----------------------------------------------------------------
+
+nvidia-settings over ssh ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* disabling G-SYNC using display panel makes screen go black
+* tried using "nvidia-settings" over ssh but seems not to be able to control target X server
+  over ssh, although XQuartz started up on laptop::
+
+    epsilon:~ blyth$ ssh J -X
+    Last login: Fri Jul 20 13:19:00 2018 from 10.10.2.91
+    [blyth@localhost ~]$ nvidia-settings -q AllowGSYNC
+
+    ERROR: Unable to load info from any available system
+
+* presumably need some config to talk to the X server on the machine
+
+
+Looks credible : way to talk to Xserver over ssh 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://devtalk.nvidia.com/default/topic/1032741/linux/tuning-nvidia-settings-over-ssh-error/
+
+Ok, you're using GDM/Gnome, so when you start your system GDM spawns its own
+Xserver. You'll need the right XAUTHORITY set, as mentioned in the link you
+gave but that was for lightdm.  Run
+
+
+::
+
+    [blyth@localhost ~]$ ps aux | grep X
+    root       1256  0.0  0.0 221232  4716 ?        Ss   14:20   0:00 /usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD
+    root       1745 26.0  0.1 318612 72476 tty1     Rsl+ 14:20  12:14 /usr/bin/X :0 -background none -noreset -audit 4 -verbose -auth /run/gdm/auth-for-gdm-blah-blah/database -seat seat0 -nolisten tcp vt1
+
+
+::
+
+    [blyth@localhost ~]$ XAUTHORITY=/run/gdm/auth-for-gdm-blah-blah/database DISPLAY=:0 nvidia-settings -q all
+
+    Attributes queryable via localhost.localdomain:0.0:
+
+      Attribute 'OperatingSystem' (localhost.localdomain:0.0): 0.
+        The valid values for 'OperatingSystem' are in the range 0 - 2 (inclusive).
+        'OperatingSystem' is a read-only attribute.
+        'OperatingSystem' can use the following target types: X Screen, GPU.
+
+      Attribute 'NvidiaDriverVersion' (localhost.localdomain:0.0): 396.26 
+        'NvidiaDriverVersion' is a string attribute.
+        'NvidiaDriverVersion' is a read-only attribute.
+        'NvidiaDriverVersion' can use the following target types: X Screen, GPU.
+
+     ...
+
+    [blyth@localhost ~]$ XAUTHORITY=/run/gdm/auth-for-gdm-0isL8H/database DISPLAY=:0 nvidia-settings -q ALLOWGSYNC
+
+      Attribute 'AllowGSYNC' (localhost.localdomain:0.0): 0.
+        'AllowGSYNC' is a boolean attribute; valid values are: 1 (on/true) and 0 (off/false).
+        'AllowGSYNC' can use the following target types: X Screen.
+
+    [blyth@localhost ~]$ XAUTHORITY=/run/gdm/auth-for-gdm-0isL8H/database DISPLAY=:0 nvidia-settings -q ShowGSYNCVisualIndicator
+
+      Attribute 'ShowGSYNCVisualIndicator' (localhost.localdomain:0.0): 0.
+        'ShowGSYNCVisualIndicator' is a boolean attribute; valid values are: 1 (on/true) and 0 (off/false).
+        'ShowGSYNCVisualIndicator' can use the following target types: X Screen.
+
+
+
+
+
+
+
+* https://thebravestatistician.wordpress.com/2017/08/13/tweaking-your-nvidia-gpu-via-ssh-using-nvidia-settings/
+
+
+
+
+
 
 NVIDIA GPU CLOUD
 -----------------
