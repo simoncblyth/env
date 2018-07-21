@@ -1986,3 +1986,4 @@ vlc-(){      . $(env-home)/video/vlc/vlc.bash && vlc-env $* ; }
 imovie-(){      . $(env-home)/video/imovie/imovie.bash && imovie-env $* ; }
 groupadd-(){      . $(env-home)/linux/groupadd.bash && groupadd-env $* ; }
 vgp-(){      . $(env-home)/graphics/Vulkan-glTF-PBR/vgp.bash && vgp-env $* ; }
+swv-(){      . $(env-home)/graphics/SaschaWillemsVulkan/swv.bash && swv-env $* ; }

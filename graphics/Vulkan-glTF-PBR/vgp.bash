@@ -4,10 +4,35 @@ vgp-source(){   echo ${BASH_SOURCE:-$(env-home)/$(vgp-src)} ; }
 vgp-vi(){       vi $(vgp-source) ; }
 vgp-env(){      elocal- ; }
 vgp-usage(){ cat << EOU
+Vulkan glTF PBR example
+==============================
 
 https://github.com/SaschaWillems/Vulkan-glTF-PBR
 
-unsupported GCC version - see https://github.com/nlohmann/json#supported-compilers
+* See also swv-
+
+
+Getting to build on CentOS7 Linux
+-------------------------------------
+
+1. Changed below error into a warning::
+
+    unsupported GCC version - see https://github.com/nlohmann/json#supported-compilers
+
+2. Had to make symbolic link to libvulkan.so.1 
+3. Copied the data dir into the build dir
+4. invoked from the bin dir inside build dir 
+
+
+Refs
+-----
+
+The models use ktx textures
+
+* https://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/
+
+
+
 
 
 EOU
