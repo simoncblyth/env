@@ -1984,3 +1984,5 @@ obs-(){      . $(env-home)/video/obs-studio/obs.bash && obs-env $* ; }
 gnome-(){      . $(env-home)/linux/gnome/gnome.bash && gnome-env $* ; }
 vlc-(){      . $(env-home)/video/vlc/vlc.bash && vlc-env $* ; }
 imovie-(){      . $(env-home)/video/imovie/imovie.bash && imovie-env $* ; }
+groupadd-(){      . $(env-home)/linux/groupadd.bash && groupadd-env $* ; }
+vgp-(){      . $(env-home)/graphics/Vulkan-glTF-PBR/vgp.bash && vgp-env $* ; }
