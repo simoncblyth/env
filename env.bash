@@ -1627,7 +1627,6 @@ libpng-(){       . $(env-home)/graphics/libpng/libpng.bash && libpng-env $* ; }
 macrosim-(){     . $(env-home)/optix/macrosim/macrosim.bash && macrosim-env $* ; }
 
 
-goofit-(){       . $(env-home)/cuda/goofit/goofit.bash && goofit-env $* ; }
 vmd-(){          . $(env-home)/optix/vmd/vmd.bash && vmd-env $* ; }
 openrl-(){       . $(env-home)/graphics/openrl/openrl.bash && openrl-env $* ; }
 
@@ -1987,3 +1986,5 @@ imovie-(){      . $(env-home)/video/imovie/imovie.bash && imovie-env $* ; }
 groupadd-(){      . $(env-home)/linux/groupadd.bash && groupadd-env $* ; }
 vgp-(){      . $(env-home)/graphics/Vulkan-glTF-PBR/vgp.bash && vgp-env $* ; }
 swv-(){      . $(env-home)/graphics/SaschaWillemsVulkan/swv.bash && swv-env $* ; }
+goofit-(){      . $(env-home)/goofit/goofit.bash && goofit-env $* ; }
+numba-(){      . $(env-home)/numerics/numba/numba.bash && numba-env $* ; }

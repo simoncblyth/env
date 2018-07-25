@@ -12,6 +12,11 @@ GL Transmission Format (glTF) from The Khronos Group aims to provide a
 lightweight, efficient format meant for 3d scene representation in a way that
 could be easily streamed, e.g. over the internet.
 
+* https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md
+
+  Best to read the spec : its the fullest description 
+
+
 
 * https://www.khronos.org/news/press/khronos-collada-now-recognized-as-iso-standard
 * https://github.com/KhronosGroup/glTF/blob/master/specification/README.md
@@ -25,6 +30,48 @@ could be easily streamed, e.g. over the internet.
 * https://www.khronos.org/files/gltf20-reference-guide.pdf
 
 * https://docs.microsoft.com/en-us/windows/mixed-reality/creating-3d-models-for-use-in-the-windows-mixed-reality-home
+
+glTF 2.0 PBR
+-----------------
+
+* https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#metallic-roughness-material
+
+
+* https://www.allegorithmic.com/pbr-guide
+* https://academy.allegorithmic.com/courses/b6377358ad36c444f45e2deaa0626e65
+
+  Substance Artists guide to PBR
+
+  * F0 : Fresnel zero : reflectance at 0 degress (normal incidence)
+  * F0 = (n-1)^2/(n+1)^2
+
+* https://cesium.com/blog/2017/08/08/physically-based-rendering-in-cesium/
+
+
+* https://github.com/KhronosGroup/glTF-WebGL-PBR
+
+A surface using the Metallic-Roughness material is governed by three parameters:
+
+* base color (albedo)
+* metallicness
+* roughness. 
+
+Either the parameters can be given constant values, which would dictate the
+shading of an entire mesh uniformly, or textures can be provided that map
+varying values over a mesh. In this project, all of the glTF files followed the
+latter case. It is important to note here that although metallic and roughness
+are separate parameters, they are provided as a single texture in which the
+metallic values are in the blue channel and the roughness values are in the
+green channel to save on space
+
+* http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
+
+  Real Shading in Unreal Engine 4
+  by Brian Karis, Epic Games   (despite the title it is mostly general discussion of PBR)  
+
+
+  
+
 
 
 glTF viewer/tools on Windows ? Because NVIDIA ShadowPlay movie capture is on windows only

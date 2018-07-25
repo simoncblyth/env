@@ -833,12 +833,6 @@
 
 
 
-:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)`
----------------------------------------------------------------------
-
-``GPU raytrace : purely analytic geometry (Daya Bay Near Site)``
-
-
 :i:`Opticks Analytic JUNO Chimney, GPU Raytrace (0)`
 ---------------------------------------------------------------------
 
@@ -1029,7 +1023,7 @@
 
       * tricks needed on both sides : burning RNGs, jump backs
 
-   :red:`simplest possible direct comparison validation`
+   **Payoff :**  :red:`simplest possible direct comparison validation`
 
 
 
@@ -1149,7 +1143,7 @@
         Interface G4 user code to embedded Opticks
 
         * BeginOfRun : pass "World" to Opticks
-        * EveryStep of G4Cerenkov, G4Scintillation : pass gensteps  
+        * G4Cerenkov+Scintillation : collect gensteps  
         * EndOfEvent : populate hit collections
 
 
@@ -1178,10 +1172,6 @@
       * -> input gensteps, not photons  
 
     * finalize *G4OK* for Geant4 extended optical example 
-    * tentative Windows port : for G4 example + GPU tools
-    * add tests, currently : ~330 unit tests, ~30 integration tests
-
-      * -> reduce surprises from OptiX/Geant4 updates
 
 
     **Validation Plan : using millions of photons** 
@@ -1194,15 +1184,28 @@
     **Production Plan**
 
     * apply *G4OK* integration to JUNO simulation 
-    * performance testing on GPU server, workstation, laptop
+    * performance testing on GPU server, workstation
     * small scale deployment [IHEP, SDU] (improve scripts)
     * wider deployment : **CAN YOU HELP ?** 
 
       * need recent NVIDIA GPU workstation or server 
 
 
-:small:`Opticks Potential for Outreach : Photorealistic Images/Video/VR`
+
+.. comment
+
+    * tentative Windows port : for G4 example + GPU tools
+    * add tests, currently : ~330 unit tests, ~30 integration tests
+
+      * -> reduce surprises from OptiX/Geant4 updates
+
+
+:small:`Opticks Visualization Potential : realistic Images/Video/VR`
 -------------------------------------------------------------------------------------
+
+.. class:: small
+
+    Opticks GPU optimized geometry +  **GPU processing explosion** : ripe with possibilities
 
 .. sidebar::  glTF 3D file format
 
@@ -1214,43 +1217,107 @@
       * game engines (Unity/Unreal)
       * Virtual/Augmented Reality systems
 
-      **glTF standard -> shortcut** 
+      :red:`Opticks can now export glTF 2.0`
+
+      **glTF standard -> shortcut to future** 
 
 
 .. class:: small
 
-    **Compelling visualization -> effective Outreach/Education**
+    * Outreach/Education : realistic Images/Video/VR
 
-    * attract students, interest public
-    * :red:`ATLAS/CMS/Belle2 all using VR for Outreach` 
+      * attract students
+      * interest public
+      * engage visitors
+      * :red:`ATLAS/CMS/BelleII all using VR for Outreach`  
+    
+    .. image:: /env/presentation/1px.png
+       :width: 500px
+       :height: 1px
 
-    Two approaches:
+    * VR Tools : analyse/monitor/learn from "inside detector"     
 
-    **1. rasterized : fast, approximate**
+      * shifts : experience the physics, see the dataflow
+      * algorithms : watch the performance
+      * play with G4Gun inside the scintillator
+    
+
+    .. image:: /env/presentation/1px.png
+       :width: 1000px
+       :height: 10px
+
+    
+    **Direct/natural interfaces are possible now(1)** : just needs imagination, time to apply the technology  
    
-    * apply glTF Physically Based Rendering (PBR)
-    * material/surface properties *f([nm])* -> PBR parameters
-    * incorporate into Opticks glTF export 
-    * find/install/test open source glTF PBR renderers 
-    * separate OpenGL shaders for event display  
+    * Engage "direct" experience -> more understanding for more people
+        
+.. class:: tiny
 
-    **2. ray-traced : highest quality**  
-
-    * "simulate" taking photograph : improve current minimal Lambertian shading 
-    * NVIDIA® OptiX™ AI-Accelerated Denoiser : exploits Volta tensor cores :small:`https://developer.nvidia.com/optix-denoiser`
-    * Event display : overlay via compositing
+    (1) Try Google Tiltbrush 3D painting app on HTC Vive VR
 
 
+:small:`Opticks Beyond Simulation` : *cradle* :small:`for GPU reconstruction studies`
+---------------------------------------------------------------------------------------
 
-.. comment
+.. sidebar:: Modular ~20 packages
 
-    * NVIDIA® Material Definition Language (MDL) : BSDF based, renderer independent :small:`https://developer.nvidia.com/mdl-sdk`
+    .. class:: small
+    
+        Many :red:`reusable + general` tools: 
 
-    BSDF : Bidirectional Scattering Distribution Functions  
+        * CPU buffer persistency 
+        * GPU buffer handling via CUDA+Thrust 
+        * visualize results within geometry 
+
+        Modern CMake advantage:
+
+        * configure against chosen direct dependency,
+          required subtree configured automatically 
 
 
-:i:`optix-denoiser`
----------------------
+.. class:: tiny
+
+    * *OKConf* : detects versions of Geant4, OptiX available 
+    * *SysRap* : :red:`low level system utils`
+    * *BoostRap* : :red:`wrapper for boost file_system, program_options etc...`
+    * *NPY* : :red:`numerical workhorse sub-project`
+
+      * :red:`buffer persistency in NumPy format`
+      * mesh handling/polygonization
+      * nnode, NCSG : CSG node tree representation of geometry   
+
+    * *YoctoGLRap* : wrapper for the YoctoGL external, glTF 2.0 3D parsing/writing  
+    * *OpticksCore* : :red:`commandline parsing, app config/steering`  
+    * *GGeo* : Opticks geometry model ready for translation to GPU 
+    * *ExtG4* : translates Geant4 solids into NCSG trees and Geant4 trees of volumes into GGeo geometries 
+    * *AssimpRap* : wrapper for Assimp 3D geometry importer, can load G4DAE COLLADA geometry files
+    * *OpenMeshRap* : wrapper for OpenMesh, providing mesh traversal : used for mesh fixing 
+    * *OpticksGeo* : OpticksHub : non-viz hostside intersection of configuraton, geometry and event
+
+    * *CUDARap* : :red:`wrapper for CUDA, used for RNG seed generation/persistance` 
+
+    * *ThrustRap* : :red:`wrapper for Thrust (higher level C++ access to CUDA)`, used for 
+
+      * photon seeding(associating photon "slots" with their gensteps prior to generation)  
+      * :red:`general buffer tools` eg used for copying back the hits 
+
+    * *OptiXRap* : wrapper for OptiX
+     
+      * CUDA code for primitive and CSG intersection 
+      * converts GGeo geometry into OptiX geometry, using OGeo
+      * sets up OptiX context using OScene, OEvent
+      * provides OptiX GPU launcher in OPropagator 
+       
+    * *OGLRap* : :red:`wrapper for OpenGL, visualization of geometry and photon propagations`
+    * *OKOP* : pure compute propagation, with no OpenGL dependency       
+    * *OpticksGL* : OpenGL/OptiX/CUDA interop propagation using shared OpenGL buffers
+    * *OK* : :red:`high level manager with OpenGL visualization`  
+    * *CFG4* : comparison of Opticks and Geant4 photon propagations
+    * *OKG4* : top level with visualization project intended for Opticks with Geant4 embedded 
+    * *G4OK* : top level (non-visualization) project interfacing between Geant4 user code and  embedded Opticks 
+
+
+    
 
 
 
@@ -1285,9 +1352,7 @@
      :height: 10px
 
   * Drastic speedup -> better detector understanding -> greater precision
-  
-    * any simulation limited by optical photons can benefit 
-
+  * Performance discontinuity -> new possibilities -> imagination required
 
   .. image:: /env/presentation/1px.png
      :width: 1000px
@@ -2485,6 +2550,46 @@
 ---------------------------------------------------------------------
 
 ``Cutaway view of Daya Bay Antineutrino-detector``
+
+
+
+
+:small:`Photorealistic detector images : using glTF renderer or OptiX raytrace`
+---------------------------------------------------------------------------------------
+
+.. class:: small
+
+
+    * PBR (Physically Based Rendering) support in glTF 
+
+.. class:: small
+    
+    ========================================================  ================================================================================
+     rasterized : fast, approximate                              ray-traced : highest quality 
+    ========================================================  ================================================================================
+     * apply glTF Physically Based Rendering (PBR)             * "simulate" taking photograph : improve current minimal Lambertian shading
+     * material/surface properties *f([nm])* -> PBR param      * NVIDIA® OptiX™ AI-Accelerated Denoiser : exploits Volta tensor cores 
+     * incorporate into Opticks glTF export                    * NVIDIA® Material Definition Language (MDL), BSDF based, renderer independent
+     * find/install/test open source glTF PBR renderers        * Event display : overlay via compositing
+     * separate OpenGL shaders for event display  
+
+    ========================================================  ================================================================================
+
+
+.. comment
+
+    * NVIDIA® Material Definition Language (MDL) : BSDF based, renderer independent :small:`https://developer.nvidia.com/mdl-sdk`
+    BSDF : Bidirectional Scattering Distribution Functions  
+
+    :small:`https://developer.nvidia.com/optix-denoiser`
+
+
+
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)`
+---------------------------------------------------------------------
+
+``GPU raytrace : purely analytic geometry (Daya Bay Near Site)``
 
 
 
