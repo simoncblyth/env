@@ -11,6 +11,30 @@ Plain Vanilla Usage of numpy
 See also *numpy-* for numpy development rather than usage.
 
 
+
+Use suppress for readability
+-------------------------------
+
+::
+
+    In [15]: a
+    Out[15]: 
+    array([[[3.0e+02, 3.0e+02, 2.0e+02, 0.0e+00],
+            [0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00],
+            [0.0e+00, 0.0e+00, 0.0e+00, 2.4e-44],
+            [0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00]]], dtype=float32)
+
+    In [16]: np.set_printoptions(suppress=True)
+
+    In [17]: a
+    Out[17]: 
+    array([[[300., 300., 200.,   0.],
+            [  0.,   0.,   0.,   0.],
+            [  0.,   0.,   0.,   0.],
+            [  0.,   0.,   0.,   0.]]], dtype=float32)
+
+
+
 N source py2.5.1
 ------------------
 
