@@ -14,6 +14,12 @@ Introductions
 * https://www.raywenderlich.com/142603/unity-tutorial-part-1-getting-started
 
 
+Unity GPU Instancing
+---------------------
+
+* https://docs.unity3d.com/Manual/GPUInstancing.html
+
+
 Fully featured free version
 -----------------------------
 
