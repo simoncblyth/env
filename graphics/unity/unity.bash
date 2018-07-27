@@ -14,6 +14,12 @@ Introductions
 * https://www.raywenderlich.com/142603/unity-tutorial-part-1-getting-started
 
 
+Octane Renderer for Unity Integration
+--------------------------------------
+
+* https://unity.otoy.com/guides/installation/
+
+
 Unity GPU Instancing
 ---------------------
 
