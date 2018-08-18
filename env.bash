@@ -27,6 +27,21 @@ env-cache-update(){
    env | sort | grep -v SSH_ | grep -v DISPLAY | grep -v TERM | grep -v LS_COLORS | grep -v PWD | grep -v DAE_PATH_TEMPLATE | while read line ; do echo export $line ; done > $path
 }
 
+env-cls(){
+    local base="."
+    local name=${1:-G4Scintillation}
+    local h=$(find $base -name "$name.h")
+    local hh=$(find $base -name "$name.hh")
+    local cc=$(find $base -name "$name.cc")
+    local icc=$(find $base -name "$name.icc")
+    local vcmd="vi -R $h $hh $icc $cc "
+    echo $vcmd
+    eval $vcmd
+}
+
+env-f(){ find . -not -iwholename '*.svn*' -a -type f  ; }
+env-q(){ find . -not -iwholename '*.svn*' -a -type f -exec grep -H ${1:-Sensitive} {} \; ; }
+
 
 env-touch-index(){
    # recursivly touch existing index.rst going up the directory tree from PWD
@@ -1988,3 +2003,8 @@ vgp-(){      . $(env-home)/graphics/Vulkan-glTF-PBR/vgp.bash && vgp-env $* ; }
 swv-(){      . $(env-home)/graphics/SaschaWillemsVulkan/swv.bash && swv-env $* ; }
 goofit-(){      . $(env-home)/goofit/goofit.bash && goofit-env $* ; }
 numba-(){      . $(env-home)/numerics/numba/numba.bash && numba-env $* ; }
+sxmc-(){      . $(env-home)/fit/sxmc.bash && sxmc-env $* ; }
+usdz-(){      . $(env-home)/graphics/usdz/usdz.bash && usdz-env $* ; }
+theano-(){      . $(env-home)/numerics/theano/theano.bash && theano-env $* ; }
+gpufit-(){      . $(env-home)/fit/gpufit.bash && gpufit-env $* ; }
+hydra-(){      . $(env-home)/fit/hydra.bash && hydra-env $* ; }

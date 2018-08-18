@@ -1,6 +1,4 @@
-# === func-gen- : doc/ioproc/ioproc fgp doc/ioproc/ioproc.bash fgn ioproc fgh doc/ioproc
-ioproc-src(){      echo doc/ioproc/ioproc.bash ; }
-ioproc-source(){   echo ${BASH_SOURCE:-$(env-home)/$(ioproc-src)} ; }
+ioproc-source(){   echo ${BASH_SOURCE} ; }
 ioproc-vi(){       vi $(ioproc-source) ; }
 ioproc-env(){      elocal- ; }
 ioproc-usage(){ cat << EOU

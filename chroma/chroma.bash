@@ -13,6 +13,22 @@ CHROMA
 * https://bitbucket.org/chroma/chroma.bitbucket.org/src
 
 
+
+Find Refs
+-----------
+
+* :google:`Stanley Seibert Anthony LaTorre`
+
+* http://absimage.aps.org/image/APR12/MWS_APR12-2012-000787.pdf
+
+* http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
+
+* http://www.mathematica-journal.com/2016/10/stochastic-simulation-and-parameter-estimation-of-the-fitzhugh–nagumo-model/
+
+* https://indico.fnal.gov/getFile.py/access?contribId=85&sessionId=14&resId=0&materialId=slides&confId=5276
+
+
+
 Top Level Link
 ----------------
 

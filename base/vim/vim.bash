@@ -33,6 +33,14 @@ Navigate:
 
 
 
+Get rid of tabs : eg from diff
+---------------------------------
+
+::
+
+   :retab
+
+
 
 Windows MSYS2 Arrow keys
 -------------------------

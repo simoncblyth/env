@@ -87,6 +87,16 @@ gave but that was for lightdm.  Run
 
 
 
+Libraries
+------------
+
+CUBLAS, CUSOLVER and MAGMA by example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://developer.nvidia.com/sites/default/files/akamai/cuda/files/Misc/mygpu.pdf
+
+* http://docs.nvidia.com/cuda/pdf/CUSOLVER_Library.pdf
+
 
 
 NVIDIA GPU CLOUD

@@ -14,6 +14,30 @@ Introductions
 * https://www.raywenderlich.com/142603/unity-tutorial-part-1-getting-started
 
 
+Unity Particle System for data visualization
+----------------------------------------------
+
+* https://github.com/alchemz/Unity_DataVisualization
+* https://github.com/sugi-cho/Unity-GPU-Particle
+* https://github.com/antoinefournier/XParticle
+
+* https://github.com/keijiro/KvantSpray
+
+  Object instancing/particle animation system for Unity
+
+* https://github.com/search?q=kvant+user%3Akeijiro&type=Repositories
+
+* https://github.com/keijiro/KvantSwarm
+* https://github.com/keijiro/KvantStream
+* https://github.com/keijiro/KvantWall
+
+
+Shaders in Unity
+-------------------
+
+* https://unity3d.com/learn/tutorials/topics/graphics/gentle-introduction-shaders
+
+
 Octane Renderer for Unity Integration
 --------------------------------------
 

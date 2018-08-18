@@ -18,6 +18,25 @@ Downloads "Epic Games Launcher.app"
 * https://answers.unrealengine.com/index.html
 
 
+glTF import from 4.19
+------------------------
+
+* https://forums.unrealengine.com/development-discussion/content-creation/1415582-the-new-gltf-import-supported-in-4-19-preview-is-awesome-experimentation
+
+
+Tutorial
+---------
+
+* https://www.raywenderlich.com/771-unreal-engine-4-tutorial-for-beginners-getting-started
+
+
+Linux
+--------
+
+* https://wiki.unrealengine.com/Building_On_Linux
+* https://wiki.unrealengine.com/index.php?title=Building_On_Centos
+* https://www.unixmen.com/linux-basics-install-centos-7-machine/
+
 History
 ----------
 
