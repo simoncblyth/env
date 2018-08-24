@@ -16,6 +16,63 @@ pragma once is non-standard
 * https://en.wikipedia.org/wiki/Pragma_once
 
 
+IDE
+-----
+
+* https://gitlab.com/cppit/jucipp
+* https://github.com/cppit/jucipp
+
+
+gcc programmatic backtrace
+----------------------------
+
+* https://panthema.net/2008/0901-stacktrace-demangled/
+* https://panthema.net/2008/0901-stacktrace-demangled/backtrace.3.html
+
+* https://stackoverflow.com/questions/36692315/what-exactly-does-rdynamic-do-and-when-exactly-is-it-needed
+
+* https://github.com/melintea/Boost-Call_stack
+
+* https://gcc.gnu.org/viewcvs/gcc/trunk/libbacktrace/
+
+
+execinfo.h backtrace backtrace_symbols
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.gnu.org/software/libc/manual/html_node/Backtraces.html
+
+* https://stackoverflow.com/questions/8132913/objective-c-command-line-clang-print-stack-trace
+
+
+See opticks/sysrap/SBacktrace.cc works : but not demangling properly 
+
+* :google:`clang execinfo.h backtrace`
+
+backtrace with file+linenos
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://stackoverflow.com/questions/15129089/is-there-a-way-to-dump-stack-trace-with-line-number-from-a-linux-release-binary
+
+
+
+lldb C++ API
+--------------
+
+* :google:`lldb/API/SB`
+
+* http://lldb.llvm.org/cpp_reference/html/annotated.html
+* http://llvm.org/svn/llvm-project/lldb/trunk/examples/lookup/main.cpp
+
+* https://code.woboq.org/llvm/lldb/examples/functions/main.cpp.html
+* https://github.com/cppit/jucipp/blob/924ccfc30da585c047b756813826a14efd5bc43e/src/debug.cc
+
+* https://stackoverflow.com/questions/19019330/do-i-need-to-build-lldb-locally-to-use-c-interface
+
+::
+
+   epsilon:tmp blyth$ svn co http://llvm.org/svn/llvm-project/lldb/trunk/ lldb 
+
+
 thread-safety reentrant 
 --------------------------
 
