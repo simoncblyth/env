@@ -1,0 +1,227 @@
+.. include:: <s5defs.txt>
+
+.. raw:: html
+
+    <style type="text/css">
+        span.alarm { color: red; }
+        span.warn { color: orange; }
+        span.ok { color: green; }
+        span.i { display: none; }
+        pre.sliteral { class:"literal-block small"; }
+        pre.mypre {
+             display: block;
+             font-family: monospace;
+             font-size: 20px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+        pre.mypre_tiny {
+             display: block;
+             font-family: monospace;
+             font-size: 15px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+
+
+    </style>
+
+
+
+Dayabay Database Experience 
+============================
+
+* Organization
+* Software Aspects 
+* Problems 
+
+  1. complicated indirect updating workflow
+  2. DBI overlay versioning (adding minutes) is a kludge  
+  3. big table : write performance ~linear decline as tables grow    
+  4. big table : corruption   
+
+
+|  Simon Blyth,  Sept 2018 
+
+
+
+Dayabay Database System : Organization
+-----------------------------------------------------------------
+
+.. class:: small
+
+   *offline_db* 
+      calibration and monitoring (HV, temp) tables 
+        
+   *tmp_username_offline_db*  
+      calibrators used their own DB to develop table updating code
+
+   *channelquality_db* 
+      started as tmp_ligs_offline_db, became important channelquality_db  
+ 
+      * tables escaped scrutiny 
+      * wasteful table structure (~200x bigger than necessary)
+
+
+.. class::tiny
+
+   http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/1347
+
+
+
+
+Dayabay Database System : Software
+-----------------------------------------------------------------
+
+.. class:: small
+
+    *DBI (C++, ROOT TSQL)*
+      inherited from MINOS, used with MySQL  
+
+    table spec auto generation (:red:`avoid handcrafting` when can generate)
+      * SQL, C++ row classes, python, documentation when spec file committed to SVN [1] [2]
+
+    *~/.my.cnf* ini-file access config 
+      * DBCONF envvar reference to ini-file section name (rather than juggling 3 envvars)
+      * simple change, makes MySQL+DBI easily accessible 
+      
+    python interface to all of DBI [3] 
+      * initially developed just for testing DBI, working with nosetests
+      * became standard way to access and update DB 
+      * python scripting convenience [4]
+
+    *db.py* script for DB operations (MySQLdb) [5]
+      * standard tool for DB operations
+
+    *dbsvn.py* SVN precommit hook [6]
+      * test dybaux ascii table updates, denies commit for FAILs 
+
+    extensive SOP documentation (Sphinx) 
+      * https://dayabay.bnl.gov/oum/sop/dbops/#objectives
+
+
+
+Dayabay Database System : Software 
+-----------------------------------------------------------------
+
+.. class:: small
+   
+   [1] http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/DybDbi/spec
+
+   [2] http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/DybDbi/cmt/requirements
+
+   [3] http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/DybDbi
+
+   [4] http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/DybPython/python/DybPython
+
+   [5] http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/DybPython/python/DybPython/db.py 
+
+   [6] http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/DybPython/python/DybPython/dbsvn.py
+
+
+
+
+Complicated Workflow (1)
+-------------------------
+
+.. image:: /env/presentation/sop_copy.png 
+   :width: 900px
+   :align: center
+
+
+Complicated Workflow (2)
+-------------------------
+
+.. image:: /env/presentation/sop_via_svn.png
+   :width: 900px
+   :align: center
+
+
+Problem 1 : Complicated Indirect Updating Workflow 
+-----------------------------------------------------
+
+
+.. class:: small
+
+   Late policy decision : **no direct DB updating** 
+
+   * :red:`used DBI unlike its designers (MINOS)` : who did direct updates 
+   * adhoc : indirect updating using Ascii catalogs + SVN 
+   * capabilities of the tools dictated the workflow, made it complicated 
+
+   **Lacked time to iterate on different implementations**
+
+   * indirect updating : difficult to make it easy  
+
+
+
+Indirect updating only : necessary/overcautions** ?  
+----------------------------------------------------------
+
+Stems from **no delete** principal, for **reproducibility**
+all prior states must be accessible via rollback 
+
+1. no deletion, only add
+2. updates are additions which override validity ranges 
+
+
+
+
+
+Problem 2 : DBI overlay versioning (adding minutes) is a kludge  
+------------------------------------------------------------------
+
+* DBI overlay versioning uses minute increment kludge,
+  a bug in this was found and a pragmatic workaround "fix" was made  
+
+  * http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/948
+  * https://dayabay.bnl.gov/oum/sop/overlayversioningbug/#sop-overlayversioningbug
+  * https://dayabay.bnl.gov/oum/sop/internals/
+  * BUG was due to not being explicit with ordering 
+
+Experience gained:
+
+* interval-of-validity code is complicated
+* better to find mature implementation from industry
+  (ie not "physicist" ~single author code like DBI) 
+* rolling your own would take a lot of effort
+
+Suggestion:
+
+* test real world scenarios of calibration overriding, 
+* study IOV implementation and try to break it with complicated
+  overriding  
+
+
+Other DBI Problems
+------------------------
+
+**LOCALSEQNO : Metadata table, couples all tables**
+
+* updates of multiple tables then need to be merged together
+* **avoid coupling between tables, even at metadata level** 
+
+
+
+
+Conclusion : Iterate on implentations + extreme testing necessary 
+-------------------------------------------------------------------
+
+
+Need to iterate at real data scale  
+
+1. define performance criteria 
+2. define updating workflow 
+3. **write SOP documentation**
+4. develop code to fulfil  
+5. :red:`mockup testing with Calibration experts`
+
+
+.. class:: tiny
+
+   SOP : Standard Operating Procedures
+
+
+
+
