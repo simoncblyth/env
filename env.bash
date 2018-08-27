@@ -2008,3 +2008,4 @@ usdz-(){      . $(env-home)/graphics/usdz/usdz.bash && usdz-env $* ; }
 theano-(){      . $(env-home)/numerics/theano/theano.bash && theano-env $* ; }
 gpufit-(){      . $(env-home)/fit/gpufit.bash && gpufit-env $* ; }
 hydra-(){      . $(env-home)/fit/hydra.bash && hydra-env $* ; }
+pifi-(){      . $(env-home)/opticks/pifi.bash && pifi-env $* ; }

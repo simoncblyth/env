@@ -20,6 +20,12 @@ Spelunking History
 * http://dayabay.ihep.ac.cn/DocDB/0062/006244/002/OfflineDBTutorial.pdf
 
 
+* http://dayabay.ihep.ac.cn/DocDB/0056/005642/001/IntroducingDybDBI.pdf
+* http://dayabay.ihep.ac.cn/DocDB/0052/005274/001/DBSetup.pdf
+
+Eliminate “source” duplication , standardizes DBI data objects / tables
+
+
 Best Sources
 -----------------
 

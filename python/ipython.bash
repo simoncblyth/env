@@ -6,7 +6,8 @@ ipython-vi(){      vi $(ipython-source) ; }
 ipython-profile-path(){ echo ~/.ipython/profile_$1/ipython_config.py ; }
 ipython-edit(){ vi $(ipython-profile-path $(ipython-profile)) ;} 
 #ipython-profile(){ echo g4dae ; }
-ipython-profile(){ echo g4opticks ; }
+#ipython-profile(){ echo g4opticks ; }
+ipython-profile(){ echo default ; }
 
 ipython-nb(){
     chroma-
@@ -19,6 +20,53 @@ ipython-usage(){ cat << EOU
 
 IPYTHON
 ========
+
+
+
+debug ipython environment
+---------------------------
+
+::
+
+    epsilon:~ blyth$ ipython --log-level=DEBUG 
+    [TerminalIPythonApp] IPYTHONDIR set to: /Users/blyth/.ipython
+    [TerminalIPythonApp] Using existing profile dir: u'/Users/blyth/.ipython/profile_default'
+    [TerminalIPythonApp] Searching path [u'/Users/blyth', u'/Users/blyth/.ipython/profile_default', '/usr/local/etc/ipython', '/etc/ipython'] for config files
+    [TerminalIPythonApp] Attempting to load config file: ipython_config.py
+    [TerminalIPythonApp] Looking for ipython_config in /etc/ipython
+    [TerminalIPythonApp] Looking for ipython_config in /usr/local/etc/ipython
+    [TerminalIPythonApp] Looking for ipython_config in /Users/blyth/.ipython/profile_default
+    [TerminalIPythonApp] Loaded config file: /Users/blyth/.ipython/profile_default/ipython_config.py
+    [TerminalIPythonApp] Looking for ipython_config in /Users/blyth
+
+    [TerminalIPythonApp] Loading IPython extensions...
+    [TerminalIPythonApp] Loading IPython extension: storemagic
+    [TerminalIPythonApp] Running code from IPythonApp.exec_lines...
+    [TerminalIPythonApp] Running code in user namespace: 
+    [TerminalIPythonApp] Running code in user namespace: import os, sys, logging
+    [TerminalIPythonApp] Running code in user namespace: log = logging.getLogger(__name__)
+    [TerminalIPythonApp] Running code in user namespace: import numpy as np
+    [TerminalIPythonApp] Running code in user namespace: import matplotlib.pyplot as plt
+    [TerminalIPythonApp] Running code in user namespace: from mpl_toolkits.mplot3d import Axes3D
+    [TerminalIPythonApp] Running code in user namespace: 
+    [TerminalIPythonApp] Running code in user namespace: sys.path.append(os.path.expanduser("~"))
+    [TerminalIPythonApp] Running code in user namespace: 
+    [TerminalIPythonApp] Running code in user namespace: from opticks.ana.base import opticks_main
+    [TerminalIPythonApp] Running code in user namespace: ok = opticks_main()
+    args: /opt/local/bin/ipython --log-level=DEBUG
+    [TerminalIPythonApp] Running code in user namespace: 
+    [TerminalIPythonApp] Running code in user namespace: from opticks.ana.histype import HisType
+    [TerminalIPythonApp] Running code in user namespace: 
+    [TerminalIPythonApp] Running code in user namespace: #np.set_printoptions(suppress=True, precision=3)
+    [TerminalIPythonApp] Running code in user namespace: # sqlite3 database querying into ndarray
+    [TerminalIPythonApp] Running code in user namespace: #from  _npar import npar as q 
+    [TerminalIPythonApp] Running code in user namespace: #logging.basicConfig(level=logging.INFO)
+    [TerminalIPythonApp] Running code in user namespace: 
+    [TerminalIPythonApp] Starting IPython's mainloop...
+
+    In [1]:    
+
+
 
 profiles
 ---------

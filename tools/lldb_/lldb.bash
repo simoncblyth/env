@@ -21,6 +21,175 @@ Breakpoints
 
 
 
+
+Batch Mode one liners
+----------------------
+
+Source list from backtrace address 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    PATH=/usr/bin lldb $(which CerenkovMinimal) -o "source list -a 0x10002160e"  --batch
+
+
+See::
+
+    lldb --help
+
+The PATH is set to avoid having macports python in the PATH which gives an error
+"ImportError: cannot import name _remove_dead_weakref"::
+
+    epsilon:~ blyth$ PATH=/usr/bin lldb $(which CerenkovMinimal) -o "source list -a 0x10002160e"  --batch
+
+    (lldb) target create "/usr/local/opticks/lib/CerenkovMinimal"
+    Current executable set to '/usr/local/opticks/lib/CerenkovMinimal' (x86_64).
+    (lldb) source list -a 0x10002160e
+    /usr/local/opticks/lib/CerenkovMinimal`L4Cerenkov::PostStepDoIt(G4Track const&, G4Step const&) + 2683 at /Users/blyth/opticks/examples/Geant4/CerenkovMinimal/L4Cerenkov.cc:352
+       341 	#ifdef WITH_OPTICKS_ALIGN
+       342 	        G4Opticks::GetOpticks()->setAlignIndex(i); 
+       343 	#endif
+       344 	
+       345 			G4double rand;
+       346 			G4double sampledEnergy, sampledRI; 
+       347 			G4double cosTheta, sin2Theta;
+       348 			
+       349 			// sample an energy
+       350 	
+       351 			do {
+    -> 352 				rand = G4UniformRand();	
+       353 				sampledEnergy = Pmin + rand * dp; 
+       354 				sampledRI = Rindex->Value(sampledEnergy);
+       355 				cosTheta = BetaInverse / sampledRI;  
+       356 	
+       357 				sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta);
+    epsilon:~ blyth$ 
+
+
+
+
+
+Source list
+-------------
+
+* https://stackoverflow.com/questions/18112842/how-can-i-find-the-address-of-a-stack-trace-in-lldb-for-ios  
+
+::
+
+   (lldb) source list -a 0x000000010b99b2c2
+
+
+    ::
+
+    (lldb) p (char*)main
+    (char *) $6 = 0x0000000100011970 "UH\xffffff89\xffffffe5H\xffffff81\xffffffec\xffffff90\x01"
+    (lldb) source list -a 0x0000000100011970
+    /usr/local/opticks/lib/CerenkovMinimal`main at /Users/blyth/opticks/examples/Geant4/CerenkovMinimal/CerenkovMinimal.cc:6
+    -> 6   	{
+       7   	    OPTICKS_LOG(argc, argv); 
+       8   	
+       9   	    CMixMaxRng mmr;  // switch engine to a instrumented shim, to see the random stream
+       10  	
+       11  	    G4 g(1) ; 
+    (lldb) 
+
+::
+
+    (lldb) source list -a (char*)main+552
+    /usr/local/opticks/lib/CerenkovMinimal`main + 552 at /Users/blyth/opticks/examples/Geant4/CerenkovMinimal/CerenkovMinimal.cc:11
+       3   	#include "CMixMaxRng.hh"
+       4   	
+       5   	int main(int argc, char** argv)
+       6   	{
+       7   	    OPTICKS_LOG(argc, argv); 
+       8   	
+       9   	    CMixMaxRng mmr;  // switch engine to a instrumented shim, to see the random stream
+       10  	
+    -> 11  	    G4 g(1) ; 
+       12  	    return 0 ; 
+       13  	}
+       14  	
+       15  	
+    (lldb) 
+
+
+Seems that the address incorporates the offset already::
+
+    8   libG4event.dylib                    0x00000001022c571a G4EventManager::DoProcessing(G4Event*)                                                               + 3306     
+    9   libG4event.dylib                    0x00000001022c6c2f G4EventManager::ProcessOneEvent(G4Event*)                                                            + 47       
+    10  libG4run.dylib                      0x00000001021d29f5 G4RunManager::ProcessOneEvent(int)                                                                   + 69       
+    11  libG4run.dylib                      0x00000001021d2825 G4RunManager::DoEventLoop(int, char const*, int)                                                     + 101      
+    12  libG4run.dylib                      0x00000001021d0ce1 G4RunManager::BeamOn(int, char const*, int)                                                          + 193      
+    13  CerenkovMinimal                     0x0000000100032dcd G4::beamOn(int)                                                                                      + 45       
+    14  CerenkovMinimal                     0x0000000100032c77 G4::G4(int)                                                                                          + 1015     
+    15  CerenkovMinimal                     0x0000000100032dfb G4::G4(int)                                                                                          + 27       
+    16  CerenkovMinimal                     0x0000000100011ba2 main + 562
+    17  libdyld.dylib                       0x00007fff7acac015 start + 1
+
+
+
+/tmp/simstream.txt::
+
+    30 :   0.406647 :      + 2662 L4Cerenkov::PostStepDoIt(G4Track const&, G4Step const&)
+    31 :   0.490262 :      + 2883 L4Cerenkov::PostStepDoIt(G4Track const&, G4Step const&)
+    32 :   0.671936 :      + 2978 L4Cerenkov::PostStepDoIt(G4Track const&, G4Step const&)
+
+    (lldb) b "L4Cerenkov::PostStepDoIt(G4Track const&, G4Step const&)"
+    Breakpoint 1: where = CerenkovMinimal`L4Cerenkov::PostStepDoIt(G4Track const&, G4Step const&) + 27 at L4Cerenkov.cc:197, address = 0x0000000100020bbb
+    (lldb) 
+
+
+    (lldb) source list -a 0x0000000100020bbb
+    /usr/local/opticks/lib/CerenkovMinimal`L4Cerenkov::PostStepDoIt(G4Track const&, G4Step const&) + 27 at /Users/blyth/opticks/examples/Geant4/CerenkovMinimal/L4Cerenkov.cc:197
+       188 	// segment and uniformly azimuth w.r.t. the particle direction. The 
+       189 	// parameters are then transformed into the Master Reference System, and 
+       190 	// they are added to the particle change. 
+       191 	
+       192 	{
+       193 		//////////////////////////////////////////////////////
+       194 		// Should we ensure that the material is dispersive?
+       195 		//////////////////////////////////////////////////////
+       196 	
+    -> 197 	        aParticleChange.Initialize(aTrack);
+       198 	
+       199 	        const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
+       200 	        const G4Material* aMaterial = aTrack.GetMaterial();
+       201 	
+       202 		G4StepPoint* pPreStepPoint  = aStep.GetPreStepPoint();
+    (lldb) 
+
+
+image lookup
+---------------
+
+
+::
+
+    (lldb) image lookup -v --address 0x0000000100020bbb
+          Address: CerenkovMinimal[0x0000000100020bbb] (CerenkovMinimal.__TEXT.__text + 62027)
+          Summary: CerenkovMinimal`L4Cerenkov::PostStepDoIt(G4Track const&, G4Step const&) + 27 at L4Cerenkov.cc:197
+           Module: file = "/usr/local/opticks/lib/CerenkovMinimal", arch = "x86_64"
+      CompileUnit: id = {0x00000000}, file = "/Users/blyth/opticks/examples/Geant4/CerenkovMinimal/L4Cerenkov.cc", language = "c++"
+         Function: id = {0x400059edd}, name = "PostStepDoIt", range = [0x0000000100020ba0-0x0000000100022033)
+         FuncType: id = {0x400059edd}, decl = L4Cerenkov.hh:129, compiler_type = "class G4VParticleChange *(const class G4Track &, const class G4Step &)"
+           Blocks: id = {0x400059edd}, range = [0x100020ba0-0x100022033)
+        LineEntry: [0x0000000100020bbb-0x0000000100020bc2): /Users/blyth/opticks/examples/Geant4/CerenkovMinimal/L4Cerenkov.cc:197:9
+           Symbol: id = {0x000003db}, range = [0x0000000100020ba0-0x0000000100022040), name="L4Cerenkov::PostStepDoIt(G4Track const&, G4Step const&)", mangled="_ZN10L4Cerenkov12PostStepDoItERK7G4TrackRK6G4Step"
+         Variable: id = {0x400059ef7}, name = "this", type = "L4Cerenkov *", location =  DW_OP_fbreg(-104), decl = 
+         Variable: id = {0x400059f05}, name = "aTrack", type = "const G4Track &", location =  DW_OP_fbreg(-112), decl = L4Cerenkov.cc:183
+         Variable: id = {0x400059f14}, name = "aStep", type = "const G4Step &", location =  DW_OP_fbreg(-120), decl = L4Cerenkov.cc:183
+         Variable: id = {0x400059f23}, name = "aParticle", type = "const G4DynamicParticle *", location =  DW_OP_fbreg(-128), decl = L4Cerenkov.cc:199
+         Variable: id = {0x400059f32}, name = "aMaterial", type = "const G4Material *", location =  DW_OP_fbreg(-136), decl = L4Cerenkov.cc:200
+         Variable: id = {0x400059f41}, name = "pPreStepPoint", type = "G4StepPoint *", location =  DW_OP_fbreg(-144), decl = L4Cerenkov.cc:202
+
+
+
+
+
+
+
+
+
 adding python breakpoint func
 --------------------------------
 
@@ -250,4 +419,14 @@ lldb-i(){
    /usr/bin/python -i standalone.py
 
 }
+
+
+lldb-ckm()
+{
+    local addr=${1:-0x10002160e}
+    PATH=/usr/bin lldb $(which CerenkovMinimal) -o "source list -a $addr -c 5"  --batch
+}
+
+
+
 
