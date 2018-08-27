@@ -66,17 +66,43 @@ Enabling the usage of embedded Opticks to be simple, self-contained and minimali
 is what motivated the development of the direct geometry translation approach. 
 
 
-Two executable validation structure
--------------------------------------
 
+Best of both worlds validation structure
+-----------------------------------------
 
+Gensteps, ie optical photon producing steps of other particles, are a fundamental part of 
+how Opticks operates, they represent the state of the Cerenkov and scintillation processes 
+just prior to the photon generation loop.  Persisting gensteps allows photons to be 
+generated on the GPU and following implementation of Geant4 Cerenkov and Scintillation 
+"generators" that read gensteps it becomes possible for the same photons to be reproduced by Geant4 
+in a separate executable.
 
-
-
-
-
-
+Direct geometry translation together with geometry caching and persisting 
+of gensteps allows adoption of a best of both worlds approach 
+where two executables share a common geocache and gensteps which allows 
+them to have duplicated optical photon generation and propagation.
  
+The first executable can be anything from a simple Geant4 example to a full detector simulation application 
+with the minimal addition of embedded Opticks. 
+The second executable is a fully enabled Opticks executable with Geant4 embedded inside it, 
+providing fully instrumented optical photon propagation of both the Geant4 simulation on CPU 
+and the Opticks simulation on GPU,  with all photon parameters 
+recorded at every step. Both propagations are recorded into OpticksEvent format 
+files ready for NumPy based analysis.
+
+As the second executable only simulates optical photons the Geant4 consumption of 
+random numbers is much simpler than in the full physics case of the first executable. 
+As all consumption of random numbers can be matched with corresponding consumption in 
+the GPU simulation, it becomes feasible to develop an aligned GPU simulation such 
+that every scatter, absorption, reemission, reflection or refraction occurs
+with matched positions, times and polarizations. 
+
+Although it is technically difficult to keep two different simulation implementations aligned, 
+requiring some trickery such as burning random numbers and jump backs there is a substantial payoff 
+in that validation then becomes the simplest possible, unobscured by statistical fluctuations.
+Another advantage with the expectation of perfect matcing is that problems can be isolated  
+to the photon step level immediately that they occur.
+
 
 Summary
 -----------
@@ -88,6 +114,5 @@ my work plan these enhancements greatly simplify and add new possibilites in all
 By adopting a user centric perspective from the outset my work has been guided by what is 
 needed to meet the urgent need to integrate GPU accelerated optical photon propagation 
 with the JUNO simulation framework, bringing unprecedented performance to JUNO simulation.
-
 
 
