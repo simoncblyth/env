@@ -2009,3 +2009,5 @@ theano-(){      . $(env-home)/numerics/theano/theano.bash && theano-env $* ; }
 gpufit-(){      . $(env-home)/fit/gpufit.bash && gpufit-env $* ; }
 hydra-(){      . $(env-home)/fit/hydra.bash && hydra-env $* ; }
 pifi-(){      . $(env-home)/opticks/pifi.bash && pifi-env $* ; }
+mcmc-(){      . $(env-home)/numerics/mcmc/mcmc.bash && mcmc-env $* ; }
+rng-(){      . $(env-home)/numerics/rng/rng.bash && rng-env $* ; }

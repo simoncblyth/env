@@ -10,6 +10,13 @@ NVIDIA
 ========
 
 
+vGPU : Quadro vDWS (Quadro Virtual Data Center Workstation) : required for CUDA
+----------------------------------------------------------------------------------
+
+See vgpu-
+
+
+
 Issue : disabling G-SYNC gives black screen, reboot doesnt fix
 ----------------------------------------------------------------
 
