@@ -33,8 +33,9 @@ env-cls(){
     local h=$(find $base -name "$name.h")
     local hh=$(find $base -name "$name.hh")
     local cc=$(find $base -name "$name.cc")
+    local cxx=$(find $base -name "$name.cxx")
     local icc=$(find $base -name "$name.icc")
-    local vcmd="vi -R $h $hh $icc $cc "
+    local vcmd="vi -R $h $hh $icc $cc $cxx"
     echo $vcmd
     eval $vcmd
 }

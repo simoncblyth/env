@@ -38,9 +38,10 @@ Dayabay Database Experience
 
   1. complicated indirect updating workflow
   2. DBI overlay versioning (adding minutes) is a kludge  
-  3. big table : write performance ~linear decline as tables grow    
-  4. big table : corruption   
-
+  3. DBI large table write performance ~linear decline as tables grow    
+  4. DBI large table corruption   
+  5. DB backup system lacking
+  6. DBI metadata table coupling  
 
 |  Simon Blyth,  Sept 2018 
 
@@ -49,12 +50,34 @@ Dayabay Database Experience
 Dayabay Database System : Organization
 -----------------------------------------------------------------
 
+.. sidebar:: Retrospective
+
+   .. class:: small
+
+      *offline_db*
+
+      * monitoring tables should probably be in separate DB, 
+        due to very different usage : auto-updated 
+
+      *tmp_USERNAME_offline_db* 
+ 
+      * lived too long : not temporary as intended  
+      * BETTER : *tmp_2cc0b5b1262a* 
+
+        * avoid "ownership" 
+        * temporary focussed on making a single update    
+
+      * MyISAM/InnoDB : needs informed choice 
+     
+
 .. class:: small
+
+   MySQL DB with MyISAM engine 
 
    *offline_db* 
       calibration and monitoring (HV, temp) tables 
         
-   *tmp_username_offline_db*  
+   *tmp_USERNAME_offline_db*  
       calibrators used their own DB to develop table updating code
 
    *channelquality_db* 
@@ -74,6 +97,28 @@ Dayabay Database System : Organization
 Dayabay Database System : Software
 -----------------------------------------------------------------
 
+
+.. sidebar:: Retrospective
+
+   .. class:: small
+
+
+      Table generation, DBCONF, python interface to DBI, Sphinx 
+      documentation :      
+
+      * all worked well
+
+      DBI:
+
+      * large table write performance issue : covered later 
+
+      Workflow tools, db.py dbsvn.py
+
+      * tools worked well
+      * problem was **the workflow**  
+
+  
+
 .. class:: small
 
     *DBI (C++, ROOT TSQL)*
@@ -87,7 +132,7 @@ Dayabay Database System : Software
       * simple change, makes MySQL+DBI easily accessible 
       
     python interface to all of DBI [3] 
-      * initially developed just for testing DBI, working with nosetests
+      * developed for convenient python testing of DBI (nosetests)
       * became standard way to access and update DB 
       * python scripting convenience [4]
 
@@ -120,6 +165,54 @@ Dayabay Database System : Software
    [6] http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/DybPython/python/DybPython/dbsvn.py
 
 
+Problem 1 : Complicated Indirect Updating Workflow 
+-----------------------------------------------------
+
+
+.. sidebar:: Possible simpler workflow
+
+    .. class:: small
+
+        Direct, stay on server:
+
+        * *offline_db* -> *tmp_USERNAME_offline_db* 
+        * *tmp_USERNAME_offline_db* -> *offline_db* 
+
+        * cascading :red:`tmp DB with empty tables` ? So just update additions written to tmp     
+
+        * BUT: no "audit trail", SVN record of commits, Trac web interface
+
+          * would need to implement update metadata recording web interface
+
+        * ALSO: more load on server, less safe 
+        * :red:`critically depends on the cascading implementation`
+
+
+.. class:: small
+
+   Policy decision : **no direct DB updating** from calibrators
+
+   * :red:`used DBI unlike its designers (MINOS)` : who did direct updates 
+   * adhoc : indirect updating using Ascii catalogs + SVN 
+   * capabilities of the tools dictated the workflow, made it complicated 
+   * **Lacked time to iterate on different implementations**
+   * indirect updating : difficult to make easy, as :red:`too many elements`  
+
+   **Approach taken**
+
+   1. copy relevant *offline_db* tables to *tmp_USERNAME_offline_db*
+      (using *db.py* which does mysqldump/load)
+   2. calibrator makes updates into *tmp_USERNAME_offline_db*
+   3. DBI cascading allows *tmp_USERNAME_offline_db;offline_db* to be seen as one, 
+      enabling full testing of the update
+   4. export the changed tables from *tmp_USERNAME_offline_db* into an Ascii CSV catalog 
+      directory structure that is shared using SVN dybaux repository 
+   5. commit the SVN update into dybaux repository (only added table rows thanks to SVN delta-ing)
+
+      * SVN precommit hook does some limited automated tests of validity 
+
+   6. DB Manager Liang verifies update and propagates to *offline_db*
+
 
 
 Complicated Workflow (1)
@@ -138,84 +231,317 @@ Complicated Workflow (2)
    :align: center
 
 
-Problem 1 : Complicated Indirect Updating Workflow 
------------------------------------------------------
+Indirect updating ?  Necessary OR overcautions ?  
+----------------------------------------------------------
+
+.. class:: small
+
+    Stems from **no delete** principal, for **reproducibility**
+    all prior states must be accessible via rollback 
+
+    1. no deletion, only add
+    2. updates are additions which override validity ranges 
+
+    **Indirect updating : requires Database cascading**
+
+    * DB cascading : **not a common feature and not easy to implement**
+    * just copying DB subset not practical at JUNO scale 
+
+    **My Opinion : its necessary**
+
+    * calibration mistakes that got into DB happened several times : forcing expensive reprocessing, delays 
+    * making it too easy to make DB updates is a mistake
+
+    * routine calibrations typically not problematic as automated 
+    * non-routine calibration update (eg preparing for reprocessing) needs:
+
+    * extensive testing 
+
+      * development of calibration tests must be an integral path of development of 
+        calibration procedures 
+
+    * metadata explaining the update, code versions, document references etc..
+
+    
+
+DB Updating Objectives 
+---------------------------
+
+* https://dayabay.bnl.gov/oum/sop/dbops/#objectives
+
+.. image:: /env/presentation/db_objectives.png
+   :width: 900px
+   :align: center
 
 
 .. class:: small
 
-   Late policy decision : **no direct DB updating** 
-
-   * :red:`used DBI unlike its designers (MINOS)` : who did direct updates 
-   * adhoc : indirect updating using Ascii catalogs + SVN 
-   * capabilities of the tools dictated the workflow, made it complicated 
-
-   **Lacked time to iterate on different implementations**
-
-   * indirect updating : difficult to make it easy  
+    * **should not make it too easy to make calibration updates : they can have big consequences : reprocessing, delays**
 
 
 
-Indirect updating only : necessary/overcautions** ?  
-----------------------------------------------------------
+:small:`Problem 2 : DBI overlay versioning (adding minutes) is a kludge`  
+--------------------------------------------------------------------------
 
-Stems from **no delete** principal, for **reproducibility**
-all prior states must be accessible via rollback 
+.. class:: small
 
-1. no deletion, only add
-2. updates are additions which override validity ranges 
+    * DBI overlay versioning uses minute increment kludge,
+      a bug in this was found and a pragmatic workaround "fix" was made  
 
+      * http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/948
+      * https://dayabay.bnl.gov/oum/sop/overlayversioningbug/#sop-overlayversioningbug
+      * https://dayabay.bnl.gov/oum/sop/internals/
+      * BUG was due to not being explicit with ordering 
 
+    Experience gained:
 
+    * interval-of-validity code is complicated
+    * better to find mature implementations
+    * rolling your own would take a lot of effort
 
+    Suggestion:
 
-Problem 2 : DBI overlay versioning (adding minutes) is a kludge  
-------------------------------------------------------------------
+    * test real world scenarios of calibration overriding, 
+    * study IOV implementation and try to break it with complicated
+      overriding  
 
-* DBI overlay versioning uses minute increment kludge,
-  a bug in this was found and a pragmatic workaround "fix" was made  
-
-  * http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/948
-  * https://dayabay.bnl.gov/oum/sop/overlayversioningbug/#sop-overlayversioningbug
-  * https://dayabay.bnl.gov/oum/sop/internals/
-  * BUG was due to not being explicit with ordering 
-
-Experience gained:
-
-* interval-of-validity code is complicated
-* better to find mature implementation from industry
-  (ie not "physicist" ~single author code like DBI) 
-* rolling your own would take a lot of effort
-
-Suggestion:
-
-* test real world scenarios of calibration overriding, 
-* study IOV implementation and try to break it with complicated
-  overriding  
-
-
-Other DBI Problems
-------------------------
-
-**LOCALSEQNO : Metadata table, couples all tables**
-
-* updates of multiple tables then need to be merged together
-* **avoid coupling between tables, even at metadata level** 
+    * :red:`develop policies on IOV time overlaying + tests to ensure they are followed` 
+    
+      * ie how to set validity time ranges, version date to override a bad calibration
 
 
 
+DBI Validity + Payload Tables
+--------------------------------
 
-Conclusion : Iterate on implentations + extreme testing necessary 
--------------------------------------------------------------------
+.. sidebar:: Simplification Dangerous  
+
+    * all the context : needed by DBI
+    * all the dates : needed by DBI
+
+    **Any simplification**
+
+    * needs very careful testing
+    * input from experienced calibrators (eg Pedro)
+
+.. class:: small
+
+    * Four *datetime* : **all needed**
+
+      * *VERSIONDATE* became more a VERSION than a DATE 
+      * *INSERTDATE* true insertion date into "this" DB 
+
+        * needs "fastforwarding" to truth with indirect updating 
+        * **USED BY ROLLBACK**
+
+    * lots of context : SIMMASK, SUBSITE, TASK : **all needed**
 
 
-Need to iterate at real data scale  
+.. raw:: html 
 
-1. define performance criteria 
-2. define updating workflow 
-3. **write SOP documentation**
-4. develop code to fulfil  
-5. :red:`mockup testing with Calibration experts`
+    <pre class="mypre_tiny">
+
+    mysql> describe CableMapVld ;
+    +-------------+------------+------+-----+---------+----------------+
+    | Field       | Type       | Null | Key | Default | Extra          |
+    +-------------+------------+------+-----+---------+----------------+
+    | SEQNO       | int(11)    | NO   | PRI | NULL    | auto_increment |
+    | TIMESTART   | datetime   | NO   |     |         |                |
+    | TIMEEND     | datetime   | NO   |     |         |                |
+    | SITEMASK    | tinyint(4) | YES  |     | NULL    |                |
+    | SIMMASK     | tinyint(4) | YES  |     | NULL    |                |
+    | SUBSITE     | int(11)    | YES  |     | NULL    |                |
+    | TASK        | int(11)    | YES  |     | NULL    |                |
+    | AGGREGATENO | int(11)    | YES  |     | NULL    |                |
+    | VERSIONDATE | datetime   | NO   |     |         |                |
+    | INSERTDATE  | datetime   | NO   |     |         |                |
+    +-------------+------------+------+-----+---------+----------------+
+    10 rows in set (0.00 sec)
+
+    mysql> describe CableMap ;
+    +-------------+---------+------+-----+---------+-------+
+    | Field       | Type    | Null | Key | Default | Extra |
+    +-------------+---------+------+-----+---------+-------+
+    | SEQNO       | int(11) | NO   | PRI |         |       |
+    | ROW_COUNTER | int(11) | NO   | PRI |         |       |
+    | SENSORID    | int(11) | YES  |     | NULL    |       |
+    | CHANNELID   | int(11) | YES  |     | NULL    |       |
+    +-------------+---------+------+-----+---------+-------+
+    4 rows in set (0.02 sec)
+
+    </pre> 
+
+
+:small:`Problem 3 : DBI large table writes :  ~linear decline as tables grow`
+----------------------------------------------------------------------------------------    
+
+.. image:: /env/presentation/dbi_write_decline_2.png
+   :width: 800px
+   :align: left
+
+.. class:: tiny 
+
+    Each point corresponds to 1000 SEQNO chunks. The time to write a chunk of 1000 SEQNO to a DBI table 
+    is shown to increase all the way from ~10 seconds for the first chunk up to ~600 seconds for the last chunk starting 
+    at SEQNO 389000.  http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/1347
+
+.. class:: small
+
+    **Need to test performance progression as tables grow**
+
+
+
+:small:`Problem 4 : DBI large table corruption incident`
+----------------------------------------------------------------------------------------    
+
+.. sidebar:: Retrospective 
+
+    .. class:: small
+
+        Do not write more than necessary
+
+        * compress as much as possible 
+        * table schema SQL must be vetted 
+
+        Develop backup systems + test them to 
+        avoid doing corruption recovery 
+
+        * practice recovery from backup 
+
+        Multi-GB DB very different to small ones
+
+        * need different tools
+
+
+.. class:: small
+
+    Corruption incident tmp_ligs_offline_db timeline
+ 
+    * 5 painful weeks in 2013
+    * https://dayabay.bnl.gov/oum/aop/dbrepair/history/
+
+    Lessons from MySQL corruption incident
+
+    * https://dayabay.bnl.gov/oum/aop/dbrepair/lessons/
+
+.. image:: /env/presentation/corruption_incident.png
+   :width: 900px
+   :align: center
+
+
+
+:small:`Problem 5 : backup system lacking`
+---------------------------------------------
+
+.. sidebar::  Retrospective
+
+    .. class:: small
+
+       * best practice DB backup procedures should be followed
+       * needs to be formalized, handled by permanent staff  
+       * needs regular testing 
+       * people working on DB need easy access to backups   
+
+
+.. class:: small 
+
+   **System level backups** 
+
+   * file systems copies : do not lock DB 
+   * no easy access to backups
+   * no procedure to test backups 
+   * --> no confidence in the backups 
+
+   **Adhoc mysqldump backup**
+
+   * cron job controlled *offline_db* backup to Taiwan 
+
+     * ran daily for several years 
+     * daily recovery into *offline_db* in Taiwan 
+
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/env/src/default/db/db.bash
+
+
+
+
+
+:small:`Problem 6 : DBI LOCALSEQNO metadata tables : couples all tables together`  
+-----------------------------------------------------------------------------------
+
+
+.. sidebar:: Retrospective
+
+    .. class:: small
+
+        * **avoid coupling between tables, even at metadata level** 
+
+
+.. class:: small
+
+    Forces merging of updates into the global table. 
+
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+
+    mysql> select * from LOCALSEQNO ; 
+    +-------------------------+---------------+
+    | TABLENAME               | LASTUSEDSEQNO |
+    +-------------------------+---------------+
+    | *                       |             0 |
+    | CalibFeeSpec            |           113 |
+    | CalibPmtSpec            |           714 |
+    | FeeCableMap             |             3 |
+    | HardwareID              |           386 |
+    | CableMap                |           509 |
+    | Reactor                 |          1944 |
+    | CoordinateAd            |             1 |
+    | CoordinateReactor       |             2 |
+    | CalibPmtHighGain        |          1268 |
+    | CalibPmtPedBias         |             1 |
+    | EnergyRecon             |         14408 |
+    | CalibPmtFineGain        |         62144 |
+    | CalibPmtTiming          |          4305 |
+    | AdWpHvMap               |            22 |
+    | AdWpHvSetting           |            59 |
+    | AdWpHvToFee             |             8 |
+    | DqChannelPacked         |       1942661 |
+    | GoodRunList             |            16 |
+    | McsPos                  |          1755 |
+    | PhysAd                  |             8 |
+    | SingleChannelElecNLCorr |            16 |
+    | EnergyReconNL           |            32 |
+    +-------------------------+---------------+
+    23 rows in set (0.00 sec)
+
+    </pre> 
+
+
+
+
+:small:`Conclusion : real scale testing required : as interate on developing the system`
+-------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    1. define performance criteria 
+    2. define updating workflow 
+    3. **write SOP documentation**
+    4. develop code to fulfil  
+    5. :red:`mock calibration update testing working with Calibration experts`
+    6. automated monitoring of resource usage, develop metrics that can be compared between implementations:
+
+       * network accesses 
+       * cache hit/miss at multiple levels
+
+       Examples:
+
+       * "validity cache" at job level : should not be hitting network for every event 
+       * "query cache" : should not be hitting database for every query  
 
 
 .. class:: tiny
