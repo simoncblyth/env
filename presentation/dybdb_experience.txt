@@ -523,7 +523,7 @@ DBI Validity + Payload Tables
 
 
 
-:small:`Conclusion : real scale testing required : as interate on developing the system`
+:small:`Conclusion : real scale testing required : as iterate on developing the system`
 -------------------------------------------------------------------------------------------
 
 .. class:: small

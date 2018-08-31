@@ -1,7 +1,10 @@
-func-src(){      echo base/func.bash ; }
-func-source(){   echo ${BASH_SOURCE:-$(env-home)/$(func-src)} ; }
-func-vi(){       vi $(func-source) ; }
-func-env(){      elocal- ; }
+func-source(){   echo ${BASH_SOURCE} ; }
+func-edir(){ echo $(dirname $(func-source)) ; }
+func-ecd(){  cd $(func-edir); }
+func-dir(){  echo $LOCAL_BASE/env/base ; }
+func-cd(){   cd $(func-dir); }
+func-vi(){   vi $(func-source) ; }
+func-env(){  elocal- ; }
 func-usage(){ cat << EOU
 
 
@@ -10,9 +13,6 @@ func-usage(){ cat << EOU
 
 EOU
 }
-func-dir(){ echo $(local-base)/env/heading/heading-func ; }
-func-cd(){  cd $(func-dir); }
-func-mate(){ mate $(func-dir) ; }
 func-get(){
    local dir=$(dirname $(func-dir)) &&  mkdir -p $dir && cd $dir
 
@@ -83,10 +83,16 @@ func-gen-(){
   local fgh=$(func-gen-heading $*)
   local fgr0=${fgr:0:1}   ## first char of repo name
 
-  echo \# $msg $* fgp $fgp fgn $fgn fgh $fgh
+  local h=$(${fgr}-home)
+  local s=$(func-source)
+  local src=${s/$h\/}   
+  local sdir=$(dirname $src)  
+
+  echo \# $msg $* fgp $fgp fgn $fgn fgh $fgh src $src
 
   head -$(func-end-template) $(func-source) \
-         | perl -p -e "s,$(func-src),$fgp," - \
+         | perl -p -e "s,$src,$fgp," - \
+         | perl -p -e "s,$sdir,$fgh/$fgn," - \
          | perl -p -e "s,func,$fgn,g" - \
          | perl -p -e "s,env-home,$fgr-home,g" - \
          | perl -p -e "s,/env,/$fgr,g" - \

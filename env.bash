@@ -2012,3 +2012,5 @@ hydra-(){      . $(env-home)/fit/hydra.bash && hydra-env $* ; }
 pifi-(){      . $(env-home)/opticks/pifi.bash && pifi-env $* ; }
 mcmc-(){      . $(env-home)/numerics/mcmc/mcmc.bash && mcmc-env $* ; }
 rng-(){      . $(env-home)/numerics/rng/rng.bash && rng-env $* ; }
+rust-(){      . $(env-home)/rust/rust.bash && rust-env $* ; }
+bwasty-(){      . $(env-home)/graphics/gltf/viewer/bwasty.bash && bwasty-env $* ; }
