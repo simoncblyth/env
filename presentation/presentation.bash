@@ -921,8 +921,14 @@ opticks_gpu_optical_photon_simulation_nov2016_llr  (32 pages, ~30 min)
 EOU
 }
 presentation-dir(){ echo $(env-home)/presentation ; }
+presentation-bdir(){ echo $HOME/simoncblyth.bitbucket.io/env/presentation ; }
+
 presentation-c(){   cd $(presentation-dir); }
 presentation-cd(){  cd $(presentation-dir); }
+
+presentation-b(){   cd $(presentation-bdir); }
+presentation-bcd(){  cd $(presentation-bdir); }
+
 
 presentation-ls(){   presentation-cd ; ls -1t *.txt ; }
 presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
@@ -947,7 +953,9 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_ihep ; }
-presentation-name(){ echo dybdb_experience ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2018_qingdao ; }
+#presentation-name(){ echo dybdb_experience ; }
+#presentation-name(){ echo opticks.key ; }
 
 
 presentation-info(){ cat << EOI
@@ -957,6 +965,7 @@ presentation-info(){ cat << EOI
     presentation-url-remote  : $(presentation-url-remote)
     presentation-url-local   : $(presentation-url-local)
     presentation-dir         : $(presentation-dir)
+    presentation-bdir        : $(presentation-bdir)
 
 
 EOI

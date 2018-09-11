@@ -10,6 +10,30 @@ NVIDIA VGPU
 
 
 
+VMware and NVIDIA announced at VMworld 2018 today a technology preview of vSphere vMotion for NVIDIA GPUs with VMware vSphere 6.7 update 1
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+This is possible because NVIDIA’s virtualization software — NVIDIA Quadro
+Virtual Data Center Workstation (Quadro vDWS) and NVIDIA GRID — run on the same
+Tesla Volta and Pascal GPUs as deep learning, inferencing, training and HPC
+workloads. When graphics resources are needed for VDI the next day, IT admins
+can simply repurpose the NVIDIA GPUs to virtual GPUs to support VDI again.
+
+
+
+* https://blogs.nvidia.com/blog/2018/08/27/gpu-live-migration-vmotion-virtualization/
+
+Additionally, vSphere 6.7 Update 1 will increase support for intelligent
+workloads by introducing vMotion and snapshot capabilities for NVIDIA Quadro
+vDWS powered VMs. This will enable admins to migrate vGPU-powered VMs to other
+compatible hosts while performing maintenance operations to completely
+eliminate any disruption to end-users and their applications.
+
+
+virtual desktop infrastructure (VDI) market
+
+
+
 vGPU : Quadro vDWS (Quadro Virtual Data Center Workstation) : required for CUDA
 ----------------------------------------------------------------------------------
 

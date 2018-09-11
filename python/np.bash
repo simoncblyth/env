@@ -12,6 +12,88 @@ See also *numpy-* for numpy development rather than usage.
 
 
 
+Best Introductions
+--------------------
+
+* https://webvalley.fbk.eu/static/media/uploads/presentations/introductiontonumpy2.pdf
+* ~/opticks_refs/numpy/introductiontonumpy2.pdf 
+
+
+* http://csc.ucdavis.edu/~chaos/courses/nlp/Software/NumPyBook.pdf
+* ~/opticks_refs/numpy/Oliphant_NumPyBook.pdf 
+
+
+Intros
+--------
+
+* http://acme.byu.edu/wp-content/uploads/2017/08/NumpyIntro.pdf
+
+
+* https://sebastianraschka.com/pdf/books/dlb/appendix_f_numpy-intro.pdf
+* ~/opticks_refs/numpy/sebastianraschka_appendix_f_numpy-intro.pdf 
+
+While adding and removing elements from the end of a Python list is very
+efficient, altering the size of a NumPy array is very expensive since it
+requires creating a new array and carrying over the contents of the old
+
+
+* need to understand how numpy is implemented to use it effectively 
+
+
+Why NumPy 
+----------
+
+* https://www.stat.washington.edu/~hoytak/blog/whypython.html
+
+
+Zen of NumPy
+-------------
+
+* https://github.com/numpy/numpy/issues/2389
+
+The Zen of Numpy, by Travis Oliphant  (version 0.1)
+Strided is better than scattered.
+Contiguous is better than strided.
+Descriptive is better than imperative (e.g. data-types).
+Array-orientated is better than object-oriented.
+Broadcasting is a great idea -- use where possible!
+Vectorized is better than an explicit loop.
+Unless it's complicated -- then use Cython or numexpr.
+Think in higher dimensions.
+
+
+
+
+
+
+
+Also ran Introductions
+-----------------------
+
+* https://engineering.ucsb.edu/~shell/che210d/numpy.pdf
+* http://www.datadependence.com/2016/05/scientific-python-numpy/
+
+
+Random reseed
+---------------
+
+::
+
+   np.random.seed(10)
+   a = np.random.random_sample( (1000000,4,4) )
+   np.random.seed(10)
+   b = np.random.random_sample( (1000000,4,4) )
+
+   np.save("a.npy", a )
+   np.save("b.npy", b )
+
+   a[0]
+   b[0]
+   a - b
+   np.max( np.abs(a - b ))
+
+
+
 Use suppress for readability
 -------------------------------
 
