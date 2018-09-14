@@ -48,6 +48,31 @@ Peculiarities of G4 Optical Photon Simulation
 * https://arxiv.org/pdf/1612.05162.pdf
 * ~/opticks_refs/Peculiarities_G4OpticalPhoton_1612.05162.pdf
 
+p1: Additionally, all optical properties have to be specified on the same energy
+range. Otherwise errors will occur, e.g. if a scintillation photon is created
+with an energy for which no refractive index is specified in the material.
+
+p3: Geant4 itself does not limit the emission spectrum of the Cherenkov process to
+reasonable energy ranges but creates Cherenkov photons distributed over the
+full energy range for which n is specified (and the Cherenkov criterion is
+fulfilled). Thus, simulated Cherenkov radiation can occur in non-physical
+energy regions, e.g. in the keV, MeV or TeV range, instead of in the optical
+range. Therefore, the refractive index should be restricted to the necessary
+optical energy range or the physical Cherenkov energy range, respectively. As
+explained before, all other optical properties should be restricted to the same
+energy range, since defining individual optical properties on different energy
+ranges will most probably cause problems.
+
+* http://publications.rwth-aachen.de/record/667646
+* ~/opticks_refs/g4_optical_peculiarities_thesis_667646.pdf
+
+Dietz-Laursonn, Erik* ; Hebbeker, Thomas (Thesis advisor)* ; Pooth, Oliver (Thesis advisor)
+
+Detailed studies of light transport in optical components of particle detectors
+
+
+
+
 
 G4 Classes
 -----------

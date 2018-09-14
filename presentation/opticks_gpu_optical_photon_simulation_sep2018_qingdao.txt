@@ -1,466 +1,8 @@
-
-.. comment 
-
-    00 : <inline classes="i">Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX</inline> 
-    01 : opticks benefits 
-    02 : outline 
-
-        Highlights teaser statement and outline
-
-    03 : optical photon simulation problem... 
-    04 : jpmt before contact 2 
-
-        Statement of problem
-
-    05 : ray traced realistic image synthesis --> optical photon simulation 
-
-        Ray trace connection to simulation
-
-    06 : nvidia optix 1 
-    07 : nvidia optix 2 
-
-        OptiX intro are refs 
-
-    08 : opticks geometry workflow : geocache 
-    09 : large geometry techniques : instancing mandatory 
-    10 : opticks geometry workflow : gpu textures 
-
-
-
-    11 : hybrid geant4/opticks event workflow 
-    12 : opticks interoperation : optix/cuda/thrust/opengl 
-
-
-    ABSTRACT
-
-    Opticks is an open source project that integrates the NVIDIA OptiX 
-    GPU ray tracing engine with Geant4 toolkit based simulations.
-    Massive parallelism brings drastic performance improvements with
-    optical photon simulation speedup expected to exceed 1000 times Geant4 
-    when using workstation GPUs. Optical photon simulation time becomes 
-    effectively zero compared to the rest of the simulation.
-
-    Optical photons from scintillation and Cherenkov processes
-    are allocated, generated and propagated entirely on the GPU, minimizing 
-    transfer overheads and allowing CPU memory usage to be restricted to
-    optical photons that hit photomultiplier tubes or other photon detectors.
-    Collecting hits into standard Geant4 hit collections then allows the 
-    rest of the simulation chain to proceed unmodified.
-
-    Optical physics processes of scattering, absorption, reemission and 
-    boundary processes are implemented as CUDA OptiX programs based on the Geant4
-    implementations. Wavelength dependent material and surface properties as well as 
-    inverse cumulative distribution functions for reemission are interleaved into 
-    GPU textures providing fast interpolated property lookup or wavelength generation.
-
-    Geometry is provided to OptiX in the form of CUDA programs that return bounding boxes 
-    for each primitive and single ray geometry intersection results. Some critical parts 
-    of the geometry such as photomultiplier tubes have been implemented analytically 
-    with the remainder being tesselated. 
-    OptiX handles the creation and application of a choice of acceleration structures
-    such as boundary volume heirarchies and the transparent use of multiple GPUs.
-
-    OptiX interoperation with OpenGL and CUDA Thrust has enabled 
-    unprecedented visualisations of photon propagations to be developed 
-    using OpenGL geometry shaders to provide interactive time scrubbing and 
-    CUDA Thrust photon indexing to provide interactive history selection.
-
-    Validation and performance results are shown for the photomultiplier based 
-    Daya Bay and JUNO Neutrino detectors.
-
-
-
-.. raw:: html
-
-    <style type="text/css">
-        span.alarm { color: red; } 
-        span.warn { color: orange; } 
-        span.ok { color: green; } 
-        span.i { display: none; } 
-        pre.sliteral { class:"literal-block small"; }   
-        pre.mypre {
-             display: block;
-             font-family: monospace;
-             font-size: 20px;
-             white-space: pre;
-             margin: 1em 0;
-        }
-
-        pre.mypretiny {
-             display: block;
-             font-family: monospace;
-             font-size: 15px;
-             white-space: pre;
-             margin: 1em 0;
-        }
-
-        pre.myfoot {
-             display: block;
-             font-family: monospace;
-             font-size: 18px;
-             white-space: pre;
-             color: white;
-             position: absolute; top:86%; left:4%; width:50%; height:10% ;
-        }
-
-        a.mylink {
-             display: block;
-             font-family: monospace;
-             font-size: 18px;
-             white-space: pre;
-             color: black;
-             position: absolute; top:86%; left:4%; width:50%; height:10% ;
-        }
-
-
-        div.mytitle {
-             font-size: 20px;
-             color: black;
-             position: absolute; top:0%; left:5%; width:90%; height:10% ;
-        }
-
-        div.mycredit {
-             font-size: 20px;
-             color: black;
-             position: absolute; top:90%; left:5%; width:80%; height:10% ;
-        }
-
-
-
-
-
-    </style>
-
-.. role:: i 
-.. role:: alarm
-.. role:: warn
-.. role:: ok
-.. role:: sliteral
-.. role:: mypre 
-.. role:: myfoot
-.. role:: mytitle
-
-
-.. include:: <s5defs.txt>
-
-.. s5_background_image::
-
-    #
-    # slide titles and background image urls, 
-    # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
-    # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
-    #
-    # NB1 slide titles here must match those in body precisely, 
-    # NB2 also ensure all slide titles are unique
-    #
-    #slide0
-    #/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
-    #/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
-    #
-    #   wide targetting 1280x720
-    #   
-    #
-    slide0
-    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
-
-    Opticks Benefits
-    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
-
-    Visualizing An Optical Photon Simulation
-    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
-
-    Overview
-    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
-
-    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
-    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
-
-    Cerenkov Photons Simulation - Top View
-    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
-
-    Cerenkov Photons Simulation - Side View
-    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
-
-    Scintillation Photons Simulation - Top View
-    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
-
-    Scintillation Photons Simulation - Side View
-    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
-
-    Standard Geant4 Workflow
-    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
-
-    External Photon Simulation Workflow
-    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
-
-    GGeoView
-    /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
-
-    GGeoView M1 Points
-    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
-
-    GGeoView Flag Selection 
-    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
-
-    GGeoView Cerenkov Geom M1
-    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
-  
-    Detecting Neutrinos via Optical Photons 1
-    /env/presentation/dayabay-principal_half.png 1417px_830px 
-
-    Detecting Neutrinos via Optical Photons 2
-    /env/presentation/dayabay-principal_half.png 1417px_830px 
- 
-    JPMT Inside Wide 
-    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
-
-    JPMT Wide
-    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
-  
-    JPMT Headview
-    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
- 
-    JPMT Backview
-    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
- 
-    JPMT Approach 
-    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
-
-    JPMT Arrival 
-    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
- 
-    Optical Photon Simulation Problem...
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
-
-    JPMT Before Contact
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
-
-    JPMT Before Contact 2
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
-
-    JPMT Before Contact 3
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
-
- 
-    JPMT After Contact 
-    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
-  
-    JPMT Inside Outside 
-    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
-
-    NVIDIA OptiX In Action
-    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
-
-    PmtInBox approach 1
-    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
-
-    PmtInBox approach 2
-    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
-
-    PmtInBox after 1
-    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
-
-    PmtInBox after 2
-    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
-
-    Daya Bay PMT Wall Photo 1
-    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
-
-    Daya Bay PMT Wall Photo 2
-    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
-
-    Super-Kamiokande PMTs Not 16:9 
-    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
-
-    Super-Kamiokande PMTs 1
-    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
-
-    Super-Kamiokande PMTs 2
-    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
-
-    Super-Kamiokande PMTs 3
-    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
-
-    Super-Kamiokande PMTs 4
-    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
-
-    Kamiokande II 1
-    /env/presentation/1987a.png 1280px_720px
-
-    Kamiokande II 2
-    /env/presentation/1987a.png 1280px_720px
-
-    Kamiokande II 3
-    /env/presentation/1987a.png 1280px_720px
-
-
-    Fast Optical Photon Simulation
-    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
-
-    Photomultiplier Tubes (PMTs)
-    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
-
-    Photomultiplier Tube Operation
-    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
-
-    Old Hamamatsu Photomultiplier Tubes (PMTs)
-    /env/presentation/hamamatsu-pmt.png 1099px_734px
-
-    Old Photomultiplier Tube Operation
-    /env/presentation/hamamatsu-pmt.png 1099px_734px
-
-
-
-
-    Jiangmen Underground Neutrino Observatory (JUNO) 
-    /env/presentation/juno-schematic-5.png 1391px_734px
-
-    Jiangmen Underground Neutrino Observatory, Goals
-    /env/presentation/juno-schematic-5.png 1391px_734px
-
-
-    Dayabay Reactor Neutrino Expt, Far Site
-    /env/presentation/DybFar_crop.png 1280px_720px
-
-    Daya Bay Far Site 2
-    /env/presentation/DybFar_crop.png 1280px_720px
-
-    Daya Bay Far Site 3
-    /env/presentation/DybFar_crop.png 1280px_720px
-
-    Geant4 : Monte Carlo Simulation Toolkit 
-    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
-
-    Geant4 : Monte Carlo Simulation Toolkit Generality
-    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
-
-    "Seeing" neutrinos via scintillation + Cherenkov light
-    /env/presentation/cherenkov.png 316px_203px 850px_400px
-
-    Large Geometry Techniques : Instancing Mandatory
-    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
-
-    NVIDIA OptiX 1
-    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
-
-    NVIDIA OptiX 2
-    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
-
-    OpticksDocs
-    /env/presentation/OpticksDocs.png 1280px_720px
-
-    Daya Bay Antineutrino Detection via Inverse Beta Decay 1
-    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
-
-    Daya Bay Antineutrino Detection via Inverse Beta Decay 2
-    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
-    # a = np.array([1676.0, 1192.0])
-    # .8*720.*a/1192.
-
-    Daya Bay Energy Response Model (1)
-    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
-
-    Daya Bay Energy Response Model (2)
-    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
-
-    # a = np.array([2392., 1424.]) ; .8*720*a/a[1]
-
-
-
-    Daya Bay Energy Response Model : Fit to Calibration Data 1
-    /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
-    # a = np.array([1760., 1280.])
-    # .8*720.*a/1280.   792px_576px
-    # 693.,  504
-
-    Daya Bay Energy Response Model : Fit to Calibration Data 2
-    /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
-    # a = np.array([1698., 1166.])
-    # .8*720.*a/1166. 
-    
-    Daya Bay nGd Analysis : Most Precise Theta13
-    /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
-    # a = np.array([2140., 1266.])
-    # .8*720.*a/1166.
-
-
-    Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
-    /env/presentation/op_full_raytrace_3.png 1280px_720px
-
-    Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)
-    /env/presentation/op_full_raytrace_1.png 1280px_720px
-
-    Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)
-    /env/presentation/op_full_raytrace_0.png 1280px_720px
-
-    Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
-    /env/presentation/op_full_raytrace_2.png 1280px_720px
-
-    Opticks Analytic JUNO Chimney, GPU Raytrace (0)
-    /env/presentation/j1707_chimney_analytic_raytrace.png 1280px_720px
-
-    Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)
-    /env/presentation/j1707-okop-snap.png 1280px_720px
-
-    GPU Instance Culling with Level Of Detail
-    /env/presentation/j1707_lod_oglrap_instcull.png 1280px_720px
-
-
-
-
-
-.. comment 
-
-    Large Geometry/Event Techniques
-    /env/graphics/ggeoview/ggv-juno-instancing.png 2130px_1480px -> 1065px_740px 
-
-
-    GGeoView image is 2094x1590 1047x795
-
-    GGeoView M1 Points is 2870x1696  1435x848
-
-    GGeoView Flag Selection 2872x1684 1436x842
-
-    GGeoView Cerenkov Geom M1 2832x1690 1416x845
-
-
-    Generated Scintillation Photons GPU cf Geant4
-    /env/g4dae/generated_scintillation_time_wavelength.png
-
-    G4/DetSim Generated Cerenkov Wavelength
-    /env/g4dae/g4_cerenkov_wavelength.png
-
-
-
-.. comment
-
-    Placeholder
-
-    jpmt-after-contact.png 2850px_1680px
-    jpmt-approach.png 2862px_1678px
-    jpmt-arrival.png 2854px_1682px
-    jpmt-backview.png 2298px_1588px
-    jpmt-before-contact.png 2860px_1688px
-    jpmt-headview.png 2616px_1566px
-    jpmt-inside-outside.png 2802px_1684px
-    jpmt-wide.png 2818px_1672px
-
-
+.. include:: my_s5defs.txt
 
 ========================================================================================
 :i:`Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
 ========================================================================================
-
-.. comment
-
-   I will introduce Opticks, 
-   an optical photon simulation based on NVIDIA OptiX ray tracing 
-   enabling particle physics detector simulations 
-   to benefit from OptiX ray tracing.
-
-   The image visualizes photons coming from a cosmic ray muon 
-   crossing a neutrino detector.
-
 
 .. raw:: html
 
@@ -471,7 +13,6 @@
     <div class="mycredit">
     <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; Sept 2018, SDU, Qingdao </h2>
     </div>
-
 
 
 :i:`Opticks Benefits`
@@ -511,21 +52,33 @@
 
 
 
-Outline
---------
+Outline : Techniques, Tools and Opticks 
+-------------------------------------------
 
 .. image:: /env/presentation/newtons-opticks.png 
    :width: 299px
    :height: 547px 
    :align: right
 
-
 .. class:: small
 
-   * Importance of Simulation, Geant4
-   * Problem and approach to solving
+   * Technique : Monte Carlo Method  
 
-     * Optical Photon Simulation problem
+     * apply randomness to model complex systems
+     * optical photon simulation, deciding history 
+     * sampling using Cumulative Distribution Function 
+     * modelling Scintillator Re-emission 
+     * modelling Scattering and Absorption
+     * accept-reject sampling 
+     * estimating pi 
+
+   * *Geant4* : Standard Monte Carlo in HEP  
+
+     * simulation toolkit generality
+     * overview
+
+   * Optical Photon simulation problem
+
      * Hybrid solution : Geant4 + Opticks
      * NVIDIA OptiX Ray Tracing Engine
 
@@ -534,15 +87,13 @@ Outline
      * geometry workflow : geocache, GPU textures
      * large geometry techniques, geometry modelling  
      * Geant4/Opticks event workflow 
+     * Validation, performance comparisons
+     * Summary
 
-   * Validation, performance comparisons
-   * Summary
-
-   * **Introductions to Tools**
+   * General Tools for data science
 
      * *NumPy* : large array handling with python flexibility/brevity at C speed 
      * *NVIDIA CUDA + Thrust* : GPU parallel compute 
-
 
 .. comment
 
@@ -586,42 +137,46 @@ Outline
  
 
 
+
+
 :small:`Monte Carlo Method : apply randomness to model complex systems`
 ---------------------------------------------------------------------------
 
-.. sidebar:: :tiny:`Casino de Monte-Carlo, Monaco`
-
-    .. class:: small
-
-        French Riviera, near Italy 
+.. sidebar:: :tiny:`Casino de Monte-Carlo, Monaco (French Riviera)`
 
     .. image:: /env/presentation/casino_de_monte_carlo.png
        :width: 350px
        :align: center
 
+    .. class:: small
+
+       * named after city famous for casinos 
+       * prior to computers : roulette wheel was a convenient RNG 
+       * developed 1940s for neutron transport (Ulam, von Neumann) using 
+         first general purpose computer
+
 
 .. class:: small
 
+   **Simulate designs before building them** 
+
+   Generate history of a system using random sampling techniques
+   making variables follow expected PDFs[1]
+
+   * :red:`uniform random numbers [0,1] are mapped to probabilities` 
    * applicable to problems **too complex for an analytic solution**
-   * developed 1940s with first computers : Ulam, von Neumann 
    * ubiquitous : physics/biology/engineering/finance/climate/...
-   * consumes lots of pseudo-random numbers in [0,1] (which the method "maps" to probabilities)
 
-   Use expected probability distributions to:
-
-   * **simulate** the history of a system (aka event samples) 
-   * model physical processes eg scattering, absorption
-   * develop understanding using "fake" data with "truth" information (without inefficiencies, resolution smearing)
    * **eventually validate against real data measurements**
 
-     * :red:`hopefully find problems : improve models` 
-    
-   Applications: design + optimization + understanding + reconstruction
+     * :red:`hopefully find problems : improve models (PDFs)` 
 
-   * Pragmatically : **simulation is our knowledge of a system** 
+   **simulation** is vital to understand/design anything complex
 
 
 .. class:: tiny
+
+   [1] PDFs : probability density functions
 
    https://www.slideserve.com/hafwen/monte-carlo-detector-simulation
    Pat Ward, Cambridge University, 74 pages Powerpoint 
@@ -656,23 +211,203 @@ Outline
 
 
 
-:small:`Monte Carlo Method : Sampling from Exponential Distribution`
---------------------------------------------------------------------------------------
+
+:small:`Optical Photon Simulation : Deciding history on way to boundary`
+--------------------------------------------------------------------------
+
+.. sidebar:: :small:`Possible Histories`
+
+    .. image:: /env/presentation/to_boundary.png
+       :width: 500px
+       :align: center
+
+    .. class:: small
+
+        * optical photon simulation straightforward : as only a few processes
+        * BUT : principals are the same as full MC 
 
 .. class:: small
 
-   Generate exponential distribution sample by: 
-   **mapping CDF probability onto uniform random sample [0,1]**
+    1. intersect ray with geometry -> distance to boundary
+    2. lookup absorption length, scattering length for material
+       depending on wavelength 
 
-   * cumulative distribution function : probability X <= x, CDF(0) = 0, CDF(inf) = 1,  monotonic 
-   * **a** is characteristic length/time of the process, eg scattering/absorption length or decay time
-   * sampling **X = -a ln(1 - u) = -a ln(u)** yields a stochastic distance, from the characteristic length 
+       * *Opticks* uses GPU texture interpolation 
 
-   .. image:: /env/presentation/exponential_pdf_cdf.png
-      :width: 700px
-      :align: center
+    3. "role dice" : characteristic lengths -> stochastic distances 
 
-   * pick between processes, eg: scattering vs absorption, based on smaller sampled distance
+    :red:`Pick winning process from smallest distance` 
+   
+.. raw:: html
+
+    <pre class="mypretiny">
+    boundary_distance = from_geometry  # no random number needed
+    absorption_distance = -absorption_length * ln(u0) 
+    scattering_distance = -scattering_length * ln(u1) 
+    ## u0, u1 uniform randoms in [0,1] : distances always +ve 
+    </pre>
+
+.. class:: small
+
+    If scatter:
+   
+    4. pick new photon direction at random
+    5. set polarization perpendicular to new direction (transverse) 
+       and in same plane as direction and initial polarization  
+    6. **rejection-sampling used to pick new polarization** 
+       such that angle between old and new follows cos^2 distribution  
+
+    7. then repeat from 1. 
+
+  
+    :red:`Rayleigh Scattering Theory -> PDFs used in the simulation`    
+
+
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/propagate.h
+   https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/rayleigh.h
+
+
+
+
+:small:`MC Method : Sampling using Cumulative Distribution Function (CDF)`
+--------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/normal_pdf_cdf.png
+   :width: 400px
+   :align: right
+
+.. class:: small
+
+   **Cumulative distribution function (CDF)**
+
+   * probability that value X is less than x  
+   * obtain by integrating probability density function PDF
+   * CDF(-inf) = 0, CDF(inf) = 1    
+   * monotonically increasing function 
+   * relation between PDF f and CDF F
+
+     * **F(b) - F(a) = P( a < X <= b ) = Integral a->b  f(x) dx**      
+
+   **Map uniform randoms onto probabilities**
+
+   1. integrate PDF -> CDF (mapping PDF domain onto probability [0,1] )
+   2. invert the CDF, so domain becomes [0,1]  
+   3. inverted_CDF(uniform random) -> sample value 
+
+   **Intuitively : throw randoms uniformly "vertically"**
+
+   * Sigmoid CDF : low probability close to zero or 1 corresponding to tails  
+   * greater probability in high PDF areas      
+   * extreme case of delta-function PDF : all probability at one value
+
+     * sigmoid CDF becomes Heaviside step-function
+
+   :red:`CDF "encodes" shape of PDF in convenient form for sampling` 
+
+
+.. class:: tiny
+
+   https://en.wikipedia.org/wiki/Inverse_transform_sampling
+
+
+
+
+:small:`Monte Carlo Method : Modelling Scintillator Re-emission`
+--------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/inverted_cdf_GScintillatorLib_py.png
+   :width: 500px
+   :align: right
+
+.. class:: small
+
+   *reemission_probability(wavelength)*
+       fraction of light absorbed in scintillator  
+       re-emitted with different wavelength.   
+
+   generating re-emitted wavelength
+       * expected *PDF(wavelength)* -> *inverted_CDF(probability)*
+
+   **Opticks Re-emission model** 
+
+   * fraction of absorbed photons "reincarnated" in same thread   
+   * *inverted_CDF(probability)* -> GPU "re-emission" texture 
+ 
+   .. raw:: html
+
+       <pre class="mypretiny">
+       float uniform_sample_reemit = curand_uniform(&rng);
+       if (uniform_sample_reemit < reemission_probability ) 
+       {  
+           ... 
+           p.wavelength = reemission_lookup(curand_uniform(&rng));   <b><span class="alarm"> # re-emission texture lookup  </span></b>
+           s.flag = BULK_REEMIT ;
+           return CONTINUE;
+       }    
+       else 
+       {   
+           s.flag = BULK_ABSORB ;
+           return BREAK;
+       }    
+       </pre>
+
+
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/propagate.h
+ 
+
+
+.. comment
+
+   Light propagation in a large volume liquid scintillator
+
+   (Borexino, 2000)
+
+   https://www.sciencedirect.com/science/article/pii/S0168900299009614
+   ~/opticks_refs/borexino_light_propagation_in_large_scintillator.pdf
+
+
+:small:`Monte Carlo Method : Modelling Scattering and Absorption`
+--------------------------------------------------------------------------------------
+
+
+.. image:: /env/presentation/exponential_pdf_cdf.png
+  :width: 600px
+  :align: right
+
+
+.. class:: small
+
+   **Create sample with exponential PDF, using CDF**
+
+   * **PDF(x) = (1/a) exp(-x/a)**
+   * **CDF(x) = 1 - exp(-x/a)** 
+
+   *a* 
+      characteristic scale of process, eg decay time or scattering/absorption/attenuation length 
+
+   *u*
+      uniform random value in [0,1] ; *1-u* equivalent to *u*
+
+
+   **Known analytic form of CDF, means simple sampling:** 
+
+   :red:`Equate CDF probability with uniform random value [0,1]` 
+
+   * **CDF(x) = 1 - exp(-x/a) = u**
+   * **exp(-x/a) = 1 - u**
+   * **X = -a ln(1-u)** 
+   * **X = -a ln(u)**       
+
+   *X* 
+      stochastic distance/time obtained from characteristic scale *a* and uniform random *u*
+
+
       
 .. class:: tiny
 
@@ -689,161 +424,137 @@ Outline
 
    https://www.eg.bucknell.edu/~xmeng/Course/CS6337/Note/master/master.html
 
-
-
-.. comment
-
-    :small:`MC : Inverse Transform Sampling`
-    ---------------------------------------------------------------------------
-
-    .. class:: small
-
-       Generate sample that follows any Probability Distribution Function (PDF) using 
-       its Cumulative Distribution Function (CDF) + Uniform random numbers in [0,1]
-
-        .. image:: /env/presentation/icdf_scintillator_reemission.png
-           :width: 900px
-           :align: center
-
-
-    .. class:: tiny
+   https://plus.maths.org/content/light-attenuation-and-exponential-laws
 
 
 
 
-:small:`MC : Estimating Pi`
-------------------------------
-
+:small:`Monte Carlo Method : Accept-Reject Sampling`
+-------------------------------------------------------
 
 .. class:: small
 
-   Circle:Square ratio of random points estimates pi/4  
+    Simple technique providing a sample that follows a distribution. Example PDF :  **pdf(x) = (3/8).( 1 + x^2 )**
 
-   (estimate parameter of theory, just by counting random samples) 
+    1. scatter random points (x,y) across PDF graph  (piecewise for better efficiency)
+    2. accept x for pdf(x) < y  :  implement in C++ with **do {   } while ( condition )**  
+
+    .. image:: /env/presentation/accept_reject_sampling.png
+       :width: 800px
+       :align: center
 
 
-.. image:: /env/presentation/compute_pi.png
-   :width: 900px
-   :align: center
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/intro_to_numpy/src/default/accept_reject_sampling.py
+
+    https://en.wikipedia.org/wiki/Rejection_sampling
+
+
+
+:small:`Monte Carlo Method : Accept-Reject Sampling (NumPy Code in IPython)`
+----------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    in [1]: import numpy as np
+    In [2]: a = np.random.rand( 1000000,2 )     <b><span class="alarm">  # 2M random floats uniform in [0,1]  </span></b>
+
+    In [3]: a[:,0] = a[:,0]*2. - 1.   #  [0,1] -> [-1,1]
+    In [4]: a[:,1] = a[:,1]*0.75      #  [0,1] -> [0,0.75]     pdf(0) = pdf(1) = 0.75
+
+    In [5]: pdf = lambda x:(3./8.)*(1+x**2)        <b><span class="alarm"> # simple symmetric PDF normalized on -1:1 </span></b> 
+
+    In [6]: w = np.where( a[:,1] < pdf(a[:,0]) )   <b><span class="alarm">  # indices of accepted sample  </span></b>
+
+    In [7]: s = a[w][:,0]                   <b><span class="alarm">  # accepted sample of 666301 values </span></b>
+
+    In [8]: s
+    Out[8]: array([ 0.0382,  0.9755,  0.6855, ...,  0.5962,  0.9094, -0.8292])
+
+    In [9]: s.shape
+    Out[9]: (666301,)
+
+    In [10]: a.shape
+    Out[10]: (1000000, 2)
+
+    In [11]: a
+    Out[11]: 
+    array([[ 0.0382,  0.0752],
+           [ 0.9755,  0.0495],
+           [ 0.6855,  0.1835],
+           ...,
+           [ 0.5837,  0.7297],
+           [-0.7534,  0.7253],
+           [-0.8292,  0.0019]])
+    </pre>
+
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/intro_to_numpy/src/default/accept_reject_sampling.py
+
+
+
+:small:`MC Method : Estimating Pi from circle/square count ratio : pi r^2/(2r)^2`
+----------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    .. image:: /env/presentation/estimate_pi.png
+       :width: 650px
+       :align: center
+
+.. class:: tiny 
+
+    https://bitbucket.org/simoncblyth/intro_to_numpy/src/default/estimate_pi.py
+
+
+:small:`Monte Carlo Method : Estimating Pi : NumPy Code in IPython`
+----------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    In [1]: from __future__ import division    <b><span class="alarm"> # python3 style default </span></b>
+    In [2]: import numpy as np
+
+    In [3]: a = np.random.rand( 1000000,2 )    <b><span class="alarm"> # 2M uniform [0,1] random floats   </span></b> 
+
+    In [4]: a[:,0] = a[:,0]*2. - 1.            <b><span class="alarm"> # NB: no loops at python level  </span></b>
+
+    In [5]: a[:,1] = a[:,1]*2. - 1.
+
+    In [6]: mask = np.sum(a*a,1) < 1           <b><span class="alarm"> # mask : array of booleans with same shape as a  </span></b>
+
+    In [7]: w = np.where(mask)                 <b><span class="alarm"> # w : array of indices of a within the mask </span></b>
+
+    In [8]: epi = 4*len(w[0])/len(a)           <b> # estimate of pi =  4*(cicle count)/(square count)   </b>
+
+    In [9]: label = " estimate_pi 4*%d/%d = %10.5f  (%10.5f) " % (len(w[0]), len(a), epi, epi-np.pi )
+
+    In [10]: a.shape
+    Out[10]: (1000000, 2)
+
+    In [11]: a[w].shape                        <b><span class="alarm"> # shape of the selection  </span></b>
+    Out[11]: (785209, 2)
+
+    In [12]: a[w]                             <b> # select via an array of indices </b>
+    Out[12]: 
+    array([[-0.3253,  0.8069],
+           [ 0.2202, -0.8232],
+           [-0.9173, -0.088 ],
+           ...,
+           [ 0.1739, -0.1885],
+           [-0.1812, -0.8979],
+           [ 0.4604, -0.524 ]])
+
+    </pre>
 
 
 .. class:: tiny 
 
-   Tutorial on Monte Carlo Techniques, Gabriel A. Terejanu
-
-   https://cse.sc.edu/~terejanu/files/tutorialMC.pdf
-
-
-
-
-:small:`NumPy : Numerical Python : python flexibility+brevity at C speed`
----------------------------------------------------------------------------
-
-.. comment
-
-   what to cover 
-
-   persistency 
-       np.save/np.load
-       simplicity of the NPY serialization : why thats useful
-
-   interactive handling of large N-dimensional arrays
-
-       * eg comparing millions of photons from two simulations
-       * np.max/np.where finding differences, array slicing 
-       * np.view  (viewing floats as ints, union trick)
-
-       * how that works : contiguous block of memory  
-       * reshaping, just metadata : doesnt change underlying memory 
-         just the way you address it 
-
-   when to use NumPy  
-
-       * when data is simple enough that its convenient to treat as arrays :
-         this is usually the case when you have millions of something 
-
-       * having millions of C++ objects not very useful : as slow access to elements :
-         much better to have in an array to giving fast access to the elements  
-     
-       * when smaller number of objects and complex object model 
-         C++ objects and ROOT TTrees etc.. are more useful 
-
-   interface with C/C++ code
-
-       * numpy.hpp header 
-
-   why NumPy
-
-   https://docs.scipy.org/doc/numpy/user/quickstart.html
-
-     * can be overwhelming : very powerful : very terse : worth learning 
-       enables fast/convenient handling of large data volumes 
-       so long as they fit in memory 
-
-     * bear in mind how its actually implemented with the contiguous buffer  
-
-   many free tools available : just need to learn how to use them : 
-
-
-
-.. class:: small
-
-   **“... the fundamental package for scientific computing with Python ...”** 
-
-   Python interactive handling of million element arrays:
-
-.. raw:: html 
-
-    <pre class="mypre">
-
-    from numpy import np
-    a = np.load("cpu_photons.npy") 
-    b = np.load("gpu_photons.npy") 
-
-
-
-    </pre>
-
-
-
-:small:`NPY file format : minimal header + data buffer`
----------------------------------------------------------------------------
-
-.. class:: small
-
-     
-
-
-
-
-.. raw:: html 
-
-    <pre class="mypre">
-
-    epsilon:1 blyth$ xxd -l 256 -c 32 a.npy 
-    00000000: 934e 554d 5059 0100 7600 7b27 6465 7363 7227 3a20 273c 6638 272c 2027 666f 7274  .NUMPY..v.{'descr': '<f8', 'fort
-    00000020: 7261 6e5f 6f72 6465 7227 3a20 4661 6c73 652c 2027 7368 6170 6527 3a20 2831 3030  ran_order': False, 'shape': (100
-    00000040: 3030 3030 2c20 342c 2034 292c 207d 2020 2020 2020 2020 2020 2020 2020 2020 2020  0000, 4, 4), }                  
-    00000060: 2020 2020 2020 2020 2020 2020 2020 2020 2020 2020 2020 2020 2020 2020 2020 200a                                 .
-    00000080: 71ee 31a1 a8ae e83f 00b9 4ebf ff3f 953f b5a5 c5a9 d846 e43f 92e0 538f 33f6 e73f  q.1....?..N..?.?.....F.?..S.3..?
-    000000a0: 96a4 aaf4 89e7 df3f 781a 67f0 22c6 cc3f 7cea 58bb 1f5a c93f 91f0 0f81 4456 e83f  .......?x.g."..?|.X..Z.?....DV.?
-    000000c0: 9cb7 3784 6ca5 c53f 38e5 cf24 709d b63f e53a bcb6 77ee e53f 4533 44c3 3282 ee3f  ..7.l..?8..$p..?.:..w..?E3D.2..?
-    000000e0: 0093 11ac 0e2c 703f 3532 9007 e163 e03f 71e0 caac fd00 ea3f f859 1f44 d099 e33f  .....,p?52...c.?q......?.Y.D...?
-
-    </pre>
-
-
-
-:small:`GPU Parallelism : CUDA + Thrust`
----------------------------------------------------------------------------
-
-.. comment
-
-   Why parallel ...
-   GPU/CPU performance progressopn
-
-
-
+    https://bitbucket.org/simoncblyth/intro_to_numpy/src/default/estimate_pi.py
 
 
 
@@ -854,27 +565,20 @@ Geant4 : Monte Carlo Simulation Toolkit
 Geant4 : Monte Carlo Simulation Toolkit Generality
 ---------------------------------------------------
 
-.. comment
 
-    Now you have some context of how neutrino detectors work,
-    I can sketch how to simulate them 
-
-    The standard simulation tool in the particle physics is Geant4,  
-
-
-.. sidebar:: Leading in Particle Physics
+.. sidebar:: :small:`Standard Simulation Tool of HEP`
 
    .. class:: small
         
        **Geant4** simulates particles travelling through matter
 
        * high energy, nuclear and accelerator physics
-       * medical imaging, radiotherapy 
-       * space science
+       * medical physics : deciding radiotherapy doses/sources 
+       * space engineering : satellites
 
        **Geant4 Approach**
 
-       * geometry : **CSG tree of solids**
+       * geometry : **tree of CSG solids**
        * particles : track position and time etc.. 
        * processes : nuclear, EM, weak, **optical**
 
@@ -888,12 +592,56 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
+Geant4 : Overview
+---------------------------------------------------
+
+.. sidebar:: :small:`No main()`
+
+    .. class:: small
+ 
+         *Geant4* is a toolkit : it provides no *main()*
+
+
+.. class:: small
+
+   **Initialization**
+
+   * geometry defined as a heirarchy of volumes, with sensitive detector volumes
+   * physics particles and processes defined
+   * setup primary particle generation to be used for each event
+
+   **Beginning of Run**
+
+   * geometry optimized for navigation
+   * cross-section tables calculated for materials/cuts 
+
+   **Beginning of Event**
+  
+   * **primary tracks** are generated and pushed onto stack
+   * physics processes of **tracks** can create **secondary tracks** 
+   * when stack empty, processing over
+
+   **At Each Step of a Track**
+
+   * all applicable processes "compete" : proposing physical interaction lengths (PIL)  
+   * shortest PIL "wins" (limits the step and that process can generate secondary tracks and change
+     the primary track) 
+   
+.. class:: tiny
+
+   60 slide intro from one of the primary Geant4 architects/developers
+
+   http://geant4.in2p3.fr/2005/Workshop/ShortCourse/session1/J.Apostolakis.pdf
+
+.. comment
+
+   ~/opticks_refs/Geant4_intro_J_Apostolakis.pdf
 
 
 
 
 
-``Optical Photon Simulation Problem...``
+`Optical Photon Simulation Problem...`
 ---------------------------------------------------------
 
 :i:`JPMT Before Contact 2`
@@ -1894,6 +1642,134 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
+
+
+
+:small:`NumPy : Python flexibility+brevity at C speed`
+---------------------------------------------------------------------------
+
+.. sidebar:: :small:`NumPy and Opticks`
+
+    .. class:: small
+
+        Opticks does **not** depend on NumPy but it 
+        persists almost everything(*) in NPY serialization format 
+
+    .. class:: tiny   
+ 
+        (*) gensteps, photons, hits, analytic CSG geometry shapes, transforms, triangulated geometry vertices, triangles, material/surface properties ... 
+
+.. class:: small
+
+   **“... the fundamental package for scientific computing with Python ...”** 
+
+   Usually *NumPy* arrays are contiguous blocks of memory 
+
+   * fast memcpy, cudaMemcpy 
+   * fast serialization/deserialization
+   * simple interoperation with C, C++, CUDA 
+   
+   Very terse, powerful python interface to C performance
+
+   * **array-oriented computing** 
+   * interactive handling of very large N-dimensional arrays
+   * million item arrays from python faster to manipulate than millions of C++ objects   
+
+   Exploit **vectorization** (short step to **parallelization**)
+
+   * avoids very slow python looping 
+   * loops done in C, controlled from python
+   * forces rethinking approach to work with **vectorization** 
+
+   Refs
+
+   * https://docs.scipy.org/doc/numpy/user/quickstart.html
+
+
+:small:`NumPy : Central to Python Ecosystem`
+--------------------------------------------------
+
+.. class:: small
+
+   * Python : popular language for data science, machine learning (TensorFlow, Theano, Keras)   
+   * NumPy : Central to Ecosystem : Common Base Format/API : used + extended by many packages 
+ 
+.. image:: /env/presentation/numpy_ecosystem.png
+   :width: 700px
+   :align: center
+
+.. class:: tiny
+
+   http://luispedro.org/files/talks/2014/09-pyss/pyss14.html
+
+
+
+:small:`NPY minimal file format : metadata header + data buffer : trivial to parse`
+--------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    * data accessible from anywhere : C/C++/CUDA/python/... ; Simple to *memcpy()* or *cudaMemcpy()* to GPU
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+
+    In [1]: a = np.arange(10)       <b> # array of 10 ints : 64 bit, 8 bytes each  </b>
+    In [2]: np.save("a.npy", a )      <b> # persist the array : serializing it into a file </b>
+
+    In [3]: a2 = np.load("a.npy")        <b> # load array from file into memory </b>
+    In [4]: assert np.all( a == a2 )     <b> # check all elements the same </b>
+
+    In [5]: !xxd a.npy                  <b> # run xxd in shell to hexdump the byte contents of the file </b>  
+
+    00000000: 934e 554d 5059 0100 7600 7b27 6465 7363  .NUMPY..v.{'desc
+    00000010: 7227 3a20 273c 6938 272c 2027 666f 7274  r': '&lt;i8', 'fort
+    00000020: 7261 6e5f 6f72 6465 7227 3a20 4661 6c73  ran_order': Fals
+    00000030: 652c 2027 7368 6170 6527 3a20 2831 302c  e, 'shape': (10,   <b><span class="alarm"> # minimal metadata : type, shape   </span></b>
+    00000040: 292c 207d 2020 2020 2020 2020 2020 2020  ), }            
+    00000050: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000060: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000070: 2020 2020 2020 2020 2020 2020 2020 200a                 .   <b><span class="alarm"> # 128 bytes of header  </span></b>
+    00000080: 0000 0000 0000 0000 0100 0000 0000 0000  ................  
+    00000090: 0200 0000 0000 0000 0300 0000 0000 0000  ................
+    000000a0: 0400 0000 0000 0000 0500 0000 0000 0000  ................   <b><span class="alarm"> # data buffer  </span></b>  
+    000000b0: 0600 0000 0000 0000 0700 0000 0000 0000  ................
+    000000c0: 0800 0000 0000 0000 0900 0000 0000 0000  ................
+
+    In [6]: !ls -l a.npy    <b> # small 128 byte header + (8 bytes per integer)*10 = 208 bytes total </b> 
+    -rw-r--r--  1 blyth  staff  208 Sep 13 11:01 a.npy            
+
+    In [7]: a
+    Out[7]: array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    In [8]: a.shape
+    Out[8]: (10,)
+
+    </pre>
+
+.. class:: tiny
+
+    One possibility for compression with blosc http://bcolz.blosc.org/en/latest/intro.html 
+
+
+
+:small:`GPU Parallelism : CUDA + Thrust`
+---------------------------------------------------------------------------
+
+.. comment
+
+   Why parallel ...
+   GPU/CPU performance progressopn
+
+
+
+
+
+
+
+
+
+
 :i:`Extras`
 -------------------------------------------------------------------------------
 
@@ -1929,6 +1805,8 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     .. class:: tiny
 
         (*) Windows VS2015, non-CUDA only so far  
+
+
 
 
 
@@ -2345,5 +2223,274 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    **Sequence index** -> interactive OpenGL selection of photons by flag sequence
       
+
+
+
+
+
+
+
+.. s5_background_image::
+
+    #
+    # slide titles and background image urls, 
+    # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    #
+    # NB1 slide titles here must match those in body precisely, 
+    # NB2 also ensure all slide titles are unique
+    #
+    #slide0
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    #
+    #   wide targetting 1280x720
+    #   
+    #
+    slide0
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Opticks Benefits
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Visualizing An Optical Photon Simulation
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
+
+    Overview
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+
+    Cerenkov Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
+
+    Cerenkov Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
+
+    Scintillation Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
+
+    Scintillation Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
+
+    Standard Geant4 Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
+
+    External Photon Simulation Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
+
+    GGeoView
+    /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
+
+    GGeoView M1 Points
+    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
+
+    GGeoView Flag Selection 
+    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
+
+    GGeoView Cerenkov Geom M1
+    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
+  
+    Detecting Neutrinos via Optical Photons 1
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    Detecting Neutrinos via Optical Photons 2
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+ 
+    JPMT Inside Wide 
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
+
+    JPMT Wide
+    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
+  
+    JPMT Headview
+    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
+ 
+    JPMT Backview
+    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
+ 
+    JPMT Approach 
+    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
+
+    JPMT Arrival 
+    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
+ 
+    Optical Photon Simulation Problem...
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 2
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 3
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+ 
+    JPMT After Contact 
+    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
+  
+    JPMT Inside Outside 
+    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
+
+    NVIDIA OptiX In Action
+    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
+
+    PmtInBox approach 1
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox approach 2
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox after 1
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    PmtInBox after 2
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    Daya Bay PMT Wall Photo 1
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Daya Bay PMT Wall Photo 2
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Super-Kamiokande PMTs Not 16:9 
+    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
+
+    Super-Kamiokande PMTs 1
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 2
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 3
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 4
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Kamiokande II 1
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 2
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 3
+    /env/presentation/1987a.png 1280px_720px
+
+
+    Fast Optical Photon Simulation
+    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
+
+    Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Old Hamamatsu Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    Old Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+
+
+
+    Jiangmen Underground Neutrino Observatory (JUNO) 
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+    Jiangmen Underground Neutrino Observatory, Goals
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+
+    Dayabay Reactor Neutrino Expt, Far Site
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 2
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 3
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Geant4 : Monte Carlo Simulation Toolkit 
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    Geant4 : Monte Carlo Simulation Toolkit Generality
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    "Seeing" neutrinos via scintillation + Cherenkov light
+    /env/presentation/cherenkov.png 316px_203px 850px_400px
+
+    Large Geometry Techniques : Instancing Mandatory
+    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
+
+    NVIDIA OptiX 1
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    NVIDIA OptiX 2
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    OpticksDocs
+    /env/presentation/OpticksDocs.png 1280px_720px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 1
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 2
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+    # a = np.array([1676.0, 1192.0])
+    # .8*720.*a/1192.
+
+    Daya Bay Energy Response Model (1)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    Daya Bay Energy Response Model (2)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    # a = np.array([2392., 1424.]) ; .8*720*a/a[1]
+
+
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 1
+    /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
+    # a = np.array([1760., 1280.])
+    # .8*720.*a/1280.   792px_576px
+    # 693.,  504
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 2
+    /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
+    # a = np.array([1698., 1166.])
+    # .8*720.*a/1166. 
+    
+    Daya Bay nGd Analysis : Most Precise Theta13
+    /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
+    # a = np.array([2140., 1266.])
+    # .8*720.*a/1166.
+
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
+    /env/presentation/op_full_raytrace_3.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)
+    /env/presentation/op_full_raytrace_1.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)
+    /env/presentation/op_full_raytrace_0.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
+    /env/presentation/op_full_raytrace_2.png 1280px_720px
+
+    Opticks Analytic JUNO Chimney, GPU Raytrace (0)
+    /env/presentation/j1707_chimney_analytic_raytrace.png 1280px_720px
+
+    Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)
+    /env/presentation/j1707-okop-snap.png 1280px_720px
+
+    GPU Instance Culling with Level Of Detail
+    /env/presentation/j1707_lod_oglrap_instcull.png 1280px_720px
+
 
 

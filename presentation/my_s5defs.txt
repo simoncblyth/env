@@ -1,0 +1,73 @@
+.. include:: <s5defs.txt>
+
+.. raw:: html
+
+    <style type="text/css">
+        span.alarm { color: red; } 
+        span.warn { color: orange; } 
+        span.ok { color: green; } 
+        span.i { display: none; } 
+        pre.sliteral { class:"literal-block small"; }   
+        pre.mypre {
+             display: block;
+             font-family: monospace;
+             font-size: 20px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.mypretiny {
+             display: block;
+             font-family: monospace;
+             font-size: 15px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.myfoot {
+             display: block;
+             font-family: monospace;
+             font-size: 18px;
+             white-space: pre;
+             color: white;
+             position: absolute; top:86%; left:4%; width:50%; height:10% ;
+        }
+
+        a.mylink {
+             display: block;
+             font-family: monospace;
+             font-size: 18px;
+             white-space: pre;
+             color: black;
+             position: absolute; top:86%; left:4%; width:50%; height:10% ;
+        }
+
+
+        div.mytitle {
+             font-size: 20px;
+             color: black;
+             position: absolute; top:0%; left:5%; width:90%; height:10% ;
+        }
+
+        div.mycredit {
+             font-size: 20px;
+             color: black;
+             position: absolute; top:90%; left:5%; width:80%; height:10% ;
+        }
+
+
+
+
+
+    </style>
+
+.. role:: i 
+.. role:: alarm
+.. role:: warn
+.. role:: ok
+.. role:: sliteral
+.. role:: mypre 
+.. role:: myfoot
+.. role:: mytitle
+
+

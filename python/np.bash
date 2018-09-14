@@ -11,6 +11,27 @@ Plain Vanilla Usage of numpy
 See also *numpy-* for numpy development rather than usage.
 
 
+Compressed NumPy ? bcolz
+---------------------------
+
+* http://bcolz.blosc.org/en/latest/intro.html
+* https://github.com/Blosc/bcolz/blob/master/docs/tutorial_carray.ipynb
+
+* blosc : faster than *memcpy()*
+
+
+Faster NumPy ? numexpr
+-------------------------
+
+* https://github.com/pydata/numexpr
+* https://numexpr.readthedocs.io/en/latest/user_guide.html
+
+
+Beyond NumPy : many packages provide different implementation of the NumPy API 
+-------------------------------------------------------------------------------
+
+* https://matthewrocklin.com/blog//work/2018/05/27/beyond-numpy
+
 
 Best Introductions
 --------------------
