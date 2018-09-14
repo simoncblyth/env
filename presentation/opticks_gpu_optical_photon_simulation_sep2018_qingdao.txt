@@ -644,6 +644,7 @@ Geant4 : Overview
 `Optical Photon Simulation Problem...`
 ---------------------------------------------------------
 
+
 :i:`JPMT Before Contact 2`
 --------------------------
 
@@ -651,23 +652,21 @@ Geant4 : Overview
 .. sidebar:: Optical Photon Problem
 
     .. class:: small
-       
 
          **Cosmic muon backgrounds**
-              many millions of optical photons in Daya Bay (~10x more in JUNO)
+           many millions of optical photons in JUNO scintillator
 
-         * optical propagation dominates *Geant4* CPU time, ~99% JUNO, ~95% Daya Bay
+         **Simulation Bottleneck**
+           ~99% CPU time, memory constraints
 
-         * severe CPU memory constraint
+         **Optical photons : naturally parallel, simple :**
+           * produced by Cerenkov+Scintillation 
+           * yield only Photomultiplier hits
 
-         Optical photons:
+         **-> Hybrid Solution : Geant4 + Opticks** 
 
-         * produced by Cerenkov+Scintillation processes
-         * yield only Photomultiplier hits
 
-         Isolated nature -> **easily separated propagation**
-         
-         **Hybrid Solution Possible : Geant4 + Opticks** 
+
 
 
 
@@ -675,7 +674,7 @@ Geant4 : Overview
 :small:`Ray Traced Image Synthesis ≈ Optical Photon Simulation`
 -------------------------------------------------------------------------------
 
-.. sidebar:: OptiX Pixel Calculation 
+.. sidebar:: Not a Photo, a Calculation
 
     .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
        :width: 450px
@@ -685,32 +684,28 @@ Geant4 : Overview
 
         http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
 
-    .. comment
-
-       Not a photo
-
 
 .. class:: small
 
     Geometry, light sources, optical physics ->  
-      * pixel values at image plane
-      * photon parameters at detectors (eg PMTs)
+
+    * pixel values at image plane
+    * photon parameters at detectors (eg PMTs)
 
     **Ray tracing has many applications** :
-      * advertising, design, entertainment, games,...
-      * BUT : most ray tracers just render images
+
+    * advertising, design, entertainment, games,...
+    * BUT : most ray tracers just render images
 
     **Ray-geometry intersection**
-      * hw+sw continuously optimized over 30 years
-      * performance > 100M intersections per second per GPU
 
-    **NVIDIA OptiX** 
-      * general geometry intersection API
-      * :red:`OptiX is to ray tracing what OpenGL is to rasterization` 
+    * hw+sw continuously optimized over 30 years
+    * performance > 100M intersections per second per GPU
 
 .. raw:: html
 
     <pre class="mypre">
+
     </pre>
  
 .. class:: small
@@ -719,52 +714,57 @@ Geant4 : Overview
       project 3D primitives onto 2D image plane, combine fragments into pixel values 
 
     **ray tracing**
-      cast rays thru image pixels into scene, recursively reflect/refract with  
-      geometry intersected, combine returns into pixel values  
+      cast rays thru image pixels into scene, recursively reflect/refract at
+      intersects, combine returns into pixel values  
           
 
 
 
-:i:`NVIDIA OptiX 1`
--------------------------------------------------------------------------------
 
-:i:`NVIDIA OptiX 2`
--------------------------------------------------------------------------------
 
-.. sidebar::  NVIDIA® OptiX™ 
+
+
+:small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
+--------------------------------------------------------------------------------
+
+.. sidebar:: OptiX Raytracing Pipeline
 
     .. class:: small
 
-       http://developer.nvidia.com/optix
+       Analogous to OpenGL rasterization pipeline:
 
-       * no rendering assumptions
-  
-       * **just accelerates ray-geometry intersections**
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
 
-       * :red:`compiler optimized for GPU ray tracing`
+.. class:: small
 
-       * regular improvements, new GPU tuning
+   **OptiX makes GPU ray tracing accessible**
 
-       * NVIDIA expertise on GPU/multi-GPU usage
+   * **accelerates** ray-geometry intersections
+   * simple : single-ray programming model
+   * "...free to use within any application..."
 
-         * ~linear scaling with cores across GPUs
+   **NVIDIA expertise:**
 
-       * free to acquire, use, distribute non-commercially 
+   * ~linear scaling with CUDA cores across multiple GPUs
+   * acceleration structure creation + traversal (Blue)
+   * instanced sharing of geometry + acceleration structures
+   * :red:`compiler optimized for GPU ray tracing`
+   * regular updates, profit from new GPU features:
 
-       * :blue:`simple : single-ray programming model`
-
-
-
-
-.. image:: /env/presentation/1px.png
-   :width: 1px
-   :height: 100px
-   :align: center
+     * NVIDIA RTX™ with Volta GPUs
 
 .. class:: tiny
 
-   ``https://research.nvidia.com/publication/optix-general-purpose-ray-tracing-engine``
+       ``https://developer.nvidia.com/rtx``
 
+.. class:: small
+
+   **User provides (Yellow):**
+
+   * ray generation
+   * geometry bounding box, intersects 
 
 
 
@@ -797,197 +797,22 @@ Geant4 : Overview
 
 
 
-
-:small:`OptiX Programming Model : raytrace pipeline made from CUDA programs`
-----------------------------------------------------------------------------------------
-
-
-.. sidebar:: OptiX Control Flow 
-
-    .. class:: small
-
-        * Yellow: User supplied, Blue: OptiX internals
-
-    .. image:: /env/optix/docs/optix-model.png
-       :width: 450px
-       :align: right
-
-
-.. class:: small
-
-    OptiX provides a :red:`ray tracing pipeline` analogous to OpenGL
-    rasterization pipeline. 
-
-    **OptiX programs used by Opticks photon simulation**
-
-    *Ray Generation* 
-         coordinate: generate, propagate, write hits
-
-    *Geometry Intersection* 
-         mesh triangle or analytic CSG tree intersection
-
-    *Closest Hit*
-         pass intersect to generation (distance, normal, identity) 
-
-
-.. class:: small
-
-    Handled by NVIDIA OptiX:
-
-    * acceleration structure creation + traversal 
-    * instanced sharing of geometry + acceleration structures 
-    * domain optimized combination of CUDA programs into kernel
-    * cross GPU work scheduling
-
-    Everything else : user supplied 
-
-  
-
-
-.. class:: tiny
-  
-    https://research.nvidia.com/sites/default/files/publications/Parker10Optix_1.pdf 
-
-
-
-
-
-
-:small:`Opticks : GPU Optical photon simulation with NVIDIA OptiX. How ?`
---------------------------------------------------------------------------
-
-
-.. sidebar:: G4 "Context" -> GPU 
-
-    .. class:: small
-   
-       **Straightforward : just translation**
-
-       * translation of optical physics to CUDA
-       * interleave material/surface properties into GPU textures 
-
-       **Difficult : novel development was required** 
-
-       * develop general GPU CSG tree intersection 
-       * develop auto conversion from GDML
-       * ~10 CUDA ray-primitive intersection programs: sphere, box, cone, torus, ... 
-
-
-.. class:: small
-
-
-   **Optical Photon Generation**
-
-   * translate G4Cerenkov, G4Scintillation optical photon generation loop 
-     into parallel CUDA form (:red:`only generation loop ported`)
-
-   * "genstep" parameters collected, copied to GPU for propagation 
-     at end of event 
-
-   **Optical Photon Propagation + Scintillator Reemission**
-
-   * CUDA port of G4OpAbsorption, G4OpRayleigh, G4OpBoundaryProcess 
-     (small subset for optical surfaces in use) 
-
-   * scintillator reemission handled as fraction of bulk absorbed 
-     being "reborn" within same GPU thread
-
-
-   **Collect PMT hits into standard G4 Hit collections**
-
-   * just photomultiplier hits copied to CPU
-
-
- 
-   **Requires : Geometry converted into GPU appropriate form**
-
-   * geometry serialized into buffers, uploaded to GPU at initialization
-   * CUDA intersect + bounding box programs using geometry buffers
-     communicate geometry to OptiX 
-
-   * general ray intersection with CSG trees implemented within OptiX primitive
-
-
-
-
-
-:small:`Geometry : Geant4 -> Opticks Geocache -> OptiX GPU`
--------------------------------------------------------------
-
-.. sidebar:: Volumes -> Boundaries 
-
-    .. class:: small
-
-      **Ray tracing favors Boundaries**
-
-      Material/surface boundary representation (4 indices)
-
-      * outer material (parent)
-      * outer surface (inward photons, parent -> self)
-      * inner surface (outward photons, self -> parent)
-      * inner material (self)
-
-      Primitives labelled with unique boundary index
-
-      * ray primitive intersection -> boundary index
-      * texture lookup -> material/surface properties
-
-
-      GPU textures also used for:
-
-      * scintillator reemission wavelength generation
-      * standard illuminant Plankian wavelength gen
-
-
-.. class:: small
-
-
-    Geocache -> :red:`few seconds startup, instead of few minutes`
-
-    * **Benefit from constant nature of Geometry**
-
-
-    **Once per geometry : Export, Construct Geocache**
-      * G4 Export : Analytic (GDML) + Triangulated (G4DAE)
-      * parse G4DAE + GDML into volume trees
-      * find repeated geometry "instances" (progeny digests)
-      * construct material/surface property arrays
-      * full geometry written to NumPy ``.npy`` serialization files 
-
-    **Every run : upload geocache + make acceleration structure**
-      * load geocache ``.npy`` files
-      * upload OptiX textures to GPU 
-      * upload OptiX geometry buffers to GPU
-
-      * intersect + bounding box programs -> :red:`OptiX acceleration structures`
-
-      * :blue:`complex shapes modelled via CSG boolean combinations`
-
-
-.. class:: tiny
-
-   https://bitbucket.org/simoncblyth/g4dae
-
-
-
 :small:`Opticks : GPU Geometry starts from ray-primitive intersection`
 -------------------------------------------------------------------------------------------------
 
 .. class:: small
 
    * 3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
-   * implicit equation of primitive : **f(x,y,z) = 0**
+   * implicit equation of primitive : **f(x,y,z) = 0**  
+   * -> polynomial in **t** , roots: **t > t_min**  -> intersection positions + surface normals
 
-
-.. image:: /env/presentation/tboolean_parade_sep2017.png
+.. figure:: /env/presentation/tboolean_parade_sep2017.png
    :width: 900px
    :align: center
 
-.. class:: small
+   :red:`CUDA/OptiX intersection for ~10 primitives` -> :blue:`Exact geometry translation`
 
-   * polynomial roots in **t** -> intersection positions + surface normals,  :blue:`calculated for every raytrace pixel`
-   * same intersect calculation used for raytracing and photon propagation  
-   * :red:`full detector geometries composed from CSG boolean combinations of primitive solids`
+
 
 
 :small:`Torus : much more difficult/expensive than other primitives`
@@ -1026,27 +851,6 @@ Geant4 : Overview
    **Best Solution : replace torus**
 
    * eg model PMT neck with hyperboloid, not cylinder-torus
-
-
-
-:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)`
----------------------------------------------------------------------
-
-:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)`
----------------------------------------------------------------------
-
-:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)`
----------------------------------------------------------------------
-
-:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)`
----------------------------------------------------------------------
-
-:i:`Opticks Analytic JUNO Chimney, GPU Raytrace (0)`
----------------------------------------------------------------------
-
-:i:`Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)`
----------------------------------------------------------------------
-
 
 
 
@@ -1134,9 +938,10 @@ Geant4 : Overview
 
    :red:`Classical approach not appropriate on GPU`
 
-   
 
-:small:`Ray Tracing CSG Objects Using Single Hit Intersections (A. Kensler) [*]`
+
+
+:small:`Ray intersection with general CSG binary trees, on GPU`
 ---------------------------------------------------------------------------------
 
 .. sidebar:: Outside/Inside Unions
@@ -1161,38 +966,44 @@ Geant4 : Overview
 
 .. class:: small
 
-   * Classify A,B intersects, Enter/Exit/Miss
-   * state(A,B) -> action
-   * LoopA : tMinA->tA, re-intersectA, re-classifyA (ditto LoopB)
- 
-   ===============  ===========  ============  ============== 
-   Union, tA < tB     Enter B     Exit B        Miss B
-   ===============  ===========  ============  ==============
-   **Enter A**        ReturnA      LoopA        ReturnA
-   **Exit A**         ReturnA      ReturnB      ReturnA 
-   **Miss A**         ReturnB      ReturnB      ReturnMiss
-   ===============  ===========  ============  ==============
+   Pick between pairs of nearest intersects, eg:
 
-   ===============  ===========  ============  ============== 
-   Union, tB < tA     Enter B     Exit B        Miss B
-   ===============  ===========  ============  ==============
-   **Enter A**        ReturnB      ReturnB      ReturnA
-   **Exit A**         LoopB        ReturnA      ReturnA 
-   **Miss A**         ReturnB      ReturnB      ReturnMiss
-   ===============  ===========  ============  ==============
+   =======================  ===========  ===============  ============== 
+   *UNION* tA < tB           Enter B      Exit B           Miss B
+   =======================  ===========  ===============  ============== 
+   **Enter A**               ReturnA      :blue:`LoopA`    ReturnA
+   **Exit A**                ReturnA      ReturnB          ReturnA 
+   **Miss A**                ReturnB      ReturnB          ReturnMiss
+   =======================  ===========  ===============  ============== 
+
+   * *Nearest hit intersect algorithm* [1] avoids state
+
+     * sometimes :blue:`Loop` : advance **t_min** , re-intersect both 
+     * classification shows if inside/outside
+
+   * *Evaluative* [2] implementation emulates recursion: 
+
+     * :red:`recursion not allowed` in OptiX intersect programs
+     * bit twiddle traversal of complete binary tree 
+     * stacks of postorder slices and intersects 
+
+   * :red:`Identical geometry to Geant4` 
+
+     * solving the same polynomials 
+     * near perfect intersection match
 
 
-.. class:: small
-
-   :blue:`Recursive CSG tree python prototype of Kensler pseudocode worked after state table corrections/extensions`
-
-   * BUT GPU/OptiX demands: :red:`no recursion in intersect program`  
 
 .. class:: tiny
 
-    [*] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
         with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
-  
+ 
+    [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+        Similar to binary expression tree evaluation using postorder traverse. 
+
+
+
 
 
 :small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
@@ -1213,12 +1024,13 @@ Geant4 : Overview
 
 .. class:: small
 
-    CSG Tree, leaf node primitives, internal node operators, 4x4 transforms on any node, 
-    serialized as :blue:`complete binary tree`:
+    Geant4 solid -> CSG binary tree (leaf primitives, non-leaf operators, 4x4 transforms on any node)
+
+    Serialize to **complete binary tree** buffer:
  
+    * no need to deserialize, no child/parent pointers
     * bit twiddling navigation :red:`avoids recursion`
-    * no need to deserialize
-    * no child/parent pointers
+    * simple approach profits from small size of binary trees 
     * BUT: very inefficient when unbalanced 
 
     **Height 3 complete binary tree with level order indices:**
@@ -1245,6 +1057,64 @@ Geant4 : Overview
 
    Postorder tree traverse visits all nodes, starting from leftmost, such that children 
    are visited prior to their parents.
+
+
+
+
+
+
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic JUNO Chimney, GPU Raytrace (0)`
+---------------------------------------------------------------------
+
+:i:`Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)`
+---------------------------------------------------------------------
+
+
+
+
+
+
+
+:small:`CSG Photomultiplier Tube Neck Modelling`
+---------------------------------------------------------------------------------
+
+
+.. image:: /env/presentation/tboolean_12_rasterized.png
+   :width: 550px
+   :align: left
+
+.. image:: /env/presentation/tboolean_12_raytrace.png
+   :width: 550px
+   :align: right
+
+
+.. class:: small
+
+    * LHS : Ellipsoid + Hyperboloid + Cylinder
+    * RHS : Ellipsoid + (Cylinder - Torus) + Cylinder 
+
+
+    Ellipsoid
+         actually z-cut sphere with transform
+
+    Hyperboloid of revolution 
+         **sqrt(x^2 + y^2) = r0 sqrt( (z/zf)^2 + 1)** 
+
+    Torus 
+         **sqrt(x^2 + y^2) = R - sqrt( r^2 - z^2 )** 
 
 
 :small:`Evaluative CSG intersection Pseudocode : recursion emulated`
