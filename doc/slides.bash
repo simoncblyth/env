@@ -14,6 +14,25 @@ PDF page size : Very large because somehow 72dpi ?
 * 90.32 x 50.8 cm
 
 
+
+minor issue : some fullscreen image pages have a band at foot 860-846 of about 14 pixels
+-------------------------------------------------------------------------------------------
+
+eg /env/graphics/ggeoview/jpmt-inside-wide_crop.png 
+
+Original image is : 2560x1440 
+
+
+Fullscreen spec in s5_background_image is half that size::
+
+   /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+   Measuring safari window 
+
+   83:722
+
+
+
 aspect check
 --------------
 
@@ -366,7 +385,8 @@ slides-env(){      elocal- ; bitbucketstatic- ; presentation- ;  }
 slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
 
 #slides-dir(){   apache- ; echo $(apache-htdocs)/env/$(slides-fold) ; }
-slides-dir(){   echo $HOME/simoncblyth.bitbucket.io/env/$(slides-fold) ; }
+#slides-dir(){   echo $HOME/simoncblyth.bitbucket.io/env/$(slides-fold) ; }
+slides-dir(){   echo /tmp/simoncblyth.bitbucket.io/env/$(slides-fold) ; }
 
 slides-sdir(){  echo $(env-home)/$(slides-branch) ; } 
 slides-pdir(){  echo $(env-home)/_build/dirhtml/$(slides-fold) ; }
@@ -393,7 +413,6 @@ EOI
 slides-ls(){  ls -l $(slides-dir); }
 slides-cd(){  cd $(slides-dir)/$1; }
 slides-scd(){  cd $(slides-sdir); }
-slides-mate(){ mate $(slides-dir) ; }
 slides-mkdir(){ mkdir -p $(slides-dir) ; }
 slides-get(){
 
@@ -421,7 +440,8 @@ slides-get-llr(){     slides-get 0 32 ; }
 slides-get-psroc(){   slides-get 0 26 ; }
 slides-get-psroc0(){  slides-get 0 0 ; }
 slides-get-jul2017(){ slides-get 0 34 ; }
-slides-get-sep2017sdu(){ slides-get 0 36 ; }
+slides-get-sdu(){ slides-get 0 59 ; }
+#slides-get-sdu(){ slides-get 0 3 ; }
 slides-get-sep2017wol(){ slides-get 0 47 ; }
 slides-get-chep(){ slides-get 0 21 ; }
 slides-get-ihep(){ slides-get 0 23 ; }
@@ -512,7 +532,7 @@ slides-publish-rsync(){
 
 #slides-fmt(){ echo pdf ; }  # PIL cannot crop PDF
 slides-fmt(){ echo png ; }   
-
+slides-quit(){ touch ~/QUIT ; }
 slides-capture(){
    local msg="=== $FUNCNAME "
 
@@ -526,7 +546,6 @@ slides-capture(){
    local zpage
    local name
    local cname
-
  
 
    for page in $pages ; do

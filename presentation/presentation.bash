@@ -8,15 +8,46 @@ presentation-usage(){ cat << EOU
 Presentation preparation
 ============================
 
+Workflow for preparing slides
+------------------------------
 
-IDEAS : JUNO Collab Meeting Plenary July 2018
-----------------------------------------------
+1. in one Terminal tab edit presentation txt with presentation-edit
+2. in another, convert the rst to html and open current page in Safari with:: 
 
-Objective : drum up interest sufficient to get some profs to assign some workers
+   PAGE=20 presentation--
 
-* interest in Opticks, expts 
-* Opticks roadmap
+* NB **DO NOT** simply reload and page forwards, instead use the above to jump to the page, 
+  can also "presentation-open 10" or "po 10" to jump to a page without rebuilding the html
 
+
+S5 : Presentation HTML mechanics : jumping to a slide during presentation preparation
+---------------------------------------------------------------------------------------
+
+* http://docutils.sourceforge.net/docs/user/slide-shows.html
+
+* ui/my-small-white/slides.js is javascript in use 
+
+* agressive caching of javascript by Safari seems undefeatable 
+
+  * force a fail to load by changing the name of ui/my-small-white/slides.js to ensure a change gets seen  
+
+* **To jump to a slide : type the number and press return** 
+
+* http://localhost/env/presentation/opticks_gpu_optical_photon_simulation_sep2018_qingdao.html?p=30
+
+  * Changing ?p=xx of url in browser and reloading, does not work in Safari, it does in Chrome 
+    
+    * actually it kinda works : initially goes to first page, a subsequent reload goes to desired page 
+    * BUT: can just type page number whilst page is in focus and press return in both Safari/Chrome
+
+  * open from commandline with "?p=xx" url creates a new Safari tab and loads correctly  
+
+    * "open http://localhost/env/presentation/opticks_gpu_optical_photon_simulation_sep2018_qingdao.html?p=30"
+    * "presentation-open 30"   
+    * use shortcut function for this : po () { presentation-; presentation-open ${1:-0} ; }
+    * get into habit of closing tabs with cmd-W, as using po creates new ones all the time
+
+     
 
 Presentations online
 ----------------------
@@ -1014,7 +1045,7 @@ presentation--(){
    presentation-
    presentation-info
    presentation-make
-   presentation-open
+   presentation-open ${PAGE:-0}
 }
 
 

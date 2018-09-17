@@ -31,8 +31,7 @@
 
        **More Photons -> More Benefit** 
 
-       * Neutrino detectors can benefit the most, eg
-         JUNO and Dayabay 
+       * huge time/energy savings for JUNO 
 
        http://bitbucket.org/simoncblyth/opticks
 
@@ -62,10 +61,9 @@ Outline : Tools, Techniques and Opticks
 
 .. class:: small
 
-   * General Tools for data science
+   * Fundamental Tools for data science
 
      * *NumPy* : large array handling with python flexibility/brevity at C speed 
-     * *NVIDIA CUDA + Thrust* : GPU parallel compute 
 
    * Technique : Monte Carlo Method  
 
@@ -76,6 +74,7 @@ Outline : Tools, Techniques and Opticks
      * modelling Scattering and Absorption
      * accept-reject sampling 
      * estimating pi 
+     * *NVIDIA CUDA + Thrust* : GPU estimating pi  
 
    * *Geant4* : Standard Monte Carlo in HEP  
 
@@ -142,12 +141,14 @@ Outline : Tools, Techniques and Opticks
 :small:`NumPy : Python flexibility+brevity at C speed`
 ---------------------------------------------------------------------------
 
-.. sidebar:: :small:`NumPy and Opticks`
+.. sidebar:: :small:`Opticks.NPY package` 
 
     .. class:: small
 
-        Opticks does **not** depend on NumPy but it 
-        persists almost everything(*) in NPY serialization format 
+        * inspired by *NumPy* : does not depend on it
+        * implements *NumPy* serialization file format, 
+          into which almost everything(*) is persisted  
+        * *Opticks* analysis/debugging done with *NumPy* and *IPython* 
 
     .. class:: tiny   
  
@@ -155,29 +156,28 @@ Outline : Tools, Techniques and Opticks
 
 .. class:: small
 
-   **“... the fundamental package for scientific computing with Python ...”** 
+   **“fundamental package for scientific computing with Python”** 
 
-   Usually *NumPy* arrays are contiguous blocks of memory 
+   *NumPy* arrays : simply an interface to C memory buffers 
 
-   * fast memcpy, cudaMemcpy 
-   * fast serialization/deserialization
-   * simple interoperation with C, C++, CUDA 
+   * :red:`extreme simplicity` : simple interop with C, C++, CUDA 
+   * slices are no-copy "views" of underlying buffers
+   * reshape/transpose : just changes metadata
+   * fast memcpy, cudaMemcpy, serialization/deserialization
    
-   Very terse, powerful python interface to C performance
+   Very terse, no-loop python interface to C performance
 
-   * **array-oriented computing** 
+   * **array-oriented computing** (C loops under python control)
    * interactive handling of very large N-dimensional arrays
-   * million item arrays from python faster to manipulate than millions of C++ objects   
+   * easily manipulate million item arrays from python
 
-   Exploit **vectorization** (short step to **parallelization**)
+     * faster + more convenient than dealing with millions of C++ objects   
 
-   * avoids very slow python looping 
-   * loops done in C, controlled from python
-   * forces rethinking approach to work with **vectorization** 
+.. class:: small
 
-   Refs
+   **“The NumPy array: a structure for efficient numerical computation”**  
 
-   * https://docs.scipy.org/doc/numpy/user/quickstart.html
+   * https://hal.inria.fr/inria-00564007/document
 
 
 :small:`NumPy : Central to Python Ecosystem`
@@ -185,8 +185,10 @@ Outline : Tools, Techniques and Opticks
 
 .. class:: small
 
-   * Python : popular language for data science, machine learning (TensorFlow, Theano, Keras)   
-   * NumPy : Central to Ecosystem : Common Base Format/API : used + extended by many packages 
+   * *Python* : popular language for data science, machine learning (TensorFlow, Theano, Keras)   
+   * *NumPy* : Central to Ecosystem : Common Base Format/API : used by data science, machine learning packages
+     (TensorFlow, Theano, Keras, Scikit-learn, MatplotLib)
+   
  
 .. image:: /env/presentation/numpy_ecosystem.png
    :width: 700px
@@ -196,11 +198,13 @@ Outline : Tools, Techniques and Opticks
 
    http://luispedro.org/files/talks/2014/09-pyss/pyss14.html
 
+   https://docs.scipy.org/doc/numpy/user/quickstart.html
+
+   https://github.com/donnemartin/data-science-ipython-notebooks
 
 
-:small:`The Zen of Numpy, by its creator, Travis Oliphant (version 0.1)`
+:small:`The Zen of Numpy, by its creator, Travis Oliphant`
 --------------------------------------------------------------------------
-
 
 .. raw:: html
 
@@ -221,11 +225,9 @@ Outline : Tools, Techniques and Opticks
 
     **My take : best tool depends on nature of data**
 
-    * *NumPy* shines for large[2] and simple data 
-    * splitting data to make it simple : brings other benefits !
-    * *NumPy* holistic approach to data : prepares you for **vectorized and parallel** processing
-    * no-looping makes for a great terse interactive interface
-    * python data science/AI packages support *NumPy*
+    * *NumPy* shines for large[2] and simple data ; splitting data to make it simple brings other benefits !
+    * *NumPy* holistic approach : prepares you for **vectorized and parallel** processing
+    * no-looping makes for an terse, intuitive interactive interface
 
 
 .. class:: tiny
@@ -711,13 +713,13 @@ Outline : Tools, Techniques and Opticks
 
 .. class:: small
 
-   * CUDA functor, using **curand** RNG  
+   * C++ functor with ``__device__ float operator()`` 
+   * struct member *N* set on host(CPU), used on device(GPU) : taken care of by *Thrust* 
 
 
 .. raw:: html
 
     <pre class="mypretiny">
-    // http://docs.nvidia.com/cuda/curand/device-api-overview.html#thrust-and-curand-example
 
     #include &lt;curand_kernel.h&gt; 
 
@@ -729,7 +731,7 @@ Outline : Tools, Techniques and Opticks
         {   
             float sum = 0;  
             curandState rng; 
-            curand_init(seed, 0, 0, &rng); 
+            curand_init(seed, 0, 0, &rng);   <b><span class="alarm">// initializing curand is expensive better to split + persist </span></b>
 
             for(int i = 0; i &lt; N; ++i) 
             {   
@@ -752,52 +754,54 @@ Outline : Tools, Techniques and Opticks
     https://bitbucket.org/simoncblyth/opticks/src/default/thrustrap/tests/thrust_curand_estimate_pi.cu 
 
 
+
+
+
 :small:`Thrust : Estimate pi : thrust::transform_reduce does the "launch"`
 ------------------------------------------------------------------------------
 
 .. raw:: html
 
     <pre class="mypretiny">
-
-    #include &lt;cmath&gt;
     #include &lt;thrust/iterator/counting_iterator.h&gt; 
-    #include &lt;thrust/functional.h&gt; 
     #include &lt;thrust/transform_reduce.h&gt; 
     #include &lt;iostream&gt; 
     #include &lt;iomanip&gt; 
 
     int main() 
     { 
-         int N = 10000; 
-         int M = 30000; 
+         int N = 10000; int M = 30000; 
 
-         float estimate = thrust::transform_reduce( 
-                    thrust::counting_iterator&lt;int&gt;(0), 
-                    thrust::counting_iterator&lt;int&gt;(M), 
-                    estimate_pi(N), 
-                    0.0f, 
-                    thrust::plus&lt;float&gt;()); 
-
-          estimate /= M;  
+         float estimate = thrust::transform_reduce(            <b>// NB functor call ordering is undefined </b>
+                    thrust::counting_iterator&lt;int&gt;(0),
+                    thrust::counting_iterator&lt;int&gt;(M),   <b><span class="alarm">// 1st two args define implicit sequence  </span></b>
+                    estimate_pi(N),                      <b><span class="alarm">// the functor to apply to the sequence </span></b>
+                    0.0f,                                <b><span class="alarm">// initial value of reduction </span></b>
+                    thrust::plus&lt;float&gt;())/M ;           <b><span class="alarm">// how to combine results from the functor call </span></b>
 
           std::cout 
-              &lt;&lt; " M " &lt;&lt; M
-              &lt;&lt; " N " &lt;&lt; N
-              &lt;&lt; std::setprecision(5)
-              &lt;&lt; std::fixed
-              &lt;&lt; " estimate "
-              &lt;&lt; estimate
-              &lt;&lt; " delta "
-              &lt;&lt; estimate - M_PI
-              &lt;&lt; std::endl
-              ;
+              &lt;&lt; " M " &lt;&lt; M &lt;&lt; " N " &lt;&lt; N
+              &lt;&lt; std::setprecision(5) &lt;&lt; std::fixed 
+              &lt;&lt; " estimate " &lt;&lt; estimate
+              &lt;&lt; " delta "   &lt;&lt; estimate - M_PI &lt;&lt; std::endl ;
+
           return 0;
     }
-
     </pre>
 
 
+.. raw:: html
 
+    <pre class="mypretiny">
+    epsilon:tests blyth$ nvcc thrust_curand_estimate_pi.cu
+    epsilon:tests blyth$ ./a.out 
+     M 30000 N 10000 estimate 3.14142 delta -0.00017
+    </pre>
+
+
+.. class:: tiny 
+
+    https://bitbucket.org/simoncblyth/intro_to_cuda
 
 
 
@@ -840,18 +844,25 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 Geant4 : Overview
 ---------------------------------------------------
 
-.. sidebar:: :small:`No main()`
+.. sidebar:: :small:`No main(), No defaults`
 
     .. class:: small
  
          *Geant4* is a toolkit : it provides no *main()*
+
+         Materials and surfaces can be assigned optical properties
+         such as:  RINDEX, REFLECTIVITY
+
+         * very flexible model
+         * every optical photon represented as *G4Track* : pushed
+           and popped from stack 
 
 
 .. class:: small
 
    **Initialization**
 
-   * geometry defined as a heirarchy of volumes, with sensitive detector volumes
+   * define heirarchy of volumes, with materials, surfaces
    * physics particles and processes defined
    * setup primary particle generation to be used for each event
 
