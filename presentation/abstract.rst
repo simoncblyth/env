@@ -58,5 +58,40 @@ LeCosPA
     limited by optical photon processing.  
 
 
+Qingdao
+----------
+
+::
+
+    Opticks : Optical Photon Simulation for Particle Physics using GPU Accelerated Ray Tracing,
+    Focussing on Tools and Techniques
+
+    A detailed understanding of the generation and propagation of optical photons is vital 
+    to the design, operation and analysis of photomultiplier based neutrino detectors such as JUNO. 
+    Detailed detector simulations handling many millions of optical photons per interaction are 
+    needed to develop the understanding required to make precision measurements. 
+    Traditional serial approaches using the Geant4 simulation toolkit suffer from an optical 
+    photon simulation problem where photon handling provides a processing bottleneck 
+    and constitutes a CPU memory resource limitation.
+
+    I will present Opticks an open source project 
+    that solves the optical photon simulation problem by replacing the Geant4 optical photon simulation 
+    with an equivalent massively parallel GPU simulation implemented using the NVIDIA OptiX ray tracing engine.
+    Optical photon simulation performance with Opticks is extrapolated to exceed 1000x Geant4 
+    with workstation GPU machines. Optical photon processing time becomes effectively zero
+    and CPU memory constraints from the optical photons are eliminated. 
+
+    In order to provide directly actionable information my presentation covers techniques 
+    such as Monte Carlo sampling and gives examples of the use of data science tools 
+    such as NumPy, CUDA and Thrust.
+
+    
+
+
+
+
+
+
+
 
 

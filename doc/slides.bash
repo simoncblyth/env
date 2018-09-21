@@ -440,7 +440,7 @@ slides-get-llr(){     slides-get 0 32 ; }
 slides-get-psroc(){   slides-get 0 26 ; }
 slides-get-psroc0(){  slides-get 0 0 ; }
 slides-get-jul2017(){ slides-get 0 34 ; }
-slides-get-sdu(){ slides-get 0 59 ; }
+slides-get-sdu(){ slides-get 0 64 ; }
 #slides-get-sdu(){ slides-get 0 3 ; }
 slides-get-sep2017wol(){ slides-get 0 47 ; }
 slides-get-chep(){ slides-get 0 21 ; }
@@ -472,6 +472,9 @@ slides-url-page(){  echo "$(slides-url)?p=$1" ; }
 slides-safari(){  osascript $(slides-safari-path) ; }
 slides-safari-edit(){  vi $(slides-safari-path) ; }
 slides-safari-path(){  echo $(env-home)/doc/safari.applescript ; }  
+slides-chrome(){  osascript $(slides-chrome-path) ; }
+slides-chrome-edit(){  vi $(slides-chrome-path) ; }
+slides-chrome-path(){  echo $(env-home)/doc/chrome.applescript ; }  
 
 
 slides-screenshots-dir(){ echo $(apache-htdocs)/env/geant4/geometry/collada/g4daeview ; }

@@ -22,6 +22,12 @@ IPYTHON
 ========
 
 
+jupyter
+--------
+
+* http://jakevdp.github.io/blog/2017/12/05/installing-python-packages-from-jupyter/
+* http://jakevdp.github.io/blog/2017/03/03/reproducible-data-analysis-in-jupyter/
+
 
 debug ipython environment
 ---------------------------

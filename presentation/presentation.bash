@@ -3,10 +3,14 @@ presentation-src(){      echo presentation/presentation.bash ; }
 presentation-source(){   echo ${BASH_SOURCE:-$(env-home)/$(presentation-src)} ; }
 presentation-vi(){       vi $(presentation-source) ; }
 presentation-env(){      elocal- ; }
+
+
 presentation-usage(){ cat << EOU
 
 Presentation preparation
 ============================
+
+
 
 Workflow for preparing slides
 ------------------------------
@@ -1011,6 +1015,15 @@ presentation-e(){ vi $(presentation-path) ; }
 presentation-edit(){ vi $(presentation-path) ; }
 presentation-ed(){ vi $(presentation-path) ~/workflow/admin/reps/ntu-report-may-2017.rst ; }
 
+
+presentation-imake(){ 
+   presentation-cd
+   presentation-export
+   env | grep PRESENTATION
+   touch Makefile
+   make PYTHON="ipython -i --"  
+}
+
 presentation-make(){
    presentation-cd
    presentation-export
@@ -1036,6 +1049,13 @@ presentation-open(){
    slides-
    slides-safari    ## just resizes browser
 } 
+
+presentation-openc(){
+   open -a "Google Chrome" $(presentation-url-local $*)
+   sleep 0.3
+   slides-
+   slides-chrome   ## just resizes browser
+}
 
 
 presentation-url-remote(){   echo http://$(presentation-remote)/env/presentation/$(presentation-name).html?page=${1:-0} ; }

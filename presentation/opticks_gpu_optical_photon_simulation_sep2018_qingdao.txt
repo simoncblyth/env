@@ -14,6 +14,17 @@
     <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; Sept 2018, SDU, Qingdao </h2>
     </div>
 
+.. comment
+
+   Opticks applies GPU massive parallelism to optical photon simulation, it is of most interest for 
+   neutrino detectors like JUNO : due to the very large numbers of photons produced in the JUNO scintillator 
+   ... but any simulation that is limited by optical photons can benefit from Opticks
+
+   And the benefits can be enormous... modern GPUs have more than 5000 cores, Opticks succeeds to 
+   port all of the optical photon simulation to the GPU : because you really do have 
+   millions of similar calculations for cosmic muon for example : the performance improvement
+   over CPU is expected to be >1000 
+
 
 :i:`Opticks Benefits`
 ---------------------------
@@ -61,6 +72,11 @@ Outline : Tools, Techniques and Opticks
 
 .. class:: small
 
+   * Optical Photon simulation problem
+
+     * Hybrid solution : Geant4 + Opticks
+     * NVIDIA OptiX Ray Tracing Engine
+
    * Fundamental Tools for data science
 
      * *NumPy* : large array handling with python flexibility/brevity at C speed 
@@ -81,11 +97,6 @@ Outline : Tools, Techniques and Opticks
      * simulation toolkit generality
      * overview
 
-   * Optical Photon simulation problem
-
-     * Hybrid solution : Geant4 + Opticks
-     * NVIDIA OptiX Ray Tracing Engine
-
    * *Opticks* : optical photon simulation with NVIDIA OptiX
 
      * geometry workflow : geocache, GPU textures
@@ -94,20 +105,27 @@ Outline : Tools, Techniques and Opticks
      * Validation, performance comparisons
      * Summary
 
+
 .. comment
 
+   Opticks package applies GPU massive parallelism 
+   to remove a processing bottleneck.
+   It is a very focussed solution to a particular problem : so it  
+   will only be of direct relevance to you if you are working with a simulation 
+   with performance limited by optical photons.  
 
-   Opticks solves the very specific problem of handling the simulation of
-   very large numbers of optical photons : which is very important for detectors
-   with Photomultiplier tubes. relevant to neutrino detectors 
-   or dark matter search experiments, or who have simulations.
+   To make this talk more directly relevant and useful to more of you, 
+   I will devote a substantial part of it to describing the techniques and
+   tools that were particularly important.
 
-   The very large numbers of photons forced me to find faster data handling techniques.
+   Despite the specialized nature of the Opticks simulation, the techniques 
+   and tools used can be directly relevant to anyone working in data analysis in 
+   almost any field. 
 
-   So despite the very specialized nature of Opticks simulation many of 
-   the techniques used are relevant to almost anyone doing data analysis
-   from a wide range of fields. So after describing Opticks : I'll introduce 
-   you to some of the tools and techniques that I found. 
+   These have been principally monte carlo methods and the NumPy 
+   package  : which fits particularly well optical photon simulation.
+   Another vital thing has been CUDA and Thrust, which I will cover briefly.  
+   However I gave a whole presentation introducing CUDA and Thrust last year.
 
    Could easily spend many hours introducing the features of these tools, 
    but that would not be very useful :  as too much to grasp without practical usage ... 
@@ -119,76 +137,293 @@ Outline : Tools, Techniques and Opticks
    * describe simple approaches on how the tools fit together to provide cross language 
      numerical analysis environment 
 
-
-   Zen of NumPy  
-
-   * https://github.com/numpy/numpy/issues/2389
-
-   Software Carpentry
-
-   * https://software-carpentry.org/about/
-
-   Best Practices for Scientific Computing   
-
-   * https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1001745
-
    * https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/monte-carlo-methods-in-practice/monte-carlo-simulation
- 
 
 
 
 
-:small:`NumPy : Python flexibility+brevity at C speed`
----------------------------------------------------------------------------
 
-.. sidebar:: :small:`Opticks.NPY package` 
+`Optical Photon Simulation Problem...`
+---------------------------------------------------------
+
+
+:i:`JPMT Before Contact 2`
+--------------------------
+
+
+.. sidebar:: Optical Photon Problem
 
     .. class:: small
 
-        * inspired by *NumPy* : does not depend on it
-        * implements *NumPy* serialization file format, 
-          into which almost everything(*) is persisted  
-        * *Opticks* analysis/debugging done with *NumPy* and *IPython* 
+         **Cosmic muon backgrounds**
+           many millions of optical photons in JUNO scintillator
 
-    .. class:: tiny   
+         **Simulation Bottleneck**
+           ~99% CPU time, memory constraints
+
+         **Optical photons : naturally parallel, simple :**
+           * produced by Cerenkov+Scintillation 
+           * yield only Photomultiplier hits
+
+         **-> Hybrid Solution : Geant4 + Opticks** 
+
+
+
+
+
+
+
+
+:small:`Ray Traced Image Synthesis ≈ Optical Photon Simulation`
+-------------------------------------------------------------------------------
+
+.. sidebar:: Not a Photo, a Calculation
+
+    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
+       :width: 450px
+       :align: right
+
+    .. class:: tiny
+
+        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
+
+
+.. class:: small
+
+    Geometry, light sources, optical physics ->  
+
+    * pixel values at image plane
+    * photon parameters at detectors (eg PMTs)
+
+    **Ray tracing has many applications** :
+
+    * advertising, design, entertainment, games,...
+    * BUT : most ray tracers just render images
+
+    **Ray-geometry intersection**
+
+    * hw+sw continuously optimized over 30 years
+    * performance > 100M intersections per second per GPU
+
+.. raw:: html
+
+    <pre class="mypre">
+
+    </pre>
  
-        (*) gensteps, photons, hits, analytic CSG geometry shapes, transforms, triangulated geometry vertices, triangles, material/surface properties ... 
+.. class:: small
+
+    **rasterization**
+      project 3D primitives onto 2D image plane, combine fragments into pixel values 
+
+    **ray tracing**
+      cast rays thru image pixels into scene, recursively reflect/refract at
+      intersects, combine returns into pixel values  
+          
+
+
+
+:small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
+--------------------------------------------------------------------------------
+
+.. sidebar:: OptiX Raytracing Pipeline
+
+    .. class:: small
+
+       Analogous to OpenGL rasterization pipeline:
+
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
 
 .. class:: small
 
-   **“fundamental package for scientific computing with Python”** 
+   **OptiX makes GPU ray tracing accessible**
 
-   *NumPy* arrays : simply an interface to C memory buffers 
+   * **accelerates** ray-geometry intersections
+   * simple : single-ray programming model
+   * "...free to use within any application..."
 
-   * :red:`extreme simplicity` : simple interop with C, C++, CUDA 
-   * slices are no-copy "views" of underlying buffers
-   * reshape/transpose : just changes metadata
-   * fast memcpy, cudaMemcpy, serialization/deserialization
+   **NVIDIA expertise:**
+
+   * ~linear scaling with CUDA cores across multiple GPUs
+   * acceleration structure creation + traversal (Blue)
+   * instanced sharing of geometry + acceleration structures
+   * :red:`compiler optimized for GPU ray tracing`
+   * regular updates, profit from new GPU features:
+
+     * NVIDIA RTX™ with Volta, Turing GPUs
+
+.. class:: tiny
+
+       ``https://developer.nvidia.com/rtx``
+
+.. class:: small
+
+   **User provides (Yellow):**
+
+   * ray generation
+   * geometry bounding box, intersects 
+
+
+
+:small:`OptiX Performance Scaling with GPU cores`
+---------------------------------------------------------------------------
+
+.. sidebar:: Performance Linearity with CUDA cores 
+
+    .. image:: /env/g4dae/core_linearity.png
+       :width: 500px
+       :align: right
+
+.. class:: small
+
+    OptiX sample rendering with 2 GPU IHEP workstation,
+
+    * 2 Tesla K20m (4992 cores) 28.0 ms/f
+    * 1 Tesla K20m (2496 cores) 49.1 ms/f
+    * 1 GeForce GT 750m (384 cores) 345.1 ms/f
+ 
+    :red:`Performance linear with GPU cores`, compared to laptop:
+
+    * 13x cores, 12x performance
+    * performance scales across GPUs
+
+    Benefit from multiple GPUs with no development effort. 
+
+
+
+:small:`GPU "Shape" very different to CPU` 
+-------------------------------------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`5120 GPU cores vs ~<16 CPU cores`
+
+    .. class:: small
+
+        .. image:: /env/presentation/shape_of_cpu_vs_gpu_circles.png
+           :width: 500px
+           :align: right
+
+.. class:: small
+
+   **GPU performance explosion** continues, CPUs getting wider   
+
+   * current GPUs : up to 5120 CUDA cores (5120/16 = 320 )
+   * can scale to multiple GPUs with **~no development effort** (5120*4 = 20480) 
+
+   GPU cores not equivalent to CPU cores
    
-   Very terse, no-loop python interface to C performance
+   * object oriented C++ : mixes up data and compute
+   * cannot simply move CPU code to run on GPU
 
-   * **array-oriented computing** (C loops under python control)
-   * interactive handling of very large N-dimensional arrays
-   * easily manipulate million item arrays from python
+     * **must separate data and compute** 
+ 
+   Effective GPU usage, requires
 
-     * faster + more convenient than dealing with millions of C++ objects   
+   * total restructure of code + data  
+   * highly parallel problem 
+
+     * simple code applied to large amounts of similar data
+
+
+.. exclude
+
+    Powers of 2, from **2^0 to 2^12 (4096)**
+
+:small:`Developing GPU simulation -> different perspective -> different tools`
+-------------------------------------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Development for GPU`
+
+    .. class:: small
+
+        Mostly from scratch 
+
+        * very limited set of libraries available
+        * no shared object loading
+        * cannot build complex libraries 
+
+        Forced to **rethink + reimplement** everything from first principals, eg:
+
+        * ray-geometry intersection 
+        * Monte Carlo sampling 
 
 .. class:: small
 
-   **“The NumPy array: a structure for efficient numerical computation”**  
+    Vast majority of Opticks code on CPU, setting up for GPU:
 
-   * https://hal.inria.fr/inria-00564007/document
+    * geometry buffers serialization
+    * boundary texture (material/surface properties)
+    * reemission texture (reemission wavelength generation) 
+
+    Everything must be serialized, for copying to GPU ; Exploit this:
+
+    * persist everything to file
+    * -> can load everything into *NumPy* as arrays
+    * Opticks code stays simple : no *Python/NumPy* dependency
+
+      * interactive debugging/analysis with *IPython + NumPy*
+
+    * *NumPy* **array-oriented approach** 
+
+      * :red:`excellent fit for GPU setup` 
+
+    Small amount of code on GPU : CUDA, Thrust 
+
+    * corresponding to "inner" loops from CPU code 
 
 
-:small:`NumPy : Central to Python Ecosystem`
---------------------------------------------------
+
+
+
+:small:`Python : fastest growing major programming language : Why?` 
+-------------------------------------------------------------------------------------------------------------------------------
 
 .. class:: small
 
-   * *Python* : popular language for data science, machine learning (TensorFlow, Theano, Keras)   
-   * *NumPy* : Central to Ecosystem : Common Base Format/API : used by data science, machine learning packages
-     (TensorFlow, Theano, Keras, Scikit-learn, MatplotLib)
+   * *Python* more than doubled userbase over past five years (measured by Stackoverflow questions) 
+   * Data science + machine learning developers prefer *Python* ? But why ?
+    
+     * easy to learn, fast to write, fast to read 
+     * efficient (no-copy) memory sharing between C/C++ libraries and scripts, due to **Buffer Protocol** 
+     * easiest way to use **Buffer Protocol** (from Python and C) is via *NumPy* : so they all do:
    
+       * TensorFlow, Theano, Keras, Scikit-learn
+
+    .. image:: /env/presentation/incredible_rise_of_python_2.png
+       :width: 600px
+       :align: right
+
+.. class:: tiny
+
+    https://stackoverflow.blog/2017/09/14/python-growing-quickly/  
+
+    https://insights.stackoverflow.com/trends
+
+    https://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/
+
+
+.. comment
+
+   Over the past 5 years, the python language has more than doubled its userbase according to this measure...
+
+   Looks set to become ever more dominant over next years... 
+
+   * so all the most popular data science and machine learning packages will provice python interfaces.  
+
+   * python can interface with native libraries in a very efficient way ... 
+
+   If you ever tried JNI...  
+
+
+
+:small:`NumPy : Fundamental to Python Data Ecosystem`
+-------------------------------------------------------
+
+.. class:: small
+
+   * central nature of *NumPy* to the *Python* world makes mastering it exceedingly useful
+   * understanding it, enables C/C++ performance with python brevity + ease of development  
  
 .. image:: /env/presentation/numpy_ecosystem.png
    :width: 700px
@@ -196,94 +431,62 @@ Outline : Tools, Techniques and Opticks
 
 .. class:: tiny
 
-   http://luispedro.org/files/talks/2014/09-pyss/pyss14.html
-
    https://docs.scipy.org/doc/numpy/user/quickstart.html
+
+   http://www.scipy-lectures.org/intro/index.html
 
    https://github.com/donnemartin/data-science-ipython-notebooks
 
 
-:small:`The Zen of Numpy, by its creator, Travis Oliphant`
---------------------------------------------------------------------------
 
-.. raw:: html
+.. comment
 
-    <pre class="mypre" >
+   Familiarity with NumPy fundmentals makes use of all these packages more straightforward.  
 
-    Strided is better than scattered.
-    Contiguous is better than strided.
-    Descriptive is better than imperative[1] (e.g. data-types).
-    <b>Array-orientated is better than object-oriented.</b>
-    <b>Broadcasting is a great idea -- use where possible!</b>
-    <b>Vectorized is better than an explicit loop.</b>
-    Unless it's complicated -- then use Cython or numexpr.
-    <b>Think in higher dimensions.</b>
-
-    </pre>
-
-.. class:: small
-
-    **My take : best tool depends on nature of data**
-
-    * *NumPy* shines for large[2] and simple data ; splitting data to make it simple brings other benefits !
-    * *NumPy* holistic approach : prepares you for **vectorized and parallel** processing
-    * no-looping makes for an terse, intuitive interactive interface
-
-
-.. class:: tiny
- 
-   [1] *imperative* means step by step how to do something
-
-   [2] but not so large that has trouble fitting in memory 
+   http://luispedro.org/files/talks/2014/09-pyss/pyss14.html
 
 
 
-:small:`NPY minimal file format : metadata header + data buffer : trivial to parse`
---------------------------------------------------------------------------------------------
 
-.. class:: small
+:i:`What are NumPy Arrays`
+---------------------------------------------------------------------------
 
-    * data accessible from anywhere : C/C++/CUDA/python/... ; Simple to *memcpy()* or *cudaMemcpy()* to GPU
 
-.. raw:: html 
+.. comment
 
-    <pre class="mypretiny">
+   At first glance NumPy doesnt seem very impressive : but that array could have hundreds of 
+   millions of elements in it, and it would enable you to efficently maniulate it : 
 
-    In [1]: a = np.arange(10)       <b> # array of 10 ints : 64 bit, 8 bytes each  </b>
-    In [2]: np.save("a.npy", a )      <b> # persist the array : serializing it into a file </b>
+   I will be showing examples, that I hope will demonstrate the power of NumPy 
 
-    In [3]: a2 = np.load("a.npy")        <b> # load array from file into memory </b>
-    In [4]: assert np.all( a == a2 )     <b> # check all elements the same </b>
 
-    In [5]: !xxd a.npy                  <b> # run xxd in shell to hexdump the byte contents of the file </b>  
 
-    00000000: 934e 554d 5059 0100 7600 7b27 6465 7363  .NUMPY..v.{'desc
-    00000010: 7227 3a20 273c 6938 272c 2027 666f 7274  r': '&lt;i8', 'fort
-    00000020: 7261 6e5f 6f72 6465 7227 3a20 4661 6c73  ran_order': Fals
-    00000030: 652c 2027 7368 6170 6527 3a20 2831 302c  e, 'shape': (10,   <b><span class="alarm"> # minimal metadata : type, shape   </span></b>
-    00000040: 292c 207d 2020 2020 2020 2020 2020 2020  ), }            
-    00000050: 2020 2020 2020 2020 2020 2020 2020 2020                  
-    00000060: 2020 2020 2020 2020 2020 2020 2020 2020                  
-    00000070: 2020 2020 2020 2020 2020 2020 2020 200a                 .   <b><span class="alarm"> # 128 bytes of header  </span></b>
-    00000080: 0000 0000 0000 0000 0100 0000 0000 0000  ................  
-    00000090: 0200 0000 0000 0000 0300 0000 0000 0000  ................
-    000000a0: 0400 0000 0000 0000 0500 0000 0000 0000  ................   <b><span class="alarm"> # data buffer  </span></b>  
-    000000b0: 0600 0000 0000 0000 0700 0000 0000 0000  ................
-    000000c0: 0800 0000 0000 0000 0900 0000 0000 0000  ................
+:i:`What are NumPy Arrays 2`
+---------------------------------------------------------------------------
 
-    In [6]: !ls -l a.npy    <b> # small 128 byte header + (8 bytes per integer)*10 = 208 bytes total </b> 
-    -rw-r--r--  1 blyth  staff  208 Sep 13 11:01 a.npy            
 
-    In [7]: a
-    Out[7]: array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-    In [8]: a.shape
-    Out[8]: (10,)
+.. sidebar:: Ideal for Large Arrays
 
-    </pre>
+    .. class:: small
 
-.. class:: tiny
+        **Natural Fit with Opticks Photon Simulation**
 
-    One possibility for compression with blosc http://bcolz.blosc.org/en/latest/intro.html 
+        * millions of photons : large and simple data 
+        * detector geometry : many thousands of PMTs, millions of vertices, triangles 
+
+        *NumPy* 100x speedups compared to python are common, but more importantly: 
+
+        * **NumPy+IPython provide excellent interactive environment**
+
+          * **array oriented** or **vectorized** approach (no looping) : terse + fast
+          * thinking **vectorized** prepares you for GPU
+
+    .. class:: tiny 
+
+       http://www.scipy-lectures.org/intro/numpy/index.html
+
+
+.. comment
 
 
 
@@ -334,6 +537,9 @@ Outline : Tools, Techniques and Opticks
 
 
 .. comment
+
+   Now lets shift from Tools to Techniques : the Monte Carlo method 
+
 
    Historical review on MC Method : Ulam, Von Neumann
 
@@ -418,6 +624,10 @@ Outline : Tools, Techniques and Opticks
    https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/propagate.h
    https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/rayleigh.h
 
+.. comment
+
+   How to actually use Monte Carlo method to implement an optical photon simulation...
+
 
 
 
@@ -430,15 +640,15 @@ Outline : Tools, Techniques and Opticks
 
 .. class:: small
 
-   **Cumulative distribution function (CDF)**
+   :red:`Aim : create sample (a set of values) that follows an analytic PDF`
 
-   * probability that value X is less than x  
-   * obtain by integrating probability density function PDF
-   * CDF(-inf) = 0, CDF(inf) = 1    
-   * monotonically increasing function 
-   * relation between PDF f and CDF F
+   **Cumulative distribution function (CDF) : Prob( X < x)**
+
+   * definite integral PDF f -> CDF F
 
      * **F(b) - F(a) = P( a < X <= b ) = Integral a->b  f(x) dx**      
+
+   * monotonically increasing function, CDF(-inf) = 0, CDF(inf) = 1    
 
    **Map uniform randoms onto probabilities**
 
@@ -811,6 +1021,15 @@ Geant4 : Monte Carlo Simulation Toolkit
 -------------------------------------------
 
 
+.. comment
+
+   These principals of Monte Carlo sampling and picking 
+   discrete histories are the basis for how Geant4 is implemented. 
+   Essentially Geant4 represents our understanding : in the form
+   of probability density functions.
+   
+
+
 Geant4 : Monte Carlo Simulation Toolkit Generality
 ---------------------------------------------------
 
@@ -893,163 +1112,6 @@ Geant4 : Overview
 
    ~/opticks_refs/Geant4_intro_J_Apostolakis.pdf
 
-
-
-
-
-`Optical Photon Simulation Problem...`
----------------------------------------------------------
-
-
-:i:`JPMT Before Contact 2`
---------------------------
-
-
-.. sidebar:: Optical Photon Problem
-
-    .. class:: small
-
-         **Cosmic muon backgrounds**
-           many millions of optical photons in JUNO scintillator
-
-         **Simulation Bottleneck**
-           ~99% CPU time, memory constraints
-
-         **Optical photons : naturally parallel, simple :**
-           * produced by Cerenkov+Scintillation 
-           * yield only Photomultiplier hits
-
-         **-> Hybrid Solution : Geant4 + Opticks** 
-
-
-
-
-
-
-
-:small:`Ray Traced Image Synthesis ≈ Optical Photon Simulation`
--------------------------------------------------------------------------------
-
-.. sidebar:: Not a Photo, a Calculation
-
-    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
-       :width: 450px
-       :align: right
-
-    .. class:: tiny
-
-        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
-
-
-.. class:: small
-
-    Geometry, light sources, optical physics ->  
-
-    * pixel values at image plane
-    * photon parameters at detectors (eg PMTs)
-
-    **Ray tracing has many applications** :
-
-    * advertising, design, entertainment, games,...
-    * BUT : most ray tracers just render images
-
-    **Ray-geometry intersection**
-
-    * hw+sw continuously optimized over 30 years
-    * performance > 100M intersections per second per GPU
-
-.. raw:: html
-
-    <pre class="mypre">
-
-    </pre>
- 
-.. class:: small
-
-    **rasterization**
-      project 3D primitives onto 2D image plane, combine fragments into pixel values 
-
-    **ray tracing**
-      cast rays thru image pixels into scene, recursively reflect/refract at
-      intersects, combine returns into pixel values  
-          
-
-
-
-
-
-
-
-:small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
---------------------------------------------------------------------------------
-
-.. sidebar:: OptiX Raytracing Pipeline
-
-    .. class:: small
-
-       Analogous to OpenGL rasterization pipeline:
-
-    .. image:: /env/optix/docs/optix-model.png
-       :width: 450px
-       :align: right
-
-.. class:: small
-
-   **OptiX makes GPU ray tracing accessible**
-
-   * **accelerates** ray-geometry intersections
-   * simple : single-ray programming model
-   * "...free to use within any application..."
-
-   **NVIDIA expertise:**
-
-   * ~linear scaling with CUDA cores across multiple GPUs
-   * acceleration structure creation + traversal (Blue)
-   * instanced sharing of geometry + acceleration structures
-   * :red:`compiler optimized for GPU ray tracing`
-   * regular updates, profit from new GPU features:
-
-     * NVIDIA RTX™ with Volta GPUs
-
-.. class:: tiny
-
-       ``https://developer.nvidia.com/rtx``
-
-.. class:: small
-
-   **User provides (Yellow):**
-
-   * ray generation
-   * geometry bounding box, intersects 
-
-
-
-
-
-
-:small:`OptiX Performance Scaling with GPU cores`
----------------------------------------------------------------------------
-
-.. sidebar:: Performance Linearity with CUDA cores 
-
-    .. image:: /env/g4dae/core_linearity.png
-       :width: 500px
-       :align: right
-
-.. class:: small
-
-    OptiX sample rendering with 2 GPU IHEP workstation,
-
-    * 2 Tesla K20m (4992 cores) 28.0 ms/f
-    * 1 Tesla K20m (2496 cores) 49.1 ms/f
-    * 1 GeForce GT 750m (384 cores) 345.1 ms/f
- 
-    :red:`Performance linear with GPU cores`, compared to laptop:
-
-    * 13x cores, 12x performance
-    * performance scales across GPUs
-
-    Benefit from multiple GPUs with no development effort. 
 
 
 
@@ -2182,6 +2244,156 @@ Geant4 : Overview
 
 
 
+:small:`The Zen of Numpy, by its creator, Travis Oliphant`
+--------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypre" >
+
+    Strided is better than scattered.
+    Contiguous is better than strided.
+    Descriptive is better than imperative[1] (e.g. data-types).
+    <b>Array-orientated is better than object-oriented.</b>
+    <b>Broadcasting is a great idea -- use where possible!</b>
+    <b>Vectorized is better than an explicit loop.</b>
+    Unless it's complicated -- then use Cython or numexpr.
+    <b>Think in higher dimensions.</b>
+
+    </pre>
+
+.. class:: small
+
+    **My take : best tool depends on nature of data**
+
+    * *NumPy* shines for large[2] and simple data ; splitting data to make it simple brings other benefits !
+    * *NumPy* holistic approach : prepares you for **vectorized and parallel** processing
+    * no-looping makes for an terse, intuitive interactive interface
+
+
+.. class:: tiny
+ 
+   [1] *imperative* means step by step how to do something
+
+   [2] but not so large that has trouble fitting in memory, np.memmap is possible but better to avoid for simplicity  
+
+
+
+:small:`NumPy : Python flexibility+brevity at C speed`
+---------------------------------------------------------------------------
+
+.. sidebar:: :small:`Opticks.NPY package` 
+
+    .. class:: small
+
+        * inspired by *NumPy* : does not depend on it
+        * implements *NumPy* serialization file format, 
+          into which almost everything(*) is persisted  
+        * *Opticks* analysis/debugging done with *NumPy* and *IPython* 
+
+    .. class:: tiny   
+ 
+        (*) gensteps, photons, hits, analytic CSG geometry shapes, transforms, triangulated geometry vertices, triangles, material/surface properties ... 
+
+.. class:: small
+
+   **“fundamental package for scientific computing with Python”** 
+
+   *NumPy* arrays : simply an interface to C memory buffers 
+
+   * :red:`extreme simplicity` : simple interop with C, C++, CUDA 
+   * slices are no-copy "views" of underlying buffers
+   * reshape/transpose : just changes metadata
+   * fast memcpy, cudaMemcpy, serialization/deserialization
+   
+   Very terse, no-loop python interface to C performance
+
+   * **array-oriented computing** (C loops under python control)
+   * interactive handling of very large N-dimensional arrays
+   * easily manipulate million item arrays from python
+
+     * faster + more convenient than dealing with millions of C++ objects   
+
+.. class:: small
+
+   **“The NumPy array: a structure for efficient numerical computation”**  
+
+   * https://hal.inria.fr/inria-00564007/document
+
+
+.. class:: tiny
+
+   NPY file format specification
+
+   https://github.com/numpy/numpy/blob/master/doc/neps/nep-0001-npy-format.rst
+
+
+.. comment
+
+    https://jeffknupp.com/blog/2017/09/15/python-is-the-fastest-growing-programming-language-due-to-a-feature-youve-never-heard-of/
+
+    Secret weapon of NumPy 
+
+    https://github.com/python/peps/blob/master/pep-3118.txt
+
+
+
+:small:`NPY minimal file format : metadata header + data buffer : trivial to parse`
+--------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    * data accessible from anywhere : C/C++/CUDA/python/... ; Simple to *memcpy()* or *cudaMemcpy()* to GPU
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+
+    In [1]: a = np.arange(10)       <b> # array of 10 ints : 64 bit, 8 bytes each  </b>
+    In [2]: np.save("a.npy", a )      <b> # persist the array : serializing it into a file </b>
+
+    In [3]: a2 = np.load("a.npy")        <b> # load array from file into memory </b>
+    In [4]: assert np.all( a == a2 )     <b> # check all elements the same </b>
+
+    In [5]: !xxd a.npy                  <b> # run xxd in shell to hexdump the byte contents of the file </b>  
+
+    00000000: 934e 554d 5059 0100 7600 7b27 6465 7363  .NUMPY..v.{'desc
+    00000010: 7227 3a20 273c 6938 272c 2027 666f 7274  r': '&lt;i8', 'fort
+    00000020: 7261 6e5f 6f72 6465 7227 3a20 4661 6c73  ran_order': Fals
+    00000030: 652c 2027 7368 6170 6527 3a20 2831 302c  e, 'shape': (10,   <b><span class="alarm"> # minimal metadata : type, shape   </span></b>
+    00000040: 292c 207d 2020 2020 2020 2020 2020 2020  ), }            
+    00000050: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000060: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000070: 2020 2020 2020 2020 2020 2020 2020 200a                 .   <b><span class="alarm"> # 128 bytes of header  </span></b>
+    00000080: 0000 0000 0000 0000 0100 0000 0000 0000  ................  
+    00000090: 0200 0000 0000 0000 0300 0000 0000 0000  ................
+    000000a0: 0400 0000 0000 0000 0500 0000 0000 0000  ................   <b><span class="alarm"> # data buffer  </span></b>  
+    000000b0: 0600 0000 0000 0000 0700 0000 0000 0000  ................
+    000000c0: 0800 0000 0000 0000 0900 0000 0000 0000  ................
+
+    In [6]: !ls -l a.npy    <b> # small 128 byte header + (8 bytes per integer)*10 = 208 bytes total </b> 
+    -rw-r--r--  1 blyth  staff  208 Sep 13 11:01 a.npy            
+
+    In [7]: a
+    Out[7]: array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    In [8]: a.shape
+    Out[8]: (10,)
+
+    </pre>
+
+.. class:: tiny
+
+    One possibility for compression with blosc http://bcolz.blosc.org/en/latest/intro.html 
+
+
+.. comment
+
+    Very simple file format : about as minimal as could be 
+
+    * easy to parse : can implement in any language
+    * very stable 
+
+
 
 
 
@@ -2451,6 +2663,13 @@ Geant4 : Overview
 
     Opticks Export of G4 geometry to glTF 2.0
     /env/yoctoglrap/dyb_near_venice_half.png 1020px_737px
+
+    What are NumPy Arrays
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
+    What are NumPy Arrays 2
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
 
 
 

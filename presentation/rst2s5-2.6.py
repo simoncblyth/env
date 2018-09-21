@@ -82,8 +82,11 @@ def collect_titles( doctree ):
     Slide titles
     """
     titles = []
+    comments = []
+
     maintitle = str(doctree.traverse(nodes.title)[0][0])
     titles.append(maintitle)
+    comments.append([])
 
     for section in doctree.traverse(nodes.section):
         names = section.attributes['names']
@@ -95,11 +98,16 @@ def collect_titles( doctree ):
         #print title
         titles.append(title)
 
+        cmms = section.traverse(nodes.comment) 
+        cmms = filter(lambda cmm:cmm.astext().startswith("comment"), cmms )
+        comments.append(cmms)
+    pass
+
     if not IP is None:
         pass
         #IP.embed()
 
-    return titles
+    return titles, comments
 
 
 def collect_resources( doctree ):
@@ -191,14 +199,34 @@ def main():
     #print "\n".join(paths)
     print "\n\n"
     log.info("list of titles from collect_titles") 
-    titles = collect_titles(pub.document)
-    print "\n".join(["%0.2d : %s " % (i, title) for i, title in enumerate(titles)])
-    return output
+    titles, comments = collect_titles(pub.document)
+
+    assert len(titles) == len(comments)
+
+    for i in range(len(titles)):
+        title = titles[i]  
+        cmms = comments[i]
+        print "%0.2d : %2d : %s " % (i, len(cmms), title )
+        print "=" * ( 15 + len(title) )
+        print
+        for cmm in cmms:
+            print 
+            txt = cmm.astext()
+            assert txt.startswith("comment")
+            lines = txt.split("\n")
+
+            print "\n".join(map(lambda line:"    %s" % line, lines[1:])) 
+            print 
+        pass
+        print 
+    pass
+    #return output
+    return pub.document
 
 
 
 if __name__ == '__main__':
-    main()
+    doc = main()
     
 
 
