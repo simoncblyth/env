@@ -28,6 +28,24 @@ jupyter
 * http://jakevdp.github.io/blog/2017/12/05/installing-python-packages-from-jupyter/
 * http://jakevdp.github.io/blog/2017/03/03/reproducible-data-analysis-in-jupyter/
 
+ipython from conda
+---------------------
+
+Default profile dont work with python3, so make new one::
+
+    epsilon:likelihood blyth$ ipython profile create foo
+    epsilon:likelihood blyth$ ipython --profile=foo
+    Python 3.7.0 (default, Jun 28 2018, 07:39:16) 
+    Type 'copyright', 'credits' or 'license' for more information
+    IPython 6.5.0 -- An enhanced Interactive Python. Type '?' for help.
+
+    IPython profile: foo
+
+    In [1]: 
+
+
+
+
 
 debug ipython environment
 ---------------------------

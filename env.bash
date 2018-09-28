@@ -2015,3 +2015,5 @@ rng-(){      . $(env-home)/numerics/rng/rng.bash && rng-env $* ; }
 rust-(){      . $(env-home)/rust/rust.bash && rust-env $* ; }
 bwasty-(){      . $(env-home)/graphics/gltf/viewer/bwasty.bash && bwasty-env $* ; }
 carpentry-(){      . $(env-home)/software/carpentry.bash && carpentry-env $* ; }
+cusolver-(){      . $(env-home)/cuda/cusolver/cusolver.bash && cusolver-env $* ; }
+recon-(){      . $(env-home)/recon/recon.bash && recon-env $* ; }

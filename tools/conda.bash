@@ -15,6 +15,55 @@ Refs
 * https://github.com/conda-forge
 * https://conda-forge.org/
 
+conda 
+-----------------
+
+* https://conda.io/docs/index.html
+* https://conda.io/docs/user-guide/index.html
+* https://conda.io/docs/commands/conda-search.html
+
+
+::
+
+    epsilon:~ blyth$ conda info --envs
+    # conda environments:
+    #
+    base                  *  /usr/local/env/tools/conda/miniconda3
+
+    epsilon:~ blyth$ 
+
+    epsilon:~ blyth$ conda create --name snowflakes
+    Solving environment: done
+
+    ## Package Plan ##
+
+      environment location: /usr/local/env/tools/conda/miniconda3/envs/snowflakes
+
+
+    Proceed ([y]/n)? 
+
+    Preparing transaction: done
+    Verifying transaction: done
+    Executing transaction: done
+    #
+    # To activate this environment, use:
+    # > source activate snowflakes
+    #
+    # To deactivate an active environment, use:
+    # > source deactivate
+    #
+
+    epsilon:~ blyth$ source activate snowflakes
+    (snowflakes) epsilon:~ blyth$ source deactivate
+    epsilon:~ blyth$
+
+    epsilon:~ blyth$ source activate
+    (base) epsilon:~ blyth$ source deactivate
+    epsilon:~ blyth$ 
+
+
+
+
 Travis Oliphant (NumPy originator) on conda
 ----------------------------------------------- 
 
@@ -106,6 +155,19 @@ Install
 
     438 # added by Miniconda3 installer
     439 export PATH="/usr/local/env/tools/conda/miniconda3/bin:$PATH"
+
+
+
+conda basics
+--------------
+
+::
+
+    conda install scipy
+    conda install ipython
+    conda install sympy 
+    conda install matplotlib
+
 
 
 
