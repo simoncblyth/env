@@ -31,6 +31,12 @@ IP Update
 
 
 
+Downloads
+------------
+
+* https://bitbucket.org/blog/new-feature-downloads
+
+
 Commits showing up as DRAFT
 -------------------------------
 

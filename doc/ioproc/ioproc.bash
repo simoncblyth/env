@@ -24,6 +24,18 @@ When submitting your paper, you need to know its Indico ID.
 * https://chep2016.conferenceseries.iop.org/
 
 
+CHEP 2018
+------------
+
+* see epjconf- as CHEP has jumped ship to EPJ Web of conferences
+
+
+CHEP2016 proceedings published
+--------------------------------
+
+* http://iopscience.iop.org/volume/1742-6596/898
+
+
 CHEP2016 submission
 ----------------------
 
@@ -295,6 +307,7 @@ ioproc-info(){ cat << EOI
    ioproc-etex     : $(ioproc-etex)
    ioproc-pdfname  : $(ioproc-pdfname)
    ioproc-pdf      : $(ioproc-pdf)
+   ioproc-dir      : $(ioproc-dir)
 
 EOI
 

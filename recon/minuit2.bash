@@ -15,7 +15,9 @@ Minuit2
 
 A standalone version of Minuit2 (independent of ROOT) can be downloaded from
 
-* https://root.cern.ch/doc/Minuit2.tar.gz
+* https://root.cern.ch/doc/Minuit2.tar.gz  
+
+  * BUT THATS A BROKEN LINK 
 
 It does not contain the ROOT interface and it is therefore totally
 independent of external packages and can be simply build using the configure
@@ -29,6 +31,9 @@ Minuit2 User Guide provides all the information needed for using directly
 * https://github.com/jpivarski/pyminuit2
 
 * http://seal.web.cern.ch/seal/work-packages/mathlibs/minuit/release/download.html
+
+
+INSTEAD GET THIS ONE
 
 5.34.14	
 2014/01/24

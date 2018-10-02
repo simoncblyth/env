@@ -13,10 +13,19 @@ Opticks Documentation
 Introduction to CUDA
 ----------------------
 
-Repository with some hello world examples for CUDA and Thrust, 
-linking to some excellent presentations by NVIDIA Engineers.
+Repository with some examples of CUDA and Thrust, including
+an extended "reconstruction" example integrating a Minuit2 
+controlled fit with NLL evaluated on the GPU using `thrust::transform_reduce`.
 
 * https://bitbucket.org/simoncblyth/intro_to_cuda/ 
+
+Introduction to NumPy
+----------------------
+
+Learning NumPy is highly recommended for more efficient 
+data preparation for upload to the GPU and analysis of results. 
+
+* https://bitbucket.org/simoncblyth/intro_to_numpy/ 
 
 
 Opticks CHEP 2017 Proceedings
@@ -59,7 +68,7 @@ Opticks Presentations
 Summer 2018 : Opticks Progress : Direct workflow, aligned validation  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_july2018_chep.html (10 July 2018, Sofia)
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.html (10 July 2018, Sofia)
 
     CHEP 2018 Conference
 

@@ -44,6 +44,15 @@ Default profile dont work with python3, so make new one::
     In [1]: 
 
 
+ipython HEP
+-------------
+
+* http://hep-ipython-tools.github.io
+
+  calculation object to run jobs ?
+  
+
+
 
 
 

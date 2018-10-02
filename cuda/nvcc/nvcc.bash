@@ -15,6 +15,12 @@ arch argument explanation
 * http://codeyarns.com/2014/03/03/how-to-specify-architecture-to-compile-cuda-code/
 
 
+separate compilation and linking -dc -dlink
+---------------------------------------------
+
+* http://on-demand.gputechconf.com/gtc-express/2012/presentations/gpu-object-linking.pdf
+
+
 Opticks Flags
 ---------------
 
