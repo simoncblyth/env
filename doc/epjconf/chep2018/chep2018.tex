@@ -1,55 +1,159 @@
-%%%%%%%%%%%%%%%%%%%%%%% file template.tex %%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% This is a template file for Web of Conferences Journal
-%
-% Copy it to a new file with a new name and use it as the basis
-% for your article
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%% EDP Science %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%%%\documentclass[option]{webofc}
-%%% "twocolumn" for typesetting an article in two columns format (default one column)
-%
 \documentclass{webofc}
-\usepackage[varg]{txfonts}   % Web of Conferences font
-%
-% Put here some packages required or/and some personnal commands
-%
-%
+\usepackage[varg]{txfonts}
+\newcommand{\comment}[1]{}
+
 \begin{document}
 %
-\title{Insert your title here}
-%
-% subtitle is optionnal
-%
-%%%\subtitle{Do you have a subtitle?\\ If so, write it here}
+\title{Opticks : GPU Optical Photon Simulation for\\ Particle Physics using NVIDIA\textregistered\ OptiX\texttrademark}
 
-\author{\firstname{First author} \lastname{First author}\inst{1,3}\fnsep\thanks{\email{Mail address for first
-    author}} \and
-        \firstname{Second author} \lastname{Second author}\inst{2}\fnsep\thanks{\email{Mail address for second
-             author if necessary}} \and
-        \firstname{Third author} \lastname{Third author}\inst{3}\fnsep\thanks{\email{Mail address for last
-             author if necessary}}
-        % etc.
-}
+\author{\firstname{Simon} \lastname{Blyth}\inst{1}\fnsep\thanks{\email{simon.c.blyth@gmail.com}} }
 
-\institute{Insert the first address here 
-\and
-           the second here 
-\and
-           Last address
-          }
+\institute{Institute of High Energy Physics, CAS, Beijing, China.}
 
 \abstract{%
-  Insert your english abstract here.
+Opticks is an open source project that integrates the NVIDIA OptiX 
+GPU ray tracing engine with Geant4 toolkit based simulations.
+Massive parallelism brings drastic performance improvements with  
+optical photon simulation speedup expected to exceed 1000 times Geant4 
+with workstation GPUs. 
+
+Optical physics processes of scattering, absorption, reemission and 
+boundary processes are implemented as CUDA OptiX programs based on the Geant4
+implementations. Wavelength dependent material and surface properties as well as  
+inverse cumulative distribution functions for reemission are interleaved into 
+GPU textures providing fast interpolated property lookup or wavelength generation.
+OptiX handles the creation and application of a choice of acceleration structures
+such as boundary volume heirarchies and the transparent use of multiple GPUs. 
+
+A major recent advance is the implementation of GPU ray tracing of  
+complex constructive solid geometry shapes, enabling
+automated translation of Geant4 geometries to the GPU without approximation.
+Using common initial photons and random number sequences allows 
+the Opticks and Geant4 simulations to be run point-by-point aligned.
+Aligned running has reached near perfect equivalence with test geometries.
 }
 %
 \maketitle
 %
 \section{Introduction}
 \label{intro}
-Your text comes here. Separate text sections with
-\section{Section title}
+%
+\comment{
+The introduction should provide background that puts the manuscript into
+context and allows readers outside the field to understand the purpose and
+significance of the study. It should define the problem addressed and explain
+why it is important.
+}
+%
+Opticks\cite{opticksURL} enables Geant4\cite{g4A}\cite{g4B}\cite{g4C}
+based optical photon simulations to benefit from high performance massively parallel GPU ray tracing 
+made accessible by the NVIDIA\textregistered\ OptiX\texttrademark\ package\cite{optixPaper}\cite{optixSite}.
+Recent Opticks developments enable automated direct translation of Geant4 geometries into a GPU optimized constructive
+solid geometry (CSG) form, precisely matching the CPU geometry.
+
+Monte Carlo simulations of optical photon propagation 
+are used to develop models of diverse photon transport systems 
+ranging from human tissue within medical imaging scanners 
+to materials instrumented with photon detectors in neutrino 
+and dark matter search experiments. 
+Such simulations are the primary technique used to design, optimize 
+and analyse complex detection systems. However the versatility 
+of the Monte Carlo technique comes with computational and memory costs 
+that become extreme when propagating large numbers of photons
+using traditional sequential processing. Opticks aims to provide a 
+parallel solution to this optical photon simulation problem.  Drastically 
+improved optical photon simulation performance can be transformative 
+to the design, operation and understanding of diverse optical systems.
+
+
+\subsection{Importance of Cosmic Muons background to Neutrino Detectors}
+
+Cosmic muon induced processes are crucial backgrounds for neutrino
+detectors such as Daya Bay~\cite{dyb} and JUNO\cite{juno},
+necessitating underground sites, water shields and muon veto systems.
+Minimizing the dead time and dead volume that results from applying
+a veto requires an understanding of the detector response to a muon.
+Large simulated samples of muon events are crucial in order to
+develop such an understanding.
+
+The number of optical photons estimated to be produced by a muon of
+typical energy 100 GeV crossing the JUNO scintillator is at the level of tens of millions.
+Profiling the Geant4 toolkit based simulation shows that the optical photon propagation 
+consumes more than 99\% of CPU time, and imposes severe memory constraints that have forced
+the use of event splitting.  
+
+As optical photons in neutrino detectors can be considered to be produced
+by only the scintillation and Cerenkov processes and yield only hits
+on photomultiplier tubes it is straightforward to integrate an
+external optical photon simulation with a Geant4 simulation of all other particles.
+
+
+\subsection{Throughput Oriented Processing}
+
+Graphics Processing Units (GPUs) originally designed for rendering 
+are now increasingly used for computing tasks with suitably parallel workloads.
+Efficient use of GPUs requires problems with can be divided into 
+many thousands of mostly independent parallel tasks.  Each task 
+is executed within a separate thread, to maximize the number of simultaneous 
+running threads the use of shared resources such as registers and shared 
+memory and synchronization between threads must be minimized.
+
+The compute characteristics of the simulation of optical photons
+are well matched with the requirements for efficient GPU usage, 
+with sufficient parallelism from the large numbers of photons, 
+low register usage from the simplicity of the optical physics, 
+and decoupled nature of the photons avoiding synchronization.
+
+The most computationally demanding aspect of optical photon simulation 
+arises from the calculation, at each step of the propagation, 
+of intersection positions of rays representing photons with the geometry of the system.
+This ray tracing limitation of optical photon simulation is shared 
+with the synthesis of realistic images in computer graphics. Due to the many applications
+of ray tracing in the advertising, design, games and film industries the computer graphics
+community has continuously improved ray tracing techniques. The Turing GPU architecture 
+introduced by NVIDIA in 2018 is marketed as the worlds first Ray-tracing GPU, with   
+hardware "RT Cores" in every streaming multiprocessor (SM) dedicated to the 
+acceleration of ray geometry intersection testing.
+NVIDIA claims performance of more than 10 billion ray geometry intersections 
+per second, which is a factor 10 more than possible with its Pascal architecture 
+which performs the intersection in software. NVIDIA exposes this functionality 
+to developers via its GPU libraries including the NVIDIA OptiX ray tracing engine
+which Opticks is based upon.
+
+GPU architectures are throughput-oriented\cite{throughput}, optimizing the total amount of work completed per unit time,
+by using a structure of many simple processing units. This contrasts with CPUs which are essentially latency-oriented, 
+minimizing the time elapsed between initiation and completion of a single task, using complicated techniques 
+such as speculative execution, branch prediction and instruction reordering which all consume chip area.
+GPUs generally do not use these complicated techniques, allowing more chip area to be dedicated to parallel compute, 
+yielding more total computational throughput across all threads at the expense of slower single-thread execution.
+
+GPU threads blocked while waiting to access memory are tolerated by using 
+hardware multithreading to resume other unblocked threads, allowing latencies to be hidden assuming 
+that there are sufficient parallel threads in flight. CPUs avoid latency by dedicating large amounts 
+of chip area to caching systems. 
+
+GPUs evolved to meet the needs of real-time computer graphics rendering images of millions of pixels from geometries
+composed of millions of triangles, they are designed to execute literally billions of small programs per second.
+
+
+
+
+
+    
+
+
+\subsection{Structure of these proceedings}  
+
+These proceedings highlight recent major changes to the geometry workflow of Opticks 
+and to the validation approach while still providing a complete overview of how Opticks works. 
+The prior proceedings\cite{chep2016} provide further details on related work, NVIDIA OptiX
+and on the former export/import based geometry workflow.
+
+
+
+
+
+\section{Through}
 \label{sec-1}
 For bibliography use \cite{RefJ}
 \subsection{Subsection title}
@@ -62,7 +166,7 @@ For one-column wide figures use syntax of figure~\ref{fig-1}
 % Use the relevant command for your figure-insertion program
 % to insert the figure file.
 \centering
-\includegraphics[width=1cm,clip]{tiger}
+\includegraphics[width=1cm,clip]{env/presentation/tiger}
 \caption{Please write your figure caption here}
 \label{fig-1}       % Give a unique label
 \end{figure}
@@ -84,7 +188,7 @@ For figure with sidecaption legend use syntax of figure
 % to insert the figure file.
 \centering
 \sidecaption
-\includegraphics[width=5cm,clip]{tiger}
+\includegraphics[width=5cm,clip]{env/ok/dyb_raytrace_composite_cerenkov_half_half}
 \caption{Please write your figure caption here}
 \label{fig-3}       % Give a unique label
 \end{figure}
@@ -105,26 +209,68 @@ number & number & number \\\hline
 \vspace*{5cm}  % with the correct table height
 \end{table}
 %
-% BibTeX or Biber users please use (the style is already called in the class, ensure that the "woc.bst" style is in your local directory)
-% \bibliography{name or your bibliography database}
 %
-% Non-BibTeX users please use
+%
+%
 %
 \begin{thebibliography}{}
-%
-% and use \bibitem to create references.
-%
-\bibitem{RefJ}
-% Format for Journal Reference
-Journal Author, Journal \textbf{Volume}, page numbers (year)
-% Format for books
-\bibitem{RefB}
-Book Author, \textit{Book title} (Publisher, place, year) page numbers
-% etc
+
+
+\bibitem{opticksURL}
+Opticks URL {\tt https://bitbucket.org/simoncblyth/opticks/}
+
+\bibitem{g4A}
+Agostinelli S, Allison J, Amako K, Apostolakis J, Araujo H, Arce P, et al.
+2003
+Geant4--a simulation toolkit
+{\it Nucl Instrum Methods Phys Res} A {\bf 506} pp 250-–303
+
+\bibitem{g4B}
+Allison J, Amako K, Apostolakis J, Araujo H, Dubois P, Asai M, et al.
+2006
+Geant4 developments and applications
+{\it IEEE Trans Nucl Sci} {\bf 53} pp 270--8
+
+\bibitem{g4C}
+Allison J, Amako K, Apostolakis J, Arce P, Asai M, Aso T, et al.
+2016
+Recent developments in Geant4
+{\it Nucl Instrum Methods Phys Res} A {\bf 835} pp 186--225
+
+\bibitem{optixPaper}
+Parker S, Bigler J, Dietrich A, Friedrich H, Hoberock J, et al.
+%Luebke D, McAllister D, McGuire M, Morley K, Robison A and Stich M 
+2010
+OptiX: a general purpose ray tracing engine
+{\it ACM Trans. Graph. : Conf. Series} {\bf 29} p 66
+
+\bibitem{optixSite}
+NVIDIA{\textregistered} OptiX\texttrademark~ webpage {\tt https://developer.nvidia.com/optix}
+
+\bibitem{chep2016}
+Blyth Simon C 2017 J. Phys.: Conf. Ser. {\bf 898} 042001
+
+\bibitem{dyb}
+An F, et al.
+2016
+The detector system of the Daya Bay reactor neutrino experiment
+{\it Nucl Instrum Methods} A {\bf 811} pp 133--161
+
+%9
+\bibitem{juno}
+An F et al.
+2016
+Neutrino physics with JUNO
+{\it J Phys G} {\bf 43} 030401
+
+
+\bibitem{throughput}
+M. Garland and D. B. Kirk, Understanding Throughput Oriented Architectures, 
+{\it COMMUN ACM} Volume 53 Issue 11, November 2010, Pages 58-66  	
+
+
+
+
+
 \end{thebibliography}
-
 \end{document}
-
-% end of file template.tex
-
-<div id='footer'><table width='100%'><tr><td class='right'><a href='http://fusioninventory.org/'><span class='copyright'>FusionInventory 9.1+1.0 | copyleft <img src='/glpi/plugins/fusioninventory/pics/copyleft.png'/>  2010-2016 by FusionInventory Team</span></a></td></tr></table></div>

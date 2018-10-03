@@ -2021,3 +2021,4 @@ minuit2-(){      . $(env-home)/recon/minuit2.bash && minuit2-env $* ; }
 rpath-(){      . $(env-home)/tools/cmake/rpath.bash && rpath-env $* ; }
 pandas-(){      . $(env-home)/numerics/pandas/pandas.bash && pandas-env $* ; }
 epjconf-(){      . $(env-home)/doc/epjconf/epjconf.bash && epjconf-env $* ; }
+sed-(){      . $(env-home)/tools/sed.bash && sed-env $* ; }
