@@ -17,7 +17,7 @@ Massive parallelism brings drastic performance improvements with
 optical photon simulation speedup expected to exceed 1000 times Geant4 
 with workstation GPUs. 
 
-Optical physics processes of scattering, absorption, reemission and 
+Optical physics processes of scattering, absorption, scintillator reemission and 
 boundary processes are implemented as CUDA OptiX programs based on the Geant4
 implementations. Wavelength dependent material and surface properties as well as  
 inverse cumulative distribution functions for reemission are interleaved into 
@@ -35,6 +35,22 @@ Aligned running has reached near perfect equivalence with test geometries.
 %
 \maketitle
 %
+\comment{
+
+1. Introduction
+
+   * the problem
+   * ray tracing
+   * GPUs
+
+2. Geometry Translation
+3. Physics Translation
+4. Validation 
+
+}
+%
+%
+%
 \section{Introduction}
 \label{intro}
 %
@@ -47,14 +63,17 @@ why it is important.
 %
 Opticks\cite{opticksURL} enables Geant4\cite{g4A}\cite{g4B}\cite{g4C}
 based optical photon simulations to benefit from high performance massively parallel GPU ray tracing 
-made accessible by the NVIDIA\textregistered\ OptiX\texttrademark\ package\cite{optixPaper}\cite{optixSite}.
-Recent Opticks developments enable automated direct translation of Geant4 geometries into a GPU optimized constructive
-solid geometry (CSG) form, precisely matching the CPU geometry.
+made accessible by the NVIDIA\textregistered\ OptiX\texttrademark\ API\cite{optixPaper}\cite{optixSite}.
+The recently introduced NVIDIA Turing GPU architecture includes hardware "RT cores" dedicated to
+accelerating ray intersections, this functionality is exposed via the OptiX API\cite{rtx}. 
+Recent Opticks developments enable automated direct translation of Geant4 geometries into a GPU 
+optimized constructive solid geometry (CSG) form without approximation, enabling a precise matching 
+between the the CPU and GPU geometry to be achieved. 
 
 Monte Carlo simulations of optical photon propagation 
 are used to develop models of diverse photon transport systems 
 ranging from human tissue within medical imaging scanners 
-to materials instrumented with photon detectors in neutrino 
+to large volumes of scintillators instrumented with photon detectors in neutrino 
 and dark matter search experiments. 
 Such simulations are the primary technique used to design, optimize 
 and analyse complex detection systems. However the versatility 
@@ -64,6 +83,13 @@ using traditional sequential processing. Opticks aims to provide a
 parallel solution to this optical photon simulation problem.  Drastically 
 improved optical photon simulation performance can be transformative 
 to the design, operation and understanding of diverse optical systems.
+
+\subsection{Structure of these proceedings}  
+
+These proceedings highlight recent major changes to the geometry workflow of Opticks 
+and to the validation approach while still providing a complete overview of Opticks. 
+The prior proceedings\cite{chep2016} provide further details on related work, NVIDIA OptiX
+and on the former export/import based geometry workflow.
 
 
 \subsection{Importance of Cosmic Muons background to Neutrino Detectors}
@@ -87,22 +113,20 @@ by only the scintillation and Cerenkov processes and yield only hits
 on photomultiplier tubes it is straightforward to integrate an
 external optical photon simulation with a Geant4 simulation of all other particles.
 
-
 \subsection{Throughput Oriented Processing}
 
 Graphics Processing Units (GPUs) originally designed for rendering 
-are now increasingly used for computing tasks with suitably parallel workloads.
+are now increasingly used for computing tasks with parallel workloads.
 Efficient use of GPUs requires problems with can be divided into 
-many thousands of mostly independent parallel tasks.  Each task 
-is executed within a separate thread, to maximize the number of simultaneous 
+many thousands of mostly independent parallel tasks, which are 
+each executed within separate threads. To maximize the number of simultaneous 
 running threads the use of shared resources such as registers and shared 
 memory and synchronization between threads must be minimized.
 
-The compute characteristics of the simulation of optical photons
-are well matched with the requirements for efficient GPU usage, 
-with sufficient parallelism from the large numbers of photons, 
-low register usage from the simplicity of the optical physics, 
-and decoupled nature of the photons avoiding synchronization.
+The characteristics of the simulation of optical photons are well matched to 
+the requirements for efficient GPU usage, with sufficient parallelism from 
+the large numbers of photons, low register usage from the simplicity of 
+the optical physics, and decoupled nature of the photons avoiding synchronization.
 
 The most computationally demanding aspect of optical photon simulation 
 arises from the calculation, at each step of the propagation, 
@@ -115,106 +139,201 @@ introduced by NVIDIA in 2018 is marketed as the worlds first Ray-tracing GPU, wi
 hardware "RT Cores" in every streaming multiprocessor (SM) dedicated to the 
 acceleration of ray geometry intersection testing.
 NVIDIA claims performance of more than 10 billion ray geometry intersections 
-per second, which is a factor 10 more than possible with its Pascal architecture 
-which performs the intersection in software. NVIDIA exposes this functionality 
-to developers via its GPU libraries including the NVIDIA OptiX ray tracing engine
-which Opticks is based upon.
+per second, which is a factor 10 more than possible with its Pascal architecture GPUs
+which performs the intersection acceleration in software. 
 
 GPU architectures are throughput-oriented\cite{throughput}, optimizing the total amount of work completed per unit time,
-by using a structure of many simple processing units. This contrasts with CPUs which are essentially latency-oriented, 
+by using a chip structure of many simple processing units. This contrasts with CPUs which are essentially latency-oriented, 
 minimizing the time elapsed between initiation and completion of a single task, using complicated techniques 
 such as speculative execution, branch prediction and instruction reordering which all consume chip area.
 GPUs generally do not use these complicated techniques, allowing more chip area to be dedicated to parallel compute, 
 yielding more total computational throughput across all threads at the expense of slower single-thread execution.
-
-GPU threads blocked while waiting to access memory are tolerated by using 
+Threads blocked while waiting to access memory are tolerated by using 
 hardware multithreading to resume other unblocked threads, allowing latencies to be hidden assuming 
-that there are sufficient parallel threads in flight. CPUs avoid latency by dedicating large amounts 
-of chip area to caching systems. 
+there are sufficient parallel threads in flight. CPUs avoid latency by dedicating large amounts 
+of chip area to complex caching systems. 
 
 GPUs evolved to meet the needs of real-time computer graphics rendering images of millions of pixels from geometries
-composed of millions of triangles, they are designed to execute literally billions of small programs per second.
+composed of millions of triangles, they are designed to execute literally billions of small "shader" 
+programs per second. When porting CPU code to run on the GPU a total reorganization of 
+data and computation is required in order to make effective use of the totally different processor 
+architecture.
+
+\subsection{NVIDIA\textregistered\ OptiX\texttrademark\ Ray Tracing Engine}
+
+OptiX\cite{optixPaper} \cite{optixSite} is a general-purpose ray tracing engine
+designed for NVIDIA GPUs that exposes an accessible single ray programming model.
+The core of OptiX is a domain-specific just-in-time compiler that constructs 
+ray tracing pipelines combining code for acceleration structure creation and traversal 
+together with user provided CUDA code for ray generation, object intersection and closest hit handling.
+Spatial index data structures, such as the boundary volume hierarchy (BVH), are the 
+principal technique for accelerating ray geometry intersection.  The OptiX API\cite{optixDocs} 
+provides only the acceleration of ray geometry intersection, not the intersection inself 
+thus affording users full flexibility to implement intersections with any form of geometry. In the recently introduced Turing 
+architecture GPUs some of the BVH traversal workload has been moved into hardware "RT cores".
+The OptiX acceleration structure system supports instancing, allowing the structures to be shared 
+between multiple instances of the same geometry such as the photomultipler tubes in the JUNO geometry.  
 
 
+\section{Geometry Translation}
+\label{geometry}
 
+\comment{
 
+1. CSG implementation, Kensler reference
 
-    
+}
 
+Implementing an efficient GPU optical photon simulation equivalent to the Geant4 simulation 
+requires that all aspects of the Geant4 context relevant to optical photon propagation are 
+translated into an appropriate form and serialized for upload to the GPU.
 
-\subsection{Structure of these proceedings}  
+\subsection{Solid Modelling, Serialization and Translation from Geant4 Solids}
 
-These proceedings highlight recent major changes to the geometry workflow of Opticks 
-and to the validation approach while still providing a complete overview of how Opticks works. 
-The prior proceedings\cite{chep2016} provide further details on related work, NVIDIA OptiX
-and on the former export/import based geometry workflow.
+% primitives
+Opticks provides ray intersection for ten primitive shapes including sphere, hyperboloid and torus.
+Ray primitive intersection uses the parametric ray equation together with implicit equations 
+of the primitives to yield a polynomial in $t$, the distance along the ray from its origin position. 
+Intersections are found from the roots of the polynomial with $t > t_{min}$ and surface normals are obtained at intersects
+using the derivative of the implicit equation or by inspection.
 
+% combinations
+Arbitrarily complex solids are described using the constructive solid geometry (CSG) modelling technique 
+which builds shapes from the combination of primitive constituents shapes by boolean set operations: union, intersection and difference.
+A binary tree data structure with primitives at the leaves of the tree and operators at the internal nodes is used
+to represent the solids. Any node can have an associated local transform, represented by 4x4 transformation matrix corresponding 
+to a rotation followed by a translation. The local transforms are combined to yield global transforms in the frame of the root node of the tree
+for every node of the tree. CSG requires all constituents to be closed solids, necessitating 
+endcap implementations for all primitives that allow truncation. 
 
+% intersection
+Intersecting rays with general CSG shapes requires the appropriate primitive intersect to be 
+selected depending on the origin of the ray. Traditional implementations of CSG intersection first calculate 
+ray intervals with each primitive and then combine these intervals using the boolean operators of the tree to determine intersects.  
+Efficient use of GPUs requires many thousands of simultaneously operational threads which disfavors the traditional approach due to 
+the need to store intervals for all constituent primitives.  A quite different approach
+described by Andrew Kensler\cite{kensler} avoids interval storage by instead selecting between 
+candidate intersects A and B at each level of the binary tree, which allows a recursive algorithm 
+to be developed. The two intersects at each level are classified as "Enter", "Exit" or "Miss" 
+using the angle between the ray direction and surface normal. Six decision tables corresponding to which side is closer and 
+to the three boolean operators are used to determine an action from the classifications such as returning an intersect 
+or advancing $t_{min}$ and intersecting again. 
 
+% recursive to iterative
+Recursive function calls are a natural way to process self similar structures such as CSG trees,  
+however recursion is a memory expensive technique which makes it inappropriate for GPU usage.
+Although NVIDIA OptiX supports recursive ray tracing in does not support recursion within intersect programs. 
+The Opticks "evaluative" CSG implementation was inspired by the realization that CSG node tree intersection 
+directly parallels binary expression tree evaluation and that techniques to simplify expression 
+tree evaluation such as using postorder traversals could be applied. 
+Binary expression trees are used to represent and evaluate mathematical expressions. 
+A postorder traversal of a node tree visits every node in sequence such that
+child nodes are visited before their parents.
+Factoring out the postorder sequence allowed an iterative solution to be developed 
+for a recursive problem.  
 
-
-\section{Through}
-\label{sec-1}
-For bibliography use \cite{RefJ}
-\subsection{Subsection title}
-\label{sec-2}
-Don't forget to give each section, subsection, subsubsection, and
-paragraph a unique label (see Sect.~\ref{sec-1}).
-
-For one-column wide figures use syntax of figure~\ref{fig-1}
+% serialization
+Each primitive or operator node is serialized into an array of 16 32-bit elements. 
+These elements include float parameters of the primitives and integer index references 
+into a separate global transforms buffer. For the convex polyhedron primitive which is defined by a list of surface planes, 
+the primitive contains an integer index referencing into a separate plane buffer together with the number of planes. 
+A complete binary tree serialization, illustrated in Figure~\ref{tree},  with array indices matching level order tree indices
+and zeros at missing nodes is used for the serialization of the CSG trees. This structure   
+allows tree navigation directly from bitwise manipulations of the serialized array index. 
+%
 \begin{figure}[h]
-% Use the relevant command for your figure-insertion program
-% to insert the figure file.
-\centering
-\includegraphics[width=1cm,clip]{env/presentation/tiger}
-\caption{Please write your figure caption here}
-\label{fig-1}       % Give a unique label
+\begin{verbatim}
+                                                   depth     elevation
+
+                     1                               0           3   
+
+          10                   11                    1           2   
+
+     100       101        110        111             2           1   
+                    
+ 1000 1001  1010 1011  1100 1101  1110  1111         3           0   
+
+parent(i) = i >> 1                 leftmost(height) = 1 << height 
+leftchild(i) = i << 1               
+rightchild(i) = (i << 1) + 1  
+postorder(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) 
+\end{verbatim}
+
+\caption{Height 3 complete binary tree, with nodes labelled with 1-based level order indices $i$ in binary. Postorder traversal of a binary tree
+visits every node in sequence such that child nodes are visited before their parents. The simplicity of the complete binary tree data structure allows tree navigation 
+from the bitwise manipulations of level indices. Total nodes in a complete binary tree of height $h$ is $2^{h+1} - 1$.  }
+\label{tree}
 \end{figure}
 
-For two-column wide figures use syntax of figure~\ref{fig-2}
-\begin{figure*}
-\centering
-% Use the relevant command for your figure-insertion program
-% to insert the figure file. See example above.
-% If not, use
-\vspace*{5cm}       % Give the correct figure height in cm
-\caption{Please write your figure caption here}
-\label{fig-2}       % Give a unique label
-\end{figure*}
+% balancing
+Complete binary tree serialization is simple and effective for small trees but very inefficient 
+for unbalanced trees necessitating tree balancing for shapes with many constituent primitives 
+to reduce the tree height.  A two stage procedure to balance input trees was developed, 
+first converting to a positive form tree by recursive application of De Morgan's laws replacing 
+non-commutative differences with intersections with complemented sub-trees, $A - B  = A \cap !B $. 
+The end result is a tree with only union and intersection operators and some complemented leaves. Intersections with 
+complemented primitives, which correspond to "inside out" solids was implemented by flipping normals
+and reclassifiying "Miss" as "Exit" as is not possible to miss the unbounded "otherside" of a 
+complemented primitive.  Subsequently the commutative nature of intersect and union operators is used
+to break apart the tree and reconstruct it in a more balanced form. 
 
-For figure with sidecaption legend use syntax of figure
-\begin{figure}
-% Use the relevant command for your figure-insertion program
-% to insert the figure file.
-\centering
-\sidecaption
-\includegraphics[width=5cm,clip]{env/ok/dyb_raytrace_composite_cerenkov_half_half}
-\caption{Please write your figure caption here}
-\label{fig-3}       % Give a unique label
-\end{figure}
+% translation 
+Opticks provides translations in both directions between Geant4 solids and Opticks primitives.
+Depending on parameter values such as inner radii or phi segments there is not always a one to one correspondence 
+between the two models with some Geant4 solids being represented as Opticks node trees. The Opticks 
+approach of relying more on the CSG implementation was adopted to minimize duplicated code in the primitives.
 
-For tables use syntax in table~\ref{tab-1}.
-\begin{table}
-\centering
-\caption{Please write your table caption here}
-\label{tab-1}       % Give a unique label
-% For LaTeX tables you can use
-\begin{tabular}{lll}
-\hline
-first & second & third  \\\hline
-number & number & number \\
-number & number & number \\\hline
-\end{tabular}
-% Or use
-\vspace*{5cm}  % with the correct table height
-\end{table}
-%
-%
+
+\subsection{Geometry Structure Model and Direct Translation}
+
+A major recent advance made possible by the general CSG solid intersection 
+described above is the implementation of automated direct geometry translation 
+allowing the Geant4 geometry model in memory to be directly translated and uploaded to the GPU.
+The former approach to geometry translation described in~\cite{chep2016} required the
+geometry to be exported and imported via GDML and G4DAE files. 
+
+The Opticks geometry model revolves around the observation that many elements of a detector 
+geometry are repeated demanding the use of instancing for efficient representation.  Geometry instancing 
+is a technique used in computer graphics libraries including OpenGL and NVIDIA OptiX that avoids 
+duplication of information on the GPU by storing repeated elements only once together with 4x4 transform matrices 
+that specify the locations and orientations of each instance.
+
+The Geant4 geometry model comprises a heirachy of volumes with associated transforms. The first step in 
+the automated translation from Geant4 to the Opticks geometry is to traverse the Geant4 volume tree converting 
+materials, surfaces, solids, volumes and sensors into Opticks equivalents. Each solid is assigned 
+a boundary index uniquely identifying the combination of four indices representing outer and inner materials and outer and inner surfaces.
+Outer/inner surfaces handle inwards/outwards going photons allowing the Geant4 border and skin
+surface functionality to be translated. 
+
+Subsequently repeated groups of volumes and their placement transforms are identified using node digests of progeny transforms and solid identities.
+All structure nodes are assigned an instance index with geometry not passing instancing criteria regarding the number of repeats 
+and geometry complexity forming the global group. The converted solids contain both analytic CSG node trees and triangulated meshes.   
+These groups are used then used for the creation of the NVIDIA OptiX analytic geometry instances, and OpenGL mesh geometry instances.  
+
+GPUs contain hardware dedicated to fast texture lookup and interpolation.
+This is exploited by using a single 2D {\tt float4} texture named the boundary texture
+that contains interleaved material and surface properties as a function of wavelength for all
+unique boundaries.
+The boundary index returned from a ray traced primitive intersection together with
+an orientation offset identified from the angle between the geometric normal and ray direction
+enables four wavelength interpolated material or surface properties to be
+obtained from a single hardware optimized texture lookup.
+
+
+
+
+
+\section*{Acknowledgements}
+
+The Daya Bay and JUNO collaborations are acknowledged for the use of detector 
+geometries and simulation software. Dr. Tao Lin is acknowledged for his assistance with 
+the JUNO Offline software. 
+This work is currently funded by Chinese Academy of Sciences President’s International Fellowship Initiative. 
+Grant No. 2018VMB0002.
 %
 %
 %
 \begin{thebibliography}{}
-
 
 \bibitem{opticksURL}
 Opticks URL {\tt https://bitbucket.org/simoncblyth/opticks/}
@@ -247,6 +366,12 @@ OptiX: a general purpose ray tracing engine
 \bibitem{optixSite}
 NVIDIA{\textregistered} OptiX\texttrademark~ webpage {\tt https://developer.nvidia.com/optix}
 
+\bibitem{optixDocs}
+NVIDIA{\textregistered} OptiX\texttrademark~ API documentation {\tt http://raytracing-docs.nvidia.com/optix/index.html}
+
+\bibitem{rtx}
+NVIDIA RTX URL {\tt https://developer.nvidia.com/rtx}
+
 \bibitem{chep2016}
 Blyth Simon C 2017 J. Phys.: Conf. Ser. {\bf 898} 042001
 
@@ -269,6 +394,9 @@ M. Garland and D. B. Kirk, Understanding Throughput Oriented Architectures,
 {\it COMMUN ACM} Volume 53 Issue 11, November 2010, Pages 58-66  	
 
 
+\bibitem{kensler}
+A. Kensler, Ray Tracing CSG Objects Using Single Hit Intersections (2006), 
+with corrections by author of XRT Raytracer {\tt http://xrt.wikidot.com/doc:csg}
 
 
 
