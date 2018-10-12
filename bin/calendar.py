@@ -25,8 +25,8 @@ days = "Mon Tue Wed Thu Fri Sat Sun".split()
 def calendar(monday):
     for i in range(1,31):
         day = (i-monday) % 7 
-        print "%s %0.2d " % ( days[day], i )
-        if day == 6:print 
+        print("%s %0.2d " % ( days[day], i ))
+        if day == 6:print()
     pass
 
 
