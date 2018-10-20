@@ -23,8 +23,8 @@ implementations. Wavelength dependent material and surface properties as well as
 inverse cumulative distribution functions for reemission are interleaved into 
 GPU textures providing fast interpolated property lookup or wavelength generation.
 OptiX handles the creation and application of a choice of acceleration structures
-such as boundary volume heirarchies and the transparent use of multiple GPUs. 
-
+such as boundary volume hierarchies and the transparent use of multiple GPUs. 
+%
 A major recent advance is the implementation of GPU ray tracing of  
 complex constructive solid geometry shapes, enabling
 automated translation of Geant4 geometries to the GPU without approximation.
@@ -46,14 +46,14 @@ significance of the study. It should define the problem addressed and explain
 why it is important.
 }
 %
-Opticks\cite{opticksURL} enables Geant4\cite{g4A}\cite{g4B}\cite{g4C}
+Opticks\cite{opticksURL}\cite{opticksGroup}  enables Geant4\cite{g4A}\cite{g4B}\cite{g4C}
 based optical photon simulations to benefit from high performance massively parallel GPU ray tracing 
-provided by the NVIDIA\textregistered\ OptiX\texttrademark\cite{optixPaper}\cite{optixSite} package.
+provided by the NVIDIA\textregistered\ OptiX\texttrademark\cite{optixPaper}\cite{optixSite}\cite{optixDocs} package.
 With the recently introduced NVIDIA Turing architecture GPUs OptiX performance is further enhanced 
 by dedicated ray-tracing processors called RT cores\cite{rtx}.
-Recent Opticks developments enable automated direct translation of Geant4 geometries into a GPU 
-optimized constructive solid geometry (CSG) form without approximation, enabling a precise matching 
-between the the CPU and GPU geometry to be achieved. 
+%Recent Opticks developments enable automated direct translation of Geant4 geometries into a GPU 
+%optimized constructive solid geometry (CSG) form without approximation, enabling a precise matching 
+%between the CPU and GPU geometry to be achieved. 
 
 Monte Carlo simulations of optical photon propagation 
 are used to develop models of diverse photon transport systems 
@@ -99,19 +99,20 @@ external optical photon simulation with a Geant4 simulation of all other particl
 %
 Graphics Processing Units (GPUs) originally designed for rendering 
 are now increasingly used for computing tasks with parallel workloads.
-Efficient use of GPUs requires problems with can be divided into 
+Efficient use of GPUs requires problems which can be divided into 
 many thousands of mostly independent parallel tasks, which are 
 each executed within separate threads. To maximize the number of simultaneous 
-running threads the use of shared resources such as registers and shared 
+running threads the use of resources such as registers, shared 
 memory and synchronization between threads must be minimized.
-
-The characteristics of the simulation of optical photons are well matched to 
+%
+%The characteristics of the simulation of optical photons are well matched to 
+Optical photon simulation is well matched to 
 the requirements for efficient GPU usage, with sufficient parallelism from 
 the large numbers of photons, low register usage from the simplicity of 
 the optical physics, and decoupled nature of the photons avoiding synchronization.
 
 The most computationally demanding aspect of optical photon simulation 
-arises from the calculation, at each step of the propagation, 
+is the calculation, at each step of the propagation, 
 of intersection positions of rays representing photons with the geometry of the system.
 This ray tracing limitation of optical photon simulation is shared 
 with the synthesis of realistic images in computer graphics. Due to the many applications
@@ -119,8 +120,8 @@ of ray tracing in the advertising, design, games and film industries the compute
 community has continuously improved ray tracing techniques. The Turing GPU architecture 
 introduced by NVIDIA in 2018 is marketed as the worlds first Ray-tracing GPU, with   
 hardware "RT Cores" in every streaming multiprocessor (SM) dedicated to the 
-acceleration of ray geometry intersection testing.
-NVIDIA claims performance of more than 10 billion ray geometry intersections 
+acceleration of ray geometry intersection.
+NVIDIA claims performance of more than 10 billion ray intersections 
 per second, which is a factor 10 more than possible with its Pascal architecture GPUs
 which performs the intersection acceleration in software. 
 
@@ -132,7 +133,7 @@ and speculative execution. GPUs generally do not use the complicated techniques 
 allowing more chip area to be dedicated to parallel compute, which results in greater computational throughput across 
 all threads at the expense of slower single-thread execution.
 Threads blocked while waiting to access memory are tolerated by using 
-hardware multithreading to resume other unblocked threads, allowing latencies to be hidden assuming 
+hardware multithreading to resume other unblocked threads, allowing latencies to be hidden if
 there are sufficient parallel threads in flight. 
 GPUs evolved to meet the needs of real-time computer graphics rendering images of millions of pixels from geometries
 composed of millions of triangles, they are designed to execute literally billions of small "shader" 
@@ -142,18 +143,33 @@ architecture.
 %
 \subsection{NVIDIA\textregistered\ OptiX\texttrademark\ Ray Tracing Engine}
 %
-OptiX\cite{optixPaper}\cite{optixSite} is a general-purpose ray tracing engine
+OptiX\cite{optixPaper}\cite{optixSite}\cite{optixDocs} is a general-purpose ray tracing engine
 designed for NVIDIA GPUs that exposes an accessible single ray programming model.
 The core of OptiX is a domain-specific just-in-time compiler that constructs 
 ray tracing pipelines combining code for acceleration structure creation and traversal 
 together with user provided CUDA code for ray generation, object intersection and closest hit handling.
 Spatial index data structures, such as the boundary volume hierarchy (BVH), are the 
 principal technique for accelerating ray geometry intersection.  The OptiX API\cite{optixDocs} 
-provides only the acceleration of ray geometry intersection, not the intersection inself 
+provides only the acceleration of ray geometry intersection, not the intersection itself 
 thus affording users full flexibility to implement intersections with any form of geometry. In the recently introduced Turing 
-architecture GPUs some of the BVH traversal workload has been moved into hardware "RT cores".
+architecture GPUs some of the BVH traversal workload has been moved into hardware "RT cores"\cite{rtx}.
 The OptiX acceleration structure system supports instancing, allowing the structures to be shared 
-between multiple instances of the same geometry such as the photomultipler tubes in the JUNO geometry.  
+between multiple instances of the same geometry such as the photomultiplier tubes in the JUNO geometry.  
+%
+\subsection{Thrust High Level C++ interface to CUDA}
+%
+The CUDA Thrust~\cite{thrust} C++ template library provides a high level interface to CUDA, 
+greatly simplifying GPU development. Opticks uses Thrust for several tasks:
+%
+\begin{itemize}
+\item associating photons with their "gensteps" entirely on the GPU
+\item downloading photons that hit sensors to the CPU using the stream compaction technique
+\item sorting photons by their step sequence histories, up to 16 steps of 4-bit flags are stored in 64 bit integers for each photon
+\end{itemize} 
+%
+Gensteps are parameters of photon producing steps of the scintillation or Cerenkov processes such as
+the number of photons to generate and their positions and any others required for photon generation.
+For a detailed description see the prior proceedings~\cite{chep2016}.
 %
 \section{Geometry Translation and Upload to GPU}
 \label{geometry}
@@ -175,10 +191,8 @@ using the derivative of the implicit equation or by inspection.
 Arbitrarily complex solids are described using constructive solid geometry (CSG) modelling, 
 which builds shapes from the combination of primitive constituent shapes by boolean set operations: union, intersection and difference.
 A binary tree data structure with primitives at the leaves of the tree and operators at the internal nodes is used
-to represent the solids. Any node can have an associated local transform, represented by 4x4 transformation matrix corresponding 
-to a rotation followed by a translation. The local transforms are combined to yield global transforms in the frame of the root node of the tree
-for every node of the tree. CSG requires all constituents to be closed solids, necessitating 
-endcap implementations for all primitives that allow truncation. 
+to represent the solids. Any node can have an associated local transform, represented by a 4x4 transformation matrix, which 
+is combined with other local transforms to yield global transforms in the frame of the root node of the tree.
 %
 \subsection{Ray Intersection with CSG Shapes}
 \label{intersection}
@@ -210,8 +224,8 @@ for a recursive problem.
 
 % coincidence issue
 The CSG implementation relies on selection of the closer of two intersects at each level 
-of the node tree, when faces of the constituent shapes coincide the ambiguity regarding which is closer
-can cause spurious intersects. Modifing some constituents to prevent coincident faces avoids 
+of the node tree. When the faces of constituent shapes coincide the ambiguity regarding which is closer
+can cause spurious intersects. Modifying some constituents to prevent coincident faces avoids 
 the issue without changing the intended geometry. As coincidences are rather common Opticks includes 
 detection and automated fixing for some common situations.        
 %
@@ -219,7 +233,7 @@ detection and automated fixing for some common situations.
 \label{translation}
 %
 % serialization
-Each primitive or operator node is serialized into an array of 16 32-bit elements. 
+Each primitive or operator node is serialized into an array of up to 16 32-bit elements. 
 These elements include float parameters of the primitives and integer index references 
 into a separate global transforms buffer. For the convex polyhedron primitive which is defined by a list of surface planes, 
 the primitive contains an integer index referencing into a separate plane buffer together with the number of planes. 
@@ -227,7 +241,7 @@ A complete binary tree serialization, illustrated in Figure~\ref{tree},  with ar
 and zeros at missing nodes is used for the serialization of the CSG trees. This structure   
 allows tree navigation directly from bitwise manipulations of the serialized array index. 
 %
-\begin{figure}[h]
+\begin{figure}[ht]
 \begin{verbatim}
                                                    depth     elevation
 
@@ -259,9 +273,9 @@ first converting to a positive form tree by recursive application of De Morgan's
 non-commutative differences with intersections with complemented sub-trees, $A - B  = A \cap !B $. 
 The end result is a tree with only union and intersection operators and some complemented leaves. Intersections with 
 complemented primitives, which correspond to "inside out" solids was implemented by flipping normals
-and reclassifiying "Miss" as "Exit" as is not possible to miss the unbounded "otherside" of a 
-complemented primitive.  Subsequently the commutative nature of intersect and union operators is used
-to break apart the tree and reconstruct it in a more balanced form. 
+and reclassifying "Miss" as "Exit" as is not possible to miss the unbounded "other side" of a 
+complemented primitive.  Subsequently the commutative nature of intersect and union operators enables
+the tree to be reconstructed it a more balanced form. 
 
 % translation 
 Opticks provides translations in both directions between Geant4 solids and Opticks primitives.
@@ -282,19 +296,23 @@ geometry are repeated demanding the use of instancing for efficient representati
 is a technique used in computer graphics libraries including OpenGL and NVIDIA OptiX that avoids 
 duplication of information on the GPU by storing repeated elements only once together with 4x4 transform matrices 
 that specify the locations and orientations of each instance.
+The Geant4 geometry model comprises a hierarchy of volumes with associated transforms. 
 
-The Geant4 geometry model comprises a heirachy of volumes with associated transforms. The first step in 
-the automated translation from Geant4 to the Opticks geometry is to traverse the Geant4 volume tree converting 
-materials, surfaces, solids, volumes and sensors into Opticks equivalents. Each solid is assigned 
-a boundary index uniquely identifying the combination of four indices representing outer and inner materials and outer and inner surfaces.
-Outer/inner surfaces handle inwards/outwards going photons allowing the Geant4 border and skin
+The first step in the automated translation from Geant4 to the Opticks geometry is to traverse the Geant4 volume tree converting 
+materials, surfaces, solids, volumes and sensors into Opticks equivalents. 
+The converted solids contain both analytic CSG node trees and triangulated meshes.   
+Each solid is assigned a boundary index uniquely identifying the combination of four indices representing 
+outer and inner materials and outer and inner surfaces. Outer/inner surfaces handle inwards/outwards going photons allowing the Geant4 border and skin
 surface functionality to be translated. 
 
-Subsequently repeated groups of volumes and their placement transforms are identified using node digests of progeny transforms and solid identities.
-All structure nodes are assigned an instance index with geometry not passing instancing criteria regarding the number of repeats 
-and geometry complexity forming the global group. The converted solids contain both analytic CSG node trees and triangulated meshes.   
-These groups are used then used for the creation of the NVIDIA OptiX analytic geometry instances, and OpenGL mesh geometry instances.  
+A geometry digest string for every structure node is formed from the transforms and shape indices of the progeny nodes descended from it in the geometry tree. 
+Subsequently repeated groups of volumes and their placement transforms are identified using the geometry digests, after disqualifying repeats
+that are contained within other repeats. 
+All structure nodes that pass instancing criteria regarding the number of vertices and number of repeats are assigned an instance index
+with the remainder forming the global non-instanced group. 
+These groups of volumes are then used for the creation of the NVIDIA OptiX analytic geometry instances, and OpenGL mesh geometry instances.  
 
+\comment{
 GPUs contain hardware dedicated to fast texture lookup and interpolation.
 This is exploited by using a single 2D {\tt float4} texture named the boundary texture
 that contains interleaved material and surface properties as a function of wavelength for all
@@ -303,6 +321,22 @@ The boundary index returned from a ray traced primitive intersection together wi
 an orientation offset identified from the angle between the geometric normal and ray direction
 enables four wavelength interpolated material or surface properties to be
 obtained from a single hardware optimized texture lookup.
+}
+%
+%
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,clip]{env/presentation/j1808/j1808_top_ogl}
+\includegraphics[width=\textwidth,clip]{env/presentation/j1808/j1808_top_rtx}
+\caption{Renders of the chimney region of JUNO detector showing photomultiplier tubes, acrylic supports and the calibration guide tube torus. 
+The geometry was directly converted from Geant4 into an Opticks geometry including analytic CSG as well as approximate mesh representations of all solids, 
+and persisted into a geometry cache of NumPy\cite{numpy} binary files. 
+The upper render is an OpenGL rasterization of the mesh geometry, effects of the approximation are visible with the guide tube torus appearing to impinge into
+another volume. The lower render is a ray-traced image of the analytic CSG geometry which is the 
+same geometry used in the simulation.}
+\label{j1808} 
+\end{figure}
+%
 %
 \section{Interface between Geant4 and Opticks}
 \label{simulation}
@@ -323,19 +357,13 @@ for the photons, only photons that reach sensors requiring CPU memory allocation
 The generation loops of the scintillation and Cerenkov processes are ported to CUDA 
 which effectively splits the photon generation implementation between the CPU and GPU.
 Reemission is implemented by a fraction of photons absorbed within scintillators being 
-reborn with a wavelength generated using an appropriate inverse cumulative distribution function.  
+reborn with a wavelength generated using an appropriate inverse cumulative distribution function
+which is accessed via a GPU texture.
 
 At the end of Geant4 event processing gensteps are uploaded to the GPU and an OptiX 
 kernel is launched to generate and propagate the photons.
 Further details on the CUDA port of the optical photon simulation can be found in reference~\cite{chep2016}.
-The CUDA Thrust~\cite{thrust} C++ template library provides a high level interface to CUDA, 
-greatly simplifying GPU development. Opticks uses Thrust for several tasks:
-%
-\begin{itemize}
-\item associating photons with their gensteps entirely on the GPU
-\item downloading photons that hit sensors to the CPU using the stream compaction technique
-\item sorting photons by their step sequence histories, up to 16 steps of 4-bit flags are stored in 64 bit integers for each photon
-\end{itemize} 
+
 %
 \section{Random Number Aligned Comparison of Opticks and Geant4}
 \label{validation}
@@ -345,19 +373,19 @@ the Geant4 and hybrid Opticks simulations and writes two events in a format
 which includes highly compressed positions, times, wavelengths and polarizations at up to 16 steps of the optical photon propagations.
 Opticks uses the cuRAND\cite{curandURL} library for concurrent generation of millions of reproducible sequences of pseudorandom numbers.  
 Copying cuRAND sequences to the CPU and configuring the Geant4 random engine to use them makes it possible to align the 
-consumption of random numbers between the two simulations, resulting in near prefectly matched results with every scatter, 
+consumption of random numbers between the two simulations, resulting in near perfectly matched results with every scatter, 
 absorption and reflection happening with the same positions, times, wavelengths and polarizations.
 Direct comparison of the aligned simulation results allows any discrepancies to be identified immediately.
 The primary cause of differences are spurious intersects resulting from coincidences between the surfaces
 of CSG constituents as described in section~\ref{intersection} which require geometry fixes.
 %
-\section{Summary and Outlook}
+\section{Summary}
 %
 Opticks enables Geant4 based simulations to benefit from effectively zero time 
 and zero CPU memory optical photon simulation, due to the massively parallel GPU 
 processing made accessible by NVIDIA OptiX.
 Recent Opticks developments enable automated translation of Geant4 geometries without approximation. 
-This together with the adoption of modern CMake configuration techniques~\cite{BCM} and development of a 
+This together with the adoption of modern CMake~\cite{CMake} configuration techniques~\cite{BCM} and development of a 
 minimal interface between Geant4 user code and embedded Opticks make getting started with a new geometry
 drastically simpler than before.
 Opticks can benefit any simulation limited by optical photons, the more limited the greater the 
@@ -376,81 +404,90 @@ Grant No. 2018VMB0002.
 %
 \begin{thebibliography}{}
 %
+%1
 \bibitem{opticksURL}
-Opticks URL {\tt https://bitbucket.org/simoncblyth/opticks/}
-
+Opticks Repository {\tt https://bitbucket.org/simoncblyth/opticks/}
+%2
+\bibitem{opticksGroup}
+Opticks Group {\tt https://groups.io/g/opticks}
+%3
 \bibitem{g4A}
 Agostinelli S, Allison J, Amako K, Apostolakis J, Araujo H, Arce P, et al.
 2003
 Geant4--a simulation toolkit
 {\it Nucl Instrum Methods Phys Res} A {\bf 506} pp 250-–303
-
+%4
 \bibitem{g4B}
 Allison J, Amako K, Apostolakis J, Araujo H, Dubois P, Asai M, et al.
 2006
 Geant4 developments and applications
 {\it IEEE Trans Nucl Sci} {\bf 53} pp 270--8
-
+%5
 \bibitem{g4C}
 Allison J, Amako K, Apostolakis J, Arce P, Asai M, Aso T, et al.
 2016
 Recent developments in Geant4
 {\it Nucl Instrum Methods Phys Res} A {\bf 835} pp 186--225
-
+%6
 \bibitem{optixPaper}
 Parker S, Bigler J, Dietrich A, Friedrich H, Hoberock J, et al.
 %Luebke D, McAllister D, McGuire M, Morley K, Robison A and Stich M 
 2010
 OptiX: a general purpose ray tracing engine
 {\it ACM Trans. Graph. : Conf. Series} {\bf 29} p 66
-
+%7
 \bibitem{optixSite}
-NVIDIA{\textregistered} OptiX\texttrademark~ webpage {\tt https://developer.nvidia.com/optix}
-
+OptiX introduction, {\tt https://developer.nvidia.com/optix}
+%8
 \bibitem{optixDocs}
-NVIDIA{\textregistered} OptiX\texttrademark~ API documentation {\tt http://raytracing-docs.nvidia.com/optix/index.html}
-
+OptiX API, {\tt http://raytracing-docs.nvidia.com/optix/index.html}
+%9
 \bibitem{rtx}
 NVIDIA RTX URL {\tt https://developer.nvidia.com/rtx}
-
+%10
 \bibitem{chep2016}
 Blyth Simon C 2017 J. Phys.: Conf. Ser. {\bf 898} 042001
-
+%11
 \bibitem{dyb}
 An F, et al.
 2016
 The detector system of the Daya Bay reactor neutrino experiment
 {\it Nucl Instrum Methods} A {\bf 811} pp 133--161
-
-%9
+%12
 \bibitem{juno}
 An F et al.
 2016
 Neutrino physics with JUNO
 {\it J Phys G} {\bf 43} 030401
-
-
+%13
 \bibitem{throughput}
 M. Garland and D. B. Kirk, Understanding Throughput Oriented Architectures, 
 {\it COMMUN ACM} Volume 53 Issue 11, November 2010, Pages 58-66  	
-
-
-\bibitem{kensler}
-A. Kensler, Ray Tracing CSG Objects Using Single Hit Intersections (2006), 
-with corrections by author of XRT Raytracer {\tt http://xrt.wikidot.com/doc:csg}
-
+%14
 \bibitem{thrust}
 Bell N and Hoberock J 
 2011
 {\it Thrust: a Productivity-Oriented Library for CUDA}
 (GPU Computing Gems Jade Edition) ed W W Hwu, Chapter 26
-
+%15
+\bibitem{kensler}
+A. Kensler, Ray Tracing CSG Objects Using Single Hit Intersections (2006), 
+with corrections by author of XRT Raytracer {\tt http://xrt.wikidot.com/doc:csg}
+%16
 \bibitem{curandURL}
 cuRAND URL {\tt http://docs.nvidia.com/cuda/curand/index.html}
-
+%17
+\bibitem{numpy}
+Van der Walt S, Colbert S, Varoquaux G 
+2011 
+The NumPy array: a structure for efficient numerical computation
+{\it Comput. Sci. Eng.} {\bf 13} pp 22--30
+%18
+\bibitem{CMake}
+CMake URL {\tt https://cmake.org}
+%19
 \bibitem{BCM}
 Boost CMake Modules URL {\tt https://github.com/simoncblyth/bcm}
-
-
+%
 \end{thebibliography}
 \end{document}

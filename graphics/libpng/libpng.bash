@@ -19,6 +19,32 @@ node purely computationally
 without the complexity of getting OpenGL to 
 work.
 
+Usage example
+--------------
+
+::
+
+    cd ~/simoncblyth.bitbucket.io/env/presentation/j1808
+
+    epsilon:j1808 blyth$ libpng-
+    epsilon:j1808 blyth$ libpng-- j1808_top_rtx.ppm
+    wpng-ing ppm j1808_top_rtx.ppm into png j1808_top_rtx.png
+    Encoding image data...
+    Done.
+    epsilon:j1808 blyth$ libpng-- j1808_top_ogl.ppm
+    wpng-ing ppm j1808_top_ogl.ppm into png j1808_top_ogl.png
+    Encoding image data...
+    Done.
+
+    epsilon:j1808 blyth$ du -h *
+    2.1M	j1808_top_ogl.png
+    5.9M	j1808_top_ogl.ppm
+    640K	j1808_top_rtx.png
+    5.9M	j1808_top_rtx.ppm
+    epsilon:j1808 blyth$ 
+
+
+
 
 EOU
 }
