@@ -18,6 +18,24 @@ OBS Studio is free and open source software for video recording and live streami
 * paid alternatives : Camtasia, Screenflow
 
 
+Usage
+---------
+
+::
+
+   obs-
+   obs-run    # sets up envvar and runs
+   obs-ls     # ls mp4 produced
+
+   vlc /home/blyth/2018-10-22_18-55-44.mp4
+
+   ## ssh in from laptop to get the names copy/pastable 
+   ## then ssh them from another tab for editing 
+
+   epsilon:Movies blyth$ scp J:/home/blyth/2018-10-22_18-55-44.mp4 ~/Movies/
+
+
+
 Following rpmfusion install of vlc (and the ffmpeg-libs, x264-libs that come with it)
 --------------------------------------------------------------------------------------
 
@@ -419,4 +437,23 @@ obs-export()
 {
    export LD_LIBRARY_PATH=$(obs-prefix)/lib:$LD_LIBRARY_PATH 
 }
+
+obs-run()
+{
+    obs-export
+    which obs
+    obs 
+}
+
+obs-ls()
+{
+    ls -l $HOME/*.mp4
+    du -h $HOME/*.mp4
+}
+
+
+
+
+
+
 

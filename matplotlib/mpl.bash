@@ -16,6 +16,13 @@ Refs
 
 * http://www.physics.ucdavis.edu/~dwittman/Matplotlib-examples/
 
+
+3D
+----
+
+* https://www.oreilly.com/learning/three-dimensional-plotting-in-matplotlib
+
+
 ColorMaps
 ----------
 
