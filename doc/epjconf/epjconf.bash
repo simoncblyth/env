@@ -270,3 +270,9 @@ and images with their DPI.  Need at least 300 DPI.
 EON
 }
 epjconf-check-pdf(){ $FUNCNAME-notes ; open http://pdf-analyser.edpsciences.org ; }
+
+epjconf-ref(){ cp $(epjconf-opdf) ~/opticks_refs/ ; }
+epjconf-oref(){ open ~/opticks_refs/$(epjconf-filename).pdf ; }
+
+
+
