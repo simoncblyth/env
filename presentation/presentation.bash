@@ -24,6 +24,14 @@ Workflow for preparing slides
   can also "presentation-open 10" or "po 10" to jump to a page without rebuilding the html
 
 
+NVIDIA Turing Press deck 
+---------------------------
+
+* https://www.anandtech.com/Gallery/Album/6660#27
+
+* https://www.irisa.fr/alf/downloads/collange/talks/ufmg_scollange.pdf
+
+
 S5 : Presentation HTML mechanics : jumping to a slide during presentation preparation
 ---------------------------------------------------------------------------------------
 
@@ -988,7 +996,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_ihep ; }
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2018_qingdao ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2018_qingdao ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_oct2018_ihep ; }
 #presentation-name(){ echo dybdb_experience ; }
 #presentation-name(){ echo opticks.key ; }
 
