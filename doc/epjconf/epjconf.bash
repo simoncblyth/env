@@ -102,7 +102,6 @@ At the end of the introduction::
     algorithms, based on the idea of complete code specialisation. 
 
 
-
 [10] Apostolakis J, Brun R, Carminati F, Gheata A and Wenzel S 2014 J. Phys.: Conf. Ser. 513 052038
 [11] Apostolakis J et al 2015 J. Phys.: Conf. Ser. 608 012023
 
@@ -122,8 +121,17 @@ epjconf-tdoc(){ open $(epjconf-tdir)/webofc-doc.pdf ; }
 # latex source dir
 epjconf-dir(){  echo $(env-home)/doc/epjconf/$(epjconf-confname) ; }
 epjconf-cd(){   cd $(epjconf-dir); }
+
+# output dir
+epjconf-odir(){ echo /tmp/$USER/epjconf ; }
+epjconf-ocd(){ cd $(epjconf-odir) ; }
+epjconf-opdf(){ echo $(epjconf-odir)/$(epjconf-confname).pdf ; }
+epjconf-open(){ open $(epjconf-opdf) ; }
+
+
 epjconf-confname(){ echo chep2018 ; }
-epjconf-texname(){  echo $(epjconf-confname).tex ; }
+epjconf-filename(){ echo opticks-blyth-$(epjconf-confname) ; }
+epjconf-texname(){  echo $(epjconf-filename).tex ; }
 epjconf-textmpl(){  echo template.tex ; }
 
 epjconf-2016(){ open http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001/meta ; }
@@ -182,12 +190,7 @@ epjconf-init()
 }
 
 
-epjconf-odir(){ echo /tmp/$USER/epjconf ; }
-epjconf-opdf(){ echo $(epjconf-odir)/$(epjconf-confname).pdf ; }
-epjconf-open(){ open $(epjconf-opdf) ; }
-
 epjconf-figdir(){ echo $HOME/simoncblyth.bitbucket.io ; }
-
 epjconf-texinputs(){ echo .:$(epjconf-tdir):$(epjconf-figdir): ; }
 
 epjconf-texinputs-notes(){ cat << EON
