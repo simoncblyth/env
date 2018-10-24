@@ -125,27 +125,35 @@ epjconf-cd(){   cd $(epjconf-dir); }
 # output dir
 epjconf-odir(){ echo /tmp/$USER/epjconf ; }
 epjconf-ocd(){ cd $(epjconf-odir) ; }
-epjconf-opdf(){ echo $(epjconf-odir)/$(epjconf-confname).pdf ; }
+epjconf-opdf(){ echo $(epjconf-odir)/$(epjconf-filename).pdf ; }
 epjconf-open(){ open $(epjconf-opdf) ; }
 
 
 epjconf-confname(){ echo chep2018 ; }
 epjconf-filename(){ echo opticks-blyth-$(epjconf-confname) ; }
 epjconf-texname(){  echo $(epjconf-filename).tex ; }
+epjconf-etex(){     echo $(epjconf-dir)/$(epjconf-filename).tex ; }
 epjconf-textmpl(){  echo template.tex ; }
 
 epjconf-2016(){ open http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001/meta ; }
+
+epjconf-info(){ cat << EOI
+
+epjconf-tdir     : $(epjconf-tdir)
+epjconf-textmpl  : $(epjconf-textmpl)
+epjconf-dir      : $(epjconf-dir)
+epjconf-texname  : $(epjconf-texname)
+epjconf-filename : $(epjconf-filename)
+epjconf-odir     : $(epjconf-odir) 
+
+
+EOI
+}
 
 epjconf-init-notes(){ cat << EON
 
 $FUNCNAME
 ===================
-
-epjconf-tdir    : $(epjconf-tdir)
-epjconf-textmpl : $(epjconf-textmpl)
-epjconf-dir     : $(epjconf-dir)
-epjconf-texname : $(epjconf-texname)
-
 Copies template files from tdir to the repository dir for editing.
 Actually now that are using TEXINPUTS envvar there is no need 
 to copy the cls file can just use it directly, thus have commented it.
@@ -225,9 +233,10 @@ epjconf--()
 {
     epjconf-pdflatex
     epjconf-open
+    epjconf-info
+    ls -l $(epjconf-odir)    
 }
 
-epjconf-etex(){ echo $(epjconf-dir)/$(epjconf-confname).tex ; }
 epjconf-edit(){ local etex=$(epjconf-etex) ; echo $FUNCNAME etex $etex ; vi $etex $(epjconf-aux) ;  }
 epjconf-e(){    epjconf-edit ; }
 

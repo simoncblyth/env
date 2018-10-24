@@ -48,7 +48,7 @@ why it is important.
 %
 Opticks\cite{opticksURL}\cite{opticksGroup} enables Geant4\cite{g4A}\cite{g4B}\cite{g4C}
 based optical photon simulations to benefit from the high performance massively parallel GPU ray tracing 
-provided by the NVIDIA\textregistered\ OptiX\texttrademark\cite{optixPaper}\cite{optixSite}\cite{optixDocs} package.
+provided by NVIDIA\textregistered\ OptiX\texttrademark\cite{optixPaper}\cite{optixSite}\cite{optixDocs}.
 With the recently introduced NVIDIA Turing architecture GPUs OptiX performance is further enhanced 
 by dedicated ray-tracing processors called RT cores\cite{rtx}.
 %Recent Opticks developments enable automated direct translation of Geant4 geometries into a GPU 
@@ -143,7 +143,8 @@ architecture.
 %
 \subsection{NVIDIA\textregistered\ OptiX\texttrademark\ Ray Tracing Engine}
 %
-OptiX\cite{optixPaper}\cite{optixSite}\cite{optixDocs} is a general-purpose ray tracing engine
+%OptiX\cite{optixPaper}\cite{optixSite}\cite{optixDocs} 
+OptiX is a general-purpose ray tracing engine
 designed for NVIDIA GPUs that exposes an accessible single ray programming model.
 The core of OptiX is a domain-specific just-in-time compiler that constructs 
 ray tracing pipelines combining code for acceleration structure creation and traversal 
@@ -164,7 +165,7 @@ greatly simplifying GPU development. Opticks uses Thrust for several tasks:
 \begin{itemize}
 \item associating photons with their "gensteps" entirely on the GPU
 \item downloading photons that hit sensors to the CPU using the stream compaction technique
-\item sorting photons by their step sequence histories, up to 16 steps of 4-bit flags are stored in 64 bit integers for each photon
+\item sorting photons by step sequence histories, flags for up to 16 steps are stored
 \end{itemize} 
 %
 Gensteps are the parameters of optical photon producing steps of scintillation or Cerenkov processes, 
