@@ -1,5 +1,34 @@
 .. include:: my_s5defs.txt
 
+.. comment
+
+    Structure
+
+    * intro, two pages 
+
+      * Opticks applies massively parallel GPU processing to the extremely parallel problem of 
+        simulating many millions of optical photons
+
+    * video
+
+      * intro JUNO detector
+      * optical photon simulation
+      * raytrace/rasterized
+
+    * intro to GPU
+
+      * graphics origin : extreme parallel problem
+      * GPU vs CPU architecture, latency vs throughput
+      * how to make effective use of GPU : Use higher level libraries
+      * how to make effective use of GPU : parallel, simple, uncoupled
+
+        * optical photon simulation sidebar
+
+    * developing Opticks, different perspective, different tools (hmm does this fit here?)
+    * optical photon simulation problem 
+
+
+
 ========================================================================================
 :i:`Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
 ========================================================================================
@@ -7,7 +36,7 @@
 .. raw:: html
 
     <div class="mytitle">
-    <h1 style="background-color:lightgrey"> <i>Opticks</i> : GPU Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ </h1>
+    <h1 style="background-color:lightgrey"> <i>Opticks</i> : GPU Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ + <span class="alarm">Tools and Techniques</span> </h1>
     </div>
 
     <div class="mycredit">
@@ -16,45 +45,54 @@
 
 .. comment
 
-   Opticks applies GPU massive parallelism to optical photon simulation, it is of most interest for 
-   neutrino detectors like JUNO : due to the very large numbers of photons produced in the JUNO scintillator 
-   ... but any simulation that is limited by optical photons can benefit from Opticks
+    Opticks applies GPU massive parallelism to optical photon simulation, it is of most interest for 
+    neutrino detectors like JUNO : due to the very large numbers of photons produced in the JUNO scintillator 
+    ... but any simulation that is limited by optical photons can benefit from Opticks
 
-   And the benefits can be enormous... modern GPUs have more than 5000 cores, Opticks succeeds to 
-   port all of the optical photon simulation to the GPU : because you really do have 
-   millions of similar calculations for cosmic muon for example : the performance improvement
-   over CPU is expected to be >1000 
-
-
-
-CPU and GPU architectures
----------------------------
+    And the benefits can be enormous... modern GPUs have more than 5000 cores, Opticks succeeds to 
+    port all of the optical photon simulation to the GPU : because you really do have 
+    millions of similar calculations for cosmic muon for example : the performance improvement
+    over CPU is expected to be >1000 
 
 
-.. image:: /env/presentation/nvidia/cpu_vs_gpu_architecture.png
-   :width: 1200px
-   :align: center
+    Title:
+
+    Opticks GPU Optical Photon Simulation, highlighting Tools and Techniques 
+
+    Abstract:
+
+    Opticks replaces Geant4 optical photon simulation on the CPU with an equivalent GPU implementation 
+    using the NVIDIA OptiX ray tracing engine, resulting in a drastic speedup in 
+    optical photon simulation extrapolated to exceed 1000x Geant4 with workstation GPU machines. 
+    Generation steps of photons are collected from Geant4 and copied to the GPU allowing optical photons
+    to become fully GPU resident, being generated and propagated entirely on the GPU with 
+    only detected photons requiring memory allocation on the CPU. 
+
+    GPU development of the Opticks optical photon simulation has required a first principals 
+    approach to techniques such as:
+ 
+    * ray geometry intersection 
+    * Monte Carlo sampling 
+
+    and has necessitated the use of uncommon tools such as:
+
+    * NumPy, CUDA and Thrust.  
+
+    The presentation will highlight these tools and techniques 
+    as well as covering Opticks itself, with the aim of providing 
+
+    * an introduction to the power and ease of an alternative NumPy 
+      based toolset that can be directly useful for any data analysis.
+
+    If you wish to:
+
+    * apply GPU acceleration to speedup any algorithm or to 
+    * simply analyse C++ generated data from the comfort of python 
+
+    then my presentation will provide much to interest you.
 
 
-.. class:: small
 
-   * CPU **latency-optimized** : large caches
-   * GPU **throughput-optimized** : lots of compute, at expense of cache, control  
-
-
-.. class:: tiny
-
-   CUDA C Programming Guide
-
-
-`NVIDIA Turing GPU`
----------------------------
-
-
-
-
-:i:`BVH`
----------------------------
 
 
 :i:`Opticks Benefits`
@@ -103,6 +141,11 @@ Outline : Tools, Techniques and Opticks
 
 .. class:: small
 
+   * Understanding the GPU
+
+     * graphical origins
+     * throughput-oriented architecture 
+
    * Optical Photon simulation problem
 
      * Hybrid solution : Geant4 + Opticks
@@ -116,12 +159,6 @@ Outline : Tools, Techniques and Opticks
 
      * apply randomness to model complex systems
      * optical photon simulation, deciding history 
-     * sampling using Cumulative Distribution Function 
-     * modelling Scintillator Re-emission 
-     * modelling Scattering and Absorption
-     * accept-reject sampling 
-     * estimating pi 
-     * *NVIDIA CUDA + Thrust* : GPU estimating pi  
 
    * *Geant4* : Standard Monte Carlo in HEP  
 
@@ -136,8 +173,19 @@ Outline : Tools, Techniques and Opticks
      * Validation, performance comparisons
      * Summary
 
+.. comment
+
+   To understand Opticks and why it is structured as it 
+   is you need to understand GPUs 
 
 .. comment
+
+   * sampling using Cumulative Distribution Function 
+   * modelling Scintillator Re-emission 
+   * modelling Scattering and Absorption
+   * accept-reject sampling 
+   * estimating pi 
+   * *NVIDIA CUDA + Thrust* : GPU estimating pi  
 
    Opticks package applies GPU massive parallelism 
    to remove a processing bottleneck.
@@ -169,6 +217,251 @@ Outline : Tools, Techniques and Opticks
      numerical analysis environment 
 
    * https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/monte-carlo-methods-in-practice/monte-carlo-simulation
+
+
+
+:small:`Understanding GPUs : Graphical Origins : An Extremely Parallel Problem` 
+---------------------------------------------------------------------------------
+
+.. class:: small
+
+    GPUs evolved to rasterize 3D graphics, eg OpenGL graphics pipeline
+        * millions of triangles, millions of pixels, mostly independent
+        * simple data structures : vertices, triangles, pixels
+        * :red:`literally billions of small "shader" programs run per second`   
+
+    .. image:: /env/presentation/graphics/rendering_pipeline.png
+       :width: 800px
+       :align: center
+
+
+.. comment
+
+    https://cg.informatik.uni-freiburg.de/course_notes/graphics_01_pipeline.pdf
+
+    http://web.cse.ohio-state.edu/~shen.94/781/Site/Slides_files/pipeline.pdf
+
+
+`NVIDIA Turing GPU : 72 SM, 4608 CUDA cores`
+----------------------------------------------
+
+
+`NVIDIA Turing GPU : 72 SM, 4608 CUDA cores (spec)`
+---------------------------------------------------
+
+.. sidebar:: :small:`Thousands of CUDA cores`
+
+    .. class:: small
+ 
+        GPU : Turing TU102
+
+        * 72 Streaming Multiprocessors (SM)
+        * :red:`4608 CUDA cores` (64 per SM)
+       
+        GPU : Volta V100 (eg Titan V) 
+
+        * 80 SM
+        * :red:`5120 CUDA cores` (64 per SM)
+ 
+        CPU : Intel Xeon Processor Family
+
+        * Up to :blue:`28 cores`, typically :blue:`8-18 cores`
+
+
+
+:small:`CPU vs GPU architectures, Latency vs Throughput`
+------------------------------------------------------------
+
+.. class:: small
+
+    .. image:: /env/presentation/nvidia/cpu_vs_gpu_architecture.png
+       :width: 800px
+       :align: center
+
+.. class:: small
+
+   Waiting for memory read/write, is major source of latency...
+
+   **CPU : latency-oriented : Minimize time to complete single task** : :red:`avoid latency with caching` 
+       * complex : caching system, branch prediction, speculative execution, ...
+
+   **GPU : throughput-oriented : Maximize total work per unit time** : :red:`hide latency with parallelism` 
+       * many simple processing cores, hardware multithreading, SIMD (single instruction multiple data)
+       * simpler : :green:`lots of compute (ALU)`, at expense of cache+control
+       * design assumes :red:`abundant parallelism`
+
+   Effective use of **Totally different processor architecture** -> :red:`Total reorganization of data and computation`  
+       
+
+.. class:: tiny
+
+    Understanding Throughput-oriented Architectures
+    https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
+
+    
+:small:`How to Make Effective Use of GPUs ? -> Use Higher Level Libraries`
+-------------------------------------------------------------------------------
+
+.. comment
+       
+   .. figure:: /env/numerics/thrust/thrust.png
+
+.. sidebar:: :small:`High level C++ access to CUDA`
+
+       "... Code at the speed of light ..."
+
+       .. figure:: /env/presentation/nvidia/thrust_logo.png
+          :width: 440px
+          :align: right
+
+       "... high-level interface greatly enhances programmer productivity ..."
+
+       .. class:: small
+     
+           * https://developer.nvidia.com/Thrust
+           * header only library, comes with CUDA
+           * high-level abstraction : reduce, scan, sort
+
+             * rapid prototyping 
+             * easy interop with CUDA 
+           
+
+.. class:: small
+
+    :red:`Not many available, use if possible`
+       * **benefit from other peoples efforts**
+
+    * Thrust : high level C++ interface to CUDA
+    * OptiX : raytrace engine 
+    * cuRAND, cuFFT, cuBLAS, cuSOLVER, ...
+    * CUB : http://nvlabs.github.io/cub/
+
+    :blue:`https://developer.nvidia.com/gpu-accelerated-libraries`
+
+    .. image:: /env/presentation/1px.png
+       :height: 10px
+
+
+    **For adventurous early adopters**
+
+    * Opticks : https://bitbucket.org/simoncblyth/opticks
+
+
+:small:`How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled`
+------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Optical Photon Simulation`
+
+    .. class:: small
+
+        Abundant parallelism 
+           * Many millions of photons 
+
+        Low register usage 
+           * Simple optical physics, texture lookups
+
+        Little/No synchronization
+           * Independent photons -> None 
+
+        Minimize CPU<->GPU copies 
+           * geometry copied at initialization
+           * gensteps copied once per event
+           * only hits copied back    
+
+        :blue:`~perfect match for GPU acceleration` 
+
+
+
+.. class:: small
+
+    **Abundant parallelism**
+       * many thousands of tasks (ideally millions)
+
+    **Low register usage : otherwise limits concurrent threads** 
+       * simple kernels, avoid branching  
+
+    **Little/No Synchronization**
+       * avoid waiting, avoid complex code/debugging
+
+    **Minimize CPU<->GPU copies**
+       * reuse GPU buffers across multiple CUDA launches 
+
+    .. image:: /env/presentation/1px.png
+
+
+    **How Many Threads to Launch ?**
+
+    * can (and should) launch many millions of threads
+
+      * :red:`mince problems as finely as feasible`
+
+    * maximum thread launch size : so large its irrelevant
+    * maximum threads inflight : #SM*2048 = 80*2048 = 163,840
+
+      * best latency hiding when launch > ~10x this  
+
+
+.. class:: tiny    
+
+    * NVIDIA Titan V: 80 SM, 5120 CUDA cores
+
+
+
+.. comment
+
+   https://streamhpc.com/blog/2017-01-24/many-threads-can-run-gpu/
+
+   https://devtalk.nvidia.com/default/topic/1028226/how-many-concurrent-threads-are-running-on-my-geforce-gtx-1080-ti-/
+
+   The maximum number of threads in flight is 2048 * #SM
+
+
+
+
+
+:small:`Developing Opticks -> different perspective -> different tools`
+-------------------------------------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Development for GPU`
+
+    .. class:: small
+
+        Mostly from scratch : :red:`total reorganization`  
+
+        * very limited libraries available
+        * complex C++ object models 
+
+          * not appropriate to GPU   
+
+        Forced to **rethink + reimplement** everything from first principals, eg:
+
+        * ray-geometry intersection 
+        * Monte Carlo sampling 
+
+.. class:: small
+
+   **Small amount of GPU code : OptiX, CUDA, Thrust, OpenGL**  
+
+   * corresponding to "inner" loops from CPU code 
+
+   **Vast majority of Opticks code on CPU : geometry conversion**
+
+   * geometry buffers serialization
+   * boundary texture (material/surface properties)
+   * reemission texture (reemission wavelength generation) 
+
+   **All data structures serialized** 
+    
+   * required to copy to/from GPU 
+
+   **Benefits of serialization**
+
+   * persist everything to file, in *NumPy* format
+   * -> load into *NumPy* as arrays
+
+     * interactive debugging/analysis with *IPython + NumPy*
+     * no *Python/NumPy* dependency for *Opticks*
+
 
 
 
@@ -297,6 +590,16 @@ Outline : Tools, Techniques and Opticks
    * geometry bounding box, intersects 
 
 
+:i:`BVH`
+---------------------------
+
+
+.. comment
+
+   https://www.anandtech.com/show/13282/nvidia-turing-architecture-deep-dive/3 
+   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_029.png
+
+
 
 :small:`OptiX Performance Scaling with GPU cores`
 ---------------------------------------------------------------------------
@@ -360,48 +663,6 @@ Outline : Tools, Techniques and Opticks
 .. exclude
 
     Powers of 2, from **2^0 to 2^12 (4096)**
-
-:small:`Developing GPU simulation -> different perspective -> different tools`
--------------------------------------------------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Development for GPU`
-
-    .. class:: small
-
-        Mostly from scratch 
-
-        * very limited set of libraries available
-        * no shared object loading
-        * cannot build complex libraries 
-
-        Forced to **rethink + reimplement** everything from first principals, eg:
-
-        * ray-geometry intersection 
-        * Monte Carlo sampling 
-
-.. class:: small
-
-    Vast majority of Opticks code on CPU, setting up for GPU:
-
-    * geometry buffers serialization
-    * boundary texture (material/surface properties)
-    * reemission texture (reemission wavelength generation) 
-
-    Everything must be serialized, for copying to GPU ; Exploit this:
-
-    * persist everything to file
-    * -> can load everything into *NumPy* as arrays
-    * Opticks code stays simple : no *Python/NumPy* dependency
-
-      * interactive debugging/analysis with *IPython + NumPy*
-
-    * *NumPy* **array-oriented approach** 
-
-      * :red:`excellent fit for GPU setup` 
-
-    Small amount of code on GPU : CUDA, Thrust 
-
-    * corresponding to "inner" loops from CPU code 
 
 
 
@@ -2702,13 +2963,17 @@ Geant4 : Overview
     /env/presentation/what_are_numpy_arrays.png 1280px_720px
 
     BVH
-    /env/presentation/nvidia/NV_Turing_Editors_Day_028.png 1280px_720px
+    /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
     #
     #  original 2880px_1620px
     #  half     1440px_810px
 
-    NVIDIA Turing GPU
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores
     /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores (spec)
+    /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+ 
     #
     #   1280 720
     #   1920 1080  *1.4

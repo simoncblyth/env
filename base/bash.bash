@@ -9,6 +9,44 @@ bash-usage(){ cat << EOU
 bash
 =====
 
+.bashrc or .bash_profile
+-------------------------
+
+* http://www.joshstaiger.org/archives/2005/07/bash_profile_vs.html
+
+.bash_profile
+    on login 
+
+.bashrc
+    every new terminal window
+
+
+macOS Terminal.app exception
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An exception to the terminal window guidelines is Mac OS X’s Terminal.app,
+which runs a login shell by default for each new terminal window, calling
+.bash_profile instead of .bashrc. Other GUI terminal emulators may do the same,
+but most tend not to.
+
+Recommendation
+~~~~~~~~~~~~~~~~
+
+Most of the time you don’t want to maintain two separate config files for login
+and non-login shells — when you set a PATH, you want it to apply to both. You
+can fix this by sourcing .bashrc from your .bash_profile file, then putting
+PATH and common settings in .bashrc.
+
+To do this, add the following lines to .bash_profile:
+if [ -f ~/.bashrc ]; then
+   source ~/.bashrc
+fi
+Now when you login to your machine from a console .bashrc will be called.
+
+
+
+
+
 Redirect bug in bash 3.2
 ---------------------------
 
