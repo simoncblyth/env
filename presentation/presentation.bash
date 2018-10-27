@@ -31,6 +31,10 @@ NVIDIA Turing Press deck
 
 * https://www.irisa.fr/alf/downloads/collange/talks/ufmg_scollange.pdf
 
+  Architecture and micro-architecture of GPUs
+
+  SIMD is static, SIMT is dynamic
+
 
 S5 : Presentation HTML mechanics : jumping to a slide during presentation preparation
 ---------------------------------------------------------------------------------------

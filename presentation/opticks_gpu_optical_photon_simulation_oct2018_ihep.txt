@@ -36,7 +36,10 @@
 .. raw:: html
 
     <div class="mytitle">
-    <h1 style="background-color:lightgrey"> <i>Opticks</i> : GPU Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ + <span class="alarm">Tools and Techniques</span> </h1>
+    <h1 style="background-color:lightgrey"> 
+          <span class="alarm">Tools, Techniques</span>  +
+          <i>Opticks</i> : GPU Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ 
+    </h1>
     </div>
 
     <div class="mycredit">
@@ -131,47 +134,39 @@
 
  
 
-Outline : Tools, Techniques and Opticks 
--------------------------------------------
+Outline : Introducing the Tools : GPU + *NumPy*
+--------------------------------------------------
 
 .. image:: /env/presentation/newtons-opticks.png 
    :width: 299px
    :height: 547px 
    :align: right
 
-.. class:: small
 
-   * Understanding the GPU
+* Understanding GPUs 
 
-     * graphical origins
-     * throughput-oriented architecture 
+  * Graphical Origins 
+  * NVIDIA Turing GPU 
+  * CPU vs GPU architectures
+  * Latency vs Throughput 
 
-   * Optical Photon simulation problem
+* How to Make Effective Use of GPUs ?
 
-     * Hybrid solution : Geant4 + Opticks
-     * NVIDIA OptiX Ray Tracing Engine
+  * Use Higher Level Libraries
+  * Parallel / Simple / Uncoupled
+ 
+* GPU Constraints -> Array-Oriented Design -> *NumPy* 
 
-   * Fundamental Tools for data science
+  * Serialization 
+  * Serialization Benefits 
 
-     * *NumPy* : large array handling with python flexibility/brevity at C speed 
+* What are *NumPy* and *NumPy* arrays ?   
 
-   * Technique : Monte Carlo Method  
+  * fundamental to Python Data Ecosystem
+  * large array handling with python flexibility/brevity at C speed 
+ 
+* Python : fastest growing major programming language ? Why ? 
 
-     * apply randomness to model complex systems
-     * optical photon simulation, deciding history 
-
-   * *Geant4* : Standard Monte Carlo in HEP  
-
-     * simulation toolkit generality
-     * overview
-
-   * *Opticks* : optical photon simulation with NVIDIA OptiX
-
-     * geometry workflow : geocache, GPU textures
-     * large geometry techniques, geometry modelling  
-     * Geant4/Opticks event workflow 
-     * Validation, performance comparisons
-     * Summary
 
 .. comment
 
@@ -179,13 +174,6 @@ Outline : Tools, Techniques and Opticks
    is you need to understand GPUs 
 
 .. comment
-
-   * sampling using Cumulative Distribution Function 
-   * modelling Scintillator Re-emission 
-   * modelling Scattering and Absorption
-   * accept-reject sampling 
-   * estimating pi 
-   * *NVIDIA CUDA + Thrust* : GPU estimating pi  
 
    Opticks package applies GPU massive parallelism 
    to remove a processing bottleneck.
@@ -329,7 +317,7 @@ Outline : Tools, Techniques and Opticks
 .. class:: small
 
     :red:`Not many available, use if possible`
-       * **benefit from other peoples efforts**
+       * **benefit from other peoples experience**
 
     * Thrust : high level C++ interface to CUDA
     * OptiX : raytrace engine 
@@ -419,26 +407,80 @@ Outline : Tools, Techniques and Opticks
 
 
 
-:small:`Developing Opticks -> different perspective -> different tools`
+:small:`GPU Constraints -> Array-Oriented Design -> NumPy`
 -------------------------------------------------------------------------------------------------------------------------------
 
-.. sidebar:: :small:`Development for GPU`
+.. sidebar:: :small:`Serialization Benefits`
 
     .. class:: small
 
-        Mostly from scratch : :red:`total reorganization`  
+        **Persist everything to file -> fast development cycle**
+          * geocache : initialize in seconds, not minutes 
+          * interactive debug/analysis : *NumPy,IPython*
+          * flexible testing 
 
-        * very limited libraries available
-        * complex C++ object models 
+        **Can transport everything across network:** 
+          * production flexibility : distributed compute
 
-          * not appropriate to GPU   
+        **Arrays for Everything -> direct access debug**
+          * (num_photons,4,4) *float32*
+          * (num_photons,16,2,4) *int16* : step records
+          * (num_photons,2) *uint64* : history flags 
+          * (num_gensteps,6,4) *float32*
+          * (num_csgnodes,4,4) *float32*
+          * (num_transforms,3,4,4) *float32*
+          * (num_planes,4,4) *float32*
+          * (num_flightpath_views,4,4) *float32* 
+          * ...
 
-        Forced to **rethink + reimplement** everything from first principals, eg:
+        YET : *Opticks* does not depend on *NumPy/python*
 
-        * ray-geometry intersection 
-        * Monte Carlo sampling 
+
 
 .. class:: small
+
+
+   **Separate address space -> Serialization** 
+     *upload/download* : host(CPU)<->device(GPU)
+
+   * :red:`Serialize everything` -> Arrays 
+   * Many small tasks -> Arrays
+   * Order undefined -> Arrays
+
+   Object-oriented 
+      * mixes data and compute
+      * complicated serialization
+      * model complex systems, great up to ~1000 objects
+
+   **Array-oriented : ideal fit for GPU work** 
+      * separate data from compute, functional approach
+      * :red:`inherent serialization`
+      * inherent simplicity, works for millions of items 
+      * *NumPy* :red:`leading array-oriented package`
+
+   *NumPy* **.npy** : Simple Array Serialization Format 
+      * metadata header : array shape and type
+      * read/write *NumPy* arrays from C++ https://github.com/simoncblyth/np/blob/master/NP.hh
+
+
+.. class:: tiny 
+
+   http://www.numpy.org/neps/nep-0001-npy-format.html
+
+   https://realpython.com/numpy-array-programming/
+   
+
+.. comment
+
+
+
+
+   Very limited libraries -> **re-think + re-implement** from scratch, eg:
+      * ray-geometry intersection
+      * Monte Carlo sampling 
+
+
+
 
    **Small amount of GPU code : OptiX, CUDA, Thrust, OpenGL**  
 
@@ -467,203 +509,79 @@ Outline : Tools, Techniques and Opticks
 
 
 
-`Optical Photon Simulation Problem...`
----------------------------------------------------------
 
 
-:i:`JPMT Before Contact 2`
---------------------------
-
-
-.. sidebar:: Optical Photon Problem
-
-    .. class:: small
-
-         **Cosmic muon backgrounds**
-           many millions of optical photons in JUNO scintillator
-
-         **Simulation Bottleneck**
-           ~99% CPU time, memory constraints
-
-         **Optical photons : naturally parallel, simple :**
-           * produced by Cerenkov+Scintillation 
-           * yield only Photomultiplier hits
-
-         **-> Hybrid Solution : Geant4 + Opticks** 
-
-
-
-
-
-
-
-
-:small:`Ray Traced Image Synthesis ≈ Optical Photon Simulation`
--------------------------------------------------------------------------------
-
-.. sidebar:: Not a Photo, a Calculation
-
-    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
-       :width: 450px
-       :align: right
-
-    .. class:: tiny
-
-        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
-
-
-.. class:: small
-
-    Geometry, light sources, optical physics ->  
-
-    * pixel values at image plane
-    * photon parameters at detectors (eg PMTs)
-
-    **Ray tracing has many applications** :
-
-    * advertising, design, entertainment, games,...
-    * BUT : most ray tracers just render images
-
-    **Ray-geometry intersection**
-
-    * hw+sw continuously optimized over 30 years
-    * performance > 100M intersections per second per GPU
-
-.. raw:: html
-
-    <pre class="mypre">
-
-    </pre>
- 
-.. class:: small
-
-    **rasterization**
-      project 3D primitives onto 2D image plane, combine fragments into pixel values 
-
-    **ray tracing**
-      cast rays thru image pixels into scene, recursively reflect/refract at
-      intersects, combine returns into pixel values  
-          
-
-
-
-:small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
---------------------------------------------------------------------------------
-
-.. sidebar:: OptiX Raytracing Pipeline
-
-    .. class:: small
-
-       Analogous to OpenGL rasterization pipeline:
-
-    .. image:: /env/optix/docs/optix-model.png
-       :width: 450px
-       :align: right
-
-.. class:: small
-
-   **OptiX makes GPU ray tracing accessible**
-
-   * **accelerates** ray-geometry intersections
-   * simple : single-ray programming model
-   * "...free to use within any application..."
-
-   **NVIDIA expertise:**
-
-   * ~linear scaling with CUDA cores across multiple GPUs
-   * acceleration structure creation + traversal (Blue)
-   * instanced sharing of geometry + acceleration structures
-   * :red:`compiler optimized for GPU ray tracing`
-   * regular updates, profit from new GPU features:
-
-     * NVIDIA RTX™ with Volta, Turing GPUs
-
-.. class:: tiny
-
-       ``https://developer.nvidia.com/rtx``
-
-.. class:: small
-
-   **User provides (Yellow):**
-
-   * ray generation
-   * geometry bounding box, intersects 
-
-
-:i:`BVH`
----------------------------
+:i:`What are NumPy Arrays`
+---------------------------------------------------------------------------
 
 
 .. comment
 
-   https://www.anandtech.com/show/13282/nvidia-turing-architecture-deep-dive/3 
-   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_029.png
+   At first glance NumPy doesnt seem very impressive : but that array could have hundreds of 
+   millions of elements in it, and it would enable you to efficently maniulate it : 
+
+   I will be showing examples, that I hope will demonstrate the power of NumPy 
 
 
 
-:small:`OptiX Performance Scaling with GPU cores`
+:i:`What are NumPy Arrays 2`
 ---------------------------------------------------------------------------
 
-.. sidebar:: Performance Linearity with CUDA cores 
 
-    .. image:: /env/g4dae/core_linearity.png
-       :width: 500px
-       :align: right
-
-.. class:: small
-
-    OptiX sample rendering with 2 GPU IHEP workstation,
-
-    * 2 Tesla K20m (4992 cores) 28.0 ms/f
-    * 1 Tesla K20m (2496 cores) 49.1 ms/f
-    * 1 GeForce GT 750m (384 cores) 345.1 ms/f
- 
-    :red:`Performance linear with GPU cores`, compared to laptop:
-
-    * 13x cores, 12x performance
-    * performance scales across GPUs
-
-    Benefit from multiple GPUs with no development effort. 
-
-
-
-:small:`GPU "Shape" very different to CPU` 
--------------------------------------------------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`5120 GPU cores vs ~<16 CPU cores`
+.. sidebar:: Ideal for Large Arrays
 
     .. class:: small
 
-        .. image:: /env/presentation/shape_of_cpu_vs_gpu_circles.png
-           :width: 500px
-           :align: right
+        **Natural Fit with Opticks Photon Simulation**
+
+        * millions of photons : large and simple data 
+        * detector geometry : many thousands of PMTs, millions of vertices, triangles 
+
+        *NumPy* 100x speedups compared to python are common, but more importantly: 
+
+        * **NumPy+IPython provide excellent interactive environment**
+
+          * **array oriented** or **vectorized** approach (no looping) : terse + fast
+          * thinking **vectorized** prepares you for GPU
+
+    .. class:: tiny 
+
+       http://www.scipy-lectures.org/intro/numpy/index.html
+
+
+.. comment
+
+
+
+:small:`NumPy : Fundamental to Python Data Ecosystem`
+-------------------------------------------------------
 
 .. class:: small
 
-   **GPU performance explosion** continues, CPUs getting wider   
+   * central nature of *NumPy* to the *Python* world makes mastering it exceedingly useful
+   * understanding it, enables C/C++ performance with python brevity + ease of development  
 
-   * current GPUs : up to 5120 CUDA cores (5120/16 = 320 )
-   * can scale to multiple GPUs with **~no development effort** (5120*4 = 20480) 
-
-   GPU cores not equivalent to CPU cores
-   
-   * object oriented C++ : mixes up data and compute
-   * cannot simply move CPU code to run on GPU
-
-     * **must separate data and compute** 
+   * https://bitbucket.org/simoncblyth/intro_to_numpy
  
-   Effective GPU usage, requires
+.. image:: /env/presentation/numpy_ecosystem.png
+   :width: 600px
+   :align: center
 
-   * total restructure of code + data  
-   * highly parallel problem 
+.. class:: tiny
 
-     * simple code applied to large amounts of similar data
+   https://docs.scipy.org/doc/numpy/user/quickstart.html
+
+   http://www.scipy-lectures.org/intro/index.html
+
+   https://github.com/donnemartin/data-science-ipython-notebooks
 
 
-.. exclude
 
-    Powers of 2, from **2^0 to 2^12 (4096)**
+.. comment
 
+   Familiarity with NumPy fundmentals makes use of all these packages more straightforward.  
+
+   http://luispedro.org/files/talks/2014/09-pyss/pyss14.html
 
 
 
@@ -709,76 +627,33 @@ Outline : Tools, Techniques and Opticks
 
 
 
-:small:`NumPy : Fundamental to Python Data Ecosystem`
--------------------------------------------------------
-
-.. class:: small
-
-   * central nature of *NumPy* to the *Python* world makes mastering it exceedingly useful
-   * understanding it, enables C/C++ performance with python brevity + ease of development  
- 
-.. image:: /env/presentation/numpy_ecosystem.png
-   :width: 700px
-   :align: center
-
-.. class:: tiny
-
-   https://docs.scipy.org/doc/numpy/user/quickstart.html
-
-   http://www.scipy-lectures.org/intro/index.html
-
-   https://github.com/donnemartin/data-science-ipython-notebooks
 
 
+Outline of Techniques : Monte Carlo Method 
+---------------------------------------------
 
-.. comment
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
 
-   Familiarity with NumPy fundmentals makes use of all these packages more straightforward.  
+* Technique : Monte Carlo Method  
 
-   http://luispedro.org/files/talks/2014/09-pyss/pyss14.html
+  * apply randomness to model complex systems
+  * optical photon simulation, deciding history 
+  * sampling using Cumulative Distribution Function 
+  * modelling Scintillator Re-emission 
+  * modelling Scattering and Absorption
+  * accept-reject sampling 
+  * estimating pi 
+  * *NVIDIA CUDA + Thrust* : GPU estimating pi  
 
+* *Geant4* : Standard Monte Carlo in HEP  
 
-
-
-:i:`What are NumPy Arrays`
----------------------------------------------------------------------------
-
-
-.. comment
-
-   At first glance NumPy doesnt seem very impressive : but that array could have hundreds of 
-   millions of elements in it, and it would enable you to efficently maniulate it : 
-
-   I will be showing examples, that I hope will demonstrate the power of NumPy 
-
-
-
-:i:`What are NumPy Arrays 2`
----------------------------------------------------------------------------
+  * simulation toolkit generality
+  * overview
 
 
-.. sidebar:: Ideal for Large Arrays
-
-    .. class:: small
-
-        **Natural Fit with Opticks Photon Simulation**
-
-        * millions of photons : large and simple data 
-        * detector geometry : many thousands of PMTs, millions of vertices, triangles 
-
-        *NumPy* 100x speedups compared to python are common, but more importantly: 
-
-        * **NumPy+IPython provide excellent interactive environment**
-
-          * **array oriented** or **vectorized** approach (no looping) : terse + fast
-          * thinking **vectorized** prepares you for GPU
-
-    .. class:: tiny 
-
-       http://www.scipy-lectures.org/intro/numpy/index.html
-
-
-.. comment
 
 
 
@@ -1217,6 +1092,7 @@ Outline : Tools, Techniques and Opticks
 
    * C++ functor with ``__device__ float operator()`` 
    * struct member *N* set on host(CPU), used on device(GPU) : taken care of by *Thrust* 
+   * https://bitbucket.org/simoncblyth/intro_to_cuda
 
 
 .. raw:: html
@@ -1253,7 +1129,7 @@ Outline : Tools, Techniques and Opticks
 
 .. class:: tiny 
 
-    https://bitbucket.org/simoncblyth/opticks/src/default/thrustrap/tests/thrust_curand_estimate_pi.cu 
+    https://bitbucket.org/simoncblyth/intro_to_cuda/src/default/thrust_curand_estimate_pi.cu 
 
 
 
@@ -1403,6 +1279,191 @@ Geant4 : Overview
 .. comment
 
    ~/opticks_refs/Geant4_intro_J_Apostolakis.pdf
+
+
+
+Outline of *Opticks* : Problem and Solution 
+---------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+* Optical Photon simulation problem
+
+  * Hybrid solution : Geant4 + Opticks
+  * NVIDIA OptiX Ray Tracing Engine
+
+* *Opticks* : optical photon simulation with NVIDIA OptiX
+
+  * geometry workflow : geocache, GPU textures
+  * large geometry techniques, geometry modelling  
+  * Geant4/Opticks event workflow 
+  * Validation, performance comparisons
+  * Summary
+
+
+
+`Optical Photon Simulation Problem...`
+---------------------------------------------------------
+
+:i:`JPMT Before Contact 2`
+--------------------------
+
+
+.. sidebar:: Optical Photon Problem
+
+    .. class:: small
+
+         **Cosmic muon backgrounds**
+           many millions of optical photons in JUNO scintillator
+
+         **Simulation Bottleneck**
+           ~99% CPU time, memory constraints
+
+         **Optical photons : naturally parallel, simple :**
+           * produced by Cerenkov+Scintillation 
+           * yield only Photomultiplier hits
+
+         **-> Hybrid Solution : Geant4 + Opticks** 
+
+
+
+:small:`Ray Traced Image Synthesis ≈ Optical Photon Simulation`
+-------------------------------------------------------------------------------
+
+.. sidebar:: Not a Photo, a Calculation
+
+    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
+       :width: 450px
+       :align: right
+
+    .. class:: tiny
+
+        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
+
+
+.. class:: small
+
+    Geometry, light sources, optical physics ->  
+
+    * pixel values at image plane
+    * photon parameters at detectors (eg PMTs)
+
+    **Ray tracing has many applications** :
+
+    * advertising, design, entertainment, games,...
+    * BUT : most ray tracers just render images
+
+    **Ray-geometry intersection**
+
+    * hw+sw continuously optimized over 30 years
+    * performance > 100M intersections per second per GPU
+
+.. raw:: html
+
+    <pre class="mypre">
+
+    </pre>
+ 
+.. class:: small
+
+    **rasterization**
+      project 3D primitives onto 2D image plane, combine fragments into pixel values 
+
+    **ray tracing**
+      cast rays thru image pixels into scene, recursively reflect/refract at
+      intersects, combine returns into pixel values  
+          
+
+:small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
+--------------------------------------------------------------------------------
+
+.. sidebar:: OptiX Raytracing Pipeline
+
+    .. class:: small
+
+       Analogous to OpenGL rasterization pipeline:
+
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
+
+.. class:: small
+
+   **OptiX makes GPU ray tracing accessible**
+
+   * **accelerates** ray-geometry intersections
+   * simple : single-ray programming model
+   * "...free to use within any application..."
+
+   **NVIDIA expertise:**
+
+   * ~linear scaling with CUDA cores across multiple GPUs
+   * acceleration structure creation + traversal (Blue)
+   * instanced sharing of geometry + acceleration structures
+   * :red:`compiler optimized for GPU ray tracing`
+   * regular updates, profit from new GPU features:
+
+     * NVIDIA RTX™ with Volta, Turing GPUs
+
+.. class:: tiny
+
+       ``https://developer.nvidia.com/rtx``
+
+.. class:: small
+
+   **User provides (Yellow):**
+
+   * ray generation
+   * geometry bounding box, intersects 
+
+
+:i:`BVH`
+---------------------------
+
+:i:`BVH Pascal`
+---------------------------
+
+:i:`BVH Turing`
+---------------------------
+
+
+.. comment
+
+   https://www.anandtech.com/show/13282/nvidia-turing-architecture-deep-dive/3 
+   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_029.png
+   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_030.png
+   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_031.png
+
+
+
+:small:`OptiX Performance Scaling with GPU cores`
+---------------------------------------------------------------------------
+
+.. sidebar:: Performance Linearity with CUDA cores 
+
+    .. image:: /env/g4dae/core_linearity.png
+       :width: 500px
+       :align: right
+
+.. class:: small
+
+    OptiX sample rendering with 2 GPU IHEP workstation,
+
+    * 2 Tesla K20m (4992 cores) 28.0 ms/f
+    * 1 Tesla K20m (2496 cores) 49.1 ms/f
+    * 1 GeForce GT 750m (384 cores) 345.1 ms/f
+ 
+    :red:`Performance linear with GPU cores`, compared to laptop:
+
+    * 13x cores, 12x performance
+    * performance scales across GPUs
+
+    Benefit from multiple GPUs with no development effort. 
+
 
 
 
@@ -2964,6 +3025,13 @@ Geant4 : Overview
 
     BVH
     /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
+
+    BVH Pascal 
+    /env/presentation/nvidia/NV_Turing_Editors_Day_030.png 1280px_720px
+ 
+    BVH Turing
+    /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
+
     #
     #  original 2880px_1620px
     #  half     1440px_810px
