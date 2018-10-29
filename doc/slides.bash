@@ -14,7 +14,6 @@ PDF page size : Very large because somehow 72dpi ?
 * 90.32 x 50.8 cm
 
 
-
 minor issue : some fullscreen image pages have a band at foot 860-846 of about 14 pixels
 -------------------------------------------------------------------------------------------
 
@@ -444,7 +443,7 @@ slides-get-sdu(){ slides-get 0 64 ; }
 #slides-get-sdu(){ slides-get 0 3 ; }
 slides-get-sep2017wol(){ slides-get 0 47 ; }
 slides-get-chep(){ slides-get 0 21 ; }
-slides-get-ihep(){ slides-get 0 23 ; }
+slides-get-ihep(){ slides-get 0 80 ; }
 slides-get-dybdb(){ slides-get 0 15 ; }
 
 

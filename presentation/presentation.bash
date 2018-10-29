@@ -27,6 +27,7 @@ Workflow for preparing slides
 NVIDIA Turing Press deck 
 ---------------------------
 
+
 * https://www.anandtech.com/Gallery/Album/6660#27
 
 * https://www.irisa.fr/alf/downloads/collange/talks/ufmg_scollange.pdf

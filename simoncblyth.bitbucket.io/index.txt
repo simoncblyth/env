@@ -64,6 +64,15 @@ Opticks Videos
 Opticks Presentations 
 ----------------------
 
+Autumn 2018 : Tools, Techniques and Opticks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_oct2018_ihep.html (31 Oct 2018, Beijing)
+
+    IHEP Seminar  
+
+    Tools, Techniques and Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
 
 Summer 2018 : Opticks Progress : Direct workflow, aligned validation  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
