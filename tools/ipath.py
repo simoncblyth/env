@@ -11,10 +11,19 @@ Testing with svn, git and hg repos::
 
 """
 from __future__ import with_statement
-import os, hashlib, logging, re, sys, commands
+import os, hashlib, logging, re, sys, subprocess
+from functools import partial
+
+try:
+    import commands
+except ImportError:
+    commands = None
+pass
+
+
 log = logging.getLogger(__name__)
 
-def digest_(path):
+def old_digest_(path):
     """
     :param path:
     :return: md5 hexdigest of the content of the path or None if non-existing path
@@ -33,7 +42,24 @@ def digest_(path):
     with open(path,'rb') as f: 
         for chunk in iter(lambda: f.read(8192),''): 
             md5.update(chunk)
+        pass
+    pass
     return md5.hexdigest()
+
+def digest_(path):
+    """
+    https://stackoverflow.com/questions/7829499/using-hashlib-to-compute-md5-digest-of-a-file-in-python-3
+    """
+    if not os.path.exists(path):return None
+    if os.path.isdir(path):return None
+    d = hashlib.md5()
+    with open(path, mode='rb') as f:
+        for buf in iter(partial(f.read, 8192), b''):
+            d.update(buf)
+        pass
+    pass
+    return d.hexdigest()
+
 
 
 class IPath(object):
@@ -92,9 +118,6 @@ class IPath(object):
         if typ == "svn":
             cmd = "svn status %s " % _
         elif typ == "git":
-            #if _ == rbase:
-            #    _ = ""
-            #pass
             if len(rbase) == 0:  ## cwd is the repodir
                 cmd = "git status --porcelain %(_)s " % locals()
             else:
@@ -109,7 +132,21 @@ class IPath(object):
 
     @classmethod
     def run(cls, cmd):
-        rc, out = commands.getstatusoutput(cmd)
+
+        if not commands is None:
+            rc, out = commands.getstatusoutput(cmd)
+        else:
+            #cpr = subprocess.run(cmd.split(" "), check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            args = list(filter(None, cmd.split(" ")))  
+            ## mysteriously leaving a space on the end, causes to list many files, not just the one
+            ##print(args)
+
+            cpr = subprocess.run(args, check=True, text=True, capture_output=True)
+            out = cpr.stdout
+            rc = cpr.returncode 
+            ##print(str(out))
+        pass
         if rc != 0:
             log.fatal("non-zero RC from cmd : %s " % cmd ) 
         pass     
@@ -119,28 +156,37 @@ class IPath(object):
 
     @classmethod
     def parse(cls, line, ptn):
+        log.debug("parse line [%s] " % line )
         m = ptn.match(line)
         if m:
             groups = m.groups()
             assert len(groups) == 3 
             stat_,atat_,mpath = groups
             stat = stat_.rstrip()
-            log.debug( "[%s][%s] %s " % ( stat, atat_, mpath ))
+            log.debug( "match [%s][%s] %s " % ( stat, atat_, mpath ))
         else:
             log.debug("no match [%s] " % line )   
+            assert 0
             stat,mpath = "_", None
         pass
+        #log.info("parse line %s DONE " % line )
         return stat, mpath
 
     @classmethod
     def multiparse(cls, lines, ptn, pfx):
         sub = []
         log.debug("multiparse %d lines " % len(lines) ) 
-        for line in lines:
+        for line in filter(None, lines):
             stat, mpath = cls.parse(line, ptn)
+            if mpath is None:
+                log.warning("skipping unmatched line [%s]" % line)
+                continue
+            pass
             path = mpath if pfx is None else os.path.join(pfx, mpath) 
             s = cls( path, stat=stat )
             sub.append( s ) 
+        pass
+        log.debug("multiparse %d lines DONE " % len(lines) ) 
         pass
         return sub
 
@@ -148,6 +194,7 @@ class IPath(object):
         """
         :param path: relative or absolute, tilde or envvars are expanded
         """
+        log.debug("IPath.path_ %s " % path_ )
         xx_ = lambda _:os.path.abspath(os.path.expandvars(os.path.expanduser(_)))
         path = xx_(path_)
         typ, repodir = self.repotype(path, noup=noup)  
@@ -169,9 +216,11 @@ class IPath(object):
             rbase = repodir[len(cwd)+1:]    # repodir expressed relative to cwd 
 
             cmd = self.status_command( cpath, typ, rbase)   
-            log.debug("cpath:%s rpath:%s rbase:%s cmd:%s " % (cpath, rpath, rbase, cmd))
+            log.debug("cpath:%s rpath:%s rbase:%s " % (cpath, rpath, rbase))
+            log.debug("cmd:%s " % (cmd))
 
             out = self.run(cmd) 
+            #print(out)
 
             # git uses relative to base paths in status, hg/svn use relative to cwd
             upath = rpath if typ == "git" else cpath
@@ -183,8 +232,14 @@ class IPath(object):
      
             pfx = rbase if typ == "git" else None
 
-            lines = out.split("\n")
-            if len(lines) == 1:
+            lines = list(filter(None, out.split("\n")))
+
+            nline = len(lines)
+            log.debug("read %d lines from cmd:%s" % (nline, cmd) )
+            if not isdir:
+                assert nline <= 1 
+            pass
+            if nline == 1:
                 stat, mpath = self.parse(lines[0], ptn)
             else:
                 sub = self.multiparse(lines, ptn, pfx=pfx )

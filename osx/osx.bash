@@ -273,6 +273,43 @@ osx_ss_copy_invert(){
 }
 
 
+osx_pdf_combo_notes(){ cat << EON
+
+$FUNCNAME
+======================
+
+* https://apple.stackexchange.com/questions/230437/how-can-i-combine-multiple-pdfs-using-the-command-line
+
+Have found that this commandline approach succeeds for PDFs that the interactive Preview 
+technique (thumbnail dragging or menu) refuses to combine, for unknown reasons. 
+
+1. Usage, create a "combo.sh" listing the pdfs to be combined, and run it::
+
+    #!/bin/bash -l
+
+    osx_
+    osx_pdf_combo \
+               a.pdf \
+               b.pdf \
+               c.pdf \
+               d.pdf 
+
+2. Do rotations in Preview afterwards.
+
+EON
+}
+
+osx_pdf_combo(){
+   local cwd=$PWD
+   local nam=$(basename $cwd)
+   local combo=combo-${nam}.pdf
+
+   "/System/Library/Automator/Combine PDF Pages.action/Contents/Resources/join.py" -o $combo $*  
+}
+
+
+
+
 
 osx_ss_cp(){
    local msg="=== $FUNCNAME :"

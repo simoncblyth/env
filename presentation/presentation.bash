@@ -18,6 +18,10 @@ Jump to a slide page
   * this works both for http://localhost as well as remote  
   * TODO: check file::// urls
 
+Opticks Oct 2018 JUNO Detector Video 
+---------------------------------------
+
+* https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=3927
 
 
 Workflow for preparing slides

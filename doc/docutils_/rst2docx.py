@@ -271,7 +271,7 @@ class Text(list):
 
         if self.translator.incaption:
             for i in range(len):
-                print "%4d : %s " % (i, list.__getitem__(self, i))
+                print("%4d : %s " % (i, list.__getitem__(self, i)))
             pass
             log.info("pop %s %s %s " % (len,msg, txt))
         pass
@@ -464,7 +464,7 @@ class Translator(BaseTranslator):
 
             btxt = text[len(self.verbatim_start):-len(self.verbatim_end)]  
             log.info("found verbatim txt block, lines %d " % len(btxt.split("\n")) )
-            print "\n".join(btxt.split("\n"))
+            print("\n".join(btxt.split("\n")))
             self.docx.add_paragraph(btxt, style="VerbatimStyle")
 
         elif text.startswith(self.texttt_start) and text.endswith(self.texttt_end):

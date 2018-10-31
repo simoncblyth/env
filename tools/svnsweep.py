@@ -86,6 +86,13 @@ TODO:
 import os, logging, sys
 from env.tools.ipath import IPath 
 
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError:
+    from configparser import SafeConfigParser
+pass
+
+
 log = logging.getLogger(__name__)
 
 
@@ -118,7 +125,6 @@ class Sweeper(list):
         log.debug("Sweeper.__init__ src instanciated " )
         self.tgt = IPath(tgt, noup=True)
         log.debug("Sweeper.__init__ tgt instanciated " )
-
         self.cmds = []
         self.skipd = skipd.split() if skipd else []
         if not exts:
@@ -128,17 +134,20 @@ class Sweeper(list):
             self.exts = exts.split()
             self.dir_walk()
         pass
+        log.debug("Sweeper.__init__ DONE " )
 
     def status_walk(self):
         """
         Pattern match the `svn status` of the `src` directory  passing all matches to `handle`
         Note that only a single `svn status` is required, so much more efficient compared to oldwalk.
         """
+        log.debug("status_walk")
         for sp in self.src.sub:
             if sp.is_untracked:
                 self.handle_untracked(sp.path)
             pass
         pass
+        log.debug("status_walk DONE")
 
 
     def dir_walk(self):
@@ -149,6 +158,7 @@ class Sweeper(list):
         CAUTION : when exts are provided this acts very differently than 
         the repo based status_walk, so it should be moved into separate script
         """
+        log.debug("dir_walk")
         for dirpath, dirs, names in os.walk(self.src.path):
             rdir = dirpath[len(self.src.path)+1:]    
             for skp in self.skipd:         
@@ -160,6 +170,9 @@ class Sweeper(list):
                     continue
                 spath = os.path.join(dirpath, name)
                 self.handle_untracked(spath)
+            pass
+        pass
+        log.debug("dir_walk DONE")
 
     def copy_handle(self, spath):
         """
@@ -176,6 +189,7 @@ class Sweeper(list):
             log.info("tp %s " % ( tp ))
             cmd = "mkdir -p \"%s\" && cp \"%s\" \"%s\" " % ( os.path.dirname(tpath), spath, tpath )
             self.cmds.append(cmd)
+        pass
 
     def handle_untracked(self, spath, stat=None):
         """
@@ -187,11 +201,12 @@ class Sweeper(list):
         :param spath: full path 
         :param svnst: svn status string
         """
-        log.debug("handle_untracked spath [%s] " % spath ) 
 
         rpath = spath[len(self.src.path)+1:]
+        log.debug("handle_untracked spath [%s] rpath [%s]" % (spath,rpath) ) 
 
         sp = IPath(spath, stat=stat) 
+        log.debug("after instanciate IPath(spath)")
         if not sp.is_untracked:
             return 
 
@@ -210,6 +225,7 @@ class Sweeper(list):
             cmd = "mkdir -p \"%s\" && cp \"%s\" \"%s\" " % ( os.path.dirname(tpath), spath, tpath )
         pass
         self.cmds.append(cmd)
+        log.debug("handle_untracked spath [%s] DONE " % spath ) 
 
     def __repr__(self):
         return "\n".join(self.cmds)
@@ -244,12 +260,11 @@ def parse_args_(doc, **kwa):
         logging.basicConfig(format=opts.logformat,level=level,filename=opts.logpath)
     else:
         logging.basicConfig(format=opts.logformat,level=level)
-
+    pass
     return opts, args
 
 
 def read_cnf_( path ):
-    from ConfigParser import SafeConfigParser
     path = os.path.expanduser(path)
     assert os.path.exists(path), path
     log.debug("reading %s " % ( path ) )
@@ -264,13 +279,14 @@ def main(**kwa):
     log.warning("PIPING BELOW STDOUT TO SH DOES THE COPIES IN 1st PASS AND DELETES IN 2nd PASS, NO STDOUT WHEN COMPLETE  ")
 
     for sect in opts.cnfsect.split(","):
-        log.debug("sect %s " % sect )
+        log.info("sect %s " % sect )
         cfg = dict(opts.cnf.items(sect))
         argv0 = os.path.basename(sys.argv[0])
         assert argv0 == cfg['argv0'], ( argv0, cfg, "config argv0 mismatch with script" )
         log.info(cfg)
         swp = Sweeper( cfg['source'], cfg['target'], exts=cfg.get('exts',None), skipd=cfg.get('skipd',None) )     
-        print swp
+        print(swp)
+        log.info("sect %s DONE " % sect )
 
 
 
