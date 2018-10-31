@@ -10,6 +10,14 @@ presentation-usage(){ cat << EOU
 Presentation preparation
 ============================
 
+Jump to a slide page 
+----------------------
+
+* **To jump to a slide : type 0-based slide number and press return** 
+
+  * this works both for http://localhost as well as remote  
+  * TODO: check file::// urls
+
 
 
 Workflow for preparing slides

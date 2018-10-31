@@ -402,6 +402,8 @@ GPU Achitecture history
 * Kepler
 * Maxwell
 * Pascal 
+* Volta
+* Turing 
 
 * http://en.m.wikipedia.org/wiki/Kepler_(microarchitecture)
 * http://en.m.wikipedia.org/wiki/Maxwell_(microarchitecture)

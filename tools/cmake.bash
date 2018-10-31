@@ -34,6 +34,14 @@ Epsilon : macOS 10.13.4 : cmake @3.11.0
 
 
 
+target_link_libraries on imported target : suspect CMake support varies between recent versions
+--------------------------------------------------------------------------------------------------
+
+* ~/opticks/notes/issues/cmake_target_link_libraries_for_imported_target.rst
+* https://stackoverflow.com/questions/36648375/what-are-the-differences-between-imported-target-and-interface-libraries
+
+
+
 add_custom_target
 --------------------
 

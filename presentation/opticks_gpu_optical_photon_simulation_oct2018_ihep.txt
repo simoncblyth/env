@@ -48,21 +48,23 @@
 
 .. comment
 
-    Opticks applies GPU massive parallelism to optical photon simulation, 
+    **Opticks is an open source package** that applies GPU massive parallelism 
+    to optical photon simulation.
+
+    This image represents the optical photons resulting from a 100GeV 
+    muon crossing the JUNO central detector, which is a large sphere of scintillator 
+    surrounded by many thousands of photomultiplier tubes, each PMT is able to detect single photons. 
+
 
     * any simulation limited by optical photons can benefit greatly from Opticks
       
       * the more limited the greater the benefit 
       * huge energy/time savings for JUNO
 
-    
-
-    
     And the benefits can be enormous... modern GPUs have more than 5000 cores, Opticks succeeds to 
     port all of the optical photon simulation to the GPU : because you really do have 
     millions of similar calculations for cosmic muon for example : the performance improvement
     over CPU is expected to be >1000 
-
 
     Title:
 
@@ -101,7 +103,7 @@
     then my presentation will provide much to interest you.
 
 
-
+.. comment
 
 
 :i:`Opticks Benefits`
@@ -138,8 +140,6 @@
    of optical photons. 
 
    **Radical speedup -> short development cycle -> improved understanding** 
-
-
 
 
 Outline : Tools, Techniques and Opticks
@@ -185,10 +185,33 @@ Outline : Tools, Techniques and Opticks
    <span>&nbsp;</span>
 
 
+.. comment
+
+   Opticks is a specialized solution to a particular problem, 
+   but the **tools and techniques** vital to Opticks are widely applicable. 
+   They are directly relevant to anyone working with data in any field.
+
+   I will highlight tools and techniques because I want you all to 
+   start using them.
+
+   In particular NumPy, I think everyone that works with data in 
+   any field should be familiar with NumPy.  You dont need 
+   access to a GPU to use it, but learning it is just about the best preparation 
+   you could have for working with GPUs 
+
+   NumPy makes you think of your data in a different way, that matches how the GPU 
+   works with data.
+
 
 
 :i:`Raytrace Diagram`
 -----------------------
+
+.. comment
+
+   Ray-tracing is a technique to generate images (ie pixel values) 
+   by casting rays from a viewpoint out through every pixel, into a scene geometry.  
+   Pixel values depend on what those rays intersect.
 
 
 :i:`Ray-tracing vs Rasterization`
@@ -203,7 +226,17 @@ Outline : Tools, Techniques and Opticks
    :align: right
 
 
+.. comment
 
+   Rasterization
+   
+   * starts from the objects in a scene, and projects them onto pixels in image plane
+   * approximation : usually triangulated geometry   
+   
+   ray-tracing 
+  
+   * closer to the physics -> easier to create realistic images with raytracing 
+   * can use analytic geometry, rasterization is  
 
 
 Outline : Introducing the Tools 
@@ -257,51 +290,21 @@ Outline : Introducing the Tools
 
       * Foundation of Python Data Ecosystem
       * Python : fastest growing major programming language ? Why ? 
+      * NumPy Example : closest approach of Ellipse to a Circle
+      * NumPy Example : NLL Reconstruction fit : On one slide
+
 
     .. raw:: html
 
        <span></span>
 
+
+.. comment
+
+    Next the tools, I'll introduce the GPU architecture, show how GPU constraints 
+    lead to an array-oriented way of working and hence lead to NumPy,
+    them I'll introduce NumPy. 
      
-
-
-.. comment
-
-   To understand Opticks and why it is structured as it 
-   is you need to understand GPUs 
-
-.. comment
-
-   Opticks package applies GPU massive parallelism 
-   to remove a processing bottleneck.
-   It is a very focussed solution to a particular problem : so it  
-   will only be of direct relevance to you if you are working with a simulation 
-   with performance limited by optical photons.  
-
-   To make this talk more directly relevant and useful to more of you, 
-   I will devote a substantial part of it to describing the techniques and
-   tools that were particularly important.
-
-   Despite the specialized nature of the Opticks simulation, the techniques 
-   and tools used can be directly relevant to anyone working in data analysis in 
-   almost any field. 
-
-   These have been principally monte carlo methods and the NumPy 
-   package  : which fits particularly well optical photon simulation.
-   Another vital thing has been CUDA and Thrust, which I will cover briefly.  
-   However I gave a whole presentation introducing CUDA and Thrust last year.
-
-   Could easily spend many hours introducing the features of these tools, 
-   but that would not be very useful :  as too much to grasp without practical usage ... 
-
-   So instead:
-   
-   * just give a flavor of what they do
-   * convey how they work and why that makes them perform better than other approaches
-   * describe simple approaches on how the tools fit together to provide cross language 
-     numerical analysis environment 
-
-   * https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/monte-carlo-methods-in-practice/monte-carlo-simulation
 
 
 
@@ -319,9 +322,22 @@ Outline : Introducing the Tools
        :width: 800px
        :align: center
 
-
 .. comment
 
+    GPUs evolved to solve the extremely parallel problem of 3D graphics ... 
+    using small shaders. 
+
+    When developing with CUDA its best to keep these origins in mind. 
+
+    * for example, copying or operating on float4s 4*32bits is faster that *float3* 
+      128bits are better for alignment reasons 
+
+    * graphics pipeline is based around 4x4 matrices 
+      and 4 component homogeneous coordinates
+
+
+.. comment
+   
     https://cg.informatik.uni-freiburg.de/course_notes/graphics_01_pipeline.pdf
 
     http://web.cse.ohio-state.edu/~shen.94/781/Site/Slides_files/pipeline.pdf
@@ -329,6 +345,28 @@ Outline : Introducing the Tools
 
 `NVIDIA Turing GPU : 72 SM, 4608 CUDA cores`
 ----------------------------------------------
+
+.. comment
+
+    This is the latest NVIDIA GPU architecture, evolved for 3D graphics ...  
+    Notice the repeated elements, there are 72 SMs, streaming multiprocessors 
+    each with 64 CUDA cores for a total of almost 5000 CUDA cores.  
+    Other recent NVIDIA GPUs have more than 5000 CUDA cores
+
+    This is very different from the CPU, which typically doesnt go past 16 cores
+
+    GPUs continue to improve exponentially, whereas CPUs are not really managing 
+    to do that anymore : instead they are getting wider with more cores   
+
+
+.. comment
+
+    This is the latest Turing GPU architecture from NVIDIA : other recent ones
+    as Pascal and Volta
+
+
+    Tesla Fermi Kepler Maxwell Pascal Volta Turing
+
 
 
 `NVIDIA Turing GPU : 72 SM, 4608 CUDA cores (spec)`
@@ -383,6 +421,17 @@ Outline : Introducing the Tools
     Understanding Throughput-oriented Architectures
     https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
 
+
+.. comment
+
+   Latency hiding works using hardware multi-threading, so when one group of threads is blocked
+   waiting to read from global memory for example : other groups of thread and be resumed. This 
+   is only effective at hiding latency when there are enough other threads in flight at the same time.
+
+   Porting CPU code to run on the GPU : is not a straightforward thing to do, because the archirecture is totally 
+   different.  To make effective use of GPUs requires a total reorganization of data and compute. 
+
+
     
 :small:`How to Make Effective Use of GPUs ? -> Use Higher Level Libraries`
 -------------------------------------------------------------------------------
@@ -430,6 +479,20 @@ Outline : Introducing the Tools
     **For adventurous early adopters**
 
     * Opticks : https://bitbucket.org/simoncblyth/opticks
+
+
+
+.. comment
+
+   Benefiting from the experience of others by using higher level libraries is the first choice... 
+   But there are not so many available
+
+   Thrust stands out as it is part of every CUDA installation, you just need to 
+   include the headers to use it... It avoid many of the hassles of using CUDA, 
+   including memory management, and deciding on launch sizes
+
+   Its not an either/or, you can easily combine ordinary low level CUDA with Thrust. 
+
 
 
 :small:`How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled`
@@ -493,6 +556,38 @@ Outline : Introducing the Tools
     https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
 
     NVIDIA Titan V: 80 SM, 5120 CUDA cores
+
+
+
+.. comment 
+
+   Four main things dictate how effective your use of the GPU is going to be ... 
+
+   * ideally you need to have many thousands of simple independent tasks to make best use of the GPU 
+
+   * each task needs to be simple : low register usage and small stacksize : otherwise you limit 
+     the number of concurrent tasks
+
+   * idependence of the tasks really helps, as development is then much easier 
+
+   Many people guess that you should launch only as many threads as there are cores
+   in the GPU ... but thats wrong, you need to launch large multiples of that to get best performance
+
+   The reason is latency hiding ... that works best when there is abundant parallelism, 
+   when the GPU workload resembles that from 3D graphics you will get best performance.
+
+
+
+   So how does optical photon simulation stand on these criteria... 
+
+   * parallelism and synchronization are perfect : with millions of independent photons 
+     to simulation 
+
+   * low register usage : not so perfect, work required to fit into small stack size
+
+     * eg GPU textures for property access : does wavelength interpolation in hardware, 
+       so avoids code and resource consumption
+
 
 
 .. comment
@@ -568,57 +663,103 @@ Outline : Introducing the Tools
    http://www.numpy.org/neps/nep-0001-npy-format.html
 
    https://realpython.com/numpy-array-programming/
+
+.. comment
+
+   GPU and CPU have separate address spaces, that means 
+   everything copied between them needs serialization/deserialization 
+
+   Adopting an array-oriented design for all data both 
+   on CPU and GPU is a hugely simplifies work CPU+GPU work 
+
+   NumPy is leading array-oriented package, but that is a python extension ...
+   YES : but the NumPy serialization format is very simple, so can easily 
+   read/write NumPy arrays from C++
+
+   Benefits : random access to data from arrays 
+
    
 
 .. comment
 
+    :small:`NumPy : Python flexibility+brevity at C speed`
+    ---------------------------------------------------------------------------
+
+    .. sidebar:: :small:`Opticks.NPY package` 
+
+        .. class:: small
+
+            * inspired by *NumPy* : does not depend on it
+            * implements *NumPy* serialization file format, 
+              into which almost everything(*) is persisted  
+            * *Opticks* analysis/debugging done with *NumPy* and *IPython* 
+
+        .. class:: tiny   
+     
+            (*) gensteps, photons, hits, analytic CSG geometry shapes, transforms, triangulated geometry vertices, triangles, material/surface properties ... 
+
+    .. class:: small
+
+       **“fundamental package for scientific computing with Python”** 
+
+       *NumPy* arrays : simply an interface to C memory buffers 
+
+       * :red:`extreme simplicity` : simple interop with C, C++, CUDA 
+       * slices are no-copy "views" of underlying buffers
+       * reshape/transpose : just changes metadata
+       * fast memcpy, cudaMemcpy, serialization/deserialization
+       
+       Very terse, no-loop python interface to C performance
+
+       * **array-oriented computing** (C loops under python control)
+       * interactive handling of very large N-dimensional arrays
+       * easily manipulate million item arrays from python
+
+         * faster + more convenient than dealing with millions of C++ objects   
+
+    .. class:: small
+
+       **“The NumPy array: a structure for efficient numerical computation”**  
+
+       * https://hal.inria.fr/inria-00564007/document
 
 
+    .. class:: tiny
 
-   Very limited libraries -> **re-think + re-implement** from scratch, eg:
-      * ray-geometry intersection
-      * Monte Carlo sampling 
+       NPY file format specification
 
+       https://github.com/numpy/numpy/blob/master/doc/neps/nep-0001-npy-format.rst
 
-
-
-   **Small amount of GPU code : OptiX, CUDA, Thrust, OpenGL**  
-
-   * corresponding to "inner" loops from CPU code 
-
-   **Vast majority of Opticks code on CPU : geometry conversion**
-
-   * geometry buffers serialization
-   * boundary texture (material/surface properties)
-   * reemission texture (reemission wavelength generation) 
-
-   **All data structures serialized** 
-    
-   * required to copy to/from GPU 
-
-   **Benefits of serialization**
-
-   * persist everything to file, in *NumPy* format
-   * -> load into *NumPy* as arrays
-
-     * interactive debugging/analysis with *IPython + NumPy*
-     * no *Python/NumPy* dependency for *Opticks*
-
-
-
-
-:i:`What are NumPy Arrays`
----------------------------------------------------------------------------
 
 .. comment
 
-   At first glance NumPy doesnt seem very impressive : but that array could have hundreds of 
-   millions of elements in it, and it would enable you to efficently maniulate it : 
+    https://jeffknupp.com/blog/2017/09/15/python-is-the-fastest-growing-programming-language-due-to-a-feature-youve-never-heard-of/
 
-   I will be showing examples, that I hope will demonstrate the power of NumPy 
+    Secret weapon of NumPy 
+
+    https://github.com/python/peps/blob/master/pep-3118.txt
+
+
+
+
 
 
 .. comment
+
+
+
+
+    :i:`What are NumPy Arrays`
+    ---------------------------------------------------------------------------
+
+    .. comment
+
+       At first glance NumPy doesnt seem very impressive : but that array could have hundreds of 
+       millions of elements in it, and it would enable you to efficently maniulate it : 
+
+       I will be showing examples, that I hope will demonstrate the power of NumPy 
+
+
 
     :i:`What are NumPy Arrays 2`
     ---------------------------------------------------------------------------
@@ -657,16 +798,18 @@ Outline : Introducing the Tools
 
    https://bitbucket.org/simoncblyth/intro_to_numpy
 
+   Very terse, array-oriented (no-loop) python interface to C performance
+
 .. image:: /env/presentation/numpy_ecosystem.png
    :width: 700px
    :align: right
 
 .. class:: small
 
+   * C speed, python brevity + ease 
    * **array-oriented**
    * **vectorized** : no python loops
    * efficiently work with large arrays
-   * C/C++ speed, python brevity + ease 
 
    Recommended paper: 
      *The NumPy array: a structure for efficient numerical computation*
@@ -685,6 +828,14 @@ Outline : Introducing the Tools
    http://www.scipy-lectures.org/intro/index.html
 
    https://github.com/donnemartin/data-science-ipython-notebooks
+
+
+
+.. comment
+
+   * NumPy provides a terse python interface to large arrays, at C speed  
+   * NumPy is at the center of the python data universe
+   * almost all python data packages use NumPy, or mimic its array interface
 
 
 .. comment
@@ -725,6 +876,8 @@ Outline : Introducing the Tools
 
 .. comment
 
+   Using NumPy means using python... 
+
    Over the past 5 years, the python language has more than doubled its userbase according to this measure...
 
    Looks set to become ever more dominant over next years... 
@@ -736,6 +889,132 @@ Outline : Introducing the Tools
    If you ever tried JNI...  
 
 
+
+
+:small:`NumPy Example : closest approach of Ellipse to a Circle`
+---------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+
+    import numpy as np
+
+    def ellipse_closest_approach_to_point( ex, ez, _c ):
+        """ex, ez: ellipse semi-axes, c: coordinates of point in ellipse frame"""
+        c = np.asarray( _c )  ; assert c.shape == (2,)
+
+        t = np.linspace( 0, 2*np.pi, 1000000 )     <b><span class="alarm"> # t: array of 1M angles [0,2pi] </span></b>  
+        e = np.zeros( [len(t), 2] )
+        e[:,0] = ex*np.cos(t) 
+        e[:,1] = ez*np.sin(t)                      <b><span class="alarm"> # e: 1M parametric [x,z] points on the ellipse </span></b>
+
+        return  e[np.sum((e-c)**2, axis=1).argmin()]   <b><span class="alarm"> # point on ellipse closest to c </span></b>   
+    </pre>
+
+.. class:: small
+
+    =======================================  ==================  ==============================================================
+      expression                               shape                note 
+    =======================================  ==================  ==============================================================
+     ``e``                                    ``(1000000,2)``
+     ``c``                                    ``(2,)``
+     ``e-c``                                  ``(1000000,2)``       *c* is **broadcast** over *e* : must be compatible shape 
+     ``np.sum((e-c)**2, 1)``                  ``(1000000,)``        ``axis=1`` : summing over the axis of length 2   
+     ``np.sum((e-c)**2, 0)``                  ``(2,)``              ``axis=0`` : summing over axis of length 1M
+     ``np.sum((e-c)**2, None)``               ``()``                ``axis=None`` : summing over all elements, yielding scalar
+    =======================================  ==================  ==============================================================
+
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/opticks/src/tip/ana/x018_torus_hyperboloid_plt.py 
+
+
+
+:small:`NumPy Example : NLL Reconstruction fit : On one slide`
+---------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Array-oriented brevity : prototyping`
+
+    .. class:: small
+
+        * introspect interactively with *IPython*  
+        * follow **shape** at every stage 
+
+        .. raw:: html
+
+            <pre class="mypretiny">
+            In [5]: t_model([0,0,0])
+            Out[5]: array([10., 10., 10., ..., 10., 10., 10.])
+
+            In [6]: t_model([0,0,0]).shape
+            Out[6]: (2500,)
+
+            In [7]: t.shape
+            Out[7]: (2500,)
+
+            In [8]: t
+            Out[8]: array([ 6.783 ,  5.4754,  6.1462, ... ])
+            </pre>
+
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    #!/usr/bin/env python
+    import numpy as np, scipy.stats as st, scipy.optimize as so
+    np.random.seed(0)  # reproducibility
+
+    <b><span class="alarm"># generate n*n (x,y,z) coordinates on a sphere </span></b>
+    n = 50     
+    u,v = np.meshgrid( np.linspace(0,np.pi,n+2)[1:-1], 
+                       np.linspace(0,2*np.pi,n+1)[:-1] )
+    uu = u.ravel() ; vv = v.ravel()
+    sph = np.zeros( [len(uu), 3] ) 
+    sph[:,0] = np.sin(uu)*np.cos(vv)  
+    sph[:,1] = np.sin(uu)*np.sin(vv)  
+    sph[:,2] = np.cos(uu)  
+    R = 10  ; sph *= R   
+
+    <b><span class="alarm"># mockup "truth" position </span></b>
+    parTru = np.array( [0,0,R/2, 1] ) 
+
+    <b><span class="alarm"># distances from all the sphere coordinates to the "truth" position  </span></b>
+    d = np.sqrt(np.sum((sph - parTru[:3])**2, axis=1 ))
+
+    <b><span class="alarm"># mockup a time linear with the distance with a normal smearing     </span></b>
+    t = d + parTru[3]*np.random.randn(len(d))    
+
+    <b><span class="alarm"># geometric "time" as function of position </span></b>
+    t_model = lambda par:np.sqrt(np.sum((sph - par[:3])**2, axis=1 ))
+
+    <b><span class="alarm"># Assumed PDF of "time" at each sphere position, normal around geometric time with some sigma. </span></b>
+    NLL = lambda par:-np.sum( st.norm.logpdf(t, loc=t_model(par), scale=par[3] ))
+
+    parIni = np.array( [0,0,0,1] )  # initial parameter values
+    parFit = so.minimize(NLL, parIni, method='nelder-mead').x ; print(parFit)</pre>
+
+.. class:: class
+
+    https://bitbucket.org/simoncblyth/intro_to_numpy/src/default/recon_terse.py
+
+.. comment
+
+   Notice: 
+
+   * brevity : comments longer than the code they describe 
+   * no loops : loops happen at C level
+
+     * looping over large arrays in python -> you need to improve your NumPy skills 
+
+   * details of what the script is doing are not so important 
+
+     * but its brevity means its easy to find out
+     * run the commands one by one in *IPython*, look at the shapes at each stage
+     * when NumPy is confusing -> it usually means you are imagining something 
+       to have a different shape than it actually has, so use interactive introspection to find out 
 
 
 
@@ -768,7 +1047,16 @@ Outline of Techniques : Monte Carlo Method
   * overview
 
 
+.. comment
 
+   OK, so I've introduced to the tools, now we move to techniques 
+
+   On the GPU you do not have the luxury of lots of libraries to use and link against, 
+   instead you mostly have to implement things from first principals ... 
+   for example making a Monte Carlo simulation.
+
+   So I'll cover some of those techniques and illustrate them with 
+   examples using NumPy and Thrust  
 
 
 
@@ -819,8 +1107,19 @@ Outline of Techniques : Monte Carlo Method
 
 .. comment
 
-   Now lets shift from Tools to Techniques : the Monte Carlo method 
+   Monte Carlo method : its ubiquitous, used in almost every field 
 
+   Applies randomness to modelling complex systems, by mapping random numbers 
+   to probabilities
+
+   probability density functions (PDF) are the inputs to the monte carlo
+   (representing our knowledge of the behaviour of the system) 
+
+   sampling techniques are used to create sets of sample values that follow the PDFs 
+
+
+  
+.. comment
 
    Historical review on MC Method : Ulam, Von Neumann
 
@@ -907,9 +1206,15 @@ Outline of Techniques : Monte Carlo Method
 
 .. comment
 
-   How to actually use Monte Carlo method to implement an optical photon simulation...
+   * The simulation actually generates a history of the system 
+   * for example consider a photon on its way to a boundary 
 
+     * characteristic lengths are converted to stochastic distances 
+       and the smallest length wins
 
+   * details of rayleigh scattering are not important here, 
+     what is important to understand is how the theory informs the simulation 
+     of which quantities have what PDFs 
 
 
 :small:`MC Method : Sampling using Cumulative Distribution Function (CDF)`
@@ -951,6 +1256,16 @@ Outline of Techniques : Monte Carlo Method
 .. class:: tiny
 
    https://en.wikipedia.org/wiki/Inverse_transform_sampling
+
+
+.. comment
+
+   so how to go from a PDF to a sample... 
+
+   The integral of the PDF, the CDF (cumulative distribution function) 
+   represents the probability that a quantitity is less than some value, 
+   so it always goes from 0 on left top 1 on the right... which is 
+   convenient for mapping to a uniform random number
 
 
 
@@ -999,7 +1314,11 @@ Outline of Techniques : Monte Carlo Method
 .. class:: tiny 
 
    https://bitbucket.org/simoncblyth/opticks/src/default/optixrap/cu/propagate.h
+
  
+.. comment
+
+   GPU textures are a convenient way to implement CDF lookups
 
 
 .. comment
@@ -1055,6 +1374,13 @@ Outline of Techniques : Monte Carlo Method
 
     https://en.wikipedia.org/wiki/Inverse_transform_sampling
 
+.. comment
+
+   Scattering and absorption follow has exponential PDF, 
+   which makes it easy to obtain the analytic CDF function
+
+   So can easily generate a sample that with exponential PDF
+
 
 .. comment
 
@@ -1089,6 +1415,20 @@ Outline of Techniques : Monte Carlo Method
     https://bitbucket.org/simoncblyth/intro_to_numpy/src/default/accept_reject_sampling.py
 
     https://en.wikipedia.org/wiki/Rejection_sampling
+
+
+.. comment
+
+   It is not always possible/convenient/efficient to determine an analytic form for the CDF, 
+   so there is an alternative approach called accept-reject sampling 
+ 
+   Can just throw 2d randoms at the problem, apply a cut in one dimension, 
+   and you get sample from the other dimension
+
+
+.. comment
+
+    http://www.columbia.edu/~ks20/4703-Sigman/4703-07-Notes-ARM.pdf
 
 
 
@@ -1133,6 +1473,11 @@ Outline of Techniques : Monte Carlo Method
 .. class:: tiny
 
     https://bitbucket.org/simoncblyth/intro_to_numpy/src/default/accept_reject_sampling.py
+
+.. comment
+
+   Prototype with NumPy (fast dev cycle) before doing it which CUDA,  
+
 
 
 
@@ -1223,7 +1568,8 @@ Outline of Techniques : Monte Carlo Method
         {   
             float sum = 0;  
             curandState rng; 
-            curand_init(seed, 0, 0, &rng);   <b><span class="alarm">// initializing curand is expensive better to split + persist </span></b>
+            curand_init(seed, 0, 0, &rng);   
+           <b><span class="alarm">// initializing curand is very expensive better to split/persist/load, see next pages </span></b>
 
             for(int i = 0; i &lt; N; ++i) 
             {   
@@ -1298,6 +1644,57 @@ Outline of Techniques : Monte Carlo Method
 
 
 
+:small:`cuRAND Random Number Generation : Split Initialization and Usage`
+------------------------------------------------------------------------------
+
+.. class:: small
+
+   https://bitbucket.org/simoncblyth/intro_to_cuda/src/tip/rng/rng_states.cu
+
+.. sidebar:: :small:`Persistent CUDA Context`
+
+      .. class:: small
+
+          GPU buffers live within CUDA context    
+
+          * load once at initialization 
+          * reuse for multiple kernel launches
+
+          Opticks populates context at initialization:
+
+          * random number generator RNG (curandState) 
+          * Geometry : CSG Nodes/Transforms/Vertices/...
+
+
+.. class:: small
+
+   Concurrent generation of millions of reproducible sequences of pseudorandom numbers
+
+   * sub-sequences assigned to each photon index 
+   * curandState maintains position in sub-sequences
+
+   ``curand_init`` very expensive -> **huge performance hit**: 
+ 
+   * not just time to initialize
+   * ALSO : large stack -> :red:`limits number of concurrent threads` 
+
+   Solution:
+
+   * split initialization into separate launch(es) 
+
+     * do **once** only, at install time : persist state to installcache
+     * fixes maximum photon launch size : currently 3M threads 
+
+   * load rng_state into CUDA context at executable initialization, together with geometry 
+   * subsequent CUDA launches, eg for each event
+ 
+     * small stacksize, lightweight threads -> :red:`generate randoms without initializing`, increment rng_state  
+
+   :blue:`Understanding this technicality -> correct "mental model" of CUDA context` 
+
+
+
+
 :small:`NLL Fitting Extended Example : Demo CPU+GPU project techniques`
 ------------------------------------------------------------------------------------
 
@@ -1356,6 +1753,7 @@ Outline of Techniques : Monte Carlo Method
     * simplified : CPU<->GPU copy, memory management
     * high level *thrust::transform_reduce* with *functor*
 
+    :blue:`Real CUDA usage -> two compilers -> interop techniques required` 
 
 
 
@@ -1497,8 +1895,6 @@ Geant4 : Overview
       * Geometry visualizations : Daya Bay Near Site, JUNO Central Detector
       * CSG : (Cylinder - Torus) PMT neck : spurious intersects
       * CSG : Alternative PMT neck designs 
-      * NumPy Example : closest approach of Ellipse to a Circle
-      * NumPy Example : NLL Reconstruction fit : On one slide
 
     * Translation 
 
@@ -2278,93 +2674,6 @@ Geant4 : Overview
 
 
 
-:small:`NumPy Example : closest approach of Ellipse to a Circle`
----------------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypretiny">
-
-    import numpy as np
-
-    def ellipse_closest_approach_to_point( ex, ez, _c ):
-        """ex, ez: ellipse semi-axes, c: coordinates of point in ellipse frame"""
-        c = np.asarray( _c )  ; assert c.shape == (2,)
-
-        t = np.linspace( 0, 2*np.pi, 1000000 )     <b><span class="alarm"> # t: array of 1M angles [0,2pi] </span></b>  
-        e = np.zeros( [len(t), 2] )
-        e[:,0] = ex*np.cos(t) 
-        e[:,1] = ez*np.sin(t)                      <b><span class="alarm"> # e: 1M parametric [x,z] points on the ellipse </span></b>
-
-        return  e[np.sum((e-c)**2, axis=1).argmin()]   <b><span class="alarm"> # point on ellipse closest to c </span></b>   
-    </pre>
-
-.. class:: small
-
-    =======================================  ==================  ==============================================================
-      expression                               shape                note 
-    =======================================  ==================  ==============================================================
-     ``e``                                    ``(1000000,2)``
-     ``c``                                    ``(2,)``
-     ``e-c``                                  ``(1000000,2)``       *c* is **broadcast** over *e* : must be compatible shape 
-     ``np.sum((e-c)**2, 1)``                  ``(1000000,)``        ``axis=1`` : summing over the axis of length 2   
-     ``np.sum((e-c)**2, 0)``                  ``(2,)``              ``axis=0`` : summing over axis of length 1M
-     ``np.sum((e-c)**2, None)``               ``()``                ``axis=None`` : summing over all elements, yielding scalar
-    =======================================  ==================  ==============================================================
-
-.. class:: tiny
-
-    https://bitbucket.org/simoncblyth/opticks/src/tip/ana/x018_torus_hyperboloid_plt.py 
-
-
-
-:small:`NumPy Example : NLL Reconstruction fit : On one slide`
----------------------------------------------------------------------------
-
-.. class:: small
-
-    * https://bitbucket.org/simoncblyth/intro_to_numpy/src/default/recon_terse.py
-    * :red:`Array-oriented brevity` -> ideal for quick prototyping 
-
-.. raw:: html
-
-    <pre class="mypretiny">
-    #!/usr/bin/env python
-    import numpy as np, scipy.stats as st, scipy.optimize as so
-    np.random.seed(0)  # reproducibility
-
-    n = 50     # generate n*n (x,y,z) coordinates on a sphere 
-    u,v = np.meshgrid( np.linspace(0,np.pi,n+2)[1:-1], np.linspace(0,2*np.pi,n+1)[:-1] )
-    uu = u.ravel()
-    vv = v.ravel()
-    sph = np.zeros( [len(uu), 3] ) 
-    sph[:,0] = np.sin(uu)*np.cos(vv)  
-    sph[:,1] = np.sin(uu)*np.sin(vv)  
-    sph[:,2] = np.cos(uu)  
-    R = 10  
-    sph *= R   
-
-    parTru = np.array( [0,0,R/2, 1] )  # pick "true" position 
-
-    # distances from all the sphere coordinates to the "true" position 
-    d = np.sqrt(np.sum((sph - parTru[:3])**2, axis=1 ))
-
-    # mockup a time linear with the distance with a normal smearing     
-    t = d + parTru[3]*np.random.randn(len(d))    
-
-    parIni = np.array( [0,0,0,1] )  # initial parameter values
-    t_model = lambda par:np.sqrt(np.sum((sph - par[:3])**2, axis=1 ))
-
-    # Assumed PDF of time at each sphere position, normal around geometric time with some sigma.
-    NLL = lambda par:-np.sum( st.norm.logpdf(t, loc=t_model(par), scale=par[3] ))
-
-    parFit = so.minimize(NLL, parIni, method='nelder-mead').x
-    print(parFit)
-
-
-    </pre>
-
-
 
 :small:`Opticks : Auto-Instancing`
 ------------------------------------------------------------- 
@@ -2959,65 +3268,6 @@ opticks+subscribe@groups.io
    [1] *imperative* means step by step how to do something
 
    [2] but not so large that has trouble fitting in memory, np.memmap is possible but better to avoid for simplicity  
-
-
-
-:small:`NumPy : Python flexibility+brevity at C speed`
----------------------------------------------------------------------------
-
-.. sidebar:: :small:`Opticks.NPY package` 
-
-    .. class:: small
-
-        * inspired by *NumPy* : does not depend on it
-        * implements *NumPy* serialization file format, 
-          into which almost everything(*) is persisted  
-        * *Opticks* analysis/debugging done with *NumPy* and *IPython* 
-
-    .. class:: tiny   
- 
-        (*) gensteps, photons, hits, analytic CSG geometry shapes, transforms, triangulated geometry vertices, triangles, material/surface properties ... 
-
-.. class:: small
-
-   **“fundamental package for scientific computing with Python”** 
-
-   *NumPy* arrays : simply an interface to C memory buffers 
-
-   * :red:`extreme simplicity` : simple interop with C, C++, CUDA 
-   * slices are no-copy "views" of underlying buffers
-   * reshape/transpose : just changes metadata
-   * fast memcpy, cudaMemcpy, serialization/deserialization
-   
-   Very terse, no-loop python interface to C performance
-
-   * **array-oriented computing** (C loops under python control)
-   * interactive handling of very large N-dimensional arrays
-   * easily manipulate million item arrays from python
-
-     * faster + more convenient than dealing with millions of C++ objects   
-
-.. class:: small
-
-   **“The NumPy array: a structure for efficient numerical computation”**  
-
-   * https://hal.inria.fr/inria-00564007/document
-
-
-.. class:: tiny
-
-   NPY file format specification
-
-   https://github.com/numpy/numpy/blob/master/doc/neps/nep-0001-npy-format.rst
-
-
-.. comment
-
-    https://jeffknupp.com/blog/2017/09/15/python-is-the-fastest-growing-programming-language-due-to-a-feature-youve-never-heard-of/
-
-    Secret weapon of NumPy 
-
-    https://github.com/python/peps/blob/master/pep-3118.txt
 
 
 
