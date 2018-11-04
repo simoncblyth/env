@@ -438,12 +438,15 @@ obs-export()
    export LD_LIBRARY_PATH=$(obs-prefix)/lib:$LD_LIBRARY_PATH 
 }
 
-obs-run()
+obs-run-()
 {
     obs-export
     which obs
     obs 
 }
+
+obs-run(){ $FUNCNAME- 2>&1 > /tmp/$FUNCNAME.log ; }
+
 
 obs-ls()
 {
