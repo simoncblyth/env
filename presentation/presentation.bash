@@ -18,6 +18,19 @@ Jump to a slide page
   * this works both for http://localhost as well as remote  
   * TODO: check file::// urls
 
+Notes on use of the html
+--------------------------
+
+The PDF is bitmapped. For copy/paste functionality use the html or RST source or available at:
+
+https://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_oct2018_ihep.html
+https://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_oct2018_ihep.txt
+
+Once the images complete loading you can navigate the html “slides” with
+javascript selector at bottom right, or arrow keys, or jump to a page by entering 
+the page number and pressing return in your browser.  
+
+
 Opticks Oct 2018 JUNO Detector Video 
 ---------------------------------------
 

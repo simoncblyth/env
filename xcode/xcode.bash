@@ -13,6 +13,36 @@ See Also
 * clt- regarding CommandLineTools, xcode-select, xcrun
 
 
+
+
+::
+
+    Nov 2, 2018 : currently on 10.13.4
+
+
+Xcode 10.1
+------------
+
+* https://developer.apple.com/documentation/xcode_release_notes/xcode_10_1_release_notes
+
+Xcode 10.1 includes SDKs for iOS 12.1, watchOS 5.1, macOS 10.14.1, and tvOS
+12.1. Xcode 10.1 supports on-device debugging for iOS 8 and later, tvOS 9 and
+later, and watchOS 2 and later. Xcode 10.1 requires a Mac running macOS 10.13.6
+or later.
+
+
+Xcode 10
+-----------------
+
+* https://developer.apple.com/documentation/xcode_release_notes/xcode_10_release_notes
+
+Xcode 10 is available in the Mac App Store and includes SDKs for iOS 12,
+watchOS 5, macOS 10.14, and tvOS 12. Xcode 10 supports on-device debugging for
+iOS 8 and later, tvOS 9 and later, and watchOS 2 and later. Xcode 10 requires a
+Mac running macOS 10.13.6 or later.
+
+
+
 empty app (no storyboard or xib)
 ----------------------------------
 
@@ -33,10 +63,6 @@ macOS : main.swift + AppDelegate.swift
     NSApplication.shared.delegate = delegate
 
     NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
-
-
-
-
 
 
 Renaming groups breaks the build
