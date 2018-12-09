@@ -12,6 +12,12 @@ Cocoapods
 * https://www.raywenderlich.com/156971/cocoapods-tutorial-swift-getting-started
 * ~/tree/gems/cocoapods.log
 
+
+1.5G of very many json files (for every version of every pod) in HOME/.cocoapods::
+
+    epsilon:~ blyth$ du -hs .cocoapods
+    1.5G	.cocoapods
+
 ::
 
     epsilon:~ blyth$ which pod
