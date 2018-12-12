@@ -13,11 +13,9 @@ See Also
 * clt- regarding CommandLineTools, xcode-select, xcrun
 
 
-
-
 ::
 
-    Nov 2, 2018 : currently on 10.13.4
+    Nov 2, 2018 : currently on macOS High Sierra 10.13.4
 
 
 Xcode 10.1
@@ -30,7 +28,6 @@ Xcode 10.1 includes SDKs for iOS 12.1, watchOS 5.1, macOS 10.14.1, and tvOS
 later, and watchOS 2 and later. Xcode 10.1 requires a Mac running macOS 10.13.6
 or later.
 
-
 Xcode 10
 -----------------
 
@@ -40,6 +37,16 @@ Xcode 10 is available in the Mac App Store and includes SDKs for iOS 12,
 watchOS 5, macOS 10.14, and tvOS 12. Xcode 10 supports on-device debugging for
 iOS 8 and later, tvOS 9 and later, and watchOS 2 and later. Xcode 10 requires a
 Mac running macOS 10.13.6 or later.
+
+
+
+How to handle multiple Xcode ?
+---------------------------------
+
+::
+
+    epsilon:Xcode blyth$ ll /Applications/Xcode/
+    drwxr-xr-x   3 blyth  staff    96 Mar 23  2018 Xcode_9_2.app
 
 
 

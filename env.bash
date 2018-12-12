@@ -94,9 +94,10 @@ env-htdocs-rsync(){
 
 
 env_u_(){ 
-   # mapping directory to url 
+   # mapping directory to url  : hmmm this should live in home- not here ??
    local dir=${1:-$PWD}
    local abs=$(realpath $dir)   # see ~/e/tools/realpath/
+
    case $abs in
            ${ENV_HOME}) echo http://localhost/env_notes/ ;; 
           ${ENV_HOME}*) echo http://localhost/env_notes/${abs/$ENV_HOME\/}/ ;; 
