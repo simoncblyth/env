@@ -186,7 +186,7 @@ class IPath(object):
             s = cls( path, stat=stat )
             sub.append( s ) 
         pass
-        log.debug("multiparse %d lines DONE " % len(lines) ) 
+        log.debug("multiparse %d lines len(sub) %d DONE " % (len(lines), len(sub)) ) 
         pass
         return sub
 
@@ -239,10 +239,22 @@ class IPath(object):
             if not isdir:
                 assert nline <= 1 
             pass
-            if nline == 1:
-                stat, mpath = self.parse(lines[0], ptn)
-            else:
+            ## hmm : problem for a single binary to be sweeped
+            ## single line is degenerate between a directory with a single item
+            ## and the IPath of an item in the dir   
+            ## if nline == 1:
+            ##    stat, mpath = self.parse(lines[0], ptn)
+            ##else:
+            ##    sub = self.multiparse(lines, ptn, pfx=pfx )
+            ##   pass
+            ##pass
+            if isdir:
                 sub = self.multiparse(lines, ptn, pfx=pfx )
+            else:
+                if len(lines) > 0:
+                    stat, mpath = self.parse(lines[0], ptn)
+                else:
+                    pass
                 pass
             pass
         pass

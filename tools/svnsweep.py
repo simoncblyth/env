@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-SWEEPS SVN WORKING COPY INTO INTO PARALLEL DIRECTORY STRUCTURE
-================================================================
+SWEEPS SVN/GIT/HG WORKING COPY UNTRACKED BINARIES INTO INTO PARALLEL DIRECTORY STRUCTURE
+==========================================================================================
 
 Typical usage is to get PDF/PNGs etc.. and other binaries out 
 of a source tree and into a parallel hierarcy, typically 
@@ -37,6 +37,9 @@ Avoid folder deletions by
 
 Issues
 ~~~~~~~~
+
+#. a single binary is not sweeped, adding a dummy 2nd binary makes the 
+   script see both 
 
 #. .numbers and .key "files" are seen as directories and thus skipped from the sweep
 
@@ -141,7 +144,7 @@ class Sweeper(list):
         Pattern match the `svn status` of the `src` directory  passing all matches to `handle`
         Note that only a single `svn status` is required, so much more efficient compared to oldwalk.
         """
-        log.debug("status_walk")
+        log.debug("status_walk len(self.src.sub) %d" % len(self.src.sub))
         for sp in self.src.sub:
             if sp.is_untracked:
                 self.handle_untracked(sp.path)
@@ -206,7 +209,7 @@ class Sweeper(list):
         log.debug("handle_untracked spath [%s] rpath [%s]" % (spath,rpath) ) 
 
         sp = IPath(spath, stat=stat) 
-        log.debug("after instanciate IPath(spath)")
+        log.debug("after instanciate IPath(spath) untracked %d" %  sp.is_untracked )
         if not sp.is_untracked:
             return 
 
