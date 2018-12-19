@@ -170,7 +170,11 @@ class Parallelize(list):
 
 
 def read_cnf_( path ):
-    from ConfigParser import SafeConfigParser
+    try:
+        from ConfigParser import SafeConfigParser
+    except ImportError:
+        from configparser import ConfigParser as SafeConfigParser
+    pass
     path = os.path.expanduser(path)
     assert os.path.exists(path), path
     log.debug("reading %s " % ( path ) )
@@ -218,7 +222,7 @@ def main(**kwa):
        log.warn("proceeding")
        pz()
     else:
-       print pz
+       print(pz)
        log.warn("run again with --PROCEED to do this commands")
 
 

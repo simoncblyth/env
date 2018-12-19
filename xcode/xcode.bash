@@ -13,9 +13,96 @@ See Also
 * clt- regarding CommandLineTools, xcode-select, xcrun
 
 
+Versions
+---------
+
 ::
 
     Nov 2, 2018 : currently on macOS High Sierra 10.13.4
+    mid-Dec 2018, updated to macOS High Sierra 10.13.6 in order to install Xcode 10.1
+
+
+The maximum number of apps for free development profiles has been reached.
+----------------------------------------------------------------------------
+
+Limit appears to be three at once.  Can easily workaround using 
+"Xcode > Window > Devices and Simulator" to delete some apps
+from the device.
+
+Web searches suggest there are other limits, like 10 ids 
+
+* http://mybyways.com/blog/new-limitations-imposed-on-free-apple-developer-account
+
+::
+
+   Unable to add App ID because the '10' App ID limit in '7' days has been exceeded.
+
+* https://stackoverflow.com/questions/36923849/unable-to-add-app-id-because-the-10-app-id-limit-in-7-days-has-been-exceeded
+
+
+Xcode : wireless device debugging
+----------------------------------
+
+* Window > Devices and Simulators
+
+* https://stackoverflow.com/questions/44382841/how-do-you-perform-wireless-debugging-in-xcode-9-with-ios-11-apple-tv-4k-etc/44383502#44383502
+
+
+Xcode : device debugging over USB : flakey connection workaround
+------------------------------------------------------------------
+
+* have had trouble with iPhone XR not showing up in Xcode on laptop
+* closing and opening Xcode didnt fix it, restarting the iPhone and laptop didnt either
+
+Found solution was to disconnect iPad and iPhone, restart Xcode, open "Window > Devices and Simulators"
+and then connect iPhone, followed by iPad.  At each connection the device should immediately appear in the list. 
+
+Note that the devices may need to have internet connection for this to work.
+
+
+Xcode : project vs target settings 
+-------------------------------------
+
+* double click the blue icon top level project name in left panel to get to settings
+* change between project and individial target settings by selection from 
+  menu that appears on clicking the up/down arrow on the line below the project name 
+
+
+How to handle multiple Xcode ?
+---------------------------------
+
+* https://medium.com/@hacknicity/working-with-multiple-versions-of-xcode-e331c01aa6bc
+
+Approach currently used
+
+1. download using Mac app Store, intallation writes to /Applications/Xcode.app
+2. DO NOT open Xcode yet 
+3. reposition and rename to path with the version in it /Applications/Xcode/Xcode_10_1.app 
+4. now do first launch of Xcode, it will prompt to download additional tools
+
+::
+
+    epsilon:Applications blyth$ sudo mv Xcode.app Xcode/Xcode_10_1.app 
+    Password:
+    epsilon:Applications blyth$ l Xcode/
+    total 0
+    drwxr-xr-x  3 root   wheel  96 Dec 13 16:17 Xcode_10_1.app
+    drwxr-xr-x  3 blyth  staff  96 Mar 23  2018 Xcode_9_2.app
+    epsilon:Applications blyth$ 
+
+
+
+Alternative to Mac App Store Downloads ? Eg to be able to throttle speed
+----------------------------------------------------------------------------
+
+* http://osxdaily.com/2018/08/11/download-xcode-xip-dmg-files/
+* https://developer.apple.com/download/more/
+
+* https://download.developer.apple.com/Developer_Tools/Xcode_10.1/Xcode_10.1.xip
+* https://download.developer.apple.com/Developer_Tools/Xcode_10.1/Xcode_10.1.xip
+
+
+* https://stackoverflow.com/questions/4081568/downloading-xcode-with-wget-or-curl
 
 
 Xcode 10.1
@@ -38,15 +125,6 @@ watchOS 5, macOS 10.14, and tvOS 12. Xcode 10 supports on-device debugging for
 iOS 8 and later, tvOS 9 and later, and watchOS 2 and later. Xcode 10 requires a
 Mac running macOS 10.13.6 or later.
 
-
-
-How to handle multiple Xcode ?
----------------------------------
-
-::
-
-    epsilon:Xcode blyth$ ll /Applications/Xcode/
-    drwxr-xr-x   3 blyth  staff    96 Mar 23  2018 Xcode_9_2.app
 
 
 
@@ -882,6 +960,34 @@ EON
 }
 
  
+xcode-xip-notes(){ cat << EON
 
+Find the url from 
+
+https://developer.apple.com/download/more/
+https://unix.stackexchange.com/questions/39218/throttle-the-download-speed-of-wget-or-curl-while-downloading
+
+50min is 3000s 
+so limit to 1m for 
+
+5G ~ 5000M 
+
+
+EON
+}
+
+
+xcode-xip-url(){ echo https://download.developer.apple.com/Developer_Tools/Xcode_10.1/Xcode_10.1.xip ; }
+xcode-xip-get(){
+
+   cd ~/Downloads
+   pwd
+   local url=$(xcode-xip-url)
+   local dst=$(basename $url)
+   [ -f "$dst" ] && echo $msg dst $dst exists already && return  
+   local cmd="curl --limit-rate 1m -L -O $url"
+   echo $msg $cmd
+   eval $cmd
+}
 
 
