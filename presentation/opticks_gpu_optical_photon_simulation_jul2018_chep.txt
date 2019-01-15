@@ -853,8 +853,6 @@ Outline
 
 
 
-
-
 :small:`Opticks : translates G4 geometry to GPU, without approximation`
 ------------------------------------------------------------------------------------
 
