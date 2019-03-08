@@ -59,10 +59,37 @@ class Day(object):
         return "<Day %10s : %s>" % ( self.text, fmt_(self.dt)) 
 
 class Days(list):
+    """
+    Simply a list of Day instances
+    """
     def __init__(self, *args, **kwa):
         list.__init__(self, *args, **kwa)
 
     def periods(self):
+        """
+        The sequence is assumed to be a complete ordered 
+        record of the dates of arrivals and departures 
+        from a single location/country.
+
+        To handle edge periods at the beginning and end of 
+        a year bracket the entries and exits with
+        artifical Jan1 entry/exit dates::
+
+            days.py Jan1_2019 real-dates-here Jan1_2020 
+
+        This has the advantage that within+without day counts
+        should match the total number of days in the year: 365/364.
+
+        The periods between the times are calculated and 
+        the even and odd periods are summed to provide the 
+        total number of days within and without the location.
+        Whether even/odd is within/without depends on the meaning
+        given to the sequence of dates provided. 
+
+        NB for reproducibility specify the year, 
+        otherwise dates will defaut to the current year making 
+        results depend on when run.
+        """
         tot = [0,0,0] 
         lines = []
         for i in range(1,len(self)):
@@ -71,8 +98,8 @@ class Days(list):
             dt = dt1 - dt0 
             dtd = dt.days
 
-            tot[i % 2] += dtd 
-            tot[2] += dtd
+            tot[i % 2] += dtd  ##  1 for odd i,  0 for even i  
+            tot[2] += dtd      ##  sum of within and without 
 
             per = " %2d : %30s %30s : %10s " % (  i, fmt_(dt0), fmt_(dt1), dtd ) 
             line =  "%s : %s " % (per, tot )    

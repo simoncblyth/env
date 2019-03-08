@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 """
 
+Had to rename this to have the underscore as otherwise
+it breaks days.py import of calendar module.
+
+
 ::
 
-    simon:env blyth$ calendar.py 6
+    simon:env blyth$ calendar_.py 6
     Wed 01 
     Thu 02 
     Fri 03 

@@ -673,11 +673,11 @@ def main():
     paths = map(lambda _:os.path.abspath(_), config.args.paths)
 
     if len(paths) == 1:
-        assert paths[0].endswith(".rst")
-        rstpath = paths[0]
-        assert os.path.isfile(rstpath)
-        docxpath = rstpath.replace(".rst",".docx") 
-        log.info("appending docxpath : %s " % docxpath )
+        assert paths[0].endswith(".rst") or paths[0].endswith(".txt")
+        inpath = paths[0]
+        assert os.path.isfile(inpath)
+        docxpath = inpath[:-4] + ".docx" 
+        log.info("inpath %s docxpath : %s " % (inpath,docxpath) )
         paths.append(docxpath)
     pass
 

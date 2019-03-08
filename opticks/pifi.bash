@@ -6,6 +6,15 @@ pifi-usage(){ cat << EOU
 PIFI plans, reports
 =====================
 
+See also
+---------
+
+::
+
+   reps-
+   reps-cd
+
+
 Number of English words to Chinese characters
 -----------------------------------------------
 

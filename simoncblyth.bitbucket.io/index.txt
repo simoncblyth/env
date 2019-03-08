@@ -64,6 +64,17 @@ Opticks Videos
 Opticks Presentations 
 ----------------------
 
+
+Early 2019 : Opticks status 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jan2019_sjtu.html (17 Jan 2019, Shanghai)
+
+    JUNO Collaboration Meeting
+
+    Status of Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+
+
 Autumn 2018 : Tools, Techniques and Opticks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
