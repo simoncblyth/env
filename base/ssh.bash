@@ -300,7 +300,9 @@ be closed without stopping the tunnel process::
     simon:~ blyth$ ssh--
     simon:~ blyth$ ssh--tunnel K 9090
 
-         -D Specifies a local dynamic'' application-level port forwarding.  This works by allocating a socket to listen to port on the local side, optionally bound to the specified bind_address. 
+         -D Specifies a local dynamic'' application-level port forwarding.  
+            This works by allocating a socket to listen to port on the local side, 
+            optionally bound to the specified bind_address. 
          -N no remote command, just forward
          -f go to background 
 
@@ -358,6 +360,9 @@ That is equivalent to ssh-ing into the remote node and running the query locally
 
 Configure OSX Safari to use the SOCKS proxy 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://apple.stackexchange.com/questions/168474/how-to-make-apple-mail-app-to-use-socks-proxy-configured-by-a-pac-file
+
 
 Add an *if* section to the *~/env/proxy/socks.pac* file  
 corresponding to the URL want to check::

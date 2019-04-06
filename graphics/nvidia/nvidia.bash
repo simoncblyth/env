@@ -10,6 +10,34 @@ NVIDIA
 ========
 
 
+hardware probing : lspci and dmidecode
+---------------------------------------
+
+::
+
+   lspci | grep -i nv
+
+
+
+AWS : G4 instance (with NVIDIA T4)
+------------------------------------
+
+* Amazon is launching a new instance, the G4 instance, which runs Tesla T4 accelerators
+
+
+Rapids : collection of machine learning libs incubated by NVIDIA
+-----------------------------------------------------------------
+
+* https://www.developer.nvidia.com/rapids
+* https://rapids.ai
+
+::
+
+   cuDF
+   cuML
+   cuGraph
+
+
 vGPU : Quadro vDWS (Quadro Virtual Data Center Workstation) : required for CUDA
 ----------------------------------------------------------------------------------
 

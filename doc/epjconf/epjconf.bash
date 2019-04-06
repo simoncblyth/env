@@ -20,6 +20,28 @@ PDF documents at
   The PDF document is not saved in our server after being checked.
 
 
+Aborted attempt to use bibtex
+------------------------------
+
+The woc.bst style file that epjconf instructs
+to be used is mangling authors.
+
+I wanted to use bibtex for cite sets, but it looks too much hassle.
+
+* https://texfaq.org/FAQ-mcite
+
+* https://tex.stackexchange.com/questions/171175/biblatex-mcite-add-arbitrary-text-in-references-with-subentries
+
+* http://mirrors.ibiblio.org/CTAN/macros/latex/exptl/biblatex/doc/biblatex.pdf
+
+
+
+mcite fails with cites in captions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://tex.stackexchange.com/questions/174275/protect-with-cite-inside-caption
+
+
 Setup
 -------
 
@@ -124,15 +146,25 @@ epjconf-cd(){   cd $(epjconf-dir); }
 
 # output dir
 epjconf-odir(){ echo /tmp/$USER/epjconf ; }
-epjconf-ocd(){ cd $(epjconf-odir) ; }
+epjconf-ocd(){ 
+   local odir=$(epjconf-odir) 
+   [ ! -d "$odir" ] && echo $msg creating odir && mkdir -p $odir
+   cd $odir  
+}
 epjconf-opdf(){ echo $(epjconf-odir)/$(epjconf-filename).pdf ; }
 epjconf-open(){ open $(epjconf-opdf) ; }
 
 
 epjconf-confname(){ echo chep2018 ; }
-epjconf-filename(){ echo opticks-blyth-$(epjconf-confname) ; }
+
+#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname) ; }  # as submitted to referees
+epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
+
 epjconf-texname(){  echo $(epjconf-filename).tex ; }
+epjconf-bibname(){  echo $(epjconf-filename) ; }
+
 epjconf-etex(){     echo $(epjconf-dir)/$(epjconf-filename).tex ; }
+epjconf-ebib(){     echo $(epjconf-dir)/opticks.bib ; }
 epjconf-textmpl(){  echo template.tex ; }
 
 epjconf-2016(){ open http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001/meta ; }
@@ -146,6 +178,9 @@ epjconf-texname  : $(epjconf-texname)
 epjconf-filename : $(epjconf-filename)
 epjconf-odir     : $(epjconf-odir) 
 
+epjconf-etex     : $(epjconf-etex) 
+epjconf-abib     : $(epjconf-abib) 
+epjconf-ebib     : $(epjconf-ebib) 
 
 EOI
 }
@@ -200,6 +235,7 @@ epjconf-init()
 
 epjconf-figdir(){ echo $HOME/simoncblyth.bitbucket.io ; }
 epjconf-texinputs(){ echo .:$(epjconf-tdir):$(epjconf-figdir): ; }
+epjconf-local-texinputs(){ echo .:$(epjconf-figdir): ; }
 
 epjconf-texinputs-notes(){ cat << EON
 
@@ -232,12 +268,80 @@ epjconf-pdflatex()
 epjconf--()
 {
     epjconf-pdflatex
+    epjconf-pdflatex
     epjconf-open
     epjconf-info
     ls -l $(epjconf-odir)    
 }
 
-epjconf-edit(){ local etex=$(epjconf-etex) ; echo $FUNCNAME etex $etex ; vi $etex $(epjconf-aux) ;  }
+
+
+
+epjconf-local-prep()
+{
+    local msg="=== $FUNCNAME "
+    echo $msg
+    epjconf-ocd
+
+    local tdir=$(epjconf-tdir)
+    cp $tdir/* .
+
+    cp $(epjconf-etex) .
+    cp $(epjconf-ebib) $(epjconf-bibname).bib
+}
+
+epjconf-local-pdflatex()
+{
+    local msg="=== $FUNCNAME "
+    echo $msg
+    epjconf-ocd
+    TEXINPUTS=$(epjconf-local-texinputs) pdflatex $(epjconf-texname)
+}
+epjconf-local-bibtex()
+{
+    local msg="=== $FUNCNAME "
+    echo $msg
+    epjconf-ocd
+
+    bibtex $(epjconf-bibname)
+}
+epjconf-local-clean()
+{
+    local msg="=== $FUNCNAME "
+    echo $msg
+    local odir=$(epjconf-odir)
+    rm -rf $odir
+}
+
+
+epjconf--aborted-attempt-to-use-bibtex()
+{
+    epjconf-local-clean
+    epjconf-local-prep
+  
+    epjconf-local-pdflatex
+    epjconf-local-bibtex
+    epjconf-local-pdflatex
+    epjconf-local-pdflatex
+
+    epjconf-open
+    epjconf-info
+    ls -l $(epjconf-odir)    
+}
+
+
+
+epjconf---notes(){ cat << EON
+
+Cannot get bibtex to work in a clean source dir style, so 
+copy everything into a tmpdir and run there
+
+EON
+}
+
+
+
+epjconf-edit(){ local etex=$(epjconf-etex) ; local ebib=$(epjconf-ebib) ; echo $FUNCNAME etex $etex ebib $ebib  ; vi $etex $ebib $(epjconf-aux) ;  }
 epjconf-e(){    epjconf-edit ; }
 
 epjconf-aux(){ cat << EOA
