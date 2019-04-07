@@ -2024,3 +2024,4 @@ pandas-(){      . $(env-home)/numerics/pandas/pandas.bash && pandas-env $* ; }
 epjconf-(){      . $(env-home)/doc/epjconf/epjconf.bash && epjconf-env $* ; }
 sed-(){      . $(env-home)/tools/sed.bash && sed-env $* ; }
 pipeline-(){      . $(env-home)/graphics/pipeline/pipeline.bash && pipeline-env $* ; }
+license-(){      . $(env-home)/license/license.bash && license-env $* ; }
