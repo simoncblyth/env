@@ -16,6 +16,12 @@ A 72% market share for the leading permissive licenses,
 at least among Github users.
 
 
+Copyright notice too ? At the head of the LICENSE
+
+Copyright (C) 2019 Simon C Blyth and other contributors
+
+
+
 * https://www.apache.org/licenses/LICENSE-2.0
 * https://www.apache.org/licenses/LICENSE-2.0.txt
 
@@ -28,11 +34,22 @@ EOU
 }
 
 
+license-project(){ echo ${LICENSE_PROJECT:-Opticks} ; }
+
+license-year(){ date +"%Y" ; }
+
+license-copyright-(){ cat << EOC
+   Copyright (C) $(license-year) The $(license-project) Authors. All rights reserved.
+EOC
+}
+
 license-apache2(){
     #curl https://www.apache.org/licenses/LICENSE-2.0.txt | head -177 > LICENSE
 
     [ -f LICENSE ] && echo LICENSE already in $PWD && return 
-    curl https://www.apache.org/licenses/LICENSE-2.0.txt  > LICENSE
+
+    license-copyright- > LICENSE
+    curl https://www.apache.org/licenses/LICENSE-2.0.txt  >> LICENSE
 }
 
 license--(){ 
@@ -40,7 +57,6 @@ license--(){
 }
 
 
-license-year(){ date +"%Y" ; }
 
 license-mit(){
     [ -f LICENSE ] && echo LICENSE already in $PWD && return 

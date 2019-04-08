@@ -1,43 +1,87 @@
-Referee 1:
+> Referee 1:
+>
+> This paper presents an interesting topic for optical photon simulations and
+> geometry modeling relevant to high energy physics. The paper is already in good
+> shape, only requiring a few minor edits suggested below.
 
-This paper presents an interesting topic for optical photon simulations and geometry modeling relevant to high energy physics. The paper is already in good shape, only requiring a few minor edits suggested below.
+Thank you for the comments.  I have acted upon them all. Only the grouping 
+of references turned out to be not straightforward : so I went with the 
+simple first approach you suggested.
 
-*** Abstract:
-Wavelength dependent => Wavelength-dependent
 
-*** Introduction:
-Multiple references at once are usually [1,2], [3-5], [6-8]. However, in cases where the references have a lot in common, such as with 3-5, it can be better to group these all into one reference number, with the three parts separated by semicolons. This is probably the case for all of these: 1 & 2 can be a single reference for Opticks, and 6-8 can be contained in a single reference for OptiX.
-Geant4 based => Geant4-based (also in the summary)
-The prior => Prior
+> *** Abstract:
+> Wavelength dependent => Wavelength-dependent
 
-*** Sect. 1.1
-The title of this section seems out of place. What you want to focus on is the importance of the optical photon simulation to the physics, not the importance of muons (i.e. the photons are important because of the muons).
-Geant4 toolkit based => Geant4-toolkit-based
+OK
 
-*** Sect. 2.3
-two stage => two-stage
-because is not => because it is not
-reconstructed it a => reconstructed in a
-one to one => one-to-one
+> *** Introduction:
+> Multiple references at once are usually [1,2], [3-5], [6-8]. However, in cases
+> where the references have a lot in common, such as with 3-5, it can be better
+> to group these all into one reference number, with the three parts separated by
+> semicolons. This is probably the case for all of these: 1 & 2 can be a single
+> reference for Opticks, and 6-8 can be contained in a single reference for
+> OptiX.
 
-*** Sect 3
-A single class G4Opticks is => A single class, G4Opticks, is
+Manual grouping separated by semicolons leads to the references being difficult to read. 
+So I attemped to use bibtex and mcite grouping capabilities. 
+But those turn out not to work well with the woc.bst provided (and mandated) by epjconf.
 
-*** Sect 4
-near perfectly => nearly perfectly
+Thus as the benefits of grouped references are minor, I decided the clearest 
+and simplest approach was to go with the suggestion of your first sentence.
 
-*** Fig. 2 caption
-geometry, effects => geometry. Effects
-or...  geometry; effects
+> Geant4 based => Geant4-based (also in the summary)
+OK (OK)
 
-*** Bibliography
-Reference 13: Pages => pp
+> The prior => Prior
+OK
+
+> *** Sect. 1.1
+> The title of this section seems out of place. What you want to focus on is the
+> importance of the optical photon simulation to the physics, not the importance
+> of muons (i.e. the photons are important because of the muons).
+
+Good catch : I went with "Importance of Optical Photon Simulation to Neutrino Detectors"
+
+> Geant4 toolkit based => Geant4-toolkit-based
+OK
+
+> *** Sect. 2.3
+> two stage => two-stage
+OK
+
+> because is not => because it is not
+OK
+
+> reconstructed it a => reconstructed in a
+OK
+
+> one to one => one-to-one
+OK
+
+> *** Sect 3
+> A single class G4Opticks is => A single class, G4Opticks, is
+OK
+
+> *** Sect 4
+> near perfectly => nearly perfectly
+OK
+
+> *** Fig. 2 caption
+> geometry, effects => geometry. Effects   or...  geometry; effects
+OK
+
+> *** Bibliography
+> Reference 13: Pages => pp
+OK
 
 __________
 
-Referee 2:
+> Referee 2:
+>
+> General: This is a very well written paper, with clear structure and language.
+> The reviewer has no remarks on the substance and readability and the paper can
+> be accepted in its current form.
 
-General: This is a very well written paper, with clear structure and language. The reviewer has no remarks on the substance and readability and the paper can be accepted in its current form.
-
+Thank you Referee 2
 
 

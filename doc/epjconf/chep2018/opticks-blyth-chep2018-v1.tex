@@ -76,7 +76,7 @@ and to the validation approach. Prior proceedings\cite{chep2016} provide further
 details on NVIDIA OptiX, use of GPU textures and the CUDA port of Geant4 photon generation 
 and optical physics.
 %
-\subsection{Importance of Cosmic Muon background to Neutrino Detectors}
+\subsection{Importance of Optical Photon Simulation to Neutrino Detectors}
 %
 Cosmic muon induced processes are crucial backgrounds for neutrino
 detectors such as Daya Bay~\cite{dyb} and JUNO\cite{juno},
@@ -343,7 +343,7 @@ same geometry used in the simulation.}
 \section{Interface between Geant4 and Opticks}
 \label{simulation}
 %
-A single class {\tt G4Opticks} is used to provide a 
+A single class, {\tt G4Opticks}, is used to provide a 
 minimal interface between Geant4 user code and 
 the Opticks package. 
 At initialization the Geant4 top volume pointer is
@@ -383,7 +383,7 @@ of CSG constituents as described in section~\ref{intersection} which require geo
 %
 \section{Summary}
 %
-Opticks enables Geant4 based simulations to benefit from effectively zero time 
+Opticks enables Geant4-based simulations to benefit from effectively zero time 
 and zero CPU memory optical photon simulation, due to the massively parallel GPU 
 processing made accessible by NVIDIA OptiX.
 Recent Opticks developments enable automated translation of Geant4 geometries without approximation. 

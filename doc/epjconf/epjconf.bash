@@ -177,9 +177,9 @@ epjconf-dir      : $(epjconf-dir)
 epjconf-texname  : $(epjconf-texname)
 epjconf-filename : $(epjconf-filename)
 epjconf-odir     : $(epjconf-odir) 
+epjconf-opdf     : $(epjconf-opdf) 
 
 epjconf-etex     : $(epjconf-etex) 
-epjconf-abib     : $(epjconf-abib) 
 epjconf-ebib     : $(epjconf-ebib) 
 
 EOI
@@ -378,5 +378,4 @@ epjconf-check-pdf(){ $FUNCNAME-notes ; open http://pdf-analyser.edpsciences.org 
 epjconf-ref(){ cp $(epjconf-opdf) ~/opticks_refs/ ; }
 epjconf-oref(){ open ~/opticks_refs/$(epjconf-filename).pdf ; }
 
-
-
+epjconf-lsref(){  ls -l ~/opticks_refs/*$(epjconf-confname)*.pdf ; }
