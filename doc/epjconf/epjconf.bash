@@ -20,8 +20,14 @@ PDF documents at
   The PDF document is not saved in our server after being checked.
 
 
-Aborted attempt to use bibtex
-------------------------------
+April 8 : uploaded response to comments and amended draft
+-----------------------------------------------------------
+
+* https://saga.edpsciences.org/article/epjconf/epjconf182175/sheet/sheet/
+
+
+April 7 : Aborted attempt to use bibtex
+---------------------------------------------
 
 The woc.bst style file that epjconf instructs
 to be used is mangling authors.
@@ -35,12 +41,10 @@ I wanted to use bibtex for cite sets, but it looks too much hassle.
 * http://mirrors.ibiblio.org/CTAN/macros/latex/exptl/biblatex/doc/biblatex.pdf
 
 
-
 mcite fails with cites in captions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * https://tex.stackexchange.com/questions/174275/protect-with-cite-inside-caption
-
 
 Setup
 -------

@@ -2028,3 +2028,4 @@ license-(){      . $(env-home)/license/license.bash && license-env $* ; }
 synergy-(){      . $(env-home)/tools/synergy.bash && synergy-env $* ; }
 dnf-(){      . $(env-home)/tools/dnf/dnf.bash && dnf-env $* ; }
 centos-(){      . $(env-home)/tools/centos.bash && centos-env $* ; }
+grub-(){      . $(env-home)/boot/grub.bash && grub-env $* ; }

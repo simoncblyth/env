@@ -9,6 +9,9 @@ centos-env(){  elocal- ; }
 centos-usage(){ cat << EOU
 
 
+CentOS 
+=========
+
 * https://danielmiessler.com/study/fedora_redhat_centos/
 
 
@@ -41,6 +44,41 @@ CentOS      arch   RHEL    Kernel        Centos release       RHEL release      
 =========  ======= =====  ============  ==================  =====================  ============
 
 
+/etc/centos-release inconsistent with uname -a
+-----------------------------------------------
+
+* https://access.redhat.com/discussions/3160201
+
+Jamie Bainbridge
+
+The /etc/redhat-release file is not owned by the kernel package, it is owned by the redhat-release-server package:
+
+So you can update redhat-release-server if you want /etc/redhat-release to say
+"6.9" but you'll still be running the rest of the packages from 6.7 and have
+some mix of packages from the two minor releases. We do support this but we
+don't explicitly test for problems with it. If you run into an issue in future,
+we may need you to update another package to resolve that issue.
+
+It is probably better if you update all packages with yum update, though make
+sure you test this in your test environment first.
+
+
+verbose boot
+--------------
+
+* https://unix.stackexchange.com/questions/167521/how-do-i-make-my-boot-log-more-verbose
+
+
+Tried this, seems no difference::
+
+   [blyth@localhost ~]$ sudo vi /etc/sysconfig/init 
+   [sudo] password for blyth: 
+
+
+console access
+---------------
+
+ctrl-alt-f...
 
 
 EOU
