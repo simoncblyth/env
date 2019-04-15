@@ -78,7 +78,7 @@ clui-alias(){
    alias l="ls -lt "
    alias lz="ls -la -Z"
    alias ll="ls -ltra "
-   alias lt="ls -lt $se "
+   alias lt="ls -lt | head -10 "
    alias pa="ps aux $se"
    alias n="nosetests"
    alias ns="nosetests -s"

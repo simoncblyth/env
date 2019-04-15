@@ -972,3 +972,98 @@ cmak-check-threads()
 }
 
 cmak-effective(){ open ~/opticks_refs/effective_cmake__daniel_pfeifer__cppnow_05-19-2017.pdf  ; }
+
+
+
+cmak-cgold(){ cat << EON
+
+CGold: The Hitchhiker’s Guide to the CMake
+================================================
+
+
+Policies
+-----------
+
+* :google:`cmake policy explained`
+
+
+* https://cmake.org/cmake/help/v3.13/manual/cmake-policies.7.html
+
+  list of policies introduced in each version
+
+
+EON
+}
+
+cmak-cgold-policy(){ 
+
+   local tmp=/tmp/env/$FUNCNAME
+   mkdir -p $tmp && cd $tmp
+
+
+cat << EOC > foo.cpp
+// $FUNCNAME
+#include <iostream>
+int main(int argc, char** argv)
+{
+    std::cout << "foo" << std::endl ; 
+}
+EOC
+
+cat << EOP > $tmp/CMakeLists.txt
+cmake_minimum_required(VERSION 2.8)
+
+#[=[
+https://cgold.readthedocs.io/en/latest/tutorials/version-policies.html
+#]=]
+project(foo)
+
+if(POLICY CMP0038)
+    # Policy CMP0038 introduced since CMake 3.0 so if we want to be compatible
+    # with 2.8 (see cmake_minimum_required) we should put 'cmake_policy' under
+    # condition. 
+    cmake_policy(SET CMP0038 OLD)
+endif()
+
+#[=[
+The OLD gives this 
+
+CMake Deprecation Warning at CMakeLists.txt:8 (cmake_policy):
+  The OLD behavior for policy CMP0038 will be removed from a future version
+  of CMake.
+
+  The cmake-policies(7) manual explains that the OLD behaviors of all
+  policies are deprecated and that a policy should be set to OLD only under
+  specific short-term circumstances.  Projects should be ported to the NEW
+  behavior and not rely on setting a policy to OLD.
+
+#]=]
+
+add_library(foo foo.cpp)
+
+target_link_libraries(foo foo) # BAD CODE! Make no sense
+EOP
+
+   rm -rf build &&  mkdir build && cd build && cmake ..
+}
+
+cmak-cgold-policy-note(){ cat << EON
+
+https://cgold.readthedocs.io/en/latest/tutorials/version-policies.html
+
+CMake Warning (dev) at CMakeLists.txt:8 (add_library):
+  Policy CMP0038 is not set: Targets may not link directly to themselves.
+  Run "cmake --help-policy CMP0038" for policy details.  Use the cmake_policy
+  command to set the policy and suppress this warning.
+
+  Target "foo" links to itself.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+
+EON
+}
+
+
+
+
+

@@ -12,6 +12,30 @@ CUDA TOOLKIT
 * https://developer.nvidia.com/cuda-downloads
 * http://docs.nvidia.com/cuda/cuda-getting-started-guide-for-linux/index.html
 
+
+
+Linux : NVIDIA NSight Eclipse Edition
+---------------------------------------
+
+* **Nsight Eclipse Edition standalone is deprecated in CUDA 10.1, and will be
+  dropped in the release that immediately follows CUDA 10.1.** 
+
+
+* https://docs.nvidia.com/cuda/nsight-eclipse-edition-getting-started-guide/index.html
+
+Nsight Eclipse Edition is bundled in the NVIDIA CUDA Toolkit, so installing the CUDA Toolkit also installs Nsight. 
+The principal features are as follows:
+
+* Source editor with extended support for CUDA C and C++ syntax
+* Projects and files management with version control management system
+  integration. CVS and Git are supported out of the box with integrations for
+  other systems available separately as IDE plug-ins.
+* Configurable makefile-based NVCC build integration
+* Graphical user interface for debugging heterogeneous applications
+* Visual profiler with source code correlation for optimizing GPU code performance
+
+
+
 GPU Hardware Check
 --------------------
 

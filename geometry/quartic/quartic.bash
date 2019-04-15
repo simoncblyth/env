@@ -29,11 +29,52 @@ Cubic
 
 
 
+Searches
+----------
+
+* :google:`GPU solve quartic`
+* :google:`GPU CUDA solve quartic`
+
+* https://github.com/topics/solve-equations
+
+
+To Look Into
+----------------
+
+Algebraic imp from Guillaume Lathoud
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://glat.info/
+* http://glat.info/js.quartic/solve_quartic.js  (Apache 2.0)
+
+Looks like a guy with strong numerical computation background, 
+interested to see how robust the quartic solver is
+
+
+
+Ehrlich-Aberth method : Efficient high degree polynomial root finding using GPU
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://en.wikipedia.org/wiki/Aberth_method
+
+* https://www.sciencedirect.com/science/article/pii/S1877750316304641?via%3Dihub
+
+
+Kahina Ghidouche(a)
+Abderrahmane Sider(a)
+Raphaël Couturier(b)
+Christophe Guyeux(b)
+
+a: Laboratoire LIMED, Faculté des sciences exactes, Université de Bejaia, 06000 Bejaia, Algeria
+b: FEMTO-ST Institute, Univ. Bourgogne Franche-Comté (UBFC), France
+
+Received 7 November 2015, Revised 28 October 2016, Accepted 9 December 2016, Available online 19 December 2016.
+
+
+
 
 Approaches Investigated
 ----------------------------
-
-
 
 yairchu/quartic fork : flexi approach with normalization, reciprocation, stableness test...
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,7 +102,6 @@ Roots3And4 from graphics gems : simple no robustness
 
    quartic-c 
    nvcc -arch=sm_30 Roots3And4.cu -run ; rm a.out
-
 
 
 AlexanderTolmachev/ray-tracer : simple no robustness
@@ -135,7 +175,6 @@ Test of a quartic solving routine, 24 June 1994
 * ~/opticks_refs/Graphics_Gems_5.pdf
 
 * ~/opticks_refs/Graphics_Gems_5_QuarticCubic.pdf
-
 
 
 

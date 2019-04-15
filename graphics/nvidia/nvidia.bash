@@ -587,8 +587,6 @@ Movie from images
 * http://fixounet.free.fr/avidemux/
 * http://mariovalle.name/mencoder/mencoder.html
 
-
-
 Learn more about server-side rendering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
