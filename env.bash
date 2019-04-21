@@ -2029,3 +2029,7 @@ synergy-(){      . $(env-home)/tools/synergy.bash && synergy-env $* ; }
 dnf-(){      . $(env-home)/tools/dnf/dnf.bash && dnf-env $* ; }
 centos-(){      . $(env-home)/tools/centos.bash && centos-env $* ; }
 grub-(){      . $(env-home)/boot/grub.bash && grub-env $* ; }
+rtow-(){      . $(env-home)/graphics/RTOW-OptiX/rtow.bash && rtow-env $* ; }
+cli11-(){      . $(env-home)/tools/cli/cli11.bash && cli11-env $* ; }
+argh-(){      . $(env-home)/tools/cli/argh.bash && argh-env $* ; }
+devil-(){      . $(env-home)/graphics/image/devil.bash && devil-env $* ; }

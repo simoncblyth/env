@@ -44,6 +44,16 @@ CentOS      arch   RHEL    Kernel        Centos release       RHEL release      
 =========  ======= =====  ============  ==================  =====================  ============
 
 
+enabling fullscreen of any window in GNOME 
+------------------------------------------------
+
+* Settings > Devices > Keyboard > [Keyboard Shortcuts] 
+
+  * near the bottom of the list click "Toggle fullscreen mode" and pick a shortcut key
+  * I used F11, as that matches gedit 
+
+
+
 /etc/centos-release inconsistent with uname -a
 -----------------------------------------------
 
