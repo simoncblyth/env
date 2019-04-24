@@ -58,6 +58,8 @@ fermat (OptiX prime only?) not a good benchmark for Turing
 
 * https://nvlabs.github.io/fermat/
 
+* https://github.com/NVlabs/fermat/blob/master/src/rt.cpp
+
 * https://devtalk.nvidia.com/default/topic/1039326/optix/nvidia-fermat-optix-rtx-ray-tracing-benchmark-nvidia-titan-v-gtx-1080-ti-gtx-1080-gtx-980-ti/
 
   OptiX Prime does not take advantage of RT Cores so Fermat is not a good benchmark for Turing. 
