@@ -17,34 +17,26 @@ OPENGL
 * http://www.opengl.org/wiki/Vertex_Buffer_Object#Vertex_Buffer_Object
 
 
+OpenGL Debug Output : core in 4.3 : needs GLFW hinting + glDebugOutput callback
+----------------------------------------------------------------------------------
+
+* https://learnopengl.com/In-Practice/Debugging
+* https://learnopengl.com/code_viewer_gh.php?code=src/7.in_practice/1.debugging/debugging.cpp
+
+::
+ 
+   void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, 
+                              GLsizei length, const GLchar *message, void *userParam);
 
 
 
+* https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/
 
+* https://developer.nvidia.com/nsight-graphics
 
-libGLVND : GL Vendor-Neutral Dispatch library
---------------------------------------------------
+  Standalone Nsight
 
-* https://github.com/NVIDIA/libglvnd
-* https://github.com/aritger/linux-opengl-abi-proposal/blob/master/linux-opengl-abi-proposal.txt
-
-
-Core Profile
-----------------
-
-* https://retokoradi.com/2014/03/30/opengl-transition-to-core-profile/
-
-Various ways of specifying vertex data were introduced into OpenGL over time.
-Starting with immediate mode and display lists, moving over vertex arrays (VA),
-vertex buffer objects (VBO), to vertex array objects (VAO). With the Core
-Profile, all of these options except for VAO, with vertex data stored in VBOs,
-is deprecated. **A VAO always needs to be bound for any rendering**.
-
-If your code is moderately recent, and used VBOs, the changes needed for
-adopting VAO are very simple. If you used any of the older mechanisms, the
-effort might be  bigger, but should still be fairly straightforward.
-
-
+* https://docs.nvidia.com/nsight-graphics/InstallationGuide/index.html
 
 
 Tute
@@ -84,6 +76,10 @@ OpenGL Super Bible
 
 * http://www.openglsuperbible.com
 * http://apprize.info/programming/opengl_1/index.html
+
+
+
+
 
 glQueryIndexed Suspected Bug
 --------------------------------
