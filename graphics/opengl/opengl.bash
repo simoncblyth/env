@@ -17,6 +17,31 @@ OPENGL
 * http://www.opengl.org/wiki/Vertex_Buffer_Object#Vertex_Buffer_Object
 
 
+
+libGLVND : GL Vendor-Neutral Dispatch library
+--------------------------------------------------
+
+* https://github.com/NVIDIA/libglvnd
+* https://github.com/aritger/linux-opengl-abi-proposal/blob/master/linux-opengl-abi-proposal.txt
+
+
+Core Profile
+----------------
+
+* https://retokoradi.com/2014/03/30/opengl-transition-to-core-profile/
+
+Various ways of specifying vertex data were introduced into OpenGL over time.
+Starting with immediate mode and display lists, moving over vertex arrays (VA),
+vertex buffer objects (VBO), to vertex array objects (VAO). With the Core
+Profile, all of these options except for VAO, with vertex data stored in VBOs,
+is deprecated. **A VAO always needs to be bound for any rendering**.
+
+If your code is moderately recent, and used VBOs, the changes needed for
+adopting VAO are very simple. If you used any of the older mechanisms, the
+effort might be  bigger, but should still be fairly straightforward.
+
+
+
 OpenGL Debug Output : core in 4.3 : needs GLFW hinting + glDebugOutput callback
 ----------------------------------------------------------------------------------
 
