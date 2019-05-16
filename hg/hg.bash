@@ -34,6 +34,20 @@ merging
 * https://swcarpentry.github.io/hg-novice/12-merges/
 
 
+serve a web interface to quickly check on commits : very handy when get multiple heads
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    epsilon:simoncblyth.bitbucket.io blyth$ hg serve
+    listening at http://epsilon.local:8000/ (bound to *:8000)
+    10.10.4.175 - - [10/May/2019 11:13:17] "GET / HTTP/1.1" 200 -
+    10.10.4.175 - - [10/May/2019 11:13:17] "GET /static/style-paper.css HTTP/1.1" 200 -
+    ...
+
+
+
+
 case wierdness
 ~~~~~~~~~~~~~~~~~
 
@@ -837,12 +851,12 @@ hg-timestamp(){ TZ=UTC $FUNCNAME- ; }    ## suspect log -l1 is latest in repo, n
 hg-timestamp-(){ hg log -l1 --template '{date(date|localdate, "%c")}\n' ; }
 
 
-
+hg-year(){ echo ${HG_YEAR:-$(date +"%Y")} ; }
 hg-month(){
    # negate the month argument for prior years month 
 
    local arg=${1:-12}
-   local year=$(date +"%Y") 
+   local year=$(hg-year) 
 
    [ "${arg:0:1}" == "-" ] && arg=${arg:1} && year=$(( $year - 1))
 
@@ -859,6 +873,12 @@ hg-month(){
    eval $cmd
 }
 
+hg-18(){ HG_YEAR=2018 hg-month $* ; }
+hg-17(){ HG_YEAR=2017 hg-month $* ; }
+hg-16(){ HG_YEAR=2016 hg-month $* ; }
+hg-15(){ HG_YEAR=2015 hg-month $* ; }
+hg-14(){ HG_YEAR=2014 hg-month $* ; }
+hg-13(){ HG_YEAR=2013 hg-month $* ; }
 
 
 hg-repos(){ find ${1:-$PWD} -type d -name '.hg' -exec dirname {} \;; }

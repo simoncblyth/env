@@ -244,6 +244,12 @@ DevIL missing
 
 
 
+Continuation of OptiX in a Weekend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://joaovbs96.github.io/optix/2018/12/24/next-week.html
+
+
 
 EOU
 }

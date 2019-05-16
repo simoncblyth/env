@@ -310,7 +310,6 @@ osx_pdf_combo(){
 
 
 
-
 osx_ss_cp(){
    local msg="=== $FUNCNAME :"
    local nam=${1:-plot}

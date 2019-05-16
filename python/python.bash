@@ -9,6 +9,17 @@ python-usage(){ cat << EOU
 Python
 =======
 
+
+
+Avoid the pyc
+--------------
+
+::
+
+    import sys
+    sys.dont_write_bytecode = True
+
+
 Functions
 ---------
 
