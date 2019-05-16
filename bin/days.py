@@ -48,13 +48,15 @@ import sys
 from dateutil.parser import parse
 from datetime import datetime
 
-fmt_ = lambda dt:dt.strftime("%c")
+#FMT = "%c"  ## Tue Apr 30 13:39:30 2019
+FMT = "%F"   ##  '2019-04-30'
+fmt_ = lambda dt:dt.strftime(FMT)
 
 class Day(object):
-    def __init__(self, text):
+    def __init__(self, text, default=None):
         text = text.replace("_", " ")
         self.text = text 
-        self.dt = parse(text)      
+        self.dt = parse(text, default=default)      
     def __repr__(self):
         return "<Day %10s : %s>" % ( self.text, fmt_(self.dt)) 
 
@@ -101,7 +103,7 @@ class Days(list):
             tot[i % 2] += dtd  ##  1 for odd i,  0 for even i  
             tot[2] += dtd      ##  sum of within and without 
 
-            per = " %2d : %30s %30s : %10s " % (  i, fmt_(dt0), fmt_(dt1), dtd ) 
+            per = " %2d : %12s %12s : %10s " % (  i, fmt_(dt0), fmt_(dt1), dtd ) 
             line =  "%s : %s " % (per, tot )    
             lines.append(line)
         pass
@@ -115,7 +117,17 @@ class Days(list):
 
 
 if __name__ == '__main__':
-    days = Days(map(Day, sys.argv[1:]))
-    print days  
+
+
+    daylist = []
+    args = sys.argv[1:]
+    last = None
+    for arg in args:
+        day = Day(arg, default=last)
+        last = day.dt
+        daylist.append(day)
+    pass
+    days = Days(daylist)
+    print("\n".join(days.periods()))  
 
 
