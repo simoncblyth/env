@@ -10,31 +10,25 @@ Opticks Documentation
 * https://simoncblyth.bitbucket.io/opticks/
 
 
-Introduction to CUDA
-----------------------
-
-Repository with some examples of CUDA and Thrust, including
-an extended "reconstruction" example integrating a Minuit2 
-controlled fit with NLL evaluated on the GPU using `thrust::transform_reduce`.
-
-* https://bitbucket.org/simoncblyth/intro_to_cuda/ 
-
-Introduction to NumPy
-----------------------
-
-Learning NumPy is highly recommended for more efficient 
-data preparation for upload to the GPU and analysis of results. 
-
-* https://bitbucket.org/simoncblyth/intro_to_numpy/ 
 
 
-Opticks CHEP 2017 Proceedings
--------------------------------
+Publications
+---------------
 
-Blyth, Simon C, 2017 J. Phys.: Conf. Ser. 898 042001
+http://simoncblyth.bitbucket.io/env/report/opticks-blyth-chep2018-v1.pdf
 
-* http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
+    *Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX*
 
+    **CHEP 2018 Proceedings** : Accepted for publication by EPJ Web of Conferences
+
+
+http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
+
+    Blyth, Simon C, 2017 J. Phys.: Conf. Ser. 898 042001
+
+    *Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX*
+
+    **CHEP 2017 Proceedings** : Published by IOP Science
 
 
 Opticks Videos
@@ -58,6 +52,25 @@ Opticks Videos
 .. class:: tiny 
 
    http://v.youku.com/v_show/id_XMTUxNjM3MzA4OA==.html
+
+
+
+Introduction to CUDA
+----------------------
+
+Repository with some examples of CUDA and Thrust, including
+an extended "reconstruction" example integrating a Minuit2 
+controlled fit with NLL evaluated on the GPU using `thrust::transform_reduce`.
+
+* https://bitbucket.org/simoncblyth/intro_to_cuda/ 
+
+Introduction to NumPy
+----------------------
+
+Learning NumPy is highly recommended for more efficient 
+data preparation for upload to the GPU and analysis of results. 
+
+* https://bitbucket.org/simoncblyth/intro_to_numpy/ 
 
 
 
@@ -324,7 +337,7 @@ May 2015
 
 
 
-.. raw:: html
+.. comment
 
    <a href="https://www.dropbox.com/s/xkr0hoic8v7ino3/opticks_gpu_optical_photon_simulation_april2016_gtc.pdf?dl=0"> p <a>
    <a href="https://www.dropbox.com/s/e0icy5lpgsoebwj/Opticks_GTC_001.mp4?dl=0"> m <a>
