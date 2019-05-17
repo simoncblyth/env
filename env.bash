@@ -2034,3 +2034,4 @@ cli11-(){      . $(env-home)/tools/cli/cli11.bash && cli11-env $* ; }
 argh-(){      . $(env-home)/tools/cli/argh.bash && argh-env $* ; }
 devil-(){      . $(env-home)/graphics/image/devil.bash && devil-env $* ; }
 gameworks-(){      . $(env-home)/graphics/nvidia/gameworks.bash && gameworks-env $* ; }
+nvml-(){      . $(env-home)/graphics/nvidia/nvml.bash && nvml-env $* ; }
