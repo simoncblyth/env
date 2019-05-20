@@ -2035,3 +2035,5 @@ argh-(){      . $(env-home)/tools/cli/argh.bash && argh-env $* ; }
 devil-(){      . $(env-home)/graphics/image/devil.bash && devil-env $* ; }
 gameworks-(){      . $(env-home)/graphics/nvidia/gameworks.bash && gameworks-env $* ; }
 nvml-(){      . $(env-home)/graphics/nvidia/nvml.bash && nvml-env $* ; }
+visrtx-(){      . $(env-home)/graphics/nvidia/visrtx.bash && visrtx-env $* ; }
+equirect-(){      . $(env-home)/graphics/opengl/equirect.bash && equirect-env $* ; }
