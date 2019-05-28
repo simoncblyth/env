@@ -42,6 +42,11 @@ Get rid of tabs : eg from diff
 
 
 
+
+
+
+
+
 Windows MSYS2 Arrow keys
 -------------------------
 
@@ -300,6 +305,125 @@ Overwrite Mode : handy for ascii art
 --------------------------------------
 
 * shift-R
+
+
+
+
+Copying Lines Around
+-----------------------
+
+* https://stackoverflow.com/questions/4533530/vim-replacing-a-line-with-another-one-yanked-before
+
+::
+
+      1 #ifdef OLD_PARAMETERS
+      2 BParameters* getParam();
+      3 #else
+      4 NMeta* getParam();
+      5 #endif
+      6 
+      7 
+      8 
+      9 // <---- the line after which to insert in 9  
+     10 BParameters* getParamA();
+     11 
+     12 
+     13 
+     14 
+     15 BParameters* getParamB();
+     16 
+     17 
+     18 
+     19 
+        
+
+Then 1t9 copying line 1 to be inserted after line 9 (and before line 10)::
+
+      1 #ifdef OLD_PARAMETERS
+      2 BParameters* getParam();
+      3 #else
+      4 NMeta* getParam();
+      5 #endif
+      6 
+      7 
+      8 
+      9 
+     10 #ifdef OLD_PARAMETERS
+     11 BParameters* getParamA();
+     12 
+     13 
+     14 
+     15 // <--- the line after which to insert is 15 
+     16 BParameters* getParamB();
+     17 
+     18 
+     19 
+     20 
+     21 
+     22 
+      
+Then 1t15 copying line 1 to the line after 15 in the above::
+
+      1 #ifdef OLD_PARAMETERS
+      2 BParameters* getParam();
+      3 #else
+      4 NMeta* getParam();
+      5 #endif
+      6 
+      7 
+      8 
+      9 
+     10 #ifdef OLD_PARAMETERS
+     11 BParameters* getParamA();
+     12 
+     13 
+     14 
+     15 
+     16 #ifdef OLD_PARAMETERS
+     17 BParameters* getParamB();
+     18 
+     19 
+     20 
+     21 
+     22 
+     23 
+
+Now copy an inclusive range of lines :3,5t11 to the line after 11 and before 12::
+
+     01 #ifdef OLD_PARAMETERS
+      2 BParameters* getParam();
+      3 #else
+      4 NMeta* getParam();
+      5 #endif
+      6 
+      7 
+      8 
+      9 
+     10 #ifdef OLD_PARAMETERS
+     11 BParameters* getParamA();
+     12 #else
+     13 NMeta* getParam();
+     14 #endif
+     15 
+     16 
+     17 
+     18 
+     19 #ifdef OLD_PARAMETERS
+     20 BParameters* getParamB();
+     21 
+     22 
+     23 
+     24 
+     25 
+
+
+
+
+
+
+
+
+
 
 
 

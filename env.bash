@@ -2037,3 +2037,4 @@ gameworks-(){      . $(env-home)/graphics/nvidia/gameworks.bash && gameworks-env
 nvml-(){      . $(env-home)/graphics/nvidia/nvml.bash && nvml-env $* ; }
 visrtx-(){      . $(env-home)/graphics/nvidia/visrtx.bash && visrtx-env $* ; }
 equirect-(){      . $(env-home)/graphics/opengl/equirect.bash && equirect-env $* ; }
+ml-(){      . $(env-home)/ai/ml.bash && ml-env $* ; }

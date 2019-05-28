@@ -26,6 +26,23 @@ NVML : programmatic nvidia-smi
     Press ENTER to continue...
 
 
+Motivation for using this : not so strong
+--------------------------------------------
+
+Currently I have to remember to set CUDA_VISIBLE_DEVICES 
+(or the --cvd N argument) to the ordinal of the GPU that is 
+connected to the display for Opticks interp to work.
+
+Without this OKTest, OKG4Test and OTracerTest all fail
+
+
+CMake finding NVML ?
+-----------------------
+
+* https://gitlab.kitware.com/cmake/cmake/issues/17175
+
+
+
 EOU
 }
 

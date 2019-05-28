@@ -53,9 +53,6 @@ ipython HEP
   
 
 
-
-
-
 debug ipython environment
 ---------------------------
 
@@ -159,27 +156,85 @@ to avoid having to specifiy profiles
     simon:opticks blyth$ 
 
 
-
-
 debugging
 -----------
 
-Seems 
 
-* need belt and braces to induce the debugger to kick in on Exception
-* CHK:asserts not caught by debugger
+1. Place an assert where you want a backtrace from.
 
-::
+2. Start ipthon with --pdb option
 
-    simon:ana blyth$ ip
-    ...
-    In [1]: %pdb
-    Automatic pdb calling has been turned ON
-
-    In [2]: run -d tconcentric_distrib.py
+3. run ~/opticks/ana/ckm.py   ## doesnt get things from PATH 
 
 
+Or more quickly::
 
+   [blyth@localhost 1]$ ipython --pdb ~/opticks/ana/ckm.py
+ 
+Or automate that a bit:: 
+
+   ip(){ local py=$1 ; shift ; ipython --pdb $(which $py) $* ; }  ## in profile
+
+ip ckm.py:: 
+
+    [blyth@localhost 1]$ ip ckm.py
+    args: /home/blyth/opticks/ana/ckm.py
+    [2019-05-28 11:43:18,095] p454944 {/home/blyth/opticks/ana/base.py:332} INFO -  ( opticks_environment
+    [2019-05-28 11:43:18,095] p454944 {/home/blyth/opticks/ana/base.py:337} INFO -  ) opticks_environment
+    [2019-05-28 11:43:18,097] p454944 {/home/blyth/opticks/ana/base.py:631} WARNING - failed to load json from $OPTICKS_DATA_DIR/resource/GFlags/abbrev.json
+    ---------------------------------------------------------------------------
+    AssertionError                            Traceback (most recent call last)
+    /home/blyth/opticks/ana/ckm.py in <module>()
+         18     np.set_printoptions(suppress=True, precision=3)
+         19 
+    ---> 20     evt = Evt(tag=args.tag, src=args.src, det=args.det, seqs=[], args=args)
+         21 
+         22     log.debug("evt")
+
+    /home/blyth/opticks/ana/evt.pyc in __init__(self, tag, src, det, args, maxrec, rec, dbg, label, seqs, not_, nom, smry)
+        205            return
+        206 
+    --> 207         self.init_types()
+        208         self.init_gensteps(tag, src, det, dbg)
+        209         self.init_photons()
+
+    /home/blyth/opticks/ana/evt.pyc in init_types(self)
+        234         """
+        235         log.debug("init_types")
+    --> 236         self.hismask = HisMask()
+        237         self.histype = HisType()
+        238 
+
+    /home/blyth/opticks/ana/hismask.pyc in __init__(self)
+         21         log.debug("HisMask.__init__")
+         22         flags = EnumFlags()
+    ---> 23         abbrev = Abbrev("$OPTICKS_DATA_DIR/resource/GFlags/abbrev.json")
+         24         MaskType.__init__(self, flags, abbrev)
+         25         log.debug("HisMask.__init__ DONE")
+
+    /home/blyth/opticks/ana/base.pyc in __init__(self, path)
+        663     """
+        664     def __init__(self, path):
+    --> 665         js = json_(path)
+        666 
+        667         names = map(str,js.keys())
+
+    /home/blyth/opticks/ana/base.pyc in json_(path)
+        630     except IOError:
+        631         log.warning("failed to load json from %s" % path)
+    --> 632         assert 0
+        633         _json[path] = {}
+        634     pass
+
+    AssertionError: 
+    > /home/blyth/opticks/ana/base.py(632)json_()
+        630     except IOError:
+        631         log.warning("failed to load json from %s" % path)
+    --> 632         assert 0
+        633         _json[path] = {}
+        634     pass
+
+    ipdb> 
 
 
 Commands::
@@ -196,9 +251,6 @@ Commands::
         125 
     --> 126         rqwn_bins, aval, bval, labels = scf.rqwn(qwn, irec)
         127 
-
-
-
 
 
 
