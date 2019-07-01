@@ -11,6 +11,92 @@ Machine Learning : Place to collect some references
 =========================================================
 
 
+
+
+Deep Learning Reconstruction
+-------------------------------
+
+* http://inspirehep.net/record/1686986/
+* https://pos.sissa.it/301/1057
+
+  Deep Learning in Physics exemplified by the Reconstruction of Muon-Neutrino Events in IceCube
+   
+
+
+* http://deeplearnphysics.org/#introduction
+
+  TPC  
+
+* https://arxiv.org/abs/1611.05531
+
+  Convolutional Neural Networks Applied to Neutrino Events in a Liquid Argon Time Projection Chamber (MicroBooNE)
+
+
+* https://www.hindawi.com/journals/ahep/2018/7024309/
+
+  Deep Learning the Effects of Photon Sensors on the Event Reconstruction Performance in an Antineutrino Detector
+
+
+
+Dynamic Deep Learning
+------------------------
+
+* https://medium.com/@Petuum/intro-to-dynamic-neural-networks-and-dynet-67694b18cb23
+
+  Intro to Dynamic Neural Networks and DyNet
+
+
+
+
+:google:`machine learning together with fast monte carlo generation`
+-----------------------------------------------------------------------
+
+
+OCT reconstruction using a 10,000x faster MC : Zhao, Sinan Thesis
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://thesis.library.caltech.edu/9597/
+
+  Zhao, Sinan (2016) 
+  Advanced Monte Carlo Simulation and Machine Learning for Frequency Domain Optical Coherence Tomography. 
+  Dissertation (Ph.D.), California Institute of Technology. doi:10.7907/Z9X63JVM
+
+  Explains use of 10,000x faster MC to train in the reconstruction of truth for OCT images
+
+
+p35
+
+We then build a hierarchy architecture of machine learning models (committee
+of experts) based on extremely randomized trees (extra trees), and train
+different parts of the architecture with specifically designed data sets.
+
+In prediction, an unseen OCT image first goes through a classification model to
+determine its structure (e.g., the number and the types of layers present in
+the image); then the image is handed to a regression model that is trained
+specif- ically for that particular structure to predict the length of the
+different layers and by doing so reconstruct the ground-truth of the image.
+
+p71  Solving the learning problem
+
+p90 Classification/Committee of experts
+
+    Training each class with a dedicated sample
+
+
+
+Reinforcement Learning: Introduction to Monte Carlo Learning using the OpenAI Gym Toolkit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://medium.com/deep-math-machine-learning-ai/ch-12-reinforcement-learning-complete-guide-towardsagi-ceea325c5d53
+
+* https://www.analyticsvidhya.com/blog/2018/11/reinforcement-learning-introduction-monte-carlo-learning-openai-gym/
+
+
+
+
+
+
+
 Stanford CS229 : Machine Learning
 ----------------------------------
 

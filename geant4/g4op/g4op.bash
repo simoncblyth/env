@@ -349,9 +349,19 @@ source/processes/optical/src/G4OpBoundaryProcess.cc (yuck what a tabbing mess)::
      910        G4double EdotN = OldPolarization * theFacetNormal;
      911 
      912        cost1 = - PdotN;
+
+     ///    
+     ///    cf propagate_at_boundary_geant4_style
+     ///       
+     ///         const float c1 = -dot(p.direction, s.surface_normal ); // c1 arranged to be +ve  
+     /// 
+     ///         will be +1 at normal incidence 
+     ///
+     ///
+
      ...
      914           sint1 = std::sqrt(1.-cost1*cost1);
-     915           sint2 = sint1*Rindex1/Rindex2;     // *** Snell's Law ***
+     915           sint2 = sint1*Rindex1/Rindex2;     // *** Snells Law ***
      ...
      922        if (sint2 >= 1.0) {         // TIR
      926           if (Swap) Swap = !Swap;
@@ -406,6 +416,12 @@ source/processes/optical/src/G4OpBoundaryProcess.cc (yuck what a tabbing mess)::
 
      970               }
      971           else {
+
+     ////
+     ////     hmm no epsilon, G4 expecting sint1 to be precisely zero(double) for normal incidence
+     ////
+     ////
+
      972              A_trans  = OldPolarization;
      973              // Here we Follow Jackson's conventions and we set the
      974              // parallel component = 1 in case of a ray perpendicular
