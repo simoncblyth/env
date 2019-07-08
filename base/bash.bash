@@ -9,6 +9,34 @@ bash-usage(){ cat << EOU
 bash
 =====
 
+
+macOS bash is ancient, due to GPLv3 licencing of 3.2+
+------------------------------------------------------
+
+* https://itnext.io/upgrading-bash-on-macos-7138bd1066ba
+
+::
+
+    epsilon:~ blyth$ echo $BASH_VERSION
+    3.2.57(1)-release
+
+
+::
+
+    sudo port selfupdate
+    sudo port install bash
+    sudo vim /etc/shells   # adding /opt/local/bin/bash
+
+    chsh -s /opt/local/bin/bash
+
+::
+
+    epsilon:~ blyth$ chsh -s /opt/local/bin/bash
+    Changing shell for blyth.
+    Password for blyth: 
+    epsilon:~ blyth$ 
+
+
 .bashrc or .bash_profile
 -------------------------
 

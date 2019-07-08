@@ -12,6 +12,223 @@ Machine Learning : Place to collect some references
 
 
 
+PyTorch
+---------
+
+* https://pytorch.org/
+* https://pytorch.org/tutorials/
+
+* https://deepsense.ai/keras-or-pytorch/
+
+..preferred solution for academic research, and applications of deep learning
+requiring optimizing custom expressions. It’s supported by Facebook.
+
+
+* http://www.goldsborough.me/ml/ai/python/2018/02/04/20-17-20-a_promenade_of_pytorch/
+
+* https://wrosinski.github.io/deep-learning-frameworks/
+
+  PyTorch and TensorFlow similar performance, Keras a 1.5-2x slower.
+
+
+* https://medium.com/@iliakarmanov/multi-gpu-rosetta-stone-d4fa96162986
+
+
+NVIDIA DALI
+-------------
+
+* https://github.com/NVIDIA/dali
+
+NVIDIA Data Loading Library (DALI) is a collection of highly optimized building
+blocks, and an execution engine, to accelerate the pre-processing of the input
+data for deep learning applications. DALI provides both the performance and the
+flexibility for accelerating different data pipelines as a single library. This
+single library can then be easily integrated into different deep learning
+training and inference applications.
+
+
+
+
+CNN, Convolutional Neural Nets, ConvNets
+------------------------------------------
+
+* https://ujjwalkarn.me/2016/08/11/intuitive-explanation-convnets/
+
+* http://cs231n.stanford.edu/
+
+  CS231n: Convolutional Neural Networks for Visual Recognition, Spring 2019
+ 
+* http://cs231n.github.io/convolutional-networks/
+
+
+:google:`SphereNet CNN`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://github.com/ChiWeiHsiao/SphereNet-pytorch
+
+unofficial implementation of ECCV 18 paper "SphereNet: Learning Spherical Representations for Detection and Classification in Omnidirectional Images"
+
+
+* https://www.semanticscholar.org/paper/SphereNet%3A-Learning-Spherical-Representations-for-Coors-Condurache/8a0cb93b7a4e0cfe6c8cb6e5cdd0bc199b515ebc
+
+
+Learning SO(3) Equivariant Representations with Spherical CNNs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.youtube.com/watch?v=Y86rzE4UzKs
+* https://machc.github.io/  Carlos Esteves
+
+
+DeepSphere
+~~~~~~~~~~~~~
+
+* https://github.com/SwissDataScienceCenter/DeepSphere
+* https://zenodo.org/record/3243381#.XSBERnsRXOQ
+
+* https://github.com/mdeff/cnn_graph
+* https://github.com/epfl-lts2/pygs
+
+
+
+s2cnn : Spherical CNNs
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://openreview.net/forum?id=Hkbd5xZRb
+
+* https://github.com/jonas-koehler/s2cnn
+* http://pytorch.org/
+* https://github.com/cupy/cupy
+  
+  CuPy is an implementation of NumPy-compatible multi-dimensional array on CUDA. 
+
+* https://github.com/AMLab-Amsterdam/lie_learn
+* https://github.com/NVIDIA/pynvrtc
+
+
+Spherical CNNs on Unstructured Grids
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Chiyu Max Jiang, Jingwei Huang, Karthik Kashinath, Prabhat, Philip Marcus, Matthias Niessner
+
+* https://arxiv.org/abs/1901.02039
+* https://openreview.net/forum?id=Bkl-43C9FQ
+
+
+* https://github.com/maxjiang93/ugscnn
+
+* https://libigl.github.io/
+
+
+Swiss Data Science Center
+----------------------------
+
+* https://github.com/SwissDataScienceCenter
+
+
+
+
+Competitions
+-------------
+
+* https://www.kaggle.com/competitions
+* https://www.import.io/post/how-to-win-a-kaggle-competition/
+
+It used to be random forest that was the big winner, but over the last six
+months a new algorithm called XGboost has cropped up, and it’s winning
+practically every competition in the structured data category.
+
+For any dataset that contains images or speech problems, deep learning is the
+way to go. The people who are winning these competitions (the ones without
+well-structured data) are spending almost none of their time doing feature
+engineering. Instead, they spend their time constructing neural networks.
+
+
+* https://www.kaggle.com/c/flavours-of-physics-kernels-only/overview/description
+* https://github.com/yandexdataschool/flavours-of-physics-start
+
+
+* https://www.kaggle.com/c/movie-review-sentiment-analysis-kernels-only/discussion/64739
+* https://www.kaggle.com/docs/competitions#kernels-only-FAQ
+
+* https://www.kaggle.com/docs/competitions#resources-for-getting-started
+
+* https://www.kaggle.com/c/titanic
+
+* https://towardsdatascience.com/introduction-to-kaggle-kernels-2ad754ebf77
+
+* https://www.kaggle.com/learn/overview
+
+
+
+* https://www.kaggle.com/c/trackml-particle-identification
+
+
+
+Approximate Bayesian computation (ABC) 
+----------------------------------------
+
+* :google:`likelihood free inference`
+
+
+Libs
+------
+
+* https://skymind.ai/wiki/comparison-frameworks-dl4j-tensorflow-pytorch
+
+Pytorch
+    open-sourced by Facebook in January 2017
+    dynamic computation graphs, which let you process variable-length inputs and outputs, 
+    which is useful when working with RNNs, for example
+
+
+
+Particle physics in the era of Artificial Intelligence
+---------------------------------------------------------
+
+* Kyle Stuart Cranmer (New York University (US))
+
+* https://indico.cern.ch/event/666278/contributions/2830616/
+* https://indico.cern.ch/event/666278/contributions/2830616/attachments/1579293/2495102/Skeikampen-Physics-AI.pdf
+
+
+* https://github.com/cranmer/active_sciencing
+
+  Interesingly, we will use the simulator not only to perform inference on the
+  parameters, but also to design the next experiment (this is where active
+  learning comes in). 
+
+
+* https://github.com/cranmer/active_sciencing/blob/master/demo_gaussian.ipynb
+
+
+
+likelihood-free inference (LFI) 
+----------------------------------
+
+* :google:`likelihood-free inference`
+
+* https://elfi.readthedocs.io/en/latest/
+
+
+
+Reinforcement Learning
+------------------------
+
+* https://towardsdatascience.com/model-based-reinforcement-learning-cb9e41ff1f0d
+
+
+Libs
+-------
+
+* https://www.h2o.ai/products/h2o4gpu/
+
+
+Gradient Boosting
+--------------------
+
+* homes.cs.washington.edu/~tqchen/pdf/BoostedTree.pdf
+* https://devblogs.nvidia.com/gradient-boosting-decision-trees-xgboost-cuda/
+
 
 Deep Learning Reconstruction
 -------------------------------
@@ -153,12 +370,26 @@ p1,2
     good introduction to differences between 
     supervised/unsupervised/reinforcement learning 
 
-
 GANs
 -----
 
 * https://skymind.ai/wiki/generative-adversarial-network-gan
 * http://cs229.stanford.edu/notes/cs229-notes2.pdf
+
+
+
+XGBoost : optimized distributed gradient boosting library
+------------------------------------------------------------
+
+bk-chollet:
+
+   ..two techniques you should be the most familiar with in order to be
+   successful in applied machine learning today: gradient boosting machines, for
+   shallow- learning problems; and deep learning, for perceptual problems.
+
+* https://xgboost.readthedocs.io/en/latest/
+* https://xgboost.readthedocs.io/en/latest/tutorials/model.html
+
 
 
 EOU

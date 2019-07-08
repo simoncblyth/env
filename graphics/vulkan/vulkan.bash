@@ -8,6 +8,12 @@ vulkan-usage(){ cat << EOU
 Vulkan
 =======
 
+NVIDIA
+-------
+
+* https://developer.nvidia.com/opengl-vulkan
+
+
 C++ Bindings
 -------------
 

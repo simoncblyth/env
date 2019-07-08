@@ -9,6 +9,24 @@ SteamVR
 =========
 
 
+On Linux
+----------
+
+* https://github.com/ValveSoftware/SteamVR-for-Linux/blob/master/README.md
+
+* https://www.cgl.ucsf.edu/chimera/data/linux-vr-oct2018/linuxvr.html
+
+
+* https://www.reddit.com/r/SteamVR/comments/aqd5gz/steamvr_and_linux_how_is_it/
+
+* http://cheesetalks.net/proton-linux-gaming-history.php
+
+
+Steam Runtime : chroot environment
+--------------------------------------
+
+* https://github.com/ValveSoftware/steam-runtime
+
 
 Vive Setup
 ------------

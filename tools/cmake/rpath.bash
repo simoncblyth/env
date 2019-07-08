@@ -9,6 +9,41 @@ rpath-env(){  elocal- ; }
 rpath-usage(){ cat << EOU
 
 
+RPATH
+=======
+
+
+
+
+checking RPATH on macOS
+-------------------------
+
+Hmm the below ORIGIN RPATH works on Linux but not macOS::
+
+    epsilon:opticks blyth$ otool-rpath $(which SProcTest)
+    otool-rpath /usr/local/opticks/lib/SProcTest
+              cmd LC_RPATH
+          cmdsize 136
+             path $ORIGIN/../lib:$ORIGIN/../lib64:$ORIGIN/../externals/lib:$ORIGIN/../externals/lib64:$ORIGIN/../externals/OptiX/lib64 (offset 12)
+
+
+So instead of a fixed INSTALL_RPATH on macOD use CMake magic::
+
+     79 if(UNIX AND NOT APPLE)
+     80 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../lib64:$ORIGIN/../externals/lib:$ORIGIN/../externals/lib64:$ORIGIN/../externals/OptiX/lib64")
+     81 elseif(APPLE)
+     82 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+     83 endif()
+     84 
+
+    epsilon:sysrap blyth$ otool-rpath $(which SProcTest)
+    otool-rpath /usr/local/opticks/lib/SProcTest
+              cmd LC_RPATH
+          cmdsize 40
+             path /usr/local/opticks/lib (offset 12)
+
+
+
 
 intro_to_cuda/useRecon::
 
