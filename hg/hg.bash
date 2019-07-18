@@ -884,7 +884,12 @@ hg-month(){
 
    [ "${end}" == "13" ] && end="01" && eyear=$(( $byear + 1  ))
 
-   local cmd="hg shortlog --date \"$byear-$beg-01 to $eyear-$end-01\" | tail -r"
+
+   local cmd="hg shortlog --date \"$byear-$beg-01 to $eyear-$end-01\" "
+   case $(uname) in
+      Darwin) cmd="$cmd | tail -r" ;;
+      Linux)  cmd="$cmd | tac" ;;
+   esac
    echo $cmd
    eval $cmd
 }

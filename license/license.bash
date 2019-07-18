@@ -30,6 +30,14 @@ Copyright (C) 2019 Simon C Blyth and other contributors
       downloads the Apache 2.0 license into pwd, splitting 
       off the appendix     
 
+
+Applying 
+----------
+
+* http://www.apache.org/dev/apply-license.html
+
+
+
 EOU
 }
 

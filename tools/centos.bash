@@ -44,6 +44,27 @@ CentOS      arch   RHEL    Kernel        Centos release       RHEL release      
 =========  ======= =====  ============  ==================  =====================  ============
 
 
+screenshots
+--------------
+
+* https://www.wikihow.com/Take-a-Screenshot-in-Linux
+
+
+Of the active window
+~~~~~~~~~~~~~~~~~~~~~~~
+
+1. press Alt+PrintScreen
+
+
+Of a selection
+~~~~~~~~~~~~~~~~~~~~
+
+1. press : Shift+Fn+PrintScreen  makes cursor change to crosshairs, press escape to cancel
+2. drag out a rectangle, on releasing mouse button should hear camera shutter sound 
+3. a dated screenshot png should have been saved into in ~/Pictures
+
+
+
 enabling fullscreen of any window in GNOME 
 ------------------------------------------------
 
