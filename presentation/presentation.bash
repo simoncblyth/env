@@ -1079,7 +1079,6 @@ presentation-writeup(){
 }
 
 presentation-remote(){
-   #echo simoncblyth.bitbucket.org
    echo simoncblyth.bitbucket.io
 }
 

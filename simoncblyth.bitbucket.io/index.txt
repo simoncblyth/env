@@ -78,6 +78,18 @@ Opticks Presentations
 ----------------------
 
 
+
+Summer 2019 : Opticks status 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_jul2019_ihep.html (July 2019, Beijing)
+
+    JUNO Collaboration Meeting
+
+    Progress with JUNO + Opticks : GPU Optical Photon Simulation with NVIDIA OptiX
+
+
+
 Early 2019 : Opticks status 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
