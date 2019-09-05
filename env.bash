@@ -2047,4 +2047,5 @@ mermaid-(){      . $(env-home)/tools/mermaid/mermaid.bash && mermaid-env $* ; }
 tf-(){      . $(env-home)/tools/tensorflow/tf.bash && tf-env $* ; }
 keras-(){      . $(env-home)/ai/keras.bash && keras-env $* ; }
 igprof-(){      . $(env-home)/tools/igprof.bash && igprof-env $* ; }
+mapd-(){      . $(env-home)/tools/mapd.bash && mapd-env $* ; }
 licenseheaders-(){      . $(env-home)/tools/licenseheaders.bash && licenseheaders-env $* ; }

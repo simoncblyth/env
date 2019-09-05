@@ -1,0 +1,1416 @@
+.. include:: my_s5defs.txt
+
+.. role:: strike
+    :class: strike
+
+
+:i:`Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
+========================================================================================
+
+.. raw:: html
+
+
+
+
+    <div class="mytitle">
+    <h1 style="background-color:lightgrey"> 
+          <span class="alarm">Progress with</span> JUNO + <i>Opticks</i> : 
+          GPU Optical Photon Simulation with NVIDIA® OptiX™ 
+    </h1>
+    </div>
+
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; July 2019, IHEP </h2>
+    </div>
+
+
+
+Outline
+----------------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: small
+
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    * Introduction
+
+      * Optical Photon Simulation Problem...
+      * Rasterization and Ray Tracing 
+      * Ray Traced Rendering ~ Photon Simulation 
+      * :blue:`NVIDIA TITAN RTX GPU` 
+      * NVIDIA OptiX Ray Tracing Engine
+      * Boundary Volume Heirarchy (BVH) algorithm
+      * Opticks Primitives, CSG on GPU
+      * Translate Geometry and Physics 
+      * :blue:`Geometry changes enabling translation`
+
+    * p15 :red:`Updates` : Support OptiX 6.0.0, RTX mode, RT Cores  
+ 
+      * JUNO-360 benchmark, RTX mode speedup, multi-GPU scaling 
+   
+    * p21 :red:`Validation` : Systematic Scan of 40 JUNO Solids
+
+      * Random Aligned Bi-Simulation -> Direct Array Comparison
+ 
+    * p34 :red:`Performance` : Scanning from 1M to 60M photons  
+
+      * Opticks vs Geant4 performance (test geometry)
+
+    * Opticks : Aims to Revolutionize JUNO Muon Simulation
+    * Links
+
+
+    .. raw:: html
+
+       <span></span>
+
+
+
+
+
+`Optical Photon Simulation Problem...`
+---------------------------------------------------------
+
+:i:`JPMT Before Contact 2`
+--------------------------
+
+
+.. sidebar:: :small:`Huge CPU Memory+Time Expense`
+
+    .. class:: small
+
+         **JUNO Muon Simulation Bottleneck**
+           ~99% CPU time, memory constraints
+
+         **Optical photons : naturally parallel, simple :**
+           * produced by Cerenkov+Scintillation 
+           * yield only Photomultiplier hits
+
+         **-> Hybrid Solution : Geant4 + Opticks** 
+
+
+
+
+
+
+
+
+:i:`Ray-tracing vs Rasterization`
+-----------------------------------
+
+.. image:: /env/presentation/nvidia/nv_rasterization.png
+   :width: 550px
+   :align: left
+
+.. image:: /env/presentation/nvidia/nv_raytrace.png
+   :width: 550px
+   :align: right
+
+
+.. comment
+
+   Rasterization
+   
+   * starts from the objects in a scene, and projects them onto pixels in image plane
+   * approximation : usually triangulated geometry   
+   
+   ray-tracing 
+  
+   * closer to the physics -> easier to create realistic images with raytracing 
+   * can use analytic geometry, rasterization is  
+
+
+:small:`Rendering + Photon Simulation : Limited by Ray Geometry Intersection`
+----------------------------------------------------------------------------------------
+
+.. sidebar:: Not a Photo, a Calculation
+
+    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+    **Ray Tracing Tools can Help Optical Photon Simulation**
+
+    * industry continuously improving ray trace performance 
+    * NVIDIA Turing GPU : raytrace dedicated "RT Cores"  
+      
+      * Up to *"11 GigaRays per second"* per GPU 
+
+.. class:: tiny
+
+   https://nvidianews.nvidia.com/news/nvidia-reveals-the-titan-of-turing-titan-rtx
+
+
+
+`TITAN RTX : 72 Raytrace Dedicated RT Cores, 4608 CUDA Cores, 24GB VRAM, 2500 USD`
+------------------------------------------------------------------------------------
+
+
+
+
+:small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
+--------------------------------------------------------------------------------
+
+.. sidebar:: OptiX Raytracing Pipeline
+
+    .. class:: small
+
+       Analogous to OpenGL rasterization pipeline:
+
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
+
+.. class:: small
+
+   **OptiX makes GPU ray tracing accessible**
+
+   * **accelerates** ray-geometry intersections
+   * simple : single-ray programming model
+   * "...free to use within any application..."
+   * :red:`access RT Cores[1] with OptiX 6.0.0+ via RTX™ mode`
+
+   **NVIDIA expertise:**
+
+   * :red:`~linear scaling up to 4 GPUs`
+   * acceleration structure creation + traversal (Blue)
+   * instanced sharing of geometry + acceleration structures
+   * compiler optimized for GPU ray tracing
+
+.. class:: tiny
+
+       ``https://developer.nvidia.com/rtx``
+
+.. class:: small
+
+   **User provides (Yellow):**
+
+   * ray generation
+   * geometry bounding box, intersects 
+
+
+.. class:: tiny
+
+   [1] Turing+ GPUs eg NVIDIA TITAN RTX 
+
+
+
+:i:`BVH`
+---------------------------
+
+
+
+
+
+:small:`Opticks : GPU Geometry starts from ray-primitive intersection`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * 3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
+   * implicit equation of primitive : **f(x,y,z) = 0**  
+   * -> polynomial in **t** , roots: **t > t_min**  -> intersection positions + surface normals
+
+.. figure:: /env/presentation/tboolean_parade_sep2017.png
+   :width: 900px
+   :align: center
+
+   :red:`CUDA/OptiX intersection for ~10 primitives` -> :blue:`Exact geometry translation`
+
+
+
+:small:`Ray intersection with general CSG binary trees, on GPU`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Outside/Inside Unions
+
+    .. class:: small
+
+       dot(normal,rayDir) -> Enter/Exit
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
+       :width: 300px
+       :align: center
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_inside.png
+       :width: 300px
+       :align: center
+
+    .. class:: small
+
+        * **A + B** boundary not inside other 
+        * **A * B** boundary inside other 
+
+
+.. class:: small
+
+   Pick between pairs of nearest intersects, eg:
+
+   =======================  ===========  ===============  ============== 
+   *UNION* tA < tB           Enter B      Exit B           Miss B
+   =======================  ===========  ===============  ============== 
+   **Enter A**               ReturnA      :blue:`LoopA`    ReturnA
+   **Exit A**                ReturnA      ReturnB          ReturnA 
+   **Miss A**                ReturnB      ReturnB          ReturnMiss
+   =======================  ===========  ===============  ============== 
+
+   * *Nearest hit intersect algorithm* [1] avoids state
+
+     * sometimes :blue:`Loop` : advance **t_min** , re-intersect both 
+     * classification shows if inside/outside
+
+   * *Evaluative* [2] implementation emulates recursion: 
+
+     * :red:`recursion not allowed` in OptiX intersect programs
+     * bit twiddle traversal of complete binary tree 
+     * stacks of postorder slices and intersects 
+
+   * :red:`Identical geometry to Geant4` 
+
+     * solving the same polynomials 
+     * near perfect intersection match
+
+
+
+.. class:: tiny
+
+    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
+ 
+    [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+        Similar to binary expression tree evaluation using postorder traverse. 
+
+
+
+:small:`Opticks : Translate Geant4 Geometry to GPU, Without Approximation`
+------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Direct Geometry Translation`
+
+    .. class:: small
+
+        * automatic geo-management, simplifying usage       
+        * unified handling of analytic and triangulated
+        * no separate export+import stages 
+        * substantial reduction in Opticks code
+        * dependencies eliminated : Assimp, G4DAE
+        * G4 geometry[1] auto-translated to Opticks CSG 
+        * geocache persisted, staleness check by digest
+
+.. class:: small
+
+    **Direct Geometry : Geant4 "World" -> Opticks CSG -> GPU**
+      * much simpler : fully automated geo-management 
+
+    **Material/Surface/Scintillator properties**
+      * interpolated to standard wavelength domain
+      * interleaved into "boundary" texture  
+      * "reemission" texture for wavelength generation 
+
+    **Structure**
+      * repeated geometry instances identified (progeny digests)
+      * instance transforms used in OptiX/OpenGL geometry 
+      * merge CSG trees into global + instance buffers 
+      * export meshes to glTF 2.0 for 3D visualization
+
+    **Ease of Use**
+      * easy geometry : just handover "World"
+     
+    .. class:: tiny
+
+        [1] G4 primitives used need corresponding Opticks implementations, contributions for 
+            any unsupported geometry are welcome 
+          
+
+
+
+
+:small:`JUNO Geometry Changes to enable translation to GPU`
+---------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Torus intersection`
+
+    .. class:: small
+
+         **Double heavy quartic root finding** 
+     
+         * works with OptiX 5.1, but precision problem in CSG combinations  
+         * crashes with OptiX 6.0.0  
+         * mere presence in OptiX kernel kills RTX mode performance by factor 10 
+
+         **Alternative Approach To Try**
+
+         * ray marching (aka sphere tracing) signed distance functions (SDF) 
+         * generate CUDA SDF code once per solid
+         * distils shape complexity into SDF
+         * avoids billions of tree traversals 
+         * good potential for torus and complex CSG solids, eg PMTs  
+        
+
+
+.. class:: small
+
+  First 2 change geometry, last 2 change modelling only
+
+  Guide Tube Torus : removed (for now)
+      AVOIDED : :red:`OptiX 6.0.0 NOT working with torus intersect`
+
+  PMT_20inch_body : simplified neck 
+      FIXED : "cylinder - torus" -> polycone 
+
+  PMT_20inch_inner : simplified CSG modelling 
+      FIXED : depth 4 tree (31 nodes) -> 1 primitive 
+
+  sAirTT : CSG modelling coincidence avoided
+      FIXED : "box - cylinder" : growing the subtracted
+
+
+`20inch PMT neck : "cylinder-torus" -> polycone`
+--------------------------------------------------------------------
+
+
+
+
+
+
+:small:`Opticks : Translate Geant4 Optical Physics to GPU (OptiX/CUDA)`
+--------------------------------------------------------------------------
+
+.. sidebar:: :small:`GPU Resident Photons`
+
+    .. class:: small
+
+       **Seeded on GPU** 
+          associate photons -> *gensteps* (via seed buffer)
+ 
+       **Generated on GPU, using genstep param:**
+         * number of photons to generate
+         * start/end position of step
+         * *gensteps* : hybrid CPU+GPU generation
+
+       **Propagated on GPU**
+          :red:`Only photons hitting PMTs copied to CPU`
+
+
+       Thrust: **high level C++ access to CUDA**
+
+       .. figure:: /env/numerics/thrust/thrust.png
+          :width: 300px
+          :align: right
+
+       * https://developer.nvidia.com/Thrust
+       
+                  
+.. class:: small
+
+    :blue:`OptiX : single-ray programming model` -> line-by-line translation
+
+    **CUDA Ports of Geant4 classes**
+      * G4Cerenkov (only generation loop) 
+      * G4Scintillation (only generation loop) 
+      * G4OpAbsorption
+      * G4OpRayleigh 
+      * G4OpBoundaryProcess (only a few surface types)
+
+    **Modify Cerenkov + Scintillation Processes**
+      * collect *genstep*, copy to GPU for generation
+      * :red:`avoids copying millions of photons to GPU`
+
+    **Scintillator Reemission**
+      * fraction of bulk absorbed "reborn" within same thread
+      * wavelength generated by reemission texture lookup
+
+    **Opticks (OptiX/Thrust GPU interoperation)** 
+      * **OptiX** : upload gensteps 
+      * **Thrust** : seeding, distribute genstep indices to photons
+      * **OptiX** : launch photon generation and propagation
+      * **Thrust** : pullback photons that hit PMTs 
+      * **Thrust** : index photon step sequences (optional)
+
+
+
+
+
+
+
+
+:i:`geocache_360`
+---------------------------------------------------------
+
+
+JUNO-360 benchmark with OptiX 6.0.0, RTX mode 
+---------------------------------------------------------
+
+.. sidebar:: :small:`Ray tracing Benchmark`
+
+     .. class:: small
+
+         * JUNO 360 degree view
+         * Equirectangular Projection
+         * very high resolution 59M pixels 
+
+           * 10240x5760 = 8x8x1280x720  
+
+         * compare GPUs and RTX mode 
+         * checking scaling across multiple GPUs 
+
+
+
+:i:`bench_20190526_202537`
+---------------------------------------------------------
+
+
+:i:`bench_20190526_202537 2`
+---------------------------------------------------------
+
+
+.. sidebar:: :small:`NVIDIA OptiX 6.0.0 : RTX Mode`
+
+     .. class:: small
+
+         Ray trace performance improvements:
+
+         * 1.25x with TITAN V
+         * 3.5x with TITAN RTX (RT Cores)
+         
+           * BVH traversal done in hardware
+           * analytic intersection still software
+           * triangle geometry can be done in hardware
+           
+
+         **Initially was 0.33x with RTX** 
+            OptiX developers helped find the cause
+           
+            * unused double precision torus code
+            * performance improved by eliminating *.f64* from PTX, *ptx.py*
+
+   
+
+
+
+:i:`bench_20190526_143808`
+---------------------------------------------------------
+
+
+:i:`bench_20190526_143808 2`
+---------------------------------------------------------
+
+
+.. sidebar:: :small:`GPU Scaling Performance`
+
+     .. class:: small
+
+         **Opticks on IHEP GPU Cluster**
+
+         OptiX : Almost perfect scaling for 1,2,4 GPUs
+
+         * degrades for > 4 GPUs
+         * PCIe bus congestion, pinned host memory
+
+         "cvd" selects GPUs
+            CUDA_VISIBLE_DEVICES envvar
+         R0/R1
+            RTX mode OFF/ON
+
+
+         **NVIDIA Tesla V100 GPUs**
+            No RT Cores, RTX still gives ~ 1.25x
+
+
+
+:small:`Validation : Systematic Scan of All 40 JUNO Solids`
+-------------------------------------------------------------
+
+
+.. sidebar:: :small:`Masked Running`
+
+     .. class:: small
+
+            Repeatable bi-simulation of any photon subset
+
+            * essential for debugging 
+            * limited to input photons (not gensteps) 
+            * constructs curandState buffer subset   
+
+
+.. class:: small
+    
+     **Create test geometries using solids, materials, surfaces from base geometry geocache**
+
+     40 geometries
+        test containers for all JUNO solids 
+
+     input photons 
+        feed same initial photons to *Opticks* and *Geant4*   
+
+     input cuRAND randoms to *Geant4*
+        same random sequence for *Opticks* and *Geant4*   
+
+     bi-simulation executable
+        save propagations from *Opticks* and *Geant4* as *OpticksEvents* (.npy arrays)
+
+
+  
+:small:`Validation : Random Aligned Bi-Simulation -> Direct Array Comparison`
+--------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`3-way "zip" : 2*code + randoms`
+
+    .. class:: small
+
+        **Align CPU/GPU Random Number Sequences**
+          G4 random engine providing *cuRAND* sequence
+
+        **"Align" CPU/GPU codes (some jumps)**
+          :red:`simplest possible direct comparison`
+
+
+
+
+
+.. class:: small
+
+    **NPY serialized arrays**
+
+    * convenient analysis with *NumPy*
+    * *np.load(path, mmap_mode="r")* : loading array slices  
+
+
+
+.. raw:: html
+
+
+    <span>&nbsp;</span>
+
+    <pre class="mypretiny">
+
+
+
+
+    In [11]: pdv = np.where(dv > 0.0001)[0]
+    In [12]: ab.dumpline(pdv)
+          0   1230 : TO BR SC BT BR BT SA         
+          1   2413 : TO BT BT SC BT BR BR BT SA  
+          2   9041 : TO BT SC BR BR BR BR BT SA 
+          3  14510 : TO SC BT BR BR BT SA      
+          4  14747 : TO BT SC BR BR BR BR BR BR BR 
+          5  14747 : TO BT SC BR BR BR BR BR BR BR
+        ...
+
+    In [20]: ab.b.ox[pdv,0]                                 In [21]: ab.a.ox[pdv,0]
+    Out[20]:                                                Out[21]: 
+    A()sliced                                               A()sliced
+    A([    [-191.6262, -240.3634,  450.    ,    5.566 ],    A([    [-191.626 , -240.3634,  450.    ,    5.566 ],
+           [ 185.7708, -133.8457,  450.    ,    7.3141],           [ 185.7708, -133.8456,  450.    ,    7.3141],
+           [-450.    , -104.4142,  311.143 ,    9.0581],           [-450.    , -104.4142,  311.1431,    9.0581],
+           [  83.6955,  208.9171, -450.    ,    5.6188],           [  83.6954,  208.9172, -450.    ,    5.6188],
+           [  32.8972,  150.    ,   24.9922,    7.6757],           [  32.8973,  150.    ,   24.992 ,    7.6757],
+           [  32.8972,  150.    ,   24.9922,    7.6757],           [  32.8973,  150.    ,   24.992 ,    7.6757],
+           [ 450.    , -186.7449,  310.6051,    5.0707],           [ 450.    , -186.7451,  310.605 ,    5.0707],
+           [ 299.2227,  318.1443, -450.    ,    4.8717],           [ 299.2229,  318.144 , -450.    ,    4.8717],
+     ...
+    </pre>
+
+.. class:: tiny
+
+    http://bitbucket.com/simoncblyth/opticks/src/tip/notes/issues/tboolean_box_perfect_alignment_small_deviations.rst
+
+
+
+
+:i:`tv21_1M_a`
+---------------------------------------------------------
+
+:i:`tv21_1M_a 2`
+---------------------------------------------------------
+
+
+.. sidebar:: :small:`"Darkroom" Geometry Testing`
+
+     .. class:: small
+        
+          **Random Aligned Bi-Simulation**
+
+          * shoot 1M photons at solid
+          * save *Geant4* and *Opticks* propagations 
+          * *NumPy* analysis 
+          
+          **Future flags (next step point)** 
+
+          Cyan
+             BT : boundary transmit
+          Orange
+             SA : surface absorb 
+          Yellow
+             BR : boundary reflect         
+
+
+:i:`tv21_1M_c`
+---------------------------------------------------------
+
+:i:`tv16_Fastener`
+---------------------------------------------------------
+
+:i:`tv34_1M_a`
+---------------------------------------------------------
+
+:i:`absmry_1M`
+---------------------------------------------------------
+
+:i:`absmry_1M 2`
+---------------------------------------------------------
+
+
+.. sidebar:: :small:`Mis-aligned + Deviation Summary`
+
+     .. class:: small
+
+          npho
+              number of photons (1M)
+          fmal
+              mis-aligned history fraction :red:`mostly < 0.5%`
+          ndvp 
+              deviant photons :red:`mostly < 0.05% (500/1M)`   
+
+          rpost_dv
+              <16 step point positions, times (compressed)
+          rpol_dv
+              <16 step point polarizations (compressed)
+          ox_dv
+              final position, time, direction, polarization, wavelength (float)
+
+
+          **mis-alignment** 
+              :blue:`debug needed to duplicate G4 indigestion` 
+
+          **deviants**
+              :blue:`f32 vs f64 + many bounces + "lever arm" ?`
+              (f64 tests to confirm)      
+
+
+
+:i:`ta34_1M`
+---------------------------------------------------------
+
+
+:i:`ta34_1M 2`
+---------------------------------------------------------
+
+
+.. sidebar:: :small:`Example Solid : sInnerWater`
+
+     .. class:: small
+
+          nitem
+              photons compared
+          nelem
+              floats compared (many millions)
+          fwar/ferr/ffat
+              fractions above deviation cuts
+          ndvp
+              total error/fatal photons
+
+
+
+     .. class:: tiny 
+
+          BT(BR)  
+             boundary transmit(reflect)
+          SC(AB)
+             bulk scatter(absorb) 
+          SA
+             surface absorb
+ 
+
+
+
+:small:`Validation Issue 1 : History Mis-alignment : 0.01-0.50% of photons`
+---------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`3-way zipper snagged`
+
+   .. class:: small
+
+       * starts aligned, then history diverges 
+       * :red:`py scripted lldb (macOS) required`   
+       * *G4* random edge cases not yet duplicated 
+       * Several tricks[1] already in use, more needed
+
+.. class:: small
+
+   **Large Range 0.01% 0.50% 3% depending on extent**
+
+   PMT_20inch_inner2_solid(LV 19) 163/1M   
+      extra BR(boundary reflect) or BT(boundary transmit)
+
+   sWorld(LV 39) 29906/1M ~3%   
+     * large extent : direct photons travel 360m   
+     * many "maxbounce" truncations, lots of scattering
+
+.. raw:: html
+
+    <pre class="mypretiny">
+
+    ab.mal (LV 19)
+    aligned   999837/1000000 : 0.9998 : 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 
+    maligned     163/1000000 : 0.0002 : 2908,4860,5477,12338,17891,18117,28709,32764,37671,43675,45874,...
+
+          0   2908 : * :                   TO BT BR BR BT SA                 TO BT BR BR BR BT SA 
+          1   4860 : * :                      TO BT BT BT SA                    TO BT BT BT BT SA 
+          2   5477 : * :                      TO BT BT BT SA                    TO BT BT BT BT SA 
+          3  12338 : * :                      TO BT BR BT SA        TO BT BR BR BR BR BR BR BR BR 
+    ...
+    ab.mal (LV 39)
+    aligned   970094/1000000 : 0.9701 : 0,1,2,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,26,27 
+    maligned   29906/1000000 : 0.0299 : 3,15,25,80,132,288,294,329,376,377,379,436,511,536,655,662,...
+    slice(0, 25, None)
+          0      3 : * :        TO BT SC BR BR BR BR BR BR BR        TO BT SC BR BR BR BR BR SC BR 
+          1     15 : * :        TO BT SC BR BR BR BR BR SC BR        TO BT SC BR BR SC BT SC BT SC 
+          2     25 : * :                 TO BT SC BR BR BR AB        TO BT SC BR BR BR BR BR BR BR 
+          3     80 : * :                 TO BT BT SC BT BR AB        TO BT BT SC BT BR BR SC BR AB 
+    ...
+    </pre>
+
+
+.. class:: tiny
+
+   [1] https://bitbucket.org/simoncblyth/opticks/src/tip/notes/issues/alignment_options_review.rst
+
+
+
+:small:`Validation Issue 2 : History Aligned but Deviant : Mostly < 0.05% of photons`
+--------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Interference : Mis-aligned <-> deviant`
+
+   .. class:: small
+
+       * mis-aligned, but same history -> large "invalid" deviations  
+       * TODO: improve alignment judgement
+
+         * eg: compare randoms collected at end of propagations *--utaildebug*  
+
+
+.. class:: small
+
+    **float vs double precision**
+
+    Likely cause of deviations
+      * small deviations grow from bounce to bounce 
+      * "lever arm" amplification of small errors depending on geometry    
+      * *Opticks* uses *double* only when unavoidable 
+        (eg scattering/absorption distance from *log(u)* [1])
+      * *Geant4* uses *double* everywhere 
+      * *double* has high performance cost on GPU
+      * *OptiX* can only partially[2] operate in *double* precision  
+
+    **Plan**
+      * attempt to isolate sources, with double precision tests 
+
+    
+.. class:: tiny
+
+   [1] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/propagate.h
+
+   [2] https://devtalk.nvidia.com/default/topic/1036155/optix/double-precision-of-ray-lengths/
+
+
+
+
+
+
+:small:`Performance : Scanning from 1M to 60M photons`  
+----------------------------------------------------------
+
+.. sidebar:: :small:`Raised photon ceiling 3M->60M`
+
+     .. class:: small
+
+         * fixed memory leaks 
+         * dynamic pre-cooking[1] avoids 200GB files
+
+         **Issue : aimed for 100M, only reached 60M**
+
+         * less hits than expected for 70M+ 
+
+
+.. class:: small
+
+     **tboolean-box test Geometry + input photons**
+
+     * input photons : convenient for debugging, but high overheads
+
+     **Production Mode : does the minimum**
+
+     * only saves hits
+     * skips : genstep, photon, source, record, sequence, index, ..
+     * no *Geant4* propagation
+
+     **Multi-Event Running** : measure :red:`interval` and :red:`launch`
+
+     :red:`interval` : **avg time between successive launches** (includes all overheads)
+       * upload photons/gensteps 
+       * :red:`launch` : avg **photon generation + propagation** time
+       * download hits 
+
+
+.. class:: tiny
+
+    [1] TCURAND GPU randoms on host 
+    https://bitbucket.org/simoncblyth/opticks/src/tip/thrustrap/TCURAND.hh
+
+
+
+
+.. comment
+
+   update these profilesmry.py plots with::
+
+       ip profilesmry.py on J and then copy:
+ 
+       cd ~/simoncblyth.bitbucket.io/env/presentation/ana
+       scp J:local/opticks/tmp/ana/* .
+
+
+
+:i:`NHit`
+---------------------------------------------------------
+
+
+
+
+:i:`Opticks_vs_Geant4`
+---------------------------------------------------------
+
+:i:`Opticks_vs_Geant4 2`
+---------------------------------------------------------
+
+
+.. sidebar:: :small:`Drastic Speedup >> 1000x`
+
+     .. class:: small
+
+
+         **Simple Test Geometry, Input Photons**
+
+         G4 extrapolation vs Opticks Times
+         
+         60M photons 
+           * *Geant4* ~6,000s (100min)
+           * *Opticks* 0.38-0.84s (RTX ON)   
+           * RTX MODE giving ~6x speedup 
+
+         Expect input gensteps closer to "launch"  
+           * **launch** : best case 
+           * **interval** : worst case
+
+         Full geometry speedup expected to be more, 
+         as more ray tracing. 
+
+
+
+
+         
+
+
+
+:i:`Overheads`
+---------------------------------------------------------
+
+:i:`Opticks_Speedup`
+---------------------------------------------------------
+
+:i:`RTX_Speedup`
+---------------------------------------------------------
+
+
+
+
+
+:small:`Opticks[1] : Aims to Revolutionize JUNO Muon Simulation` 
+------------------------------------------------------------------------------
+
+.. sidebar:: :small:`100 GeV muon, millions of photons`
+
+    .. image:: /env/presentation/opticks_juno_pmt_muon_approach_portrait.png
+       :width: 450px
+       :align: right
+
+.. class:: small
+
+    :blue:`State-of-the-art GPU ray tracing[2] applied to optical simulation`
+
+    * replaces Geant4 optical simulation with GPU equivalent
+
+      * translate G4 geometry to GPU without approximation[3] 
+      * port G4 optical physics to CUDA[4] 
+
+    **Optical photons generated+propagated entirely on GPU**
+      
+    * only photons hitting PMTs require CPU memory 
+
+      * optical photon CPU memory --> ~zero 
+
+    * muon workload perfect for GPUs, *Opticks* >> 1000x *Geant4*
+
+      * optical photon simulation time --> ~zero 
+
+    **Status : validation iterations ongoing**  
+
+    * direct comparison of random aligned bi-simulations
+    * geometry changes made at GDML level  
+
+    
+.. class:: tiny
+
+   [1] Open source project http://bitbucket.org/simoncblyth/opticks 
+
+   [2] NVIDIA OptiX ray tracing engine  
+
+   [3] using innovative Constructive Solid Geometry implementation on GPU
+
+   [4] scattering, boundary, reemission, absorption
+ 
+
+
+:small:`Opticks Links`
+-------------------------------------------------------------------------------
+
+https://simoncblyth.bitbucket.io
+   Opticks presentations and videos
+
+https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=3927
+   Opticks visualization screen capture movie of JUNO 
+
+https://groups.io/g/opticks
+   Opticks mailing list archive 
+
+opticks+subscribe@groups.io 
+   send email to this address, to subscribe
+
+.. class:: huge
+
+    https://simoncblyth.bitbucket.io/opticks/index.html
+       Opticks installation instructions
+
+    https://bitbucket.org/simoncblyth/opticks
+       Opticks code repository
+
+
+
+
+.. s5_background_image::
+
+    #
+    # slide titles and background image urls, 
+    # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    #
+    # NB1 slide titles here must match those in body precisely, 
+    # NB2 also ensure all slide titles are unique
+    #
+    #slide0
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    #/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    #
+    #   wide targetting 1280x720
+    #   
+    #
+    slide0
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Opticks Benefits
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Visualizing An Optical Photon Simulation
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
+
+    Overview
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+
+    Cerenkov Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
+
+    Cerenkov Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
+
+    Scintillation Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
+
+    Scintillation Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
+
+    Standard Geant4 Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
+
+    External Photon Simulation Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
+
+    GGeoView
+    /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
+
+    GGeoView M1 Points
+    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
+
+    GGeoView Flag Selection 
+    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
+
+    GGeoView Cerenkov Geom M1
+    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
+  
+    Detecting Neutrinos via Optical Photons 1
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    Detecting Neutrinos via Optical Photons 2
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+ 
+    JPMT Inside Wide 
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
+
+    JPMT Wide
+    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
+  
+    JPMT Headview
+    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
+ 
+    JPMT Backview
+    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
+ 
+    JPMT Approach 
+    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
+
+    JPMT Arrival 
+    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
+ 
+    Optical Photon Simulation Problem...
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 2
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 3
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+ 
+    JPMT After Contact 
+    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
+  
+    JPMT Inside Outside 
+    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
+
+    NVIDIA OptiX In Action
+    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
+
+    PmtInBox approach 1
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox approach 2
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox after 1
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    PmtInBox after 2
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    Daya Bay PMT Wall Photo 1
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Daya Bay PMT Wall Photo 2
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Super-Kamiokande PMTs Not 16:9 
+    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
+
+    Super-Kamiokande PMTs 1
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 2
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 3
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 4
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Kamiokande II 1
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 2
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 3
+    /env/presentation/1987a.png 1280px_720px
+
+
+    Fast Optical Photon Simulation
+    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
+
+    Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Old Hamamatsu Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    Old Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+
+
+
+    Jiangmen Underground Neutrino Observatory (JUNO) 
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+    Jiangmen Underground Neutrino Observatory, Goals
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+
+    Dayabay Reactor Neutrino Expt, Far Site
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 2
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 3
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Geant4 : Monte Carlo Simulation Toolkit 
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    Geant4 : Monte Carlo Simulation Toolkit Generality
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    "Seeing" neutrinos via scintillation + Cherenkov light
+    /env/presentation/cherenkov.png 316px_203px 850px_400px
+
+    Opticks : Auto-Instancing
+    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
+
+    NVIDIA OptiX 1
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    NVIDIA OptiX 2
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    OpticksDocs
+    /env/presentation/OpticksDocs.png 1280px_720px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 1
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 2
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+    # a = np.array([1676.0, 1192.0])
+    # .8*720.*a/1192.
+
+    Daya Bay Energy Response Model (1)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    Daya Bay Energy Response Model (2)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    # a = np.array([2392., 1424.]) ; .8*720*a/a[1]
+
+
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 1
+    /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
+    # a = np.array([1760., 1280.])
+    # .8*720.*a/1280.   792px_576px
+    # 693.,  504
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 2
+    /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
+    # a = np.array([1698., 1166.])
+    # .8*720.*a/1166. 
+    
+    Daya Bay nGd Analysis : Most Precise Theta13
+    /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
+    # a = np.array([2140., 1266.])
+    # .8*720.*a/1166.
+
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
+    /env/presentation/op_full_raytrace_3.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)
+    /env/presentation/op_full_raytrace_1.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)
+    /env/presentation/op_full_raytrace_0.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
+    /env/presentation/op_full_raytrace_2.png 1280px_720px
+
+    Opticks Analytic JUNO Chimney, GPU Raytrace (0)
+    /env/presentation/j1707_chimney_analytic_raytrace.png 1280px_720px
+
+    Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)
+    /env/presentation/j1707-okop-snap.png 1280px_720px
+
+    GPU Instance Culling with Level Of Detail
+    /env/presentation/j1707_lod_oglrap_instcull.png 1280px_720px
+
+    Opticks Export of G4 geometry to glTF 2.0
+    /env/yoctoglrap/dyb_near_venice_half.png 1020px_737px
+
+    What are NumPy Arrays
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
+    What are NumPy Arrays 2
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
+    BVH
+    /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
+
+    BVH Pascal 
+    /env/presentation/nvidia/NV_Turing_Editors_Day_030.png 1280px_720px
+ 
+    BVH Turing
+    /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
+
+    #
+    #  original 2880px_1620px
+    #  half     1440px_810px
+
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores
+    /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores (spec)
+    /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+ 
+    Raytrace vs Raster
+    /env/presentation/nvidia/NV_Turing_Editors_Day_132.png 1280px_720px
+
+    Ray-tracing vs Rasterization
+    /env/presentation/nvidia/black.png 1280px_720px
+
+    Raytrace Diagram
+    /env/presentation/graphics/1024px-ray_trace_diagram.svg.png 1280px_720px
+
+    # https://images.anandtech.com/doci/13282/NV_Turing_Editors_Day_132.png
+    #
+    #   1280 720
+    #   1920 1080  *1.5
+    #  https://www.anandtech.com/Gallery/Album/6660#6
+    # 
+
+    j1808_top_ogl
+    /env/presentation/j1808/j1808_top_ogl.png 1280px_720px
+
+    j1808_top_rtx
+    /env/presentation/j1808/j1808_top_rtx.png 1280px_720px
+    #   1920 1080
+
+    j1808_escapes
+    /env/presentation/j1808/j1808_escapes.png
+
+    geocache_360
+    /env/presentation/geocache_360.png 1280px_720px
+
+    JUNO-360 benchmark with OptiX 6.0.0, RTX mode 
+    /env/presentation/geocache_360.png 1280px_720px
+
+    absmry_1M 
+    /env/presentation/ana/absmry_1M.png 1280px_720px
+
+    absmry_1M 2
+    /env/presentation/ana/absmry_1M.png 1280px_720px
+
+    ta34_1M
+    /env/presentation/ana/ta34_1M.png 1280px_720px
+
+    ta34_1M 2
+    /env/presentation/ana/ta34_1M.png 1280px_720px
+
+    tv34_1M_a
+    /env/presentation/ana/tv34_1M_a.png 1280px_720px
+
+    tv34_1M_b
+    /env/presentation/ana/tv34_1M_b.png 1280px_720px
+
+    tv21_1M_a
+    /env/presentation/ana/tv21_1M_a.png 1280px_720px
+
+    tv21_1M_a 2
+    /env/presentation/ana/tv21_1M_a.png 1280px_720px
+
+    tv21_1M_c
+    /env/presentation/ana/tv21_1M_c.png 1280px_720px
+
+    RTX_Speedup
+    /env/presentation/ana/RTX_Speedup.png 1280px_720px
+    
+    Overheads
+    /env/presentation/ana/Overheads.png 1280px_720px
+ 
+    Opticks_Speedup
+    /env/presentation/ana/Opticks_Speedup.png 1280px_720px
+ 
+    Opticks_vs_Geant4
+    /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
+
+    Opticks_vs_Geant4 2
+    /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
+    
+    NHit
+    /env/presentation/ana/NHit.png 1280px_720px
+
+    Interval_over_Launch
+    /env/presentation/ana/Interval_over_Launch.png 1280px_720px
+ 
+    TITAN RTX : 72 Raytrace Dedicated RT Cores, 4608 CUDA Cores, 24GB VRAM, 2500 USD
+    /env/presentation/nvidia/TITAN_RTX.png 1280px_720px
+ 
+    bench_20190526_143808
+    /env/presentation/ana/bench_20190526_143808.png  
+
+    bench_20190526_143808 2
+    /env/presentation/ana/bench_20190526_143808.png  
+
+    bench_20190526_202537
+    /env/presentation/ana/bench_20190526_202537.png  
+
+    bench_20190526_202537 2
+    /env/presentation/ana/bench_20190526_202537.png  
+
+
+
+    tv16_Fastener
+    /env/presentation/tv/tv16_Fastener.png
+
+    tv20_polycone_neck
+    /env/presentation/tv/tv20_polycone_neck.png
+
+    20inch PMT neck : "cylinder-torus" -> polycone
+    /env/presentation/tv/tv20_polycone_neck.png
+
+
+
+
+
+
