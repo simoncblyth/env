@@ -142,6 +142,12 @@ conda basics
     conda install matplotlib
 
 
+conda install of anything taking 30 min at a minimum
+-----------------------------------------------------------
+
+* https://github.com/conda/conda/issues/7690
+
+
 
 
 EOU
