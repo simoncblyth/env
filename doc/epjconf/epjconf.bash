@@ -20,6 +20,13 @@ PDF documents at
   The PDF document is not saved in our server after being checked.
 
 
+
+Sep 17, 2019 : CHEP2018 proceedings published
+------------------------------------------------
+
+* https://www.epj-conferences.org/articles/epjconf/abs/2019/19/contents/contents.html#section_10.1051/epjconf/201921402001
+
+
 April 8 : uploaded response to comments and amended draft
 -----------------------------------------------------------
 

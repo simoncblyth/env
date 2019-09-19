@@ -19,6 +19,35 @@ Minuit2
 * see minuit2- 
 
 
+
+GPURecTimeLikeAlg 
+
+Hit Counting docDB 2219? "nPE recognition"
+--------------------------------------------
+
+
+Metrics for waveform recon
+-----------------------------
+
+* https://en.wikipedia.org/wiki/Wasserstein_metric
+
+
+Liklihood
+------------
+
+
+Galbiati
+~~~~~~~~~~
+
+* https://arxiv.org/abs/physics/0503185
+
+Time and space reconstruction in optical, non-imaging, scintillator-based particle detectors
+Cristiano Galbiati, Kevin McCarty
+
+
+
+
+
 CNN on the sphere
 ---------------------
 

@@ -15,11 +15,13 @@ Opticks Documentation
 Publications
 ---------------
 
-http://simoncblyth.bitbucket.io/env/report/opticks-blyth-chep2018-v1.pdf
+https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
 
     *Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX*
 
-    **CHEP 2018 Proceedings** : Accepted for publication by EPJ Web of Conferences
+    **CHEP 2018 Proceedings** : Published by EPJ Web of Conferences
+
+    * http://simoncblyth.bitbucket.io/env/report/opticks-blyth-chep2018-v1.pdf
 
 
 http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001

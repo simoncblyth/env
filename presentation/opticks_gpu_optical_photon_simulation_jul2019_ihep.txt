@@ -66,7 +66,9 @@ Outline
       * Opticks vs Geant4 performance (test geometry)
 
     * Opticks : Aims to Revolutionize JUNO Muon Simulation
-    * Links
+
+    * :red:`(Tao Lin, Simulation Group) Deferred OP Sim using Gensteps`
+    * Opticks Links
 
 
     .. raw:: html
@@ -664,9 +666,6 @@ JUNO-360 benchmark with OptiX 6.0.0, RTX mode
 :i:`tv16_Fastener`
 ---------------------------------------------------------
 
-:i:`tv34_1M_a`
----------------------------------------------------------
-
 :i:`absmry_1M`
 ---------------------------------------------------------
 
@@ -939,8 +938,6 @@ JUNO-360 benchmark with OptiX 6.0.0, RTX mode
 
 
 
-
-
 :small:`Opticks[1] : Aims to Revolutionize JUNO Muon Simulation` 
 ------------------------------------------------------------------------------
 
@@ -987,6 +984,13 @@ JUNO-360 benchmark with OptiX 6.0.0, RTX mode
  
 
 
+
+:i:`genstep_interface`
+---------------------------------------------------------
+
+
+
+
 :small:`Opticks Links`
 -------------------------------------------------------------------------------
 
@@ -1009,6 +1013,9 @@ opticks+subscribe@groups.io
 
     https://bitbucket.org/simoncblyth/opticks
        Opticks code repository
+
+
+
 
 
 
@@ -1409,8 +1416,8 @@ opticks+subscribe@groups.io
     20inch PMT neck : "cylinder-torus" -> polycone
     /env/presentation/tv/tv20_polycone_neck.png
 
-
-
+    genstep_interface
+    /env/presentation/simulation/genstep_interface.png 1280px_720px
 
 
 
