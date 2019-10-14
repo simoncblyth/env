@@ -27,6 +27,41 @@ Found this project by
 * :google:`optix DISABLE_ANYHIT`
 
 
+
+
+GTC 2019 Talk : Path Tracng in ParaView-OptiX : RTX for Scientific Visualization
+-----------------------------------------------------------------------------------
+
+* https://developer.nvidia.com/gtc/2019/video/S9697/video
+* https://developer.nvidia.com/vmaterials/
+
+
+https://github.com/NVIDIA/NvPipe
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Light weight wrapper around the video codec API.  H.264 HEVC
+Able to use NVENC chips that are present on Tesla cards.
+
+* stream from OpenGL textures, PBOs, host/device memory
+
+
+Paraview Web
+~~~~~~~~~~~~~~
+
+* thin clients : web browsers without discrete graphics cards
+
+
+
+
+
+
+
+
+
+
+
+
+
 EOU
 }
 visrtx-get(){

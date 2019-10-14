@@ -35,6 +35,14 @@ OpenVR
 
 
 
+
+OpenVR is the API. SteamVR is the implementation of that API.
+--------------------------------------------------------------
+
+https://github.com/ValveSoftware/openvr/issues/291
+
+
+
 Linux
 -------
 

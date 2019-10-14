@@ -1029,7 +1029,9 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2018_qingdao ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_oct2018_ihep ; }
 #presentation-name(){ echo opticks_gpu_optical_photon_simulation_jan2019_sjtu ; }
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
+#presentation-name(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }
+presentation-name(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
 #presentation-name(){ echo dybdb_experience ; }
 #presentation-name(){ echo opticks.key ; }
 

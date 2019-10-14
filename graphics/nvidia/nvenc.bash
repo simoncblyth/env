@@ -12,6 +12,22 @@ NVENV : NVIDIA GPU H.264/265 video encoding
 * see ffmpeg-
 
 
+
+
+* https://developer.nvidia.com/gtc/2019/video/S9490/video
+
+  Integrating nvenc on V100 with OptiX and remote web browser 
+
+  * V100 have 3 NVENC chips, allowing H264 H265 encoding of video streams
+  * low latency visualization streaming 
+  * Broadway.js in browser
+
+  * p17 : NvPipe_CreateEncoder  / NvPipe_Encode 
+
+
+
+
+
 * perhaps should use higher level : Capture SDK (formerly GRID SDK) 
 * https://developer.nvidia.com/capture-sdk
 
