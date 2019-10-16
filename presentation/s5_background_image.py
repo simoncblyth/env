@@ -76,6 +76,10 @@ class S5BackgroundImage(Directive):
 
             Test Protocol Relative Link
             //localhost/env/test/LANS_AD3_CoverGas_Humidity.png 50%_auto
+
+            JUNO_Multipurpose_Pedro_NuFact_2019
+            /env/presentation/juno/JUNO_Multipurpose_Pedro_NuFact_2019.png 960px_720px 100px_0px
+
            
     """
     has_content = True

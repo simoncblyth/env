@@ -5,6 +5,8 @@
     <style type="text/css">
 
         .strike { text-decoration: line-through; }
+        .center {text-align: center;}
+
         span.alarm { color: red; } 
         span.warn { color: orange; } 
         span.ok { color: green; } 
@@ -57,7 +59,15 @@
              position: absolute; top:90%; left:5%; width:80%; height:10% ;
         }
 
-
+        div.mysidebar {
+            margin: 0 0 0.5em 1em;
+            border: medium outset;
+            padding: 1em;
+            background-color: #ffffee;
+            width: 20%;
+            float: right;
+            clear: right;
+        }
 
 
 

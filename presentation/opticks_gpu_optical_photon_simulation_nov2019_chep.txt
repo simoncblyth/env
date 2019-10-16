@@ -4,42 +4,6 @@
     :class: strike
 
 
-
-.. comment
-
-    DANCE : 15+5 
-    CHEP  : 25+5
-
-
-..  comment
-
-    points to stress
-
-    * high level : what is opticks
-    * Geant4 interface and gensteps -> GPU resident photons -> memory advantage (thrust stream compaction)
-
-
-.. comment
-
-    
-    NVIDIA 
-                        Memory    Bandwidth     CUDA(RT) Cores
-    TITAN V             12 GB       651 GB/s    5120(0)
-    Tesla V100          32 GB       900 GB/s    5120(0)  
-    TITAN RTX           24 GB       672 GB/s    4608(72)
-    Quadro RTX 8000     48 GB       672 GB/s    4608(72)
-
-
-    SM*64 gives cores 
-
-    https://www.techpowerup.com/gpu-specs/titan-v.c3051
-    https://www.techpowerup.com/gpu-specs/titan-rtx.c3311 
-    https://www.techpowerup.com/gpu-specs/quadro-rtx-8000.c3306
-
-
-
-
-
 :i:`Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
 ========================================================================================
 
@@ -54,6 +18,9 @@
     </header>
  
     </div>
+
+    <img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="/env/presentation/juno/JUNO_logo.png"  />
+
 
     <div class="mycredit">
     <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; https://bitbucket.org/simoncblyth/opticks &mdash; CHEP, Nov 2019, Adelaide</h2>
@@ -77,16 +44,30 @@ Outline
 
        <span>&nbsp;</span>
 
-    * Introductions
+    * Context and Problem
 
       * Jiangmen Underground Neutrino Observatory (JUNO)
       * Optical Photon Simulation Problem...
-      * Optical Photon Simulation ≈ Ray Traced Image Rendering
-      * Ray-tracing vs Rasterization
 
-      * :blue:`NVIDIA TITAN RTX GPU` 
+    * Tools to build solution   
+
+      * Optical Photon Simulation ≈ Ray Traced Image Rendering
+      * Rasterization and Ray tracing
+      * Turing Built for RTX 
+      * BVH : Boundary Volume Hierarchy 
       * NVIDIA OptiX Ray Tracing Engine
-      * Boundary Volume Heirarchy (BVH) algorithm
+
+    * Opticks : The Solution
+
+
+
+    .. raw:: html
+ 
+       <hr/>
+
+
+    * Former
+
       * Opticks Primitives, CSG on GPU
       * Translate Geometry and Physics 
       * :blue:`Geometry changes enabling translation`
@@ -109,9 +90,9 @@ Outline
     * Opticks Links
 
 
-    .. raw:: html
 
-       <span></span>
+
+
 
 
 
@@ -119,12 +100,67 @@ Outline
 ------------------------------------
 
 
+.. raw:: html
+
+   <div class="mysidebar" style="position: absolute; top:20%; left:70%; width:25%; height:30% ;" >
+
+      <dl class="small docutils">
+        <dt>
+          <strong> Primary Goal </strong>
+        </dt>
+        <dd>determine neutrino mass ordering<dd> 
+      </dl>
+
+      <ul class="small">
+         <li>reactor neutrino oscillated energy spectrum</li>
+         <li>energy resolution 3% @ 1MeV </li>
+         <li>worlds largest LS detector</li>
+      </ul>
+
+   </div>
+
+
+.. comment
+
+
 :i:`JUNO_Multipurpose_Pedro_NuFact_2019`
 -----------------------------------------
 
+.. raw:: html
 
-List of JUNO Posters
------------------------
+   <div class="mysidebar" style="position: absolute; top:10%; left:70%; width:25%; height:40% ;" >
+      <dl class="small docutils">
+        <dt>
+          <strong> Primary JUNO Backgrounds </strong>
+        </dt>
+        <dd>cosmic muon induced</dd>
+      </dl>
+
+      <ul class="small">
+         <li>underground site</li>
+         <li>water shield</li>
+         <li>muon veto system</li>
+      </ul>
+
+      <dl class="small docutils">
+        <dt>
+          <strong> Minimize veto time/volume </strong>
+        </dt>
+        <dd> precise muon reconstruction </dd>
+      </dl>
+
+      <ul class="small">
+         <li>large simulated muon samples : essential</li>
+      </ul>
+
+
+
+   </div>
+
+
+
+
+
 
 
 `Optical Photon Simulation Problem...`
@@ -262,7 +298,6 @@ List of JUNO Posters
 
 
 
-
     </pre>
 
 .. sidebar:: :small:`Ray Trace Dedicated RT Cores`
@@ -272,11 +307,11 @@ List of JUNO Posters
         * BVH (Boundary Volume Hierarchy) traversal 
         * ray triangle intersection
 
-        **Move part of ray trace workload into hardware**
+        **Move part of ray tracing : SM -> RT Core**
 
 
 
-``Spatial Index Minimizing Intersection Tests``
+``Spatial Index Acceleration Structure``
 ---------------------------------------------------
 
 
@@ -445,6 +480,32 @@ List of JUNO Posters
 
 
 
+
+:small:`Opticks -- https://bitbucket.org/simoncblyth/opticks`
+--------------------------------------------------------------------------------
+
+.. sidebar:: Opticks Workflow
+
+    .. class:: small
+
+       Geometry/Gensteps/Hits 
+
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
+
+.. class:: small
+
+   **Opticks integrates GPU ray tracing with Geant4**
+
+   * automated translation of geometry without approximation
+   * simple *G4Opticks* interface
+   * open source, contributions welcome
+
+
+
+
+
 :small:`Opticks : GPU Geometry starts from ray-primitive intersection`
 -------------------------------------------------------------------------------------------------
 
@@ -564,6 +625,190 @@ List of JUNO Posters
         [1] G4 primitives used need corresponding Opticks implementations, contributions for 
             any unsupported geometry are welcome 
           
+
+
+
+
+
+
+
+
+
+
+.. comment
+
+   update these profilesmry.py plots with::
+
+       scan-plot     # on workstation    
+       scan-pub      # on laptop with simoncblyth.bitbucket.org clone
+       scan-pubrst   # prepare RST for inclusion at tail 
+
+
+:i:`scan-pf-1_NHit`
+---------------------
+
+.. raw:: html
+
+     <pre>
+
+
+
+
+     </pre>
+
+
+.. sidebar:: :small:`Photon Launch Size : VRAM Limited`
+
+     .. class:: small
+
+
+         **NVIDIA Quadro RTX 8000 (48 GB)**
+
+         * photon 4*4 floats : 64 bytes
+         * curandState       : 48 bytes 
+
+         **400M photons** x :blue:`112 bytes` ~ 45G  
+
+         "hit" mask: BULK_REEMIT | BULK_SCATTER | BOUNDARY_TRANSMIT | SURFACE_ABSORB  
+
+
+
+
+
+:i:`scan-pf-1_Interval_over_Launch`
+---------------------------------------
+
+
+.. raw:: html
+  
+     <pre>
+
+
+
+
+
+
+
+
+     </pre>
+
+
+.. sidebar:: :small:`Genstep/Hit Copying Overheads`
+
+     .. class:: small
+
+         **launch**
+           time of each OptiX launch (avg of 10)
+
+         **interval, including overhead**
+           time between subsequent launches (avg of 9)
+
+         :red:`Mostly < 10% Overhead beyond 20M photons`
+
+
+
+
+:i:`scan-pf-1_Opticks_vs_Geant4 2`
+------------------------------------
+
+.. raw:: html
+
+    <pre>
+   
+
+
+ 
+    </pre>
+
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +--------------------+----------------------------+
+        | JUNO Full, 400M photons from center             |
+        +====================+============================+
+        | Geant4 Extrap.     | 95,600 s (26 hrs)          |
+        +--------------------+----------------------------+
+        | Opticks RTX ON (i) | 58 s                       |
+        +--------------------+----------------------------+
+
+
+.. comment
+
+     * DELL Precision 7920T Workstation
+     * Intel Xeon Gold 5118, 2.3GHz  
+     * NVIDIA TITAN RTX, 24G
+     * NVIDIA TITAN V, 12G
+
+:i:`scan-pf-1_Opticks_Speedup 2`
+---------------------------------
+
+.. raw:: html
+  
+     <pre>
+
+
+
+
+
+
+
+
+
+     </pre>
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +-------------------------+------------------+------------------+
+        | JUNO Full, 400M photons from center        |   Speedup        |
+        +=========================+==================+==================+
+        | Opticks RTX ON (i)      | 58s              |  x1660           |
+        +-------------------------+------------------+------------------+
+        | Opticks RTX OFF (i)     | 275s             |  x348            |
+        +-------------------------+------------------+------------------+
+        | Geant4 Extrap.          | 95,600s (26 hrs) |                  |
+        +-------------------------+------------------+------------------+
+
+
+
+
+:small:`Details`
+-------------------
+
+.. sidebar:: :small:`1800x speedup`
+
+     .. class:: small
+
+         **400M photons** 
+
+         * Opticks RTX ON,  53 s
+         * Geant4 Extrapolated, 95600s : 26 hrs
+         * 1800x Speedup
+
+         **Geometry + Source**
+
+         * JUNO Full : j1808v5 
+         * "torch" source from center 
+
+         **Software**
+
+         * Opticks 0.0.0 Alpha 
+         * Geant4 10.4p2 
+         * NVIDIA OptiX 6.5.0
+         * CUDA 10.1
+         * NVIDIA Driver 435.21
+
+         **Hardware**
+
+         * DELL Precision 7920T Workstation
+         * Intel Xeon Silver 4114, 2.2GHz 
+         * NVIDIA Quadro RTX 8000, 48G 
+
 
 
 
@@ -1104,68 +1349,6 @@ JUNO-360 benchmark with OptiX 6.0.0, RTX mode
 
 
 
-.. comment
-
-   update these profilesmry.py plots with::
-
-       ip profilesmry.py on J and then copy:
- 
-       cd ~/simoncblyth.bitbucket.io/env/presentation/ana
-       scp J:local/opticks/tmp/ana/* .
-
-
-
-:i:`NHit`
----------------------------------------------------------
-
-
-
-
-:i:`Opticks_vs_Geant4`
----------------------------------------------------------
-
-:i:`Opticks_vs_Geant4 2`
----------------------------------------------------------
-
-
-.. sidebar:: :small:`Drastic Speedup >> 1000x`
-
-     .. class:: small
-
-
-         **Simple Test Geometry, Input Photons**
-
-         G4 extrapolation vs Opticks Times
-         
-         60M photons 
-           * *Geant4* ~6,000s (100min)
-           * *Opticks* 0.38-0.84s (RTX ON)   
-           * RTX MODE giving ~6x speedup 
-
-         Expect input gensteps closer to "launch"  
-           * **launch** : best case 
-           * **interval** : worst case
-
-         Full geometry speedup expected to be more, 
-         as more ray tracing. 
-
-
-
-
-         
-
-
-
-:i:`Overheads`
----------------------------------------------------------
-
-:i:`Opticks_Speedup`
----------------------------------------------------------
-
-:i:`RTX_Speedup`
----------------------------------------------------------
-
-
 
 :small:`Opticks[1] : Aims to Revolutionize JUNO Muon Simulation` 
 ------------------------------------------------------------------------------
@@ -1523,7 +1706,7 @@ opticks+subscribe@groups.io
     BVH
     /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
 
-    Spatial Index Minimizing Intersection Tests
+    Spatial Index Acceleration Structure
     /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
 
 
@@ -1695,15 +1878,87 @@ opticks+subscribe@groups.io
     SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine
     /env/presentation/nvidia/SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine.png 1280px_720px
 
+
+    # https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=5079
     JUNO_Basics_Pedro_NuFact_2019 
-    /env/presentation/juno/JUNO_Basics_Pedro_NuFact_2019.png 1280px_720px
+    /env/presentation/juno/JUNO_Basics_Pedro_NuFact_2019.png 960px_720px 0px_0px
 
     JUNO_Multipurpose_Pedro_NuFact_2019 
-    /env/presentation/juno/JUNO_Multipurpose_Pedro_NuFact_2019.png 1280px_720px
-
-   
+    /env/presentation/juno/JUNO_Multipurpose_Pedro_NuFact_2019.png 960px_720px 0px_0px
 
 
+
+    dhart_siggraph_2019_OptiX_5_traversal
+    /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
+
+    dhart_siggraph_2019_OptiX_5_traversal
+    /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
+
+    scan-pf-0_Interval_over_Launch
+    /env/presentation/ana/scan-pf-0/Interval_over_Launch.png 1280px_720px
+
+    scan-pf-0_NHit
+    /env/presentation/ana/scan-pf-0/NHit.png 1280px_720px
+
+    scan-pf-0_Opticks_Speedup
+    /env/presentation/ana/scan-pf-0/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-0_Opticks_vs_Geant4
+    /env/presentation/ana/scan-pf-0/Opticks_vs_Geant4.png 1280px_720px
+
+    scan-pf-0_Overheads
+    /env/presentation/ana/scan-pf-0/Overheads.png 1280px_720px
+
+    scan-pf-0_RTX_Speedup
+    /env/presentation/ana/scan-pf-0/RTX_Speedup.png 1280px_720px
+
+    scan-pf-0_RTX_Speedup 2
+    /env/presentation/ana/scan-pf-0/RTX_Speedup.png 1280px_720px
+
+
+    scan-pf-1_Interval_over_Launch
+    /env/presentation/ana/scan-pf-1/Interval_over_Launch.png 1280px_720px
+
+    scan-pf-1_NHit
+    /env/presentation/ana/scan-pf-1/NHit.png 1280px_720px
+
+    scan-pf-1_Opticks_Speedup
+    /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-1_Opticks_Speedup 2
+    /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-1_Opticks_vs_Geant4
+    /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+
+    scan-pf-1_Opticks_vs_Geant4 2
+    /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+
+
+    scan-pf-1_Overheads
+    /env/presentation/ana/scan-pf-1/Overheads.png 1280px_720px
+
+    scan-pf-1_RTX_Speedup
+    /env/presentation/ana/scan-pf-1/RTX_Speedup.png 1280px_720px
+
+
+.. comment
+
+    :i:`scan-pf-1_Interval_over_Launch`
+    :i:`scan-pf-1_NHit`
+    :i:`scan-pf-1_Opticks_Speedup`
+    :i:`scan-pf-1_Opticks_vs_Geant4`
+    :i:`scan-pf-1_Overheads`
+    :i:`scan-pf-1_RTX_Speedup`
+
+.. comment
+
+    :i:`scan-pf-0_Interval_over_Launch`
+    :i:`scan-pf-0_NHit`
+    :i:`scan-pf-0_Opticks_Speedup`
+    :i:`scan-pf-0_Opticks_vs_Geant4`
+    :i:`scan-pf-0_Overheads`
+    :i:`scan-pf-0_RTX_Speedup`
 
 .. comment
 
@@ -1717,4 +1972,75 @@ opticks+subscribe@groups.io
        13:30 
 
     https://nvidianews.nvidia.com/multimedia
+
+
+
+
+.. comment
+
+    DANCE : 15+5 
+    CHEP  : 25+5
+
+..  comment
+
+    points to stress
+
+    * high level : what is opticks
+    * Geant4 interface and gensteps -> GPU resident photons -> memory advantage (thrust stream compaction)
+
+    Pedro NUFACT
+
+    * https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=5079
+
+.. comment
+
+    
+    NVIDIA 
+                        Memory    Bandwidth     CUDA(RT) Cores
+    TITAN V             12 GB       651 GB/s    5120(0)
+    Tesla V100          32 GB       900 GB/s    5120(0)  
+    TITAN RTX           24 GB       672 GB/s    4608(72)
+    Quadro RTX 8000     48 GB       672 GB/s    4608(72)
+
+    SM*64 gives cores 
+
+    https://www.techpowerup.com/gpu-specs/titan-v.c3051
+    https://www.techpowerup.com/gpu-specs/titan-rtx.c3311 
+    https://www.techpowerup.com/gpu-specs/quadro-rtx-8000.c3306
+
+
+
+.. comment
+
+    Check
+    ------
+
+    +------------+------------+-----------+
+    | Header 1   | Header 2   | Header 3  |
+    +============+============+===========+
+    | body row 1 | column 2   | column 3  |
+    +------------+------------+-----------+
+    | body row 2 | Cells may span columns.|
+    +------------+------------+-----------+
+    | body row 3 | Cells may  | - Cells   |
+    +------------+ span rows. | - contain |
+    | body row 4 |            | - blocks. |
+    +------------+------------+-----------+
+
+
+    .. class:: center
+
+        +------------+------------+-----------+
+        | Header 1     Header 2     Header 3  |
+        +============+============+===========+
+        | body row 1 | column 2   | column 3  |
+        +------------+------------+-----------+
+        | body row 2 | Cells may span columns.|
+        +------------+------------+-----------+
+        | body row 3 | Cells may  | - Cells   |
+        +------------+ span rows. | - contain |
+        | body row 4 |            | - blocks. |
+        +------------+------------+-----------+
+
+
 
