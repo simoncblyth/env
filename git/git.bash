@@ -18,6 +18,13 @@ Reference
 * https://www.rath.org/mercurial-for-git-users-and-vice-versa.html
 
 
+Git LFS
+----------
+
+* https://medium.com/swlh/learning-about-git-large-file-system-lfs-72e0c86cfbaf
+
+
+
 May 2018 : github permission denied with DSA keys ? RSA still working 
 -------------------------------------------------------------------------
 

@@ -1,8 +1,7 @@
 
-ssh--src(){ echo base/ssh.bash ; }
-ssh--source(){ echo $(env-home)/$(ssh--src) ; }
-ssh-vi(){  vi $(ssh--source) ; }
-ssh--vi(){ vi $(ssh--source) ; }
+ssh--src(){ echo $BASH_SOURCE ; }
+ssh-vi(){  vi $BASH_SOURCE ; }
+ssh--vi(){ vi $BASH_SOURCE ; }
 ssh--env(){ elocal- ; }
 #ssh--(){   . $(ssh--source) && ssh--env $* ; }  ## non standard locatio for precursor 
 
@@ -898,12 +897,12 @@ ssh--putkeys(){
 ssh--putkey(){
     X=${1:-$TARGET_TAG}
     ssh $X "mkdir .ssh"
-    cat ~/.ssh/id_{d,r}sa.pub | ssh $X "cat - >> ~/.ssh/authorized_keys2"
-    ssh $X "chmod 700 .ssh ; chmod 700 .ssh/authorized_keys*" 
+    cat ~/.ssh/id_{d,r}sa.pub | ssh $X "cat - >> ~/.ssh/authorized_keys"
+    ssh $X "chmod 700 .ssh ; chmod 700 .ssh/authorized_keys" 
 
 }
 
-ssh--pk2(){  cat $2 | ssh $1 "cat - >> ~/.ssh/authorized_keys2" ; }
+ssh--pk2(){  cat $2 | ssh $1 "cat - >> ~/.ssh/authorized_keys" ; }
 
 
 ssh--key2ak(){

@@ -44,6 +44,13 @@ CentOS      arch   RHEL    Kernel        Centos release       RHEL release      
 =========  ======= =====  ============  ==================  =====================  ============
 
 
+change background color of existing terminal from commandline
+------------------------------------------------------------------
+
+* man gconftool-2
+* https://bugzilla.gnome.org/show_bug.cgi?id=569869
+
+
 screenshots
 --------------
 

@@ -45,6 +45,18 @@ CMake Superbuild
 * boost being "found" for all packages 
 
 
+Custom commands for source derived ini, json needed by some python scripts
+----------------------------------------------------------------------------
+
+* https://lowlevelbits.org/bottom-up-cmake-introduction
+
+
+* see optickscore/CMakeLists.txt
+
+
+
+
+
 Better rebuild detection ?
 ----------------------------
 

@@ -25,7 +25,7 @@ Features
 Usage
 -----
 
-Prepend headers to all files with handled extensions::
+Add license headers to all files with handled extensions that do not already have headers::
 
    licensehd--
 
@@ -86,6 +86,63 @@ Unchanged excluding .rst .txt .in .cmake mostly have their own header or are tri
     C oglrap/tests/gleq_check.c
     C optixrap/cu/helpers.h
     C tests/tboolean.bash.dead
+
+
+
+2588 files have added license header
+-----------------------------------------
+
+::
+
+    [blyth@localhost opticks]$ hg commit -m "add Apache2 license headers, using https://github.com/simoncblyth/licensehd driven from env- licensehd- https://bitbucket.org/simoncblyth/env/src/default/tools/licensehd.bash "
+    [blyth@localhost opticks]$ hg push 
+    pushing to ssh://hg@bitbucket.org/simoncblyth/opticks
+    searching for changes
+    remote: adding changesets
+    remote: adding manifests
+    remote: adding file changes
+    remote: added 1 changesets with 2588 changes to 2588 files
+    remote: 
+    remote:     We're removing Mercurial support on June 1, 2020. Creating new Mercurial
+    remote:     repositories will be disabled on February 1, 2020.
+    remote:     Learn more:
+    remote:         https://bitbucket.org/blog/sunsetting-mercurial-support-in-bitbucket
+    remote:     [blyth@localhost opticks]$ 
+    [blyth@localhost opticks]$ 
+
+
+Totting up filetypes it is reasonable::
+
+    [blyth@localhost opticks]$ ftype.py 
+          TOTAL : 3608 
+             cc : 984 
+            rst : 616 
+             hh : 588 
+             py : 301 
+            hpp : 161 
+            cpp : 149 
+            txt : 131 
+             sh : 107 
+           bash : 107 
+              h : 102 
+             cu : 92 
+          cmake : 70 
+            pyc : 62 
+            log : 61 
+           glsl : 33 
+          OTHER : 14 
+            old : 9 
+             in : 6 
+              c : 5 
+            mac : 4 
+              m : 1 
+             mm : 1 
+            png : 1 
+           dead : 1 
+            err : 1 
+            out : 1 
+
+
 
 
 EOU
