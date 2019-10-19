@@ -2048,5 +2048,6 @@ tf-(){      . $(env-home)/tools/tensorflow/tf.bash && tf-env $* ; }
 keras-(){      . $(env-home)/ai/keras.bash && keras-env $* ; }
 igprof-(){      . $(env-home)/tools/igprof.bash && igprof-env $* ; }
 mapd-(){      . $(env-home)/tools/mapd.bash && mapd-env $* ; }
-licensehd-(){      . $(env-home)/tools/licensehd.bash && licensehd-env $* ; }
+licensehd-(){      . $(env-home)/tools/licensehd.bash && licensehd-env $* ; } 
 hg2git-(){      . $(env-home)/tools/hg2git/hg2git.bash && hg2git-env $* ; }
+mdl-(){      . $(env-home)/graphics/nvidia/mdl.bash && mdl-env $* ; }

@@ -1,5 +1,8 @@
 .. include:: <s5defs.txt>
 
+.. role:: strike
+    :class: strike
+
 .. raw:: html
 
     <style type="text/css">
