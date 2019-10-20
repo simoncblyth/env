@@ -1,7 +1,5 @@
-# === func-gen- : muon_simulation/presentation/slides fgp muon_simulation/presentation/slides.bash fgn slides fgh muon_simulation/presentation
-slides-src(){      echo doc/slides.bash ; }
-slides-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slides-src)} ; }
-slides-vi(){       vi $(slides-source) ; }
+slides-source(){   echo $BASH_SOURCE ; }
+slides-vi(){       vi $BASH_SOURCE ; }
 slides-usage(){ cat << EOU
 
 CONVERT SLIDES IN S5 RST TO HTML AND PDF 
@@ -447,14 +445,31 @@ slides-get-sjtu(){ slides-get 0 22 ; }
 slides-get-ihep(){ slides-get 0 42 ; }
 slides-get-chep(){ slides-get 0 33 ; }
 
+slides-get--notes(){ << EON
 
-#slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
-#slides-name(){      echo ${SLIDES_NAME:-g4dae_geometry_exporter} ; }
-slides-name(){       echo $(presentation-name) ; }
+* slides-get-- and slides-get--s automatically determine pagecount by grepping the curled html 
+
+EON
+}
+
+slides-get--(){
+   local msg="=== $FUNCNAME :"
+   local pc=$(slides-url-pagecount)
+   echo $msg SMRY $SMRY
+   echo $msg slides-url $(slides-url)  
+   echo $msg pagecount $pc 
+   slides-get 0 $(( $pc - 1 ))
+}
+slides-get--s(){ SMRY=1 slides-get-- ; }
+
+
+
+
+
+slides-name(){       echo $(presentation-oname) ; }
 slides-branch(){    echo ${SLIDES_BRANCH:-presentation} ; }        # env relative path to where .txt sources reside
 
-#slides-host(){      echo ${SLIDES_HOST:-dayabay.phys.ntu.edu.tw} ; }   
-#slides-host(){      echo ${SLIDES_HOST:-simoncblyth.bitbucket.org} ; }   
+#slides-host(){      echo ${SLIDES_HOST:-simoncblyth.bitbucket.io} ; }   
 slides-host(){      echo ${SLIDES_HOST:-localhost} ; }   
 
 slides-url-prior(){ echo ${SLIDES_URL:-http://$(slides-host)/e/$(slides-fold)/$(slides-name).html} ; }
@@ -465,7 +480,18 @@ slides-ppath(){     echo $(apache-htdocs $1)/env/$(slides-branch)/$(slides-name)
 
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
 
+slides-url-pagecount(){ curl $(slides-url) 2> /dev/null | grep div\ class=\"slide\" /dev/stdin | wc -l ; }
 
+slides-urls(){
+   local pc=$(slides-url-pagecount)
+   local page 
+   local url
+   seq 0 $(( $pc - 1 )) | while read page ; do 
+       url=$(slides-url-page $page)
+       echo $url
+   done 
+}
+slides-urls-s(){ SMRY=1 slides-urls ; }
 
 
 
@@ -624,6 +650,14 @@ copy the new in its place, and sync across to remote server::
     delta:presentation blyth$ mv gpu_optical_photon_simulation.pdf gpu_optical_photon_simulation_apr28.pdf
     delta:presentation blyth$ mv ~/Desktop/gpu_optical_photon_simulation.pdf .
     delta:presentation blyth$ env-htdocs-rsync
+
+
+::
+
+    epsilon:Applications blyth$ mdfind "Make PDF from PNGs" | grep Make\ PDF
+    /Users/blyth/Library/Services/Make PDF from PNGSs Sized to fit.workflow
+    /Users/blyth/Library/Services/Make PDF from PNGs.workflow
+
 
 
 

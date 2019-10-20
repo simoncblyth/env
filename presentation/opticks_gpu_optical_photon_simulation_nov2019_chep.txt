@@ -29,6 +29,9 @@
 :i:`Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
 ========================================================================================
 
+
+
+#ifdef FULL
 .. raw:: html
 
     <div class="mytitle">
@@ -40,10 +43,6 @@
     </header>
     </div>
 
-
-#ifdef FULL
-.. raw:: html
-
     <img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="/env/presentation/juno/JUNO_logo.png"  />
     <div class="mycredit">
     <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; On behalf of the JUNO Collaboration &mdash; CHEP, November 2019, Adelaide</h2>
@@ -51,6 +50,16 @@
 
 #else
 .. raw:: html
+
+
+    <div class="mytitle">
+    <header>
+    <h1 style="background-color:lightgrey"> 
+          <i>Opticks</i> : GPU Optical Simulation via NVIDIA® OptiX™ 
+        <h2 style="background-color:lightgrey;text-align:center"> https://bitbucket.org/simoncblyth/opticks </h2>
+    </h1>
+    </header>
+    </div>
 
     <div class="mycredit">
     <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; DANCE Workshop, October 2019, Houston</h2>
@@ -77,10 +86,14 @@ Outline
 
        <span>&nbsp;</span>
 
+#ifdef FULL
     * Context and Problem
 
       * Jiangmen Underground Neutrino Observatory (JUNO)
       * Optical Photon Simulation Problem...
+#else
+    * Optical Photon Simulation Problem...
+#endif
 
     * Tools to create Solution   
 
@@ -111,6 +124,8 @@ Outline
 
 
 
+#ifdef FULL
+
 :i:`JUNO_Intro_1`
 ------------------
 
@@ -122,6 +137,8 @@ Outline
 
 :i:`JUNO_Intro_3`
 ------------------
+
+#endif
 
 
 `Optical Photon Simulation Problem...`
@@ -353,7 +370,7 @@ Outline
 
 
 
-
+#ifdef FULL
 
 ``Hardware Traversal of BVH Spatial Index``
 --------------------------------------------
@@ -365,6 +382,9 @@ Outline
    https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_029.png
    https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_030.png
    https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_031.png
+
+
+#endif
 
 
 
@@ -732,21 +752,11 @@ Outline
 
 
 
+:i:`scan-pf-check-GUI-TO-SC-BT5-SD`
+--------------------------------------
 
-
-
-
-
-    
-
-
-
-
- 
-       
-
-
-
+:i:`scan-pf-check-GUI-TO-BT5-SD`
+----------------------------------
 
 
 
@@ -787,7 +797,7 @@ Outline
 
 .. class:: small
 
-     **Full JUNO Geometry j1808v5**
+     **Full JUNO Analytic Geometry j1808v5**
 
      * "calibration" source genstep at center of scintillator
 
@@ -916,7 +926,7 @@ Outline
         :align: center
 
         +--------------------+----------------------------+
-        | JUNO Full, 400M photons from center             |
+        | JUNO analytic, 400M photons from center         |
         +====================+============================+
         | Geant4 Extrap.     | 95,600 s (26 hrs)          |
         +--------------------+----------------------------+
@@ -946,7 +956,7 @@ Outline
         :align: center
 
         +-------------------------+------------------+------------------+
-        | JUNO Full, 400M photons from center        |   Speedup        |
+        | JUNO analytic, 400M photons from center    |   Speedup        |
         +=========================+==================+==================+
         | Opticks RTX ON (i)      | 58s              |  x1660           |
         +-------------------------+------------------+------------------+
@@ -981,35 +991,9 @@ Outline
 .. table:: 
    :align: center
 
-   +-------------------------------------------------+
-   | **5x Speedup from RTX with full JUNO geometry** |
-   +-------------------------------------------------+
-
-
-
-.. comment
-
-
-    .. raw:: html
-
-        <style type="text/css">
-
-    td:nth-child(1) {
-        width: 20%;
-    }
-    td:nth-child(2) {
-        width: 30%;
-    }
-    td:nth-child(3) {
-        width: 50%;
-    }
-
-        </style>
-
-        :widths: 3 20 5 5 5 
-        :align: center
-
-        Compare full JUNO geometry and simple box-in-box geometry in analytic and triangulated forms 
+   +-----------------------------------------------------+
+   | **5x Speedup from RTX with JUNO analytic geometry** |
+   +-----------------------------------------------------+
 
 
 
@@ -1880,6 +1864,12 @@ Outline
 
     dhart_siggraph_2019_OptiX_5_traversal
     /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
+
+    scan-pf-check-GUI-TO-BT5-SD
+    /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-BT5-SD.png 1280px_720px
+
+    scan-pf-check-GUI-TO-SC-BT5-SD
+    /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD.png 1280px_720px
 
     scan-pf-0_Interval_over_Launch
     /env/presentation/ana/scan-pf-0/Interval_over_Launch.png 1280px_720px

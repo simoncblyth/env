@@ -40,6 +40,11 @@ Opticks Oct 2018 JUNO Detector Video
 Preprocessor phase for single source yielding multiple versions of presentation
 ---------------------------------------------------------------------------------
 
+Note that the preprocessor leaves blocks of empty lines where the
+"#ifdef" and non-picked blocks were. So it is necessary to be cautions 
+precisely where to place the "#ifdef" "#else" "#endif"  as the 
+the resulting blocks of blank lines can be significant to RST.
+
 * http://jkorpela.fi/html/cpre.html
 
 ::
@@ -125,23 +130,8 @@ Presentations online
 Shrinking PDFs with ColorSync Utility
 ---------------------------------------
 
-* https://www.cultofmac.com/481247/shrink-pdfs-colorsync-utility/
-
-* use "Live update from filter inspector"
-* copied the existing "Reduce File Size" filter
-* modified "Reduce File Size Copy" removed Image Sampling, set Image Compression to JPEG 75% 
-  
-  * PDF size reduced from 49M to 15M and quality reduction difficult to notice
-
-::
-
-    epsilon:Desktop blyth$ du -hs opticks*
-     49M	opticks_gpu_optical_photon_simulation_jul2018_chep.pdf
-     15M	opticks_gpu_optical_photon_simulation_jul2018_chep_j75.pdf
-
-
-Steps
-~~~~~~~
+Usage Steps
+~~~~~~~~~~~~
 
 1. spotlight search for "ColorSync Utility.app"
 2. select "Filters" tab
@@ -157,6 +147,29 @@ Compare sizes::
     epsilon:Desktop blyth$ du -hs opticks_gpu_optical_photon_simulation_jul2018_chep*
      15M	opticks_gpu_optical_photon_simulation_jul2018_chep.pdf
      49M	opticks_gpu_optical_photon_simulation_jul2018_chep_uncompressed.pdf 
+
+    epsilon:Desktop blyth$ du -h opticks_nov2019*
+     74M	opticks_nov2019_chep.pdf
+     20M	opticks_nov2019_chep_.pdf
+
+
+
+Setup Steps
+~~~~~~~~~~~~~~~
+
+* https://www.cultofmac.com/481247/shrink-pdfs-colorsync-utility/
+
+* use "Live update from filter inspector"
+* copied the existing "Reduce File Size" filter
+* modified "Reduce File Size Copy" removed Image Sampling, set Image Compression to JPEG 75% 
+  
+  * PDF size reduced from 49M to 15M and quality reduction difficult to notice
+
+::
+
+    epsilon:Desktop blyth$ du -hs opticks*
+     49M	opticks_gpu_optical_photon_simulation_jul2018_chep.pdf
+     15M	opticks_gpu_optical_photon_simulation_jul2018_chep_j75.pdf
 
 
 TODO
