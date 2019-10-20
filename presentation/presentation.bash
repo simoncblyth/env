@@ -37,6 +37,32 @@ Opticks Oct 2018 JUNO Detector Video
 * https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=3927
 
 
+Preprocessor phase for single source yielding multiple versions of presentation
+---------------------------------------------------------------------------------
+
+* http://jkorpela.fi/html/cpre.html
+
+::
+
+   gcc -E -P -x c -traditional-cpp   -DTOKEN  t.rst    # emits to stdout with ifdef etc... obeyed 
+
+E
+   use preprocessor only
+P
+   dont add line directives   
+C
+   smth to do with comments 
+traditional-cpp
+   avoid trimming trailing whitespace touching and collapsing multi-char whitespace to one char, 
+   which breaks RST gridtables 
+
+   * :google:`prevent C preprocessor from collapsing whitespace`
+   * https://stackoverflow.com/questions/445986/how-to-force-gcc-preprocessor-to-preserve-whitespace
+
+
+* NB switch all # comments in RST to use ## to avoid invalid preprocessor directive errors
+
+
 Workflow for preparing slides
 ------------------------------
 
@@ -1007,52 +1033,72 @@ presentation-ls(){   presentation-cd ; ls -1t *.txt ; }
 presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 
 
-#presentation-name(){ echo gpu_accelerated_geant4_simulation ; }
-#presentation-name(){ echo optical_photon_simulation_with_nvidia_optix ; }
-#presentation-name(){ echo optical_photon_simulation_progress ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_psroc ; }
+#presentation-iname(){ echo gpu_accelerated_geant4_simulation ; }
+#presentation-iname(){ echo optical_photon_simulation_with_nvidia_optix ; }
+#presentation-iname(){ echo optical_photon_simulation_progress ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_psroc ; }
 
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_march2016 ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_april2016_gtc ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_may2016_lecospa ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2016_weihai ; }
-#presentation-name(){ echo jnu_cmake_ctest ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_oct2016_chep ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_nov2016_llr ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jan2017_psroc ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_jinan ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2018_ihep ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_sep2018_qingdao ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_oct2018_ihep ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jan2019_sjtu ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
-#presentation-name(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }
-presentation-name(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
-#presentation-name(){ echo dybdb_experience ; }
-#presentation-name(){ echo opticks.key ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_march2016 ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_april2016_gtc ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_may2016_lecospa ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2016_weihai ; }
+#presentation-iname(){ echo jnu_cmake_ctest ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2016_chep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2016_llr ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jan2017_psroc ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2017_ihep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2017_jinan ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2017_wollongong ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2018_chep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2018_ihep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_sep2018_qingdao ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2018_ihep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jan2019_sjtu ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }
+presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
+#presentation-iname(){ echo dybdb_experience ; }
+#presentation-iname(){ echo opticks.key ; }
+
+presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
+presentation-preprocessor-args-smry(){ printf "%s\n" -DSMRY ; } 
+presentation-preprocessor-args(){  [ -n "$SMRY" ] && echo $(presentation-preprocessor-args-smry) || echo $(presentation-preprocessor-args-full) ; } 
+
+presentation-oname(){  [ -n "$SMRY" ] && echo opticks_oct2019_dance || echo opticks_nov2019_chep ; }
+
+
 
 
 presentation-info(){ cat << EOI
 
-    presentation-name        : $(presentation-name)
+    presentation-iname       : $(presentation-iname)
+    presentation-oname       : $(presentation-oname)
+
     presentation-path        : $(presentation-path)
     presentation-url-remote  : $(presentation-url-remote)
     presentation-url-local   : $(presentation-url-local)
     presentation-dir         : $(presentation-dir)
     presentation-bdir        : $(presentation-bdir)
 
+    PAGE : $PAGE
+    SMRY : $SMRY
+
+    Setting SMRY input envvar switches from the default full args to smry ones
+                        
+    presentation-preprocessor-args-full : $(presentation-preprocessor-args-full)
+    presentation-preprocessor-args-smry : $(presentation-preprocessor-args-smry)
+    presentation-preprocessor-args      : $(presentation-preprocessor-args)
 
 EOI
 }
 
 
-presentation-path(){ echo $(presentation-dir)/$(presentation-name).txt ; }
+presentation-path(){ echo $(presentation-dir)/$(presentation-iname).txt ; }
 presentation-export(){
-   export PRESENTATION_NAME=$(presentation-name)
+   export PRESENTATION_INAME=$(presentation-iname)
+   export PRESENTATION_ONAME=$(presentation-oname)
+   export PRESENTATION_PREPROCESSOR_ARGS=$(presentation-preprocessor-args)
 }
 presentation-e(){ vi $(presentation-path) ; }
 presentation-edit(){ vi $(presentation-path) ; }
@@ -1084,7 +1130,7 @@ presentation-remote(){
    echo simoncblyth.bitbucket.io
 }
 
-presentation-url-local(){ echo http://localhost/env/presentation/$(presentation-name).html?page=${1:-0} ; }
+presentation-url-local(){ echo http://localhost/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
 presentation-open(){
    open $(presentation-url-local $*)
    sleep 0.3
@@ -1100,7 +1146,7 @@ presentation-openc(){
 }
 
 
-presentation-url-remote(){   echo http://$(presentation-remote)/env/presentation/$(presentation-name).html?page=${1:-0} ; }
+presentation-url-remote(){   echo http://$(presentation-remote)/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
 presentation-open-remote(){  open $(presentation-url-remote $*) ; }
 
 presentation--(){
@@ -1110,6 +1156,6 @@ presentation--(){
    presentation-open ${PAGE:-0}
 }
 
-
+presentation--s(){ SMRY=1 presentation-- ; }
 
 

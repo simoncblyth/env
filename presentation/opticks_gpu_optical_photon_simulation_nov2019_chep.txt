@@ -38,15 +38,25 @@
         <h2 style="background-color:lightgrey;text-align:center"> https://bitbucket.org/simoncblyth/opticks </h2>
     </h1>
     </header>
- 
     </div>
 
+
+#ifdef FULL
+.. raw:: html
+
     <img style="position:absolute; top:200px; LEFT:100px; WIDTH:200px; " src="/env/presentation/juno/JUNO_logo.png"  />
-
-
     <div class="mycredit">
     <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; On behalf of the JUNO Collaboration &mdash; CHEP, November 2019, Adelaide</h2>
     </div>
+
+#else
+.. raw:: html
+
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; DANCE Workshop, October 2019, Houston</h2>
+    </div>
+
+#endif
 
 
 
@@ -815,9 +825,9 @@ Outline
 
    update these profilesmry.py plots with::
 
-       scan-plot     # on workstation    
-       scan-pub      # on laptop with simoncblyth.bitbucket.org clone
-       scan-pubrst   # prepare RST for inclusion at tail 
+       scan-plot     ## on workstation    
+       scan-pub      ## on laptop with simoncblyth.bitbucket.org clone
+       scan-pubrst   ## prepare RST for inclusion at tail 
 
 
 :i:`scan-pf-1_NHit`
@@ -1359,7 +1369,7 @@ Outline
         **Status : validation iterations ongoing**  
 
         * direct comparison of random aligned bi-simulations
-        * 1st release on **/cvmfs/opticks.ihep.ac.cn/**
+        * 1st release on /cvmfs/opticks.ihep.ac.cn/
 
         
 
@@ -1379,21 +1389,21 @@ Outline
 
 .. s5_background_image::
 
-    #
-    # slide titles and background image urls, 
-    # including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
-    # and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
-    #
-    # NB1 slide titles here must match those in body precisely, 
-    # NB2 also ensure all slide titles are unique
-    #
-    #slide0
-    #/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
-    #/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
-    #
-    #   wide targetting 1280x720
-    #   
-    #
+    ##
+    ## slide titles and background image urls, 
+    ## including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    ## and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    ##
+    ## NB1 slide titles here must match those in body precisely, 
+    ## NB2 also ensure all slide titles are unique
+    ##
+    ##slide0
+    ##/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    ##/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    ##
+    ##   wide targetting 1280x720
+    ##   
+    ##
     slide0
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
@@ -1428,13 +1438,13 @@ Outline
     /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
 
 
-    # keynote wide default is 1920x1080  aspect 1.77777777 16:9
-    # but my slides use       1280x720
-    # used document panel at top right to change to custom size of 1280x720
-    # then exported from Keynote as Images selecting PNG creates
-    # a PNG of size 1280x720
-    #   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
-    #
+    ## keynote wide default is 1920x1080  aspect 1.77777777 16:9
+    ## but my slides use       1280x720
+    ## used document panel at top right to change to custom size of 1280x720
+    ## then exported from Keynote as Images selecting PNG creates
+    ## a PNG of size 1280x720
+    ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
+    ##
     Geant4OpticksWorkflow
     /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
 
@@ -1599,8 +1609,8 @@ Outline
 
     Daya Bay Antineutrino Detection via Inverse Beta Decay 2
     /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
-    # a = np.array([1676.0, 1192.0])
-    # .8*720.*a/1192.
+    ## a = np.array([1676.0, 1192.0])
+    ## .8*720.*a/1192.
 
     Daya Bay Energy Response Model (1)
     /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
@@ -1608,25 +1618,25 @@ Outline
     Daya Bay Energy Response Model (2)
     /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
 
-    # a = np.array([2392., 1424.]) ; .8*720*a/a[1]
+    ## a = np.array([2392., 1424.]) ; .8*720*a/a[1]
 
 
 
     Daya Bay Energy Response Model : Fit to Calibration Data 1
     /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
-    # a = np.array([1760., 1280.])
-    # .8*720.*a/1280.   792px_576px
-    # 693.,  504
+    ## a = np.array([1760., 1280.])
+    ## .8*720.*a/1280.   792px_576px
+    ## 693.,  504
 
     Daya Bay Energy Response Model : Fit to Calibration Data 2
     /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
-    # a = np.array([1698., 1166.])
-    # .8*720.*a/1166. 
+    ## a = np.array([1698., 1166.])
+    ## .8*720.*a/1166. 
     
     Daya Bay nGd Analysis : Most Precise Theta13
     /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
-    # a = np.array([2140., 1266.])
-    # .8*720.*a/1166.
+    ## a = np.array([2140., 1266.])
+    ## .8*720.*a/1166.
 
 
     Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
@@ -1683,9 +1693,9 @@ Outline
     /env/presentation/nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
 
 
-    #
-    #  original 2880px_1620px
-    #  half     1440px_810px
+    ##
+    ##  original 2880px_1620px
+    ##  half     1440px_810px
 
     NVIDIA Turing GPU : 72 SM, 4608 CUDA cores
     /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
@@ -1702,19 +1712,19 @@ Outline
     Raytrace Diagram
     /env/presentation/graphics/1024px-ray_trace_diagram.svg.png 1280px_720px
 
-    # https://images.anandtech.com/doci/13282/NV_Turing_Editors_Day_132.png
-    #
-    #   1280 720
-    #   1920 1080  *1.5
-    #  https://www.anandtech.com/Gallery/Album/6660#6
-    # 
+    ## https://images.anandtech.com/doci/13282/NV_Turing_Editors_Day_132.png
+    ##
+    ##   1280 720
+    ##   1920 1080  *1.5
+    ##  https://www.anandtech.com/Gallery/Album/6660##6
+    ## 
 
     j1808_top_ogl
     /env/presentation/j1808/j1808_top_ogl.png 1280px_720px
 
     j1808_top_rtx
     /env/presentation/j1808/j1808_top_rtx.png 1280px_720px
-    #   1920 1080
+    ##   1920 1080
 
     j1808_escapes
     /env/presentation/j1808/j1808_escapes.png
@@ -1807,7 +1817,7 @@ Outline
 
     Where Next for Opticks ?
     /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
-    #/env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 640px_300px
+    ##/env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 640px_300px
 
 
 
@@ -1838,15 +1848,15 @@ Outline
     Useful Speedup > 1000x : But Why Not Giga Rays/s ? (1 photon ~10 rays)
     /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 720px_405px 10px_210px
 
-    # /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 640px_360px 20px_260px
-    # 
-    #
-    #
-    #
-    # https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=5079
-    #
-    # cp ~/Documents/JUNOIntro/JUNOIntro.00[1,2,3,4].png ~/simoncblyth.bitbucket.io/env/Documents/JUNOIntro/
-    #
+    ## /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 640px_360px 20px_260px
+    ## 
+    ##
+    ##
+    ##
+    ## https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=5079
+    ##
+    ## cp ~/Documents/JUNOIntro/JUNOIntro.00[1,2,3,4].png ~/simoncblyth.bitbucket.io/env/Documents/JUNOIntro/
+    ##
 
     JUNO_Intro_1
     /env/Documents/JUNOIntro/JUNOIntro.001.png 1280px_720px

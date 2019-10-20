@@ -18,72 +18,86 @@ PYTHON?=/opt/local/bin/python
 FOOTNOTE_REFERENCES="brackets"
 
 PAGE=0
-#REMOTEHOST=simoncblyth.bitbucket.org
-#DOCBASE=$(HOME)/simoncblyth.bitbucket.org
 
 REMOTEHOST=simoncblyth.bitbucket.io
 DOCBASE=$(HOME)/simoncblyth.bitbucket.io
 
-
-SOURCES=$(PRESENTATION_NAME).txt
+PREPROCESSOR_ARGS=$(PRESENTATION_PREPROCESSOR_ARGS)
 
 REALPWD=$(realpath $(PWD))   # avoids requirement to be at ~/env/wherever rather than symbolically linked ~/e/wherever
 RELDIR=$(subst $(ENV_HOME),,$(REALPWD)) 
+
 PUBDIR=$(addprefix $(DOCBASE)/env,$(RELDIR))
 PUBURL=$(addprefix http://localhost/env,$(RELDIR))
 PUBURLR=$(addprefix http://$(REMOTEHOST)/env,$(RELDIR))
 
-SLIDES_HTML=$(subst .txt,.html,$(SOURCES))
 
-SLIDES=$(addprefix $(PUBDIR)/,$(SLIDES_HTML))
-PDFS=$(addprefix $(PUBDIR)/,$(subst .txt,.pdf,$(SOURCES)))
-TXTS=$(addprefix $(PUBDIR)/,$(SOURCES))
-SLIDES_URL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURL)/,$(SLIDES_HTML)))
-SLIDES_RURL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURLR)/,$(SLIDES_HTML)))
+INAME=$(PRESENTATION_INAME)
+ONAME=$(PRESENTATION_ONAME)
+
+ITXT=$(INAME).txt
+IDEF=my_s5defs.txt
+
+
+OHTML=$(addprefix $(PUBDIR)/,$(ONAME).html)
+OPDF=$(addprefix $(PUBDIR)/,$(ONAME).pdf))
+OTXT=$(addprefix $(PUBDIR)/,$(ONAME).txt)
+ODEF=$(addprefix $(PUBDIR)/,$(IDEF))
+
+SLIDES_URL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURL)/,$(ONAME).html))
+SLIDES_RURL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURLR)/,$(ONAME).html))
 
 
 .PHONY: clean slides touch info ls open help
 
-slides: $(SLIDES) $(TXTS)
-	@echo created $^
+slides: $(OHTML) $(OTXT)
+	@echo Makefile.created $^
 	@echo local/remote urls : remote needs hg commit/push to update
 	@echo open $(SLIDES_URL)
 	@echo open $(SLIDES_RURL) 
 
-$(TXTS): $(SOURCES)
+$(ODEF): $(IDEF)
+	@echo Makefile.cp definitions into place
 	@cp $< $@
 
-$(SLIDES): $(SOURCES)
+$(OTXT): $(ITXT)
+	@echo Makefile.gcc preprocess source RST picking ifdef 
+	@gcc -E -P -traditional-cpp -x c $(PREPROCESSOR_ARGS) $< > $@
+
+$(OHTML): $(OTXT) $(ODEF)
+	@echo Makefile.rst2s5
+	@echo ITXT $(ITXT)
+	@echo OTXT $(OTXT)
+	@echo ODEF $(ODEF)
+	@echo OHTML $(OHTML)
 	mkdir -p $(PUBDIR) && DOCBASE=$(DOCBASE) $(PYTHON) ./rst2s5-2.6.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --visible-controls --language=en $< $@
 
-
-
-
-open: $(SLIDES)
+open: $(OHTML)
+	@echo Makefile.open
 	@echo open $(SLIDES_URL)
 
 info:
+	@echo Makefile.info
 	@echo RELDIR $(RELDIR)
 	@echo PUBDIR $(PUBDIR)
 	@echo PUBURL $(PUBURL)
-	@echo SLIDES $(SLIDES)
-	@echo SLIDES_HTML $(SLIDES_HTML)
+	@echo OHTML $(OHTML)
 	@echo SLIDES_URL $(SLIDES_URL)
-	@echo PDFS $(PDFS)
-	@echo TXTS $(TXTS)
+	@echo OPDF $(OPDF)
+	@echo OTXT $(OTXT)
 
 ls:
 	@echo PUBDIR $(PUBDIR)
 	@ls -l $(PUBDIR)
 
 touch: 
-	touch $(SOURCES)
+	touch $(ITXT)
 
 help:
 	$(PYTHON) ./rst2s5-2.6.py --help
 
 clean:
-	rm -f $(SLIDES) $(PDFS)
+	rm -f $(OHTML) $(OPDF)
 
 
 

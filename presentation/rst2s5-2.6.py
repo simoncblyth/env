@@ -110,7 +110,7 @@ def collect_titles( doctree ):
     return titles, comments
 
 
-def collect_resources( doctree ):
+def collect_resources( doctree, dump=False ):
     """
     :param doctree: 
     :return urls, paths:
@@ -139,7 +139,9 @@ def collect_resources( doctree ):
         path = resolve_resource( url , docbase=os.environ['DOCBASE'])
         paths.append(path)
         ok = "OK" if os.path.exists(path) else "??"
-        print "%-4d %s %-60s %s " % (i, ok, url, path ) 
+        if dump:
+            print "%-4d %s %-60s %s " % (i, ok, url, path ) 
+        pass
     pass
     #log.info("collect_resources end")
     return urls, paths 
@@ -154,6 +156,30 @@ def resolve_resource( url, docbase ):
     pass
     path = os.path.abspath(os.path.join(root, url))
     return path
+
+
+
+def dump(titles, comments):
+    print "\n\n"
+    assert len(titles) == len(comments)
+    for i in range(len(titles)):
+        title = titles[i]  
+        cmms = comments[i]
+        print "%0.2d : %2d : %s " % (i, len(cmms), title )
+        print "=" * ( 15 + len(title) )
+        print
+        for cmm in cmms:
+            print 
+            txt = cmm.astext()
+            assert txt.startswith("comment")
+            lines = txt.split("\n")
+
+            print "\n".join(map(lambda line:"    %s" % line, lines[1:])) 
+            print 
+        pass
+        print 
+    pass
+
 
 
 def main():
@@ -197,30 +223,12 @@ def main():
     log.info("list of urls and resolved files from collect_resources") 
     urls, paths = collect_resources(pub.document)
     #print "\n".join(paths)
-    print "\n\n"
     log.info("list of titles from collect_titles") 
     titles, comments = collect_titles(pub.document)
 
     assert len(titles) == len(comments)
+    #dump(title, comments)
 
-    for i in range(len(titles)):
-        title = titles[i]  
-        cmms = comments[i]
-        print "%0.2d : %2d : %s " % (i, len(cmms), title )
-        print "=" * ( 15 + len(title) )
-        print
-        for cmm in cmms:
-            print 
-            txt = cmm.astext()
-            assert txt.startswith("comment")
-            lines = txt.split("\n")
-
-            print "\n".join(map(lambda line:"    %s" % line, lines[1:])) 
-            print 
-        pass
-        print 
-    pass
-    #return output
     return pub.document
 
 
