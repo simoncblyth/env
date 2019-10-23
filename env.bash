@@ -2051,3 +2051,4 @@ mapd-(){      . $(env-home)/tools/mapd.bash && mapd-env $* ; }
 licensehd-(){      . $(env-home)/tools/licensehd.bash && licensehd-env $* ; } 
 hg2git-(){      . $(env-home)/tools/hg2git/hg2git.bash && hg2git-env $* ; }
 mdl-(){      . $(env-home)/graphics/nvidia/mdl.bash && mdl-env $* ; }
+nest-(){      . $(env-home)/scintillation/nest/nest.bash && nest-env $* ; }

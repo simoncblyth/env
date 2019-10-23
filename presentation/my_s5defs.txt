@@ -72,6 +72,15 @@
             clear: right;
         }
 
+        table.mytable th {
+             background-color: #ede;
+        }
+        table.mytable tr:nth-child(even) {
+            background-color: #F3F3FF;
+        }
+        table.mytable tr:nth-child(odd) {
+            background-color: #FFFFEE;
+        }
 
 
     </style>

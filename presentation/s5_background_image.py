@@ -12,12 +12,20 @@ class s5backgroundimage(nodes.General, nodes.Inline, nodes.Element):
 def render_s5backgroundimage( n ):
     """
     http://www.w3schools.com/cssref/tryit.asp?filename=trycss3_background-size
+
+
+    Example of a one content pair in s5_background_image directive::
+
+          Where Next for Opticks ?
+          /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
+
     """
 
     div_tmpl = r"""div.slide#%(tid)s{
              background-image: url(%(url)s);
              background-size: %(size)s;
              background-position: %(position)s;
+             %(extra)s
           }"""
 
     style_tmpl = r"""
@@ -40,14 +48,18 @@ def render_s5backgroundimage( n ):
         title, spec_line = pair
         spec_elem = spec_line.split()
         nelem = len(spec_elem)
-        size, position = "auto_auto", "0px_0px"
+        size, position, extra = "auto_auto", "0px_0px", ""
         if nelem > 0:url = spec_elem[0] 
         if nelem > 1:size = spec_elem[1]
         if nelem > 2:position = spec_elem[2]
+        if nelem > 3:extra = spec_elem[3]
         pass
         _ = lambda _:_.replace("_"," ")
-        urls.append(url)  
-        divs.append( div_tmpl % dict(tid=nodes.make_id(title), url=url, size=_(size),position=_(position))) 
+        urls.append(url) 
+        if len(extra) > 0: 
+            extra = "%s ; " % extra  
+        pass
+        divs.append( div_tmpl % dict(tid=nodes.make_id(title), url=url, size=_(size),position=_(position), extra=_(extra))) 
     pass
     html = style_tmpl % dict(divs="\n          ".join(divs))
     return html

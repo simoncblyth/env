@@ -1,0 +1,61 @@
+
+
+.. comment
+
+    Check
+    ------
+
+    +------------+------------+-----------+
+    | Header 1   | Header 2   | Header 3  |
+    +============+============+===========+
+    | body row 1 | column 2   | column 3  |
+    +------------+------------+-----------+
+    | body row 2 | Cells may span columns.|
+    +------------+------------+-----------+
+    | body row 3 | Cells may  | - Cells   |
+    +------------+ span rows. | - contain |
+    | body row 4 |            | - blocks. |
+    +------------+------------+-----------+
+
+
+    .. class:: center
+
+        +------------+------------+-----------+
+        | Header 1     Header 2     Header 3  |
+        +============+============+===========+
+        | body row 1 | column 2   | column 3  |
+        +------------+------------+-----------+
+        | body row 2 | Cells may span columns.|
+        +------------+------------+-----------+
+        | body row 3 | Cells may  | - Cells   |
+        +------------+ span rows. | - contain |
+        | body row 4 |            | - blocks. |
+        +------------+------------+-----------+
+
+
+.. comment
+
+    :i:`JUNO_Basics_Pedro_NuFact_2019`
+    ------------------------------------
+
+    .. raw:: html
+
+       <div class="mysidebar" style="position: absolute; top:20%; left:70%; width:25%; height:30% ;" >
+
+          <dl class="small docutils">
+            <dt>
+              <strong> Primary Goal </strong>
+            </dt>
+            <dd>determine neutrino mass ordering<dd> 
+          </dl>
+
+          <ul class="small">
+             <li>reactor neutrino oscillated energy spectrum</li>
+             <li>energy resolution 3% @ 1MeV </li>
+             <li>worlds largest LS detector</li>
+          </ul>
+
+       </div>
+
+
+
