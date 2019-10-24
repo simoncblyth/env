@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Adapted from the docutils rst2s5.py tool 
 
@@ -15,7 +16,7 @@ TODO:
 
 """
 
-
+from __future__ import print_function
 try:
     import locale
     locale.setlocale(locale.LC_ALL, '')
@@ -29,7 +30,7 @@ except:
 
 
 
-import os, sys, logging
+import os, sys, logging, codecs, re, textwrap
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -65,6 +66,12 @@ add_node( s5_video.s5video,
     html=(s5_video.visit_s5video_html, s5_video.depart_s5video_html)
 )
 
+import s5_talk
+directives.register_directive('s5_talk',s5_talk.S5TalkDirective)
+add_node( s5_talk.s5talk, 
+    html=(s5_talk.visit_s5talk_html, s5_talk.depart_s5talk_html)
+)
+
 import s5_background_image
 directives.register_directive('s5_background_image',s5_background_image.S5BackgroundImage)
 add_node( s5_background_image.s5backgroundimage, 
@@ -77,37 +84,80 @@ from docutils.core import default_description, default_usage
 from docutils.core import Publisher 
 
 
+def make_talk(title, tk=None):
+    if tk is None:
+        tk = s5_talk.s5talk()
+        tk.content = []
+    else: 
+        pass
+    pass
+    tk.title = title
+    return tk 
+
+
 def collect_titles( doctree ):
     """
     Slide titles
     """
     titles = []
     comments = []
+    talks = []
+
 
     maintitle = str(doctree.traverse(nodes.title)[0][0])
     titles.append(maintitle)
     comments.append([])
 
-    for section in doctree.traverse(nodes.section):
+    pt = re.compile("<[^>]*>")
+    utitle,_ = pt.subn("", maintitle)
+    utitle = "%0.2d %s " % (0, utitle)
+    print(utitle)
+
+
+    tks = doctree.traverse(s5_talk.s5talk)
+    print(" tks %s " % tks)
+
+    talks.append( make_talk(utitle, tks[0]) ) 
+
+
+    for isect, section in enumerate(doctree.traverse(nodes.section)):
         names = section.attributes['names']
         if len(names) > 0:
             title = names[0]
         else: 
             title = repr(names)
         pass
-        #print title
+        print(title)
         titles.append(title)
 
         cmms = section.traverse(nodes.comment) 
         cmms = filter(lambda cmm:cmm.astext().startswith("comment"), cmms )
         comments.append(cmms)
+
+        utitle = "%0.2d %s " % (isect+1, title)
+
+        tks = section.traverse(s5_talk.s5talk) 
+        #print(tks)
+        if len(tks) == 0:
+           tk = make_talk(utitle) 
+        else:
+           assert len(tks) == 1 
+           tk = tks[0]
+           tk.title = utitle
+        pass
+        talks.append(tk)
     pass
 
     if not IP is None:
         pass
         #IP.embed()
 
-    return titles, comments
+    return titles, comments, talks
+
+
+
+
+
 
 
 def collect_resources( doctree, dump=False ):
@@ -140,7 +190,7 @@ def collect_resources( doctree, dump=False ):
         paths.append(path)
         ok = "OK" if os.path.exists(path) else "??"
         if dump:
-            print "%-4d %s %-60s %s " % (i, ok, url, path ) 
+            print("%-4d %s %-60s %s " % (i, ok, url, path )) 
         pass
     pass
     #log.info("collect_resources end")
@@ -160,24 +210,26 @@ def resolve_resource( url, docbase ):
 
 
 def dump(titles, comments):
-    print "\n\n"
+    print("\n\n")
     assert len(titles) == len(comments)
     for i in range(len(titles)):
         title = titles[i]  
         cmms = comments[i]
-        print "%0.2d : %2d : %s " % (i, len(cmms), title )
-        print "=" * ( 15 + len(title) )
-        print
+        print("%0.2d : %2d : %s " % (i, len(cmms), title ))
+        print("=" * ( 15 + len(title) ))
+        print("\n")
+        if 1: continue
+
         for cmm in cmms:
-            print 
+            print("\n") 
             txt = cmm.astext()
             assert txt.startswith("comment")
             lines = txt.split("\n")
 
-            print "\n".join(map(lambda line:"    %s" % line, lines[1:])) 
-            print 
+            print("\n".join(map(lambda line:"    %s" % line, lines[1:])))
+            print("\n") 
         pass
-        print 
+        print("\n") 
     pass
 
 
@@ -208,6 +260,14 @@ def main():
     config_section = None
     enable_exit_status = True
     argv = sys.argv[1:]
+
+    path = argv[-1]
+    name = os.path.basename(path) 
+    stem, ext = os.path.splitext(name)
+    assert ext == ".html", (ext, name, path) 
+
+    log.info("argv: " + " ".join(argv))
+
     usage = default_usage 
     description = ('Generates S5 (X)HTML slideshow documents from standalone '
                    'reStructuredText sources. ' + default_description )
@@ -224,11 +284,48 @@ def main():
     urls, paths = collect_resources(pub.document)
     #print "\n".join(paths)
     log.info("list of titles from collect_titles") 
-    titles, comments = collect_titles(pub.document)
+    titles, comments, talks = collect_titles(pub.document)
 
     assert len(titles) == len(comments)
-    #dump(title, comments)
+    #dump(titles, comments)
 
+
+    #out = sys.stdout 
+
+    stem = stem.replace("_","-")
+    tpath = os.path.join("/tmp", "%s.rst" % stem )
+    log.info(tpath)
+    out = codecs.open(tpath, encoding='utf-8', mode='w')   
+
+    hdr = textwrap.dedent("""
+    :title: %s
+    :date: Oct 2019
+
+    Invisible Title
+    ===================
+
+    """ % stem )
+     
+    print(hdr, file=out)
+    twiddle = u"≈"
+
+    for tk in talks:
+        print(tk.title)
+
+        if tk.title.find(twiddle) > -1:
+            utitle = tk.title.replace(twiddle,"")
+        else:
+            utitle = tk.title
+        pass
+        print(utitle,file=out) 
+
+        print("-" * len(utitle), file=out)
+
+
+        print("\n", file=out)
+        print("\n".join(tk.content), file=out) 
+        print("\n\n", file=out)
+    pass
     return pub.document
 
 
