@@ -115,9 +115,13 @@ def collect_titles( doctree ):
 
 
     tks = doctree.traverse(s5_talk.s5talk)
-    print(" tks %s " % tks)
-
-    talks.append( make_talk(utitle, tks[0]) ) 
+    if len(tks) > 0: 
+        print(" tks %s " % tks)
+        talks.append( make_talk(utitle, tks[0]) ) 
+        with_talk = True 
+    else:
+        with_talk = False 
+    pass
 
 
     for isect, section in enumerate(doctree.traverse(nodes.section)):
@@ -134,19 +138,20 @@ def collect_titles( doctree ):
         cmms = filter(lambda cmm:cmm.astext().startswith("comment"), cmms )
         comments.append(cmms)
 
-        utitle = "%0.2d %s " % (isect+1, title)
+        if with_talk:
+            utitle = "%0.2d %s " % (isect+1, title)
 
-        tks = section.traverse(s5_talk.s5talk) 
-        #print(tks)
-        if len(tks) == 0:
-           tk = make_talk(utitle) 
-        else:
-           assert len(tks) == 1 
-           tk = tks[0]
-           tk.title = utitle
+            tks = section.traverse(s5_talk.s5talk) 
+            #print(tks)
+            if len(tks) == 0:
+               tk = make_talk(utitle) 
+            else:
+               assert len(tks) == 1 
+               tk = tks[0]
+               tk.title = utitle
+            pass
+            talks.append(tk)
         pass
-        talks.append(tk)
-    pass
 
     if not IP is None:
         pass

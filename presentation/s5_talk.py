@@ -21,6 +21,7 @@ class s5talk(nodes.General, nodes.Inline, nodes.Element):
 
 def render_s5talk( n ):
     tmpl = r"""
+        <!--  s5talk  -->
         <br/>
     """
     global count

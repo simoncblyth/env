@@ -1070,7 +1070,10 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jan2019_sjtu ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }
-presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
+
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
+presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
+
 #presentation-iname(){ echo dybdb_experience ; }
 #presentation-iname(){ echo opticks.key ; }
 
@@ -1078,9 +1081,22 @@ presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; }
 presentation-preprocessor-args-smry(){ printf "%s\n" -DSMRY ; } 
 presentation-preprocessor-args(){  [ -n "$SMRY" ] && echo $(presentation-preprocessor-args-smry) || echo $(presentation-preprocessor-args-full) ; } 
 
-presentation-oname(){  [ -n "$SMRY" ] && echo opticks_oct2019_dance || echo opticks_nov2019_chep ; }
+presentation-oname-smry(){
+    case $(presentation-iname) in 
+       opticks_gpu_optical_photon_simulation_nov2019_chep)      echo opticks_oct2019_dance ;; 
+    esac
+}
+presentation-oname-full(){
+    case $(presentation-iname) in 
+       opticks_gpu_optical_photon_simulation_nov2019_chep)      echo opticks_oct2019_chep ;; 
+    esac
+}
 
-
+presentation-oname-(){  [ -n "$SMRY" ] && echo $(presentation-oname-smry) || echo $(presentation-oname-full) ; }
+presentation-oname(){  
+   local oname=$(presentation-oname-)
+   [ -n "$TALK" ] && echo ${oname}_TALK || echo $oname 
+}
 
 
 presentation-info(){ cat << EOI
@@ -1096,9 +1112,13 @@ presentation-info(){ cat << EOI
 
     PAGE : $PAGE
     SMRY : $SMRY
+    TALK : $TALK
 
     Setting SMRY input envvar switches from the default full args to smry ones
-                        
+                
+    Setting TALK input envvar swithes to oname stem with _TALK appended 
+
+        
     presentation-preprocessor-args-full : $(presentation-preprocessor-args-full)
     presentation-preprocessor-args-smry : $(presentation-preprocessor-args-smry)
     presentation-preprocessor-args      : $(presentation-preprocessor-args)
@@ -1167,8 +1187,21 @@ presentation--(){
    presentation-info
    presentation-make
    presentation-open ${PAGE:-0}
+   presentation-rst2talk
 }
 
 presentation--s(){ SMRY=1 presentation-- ; }
 
+presentation-rst2talk(){ 
+
+   local msg="=== $FUNCNAME :"
+   local path=$(presentation-iname).txt
+   presentation-c
+
+   case $(presentation-iname) in
+      *_TALK) echo $msg nothing to do ;; 
+           *) rst2rst.py $path ;; 
+   esac    
+
+}
 
