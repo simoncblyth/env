@@ -1884,8 +1884,6 @@ Outline
 
       * :red:`just a fast texture lookup on GPU` 
 
-#endif
-
 
 .. s5_talk::
 
@@ -1893,6 +1891,9 @@ Outline
 
     * easy: but memory + overhead wasteful way 
     * or not-so-certain but allowing to offload the photons to GPU 
+
+
+#endif
 
 
 
@@ -2105,18 +2106,20 @@ Outline
 .. s5_talk::
 
     There are nine talks or posters covering aspects to JUNO at the confernce. 
-   
 
 
-#endif
-
-
+#else
 
 .. s5_talk::
 
     This is a 360 degree view of the all the JUNO central detector PMTs,
     which I used a raytracing benchmark.
-    
+ 
+
+#endif
+
+
+   
 
 
 

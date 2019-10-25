@@ -141,6 +141,7 @@ Usage Steps
 5. pick the "Reduce File Size Copy" using drop down menu at bottom left
 6. press the "Apply" button at bottom right
 7. use "File > Save As" to save the result to a different name
+   (eg nacent convention of mine is to append an undercore before ".pdf")
 
 Compare sizes::
 
@@ -1071,8 +1072,12 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }
 
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
-presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
+presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
+
+# setting TALK only changes the oname not the iname
+# so still need to flip this
+
 
 #presentation-iname(){ echo dybdb_experience ; }
 #presentation-iname(){ echo opticks.key ; }
@@ -1084,18 +1089,20 @@ presentation-preprocessor-args(){  [ -n "$SMRY" ] && echo $(presentation-preproc
 presentation-oname-smry(){
     case $(presentation-iname) in 
        opticks_gpu_optical_photon_simulation_nov2019_chep)      echo opticks_oct2019_dance ;; 
+       opticks_gpu_optical_photon_simulation_nov2019_chep_TALK) echo opticks_oct2019_dance_TALK ;; 
     esac
 }
 presentation-oname-full(){
     case $(presentation-iname) in 
-       opticks_gpu_optical_photon_simulation_nov2019_chep)      echo opticks_oct2019_chep ;; 
+       opticks_gpu_optical_photon_simulation_nov2019_chep)      echo opticks_nov2019_chep ;; 
+       opticks_gpu_optical_photon_simulation_nov2019_chep_TALK) echo opticks_nov2019_chep_TALK ;; 
     esac
 }
 
 presentation-oname-(){  [ -n "$SMRY" ] && echo $(presentation-oname-smry) || echo $(presentation-oname-full) ; }
 presentation-oname(){  
    local oname=$(presentation-oname-)
-   [ -n "$TALK" ] && echo ${oname}_TALK || echo $oname 
+   [ -n "$TALK" -a "${oname: -5}" != "_TALK" ]  && echo ${oname}_TALK || echo $oname 
 }
 
 
@@ -1190,7 +1197,9 @@ presentation--(){
    presentation-rst2talk
 }
 
-presentation--s(){ SMRY=1 presentation-- ; }
+presentation--t(){  TALK=1 presentation-- ; }
+presentation--s(){  SMRY=1 presentation-- ; }
+presentation--st(){ TALK=1 SMRY=1 presentation-- ; }
 
 presentation-rst2talk(){ 
 

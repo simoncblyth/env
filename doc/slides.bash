@@ -460,7 +460,9 @@ slides-get--(){
    echo $msg pagecount $pc 
    slides-get 0 $(( $pc - 1 ))
 }
-slides-get--s(){ SMRY=1 slides-get-- ; }
+slides-get--s(){  SMRY=1 slides-get-- ; }
+slides-get--st(){ TALK=1 SMRY=1 slides-get-- ; }
+slides-get--t(){  TALK=1 slides-get-- ; }
 
 
 

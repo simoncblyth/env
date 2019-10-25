@@ -146,7 +146,7 @@ def collect_titles( doctree ):
             if len(tks) == 0:
                tk = make_talk(utitle) 
             else:
-               assert len(tks) == 1 
+               assert len(tks) == 1 , (len(tks), tks) 
                tk = tks[0]
                tk.title = utitle
             pass

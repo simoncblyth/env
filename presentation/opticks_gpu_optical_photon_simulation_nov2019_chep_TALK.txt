@@ -1983,8 +1983,6 @@ Outline Talk
 
       * :red:`just a fast texture lookup on GPU` 
 
-#endif
-
 
 :small:`NEST + Opticks Approaches to Integration ?` Talk
 --------------------------------------------------------
@@ -1995,6 +1993,9 @@ Outline Talk
 
     * easy: but memory + overhead wasteful way 
     * or not-so-certain but allowing to offload the photons to GPU 
+
+
+#endif
 
 
 
@@ -2216,12 +2217,9 @@ Outline Talk
 .. class:: normal
 
     There are nine talks or posters covering aspects to JUNO at the confernce. 
-   
 
 
-#endif
-
-
+#else
 
 :i:`geocache_360` Talk
 ----------------------
@@ -2230,7 +2228,12 @@ Outline Talk
 
     This is a 360 degree view of the all the JUNO central detector PMTs,
     which I used a raytracing benchmark.
-    
+ 
+
+#endif
+
+
+   
 
 
 
