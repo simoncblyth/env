@@ -11,6 +11,15 @@ Plain Vanilla Usage of numpy
 See also *numpy-* for numpy development rather than usage.
 
 
+HEP starting to see the NumPy light
+-------------------------------------
+
+* https://github.com/scikit-hep/awkward-array#relationship-to-arrow
+* https://docs.google.com/document/d/1lj8ARTKV1_hqGTh0W_f01S6SsmpzZAXz9qqqWnEB3j4/edit#heading=h.ymw0o054nurw
+
+* https://iris-hep.org/projects/awkward.html
+
+
 Compressed NumPy ? bcolz
 ---------------------------
 

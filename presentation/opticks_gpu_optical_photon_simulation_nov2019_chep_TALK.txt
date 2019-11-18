@@ -56,15 +56,15 @@
 
 .. class:: normal
 
-    Opticks is an open source project that applies GPU ray tracing from NVIDIA OptiX
-    to optical photon simulation and integrates this with Geant4. 
+    Opticks is an open source project that applies state-of-the-art GPU ray tracing 
+    from NVIDIA OptiX to optical photon simulation and integrates this with Geant4. 
+    This results in drastic speedups of more than 3 orders of magnitude.
 
-    This means that any Geant4 simulation limited by optical photons
-    can easily remove those limits with the help of state-of-the-art GPU
-    ray tracing.  
+    Any simulation limited by optical photons can remove those limits by using Opticks.
 
-    NVIDIA Turing architecture GPUs have ray trace dedicated hardware 
-    which further boosts performance. 
+    This render shows the photons resulting from a muon crossing the JUNO scintillator, 
+    each line represents a single photon.
+
 
 
 
@@ -127,10 +127,11 @@ Outline Talk
 
 .. class:: normal
 
-   I will first introduce JUNO and a major challenge  
-   then the "tools used to create a solution"
-   before describing the solution and its performance.   
-
+   * I will first introduce JUNO and the challenge of 
+     optical photon simulation,  
+     
+   * then the "tools used to create a solution"
+   * before describing the Opticks solution and its performance.   
 
 
 
@@ -257,17 +258,21 @@ Outline Talk
 
 .. class:: normal
 
-   Muons travelling across most of the liquid scintillator will yield
+   Muons travelling across the liquid scintillator will yield
    many tens of millions of optical photons. This is a huge memory and time challenge 
    for Geant4 monte carlo production.
 
-   BUT : optical photons are naturally parallel : they can be considered 
-   to be produced only by two processes : Cherenkov and Scintillation and we
-   are mainly interested in photons that hit the PMTs 
- 
    Most of the CPU time is taken finding intersections between photons and geometry 
+   Fortunately simulation is not alone in this bottleneck.
 
-   Fortunately simulation is not alone in this problem.
+   Optical photons are naturally parallel : they can be considered 
+   to be produced only by two processes : Cherenkov and Scintillation and we
+   are mainly interested in photons that hit the PMTs.  
+
+   These characteristics make it straightforward integrate an external optical
+   simulation.
+ 
+
 
          
 
@@ -322,9 +327,9 @@ Outline Talk
     With simulation you want to know photon parameters at PMTs, with rendering 
     you need pixel values at the image plane.
 
-    Both these are limited by ray geometry intersevion, which is also known as ray tracing.
+    Both these are limited by ray geometry intersection, which is also known as ray tracing.
 
-    Ray tracing is used across many industries, which means that have been huge efforts
+    Ray tracing is used across many industries, which means that are huge efforts
     across decades to improve ray tracing perfromance.
     
 
@@ -359,7 +364,7 @@ Outline Talk
 
 .. class:: normal
 
-   It is necessary clarify the difference between 
+   It is good to clarify the difference between 
    the two primary graphics rendering techniques 
 
    Rasterization, which is the most common rendering technique
@@ -370,7 +375,7 @@ Outline Talk
    Ray tracing 
 
    * starts from the pixels, casts rays out into the 3D scene and finds intersects
-   * this can use analytic geometry, without approximation   
+   * this can use analytic geometry, without approximation (just like Geant4)   
    * its easier to create realistic images with ray tracing because its closer to the physics
 
 .. comment
@@ -415,13 +420,15 @@ Outline Talk
 
 .. class:: normal
 
-    In summer last year a few weeks after CHEP, 
-    NVIDIA announced a major advance in ray tracing performance 
-    with the NVIDIA Quadro RTX family of Turing architecture GPUs.
+    In summer last year NVIDIA announced a leap in ray tracing performance 
+    with the NVIDIA Turing architecture GPU.
 
-    This GPU has hardware dedicated to accelerating ray tracing, 
+    Turing Architecture GPUs have hardware dedicated to accelerating ray tracing, 
     which NVIDIA claims can reach 10 billion ray geometry intersections per second
     with a single GPU.
+
+    Assuming each photon costs 10 rays, that means the upper limit per GPU is 
+    1 billion photons/second.
     
 
 
@@ -460,9 +467,12 @@ Outline Talk
 
 .. class:: normal
 
-    Part of the ray tracing workload is shifted from 
-    the general purpose SM (streaming multiprocessor) to the 
-    fixed function RT core, which frees up the SM.
+    The performance jump is done by offloading 
+    ray tracing from the general purpose SM (streaming multiprocessor)
+    to the fixed function RT core.  
+ 
+    This frees up the SM. 
+
 
 
 
@@ -505,13 +515,12 @@ Outline Talk
 
 .. class:: normal
 
-    To the worlds gamers these new GPUs mean 
-    real-time cinematic rendering in new games. 
+    To the worlds gamers these new GPUs mean for the first time 
+    real-time cinematic rendering. 
 
-    NVIDIA is achieving this via a hybrid rendering it 
-    calls RTX
+    NVIDIA does this with hybrid rendering that it calls RTX
 
-    This uses:
+    RTX uses:
 
     * three types of hardware dedicated to specific tasks
     * general purpose SM, which CUDA C++ runs on   
@@ -554,10 +563,10 @@ Outline Talk
    The principal technique to accelerate ray geometry intersection 
    is an acceleration structure called a bounding volume hierarchy 
    
-   This divides space into a spatial index of progressively smaller bounds 
+   This divides space into a spatial index of progressively smaller boxes
 
    Traversing the tree of bounds allows to minimize the intersections
-   needed to right primitive on the bunny.
+   needed to find the intersect.
 
   
 
@@ -739,9 +748,11 @@ Outline Talk
     Result is a very simple port of the generation loop to the GPU. 
 
     Its doubly helpful to generate photons on GPU, as then
-    they take no CPU memory. Can entirely offload photon memory
-    to the GPU with only hits needing CPU memory. And also 
-    this keeps the overheads low as gensteps are a factor of 100 smaller
+    they take no CPU memory. 
+  
+    So can entirely offload photon memory to the GPU with only hits needing CPU memory. 
+
+    Also this keeps the overheads low as gensteps are typically a factor of 100 smaller
     than photons.   
  
     The geometry is also needed on the GPU, with all 
@@ -1027,7 +1038,7 @@ Outline Talk
    can be automatically translated into NVIDIA OptiX geometries.
 
    This is an OptiX ray trace image from the chimney region at the 
-   top of the JUNO central detector.
+   top of the JUNO scintillator sphere.
     
 
 :i:`j1808_top_ogl`
@@ -1103,7 +1114,7 @@ Outline Talk
 .. class:: normal
 
    Aligned bi-simulation very efficiently finds discrepancies. Because it 
-   is a direct comparison unclouded by statistical variation issues show up 
+   is a direct comparison unclouded by statistical variation : so issues show up 
    very clearly.   
 
    Comparing individual solids shows discrepancies at the fraction of a percent level.
@@ -1132,7 +1143,7 @@ Outline Talk
    The 64-bit integers hold up to 16 4-bit flags for each step of the photon.
 
    All of this is done using interop capabilities of OpenGL/CUDA/Thrust and OptiX
-   so GPU buffers can be written to rendered inplace with no copying around.
+   so GPU buffers can be written to and rendered inplace with no copying around.
 
 
 

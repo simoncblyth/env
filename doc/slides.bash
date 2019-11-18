@@ -465,6 +465,8 @@ slides-get--st(){ TALK=1 SMRY=1 slides-get-- ; }
 slides-get--t(){  TALK=1 slides-get-- ; }
 
 
+slides--(){ slides-get-- $* ; }
+
 
 
 

@@ -1035,6 +1035,9 @@ EOU
 }
 presentation-dir(){ echo $(env-home)/presentation ; }
 presentation-bdir(){ echo $HOME/simoncblyth.bitbucket.io/env/presentation ; }
+presentation-index-(){ index.py $(presentation-bdir) ; }
+presentation-index(){ open http://localhost/env/presentation/index.html ; }
+
 
 presentation-c(){   cd $(presentation-dir); }
 presentation-cd(){  cd $(presentation-dir); }
@@ -1072,8 +1075,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_jul2019_ihep ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }
 
-presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
+presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
 
 # setting TALK only changes the oname not the iname
 # so still need to flip this

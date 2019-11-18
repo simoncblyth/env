@@ -6,13 +6,14 @@ nvenc-env(){      elocal- ; }
 nvenc-usage(){ cat << EOU
 
 
-NVENV : NVIDIA GPU H.264/265 video encoding
+NVENC : NVIDIA GPU H.264/265 video encoding
 ================================================  
 
 * see ffmpeg-
 
 
-
+NvPipe : easier way of using nvenc ?
+--------------------------------------
 
 * https://developer.nvidia.com/gtc/2019/video/S9490/video
 
@@ -25,8 +26,42 @@ NVENV : NVIDIA GPU H.264/265 video encoding
   * p17 : NvPipe_CreateEncoder  / NvPipe_Encode 
 
 
+Informative NvPipe issue
+-----------------------------
+
+* https://github.com/NVIDIA/NvPipe/issues/68
+
+Hey, thanks for the positive feedback!
+
+Broadway.js has been successfully used with NvPipe in the past, e.g., in
+Benjamín Hernández's SIGHT project: https://github.com/benjha/Sight_FrameServer
+However, as a pure software decoder, Broadway.js can not leverage all hardware
+acceleration capabilities.
+
+You can also manually wrap the produced H.264 bitstream in an MP4 container,
+and stream the wrapped packages via WebSockets to a JavaScript client that uses
+Media Source Extensions to feed the data into a standard HTML video tag. The
+browser can then use hardware-accelerated decoding under the hood.
+
+To produce a valid MP4 stream that can be consumed by the browser, you first
+need to produce the overall MP4 header which contains some info on the video
+stream such as codec, resolution, frame rate etc., and then you wrap each H.264
+frame behind a small MP4 per-frame header. I suggest checking the MP4
+specification.
+
+Note that you need to implement some flow control on the server side, as the
+browser will try to play the stream at the constant specified frame rate. Just
+make sure that the server doesn't render/send frames faster, otherwise the
+browser will start buffering. On the contrary, try to stay close to a buffer
+underrun at all times.
+
+We have a working internal prototype of this approach. Please feel free to
+reach out directly via tbiedert@nvidia.com to discuss how you can leverage this
+for your usecase.
 
 
+NVENC Links
+---------------
 
 * perhaps should use higher level : Capture SDK (formerly GRID SDK) 
 * https://developer.nvidia.com/capture-sdk
