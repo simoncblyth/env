@@ -60,7 +60,7 @@ screenshots
 Of the active window
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-1. press Alt+PrintScreen
+1. press Fn+PrintScreen   (Fn: blue key to bottom left)
 
 
 Of a selection
