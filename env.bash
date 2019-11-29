@@ -2053,3 +2053,4 @@ hg2git-(){      . $(env-home)/tools/hg2git/hg2git.bash && hg2git-env $* ; }
 mdl-(){      . $(env-home)/graphics/nvidia/mdl.bash && mdl-env $* ; }
 nest-(){      . $(env-home)/scintillation/nest/nest.bash && nest-env $* ; }
 lighthouse2-(){      . $(env-home)/graphics/lighthouse2/lighthouse2.bash && lighthouse2-env $* ; }
+optix7sandbox-(){      . $(env-home)/graphics/optix7/optix7sandbox.bash && optix7sandbox-env $* ; }

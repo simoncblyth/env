@@ -8,6 +8,18 @@ vulkan-usage(){ cat << EOU
 Vulkan
 =======
 
+Luminaries
+-----------
+
+* https://www.saschawillems.de/
+
+
+Official Samples
+-------------------
+
+* https://www.khronos.org/blog/vulkan-releases-unified-samples-repository
+* https://github.com/khronosGroup/Vulkan-samples
+
 NVIDIA
 -------
 
