@@ -31,6 +31,9 @@ javascript selector at bottom right, or arrow keys, or jump to a page by enterin
 the page number and pressing return in your browser.  
 
 
+
+
+
 Opticks Oct 2018 JUNO Detector Video 
 ---------------------------------------
 
@@ -1076,7 +1079,12 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_oct2019_dance ; }
 
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
-presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
+
+presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar ; }
+
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
+
 
 # setting TALK only changes the oname not the iname
 # so still need to flip this
@@ -1099,6 +1107,7 @@ presentation-oname-full(){
     case $(presentation-iname) in 
        opticks_gpu_optical_photon_simulation_nov2019_chep)      echo opticks_nov2019_chep ;; 
        opticks_gpu_optical_photon_simulation_nov2019_chep_TALK) echo opticks_nov2019_chep_TALK ;; 
+                                                             *) echo $(presentation-iname) ;;  
     esac
 }
 

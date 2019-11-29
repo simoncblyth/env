@@ -37,12 +37,14 @@ ONAME=$(PRESENTATION_ONAME)
 
 ITXT=$(INAME).txt
 IDEF=my_s5defs.txt
+IIMG=s5_background_image.txt
 
 
 OHTML=$(addprefix $(PUBDIR)/,$(ONAME).html)
 OPDF=$(addprefix $(PUBDIR)/,$(ONAME).pdf))
 OTXT=$(addprefix $(PUBDIR)/,$(ONAME).txt)
 ODEF=$(addprefix $(PUBDIR)/,$(IDEF))
+OIMG=$(addprefix $(PUBDIR)/,$(IIMG))
 
 SLIDES_URL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURL)/,$(ONAME).html))
 SLIDES_RURL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURLR)/,$(ONAME).html))
@@ -60,11 +62,18 @@ $(ODEF): $(IDEF)
 	@echo Makefile.cp definitions into place
 	@cp $< $@
 
+$(OIMG): $(IIMG)
+	@echo Makefile.cp backgound img refs into place
+	@cp $< $@
+
+
+
+
 $(OTXT): $(ITXT)
 	@echo Makefile.gcc preprocess source RST picking ifdef 
 	@gcc -E -P -traditional-cpp -x c $(PREPROCESSOR_ARGS) $< > $@
 
-$(OHTML): $(OTXT) $(ODEF)
+$(OHTML): $(OTXT) $(ODEF) $(OIMG)
 	@echo Makefile.rst2s5
 	@echo ITXT $(ITXT)
 	@echo OTXT $(OTXT)

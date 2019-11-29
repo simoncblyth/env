@@ -56,6 +56,14 @@
              position: absolute; top:0%; left:5%; width:90%; height:10% ;
         }
 
+        div.mytitle2 {
+             font-size: 20px;
+             color: black;
+             position: absolute; top:5%; left:5%; width:90%; height:10% ;
+        }
+
+
+
         div.mycredit {
              font-size: 20px;
              color: black;

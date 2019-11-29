@@ -1,0 +1,562 @@
+
+
+
+
+.. s5_background_image::
+
+    ##
+    ## slide titles and background image urls, 
+    ## including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    ## and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    ##
+    ## NB1 slide titles here must match those in body precisely, 
+    ## NB2 also ensure all slide titles are unique
+    ##
+    ##slide0
+    ##/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    ##/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    ##
+    ##   wide targetting 1280x720
+    ##   
+    ##
+    slide0
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Opticks Benefits
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Visualizing An Optical Photon Simulation
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
+
+    Overview
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+
+    Cerenkov Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
+
+    Cerenkov Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
+
+    Scintillation Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
+
+    Scintillation Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
+
+    Standard Geant4 Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
+
+    External Photon Simulation Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
+
+
+    ## keynote wide default is 1920x1080  aspect 1.77777777 16:9
+    ## but my slides use       1280x720
+    ## used document panel at top right to change to custom size of 1280x720
+    ## then exported from Keynote as Images selecting PNG creates
+    ## a PNG of size 1280x720
+    ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
+    ##
+    Geant4OpticksWorkflow
+    /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
+
+    GGeoView
+    /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
+
+    GGeoView M1 Points
+    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
+
+    GGeoView Flag Selection 
+    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
+
+    GGeoView Cerenkov Geom M1
+    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
+  
+    Detecting Neutrinos via Optical Photons 1
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    Detecting Neutrinos via Optical Photons 2
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+ 
+    JPMT Inside Wide 
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
+
+    JPMT Wide
+    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
+  
+    JPMT Headview
+    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
+ 
+    JPMT Backview
+    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
+ 
+    JPMT Approach 
+    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
+
+    JPMT Arrival 
+    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
+ 
+    Optical Photon Simulation Problem...
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 2
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 3
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+ 
+    JPMT After Contact 
+    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
+  
+    JPMT Inside Outside 
+    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
+
+    NVIDIA OptiX In Action
+    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
+
+    PmtInBox approach 1
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox approach 2
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox after 1
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    PmtInBox after 2
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    Daya Bay PMT Wall Photo 1
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Daya Bay PMT Wall Photo 2
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Super-Kamiokande PMTs Not 16:9 
+    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
+
+    Super-Kamiokande PMTs 1
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 2
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 3
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 4
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Kamiokande II 1
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 2
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 3
+    /env/presentation/1987a.png 1280px_720px
+
+
+    Fast Optical Photon Simulation
+    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
+
+    Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Old Hamamatsu Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    Old Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+
+
+
+    Jiangmen Underground Neutrino Observatory (JUNO) 
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+    Jiangmen Underground Neutrino Observatory, Goals
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+
+    Dayabay Reactor Neutrino Expt, Far Site
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 2
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 3
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Geant4 : Monte Carlo Simulation Toolkit 
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    Geant4 : Monte Carlo Simulation Toolkit Generality
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    "Seeing" neutrinos via scintillation + Cherenkov light
+    /env/presentation/cherenkov.png 316px_203px 850px_400px
+
+    Opticks : Auto-Instancing
+    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
+
+    NVIDIA OptiX 1
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    NVIDIA OptiX 2
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    OpticksDocs
+    /env/presentation/OpticksDocs.png 1280px_720px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 1
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 2
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+    ## a = np.array([1676.0, 1192.0])
+    ## .8*720.*a/1192.
+
+    Daya Bay Energy Response Model (1)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    Daya Bay Energy Response Model (2)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    ## a = np.array([2392., 1424.]) ; .8*720*a/a[1]
+
+
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 1
+    /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
+    ## a = np.array([1760., 1280.])
+    ## .8*720.*a/1280.   792px_576px
+    ## 693.,  504
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 2
+    /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
+    ## a = np.array([1698., 1166.])
+    ## .8*720.*a/1166. 
+    
+    Daya Bay nGd Analysis : Most Precise Theta13
+    /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
+    ## a = np.array([2140., 1266.])
+    ## .8*720.*a/1166.
+
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
+    /env/presentation/op_full_raytrace_3.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)
+    /env/presentation/op_full_raytrace_1.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)
+    /env/presentation/op_full_raytrace_0.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
+    /env/presentation/op_full_raytrace_2.png 1280px_720px
+
+    Opticks Analytic JUNO Chimney, GPU Raytrace (0)
+    /env/presentation/j1707_chimney_analytic_raytrace.png 1280px_720px
+
+    Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)
+    /env/presentation/j1707-okop-snap.png 1280px_720px
+
+    GPU Instance Culling with Level Of Detail
+    /env/presentation/j1707_lod_oglrap_instcull.png 1280px_720px
+
+    Opticks Export of G4 geometry to glTF 2.0
+    /env/yoctoglrap/dyb_near_venice_half.png 1020px_737px
+
+    What are NumPy Arrays
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
+    What are NumPy Arrays 2
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
+    BVH
+    /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
+
+    Spatial Index Acceleration Structure
+    /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
+
+
+
+    BVH Pascal 
+    /env/presentation/nvidia/NV_Turing_Editors_Day_030.png 1280px_720px
+ 
+    BVH Turing
+    /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
+ 
+    Hardware Traversal of BVH Spatial Index
+    /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
+
+    SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU
+    /env/presentation/nvidia/SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU_half.png 1280px_720px
+
+    SIGGRAPH_2019_Eric_Enderton_RT_Cores
+    /env/presentation/nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
+
+
+    ##
+    ##  original 2880px_1620px
+    ##  half     1440px_810px
+
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores
+    /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores (spec)
+    /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+ 
+    Raytrace vs Raster
+    /env/presentation/nvidia/NV_Turing_Editors_Day_132.png 1280px_720px
+
+    Ray-tracing vs Rasterization
+    /env/presentation/nvidia/black.png 1280px_720px
+
+    Raytrace Diagram
+    /env/presentation/graphics/1024px-ray_trace_diagram.svg.png 1280px_720px
+
+    ## https://images.anandtech.com/doci/13282/NV_Turing_Editors_Day_132.png
+    ##
+    ##   1280 720
+    ##   1920 1080  *1.5
+    ##  https://www.anandtech.com/Gallery/Album/6660##6
+    ## 
+
+    j1808_top_ogl
+    /env/presentation/j1808/j1808_top_ogl.png 1280px_720px
+
+    j1808_top_rtx
+    /env/presentation/j1808/j1808_top_rtx.png 1280px_720px
+    ##   1920 1080
+
+    j1808_escapes
+    /env/presentation/j1808/j1808_escapes.png
+
+    geocache_360
+    /env/presentation/geocache_360.png 1280px_720px 0px_0px 
+
+    JUNO-360 benchmark with OptiX 6.0.0, RTX mode 
+    /env/presentation/geocache_360.png 1280px_720px
+
+    absmry_1M 
+    /env/presentation/ana/absmry_1M.png 1280px_720px
+
+    absmry_1M 2
+    /env/presentation/ana/absmry_1M.png 1280px_720px
+
+    ta34_1M
+    /env/presentation/ana/ta34_1M.png 1280px_720px
+
+    ta34_1M 2
+    /env/presentation/ana/ta34_1M.png 1280px_720px
+
+    tv34_1M_a
+    /env/presentation/ana/tv34_1M_a.png 1280px_720px
+
+    tv34_1M_b
+    /env/presentation/ana/tv34_1M_b.png 1280px_720px
+
+    tv21_1M_a
+    /env/presentation/ana/tv21_1M_a.png 1280px_720px
+
+    tv21_1M_a 2
+    /env/presentation/ana/tv21_1M_a.png 1280px_720px
+
+    tv21_1M_c
+    /env/presentation/ana/tv21_1M_c.png 1280px_720px
+
+    RTX_Speedup
+    /env/presentation/ana/RTX_Speedup.png 1280px_720px
+    
+    Overheads
+    /env/presentation/ana/Overheads.png 1280px_720px
+ 
+    Opticks_Speedup
+    /env/presentation/ana/Opticks_Speedup.png 1280px_720px
+ 
+    Opticks_vs_Geant4
+    /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
+
+    Opticks_vs_Geant4 2
+    /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
+    
+    NHit
+    /env/presentation/ana/NHit.png 1280px_720px
+
+    Interval_over_Launch
+    /env/presentation/ana/Interval_over_Launch.png 1280px_720px
+ 
+    TITAN RTX : 72 Raytrace Dedicated RT Cores, 4608 CUDA Cores, 24GB VRAM, 2500 USD
+    /env/presentation/nvidia/TITAN_RTX.png 1280px_720px
+ 
+    bench_20190526_143808
+    /env/presentation/ana/bench_20190526_143808.png  
+
+    bench_20190526_143808 2
+    /env/presentation/ana/bench_20190526_143808.png  
+
+    bench_20190526_202537
+    /env/presentation/ana/bench_20190526_202537.png  
+
+    bench_20190526_202537 2
+    /env/presentation/ana/bench_20190526_202537.png  
+
+
+
+    tv16_Fastener
+    /env/presentation/tv/tv16_Fastener.png
+
+    tv20_polycone_neck
+    /env/presentation/tv/tv20_polycone_neck.png
+
+    20inch PMT neck : "cylinder-torus" -> polycone
+    /env/presentation/tv/tv20_polycone_neck.png
+
+    genstep_interface
+    /env/presentation/simulation/genstep_interface.png 1280px_720px
+
+    Introducing OptiX 7  
+    /env/presentation/nvidia/Introducing_OptiX_7.png 1280px_720px
+
+    Where Next for Opticks ?
+    /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
+    ##/env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 640px_300px
+
+
+
+    TURING BUILT FOR RTX  
+    /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
+
+    TURING BUILT FOR RTX 2 
+    /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
+
+
+
+    NVIDIA RTX Metro Exodus
+    /env/presentation/nvidia/NVIDIA_RTX_Metro_Exodus_half.png 1280px_720px
+
+    Modern_GPU_RAY_Tracing
+    /env/presentation/nvidia/Modern_GPU_RAY_Tracing.png 1280px_720px
+
+    NVIDIA OptiX : programming model analogous to rasterization APIs : OpenGL shaders
+    /env/presentation/nvidia/Modern_GPU_RAY_Tracing.png 1280px_720px
+
+    NVIDIA_Quadro_RTX 8000 (48G)
+    /env/presentation/nvidia/NVIDIA_Quadro_RTX.png 1280px_720px
+
+
+    SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine
+    /env/presentation/nvidia/SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine.png 1280px_720px
+
+    Useful Speedup > 1000x : But Why Not Giga Rays/s ? (1 photon ~10 rays)
+    /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 720px_405px 10px_210px
+
+    ## /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 640px_360px 20px_260px
+    ## 
+    ##
+    ##
+    ##
+    ## https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=5079
+    ##
+    ## cp ~/Documents/JUNOIntro/JUNOIntro.00[1,2,3,4].png ~/simoncblyth.bitbucket.io/env/Documents/JUNOIntro/
+    ##
+
+    JUNO_Intro_1
+    /env/Documents/JUNOIntro/JUNOIntro.001.png 1280px_720px
+
+    JUNO_Intro_2
+    /env/Documents/JUNOIntro/JUNOIntro.002.png 1280px_720px
+
+    JUNO_Intro_3
+    /env/Documents/JUNOIntro/JUNOIntro.003.png 1280px_720px
+
+    JUNO_Intro_4
+    /env/Documents/JUNOIntro/JUNOIntro.004.png 1280px_720px
+
+
+    JUNO_Multipurpose_Pedro_NuFact_2019 
+    /env/presentation/juno/JUNO_Multipurpose_Pedro_NuFact_2019.png 960px_720px 0px_0px
+
+
+    dhart_siggraph_2019_OptiX_5_traversal
+    /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
+
+    dhart_siggraph_2019_OptiX_5_traversal
+    /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
+
+    scan-pf-check-GUI-TO-BT5-SD
+    /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-BT5-SD.png 1280px_720px
+
+    scan-pf-check-GUI-TO-SC-BT5-SD
+    /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD.png 1280px_720px
+
+    scan-pf-0_Interval_over_Launch
+    /env/presentation/ana/scan-pf-0/Interval_over_Launch.png 1280px_720px
+
+    scan-pf-0_NHit
+    /env/presentation/ana/scan-pf-0/NHit.png 1280px_720px
+
+    scan-pf-0_Opticks_Speedup
+    /env/presentation/ana/scan-pf-0/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-0_Opticks_vs_Geant4
+    /env/presentation/ana/scan-pf-0/Opticks_vs_Geant4.png 1280px_720px
+
+    scan-pf-0_Overheads
+    /env/presentation/ana/scan-pf-0/Overheads.png 1280px_720px
+
+    scan-pf-0_RTX_Speedup
+    /env/presentation/ana/scan-pf-0/RTX_Speedup.png 1280px_720px
+
+    scan-pf-0_RTX_Speedup 2
+    /env/presentation/ana/scan-pf-0/RTX_Speedup.png 1280px_720px
+
+
+    scan-pf-1_Interval_over_Launch
+    /env/presentation/ana/scan-pf-1/Interval_over_Launch.png 1280px_720px
+
+    scan-pf-1_NHit
+    /env/presentation/ana/scan-pf-1/NHit.png 1280px_720px
+
+    scan-pf-1_Opticks_Speedup
+    /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-1_Opticks_Speedup 2
+    /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-1_Opticks_vs_Geant4
+    /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+
+    scan-pf-1_Opticks_vs_Geant4 2
+    /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+
+
+    scan-pf-1_Overheads
+    /env/presentation/ana/scan-pf-1/Overheads.png 1280px_720px
+
+    scan-pf-1_RTX_Speedup
+    /env/presentation/ana/scan-pf-1/RTX_Speedup.png 1280px_720px
+
+    Opticks : Translates G4 Geometry to GPU, Without Approximation
+    /env/presentation/face_view_PMTs.png 640px_360px 20px_340px
+
+    CuPy : NumPy API (+some of SciPy) accelerated by NVIDIA CUDA : cuRAND/cuBLAS/cuSOLVER/cuSPARSE/Thrust/NCCL   
+    /env/presentation/cupy/cupy_is2.png 1016px_377px 150px_150px
+
+    CuPy : Easy Interface to NVIDIA CUDA stack 
+    /env/presentation/cupy/cupy_stack.png 1075px_429px 100px_100px
+
+
+
