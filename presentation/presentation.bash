@@ -1152,7 +1152,7 @@ presentation-export(){
    export PRESENTATION_ONAME=$(presentation-oname)
    export PRESENTATION_PREPROCESSOR_ARGS=$(presentation-preprocessor-args)
 }
-presentation-e(){ vi $(presentation-path) ; }
+presentation-e(){ cd $(presentation-dir) ; vi $(presentation-iname).txt ; }
 presentation-edit(){ vi $(presentation-path) ; }
 presentation-ed(){ vi $(presentation-path) ~/workflow/admin/reps/ntu-report-may-2017.rst ; }
 

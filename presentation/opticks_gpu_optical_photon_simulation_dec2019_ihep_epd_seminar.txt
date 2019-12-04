@@ -113,13 +113,21 @@ Outline
 
 .. s5_talk::
 
+
+   This is a talk of two halves
+
+   * first I will introdude Opticks
+     which focusses on solving a problem of optical photon simulation 
+ 
+   * and then more generally how your should 
+     think about your processing to make effective 
+     use of GPUs  
+
    * I will first introduce JUNO and the challenge of 
      optical photon simulation,  
      
    * then the "tools used to create a solution"
    * before describing the Opticks solution and its performance.   
-
-
 
 
 :i:`JUNO_Intro_1`
@@ -190,6 +198,13 @@ Geant4 : Monte Carlo Simulation Toolkit
 ----------------------------------------
 
 
+.. s5_talk::
+
+    Geant4 is the standard toolkit 
+    used to simulate detectors 
+    across several fields 
+
+
 Geant4 : Monte Carlo Simulation Toolkit Generality
 ----------------------------------------------------
 
@@ -218,6 +233,15 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
       https://geant4.web.cern.ch
 
+
+.. s5_talk::
+
+   including simulations of medical imaging scanners, 
+   and of satellites 
+
+   Geant4 is a very general tool : but most of it
+   is not needed for the simulation of optical photons 
+ 
 
 
 
@@ -546,85 +570,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    needed to find the intersect.
 
   
-
-
-
-#ifdef SKIP
-
-``Hardware Traversal of BVH Spatial Index``
---------------------------------------------
-
-
-.. comment
-
-   https://www.anandtech.com/show/13282/nvidia-turing-architecture-deep-dive/3 
-   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_029.png
-   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_030.png
-   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_031.png
-
-
-#endif
-
-
-
-.. comment
-
-
-    :small:`CPU vs GPU architectures, Latency vs Throughput`
-    ------------------------------------------------------------
-
-    .. class:: small
-
-        .. image:: /env/presentation/nvidia/cpu_vs_gpu_architecture.png
-           :width: 800px
-           :align: center
-
-    .. class:: small
-
-       Waiting for memory read/write, is major source of latency...
-
-       **CPU : latency-oriented : Minimize time to complete single task** : :red:`avoid latency with caching` 
-           * complex : caching system, branch prediction, speculative execution, ...
-
-       **GPU : throughput-oriented : Maximize total work per unit time** : :red:`hide latency with parallelism` 
-           * many simple processing cores, hardware multithreading, SIMD (single instruction multiple data)
-           * simpler : :green:`lots of compute (ALU)`, at expense of cache+control
-           * design assumes :red:`abundant parallelism`
-
-       Effective use of **Totally different processor architecture** -> :red:`Total reorganization of data and computation`  
-           
-
-    .. class:: tiny
-
-        Understanding Throughput-oriented Architectures
-        https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
-
-
-    .. comment
-
-       Latency hiding works using hardware multi-threading, so when one group of threads is blocked
-       waiting to read from global memory for example : other groups of thread and be resumed. This 
-       is only effective at hiding latency when there are enough other threads in flight at the same time.
-
-       Porting CPU code to run on the GPU : is not a straightforward thing to do, because the archirecture is totally 
-       different.  To make effective use of GPUs requires a total reorganization of data and compute. 
-
-
-
-    `TITAN RTX : 72 Raytrace Dedicated RT Cores, 4608 CUDA Cores, 24GB VRAM, 2500 USD`
-    ------------------------------------------------------------------------------------
-
-
-
-
-.. comment
-   
-    :i:`NVIDIA RTX Technology`
-    ------------------------------
-
-
-
-
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
 --------------------------------------------------------------------------------
@@ -1093,6 +1038,65 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    so GPU buffers can be written to and rendered inplace with no copying around.
 
 
+:small:`Recording the steps of Millions of Photons`  
+---------------------------------------------------------   
+
+.. sidebar:: Compression Essential
+
+    .. class:: small
+
+         Domain compression to fit in VRAM 
+
+         * 16 step records per photon -> 256 bytes/photon
+         * 10M photons -> 2.56 GB
+
+         **4-bit History Flags at Each Step** 
+
+    .. raw:: html
+
+         <pre class="mypretiny">
+         BT : boundary
+         BR : boundary reflect 
+         SC : bulk scatter
+         AB : bulk absorb 
+         SD : surface detect 
+         SA : surface absorb 
+         </pre>
+
+    .. class:: small
+
+         **seqhis**
+             :red:`64-bit integer history sequence`
+
+
+.. class:: small
+
+    Up to 16 steps of the photon propagation are recorded.
+
+    **Photon Array** : 4 * *float4* = 512 bits/photon
+
+    * *float4*: position, time  [32 * 4 = 128 bits]
+    * *float4*: direction, weight
+    * *float4*: polarization, wavelength
+    * *float4*: flags: material, boundary, history  
+
+    **Step Record Array** : 2 * *short4* = 2*16*4 = 128 bits/record
+
+    * *short4*: position, time (snorm compressed)  [4*16 = 64 bits]
+    * *uchar4*: polarization, wavelength (uchar compressed) [4*8 = 32 bits]
+    * *uchar4*: material, history flags [4*8 = 32 bits]  
+
+    Compression uses known domains of position (geometry center, extent),
+    time (0:200ns), wavelength, polarization. 
+
+
+.. s5_talk::
+
+    I mention this detail, because I am soon 
+    going to use the indexing of millions of photons 
+    as an example of the use of CUDA Thrust 
+
+
 
 :i:`scan-pf-check-GUI-TO-BT5-SD`
 ----------------------------------
@@ -1105,6 +1109,12 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    This is some nanoseconds later for a different history category. 
   
    I created this GUI to help with debugging the simulation. 
+
+
+
+
+
+
 
 
 
@@ -1280,44 +1290,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
  
 
-
-
-
-
-#ifdef SKIP
-
-:i:`scan-pf-1_Interval_over_Launch`
----------------------------------------
-
-
-.. raw:: html
-  
-     <pre>
-
-
-
-
-
-
-
-
-     </pre>
-
-
-.. sidebar:: :small:`Genstep/Hit Copying Overheads`
-
-     .. class:: small
-
-         **launch**
-           time of each OptiX launch (avg of 10)
-
-         **interval, including overhead**
-           time between subsequent launches (avg of 9)
-
-         :red:`Mostly < 10% Overhead beyond 20M photons`
-
-
-#endif
 
 
 
@@ -1557,92 +1529,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     .. class:: tiny
 
         JUNO: j1808v5, box-in-box: tboolean-box
-
-
-
-.. comment
-
-    :i:`geocache_360`
-    ---------------------------------------------------------
-
-
-    JUNO-360 benchmark with OptiX 6.0.0, RTX mode 
-    ---------------------------------------------------------
-
-    .. sidebar:: :small:`Ray tracing Benchmark`
-
-         .. class:: small
-
-             * JUNO 360 degree view
-             * Equirectangular Projection
-             * very high resolution 59M pixels 
-
-               * 10240x5760 = 8x8x1280x720  
-
-             * compare GPUs and RTX mode 
-             * checking scaling across multiple GPUs 
-
-
-
-    :i:`bench_20190526_202537`
-    ---------------------------------------------------------
-
-
-    :i:`bench_20190526_202537 2`
-    ---------------------------------------------------------
-
-
-    .. sidebar:: :small:`NVIDIA OptiX 6.0.0 : RTX Mode`
-
-         .. class:: small
-
-             Ray trace performance improvements:
-
-             * 1.25x with TITAN V
-             * 3.5x with TITAN RTX (RT Cores)
-             
-               * BVH traversal done in hardware
-               * analytic intersection still software
-               * triangle geometry can be done in hardware
-               
-
-             **Initially was 0.33x with RTX** 
-                OptiX developers helped find the cause
-               
-                * unused double precision torus code
-                * performance improved by eliminating *.f64* from PTX, *ptx.py*
-
-       
-
-
-
-    :i:`bench_20190526_143808`
-    ---------------------------------------------------------
-
-
-    :i:`bench_20190526_143808 2`
-    ---------------------------------------------------------
-
-
-    .. sidebar:: :small:`GPU Scaling Performance`
-
-         .. class:: small
-
-             **Opticks on IHEP GPU Cluster**
-
-             OptiX : Almost perfect scaling for 1,2,4 GPUs
-
-             * degrades for > 4 GPUs
-             * PCIe bus congestion, pinned host memory
-
-             "cvd" selects GPUs
-                CUDA_VISIBLE_DEVICES envvar
-             R0/R1
-                RTX mode OFF/ON
-
-
-             **NVIDIA Tesla V100 GPUs**
-                No RT Cores, RTX still gives ~ 1.25x
 
 
 
@@ -1932,54 +1818,8 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    NEXT
  
-   * cupy numpy ellipse example 
-
-   * data access : NumPy 
-
-   * GPU optimization is complicated and liable to change with each GPU generation, ie every year  
-
-     * GPUs still changing rapidly 
 
    * Amdahls Law 
-
-   Mental Model Talk : Things to Cover
-
-   * GPU as an afterthought, doesnt fly : need to rethink everything : might as well embrace the constraints
-
-     * data structure : array slot parallel 
-     * indices not pointers 
-     * serialization 
-     * processing  
-
-   * GPU accelerated libraries
-
-     * https://developer.nvidia.com/gpu-accelerated-libraries
-
-   * CUDA Thrust 
-
-     * what to hide and what to expose
- 
-     * development is iterative : starting with Thrust gives you a 
-       rocket to sit on for the setup of your processing 
-  
-     * no memory heirarchy, no launch config
-     * disadvantage : template metaprogramming : error verbosity 
-
-   * CUB cub-
-   * CUDPP 
-
-   * https://github.com/rapidsai/cusignal
-
-   * CUDA C++ : cannot use STL
-
-   * GPU coalescing : soa/aos
-
- 
-   * Higher Level CUDA
-
-     * :google:`Thrust CUB MGPU CUDPP`
-     * https://github.com/arrayfire/arrayfire
-
 
 
 
@@ -1987,9 +1827,80 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 ---------------------------------------------------------
 
 
-.. comment
+.. s5_talk::
 
-    qq
+    This is a 360 degree view of the all the JUNO central detector PMTs,
+    which I used a raytracing benchmark.
+ 
+
+
+:i:`Outline of Mental Model`
+---------------------------------------------------------
+
+.. raw:: html
+
+    <pre>
+
+
+    </pre>
+
+    <div class="mytitle2">
+    <header>
+    <h1 style="background-color:lightgrey"> 
+         <i>Opticks</i> : GPU Optical Simulation via NVIDIA® OptiX™ <br/> <span style="color:red">+ A Mental Model for Effective Application of GPUs </span> 
+    </h1>
+    </header>
+    </div>
+
+
+.. class:: tiny
+
+    * GPU Mental Model : Context and Constraints  
+                                                                                                                       
+      * Amdahls Law
+      * Understanding GPU Graphical Origins -> Effective GPU Computation                                            
+      * CPU Optimizes Latency, GPU Optimizes Throughput                                                             
+      * How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled                                           
+      * GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy                                             
+
+    * Parallel Processing 0th Step : Re-shape Data into "Parallel" Array Form
+
+    * High Level Tools 
+
+      * Survey of High Level General Purpose CUDA Packages 
+      * NumPy : Foundation of Python Data Ecosystem                                                                 
+      * CuPy : NumPy API (+ some of SciPy) accelerated by NVIDIA CUDA : cuRAND/cuBLAS/cuSOLVER/cuSPARSE/Thrust/NCCL 
+      * CuPy : Easy Interface to NVIDIA CUDA stack
+
+    * Example 1 : NumPy/CuPy Python interface 
+
+      * NumPy + CuPy Example : closest approach of Ellipse to a Point 
+      * Python vs NumPy vs CuPy
+      * Python vs NumPy vs CuPy : Python/NumPy ~ 10,  NumPy/CuPy ~ 1300
+
+    * Array Mechanics
+
+      * Persist NumPy Arrays to .npy Files from Python, Examine File Format
+      * Create and Write .npy Array from C/C++ with NP.hh header (No Python)
+      * C Union "Trick" Mixed Type Arrays -> Simpler + Faster CUDA Usage
+
+    * Example 2 : A Taste of Thrust 
+
+      * OpenGL Interactive Photon History Selection
+      * Photon History Indexing with CUDA Thrust
+      * Applying CUDA Thrust -> Translate Task into Processing "Primitives"
+
+    * Summary 
+      
+
+
+.. s5_talk::
+
+    If this is too small for you to read, 
+    then its for offline consumption.
+
+
+
 
 
 
@@ -2012,42 +1923,78 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     </div>
 
 
-.. class:: small
+.. class:: samll
 
-    * GPU Processing Context and Constraints  
-                                                                                                                       
-      * Understanding GPU Graphical Origins -> Effective GPU Computation                                            
-      * CPU Optimizes Latency, GPU Optimizes Throughput                                                             
-      * How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled                                           
-      * GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy                                             
-
-    * Tools 
-
-      * NumPy : Foundation of Python Data Ecosystem                                                                 
-      * CuPy : NumPy API (+ some of SciPy) accelerated by NVIDIA CUDA : cuRAND/cuBLAS/cuSOLVER/cuSPARSE/Thrust/NCCL 
-      * CuPy : Easy Interface to NVIDIA CUDA stack
-
+    * GPU Mental Model : Context and Constraints  
+    * Parallel Processing 0th Step : Re-shape Data into "Parallel" Array Form
+    * High Level Tools 
     * Example 1 : NumPy/CuPy Python interface 
-
-      * NumPy + CuPy Example : closest approach of Ellipse to a Point 
-      * Python vs NumPy vs CuPy
-      * Python vs NumPy vs CuPy : Python/NumPy ~ 10,  NumPy/CuPy ~ 1300
-
     * Array Mechanics
+    * Example 2 : A Taste of Thrust 
+    * Summary 
+      
+.. s5_talk::
 
-      * Persist NumPy Arrays to .npy Files from Python, Examine File Format
-      * Create and Write .npy Array from C/C++ with NP.hh header (No Python)
-      * C Union "Trick" Mixed Type Arrays -> Simpler + Faster CUDA Usage
+    Here are just the headings.
 
-    * Explore High Level CUDA Libs, Potential for "Effortless" Speedups
+    I will cover some of the background and the things you
+    needed to consider when using GPUs to accelerate some 
+    processing   
 
+
+.. comment
+
+    qq
+
+
+
+:small:`Amdahls "Law" : Expected Speedup Limited by Serial Processing`
+--------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`S(n) Expected Speedup`
+
+    .. comment
+
+       :width: 1176px
+       :height: 358px
+       :width: 588px 
+       :height: 179px
+            
+    .. image:: /env/presentation/parallel/amdahl.png
+       :width: 392px 
+       :height: 112px
+       :align: center
+
+
+    .. class:: small
+
+        *P* 
+             parallelizable proportion
+        *1-P*
+             non-parallelizable portion
+        *n*
+             parallel speedup factor  
+
+
+
+optical photon simulation, P ~ 99% of CPU time  
+
+* -> potential overall speedup S(n) is 100x 
+* even with parallel speedup factor >> 1000x  
+
+
+
+**Must consider processing "big picture"**
+
+* remove bottlenecks one by one
+* re-evaluate "big picture" after each  
 
 
 .. s5_talk::
 
-    This is a 360 degree view of the all the JUNO central detector PMTs,
-    which I used a raytracing benchmark.
- 
+   Serial Portion of processing determines the overall 
+   speedup because this goes to zero 
+
 
 
 :small:`Understanding GPU Graphical Origins -> Effective GPU Computation` 
@@ -2090,15 +2037,15 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
       * ideally : handle millions of items in each launch 
 
 
-.. comment
 
-    GPUs evolved to solve the extremely parallel problem of 3D graphics ... 
-    using small shaders. 
+.. s5_talk::
 
     Rasterization is the process of going from input 3D vertices 
-    which are collections of 4 floats to  
+    which are collections of 4 floats to pixel values. 
 
-    When developing with CUDA its best to keep these origins in mind. 
+    GPUs evolved to do this rasterization.
+
+    When using GPUs you should keep these origins in mind. 
 
     * for example, copying or operating on float4s 4*32bits is faster that *float3* 
       128bits are better for alignment reasons 
@@ -2106,12 +2053,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     * graphics pipeline is based around 4x4 matrices 
       and 4 component homogeneous coordinates
  
-    * graphics updates at something like 30/60 frames per second : so dont expect 
+    * graphics updates at something like 30/60 frames per second : so do not expect 
       to do thousands of launches per second, each lauchh has an overhead
 
-      * gain performance by doing more in each launch  
-
-
+    * performance is gained by doing more in each launch  
 
 
 
@@ -2150,6 +2095,17 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    Porting CPU code to run on the GPU : is not a straightforward thing to do, because the archirecture is totally 
    different.  To make effective use of GPUs requires a total reorganization of data and compute. 
+
+
+.. s5_talk::
+
+   Latency hiding works using hardware multi-threading, so when one group of threads is blocked
+   waiting to read from global memory for example : other groups of threads are resumed. 
+
+   This is only effective at hiding latency when there are enough other threads in flight at the same time.
+
+   If your processing is not parallel enough, ie its the wrong shape 
+   you will not make effective use of the GPU 
 
 
 
@@ -2219,24 +2175,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     NVIDIA Titan V: 80 SM, 5120 CUDA cores
 
 
-
 .. comment 
-
-   Four main things dictate how effective your use of the GPU is going to be ... 
-
-   * ideally you need to have many thousands of simple independent tasks to make best use of the GPU 
-
-   * each task needs to be simple : low register usage and small stacksize : otherwise you limit 
-     the number of concurrent tasks
-
-   * idependence of the tasks really helps, as development is then much easier 
-
-   Many people guess that you should launch only as many threads as there are cores
-   in the GPU ... but thats wrong, you need to launch large multiples of that to get best performance
-
-   The reason is latency hiding ... that works best when there is abundant parallelism, 
-   when the GPU workload resembles that from 3D graphics you will get best performance.
-
 
 
    So how does optical photon simulation stand on these criteria... 
@@ -2250,6 +2189,24 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
        so avoids code and resource consumption
 
 
+.. s5_talk::
+
+   The main things that dictate how effective your use of the GPU is going to be ... 
+
+   * ideally you need to have many thousands of simple independent tasks to make best use of the GPU 
+
+   * each task needs to be simple : low register usage and small stacksize : otherwise you limit 
+     the number of concurrent tasks
+
+   * idependence of the tasks really helps, as development is then much easier 
+
+   Many people guess that you should launch only as many threads as there are cores
+   in the GPU ... but thats wrong, you need to launch large multiples of that to get best performance
+
+   The reason is latency hiding, which only works when there is abundant parallelism, 
+   when the GPU workload resembles that from 3D graphics you will get best performance.
+
+
 
 .. comment
 
@@ -2258,9 +2215,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    https://devtalk.nvidia.com/default/topic/1028226/how-many-concurrent-threads-are-running-on-my-geforce-gtx-1080-ti-/
 
    The maximum number of threads in flight is 2048 * #SM
-
-
-
 
 
 
@@ -2341,6 +2295,224 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    Benefits : random access to data from arrays 
 
 
+.. s5_talk::
+
+    Simplicity requirement comes from the need to do many things in parallel 
+    and also from the need to serialize everything in order to copy it 
+    to GPU global memory.
+
+    This constraint means must use Arrays 
+
+    But that comes with advantages: 
+
+    * easy serialization
+    * use of industry standard tools like NumPy 
+
+
+
+:small:`Parallel Processing 0th Step : Re-shape Data into "Parallel" Array Form`
+-------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Look for "long" CPU loops`
+
+    .. class:: small
+
+       * loop -> CUDA launch   
+       * For example : loops over photons, JUNO PMTs, time series 
+
+
+:red:`Q1 : What Shape is Your Data ?` 
+
+.. class:: small
+
+   * longest "parallelization" axis first, eg:
+ 
+     * photons **(400M,4,4)**
+     * PMT waveforms **(20k,1000,4)**
+     * SiPM time series **(24*60*60,40,4)**
+
+     :red:`longer -> more abundantly parallel -> more speedup` 
+
+   * cross reference array elements with indices (not pointers)
+
+     * every photon element has corresponding genstep element 
+     * works across address spaces 
+
+:red:`Q2 : What are Independent Chunks ?` 
+
+.. class:: small
+
+   CUDA Thread for each element:
+
+   * "owns" single array slot  
+   * runs in undefined order -> no problem    
+
+
+.. s5_talk::
+
+   The "shape of your data" is the most critical thing 
+   for really benefiting from GPUs
+
+
+
+
+    
+:small:`Survey of High Level General Purpose CUDA Packages`
+-------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`CuPy : Simplest CUDA Interface`
+
+       .. class:: small
+
+          * https://cupy.chainer.org/
+          * NumPy API accelerated by CUDA stack  
+          * plus some of SciPy API 
+
+       .. figure:: /env/presentation/cupy/cupy_logo_only.png
+          :width: 300px
+          :align: center
+
+       .. class:: small
+
+          * develop processing with NumPy on CPU
+          
+            * switch *numpy->cupy* to test on GPU  
+            * :red:`great for prototyping`
+
+          **"Production" CuPy ? Depends on requirements:**  
+
+          * integrations (eg Geant4, OpenGL, ...)
+          * control + performance 
+
+
+
+.. class:: small
+
+    * Learn CUDA basics (kernels, thread+memory hierarchy, ...)
+
+      * :red:`BUT: base development on higher level libs -> faster start`
+
+
+    **C++ Based Interfaces to CUDA**
+
+    * Thrust : https://developer.nvidia.com/Thrust
+
+      * C++ interface to CUDA performance
+      * high-level abstraction : reduce, scan, sort
+
+    * CUB : http://nvlabs.github.io/cub/
+
+      * CUDA C++ specific, GPU less hidden
+
+    * MGPU : https://github.com/moderngpu/moderngpu
+ 
+      * teaching tool : examples of CUDA algorithms
+
+    **Mature NVIDIA Basis Libraries**
+
+    * cuRAND, cuFFT, cuBLAS, cuSOLVER, cuTENSOR, ...
+
+      * :blue:`https://developer.nvidia.com/gpu-accelerated-libraries`
+
+    **RAPIDS : New NVIDIA "Suite" of open source data science libs**  
+
+    * GPU-accelerated open source data science suite 
+
+      * "... end-to-end data science workflows..."  http://rapids.ai/
+      * cuDF : GPU dataframe library, Pandas-on-GPU 
+
+
+
+.. s5_talk::
+
+
+   The size of the python data community is enormous compared to 
+   high energy physics
+
+   * result is high quality tools to gain GPU acceleration from python level
+   * excellent for prototyping : particularly CuPy as you can develop 
+     your algorithm without a GPU using NumPy and then switch to cupy 
+     with the same code 
+
+   * Python interfaces to CUDA are a good way to prototype and get you started.
+
+.. comment
+
+   I highlight two: CuPy and Thrust 
+
+   * Thrust is part of every CUDA installation just include headers into 
+     your C++ and compile with nvcc
+
+     * avoids many of the hassles of using CUDA, including memory heirarchy, 
+       and deciding on block/grid sizes
+
+   Its not an either/or, you can easily combine ordinary low level CUDA with Thrust. 
+
+   * Python interfaces to CUDA are a good way to prototype and get you started.
+   * Once you gain experience from these, you may find it easier to adopt 
+     other tools like Thrust for ease of integration  
+
+
+    After hearing about the performance that CuPy can give you with very little 
+    effort from the comfort of python : 
+
+    * You might wonder if you can avoid developing your C/C++/CMake and CUDA skills ?
+      to benefit from GPU performance
+
+    That depends on:
+
+    * what your developments needs to integrate with ?
+    * how much control/performance do you need ?
+    * how expert do you want to become ?
+
+    Opticks, needs to integrate with Geant4 libraries and detector simulation 
+    frameworks : so a standard approach of mostly C++ implemented libraries
+
+    * ~20 C++ libs
+    * CUDA/OptiX programs for geometry
+    * python NumPy analysis/debugging code 
+
+
+   
+
+.. comment
+
+    .. sidebar:: :small:`Development Always Iterative`
+
+       .. class:: small
+
+           **Prototyping Priority : Learn Domain + Tools** 
+
+           * **demonstrate array structure "works"** 
+           * fast development cycle 
+
+             * Python, NumPy, CuPy
+
+           * jumpstart learning : try many tools
+
+             * Thrust, ModernGPU
+
+           **Production Priority : Fulfil Requiremnts**
+
+           * ease of integration, maintainability (C/C++)
+           * performance 
+
+             * CUDA kernels
+             * CUB, https://nvlabs.github.io/cub/
+             * :red:`optimize bottlenecks`        
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2384,13 +2556,11 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    https://github.com/donnemartin/data-science-ipython-notebooks
 
 
-
-.. comment
+.. s5_talk::
 
    * NumPy provides a terse python interface to large arrays, at C speed  
    * NumPy is at the center of the python data universe
    * almost all python data packages use NumPy, or mimic its array interface
-
 
 .. comment
 
@@ -2429,6 +2599,14 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    * https://cupy.chainer.org/   (**pip install cupy-cuda101** OR **conda install cupy**)
    * https://github.com/cupy/cupy
 
+.. s5_talk::
+
+   Mirroring NumPy API is a really brilliant approach
+
+   * I think you will be hearing much more about CuPy in future 
+   * it makes it so much easier to use than PyCUDA or numba.cuda
+
+
 
 :small:`CuPy : Easy Interface to NVIDIA CUDA stack`
 ----------------------------------------------------
@@ -2463,9 +2641,12 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
      * source shows : CUB, cuTENSOR on the way, CuPy is based on Cython
 
 
+.. s5_talk::
 
-
-
+   Its not just NumPy it is also some of the SciPy API.
+   The connection between the python and the underlying C APIs is done 
+   with cython so its fairly easy to learn that : so you can add 
+   any API that are missing and make pull requests to incorporate into CuPy.     
 
 
 
@@ -2510,6 +2691,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
+.. s5_talk::
+
+    With minimal changes, the script gets CUDA accelerated.
+
 
 :small:`Python vs NumPy vs CuPy`
 ---------------------------------------------------------------------------
@@ -2550,6 +2735,9 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
     </pre>
 
+.. s5_talk::
+
+   Thus is the main of the script which times the three implementations. 
 
 
 
@@ -2592,7 +2780,12 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     * mirroring *NumPy* API is **extremely convenient/flexible** (unlike PyCUDA, Numba.cuda) 
     * **develop with NumPy without GPU, occasionally checking identical code gets expected CuPy speedup**    
 
+.. s5_talk::
 
+   This shows an IPython session running the script and interactively 
+   examining the context it creates. 
+
+   The performance of course will depend on the shape of the data, and the GPU 
 
 
 :small:`Persist NumPy Arrays to .npy Files from Python, Examine File Format`
@@ -2670,11 +2863,11 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     </pre>
 
 
-.. comment
+.. s5_talk::
 
-    Very simple file format : about as minimal as could be 
+    NPY is a very simple file format : about as minimal as possible
 
-    * easy to parse : can implement in any language
+    * so its easy to parse : can implement in any language
     * very stable 
 
 
@@ -2751,6 +2944,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
     google:"parse NumPy file with Java/Rust/R/Swift/Android/..."
 
+.. s5_talk::
+
+    Here demonstrates using the NP.hh header to create a NumPy 
+    array without any Python or NumPy involvement.
 
 
 
@@ -2825,250 +3022,349 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-   Opticks uses this:
+   It might look like a dirty trick, but it is just so 
+   convenient when working with arrays on the GPU : that 
+   the complication of having to remember which element 
+   is which type is worth it. 
+
+   Opticks uses this for:
 
    * integer element references (photon->genstep) 
    * number of photons for each genstep
 
 
+.. comment
 
-:small:`CUDA Complications`
------------------------------ 
+    :small:`CUDA Complications`
+    ----------------------------- 
+
+    .. class:: small
+
+        **Kernel Launch**
+
+        **Thread Hierarchy**
+
+        num_threads_per_block (up to 1024)
+             all threads in block share resources of one processor core
+     
+        num_blocks (effectively no limit, VRAM will limit you first)
+
+        **Memory Hierarchy** 
+
+        1. local registers of thread (fastest, very limited)
+        2. memory shared with block of threads (small, needs syncronization)
+        3. constant memory 
+        4. global memory (slowest, largest)  
+
+        **Coalesced Reading**
+
+        * threads of a  
+
+        * Structure-of-Arrays (SoA) usually faster than Array-of-Structs (AoS)
+
+        **SIMT: Single Instruction, Multiple Thread** 
+
+        * warps (groups of 32 parallel threads) run in SIMT
+        * common instructions issued to arbitrary data
+
+
+
+
+
+
+:small:`Example 2 : OpenGL Interactive Photon History Selection`
+-------------------------------------------------------------------
+
+.. sidebar:: :small:`OpenGL Geometry Shaders`
+
+    .. class:: small
+
+        * typically : vertices -> primitives
+        * can also emit nothing : unlike other shaders
+        * use this flexibility for history selection 
+
+        -> **need "popularity" index for each photon**  
+
+        **Photon History Sequence (64-bit int)**
+
+        * eg: 0x7cc6d "TO SC BT BT SD"
+
 
 .. class:: small
 
-    **Kernel Launch**
+    Photon record renderer, OpenGL geometry shader extracts:
 
-    **Thread Hierarchy**
+.. raw:: html
 
-    num_threads_per_block (up to 1024)
-         all threads in block share resources of one processor core
- 
-    num_blocks (effectively no limit, VRAM will limit you first)
+    <pre class="mypretiny">
 
-    **Memory Hierarchy** 
+     01 &#35;version 410 core
+     ..
+     37 uniform ivec4 RecSelect ;  // <b><span class="alarm"> constant input to the "launch" </span></b>
+     ..
+     44 in ivec4 sel[];            // <b><span class="alarm"> input array </span></b>
+     ..
+     46 
+     47 layout (lines) in;
+     48 layout (points, max_vertices = 1) out;
+     ..
+     52 void main ()
+     53 {
+     54     uint seqhis = sel[0].x ;
+     55     uint seqmat = sel[0].y ;
+     56     if( RecSelect.x > 0 && RecSelect.x != seqhis )  return ; 
+     57     if( RecSelect.y > 0 && RecSelect.y != seqmat )  return ;
+     ..     //<b><span class="alarm"> History and Material Selection </span></b>
+     63     vec4 p0 = gl_in[0].gl_Position  ;
+     64     vec4 p1 = gl_in[1].gl_Position  ;
+     65     float tc = Param.w / TimeDomain.y ;
+     66     //<b><span class="alarm"> for interpolation of photon position at uniform input time  </span></b> 
 
-    1. local registers of thread (fastest, very limited)
-    2. memory shared with block of threads (small, needs syncronization)
-    3. constant memory 
-    4. global memory (slowest, largest)  
-
-    **Coalesced Reading**
-
-    * threads of a  
-
-    * Structure-of-Arrays (SoA) usually faster than Array-of-Structs (AoS)
-
-    **SIMT: Single Instruction, Multiple Thread** 
-
-    * warps (groups of 32 parallel threads) run in SIMT
-    * common instructions issued to arbitrary data
-
-
-.. s5_talk::
-
-    After hearing about the performance that CuPy can give you with very little 
-    effort from the comfort of python : 
-
-    * You might wonder if you can avoid developing your C/C++/CMake and CUDA skills ?
-      to benefit from GPU performance
-
-    That depends on:
-
-    * what your developments needs to integrate with ?
-    * how much control/performance do you need ?
-    * how expert do you want to become ?
-
-    Opticks, needs to integrate with Geant4 libraries and detector simulation 
-    frameworks : so a standard approach of mostly C++ implemented libraries
-
-    * ~20 C++ libs
-    * CUDA/OptiX programs for geometry
-    * python NumPy analysis/debugging code 
-
-
-   
-
-
-
-
-
-    
-:small:`Explore High Level CUDA Libs, Potential for "Effortless" Speedups`
--------------------------------------------------------------------------------------
-
-
-.. sidebar:: :small:`Highlight Libs to Try First`
-
-       .. class:: small
-
-           **Both hide GPU details : great for quickstart**
-
-       .. figure:: /env/presentation/cupy/cupy_logo_only.png
-          :width: 300px
-          :align: center
-
-       CUDA accelerated NumPy API
-
-       .. figure:: /env/presentation/nvidia/thrust_logo.png
-          :width: 350px
-          :align: right
-
-       High level C++ interface to CUDA
-
-           
+     ..
+    </pre>
 
 .. class:: small
 
-    * Learn to write CUDA kernels, BUT: try to use higher level libs
-
-      * :red:`Not many libs available, use if possible`
-
-    **NVIDIA**
-
-    * Thrust : https://developer.nvidia.com/Thrust
-
-      * C++ interface to CUDA performance
-      * high-level abstraction : reduce, scan, sort
-
-    * CUB : http://nvlabs.github.io/cub/
-
-      * CUDA focus, GPU less hidden, more expertise needed
-
-    * cuRAND, cuFFT, cuBLAS, cuSOLVER, ...
-
-      * :blue:`https://developer.nvidia.com/gpu-accelerated-libraries`
-
-    * RAPIDS : GPU-accelerated open source data science suite 
-
-      * "... end-to-end data science workflows..."
-      * cuDF : GPU dataframe library, Pandas-on-GPU 
-      * http://rapids.ai/
-
-
-    **Others**
-
-    * CuPy : https://cupy.chainer.org/
-
-      * NumPy API + some of SciPy : accelerated by CUDA stack  
-      * **NumPy dev on CPU, switch to CuPy for GPU speedup**
-
-    * MGPU : https://github.com/moderngpu/moderngpu
-
-    .. image:: /env/presentation/1px.png
-       :height: 10px
-
-
-
-.. s5_talk::
-
-
-   The size of the python data community is enormous compared to 
-   high energy physics
-
-   * result is lots tools to gain GPU acceleration from python level
-   * excellent for prototyping : particularly CuPy as you can develop 
-     your algorithm without a GPU using NumPy and then switch to cupy 
-     with the same code 
-
-   I highlight two: CuPy and Thrust 
-
-   * Thrust is part of every CUDA installation just include headers into 
-     your C++ and compile with nvcc
-
-     * avoids many of the hassles of using CUDA, including memory heirarchy, 
-       and deciding on block/grid sizes
-
-   Its not an either/or, you can easily combine ordinary low level CUDA with Thrust. 
-
-   * Python interfaces to CUDA are a good way to prototype and get you started.
-   * Once you gain experience from these, you may find it easier to adopt 
-     other tools like Thrust for ease of integration  
-
+    * https://bitbucket.org/simoncblyth/opticks/src/default/oglrap/gl/rec/geom.glsl 
 
 
 .. comment
 
-    .. sidebar:: :small:`Development Always Iterative`
 
-       .. class:: small
+.. s5_talk::
 
-           **Prototyping Priority : Learn Domain + Tools** 
-
-           * **demonstrate array structure "works"** 
-           * fast development cycle 
-
-             * Python, NumPy, CuPy
-
-           * jumpstart learning : try many tools
-
-             * Thrust, ModernGPU
-
-           **Production Priority : Fulfil Requiremnts**
-
-           * ease of integration, maintainability (C/C++)
-           * performance 
-
-             * CUDA kernels
-             * CUB, https://nvlabs.github.io/cub/
-             * :red:`optimize bottlenecks`        
+    The details of the geometry shader do not matter here. 
+   
+    What is important is to see how the popularity index for the photon history 
+    is used from the shader.
 
 
-
-
-
-
-
-
-
-:small:`Parallel Processing 0th Step : Re-shape Data into "Parallel" Array Form`
--------------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Look for "long" CPU loops`
-
-    .. class:: small
-
-       * loop -> CUDA launch   
-       * For example : loops over photons, JUNO PMTs, time series 
-
-
-:red:`Q1 : What Shape is Your Data ?` 
+        
+:small:`Example 2 : Photon History Indexing with CUDA Thrust`
+-------------------------------------------------------------------
 
 .. class:: small
 
-   * longest "parallelization" axis first, eg:
- 
-     * photons **(400M,4,4)**
-     * PMT waveforms **(20k,1000,4)**
-     * SiPM time series **(24*60*60,40,4)**
+    :blue:`https://bitbucket.org/simoncblyth/opticks/src/default/thrustrap/TSparse_.cu`
 
-     :red:`longer -> more abundantly parallel -> more speedup` 
+.. raw:: html
 
-   * cross reference array elements with indices (not pointers)
-
-     * every photon element has corresponding genstep element 
-     * works across address spaces 
-
-:red:`Q2 : What are Independent Chunks ?` 
+    <pre class="mypretiny">
+    089 template &lt;typename T&gt;
+     90 void TSparse&lt;T&gt;::count_unique()
+     91 {
+     ///     preparation of src with strided range iterator elided for bevity 
+     97 
+     98     thrust::device_vector&lt;T&gt; data(src.begin(), src.end());  // GPU copy to avoid sorting original
+     99 
+    100     <b><span class="alarm">thrust::sort</span></b>(data.begin(), data.end());  // GPU sort of millions of integers
+    101 
+    102     // inner_product of sorted data with shifted by one self finds "edges" between values 
+    103     m_num_unique = <b><span class="alarm">thrust::inner_product</span></b>(
+    104                                   data.begin(),data.end() - 1,   // first1, last1  
+    105                                              data.begin() + 1,   // first2
+    106                                                        int(1),   // output type init 
+    107                                           thrust::plus<int>(),   // reduction operator
+    108                                     thrust::not_equal_to<T>()    // pair-by-pair operator, returning 1 at edges 
+    109                                       );
+    116     m_values.resize(m_num_unique);
+    117     m_counts.resize(m_num_unique);
+    118 
+    119     // find all unique key values with their counts
+    120     <b><span class="alarm">thrust::reduce_by_key</span></b>(
+    121                                 data.begin(),    // keys_first
+    122                                   data.end(),    // keys_last 
+    123            thrust::constant_iterator<int>(1),    // values_first 
+    124                             m_values.begin(),    // keys_output 
+    125                             m_counts.begin()     // values_output
+    126                          );
+    ///     sort into descending key order elided for brevity  
+    147 }
+    </pre>
 
 .. class:: small
 
-   CUDA Thread for each element:
-
-   * "owns" single array slot  
-   * undefined thread run order -> no problem    
+    :red:`Using Thrust will improve your C++ skills`
 
 
 .. s5_talk::
 
-   The "shape of your data" is the most critical thing 
-   for really benefiting from GPUs
+    This is an example of some Thrust code used for part of the photon indexing 
 
-   
+    * very high level C++ approach, with GPU and CUDA details hidden
+
+        
+:small:`Applying CUDA Thrust -> Translate Task into Processing "Primitives"`
+-----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Flavor of Thrust "Primitives"`
+
+   .. raw:: html
+
+        <pre class="mypretiny">
+        adjacent_difference
+        copy_if
+        exclusive_scan
+        exclusive_scan_by_key 
+        for_each 
+        gather
+        generate
+        inclusive_scan
+        inner_product
+        max_element
+        merge_by_key
+        min_element
+        minmax_element 
+        reduce
+        reduce_by_key 
+        scatter
+        sort
+        tabulate
+        transform
+        transform_inclusive_scan
+        transform_reduce
+        unique_by_key 
+        </pre>     
+
+   .. class:: small
+
+        * https://thrust.github.io/doc/index.html
+
+
+.. class:: small
+
+     **Benefit from highly optimized GPU implementations**
+
+     * number of unique values 
+
+       * -> **thrust::inner_product** with sorted self shifted by one
+
+     * find all unique keys with their counts
+
+       * -> **thrust::reduce_by_key**
+
+     * sorted counts for each value
+
+       * -> **thrust::sort_by_key**
+
+     **Thrust Hides GPU Details**
+
+     * helpful when starting, can reach thru to lower level 
+     * easy interoperation with 
+
+       * CUDA, OpenGL, NVIDIA OptiX  
+
+     **Thrust : High level C++ interface to CUDA**
+
+     .. figure:: /env/presentation/nvidia/thrust_logo.png
+        :width: 350px
+        :align: left
+
+
+.. s5_talk::
+
+   All these highly optimized processing primitives avoiding 
+   the effort and time to develop your own CUDA kernels.
+
+   Its not all or nothing, you can access the underlying CUDA memory. 
+
+ 
+
+:small:`thrust::inner_product`
+---------------------------------
+
+.. comment
+
+   :width: 1992px
+   :height: 1002px 
+ 
+.. image:: /env/presentation/thrust/inner_product.png 
+   :width: 996px
+   :height: 501px 
+   :align: center
+
+
+.. class:: small
+
+   An example of Thrust documentation 
+
+.. s5_talk::
+
+   An example Thrust documentation : the inner product is a generalization of the dot product, 
+   allowing your to change the elementwise and reduction operators.
+
+   I should explain : a reduction is something like an addition or an average with 
+   takes a lot of data and reduces it to much less data.  
+  
+
+
+:small:`thrust::reduce_by_key`
+---------------------------------
+
+.. comment
+
+   :width: 2074px
+   :height: 824px 
+
+.. image:: /env/presentation/thrust/reduce_by_key.png 
+   :width: 1037px
+   :height: 412px 
+   :align: center
+
+.. class:: small
+
+    :red:`Best way to learn Thrust API is to write small tests`
+
+    * https://bitbucket.org/simoncblyth/opticks/src/default/thrustrap/tests/
+
+    * Thrust implemented with template metaprogramming 
+
+      * -> quite slow compilation
+      * thousands of lines of compilation errors when mis-using API  
+
+.. s5_talk::
+
+    Thrust takes some getting used to, the best way is do that 
+    is to write small self contained test programs that exercise it.
 
 
 
+:small:`Summary of a Mental Model for Effective GPU Usage`
+-----------------------------------------------------------
 
+
+* GPU Constraints -> Simplicity -> Arrays -> Advantages
+
+  * Remember graphical origins 
+  * Easy Serialization : access data anywhere
+  * Standard Tools :  NumPy, CuPy   
+
+* Parallel Processing 0th Step : Re-shape Data into "Parallel" Array Form
+
+  * most important thing for effective GPU usage : 
+
+    * :red:`shape of your data`
+
+* High Level Tools 
+
+  * :red:`CuPy + NumPy are the best way to prototype GPU processing` 
+
+* Array Mechanics
+
+  * array simplicity makes them easy to handle
+
+    * once you know a few tricks 
+
+* When Python not appropriate: 
+
+  * try first CUDA Thrust
+
+
+.. s5_talk::
+
+   In Summary, for effective GPU usage, 
+
+   * what matters most is the shape of your data
 
 
 
