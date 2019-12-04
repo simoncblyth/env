@@ -1,13 +1,15 @@
-.. include:: my_s5defs.txt
-
-.. include:: s5_background_image.txt
-
-
 .. comment
  
    opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.txt
 
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+.. comment
+
    Navigate the HTML slides by entering a page number and pressing return 
+
 
    reps-talk opticks-oct2019-dance    # NB underscores to hyphens for latex 
 
@@ -17,6 +19,12 @@
    opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.txt 
 
    http://www.ihep.cas.cn/xwdt/xshd/201911/t20191126_5443006.html
+
+
+.. next
+
+   * NumPy np header 
+   * NumPy/CuPy example
 
    
 
@@ -50,8 +58,6 @@
 
     This render shows the photons resulting from a muon crossing the JUNO scintillator, 
     each line represents a single photon.
-
-
 
 
 
@@ -1923,8 +1929,20 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    http://www.ihep.cas.cn/xwdt/xshd/201911/t20191126_5443006.html
 
-   Mental Model Talk : Things to Cover
 
+   NEXT
+ 
+   * cupy numpy ellipse example 
+
+   * data access : NumPy 
+
+   * GPU optimization is complicated and liable to change with each GPU generation, ie every year  
+
+     * GPUs still changing rapidly 
+
+   * Amdahls Law 
+
+   Mental Model Talk : Things to Cover
 
    * GPU as an afterthought, doesnt fly : need to rethink everything : might as well embrace the constraints
 
@@ -1932,7 +1950,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
      * indices not pointers 
      * serialization 
      * processing  
-
 
    * GPU accelerated libraries
 
@@ -1951,39 +1968,17 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    * CUB cub-
    * CUDPP 
 
-   * GPU optimization is complicated and liable to change with each GPU generation, ie every year  
-
-     * GPUs still changing rapidly 
-
-
    * https://github.com/rapidsai/cusignal
 
    * CUDA C++ : cannot use STL
- 
-   * Amdahls Law 
 
    * GPU coalescing : soa/aos
 
-   * data access : NumPy 
  
    * Higher Level CUDA
 
      * :google:`Thrust CUB MGPU CUDPP`
      * https://github.com/arrayfire/arrayfire
-
-   * shape of your data 
-
-     * identify the long axis of your data : the one you want to parallelize : the longer the better
-     * need to be able to partition data into chunks which can be independently handled
-
-
-
-
-.. comment
-
-   zz
-
-
 
 
 
@@ -1991,6 +1986,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 :i:`geocache_360`
 ---------------------------------------------------------
 
+
+.. comment
+
+    qq
 
 
 
@@ -2013,28 +2012,34 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     </div>
 
 
-
-
-
 .. class:: small
-
-    .. raw:: html
-
-       <span>&nbsp;</span>
-
 
     * GPU Processing Context and Constraints  
                                                                                                                        
       * Understanding GPU Graphical Origins -> Effective GPU Computation                                            
       * CPU Optimizes Latency, GPU Optimizes Throughput                                                             
       * How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled                                           
-      * GPU Demands Simplicity (Arrays) -> Big Benefits -> NumPy + CuPy                                             
+      * GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy                                             
 
     * Tools 
 
       * NumPy : Foundation of Python Data Ecosystem                                                                 
       * CuPy : NumPy API (+ some of SciPy) accelerated by NVIDIA CUDA : cuRAND/cuBLAS/cuSOLVER/cuSPARSE/Thrust/NCCL 
       * CuPy : Easy Interface to NVIDIA CUDA stack
+
+    * Example 1 : NumPy/CuPy Python interface 
+
+      * NumPy + CuPy Example : closest approach of Ellipse to a Point 
+      * Python vs NumPy vs CuPy
+      * Python vs NumPy vs CuPy : Python/NumPy ~ 10,  NumPy/CuPy ~ 1300
+
+    * Array Mechanics
+
+      * Persist NumPy Arrays to .npy Files from Python, Examine File Format
+      * Create and Write .npy Array from C/C++ with NP.hh header (No Python)
+      * C Union "Trick" Mixed Type Arrays -> Simpler + Faster CUDA Usage
+
+    * Explore High Level CUDA Libs, Potential for "Effortless" Speedups
 
 
 
@@ -2043,10 +2048,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     This is a 360 degree view of the all the JUNO central detector PMTs,
     which I used a raytracing benchmark.
  
-
-
-
-
 
 
 :small:`Understanding GPU Graphical Origins -> Effective GPU Computation` 
@@ -2263,10 +2264,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
-:small:`GPU Demands Simplicity (Arrays) -> Big Benefits -> NumPy + CuPy`
+:small:`GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy`
 -------------------------------------------------------------------------------------------------------------------------------
 
-.. sidebar:: :small:`Serialization Benefits`
+.. sidebar:: :small:`Array Serialization Benefits`
 
     .. class:: small
 
@@ -2459,7 +2460,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
   
      * https://docs-cupy.chainer.org/en/stable/reference/comparison.html
      * easy introduction to CUDA libraries  https://docs.nvidia.com/cuda-libraries/index.html
-     * source shows : CUB, cuTENSOR on the way
+     * source shows : CUB, cuTENSOR on the way, CuPy is based on Cython
 
 
 
@@ -2469,120 +2470,480 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
+:small:`NumPy + CuPy Example : closest approach of Ellipse to a Point`
+---------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    import numpy as np, <b><span class="alarm">cupy as cp</span></b>
+
+    def ellipse_closest_approach_to_point( <b><span class="alarm">xp</span></b>, ex, ez, _c, N ):
+        """ex, ez: ellipse semi-axes, c: coordinates of point in ellipse frame"""
+        c = xp.asarray( _c )  ; assert c.shape == (2,)
+
+        t = xp.linspace( 0, 2*np.pi, N )     <b><span class="alarm"> # t: array of N angles [0,2pi] </span></b>  
+        e = xp.zeros( [len(t), 2] )
+        e[:,0] = ex*xp.cos(t) 
+        e[:,1] = ez*xp.sin(t)                      <b><span class="alarm"> # e: N parametric [x,z] points on the ellipse </span></b>
+
+        return  e[xp.sum((e-c)**2, axis=1).argmin()]   <b><span class="alarm"> # point on ellipse closest to c </span></b>   
+    </pre>
+
+.. class:: small
+
+    * first argument *xp* is python module : *np* or *cp* : switching between NumPy and CuPy, CPU and GPU implementations 
+    * interactively debug numpy code in *ipython* : check array shapes at every stage   
+
+.. class:: small
+
+    =======================================  ==================  ==============================================================
+      expression                               shape                note 
+    =======================================  ==================  ==============================================================
+     ``e``                                    ``(10000000,2)``
+     ``c``                                    ``(2,)``
+     ``e-c``                                  ``(10000000,2)``      *c* is **broadcast** over *e* : must be compatible shape 
+     ``np.sum((e-c)**2, 1)``                  ``(10000000,)``       ``axis=1`` : summing over the axis of length 2   
+     ``np.sum((e-c)**2, 0)``                  ``(2,)``              ``axis=0`` : summing over axis of length 10M
+     ``np.sum((e-c)**2, None)``               ``()``                ``axis=None`` : summing over all elements, yielding scalar
+    =======================================  ==================  ==============================================================
 
 
 
 
+:small:`Python vs NumPy vs CuPy`
+---------------------------------------------------------------------------
+
+.. class:: small
+
+    https://bitbucket.org/simoncblyth/intro_to_numpy/src/default/python_vs_numpy_vs_cupy/ellipse_closest_approach_to_point.py
+
+.. raw:: html
+
+    <pre class="mypretiny">
+
+     17 import numpy as np, cupy as cp
+     ... 
+     67 if __name__ == '__main__':
+     68 
+     69     N = 10000000    <b> # 10M is large enough to make overheads negligible  </b>
+     70     M = 8           <b> # repeat timings  </b>
+     71 
+     72     ex,ey = 10,20     <b> # parameters of ellipse </b>
+     73     c = [100,100]      <b> # point to check </b>
+     74 
+     75     r = {}              <b> # python dict for results </b>
+     76     t = np.zeros(M)     <b> # numpy array for timings  </b>
+     77 
+     78     for i in range(M):
+     79         if i == 0:
+     80             r[i],t[i] = timed(pure_python_ellipse_closest_approach_to_point_DO_NOT_DO_THIS)(ex,ey,c,N)
+     81         else:
+     82             xp = np if i < M/2 else cp   # <b><span class="alarm">switch between NumPy and CuPy implementations of same API </span></b>
+     83             r[i],t[i] = timed(ellipse_closest_approach_to_point)( xp, ex,ey,c, N )
+     84         pass
+     85     pass
+     86     for k in r.keys():
+     87         if k == M/2: print("")
+     88         print(k, r[k], t[k])
+     89     pass
+
+    </pre>
 
 
 
 
+:small:`Python vs NumPy vs CuPy : Python/NumPy ~ 10,  NumPy/CuPy ~ 1300 (CUDA 10.1, NVIDIA TITAN V)`
+---------------------------------------------------------------------------------------------------------
 
-:small:`Parallel Processing 0th Step : Reshape Data into "Parallel" Form`
--------------------------------------------------------------------------------------------
+.. raw:: html
 
-.. sidebar:: :small:`Development Always Iterative`
+    <pre class="mypretiny">
+    [blyth@localhost python_vs_numpy_vs_cupy]$ ipython -i ellipse_closest_approach_to_point.py
+                        <b> # "ipython -i" : run python script leaving context for interactive examination </b>
 
-   .. class:: small
+    Python 2.7.15 |Anaconda, Inc.| (default, May  1 2018, 23:32:55) 
+    IPython 5.7.0 -- An enhanced Interactive Python.
+    ...
+    (0, (4.983054096206095, 17.34003135802051), '6.266726970672607')
+    (1, array([ 4.9830541 , 17.34003136]), '0.674299955368042')
+    (2, array([ 4.9830541 , 17.34003136]), '0.6548769474029541')
+    (3, array([ 4.9830541 , 17.34003136]), '0.6450159549713135')
 
-       **Prototyping Priority : Learn Domain + Tools** 
+    (4, array([ 4.9830541 , 17.34003136]), '0.4854261875152588')    <b> # 1st CuPy run CUDA compiles populating cache </b>
+    (5, array([ 4.9830541 , 17.34003136]), '0.000415802001953125')
+    (6, array([ 4.9830541 , 17.34003136]), '0.0003409385681152344')
+    (7, array([ 4.9830541 , 17.34003136]), '0.000762939453125')
 
-       * **demonstrate array structure "works"** 
-       * fast development cycle 
+    In [1]: tpy = t[0]
+    In [2]: tnp = np.average(t[1:M/2])
+    In [3]: tcp = np.average(t[M/2+1:])
 
-         * Python, NumPy, CuPy
+    In [4]: tpy/tnp
+    Out[4]: 9.522970786915796     # <b> NumPy ~ 10x Python </b>
 
-       * jumpstart learning : try many tools
+    In [5]: tnp/tcp
+    Out[5]: 1299.0845622842799    # <b> CuPy > 1000x NumPy : with almost zero effort can apply the CUDA stack </b>
+    </pre>
 
-         * Thrust, ModernGPU
+.. class:: small
 
-       **Production Priority : Fulfil Requiremnts**
+    * *CuPy* looks great for prototyping
+    * mirroring *NumPy* API is **extremely convenient/flexible** (unlike PyCUDA, Numba.cuda) 
+    * **develop with NumPy without GPU, occasionally checking identical code gets expected CuPy speedup**    
 
-       * ease of integration, maintainability (C/C++)
-       * performance 
 
-         * CUDA kernels
-         * CUB, https://nvlabs.github.io/cub/
-         * :red:`optimize bottlenecks`        
 
+
+:small:`Persist NumPy Arrays to .npy Files from Python, Examine File Format`
+--------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Load NumPy array into C/C++`
+
+    .. class:: small
+
+       **Straightforward to parse NPY files** 
+
+       http://github.com/simoncblyth/np/
+
+       **NP::Load** 
+           
+       * parses file header, array shape + type   
+       * reads array data into std::vector 
+
+    .. raw:: html
+
+        <hr/><pre class="mypretiny">
+        // gcc NPMinimal.cc -lstdc++ && ./a.out /tmp/a.npy 
+        &#35;include "NP.hh"
+        int main(int argc, char** argv)
+        {
+            assert( argc > 1 && argv[1] ) ; 
+            NP<long>* a = NP<long>::Load(argv[1]) ; 
+            a->dump(); 
+            return 0 ; 
+        }
+        </pre>
+        <hr/>
+
+
+.. class:: small
+
+   IPython persisting NumPy arrays:
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    In [1]: a = np.arange(10)          <b> # array of 10 long (int64) </b>
+    In [2]: a
+    Out[2]: array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    In [3]: np.save("/tmp/a.npy", a )  <b> # serialize array to file </b>
+
+    In [4]: a2 = np.load("/tmp/a.npy") <b> # load array into memory </b>
+    In [5]: assert np.all( a == a2 )   <b> # check all elements the same </b>
+    </pre>
 
 
 
 .. class:: small
 
-    **Serialization -> Array Structures**
+   IPython examine NPY file format:
 
-    * map data into arrays 
+.. raw:: html 
 
-      * longest parallelization axis first, eg 
+    <pre class="mypretiny">
+    In [6]: !xxd /tmp/a.npy            <b> # xxd hexdump file contents </b>  
+                                       <b> # minimal header : type and shape </b>
+
+    <b><span class="alarm">00000000: 934e 554d 5059 0100 7600 7b27 6465 7363  .NUMPY..v.{'desc
+    00000010: 7227 3a20 273c 6938 272c 2027 666f 7274  r': '&lt;i8', 'fort
+    00000020: 7261 6e5f 6f72 6465 7227 3a20 4661 6c73  ran_order': Fals
+    00000030: 652c 2027 7368 6170 6527 3a20 2831 302c  e, 'shape': (10,   
+    00000040: 292c 207d 2020 2020 2020 2020 2020 2020  ), }            
+    00000050: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000060: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000070: 2020 2020 2020 2020 2020 2020 2020 200a                 .</span></b>
+    00000080: 0000 0000 0000 0000 0100 0000 0000 0000  ................  
+    00000090: 0200 0000 0000 0000 0300 0000 0000 0000  ................
+    ..
+    </pre>
+
+
+.. comment
+
+    Very simple file format : about as minimal as could be 
+
+    * easy to parse : can implement in any language
+    * very stable 
+
+
+
+
+
+:small:`Create and Write .npy Array from C/C++ with NP.hh header (No Python)`
+--------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Create 3D NumPy Array from C/C++`
+
+    .. raw:: html
+
+        <pre class="mypretiny">// gcc NPMiniMake.cc -lstdc++ && ./a.out 3 2 4 
+        &#35;include "NP.hh"
+        int main(int argc, char** argv)
+        {
+            int ni = argc > 1 ? atoi(argv[1]) : 10  ;   
+            int nj = argc > 2 ? atoi(argv[2]) : 1   ;   
+            int nk = argc > 3 ? atoi(argv[3]) : 4   ;   
+
+            NP<float>* a = new NP<float>(ni,nj,nk) ; 
+
+            for(int i=0 ; i < ni ; i++ ){
+            for(int j=0 ; j < nj ; j++ ){
+            for(int k=0 ; k < nk ; k++ ){
+
+                int index = i*nj*nk + j*nk + k ; // 3d -> 1d
+                a->data[index] = float(index) ;  // dummy value 
+            }   
+            }   
+            }   
+            a->save("/tmp/a.npy") ; 
+            return 0 ; 
+        }
+        </pre>
+
+    .. class:: small
+
+       http://github.com/simoncblyth/np/
+
+
+.. class:: small
+
+    * **NP.hh** :  https://github.com/simoncblyth/np/blob/master/NP.hh
+
+
+    **Check C++ created NumPy array from commandline:**
+
+.. raw:: html
+
+        <pre class="mypretiny">
+        $ python -c "import numpy as np ; print(np.load('/tmp/a.npy'))"
+        [[[ 0.  1.  2.  3.]
+          [ 4.  5.  6.  7.]]
+
+         [[ 8.  9. 10. 11.]
+          [12. 13. 14. 15.]]
+
+         [[16. 17. 18. 19.]
+          [20. 21. 22. 23.]]]
+        </pre>
+
+
+.. class:: small
+
+    **Access/Create Array Data Anywhere**
+
+    * Python : *np.load* *np.array* *np.save* ...
+    * C/C++ : NP.hh **NP struct** methods
+    * CUDA : *cudaMemcpy()* Arrays to/from GPU
+
+      * OR via CuPy *cp.load* *cp.save* *cp.array*
+
+    google:"parse NumPy file with Java/Rust/R/Swift/Android/..."
+
+
+
+
+:small:`C Union "Trick" Mixed Type Arrays -> Simpler + Faster CUDA Usage`
+-------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Store int/uint bits into float array`
+
+    .. raw:: html
+
+        <pre class="mypretiny">&#35;include &lt;iostream&gt;
+        &#35;include &lt;cassert&gt;
+        &#35;include "uif.h"
+
+        int main(int argc, char** argv)
+        {
+            int value = argc > 1 ? atoi(argv[1]) : -10 ;   
+            uif_t uif ;
+            uif.i = value ;
+
+            float a[3] = { 1.f, 1.f, 1.f } ; 
+            a[1] = uif.f ; <b><span class="alarm">// plant int bits into float array </span></b>
+
+            uif_t uif2 ; 
+            uif2.f = a[1] ; <b><span class="alarm">// float copy </span></b>
+
+            assert( uif2.i == value ) ; <b><span class="alarm">// recover int  </span></b>
+            // std::cout << ... elided for brevity  
+            return 0 ; 
+        }
+        <hr>$ gcc uifDemo.cc -lstdc++ && ./a.out -10
+        uif.u  4294967286 uif.i  -10 uif.f  nan 
+        uif2.u 4294967286 uif2.i -10 uif2.f nan
+        </pre>
+
+    .. class:: small
+
+       * *Opticks* photon arrays : mostly float + int flags   
+
+.. class:: small
+
+   :blue:`http://bitbucket.org/simoncblyth/intro_to_numpy/src/tip/union_trick/`
+
+.. raw:: html
+
+    <pre class="mypretiny"><hr>//uif.h
+    &#35;pragma once
+    union uif_t {  <b><span class="alarm">// store three 32-bit types at same location </span></b>
+        unsigned u;
+        int i ; 
+        float f;
+    } ; 
+
+    <hr>In [1]: import numpy as np
+    In [2]: a = np.ones(3, dtype=np.float32)
+
+    In [3]: a.view(np.int32)[1] = -10   # int32 inside float32 array
+     <b><span class="alarm">// NumPy view reinterprets same bits as different type </span></b>
+
+    In [4]: a
+    Out[4]: array([ 1., nan,  1.], dtype=float32)
+
+    In [5]: a.view(np.int32)
+    Out[5]: array([1065353216,        -10, 1065353216], dtype=int32)<hr></pre>
+
+
+.. class:: small
+
+   CUDA **reinterpret** device functions, also **__int_as_float**:
+
+
+
+.. s5_talk::
+
+   Opticks uses this:
+
+   * integer element references (photon->genstep) 
+   * number of photons for each genstep
+
+
+
+:small:`CUDA Complications`
+----------------------------- 
+
+.. class:: small
+
+    **Kernel Launch**
+
+    **Thread Hierarchy**
+
+    num_threads_per_block (up to 1024)
+         all threads in block share resources of one processor core
  
-        * photons **(400M,4,4)**
-        * PMT waveforms **(20k,1000,4)**
-        * SiPM time series **(24*60*60,40,4)**
+    num_blocks (effectively no limit, VRAM will limit you first)
 
-      * :red:`longer axis -> more speedup` 
-      * replace slow CPU loops with CUDA launch
+    **Memory Hierarchy** 
 
-        * (over photons, JUNO PMTs, time series)
+    1. local registers of thread (fastest, very limited)
+    2. memory shared with block of threads (small, needs syncronization)
+    3. constant memory 
+    4. global memory (slowest, largest)  
 
-    * identify independent elements 
+    **Coalesced Reading**
 
-      * each CUDA thread writes to single array "slot"  
-      * order undefined, no problem as clear "ownership"   
+    * threads of a  
 
-    * cross reference array elements with indices (not pointers)
+    * Structure-of-Arrays (SoA) usually faster than Array-of-Structs (AoS)
 
-      * eg: photons->genstep 
-      * works across address spaces 
+    **SIMT: Single Instruction, Multiple Thread** 
+
+    * warps (groups of 32 parallel threads) run in SIMT
+    * common instructions issued to arbitrary data
+
+
+.. s5_talk::
+
+    After hearing about the performance that CuPy can give you with very little 
+    effort from the comfort of python : 
+
+    * You might wonder if you can avoid developing your C/C++/CMake and CUDA skills ?
+      to benefit from GPU performance
+
+    That depends on:
+
+    * what your developments needs to integrate with ?
+    * how much control/performance do you need ?
+    * how expert do you want to become ?
+
+    Opticks, needs to integrate with Geant4 libraries and detector simulation 
+    frameworks : so a standard approach of mostly C++ implemented libraries
+
+    * ~20 C++ libs
+    * CUDA/OptiX programs for geometry
+    * python NumPy analysis/debugging code 
+
+
+   
+
 
 
 
 
     
-:small:`If Higher Level CUDA Library Is Appropriate -> Try It`
--------------------------------------------------------------------------------
+:small:`Explore High Level CUDA Libs, Potential for "Effortless" Speedups`
+-------------------------------------------------------------------------------------
 
 
-.. sidebar:: :small:`Highlight Libs to Try`
+.. sidebar:: :small:`Highlight Libs to Try First`
 
+       .. class:: small
 
+           **Both hide GPU details : great for quickstart**
 
        .. figure:: /env/presentation/cupy/cupy_logo_only.png
-          :width: 400px
+          :width: 300px
           :align: center
 
-       "... CUDA accelerated NumPy API ..."
+       CUDA accelerated NumPy API
 
        .. figure:: /env/presentation/nvidia/thrust_logo.png
-          :width: 440px
+          :width: 350px
           :align: right
 
-       "... code at the speed of light ..."
+       High level C++ interface to CUDA
 
            
 
 .. class:: small
 
-    * Learn to write CUDA kernels, but try to use higher level libs
+    * Learn to write CUDA kernels, BUT: try to use higher level libs
 
-      * :red:`Not many available, use if possible`
-      * **benefit from other peoples experience**
-
+      * :red:`Not many libs available, use if possible`
 
     **NVIDIA**
 
     * Thrust : https://developer.nvidia.com/Thrust
 
-      * header only C++, comes with CUDA
-      * STL like C++ access to CUDA
+      * C++ interface to CUDA performance
       * high-level abstraction : reduce, scan, sort
-      * **hides GPU details : great for quickstart** 
 
     * CUB : http://nvlabs.github.io/cub/
-    * OptiX : https://developer.nvidia.com/optix
+
+      * CUDA focus, GPU less hidden, more expertise needed
+
     * cuRAND, cuFFT, cuBLAS, cuSOLVER, ...
 
       * :blue:`https://developer.nvidia.com/gpu-accelerated-libraries`
+
+    * RAPIDS : GPU-accelerated open source data science suite 
+
+      * "... end-to-end data science workflows..."
+      * cuDF : GPU dataframe library, Pandas-on-GPU 
+      * http://rapids.ai/
 
 
     **Others**
@@ -2590,30 +2951,126 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     * CuPy : https://cupy.chainer.org/
 
       * NumPy API + some of SciPy : accelerated by CUDA stack  
-      * **hides GPU details : great for quickstart** 
+      * **NumPy dev on CPU, switch to CuPy for GPU speedup**
 
     * MGPU : https://github.com/moderngpu/moderngpu
-    * Opticks : https://bitbucket.org/simoncblyth/opticks
-
 
     .. image:: /env/presentation/1px.png
        :height: 10px
 
 
 
+.. s5_talk::
+
+
+   The size of the python data community is enormous compared to 
+   high energy physics
+
+   * result is lots tools to gain GPU acceleration from python level
+   * excellent for prototyping : particularly CuPy as you can develop 
+     your algorithm without a GPU using NumPy and then switch to cupy 
+     with the same code 
+
+   I highlight two: CuPy and Thrust 
+
+   * Thrust is part of every CUDA installation just include headers into 
+     your C++ and compile with nvcc
+
+     * avoids many of the hassles of using CUDA, including memory heirarchy, 
+       and deciding on block/grid sizes
+
+   Its not an either/or, you can easily combine ordinary low level CUDA with Thrust. 
+
+   * Python interfaces to CUDA are a good way to prototype and get you started.
+   * Once you gain experience from these, you may find it easier to adopt 
+     other tools like Thrust for ease of integration  
 
 
 
 .. comment
 
-   Benefiting from the experience of others by using higher level libraries is the first choice... 
-   But there are not so many available
+    .. sidebar:: :small:`Development Always Iterative`
 
-   Thrust stands out as it is part of every CUDA installation, you just need to 
-   include the headers to use it... It avoid many of the hassles of using CUDA, 
-   including memory management, and deciding on launch sizes
+       .. class:: small
 
-   Its not an either/or, you can easily combine ordinary low level CUDA with Thrust. 
+           **Prototyping Priority : Learn Domain + Tools** 
+
+           * **demonstrate array structure "works"** 
+           * fast development cycle 
+
+             * Python, NumPy, CuPy
+
+           * jumpstart learning : try many tools
+
+             * Thrust, ModernGPU
+
+           **Production Priority : Fulfil Requiremnts**
+
+           * ease of integration, maintainability (C/C++)
+           * performance 
+
+             * CUDA kernels
+             * CUB, https://nvlabs.github.io/cub/
+             * :red:`optimize bottlenecks`        
+
+
+
+
+
+
+
+
+
+:small:`Parallel Processing 0th Step : Re-shape Data into "Parallel" Array Form`
+-------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Look for "long" CPU loops`
+
+    .. class:: small
+
+       * loop -> CUDA launch   
+       * For example : loops over photons, JUNO PMTs, time series 
+
+
+:red:`Q1 : What Shape is Your Data ?` 
+
+.. class:: small
+
+   * longest "parallelization" axis first, eg:
+ 
+     * photons **(400M,4,4)**
+     * PMT waveforms **(20k,1000,4)**
+     * SiPM time series **(24*60*60,40,4)**
+
+     :red:`longer -> more abundantly parallel -> more speedup` 
+
+   * cross reference array elements with indices (not pointers)
+
+     * every photon element has corresponding genstep element 
+     * works across address spaces 
+
+:red:`Q2 : What are Independent Chunks ?` 
+
+.. class:: small
+
+   CUDA Thread for each element:
+
+   * "owns" single array slot  
+   * undefined thread run order -> no problem    
+
+
+.. s5_talk::
+
+   The "shape of your data" is the most critical thing 
+   for really benefiting from GPUs
+
+   
+
+
+
+
+
+
 
 
 

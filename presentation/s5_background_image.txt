@@ -558,5 +558,7 @@
     CuPy : Easy Interface to NVIDIA CUDA stack 
     /env/presentation/cupy/cupy_stack.png 1075px_429px 100px_100px
 
+    C Union "Trick" common with CUDA : Mixed Type Arrays : Simpler + Faster
+    /env/presentation/cuda/float_as_int.png 600px_89px 40px_570px 
 
 
