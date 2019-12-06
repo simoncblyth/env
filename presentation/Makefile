@@ -78,8 +78,8 @@ $(OHTML): $(OTXT) $(ODEF) $(OIMG)
 	@echo ITXT $(ITXT)
 	@echo OTXT $(OTXT)
 	@echo ODEF $(ODEF)
-	@echo OHTML $(OHTML)
-	mkdir -p $(PUBDIR) && DOCBASE=$(DOCBASE) $(PYTHON) ./rst2s5-2.6.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --visible-controls --language=en $< $@
+	@echo OHTML $(OHTML)  --visible-controls
+	mkdir -p $(PUBDIR) && DOCBASE=$(DOCBASE) $(PYTHON) ./rst2s5-2.6.py --traceback --footnote-references=$(FOOTNOTE_REFERENCES) --theme-url ui/my-small-white --current-slide --language=en $< $@
 
 open: $(OHTML)
 	@echo Makefile.open
