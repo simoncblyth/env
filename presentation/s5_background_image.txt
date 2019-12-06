@@ -347,6 +347,10 @@
     geocache_360
     /env/presentation/geocache_360.png 1280px_720px 0px_0px 
 
+    geocache_360 2
+    /env/presentation/geocache_360.png 1280px_720px 0px_0px 
+
+
     JUNO-360 benchmark with OptiX 6.0.0, RTX mode 
     /env/presentation/geocache_360.png 1280px_720px
 
@@ -541,6 +545,12 @@
 
     scan-pf-1_Opticks_vs_Geant4 2
     /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+
+    scan-pf-1_Opticks_vs_Geant4_with_HTML_Table 
+    /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4_with_HTML_Table.png 1280px_720pxS
+
+
+
 
 
     scan-pf-1_Overheads
