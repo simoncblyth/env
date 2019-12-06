@@ -1,6 +1,10 @@
 .. comment
  
    opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.txt
+ 
+   https://indico.ihep.ac.cn/event/11006/
+
+
 
 .. include:: my_s5defs.txt
 
@@ -113,7 +117,6 @@ Outline
 
 .. s5_talk::
 
-
    This is a talk of two halves
 
    * first I will introdude Opticks
@@ -130,18 +133,81 @@ Outline
    * before describing the Opticks solution and its performance.   
 
 
-:i:`JUNO_Intro_1`
-------------------
 
-.. s5_talk:: 
+:i:`Outline of Mental Model`
+---------------------------------------------------------
 
-    JUNO is a large neutrino experiment under construction in southern China.
-    Its designed to determine the neutrino mass order 
-    from measurements of oscillated reactor neutrinos from a 
-    distance of 53km 
- 
-    Construction is expected to be completed in 2021.
- 
+.. raw:: html
+
+    <pre>
+
+
+    </pre>
+
+    <div class="mytitle2">
+    <header>
+    <h1 style="background-color:lightgrey"> 
+         <i>Opticks</i> : GPU Optical Simulation via NVIDIA® OptiX™ <br/> <span style="color:red">+ A Mental Model for Effective Application of GPUs </span> 
+    </h1>
+    </header>
+    </div>
+
+
+.. class:: small
+
+    * GPU Mental Model : Context and Constraints  
+
+      * Understanding GPU Graphical Origins -> Effective GPU Computation                                            
+      * GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy                                             
+
+    * Parallel Processing 0th Step 
+
+      * Re-shape Data into "Parallel" Array Form
+
+    * High Level Tools 
+
+      * Survey of High Level General Purpose CUDA Packages 
+      * NumPy + CuPy 
+
+    * Example 1 : NumPy/CuPy Python interface 
+
+      * Python vs NumPy vs CuPy : Python/NumPy ~ 10,  NumPy/CuPy ~ 1300
+
+    * Array Mechanics
+
+      * NP.hh header + union "trick" 
+
+    * Example 2 : A Taste of Thrust C++
+
+      * Photon History Indexing with CUDA Thrust
+
+    * Summary 
+    
+.. s5_talk::
+
+   This is will be a talk of two halves
+
+   * after presenting Opticks, I will show 
+     more generally how your should arrange
+     your processing to make effective 
+     use of GPUs  
+
+
+
+.. comment
+
+    :i:`JUNO_Intro_1`
+    ------------------
+
+    .. s5_talk:: 
+
+        JUNO is a large neutrino experiment under construction in southern China.
+        Its designed to determine the neutrino mass order 
+        from measurements of oscillated reactor neutrinos from a 
+        distance of 53km 
+     
+        Construction is expected to be completed in 2021.
+     
 
 :i:`JUNO_Intro_2`
 ------------------
@@ -1834,6 +1900,9 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
  
 
 
+
+
+
 :i:`Outline of Mental Model`
 ---------------------------------------------------------
 
@@ -1853,93 +1922,43 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     </div>
 
 
-.. class:: tiny
+.. class:: small
 
     * GPU Mental Model : Context and Constraints  
-                                                                                                                       
-      * Amdahls Law
+
       * Understanding GPU Graphical Origins -> Effective GPU Computation                                            
-      * CPU Optimizes Latency, GPU Optimizes Throughput                                                             
-      * How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled                                           
       * GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy                                             
 
-    * Parallel Processing 0th Step : Re-shape Data into "Parallel" Array Form
+    * Parallel Processing 0th Step 
+
+      * Re-shape Data into "Parallel" Array Form
 
     * High Level Tools 
 
       * Survey of High Level General Purpose CUDA Packages 
-      * NumPy : Foundation of Python Data Ecosystem                                                                 
-      * CuPy : NumPy API (+ some of SciPy) accelerated by NVIDIA CUDA : cuRAND/cuBLAS/cuSOLVER/cuSPARSE/Thrust/NCCL 
-      * CuPy : Easy Interface to NVIDIA CUDA stack
+      * NumPy + CuPy 
 
     * Example 1 : NumPy/CuPy Python interface 
 
-      * NumPy + CuPy Example : closest approach of Ellipse to a Point 
-      * Python vs NumPy vs CuPy
       * Python vs NumPy vs CuPy : Python/NumPy ~ 10,  NumPy/CuPy ~ 1300
 
     * Array Mechanics
 
-      * Persist NumPy Arrays to .npy Files from Python, Examine File Format
-      * Create and Write .npy Array from C/C++ with NP.hh header (No Python)
-      * C Union "Trick" Mixed Type Arrays -> Simpler + Faster CUDA Usage
+      * NP.hh header + union "trick" 
 
-    * Example 2 : A Taste of Thrust 
+    * Example 2 : A Taste of Thrust C++
 
-      * OpenGL Interactive Photon History Selection
       * Photon History Indexing with CUDA Thrust
-      * Applying CUDA Thrust -> Translate Task into Processing "Primitives"
 
     * Summary 
-      
-
-
+    
+  
 .. s5_talk::
 
-    If this is too small for you to read, 
-    then its for offline consumption.
-
-
-
-
-
-
-:i:`Outline of Mental Model`
----------------------------------------------------------
-
-.. raw:: html
-
-    <pre>
-
-
-    </pre>
-
-    <div class="mytitle2">
-    <header>
-    <h1 style="background-color:lightgrey"> 
-         <i>Opticks</i> : GPU Optical Simulation via NVIDIA® OptiX™ <br/> <span style="color:red">+ A Mental Model for Effective Application of GPUs </span> 
-    </h1>
-    </header>
-    </div>
-
-
-.. class:: samll
-
-    * GPU Mental Model : Context and Constraints  
-    * Parallel Processing 0th Step : Re-shape Data into "Parallel" Array Form
-    * High Level Tools 
-    * Example 1 : NumPy/CuPy Python interface 
-    * Array Mechanics
-    * Example 2 : A Taste of Thrust 
-    * Summary 
-      
-.. s5_talk::
-
-    Here are just the headings.
+    Sketch outline. 
 
     I will cover some of the background and the things you
-    needed to consider when using GPUs to accelerate some 
-    processing   
+    needed to consider when using GPUs to accelerate processing   
 
 
 .. comment
@@ -3313,7 +3332,7 @@ optical photon simulation, P ~ 99% of CPU time
 
 .. class:: small
 
-    :red:`Best way to learn Thrust API is to write small tests`
+    :red:`Best way to learn Thrust API is exercise it by writing small tests`
 
     * https://bitbucket.org/simoncblyth/opticks/src/default/thrustrap/tests/
 
@@ -3365,6 +3384,85 @@ optical photon simulation, P ~ 99% of CPU time
    In Summary, for effective GPU usage, 
 
    * what matters most is the shape of your data
+
+
+:i:`geocache_360 2`
+---------------------------------------------------------
+
+
+.. s5_talk::
+
+    This is a 360 degree view of the all the JUNO central detector PMTs,
+    which I used a raytracing benchmark
+
+
+
+.. comment
+
+    :i:`Full Outline of Mental Model`
+    ---------------------------------------------------------
+
+    .. raw:: html
+
+        <pre>
+
+
+        </pre>
+
+        <div class="mytitle2">
+        <header>
+        <h1 style="background-color:lightgrey"> 
+             <i>Opticks</i> : GPU Optical Simulation via NVIDIA® OptiX™ <br/> <span style="color:red">+ A Mental Model for Effective Application of GPUs </span> 
+        </h1>
+        </header>
+        </div>
+
+
+    .. class:: tiny
+
+        * GPU Mental Model : Context and Constraints  
+                                                                                                                           
+          * Amdahls Law
+          * Understanding GPU Graphical Origins -> Effective GPU Computation                                            
+          * CPU Optimizes Latency, GPU Optimizes Throughput                                                             
+          * How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled                                           
+          * GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy                                             
+
+        * Parallel Processing 0th Step : Re-shape Data into "Parallel" Array Form
+
+        * High Level Tools 
+
+          * Survey of High Level General Purpose CUDA Packages 
+          * NumPy : Foundation of Python Data Ecosystem                                                                 
+          * CuPy : NumPy API (+ some of SciPy) accelerated by NVIDIA CUDA : cuRAND/cuBLAS/cuSOLVER/cuSPARSE/Thrust/NCCL 
+          * CuPy : Easy Interface to NVIDIA CUDA stack
+
+        * Example 1 : NumPy/CuPy Python interface 
+
+          * NumPy + CuPy Example : closest approach of Ellipse to a Point 
+          * Python vs NumPy vs CuPy
+          * Python vs NumPy vs CuPy : Python/NumPy ~ 10,  NumPy/CuPy ~ 1300
+
+        * Array Mechanics
+
+          * Persist NumPy Arrays to .npy Files from Python, Examine File Format
+          * Create and Write .npy Array from C/C++ with NP.hh header (No Python)
+          * C Union "Trick" Mixed Type Arrays -> Simpler + Faster CUDA Usage
+
+        * Example 2 : A Taste of Thrust C++
+
+          * OpenGL Interactive Photon History Selection
+          * Photon History Indexing with CUDA Thrust
+          * Applying CUDA Thrust -> Translate Task into Processing "Primitives"
+
+        * Summary 
+          
+
+
+    .. s5_talk::
+
+        As this is too small to read, its consigned to offline consumption.
+
 
 
 
