@@ -1301,22 +1301,25 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
+.. comment 
 
-``NVIDIA Quadro RTX 8000 (48G)``
-----------------------------------
+    ``NVIDIA Quadro RTX 8000 (48G)``
+    ----------------------------------
 
-.. raw:: html
+    .. raw:: html
 
-   <div class="mysidebar" style="position: absolute; top:15%; left:65%; width:22%; height:10% ;" >
-      <strong> 谢谢 NVIDIA China <br> for loaning the card </strong>
-   </div>
+       <div class="mysidebar" style="position: absolute; top:15%; left:65%; width:22%; height:10% ;" >
+          <strong> 谢谢 NVIDIA China <br> for loaning the card </strong>
+       </div>
 
 
-.. s5_talk::
+    .. s5_talk::
 
-   The GPU used for these tests is the Quadro RTX 8000 with 48GB VRAM.
+       The GPU used for these tests is the Quadro RTX 8000 with 48GB VRAM.
 
-   Xie-xie to NVIDIA China for loaning the card.  
+       Xie-xie to NVIDIA China for loaning the card.  
+
+
 
 
 
