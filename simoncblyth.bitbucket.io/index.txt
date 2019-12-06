@@ -79,6 +79,16 @@ data preparation for upload to the GPU and analysis of results.
 Opticks Presentations 
 ----------------------
 
+Winter 2019
+~~~~~~~~~~~~~~
+
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.html (Dec 2019, Beijing)
+
+    IHEP EPD/PIFI Seminar 
+
+http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html (Nov 2019, Adelaide)
+
+    CHEP 2019 Invited Plenary 
 
 
 Summer 2019 : Opticks status 
