@@ -442,7 +442,7 @@ function createControls() {
 		hideList = hider;
 	}
 	controlsDiv.innerHTML = '<form action="#" id="controlForm"' + hideDiv + '>' +
-	'<div id="navLinks"  style="visibility: visible;" >' +
+	'<div id="navLinks"  style="visibility: hidden;" >' +
 	'<a accesskey="t" id="toggle" href="javascript:toggle();">&#216;<\/a>' +
 	'<a accesskey="z" id="prev" href="javascript:go(-1);">&laquo;<\/a>' +
 	'<a accesskey="x" id="next" href="javascript:go(1);">&raquo;<\/a>' +

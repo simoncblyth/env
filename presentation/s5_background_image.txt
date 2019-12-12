@@ -475,19 +475,47 @@
     ## https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=5079
     ##
     ## cp ~/Documents/JUNOIntro/JUNOIntro.00[1,2,3,4].png ~/simoncblyth.bitbucket.io/env/Documents/JUNOIntro/
+    ## cp ~/Documents/JUNOIntro/JUNOIntro.00[5,6,7,8,9].png ~/simoncblyth.bitbucket.io/env/Documents/JUNOIntro/
     ##
 
     JUNO_Intro_1
     /env/Documents/JUNOIntro/JUNOIntro.001.png 1280px_720px
+    ##  JUNO Location Map 
 
     JUNO_Intro_2
     /env/Documents/JUNOIntro/JUNOIntro.002.png 1280px_720px
+    ##  JUNO Liquid Scintillator and PMTs
 
     JUNO_Intro_3
     /env/Documents/JUNOIntro/JUNOIntro.003.png 1280px_720px
+    ##  JUNO : a multi purpose observatory 
 
     JUNO_Intro_4
     /env/Documents/JUNOIntro/JUNOIntro.004.png 1280px_720px
+    ## JUNO Collaboration
+
+    JUNO_Intro_5
+    /env/Documents/JUNOIntro/JUNOIntro.005.png 1280px_720px
+    ## Neutrino Postulate : Pauli    
+
+    JUNO_Intro_6
+    /env/Documents/JUNOIntro/JUNOIntro.006.png 1280px_720px
+    ## What use are particles that only very weakly interact ?
+
+    JUNO_Intro_7
+    /env/Documents/JUNOIntro/JUNOIntro.007.png 1280px_720px
+    ## IBD in LS 
+
+    JUNO_Intro_8
+    /env/Documents/JUNOIntro/JUNOIntro.008.png 1280px_720px
+    ## CK
+
+    JUNO_Intro_9
+    /env/Documents/JUNOIntro/JUNOIntro.009.png 1280px_720px
+    ## PMTs
+
+
+
 
 
     JUNO_Multipurpose_Pedro_NuFact_2019 
@@ -571,4 +599,8 @@
     C Union "Trick" common with CUDA : Mixed Type Arrays : Simpler + Faster
     /env/presentation/cuda/float_as_int.png 600px_89px 40px_570px 
 
+    Neutrino Understanding  
+    /env/presentation/neutrino/understanding_universe_planet_sun.png 1111px_720px
 
+    # 2038px_1320px
+    # 1019px_660px

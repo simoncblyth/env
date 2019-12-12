@@ -19,7 +19,11 @@ https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02
 
     *Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX*
 
-    **CHEP 2018 Proceedings** : Published by EPJ Web of Conferences
+    **CHEP 2018 Proceedings** : Simon  Blyth, EPJ Web Conf. 214 02027 (2019)
+
+    * https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
+
+    * https://doi.org/10.1051/epjconf/201921402027
 
     * http://simoncblyth.bitbucket.io/env/report/opticks-blyth-chep2018-v1.pdf
 

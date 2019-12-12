@@ -48,6 +48,64 @@ training and inference applications.
 
 
 
+Source for papers
+-------------------
+
+* https://openreview.net/search?term=spherical&content=all&group=all&source=all
+
+
+Gauge Equivariant Convolutional Networks and the Icosahedral CNN
+
+* https://www.youtube.com/watch?v=wZWn7Hm8osA
+* https://towardsdatascience.com/an-easy-guide-to-gauge-equivariant-convolutional-networks-9366fb600b70
+
+
+
+Geometric Deep Learning
+------------------------
+
+* http://geometricdeeplearning.com/
+
+* https://www.youtube.com/watch?v=D3fnGG7cdjY
+
+  Geometric Deep Learning
+
+* GCN : Graph Convolutional Networks
+
+* https://github.com/search?q=GCN
+
+
+GCN
+----
+
+* https://github.com/tkipf/gcn
+* http://tkipf.github.io/graph-convolutional-networks/
+
+
+Representing Graphs
+----------------------
+
+* https://www.youtube.com/watch?v=9C2cpQZVRBA&vl=en
+ 
+  Adjacency Matrix : V^2 : often impractical 
+
+* https://www.youtube.com/watch?v=k1wraWzqtvQ
+
+  Adjacency List  
+
+
+
+
+GNN : Graph Neural Networks
+-------------------------------
+
+* Graph neural networks: Variations and applications
+
+* Represented with adjacency matrix
+
+
+
+
 
 CNN, Convolutional Neural Nets, ConvNets
 ------------------------------------------

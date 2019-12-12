@@ -32,6 +32,43 @@ the page number and pressing return in your browser.
 
 
 
+Keystroke to safari ?
+------------------------
+
+::
+
+   osascript -e 'tell application "System Events" to key code 0 '
+
+
+For Conversion of some slides to Keynote : need to switch off page numbers and RHS interface gumpf 
+-----------------------------------------------------------------------------------------------------------
+
+Safari > Develop > Start Element Selection (shift-cmd-C) 
+      allows to click on elemnt of page and see the source 
+
+::
+
+   <div id="currentSlide" style="visibility: visible;"> 
+      # contains some spans with the the 2/2 or whatever
+
+   document.getElementById("currentSlide").style.visibility = "hidden"
+   document.getElementById("currentSlide").style.visibility = "visible"
+
+   <div id="navLinks" > 
+      # contains the toggle and prev/next buttons 
+
+   document.getElementById("navLinks").style.visibility = "hidden"
+   document.getElementById("navLinks").style.visibility = "visible"
+
+
+Huh, seems Makefile doesnt copy the UI javascript into deployed
+location::
+
+    epsilon:ui blyth$ cp -r my-small-white ~/simoncblyth.bitbucket.io/env/presentation/ui/
+    epsilon:ui blyth$ pwd
+    /Users/blyth/env/presentation/ui
+
+
 
 
 Opticks Oct 2018 JUNO Detector Video 
@@ -1081,9 +1118,13 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_nov2019_chep_TALK ; }
 
-presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar_TALK ; }
 
-#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
+presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
+
+
+#presentation-iname(){ echo opticks_jan2020_icfp ; }
 
 
 # setting TALK only changes the oname not the iname

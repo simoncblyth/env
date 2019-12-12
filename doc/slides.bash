@@ -502,6 +502,13 @@ slides-urls-s(){ SMRY=1 slides-urls ; }
 slides-safari(){  osascript $(slides-safari-path) ; }
 slides-safari-edit(){  vi $(slides-safari-path) ; }
 slides-safari-path(){  echo $(env-home)/doc/safari.applescript ; }  
+
+slides-safaria(){  osascript $(slides-safaria-path) ; }
+slides-safaria-edit(){  vi $(slides-safaria-path) ; }
+slides-safaria-path(){  echo $(env-home)/doc/safaria.applescript ; }  
+
+
+
 slides-chrome(){  osascript $(slides-chrome-path) ; }
 slides-chrome-edit(){  vi $(slides-chrome-path) ; }
 slides-chrome-path(){  echo $(env-home)/doc/chrome.applescript ; }  
@@ -597,6 +604,7 @@ slides-capture(){
 
           echo $msg opening url "$url" 
           open "$url"
+          slides-safaria    # pressing key a : makes the page selector GUI invisible via javascript
           cmd="screencapture -T0 -t$fmt -w -i -o $name"
           #
           #    -T<seconds>  Take the picture after a delay of <seconds>, default is 5 

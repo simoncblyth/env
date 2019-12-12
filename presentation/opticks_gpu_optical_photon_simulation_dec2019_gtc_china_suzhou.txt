@@ -91,6 +91,7 @@ Outline
 
     * Context and Problem
 
+      * Neutrinos : Usefulness : Detection : Photomultiplier Tubes (PMTs)
       * Jiangmen Underground Neutrino Observatory (JUNO)
       * Geant4 : Monte Carlo Simulation Toolkit 
       * Optical Photon Simulation Problem...
@@ -130,6 +131,55 @@ Outline
      
    * then the "tools used to create a solution"
    * before describing the Opticks solution and its performance.   
+
+
+:i:`JUNO_Intro_5`
+-----------------------------
+
+.. s5_talk::
+
+    Neutrino Postulate 
+
+
+:i:`JUNO_Intro_6`
+-----------------------------
+
+.. s5_talk::
+
+    What use are neutrinos ?
+
+
+:i:`JUNO_Intro_7`
+-----------------------------
+
+.. s5_talk::
+
+    IBD in LS
+
+
+:i:`JUNO_Intro_8`
+-----------------------------
+
+.. s5_talk::
+
+    Cerenkov
+
+
+.. comment
+
+   https://icecube.wisc.edu/~kjero/Bootcamp/2015/Notebooks/Reconstruction_Introduction.html
+
+
+
+:i:`JUNO_Intro_9`
+-----------------------------
+
+.. s5_talk::
+
+    PMTs
+
+
+
 
 
 
