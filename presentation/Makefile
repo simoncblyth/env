@@ -38,6 +38,7 @@ ONAME=$(PRESENTATION_ONAME)
 ITXT=$(INAME).txt
 IDEF=my_s5defs.txt
 IIMG=s5_background_image.txt
+IJS=ui/my-small-white/slides.js
 
 
 OHTML=$(addprefix $(PUBDIR)/,$(ONAME).html)
@@ -45,6 +46,7 @@ OPDF=$(addprefix $(PUBDIR)/,$(ONAME).pdf))
 OTXT=$(addprefix $(PUBDIR)/,$(ONAME).txt)
 ODEF=$(addprefix $(PUBDIR)/,$(IDEF))
 OIMG=$(addprefix $(PUBDIR)/,$(IIMG))
+OJS=$(addprefix $(PUBDIR)/,$(IJS))
 
 SLIDES_URL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURL)/,$(ONAME).html))
 SLIDES_RURL=$(addsuffix ?page=$(PAGE),$(addprefix $(PUBURLR)/,$(ONAME).html))
@@ -66,14 +68,16 @@ $(OIMG): $(IIMG)
 	@echo Makefile.cp backgound img refs into place
 	@cp $< $@
 
-
+$(OJS): $(IJS)
+	@echo Makefile.cp slides.js into place
+	@cp $< $@
 
 
 $(OTXT): $(ITXT)
 	@echo Makefile.gcc preprocess source RST picking ifdef 
 	@gcc -E -P -traditional-cpp -x c $(PREPROCESSOR_ARGS) $< > $@
 
-$(OHTML): $(OTXT) $(ODEF) $(OIMG)
+$(OHTML): $(OTXT) $(ODEF) $(OIMG) $(OJS)
 	@echo Makefile.rst2s5
 	@echo ITXT $(ITXT)
 	@echo OTXT $(OTXT)

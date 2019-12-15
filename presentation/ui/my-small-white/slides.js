@@ -237,6 +237,9 @@ function toggle() {
 	var slideColl = GetElementsWithClassName('*','slide');
 	var slides = document.getElementById('slideProj');
 	var outline = document.getElementById('outlineStyle');
+    var navLinks = document.getElementById("navLinks") ;
+
+
 	if (!slides.disabled) {
 		slides.disabled = true;
 		outline.disabled = false;
@@ -245,6 +248,7 @@ function toggle() {
 		for (var n = 0; n < smax; n++) {
 			var slide = slideColl[n];
 			slide.style.visibility = 'visible';
+            navLinks.style.visibility = 'hidden'; 
 		}
 	} else {
 		slides.disabled = false;
@@ -254,12 +258,15 @@ function toggle() {
 		for (var n = 0; n < smax; n++) {
 			var slide = slideColl[n];
 			slide.style.visibility = 'hidden';
+            navLinks.style.visibility = 'hidden'; 
 		}
 		slideColl[snum].style.visibility = 'visible';
+        navLinks.style.visibility = 'hidden'; 
 	}
 }
 
 function showHide(action) {
+    var navLinks = document.getElementById("navLinks") ;
 	var obj = GetElementsWithClassName('*','hideme')[0];
 	switch (action) {
 	case 's': obj.style.visibility = 'visible'; break;
@@ -272,6 +279,7 @@ function showHide(action) {
 		}
 	break;
 	}
+    navLinks.style.visibility = 'hidden'; 
 }
 
 // 'keys' code adapted from MozPoint (http://mozpoint.mozdev.org/)

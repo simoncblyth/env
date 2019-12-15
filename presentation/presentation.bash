@@ -32,6 +32,54 @@ the page number and pressing return in your browser.
 
 
 
+JS changes causing problems
+-----------------------------
+
+::
+
+    epsilon:my-small-white blyth$ hg log slides.js
+    changeset:   6443:0e66b24c9140
+    tag:         tip
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Thu Dec 12 21:38:38 2019 +0800
+    summary:     adding introductory slides : neutrino, IBD, scintillation, cerenkov, PMT
+
+    changeset:   6438:e553471f46c1
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Fri Dec 06 20:27:15 2019 +0800
+    summary:     make it possible to hide the currentSlide and navLinks in the s5 js slides, using a and b keys
+
+    changeset:   4681:bc8801f6adab
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Tue Sep 23 20:11:21 2014 +0800
+    summary:     moving presentation to reflect generality
+
+    epsilon:my-small-white blyth$ hg revert -r 4681:bc8801f6adab slides.js 
+
+
+
+
+
+Safari Caching of Javascript drives bonkers
+---------------------------------------------
+
+* https://stackoverflow.com/questions/43462424/reload-javascript-and-css-files-for-a-website-in-safari
+
+::
+
+    <filesMatch "\.(html|htm|js|css)$">
+      FileETag None
+      <ifModule mod_headers.c>
+         Header unset ETag
+         Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+         Header set Pragma "no-cache"
+         Header set Expires "Wed, 21 Oct 2015 07:28:00 GMT"
+      </ifModule>
+    </filesMatch>
+
+
+
+
 Keystroke to safari ?
 ------------------------
 
@@ -1121,7 +1169,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar_TALK ; }
 
-presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
+presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou_TALK ; }
 
 
 #presentation-iname(){ echo opticks_jan2020_icfp ; }

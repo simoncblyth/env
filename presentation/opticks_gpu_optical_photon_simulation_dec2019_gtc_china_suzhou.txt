@@ -57,12 +57,17 @@
 
     Opticks is an open source project that applies state-of-the-art GPU ray tracing 
     from NVIDIA OptiX to optical photon simulation and integrates this with Geant4. 
-    This results in drastic speedups of more than 3 orders of magnitude.
+    This results in drastic speedups of more than one thousand times with a single GPU, 
+    compared to the standard single-threaded CPU approach. 
 
     Any simulation limited by optical photons can remove those limits by using Opticks.
 
     This render shows the photons resulting from a muon crossing the JUNO scintillator, 
-    each line represents a single photon.
+    each line represents a single photon.  
+
+    You can also see some of the many thousands of photomultiplier tubes surrounding the 
+    scintillator : which act as artificial eyes able to detect the light coming 
+    from the scintillator.
 
 
 
@@ -126,11 +131,10 @@ Outline
 
 .. s5_talk::
 
-   * I will first introduce JUNO and the challenge of 
-     optical photon simulation,  
-     
-   * then the "tools used to create a solution"
-   * before describing the Opticks solution and its performance.   
+
+   * Before talking about Opticks : I will introduce the context, 
+     so you can understand the problem that Opticks aims to solve  
+
 
 
 :i:`JUNO_Intro_5`
@@ -138,7 +142,33 @@ Outline
 
 .. s5_talk::
 
-    Neutrino Postulate 
+    Radioactive decays are very common : most materials, including 
+    the atoms of your body contain trace amounts that decay.  Some 
+    decays proceed via a neutron decaying into a proton and an electron.
+
+    But in measurements of these so called beta decays : there was  a problem 
+
+    * energy/momentum was not conserved by the decay.  
+
+    To explain the measurements Pauli proposed a new particle, the neutrino,  
+    in 1930 that made the momentum and energy balance.
+
+    He is attributed to have said : blah 
+
+    neutrinos interact only very rarely 
+    (a beam of neutrinos can go through the earth or the sun 
+    without hardly noticing)
+
+    But fortunately it is possible  to detect them 
+
+    Actually it is because they interact so rarely that 
+    they are able to tell us about places and times there is no 
+    other way to probe.  
+
+    For example, Neutrinos provide a window into the center of the sun 
+    and the reactions that are powering it.
+
+
 
 
 :i:`JUNO_Intro_6`
@@ -148,13 +178,38 @@ Outline
 
     What use are neutrinos ?
 
+    Other examples of how neutrinos are useful : are in providing 
+    a probe into the center of the earth.  Also neutrinos from 
+    a supernova in a neighboring galaxy to our Milky Way have been 
+    detected : giving us information about the death of a star.
+
+
 
 :i:`JUNO_Intro_7`
 -----------------------------
 
 .. s5_talk::
 
-    IBD in LS
+    SMALL
+
+    So how can you detect neutrinos ? 
+
+    * interaction probability is low : need large targets, with a lots of protons.
+    * but some neutrinos do interact with protons producing a neutron and a positron 
+    * positrons are antimatter : they rapidly find some matter and annihilate producing gammas   
+    * neutrons take some time to slow down before they are captured on a nucleus and also produce gammas
+    * so the signal is a distinctive double flash 
+
+    * liquid scintillators are special compounds which absorb some of the energy from high energy particles 
+      passing through and emit it as optical photons   
+
+    * the liquid scintillator is transparent to the light : so this is the principal
+      for detecting neutrinos 
+    * look for distinctive double flashes of light coming from the scintillator 
+    * this *scintillation light* is measured using Photomultiplier tubes
+    
+    **optical photons are crucial to the detection**
+
 
 
 :i:`JUNO_Intro_8`
@@ -162,7 +217,13 @@ Outline
 
 .. s5_talk::
 
-    Cerenkov
+     
+    There is one other way that light is producing in the detector:
+
+    * *Cerenkov radiation* occurs when particles travel through a medium faster
+      than the speed of light in the medium 
+
+    * this happens in water and also liquid scintillator
 
 
 .. comment
@@ -176,11 +237,28 @@ Outline
 
 .. s5_talk::
 
-    PMTs
+    So to detect neutrinos we need to measure flashes of light
+    coming from the scintillator.
+
+    Photomultiplier tubes (PMTs) are effectively artifical 
+    eyes that can detect even a single optical photon.
+
+    Photons are converted into electronic pulses by the PMT.
+    So we need to look for double pulses to find the neutrinos. 
 
 
 
+:i:`JUNO_Intro_10`
+-----------------------------
 
+.. s5_talk::
+
+
+    One more piece of context is important : cosmic ray muons 
+
+    As surface level there is a continuous flux of muons coming through the roof and 
+    mostling passing right through.  These originate from primary cosmic rays 
+    that interact in the upper atmosphere producing   
 
 
 
@@ -190,9 +268,8 @@ Outline
 .. s5_talk:: 
 
     JUNO is a large neutrino experiment under construction in southern China.
-    Its designed to determine the neutrino mass order 
-    from measurements of oscillated reactor neutrinos from a 
-    distance of 53km 
+    It is designed to determine the neutrino mass order 
+    from measurements of oscillated reactor neutrinos.
  
     Construction is expected to be completed in 2021.
  
@@ -212,8 +289,7 @@ Outline
 .. s5_talk::
 
     JUNO will be the worlds largest liquid scintillator detector,
-    with a spherical 20,000 ton volume of scintillator surrounded by 
-    a water pool buffer which also provides water cherenkov detection.
+    with a spherical 20,000 ton volume of scintillator 
 
     The scintillator is instrumented with 18 thousand 20-inch PMTs 
     and 25 thousand 3-inch PMTs     
@@ -227,13 +303,15 @@ Outline
     JUNO will be able to detect neutrinos from many terrestrial and extra-terrestrial 
     sources including : solar, atmospheric, geo-neutrinos. 
 
-    Despite 700 m of overburden the largest backgrounds to these neutrino signals   
+    Despite 700m of overburden the largest backgrounds to these neutrino signals   
     will be from cosmic muon induced processes.  
 
-    A muon veto is used to control the backgrounds.
+    A muon veto is used to control the backgrounds 
+ 
+    * that means that when a muon is passing through the data is not used.  
     
     However to minimize the time and volume vetoed, which cuts into 
-    it is necessary to have a good muon reconstruction which means 
+    the live time it is necessary to have a good muon reconstruction which means 
     that we need large samples of cosmic muons.
 
 
@@ -242,6 +320,16 @@ Outline
 
 Geant4 : Monte Carlo Simulation Toolkit
 ----------------------------------------
+
+
+.. s5_talk::
+
+    Geant4 has been in developemnt for more than 20 years : it is the 
+    standard simulation toolkit used by practically all high energy physics
+    experiments and also used in medical and space physics 
+
+    * simulating medical imaging scanners and satellites 
+      as well as particle detectors
 
 
 Geant4 : Monte Carlo Simulation Toolkit Generality
@@ -273,10 +361,9 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
       https://geant4.web.cern.ch
 
 
+.. s5_talk::
 
-
-
-
+    Geant4 is and extremely general tool
 
 
 
@@ -313,18 +400,19 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-   Muons travelling across the liquid scintillator will yield
+   Muons travelling across the JUNO liquid scintillator will yield
    many tens of millions of optical photons. This is a huge memory and time challenge 
    for Geant4 monte carlo production.
 
-   Most of the CPU time is taken finding intersections between photons and geometry 
-   Fortunately simulation is not alone in this bottleneck.
+   Most of the CPU time is taken finding intersections, at each step of the propagation, between photons and geometry 
+
+   Fortunately optical simulation is not alone in this bottleneck.
 
    Optical photons are naturally parallel : they can be considered 
    to be produced only by two processes : Cherenkov and Scintillation and we
    are mainly interested in photons that hit the PMTs.  
 
-   These characteristics make it straightforward integrate an external optical
+   These characteristics make it straightforward to integrate an external optical
    simulation.
  
 
@@ -394,12 +482,12 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     Actually, there is much in common between optical photon simulation and 
     ray traced image rendering.   
 
-    With simulation you want to know photon parameters at PMTs, with rendering 
+    With simulation you need photon parameters at PMTs, with rendering 
     you need pixel values at the image plane.
 
     Both these are limited by ray geometry intersection, which is also known as ray tracing.
 
-    Ray tracing is used across many industries, which means that are huge efforts
+    Ray tracing is used across many industries, which means there have been huge efforts
     across decades to improve ray tracing perfromance.
     
 
@@ -431,7 +519,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-   It is good to clarify the difference between 
+   Its good to clarify the difference between 
    the two primary graphics rendering techniques 
 
    Rasterization, which is the most common rendering technique
@@ -442,7 +530,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    Ray tracing 
 
    * starts from the pixels, casts rays out into the 3D scene and finds intersects
-   * this can use analytic geometry, without approximation (just like Geant4)   
+   * this can use analytic geometry, without approximation (just like Geant4 does)   
    * its easier to create realistic images with ray tracing because its closer to the physics
 
 .. comment
@@ -484,15 +572,16 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-    In summer last year NVIDIA announced a leap in ray tracing performance 
-    with the NVIDIA Turing architecture GPU.
+    In summer 2018 NVIDIA announced a leap in ray tracing performance 
+    with the NVIDIA Turing architecture GPU, calling it 
+    the worlds first ray tracing GPU.
 
     Turing Architecture GPUs have hardware dedicated to accelerating ray tracing, 
     which NVIDIA claims can reach 10 billion ray geometry intersections per second
     with a single GPU.
 
-    Assuming each photon costs 10 rays, that means the upper limit per GPU is 
-    1 billion photons/second.
+    Assuming each photon costs 10 rays, that means the upper limit to aim for 
+    per GPU is 1 billion photons/second.
     
 
 
@@ -573,10 +662,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-    To the worlds gamers these new GPUs mean for the first time 
-    real-time cinematic rendering. 
+    To the worlds gamers these new GPUs make
+    real-time cinematic rendering possible.
 
-    NVIDIA does this with hybrid rendering that it calls RTX
+    NVIDIA does this with hybrid rendering, that it calls RTX
 
     RTX uses:
 
@@ -616,11 +705,11 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 .. s5_talk::
 
    The principal technique to accelerate ray geometry intersection 
-   is an acceleration structure called a bounding volume hierarchy 
+   is an acceleration structure called a bounding volume hierarchy or BVH.
    
    This divides space into a spatial index of progressively smaller boxes
 
-   Traversing the tree of bounds allows to minimize the intersections
+   Traversing the tree of bounding boxes allows to minimize tests
    needed to find the intersect.
 
   
@@ -751,19 +840,22 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 .. s5_talk::
 
 
+   * NVIDIA OptiX provides a general ray intersection API 
+
+   * this diagram shows in blue what OptiX provides : 
+
+     * just the difficult part of accelerating the intersection, 
+       not in intersection itself
+
    * NVIDIA OptiX is a ray tracing specific compiler, it combines
-     user programs for ray generation and geometry with NVIDIA programs 
-     for acceleration structure traversal into a GPU kernel which is 
-     launched onto the GPU 
+     user programs for ray generation, closest hit and geometry intersection  
+     with NVIDIA functionality for acceleration structure traversal 
+
+     * creating a GPU kernel 
 
    * the bulk of Opticks on the GPU is in the ray generation and intersection programs 
 
-   * OptiX just accelerates ray-geometry interection... it 
-     doesnt provide any intersection to first order
 
-   * Actually the new hw triangles are an exception to this, there is 
-     new API that allows ray triangle intersection 
-     on the dedicated ray trace hardware
   
 
 .. skip
@@ -806,6 +898,8 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
  
     The geometry is also needed on the GPU, with all 
     material and surface properties.
+
+    **Actually porting the physics was straightforward : most of the difficulty is in porting the geometry**
      
 
 
@@ -873,6 +967,11 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
     * essentially the necessary Geant4 optical physics is ported to CUDA
 
+    * the essential thing to realise : is that using gensteps enables the photons
+      to be offloaded to the GPU where they are generated and propagated with only 
+      photons that hit PMTs requiring CPU memory 
+
+
 .. skip
 
     Some further detail is on the reemissio and also 
@@ -903,7 +1002,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    Geometry starts from primitive shapes.
 
-   NVIDIA OptiX doesnt provide primitives : My Opticks 
+   NVIDIA OptiX does not provide primitives : My Opticks 
    has ray geometry intersection for these shapes.
 
 
@@ -983,7 +1082,9 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     So G4Boolean trees can be translated into Opticks without 
     any approximation.
  
-
+    I will not go through the CSG algorithm : the important thing to 
+    note is that it is this that allows automated translation of 
+    Geant4 geometry to the GPU without approximation. 
 
 
 
@@ -1127,6 +1228,12 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    And everything needs to be serialized to be copied to the GPU.
      
+   The Opticks geometry model starts from the repetitive nature of the geometry. 
+   It first automatically finds repeated groups of geometry volumes and forms 
+   so called instances.  Instancing is a graphics technique that avoids having to 
+   repeat geometry information. Instead transforms for each position of an 
+   assembly of volumes are used.   
+
 
 
 :i:`j1808_top_rtx`
@@ -1250,7 +1357,9 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
   
    I created this GUI to help with debugging the simulation. 
 
-
+   This time scrubbing is also implemented with OpenGL geometry shaders using 
+   the event time as an input and interpolating between recorded 
+   photon positions and times at each step of the photon.
 
 
 .. comment
@@ -1330,6 +1439,9 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    pulling back the hits to the CPU.
 
    Overheads are less than 10%    
+
+   In production are only interested in the gensteps and the hits, 
+   everything else is only needed for debugging.
 
 
 
@@ -1424,7 +1536,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     of photons that can be simulated in a single launch with this 48G 
     GPU is a bit more than 400M.
 
-
+    Photon array of 45G
  
 
 
@@ -1985,8 +2097,8 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    Meanwhile billions of dollars of industry development 
    have gone into improving ray tracing.
 
-   Liberating geometry from the Geant4 object model allows
-   all this development effort to be applied to optical photon simulation.
+   Liberating geometry from the Geant4 model allows
+   all this progress with ray tracing to be applied to optical photon simulation.
 
 
 
@@ -2071,15 +2183,17 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
-:i:`geocache_360`
----------------------------------------------------------
+.. comment
+
+    :i:`geocache_360`
+    ---------------------------------------------------------
 
 
-.. s5_talk::
+    .. s5_talk::
 
-    This is a 360 degree view of the all the JUNO central detector PMTs,
-    which I used as a raytracing benchmark.
- 
+        This is a 360 degree view of the all the JUNO central detector PMTs,
+        which I used as a raytracing benchmark.
+     
    
 
 

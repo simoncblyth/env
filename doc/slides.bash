@@ -604,7 +604,7 @@ slides-capture(){
 
           echo $msg opening url "$url" 
           open "$url"
-          slides-safaria    # pressing key a : makes the page selector GUI invisible via javascript
+          #slides-safaria    # pressing key a : makes the page selector GUI invisible via javascript
           cmd="screencapture -T0 -t$fmt -w -i -o $name"
           #
           #    -T<seconds>  Take the picture after a delay of <seconds>, default is 5 
