@@ -48,6 +48,16 @@ github pull request from a fork
 * https://help.github.com/articles/creating-a-pull-request-from-a-fork/
 
 
+git : how to list remotes
+---------------------------
+
+::
+
+    git remote -v
+
+
+
+
 git syncing a fork
 ---------------------
 

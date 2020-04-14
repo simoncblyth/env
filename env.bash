@@ -2054,3 +2054,5 @@ mdl-(){      . $(env-home)/graphics/nvidia/mdl.bash && mdl-env $* ; }
 nest-(){      . $(env-home)/scintillation/nest/nest.bash && nest-env $* ; }
 lighthouse2-(){      . $(env-home)/graphics/lighthouse2/lighthouse2.bash && lighthouse2-env $* ; }
 optix7sandbox-(){      . $(env-home)/graphics/optix7/optix7sandbox.bash && optix7sandbox-env $* ; }
+
+pkg-config-(){      . $(env-home)/tools/pkg-config.bash && pkg-config-env $* ; }

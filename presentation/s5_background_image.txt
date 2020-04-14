@@ -60,6 +60,9 @@
     ## a PNG of size 1280x720
     ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
     ##
+    ## remove the url
+    ##   cp ~/Documents/Geant4OpticksWorkflow1/Geant4OpticksWorkflow1.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
+    ##
     Geant4OpticksWorkflow
     /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
 
@@ -567,12 +570,15 @@
 
     scan-pf-1_Opticks_Speedup
     /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
+    # Opticks_Speedup : Ratio of extrapolated G4 times to Opticks launch(interval) times 
 
     scan-pf-1_Opticks_Speedup 2
     /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
 
     scan-pf-1_Opticks_vs_Geant4
     /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+    # Opticks_vs_Geant4 : Extrapolated G4 times compared to Opticks launch+interval times with RTX mode ON and OFF 
+    # logscale times vs number of photons in millions
 
     scan-pf-1_Opticks_vs_Geant4 2
     /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS

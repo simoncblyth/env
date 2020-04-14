@@ -21,6 +21,84 @@ PDF documents at
 
 
 
+CHEP 2019 : What is new ?
+---------------------------
+
+* focus of 2019 : was making Opticks benefit from the performance
+  boost provided by RT cores
+
+* performance figures
+* now have full JUNO geometry measurements, not extrapolations
+
+  * can make more specific statements and name GPUs
+
+* validation numbers are available 
+* Turing no longer recent
+
+
+* https://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html
+
+
+
+
+CHEP 2019 proceedings
+-----------------------
+
+* https://simoncblyth.bitbucket.io
+
+* https://indico.cern.ch/event/773049/page/19236-proceedings
+
+* Templates to prepare your paper are available for LaTeX and Word (with instructions)
+* https://indico.cern.ch/event/773049/attachments/1926162/3253016/woc_1col.pdf
+* Please use the single column format
+* Suggested page lengths are 6 pages for parallel contributions, 8 pages for plenary contributions, excluding references
+* Please submit your paper by 14 March 2020
+
+
+* ~/Downloads/epj-woc-latex copied into /usr/local/epjconf BUT no changes
+  compared to last year, so just start from previous epjconf proceedings 
+  copied into /Users/blyth/env/doc/epjconf/chep2019
+
+
+No relevant changes::
+
+    epsilon:epjconf blyth$ pwd
+    /usr/local/epjconf
+    epsilon:epjconf blyth$ mv ~/chep2019/epj-woc-latex/ .
+    epsilon:epjconf blyth$ l
+    total 0
+    drwx------@ 9 blyth  staff  288 Feb 24 13:48 epj-woc-latex
+    drwxr-xr-x  8 blyth  staff  256 Apr  8  2019 web-conf
+    epsilon:epjconf blyth$ diff epj-woc-latex/template.tex web-conf/template.tex 
+    epsilon:epjconf blyth$ 
+    epsilon:epjconf blyth$ 
+    epsilon:epjconf blyth$ l web-conf/
+    total 376
+    -rw-------@ 1 blyth  staff  44064 Oct  1  2018 woc.bst
+    -rw-------@ 1 blyth  staff  22879 Oct  1  2018 webofc.cls
+    -rw-------@ 1 blyth  staff  88277 Oct  1  2018 webofc-doc.pdf
+    -rw-------@ 1 blyth  staff   4055 Oct  1  2018 template.tex
+    -rw-------@ 1 blyth  staff   1489 Oct  1  2018 readme.txt
+    -rw-------@ 1 blyth  staff  20849 Oct  1  2018 additional-styles.tar.gz
+    epsilon:epjconf blyth$ l epj-woc-latex/
+    total 384
+    -rwxr-xr-x@ 1 blyth  staff  44064 Nov  7 12:21 woc.bst
+    -rwxr-xr-x@ 1 blyth  staff  22879 Nov  7 12:20 webofc.cls
+    -rwxr-xr-x@ 1 blyth  staff   4059 Nov  7 12:20 template_twocolumn.tex
+    -rwxr-xr-x@ 1 blyth  staff   4055 Nov  7 12:20 template.tex
+    -rwxr-xr-x@ 1 blyth  staff   1489 Nov  7 12:20 readme.txt
+    -rwxr-xr-x@ 1 blyth  staff  20849 Nov  7 12:19 additional-styles.tar.gz
+    -rwxr-xr-x@ 1 blyth  staff  88277 Nov  6 12:23 webofc-doc.pdf
+    epsilon:epjconf blyth$ 
+
+    epsilon:epjconf blyth$ diff -r --brief web-conf epj-woc-latex
+    Only in epj-woc-latex: template_twocolumn.tex
+    epsilon:epjconf blyth$ 
+
+
+
+
+
 Sep 17, 2019 : CHEP2018 proceedings published
 ------------------------------------------------
 
@@ -166,10 +244,13 @@ epjconf-opdf(){ echo $(epjconf-odir)/$(epjconf-filename).pdf ; }
 epjconf-open(){ open $(epjconf-opdf) ; }
 
 
-epjconf-confname(){ echo chep2018 ; }
+#epjconf-confname(){ echo chep2018 ; }
+epjconf-confname(){ echo chep2019 ; }
 
 #epjconf-filename(){ echo opticks-blyth-$(epjconf-confname) ; }  # as submitted to referees
-epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
+#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
+
+epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
 
 epjconf-texname(){  echo $(epjconf-filename).tex ; }
 epjconf-bibname(){  echo $(epjconf-filename) ; }

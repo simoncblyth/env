@@ -72,6 +72,28 @@ fi
 Now when you login to your machine from a console .bashrc will be called.
 
 
+Debugging Tip For Disappearing Functions
+-----------------------------------------
+
+When a function disappears (this happened with glfw--)
+you probably have a stray space on an end token::
+
+    cat << EON > /dev/null
+
+    Note line 
+    Note line 
+    Note line 
+
+    EON**
+
+Stray spaces after the EON can easily cause functions to disappear.
+To find the problem in a large file move a probe function around that 
+you keep changing the output from to different places in the
+file to identify where the rot sets in. 
+
+::
+
+    glfw-check(){ echo TEST5 ; }
 
 
 

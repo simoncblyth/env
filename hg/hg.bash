@@ -34,6 +34,15 @@ merging
 * https://swcarpentry.github.io/hg-novice/12-merges/
 
 
+merging with vim
+~~~~~~~~~~~~~~~~~~
+
+* https://www.mercurial-scm.org/wiki/MergingWithVim
+
+
+
+
+
 serve a web interface to quickly check on commits : very handy when get multiple heads
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

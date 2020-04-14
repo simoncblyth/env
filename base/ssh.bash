@@ -280,6 +280,33 @@ but can now hop around network blockages and run remote commands::
     belle7.nuu.edu.tw
 
 
+piped access
+--------------
+
+* https://docstore.mik.ua/orelly/networking_2ndEd/ssh/ch11_05.htm
+
+
+::
+
+    epsilon:jnu blyth$ ssh -nNT -L2001:202.122.32.44:22 L6
+       ## on laptop : open tunnel to Gold via L6  
+
+Uncertain if its doing anything, but copied the hostkey from Precision "Gold" to
+laptop:: 
+
+    /etc/ssh/ssh_host_rsa_key.pub  ## 
+
+    ~/.ssh/hostkeys/key_2001_localhost.pub
+
+
+
+ssh through gateway without agent running on gateway
+------------------------------------------------------
+
+* https://docstore.mik.ua/orelly/networking_2ndEd/ssh/ch11_05.htm
+
+
+
 
 
 Private web server access over SSH 
