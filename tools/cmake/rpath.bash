@@ -27,7 +27,7 @@ Hmm the below ORIGIN RPATH works on Linux but not macOS::
              path $ORIGIN/../lib:$ORIGIN/../lib64:$ORIGIN/../externals/lib:$ORIGIN/../externals/lib64:$ORIGIN/../externals/OptiX/lib64 (offset 12)
 
 
-So instead of a fixed INSTALL_RPATH on macOD use CMake magic::
+So instead of a fixed INSTALL_RPATH on macOS use CMake magic::
 
      79 if(UNIX AND NOT APPLE)
      80 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../lib64:$ORIGIN/../externals/lib:$ORIGIN/../externals/lib64:$ORIGIN/../externals/OptiX/lib64")

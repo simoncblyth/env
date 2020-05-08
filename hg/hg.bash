@@ -40,6 +40,25 @@ merging with vim
 * https://www.mercurial-scm.org/wiki/MergingWithVim
 
 
+disable confusing vim 3-panel merge : its simpler to just fix the chevrons in one file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In ~/.hgrc set::
+
+   [ui]
+   merge = internal:merge
+
+::
+
+    [blyth@localhost env]$ vi ~/.hgrc
+    [blyth@localhost env]$ hg resolve env.bash
+    merging env.bash
+    warning: conflicts during merge.
+    merging env.bash incomplete! (edit conflicts, then use 'hg resolve --mark')
+    [blyth@localhost env]$    ## at this point chevrons are planted in the file
+    [blyth@localhost env]$ vi env.bash   ## pick between the options, and remove chevrons
+    [blyth@localhost env]$ hg resolve --mark env.bash
+    [blyth@localhost env]$ hg commit -m "old notes and merge"
 
 
 

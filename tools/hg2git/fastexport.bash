@@ -5,6 +5,127 @@ fastexport-vi(){       vi $(fastexport-source) ; }
 fastexport-env(){      elocal- ; }
 fastexport-usage(){ cat << EOU
 
+fastexport
+=============
+
+May 2020
+------------
+
+* https://repo.or.cz/fast-export.git
+
+* https://github.com/chrisjbillington/hg-export-tool
+* https://github.com/chrisjbillington/hg-export-tool/blob/master/exporter.py
+
+hg heads
+~~~~~~~~~~~
+
+::
+
+   --closed
+         show normal and closed branch heads
+   --topo
+         show topological heads only (changesets with no children)  
+
+
+::
+
+    epsilon:env blyth$ hg heads --closed --topo --template json
+    [
+     {
+      "rev": 6445,
+      "node": "7c74c85d044484f0a5fa695a63a6d123bcd53a14",
+      "branch": "default",
+      "phase": "public",
+      "user": "Simon Blyth <simoncblyth@gmail.com>",
+      "date": [1586878901, -3600],
+      "desc": "misc",
+      "bookmarks": [],
+      "tags": ["tip"],
+      "parents": ["a2c80cef597f59674777397fab4ee49a0170641e"]
+     }
+    ]
+    epsilon:env blyth$ hg heads --closed --template json
+    [
+     {
+      "rev": 6445,
+      "node": "7c74c85d044484f0a5fa695a63a6d123bcd53a14",
+      "branch": "default",
+      "phase": "public",
+      "user": "Simon Blyth <simoncblyth@gmail.com>",
+      "date": [1586878901, -3600],
+      "desc": "misc",
+      "bookmarks": [],
+      "tags": ["tip"],
+      "parents": ["a2c80cef597f59674777397fab4ee49a0170641e"]
+     }
+    ]
+
+    ## huh UTC-1hr ?  locale noticed BST british-summer-time ?
+
+
+
+What is a topological head ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.mercurial-scm.org/wiki/UnderstandingMercurial
+
+
+
+
+* https://dzone.com/articles/convert-a-mercurial-repository-to-git-using-hg-fas
+
+
+16 bitbucket repos :  13 are mercurial in need of conversion
+-------------------------------------------------------------
+
+* https://bitbucket.org/simoncblyth/workspace/repositories
+
+
+opticks
+    hg 
+simoncblyth.bitbucket.io
+    hg 
+env
+    hg 
+implicitmesher
+    hg
+opticksdata
+    hg 
+g4dae
+    hg
+g4dae-opticks
+    hg 
+heprez
+    hg
+
+intro_to_numpy
+    hg
+intro_to_cuda
+    hg 
+
+jnu
+    hg 
+tracdev
+    hg, small : dont care about loss : good to practice on 
+chroma
+    hg, fork of chroma/chroma
+
+
+
+scenekittest
+    git
+meshlab
+    git, started from a tarball 
+opticksaux
+    git
+
+
+
+
+
+
+
+
 * https://stackoverflow.com/questions/10710250/converting-mercurial-folder-to-a-git-repository
 
 * http://repo.or.cz/w/fast-export.git
@@ -30,15 +151,193 @@ fastexport-usage(){ cat << EOU
 
 
 
+
+
+
+
+
+
+
 EOU
 }
 fastexport-dir(){ echo $(local-base)/env/tools/hg2git/fast-export ; }
 fastexport-cd(){  cd $(fastexport-dir); }
+
+
+
+fastexport-get-notes(){ cat << EON
+
+Note: checking out 'tags/v180317'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b <new-branch-name>
+
+HEAD is now at 19aa906... Update usage section example commands
+
+
+
+* https://github.com/frej/fast-export/releases
+* v180317 :  frej released this on Mar 17, 2018 
+
+Releases after v180317 pin to particular Mercurial versions
+which is not very useful.
+
+
+EON
+}
+
+
 fastexport-get(){
+
+   local iwd=$PWD
    local dir=$(dirname $(fastexport-dir)) &&  mkdir -p $dir && cd $dir
 
    [ ! -d fast-export ] && git clone git://repo.or.cz/fast-export.git  
+ 
+   cd fast-export
+   git checkout tags/v180317
+
+   cd $iwd
+
 }
+
+
+
+
+fastexport-hg2git-notes(){ cat << EON
+
+
+With macports mercurial 5.3_1 and fast_export master
+------------------------------------------------------
+
+Could not find a python interpreter with the mercurial module >= 4.6 available.  
+Please use the 'PYTHON' environment variable to specify the interpreter to use.::
+
+    In [11]: import mercurial.scmutil
+
+    In [12]: mercurial.__file__
+    Out[12]: '/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/mercurial/__init__.pyc'
+
+    epsilon:tracdev_git blyth$ python -c "from mercurial.scmutil import revsymbol"
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+    ImportError: cannot import name revsymbol
+
+    port info mercurial
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+    mercurial @5.3_1 (devel, python)
+    Sub-ports:            mercurial-devel
+    Variants:             bash_completion, universal, zsh_completion
+
+
+* https://github.com/frej/fast-export/pull/131
+
+
+
+With macports mercurial 5.3_1 and fast_export tags/v180317
+-----------------------------------------------------------------
+
+::
+
+    epsilon:tracdev_git blyth$ python -c "from mercurial import hg"
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/mercurial/hg.py", line 21, in <module>
+        from . import (
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/mercurial/bundlerepo.py", line 23, in <module>
+        from . import (
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/mercurial/cmdutil.py", line 24, in <module>
+        from . import (
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/mercurial/crecord.py", line 30, in <module>
+        locale.setlocale(locale.LC_ALL, u'')
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/locale.py", line 581, in setlocale
+        return _setlocale(category, locale)
+    locale.Error: unsupported locale setting
+
+    epsilon:tracdev_git blyth$ export LC_ALL="en_US.UTF-8"
+    epsilon:tracdev_git blyth$ export LC_CTYPE="en_US.UTF-8"
+    epsilon:tracdev_git blyth$ 
+    epsilon:tracdev_git blyth$ python -c "from mercurial import hg"
+    epsilon:tracdev_git blyth$ 
+
+
+Rename repos in bitbucket web interface appending _hg 
+-------------------------------------------------------
+
+
+* https://stackoverflow.com/questions/57716968/convert-bitbucket-mercurial-repository-to-git-maintain-branches-and-history-on
+
+Procedure:
+
+1. in bitbucket settings simply change the name to eg tracdev_hg 
+
+
+
+
+EON
+}
+
+fastexport-hg2git()
+{
+   local name_hg=${1:-tracdev_hg}
+   local msg="=== $FUNCNAME ${name_hg} :"
+   local name_hg_ending=${name_hg:(-3)}
+   [ "${name_hg_ending}" != "_hg" ] && echo $msg ERROR name_hg ${name_hg} does not end _hg && return 1 
+
+   local name_git=${name_hg/_hg}_git   # while testing keep the _git     
+   #local name_git=${name_hg/_hg}      # when finalizing 
+
+   local name_git_ending=${name_git:(-4)}
+   [ "${name_git_ending}" != "_git" ] && echo $msg ERROR name_git ${name_git} does not end _git && return 1 
+   # when finalizing just use the bare name without the _git
+
+
+   local url=ssh://hg@bitbucket.org/simoncblyth/${name_hg}
+
+   if [ ! -d "${name_hg}" ]; then
+       echo $msg cloning from $url
+       hg clone $url 
+   else
+       echo $msg repo from $url already cloned 
+   fi  
+
+   [ ! -d "${name_hg}" ]     && echo $msg ERROR no such dir ${name_hg} && return 1 
+   [ ! -d "${name_hg}/.hg" ] && echo $msg ERROR no .hg dir  && return 2 
+
+   local script=$(fastexport-dir)/hg-fast-export.sh
+   [ ! -f "$script" ] && echo $msg script $script does not exist && return 3
+
+   cd 
+   rm -rf ${name_git}
+   mkdir ${name_git}
+   cd ${name_git}
+
+   git init
+   git config core.ignoreCase false
+
+   $script -r ../${name_hg}
+
+   git checkout HEAD
+
+}
+
+
+fastexport-push-to-remote()
+{
+    # 1st create the remote git repo, then 
+    git remote add origin git@my-git-server:my-repository.git
+    git push -u origin master
+
+}
+
+
+
 
 
 fastexport-env-repo()

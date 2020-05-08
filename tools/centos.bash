@@ -119,6 +119,80 @@ console access
 ctrl-alt-f...
 
 
+centos7 gcc8 ?
+-----------------
+
+* https://unix.stackexchange.com/questions/477360/centos-7-gcc-8-installation
+
+Now devtools-8 is available and it's possible to use it by following commands:
+
+::
+
+    yum install centos-release-scl
+    yum install devtoolset-8-gcc devtoolset-8-gcc-c++
+    scl enable devtoolset-8 -- bash
+
+* http://wiki.centos.org/SpecialInterestGroup/SCLo
+* https://www.softwarecollections.org/en/
+* https://www.softwarecollections.org/en/scls/
+* https://www.softwarecollections.org/en/scls/rhscl/devtoolset-8/
+* https://unix.stackexchange.com/questions/175851/how-to-permanently-enable-scl-centos-6-4
+
+* https://access.redhat.com/documentation/en-us/red_hat_developer_toolset/8/html/8.0_release_notes/dts8.0_release
+
+::
+
+    [blyth@localhost ~]$ rpm -ql devtoolset-8-gcc-8.3.1-3.2.el7.x86_64
+    /opt/rh/devtoolset-8/root/usr/bin/cc
+    /opt/rh/devtoolset-8/root/usr/bin/cpp
+    /opt/rh/devtoolset-8/root/usr/bin/gcc
+    /opt/rh/devtoolset-8/root/usr/bin/gcc-ar
+    /opt/rh/devtoolset-8/root/usr/bin/gcc-nm
+    /opt/rh/devtoolset-8/root/usr/bin/gcc-ranlib
+    /opt/rh/devtoolset-8/root/usr/bin/gcov
+    /opt/rh/devtoolset-8/root/usr/bin/gcov-dump
+    /opt/rh/devtoolset-8/root/usr/bin/gcov-tool
+    /opt/rh/devtoolset-8/root/usr/bin/i686-redhat-linux-gcc-8
+    /opt/rh/devtoolset-8/root/usr/bin/x86_64-redhat-linux-gcc
+
+::
+
+    [blyth@localhost ~]$ /opt/rh/devtoolset-8/root/usr/bin/gcc --version
+    gcc (GCC) 8.3.1 20190311 (Red Hat 8.3.1-3)
+    Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+* https://stackoverflow.com/questions/53310625/how-to-install-gcc8-using-devtoolset-8-gcc
+
+::
+
+   source /opt/rh/devtoolset-8/enable 
+
+
+::
+
+    [blyth@localhost ~]$ gcc --version
+    gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39)
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    [blyth@localhost ~]$ source /opt/rh/devtoolset-8/enable 
+    [blyth@localhost ~]$ which gcc
+    /opt/rh/devtoolset-8/root/usr/bin/gcc
+    [blyth@localhost ~]$ gcc --version
+    gcc (GCC) 8.3.1 20190311 (Red Hat 8.3.1-3)
+    Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+* https://developers.redhat.com/products/developertoolset/hello-world#fndtn-macos
+
+
+
 EOU
 }
 centos-get(){

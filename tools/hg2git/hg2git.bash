@@ -17,6 +17,18 @@ Migrate Mecurial Repo to Git
 * https://stackoverflow.com/questions/16037787/convert-mercurial-project-to-git
 
 
+
+
+
+
+
+
+
+
+
+ 
+
+
 fast export
 --------------
 
@@ -39,6 +51,13 @@ inside ~/fast-export directory.
 
 As an additional note, you can also pass in -A with an authors map file if you
 need to map Mercurial authors to Git authors.
+
+
+
+github importer bitbucket
+--------------------------
+
+* https://gist.github.com/mandiwise/5954bbb2e95c011885ff
 
 
 github importer
@@ -106,5 +125,8 @@ EOU
 }
 hg2git-get(){
    local dir=$(dirname $(hg2git-dir)) &&  mkdir -p $dir && cd $dir
+
+   git clone git://repo.or.cz/fast-export.git
+
 
 }

@@ -60,6 +60,15 @@ cd_func ()
 
 alias cd=cd_func
 
+# aliases cause type to output cd_func rather than cd 
+# but unfortunately switching to a func causes an recursion
+# cd(){ cd_func $* ; }
+# instead used 
+#    type blah-func | perl -pe 's,cd_func,cd,g' -
+# 
+
+
+
 #if [[ $BASH_VERSION > "2.05a" ]]; then
   # ctrl+w shows the menu
   #bind -x "\"\C-w\":cd_func -- ;"

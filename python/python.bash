@@ -119,6 +119,16 @@ GDB Extensions for Python Debugging
 
 
 
+Running a command and getting output
+--------------------------------------
+
+
+::
+
+    import commands
+    print commands.getstatusoutput('wc -l file')
+
+
 
 EOU
 

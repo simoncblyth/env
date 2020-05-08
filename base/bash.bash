@@ -72,6 +72,16 @@ fi
 Now when you login to your machine from a console .bashrc will be called.
 
 
+
+Double Square Bracket
+------------------------
+
+* http://mywiki.wooledge.org/BashFAQ/031
+
+
+
+
+
 Debugging Tip For Disappearing Functions
 -----------------------------------------
 
@@ -168,6 +178,37 @@ bash-slash-count(){
    
 }
 
+
+bash-join(){ local IFS=$1 ; shift ; echo "$*" ; }
+
+bash-pkg-config-path-flakey(){
+  : returns a colon delimited PKG_CONFIG_PATH string derived from CMAKE_PREFIX_PATH   
+
+  local ifs=$IFS 
+  IFS=: 
+  read -ra CPP <<< "$CMAKE_PREFIX_PATH"   # split
+  local i
+  local n=${#CPP[@]}
+  local pfx
+  local PCP=() 
+  for i in ${!CPP[@]}; do
+      pfx=${CPP[i]}
+      if [ -d "$pfx/lib/pkgconfig" ]; then 
+          PCP+=("$pfx/lib/pkgconfig")
+      elif [ -d "$pfx/lib64/pkgconfig" ]; then 
+          PCP+=("$pfx/lib64/pkgconfig")
+      fi   
+      : NB lib64 is ignored when there is a lib  
+  done 
+  bash-join : "${PCP[@]}" 
+
+  # suspect the cause of flakiness was accidentally leaving IFS set to colon 
+}
+
+
+
+
+
 bash-nargs(){
    echo $# 
 }
@@ -227,6 +268,23 @@ EOS
 
 }
 
+bash-parameter-expansion(){
+   local var=${1:-HOME}
+   echo ${!var}
+}
+
+bash-path-prepend(){
+   local var=${1:-PATH}
+   local dir=${2:-/tmp}
+   local l=${3:-:}  # delim
+
+   echo var $var dir $dir delim $delim 
+   echo ${!var}
+   
+   [[ "$l${!var}$l" != *"$l${dir}$l"* ]] && eval $var=$dir$l${!var} 
+   export $var ; 
+   echo ${!var}
+}
 
 
 

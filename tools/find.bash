@@ -29,6 +29,11 @@ find-1m(){
 
 }
 
+find-without-dir(){
+  find $JUNOTOP/ExternalLibs  -path $JUNOTOP/ExternalLibs/Build -prune -o -name BoostConfig.cmake
+}
+
+
 find-1m-tot(){
    #find . -name 'ht.npy' -size +1M -print0 | xargs -0 du -hc | tail -n1
    # runs into too many arguments for du, so it gets run multiple times and so the last is far too small a total 
