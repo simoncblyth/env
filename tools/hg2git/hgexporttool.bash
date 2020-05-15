@@ -10,9 +10,7 @@ hgexporttool-usage(){ cat << EOU
 
 
 * https://github.com/chrisjbillington/hg-export-tool
-
 * see also fastexport-
-
 
 
 EOU
@@ -44,31 +42,17 @@ hgexporttool-list-authors(){
    cat $authmap
 }
 
-
-
-hgexporttool-repolist-(){ cat << EOR
-tracdev_hg
-chroma_hg
-g4dae_hg
-g4dae-opticks_hg
-heprez_hg
-intro_to_cuda_hg
-intro_to_numpy_hg
-jnu_hg
-mountains_hg
-opticks-cmake-overhaul_hg
-sphinxtest_hg
-EOR
-}
+# https://bitbucket.org/dashboard/repositories
 
 
 hgexporttool-repomap(){ 
-   : generates a json repo map from the above repolist NB ordering is NOT preserved 
+   : generates a json repo map from the above repolist 
    local msg="=== $FUNCNAME :"
    local repomap=$(hgexporttool-repomap-path)
    echo $msg writing to repomap $repomap 
    hgexporttool-repolist- |  python $(hgexporttool-edir)/repomap.py > $repomap
    cat $repomap
+   # NB python -c "import json ; print(json.load(file('repomap.json')))"   ORDERING IS LOST ON READING IN 
 }
 
 hgexporttool-repolist-check(){
@@ -86,5 +70,4 @@ hgexporttool-repolist-check(){
    done
    return $rc
 }
-
 

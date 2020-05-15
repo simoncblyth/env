@@ -14,7 +14,7 @@ if __name__ == '__main__':
         d[repo] = name 
         #print("%s:%s"%(repo,name))
     pass
-    print(json.dumps(d, indent=4, sort_keys=True)) 
+    print(json.dumps(d, indent=4, sort_keys=False)) 
 
 
 

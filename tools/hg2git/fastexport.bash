@@ -8,6 +8,58 @@ fastexport-usage(){ cat << EOU
 fastexport
 =============
 
+
+See Also
+----------
+
+* hgexporttool-
+
+
+
+May 2020 issues
+-----------------
+
+epsilon:fast-export.operations blyth$ fastexport-;fastexport-hg2git-all
+=== fastexport-hg2git : tracdev_hg -> tracdev : log tracdev.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : tracdev_hg -> tracdev : RC 0
+=== fastexport-hg2git : chroma_hg -> chroma : log chroma.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : chroma_hg -> chroma : RC 0
+=== fastexport-hg2git : g4dae_hg -> g4dae : log g4dae.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : g4dae_hg -> g4dae : RC 0
+=== fastexport-hg2git : g4dae-opticks_hg -> g4dae-opticks : log g4dae-opticks.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : g4dae-opticks_hg -> g4dae-opticks : RC 0
+=== fastexport-hg2git : heprez_hg -> heprez : log heprez.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : heprez_hg -> heprez : RC 0
+=== fastexport-hg2git : intro_to_cuda_hg -> intro_to_cuda : log intro_to_cuda.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : intro_to_cuda_hg -> intro_to_cuda : RC 0
+=== fastexport-hg2git : intro_to_numpy_hg -> intro_to_numpy : log intro_to_numpy.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : intro_to_numpy_hg -> intro_to_numpy : RC 0
+=== fastexport-hg2git : jnu_hg -> jnu : log jnu.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : jnu_hg -> jnu : RC 0
+=== fastexport-hg2git : mountains_hg -> mountains : log mountains.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : mountains_hg -> mountains : RC 0
+=== fastexport-hg2git : opticks-cmake-overhaul_hg -> opticks-cmake-overhaul : log opticks-cmake-overhaul.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : opticks-cmake-overhaul_hg -> opticks-cmake-overhaul : RC 0
+=== fastexport-hg2git : sphinxtest_hg -> sphinxtest : log sphinxtest.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : sphinxtest_hg -> sphinxtest : RC 0
+=== fastexport-hg2git : opticks -> opticks_git : log opticks_git.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : opticks -> opticks_git : RC 0
+=== fastexport-hg2git : env -> env_git : log env_git.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : env -> env_git : RC 0
+=== fastexport-hg2git : simoncblyth.bitbucket.io -> simoncblyth.bitbucket.io_git : log simoncblyth.bitbucket.io_git.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : simoncblyth.bitbucket.io -> simoncblyth.bitbucket.io_git : RC 1
+=== fastexport-hg2git : simoncblyth.bitbucket.io -> simoncblyth.bitbucket.io_git : ERR
+=== fastexport-hg2git : implicitmesher -> implicitmesher_git : log implicitmesher_git.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : implicitmesher -> implicitmesher_git : RC 1
+=== fastexport-hg2git : implicitmesher -> implicitmesher_git : ERR
+=== fastexport-hg2git : opticksdata -> opticksdata_git : log opticksdata_git.log PWD /usr/local/env/tools/hg2git/fast-export.operations
+=== fastexport-hg2git : opticksdata -> opticksdata_git : RC 1
+=== fastexport-hg2git : opticksdata -> opticksdata_git : ERR
+epsilon:fast-export.operations blyth$ 
+
+
+
+
 May 2020
 ------------
 
@@ -151,19 +203,13 @@ opticksaux
 
 
 
-
-
-
-
-
-
-
 EOU
 }
 fastexport-dir(){ echo $(local-base)/env/tools/hg2git/fast-export ; }
 fastexport-cd(){  cd $(fastexport-dir); }
 
-
+fastexport-odir(){ echo $(local-base)/env/tools/hg2git/fast-export.operations ; }
+fastexport-ocd(){  local odir=$(fastexport-odir) ; mkdir -p $odir ; cd $odir ;  }
 
 fastexport-get-notes(){ cat << EON
 
@@ -278,53 +324,194 @@ Procedure:
 1. in bitbucket settings simply change the name to eg tracdev_hg 
 
 
+# https://bitbucket.org/dashboard/repositories
 
 
 EON
 }
 
+fastexport-crucial-repolist-(){ cat << EOR
+opticks
+env
+simoncblyth.bitbucket.io
+implicitmesher
+opticksdata
+EOR
+}
+
+fastexport-repolist-(){ cat << EOR
+tracdev_hg
+chroma_hg
+g4dae_hg
+g4dae-opticks_hg
+heprez_hg
+intro_to_cuda_hg
+intro_to_numpy_hg
+jnu_hg
+mountains_hg
+opticks-cmake-overhaul_hg
+sphinxtest_hg
+EOR
+}
+
+
+fastexport-git-repolist-(){ cat << EOR
+opticksaux
+workflow
+play
+scenekittest
+meshlab
+EOR
+}
+
+
+fastexport-repolist()
+{
+    fastexport-repolist-
+    fastexport-crucial-repolist-
+}
+
+fastexport-authors-all()
+{
+    local repolist=$(fastexport-repolist)
+    local repo 
+    for repo in $repolist ; do 
+        fastexport-authors $repo  
+    done 
+}
+fastexport-authors()
+{
+   local name_hg=$1
+   fastexport-ocd 
+   cd $name_hg 
+   printf "\n ############ %s ################# \n\n" $name_hg 
+   hg log --template "{author}\n" | sort | uniq
+}
+
+
+
+
+
+
+# fastexport-;fastexport-hg2git-all
+fastexport-hg2git-all()
+{
+    local repolist=$(fastexport-repolist)
+    local repo 
+    for repo in $repolist ; do 
+        fastexport-hg2git $repo  
+    done 
+}
+
+
+
+fastexport-hg2git-notes(){ cat << EON
+fastexport-hg2git
+===================
+
+::
+
+   fastexport-hg2git reponame_hg 
+       single argument must be the name of Mercurial repo 
+       and must end with "_hg" 
+
+
+EON
+}
+
+
 fastexport-hg2git()
 {
    local name_hg=${1:-tracdev_hg}
-   local msg="=== $FUNCNAME ${name_hg} :"
-   local name_hg_ending=${name_hg:(-3)}
-   [ "${name_hg_ending}" != "_hg" ] && echo $msg ERROR name_hg ${name_hg} does not end _hg && return 1 
+   local name=$(fastexport-namegit $name_hg)
+   local msg="=== $FUNCNAME : $name_hg -> $name :"
+   fastexport-ocd 
 
-   local name_git=${name_hg/_hg}_git   # while testing keep the _git     
-   #local name_git=${name_hg/_hg}      # when finalizing 
+   [ -d "$name" -a -d "$name/.git" ] && echo $msg $name already converted to git && return 0
 
-   local name_git_ending=${name_git:(-4)}
-   [ "${name_git_ending}" != "_git" ] && echo $msg ERROR name_git ${name_git} does not end _git && return 1 
-   # when finalizing just use the bare name without the _git
+   local log=$name.log
+   echo $msg log $log PWD $PWD  
 
+   fastexport-hg2git- $name_hg 1>$log 2>&1
+   rc=$?
+   echo $msg RC $rc
+   [ $rc -ne 0 ] && echo $msg ERR && return 1
+   return 0  
+}
+
+
+fastexport-namegit()
+{
+   local name_hg=$1
+   local stem=${name_hg/_hg}   
+   local name
+   if [ "${name_hg:(-3)}" == "_hg" ]; then 
+       name=$stem
+   else
+       name=${stem}_git
+   fi 
+   echo $name
+}
+
+
+fastexport-hg2git-()
+{
+   local check=$(basename $PWD)
+   [ "$check" != "$(basename $(fastexport-odir))" ] && echo $msg ERROR must invoke $FUNCNAME from operations dir not $PWD && return 5
+
+   local iwd=$PWD
+
+   local name_hg=${1:-tracdev_hg}
+   local name=$(fastexport-namegit $name_hg)
+   local msg="=== $FUNCNAME $name_hg -> $name :"
+   echo $msg DATE START $(date) 
 
    local url=ssh://hg@bitbucket.org/simoncblyth/${name_hg}
 
+   # rerun 
    if [ ! -d "${name_hg}" ]; then
-       echo $msg cloning from $url
+       echo $msg cloning from $url pwd $PWD
        hg clone $url 
    else
-       echo $msg repo from $url already cloned 
+       pushd ${name_hg} > /dev/null
+       hg update 
+       [ $? -ne 0 ] && echo $msg ERR from update && return 1
+       popd > /dev/null
+       echo $msg repo from $url already cloned pwd $PWD 
    fi  
 
    [ ! -d "${name_hg}" ]     && echo $msg ERROR no such dir ${name_hg} && return 1 
    [ ! -d "${name_hg}/.hg" ] && echo $msg ERROR no .hg dir  && return 2 
 
+
+   echo $msg unique authors [
+   pushd $name_hg > /dev/null
+   hg log --template "{author}\n" | sort | uniq
+   popd > /dev/null
+   echo $msg unique authors ]
+
+   local rc=0
    local script=$(fastexport-dir)/hg-fast-export.sh
    [ ! -f "$script" ] && echo $msg script $script does not exist && return 3
 
-   cd 
-   rm -rf ${name_git}
-   mkdir ${name_git}
-   cd ${name_git}
+   # rerunning deletes the git repo and converts again
+   rm -rf $name
+   mkdir $name
+   pushd $name > /dev/null
 
-   git init
-   git config core.ignoreCase false
+      git init
+      git config core.ignoreCase false
 
-   $script -r ../${name_hg}
+      $script -r ../${name_hg}
+      rc=$?
+      echo $msg rc from conversion $rc 
+      [ $rc -ne 0 ] && echo $msg non-zero RC from conversion && cd $iwd && return $rc 
 
-   git checkout HEAD
+      git checkout HEAD
 
+   popd > /dev/null
+   echo $msg DATE STOP $(date) 
+   return $rc
 }
 
 
@@ -333,17 +520,12 @@ fastexport-push-to-remote()
     # 1st create the remote git repo, then 
     git remote add origin git@my-git-server:my-repository.git
     git push -u origin master
-
 }
-
-
-
 
 
 fastexport-env-repo()
 {
    cd 
-
    rm -rf env_git
    mkdir env_git
    cd env_git
