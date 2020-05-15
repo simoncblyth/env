@@ -335,7 +335,7 @@ Bitbucket Unconfirmed email address
 ------------------------------------
 
 An env mercurial commit from C2 prior to setting up 
-email address resulted in a default of blyth@cms02 being
+email address resulted with a default of blyth@cms02 being
 ascribed to the commit.  This causes problems as that 
 is not a valid email.
 
@@ -347,7 +347,30 @@ make that email address valid ?
 * http://www.techotopia.com/index.php/Configuring_an_RHEL_6_Postfix_Email_Server
 
 
-  
+Issue : intro_to_numpy 
+---------------------------
+
+First commit to the newly hg2git migrated repo changing README.rst 
+is listed as from "blyth" not the normal "Simon Blyth". Check the 
+git config email::
+
+    epsilon:intro_to_numpy blyth$ git config --get user.email
+    simon.c.blyth@gmail.com
+
+This is different to the username from ~/.hgrc::
+
+    [ui]
+    username = Simon Blyth <simoncblyth@gmail.com>
+
+
+So change the git config by editing ~/.gitconfig
+
+
+::
+
+    git config --get user.email
+    simoncblyth@gmail.com
+
 
 
 
@@ -384,8 +407,49 @@ bitbucket-paths(){
    [ ! -d "$(dirname $hgrc)" ] && echo $msg ERROR no .hg dir $(dirname $hgrc) && return
    [ ! -f "$hgrc" ] && echo $msg writing $hrgc && $FUNCNAME- $ name > $hgrc 
    [ -f "$hgrc" ] && echo $msg hgrc $hgcr && cat $hgrc 
-
 }
 
+# these are used by fastexport-hg2git
+bitbucket-urlhg(){  echo ssh://hg@bitbucket.org/simoncblyth/${1:-name} ; }
+bitbucket-urlgit(){ echo git@bitbucket.org:simoncblyth/${1:-name}.git ; }
+
+
+bitbucket-add-remote-notes(){ cat << EON
+
+push to bitbucket by 
+
+1. creating ${1:-name} repo in bitbucket web interface
+2. use git log to check the author email for the commits, as these have 
+   been converted from mercurial the email might be different 
+
+Adjust the git config to make the emails match::
+
+::
+
+    grep gmail ~/.gitconfig ~/.hgrc
+    /Users/blyth/.gitconfig:	email = simoncblyth@gmail.com
+    /Users/blyth/.hgrc:username = Simon Blyth <simoncblyth@gmail.com>
+
+    git config --get user.email
+
+
+from commandline : git push -u origin master
+
+
+
+EON
+}
+
+
+bitbucket-add-remote(){
+   local msg="=== $FUNCNAME :"
+   [ ! -d .git ] && echo $msg no .git : must run from root of a git repo && return 1
+   local name=$(basename $PWD)
+   local urlgit=$(bitbucket-urlgit $name)
+   git remote add origin $urlgit
+   git remote -v
+
+   $FUNCNAME-notes $name
+}
 
 
