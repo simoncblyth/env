@@ -150,14 +150,14 @@ class Repo(object):
         return cmd
 
     @classmethod
-    def TrackingRemote(cls, _):
+    def Upstream(cls, _):
         """
         :param _: directory
-        :return cmd: tracking remote command
+        :return cmd: upstream tracking remote command
         """
         typ = cls.Identify(_)
         if typ == "git":
-            cmd = "cd %(_)s ; git rev-parse --abbrev-ref --symbolic-full-name @{u} "   ## eg uow/master
+            cmd = "cd %(_)s ; git rev-parse --abbrev-ref --symbolic-full-name @{u} " % locals()  ## eg uow/master
         else:
             cmd = None
         pass
@@ -180,9 +180,17 @@ class Repo(object):
         self.typ = typ
         self.status_command = self.Status(base)
         self.remote_command = self.Remote(base)
+        self.upstream_command = self.Upstream(base)
 
         self.status = commands.getoutput(self.status_command)
         self.remote = Remote(self.remote_command, typ, detail)
+
+        if not self.upstream_command is None:
+            upstream = commands.getoutput(self.upstream_command) 
+        else:
+            upstream = None
+        pass
+        self.upstream = upstream
 
         ## list all files in git repo relative cwd which should be the base dir of the repo
         gls = commands.getoutput("git ls-files").split("\n") if typ == "git" else []
@@ -198,10 +206,17 @@ class Repo(object):
 
         rem = str(self.remote).split("\n")
         sta = str(self.status).split("\n") 
-        if len(rem) == 1:
-            lines = ["## %25s : %25s "  % (self.base, rem[0] ) ] 
+
+        if not self.upstream is None:
+            ups = str(self.upstream).split("\n")[0]
         else:
-            lines = ["## %25s : %25s "  % (self.base, " ".join(rem)) ]  
+            ups = ""
+        pass
+
+        if len(rem) == 1:
+            lines = ["## %25s : %-80s : %25s "  % (self.base, rem[0], ups ) ] 
+        else:
+            lines = ["## %25s : %-80s : %25s "  % (self.base, " ".join(rem), ups  ) ]  
         pass
         lines += [""]
         

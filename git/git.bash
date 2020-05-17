@@ -1104,4 +1104,14 @@ git-global-ignores(){
 
 
 
+git-upstream-notes(){ cat << EON
 
+https://stackoverflow.com/questions/4950725/how-can-i-see-which-git-branches-are-tracking-which-remote-upstream-branch
+
+EON
+}
+
+git-upstream(){
+   # find the upstream of master branch 
+   git rev-parse --abbrev-ref master@{upstream}
+}
