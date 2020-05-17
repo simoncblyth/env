@@ -96,6 +96,10 @@ class Repo(object):
 
     @classmethod
     def Identify(cls, _):
+        """ 
+        :param _: directory 
+        :return typ: hg/svn/git/None depending on existance of .hg/.svn/.git dir 
+        """
         if os.path.isdir(os.path.join(_, ".hg")):
             typ = "hg"
         elif os.path.isdir(os.path.join(_, ".svn")):
@@ -109,6 +113,10 @@ class Repo(object):
  
     @classmethod
     def Status(cls, _):
+        """
+        :param _: directory 
+        :return cmd: repository status command
+        """
         typ = cls.Identify(_)
         if typ == "hg":
             cmd = "hg status %s " % _
@@ -124,6 +132,10 @@ class Repo(object):
 
     @classmethod
     def Remote(cls, _):
+        """
+        :param _: directory
+        :return cmd: repository remote url listing command
+        """
         typ = cls.Identify(_)
         if typ == "git":
             #cmd = "git --work-tree=%(_)s --git-dir=%(_)s/.git remote -v " % locals()
@@ -139,6 +151,10 @@ class Repo(object):
 
     @classmethod
     def TrackingRemote(cls, _):
+        """
+        :param _: directory
+        :return cmd: tracking remote command
+        """
         typ = cls.Identify(_)
         if typ == "git":
             cmd = "cd %(_)s ; git rev-parse --abbrev-ref --symbolic-full-name @{u} "   ## eg uow/master
@@ -155,6 +171,11 @@ class Repo(object):
         return repo 
 
     def __init__(self, base, typ, detail):
+        """
+        :param base: directory
+        :param typ: repository type svn/hg/git 
+        :param detail: level 
+        """
         self.base = base
         self.typ = typ
         self.status_command = self.Status(base)
@@ -163,20 +184,24 @@ class Repo(object):
         self.status = commands.getoutput(self.status_command)
         self.remote = Remote(self.remote_command, typ, detail)
 
+        ## list all files in git repo relative cwd which should be the base dir of the repo
         gls = commands.getoutput("git ls-files").split("\n") if typ == "git" else []
+
+        ## from the list of all paths filter out top level ones without a slash 
+        ## then extract the top level dirs and return only uniques
         gdi = set(map(lambda _:_.split("/")[0], filter(lambda _:_.find("/") > -1, gls)))
 
-        self.gls = gls
-        self.gdi = gdi
+        self.gls = gls  # all paths 
+        self.gdi = gdi  # top level dirs 
 
     def __str__(self):  
 
         rem = str(self.remote).split("\n")
         sta = str(self.status).split("\n") 
         if len(rem) == 1:
-            lines = ["## %20s : %s "  % (self.base, rem[0] ) ] 
+            lines = ["## %25s : %25s "  % (self.base, rem[0] ) ] 
         else:
-            lines = ["## %20s : %s "  % (self.base, " ".join(rem)) ]  
+            lines = ["## %25s : %25s "  % (self.base, " ".join(rem)) ]  
         pass
         lines += [""]
         
@@ -189,13 +214,19 @@ class Repo(object):
 
 class Untracked(object):
     def __init__(self, gls, gdi, ls, detail=0):
+        """
+        :param gls: list of all paths
+        :param gdi: top level directories
+        :param ls: working copy directory list
+        :param detail: integer level  
+        """
         self.gls = gls
         self.gdi = gdi
         self.detail = detail
 
         self.skipdir = []
         fls = filter(lambda _:os.path.isfile(_), ls)
-        self.skipfile = filter(lambda _:not _ in gls, fls)
+        self.skipfile = filter(lambda _:not _ in gls, fls) # uncommitted files 
         self.skipdir = []
 
     def add(self, _):
@@ -226,6 +257,7 @@ class Home(object):
         d["detail"] = 0
         d["remotes-json"] = None
         d["links-json"] = None
+        d["untracked"] = False
         d["format"] = "%(asctime)-15s %(levelname)-7s %(name)-20s:%(lineno)-3d %(message)s"
         d.update(kwa)
 
@@ -234,6 +266,7 @@ class Home(object):
         parser.add_argument('--level', default=d["level"], help='log level')
         parser.add_argument('--remotes-json', default=d["remotes-json"], help='write repository remote metadata to path given or stdout if -')
         parser.add_argument('--links-json', default=d["links-json"], help='write link metadata to path given or stdout if -')
+        parser.add_argument('-u','--untracked',  action="store_true", default=d["untracked"], help='dump untracked')
         parser.add_argument('-d', '--detail', type=int, default=d["detail"], help='detail level')
         
         args = parser.parse_args()
@@ -273,21 +306,30 @@ class Home(object):
             link[_] = os.readlink(_)
         pass
         
-        for _ in filter(lambda _:os.path.isdir(_) and not os.path.islink(_), ls):
+
+        # top level dirs excluding links to dirs
+        topdirs = filter(lambda _:os.path.isdir(_) and not os.path.islink(_), ls)
+
+        for _ in topdirs:
 
             if detail > 1:
                 log.info("checking dir %s " %  _ )
             pass
             repo = Repo.Make(_, detail)
             if repo is None: 
-                other.add(_)
+                other.add(_)   
                 continue
             pass
             remo[_] = repo.remote.meta
             repos.append(repo)
             sys.stderr.write( str(repo))
         pass
-        sys.stderr.write( str(other))
+
+
+        if self.args.untracked:
+            sys.stderr.write( str(other))
+        pass
+
         self.other = other
         self.remo = remo
         self.link = link
@@ -320,12 +362,4 @@ if __name__ == '__main__':
 
 
        
-
-
-
-
-
-
-
-
 

@@ -1,0 +1,62 @@
+fastexport-hg2git-migration-opticks-diffs
+===========================================
+
+
+fresh clones look fine
+-----------------------
+
+::
+
+    epsilon:fast-export.operations blyth$ diff -r --brief opticks_hg opticks
+    Only in opticks: .git
+    Only in opticks_hg: .hg
+
+
+working copy needs some tidying to allow comparison
+-----------------------------------------------------
+
+::
+
+    epsilon:~ blyth$ diff -r opticks_old_hg opticks
+    ... loads output : pyc, logs, ... 
+
+
+    epsilon:~ blyth$ find opticks_old_hg -name '*.pyc' -exec rm -f {} \;
+    epsilon:~ blyth$ find opticks_old_hg -name '*.log' -exec rm -f {} \;
+    epsilon:~ blyth$ find opticks_old_hg -name '*.swp' -exec rm -f {} \;
+
+::
+
+    epsilon:~ blyth$ diff -r opticks_old_hg opticks
+    Only in opticks: .git
+    Only in opticks_old_hg: .hg
+    Only in opticks_old_hg: __pycache__
+    Only in opticks_old_hg: _static
+    Only in opticks_old_hg: _templates
+    Only in opticks_old_hg/ana: __pycache__
+    Only in opticks_old_hg: csg
+    Only in opticks_old_hg/integration/tests: Testing
+    Only in opticks_old_hg: opticksnpy
+    Only in opticks_old_hg: tests
+
+    epsilon:~ blyth$ find opticks_old_hg -type d -empty 
+    opticks_old_hg/ana/__pycache__
+    opticks_old_hg/csg
+    opticks_old_hg/_templates
+    opticks_old_hg/integration/tests/Testing/Temporary
+    opticks_old_hg/tests
+    opticks_old_hg/_static
+    opticks_old_hg/__pycache__
+    opticks_old_hg/opticksnpy
+    epsilon:~ blyth$ 
+
+After deleting empty dirs from the old working copy::
+
+    epsilon:~ blyth$ diff -r opticks_old_hg opticks
+    Only in opticks: .git
+    Only in opticks_old_hg: .hg
+    epsilon:~ blyth$ 
+
+
+
+

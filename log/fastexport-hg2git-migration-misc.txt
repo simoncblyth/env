@@ -1,0 +1,29 @@
+fastexport-hg2git-migration-misc
+==================================
+
+
+intro_to_numpy some stuff languishing in working copy
+------------------------------------------------------
+
+::
+
+    epsilon:intro_to_numpy blyth$ hg st .
+    M union_trick/uifDemo.cc
+    epsilon:intro_to_numpy blyth$ cd ..
+    epsilon:~ blyth$ mv intro_to_numpy intro_to_numpy_old_hg
+    epsilon:~ blyth$ bitbucket-
+    epsilon:~ blyth$ bitbucket-urlgit intro_to_numpy
+    git@bitbucket.org:simoncblyth/intro_to_numpy.git
+    epsilon:~ blyth$ 
+    epsilon:~ blyth$ bitbucket-
+    epsilon:~ blyth$ bitbucket-url intro_to_numpy
+    git@bitbucket.org:simoncblyth/intro_to_numpy.git
+    epsilon:~ blyth$ git clone git@bitbucket.org:simoncblyth/intro_to_numpy.git
+    Cloning into 'intro_to_numpy'...
+    remote: Counting objects: 86, done.
+    remote: Compressing objects: 100% (86/86), done.
+    remote: Total 86 (delta 36), reused 0 (delta 0)
+    Receiving objects: 100% (86/86), 21.21 KiB | 586.00 KiB/s, done.
+    Resolving deltas: 100% (36/36), done.
+    epsilon:~ blyth$ 
+

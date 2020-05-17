@@ -412,6 +412,9 @@ bitbucket-paths(){
 # these are used by fastexport-hg2git
 bitbucket-urlhg(){  echo ssh://hg@bitbucket.org/simoncblyth/${1:-name} ; }
 bitbucket-urlgit(){ echo git@bitbucket.org:simoncblyth/${1:-name}.git ; }
+bitbucket-url(){  bitbucket-urlgit $* ; }
+
+
 
 
 bitbucket-add-remote-notes(){ cat << EON

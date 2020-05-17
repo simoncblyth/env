@@ -315,14 +315,11 @@ EON
 
 # these are hg repos that are not yet renamed _hg 
 fastexport-crucial-repolist-(){ cat << EOR
-opticks
-simoncblyth.bitbucket.io
-opticksdata
 EOR
 }
 
 fastexport-repolist-(){ cat << EOR
-env_hg
+simoncblyth.bitbucket.io_hg
 EOR
 }
 
@@ -339,6 +336,9 @@ g4dae-opticks_hg
 opticks-cmake-overhaul_hg
 chroma_hg
 implicitmesher_hg
+env_hg
+opticksdata_hg
+opticks_hg
 EOR
 }
 
@@ -498,6 +498,11 @@ fastexport-hg2git-()
       echo $msg push to remote with : git push -u origin master
 
    popd > /dev/null
+
+   local cmd="diff -r --brief $name_hg $name"
+   echo $msg $cmd
+   eval $cmd
+
    echo $msg DATE STOP $(date) 
    return $rc
 }

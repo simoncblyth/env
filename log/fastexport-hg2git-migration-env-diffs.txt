@@ -1,0 +1,405 @@
+hg2git env migration check
+==============================
+
+Comparing hg env and fastexport-hg2git migrated env::
+
+    epsilon:~ blyth$ date
+    Fri May 15 21:11:22 BST 2020
+
+
+    epsilon:~ blyth$ diff -r --brief env_old_hg env
+    Only in env: .git
+    Only in env_old_hg: .hg
+    diff: env_old_hg/bin/G4DAEChromaTest.sh: No such file or directory
+    diff: env/bin/G4DAEChromaTest.sh: No such file or directory
+    diff: env_old_hg/bin/cfg4.sh: No such file or directory
+    diff: env/bin/cfg4.sh: No such file or directory
+    diff: env_old_hg/bin/doctree.py: No such file or directory
+    diff: env/bin/doctree.py: No such file or directory
+    diff: env_old_hg/bin/ggv.py: No such file or directory
+    diff: env/bin/ggv.py: No such file or directory
+    diff: env_old_hg/bin/ggv.sh: No such file or directory
+    diff: env/bin/ggv.sh: No such file or directory
+    Only in env_old_hg/bin: realpath
+    Only in env_old_hg/boost/basio: netapp
+    Only in env_old_hg/boost/basio: numpyserver
+    Only in env_old_hg/boost/basio: udp_server
+    Only in env_old_hg/cuda: optix
+    Only in env_old_hg/doc: docutils
+    Only in env_old_hg/doc: sphinxtest
+    Only in env_old_hg/gpuhep: goofit
+    Only in env_old_hg/graphics/assimp/AssimpTest: build
+    Only in env_old_hg/graphics/isosurface: AdaptiveDualContouring
+    Only in env_old_hg/graphics/isosurface: ImplicitMesher
+    Only in env_old_hg/graphics: oglrap
+    Only in env_old_hg: hcv
+    Only in env_old_hg: history
+    Only in env_old_hg/messaging: js
+    Only in env_old_hg/network/asiozmq: examples
+    Only in env_old_hg/npy: quartic
+    Only in env_old_hg/numerics: npy
+    Only in env/nuwa/MockNuWa: MockNuWa.cc
+    Only in env_old_hg/nuwa/MockNuWa: mocknuwa.cc
+    Only in env_old_hg: ok
+    Only in env_old_hg/presentation: graphics
+    Only in env_old_hg/presentation: intro_to_cuda
+    Only in env_old_hg/presentation: nvidia
+    Only in env_old_hg/presentation: simulation
+    epsilon:~ blyth$ 
+
+
+Instead compare freshly cloned from fastexport-ocd, the 
+only diffs are from broken links::
+
+    epsilon:fast-export.operations blyth$ diff -r --brief env_hg env 
+    Only in env: .git
+    Only in env_hg: .hg
+    diff: env_hg/bin/G4DAEChromaTest.sh: No such file or directory
+    diff: env/bin/G4DAEChromaTest.sh: No such file or directory
+    diff: env_hg/bin/cfg4.sh: No such file or directory
+    diff: env/bin/cfg4.sh: No such file or directory
+    diff: env_hg/bin/doctree.py: No such file or directory
+    diff: env/bin/doctree.py: No such file or directory
+    diff: env_hg/bin/ggv.py: No such file or directory
+    diff: env/bin/ggv.py: No such file or directory
+    diff: env_hg/bin/ggv.sh: No such file or directory
+    diff: env/bin/ggv.sh: No such file or directory
+
+    ## SO THE PROBLEMS LOOKED INTO BELOW : ARE (ANCIENT) WORKING COPY RELATED ?
+    ## NOT PROBLEMS IN THE REPOS 
+
+
+
+List empty dirs::
+
+    epsilon:~ blyth$ find env_old_hg -type d -empty
+    env_old_hg/ok
+    env_old_hg/boost/basio/netapp
+    env_old_hg/boost/basio/udp_server
+    env_old_hg/boost/basio/numpyserver
+    env_old_hg/cuda/optix/OptiX_301/tutorial/data
+    env_old_hg/network/asiozmq/examples
+    env_old_hg/numerics/npy
+    env_old_hg/gpuhep/goofit
+    env_old_hg/history/l3
+    env_old_hg/history/delphi
+    env_old_hg/hcv
+    env_old_hg/doc/docutils
+    env_old_hg/doc/sphinxtest
+    env_old_hg/graphics/assimp/AssimpTest/build
+    env_old_hg/graphics/isosurface/ImplicitMesher
+    env_old_hg/graphics/isosurface/AdaptiveDualContouring
+    env_old_hg/graphics/oglrap/inc
+    env_old_hg/messaging/js
+    env_old_hg/presentation/simulation
+    env_old_hg/presentation/nvidia
+    env_old_hg/presentation/graphics
+    env_old_hg/npy/quartic
+
+
+Delete the empties::
+
+    epsilon:~ blyth$ find env_old_hg -type d -empty -exec rm -r {} \;  
+
+Diffs now more managable, "No such file or directory" are from broken links::
+
+    epsilon:~ blyth$ diff -r --brief env_old_hg env
+    Only in env: .git
+    Only in env_old_hg: .hg
+    diff: env_old_hg/bin/G4DAEChromaTest.sh: No such file or directory
+    diff: env/bin/G4DAEChromaTest.sh: No such file or directory
+    diff: env_old_hg/bin/cfg4.sh: No such file or directory
+    diff: env/bin/cfg4.sh: No such file or directory
+    diff: env_old_hg/bin/doctree.py: No such file or directory
+    diff: env/bin/doctree.py: No such file or directory
+    diff: env_old_hg/bin/ggv.py: No such file or directory
+    diff: env/bin/ggv.py: No such file or directory
+    diff: env_old_hg/bin/ggv.sh: No such file or directory
+    diff: env/bin/ggv.sh: No such file or directory
+    Only in env_old_hg/bin: realpath
+    Only in env_old_hg/cuda: optix
+    Only in env_old_hg/graphics: oglrap
+    Only in env_old_hg: history
+    Only in env/nuwa/MockNuWa: MockNuWa.cc
+    Only in env_old_hg/nuwa/MockNuWa: mocknuwa.cc
+    Only in env_old_hg/presentation: intro_to_cuda
+    epsilon:~ blyth$ 
+
+Dirs containing other dirs that eventually reach an empty::
+
+    epsilon:~ blyth$ find env_old_hg -type d -empty
+    env_old_hg/cuda/optix/OptiX_301/tutorial
+    env_old_hg/history
+    env_old_hg/graphics/oglrap
+
+Delete empty trees::
+
+    epsilon:~ blyth$ find env_old_hg -type d -empty -exec rm -r {} \;
+    find: env_old_hg/cuda/optix/OptiX_301/tutorial: No such file or directory
+    find: env_old_hg/history: No such file or directory
+    find: env_old_hg/graphics/oglrap: No such file or directory
+    epsilon:~ blyth$ find env_old_hg -type d -empty 
+    env_old_hg/cuda/optix/OptiX_301
+    epsilon:~ blyth$ find env_old_hg -type d -empty -exec rm -r {} \;
+    find: env_old_hg/cuda/optix/OptiX_301: No such file or directory
+    epsilon:~ blyth$ find env_old_hg -type d -empty 
+    env_old_hg/cuda/optix
+    epsilon:~ blyth$ find env_old_hg -type d -empty -exec rm -r {} \;
+    find: env_old_hg/cuda/optix: No such file or directory
+    epsilon:~ blyth$ find env_old_hg -type d -empty 
+    epsilon:~ blyth$ 
+
+
+Now::
+
+    epsilon:~ blyth$ diff -r --brief env_old_hg env
+    Only in env: .git
+    Only in env_old_hg: .hg
+
+    diff: env_old_hg/bin/G4DAEChromaTest.sh: No such file or directory
+    diff: env/bin/G4DAEChromaTest.sh: No such file or directory
+    diff: env_old_hg/bin/cfg4.sh: No such file or directory
+    diff: env/bin/cfg4.sh: No such file or directory
+    diff: env_old_hg/bin/doctree.py: No such file or directory
+    diff: env/bin/doctree.py: No such file or directory
+    diff: env_old_hg/bin/ggv.py: No such file or directory
+    diff: env/bin/ggv.py: No such file or directory
+    diff: env_old_hg/bin/ggv.sh: No such file or directory
+    diff: env/bin/ggv.sh: No such file or directory
+
+    Only in env_old_hg/bin: realpath
+         JUST AN EXECUTABLE THAT IS NOT COMMITTED 
+
+
+    Only in env/log: .fastexport-hg2git-migration-env-diffs.log.swp
+    Only in env/log: fastexport-hg2git-migration-env-diffs.log
+
+    Only in env/nuwa/MockNuWa: MockNuWa.cc
+    Only in env_old_hg/nuwa/MockNuWa: mocknuwa.cc
+
+    Only in env_old_hg/presentation: intro_to_cuda
+ 
+          INVESTIGATED BELOW : THERE IS SOMETHING FUNNY HERE : BUT IT SEEMS 
+          THAT THERE IS SOMETHING FUNNY IN THE ORIGINAL HG REPO AND THAT WAS NOT 
+          TRANSLATED INTO GIT ... AS SEEMS LOCALIZED AND NOT CONCERNING ANYTHING
+          IMPORTANT WILL LEAVE ASIS
+          
+
+    Files env_old_hg/tools/hg2git/fastexport.bash and env/tools/hg2git/fastexport.bash differ
+    epsilon:~ blyth$ 
+
+
+MockNuWa.cc mocknuwa.cc case change ?
+----------------------------------------
+
+Unexplained case difference, might be related to the conversion 
+being done on macOS. ANYHOW SEEMS ISOLATED PROBLEM.
+
+::
+
+    epsilon:MockNuWa blyth$ l
+    total 96
+    -rw-r--r--  1 blyth  staff  6443 Jan  6  2015 mocknuwa.cc
+    -rw-r--r--  1 blyth  staff  4742 Jan  3  2015 mocknuwa.bash
+    -rw-r--r--  1 blyth  staff  1470 Dec 26  2014 db.py
+    -rwxr-xr-x  1 blyth  staff  4115 Dec  8  2014 ctrl.py
+    -rw-r--r--  1 blyth  staff  8011 Dec  8  2014 query.py
+    -rwxr-xr-x  1 blyth  staff  1030 Nov 25  2014 mocknuwa.py
+    -rwxr-xr-x  1 blyth  staff    48 Nov 11  2014 mocknuwa.sh
+    lrwxr-xr-x  1 blyth  staff    52 Oct 31  2014 DsChromaRunAction_BeginOfRunAction.icc -> ../detsim/src/DsChromaRunAction_BeginOfRunAction.icc
+    -rw-r--r--  1 blyth  staff  1850 Oct 29  2014 CMakeLists.txt
+    lrwxr-xr-x  1 blyth  staff    34 Oct 23  2014 DybG4DAECollector.cc -> ../detsim/src/DybG4DAECollector.cc
+    lrwxr-xr-x  1 blyth  staff    33 Oct 23  2014 DybG4DAECollector.h -> ../detsim/src/DybG4DAECollector.h
+    epsilon:MockNuWa blyth$ 
+    epsilon:MockNuWa blyth$ pwd
+    /Users/blyth/env_old_hg/nuwa/MockNuWa
+
+
+    epsilon:MockNuWa blyth$ pwd
+    /Users/blyth/env/nuwa/MockNuWa
+    epsilon:MockNuWa blyth$ l
+    total 96
+    -rw-r--r--  1 blyth  staff  8011 May 15 20:31 query.py
+    -rwxr-xr-x  1 blyth  staff    48 May 15 20:31 mocknuwa.sh
+    -rwxr-xr-x  1 blyth  staff  1030 May 15 20:31 mocknuwa.py
+    -rw-r--r--  1 blyth  staff  4742 May 15 20:31 mocknuwa.bash
+    -rw-r--r--  1 blyth  staff  1470 May 15 20:31 db.py
+    -rwxr-xr-x  1 blyth  staff  4115 May 15 20:31 ctrl.py
+    -rw-r--r--  1 blyth  staff  6443 May 15 20:31 MockNuWa.cc
+    lrwxr-xr-x  1 blyth  staff    33 May 15 20:31 DybG4DAECollector.h -> ../detsim/src/DybG4DAECollector.h
+    lrwxr-xr-x  1 blyth  staff    34 May 15 20:31 DybG4DAECollector.cc -> ../detsim/src/DybG4DAECollector.cc
+    lrwxr-xr-x  1 blyth  staff    52 May 15 20:31 DsChromaRunAction_BeginOfRunAction.icc -> ../detsim/src/DsChromaRunAction_BeginOfRunAction.icc
+    -rw-r--r--  1 blyth  staff  1850 May 15 20:31 CMakeLists.txt
+    epsilon:MockNuWa blyth$ 
+
+
+
+
+Investigate why env_old_hg/presentation/intro_to_cuda did not get into the git repo 
+---------------------------------------------------------------------------------------
+
+::
+
+    epsilon:~ blyth$ cd env_old_hg/presentation/intro_to_cuda/
+    epsilon:intro_to_cuda blyth$ l
+    total 40
+    -rw-r--r--  1 blyth  staff  1080 Sep 20  2017 README.rst
+    -rw-r--r--  1 blyth  staff   975 Sep 20  2017 add.cu
+    -rw-r--r--  1 blyth  staff   446 Sep 20  2017 hello.cu
+    -rw-r--r--  1 blyth  staff  1376 Sep 20  2017 thrust_sort.cu
+    -rw-r--r--  1 blyth  staff  1363 Sep 20  2017 vadd.cu
+    epsilon:intro_to_cuda blyth$ hg st .
+
+::
+
+    epsilon:intro_to_cuda blyth$ hg log . -v
+    changeset:   0:41f31b44b01b
+    tag:         tip
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Wed Sep 20 11:07:35 2017 -0400
+    files:       README.rst add.cu hello.cu thrust_sort.cu vadd.cu
+    description:
+    copied from env/intro_to_cuda into separate repo
+
+    epsilon:intro_to_cuda blyth$ cd /Users/blyth/env/presentation/intro_to_cuda
+    -bash: pushd: /Users/blyth/env/presentation/intro_to_cuda: No such file or directory
+
+
+Something funny about that commit, it is not listed in hg web interface. 
+
+* https://bitbucket.org/simoncblyth/env_hg/commits/?page=8
+
+::
+
+    epsilon:intro_to_cuda blyth$ hg flog 
+
+    41f31b44b01b | 2017-09-20 11:07:35 -0400 | simoncblyth: copied from env/intro_to_cuda into separate repo
+      README.rst
+      add.cu
+      hello.cu
+      thrust_sort.cu
+      vadd.cu
+
+
+Hmm its like its a disconnected commit::
+
+    epsilon:env_old_hg blyth$ cd presentation/intro_to_cuda/
+    epsilon:intro_to_cuda blyth$ hg log -G
+    @  changeset:   0:41f31b44b01b
+       tag:         tip
+       user:        Simon Blyth <simoncblyth@gmail.com>
+       date:        Wed Sep 20 11:07:35 2017 -0400
+       summary:     copied from env/intro_to_cuda into separate repo
+
+Normally hg heads from some subdir gives the tip revision, but in presentation/intro_to_cuda it gives the ancient commit that populated the dir::
+
+    epsilon:intro_to_cuda blyth$ hg heads
+    changeset:   0:41f31b44b01b
+    tag:         tip
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Wed Sep 20 11:07:35 2017 -0400
+    summary:     copied from env/intro_to_cuda into separate repo
+
+
+Those files were added 2017-09-18:
+
+* https://bitbucket.org/simoncblyth/env_hg/commits/39922fd7dbbba9c5e521b6689a73213e302ee0b0
+
+::
+
+    epsilon:env blyth$ git log 5655ba04731322bf82ba93cceca140e155543fea -n1
+    commit 5655ba04731322bf82ba93cceca140e155543fea
+    Author: Simon Blyth <simoncblyth@gmail.com>
+    Date:   Mon Sep 18 13:44:42 2017 +0800
+
+        icu- intro_to_cuda
+    epsilon:env blyth$ 
+
+
+Hmm they are added in the git conversion::
+
+    epsilon:env blyth$ git l 5655ba04731322bf82ba93cceca140e155543fea -n1 
+    commit 5655ba04731322bf82ba93cceca140e155543fea
+    Author: Simon Blyth <simoncblyth@gmail.com>
+    Date:   Mon Sep 18 13:44:42 2017 +0800
+
+        icu- intro_to_cuda
+
+    M       doc/slides.bash
+    M       env.bash
+    A       intro_to_cuda/add.cu
+    A       intro_to_cuda/hello.cu
+    A       intro_to_cuda/icu.bash
+    A       intro_to_cuda/thrust_sort.cu
+    A       intro_to_cuda/vadd.cu
+    M       presentation/opticks_gpu_optical_photon_simulation_sep2017_wollongong.txt
+    epsilon:env blyth$ 
+
+Huh, they are there at top level ?
+
+
+::
+
+    epsilon:env blyth$ git log intro_to_cuda
+    commit a4b039def05c2873ea730890aff0cf4b22ef1561
+    Author: Simon Blyth <simoncblyth@gmail.com>
+    Date:   Thu Oct 12 11:59:49 2017 -0400
+
+        add cudaDeviceSynchronize so get to see the mykernel output, NB into_to_cuda already moved to its own repo
+
+    commit 242239c545b8905cab2252bb7e117adc723f6784
+    Merge: 1e265b590 6b3ff6944
+    Author: Simon Blyth <simoncblyth@gmail.com>
+    Date:   Tue Sep 19 14:16:01 2017 +0800
+
+        merge
+
+    commit 6b3ff694436447d4c202eedcef6bf218fa554075
+    Author: Simon Blyth <simoncblyth@gmail.com>
+    Date:   Tue Sep 19 14:58:09 2017 -0400
+
+        make dump give top/tail
+
+    commit 1e265b590449df399ca089f1a01dad5fd2dacc66
+    Author: Simon Blyth <simoncblyth@gmail.com>
+    Date:   Tue Sep 19 14:15:15 2017 +0800
+
+        links update
+
+    commit 5655ba04731322bf82ba93cceca140e155543fea
+    Author: Simon Blyth <simoncblyth@gmail.com>
+    Date:   Mon Sep 18 13:44:42 2017 +0800
+
+        icu- intro_to_cuda
+    epsilon:env blyth$ 
+
+
+
+::
+
+    epsilon:env_old_hg blyth$ hg log intro_to_cuda 
+    changeset:   6258:50aa8849952b
+    parent:      6254:3d4929285472
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Thu Oct 12 11:59:49 2017 -0400
+    summary:     add cudaDeviceSynchronize so get to see the mykernel output, NB into_to_cuda already moved to its own repo
+
+    changeset:   6253:5c6987cf405b
+    parent:      6251:39922fd7dbbb
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Tue Sep 19 14:58:09 2017 -0400
+    summary:     make dump give top/tail
+
+    changeset:   6252:6f6b0cc9ca9a
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Tue Sep 19 14:15:15 2017 +0800
+    summary:     links update
+
+    changeset:   6251:39922fd7dbbb
+    user:        Simon Blyth <simoncblyth@gmail.com>
+    date:        Mon Sep 18 13:44:42 2017 +0800
+    summary:     icu- intro_to_cuda
+
+    epsilon:env_old_hg blyth$ 
+
+

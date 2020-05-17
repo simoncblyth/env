@@ -72,6 +72,8 @@ clui-st()
 
 clui-alias(){
 
+   ## hmm these are a bit too hidden for comfort 
+
    alias ss-="sudo su -"
    alias x='exit'
    #alias l="ls -ltO "
@@ -92,7 +94,10 @@ clui-alias(){
    #alias ini='. ~/.bash_profile'
    alias t='type'
    alias f='typeset -F'   ## list functions 
-   alias s='cd && st.py'
+
+   #alias s='cd && st.py'
+   s(){ cd && echo st.py && st.py $* ; }   
+
    #alias vip='vi ~/.bash_profile'
    #alias vips='grep BUILD_PATH ~/.bash_profile | grep -v grep '
    alias eu="env-u"
