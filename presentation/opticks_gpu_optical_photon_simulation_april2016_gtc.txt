@@ -1,4 +1,6 @@
-
+.. meta::
+   :title: Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+   :description: PMTs, Super-K, 1987a, JUNO, DYB, G4, Problem, History, Textures, Large Geom, Tess vs Analytic, Viz with geom shader, Rainbow  
 
 .. comment 
 

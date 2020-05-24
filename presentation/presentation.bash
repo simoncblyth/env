@@ -287,6 +287,68 @@ Machinery Fixes
 * apache changes in High Sierra, see hapache-
 
 
+Index
+------
+
+file:///Users/blyth/simoncblyth.bitbucket.io/env/presentation/index.html
+
+
+
+opticks_may2020_hsf.txt
+
+dec2019_gtc_china_suzhou.txt
+opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou.txt
+dec2019_ihep_epd_seminar.txt
+opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.txt
+nov2019_chep.txt
+opticks_gpu_optical_photon_simulation_nov2019_chep.txt
+opticks_gpu_optical_photon_simulation_jul2019_ihep.txt
+opticks_gpu_optical_photon_simulation_jan2019_sjtu.txt
+
+
+oct2018_ihep_seminar.txt
+opticks_gpu_optical_photon_simulation_oct2018_ihep.txt
+opticks_gpu_optical_photon_simulation_sep2018_qingdao.txt
+opticks_gpu_optical_photon_simulation_jul2018_chep.txt
+opticks_gpu_optical_photon_simulation_jul2018_ihep.txt
+
+opticks_gpu_optical_photon_simulation_sep2017_jinan.txt
+opticks_gpu_optical_photon_simulation_sep2017_wollongong.txt
+opticks_gpu_optical_photon_simulation_jul2017_ihep.txt
+opticks_gpu_optical_photon_simulation_jan2017_psroc.txt
+
+opticks_gpu_optical_photon_simulation_nov2016_llr.txt
+opticks_gpu_optical_photon_simulation_oct2016_chep.txt
+opticks_gpu_optical_photon_simulation_jul2016_weihai.txt
+opticks_gpu_optical_photon_simulation_may2016_lecospa.txt
+opticks_gpu_optical_photon_simulation_april2016_gtc.txt
+opticks_gpu_optical_photon_simulation_march2016.txt
+
+opticks_gpu_optical_photon_simulation_psroc.txt
+    (Jan 2016) Opticks : GPU Optical Photon Simulation
+
+opticks_gpu_optical_photon_simulation.txt
+    (Jan 2016) Opticks : GPU Optical Photon Simulation
+
+optical_photon_simulation_progress.txt
+    (October 2015) Opticks : Optical Photon Simulation with NVIDIA OptiX
+
+optical_photon_simulation_with_nvidia_optix.txt
+    (July 2015) Optical Photon Simulation with NVIDIA OptiX
+
+gpu_optical_photon_simulation.txt
+    (Undated) 200x Faster Optical Photon Propagation with NuWa + Chroma ?
+
+gpu_accelerated_geant4_simulation.txt
+    (Jan 2015) GPU Accelerated Geant4 Simulation with G4DAE and Chroma 
+    Implications of Geant4 Geometry Model, High Performance Viz, Message Queue
+
+g4dae_geometry_exporter.txt
+    (Sept 2014) G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
+    19th Geant4 Collaboration Meeting, Okinawa, Sept 2014, Parallel Session B2, Visualization Group (Invited Speaker)
+
+
+
 CHEP 2018, Sofia, Bulgaria
 ----------------------------
 
@@ -490,162 +552,6 @@ Me too!  How long a presentation would you like ?
 
 Simon
 
-
-
-
-
-Jul 2017 IHEP : Page by page
--------------------------------
-
-Intro p1
-~~~~~~~~~
-
-* moving optical photon generation/propagation to GPU gives drastic speedups
-* also offloads memory requirements to GPU, only hits need to come to CPU 
-* will not repeat introduction, there are a few context slides at back 
-* will focus on a new feature of Opticks ...
-
-"Outline" p2 : cf LLR
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* starting from summary at LLR last November, 
-  there I described chi2 comparisons establishing that 
-  the GPU ported optical physics matches Geant4 
-
-  * however there was a large caveat : for match need analytic geometry on GPU
-  
-* to overcome the geometry limitation : I have developed a general GPU CSG intersection algorithm
-* moving CSG to the GPU makes it possible to automate conversion of GDML files into a GPU optimized form 
-    
-
-CSG p3  
-~~~~~~~~~
-
-* primitive shapes combined using set operations : union, intersection and difference
-* how to find intersections between rays and geometry .... ?
-
-  * use parametric definition of ray -> parametric-t identifies position along the ray   
-  * for primitives described implicitly, just find roots of t to get intersections
-  * composite intersects will be the intersect with one of the primitives 
-
-    * ... just need to pick the correct intersect according to the CSG expression
-
-CSG Roth, High Perf GPU p4
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* traditional way is to find intervals for all primitives and 
-  recursively combine them according to the CSG expression
-
-  * not well suited to GPU, high perf on GPU requires...
-
-CSG Single Hit p5
-~~~~~~~~~~~~~~~~~~~~
-
-* alternate single hit approach, treats intersects with a pair of primitives 
-  as a simple state machine : avoids store/sort intervals
-
-  * hits classified using the normal at intersection, combined into an 
-    action using lookup tables for the CSG operator and for which is closer
-
-  * loop action handles intersects that need to be disqualified
-
-* natural way to implement would be to use recursion, 
-  BUT: OptiX does not support recursion within intersect programs
-
-
-CSG Tree Serialization p6
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* in order to get the CSG tree to the GPU need to serialize it...
-* have adopted a complete binary tree serialization : as this simplifies 
-  tree handling on the GPU 
-
-* regular pattern of bits in complete binary tree, enables navigation just 
-  by bit shifts... 
-
-* postorder tree traverse starts from leftmost and always visits children before
-  their parent (same order that postorder recursion would yield)
-
-  * bit twiddling can reproduce the postorder traverse
-
-CSG Intersect Pseudocode p7
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* iterative algorithm ... arranged via 
-  nested while loops, the outer over tranches and the inner over
-  nodes within the tranches, allows recursion to be emulated (also recursion within recursion...)
-
-* recursive "return" is emulated via pushing onto a stack of intersects
-* end result is picking the "winning" intersect    
-
-
-CSG Primitives p8
-~~~~~~~~~~~~~~~~~~~~
-
-* flexibility/expressiveness of CSG means that you do not need many primitives,
-  only around 10 needed 
-
-  * some requirements : must be solid (ie closed) 
-
-
-CSG Primitives Parade p9
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-CSG Primitives Parade Code p10
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* python code defining CSG trees, serialized to file in OpticksCSG format 
-
-
-CSG Primitives : what is included p11
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* on GPU : CUDA functions for bounding box and ray geometry intersection
-* on CPU : SDFs 
-
-
-CSG balancing deep trees p12
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* CSG implementation intended for individual solids, not scenes
-* CSG difference inconvenient, as not commutative, hence convert to +ve form
-  allowing 
-
-
-Dayabay ESR p13
-~~~~~~~~~~~~~~~~
-
-
-CSG_CYLINDER subtraction -> speckle in hole p14
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Coincident Faces p15
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-SDFs p16
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-SDF Isosurface Extraction p17
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Translated Solid Debugging p18
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Full Analytic GDML Workflow p19
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Screenshots p20
-~~~~~~~~~~~~~~~~~~~
-
-
-Summary p25
-~~~~~~~~~~~~~~
 
 
 
@@ -1170,43 +1076,41 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar_TALK ; }
 
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
-presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou_TALK ; }
+#presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou_TALK ; }
 
+presentation-iname(){ echo opticks_may2020_hsf ; }
 
-#presentation-iname(){ echo opticks_jan2020_icfp ; }
-
-
-# setting TALK only changes the oname not the iname
-# so still need to flip this
-
-
-#presentation-iname(){ echo dybdb_experience ; }
-#presentation-iname(){ echo opticks.key ; }
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
 presentation-preprocessor-args-smry(){ printf "%s\n" -DSMRY ; } 
 presentation-preprocessor-args(){  [ -n "$SMRY" ] && echo $(presentation-preprocessor-args-smry) || echo $(presentation-preprocessor-args-full) ; } 
 
 presentation-oname-smry(){
-    case $(presentation-iname) in 
+    local iname=$(presentation-iname)
+    case $iname in 
        opticks_gpu_optical_photon_simulation_nov2019_chep)      echo opticks_oct2019_dance ;; 
        opticks_gpu_optical_photon_simulation_nov2019_chep_TALK) echo opticks_oct2019_dance_TALK ;; 
+                                                             *) echo $iname ;;
     esac
 }
 presentation-oname-full(){
-    case $(presentation-iname) in 
+    local iname=$(presentation-iname)
+    case $iname in 
        opticks_gpu_optical_photon_simulation_nov2019_chep)      echo opticks_nov2019_chep ;; 
        opticks_gpu_optical_photon_simulation_nov2019_chep_TALK) echo opticks_nov2019_chep_TALK ;; 
-                                                             *) echo $(presentation-iname) ;;  
+                                                             *) echo $iname ;;  
     esac
 }
 
-presentation-oname-(){  [ -n "$SMRY" ] && echo $(presentation-oname-smry) || echo $(presentation-oname-full) ; }
+presentation-oname-(){  
+   : SMRY envvar switches between smry and full names
+   [ -n "$SMRY" ] && echo $(presentation-oname-smry) || echo $(presentation-oname-full) ; 
+}
 presentation-oname(){  
+   : TALK envvar being defined appends _TALK to the oname 
    local oname=$(presentation-oname-)
    [ -n "$TALK" -a "${oname: -5}" != "_TALK" ]  && echo ${oname}_TALK || echo $oname 
 }
-
 
 presentation-info(){ cat << EOI
 

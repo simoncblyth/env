@@ -1,3 +1,6 @@
+.. meta::
+   :description: 200x Faster Optical Photon Propagation with NuWa + Chroma ? Intro Chroma, Tris, DAE Export, Chroma Fixes, UDP, server
+
 
 .. include:: <s5defs.txt>
 

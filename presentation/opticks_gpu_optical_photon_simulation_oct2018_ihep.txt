@@ -1,3 +1,9 @@
+.. meta::
+   :title: Tools, Techniques + Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+   :event: IHEP Seminar, Beijing 
+   :description: Raster vs Raytrace, Grapical Origins : billions of shader run per second, Latency vs Throughput, High level libs: Thrust, Parallel/Simple/Uncoupled, Array oriented is ideal fit for GPU, NLL Reconstruction fit with NumPy, Monte Carlo Method, cuRAND split init and usage : persistent CUDA context, CPU+GPU two compiler dev
+
+
 .. include:: my_s5defs.txt
 
 .. comment

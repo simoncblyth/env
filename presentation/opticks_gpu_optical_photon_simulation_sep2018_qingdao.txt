@@ -1,3 +1,12 @@
+
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+   :subtitle: Tools, Techniques and Optick
+   :description: GPU shape, Most of Opticks is geometry translation, Development for GPU, Array oriented, rethink+reimplement, Python fastest growing, NumPy, MC Method, Deciding History, CDF sampling, Reemission, Estimate Pi, Geant4 Overview, Torus Artifacts, JUNO fastener temple, Deep Tree, PMT Neck design, Control Geant4 RNG, NumPy 
+
+
+
+
 .. include:: my_s5defs.txt
 
 ========================================================================================

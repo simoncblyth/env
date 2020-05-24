@@ -1,3 +1,7 @@
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+   :description: Torus problems 
+
 
 .. comment 
 

@@ -1,4 +1,8 @@
 
+.. meta::
+   :title: G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
+   :description: (Sept 2014) Okinawa : G4DAE Export, Single VBO, Shockingly Fast/Smooth graphics, GLSL Shaders
+
 .. comment 
 
    https://github.com/ralsina/rst-cheatsheet/blob/master/rst-cheatsheet.rst

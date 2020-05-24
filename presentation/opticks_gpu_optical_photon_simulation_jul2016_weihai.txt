@@ -1,4 +1,8 @@
 
+.. meta::
+    :title: Opticks : Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™ 
+    :description: PMTs, 1987a, SuperK, DYB, IBD, Th13, Spectrum, JUNO, MH, LS, G4, Problem, OptiX, History, Tex, Large, Tess vs Analytic, Viz, Vali, Rainbow, >200x      
+
 .. comment 
 
 

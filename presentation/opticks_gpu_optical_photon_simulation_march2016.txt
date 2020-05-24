@@ -1,4 +1,6 @@
-
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation
+   :description: Brief History, OptiX, Recreate G4 Context on GPU with Opticks, OpenMesh Surgery IAV/OAV, Tesselated PMT, Disco Ball, Analytic PMT 
 
 .. comment 
 

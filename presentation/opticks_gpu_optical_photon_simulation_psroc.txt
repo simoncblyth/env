@@ -1,3 +1,6 @@
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation 
+   :description: (Jan 2016) IBD Background, Rainbow, 200x, JUNO shots  
 
 
 .. comment 

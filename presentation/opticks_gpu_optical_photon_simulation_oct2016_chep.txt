@@ -1,3 +1,7 @@
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA® OptiX™
+   :description: Problem, Ray Trace, OptiX, Recreate G4 Context on GPU, Geocache, Large, Tess vs Analy Partitioned, GPU Resident Photons, Rainbow, > 200x, Open Source Opticks 
+
 
 .. comment 
 

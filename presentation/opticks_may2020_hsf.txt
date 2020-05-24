@@ -1,62 +1,32 @@
 
 .. meta::
-   :title: Opticks : GPU Optical Photon Simulation via NVIDIA OptiX
-   :event: GTC China December 2019, Suzhou 
-   :description: Neutrino Pauli, Usefulness of Neutrinos, IBD LS, Cherenkov, PMT, Cosmics, JUNO
-
+   :title: Opticks GPU Optical Simulation with NVIDIA OptiX - Development Experience : Problems and Successes
+   :description: HSF
 
 .. include:: my_s5defs.txt
-
-.. include:: s5_background_image.txt
-
 
 .. comment
 
    Navigate the HTML slides by entering a page number and pressing return 
 
-   reps-talk opticks-oct2019-dance    # NB underscores to hyphens for latex 
 
-      ## slide titles and s5_text directive content are written to /tmp/opticks-oct2019-dance.rst
-      ## reps-talk converts that into a PDF document : as an aid to thinking about what to say 
-
-
-
-.. abstract
-
-    Opticks is an open source project that integrates the NVIDIA OptiX GPU ray
-    tracing engine with Geant4 toolkit based simulations. Massive parallelism
-    brings drastic performance improvements with optical photon simulation speedup
-    exceeding 1000 times Geant4 with workstation GPUs. A further speedup factor of
-    6x is achieved with the NVIDIA RTX platform which benefits from
-    hardware-accelerated ray tracing in RT cores available in Turing architecture
-    GPUs. Optical physics processes such as scattering and scintillator reemission
-    are implemented as CUDA OptiX programs based on Geant4. Wavelength-dependent
-    material and surface properties as well as reemission functions are interleaved
-    into GPU textures providing fast interpolated property lookup or wavelength
-    generation. An implementation of GPU ray tracing of complex constructive solid
-    geometry shapes enables the automated translation of Geant4 detector geometries
-    to the GPU without approximation.
-
-
-
-:i:`Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX` 
+:i:`Opticks Experience of GPU Optical Photon Simulation with NVIDIA OptiX` 
 ========================================================================================
-
-
 
 .. raw:: html
 
+
     <div class="mytitle">
     <header>
-    <h1 style="background-color:lightgrey;font-size:29pt"> 
-         <i>Opticks</i> : GPU Optical Photon Simulation via NVIDIA® OptiX™ 
+    <h1 style="background-color:lightgrey"> 
+          <i>Opticks</i> GPU Optical Simulation with NVIDIA® OptiX™ - Development Experience : Problems and Successes
         <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
     </h1>
     </header>
     </div>
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; GTC China, Suzhou, December 2019</h2>
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; HSF Simulation Working Group Meeting, 27 May 2020</h2>
     </div>
 
 
@@ -64,24 +34,12 @@
 
     Opticks is an open source project that applies state-of-the-art GPU ray tracing 
     from NVIDIA OptiX to optical photon simulation and integrates this with Geant4. 
-    This results in drastic speedups of more than one thousand times with a single GPU, 
-    compared to the standard single-threaded CPU approach. 
+    This results in drastic speedups of more than 3 orders of magnitude.
 
     Any simulation limited by optical photons can remove those limits by using Opticks.
 
     This render shows the photons resulting from a muon crossing the JUNO scintillator, 
-    each line represents a single photon.  
-
-    You can also see some of the many thousands of photomultiplier tubes surrounding the 
-    scintillator : which act as artificial eyes able to detect the light coming 
-    from the scintillator.
-
-
-
-
-
-
-
+    each line represents a single photon.
 
 
 
@@ -101,12 +59,9 @@ Outline
 
        <span>&nbsp;</span>
 
-    * Context and Problem
 
-      * Neutrinos : Usefulness : Detection : Photomultiplier Tubes (PMTs)
-      * Jiangmen Underground Neutrino Observatory (JUNO)
-      * Geant4 : Monte Carlo Simulation Toolkit 
-      * Optical Photon Simulation Problem...
+    * Main Problem with GPU Simulation Development
+    * JUNO Optical Photon Simulation Problem...
 
     * Tools to create Solution   
 
@@ -138,244 +93,296 @@ Outline
 
 .. s5_talk::
 
-
-   * Before talking about Opticks : I will introduce the context, 
-     so you can understand the problem that Opticks aims to solve  
-
-
-
-:i:`JUNO_Intro_5`
------------------------------
-
-.. s5_talk::
-
-    Radioactive decays are very common : most materials, including 
-    the atoms of your body contain trace amounts that decay.  Some 
-    decays proceed via a neutron decaying into a proton and an electron.
-
-    But in measurements of these so called beta decays : there was  a problem 
-
-    * energy/momentum was not conserved by the decay.  
-
-    To explain the measurements Pauli proposed a new particle, the neutrino,  
-    in 1930 that made the momentum and energy balance.
-
-    He is attributed to have said : blah 
-
-    neutrinos interact only very rarely 
-    (a beam of neutrinos can go through the earth or the sun 
-    without hardly noticing)
-
-    But fortunately it is possible  to detect them 
-
-    Actually it is because they interact so rarely that 
-    they are able to tell us about places and times there is no 
-    other way to probe.  
-
-    For example, Neutrinos provide a window into the center of the sun 
-    and the reactions that are powering it.
-
-
-
-
-:i:`JUNO_Intro_6`
------------------------------
-
-.. s5_talk::
-
-    What use are neutrinos ?
-
-    Other examples of how neutrinos are useful : are in providing 
-    a probe into the center of the earth.  Also neutrinos from 
-    a supernova in a neighboring galaxy to our Milky Way have been 
-    detected : giving us information about the death of a star.
-
-
-
-:i:`JUNO_Intro_7`
------------------------------
-
-.. s5_talk::
-
-    SMALL
-
-    So how can you detect neutrinos ? 
-
-    * interaction probability is low : need large targets, with a lots of protons.
-    * but some neutrinos do interact with protons producing a neutron and a positron 
-    * positrons are antimatter : they rapidly find some matter and annihilate producing gammas   
-    * neutrons take some time to slow down before they are captured on a nucleus and also produce gammas
-    * so the signal is a distinctive double flash 
-
-    * liquid scintillators are special compounds which absorb some of the energy from high energy particles 
-      passing through and emit it as optical photons   
-
-    * the liquid scintillator is transparent to the light : so this is the principal
-      for detecting neutrinos 
-    * look for distinctive double flashes of light coming from the scintillator 
-    * this *scintillation light* is measured using Photomultiplier tubes
-    
-    **optical photons are crucial to the detection**
-
-
-
-:i:`JUNO_Intro_8`
------------------------------
-
-.. s5_talk::
-
-     
-    There is one other way that light is producing in the detector:
-
-    * *Cerenkov radiation* occurs when particles travel through a medium faster
-      than the speed of light in the medium 
-
-    * this happens in water and also liquid scintillator
+   * then the "tools used to create a solution"
+   * before describing the Opticks solution and its performance.   
 
 
 .. comment
 
-   https://icecube.wisc.edu/~kjero/Bootcamp/2015/Notebooks/Reconstruction_Introduction.html
-
-
-
-:i:`JUNO_Intro_9`
------------------------------
-
-.. s5_talk::
-
-    So to detect neutrinos we need to measure flashes of light
-    coming from the scintillator.
-
-    Photomultiplier tubes (PMTs) are effectively artifical 
-    eyes that can detect even a single optical photon.
-
-    Photons are converted into electronic pulses by the PMT.
-    So we need to look for double pulses to find the neutrinos. 
-
-
-
-:i:`JUNO_Intro_10`
------------------------------
-
-.. s5_talk::
-
-
-    One more piece of context is important : cosmic ray muons 
-
-    As surface level there is a continuous flux of muons coming through the roof and 
-    mostling passing right through.  These originate from primary cosmic rays 
-    that interact in the upper atmosphere producing   
-
-
-
-:i:`JUNO_Intro_1`
-------------------
-
-.. s5_talk:: 
-
-    JUNO is a large neutrino experiment under construction in southern China.
-    It is designed to determine the neutrino mass order 
-    from measurements of oscillated reactor neutrinos.
+   * https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=2058
  
-    Construction is expected to be completed in 2021.
+   Jilei LLR Tutorial
+
+   Muon average track length in CD LS is about 23 m, 
+   suppose 2 MeV/cm energy deposit, 
+   LS optical photon yield is 10k/MeV
  
+   20k/cm
+   2M/m
 
-:i:`JUNO_Intro_4`
-------------------
+   23*2 = 46M 
+   35*2 = 70M 
+
+
+
+
+:small:`Opticks Experience : Main Problem with GPU Simulation Development`
+-----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`The Big Issue : Manpower`
+
+    .. class:: small
+
+        **Atypical Experience Profile Needed**
+
+        * :red:`difficult for students/postdocs to help` 
+        * :blue:`Opticks is a one person project` 
+
+        **Typical NVIDIA OptiX Users:**
+
+        * **software company teams** building commercial renderers for design/architecture/visual-effects 
+        * experienced graphics developers 
+        * Windows workstations 
+
+        **Typical Opticks Users (Candidate Devs):**
+
+        * neutrino and dark matter search experiments  
+          with 0-0.25 FTE trying to improve Geant4 simulation performance
+        * no graphics experience, little GPU experience
+        * Linux servers
+
+
+.. class:: small
+
+   **Why GPU simulation difficult ?**
+
+   * totally different geometry model 
+
+     * :strike:`tree of C++ objects` -> arrays, textures 
+     * :strike:`solid primitives` -> intersection by solving polynomials
+
+   * totally different development model 
+
+     * :strike:`complex libraries` -> simple headers
+     * simpler -> smaller stack -> more threads in flight  
+     * low level CUDA development, eg CSG from first principals 
+     * very few libs 
+     * restricted environment 
+
+       * no recursion in intersect
+       * double precision problematic, performance hit
+
+   **Why GPU simulation worthwhile ?**
+
+   * GPU offloading eliminates memory, time bottlenecks
+   * drastic performance factors > 1000x Geant4 
+   * almost free bonus : high performance visualization 
+
+   **BUT Opticks Approach is Extreme**
+
+   Aiming to handle hundreds of millions of photons simultaneously    
+
 
 .. s5_talk::
 
-    The JUNO Collaboration is more than 600 strong from 77 institutions  
-    and still growing 
+    High level problems/successes
 
-
-:i:`JUNO_Intro_2`
-------------------
-
-.. s5_talk::
-
-    JUNO will be the worlds largest liquid scintillator detector,
-    with a spherical 20,000 ton volume of scintillator 
-
-    The scintillator is instrumented with 18 thousand 20-inch PMTs 
-    and 25 thousand 3-inch PMTs     
-
-
-:i:`JUNO_Intro_3`
-------------------
-
-.. s5_talk::
-
-    JUNO will be able to detect neutrinos from many terrestrial and extra-terrestrial 
-    sources including : solar, atmospheric, geo-neutrinos. 
-
-    Despite 700m of overburden the largest backgrounds to these neutrino signals   
-    will be from cosmic muon induced processes.  
-
-    A muon veto is used to control the backgrounds 
- 
-    * that means that when a muon is passing through the data is not used.  
-    
-    However to minimize the time and volume vetoed, which cuts into 
-    the live time it is necessary to have a good muon reconstruction which means 
-    that we need large samples of cosmic muons.
+    After describing Opticks and how it uses NVIDIA OptiX, 
+    will cover the details
 
 
 
+:small:`Opticks Experience : Further Problems with using NVIDIA OptiX`
+------------------------------------------------------------------------
+
+.. sidebar:: :small:`NVIDIA OptiX 7 : Entirely new API`
+
+    .. class:: small
+
+        * introduced August 2019
+        * low-level CUDA-centric thin API
+        * :strike:`near perfect scaling to 4 GPUs, for free` 
+        * Major effort needed to support in Opticks
+
+.. class:: small
+
+   * NVIDIA GPUs only 
+   * No influence on direction of NVIDIA OptiX (eg OptiX 7)
+   * closed source, black magic BVH optimization 
+   * immature OptiX support for Linux debug/profiling
+
+     * most OptiX users develop on Windows
+     * cuda-gdb not to level of Nsight VSE
 
 
-Geant4 : Monte Carlo Simulation Toolkit
-----------------------------------------
+   **Deployment Issues**
+
+   * OptiX releases demand lastest short lived NVIDIA driver
+     
+     * GPU clusters typically use long lived branch drivers 
+     * Linux drivers for server GPUs (Tesla V100) slow to appear 
+     * forces use of older OptiX releases on GPU clusters    
+
+   * RT cores and RTX performance not available in server GPUs 
 
 
-.. s5_talk::
 
-    Geant4 has been in developemnt for more than 20 years : it is the 
-    standard simulation toolkit used by practically all high energy physics
-    experiments and also used in medical and space physics 
+:small:`Opticks Experience : Benefits from using NVIDIA OptiX`
+------------------------------------------------------------------------
 
-    * simulating medical imaging scanners and satellites 
-      as well as particle detectors
-
-
-Geant4 : Monte Carlo Simulation Toolkit Generality
-----------------------------------------------------
-
-
-.. sidebar:: :small:`Standard Simulation Tool of HEP`
+.. sidebar:: :small:`State-of-the-art GPU ray tracing`
 
    .. class:: small
-        
-       **Geant4** simulates particles travelling through matter
 
-       * high energy, nuclear and accelerator physics
-       * medical physics : deciding radiotherapy doses/sources 
-       * space engineering : satellites
+       **Amazing Ray Trace Performance**
 
-       **Geant4 Approach**
+       * accelerated with dedicated hardware (RT Cores)
+       * substantial improvements with each release 
+       * benefit from new GPU features  
+     
+         * OptiX 6 : 5x performance from RTX 
 
-       * geometry : **tree of CSG solids**
-       * particles : track position and time etc.. 
-       * processes : nuclear, EM, weak, **optical**
 
-       **Very General and Capable Tool**
+.. class:: small
 
-       * **mostly unused for optical photon propagation**
+   **NVIDIA OptiX 3,4,5,6** 
+
+   * excellent easy to use API 
+   * useful shared host/device context 
+   * flexible geometry : implement intersection code 
+   * automated acceleration structure (AS) building/traversal 
+   * instancing of geometry + AS, essential for JUNO PMTs 
+   * transparent ~linear scaling up to 4 GPUs  
+   * graphics interop buffer sharing CUDA/Thrust/OptiX/OpenGL 
+
+     * in-situ visualization with no data movement 
+
+   * straightforward port of Geant4 optical physics
+
+   **1 or 2 Releases per Year**
+
+   * until OptiX 7, fairly compatible API changes 
+   * tuning for new GPUs 
+
+   **NVIDIA OptiX 7**
+
+   * Aim to support : considerable effort expected  
+
+
+
+.. comment 
+
+    key features https://developer.nvidia.com/designworks/optix/download
  
-   .. class:: tiny
+    Programmable GPU-accelerated Ray-Tracing Pipeline
 
-      https://geant4.web.cern.ch
+    Single-ray shader programming model using C++
 
-
-.. s5_talk::
-
-    Geant4 is and extremely general tool
+    Optimized for current and future generations of NVIDIA GPU architectures
 
 
+    **pros**
+
+    OptiX : Higher level API than pure CUDA : shared host/device context system
+
+    Opticks integrates Geant4 simulations with state-of-the-art NVIDIA OptiX GPU ray tracing
+
+    Opticks aims to replace Geant4 optical photon propagation with an equivalent and drastically faster GPU implementation.
+
+    graphics compute interop : CUDA/Thrust/OptiX/OpenGL all sharing buffers 
+
+    Shockingly Fast/Smooth graphics : single VBO : from model shift : smooth handling of millions of tris 
+
+    Binary Geocache (NPY format) persisted GPU buffers : initialize in seconds rather than minutes 
+
+    Visualization geometry shader : time as an input 
+
+    Composited raytrace and rasterized images using Z-depth calculated for each raytrace pixel.
+
+    eliminates optical photon bottleneck
+
+    Geometry Set Free
+
+    GPU textures : convenient for material/surface properties : providing hardware interpolation 
+
+    GPUs contain hardware dedicated to fast texture lookup and interpolation. Using texture lookup for all properties and reemission wavelengths keeps OptiX programs simple.
+
+    GPU resident photons : huge memory saving 
+
+    thrust::copy_if stream compaction 
+ 
+    photon indexing with Thrust fast CUDA integer sorting 
+ 
+    NVIDIA expertise on efficient GPU/multi-GPU usage : load balancing 
+
+    new GPU tuning 
+
+    RTX : 10 GiGaRays/s -> ~1 billion photons/s
+  
+    analytic CSG -> auto translation of Geant4 geometry 
+
+    modern CMake target export (Opticks is a tree of ~20 pkgs : very fast rebuilds of sub-components) 
+
+    Opticks.NPY 
 
 
-`Optical Photon Simulation Problem...`
+
+:small:`Opticks Experience : Problems in Geometry Translation`
+-------------------------------------------------------------------
+
+.. sidebar:: :small:`Trianglulated Approach`
+
+   .. class:: small
+
+      * G4Polyhedron polygonization  
+
+        * boolean shapes yield cleaved meshes 
+
+      * leaks when shoot millions of rays at cracks
+     
+
+
+.. class:: small
+
+
+
+
+
+
+
+.. comment cons
+
+    early development was done on macBook pro with NVIDIA Geforce GT 750M, 2GB
+
+    Lack of GPU Memory was a problem initially, instancing vital 
+
+    Large geometry problems : instancing 
+
+    Geometry Changes needed to avoid problems in translation to GPU
+
+    double heavy quartic root code (for torus intersection) too difficult 
+
+    Separate address space : serialization : array oriented not object 
+
+    G4Polyhedron Tesselation Bug : cleaved meshes : cannot trust triangles from Geant4
+
+    kernel time limit in early days  
+
+    triangulated geometry leaks when shoot millions of photons at cracks
+
+    bounding boxes that touch geometry cause leaks, slightly enlarging the boxes avoids leak (<1 in 3M)
+
+    surface vs volume representation of geometry : coincident faces, model translation 
+
+    Coincident boundaries do not work in surface representation 
+
+    speckle in the hole problems : fake intersects from CSG constituent coincident faces
+
+    Track > Geometry intersection typically limits simulation performance. Geometry model determines techniques (and hardware) available to accelerate intersection.
+
+    inevitable duplication on GPU : brings matching validation costs : double/float makes that difficult 
+
+    thin cylinder endcap degeneracy (eg mirrors DYB ESR) : solved via dedicated disc primitive 
+
+    No influence on direction of NVIDIA OptiX 
+
+
+
+
+
+
+
+`JUNO Optical Photon Simulation Problem...`
 ---------------------------------------------------------
 
 .. raw:: html
@@ -407,42 +414,101 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-   Muons travelling across the JUNO liquid scintillator will yield
+   Muons travelling across the liquid scintillator will yield
    many tens of millions of optical photons. This is a huge memory and time challenge 
    for Geant4 monte carlo production.
 
-   Most of the CPU time is taken finding intersections, at each step of the propagation, between photons and geometry 
-
-   Fortunately optical simulation is not alone in this bottleneck.
+   Most of the CPU time is taken finding intersections between photons and geometry 
+   Fortunately simulation is not alone in this bottleneck.
 
    Optical photons are naturally parallel : they can be considered 
    to be produced only by two processes : Cherenkov and Scintillation and we
    are mainly interested in photons that hit the PMTs.  
 
-   These characteristics make it straightforward to integrate an external optical
+   These characteristics make it straightforward integrate an external optical
    simulation.
  
 
 
 .. comment
 
-   * https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=2058
- 
-   Jilei LLR Tutorial
-
-   Muon average track length in CD LS is about 23 m, 
-   suppose 2 MeV/cm energy deposit, 
-   LS optical photon yield is 10k/MeV
- 
-   20k/cm
-   2M/m
-
-   23*2 = 46M 
-   35*2 = 70M 
+   OpenGL/CUDA interoperation, using VBOs
 
 
 
-         
+
+`Opticks Experience : Problems with NVIDIA OptiX`
+---------------------------------------------------------
+
+
+.. sidebar:: :small:`Opticks : OptiX + Geant4`
+
+    .. class:: small
+
+       Integrate NVIDIA OptiX GPU ray tracing engine with Geant4
+       
+       * translate Geant4 geometry into OptiX model 
+       * translate Geant4 optical physics into OptiX model
+
+       **NVIDIA OptiX Programs (restricted CUDA)**
+
+       User:
+
+       * Ray generation
+       * Intersect 
+       * Miss
+       * Closest Hit 
+       * Exception
+
+       System:
+
+       * Scene traversal 
+       * Acceleration traversal            
+
+       Programs combined into GPU "pipeline" 
+
+       * RTX GPUs : traversal, some intersects moved to hardware RT Cores  
+
+
+.. class:: small
+
+    **OptiX Program Restrictions**
+
+    * OptiX runtime can move tasks to different lane/thread, warp or streaming multiprocessor (SM)
+    * ... cannot use shared memory, synchronizations, barriers, ...
+    * cannot use recursion in intersect programs 
+
+    **OptiX API : low level** 
+
+    * no geometry primitives -> implemented geometry intersection functions
+    * very few libraries can be used -> very low level approach : implement everything needed
+    * up to 400 million CUDA threads launched at once -> NEED simple programs 
+
+      * small stack -> more threads in-flight simultaneously  
+  
+
+
+:small:`OptiX 7 : Entirely New Slimmer (Vulkan-ized) API vs OptiX 1->6`
+----------------------------------------------------------------------------
+
+   
+
+
+
+
+
+
+:small:`cuRAND : CUDA random number generation library`
+-------------------------------------------------------------------------------
+
+.. class:: small
+
+    * stack size needed to initialize cuRAND kills performance (> 10x)
+    * split initialization into separate CUDA launch and persist cuRAND state to file 
+    * loading+uploading this state to GPU at setup of OptiX context allows
+      cuRAND to be used without the performance killing stack size      
+
+
 
 
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
@@ -489,12 +555,12 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     Actually, there is much in common between optical photon simulation and 
     ray traced image rendering.   
 
-    With simulation you need photon parameters at PMTs, with rendering 
+    With simulation you want to know photon parameters at PMTs, with rendering 
     you need pixel values at the image plane.
 
     Both these are limited by ray geometry intersection, which is also known as ray tracing.
 
-    Ray tracing is used across many industries, which means there have been huge efforts
+    Ray tracing is used across many industries, which means that are huge efforts
     across decades to improve ray tracing perfromance.
     
 
@@ -526,7 +592,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-   Its good to clarify the difference between 
+   It is good to clarify the difference between 
    the two primary graphics rendering techniques 
 
    Rasterization, which is the most common rendering technique
@@ -537,7 +603,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    Ray tracing 
 
    * starts from the pixels, casts rays out into the 3D scene and finds intersects
-   * this can use analytic geometry, without approximation (just like Geant4 does)   
+   * this can use analytic geometry, without approximation (just like Geant4)   
    * its easier to create realistic images with ray tracing because its closer to the physics
 
 .. comment
@@ -579,16 +645,15 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-    In summer 2018 NVIDIA announced a leap in ray tracing performance 
-    with the NVIDIA Turing architecture GPU, calling it 
-    the worlds first ray tracing GPU.
+    In summer last year NVIDIA announced a leap in ray tracing performance 
+    with the NVIDIA Turing architecture GPU.
 
     Turing Architecture GPUs have hardware dedicated to accelerating ray tracing, 
     which NVIDIA claims can reach 10 billion ray geometry intersections per second
     with a single GPU.
 
-    Assuming each photon costs 10 rays, that means the upper limit to aim for 
-    per GPU is 1 billion photons/second.
+    Assuming each photon costs 10 rays, that means the upper limit per GPU is 
+    1 billion photons/second.
     
 
 
@@ -669,10 +734,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-    To the worlds gamers these new GPUs make
-    real-time cinematic rendering possible.
+    To the worlds gamers these new GPUs mean for the first time 
+    real-time cinematic rendering. 
 
-    NVIDIA does this with hybrid rendering, that it calls RTX
+    NVIDIA does this with hybrid rendering that it calls RTX
 
     RTX uses:
 
@@ -712,83 +777,60 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 .. s5_talk::
 
    The principal technique to accelerate ray geometry intersection 
-   is an acceleration structure called a bounding volume hierarchy or BVH.
+   is an acceleration structure called a bounding volume hierarchy 
    
    This divides space into a spatial index of progressively smaller boxes
 
-   Traversing the tree of bounding boxes allows to minimize tests
+   Traversing the tree of bounds allows to minimize the intersections
    needed to find the intersect.
 
   
 
 
+:small:`CPU vs GPU architectures, Latency vs Throughput`
+------------------------------------------------------------
 
-#ifdef SKIP
+.. class:: small
 
-``Hardware Traversal of BVH Spatial Index``
---------------------------------------------
+    .. image:: /env/presentation/nvidia/cpu_vs_gpu_architecture.png
+       :width: 800px
+       :align: center
+
+.. class:: small
+
+   Waiting for memory read/write, is major source of latency...
+
+   **CPU : latency-oriented : Minimize time to complete single task** : :red:`avoid latency with caching` 
+       * complex : caching system, branch prediction, speculative execution, ...
+
+   **GPU : throughput-oriented : Maximize total work per unit time** : :red:`hide latency with parallelism` 
+       * many simple processing cores, hardware multithreading, SIMD (single instruction multiple data)
+       * simpler : :green:`lots of compute (ALU)`, at expense of cache+control
+       * design assumes :red:`abundant parallelism`
+
+   Effective use of **Totally different processor architecture** -> :red:`Total reorganization of data and computation`  
+       
+
+.. class:: tiny
+
+    Understanding Throughput-oriented Architectures
+    https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
 
 
 .. comment
 
-   https://www.anandtech.com/show/13282/nvidia-turing-architecture-deep-dive/3 
-   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_029.png
-   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_030.png
-   https://images.anandtech.com/galleries/6660/NV_Turing_Editors_Day_031.png
+   Latency hiding works using hardware multi-threading, so when one group of threads is blocked
+   waiting to read from global memory for example : other groups of thread and be resumed. This 
+   is only effective at hiding latency when there are enough other threads in flight at the same time.
 
-
-#endif
-
+   Porting CPU code to run on the GPU : is not a straightforward thing to do, because the archirecture is totally 
+   different.  To make effective use of GPUs requires a total reorganization of data and compute. 
 
 
 .. comment
-
-
-    :small:`CPU vs GPU architectures, Latency vs Throughput`
-    ------------------------------------------------------------
-
-    .. class:: small
-
-        .. image:: /env/presentation/nvidia/cpu_vs_gpu_architecture.png
-           :width: 800px
-           :align: center
-
-    .. class:: small
-
-       Waiting for memory read/write, is major source of latency...
-
-       **CPU : latency-oriented : Minimize time to complete single task** : :red:`avoid latency with caching` 
-           * complex : caching system, branch prediction, speculative execution, ...
-
-       **GPU : throughput-oriented : Maximize total work per unit time** : :red:`hide latency with parallelism` 
-           * many simple processing cores, hardware multithreading, SIMD (single instruction multiple data)
-           * simpler : :green:`lots of compute (ALU)`, at expense of cache+control
-           * design assumes :red:`abundant parallelism`
-
-       Effective use of **Totally different processor architecture** -> :red:`Total reorganization of data and computation`  
-           
-
-    .. class:: tiny
-
-        Understanding Throughput-oriented Architectures
-        https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
-
-
-    .. comment
-
-       Latency hiding works using hardware multi-threading, so when one group of threads is blocked
-       waiting to read from global memory for example : other groups of thread and be resumed. This 
-       is only effective at hiding latency when there are enough other threads in flight at the same time.
-
-       Porting CPU code to run on the GPU : is not a straightforward thing to do, because the archirecture is totally 
-       different.  To make effective use of GPUs requires a total reorganization of data and compute. 
-
-
 
     `TITAN RTX : 72 Raytrace Dedicated RT Cores, 4608 CUDA Cores, 24GB VRAM, 2500 USD`
     ------------------------------------------------------------------------------------
-
-
 
 
 .. comment
@@ -847,22 +889,19 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 .. s5_talk::
 
 
-   * NVIDIA OptiX provides a general ray intersection API 
-
-   * this diagram shows in blue what OptiX provides : 
-
-     * just the difficult part of accelerating the intersection, 
-       not in intersection itself
-
    * NVIDIA OptiX is a ray tracing specific compiler, it combines
-     user programs for ray generation, closest hit and geometry intersection  
-     with NVIDIA functionality for acceleration structure traversal 
-
-     * creating a GPU kernel 
+     user programs for ray generation and geometry with NVIDIA programs 
+     for acceleration structure traversal into a GPU kernel which is 
+     launched onto the GPU 
 
    * the bulk of Opticks on the GPU is in the ray generation and intersection programs 
 
+   * OptiX just accelerates ray-geometry interection... it 
+     doesnt provide any intersection to first order
 
+   * Actually the new hw triangles are an exception to this, there is 
+     new API that allows ray triangle intersection 
+     on the dedicated ray trace hardware
   
 
 .. skip
@@ -905,8 +944,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
  
     The geometry is also needed on the GPU, with all 
     material and surface properties.
-
-    **Actually porting the physics was straightforward : most of the difficulty is in porting the geometry**
      
 
 
@@ -974,11 +1011,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
     * essentially the necessary Geant4 optical physics is ported to CUDA
 
-    * the essential thing to realise : is that using gensteps enables the photons
-      to be offloaded to the GPU where they are generated and propagated with only 
-      photons that hit PMTs requiring CPU memory 
-
-
 .. skip
 
     Some further detail is on the reemissio and also 
@@ -1009,7 +1041,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    Geometry starts from primitive shapes.
 
-   NVIDIA OptiX does not provide primitives : My Opticks 
+   NVIDIA OptiX doesnt provide primitives : My Opticks 
    has ray geometry intersection for these shapes.
 
 
@@ -1089,74 +1121,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     So G4Boolean trees can be translated into Opticks without 
     any approximation.
  
-    I will not go through the CSG algorithm : the important thing to 
-    note is that it is this that allows automated translation of 
-    Geant4 geometry to the GPU without approximation. 
-
-
-
-:small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
----------------------------------------------------------------------------------
-
-.. sidebar:: Bit Twiddling Navigation
-
-    .. class:: small
-
-        * parent(i) = i/2 = i >> 1 
-
-        * leftchild(i) = 2*i = i << 1
-
-        * rightchild(i) = 2*i + 1 = (i << 1) + 1
-
-        * leftmost(height)  =  1 << height
-
-
-.. class:: small
-
-    Geant4 solid -> CSG binary tree (leaf primitives, non-leaf operators, 4x4 transforms on any node)
-
-    Serialize to **complete binary tree** buffer:
- 
-    * no need to deserialize, no child/parent pointers
-    * bit twiddling navigation :red:`avoids recursion`
-    * simple approach profits from small size of binary trees 
-    * BUT: very inefficient when unbalanced 
-
-    **Height 3 complete binary tree with level order indices:**
-.. raw:: html
-
-    <pre class="mypre">
-                                                       depth     elevation
-
-                         1                               0           3   
-
-              10                   11                    1           2   
-
-         100       101        110        111             2           1   
-                        
-     1000 1001  1010 1011  1100 1101  1110  1111         3           0   
-    </pre>
-    <hr/>
-
-.. class:: small
-
-    **postorder_next(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) ;**   // from pattern of bits
- 
-.. class:: tiny
-
-   Postorder tree traverse visits all nodes, starting from leftmost, such that children 
-   are visited prior to their parents.
-
-
-
-:small:`CSG Deep Tree : JUNO "fastener"`
-----------------------------------------------------------------
-
-.. image:: /env/presentation/x016_deeptree.png
-   :width: 900px
-   :align: center
-
-
 
 
 
@@ -1235,12 +1199,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    And everything needs to be serialized to be copied to the GPU.
      
-   The Opticks geometry model starts from the repetitive nature of the geometry. 
-   It first automatically finds repeated groups of geometry volumes and forms 
-   so called instances.  Instancing is a graphics technique that avoids having to 
-   repeat geometry information. Instead transforms for each position of an 
-   assembly of volumes are used.   
-
 
 
 :i:`j1808_top_rtx`
@@ -1364,9 +1322,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
   
    I created this GUI to help with debugging the simulation. 
 
-   This time scrubbing is also implemented with OpenGL geometry shaders using 
-   the event time as an input and interpolating between recorded 
-   photon positions and times at each step of the photon.
+
 
 
 .. comment
@@ -1447,9 +1403,6 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    Overheads are less than 10%    
 
-   In production are only interested in the gensteps and the hits, 
-   everything else is only needed for debugging.
-
 
 
 .. comment
@@ -1470,25 +1423,22 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
-.. comment 
 
-    ``NVIDIA Quadro RTX 8000 (48G)``
-    ----------------------------------
+``NVIDIA Quadro RTX 8000 (48G)``
+----------------------------------
 
-    .. raw:: html
+.. raw:: html
 
-       <div class="mysidebar" style="position: absolute; top:15%; left:65%; width:22%; height:10% ;" >
-          <strong> 谢谢 NVIDIA China <br> for loaning the card </strong>
-       </div>
-
-
-    .. s5_talk::
-
-       The GPU used for these tests is the Quadro RTX 8000 with 48GB VRAM.
-
-       Xie-xie to NVIDIA China for loaning the card.  
+   <div class="mysidebar" style="position: absolute; top:15%; left:65%; width:22%; height:10% ;" >
+      <strong> 谢谢 NVIDIA China <br> for loaning the card </strong>
+   </div>
 
 
+.. s5_talk::
+
+   The GPU used for these tests is the Quadro RTX 8000 with 48GB VRAM.
+
+   Xie-xie to NVIDIA China for loaning the card.  
 
 
 
@@ -1543,47 +1493,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     of photons that can be simulated in a single launch with this 48G 
     GPU is a bit more than 400M.
 
-    Photon array of 45G
+
  
 
 
-
-
-
-#ifdef SKIP
-
-:i:`scan-pf-1_Interval_over_Launch`
----------------------------------------
-
-
-.. raw:: html
-  
-     <pre>
-
-
-
-
-
-
-
-
-     </pre>
-
-
-.. sidebar:: :small:`Genstep/Hit Copying Overheads`
-
-     .. class:: small
-
-         **launch**
-           time of each OptiX launch (avg of 10)
-
-         **interval, including overhead**
-           time between subsequent launches (avg of 9)
-
-         :red:`Mostly < 10% Overhead beyond 20M photons`
-
-
-#endif
 
 
 
@@ -2104,8 +2017,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    Meanwhile billions of dollars of industry development 
    have gone into improving ray tracing.
 
-   Liberating geometry from the Geant4 model allows
-   all this progress with ray tracing to be applied to optical photon simulation.
+   Liberating geometry from the Geant4 object model allows
+   all this development effort to be applied to optical photon simulation.
+
+
 
 
 
@@ -2118,9 +2033,9 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    .. class:: small
 
-      * Benefit from hardware accelerated ray tracing (RTX)
-        with NVIDIA Turing GPUs
+      * Benefit from hardware accelerated ray tracing
       * **Opticks > 1000x Geant4** (one Turing GPU) 
+
 
 
 .. image:: /env/presentation/1px.png
@@ -2130,7 +2045,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 ..
 
 
-  *Opticks* : state-of-the-art NVIDIA OptiX GPU ray tracing applied to optical photon simulation and
+  *Opticks* : state-of-the-art GPU ray tracing applied to optical photon simulation and
   integrated with *Geant4*, giving a leap in performance that eliminates memory and time bottlenecks.
  
 
@@ -2189,19 +2104,694 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
+*Opticks* : Needs and Challenges 
+-----------------------------------
+
+.. sidebar:: *Opticks* Needs **YOU**
+
+    * to use it -> improves it 
+    * currently ~10 users + 1 developer  
+    * many more to become a robust tool    
+
+    Lots of interest, little contribution
+
+
+.. class:: small
+
+    * perfect *Geant4* match not feasible (*float* vs *double*) 
+
+
+.. raw:: html
+
+    <pre>
+    </pre>
+
+
+.. class:: small
+
+    * NVIDIA OptiX : closed source proprietry 
+
+      * "black box" BVH : details secret 
+
+        * flying blind -> expts -> best BVH 
+
+    * NVIDIA OptiX engineers helpful, BUT:
+
+      *  "performance minimal reproducers" tough to create
+
+    * No influence on direction of NVIDIA OptiX 
+
+      * film/game/design studios call the shots 
+      * must accept what : *NVIDIA giveth and taketh away* 
+     
+        * eg OptiX 7 : :strike:`near perfect linear scaling up to 4 GPUs`
+
+
+.. raw:: html
+
+    <pre>
+    </pre>
+
+
+.. class:: small
+
+    * BYOB : bring your own BVH (like Chroma from Stanley Seibert) 
+
+      * difficult to justify development time when no access to RT Cores 
+
+
+
+.. s5_talk::
+
+    The most important thing is that Opticks needs YOU.
+    
+    There are also technical challenges with working with 
+    closed source software and hardware.  
+
+    And also some degree of risk in locking yourself to NVIDIA GPUs.
+
+
+
+
+
+
+:i:`geocache_360`
+---------------------------------------------------------
+
+
+.. s5_talk::
+
+    This is a 360 degree view of the all the JUNO central detector PMTs,
+    which I used a raytracing benchmark.
+ 
+
+   
+
+
+
+.. s5_background_image::
+
+    ##
+    ## slide titles and background image urls, 
+    ## including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    ## and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    ##
+    ## NB1 slide titles here must match those in body precisely, 
+    ## NB2 also ensure all slide titles are unique
+    ##
+    ##slide0
+    ##/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    ##/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    ##
+    ##   wide targetting 1280x720
+    ##   
+    ##
+    slide0
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Opticks Benefits
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Visualizing An Optical Photon Simulation
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
+
+    Overview
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+
+    Cerenkov Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
+
+    Cerenkov Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
+
+    Scintillation Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
+
+    Scintillation Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
+
+    Standard Geant4 Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
+
+    External Photon Simulation Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
+
+
+    ## keynote wide default is 1920x1080  aspect 1.77777777 16:9
+    ## but my slides use       1280x720
+    ## used document panel at top right to change to custom size of 1280x720
+    ## then exported from Keynote as Images selecting PNG creates
+    ## a PNG of size 1280x720
+    ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
+    ##
+    Geant4OpticksWorkflow
+    /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
+
+    GGeoView
+    /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
+
+    GGeoView M1 Points
+    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
+
+    GGeoView Flag Selection 
+    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
+
+    GGeoView Cerenkov Geom M1
+    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
+  
+    Detecting Neutrinos via Optical Photons 1
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    Detecting Neutrinos via Optical Photons 2
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+ 
+    JPMT Inside Wide 
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
+
+    JPMT Wide
+    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
+  
+    JPMT Headview
+    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
+ 
+    JPMT Backview
+    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
+ 
+    JPMT Approach 
+    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
+
+    JPMT Arrival 
+    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
+ 
+    Optical Photon Simulation Problem...
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JUNO Optical Photon Simulation Problem...
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 2
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 3
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+ 
+    JPMT After Contact 
+    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
+  
+    JPMT Inside Outside 
+    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
+
+    NVIDIA OptiX In Action
+    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
+
+    PmtInBox approach 1
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox approach 2
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox after 1
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    PmtInBox after 2
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    Daya Bay PMT Wall Photo 1
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Daya Bay PMT Wall Photo 2
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Super-Kamiokande PMTs Not 16:9 
+    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
+
+    Super-Kamiokande PMTs 1
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 2
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 3
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 4
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Kamiokande II 1
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 2
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 3
+    /env/presentation/1987a.png 1280px_720px
+
+
+    Fast Optical Photon Simulation
+    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
+
+    Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Old Hamamatsu Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    Old Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+
+
+
+    Jiangmen Underground Neutrino Observatory (JUNO) 
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+    Jiangmen Underground Neutrino Observatory, Goals
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+
+    Dayabay Reactor Neutrino Expt, Far Site
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 2
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 3
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Geant4 : Monte Carlo Simulation Toolkit 
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    Geant4 : Monte Carlo Simulation Toolkit Generality
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    "Seeing" neutrinos via scintillation + Cherenkov light
+    /env/presentation/cherenkov.png 316px_203px 850px_400px
+
+    Opticks : Auto-Instancing
+    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
+
+    NVIDIA OptiX 1
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    NVIDIA OptiX 2
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    OpticksDocs
+    /env/presentation/OpticksDocs.png 1280px_720px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 1
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 2
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+    ## a = np.array([1676.0, 1192.0])
+    ## .8*720.*a/1192.
+
+    Daya Bay Energy Response Model (1)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    Daya Bay Energy Response Model (2)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    ## a = np.array([2392., 1424.]) ; .8*720*a/a[1]
+
+
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 1
+    /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
+    ## a = np.array([1760., 1280.])
+    ## .8*720.*a/1280.   792px_576px
+    ## 693.,  504
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 2
+    /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
+    ## a = np.array([1698., 1166.])
+    ## .8*720.*a/1166. 
+    
+    Daya Bay nGd Analysis : Most Precise Theta13
+    /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
+    ## a = np.array([2140., 1266.])
+    ## .8*720.*a/1166.
+
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
+    /env/presentation/op_full_raytrace_3.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)
+    /env/presentation/op_full_raytrace_1.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)
+    /env/presentation/op_full_raytrace_0.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
+    /env/presentation/op_full_raytrace_2.png 1280px_720px
+
+    Opticks Analytic JUNO Chimney, GPU Raytrace (0)
+    /env/presentation/j1707_chimney_analytic_raytrace.png 1280px_720px
+
+    Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)
+    /env/presentation/j1707-okop-snap.png 1280px_720px
+
+    GPU Instance Culling with Level Of Detail
+    /env/presentation/j1707_lod_oglrap_instcull.png 1280px_720px
+
+    Opticks Export of G4 geometry to glTF 2.0
+    /env/yoctoglrap/dyb_near_venice_half.png 1020px_737px
+
+    What are NumPy Arrays
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
+    What are NumPy Arrays 2
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
+    BVH
+    /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
+
+    Spatial Index Acceleration Structure
+    /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
+
+
+
+    BVH Pascal 
+    /env/presentation/nvidia/NV_Turing_Editors_Day_030.png 1280px_720px
+ 
+    BVH Turing
+    /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
+ 
+    Hardware Traversal of BVH Spatial Index
+    /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
+
+    SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU
+    /env/presentation/nvidia/SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU_half.png 1280px_720px
+
+    SIGGRAPH_2019_Eric_Enderton_RT_Cores
+    /env/presentation/nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
+
+
+    ##
+    ##  original 2880px_1620px
+    ##  half     1440px_810px
+
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores
+    /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores (spec)
+    /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+ 
+    Raytrace vs Raster
+    /env/presentation/nvidia/NV_Turing_Editors_Day_132.png 1280px_720px
+
+    Ray-tracing vs Rasterization
+    /env/presentation/nvidia/black.png 1280px_720px
+
+    Raytrace Diagram
+    /env/presentation/graphics/1024px-ray_trace_diagram.svg.png 1280px_720px
+
+    ## https://images.anandtech.com/doci/13282/NV_Turing_Editors_Day_132.png
+    ##
+    ##   1280 720
+    ##   1920 1080  *1.5
+    ##  https://www.anandtech.com/Gallery/Album/6660##6
+    ## 
+
+    j1808_top_ogl
+    /env/presentation/j1808/j1808_top_ogl.png 1280px_720px
+
+    j1808_top_rtx
+    /env/presentation/j1808/j1808_top_rtx.png 1280px_720px
+    ##   1920 1080
+
+    j1808_escapes
+    /env/presentation/j1808/j1808_escapes.png
+
+    geocache_360
+    /env/presentation/geocache_360.png 1280px_720px 0px_0px 
+
+    JUNO-360 benchmark with OptiX 6.0.0, RTX mode 
+    /env/presentation/geocache_360.png 1280px_720px
+
+    absmry_1M 
+    /env/presentation/ana/absmry_1M.png 1280px_720px
+
+    absmry_1M 2
+    /env/presentation/ana/absmry_1M.png 1280px_720px
+
+    ta34_1M
+    /env/presentation/ana/ta34_1M.png 1280px_720px
+
+    ta34_1M 2
+    /env/presentation/ana/ta34_1M.png 1280px_720px
+
+    tv34_1M_a
+    /env/presentation/ana/tv34_1M_a.png 1280px_720px
+
+    tv34_1M_b
+    /env/presentation/ana/tv34_1M_b.png 1280px_720px
+
+    tv21_1M_a
+    /env/presentation/ana/tv21_1M_a.png 1280px_720px
+
+    tv21_1M_a 2
+    /env/presentation/ana/tv21_1M_a.png 1280px_720px
+
+    tv21_1M_c
+    /env/presentation/ana/tv21_1M_c.png 1280px_720px
+
+    RTX_Speedup
+    /env/presentation/ana/RTX_Speedup.png 1280px_720px
+    
+    Overheads
+    /env/presentation/ana/Overheads.png 1280px_720px
+ 
+    Opticks_Speedup
+    /env/presentation/ana/Opticks_Speedup.png 1280px_720px
+ 
+    Opticks_vs_Geant4
+    /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
+
+    Opticks_vs_Geant4 2
+    /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
+    
+    NHit
+    /env/presentation/ana/NHit.png 1280px_720px
+
+    Interval_over_Launch
+    /env/presentation/ana/Interval_over_Launch.png 1280px_720px
+ 
+    TITAN RTX : 72 Raytrace Dedicated RT Cores, 4608 CUDA Cores, 24GB VRAM, 2500 USD
+    /env/presentation/nvidia/TITAN_RTX.png 1280px_720px
+ 
+    bench_20190526_143808
+    /env/presentation/ana/bench_20190526_143808.png  
+
+    bench_20190526_143808 2
+    /env/presentation/ana/bench_20190526_143808.png  
+
+    bench_20190526_202537
+    /env/presentation/ana/bench_20190526_202537.png  
+
+    bench_20190526_202537 2
+    /env/presentation/ana/bench_20190526_202537.png  
+
+
+
+    tv16_Fastener
+    /env/presentation/tv/tv16_Fastener.png
+
+    tv20_polycone_neck
+    /env/presentation/tv/tv20_polycone_neck.png
+
+    20inch PMT neck : "cylinder-torus" -> polycone
+    /env/presentation/tv/tv20_polycone_neck.png
+
+    genstep_interface
+    /env/presentation/simulation/genstep_interface.png 1280px_720px
+
+    Introducing OptiX 7  
+    /env/presentation/nvidia/Introducing_OptiX_7.png 1280px_720px
+
+    Where Next for Opticks ?
+    /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
+    ##/env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 640px_300px
+
+    Opticks Experience : Further Problems with using NVIDIA OptiX
+    /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
+
+
+    TURING BUILT FOR RTX  
+    /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
+
+    TURING BUILT FOR RTX 2 
+    /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
+
+
+
+    NVIDIA RTX Metro Exodus
+    /env/presentation/nvidia/NVIDIA_RTX_Metro_Exodus_half.png 1280px_720px
+
+    Modern_GPU_RAY_Tracing
+    /env/presentation/nvidia/Modern_GPU_RAY_Tracing.png 1280px_720px
+
+    NVIDIA OptiX : programming model analogous to rasterization APIs : OpenGL shaders
+    /env/presentation/nvidia/Modern_GPU_RAY_Tracing.png 1280px_720px
+
+    NVIDIA_Quadro_RTX 8000 (48G)
+    /env/presentation/nvidia/NVIDIA_Quadro_RTX.png 1280px_720px
+
+
+    SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine
+    /env/presentation/nvidia/SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine.png 1280px_720px
+
+    Useful Speedup > 1000x : But Why Not Giga Rays/s ? (1 photon ~10 rays)
+    /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 720px_405px 10px_210px
+
+    ## /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 640px_360px 20px_260px
+    ## 
+    ##
+    ##
+    ##
+    ## https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=5079
+    ##
+    ## cp ~/Documents/JUNOIntro/JUNOIntro.00[1,2,3,4].png ~/simoncblyth.bitbucket.io/env/Documents/JUNOIntro/
+    ##
+
+    JUNO_Intro_1
+    /env/Documents/JUNOIntro/JUNOIntro.001.png 1280px_720px
+
+    JUNO_Intro_2
+    /env/Documents/JUNOIntro/JUNOIntro.002.png 1280px_720px
+
+    JUNO_Intro_3
+    /env/Documents/JUNOIntro/JUNOIntro.003.png 1280px_720px
+
+    JUNO_Intro_4
+    /env/Documents/JUNOIntro/JUNOIntro.004.png 1280px_720px
+
+
+    JUNO_Multipurpose_Pedro_NuFact_2019 
+    /env/presentation/juno/JUNO_Multipurpose_Pedro_NuFact_2019.png 960px_720px 0px_0px
+
+
+    dhart_siggraph_2019_OptiX_5_traversal
+    /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
+
+    dhart_siggraph_2019_OptiX_5_traversal
+    /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
+
+    scan-pf-check-GUI-TO-BT5-SD
+    /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-BT5-SD.png 1280px_720px
+
+    scan-pf-check-GUI-TO-SC-BT5-SD
+    /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD.png 1280px_720px
+
+    scan-pf-0_Interval_over_Launch
+    /env/presentation/ana/scan-pf-0/Interval_over_Launch.png 1280px_720px
+
+    scan-pf-0_NHit
+    /env/presentation/ana/scan-pf-0/NHit.png 1280px_720px
+
+    scan-pf-0_Opticks_Speedup
+    /env/presentation/ana/scan-pf-0/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-0_Opticks_vs_Geant4
+    /env/presentation/ana/scan-pf-0/Opticks_vs_Geant4.png 1280px_720px
+
+    scan-pf-0_Overheads
+    /env/presentation/ana/scan-pf-0/Overheads.png 1280px_720px
+
+    scan-pf-0_RTX_Speedup
+    /env/presentation/ana/scan-pf-0/RTX_Speedup.png 1280px_720px
+
+    scan-pf-0_RTX_Speedup 2
+    /env/presentation/ana/scan-pf-0/RTX_Speedup.png 1280px_720px
+
+
+    scan-pf-1_Interval_over_Launch
+    /env/presentation/ana/scan-pf-1/Interval_over_Launch.png 1280px_720px
+
+    scan-pf-1_NHit
+    /env/presentation/ana/scan-pf-1/NHit.png 1280px_720px
+
+    scan-pf-1_Opticks_Speedup
+    /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-1_Opticks_Speedup 2
+    /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-1_Opticks_vs_Geant4
+    /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+
+    scan-pf-1_Opticks_vs_Geant4 2
+    /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+
+
+    scan-pf-1_Overheads
+    /env/presentation/ana/scan-pf-1/Overheads.png 1280px_720px
+
+    scan-pf-1_RTX_Speedup
+    /env/presentation/ana/scan-pf-1/RTX_Speedup.png 1280px_720px
+
+    Opticks : Translates G4 Geometry to GPU, Without Approximation
+    /env/presentation/face_view_PMTs.png 640px_360px 20px_340px
+
+
+
 
 .. comment
 
-    :i:`geocache_360`
-    ---------------------------------------------------------
+    CHEP
+
+    on-demand.gputechconf.com/gtc-eu/2018/pdf/e8527-real-time-ray-tracing-with-nvidia-rtx.pdf
+
+    https://www.youtube.com/watch?v=Mrixi27G9yM
+       RTX launch event : Gamescon (Germany) Aug 21, 2018
+
+       13:30 
+
+    https://nvidianews.nvidia.com/multimedia
 
 
-    .. s5_talk::
 
-        This is a 360 degree view of the all the JUNO central detector PMTs,
-        which I used as a raytracing benchmark.
-     
-   
+.. comment
 
+    DANCE : 15+5 
+    CHEP  : 25+5
+
+..  comment
+
+    points to stress
+
+    * high level : what is opticks
+    * Geant4 interface and gensteps -> GPU resident photons -> memory advantage (thrust stream compaction)
+
+    Pedro NUFACT
+
+    * https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=5079
+
+.. comment
+
+    
+    NVIDIA 
+                        Memory    Bandwidth     CUDA(RT) Cores
+    TITAN V             12 GB       651 GB/s    5120(0)
+    Tesla V100          32 GB       900 GB/s    5120(0)  
+    TITAN RTX           24 GB       672 GB/s    4608(72)
+    Quadro RTX 8000     48 GB       672 GB/s    4608(72)
+
+    SM*64 gives cores 
+
+    https://www.techpowerup.com/gpu-specs/titan-v.c3051
+    https://www.techpowerup.com/gpu-specs/titan-rtx.c3311 
+    https://www.techpowerup.com/gpu-specs/quadro-rtx-8000.c3306
 
 

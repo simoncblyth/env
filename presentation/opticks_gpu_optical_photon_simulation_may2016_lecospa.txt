@@ -1,4 +1,8 @@
 
+.. meta::
+   :title: Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+   :description: PMT Detectors, 1987a, Super-K, DYB, IBD, DYB nGD th13, Spectrum, JUNO, MH, LS, G4, Problem, Ray trace, OptiX, Tex, Large, Tess vs Analytic, Viz, Rainbow, >200x  
+
 .. comment 
 
 

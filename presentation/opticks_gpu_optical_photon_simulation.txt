@@ -1,4 +1,6 @@
-
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation
+   :description: (Jan 2016) Transition to OptiX, Physics Ported, DYB OpenMesh Surgery, Introducing Opticks, Analytic PMT Partitioning, Rainbow, JUNO Squeeze, Screenshots
 
 .. comment 
 

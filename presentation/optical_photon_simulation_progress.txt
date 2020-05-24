@@ -1,4 +1,6 @@
-
+.. meta::
+   :title: Opticks : Optical Photon Simulation with NVIDIA OptiX
+   :description: (Oct 2015) Transition to Opticks, Large Geometry, Analytic PMT, Volume-vs-surface, MeshFix, Implementing Primitives
 
 .. comment 
 

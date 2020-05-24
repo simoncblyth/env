@@ -1,3 +1,6 @@
+.. meta::
+   :title: Optical Photon Simulation with NVIDIA OptiX
+   :description: (July 2015) Why not Chroma ?, Intro NVIDIA OptiX, Scaling, Physics Porting, cuRAND init workaround, GPU Textures, Reemission Lookup, Photon compression, GGeoView
 
 .. comment 
 

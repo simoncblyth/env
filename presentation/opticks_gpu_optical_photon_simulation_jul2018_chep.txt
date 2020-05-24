@@ -1,3 +1,7 @@
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX 
+   :description: general CSG boolean intersection, auto-translation without approx, direct workflow, DYB gltf export, random aligned validation, lldb python, direct comparison, Opticks group, many backup slides 
+   :event: CHEP Conference, Sofia, Bulgaria
 
 .. comment 
 

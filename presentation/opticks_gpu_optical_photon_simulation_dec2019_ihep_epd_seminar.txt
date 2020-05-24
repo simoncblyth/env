@@ -1,3 +1,9 @@
+
+.. meta::
+   :title: Opticks : GPU Optical Simulation via NVIDIA OptiX + A Mental Model for Effective Application of GPUs
+   :description: Drastic... how is > 1000x possible, Understanding GPU Graphical Origins, GPU optimizes throughput, CuPy, NP.hh, C Union Trick, GLSL Geom Shader, Photon History Indexing
+
+
 .. comment
  
    opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.txt

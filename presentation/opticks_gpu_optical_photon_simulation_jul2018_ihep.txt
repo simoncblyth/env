@@ -1,3 +1,6 @@
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX 
+   :description: Focus on simplifying usage, Steps into production : G4OK, Viz potential, Opticks beyond simulation
 
 .. comment 
 

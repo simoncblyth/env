@@ -1,0 +1,5 @@
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation
+   :note: Orphan html, no real source
+   :description: (Jan 2016) Rainbow validation, Transition to Opticks and NVIDIA OptiX, Large Geometry Techniques, 200X with Mobile GPU
+

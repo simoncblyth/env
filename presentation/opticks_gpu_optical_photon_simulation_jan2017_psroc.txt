@@ -1,3 +1,6 @@
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+   :description: 1st CSG Expts : box minus sphere
 
 .. comment 
 

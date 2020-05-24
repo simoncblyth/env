@@ -1,4 +1,9 @@
 
+.. meta::
+   :title: Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+   :description: GPU resident photons, chi2 guided convergence 
+   :event: Geant4 Collaboration Meeting, University of Wollongong, Australia
+
 .. comment 
 
     00 : <inline classes="i">Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX</inline> 

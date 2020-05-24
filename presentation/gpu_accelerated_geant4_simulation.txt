@@ -1,4 +1,8 @@
 
+.. meta::
+   :title: GPU Accelerated Geant4 Simulation with G4DAE and Chroma 
+   :description: (Jan 2015) Geometry Model Implications, Workflow, Runtime bridge MQ, Geometry Set Free, Wavlength Generation comparison
+
 .. comment 
 
     Title: 
