@@ -412,6 +412,7 @@ slides-cd(){  cd $(slides-dir)/$1; }
 slides-scd(){  cd $(slides-sdir); }
 slides-mkdir(){ mkdir -p $(slides-dir) ; }
 slides-get(){
+   local msg="=== $FUNCNAME :"
 
    # adjust safari window size
    slides-safari
@@ -421,12 +422,16 @@ slides-get(){
 
    # default crop.py style is safari_headtail, which removes the safari chrome
    slides-crop
+   [ $? -ne 0 ] && echo $msg ERROR from slides-crop && return 1
 
    slides-rm-uncropped
    # on OSX invokes slided-convert-automator 
    # this just opens folder of .pngs and gives instructions on how to use the automator 
    # action to make .pdf from them
    slides-convert
+
+
+   return 0 
 
 }
 

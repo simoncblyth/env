@@ -10,6 +10,36 @@ presentation-usage(){ cat << EOU
 Presentation preparation
 ============================
 
+Local Rough Index of All Presentations
+-----------------------------------------
+
+::
+
+    open file://$HOME/simoncblyth.bitbucket.io/env/presentation/index.html
+    open http://localhost/env/presentation/index.html
+
+
+Public Index of Selected Presentations
+-----------------------------------------
+
+* https://simoncblyth.bitbucket.io
+
+
+Convert HTML pages into PDF
+------------------------------
+
+0. exit Safari and reopen 
+1. presentation-- : make and display 
+2. slides-safari : adjust Safari screen size
+3. make sure Safari font size is normal with images fitting pages
+4. slides-get 0 2 
+
+
+::
+
+   slides--
+
+
 Jump to a slide page 
 ----------------------
 
@@ -17,6 +47,7 @@ Jump to a slide page
 
   * this works both for http://localhost as well as remote  
   * TODO: check file::// urls
+
 
 Notes on use of the html
 --------------------------
@@ -29,7 +60,6 @@ https://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_sim
 Once the images complete loading you can navigate the html “slides” with
 javascript selector at bottom right, or arrow keys, or jump to a page by entering 
 the page number and pressing return in your browser.  
-
 
 
 JS changes causing problems
@@ -58,8 +88,6 @@ JS changes causing problems
 
 
 
-
-
 Safari Caching of Javascript drives bonkers
 ---------------------------------------------
 
@@ -76,8 +104,6 @@ Safari Caching of Javascript drives bonkers
          Header set Expires "Wed, 21 Oct 2015 07:28:00 GMT"
       </ifModule>
     </filesMatch>
-
-
 
 
 Keystroke to safari ?
@@ -115,7 +141,6 @@ location::
     epsilon:ui blyth$ cp -r my-small-white ~/simoncblyth.bitbucket.io/env/presentation/ui/
     epsilon:ui blyth$ pwd
     /Users/blyth/env/presentation/ui
-
 
 
 
@@ -285,114 +310,6 @@ Machinery Fixes
 
 * Makefile had some old simoncblyth.bitbucket.org rather than simoncblyth.bitbucket.io
 * apache changes in High Sierra, see hapache-
-
-
-Index
-------
-
-file:///Users/blyth/simoncblyth.bitbucket.io/env/presentation/index.html
-
-
-
-opticks_may2020_hsf.txt
-
-dec2019_gtc_china_suzhou.txt
-opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou.txt
-dec2019_ihep_epd_seminar.txt
-opticks_gpu_optical_photon_simulation_dec2019_ihep_epd_seminar.txt
-nov2019_chep.txt
-opticks_gpu_optical_photon_simulation_nov2019_chep.txt
-opticks_gpu_optical_photon_simulation_jul2019_ihep.txt
-opticks_gpu_optical_photon_simulation_jan2019_sjtu.txt
-
-
-oct2018_ihep_seminar.txt
-opticks_gpu_optical_photon_simulation_oct2018_ihep.txt
-opticks_gpu_optical_photon_simulation_sep2018_qingdao.txt
-opticks_gpu_optical_photon_simulation_jul2018_chep.txt
-opticks_gpu_optical_photon_simulation_jul2018_ihep.txt
-
-opticks_gpu_optical_photon_simulation_sep2017_jinan.txt
-opticks_gpu_optical_photon_simulation_sep2017_wollongong.txt
-opticks_gpu_optical_photon_simulation_jul2017_ihep.txt
-opticks_gpu_optical_photon_simulation_jan2017_psroc.txt
-
-opticks_gpu_optical_photon_simulation_nov2016_llr.txt
-opticks_gpu_optical_photon_simulation_oct2016_chep.txt
-opticks_gpu_optical_photon_simulation_jul2016_weihai.txt
-opticks_gpu_optical_photon_simulation_may2016_lecospa.txt
-opticks_gpu_optical_photon_simulation_april2016_gtc.txt
-opticks_gpu_optical_photon_simulation_march2016.txt
-
-opticks_gpu_optical_photon_simulation_psroc.txt
-    (Jan 2016) Opticks : GPU Optical Photon Simulation
-
-opticks_gpu_optical_photon_simulation.txt
-    (Jan 2016) Opticks : GPU Optical Photon Simulation
-
-optical_photon_simulation_progress.txt
-    (October 2015) Opticks : Optical Photon Simulation with NVIDIA OptiX
-
-optical_photon_simulation_with_nvidia_optix.txt
-    (July 2015) Optical Photon Simulation with NVIDIA OptiX
-
-gpu_optical_photon_simulation.txt
-    (Undated) 200x Faster Optical Photon Propagation with NuWa + Chroma ?
-
-gpu_accelerated_geant4_simulation.txt
-    (Jan 2015) GPU Accelerated Geant4 Simulation with G4DAE and Chroma 
-    Implications of Geant4 Geometry Model, High Performance Viz, Message Queue
-
-g4dae_geometry_exporter.txt
-    (Sept 2014) G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
-    19th Geant4 Collaboration Meeting, Okinawa, Sept 2014, Parallel Session B2, Visualization Group (Invited Speaker)
-
-
-
-CHEP 2018, Sofia, Bulgaria
-----------------------------
-
-* review developments since last CHEP,  
- 
-  * notes/progress.rst 
-  * okc-vi has some month-by-month history
-
-Timeline
-------------
-
-::
-
-    Mon June 25  * start preparing talk, submit a version of presentation before July 02 
-    Mon July 02  
-    Mon July 09  * 1st day of CHEP
-
-
-::
-
-    Dear simon blyth,
-
-    The CHEP 2018 Program Committee and Track Conveners are happy to announce
-    that the parallel and poster sessions are published in Indico at
-    https://indico.cern.ch/event/587955/timetable/#all.detailed
-    Please check your assigned slot and contact us if:
-
-    1. There is an error in the speaker name or incorrect speaker is assigned;
-    2. The speaker is "For the <xxx> collaboration", we need the real speaker name;
-    3. You have found another error.
-
-    Note that you can upload your presentation/poster at any time, but please do so
-    at the latest one week before the start of the conference, i.e. by 2 July 2018.
-    Else your contribution risks not being taken into account for the summary of its track.
-
-    We take this opportunity to remind you that:
-
-    - the parallel presentation time format is 15 min - 12' presentation + 3' Q/A.
-    - the posters should be in A0 format and will be displayed for the duration
-    of the conference.
-
-    Thank you for your help and see you soon in Sofia!
-
-                                         Best Regards, the Program Committee.
 
 
 
@@ -1078,7 +995,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou_TALK ; }
 
-presentation-iname(){ echo opticks_may2020_hsf ; }
+#presentation-iname(){ echo opticks_may2020_hsf ; }
+presentation-iname(){ echo opticks_may2020_hsf_TALK ; }
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
@@ -1160,6 +1078,8 @@ presentation-imake(){
 }
 
 presentation-make(){
+   local msg="=== $FUNCNAME :"
+   echo $msg running make in PWD $PWD 
    presentation-cd
    presentation-export
    env | grep PRESENTATION
@@ -1215,7 +1135,7 @@ presentation-rst2talk(){
 
    case $(presentation-iname) in
       *_TALK) echo $msg nothing to do ;; 
-           *) rst2rst.py $path ;; 
+           *) echo $msg rst2rst.py $path && rst2rst.py $path ;; 
    esac    
 
 }
