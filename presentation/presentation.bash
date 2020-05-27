@@ -25,6 +25,55 @@ Public Index of Selected Presentations
 * https://simoncblyth.bitbucket.io
 
 
+To update the public index
+----------------------------
+
+::
+
+   # add an entry for the presentation to the RST 
+   cd ~/env/simoncblyth.bitbucket.io/ && vi index.txt && make  
+
+   # local preview the new index in Safari 
+   open /Users/blyth/simoncblyth.bitbucket.io/index.html 
+
+   # push the HTML index and presentation to bitbucket 
+   cd ~/simoncblyth.bitbucket.io
+
+   git status 
+   git pull
+   git add ...
+   git commit -m "add HSF presentation and index entry"
+   git push 
+
+   open http://simoncblyth.bitbucket.io
+
+
+* caution that ~/simoncblyth.bitbucket.io not really a source repo, as it contains
+  lots of html derived from RST as well as binary PNG screenshots, plots etc..
+
+
+Sizes
+------
+
+::
+
+    1280x720
+
+    1280x1440   double up the height 
+
+
+    In [6]: 1440./(1280./210.)
+    Out[6]: 236.25
+
+  
+    A4: 210x297
+
+    ->  210x237
+
+    # Preview Paper Size is whacky when trying to get 2-up layout 
+    # to avoid blank space : by expt 100x140 works OK
+
+
 Convert HTML pages into PDF
 ------------------------------
 
@@ -34,10 +83,10 @@ Convert HTML pages into PDF
 3. make sure Safari font size is normal with images fitting pages
 4. slides-get 0 2 
 
-
 ::
 
    slides--
+   slides--t  
 
 
 Jump to a slide page 
@@ -60,7 +109,6 @@ https://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_sim
 Once the images complete loading you can navigate the html “slides” with
 javascript selector at bottom right, or arrow keys, or jump to a page by entering 
 the page number and pressing return in your browser.  
-
 
 JS changes causing problems
 -----------------------------
@@ -90,6 +138,10 @@ JS changes causing problems
 
 Safari Caching of Javascript drives bonkers
 ---------------------------------------------
+
+* recent experience with Safari much smoother, success with just : Develop > Empty Caches 
+* previously had trouble getting updates to be honoured
+
 
 * https://stackoverflow.com/questions/43462424/reload-javascript-and-css-files-for-a-website-in-safari
 
@@ -234,12 +286,6 @@ S5 : Presentation HTML mechanics : jumping to a slide during presentation prepar
     * get into habit of closing tabs with cmd-W, as using po creates new ones all the time
 
      
-
-Presentations online
-----------------------
-
-* http://simoncblyth.bitbucket.io
-
 Shrinking PDFs with ColorSync Utility
 ---------------------------------------
 
@@ -266,6 +312,10 @@ Compare sizes::
      74M	opticks_nov2019_chep.pdf
      20M	opticks_nov2019_chep_.pdf
 
+    epsilon:Desktop blyth$ du -h *hsf*
+     51M	opticks_may2020_hsf.pdf
+     18M	opticks_may2020_hsf_.pdf
+     62M	opticks_may2020_hsf_TALK.pdf
 
 
 Setup Steps
@@ -995,8 +1045,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou_TALK ; }
 
-#presentation-iname(){ echo opticks_may2020_hsf ; }
-presentation-iname(){ echo opticks_may2020_hsf_TALK ; }
+presentation-iname(){ echo ${INAME:-opticks_may2020_hsf} ; }
+#presentation-iname(){ echo opticks_may2020_hsf_TALK ; }
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
@@ -1079,11 +1129,17 @@ presentation-imake(){
 
 presentation-make(){
    local msg="=== $FUNCNAME :"
-   echo $msg running make in PWD $PWD 
    presentation-cd
+   echo $msg running make in PWD $PWD 
    presentation-export
    env | grep PRESENTATION
    make $*
+}
+
+presentation-make-(){
+   local msg="=== $FUNCNAME :"
+   echo $msg running make in PWD $PWD 
+   PRESENTATION_INAME=$(presentation-iname) PRESENTATION_ONAME=$(presentation-oname) PRESENTATION_PREPROCESSOR_ARGS=$(presentation-preprocessor-args) make $*
 }
 
 
@@ -1122,6 +1178,35 @@ presentation--(){
    presentation-open ${PAGE:-0}
    presentation-rst2talk
 }
+
+presentation--2(){
+   local msg="=== $FUNCNAME :"
+   presentation-
+   presentation-info
+   presentation-cd
+
+   case $(presentation-iname) in 
+      *_TALK) echo $msg ERROR iname ends with _TALK && return 1 ;; 
+   esac  
+
+   : make standard html presentation 
+   INAME=$(presentation-iname)      presentation-make-
+
+   : open standard html presentation 
+   INAME=$(presentation-iname)      presentation-open ${page:-0}
+
+   : create _TALK.txt RST document with extra TALK pages 
+   INAME=$(presentation-iname)      presentation-rst2talk
+
+   : make annotated html presentation 
+   INAME=$(presentation-iname)_TALK presentation-make-
+
+   : open annotated html presentation 
+   INAME=$(presentation-iname)_TALK presentation-open ${page:-0}
+
+}
+
+
 
 presentation--t(){  TALK=1 presentation-- ; }
 presentation--s(){  SMRY=1 presentation-- ; }

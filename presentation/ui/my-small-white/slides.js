@@ -12,6 +12,7 @@
 var undef;
 var slideCSS = '';
 var snum = 0;
+var snumdiv = 1;
 var smax = 1;
 var slideIDs = new Array();
 var incpos = 0;
@@ -124,9 +125,9 @@ function currentSlide() {
 		cs = document.currentSlide;
 		footer = document.footer.childNodes;
 	}
-	cs.innerHTML = '<span id="csHere">' + snum + '<\/span> ' + 
-		'<span id="csSep">\/<\/span> ' + 
-		'<span id="csTotal">' + (smax-1) + '<\/span>';
+	cs.innerHTML = '<span id="csHere">' + snum/snumdiv + '<\/span> ' + 
+		           '<span id="csSep">\/<\/span> ' + 
+		           '<span id="csTotal">' + (smax-1)/snumdiv + '<\/span>' ;
 	if (snum == 0) {
 		vis = 'hidden';
 	}
@@ -306,12 +307,14 @@ function keys(key) {
 					break;
 				}
 			case 65: // a key 
-                   toggleNavLinks('h'); 
-                   toggleCurrentSlide('h'); 
+                   snumdiv=1 ; 
+                   //toggleNavLinks('h'); 
+                   //toggleCurrentSlide('h'); 
                    break ; 
 			case 66: // b key 
-                   toggleNavLinks('s'); 
-                   toggleCurrentSlide('s'); 
+                   snumdiv=2 ; 
+                   //toggleNavLinks('s'); 
+                   //toggleCurrentSlide('s'); 
                    break ; 
 
 			case 32: // spacebar

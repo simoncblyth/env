@@ -12,6 +12,8 @@ PDF page size : Very large because somehow 72dpi ?
 * 90.32 x 50.8 cm
 
 
+
+
 minor issue : some fullscreen image pages have a band at foot 860-846 of about 14 pixels
 -------------------------------------------------------------------------------------------
 
@@ -465,13 +467,16 @@ slides-get--(){
    echo $msg pagecount $pc 
    slides-get 0 $(( $pc - 1 ))
 }
-slides-get--s(){  SMRY=1 slides-get-- ; }
-slides-get--st(){ TALK=1 SMRY=1 slides-get-- ; }
-slides-get--t(){  TALK=1 slides-get-- ; }
 
+slides-dupe-cover(){ 
+   : kludge extra title page with TALK PDF making Preview 2-page pairings correct 
+   cp 00_crop.png 00_crop_.png 
+} 
 
-slides--(){ slides-get-- $* ; }
-
+slides--s(){  SMRY=1        slides-get-- $* ; }
+slides--st(){ TALK=1 SMRY=1 slides-get-- $* ; }
+slides--t(){  TALK=1        slides-get-- $* ; slides-dupe-cover ; }
+slides--(){                 slides-get-- $* ; }
 
 
 
