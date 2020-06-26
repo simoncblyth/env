@@ -37,6 +37,23 @@ macOS bash is ancient, due to GPLv3 licencing of 3.2+
     epsilon:~ blyth$ 
 
 
+change prompt color with PS1
+------------------------------
+
+
+* https://www.cyberciti.biz/faq/bash-shell-change-the-color-of-my-shell-prompt-under-linux-or-unix/
+
+::
+
+    epsilon:offline blyth$ echo $PS1
+    \h:\W \u\$
+
+    epsilon:offline blyth$ export PS1="\e[0;31m[\u@\h \W]\$ \e[m "
+    [blyth@epsilon offline]$    ## red prompt 
+
+
+
+
 .bashrc or .bash_profile
 -------------------------
 

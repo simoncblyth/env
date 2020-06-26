@@ -20,6 +20,21 @@ Breakpoints
     1 breakpoints enabled.
 
 
+Avoid quit confirmation
+-------------------------
+
+::
+
+    settings show  # list all setting 
+    settings set interpreter.prompt-on-quit false 
+
+
+init script ~/.lldbinit
+---------------------------
+
+epsilon:~ blyth$ cat ~/.lldbinit
+
+    settings set interpreter.prompt-on-quit false 
 
 
 Batch Mode one liners

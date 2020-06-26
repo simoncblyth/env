@@ -18,6 +18,13 @@ References
 
 * debugging tips http://blog.codefront.net/2007/02/28/debugging-ssh-public-key-authentication-problems/
 
+
+Keep ssh connection alive during macOS sleep ?
+-----------------------------------------------
+
+* https://stackoverflow.com/questions/10665267/keep-ssh-session-alive-while-computer-sleep
+
+
 Passwordless SSH setup
 -----------------------------
 

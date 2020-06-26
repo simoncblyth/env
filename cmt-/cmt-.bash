@@ -5,6 +5,18 @@ cmt-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(cmt-src)} ; }
 cmt-usage(){
    cat << EOU
 
+CMT 
+=====
+
+
+* https://svn.lal.in2p3.fr/projects/CMT/CMT/v1r10p20011126/doc/CMTDoc.html
+
+
+
+
+
+
+
     NB THIS IS FOR LIGHTWEIGHT FUNCTIONS ... WITHOUT STATE 
 
 
