@@ -8,6 +8,12 @@ git-usage(){ cat << EOU
 Git
 ====
 
+See Also
+----------
+
+* github-
+
+
 Reference
 ------------
 
@@ -17,12 +23,14 @@ Reference
 
 * https://www.rath.org/mercurial-for-git-users-and-vice-versa.html
 
+Git Tags
+
+
 
 Git LFS
 ----------
 
 * https://medium.com/swlh/learning-about-git-large-file-system-lfs-72e0c86cfbaf
-
 
 
 May 2018 : github permission denied with DSA keys ? RSA still working 
@@ -397,6 +405,127 @@ git archive --format=tar --prefix=junk/ HEAD | (cd /var/tmp/ && tar xf -)
 * https://feeding.cloud.geek.nz/posts/excluding-files-from-git-archive/
 
 * https://github.com/git/git/blob/master/builtin/archive.c
+
+
+
+Git tags : lightweight or annotated
+--------------------------------------
+
+* https://git-scm.com/book/en/v2/Git-Basics-Tagging
+
+A lightweight tag is very much like a branch that doesn’t change — it’s just a
+pointer to a specific commit.
+
+Annotated tags, however, are stored as full objects in the Git database.
+They’re checksummed; contain the tagger name, email, and date; have a tagging
+message; and can be signed and verified with GNU Privacy Guard (GPG). It’s
+generally recommended that you create annotated tags so you can have all this
+information; but if you want a temporary tag or for some reason don’t want to
+keep the other information, lightweight tags are available too.
+
+
+* https://www.atlassian.com/git/tutorials/inspecting-a-repository/git-tag
+
+A best practice is to consider Annotated tags as public, and Lightweight tags as private.
+
+Lightweight tags are essentially 'bookmarks' to a commit, they are just a name
+and a pointer to a commit, useful for creating quick links to relevant commits.
+
+
+::
+
+   git tag v1.4-lw   # lite 
+   git tag  # list them
+
+
+::
+
+    epsilon:opticks blyth$ git tag -a v0.0.0-rc1 -m "first test release"
+    epsilon:opticks blyth$ git tag
+    v0.0.0-rc1
+
+    epsilon:opticks blyth$ git show v0.0.0-rc1
+    tag v0.0.0-rc1
+    Tagger: Simon C Blyth <simoncblyth@gmail.com>
+    Date:   Fri Jul 3 20:25:04 2020 +0100
+
+    first test release
+
+    commit c008637d663cad752337523312e888362fd4df90 (HEAD -> master, tag: v0.0.0-rc1, origin/master, origin/HEAD, github/master)
+    Author: Simon C Blyth <simoncblyth@gmail.com>
+    Date:   Fri Jul 3 20:19:36 2020 +0100
+
+        update README with git urls and the new github opticks repo
+
+
+Pushing tags to bitbucket and github
+----------------------------------------
+
+::
+
+    epsilon:opticks blyth$ git push --tags
+    Counting objects: 1, done.
+    Writing objects: 100% (1/1), 173 bytes | 173.00 KiB/s, done.
+    Total 1 (delta 0), reused 0 (delta 0)
+    To bitbucket.org:simoncblyth/opticks.git
+     * [new tag]           v0.0.0-rc1 -> v0.0.0-rc1
+
+
+    epsilon:opticks blyth$ git push github --tags
+    Counting objects: 1, done.
+    Writing objects: 100% (1/1), 173 bytes | 173.00 KiB/s, done.
+    Total 1 (delta 0), reused 0 (delta 0)
+    To github.com:simoncblyth/opticks.git
+     * [new tag]           v0.0.0-rc1 -> v0.0.0-rc1
+    epsilon:opticks blyth$ 
+
+
+
+Tags on Bitbucket and Github web interface
+---------------------------------------------
+
+* https://bitbucket.org/simoncblyth/opticks/src/v0.0.0-rc1/
+* https://github.com/simoncblyth/opticks/releases/tag/v0.0.0-rc1   
+* https://github.com/simoncblyth/opticks/archive/v0.0.0-rc1.tar.gz
+
+
+
+Checkout tags
+---------------
+
+::
+
+   git checkout v1.4
+
+This puts the repo in a detached HEAD state. This means any changes made will
+not update the tag. They will create a new detached commit. This new detached
+commit will not be part of any branch and will only be reachable directly by
+the commits SHA hash. Therefore it is a best practice to create a new branch
+anytime you're making changes in a detached HEAD state.
+
+
+
+Sharing Tags
+---------------
+
+By default, the git push command doesn’t transfer tags to remote servers. You
+will have to explicitly push tags to a shared server after you have created
+them. This process is just like sharing remote branches — you can run git push
+origin <tagname>.
+
+::
+
+    git push origin v1.5
+    git push origin --tags
+
+
+Tagging Releases
+--------------------
+
+* https://dev.to/neshaz/a-tutorial-for-tagging-releases-in-git-147e
+
+
+
 
 
 

@@ -1045,8 +1045,11 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou ; }
 #presentation-iname(){ echo opticks_gpu_optical_photon_simulation_dec2019_gtc_china_suzhou_TALK ; }
 
-presentation-iname(){ echo ${INAME:-opticks_may2020_hsf} ; }
+#presentation-iname(){ echo ${INAME:-opticks_may2020_hsf} ; }
 #presentation-iname(){ echo opticks_may2020_hsf_TALK ; }
+
+presentation-iname(){ echo ${INAME:-opticks_jul2020_juno} ; }
+
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 

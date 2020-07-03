@@ -2058,3 +2058,4 @@ optix7sandbox-(){      . $(env-home)/graphics/optix7/optix7sandbox.bash && optix
 pkg-config-(){      . $(env-home)/tools/pkg-config.bash && pkg-config-env $* ; }
 hgexporttool-(){      . $(env-home)/tools/hg2git/hgexporttool.bash && hgexporttool-env $* ; }
 gitsvn-(){      . $(env-home)/tools/gitsvn.bash && gitsvn-env $* ; }
+github-(){      . $(env-home)/scm/github/github.bash && github-env $* ; }
