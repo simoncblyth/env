@@ -5,6 +5,9 @@ http://stackoverflow.com/questions/10192011/clipping-in-matplotlib-why-doesnt-th
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle
 
+
+plt.ion()
+
 rect = Rectangle((-2,-2),4,2, facecolor="none", edgecolor="none")
 circle = Circle((0,0),1)
 
