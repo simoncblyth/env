@@ -11,7 +11,21 @@
 .. include:: my_s5defs.txt
 
 
-:i:`Invisible Title : Integration of JUNO Offline + Opticks` 
+.. comment
+
+   To cover
+
+   https://geant4.web.cern.ch/collaboration/task_force_rd
+   https://github.com/simoncblyth/opticks
+   https://github.com/simoncblyth/opticks/releases/tag/v0.0.0-rc1 
+
+   Todo
+
+   * get svn mods committed
+
+
+
+:i:`Integration of JUNO Offline + Opticks` 
 ========================================================================================
 
 .. raw:: html
@@ -728,7 +742,7 @@ Outline
 .. class:: small
 
 
-  **tut_detsim.py options (in SVN trunk)** 
+  **tut_detsim.py options (in SVN trunk r3990)** 
 
   ``--no-guide_tube`` 
       skip the guide tube torus 
@@ -769,19 +783,74 @@ Outline
 ----------------------------------------------------------
 
 
-:small:`Integration of JUNO Offline + Opticks`
--------------------------------------------------
+:small:`Integration of Offline + Opticks : Opticks is now a JunoENV External`
+------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Opticks Build Generalized`
+
+    .. class:: small
+   
+         * builds against CMAKE_PREFIX_PATH
+
+           * Boost, CLHEP, XercesC, Geant4
+           * -> Opticks uses JUNO externals  
+
+         * **opticks-config** (**pkg-config** .pc file based) 
+
+           * integrates with non-CMake projects   
 
 .. class:: small
-   
-    * Opticks is now **an optional junoenv external**
  
-      * ``bash junoenv libs all opticks``
-      * generalize config to build against junoenv Geant4, CLHEP, XercesC, ..
+    Add Opticks to an existing installation (:red:`SVN trunk r3990+`):
 
+    ``bash junoenv libs all opticks``     
+
+    * pre-requisites : NVIDIA Driver, CUDA, OptiX
+
+    **Four mandatory envvars :**
+
+.. raw:: html
+
+    <pre class="mypre">
+    <b><span class="alarm">export CMTEXTRATAGS=opticks </span></b>
+    <b><span class="alarm"># -> Opticks ON in JunoENV + CMT</span></b>
+    export OPTICKS_COMPUTE_CAPABILITY=70 <b><span class="blue"> # -> CUDA nvcc flags </span></b>
+    export OPTICKS_CUDA_PREFIX=/usr/local/cuda-10.1   
+    export OPTICKS_OPTIX_PREFIX=/usr/local/NVIDIA-OptiX-SDK-6.5.0-linux64  
+    <b><span class="blue"># location of CUDA and OptiX installs </span></b>
+    </pre>
+
+.. class:: small
+
+    **Build all JUNO externals, including Opticks (takes ~1hr, 13G) :**
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    jlibs(){
+        mkdir -p $JUNOTOP && cd $JUNOTOP
+        svn co https://juno.ihep.ac.cn/svn/offline/trunk/installation/junoenv && cd $JUNOTOP/junoenv
+        local libs=$(bash junoenv libs list | perl -ne 'm, (\S*)@, && print "$1\n"' -)
+        for lib in $libs ; do 
+            bash junoenv libs all $lib || return 1 
+        done  
+    }
+    </pre>
+    
+.. class:: small
+
+    * https://juno.ihep.ac.cn/mediawiki/index.php/Offline:Installation#Install_Opticks_using_JunoENV
+
+
+
+:small:`Integration of Offline + Opticks : Building -DWITH_G4OPTICKS`
+------------------------------------------------------------------------------------
+
+
+.. class:: small
     
     ``export CMTEXTRATAGS=opticks``
-          building offline with extra tag **opticks** sets ``WITH_G4OPTICKS``
+          building offline with extra tag **opticks** sets ``-DWITH_G4OPTICKS``
 
 
 .. raw:: html
@@ -805,11 +874,61 @@ Outline
     ./DetSimOptions/src/DetSim0Svc.cc                  ## initialize/finalize 
     ./DetSimOptions/src/LSExpDetectorConstruction.cc   ## pass geometry to Opticks
 
-    ./G4OpticksBridge/src/G4OpticksAnaMgr.cc           ## optional 
     </pre>
 
 
+.. class:: small
 
+    * https://juno.ihep.ac.cn/mediawiki/index.php/Offline:Installation#building_the_offline_-DWITH_G4OPTICKS
+
+
+
+:small:`tut_detsim.py options for using Opticks`
+--------------------------------------------------
+
+
+.. class:: small
+
+    *tut_detsim.py* options relevant to Opticks usage
+
+    ``--opticks-mode 0``  
+        do not use Opticks GPU propagation, the default
+
+    ``--opticks-mode 1``   
+        performs both CPU and GPU optical simulations, 
+        put GPU hits into separate **hitCollectionOpticks** 
+
+    ``--opticks-mode 10`` # TODO: IMPLEMENT AFTER FURTHER VALIDATION 
+        switch off CPU optical photons, 
+        put GPU hits into standard **hitCollection** 
+
+    ``--no-guide_tube`` 
+        change geometry skipping the guide tube torus
+
+    ``--pmt20inch-polycone-neck`` 
+        change geometry of LPMT necks avoiding use of torus
+
+
+.. raw:: html
+
+    <pre class="mypre">
+    tds-(){ python $JUNOTOP/offline/Examples/Tutorial/share/tut_detsim.py $* ; }
+    tds(){ tds- --opticks-mode 1 --no-guide_tube --pmt20inch-polycone-neck --evtmax 2 gun ; } 
+    </pre>
+
+.. class:: small
+
+    * https://juno.ihep.ac.cn/mediawiki/index.php/Offline:Detsimuserguide/UsingOpticks
+
+
+
+.. comment
+
+    Attempts to use non-zero opticks-mode with code not compiled WITH_G4OPTICKS
+    exits at initialization.
+
+    Attempts to use standard geometry with torus exits at Opticks
+    geometry translation.
 
 
 
@@ -819,12 +938,12 @@ Outline
 :small:`Summary`
 ----------------------------------------------------------------
 
-.. sidebar:: :small:`Innovation = Problems...`
+.. sidebar:: :small:`Validation Ongoing`
 
    .. class:: small
 
-      * Problems Inevitable
-      * Ample benefits reward efforts
+      * separate hit collection
+      * :blue:`brave users welcome`
 
 
 .. image:: /env/presentation/1px.png
@@ -834,8 +953,8 @@ Outline
 ..
 
 
-  *Opticks* : state-of-the-art GPU ray tracing applied to optical photon simulation and
-  integrated with *Geant4*, giving a leap in performance that eliminates memory and time bottlenecks.
+  *Opticks* : state-of-the-art GPU ray traced optical simulation 
+  integrated with *Geant4*, :red:`and now integrated with JUNO Offline` 
  
 
   .. image:: /env/presentation/1px.png
@@ -843,31 +962,25 @@ Outline
      :height: 1px
 
 
-
-
   * Drastic speedup -> better detector understanding -> greater precision
   
     * **any simulation limited by optical photons can benefit** 
     * more photon limited -> more overall speedup (99% -> 100x) 
 
-  .. image:: /env/presentation/1px.png
-     :width: 1000px
-     :height: 10px
-
-
-
 .. table::
     :align: center
 
-    +----------------------------------------------+-----------------------------------------+
-    | https://bitbucket.org/simoncblyth/opticks    | code repository                         |                   
-    +----------------------------------------------+-----------------------------------------+
-    | https://simoncblyth.bitbucket.io             | presentations and videos                |
-    +----------------------------------------------+-----------------------------------------+
-    | https://groups.io/g/opticks                  | forum/mailing list archive              |
-    +----------------------------------------------+-----------------------------------------+
-    | email:opticks+subscribe@groups.io            | subscribe to mailing list               |
-    +----------------------------------------------+-----------------------------------------+ 
+    +--------------------------------------------------+-----------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks        | code repository                         |                   
+    +--------------------------------------------------+-----------------------------------------+
+    | https://github.com/simoncblyth/opticks/releases  | .zip .tar.gz  archives                  |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.bitbucket.io                 | presentations and videos                |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                      | forum/mailing list archive              |
+    +--------------------------------------------------+-----------------------------------------+
+    | email:opticks+subscribe@groups.io                | subscribe to mailing list               |
+    +--------------------------------------------------+-----------------------------------------+ 
 
 
 .. comment
@@ -875,6 +988,10 @@ Outline
   *Opticks* uses hardware accelerated GPU ray tracing
   via NVIDIA OptiX to give **effectively zero time and zero CPU memory** 
   optical photon simulation to *Geant4* applications.
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 10px
 
 
 

@@ -438,9 +438,14 @@ and a pointer to a commit, useful for creating quick links to relevant commits.
    git tag  # list them
 
 
+
+Making the first tag
+~~~~~~~~~~~~~~~~~~~~~~~
+
 ::
 
-    epsilon:opticks blyth$ git tag -a v0.0.0-rc1 -m "first test release"
+    epsilon:opticks blyth$ git tag -a v0.0.0-rc2 -m "2nd test tag"
+    epsilon:opticks blyth$ git tag -a v0.0.0-rc3 -m "3rd test tag"
     epsilon:opticks blyth$ git tag
     v0.0.0-rc1
 
@@ -458,26 +463,50 @@ and a pointer to a commit, useful for creating quick links to relevant commits.
         update README with git urls and the new github opticks repo
 
 
-Pushing tags to bitbucket and github
-----------------------------------------
+
+3rd tag
+~~~~~~~~~~~
 
 ::
 
+    epsilon:opticks blyth$ git tag -a v0.0.0-rc3 -m "3rd test tag"
     epsilon:opticks blyth$ git push --tags
-    Counting objects: 1, done.
-    Writing objects: 100% (1/1), 173 bytes | 173.00 KiB/s, done.
-    Total 1 (delta 0), reused 0 (delta 0)
-    To bitbucket.org:simoncblyth/opticks.git
-     * [new tag]           v0.0.0-rc1 -> v0.0.0-rc1
-
-
     epsilon:opticks blyth$ git push github --tags
-    Counting objects: 1, done.
-    Writing objects: 100% (1/1), 173 bytes | 173.00 KiB/s, done.
-    Total 1 (delta 0), reused 0 (delta 0)
-    To github.com:simoncblyth/opticks.git
-     * [new tag]           v0.0.0-rc1 -> v0.0.0-rc1
-    epsilon:opticks blyth$ 
+
+    epsilon:opticks blyth$ git push github   # done this before : pushing the tags before the commits, seems not to cause an issue
+
+
+
+
+Delete the first tag
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Local delete::
+
+    epsilon:opticks blyth$ git tag -d v0.0.0-rc1
+    Deleted tag 'v0.0.0-rc1' (was 5658448b)
+
+
+* github has web interface for deleting the remote tag 
+* bitbucket : dont see any web interface
+
+::
+   
+    epsilon:opticks blyth$ git push origin :refs/tags/v0.0.0-rc1  
+    To bitbucket.org:simoncblyth/opticks.git
+     - [deleted]           v0.0.0-rc1
+
+
+
+Making and pushing 2nd tag
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    epsilon:opticks blyth$ git tag -a v0.0.0-rc2 -m "2nd test tag"
+    epsilon:opticks blyth$ git push --tags
+    epsilon:opticks blyth$ git push github --tags
+
 
 
 

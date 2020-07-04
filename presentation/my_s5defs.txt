@@ -11,6 +11,7 @@
         .center {text-align: center;}
 
         span.alarm { color: red; } 
+        span.blue { color: blue; } 
         span.warn { color: orange; } 
         span.ok { color: green; } 
         span.i { display: none; } 
