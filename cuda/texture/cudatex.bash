@@ -20,6 +20,85 @@ Next Steps
   real numbers to experiment with 
 
 
+Cubic Spline Interpolation Filtering
+---------------------------------------
+
+* :google:`GPU texture Cubic Spline Interpolation`
+
+* https://github.com/DannyRuijters/CubicInterpolationCUDA/blob/master/code/internal/bspline_kernel.cu
+* http://dannyruijters.nl/cubicinterpolation/
+* http://dannyruijters.nl/docs/cudaPrefilter3.pdf
+
+* https://forums.developer.nvidia.com/t/new-cubic-interpolation-in-cuda-cubic-b-spline-interpolation/5839/7
+
+  * CUDA SDK includes a bicubic filtering sample that implements the method in GPU Gems. 
+  * Thread discussion between dannyruijters and Simon_Green (author of CUDA SDK example?) 
+
+
+
+
+Interpolation filter modes : excellent explanation from Roger Dahl
+--------------------------------------------------------------------
+
+* https://stackoverflow.com/questions/10643790/texture-memory-tex2d-basics
+
+Why the 0.5f ?::
+
+    uint f = (blockIdx.x * blockDim.x) + threadIdx.x;
+    uint c = (blockIdx.y * blockDim.y) + threadIdx.y;
+    uint read = tex2D( refTex, c+0.5f, f+0.5f);
+
+Roger Dahl:
+
+In graphics, a texture is a set of samples that describes the visual appearance
+of a surface. A sample is a point. That is, it has no size (as opposed to a
+pixel that has a physical size). When using samples to determine the colors of
+pixels, each sample is positioned in the exact center of its corresponding
+pixel. When addressing pixels with whole number coordinates, the exact center
+for a given pixel becomes its whole number coordinate plus an offset of 0.5 (in
+each dimension).
+
+In other words, adding 0.5 to texture coordinates ensures that, when reading
+from those coordinates, the exact value of the sample for that pixel is
+returned.
+
+However, it is only when filterMode for the texture has been set to
+cudaFilterModeLinear that the value that is read from a texture varies within a
+pixel. In that mode, reading from coordinates that are not in the exact center
+of a pixel returns values that are interpolated between the sample for the
+given pixel and the samples for neighboring pixels. So, adding 0.5 to whole
+number coordinates effectively negates the cudaFilterModeLinear mode. But,
+since adding 0.5 to the texture coordinates takes up cycles in the kernel, it
+is better to simply turn off the interpolation by setting filterMode to
+cudaFilterModePoint. Then, reading from any coordinate within a pixel returns
+the exact texture sample value for that pixel, and so, texture samples can be
+read directly by using whole numbers.
+
+
+* https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#texture-and-surface-memory
+
+The filtering mode which specifies how the value returned when fetching the
+texture is computed based on the input texture coordinates. Linear texture
+filtering may be done only for textures that are configured to return
+floating-point data. It performs low-precision interpolation between
+neighboring texels. When enabled, the texels surrounding a texture fetch
+location are read and the return value of the texture fetch is interpolated
+based on where the texture coordinates fell between the texels. Simple linear
+interpolation is performed for one-dimensional textures, bilinear interpolation
+for two-dimensional textures, and trilinear interpolation for three-dimensional
+textures. Texture Fetching gives more details on texture fetching. The
+filtering mode is equal to cudaFilterModePoint or cudaFilterModeLinear. If it
+is cudaFilterModePoint, the returned value is the texel whose texture
+coordinates are the closest to the input texture coordinates. If it is
+cudaFilterModeLinear, the returned value is the linear interpolation of the two
+(for a one-dimensional texture), four (for a two dimensional texture), or eight
+(for a three dimensional texture) texels whose texture coordinates are the
+closest to the input texture coordinates. cudaFilterModeLinear is only valid
+for returned values of floating-point type.
+
+* https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#texture-fetching
+
+
 Wavelength dependent material/surface property lookups via texture objects ?
 -------------------------------------------------------------------------------
 

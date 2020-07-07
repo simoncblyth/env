@@ -86,6 +86,11 @@ Opticks Presentations
 2020
 ~~~~~~~
 
+http://simoncblyth.bitbucket.io/env/presentation/opticks_jul2020_juno.html (6 July 2020, IHEP Virtual)
+
+    JUNO Collaboration Meeting, Software Session
+
+
 http://simoncblyth.bitbucket.io/env/presentation/opticks_may2020_hsf.html (27 May 2020, CERN Virtual)
 
     HSF Simulation Working Group Meeting, 20 minutes presentation 

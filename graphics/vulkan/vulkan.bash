@@ -8,6 +8,15 @@ vulkan-usage(){ cat << EOU
 Vulkan
 =======
 
+
+
+Provisional Ray Tracing Extension 
+-------------------------------------
+
+* https://www.khronos.org/news/press/khronos-group-releases-vulkan-ray-tracing
+* https://geant4.web.cern.ch/node/1886
+
+
 Luminaries
 -----------
 

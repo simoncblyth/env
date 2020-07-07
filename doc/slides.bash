@@ -5,13 +5,82 @@ slides-usage(){ cat << EOU
 CONVERT SLIDES IN S5 RST TO HTML AND PDF 
 =========================================
 
+
+FUNCTIONS
+-----------
+
+slides-get--
+    automatically get all pages of the current presentation from presentation-
+
+
+How to interleave presentation slides with s5_talk notes
+-----------------------------------------------------------
+
+1. in presentation source ensure that there is an ".. s5_talk::" directive
+   with notes for each and every slide 
+
+2. after the presentation is completed and normal PDF made using "slides-get--"
+   edit the presentation-iname to have "_TALK" appended eg::
+
+      presentation-iname(){ echo ${INAME:-opticks_jul2020_juno_TALK} ; }
+     
+3. rerun "presentation--" and check the notes pages are as intended
+4. rerun the capture and pdf creation with exactly twice the number of 
+   pages compared to the un-annotated slides
+
+5. to convert the PDF to a two-up form for looking at while 
+   giving the presentation.
+
+    * in Preview.app select print, in "Layout" choose "Pages per sheet: 2"
+    * pick orientation to get consequentive pages visible one above the other
+    * then save as PDF with name such as "opticks_jul2020_juno_TALK_2up.pdf"
+
+
+6. the above is fine but the text can be a bit small : an alternative is
+   to double up the front page, and then Preview view 2 pages 
+   can be used for side by side presentation and annotation.
+
+::
+
+    epsilon:opticks_jul2020_juno_TALK blyth$ cp 00_crop.png 00_crop_.png
+    epsilon:opticks_jul2020_juno_TALK blyth$ pwd
+    /tmp/simoncblyth.bitbucket.io/env/presentation/opticks_jul2020_juno_TALK
+
+    epsilon:opticks_jul2020_juno_TALK blyth$ open .  
+           ## in the Finder ensure the PNG for each are listed in desired order, sorted by name
+           ## then select them all and use ctrl-click to "Make PDF from PNGs sized to fit"
+           ## save as "opticks_jul2020_juno_plus1"
+    
+7. present the ordinary slides (get someone else to flip pages) while 
+   viewing the _plus1 which provides a wide double landscape view
+   of the slides beside the notes
+
+
+bin/comb.py : grouped combination of PNGs vertically or horizontally
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Better way to combine slides and annotations avoiding space, by combining PNG 2-by-2::
+
+   mkdir /tmp/tt 
+   cd /tmp/tt
+   cp /tmp/simoncblyth.bitbucket.io/env/presentation/opticks_may2020_hsf_TALK/*_crop.png .
+
+   comb.py -g2    ## 2-by-2 combination of all PNGs in current dir, in name sorted order 
+   rm *_crop.png
+
+   open .
+
+   # adjust the sort order, select and then using scripting interface to make PDF from the PNG 
+
+
+
+
+
 PDF page size : Very large because somehow 72dpi ?
 ---------------------------------------------------
 
 * 2560x1440 points
 * 90.32 x 50.8 cm
-
-
 
 
 minor issue : some fullscreen image pages have a band at foot 860-846 of about 14 pixels

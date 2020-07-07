@@ -286,8 +286,8 @@ S5 : Presentation HTML mechanics : jumping to a slide during presentation prepar
     * get into habit of closing tabs with cmd-W, as using po creates new ones all the time
 
      
-Shrinking PDFs with ColorSync Utility
----------------------------------------
+Shrinking PDFs with ColorSync/Colorsync Utility
+------------------------------------------------
 
 Usage Steps
 ~~~~~~~~~~~~
@@ -1049,6 +1049,7 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo opticks_may2020_hsf_TALK ; }
 
 presentation-iname(){ echo ${INAME:-opticks_jul2020_juno} ; }
+#presentation-iname(){ echo ${INAME:-opticks_jul2020_juno_TALK} ; }
 
 
 

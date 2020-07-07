@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """
+comb.py : grouped combination of PNGs vertically or horizontally
+===================================================================
 
 Combining PNG 2-by-2 : for example for paired annotated presentation pages
 
@@ -9,7 +11,7 @@ Combining PNG 2-by-2 : for example for paired annotated presentation pages
    cd /tmp/tt
    cp /tmp/simoncblyth.bitbucket.io/env/presentation/opticks_may2020_hsf_TALK/*_crop.png .
 
-   comb.py -g2
+   comb.py -g2    ## 2-by-2 combination of all PNGs in current dir, in name sorted order 
    rm *_crop.png
 
    open .
@@ -40,7 +42,7 @@ class Comb(object):
         parser = argparse.ArgumentParser(description=doc, formatter_class=argparse.RawDescriptionHelpFormatter)
         parser.add_argument('paths', nargs="*", default=d["paths"], help='base directory')
         parser.add_argument('--level', default=d["level"], help='log level')
-        parser.add_argument('-m','--mode', default=d["mode"], help='vertical or horizontal')
+        parser.add_argument('-m','--mode', default=d["mode"], choices=["horizontal", "vertical"], help='vertical or horizontal')
         parser.add_argument('-g','--group', type=int, default=d["group"], help='number of items to combine or zero to combine all')
         parser.add_argument('-o','--outpath', default=d["outpath"], help='output file name')
         parser.add_argument('-d','--dir', default=d["dir"], help='directory to find paths in')
@@ -53,7 +55,11 @@ class Comb(object):
         return args
 
     def __init__(self, paths, outpath, mode="vertical"):
-
+        """
+        :param paths: list of paths to PNGs to be combined into one 
+        :param outpath:
+        :param mode: 
+        """
         self.paths = paths
         self.outpath = outpath
         self.mode = mode 

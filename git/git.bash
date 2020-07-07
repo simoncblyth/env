@@ -26,6 +26,31 @@ Reference
 Git Tags
 
 
+~/.gitconfig global aliases
+------------------------------
+
+::
+
+     10 [alias]
+     11     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+     12     lga = log --graph --pretty=format:'%h -%d %s (%cr) <%an>' --abbrev-commit
+     13     l = log --name-status
+     14     ls = log --stat
+     15     s = status
+     16     ignore = "!gi() { curl -L -s https://www.gitignore.io/api/$@ ;}; gi"
+
+
+
+
+git log
+---------
+
+::
+
+    git log --stat
+    git log --name-status
+    git log --name-only
+
 
 Git LFS
 ----------
