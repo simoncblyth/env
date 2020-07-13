@@ -1471,7 +1471,7 @@ mysql_numpy-(){      . $(env-home)/npy/mysql_numpy.bash && mysql_numpy-env $* ; 
 pytables-(){      . $(env-home)/npy/pytables.bash && pytables-env $* ; }
 virtualbox-(){      . $(env-home)/virtualization/virtualbox.bash && virtualbox-env $* ; }
 xen-(){      . $(env-home)/virtualization/xen.bash && xen-env $* ; }
-vgpu-(){      . $(env-home)/virtualization/vgpu.bash && vgpu-env $* ; }
+nvgpu-(){      . $(env-home)/virtualization/nvgpu.bash && nvgpu-env $* ; }
 rcuda-(){      . $(env-home)/cuda/rcuda.bash && rcuda-env $* ; }
 xenserver-(){      . $(env-home)/virtualization/xenserver.bash && xenserver-env $* ; }
 h3d-(){      . $(env-home)/graphics/vrml/h3d.bash && h3d-env $* ; }
@@ -1613,7 +1613,7 @@ rlibnpy-(){      . $(env-home)/numpy/rlibnpy/rlibnpy.bash && rlibnpy-env $* ; }
 cblosc-(){      . $(env-home)/base/compression/blosc/cblosc.bash && cblosc-env $* ; }
 mpl-(){      . $(env-home)/matplotlib/mpl.bash && mpl-env $* ; }
 jsmn-(){      . $(env-home)/messaging/jsmn.bash && jsmn-env $* ; }
-metal-(){      . $(env-home)/graphics/metal/metal.bash && metal-env $* ; }
+#metal-(){      . $(env-home)/graphics/metal/metal.bash && metal-env $* ; }  ## MOVED TO play-
 gason-(){      . $(env-home)/messaging/gason.bash && gason-env $* ; }
 testsqlite-(){      . $(env-home)/sqlite/testsqlite/testsqlite.bash && testsqlite-env $* ; }
 pythonext-(){      . $(env-home)/python/pythonext/pythonext.bash && pythonext-env $* ; }
@@ -2059,3 +2059,7 @@ pkg-config-(){      . $(env-home)/tools/pkg-config.bash && pkg-config-env $* ; }
 hgexporttool-(){      . $(env-home)/tools/hg2git/hgexporttool.bash && hgexporttool-env $* ; }
 gitsvn-(){      . $(env-home)/tools/gitsvn.bash && gitsvn-env $* ; }
 github-(){      . $(env-home)/scm/github/github.bash && github-env $* ; }
+llgl-(){      . $(env-home)/graphics/llgl/llgl.bash && llgl-env $* ; }
+vgpu-(){      . $(env-home)/graphics/vgpu/vgpu.bash && vgpu-env $* ; }
+bgfx-(){      . $(env-home)/graphics/bgfx/bgfx.bash && bgfx-env $* ; }
+dileng-(){      . $(env-home)/graphics/dileng/dileng.bash && dileng-env $* ; }

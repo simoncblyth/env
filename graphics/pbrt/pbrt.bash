@@ -13,6 +13,11 @@ Physically Based Ray Tracing
 * https://github.com/mmp/pbrt-v3
 
 
+
+
+* http://www.pbr-book.org/3ed-2018/contents.html
+
+
 Chapter PDFs
 --------------
 

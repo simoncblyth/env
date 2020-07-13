@@ -17,6 +17,13 @@ Provisional Ray Tracing Extension
 * https://geant4.web.cern.ch/node/1886
 
 
+Ray Tracing in Vulkan with NVIDIA RTX Extension
+--------------------------------------------------
+
+* https://github.com/GPSnoopy/RayTracingInVulkan
+
+
+
 Luminaries
 -----------
 

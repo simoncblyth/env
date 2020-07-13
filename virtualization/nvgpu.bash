@@ -1,12 +1,21 @@
-# === func-gen- : virtualization/vgpu fgp virtualization/vgpu.bash fgn vgpu fgh virtualization
-vgpu-src(){      echo virtualization/vgpu.bash ; }
-vgpu-source(){   echo ${BASH_SOURCE:-$(env-home)/$(vgpu-src)} ; }
-vgpu-vi(){       vi $(vgpu-source) ; }
-vgpu-env(){      elocal- ; }
-vgpu-usage(){ cat << EOU
+nvgpu-source(){   echo ${BASH_SOURCE} ; }
+nvgpu-vi(){       vi $(nvgpu-source) ; }
+nvgpu-env(){      elocal- ; }
+nvgpu-usage(){ cat << EOU
 
 NVIDIA VGPU
 ==============
+
+See Also
+----------
+
+* virtualgl-
+
+
+Evaluation License
+---------------------
+
+* https://www.nvidia.com/en-us/data-center/resources/vgpu-evaluation/
 
 
 
@@ -96,10 +105,9 @@ $25 SUMS
 
 EOU
 }
-vgpu-dir(){ echo $(local-base)/env/virtualization/virtualization-vgpu ; }
-vgpu-cd(){  cd $(vgpu-dir); }
-vgpu-mate(){ mate $(vgpu-dir) ; }
-vgpu-get(){
-   local dir=$(dirname $(vgpu-dir)) &&  mkdir -p $dir && cd $dir
+nvgpu-dir(){ echo $(local-base)/env/virtualization/virtualization-vgpu ; }
+nvgpu-cd(){  cd $(nvgpu-dir); }
+nvgpu-get(){
+   local dir=$(dirname $(nvgpu-dir)) &&  mkdir -p $dir && cd $dir
 
 }

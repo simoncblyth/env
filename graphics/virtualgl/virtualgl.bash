@@ -23,6 +23,31 @@ which remote clients can interact to view and control the 3D application in
 real time.
 
 
+See Also
+------------
+
+* vgpu-
+
+
+EGL Background
+---------------------
+
+* https://developer.nvidia.com/blog/egl-eye-opengl-visualization-without-x-server/
+* https://developer.nvidia.com/blog/interactive-supercomputing-in-situ-visualization-tesla-gpus/
+
+
+
+
+
+Access the GPU without going through an X server 
+---------------------------------------------------
+
+* https://github.com/VirtualGL/virtualgl/issues/10
+
+* https://gist.github.com/dcommander/ee1247362201552b2532
+
+
+
 Remote Visualization
 ----------------------
 
