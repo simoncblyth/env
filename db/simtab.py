@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 """
+simtab.py
+===========
+
+
 Quick and dirty sqlite, for cases when using SQLAlchemy or django is overkill
 
 http://www.sqlite.org/lang_conflict.html
 http://www.sqlite.org/lang_insert.html
 
 Operation with python2.3
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 In order to work correctly with py2.3 which does not include sqlite3 as
 standard it is necessary to install the `pysqlite2` module allowing::
@@ -19,7 +23,7 @@ Install that with yum via (you might need to enable EPEL repository to find it):
 
 
 py2.3 where EPEL mirror doesnt provide dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------
 
 Grab RPMs::
 
@@ -297,6 +301,38 @@ CREATE TABLE oomon (date text,val real)
         ctx = dict(self.conf, sql=sql % self.conf )
         print os.popen("echo '%(sql)s' | sqlite3 %(path)s " % ctx).read()
 
+
+    @classmethod
+    def FromLines(cls, txtpath, priority_ = lambda line:0):
+        """
+        :param txtpath: eg /tmp/somelist.txt
+        :param priority_: function with line argument that returns a priority integer
+        :return tab: Table instance
+
+        Creates database at eg /tmp/somelist.txt.db containing a single table named "somelist". 
+        With fields:
+
+        idx
+            0-based line number in the file
+        line
+            from the file
+        priority
+            int returned from priority_(line) function 
+
+        """
+        txtpath = os.path.abspath(txtpath)
+        basename = os.path.basename(txtpath)
+        stem, ext = os.path.splitext(basename)
+        tablename = stem 
+        dbpath = "%s.db" % txtpath
+        tab = cls(dbpath, tablename, idx="int primary key", line="text", priority="int")
+        lines = map(str.strip,open(txtpath, "r").readlines())
+        for idx,line in enumerate(lines):
+            tab.add(idx=idx, line=line, priority=priority_(line))
+        pass
+        tab.insert()
+        log.info("creating tablename %s in db %s " % (tablename, dbpath))
+        return tab 
 
 
 

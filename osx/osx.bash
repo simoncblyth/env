@@ -16,6 +16,14 @@ Time Machine Backup
 --------------------
 
 
+readline : set -o vi
+-----------------------
+
+* https://unix.stackexchange.com/questions/30454/advantages-of-using-set-o-vi
+
+* esc v : edit your commandline, then :wq to run it 
+
+
 Shortcuts
 ----------
 

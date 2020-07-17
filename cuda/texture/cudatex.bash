@@ -13,11 +13,113 @@ Ref
 
 * http://cuda-programming.blogspot.tw/2013/04/texture-references-object-in-cuda.html
 
-Next Steps
------------
 
-* arrange to wavelength dependent props handling in ggeo- so have some
-  real numbers to experiment with 
+1d Layered Tex Example
+------------------------
+
+* https://cdcvs.fnal.gov/redmine/projects/g4hpcbenchmarks/wiki/Use_1D_layered_texture_for_field_extrapolation
+
+
+GTC 2011 : CUDA Webinar : Textures and Surfaces 
+------------------------------------------------
+
+* https://on-demand.gputechconf.com/gtc-express/2011/presentations/texture_webinar_aug_2011.pdf
+
+Layered Textures : 
+
+* 3D coordinate, but z dimension is only integer (only xy-interpolation)
+* Ideal for processing multiple textures with same size/format
+* Fast interop with OpenGL / Direct3D for each layer
+* No need to create/manage a texture atlas
+
+
+cudaTextureObject_t Texture Objects (aka bindless textures)
+-------------------------------------------------------------
+
+* intro in CUDA 5
+* https://developer.nvidia.com/blog/cuda-pro-tip-kepler-texture-objects-improve-performance-and-flexibility/
+
+
+
+Handling multiple textures
+------------------------------
+
+* https://forums.developer.nvidia.com/t/how-to-handle-a-set-array-of-2d-textures/39519
+
+Robert Crovella:
+
+* https://stackoverflow.com/questions/24981310/cuda-create-3d-texture-and-cudaarray3d-from-device-memory
+
+
+optix6-p 20 
+-------------
+
+
+Each texture object is associated with one or more buffers containing the texture data. 
+The buffers may be 1D, 2D or 3D and can be set with rtTextureSamplerSetBuffer.
+
+rtTextureSamplerSetFilteringModes 
+   sets the filtering methods for minification, magnification and mipmapping. 
+
+rtTextureSamplerSetWrapMode.
+   Wrapping for texture coordinates outside of the range [0.0,1.0] is specified per-dimension 
+
+rtTextureSamplerSetMaxAnisotropy
+   The maximum anisotropy for a given texture. 
+   This value will be clamped to the range [1.0,16.0].  
+
+rtTextureSamplerSetReadMode 
+   specifies that texture values are converted to normalized float values 
+   with a readmode parameter of RT_TEXTURE_READ_NORMALIZED_FLOAT.
+
+As of version 3.9, OptiX supports cube, layered, and mipmapped textures using
+new API calls rtBufferMapEx, rtBufferUnmapEx, rtBufferSetMipLevelCount.1
+Layered textures are equivalent to CUDA layered textures and OpenGL texture
+arrays. They are created by calling rtBufferCreate with RT_BUFFER_LAYERED and
+cube maps by passing RT_BUFFER_CUBEMAP. In both cases the buffer’s depth
+dimension is used to specify the number of layers or cube faces, not the depth
+of a 3D buffer.  OptiX programs can access texture data with CUDA C’s built-in
+tex1D, tex2D and tex3D functions.
+
+
+optix7-pdf hardly mentions textures, so it appears need to 
+use standard CUDA tex in optix7.  Can those be used in optix6 too, 
+via some interop ? Would be better to develop the ce textures 
+once in a way that can be used from both 6 and 7.
+
+
+
+optix7-apps
+-------------
+
+::
+
+    find /tmp/blyth/opticks/OptiX_Apps -name Texture.cpp
+    /tmp/blyth/opticks/OptiX_Apps/apps/intro_runtime/src/Texture.cpp
+    /tmp/blyth/opticks/OptiX_Apps/apps/rtigo3/src/Texture.cpp
+    /tmp/blyth/opticks/OptiX_Apps/apps/intro_denoiser/src/Texture.cpp
+    /tmp/blyth/opticks/OptiX_Apps/apps/intro_driver/src/Texture.cpp
+
+
+OptiX_Apps/apps/intro_runtime/shaders/material_parameter.h::
+
+     38 struct MaterialParameter
+     39 {
+     40   // 8 byte alignment.
+     41   cudaTextureObject_t textureAlbedo;
+     42   cudaTextureObject_t textureCutout;
+     43 
+
+
+
+
+
+
+How to cope with multiple 2d (theta, phi) textures for different PMTs ?
+-----------------------------------------------------------------------  
+
+* https://stackoverflow.com/questions/38701467/3d-array-writing-and-reading-as-texture-in-cuda
+
 
 
 Cubic Spline Interpolation Filtering

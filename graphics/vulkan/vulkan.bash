@@ -23,6 +23,12 @@ Ray Tracing in Vulkan with NVIDIA RTX Extension
 * https://github.com/GPSnoopy/RayTracingInVulkan
 
 
+Resource Lists
+----------------
+
+* https://www.geeks3d.com/20160205/vulkan-programming-resources-list/
+
+
 
 Luminaries
 -----------
