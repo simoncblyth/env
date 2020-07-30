@@ -21,6 +21,39 @@ PDF documents at
 
 
 
+July 2020 : Referee Comments
+------------------------------
+
+[4]
+S. Blyth, EPJ Web Conf. {\bf 214}, 02027 (2019)
+
+[6]
+S. Agostinelli, J. Allison, K. Amako, J. Apostolakis, H. Araujo, P. Arce et al., Nucl. Instrum. Methods. Phys. Res. A {\bf 506}, 250 (2003)
+
+[7]
+J. Allison, K. Amako, J. Apostolakis, H. Araujo, P. Dubois, M. Asai et al., IEEE Trans Nucl Sci, {\bf 53}, 270 (2006)
+
+[8]
+J. Allison, K. Amako, J. Apostolakis, P. Arce, M. Asai, T. Aso et al., Nucl. Instrum. Methods. Phys. Res. A {\bf 835}, 186 (2016)
+
+[9]
+S. Parker, J. Bigler, A. Dietrich, H. Friedrich, J. Hoberock et al., ACM Trans. Graph.: Conf. Series {\bf 29}, 66 (2010)
+
+[12]
+F. An et al., J. Phys. G. {\bf 43}, 030401 (2016)
+
+[14]
+M. Garland, D.B. Kirk, Commun. ACM {\bf 53}(11), 58 (2010)
+
+[16]
+S. Van der Walt, S. Colbert, G. Varoquaux, Comput. Sci. Eng. {\bf 13}, 22 (2011)
+
+
+
+
+
+
+
 CHEP 2019 : What is new ?
 ---------------------------
 
@@ -37,8 +70,6 @@ CHEP 2019 : What is new ?
 
 
 * https://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html
-
-
 
 
 CHEP 2019 proceedings
@@ -250,7 +281,28 @@ epjconf-confname(){ echo chep2019 ; }
 #epjconf-filename(){ echo opticks-blyth-$(epjconf-confname) ; }  # as submitted to referees
 #epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
 
-epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
+
+#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
+epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
+epjconf-filename-notes(){ cat << EON
+
+Bump the version, eg when accomodating referee comments::
+
+    epsilon:chep2019 blyth$ epjconf-cd
+    epsilon:chep2019 blyth$ pwd
+    /Users/blyth/env/doc/epjconf/chep2019
+    epsilon:chep2019 blyth$ l
+    total 64
+    -rw-r--r--  1 blyth  staff  29985 May 15 20:31 opticks-blyth-chep2019-v0.tex
+    epsilon:chep2019 blyth$ 
+    epsilon:chep2019 blyth$ cp opticks-blyth-chep2019-v0.tex opticks-blyth-chep2019-v1.tex
+    epsilon:chep2019 blyth$ 
+
+EON
+}
+
+
+
 
 epjconf-texname(){  echo $(epjconf-filename).tex ; }
 epjconf-bibname(){  echo $(epjconf-filename) ; }

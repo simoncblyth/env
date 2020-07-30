@@ -3,13 +3,36 @@ vim-src(){      echo base/vim/vim.bash ; }
 vim-source(){   echo ${BASH_SOURCE:-$(env-home)/$(vim-src)} ; }
 vim-vi(){       vi $(vim-source) ; }
 vim-env(){      elocal- ; }
-vim-usage(){ cat << EOU
+vim-usage(){ cat << "EOU"
 
 VIM Tips
 =========
 
 
 * http://www.astrohandbook.com/ch20/vi_guide.html
+
+
+Remote Editing 
+----------------
+
+* https://medium.com/usevim/vim-101-editing-remote-files-a6d2f9c8d9fb
+* https://ostechnix.com/vim-tips-edit-remote-files-with-vim-on-linux/
+
+::
+
+    vi scp://P/.bash_profile
+
+
+
+Remember last edit location in file and return there on opening
+----------------------------------------------------------------
+
+* https://stackoverflow.com/questions/1682536/how-do-you-make-vim-take-you-back-where-you-were-when-you-last-edited-a-file
+
+~/.vimrc::
+
+    " go to the position I was when last editing the file
+    au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g'\"" | endif
 
 
 Spell Checking

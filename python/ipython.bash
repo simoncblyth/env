@@ -22,6 +22,25 @@ IPYTHON
 ========
 
 
+avoid exit confirmation
+-------------------------
+
+* c.TerminalInteractiveShell.confirm_exit = False
+
+
+ipython profile create
+-------------------------
+
+
+::
+
+    [blyth@localhost env]$ ~/anaconda2/bin/ipython profile create
+    [ProfileCreate] Generating default config file: u'/home/blyth/.ipython/profile_default/ipython_config.py'
+    [ProfileCreate] Generating default config file: u'/home/blyth/.ipython/profile_default/ipython_kernel_config.py'
+
+
+
+
 jupyter
 --------
 
