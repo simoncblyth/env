@@ -3,7 +3,7 @@
    :title: Opticks : GPU Optical Photon Simulation via NVIDIA OptiX
    :event: GTC China December 2019, Suzhou 
    :description: Neutrino Pauli, Usefulness of Neutrinos, IBD LS, Cherenkov, PMT, Cosmics, JUNO
-
+   :pages: 42
 
 .. include:: my_s5defs.txt
 

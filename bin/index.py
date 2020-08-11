@@ -17,6 +17,15 @@ of form::
          :description: (Jan 2020) Blah blah 
 
 
+Default arguments are::
+
+base
+   ~/simoncblyth.bitbucket.io/env/presentation
+srcbase
+   ~/env/presentation
+
+
+
 """
 
 from __future__ import print_function
@@ -112,7 +121,14 @@ class Rst(Doc):
 
 class Item(object):
     def __init__(self, name, idx):
-  
+        """
+        :param name: 
+        :param idx: Index instance
+
+        Collects metadata from both derived html presentation and 
+        source RST 
+
+        """
         html = Html(idx.htmlpath(name))
         rst = Rst(idx.rstpath(name))
 
@@ -126,6 +142,7 @@ class Item(object):
             date = extract_date_from_desc(desc)
         pass
 
+        self.meta = meta 
         self.desc = desc
         self.name = name
         self.date = date
@@ -143,6 +160,13 @@ class Item(object):
 
 class Index(object):
     def __init__(self, base, srcbase):
+        """
+        :param base: directory containing .html presentations
+        :param srcbase: directory containing .txt RST sources of the presentations
+
+        1. Lists .html in base and extracts names 
+        2. creates items list 
+        """
         base = os.path.expandvars(os.path.expanduser(base))
         assert os.path.isdir(base), base
         srcbase = os.path.expandvars(os.path.expanduser(srcbase))
@@ -151,10 +175,10 @@ class Index(object):
         self.base = base 
         self.srcbase = srcbase 
 
-        names = filter(lambda p:p.endswith(".html") and p != "index.html",os.listdir(self.base))
-        names = map(lambda n:n[:-5], names)
-        items = map(lambda name:Item(name, self), names )
-        self.items = sorted(items, key=lambda item:item.date)
+        names = list(filter(lambda p:p.endswith(".html") and p != "index.html",os.listdir(self.base)))
+        names = list(map(lambda n:n[:-5], names))  # remove .html
+        items = list(map(lambda name:Item(name, self), names ))
+        self.items = sorted(items, key=lambda item:item.date, reverse=True)
 
     def htmlpath(self, name):
         return os.path.join(self.base, "%s.html" % name)
@@ -200,9 +224,9 @@ def parse_args(doc):
     d["srcbase"] = "~/env/presentation" 
     d["format"] = "%(asctime)-15s %(levelname)-7s %(name)-20s:%(lineno)-3d %(message)s"
 
-    parser.add_argument('--base', default=d["base"], help='base directory')
-    parser.add_argument('--srcbase', default=d["srcbase"], help='srcbase directory')
-    parser.add_argument('--level', default=d["level"], help='log level')
+    parser.add_argument('--base', default=d["base"], help='base directory. Default: %(default)s ')
+    parser.add_argument('--srcbase', default=d["srcbase"], help='srcbase directory. Default: %(default)s')
+    parser.add_argument('--level', default=d["level"], help='log level. Default: %(default)s')
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.level.upper()), format=d["format"])
     return args

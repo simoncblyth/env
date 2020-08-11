@@ -10,6 +10,14 @@ presentation-usage(){ cat << EOU
 Presentation preparation
 ============================
 
+FUNCTIONS
+---------
+
+presentation-index
+    open local index.html in browser 
+
+
+
 Local Rough Index of All Presentations
 -----------------------------------------
 
@@ -17,6 +25,29 @@ Local Rough Index of All Presentations
 
     open file://$HOME/simoncblyth.bitbucket.io/env/presentation/index.html
     open http://localhost/env/presentation/index.html
+
+
+
+Updating the rough index of all presentations
+-----------------------------------------------
+
+
+::
+
+    epsilon:presentation blyth$ cat /Users/blyth/env/bin/index.sh
+    #!/bin/bash 
+
+    index.py 
+    open http://localhost/env/presentation/index.html
+
+::
+
+    epsilon:presentation blyth$ which index.py 
+    /Users/blyth/env/bin/index.py
+
+
+
+
 
 
 Public Index of Selected Presentations
@@ -1048,8 +1079,12 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo ${INAME:-opticks_may2020_hsf} ; }
 #presentation-iname(){ echo opticks_may2020_hsf_TALK ; }
 
-presentation-iname(){ echo ${INAME:-opticks_jul2020_juno} ; }
+#presentation-iname(){ echo ${INAME:-opticks_jul2020_juno} ; }
 #presentation-iname(){ echo ${INAME:-opticks_jul2020_juno_TALK} ; }
+
+presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop} ; }
+#presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop_TALK} ; }
+
 
 
 

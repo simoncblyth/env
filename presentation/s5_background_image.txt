@@ -293,6 +293,18 @@
     Spatial Index Acceleration Structure
     /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
 
+    Rendering Five Decades of Research 1
+    /env/presentation/nvidia/rendering_five_decades_of_research.png 1280px_720px
+
+    Rendering Five Decades of Research 2
+    /env/presentation/nvidia/rendering_five_decades_of_research.png 1280px_720px
+
+    Path Tracing In Production 1
+    /env/presentation/sigraph/PathTracingInProduction_001.png 1280px_720px
+
+    Path Tracing In Production 2
+    /env/presentation/sigraph/PathTracingInProduction_001.png 1280px_720px
+
 
 
     BVH Pascal 
@@ -309,6 +321,38 @@
 
     SIGGRAPH_2019_Eric_Enderton_RT_Cores
     /env/presentation/nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
+
+    Project Sol: A Real-Time Ray-Tracing Cinematic Scene Powered by NVIDIA RTX
+    /env/presentation/nvidia/NVIDIA_Sol_RTX_Demo.png 1280px_720px
+
+    NVIDIA OptiX AI Denoiser 1 
+    /env/presentation/nvidia_demo/nvidia_optix_ai_denoiser.png 1280px_720px
+
+    NVIDIA OptiX AI Denoiser 2 
+    /env/presentation/nvidia_demo/nvidia_optix_ai_denoiser.png 1280px_720px
+
+
+    Samples per Pixel 1
+    /env/presentation/nvidia/NVIDIA_samples_per_pixel_MDL.png 1280px_720px
+
+    Samples per Pixel 2
+    /env/presentation/nvidia/NVIDIA_samples_per_pixel_MDL.png 1280px_720px
+
+
+    Eric Haines, NVIDIA, Ray Tracing Essentials Part 6, The Rendering Equation
+    /env/presentation/nvidia/NVIDIA_Eric_Haines_Ray_Tracing_Essentials_Part_6_The_Rendering_Equation.png 1280px_720px
+
+    Physically Based Rendering Book : www.pbr-book.org
+    /env/presentation/pbr/Physically_Based_Rendering_Book.png 1280px_720px
+
+    The Rendering Equation 1 
+    /env/presentation/rendering_equation/TheRenderingEquation_001.png 1280px_720px 
+
+    The Rendering Equation 2
+    /env/presentation/rendering_equation/TheRenderingEquation_002.png 1280px_720px 
+
+    Project Sol
+    /env/presentation/nvidia_demo/project_sol_jacob_norris_half.png 1280px_720px 
 
 
     ##
@@ -467,7 +511,7 @@
     SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine
     /env/presentation/nvidia/SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine.png 1280px_720px
 
-    Useful Speedup > 1000x : But Why Not Giga Rays/s ? (1 photon ~10 rays)
+    Useful Speedup > 1500x : But Why Not Giga Rays/s ? (1 photon ~10 rays)
     /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 720px_405px 10px_210px
 
     ## /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 640px_360px 20px_260px
@@ -613,3 +657,7 @@
 
     # 2038px_1320px
     # 1019px_660px
+
+
+
+
