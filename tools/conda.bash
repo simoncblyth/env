@@ -15,6 +15,27 @@ Refs
 * https://github.com/conda-forge
 * https://conda-forge.org/
 
+
+conda source
+---------------
+
+* https://github.com/conda/conda
+
+
+conda search
+-------------
+
+::
+
+    (base) epsilon:10 blyth$ conda search mayavi
+    Loading channels: done
+    # Name                       Version           Build  Channel             
+    mayavi                         4.6.2  py27h18b3941_1  conda-forge         
+    ...
+
+
+
+
 conda 
 -----------------
 

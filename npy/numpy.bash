@@ -3,8 +3,13 @@ numpy-vi(){       vi $(numpy-source) ; }
 numpy-env(){      elocal- ; }
 numpy-usage(){  cat << EOU
 
-
 For Usage tips see np-
+
+
+* https://github.com/xtensor-stack/xtensor
+* https://towardsdatascience.com/the-xtensor-vision-552dd978e9ad
+* https://xtensor.readthedocs.io/en/latest/
+
 
 EOU
 }
