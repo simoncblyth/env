@@ -2063,3 +2063,6 @@ llgl-(){      . $(env-home)/graphics/llgl/llgl.bash && llgl-env $* ; }
 vgpu-(){      . $(env-home)/graphics/vgpu/vgpu.bash && vgpu-env $* ; }
 bgfx-(){      . $(env-home)/graphics/bgfx/bgfx.bash && bgfx-env $* ; }
 dileng-(){      . $(env-home)/graphics/dileng/dileng.bash && dileng-env $* ; }
+mayavi-(){      . $(env-home)/graphics/mayavi/mayavi.bash && mayavi-env $* ; }
+condaforge-(){      . $(env-home)/python/condaforge.bash && condaforge-env $* ; }
+pyvista-(){      . $(env-home)/graphics/pyvista/pyvista.bash && pyvista-env $* ; }

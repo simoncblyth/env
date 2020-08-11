@@ -283,7 +283,11 @@ epjconf-confname(){ echo chep2019 ; }
 
 
 #epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
-epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
+#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
+
+epjconf-filename(){ echo opticks-snowmass21-loi-v0 ; }
+
+
 epjconf-filename-notes(){ cat << EON
 
 Bump the version, eg when accomodating referee comments::

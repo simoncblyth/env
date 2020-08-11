@@ -34,6 +34,89 @@ New Sphinx breakage of modified todo
 
 
 
+PDF Themes
+------------
+
+* https://transneptune.net/2018/12/31/writing-custom-sphinx-themes/
+
+
+latex_elements
+-----------------
+
+* https://www.sphinx-doc.org/en/master/usage/configuration.html#latex-options
+
+
+howto
+    A LaTeX theme for writing an article. It imports the article document class
+
+
+latex article document class
+------------------------------
+
+::
+
+    epsilon:reps blyth$ mdfind sphinxhowto
+    /usr/local/workflow/admin/reps/latex/sphinxhowto.cls
+    /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/Sphinx-1.7.6-py2.7.egg-info/SOURCES.txt
+    /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx/texinputs/sphinxhowto.cls
+    /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx/writers/latex.py
+    /usr/local/workflow/admin/resume/latex/sphinxhowto.cls
+    /usr/local/env/doc/sphinx/sphinx/texinputs/sphinxhowto.cls
+    /Users/blyth/tree/macports_delta/texlive-latex.log
+    epsilon:reps blyth$ 
+
+
+
+Spelunking sphinx-build
+---------------------------
+
+::
+
+    epsilon:~ blyth$ /opt/local/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python
+    Python 2.7.17 (default, Oct 21 2019, 00:44:43) 
+    [GCC 4.2.1 Compatible Apple LLVM 9.1.0 (clang-902.0.39.2)] on darwin
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> from pkg_resources import load_entry_point
+    >>> e = load_entry_point('Sphinx==1.7.6', 'console_scripts', 'sphinx-build')
+    >>> e
+    <function main at 0x10417f750>
+    >>> 
+    >>> e.func_name
+    'main'
+    >>> e.func_code
+    <code object main at 0x104175830, file "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sphinx/cmd/build.py", line 33>
+    >>> 
+
+    019 def build_main(argv=sys.argv[1:]):
+     20     # type: (List[str]) -> int
+     21     """Sphinx build "main" command-line entry."""
+     22     from sphinx import cmdline
+     23     return cmdline.main(argv)  # type: ignore
+     24 
+     25 
+     26 def make_main(argv=sys.argv[1:]):
+     27     # type: (List[str]) -> int
+     28     """Sphinx build "make mode" entry."""
+     29     from sphinx import make_mode
+     30     return make_mode.run_make_mode(argv[1:])  # type: ignore
+     31 
+     32 
+     33 def main(argv=sys.argv[1:]):
+     34     # type: (List[str]) -> int
+     35     if argv[:1] == ['-M']:
+     36         return make_main(argv)
+     37     else:
+     38         return build_main(argv)
+     39 
+     40 
+     41 if __name__ == '__main__':
+     42     sys.exit(main(sys.argv[1:]))
+
+
+
+
+
+
 
 How to structure a large set of Sphinx docs ?
 -----------------------------------------------

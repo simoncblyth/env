@@ -13,6 +13,15 @@ RST2PDF
 * http://rst2pdf.ralsina.com.ar/handbook.html
 * http://ralsina.me/stories/BBS52.html
 
+
+Aug 2020
+----------
+
+* https://rst2pdf.org/static/manual.pdf
+* https://github.com/rst2pdf/rst2pdf
+* https://akrabat.com/rst2pdf-back-from-the-dead/
+
+
 Dependencies
 --------------
 
