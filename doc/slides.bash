@@ -659,7 +659,7 @@ slides-capture(){
    slides-cd
 
    local fmt=$(slides-fmt)
-   local pages=$(slides-pages $1 $2)
+   local pages=$(slides-pages $1 $2)  # 0 1 2 3 ... 10 11 ... 100 101 ..
    local page
    local url
    local zpage
@@ -669,7 +669,7 @@ slides-capture(){
 
    for page in $pages ; do
       url=$(slides-url-page $page)
-      zpage=$(printf "%0.2d" $page)
+      zpage=$(printf "%0.3d" $page)
       name="${zpage}.${fmt}"
       cname="${zpage}_crop.${fmt}"
 
@@ -703,12 +703,12 @@ slides-crop(){
    local msg="=== $FUNCNAME "
    slides-cd
    echo $msg cropping png
-   /opt/local/bin/python $ENV_HOME/bin/crop.py ??.png
+   /opt/local/bin/python $ENV_HOME/bin/crop.py ???.png
 }
 
 slides-rm-uncropped(){
    slides-cd
-   rm ??.png
+   rm ???.png
 }
 
 

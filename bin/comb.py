@@ -134,8 +134,8 @@ if __name__ == '__main__':
         log.info(" combine %s paths with group size %d making %d new img " % (len(args.paths), group, n ))
         for i in range(n):
             paths = args.paths[i*group:(i+1)*group] 
-            outpath = "%0.2d.png" % i                ## hmm this assumes the input paths are not of this form 00.png 01.png etc..
-            print("%2d : %s : %s " % (i, repr(paths), outpath))
+            outpath = "%0.3d.png" % i                ## hmm this assumes the input paths are not of this form 000.png 001.png etc..
+            print("%3d : %s : %s " % (i, repr(paths), outpath))
             c = Comb(paths, outpath, args.mode)
             c.save()
         pass

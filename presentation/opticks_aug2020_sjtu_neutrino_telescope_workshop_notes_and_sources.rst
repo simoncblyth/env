@@ -1,13 +1,5 @@
-https://en.wikipedia.org/wiki/Light_fieldnext_gen_neutrino_telescope_simulation_workshop
-================================================
-
-Title
--------
-
-::
-
-   Opticks: GPU photon simulation via NVIDIA OptiX ;  
-   Applied to neutrino telescope simulations ?  
+opticks_aug2020_sjtu_neutrino_telescope_workshop_notes_and_sources
+=====================================================================
 
 What to cover
 --------------
@@ -27,6 +19,154 @@ What to cover
 * Provide a way to validate optimization tricks 
 
 
+Title
+-------
+
+::
+
+   Opticks: GPU photon simulation via NVIDIA OptiX ;  
+   Applied to neutrino telescope simulations ?  
+
+
+Performance Studies for the KM3NeT Neutrino Telescope
+--------------------------------------------------------
+
+* https://antares.in2p3.fr/Publications/thesis/2010/Claudio-Kopper-phd.pdf
+* ~/opticks_refs/Performance_Studies_for_the_KM3Net_Neutrino_Telescope_Claudio-Kopper-phd.pdf
+
+
+p49
+
+As simulating each single photon would take far too much CPU time to be
+feasible for Monte Carlo mass productions, an alternative approach using pre-
+simulated photon tables is used: Photons are only simulated once using the
+Geant3 [76] based helper tool gen, which records the light output of a short
+muon segment (with a length of about 1 to 2m) or of an electromagnetic shower
+on concentric spheres. Several of these spheres are placed around the emitters
+at different distances. All photons intersecting the spheres are recorded. A
+second helper tool, hit, subsequently divides these spheres into angular bins
+and converts the photon fields into tables containing hit prob- abilities.
+These probabilities include the OMs’ characteristics such as their angular
+acceptance and their wavelength-dependent quantum efficiency. Thus, the photon
+tables produced by hit contain the full set of OM properties and have to be
+re-calculated for each type of OM that is to be simulated.
+
+
+geasim, a full tracking Monte Carlo code based on Geant3 [76]. This tool
+provides the same functionality as km3, with the exception of light scattering.
+It does not use a table-based approach, but rather simulates each particle
+using the full Geant3 engine. To be reasonably fast, light is only propagated
+in straight lines, which enables the code to speed up processing by a fair
+amount, as most photons can simply be rejected by simple geometric
+considerations: a photon with a straight path that can never hit an OM can be
+rejected early in the code. This is of course only true if light scattering is
+neglected. As geasim is still quite slow when simulating very long muon tracks,
+it is mainly used for the hadronic part of neutrino interactions near the
+vertex. It can be combined with km3 by using a special mode where only the
+hadronic component is simulated by geasim, whereas the muon is simulated by
+km3.
+
+
+p59
+
+Once a muon has reached the detector, it has to be propagated through its
+sensitive volume. At the same time, secondary particles from the muon need to
+be tracked and all Cherenkov light needs to be propagated through the detector
+medium. A simulation code based on Geant4 [91] was developed for this purpose.
+The code performs a full tracking simulation of every particle inside the
+sensitive volume. This includes the simulation of every single Cherenkov
+photon. This approach takes an immense amount of computing time, but it
+provides accurate event simulations usable for cross-checks of parameterised
+simulations.
+
+
+p63
+
+Most of these simulated photons, however, will never reach an optical module,
+as a neutrino detector is only sparsely instrumented. In a way, most of the
+processing time is wasted on the simulation of photons that will never be seen.
+An easy solution to this problem can be found if optical scattering of photons
+is neglected. In this case, the simulation code can decide if a photon will
+never reach an optical module by purely geometric calculations before even
+starting the tracking code. Whole segments of a muon track can be skipped in
+the simulation, as unscattered light from these segments would never reach any
+optical module. Note that, in a Monte Carlo tracking simulation, this is only
+possible when light scattering is neglected, because the code cannot know if a
+photon that would not reach an OM on its direct path could eventually reach it
+after one or more scatters.  The speedup provided by this solution is
+substantial, but neglecting scattering can distort results, especially for
+detector designs where the string distance is larger than the scattering
+length.
+
+p65
+
+4.6.2 Total photon yield 
+
+Figure 4.5 shows the total number of photons generated
+by a cascade with respect to its primary particle’s energy. The dependence on
+energy is linear over the considered range. A best fit over a range of energies
+from 1 GeV to 100 TeV yields 
+
+::
+
+    Nphotons ≈ 1.74 * 10^7 * Eshower/100 GeV
+
+
+4.6.3 Scattering table generation 
+
+The most time-consuming process of the
+simulation chain is the propagation of photons through the detector medium
+including the simulation of scattering and ab-
+
+
+p66,67
+
+To exploit as many symmetries as possible, the shower is assumed to be
+point-like, i.e. photons are only emitted from a single point in space which is
+chosen to be at the origin during the simulation process. Additionally, showers
+are assumed to have a rotational symmetry around their axis. In the following
+description, this shower axis is arbitrarily defined to be the z-axis. During
+the table generation process, it is sufficient to emit photons only with
+directions in the x-z-plane, provided that an arbitrary rotation around the
+z-axis is performed whenever such a photon is used later on.
+
+
+p73
+
+4.7 Adaptation of the cascade simulation approach to muons 
+
+The method for shower photon simulation described in the previous section can only be used for
+point-like light sources as it relies on the spherical symmetry of the source.
+However, the basic idea of using a database of pre-propagated photons for fast
+lookup can be extended to muons (or any other track-like light source), too.
+This section describes a spatial segmentation that can be used for this
+problem.
+
+
+Common simulation tools for large volume neutrino detectors, A.Margiotta, ANTARES Collaboration
+--------------------------------------------------------------------------------------------------
+
+* https://www.sciencedirect.com/science/article/pii/S0168900212015197?via%3Dihub
+
+* https://indico.cern.ch/event/143656/papers/1378074/files/1029-elsarticle-template-num_vlvnt11_rev.pdf
+
+The goal of a neutrino telescope is the detection of astrophysical high-energy
+neutrinos. Actually, most of the detectable Cherenkov light is due to the pas-
+sage of high-energy atmospheric muons and of muons induced by atmospheric
+neutrino interactions in the vicinity of the detector.
+
+Cherenkov light emission and propagation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* "scattering tables" "photon field"
+* individual photon propagation
+
+MY THOUGHTS:
+
+* these are not alternatives, the individual photon propgation is needed anyhow 
+  to create the tables : and validate optimization "trickery"
+
+
 CG Rendering Overview
 -----------------------
 
@@ -42,7 +182,6 @@ CG Rendering Overview
 * photon mapping 
 * progressive photon mapping 
 
-
 Cornell Box
 -------------
 
@@ -50,7 +189,6 @@ Cornell Box
 * Ray Tracing Essentials Part 5: Ray Tracing Effects
 
 * 0:30 Which one is real ?
-
 
 The Rendering Equation
 -----------------------
@@ -71,10 +209,21 @@ The Rendering Equation
 * https://blog.demofox.org/2016/09/21/path-tracing-getting-started-with-diffuse-and-emissive/
 
 
-LTE
------
+aka LTE : Light Transport Equation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * http://www.pbr-book.org/3ed-2018/Light_Transport_I_Surface_Reflection/The_Light_Transport_Equation.html
+
+
+Good description of rendering equation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://cs.dartmouth.edu/~wjarosz/publications/dissertation/chapter2.pdf
+
+* http://www.pbr-book.org/3ed-2018/Light_Transport_I_Surface_Reflection/The_Light_Transport_Equation.html
+
+
+
 
 
 Computer graphics III – Rendering equation and its solution
@@ -100,41 +249,6 @@ Computer graphics III – Rendering equation and its solution
 
 
 
-
-Performance Studies for the KM3NeT Neutrino Telescope
---------------------------------------------------------
-
-* https://antares.in2p3.fr/Publications/thesis/2010/Claudio-Kopper-phd.pdf
-
-
-
-Common simulation tools for large volume neutrino detectors, A.Margiotta, ANTARES Collaboration
---------------------------------------------------------------------------------------------------
-
-* https://www.sciencedirect.com/science/article/pii/S0168900212015197?via%3Dihub
-
-* https://indico.cern.ch/event/143656/papers/1378074/files/1029-elsarticle-template-num_vlvnt11_rev.pdf
-
-The goal of a neutrino telescope is the detection of astrophysical high-energy
-neutrinos. Actually, most of the detectable Cherenkov light is due to the pas-
-sage of high-energy atmospheric muons and of muons induced by atmospheric
-neutrino interactions in the vicinity of the detector.
-
-Cherenkov light emission and propagation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* "scattering tables" "photon field"
-* individual photon propagation
-
-MY THOUGHTS:
-
-* these are not alternatives, the individual photon propgation is needed anyhow 
-  to create the tables 
-
-
-
-
-
 Bi-directional path tracing
 -----------------------------
 
@@ -147,7 +261,6 @@ Monte Carlo Path Tracing : Ravi
 * https://www.youtube.com/watch?v=KCYroQVaARs
 
 * sample all paths in the scene 
-
 
 
 Adaptive Progressive Photon Mapping
@@ -175,13 +288,6 @@ terms of the number of rays and reduces the computational costs of a single
 sample. However, a much larger number of samples is needed per pixel and
 ensuring a good distribution of reflection rays is considerably more difficult.
 
-
-Good description of rendering equation
----------------------------------------
-
-* https://cs.dartmouth.edu/~wjarosz/publications/dissertation/chapter2.pdf
-
-* http://www.pbr-book.org/3ed-2018/Light_Transport_I_Surface_Reflection/The_Light_Transport_Equation.html
 
 
 Tetrahedralization
@@ -360,120 +466,6 @@ Aug 16, 2015
 
 * ~/opticks_refs/geant4_simulation_of_neutrino_telescopes_PoSICRC20151106.pdf
 
-
-
-Performance Studies for the KM3NeT Neutrino Telescope
-
-* https://antares.in2p3.fr/Publications/thesis/2010/Claudio-Kopper-phd.pdf
-* ~/opticks_refs/Performance_Studies_for_the_KM3Net_Neutrino_Telescope_Claudio-Kopper-phd.pdf
-
-
-p49
-
-As simulating each single photon would take far too much CPU time to be
-feasible for Monte Carlo mass productions, an alternative approach using pre-
-simulated photon tables is used: Photons are only simulated once using the
-Geant3 [76] based helper tool gen, which records the light output of a short
-muon segment (with a length of about 1 to 2m) or of an electromagnetic shower
-on concentric spheres. Several of these spheres are placed around the emitters
-at different distances. All photons intersecting the spheres are recorded. A
-second helper tool, hit, subsequently divides these spheres into angular bins
-and converts the photon fields into tables containing hit prob- abilities.
-These probabilities include the OMs’ characteristics such as their angular
-acceptance and their wavelength-dependent quantum efficiency. Thus, the photon
-tables produced by hit contain the full set of OM properties and have to be
-re-calculated for each type of OM that is to be simulated.
-
-
-geasim, a full tracking Monte Carlo code based on Geant3 [76]. This tool
-provides the same functionality as km3, with the exception of light scattering.
-It does not use a table-based approach, but rather simulates each particle
-using the full Geant3 engine. To be reasonably fast, light is only propagated
-in straight lines, which enables the code to speed up processing by a fair
-amount, as most photons can simply be rejected by simple geometric
-considerations: a photon with a straight path that can never hit an OM can be
-rejected early in the code. This is of course only true if light scattering is
-neglected. As geasim is still quite slow when simulating very long muon tracks,
-it is mainly used for the hadronic part of neutrino interactions near the
-vertex. It can be combined with km3 by using a special mode where only the
-hadronic component is simulated by geasim, whereas the muon is simulated by
-km3.
-
-
-p59
-
-Once a muon has reached the detector, it has to be propagated through its
-sensitive volume. At the same time, secondary particles from the muon need to
-be tracked and all Cherenkov light needs to be propagated through the detector
-medium. A simulation code based on Geant4 [91] was developed for this purpose.
-The code performs a full tracking simulation of every particle inside the
-sensitive volume. This includes the simulation of every single Cherenkov
-photon. This approach takes an immense amount of computing time, but it
-provides accurate event simulations usable for cross-checks of parameterised
-simulations.
-
-
-p63
-
-Most of these simulated photons, however, will never reach an optical module,
-as a neutrino detector is only sparsely instrumented. In a way, most of the
-processing time is wasted on the simulation of photons that will never be seen.
-An easy solution to this problem can be found if optical scattering of photons
-is neglected. In this case, the simulation code can decide if a photon will
-never reach an optical module by purely geometric calculations before even
-starting the tracking code. Whole segments of a muon track can be skipped in
-the simulation, as unscattered light from these segments would never reach any
-optical module. Note that, in a Monte Carlo tracking simulation, this is only
-possible when light scattering is neglected, because the code cannot know if a
-photon that would not reach an OM on its direct path could eventually reach it
-after one or more scatters.  The speedup provided by this solution is
-substantial, but neglecting scattering can distort results, especially for
-detector designs where the string distance is larger than the scattering
-length.
-
-p65
-
-4.6.2 Total photon yield 
-
-Figure 4.5 shows the total number of photons generated
-by a cascade with respect to its primary particle’s energy. The dependence on
-energy is linear over the considered range. A best fit over a range of energies
-from 1 GeV to 100 TeV yields 
-
-::
-
-    Nphotons ≈ 1.74 * 10^7 * Eshower/100 GeV
-
-
-4.6.3 Scattering table generation 
-
-The most time-consuming process of the
-simulation chain is the propagation of photons through the detector medium
-including the simulation of scattering and ab-
-
-
-p66,67
-
-To exploit as many symmetries as possible, the shower is assumed to be
-point-like, i.e. photons are only emitted from a single point in space which is
-chosen to be at the origin during the simulation process. Additionally, showers
-are assumed to have a rotational symmetry around their axis. In the following
-description, this shower axis is arbitrarily defined to be the z-axis. During
-the table generation process, it is sufficient to emit photons only with
-directions in the x-z-plane, provided that an arbitrary rotation around the
-z-axis is performed whenever such a photon is used later on.
-
-
-p73
-
-4.7 Adaptation of the cascade simulation approach to muons 
-
-The method for shower photon simulation described in the previous section can only be used for
-point-like light sources as it relies on the spherical symmetry of the source.
-However, the basic idea of using a database of pre-propagated photons for fast
-lookup can be extended to muons (or any other track-like light source), too.
-This section describes a spatial segmentation that can be used for this
-problem.
 
 
 Invite
@@ -757,6 +749,40 @@ Wojciech Jarosz
 * https://cs.dartmouth.edu/~wjarosz/index.html
 
 
+Photon Mapping Course
+----------------------
+
+* https://web.archive.org/web/20110607074737/http://www.cs.princeton.edu/courses/archive/fall02/cs526/papers/course43sig02.pdf
+* ~/opticks_refs/henrik_wann_jensen_photon_mapping_course43sig02.pdf
+
+
+p26 : Volume Photon Map 
+
+p27 
+
+Another argument that is perhaps even more important is the fact that a
+balanced kd-tree can be represented using a heap-like data-structure
+[Sedgewick92] which means that explicitly storing the pointers to the sub-trees
+at each node is no longer necessary. 
+(Array element 1 is the tree root, and element i has element 2i as
+left child and element 2i + 1 as right child.) This can lead to considerable
+savings in memory when a large number of photons is used.
+
+
+p28 : balanced kd-tree  (binary space partioning to speed up spatial search) 
+
+
+
+p34 : The radiance estimate in a participating medium
+
+
+Henrik Wann Jensen
+Realistic Image Synthesis using Photon Mapping
+AK Peters, 2001
+
+
+
+
 
 
 
@@ -767,15 +793,10 @@ A Framework for Transient Rendering
 * http://giga.cps.unizar.es/~ajarabo/pubs/transientSIGA14/
 
 
-
 Femto-Photography: Capturing and Visualizing the Propagation of Light
 -----------------------------------------------------------------------
 
 * http://giga.cps.unizar.es/~ajarabo/pubs/femtoSIG2013/
-
-
-
-
 
 
 Key points to convey
@@ -783,8 +804,6 @@ Key points to convey
 
 * computer graphics : try to re-purpose techniques  
 * too many resources online ! 
-
-
 
 Need to explain the field of CG !
 
@@ -799,9 +818,7 @@ Pointers for what to follow
 * https://github.com/petershirley/raytracinginoneweekend
 * https://raytracing.github.io
 
-
 * https://raytracing.github.io/books/RayTracingInOneWeekend.html
-
 
 * https://github.crookster.org/raytracing-iow-in-cpp-cuda-and-optix/
 

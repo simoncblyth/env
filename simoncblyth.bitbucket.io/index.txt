@@ -86,6 +86,10 @@ Opticks Presentations
 2020
 ~~~~~~~
 
+http://simoncblyth.bitbucket.io/env/presentation/opticks_aug2020_sjtu_neutrino_telescope_workshop.html (August 2020, Virtual)
+
+    SJTU Shanghai, Next Generation Neutrino Telescope Workshop 
+
 http://simoncblyth.bitbucket.io/env/presentation/opticks_jul2020_juno.html (6 July 2020, IHEP Virtual)
 
     JUNO Collaboration Meeting, Software Session

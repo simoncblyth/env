@@ -322,9 +322,6 @@
     SIGGRAPH_2019_Eric_Enderton_RT_Cores
     /env/presentation/nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
 
-    Project Sol: A Real-Time Ray-Tracing Cinematic Scene Powered by NVIDIA RTX
-    /env/presentation/nvidia/NVIDIA_Sol_RTX_Demo.png 1280px_720px
-
     NVIDIA OptiX AI Denoiser 1 
     /env/presentation/nvidia_demo/nvidia_optix_ai_denoiser.png 1280px_720px
 
@@ -333,17 +330,22 @@
 
 
     Samples per Pixel 1
-    /env/presentation/nvidia/NVIDIA_samples_per_pixel_MDL.png 1280px_720px
+    /env/presentation/nvidia/NVIDIA_samples_per_pixel_MDL_half.png 1280px_720px
 
     Samples per Pixel 2
-    /env/presentation/nvidia/NVIDIA_samples_per_pixel_MDL.png 1280px_720px
+    /env/presentation/nvidia/NVIDIA_samples_per_pixel_MDL_half.png 1280px_720px
 
+    Photon Mapping 1
+    /env/presentation/photon_mapping/PhotonMapping_001.png 1280px_720px
+
+    Photon Mapping 2
+    /env/presentation/photon_mapping/PhotonMapping_002.png 1280px_720px
 
     Eric Haines, NVIDIA, Ray Tracing Essentials Part 6, The Rendering Equation
     /env/presentation/nvidia/NVIDIA_Eric_Haines_Ray_Tracing_Essentials_Part_6_The_Rendering_Equation.png 1280px_720px
 
     Physically Based Rendering Book : www.pbr-book.org
-    /env/presentation/pbr/Physically_Based_Rendering_Book.png 1280px_720px
+    /env/presentation/pbr/Physically_Based_Rendering_Book_half.png 1280px_720px
 
     The Rendering Equation 1 
     /env/presentation/rendering_equation/TheRenderingEquation_001.png 1280px_720px 
