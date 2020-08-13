@@ -217,7 +217,7 @@ Outline Opticks
 
     A muon veto is used to control the backgrounds.
     
-    However to minimize the time and volume vetoed, which cuts into 
+    However to minimize the time and volume vetoed,
     it is necessary to have a good muon reconstruction which means 
     that we need large samples of cosmic muons.
 
@@ -274,8 +274,8 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-   Geant4 is a very general tool : but most of it
-   is not needed for the simulation of optical photons 
+   Geant4 is a very general tool : but it is mostly
+   not needed for the simulation of optical photons 
  
 
 
@@ -318,11 +318,11 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    Most of the CPU time is taken finding intersections between photons and geometry 
    Fortunately simulation is not alone in this bottleneck.
 
-   Optical photons are naturally parallel : they can be considered 
-   to be produced only by two processes : Cherenkov and Scintillation and we
-   are mainly interested in photons that hit the PMTs.  
+   Optical photons are naturally parallel, 
+   with only Cherenkov and Scintillation production being relevant 
+   and we are only interested in photons collected at PMTs. 
 
-   These characteristics make it straightforward integrate an external optical
+   These characteristics make it straightforward to integrate an external optical
    simulation.
  
 
@@ -369,10 +369,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 .. s5_talk::
 
-    Ray traced image rendering in computer graphics has exactly the same problem as photon simulation.
+    Optical photon simulation and ray traced image rendering 
+    have a lot in common.
 
-    Actually, there is much in common between optical photon simulation and 
-    ray traced image rendering.   
+    They are both limited by ray geometry intersection (or ray tracing)
 
     With simulation you want to know photon parameters at PMTs, with rendering 
     you need pixel values at the image plane.
@@ -414,16 +414,16 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    It is good to clarify the difference between 
    the two primary graphics rendering techniques 
 
-   Rasterization, which is the most common rendering technique
+   Rasterization is the most common rendering technique
    
-   * starts from the objects in a scene, and projects them onto pixels in image plane
-   * this uses approximated triangulated geometry   
+   * it starts from the objects in a scene, and projects them onto pixels in image plane
+   * this requires approximate triangulated geometry   
    
    Ray tracing 
 
    * starts from the pixels, casts rays out into the 3D scene and finds intersects
    * this can use analytic geometry, without approximation (just like Geant4)   
-   * its easier to create realistic images with ray tracing because its closer to the physics
+   * its easier to create realistic images with ray tracing because it is closer to the physics
 
    Ray tracing is an overloaded term.  In some contexts it means just the ray transport
    from an origin to an intersection. But is also refers more generally to 
@@ -469,13 +469,13 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 .. s5_talk::
 
     Two years ago NVIDIA announced a leap in ray tracing performance 
-    with the NVIDIA Turing architecture GPU.
+    with the Quadro RTX GPU : which it calls the worlds first ray tracing GPU
+    As it has hardware dedicated to accelerating ray tracing.
 
-    Turing Architecture GPUs have hardware dedicated to accelerating ray tracing, 
-    which NVIDIA claims can reach 10 billion ray geometry intersections per second
+    NVIDIA claims it can reach 10 billion ray geometry intersections per second
     with a single GPU.
 
-    Assuming each photon costs 10 rays, that means the upper limit per GPU is 
+    Assuming each simulated photon costs 10 rays, that means the upper limit per GPU is 
     1 billion photons/second.
     
 
@@ -514,10 +514,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
     The performance jump is done by offloading 
     ray tracing from the general purpose SM (streaming multiprocessor)
-    to the fixed function RT core.  
- 
-    This frees up the SM. 
-
+    to the fixed function RT core, which frees up the SM. 
 
 
 
@@ -601,13 +598,14 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    The principal technique to accelerate ray geometry intersection 
    is an acceleration structure called a bounding volume hierarchy 
    
-   This divides space into a spatial index of progressively smaller boxes
+   This divides space into progressively smaller boxes which forms
+   a spatial index.
 
    Traversing the tree of bounds allows to minimize tests
    needed to find an intersect.
 
-   With careful geometry modelling this traversal can be 
-   done on the dedicated RT cores.
+   With some geometry it is possible for the traversal 
+   to be done on the dedicated RT cores.
 
 
 
@@ -660,10 +658,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 .. s5_talk::
 
 
-   * NVIDIA OptiX is a CUDA interface to the NVIDIA BVH.  
+   * NVIDIA OptiX is a CUDA interface to the NVIDIA BVH acceleration structure
    * it is a ray tracing specific compiler
 
-   OptiX creates GPU kernels by compiling togther: 
+   OptiX creates GPU kernels by compiling together: 
 
    * user programs for ray generation and geometry intersection (yellow boxes)
    * with NVIDIA traversal programs (blue boxes)
@@ -672,8 +670,8 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
    * OptiX accelerates the intersection...  
 
-   * Triangle intersection can be done on the RT Cores, other analytic
-     intersection needs to be implemented by the user   
+   * Triangle intersection can be done on the RT Cores, 
+   * other shapes needs CUDA implementations, and runs on the SM 
   
 
 .. skip
@@ -704,10 +702,10 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
     These Genstep parameters include the number of photons, positions and everything 
     else needed in the generation loop.
 
-    Result is a very simple port of the generation loop to the GPU. 
+    The result is a very simple port of the generation loop to the GPU. 
 
     Its doubly helpful to generate photons on GPU, as then
-    they take no CPU memory. 
+    they take no CPU memory.
   
     So can entirely offload photon memory to the GPU with only hits needing CPU memory. 
 
@@ -891,10 +889,11 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 .. s5_talk::
 
 
-    Opticks includes a GPU CSG (constructive solid geometry) implementation, 
-    so can intersect with complex compound shapes.
+    Opticks includes a CUDA CSG (constructive solid geometry) implemented beneath
+    the level of OptiX primitives.
+    So can intersect with complex compound shapes.
 
-    So G4Boolean trees can be translated into Opticks without 
+    G4Boolean trees can be translated into Opticks without 
     any approximation.
  
 
@@ -968,7 +967,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
    The Opticks geometry model starts from the observation that 
-   there is lots of repetition in eth geometry.  It automatically 
+   there is lots of repetition in the geometry.  It automatically 
    finds these repeats.
 
    Bringing optical physics to the GPU was straightforward, 
@@ -1147,6 +1146,9 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 .. s5_talk::
+
+    When you have millions of photons it is important 
+    to consider compression techniques. 
 
     I mention this detail, because compression of 
     photons is essential when considering how to make 
@@ -1910,8 +1912,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
    Heres the outline of the 2nd half.
 
    * I will cover some of the GPU and graphics backgrounds 
-     which can help will pushing the ceiling to handle propagation 
-     of billions of photons 
+     which can help with handling billion photon propagations 
 
    * I go into some details on graphics in the hope of getting people who are 
      working on optical simulation interested in the techniques :   
@@ -2017,7 +2018,7 @@ optical photon simulation, P ~ 99% of CPU time
 .. s5_talk::
 
     Rasterization is the process of going from input 3D vertices 
-    which are collections of 4 floats to pixel values. 
+    which are collections of 4 floats to 2d pixel values. 
 
     GPUs evolved to do this rasterization.
 
@@ -2355,9 +2356,14 @@ optical photon simulation, P ~ 99% of CPU time
    This slide is here just to highlight some projects that 
    provide a quick start at using CUDA.
 
-   CuPy is quite a new project you might not have header of, it 
+   CuPy implememnts the NumPy API ontop of the CUDA stack.
+   It is a great way to get started with CUDA 
+
+   CuPy is quite a new project you might not have heard of, it 
    builds ontop of the NVIDIA CUDA stack and implements the 
    NumPy API powered by a CUDA implementation.   
+
+
 
 .. comment
 
@@ -2414,7 +2420,7 @@ Rendering Five Decades of Research 1
 
 .. s5_talk::
 
-   Graphics rendering has come along way over the past 50 years, 
+   Graphics rendering has come a long way over the past 50 years, 
    starting from the first use of ray casting in 1968.
 
    This illustrates some of the milestones on graphics rendering.
@@ -2490,11 +2496,9 @@ Rendering Five Decades of Research 2
 
     Path tracing is short for : **Monte Carlo Path Tracing** 
 
-    * it is now the standard rendering technique for movie production
+    This is the abstract from a course held at the SIGGRAPH graphics conference 
 
-    The images and abstract are from a course at last years SIGRAPH, which is 
-    one of the main graphics conferences.
-
+    * **Monte Carlo Path Tracing** is now the standard rendering technique for movie production
 
 
 :i:`Path Tracing in Production 2`
@@ -2557,7 +2561,7 @@ Rendering Five Decades of Research 2
 
     The lines on the images try to illustrate that:
  
-    * what the eye sees at some x-prime depends on inputs from all the 
+    * what the eye at point x sees at some x-prime depends on inputs from all the 
       x-double-prime and each double-prime point depends on all the 
       treble-prime ones
 
@@ -2806,39 +2810,24 @@ Optical Simulation : Computer Graphics vs Physics
 .. s5_talk::
 
     SMALL
-    Clearly with such expensive propagations it makes sense
-    to make them reusable via photon "snapshots".
+    1st: full propagation
 
-    This would be a great benefit if the snapshots could be 
-    oriented/time shifted to new primaries and then the full 
-    simulation could be resumed just in the region of the 
-    sensors.
+    * Opticks as a drop in replacement for Geant4, needs work:
+ 
+      * auto-split to fit in VRAM, multi-GPU  
+      * simpler geometry -> more speedup than JUNO
 
-    This way would then need to do the full propagation much less.
+    2nd: full propagation with "snapshots" for re-use (sidebar)
 
-    Disadvantage is the "snapshots" will be large, and it is 
-    non-trivial to validate that the "cheat" simulation
-    is really equivalent to the full one.
+    * split handling of direct and indirect light as very different.
+    * orient snapshot to different primaries -> avoid re-doing propagation  
+    * just resume propagation near the sensors
 
-    It all depends on how long the full simulation takes, or 
-    even whether it can be done.  
+    DISADVANTAGE:
 
-    * Opticks could be used as a drop in replacement for Geant4
-    
-    * launch size is limited by VRAM, so some relatively 
-      simple extension to auto-split depending on available 
-      VRAM is needed
-
-    When/where to snapshot.
-
-    One obvious approach is to fill space with virtual shells 
-    and collect photons or fill PDFs as photons cross them.
-
-    That has the advantage of simplicity, but it duplicates 
-    information rather extremely, which would lead to very big and 
-    cumbersome data structures.
-
-    SEE NEXT ANNOTATION PAGE FOR MORE 
+    * need to devise snapshot/re-use approach + validate it 
+    * "snapshots" will be large + not either-or need both + complex workflow
+    * When/where to snapshot (sidebar)
 
 
 .. comment
@@ -2907,31 +2896,17 @@ Optical Simulation : Computer Graphics vs Physics
 .. s5_talk::
 
     SMALL
-    **Giga-photon continued**
-
-    Collecting photons at scatters would be less duplicitous.
-    The post-scatter direction and polarization is
-    generated from the pre-scatter values : so could store pre or post.  
-    
-    Would need a data structure that allows fast spatial lookups
-    such as kd-tree.
-
-    For efficient use with Opticks will need a CUDA implementation 
-    that can work within the OptiX model. 
-
-    
-    There is no either/OR : full propagation is needed to fill the 
-    cache and validate the approach. 
-
-    Split handling of direct and indirect light as very different.
-
-    **Rayleigh**
-
     Have to persist the polarization vector, to truly resume a propagation.
     As the angle between polarization vectors before and after scatters 
     follows a cos-squared distribution.
 
     Not doing so will prevent strict validation.
+
+    Collecting photons at scatters duplicates less.
+    The post-scatter direction and polarization is
+    generated from the pre-scatter values : better to store pre.  
+ 
+
 
 
 
@@ -3001,6 +2976,10 @@ Optical Simulation : Computer Graphics vs Physics
 
     **Too many open questions: experimentation needed to iterate towards solution**
 
+    * requires fast spatial lookup such as kd-tree.
+    * For efficient use with Opticks will need a CUDA implementation 
+      that can work within the OptiX model. 
+
     * the ones in blue, are what I would try first 
     * I favor those because they are similar to the graphics technique of 
       photon mapping : and I expect I could find a CUDA implementation 
@@ -3009,6 +2988,8 @@ Optical Simulation : Computer Graphics vs Physics
     * tetrahedral mesh would be interesting for the general case of 
       snapshoting the photon field, but simulating photons from 
       primaries has symmetries  
+
+    * voxel grid good for simplicity, large, sparse 
 
 
 .. comment
