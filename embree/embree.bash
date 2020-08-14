@@ -5,11 +5,39 @@ embree-vi(){       vi $(embree-source) ; }
 embree-env(){      elocal- ; }
 embree-usage(){ cat << EOU
 
-
 Embree : High Performance Ray Tracing Kernels
 ================================================
 
 * https://embree.github.io
+
+
+
+OSPRay 
+---------
+
+See also 
+
+* https://www.ospray.org
+
+OSPRay internally builds on top of Intel Embree and ISPC (Intel SPMD Program
+Compiler), and fully exploits modern instruction sets like Intel SSE4, AVX,
+AVX2, and AVX-512 to achieve high rendering performance, thus a CPU with
+support for at least SSE4.1 is required to run OSPRay.
+
+* https://tacc.github.io/vtkOSPRay/
+
+vtkOSPRay is a VTK module which utilizes Intel's OSPRay ray tracing framework
+(http://ospray.github.io) for rendering. This offers a performant CPU rendering
+package with enhanced image quality. This library is the base for OSPRay
+plugins for the commonly used visualization tools ParaView and VisIt.
+
+
+
+Refs
+------
+
+* https://www.embree.org
+* https://www.embree.org/data/embree-siggraph-2018-final.pdf
 * https://embree.github.io/data/embree-siggraph-2016-final.pdf
 
 * https://embree.github.io/downloads.html
