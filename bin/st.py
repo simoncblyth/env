@@ -34,16 +34,21 @@ TODO
 
 
 """
-import os, sys, commands, logging, argparse, json
+import os, sys, logging, argparse, json
 from collections import OrderedDict
 log = logging.getLogger(__name__)
+
+try:
+    from commands import getstatusoutput, getoutput
+except ImportError:
+    from subprocess import getstatusoutput, getoutput 
+pass 
 
 
 class Remote(object):
     def __init__(self, cmd, typ, detail):
         meta = OrderedDict()
-        lines = commands.getoutput(cmd).split("\n")
-
+        lines = getoutput(cmd).split("\n")
         if detail > 3:
             log.info("cmd : %s " % cmd )
             log.info("lines : %s " % "\n".join(lines) )
@@ -182,18 +187,18 @@ class Repo(object):
         self.remote_command = self.Remote(base)
         self.upstream_command = self.Upstream(base)
 
-        self.status = commands.getoutput(self.status_command)
+        self.status = getoutput(self.status_command)
         self.remote = Remote(self.remote_command, typ, detail)
 
         if not self.upstream_command is None:
-            upstream = commands.getoutput(self.upstream_command) 
+            upstream = getoutput(self.upstream_command) 
         else:
             upstream = None
         pass
         self.upstream = upstream
 
         ## list all files in git repo relative cwd which should be the base dir of the repo
-        gls = commands.getoutput("git ls-files").split("\n") if typ == "git" else []
+        gls = getoutput("git ls-files").split("\n") if typ == "git" else []
 
         ## from the list of all paths filter out top level ones without a slash 
         ## then extract the top level dirs and return only uniques
