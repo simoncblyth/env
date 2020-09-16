@@ -14,11 +14,15 @@ from __future__ import with_statement
 import os, hashlib, logging, re, sys, subprocess
 from functools import partial
 
+
 try:
-    import commands
+    from commands import getstatusoutput 
 except ImportError:
-    commands = None
-pass
+    from subprocess import getstatusoutput 
+pass 
+           
+
+
 
 
 log = logging.getLogger(__name__)
@@ -132,20 +136,7 @@ class IPath(object):
 
     @classmethod
     def run(cls, cmd):
-
-        if not commands is None:
-            rc, out = commands.getstatusoutput(cmd)
-        else:
-            #cpr = subprocess.run(cmd.split(" "), check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-            args = list(filter(None, cmd.split(" ")))  
-            ## mysteriously leaving a space on the end, causes to list many files, not just the one
-            ##print(args)
-
-            cpr = subprocess.run(args, check=True, text=True, capture_output=True)
-            out = cpr.stdout
-            rc = cpr.returncode 
-            ##print(str(out))
+        rc, out = getstatusoutput(cmd)
         pass
         if rc != 0:
             log.fatal("non-zero RC from cmd : %s " % cmd ) 
@@ -153,6 +144,29 @@ class IPath(object):
         assert rc == 0,  rc
         log.debug("cmd:[%s] out:%d " % (cmd, len(out)) ) 
         return out 
+
+    @classmethod
+    def run0(cls, cmd):
+        #cpr = subprocess.run(cmd.split(" "), check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        args = list(filter(None, cmd.split(" ")))  
+        ## mysteriously leaving a space on the end, causes to list many files, not just the one
+        ##print(args)
+
+        cpr = subprocess.run(args, check=True, text=True, capture_output=True)
+        out = cpr.stdout
+        rc = cpr.returncode 
+        ##print(str(out))
+        pass
+        if rc != 0:
+            log.fatal("non-zero RC from cmd : %s " % cmd ) 
+        pass     
+        assert rc == 0,  rc
+        log.debug("cmd:[%s] out:%d " % (cmd, len(out)) ) 
+        return out 
+
+
+
 
     @classmethod
     def parse(cls, line, ptn):

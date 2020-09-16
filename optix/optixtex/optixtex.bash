@@ -8,6 +8,47 @@ optixtex-usage(){ cat << EOU
 OptiX Textures
 ===============
 
+
+Layered 2d uchar4 not working for me 
+--------------------------------------
+
+::
+
+     7704   /**
+     7705   * Deprecated in OptiX 3.9. Use @ref rtBufferGetMipLevelCount instead.
+     7706   *
+     7707   */
+     7708   RTresult RTAPI rtTextureSamplerGetMipLevelCount(RTtexturesampler texturesampler, unsigned int* num_mip_levels);
+     7709 
+     7710   /**
+     7711   * Deprecated in OptiX 3.9. Use texture samplers with layered buffers instead. See @ref rtBufferCreate.
+     7712   *
+     7713   */
+     7714   RTresult RTAPI rtTextureSamplerSetArraySize(RTtexturesampler texturesampler, unsigned int num_textures_in_array);
+     7715 
+     7716   /**
+     7717   * Deprecated in OptiX 3.9. Use texture samplers with layered buffers instead. See @ref rtBufferCreate.
+     7718   *
+     7719   */
+     7720   RTresult RTAPI rtTextureSamplerGetArraySize(RTtexturesampler texturesampler, unsigned int* num_textures_in_array);
+     7721 
+
+
+     8326   * The supported flags are:
+     8327   *
+     8328   * -  @ref RT_BUFFER_GPU_LOCAL
+     8329   * -  @ref RT_BUFFER_COPY_ON_DIRTY
+     8330   * -  @ref RT_BUFFER_LAYERED
+     8331   * -  @ref RT_BUFFER_CUBEMAP
+     8332   *
+     8333   * If RT_BUFFER_LAYERED flag is set, buffer depth specifies the number of layers, not the depth of a 3D buffer.
+     8334   * If RT_BUFFER_CUBEMAP flag is set, buffer depth specifies the number of cube faces, not the depth of a 3D buffer.
+     8335   * See details in @ref rtBufferSetSize3D 
+     8336   *
+
+
+
+
 Have to think thru entire trace to determine appropriate repr
 ---------------------------------------------------------------
 

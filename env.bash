@@ -2071,3 +2071,8 @@ vulkanrt-(){      . $(env-home)/graphics/vulkan/vulkanrt.bash && vulkanrt-env $*
 intelrt-(){      . $(env-home)/graphics/intel/intelrt.bash && intelrt-env $* ; }
 ospray-(){      . $(env-home)/embree/ospray.bash && ospray-env $* ; }
 plotoptix-(){      . $(env-home)/graphics/optix7/plotoptix.bash && plotoptix-env $* ; }
+slurm-(){      . $(env-home)/batch/slurm.bash && slurm-env $* ; }
+osl-(){      . $(env-home)/graphics/osl/osl.bash && osl-env $* ; }
+pimpl-(){      . $(env-home)/design/pimpl.bash && pimpl-env $* ; }
+oap-(){      . $(env-home)/graphics/optix_apps/oap.bash && oap-env $* ; }
+py3-(){      . $(env-home)/python/py3/py3.bash && py3-env $* ; }

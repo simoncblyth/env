@@ -216,7 +216,7 @@ CREATE TABLE oomon (date text,val real)
          for d in self:
              def value(k):
                  return d.get(k,'NULL')
-             vals = map( value, self.fields ) 
+             vals = list(map( value, self.fields )) 
              entries.append(  vals )
          sql = 'INSERT OR REPLACE INTO %(tn)s VALUES (%(qxn)s)' % locals()
          log.debug("sql %s " % sql )     
@@ -299,7 +299,8 @@ CREATE TABLE oomon (date text,val real)
 
     def dump(self, sql="select rowid, * from %(tn)s ;" ):
         ctx = dict(self.conf, sql=sql % self.conf )
-        print os.popen("echo '%(sql)s' | sqlite3 %(path)s " % ctx).read()
+        q = os.popen("echo '%(sql)s' | sqlite3 %(path)s " % ctx).read()
+        print(q)  
 
 
     @classmethod
@@ -345,7 +346,7 @@ def demo():
     t = Table("demo.db", "tgzs", date="text", size="real" )
     t.add( date='2001-10-10', size=10 )
     t.add( date='2002-10-10', size=20 )
-    print t
+    print(t)
     t.insert()
 
 
@@ -353,9 +354,9 @@ def test_iterdict():
     dbp = "/tmp/env/simtab/tscm_backup_check.db"
     #t = Table(dbp, "tgzs", nodepath="text primary key", node="text", dir="text", date="text", size="real" ) 
     t = Table(dbp, "tgzs") 
-    print t.fields
+    print(t.fields)
     for d in t.iterdict("select * from tgzs"):
-        print d 
+        print(d) 
 
 def test_small_table_id():
     urls = "a b c d e f g".split()
@@ -384,8 +385,8 @@ if __name__ == '__main__':
     colors = "red green blue red green blue".split()
     for col in colors:
         ct.add( label=col , _insert=True)
-        print "lastrowid ", ct.cursor.lastrowid 
-
+        print("lastrowid %d" % ct.cursor.lastrowid) 
+    pass
     ct.dump()
 
 

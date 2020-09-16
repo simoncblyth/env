@@ -114,6 +114,26 @@ add remote for the upstream repo
     epsilon:plog blyth$ 
 
 
+another example of adding upstream remote
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+     
+    (base) epsilon:g4ok blyth$ cd ~/G4OpticksTest
+    (base) epsilon:G4OpticksTest blyth$ git remote -v 
+    origin	git@github.com:simoncblyth/G4OpticksTest.git (fetch)
+    origin	git@github.com:simoncblyth/G4OpticksTest.git (push)
+    (base) epsilon:G4OpticksTest blyth$ 
+    (base) epsilon:G4OpticksTest blyth$ 
+    (base) epsilon:G4OpticksTest blyth$ git remote add upstream https://github.com/hanswenzel/G4OpticksTest
+    (base) epsilon:G4OpticksTest blyth$ git remote -v
+    origin	git@github.com:simoncblyth/G4OpticksTest.git (fetch)
+    origin	git@github.com:simoncblyth/G4OpticksTest.git (push)
+    upstream	https://github.com/hanswenzel/G4OpticksTest (fetch)
+    upstream	https://github.com/hanswenzel/G4OpticksTest (push)
+    (base) epsilon:G4OpticksTest blyth$ 
+
+
 fetch the changes
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -134,6 +154,21 @@ fetch the changes
      * [new tag]         1.1.2      -> 1.1.2
      * [new tag]         1.1.3      -> 1.1.3
     epsilon:plog blyth$ 
+
+::
+
+    (base) epsilon:G4OpticksTest blyth$ git fetch upstream
+    remote: Enumerating objects: 53, done.
+    remote: Counting objects: 100% (53/53), done.
+    remote: Compressing objects: 100% (29/29), done.
+    remote: Total 53 (delta 34), reused 43 (delta 24), pack-reused 0
+    Unpacking objects: 100% (53/53), done.
+    From https://github.com/hanswenzel/G4OpticksTest
+     * [new branch]      master     -> upstream/master
+     * [new tag]         v0.1.1     -> v0.1.1
+    (base) epsilon:G4OpticksTest blyth$ 
+
+
 
 
 Merge
@@ -156,6 +191,72 @@ Merge
      ...
      create mode 100644 samples/NativeEOL/Main.cpp
     epsilon:plog blyth$ 
+
+
+
+::
+
+    (base) epsilon:G4OpticksTest blyth$ git merge upstream/master
+    Removing src/PhysicsList.cc
+    Removing src/L4Scintillation.cc
+    Removing src/L4Cerenkov.cc
+    Removing include/PhysicsList.hh
+    Removing include/L4Scintillation.hh
+    Removing include/L4Cerenkov.hh
+    Merge made by the 'recursive' strategy.
+     CMakeLists.txt                    |   2 +-
+     G4OpticksTest.cc                  |  20 +++-
+     gdml/G4Opticks.gdml               | 142 ++++++++++++-----------
+     gdml/G4Opticks_test.gdml          | 193 +++++++++++++++++++++++++++++++
+     include/G4.hh                     |   4 +-
+     include/L4Cerenkov.hh             | 263 ------------------------------------------
+     include/L4Scintillation.hh        | 406 -----------------------------------------------------------------
+     include/PhysicsList.hh            |  53 ---------
+     include/PrimaryGeneratorAction.hh |  71 ++++++------
+     include/lArTPCSD.hh               |  52 +++++++++
+     src/DetectorConstruction.cc       |  56 +++------
+     src/EventAction.cc                |   3 +-
+     src/G4.cc                         | 103 ++++++++++++++++-
+     src/L4Cerenkov.cc                 | 859 -----------------------------------------------------------------------------------------------------------------------------------------
+     src/L4Scintillation.cc            | 962 ----------------------------------------------------------------------------------------------------------------------------------------------------------
+     src/PhysicsList.cc                | 227 -------------------------------------
+     src/PrimaryGeneratorAction.cc     |  96 ++++++++--------
+     src/SensitiveDetector.cc          |   5 +-
+     src/TrackerSD.cc                  |  22 +---
+     src/lArTPCSD.cc                   | 167 +++++++++++++++++++++++++++
+     20 files changed, 712 insertions(+), 2994 deletions(-)
+     create mode 100644 gdml/G4Opticks_test.gdml
+     delete mode 100644 include/L4Cerenkov.hh
+     delete mode 100644 include/L4Scintillation.hh
+     delete mode 100644 include/PhysicsList.hh
+     create mode 100644 include/lArTPCSD.hh
+     delete mode 100644 src/L4Cerenkov.cc
+     delete mode 100644 src/L4Scintillation.cc
+     delete mode 100644 src/PhysicsList.cc
+     create mode 100644 src/lArTPCSD.cc
+    (base) epsilon:G4OpticksTest blyth$ 
+
+    (base) epsilon:G4OpticksTest blyth$ git status 
+    On branch master
+    Your branch is ahead of 'origin/master' by 10 commits.
+      (use "git push" to publish your local commits)
+
+    nothing to commit, working tree clean
+    (base) epsilon:G4OpticksTest blyth$ 
+    (base) epsilon:G4OpticksTest blyth$ 
+    (base) epsilon:G4OpticksTest blyth$ git push 
+    Counting objects: 1, done.
+    Writing objects: 100% (1/1), 245 bytes | 245.00 KiB/s, done.
+    Total 1 (delta 0), reused 0 (delta 0)
+    To github.com:simoncblyth/G4OpticksTest.git
+       437a9fc..277faa7  master -> master
+    (base) epsilon:G4OpticksTest blyth$ git status
+    On branch master
+    Your branch is up-to-date with 'origin/master'.
+
+    nothing to commit, working tree clean
+    (base) epsilon:G4OpticksTest blyth$ 
+
 
 
 

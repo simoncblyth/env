@@ -827,4 +827,67 @@ Pointers for what to follow
 * https://github.com/joaovbs96/OptiX-Path-Tracer
 
 
+Lytro : captures light fields (Megarays) : focus after capture
+-----------------------------------------------------------------
+
+* http://optics.miloush.net/lytro/TheResources.aspx
+* https://archive.nytimes.com/www.nytimes.com/interactive/2012/03/01/business/inside-the-lytro.html
+* https://github.com/nrpatel/lfptools
+* https://eclecti.cc/computervision/thoughts-on-the-lytro-light-field-camera
+
+The light field camera reaches closer to the plenoptic function than a standard
+camera in that instead of only summing the photons to arrive at chromacity and 
+luminosity at each pixel, it additionally determines directional information.
+It does so by placing an array of microlenses above the sensor, each of which
+represents a light field pixel and covers a region of sensor pixels. Each
+sensor pixel then captures a ray arriving at a specific direction at its parent
+microlens. 
+
+Lytro ceased operations in late March 2018.
+
+
+Lytro Thesis
+--------------
+
+* https://stanford.edu/class/ee367/reading/Ren%20Ng-thesis%20Lytro.pdf
+* https://en.wikipedia.org/wiki/Ren_Ng
+
+* ~/opticks_refs/Digital_Light_Field_Photography_Ren_Ng_thesis_Lytro.pdf
+
+Ch2, p19
+This is the main point of this chapter: a photograph is an integral projection
+of the canonical light field, where the trajectory of the projection depends on
+the depth at which the photograph is focused.
+
+
+
+
+
+(1991) The Plenoptic Function and the Elements of Early Vision, Edward H. Adelson and James R. Bergen
+-------------------------------------------------------------------------------------------------------
+
+* :google:`Adelson and Bergen Plenoptic`
+* http://persci.mit.edu/pub_pdfs/elements91.pdf
+* ~/opticks_refs/Plenoptic_Function_Adelson_Bergen_elements91.pdf
+
+Space is filled with a dense array of light rays of various intensities. The
+set of rays passing through any point in space is mathematically termed a
+pencil. Leonardo da Vinci refers to this set of rays as a “radiant pyramid”:
+The body of the air is full of an infinite number of radiant pyramids caused by
+the objects located in it. These pyramids intersect and interweave without
+interfering with each other
+
+
+Note that the plenoptic function need not contain any parameters specifying the
+three viewing angles describing the direction of gaze and ori- entation of the
+eye, since rotating the eye without dis- placing it does not affect the
+distribution of light in the bundle of rays impinging on the pupil, but merely
+changes the relative positions at which they happen to strike the retina. The
+fact that some rays are behind the eye and are therefore blocked is irrelevant
+to the present discussion, which is intended to characterize the optical
+information potentially available at each point in space, as if the hy-
+pothetical eye had a 360° field of view.
+
+
+
 
