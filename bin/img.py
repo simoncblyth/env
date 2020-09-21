@@ -5,6 +5,8 @@ img.py
 
 ::
 
+    https://visibleearth.nasa.gov/collection/1484/blue-marble
+
     img.py ~/opticks_refs/Earth_Albedo_8192_4096.jpg --saveppm
 
     (base) epsilon:bin blyth$ du -h /Users/blyth/opticks_refs/Earth_Albedo_*

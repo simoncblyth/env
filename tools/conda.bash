@@ -110,8 +110,8 @@ Linkers and Loaders : http://www.iecc.com/linker/
 * https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
 
 
-Install
----------
+Darwin Install Sep 2018
+-------------------------
 
 * for full logs see ~/conda/
 
@@ -157,16 +157,80 @@ Install
     439 export PATH="/usr/local/env/tools/conda/miniconda3/bin:$PATH"
 
 
+Linux Install Sep 2020
+------------------------
+
+::
+
+    Preparing transaction: done
+    Executing transaction: done
+    installation finished.
+    WARNING:
+        You currently have a PYTHONPATH environment variable set. This may cause
+        unexpected behavior when running the Python interpreter in Miniconda3.
+        For best results, please verify that your PYTHONPATH only points to
+        directories of packages that are compatible with the Python interpreter
+        in Miniconda3: /home/blyth/local/env/tools/conda/miniconda3
+    Do you wish the installer to initialize Miniconda3
+    by running conda init? [yes|no]
+    [no] >>> no
+
+    You have chosen to not have conda modify your shell scripts at all.
+    To activate conda's base environment in your current shell session:
+
+    eval "$(/home/blyth/local/env/tools/conda/miniconda3/bin/conda shell.YOUR_SHELL_NAME hook)" 
+
+    To install conda's shell functions for easier access, first activate, then:
+
+    conda init
+
+    If you'd prefer that conda's base environment not be activated on startup, 
+       set the auto_activate_base parameter to false: 
+
+    conda config --set auto_activate_base false
+
+    Thank you for installing Miniconda3!
+    [blyth@localhost conda]$ 
+
+
+    [blyth@localhost conda]$ /home/blyth/local/env/tools/conda/miniconda3/bin/conda init bash
+    no change     /home/blyth/local/env/tools/conda/miniconda3/condabin/conda
+    no change     /home/blyth/local/env/tools/conda/miniconda3/bin/conda
+    no change     /home/blyth/local/env/tools/conda/miniconda3/bin/conda-env
+    no change     /home/blyth/local/env/tools/conda/miniconda3/bin/activate
+    no change     /home/blyth/local/env/tools/conda/miniconda3/bin/deactivate
+    no change     /home/blyth/local/env/tools/conda/miniconda3/etc/profile.d/conda.sh
+    no change     /home/blyth/local/env/tools/conda/miniconda3/etc/fish/conf.d/conda.fish
+    no change     /home/blyth/local/env/tools/conda/miniconda3/shell/condabin/Conda.psm1
+    no change     /home/blyth/local/env/tools/conda/miniconda3/shell/condabin/conda-hook.ps1
+    no change     /home/blyth/local/env/tools/conda/miniconda3/lib/python3.7/site-packages/xontrib/conda.xsh
+    no change     /home/blyth/local/env/tools/conda/miniconda3/etc/profile.d/conda.csh
+    modified      /home/blyth/.bashrc
+
+    ==> For changes to take effect, close and re-open your current shell. <==
+
+
 
 conda basics
 --------------
 
 ::
 
+    conda install numpy
     conda install scipy
     conda install ipython
     conda install sympy 
     conda install matplotlib
+
+
+conda on Linux messes with prompt PS1
+---------------------------------------
+
+::
+
+   echo "changeps1: False" >> ~/.condarc
+
+
 
 
 conda install of anything taking 30 min at a minimum
