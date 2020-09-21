@@ -16,6 +16,12 @@ Refs
 * https://conda-forge.org/
 
 
+::
+
+   mv Miniconda3-latest-MacOSX-x86_64.sh Miniconda3-4.5.11-MacOSX-x86_64.sh
+   # identified by digest after making mistake of installing "latest"
+
+
 conda source
 ---------------
 
@@ -175,15 +181,67 @@ EOU
 }
 conda-dir(){ echo $(local-base)/env/tools/conda/miniconda3 ; }
 conda-cd(){  cd $(conda-dir); }
+
+conda-ver(){ echo py37_4.8.3 ; }
+conda-url()
+{
+   case $(uname) in 
+      Darwin) echo https://repo.anaconda.com/miniconda/Miniconda3-$(conda-ver)-MacOSX-x86_64.sh ;;
+       Linux) echo https://repo.anaconda.com/miniconda/Miniconda3-$(conda-ver)-Linux-x86_64.sh ;;
+   esac
+}
+
+conda-info(){ cat << EOI
+ 
+   conda-dir : $(conda-dir)
+   conda-ver : $(conda-ver)
+   conda-url : $(conda-url)
+   conda-dst : $(conda-dst)
+   conda-md5 : $(conda-md5)
+
+EOI
+}
+
+conda-md5(){
+   local dst=$(conda-dst)
+   [ ! -f "$dst" ] && echo $msg no dst $dst && return 1
+   case $(uname) in 
+      Darwin) md5 $dst 2>/dev/null ;; 
+      Linux) md5sum $dst 2>/dev/null ;; 
+   esac
+}
+
+conda-dst(){
+   local dir=$(dirname $(conda-dir)) 
+   local url=$(conda-url)
+   local nam=$(basename $url)
+   echo $dir/$nam
+}
+
 conda-get(){
    local dir=$(dirname $(conda-dir)) &&  mkdir -p $dir && cd $dir
 
-   local url=https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+   local url=$(conda-url)
    local nam=$(basename $url)
 
    [ ! -f "$nam" ] && curl -L -O $url
 
-   [ ! -d miniconda3 ] && bash $nam -p $(conda-dir)
-
-
 }
+
+conda-install(){
+
+   local dir=$(dirname $(conda-dir)) &&  mkdir -p $dir && cd $dir
+
+   local url=$(conda-url)
+   local nam=$(basename $url)
+
+   [ ! -f "$nam" ] && echo $msg must conda-get first && return 1
+   [ ! -d miniconda3 ] && bash $nam -p $(conda-dir)
+}
+
+conda--(){
+  conda-get  
+  conda-install
+}
+
+

@@ -24,7 +24,12 @@ commands module has gone
     pass 
            
 
+file has gone
+---------------
 
+::
+
+   find . -name '*.py' -exec grep -l file\( {} \;
 
 
 
