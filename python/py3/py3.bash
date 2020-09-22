@@ -32,6 +32,31 @@ file has gone
    find . -name '*.py' -exec grep -l file\( {} \;
 
 
+NameError: name 'unicode' is not defined
+------------------------------------------
+
+* https://stackoverflow.com/questions/19877306/nameerror-global-name-unicode-is-not-defined-in-python-3
+
+Python 3 renamed the unicode type to str, the old str type has been replaced by bytes
+
+* http://python3porting.com/problems.html
+
+The biggest problem you may encounter relates to one of the most important
+changes in Python 3; strings are now always Unicode. This will simplify any
+application that needs to use Unicode, which is almost any application that is
+to be used outside of English-speaking countries.
+
+Of course, since strings are now always Unicode, we need another type for
+binary data. Python 3 has two new binary types, bytes and bytearrays. The bytes
+type is similar to the the string type, but instead of being a string of
+characters, it’s a string of integers. Bytearrays are more like a list, but a
+list that can only hold integers between 0 and 255. A bytearray is mutable and
+used if you need to manipulate binary data. Because it’s a new type, although
+it also exists in Python 2.6, I’m mostly going to ignore it in this book and
+concentrate on other ways of handling binary data.
+
+
+
 
 
 EOU

@@ -239,24 +239,62 @@ conda install of anything taking 30 min at a minimum
 * https://github.com/conda/conda/issues/7690
 
 
+problem with installing ipython into 2
+-----------------------------------------
+
+::
+
+    ===> LINKING PACKAGE: conda-forge::ipython-5.8.0-py27_1 <===
+      prefix=/usr/local/env/tools/conda/miniconda2
+      source=/usr/local/env/tools/conda/miniconda2/pkgs/ipython-5.8.0-py27_1
+
+
+    pyc file failed to compile successfully (run_command failed)
+    python_exe_full_path: /usr/local/env/tools/conda/miniconda2/bin/python2.7
+    py_full_path: /usr/local/env/tools/conda/miniconda2/lib/python2.7/site-packages/asn1crypto/parser.py
+    pyc_full_path: /usr/local/env/tools/conda/miniconda2/lib/python2.7/site-packages/tqdm/asyncio.pyc
+    compile rc: 1
+    compile stdout: Compiling lib/python2.7/site-packages/tqdm/asyncio.py ...
+      File "lib/python2.7/site-packages/tqdm/asyncio.py", line 36
+        async def __anext__(self):
+                ^
+    SyntaxError: invalid syntax
+
+
+    compile stderr: 
+
+
+    done
+
+
+
 
 
 EOU
 }
-conda-dir(){ echo $(local-base)/env/tools/conda/miniconda3 ; }
+
+
+conda-pymajor(){ echo 2 ; }
+#conda-pymajor(){ echo 3 ; }
+
+conda-dir(){ echo $(local-base)/env/tools/conda/miniconda$(conda-pymajor) ; }
 conda-cd(){  cd $(conda-dir); }
 
-conda-ver(){ echo py37_4.8.3 ; }
+conda-ver(){ echo py$(conda-pymajor)7_4.8.3 ; }
+
+conda-dists(){ open https://repo.anaconda.com/miniconda/ ; }
 conda-url()
 {
    case $(uname) in 
-      Darwin) echo https://repo.anaconda.com/miniconda/Miniconda3-$(conda-ver)-MacOSX-x86_64.sh ;;
-       Linux) echo https://repo.anaconda.com/miniconda/Miniconda3-$(conda-ver)-Linux-x86_64.sh ;;
+      Darwin) echo https://repo.anaconda.com/miniconda/Miniconda$(conda-pymajor)-$(conda-ver)-MacOSX-x86_64.sh ;;
+       Linux) echo https://repo.anaconda.com/miniconda/Miniconda$(conda-pymajor)-$(conda-ver)-Linux-x86_64.sh ;;
    esac
 }
 
 conda-info(){ cat << EOI
  
+   conda-pymajor : $(conda-pymajor)
+
    conda-dir : $(conda-dir)
    conda-ver : $(conda-ver)
    conda-url : $(conda-url)
@@ -300,7 +338,7 @@ conda-install(){
    local nam=$(basename $url)
 
    [ ! -f "$nam" ] && echo $msg must conda-get first && return 1
-   [ ! -d miniconda3 ] && bash $nam -p $(conda-dir)
+   [ ! -d miniconda$(conda-major) ] && bash $nam -p $(conda-dir)
 }
 
 conda--(){
