@@ -755,3 +755,9 @@ svn-change-password(){
 
 
 
+svn-offline-blyth(){
+   cd ~/junotop/offline
+   svn log -v --search blyth > ~/$FUNCNAME.log
+}
+
+

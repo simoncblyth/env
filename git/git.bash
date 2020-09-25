@@ -1399,3 +1399,55 @@ git-upstream(){
    # find the upstream of master branch 
    git rev-parse --abbrev-ref master@{upstream}
 }
+
+
+git-year(){ echo ${GIT_YEAR:-$(date +"%Y")} ; }
+
+git-month-notes(){ cat << EON
+Negate the month argument for last year.
+Adapted from hg-month
+
+Second argument controls the format of the logging, see ~/.gitconfig
+for possibilities.
+
+lg : commit message one line 
+l  : longer with paths changed
+ls : cute ascii showing how much changed 
+
+Eg::
+
+    cd ~/opticks
+    git-month 8 ls   ## August commits  
+
+EON
+}
+
+git-month(){ 
+   local arg=${1:-8}
+   local log=${2:-lg}
+   local year=$(git-year) 
+
+   [ "${arg:0:1}" == "-" ] && arg=${arg:1} && year=$(( $year - 1))
+
+   local beg=$(printf "%0.2u" $arg)
+   local end=$(printf "%0.2u" $(( $arg + 1)))
+
+   local byear=$year
+   local eyear=$year
+
+   [ "${end}" == "13" ] && end="01" && eyear=$(( $byear + 1  ))
+
+   local cmd="git $log --after $byear-$beg-01 --before $eyear-$end-01 "
+
+   local reverse=1
+   if [ $reverse -eq 1 ]; then 
+       case $(uname) in
+          Darwin) cmd="$cmd | tail -r" ;;
+          Linux)  cmd="$cmd | tac" ;;
+       esac
+   fi 
+
+   echo $cmd
+   eval $cmd
+}
+
