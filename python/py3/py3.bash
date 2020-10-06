@@ -32,6 +32,54 @@ file has gone
    find . -name '*.py' -exec grep -l file\( {} \;
 
 
+2to3
+-----
+
+* http://python3porting.com/2to3.html
+
+::
+
+    epsilon:opticks blyth$ which 2to3
+    /Users/blyth/miniconda3/bin/2to3
+
+
+
+bytes/str/unicode
+---------------------
+
+* https://stackoverflow.com/questions/16476553/getting-the-same-unicode-string-length-in-both-python-2-and-3
+* http://python3porting.com/problems.html#nicer-solutions
+
+::
+
+    import sys, codecs
+    if sys.version_info.major > 2:
+        u_ = lambda _:_                            # py3 strings are unicode already 
+        b_ = lambda _:codecs.latin_1_encode(_)[0]  # from py3 unicode string to bytes
+        d_ = lambda _:codecs.latin_1_decode(_)[0]  # from bytes to py3 unicode string
+    else:
+        u_ = lambda _:unicode(_, "utf-8")          # py2 strings are bytes
+        b_ = lambda _:_ 
+        d_ = lambda _:_ 
+    pass
+
+
+TypeError: Object of type int64 is not JSON serializable
+----------------------------------------------------------
+
+Works in py2 gives TypeError in py3::
+
+   json.dump( {"a":1, "b":np.int64(42) }, open("/tmp/d.json","w"))   
+
+Fix with custom encode::
+
+   json.dump( {"a":1, "b":np.int64(42) }, open("/tmp/d.json","w"), cls=NPEncoder )   
+
+See opticks.ana.base::
+
+     class NPEncoder(json.JSONEncoder)
+
+
 NameError: name 'unicode' is not defined
 ------------------------------------------
 
@@ -56,6 +104,12 @@ it also exists in Python 2.6, I’m mostly going to ignore it in this book and
 concentrate on other ways of handling binary data.
 
 
+NameError: name 'reduce' is not defined
+------------------------------------------
+
+::
+
+    from functools import reduce    ## works in py2 and py3
 
 
 

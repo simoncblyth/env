@@ -103,8 +103,8 @@ clui-alias(){
    alias eu="env-u"
    #alias pyc="find $ENV_HOME -name '*.pyc' -exec rm -f {} \;"
    alias pyc="clui-pyc"
-   alias p="clui-path"
-   alias pp="clui-ppath"
+   alias pp="clui-path"
+   alias ppp="clui-ppath"
 
 }
 

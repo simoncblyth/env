@@ -274,8 +274,8 @@ EOU
 }
 
 
-conda-pymajor(){ echo 2 ; }
-#conda-pymajor(){ echo 3 ; }
+#conda-pymajor(){ echo 2 ; }
+conda-pymajor(){ echo 3 ; }
 
 conda-dir(){ echo $(local-base)/env/tools/conda/miniconda$(conda-pymajor) ; }
 conda-cd(){  cd $(conda-dir); }
