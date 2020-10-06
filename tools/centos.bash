@@ -192,6 +192,28 @@ Now devtools-8 is available and it's possible to use it by following commands:
 * https://developers.redhat.com/products/developertoolset/hello-world#fndtn-macos
 
 
+devtoolset-9
+-------------------
+
+::
+
+    blyth@localhost source]$ scl enable devtoolset-9 bash
+    .bashrc OPTICKS_MODE dev TERM_ORIG xterm-256color TERM xterm-256color
+    /home/blyth/junotop/ExternalLibs/Opticks/0.1.0/bashrc : no OPTICKS_TOP : OPTICKS_MODE dev
+    [blyth@localhost source]$ gcc --version
+    gcc (GCC) 9.3.1 20200408 (Red Hat 9.3.1-2)
+    Copyright (C) 2019 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    [blyth@localhost source]$ 
+
+
+
+
+
+
+
 
 EOU
 }
