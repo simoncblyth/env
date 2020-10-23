@@ -138,6 +138,46 @@ cpp streambufs : subverting a method that wants to write to a file to write to a
 
 
 
+ordering critical when initializer lists call methods that populate vectors
+-----------------------------------------------------------------------------
+
+Spot the bug in the below::
+
+    // hh
+
+    struct Demo
+    {
+        unsigned initVec(); 
+
+        //  the m_items vector should be before m_num_items 
+        unsigned         m_num_items ; 
+        std::vector<int> m_items ; 
+
+    };
+
+
+    // cc
+    Demo::Demo()
+       :
+       m_num_items(initVec())
+    { 
+    }
+
+    unsigned Demo::initVec()
+    {
+       m_items.push_back(1); 
+       m_items.push_back(2); 
+       m_items.push_back(3); 
+       return m_items.size(); 
+    }
+ 
+
+Have observed the initVec appearing to work, but then being 
+initialized back to being empty.  Solution is for the vector to 
+be prior to m_num_items.
+
+
+
 tuple and tie
 ---------------
 

@@ -64,6 +64,39 @@ bytes/str/unicode
     pass
 
 
+
+
+TypeError: ufunc 'true_divide' output (typecode 'd') could not be coerced to provided output parameter (typecode 'l') according to the casting rule ''same_kind''
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Looks to be a problem of mixing ints and floats::
+
+    In [1]: a = np.array([1,2,3])                                                                                                            
+
+    In [2]: b = 2.0                                                                                                                          
+
+    In [3]: a /= b                                                                                                                           
+    ---------------------------------------------------------------------------
+    TypeError                                 Traceback (most recent call last)
+    <ipython-input-3-4a5ec9bd5fbc> in <module>
+    ----> 1 a /= b
+
+    TypeError: ufunc 'true_divide' output (typecode 'd') could not be coerced to provided output parameter (typecode 'l') according to the casting rule ''same_kind''
+
+
+
+TypeError: Unicode-objects must be encoded before hashing
+-----------------------------------------------------------
+
+::
+
+    import hashlib
+    hashlib.md5("hello") 
+
+    In [33]: hashlib.md5(b_("hello")).hexdigest()
+    Out[33]: '5d41402abc4b2a76b9719d911017c592'
+
+
 TypeError: Object of type int64 is not JSON serializable
 ----------------------------------------------------------
 

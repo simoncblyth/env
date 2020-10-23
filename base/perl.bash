@@ -1,5 +1,21 @@
+perl-vi(){ vi $BASH_SOURCE ; } 
+perl-oneliners(){ cat << EOU
 
-perl-usage(){ cat << EOU
+
+Simple dump key value pairs, eg from simple json files
+--------------------------------------------------------
+
+::
+
+   perl -ne 'm/\"(\S*)\"\s*:\s*\"(\S*)\"/ && print "$1 : $2\n" ' manifest.json
+
+   perl -ne 'm/\"(type)\"\s*:\s*\"(\S*)\"/ && print "$2\n" ' manifest.json
+
+
+
+
+
+
 
 EOU
 }
