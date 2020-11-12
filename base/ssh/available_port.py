@@ -29,7 +29,7 @@ def available_port():
     return available_ports(1)[0]
 
 def main():
-    print available_port()
+    print(available_port())
 
 if __name__ == '__main__':
     main()

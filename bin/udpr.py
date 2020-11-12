@@ -18,6 +18,7 @@ def send(sock, args):
         sent = sock.sendto(args.msg, args.addr)
     finally:
         sock.close()
+    pass
 
 def sendrecv(sock, args):
     log.info("sendrecv [%s] to %s " % (args.msg, args.addr))
@@ -28,6 +29,7 @@ def sendrecv(sock, args):
             log.info("revcfrom [%s] [%s] " % (server, data) )
     finally:
         sock.close()
+    pass
 
 def recvfrom(sock, args):
     """
@@ -42,6 +44,8 @@ def recvfrom(sock, args):
             log.info("revcfrom [%s] [%s] " % (server, data) )
         finally:
             sock.close()
+        pass
+    pass
 
 def recv(sock, args):
     log.info("recv/select %s " % str(args.addr) )
@@ -51,6 +55,7 @@ def recv(sock, args):
         result = select.select([sock],[],[])
         msg = result[0][0].recv(args.bufsize) 
         log.info(msg)
+    pass
 
 def bind(sock, args):
     if args.bind:
@@ -58,11 +63,11 @@ def bind(sock, args):
         sock.bind(args.addr)
     else:
         log.info("not binding")
+    pass
 
 
-
-def main():
-    parser = argparse.ArgumentParser()
+def parse_args(doc):
+    parser = argparse.ArgumentParser(doc)
     d = {}
 
     d['level'] = "INFO"
@@ -89,11 +94,18 @@ def main():
     parser.add_argument("--bufsize", type=int, default=d['bufsize'] ) 
 
     args = parser.parse_args()
+
     logging.basicConfig(level=getattr(logging, args.level.upper()),format="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
     args.msg = " ".join(map(str,args.msg))
     args.addr = (args.host, args.port)
+    return args 
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+
+def main():
+    args = parse_args(__doc__)
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)     # UDP
 
     if args.sendrecv: 
         sendrecv(sock, args )
@@ -105,6 +117,10 @@ def main():
         send(sock, args )
     else:
         log.info("use one of : --sendrecv/--recv/--recvfrom/--send  to do something")
+    pass
+
+    sock.close()
+  
 
 
 if __name__ == '__main__':

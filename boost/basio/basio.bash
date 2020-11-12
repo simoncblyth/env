@@ -25,6 +25,50 @@ Conceptual Intro
 
 * file:///opt/local/share/doc/boost/doc/html/boost_asio/overview/core/basics.html
 
+
+Users of Boost Asio
+---------------------
+
+* https://awesomeopensource.com/projects/asio
+
+* https://github.com/mabrarov/asio_samples
+
+  code not easy to follow
+
+
+* https://github.com/BaseMax/BoostAsioChat
+
+  nicely structured (GPL)
+  similar to /usr/local/env/boost/basio/example/cpp03/chat (Boost Software License)
+
+
+Examples
+-----------
+
+/usr/local/env/boost/basio/example/cpp03/chat
+
+
+
+Changes io_service -> io_context
+----------------------------------
+
+* https://stackoverflow.com/questions/59753391/boost-asio-io-service-vs-io-context
+
+
+
+Tutorials
+-------------
+
+* https://dens.website/tutorials/cpp-asio
+
+
+
+Reactor vs Proactor I/O Design Patterns 
+------------------------------------------
+
+* https://www.artima.com/articles/io_design_patterns.html#part2
+
+
 Talks
 -------
 
@@ -330,9 +374,23 @@ How to integrate Boost ASIO into GUI app
         boost::thread ioThread(boost::bind(ioConnection, &io_service));
         
 
+35 Lesson Course on Boost Asio : Asynchronous I/O with C++
+------------------------------------------------------------
 
-boost asio tutorial
---------------------
+How to write client-server systems in modern C++ with Boost.Asio, Boost.Beast
+and C++20 Networking
+
+* https://dens.website/tutorials/cpp-asio
+
+Integrating boost asio with GUI render loop with io_context.poll
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://dens.website/tutorials/cpp-asio/polling
+
+
+
+official boost asio tutorial
+-------------------------------
 
 * http://www.boost.org/doc/libs/1_39_0/doc/html/boost_asio/tutorial/tuttimer3.html
 
@@ -475,8 +533,8 @@ Event Loop Integration
 ------------------------
 
 * http://www.zaphoyd.com/websocketpp/manual/common-patterns/io-strategies-and-event-loop-integration
-
 * http://stackoverflow.com/questions/1001032/how-to-integrate-boost-asio-main-loop-in-gui-framework-like-qt4-or-gtk
+
 
 Just ASIO without boost
 ---------------------------
@@ -494,31 +552,72 @@ Using ASIO with GLFW
 * https://bitbucket.org/voxelstorm/voxelstorm/wiki/VoxelStorm%20Dependencies
 
 
+polling for integration
+-------------------------
+
+* https://dens.website/tutorials/cpp-asio
+* https://dens.website/tutorials/cpp-asio/polling
+
+::
+
+    epsilon:example blyth$ find . -type f -exec grep -H poll {} \;
+    ./cpp11/invocation/prioritised_handlers.cpp:    // rather than executing them from within the poll_one() call.
+    ./cpp11/invocation/prioritised_handlers.cpp:    while (io_context.poll_one())
+    ./cpp11/nonblocking/third_party_lib.cpp:// operations directly on a socket. It needs to be polled to determine whether
+    ./cpp11/timers/time_t_timer.cpp:// (less than one second away) we poll the clock more frequently to detect the
+    ./cpp11/timers/time_t_timer.cpp:// trade off between accuracy and the increased CPU cost of polling. In extreme
+    ./cpp11/timers/time_t_timer.cpp:  // Determine how long until the clock should be next polled to determine
+    ./cpp11/timers/time_t_timer.cpp:  // Determine how long until the clock should be next polled to determine
+    ./cpp03/invocation/prioritised_handlers.cpp:    // rather than executing them from within the poll_one() call.
+    ./cpp03/invocation/prioritised_handlers.cpp:    while (io_context.poll_one())
+    ./cpp03/nonblocking/third_party_lib.cpp:// operations directly on a socket. It needs to be polled to determine whether
+    ./cpp03/timers/time_t_timer.cpp:// (less than one second away) we poll the clock more frequently to detect the
+    ./cpp03/timers/time_t_timer.cpp:// trade off between accuracy and the increased CPU cost of polling. In extreme
+    ./cpp03/timers/time_t_timer.cpp:  // Determine how long until the clock should be next polled to determine
+    ./cpp03/timers/time_t_timer.cpp:  // Determine how long until the clock should be next polled to determine
+    epsilon:example blyth$ 
+
 
 
 
 EOU
 }
 basio-dir(){ echo $(local-base)/env/boost/basio ; }
+basio-edir(){ echo $(env-home)/boost/basio ; }
 basio-sdir(){ echo $(env-home)/boost/basio ; }
 basio-cd(){  cd $(basio-dir); }
 basio-scd(){  mkdir -p $(basio-sdir) ; cd $(basio-sdir); }
-basio-mate(){ mate $(basio-dir) ; }
-basio-get(){
-   local dir=$(dirname $(basio-dir)) &&  mkdir -p $dir && cd $dir
-
-    
-
-}
-
 
 basio-contents(){ port contents boost  | grep asio ; }
 
 basio-doc(){ open file:///opt/local/share/doc/boost/doc/html/boost_asio.html ; }
 
+
+basio-ref(){ open https://www.boost.org/doc/libs/1_74_0/doc/html/boost_asio/reference.html ; }
+
+basio-index(){ open file:///opt/local/share/doc/boost/libs/asio/index.html ; }
+
 basio-example-idir(){ echo /opt/local/share/doc/boost/libs/asio/example ; }
-basio-example-src(){  echo $(basio-example-idir)/cpp03 ; }
-basio-example-dst(){  echo $(basio-dir)/example/cpp03 ; }
+
+#basio-example-lang(){ echo cpp03 ; } 
+basio-example-lang(){ echo cpp11 ; } 
+basio-example-src(){  echo $(basio-example-idir)/$(basio-example-lang) ; }
+basio-example-dst(){  echo $(basio-dir)/example/$(basio-example-lang) ; }
+
+basio-tutorial-dir(){ echo $(basio-edir)/tutorial ; }
+basio-tutorial-cd(){  cd $(basio-tutorial-dir) ; }
+
+basio-example-info(){ cat << EOI
+
+   basio-example-src : $(basio-example-src)
+   basio-example-dst : $(basio-example-dst)
+
+   basio-example-get
+       copy from src to dst 
+
+EOI
+}
+
 basio-example-get(){  
    local src=$(basio-example-src)
    local dst=$(basio-example-dst)
@@ -526,6 +625,7 @@ basio-example-get(){
    mkdir -p $(dirname $dst)
    cp -r $src $dst/
 }
+basio-example-scd(){ cd $(basio-example-src); }  
 basio-example-cd(){  cd $(basio-example-dst); }  
 
 basio-example-find(){
@@ -538,16 +638,19 @@ basio-example-lfind(){
 
 
 basio-example-make(){ 
-   local cpp=$1
+   local path=$1
+   local cpp=$(basename $path) 
    local bin=${cpp/.cpp}
    [ "$cpp" == "$bin" ] && echo invalid cpp $cpp && return 
 
-   local tmp=/tmp/env/boost/basio/$bin
+   local tmp=/tmp/$USER/env/boost/basio/$bin
    mkdir -p $(dirname $tmp)
-   local cmd="clang++ -I/opt/local/include -L/opt/local/lib -lboost_system-mt -lboost_thread-mt $cpp -o $tmp "
+   local cmd="clang++ -I/opt/local/include -L/opt/local/lib -lboost_system-mt -lboost_thread-mt -lboost_chrono-mt $cpp -o $tmp "
    echo $cmd
    eval $cmd
- }
+}
+
+basio-example-make-1(){  basio-example-make echo/async_tcp_echo_server.cpp ; }
 
 
 
