@@ -34,6 +34,28 @@ listener_thread (void *args, zctx_t *ctx, void *pipe)
     }   
 }
 
+/**
+
+* https://zguide.zeromq.org/docs/chapter2/#ZeroMQ-s-Built-In-Proxy-Function
+
+The request-reply broker binds to two endpoints, one for clients to connect to
+(the frontend socket) and one for workers to connect to (the backend). 
+
+FRONTEND
+    clients make REQ
+
+BACKEND 
+     workers make REP 
+
+
+
+* DEALER and ROUTER let us extend REQ-REP across an intermediary, that is, our little broker
+
+
+
+
+**/
+
 int main (int argc, char *argv [])
 {
     char* frontend_ = getenv("FRONTEND");

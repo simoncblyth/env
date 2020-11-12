@@ -1,4 +1,3 @@
-# === func-gen- : zeromq/czmq/czmq fgp zeromq/czmq/czmq.bash fgn czmq fgh zeromq/czmq
 czmq-src(){      echo zeromq/czmq/czmq.bash ; }
 czmq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(czmq-src)} ; }
 czmq-vi(){       vi $(czmq-source) ; }
@@ -20,10 +19,10 @@ Installing broker onto a fresh node G5
 Get, build and install on G5::
 
     zeromq-
-    zeromq-build
+    zeromq--
 
     czmq-
-    czmq-build    
+    czmq--
 
     czmq-cc-build    # compile broker 
 
@@ -111,9 +110,31 @@ czmq-bindir(){ echo $(local-base)/env/bin ; }
 czmq-cd(){  cd $(czmq-sdir); }
 czmq-icd(){  cd $(czmq-dir); }
 czmq-scd(){  cd $(czmq-sdir); }
-czmq-mate(){ mate $(czmq-dir) ; }
-czmq-name(){  echo czmq-2.0.3 ; }
-czmq-url(){ echo http://download.zeromq.org/$(czmq-name).tar.gz ; }
+
+#czmq-version(){ echo 4.2.0 ; }   ## circa 2020
+czmq-version(){ echo 2.0.3 ; }   ## circa 2015
+
+czmq-name(){  echo czmq-$(czmq-version) ; }
+
+czmq-url(){
+   case $(czmq-version) in 
+      2.*) czmq-archive-url ;;
+      4.*) czmq-release-url ;;
+   esac
+}
+czmq-release-url(){ echo https://github.com/zeromq/czmq/releases/download/v$(czmq-version)/czmq-$(czmq-version).tar.gz ; }
+czmq-archive-url(){ echo https://archive.org/download/zeromq_czmq_$(czmq-version)/czmq-$(czmq-version).tar.gz ; }
+
+
+czmq-info(){  cat << EOI
+
+    czmq-version  : $(czmq-version)
+    czmq-url      : $(czmq-url)
+    czmq-dir      : $(czmq-dir)
+
+EOI
+}
+
 czmq-get(){
    local dir=$(dirname $(czmq-dir)) &&  mkdir -p $dir && cd $dir
    local url=$(czmq-url)
@@ -135,13 +156,11 @@ czmq-make(){
 }
 czmq-install(){ czmq-make install ; }
 
-czmq-build(){
-
+czmq--(){
    czmq-get
    czmq-configure
    czmq-make
    czmq-install
-
 }
 
 
@@ -180,7 +199,8 @@ czmq-cc-build(){
 # NB using config from zmq- for interopability 
 
 
-czmq-info(){
+czmq-info-old()
+{
   local names="czmq-broker-env czmq-client-addr czmq-worker-addr"
   for name in $names ; do
      echo $name $($name)
@@ -193,16 +213,74 @@ czmq-worker-addr(){ echo $(zmq-broker-host):$(zmq-backend-port) ; }
 
 czmq-sshsrv(){ echo N ; }
 
+
+czmq-broker-info(){ cat << EOI
+
+
+
+   czmq-client-  $(czmq-client-)
+       client creates ZMQ_REQ socket, sends request and waits for reply 
+
+$(cat -n $(czmq-sdir)/czmq_client.c | tail -30)
+
+
+   czmq-worker-  $(czmq-worker-)
+
+$(cat -n $(czmq-sdir)/czmq_worker.c | tail -30)
+
+
+
+   czmq-broker-local-  $(czmq-broker-local-)
+
+   czmq-broker-  $(czmq-broker-)
+       intermediates between clients and workers
+       ROUTER/DEALER allows REQ/REP to go across the proxy 
+
+$(cat -n $(czmq-sdir)/czmq_broker.c | tail -30)
+
+
+EOI
+}
+
+czmq-client-(){ cat << EOC
+FRONTEND=tcp://$(czmq-client-addr) $(czmq-bin czmq_client)
+EOC
+}
+czmq-worker-(){ cat << EOC
+BACKEND=tcp://$(czmq-worker-addr) $(czmq-bin czmq_worker)
+EOC
+}
+czmq-broker-(){  cat << EOC
+$(czmq-broker-env) $(czmq-bin czmq_broker)
+EOC
+}
+czmq-broker-local-(){ cat << EOC
+ZMQ_BROKER_TAG=SELF $(czmq-broker-env) $(czmq-bin czmq_broker)
+EOC
+}
+
 czmq-client(){ 
-   local cmd="FRONTEND=tcp://$(czmq-client-addr) $(czmq-bin czmq_client)" 
+   local cmd=$($FUNCNAME-)
    echo $cmd 
    eval $cmd
 }
 czmq-worker(){
-   local cmd="BACKEND=tcp://$(czmq-worker-addr) $(czmq-bin czmq_worker)" 
+   local cmd=$($FUNCNAME-)
    echo $cmd 
    eval $cmd
 }
+czmq-broker(){ 
+   local cmd="$($FUNCNAME-)"  
+   echo $cmd
+   eval $cmd
+}
+czmq-broker-local(){
+   local cmd="$($FUNCNAME-)"  
+   echo $cmd
+   eval $cmd
+}
+
+
 
 czmq-tunnel-cmd(){
    local laddr=$1
@@ -227,7 +305,6 @@ czmq-worker-tunneled(){
    echo $cmd 
    eval $cmd
 }
-
 
 czmq-client-tunneled(){
    local raddr=$(czmq-client-addr)
@@ -256,18 +333,6 @@ czmq-main(){
 }
 
 
-czmq-broker(){ 
-   local cmd="$(czmq-broker-env) $(czmq-bin czmq_broker)"  
-   echo $cmd
-   eval $cmd
-}
-
-
-czmq-broker-local(){
-   local cmd="ZMQ_BROKER_TAG=SELF $(czmq-broker-env) $(czmq-bin czmq_broker)"  
-   echo $cmd
-   eval $cmd
-}
 
 
 czmq-broker-env-sv(){ czmq-broker-env | tr " " "," ; }

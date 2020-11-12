@@ -192,6 +192,35 @@ NPY/ZMQ test::
       npysend.sh 
 
 
+Boost headers used
+--------------------
+
+::
+
+    epsilon:numpyserver blyth$ grep boost/ *.*
+    net_manager.hpp:#include <boost/array.hpp>
+    net_manager.hpp:#include <boost/shared_ptr.hpp>
+    net_manager.hpp:#include <boost/scoped_ptr.hpp>
+    net_manager.hpp:#include <boost/thread.hpp>
+    net_manager.hpp:#include <boost/asio.hpp>
+    net_manager.hpp:#include <boost/enable_shared_from_this.hpp>
+    net_manager.hpp:#include <boost/log/trivial.hpp>
+    npy_server.hpp:#include <boost/asio.hpp>
+    npy_server.hpp:#include <boost/enable_shared_from_this.hpp>
+    numpydelegate.cpp:#include <boost/thread.hpp>
+    numpydelegate.cpp:#include <boost/log/trivial.hpp>
+    udp_server.hpp:// started from /usr/local/env/boost/basio/example/cpp03/tutorial/daytime6/server.cpp 
+    udp_server.hpp:#include <boost/array.hpp>
+    udp_server.hpp:#include <boost/bind.hpp>
+    udp_server.hpp:#include <boost/shared_ptr.hpp>
+    udp_server.hpp:#include <boost/thread.hpp>
+    udp_server.hpp:#include <boost/asio.hpp>
+    udp_server.hpp:#include <boost/log/trivial.hpp>
+    epsilon:numpyserver blyth$ 
+
+
+
+
 
 issues
 -------
@@ -283,6 +312,22 @@ numpyserver--()
     numpyserver-cmake
     numpyserver-make
     numpyserver-install
+
+}
+
+
+numpyserver-diff()
+{
+   numpyserver-cd
+   local name
+   local cmd
+   for name in $(ls -1 *.hpp *.cpp) ; do
+        echo $name
+        cmd="diff $name ../../opticks/numpyserver/$name"
+        echo $cmd
+        eval $cmd
+   done 
+
 
 }
 

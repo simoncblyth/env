@@ -13,6 +13,40 @@ Providing the BOOST/ASIO interfaces for ZeroMQ.
 * https://github.com/yayj/asio-zmq
 
 * header only, so below functions build the examples
+* looks to be dead 
+
+
+See Also 
+---------
+
+azmq- 
+  looks to be an alternative that is now 
+  under the umbrella of zeromq : https://github.com/zeromq/azmq
+
+
+Probably a change with boost/asio
+------------------------------------
+
+::
+
+    epsilon:asiozmq blyth$ asiozmq-make
+    -- Found Boost 1.70.0 at /usr/local/opticks_externals/boost/lib/cmake/Boost-1.70.0
+    --   Requested configuration: QUIET REQUIRED COMPONENTS system
+    -- Found boost_headers 1.70.0 at /usr/local/opticks_externals/boost/lib/cmake/boost_headers-1.70.0
+    -- Found boost_system 1.70.0 at /usr/local/opticks_externals/boost/lib/cmake/boost_system-1.70.0
+    --   libboost_system.a
+    -- Adding boost_system dependencies: headers
+    -- Build files have been written to: /usr/local/env/network/asiozmq/example.build
+    Scanning dependencies of target taskvent
+    [  4%] Building CXX object CMakeFiles/taskvent.dir/taskvent.cpp.o
+    In file included from /usr/local/env/network/asiozmq/example/taskvent.cpp:8:
+    In file included from /usr/local/env/network/asiozmq/example/../include/asio-zmq.hpp:1:
+    /usr/local/env/network/asiozmq/example/../include/asio-zmq/helpers.hpp:5:10: fatal error: 'boost/asio/posix/stream_descriptor_service.hpp' file not found
+    #include <boost/asio/posix/stream_descriptor_service.hpp>
+             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    1 error generated.
+
+
 
 
 potential problem from c++11 requirement
@@ -159,12 +193,6 @@ C++ duplicate symbols at linking
 * as above shows adding "inline" can be an easy fix sometimes
 
 
-
-
-
-
-
-
 EOU
 }
 asiozmq-dir(){  echo $(local-base)/env/network/asiozmq ; }
@@ -179,10 +207,22 @@ asiozmq-bcd(){  cd $(asiozmq-bdir) ; }
 asiozmq-icd(){  cd $(asiozmq-idir)/asio-zmq ; }
 asiozmq-ecd(){  cd $(asiozmq-edir) ; }
 
+asiozmq-info(){ cat << EOI
+  
+   asiozmq-dir  : $(asiozmq-dir)
+   asiozmq-idir : $(asiozmq-idir)
+   asiozmq-sdir : $(asiozmq-sdir)
+   asiozmq-bdir : $(asiozmq-bdir)
+
+EOI
+}
+
+#asiozmq-url(){ echo https://github.com/yayj/asio-zmq.git ; }
+asiozmq-url(){ echo git://github.com/simoncblyth/asio-zmq.git ; }
 
 asiozmq-get(){
    local dir=$(dirname $(asiozmq-dir)) &&  mkdir -p $dir && cd $dir
-   [ ! -d asiozmq ] && git clone https://github.com/yayj/asio-zmq.git asiozmq 
+   [ ! -d asiozmq ] && git clone $(asiozmq-url) asiozmq 
 }
 asiozmq-wipe(){
    local bdir=$(asiozmq-bdir)  ;
@@ -208,6 +248,5 @@ asiozmq--(){
    asiozmq-cmake
    asiozmq-make
 }
-
 
 

@@ -7,13 +7,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
           ) 
 
 include(EnvBuildOptions)
-include(EnvCompilationOptions)
+#include(EnvCompilationOptions)
+include(EnvCompilationFlags)
 
 
 find_package(Boost REQUIRED)
 find_package(ZMQ REQUIRED)
 find_package(AsioZMQ REQUIRED)
-find_package(Cfg REQUIRED)
+#find_package(Cfg REQUIRED)
 find_package(GLM REQUIRED)
 find_package(NPY REQUIRED)
 
@@ -26,6 +27,10 @@ include_directories(
    ${NPY_INCLUDE_DIRS}  
    ${GLM_INCLUDE_DIRS}  
 )
+
+
+message(STATUS "NPY_INCLUDE_DIRS : ${NPY_INCLUDE_DIRS}")
+
 
 add_definitions( 
    ${Boost_DEFINITIONS} 
@@ -43,7 +48,7 @@ set(LIBRARIES
       ${NPY_LIBRARIES}
 )
 
-target_link_libraries( ${name} ${LIBRARIES} )
+target_link_libraries( ${name} Opticks::NPY )
 
 SET(hdrs 
 numpydelegate.hpp

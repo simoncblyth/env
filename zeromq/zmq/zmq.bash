@@ -23,7 +23,43 @@ See also:
 
 
 
+Refs
+-----
 
+* http://wiki.zeromq.org/area:faq
+
+Alternatives
+--------------
+
+nng
+~~~~
+
+* nng - nanomsg-next-gen
+* https://github.com/nanomsg/nng  
+* https://nng.nanomsg.org
+* https://nng.nanomsg.org/RATIONALE.html
+
+
+* https://pynng.readthedocs.io/en/latest/
+
+
+
+
+nanomsg : (MIT-licensed)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://nanomsg.org/documentation-zeromq.html
+
+One of the aspects of ZeroMQ that proved really confusing for users was the
+ability to integrate ZeroMQ sockets into an external event loops by using
+ZMQ_FD file descriptor. The main source of confusion was that the descriptor is
+edge-triggered, i.e. it signals only when there were no messages before and a
+new one arrived. nanomsg uses level-triggered file descriptors instead that
+simply signal when there’s a message available irrespective of whether it was
+available in the past.
+
+There’s no generic UDP-like socket (ZMQ_ROUTER), you should use L4 protocols
+for that kind of functionality.
 
 
 TODO
@@ -145,6 +181,10 @@ objects to the broker with *CSA_CLIENT_CONFIG* envvar::
 Configure g4daeview.py/Chroma as worker receiving REP
 
 
+How to integrate ZMQ with GUI event loop
+------------------------------------------
+
+
 
 
 
@@ -155,7 +195,6 @@ zmq-bindir(){ echo $(local-base)/env/bin ; }
 
 zmq-cd(){  cd $(zmq-dir); }
 zmq-scd(){  cd $(zmq-dir); }
-zmq-mate(){ mate $(zmq-dir) ; }
 
 zmq-bin(){ echo $(zmq-bindir)/$1 ; }
 zmq-cc(){

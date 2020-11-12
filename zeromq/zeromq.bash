@@ -12,6 +12,7 @@ ZEROMQ
 ======
 
 
+* https://zguide.zeromq.org
 * http://zguide.zeromq.org/py:all
 
 Alternatives
@@ -92,15 +93,59 @@ ZeroMQ multi threading with PAIR
 
 EOU
 }
-zeromq-fold(){ echo $(local-base)/env/zeromq ; }
-zeromq-dir(){ echo $(zeromq-fold)/$(zeromq-name) ; }
+
+#zeromq-fold(){ echo $(local-base)/env/zeromq ; }
+#zeromq-dir(){ echo $(zeromq-fold)/$(zeromq-name) ; }
+
+zeromq-dir(){   echo $(zeromq-prefix).build/$(zeromq-name) ; }  # exploded distribution dir
+zeromq-prefix(){ echo ${OPTICKS_ZEROMQ_PREFIX:-$(opticks-prefix)_externals/$(zeromq-name)}  ; }
+zeromq-idir(){ echo $(zeromq-prefix)/include ; }
+zeromq-ldir(){ echo $(zeromq-prefix)/lib ; }
+
+
 zeromq-sdir(){ echo $(env-home)/zeromq ; }
 zeromq-cd(){  cd $(zeromq-dir)/$1; }
 zeromq-scd(){ cd $(zeromq-sdir)/$1; }
-zeromq-mate(){ mate $(zeromq-dir) ; }
 
-zeromq-name(){ echo zeromq-4.0.4 ; }
-zeromq-url(){  echo http://download.zeromq.org/$(zeromq-name).tar.gz ; }
+#zeromq-version(){ echo 4.1.8 ; }   # circa 2020
+zeromq-version(){ echo 4.0.4 ; }    # circa 2015
+
+zeromq-name(){ echo zeromq-$(zeromq-version) ; }
+zeromq-url(){  
+    case $(zeromq-version) in
+       4.1*) zeromq-release-url ;;
+       4.0*) zeromq-archive-url ;;  
+    esac
+}
+zeromq-release-url(){ 
+    local version=$(zeromq-version)
+    echo https://github.com/zeromq/zeromq4-1/releases/download/v$version/zeromq-$version.tar.gz 
+}
+zeromq-archive-url(){ 
+    local name=zeromq-$(zeromq-version)
+    echo https://archive.org/download/${name/-/_}/${name}.tar.gz
+}
+
+zeromq-info(){ cat << EOI
+
+   zeromq-fold    : $(zeromq-fold)
+   zeromq-dir     : $(zeromq-dir)    distribution dir 
+   zeromq-sdir    : $(zeromq-sdir)
+
+   zeromq-version : $(zeromq-version)
+   zeromq-name    : $(zeromq-name)
+   zeromq-url     : $(zeromq-url)
+
+   zeromq-prefix  : $(zeromq-prefix) 
+   zeromq-idir    : $(zeromq-idir) 
+   zeromq-ldir    : $(zeromq-ldir) 
+
+   zeromq-clang name.c
+       compile and link single .c file 
+
+EOI
+}
+
 zeromq-get(){
     local dir=$(dirname $(zeromq-dir)) &&  mkdir -p $dir && cd $dir
     local url=$(zeromq-url)
@@ -108,24 +153,14 @@ zeromq-get(){
     local nam=${tgz/.tar.gz}
     echo url $url tgz $tgz nam $nam
 
-    [ ! -f "$tgz" ] && curl -O $url
+    [ ! -f "$tgz" ] && curl -L -O $url
     [ ! -d "$nam" ] && tar zxvf $tgz
 }
-zeromq-prefix(){ echo ${ZEROMQ_PREFIX:-$(zeromq-prefix-default)} ;}
-zeromq-prefix-default(){ 
-  case $NODE_TAG in 
-    D_original) echo /usr/local/env/chroma_env ;;   ## happens to be VIRTUAL_ENV 
-    D) echo $(zeromq-fold) ;; 
-    G) echo $(zeromq-fold) ;;
-    *) echo $(zeromq-fold) ;;
-  esac
-}
 
-zeromq-idir(){ echo $(zeromq-prefix)/include ; }
-zeromq-ldir(){ echo $(zeromq-prefix)/lib ; }
 zeromq-clang(){ 
-   mkdir -p /tmp/env/zeromq
-   local cmd="clang -I$(zeromq-idir) -L$(zeromq-ldir) -lzmq $1 -o /tmp/env/zeromq/${1/.c}"
+   local tmp=/tmp/$USER/env/zeromq
+   mkdir -p $tmp
+   local cmd="clang -I$(zeromq-idir) -L$(zeromq-ldir) -lzmq $1 -o $tmp/${1/.c}"
    echo $cmd
    eval $cmd
 }
@@ -140,44 +175,75 @@ zeromq-make(){
   make install
 }
 
-zeromq-build(){
+
+zeromq--()
+{
    zeromq-get
-   zeromq-make
+   zeromq-make  
 }
 
-
 zeromq-ls(){ ls $(zeromq-prefix)/include $(zeromq-prefix)/lib ; }
+
+
+
+
+
+zeromq-zguide-info(){ cat << EOI
+
+    zeromq-zguide-url    : $(zeromq-zguide-url)
+    zeromq-zguide-dir    : $(zeromq-zguide-dir)
+
+    zeromq-examples-idir : $(zeromq-examples-idir)
+    zeromq-examples-sdir : $(zeromq-examples-sdir)
+
+    zeromq-zguide-get
+         clone zguide examples
+
+EOI
+}
 
 zeromq-zguide-install-zhelpers(){
    #cp $(zeromq-zguide-dir)/examples/C/zhelpers.h $(zeromq-prefix)/include/
    cp $(zeromq-zguide-dir)/examples/C/zhelpers.h $(zmq-dir)/  # better to keep this with sources to avoid extra install step
 }
 
-
 zeromq-zguide-dir(){ echo $(zeromq-fold)/zguide ; }
 zeromq-zguide-cd(){ cd $(zeromq-zguide-dir) ; }
+
+#zeromq-zguide-url(){ echo git://github.com/imatix/zguide.git ; }
+zeromq-zguide-url(){ echo git://github.com/booksbyus/zguide.git ; }
+
 zeromq-zguide-get(){
   cd $(dirname $(zeromq-zguide-dir)) 
-  [ ! -d zguide ] && git clone git://github.com/imatix/zguide.git
+  [ ! -d zguide ] && git clone $(zeromq-zguide-url)
 }
 zeromq-zguide-find(){
    zeromq-zguide-cd
    find . -name '*.c' -exec grep -l ${1:-czmq} {} \;
 }
 
-
 zeromq-versions(){
    python -c "import zmq, socket ; print socket.gethostname(), zmq.__file__, zmq.zmq_version(), zmq.pyzmq_version() "
 }
-
-
-
 
 zeromq-examples-lang(){ echo C ; }
 zeromq-examples-idir(){ echo $(zeromq-fold)/zguide/examples/$(zeromq-examples-lang) ; }
 zeromq-examples-sdir(){ echo $(env-home)/zeromq/zguide/examples/$(zeromq-examples-lang) ; }
 zeromq-examples-icd(){  cd $(zeromq-examples-idir) ; }
 zeromq-examples-scd(){  cd $(zeromq-examples-sdir) ; }
+
+zeromq-examples-get-notes(){ cat << EON
+zeromq-examples-get
+---------------------
+
+Copies an example from the zguide into env for modification.
+
+    zeromq-examples-idir : $(zeromq-examples-idir)
+    zeromq-examples-sdir : $(zeromq-examples-sdir)
+
+EON
+}
+
 zeromq-examples-get(){
    local nam=${1:-mtrelay.c}
    local src=$(zeromq-examples-idir)/$nam ;

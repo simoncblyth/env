@@ -1664,7 +1664,8 @@ gl-(){           . $(env-home)/graphics/opengl/gl.bash && gl-env $* ; }
 wendy-(){        . $(env-home)/graphics/wendy/wendy.bash && wendy-env $* ; }
 basio-(){        . $(env-home)/boost/basio/basio.bash && basio-env $* ; }
 asio-(){         . $(env-home)/network/asio/asio.bash && asio-env $* ; }
-numpyserver-(){  . $(env-home)/boost/basio/numpyserver/numpyserver.bash && numpyserver-env $* ; }
+#numpyserver-(){  . $(env-home)/boost/basio/numpyserver/numpyserver.bash && numpyserver-env $* ; }
+numpyserver-(){  . $(env-home)/numpyserver/numpyserver.bash && numpyserver-env $* ; }
 photonio-(){     . $(env-home)/graphics/photonio/photonio.bash && photonio-env $* ; }
 fishtank-(){     . $(env-home)/graphics/fishtank/fishtank.bash && fishtank-env $* ; }
 sdl-(){          . $(env-home)/graphics/sdl/sdl.bash && sdl-env $* ; }
@@ -2076,3 +2077,4 @@ osl-(){      . $(env-home)/graphics/osl/osl.bash && osl-env $* ; }
 pimpl-(){      . $(env-home)/design/pimpl.bash && pimpl-env $* ; }
 oap-(){      . $(env-home)/graphics/optix_apps/oap.bash && oap-env $* ; }
 py3-(){      . $(env-home)/python/py3/py3.bash && py3-env $* ; }
+nng-(){      . $(env-home)/network/nng.bash && nng-env $* ; }
