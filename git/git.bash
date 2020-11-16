@@ -41,6 +41,54 @@ Git Tags
 
 
 
+git reset HEAD path : to unstage some changes, but leave the changes intact 
+------------------------------------------------------------------------------
+
+After accidentally adding some changes::
+
+    epsilon:numpyserver blyth$ o
+    On branch master
+    Your branch is up-to-date with 'origin/master'.
+
+    Changes to be committed:
+      (use "git reset HEAD <file>..." to unstage)
+
+        modified:   boostrap/BCfg.cc
+        modified:   boostrap/BCfg.hh
+        modified:   numpyserver/numpydelegate.cpp
+        modified:   numpyserver/numpyserver.hpp
+        modified:   oglrap/OpticksViz.cc
+        modified:   oglrap/OpticksViz.hh
+        ...
+
+    Changes not staged for commit:
+      (use "git add <file>..." to update what will be committed)
+      (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   numpyserver/npy_server.hpp
+
+Want to unstage the numpyserver changes as they do not belong in the planned commit.::
+
+    epsilon:opticks blyth$ cp numpyserver/numpydelegate.cpp ~/     ## to be safe 
+    epsilon:opticks blyth$ cp numpyserver/numpyserver.hpp ~/
+
+    epsilon:opticks blyth$ git reset HEAD numpyserver/numpydelegate.cpp
+    Unstaged changes after reset:
+    M	numpyserver/npy_server.hpp
+    M	numpyserver/numpydelegate.cpp
+
+    epsilon:opticks blyth$ git reset HEAD numpyserver/numpyserver.hpp
+    Unstaged changes after reset:
+    M	numpyserver/npy_server.hpp
+    M	numpyserver/numpydelegate.cpp
+    M	numpyserver/numpyserver.hpp
+
+    epsilon:opticks blyth$ diff ~/numpydelegate.cpp numpyserver/numpydelegate.cpp
+    epsilon:opticks blyth$ diff ~/numpyserver.hpp   numpyserver/numpyserver.hpp
+    epsilon:opticks blyth$ rm ~/numpydelegate.cpp ~/numpyserver.hpp
+
+
+
 
 git log
 ---------
