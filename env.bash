@@ -2078,3 +2078,4 @@ pimpl-(){      . $(env-home)/design/pimpl.bash && pimpl-env $* ; }
 oap-(){      . $(env-home)/graphics/optix_apps/oap.bash && oap-env $* ; }
 py3-(){      . $(env-home)/python/py3/py3.bash && py3-env $* ; }
 nng-(){      . $(env-home)/network/nng.bash && nng-env $* ; }
+asyncio-(){      . $(env-home)/python/asyncio/asyncio.bash && asyncio-env $* ; }

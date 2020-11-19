@@ -11,6 +11,7 @@ BITBUCKET_HTDOCS=$(HOME)/simoncblyth.bitbucket.io
 
 all: $(BITBUCKET_HTDOCS)/custom.css $(BITBUCKET_HTDOCS)/index.html
 	@echo thats $@ folks : $< 
+	@open $(BITBUCKET_HTDOCS)/index.html
 
 $(BITBUCKET_HTDOCS)/custom.css : custom.css
 	mkdir -p $(BITBUCKET_HTDOCS) && cp $< $@

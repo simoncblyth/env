@@ -40,6 +40,13 @@ ipython profile create
 
 
 
+messaging
+------------
+
+* https://andrew.gibiansky.com/blog/ipython/ipython-kernels/
+
+* https://jupyter-client.readthedocs.io/en/latest/messaging.html
+
 
 jupyter
 --------

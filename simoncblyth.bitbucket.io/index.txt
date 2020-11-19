@@ -10,10 +10,20 @@ Opticks Documentation
 * https://simoncblyth.bitbucket.io/opticks/
 
 
-
-
 Publications
 ---------------
+
+
+https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
+
+    *Meeting the challenge of JUNO simulation with Opticks: GPU optical photon acceleration via NVIDIA OptiX*
+
+    **CHEP 2019 Plenary Proceedings** : Simon Blyth, EPJ Web of Conferences 245, 11003 (2020)
+
+    * https://doi.org/10.1051/epjconf/202024511003
+
+    * https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
+
 
 https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
 
@@ -21,9 +31,9 @@ https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02
 
     **CHEP 2018 Proceedings** : Simon  Blyth, EPJ Web Conf. 214 02027 (2019)
 
-    * https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
-
     * https://doi.org/10.1051/epjconf/201921402027
+
+    * https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
 
     * http://simoncblyth.bitbucket.io/env/report/opticks-blyth-chep2018-v1.pdf
 
