@@ -16,6 +16,82 @@ See Also
 
 * git-
 
+
+Opticks Github
+-----------------
+
+* https://github.com/simoncblyth/opticks
+* https://github.com/simoncblyth/opticks/releases
+
+Every few months : bring developments from bitbucket over to github
+-----------------------------------------------------------------------
+
+::
+
+    cd ~/opticks
+    git push github master  
+
+    epsilon:opticks blyth$ git push github master 
+    Counting objects: 3488, done.
+    Delta compression using up to 8 threads.
+    Compressing objects: 100% (3472/3472), done.
+    Writing objects: 100% (3488/3488), 985.84 KiB | 5.11 MiB/s, done.
+    Total 3488 (delta 2917), reused 1 (delta 0)
+    remote: Resolving deltas: 100% (2917/2917), completed with 481 local objects.
+    To github.com:simoncblyth/opticks.git
+       9a3d1888..fbdaba32  master -> master
+    epsilon:opticks blyth$ 
+    epsilon:opticks blyth$ 
+
+
+Every few months : add a git annotated tag, to enable JUNOEnv install and JUNO level testing
+-----------------------------------------------------------------------------------------------
+
+
+
+Nov 2020 tagging v0.1.0-rc1 creating downloadable github archive 
+-----------------------------------------------------------------
+
+::
+
+    git tag -a v0.1.0-rc1 -m "4 months dev : GGeo/GNodeLib geometry rejig for universal transform access and triplet identifiers, SensorLib angular efficiency, watertight OCtx, G4Opticks getHit"  
+
+    git push --tags           ## bitbucket is upstream
+    git push github --tags    ## github is for infrequent pushes
+
+
+    epsilon:opticks blyth$ git tag -a v0.1.0-rc1 -m "4 months dev : GGeo/GNodeLib geometry rejig for universal transform access and triplet identifiers, SensorLib angular efficiency, watertight OCtx, G4Opticks getHit" 
+    epsilon:opticks blyth$ git tag
+    v0.0.0-rc1
+    v0.0.0-rc2
+    v0.0.0-rc3
+    v0.1.0-rc1
+    epsilon:opticks blyth$ git push --tags 
+    Counting objects: 1, done.
+    Writing objects: 100% (1/1), 275 bytes | 275.00 KiB/s, done.
+    Total 1 (delta 0), reused 0 (delta 0)
+    To bitbucket.org:simoncblyth/opticks.git
+     * [new tag]           v0.1.0-rc1 -> v0.1.0-rc1
+    epsilon:opticks blyth$ 
+    epsilon:opticks blyth$ git push github --tags
+    Counting objects: 1, done.
+    Writing objects: 100% (1/1), 275 bytes | 275.00 KiB/s, done.
+    Total 1 (delta 0), reused 0 (delta 0)
+    To github.com:simoncblyth/opticks.git
+     * [new tag]           v0.1.0-rc1 -> v0.1.0-rc1
+    epsilon:opticks blyth$ 
+
+
+
+* https://github.com/simoncblyth/opticks/releases
+* https://github.com/simoncblyth/opticks/archive/v0.1.0-rc1.tar.gz
+
+* https://bitbucket.org/simoncblyth/opticks/commits/tag/v0.1.0-rc1
+
+Check the tag is visible in both web interfaces.  On git the tag automatically 
+gets downloadable archives (the primary motivation for the creating the tag). 
+
+
 Releases
 ----------
 
@@ -26,13 +102,10 @@ Releases
 The Releases API replaces the Downloads API.
 
 
-
-
 :google:`using both bitbucket and github at the same time`
 --------------------------------------------------------------
  
-* http://blog.kevinlee.io/2013/03/11/git-push-to-pull-from-both-github-and-bitbucket/
-
+* https://blog.kevinlee.io/blog/2013/03/11/git-push-to-pull-from-both-github-and-bitbucket/
 
 pushing tags to github automatically makes archives
 -----------------------------------------------------
