@@ -20,6 +20,98 @@ without requiring programs to use concurrency models based on threads
 and explicit locking.
 
 
+:google:`C++ distributed task queue`
+---------------------------------------
+
+
+AMQP
+------
+
+* https://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
+
+* https://qpid.apache.org
+* https://qpid.apache.org/components/cpp-broker/index.html
+
+
+* https://kafka.apache.org
+
+
+:google:`AMQP distributed processing`
+
+* https://engagor.github.io/blog/2017/01/07/distributed-processing-via-rabbit-mq/
+
+
+
+Boost.Asio vs Boost.MPI
+-------------------------
+
+* https://stackoverflow.com/questions/17341916/mpi-or-asio-for-wide-area-plugin-based-message-passing
+
+
+Spark MPI Alchemist
+----------------------
+
+* https://arxiv.org/pdf/1805.11800.pdf
+* Accelerating Large-Scale Data Analysis by Offloading to High-Performance Computing Libraries using Alchemist
+
+* .. MPI offers no fault tolerance, nor does it offer support for elasticity. 
+
+
+Author Presentation : Christopher Kohlhoff: Thinking Asynchronously: Designing Applications with Boost.Asio
+-------------------------------------------------------------------------------------------------------------
+
+* https://www.youtube.com/watch?v=D-lTwGJRx0o
+
+* objects can change from under you async : so need to do things differently 
+
+50:00::
+
+   class connection : enable_shared_from_this<connection> 
+   { 
+       void start()
+       void stop()
+       bool is_stopped() const 
+
+
+52:00
+   Single threaded : keep completion handlers short and non-blocking 
+
+   Use threads for long running tasks (eg talking to database)
+
+   * logic stays in main thread
+   * pass work to background thread
+   * pass result back to main thread 
+
+     ("io_service::post" back to main thread)
+
+   * io_service::work object needs to be bound in with the other thread work to keep the io_service alive 
+
+
+1:01:00
+
+   Public member foobar functions "post" into the private do_foobar such that the
+   control of the thread context happens at private level.
+
+   The "dispatch" will post if its a different context or directly call the function when
+   in same context.
+
+
+
+Standalone Asio
+-----------------------
+
+* https://think-async.com/Asio/AsioAndBoostAsio.html
+
+Asio is header-file-only and for most uses does not require linking against any
+Boost library. When using C++11 or later with recent versions of gcc, clang or
+MSVC, Asio can be used without any dependency on Boost. Boost.Asio always
+requires that you use the Boost.System library, and also against Boost.Thread
+if you want to launch threads using boost::thread. This may require linking
+against these libraries, although it is worth noting that recent versions of
+Boost allow you to use Boost.System in header-only mode.
+
+
+
 Conceptual Intro
 ----------------
 
@@ -84,6 +176,23 @@ Refs
 -----
 
 * http://www.digitalpeer.com/blog/asio-is-my-go-to-cpp-application-framework
+
+
+:google:`boost asio GPU server`
+-----------------------------------
+
+* https://stackoverflow.com/questions/41665337/yield-boostasiocoroutine-until-task-complete
+
+
+POST binary data with curl
+----------------------------
+
+::
+
+   printf '\x03\xF1' | curl -X POST --data-binary @- http://foo.com
+
+
+
 
 
 Message passing from netThread to mainThread

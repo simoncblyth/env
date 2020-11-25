@@ -22,6 +22,22 @@ IPYTHON
 ========
 
 
+
+architecture
+--------------
+
+* https://jupyter.readthedocs.io/en/latest/projects/architecture/content-architecture.html
+
+
+ipyparallel
+-------------
+
+* https://ipyparallel.readthedocs.io/en/latest/
+
+
+
+
+
 avoid exit confirmation
 -------------------------
 
@@ -46,6 +62,90 @@ messaging
 * https://andrew.gibiansky.com/blog/ipython/ipython-kernels/
 
 * https://jupyter-client.readthedocs.io/en/latest/messaging.html
+
+
+get_ipython
+---------------
+
+::
+
+    In [12]: get_ipython()                                                          
+    Out[12]: <IPython.terminal.interactiveshell.TerminalInteractiveShell at 0x103c9b650>
+
+    In [13]: get_ipython().events
+    Out[13]: <IPython.core.events.EventManager at 0x1054e7110>
+
+    In [14]: get_ipython().events.callbacks
+    Out[14]: 
+    {'pre_execute': [<bound method InteractiveShell._clear_warning_registry of <IPython.terminal.interactiveshell.TerminalInteractiveShell object at 0x103c9b650>>],
+     'pre_run_cell': [],
+     'post_execute': [<function matplotlib.pyplot.install_repl_displayhook.<locals>.post_execute()>],
+     'post_run_cell': [],
+     'shell_initialized': []}
+
+
+
+* https://ipython.readthedocs.io/en/stable/api/generated/IPython.core.events.html
+
+Infrastructure for registering and firing callbacks on application events.
+
+Unlike IPython.core.hooks, which lets end users set single functions to be
+called at specific times, or a collection of alternative methods to try,
+callbacks are designed to be used by extension authors. A number of callbacks
+can be registered for the same event without needing to be aware of one
+another.
+
+
+%gui asyncio
+----------------
+
+* https://ipython.readthedocs.io/en/stable/config/eventloops.html
+
+::
+
+    In [17]: %gui?                                                                                                             
+    Docstring:
+    Enable or disable IPython GUI event loop integration.
+
+    %gui [GUINAME]
+
+    This magic replaces IPython's threaded shells that were activated
+    using the (pylab/wthread/etc.) command line flags.  GUI toolkits
+    can now be enabled at runtime and keyboard
+    interrupts should work without any problems.  The following toolkits
+    are supported:  wxPython, PyQt4, PyGTK, Tk and Cocoa (OSX)::
+
+        %gui wx      # enable wxPython event loop integration
+        %gui qt4|qt  # enable PyQt4 event loop integration
+        %gui qt5     # enable PyQt5 event loop integration
+        %gui gtk     # enable PyGTK event loop integration
+        %gui gtk3    # enable Gtk3 event loop integration
+        %gui tk      # enable Tk event loop integration
+        %gui osx     # enable Cocoa event loop integration
+                     # (requires %matplotlib 1.1)
+        %gui         # disable all event loop integration
+
+    WARNING:  after any of these has been called you can simply create
+    an application object, but DO NOT start the event loop yourself, as
+    we have already handled that.
+    File:      ~/miniconda3/lib/python3.7/site-packages/IPython/core/magics/basic.py
+
+    In [18]: %gui tomato                                                                                                       
+    ERROR:root:No event loop integration for 'tomato'. Supported event loops are: qt, qt4, qt5, gtk, gtk2, gtk3, tk, wx, pyglet, glut, osx, asyncio
+
+    In [19]:  
+
+
+Some event loops can go one better, and integrate checking for messages on the
+kernel’s ZMQ sockets, making the kernel more responsive than plain polling. How
+to do this is outside the scope of this document; if you are interested, look
+at the integration with Qt in IPython.kernel.zmq.eventloops.
+
+
+
+
+
+
 
 
 jupyter
