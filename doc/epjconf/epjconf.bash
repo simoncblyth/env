@@ -21,6 +21,12 @@ PDF documents at
 
 
 
+CHEP 2019 Proceedings
+-----------------------
+
+* https://www.epj-conferences.org/articles/epjconf/abs/2020/21/contents/contents.html
+
+
 July 2020 : Referee Comments
 ------------------------------
 
