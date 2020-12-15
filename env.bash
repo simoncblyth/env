@@ -2080,3 +2080,5 @@ py3-(){      . $(env-home)/python/py3/py3.bash && py3-env $* ; }
 nng-(){      . $(env-home)/network/nng.bash && nng-env $* ; }
 asyncio-(){      . $(env-home)/python/asyncio/asyncio.bash && asyncio-env $* ; }
 threading-(){      . $(env-home)/cpprun/threading/threading.bash && threading-env $* ; }
+gpp-(){      . $(env-home)/garfieldpp/gpp.bash && gpp-env $* ; }
+cel-(){      . $(env-home)/gpuhep/celeritas/cel.bash && cel-env $* ; }

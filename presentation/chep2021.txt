@@ -1,0 +1,45 @@
+Dear Colleagues
+
+We are delighted to announce that the call for contributions to the 25th
+(virtual) CHEP conference, which will be held from 17-21 May 2021 is now open.
+We invite your submissions on advances in software and computing for the
+high-energy and nuclear physics field.
+
+Submissions should consist of a paper of 6-10 pages, following the instructions
+for authors. Paper submission is open until 28 February 2021.
+
+All relevant papers for the field that are scientifically sound will be accepted
+In particular we strongly encourage submissions to vCHEP from early career researchers
+Every accepted paper is guaranteed a slot at the conference, for at least a short presentation
+Every accepted paper is eligible to be published in the conference proceedings
+After the conference the papers can be revised, taking into account reviewer
+comments and the discussion at vCHEP
+If desired by the authors or their experiment the initial paper versions can be
+kept confidential until the final versions are ready
+A selection of the best papers, covering the most interesting and innovative
+R&D in the field, will be invited to give a longer presentation in general
+(plenary) sessions
+We anticipate being able to have about 30 slots for these longer talk
+Papers that cover an innovative topic in detail will be favoured for longer
+talks over general review-type papers that summarise many items together
+Some of the best plenary papers will be invited, at the authors’ discretion, to
+be put forward for full journal publication
+
+A reminder of important dates:
+Paper submission opens:                        8 December 2020
+Registration opens:                            1 February 2021
+Paper submission closes:                       28 February 2021 (no extension)
+Paper acceptance notifications:                15 April 2021
+Conference:                                    17-21 May 2021
+Final paper revision for publication:          25 June 2021
+
+If you have any further questions please contact us: chep2021-pc-chairs@cern.ch. 
+
+We very much look forward to your submissions.
+
+Graeme, Simone, Benedikt, Catherine, Chiara, Stefan (Conference and PC Chairs)
+
+--
+Graeme A Stewart  - CERN EP-SFT, 32-R-B08
+
+
