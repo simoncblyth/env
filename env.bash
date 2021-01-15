@@ -98,15 +98,17 @@ env_u_(){
    local dir=${1:-$PWD}
    local abs=$(realpath $dir)   # see ~/e/tools/realpath/
 
+   local envhome=${ENV_HOME:-$HOME/env} 
+   local workflowhome=${WORKFLOW_HOME:-$HOME/workflow} 
+   local homehome=${HOME_HOME:-$HOME/home} 
+
    case $abs in
-           ${ENV_HOME}) echo http://localhost/env_notes/ ;; 
-          ${ENV_HOME}*) echo http://localhost/env_notes/${abs/$ENV_HOME\/}/ ;; 
-      ${WORKFLOW_HOME}) echo http://localhost/w/ ;; 
-     ${WORKFLOW_HOME}*) echo http://localhost/w/${abs/$WORKFLOW_HOME\/}/ ;; 
-      ${HOME_HOME})     echo http://localhost/h/ ;; 
-     ${HOME_HOME}*)     echo http://localhost/h/${abs/$HOME_HOME\/}/ ;; 
-        ${HEPREZ_HOME}) echo http://dayabay.phys.ntu.edu.tw/h/ ;; 
-       ${HEPREZ_HOME}*) echo http://dayabay.phys.ntu.edu.tw/h/${abs/$HEPREZ_HOME\/}/ ;; 
+           ${envhome}) echo http://localhost/env_notes/ ;; 
+          ${envhome}*) echo http://localhost/env_notes/${abs/$envhome\/}/ ;; 
+      ${workflowhome}) echo http://localhost/w/ ;; 
+     ${workflowhome}*) echo http://localhost/w/${abs/$workflowhome\/}/ ;; 
+          ${homehome}) echo http://localhost/h/ ;; 
+         ${homehome}*) echo http://localhost/h/${abs/$homehome\/}/ ;; 
       ${DYBGAUDI_HOME}) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/ ;; 
      ${DYBGAUDI_HOME}*) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/${abs/$DYBGAUDI_HOME\/}/ ;; 
                      *) echo http://www.google.com ;;
@@ -459,12 +461,12 @@ env-objdir(){   echo $(env-modedir)/obj ; }
 env-libdir(){   echo $(env-modedir)/lib ; }
 env-libpath(){
       [ "$1" == "blank" ] && echo -n && return 
-      root-
+      eroot-
       python-
       case $(hostname -s) in 
-         cms01|cms02) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
-          simon|g4pb) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
-                   *) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
+         cms01|cms02) echo $(env-libdir):$(eroot-libdir):$(python-libdir) ;;
+          simon|g4pb) echo $(env-libdir):$(eroot-libdir):$(python-libdir) ;;
+                   *) echo $(env-libdir):$(eroot-libdir):$(python-libdir) ;;
       esac
 }
 
@@ -661,8 +663,8 @@ func-(){        . $(env-home)/base/func.bash    && func-env $* ; }
 xmldiff-(){     . $(env-home)/xml/xmldiff.bash && xmldiff-env $* ; }
 
 dyw-(){         . $(env-home)/dyw/dyw.bash   && dyw-env   $* ; }
-oroot-(){       . $(env-home)/dyw/root.bash  && root-env  $* ; }
-root-(){        . $(env-home)/root/root.bash  && root-env  $* ; }
+droot-(){       . $(env-home)/dyw/droot.bash  && eroot-env  $* ; }
+eroot-(){       . $(env-home)/root/eroot.bash  && eroot-env  $* ; }
 
 _dyb__(){       . $(env-home)/dyb/dyb__.sh              $* ; }
 #dyb-(){         . $(env-home)/dyb/dyb.bash  && dyb-env  $* ; }

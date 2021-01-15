@@ -185,6 +185,46 @@ what is an upstream anyhow
     git push github master 
 
 
+"Syncing a Fork" : Updating my forked G4OpticksTest to get updates from Hans 
+------------------------------------------------------------------------------
+
+::
+
+    epsilon:~ blyth$ git clone git@github.com:simoncblyth/G4OpticksTest.git
+    Cloning into 'G4OpticksTest'...
+    remote: Enumerating objects: 93, done.
+    remote: Counting objects: 100% (93/93), done.
+    remote: Compressing objects: 100% (69/69), done.
+    remote: Total 333 (delta 50), reused 54 (delta 24), pack-reused 240
+    Receiving objects: 100% (333/333), 165.44 KiB | 243.00 KiB/s, done.
+    Resolving deltas: 100% (189/189), done.
+    epsilon:~ blyth$ 
+         
+    epsilon:G4OpticksTest blyth$ git remote -v
+    origin	git@github.com:simoncblyth/G4OpticksTest.git (fetch)
+    origin	git@github.com:simoncblyth/G4OpticksTest.git (push)
+
+    epsilon:G4OpticksTest blyth$ git remote add upstream https://github.com/hanswenzel/G4OpticksTest
+
+    epsilon:G4OpticksTest blyth$ git remote -v
+    origin	git@github.com:simoncblyth/G4OpticksTest.git (fetch)
+    origin	git@github.com:simoncblyth/G4OpticksTest.git (push)
+    upstream	https://github.com/hanswenzel/G4OpticksTest (fetch)
+    upstream	https://github.com/hanswenzel/G4OpticksTest (push)
+
+    epsilon:G4OpticksTest blyth$ git fetch upstream 
+    remote: Enumerating objects: 298, done.
+    remote: Counting objects: 100% (298/298), done.
+    remote: Compressing objects: 100% (186/186), done.
+    remote: Total 270 (delta 208), reused 134 (delta 80), pack-reused 0
+    Receiving objects: 100% (270/270), 1.17 MiB | 208.00 KiB/s, done.
+    Resolving deltas: 100% (208/208), completed with 24 local objects.
+    From https://github.com/hanswenzel/G4OpticksTest
+     * [new branch]      master     -> upstream/master
+     * [new tag]         v0.1.1     -> v0.1.1
+    epsilon:G4OpticksTest blyth$ 
+
+
 
 
 EOU

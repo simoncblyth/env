@@ -34,6 +34,13 @@ Epsilon : macOS 10.13.4 : cmake @3.11.0
 
 
 
+target_sources
+----------------
+
+* https://crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
+
+
+
 target_link_libraries on imported target : suspect CMake support varies between recent versions
 --------------------------------------------------------------------------------------------------
 

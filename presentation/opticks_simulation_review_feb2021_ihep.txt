@@ -1,0 +1,13 @@
+..
+
+    opticks_simulation_review_feb2021_ihep
+
+    Agenda:
+    Day 1 (Monday, February 1, 2021 , 8:00–12:00 CET/15:00–19:00 Beijing time): Simulation review
+    Day 2 (Tuesday, February 2, 2021, 8:00–12:00 CET/15:00–19:00 Beijing time): Event Reconstruction review
+
+    07:00-11:00 GMT 
+
+
+
+

@@ -1,17 +1,17 @@
-root-vi(){ vi $BASH_SOURCE ; }
-root-info(){
+droot-vi(){ vi $BASH_SOURCE ; }
+droot-info(){
 
   cat << EOU
 
-   root-mode     : $(root-mode $*)
+   droot-mode     : $(droot-mode $*)
       if not "binary" source is assumed
 
-   root-version  : $(root-version $*)
-   root-name     : $(root-name $*)
-   root-nametag  : $(root-nametag $*)
-   root-url      : $(root-url $*)
-   root-rootsys  : $(root-rootsys $*)
-   root-base     : $(root-base $*) 
+   droot-version  : $(droot-version $*)
+   droot-name     : $(droot-name $*)
+   droot-nametag  : $(droot-nametag $*)
+   droot-url      : $(droot-url $*)
+   droot-rootsys  : $(droot-rootsys $*)
+   droot-base     : $(droot-base $*) 
  
 
     ROOTSYS    : $ROOTSYS
@@ -25,7 +25,7 @@ root-info(){
          $ENV_HOME/externals/site/cmt/requirements
     containing the ROOT_prefix variable 
 
-    This works via the ROOT_CMT envvar that is set by root-env, such as: 
+    This works via the ROOT_CMT envvar that is set by droot-env, such as: 
        env | grep _CMT
        ROOT_CMT=ROOT_prefix:/data/env/local/root/root_v5.21.04.source/root
 
@@ -33,22 +33,22 @@ root-info(){
    linked against the old root version, that includes dynamically created libs
 
 
-   root-           :  hook into these functions invoking root-env
-   root-get        :  download and unpack
-   root-configure  :     
-   root-build      :
+   droot-           :  hook into these functions invoking droot-env
+   droot-get        :  download and unpack
+   droot-configure  :     
+   droot-build      :
 
 
-   root-path       :
+   droot-path       :
          invoked by the precursor, sets up PATH (DY)LD_LIBRARY_PATH and PYTHONPATH
 
-   root-pycheck
+   droot-pycheck
          http://root.cern.ch/root/HowtoPyROOT.html
 
-   root-evetest
+   droot-evetest
 
-   root-ps         : list root.exe processes
-   root-killall    : kill root.exe processes
+   droot-ps         : list root.exe processes
+   droot-killall    : kill root.exe processes
 
 
 
@@ -56,22 +56,22 @@ EOU
 
 }
 
-root-usage(){
-   root-info
+droot-usage(){
+   droot-info
 }
 
 
-root-ps(){
+droot-ps(){
   ps aux | grep root.exe
 }
 
-root-killall(){
+droot-killall(){
    killall root.exe
 }
 
-root-archtag(){
+droot-archtag(){
 
-   [ "$(root-mode)" != "binary" ] && echo "source" && return 0 
+   [ "$(droot-mode)" != "binary" ] && echo "source" && return 0 
 
    case ${1:-$NODE_TAG} in 
       C) echo Linux-slc4-gcc3.4 ;;
@@ -80,26 +80,26 @@ root-archtag(){
    esac
 }
 
-root-nametag(){ 
-   echo $(root-name $*).$(root-archtag $*) 
+droot-nametag(){ 
+   echo $(droot-name $*).$(droot-archtag $*) 
 }
 
 
-root-get(){
+droot-get(){
 
    local msg="=== $FUNCNAME :"
    
-   local base=$(root-base)
+   local base=$(droot-base)
    [ ! -d "$base" ] && mkdir -p $base 
    cd $base  ## 2 levels above ROOTSYS , the 
-   local n=$(root-nametag)
-   [ ! -f $n.tar.gz ] && curl -O $(root-url)
+   local n=$(droot-nametag)
+   [ ! -f $n.tar.gz ] && curl -O $(droot-url)
    [ ! -d $n/root   ] && mkdir $n && tar  -C $n -zxvf $n.tar.gz 
  
    ## unpacked tarballs create folder called "root"
 }
 
-root-version(){
+droot-version(){
   local def="5.21.04"
   local jmy="5.22.00"   ## has eve X11 issues 
   local new="5.23.02" 
@@ -109,41 +109,41 @@ root-version(){
   esac
 }
 
-#root-mode(){    echo binary  ; }
-root-mode(){    echo -n  ; }
-root-name(){    echo root_v$(root-version $*) ; }
-root-base(){    echo $(dirname $(dirname $(root-rootsys $*))) ; }
-root-rootsys(){ echo $(local-base $1)/root/$(root-nametag $1)/root ; }
-root-url(){     echo ftp://root.cern.ch/root/$(root-nametag $*).tar.gz ; }
+#droot-mode(){    echo binary  ; }
+droot-mode(){    echo -n  ; }
+droot-name(){    echo root_v$(droot-version $*) ; }
+droot-base(){    echo $(dirname $(dirname $(droot-rootsys $*))) ; }
+droot-rootsys(){ echo $(local-base $1)/root/$(droot-nametag $1)/root ; }
+droot-url(){     echo ftp://root.cern.ch/root/$(droot-nametag $*).tar.gz ; }
 
-root-cd(){ cd $(root-rootsys)/tutorials/eve ; }
-
-
+droot-cd(){ cd $(droot-rootsys)/tutorials/eve ; }
 
 
 
 
 
 
-root-env(){
+
+
+droot-env(){
 
   elocal-
 
   alias root="root -l"
   alias rh="tail -100 $HOME/.root_hist"
  
-  export ROOT_NAME=$(root-name)
-  export ROOTSYS=$(root-rootsys)
+  export ROOT_NAME=$(droot-name)
+  export ROOTSYS=$(droot-rootsys)
   
   ## pre-nuwa ... to be dropped      	
   export ROOT_CMT="ROOT_prefix:$ROOTSYS"
 
-  root-path
+  droot-path
 }
 
 
 
-root-path(){
+droot-path(){
 
   [ ! -d $ROOTSYS ] && return 0
   
@@ -162,7 +162,7 @@ root-path(){
 
 
 
-root-pycheck(){
+droot-pycheck(){
   python -c "import ROOT as _ ; print _.__file__ "
 
 }
@@ -181,7 +181,7 @@ root-pycheck(){
 
 
 
-root-tutetest(){
+droot-tutetest(){
   local dir=$1
   local name=$2
   local msg="=== $FUNCNAME :"
@@ -190,22 +190,22 @@ root-tutetest(){
   cd $dir  
   [ ! -f "$name" ] && echo $msg no such script $PWD/$name  && cd $iwd && return 1
  
-  root-config --version
+  droot-config --version
  
   local cmd="root $name"
   echo $msg $cmd
   eval $cmd
 }
 
-root-evetest(){ root-tutetest $ROOTSYS/tutorials/eve $* ; }
-root-gltest(){  root-tutetest $ROOTSYS/tutorials/gl  $* ; }
+droot-evetest(){ droot-tutetest $ROOTSYS/tutorials/eve $* ; }
+droot-gltest(){  droot-tutetest $ROOTSYS/tutorials/gl  $* ; }
 
 
 
 
 
 
-root-mysql(){
+droot-mysql(){
 
   ## https://wiki.bnl.gov/dayabay/index.php?title=Database
   
@@ -221,7 +221,7 @@ root-mysql(){
 }
 
 
-root-configure(){
+droot-configure(){
 
   ## an environment controlled config
   cd $ROOTSYS 
@@ -274,7 +274,7 @@ root-configure(){
 }
 
 
-root-build(){
+droot-build(){
   cd $ROOTSYS
   make
   make install
@@ -307,7 +307,7 @@ root-build(){
 
 ####################################################################################
 
-configure-root-failure2(){
+configure-droot-failure2(){
 
   ## an environment controlled config
   cd $ROOTSYS 
@@ -355,7 +355,7 @@ configure-root-failure2(){
 
 
 
-configure-root-failure1(){
+configure-droot-failure1(){
 
   export ROOT_FOLDER=/usr/local/root
   export ROOT_VERSION=root_v5.14.00a

@@ -41,6 +41,22 @@ Git Tags
 
 
 
+use the alias : git l be787bf3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    epsilon:opticks blyth$ git l be787bf3
+    commit be787bf3d6784e946d0e116916636a86cfbd266b
+    Author: Simon C Blyth <simoncblyth@gmail.com>
+    Date:   Tue Oct 6 19:00:13 2020 +0100
+
+        std::vector erase between iterators needs newer GCC version for compilation, so protect it with preprocessor macro
+
+    M       sysrap/tests/SVecTest.cc
+
+
+
 git reset HEAD path : to unstage some changes, but leave the changes intact 
 ------------------------------------------------------------------------------
 
