@@ -315,7 +315,10 @@ env-pdir(){
   esac 
 }
 env-para(){ cd $(env-pdir) ; }
-pd(){ env-para ; pwd ; }
+pd(){ 
+   : shortcut function from env/env.bash 
+   env-para && pwd 
+}
 
 env-vi(){       vi $(env-source) ; }
 env-ini(){      . $(env-source) ; }

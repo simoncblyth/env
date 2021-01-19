@@ -5,6 +5,76 @@ osx_vi(){       vi $(osx_source) ; }
 osx_env(){      elocal- ; }
 osx_usage(){ cat << EOU
 
+create new user "francis" for testing g4_1070
+------------------------------------------------
+
+* System Preferences > Users & Groups
+* add new user name and set passwould 
+* login using the GUI, click thru the dialogs skipping things like appleid and Siri 
+
+* make basic GUI customizations:
+
+  * Trackpad > Tap to click 
+  * Accessibility > Mouse & Trackpad > Trackpad Options : Enable Dragging (without drag lock)
+  * Dock > Autohide
+
+* GUI logout 
+
+* back to main blyth account, add username to .ssh/config
+* attempt to ssh in fails::
+
+    epsilon:notes blyth$ ssh F
+    Password:
+    Connection closed by 127.0.0.1 port 22
+    epsilon:notes blyth$  
+
+* in Sharing > Remote Login > add the new user to the list of permitted 
+
+* check can ssh in now, and place the ssh key for passwordless ssh from blyth::
+
+  ssh--putkey F
+
+* minimal setup for using opticks::
+
+    epsilon:~ francis$ ln -s /Users/blyth/opticks
+    epsilon:~ francis$ cp ~charles/.bash_profile . 
+    epsilon:~ francis$ cp ~charles/.bashrc . 
+    epsilon:~ francis$ cp ~charles/.opticks_config . 
+
+    epsilon:~ francis$ cp ~blyth/.vimrc .
+
+
+* try sharing the rngcache::
+
+    epsilon:~ francis$ mkdir .opticks
+    epsilon:~ francis$ cd .opticks
+    epsilon:.opticks francis$ ln -s /Users/blyth/.opticks/rngcache
+    epsilon:.opticks francis$ 
+
+
+* customize the config::
+
+    vi ~/.opticks_config   
+
+* build opticks using common opticks source but with different foreign externals::
+
+   ssh F
+   opticks-
+   opticks-full
+
+* actually its kind of a pity that cannot easily share the opticks "automated" 
+  externals unlike the foreign ones which are easily shared 
+  
+
+Experimental::
+
+    epsilon:local francis$ ln -s /usr/local/opticks_externals opticks_externals
+    epsilon:local francis$ pwd
+    /Users/francis/local
+
+
+
+
 
 console login
 --------------

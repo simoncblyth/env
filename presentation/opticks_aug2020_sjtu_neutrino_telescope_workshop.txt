@@ -797,7 +797,7 @@ Geant4 : Monte Carlo Simulation Toolkit Generality
 
 
 
-:small:`G4Solid -> CUDA Intersect Functions for ~10 Primitives`
+:small:`G4VSolid -> CUDA Intersect Functions for ~10 Primitives`
 -------------------------------------------------------------------------------------------------
 
 .. class:: small
