@@ -1,0 +1,1908 @@
+
+.. meta::
+   :note: Navigate the HTML slides by entering a page number and pressing return 
+   :title: Review JUNO + Opticks : GPU Optical Photon Simulation with NVIDIA OptiX
+   :description: Polycone Neck Implemented, Project Integration
+   :event: JUNO Collaboration Meeting, IHEP Virtual 
+   :date: 1 Feb 2021
+   :length: 15 minutes
+
+
+.. include:: my_s5defs.txt
+
+
+.. comment
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    .. raw:: html
+ 
+       <hr/>
+
+
+
+:i:`Review JUNO + Opticks` 
+========================================================================================
+
+.. raw:: html
+
+
+    <div class="mytitle">
+    <header>
+    <h1 style="background-color:lightgrey;text-align:center;"> 
+          <span class="alarm">Review  </span> JUNO + <i>Opticks</i> : <br> GPU Optical Simulation with NVIDIA® OptiX™ 
+        <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
+    </h1>
+    </header>
+    </div>
+
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; JUNO Collaboration Meeting, Jan/Feb 2021, Virtual</h2>
+    </div>
+
+
+.. s5_talk:: 
+
+    Opticks applies state-of-the-art GPU ray tracing 
+    accessed via NVIDIA OptiX to optical photon simulation and integrates this with Geant4. 
+    This results in drastic speedups of more than 1500x.
+
+    This render shows the photons resulting from a muon crossing the JUNO scintillator, 
+    each line represents a single photon.
+
+
+Outline
+----------------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: small
+
+    * :blue:`Introduction (pp 2-6)`
+
+      * Optical Photon Simulation Problem...
+      * NVIDIA OptiX Ray Tracing Engine
+      * Geant4 + Opticks Hybrid Workflow
+      * Opticks : Translates G4 Geometry to GPU, Without Approximation
+
+    * :blue:`Jump in Community Interest in Opticks`
+
+      * G4OpticksTest : Fermilab Geant4 team 
+      * Geant4 Bugs 2305,2311 : opticalsurface, bordersurface 
+ 
+      * CERN Geant4 team (John Apostolakis)
+      * LZ team (dark matter experiment), LBL Perlmutter Supercomputer team, NVIDIA OptiX team  
+      * LHCb RICH (Sajan Easo) 
+
+    * :blue:`Necessary JUNO Geometry Changes (pp 7-14)`
+
+      * :red:`Remove all Torus to enable translation to GPU`
+      * "tubs-torus" -> polycone : --pmt20inch-polycone-neck 
+      * HamamatsuR12860 & NNVTMCPPMT : neck comparisons  
+
+    * :blue:`Integration of JUNO Offline + Opticks (pp 15-17)` 
+
+      * :red:`Opticks is now a JunoENV External`
+      * JUNO Offline : Where WITH_G4OPTICKS used ?
+      * :red:`Using Offline + Opticks : tut_detsim.py options`
+      * Next Step : Theta dependent Collection Efficiency -> GPU
+      
+    * :blue:`Opticks + Geant4 News : Two Geant4 Task Force R&Ds Based on Opticks (p27)`
+    * :blue:`Summary and Links (p28)`
+
+
+.. s5_talk::
+
+   As I expect most of you are familiar with Opticks, I will 
+   cover the introduction quickly. 
+   I will focus on the necessary geometry changes and recent 
+   developments on the integration of offline with opticks, 
+   that are already in SVN trunk.
+
+
+
+`JUNO Optical Photon Simulation Problem...`
+---------------------------------------------------------
+
+.. raw:: html
+
+     <pre>
+
+
+
+
+
+
+
+     </pre>
+
+.. sidebar:: :small:`Huge CPU Memory+Time Expense`
+
+    .. class:: small
+
+         **JUNO Muon Simulation Bottleneck**
+           ~99% CPU time, memory constraints
+
+         **Ray-Geometry intersection Dominates**
+           simulation is not alone in this problem...
+
+         **Optical photons : naturally parallel, simple :**
+           * produced by Cherenkov+Scintillation 
+           * yield only Photomultiplier hits
+
+
+.. s5_talk::
+
+   This is a huge memory and time challenge for simulation, especially with muons.
+
+   Most of the time is taken finding intersections between photons and geometry.
+   Fortunately simulation is not alone in this bottleneck.
+
+
+:small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
+--------------------------------------------------------------------------------
+
+.. sidebar:: OptiX Raytracing Pipeline
+
+    .. class:: small
+
+       Analogous to OpenGL rasterization pipeline:
+
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
+
+.. class:: small
+
+   **OptiX makes GPU ray tracing accessible**
+
+   * **accelerates** ray-geometry intersections
+   * simple : single-ray programming model
+   * "...free to use within any application..."
+   * :red:`access RT Cores[1] with OptiX 6.0.0+ via RTX™ mode`
+
+   **NVIDIA expertise:**
+
+   * :red:`~linear scaling up to 4 GPUs`
+   * acceleration structure creation + traversal (Blue)
+   * instanced sharing of geometry + acceleration structures
+   * compiler optimized for GPU ray tracing
+
+.. class:: tiny
+
+       ``https://developer.nvidia.com/rtx``
+
+.. class:: small
+
+   **User provides (Yellow):**
+
+   * ray generation
+   * geometry bounding box, intersects 
+
+
+.. class:: tiny
+
+   [1] Turing+ GPUs eg NVIDIA TITAN RTX 
+
+
+
+.. s5_talk::
+
+   * NVIDIA OptiX gives access to the NVIDIA BVH  
+
+   * OptiX is a ray tracing specific CUDA compiler, it combines
+     user programs for ray generation and geometry with NVIDIA programs 
+     for acceleration structure traversal into a GPU pipeline 
+
+   * OptiX just accelerates ray-geometry interection... it doesnt provide the intersection 
+
+   * the bulk of Opticks on the GPU is in the ray generation and intersection programs 
+
+
+
+
+
+
+:i:`Geant4OpticksWorkflow`
+----------------------------
+
+.. s5_talk::
+
+    SMALL
+    So : how can an external optical photon simulation be integrated with Geant4 ?
+
+    In the standard workflow the Geant4 Scintillation and 
+    Cerenkov processes calculate a number of photons 
+    and then loop generating these and collecting them 
+    as secondaries.
+     
+    In the hybrid workflow, this generation is split 
+    between the CPU and GPU with "Gensteps" acting as the bridge. 
+    These Genstep parameters include the number of photons, positions and everything 
+    else needed in the generation loop.
+
+    The gensteps allow a very simple direct port of the generation loop to the GPU. 
+
+    Its doubly helpful to generate photons on GPU, as then they take no CPU memory. 
+  
+    So can entirely offload photon memory to the GPU with only hits needing CPU memory. 
+
+    Also this keeps the overheads low as gensteps are typically a factor of 100 smaller
+    than the photons they generate.   
+ 
+    **The geometry is also needed on the GPU, with all material and surface properties.**
+
+    :red:`Geometry translation to the GPU is most of the work and problems of Opticks.`
+
+
+
+:small:`Opticks : Translates G4 Geometry to GPU, Without Approximation`
+------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Materials/Surfaces -> GPU Texture` 
+
+    .. class:: small
+
+      **Material/Surface/Scintillator properties**
+
+      * interpolated to standard wavelength domain
+      * interleaved into "boundary" texture  
+      * "reemission" texture for wavelength generation 
+
+      **Material/surface boundary : 4 indices**
+
+      * outer material (parent)
+      * outer surface (inward photons, parent -> self)
+      * inner surface (outward photons, self -> parent)
+      * inner material (self)
+
+      Primitives labelled with unique boundary index
+
+      * ray primitive intersection -> boundary index
+      * texture lookup -> material/surface properties
+
+      :red:`simple/fast properties + reemission wavelength`
+
+
+.. class:: small
+
+    **G4 Structure Tree -> Instance+Global Arrays -> OptiX**
+
+    Group structure into repeated instances + global remainder:
+
+    * auto-identify repeated geometry with "progeny digests"  
+
+      * JUNO (SVN trunk) : 9 distinct instances + 1 global  
+
+    * instance transforms used in OptiX/OpenGL geometry 
+
+    :red:`instancing -> huge memory savings for JUNO PMTs`
+
+
+
+
+.. raw:: html
+
+    <pre>
+    </pre>
+
+
+.. comment
+
+    **Automated : Geant4 "World" -> Opticks CSG -> CUDA/OptiX**
+
+    **Solids : analytic CSG + triangulated**
+
+    * intersection functions for ~10 primitives
+    * intersection program for arbitrarily complex CSG shapes 
+     
+      * :red:`automated : G4 -> Opticks -> OptiX`  
+
+
+.. s5_talk::
+
+
+   Translation of geometry structure starts by 
+   identifying repeated geometry and its transforms using 
+   geometry tree digests for every node.
+
+   Use of instancing is a huge memory saving for JUNO geometry 
+   with many thousands of PMTs.
+
+   And everything needs to be serialized to be copied to the GPU.
+     
+
+
+:i:`j1808_top_rtx`
+--------------------
+
+.. s5_talk::
+
+   The upshot is that full Geant4 detector geometries
+   can be automatically translated into NVIDIA OptiX geometries.
+
+   This is an OptiX ray trace image from the chimney region at the 
+   top of the JUNO scintillator sphere.
+    
+
+
+:small:`2020 : Opticks Awareness Jumped : HSF (HEP SW Foundation) and Geant4`  
+--------------------------------------------------------------------------------------
+
+.. class:: small
+
+   **(May 2020) HSF Meeting : GPUs in Simulations**
+
+   * https://indico.cern.ch/event/921244/
+   * "Opticks Development Experience : Problems and Successes", Simon Blyth
+
+   **(10+24 June 2020) HSF Meeting : R&D on accelerators in Simulations**
+
+   * https://indico.cern.ch/event/925887/ https://indico.cern.ch/event/930881/
+
+   * 3/9 talks discussed Opticks, including John Apostolakis, Andrei Gheata
+     
+   * "Prospects for (LHCb) RICH detector simulation using OptiX in GPUs", Sajan Easo
+
+   **(Aug 2020) HSF Publication : HL-LHC Computing Review: Common Tools and Community Software**
+
+   * https://zenodo.org/record/4009114
+   * review discusses Opticks
+
+   **(Sep 2020) Geant4 : R&D Task Force Meeting** 
+
+   * https://indico.cern.ch/event/942142/sessions/363813/#20200915
+        
+   1. "G4Opticks for liquid Argon TPCs", Fermilab Geant4 Team, Hans Wenzel
+   2. "VecGeom@GPU", CERN Geant4 Team, Andrei Gheata : :red:`NVIDIA OptiX regarded as alternative to VecGeom CUDA`
+
+
+:small:`2020 : More Opticks Awareness, 2021 : Plans` 
+-------------------------------------------------------------------------------------
+
+.. class:: small
+
+   **(Aug 2020) Shanghai SJTU : Next-gen Neutrino Telescope Simulation Workshop**
+
+   * https://indico-tdli.sjtu.edu.cn/event/238/sessions/109/#20200813 
+   * "Opticks : GPU/Graphics backgroup + Application to underwater neutrino telescope simulations ?", Simon Blyth
+
+   **(Aug 2020) Snowmass 2021 : Three LoI based on Opticks**
+
+   1. "Opticks : GPU photon simulation via NVIDIA OptiX", Simon Blyth
+   2. "Fast simulations for Noble Liquid experiments", XENON, DARWIN, LZ teams, Simon Blyth
+   3. "Simulating Optical Photons in HEP experiments on GPUs", Fermilab Geant4 team
+
+  
+   **(Jan 2021) : LZ (LUX-Zeplin) Dark matter experiment + LBL Computing + NVIDIA + Me**
+
+   ~12 person Zoom Meeting
+
+   * LZ 
+
+
+   **LZ (LUX-Zeplin) Dark matter Experiment** 
+
+   * Stanford, 
+   * LBL Computing 
+   
+
+     * LBL + Stanford : GPU Hackathon with NVIDIA
+     * 
+
+   **Manchester Geant4 Group (Adam Davis)**
+
+   * SwiftHEP grant : Postdoc funded, Engineer intended
+
+
+
+
+
+:i:`G4OpticksTest_sep2020_p1`
+------------------------------
+
+
+
+:i:`G4OpticksTest_june2020_p1`
+--------------------------------
+
+.. sidebar:: G4OpticksTest 
+
+    .. class:: small
+
+          Working with Fermilab Geant4 Team to 
+          build Opticks example for Geant4 distribution.
+
+          * https://github.com/hanswenzel/G4OpticksTest
+          * https://github.com/simoncblyth/G4OpticksTest
+
+          * testing Geant4 10.6 10.7 
+          * G4OpWLS advice (wavelength shifting) 
+
+.. s5_talk::
+
+    Fermilab Geant4 Team has been active for several years now with Opticks, 
+    in the last year I have assisted them with moving Opticks to Geant4 10.6 and 10.7 
+
+
+.. comment
+
+    :i:`G4OpticksTest_june2020_p12`
+    --------------------------------
+
+
+
+    .. sidebar:: :small:`Opticks Additions`
+
+        .. class:: small
+
+             Worked on Opticks with 
+
+             * Geant4 10.6 and 10.7
+
+
+              
+     
+             * wavelenth shifting 
+
+    .. s5_talk::
+
+        Fermilab Geant4 Team has been active for several years now with Opticks, 
+        in the last year I have assisted them with moving Opticks to Geant4 10.6 and 10.7 
+
+
+
+:i:`Geant4_Bug_2305`
+----------------------
+
+.. raw:: html
+
+   <pre>
+
+
+
+
+
+
+
+   </pre>
+
+.. sidebar:: Geant4 Bug 2305
+
+     :small:`https://bugzilla-geant4.kek.jp/show_bug.cgi?id=2305`
+
+     Five Geant4 releases are **unusable**:
+
+     * 1060, 1061, 1062, 1063
+     * 1070 
+
+     * **fix planned for 1071**
+
+
+.. raw:: html
+
+   <pre>
+
+
+   </pre>
+
+.. class:: small
+
+   :red:`Unfortunately it took me five releases to notice this showstopper`
+
+   **Any GDML using expt. with > 1 optical surface, should not use these
+   five releases of Geant4.**  
+
+   Important to test ahead, checking lastest Geant4:
+
+   * natural way to contribute to Geant4 
+   * avoids : surprises, excluded releases
+   * lower potential barrier for future official updating
+
+
+.. s5_talk::
+
+    It is unfortuate that I did not test Opticks with these five Geant4 releases 
+    until recently. This optical surface bug tripped a consistency check assert 
+    in the Opticks geometry translation, so I would have been able to catch the problem much sooner.  
+
+    It really demonstrates the importance of testing the latest version 
+    of critical externals even when you have no intention to officially updating
+    to them in the near future. 
+
+    Plus it is a natural way to contribute to your externals and ensures 
+    that they will be ready for you when you do need to update.
+
+
+:i:`Geant4_Bug_2311`
+----------------------
+
+
+.. raw:: html
+
+   <pre>
+
+
+
+
+
+
+   </pre>
+
+
+.. sidebar:: Geant4 Bug 2311 
+
+     :small:`https://bugzilla-geant4.kek.jp/show_bug.cgi?id=2311`
+
+     Effected Geant4 releases: 1070+
+
+     .. class:: small
+
+         bordersurface std::vector -> std::map API Change 
+
+         * made Opticks name sort workaround for 1070
+         * have suggested **creation order index** to improve workaround > 1070
+
+
+.. raw:: html
+
+   <pre>
+
+
+   </pre>
+
+.. class:: small
+
+   :red:`Problem noticed in first release`
+
+   Geant4 team seem willing to follow my suggestion 
+   that will avoid any lasting impact. 
+
+
+.. s5_talk::
+
+    This Geant4 change in 10.7 was noticed at the first release, and fortunately 
+    an Opticks workaround is possible and it looks likely that the next Geant4 release 1071
+    will be free of both this workaround and the optical surface bug too. 
+
+
+:i:`LHCB_RICH_HSF`
+----------------------
+
+.. sidebar:: :small:`LHCb RICH Using Opticks` 
+
+    .. class:: small
+
+        "Prospects for RICH simulation using Opticks"
+
+        * RICH : Ring Imaging Cherenkov detector
+        * Sajan Easo (STFC-GB)
+        * reported to HSF (HEP Software Foundation) meeting June 2020
+        * ~30% simulation CPU time
+
+        * https://indico.cern.ch/event/930881/
+        * :red:`successful validations`
+
+.. s5_talk::
+
+   LHCb Ring Imaging Cherenkov detector has an optical photon simulation problem,
+   so its interested in Opticks : and has done some validations   
+
+
+:small:`LUX-Zeplin/LBL/Stanford/Bristol : Lots of interest`
+--------------------------------------------------------------
+
+.. class:: small
+
+   * https://www.nersc.gov/assets/Uploads/1400-Opticks-on-CoriGPU.pdf
+ 
+
+
+
+
+:small:`JUNO Geometry : Remove Torus to enable translation to GPU`
+---------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Why Avoid Torus ?`
+
+    .. class:: small
+
+         **Double heavy quartic root finding** 
+     
+         * fragile (crashes in some OptiX versions)
+         * precision problems in CSG combinations
+         * mere presence in OptiX kernel :red:`kills RTX mode performance by factor 10` 
+
+         **Alternative Approaches To Cope With Torus**
+
+         * triangulated torus 
+         * TODO : ray marching (aka sphere tracing) signed distance function (SDF) model 
+        
+
+.. class:: small
+
+
+  **tut_detsim.py options (in SVN trunk r3990)** 
+
+  ``--no-guide_tube`` 
+      skip the guide tube torus 
+
+  ``--pmt20inch-polycone-neck`` 
+      "cylinder - torus" -> polycone 
+
+      * NNVT_MCPPMT_PMTSolid
+      * Hamamatsu_R12860_PMTSolid
+
+  :red:`TODO`: ``--pmt20inch-simpler-csg`` 
+      simpler+faster CSG, same geometry 
+
+
+
+.. s5_talk::
+
+    Torus intersection is such a problem, that the best solution is 
+    to avoid torus : I think it is perfectly acceptable to do so, because
+    the guide tube is not important for optical photons and the torus 
+    based PMT neck is cosmetic only in my opinion.
+
+
+
+
+`"tubs-torus" -> polycone : --pmt20inch-polycone-neck` 
+--------------------------------------------------------------------
+
+
+.. s5_talk::
+
+    Because the neck is nowhere near the sensitive part, there shoud be no impact 
+    on PMT hits from using the polycone neck.
+
+
+
+:i:`gpltcf_HamamatsuR12860lMaskVirtual_SubPlotsFig`
+----------------------------------------------------
+
+
+.. s5_talk::
+
+    These plots were made by parsing two GDML files and plotting the shapes.
+    The polycone neck GDML shapes are shown with the dotted line. 
+
+    The six subplots show all the volumes that make up the Hamamatsu PMT
+    including the acrylic mask.  
+
+    The circles are a cross-section of the torus.  The curve of the neck is 
+    made by subtracting that the torus from the cylinder. 
+
+
+
+:i:`gpltcf_HamamatsuR12860lMaskVirtual_SubPlotsFig_Zoom`
+----------------------------------------------------------
+
+.. s5_talk::
+
+    These are the same plots zoomed into the neck region.
+ 
+    * the dotted polycone neck is very close to the tubs-torus one 
+
+
+:i:`gpltcf_HamamatsuR12860lMaskVirtual_combiZoom_SubPlotsFig`
+--------------------------------------------------------------
+
+.. s5_talk::
+
+    This plots all 6 volumes together, with the neck zoom on the right. 
+ 
+
+:i:`gpltcf_NNVTMCPPMTlMaskVirtual_SubPlotsFig`
+----------------------------------------------------
+
+.. s5_talk::
+
+    These are the same type of plots for the NNVT PMT 
+
+
+:i:`gpltcf_NNVTMCPPMTlMaskVirtual_SubPlotsFig_Zoom`
+----------------------------------------------------
+
+.. s5_talk::
+
+    Again it is clear that the polycone neck is very close to the torus one.
+
+
+:i:`gpltcf_NNVTMCPPMTlMaskVirtual_combiZoom_SubPlotsFig`
+----------------------------------------------------------
+
+.. s5_talk::
+
+    Here is the all-together plot for NNVT. 
+
+
+
+:small:`Integration of Offline + Opticks : Opticks is now a JunoENV External`
+------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Opticks Build Generalized`
+
+    .. class:: small
+   
+         **Builds against CMAKE_PREFIX_PATH**
+
+         * Boost, CLHEP, XercesC, Geant4
+         * -> Opticks uses JUNO externals  
+
+         **opticks-config** (**pkg-config** .pc file based) 
+
+         * integrates with non-CMake projects, eg CMT   
+
+         **releases on github** : latest ``v0.0.0-rc3``
+
+         :small:`https://github.com/simoncblyth/opticks/releases/tag/v0.0.0-rc3`
+
+
+
+.. class:: small
+ 
+    Add Opticks to an existing installation (:red:`SVN trunk r3990+`):
+
+    ``bash junoenv libs all opticks``     
+
+    * pre-requisites : NVIDIA Driver, CUDA, OptiX
+
+    **Four mandatory envvars :**
+
+.. raw:: html
+
+    <pre class="mypre">
+    <b><span class="alarm">export CMTEXTRATAGS=opticks </span></b>
+    <b><span class="alarm"># -> Opticks ON in JunoENV + CMT</span></b>
+    export OPTICKS_COMPUTE_CAPABILITY=70 <b><span class="blue"> # -> nvcc flags</span></b>
+    export OPTICKS_CUDA_PREFIX=/usr/local/cuda-10.1   
+    export OPTICKS_OPTIX_PREFIX=/usr/local/OptiX_650  
+    <b><span class="blue"># location of CUDA and OptiX installs </span></b>
+    </pre>
+
+.. class:: small
+
+    **Build all JUNO externals, including Opticks (takes ~1hr, 13G) :**
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    jlibs(){
+        mkdir -p $JUNOTOP && cd $JUNOTOP
+        svn co https://juno.ihep.ac.cn/svn/offline/trunk/installation/junoenv && cd $JUNOTOP/junoenv
+        local libs=$(bash junoenv libs list | perl -ne 'm, (\S*)@, && print "$1\n"' -)
+        for lib in $libs ; do 
+            bash junoenv libs all $lib || return 1 
+        done  
+    }
+    </pre>
+    
+.. class:: small
+
+    * https://juno.ihep.ac.cn/mediawiki/index.php/Offline:Installation#Install_Opticks_using_JunoENV
+
+
+
+.. s5_talk::
+
+    Now I transition to progress with integrating Opticks with the Offline.
+
+    * **Opticks is now a JunoENV external**
+    * that means you can install Opticks with that one line
+    * actually to install all Offline externals you 
+      can use the bash function below
+
+    Opticks has pre-requisites : CUDA, OptiX and the NVIDIA GPU Driver
+    that need to be separately installed.
+    It is not appropriate to automate this, as low level system drivers are involved 
+    users need to follow NVIDIA instructions for your system.
+
+    Where these are installed are communicated via envvars.
+
+    As Opticks is an optional external, it is necessary to 
+    switch it on somehow. The CMTEXTRATAGS envvar is used to do this, 
+    when that contains the string "opticks" it signals JUNOEnv and 
+    CMT to enable Opticks in the builds.
+
+    More details are in the wiki at this link. 
+
+
+
+:small:`Integration of Offline + Opticks : Where WITH_G4OPTICKS used ?`
+------------------------------------------------------------------------------------
+
+.. class:: small
+
+    Offline Opticks : ``#ifdef WITH_G4OPTICKS ... #endif`` + ``if(m_opticksMode > 0){ ... }``
+
+.. raw:: html
+
+    <pre class="mypre">
+    cd $JUNOTOP/offline/Simulation/DetSimV2 ; find . -type f -exec grep -l WITH_G4OPTICKS {} \+
+
+    ./DetSimOptions/src/DetSim0Svc.cc                  ## initialize/finalize 
+    ./DetSimOptions/src/LSExpDetectorConstruction.cc   ## translate geometry to GPU 
+
+    ./PhysiSim/src/DsG4Scintillation.cc    ## collect Scintillation gensteps, excluding reemission
+    ./PhysiSim/src/LocalG4Cerenkov1042.cc  ## collect Cerenkov gensteps
+    ./PhysiSim/src/DsPhysConsOptical.cc    ## use LocalG4Cerenkov1042 rather than G4Cerenkov
+
+    ./PMTSim/src/PMTSDMgr.cc         ## setup separate PMTHitMerger m_pmthitmerger_opticks 
+    ./PMTSim/src/junoSD_PMT_v2.cc    ## bulk hit creation+collection at EndOfEvent         
+    </pre>
+
+
+.. class:: small
+
+    ``junoSD_PMT_v2::Initialize``
+      * setup extra **hitCollection_opticks**  :red:`(temporarily doing both GPU+CPU sim, with separate hits + merger)`
+         
+    ``junoSD_PMT_v2::EndOfEvent_Opticks``
+      * invoke ``G4Opticks::propagateOpticalPhotons`` with the gensteps collected 
+      * bulk populate **hitCollection_opticks**
+
+.. class:: small
+
+    * https://juno.ihep.ac.cn/mediawiki/index.php/Offline:Installation#building_the_offline_-DWITH_G4OPTICKS
+
+.. s5_talk::
+
+
+    Not everyone has an NVIDIA GPU, so Opticks is optional.
+
+    Because of this all usage is "hidden" behind: 
+
+    1. WITH_G4OPTICKS compilation macro
+    2. opticksMode runtime switch 
+
+    The Opticks integration changes code in 3 packages 
+
+    * DetSimOptions
+    * PhysiSim 
+    * PMTSim
+
+    DetSimOptions 
+        handles lifecycle + passing the geometry world pointer to Opticks for translation
+
+    PhysiSim
+        collects Gensteps from Scintillation and Cerenkov processes 
+
+    PMTSim
+        invokes the GPU opticalPhotonSimulation and populates the hit collection in bulk, 
+        at the end of the event   
+
+
+     Again, more details are in the wiki at that link. 
+
+
+
+
+
+
+:small:`Integration of Offline + Opticks : tut_detsim.py options`
+-------------------------------------------------------------------
+
+.. class:: small
+
+    *tut_detsim.py* options relevant to Opticks usage
+
+    ``--opticks-mode 0``  
+        do not use Opticks GPU propagation, the default
+
+    ``--opticks-mode 1`` (currently :green:`SVN trunk r3990`)
+        performs both CPU and GPU optical simulations 
+        put GPU hits into separate **hitCollectionOpticks** 
+
+    ``--opticks-mode 10`` # TODO: IMPLEMENT AFTER FURTHER VALIDATION 
+        switch off CPU optical photons, 
+        put GPU hits into standard **hitCollection** 
+
+    ``--no-guide_tube`` 
+        change geometry skipping the guide tube torus
+
+    ``--pmt20inch-polycone-neck`` 
+        change geometry of LPMT necks avoiding use of torus
+
+
+    ``tds`` : **Example Bash Function :**  
+
+.. raw:: html
+
+    <pre class="mypre">
+    tds-(){ python $JUNOTOP/offline/Examples/Tutorial/share/tut_detsim.py $* ; }
+    tds(){ tds- --opticks-mode 1 --no-guide_tube --pmt20inch-polycone-neck --evtmax 2 gun ; } 
+    </pre>
+
+.. class:: small
+
+    * https://juno.ihep.ac.cn/mediawiki/index.php/Offline:Detsimuserguide/UsingOpticks
+
+
+.. s5_talk::
+
+    tut_detsim.py options relevant to using Opticks are collected here 
+
+    **--opticks-mode** is the main control
+
+    Currently both CPU and GPU simulations are done, with GPU hits going into 
+    a separate hit collection.
+     
+    * Trying to use standard geometry with torus exits at Opticks geometry translation.
+    * Trying to use non-zero opticks-mode with code not compiled WITH_G4OPTICKS 
+      exits at initialization.
+
+    More details in the wiki
+
+
+
+:small:`Integration of Offline + Opticks : Next Step : Theta dep. CE -> GPU`
+------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Collection Effic. Culling -> GPU ?`
+
+     .. class:: small
+
+         Significant performance/memory benefit (factor ~2)   
+
+         * -> :red:`only collected hits copied to CPU`
+
+         Aligns CPU/GPU random consumption 
+
+         * randoms consumed in same sequence CPU/GPU
+         * -> easier validation : aligned bi-simulation 
+
+
+.. class:: small
+    
+    **(1) Complete CPU side bulk hit creation in PMTSim:** ``junoSD_PMT_v2::EndOfEvent_Opticks`` 
+
+    Hits currently missing:
+
+    * local_pos : position in PMT frame   
+    * theta dependent collection efficiency culling 
+    * pAcrylic/pInnerWater boundary_pos[1] : :red:`is this essential ?`
+       
+    **(2) CUDA port:** ``junoSD_PMT_v2::get_ce``
+
+    * interpolation of : 9 collection efficiency theta samples 0->90 deg
+    * PMTParamSvc info (PMTType[2], QEType) -> GPU 
+
+    * Port ``G4DataInterpolation::CubicSplineInterpolation`` ?
+    
+      * direct port difficult + lots of flops for every detected photon (perhaps [3])
+      * instead "cheat" with GPU texture "tables" (similar to **reemission_texture** approach)
+
+        * :red:`9 theta samples -> G4DataInterpolation -> 90 theta "samples"` -> ``theta_texture``
+        * ``theta_texture(theta) -> ce`` : GPU hardware linear interpolation 
+  
+.. image:: /env/presentation/1px.png
+  :width: 1000px
+  :height: 1px
+
+
+.. class:: tiny
+
+   [1] set in NormalTrackInfo by ``NormalAnaMgr::UserSteppingAction``
+   [2] PMTID int :strike:`distinguishes` NNVT/Hamamatsu !
+
+   [3] https://github.com/DannyRuijters/CubicInterpolationCUDA "GPU Prefilter for Accurate Cubic B-spline Interpolation"
+
+
+.. s5_talk::
+
+    Next step is to complete the hits on the CPU side 
+    and then to do the collection efficiency culling on the GPU side.
+
+    There are several benefits from doing this.  Both from the performance
+    and memory usage and also because it will be easier to validate.
+    
+    In order to bring **get_ce** to the GPU need to somehow do the 
+    Cubic Spline Interpolation on the GPU.  Need to do some prototyping
+    to see out how best do this.
+
+
+
+
+
+:small:`Opticks + Geant4 News : Two Geant4 Task Force R&Ds Based on Opticks`
+------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Opticks interest : Geant4 + HSF + ...`
+
+    .. class:: small
+
+          * Presented Opticks : HSF Sim. Group (May 27th)
+
+          Other currently active Opticks users:
+
+          * LHCb RICH Calibration (Sajan Easo)
+
+          * LUX-ZEPLIN (LZ) Dark Matter (Sam Eriksen)
+
+
+.. class:: small
+
+     * https://geant4.web.cern.ch/collaboration/task_force_rd
+
+     **Full integration of Opticks with Geant4** : LAr TPCs, DUNE
+
+     * https://geant4.web.cern.ch/node/1890 [FermiLab G4 Team]
+     * K.L.Genser, Hans J.Wenzel, (S. Y. Jun) 
+
+     Creation of a Geant4 extended example ``G4OpticksTest``
+
+     * https://github.com/hanswenzel/G4OpticksTest
+
+     :red:`Advised Hans on Opticks use, adding Wavelength Shifting`
+
+     **Prototype of gamma or electron transport using GPU vendor library** : HL-LHC ECAL 
+
+     * https://geant4.web.cern.ch/node/1886 [CERN PH/SFT G4 Team]
+     * Guilherme Amadio, John Apostolakis [G4 Tracking Architect], Andrei Gheata
+
+     Examine the Opticks simulation of optical photons, to identify similarities/differences ... for gamma and/or electron interactions
+    
+     :red:`Agreed to act in a consulting role for this task ; email exchanges with John Apostolakis`
+
+
+.. class:: tiny
+
+   [1] HSF : HEP Software Foundation
+
+
+.. s5_talk::
+
+    More Geant4 groups are getting interested in Opticks, and not just for 
+    optical photons. Some of the CERN Geant4 team are interested
+    in investigating use of Opticks for gamma (and perhaps electron) simulation 
+    in HL-LHC calorimeters. 
+
+    I also have been working with the Fermilab Geant4 Group
+
+
+
+
+:small:`Summary and Links`
+----------------------------------------------------------------
+
+.. sidebar:: :small:`Next Steps`
+
+   .. class:: small
+
+      * Theta dependant CE -> GPU 
+      * validation : in-situ random aligned bi-simulation 
+      * validation : apply full step-by-step recording 
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 20px
+
+..
+
+  *Opticks* : state-of-the-art GPU ray traced optical simulation 
+  integrated with *Geant4*. :red:`Now integrated with JUNO Offline`
+  **Pioneer users welcome** 
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 1px
+
+  * Drastic speedup -> better detector understanding -> greater precision
+  
+    * **any simulation limited by optical photons can benefit** 
+    * more photon limited -> more overall speedup (99% -> 100x) 
+
+.. table::
+    :align: center
+
+    +--------------------------------------------------+-----------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks        | code repository                         |                   
+    +--------------------------------------------------+-----------------------------------------+
+    | https://github.com/simoncblyth/opticks/releases  | .zip .tar.gz  archives                  |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.bitbucket.io                 | presentations and videos                |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                      | forum/mailing list archive              |
+    +--------------------------------------------------+-----------------------------------------+
+    | email:opticks+subscribe@groups.io                | subscribe to mailing list               |
+    +--------------------------------------------------+-----------------------------------------+ 
+
+
+.. comment
+
+  *Opticks* uses hardware accelerated GPU ray tracing
+  via NVIDIA OptiX to give **effectively zero time and zero CPU memory** 
+  optical photon simulation to *Geant4* applications.
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 10px
+
+
+
+.. s5_talk::
+
+   So in summary : Opticks applies the best available GPU ray tracing to optical 
+   photon simulation resulting in speedups exceeding three orders of magnitude.
+
+   Opticks is still very young and it really needs users to turn it into 
+   a robust tool that anyone with an optical photon simulation problem 
+   can use to elimate.
+
+   These speedups are just for the optical photons, how much that 
+   helps with the overall speedup depends on how limited you are by 
+   optical photons.
+
+
+
+
+
+
+
+
+
+:i:`scan-pf-1_Opticks_vs_Geant4 2`
+------------------------------------
+
+.. raw:: html
+
+    <pre>
+   
+
+
+ 
+    </pre>
+
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +--------------------+----------------------------+------------------+
+        | JUNO analytic, 400M photons from center         |  Speedup         |
+        +====================+============================+==================+
+        | Geant4 Extrap.     | 95,600 s (26 hrs)          |                  | 
+        +--------------------+----------------------------+------------------+
+        | Opticks RTX ON (i) | 58 s                       |   1650x          |
+        +--------------------+----------------------------+------------------+
+
+
+.. s5_talk::
+
+
+   The GPU used for these tests is the Quadro RTX 8000 with 48GB VRAM.
+
+   This compares the extrapolated Geant4 propagation time with the Opticks launch
+   interval with RTX on.   The speedup is more than a factor of 1000.   Need to 
+   use a log scale to make them both visible. 
+
+   For 400M photons, Geant4 takes more than a day, Opticks takes less than a minute.   
+
+   This is with analytic geometry. Speedup is a lot more with triangles.
+
+
+
+
+
+
+:small:`PMTID physvol/@copynumber -?-> PMTtype Hamamatsu/NNVT -- GDML:`
+------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    014743       &lt;physvol name="pLPMT_NNVT_MCPPMT0x329e330"&gt;      <b><span class="alarm"> <-- zero is special ? NOT A GOOD ID  </span></b>
+     14744         &lt;volumeref ref="NNVTMCPPMTlMaskVirtual0x32a56c0"/&gt;
+     14745         &lt;position name="pLPMT_NNVT_MCPPMT0x329e330_pos" unit="mm" x="-930.2976" y="-111.8724" z="19365"/&gt;
+     14746         &lt;rotation name="pLPMT_NNVT_MCPPMT0x329e330_rot" unit="deg" x="180" y="0" z="180"/&gt;
+     14747       &lt;/physvol&gt;
+     14748       &lt;physvol <b><span class="alarm">copynumber="1"</span></b> name="pLPMT_Hamamatsu_R128600x329e3b0"&gt;   
+     14749         &lt;volumeref ref="HamamatsuR12860lMaskVirtual0x3290b70"/&gt;
+     14750         &lt;position name="pLPMT_Hamamatsu_R128600x329e3b0_pos" unit="mm" x="-492.5657" y="-797.0872" z="19365"/&gt;
+     14751         &lt;rotation name="pLPMT_Hamamatsu_R128600x329e3b0_rot" unit="deg" x="180" y="0" z="180"/&gt;
+     14752       &lt;/physvol&gt;
+     14753       &lt;physvol <b><span class="alarm">copynumber="2"</span></b> name="pLPMT_NNVT_MCPPMT0x329e4b0"&gt;  <b><span class="blue"> <-- forced to use name OR PMTParamSvc -> PMTType </span></b>
+     14754         &lt;volumeref ref="NNVTMCPPMTlMaskVirtual0x32a56c0"/&gt;
+     14755         &lt;position name="pLPMT_NNVT_MCPPMT0x329e4b0_pos" unit="mm" x="316.0782" y="-882.0791" z="19365"/&gt;
+     14756         &lt;rotation name="pLPMT_NNVT_MCPPMT0x329e4b0_rot" unit="deg" x="180" y="0" z="180"/&gt;
+     14757       &lt;/physvol&gt;                                
+    ...
+    102774       &lt;physvol <b><span class="alarm">copynumber="17610"</span></b> name="pLPMT_Hamamatsu_R128600x3a2a9d0"&gt; <b><span class="blue"> Simple fix : separate NNVT/Hamamatsu offsets </span></b>
+    102775         &lt;volumeref ref="HamamatsuR12860lMaskVirtual0x3290b70"/&gt;
+    102776         &lt;position name="pLPMT_Hamamatsu_R128600x3a2a9d0_pos" unit="mm" x="-468.5" y="811.4658" z="-19365"/&gt;
+    102777       &lt;/physvol&gt;
+    102778       &lt;physvol <b><span class="alarm">copynumber="17611"</span></b> name="pLPMT_NNVT_MCPPMT0x3a2aa80"&gt;
+    102779         &lt;volumeref ref="NNVTMCPPMTlMaskVirtual0x32a56c0"/&gt;
+    102780         &lt;position name="pLPMT_NNVT_MCPPMT0x3a2aa80_pos" unit="mm" x="-926.5345" y="139.6526" z="-19365"/&gt;
+    102781       &lt;/physvol&gt;
+
+    102782       &lt;physvol <b><span class="alarm">copynumber="300000"</span></b> name="PMT_3inch_log_phys0x3a307c0"&gt;
+    102783         &lt;volumeref ref="PMT_3inch_log0x3a2e430"/&gt;
+    102784         &lt;position name="PMT_3inch_log_phys0x3a307c0_pos" unit="mm" x="-3734.24733197939" y="1835.06563378074" z="18932.1786116475"/&gt;
+    102785         &lt;rotation name="PMT_3inch_log_phys0x3a307c0_rot" unit="deg" x="-174.463707019134" y="-11.1072339347848" z="-26.7089289722046"/&gt;
+    102786       &lt;/physvol&gt;
+    102787       &lt;physvol <b><span class="alarm">copynumber="300001"</span></b> name="PMT_3inch_log_phys0x3a30890"&gt;
+    102788         &lt;volumeref ref="PMT_3inch_log0x3a2e430"/&gt;
+    102789         &lt;position name="PMT_3inch_log_phys0x3a30890_pos" unit="mm" x="-3470.82479867782" y="1705.61581563788" z="18994.3071973244"/&gt;
+    102790         &lt;rotation name="PMT_3inch_log_phys0x3a30890_rot" unit="deg" x="-174.86882108069" y="-10.3147892102431" z="-26.6336342093065"/&gt;
+    102791       &lt;/physvol&gt;
+    </pre>
+
+
+.. s5_talk::
+
+    PMTID integer alone doesnt distinguish between types of PMT 
+
+
+:small:`PMTParamSvc relies on large std::map<int,int> m_pmt_categories`
+------------------------------------------------------------------------------------
+
+
+.. class:: small
+
+    ``unsigned long long pmtdat`` 
+          64-bit bitfield can encode all PMTParamSvc info in CUDA friendly way
+
+    label sensitive volumes with ``pmtdat``  
+          bit twiddling then provides all the info, :red:`no big PMTParam buffers needed` 
+
+.. raw:: html
+
+     <pre class="mypretiny">
+     43 class PMTParamSvc: public SvcBase {      //  Encode all this into : 64 bit pmtdat (unsigned long long) 
+     44 public:                                  //                                                       
+     45   PMTParamSvc(const std::string& n)      //                                                       
+     ..                                          //  16 bits : which PMT identifier (enough for 1..65,536)
+     53   bool isCD(int pmtid);                  //  16 bits : 8 bits of type flags + 8 bits spare 
+     54   bool isWP(int pmtid);                  //  32 bits : float qe 
+     56   bool is20inch(int pmtid);              //  ----------------------------------------------
+     57   bool is3inch(int pmtid);               //  64 bits : unsigned long long pmtdat  
+     59   bool isNNVT(int pmtid);                //                                                       
+     60   bool isHamamatsu(int pmtid);           //                                                       
+     61   bool isHighQE(int pmtid);              //   Adhere to hex 4bit boundaries:
+     62   bool isHZC(int pmtid);                 //                                                       
+                                                 //                      Which PMT 16 bits
+     63   float getPMTQE(int pmtid);             //                       |
+     ..                                          //   0x|....|....|..00|....|     
+     74   std::map&lt;int, int&gt; m_pmt_categories;   //                 |               
+     75   std::map&lt;int, float&gt; m_pmt_qe;         //       float qe  type flags     
+     76 };                                       //
+                                                 //   unsigned long long pmtdata[npmt] ; 
+     </pre>                                                                             
+
+
+.. class:: small
+
+    * ``pmtdat`` will simplify bringing ``junoSD_PMT_v2::get_ce`` to GPU.
+
+
+.. s5_talk::
+
+    Using a bitfield can avoid the need for dedicated PMTParam buffers
+
+
+
+
+.. s5_background_image::
+
+    ##
+    ## slide titles and background image urls, 
+    ## including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
+    ## and protocol relative urls like //localhost/env/test/LANS_AD3_CoverGas_Humidity.png
+    ##
+    ## NB1 slide titles here must match those in body precisely, 
+    ## NB2 also ensure all slide titles are unique
+    ##
+    ##slide0
+    ##/env/geant4/geometry/collada/g4daeview/20140419-170713.png auto_auto 0px_0px
+    ##/env/geant4/geometry/collada/g4daeview/20140419-170713-1024x768.png auto_auto 0px_0px
+    ##
+    ##   wide targetting 1280x720
+    ##   
+    ##
+    slide0
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Opticks Benefits
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Visualizing An Optical Photon Simulation
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
+
+    Overview
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
+    /env/geant4/geometry/collada/g4daeview/20140419-170713.png
+
+    Cerenkov Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-115923.png
+
+    Cerenkov Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-115935.png
+
+    Scintillation Photons Simulation - Top View
+    /env/geant4/geometry/collada/g4daeview/20141224-121444.png
+
+    Scintillation Photons Simulation - Side View
+    /env/geant4/geometry/collada/g4daeview/20141224-121435.png
+
+    Standard Geant4 Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.001.png
+
+    External Photon Simulation Workflow
+    /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
+
+
+    ## keynote wide default is 1920x1080  aspect 1.77777777 16:9
+    ## but my slides use       1280x720
+    ## used document panel at top right to change to custom size of 1280x720
+    ## then exported from Keynote as Images selecting PNG creates
+    ## a PNG of size 1280x720
+    ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
+    ##
+    Geant4OpticksWorkflow
+    /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
+
+    GGeoView
+    /env/graphics/ggeoview/ggeoview-cerenkov-001.png 1047px_795px
+
+    GGeoView M1 Points
+    /env/graphics/ggeoview/ggeoview-scintillation-points-mat1.png 1435px_848px
+
+    GGeoView Flag Selection 
+    /env/graphics/ggeoview/ggeoview-scintillation-flag-seq-select.png 1436px_842px
+
+    GGeoView Cerenkov Geom M1
+    /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
+  
+    Detecting Neutrinos via Optical Photons 1
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    Detecting Neutrinos via Optical Photons 2
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+ 
+    JPMT Inside Wide 
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
+
+    JPMT Wide
+    /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
+  
+    JPMT Headview
+    /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
+ 
+    JPMT Backview
+    /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
+ 
+    JPMT Approach 
+    /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
+
+    JPMT Arrival 
+    /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
+ 
+    Optical Photon Simulation Problem...
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JUNO Optical Photon Simulation Problem...
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 2
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+    JPMT Before Contact 3
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+
+ 
+    JPMT After Contact 
+    /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
+  
+    JPMT Inside Outside 
+    /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
+
+    NVIDIA OptiX In Action
+    /env/presentation/optix-in-action_half.png 966px_646px 100px_50px
+
+    PmtInBox approach 1
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox approach 2
+    /env/graphics/ggeoview/PmtInBox-approach.png 1069px_769px 
+
+    PmtInBox after 1
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    PmtInBox after 2
+    /env/graphics/ggeoview/PmtInBox-after.png 1057px_760px 
+
+    Daya Bay PMT Wall Photo 1
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Daya Bay PMT Wall Photo 2
+    /env/presentation/gtc2016/dyb-pmt-wall-photo.png 1329px_798px  
+
+    Super-Kamiokande PMTs Not 16:9 
+    /env/presentation/gtc2016/sk-PH20-water-withboat-apr23-wm.png 1181px_771px
+
+    Super-Kamiokande PMTs 1
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 2
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 3
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Super-Kamiokande PMTs 4
+    /env/presentation/PH20-water-withboat-apr23-wm_crop.png 1280px_720px
+
+    Kamiokande II 1
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 2
+    /env/presentation/1987a.png 1280px_720px
+
+    Kamiokande II 3
+    /env/presentation/1987a.png 1280px_720px
+
+
+    Fast Optical Photon Simulation
+    /env/presentation/newtons-opticks.png 374px_684px 800px_0px
+
+    Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt-16x9.png 1280px_720px
+
+    Old Hamamatsu Photomultiplier Tubes (PMTs)
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+    Old Photomultiplier Tube Operation
+    /env/presentation/hamamatsu-pmt.png 1099px_734px
+
+
+
+
+    Jiangmen Underground Neutrino Observatory (JUNO) 
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+    Jiangmen Underground Neutrino Observatory, Goals
+    /env/presentation/juno-schematic-5.png 1391px_734px
+
+
+    Dayabay Reactor Neutrino Expt, Far Site
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 2
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Daya Bay Far Site 3
+    /env/presentation/DybFar_crop.png 1280px_720px
+
+    Geant4 : Monte Carlo Simulation Toolkit 
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    Geant4 : Monte Carlo Simulation Toolkit Generality
+    /env/presentation/g4-hep.png 1025px_621px 100px_100px 
+
+    "Seeing" neutrinos via scintillation + Cherenkov light
+    /env/presentation/cherenkov.png 316px_203px 850px_400px
+
+    Opticks : Auto-Instancing
+    /env/graphics/ggeoview/ggv-juno-instancing.png 852px_592px 450px_80px
+
+    NVIDIA OptiX 1
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    NVIDIA OptiX 2
+    /env/presentation/NVIDIAOptiXWebsite_Oct2016.png 1280px
+
+    OpticksDocs
+    /env/presentation/OpticksDocs.png 1280px_720px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 1
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+
+    Daya Bay Antineutrino Detection via Inverse Beta Decay 2
+    /env/presentation/AntineutrinoDetectionViaIBDJetterSept2014.png 809px_576px 100px_100px
+    ## a = np.array([1676.0, 1192.0])
+    ## .8*720.*a/1192.
+
+    Daya Bay Energy Response Model (1)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    Daya Bay Energy Response Model (2)
+    /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
+
+    ## a = np.array([2392., 1424.]) ; .8*720*a/a[1]
+
+
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 1
+    /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
+    ## a = np.array([1760., 1280.])
+    ## .8*720.*a/1280.   792px_576px
+    ## 693.,  504
+
+    Daya Bay Energy Response Model : Fit to Calibration Data 2
+    /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
+    ## a = np.array([1698., 1166.])
+    ## .8*720.*a/1166. 
+    
+    Daya Bay nGd Analysis : Most Precise Theta13
+    /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
+    ## a = np.array([2140., 1266.])
+    ## .8*720.*a/1166.
+
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
+    /env/presentation/op_full_raytrace_3.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)
+    /env/presentation/op_full_raytrace_1.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (0)
+    /env/presentation/op_full_raytrace_0.png 1280px_720px
+
+    Opticks Analytic Daya Bay Near Site, GPU Raytrace (2)
+    /env/presentation/op_full_raytrace_2.png 1280px_720px
+
+    Opticks Analytic JUNO Chimney, GPU Raytrace (0)
+    /env/presentation/j1707_chimney_analytic_raytrace.png 1280px_720px
+
+    Opticks Analytic JUNO PMT Snap, GPU Raytrace (1)
+    /env/presentation/j1707-okop-snap.png 1280px_720px
+
+    GPU Instance Culling with Level Of Detail
+    /env/presentation/j1707_lod_oglrap_instcull.png 1280px_720px
+
+    Opticks Export of G4 geometry to glTF 2.0
+    /env/yoctoglrap/dyb_near_venice_half.png 1020px_737px
+
+    What are NumPy Arrays
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
+    What are NumPy Arrays 2
+    /env/presentation/what_are_numpy_arrays.png 1280px_720px
+
+    BVH
+    /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
+
+    Spatial Index Acceleration Structure
+    /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
+
+
+
+    BVH Pascal 
+    /env/presentation/nvidia/NV_Turing_Editors_Day_030.png 1280px_720px
+ 
+    BVH Turing
+    /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
+ 
+    Hardware Traversal of BVH Spatial Index
+    /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
+
+    SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU
+    /env/presentation/nvidia/SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU_half.png 1280px_720px
+
+    SIGGRAPH_2019_Eric_Enderton_RT_Cores
+    /env/presentation/nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
+
+
+    ##
+    ##  original 2880px_1620px
+    ##  half     1440px_810px
+
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores
+    /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+
+    NVIDIA Turing GPU : 72 SM, 4608 CUDA cores (spec)
+    /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
+ 
+    Raytrace vs Raster
+    /env/presentation/nvidia/NV_Turing_Editors_Day_132.png 1280px_720px
+
+    Ray-tracing vs Rasterization
+    /env/presentation/nvidia/black.png 1280px_720px
+
+    Raytrace Diagram
+    /env/presentation/graphics/1024px-ray_trace_diagram.svg.png 1280px_720px
+
+    ## https://images.anandtech.com/doci/13282/NV_Turing_Editors_Day_132.png
+    ##
+    ##   1280 720
+    ##   1920 1080  *1.5
+    ##  https://www.anandtech.com/Gallery/Album/6660##6
+    ## 
+
+    j1808_top_ogl
+    /env/presentation/j1808/j1808_top_ogl.png 1280px_720px
+
+    j1808_top_rtx
+    /env/presentation/j1808/j1808_top_rtx.png 1280px_720px
+    ##   1920 1080
+
+    j1808_escapes
+    /env/presentation/j1808/j1808_escapes.png
+
+    geocache_360
+    /env/presentation/geocache_360.png 1280px_720px 0px_0px 
+
+    JUNO-360 benchmark with OptiX 6.0.0, RTX mode 
+    /env/presentation/geocache_360.png 1280px_720px
+
+    absmry_1M 
+    /env/presentation/ana/absmry_1M.png 1280px_720px
+
+    absmry_1M 2
+    /env/presentation/ana/absmry_1M.png 1280px_720px
+
+    ta34_1M
+    /env/presentation/ana/ta34_1M.png 1280px_720px
+
+    ta34_1M 2
+    /env/presentation/ana/ta34_1M.png 1280px_720px
+
+    tv34_1M_a
+    /env/presentation/ana/tv34_1M_a.png 1280px_720px
+
+    tv34_1M_b
+    /env/presentation/ana/tv34_1M_b.png 1280px_720px
+
+    tv21_1M_a
+    /env/presentation/ana/tv21_1M_a.png 1280px_720px
+
+    tv21_1M_a 2
+    /env/presentation/ana/tv21_1M_a.png 1280px_720px
+
+    tv21_1M_c
+    /env/presentation/ana/tv21_1M_c.png 1280px_720px
+
+    RTX_Speedup
+    /env/presentation/ana/RTX_Speedup.png 1280px_720px
+    
+    Overheads
+    /env/presentation/ana/Overheads.png 1280px_720px
+ 
+    Opticks_Speedup
+    /env/presentation/ana/Opticks_Speedup.png 1280px_720px
+ 
+    Opticks_vs_Geant4
+    /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
+
+    Opticks_vs_Geant4 2
+    /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
+    
+    NHit
+    /env/presentation/ana/NHit.png 1280px_720px
+
+    Interval_over_Launch
+    /env/presentation/ana/Interval_over_Launch.png 1280px_720px
+ 
+    TITAN RTX : 72 Raytrace Dedicated RT Cores, 4608 CUDA Cores, 24GB VRAM, 2500 USD
+    /env/presentation/nvidia/TITAN_RTX.png 1280px_720px
+ 
+    bench_20190526_143808
+    /env/presentation/ana/bench_20190526_143808.png  
+
+    bench_20190526_143808 2
+    /env/presentation/ana/bench_20190526_143808.png  
+
+    bench_20190526_202537
+    /env/presentation/ana/bench_20190526_202537.png  
+
+    bench_20190526_202537 2
+    /env/presentation/ana/bench_20190526_202537.png  
+
+
+
+    tv16_Fastener
+    /env/presentation/tv/tv16_Fastener.png
+
+    tv20_polycone_neck
+    /env/presentation/tv/tv20_polycone_neck.png
+
+    "tubs-torus" -> polycone : --pmt20inch-polycone-neck 
+    /env/presentation/tv/tv20_polycone_neck.png
+
+    20inch PMT neck : "cylinder-torus" -> polycone
+    /env/presentation/tv/tv20_polycone_neck.png
+
+    genstep_interface
+    /env/presentation/simulation/genstep_interface.png 1280px_720px
+
+    Introducing OptiX 7  
+    /env/presentation/nvidia/Introducing_OptiX_7.png 1280px_720px
+
+    Where Next for Opticks ?
+    /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
+    ##/env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 640px_300px
+
+    Opticks Experience : Problems with using NVIDIA OptiX
+    /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
+
+
+    TURING BUILT FOR RTX  
+    /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
+
+    TURING BUILT FOR RTX 2 
+    /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
+
+
+
+    NVIDIA RTX Metro Exodus
+    /env/presentation/nvidia/NVIDIA_RTX_Metro_Exodus_half.png 1280px_720px
+
+    Modern_GPU_RAY_Tracing
+    /env/presentation/nvidia/Modern_GPU_RAY_Tracing.png 1280px_720px
+
+    NVIDIA OptiX : programming model analogous to rasterization APIs : OpenGL shaders
+    /env/presentation/nvidia/Modern_GPU_RAY_Tracing.png 1280px_720px
+
+    NVIDIA_Quadro_RTX 8000 (48G)
+    /env/presentation/nvidia/NVIDIA_Quadro_RTX.png 1280px_720px
+
+
+    SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine
+    /env/presentation/nvidia/SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine.png 1280px_720px
+
+    Useful Speedup > 1000x : But Why Not Giga Rays/s ? (1 photon ~10 rays)
+    /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 720px_405px 10px_210px
+
+    ## /env/presentation/nvidia/dhart/dhart_siggraph_2019_RTX_traversal_custom_primitives.png 640px_360px 20px_260px
+    ## 
+    ##
+    ##
+    ##
+    ## https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/ShowDocument?docid=5079
+    ##
+    ## cp ~/Documents/JUNOIntro/JUNOIntro.00[1,2,3,4].png ~/simoncblyth.bitbucket.io/env/Documents/JUNOIntro/
+    ##
+
+    JUNO_Intro_1
+    /env/Documents/JUNOIntro/JUNOIntro.001.png 1280px_720px
+
+    JUNO_Intro_2
+    /env/Documents/JUNOIntro/JUNOIntro.002.png 1280px_720px
+
+    JUNO_Intro_3
+    /env/Documents/JUNOIntro/JUNOIntro.003.png 1280px_720px
+
+    JUNO_Intro_4
+    /env/Documents/JUNOIntro/JUNOIntro.004.png 1280px_720px
+
+
+    JUNO_Multipurpose_Pedro_NuFact_2019 
+    /env/presentation/juno/JUNO_Multipurpose_Pedro_NuFact_2019.png 960px_720px 0px_0px
+
+
+    dhart_siggraph_2019_OptiX_5_traversal
+    /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
+
+    dhart_siggraph_2019_OptiX_5_traversal
+    /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
+
+    scan-pf-check-GUI-TO-BT5-SD
+    /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-BT5-SD.png 1280px_720px
+
+    scan-pf-check-GUI-TO-SC-BT5-SD
+    /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD.png 1280px_720px
+
+    scan-pf-0_Interval_over_Launch
+    /env/presentation/ana/scan-pf-0/Interval_over_Launch.png 1280px_720px
+
+    scan-pf-0_NHit
+    /env/presentation/ana/scan-pf-0/NHit.png 1280px_720px
+
+    scan-pf-0_Opticks_Speedup
+    /env/presentation/ana/scan-pf-0/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-0_Opticks_vs_Geant4
+    /env/presentation/ana/scan-pf-0/Opticks_vs_Geant4.png 1280px_720px
+
+    scan-pf-0_Overheads
+    /env/presentation/ana/scan-pf-0/Overheads.png 1280px_720px
+
+    scan-pf-0_RTX_Speedup
+    /env/presentation/ana/scan-pf-0/RTX_Speedup.png 1280px_720px
+
+    scan-pf-0_RTX_Speedup 2
+    /env/presentation/ana/scan-pf-0/RTX_Speedup.png 1280px_720px
+
+
+    scan-pf-1_Interval_over_Launch
+    /env/presentation/ana/scan-pf-1/Interval_over_Launch.png 1280px_720px
+
+    scan-pf-1_NHit
+    /env/presentation/ana/scan-pf-1/NHit.png 1280px_720px
+
+    scan-pf-1_Opticks_Speedup
+    /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-1_Opticks_Speedup 2
+    /env/presentation/ana/scan-pf-1/Opticks_Speedup.png 1280px_720px
+
+    scan-pf-1_Opticks_vs_Geant4
+    /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+
+    scan-pf-1_Opticks_vs_Geant4 2
+    /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
+
+
+    scan-pf-1_Overheads
+    /env/presentation/ana/scan-pf-1/Overheads.png 1280px_720px
+
+    scan-pf-1_RTX_Speedup
+    /env/presentation/ana/scan-pf-1/RTX_Speedup.png 1280px_720px
+
+    Opticks : Translates G4 Geometry to GPU, Without Approximation
+    /env/presentation/face_view_PMTs.png 640px_360px 20px_340px
+
+    gpltcf_HamamatsuR12860lMaskVirtual_SubPlotsFig
+    /env/presentation/ana/PolyconeNeck/gpltcf_HamamatsuR12860lMaskVirtual_SubPlotsFig.png
+
+    gpltcf_HamamatsuR12860lMaskVirtual_SubPlotsFig_Zoom
+    /env/presentation/ana/PolyconeNeck/gpltcf_HamamatsuR12860lMaskVirtual_SubPlotsFig_Zoom.png
+
+    gpltcf_HamamatsuR12860lMaskVirtual_combiZoom_SubPlotsFig
+    /env/presentation/ana/PolyconeNeck/gpltcf_HamamatsuR12860lMaskVirtual_combiZoom_SubPlotsFig.png
+
+    gpltcf_NNVTMCPPMTlMaskVirtual_SubPlotsFig
+    /env/presentation/ana/PolyconeNeck/gpltcf_NNVTMCPPMTlMaskVirtual_SubPlotsFig.png
+
+    gpltcf_NNVTMCPPMTlMaskVirtual_SubPlotsFig_Zoom
+    /env/presentation/ana/PolyconeNeck/gpltcf_NNVTMCPPMTlMaskVirtual_SubPlotsFig_Zoom.png
+
+    gpltcf_NNVTMCPPMTlMaskVirtual_combiZoom_SubPlotsFig
+    /env/presentation/ana/PolyconeNeck/gpltcf_NNVTMCPPMTlMaskVirtual_combiZoom_SubPlotsFig.png
+
+    G4OpticksTest_june2020_p1
+    /env/presentation/fermilab_geant4_team/G4OpticksTest_june2020_p1_half.png 1080px_520px 0px_100px
+
+    G4OpticksTest_june2020_p11
+    /env/presentation/fermilab_geant4_team/G4OpticksTest_june2020_p11_half.png 1080px_520px 0px_100px
+
+    G4OpticksTest_june2020_p12
+    /env/presentation/fermilab_geant4_team/G4OpticksTest_june2020_p12_half.png 1080px_520px 0px_100px
+
+    G4OpticksTest_sep2020_p1
+    /env/presentation/fermilab_geant4_team/G4Opticks_sept_2020_Hans_Wenzel_p1_half.png 1080px_520px 0px_100px
+
+    Geant4_Bug_2305 
+    /env/presentation/fermilab_geant4_team/geant4_bugzilla_2305_half.png 1180px_310px 50px_10px
+
+    Geant4_Bug_2311
+    /env/presentation/fermilab_geant4_team/geant4_bugzilla_2311_half.png 1180px_310px 50px_10px
+
+    LHCB_RICH_HSF
+    /env/presentation/lhcb_rich_sajan_easo/sajan_easo_propects_june_2020_p8_half.png 980px_420px 0px_200px
+
+
+.. comment
+    
+    NVIDIA 
+                        Memory    Bandwidth     CUDA(RT) Cores
+    TITAN V             12 GB       651 GB/s    5120(0)
+    Tesla V100          32 GB       900 GB/s    5120(0)  
+    TITAN RTX           24 GB       672 GB/s    4608(72)
+    Quadro RTX 8000     48 GB       672 GB/s    4608(72)
+
+    SM*64 gives cores 
+
+    https://www.techpowerup.com/gpu-specs/titan-v.c3051
+    https://www.techpowerup.com/gpu-specs/titan-rtx.c3311 
+    https://www.techpowerup.com/gpu-specs/quadro-rtx-8000.c3306
+
+

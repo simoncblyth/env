@@ -59,8 +59,8 @@ class Resize(object):
         width, height = im.size   
         factor = self.factor
 
-        dwidth = int(width)/factor
-        dheight = int(height)/factor
+        dwidth = int(int(width)/factor)
+        dheight = int(int(height)/factor)
 
 
         from_ = fmt(width, height)

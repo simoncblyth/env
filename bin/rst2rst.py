@@ -35,7 +35,7 @@ class R2R(object):
         """
         :param path: to RST .txt file 
         """
-        lines = map(lambda _:_[:-1], file(path).readlines())
+        lines = list(map(lambda _:_[:-1], open(path).readlines()))
         self.titles = []
         self.talktitles = []
         self.curtitle = None
@@ -108,7 +108,7 @@ if __name__ == '__main__':
      oname = "%s_TALK.txt" % stem
 
      r2r = R2R(path)
-     out = file(oname, "w")
+     out = open(oname, "w")
      print("writing to %s " % oname )
      print(r2r, file=out)
 

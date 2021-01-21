@@ -18,6 +18,43 @@ presentation-index
 
 
 
+How it works : rst2s5-2.6.py and ".. s5_background_image::"
+--------------------------------------------------------------
+
+The "presentation--" function runs a Makefile 
+from (presenstation-cd) which invokes ./rst2s5-2.6.py
+
+The list of images and layout instructions from the s5_background_image
+directive in presentations is read by s5_background_image.py 
+Yielding: url, size, position, extra
+
+These feed directly into the html/css directives of a div element:: 
+
+   background-image: url(%(url)s);        
+   background-size: %(size)s;
+   background-position: %(position)s;
+   %(extra)s
+
+* https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
+* https://developer.mozilla.org/en-US/docs/Web/CSS/background-position
+
+Underscores in the rst directive are replaced with spaces.::
+
+    G4OpticksTest_june2020_p1
+    /env/presentation/fermilab_geant4_team/G4OpticksTest_june2020_p1_half.png 1180px_620px 0px_0px
+
+Observations as change background-size and background-position::
+
+   1280px_720px 0px_0px : fills standard sized page   
+   1180px_620px 0px_0px : shrinks with top left staying as is, leaving gap to bottom right
+   1180px_620px 50px_50px : offsets by 50px horizontally and vertically, centering 100px shrunk the slide with gaps all around 
+
+
+
+
+
+
+
 Local Rough Index of All Presentations
 -----------------------------------------
 
@@ -27,10 +64,8 @@ Local Rough Index of All Presentations
     open http://localhost/env/presentation/index.html
 
 
-
 Updating the rough index of all presentations
 -----------------------------------------------
-
 
 ::
 
@@ -44,10 +79,6 @@ Updating the rough index of all presentations
 
     epsilon:presentation blyth$ which index.py 
     /Users/blyth/env/bin/index.py
-
-
-
-
 
 
 Public Index of Selected Presentations
@@ -92,11 +123,9 @@ Sizes
 
     1280x1440   double up the height 
 
-
     In [6]: 1440./(1280./210.)
     Out[6]: 236.25
 
-  
     A4: 210x297
 
     ->  210x237
@@ -172,8 +201,6 @@ Safari Caching of Javascript drives bonkers
 
 * recent experience with Safari much smoother, success with just : Develop > Empty Caches 
 * previously had trouble getting updates to be honoured
-
-
 * https://stackoverflow.com/questions/43462424/reload-javascript-and-css-files-for-a-website-in-safari
 
 ::
@@ -279,9 +306,7 @@ Workflow for preparing slides
 NVIDIA Turing Press deck 
 ---------------------------
 
-
 * https://www.anandtech.com/Gallery/Album/6660#27
-
 * https://www.irisa.fr/alf/downloads/collange/talks/ufmg_scollange.pdf
 
   Architecture and micro-architecture of GPUs
@@ -392,8 +417,6 @@ Machinery Fixes
 * Makefile had some old simoncblyth.bitbucket.org rather than simoncblyth.bitbucket.io
 * apache changes in High Sierra, see hapache-
 
-
-
 Potential Customers
 -----------------------
 
@@ -409,7 +432,6 @@ Sep 2017 Wollongong
 ---------------------
 
 22nd Geant4 Collaboration Meeting, UOW Campus, Wollongong (Australia), 25-29 September 2017.
-
 
 intro
 ~~~~~~
@@ -428,8 +450,6 @@ The much larger distance to the reactors (compared to less than 2 km for the
 Daya Bay far detector) makes the experiment better able to distinguish neutrino
 oscillations, but requires a much larger, and better-shielded, detector to
 detect a sufficient number of reactor neutrinos.
-
-
 
 renders to make
 ~~~~~~~~~~~~~~~~~~
@@ -517,8 +537,6 @@ update CHEP talk : ie intro to someone never having seen Opticks
 
 * review progress since CHEP (~1 year) doing appropriate updates, analytic CSG  
 
-
-
 Dear Laurent, 
 
 Thanks.   I’ve recently made some progress that I guess will be particularly interesting 
@@ -549,11 +567,6 @@ Me too!  How long a presentation would you like ?
 
 
 Simon
-
-
-
-
-
 
 Workflow
 -----------
@@ -603,6 +616,9 @@ Creating retina screencaptures
    ## copy last screencapture from Desktop to corresponding relative dir beneath ~/simoncblyth.bitbucket.org 
    ## this is the local clone of the bitbucket statics repo
 
+   cd ~/simoncblyth.bitbucket.io/env/presentation/whereever/ 
+   osx_ss_copy name    # no directory cleverness, just copies into pwd and downsizes the screencapture yielding name_half.png 
+
 
 Incorporating retina screencaptures
 -------------------------------------
@@ -614,8 +630,6 @@ Incorporating retina screencaptures
     INFO:env.doc.downsize:Resize 2  
     INFO:env.doc.downsize:downsize env/graphics/ggeoview/PmtInBox-approach.png to create env/graphics/ggeoview/PmtInBox-approach_half.png 2138px_1538px -> 1069px_769px 
     simon:simoncblyth.bitbucket.org blyth$ 
-
-
 
 s5 rst underpinning
 --------------------
@@ -1082,10 +1096,11 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo ${INAME:-opticks_jul2020_juno} ; }
 #presentation-iname(){ echo ${INAME:-opticks_jul2020_juno_TALK} ; }
 
-presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop} ; }
+#presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop} ; }
 #presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop_TALK} ; }
 
-
+presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review} ; }
+#presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review_TALK} ; }
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
