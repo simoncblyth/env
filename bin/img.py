@@ -37,6 +37,13 @@ import argparse
 log = logging.getLogger(__name__)
 from PIL import Image 
 
+def array_fromstring(ss):
+    """
+    :param ss: string such as "1280px_720px"
+    :return a: int array of pixel dimensions 
+    """
+    return np.fromstring(ss.replace("px",""), sep="_", dtype=np.int32) 
+
 class Img(object):
     @classmethod
     def parse_args(cls, doc):
@@ -44,14 +51,19 @@ class Img(object):
         d["level"] = "INFO"
         d["format"] = "%(asctime)-15s %(levelname)-7s %(name)-20s:%(lineno)-3d %(message)s"
         d["paths"] = []
+        d["slidesize"] = "1280px_720px"
 
         parser = argparse.ArgumentParser(description=doc, formatter_class=argparse.RawDescriptionHelpFormatter)
         parser.add_argument('paths', nargs="*", default=d["paths"], help='base directory')
         parser.add_argument('--saveppm', action="store_true", default=False )
+        parser.add_argument('--s5', action="store_true", default=False, help="Emit s5_background_image spec"  )
         parser.add_argument('--scale', type=int, default=1 )
         parser.add_argument('--level', default=d["level"], help='log level')
-        
+        parser.add_argument('--slidesize', default=d["slidesize"] )
+ 
         args = parser.parse_args()
+
+        args.slidesize = array_fromstring(args.slidesize)
         logging.basicConfig(level=getattr(logging, args.level.upper()), format=d["format"])
         return args
 
@@ -94,13 +106,21 @@ class Img(object):
 
 if __name__ == '__main__':
     args = Img.parse_args(__doc__)
+
+    imgs =  []
     for path in args.paths: 
         img = Img(path)
+        imgs.append(img)
         if args.saveppm: 
             img.save_as_ppm(args.scale)
         pass
     pass
-    
+   
+    print(args.slidesize)
+    for img in imgs:
+        print(img.size)
+
+ 
 
 
 

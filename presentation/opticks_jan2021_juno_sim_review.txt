@@ -56,104 +56,9 @@
 
 
 
-:small:`G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow`
-------------------------------------------------------------------------
-
-.. sidebar:: :small:`Plan for G4OpticksTest`
-
-    .. class:: small
-
-        * advanced example distributed with Geant4
-        * explore use with G4Tasking with 10.7
-
-.. class:: small
-
-    **(Nov 2020) HSF WLCG Virtual Workshop : https://indico.cern.ch/event/941278/timetable/#20201123.detailed** 
-
-    * Hans Wenzel, Fermilab Geant4 Team
-    
-    Worked closely with Hans for several years
-
-    * Developed Geant4-Opticks integration API **G4Opticks**
-    * Recently reported two Geant4 optical surface issues #2305 #2311 
-
-.. s5_talk::
-
-    The example has been foundational for developing the Geant4 Opticks interface 
-
-
-:small:`https://bitbucket.org/simoncblyth/opticks/src/master/notes/tasks/tasks.rst`
------------------------------------------------------------------------------------------------------
-
-.. image:: /env/presentation/tasks/tasks_jan_2021_half.png
-   :width: 600px
-   :align: right
-
-.. class:: small
-
-   **Task list : Table of contents**
-
-   * task descriptions + progress notes 
-
-   * 
-    
-
-:small:`UK Research Project : Efficient Computing in High Energy Physics (ECHEP)`
-----------------------------------------------------------------------------------------
-
-.. class:: small
-
-    UK-ECHEP "...harnessing modern computing architectures and improve software and computing efficiency"
-
-
-    Adam Davis (Manchester), Ben Morgan (Warwick), Davide Costanzo (Sheffield)
-
-    0.5 FTE for 12 months
 
 
 
-
-:small:`Opticks : Three Levels of Performance`
-----------------------------------------------
-
-.. class:: small
-
-    * https://bitbucket.org/simoncblyth/opticks/src/master/notes/performance.rst
-
-.. sidebar:: **cluster** level optimizations
-
-    .. class:: small
-
-        **Opticks Server + many Clients**
-
-        * genstep requests, hits in response  
-        * bring Opticks to CPU only batch nodes
-        * avoid GPU starvation 
-        * header only implementation : ``OpticksClient.hh`` 
-
-        **So far : Network Transport of NP Arrays**
-
-        * https://github.com/simoncblyth/np
-        * depends only on Boost-Asio (Async IO) 
-        * np_server/np_client operational  
-
-        **Next : integrate that with Opticks**
-
-         
-
-.. class:: small
-
-    1. **optical**: optical photon simulation, ie the time and memory required to generate and propagate optical photons
-    2. **node**: overall simulation performance using a single node with one or more GPUs 
-    3. **cluster**: production performance of a GPU cluster creating large monte carlo samples
-       with many hundreds or thousands of production jobs orchestrated with a batch system
-
-
-.. s5_talk::
-
-   So far Opticks has been optimized only at the **optical** level. 
-   Optimizing at cluster level expected to give large gains, maximimize
-   use of resources  
 
 
 
@@ -213,6 +118,13 @@ Outline
 
 
 
+
+
+
+
+
+
+
 `JUNO Optical Photon Simulation Problem...`
 ---------------------------------------------------------
 
@@ -249,6 +161,9 @@ Outline
 
    Most of the time is taken finding intersections between photons and geometry.
    Fortunately simulation is not alone in this bottleneck.
+
+
+
 
 
 :small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
@@ -348,6 +263,10 @@ Outline
 
 
 
+
+
+
+
 :small:`Opticks : Translates G4 Geometry to GPU, Without Approximation`
 ------------------------------------------------------------------------------------
 
@@ -425,6 +344,9 @@ Outline
      
 
 
+
+
+
 :i:`j1808_top_rtx`
 --------------------
 
@@ -436,6 +358,9 @@ Outline
    This is an OptiX ray trace image from the chimney region at the 
    top of the JUNO scintillator sphere.
     
+
+
+
 
 
 :small:`2020 : Leap in Opticks Awareness : Meetings, Publications >>> New Users`
@@ -468,16 +393,20 @@ Outline
    * https://indico.cern.ch/event/942142/sessions/363813/#20200915
         
    1. "G4Opticks for liquid Argon TPCs", Fermilab Geant4 Team, Hans Wenzel
-   2. "VecGeom@GPU", CERN Geant4 Team, Andrei Gheata : :red:`NVIDIA OptiX regarded as alternative to VecGeom CUDA`
+   2. "VecGeom@GPU", CERN Geant4 Team, Andrei Gheata 
 
 
 .. s5_talk::
 
    During 2020 there was a leap in Opticks awareness, it was presented and discussed at numerous meetings 
-   and is being actively evaluated by an increasing number of groups. 
+   and is being actively evaluated by an increasing number of groups. This page lists a few of the 
+   talks that discussed Opticks.  
 
    This leap is probably thanks in part to my plenary presentation at the CHEP conference at the end of 2019
 
+   Also using GPUs to accelerate Geant4 more generally that just optical photons is a hot topic at the moment
+   with several high profile projects starting during last year. Talks on those often mention Opticks.
+    
 
 
 :small:`2020 : Leap in Opticks Awareness >>> Some Users Getting Serious` 
@@ -513,71 +442,12 @@ Outline
 
 .. s5_talk::
 
-   2020 also saw several groups getting more serious in their use of Opticks
+   2020 also saw several groups that have been evaluating Opticks for years starting to get 
+   more serious in their usage.
 
    The LUZ-Zeplin or LZ experiment is the most advanced with them working on 
    getting Opticks into containers for use on the new Perlmutter supercomputer 
    at NERSC which has more than 6000 NVIDIA A100 GPUs
-
-
-
-:small:`2021 : NERSC/LBL/LZ/Stanford/Bristol/NVIDIA/Opticks Plans`
----------------------------------------------------------------------
-
-.. class:: small
-
-   **LZ+Opticks history** 
-
-   * 2018-2020 : Many LZ people (contacts with >5) have evaluated LZ+Opticks 
-   * Summer 2020 : LZ+Opticks simulation identified as candidate for new Perlmutter Cray/NVIDIA supercomputer at NERSC
-   * Autumn 2020 : LZ+NERSC people proposed an NVIDIA assisted Hackathon to optimize LZ+Opticks 
-
-     * BUT little point optimizing prior to migration : NVIDIA OptiX 6 -> 7 (an entirely new API, "Vulkan-ized")  
-
-   **2021 Planning : (Jan 8) Zoom Meeting of >12 people split between LZ/NERSC(6), NVIDIA(5), Opticks(1)** 
-
-   * NERSC + NVIDIA teams: senior engineers + postdoc "workers"
-   * NVIDIA team : experienced with OptiX 6->7, multi-GPU + multi-threaded CUDA/OptiX
-
-   **Prepared Opticks codebase orientation documentation**
-
-   https://simoncblyth.bitbucket.io/opticks/docs/orientation.html
-
-   :red:`From February : plan bi-weekly working meetings`
-
-   **An opportunity not to be missed:**
-
-   * NVIDIA OptiX team assisting Opticks 
-   * NERSC supercomputer team applying Opticks 
-
-   :blue:`OptiX 7 migration : prerequisite to JUNO OpticksServer plans` 
-
-
-.. s5_talk::
-
-   LZ has been evaluating Opticks over the past three years and it is now
-   keep to scale up its usage to profit from the new NERSC Perlmutter supercomputer, 
-   with more than 6000 NVIDIA A100 GPUs
-
-   US DOE has payed Cray and NVIDIA several hundereds of millions of US dollars 
-   for the Perlmutter supercomputer that is being commissioned.
-   I guess that buys a lot of assistance with getting users codes to benefit from Perlmutter
-
-   Its a great opportunity to get some real GPU and deployment experts involved with Opticks 
-
-
-
-
-:small:`2021 : More Geant4+Opticks resources`
------------------------------------------------
-
-.. class:: small
-
-   **Manchester Geant4 Group (Adam Davis)**
-
-   * SwiftHEP grant : Postdoc funded, Engineer intended
-
-.. s5_talk::
 
     
 
@@ -598,19 +468,17 @@ Outline
    </pre>
 
 
-.. sidebar:: Opticks Forum/Archive
-
-     email group + web archive
+.. sidebar:: :small:`Email Group + Web Archive`
 
      ``https://groups.io/g/opticks``
 
      **25 Members, 33 Topics**
 
-     Members joined by year:
+     Members joining by year:
 
-     * 2018 : 5 
-     * 2019 : 9 
-     * 2020 : 11 
+     * 2018/2019/2020 : 5/9/11 
+     * ``opticks+subscribe@groups.io``
+
 
 
 .. s5_talk::
@@ -619,77 +487,38 @@ Outline
    means of communicating with users. But have had a few virtual meetings 
    Several users tend to email me directly. 
 
-
-:i:`GROUPS_IO_2`
-------------------
-
-
-.. sidebar:: Opticks Forum/Archive 
-
-     ``https://groups.io/g/opticks``
-
-     * need to use the forum more
-     * many users email me directly 
-
-.. s5_talk::
-
    I need to be stricter about redirecting inquiries to the group
    so the discussion can be beneficial to all.
-   
-
-.. comment
-
-    :i:`G4OpticksTest_june2020_p1`
-    --------------------------------
-
-    :i:`G4OpticksTest_june2020_p12`
-    --------------------------------
+ 
+  
 
 
+:small:`G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow`
+------------------------------------------------------------------------
 
-:i:`G4OpticksTest_sep2020_p1`
-------------------------------
-
-
-.. sidebar:: G4OpticksTest 
+.. sidebar:: :small:`Plan for G4OpticksTest`
 
     .. class:: small
 
-          Working with Fermilab Geant4 Team to 
-          build Opticks example for Geant4 distribution.
+        * advanced example distributed with Geant4
+        * explore use with G4Tasking with 10.7
 
-          * https://github.com/hanswenzel/G4OpticksTest
-          * https://github.com/simoncblyth/G4OpticksTest
+.. class:: small
 
-          * testing Geant4 10.6 10.7 
-          * G4OpWLS advice (wavelength shifting) 
+    **(Nov 2020) HSF WLCG Virtual Workshop : https://indico.cern.ch/event/941278/timetable/#20201123.detailed** 
+
+    * Hans Wenzel, Fermilab Geant4 Team
+    
+    Worked closely with Hans for several years
+
+    * Developed Geant4-Opticks integration API **G4Opticks**
+    * Recently reported two Geant4 optical surface issues #2305 #2311 
 
 .. s5_talk::
 
     Fermilab Geant4 Team has been active for several years now with Opticks, 
-    in the last year I have assisted them with moving Opticks to Geant4 10.6 and 10.7 
-
-
-.. comment
-
-    .. sidebar:: :small:`Opticks Additions`
-
-        .. class:: small
-
-             Worked on Opticks with 
-
-             * Geant4 10.6 and 10.7
-
-
-              
-     
-             * wavelenth shifting 
-
-    .. s5_talk::
-
-        Fermilab Geant4 Team has been active for several years now with Opticks, 
-        in the last year I have assisted them with moving Opticks to Geant4 10.6 and 10.7 
-
+    the development of this example has shaped my development of the G4Opticks interface.
+    In the last year I have assisted them with moving Opticks to Geant4 10.6 and 10.7 
 
 
 :i:`Geant4_Bug_2305`
@@ -809,22 +638,30 @@ Outline
     will be free of both this workaround and the optical surface bug too. 
 
 
-:i:`LHCB_RICH_HSF`
-----------------------
 
-.. sidebar:: :small:`LHCb RICH Using Opticks` 
 
-    .. class:: small
 
-        "Prospects for RICH simulation using Opticks"
 
-        * RICH : Ring Imaging Cherenkov detector
-        * Sajan Easo (STFC-GB)
-        * reported to HSF (HEP Software Foundation) meeting June 2020
-        * ~30% simulation CPU time
+:small:`LHCb RICH (Ring Imaging Cherenkov) with Opticks : Sajan Easo`
+----------------------------------------------------------------------
 
-        * https://indico.cern.ch/event/930881/
-        * :red:`successful validations`
+.. sidebar:: :small:`LHCb Opticks Users`
+
+   .. class:: small
+
+       Several LHCb members are using Opticks
+
+       * Sajan Easo has reported his investigations
+
+
+.. class:: small
+
+    **(June 2020) HSF (HEP Software Foundation) Meeting**
+ 
+    * https://indico.cern.ch/event/930881/
+    * "Prospects for RICH simulation using Opticks", Sajan Easo (STFC-GB)
+    * Standard Geant4 costs ~30% CPU time for optical photons 
+    * :red:`successful validations`
 
 .. s5_talk::
 
@@ -833,127 +670,270 @@ Outline
 
 
 
-
-:small:`JUNO Geometry : Remove Torus to enable translation to GPU`
----------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Why Avoid Torus ?`
-
-    .. class:: small
-
-         **Double heavy quartic root finding** 
-     
-         * fragile (crashes in some OptiX versions)
-         * precision problems in CSG combinations
-         * mere presence in OptiX kernel :red:`kills RTX mode performance by factor 10` 
-
-         **Alternative Approaches To Cope With Torus**
-
-         * triangulated torus 
-         * TODO : ray marching (aka sphere tracing) signed distance function (SDF) model 
-        
+:small:`Opticks for next-generation neutrino telescope optimization ?`
+-----------------------------------------------------------------------
 
 .. class:: small
 
+   **(Aug 2020) Shanghai SJTU : Next-gen Neutrino Telescope Simulation Workshop**
 
-  **tut_detsim.py options (in SVN trunk r3990)** 
+   * https://indico-tdli.sjtu.edu.cn/event/238/sessions/109/#20200813 
+   * "Opticks : GPU/Graphics backgroud + Application to underwater neutrino telescope simulations ?", Simon Blyth
+   * :red:`SJTU team evaluating Opticks for deep ocean expt simulations (Fan Hu, Donglian Xu)`
 
-  ``--no-guide_tube`` 
-      skip the guide tube torus 
-
-  ``--pmt20inch-polycone-neck`` 
-      "cylinder - torus" -> polycone 
-
-      * NNVT_MCPPMT_PMTSolid
-      * Hamamatsu_R12860_PMTSolid
-
-  :red:`TODO`: ``--pmt20inch-simpler-csg`` 
-      simpler+faster CSG, same geometry 
-
-
+     * enormous instrumented volumes O(10) km^3 water/ice 
+     * strings of pods geometry 
+     * huge numbers of Cherenkov photons propagating across enormous volumes, how to simulate ?
 
 .. s5_talk::
 
-    Torus intersection is such a problem, that the best solution is 
-    to avoid torus : I think it is perfectly acceptable to do so, because
-    the guide tube is not important for optical photons and the torus 
-    based PMT neck is cosmetic only in my opinion.
+    My presentation resulted in a keen new Opticks user, Fan Hu : this is an Opticks 
+    visualization of a string of pods geometry 
 
 
 
 
-`"tubs-torus" -> polycone : --pmt20inch-polycone-neck` 
---------------------------------------------------------------------
+:small:`LZ+Opticks history : 2018-2021 : contacts with >5 LZ people`
+------------------------------------------------------------------------------------------------------
 
-
-.. s5_talk::
-
-    Because the neck is nowhere near the sensitive part, there shoud be no impact 
-    on PMT hits from using the polycone neck.
-
-
-
-:i:`gpltcf_HamamatsuR12860lMaskVirtual_SubPlotsFig`
-----------------------------------------------------
-
-
-.. s5_talk::
-
-    These plots were made by parsing two GDML files and plotting the shapes.
-    The polycone neck GDML shapes are shown with the dotted line. 
-
-    The six subplots show all the volumes that make up the Hamamatsu PMT
-    including the acrylic mask.  
-
-    The circles are a cross-section of the torus.  The curve of the neck is 
-    made by subtracting that the torus from the cylinder. 
-
-
-
-:i:`gpltcf_HamamatsuR12860lMaskVirtual_SubPlotsFig_Zoom`
-----------------------------------------------------------
-
-.. s5_talk::
-
-    These are the same plots zoomed into the neck region.
+.. class:: small
  
-    * the dotted polycone neck is very close to the tubs-torus one 
+   * :red:`Summer 2020 : LZ+Opticks simulation identified as candidate for new Perlmutter Cray/NVIDIA supercomputer at NERSC`
+   * Autumn 2020 : LZ+NERSC proposed an NVIDIA assisted Hackathon to optimize LZ+Opticks simulation 
 
+     * BUT no point optimizing prior to migration : NVIDIA OptiX 6 -> 7 (an entirely new "Vulkan-ized" API)  
+     * migration to NVIDIA OptiX 7+ is unavoidable, it beings challenges and opportunities 
 
-:i:`gpltcf_HamamatsuR12860lMaskVirtual_combiZoom_SubPlotsFig`
---------------------------------------------------------------
+       * multi-GPU scaling no longer provided, thread-safe OptiX 7 opens possibilities, especially for Opticks Server+Client  
+
+   **(Aug 2020) NERSC Users Group (NUG) meeting** : :red:`LZ aiming to deploy Opticks on Perlmutter supercomputer`
+
+   * https://www.nersc.gov/users/NUG/annual-meetings/nug-2020/ 
+   * "Opticks on CoriGPU", O.Creaner, 5 authors from : NERSC/LBL/LZ/Stanford/Bristol   
+
 
 .. s5_talk::
 
-    This plots all 6 volumes together, with the neck zoom on the right. 
+   LZ has been evaluating Opticks over the past three years and it is now
+   keep to scale up its usage to profit from the new NERSC Perlmutter supercomputer, 
+   with more than 6000 NVIDIA A100 GPUs
+
+   US DOE has payed Cray and NVIDIA several hundereds of millions of US dollars 
+   for the Perlmutter supercomputer that is being commissioned.
+   I guess that buys a lot of assistance with getting users codes to benefit from Perlmutter
+
+   Its a great opportunity to get some real GPU and deployment experts involved with Opticks 
+
+
+
+
+
+:small:`2021 : LZ+Opticks simulation on Perlmutter (>6000 NVIDIA A100)`
+---------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Opportunity for Expert Assistance`
+
+   .. class:: small
+
+       * NVIDIA GPU developer team 
+
+         * real experts advising/optimizing Opticks
+         * influence on NVIDIA OptiX direction(?)
+
+       * NERSC supercomputer team  
  
+         * Docker/Shifter containerization 
+         * large scale production optimization 
 
-:i:`gpltcf_NNVTMCPPMTlMaskVirtual_SubPlotsFig`
-----------------------------------------------------
+
+.. class:: small
+
+   **(8 Jan 2021) Zoom Introduction Meeting of >12 people : LZ/NERSC(6), NVIDIA(5), Opticks(1)** 
+
+   * NERSC + NVIDIA teams: senior engineers + postdoc "workers"
+   * NVIDIA team : experienced with OptiX 6->7, multi-GPU + multi-threaded CUDA/OptiX
+
+   **Prepared Opticks codebase orientation for developers**
+
+   * https://simoncblyth.bitbucket.io/opticks/docs/orientation.html
+
+   **From February:** 
+
+   * :red:`plan bi-weekly working meetings`
+   * migration assistance 
+
 
 .. s5_talk::
 
-    These are the same type of plots for the NNVT PMT 
+   I was a little surprised by the number of people at this Zoom meeting.
 
 
-:i:`gpltcf_NNVTMCPPMTlMaskVirtual_SubPlotsFig_Zoom`
-----------------------------------------------------
+
+
+
+
+:small:`UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP`
+------------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`UOM : Plan 0.5 FTE over 12 months`
+ 
+    .. class:: small
+
+        * integration of Opticks within Geant4 
+        * widening Opticks applicability 
+        * "... also plan to hire software engineer to assist..."
+
+        :blue:`details yet to be determined`
+
+
+.. class:: small
+
+    **SWIFT-HEP : Newly funded (1.5M GBP over 3 yrs)**
+
+    University of Manchester (UOM), Adam Davis
+    
+    * "... we identified Opticks as a major contribution area ..."
+
+    **(Jan 2021) SwiftHep/ExcaliburHep workshop presentation**
+
+    Ben Morgan, University of Warwick + Geant4 
+
+    * https://indico.cern.ch/event/976081/
+
 
 .. s5_talk::
 
-    Again it is clear that the polycone neck is very close to the torus one.
+   Contribution is of course excellent : but it it going to 
+   take time to train up the people supported by this grant 
+   and payback is far from certain.
 
 
-:i:`gpltcf_NNVTMCPPMTlMaskVirtual_combiZoom_SubPlotsFig`
-----------------------------------------------------------
+
+
+
+
+
+.. comment 
+
+    00:Title Page 
+    01:Outline  
+
+    Intro 
+
+        02:JUNO Optical Photon Simulation Problem... 
+        03:NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix   
+        04:Geant4 Opticks Workflow 
+        05:Opticks : Translates G4 Geometry to GPU, Without Approximation
+        06:Ray Trace Render
+
+    Leap+Group
+
+        07:2020 : Leap in Opticks Awareness : Meetings, Publications >>> New Users
+        08:2020 : Leap in Opticks Awareness >>> Some Users Getting Serious
+        09:groups.io : Email Group + Web Archive 
+
+    Big Example 1 
+
+        10:G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow
+        11:Geant4_Bug_2305
+        12:Geant4_Bug_2311
+
+    Small Examples 2,3
+
+        13:LHCb RICH (Ring Imaging Cherenkov) with Opticks : Sajan Easo
+        14:Opticks for next-generation neutrino telescope optimization ?
+
+    Big Example 4
+
+        15:LZ+Opticks history : 2018-2021 : contacts with >5 LZ people
+        16:2021 : LZ+Opticks simulation on Perlmutter (>6000 NVIDIA A100)
+
+    Big Example 5
+
+        17:UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP
+
+
+
+
+    Extras
+
+        JUNO Geometry : Remove Torus to enable translation to GPU
+
+
+
+
+
+
+.. comment
+
+    :small:`https://bitbucket.org/simoncblyth/opticks/src/master/notes/tasks/tasks.rst`
+    -----------------------------------------------------------------------------------------------------
+
+    .. image:: /env/presentation/tasks/tasks_jan_2021_half.png
+       :width: 600px
+       :align: right
+
+    .. class:: small
+
+       **Task list : Table of contents**
+
+       * task descriptions + progress notes 
+
+
+
+
+
+:small:`Opticks : Three Levels of Performance`
+----------------------------------------------
+
+.. class:: small
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/notes/performance.rst
+
+.. sidebar:: **cluster** level optimizations
+
+    .. class:: small
+
+        **Opticks Server + many Clients**
+
+        * genstep requests, hits in response  
+        * bring Opticks to CPU only batch nodes
+        * avoid GPU starvation 
+        * header only implementation : ``OpticksClient.hh`` 
+
+        **So far : Network Transport of NP Arrays**
+
+        * https://github.com/simoncblyth/np
+        * depends only on Boost-Asio (Async IO) 
+        * np_server/np_client operational  
+
+        **Next : integrate that with Opticks**
+
+         
+
+.. class:: small
+
+    1. **optical**: optical photon simulation, ie the time and memory required to generate and propagate optical photons
+    2. **node**: overall simulation performance using a single node with one or more GPUs 
+    3. **cluster**: production performance of a GPU cluster creating large monte carlo samples
+       with many hundreds or thousands of production jobs orchestrated with a batch system
+
 
 .. s5_talk::
 
-    Here is the all-together plot for NNVT. 
+   So far Opticks has been optimized only at the **optical** level. 
+   Optimizing at cluster level expected to give large gains, maximimize
+   use of resources  
 
 
 
-:small:`Integration of Offline + Opticks : Opticks is now a JunoENV External`
+
+
+
+
+
+
+:small:`Integration of JUNO + Opticks : Opticks is a JunoENV External`
 ------------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Opticks Build Generalized`
@@ -1240,62 +1220,6 @@ Outline
 
 
 
-:small:`Opticks + Geant4 News : Two Geant4 Task Force R&Ds Based on Opticks`
-------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Opticks interest : Geant4 + HSF + ...`
-
-    .. class:: small
-
-          * Presented Opticks : HSF Sim. Group (May 27th)
-
-          Other currently active Opticks users:
-
-          * LHCb RICH Calibration (Sajan Easo)
-
-          * LUX-ZEPLIN (LZ) Dark Matter (Sam Eriksen)
-
-
-.. class:: small
-
-     * https://geant4.web.cern.ch/collaboration/task_force_rd
-
-     **Full integration of Opticks with Geant4** : LAr TPCs, DUNE
-
-     * https://geant4.web.cern.ch/node/1890 [FermiLab G4 Team]
-     * K.L.Genser, Hans J.Wenzel, (S. Y. Jun) 
-
-     Creation of a Geant4 extended example ``G4OpticksTest``
-
-     * https://github.com/hanswenzel/G4OpticksTest
-
-     :red:`Advised Hans on Opticks use, adding Wavelength Shifting`
-
-     **Prototype of gamma or electron transport using GPU vendor library** : HL-LHC ECAL 
-
-     * https://geant4.web.cern.ch/node/1886 [CERN PH/SFT G4 Team]
-     * Guilherme Amadio, John Apostolakis [G4 Tracking Architect], Andrei Gheata
-
-     Examine the Opticks simulation of optical photons, to identify similarities/differences ... for gamma and/or electron interactions
-    
-     :red:`Agreed to act in a consulting role for this task ; email exchanges with John Apostolakis`
-
-
-.. class:: tiny
-
-   [1] HSF : HEP Software Foundation
-
-
-.. s5_talk::
-
-    More Geant4 groups are getting interested in Opticks, and not just for 
-    optical photons. Some of the CERN Geant4 team are interested
-    in investigating use of Opticks for gamma (and perhaps electron) simulation 
-    in HL-LHC calorimeters. 
-
-    I also have been working with the Fermilab Geant4 Group
-
-
 
 
 :small:`Summary and Links`
@@ -1376,6 +1300,57 @@ Outline
 
 
 
+:small:`JUNO Geometry : Remove Torus to enable translation to GPU`
+---------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Why Avoid Torus ?`
+
+    .. class:: small
+
+         **Double heavy quartic root finding** 
+     
+         * fragile (crashes in some OptiX versions)
+         * precision problems in CSG combinations
+         * mere presence in OptiX kernel :red:`kills RTX mode performance by factor 10` 
+
+         **Alternative Approaches To Cope With Torus**
+
+         * triangulated torus 
+         * TODO : ray marching (aka sphere tracing) signed distance function (SDF) model 
+        
+
+.. class:: small
+
+
+  **tut_detsim.py options (in SVN trunk r3990)** 
+
+  ``--no-guide_tube`` 
+      skip the guide tube torus 
+
+  ``--pmt20inch-polycone-neck`` 
+      "cylinder - torus" -> polycone 
+
+      * NNVT_MCPPMT_PMTSolid
+      * Hamamatsu_R12860_PMTSolid
+
+  :red:`TODO`: ``--pmt20inch-simpler-csg`` 
+      simpler+faster CSG, same geometry 
+
+
+
+.. s5_talk::
+
+    Torus intersection is such a problem, that the best solution is 
+    to avoid torus : I think it is perfectly acceptable to do so, because
+    the guide tube is not important for optical photons and the torus 
+    based PMT neck is cosmetic only in my opinion.
+
+
+
+
+
+
+
 
 :i:`scan-pf-1_Opticks_vs_Geant4 2`
 ------------------------------------
@@ -1419,103 +1394,6 @@ Outline
 
 
 
-
-
-
-:small:`PMTID physvol/@copynumber -?-> PMTtype Hamamatsu/NNVT -- GDML:`
-------------------------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypretiny">
-    014743       &lt;physvol name="pLPMT_NNVT_MCPPMT0x329e330"&gt;      <b><span class="alarm"> <-- zero is special ? NOT A GOOD ID  </span></b>
-     14744         &lt;volumeref ref="NNVTMCPPMTlMaskVirtual0x32a56c0"/&gt;
-     14745         &lt;position name="pLPMT_NNVT_MCPPMT0x329e330_pos" unit="mm" x="-930.2976" y="-111.8724" z="19365"/&gt;
-     14746         &lt;rotation name="pLPMT_NNVT_MCPPMT0x329e330_rot" unit="deg" x="180" y="0" z="180"/&gt;
-     14747       &lt;/physvol&gt;
-     14748       &lt;physvol <b><span class="alarm">copynumber="1"</span></b> name="pLPMT_Hamamatsu_R128600x329e3b0"&gt;   
-     14749         &lt;volumeref ref="HamamatsuR12860lMaskVirtual0x3290b70"/&gt;
-     14750         &lt;position name="pLPMT_Hamamatsu_R128600x329e3b0_pos" unit="mm" x="-492.5657" y="-797.0872" z="19365"/&gt;
-     14751         &lt;rotation name="pLPMT_Hamamatsu_R128600x329e3b0_rot" unit="deg" x="180" y="0" z="180"/&gt;
-     14752       &lt;/physvol&gt;
-     14753       &lt;physvol <b><span class="alarm">copynumber="2"</span></b> name="pLPMT_NNVT_MCPPMT0x329e4b0"&gt;  <b><span class="blue"> <-- forced to use name OR PMTParamSvc -> PMTType </span></b>
-     14754         &lt;volumeref ref="NNVTMCPPMTlMaskVirtual0x32a56c0"/&gt;
-     14755         &lt;position name="pLPMT_NNVT_MCPPMT0x329e4b0_pos" unit="mm" x="316.0782" y="-882.0791" z="19365"/&gt;
-     14756         &lt;rotation name="pLPMT_NNVT_MCPPMT0x329e4b0_rot" unit="deg" x="180" y="0" z="180"/&gt;
-     14757       &lt;/physvol&gt;                                
-    ...
-    102774       &lt;physvol <b><span class="alarm">copynumber="17610"</span></b> name="pLPMT_Hamamatsu_R128600x3a2a9d0"&gt; <b><span class="blue"> Simple fix : separate NNVT/Hamamatsu offsets </span></b>
-    102775         &lt;volumeref ref="HamamatsuR12860lMaskVirtual0x3290b70"/&gt;
-    102776         &lt;position name="pLPMT_Hamamatsu_R128600x3a2a9d0_pos" unit="mm" x="-468.5" y="811.4658" z="-19365"/&gt;
-    102777       &lt;/physvol&gt;
-    102778       &lt;physvol <b><span class="alarm">copynumber="17611"</span></b> name="pLPMT_NNVT_MCPPMT0x3a2aa80"&gt;
-    102779         &lt;volumeref ref="NNVTMCPPMTlMaskVirtual0x32a56c0"/&gt;
-    102780         &lt;position name="pLPMT_NNVT_MCPPMT0x3a2aa80_pos" unit="mm" x="-926.5345" y="139.6526" z="-19365"/&gt;
-    102781       &lt;/physvol&gt;
-
-    102782       &lt;physvol <b><span class="alarm">copynumber="300000"</span></b> name="PMT_3inch_log_phys0x3a307c0"&gt;
-    102783         &lt;volumeref ref="PMT_3inch_log0x3a2e430"/&gt;
-    102784         &lt;position name="PMT_3inch_log_phys0x3a307c0_pos" unit="mm" x="-3734.24733197939" y="1835.06563378074" z="18932.1786116475"/&gt;
-    102785         &lt;rotation name="PMT_3inch_log_phys0x3a307c0_rot" unit="deg" x="-174.463707019134" y="-11.1072339347848" z="-26.7089289722046"/&gt;
-    102786       &lt;/physvol&gt;
-    102787       &lt;physvol <b><span class="alarm">copynumber="300001"</span></b> name="PMT_3inch_log_phys0x3a30890"&gt;
-    102788         &lt;volumeref ref="PMT_3inch_log0x3a2e430"/&gt;
-    102789         &lt;position name="PMT_3inch_log_phys0x3a30890_pos" unit="mm" x="-3470.82479867782" y="1705.61581563788" z="18994.3071973244"/&gt;
-    102790         &lt;rotation name="PMT_3inch_log_phys0x3a30890_rot" unit="deg" x="-174.86882108069" y="-10.3147892102431" z="-26.6336342093065"/&gt;
-    102791       &lt;/physvol&gt;
-    </pre>
-
-
-.. s5_talk::
-
-    PMTID integer alone doesnt distinguish between types of PMT 
-
-
-:small:`PMTParamSvc relies on large std::map<int,int> m_pmt_categories`
-------------------------------------------------------------------------------------
-
-
-.. class:: small
-
-    ``unsigned long long pmtdat`` 
-          64-bit bitfield can encode all PMTParamSvc info in CUDA friendly way
-
-    label sensitive volumes with ``pmtdat``  
-          bit twiddling then provides all the info, :red:`no big PMTParam buffers needed` 
-
-.. raw:: html
-
-     <pre class="mypretiny">
-     43 class PMTParamSvc: public SvcBase {      //  Encode all this into : 64 bit pmtdat (unsigned long long) 
-     44 public:                                  //                                                       
-     45   PMTParamSvc(const std::string& n)      //                                                       
-     ..                                          //  16 bits : which PMT identifier (enough for 1..65,536)
-     53   bool isCD(int pmtid);                  //  16 bits : 8 bits of type flags + 8 bits spare 
-     54   bool isWP(int pmtid);                  //  32 bits : float qe 
-     56   bool is20inch(int pmtid);              //  ----------------------------------------------
-     57   bool is3inch(int pmtid);               //  64 bits : unsigned long long pmtdat  
-     59   bool isNNVT(int pmtid);                //                                                       
-     60   bool isHamamatsu(int pmtid);           //                                                       
-     61   bool isHighQE(int pmtid);              //   Adhere to hex 4bit boundaries:
-     62   bool isHZC(int pmtid);                 //                                                       
-                                                 //                      Which PMT 16 bits
-     63   float getPMTQE(int pmtid);             //                       |
-     ..                                          //   0x|....|....|..00|....|     
-     74   std::map&lt;int, int&gt; m_pmt_categories;   //                 |               
-     75   std::map&lt;int, float&gt; m_pmt_qe;         //       float qe  type flags     
-     76 };                                       //
-                                                 //   unsigned long long pmtdata[npmt] ; 
-     </pre>                                                                             
-
-
-.. class:: small
-
-    * ``pmtdat`` will simplify bringing ``junoSD_PMT_v2::get_ce`` to GPU.
-
-
-.. s5_talk::
-
-    Using a bitfield can avoid the need for dedicated PMTParam buffers
 
 
 
@@ -2091,8 +1969,9 @@ Outline
     Geant4_Bug_2311
     /env/presentation/fermilab_geant4_team/geant4_bugzilla_2311_half.png 1180px_310px 50px_10px
 
-    LHCB_RICH_HSF
-    /env/presentation/lhcb_rich_sajan_easo/sajan_easo_propects_june_2020_p8_half.png 980px_420px 0px_200px
+    LHCb RICH (Ring Imaging Cherenkov) with Opticks : Sajan Easo
+    /env/presentation/lhcb_rich_sajan_easo/sajan_easo_prospects_june_2020_p3_half.png 640px_360px 0px_360px
+    /env/presentation/lhcb_rich_sajan_easo/sajan_easo_prospects_june_2020_p8_half.png 640px_360px 640px_360px
 
     GROUPS_IO_1
     /env/presentation/groups_io/groups_io_jan_2021_25_members_33_topics_half.png 
@@ -2100,12 +1979,22 @@ Outline
     GROUPS_IO_2
     /env/presentation/groups_io/groups_io_jan_2021_message_history_table_half.png
 
-    2021 : NERSC/LBL/LZ/Stanford/Bristol/NVIDIA/Opticks Plans FormerSlide
+    LZ+Opticks history : 2018-2021 : contacts with >5 LZ people
+    /env/presentation/nersc_creaner/optical_sims_using_gpus_half.png 640px_360px 0px_360px
     /env/presentation/nersc_creaner/lz_motivation_to_gpus_half.png 640px_360px 640px_360px
 
-    2021 : NERSC/LBL/LZ/Stanford/Bristol/NVIDIA/Opticks Plans
-    /env/presentation/nersc_creaner/optical_sims_using_gpus_half.png 640px_360px 640px_360px
+    Opticks for next-generation neutrino telescope optimization ?
+    /env/presentation/sjtu_fan_hu_oceanic/fan_hu_pod_strings_geometry_half.png 640px_360px 640px_360px
 
+    UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP
+    /env/presentation/ben_morgan_SwiftHEP_jan_2021/detector_simulation_swiftHEP_p1_half.png 640px_360px 0px_360px
+    /env/presentation/ben_morgan_SwiftHEP_jan_2021/detector_simulation_swiftHEP_p19_half.png 640px_360px 640px_360px
+
+    2021 : LZ+Opticks simulation on Perlmutter (>6000 NVIDIA A100)
+    /env/presentation/nersc_creaner/perlmutter_half.png 640px_360px 640px_360px
+
+    ## /env/presentation/docs/docs_orientation_toc_half.png 655px_617px 625px_103px 
+    ##
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty
