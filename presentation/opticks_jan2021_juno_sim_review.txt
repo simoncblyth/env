@@ -21,9 +21,11 @@
  
        <hr/>
 
+    Idea for addition to intro : talk about geometry factorization 
 
 
-:i:`Review JUNO + Opticks` 
+
+:i:`Review Opticks + JUNO` 
 ========================================================================================
 
 .. raw:: html
@@ -32,7 +34,7 @@
     <div class="mytitle">
     <header>
     <h1 style="background-color:lightgrey;text-align:center;"> 
-          <span class="alarm">Review  </span> JUNO + <i>Opticks</i> : <br> GPU Optical Simulation with NVIDIA® OptiX™ 
+          <span class="alarm">Review  </span> JUNO Integration with <i>Opticks</i> : <br> GPU Optical Simulation with NVIDIA® OptiX™ 
         <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
     </h1>
     </header>
@@ -53,6 +55,108 @@
     each line represents a single photon.
 
 
+
+:small:`G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow`
+------------------------------------------------------------------------
+
+.. sidebar:: :small:`Plan for G4OpticksTest`
+
+    .. class:: small
+
+        * advanced example distributed with Geant4
+        * explore use with G4Tasking with 10.7
+
+.. class:: small
+
+    **(Nov 2020) HSF WLCG Virtual Workshop : https://indico.cern.ch/event/941278/timetable/#20201123.detailed** 
+
+    * Hans Wenzel, Fermilab Geant4 Team
+    
+    Worked closely with Hans for several years
+
+    * Developed Geant4-Opticks integration API **G4Opticks**
+    * Recently reported two Geant4 optical surface issues #2305 #2311 
+
+.. s5_talk::
+
+    The example has been foundational for developing the Geant4 Opticks interface 
+
+
+:small:`https://bitbucket.org/simoncblyth/opticks/src/master/notes/tasks/tasks.rst`
+-----------------------------------------------------------------------------------------------------
+
+.. image:: /env/presentation/tasks/tasks_jan_2021_half.png
+   :width: 600px
+   :align: right
+
+.. class:: small
+
+   **Task list : Table of contents**
+
+   * task descriptions + progress notes 
+
+   * 
+    
+
+:small:`UK Research Project : Efficient Computing in High Energy Physics (ECHEP)`
+----------------------------------------------------------------------------------------
+
+.. class:: small
+
+    UK-ECHEP "...harnessing modern computing architectures and improve software and computing efficiency"
+
+
+    Adam Davis (Manchester), Ben Morgan (Warwick), Davide Costanzo (Sheffield)
+
+    0.5 FTE for 12 months
+
+
+
+
+:small:`Opticks : Three Levels of Performance`
+----------------------------------------------
+
+.. class:: small
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/notes/performance.rst
+
+.. sidebar:: **cluster** level optimizations
+
+    .. class:: small
+
+        **Opticks Server + many Clients**
+
+        * genstep requests, hits in response  
+        * bring Opticks to CPU only batch nodes
+        * avoid GPU starvation 
+        * header only implementation : ``OpticksClient.hh`` 
+
+        **So far : Network Transport of NP Arrays**
+
+        * https://github.com/simoncblyth/np
+        * depends only on Boost-Asio (Async IO) 
+        * np_server/np_client operational  
+
+        **Next : integrate that with Opticks**
+
+         
+
+.. class:: small
+
+    1. **optical**: optical photon simulation, ie the time and memory required to generate and propagate optical photons
+    2. **node**: overall simulation performance using a single node with one or more GPUs 
+    3. **cluster**: production performance of a GPU cluster creating large monte carlo samples
+       with many hundreds or thousands of production jobs orchestrated with a batch system
+
+
+.. s5_talk::
+
+   So far Opticks has been optimized only at the **optical** level. 
+   Optimizing at cluster level expected to give large gains, maximimize
+   use of resources  
+
+
+
 Outline
 ----------------------------------------------------
 
@@ -71,7 +175,7 @@ Outline
       * Geant4 + Opticks Hybrid Workflow
       * Opticks : Translates G4 Geometry to GPU, Without Approximation
 
-    * :blue:`Jump in Community Interest in Opticks`
+    * :blue:`2020 : Leap in Opticks awareness and Users`
 
       * G4OpticksTest : Fermilab Geant4 team 
       * Geant4 Bugs 2305,2311 : opticalsurface, bordersurface 
@@ -99,8 +203,10 @@ Outline
 
 .. s5_talk::
 
-   As I expect most of you are familiar with Opticks, I will 
-   cover the introduction quickly. 
+   As I expect most of you have seen my Opticks presentations before, 
+   my introduction will be minimal. 
+   My previous presentations have much more detail.
+
    I will focus on the necessary geometry changes and recent 
    developments on the integration of offline with opticks, 
    that are already in SVN trunk.
@@ -332,30 +438,32 @@ Outline
     
 
 
-:small:`2020 : Opticks Awareness Jumped : HSF (HEP SW Foundation) and Geant4`  
+:small:`2020 : Leap in Opticks Awareness : Meetings, Publications >>> New Users`
 --------------------------------------------------------------------------------------
 
 .. class:: small
 
-   **(May 2020) HSF Meeting : GPUs in Simulations**
+   **(Feb 2020) Workshop on Efficient Computing for HEP, Edinburgh**
 
-   * https://indico.cern.ch/event/921244/
-   * "Opticks Development Experience : Problems and Successes", Simon Blyth
+   * https://indico.ph.ed.ac.uk/event/66/ "Full Simulation of HEP Detectors with Geant4", Ben Morgan 
 
-   **(10+24 June 2020) HSF Meeting : R&D on accelerators in Simulations**
+   **(May 2020) HSF (HEP Software Foundation) Meeting : GPUs in Simulations**
+
+   * https://indico.cern.ch/event/921244/ "Opticks Development Experience : Problems and Successes", Simon Blyth
+
+   **(10+24 June 2020) HSF Meeting : R&D on accelerators in Simulations** :red:`3/9 talks discussed Opticks`
 
    * https://indico.cern.ch/event/925887/ https://indico.cern.ch/event/930881/
 
-   * 3/9 talks discussed Opticks, including John Apostolakis, Andrei Gheata
+   * "e/γ (GPU) calorimeter simulation.. ", John Apostolakis, "Prototyping simulation .. on GPUs", Andrei Gheata
      
    * "Prospects for (LHCb) RICH detector simulation using OptiX in GPUs", Sajan Easo
 
    **(Aug 2020) HSF Publication : HL-LHC Computing Review: Common Tools and Community Software**
 
-   * https://zenodo.org/record/4009114
-   * review discusses Opticks
+   * https://zenodo.org/record/4009114 Graeme Stewart,... :red:`HL-LHC Computing Review discusses Opticks`
 
-   **(Sep 2020) Geant4 : R&D Task Force Meeting** 
+   **(Sep 2020) Geant4 : R&D Task Force Meeting** :red:`3+ Geant4 teams pursuing GPUs, 1 based on Opticks`    
 
    * https://indico.cern.ch/event/942142/sessions/363813/#20200915
         
@@ -363,8 +471,17 @@ Outline
    2. "VecGeom@GPU", CERN Geant4 Team, Andrei Gheata : :red:`NVIDIA OptiX regarded as alternative to VecGeom CUDA`
 
 
-:small:`2020 : More Opticks Awareness, 2021 : Plans` 
--------------------------------------------------------------------------------------
+.. s5_talk::
+
+   During 2020 there was a leap in Opticks awareness, it was presented and discussed at numerous meetings 
+   and is being actively evaluated by an increasing number of groups. 
+
+   This leap is probably thanks in part to my plenary presentation at the CHEP conference at the end of 2019
+
+
+
+:small:`2020 : Leap in Opticks Awareness >>> Some Users Getting Serious` 
+-----------------------------------------------------------------------------------------
 
 .. class:: small
 
@@ -372,45 +489,167 @@ Outline
 
    * https://indico-tdli.sjtu.edu.cn/event/238/sessions/109/#20200813 
    * "Opticks : GPU/Graphics backgroup + Application to underwater neutrino telescope simulations ?", Simon Blyth
+   * :red:`SJTU team evaluating Opticks for deep ocean expt simulations (Fan Hu, Donglian Xu)`
 
-   **(Aug 2020) Snowmass 2021 : Three LoI based on Opticks**
+   **(Aug 2020) Snowmass 2021 : Three LoI based on Opticks** : :red:`Multi-expt Dark Matter group invited me to sign LoI`   
 
    1. "Opticks : GPU photon simulation via NVIDIA OptiX", Simon Blyth
    2. "Fast simulations for Noble Liquid experiments", XENON, DARWIN, LZ teams, Simon Blyth
    3. "Simulating Optical Photons in HEP experiments on GPUs", Fermilab Geant4 team
+ 
+   **(Aug 2020) NERSC Users Group (NUG) meeting** : :red:`LZ aiming to deploy Opticks on Perlmutter supercomputer`
 
-  
-   **(Jan 2021) : LZ (LUX-Zeplin) Dark matter experiment + LBL Computing + NVIDIA + Me**
+   * https://www.nersc.gov/users/NUG/annual-meetings/nug-2020/ 
+   * https://www.nersc.gov/assets/Uploads/1400-Opticks-on-CoriGPU.pdf 
+   * "Opticks on CoriGPU", O.Creaner, 5 authors from : NERSC/LBL/LZ/Stanford/Bristol   
+   * :red:`Opticks in Shifter/Docker container -> CoriGPU -> Perlmutter Cray/NVIDIA supercomputer`
+   * Perlmutter : > 6000 NVIDIA A100 (Ampere Architecture GPU)  
+ 
 
-   ~12 person Zoom Meeting
+.. class:: tiny 
 
-   * LZ 
+   https://insidehpc.com/2020/05/perlmutter-supercomputer-to-include-more-than-6000-nvidia-a100-processors/
 
 
-   **LZ (LUX-Zeplin) Dark matter Experiment** 
+.. s5_talk::
 
-   * Stanford, 
-   * LBL Computing 
-   
+   2020 also saw several groups getting more serious in their use of Opticks
 
-     * LBL + Stanford : GPU Hackathon with NVIDIA
-     * 
+   The LUZ-Zeplin or LZ experiment is the most advanced with them working on 
+   getting Opticks into containers for use on the new Perlmutter supercomputer 
+   at NERSC which has more than 6000 NVIDIA A100 GPUs
+
+
+
+:small:`2021 : NERSC/LBL/LZ/Stanford/Bristol/NVIDIA/Opticks Plans`
+---------------------------------------------------------------------
+
+.. class:: small
+
+   **LZ+Opticks history** 
+
+   * 2018-2020 : Many LZ people (contacts with >5) have evaluated LZ+Opticks 
+   * Summer 2020 : LZ+Opticks simulation identified as candidate for new Perlmutter Cray/NVIDIA supercomputer at NERSC
+   * Autumn 2020 : LZ+NERSC people proposed an NVIDIA assisted Hackathon to optimize LZ+Opticks 
+
+     * BUT little point optimizing prior to migration : NVIDIA OptiX 6 -> 7 (an entirely new API, "Vulkan-ized")  
+
+   **2021 Planning : (Jan 8) Zoom Meeting of >12 people split between LZ/NERSC(6), NVIDIA(5), Opticks(1)** 
+
+   * NERSC + NVIDIA teams: senior engineers + postdoc "workers"
+   * NVIDIA team : experienced with OptiX 6->7, multi-GPU + multi-threaded CUDA/OptiX
+
+   **Prepared Opticks codebase orientation documentation**
+
+   https://simoncblyth.bitbucket.io/opticks/docs/orientation.html
+
+   :red:`From February : plan bi-weekly working meetings`
+
+   **An opportunity not to be missed:**
+
+   * NVIDIA OptiX team assisting Opticks 
+   * NERSC supercomputer team applying Opticks 
+
+   :blue:`OptiX 7 migration : prerequisite to JUNO OpticksServer plans` 
+
+
+.. s5_talk::
+
+   LZ has been evaluating Opticks over the past three years and it is now
+   keep to scale up its usage to profit from the new NERSC Perlmutter supercomputer, 
+   with more than 6000 NVIDIA A100 GPUs
+
+   US DOE has payed Cray and NVIDIA several hundereds of millions of US dollars 
+   for the Perlmutter supercomputer that is being commissioned.
+   I guess that buys a lot of assistance with getting users codes to benefit from Perlmutter
+
+   Its a great opportunity to get some real GPU and deployment experts involved with Opticks 
+
+
+
+
+:small:`2021 : More Geant4+Opticks resources`
+-----------------------------------------------
+
+.. class:: small
 
    **Manchester Geant4 Group (Adam Davis)**
 
    * SwiftHEP grant : Postdoc funded, Engineer intended
 
+.. s5_talk::
 
+    
+
+
+:i:`GROUPS_IO_1`
+------------------
+
+.. raw:: html
+
+   <pre>
+
+
+
+
+
+
+
+   </pre>
+
+
+.. sidebar:: Opticks Forum/Archive
+
+     email group + web archive
+
+     ``https://groups.io/g/opticks``
+
+     **25 Members, 33 Topics**
+
+     Members joined by year:
+
+     * 2018 : 5 
+     * 2019 : 9 
+     * 2020 : 11 
+
+
+.. s5_talk::
+
+   The Opticks Forum and email list continues to the primary 
+   means of communicating with users. But have had a few virtual meetings 
+   Several users tend to email me directly. 
+
+
+:i:`GROUPS_IO_2`
+------------------
+
+
+.. sidebar:: Opticks Forum/Archive 
+
+     ``https://groups.io/g/opticks``
+
+     * need to use the forum more
+     * many users email me directly 
+
+.. s5_talk::
+
+   I need to be stricter about redirecting inquiries to the group
+   so the discussion can be beneficial to all.
+   
+
+.. comment
+
+    :i:`G4OpticksTest_june2020_p1`
+    --------------------------------
+
+    :i:`G4OpticksTest_june2020_p12`
+    --------------------------------
 
 
 
 :i:`G4OpticksTest_sep2020_p1`
 ------------------------------
 
-
-
-:i:`G4OpticksTest_june2020_p1`
---------------------------------
 
 .. sidebar:: G4OpticksTest 
 
@@ -432,11 +671,6 @@ Outline
 
 
 .. comment
-
-    :i:`G4OpticksTest_june2020_p12`
-    --------------------------------
-
-
 
     .. sidebar:: :small:`Opticks Additions`
 
@@ -501,16 +735,19 @@ Outline
 
    Important to test ahead, checking lastest Geant4:
 
-   * natural way to contribute to Geant4 
+   * :red:`natural way to contribute to Geant4` and :blue:`raises profile`
    * avoids : surprises, excluded releases
-   * lower potential barrier for future official updating
+   * ease future "official" updating
 
 
 .. s5_talk::
 
     It is unfortuate that I did not test Opticks with these five Geant4 releases 
-    until recently. This optical surface bug tripped a consistency check assert 
-    in the Opticks geometry translation, so I would have been able to catch the problem much sooner.  
+    until recently. This optical surface bug tripped a consistency assert 
+    in the Opticks geometry translation, so it is immediately apparent when 
+    testing Opticks with the Geant4 release.
+
+    I would have been able to catch the problem much sooner.  
 
     It really demonstrates the importance of testing the latest version 
     of critical externals even when you have no intention to officially updating
@@ -593,15 +830,6 @@ Outline
 
    LHCb Ring Imaging Cherenkov detector has an optical photon simulation problem,
    so its interested in Opticks : and has done some validations   
-
-
-:small:`LUX-Zeplin/LBL/Stanford/Bristol : Lots of interest`
---------------------------------------------------------------
-
-.. class:: small
-
-   * https://www.nersc.gov/assets/Uploads/1400-Opticks-on-CoriGPU.pdf
- 
 
 
 
@@ -1342,7 +1570,6 @@ Outline
     External Photon Simulation Workflow
     /env/keynotefigs/G4DAEChroma/G4DAEChroma.002.png
 
-
     ## keynote wide default is 1920x1080  aspect 1.77777777 16:9
     ## but my slides use       1280x720
     ## used document panel at top right to change to custom size of 1280x720
@@ -1364,31 +1591,31 @@ Outline
 
     GGeoView Cerenkov Geom M1
     /env/graphics/ggeoview/ggeoview-cerenkov-m1-geom.png 1416px_845px
-  
+
     Detecting Neutrinos via Optical Photons 1
     /env/presentation/dayabay-principal_half.png 1417px_830px 
 
     Detecting Neutrinos via Optical Photons 2
     /env/presentation/dayabay-principal_half.png 1417px_830px 
- 
+
     JPMT Inside Wide 
     /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
 
     JPMT Wide
     /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
-  
+
     JPMT Headview
     /env/graphics/ggeoview/jpmt-headview_half.png 1308px_783px
- 
+
     JPMT Backview
     /env/graphics/ggeoview/jpmt-backview_half.png 1149px_794px 
- 
+
     JPMT Approach 
     /env/graphics/ggeoview/jpmt-approach_half.png 1431px_839px
 
     JPMT Arrival 
     /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
- 
+
     Optical Photon Simulation Problem...
     /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
 
@@ -1404,10 +1631,9 @@ Outline
     JPMT Before Contact 3
     /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
 
- 
     JPMT After Contact 
     /env/graphics/ggeoview/jpmt-after-contact_half.png 1425px_840px 
-  
+
     JPMT Inside Outside 
     /env/graphics/ggeoview/jpmt-inside-outside_half.png 1401px_842px
 
@@ -1456,7 +1682,6 @@ Outline
     Kamiokande II 3
     /env/presentation/1987a.png 1280px_720px
 
-
     Fast Optical Photon Simulation
     /env/presentation/newtons-opticks.png 374px_684px 800px_0px
 
@@ -1472,15 +1697,11 @@ Outline
     Old Photomultiplier Tube Operation
     /env/presentation/hamamatsu-pmt.png 1099px_734px
 
-
-
-
     Jiangmen Underground Neutrino Observatory (JUNO) 
     /env/presentation/juno-schematic-5.png 1391px_734px
 
     Jiangmen Underground Neutrino Observatory, Goals
     /env/presentation/juno-schematic-5.png 1391px_734px
-
 
     Dayabay Reactor Neutrino Expt, Far Site
     /env/presentation/DybFar_crop.png 1280px_720px
@@ -1525,10 +1746,7 @@ Outline
 
     Daya Bay Energy Response Model (2)
     /env/presentation/ZheTaupDetectorResponseModel.png 968px_576px 100px_100px
-
     ## a = np.array([2392., 1424.]) ; .8*720*a/a[1]
-
-
 
     Daya Bay Energy Response Model : Fit to Calibration Data 1
     /env/presentation/EnergyResponseModel.png 693px_504px 0px_100px 
@@ -1540,12 +1758,11 @@ Outline
     /env/presentation/ConstrainingNonLinearity.png 761px_553px 0px_80px
     ## a = np.array([1698., 1166.])
     ## .8*720.*a/1166. 
-    
+
     Daya Bay nGd Analysis : Most Precise Theta13
     /env/presentation/DYBZheTaup2015Theta13OscillationAnalysis.png 1057px_625px 100px_60px
     ## a = np.array([2140., 1266.])
     ## .8*720.*a/1166.
-
 
     Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)
     /env/presentation/op_full_raytrace_3.png 1280px_720px
@@ -1583,14 +1800,12 @@ Outline
     Spatial Index Acceleration Structure
     /env/presentation/nvidia/NV_Turing_Editors_Day_029.png 1280px_720px
 
-
-
     BVH Pascal 
     /env/presentation/nvidia/NV_Turing_Editors_Day_030.png 1280px_720px
- 
+
     BVH Turing
     /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
- 
+
     Hardware Traversal of BVH Spatial Index
     /env/presentation/nvidia/NV_Turing_Editors_Day_031.png 1280px_720px
 
@@ -1599,8 +1814,6 @@ Outline
 
     SIGGRAPH_2019_Eric_Enderton_RT_Cores
     /env/presentation/nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
-
-
     ##
     ##  original 2880px_1620px
     ##  half     1440px_810px
@@ -1610,7 +1823,7 @@ Outline
 
     NVIDIA Turing GPU : 72 SM, 4608 CUDA cores (spec)
     /env/presentation/nvidia/NV_Turing_Editors_Day_009.png 1280px_720px
- 
+
     Raytrace vs Raster
     /env/presentation/nvidia/NV_Turing_Editors_Day_132.png 1280px_720px
 
@@ -1626,7 +1839,6 @@ Outline
     ##   1920 1080  *1.5
     ##  https://www.anandtech.com/Gallery/Album/6660##6
     ## 
-
     j1808_top_ogl
     /env/presentation/j1808/j1808_top_ogl.png 1280px_720px
 
@@ -1672,28 +1884,28 @@ Outline
 
     RTX_Speedup
     /env/presentation/ana/RTX_Speedup.png 1280px_720px
-    
+
     Overheads
     /env/presentation/ana/Overheads.png 1280px_720px
- 
+
     Opticks_Speedup
     /env/presentation/ana/Opticks_Speedup.png 1280px_720px
- 
+
     Opticks_vs_Geant4
     /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
 
     Opticks_vs_Geant4 2
     /env/presentation/ana/Opticks_vs_Geant4.png 1280px_720px
-    
+
     NHit
     /env/presentation/ana/NHit.png 1280px_720px
 
     Interval_over_Launch
     /env/presentation/ana/Interval_over_Launch.png 1280px_720px
- 
+
     TITAN RTX : 72 Raytrace Dedicated RT Cores, 4608 CUDA Cores, 24GB VRAM, 2500 USD
     /env/presentation/nvidia/TITAN_RTX.png 1280px_720px
- 
+
     bench_20190526_143808
     /env/presentation/ana/bench_20190526_143808.png  
 
@@ -1705,8 +1917,6 @@ Outline
 
     bench_20190526_202537 2
     /env/presentation/ana/bench_20190526_202537.png  
-
-
 
     tv16_Fastener
     /env/presentation/tv/tv16_Fastener.png
@@ -1733,14 +1943,11 @@ Outline
     Opticks Experience : Problems with using NVIDIA OptiX
     /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
 
-
     TURING BUILT FOR RTX  
     /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
 
     TURING BUILT FOR RTX 2 
     /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
-
-
 
     NVIDIA RTX Metro Exodus
     /env/presentation/nvidia/NVIDIA_RTX_Metro_Exodus_half.png 1280px_720px
@@ -1753,7 +1960,6 @@ Outline
 
     NVIDIA_Quadro_RTX 8000 (48G)
     /env/presentation/nvidia/NVIDIA_Quadro_RTX.png 1280px_720px
-
 
     SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine
     /env/presentation/nvidia/SIGGRAPH_2010_OptiX_A_General_Purpose_Ray_Tracing_Engine.png 1280px_720px
@@ -1770,7 +1976,6 @@ Outline
     ##
     ## cp ~/Documents/JUNOIntro/JUNOIntro.00[1,2,3,4].png ~/simoncblyth.bitbucket.io/env/Documents/JUNOIntro/
     ##
-
     JUNO_Intro_1
     /env/Documents/JUNOIntro/JUNOIntro.001.png 1280px_720px
 
@@ -1783,10 +1988,8 @@ Outline
     JUNO_Intro_4
     /env/Documents/JUNOIntro/JUNOIntro.004.png 1280px_720px
 
-
     JUNO_Multipurpose_Pedro_NuFact_2019 
     /env/presentation/juno/JUNO_Multipurpose_Pedro_NuFact_2019.png 960px_720px 0px_0px
-
 
     dhart_siggraph_2019_OptiX_5_traversal
     /env/presentation/nvidia/dhart_siggraph_2019_OptiX_5_traversal.png 1280px_720px 
@@ -1821,7 +2024,6 @@ Outline
     scan-pf-0_RTX_Speedup 2
     /env/presentation/ana/scan-pf-0/RTX_Speedup.png 1280px_720px
 
-
     scan-pf-1_Interval_over_Launch
     /env/presentation/ana/scan-pf-1/Interval_over_Launch.png 1280px_720px
 
@@ -1839,7 +2041,6 @@ Outline
 
     scan-pf-1_Opticks_vs_Geant4 2
     /env/presentation/ana/scan-pf-1/Opticks_vs_Geant4.png 1280px_720pxS
-
 
     scan-pf-1_Overheads
     /env/presentation/ana/scan-pf-1/Overheads.png 1280px_720px
@@ -1880,6 +2081,10 @@ Outline
     G4OpticksTest_sep2020_p1
     /env/presentation/fermilab_geant4_team/G4Opticks_sept_2020_Hans_Wenzel_p1_half.png 1080px_520px 0px_100px
 
+    G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow
+    /env/presentation/fermilab_geant4_team/hans_nov2020_lar_tpc_p1_half.png 640px_360px 0px_360px
+    /env/presentation/fermilab_geant4_team/hans_nov2020_lar_tpc_p13_half.png 640px_360px 640px_360px
+
     Geant4_Bug_2305 
     /env/presentation/fermilab_geant4_team/geant4_bugzilla_2305_half.png 1180px_310px 50px_10px
 
@@ -1889,9 +2094,28 @@ Outline
     LHCB_RICH_HSF
     /env/presentation/lhcb_rich_sajan_easo/sajan_easo_propects_june_2020_p8_half.png 980px_420px 0px_200px
 
+    GROUPS_IO_1
+    /env/presentation/groups_io/groups_io_jan_2021_25_members_33_topics_half.png 
+
+    GROUPS_IO_2
+    /env/presentation/groups_io/groups_io_jan_2021_message_history_table_half.png
+
+    2021 : NERSC/LBL/LZ/Stanford/Bristol/NVIDIA/Opticks Plans FormerSlide
+    /env/presentation/nersc_creaner/lz_motivation_to_gpus_half.png 640px_360px 640px_360px
+
+    2021 : NERSC/LBL/LZ/Stanford/Bristol/NVIDIA/Opticks Plans
+    /env/presentation/nersc_creaner/optical_sims_using_gpus_half.png 640px_360px 640px_360px
+
+    ## 1. comment lines starting with hash are ignored
+    ## 2. background-image items on a page are terminated with a single totally empty line, 
+    ##    use "set list" to ensure terminator lines are really empty
 
 .. comment
     
+
+    1280px_720px
+    640px_360px
+
     NVIDIA 
                         Memory    Bandwidth     CUDA(RT) Cores
     TITAN V             12 GB       651 GB/s    5120(0)
