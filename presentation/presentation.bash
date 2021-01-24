@@ -1202,9 +1202,6 @@ presentation-writeup(){
    vi opticks_writeup.rst
 }
 
-presentation-remote(){
-   echo simoncblyth.bitbucket.io
-}
 
 presentation-url-local(){ echo http://localhost/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
 presentation-open(){
@@ -1221,9 +1218,9 @@ presentation-openc(){
    slides-chrome   ## just resizes browser
 }
 
-
-presentation-url-remote(){   echo http://$(presentation-remote)/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
-presentation-open-remote(){  open $(presentation-url-remote $*) ; }
+presentation-remote(){       echo simoncblyth.bitbucket.io ; }
+presentation-remote-url(){   echo http://$(presentation-remote)/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
+presentation-remote-open(){  open $(presentation-remote-url $*) ; }
 
 presentation--(){
    presentation-

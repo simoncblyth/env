@@ -2,7 +2,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: Review JUNO + Opticks : GPU Optical Photon Simulation with NVIDIA OptiX
-   :description: Polycone Neck Implemented, Project Integration
+   :description: Awareness Jump, Hits completed, Imminent Release
    :event: JUNO Collaboration Meeting, IHEP Virtual 
    :date: 1 Feb 2021
    :length: 15 minutes
@@ -10,8 +10,16 @@
 
 .. include:: my_s5defs.txt
 
+.. include:: <isonum.txt>
 
-.. comment
+.. include:: <isogrk1.txt>
+
+
+.. comment 
+
+    https://docutils.sourceforge.io/docutils/parsers/rst/include/
+
+    https://docutils.sourceforge.io/docutils/parsers/rst/include/isogrk1.txt
 
     .. raw:: html
 
@@ -20,6 +28,8 @@
     .. raw:: html
  
        <hr/>
+
+.. comment
 
     Idea for addition to intro : talk about geometry factorization 
 
@@ -53,10 +63,6 @@
 
     This render shows the photons resulting from a muon crossing the JUNO scintillator, 
     each line represents a single photon.
-
-
-
-
 
 
 
@@ -808,7 +814,110 @@ Outline
    and payback is far from certain.
 
 
+:small:`Opticks Tasks List`
+--------------------------------------------------------------------------------------------------------
 
+.. image:: /env/presentation/tasks/tasks_jan_2021_half.png
+   :width: 600px
+   :align: right
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/notes/tasks/tasks.rst
+
+.. class:: small
+
+   **Task List categories**
+
+   1. Needed ASAP for JUNO
+   2. Useful for JUNO but not urgently required
+   3. Not needed for JUNO, but useful for wider applicability
+
+   **Fishing for assistance, organizing priorities** 
+
+.. s5_talk::
+
+    The tasks list was prepared:
+
+    1. to fish for assistance from the community 
+    2. organize priorities
+
+    TODO: shorten task titles, add progress notes to titles, include "Table of Contents" label 
+
+
+
+
+:small:`Opticks Progress : Efficiency Hit Culling on GPU + Complete JUNO Hits`
+-------------------------------------------------------------------------------
+
+.. sidebar:: |egr|, |egr| [|thgr|, |phgr|]  -> GPU Tex
+
+    .. class:: small 
+
+         **Separate Textures for each sensor type**
+
+         ``G4Opticks::``
+             ``setSensorData``
+             ``setSensorAngularEfficiency``
+
+         Photon flags set on GPU:
+
+         ``EFFICIENCY_COLLECT/_CULL``
+ 
+
+.. class:: small
+
+    * :red:`Reduce CPU memory for hits by a factor of the efficiency` 
+    * only **collected hits** consume CPU memory  
+
+
+.. class:: small
+
+    ``G4Opticks::getHit``
+    ``G4OpticksHit``
+
+    * Completed hits : local + global param
+    * Unchanged photon size : (4,4)  
+    * Uses geometry aware photon wrapper ``ggeo/GPho``
+
+.. class:: tiny
+
+    http://bitbucket.org/simoncblyth/opticks/src/master/ggeo/GPho.cc
+
+.. class:: small
+
+    **Way point (eg: Acrylic/LS boundary intersect)** 
+
+    * Unavoidably increases photon size : (5,4) 
+    * TODO: make **way point** optional 
+
+.. class:: small
+
+    **Testing angular efficiency GPU texture machinery** 
+
+    * Mock striped theta efficiency, two random categories 
+    * cosine phi efficiency variation for one category
+
+
+.. class:: tiny
+
+    https://simoncblyth.bitbucket.io/opticks/optixrap/tests/OSensorLibGeoTest.cc.html
+
+    https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst
+
+
+.. s5_talk::
+
+    Opticks avoids experiment specifics by making things flexible, for example
+
+    * using sensor index, and not making assumptions about sensor identifiers 
+    * making the "way point" externally configuarable.
+
+.. comment
+
+    https://bitbucket.org/simoncblyth/opticks/src/master/optickscore/tests/MockSensorLibTest.cc
+
+    https://bitbucket.org/simoncblyth/opticks/src/master/optixrap/tests/OSensorLibGeoTest.cc
 
 
 
@@ -852,33 +961,14 @@ Outline
 
         17:UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP
 
-
+    18:Opticks Tasks List 
+    19:Opticks Progress : Efficiency Hit Culling on GPU + Complete JUNO Hits
+    20:Opticks : Three Levels of Performance
 
 
     Extras
 
         JUNO Geometry : Remove Torus to enable translation to GPU
-
-
-
-
-
-
-.. comment
-
-    :small:`https://bitbucket.org/simoncblyth/opticks/src/master/notes/tasks/tasks.rst`
-    -----------------------------------------------------------------------------------------------------
-
-    .. image:: /env/presentation/tasks/tasks_jan_2021_half.png
-       :width: 600px
-       :align: right
-
-    .. class:: small
-
-       **Task list : Table of contents**
-
-       * task descriptions + progress notes 
-
 
 
 
@@ -917,6 +1007,24 @@ Outline
     2. **node**: overall simulation performance using a single node with one or more GPUs 
     3. **cluster**: production performance of a GPU cluster creating large monte carlo samples
        with many hundreds or thousands of production jobs orchestrated with a batch system
+
+
+
+   
+    **NVIDIA OptiX 7 : Entirely new API**
+
+    * Minimal host state 
+    * GPU memory managed by application
+    * GPU launches : explicit, asynchronous (CUDA streams)
+    * All host functions are thread-safe
+    * Multi-GPU managed by application
+
+    **Async Opticks Server ?**
+
+    * :red:`No point until after migration to OptiX 7`    
+
+ 
+
 
 
 .. s5_talk::
@@ -1947,18 +2055,6 @@ Outline
     gpltcf_NNVTMCPPMTlMaskVirtual_combiZoom_SubPlotsFig
     /env/presentation/ana/PolyconeNeck/gpltcf_NNVTMCPPMTlMaskVirtual_combiZoom_SubPlotsFig.png
 
-    G4OpticksTest_june2020_p1
-    /env/presentation/fermilab_geant4_team/G4OpticksTest_june2020_p1_half.png 1080px_520px 0px_100px
-
-    G4OpticksTest_june2020_p11
-    /env/presentation/fermilab_geant4_team/G4OpticksTest_june2020_p11_half.png 1080px_520px 0px_100px
-
-    G4OpticksTest_june2020_p12
-    /env/presentation/fermilab_geant4_team/G4OpticksTest_june2020_p12_half.png 1080px_520px 0px_100px
-
-    G4OpticksTest_sep2020_p1
-    /env/presentation/fermilab_geant4_team/G4Opticks_sept_2020_Hans_Wenzel_p1_half.png 1080px_520px 0px_100px
-
     G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow
     /env/presentation/fermilab_geant4_team/hans_nov2020_lar_tpc_p1_half.png 640px_360px 0px_360px
     /env/presentation/fermilab_geant4_team/hans_nov2020_lar_tpc_p13_half.png 640px_360px 640px_360px
@@ -1979,10 +2075,6 @@ Outline
     GROUPS_IO_2
     /env/presentation/groups_io/groups_io_jan_2021_message_history_table_half.png
 
-    LZ+Opticks history : 2018-2021 : contacts with >5 LZ people
-    /env/presentation/nersc_creaner/optical_sims_using_gpus_half.png 640px_360px 0px_360px
-    /env/presentation/nersc_creaner/lz_motivation_to_gpus_half.png 640px_360px 640px_360px
-
     Opticks for next-generation neutrino telescope optimization ?
     /env/presentation/sjtu_fan_hu_oceanic/fan_hu_pod_strings_geometry_half.png 640px_360px 640px_360px
 
@@ -1990,8 +2082,15 @@ Outline
     /env/presentation/ben_morgan_SwiftHEP_jan_2021/detector_simulation_swiftHEP_p1_half.png 640px_360px 0px_360px
     /env/presentation/ben_morgan_SwiftHEP_jan_2021/detector_simulation_swiftHEP_p19_half.png 640px_360px 640px_360px
 
+    LZ+Opticks history : 2018-2021 : contacts with >5 LZ people
+    /env/presentation/nersc_creaner/optical_sims_using_gpus_half.png 640px_360px 0px_360px
+    /env/presentation/nersc_creaner/lz_motivation_to_gpus_half.png 640px_360px 640px_360px
+
     2021 : LZ+Opticks simulation on Perlmutter (>6000 NVIDIA A100)
     /env/presentation/nersc_creaner/perlmutter_half.png 640px_360px 640px_360px
+
+    Opticks Progress : Efficiency Hit Culling on GPU + Complete JUNO Hits
+    /env/presentation/optixrap/OSensorLibGeoTest_half.png 640px_360px 640px_360px
 
     ## /env/presentation/docs/docs_orientation_toc_half.png 655px_617px 625px_103px 
     ##
