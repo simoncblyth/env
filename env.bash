@@ -2087,3 +2087,4 @@ asyncio-(){      . $(env-home)/python/asyncio/asyncio.bash && asyncio-env $* ; }
 threading-(){      . $(env-home)/cpprun/threading/threading.bash && threading-env $* ; }
 gpp-(){      . $(env-home)/garfieldpp/gpp.bash && gpp-env $* ; }
 cel-(){      . $(env-home)/gpuhep/celeritas/cel.bash && cel-env $* ; }
+corsika-(){      . $(env-home)/corsika/corsika.bash && corsika-env $* ; }

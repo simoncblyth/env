@@ -2,53 +2,29 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: Review JUNO + Opticks : GPU Optical Photon Simulation with NVIDIA OptiX
-   :description: Awareness Jump, Hits completed, Imminent Release
+   :description: Awareness Jump, Hits completed, Plan
    :event: JUNO Collaboration Meeting, IHEP Virtual 
    :date: 1 Feb 2021
-   :length: 15 minutes
-
+   :length: 20 minutes
 
 .. include:: my_s5defs.txt
 
-.. include:: <isonum.txt>
-
-.. include:: <isogrk1.txt>
-
-
-.. comment 
-
-    Hmm the huge s5_background_image directive containg all 
-    images that have every been backgrounds in all presentations
-    it getting large.  
-
-    https://docutils.sourceforge.io/docutils/parsers/rst/include/
-
-    https://docutils.sourceforge.io/docutils/parsers/rst/include/isogrk1.txt
-
-    .. raw:: html
-
-       <span>&nbsp;</span>
-
-    .. raw:: html
- 
-       <hr/>
 
 .. comment
 
-    Idea for addition to intro : talk about geometry factorization 
+    p19: Improve task titles, shortening if possible + add (progress summary or estimate)
 
 
 
 :i:`Review Opticks + JUNO` 
-========================================================================================
+==============================
 
 .. raw:: html
-
 
     <div class="mytitle">
     <header>
     <h1 style="background-color:lightgrey;text-align:center;"> 
-          <span class="alarm">Review  </span> JUNO Integration with <i>Opticks</i> : <br> GPU Optical Simulation with NVIDIA® OptiX™ 
+          <span class="alarm">Review  </span> JUNO + <i>Opticks</i> : <br> GPU Optical Simulation with NVIDIA® OptiX™ 
         <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
     </h1>
     </header>
@@ -70,10 +46,251 @@
 
 
 
+.. comment 
+
+    00:Title Page 
+    01:Outline  
+
+    Intro 
+
+        02:JUNO Optical Photon Simulation Problem... 
+        03:NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix   
+        04:NVIDIA OptiX 7
+        05:Geant4 Opticks Workflow 
+        06:Opticks : Translates G4 Geometry to GPU, Without Approximation
+        07:Ray Trace Render
+
+    Leap+Group
+
+        08:2020 : Leap in Opticks Awareness : Meetings, Publications >>> New Users
+        09:2020 : Leap in Opticks Awareness >>> Some Users Getting Serious
+        10:groups.io : Email Group + Web Archive 
+
+    Geant4+Opticks News
+
+        11:G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow
+        12:Geant4_Bug_2305
+        13:Geant4_Bug_2311
+        14:UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP
+
+    Opticks User News
+
+        15:LHCb RICH (Ring Imaging Cherenkov) with Opticks : Sajan Easo
+        16:Opticks+CORSIKA8 for next-generation neutrino telescope optimization ?
+        17:LZ+Opticks history : 2018-2021 : contacts with >5 LZ people
+        18:2021 : LZ+Opticks simulation on Perlmutter (>6000 NVIDIA A100)
+
+    JUNO+Opticks Progress
+
+        19:Opticks Tasks List 
+        20:Opticks Progress : Efficiency Hit Culling on GPU + Complete JUNO Hits
+        21:Completing JUNO Hits : How to handle boundary_pos ?
+
+    Planning
+
+        22:Opticks : Three Levels of Performance
+        23:JUNO Offline + Opticks : Release Plan
+        24:JUNO Offline + Opticks : Organization
+
+    25:Summary and Links
+
+    Extras
+
+        26:Integration of JUNO + Opticks : Opticks is a JunoENV External
+        27:Integration of Offline + Opticks : Where WITH_G4OPTICKS used ?
+        28:Integration of Offline + Opticks : tut_detsim.py options
+        29:JUNO Geometry : Remove Torus to enable translation to GPU
+
+
+
+
+:small:`Releases for Opticks+JUNO validation comparing G4+Opticks vs G4`
+----------------------------------------------------------------------------------
+
+.. comment
+
+   * use REPLACE mode (shift-R) in vim to edit the table
+   * RST blank lines in some places have no impact on html output, use this to decouple column editing 
+   * unfortunately replace directive may contain a single paragraph only 
+ 
+
+.. |RST| replace:: photon size: (4,4)+(2,4) -> (4,4)  
+ 
+
+
+.. class:: small  
+
+     +--------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+     | **0.1.0 : "Basic Validation" Release**  : :blue:`Enabling Statistical hit comparison` : :red:`Estimate : During February`                                | 
+     +--------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+     |                                           Completed:                     |                                             Remaining:                        |
+     +==========================================================================+===============================================================================+
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |  * angular efficiency culling : make **run-time** controllable                |
+     |                                                                          |                                                                               |
+     |                                                                          |  * *G4OpticksHitExtra* : make **run-time optional**                           | 
+     |                                                                          |                                                                               |
+     |                                                                          |    * photon size: (4,4)+(2,4) -> (4,4)                                        |
+     |                                                                          |    * half GPU->CPU hit copies                                                 |
+     |                                                                          |                                                                               |
+     |                                                                          |  * JUNO Offline+Opticks Bridge updates                                        |
+     |                                                                          |                                                                               |
+     |                                                                          |    * adapt to new *G4Opticks* API                                             |
+     |                                                                          |    * improve python commandline control of *G4Opticks*                        |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     | * full JUNO hits      :                                                  |                                                                               |
+     |                                                                          |                                                                               |           
+     |   * *G4OpticksHit* : global+local                                        |                                                                               |
+     |   * *G4OpticksHitExtra* : boundary_pos, origin_time, ..                  |                                                                               |           
+     |                                                                          |                                                                               |           
+     |                                                                          |                                                                               |           
+     |                                                                          |                                                                               |           
+     |                                                                          |                                                                               |           
+     |                                                                          |                                                                               |           
+     | * GPU collection angular efficiency culling                              |                                                                               |
+     |                                                                          |                                                                               |
+     |   * |egr| [|thgr|, |phgr|] -> *G4Opticks* -> GPU "angular" texture       |                                                                               |
+     |   * *G4Opticks::setSensorData*                                           |                                                                               |
+     |   * reduces CPU hit memory by :  |egr| . |egr| [|thgr|, |phgr|]          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     +--------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+     |                                                                                                                                                          |
+     |  .. class:: center                                                                                                                                       |
+     |                                                                                                                                                          |
+     |       :blue:`students/postdocs with Geant4 geometry experience can assist with "Basic Validation" distribution comparison`                               |
+     |                                                                                                                                                          |
+     +--------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+
+.. raw:: html
+
+    <pre>
+
+    </pre>
+
+.. class:: small  
+
+     +--------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+     |  **0.2.0 : "Full Validation"** Release : :blue:`Enabling Random Aligned step-by-step comparison` : :red:`Estimate March-April`                           |
+     +--------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+     |                                         Completed:                       |                                               Remaining:                      |
+     +==========================================================================+===============================================================================+
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          | * Integrate *cfg4* random control with *G4Opticks*                            |
+     |                                                                          |                                                                               |
+     |                                                                          |   * adapt to general *G4* environment (prev: optical only)                    |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     | * *cfg4* : *CRandomEngine* control random stream                         |                                                                               |
+     |                                                                          |                                                                               |
+     |   * -> random aligned bi-simulation                                      |                                                                               |
+     |                                                                          |                                                                               |
+     | * *cfg4* : *Geant4* SteppingAction emulates *Opticks*                    |                                                                               |
+     |                                                                          |                                                                               |
+     |   * -> *OpticksEvent* arrays -> direct *NumPy* compare                   |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     |                                                                          |                                                                               |
+     +--------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+     |  .. class:: center                                                                                                                                       |
+     |                                                                                                                                                          |
+     |       :blue:`students/postdocs with NumPy + Geant4 geometry experience can assist with "Full Validation" step-by-step comparison`                        |
+     |                                                                                                                                                          |
+     +--------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+      
+
+
+.. s5_talk::
+
+    Geant4 Geometry experience is important, as Opticks problems are usually due to geometry problems 
+    either in the source geometry or the translation of the geometry 
+
+
+
+:small:`Primary Features for Further Opticks Releases`
+----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Cluster Level Optimization`  
+
+   .. class:: small
+
+        **Maximize flexibility of resource utilization**
+      
+        * *OpticksClient.hh* : anywhere (CPU only nodes)
+
+          * proto-experiments https://github.com/simoncblyth/np
+
+        * *OpticksServer* 
+ 
+          * load balancer over GPU cluster workers
+          * avoids GPU starvation  
+ 
+
+.. class:: small
+
+    **Adapt Opticks to all new NVIDIA OptiX 7 API**
+
+    * **necessary** : otherwise forever stuck at *OptiX 6.5* (2019) 
+     
+      * pre-requisite to *OpticksServer*
+
+    * re-implement *optixrap* (*OptiX* wrapper) package  
+    * first: single-GPU only, expect no change to *G4Opticks* API 
+
+    * :red:`prototyping in February, with LZ/NERSC/NVIDIA experts` 
+   
+      * :blue:`uncertain timeline : aiming for May`
+ 
+
+    **Distributed Opticks : Server + Lightweight Clients**
+
+    Send/receive/queue/reply *NumPy* arrays (eg gensteps, hits) over TCP
+
+    * Compute Server : research/experimentation/learning needed 
+     
+      * load balancer, proxy, message queue(MQ)
+      * find/evaluate open source basis projects 
+
+        * HAProxy, Squid, ..., Apache Qpid, Apache ActiveMQ, ZeroMQ, ...
+
+      * keep as general as practical : *NumPy* array messages, metadata context match (eg matched geometry) 
+
+        * decoupled computation, eg optical simulation : *fSIM[JUNO Offline+Geant4+Opticks+OptiX](gensteps) -> hits*  
+ 
+    * :red:`too undefined a target to set timeline` : :red:`priority depends on experience with single node Opticks in production` 
+
+    :blue:`computing student/postdoc/.. with network/MQ/proxy/server development experience/interest welcome to assist` 
+
+
+
+.. s5_talk::
+
+    The subsequent releases are a lot less well defined... 
+
+
 
 
 Outline
-----------------------------------------------------
+--------------
+
+.. comment 
+
+   Title marker needs to be long for rst2rst.py matching  
 
 .. image:: /env/presentation/newtons-opticks.png 
    :width: 299px
@@ -83,37 +300,41 @@ Outline
 
 .. class:: small
 
-    * :blue:`Introduction (pp 2-6)`
+    * :blue:`Introduction (pp 2-7)`
 
       * Optical Photon Simulation Problem...
-      * NVIDIA OptiX Ray Tracing Engine
+      * NVIDIA OptiX Ray Tracing Engine, NVIDIA OptiX 7 
       * Geant4 + Opticks Hybrid Workflow
       * Opticks : Translates G4 Geometry to GPU, Without Approximation
 
-    * :blue:`2020 : Leap in Opticks awareness and Users`
+    * :blue:`2020 : Leap in Opticks awareness and Users (pp 8-10)`
+
+    * Geant4+Opticks News (pp 11-14)
 
       * G4OpticksTest : Fermilab Geant4 team 
-      * Geant4 Bugs 2305,2311 : opticalsurface, bordersurface 
+      * Geant4 Bugs 2305,2311   
+      * UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP
+
+    * Opticks User News (pp 15-18)
+
+      * LHCb RICH study, Sajan Easo
+      * Opticks+CORSIKA8 next-generation neutrino telescope optimization, Fan Hu
+      * LZ(dark matter search) prepare for Perlmutter with NVIDIA/NERSC engineers
+
+    * JUNO+Opticks Progress (pp 19-21)    
+
+      * Tasks List 
+      * Efficiency Hit Culling on GPU + Complete JUNO hits 
+      * Completing JUNO hits 
  
-      * CERN Geant4 team (John Apostolakis)
-      * LZ team (dark matter experiment), LBL Perlmutter Supercomputer team, NVIDIA OptiX team  
-      * LHCb RICH (Sajan Easo) 
-
-    * :blue:`Necessary JUNO Geometry Changes (pp 7-14)`
-
-      * :red:`Remove all Torus to enable translation to GPU`
-      * "tubs-torus" -> polycone : --pmt20inch-polycone-neck 
-      * HamamatsuR12860 & NNVTMCPPMT : neck comparisons  
-
-    * :blue:`Integration of JUNO Offline + Opticks (pp 15-17)` 
-
-      * :red:`Opticks is now a JunoENV External`
-      * JUNO Offline : Where WITH_G4OPTICKS used ?
-      * :red:`Using Offline + Opticks : tut_detsim.py options`
-      * Next Step : Theta dependent Collection Efficiency -> GPU
-      
-    * :blue:`Opticks + Geant4 News : Two Geant4 Task Force R&Ds Based on Opticks (p27)`
-    * :blue:`Summary and Links (p28)`
+ 
+    * JUNO+Opticks Plan (pp 22-24)   
+          
+      * Three levels of performance
+      * Release plan 
+      * Organization  
+  
+    * :blue:`Summary and Links (p25)`
 
 
 .. s5_talk::
@@ -125,13 +346,6 @@ Outline
    I will focus on the necessary geometry changes and recent 
    developments on the integration of offline with opticks, 
    that are already in SVN trunk.
-
-
-
-
-
-
-
 
 
 
@@ -171,8 +385,6 @@ Outline
 
    Most of the time is taken finding intersections between photons and geometry.
    Fortunately simulation is not alone in this bottleneck.
-
-
 
 
 
@@ -234,6 +446,57 @@ Outline
    * OptiX just accelerates ray-geometry interection... it doesnt provide the intersection 
 
    * the bulk of Opticks on the GPU is in the ray generation and intersection programs 
+
+
+
+
+:small:`NVIDIA OptiX 7 : Entirely new thin API`
+------------------------------------------------------------------------
+
+.. sidebar:: :small:`NVIDIA OptiX 7 : Entirely new API`
+
+    .. class:: small
+
+        * introduced August 2019
+        * low-level CUDA-centric thin API (Vulkan-ized)
+        * :strike:`near perfect scaling to 4 GPUs, for free` 
+        * Major effort needed to support in Opticks
+
+.. class:: small
+
+
+    **NVIDIA OptiX 7 Features**
+
+    * Minimal host state 
+    * GPU memory *managed by application*
+    * GPU launches : explicit, asynchronous (CUDA streams)
+    * :red:`All host functions are thread-safe`
+    * Multi-GPU *managed by application*
+
+    **"managed by application" -> difficult development**
+
+    * lots of learning + expert assistance needed
+
+
+.. class:: small
+
+    **Disadvantage**
+        Demands much more developer effort than OptiX 6 
+
+    **Advantage**
+        More control/flexibility over everything. 
+
+        * thread-safe : important for distributed Server/Client Opticks
+         
+
+.. s5_talk::
+
+   Opticks current works with NVIDIA OptiX 6,  bringing it to 
+   OptiX 7 is a major undertaking as it is an entirely new API 
+
+   The migration is unavoidable if you want to keep Opticks running 
+   with newer versions of CUDA and to benefit from new GPUs 
+
 
 
 
@@ -482,13 +745,19 @@ Outline
 
      ``https://groups.io/g/opticks``
 
+
      **25 Members, 33 Topics**
 
-     Members joining by year:
+     .. class:: small
 
-     * 2018/2019/2020 : 5/9/11 
+         +-----------------+------+------+------+
+         | Year            | 2018 | 2019 | 2020 |
+         +-----------------+------+------+------+ 
+         | New Members     |   5  |    9 |   11 |
+         +-----------------+------+------+------+ 
+
+
      * ``opticks+subscribe@groups.io``
-
 
 
 .. s5_talk::
@@ -649,6 +918,42 @@ Outline
 
 
 
+:small:`UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP`
+------------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`UOM : Plan 0.5 FTE over 12 months`
+ 
+    .. class:: small
+
+        * integration of Opticks within Geant4 
+        * widening Opticks applicability 
+        * "... also plan to hire software engineer to assist..."
+
+        :blue:`details yet to be determined`
+
+
+.. class:: small
+
+    **SWIFT-HEP : Newly funded (1.5M GBP over 3 yrs)**
+
+    University of Manchester (UOM), Adam Davis
+    
+    * "... we identified Opticks as a major contribution area ..."
+
+    **(Jan 2021) SwiftHep/ExcaliburHep workshop presentation**
+
+    Ben Morgan, University of Warwick + Geant4 
+
+    * https://indico.cern.ch/event/976081/
+
+
+.. s5_talk::
+
+   Contribution is of course excellent : but it it going to 
+   take time to train up the people supported by this grant 
+   and payback is far from certain.
+
+
 
 
 
@@ -680,8 +985,8 @@ Outline
 
 
 
-:small:`Opticks for next-generation neutrino telescope optimization ?`
------------------------------------------------------------------------
+:small:`Opticks+CORSIKA8 for next-generation neutrino telescope optimization ?`
+-------------------------------------------------------------------------------
 
 .. class:: small
 
@@ -694,6 +999,7 @@ Outline
      * enormous instrumented volumes O(10) km^3 water/ice 
      * strings of pods geometry 
      * huge numbers of Cherenkov photons propagating across enormous volumes, how to simulate ?
+     * CORSIKA 8 + Opticks : trying to setup genstep transport 
 
 .. s5_talk::
 
@@ -780,42 +1086,6 @@ Outline
 
 
 
-
-
-:small:`UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP`
-------------------------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`UOM : Plan 0.5 FTE over 12 months`
- 
-    .. class:: small
-
-        * integration of Opticks within Geant4 
-        * widening Opticks applicability 
-        * "... also plan to hire software engineer to assist..."
-
-        :blue:`details yet to be determined`
-
-
-.. class:: small
-
-    **SWIFT-HEP : Newly funded (1.5M GBP over 3 yrs)**
-
-    University of Manchester (UOM), Adam Davis
-    
-    * "... we identified Opticks as a major contribution area ..."
-
-    **(Jan 2021) SwiftHep/ExcaliburHep workshop presentation**
-
-    Ben Morgan, University of Warwick + Geant4 
-
-    * https://indico.cern.ch/event/976081/
-
-
-.. s5_talk::
-
-   Contribution is of course excellent : but it it going to 
-   take time to train up the people supported by this grant 
-   and payback is far from certain.
 
 
 :small:`Opticks Tasks List`
@@ -930,53 +1200,28 @@ Outline
 
 
 
-.. comment 
+:small:`Completing JUNO Hits : How to handle boundary_pos ?`
+-----------------------------------------------------------------
 
-    00:Title Page 
-    01:Outline  
+.. class:: small
 
-    Intro 
+    Hits include:
 
-        02:JUNO Optical Photon Simulation Problem... 
-        03:NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix   
-        04:Geant4 Opticks Workflow 
-        05:Opticks : Translates G4 Geometry to GPU, Without Approximation
-        06:Ray Trace Render
-
-    Leap+Group
-
-        07:2020 : Leap in Opticks Awareness : Meetings, Publications >>> New Users
-        08:2020 : Leap in Opticks Awareness >>> Some Users Getting Serious
-        09:groups.io : Email Group + Web Archive 
-
-    Big Example 1 
-
-        10:G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow
-        11:Geant4_Bug_2305
-        12:Geant4_Bug_2311
-
-    Small Examples 2,3
-
-        13:LHCb RICH (Ring Imaging Cherenkov) with Opticks : Sajan Easo
-        14:Opticks for next-generation neutrino telescope optimization ?
-
-    Big Example 4
-
-        15:LZ+Opticks history : 2018-2021 : contacts with >5 LZ people
-        16:2021 : LZ+Opticks simulation on Perlmutter (>6000 NVIDIA A100)
-
-    Big Example 5
-
-        17:UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP
-
-    18:Opticks Tasks List 
-    19:Opticks Progress : Efficiency Hit Culling on GPU + Complete JUNO Hits
-    20:Opticks : Three Levels of Performance
+    * pAcrylic/pInnerWater boundary_pos[1] : :red:`is this essential ?`
 
 
-    Extras
+.. class:: tiny
 
-        JUNO Geometry : Remove Torus to enable translation to GPU
+   [1] set in NormalTrackInfo by ``NormalAnaMgr::UserSteppingAction``
+ 
+
+
+.. s5_talk::
+
+     Klop
+
+
+
 
 
 
@@ -1018,21 +1263,12 @@ Outline
 
 
 
-   
-    **NVIDIA OptiX 7 : Entirely new API**
-
-    * Minimal host state 
-    * GPU memory managed by application
-    * GPU launches : explicit, asynchronous (CUDA streams)
-    * All host functions are thread-safe
-    * Multi-GPU managed by application
-
     **Async Opticks Server ?**
 
-    * :red:`No point until after migration to OptiX 7`    
+    * :red:`No point until after migration to NVIDIA OptiX 7`    
 
- 
-
+      * new features of OptiX 7 important for Server implementation
+      * major developments based on 2 yr old OptiX 6 unwise
 
 
 .. s5_talk::
@@ -1043,6 +1279,149 @@ Outline
 
 
 
+:small:`JUNO + Opticks : Completing the hits`
+------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    // Simulation/DetSimV2/PMTSim/src/junoSD_PMT_v2.cc
+
+    467         junoHit_PMT* hit_photon = new junoHit_PMT();
+    468         hit_photon->SetPMTID(pmtid);
+    469         hit_photon->SetWeight(1.0);
+    470         hit_photon->SetTime(hittime);
+    471         hit_photon->SetWavelength(wavelength);
+    472         hit_photon->SetKineticEnergy(edep);
+
+    473         hit_photon->SetPosition(local_pos);
+    474         hit_photon->SetTheta(local_pos.theta());
+    475         hit_photon->SetPhi(local_pos.phi());
+    476         hit_photon->SetMomentum(local_dir);
+    477         hit_photon->SetPolarization(local_pol);
+    478 
+    479         hit_photon->SetGlobalPosition(global_pos);
+    480         hit_photon->SetGlobalMomentum(track->GetMomentum());
+    481         hit_photon->SetGlobalPolarization(track->GetPolarization());
+    ...
+    ...        // optional extras from  NormalTrackInfo/NormalAnaMgr 
+    485         hit_photon->SetProducerID(producerID);        
+    486         hit_photon->SetFromCerenkov(is_from_cerenkov);
+    487         hit_photon->SetReemission(is_reemission);
+    488         hit_photon->SetOriginalOP(is_original_op);
+    489         hit_photon->SetOriginalOPStartT(t_start);
+    490         hit_photon->SetBoundaryPosition(boundary_pos);
+
+    </pre>
+
+
+:small:`JUNO Offline + Opticks : Release Plan`
+-----------------------------------------------------------------
+
+.. class:: small
+
+   **(During Feb)**
+
+   * Opticks 0.1.0 release including 
+
+     * global+local 
+     * extra info 
+
+
+
+
+.. s5_talk::
+
+    Klop
+
+
+:small:`JUNO Offline + Opticks : Organization`
+-----------------------------------------------------------------
+
+.. class:: small
+
+   **Organization**
+
+
+.. s5_talk::
+
+    Klop
+
+
+
+
+
+
+:small:`Summary and Links`
+----------------------------------------------------------------
+
+.. sidebar:: :small:`Next Steps`
+
+   .. class:: small
+
+      * Theta dependant CE -> GPU 
+      * validation : in-situ random aligned bi-simulation 
+      * validation : apply full step-by-step recording 
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 20px
+
+..
+
+  *Opticks* : state-of-the-art GPU ray traced optical simulation 
+  integrated with *Geant4*. :red:`Now integrated with JUNO Offline`
+  **Pioneer users welcome** 
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 1px
+
+  * Drastic speedup -> better detector understanding -> greater precision
+  
+    * **any simulation limited by optical photons can benefit** 
+    * more photon limited -> more overall speedup (99% -> 100x) 
+
+.. table::
+    :align: center
+
+    +--------------------------------------------------+-----------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks        | code repository                         |                   
+    +--------------------------------------------------+-----------------------------------------+
+    | https://github.com/simoncblyth/opticks/releases  | .zip .tar.gz  archives                  |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.bitbucket.io                 | presentations and videos                |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                      | forum/mailing list archive              |
+    +--------------------------------------------------+-----------------------------------------+
+    | email:opticks+subscribe@groups.io                | subscribe to mailing list               |
+    +--------------------------------------------------+-----------------------------------------+ 
+
+
+.. comment
+
+  *Opticks* uses hardware accelerated GPU ray tracing
+  via NVIDIA OptiX to give **effectively zero time and zero CPU memory** 
+  optical photon simulation to *Geant4* applications.
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 10px
+
+
+
+.. s5_talk::
+
+   So in summary : Opticks applies the best available GPU ray tracing to optical 
+   photon simulation resulting in speedups exceeding three orders of magnitude.
+
+   Opticks is still very young and it really needs users to turn it into 
+   a robust tool that anyone with an optical photon simulation problem 
+   can use to elimate.
+
+   These speedups are just for the optical photons, how much that 
+   helps with the overall speedup depends on how limited you are by 
+   optical photons.
 
 
 
@@ -1267,168 +1646,6 @@ Outline
 
 
 
-:small:`Completing JUNO Hits : How to handle boundary_pos ?`
------------------------------------------------------------------
-
-.. class:: small
-
-    Hits include:
-
-    * pAcrylic/pInnerWater boundary_pos[1] : :red:`is this essential ?`
-
-
-.. class:: tiny
-
-   [1] set in NormalTrackInfo by ``NormalAnaMgr::UserSteppingAction``
- 
-
-
-:small:`Integration of Offline + Opticks : Next Step : Theta dep. CE -> GPU`
-------------------------------------------------------------------------------------
-
-.. sidebar:: :small:`Collection Effic. Culling -> GPU ?`
-
-     .. class:: small
-
-         Significant performance/memory benefit (factor ~2)   
-
-         * -> :red:`only collected hits copied to CPU`
-
-         Aligns CPU/GPU random consumption 
-
-         * randoms consumed in same sequence CPU/GPU
-         * -> easier validation : aligned bi-simulation 
-
-
-.. class:: small
-    
-    **(1) Complete CPU side bulk hit creation in PMTSim:** ``junoSD_PMT_v2::EndOfEvent_Opticks`` 
-
-    Hits currently missing:
-
-    * local_pos : position in PMT frame   
-    * theta dependent collection efficiency culling 
-       
-    **(2) CUDA port:** ``junoSD_PMT_v2::get_ce``
-
-    * interpolation of : 9 collection efficiency theta samples 0->90 deg
-    * PMTParamSvc info (PMTType[2], QEType) -> GPU 
-
-    * Port ``G4DataInterpolation::CubicSplineInterpolation`` ?
-    
-      * direct port difficult + lots of flops for every detected photon (perhaps [3])
-      * instead "cheat" with GPU texture "tables" (similar to **reemission_texture** approach)
-
-        * :red:`9 theta samples -> G4DataInterpolation -> 90 theta "samples"` -> ``theta_texture``
-        * ``theta_texture(theta) -> ce`` : GPU hardware linear interpolation 
-  
-.. image:: /env/presentation/1px.png
-  :width: 1000px
-  :height: 1px
-
-
-.. class:: tiny
-
-   [1] set in NormalTrackInfo by ``NormalAnaMgr::UserSteppingAction``
-   [2] PMTID int :strike:`distinguishes` NNVT/Hamamatsu !
-
-   [3] https://github.com/DannyRuijters/CubicInterpolationCUDA "GPU Prefilter for Accurate Cubic B-spline Interpolation"
-
-
-.. s5_talk::
-
-    Next step is to complete the hits on the CPU side 
-    and then to do the collection efficiency culling on the GPU side.
-
-    There are several benefits from doing this.  Both from the performance
-    and memory usage and also because it will be easier to validate.
-    
-    In order to bring **get_ce** to the GPU need to somehow do the 
-    Cubic Spline Interpolation on the GPU.  Need to do some prototyping
-    to see out how best do this.
-
-
-
-
-
-
-
-:small:`Summary and Links`
-----------------------------------------------------------------
-
-.. sidebar:: :small:`Next Steps`
-
-   .. class:: small
-
-      * Theta dependant CE -> GPU 
-      * validation : in-situ random aligned bi-simulation 
-      * validation : apply full step-by-step recording 
-
-.. image:: /env/presentation/1px.png
-   :width: 500px
-   :height: 20px
-
-..
-
-  *Opticks* : state-of-the-art GPU ray traced optical simulation 
-  integrated with *Geant4*. :red:`Now integrated with JUNO Offline`
-  **Pioneer users welcome** 
-
-  .. image:: /env/presentation/1px.png
-     :width: 1000px
-     :height: 1px
-
-  * Drastic speedup -> better detector understanding -> greater precision
-  
-    * **any simulation limited by optical photons can benefit** 
-    * more photon limited -> more overall speedup (99% -> 100x) 
-
-.. table::
-    :align: center
-
-    +--------------------------------------------------+-----------------------------------------+
-    | https://bitbucket.org/simoncblyth/opticks        | code repository                         |                   
-    +--------------------------------------------------+-----------------------------------------+
-    | https://github.com/simoncblyth/opticks/releases  | .zip .tar.gz  archives                  |
-    +--------------------------------------------------+-----------------------------------------+
-    | https://simoncblyth.bitbucket.io                 | presentations and videos                |
-    +--------------------------------------------------+-----------------------------------------+
-    | https://groups.io/g/opticks                      | forum/mailing list archive              |
-    +--------------------------------------------------+-----------------------------------------+
-    | email:opticks+subscribe@groups.io                | subscribe to mailing list               |
-    +--------------------------------------------------+-----------------------------------------+ 
-
-
-.. comment
-
-  *Opticks* uses hardware accelerated GPU ray tracing
-  via NVIDIA OptiX to give **effectively zero time and zero CPU memory** 
-  optical photon simulation to *Geant4* applications.
-
-  .. image:: /env/presentation/1px.png
-     :width: 1000px
-     :height: 10px
-
-
-
-.. s5_talk::
-
-   So in summary : Opticks applies the best available GPU ray tracing to optical 
-   photon simulation resulting in speedups exceeding three orders of magnitude.
-
-   Opticks is still very young and it really needs users to turn it into 
-   a robust tool that anyone with an optical photon simulation problem 
-   can use to elimate.
-
-   These speedups are just for the optical photons, how much that 
-   helps with the overall speedup depends on how limited you are by 
-   optical photons.
-
-
-
-
-
-
 
 
 :small:`JUNO Geometry : Remove Torus to enable translation to GPU`
@@ -1525,27 +1742,25 @@ Outline
 
 
 
+test
+------
 
-.. include:: s5_background_image.txt
+
+.. class:: small
 
 
-.. comment
-    
-
-    1280px_720px
-    640px_360px
-
-    NVIDIA 
-                        Memory    Bandwidth     CUDA(RT) Cores
-    TITAN V             12 GB       651 GB/s    5120(0)
-    Tesla V100          32 GB       900 GB/s    5120(0)  
-    TITAN RTX           24 GB       672 GB/s    4608(72)
-    Quadro RTX 8000     48 GB       672 GB/s    4608(72)
-
-    SM*64 gives cores 
-
-    https://www.techpowerup.com/gpu-specs/titan-v.c3051
-    https://www.techpowerup.com/gpu-specs/titan-rtx.c3311 
-    https://www.techpowerup.com/gpu-specs/quadro-rtx-8000.c3306
+    +------------+------------+-----------+ 
+    | Header 1     Header 2     Header 3  | 
+    +------------+------------+-----------+
+    | Header 1   | Header 2   | Header 3  | 
+    +============+============+===========+ 
+    | body row 1 | column 2   | column 3  | 
+    +------------+------------+-----------+ 
+    | body row 2 | Cells may span columns.| 
+    +------------+------------+-----------+ 
+    | body row 3 | Cells may  | - Cells   | 
+    +------------+ span rows. | - contain | 
+    | body row 4 |            | - blocks. | 
+    +------------+------------+-----------+
 
 

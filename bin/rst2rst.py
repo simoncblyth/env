@@ -1,5 +1,11 @@
 #!/usr/bin/env python
+"""
+rst2rst.py
+===========
 
+Used by presentation-rst2talk
+
+"""
 from __future__ import print_function
 import os, sys, logging
 log = logging.getLogger(__name__)

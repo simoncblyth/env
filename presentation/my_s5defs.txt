@@ -1,4 +1,28 @@
+
+.. comment 
+
+    https://docutils.sourceforge.io/docutils/parsers/rst/include/
+
+    https://docutils.sourceforge.io/docutils/parsers/rst/include/isogrk1.txt
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    .. raw:: html
+ 
+       <hr/>
+
+
+
 .. include:: <s5defs.txt>
+
+.. include:: <isonum.txt>
+
+.. include:: <isogrk1.txt>
+
+.. include:: s5_background_image.txt
+
 
 .. role:: strike
     :class: strike

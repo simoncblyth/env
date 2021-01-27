@@ -470,6 +470,9 @@
     Opticks Experience : Problems with using NVIDIA OptiX
     /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
 
+    NVIDIA OptiX 7 : Entirely new thin API
+    /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
+
     TURING BUILT FOR RTX  
     /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
 
@@ -665,7 +668,7 @@
     GROUPS_IO_2
     /env/presentation/groups_io/groups_io_jan_2021_message_history_table_half.png
 
-    Opticks for next-generation neutrino telescope optimization ?
+    Opticks+CORSIKA8 for next-generation neutrino telescope optimization ?
     /env/presentation/sjtu_fan_hu_oceanic/fan_hu_pod_strings_geometry_half.png 640px_360px 640px_360px
 
     UK SWIFT-HEP grant : SoftWare InFrastructure and Technology for HEP
@@ -690,4 +693,21 @@
 
 
 
+.. comment
+    
+    1280px_720px
+    640px_360px
+
+    NVIDIA 
+                        Memory    Bandwidth     CUDA(RT) Cores
+    TITAN V             12 GB       651 GB/s    5120(0)
+    Tesla V100          32 GB       900 GB/s    5120(0)  
+    TITAN RTX           24 GB       672 GB/s    4608(72)
+    Quadro RTX 8000     48 GB       672 GB/s    4608(72)
+
+    SM*64 gives cores 
+
+    https://www.techpowerup.com/gpu-specs/titan-v.c3051
+    https://www.techpowerup.com/gpu-specs/titan-rtx.c3311 
+    https://www.techpowerup.com/gpu-specs/quadro-rtx-8000.c3306
 
