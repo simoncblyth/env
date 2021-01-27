@@ -73,15 +73,11 @@ Better way to combine slides and annotations avoiding space, by combining PNG 2-
    # adjust the sort order, select and then using scripting interface to make PDF from the PNG 
 
 
-
-
-
 PDF page size : Very large because somehow 72dpi ?
 ---------------------------------------------------
 
 * 2560x1440 points
 * 90.32 x 50.8 cm
-
 
 minor issue : some fullscreen image pages have a band at foot 860-846 of about 14 pixels
 -------------------------------------------------------------------------------------------
