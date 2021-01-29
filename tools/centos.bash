@@ -119,6 +119,34 @@ console access
 ctrl-alt-f...
 
 
+centos7 gcc7
+-------------
+
+
+::
+
+    blyth@localhost ~]$ sudo yum search devtoolset-7-gcc
+    ...
+    devtoolset-7-gcc.x86_64 : GCC version 7
+    devtoolset-7-gcc-c++.x86_64 : C++ support for GCC version 7
+    devtoolset-7-gcc-gdb-plugin.x86_64 : GCC 7 plugin for GDB
+    devtoolset-7-gcc-gfortran.x86_64 : Fortran support for GCC 7
+    devtoolset-7-gcc-plugin-devel.x86_64 : Support for compiling GCC plugins
+
+    [blyth@localhost ~]$ sudo yum install devtoolset-7-gcc devtoolset-7-gcc-c++
+
+::
+
+    [simon@localhost ~]$ gcc --version
+    gcc (GCC) 7.3.1 20180303 (Red Hat 7.3.1-5)
+    Copyright (C) 2017 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
 centos7 gcc8 ?
 -----------------
 
