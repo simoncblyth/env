@@ -13,6 +13,27 @@ slides-get--
     automatically get all pages of the current presentation from presentation-
 
 
+
+Simplify talk interleaving with p2.sh
+---------------------------------------
+
+* running p2.sh avoids the need to manually change presentation-iname to _TALK 
+
+~/env/presentation/p2.sh::
+
+    #!/bin/bash -l 
+
+    name=opticks_jan2021_juno_sim_review
+
+    export INAME=$name
+    presentation-
+    INAME=${name} presentation--
+    INAME=${name}_TALK presentation--
+
+
+Running this opens two web pages in Safari, without and with the s5_talk slides.
+
+
 How to interleave presentation slides with s5_talk notes
 -----------------------------------------------------------
 
@@ -25,6 +46,16 @@ How to interleave presentation slides with s5_talk notes
       presentation-iname(){ echo ${INAME:-opticks_jul2020_juno_TALK} ; }
      
 3. rerun "presentation--" and check the notes pages are as intended
+
+   * CAUTION : do not edit the derived _TALK file in which the contents    
+     of s5_talk directives become separate pages, instead edit the 
+     content of the s5_talk directives in the non-_TALK file
+
+   * note that must defer switching to iname with _TALK until when 
+     wish to create slides as need to generate the _TALK from the original 
+     after updating s5_talk directives
+
+
 4. rerun the capture and pdf creation with exactly twice the number of 
    pages compared to the un-annotated slides
 

@@ -6,12 +6,18 @@ trim-usage(){ cat << EOU
 trim.sh 
 ========
 
-Usage::
+Script usage mode::
 
   trim.sh 42     
   trim.sh 42 5 
 
   trim.sh 02:14 
+
+Sourced usage mode::
+
+   source ~/env/bin/trim.sh 
+   type trim 
+   trim 02:14 10 /path/to/input.mp4 
 
 EOU
 }
@@ -39,7 +45,6 @@ trim-parsetime(){
 trim()
 {
    : prepares arguments of quicktime trim applescript 
-
    local msg="=== $FUNCNAME :"
    local applescript=$(trim-applescript)
    local startdefault=0
@@ -51,7 +56,6 @@ trim()
    local ipath=${3:-$ipathdefault}
 
    start=$(trim-parsetime $start) 
-
 
    local idir=$(dirname $ipath)    
    local iname=$(basename $ipath)    
@@ -68,7 +72,7 @@ trim()
 
 
 if [ "$0" != "$BASH_SOURCE" ]; then 
-    echo $msg source detected  
+    echo $msg source-ing detected, trim bash function is available for use   
     type trim
 else
     trim $*

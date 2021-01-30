@@ -84,7 +84,7 @@ def render_s5backgroundimage_1( n ):
             print("skip single line item [%s] " % lines[0])
         else:
             div = div_background(lines)
-            print(div)
+            #print(div)
             divs.append(div.html)
         pass
     pass

@@ -12,6 +12,8 @@
 
 .. comment
 
+    TODO
+
     p19: Improve task titles, shortening if possible + add (progress summary or estimate)
 
 
@@ -37,12 +39,7 @@
 
 .. s5_talk:: 
 
-    Opticks applies state-of-the-art GPU ray tracing 
-    accessed via NVIDIA OptiX to optical photon simulation and integrates this with Geant4. 
-    This results in drastic speedups of more than 1500x.
-
-    This render shows the photons resulting from a muon crossing the JUNO scintillator, 
-    each line represents a single photon.
+    This talk will review progress with Opticks and with its use in JUNO. 
 
 
 
@@ -83,8 +80,8 @@
     JUNO+Opticks Progress
 
         19:Opticks Tasks List 
-        20:Opticks Progress : Efficiency Hit Culling on GPU + Complete JUNO Hits
-        21:Completing JUNO Hits : How to handle boundary_pos ?
+        20:Opticks + JUNP Progress : Efficiency Hit Culling on GPU
+        21:Completing JUNO Hits : G4OpticksHit (4,4) + G4OpticksHitExtra (2,4)
 
     Planning
 
@@ -143,7 +140,7 @@ Outline
     * JUNO+Opticks Progress (pp 19-21)    
 
       * Tasks List 
-      * Efficiency Hit Culling on GPU + Complete JUNO hits 
+      * Efficiency Hit Culling on GPU 
       * Completing JUNO hits 
  
  
@@ -158,13 +155,12 @@ Outline
 
 .. s5_talk::
 
-   As I expect most of you have seen my Opticks presentations before, 
-   my introduction will be minimal. 
-   My previous presentations have much more detail.
+   After a brief introduction I will cover:
 
-   I will focus on the necessary geometry changes and recent 
-   developments on the integration of offline with opticks, 
-   that are already in SVN trunk.
+   * integration of Opticks with Geant4, 
+   * its increasingly widespread usage
+   * progress on integration of Opticks with JUNO Offline 
+   * and the next steps.
 
 
 
@@ -200,10 +196,12 @@ Outline
 
 .. s5_talk::
 
-   This is a huge memory and time challenge for simulation, especially with muons.
+   * I am sure your are all painfully familiar with the optical photon simulation problem, 
+     not just in processing time but also the memory for all those millions of photons
 
-   Most of the time is taken finding intersections between photons and geometry.
-   Fortunately simulation is not alone in this bottleneck.
+   * Most of the time is taken finding intersections between photons and geometry.
+
+   * This ray tracing bottleneck is exactly the same as faced by ray trace image rendering in computer graphics.
 
 
 
@@ -256,15 +254,11 @@ Outline
 
 .. s5_talk::
 
-   * NVIDIA OptiX gives access to the NVIDIA BVH  
+   * NVIDIA OptiX provides GPUs accelerated ray-geometry intersection 
 
-   * OptiX is a ray tracing specific CUDA compiler, it combines
-     user programs for ray generation and geometry with NVIDIA programs 
-     for acceleration structure traversal into a GPU pipeline 
+   * but to benefit from it the geometry must be translated into 
+     GPU appropriate forms totally different to the Geant4 geometry model 
 
-   * OptiX just accelerates ray-geometry interection... it doesnt provide the intersection 
-
-   * the bulk of Opticks on the GPU is in the ray generation and intersection programs 
 
 
 
@@ -310,13 +304,9 @@ Outline
 
 .. s5_talk::
 
-   Opticks current works with NVIDIA OptiX 6,  bringing it to 
-   OptiX 7 is a major undertaking as it is an entirely new API 
-
-   The migration is unavoidable if you want to keep Opticks running 
-   with newer versions of CUDA and to benefit from new GPUs 
-
-
+   * Opticks current works with NVIDIA OptiX 6
+   * OptiX 7 is an entirely new (and much slimmer) API 
+   * migration is unavoidable
 
 
 
@@ -328,34 +318,28 @@ Outline
 .. s5_talk::
 
     SMALL
-    So : how can an external optical photon simulation be integrated with Geant4 ?
+    This compares the standard workflow on the left to the hybrid approach on the right
 
-    In the standard workflow the Geant4 Scintillation and 
-    Cerenkov processes calculate a number of photons 
-    and then loop generating these and collecting them 
-    as secondaries.
-     
-    In the hybrid workflow, this generation is split 
-    between the CPU and GPU with "Gensteps" acting as the bridge. 
-    These Genstep parameters include the number of photons, positions and everything 
-    else needed in the generation loop.
+    In the hybrid workflow, the generation of photons is moved 
+    from the CPU to the GPU using "Gensteps" as a bridge. 
+    The Genstep parameters include a number of photons, and the line segment 
+    along which to generate them and anything else needed in the generation loop.
 
-    The gensteps allow a very simple direct port of the generation loop to the GPU. 
+    Of course a port of the generation loop to CUDA is needed too. 
 
-    Its doubly helpful to generate photons on GPU, as then they take no CPU memory. 
-  
-    So can entirely offload photon memory to the GPU with only hits needing CPU memory. 
-
-    Also this keeps the overheads low as gensteps are typically a factor of 100 smaller
-    than the photons they generate.   
+    The hybrid approach means:
  
-    **The geometry is also needed on the GPU, with all material and surface properties.**
+    * the optical photon simulation is entirely offloaded to the GPU  
 
-    :red:`Geometry translation to the GPU is most of the work and problems of Opticks.`
+    * only PMT hits need CPU memory 
+    * actually I have recently taken this further, reducing the CPU memory 
+      by a factor of the collection efficiency by making the collection 
+      efficiency decision on the GPU 
 
+    * the green arrows represent the geometry translation
 
-
-
+      * most of the work and problems of Opticks are with the geometry translation
+ 
 
 
 
@@ -425,16 +409,18 @@ Outline
 .. s5_talk::
 
 
-   Translation of geometry structure starts by 
+   The translation of geometry structure starts by 
    identifying repeated geometry and its transforms using 
    geometry tree digests for every node.
 
-   Use of instancing is a huge memory saving for JUNO geometry 
-   with many thousands of PMTs.
+   Effectively the original JUNO geometry of hundreds of thousands of 
+   volumes is factorised down to only a handful of repeated assemblies of volumes
+   with arrays of thousands of 4x4 transforms representing the position and orientation 
+   of each assembly.
 
-   And everything needs to be serialized to be copied to the GPU.
-     
-
+   This factorisation of the geoometry allows the use of **instancing** 
+   with OptiX and OpenGL which leads to a huge memory savings 
+   and performance improvement for simulation and visualization.
 
 
 
@@ -448,10 +434,8 @@ Outline
    can be automatically translated into NVIDIA OptiX geometries.
 
    This is an OptiX ray trace image from the chimney region at the 
-   top of the JUNO scintillator sphere.
+   top of the JUNO scintillator.
     
-
-
 
 
 
@@ -490,14 +474,17 @@ Outline
 
 .. s5_talk::
 
-   During 2020 there was a leap in Opticks awareness, it was presented and discussed at numerous meetings 
-   and is being actively evaluated by an increasing number of groups. This page lists a few of the 
-   talks that discussed Opticks.  
+   There has been quite a leap in Opticks awareness over the past year.
 
-   This leap is probably thanks in part to my plenary presentation at the CHEP conference at the end of 2019
+   * a few of the talks and publications discussing Opticks are listed here.
+   * it is being actively evaluated by an increasing number of groups
 
-   Also using GPUs to accelerate Geant4 more generally that just optical photons is a hot topic at the moment
-   with several high profile projects starting during last year. Talks on those often mention Opticks.
+   Why the leap ?
+
+   * i guess my plenary presentation at the CHEP conference at the end of 2019 is the main cause
+   * also using GPUs with Geant4 has become a hot topic over the past year, with 
+     several high profile projects (Celeritas, AdePT) getting started 
+
     
 
 
@@ -534,12 +521,11 @@ Outline
 
 .. s5_talk::
 
-   2020 also saw several groups that have been evaluating Opticks for years starting to get 
-   more serious in their usage.
+   Several groups that have been evaluating Opticks for years are now starting to get serious.
 
-   The LUZ-Zeplin or LZ experiment is the most advanced with them working on 
-   getting Opticks into containers for use on the new Perlmutter supercomputer 
-   at NERSC which has more than 6000 NVIDIA A100 GPUs
+   The LZ(LUX-Zepelin) dark matter experiment is the most advanced 
+ 
+   * they aim to get Opticks going on the new Perlmutter supercomputer at NERSC 
 
     
 
@@ -581,14 +567,11 @@ Outline
 
 .. s5_talk::
 
-   The Opticks Forum and email list continues to the primary 
-   means of communicating with users. But have had a few virtual meetings 
-   Several users tend to email me directly. 
+   The Opticks Forum and email list is the main way that I support users. 
 
-   I need to be stricter about redirecting inquiries to the group
-   so the discussion can be beneficial to all.
- 
-  
+   * there are now 25 members
+   * unfortunately some users still tend to email me directly
+
 
 
 :small:`G4OpticksTest : Demonstrates Geant4 + Opticks hybrid workflow`
@@ -614,9 +597,12 @@ Outline
 
 .. s5_talk::
 
-    Fermilab Geant4 Team has been active for several years now with Opticks, 
-    the development of this example has shaped my development of the G4Opticks interface.
-    In the last year I have assisted them with moving Opticks to Geant4 10.6 and 10.7 
+    The Fermilab Geant4 Team has been active for several years now with Opticks.
+
+    * the inset slides are from Hans Wenzel 
+    * my work with them has shaped the development of the G4Opticks interface.
+    * also attempts to work with recent Geant4 releases have revealed some Geant4 optical bugs 
+
 
 
 :i:`Geant4_Bug_2305`
@@ -669,10 +655,12 @@ Outline
 
 .. s5_talk::
 
-    It is unfortuate that I did not test Opticks with these five Geant4 releases 
-    until recently. This optical surface bug tripped a consistency assert 
-    in the Opticks geometry translation, so it is immediately apparent when 
-    testing Opticks with the Geant4 release.
+    If you use GDML and have more than 1 optical surface then I would suggest
+    you should not use these five releases.
+
+    It is unfortuate that I did not test Opticks with these Geant4 releases until recently. 
+    This optical surface bug tripped a consistency assert in the Opticks geometry translation, 
+    so it is immediately apparent when testing Opticks with the Geant4 release.
 
     I would have been able to catch the problem much sooner.  
 
@@ -682,6 +670,7 @@ Outline
 
     Plus it is a natural way to contribute to your externals and ensures 
     that they will be ready for you when you do need to update.
+
 
 
 :i:`Geant4_Bug_2311`
@@ -731,6 +720,8 @@ Outline
 
 .. s5_talk::
 
+    This bug is actually a change in API.  
+
     This Geant4 change in 10.7 was noticed at the first release, and fortunately 
     an Opticks workaround is possible and it looks likely that the next Geant4 release 1071
     will be free of both this workaround and the optical surface bug too. 
@@ -768,6 +759,18 @@ Outline
 
 .. s5_talk::
 
+    There is some other news on Geant4+Opticks integration.  
+
+    A group from Manchester and Warwick in the UK has got some 
+    funding part of which they want to dedicate to improving and
+    extending the use of Opticks.  
+
+    So it looks like a few more people will be working on 
+    Geant4+Opticks integration this year.  
+
+
+.. comment 
+
    Contribution is of course excellent : but it it going to 
    take time to train up the people supported by this grant 
    and payback is far from certain.
@@ -799,9 +802,13 @@ Outline
 
 .. s5_talk::
 
-   LHCb Ring Imaging Cherenkov detector has an optical photon simulation problem,
-   so its interested in Opticks : and has done some validations   
+   Opticks is not restricted to neutrino and dark matter experiments.
 
+   Several people from LHCb have been using it for simulation of 
+   RICH detectors (that is Ring Imaging Cherenkov)  
+
+   These slides are from Sajan Easo who has done some simple validations   
+   with the RICH geometry.
 
 
 :small:`Opticks+CORSIKA8 for next-generation neutrino telescope optimization ?`
@@ -822,8 +829,10 @@ Outline
 
 .. s5_talk::
 
-    My presentation resulted in a keen new Opticks user, Fan Hu : this is an Opticks 
-    visualization of a string of pods geometry 
+    Another idea for using Opticks is to try to integrate it with CORSIKA for 
+    optimization of enormous deep sea neutrino telescopes.
+
+    The visualization shows a string of pods geometry set up by a student of Donglian, Fan Hu.
 
 
 
@@ -853,12 +862,10 @@ Outline
    keep to scale up its usage to profit from the new NERSC Perlmutter supercomputer, 
    with more than 6000 NVIDIA A100 GPUs
 
-   US DOE has payed Cray and NVIDIA several hundereds of millions of US dollars 
-   for the Perlmutter supercomputer that is being commissioned.
-   I guess that buys a lot of assistance with getting users codes to benefit from Perlmutter
-
-   Its a great opportunity to get some real GPU and deployment experts involved with Opticks 
-
+   They proposed a Hackathon to optimize LZ+Opticks simulation.
+   
+   * but there is little point optimizing prior to migrating to the OptiX 7 API
+   * after I pointed this out they indicated they could help with the migration
 
 
 
@@ -892,7 +899,7 @@ Outline
 
    * https://simoncblyth.bitbucket.io/opticks/docs/orientation.html
 
-   **From February:** 
+   **From February 8:** 
 
    * :red:`plan bi-weekly working meetings`
    * migration assistance 
@@ -900,12 +907,17 @@ Outline
 
 .. s5_talk::
 
-   I was a little surprised by the number of people at this Zoom meeting.
+   I was a little surprised by the number of people from NERSC and NVIDIA 
+   in the Zoom meeting. I guess NERSC wants its users to rapidly 
+   see the benefits from the hundreds of millions of dollars spent on Perlmutter.  
 
+   Having NVIDIA aware in detail of how OptiX is being used for optical photon simulation 
+   could be extremely beneficial down the road. 
 
-
-
-
+   Also it make a good story for NVIDIA to be helping with something more than making 
+   games look pretty. Plus widens the market for its GPUs.
+   
+     
 
 :small:`Opticks Tasks List`
 --------------------------------------------------------------------------------------------------------
@@ -940,7 +952,8 @@ Outline
 
 
 
-:small:`Opticks Progress : Efficiency Hit Culling on GPU + Complete JUNO Hits`
+
+:small:`Opticks + JUNO Progress : Efficiency Hit Culling on GPU`
 -------------------------------------------------------------------------------
 
 .. sidebar:: |egr|, |egr| [|thgr|, |phgr|]  -> GPU Tex
@@ -953,36 +966,24 @@ Outline
              ``setSensorData``
              ``setSensorAngularEfficiency``
 
-         Photon flags set on GPU:
-
-         ``EFFICIENCY_COLLECT/_CULL``
- 
-
 .. class:: small
 
     * :red:`Reduce CPU memory for hits by a factor of the efficiency` 
     * only **collected hits** consume CPU memory  
 
+    Culling result photon flags set on GPU:
 
-.. class:: small
+    * ``EFFICIENCY_COLLECT``
+    * ``EFFICIENCY_CULL``
+ 
 
-    ``G4Opticks::getHit``
-    ``G4OpticksHit``
+.. raw:: html
 
-    * Completed hits : local + global param
-    * Unchanged photon size : (4,4)  
-    * Uses geometry aware photon wrapper ``ggeo/GPho``
+    <pre>
 
-.. class:: tiny
 
-    http://bitbucket.org/simoncblyth/opticks/src/master/ggeo/GPho.cc
+    </pre>
 
-.. class:: small
-
-    **Way point (eg: Acrylic/LS boundary intersect)** 
-
-    * Unavoidably increases photon size : (5,4) 
-    * TODO: make **way point** optional 
 
 .. class:: small
 
@@ -1001,13 +1002,16 @@ Outline
 
 .. s5_talk::
 
-    Opticks avoids experiment specifics by making things flexible, for example
+    * Doing efficiency culling on GPU reduces CPU memory for hits by a factor of the efficiency
+    * only the collected hits needed by the electronics simulation have to use CPU memory
 
-    * using sensor index, and not making assumptions about sensor identifiers 
-    * making the "way point" externally configuarable.
+    * BUT : it means you have to translate the efficiency information and upload it to the GPU
 
-    Doing the culling on GPU also easier to validate, as the
-    consumption of randoms is then easier to align.
+      * i did this with angular textures for each sensor type and efficiency buffers 
+
+    * the culling decision on GPU leads to one of these flags being set, then 
+      you can copy back just the EFFICIENCY_COLLECT photons to go into the hit collection 
+
 
 
 .. comment
@@ -1033,7 +1037,7 @@ Outline
 
         <pre class="mypretiny">
         struct G4OpticksHit // from photon->hit buffers
-        {   
+        {  <b><span class="red">// global+local,... all from (4,4) photon item</span></b> 
             G4ThreeVector local_position ;  
             G4ThreeVector global_position ;
             G4double      time ; 
@@ -1043,7 +1047,7 @@ Outline
             G4ThreeVector local_polarization ;  
             G4ThreeVector global_polarization ;
             G4double      wavelength ;
-            G4int         boundary ;
+            G4int         boundary ; 
             G4int         sensorIndex ;
             G4int         nodeIndex ; 
             G4int         photonIndex ;
@@ -1053,7 +1057,7 @@ Outline
             G4bool        is_reemission ;
         };
         struct G4OpticksHitExtra // from way->hiy buffers
-        {
+        {  <b><span class="red">// extras from (2,4) "way" item</span></b>   
             G4ThreeVector boundary_pos ;
             G4double      boundary_time ;
             G4double      origin_time ;
@@ -1061,36 +1065,40 @@ Outline
         };
         </pre>
 
+
+.. class:: small
+
+    **Geant4 approach** 
+
 .. raw:: html 
 
     <pre class="mypretiny">// Simulation/DetSimV2/PMTSim/src/junoSD_PMT_v2.cc
-    467         junoHit_PMT* hit_photon = new junoHit_PMT();
-    468         hit_photon->SetPMTID(pmtid);
-    469         hit_photon->SetWeight(1.0);
-    470         hit_photon->SetTime(hittime);
-    471         hit_photon->SetWavelength(wavelength);
-    472         hit_photon->SetKineticEnergy(edep);
-    473         hit_photon->SetPosition(local_pos);
-    474         hit_photon->SetTheta(local_pos.theta());
-    475         hit_photon->SetPhi(local_pos.phi());
-    476         hit_photon->SetMomentum(local_dir);
-    477         hit_photon->SetPolarization(local_pol);
-    479         hit_photon->SetGlobalPosition(global_pos);
-    480         hit_photon->SetGlobalMomentum(track->GetMomentum());
-    481         hit_photon->SetGlobalPolarization(track->GetPolarization());
-    ...         // optional extras from  NormalTrackInfo/NormalAnaMgr 
-    485         hit_photon->SetProducerID(producerID);        
-    486         hit_photon->SetFromCerenkov(is_from_cerenkov);
-    487         hit_photon->SetReemission(is_reemission);
-    488         hit_photon->SetOriginalOP(is_original_op);
-    489         hit_photon->SetOriginalOPStartT(t_start);
-    490         hit_photon->SetBoundaryPosition(boundary_pos);  // 
+    junoHit_PMT* hit = new junoHit_PMT(); <b><span class="blue">// junoSD_PMT_v2::ProcessHits </span></b>
+    hit->SetPMTID(pmtid);
+    hit->SetWeight(1.0);
+    hit->SetTime(hittime);
+    hit->SetWavelength(wavelength);
+    hit->SetKineticEnergy(edep);
+    hit->SetPosition(local_pos);
+    hit->SetTheta(local_pos.theta());
+    hit->SetPhi(local_pos.phi());
+    hit->SetMomentum(local_dir);
+    hit->SetPolarization(local_pol);
+    hit->SetGlobalPosition(global_pos);
+    hit->SetGlobalMomentum(track->GetMomentum());
+    hit->SetGlobalPolarization(track->GetPolarization());
+    <b><span class="red">// optional extras normally from  NormalTrackInfo/NormalAnaMgr 
+    hit->SetProducerID(producerID);        
+    hit->SetFromCerenkov(is_from_cerenkov);
+    hit->SetReemission(is_reemission);
+    hit->SetOriginalOP(is_original_op);
+    hit->SetOriginalOPStartT(t_start);
+    hit->SetBoundaryPosition(boundary_pos); // pAcrylic/pInnerWater[1] </span></b>
     </pre>
 
 .. class:: small
 
-    * pAcrylic/pInnerWater boundary_pos[1]  
-    * split: :blue:`(4,4) + (2,4)`  OR combine: :blue:`(6,4)`  
+    * **split**: :blue:`Hit (4,4) + HitExtra (2,4)`  OR **combine**: :blue:`HitFull (6,4)`  ?
     * Using **split** assuming :red:`extras switched off in large productions ?`
 
 .. class:: tiny
@@ -1100,7 +1108,45 @@ Outline
 
 .. s5_talk::
 
-    The boundary to record is generalized 
+    The (4,4) and (2,4) are dimensions of the buffer items. 
+    On the GPU it is more efficient to handle quad elements 
+    like float4 so Opticks does everything in quads.
+
+    One obvious way to provide the global+local information would
+    be to double the size of the photon element. That would have 
+    halved the number of photons that can be simulated at once.
+    So transforms are used to convert global into local on the CPU
+    using identity information to get the right transform.
+
+    All of the *G4OpticksHit* comes from a (4,4) photon item.
+ 
+    Hit information is split into standard+extra to avoid paying the price for the 
+    extra info when it is not needed.
+
+    The price is a 50% increase in VRAM and a doubling of GPU to CPU copies.
+
+    If the extra info were regarded as essential then increasing the 
+    size of the photon item from (4,4) to (6,4) would be appropriate. 
+
+
+.. comment
+
+    .. class:: small
+
+        * Uses geometry aware photon wrapper ``ggeo/GPho``
+
+    .. class:: tiny
+
+        http://bitbucket.org/simoncblyth/opticks/src/master/ggeo/GPho.cc
+
+    .. class:: small
+
+        **Way point (eg: Acrylic/LS boundary intersect)** 
+
+        * Unavoidably increases photon size : (6,4) 
+        * TODO: make **way point** optional 
+
+
 
 
 
@@ -1122,24 +1168,65 @@ Outline
         * avoid GPU starvation 
         * header only implementation : ``OpticksClient.hh`` 
 
-        **So far : Network Transport of NP Arrays**
+        **Prototype : Network Transport of NP Arrays**
 
         * https://github.com/simoncblyth/np
         * depends only on Boost-Asio (Async IO) 
-        * np_server/np_client operational  
+        * :red:`np_server/np_client operational`  
 
-        **Next : integrate that with Opticks**
+        **Next : migrate Opticks to NVIDIA OptiX 7s**
 
          
 
 .. class:: small
 
-    1. **optical**: optical photon simulation, ie the time and memory required to generate and propagate optical photons
-    2. **node**: overall simulation performance using a single node with one or more GPUs 
-    3. **cluster**: production performance of a GPU cluster creating large monte carlo samples
-       with many hundreds or thousands of production jobs orchestrated with a batch system
+    1. **optical**: time+memory to simulate photons (1 CPU, *N* GPUs)
+    2. **node**: overall simulation performance (1 CPU, *N* GPUs) 
+    3. **cluster**: overall batch performance creating large samples 
+
+    For example with *N = 4*
+
+    * best **optical** performance  
+    * **node** : ~same as 1 GPU per CPU (dominated by non-optical)
+    * **cluster** : significantly worse : as limiting concurrent jobs 
+
+    :red:`Experimentation required to find optimum`
+
+    * CPU only *OpticksClients* -> GPU cluster *OpticksServer*
+
+    Flexibility -> maximizes resource usage -> solves problems:
+
+    * limited numbers of NVIDIA GPUs
+    * GPU starvation : difficult to keep them busy  
+     
+
+.. s5_talk::
+
+   SMALL
+
+   Performance must be considered at three levels because choices 
+   optimum for one level will not be the optimum at other levels.  
+
+   For example dedicating 4 GPUs to 1 CPU would give the 
+   best **optical** performance but at **node** level 
+   the performance might not be different to that with 
+   1 GPU per node and at  **cluster** level you would be limiting 
+   the number of concurrent batch jobs hence killing your overall throughput. 
+
+   Finding the optimum approach requires experimentation.
+
+   Opticks has only optimized at **optical** level.
+   
+   Optimizing at cluster level is expected to give large gains, 
+   by maximimizing the use of resources  
+
+   A big problem at **cluster** level is that there is a limited number 
+   of GPU nodes 
+
+   Developing a distributed Opticks is 
 
 
+.. comment
 
     **Async Opticks Server ?**
 
@@ -1147,15 +1234,6 @@ Outline
 
       * new features of OptiX 7 important for Server implementation
       * major developments based on 2 yr old OptiX 6 unwise
-
-
-.. s5_talk::
-
-   So far Opticks has been optimized only at the **optical** level. 
-   Optimizing at cluster level expected to give large gains, maximimize
-   use of resources  
-
-
 
 
 
@@ -1273,8 +1351,17 @@ Outline
 
 .. s5_talk::
 
-    Geant4 Geometry experience is important, as Opticks problems are usually due to geometry problems 
-    either in the source geometry or the translation of the geometry 
+    The plan is to make a "Basic Validation" release during February 
+    with the features I have described already. There is little remaining to do, 
+    so I am confident have the release during Febrary.
+    This will allow basic statistical comparison of hit distributions. 
+
+    The "Full Validation" release aims to provide random aligned step-by-step 
+    comparisons. Validating like this is very good at finding problems as
+    the comparison is not clouded by statistics.
+
+    Problems with Opticks are mostly geometry problems, so experience 
+    with Geant4 geometry is important. 
 
 
 
@@ -1336,9 +1423,11 @@ Outline
 
 .. s5_talk::
 
-    The subsequent releases are a lot less well defined... 
+    Other releases are a lot less well defined... 
+    but the two primary features are
 
-
+    1. migrating to the all new NVIDIA OptiX 7 API
+    2. distributed Opticks  
 
 
 
@@ -1367,10 +1456,9 @@ Outline
      :width: 1000px
      :height: 1px
 
-  * Drastic speedup -> better detector understanding -> greater precision
-  
-    * **any simulation limited by optical photons can benefit** 
-    * more photon limited -> more overall speedup (99% -> 100x) 
+
+  * **Opticks gained many new users in 2020, some getting serious**
+  * :blue:`JUNO Opticks users are needed to assist with validation`  
 
 .. table::
     :align: center
@@ -1388,7 +1476,23 @@ Outline
     +--------------------------------------------------+-----------------------------------------+ 
 
 
+
+.. s5_talk::
+
+    While it is good that Opticks is gaining many new users with lots 
+    of intersest and activity from Geant4 and also now NVIDIA 
+
+
+
+    the downside is that there are more people 
+
+
 .. comment
+
+  * Drastic speedup -> better detector understanding -> greater precision
+  
+    * **any simulation limited by optical photons can benefit** 
+    * more photon limited -> more overall speedup (99% -> 100x) 
 
   *Opticks* uses hardware accelerated GPU ray tracing
   via NVIDIA OptiX to give **effectively zero time and zero CPU memory** 
@@ -1399,20 +1503,8 @@ Outline
      :height: 10px
 
 
-
-.. s5_talk::
-
    So in summary : Opticks applies the best available GPU ray tracing to optical 
    photon simulation resulting in speedups exceeding three orders of magnitude.
-
-   Opticks is still very young and it really needs users to turn it into 
-   a robust tool that anyone with an optical photon simulation problem 
-   can use to elimate.
-
-   These speedups are just for the optical photons, how much that 
-   helps with the overall speedup depends on how limited you are by 
-   optical photons.
-
 
 
 

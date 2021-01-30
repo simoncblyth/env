@@ -682,7 +682,7 @@
     2021 : LZ+Opticks simulation on Perlmutter (>6000 NVIDIA A100)
     /env/presentation/nersc_creaner/perlmutter_half.png 640px_360px 640px_360px
 
-    Opticks Progress : Efficiency Hit Culling on GPU + Complete JUNO Hits
+    Opticks + JUNO Progress : Efficiency Hit Culling on GPU
     /env/presentation/optixrap/OSensorLibGeoTest_half.png 640px_360px 640px_360px
 
     ## /env/presentation/docs/docs_orientation_toc_half.png 655px_617px 625px_103px 

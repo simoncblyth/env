@@ -10,12 +10,22 @@ presentation-usage(){ cat << EOU
 Presentation preparation
 ============================
 
+See Also
+-----------
+
+* slides-;slides-vi
+
 FUNCTIONS
 ---------
 
 presentation-index
     open local index.html in browser 
 
+
+Creating slides PDF with talk annotations interleaved
+-------------------------------------------------------
+
+See instructions in slides-;slides-vi
 
 
 How it works : rst2s5-2.6.py and ".. s5_background_image::"
@@ -50,18 +60,18 @@ Observations as change background-size and background-position::
    1180px_620px 50px_50px : offsets by 50px horizontally and vertically, centering 100px shrunk the slide with gaps all around 
 
 
-
-
-
-
-
 Local Rough Index of All Presentations
 -----------------------------------------
 
-::
+Shortcut::
 
-    open file://$HOME/simoncblyth.bitbucket.io/env/presentation/index.html
+    presentation-;presentation-index
+
+    # does the below 
     open http://localhost/env/presentation/index.html
+
+    # to check without web server
+    open file://$HOME/simoncblyth.bitbucket.io/env/presentation/index.html
 
 
 Updating the rough index of all presentations
@@ -600,7 +610,6 @@ Publishing to remote:
    depending on slide count
 
 
-
 Creating retina screencaptures
 ---------------------------------
 
@@ -1100,7 +1109,7 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop_TALK} ; }
 
 presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review} ; }
-#presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review_TALK} ; }
+# instead of manually changing to _TALK use the p2.sh script
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
@@ -1168,7 +1177,11 @@ presentation-export(){
    export PRESENTATION_ONAME=$(presentation-oname)
    export PRESENTATION_PREPROCESSOR_ARGS=$(presentation-preprocessor-args)
 }
-presentation-e(){ cd $(presentation-dir) ; vi $(presentation-iname).txt ; }
+presentation-e(){ 
+   cd $(presentation-dir) ; 
+   local iname=$(presentation-iname)  
+   vi ${iname/_TALK}.txt ; 
+}
 presentation-edit(){ vi $(presentation-path) ; }
 presentation-ed(){ vi $(presentation-path) ~/workflow/admin/reps/ntu-report-may-2017.rst ; }
 
