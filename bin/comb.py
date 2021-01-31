@@ -38,6 +38,7 @@ class Comb(object):
         d["group"] = 0
         d["paths"] = []
         d["dir" ] = "."
+        d["prefix" ] = "comb"
 
         parser = argparse.ArgumentParser(description=doc, formatter_class=argparse.RawDescriptionHelpFormatter)
         parser.add_argument('paths', nargs="*", default=d["paths"], help='base directory')
@@ -46,6 +47,7 @@ class Comb(object):
         parser.add_argument('-g','--group', type=int, default=d["group"], help='number of items to combine or zero to combine all')
         parser.add_argument('-o','--outpath', default=d["outpath"], help='output file name')
         parser.add_argument('-d','--dir', default=d["dir"], help='directory to find paths in')
+        parser.add_argument('-p','--prefix', default=d["prefix"], help='relative directory to write combined paths to')
         
         args = parser.parse_args()
         logging.basicConfig(level=getattr(logging, args.level.upper()), format=d["format"])
@@ -121,6 +123,11 @@ if __name__ == '__main__':
     args = Comb.parse_args(__doc__)
     log.info("combine %d paths %s " % (len(args.paths), repr(args.paths)))
     group = args.group
+    prefix = args.prefix
+    if not os.path.exists(prefix):
+       log.info("creating prefix dir : %s " % prefix)
+       os.makedirs(prefix)
+    pass
 
     if group == 0:
         c = Comb(args.paths, args.outpath, args.mode)
@@ -130,11 +137,11 @@ if __name__ == '__main__':
     elif group > 1:
         assert len(args.paths) % group == 0,  ("wrong number of paths for group size", len(args.paths), group )
         pass
-        n = len(args.paths) / group 
+        n = int(len(args.paths) / group) 
         log.info(" combine %s paths with group size %d making %d new img " % (len(args.paths), group, n ))
         for i in range(n):
             paths = args.paths[i*group:(i+1)*group] 
-            outpath = "%0.3d.png" % i                ## hmm this assumes the input paths are not of this form 000.png 001.png etc..
+            outpath = "%s/%0.3d.png" % (prefix,i)   
             print("%3d : %s : %s " % (i, repr(paths), outpath))
             c = Comb(paths, outpath, args.mode)
             c.save()

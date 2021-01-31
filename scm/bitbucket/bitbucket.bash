@@ -13,6 +13,11 @@ related
 
 * see *hg-* regarding the conversion from Subversion to Mercurial
 
+git-lfs
+---------
+
+* https://www.atlassian.com/git/tutorials/git-lfs
+
 
 
 

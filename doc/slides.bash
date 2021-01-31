@@ -66,7 +66,6 @@ How to interleave presentation slides with s5_talk notes
     * pick orientation to get consequentive pages visible one above the other
     * then save as PDF with name such as "opticks_jul2020_juno_TALK_2up.pdf"
 
-
 6. the above is fine but the text can be a bit small : an alternative is
    to double up the front page, and then Preview view 2 pages 
    can be used for side by side presentation and annotation.
@@ -92,16 +91,15 @@ bin/comb.py : grouped combination of PNGs vertically or horizontally
 
 Better way to combine slides and annotations avoiding space, by combining PNG 2-by-2::
 
-   mkdir /tmp/tt 
-   cd /tmp/tt
-   cp /tmp/simoncblyth.bitbucket.io/env/presentation/opticks_may2020_hsf_TALK/*_crop.png .
+    epsilon:presentation blyth$ slides-tcd
+    epsilon:opticks_jan2021_juno_sim_review_TALK blyth$ pwd
+    /tmp/simoncblyth.bitbucket.io/env/presentation/opticks_jan2021_juno_sim_review_TALK
 
-   comb.py -g2    ## 2-by-2 combination of all PNGs in current dir, in name sorted order 
-   rm *_crop.png
+    comb.py -g2    ## 2-by-2 combination of all PNGs in current dir, written to "comb" subdir in name sorted order 
 
-   open .
-
-   # adjust the sort order, select and then using scripting interface to make PDF from the PNG 
+    cd comb 
+    open .
+    # adjust the sort order, select and then using scripting interface to make PDF from the PNG 
 
 
 PDF page size : Very large because somehow 72dpi ?
@@ -507,6 +505,8 @@ EOI
 
 slides-ls(){  ls -l $(slides-dir); }
 slides-cd(){  cd $(slides-dir)/$1; }
+slides-tcd(){ TALK=1 slides-cd ; }
+
 slides-scd(){  cd $(slides-sdir); }
 slides-mkdir(){ mkdir -p $(slides-dir) ; }
 slides-get(){

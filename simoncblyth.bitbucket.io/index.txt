@@ -93,6 +93,17 @@ data preparation for upload to the GPU and analysis of results.
 Opticks Presentations 
 ----------------------
 
+2021
+~~~~~
+
+https://simoncblyth.bitbucket.io/env/presentation/opticks_jan2021_juno_sim_review.html (Feb 1, 2021, Virtual)
+
+    Review JUNO + Opticks progress + plans, 20 mins
+    
+    * https://simoncblyth.bitbucket.io/env/presentation/opticks_jan2021_juno_sim_review_TALK\_.pdf (Heavy 30MB PDF)
+    * https://simoncblyth.bitbucket.io/env/presentation/opticks_jan2021_juno_sim_review_2up\_.pdf (Heavy 30MB PDF)
+
+
 2020
 ~~~~~~~
 
