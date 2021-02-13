@@ -1,0 +1,533 @@
+.. meta::
+    :title: LZ-Opticks-NVIDIA OptiX 6->7 : Notes
+    :description: (Feb 2021)
+
+
+.. include:: <s5defs.txt>
+
+.. raw:: html
+
+    <style type="text/css">
+        span.alarm { color: red; }
+        span.warn { color: orange; }
+        span.ok { color: green; }
+        span.i { display: none; }
+        pre.sliteral { class:"literal-block small"; }
+        pre.mypre {
+             display: block;
+             font-family: monospace;
+             font-size: 20px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+        pre.mypre_tiny {
+             display: block;
+             font-family: monospace;
+             font-size: 15px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+
+
+    </style>
+
+
+===================================================================================
+LZ-Opticks-NVIDIA OptiX 6->7 : Notes
+===================================================================================
+
+.. class:: small
+
+   **Links**
+
+   * https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7.html  (these slides)
+   * https://simoncblyth.bitbucket.io/opticks/docs/orientation.html  (docs)
+
+   **OptiX 7 Experiments**
+
+   * https://simoncblyth.bitbucket.io/opticks/docs/orientation.html#standalone-ish-optix-7-examples
+   * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASComp/
+
+   **Overview of Migration Task**
+
+   * material/surface properties as function of wavelength
+
+     * not yet tried : hope it proves simple move to plain CUDA textures ?
+
+   * high level structure (instance transforms, identity, ... )
+
+     * :red:`first attempt suggests easier in 7 : single IAS can reference multiple GAS` 
+     * **NEXT:** check per-instance identity info (eg color them)
+
+   * assemblies of CSG solids 
+
+     * **NOW:** first experiments with compound (multiple bbox) GAS 
+     * not yet tried : CSG nodes/planes/transforms -> fixed size SBTRecord type (?)
+
+
+.. raw:: html
+
+   <pre>
+
+
+   </pre> 
+
+
+.. class:: small
+
+   |  Simon C Blyth,  Feb 8 2021 
+
+
+
+:small:`Translate : Geant4 -> Opticks/GGeo  (eg JUNO geometry)`
+----------------------------------------------------------------------------
+
+
+.. class:: small
+
+   * ~300,000 G4VPhysicalVolume -> GVolume  : direct tree translation  
+
+     * GVolume : (tri:GMesh + ana:GParts) **tri/ana constituents concatenate**
+
+   * GInstancer : label GVolumes with *progeny digests* 
+   * identify repeats, label GVolume with repeat index **ridx**  
+
+     * order ~10 distinct repeated assemblies 
+
+   * repeated volumes, 1st placement  (**ridx 1-~10**) 
+
+     * ~(1-8) * GVolume 
+     * -> GMergedMesh [concatenated] 
+     * examples: multi-volume assemblies for Photomultipliers, supports, etc..  
+
+   * non-repeated remainder volumes  (**ridx 0**) 
+
+     * ~100 * GVolume 
+     * -> GMergedMesh    
+
+
+   * GMergedMesh
+
+     * instance transform arrays (1-30k) 
+     * identity arrays 
+
+   :red:`Effectively re-factors ~300k G4VPhysicalVolume  to ~10 GMergedMesh (with thousands of instance transforms)`
+
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/ggeo/GInstancer.cc
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/ggeo/GMergedMesh.cc
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/ggeo/GParts.cc
+
+
+
+:small:`Translate : Opticks/GGeo -> OptiX 6+7 : instances structure`
+------------------------------------------------------------------------------------
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/optixrap/OGeo.cc
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+    m_top                  (Group)             m_top_accel
+       ggg                 (GeometryGroup)        m_ggg_accel           global non-instanced geometry from merged mesh 0  
+          ggi              (GeometryInstance)        
+
+       assembly.0          (Group)                m_assembly_accel      1:1 with instanced merged mesh (~6 of these for JUNO)
+
+             xform.0       (Transform)                                  (at most 20k/36k different transforms)
+               perxform    (GeometryGroup)
+                  accel[0]                            m_instance_accel  common accel within each assembly 
+                  pergi    (GeometryInstance)                           distinct pergi for every instance, with instance_index assigned  
+                     omm   (Geometry)                                   the same omm and mat are child of all xform/perxform/pergi
+                     mat   (Material) 
+
+             xform.1       (Transform)
+               perxform    (GeometryGroup)
+                  pergi    (GeometryInstance)      
+                  accel[0]
+                     omm   (Geometry)
+                     mat   (Material) 
+
+             ... for all the many thousands of instances of repeated geometry ...
+
+       assembly.1          (Group)                  (order ~6 repeated assemblies for JUNO)
+            xform.0      ... just like above ...
+     </pre>
+
+.. class:: small
+
+     * **OptiX 6 rules -> this layout : to give identity to instances**
+     * OptiX 7 : **IAS** can reference multiple **GAS** + has ``optixGetInstanceIndex()`` (CH)   
+     * OptiX 7 : :red:`maybe entire JUNO(LZ) geometry with 1 IAS referencing ~10(?) GAS` 
+
+
+
+:small:`OptiX 7 Example : 1 IAS <= 3 GAS spheres`
+----------------------------------------------------------------------------------------
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASComp/IAS_Builder.cc
+
+.. sidebar:: :small:`UseOptiX7GeometryInstancedGASComp`
+
+    .. raw:: html
+
+        <pre class="mypre_tiny">
+        export OPTIX_PREFIX=/usr/local/OptiX_700
+        git clone https://bitbucket.org/simoncblyth/opticks
+        cd opticks/examples/UseOptiX7GeometryInstancedGASComp
+        ./go.sh # gets glm, builds, runs -> ppm image file 
+        </pre>
+
+
+    .. image:: /env/presentation/optix7/UseOptiX7GeometryInstancedGASComp_half.png
+       :width: 510px
+       :height: 380px   
+       :align: right
+     
+
+
+.. class:: small
+
+   * 1 IAS referencing 3 GAS (large, medium, small radii)
+   * CustomPrimitive GAS: just bbox(s)  
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+ 61     std::vector&lt;OptixInstance&gt; instances ;
+ 62     for(unsigned i=0 ; i < num_tr ; i++)
+ 63     {
+ ...        grab glm::uvec4 idv from "spare" slots of the 4x4 transform
+ 69         glm::mat4 imat = glm::transpose(mat);
+ 74         unsigned instanceId = idv.x ;
+ 75         unsigned gasIdx = idv.y ;
+ 76 
+ 77         const GAS& gas = geo->getGAS(gasIdx);
+ 78 
+ 79         OptixInstance instance = {} ;
+ 80         instance.flags = flags ;
+ 81 
+ 82         instance.instanceId = instanceId ;
+ 83         <b><span class="alarm">instance.sbtOffset = gasIdx ;</span></b>
+ 84 
+ 85         instance.visibilityMask = 255;
+ 86         <b><span class="alarm">instance.traversableHandle = gas.handle ;</span></b>
+ 87 
+ 88         memcpy( instance.transform, glm::value_ptr(imat), 
+              12*sizeof( float ) );
+ 90         instances.push_back(instance);
+ 91     }
+     </pre>
+
+
+
+:small:`OptiX 7 Example : 1 IAS <= 3 GAS spheres : NEXT : Instance Identity`
+----------------------------------------------------------------------------------------
+
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASComp/UseOptiX7GeometryInstancedGASComp.cu
+
+ 
+.. class:: small
+
+
+   OptiX 7 programs customized(eg different radii) with **SbtData** ``CUdeviceptr optixGetSbtDataPointer();``
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+    226 extern "C" __global__ void __intersection__is()
+    227 {
+    228     HitGroupData* hg_data  = reinterpret_cast&lt;HitGroupData*&gt;( optixGetSbtDataPointer() );
+    234     const float  radius = hg_data->radius;
+    </pre>
+
+
+.. class:: small
+
+   **700p43 (OptiX 700 Guide p43)** 
+
+::
+
+     sbt-index = 
+        sbt-instance-offset
+     + (sbt-GAS-index * sbt-stride-from-trace-call) +  sbt-offset-from-trace-call
+
+.. class:: small
+
+    ``sbt-index`` 
+         instance.sbtOffset (see OptixInstance::sbtOffset)
+
+    ``sbt-GAS-index``
+          first SBT GAS index for each GAS build input is the prefix sum of the number of SBT records  
+
+
+
+
+.. class:: small
+
+   **NEXT Exercise : instance identity, Sbt entries and indexing for per-instance colors (visual standin for efficiency)** 
+   
+   * 1 IAS <= 3 GAS (each GAS has fixed bounding box) **so cannot have per-instance radii**
+
+
+
+
+
+
+
+
+:small:`OptiX 6 : Consume Geometry Context in intersect/bounds programs`
+-----------------------------------------------------------------------------
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/optixrap/cu/intersect_analytic.cu
+
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+    087 rtDeclareVariable(optix::Ray, ray, rtCurrentRay, );
+    089 rtDeclareVariable(uint2, launch_index, rtLaunchIndex, );
+    090 rtDeclareVariable(float, t_parameter, rtIntersectionDistance, );
+    091 rtDeclareVariable(float, propagate_epsilon, , );
+    094 rtDeclareVariable(unsigned int, instance_index,  ,);
+    098 rtDeclareVariable(unsigned int, primitive_count, ,);
+    099 rtDeclareVariable(unsigned int, repeat_index, ,);
+    ...
+    <b><span class="alarm">102 rtBuffer&lt;Part&gt; partBuffer;  // nodes of the CSG tree (both operators and primitives)
+    104 rtBuffer&lt;Matrix4x4&gt; tranBuffer;
+    106 rtBuffer&lt;Prim&gt;  primBuffer;  // offsets into part,tran,plan buffers 
+    108 rtBuffer&lt;uint4&gt;  identityBuffer //  lookups with instance_index*primitive_count+primIdx  </span></b>
+    ...
+    164 // attributes communicate to closest hit program,
+    167 rtDeclareVariable(uint4, instanceIdentity,   attribute instance_identity,);
+    168 rtDeclareVariable(float3, geometric_normal, attribute geometric_normal, );
+    169 rtDeclareVariable(float3, shading_normal, attribute shading_normal, );
+    170 
+    229 RT_PROGRAM void bounds (int primIdx, float result[6]){
+    271     const Prim& prim    = primBuffer[primIdx];        
+    ...
+    385 }
+    425 RT_PROGRAM void intersect(int primIdx){
+    427     const Prim& prim    = primBuffer[primIdx];        
+    ...
+    474 }
+    </pre>
+
+
+.. class:: small
+
+    * OptiX 6 : serves up a geometry context for use by **bounds** and **intersect**
+    * OptiX 7 : place that context into SbtRecord ?
+
+
+:small:`OptiX 6 : Populate Geometry Context from GMergedMesh/GParts`
+--------------------------------------------------------------------------------
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/optixrap/OGeo.cc
+
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+
+     717 optix::Geometry OGeo::makeAnalyticGeometry(GMergedMesh* mm)
+     718 {
+     732     GParts* pts = mm->getParts();  // <b><span class="alarm"> geometry defined with six arrays </span></b>
+     ...
+     761     NPY<float>*     partBuf = pts->getPartBuffer(); assert(partBuf && partBuf->hasShape(-1,4,4));    // node buffer
+     762     NPY<float>*     tranBuf = pts->getTranBuffer(); assert(tranBuf && tranBuf->hasShape(-1,3,4,4));  // transform triples (t,v,q) 
+     763     NPY<float>*     planBuf = pts->getPlanBuffer(); assert(planBuf && planBuf->hasShape(-1,4));      // planes used for convex polyhedra such as trapezoid
+     764     NPY<int>*       primBuf = pts->getPrimBuffer(); assert(primBuf && primBuf->hasShape(-1,4));      // prim
+     ...
+     766     // <b><span class="alarm">NB these buffers are concatenations of the corresponding buffers for multiple prim </span></b>
+     767     unsigned numPrim = primBuf->getNumItems();
+     768 
+     769     NPY<float>* itransforms = mm->getITransformsBuffer(); assert(itransforms && itransforms->hasShape(-1,4,4) ) ;
+     770     unsigned numInstances = itransforms->getNumItems();
+     771     NPY<unsigned>*  idBuf = mm->getInstancedIdentityBuffer();   assert(idBuf);
+
+     828     optix::Geometry geometry = m_context->createGeometry();
+     845     geometry->setPrimitiveCount( numPrim );         
+
+     849     geometry["primitive_count"]->setUint( numPrim );       // needed GPU side, for instanced offset into buffers 
+     850     geometry["repeat_index"]->setUint( mm->getIndex() );  // ridx
+     852 
+             // <b><span class="alarm"> intersect_analytic.cu handles all CSG solids </span></b>
+     853     optix::Program intersectProg = m_ocontext->createProgram("intersect_analytic.cu", "intersect") ;
+     854     optix::Program boundsProg  =  m_ocontext->createProgram("intersect_analytic.cu", "bounds") ;
+     855 
+     856     geometry->setIntersectionProgram(intersectProg );
+     857     geometry->setBoundingBoxProgram( boundsProg );
+    </pre> 
+
+
+
+
+:small:`OptiX 6 : Populate Geometry Context from GMergedMesh/GParts`
+---------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+     ...
+     860     optix::Buffer primBuffer = createInputUserBuffer<int>( primBuf,  4*4, "primBuffer");
+     861     geometry["primBuffer"]->setBuffer(primBuffer);
+     863 
+     865     optix::Buffer partBuffer = createInputUserBuffer<float>( partBuf,  4*4*4, "partBuffer");
+     866     geometry["partBuffer"]->setBuffer(partBuffer);
+     867 
+     869     optix::Buffer tranBuffer = createInputUserBuffer<float>( tranBuf,  sizeof(optix::Matrix4x4), "tranBuffer");
+     870     geometry["tranBuffer"]->setBuffer(tranBuffer);
+     871 
+     872     optix::Buffer identityBuffer = createInputBuffer<optix::uint4, unsigned int>( idBuf, RT_FORMAT_UNSIGNED_INT4, 1 , "identityBuffer");
+     873     geometry["identityBuffer"]->setBuffer(identityBuffer);
+     874 
+     875     optix::Buffer planBuffer = createInputUserBuffer<float>( planBuf,  4*4, "planBuffer");
+     876     geometry["planBuffer"]->setBuffer(planBuffer);
+
+     891     return geometry ;
+     892 }
+    </pre> 
+
+
+* Loading up the geometry context from GParts buffers 
+
+
+:small:`OptiX 7 : GMergedMesh/GParts -> HitGroup_CSG_SbtRecord ?`
+--------------------------------------------------------------------
+
+.. sidebar:: :small:`SbtRecord Choices ?`
+
+   .. class:: small
+
+       * any size constraints on SbtRecord ?
+
+       * alternative would be small SbtRecord referencing global memory
+
+         * **Is that possible ?** 
+         * **How bad for performance?** 
+       
+
+
+
+.. raw:: html
+
+    <pre class="mypre_tiny">
+    template &lt;typename T&gt;
+    struct SbtRecord
+    {
+        __align__( OPTIX_SBT_RECORD_ALIGNMENT ) 
+        char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+        T data;
+    };
+
+    struct HitGroupData   // simple example
+    {   
+        float radius;
+    };
+    typedef SbtRecord&lt;HitGroupData&gt;   HitGroupSbtRecord;
+
+    <b><span class="alarm">&#35;define MAX_CSG_DATA_VALUES 4096 // (guess) compile time constant 
+    struct HitGroup_CSG_Data
+    {   
+        float values[MAX_CSG_DATA_VALUES] ; 
+    };
+    typedef SbtRecord&lt;HitGroup_CSG_Data&gt;   HitGroup_CSG_SbtRecord;</span></b>
+    </pre> 
+
+::
+
+    prim : (num_prim, 4)      num_prim > 1 for concatenated solids
+    part : (num_parts,4,4)    CSG nodes, num_parts ~ 1,3,7,15,31,63,127,255  
+    tran : (num_tran, 3,4,4)  num_tran = num_parts, every node has transform 
+    plan : (num_plan, 4 )     planes needed for convexpolyhedron, trapezoid 
+  
+    size <- num_prim,num_tran,num_parts,num_plan
+
+
+
+
+:small:`OptiX 7 Compound Custom Primitive GAS`
+------------------------------------------------------------
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASComp/GAS_Builder.cc
+
+
+.. sidebar:: :small:`GAS OptixBuildInput:bbox 1:N ? 1:1`
+
+   .. class:: small
+
+       Followed OptiX_700/SDK/optixWhitted/optixWhitted.cpp
+
+       * 1 OptixBuildInput <= 3 aabb ?
+       * perhaps 1:1 simpler for Sbt indexing simplicity ?
+
+       * NEXT: try with 1:1  
+
+
+.. raw:: html
+
+    <pre class="mypre_tiny">
+ 
+    078 GAS GAS_Builder::Build(const std::vector&lt;float&gt;& bb )  // static
+    079 {
+    080     unsigned num_val = bb.size() ;
+    081     assert( num_val % 6 == 0 );
+    082     unsigned num_bb = num_val / 6 ;
+    094     OptixBuildInput build_input = {};
+    095     build_input.type = OPTIX_BUILD_INPUT_TYPE_CUSTOM_PRIMITIVES;
+    096 
+    097     OptixBuildInputCustomPrimitiveArray& aabbArray 
+                  = build_input.aabbArray ;
+    098 
+    099     aabbArray.aabbBuffers   = &d_aabb_buffer;
+    100     aabbArray.numPrimitives = num_bb ;
+    <b><span class="alarm">101     aabbArray.numSbtRecords = num_bb ; // ? </span></b>
+    102 
+    107     unsigned flag = OPTIX_GEOMETRY_FLAG_DISABLE_ANYHIT ;
+    108     unsigned* flags = new unsigned[num_bb];
+    109     unsigned* sbt_index = new unsigned[num_bb];
+    110     for(unsigned i=0 ; i < num_bb ; i++)
+    111     {
+    112         flags[i] = flag ; sbt_index[i] = i ;
+    114     }
+    116     aabbArray.numSbtRecords = num_bb ;
+    117     aabbArray.flags         = flags;
+    122     if(num_bb > 1)
+    123     {
+    124         unsigned sbt_index_size = sizeof(unsigned)*num_bb ;
+    125         CUdeviceptr    d_sbt_index ;
+    126         CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &d_sbt_index ), sbt_index_size ) );
+    127         CUDA_CHECK( cudaMemcpy( reinterpret_cast<void*>( d_sbt_index ),
+    128                        sbt_index, sbt_index_size,
+    129                         cudaMemcpyHostToDevice ) );
+    130 
+    131         aabbArray.sbtIndexOffsetBuffer  = d_sbt_index ;
+    132         aabbArray.sbtIndexOffsetSizeInBytes  = sizeof(unsigned);
+    133         aabbArray.sbtIndexOffsetStrideInBytes = sizeof(unsigned);
+    134     }
+    136     GAS gas = Build(build_input);
+    137 
+    138     delete[] flags ;
+    139     CUDA_CHECK( cudaFree( (void*)d_aabb_buffer ) );
+
+    </pre>
+
