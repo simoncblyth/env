@@ -1,0 +1,534 @@
+%2021v0
+\documentclass{webofc}
+\usepackage[varg]{txfonts}
+\newcommand{\comment}[1]{}
+\usepackage{graphicx}
+
+\begin{document}
+%
+\title{JUNO simulation with Opticks: GPU optical photon acceleration via NVIDIA\textregistered\ OptiX\texttrademark}
+
+\author{\firstname{Simon} \lastname{Blyth}\inst{1}\fnsep\thanks{Corresponding author and speaker on behalf of the JUNO collaboration. \email{simon.c.blyth@gmail.com}.}}
+
+\institute{Institute of High Energy Physics, CAS, Beijing, China.}
+
+
+\abstract{%
+\input{opticks-blyth-chep2021-abstract.tex}
+}
+%
+\maketitle
+%
+%
+\section{Introduction}%
+\label{intro}
+%
+Opticks[1-6] enables Geant4[7-9]-based optical photon simulations 
+to benefit from high performance GPU ray tracing made accessible 
+by NVIDIA\textregistered\ OptiX\texttrademark[10-12].
+%
+The Jiangmen Underground Neutrino Observatory (JUNO)\cite{juno} 
+under construction in southern China will be the world's largest liquid scintillator detector, 
+with a 20 kton spherical volume of 35 m diameter. The large size and high photon yield, illustrated in Figure~\ref{problem}, 
+makes optical photon simulation extremely computationally challenging for both processing time and memory resources. 
+Opticks eliminates both these bottlenecks by offloading optical simulation to the GPU. 
+%
+%Recent Opticks developments allow the optical photon simulation performance 
+%to benefit from ray trace dedicated processors, called RT cores\cite{rtx}, 
+%available in NVIDIA Turing architecture GPUs.
+%
+Recent Opticks developments focus on the integration of Opticks with 
+detector frameworks such as the JUNO simulation framework using a minimal 
+{\tt G4Opticks} interface class that aims to simplify the integration 
+by minimizing detector specific code.
+%
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,clip]{env/graphics/ggeoview/jpmt-before-contact_half.png}
+\caption{Cutaway OpenGL rendering of millions of simulated optical photons from a 200 GeV muon crossing the JUNO liquid scintillator. 
+Each line corresponds to a single photon with line colors representing the polarization direction. Primary particles
+are simulated by Geant4, scintillation and Cerenkov "gensteps" are uploaded to the GPU and photons are generated, propagated
+and visualized all on the GPU. Representations of some of the many thousands of photomultiplier tubes that instrument the liquid scintillator are visible.
+The acrylic vessel that contains the liquid scintillator is not shown.
+}
+\label{problem}
+\end{figure}%
+%
+Monte Carlo simulation is the primary technique used to design, optimize 
+and analyse diverse detection systems. However, sequential simulation of large numbers of 
+optical photons has extreme computational and memory costs. 
+Opticks enables drastically improved optical photon simulation performance that can be transformative 
+to the design, operation and understanding of diverse optical systems.
+%
+Although Opticks was developed for the simulation of the JUNO detector, it 
+is structured to enable use with other detector geometries. 
+Any detector simulation limited by optical photons 
+can benefit from Opticks.
+%Several groups from various neutrino experiments and dark matter search experiments are 
+%evaluating Opticks.
+
+Opticks has been presented to the three prior CHEP conferences with proceedings
+focussing on various aspects of its development. The 2019 plenary presentation 
+and proceedings\cite{chep2019} covered the adoption of NVIDIA OptiX 6 and the 
+access to ray trace dedicated RT cores and the RTX execution model. 
+The 2018 proceedings\cite{chep2018} focus on the implementation of automated
+translation of Geant4 geometry into a GPU geometry.
+The 2016 proceedings\cite{chep2016} detail the CUDA port of Geant4 photon generation 
+and optical physics as well as the use of GPU textures. 
+%
+These CHEP 2021 proceedings give an overview of Opticks and detail developments 
+to reduce CPU memory requirements and preparations for migration to the 
+entirely new NVIDIA OptiX 7 API.
+
+%
+%
+\subsection{Importance of optical photon simulation to JUNO}%
+%
+%
+Cosmic muon induced processes are crucial backgrounds for neutrino
+detectors such as JUNO\cite{juno},
+necessitating underground sites, water shields and muon veto systems.
+Minimizing the dead time and dead volume that result from applying
+a veto requires an understanding of the detector response to a muon.
+Large simulated samples of muon events are crucial in order to
+develop such an understanding.
+%
+The number of optical photons estimated to be produced by a muon of
+typical energy 200 GeV crossing the JUNO scintillator is at the level of tens of millions.
+Profiling the Geant4-toolkit-based simulation shows that the optical photon propagation 
+consumes more than 99\% of CPU time, and imposes severe memory constraints that have forced
+the use of event splitting.  
+%
+As optical photons in neutrino detectors can be considered to be produced
+by only the scintillation and Cerenkov processes and yield only hits
+on photomultiplier tubes, it is straightforward to integrate an
+external optical photon simulation with a Geant4 simulation of all other particles.
+%
+\subsection{GPU ray tracing}%
+%
+Graphics Processing Units (GPUs) evolved to meet the needs of computer graphics, 
+optimizing throughput\cite{throughput}, the total amount of work completed per unit time. 
+This contrasts with CPUs which minimize latency, the time to complete a single task. 
+The relative simplicity of GPUs allows more chip area to be dedicated to parallel compute, 
+resulting in greater computational throughput across all threads at the expense of 
+slower single-thread execution. Threads blocked while waiting to access memory are tolerated by using hardware multithreading to 
+resume other unblocked threads, allowing latencies to be hidden assuming there are sufficient parallel threads in flight. 
+%
+Effective use of GPUs demands problems with many thousands of mostly independent parallel 
+tasks, each of which requires few resources, allowing more threads to be in flight 
+simultaneously.
+%
+Optical photon simulation is well matched to these requirements with abundant parallelism 
+from the large numbers of photons and low register usage from the simplicity of optical physics.
+%and decoupled nature of the photons avoiding synchronization.
+
+The most computationally demanding aspect of optical photon simulation 
+is the calculation, at each step of the propagation, 
+of intersection positions of rays representing photons with the geometry of the system.
+This ray tracing limitation of optical photon simulation is shared 
+with the synthesis of realistic images in computer graphics. Due to the many applications
+of ray tracing in the advertising, design, games and film industries, the computer graphics
+community has continuously improved ray tracing techniques. The Turing GPU architecture 
+introduced by NVIDIA in 2018 is marketed as the world's first Ray-tracing GPU, with   
+hardware "RT Cores" 
+%in every streaming multiprocessor (SM) 
+dedicated to the 
+acceleration of ray geometry intersection.
+NVIDIA claims performance of more than 10 billion ray intersections 
+per second, which is a factor 10 more than possible with earlier GPUs
+which perform the intersection acceleration in software. 
+%
+%
+\subsection{NVIDIA\textregistered\ OptiX\texttrademark\ ray tracing engine}
+%
+OptiX is a general-purpose ray tracing engine
+designed for NVIDIA GPUs that exposes an accessible single ray programming model.
+The core of OptiX is a domain-specific just-in-time compiler that constructs 
+ray tracing pipelines, combining code for acceleration structure creation and traversal, 
+together with user provided CUDA code for ray generation, object intersection and closest hit handling.
+Spatial index data structures, such as the boundary volume hierarchy (BVH), are the 
+principal technique for accelerating ray geometry intersection.  
+OptiX provides only the acceleration of ray geometry intersection, not the intersection itself,
+thus affording full flexibility to implement intersections with any form of geometry. 
+OptiX acceleration structures supports instancing, allowing them to be shared 
+between multiple instances of the same geometry such as the photomultiplier tubes in the JUNO geometry.  
+%
+%In the recently introduced Turing 
+%architecture GPUs some of the BVH traversal workload has been moved into hardware "RT cores"\cite{rtx}.
+%
+%The design of Opticks seeks to keep GPU kernels as simple as possible via 
+%extensive use of GPU textures to hold material and surface properties, providing 
+
+\section{Hybrid simulation workflow}
+\label{secworkflow}
+%
+Implementing an efficient GPU optical photon simulation equivalent to the Geant4 simulation 
+requires that all aspects of the Geant4 context relevant to optical photon generation and 
+propagation are translated into an appropriate form and uploaded to the GPU. 
+The primary aspects are the detector geometry including material/surface properties, optical physics and optical photons; 
+the translations of these are described in the below sections.
+
+Figure~\ref{workflow} provides an overview of the hybrid simulation workflow. 
+A single class, {\tt G4Opticks}, is used to provide a 
+minimal interface between Geant4 user code and 
+the Opticks package. 
+At initialization the Geant4 top volume pointer is
+passed to Opticks which translates the geometry and constructs 
+the OptiX GPU context.
+
+
+
+
+%
+\begin{figure}
+\centering
+% left lower right upper
+\includegraphics[width=\textwidth,trim={0 5cm 0 5cm},clip]{env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow1_001.png}
+\caption{Comparison of the standard workflow of Geant4 optical photon simulation (left) with the hybrid Geant4 + Opticks workflow (right).
+A single Opticks class {\tt G4Opticks} acts to interface Geant4 user code with the Opticks GPU propagation. 
+Hybrid simulation requires modification of the classes representing scintillation and Cherenkov processes
+to collect "genstep" data structures.}
+% including the number of photons to generate, the line segment along 
+%which to generate them and all other parameters used by the photon generatation loop.
+%}
+\label{workflow} 
+\end{figure}
+%
+
+The simulation is steered from the NVIDIA OptiX ray generation program which 
+performs the photon generation followed by propagation up to a configurable maximum 
+number of steps. For each step of the propagation, rays representing photons are intersected
+with the geometry. The intersected boundary provides a boundary index which allows 
+material properties such as absorption and scattering lengths to be looked up. 
+Converting these lengths to distances using pseudorandom numbers and 
+the known exponential distributions allows a comparison of absorption and scattering distances 
+with geometrical distance to boundary to assign photon histories. 
+%Further details are provided in the below sections.
+Details on efficient use of pseudorandom number generation with cuRAND\cite{curandURL} are in the 
+earlier proceedings\cite{chep2016}.
+%
+%\section{Pseudorandom numbers}
+%
+%Opticks uses cuRAND\cite{curandURL}, from the CUDA toolkit, for the concurrent generation of
+%millions of reproducible sequences of pseudorandom numbers. Concurrent
+%generation is handled by assigning sub-sequences to each thread which maintain
+%their position within the sub-sequence. Initialization of cuRAND within the
+%OptiX ray generation program was found to require increasing the stack size by
+%a factor of 10 which led to poor ray tracing performance. To avoid this, cuRAND
+%initialization was moved to a separate CUDA launch, allowing OptiX programs to
+%use cuRAND without having to initialize it.
+%
+\section{Detector geometry} 
+%
+%
+Detector geometry is modelled on the GPU via intersection, bounding box 
+and closest hit programs and buffers that these programs access.
+Opticks provides automated translation of Geant4 geometries into these buffers, starting 
+by traversing the Geant4 volume tree converting materials, surfaces, solids, volumes and sensors 
+into Opticks equivalents. 
+%
+%The ability to translate arbitrarily complex Geant4 solids into equivalent Opticks analytic CSG 
+%node trees makes it possible to directly translate the Geant4 geometry model in memory 
+%into an Opticks GPU geometry. 
+%
+For large detector geometries with many thousands of volumes, such as the JUNO geometry, 
+this translation can take several minutes. To avoid repeating this processing, a serialization 
+of the geometry termed the "geocache" is implemented to allow GPU ready arrays to be persisted into NumPy\cite{numpy} binary files.
+On subsequent runs, these NumPy binary files are loaded and uploaded to the GPU, allowing OpenGL visualizations 
+and test executables to initialize full geometries in seconds rather than minutes.
+%
+\subsection{Material and surface properties} 
+
+Material and surface properties as a function of wavelength are interpolated onto a common wavelength domain.
+The properties include refractive indices, absorption lengths, scattering lengths, reemission probabilities, 
+as well as surface reflectivities, detection efficiencies and absorption fractions. 
+% and stored into Opticks instances {\tt GMaterialLib} and {\tt GSurfaceLib}.
+Each volume of the geometry is assigned a boundary index uniquely identifying the combination of four indices representing 
+outer and inner materials and outer and inner surfaces. Outer/inner surfaces handle inwards/outwards going photons, which allows the Geant4 border and skin
+surface functionality to be translated. 
+
+GPUs contain hardware dedicated to fast texture lookup and interpolation.
+This is exploited by using a single 2D {\tt float4} texture, named the boundary texture,
+that contains interleaved material and surface properties as a function of wavelength for all
+unique boundaries.
+The boundary index returned from a ray traced primitive intersection, together with
+an orientation offset identified from the angle between the geometric normal and ray direction,
+enables four wavelength interpolated material or surface properties to be
+obtained from a single hardware optimized texture lookup.
+
+\subsection{Solid shapes}%
+%
+% primitives
+Opticks provides CUDA functions that return ray intersections for ten primitive shapes including sphere, hyperboloid and torus.
+These functions use implicit equations for the primitives together with 
+the parametric ray equation, to yield a polynomial in $t$, the distance along the ray from its origin position. 
+Roots of the polynomials provide intersections, and surface normals at intersects are obtained
+using the derivative of the implicit equation.
+%
+% combinations
+Arbitrarily complex solids are described using constructive solid geometry (CSG) modelling, 
+which builds shapes from the combination of primitive constituents by boolean set operations: union, intersection and difference.
+A binary tree data structure with primitives at the leaves of the tree and operators at the internal nodes is used
+to represent the solids. Any node can have an associated local transform, represented by a 4x4 transformation matrix, which 
+is combined with other local transforms to yield global transforms in the frame of the root node of the tree.
+%
+% serialization 
+Each primitive or operator node is serialized into an array of up to 16 elements. 
+These elements include float parameters of the primitives and integer index references 
+into a separate global transform buffer. 
+%For the convex polyhedron primitive which is defined by a list of surface planes, 
+%the primitive contains an integer index referencing into a separate plane buffer together with the number of planes. 
+A complete binary tree serialization with array indices matching level order tree indices
+and zeros at missing nodes is used for the serialization of the CSG trees. This simple 
+serialization allows tree navigation directly from bitwise manipulations of the serialized array index.
+%
+% balancing
+Complete binary tree serialization is simple and effective for small trees but very inefficient 
+for unbalanced trees, necessitating tree balancing for shapes with many constituent primitives 
+to reduce the tree height. 
+The prior proceedings\cite{chep2018} provide further details of the constructive solid geometry modelling, 
+tree balancing and translation between Geant4 and Opticks solids.
+
+%A procedure to balance input trees by first converting to a positive 
+%form with only commutative operators and some complemented leaves followed by rearranging 
+%to reduce the height was developed. 
+% translation 
+%Opticks provides translations in both directions between Geant4 solids and Opticks primitives.
+%Depending on parameter values such as inner radii or phi segments there is not always a one-to-one correspondence 
+%between the two models with some Geant4 solids being represented as Opticks node trees. 
+%The approach of relying more on the CSG implementation was adopted to minimize duplicated code in the primitives.
+%Converted solids comprise both analytic CSG node trees used for the simulation and ray traced renders 
+%together with approximate triangulated meshes used for OpenGL renders.   
+%
+%
+%
+\subsection{Structural volumes}%
+%
+The Opticks geometry model is based upon the observation that many elements of a detector 
+geometry are repeated demanding the use of instancing for efficient representation.  Geometry instancing 
+is a technique used in computer graphics libraries including OpenGL and NVIDIA OptiX that avoids 
+duplication of information on the GPU by storing repeated elements only once together with 4x4 transform matrices 
+that specify the locations and orientations of each instance.
+The Geant4 geometry model comprises a hierarchy of volumes with associated transforms. 
+A geometry digest string for every structure node is formed from the transforms and shape indices of the progeny nodes descended from the original node in the geometry tree. 
+Subsequently repeated groups of volumes and their placement transforms are identified using the geometry digests, after disqualifying repeats
+that are contained within other repeats. 
+All structure nodes that pass instancing criteria regarding the number of vertices and number of repeats are assigned an instance index
+with the remainder forming the global non-instanced group. 
+These groups of volumes are then used for the creation of the NVIDIA OptiX analytic geometry instances, and OpenGL mesh geometry instances.  
+Figure~\ref{j1808} presents a ray traced rendering of the analytic representation of the JUNO detector geometry. 
+%
+%
+%
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,clip]{env/presentation/j1808/j1808_top_rtx}
+\caption{Ray traced rendering of the chimney region of JUNO detector showing photomultiplier tubes, acrylic sphere, supports and the calibration guide tube torus. 
+The rendering uses exactly the same analytic geometry as the simulation.
+The geometry was directly converted from Geant4 into an Opticks geometry including analytic CSG 
+and persisted into a geometry cache of NumPy\cite{numpy} binary files. 
+}
+\label{j1808} 
+\end{figure}
+%
+%
+\section{Optical physics}%
+%
+Optical physics processes of scattering, absorption, scintillator reemission and 
+boundary processes are implemented in CUDA functions based on the Geant4
+implementations. 
+%
+The single ray programming model exposed by NVIDIA OptiX makes it mostly possible 
+to directly port the corresponding Geant4 implementation by simply 
+adapting to use GPU textures for property access. 
+%
+On the CPU, it is convenient to implement scintillator reemission using Geant4 secondary 
+tracks. A different approach is adopted on the GPU where a fraction of absorbed photons
+are reborn with modified direction and wavelength within the same CUDA thread. 
+A reemission texture that encapsulates an inverse cumulative distribution function 
+is used to generate wavelengths that follow the desired distribution on lookup of pseudorandom numbers. 
+%
+%
+\section{Optical photons and "gensteps"}%
+%
+Photons are brought to the GPU via NVIDIA OptiX ray generation programs, 
+CUDA ports of photon generation loops and photon generation parameters 
+in the form of "genstep" data structures, which play a central role in the workflow.
+%
+As Geant4 has no "genstep" interface, it is necessary to modify the classes
+representing scintillation and Cerenkov processes. Instead of generating photon
+secondary tracks in a loop, the "genstep" parameters such as   
+the process type code, the number of photons to generate and the line segment along which to generate
+them and all other parameters used in the generation loop are collected. 
+Collecting and copying gensteps rather than photons avoids
+allocation of CPU memory for the photons, only photons that reach sensors
+requiring CPU memory allocation. 
+The genstep arrays are typically several orders of magnitude smaller than the photon arrays 
+that are generated from them.   
+%
+Gensteps can be regarded as a manual collection of the "stack" just 
+prior to the generation loop, but they are valid only for a specific version of the processes 
+due to the need for a matched CUDA port of the generation loop.  
+%
+%
+
+\section{Random number aligned comparison of Opticks and Geant4}
+\label{validation}
+%
+Validation comparisons use a single executable that performs both
+the Geant4 and hybrid Opticks simulations, starting from common CPU generated input photons. 
+Copying cuRAND random sequences from the GPU to the CPU and configuring the Geant4 random engine to use them makes it possible to align the 
+consumption of random numbers between the two simulations, resulting in nearly perfectly matched results with every scatter, 
+absorption and reflection happening with the same positions, times, wavelengths and polarizations.
+Direct comparison of the aligned simulation results allows any discrepancies to be identified without
+being clouded by statistics.
+The executable writes two events in a format which includes highly compressed positions, times, wavelengths 
+and polarizations at up to 16 steps of the optical photon propagations.
+
+Checks of all JUNO solids with millions of photons revealed some spurious intersects  
+arising from fragile CSG modelling with constituent solids that had coincident faces.  
+These were fixed by straightforward modelling changes to avoid coincidences. 
+Shapes including the torus as a constituent were found to be prone to poor precision intersects. 
+As the use of torus was cosmetic, the modelling was simplified to avoid its use.  
+After fixing these geometry issues, remaining discrepancies in mis-aligned photon histories
+were <0.25\% and deviant photons within matched histories were <0.05\%. 
+Primary sources of discrepancies are photons with grazing incidence or photons incident
+at constituent solid boundaries. Results in these cases are expected to depend on the arithmetic precision: Opticks uses double precision 
+only where unavoidable, whereas Geant4 uses this everywhere. 
+%
+%
+\section{Performance comparisons}
+
+Optical photon simulation performance with the full analytic JUNO geometry is measured 
+using calibration source gensteps, positioned at the center of the scintillator volume, 
+that uniformly emit a range of photon counts. 
+The maximum number of optical photons that can be simulated in a single GPU launch is
+limited by the available VRAM. Each photon requires 64 bytes for parameters  
+and 48 bytes for the CURAND random number generator state, corresponding to 45G for 400M photons.
+The measurements use a production mode with only photomultiplier hits being stored.
+All non-essential processing such as photon step recording are skipped. Test hardware was a single 
+NVIDIA Quadro RTX 8000 GPU with 48G of VRAM hosted in a DELL Precision 7920T workstation with 
+Intel Xeon Gold 5118, 2.3GHz, 62G CPU. 
+Figure~\ref{scanpf1vs} shows results from a scan from 1M to 400M optical photons, where the measured Opticks 
+times are compared with Geant4 times linearly extrapolated from a measurement at 1M photons. 
+Comparing times with the RTX mode enabled and disabled indicates a speedup of approximately 5 times
+from the use of the ray trace dedicated RT cores.
+The single GPU speedup factor between Opticks with RTX enabled and single threaded Geant4 
+is measured to be 1,660.   
+
+Performance measurements with very simple analytic geometries are found to reach Giga Rays/s, 
+more than a factor of 10 faster than performance with the full JUNO analytic geometry. 
+This great performance sensitivity to the geometry suggests there is potential for 
+substantial improvement by optimization of geometry modelling. 
+%
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,clip]{env/presentation/ana/scan-pf-1/Opticks_vs_Geant4}
+\caption{Full analytic JUNO geometry Opticks simulation times in seconds for 1M-400M optical photons using a single NVIDIA Quadro RTX 8000 GPU 
+are compared with single threaded Geant4 10.4.2 simulation times extrapolated from a measurement for 1M optical photons. 
+The solid(dotted) blue and red curves show times with RTX mode enabled(disabled). 
+Differences between interval times which include per event upload and download overheads and launch 
+times are not readily apparent with the logarithmic scale. The linearly extrapolated Geant4 time for 400M photons is 95,600 s (26 hours) 
+contrasts with the Opticks time of 58s, corresponding to a speedup factor of 1,660 times with a single GPU.   
+}
+\label{scanpf1vs} 
+\end{figure}
+%
+%
+%
+\section{Summary}
+%
+Opticks enables Geant4-based optical photon simulations to benefit from 
+state-of-the-art NVIDIA GPU ray tracing, made accessible via NVIDIA OptiX,
+that allows memory and time processing bottlenecks to be eliminated.
+Recent developments enable Opticks to benefit from the ray trace dedicated 
+hardware available in Turing architecture GPUs.
+Opticks meets the challenge of optical photon simulation in JUNO, 
+the world's largest scintillator detector, and can benefit any simulation limited by optical photons. 
+%
+%
+%
+\section*{Acknowledgements}
+%
+The JUNO collaboration is acknowledged for the use of detector 
+geometries and simulation software. Dr. Tao Lin is acknowledged for his assistance with 
+the JUNO offline software. 
+This work is funded by Chinese Academy of Sciences President’s International Fellowship Initiative,
+Grant No. 2018VMB0002.
+%
+%
+%
+\newpage
+\begin{thebibliography}{}
+%
+%1
+\bibitem{opticksURL}
+Opticks Repository, {\tt https://bitbucket.org/simoncblyth/opticks/}
+%2
+\bibitem{opticksRefs}
+Opticks References, {\tt https://simoncblyth.bitbucket.io}
+%3
+\bibitem{opticksGroup}
+Opticks Group, {\tt https://groups.io/g/opticks}
+%4 prior proceedings
+
+\bibitem{chep2019}
+S. Blyth, EPJ Web Conf. {\bf 245}, 11003 (2020) \\
+{\tt https://doi.org/10.1051/epjconf/202024511003}
+%
+\bibitem{chep2018}
+S. Blyth, EPJ Web Conf. {\bf 214}, 02027 (2019) \\
+{\tt https://doi.org/10.1051/epjconf/201921402027}
+%5 earlier proceedings
+\bibitem{chep2016}
+Blyth Simon C 2017 J. Phys.: Conf. Ser. {\bf 898} 042001 \\
+{\tt https://doi.org/10.1088/1742-6596/898/4/042001}
+%
+%
+%
+%6
+\bibitem{g4A}
+S. Agostinelli, J. Allison, K. Amako, J. Apostolakis, H. Araujo, P. Arce et al., Nucl. Instrum. Methods. Phys. Res. A {\bf 506}, 250 (2003)
+%7
+\bibitem{g4B}
+J. Allison, K. Amako, J. Apostolakis, H. Araujo, P. Dubois, M. Asai et al., IEEE Trans Nucl Sci, {\bf 53}, 270 (2006)
+%8
+\bibitem{g4C}
+J. Allison, K. Amako, J. Apostolakis, P. Arce, M. Asai, T. Aso et al., Nucl. Instrum. Methods. Phys. Res. A {\bf 835}, 186 (2016)
+%
+%
+%
+%9
+\bibitem{optixPaper}
+OptiX: a general purpose ray tracing engine \\
+S. Parker, J. Bigler, A. Dietrich, H. Friedrich, J. Hoberock et al., ACM Trans. Graph.: Conf. Series {\bf 29}, 66 (2010)
+%10
+\bibitem{optixSite}
+OptiX introduction, {\tt https://developer.nvidia.com/optix}
+%11
+\bibitem{optixDocs}
+OptiX API, {\tt http://raytracing-docs.nvidia.com/optix/index.html}
+%12
+\bibitem{juno}
+Neutrino physics with JUNO \\
+F. An et al., J. Phys. G. {\bf 43}, 030401 (2016) 
+%13
+\bibitem{rtx}
+NVIDIA RTX, {\tt https://developer.nvidia.com/rtx}
+%
+%
+%14
+\bibitem{throughput}
+Understanding Throughput Oriented Architectures \\
+M. Garland, D.B. Kirk, Commun. ACM {\bf 53}(11), 58 (2010) 
+%15
+\bibitem{curandURL}
+cuRAND, {\tt http://docs.nvidia.com/cuda/curand/index.html}
+%16
+\bibitem{numpy}
+The NumPy array: a structure for efficient numerical computation \\
+S. Van der Walt, S. Colbert, G. Varoquaux, Comput. Sci. Eng. {\bf 13}, 22 (2011)
+%
+\end{thebibliography}
+%
+\end{document}
