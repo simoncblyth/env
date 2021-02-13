@@ -21,6 +21,22 @@ PDF documents at
 
 
 
+CHEP 2021 pre-Proceedings
+---------------------------
+
+::
+
+    epsilon:chep2021 blyth$ cp ../chep2019/opticks-blyth-chep2019-v1.tex opticks-blyth-chep2021-v0.tex
+
+* An abstract must be provided. It should be 150-200 words.
+* The recommended length of the paper is 6 to 10 pages
+
+::
+
+    === ./abslen.sh : check word count of abs opticks-blyth-chep2021-abstract.tex
+         138
+
+
 CHEP 2019 Proceedings
 -----------------------
 
@@ -53,9 +69,6 @@ M. Garland, D.B. Kirk, Commun. ACM {\bf 53}(11), 58 (2010)
 
 [16]
 S. Van der Walt, S. Colbert, G. Varoquaux, Comput. Sci. Eng. {\bf 13}, 22 (2011)
-
-
-
 
 
 
@@ -282,14 +295,11 @@ epjconf-open(){ open $(epjconf-opdf) ; }
 
 
 #epjconf-confname(){ echo chep2018 ; }
-epjconf-confname(){ echo chep2019 ; }
+#epjconf-confname(){ echo chep2019 ; }
+epjconf-confname(){ echo chep2021 ; }
 
-#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname) ; }  # as submitted to referees
+epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
 #epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
-
-
-#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
-epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
 
 #epjconf-filename(){ echo opticks-snowmass21-loi-v0 ; }
 #epjconf-filename(){ echo opticks-snowmass21-loi-v1 ; }
@@ -414,15 +424,22 @@ EON
 
 epjconf-pdflatex()
 {
+    local msg="=== $FUNCNAME :"
     epjconf-cd
+    [ $? -ne 0 ] && echo $msg epjconf-dir:$(epjconf-dir) DOES NOT EXIST : CREATE IT AND TRY AGAIN && return 1
     local odir=$(epjconf-odir)
     mkdir -p $odir 
-    TEXINPUTS=$(epjconf-texinputs) pdflatex -output-directory $odir $(epjconf-texname)
+
+    local texname=$(epjconf-texname)
+    [ ! -f "$texname" ] && echo $msg texname $texname does not exist : CREATE IT AND TRY AGAIN && return 2 
+
+    TEXINPUTS=$(epjconf-texinputs) pdflatex -output-directory $odir $texname
 }
 
 epjconf--()
 {
     epjconf-pdflatex
+    [ $? -ne 0 ] && return 1 
     epjconf-pdflatex
     epjconf-open
     epjconf-info
