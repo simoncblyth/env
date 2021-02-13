@@ -1108,8 +1108,13 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop} ; }
 #presentation-iname(){ echo ${INAME:-opticks_aug2020_sjtu_neutrino_telescope_workshop_TALK} ; }
 
-presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review} ; }
+#presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review} ; }
 # instead of manually changing to _TALK use the p2.sh script
+
+
+#presentation-iname(){ echo ${INAME:-opticks_jan2021_juno_sim_review} ; }
+
+presentation-iname(){  echo ${INAME:-lz_opticks_optix7} ; }
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
