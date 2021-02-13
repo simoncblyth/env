@@ -47,27 +47,39 @@ trim()
    : prepares arguments of quicktime trim applescript 
    local msg="=== $FUNCNAME :"
    local applescript=$(trim-applescript)
-   local startdefault=0
+   local starttimedefault=0
    local durationdefault=10
-   local ipathdefault=${MOVIE:-/Users/blyth/Movies/2018_10.mp4}
+   local ipathdefault=${MOVIE:-/Users/blyth/Movies/opticks201810.mp4}
 
-   local start=${1:-$startdefault}
+   local starttime=${1:-$starttimedefault}
    local duration=${2:-$durationdefault}
    local ipath=${3:-$ipathdefault}
 
-   start=$(trim-parsetime $start) 
-
+   local startseconds=$(trim-parsetime $starttime) 
    local idir=$(dirname $ipath)    
    local iname=$(basename $ipath)    
    local istem=${iname/%.*}
    local iext=${iname##*.}
 
-   local opathdefault=$idir/${istem}_trim_${start}_${duration}.${iext}
+   local opathdefault=$idir/${istem}_trim_${starttime/:}_${duration}.${iext}
    local opath=${4:-$opathdefault}
-   #[ ! -f "$opath" ] && touch $opath   # now done from the applescript
-   local cmd="osascript $applescript $start $duration $ipath $opath"
-   echo $msg $cmd
-   eval $cmd
+
+   echo $msg starttime $starttime duration $duration ipath $ipath 
+   echo $msg startseconds $startseconds opath $opath  
+
+   if [ -f "$opath" ]; then
+       echo $msg opath $opath exists already 
+   else
+       local cmd="osascript $applescript $startseconds $duration $ipath $opath"
+       echo $msg $cmd
+       eval $cmd
+   fi 
+
+   local ans
+   read -p "$msg press return to open it or anything else to skip " ans 
+   [ "$ans" != "" ] && echo $msg skip && return 0  
+   open $opath 
+   return 0 
 }
 
 

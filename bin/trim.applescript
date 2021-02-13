@@ -38,14 +38,16 @@ on qt_trim( arg1, arg2, inPath, outPath )
         set total_duration to (duration of doc) 
         log "total_duration " & total_duration    
 
+        -- -ve start seconds treated as relative to total_duration 
         if (arg1 is less than 0) then 
             set trimStart to arg1 + total_duration 
         else
             set trimStart to arg1 
         end if
 
-        if (arg2 is less than 0) then  
-            set trimEnd to arg2 + total_duration   -- -ve trimDuration regarded as a time from the end
+        -- -ve or zero treased as relative to total_duration otherwise treated as a duration to be added to start
+        if (arg2 is less than or equal to 0) then  
+            set trimEnd to arg2 + total_duration   
         else
             set trimDuration to arg2
             set trimEnd to trimStart + trimDuration 
