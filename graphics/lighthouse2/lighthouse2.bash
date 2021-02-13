@@ -20,6 +20,21 @@ Brigade was subsequently bought by OTOY.
 Linux port in progress : https://github.com/MarijnS95/lighthouse2
 
 
+Syncing my fork(with no changes) with upstream 
+--------------------------------------------------
+
+::
+
+    epsilon:lighthouse2 blyth$ git remote -v
+    epsilon:lighthouse2 blyth$ git remote add upstream https://github.com/jbikker/lighthouse2.git
+    epsilon:lighthouse2 blyth$ git remote -v
+    origin	git@github.com:simoncblyth/lighthouse2.git (fetch)
+    origin	git@github.com:simoncblyth/lighthouse2.git (push)
+    upstream	https://github.com/jbikker/lighthouse2.git (fetch)
+    upstream	https://github.com/jbikker/lighthouse2.git (push)
+    epsilon:lighthouse2 blyth$ 
+
+
 Looking for Instancing examples
 ---------------------------------
 
@@ -32,6 +47,16 @@ Looking for Instancing examples
     ./lib/rendercore_optix7/core_mesh.cpp:  buildInput.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
     ./lib/rendercore_optix7/rendercore.cpp: buildInput.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
     [blyth@localhost lighthouse2]$ 
+
+
+CoreBuffer looks standalone enough to be reusable
+---------------------------------------------------------
+
+* lib/CUDA/shared_host_code/cudatools.h
+
+Use of CoreBuffer eg::
+
+* lib/rendercore_optix7/rendercore.cpp
 
 
 
@@ -386,18 +411,6 @@ lib/rendercore_optix7/rendercore.cpp::
      76     vector<CoreInstance*> instances;                    // list of instances: model id plus transform
      ...
      99     CoreBuffer<OptixInstance>* instanceArray = 0;   // instance descriptors for Optix
-
-
-
-
-
-
-
-
-
-
-
-
 
 ::
 
