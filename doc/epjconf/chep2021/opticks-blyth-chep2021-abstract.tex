@@ -12,7 +12,9 @@ inverse cumulative distribution functions for reemission are interleaved into
 GPU textures providing fast interpolated property lookup or wavelength generation.
 %
 Major recent developments are the integration of Opticks with the JUNO simulation 
-framework using a minimal G4Opticks interface class. Also enhancements 
-that greatly reduce CPU memory for hits with GPU efficiency culling 
-and prepare for migration to NVIDIA OptiX 7 are presented.
+framework using the minimal G4Opticks interface class and implementation 
+of collection efficiency hit culling on GPU that enables only collected hits to be copied to CPU, 
+substantially reducing both the CPU memory needed for photon hits and copying overheads. 
+Also progress with the migration of Opticks to the 
+all new NVIDIA OptiX 7 API is described.
 

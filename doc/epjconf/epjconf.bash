@@ -513,11 +513,18 @@ EON
 
 
 
-epjconf-edit(){ local etex=$(epjconf-etex) ; local ebib=$(epjconf-ebib) ; echo $FUNCNAME etex $etex ebib $ebib  ; vi $etex $ebib $(epjconf-aux) ;  }
+epjconf-edit(){ 
+   local etex=$(epjconf-etex) 
+   local ebib=$(epjconf-ebib) 
+   local aux=$(epjconf-aux)
+   echo $FUNCNAME etex $etex ebib $ebib aux $aux 
+   vi $etex $aux
+}
 epjconf-e(){    epjconf-edit ; }
 
-epjconf-aux(){ cat << EOA
-/Users/blyth/env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.txt
+epjconf-aux(){ cat << EOA | grep -v ^#
+#/Users/blyth/env/presentation/opticks_gpu_optical_photon_simulation_jul2018_chep.txt
+/Users/blyth/env/doc/epjconf/chep2021/opticks-blyth-chep2021-abstract.tex
 EOA
 }
 
