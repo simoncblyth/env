@@ -34,12 +34,7 @@ Summary
 
 TODO:
 
-1. update Summary
-2. trimming the sections
 3. optix7 reference
-4. reduce to 10 pages by hiving off some sections by referencing 
-   the prior proceedings, do this in a what-is-where coordination paragraph 
-   at the end of the introduction
 
 }
 
@@ -62,7 +57,7 @@ TODO:
 \section{Introduction}%
 \label{intro}
 %
-Opticks[1-6] enables Geant4[7-9]-based optical photon simulations 
+Opticks[1-6] enables Geant4[7-9] based optical photon simulations 
 to benefit from high performance GPU ray tracing made accessible 
 by NVIDIA\textregistered\ OptiX\texttrademark[10-12].
 %
@@ -99,11 +94,10 @@ can benefit from Opticks.
 %Several groups from various neutrino experiments and dark matter search experiments are 
 %evaluating Opticks.
 
-Opticks has been presented to the three prior CHEP conferences with proceedings
+Opticks was presented to the three prior CHEP conferences with proceedings
 focussing on various aspects of its development. The 2019 plenary presentation 
-and proceedings\cite{chep2019} covered the adoption of NVIDIA OptiX 6 and the 
-access to ray trace dedicated RT cores and the RTX execution model. 
-The 2018 proceedings\cite{chep2018} focus on the implementation of automated
+and proceedings\cite{chep2019} focussed on performance measurements with ray trace dedicated RT cores via the RTX platform. 
+The 2018 proceedings\cite{chep2018} cover the implementation of automated
 translation of Geant4 geometry into a GPU geometry.
 The 2016 proceedings\cite{chep2016} detail the CUDA port of Geant4 photon generation 
 and optical physics as well as the use of GPU textures. 
@@ -144,32 +138,26 @@ external optical photon simulation with a Geant4 simulation of all other particl
 %
 \subsection{GPU ray tracing}%
 %
-Graphics Processing Units (GPUs) evolved to meet the needs of computer graphics, 
-optimizing throughput\cite{throughput}, the total amount of work completed per unit time. 
-This contrasts with CPUs which minimize latency, the time to complete a single task. 
-The relative simplicity of GPUs allows more chip area to be dedicated to parallel compute, 
-resulting in greater computational throughput across all threads at the expense of 
-slower single-thread execution. Threads blocked while waiting to access memory are tolerated by using hardware multithreading to 
-resume other unblocked threads, allowing latencies to be hidden assuming there are sufficient parallel threads in flight. 
+Graphics Processing Units (GPUs) evolved to perform rasterized rendering, optimizing throughput\cite{throughput} rather than minimizing latency like CPUs.
+Greater GPU area dedicated to parallel compute increases throughput across all threads at the expense 
+of slower single-thread execution. 
+Threads blocked while waiting to access memory are tolerated by using hardware multithreading to 
+resume other unblocked threads, which hides latencies when there are sufficient parallel threads in flight. 
+GPUs are suited to problems with many millions of independent low resource parallel tasks allowing thousands of threads 
+to be in flight simultaneously.
 %
-Effective use of GPUs demands problems with many thousands of mostly independent parallel 
-tasks, each of which requires few resources, allowing more threads to be in flight 
-simultaneously.
-%
-Optical photon simulation is well matched to these requirements with abundant parallelism 
-from the large numbers of photons and low register usage from the simplicity of optical physics.
-%and decoupled nature of the photons avoiding synchronization.
+Optical simulation is well matched to these requirements with abundant parallelism 
+from huge numbers of photons and low register usage from simplicity of the physics.
 
-The most computationally demanding aspect of optical photon simulation 
-is the calculation, at each step of the propagation, 
-of intersection positions of rays representing photons with the geometry of the system.
-This ray tracing limitation of optical photon simulation is shared 
-with the synthesis of realistic images in computer graphics. Due to the many applications
+The most computationally demanding aspect of photon propagation
+is the calculation of intersection positions of rays representing photons with the detector geometry.
+This ray tracing limitation of simulation is shared with the synthesis of realistic images in computer graphics. 
+\comment{Due to the many applications
 of ray tracing in the advertising, design, games and film industries, the computer graphics
-community has continuously improved ray tracing techniques. The Turing GPU architecture 
-introduced by NVIDIA in 2018 is marketed as the world's first Ray-tracing GPU, with   
-hardware "RT Cores" dedicated to the 
-acceleration of ray geometry intersection.
+community has continuously improved ray tracing techniques.}
+%
+Many recent NVIDIA GPUs feature the RTX platform including hardware "RT Cores" 
+dedicated to the acceleration of ray geometry intersection.
 NVIDIA claims performance of more than 10 billion ray intersections 
 per second, which is a factor 10 more than possible with earlier GPUs
 which perform the intersection acceleration in software. 
@@ -187,30 +175,43 @@ principal technique for accelerating ray geometry intersection.
 OptiX provides only the acceleration of ray geometry intersection, not the intersection itself,
 thus affording full flexibility to implement intersections with any form of geometry. 
 OptiX acceleration structures supports instancing, allowing them to be shared 
-between multiple instances of the same geometry such as the photomultiplier tubes in the JUNO geometry.  
+between multiple placements of the same geometry such as the photomultiplier tubes in the JUNO geometry.  
 
-\subsection{NVIDIA\textregistered\ OptiX\texttrademark\ 7 : An Entirely new slim API}
+%\subsection{NVIDIA\textregistered\ OptiX\texttrademark\ 7 : An Entirely new slim API}
 %
-In August 2019 NVIDIA introduced OptiX 7, an entirely new much lower level CUDA-centric API 
-which is not remotely backwards compatible. 
-The level of abstraction of the new API is similar to that of the other two ray tracing APIs : 
-Vulkan ray tracing extensions (VKRay) and Microsoft DirectX ray tracing extension (DXR). 
-These three ray tracing APIs all provide access via the NVIDIA driver to the same underlying NVIDIA 
-accelerated ray tracing technology, including construction of acceleration structures and 
-access to ray trace dedicated RTCore hardware. The three APIs for geometry and instance acceleration 
-structure creation and preparation of shader context have many similarities.
-The low level convergence of these three APIs is suggestive that further major API transitions 
+In August 2019 NVIDIA introduced OptiX 7, an entirely new much lower level CUDA-centric API\cite{optix7}.
+The level of abstraction of the new API is similar to that of two other ray tracing extension APIs for Vulkan: VKRay and Microsoft's DirectX: DXR. 
+All three ray tracing APIs provide access via the NVIDIA driver to the same underlying NVIDIA ray tracing technology, 
+including construction of acceleration structures and access to ray trace dedicated RT Core hardware. 
+The three APIs for geometry and instance acceleration structure creation and preparation of shader context 
+have many similarities. The low level convergence of these three APIs is suggestive that further major OptiX API transitions 
 are unlikely. 
 
 The OptiX 7 API has minimal host state, all host functions are thread safe and many operations are asynchronous using CUDA streams.
 The API gives explicit control over memory management and shader compilation to the application.
 The new API gives more control and flexibility but shifts the implementation burden for important features 
-such as multi-GPU scaling to the application.  Earlier API versions provided a convenient GPU geometry
-context. In the new API this geometry context must be created at a much lower level by construction
-of a Shader Binding Table (SBT). 
-
- 
-
+such as multi-GPU scaling to the application.  
+\comment{
+Earlier API versions provided a convenient GPU geometry
+context which is the new API must be constructed at a much lower level in the form of the Shader Binding Table (SBT). 
+}
+%
+%
+%
+%
+\begin{figure}[t]
+\centering
+% left lower right upper
+\includegraphics[width=\textwidth,trim={0 5cm 0 5cm},clip]{env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow1_001.png}
+\caption{Comparison of the standard workflow of Geant4 optical photon simulation (left) with the hybrid Geant4 + Opticks workflow (right).
+A single Opticks class {\tt G4Opticks} acts to interface Geant4 user code with the Opticks GPU propagation. 
+Hybrid simulation requires modification of the classes representing scintillation and Cherenkov processes
+to collect "genstep" data structures.}
+% including the number of photons to generate, the line segment along 
+%which to generate them and all other parameters used by the photon generatation loop.
+%}
+\label{workflow} 
+\end{figure}
 %
 \section{Hybrid simulation workflow}
 \label{secworkflow}
@@ -228,28 +229,23 @@ the Opticks package.
 At initialization the Geant4 top volume pointer is
 passed to Opticks which translates the geometry and constructs 
 the OptiX GPU context.
-
-
-
-
 %
-\begin{figure}
-\centering
-% left lower right upper
-\includegraphics[width=\textwidth,trim={0 5cm 0 5cm},clip]{env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow1_001.png}
-\caption{Comparison of the standard workflow of Geant4 optical photon simulation (left) with the hybrid Geant4 + Opticks workflow (right).
-A single Opticks class {\tt G4Opticks} acts to interface Geant4 user code with the Opticks GPU propagation. 
-Hybrid simulation requires modification of the classes representing scintillation and Cherenkov processes
-to collect "genstep" data structures.}
-% including the number of photons to generate, the line segment along 
-%which to generate them and all other parameters used by the photon generatation loop.
-%}
-\label{workflow} 
-\end{figure}
+The hybrid workflow replaces the generation of photon secondary tracks in a loop
+with the collection of "genstep" parameters including the number of photons to generate
+and the line segment along which to generate them and all other parameters needed for the generation.
+These gensteps together with CUDA ports of the Cerenkov and scintillation generation  
+allow the photons to be generated directly on the GPU within the ray generation program 
+provided to OptiX.
 %
+This avoids allocation of CPU memory for the photons, only photon hits necessary for 
+the next stage electronics simulation require CPU memory allocation.  
+%
+The genstep arrays are typically several orders of magnitude smaller than the photon arrays 
+that are generated from them.  Gensteps are valid only for specific versions of the implementation
+of the processes as they must be used only with matched CUDA ports of the generation.  
 
-The simulation is steered from the NVIDIA OptiX ray generation program which 
-performs the photon generation followed by propagation up to a configurable maximum 
+The simulation is steered from the a ray generation program provided to OptiX 
+which performs the photon generation followed by propagation up to a configurable maximum 
 number of steps. For each step of the propagation, rays representing photons are intersected
 with the geometry. The intersected boundary provides a boundary index which allows 
 material properties such as absorption and scattering lengths to be looked up. 
@@ -259,6 +255,7 @@ with geometrical distance to boundary to assign photon histories.
 %Further details are provided in the below sections.
 Details on efficient use of pseudorandom number generation with cuRAND\cite{curandURL} are in the 
 earlier proceedings\cite{chep2016}.
+%
 %
 %\section{Pseudorandom numbers}
 %
@@ -276,7 +273,8 @@ earlier proceedings\cite{chep2016}.
 %
 Detector geometry is modelled on the GPU with OptiX intersection, bounding box 
 and closest hit programs and buffers that these programs access.
-Opticks provides automated translation of Geant4 geometries first into the Opticks geometry and then into OptiX buffers, starting 
+Opticks provides automated translation of Geant4 geometries first into the Opticks {\tt GGeo} geometry and then into OptiX buffers.
+The translation starts 
 by traversing the Geant4 volume tree converting materials, surfaces, solids, volumes and sensors 
 into the Opticks geometry model.  The Opticks geometry model is complete 
 in the sense that it does not depend on Geant4 and it also provides a serialization in the 
@@ -296,7 +294,7 @@ as well as surface reflectivities, detection efficiencies and absorption fractio
 % and stored into Opticks instances {\tt GMaterialLib} and {\tt GSurfaceLib}.
 Each volume of the geometry is assigned a boundary index uniquely identifying the combination of four indices representing 
 outer and inner materials and outer and inner surfaces. Outer/inner surfaces handle inwards/outwards going photons, which allows the Geant4 border and skin
-surface functionality to be translated. Surfaces with a non-zero {\tt EFFICIENCY} property are used to identify sensor volumes. 
+surface functionality to be translated. Surfaces with a non-zero efficiency property are used to identify sensor volumes. 
 
 GPUs contain hardware dedicated to fast texture lookup and interpolation.
 This is exploited by using a single 2D {\tt float4} texture, named the boundary texture,
@@ -321,12 +319,12 @@ Arbitrarily complex solids are described using constructive solid geometry (CSG)
 which builds shapes from the combination of primitive constituents by boolean set operations: union, intersection and difference.
 A binary tree data structure with primitives at the leaves of the tree and operators at the internal nodes is used
 to represent the solids. Any node can have an associated local transform, represented by a 4x4 transformation matrix, which 
-is combined with other local transforms to yield global transforms in the frame of the root node of the tree.
+is combined with other local transforms to yield transforms in the frame of the root node of the tree.
 %
 % serialization 
 Each primitive or operator node is serialized into an array of up to 16 elements. 
 These elements include float parameters of the primitives and integer index references 
-into a separate global transform buffer. 
+into a separate transform array. 
 %For the convex polyhedron primitive which is defined by a list of surface planes, 
 %the primitive contains an integer index referencing into a separate plane buffer together with the number of planes. 
 A complete binary tree serialization with array indices matching level order tree indices
@@ -335,7 +333,7 @@ serialization allows tree navigation directly from bitwise manipulations of the 
 %
 % balancing
 Complete binary tree serialization is simple and effective for small trees but very inefficient 
-for unbalanced trees, necessitating tree balancing for shapes with many constituent primitives 
+for large and unbalanced trees, necessitating tree balancing for shapes with many constituent primitives 
 to reduce the tree height. 
 The prior proceedings\cite{chep2018} provide further details of the constructive solid geometry modelling, 
 tree balancing and translation between Geant4 and Opticks solids.
@@ -355,34 +353,35 @@ tree balancing and translation between Geant4 and Opticks solids.
 %
 \subsection{Structural volumes}%
 %
-The Opticks geometry model is based upon the observation that many elements of a detector 
-geometry are repeated demanding the use of instancing for efficient representation.  
-Geometry instancing is a technique used in computer graphics libraries including OpenGL and NVIDIA OptiX that avoids 
-duplication of information on the GPU by storing repeated elements only once together with 4x4 transform matrices 
-that specify the locations and orientations of each instance.
-%
-The Geant4 geometry model comprises a hierarchy of volumes with associated transforms.
-The tree of volumes is first converted into a parallel tree of Opticks {\tt GVolume} objects.
-Each {\tt GVolume} holds references to both analytic {\tt GParts} and triangulated {\tt GMesh} objects.
+The Geant4 structural geometry model comprises a containment tree hierarchy of volumes with associated transforms.
+The Opticks geometry model is based upon the observation that many of these volumes are 
+repeated in groups, corresponding for example to the small number of volumes that represent each type of PMT, 
+and thus an efficient representation must make full use of geometry instancing. 
+Geometry instancing is a technique used in graphics libraries including OpenGL and NVIDIA OptiX that 
+avoids duplication of information on the GPU by storing repeated elements only once together 
+with 4x4 transform matrices that specify the locations and orientations of each instance.
+
+The translation between the Geant4 and Opticks geometry models starts by creating 
+a parallel tree of Opticks {\tt GVolume} nodes. Each {\tt GVolume} holds references to both 
+analytic {\tt GParts} and triangulated {\tt GMesh} objects.
 The JUNO geometry tree contains more than 300,000 volumes.  This geometry information 
-is effectively factorized into about 10 {\tt GMergedMesh} objects by the {\tt GInstancer} class, with
-each object corresponding to various types of PMT assemblies and support structures. 
-For the PMT assemblies the {\tt GMergedMesh} objects hold arrays of many thousands of instance transforms 
-and identity records corresponding to the positions and orientations of each assembly of volumes.
-Despite the name the {\tt GMergedMesh} objects contain analytic {\tt GParts} and triangulated {\tt GMesh}
-objects constructed by concatenating the corresponding objects from the individual volumes
-of the repeated assembly. Prior to combination both analytic and triangulated data has an 
+is effectively factorized into about 10 {\tt GMergedMesh} objects by the {\tt GInstancer} class
+by first assigning a geometry digest string to every {\tt GVolume} node based on the transforms and shape 
+indices of the progeny nodes of the full subtree descended from it. 
+Subsequently repeated groups of volumes and their placement transforms are identified using the progeny digests, 
+after disqualifying repeats that are contained within other repeats or which are insufficiently repeated.
+With the digests of the repeats identified it is then straightforward to label all nodes with a repeat index.
+leaving remainder insufficiently repeated nodes with a repeat index of zero.
+
+The labelled tree then allows {\tt GMergedMesh} objects for each repeat index, including the remainder volumes, 
+to be created, collecting the many thousands of transforms for all placements of for example PMTs and 
+combining together the analytic {\tt GParts} and triangulated {\tt GMesh} into composite objects for
+each repeated group. Prior to combination both analytic and triangulated data has a
 placement transform applied. For the repeated instance volumes the placement 
 transform is relative to the instance base whereas for the non-repeated remainder volumes global 
 transforms are used for the placement.
 %
-This factorization is performed by assigning a geometry digest string to every {\tt GVolume} based on the transforms and shape indices of the progeny 
-volumes of the full subtree descended from it. Subsequently repeated groups of volumes and their placement transforms are 
-identified using the geometry digests, after disqualifying repeats that are contained within other repeats. 
-All volumes that pass instancing criteria regarding the number of vertices and number of repeats are assigned an instance index
-with the remainder forming the global non-instanced group. 
-%
-\subsection{Translation from Opticks to OptiX and OpenGL geometry models}%
+\subsection{Translation of Opticks geometry to OptiX and OpenGL models}%
 %
 The small number of {\tt GMergedMesh} objects correspond to repeated assemblies of groups of volumes
 which bring together the structural information of the instance transforms and the solid shape information 
@@ -393,15 +392,15 @@ containing concatenated arrays of constituent CSG nodes, transforms, planes and 
 that are inputs to the analytic CSG intersection and bounding box programs. These programs 
 and instance transforms are linked together into the OptiX geometry node graph which is also 
 used to configure the resulting acceleration structures. 
+Figure~\ref{j1808} presents a ray traced rendering of the analytic representation of the JUNO detector geometry. 
 
 Analogously each composite {\tt GMesh} object combines arrays of triangle vertices and indices from 
-the polygonization of the solids of each of the volumes which are used as inputs together with 
-the arrays of transforms to the OpenGL rasterized visualization using on single draw calls for each {\tt GMergedMesh}.
-Figure~\ref{j1808} presents a ray traced rendering of the analytic representation of the JUNO detector geometry. 
+the Geant4 polygonization of the solids of each of the volumes which are used as inputs together with 
+the arrays of instance transforms to the OpenGL rasterized visualization using a single draw call for each {\tt GMergedMesh}.
 %
 \subsection{Sensor efficiencies}%
 %
-Photon detection on sensors such as PMTs is typically modelled by stochastic culling of a fraction of 
+Photon detection on sensors such as PMTs is typically modelled by stochastic culling a fraction of 
 candidate hits based on overall and angle dependent sensor collection efficiencies. 
 With the hybrid CPU-GPU workflow used by Opticks it is highly beneficial to perform this culling 
 on the GPU as then the CPU memory necessary for hits can be reduced by the culling fraction and also the sizes of 
@@ -414,18 +413,17 @@ detector specific assumptions.
 
 During the recursive traversal of the Geant4 geometry tree that creates the parallel tree of Opticks {\tt GVolume}
 sensor volumes are identified and sensor indices assigned by the presence of surfaces with non-zero efficiencies. 
-These automatically assigned sensor indices and vectors of the corresponding Geant4 {\tt G4PVPlacement} 
+These automatically assigned sensor indices and vectors of the corresponding Geant4 {\tt G4PVPlacement} volumes 
 allow sensor efficiency data to handled in a detector independent manner. In addition to sensor efficiency values 
 each sensor can be associated with sensor categories and detector specific sensor identifiers. The sensor categories
 correspond to different types of sensors with different angular efficiencies.  Separate GPU $\theta-\phi$ textures 
 for each sensor category are used to provide interpolated angular efficiency lookups from the sensor local 
-frame coordinates of hits. In this way every point on the surfaces of all sensor volumes are assigned efficiencies.. 
-Comparison of the efficiency for each sensor hit with a pseudorandom number is used to assign {\tt COLLECT} or 
-or {\tt CULL} photon flags. Changing the hitmask from {\tt DETECT} to {\tt COLLECT} allows only the hits 
-needed for the electronics simulation to be downloaded from the GPU to the CPU.  
-  
-
-        
+frame coordinates of hits. In this way every point on the surfaces of all sensor volumes are assigned efficiencies.
+Comparison of the efficiency for each sensor hit with a pseudorandom number is used to assign {\it collect} or {\it cull} 
+photon flags. These flags are then used to control the selection of photons that are copied back to the CPU 
+using the stream compaction implementation provided by CUDA Thrust\cite{thrust} methods {\tt thrust::count\_if} and 
+{\tt thrust::copy\_if} used by Opticks {\tt TBuf}. 
+%       
 %
 %
 \begin{figure}
@@ -446,9 +444,9 @@ Optical physics processes of scattering, absorption, scintillator reemission and
 boundary processes are implemented in CUDA functions based on the Geant4
 implementations. 
 %
-The single ray programming model exposed by NVIDIA OptiX makes it mostly possible 
-to directly port the corresponding Geant4 implementation by simply 
-adapting to use GPU textures for property access. 
+The single ray programming model of NVIDIA OptiX enables 
+direct ports of the corresponding Geant4 implementations adapted
+to use GPU textures for property access. 
 %
 On the CPU, it is convenient to implement scintillator reemission using Geant4 secondary 
 tracks. A different approach is adopted on the GPU where a fraction of absorbed photons
@@ -456,27 +454,8 @@ are reborn with modified direction and wavelength within the same CUDA thread.
 A reemission texture that encapsulates an inverse cumulative distribution function 
 is used to generate wavelengths that follow the desired distribution on lookup of pseudorandom numbers. 
 %
-%
-\section{Optical photons and "gensteps"}%
-%
-Photons are brought to the GPU via NVIDIA OptiX ray generation programs, 
-CUDA ports of photon generation loops and photon generation parameters 
-in the form of "genstep" data structures, which play a central role in the workflow.
-%
-As Geant4 has no "genstep" interface, it is necessary to modify the classes
-representing scintillation and Cerenkov processes. Instead of generating photon
-secondary tracks in a loop, the "genstep" parameters such as   
-the process type code, the number of photons to generate and the line segment along which to generate
-them and all other parameters used in the generation loop are collected. 
-Collecting and copying gensteps rather than photons avoids
-allocation of CPU memory for the photons, only photons that reach sensors
-requiring CPU memory allocation. 
-The genstep arrays are typically several orders of magnitude smaller than the photon arrays 
-that are generated from them.   
-%
-Gensteps can be regarded as a manual collection of the "stack" just 
-prior to the generation loop, but they are valid only for a specific version of the processes 
-due to the need for a matched CUDA port of the generation loop.  
+Further details on the CUDA ports of Geant4 optical physics and use of GPU textures 
+are given in the 2016 proceedings\cite{chep2016}.
 %
 %
 %
@@ -512,7 +491,7 @@ using calibration source gensteps, positioned at the center of the scintillator 
 that uniformly emit a range of photon counts. 
 The maximum number of optical photons that can be simulated in a single GPU launch is
 limited by the available VRAM. Each photon requires 64 bytes for parameters  
-and 48 bytes for the CURAND random number generator state, corresponding to 45G for 400M photons.
+and 48 bytes for the cuRAND random number generator state, corresponding to 45G for 400M photons.
 The measurements use a production mode with only photomultiplier hits being stored.
 All non-essential processing such as photon step recording are skipped. Test hardware was a single 
 NVIDIA Quadro RTX 8000 GPU with 48G of VRAM hosted in a DELL Precision 7920T workstation with 
@@ -533,11 +512,11 @@ substantial improvement by optimization of geometry modelling.
 \centering
 \includegraphics[width=\textwidth,clip]{env/presentation/ana/scan-pf-1/Opticks_vs_Geant4}
 \caption{Full analytic JUNO geometry Opticks simulation times in seconds for 1M-400M optical photons using a single NVIDIA Quadro RTX 8000 GPU 
-are compared with single threaded Geant4 10.4.2 simulation times extrapolated from a measurement for 1M optical photons. 
-The solid(dotted) blue and red curves show times with RTX mode enabled(disabled). 
+compared to single threaded Geant4 10.4.2 simulation times extrapolated from a measurement for 1M optical photons. 
+The solid(dotted) blue and red curves show times with RTX enabled(disabled). 
 Differences between interval times which include per event upload and download overheads and launch 
 times are not readily apparent with the logarithmic scale. The linearly extrapolated Geant4 time for 400M photons is 95,600 s (26 hours) 
-contrasts with the Opticks time of 58s, corresponding to a speedup factor of 1,660 times with a single GPU.   
+contrasts with the Opticks time of 58s, corresponding to a speedup factor of 1,660 times with a single GPU.%   
 }
 \label{scanpf1vs} 
 \end{figure}
@@ -549,13 +528,16 @@ contrasts with the Opticks time of 58s, corresponding to a speedup factor of 1,6
 Opticks enables Geant4-based optical photon simulations to benefit from 
 state-of-the-art NVIDIA GPU ray tracing, made accessible via NVIDIA OptiX,
 that allows memory and time processing bottlenecks to be eliminated.
-Recent developments enable Opticks to benefit from the ray trace dedicated 
-hardware available in Turing architecture GPUs.
+Recent developments enable Opticks to greatly reduce the CPU memory for hits 
+by moving collection efficiency hit culling to the GPU. The migration of Opticks to 
+the NVIDIA OptiX 7 is in progress. Thanks to ongoing assistance from NVIDIA engineers 
+it is expected that is will be possible to present new performance numbers with OptiX 7 at vCHEP 2021.
 Opticks meets the challenge of optical photon simulation in JUNO, 
 the world's largest scintillator detector, and can benefit any simulation limited by optical photons. 
 %
 %
 %
+\newpage
 \section*{Acknowledgements}
 %
 The JUNO collaboration is acknowledged for the use of detector 
@@ -566,7 +548,6 @@ Grant No. 2018VMB0002.
 %
 %
 %
-\newpage
 \begin{thebibliography}{}
 %
 %1
@@ -622,10 +603,8 @@ OptiX introduction, {\tt https://developer.nvidia.com/optix}
 \bibitem{optixDocs}
 OptiX API, {\tt http://raytracing-docs.nvidia.com/optix/index.html}
 %
-%
-%\bibitem{optix7Intro}
-%OptiX 7 Introduction {\tt https://developer.nvidia.com/blog/how-to-get-started-with-optix-7/}
-%
+\bibitem{optix7}
+OptiX 7 {\tt https://developer.nvidia.com/blog/how-to-get-started-with-optix-7/}
 %
 %13
 \bibitem{juno}
@@ -647,6 +626,11 @@ cuRAND, {\tt http://docs.nvidia.com/cuda/curand/index.html}
 \bibitem{numpy}
 The NumPy array: a structure for efficient numerical computation \\
 S. Van der Walt, S. Colbert, G. Varoquaux, Comput. Sci. Eng. {\bf 13}, 22 (2011)
+%
+\bibitem{thrust}
+Chapter 26 - Thrust: A Productivity-Oriented Library for CUDA \\
+N. Bell, J. Hoberock, GPU Computing Gems Jade Edition, (2012), pp 359-371
+%
 %
 \end{thebibliography}
 %
