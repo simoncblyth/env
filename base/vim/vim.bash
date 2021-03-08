@@ -12,6 +12,51 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+vimdiff
+--------
+
+* http://vimdoc.sourceforge.net/htmldoc/diff.html
+* https://www.youtube.com/watch?v=Eb8S_KkmLS8
+
+vd(){ vimdiff -c "windo set nofoldenable" $* ; }
+
+
+::
+
+
+   vimdiff lhs.txt rhs.txt
+   vimdiff -o top.txt bot.txt
+   vim -d lhs.txt rhs.txt
+   vim -do top.txt bot.txt
+
+   ctrl-WW  : jump between files   : need to do this to "u" undo a "dp" change into the other file
+
+   zr          open all the folds  : this helps because it prevents jumping around when moving changes  
+
+   ]c    next diff
+   [c    prev diff
+
+   :diffget        do   (diff-obtain)
+   :diffput        dp   (diff-put)
+   :diffupdate        
+
+
+   vimdiff -c "windo set nofoldenable"
+
+
+
+Remove Trailing Whitespace
+----------------------------
+
+::
+
+   :.,34s/\s\+$//c
+   :%s/\s\+$//g
+   :%s/\s\+$//ge    # dont give error when not found
+
+   :%s/\s\+$//g     # its necessary to escape the + 
+
+
 Remote Editing 
 ----------------
 
@@ -22,6 +67,14 @@ Remote Editing
 
     vi scp://P/.bash_profile
 
+
+Deleting a range of lines without using visual selection
+-----------------------------------------------------------
+
+::
+
+   :.,+10d        # delete the next 10 lines
+   :1,1000d       # delete first 1000 lines 
 
 
 Remember last edit location in file and return there on opening

@@ -12,7 +12,7 @@
 #    make touch ; make open PAGE=6    # if modifying smth not detected by this Makefile
 #
 #
-PYTHON?=/opt/local/bin/python
+PYTHON?=/opt/local/bin/python2.7
 
 #FOOTNOTE_REFERENCES="superscript"
 FOOTNOTE_REFERENCES="brackets"

@@ -41,7 +41,8 @@ LZ-Opticks-NVIDIA OptiX 6->7 : Notes
 
    **Links**
 
-   * https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7.html  (these slides)
+   * https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210208.html  )
+   * https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210208.html  (these slides)
    * https://simoncblyth.bitbucket.io/opticks/docs/orientation.html  (docs)
 
    **OptiX 7 Experiments**
@@ -64,14 +65,6 @@ LZ-Opticks-NVIDIA OptiX 6->7 : Notes
 
      * **NOW:** first experiments with compound (multiple bbox) GAS 
      * not yet tried : CSG nodes/planes/transforms -> fixed size SBTRecord type (?)
-
-
-.. raw:: html
-
-   <pre>
-
-
-   </pre> 
 
 
 .. class:: small

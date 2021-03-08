@@ -39,6 +39,24 @@ http://scikit-hep.org/root_numpy/install.html
     Out[5]: (43213,)
 
 
+
+Need JUNOEnv for the ROOT, but then get py27 ?::
+
+    [blyth@localhost junotop]$ ./pmtdata_Lpmt.py 
+    Traceback (most recent call last):
+      File "./pmtdata_Lpmt.py", line 4, in <module>
+        from root_numpy import root2array
+      File "/home/blyth/.local/lib/python2.7/site-packages/root_numpy/__init__.py", line 22, in <module>
+        config = get_config()
+      File "/home/blyth/.local/lib/python2.7/site-packages/root_numpy/setup_utils.py", line 117, in get_config
+        from pkg_resources import resource_filename
+      File "/home/blyth/junotop/ExternalLibs/ROOT/6.20.02/lib/ROOT.py", line 522, in _importhook
+        return _orig_ihook( name, *args, **kwds )
+    ImportError: No module named pkg_resources
+    [blyth@localhost junotop]$ 
+
+
+
 EOU
 }
 rootnumpy-dir(){ echo $(local-base)/env/root/root_numpy ; }

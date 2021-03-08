@@ -1,0 +1,764 @@
+
+.. meta::
+   :note: Navigate the HTML slides by entering a page number and pressing return 
+   :title: Detector geometry in Opticks 
+   :description: (Mar 2021)
+   :event: Compute Accelerator Forum
+   :url: https://indico.cern.ch/event/975008/
+   :date: 10 March 2021
+   :time: Wednesday 10 March at 16h30 CERN time
+   :length: 20+10 minutes
+
+.. include:: my_s5defs.txt
+
+
+
+.. comment
+
+   Instancing 
+
+   * https://developer.nvidia.com/gpugems/gpugems2/inside-front-cover
+   * https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-3-inside-geometry-instancing
+
+   Material/Surface -> Borders -> GPU Texture 
+
+   What is GPU geometry 
+
+   Convergence of APIs, OptiX7, DXR, VullkanRT
+
+   Instanced Ray tracing 
+
+   Fundamentals
+
+   * aabb : axis aligned (local frame) bounding box 
+   * heirarchy of aabb (BVH)
+   * transform rays into local frame simplifies intersection 
+   * beneficial to do intersects in local frame, close to origin 
+
+
+
+   CSG 
+
+   GPU Demands Simplicity (Arrays)    
+
+   Whacky idead : SDF 
+
+
+
+
+:i:`Detector Geometry in Opticks` 
+===================================
+
+.. raw:: html
+
+    <div class="mytitle">
+    <header>
+    <h1 style="background-color:lightgrey;text-align:center;"> 
+         Detector Geometry in <i>Opticks</i> : <br> GPU Optical Simulation with NVIDIA® OptiX™ 
+        <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
+    </h1>
+    </header>
+    </div>
+
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; Compute Accelerator Forum Meeting, March 10 2021, Virtual</h2>
+    </div>
+
+
+.. s5_talk:: 
+
+    This talk will review progress with Opticks and with its use in JUNO. 
+
+
+
+#pragma GCC diagnostic ignored "-Winvalid-pp-token"
+
+
+`JUNO Optical Photon Simulation Problem...`
+---------------------------------------------------------
+
+.. raw:: html
+
+     <pre>
+
+
+
+
+
+
+
+     </pre>
+
+.. sidebar:: :small:`Huge CPU Memory+Time Expense`
+
+    .. class:: small
+
+         **JUNO Muon Simulation Bottleneck**
+           ~99% CPU time, memory constraints
+
+         :redbold:`Ray-Geometry intersection Dominates`
+           :redbold:`simulation is not alone in this problem...`
+
+         **Optical photons : naturally parallel, simple :**
+           * produced by Cherenkov+Scintillation 
+           * yield only Photomultiplier hits
+
+
+.. s5_talk::
+
+   * With millions of photons its the ray geometry intersection time
+     that dominates the performance 
+
+   * Most of the time is taken finding intersections between photons and geometry.
+
+   * CPU Memory for all the photons is a biug problem too 
+
+   * This ray tracing bottleneck is exactly the same as faced by ray trace image rendering in computer graphics.
+
+
+
+:i:`NVIDIA Marbles At Night RTX Demo`
+---------------------------------------
+
+
+.. s5_talk::
+
+   This is a recent NVIDIA RTX demo from its launch 
+   of 2nd generation RTX
+
+   Consider how many ray-geometry intersections it takes 
+   to create a scene like this. 
+
+   That can now be done in 1440p at 30 fps on a single Ampere GPU.
+
+
+:i:`NVIDIA Marbles At Night RTX Demo 2`
+-----------------------------------------
+
+.. raw:: html
+
+   <pre>
+
+   </pre>
+
+.. sidebar:: :small:`Realtime RTX render, 1 Ampere GPU`
+
+   .. class:: small
+
+       https://www.youtube.com/watch?v=NgcYLIvlp_k
+
+   .. class:: small
+
+       * **playable demo : guide marbles thru geometry**
+       * purely path-traced, no rasterization, no baking
+       * hundreds of dynamic ray-traced lights
+       * ~100M polygons 
+       * AI : DLSS + denoising 
+       * 1440p @ 30fps on single Ampere GPU :
+
+       **NVIDIA GeForce RTX 3090 [USD 1499]**
+
+   .. class:: tiny
+ 
+       2560*1440 = 3.7M pixels -> x30 -> 110M pixels/s
+
+       DLSS : Deep Learning Super Sampling 
+
+
+.. s5_talk::
+
+    Its all ray traced, there is no rasterization being done.
+    Everything is dynamic. 
+
+
+
+
+:small:`Ampere : 2nd Generation RTX`
+-----------------------------------------
+
+.. class:: small
+
+   NVIDIA:
+      "...triple double over Turing..."
+
+   * Samsung 8nm (from TSMC 12nm)
+
+   * **NVIDIA GeForce RTX 3090** 
+
+     * 10,496 CUDA Cores, 28GB VRAM
+
+
+.. s5_talk::
+
+    Ray Tracing performance continues to improve rapidly 
+
+
+
+:small:`GPU Ray Tracing (RT) APIs Converging`
+--------------------------------------------------
+
+.. sidebar:: :small:`Interfaces over NVIDIA Driver`
+
+    .. image:: /env/presentation/nvidia/nvidia_ray_tracing_apis_half.png  
+        :width: 500px
+        :align: right 
+
+
+    .. raw:: html
+
+        <pre>
+
+
+
+        </pre>
+
+    .. class:: small
+
+        **Driver Updates** : :redbold:`Independant of Application`
+
+        * new GPU support
+        * performance improvements
+
+
+.. class:: small
+
+   :redbold:`Three Similar Interfaces over same RTX tech:`
+
+   **NVIDIA OptiX (Linux, Windows) [2009]**  
+
+   * CUDA header only access to Driver functionality
+
+   **Vulkan RT (Linux, Windows) [final spec 2020]**
+
+   * cross-vendor cross-platform RT 
+
+   **Microsoft DXR : DirectX 12 Ray Tracing (Windows) [2018]**
+
+   * enhancing visual quality of realtime games 
+
+
+.. raw:: html
+
+   <pre>
+   </pre>
+   <hr/>
+
+
+.. class:: small
+
+   **Metal Ray Tracing API (macOS) [introduced 2020[1]]** 
+
+   * Very different Integrated GPU : Apple Silicon M1 GPU 
+   * BUT: similar API 
+
+
+
+
+.. class:: tiny 
+
+   [1] https://developer.apple.com/videos/play/wwdc2020/10012/
+
+.. s5_talk::
+
+    Similarities of first three APIs, not surprising : as they are 
+    just different interfaces over the NVIDIA Driver
+
+    TLAS IAS
+
+    BLAS GAS
+
+    Low level convergence suggests
+
+
+
+
+:small:`RTX Execution Pipeline : Common to DirectX RT, Vulkan NV RT, OptiX`
+-----------------------------------------------------------------------------
+
+.. class:: small
+
+   :redbold:`Acceleration Structure (AS) traversal is central to pipeline performance` 
+
+.. class:: small
+
+    .. figure:: /env/presentation/nvidia/rtx_api_execution_pipeline_half.png
+        :width: 900px
+        :align: right
+
+        "The RTX Shader Binding Table (SBT) Three Ways", Will Usher
+
+        * https://www.willusher.io/graphics/2019/11/20/the-sbt-three-ways
+
+
+.. class:: small
+
+    RG : Ray Generation
+
+    IS : Intersect 
+
+    CH : Closest Hit 
+
+    AH : Any Hit  
+
+    MS : Miss
+
+ 
+    **GPU Opticks**
+
+    RG 
+       | Cerenkov
+       | Scintillation  
+       | "bounce" loop 
+ 
+    IS 
+       primitives, CSG 
+    CH 
+       IS->RG
+
+
+
+.. s5_talk::
+
+    Ray tracing workflow split into programs/shaders that are linked
+    together into a pipeline.   
+
+    The acceleration structure is central to ray tracing performance.
+
+
+
+``Spatial Index Acceleration Structure``
+---------------------------------------------------
+
+
+.. raw:: html
+
+    <pre>
+
+
+
+
+
+
+
+
+
+
+
+    </pre>
+
+.. sidebar:: :small:`Tree of Bounding Boxes (bbox)`
+
+    .. class:: small
+
+       * aims to minimize bbox+primitive intersects 
+       * :red:`recursively partitions space`
+
+
+.. s5_talk::
+
+   The principal technique to accelerate ray geometry intersection 
+   is an acceleration structure called a bounding volume hierarchy 
+   
+   This divides space into progressively smaller boxes which forms
+   a spatial index.
+
+   Traversing the tree of bounds allows to minimize tests
+   needed to find an intersect.
+
+   With some geometry it is possible for the traversal 
+   to be done on the dedicated RT cores.
+
+
+
+
+
+
+
+:small:`Two-Level Hierarchy : Instance transforms (TLAS) over Geometry (BLAS)`
+-------------------------------------------------------------------------------
+
+.. class:: small
+
+    **OptiX supports multiple instance levels : IAS->IAS->GAS** BUT: :redbold:`Simple two-level is faster` : :red:`works in hardware RT Cores` 
+
+
+.. class:: small
+
+    .. figure:: /env/presentation/nvidia/tlas_blas_two_level_hierarchy.png
+        :width: 800px
+        :align: right 
+
+        https://developer.nvidia.com/blog/introduction-nvidia-rtx-directx-ray-tracing/
+
+.. class:: small
+
+   AS
+      Acceleration Structure
+
+   TLAS (**IAS**) 
+      4x4 transforms, refs to BLAS
+       
+   BLAS (**GAS**)
+      | triangles : vertices, indices
+      | custom primitives : AABB 
+
+   AABB
+      axis-aligned bounding box 
+
+
+   **SBT : Shader Binding Table**
+
+   Flexibly binds together:
+ 
+   1. geometry objects
+   2. shader programs 
+   3. data for shader programs
+
+   **Hidden in OptiX 1-6 APIs**
+
+
+
+.. s5_talk::
+
+   Simple two-level hierarchy : **just one set of instances with transforms and references to geometry**  
+
+
+:i:`Geant4OpticksWorkflow`
+----------------------------
+
+.. s5_talk::
+
+    SMALL
+    So : how can an external optical photon simulation be integrated with Geant4 ?
+
+    In the standard workflow the Geant4 Scintillation and 
+    Cerenkov processes calculate a number of photons 
+    and then loop generating these and collecting them 
+    as secondaries
+     
+    In the hybrid workflow, this generation is split 
+    between the CPU and GPU with "Gensteps" acting as the bridge. 
+    These Genstep parameters include the number of photons, positions and everything 
+    else needed in the generation loop.
+
+    The result is a very simple port of the generation loop to the GPU. 
+
+    Its doubly helpful to generate photons on GPU, as then
+    they take no CPU memory.
+  
+    So can entirely offload photon memory to the GPU with only hits needing CPU memory. 
+
+    Also this keeps the overheads low as gensteps are typically a factor of 100 smaller
+    than photons.   
+ 
+    The geometry is also needed on the GPU, with all 
+    material and surface properties.
+     
+
+:small:`Auto Translation of Geant4 Geometry -> OptiX`
+---------------------------------------------------------
+
+
+.. sidebar:: :small:`Form of GPU Detector Geometry`
+
+    .. class:: small
+
+        **GAS**
+           * intersection + bbox CUDA programs
+           * buffers: CSG nodes, transforms, planes
+            
+        **IAS**
+           * transforms and references to **GAS** 
+           * identity info, boundary tex. refs
+
+        **Boundary GPU Texture, interleaving:**
+           * material props
+           * surface props
+
+
+.. class:: small
+
+   * structural volumes
+
+     * *G4PVPlacement* -> ``GVolume`` -> **IAS**
+
+   * solid shapes
+ 
+     * *G4VSolid* -> ``GParts`` + ``GMesh`` -> **GAS**
+
+   * material/surface properties as function of wavelength   
+
+     * *G4Logical(Border/Skin)Surface* + *G4Material* 
+     * -> **Boundary Texture** 
+
+
+.. raw:: html
+
+    <hr/>
+
+
+.. class:: small
+
+
+    **"Factorization"** of JUNOs ~ 300,000 volumes
+
+    * mostly from small number of repeated groups of volumes
+
+      * different PMT types, support structures
+
+
+    * ~10 repeats ``GMergedMesh`` with thousands of transforms
+    * 1 remainder ``GMergedMesh``  
+
+
+
+.. class:: tiny
+
+    [1] Name is outdated : should rename to ``GMergedVolume``
+
+
+
+:small:`Ray Intersection with Transformed Object -> Geometry Instancing`
+-----------------------------------------------------------------------------
+
+
+.. |H2O| replace:: H\ :sub:`2`\ O
+
+.. |IM| replace:: M\ :sup:`-1`
+
+.. |IMT| replace:: M\ :sup:`-1T`
+
+.. |NP| replace:: N\' 
+
+
+
+.. figure:: /env/presentation/instancing/ray_intersection_in_two_spaces_p308_shirley_ch13_half.png
+    :width: 700px
+    :align: right
+
+    .. class:: small
+
+        Fig 13.5 "Realistic Ray Tracing", Peter Shirley
+
+    .. class:: normal
+
+        :redbold:`Advantages apply equally to acceleration structures`
+
+.. class:: small
+
+   **Equivalent Intersects -> same** *t*
+
+   1. **ray** with *ellipsoid* : **M*p**
+   2. |IM| **ray** with *sphere* : **p**
+
+   **Local Frame Advantages**
+
+   1. simpler intersect (sphere vs ellipsoid)
+   2. closer to origin -> better precision
+
+   **Geometry Instancing Advantages**
+
+   * many objects share local geometry
+
+     * orient+position with 4x4 **M**
+
+   * huge VRAM saving, less to copy 
+   
+   **Requirements**
+
+   * must **not** normalize ray direction
+   * normals transform differently 
+
+     * |NP| = N * |IMT|   
+     * (due to non-uniform scaling) 
+
+
+.. s5_talk::
+
+    Thinking about ray intersection with transformed geometry, 
+    it is a natural step to adopting geometry instancing. 
+
+
+
+:i:`OpenGL Instancing 2`
+--------------------------
+
+
+.. sidebar:: :small:`OpenGL Mesh Instancing`
+
+   .. class:: small 
+
+        * Minimize GPU VRAM used for geometry
+        * Local frame mesh verts/indices **once** 
+        * 4x4 transforms for each instance
+
+        
+:i:`OptiX Instancing`
+-----------------------
+
+
+.. sidebar:: :small:`OptiX Ray Traced Instancing`
+
+   .. class:: small 
+
+        * Minimize GPU VRAM used for geometry
+        * Local frame CSG node tree **once**
+        * 4x4 transforms for each instance
+
+
+
+:i:`CSG Examples`
+--------------------------
+
+
+
+
+.. comment
+
+
+    :i:`NVIDIA RTX : DLSS : Deep Learning Super Sampling`
+    ------------------------------------------------------- 
+
+    .. s5_talk::
+
+       Some of the performance comes from AI cheating...
+
+
+
+    :i:`NVIDIA RTX : DLSS : Deep Learning Super Sampling 2`
+    --------------------------------------------------------- 
+
+    .. raw:: html
+
+       <pre>
+
+       </pre>
+
+
+    .. sidebar:: :small:`Deep Learning Super Sampling`
+
+       .. class:: small 
+
+            * Ray Trace fewer pixels, AI upsampling 
+            * Deep Learning model generates missing pixels
+            * Effective 2x performance from Tensor cores
+
+
+
+    .. s5_talk::
+
+       Using a supercomputer trained model that is able to fill in missing pixels 
+
+
+
+    :i:`NVIDIA RTX 30 Series Launch Event`
+    ------------------------------------------
+
+
+    :i:`NVIDIA RTX 30 Series Launch Event 2`
+    ------------------------------------------
+
+    .. raw:: html
+
+       <pre>
+
+       </pre>
+
+
+    .. sidebar:: :small:`RTX : 3 processors`
+
+        .. class:: small
+
+            * shaders (SM)
+            * hardware ray tracing (RT Cores) 
+            * AI (Tensor cores)
+
+            * :red:`concurrent`
+
+
+        .. class:: tiny
+
+            https://www.youtube.com/watch?v=E98hC9e__Xs
+
+            NVIDIA GeForce RTX 30 Series Launch Event
+
+
+.. comment
+
+    :i:`NVIDIA Ampere GPU : 2nd Generation RTX`
+    ----------------------------------------------
+
+
+    :i:`NVIDIA Ampere GPU : 2nd Generation RTX 2`
+    ----------------------------------------------
+
+
+    .. sidebar:: :small:`Ampere vs Turing`
+
+       .. class:: small 
+
+            * Triple double over Turing 
+            * NVIDIA GPU ray tracing 
+
+              * **rapid improvement**
+
+
+
+.. comment
+
+    :small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
+    --------------------------------------------------------------------------------
+
+    .. sidebar:: OptiX Raytracing Pipeline
+
+        .. class:: small
+
+           Analogous to OpenGL rasterization pipeline:
+
+        .. image:: /env/optix/docs/optix-model.png
+           :width: 450px
+           :align: right
+
+    .. class:: small
+
+       **OptiX makes GPU ray tracing accessible**
+
+       * **accelerates** ray-geometry intersections
+       * simple : single-ray programming model
+       * "...free to use within any application..."
+       * :red:`access RT Cores[1] with OptiX 6.0.0+ via RTX™ mode`
+
+       **NVIDIA expertise:**
+
+       * :red:`~linear scaling up to 4 GPUs`
+       * acceleration structure creation + traversal (Blue)
+       * instanced sharing of geometry + acceleration structures
+       * compiler optimized for GPU ray tracing
+
+    .. class:: tiny
+
+           ``https://developer.nvidia.com/rtx``
+
+    .. class:: small
+
+       **User provides (Yellow):**
+
+       * ray generation
+       * geometry bounding box, intersects 
+
+
+    .. class:: tiny
+
+       [1] Turing+ GPUs eg NVIDIA TITAN RTX 
+
+
+
+    .. s5_talk::
+
+       * NVIDIA OptiX provides GPUs accelerated ray-geometry intersection 
+
+       * but to benefit from it the geometry must be translated into 
+         GPU appropriate forms totally different to the Geant4 geometry model 
+
+
+

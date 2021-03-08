@@ -2088,3 +2088,7 @@ threading-(){      . $(env-home)/cpprun/threading/threading.bash && threading-en
 gpp-(){      . $(env-home)/garfieldpp/gpp.bash && gpp-env $* ; }
 cel-(){      . $(env-home)/gpuhep/celeritas/cel.bash && cel-env $* ; }
 corsika-(){      . $(env-home)/corsika/corsika.bash && corsika-env $* ; }
+stb-(){      . $(env-home)/graphics/stb/stb.bash && stb-env $* ; }
+useradd-(){      . $(env-home)/tools/useradd.bash && useradd-env $* ; }
+chrt-(){      . $(env-home)/graphics/chameleonrt/chrt.bash && chrt-env $* ; }
+rt-(){      . $(env-home)/graphics/rt/rt.bash && rt-env $* ; }

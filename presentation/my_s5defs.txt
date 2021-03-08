@@ -39,6 +39,13 @@
 
 .. include:: <isogrk1.txt>
 
+.. include:: <isocyr1.txt>
+
+
+
+.. |CK| unicode:: U+0010C  .. https://en.wikipedia.org/wiki/Č
+
+
 .. include:: s5_background_image.txt
 
 
@@ -51,6 +58,8 @@
 
         .strike { text-decoration: line-through; }
         .center {text-align: center;}
+
+        span.redbold { color: red; font-weight:bold ; }
 
         span.alarm { color: red; } 
         span.blue { color: blue; } 
@@ -144,5 +153,6 @@
 .. role:: mypre 
 .. role:: myfoot
 .. role:: mytitle
+.. role:: redbold
 
 

@@ -76,6 +76,12 @@
     Detecting Neutrinos via Optical Photons 2
     /env/presentation/dayabay-principal_half.png 1417px_830px 
 
+    OpenGL Instancing 
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
+    OpenGL Instancing 2 
+    /env/presentation/dayabay-principal_half.png 1417px_830px 
+
     JPMT Inside Wide 
     /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
 
@@ -382,6 +388,12 @@
     JUNO-360 benchmark with OptiX 6.0.0, RTX mode 
     /env/presentation/geocache_360.png 1280px_720px
 
+    OptiX Instancing
+    /env/presentation/geocache_360.png 1280px_720px 0px_0px 
+
+    OptiX Instancing 2 
+    /env/presentation/geocache_360.png 1280px_720px 0px_0px 
+
     absmry_1M 
     /env/presentation/ana/absmry_1M.png 1280px_720px
 
@@ -685,13 +697,50 @@
     Opticks + JUNO Progress : Efficiency Hit Culling on GPU
     /env/presentation/optixrap/OSensorLibGeoTest_half.png 640px_360px 640px_360px
 
-    ## /env/presentation/docs/docs_orientation_toc_half.png 655px_617px 625px_103px 
-    ##
+    NVIDIA Marbles At Night RTX Demo Low 
+    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_half.png 1280px_720px
+
+    NVIDIA Marbles At Night RTX Demo Low 2
+    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_half.png 1280px_720px
+
+    NVIDIA Marbles At Night RTX Demo
+    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_1080p_capture.png 1280px_720px
+
+    NVIDIA Marbles At Night RTX Demo 2
+    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_1080p_capture.png 1280px_720px
+
+    NVIDIA RTX 30 Series Launch Event
+    /env/presentation/nvidia/rtx_three_ingredients_sep2020_rtx30series_launch_event_1656_half.png 1280px_720px
+
+    NVIDIA RTX 30 Series Launch Event 2
+    /env/presentation/nvidia/rtx_three_ingredients_sep2020_rtx30series_launch_event_1656_half.png 1280px_720px
+
+    NVIDIA RTX : DLSS : Deep Learning Super Sampling 
+    /env/presentation/nvidia/dlss_20_deep_learning_super_sampling_rtx30series_launch_event_1434_half.png 1280px_720px
+
+    NVIDIA RTX : DLSS : Deep Learning Super Sampling 2
+    /env/presentation/nvidia/dlss_20_deep_learning_super_sampling_rtx30series_launch_event_1434_half.png 1280px_720px
+
+    NVIDIA Ampere GPU : 2nd Generation RTX 
+    /env/presentation/nvidia/ampere_2nd_generation_rtx_factors_half.png 1280px_620px
+
+    NVIDIA Ampere GPU : 2nd Generation RTX 2
+    /env/presentation/nvidia/ampere_2nd_generation_rtx_factors_half.png 1280px_620px
+
+    Ampere : 2nd Generation RTX
+    /env/presentation/nvidia/nvidia_ampere_architecture.png     640px_360px 0px_360px
+    /env/presentation/nvidia/2nd_generation_rtx_half.png     640px_360px 640px_0px
+    /env/presentation/nvidia/2nd_generation_rt_core_half.png 640px_360px 640px_360px
+
+    CSG Examples
+    /env/presentation/csg/dyb-radial-shield.png 640px_360px 640px_360px
+    /env/presentation/csg/dyb_space_station_complement.png 640px_360px 0px_360px
+    /env/presentation/csg/dyb-cylinder-union-coincidence-speckle.png 640px_360px 0px_0px
+    /env/presentation/csg/dyb-esr-deep-tree-holes.png 640px_360px 640px_0px
+
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty
-
-
 
 .. comment
     

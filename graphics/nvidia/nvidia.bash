@@ -10,6 +10,13 @@ NVIDIA
 ========
 
 
+
+Cards
+------
+
+* https://www.anandtech.com/show/16137/nvidia-announces-ampere-rtx-a6000-a40-cards-for-pro-viz
+* https://www.nvidia.com/en-gb/data-center/a40/
+
 hardware probing : lspci and dmidecode
 ---------------------------------------
 

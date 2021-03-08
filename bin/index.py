@@ -149,7 +149,7 @@ class Item(object):
 
     def _get_lines(self):
         l = []
-        l.append("<li> <a href=\"%s.html\"> %s.html </a> %s </li>" % (self.name, self.name, self.desc))
+        l.append("<li> <a href=\"%s.html\"> %s.html </a>   <a href=\"%s.txt\">.txt</a> %s </li>" % (self.name, self.name, self.name,self.desc))
         return l
     lines = property(_get_lines)
 

@@ -24,6 +24,12 @@ domain-scientists so they can focus on the research questions at hand.
   Depth peeling is a technique to correctly render translucent geometry. 
 
 
+Others
+--------
+
+* https://yt-project.org/docs/dev/visualizing/plots.html
+
+
 Comparisons with other viz tools
 ---------------------------------
 

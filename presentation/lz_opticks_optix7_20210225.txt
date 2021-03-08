@@ -1,0 +1,512 @@
+.. meta::
+    :title: LZ-Opticks-NVIDIA OptiX 6->7 : Notes
+    :description: (Feb 2021)
+
+
+.. include:: <s5defs.txt>
+
+.. raw:: html
+
+    <style type="text/css">
+        span.alarm { color: red; }
+        span.warn { color: orange; }
+        span.ok { color: green; }
+        span.i { display: none; }
+        pre.sliteral { class:"literal-block small"; }
+        pre.mypre {
+             display: block;
+             font-family: monospace;
+             font-size: 20px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+        pre.mypre_tiny {
+             display: block;
+             font-family: monospace;
+             font-size: 15px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+
+
+    </style>
+
+
+===================================================================================
+LZ-Opticks-NVIDIA OptiX 6->7 : Notes
+===================================================================================
+
+.. class:: small
+
+   **Links**
+
+   * https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210208.html  (prior notes)  
+   * https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210225.html  (these notes)
+   * https://simoncblyth.bitbucket.io/opticks/docs/orientation.html  (docs)
+
+   **OptiX 7 Experiments**
+
+   * https://simoncblyth.bitbucket.io/opticks/docs/orientation.html#standalone-ish-optix-7-examples
+   * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/
+
+   **Overview of Migration Task**
+
+   * structural volumes (instance transforms, identity, ... )
+
+     * DONE : intersect identity
+     * NEXT : conversion, Opticks/GGeo/GMergedMesh -> IAS
+
+   * solid shapes
+
+     * compound GAS ~DONE, **BUT bbox fudge needed** 
+     * **NEXT:** Opticks/OptiXRap/cu primitives 
+     * **NEXT:** CSG combinations of primitives
+
+.. class:: small
+
+   |  Simon C Blyth,  Feb 25 2021 
+
+.. raw:: html
+
+   <pre>
+
+
+   </pre> 
+
+
+
+:small:`High Level Structure Example : 1 IAS referencing 3 compound GAS`
+-----------------------------------------------------------------------------------------------
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/IAS_Builder.cc
+
+.. sidebar:: :tiny:`UseOptiX7GeometryInstancedGASCompDyn`
+
+    .. raw:: html
+
+        <pre class="mypre_tiny">
+        export OPTIX_PREFIX=/usr/local/OptiX_700
+        git clone https://bitbucket.org/simoncblyth/opticks
+        cd opticks/examples/UseOptiX7GeometryInstancedGASCompDyn
+        ./go.sh # -> .ppm , <b><span class="alarm">posi.npy for NumPy analysis</span></b>
+
+        FUDGE=2 TMIN=2 ./run.sh 
+        </pre>
+
+
+    .. image:: /env/presentation/optix7/UseOptiX7GeometryInstancedGASCompDyn_FUDGE_2_TMIN_2_half.png 
+       :width: 510px
+       :height: 380px   
+       :align: right
+     
+
+.. class:: small
+
+   * ``IAS_Builder::Build`` compound GAS
+
+   * Works : **BUT: had to FUDGE the bbox x2.0 ?**
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+ 33     std::vector&lt;OptixInstance&gt; instances ;
+ 34     for(unsigned i=0 ; i < num_tr ; i++)
+ 35     {
+ ...        grab glm::uvec4 idv from "spare" slots of the 4x4 transform
+ 41         glm::mat4 imat = glm::transpose(mat);
+ 42 
+ 43         glm::uvec4 idv ; // last row identity info 
+ 44         memcpy( glm::value_ptr(idv), &imat[3], 4*sizeof(float) );
+ 45 
+ 46         unsigned instanceId = idv.x ;
+ 47         unsigned gasIdx = idv.y ;
+ 48         const GAS& gas = geo->getGAS(gasIdx);
+ 49 
+ 50         OptixInstance instance = {} ;
+ 51         instance.flags = flags ;
+ 52         instance.instanceId = instanceId ; // TODO: pack gasIdx
+ 53         <b><span class="alarm">instance.sbtOffset = geo->getOffsetBI(gasIdx); </span></b>       
+ 54         instance.visibilityMask = 255;
+ 55         instance.traversableHandle = gas.handle ;
+ 56         memcpy( instance.transform, glm::value_ptr(imat), 
+                  12*sizeof( float ) );
+ 57 
+ 58         instances.push_back(instance);
+ 59     }
+     </pre>
+
+
+
+:small:`SBT Handling by keeping BI for each GAS -> Geo::getOffsetBI(gasIdx)`
+-----------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * as ``Geo::addGAS`` keep the BI for easy access to offsets 
+
+.. sidebar:: ``Geo::getOffsetBI``
+
+    Example::
+
+        GAS_0            --> 0 
+            BI_0 
+            BI_1
+        GAS_1            --> 2 
+            BI_0 
+            BI_1
+        GAS_2            --> 4 
+            BI_0 
+
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+    007 struct GAS : public AS
+      8 {
+      9     std::vector&lt;float&gt;      extents ;
+     10     unsigned                num_sbt_rec ;
+     11     std::vector&lt;BI&gt;         bis ; 
+     12 };  
+
+    258 void Geo::addGAS(const GAS& gas)
+    259 {
+    260     vgas.push_back(gas);
+    261     unsigned num_bi = gas.bis.size() ;
+    262     assert(gas.num_sbt_rec == num_bi );
+    263     nbis.push_back(num_bi);
+    264 }
+    266 unsigned Geo::getOffsetBI(unsigned gas_idx) const
+    267 {
+    268     assert( gas_idx < nbis.size());
+    270     unsigned offset = 0 ;
+    271     for(unsigned i=0 ; i < nbis.size() ; i++)
+    272     {
+    273         if( i == gas_idx ) break ;
+    274         offset += nbis[i];
+    275     }
+    276     return offset ;
+    277 }
+         </pre>
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/Geo.cc
+
+
+
+
+:small:`Straightforward Hitgroup SBT with 1:1:1 AABB:BI:SBT`
+-----------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Hitgroup SBT Layout`
+
+
+     .. class:: small
+
+          **1 AABB -> 1 BI (BuildInput) -> 1 SBT record** 
+
+          * G4VSolid -> GParts -> 1 AABB -> ...
+
+
+          * GMergedMesh 
+
+            * GParts -> BI 
+            * GParts -> BI 
+            * GParts -> BI
+
+            * (non-concatenated GParts) 
+
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+    114 void SBT::createHitgroup(const Geo* geo)
+    115 {
+    116     unsigned num_gas = geo->getNumGAS();
+    117     unsigned num_rec = 0 ;
+    118     for(unsigned i=0 ; i < num_gas ; i++) 
+               <b><span class="alarm">num_rec += geo->getGAS(i).bis.size() ; </span></b>
+
+    127     hitgroup = new HitGroup[num_rec] ;
+    128     HitGroup* hg = hitgroup ;
+    130 
+    131     for(unsigned i=0 ; i < num_rec ; i++) 
+    132     optixSbtRecordPackHeader( pip->hitgroup_pg, hitgroup + i );
+    133  
+    134     for(unsigned i=0 ; i < num_gas ; i++)
+    135     {
+    136         const GAS& gas = geo->getGAS(i) ;
+    137         const std::vector<float>& extents = gas.extents ;
+    138         unsigned num_sub = extents.size();
+    141 
+    142         for(unsigned j=0 ; j < num_sub ; j++)
+    143         { 
+    145             float* values = new float[1];
+    146             values[0] = extents[j] ;  
+    147             float* d_values = UploadArray<float>(values, 1) ;
+    150             hg->data.bindex = j ;
+    151             hg->data.values = d_values ; // set device pointer into CPU struct about to be copied to device
+    152             hg++ ; 
+    154         }
+    155     }
+    </pre>
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/SBT.cc
+
+
+
+
+
+:small:`BBox FUDGE ?`
+-----------------------------------------------------------------------------------------------
+
+
+.. figure:: /env/presentation/optix7/UseOptiX7GeometryInstancedGASCompDyn_FUDGE_2_TMIN_2_half.png 
+   :width: 490px
+   :height: 360px   
+   :align: left
+
+   ``FUDGE=2 TMIN=2 ./run.sh`` 
+
+.. figure:: /env/presentation/optix7/UseOptiX7GeometryInstancedGASCompDyn_FUDGE_1_TMIN_2_half.png 
+   :width: 490px
+   :height: 360px   
+   :align: right
+ 
+   ``FUDGE=1 TMIN=2 ./run.sh`` 
+
+
+
+
+:small:`BBox FUDGE : with larger bbox than expected for geometry`
+-----------------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+    222 void Geo::makeGAS(const std::vector&lt;float&gt;& extents)
+    223 {
+    228     std::vector&lt;float&gt; bb ;
+    229 
+    230     <b><span class="alarm">// fudge enlarges bbox compared to expectation for the geometry </span></b>
+    231     float fudge = Util::GetEValue("FUDGE", 1.0f)  ;
+    233 
+    235     for(unsigned i=0 ; i < extents.size() ; i++)
+    236     {
+    237         float extent = extents[i]*fudge ;
+    242         bb.push_back(-extent);
+    243         bb.push_back(-extent);
+    244         bb.push_back(-extent);
+    245         bb.push_back(+extent);
+    246         bb.push_back(+extent);
+    247         bb.push_back(+extent);
+    248     }
+    249     std::cout << std::endl ;
+    252     GAS gas = {} ;
+    253     GAS_Builder::Build(gas, bb);
+    </pre>
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/Geo.cc
+
+
+
+
+:small:`posi : position-identity instrumented pixels`
+-----------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`posi : position-identity`
+
+    .. class:: small
+
+        Every intersect pixel:
+
+        * identity bitfield : instance_id, primitive_id  
+        * world frame position 
+         
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+    091 extern "C" __global__ void __raygen__rg(){
+    ...
+    114     trace(
+    115         params.handle,
+    116         origin,
+    117         direction,
+    118         tmin,
+    119         tmax,
+    120         &normal,
+    121         &t,
+    122         &position,
+    123         <b>&identity</b>
+    124     );
+    127     unsigned index = idx.y * params.width + idx.x ;
+    128     params.pixels[index] = make_color( normal, identity );
+    129     <b>params.isect[index] = make_float4( position.x, position.y, position.z, int_as_float(identity)) ;</b>
+    130 }
+    196 extern "C" __global__ void __closesthit__ch(){
+    ...
+    217     unsigned instance_id = 1u + optixGetInstanceIndex() ;    // see IAS_Builder::Build
+    218     unsigned primitive_id = 1u + optixGetPrimitiveIndex() ;  // see GAS_Builder::MakeCustomPrimitivesBI 
+    219     unsigned buildinput_id = 1u + bindex ;   // TODO: get rid of this, its the same as primitive_id
+    220     
+    221     <b>unsigned identity = ( instance_id << 16 ) | (primitive_id << 8) | ( buildinput_id << 0 )</b>  ;
+    ...
+    225     const float3 world_origin = optixGetWorldRayOrigin() ; 
+    226     const float3 world_direction = optixGetWorldRayDirection() ; 
+    227     const float3 world_position = world_origin + t*world_direction ;
+    229     setPayload( normal, t,  world_position, <b>identity</b> );
+    230 }
+    </pre>
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/UseOptiX7GeometryInstancedGASCompDyn.cu
+
+
+:small:`posi.py analysis : using .npy persisted IAS, GAS, posi (1)`
+--------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+     66 if __name__ == '__main__':
+     67 
+     69     posi = load_("posi.npy")
+     77     ias_ = {}
+     78     for ias_idx, ias_path in enumerate(sorted(glob.glob("%s/ias_*.npy" % base))):
+     79         ias_[ias_idx] = load_(ias_path)
+     81     gas_ = {}
+     82     for gas_idx, gas_path in enumerate(sorted(glob.glob("%s/gas_*.npy" % base))):
+     83         gas_[gas_idx] = load_(gas_path)
+     85 
+     86     ias_ins_idx = ias_[0][:,0,3].view(np.uint32)
+     87     ias_gas_idx = ias_[0][:,1,3].view(np.uint32)
+     88 
+     89     gtrs = ias_[0].copy()
+     90     gtrs[:,0,3] = 0.   # scrub the identity info 
+     91     gtrs[:,1,3] = 0.
+     92     gtrs[:,2,3] = 0.
+     93     gtrs[:,3,3] = 1.
+     94     gitrs = np.linalg.inv(gtrs)  ## invert all the IAS transforms at once
+     99 
+    100     pxid = posi[:,:,3].view(np.uint32)      # pixel identity 
+    101 
+    102     instance_id   = ( pxid & 0xffff0000 ) >> 16    # all three _id are 1-based to distinguish from miss at zero
+    103     primitive_id  = ( pxid & 0x0000ff00 ) >> 8
+    104     buildinput_id = ( pxid & 0x000000ff ) >> 0
+    105 
+    106     assert np.all( primitive_id == buildinput_id )
+    107 
+    108     # identities of all intersected pieces of geometry 
+    109     upxid, upxid_counts = np.unique(pxid, return_counts=True)
+    ... 
+    </pre>
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/posi.py
+
+
+:small:`posi.py analysis : using .npy persisted IAS, GAS, posi (2)`
+-----------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypre_tiny">
+    ...
+    114     # loop over all identified pieces of geometry with intersects
+    115     for i in range(1,len(upxid)):
+    116         zid = upxid[i]
+    117         zid_count = upxid_counts[i]
+    119 
+    120         zinstance_idx = (( zid & 0xffff0000 ) >> 16 ) - 1 
+    121         zprimitive_idx  = (( zid & 0x0000ff00 ) >> 8 ) - 1 
+    122         zbuildinput_idx = (( zid & 0x000000ff ) >> 0 ) - 1
+    123         assert zprimitive_idx == zbuildinput_idx
+    127 
+    128         tr = gtrs[zinstance_idx]
+    129         itr = gitrs[zinstance_idx]
+    130 
+    131         gas_idx = ias_gas_idx[zinstance_idx]   
+    132         ins_idx = ias_ins_idx[zinstance_idx]   
+    133         assert ins_idx == zinstance_idx 
+    134 
+    135         gas = gas_[gas_idx]
+    136         extents = gas.ravel()
+    137         sz = extents[zprimitive_idx]
+    138 
+    139         z = np.where(pxid == zid)
+    140 
+    141         zpxid = posi[z][:,3].view(np.uint32).copy()
+    142         zposi = posi[z].copy()
+    143         zposi[:,3] = 1.      # global 3d coords for intersect pixels, ready for transform
+    144 
+    145         zlpos = np.dot( zposi, itr ) # transform global positions into instance local ones 
+    146 
+    147         <b>d = sdf_sphere(zlpos[:,:3], sz)</b>  # sdf : distances to sphere surface 
+    </pre>
+
+
+:small:`posi.py : plot identities : lhs: FUDGE=1 rhs: FUDGE=2`
+----------------------------------------------------------------
+
+.. figure:: /env/presentation/optix7/posi_lhs_FUDGE_1_rhs_FUDGE_2_half.png
+   :width: 1000px
+   :height: 600px   
+   :align: center
+
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/posi.py 
+
+  
+
+
+
+:small:`posi3d.py pixel intersects : "boxy" sphere with FUDGE 1`
+-------------------------------------------------------------------------------------------
+
+.. figure:: /env/presentation/optix7/posi3d_lhs_FUDGE_1_rhs_FUDGE_2.png 
+   :width: 1000px
+   :align: center
+
+
+.. class:: small
+
+   * pyvista https://www.pyvista.org plotting of 3d intersect positions
+
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/posi3d.py 
+
+
+:small:`posi.py analysis of pixel intersects : missing expected intersects with FUDGE 1`
+-------------------------------------------------------------------------------------------
+
+.. figure:: /env/presentation/optix7/posi_FUDGE_zid_count.png
+   :width: 1000px
+   :align: center
+
+.. class:: small
+
+   Despite appearances all intersects are on sphere surfaces : with small SDF distances   
+
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASCompDyn/posi.py 
+
+
+
+
+
+
