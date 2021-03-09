@@ -12,38 +12,9 @@
 .. include:: my_s5defs.txt
 
 
-
 .. comment
 
-   Instancing 
-
-   * https://developer.nvidia.com/gpugems/gpugems2/inside-front-cover
-   * https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-3-inside-geometry-instancing
-
-   Material/Surface -> Borders -> GPU Texture 
-
-   What is GPU geometry 
-
-   Convergence of APIs, OptiX7, DXR, VullkanRT
-
-   Instanced Ray tracing 
-
-   Fundamentals
-
-   * aabb : axis aligned (local frame) bounding box 
-   * heirarchy of aabb (BVH)
-   * transform rays into local frame simplifies intersection 
-   * beneficial to do intersects in local frame, close to origin 
-
-
-
-   CSG 
-
-   GPU Demands Simplicity (Arrays)    
-
-   Whacky idead : SDF 
-
-
+   Klop
 
 
 :i:`Detector Geometry in Opticks` 
@@ -70,8 +41,101 @@
     This talk will review progress with Opticks and with its use in JUNO. 
 
 
-
 #pragma GCC diagnostic ignored "-Winvalid-pp-token"
+
+
+Outline
+----------------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: small
+
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    * Introduction 
+
+      * JUNO Optical Photon Simulation Problem...
+      * NVIDIA Marbles at Night : RTX Demo ; NVIDIA Ampere : 2nd Generation RTX
+      * GPU Ray Tracing APIs Converging 
+      * RTX Execution Pipeline : Common to DirectX RT, VulkanRT, NVIDIA OptiX
+      * Spatial Index Acceleration Structure
+      * Two-Level Hierarchy : Instance transforms (TLAS) over Geometry (BLAS)
+
+    * Opticks : Structural Geometry   
+
+      * Geant4 + Opticks Hybrid Workflow
+      * NPY Serialization : Fundamental to Opticks Geometry Model ; NumPy Example
+      * Translation 1st Step : Geant4 -> Opticks/GGeo : 1->1 conversions
+      * Translation 2nd Step : Opticks/GGeo Instancing : "Factorized" Geometry
+      * Ray Intersection with Transformed Object -> Geometry Instancing 
+      * OpenGL Mesh Instancing ; OptiX Ray Traced Instancing   
+
+    * Opticks Solids : CSG, Constructive Solid Geometry   
+
+      * G4VSolid -> CUDA Intersect Functions for ~10 Primitives
+      * G4Boolean -> CUDA/OptiX Intersection Program Implementing CSG
+      * (CSG details relegated to "Extras") 
+
+    * Opticks Material/Surface Properties : Boundary Texture
+    * Opticks vs Geant4 : Extrapolated G4 times compared to Opticks with RTX ON/OFF
+
+    * Overview + Links 
+
+    .. raw:: html
+ 
+       <hr/>
+
+
+.. s5_talk::
+
+   Outline
+
+
+
+Outline Extras
+----------------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: small
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+
+    * Opticks Solids : CSG, Constructive Solid Geometry   
+
+      * Constructive Solid Geometry (CSG) : Shapes defined "by construction"
+      * CSG : Which primitive intersect to pick ?
+      * CSG Complete Binary Tree Serialization -> simplifies GPU side
+      * Evaluative CSG intersection Pseudocode : recursion emulated
+      * CSG Deep Tree : JUNO "fastener"
+      * CSG Deep Tree : height 11 before balancing, too deep for GPU raytrace
+      * CSG Deep Tree : Positivize tree using De Morgans laws 
+      * CSG Deep Tree : height 4 after balancing, OK for GPU raytrace
+      * CSG Examples 
+      * Torus : much more difficult/expensive than other primitives
+      * Torus : different artifacts as change implementation/params/viewpoint
+
+
+.. s5_talk::
+
+   Outline Extras : CSG is relegated to backup unless I talk faster than expected.
+   But you are welcome to ask questions about that.
+
 
 
 `JUNO Optical Photon Simulation Problem...`
@@ -428,35 +492,265 @@
 
 .. s5_talk::
 
-    SMALL
-    So : how can an external optical photon simulation be integrated with Geant4 ?
-
-    In the standard workflow the Geant4 Scintillation and 
-    Cerenkov processes calculate a number of photons 
-    and then loop generating these and collecting them 
-    as secondaries
-     
-    In the hybrid workflow, this generation is split 
-    between the CPU and GPU with "Gensteps" acting as the bridge. 
-    These Genstep parameters include the number of photons, positions and everything 
-    else needed in the generation loop.
-
-    The result is a very simple port of the generation loop to the GPU. 
-
-    Its doubly helpful to generate photons on GPU, as then
-    they take no CPU memory.
+    This shows how Opticks is integrated with Geant4.
+    The focus of this talk is the green arrows representing 
+    the geometry translation.
+    The entire geometry is translated and uploaded at once at 
+    initialization and it is reused for the lifetime of the process 
+    over multiple CUDA launches for each event for example.
+    Most of the work of Opticks has been in this geometry translation.
+    Generally the optical physics is straightforward to port to CUDA
+    with little changes needed.  The story is very different for 
+    geometry : which demands a very different approach.
   
-    So can entirely offload photon memory to the GPU with only hits needing CPU memory. 
 
-    Also this keeps the overheads low as gensteps are typically a factor of 100 smaller
-    than photons.   
+
+:small:`NPY Serialization : Fundamental to Opticks Geometry Model`
+-------------------------------------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`NPY Serialization Benefits`
+
+    .. class:: small
+
+        * simple standard .npy file format[1] : hdr + arr
+        * flexible load from file and test 
+        * network transport : distributed production
+        * *NumPy/IPython* debug/analysis eg:
+
+    ::
+
+        a = np.load("transforms.npy")
+
+    .. class:: small
+
+        **Arrays for Everything -> direct access debug**
+
+        * (num_photons,4,4) *float32*
+        * (num_gensteps,6,4) *float32*
+        * (num_csgnodes,4,4) *float32*
+        * (num_transforms,3,4,4) *float32*
+        * (num_planes,4) *float32*
+        * ...
+
+        **read/write/stream NumPy arrays from C++**
+       
+        * **NP.hh** : header-only implementation 
+        * https://github.com/simoncblyth/np/
+
+.. class:: small
+
+
+   **Separate address space -> cudaMemcpy** 
+     *upload/download* : host(CPU)<->device(GPU)
+
+   * :red:`Serialize everything` -> Arrays 
+   * Thread order undefined -> Arrays
+
+     * (each CUDA thread "owns" slots in the array)
+
+   **Array-oriented : separate data from compute** 
+
+   * :red:`inherent serialization + simplicity`
+   * avoid object serialization/de-serialization
+   * scales well to millions of element systems 
+
+   **Opticks/NPY pkg : Array Interface Using** *glm::mat4* *glm::vec4*
+
+   * https://bitbucket.org/simoncblyth/opticks/src/master/npy/
+
+   **Opticks/GGeo classes implemented with NPY arrays**
+
+   * all geometry objects persistable -> geocache 
+   * some can be concatenated : *GMesh*, *GParts* 
+   * :red:`No dependency on Geant4`
+
+
+.. class:: tiny 
+
+   [1] http://www.numpy.org/neps/nep-0001-npy-format.html
+
+
+.. s5_talk::
+
+   To understand the Opticks Geometry model you need to 
+   known a bit about some basis classes.  In particular 
+   the serialization used.  
+
+   The serialization is not just a convenience it is fundamental 
+   to how Opticks works.
+
+   GPU and CPU have separate address spaces, that means 
+   everything copied between them needs serialization/deserialization 
+
+   Adopting an array-oriented approach greatly simplifies CPU+GPU work 
+   and using the standard NumPy file format gives easy access to 
+   everything from python. 
+
+   The NumPy serialization format is very simple : header + array, 
+   so can easily parse/write the header in order to read/write NumPy 
+   arrays from C++
+
+   Simplicity requirement comes from the need to do many things in parallel 
+   and also from the need to serialize everything in order to copy it 
+   to GPU global memory.
+
+
+
+:small:`Persist NumPy Arrays to .npy Files from Python, Examine File Format`
+--------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Load NumPy array into C/C++`
+
+    .. class:: small
+
+       **Straightforward to parse NPY files** 
+
+       http://github.com/simoncblyth/np/
+
+       **NP::Load** 
+           
+       * parses file header, array shape + type   
+       * reads array data into std::vector 
+
+    .. raw:: html
+
+        <hr/><pre class="mypretiny">
+        // gcc NPMinimal.cc -lstdc++ && ./a.out /tmp/a.npy 
+        &#35;include "NP.hh"
+        int main(int argc, char** argv)
+        {
+            assert( argc > 1 && argv[1] ) ; 
+            NP<long>* a = NP<long>::Load(argv[1]) ; 
+            a->dump(); 
+            return 0 ; 
+        }
+        </pre>
+        <hr/>
+
+
+.. class:: small
+
+   IPython persisting NumPy arrays:
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    In [1]: a = np.arange(10)          <b> # array of 10 long (int64) </b>
+    In [2]: a
+    Out[2]: array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    In [3]: np.save("/tmp/a.npy", a )  <b> # serialize array to file </b>
+
+    In [4]: a2 = np.load("/tmp/a.npy") <b> # load array into memory </b>
+    In [5]: assert np.all( a == a2 )   <b> # check all elements the same </b>
+    </pre>
+
+
+
+.. class:: small
+
+   IPython examine NPY file format:
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    In [6]: !xxd /tmp/a.npy            <b> # xxd hexdump file contents </b>  
+                                       <b> # minimal header : type and shape </b>
+
+    <b><span class="alarm">00000000: 934e 554d 5059 0100 7600 7b27 6465 7363  .NUMPY..v.{'desc
+    00000010: 7227 3a20 273c 6938 272c 2027 666f 7274  r': '&lt;i8', 'fort
+    00000020: 7261 6e5f 6f72 6465 7227 3a20 4661 6c73  ran_order': Fals
+    00000030: 652c 2027 7368 6170 6527 3a20 2831 302c  e, 'shape': (10,   
+    00000040: 292c 207d 2020 2020 2020 2020 2020 2020  ), }            
+    00000050: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000060: 2020 2020 2020 2020 2020 2020 2020 2020                  
+    00000070: 2020 2020 2020 2020 2020 2020 2020 200a                 .</span></b>
+    00000080: 0000 0000 0000 0000 0100 0000 0000 0000  ................  
+    00000090: 0200 0000 0000 0000 0300 0000 0000 0000  ................
+    ..
+    </pre>
+
+
+.. s5_talk::
+
+    NPY is a very simple file format : about as minimal as possible
+
+    * small and easy to parse header
+    * it is the standard used by NumPy 
+    
+    
+
+
+
+
+
+:small:`Translation 1st Step : Geant4 -> Opticks/GGeo : 1->1 conversions`
+------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Geant4 -> Opticks/GGeo -> OptiX`
+
+    .. class:: small
+
+        Multi-stage translation
+
+        **Geant4**
+            G4PVPlacement, G4VSolid, G4Material, ...
+
+        **Opticks/GGeo** : :red:`(No Geant4,OptiX dependency)`
+            GGeo, GVolume, GParts, GMesh, GMaterial, ... 
+
+            * persists as binary **.npy** file based geocache 
+
+        **Opticks/OptiXRap**
+            OGeo, OGeometry, OBndLib, ...
+
+            * instanciation populates GPU OptiX context   
+
+        **OptiX** 
+            "IAS", "GAS", ... 
+
+
+
+
+.. class:: small
+
+   **Structural volumes : G4PVPlacement ->**
+
+   *GVolume*
+      JUNO: tree of ~300,000 *GVolume* 
+
+   **Solid shapes : G4VSolid ->**
+  
+   *GMesh* (collected into **GMeshLib**)
+      | arrays: vertices, indices
+      | ref to *NCSG*
+
+   *NCSG*
+       tree of *NNode* (CSG constituents)
  
-    The geometry is also needed on the GPU, with all 
-    material and surface properties.
-     
 
-:small:`Auto Translation of Geant4 Geometry -> OptiX`
----------------------------------------------------------
+   **Material/surface properties as function of wavelength**   
+
+   * *G4Material* -> *GMaterial*
+   * *G4Logical(Border/Skin)Surface* -> *GSurface* 
+   * adopts standard wavelength domain 
+   * collected into **GMaterialLib** **GSurfaceLib**
+
+
+   **Translation steered by X4 package**
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/extg4/X4PhysicalVolume.hh
+
+
+.. s5_talk::
+
+   Translation of Geant4 into a GPU geometry, is done in several stages.
+   The first step is simple 1:1 conversions that prepare for the next stages.
+
+
+
+:small:`Translation 2nd Step : Opticks/GGeo Instancing : "Factorizes" Geometry`
+----------------------------------------------------------------------------------------
 
 
 .. sidebar:: :small:`Form of GPU Detector Geometry`
@@ -476,45 +770,60 @@
            * surface props
 
 
+    .. raw:: html
+
+         <hr/>
+
+    .. class:: small
+
+       **JUNO: ~300,000 GVolume -> ~10 GMergedMesh**
+
+       *repeated GMergedMesh* 
+          | thousands of instance transforms
+          | consolidates < 10 *GVolume* 
+
+       *remainder GMergedMesh* 
+          | one identity instance transform
+          | consolidates ~ few hundred *GVolume*
+
+
+
 .. class:: small
 
-   * structural volumes
+   Structural volumes vs solid shapes 
+      | distinction for convenience only, :redbold:`distinction is movable` 
 
-     * *G4PVPlacement* -> ``GVolume`` -> **IAS**
+   JUNO: ~300,000 GVolume : **mostly small repeated groups** (PMTs)
 
-   * solid shapes
+   **GGeo/GInstancer**
+
+   0. GVolume **progeny digest** : shapes+transforms -> :red:`subtree ident.` 
+   1. find repeated **digests**, disqualifying repeats inside others
+   2. label all nodes with repeat index, non-repeated remainder : 0 
+
+   For each repeat+remainder create **GMergedMesh**:
+
+   * collecting transforms, identity -> instance arrays 
+   * merged volumes+solids  
+
+     * **GMesh**: concatenated arrays: triangles, indices 
+     * **GParts**: concatenated arrays: CSG nodes + transforms  
+     * transforms applied -> :red:`gets into instance frame`   
+     * :bluebold:`Consolidation : structural volumes -> compound solid`
+
+   **GMergedMesh** -> **IAS+GAS** 
  
-     * *G4VSolid* -> ``GParts`` + ``GMesh`` -> **GAS**
-
-   * material/surface properties as function of wavelength   
-
-     * *G4Logical(Border/Skin)Surface* + *G4Material* 
-     * -> **Boundary Texture** 
-
-
-.. raw:: html
-
-    <hr/>
-
-
-.. class:: small
-
-
-    **"Factorization"** of JUNOs ~ 300,000 volumes
-
-    * mostly from small number of repeated groups of volumes
-
-      * different PMT types, support structures
-
-
-    * ~10 repeats ``GMergedMesh`` with thousands of transforms
-    * 1 remainder ``GMergedMesh``  
-
-
+   * OptiX6 : ~10(IAS + GAS)  OptiX7 Aim: 1 IAS + ~10 GAS 
+      
 
 .. class:: tiny
 
-    [1] Name is outdated : should rename to ``GMergedVolume``
+   https://bitbucket.org/simoncblyth/opticks/src/master/ggeo/GInstancer.hh
+     
+
+.. s5_talk::
+
+    2nd step of the translation is a factorization into geometry instances 
 
 
 
@@ -592,6 +901,12 @@
         * Local frame mesh verts/indices **once** 
         * 4x4 transforms for each instance
 
+
+.. s5_talk::
+
+    This is an OpenGL rasterized render of Dayabay geometry, which is 
+    using OpenGL mesh instancing 
+
         
 :i:`OptiX Instancing`
 -----------------------
@@ -606,159 +921,1021 @@
         * 4x4 transforms for each instance
 
 
+.. s5_talk::
+
+    This is an OptiX ray traced render of JUNO geometry
+    showing all the central detector PMTs in one image using 
+    an equirectangular or latitude/longitude projection.  
+    The geometry and acceleration structures use OptiX instancing.
+
+
+
+
+:small:`G4VSolid -> CUDA Intersect Functions for ~10 Primitives`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * 3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
+   * implicit equation of primitive : **f(x,y,z) = 0**  
+   * -> polynomial in **t** , roots: **t > t_min**  -> intersection positions + surface normals
+
+.. figure:: /env/presentation/tboolean_parade_sep2017.png
+   :width: 900px
+   :align: center
+
+   Sphere, Cylinder, Disc, Cone, Convex Polyhedron, Hyperboloid, :red:`Torus`, ...
+
+
+.. s5_talk::
+
+   Geometry starts from primitive shapes.
+
+   NVIDIA OptiX doesnt provide primitives : My Opticks 
+   has ray geometry intersection for these shapes.
+
+
+:small:`intersect_analytic.cu : for all shapes/concatenated-shapes/primitives` 
+------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Shapes from buffer content:`
+
+    .. class:: small
+
+        *primBuffer* 
+           offsets into *part*, *tran*, *plan* buffers  
+
+        *partBuffer* 
+           nodes of the CSG tree (operators+primitives) 
+
+        *tranBuffer* 
+           transforms of CSG nodes (instance local frame)
+
+        *planBuffer* 
+           planes
+
+        *identityBuffer*
+           volume identity *uint4* (including **boundary**)
+         
+        **Populated from** *GMergedMesh*
+ 
+
+.. class:: small
+
+    **OptiXRap/cu/intersect_analytic.cu**
+
+    * concatenated shapes, called for each **primIdx**
+
+.. code::
+    :class: mypretiny
+
+    425 RT_PROGRAM void intersect(int primIdx)
+    426 {
+    427     const Prim& prim    = primBuffer[primIdx];
+    428 
+    429     unsigned partOffset  = prim.partOffset() ;
+    430     unsigned numParts    = prim.numParts() ;
+    431     unsigned primFlag    = prim.primFlag() ;
+    432 
+    433     if(primFlag == CSG_FLAGNODETREE)
+    434     {
+    435         evaluative_csg( prim, primIdx );
+    436     }
+    474 }
+
+.. code::
+    :class: mypretiny
+
+    229 RT_PROGRAM void bounds (int primIdx, float result[6])
+    230 {
+    251     optix::Aabb* aabb = (optix::Aabb*)result;
+    252     *aabb = optix::Aabb();
+    253 
+    254     uint4 identity = 
+            identityBuffer[instance_index*primitive_count+primIdx] ;
+    ...
+    271     const Prim& prim    = primBuffer[primIdx];
+    ...
+    294     if(primFlag == CSG_FLAGNODETREE || primFlag == CSG_FLAGINVISIBLE )
+    295     {
+    301         csg_bounds_prim(primIdx, prim, aabb);
+    318     }
+    385 }
+
+
+
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/opticks/src/master/optixrap/cu/intersect_analytic.cu
+
+.. s5_talk::
+
+    All primitives (1-node) trees and CSG shapes use same CUDA intersect_analytic.cu program 
+
+
+
+:small:`G4Boolean -> CUDA/OptiX Intersection Program Implementing CSG`
+-------------------------------------------------------------------------------------
+
+.. sidebar:: Outside/Inside Unions
+
+    .. class:: small
+
+       dot(normal,rayDir) -> Enter/Exit
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
+       :width: 300px
+       :align: center
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_inside.png
+       :width: 300px
+       :align: center
+
+    .. class:: small
+
+        * **A + B** boundary not inside other 
+        * **A * B** boundary inside other 
+
+
+.. class:: small
+
+   Complete Binary Tree, pick between pairs of nearest intersects:
+
+   =======================  ===========  ===============  ============== 
+   *UNION* tA < tB           Enter B      Exit B           Miss B
+   =======================  ===========  ===============  ============== 
+   **Enter A**               ReturnA      :blue:`LoopA`    ReturnA
+   **Exit A**                ReturnA      ReturnB          ReturnA 
+   **Miss A**                ReturnB      ReturnB          ReturnMiss
+   =======================  ===========  ===============  ============== 
+
+   * *Nearest hit intersect algorithm* [1] avoids state
+
+     * sometimes :blue:`Loop` : advance **t_min** , re-intersect both 
+     * classification shows if inside/outside
+
+   * *Evaluative* [2] implementation emulates recursion: 
+
+     * :red:`recursion not allowed` in OptiX intersect programs
+     * bit twiddle traversal of complete binary tree 
+     * stacks of postorder slices and intersects 
+
+   * :red:`Identical geometry to Geant4` 
+
+     * solving the same polynomials 
+     * near perfect intersection match
+
+
+
+.. class:: tiny
+
+    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
+ 
+    [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+        Similar to binary expression tree evaluation using postorder traverse. 
+
+
+.. s5_talk::
+
+    The primitives can be combined using constructive solid geometry 
+    modelling into arbitrarily complex shapes. 
+
+    So G4Boolean trees can be translated into Opticks without 
+    any approximation.
+ 
+
+
+
+
+
+
+:small:`Opticks : Translates G4 Geometry to GPU, Without Approximation`
+------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Materials/Surfaces -> GPU Texture` 
+
+    .. class:: small
+
+      **Material/Surface/Scintillator properties**
+
+      * interpolated to standard wavelength domain
+      * interleaved into "boundary" texture  
+      * "reemission" texture for wavelength generation 
+
+      **Material/surface boundary : 4 indices**
+
+      * outer material (parent)
+      * outer surface (inward photons, parent -> self)
+      * inner surface (outward photons, self -> parent)
+      * inner material (self)
+
+      Primitives labelled with unique boundary index
+
+      * ray primitive intersection -> boundary index
+      * texture lookup -> material/surface properties
+
+      :red:`simple/fast properties + reemission wavelength`
+
+
+.. class:: small
+
+    **G4 Structure Tree -> Instance+Global Arrays -> OptiX**
+
+    Group structure into repeated instances + global remainder:
+
+    * auto-identify repeated geometry with "progeny digests"  
+
+      * JUNO : 5 distinct instances + 1 global  
+
+    * instance transforms used in OptiX/OpenGL geometry 
+
+    :red:`instancing -> huge memory savings for JUNO PMTs`
+
+
+
+
+.. raw:: html
+
+    <pre>
+    </pre>
+
+
+.. comment
+
+    **Automated : Geant4 "World" -> Opticks CSG -> CUDA/OptiX**
+
+    **Solids : analytic CSG + triangulated**
+
+    * intersection functions for ~10 primitives
+    * intersection program for arbitrarily complex CSG shapes 
+     
+      * :red:`automated : G4 -> Opticks -> OptiX`  
+
+
+
+.. s5_talk::
+
+   Bringing optical physics to the GPU was straightforward, 
+   because a direct translation could be used.
+
+   Geant4 geometry model is vastly different to the 
+   whats needed on the GPU : making geometry translation
+   the most challenging aspect of Opticks.
+
+   And everything needs to be serialized to be copied to the GPU.
+     
+
+
+:i:`j1808_top_rtx`
+--------------------
+
+.. s5_talk::
+
+   The upshot is that full Geant4 detector geometries
+   can be automatically translated into NVIDIA OptiX geometries.
+
+   This is an OptiX ray trace image from the chimney region at the 
+   top of the JUNO scintillator sphere.
+    
+
+:i:`j1808_top_ogl`
+--------------------
+
+.. s5_talk::
+
+   This is an OpenGL rasterized image, using the approximate triangulated 
+   geometry. Opticks manages analytic and triangulated geometry together.  
+
+
+
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (3)`
+---------------------------------------------------------------------
+
+.. s5_talk::
+
+   Daya Bay Near Site
+
+
+
+:i:`Opticks Analytic Daya Bay Near Site, GPU Raytrace (1)`
+---------------------------------------------------------------------
+
+.. s5_talk::
+
+   Daya Bay Near Site
+
+
+
+
+:i:`scan-pf-1_Opticks_vs_Geant4 2`
+------------------------------------
+
+.. raw:: html
+
+    <pre>
+   
+
+
+ 
+    </pre>
+
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +--------------------+----------------------------+------------------+
+        | JUNO analytic, 400M photons from center         |  Speedup         |
+        +====================+============================+==================+
+        | Geant4 Extrap.     | 95,600 s (26 hrs)          |                  | 
+        +--------------------+----------------------------+------------------+
+        | Opticks RTX ON (i) | 58 s                       |   1650x          |
+        +--------------------+----------------------------+------------------+
+
+
+.. s5_talk::
+
+   This compares the extrapolated Geant4 propagation time with the Opticks launch
+   interval with RTX on.   The speedup is more than a factor of 1000.   Need to 
+   use a log scale to make them both visible. 
+
+   For 400M photons, Geant4 takes more than a day, Opticks takes less than a minute.   
+
+   This is with analytic geometry. Speedup is a lot more with triangles.
+
+
+
+
+:small:`Useful Speedup > 1500x : But Why Not Giga Rays/s ? (1 Photon ~10 Rays)`   
+----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`100M photon RTX times, avg of 10` 
+
+    .. class:: small
+
+         .. table::
+            :widths: 15 5 5 
+
+            +--------------------+-----------+------------------+----------+
+            | Launch times for various geometries                          | 
+            +--------------------+-----------+------------------+----------+
+            | Geometry           | Launch (s)|  Giga Rays/s     | Relative |
+            |                    |           |                  | to ana   |
+            +====================+===========+==================+==========+
+            | JUNO ana           |   13.2    |  0.07            |          |
+            +--------------------+-----------+------------------+----------+
+            | JUNO tri.sw        |    6.9    |  0.14            |   1.9x   |
+            +--------------------+-----------+------------------+----------+
+            | JUNO tri.hw        |    2.2    |  0.45            |   6.0x   |
+            +--------------------+-----------+------------------+----------+
+            |                                                              | 
+            +--------------------+-----------+------------------+----------+
+            | Boxtest ana        |    0.59   |  1.7             |          |
+            +--------------------+-----------+------------------+----------+
+            | Boxtest tri.sw     |    0.62   |  1.6             |          |
+            +--------------------+-----------+------------------+----------+
+            | Boxtest tri.hw     |    0.30   |  3.3             |  1.9x    |
+            +--------------------+-----------+------------------+----------+
+
+    .. class:: small
+
+        * ana : Opticks analytic CSG (SM) 
+        * tri.sw : software triangle intersect (SM)
+        * :red:`tri.hw : hardware triangle intersect (RT)` 
+
+        JUNO 15k triangles, 132M without instancing
+
+        **Simple Boxtest geometry gets into ballpark**
+
+.. class:: small
+
+    * NVIDIA claim : :blue:`10 Giga Rays/s with RT Core` 
+    * -> **1 Billion photons per second**
+
+    * **RT cores : built-in triangle intersect + 1-level of instancing**  
+    * flatten scene model to avoid SM<->RT roundtrips ?  
+
+
+.. raw:: html
+
+    <pre>
+
+
+
+
+
+
+
+
+
+
+
+
+    </pre>
+
+.. class:: small
+
+    OptiX Performance Tools and Tricks, David Hart, NVIDIA
+    https://developer.nvidia.com/siggraph/2019/video/sig915-vid
+
+
+
+
+.. s5_talk::
+
+   NVIDIA claims 10 GigaRays/s
+
+   As each photon costs around 10 rays 
+   that means 1 billion photons per second is the upper limit.
+
+   Performance you get is very sensitive to the geometry, 
+   both its complexity and how you model it.  Because these result 
+   in different BVH.
+
+   And its also necessary to consider what can run in the RT cores.  
+
+
+ 
+
+
+
+:small:`Summary : Opticks Detector Geometry`
+----------------------------------------------------------------
+
+.. sidebar:: :small:`GPU : Geometry Rethink Mandatory`
+
+   .. class:: small
+
+      * ray tracing APIs -> simple 2-level hierarchy
+      * rethink amply rewarded
+
+      **Opticks > 1500x Geant4** (one Turing GPU) 
+
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 50px
+
+..
+
+
+  *Opticks* : state-of-the-art GPU ray tracing applied to optical photon simulation and
+  integrated with *Geant4*, giving a leap in performance that eliminates memory and time bottlenecks.
+ 
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 1px
+
+
+
+  * Drastic speedup -> better detector understanding -> greater precision
+  
+    * **any simulation limited by optical photons can benefit** 
+    * more photon limited -> more overall speedup (99% -> 100x) 
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 10px
+
+
+
+.. table::
+    :align: center
+
+    +----------------------------------------------+-----------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks    | code repository                         |                   
+    +----------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.bitbucket.io             | presentations and videos                |
+    +----------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                  | forum/mailing list archive              |
+    +----------------------------------------------+-----------------------------------------+
+    | email:opticks+subscribe@groups.io            | subscribe to mailing list               |
+    +----------------------------------------------+-----------------------------------------+ 
+
+
+.. comment
+
+  *Opticks* uses hardware accelerated GPU ray tracing
+  via NVIDIA OptiX to give **effectively zero time and zero CPU memory** 
+  optical photon simulation to *Geant4* applications.
+
+
+
+.. s5_talk::
+
+   So in summary : Opticks applies the best available GPU ray tracing to optical 
+   photon simulation resulting in speedups exceeding three orders of magnitude.
+
+   Opticks is still very young and it really needs users to turn it into 
+   a robust tool that anyone with an optical photon simulation problem 
+   can use to elimate.
+
+   These speedups are just for the optical photons, how much that 
+   helps with the overall speedup depends on how limited you are by 
+   optical photons.
+
+
+
+
+
+
+:small:`Constructive Solid Geometry (CSG) : Shapes defined "by construction"`
+-------------------------------------------------------------------------------
+
+.. sidebar:: CSG Binary Tree
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg.png
+       :width: 450px
+       :align: right
+
+    .. class:: small
+
+       Primitives combined via binary operators 
+
+
+.. class:: small
+
+   Simple *by construction* definition, implicit geometry.
+
+   * **A, B** implicit primitive **solids** 
+   * **A + B** : union (OR)
+   * **A * B** : intersection (AND) 
+   * **A - B** : difference (AND NOT) 
+   * **!B** : complement (NOT) (inside <-> outside)
+
+   CSG expressions 
+
+   * non-unique: **A - B == A * !B**
+   * represented by binary tree, primitives at leaves
+
+   3D Parametric Ray : **ray(t) = r0 + t rDir**  
+
+
+   **Ray Geometry Intersection**
+
+   * primitive : find *t* roots of implicit eqn
+   * composite : :red:`pick` primitive intersect, depending on CSG tree
+
+
+.. class:: large
+
+   :red:`How to pick exactly ?`
+
+
+
+.. s5_talk::
+
+    Opticks CSG supports complemented shapes. That is necessary for tree positivization where  
+
+
+
+
+
+:small:`CSG : Which primitive intersect to pick ?`
+-------------------------------------------------------
+    
+
+.. sidebar:: In/On/Out transitions
+
+    .. class:: small
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg_roth_diagram.png
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+   Classical Roth diagram approach
+
+   * find all ray/primitive intersects
+   * recursively combine inside intervals using CSG operator
+   * works from leaves upwards
+
+   Computational requirements:
+
+   * find all intersects, store them, order them
+   * recursive traverse
+
+   BUT : **High performance on GPU requires**:
+
+   * massive parallelism -> more the merrier
+   * low register usage -> keep it simple
+   * small stack size -> **avoid recursion** 
+
+.. class:: large
+
+   :red:`Classical approach not appropriate on GPU`
+
+
+.. s5_talk::
+
+   Intersect is with one of the constituents, but how to find it.
+
+
+:small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Bit Twiddling Navigation
+
+    .. class:: small
+
+        * parent(i) = i/2 = i >> 1 
+
+        * leftchild(i) = 2*i = i << 1
+
+        * rightchild(i) = 2*i + 1 = (i << 1) + 1
+
+        * leftmost(height)  =  1 << height
+
+
+.. class:: small
+
+    Geant4 solid -> CSG binary tree (leaf primitives, non-leaf operators, 4x4 transforms on any node)
+
+    Serialize to **complete binary tree** buffer:
+ 
+    * no need to deserialize, no child/parent pointers
+    * bit twiddling navigation :red:`avoids recursion`
+    * simple approach profits from small size of binary trees 
+    * BUT: very inefficient when unbalanced 
+
+    **Height 3 complete binary tree with level order indices:**
+.. raw:: html
+
+    <pre class="mypre">
+                                                       depth     elevation
+
+                         1                               0           3   
+
+              10                   11                    1           2   
+
+         100       101        110        111             2           1   
+                        
+     1000 1001  1010 1011  1100 1101  1110  1111         3           0   
+    </pre>
+    <hr/>
+
+.. class:: small
+
+    **postorder_next(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) ;**   // from pattern of bits
+ 
+.. class:: tiny
+
+   Postorder tree traverse visits all nodes, starting from leftmost, such that children 
+   are visited prior to their parents.
+
+
+.. s5_talk::
+
+    CSG implementation is greatly simplified by 
+    use of complete binary tree serialization.  
+
+    Boolean solids with large numbers of constituents cause a 
+    problem, because complete binary tree serialization is
+    very inefficient for unbalanced trees.
+
+    Tree balancing helps, but still there is a complexity limit.
+    G4Boolean abuse solids with hundreds of constituents would be 
+    better implemented with custom primitives.
+
+
+
+
+
+:small:`Evaluative CSG intersection Pseudocode : recursion emulated`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    fullTree = PACK( 1 << height, 1 >> 1 )  // leftmost, parent_of_root(=0) 
+    tranche.push(fullTree, ray.tmin) 
+
+    while (!tranche.empty)        <b><span class="alarm"> // stack of begin/end indices </span></b>
+    {
+        begin, end, tmin <- tranche.pop  ; node <- begin ;
+        while( node != end )                  <b><span class="alarm"> // over tranche of postorder traversal </span></b>
+        {
+            elevation = height - TREE_DEPTH(node) ;
+            if(is_primitive(node)){ isect <- intersect_primitive(node, tmin) ;  csg.push(isect) }
+            else{
+                i_left, i_right = csg.pop, csg.pop          <b><span class="alarm">  // csg stack of intersect normals, t </span></b>
+                l_state = CLASSIFY(i_left, ray.direction, tmin)
+                r_state = CLASSIFY(i_right, ray.direction, tmin)
+                action = LUT(operator(node), leftIsCloser)(l_state, r_state) 
+
+                if(      action is ReturnLeft/Right)     csg.push(i_left or i_right)
+                else if( action is LoopLeft/Right)
+                {
+                    left = 2*node ; right = 2*node + 1 ; 
+                    endTranche = PACK( node,  end );
+                    leftTranche = PACK(  left << (elevation-1), right << (elevation-1) )
+                    rightTranche = PACK(  right << (elevation-1),  node  )
+                    loopTranche = action ? leftTranche : rightTranche
+                                                     
+                    tranche.push(endTranche, tmin)     
+                    tranche.push(loopTranche, tminAdvanced ) <b><span class="alarm"> // subtree re-traversal with changed tmin </span></b> 
+                    break ; // to next tranche
+                }
+            }
+            node <- postorder_next(node, elevation)        <b><span class="alarm"> // bit twiddling postorder </span></b>
+        }
+    } 
+    isect = csg.pop();       <b><span class="alarm">  // winning intersect  </span></b>
+    </pre>
+
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+
+
+.. s5_talk::
+
+   Emulated recursion : iterate over slices of a postorder tree traversal    
+
+
+
+:small:`CSG Deep Tree : JUNO "fastener"`
+----------------------------------------------------------------
+
+.. image:: /env/presentation/x016_deeptree.png
+   :width: 900px
+   :align: center
+
+
+.. s5_talk::
+
+   Deep tree 
+
+
+:small:`CSG Deep Tree : height 11 before balancing, too deep for GPU raytrace`
+------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">
+    NTreeAnalyse height 11 count 25    ( un : union,  cy : cylinder, di : difference )
+                                                                                          un            
+
+                                                                                  un              di    
+
+                                                                          un          cy      cy      cy
+
+                                                                  un          cy                        
+
+                                                          un          cy                                
+
+                                                  un          cy                                        
+
+                                          un          cy                                                
+
+                                  un          cy                                                        
+
+                          un          cy                                                                
+
+                  un          cy                                                                        
+
+          di          cy                                                                                
+
+      cy      cy                                                 
+
+   </pre>
+
+
+
+.. class:: small
+
+
+   CSG trees are non-unique
+
+   * many possible expressions of same shape
+   * some much more efficiently represented as complete binary trees 
+
+
+.. s5_talk::
+
+   G4Boolean easily ends up with deep tree
+
+
+
+
+:small:`CSG Deep Tree : Positivize tree using De Morgan's laws`
+------------------------------------------------------------------------------------
+
+.. sidebar:: Positive form CSG Trees
+
+   .. class:: small
+
+       Apply deMorgan pushing negations down tree 
+
+       * **A - B -> A * !B**
+       * **!(A*B) -> !A + !B**
+       * **!(A+B) -> !A * !B**
+       * **!(A - B) -> !(A*!B) -> !A + B**
+
+       End with only UNION, INTERSECT operators, 
+       and some complemented leaves.
+
+       :red:`COMMUTATIVE -> easily rearranged`
+
+
+.. class:: small
+
+    1st step to allow balancing : **Positivize** : remove CSG difference **di** operators 
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+                                                        ...    ...
+
+                                                  un          cy                                        
+
+                                          un          cy                                                
+
+                                  un          cy                                                        
+
+                          un          cy                                                                
+
+                  un          cy                                                                        
+
+          di          cy                                                                                
+
+      cy      cy                                                 
+
+   </pre>
+
+   <pre class="mypretiny">
+                                                        ...    ...
+
+                                                  un          cy                                        
+
+                                          un          cy                                                
+
+                                  un          cy                                                        
+
+                          un          cy                                                                
+
+                  un          cy                                                                        
+
+          in          cy                                                                                
+
+      cy      !cy                                                 
+
+   </pre>
+
+
+
+.. s5_talk::
+
+   Positivized tree easier to work with 
+
+
+
+:small:`CSG Deep Tree : height 4 after balancing, OK for GPU raytrace`
+------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <pre class="mypretiny">
+   NTreeAnalyse height 4 count 25
+                                                                  un                                    
+
+                                  un                                                      un            
+
+                  un                              un                      un                      in    
+
+          un              un              un              un          cy          in          cy     !cy
+
+      cy      cy      cy      cy      cy      cy      cy      cy              cy     !cy                
+
+   </pre>
+
+
+.. class:: small
+
+    un : union,  in : intersect, cy : cylinder, !cy : complemented cylinder
+
+.. class:: small
+
+    Balancing positive tree:
+
+     
+    1. classify tree operators and their placement 
+
+       * mono-operator trees can easily be rearranged as union **un** and intersection **in** operators are **commutative**
+       * mono-operator above bileaf level can also easily be rearranged as the bileaf can be split off and combined 
+
+    2. create complete binary tree of appropriate size filled with placeholders
+    3. populate the tree replacing placeholders 
+    4. prune (pull primitives up to avoid placeholder pairings)
+
+    **Not a general balancer : but succeeds with all CSG solid trees from Daya Bay and JUNO so far**
+
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/default/npy/NTreeBalance.cpp
+
+
+.. s5_talk::
+
+   Positivized and balanced
+
+
+
 
 :i:`CSG Examples`
 --------------------------
 
 
+.. s5_talk::
 
+    Some examples of CSG.
 
-.. comment
+    You might be able to see a problem in the top left. CSG modelling 
+    must avoid coincident surfaces in subtractions, otherwise you get spurious intersects.
 
 
-    :i:`NVIDIA RTX : DLSS : Deep Learning Super Sampling`
-    ------------------------------------------------------- 
 
-    .. s5_talk::
 
-       Some of the performance comes from AI cheating...
+:small:`Torus : much more difficult/expensive than other primitives`
+------------------------------------------------------------------------
 
+.. sidebar:: Torus artifacts
 
+    .. image:: /env/presentation/tboolean_torus_orthographic_artifact.png
+       :width: 400px
+       :align: right
 
-    :i:`NVIDIA RTX : DLSS : Deep Learning Super Sampling 2`
-    --------------------------------------------------------- 
+   .. image:: /env/presentation/torus_eqn_sqrt.png
+       :width: 400px
+       :align: right
 
-    .. raw:: html
+   .. image:: /env/presentation/torus_eqn_quartic.png
+       :width: 400px
+       :align: right
 
-       <pre>
 
-       </pre>
 
+.. class:: small
 
-    .. sidebar:: :small:`Deep Learning Super Sampling`
+   3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
 
-       .. class:: small 
+   * ray-torus intersection -> solve quartic polynomial in **t**  
+   *  A t^4 + B t^3 + C t^2 + D t + E = 0 
 
-            * Ray Trace fewer pixels, AI upsampling 
-            * Deep Learning model generates missing pixels
-            * Effective 2x performance from Tensor cores
+   High order equation 
 
+   * very large difference between coefficients 
+   * varying ray -> wide range of very coefficients
+   * numerically problematic, requires double precision 
+   * several mathematical approaches used, work in progress
 
+   **Best Solution : replace torus**
 
-    .. s5_talk::
+   * eg model PMT neck with hyperboloid, not cylinder-torus
 
-       Using a supercomputer trained model that is able to fill in missing pixels 
 
+.. s5_talk::
 
+   Would like to find time to experiment with SDF based sphere tracing.
+   Suspect that despite being iterative it could provide precise intersects
+   without using doubles.  
 
-    :i:`NVIDIA RTX 30 Series Launch Event`
-    ------------------------------------------
+   Fallback to triangulated torus is another possibility.
 
+  
 
-    :i:`NVIDIA RTX 30 Series Launch Event 2`
-    ------------------------------------------
+:small:`Torus : different artifacts as change implementation/params/viewpoint`
+--------------------------------------------------------------------------------
 
-    .. raw:: html
+.. class:: small
 
-       <pre>
+   * :red:`Only use Torus when there is no alternative` 
+   * especially avoid CSG combinations with Torus  
 
-       </pre>
+.. image:: /env/presentation/torus_cloud_artifact_2017_08_14.png
+   :width: 500px
+   :align: left
 
+.. image:: /env/presentation/torus_cuts_artifact_2017_08_08.png
+   :width: 550px
+   :align: right
 
-    .. sidebar:: :small:`RTX : 3 processors`
+.. image:: /env/presentation/torus_fan_artifact_2017_07_28.png
+   :width: 350px
+   :align: right
+ 
 
-        .. class:: small
 
-            * shaders (SM)
-            * hardware ray tracing (RT Cores) 
-            * AI (Tensor cores)
+.. s5_talk::
 
-            * :red:`concurrent`
-
-
-        .. class:: tiny
-
-            https://www.youtube.com/watch?v=E98hC9e__Xs
-
-            NVIDIA GeForce RTX 30 Series Launch Event
-
-
-.. comment
-
-    :i:`NVIDIA Ampere GPU : 2nd Generation RTX`
-    ----------------------------------------------
-
-
-    :i:`NVIDIA Ampere GPU : 2nd Generation RTX 2`
-    ----------------------------------------------
-
-
-    .. sidebar:: :small:`Ampere vs Turing`
-
-       .. class:: small 
-
-            * Triple double over Turing 
-            * NVIDIA GPU ray tracing 
-
-              * **rapid improvement**
-
-
-
-.. comment
-
-    :small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
-    --------------------------------------------------------------------------------
-
-    .. sidebar:: OptiX Raytracing Pipeline
-
-        .. class:: small
-
-           Analogous to OpenGL rasterization pipeline:
-
-        .. image:: /env/optix/docs/optix-model.png
-           :width: 450px
-           :align: right
-
-    .. class:: small
-
-       **OptiX makes GPU ray tracing accessible**
-
-       * **accelerates** ray-geometry intersections
-       * simple : single-ray programming model
-       * "...free to use within any application..."
-       * :red:`access RT Cores[1] with OptiX 6.0.0+ via RTX™ mode`
-
-       **NVIDIA expertise:**
-
-       * :red:`~linear scaling up to 4 GPUs`
-       * acceleration structure creation + traversal (Blue)
-       * instanced sharing of geometry + acceleration structures
-       * compiler optimized for GPU ray tracing
-
-    .. class:: tiny
-
-           ``https://developer.nvidia.com/rtx``
-
-    .. class:: small
-
-       **User provides (Yellow):**
-
-       * ray generation
-       * geometry bounding box, intersects 
-
-
-    .. class:: tiny
-
-       [1] Turing+ GPUs eg NVIDIA TITAN RTX 
-
-
-
-    .. s5_talk::
-
-       * NVIDIA OptiX provides GPUs accelerated ray-geometry intersection 
-
-       * but to benefit from it the geometry must be translated into 
-         GPU appropriate forms totally different to the Geant4 geometry model 
-
+   With JUNO geometry are able to eliminate Torus without optical impact 
 
 

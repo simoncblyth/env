@@ -697,23 +697,11 @@
     Opticks + JUNO Progress : Efficiency Hit Culling on GPU
     /env/presentation/optixrap/OSensorLibGeoTest_half.png 640px_360px 640px_360px
 
-    NVIDIA Marbles At Night RTX Demo Low 
-    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_half.png 1280px_720px
-
-    NVIDIA Marbles At Night RTX Demo Low 2
-    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_half.png 1280px_720px
-
     NVIDIA Marbles At Night RTX Demo
-    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_1080p_capture.png 1280px_720px
+    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_1080p_capture_half.png 1280px_720px
 
     NVIDIA Marbles At Night RTX Demo 2
-    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_1080p_capture.png 1280px_720px
-
-    NVIDIA RTX 30 Series Launch Event
-    /env/presentation/nvidia/rtx_three_ingredients_sep2020_rtx30series_launch_event_1656_half.png 1280px_720px
-
-    NVIDIA RTX 30 Series Launch Event 2
-    /env/presentation/nvidia/rtx_three_ingredients_sep2020_rtx30series_launch_event_1656_half.png 1280px_720px
+    /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_1080p_capture_half.png 1280px_720px
 
     NVIDIA RTX : DLSS : Deep Learning Super Sampling 
     /env/presentation/nvidia/dlss_20_deep_learning_super_sampling_rtx30series_launch_event_1434_half.png 1280px_720px
@@ -721,14 +709,8 @@
     NVIDIA RTX : DLSS : Deep Learning Super Sampling 2
     /env/presentation/nvidia/dlss_20_deep_learning_super_sampling_rtx30series_launch_event_1434_half.png 1280px_720px
 
-    NVIDIA Ampere GPU : 2nd Generation RTX 
-    /env/presentation/nvidia/ampere_2nd_generation_rtx_factors_half.png 1280px_620px
-
-    NVIDIA Ampere GPU : 2nd Generation RTX 2
-    /env/presentation/nvidia/ampere_2nd_generation_rtx_factors_half.png 1280px_620px
-
     Ampere : 2nd Generation RTX
-    /env/presentation/nvidia/nvidia_ampere_architecture.png     640px_360px 0px_360px
+    /env/presentation/nvidia/nvidia_ampere_architecture_half.png  640px_360px 0px_360px
     /env/presentation/nvidia/2nd_generation_rtx_half.png     640px_360px 640px_0px
     /env/presentation/nvidia/2nd_generation_rt_core_half.png 640px_360px 640px_360px
 

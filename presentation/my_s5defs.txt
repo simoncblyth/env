@@ -60,6 +60,8 @@
         .center {text-align: center;}
 
         span.redbold { color: red; font-weight:bold ; }
+        span.bluebold { color: blue; font-weight:bold ; }
+        span.greenbold { color: green; font-weight:bold ; }
 
         span.alarm { color: red; } 
         span.blue { color: blue; } 
@@ -154,5 +156,9 @@
 .. role:: myfoot
 .. role:: mytitle
 .. role:: redbold
+.. role:: greenbold
+.. role:: bluebold
+
+
 
 
