@@ -101,6 +101,7 @@ env_u_(){
    local envhome=${ENV_HOME:-$HOME/env} 
    local workflowhome=${WORKFLOW_HOME:-$HOME/workflow} 
    local homehome=${HOME_HOME:-$HOME/home} 
+   local optickshome=${OPTICKS_HOME:-$HOME/opticks} 
 
    case $abs in
            ${envhome}) echo http://localhost/env_notes/ ;; 
@@ -109,9 +110,9 @@ env_u_(){
      ${workflowhome}*) echo http://localhost/w/${abs/$workflowhome\/}/ ;; 
           ${homehome}) echo http://localhost/h/ ;; 
          ${homehome}*) echo http://localhost/h/${abs/$homehome\/}/ ;; 
-      ${DYBGAUDI_HOME}) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/ ;; 
-     ${DYBGAUDI_HOME}*) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/${abs/$DYBGAUDI_HOME\/}/ ;; 
-                     *) echo http://www.google.com ;;
+       ${optickshome}) echo https://bitbucket.org/simoncblyth/opticks/src/master/ ;; 
+      ${optickshome}*) echo https://bitbucket.org/simoncblyth/opticks/src/master/${abs/$optickshome\/}/ ;; 
+                    *) echo http://www.google.com ;;
    esac
 }
 u(){ 

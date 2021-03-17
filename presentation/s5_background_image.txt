@@ -14,8 +14,12 @@
     ##
     ##   wide targetting 1280x720
     ##   
+    ## the title "slide0" has special meaning as a title page 
     ##
-    slide0
+    slide0_disabled
+    /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
+
+    Detector Geometry in Opticks
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Opticks Benefits

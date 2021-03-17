@@ -1,28 +1,314 @@
 
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
-   :title: Detector geometry in Opticks 
+   :title: LZ NVIDIA NERSC Discussion
    :description: (Mar 2021)
-   :event: Compute Accelerator Forum
-   :url: https://indico.cern.ch/event/975008/
-   :date: 10 March 2021
-   :time: Wednesday 10 March at 16h30 CERN time, 15:30 UK time 
-   :length: 20+10 minutes
+   :url: https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210315.html  
+   :date: 15 March 2021
 
 .. include:: my_s5defs.txt
 
 
-.. comment
+===================================================================================
+LZ-Opticks-NVIDIA OptiX 6->7 : Notes
+===================================================================================
 
-   Klop
+.. class:: small
+
+   * https://github.com/simoncblyth/OptiXTest/commits
+
+   **Progress**
+
+   * GAS:BI:AABB 1NN vs 11N 
+
+     * 1NN clips to smallest AABB from all BI -> **move to 11N : all AABB in single BI**
+
+   * Generalized Shape handling 
+
+     * **Node** struct with four quads 
+
+   * Geometry Identity 
+
+   **NEXT STEPS:**
+
+   * bring in the rest of the primitives : not all plane sailing (convexpolyhedron, trapezoid) 
+
+     * needs **Prim** to offset into array of planes 
+
+   * CSG : **intersect_tree**, also needs **Prim**:  
+
+     * offsets into array of CSG transforms + provide number of **Node** in tree
+
+   * Interface with Opticks : **GMergedMesh -> Node,Prim,Plan,Tran -> SBT records**
+
+     * performance tests with full geometries, try different approaches: 
+     
+       * For "global" non-repeated : one big remainder GAS ? Or split up into many GAS ? 
+       * Reference all GAS (repeats and singles) from one IAS, or multi-IAS ?
 
 
-:i:`Detector Geometry in Opticks` 
-===================================
+.. class:: small
+
+   |  Simon C Blyth,  March 15 2021 
+
+
+.. s5_talk:: 
+
+    Klop
+
+
+:small:`GAS:BI:AABB  1NN vs 11N for 20 concentric spheres`
+---------------------------------------------------------------------  
+
+.. class:: small
+
+    .. figure:: /env/presentation/OptiXTest/sphere_20_1NN_half.png
+        :width: 500px
+        :align: left
+
+        **1NN** : :redbold:`Clips to smallest AABB from all BI`
+
+
+    .. figure:: /env/presentation/OptiXTest/sphere_20_11N_half.png
+        :width: 500px
+        :align: right
+
+        **11N** : :bluebold:`Single BI with all AABB`
+
+.. class:: small
+
+   **env.sh**
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    tmin=1.0
+    geometry=sphere
+    eye=-0.5,-0.5,0.5
+    gas_bi_aabb=0  # 0:1NN 1:11N
+    layers=20    
+    </pre>
+
+
+:small:`Shape generalization with :  Node, quad, (Prim)`
+---------------------------------------------------------------
+
+.. sidebar:: :small:`CSG Node : 4 quads`
+
+    .. raw:: html 
+
+        <pre class="mypretiny">
+        union quad  // cross-type convenience
+        {
+           float4 f ;
+           int4   i ;
+           uint4  u ; 
+        };  
+
+        struct Node
+        {
+            quad q0 ;
+            quad q1 ; 
+            quad q2 ; 
+            quad q3 ; 
+
+            __device__ 
+           unsigned typecode() const { return q2.u.w ; } 
+        };
+
+        struct HitGroupData
+        {
+            Node*    node ;    // aka part 
+            int*     prim ;    // (num_prim, 4 )      
+            //float*   tran ;  // (num_tran, 3, 4, 4)
+            //float*   plan ;  // (num_plan, 4)         
+        };
+        </pre>
+
 
 .. raw:: html
 
-    <div class="mytitle">
+    <pre class="mypretiny">
+    146 extern "C" __global__ void __intersection__is()
+    147 {
+    148     HitGroupData* hg = 
+            reinterpret_cast&lt;HitGroupData*&gt;(optixGetSbtDataPointer());
+    149     const Node* node = hg->node ;
+    150 
+    151     const float3 ray_origin = optixGetObjectRayOrigin();
+    152     const float3 ray_direction = optixGetObjectRayDirection();
+    153     const float  t_min = optixGetRayTmin() ;
+    154 
+    155     float4 isect ;
+    156     bool valid_isect = 
+            intersect_node(isect, node, t_min, ray_origin, ray_direction);
+    157 
+    158     if(valid_isect)
+    159     {
+    160         const unsigned hitKind = 0u ;  // user hit kind
+    161         unsigned a0, a1, a2, a3;       // attribute registers
+    162 
+    163         a0 = float_as_uint( isect.x );
+    164         a1 = float_as_uint( isect.y );
+    165         a2 = float_as_uint( isect.z );
+    166         a3 = float_as_uint( isect.w ) ;
+    167 
+    168         optixReportIntersection( isect.w, hitKind, a0, a1, a2, a3 );
+    169     }
+    170 }
+    </pre>
+
+.. class:: small 
+
+   Plan : generalization to trees of Node using Prim
+
+   * Prim: num_node + tran, plan offsets 
+
+
+:small:`intersect_node switch statement`
+--------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    129 INTERSECT_FUNC
+    130 bool intersect_node( float4& isect, const Node* node, const float t_min , const float3& ray_origin, const float3& ray_dir )
+    131 {   
+    132     const unsigned typecode = node->typecode() ;
+    133     bool valid_isect = false ;
+    134     switch(typecode)
+    135     {
+    136       case CSG_SPHERE:  valid_isect = intersect_node_sphere(  isect, node->q0,           t_min, ray_origin, ray_dir ) ;  break ; 
+    137       case CSG_ZSPHERE: valid_isect = intersect_node_zsphere( isect, node->q0, node->q1, t_min, ray_origin, ray_dir ) ;  break ; 
+    138     }
+    139    return valid_isect ; 
+    140 }
+    </pre>
+
+.. class:: small
+
+    Split off intersection maths into **intersect_node.h** -> :redbold:`allows testing on CPU` with **intersect_node.cc**
+
+.. class:: tiny 
+
+    https://github.com/simoncblyth/OptiXTest/blob/main/intersect_node.h
+
+    https://github.com/simoncblyth/OptiXTest/blob/main/intersect_node.cc   
+
+
+
+:small:`Geometry Identifier : single 32-bit unsigned encoding indices: (ias,instance,gas,prim) ?`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    172 extern "C" __global__ void __closesthit__ch()
+    173 {
+    174     const float3 isect_normal =
+    175         make_float3(
+    176                 uint_as_float( optixGetAttribute_0() ),
+    177                 uint_as_float( optixGetAttribute_1() ),
+    178                 uint_as_float( optixGetAttribute_2() )
+    179                 );
+    180    
+    181     const float t = uint_as_float( optixGetAttribute_3() ) ;
+    182 
+    183     <span class="redbold">unsigned instance_id = optixGetInstanceId() ; // packed (instance_idx,gas_idx)</span>        
+    184     unsigned prim_id  = 1u + optixGetPrimitiveIndex() ;
+    185     <span class="bluebold">unsigned identity = 
+            (( prim_id & 0xff ) << 24 ) | ( instance_id & 0x00ffffff ) ;</span>
+    186 
+    187     float3 normal = normalize( 
+            optixTransformNormalFromObjectToWorldSpace( isect_normal )
+            ) * 0.5f + 0.5f ;
+    188 
+    189     const float3 world_origin = optixGetWorldRayOrigin() ;
+    190     const float3 world_direction = optixGetWorldRayDirection() ;
+    191     const float3 world_position = world_origin + t*world_direction ;
+    192 
+    193     setPayload( normal, t,  world_position, identity );
+    194 }
+    </pre>
+
+
+.. class:: tiny
+
+   https://github.com/simoncblyth/OptiXTest/blob/main/OptiX7Test.cu 
+
+
+
+:small:`Intersect Identity : Pack (ins_idx, gas_idx) into 14+10=24 bit InstanceId`
+--------------------------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`OptiX Limits`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        Properties::dump
+                      rtcoreVersion :          0
+                 limitMaxTraceDepth :         31
+      limitMaxTraversableGraphDepth :         16
+           <span class="redbold">limitMaxPrimitivesPerGas :  536870912  20000000</span>
+            limitMaxInstancesPerIas :   16777216   1000000
+                 <span class="redbold">limitMaxInstanceId :   16777215    ffffff</span>
+           limitMaxSbtRecordsPerGas :   16777216   1000000
+                  limitMaxSbtOffset :   16777215    ffffff
+        </pre>
+
+
+.. class:: small
+
+    **pack (instance_idx, gas_idx) into instance_id** 
+
+.. raw:: html
+
+    <pre class="mypretiny">
+     29 struct InstanceId
+     30 {
+     31     enum { ins_bits = 14, gas_bits = 10 } ;
+     32 
+     33     static constexpr unsigned ins_mask = ( 1 << ins_bits ) - 1 ;
+     34     static constexpr unsigned gas_mask = ( 1 << gas_bits ) - 1 ;
+     35 
+     36     static unsigned Encode(unsigned  ins_idx, unsigned  gas_idx );
+     37     static void     Decode(unsigned& ins_idx, unsigned& gas_idx, 
+            const unsigned identity );
+     38 };
+     39 
+     40 inline unsigned InstanceId::Encode(
+            unsigned  ins_idx, unsigned  gas_idx )
+     41 {
+     42     assert( ins_idx < ins_mask );
+     43     assert( gas_idx < gas_mask );
+     44     unsigned identity =
+            (( 1 + ins_idx ) << gas_bits ) | (( 1 + gas_idx ) <<  0 )  ;
+     45     return identity ;
+     46 }
+    </pre>
+
+
+.. class:: small
+
+   * 10 gas bits (max 0x3ff = 1023) is probably enough
+   * 14 instance bits (max 0x3fff : 16383) : :redbold:`not enough instances for JUNO`
+   * TODO: move to identity encoding via bias to :redbold:`optixGetPrimitiveIndex()`  
+   * Much easier to pack into **30-bits** rather than **24-bits** 
+
+.. class:: tiny 
+
+   https://github.com/simoncblyth/OptiXTest/blob/main/InstanceId.h
+
+ 
+
+:i:`Detector Geometry in Opticks` 
+----------------------------------
+
+.. raw:: html
+
+    <div class="mytitle_missing">
     <header>
     <h1 style="background-color:lightgrey;text-align:center;"> 
          Detector Geometry in <i>Opticks</i> : <br> GPU Optical Simulation with NVIDIA® OptiX™ 
@@ -39,6 +325,12 @@
 .. s5_talk:: 
 
     This talk will review the Detector Geometry Approach used by Opticks 
+
+
+
+
+
+
 
 
 

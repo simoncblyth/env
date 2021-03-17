@@ -13,7 +13,6 @@ slides-get--
     automatically get all pages of the current presentation from presentation-
 
 
-
 Simplify talk interleaving with p2.sh
 ---------------------------------------
 
@@ -32,6 +31,8 @@ Simplify talk interleaving with p2.sh
 
 
 Running this opens two web pages in Safari, without and with the s5_talk slides.
+
+* use this whilst improving the TALK annotations
 
 
 How to interleave presentation slides with s5_talk notes
@@ -100,6 +101,18 @@ Better way to combine slides and annotations avoiding space, by combining PNG 2-
     cd comb 
     open .
     # adjust the sort order, select and then using scripting interface to make PDF from the PNG 
+
+
+sharing PDF from macOS Preview.app over AirDrop to iOS devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* open the PDF in Preview.app
+* select File > Share > AirDrop : this opens the AirDrop panel 
+* get the iOS device to wake up
+* an icon for the iOS device should appear in Preview.app
+* tap the icon should cause a notification on the iOS device, 
+  pick the app (eg Books) to handle the PDF then should 
+  have it immediately  
 
 
 PDF page size : Very large because somehow 72dpi ?
@@ -726,12 +739,21 @@ slides-capture(){
 
    done
 }
-slides-crop(){
+slides-crop0(){
    local msg="=== $FUNCNAME "
    slides-cd
    echo $msg cropping png
    /opt/local/bin/python $ENV_HOME/bin/crop.py ???.png
 }
+slides-crop(){
+   local msg="=== $FUNCNAME "
+   slides-cd
+   echo $msg cropping png
+   python $ENV_HOME/bin/crop.py ???.png
+}
+
+
+
 
 slides-rm-uncropped(){
    slides-cd

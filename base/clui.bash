@@ -71,8 +71,13 @@ clui-st()
 
 
 clui-alias(){
+   echo -n 
+}
+
+clui-alias-old(){
 
    ## hmm these are a bit too hidden for comfort 
+
 
    alias ss-="sudo su -"
    alias x='exit'

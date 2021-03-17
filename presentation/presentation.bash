@@ -22,6 +22,12 @@ presentation-index
     open local index.html in browser 
 
 
+PP warning
+------------
+
+#pragma GCC diagnostic ignored "-Winvalid-pp-token"
+
+
 Creating slides PDF with talk annotations interleaved
 -------------------------------------------------------
 
@@ -1118,10 +1124,10 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210208} ; }
 #presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210225} ; }
 
+#presentation-iname(){  echo ${INAME:-opticks_detector_geometry_caf_mar2021} ; }
+#presentation-iname(){  echo ${INAME:-opticks_detector_geometry_caf_mar2021_TALK} ; }
 
-presentation-iname(){  echo ${INAME:-opticks_detector_geometry_caf_mar2021} ; }
-
-
+presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210315} ; }
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 

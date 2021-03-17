@@ -1,6 +1,7 @@
 *simoncblyth.bitbucket.io*
 ===========================
 
+* https://simoncblyth.bitbucket.io
 * http://bitbucket.org/simoncblyth
 * https://bitbucket.org/simoncblyth/env/commits/all
 * https://bitbucket.org/simoncblyth/opticks/commits/all
@@ -96,10 +97,17 @@ Opticks Presentations
 2021
 ~~~~~
 
+https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210315.html
+
+    Notes on OptiX 6->7 migration, (Mar 15, 2021, Virtual)
+ 
+    * https://github.com/simoncblyth/OptiXTest/commits
+
 https://simoncblyth.bitbucket.io/env/presentation/opticks_detector_geometry_caf_mar2021.html
 
     Compute Accelerator Forum (March 10, 2021, Virtual, 20+10 min)
 
+    * https://simoncblyth.bitbucket.io/env/presentation/opticks_detector_geometry_caf_mar2021.pdf  (23 MB)
     * https://indico.cern.ch/event/975008/
 
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210225.html
