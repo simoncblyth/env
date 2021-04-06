@@ -2093,3 +2093,4 @@ stb-(){      . $(env-home)/graphics/stb/stb.bash && stb-env $* ; }
 useradd-(){      . $(env-home)/tools/useradd.bash && useradd-env $* ; }
 chrt-(){      . $(env-home)/graphics/chameleonrt/chrt.bash && chrt-env $* ; }
 rt-(){      . $(env-home)/graphics/rt/rt.bash && rt-env $* ; }
+g4ck-(){      . $(env-home)/geant4/g4op/g4ck.bash && g4ck-env $* ; }

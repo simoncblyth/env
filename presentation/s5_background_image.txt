@@ -724,6 +724,21 @@
     /env/presentation/csg/dyb-cylinder-union-coincidence-speckle.png 640px_360px 0px_0px
     /env/presentation/csg/dyb-esr-deep-tree-holes.png 640px_360px 640px_0px
 
+    CSG Parade Grid 1
+    /env/presentation/OptiXTest/parade_grid_half.png 1280px_720px
+
+    CSG Parade Grid 2
+    /env/presentation/OptiXTest/parade_zsphere_grid_half.png 640px_360px 640px_360px
+    /env/presentation/OptiXTest/parade_hyperboloid_grid_half.png 640px_360px 0px_360px
+
+    CSG Working  
+    /env/presentation/OptiXTest/csg_ubsp_half.png 640px_360px 640px_360px
+    /env/presentation/OptiXTest/csg_dbsp_half.png 640px_360px 0px_360px
+    /env/presentation/OptiXTest/csg_ibsp_half.png 640px_360px 640px_0px   
+
+    CSG Boolean Parade Grid
+    /env/presentation/OptiXTest/boolean_parade_grid_half.png 1280px_720px
+
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty

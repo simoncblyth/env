@@ -97,6 +97,13 @@ Opticks Presentations
 2021
 ~~~~~
 
+
+https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210406.html
+
+    Notes on OptiX 6->7 migration, "Foundry" CSG Model (April 4, 2021, Virtual)
+ 
+    * https://github.com/simoncblyth/OptiXTest/commits
+
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210315.html
 
     Notes on OptiX 6->7 migration, (Mar 15, 2021, Virtual)

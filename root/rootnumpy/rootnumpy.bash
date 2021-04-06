@@ -5,6 +5,24 @@ rootnumpy-vi(){       vi $(rootnumpy-source) ; }
 rootnumpy-env(){      elocal- ; }
 rootnumpy-usage(){ cat << EOU
 
+
+
+Alternatives
+
+* https://github.com/scikit-hep/uproot4
+
+  jpivarski
+
+* https://uproot.readthedocs.io/en/latest/
+* https://uproot.readthedocs.io/en/latest/basic.html
+
+
+
+* https://pkg.go.dev/go-hep.org/x/hep/cmd/root2npy?utm_source=godoc
+
+
+
+
 * http://rootpy.github.io/root_numpy/install.html
 
 http://scikit-hep.org/root_numpy/install.html

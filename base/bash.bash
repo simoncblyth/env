@@ -10,6 +10,120 @@ bash
 =====
 
 
+.bash_profile vs .bashrc
+---------------------------
+
+* https://apple.stackexchange.com/questions/51036/what-is-the-difference-between-bash-profile-and-bashrc
+
+.bash_profile is executed for login shells, while .bashrc is executed for
+interactive non-login shells.
+
+When you login (type username and password) via console, either sitting at the
+machine, or remotely via ssh: .bash_profile is executed to configure your shell
+before the initial command prompt.
+
+But, if you’ve already logged into your machine and open a new terminal window
+(xterm) then .bashrc is executed before the window command prompt. .bashrc is
+also run when you start a new bash instance by typing /bin/bash in a terminal.
+
+On OS X, Terminal by default runs a login shell every time, so this is a little
+different to most other systems, but you can configure that in the preferences.
+
+
+What I do
+~~~~~~~~~~~~
+
+Remove most of the distinction by within the .bash_profile sourcing the .bashrc
+
+
+
+declare -a arr = (1 2 3)
+-------------------------
+
+* advantage of "declare -a" is local scoping 
+
+
+
+bash arguments
+----------------
+
+* https://unix.stackexchange.com/questions/129072/whats-the-difference-between-and
+
+::
+
+    #!/bin/bash
+
+    echo "Using \"\$*\":"
+    for a in "$*"; do
+        echo $a;
+    done
+
+    echo -e "\nUsing \$*:"
+    for a in $*; do
+        echo $a;
+    done
+
+    echo -e "\nUsing \"\$@\":"
+    for a in "$@"; do
+        echo $a;
+    done
+
+    echo -e "\nUsing \$@:"
+    for a in $@; do
+        echo $a;
+    done              
+
+    epsilon:env blyth$ args2.sh red green blue "cyan magenta" yellow black 
+    Using "$*":
+    red green blue cyan magenta yellow black
+
+    Using $*:
+    red
+    green
+    blue
+    cyan
+    magenta
+    yellow
+    black
+
+    Using "$@":
+    red
+    green
+    blue
+    cyan magenta
+    yellow
+    black
+
+    Using $@:
+    red
+    green
+    blue
+    cyan
+    magenta
+    yellow
+    black
+
+
+
+
+join
+------
+
+::
+
+   joi-(){ shift && echo "$*" ; }
+   join(){ IFS=$1 joi- $* ; }
+   [ "$(join : red green blue)" == "red:green:blue" ] && echo Y || echo N 
+
+   joi-(){ echo "$*" ; }
+   join(){ IFS=$1 joi- ${*:2} ; }
+   [ "$(join : red green blue)" == "red:green:blue" ] && echo Y || echo N 
+
+
+
+
+
+
 macOS bash is ancient, due to GPLv3 licencing of 3.2+
 ------------------------------------------------------
 

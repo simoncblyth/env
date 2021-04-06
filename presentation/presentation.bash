@@ -1127,7 +1127,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){  echo ${INAME:-opticks_detector_geometry_caf_mar2021} ; }
 #presentation-iname(){  echo ${INAME:-opticks_detector_geometry_caf_mar2021_TALK} ; }
 
-presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210315} ; }
+#presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210315} ; }
+presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210406} ; }
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 

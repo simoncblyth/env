@@ -12,6 +12,49 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+
+viminfo error
+--------------
+
+On lxslc which has an AFS setup with tokens then seems to expire after 2 minutes
+Get error at exit::
+
+    E886: Can't rename viminfo file to /afs/ihep.ac.cn/users/b/blyth/.viminfo!
+
+Can avoid by updating the token with kklog::
+
+    L7[blyth@lxslc710 ~]$ t kklog
+    kklog () 
+    { 
+        type $FUNCNAME && kinit blyth && aklog -d
+    }
+
+But prefer not to enter password every two minutes
+
+Added line to ~/.vimrc::
+
+    syntax on
+
+    set nu
+    set paste
+
+    set smartindent
+    set tabstop=4
+    set shiftwidth=4
+    set expandtab
+
+    set viminfo+=n/hpcfs/juno/junogpu/blyth/.viminfo
+
+
+split a long line eg from VERBOSE=1 building on spaces
+-------------------------------------------------------
+
+::
+
+   s/ /\r/g
+
+
+
 vimdiff
 --------
 
@@ -267,6 +310,24 @@ vim substitute tips
 ~~~~~~~~~~~~~~~~~~~~~
 
 * http://vim.wikia.com/wiki/Search_and_replace
+
+
+add std::setw after first stream chevron on the line
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+     263     std::cout 
+     264         << " wavelength " << wavelength << std::endl
+
+     263     std::cout 
+     264         << std::setw(w) << " wavelength " << wavelength << std::endl
+
+::
+
+    :.,+20s/^\(\s*\)<</\1<< std::setw(w) <</gc
+
+    # NB: must escape the capturing bracket 
 
 
 add a parameter to a method call
