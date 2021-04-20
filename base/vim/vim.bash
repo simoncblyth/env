@@ -55,6 +55,19 @@ split a long line eg from VERBOSE=1 building on spaces
 
 
 
+vimdiff high level tips
+--------------------------
+
+0. open all folds with (zR) 
+1. have one of the files a temporay and push to it as you go to reduce differnces
+2. when pulling in a new block from the other with "do" it doent work from the top, 
+   position cursor at the bottom of the blue missing diff region 
+
+3. feel free to add spaces to make the diffs line up more simply, use :diffupdate 
+
+
+
+
 vimdiff
 --------
 
@@ -74,7 +87,7 @@ vd(){ vimdiff -c "windo set nofoldenable" $* ; }
 
    ctrl-WW  : jump between files   : need to do this to "u" undo a "dp" change into the other file
 
-   zr          open all the folds  : this helps because it prevents jumping around when moving changes  
+   zR       (directly not :zR)   opens all the folds  : this helps because it prevents jumping around when moving changes  
 
    ]c    next diff
    [c    prev diff

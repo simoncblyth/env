@@ -30,6 +30,254 @@ Others
 * https://yt-project.org/docs/dev/visualizing/plots.html
 
 
+Precise Control of Viewpoint/Camera to match a render ?
+----------------------------------------------------------
+
+* manage to get same camera point and focus as the render but the 
+  field of view is very different 
+
+
+* https://vtk.org/doc/nightly/html/classvtkCamera.html
+
+* https://blenderartists.org/t/whats-the-difference-between-orthographic-view-and-isometric-view/1167101/2
+
+* https://github.com/Kitware/VTK/blob/master/Wrapping/Python/README.md
+
+
+
+
+    epsilon:plotting blyth$ pwd
+    /Users/blyth/miniconda3/lib/python3.7/site-packages/pyvista/plotting
+
+    epsilon:plotting blyth$ grep camera.Set *.py 
+    background_renderer.py:        self.camera.SetFocalPoint(xc, yc, 0.0)
+    background_renderer.py:        self.camera.SetPosition(xc, yc, d)
+    background_renderer.py:        self.camera.SetParallelScale(0.5 * yd / self._scale)
+    plotting.py:        self.camera.SetThickness(path.length)
+    renderer.py:            self.camera.SetPosition(scale_point(self.camera, camera_location[0],
+    renderer.py:            self.camera.SetFocalPoint(scale_point(self.camera, camera_location[1],
+    renderer.py:            self.camera.SetViewUp(camera_location[2])
+    renderer.py:        self.camera.SetFocalPoint(scale_point(self.camera, point, invert=False))
+    renderer.py:        self.camera.SetPosition(scale_point(self.camera, point, invert=False))
+    renderer.py:        self.camera.SetViewUp(vector)
+    renderer.py:        self.camera.SetParallelProjection(True)
+    renderer.py:        self.camera.SetParallelProjection(False)
+    renderer.py:        self.camera.SetModelTransformMatrix(transform.GetMatrix())
+    epsilon:plotting blyth$ 
+
+
+
+::
+
+    In [3]: pl.camera                                                                                                                                                                                        
+    Out[3]: (vtkRenderingOpenGL2Python.vtkOpenGLCamera)0x16948fde0
+
+    In [4]: dir(pl.camera)                                                                                                                                                                                   
+    Out[4]: 
+    ['AddObserver',
+     'ApplyTransform',
+     'Azimuth',
+     'BreakOnError',
+     'ComputeViewPlaneNormal',
+     'DebugOff',
+     'DebugOn',
+     'DeepCopy',
+     'Dolly',
+     'Elevation',
+     'FastDelete',
+     'GetAddressAsString',
+     'GetCameraLightTransformMatrix',
+     'GetClassName',
+     'GetClippingRange',
+     'GetCommand',
+     'GetCompositeProjectionTransformMatrix',
+     'GetDebug',
+     'GetDirectionOfProjection',
+     'GetDistance',
+     'GetExplicitProjectionTransformMatrix',
+     'GetEyeAngle',
+     'GetEyePlaneNormal',
+     'GetEyePosition',
+     'GetEyeSeparation',
+     'GetEyeTransformMatrix',
+
+
+    In [39]: pl.camera.GetParallelScale()                                                                                                                                                                    
+    Out[39]: 1021.7520079765083
+
+
+
+
+    In [30]: m = pl.camera.GetViewTransformMatrix()                                                                                                                                                          
+    In [31]: print(str(m))                                                                                                                                                                                   
+    vtkMatrix4x4 (0x7fbd48f2cb30)
+      Debug: Off
+      Modified Time: 27087
+      Reference Count: 2
+      Registered Events: (none)
+      Elements:
+        0.707107 -0.707107 0 0 
+        0.408248 0.408248 0.816497 0 
+        -0.57735 -0.57735 0.57735 -3018.96 
+        0 0 0 1 
+
+    In [32]: m = pl.camera.GetEyeTransformMatrix()                                                                                                                                                           
+
+    In [33]: print(str(m))                                                                                                                                                                                   
+    vtkMatrix4x4 (0x7fbd48f2bdc0)
+      Debug: Off
+      Modified Time: 1182
+      Reference Count: 2
+      Registered Events: (none)
+      Elements:
+        1 0 0 0 
+        0 1 0 0 
+        0 0 1 0 
+        0 0 0 1 
+
+
+
+
+
+
+
+* https://vtk.org/doc/nightly/html/classvtkCamera.html
+
+* https://vtk.org/doc/nightly/html/classvtkRenderer.html
+
+* https://vtk.org/doc/nightly/html/classvtkRenderer.html#ae8055043e676defbbacff6f1ea65ad1e
+
+
+
+    0100 class Renderer(vtkRenderer):
+    0101     """Renderer class."""
+    0102 
+    ....
+    1260     def reset_camera(self):
+    1261         """Reset the camera of the active render window.
+    1262 
+    1263         The camera slides along the vector defined from camera position to focal point
+    1264         until all of the actors can be seen.
+    1265 
+    1266         """
+    1267         self.ResetCamera()
+    1268         self.parent.render()
+    1269         self.Modified()
+    1270 
+    ....
+    1279     def view_isometric(self, negative=False):
+    1280         """Reset the camera to a default isometric view.
+    1281 
+    1282         The view will show all the actors in the scene.
+    1283 
+    1284         """
+    1285         self.camera_position = CameraPosition(*self.get_default_cam_pos(negative=negative))
+    1286         self.camera_set = False
+    1287         return self.reset_camera()
+
+
+    1198     def set_scale(self, xscale=None, yscale=None, zscale=None, reset_camera=True):
+    1199         """Scale all the datasets in the scene.
+    1200 
+    1201         Scaling in performed independently on the X, Y and Z axis.
+    1202         A scale of zero is illegal and will be replaced with one.
+    1203 
+    1204         """
+    1205         if xscale is None:
+    1206             xscale = self.scale[0]
+    1207         if yscale is None:
+    1208             yscale = self.scale[1]
+    1209         if zscale is None:
+    1210             zscale = self.scale[2]
+    1211         self.scale = [xscale, yscale, zscale]
+    1212 
+    1213         # Update the camera's coordinate system
+    1214         transform = vtk.vtkTransform()
+    1215         transform.Scale(xscale, yscale, zscale)
+    1216         self.camera.SetModelTransformMatrix(transform.GetMatrix())
+    1217         self.parent.render()
+    1218         if reset_camera:
+    1219             self.update_bounds_axes()
+    1220             self.reset_camera()
+    1221         self.Modified()
+
+
+
+
+::
+
+
+    In [4]: pl = pv.Plotter()                                                                                                                                                                                
+
+    In [5]: pos = hposi[:,:3]                                                                                                                                                                                
+
+    In [6]: pl.add_points(pos)                                                                                                                                                                               
+    Out[6]: (vtkRenderingOpenGL2Python.vtkOpenGLActor)0x17251a9f0
+
+
+    In [8]: pl.view_vector??                                                                                                                                                                                 
+    Signature: pl.view_vector(vector, viewup=None)
+    Source:   
+        def view_vector(self, vector, viewup=None):
+            """Point the camera in the direction of the given vector."""
+            focal_pt = self.center
+            if viewup is None:
+                viewup = rcParams['camera']['viewup']
+            cpos = CameraPosition(vector + np.array(focal_pt),
+                    focal_pt, viewup)
+            self.camera_position = cpos
+            return self.reset_camera()
+    File:      ~/miniconda3/lib/python3.7/site-packages/pyvista/plotting/renderer.py
+    Type:      method
+
+
+
+
+    pl.show?
+
+    cpos : list(tuple(floats))
+        The camera position to use
+
+    height : int, optional
+        height for panel pane. Only used with panel.
+
+    Return
+    ------
+    cpos : list
+        List of camera position, focal point, and view up
+
+
+
+    In [11]: pl.camera_position                                                                                                                                                                              
+    Out[11]: 
+    [(-20.177947998046875, -20.16827392578125, 3897.8118510121158),
+     (-20.177947998046875, -20.16827392578125, 22.314544677734375),
+     (0.0, 1.0, 0.0)]
+
+    In [12]: type(pl.camera_position)                                                                                                                                                                        
+    Out[12]: pyvista.plotting.renderer.CameraPosition
+
+
+    In [18]: from pyvista.plotting.renderer import CameraPosition as CP                                                                                                                                      
+
+    In [19]: CP?                                                                                                                                                                                             
+    Init signature: CP(position, focal_point, viewup)
+    Docstring:      Container to hold camera location attributes.
+    Init docstring: Initialize a new camera position descriptor.
+    File:           ~/miniconda3/lib/python3.7/site-packages/pyvista/plotting/renderer.py
+    Type:           type
+    Subclasses:     
+
+    In [20]: CP??                 
+
+
+
+
+
+
+
+
+
 Comparisons with other viz tools
 ---------------------------------
 

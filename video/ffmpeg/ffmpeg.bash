@@ -104,6 +104,12 @@ Linux Distros
 * https://chrisjean.com/install-ffmpeg-and-ffmpeg-php-on-centos-easily/
 * https://linoxide.com/linux-how-to/install-ffmpeg-centos-7/
 
+Subtitles
+-----------
+
+* https://trac.ffmpeg.org/wiki/HowToBurnSubtitlesIntoVideo
+
+
 
 ffmpeg commandline commands/options
 ---------------------------------------

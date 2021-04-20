@@ -2,8 +2,30 @@ svn-source(){ echo ${BASH_SOURCE:-$ENV_HOME/svn/svn.bash} ; }
 svn-vi(){        vim $(svn-source) ; }
 svn-sourcelink(){ env-sourcelink $(svn-source) ; }
 svn-usage(){  cat << EOU
-$FUNCNAME
+SVN Usage
 ===============
+
+
+"svn up" gives a merge conflict because forgot to revert some temporary local changes
+----------------------------------------------------------------------------------------
+
+::
+
+    Select: (p) postpone, (df) diff-full, (e) edit, (r) resolved,
+            (mc) mine-conflict, (tc) theirs-conflict,
+            (s) show all options: p
+    C    junoenv-external-libs.sh
+
+
+1. (p) postpone out of the "svn up"
+2. "svn revert junoenv-external-libs.sh" the conflicted discarding local changes
+3. now are at trunk with no local changes
+
+
+
+SVN Building
+===============
+
 
 For global settings that are above the details of building and
 configuring 
