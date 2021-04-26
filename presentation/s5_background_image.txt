@@ -739,6 +739,75 @@
     CSG Boolean Parade Grid
     /env/presentation/OptiXTest/boolean_parade_grid_half.png 1280px_720px
 
+    [0]lLowerChimney_phys__5,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__5,__00000.jpg 1280px_720px
+
+    [1]lLowerChimney_phys__7,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__7,__00000.jpg 1280px_720px
+
+    [2]lLowerChimney_phys__9,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__9,__00000.jpg 1280px_720px
+
+    [3]lLowerChimney_phys__4,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__4,__00000.jpg 1280px_720px
+
+    [4]lLowerChimney_phys__6,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__6,__00000.jpg 1280px_720px
+
+    [5]lLowerChimney_phys__3,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__3,__00000.jpg 1280px_720px
+
+    [6]lLowerChimney_phys__1,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__1,__00000.jpg 1280px_720px
+
+    [7]lLowerChimney_phys__2,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__2,__00000.jpg 1280px_720px
+
+    [8]lLowerChimney_phys__1,2,3,4__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__1,2,3,4__00000.jpg 1280px_720px
+
+    [9]lLowerChimney_phys__0,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__0,__00000.jpg 1280px_720px
+
+    [10]lLowerChimney_phys__t8,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t8,__00000.jpg 1280px_720px
+
+    [11]lLowerChimney_phys__8,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__8,__00000.jpg 1280px_720px
+
+    [12]lLowerChimney_phys__t0,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t0,__00000.jpg 1280px_720px
+
+    [13]lLowerChimney_phys__t5,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t5,__00000.jpg 1280px_720px
+
+    [14]lLowerChimney_phys__t6,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t6,__00000.jpg 1280px_720px
+
+    [15]lLowerChimney_phys__t7,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t7,__00000.jpg 1280px_720px
+
+    [16]lLowerChimney_phys__t4,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t4,__00000.jpg 1280px_720px
+
+    [17]lLowerChimney_phys_all_00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys_all_00000.jpg 1280px_720px
+
+    [18]lLowerChimney_phys__t3,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t3,__00000.jpg 1280px_720px
+
+    [19]lLowerChimney_phys__t9,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t9,__00000.jpg 1280px_720px
+
+    [20]lLowerChimney_phys__t2,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t2,__00000.jpg 1280px_720px
+
+    [21]lLowerChimney_phys__t1,__00000
+    /env/presentation/snap/lLowerChimney_phys/lLowerChimney_phys__t1,__00000.jpg 1280px_720px
+
+    double greek temple
+    /env/presentation/flight/double_greek_temple_half.png 1280px_720px
+
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty

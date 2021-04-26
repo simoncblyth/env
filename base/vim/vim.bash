@@ -266,8 +266,8 @@ How to paste a column in blockwise (rather than tedious linewise fashion) using 
 
 TIPS:
 
-* make sure there are spaces on the last line of the block to cover the 
-  entire maximum width of what you want to cut/paste
+* make sure there are spaces on the last line of the block to be cut and pasted 
+  that cover the entire maximum width of the block 
 
 * VISUAL-BLOCK (ctrl-v) is not the same as the usual VISUAL (v) mode
 

@@ -98,6 +98,12 @@ Opticks Presentations
 ~~~~~
 
 
+
+
+https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210426.html
+
+    JUNO-Opticks Notes, slow solids identified (April 26, 2021)
+
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210406.html
 
     Notes on OptiX 6->7 migration, "Foundry" CSG Model (April 4, 2021, Virtual)
