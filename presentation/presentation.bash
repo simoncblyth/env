@@ -1130,7 +1130,10 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210315} ; }
 #presentation-iname(){  echo ${INAME:-lz_opticks_optix7_20210406} ; }
 
-presentation-iname(){  echo ${INAME:-juno_opticks_20210426} ; }
+#presentation-iname(){  echo ${INAME:-juno_opticks_20210426} ; }
+#presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210504} ; }
+presentation-iname(){   echo ${INAME:-opticks_vchep_2021_may19} ; }
+
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
 presentation-preprocessor-args-smry(){ printf "%s\n" -DSMRY ; } 

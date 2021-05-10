@@ -98,7 +98,13 @@ Opticks Presentations
 ~~~~~
 
 
+https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210504.html
 
+    Notes on OptiX 6->7 migration, *CSG*, *CSGOptiX*, *CSGOptiXGGeo* (May 4, 2021, Virtual)
+ 
+    * https://github.com/simoncblyth/CSG/commits
+    * https://github.com/simoncblyth/CSGOptiX/commits
+    * https://github.com/simoncblyth/CSGOptiXGGeo/commits
 
 https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210426.html
 

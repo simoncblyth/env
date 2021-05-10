@@ -244,8 +244,8 @@ The genstep arrays are typically several orders of magnitude smaller than the ph
 that are generated from them.  Gensteps are valid only for specific versions of the implementation
 of the processes as they must be used only with matched CUDA ports of the generation.  
 
-The simulation is steered from the a ray generation program provided to OptiX 
-which performs the photon generation followed by propagation up to a configurable maximum 
+Steering of the simulation is implemented in the ray generation program, 
+which performs parallel photon generation and propagation up to a configurable maximum 
 number of steps. For each step of the propagation, rays representing photons are intersected
 with the geometry. The intersected boundary provides a boundary index which allows 
 material properties such as absorption and scattering lengths to be looked up. 

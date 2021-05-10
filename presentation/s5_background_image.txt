@@ -15,8 +15,10 @@
     ##   wide targetting 1280x720
     ##   
     ## the title "slide0" has special meaning as a title page 
+    ## to disable the title background image simply change the 
+    ## below title of "slide0" to "slide0_disabled"
     ##
-    slide0_disabled
+    slide0
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -60,6 +62,9 @@
     ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
     ##
     Geant4OpticksWorkflow
+    /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
+
+    Geant4OpticksWorkflow 2
     /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
 
     GGeoView
@@ -489,6 +494,9 @@
     NVIDIA OptiX 7 : Entirely new thin API
     /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
 
+    NVIDIA OptiX 7 : Entirely new thin API : Opticks Migration in Progress
+    /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
+
     TURING BUILT FOR RTX  
     /env/presentation/nvidia/TURING_Built_for_RTX_half.png 1280px_720px
 
@@ -807,6 +815,46 @@
 
     double greek temple
     /env/presentation/flight/double_greek_temple_half.png 1280px_720px
+
+    CSGOptiXGGeo_0
+    /env/presentation/CSGOptiXGGeo/70000/0/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/0/pixels.jpg 640px_360px 0px_360px
+
+    CSGOptiXGGeo_1
+    /env/presentation/CSGOptiXGGeo/70000/1/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/1/pixels.jpg 640px_360px 0px_360px
+
+    CSGOptiXGGeo_2
+    /env/presentation/CSGOptiXGGeo/70000/2/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/2/pixels.jpg 640px_360px 0px_360px
+
+    CSGOptiXGGeo_3
+    /env/presentation/CSGOptiXGGeo/70000/3/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/3/pixels.jpg 640px_360px 0px_360px
+
+    CSGOptiXGGeo_4
+    /env/presentation/CSGOptiXGGeo/70000/4/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/4/pixels.jpg 640px_360px 0px_360px
+
+    CSGOptiXGGeo_5
+    /env/presentation/CSGOptiXGGeo/70000/5/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/5/pixels.jpg 640px_360px 0px_360px
+
+    CSGOptiXGGeo_6
+    /env/presentation/CSGOptiXGGeo/70000/6/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/6/pixels.jpg 640px_360px 0px_360px
+
+    CSGOptiXGGeo_7
+    /env/presentation/CSGOptiXGGeo/70000/7/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/7/pixels.jpg 640px_360px 0px_360px
+
+    CSGOptiXGGeo_8
+    /env/presentation/CSGOptiXGGeo/70000/8/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/8/pixels.jpg 640px_360px 0px_360px
+
+    CSGOptiXGGeo_9
+    /env/presentation/CSGOptiXGGeo/70000/9/pixels.jpg 640px_360px 640px_360px
+    /env/presentation/CSGOptiXGGeo/50001/9/pixels.jpg 640px_360px 0px_360px
 
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

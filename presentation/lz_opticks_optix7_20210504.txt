@@ -1,0 +1,922 @@
+
+.. meta::
+   :note: Navigate the HTML slides by entering a page number and pressing return 
+   :title: LZ NVIDIA NERSC Discussion
+   :description: (May 2021)
+   :url: https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210406.html  
+   :date: 4 May 2021
+
+.. include:: my_s5defs.txt
+
+
+===================================================================================
+LZ-Opticks-NVIDIA OptiX 6->7 : Notes
+===================================================================================
+
+.. class:: small
+
+   * https://github.com/simoncblyth/CSG/commits https://github.com/simoncblyth/CSGOptiX/commits
+   * https://github.com/simoncblyth/CSGOptiXGGeo/commits
+
+   **PROGRESS : OptiXTest split in two, added Opticks/GGeo conversion**
+
+   * **CSG** : *CSGFoundry* model, simple intersect headers : :redbold:`CPU testable` 
+
+   * **CSGOptiX** : OptiX 7 + pre-7 renders of *CSGFoundry* geometry  
+
+   * **CSGOptiXGGeo** : loads *Opticks/GGeo*, converts to **CSG** and renders using **CSGOptiX**
+
+
+   **NEXT STEPS:**
+
+   * debug *GGeo* -> *CSGFoundry* conversion : relative transforms, instances
+
+   * Add **CSG** + **CSGOptiX** packages to Opticks 
+
+   * performance test full geometry approaches (split/join GAS, 1 or more IAS) 
+     
+   * optixrap/cu/generate.cu : photon generation + propagation : expts
+    
+     * :redbold:`pull out simple headers common to: pre-7, 7, CPU testing`
+     * minimize code difference between : pre-7, 7, CPU-testing 
+     * trickery/mocking needed for CURAND on CPU? (templating?)
+
+   **LONGTERM POSSIBILITY** : Populate **CSGFoundry** model direct from Geant4 geometry ? [:redbold:`Disruptive`]
+
+
+.. class:: small
+
+   |  Simon C Blyth,  May 4, 2021 
+
+
+.. s5_talk:: 
+
+    Klop
+
+
+
+:small:`CSG : CSGFoundry/CSGSolid/CSGPrim/CSGNode/csg_intersect_tree/..`
+-----------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`CSGFoundry : Instances + Solids`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        struct CSGFoundry
+        {
+        ...
+              void upload();  
+        ...
+              std::vector&lt;CSGSolid&gt;  solid ;
+              std::vector&lt;CSGPrim&gt;   prim ;
+              std::vector&lt;CSGNode&gt;   node ;
+              std::vector&lt;float4&gt; plan ;
+              std::vector&lt;qat4&gt;   tran ;
+              std::vector&lt;qat4&gt;   itra ;
+              std::vector&lt;qat4&gt;   inst ;<span class="redbold">// instance transforms</span>
+         
+              CSGPrim*    d_prim ; 
+              CSGNode*    d_node ; 
+              float4*     d_plan ; 
+              qat4*       d_itra ;   // inverse CSG transforms 
+         };
+        </pre>
+
+
+.. class:: small
+
+    * :bluebold:`https://github.com/simoncblyth/CSG` 
+    * *CSG* : soon to become an Opticks package 
+
+    **All solids+constituents created via Foundry (ref by index)**
+
+    * **CSGSolid** : 1 or more **CSGPrim**  : ( **CSGSolid** -> **GAS** )
+    * **CSGPrim** : 1 or more **CSGNode**  : (**CSGPrim** ~ *G4VSolid*) 
+
+      * (*nodeOffset*, *numNode*) -> SBT HitGroup record
+
+    * **CSGNode** : CSG constituents 
+
+      * basis shapes : sphere, box3, cone, cylinder, ...
+      * boolean operators : union, intersection, difference
+
+    * **qat4** : scale-rotate-translate transform
+    * **float4** : planes (normal + distance to origin)
+
+    * **csg_intersect_tree.h/csg_intersect_node.h/...**
+
+      * :redbold:`simple headers common to pre-7/7/CPU-testing`
+      * **CSGScan** : CPU intersect testing 
+
+
+    *CSGFoundry::upload* 
+         :redbold:`all solids in geometry -> only four GPU allocations` : *d_prim*, *d_node*, *d_plan*, *d_itra*
+
+
+.. class:: tiny 
+
+    https://github.com/simoncblyth/CSG/blob/main/CSGFoundry.h
+    https://github.com/simoncblyth/CSG/blob/main/qat4.h
+
+
+:small:`OptiX 7 + pre-7 intersecting same CSGFoundry geometry`
+-----------------------------------------------------------------------
+
+.. sidebar:: :small:`geo_OptiX6Test.cu`
+
+    .. class:: small
+
+        * :redbold:`Duplicate 7 environment in pre-7`
+
+    .. raw:: html 
+
+     <pre class="mypretiny">
+     <span class="redbold">24 rtBuffer<CSGPrim> prim_buffer; // geometry level context </span>
+     25     
+     <span class="bluebold">28 rtBuffer<CSGNode> node_buffer;  // global context
+     29 rtBuffer<qat4> itra_buffer;
+     30 rtBuffer<float4> plan_buffer; </span>
+     ..
+     40 RT_PROGRAM void intersect(int primIdx)
+     41 {   
+     42 <span class="redbold">const CSGPrim* prim = &prim_buffer[primIdx] ;</span>
+     43 int nodeOffset = prim->nodeOffset() ;  
+     44 int numNode = prim->numNode() ; 
+     45 <span class="bluebold">const CSGNode* node = &node_buffer[nodeOffset] ; </span>
+     46 const float4* plan = &plan_buffer[0] ;
+     47 const qat4*   itra = &itra_buffer[0] ;  
+     48     
+     49 float4 isect ; 
+     50 if(intersect_prim(isect, numNode, node, plan, itra, 
+             ray.tmin , ray.origin, ray.direction ))
+     51 {   
+     52     if(rtPotentialIntersection(isect.w))
+     53     {
+     55     shading_normal = make_float3( isect );
+     57     rtReportIntersection(0);
+     58     }
+     59 }
+     60 }
+     </pre>
+
+
+.. class:: small 
+   
+   * :bluebold:`https://github.com/simoncblyth/CSGOptiX`
+
+   **OptiX7Test.cu** 
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    150 extern "C" __global__ void __intersection__is()
+    151 {   
+    152 HitGroupData* hg  = (HitGroupData*)optixGetSbtDataPointer();
+    153 int numNode = hg->numNode ; 
+    154 int nodeOffset = hg->nodeOffset ;
+    155 
+    156 <span class="redbold">const CSGNode* node = params.node + nodeOffset ;</span>
+    157 const float4* plan = params.plan ;
+    158 const qat4*   itra = params.itra ;
+    159     
+    160 const float  t_min = optixGetRayTmin() ;
+    161 const float3 ray_origin = optixGetObjectRayOrigin();
+    162 const float3 ray_direction = optixGetObjectRayDirection();
+    163     
+    164 float4 isect ; 
+    165 if(intersect_prim(isect, numNode, node, plan, itra, 
+                         t_min , ray_origin, ray_direction ))
+    166 {
+    ... 
+    175     optixReportIntersection( isect.w, hitKind, a0, a1, a2, a3 );
+    176 }   
+    177 }   
+    </pre>
+
+.. class:: small
+
+    Minimize code split : 7, pre-7, CPU testing : same **intersect_prim** 
+ 
+
+
+
+:small:`CSGOptiXGGeo : loads Opticks/GGeo, converts to CSG and renders`
+--------------------------------------------------------------------------
+
+.. sidebar:: :small:`Converter : GGeo/GParts -> CSG`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+         11 struct Converter
+         12 {   
+         13     CSGFoundry* foundry ;
+         14     const GGeo* ggeo ;
+         16     float splay ;  
+         17         
+         18     Converter(CSGFoundry* foundry, const GGeo* ggeo ) ;
+         19             
+         20     void convert(int repeatIdx,  
+                             int primIdx, 
+                             int partIdxRel );
+         21     void convert_();
+         22     
+
+         23     CSGSolid* convert_(unsigned repeatIdx );
+         24     void addInstances(unsigned repeatIdx );
+         25     
+         26     CSGPrim*  convert_(const GParts* comp, 
+                                    unsigned primIdx );
+
+         27     CSGNode*  convert_(const GParts* comp, 
+                                   unsigned primIdx, 
+                                   unsigned partIdxRel );
+         28 };      
+        </pre>
+
+
+
+.. class:: small 
+   
+   * :bluebold:`https://github.com/simoncblyth/CSGOptiXGGeo`
+
+.. raw:: html
+
+    <pre class="mypretiny">
+     06 #include "CSGFoundry.h"
+     07 #include "CSGOptiX.h"
+     09 #include "Converter.h"
+     10 
+     11 int main(int argc, char** argv)
+     12 {
+     13     int repeatIdx = argc > 1 ? atoi(argv[1]) : 0 ;
+     ..
+     19     OPTICKS_LOG(argc, argv);
+     20     Opticks ok(argc, argv);
+     21     ok.configure();
+     22 
+     24     <span class="bluebold">GGeo* ggeo = GGeo::Load(&ok); </span>
+     26 
+     27     CSGFoundry foundry ;
+     28     Converter conv(&foundry, ggeo, dump) ;
+     29     <span class="redbold">conv.convert(repeatIdx, primIdx, partIdxRel);</span>
+     30     
+     31     CSGOptiX cx(&foundry); 
+     34     foundry.upload();   // uploads nodes, planes, transforms
+     ..
+     52     cx.setCE(ce, tmin, tmax);
+     53     cx.render( tspec );
+     55     return 0 ;
+     56 }
+    </pre>
+
+.. class:: small
+
+    * :bluebold:`GGeo::Load` geocache identified by **OPTICKS_KEY** envvar
+    * Perhaps: go direct *Geant4* -> *CSG* ? 
+ 
+      * :redbold:`disruptive` but significant simplification of NPY/NNode 
+  
+
+
+
+:small:`CSGOptiXGGeo_0`
+-------------------------
+
+.. class:: small
+
+    * JUNO *GGeo* -> *CSGFoundry*
+    * *CSGOptiX* renders : 
+
+      * OptiX 5 (LHS) 
+      * OptiX 7 (RHS)
+
+    * Unexplained difference 
+
+      * remainder solid (~3000 volumes combined)
+    
+
+:small:`CSGOptiXGGeo_1`
+-------------------------
+
+.. class:: small
+
+    * JUNO *GGeo* -> *CSGFoundry*
+    * *CSGOptiX* renders : 
+
+      * OptiX 5 (LHS, white background) 
+      * OptiX 7 (RHS, grey background)
+
+
+:small:`CSGOptiXGGeo_2`
+-------------------------
+
+.. class:: small
+
+   *Converter* debugging
+
+   * misses relative transforms perhaps ?
+   * instances not working yet
+
+
+:small:`CSGOptiXGGeo_3`
+-------------------------
+
+:small:`CSGOptiXGGeo_4`
+-------------------------
+
+:small:`CSGOptiXGGeo_5`
+-------------------------
+
+:small:`CSGOptiXGGeo_6`
+-------------------------
+
+:small:`CSGOptiXGGeo_7`
+-------------------------
+
+.. class:: small
+
+   * cutout from tmin sphere 
+
+
+:small:`CSGOptiXGGeo_8`
+-------------------------
+
+.. class:: small
+
+   One JUNO solid (fastener) -> blank
+
+   * renders very slowly with old machinery 
+ 
+
+:small:`CSGOptiXGGeo_9`
+-------------------------
+
+.. class:: small
+
+   Proof that relative trans not applied
+ 
+   * should be many "planks" here
+
+
+"Extra" Background Slides Follow 
+------------------------------------
+
+
+
+:small:`Two-Level Hierarchy : Instance transforms (TLAS) over Geometry (BLAS)`
+-------------------------------------------------------------------------------
+
+.. class:: small
+
+    **OptiX supports multiple instance levels : IAS->IAS->GAS** BUT: :redbold:`Simple two-level is faster` : :red:`works in hardware RT Cores` 
+
+
+.. class:: small
+
+    .. figure:: /env/presentation/nvidia/tlas_blas_two_level_hierarchy.png
+        :width: 800px
+        :align: right 
+
+        https://developer.nvidia.com/blog/introduction-nvidia-rtx-directx-ray-tracing/
+
+.. class:: small
+
+   AS
+      Acceleration Structure
+
+   TLAS (**IAS**) 
+      4x4 transforms, refs to BLAS
+       
+   BLAS (**GAS**)
+      | triangles : vertices, indices
+      | custom primitives : AABB 
+
+   AABB
+      axis-aligned bounding box 
+
+
+   **SBT : Shader Binding Table**
+
+   Flexibly binds together:
+ 
+   1. geometry objects
+   2. shader programs 
+   3. data for shader programs
+
+   **Hidden in OptiX 1-6 APIs**
+
+
+
+.. s5_talk::
+
+   OptiX uses the terms : IAS and GAS for instance and geometry acceleratiom structures.
+   The other APIs use terms: TLAS and BLAS for top level and bottom level acceleration structures
+   This is because OptiX supports multiple instance levels. 
+   But the simple two level is faster as that can be done on the RT cores.
+
+   Simple two-level hierarchy : **just one set of instances with transforms and references to geometry**  
+
+
+
+:small:`Optimizing Geometry : Split BLAS to avoid overlapping bbox`
+-------------------------------------------------------------------------------
+
+.. figure:: /env/presentation/nvidia/optimize/split_blas_half.png
+    :width: 700px
+    :align: center
+
+.. class:: normal
+
+   Optimization : :redbold:`deciding where to draw lines between:` 
+
+   1. structure and solid (**IAS** and **GAS**)
+   2. solids within **GAS**   (bbox choice to minimize traversal intersection tests)
+
+   Where those lines are drawn :bluebold:`defines the AS`
+
+
+.. class:: small
+
+    https://developer.nvidia.com/blog/best-practices-using-nvidia-rtx-ray-tracing/
+
+
+.. s5_talk::
+
+   Optimization is all about deciding Where to draw the lines.
+
+   Currently Opticks clumps together all the remainder non-repeated geometry.
+   Possibly splitting that up might improve performance.
+
+
+
+:small:`Optimizing Geometry : Merge BLAS when lots of overlaps`
+-------------------------------------------------------------------------------
+
+.. figure:: /env/presentation/nvidia/optimize/merge_blas_half.png
+    :width: 900px
+    :align: center
+
+.. class:: normal
+
+   * lots of overlapping forces lots of intersections to find closest 
+   * but too few bbox means the **AS** cannot help to avoid intersect tests
+   * balance required : :redbold:`needs experimentation and measurement to optimize` 
+
+.. class:: small
+
+    https://developer.nvidia.com/blog/best-practices-using-nvidia-rtx-ray-tracing/
+
+.. s5_talk::
+
+   Where to draw lines
+
+
+
+:small:`Ray Intersection with Transformed Object -> Geometry Instancing`
+-----------------------------------------------------------------------------
+
+
+.. |H2O| replace:: H\ :sub:`2`\ O
+
+.. |IM| replace:: M\ :sup:`-1`
+
+.. |IMT| replace:: M\ :sup:`-1T`
+
+.. |NP| replace:: N\' 
+
+
+
+.. figure:: /env/presentation/instancing/ray_intersection_in_two_spaces_p308_shirley_ch13_half.png
+    :width: 700px
+    :align: right
+
+    .. class:: small
+
+        Fig 13.5 "Realistic Ray Tracing", Peter Shirley
+
+    .. class:: normal
+
+        :redbold:`Advantages apply equally to acceleration structures`
+
+.. class:: small
+
+   **Equivalent Intersects -> same** *t*
+
+   1. **ray** with *ellipsoid* : **M*p**
+   2. |IM| **ray** with *sphere* : **p**
+
+   **Local Frame Advantages**
+
+   1. simpler intersect (sphere vs ellipsoid)
+   2. closer to origin -> better precision
+
+   **Geometry Instancing Advantages**
+
+   * many objects share local geometry
+
+     * orient+position with 4x4 **M**
+
+   * huge VRAM saving, less to copy 
+   
+   **Requirements**
+
+   * must **not** normalize ray direction
+   * normals transform differently 
+
+     * |NP| = N * |IMT|   
+     * (due to non-uniform scaling) 
+
+
+.. s5_talk::
+
+    The basis for instancing is the equivalence of intersects in two spaces.
+
+    For example a ray-ellipsoid intersect is equivalent to in inverse 
+    transformed ray intersect with a sphere.
+
+    Local frame intersects advantages...
+
+
+
+
+:small:`G4Boolean -> CUDA/OptiX Intersection Program Implementing CSG`
+-------------------------------------------------------------------------------------
+
+.. sidebar:: Outside/Inside Unions
+
+    .. class:: small
+
+       dot(normal,rayDir) -> Enter/Exit
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
+       :width: 300px
+       :align: center
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_inside.png
+       :width: 300px
+       :align: center
+
+    .. class:: small
+
+        * **A + B** boundary not inside other 
+        * **A * B** boundary inside other 
+
+
+.. class:: small
+
+   Complete Binary Tree, pick between pairs of nearest intersects:
+
+   =======================  ===========  ===============  ============== 
+   *UNION* tA < tB           Enter B      Exit B           Miss B
+   =======================  ===========  ===============  ============== 
+   **Enter A**               ReturnA      :blue:`LoopA`    ReturnA
+   **Exit A**                ReturnA      ReturnB          ReturnA 
+   **Miss A**                ReturnB      ReturnB          ReturnMiss
+   =======================  ===========  ===============  ============== 
+
+   * *Nearest hit intersect algorithm* [1] avoids state
+
+     * sometimes :blue:`Loop` : advance **t_min** , re-intersect both 
+     * classification shows if inside/outside
+
+   * *Evaluative* [2] implementation emulates recursion: 
+
+     * :red:`recursion not allowed` in OptiX intersect programs
+     * bit twiddle traversal of complete binary tree 
+     * stacks of postorder slices and intersects 
+
+   * :red:`Identical geometry to Geant4` 
+
+     * solving the same polynomials 
+     * near perfect intersection match
+
+
+
+.. class:: tiny
+
+    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
+ 
+    [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+        Similar to binary expression tree evaluation using postorder traverse. 
+
+
+.. s5_talk::
+
+    The primitives can be combined using constructive solid geometry 
+    modelling into arbitrarily complex shapes. 
+
+    So G4Boolean trees can be translated into Opticks without 
+    any approximation.
+
+    Pseudo code of the CSG implementation is in the Extras.
+ 
+
+
+:small:`Constructive Solid Geometry (CSG) : Shapes defined "by construction"`
+-------------------------------------------------------------------------------
+
+.. sidebar:: CSG Binary Tree
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg.png
+       :width: 450px
+       :align: right
+
+    .. class:: small
+
+       Primitives combined via binary operators 
+
+
+.. class:: small
+
+   Simple *by construction* definition, implicit geometry.
+
+   * **A, B** implicit primitive **solids** 
+   * **A + B** : union (OR)
+   * **A * B** : intersection (AND) 
+   * **A - B** : difference (AND NOT) 
+   * **!B** : complement (NOT) (inside <-> outside)
+
+   CSG expressions 
+
+   * non-unique: **A - B == A * !B**
+   * represented by binary tree, primitives at leaves
+
+   3D Parametric Ray : **ray(t) = r0 + t rDir**  
+
+
+   **Ray Geometry Intersection**
+
+   * primitive : find *t* roots of implicit eqn
+   * composite : :red:`pick` primitive intersect, depending on CSG tree
+
+
+.. class:: large
+
+   :red:`How to pick exactly ?`
+
+
+
+.. s5_talk::
+
+    Opticks CSG supports complemented shapes. That is necessary for tree positivization where  
+
+
+
+
+
+:small:`CSG : Which primitive intersect to pick ?`
+-------------------------------------------------------
+    
+
+.. sidebar:: In/On/Out transitions
+
+    .. class:: small
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg_roth_diagram.png
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+   Classical Roth diagram approach
+
+   * find all ray/primitive intersects
+   * recursively combine inside intervals using CSG operator
+   * works from leaves upwards
+
+   Computational requirements:
+
+   * find all intersects, store them, order them
+   * recursive traverse
+
+   BUT : **High performance on GPU requires**:
+
+   * massive parallelism -> more the merrier
+   * low register usage -> keep it simple
+   * small stack size -> **avoid recursion** 
+
+.. class:: large
+
+   :red:`Classical approach not appropriate on GPU`
+
+
+.. s5_talk::
+
+   Intersect is with one of the constituents, but how to find it.
+
+
+:small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Bit Twiddling Navigation
+
+    .. class:: small
+
+        * parent(i) = i/2 = i >> 1 
+
+        * leftchild(i) = 2*i = i << 1
+
+        * rightchild(i) = 2*i + 1 = (i << 1) + 1
+
+        * leftmost(height)  =  1 << height
+
+
+.. class:: small
+
+    Geant4 solid -> CSG binary tree (leaf primitives, non-leaf operators, 4x4 transforms on any node)
+
+    Serialize to **complete binary tree** buffer:
+ 
+    * no need to deserialize, no child/parent pointers
+    * bit twiddling navigation :red:`avoids recursion`
+    * simple approach profits from small size of binary trees 
+    * BUT: very inefficient when unbalanced 
+
+    **Height 3 complete binary tree with level order indices:**
+.. raw:: html
+
+    <pre class="mypre">
+                                                       depth     elevation
+
+                         1                               0           3   
+
+              10                   11                    1           2   
+
+         100       101        110        111             2           1   
+                        
+     1000 1001  1010 1011  1100 1101  1110  1111         3           0   
+    </pre>
+    <hr/>
+
+.. class:: small
+
+    **postorder_next(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) ;**   // from pattern of bits
+ 
+.. class:: tiny
+
+   Postorder tree traverse visits all nodes, starting from leftmost, such that children 
+   are visited prior to their parents.
+
+
+.. s5_talk::
+
+    CSG implementation is greatly simplified by 
+    use of complete binary tree serialization.  
+
+    Boolean solids with large numbers of constituents cause a 
+    problem, because complete binary tree serialization is
+    very inefficient for unbalanced trees.
+
+    Tree balancing helps, but still there is a complexity limit.
+    G4Boolean abuse solids with hundreds of constituents would be 
+    better implemented with custom primitives.
+
+
+
+
+
+:small:`Evaluative CSG intersection Pseudocode : recursion emulated`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    fullTree = PACK( 1 << height, 1 >> 1 )  // leftmost, parent_of_root(=0) 
+    tranche.push(fullTree, ray.tmin) 
+
+    while (!tranche.empty)        <b><span class="alarm"> // stack of begin/end indices </span></b>
+    {
+        begin, end, tmin <- tranche.pop  ; node <- begin ;
+        while( node != end )                  <b><span class="alarm"> // over tranche of postorder traversal </span></b>
+        {
+            elevation = height - TREE_DEPTH(node) ;
+            if(is_primitive(node)){ isect <- intersect_primitive(node, tmin) ;  csg.push(isect) }
+            else{
+                i_left, i_right = csg.pop, csg.pop          <b><span class="alarm">  // csg stack of intersect normals, t </span></b>
+                l_state = CLASSIFY(i_left, ray.direction, tmin)
+                r_state = CLASSIFY(i_right, ray.direction, tmin)
+                action = LUT(operator(node), leftIsCloser)(l_state, r_state) 
+
+                if(      action is ReturnLeft/Right)     csg.push(i_left or i_right)
+                else if( action is LoopLeft/Right)
+                {
+                    left = 2*node ; right = 2*node + 1 ; 
+                    endTranche = PACK( node,  end );
+                    leftTranche = PACK(  left << (elevation-1), right << (elevation-1) )
+                    rightTranche = PACK(  right << (elevation-1),  node  )
+                    loopTranche = action ? leftTranche : rightTranche
+                                                     
+                    tranche.push(endTranche, tmin)     
+                    tranche.push(loopTranche, tminAdvanced ) <b><span class="alarm"> // subtree re-traversal with changed tmin </span></b> 
+                    break ; // to next tranche
+                }
+            }
+            node <- postorder_next(node, elevation)        <b><span class="alarm"> // bit twiddling postorder </span></b>
+        }
+    } 
+    isect = csg.pop();       <b><span class="alarm">  // winning intersect  </span></b>
+    </pre>
+
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+
+
+.. s5_talk::
+
+   Emulated recursion : iterate over slices of a postorder tree traversal    
+
+
+
+
+:small:`CSG Deep Tree : Positivize tree using De Morgan's laws`
+------------------------------------------------------------------------------------
+
+.. sidebar:: Positive form CSG Trees
+
+   .. class:: small
+
+       Apply deMorgan pushing negations down tree 
+
+       * **A - B -> A * !B**
+       * **!(A*B) -> !A + !B**
+       * **!(A+B) -> !A * !B**
+       * **!(A - B) -> !(A*!B) -> !A + B**
+
+       End with only UNION, INTERSECT operators, 
+       and some complemented leaves.
+
+       :red:`COMMUTATIVE -> easily rearranged`
+
+
+.. class:: small
+
+    1st step to allow balancing : **Positivize** : remove CSG difference **di** operators 
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+                                                        ...    ...
+
+                                                  un          cy                                        
+
+                                          un          cy                                                
+
+                                  un          cy                                                        
+
+                          un          cy                                                                
+
+                  un          cy                                                                        
+
+          di          cy                                                                                
+
+      cy      cy                                                 
+
+   </pre>
+
+   <pre class="mypretiny">
+                                                        ...    ...
+
+                                                  un          cy                                        
+
+                                          un          cy                                                
+
+                                  un          cy                                                        
+
+                          un          cy                                                                
+
+                  un          cy                                                                        
+
+          in          cy                                                                                
+
+      cy      !cy                                                 
+
+   </pre>
+
+
+
+.. s5_talk::
+
+   Positivized tree easier to work with 
+
+
+
+
+:i:`CSG Examples`
+--------------------------
+
+
+.. s5_talk::
+
+    Some examples of CSG.
+
+    You might be able to see a problem in the top left. CSG modelling 
+    must avoid coincident surfaces in subtractions, otherwise you get spurious intersects.
+
+
+

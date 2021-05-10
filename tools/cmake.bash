@@ -15,6 +15,33 @@ CMAKE
 
 
 
+
+Manual Target Deployment is just too ugly : use BCMExport
+------------------------------------------------------------
+
+::
+
+    #[=[
+    https://cmake.org/cmake/help/git-master/guide/tutorial/index.html#adding-export-configuration-step-11
+    https://cmake.org/cmake/help/git-stage/guide/importing-exporting/index.html
+
+    set(CONFIG_DEST ${CMAKE_INSTALL_LIBDIR}/cmake/CSG) 
+    set(CSG_INCLUDE_DIRS "include")
+    install(TARGETS ${name}  DESTINATION ${CMAKE_INSTALL_LIBDIR} EXPORT CSGTargets )
+    install(EXPORT CSGTargets FILE CSGTargets.cmake DESTINATION ${CONFIG_DEST}) 
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file ( 
+           "CSGConfig.cmake.in" "${CMAKE_BINARY_DIR}/CSGConfig.cmake"
+           INSTALL_DESTINATION "${CONFIG_DEST}"
+           PATH_VARS CSG_INCLUDE_DIRS 
+    )
+    install(FILES ${CMAKE_BINARY_DIR}/CSGConfig.cmake DESTINATION ${CONFIG_DEST})
+    #]=]
+
+
+
+
+
 See Also
 --------
 
@@ -31,6 +58,29 @@ Epsilon : macOS 10.13.4 : cmake @3.11.0
 ::
 
     sudo port install -v cmake +docs +python27
+
+
+
+CMake find_package implementation
+------------------------------------
+
+* https://github.com/Kitware/CMake/blob/master/Source/cmFindPackageCommand.cxx
+
+
+configure_package_config_file
+---------------------------------
+
+* https://cmake.org/cmake/help/latest/module/CMakePackageConfigHelpers.html
+
+* https://gitlab.kitware.com/cmake/cmake/-/issues/19560
+
+* https://gitlab.kitware.com/cmake/cmake/-/issues/17282
+
+
+cmake import export
+-----------------------
+
+* https://cmake.org/cmake/help/git-stage/guide/importing-exporting/index.html
 
 
 
