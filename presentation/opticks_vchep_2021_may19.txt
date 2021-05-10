@@ -559,6 +559,12 @@ Outline
 
 
 
+.. s5_talk::
+
+    What Opticks Does
+
+
+
 :small:`Opticks + JUNO Progress : Efficiency Hit Culling on GPU`
 -------------------------------------------------------------------------------
 
@@ -630,7 +636,7 @@ Outline
 
 
 
-:small:`New "Foundry" Geometry Model : OptiX 7, pre-7, CPU Scan testing` 
+:small:`New "Foundry" Model : Shared CPU/GPU Geometry Context`
 -----------------------------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Solid+Instances created via Foundry`
@@ -671,7 +677,17 @@ Outline
 
 .. class:: small
 
-    **Future Opticks Packages:**
+
+    :redbold:`Provides feature dropped in NVIDIA OptiX 7 API`
+
+.. raw:: html
+
+    <pre>
+
+
+    </pre>
+
+.. class:: small
 
     :bluebold:`https://github.com/simoncblyth/CSG` "Foundry" model 
         **csg_intersect_tree.h/csg_intersect_node.h/...**
@@ -684,6 +700,25 @@ Outline
       OptiX 7 + pre-7 rendering 
 
 
+.. raw:: html
+
+    <pre>
+
+    </pre>
+
+.. class:: small
+
+    **Simple headers, common CPU/GPU types** 
+
+    * arrange API to allow : pre-7, 7, CPU testing 
+
+
+
+
+
+.. s5_talk::
+
+   CSGFoundry  
 
 
 
@@ -696,9 +731,9 @@ Outline
 
    .. class:: small
 
-      * basic validation release
-      * migrate to NVIDIA OptiX 7  
-      * full validation release
+      * Foundry JUNO geometry validation 
+      * migrate optical physics to NVIDIA OptiX 7  
+      * JUNO Production validation
 
 .. image:: /env/presentation/1px.png
    :width: 500px
@@ -706,17 +741,16 @@ Outline
 
 ..
 
-  *Opticks* : state-of-the-art GPU ray traced optical simulation 
-  integrated with *Geant4*. :red:`Now integrated with JUNO Offline`
-  **Pioneer users welcome** 
+  *Opticks* : state-of-the-art GPU ray traced optical simulation integrated with *Geant4*. 
+  Geometry progress with OptiX 7 suggests integration during 2021 is achievable.
 
   .. image:: /env/presentation/1px.png
      :width: 1000px
      :height: 1px
 
-
-  * **Opticks gained many new users in 2020, some getting serious**
-  * :blue:`JUNO Opticks users are needed to assist with validation`  
+  * Efficiency culling decision moved to GPU, reducing CPU hit memory 
+  * "Foundry" geometry model implemented to support NVIDIA OptiX 7 API. 
+  * :redbold:`First JUNO OptiX 7 renders achieved.` 
 
 .. table::
     :align: center
@@ -732,7 +766,6 @@ Outline
     +--------------------------------------------------+-----------------------------------------+
     | email:opticks+subscribe@groups.io                | subscribe to mailing list               |
     +--------------------------------------------------+-----------------------------------------+ 
-
 
 
 .. s5_talk::

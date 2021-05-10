@@ -1,5 +1,21 @@
 
 
+https://indico.cern.ch/event/948465/
+
+
+be presented in session Accelerators on 2021-05-19 at 17:40 CEST. Please tell
+
+2021-05-19 16:40 Europe/London Time 
+
+https://indico.cern.ch/event/948465/contributions/4324115/
+
+
+
+
+
+
+
+
 ~/opticks_refs/opticks-blyth-chep2021-v0.pdf 
 
 epjconf-e
@@ -9,6 +25,17 @@ BIG TICKET ITEMS TO COVER, AS ADVERTISED IN ABSTRACT :
 * G4Opticks
 * on-GPU efficiency culling : avoids detector specific assumptions in G4Opticks sensor interface
 * Migration to OptiX 7 
+
+
+
+Sorry Simon,
+
+I forgot to mention to please make sure you submit your slides to the
+collaboration for review at least one week before presentati them at vCHEP2021.
+
+Thanks a lot!
+Monica 
+
 
 
 
