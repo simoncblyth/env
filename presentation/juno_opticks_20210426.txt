@@ -285,14 +285,26 @@ JUNO-Opticks Notes
 
 
 
+:small:`Notes on how the renders and tables were created`
+------------------------------------------------------------
+
+.. class:: small
+
+    * ~/opticks/notes/misc/snapscan-varying-enabledmergedmesh-option.rst 
+
+    In summary:
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    snapscan.sh --cvd 1 --rtx 1     # on P, create jpg snaps and metadata json 
+    snap.sh                         # on G, grab them
+    snap.py --rst                   # dump RST table 
+    </pre>
+
+
 :small:`Current JUNO Geometry : Ray Trace Times : TITAN RTX (RTX ON, 24GB)`
 ----------------------------------------------------------------------------------
-
-.. comment
-
-    snapscan.sh     # on P, create jpg snaps and metadata json 
-    snap.sh         # on G, grab them
-    snap.py --rst   # render RST table 
 
 .. sidebar:: :small:`Same viewpoint, vary GPU geometry`
 
