@@ -29,7 +29,7 @@ msg="=== $0 :"
 
 pwd
 jpg0=$(ls -1 *00000.jpg)
-[ -n "$jpg0" ] && echo $msg FAILED to find render named pfx00000.jpg && exit 1 
+[ -z "$jpg0" ] && echo $msg FAILED to find render named pfx00000.jpg && exit 1 
 
 pfx=${jpg0/00000.jpg}
 jpg=${pfx}?????.jpg
