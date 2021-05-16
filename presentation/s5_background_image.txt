@@ -856,6 +856,147 @@
     /env/presentation/CSGOptiXGGeo/70000/9/pixels.jpg 640px_360px 640px_360px
     /env/presentation/CSGOptiXGGeo/50001/9/pixels.jpg 640px_360px 0px_360px
 
+    JUNO OptiX 7 : "Foundry" Geometry Scan
+    /env/presentation/cxr/cxr_overview/cxr_i0_4,_-1.jpg 640px_360px 0px_360px
+    /env/presentation/cxr/cxr_overview/cxr_i0_2,_-1.jpg 640px_360px 640px_0px
+    /env/presentation/cxr/cxr_overview/cxr_i0_1,2,3,4_-1.jpg 640px_360px 0px_0px
+    /env/presentation/cxr/cxr_overview/cxr_i0_0,_-1.jpg 640px_360px 640px_360px
+
+    [7]cxr_i0_2,_-1 ONLY NNVT PMTs
+    /env/presentation/cxr/cxr_overview/cxr_i0_2,_-1.jpg 1280px_720px
+
+    [8]cxr_i0_1,2,3,4_-1 ALL PMTs
+    /env/presentation/cxr/cxr_overview/cxr_i0_1,2,3,4_-1.jpg 1280px_720px
+
+    [10]cxr_i0_0,_-1 ONLY GLOBAL "REMAINDER"
+    /env/presentation/cxr/cxr_overview/cxr_i0_0,_-1.jpg 1280px_720px
+
+    [9]cxr_i0_t8,_-1 EXCLUDE SLOWEST
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t8,_moi_-1.jpg 1280px_720px
+    #/env/presentation/cxr/cxr_overview/cxr_i0_t8,_-1.jpg 1280px_720px
+
+    [9]cxr_i0_t8,_-1 EXCLUDE SLOWEST 2
+    /env/presentation/cxr/cxr_overview/cxr_i0_t8,_-1.jpg 1280px_720px
+
+    cxr_view
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_t8,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_view_0
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_0,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_0,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_0,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_view_1
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_1,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_1,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_1,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_solid_r1p
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r1p_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r1p_.jpg 640px_360px 640px_360px
+
+    cxr_view_2
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_2,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_2,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_2,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_solid_r2p
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r2p_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r2p_.jpg 640px_360px 640px_360px
+
+    cxr_view_3
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_3,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_3,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_3,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_solid_r3p
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r3p_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r3p_.jpg 640px_360px 640px_360px
+
+    cxr_view_4
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_4,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_4,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_4,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_solid_r4p
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r4p_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r4p_.jpg 640px_360px 640px_360px
+
+    cxr_view_5
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_5,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_5,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_5,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_view_6
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_6,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_6,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_6,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_view_7
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_7,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_7,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_7,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_view_8
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_8,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_8,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_8,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_view_9
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_view/cam_0_9,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_view/cam_0_9,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_view/cam_0_9,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_solid_r0@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r0@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r0@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r0@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r1@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r1@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r1@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r1@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r2@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r2@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r2@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r2@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r3@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r3@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r3@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r3@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r4@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r4@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r4@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r4@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r5@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r5@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r5@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r5@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r6@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r6@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r6@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r6@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r7@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r7@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r7@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r7@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r8@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r8@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r8@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r8@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r9@
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r9@_.jpg 640px_360px 640px_0px   
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r9@_.jpg 640px_360px 0px_360px
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r9@_.jpg 640px_360px 640px_360px
+
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty

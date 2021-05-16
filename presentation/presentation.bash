@@ -1203,7 +1203,7 @@ presentation-export(){
 presentation-e(){ 
    cd $(presentation-dir) ; 
    local iname=$(presentation-iname)  
-   vi ${iname/_TALK}.txt ; 
+   vi ${iname/_TALK}.txt s5_background_image.txt  ; 
 }
 presentation-edit(){ vi $(presentation-path) ; }
 presentation-ed(){ vi $(presentation-path) ~/workflow/admin/reps/ntu-report-may-2017.rst ; }

@@ -63,6 +63,10 @@
         span.bluebold { color: blue; font-weight:bold ; }
         span.greenbold { color: green; font-weight:bold ; }
 
+        span.r { color: red; font-weight:bold ; }
+        span.b { color: blue; font-weight:bold ; }
+        span.g { color: green; font-weight:bold ; }
+
         span.alarm { color: red; } 
         span.blue { color: blue; } 
         span.warn { color: orange; } 
@@ -158,6 +162,10 @@
 .. role:: redbold
 .. role:: greenbold
 .. role:: bluebold
+.. role:: r
+.. role:: g
+.. role:: b
+
 
 
 
