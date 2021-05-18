@@ -1,0 +1,1679 @@
+
+.. meta::
+   :note: Navigate the HTML slides by entering a page number and pressing return 
+   :title: LZ NVIDIA NERSC Discussion
+   :description: (May 2021)
+   :url: https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210518.html  
+   :date: 4 May 2021
+
+.. include:: my_s5defs.txt
+
+
+===================================================================================
+LZ-Opticks-NVIDIA OptiX 6->7 : Notes
+===================================================================================
+
+.. class:: small
+
+   * https://github.com/simoncblyth/CSG/commits https://github.com/simoncblyth/CSGOptiX/commits
+   * https://github.com/simoncblyth/CSG_GGeo/commits
+
+   **PROGRESS** : OptiXTest -> *CSG* + *CSGOptiX*, added *CSG_GGeo* 
+
+   * **CSG** : *CSGFoundry* model, simple intersect headers : :redbold:`CPU testable` 
+
+   * **CSG_GGeo** : loads *Opticks/GGeo*, converts to **CSG** 
+
+   * **CSGOptiX** : OptiX 7 + pre-7 renders of *CSGFoundry* geometry  
+
+
+   **NEXT STEPS:**
+
+   * investigate 2 slow solids in JUNO geometry, try different instance criteria, modelling  
+
+   * systematic comparison of render times with 6 and 7 : **stack size tuning**  
+
+   * reduce *CSGOptiX* code ~duplicated between pre-7:Six.cc, 7:SBT.cc : **unify code in common**
+
+   * bring over event handling (photon generation + propagation) 
+    
+     * :redbold:`pull out simple headers common to: pre-7, 7, CPU testing` (minimize code difference between envs)
+     * trickery/mocking needed for CURAND on CPU? (templating?)
+
+   * integrate packages with Opticks 
+
+   **LONGTERM POSSIBILITY** : Populate **CSGFoundry** model direct from Geant4 geometry ? [:redbold:`Disruptive`]
+
+
+.. class:: small
+
+   |  Simon C Blyth,  May 18, 2021 
+
+
+.. s5_talk:: 
+
+    Klop
+
+
+
+
+
+
+
+
+
+:small:`New "Foundry" Model : Shared CPU/GPU Geometry Context`
+-----------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`IAS < Inst < Solid < Prim < Node`
+
+    .. class:: small
+
+        * **Inst** : 4x4 tran. + **Solid** ref. ( **Inst** -> 1 **IAS** )
+        * **Solid** : 1 or more **Prim**  : ( **Solid** -> **GAS** )
+        * **Prim** : 1,3,7,15,31,... **Node**  : (**Prim** ~ *G4VSolid*) 
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        struct CSGFoundry
+        {
+           void upload(); <span class="redbold">// to GPU </span> 
+        ...
+           std::vector&lt;CSGSolid&gt;  solid ; // compounds (eg PMT)
+           std::vector&lt;CSGPrim&gt;   prim ;
+           std::vector&lt;CSGNode&gt;   node ; // shapes, operators
+
+           std::vector&lt;float4&gt; plan ; // planes
+           std::vector&lt;qat4&gt;   tran ; // CSG transforms
+           std::vector&lt;qat4&gt;   itra ; // inverse CSG transforms
+           std::vector&lt;qat4&gt;   inst ; // instance transforms
+
+           <span class="redbold">// entire geometry in four GPU allocations</span>
+           CSGPrim*    d_prim ; 
+           CSGNode*    d_node ; 
+           float4*     d_plan ; 
+           qat4*       d_itra ;    
+         };
+        </pre>
+
+    .. class:: small
+
+        :bluebold:`referencing by offset, count`  
+
+.. class:: small
+
+    * :r:`replaces geometry context dropped in OptiX 6->7` 
+    * array-based -> simple, inherent serialization + persisting 
+    * entire geometry in 4 GPU allocations 
+
+    **Simple intersect headers, common CPU/GPU types** 
+
+    * use with : pre-7, 7 + testing on CPU 
+
+
+
+.. raw:: html
+
+    <pre>
+    </pre>
+
+.. class:: small
+
+    :bluebold:`https://github.com/simoncblyth/CSG` "Foundry" model 
+        **csg_intersect_tree.h/csg_intersect_node.h/...**
+          :redbold:`simple headers common to pre-7/7/CPU-testing`
+
+    :bluebold:`https://github.com/simoncblyth/CSG_GGeo` 
+      Convert *Opticks/GGeo* -> *CSGFoundry*  
+
+    :bluebold:`https://github.com/simoncblyth/CSGOptiX` 
+      OptiX 7 + pre-7 rendering 
+
+
+.. raw:: html
+
+    <pre>
+
+    </pre>
+
+.. class:: tiny
+
+   **GAS** : Geometry Acceleration Structure
+
+   **IAS** : Instance Acceleration Structure
+   
+   **CSG** : Constructive Solid Geometry 
+
+
+.. s5_talk::
+
+   CSGFoundry  
+
+
+
+
+
+
+
+
+:small:`OptiX 7 + pre-7 intersecting same CSGFoundry geometry`
+-----------------------------------------------------------------------
+
+.. sidebar:: :small:`geo_OptiX6Test.cu`
+
+    .. class:: small
+
+        * :redbold:`Duplicate 7 environment in pre-7`
+
+    .. raw:: html 
+
+     <pre class="mypretiny">
+     <span class="redbold">24 rtBuffer&lt;CSGPrim&gt; prim_buffer; // geometry level context </span>
+     25     
+     <span class="bluebold">28 rtBuffer&lt;CSGNode&gt; node_buffer;  // global context
+     29 rtBuffer&lt;qat4&gt; itra_buffer;
+     30 rtBuffer&lt;float4&gt; plan_buffer; </span>
+     ..
+     40 RT_PROGRAM void intersect(int primIdx)
+     41 {   
+     42 <span class="redbold">const CSGPrim* prim = &prim_buffer[primIdx] ;</span>
+     43 int nodeOffset = prim->nodeOffset() ;  
+     44 int numNode = prim->numNode() ; 
+     45 <span class="bluebold">const CSGNode* node = &node_buffer[nodeOffset] ; </span>
+     46 const float4* plan = &plan_buffer[0] ;
+     47 const qat4*   itra = &itra_buffer[0] ;  
+     48     
+     49 float4 isect ; 
+     50 if(intersect_prim(isect, numNode, node, plan, itra, 
+             ray.tmin , ray.origin, ray.direction ))
+     51 {   
+     52     if(rtPotentialIntersection(isect.w))
+     53     {
+     55     shading_normal = make_float3( isect );
+     57     rtReportIntersection(0);
+     58     }
+     59 }
+     60 }
+     </pre>
+
+
+.. class:: small 
+   
+   * :bluebold:`https://github.com/simoncblyth/CSGOptiX`
+
+   **OptiX7Test.cu** 
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    150 extern "C" __global__ void __intersection__is()
+    151 {   
+    152 HitGroupData* hg  = (HitGroupData*)optixGetSbtDataPointer();
+    153 int numNode = hg->numNode ; 
+    154 int nodeOffset = hg->nodeOffset ;
+    155 
+    156 <span class="redbold">const CSGNode* node = params.node + nodeOffset ;</span>
+    157 const float4* plan = params.plan ;
+    158 const qat4*   itra = params.itra ;
+    159     
+    160 const float  t_min = optixGetRayTmin() ;
+    161 const float3 ray_origin = optixGetObjectRayOrigin();
+    162 const float3 ray_direction = optixGetObjectRayDirection();
+    163     
+    164 float4 isect ; 
+    165 if(intersect_prim(isect, numNode, node, plan, itra, 
+                         t_min , ray_origin, ray_direction ))
+    166 {
+    ... 
+    175     optixReportIntersection( isect.w, hitKind, a0, a1, a2, a3 );
+    176 }   
+    177 }   
+    </pre>
+
+.. class:: small
+
+    Minimize code split : 7, pre-7, CPU testing : same **intersect_prim** 
+ 
+
+
+:small:`CSG_GGeo : loads Opticks/GGeo, converts to CSGFoundry model`
+--------------------------------------------------------------------------
+
+.. sidebar:: :small:`Converter : GGeo/GParts -> CSG`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+         struct CSG_GGeo_Convert
+         {
+         CSGFoundry* foundry ;
+         const GGeo* ggeo ;
+         const Opticks* ok ;
+         ..
+         CSG_GGeo_Convert(CSGFoundry* foundry, const GGeo* ggeo ) ;
+         void init();
+         
+         void convert(int repeatIdx=-1,  int primIdx=-1, int partIdxRel=-1 );
+         void convert_();
+         
+         CSGSolid* convert_(unsigned repeatIdx );
+         void addInstances(unsigned repeatIdx );
+         
+         CSGPrim*  convert_(const GParts* comp, unsigned primIdx );
+         CSGNode*  convert_(const GParts* comp, unsigned primIdx, unsigned partIdxRel );
+         
+         // below called non-standardly when corresponding envvars defined
+         void addOnePrimSolid();
+         void addOnePrimSolid(unsigned solidIdx);
+         
+         void addOneNodeSolid();
+         void addOneNodeSolid(unsigned solidIdx);
+         void addOneNodeSolid(unsigned solidIdx, unsigned primIdx, unsigned primIdxRel);
+         
+         void addDeepCopySolid();
+         
+         void kludgeScalePrimBBox();
+         };
+        </pre>
+
+
+.. class:: small 
+   
+   * :bluebold:`https://github.com/simoncblyth/CSG_GGeo`
+
+.. raw:: html
+
+    <pre class="mypretiny">
+     ..
+     11 int main(int argc, char** argv)
+     12 {
+     13     OPTICKS_LOG(argc, argv);
+     14 
+     15     Opticks ok(argc, argv);
+     16     ok.configure();
+     17 
+     18     GGeo* ggeo = GGeo::Load(&ok);
+     19 
+     20     CSGFoundry foundry ;
+     21     CSG_GGeo_Convert conv(&foundry, ggeo) ;
+     22     conv.convert();
+     ...
+     39     foundry.write(cfbase, rel ); 
+     40 
+     41     CSGFoundry* fd = CSGFoundry::Load(cfbase, rel); 
+     42     assert( 0 == CSGFoundry::Compare(&foundry, fd ) );
+     43 
+     44     return 0 ;
+     45 }
+    </pre>
+
+.. class:: small
+
+    * :bluebold:`GGeo::Load` geocache identified by **OPTICKS_KEY** envvar
+    * **LONGTERM:** direct *Geant4* -> *CSG* ? :redbold:`disruptive`
+ 
+      * :redbold:`disruptive` but allows big code reductions in NPY/NNode 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+:i:`[9]cxr_i0_t8,_-1 : EXCLUDE SLOWEST`
+-----------------------------------------
+
+.. raw:: html
+
+    <pre>
+
+
+
+    </pre>
+
+
+.. sidebar:: :small:`1st JUNO Opticks OptiX 7 Ray-trace`
+
+    .. class:: small
+
+        Very New CSG "Foundry" CPU/GPU Geometry 
+
+        * :redbold:`purely analytic CSG, no triangles` 
+        * everything at default, no optimization
+
+
+.. s5_talk::
+
+   CSGFoundry  
+
+
+
+
+:small:`Current JUNO Geometry : Auto-Factorized by "progeny digest"`
+------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Factorize ~300,000 vol -> 10 comp`
+
+   .. class:: small
+
+        * **ridx**: repeat index
+        * **plc**: number of placements of the instance
+        * **prim**: number of Prim/volumes in the instance
+        * **component**: numPrim:outerPrimName    
+ 
+        :r:`"progeny digest"` characterizes subtree of every volume-node  
+
+
+.. class:: tiny
+
+    +----+------+-----+-------------------------------------------+---------------------------+
+    |ridx|   plc| prim|   component                               |  note                     |
+    +====+======+=====+===========================================+===========================+
+    |   0|     1| 3084|   3084:sWorld                             |  non-repeated remainder   |
+    +----+------+-----+-------------------------------------------+---------------------------+
+    |   1| 25600|    5|   5:PMT_3inch_pmt_solid                   |                           |
+    +----+------+-----+-------------------------------------------+   4 types of PMT          +
+    |   2| 12612|    5|   5:NNVTMCPPMTsMask                       |                           |
+    +----+------+-----+-------------------------------------------+                           +
+    |   3|  5000|    5|   5:HamamatsuR12860sMask                  |                           |
+    +----+------+-----+-------------------------------------------+                           +
+    |   4|  2400|    5|   5:mask_PMT_20inch_vetosMask             |                           |
+    +----+------+-----+-------------------------------------------+---------------------------+
+    |   5|   590|    1|   1:sStrutBallhead                        |                           |
+    +----+------+-----+-------------------------------------------+   4 parts of same         +
+    |   6|   590|    1|   1:uni1                                  |   assembly, BUT not       |
+    +----+------+-----+-------------------------------------------+   grouped as siblings     +
+    |   7|   590|    1|   1:base_steel                            |   (not parent-child)      |
+    +----+------+-----+-------------------------------------------+                           +
+    |   8|   590|    1|   1:uni_acrylic3                          |                           |
+    +----+------+-----+-------------------------------------------+---------------------------+
+    |   9|   504|  130|   130:sPanel                              |  repeated parts of TT     |
+    +----+------+-----+-------------------------------------------+---------------------------+
+
+
+.. class:: small
+
+   * **ridx:0** "remainder" Prim
+
+     * Prim that did not pass instancing criteria, on number of repeats + complexity
+     * TODO: tune criteria to instance more, reducing remainder Prim (Expect: 3084->~ 84)  
+
+   * **ridx:1,2,3,4**
+
+     * four types of PMT, all with 5 Prim 
+
+   * **ridx:5,6,7,8**
+
+     * same 590x assembly :redbold:`but not grouped together` : as siblings (not parent-child like PMTs) 
+     * TODO: implement instancing of siblings, combining 4 -> 1   
+
+
+.. class:: small
+
+   :redbold:`Increasing instancing : reduces memory for geometry -> improved performance`
+
+
+
+.. s5_talk::
+
+   Auto factorized
+
+
+
+
+:i:`JUNO OptiX 7 : "Foundry" Geometry Scan`
+-----------------------------------------------
+
+.. sidebar:: :small:`Vary Geom. Compare Render Times`
+
+    .. class:: small
+
+        Fast render -> Fast simulation  
+
+
+.. s5_talk::
+
+    GPU Geometry Scanning : Extreme sensitivity to geometry + model
+
+
+
+:small:`JUNO Geometry : OptiX 7 Ray Trace Times ~2M pixels : TITAN RTX`
+----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Same viewpoint, vary GPU geometry`
+
+   .. class:: small
+
+
+        * **-e** : controls components : "t" means ~ (NOT) 
+        * **time(s)** : GPU ray trace CUDA launch time
+        * **relative** : compares to "ONLY PMT" baseline
+
+        Very large range of times 1:600
+                
+   .. class:: small
+
+        :r:`Table identifies slow geometry to fix :`
+
+        * **3084:sWorld** (too many non-instanced Prim)
+        * **1:uni_acrylic** (CSG sub. 35m diam. sphere)
+
+
+        Good performance for :b:`ONLY PMTs` :
+
+        * :b:`45,612 PMT instances handled without issue`  
+
+
+
+.. class:: tiny
+
+
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |idx|        -e  |       time(s)    |      relative    |    enabled geometry description                                              |
+    +===+============+==================+==================+==============================================================================+
+    |  0|        9,  |        0.0017    |        0.1702    |    ONLY: 130:sPanel                                                          |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  1|        7,  |        0.0017    |        0.1714    |    ONLY: 1:base_steel                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  2|        6,  |        0.0019    |        0.1923    |    ONLY: 1:uni1                                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  3|        5,  |        0.0027    |        0.2780    |    ONLY: 1:sStrutBallhead                                                    |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  4|        4,  |        0.0032    |        0.3268    |    ONLY: 5:mask_PMT_20inch_vetosMask                                         |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  5|        1,  |        0.0032    |        0.3287    |    ONLY: 5:PMT_3inch_pmt_solid                                               |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  6|        2,  |        0.0055    |        0.5669    |    ONLY: 5:NNVTMCPPMTsMask                                                   |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  7|        3,  |        0.0074    |        0.7582    |    ONLY: 5:HamamatsuR12860sMask                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  8|:b:`1,2,3,4`|    :b:`0.0097`   |    :b:`1.0000`   |:b:`ONLY PMT`                                                                 |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  9|      t8,0  |        0.0099    |        1.0179    |    EXCL: 1:uni_acrylic3 3084:sWorld                                          |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 10|  :r:`0,`   |    :r:`0.1171`   |   :r:`12.0293`   |:r:`ONLY: 3084:sWorld`                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 11|  :r:`t8,`  |    :r:`0.1186`   |   :r:`12.1769`   |:r:`EXCL: 1:uni_acrylic3`                                                     |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 12|  :r:`t0,`  |    :r:`0.5278`   |   :r:`54.2066`   |:r:`EXCL: 3084:sWorld`                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 13|    :r:`8,` |    :r:`0.5310`   |   :r:`54.5298`   |:r:`ONLY: 1:uni_acrylic3`                                                     |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 14|       t3,  |        0.6017    |       61.7954    |    EXCL: 5:HamamatsuR12860sMask                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 15|       t2,  |        0.6043    |       62.0620    |    EXCL: 5:NNVTMCPPMTsMask                                                   |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 16|       t5,  |        0.6171    |       63.3787    |    EXCL: 1:sStrutBallhead                                                    |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 17|       t6,  |        0.6196    |       63.6301    |    EXCL: 1:uni1                                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 18|       t7,  |        0.6226    |       63.9458    |    EXCL: 1:base_steel                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 19|        t0  |        0.6240    |       64.0879    |    3084:sWorld                                                               |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 20|       t4,  |        0.6243    |       64.1169    |    EXCL: 5:mask_PMT_20inch_vetosMask                                         |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 21|       t9,  |        0.6335    |       65.0636    |    EXCL: 130:sPanel                                                          |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 22|       t1,  |        0.6391    |       65.6384    |    EXCL: 5:PMT_3inch_pmt_solid                                               |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+
+
+.. s5_talk::
+
+    Geometry Scanning 
+
+
+
+:white:`JUNO ALL PMTs : 2M ray traced pixels in 0.0097 s : NVIDIA TITAN RTX, NVIDIA OptiX 7.0.0, Opticks`
+------------------------------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    Almost 50 thousand PMT instances ray trace rendered in a 0.01 seconds    
+
+
+.. comment
+
+    [7]cxr_i0_2,_-1 ONLY NNVT PMTs
+    ---------------------------------
+
+    .. class:: tiny
+
+        /env/presentation/cxr/cxr_overview/cxr_i0_2,_-1.jpg 1280px_720px
+
+
+
+[8]cxr_i0_1,2,3,4_-1 ALL PMTs
+--------------------------------
+
+.. class:: tiny
+
+    /env/presentation/cxr/cxr_overview/cxr_i0_1,2,3,4_-1.jpg 1280px_720px
+
+
+.. class:: huge
+
+    :white:`"Flat" look is a bug`
+
+    :white:`Was only rendering the last Prim for GAS after the 1st`
+
+    :white:`CAUSE: using globalPrimIdx for SBTIndexOffset : needs to be GAS local` 
+
+
+
+[10]cxr_i0_0,_-1 ONLY GLOBAL "REMAINDER"
+-------------------------------------------
+
+.. class:: tiny
+
+    /env/presentation/cxr/cxr_overview/cxr_i0_0,_-1.jpg 1280px_720px
+
+
+.. class:: huge
+
+    :white:`3084 "remainder" non-instance volumes : is far too many`
+
+    :white:`Looks to be obvious repetitions missed by the auto-instancer`
+
+
+
+
+[9]cxr_i0_t8,_-1 EXCLUDE SLOWEST 1
+-------------------------------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t8,_moi_-1.jpg 1280px_720px
+
+
+.. class:: huge
+
+    :white:`Flipping between this and the next, shows the missing Prim bug effect` 
+
+
+
+
+[9]cxr_i0_t8,_-1 EXCLUDE SLOWEST 2
+------------------------------------
+
+.. class:: tiny
+
+    /env/presentation/cxr/cxr_overview/cxr_i0_t8,_-1.jpg 1280px_720px
+
+
+.. class:: huge
+
+    :white:`Flipping between this and the prev, shows the missing Prim bug effect` 
+
+
+
+
+
+
+
+
+cxr_view_0
+------------
+
+.. comment
+
+    /CSG_GGeo/cvd0/50001/cxr_view/cam_0_0,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+    /CSG_GGeo/cvd1/60500/cxr_view/cam_0_0,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_view/cam_0_0,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+.. class:: small
+
+   **Inside View with only global remainder geometry**
+
+   Same viewpoint in OptiX 5,6 and 7 
+
+   * launch time (s) at bottom left
+
+   * OptiX 5 : NVIDIA Geforce 750M (2013 Macbook Pro)
+   * OptiX 6, 7 : NVIDIA TITAN RTX 
+
+
+cxr_view_1
+------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_view/cam_0_1,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+    /CSG_GGeo/cvd1/60500/cxr_view/cam_0_1,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_view/cam_0_1,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+
+.. class:: small
+
+   * OptiX 7 to bottom right, with grey background
+
+     * missing Prim bug visible, just get the cylinder Prim  
+
+
+cxr_solid_r1p
+----------------
+
+.. comment
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r1p_.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r1p_.jpg 640px_360px 640px_360px
+
+
+.. class:: small
+
+    These renders use ONE_PRIM_SOLID envvar with the Converter
+    to add *CSGFoundry* solids containing a single Prim only.
+    
+    Example solid names: r1p0 r1p1 r1p2 r1p3 r1p4
+
+    Then can plot them all using::
+
+        ./cxr_solid.sh r1p 
+    
+    The argument selects 5 single prim solids and puts 
+    them into an IAS with Y-translations. 
+  
+
+
+
+cxr_view_2
+------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_view/cam_0_2,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+    /CSG_GGeo/cvd1/60500/cxr_view/cam_0_2,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_view/cam_0_2,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+
+.. class:: small
+
+    OptiX 5,6,7
+
+    Last Prim SBT bug apparent with 7 
+
+ 
+
+
+
+cxr_solid_r2p
+---------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r2p_.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r2p_.jpg 640px_360px 640px_360px
+
+
+.. class:: small
+
+    Five of the debug single Prim solids selected with::
+
+        ./cxr_solid.sh r2p 
+ 
+
+
+
+.. comment
+
+    cxr_view_3
+    ------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_view/cam_0_3,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+        /CSG_GGeo/cvd1/60500/cxr_view/cam_0_3,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_view/cam_0_3,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_solid_r3p
+    ---------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r3p_.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r3p_.jpg 640px_360px 640px_360px
+
+    cxr_view_4
+    -------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_view/cam_0_4,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+        /CSG_GGeo/cvd1/60500/cxr_view/cam_0_4,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_view/cam_0_4,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_solid_r4p
+    ----------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r4p_.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r4p_.jpg 640px_360px 640px_360px
+
+
+    cxr_view_5
+    ----------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_view/cam_0_5,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+        /CSG_GGeo/cvd1/60500/cxr_view/cam_0_5,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_view/cam_0_5,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_view_6
+    ----------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_view/cam_0_6,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+        /CSG_GGeo/cvd1/60500/cxr_view/cam_0_6,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_view/cam_0_6,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+    cxr_view_7
+    ----------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_view/cam_0_7,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+        /CSG_GGeo/cvd1/60500/cxr_view/cam_0_7,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_view/cam_0_7,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+
+
+
+
+cxr_view_9
+----------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_view/cam_0_9,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+    /CSG_GGeo/cvd1/60500/cxr_view/cam_0_9,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_view/cam_0_9,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+
+
+.. class:: tiny
+
+    +----+------+-----+-------------------------------------------+---------------------------+
+    |ridx|   plc| prim|   component                               |  note                     |
+    +====+======+=====+===========================================+===========================+
+    |   9|   504|  130|   130:sPanel                              |  repeated parts of TT     |
+    +----+------+-----+-------------------------------------------+---------------------------+
+
+
+.. class:: small 
+
+    Only last of 130 Prim appears (OptiX 7), again due to globalPrimIdx bug 
+
+
+
+
+cxr_view_8
+----------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_view/cam_0_8,/cxr_view_sWaterTube.jpg 640px_360px 640px_0px
+
+    /CSG_GGeo/cvd1/60500/cxr_view/cam_0_8,/cxr_view_sWaterTube.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_view/cam_0_8,/cxr_view_sWaterTube.jpg 640px_360px 640px_360px
+
+
+.. class:: small 
+
+    Blank render for **solid 8** in OptiX 5,6 and 7
+
+
+
+:blue:`[13]lLowerChimney_phys__t5,__00000`
+------------------------------------------
+
+.. class:: huge 
+
+    **Solid 8** "1:uni_acrylic3" is the "plunger" cup that holds the acrylic 35m diameter sphere   
+
+
+:blue:`[12]lLowerChimney_phys__t0,__00000`
+------------------------------------------
+
+.. class:: huge 
+
+    Currently the shape does a CSG subtraction with the huge sphere 
+
+    * enormous Prim BBox ?
+
+
+:blue:`[11]lLowerChimney_phys__8,__00000`
+-----------------------------------------
+
+.. class:: huge
+
+    +----+------+-----+-------------------------------------------+---------------------------+
+    |ridx|   plc| prim|   component                               |  note                     |
+    +====+======+=====+===========================================+===========================+
+    |   8|   590|    1|   1:uni_acrylic3                          |                           |
+    +----+------+-----+-------------------------------------------+---------------------------+
+
+
+.. class:: huge
+
+    590 of these all around the 35m diameter sphere  
+
+
+
+:blue:`[10]lLowerChimney_phys__t8,__00000`
+------------------------------------------
+
+
+.. class:: huge
+
+    Has complicated CSG insides too, subtracting the 8 column "greek temple" 
+
+
+
+.. comment
+
+    :blue:`[0]lLowerChimney_phys__5,__00000`
+    ----------------------------------------
+
+    :blue:`[1]lLowerChimney_phys__7,__00000`
+    ----------------------------------------
+
+    :blue:`[2]lLowerChimney_phys__9,__00000`
+    ----------------------------------------
+
+    :blue:`[3]lLowerChimney_phys__4,__00000`
+    ----------------------------------------
+
+    :blue:`[4]lLowerChimney_phys__6,__00000`
+    ----------------------------------------
+
+    :blue:`[5]lLowerChimney_phys__3,__00000`
+    ----------------------------------------
+
+    :blue:`[6]lLowerChimney_phys__1,__00000`
+    ----------------------------------------
+
+    :blue:`[7]lLowerChimney_phys__2,__00000`
+    ----------------------------------------
+
+    :blue:`[8]lLowerChimney_phys__1,2,3,4__00000`
+    ---------------------------------------------
+
+    :blue:`[9]lLowerChimney_phys__0,__00000`
+    ----------------------------------------
+
+
+.. comment
+
+    :blue:`[14]lLowerChimney_phys__t6,__00000`
+    ------------------------------------------
+
+    :blue:`[15]lLowerChimney_phys__t7,__00000`
+    ------------------------------------------
+
+    :blue:`[16]lLowerChimney_phys__t4,__00000`
+    ------------------------------------------
+
+    :blue:`[17]lLowerChimney_phys_all_00000`
+    ----------------------------------------
+
+    :blue:`[18]lLowerChimney_phys__t3,__00000`
+    ------------------------------------------
+
+    :blue:`[19]lLowerChimney_phys__t9,__00000`
+    ------------------------------------------
+
+    :blue:`[20]lLowerChimney_phys__t2,__00000`
+    ------------------------------------------
+
+    :blue:`[21]lLowerChimney_phys__t1,__00000`
+    ------------------------------------------
+
+
+
+
+
+cxr_solid_r0@
+----------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r0@_.jpg 640px_360px 640px_0px   
+
+    /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r0@_.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r0@_.jpg 640px_360px 640px_360px
+
+
+.. class:: small
+
+    Argument **r0@** matches only solid named "r0"
+
+        ``EYE=0,-1,0 TMIN=1 CAM=1 ./cxr_solid.sh r0@``
+
+    EYE and TMIN in units of selected solid extent, CAM:0/1 perspective/orthographic
+
+
+cxr_solid_r1@
+----------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r1@_.jpg 640px_360px 640px_0px   
+
+    /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r1@_.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r1@_.jpg 640px_360px 640px_360px
+
+
+.. class:: small
+
+    Argument **r1@** matches only solid named "r1"
+
+       ``EYE=0,-1,0 TMIN=1 CAM=1 ./cxr_solid.sh r1@``
+
+
+cxr_solid_r2@
+----------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r2@_.jpg 640px_360px 640px_0px   
+
+    /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r2@_.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r2@_.jpg 640px_360px 640px_360px
+
+
+.. class:: small
+
+    ``EYE=0,-1,0 TMIN=1 CAM=1 ./cxr_solid.sh r1@``
+
+
+
+
+cxr_solid_r3@
+----------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r3@_.jpg 640px_360px 640px_0px   
+
+    /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r3@_.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r3@_.jpg 640px_360px 640px_360px
+
+cxr_solid_r4@
+----------------
+
+.. class:: tiny
+
+    /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r4@_.jpg 640px_360px 640px_0px   
+
+    /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r4@_.jpg 640px_360px 0px_360px
+
+    /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r4@_.jpg 640px_360px 640px_360px
+
+
+.. class:: huge
+
+    TODO: investigate this difference 
+
+
+.. comment
+
+    cxr_solid_r5@
+    ----------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r5@_.jpg 640px_360px 640px_0px   
+
+        /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r5@_.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r5@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r6@
+    ---------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r6@_.jpg 640px_360px 640px_0px   
+
+        /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r6@_.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r6@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r7@
+    ----------------
+
+    .. class:: tiny
+
+        /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r7@_.jpg 640px_360px 640px_0px   
+
+        /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r7@_.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r7@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r8@
+    ----------------
+
+    .. class:: tiny 
+
+        /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r8@_.jpg 640px_360px 640px_0px   
+
+        /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r8@_.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r8@_.jpg 640px_360px 640px_360px
+
+    cxr_solid_r9@
+    ----------------
+
+    .. class:: tiny 
+
+        /CSG_GGeo/cvd0/50001/cxr_solid/cam_1/cxr_solid_r9@_.jpg 640px_360px 640px_0px   
+
+        /CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r9@_.jpg 640px_360px 0px_360px
+
+        /CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r9@_.jpg 640px_360px 640px_360px
+
+
+
+
+
+
+"Extra" Background Slides Follow 
+------------------------------------
+
+
+:small:`Two-Level Hierarchy : Instance transforms (TLAS) over Geometry (BLAS)`
+-------------------------------------------------------------------------------
+
+.. class:: small
+
+    **OptiX supports multiple instance levels : IAS->IAS->GAS** BUT: :redbold:`Simple two-level is faster` : :red:`works in hardware RT Cores` 
+
+
+.. class:: small
+
+    .. figure:: /env/presentation/nvidia/tlas_blas_two_level_hierarchy.png
+        :width: 800px
+        :align: right 
+
+        https://developer.nvidia.com/blog/introduction-nvidia-rtx-directx-ray-tracing/
+
+.. class:: small
+
+   AS
+      Acceleration Structure
+
+   TLAS (**IAS**) 
+      4x4 transforms, refs to BLAS
+       
+   BLAS (**GAS**)
+      | triangles : vertices, indices
+      | custom primitives : AABB 
+
+   AABB
+      axis-aligned bounding box 
+
+
+   **SBT : Shader Binding Table**
+
+   Flexibly binds together:
+ 
+   1. geometry objects
+   2. shader programs 
+   3. data for shader programs
+
+   **Hidden in OptiX 1-6 APIs**
+
+
+
+.. s5_talk::
+
+   OptiX uses the terms : IAS and GAS for instance and geometry acceleratiom structures.
+   The other APIs use terms: TLAS and BLAS for top level and bottom level acceleration structures
+   This is because OptiX supports multiple instance levels. 
+   But the simple two level is faster as that can be done on the RT cores.
+
+   Simple two-level hierarchy : **just one set of instances with transforms and references to geometry**  
+
+
+
+:small:`Optimizing Geometry : Split BLAS to avoid overlapping bbox`
+-------------------------------------------------------------------------------
+
+.. figure:: /env/presentation/nvidia/optimize/split_blas_half.png
+    :width: 700px
+    :align: center
+
+.. class:: normal
+
+   Optimization : :redbold:`deciding where to draw lines between:` 
+
+   1. structure and solid (**IAS** and **GAS**)
+   2. solids within **GAS**   (bbox choice to minimize traversal intersection tests)
+
+   Where those lines are drawn :bluebold:`defines the AS`
+
+
+.. class:: small
+
+    https://developer.nvidia.com/blog/best-practices-using-nvidia-rtx-ray-tracing/
+
+
+.. s5_talk::
+
+   Optimization is all about deciding Where to draw the lines.
+
+   Currently Opticks clumps together all the remainder non-repeated geometry.
+   Possibly splitting that up might improve performance.
+
+
+
+:small:`Optimizing Geometry : Merge BLAS when lots of overlaps`
+-------------------------------------------------------------------------------
+
+.. figure:: /env/presentation/nvidia/optimize/merge_blas_half.png
+    :width: 900px
+    :align: center
+
+.. class:: normal
+
+   * lots of overlapping forces lots of intersections to find closest 
+   * but too few bbox means the **AS** cannot help to avoid intersect tests
+   * balance required : :redbold:`needs experimentation and measurement to optimize` 
+
+.. class:: small
+
+    https://developer.nvidia.com/blog/best-practices-using-nvidia-rtx-ray-tracing/
+
+.. s5_talk::
+
+   Where to draw lines
+
+
+
+:small:`Ray Intersection with Transformed Object -> Geometry Instancing`
+-----------------------------------------------------------------------------
+
+
+.. |H2O| replace:: H\ :sub:`2`\ O
+
+.. |IM| replace:: M\ :sup:`-1`
+
+.. |IMT| replace:: M\ :sup:`-1T`
+
+.. |NP| replace:: N\' 
+
+
+
+.. figure:: /env/presentation/instancing/ray_intersection_in_two_spaces_p308_shirley_ch13_half.png
+    :width: 700px
+    :align: right
+
+    .. class:: small
+
+        Fig 13.5 "Realistic Ray Tracing", Peter Shirley
+
+    .. class:: normal
+
+        :redbold:`Advantages apply equally to acceleration structures`
+
+.. class:: small
+
+   **Equivalent Intersects -> same** *t*
+
+   1. **ray** with *ellipsoid* : **M*p**
+   2. |IM| **ray** with *sphere* : **p**
+
+   **Local Frame Advantages**
+
+   1. simpler intersect (sphere vs ellipsoid)
+   2. closer to origin -> better precision
+
+   **Geometry Instancing Advantages**
+
+   * many objects share local geometry
+
+     * orient+position with 4x4 **M**
+
+   * huge VRAM saving, less to copy 
+   
+   **Requirements**
+
+   * must **not** normalize ray direction
+   * normals transform differently 
+
+     * |NP| = N * |IMT|   
+     * (due to non-uniform scaling) 
+
+
+.. s5_talk::
+
+    The basis for instancing is the equivalence of intersects in two spaces.
+
+    For example a ray-ellipsoid intersect is equivalent to in inverse 
+    transformed ray intersect with a sphere.
+
+    Local frame intersects advantages...
+
+
+
+
+:small:`G4Boolean -> CUDA/OptiX Intersection Program Implementing CSG`
+-------------------------------------------------------------------------------------
+
+.. sidebar:: Outside/Inside Unions
+
+    .. class:: small
+
+       dot(normal,rayDir) -> Enter/Exit
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
+       :width: 300px
+       :align: center
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_inside.png
+       :width: 300px
+       :align: center
+
+    .. class:: small
+
+        * **A + B** boundary not inside other 
+        * **A * B** boundary inside other 
+
+
+.. class:: small
+
+   Complete Binary Tree, pick between pairs of nearest intersects:
+
+   =======================  ===========  ===============  ============== 
+   *UNION* tA < tB           Enter B      Exit B           Miss B
+   =======================  ===========  ===============  ============== 
+   **Enter A**               ReturnA      :blue:`LoopA`    ReturnA
+   **Exit A**                ReturnA      ReturnB          ReturnA 
+   **Miss A**                ReturnB      ReturnB          ReturnMiss
+   =======================  ===========  ===============  ============== 
+
+   * *Nearest hit intersect algorithm* [1] avoids state
+
+     * sometimes :blue:`Loop` : advance **t_min** , re-intersect both 
+     * classification shows if inside/outside
+
+   * *Evaluative* [2] implementation emulates recursion: 
+
+     * :red:`recursion not allowed` in OptiX intersect programs
+     * bit twiddle traversal of complete binary tree 
+     * stacks of postorder slices and intersects 
+
+   * :red:`Identical geometry to Geant4` 
+
+     * solving the same polynomials 
+     * near perfect intersection match
+
+
+
+.. class:: tiny
+
+    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
+ 
+    [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+        Similar to binary expression tree evaluation using postorder traverse. 
+
+
+.. s5_talk::
+
+    The primitives can be combined using constructive solid geometry 
+    modelling into arbitrarily complex shapes. 
+
+    So G4Boolean trees can be translated into Opticks without 
+    any approximation.
+
+    Pseudo code of the CSG implementation is in the Extras.
+ 
+
+
+:small:`Constructive Solid Geometry (CSG) : Shapes defined "by construction"`
+-------------------------------------------------------------------------------
+
+.. sidebar:: CSG Binary Tree
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg.png
+       :width: 450px
+       :align: right
+
+    .. class:: small
+
+       Primitives combined via binary operators 
+
+
+.. class:: small
+
+   Simple *by construction* definition, implicit geometry.
+
+   * **A, B** implicit primitive **solids** 
+   * **A + B** : union (OR)
+   * **A * B** : intersection (AND) 
+   * **A - B** : difference (AND NOT) 
+   * **!B** : complement (NOT) (inside <-> outside)
+
+   CSG expressions 
+
+   * non-unique: **A - B == A * !B**
+   * represented by binary tree, primitives at leaves
+
+   3D Parametric Ray : **ray(t) = r0 + t rDir**  
+
+
+   **Ray Geometry Intersection**
+
+   * primitive : find *t* roots of implicit eqn
+   * composite : :red:`pick` primitive intersect, depending on CSG tree
+
+
+.. class:: large
+
+   :red:`How to pick exactly ?`
+
+
+
+.. s5_talk::
+
+    Opticks CSG supports complemented shapes. That is necessary for tree positivization where  
+
+
+
+
+
+:small:`CSG : Which primitive intersect to pick ?`
+-------------------------------------------------------
+    
+
+.. sidebar:: In/On/Out transitions
+
+    .. class:: small
+
+    .. image:: /env/presentation/hanrahan_example_of_solid_object_formed_using_csg_roth_diagram.png
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+   Classical Roth diagram approach
+
+   * find all ray/primitive intersects
+   * recursively combine inside intervals using CSG operator
+   * works from leaves upwards
+
+   Computational requirements:
+
+   * find all intersects, store them, order them
+   * recursive traverse
+
+   BUT : **High performance on GPU requires**:
+
+   * massive parallelism -> more the merrier
+   * low register usage -> keep it simple
+   * small stack size -> **avoid recursion** 
+
+.. class:: large
+
+   :red:`Classical approach not appropriate on GPU`
+
+
+.. s5_talk::
+
+   Intersect is with one of the constituents, but how to find it.
+
+
+:small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
+---------------------------------------------------------------------------------
+
+.. sidebar:: Bit Twiddling Navigation
+
+    .. class:: small
+
+        * parent(i) = i/2 = i >> 1 
+
+        * leftchild(i) = 2*i = i << 1
+
+        * rightchild(i) = 2*i + 1 = (i << 1) + 1
+
+        * leftmost(height)  =  1 << height
+
+
+.. class:: small
+
+    Geant4 solid -> CSG binary tree (leaf primitives, non-leaf operators, 4x4 transforms on any node)
+
+    Serialize to **complete binary tree** buffer:
+ 
+    * no need to deserialize, no child/parent pointers
+    * bit twiddling navigation :red:`avoids recursion`
+    * simple approach profits from small size of binary trees 
+    * BUT: very inefficient when unbalanced 
+
+    **Height 3 complete binary tree with level order indices:**
+.. raw:: html
+
+    <pre class="mypre">
+                                                       depth     elevation
+
+                         1                               0           3   
+
+              10                   11                    1           2   
+
+         100       101        110        111             2           1   
+                        
+     1000 1001  1010 1011  1100 1101  1110  1111         3           0   
+    </pre>
+    <hr/>
+
+.. class:: small
+
+    **postorder_next(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) ;**   // from pattern of bits
+ 
+.. class:: tiny
+
+   Postorder tree traverse visits all nodes, starting from leftmost, such that children 
+   are visited prior to their parents.
+
+
+.. s5_talk::
+
+    CSG implementation is greatly simplified by 
+    use of complete binary tree serialization.  
+
+    Boolean solids with large numbers of constituents cause a 
+    problem, because complete binary tree serialization is
+    very inefficient for unbalanced trees.
+
+    Tree balancing helps, but still there is a complexity limit.
+    G4Boolean abuse solids with hundreds of constituents would be 
+    better implemented with custom primitives.
+
+
+
+
+
+:small:`Evaluative CSG intersection Pseudocode : recursion emulated`
+-------------------------------------------------------------------------------------------------
+
+.. raw:: html 
+
+    <pre class="mypretiny">
+    fullTree = PACK( 1 << height, 1 >> 1 )  // leftmost, parent_of_root(=0) 
+    tranche.push(fullTree, ray.tmin) 
+
+    while (!tranche.empty)        <b><span class="alarm"> // stack of begin/end indices </span></b>
+    {
+        begin, end, tmin <- tranche.pop  ; node <- begin ;
+        while( node != end )                  <b><span class="alarm"> // over tranche of postorder traversal </span></b>
+        {
+            elevation = height - TREE_DEPTH(node) ;
+            if(is_primitive(node)){ isect <- intersect_primitive(node, tmin) ;  csg.push(isect) }
+            else{
+                i_left, i_right = csg.pop, csg.pop          <b><span class="alarm">  // csg stack of intersect normals, t </span></b>
+                l_state = CLASSIFY(i_left, ray.direction, tmin)
+                r_state = CLASSIFY(i_right, ray.direction, tmin)
+                action = LUT(operator(node), leftIsCloser)(l_state, r_state) 
+
+                if(      action is ReturnLeft/Right)     csg.push(i_left or i_right)
+                else if( action is LoopLeft/Right)
+                {
+                    left = 2*node ; right = 2*node + 1 ; 
+                    endTranche = PACK( node,  end );
+                    leftTranche = PACK(  left << (elevation-1), right << (elevation-1) )
+                    rightTranche = PACK(  right << (elevation-1),  node  )
+                    loopTranche = action ? leftTranche : rightTranche
+                                                     
+                    tranche.push(endTranche, tmin)     
+                    tranche.push(loopTranche, tminAdvanced ) <b><span class="alarm"> // subtree re-traversal with changed tmin </span></b> 
+                    break ; // to next tranche
+                }
+            }
+            node <- postorder_next(node, elevation)        <b><span class="alarm"> // bit twiddling postorder </span></b>
+        }
+    } 
+    isect = csg.pop();       <b><span class="alarm">  // winning intersect  </span></b>
+    </pre>
+
+.. class:: tiny
+
+    https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+
+
+.. s5_talk::
+
+   Emulated recursion : iterate over slices of a postorder tree traversal    
+
+
+
+
+:small:`CSG Deep Tree : Positivize tree using De Morgan's laws`
+------------------------------------------------------------------------------------
+
+.. sidebar:: Positive form CSG Trees
+
+   .. class:: small
+
+       Apply deMorgan pushing negations down tree 
+
+       * **A - B -> A * !B**
+       * **!(A*B) -> !A + !B**
+       * **!(A+B) -> !A * !B**
+       * **!(A - B) -> !(A*!B) -> !A + B**
+
+       End with only UNION, INTERSECT operators, 
+       and some complemented leaves.
+
+       :red:`COMMUTATIVE -> easily rearranged`
+
+
+.. class:: small
+
+    1st step to allow balancing : **Positivize** : remove CSG difference **di** operators 
+
+
+.. raw:: html
+
+   <pre class="mypretiny">
+                                                        ...    ...
+
+                                                  un          cy                                        
+
+                                          un          cy                                                
+
+                                  un          cy                                                        
+
+                          un          cy                                                                
+
+                  un          cy                                                                        
+
+          di          cy                                                                                
+
+      cy      cy                                                 
+
+   </pre>
+
+   <pre class="mypretiny">
+                                                        ...    ...
+
+                                                  un          cy                                        
+
+                                          un          cy                                                
+
+                                  un          cy                                                        
+
+                          un          cy                                                                
+
+                  un          cy                                                                        
+
+          in          cy                                                                                
+
+      cy      !cy                                                 
+
+   </pre>
+
+
+
+.. s5_talk::
+
+   Positivized tree easier to work with 
+
+
+
+
+:i:`CSG Examples`
+--------------------------
+
+
+.. s5_talk::
+
+    Some examples of CSG.
+
+    You might be able to see a problem in the top left. CSG modelling 
+    must avoid coincident surfaces in subtractions, otherwise you get spurious intersects.
+
+
+

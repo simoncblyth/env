@@ -17,6 +17,26 @@ Cards
 * https://www.anandtech.com/show/16137/nvidia-announces-ampere-rtx-a6000-a40-cards-for-pro-viz
 * https://www.nvidia.com/en-gb/data-center/a40/
 
+
+vCHEP 2021 : C.Legett : Porting HEP Parameterized Calorimeter Simulation Code to GPUs
+----------------------------------------------------------------------------------------
+
+* ~/opticks_refs/FastCaloSim_for_vCHEP_2021_f.pdf
+* https://indico.cern.ch/event/948465/contributions/4323701/
+
+Can run multiple concurrent process all sharing one (or more) GPUs
+
+* use **nvidia-cuda-mps-server** to share 2 P100s between up to 32 processes
+* device based time slicing of GPU
+* curve is mostly flat – nowhere near saturating GPU resources
+* can run 62 processes on a V100 w/ 48GB with little impact on performance
+
+nvidia-cuda-mps-server
+-------------------------
+
+* https://docs.nvidia.com/deploy/pdf/CUDA_Multi_Process_Service_Overview.pdf
+
+
 hardware probing : lspci and dmidecode
 ---------------------------------------
 

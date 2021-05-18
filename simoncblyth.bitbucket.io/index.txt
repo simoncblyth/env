@@ -102,9 +102,17 @@ https://simoncblyth.bitbucket.io/env/presentation/opticks_vchep_2021_may19.html
 
     Integration of JUNO simulation framework with *Opticks*  (May 19, 2021) vCHEP 
 
+
+https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210518.html
+
+    Notes on OptiX 6->7 migration, *CSG*, *CSG_GGeo*, *CSGOptiX* (May 18, 2021, Virtual, H6)
+
+    1st full JUNO ray trace with OptiX 7 *CSGOptiX* enabled by *CSGFoundry* model
+
+
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210504.html
 
-    Notes on OptiX 6->7 migration, *CSG*, *CSGOptiX*, *CSGOptiXGGeo* (May 4, 2021, Virtual)
+    Notes on OptiX 6->7 migration, *CSG*, *CSGOptiX*, *CSGOptiXGGeo* (May 4, 2021, Virtual, H5)
  
     * https://github.com/simoncblyth/CSG/commits
     * https://github.com/simoncblyth/CSGOptiX/commits
@@ -116,13 +124,13 @@ https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210426.html
 
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210406.html
 
-    Notes on OptiX 6->7 migration, "Foundry" CSG Model (April 4, 2021, Virtual)
+    Notes on OptiX 6->7 migration, "Foundry" CSG Model (April 4, 2021, Virtual, H4)
  
     * https://github.com/simoncblyth/OptiXTest/commits
 
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210315.html
 
-    Notes on OptiX 6->7 migration, (Mar 15, 2021, Virtual)
+    Notes on OptiX 6->7 migration, (Mar 15, 2021, Virtual, H3)
  
     * https://github.com/simoncblyth/OptiXTest/commits
 
@@ -135,13 +143,13 @@ https://simoncblyth.bitbucket.io/env/presentation/opticks_detector_geometry_caf_
 
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210225.html
 
-    Notes on OptiX 6->7 migration, (Feb 25, 2021, Virtual)
+    Notes on OptiX 6->7 migration, (Feb 25, 2021, Virtual, H2)
 
     * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASDyn/README.rst
 
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7.html
 
-    Notes on OptiX 6->7 migration, (Feb 8, 2021, Virtual)
+    Notes on OptiX 6->7 migration, (Feb 8, 2021, Virtual, H1)
 
     * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASComp/README.rst
 

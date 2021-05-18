@@ -18,7 +18,7 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_disabled"
     ##
-    slide0
+    slide0_disabled
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -494,6 +494,9 @@
     NVIDIA OptiX 7 : Entirely new thin API
     /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
 
+    NVIDIA OptiX 7 : Entirely new thin API (Introduced Aug 2019)
+    /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 600px_300px
+
     NVIDIA OptiX 7 : Entirely new thin API : Opticks Migration in Progress
     /env/presentation/nvidia/Introducing_OptiX_7.png 640px_360px 670px_300px
 
@@ -708,6 +711,8 @@
 
     Opticks + JUNO Progress : Efficiency Hit Culling on GPU
     /env/presentation/optixrap/OSensorLibGeoTest_half.png 640px_360px 640px_360px
+    /env/presentation/nvidia/thrust_logo.png 215px_91px 390px_210px
+    # 2146px_906px  np.array([2146,906])/10
 
     NVIDIA Marbles At Night RTX Demo
     /env/presentation/nvidia/nvidia_marbles_at_night_rtx_demo_1080p_capture_half.png 1280px_720px
@@ -816,46 +821,6 @@
     double greek temple
     /env/presentation/flight/double_greek_temple_half.png 1280px_720px
 
-    CSGOptiXGGeo_0
-    /env/presentation/CSGOptiXGGeo/70000/0/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/0/pixels.jpg 640px_360px 0px_360px
-
-    CSGOptiXGGeo_1
-    /env/presentation/CSGOptiXGGeo/70000/1/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/1/pixels.jpg 640px_360px 0px_360px
-
-    CSGOptiXGGeo_2
-    /env/presentation/CSGOptiXGGeo/70000/2/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/2/pixels.jpg 640px_360px 0px_360px
-
-    CSGOptiXGGeo_3
-    /env/presentation/CSGOptiXGGeo/70000/3/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/3/pixels.jpg 640px_360px 0px_360px
-
-    CSGOptiXGGeo_4
-    /env/presentation/CSGOptiXGGeo/70000/4/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/4/pixels.jpg 640px_360px 0px_360px
-
-    CSGOptiXGGeo_5
-    /env/presentation/CSGOptiXGGeo/70000/5/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/5/pixels.jpg 640px_360px 0px_360px
-
-    CSGOptiXGGeo_6
-    /env/presentation/CSGOptiXGGeo/70000/6/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/6/pixels.jpg 640px_360px 0px_360px
-
-    CSGOptiXGGeo_7
-    /env/presentation/CSGOptiXGGeo/70000/7/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/7/pixels.jpg 640px_360px 0px_360px
-
-    CSGOptiXGGeo_8
-    /env/presentation/CSGOptiXGGeo/70000/8/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/8/pixels.jpg 640px_360px 0px_360px
-
-    CSGOptiXGGeo_9
-    /env/presentation/CSGOptiXGGeo/70000/9/pixels.jpg 640px_360px 640px_360px
-    /env/presentation/CSGOptiXGGeo/50001/9/pixels.jpg 640px_360px 0px_360px
-
     JUNO OptiX 7 : "Foundry" Geometry Scan
     /env/presentation/cxr/cxr_overview/cxr_i0_4,_-1.jpg 640px_360px 0px_360px
     /env/presentation/cxr/cxr_overview/cxr_i0_2,_-1.jpg 640px_360px 640px_0px
@@ -868,10 +833,17 @@
     [8]cxr_i0_1,2,3,4_-1 ALL PMTs
     /env/presentation/cxr/cxr_overview/cxr_i0_1,2,3,4_-1.jpg 1280px_720px
 
+    JUNO ALL PMTs : 2M ray traced pixels in 0.0097 s : NVIDIA TITAN RTX, NVIDIA OptiX 7.0.0, Opticks 
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_1,2,3,4_moi_-1.jpg 1280px_720px
+
     [10]cxr_i0_0,_-1 ONLY GLOBAL "REMAINDER"
     /env/presentation/cxr/cxr_overview/cxr_i0_0,_-1.jpg 1280px_720px
 
     [9]cxr_i0_t8,_-1 EXCLUDE SLOWEST
+    /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t8,_moi_-1.jpg 1280px_720px
+    #/env/presentation/cxr/cxr_overview/cxr_i0_t8,_-1.jpg 1280px_720px
+
+    [9]cxr_i0_t8,_-1 EXCLUDE SLOWEST 1
     /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t8,_moi_-1.jpg 1280px_720px
     #/env/presentation/cxr/cxr_overview/cxr_i0_t8,_-1.jpg 1280px_720px
 
@@ -997,6 +969,16 @@
     /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/60500/cxr_solid/cam_1/cxr_solid_r9@_.jpg 640px_360px 0px_360px
     /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_solid/cam_1/cxr_solid_r9@_.jpg 640px_360px 640px_360px
 
+    Acknowledgement : Opticks "Hackathon" Series for NVIDIA OptiX 6->7
+    /env/presentation/logos/Oisin_future_of_LZ_optical_simulations_half.png 640px_360px 640px_360px
+    /env/presentation/logos/nvidia.png 235px_215px 800px_100px 
+
+    LZ with Opticks (Images from Sam Eriksen, University of Bristol)
+    /env/presentation/lz/LZ_Opticks_OpenGL.png 508px_572px 100px_100px
+    /env/presentation/lz/LZ_Opticks_Composite.png 580px_551px 640px_100px
+    # 762px_857px 381px_428px np.array([762,858])*2/3 
+    # 871px_827px 435px_413px np.array([871,827])*2/3 
+ 
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty

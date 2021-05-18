@@ -12,6 +12,13 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+replace a wildcarded string with spaces : eg name with a reference
+--------------------------------------------------------------------
+
+::
+
+   :.,688s/0x\S*/         /gc 
+
 
 viminfo error
 --------------
