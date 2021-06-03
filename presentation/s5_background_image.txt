@@ -18,7 +18,7 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_disabled"
     ##
-    slide0_disabled
+    slide0
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -832,6 +832,7 @@
 
     [8]cxr_i0_1,2,3,4_-1 ALL PMTs
     /env/presentation/cxr/cxr_overview/cxr_i0_1,2,3,4_-1.jpg 1280px_720px
+    # flat look with SBT global offset bug 
 
     JUNO ALL PMTs : 2M ray traced pixels in 0.0097 s : NVIDIA TITAN RTX, NVIDIA OptiX 7.0.0, Opticks 
     /env/presentation/CSGOptiXRender/CSG_GGeo/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_1,2,3,4_moi_-1.jpg 1280px_720px

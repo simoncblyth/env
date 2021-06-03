@@ -24,6 +24,10 @@ PDF documents at
 CHEP 2021 pre-Proceedings
 ---------------------------
 
+* 2nd draft : 4th June
+* finalise : 25th June 
+
+
 ::
 
     epsilon:chep2021 blyth$ cp ../chep2019/opticks-blyth-chep2019-v1.tex opticks-blyth-chep2021-v0.tex
@@ -298,8 +302,8 @@ epjconf-open(){ open $(epjconf-opdf) ; }
 #epjconf-confname(){ echo chep2019 ; }
 epjconf-confname(){ echo chep2021 ; }
 
-epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
-#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
+#epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v0 ; }
+epjconf-filename(){ echo opticks-blyth-$(epjconf-confname)-v1 ; }
 
 #epjconf-filename(){ echo opticks-snowmass21-loi-v0 ; }
 #epjconf-filename(){ echo opticks-snowmass21-loi-v1 ; }

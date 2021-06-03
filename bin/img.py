@@ -60,6 +60,8 @@ class Img(object):
         parser.add_argument('--scale', type=int, default=1 )
         parser.add_argument('--level', default=d["level"], help='log level')
         parser.add_argument('--slidesize', default=d["slidesize"] )
+        parser.add_argument('--savepng', action="store_true", default=False)
+        parser.add_argument('--savepgm', action="store_true", default=False)
  
         args = parser.parse_args()
 
@@ -103,6 +105,37 @@ class Img(object):
             im.save(ppm)
         pass
 
+    def save_as_pgm(self, scale=1):
+        path = self.path
+        size = self.size
+        im, pfx = self.get_scaled(scale)
+        pgm = path.replace(".jpg","%s.pgm" % pfx)
+
+        if os.path.exists(pgm):
+            log.info("pgm exists already at %s " % pgm)
+        else:
+            log.info("save_as_pgm to %s " % pgm )
+            im.save(pgm)
+        pass
+
+    def save_as_png(self, scale=1):
+        path = self.path
+        size = self.size
+        im, pfx = self.get_scaled(scale)
+        png = path.replace(".jpg","%s.png" % pfx)
+
+        if im.mode != "RGBA":
+            log.info("converting from mode %s to RGBA" % im.mode)
+            im2 = im.convert("RGBA")
+        else:
+            im2 = im 
+        pass
+        if os.path.exists(png):
+            log.info("png exists already at %s " % png)
+        else:
+            log.info("save_as_png to %s " % png )
+            im2.save(png)
+        pass
 
 if __name__ == '__main__':
     args = Img.parse_args(__doc__)
@@ -113,6 +146,10 @@ if __name__ == '__main__':
         imgs.append(img)
         if args.saveppm: 
             img.save_as_ppm(args.scale)
+        elif args.savepng: 
+            img.save_as_png(args.scale)
+        elif args.savepgm: 
+            img.save_as_pgm(args.scale)
         pass
     pass
    

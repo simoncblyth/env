@@ -48,8 +48,6 @@
 
 
 
-
-
 Outline
 ----------------------------------------------------
 
@@ -101,11 +99,9 @@ Outline
 
 .. s5_talk::
 
-   * After describing the context I will briefly introduce Opticks
-     and describe some new features before showing some first 
-     renders with NVIDIA OptiX 7 
-     
-
+    The focus of this talk is recent progress on migrating Opticks
+    to work with the all new NVIDIA OptiX 7 API.
+    
 
 :i:`JUNO_Intro_2`
 ------------------
@@ -114,29 +110,7 @@ Outline
 
     JUNO will be the worlds largest liquid scintillator detector,
     with a 20 kiloton spherical volume of scintillator instrumented with  
-    almost 50 thousand PMTs 
-
-
-.. comment
-
-    :i:`JUNO_Intro_3`
-    ------------------
-
-    .. s5_talk::
-
-        JUNO will be able to detect neutrinos from many terrestrial and extra-terrestrial 
-        sources including : solar, atmospheric, geo-neutrinos. 
-
-        Despite 700 m of overburden the largest backgrounds to these neutrino signals   
-        will be from cosmic muon induced processes.  
-
-        A muon veto is used to control the backgrounds.
-        
-        However to minimize the time and volume vetoed, which cuts into 
-        it is necessary to have a good muon reconstruction which means 
-        that we need large samples of cosmic muons.
-
-
+    almost 50 thousand PMTs. The diameter of the sphere is 35 meters. 
 
 
 `Optical Photon Simulation Problem...`
@@ -175,14 +149,14 @@ Outline
    of optical photons, presenting memory and time challenges for simulation.
 
    Most of the time is taken finding intersections between photons and geometry 
-   Fortunately simulation is not alone in this bottleneck.
+   Simulation is not alone in this bottleneck.
 
 
 .. comment
 
    Optical photons are naturally parallel : they can be considered 
    to be produced only by two processes : Cherenkov and Scintillation and we
-   are mainly interested in photons that hit the PMTs.  
+   are interested in photons that hit the PMTs.  
 
    These characteristics make it straightforward integrate an external optical
    simulation.
@@ -244,20 +218,14 @@ Outline
 
 .. s5_talk::
 
-    Ray traced image rendering in computer graphics has exactly the same problem.
-
-    Actually, there is much in common between optical photon simulation and 
-    ray traced image rendering.   
-
-    With simulation you want to know photon parameters at PMTs, with rendering 
-    you need pixel values at the image plane.
+    Ray traced image rendering in computer graphics has exactly the same bottleneck.
+    Actually, there is a lot in common between optical photon simulation and ray traced image rendering.   
+    Simulation gives photon parameters at PMTs, rendering gives pixel values at the image plane.
 
     Both these are limited by ray geometry intersection, which is also known as ray tracing.
 
-    Ray tracing is used across many industries, which means that are huge efforts
-    across decades to improve ray tracing perfromance.
+    Ray tracing is widely used resulting in huge efforts to improve ray tracing perfromance.
     
-
 
 
 :small:`Ampere : 2nd Generation RTX`
@@ -280,10 +248,9 @@ Outline
 
 .. s5_talk::
 
-    GPU and Ray Tracing performance continues to improve rapidly.
-
+    GPU Ray Tracing performance continue to improve rapidly.
     With Ampere there is a big increase in the numbers of CUDA 
-    cores at the same price points.  
+    cores at the same price points.   
 
 
 
@@ -336,18 +303,15 @@ Outline
 
 .. s5_talk::
 
-   * NVIDIA OptiX provides GPUs accelerated ray-geometry intersection 
+   NVIDIA OptiX makes GPU ray tracing accessible 
 
-   * OptiX divides up the ray tracing workflow as shown
-   * the yellow boxes represent the programs the user provide
-
-   * the crucial ones are:
+   * it divides up the ray tracing workflow 
+   * the yellow boxes represent user provided CUDA programs, including:
 
      * ray generation : where Opticks generates photons and steers the simulation
      * intersection : where the geometry is implemented 
 
-   * geometry has to be translated into a GPU appropriate form 
-
+   * geometry has to be translated into a GPU appropriate form
 
 
 
@@ -395,10 +359,9 @@ Outline
 
 .. s5_talk::
 
-   * OptiX 7 dropped lots of features used by Opticks
-   * total re-implementation of major parts of Opticks needed
-   * but this is  essential to keep up with the state-of-the-art GPU ray tracing
-   * Much of the rest of this presentation covers recent progress with the migration
+   * OptiX 7 is an entirely new API, dropping many features used by Opticks
+   * re-implementation of large parts of Opticks is necessary
+   * i will cover recent progress on this shortly
 
 
 
@@ -407,15 +370,15 @@ Outline
 
 .. s5_talk::
 
-    This shows how Opticks is integrated with Geant4.
+    This shows how Opticks is integrated with Geant4. The geometry is translated 
+    and uploaded to the GPU at initialization.
 
-    The geometry is translated and uploaded to the GPU at initialization.
+    Cerenkov or Scintillation gensteps, the blue lines, are the generation parameters 
+    uploaded to the GPU so optical photon generation can be done there.
 
-    Most of the work of Opticks has been in this geometry translation.
-    Generally optical physics has been straightforward to port to CUDA.
-    Geometry however has requires a totally different approach to Geant4
-    in order to get the best out of the GPU.
-
+    This allows the optical photon simulation to be entirely offloaded  
+    to the GPU with only collected hits requiring CPU memory.
+ 
 
 :i:`Geant4OpticksWorkflow 2`
 ------------------------------
@@ -431,7 +394,9 @@ Outline
 
 .. s5_talk::
 
-    What Opticks Does
+    In general, I found that directly porting the optical physics has been straightforward.
+    Most of problems and effort of Opticks been with the geometry, because the 
+    geometry model needs to be very different from the deep tree of volumes of Geant4.
 
 
 
@@ -483,43 +448,23 @@ Outline
     * mockup striped theta efficiency, two random categories 
     * cosine phi efficiency variation for one category
 
-.. comment
-
-    .. image:: /env/presentation/nvidia/thrust_logo.png
-       :width: 215px
-       :height: 91px 
-
-    .. class:: tiny
-
-        https://simoncblyth.bitbucket.io/opticks/optixrap/tests/OSensorLibGeoTest.cc.html
-
-        https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst
-
-
-
 
 .. s5_talk::
 
-    * on-GPU efficiency culling : avoids detector specific assumptions in G4Opticks sensor interface
-    * Doing efficiency culling on GPU reduces CPU memory for hits by a factor of the efficiency
-    * only the collected hits needed by the electronics simulation have to use CPU memory
+    Moving efficiency culling to the GPU reduces CPU hit memory and downloads 
+    by a factor of the efficiency : so only collected hits consume CPU memory.
 
-    * BUT : it means you have to translate the efficiency information and upload it to the GPU
+    Angular efficiencies of the sensors are uploaded into GPU textures
+    for each sensor type.
 
-      * i did this with angular textures for each sensor type and efficiency buffers 
-
-    * the culling decision on GPU leads to one of these flags being set, then 
-      you can copy back just the EFFICIENCY_COLLECT photons to go into the hit collection 
-
-
+    Downloading collected hits just requires to use a different COLLECTED hitmask.
+    
 
 .. comment
 
     https://bitbucket.org/simoncblyth/opticks/src/master/optickscore/tests/MockSensorLibTest.cc
 
     https://bitbucket.org/simoncblyth/opticks/src/master/optixrap/tests/OSensorLibGeoTest.cc
-
-
 
 
 
@@ -609,7 +554,34 @@ Outline
 
 .. s5_talk::
 
-   CSGFoundry  
+   SMALL 
+   The Foundry geometry model comprises : Inst, Solid, Prim and Node
+
+   Starting from the bottom:
+
+   * the Node are CSG constituent shapes or operators
+   * the Prim reference a range of Node forming serialized complete binary trees
+   * the Solid reference one or more Prim
+   * the Inst reference one or more Solid 
+
+   **Prim:** are equivalent to G4VSolid
+
+   **Solid:** are compound Prim, each type of PMT corresponds to a Solid 
+
+   **Inst:** are 4x4 transforms with index refererences to Solid 
+
+   The model is designed to work with the OptiX 7 acceleration structures:
+
+   * Solid -> GAS (Geometry Acceleration Structure)
+   * Inst  -> IAS (Instance Acceleration Structure)
+
+   The JUNO geometry of 300,000 volumes is factorized into 10 Solid which 
+   are referenced from a single instance acceleration structure. 
+    
+   The array-based simplicity makes it fast to upload to GPU, 
+   with the entire geometry in 4 GPU allocations. 
+
+
 
 
 :i:`[9]cxr_i0_t8,_-1 : EXCLUDE SLOWEST`
@@ -636,8 +608,10 @@ Outline
 
 .. s5_talk::
 
-   CSGFoundry  
+   Here is one of the first JUNO renders with the OptiX 7 using the Foundry model.
 
+   Note that there are no triangles here, this is a purely analytic ray trace with 
+   the geometry that the simulation will use.
 
 
 
@@ -709,7 +683,20 @@ Outline
 
 .. s5_talk::
 
-   Auto factorized
+   To follow what follows you need to know a bit about the factorization.
+   
+   300,000 Geant4 volumes are factorized into 10 Foundry Solids, with a lot of Inst 
+   referencing them according to the number of placements of each solid.
+   
+   Repeat index zero corresponds to the remainder volumes with only a single placement.
+   These are volumes that were not repeated enough to get instanced.     
+
+   More instancing reduces memory for the geometry and improves performance, so 
+   some work to avoid having thousands of remainder volumes is needed.
+
+
+
+ 
 
 
 
@@ -726,7 +713,11 @@ Outline
 
 .. s5_talk::
 
-    GPU Geometry Scanning : Extreme sensitivity to geometry + model
+    Varying the geometry and comparing render times is a simple way to 
+    find problem solids.
+
+    Because simulation is ray trace limited there is a direct correspondence
+    between fast rendering and fast simulation. 
 
 
 
@@ -814,7 +805,12 @@ Outline
 
 .. s5_talk::
 
-    Geometry Scanning 
+   This table shows render times for 2M pixels varying the geometry included or excluded. 
+   First thing to note is the very large range, from thousandth of a second to seconds.
+
+   Relative compares to "ONLY PMT". 
+
+   The performance transitions clearly point to two Solids needing to be fixed.
 
 
 
@@ -823,8 +819,7 @@ Outline
 
 .. s5_talk::
 
-    Almost 50 thousand PMT instances ray trace rendered in a 0.01 seconds    
-
+    This is the ONLY PMTs render, with almost 50 thousand PMTs rendered in a hundredth of a second
 
 
 .. comment
@@ -835,8 +830,6 @@ Outline
     .. s5_talk::
 
        8 : ALL PMTS
-
-
 
 
 
@@ -887,10 +880,11 @@ Outline
 
 .. s5_talk::
 
-    While it is great that Opticks is gaining many new users with lots 
-    of interest and activity from Geant4 and also now NVIDIA 
-    the downside of is that it takes times to support them all.
-
+    Summary is that : Opticks provides state-of-the-art GPU ray tracing integrated with Geant4 and that 
+    there has been substantial progress with the migration to OptiX 7, 
+    which is essential to keep up with the state-of-the-art.
+ 
+    Links to get you started with using Opticks are listed here.
 
 
 
@@ -905,7 +899,10 @@ Outline
 
 .. s5_talk::
 
-   Hackathon 
+   This work has been assisted by a series of meetings organized by LZ people.
+   Its been very helpful to get advice from NVIDIA engineers 
+
+   The next talk covers LZ usage of Opticks.
 
 
 :small:`LZ with Opticks (Images from Sam Eriksen, University of Bristol)`
@@ -914,7 +911,10 @@ Outline
 
 .. s5_talk::
 
-   LZ with Opticks
+   Here are some Opticks renders of LZ, demonstating that Opticks is not JUNO specific, 
+   it is structured to work with multiple geometries. 
+   Although the more complex your optically important geometry the more work you will 
+   have to get good performance.
 
 
 
