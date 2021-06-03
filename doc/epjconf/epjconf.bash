@@ -21,6 +21,14 @@ PDF documents at
 
 
 
+
+CHEP 2021 Proceedings
+---------------------------
+
+* https://indico.cern.ch/event/948465/contributions/4324115/editing/paper
+
+
+
 CHEP 2021 pre-Proceedings
 ---------------------------
 
