@@ -1,0 +1,109 @@
+
+I have made most of the changes that you 
+suggested, however there is no UI for 
+uploading the updated proceedings on the page 
+
+* https://indico.cern.ch/event/948465/contributions/4324115/editing/paper 
+
+Do you need to do something to make that UI appear ?
+
+
+
+> Very nice paper with well written technical description of photons simulation
+> on a GPU. Great results. I have few suggestions for minor changes and a
+> question:
+
+Thank you for your detailed comments.
+
+> 1. Abstract: It is not very clear from the formulation what is actually the
+> scope and the focus of the current paper. Sentence like “In this work we
+> describe …” would help.
+
+I have added such a sentence and reduced technical details like "G4Opticks"
+to make the abstract a bit more high level.
+
+> 2. Introduction: Paragraph 1: First sentence is confusing. 
+
+The first sentence describes what Opticks is a simple and direct way. 
+If readers take nothing else anything from the paper then I want them to take 
+away that sentence. That is why it is the first sentence.
+
+> Why do you need to profit from high performance GPU ray tracing. 
+
+The 3rd sentence answers that. Also the target audience for this paper and Opticks 
+are exactly those people that "need to profit from high performance GPU ray tracing"
+because they are facing optical photon simulation problems.
+
+> I would suggest to start with the
+> JUNO experiment and to move the first sentence “Opticks enables Geant4 based …”
+> to be the pre-last one, just before “Opticks eliminates these bottlenecks”. And
+> rephrase the last one accordingly.
+
+Thank you for your suggestion however the objective of the introduction and the paper 
+is to encourage evaluation of Opticks by people from any experiment that have simulations 
+limited by optical photons. Given that objective it would be a serious mistake to start with 
+such a weak sentence as a description of JUNO.   
+The fact that JUNO is the motivation for Opticks is background information from the point of 
+view of the objectives of the paper. It is a central feature of Opticks that it can apply 
+to any experiment, that is what makes it interesting to many people and that is why the first 
+sentence needs to describe the primary subject of the paper : Opticks.
+ 
+The structure of the first paragraph is about as simple as it is possible to be:
+
+1. describe what Opticks is  
+2. describe what JUNO is 
+3. describe how Opticks helps JUNO  
+
+
+> 3. Introduction: Paragraph 3: Line 3: “focussed” —> “focused”.
+
+Changed. 
+
+> 4. Section 1.1: Paragraph 1: Missing comma: “Minimizing the dead time and dead
+> volume that result from applying a veto requires an understanding of the
+> detector response to a muon.” —> “Minimizing the dead time and dead volume,
+> that result from applying a veto, requires an understanding of the detector
+> response to a muon.”
+
+Commas added.
+
+
+> 5. Section 1.1: Line 10: “Cerenkov” —> “Cherenkov”
+
+I have changed all "Cerenkov" to "Cherenkov"
+
+
+> 6. Section 3.3: Paragraph 2: Should be comma instead of point in the last
+> sentence, just before “leaving remainder insufficiently repeated nodes …”
+
+Changed. Thank you.
+
+> 7. Section 3.5: Paragraph 2: Missing comma: 
+> “During the recursive traversal of the Geant4 geometry tree that creates the parallel tree of Opticks GVolume
+> sensor volumes are identified and sensor indices assigned by the presence of surfaces with non-zero efficiencies.” —> 
+> “During the recursive traversal of the Geant4 geometry tree, that creates the parallel tree of Opticks GVolume, sensor
+> volumes are identified and sensor indices assigned by the presence of surfaces with non-zero efficiencies.”
+
+Added. Thank you : that reads better.
+
+
+> 8. Section 3.5: Paragraph 2: “allow sensor efficiency data to be handled in a
+> detector independent manner.”
+
+Added. Thanks, well spotted.
+
+> 9. Section 3.5: Paragraph 2: “In this way every point on the surfaces of all
+> sensor volumes is assigned an efficiency.”
+
+Changed.
+
+> 10. Figure 4: Do you have explanation for the jump in blue curve at 50 M photons?
+
+The blip represents an increased interval time compared to the launch time : so that 
+means that the transfer of photon hits from GPU to CPU took longer for that measurement.
+Although when making measurements I try to minimize activity on the machine as much as possible 
+other processes such as the X11 window manager are still using the GPU and the PCI-E bus 
+that connects it to the CPU memory. Hence I assume that such slight blips are caused
+by contention on the bus.  
+
+
