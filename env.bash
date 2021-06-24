@@ -2094,3 +2094,9 @@ useradd-(){      . $(env-home)/tools/useradd.bash && useradd-env $* ; }
 chrt-(){      . $(env-home)/graphics/chameleonrt/chrt.bash && chrt-env $* ; }
 rt-(){      . $(env-home)/graphics/rt/rt.bash && rt-env $* ; }
 g4ck-(){      . $(env-home)/geant4/g4op/g4ck.bash && g4ck-env $* ; }
+aidainnova-(){      . $(env-home)/proj/aidainnova.bash && aidainnova-env $* ; }
+k4-(){         . $(env-home)/proj/key4hep/k4.bash && k4-env $* ; }
+e4-(){      . $(env-home)/proj/key4hep/e4.bash && e4-env $* ; }
+podio-(){      . $(env-home)/proj/key4hep/podio.bash && podio-env $* ; }
+sio-(){      . $(env-home)/proj/key4hep/sio.bash && sio-env $* ; }
+acts-(){      . $(env-home)/proj/key4hep/acts.bash && acts-env $* ; }
