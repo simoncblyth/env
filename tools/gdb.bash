@@ -17,6 +17,48 @@ Refs
 * https://sourceware.org/gdb/onlinedocs/gdb/Set-Breaks.html
 
 
+breakpoint basics
+--------------------
+
+* add : b 101    # line num
+* listing : "i b"
+* d 1            # delete breakpoint 1 
+
+
+dprintf 
+--------
+
+The dynamic printf command dprintf combines a breakpoint with formatted
+printing of your program’s data to give you the effect of inserting printf
+calls into your program on-the-fly, without having to recompile it.
+
+* https://doc.ecoscentric.com/gnutools/doc/gdb/Dynamic-Printf.html
+
+
+
+Printing something on hitting breakpoint
+------------------------------------------ 
+
+* https://stackoverflow.com/questions/6517423/how-to-do-an-specific-action-when-a-certain-breakpoint-is-hit-in-gdb
+
+After creating a breakpoint, use "commands"::
+
+
+    (gdb) b 512
+    Breakpoint 2 at 0x7fffd09bba7a: file ../src/DsG4Scintillation.cc, line 512.
+    (gdb) commands
+    Type commands for breakpoint(s) 2, one per line.
+    End with a line saying just "end".
+    >silent
+    >print ancestor
+    >cont
+    >end
+    (gdb) 
+
+
+
+
+
 
 Avoid the annoying quit confirmation
 --------------------------------------

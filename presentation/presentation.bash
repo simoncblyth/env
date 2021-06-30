@@ -1131,9 +1131,15 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 
 #presentation-iname(){  echo ${INAME:-juno_opticks_20210426} ; }
 #presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210504} ; }
-presentation-iname(){   echo ${INAME:-opticks_vchep_2021_may19} ; }
+#presentation-iname(){   echo ${INAME:-opticks_vchep_2021_may19} ; }
 #presentation-iname(){   echo ${INAME:-opticks_vchep_2021_may19_TALK} ; }
 #presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210518} ; }
+
+
+presentation-iname(){  echo ${INAME:-juno_opticks_20210702} ; }
+
+
+
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 

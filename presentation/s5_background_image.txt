@@ -18,7 +18,7 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_disabled"
     ##
-    slide0
+    slide0_DISABLED
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
