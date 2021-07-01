@@ -979,6 +979,12 @@
     /env/presentation/lz/LZ_Opticks_Composite.png 580px_551px 640px_100px
     # 762px_857px 381px_428px np.array([762,858])*2/3 
     # 871px_827px 435px_413px np.array([871,827])*2/3 
+
+    gpmt Hamamatsu jun28 
+    /env/presentation/ana/gpmt/PolyconeNeckSplitFig_origin_CGDMLKludge_jun28_HamamatsuR12860_.png 1280px_720px
+
+    gpmt NNVT jun28
+    /env/presentation/ana/gpmt/PolyconeNeckSplitFig_origin_CGDMLKludge_jun28_NNVTMCPPMT_.png 1280px_720px
  
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

@@ -9,6 +9,16 @@
 .. include:: my_s5defs.txt
 
 
+
+.. comment
+
+   Day 1 (Monday, July 12, 2021, 8:30–12:50 CEST/14:30–18:50 Beijing time): Simulation review
+
+   30+10 min  
+
+
+
+
 ===================================================================================
 JUNO Opticks/Geant4 Optical Photon Simulation Matching
 ===================================================================================
@@ -291,6 +301,159 @@ Outline
    </pre>
 
 
+.. s5_talk::
+
+    This is the current status, after fixing lots of issues
+
+
+
+:small:`Overview of issues and fixes` 
+-----------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * Opticks : excess BULK_ABSORB (AB), lack SURFACE_ABSORB (SA) in innerWater
+
+     * FIX: skip near degenerate(-0.0001 mm) pointless Pyrex///Pyrex PMT solids from GPU geometry  
+
+   * Opticks : photons not stopping at Tyvek
+
+     * FIX: add explicit surfaces to GPU geometry corresponding to Geant4 implicit RINDEX-NoRINDEX boundaries 
+
+   * Opticks : much less scattering in the Water
+
+     * FIX: get Geant4 calculated **RAYLEIGH** property for "Water" into *G4Material* so Opticks can use it  
+
+
+
+:small:`Opticks : excess AB, lack SA in innerWater (FIX: remove degenerates)` 
+-----------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    In [2]: ab.his
+    Out[2]: 
+    ab.his
+    .       seqhis_ana  cfo:sum  1:g4live:tds3gun   -1:g4live:tds3gun        c2        ab        ba 
+    .                         11142     11142                  616.50/66 =  9.34 
+       n             iseq         a         b    a-b               c2    [ns] label
+    0000               42      1666      1621     45             0.62    [2 ] SI AB
+    0001            7ccc2      1264      1258      6             0.01    [5 ] SI BT BT BT SD
+    <b><span class="redbold">0002            8ccc2       581       766   -185            25.41    [5 ] SI BT BT BT SA</span></b>
+    0003           7ccc62       579       543     36             1.16    [6 ] SI SC BT BT BT SD
+    0004             8cc2       570       496     74             5.14    [4 ] SI BT BT SA
+    0005              452       408       495    -87             8.38    [3 ] SI RE AB
+    0006              462       399       351     48             3.07    [3 ] SI SC AB
+    0007           7ccc52       360       385    -25             0.84    [6 ] SI RE BT BT BT SD
+    0008           8ccc62       239       258    -19             0.73    [6 ] SI SC BT BT BT SA
+    0009          7ccc662       218       195     23             1.28    [7 ] SI SC SC BT BT BT SD
+    0010            8cc62       195       180     15             0.60    [5 ] SI SC BT BT SA
+    <b><span class="redbold">0011             4cc2       268       104    164            72.30    [4 ] SI BT BT AB</span></b>
+    0012           8ccc52       160       191    -31             2.74    [6 ] SI RE BT BT BT SA
+    0013          7ccc652       163       165     -2             0.01    [7 ] SI RE SC BT BT BT SD
+    0014               41       156       160     -4             0.05    [2 ] CK AB
+    0015             4552       118       152    -34             4.28    [4 ] SI RE RE AB
+    0016            8cc52       136       133      3             0.03    [5 ] SI RE BT BT SA
+    0017             4662       125       114     11             0.51    [4 ] SI SC SC AB
+    <b><span class="redbold">0018            4cc62       189        40    149            96.95    [5 ] SI SC BT BT AB</span></b>
+    .                         11142     11142                  616.50/66 =  9.34 
+    </pre>
+ 
+
+
+
+:small:`Opticks : excess AB, lack SA in innerWater (FIX: remove degenerates)` 
+-----------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * :r:`wrong boundary means Opticks using Pyrex properties, not Water, for a fraction of photons (5%)`
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    In [3]: a.sel = "SI BT BT BT SA"      <span class="bluebold">## select photons with this history</span>
+    In [15]: a.bn.reshape(-1,4).view(np.int8)[:20]     <b>## signed boundary at up to 16 steps of the photon </b>
+    Out[15]: 
+    A([[ 18,  17, -23, -25,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
+       [ 18,  17, -23, -27,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
+       ...
+       [ 18,  17, -23, -27,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
+       [ 18,  17, <span class="redbold">-24</span>, -25,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]], dtype=int8)
+
+    In [17]: print(a.blib.format(a.bn.reshape(-1,4).view(np.int8)[0]))   ## 16*char(int8) packed into uint4 4*32bit 
+     18 : Acrylic///LS            <span class="bluebold">##  boundary : outer-material/outer-surface/inner-surface/inner-material  </span>
+     17 : Water///Acrylic         <span class="bluebold">## +ve boundary : photon direction is with the normal, exiting the shape  </span>
+    -23 : Water///Pyrex           <span class="bluebold">## -ve boundary : photon direction against the normal, entering the shape </span> 
+    -25 : Pyrex/NNVTMCPPMT_photocathode_logsurf2/NNVTMCPPMT_photocathode_logsurf1/Vacuum
+
+    In [18]: print(a.blib.format(a.bn.reshape(-1,4).view(np.int8)[1]))
+     18 : Acrylic///LS
+     17 : Water///Acrylic
+    -23 : Water///Pyrex
+    -27 : Pyrex/HamamatsuR12860_photocathode_logsurf2/HamamatsuR12860_photocathode_logsurf1/Vacuum
+
+    In [19]: print(a.blib.format(a.bn.reshape(-1,4).view(np.int8)[19]))
+     18 : Acrylic///LS         
+     17 : Water///Acrylic     
+    <span class="redbold">-24 : Pyrex///Pyrex   ## expect Water///Pyrex --> GEOMETRY PROBLEM </span>
+    -25 : Pyrex/NNVTMCPPMT_photocathode_logsurf2/NNVTMCPPMT_photocathode_logsurf1/Vacuum
+    </pre>
+
+.. class:: small
+
+    * :b:`All LPMTs : near degenerate Water///Pyrex and "pointless" same material Pyrex///Pyrex borders offset: 0.001mm`
+
+
+
+:i:`gpmt Hamamatsu jun28` 
+---------------------------
+
+:i:`gpmt NNVT jun28`
+------------------------
+ 
+
+
+:small:`Opticks : excess AB, lack SA in innerWater : FIX Options` 
+-----------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    1. fix source geometry removing the pointless Pyrex///Pyrex -0.001mm boundary 
+
+       * seems to cause no problem for Geant4 : get "microStep" of ~0.001-0.002mm 
+
+         * eg ``--dbgseqhis 0x7ccccd`` dumps Geant4 details for photons in category 
+
+       * experience shows is time consuming to get agreement on geometry change
+
+    2. runtime workaround trying to notice inconsistency by maintaining state of which material are in 
+
+       * need very strong reasons to add complexity to GPU code, so disqualify this 
+ 
+    3. skip the near degenerate inner Pyrex solids in the translated GPU geometry 
+
+       * easy, causing no problems because are removing a pointless Pyrex///Pyrex border
+       * BUT: requires suppression of Geant4 "microSteps" in *CRecorder* to facilitate history comparison  
+
+
+
+    **Currently using 3, with Opticks commandline option:**
+
+   ::
+
+       --skipsolidname 
+           NNVTMCPPMT_body_solid,
+           HamamatsuR12860_body_solid_1_9,
+           PMT_20inch_veto_body_solid_1_2
+
+.. comment 
+
+   notes/issues/ok_less_SA_more_AB.rst
+
+
+
 
 :small:`OK:Photons not stopping at Tyvek, FIXED by adding explicit surfaces` 
 -------------------------------------------------------------------------------------------------------
@@ -415,6 +578,25 @@ Outline
       * https://bitbucket.org/simoncblyth/opticks/src/master/extg4/X4MaterialWater.cc
  
         * use G4OpRayleigh to calculate **RAYLEIGH** and add it to the *G4Material* so *Opticks* sees it  
+
+
+.. s5_talk::
+
+    Note that the total number of photons is always the same, so problems
+    causing an decrease in one category always means there will be an increase
+    in other categories. 
+
+    Here with Opticks lots more survive though the water.  
+
+    Because of this it would be a mistake to try to validate just by comparing 
+    hits between OK and G4 
+
+
+
+
+
+
+
 
 
 :small:`Current JUNO Geometry : Auto-Factorization by progeny digest`
