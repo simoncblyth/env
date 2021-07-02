@@ -985,6 +985,9 @@
 
     gpmt NNVT jun28
     /env/presentation/ana/gpmt/PolyconeNeckSplitFig_origin_CGDMLKludge_jun28_NNVTMCPPMT_.png 1280px_720px
+
+    LS Wavelength
+    /env/presentation/ana/ls/LS_wavelength.png 1280px_720px
  
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

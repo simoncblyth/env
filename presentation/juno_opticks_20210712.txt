@@ -2,9 +2,9 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: JUNO Geant4/Opticks Optical Simulation Matching
-   :description: (Jul 2 2021)
-   :url: https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210702.html  
-   :date: 2 July 2021
+   :description: (Jul 12 2021)
+   :url: https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210712.html  
+   :date: 12 July 2021
 
 .. include:: my_s5defs.txt
 
@@ -16,6 +16,11 @@
 
    30+10 min  
 
+   IDEAS
+
+   * reemission wavelength cfplot with chi2 lower panel
+   * reemission wavelength distrib on same plot at abslen, scatlen, reemprob 
+   * comparison of RE/SC/AB/BT fractions as a function of wavelength for diameter photons
 
 
 
@@ -40,7 +45,7 @@ JUNO Opticks/Geant4 Optical Photon Simulation Matching
 
 .. class:: small
 
-   |  Simon C Blyth,  July 2, 2021 
+   |  Simon C Blyth,  July 12, 2021 
 
 
 .. s5_talk:: 
@@ -592,9 +597,12 @@ Outline
     hits between OK and G4 
 
 
+:i:`LS Wavelength`
+---------------------
 
+.. comment
 
-
+   ana/wavelength.py  
 
 
 

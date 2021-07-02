@@ -269,6 +269,50 @@ location::
 
 
 
+Getting rid of the presentation title in the footer on some slides ?
+-----------------------------------------------------------------------
+
+::
+
+   document.getElementById("footer").getElementsByTagName("h1")[0].style.visibility = "invisible"
+
+
+* http://localhost/env/presentation/ui/my-small-white/pretty.css
+
+~/env/presentation/ui/my-small-white/pretty.css::
+
+     22 div#footer {font-family: sans-serif; color: #444;
+     23   font-size: 0.5em; font-weight: bold; padding: 1em 0; visibility: hidden;}
+
+
+
+::
+
+    epsilon:my-small-white blyth$ ./update.sh 
+    cp /Users/blyth/env/presentation/ui/my-small-white/pretty.css /Users/blyth/simoncblyth.bitbucket.io/env/presentation/ui/my-small-white/pretty.css
+    15c15,16
+    < var snumdiv = 1;
+    ---
+    > var talk = window.location.href.indexOf('_TALK') > -1 ? 1 : 0 ;
+    > var snumdiv = talk == 1 ? 2 : 1;
+    24a26,27
+    > 
+    > 
+    128c131
+    < 	cs.innerHTML = '<span id="csHere">' + snum/snumdiv + '<\/span> ' + 
+    ---
+    > 	cs.innerHTML = '<span id="csHere">' + Math.floor(snum/snumdiv) + '<\/span> ' + 
+    130,131c133,134
+    < 		           '<span id="csTotal">' + (smax-1)/snumdiv + '<\/span>' ;
+    <     if (snum > -1) {
+    ---
+    > 		           '<span id="csTotal">' + Math.floor((smax-1)/snumdiv) + '<\/span>' ;
+    > 	if (snum == 0) {
+    cp /Users/blyth/env/presentation/ui/my-small-white/slides.js /Users/blyth/simoncblyth.bitbucket.io/env/presentation/ui/my-small-white/slides.js
+    epsilon:my-small-white blyth$ 
+
+
+
 Opticks Oct 2018 JUNO Detector Video 
 ---------------------------------------
 
@@ -1136,7 +1180,7 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210518} ; }
 
 
-presentation-iname(){  echo ${INAME:-juno_opticks_20210702} ; }
+presentation-iname(){  echo ${INAME:-juno_opticks_20210712} ; }
 
 
 
