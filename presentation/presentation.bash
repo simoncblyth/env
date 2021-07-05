@@ -33,6 +33,40 @@ Creating slides PDF with talk annotations interleaved
 See instructions in slides-;slides-vi
 
 
+macOS Apache Directory : /Library/WebServer/Documents
+--------------------------------------------------------
+
+Local slide presentation using apache: 
+
+* http://localhost/env/presentation/juno_opticks_20210712.html
+
+is arranged via the "env" symbolic link in /Library/WebServer/Documents 
+
+::
+
+    epsilon:Documents blyth$ pwd
+    /Library/WebServer/Documents
+    epsilon:Documents blyth$ l env
+    0 lrwxr-xr-x  1 root  wheel  41 Jun 25  2018 env -> /Users/blyth/simoncblyth.bitbucket.io/env
+
+
+to use the same resources as remote bitbucket presentation from 
+bitbucker servers uses, 
+
+* https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210712.html
+
+once any changes are pushed there.
+
+::
+
+    epsilon:my-small-white blyth$ pwd
+    /Library/WebServer/Documents/env/presentation/ui/my-small-white
+    epsilon:my-small-white blyth$ realpath $PWD
+    /Users/blyth/simoncblyth.bitbucket.io/env/presentation/ui/my-small-white
+    epsilon:my-small-white blyth$ 
+
+
+
 How it works : rst2s5-2.6.py and ".. s5_background_image::"
 --------------------------------------------------------------
 

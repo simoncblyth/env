@@ -312,151 +312,26 @@ Outline
 
 
 
-:small:`Overview of issues and fixes` 
+:small:`Overview of JUNO-Opticks issues and fixes` 
 -----------------------------------------------------------------------------------------------------
 
 .. class:: small
 
-   * Opticks : excess BULK_ABSORB (AB), lack SURFACE_ABSORB (SA) in innerWater
-
-     * FIX: skip near degenerate(-0.0001 mm) pointless Pyrex///Pyrex PMT solids from GPU geometry  
-
-   * Opticks : photons not stopping at Tyvek
+   * photons not stopping at Tyvek
 
      * FIX: add explicit surfaces to GPU geometry corresponding to Geant4 implicit RINDEX-NoRINDEX boundaries 
 
-   * Opticks : much less scattering in the Water
+   * excess BULK_ABSORB (AB), lack SURFACE_ABSORB (SA) in inner Water
+
+     * FIX: skip near degenerate(-0.001 mm) pointless Pyrex///Pyrex PMT solids from GPU geometry  
+
+   * much less scattering in the Water
 
      * FIX: get Geant4 calculated **RAYLEIGH** property for "Water" into *G4Material* so Opticks can use it  
 
+   * poor scintillation wavelength chi2 match in tails
 
-
-:small:`Opticks : excess AB, lack SA in innerWater (FIX: remove degenerates)` 
------------------------------------------------------------------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypretiny">
-    In [2]: ab.his
-    Out[2]: 
-    ab.his
-    .       seqhis_ana  cfo:sum  1:g4live:tds3gun   -1:g4live:tds3gun        c2        ab        ba 
-    .                         11142     11142                  616.50/66 =  9.34 
-       n             iseq         a         b    a-b               c2    [ns] label
-    0000               42      1666      1621     45             0.62    [2 ] SI AB
-    0001            7ccc2      1264      1258      6             0.01    [5 ] SI BT BT BT SD
-    <b><span class="redbold">0002            8ccc2       581       766   -185            25.41    [5 ] SI BT BT BT SA</span></b>
-    0003           7ccc62       579       543     36             1.16    [6 ] SI SC BT BT BT SD
-    0004             8cc2       570       496     74             5.14    [4 ] SI BT BT SA
-    0005              452       408       495    -87             8.38    [3 ] SI RE AB
-    0006              462       399       351     48             3.07    [3 ] SI SC AB
-    0007           7ccc52       360       385    -25             0.84    [6 ] SI RE BT BT BT SD
-    0008           8ccc62       239       258    -19             0.73    [6 ] SI SC BT BT BT SA
-    0009          7ccc662       218       195     23             1.28    [7 ] SI SC SC BT BT BT SD
-    0010            8cc62       195       180     15             0.60    [5 ] SI SC BT BT SA
-    <b><span class="redbold">0011             4cc2       268       104    164            72.30    [4 ] SI BT BT AB</span></b>
-    0012           8ccc52       160       191    -31             2.74    [6 ] SI RE BT BT BT SA
-    0013          7ccc652       163       165     -2             0.01    [7 ] SI RE SC BT BT BT SD
-    0014               41       156       160     -4             0.05    [2 ] CK AB
-    0015             4552       118       152    -34             4.28    [4 ] SI RE RE AB
-    0016            8cc52       136       133      3             0.03    [5 ] SI RE BT BT SA
-    0017             4662       125       114     11             0.51    [4 ] SI SC SC AB
-    <b><span class="redbold">0018            4cc62       189        40    149            96.95    [5 ] SI SC BT BT AB</span></b>
-    .                         11142     11142                  616.50/66 =  9.34 
-    </pre>
- 
-
-
-
-:small:`Opticks : excess AB, lack SA in innerWater (FIX: remove degenerates)` 
------------------------------------------------------------------------------------------------------
-
-.. class:: small
-
-   * :r:`wrong boundary means Opticks using Pyrex properties, not Water, for a fraction of photons (5%)`
-
-.. raw:: html
-
-    <pre class="mypretiny">
-    In [3]: a.sel = "SI BT BT BT SA"      <span class="bluebold">## select photons with this history</span>
-    In [15]: a.bn.reshape(-1,4).view(np.int8)[:20]     <b>## signed boundary at up to 16 steps of the photon </b>
-    Out[15]: 
-    A([[ 18,  17, -23, -25,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
-       [ 18,  17, -23, -27,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
-       ...
-       [ 18,  17, -23, -27,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
-       [ 18,  17, <span class="redbold">-24</span>, -25,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]], dtype=int8)
-
-    In [17]: print(a.blib.format(a.bn.reshape(-1,4).view(np.int8)[0]))   ## 16*char(int8) packed into uint4 4*32bit 
-     18 : Acrylic///LS            <span class="bluebold">##  boundary : outer-material/outer-surface/inner-surface/inner-material  </span>
-     17 : Water///Acrylic         <span class="bluebold">## +ve boundary : photon direction is with the normal, exiting the shape  </span>
-    -23 : Water///Pyrex           <span class="bluebold">## -ve boundary : photon direction against the normal, entering the shape </span> 
-    -25 : Pyrex/NNVTMCPPMT_photocathode_logsurf2/NNVTMCPPMT_photocathode_logsurf1/Vacuum
-
-    In [18]: print(a.blib.format(a.bn.reshape(-1,4).view(np.int8)[1]))
-     18 : Acrylic///LS
-     17 : Water///Acrylic
-    -23 : Water///Pyrex
-    -27 : Pyrex/HamamatsuR12860_photocathode_logsurf2/HamamatsuR12860_photocathode_logsurf1/Vacuum
-
-    In [19]: print(a.blib.format(a.bn.reshape(-1,4).view(np.int8)[19]))
-     18 : Acrylic///LS         
-     17 : Water///Acrylic     
-    <span class="redbold">-24 : Pyrex///Pyrex   ## expect Water///Pyrex --> GEOMETRY PROBLEM </span>
-    -25 : Pyrex/NNVTMCPPMT_photocathode_logsurf2/NNVTMCPPMT_photocathode_logsurf1/Vacuum
-    </pre>
-
-.. class:: small
-
-    * :b:`All LPMTs : near degenerate Water///Pyrex and "pointless" same material Pyrex///Pyrex borders offset: 0.001mm`
-
-
-
-:i:`gpmt Hamamatsu jun28` 
----------------------------
-
-:i:`gpmt NNVT jun28`
-------------------------
- 
-
-
-:small:`Opticks : excess AB, lack SA in innerWater : FIX Options` 
------------------------------------------------------------------------------------------------------
-
-.. class:: small
-
-    1. fix source geometry removing the pointless Pyrex///Pyrex -0.001mm boundary 
-
-       * seems to cause no problem for Geant4 : get "microStep" of ~0.001-0.002mm 
-
-         * eg ``--dbgseqhis 0x7ccccd`` dumps Geant4 details for photons in category 
-
-       * experience shows is time consuming to get agreement on geometry change
-
-    2. runtime workaround trying to notice inconsistency by maintaining state of which material are in 
-
-       * need very strong reasons to add complexity to GPU code, so disqualify this 
- 
-    3. skip the near degenerate inner Pyrex solids in the translated GPU geometry 
-
-       * easy, causing no problems because are removing a pointless Pyrex///Pyrex border
-       * BUT: requires suppression of Geant4 "microSteps" in *CRecorder* to facilitate history comparison  
-
-
-
-    **Currently using 3, with Opticks commandline option:**
-
-   ::
-
-       --skipsolidname 
-           NNVTMCPPMT_body_solid,
-           HamamatsuR12860_body_solid_1_9,
-           PMT_20inch_veto_body_solid_1_2
-
-.. comment 
-
-   notes/issues/ok_less_SA_more_AB.rst
-
+     * FIX: adopt "multi-resolution" GPU texture to 20x resolution for tails
 
 
 
@@ -484,7 +359,7 @@ Outline
     0005           7ccc52       380       397    -17             0.37    [6 ] SI RE BT BT BT SD
     0006              462       392       367     25             0.82    [3 ] SI SC AB
     0007           8ccc62       251       267    -16             0.49    [6 ] SI SC BT BT BT SA
-    <b><span class="redbold">0008             8cc2         0       464   -464           464.00    [4 ] SI BT BT SA</span></b>
+    <b><span class="redbold">0008             8cc2         0       464   -464           464.00    [4 ] SI BT BT SA  ## LS->Acrylic->Water->SURFACE_ABSORB on Tyvek </span></b>   
     0009          7ccc662       219       213      6             0.08    [7 ] SI SC SC BT BT BT SD
     0010             4cc2       278       127    151            56.30    [4 ] SI BT BT AB
     0011           8ccc52       154       188    -34             3.38    [6 ] SI RE BT BT BT SA
@@ -541,7 +416,149 @@ Outline
        --input-photon-repeat 100000
 
 
-:small:`<< OK:SC with the 100k input photons in Water, FIX: X4MaterialWater`
+
+
+
+:small:`Opticks : excess AB, lack SA in innerWater (FIX: remove degenerates)` 
+-----------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    In [2]: ab.his
+    Out[2]: 
+    ab.his
+    .       seqhis_ana  cfo:sum  1:g4live:tds3gun   -1:g4live:tds3gun        c2        ab        ba 
+    .                         11142     11142                  616.50/66 =  9.34 
+       n             iseq         a         b    a-b               c2    [ns] label
+    0000               42      1666      1621     45             0.62    [2 ] SI AB
+    0001            7ccc2      1264      1258      6             0.01    [5 ] SI BT BT BT SD
+    <b><span class="redbold">0002            8ccc2       581       766   -185            25.41    [5 ] SI BT BT BT SA</span></b>
+    0003           7ccc62       579       543     36             1.16    [6 ] SI SC BT BT BT SD
+    0004             8cc2       570       496     74             5.14    [4 ] SI BT BT SA
+    0005              452       408       495    -87             8.38    [3 ] SI RE AB
+    0006              462       399       351     48             3.07    [3 ] SI SC AB
+    0007           7ccc52       360       385    -25             0.84    [6 ] SI RE BT BT BT SD
+    0008           8ccc62       239       258    -19             0.73    [6 ] SI SC BT BT BT SA
+    0009          7ccc662       218       195     23             1.28    [7 ] SI SC SC BT BT BT SD
+    0010            8cc62       195       180     15             0.60    [5 ] SI SC BT BT SA
+    <b><span class="redbold">0011             4cc2       268       104    164            72.30    [4 ] SI BT BT AB</span></b>
+    0012           8ccc52       160       191    -31             2.74    [6 ] SI RE BT BT BT SA
+    0013          7ccc652       163       165     -2             0.01    [7 ] SI RE SC BT BT BT SD
+    0014               41       156       160     -4             0.05    [2 ] CK AB
+    0015             4552       118       152    -34             4.28    [4 ] SI RE RE AB
+    0016            8cc52       136       133      3             0.03    [5 ] SI RE BT BT SA
+    0017             4662       125       114     11             0.51    [4 ] SI SC SC AB
+    <b><span class="redbold">0018            4cc62       189        40    149            96.95    [5 ] SI SC BT BT AB</span></b>
+    .                         11142     11142                  616.50/66 =  9.34 
+    </pre>
+
+.. class:: small
+
+    :bluebold:`SI BT BT AB` 
+        photons that (BT) BOUNDARY_TRANSMIT from : *LS -> Acrylic -> Water* where they are (AB) BULK_ABSORB-ed 
+
+    :bluebold:`SI BT BT BT SA` 
+        *LS -> Acrylic -> Water -> Pyrex* where they are (SA) SURFACE_ABSORB-ed on Pyrex/Vacuum boundary 
+
+
+
+:small:`Opticks : excess AB, lack SA in innerWater (FIX: remove degenerates)` 
+-----------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * :r:`wrong boundary means Opticks using Pyrex properties, not Water, for a fraction of photons (5%)`
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    In [3]: a.sel = "SI BT BT BT SA"      <span class="bluebold">## select photons with this history</span>
+    In [15]: a.bn.reshape(-1,4).view(np.int8)[:20]     <b>## signed boundary at up to 16 steps of the photon </b>
+    Out[15]: 
+    A([[ 18,  17, -23, -25,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
+       [ 18,  17, -23, -27,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
+       ...
+       [ 18,  17, -23, -27,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
+       [ 18,  17, <span class="redbold">-24</span>, -25,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]], dtype=int8)
+
+    In [17]: print(a.blib.format(a.bn.reshape(-1,4).view(np.int8)[0]))   ## 16*char(int8) packed into uint4 4*32bit 
+
+     18 : Acrylic///LS            <span class="bluebold">##  boundary : outer-material/outer-surface/inner-surface/inner-material  </span>
+     17 : Water///Acrylic         <span class="bluebold">## +ve boundary : photon direction is with the normal, exiting the shape  </span>
+    -23 : Water///Pyrex           <span class="bluebold">## -ve boundary : photon direction against the normal, entering the shape </span> 
+    -25 : Pyrex/NNVTMCPPMT_photocathode_logsurf2/NNVTMCPPMT_photocathode_logsurf1/Vacuum
+
+    In [18]: print(a.blib.format(a.bn.reshape(-1,4).view(np.int8)[1]))
+     18 : Acrylic///LS
+     17 : Water///Acrylic
+    -23 : Water///Pyrex
+    -27 : Pyrex/HamamatsuR12860_photocathode_logsurf2/HamamatsuR12860_photocathode_logsurf1/Vacuum
+
+    In [19]: print(a.blib.format(a.bn.reshape(-1,4).view(np.int8)[19]))
+     18 : Acrylic///LS         
+     17 : Water///Acrylic     
+    <span class="redbold">-24 : Pyrex///Pyrex   ## expect Water///Pyrex --> GEOMETRY PROBLEM </span>
+    -25 : Pyrex/NNVTMCPPMT_photocathode_logsurf2/NNVTMCPPMT_photocathode_logsurf1/Vacuum
+    </pre>
+
+.. class:: small
+
+    * :b:`All LPMTs : near degenerate Water///Pyrex and "pointless" same material Pyrex///Pyrex borders offset: 0.001mm`
+
+
+
+:i:`gpmt Hamamatsu jun28` 
+---------------------------
+
+:i:`gpmt NNVT jun28`
+------------------------
+ 
+
+
+:small:`Opticks : excess AB, lack SA in innerWater : FIX remove degenerates` 
+-----------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    Possible approaches to handle degenerate geometry:
+
+    1. fix source geometry removing the pointless Pyrex///Pyrex -0.001mm boundary 
+
+       * seems to cause no problem for Geant4 : get "microStep" of ~0.001-0.002mm 
+
+         * eg ``--dbgseqhis 0x7ccccd`` dumps Geant4 details for photons in category 
+
+       * experience shows is time consuming to get agreement on geometry change
+
+    2. runtime workaround trying to notice inconsistency by maintaining state of which material are in 
+
+       * need very strong reasons to add complexity to GPU code, so disqualify this 
+ 
+    3. :bluebold:`skip the near degenerate inner Pyrex solids in the translated GPU geometry` 
+
+       * easy, causing no problems because are removing a pointless Pyrex///Pyrex border
+       * BUT: requires suppression of Geant4 "microSteps" in *CRecorder* to facilitate history comparison  
+
+
+
+    **Currently using 3, with Opticks commandline option:**
+
+   ::
+
+       --skipsolidname 
+           NNVTMCPPMT_body_solid,
+           HamamatsuR12860_body_solid_1_9,
+           PMT_20inch_veto_body_solid_1_2
+
+.. comment 
+
+   notes/issues/ok_less_SA_more_AB.rst
+
+
+
+
+:small:`Less scattering with 100k input photons in Water, FIX: X4MaterialWater`
 ---------------------------------------------------------------------------------------------
 
 .. raw:: html
@@ -602,8 +619,94 @@ Outline
 
 .. comment
 
-   ana/wavelength.py  
+   ana/wavelength_plt.py  
 
+
+
+:i:`1M Wavelength Sample comparison hd0`
+-------------------------------------------
+
+
+:i:`1M Wavelength Sample comparison hd20`
+-------------------------------------------
+
+
+:i:`GScintillatorLib ICDF`
+---------------------------- 
+
+:small:`"Multi-resolution" GPU texture (3,4096,1) : 20x Resolution for 3x bins`
+-----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`GPU texture lookup`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        float scint_wavelength_hd20(curandStateXORWOW& rng) 
+        {
+            float u0 = curand_uniform(&rng); 
+            float wl ; 
+
+            constexpr float y0 = 0.5f/3.f ; 
+            constexpr float y1 = 1.5f/3.f ; 
+            constexpr float y2 = 2.5f/3.f ; 
+
+            if( u0 < 0.05f )
+            {   
+                wl = tex2D<float>(scint_tex, u0*20.f , y1 );    
+            }   
+            else if ( u0 > 0.95f )
+            {   
+                wl = tex2D<float>(scint_tex, (u0 - 0.95f)*20.f , y2 );    
+            }   
+            else
+            {   
+                wl = tex2D<float>(scint_tex, u0,  y0 );  
+            }   
+            return wl ; 
+        }
+        </pre>
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    156 NPY&lt;double&gt;* X4Scintillation::CreateGeant4InterpolatedInverseCDF(
+    157        const G4PhysicsOrderedFreeVector* ScintillatorIntegral,
+    158        unsigned num_bins, unsigned hd_factor, ..
+    161 )
+    164     double mx = ScintillatorIntegral->GetMaxValue() ;   
+    166     NPY&lt;double&gt;* icdf = NPY&lt;double&gt;::make(3, num_bins, 1 );
+    170     int nj = icdf->getShape(1);
+    180     double edge = 1./double(hd_factor) ;
+    ...
+    202     for(int j=0 ; j < nj ; j++)
+    203     {
+    204     double u_all = double(j)/double(nj) ;   
+    205     double u_lhs = double(j)/double(hd_factor*nj) ;
+    206     double u_rhs = 1. - edge + double(j)/double(hd_factor*nj) ;
+    207 
+    208     double energy_all = ScintillatorIntegral->GetEnergy( u_all*mx );
+    209     double energy_lhs = ScintillatorIntegral->GetEnergy( u_lhs*mx );
+    210     double energy_rhs = ScintillatorIntegral->GetEnergy( u_rhs*mx );
+    211 
+    212     double wavelength_all = h_Planck*c_light/energy_all/nm ;
+    213     double wavelength_lhs = h_Planck*c_light/energy_lhs/nm ;
+    214     double wavelength_rhs = h_Planck*c_light/energy_rhs/nm ;
+    215 
+    217     icdf->setValue(0, j, 0, 0,  wavelength_all );
+    218     icdf->setValue(1, j, 0, 0,  wavelength_lhs );
+    219     icdf->setValue(2, j, 0, 0,  wavelength_rhs );
+    220     }
+    221     return icdf ;
+    222 }
+    </pre>
+
+.. class:: small
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/extg4/X4Scintillation.cc
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/qudarap/qctx.h
 
 
 

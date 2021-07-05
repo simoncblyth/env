@@ -988,7 +988,16 @@
 
     LS Wavelength
     /env/presentation/ana/ls/LS_wavelength.png 1280px_720px
- 
+
+    1M Wavelength Sample comparison hd0
+    /env/presentation/ana/wavelength_cfplot/DsG4Scintillator_G4OpticksAnaMgr_Opticks_QCtxTest_hd0.png 1280px_720px 
+
+    1M Wavelength Sample comparison hd20
+    /env/presentation/ana/wavelength_cfplot/DsG4Scintillator_G4OpticksAnaMgr_Opticks_QCtxTest_hd20.png 1280px_720px 
+
+    GScintillatorLib ICDF 
+    /env/presentation/ana/GScintillatorLib/icdf.png 1280px_720px
+
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty
