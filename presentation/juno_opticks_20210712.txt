@@ -1,13 +1,11 @@
-
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: JUNO Geant4/Opticks Optical Simulation Matching
-   :description: (Jul 12 2021)
+   :description: (Jul 2021)
    :url: https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210712.html  
    :date: 12 July 2021
 
 .. include:: my_s5defs.txt
-
 
 
 .. comment
@@ -21,8 +19,6 @@
    * reemission wavelength cfplot with chi2 lower panel
    * reemission wavelength distrib on same plot at abslen, scatlen, reemprob 
    * comparison of RE/SC/AB/BT fractions as a function of wavelength for diameter photons
-
-
 
 ===================================================================================
 JUNO Opticks/Geant4 Optical Photon Simulation Matching
@@ -40,8 +36,7 @@ JUNO Opticks/Geant4 Optical Photon Simulation Matching
 
   Achieving+maintaining **equivalence** is time consuming, BUT:
 
-  * :red:`transformative performance benefits >1000x Geant4`   
-
+  * :r:`transformative performance benefits >1000x Geant4`   
 
 .. class:: small
 
@@ -51,6 +46,7 @@ JUNO Opticks/Geant4 Optical Photon Simulation Matching
 .. s5_talk:: 
 
     This talk is about achieving and maintaining **equivalence** between the implementations.
+
 
 
 :i:`Geant4OpticksWorkflow`
@@ -71,7 +67,56 @@ JUNO Opticks/Geant4 Optical Photon Simulation Matching
 
 
 
-Outline
+Feb 2021 Review : "More manpower to Opticks"
+-------------------------------------------------- 
+
+
+* :b:`Simon Blyth`, two "branches" of development throughout this year:
+
+  1. JUNO-Opticks simulation matching, **the focus of this presentation**
+  2. Opticks with all new : NVIDIA OptiX 7 API 
+
+     * demands reimplementation of all GPU code + GPU/CPU shared geometry model    
+
+.. raw:: html
+
+    <pre></pre>
+
+
+* :b:`Yuxiang Hu`, brave first JUNO-Opticks user
+   
+  * installed JUNO-Offline + Opticks onto new NVIDIA Quadro 8000 GPU workstation
+  * helped with finding rough edges in installation and usage
+  * finding hit discrepancies motivated work on simulation matching
+
+
+.. raw:: html
+
+    <pre></pre>
+
+
+* :b:`Wang Zike`,  non-JUNO : applying Opticks to huge Cerenkov water detectors
+
+  * found Geant4/Opticks discrepancy in Cerenkov wavelength range  (RINDEX vs standard) 
+
+.. raw:: html
+
+    <pre></pre>
+
+
+
+Helpful addition of active users, BUT: :r:`JUNO-Opticks still needs many more active users`
+
+* :b:`early adopter payback : drastically faster optical simulation`  
+
+
+.. s5_talk::
+
+    Manpower
+
+
+
+Outline 1 : Matching Machinery + Fixes 
 ----------------------------------------------------
 
 .. image:: /env/presentation/newtons-opticks.png 
@@ -82,29 +127,112 @@ Outline
 
 .. class:: small
 
-
     .. raw:: html
 
        <span>&nbsp;</span>
 
     * Simulation Matching Machinery 
 
-      * JUNO-Offline : Tools for Optical Photon Simulation Matching  
-      * Opticks : Tools for Optical Matching, Reemission Bookkeeping  
-      * G4OpticksRecorder : full details of Geant4 simulation passed to Opticks
-      * JUNO Offline DsG4Scintillation : Reemission Bookkeeping
-      * Comparing OK/G4 photon history counts for "tut_detsim.py gun" event
+      * p6: JUNO-Offline : Tools for Optical Photon Simulation Matching  
+      * p7: Opticks : Tools for Optical Matching, Reemission Bookkeeping  
+      * p8: G4OpticksRecorder : full details of Geant4 simulation passed to Opticks
+      * p9: JUNO Offline DsG4Scintillation : Reemission Bookkeeping
+      * p10: Comparing Opticks/Geant4 photon history counts : "tut_detsim.py gun" event
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
 
     * Examples of recently fixed issues
 
-      * OK:Photons not stopping at Tyvek, FIXED by adding explicit surfaces
+      * p11: Overview of JUNO-Opticks issues and fixes
+      * p12: Photons not stopping at Tyvek, FIXED by adding explicit surfaces
+      * p13: Prepare an input photon that misses PMTs for checking the Water
+      * p14,15,18: Opticks : excess AB, lack SA in innerWater (FIX: remove degenerates)
+      * p16,17: PMT Volume GDML plots showing degenerates
+      * p19: Less scattering with 100k input photons in Water, FIX: X4MaterialWater 
 
-    * Opticks : 1st JUNO Renders with NVIDIA OptiX 7 
 
-      * p12:Ray trace renders
-      * p13:Geometry factorization  
-      * p15:Ray trace times for various geometries   
+.. s5_talk::
 
+   Outline 1 
+
+
+Outline 2 : Scintillation + Cerenkov + Geometry
+------------------------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: small
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    * Scintillation Wavelength Matching 
+ 
+      * p20: Compare Geant4 and Opticks implementations
+      * p21: Explanations of following plots
+      * p22,23,24,25: wavelength comparison plots
+      * p26: Inverse Cumulative Distribution Function (ICDF)
+      * p27: "Multi-resolution" GPU texture (3,4096,1) : 20x Resolution for 3x bins
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    * Cerenkov Wavelength Matching 
+
+      * p28: JUNO Offline G4Cerenkov_modified BUG FIX 
+      * p29: Cerenkov Cone Angle + Beta Requirements reminder
+      * p30,31: Cerenkov distributions ASIS and SKIP_CONTINUE
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    * Remaining JUNO-Opticks Issues + Summary 
+
+      * p32: Remaining JUNO-Opticks Issues, TODO List
+      * p33-39: Look into slow geometry 
+      * p40: Back to OK/G4 photon history counts : small LS absorption excess ? 
+      * p41: LS properties as function of wavelength 
+      * p42: Summary and Links 
+
+.. s5_talk::
+
+    Outline 2 
+
+
+Outline 3 : Extras on Opticks NVIDIA OptiX 7 future
+------------------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: small
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    * Extras on Opticks future
+
+      * NVIDIA OptiX 7 : Entirely new thin API (Introduced Aug 2019)
+      * New "Foundry" Model : Sharef CPU/GPU Geometry Context
+      * 1st JUNO Opticks OptiX 7 Ray-trace
+      * Current JUNO Geometry : Auto-Factorized by "progeny digest"
+      * Vary Geom. Compare Render Times
+      * JUNO Geometry : OptiX 7 Ray Trace Times ~2M pixels : TITAN RTX
+      * JUNO ALL PMTs : 2M ray traced pixels in 0.0097 s : NVIDIA TITAN RTX, NVIDIA OptiX 7.0.0, Opticks
+      * LS properties as function of wavelenth
 
     .. raw:: html
  
@@ -113,10 +241,7 @@ Outline
 
 .. s5_talk::
 
-    The focus of this talk is recent progress on migrating Opticks
-    to work with the all new NVIDIA OptiX 7 API.
- 
-
+    Outline 3
 
 
 :small:`JUNO Offline : Tools for Optical Photon Simulation Matching`
@@ -145,6 +270,11 @@ Outline
    * :red:`focus on an issue by repeating a single photon` 
    * :red:`create parallel beam of offset photons to probe problem geometry` 
 
+
+.. s5_talk::
+
+   Offline Tools for matching 
+
  
 :small:`Opticks : Tools for Optical Photon Simulation Matching`
 ------------------------------------------------------------------------
@@ -171,6 +301,11 @@ Outline
    * *Opticks* bookkeeping treats reemission as "rebirth" of a fraction of the absorbed
 
      * **not treated as separate photons**
+
+.. s5_talk::
+
+   Opticks Tools for matching 
+
 
 
 :small:`G4OpticksRecorder : full details of Geant4 simulation passed to Opticks`
@@ -229,6 +364,14 @@ Outline
     </pre>
 
 
+.. s5_talk::
+
+   The G4OpticksRecorder passes Geant4 objects to Opticks  
+
+
+
+
+
 
 :small:`JUNO Offline DsG4Scintillation : Reemission Bookkeeping`
 ---------------------------------------------------------------------
@@ -261,6 +404,12 @@ Outline
    **CRecorder/CWriter : REJOIN reemission secondary tracks with ancestors** 
 
    * continue writing reemission secondary G4Track steps to original ``photon_id`` record 
+
+
+.. s5_talk::
+
+   Bookkeeping reconciles very different ways to implement reemission 
+
 
 
 :small:`Comparing OK/G4 photon history counts for "tut_detsim.py gun" event`
@@ -312,30 +461,67 @@ Outline
 
 
 
-:small:`Overview of JUNO-Opticks issues and fixes` 
+:small:`Overview of fixed JUNO-Opticks material property/geometry issues` 
 -----------------------------------------------------------------------------------------------------
 
-.. class:: small
+.. class:: normal
 
    * photons not stopping at Tyvek
 
-     * FIX: add explicit surfaces to GPU geometry corresponding to Geant4 implicit RINDEX-NoRINDEX boundaries 
+     * FIX: add explicit surfaces for GPU corresponding to implicit RINDEX-NoRINDEX  
+
+.. raw:: html
+
+   <pre></pre>
+
+.. class:: normal
 
    * excess BULK_ABSORB (AB), lack SURFACE_ABSORB (SA) in inner Water
 
-     * FIX: skip near degenerate(-0.001 mm) pointless Pyrex///Pyrex PMT solids from GPU geometry  
+     * FIX: skip near degenerate(-0.001 mm) pointless Pyrex///Pyrex PMT solids for GPU  
+     * :b:`must avoid degeneracy as Opticks material/surface properties are boundary based`
+
+.. raw:: html
+
+   <pre></pre>
+
+.. class:: normal
 
    * much less scattering in the Water
 
-     * FIX: get Geant4 calculated **RAYLEIGH** property for "Water" into *G4Material* so Opticks can use it  
+     * FIX: get Geant4 :r:`calculated` **RAYLEIGH** property for "Water" to GPU  
+     * :b:`Geant4 special casing of "Water" now matched with Opticks`
+
+.. raw:: html
+
+   <pre></pre>
+
+.. class:: normal
 
    * poor scintillation wavelength chi2 match in tails
 
      * FIX: adopt "multi-resolution" GPU texture to 20x resolution for tails
+     * :b:`Actually was non-issue : but the fix technique is useful anyhow`
+
+.. raw:: html
+
+   <pre></pre>
+
+.. class:: normal
+
+   * matching **G4Cerenkov_modified** deferred as found/investigated/reported Offline bug 
+ 
+     * :b:`Tao : bug fixed in "Pre1" already`      
 
 
 
-:small:`OK:Photons not stopping at Tyvek, FIXED by adding explicit surfaces` 
+.. s5_talk::
+
+   Some of the issues encountered
+
+
+
+:small:`Photons not stopping at Tyvek, FIXED by adding explicit surfaces` 
 -------------------------------------------------------------------------------------------------------
 
 .. class:: small
@@ -376,13 +562,19 @@ Outline
     </pre>
 
 
+.. s5_talk::
+
+    making the implicit explicit  
+
+
+
 :small:`Prepare an input photon that misses PMTs for checking the Water` 
 ---------------------------------------------------------------------------------------------
 
 .. raw:: html
 
     <pre class="mypretiny">
-    epsilon:ana blyth$ tds3gun.sh 1
+    epsilon:ana blyth$ tds3gun.sh 1      <span class="b"># IPython session using Opticks NumPy based analysis machinery  </span>
 
     In [1]: b.sel = "SI BT BT SA"    <b># selecting G4 photons that go direct to Tyvek</b>
 
@@ -399,7 +591,7 @@ Outline
 
     In [4]: p[0,0,:3] -= p[0,1,:3]*2220.   <b># back up the photon by 2220mm to position 10mm into the water</b>
 
-    In [5]: np.save("/tmp/check_innerwater.npy", p )
+    In [5]: np.save("/tmp/check_innerwater.npy", p )   <b># save photon array with 1 photon to .npy file </b>
     </pre>
 
 .. class:: small
@@ -409,12 +601,17 @@ Outline
 ::
 
    tut_detsim.py ... 
-       --opticks-mode 3     ## enable Geant4 + Opticks simulations
-       --opticks-anamgr     ## G4Track, G4Step --> G4OpticksRecorder
-       opticks              ## GtOpticksTool input photon "GenTool" 
+       --opticks-mode 3     # enable Geant4 + Opticks simulations
+       --opticks-anamgr     # G4Track, G4Step --> G4OpticksRecorder
+       opticks              # GtOpticksTool input photon "GenTool" 
        --input-photon-path /tmp/check_innerwater.npy
        --input-photon-repeat 100000
 
+
+
+.. s5_talk::
+
+    input photon generator good for targeting issues with particular histories or geometry 
 
 
 
@@ -425,7 +622,7 @@ Outline
 .. raw:: html
 
     <pre class="mypretiny">
-    In [2]: ab.his
+    In [2]: ab.his          <b># repr of opticks.ana.seq:SeqTable object </b>
     Out[2]: 
     ab.his
     .       seqhis_ana  cfo:sum  1:g4live:tds3gun   -1:g4live:tds3gun        c2        ab        ba 
@@ -460,6 +657,12 @@ Outline
 
     :bluebold:`SI BT BT BT SA` 
         *LS -> Acrylic -> Water -> Pyrex* where they are (SA) SURFACE_ABSORB-ed on Pyrex/Vacuum boundary 
+
+
+.. s5_talk::
+
+   Degenerate geometry is too close to be consistently distinguished  
+
 
 
 
@@ -507,13 +710,27 @@ Outline
     * :b:`All LPMTs : near degenerate Water///Pyrex and "pointless" same material Pyrex///Pyrex borders offset: 0.001mm`
 
 
+.. s5_talk::
+
+   Boundaries are where Opticks hangs material and surface info, so its vital for them to be consistent.  
+   Coincidenced/degeneracy can break the geometry. 
+
 
 :i:`gpmt Hamamatsu jun28` 
 ---------------------------
 
+.. s5_talk::
+
+    Two Pyrex solids differ only by a thickness of 0.001mm
+
+
 :i:`gpmt NNVT jun28`
 ------------------------
  
+.. s5_talk::
+
+    Two Pyrex solids differ only by a thickness of 0.001mm
+
 
 
 :small:`Opticks : excess AB, lack SA in innerWater : FIX remove degenerates` 
@@ -555,6 +772,10 @@ Outline
 
    notes/issues/ok_less_SA_more_AB.rst
 
+
+.. s5_talk::
+
+    Avoiding the degenerate
 
 
 
@@ -614,25 +835,161 @@ Outline
     hits between OK and G4 
 
 
-:i:`LS Wavelength`
----------------------
 
-.. comment
 
-   ana/wavelength_plt.py  
+:small:`Scintillation Wavelength : Compare Geant4 and Opticks implementations`
+---------------------------------------------------------------------------------------- 
+
+.. sidebar:: :small:`Opticks GPU equivalent`
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        // optixrap/cu/scintillationstep.h 
+        185 __device__ void
+        186 generate_scintillation_photon(Photon& p, 
+                ScintillationStep& ss, curandState& rng)
+        187 {   
+        ...
+        199   p.wavelength = 
+                 reemission_lookup(curand_uniform(&rng));
+        200     
+
+        // optixrap/cu/reemission_lookup.h
+        025 static __device__ __inline__ 
+            float reemission_lookup(float u)
+         26 {
+         27     float ui = u/reemission_domain.z + 0.5f ;
+         28     return tex2D(reemission_texture, ui, 0.5f );
+         29 }
+        </pre>
+
+.. raw:: html
+
+    <pre class="mypretiny">
+     200 G4VParticleChange*
+     201 DsG4Scintillation::PostStepDoIt(
+            const G4Track& aTrack, const G4Step& aStep)
+     208 {
+     ...
+     540     G4PhysicsOrderedFreeVector* ScintillationIntegral = NULL;
+     543     ScintillationIntegral =
+     544       (G4PhysicsOrderedFreeVector*)
+                   ((*theFastIntegralTable)(materialIndex));
+     ...
+     579    for(G4int i = 0 ; i < NumPhoton ; i++) {
+     ...
+     <span class="bluebold">583    G4double sampledEnergy;
+     586       G4double CIIvalue = G4UniformRand()*
+     587          ScintillationIntegral->GetMaxValue();
+     588       sampledEnergy=
+     589          ScintillationIntegral->GetEnergy(CIIvalue);  </span>
+
+     096 G4double G4PhysicsOrderedFreeVector::GetEnergy(G4double aValue)
+      97 {
+      98         G4double e;
+     ...
+     104           size_t closestBin = FindValueBinLocation(aValue);
+     105           e = LinearInterpolationOfEnergy(aValue, closestBin);
+     107         return e;
+     108 }
+     <span class="redbold">110 size_t G4PhysicsOrderedFreeVector::FindValueBinLocation(G4double aValue)
+     111 {
+     112         size_t bin = std::lower_bound(dataVector.begin(), dataVector.end(), aValue)
+     113                    - dataVector.begin() - 1;
+     114         bin = std::min(bin, numberOfNodes-2);
+     115         return bin;
+     116 } </span>
+    </pre>
+
+.. class:: small
+
+    * Geant4 : find ICDF bin then interpolate,   Opticks : direct linear interpolation on HD GPU texture : **4096 bins**
+
+.. s5_talk::
+
+    Compare implementations
+
+
+
+:small:`Scintillation Wavelength Matching : Explanations of following plots`
+-------------------------------------------------------------------------------
+
+* hd0 : simple 4096 bins
+* hd20 : 4096 bins with 20x bins for u < 0.05 and u > 0.95  
+* cudaFilterModePoint : linear interpolation disabled
+
+.. class:: small
+
+    +--------------------------------------------------+---------------------------+------------------------------------------------+
+    |  DsG4Scintillator compared with                  |  chi2                     |  note                                          |
+    +==================================================+===========================+================================================+
+    |  hd0_cudaFilterModePoint                         |   13.79                   | "artifact" issue in tails, terrible chi2       |
+    +--------------------------------------------------+---------------------------+------------------------------------------------+
+    |  hd0                                             |   1.00                    |   interpolation enabled, fixes chi2            |
+    +--------------------------------------------------+---------------------------+------------------------------------------------+
+    |  hd20                                            |   0.88                    |   effectively x20 bins, improves chi2          |
+    +--------------------------------------------------+---------------------------+------------------------------------------------+
+    |  hd20_cudaFilterModePoint                        |   1.29                    |  XHD "HD20" even OK without interpolation      |
+    +--------------------------------------------------+---------------------------+------------------------------------------------+
+
+
+    * GPU textures can reproduce very precisely inverse cumulative distribution functions by using high definition
+    * "hd20" multi-resolution technique can effect variable resolution suited to scintillator inverse-CDF  
+ 
+
+.. s5_talk::
+
+    Key for plots
+
+
+:i:`1M Wavelength Sample comparison hd0 no interpolation`
+------------------------------------------------------------
+
+.. s5_talk::
+
+    With standard 4096 bins, interpolation off
 
 
 
 :i:`1M Wavelength Sample comparison hd0`
 -------------------------------------------
 
+.. s5_talk::
+
+    With standard 4096 bins
+
+
 
 :i:`1M Wavelength Sample comparison hd20`
 -------------------------------------------
 
 
+.. s5_talk::
+
+    hd20 effectively increases resolution by a factor of 20 for the first and last five percent of the probability range  
+
+
+:i:`1M Wavelength Sample comparison hd20 no interpolation`
+------------------------------------------------------------
+
+
+.. s5_talk::
+
+    with interpolation switched off
+
+
+
 :i:`GScintillatorLib ICDF`
 ---------------------------- 
+
+.. s5_talk::
+
+    ICDF 
+
+
+
+
 
 :small:`"Multi-resolution" GPU texture (3,4096,1) : 20x Resolution for 3x bins`
 -----------------------------------------------------------------------------------
@@ -710,7 +1067,724 @@ Outline
 
 
 
-:small:`Current JUNO Geometry : Auto-Factorization by progeny digest`
+.. s5_talk::
+
+   Simple way to improve matching by putting the bins just where they are needed 
+
+
+
+
+
+
+:small:`JUNO Offline trunk G4Cerenkov_modified : BUG FIXED in "Pre1"`
+-----------------------------------------------------------------------
+
+.. sidebar:: |CK| :small:`photon gen.` : :small:`Spot the bug` 
+
+    .. class:: small 
+
+        **continue**-ing a **do-while** loop jumps to condition.
+
+        * -> :r:`stale or undefined sin2Theta used` 
+        
+        * repeated stale Cerenkov cone angle
+        * Cerenkov photons at disallowed wavelength 
+
+        ``sampleRI < BetaInverse`` :
+
+        * ``cosTheta > 1.``  (too slow for |CK|)
+        *  ``sin2Theta < 0.`` 
+
+        **do-while looping continues** naturally as always: 
+
+        ``rand*maxSin2 > sin2Theta``  
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    168 G4VParticleChange*
+    169 G4Cerenkov_modified::PostStepDoIt(
+          const G4Track& aTrack, const G4Step& aStep)
+    ...
+    252   G4double Pmin = Rindex->GetMinLowEdgeEnergy();
+    253   G4double Pmax = Rindex->GetMaxLowEdgeEnergy();
+    254   G4double dp = Pmax - Pmin;
+    ...
+    268   G4double maxCos = BetaInverse / nMax; 
+    270   G4double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
+    ...
+    315   for (G4int i = 0; i < fNumPhotons; i++) {
+    317 
+    318       G4double rand;
+    319       G4double sampledEnergy, sampledRI;
+    320       G4double cosTheta, sin2Theta;
+    ...
+    324       do {
+    325          rand = G4UniformRand();
+    326          sampledEnergy = Pmin + rand * dp;
+    327          sampledRI = Rindex->Value(sampledEnergy);
+    328 
+    <span class="redbold">329          // check if n(E) > 1/beta
+    330          if (sampledRI < BetaInverse) {
+    331              continue;
+    332          }</span>
+    333 
+    <span class="bluebold">334          cosTheta = BetaInverse / sampledRI;
+    341 
+    342          sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta);
+    343          rand = G4UniformRand();</span>
+    344 
+    346       } while (rand*maxSin2 > sin2Theta);
+    </pre>
+
+.. class:: small
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/examples/Geant4/CerenkovStandalone/G4Cerenkov_modifiedTest.cc
+
+
+.. s5_talk::
+
+    Bug 
+
+
+
+
+
+
+:small:`Cerenkov Cone Angle + Beta requirements reminder`
+-------------------------------------------------------------
+
+
+.. raw:: html
+
+    <pre class="mypretiny">
+                        
+                  \    B    /                        
+              \    .   |   .    /                            AC     ct / n          1         i       BetaInverse 
+          \    C       |       C    /             cos th =  ---- =  --------   =  ------ =   ---  =  -------------
+      \    .    \      |      /    .     /                   AB       bct           b n       n        sampledRI
+       .         \    bct    /          .
+                  \    |    /                                  BetaInverse
+                   \   |   /  ct                  maxCos  =  ----------------- 
+                    \  |th/  ----                                nMax                                                
+                     \ | /    n
+                      \|/
+                       A
+
+    Particle travels AB, light travels AC,  ACB is right angle 
+
+
+     Only get Cerenkov radiation when   
+
+            cos th <= 1 , 
+
+            beta >= beta_min = 1/n        BetaInverse <= BetaInverse_max = n 
+
+
+     At the small beta threshold AB = AC,   beta = beta_min = 1/n     eg for n = 1.333, beta_min = 0.75  
+
+            cos th = 1,  th = 0         light is in direction of the particle 
+
+
+     For ultra relativistic particle beta = 1, there is a maximum angle 
+
+            th = arccos( 1/n )      
+
+    </pre>
+
+
+.. s5_talk::
+
+    Reminder
+
+
+
+:i:`G4Cerenkov_modifiedTest_ASIS`
+--------------------------------------------
+
+.. s5_talk::
+
+    ASIS
+
+
+:i:`G4Cerenkov_modifiedTest_SKIP_CONTINUE`
+--------------------------------------------
+
+.. s5_talk::
+
+    SKIP CONTINUE
+
+
+
+
+
+:small:`Remaining JUNO-Opticks Issues, TODO List`
+---------------------------------------------------
+
+
+.. class:: small
+
+
+    **Expected Straightforward Updates**
+
+    * currently using **LocalG4Cerenkov1042** not **G4Cerenkov_modified** 
+
+      * add Opticks genstep collection to **G4Cerenkov_modified** 
+
+    * recent changes to **PMTParamSvc** **PMTSimParamSvc** 
+
+      * -> reimplementation of Opticks sensor efficiency collection  
+
+
+    **Uncertain Difficulty : JUNO Geometry Issues** 
+
+    * slow "Double Greek Temple" geometry issue from "fasteners"
+    * implement standalone test to understand leading causes of slow geometry:
+
+      1. complex CSG tree  
+      2. CSG subtraction of huge acrylic sphere (huge bounding box)
+       
+    * separately instanced siblings : 590x ``sStrutBallhead, uni1, base_steel, uni_acrylic3`` 
+
+      * unrelated volumes positioned together not being instanced together 
+      * simpler to change Opticks geometry translation than change source geometry  
+
+    Currently skipping ``LSExpDetectorConstruction::setupCD_Sticks`` to allow fair comparisons.
+
+
+.. s5_talk::
+
+    Remaining Issues
+
+
+
+:i:`[17]lLowerChimney_phys_all_00000`
+----------------------------------------
+
+.. class:: normal
+
+    * ``compare render times varying geometry included from same viewpoint``
+    * ``render time is good indicator for simulation time`` 
+
+
+.. s5_talk::
+
+    Same viewpoint
+
+
+
+
+:i:`[11]lLowerChimney_phys__8,__00000`
+-----------------------------------------
+
+.. class:: normal
+
+    ``590 "uni_acrylic3" Fasteners : cost 65x more than all 45.6k PMTs``
+
+
+.. s5_talk::
+
+    Only the slowest piece of geometry
+
+
+
+
+
+:i:`[4]lLowerChimney_phys__6,__00000`
+----------------------------------------
+
+.. class:: normal
+
+    * ``590 of these "uni1" render quickly`` 
+    * ``BUT : this shape is subtracted from "uni_acrylic3"`` 
+
+
+.. s5_talk::
+
+    effectively subtracted
+
+
+
+
+
+:i:`quicktime lAddition_uni_acrylic3`
+----------------------------------------
+
+* ``LV : lAddition,  Solid : uni_acrylic3``
+
+
+.. s5_talk::
+
+    Complex  
+
+    lFasteners_phys_5,_256.mp4
+
+
+:i:`quicktime 2 lAddition_uni_acrylic3`
+------------------------------------------
+
+.. sidebar::  uni_acrylic3 
+
+    .. class:: small
+
+        * Dark columns : "inner" surface from subtraction   
+
+        * "Double Greek Temple" : complex CSG tree  
+
+
+.. s5_talk::
+
+    a few seconds later
+
+
+
+:i:`gplt lAddition_uni_acrylic3`
+-------------------------------------
+
+.. class:: normal
+
+    * LV : lAddition,  Solid : **uni_acrylic3**, Class : AdditionAcrylicConstruction
+     
+
+
+.. raw:: html
+
+   <pre>
+   </pre>
+
+.. class:: normal
+
+   * :redbold:`Suspect : subtracting spherical segment, sagitta 5.68mm, is performance killer.`
+   * also complicated interior of Fastener irrelevant to optical photons
+
+.. raw:: html
+
+   <pre>
+
+
+
+
+
+
+
+
+
+
+
+   </pre>
+
+
+.. class:: normal
+
+    * dotted line is tangent to acrylic sphere circle touching at (0,0) in **uni_acrylic3** frame
+    * sagitta : 17820. - np.sqrt( np.power(17820.,2) - np.power(450.,2)) = 5.68 mm    
+
+.. class:: tiny
+
+    * 2d GDML matplotlib.pyplot with : opticks/ana/gplt.py opticks/analytic/GDML.py parser
+
+
+.. comment
+
+       https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.32.3562&rep=rep1&type=pdf
+
+       ana/sagitta.py 
+
+
+.. s5_talk::
+
+    The curve of the large sphere is difficult to see 
+
+
+
+
+
+
+:small:`Possible cause of slow geometry : Subtracting 17.82 m sphere`
+------------------------------------------------------------------------- 
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    092 AdditionAcrylicConstruction::makeAdditionLogical(){
+    ...
+    108         double ZNodes3[3];
+    109         double RminNodes3[3];
+    110         double RmaxNodes3[3];
+    111         ZNodes3[0] = 5.7*mm; RminNodes3[0] = 0*mm; RmaxNodes3[0] = 450.*mm;
+    112         ZNodes3[1] = 0.0*mm; RminNodes3[1] = 0*mm; RmaxNodes3[1] = 450.*mm;
+    113         ZNodes3[2] = -140.0*mm; RminNodes3[2] = 0*mm; RmaxNodes3[2] = 200.*mm;
+    114 
+    115         solidAddition_down = new G4Polycone("solidAddition_down",0.0*deg,360.0*deg,3,ZNodes3,RminNodes3,RmaxNodes3);
+    ...
+    <span class="redbold">122     solidAddition_up = new G4Sphere("solidAddition_up",0*mm,17820*mm,0.0*deg,360.0*deg,0.0*deg,180.*deg); </span>
+    123 
+    124     <span class="r">uni_acrylic1</span> = new G4SubtractionSolid("uni_acrylic1",solidAddition_down,<span class="r">solidAddition_up</span>,0,G4ThreeVector(0*mm,0*mm,+17820.0*mm));
+    125 
+    126     solidAddition_up1 = new G4Tubs("solidAddition_up1",120*mm,208*mm,15.2*mm,0.0*deg,360.0*deg);
+    127     <span class="r">uni_acrylic2</span> = new G4SubtractionSolid("uni_acrylic2",<span class="r">uni_acrylic1</span>,solidAddition_up1,0,G4ThreeVector(0.*mm,0.*mm,-20*mm)); 
+    128     solidAddition_up2 = new G4Tubs("solidAddition_up2",0,14*mm,52.5*mm,0.0*deg,360.0*deg);
+    129 
+    130     for(int i=0;i<8;i++)
+    131     {
+    132     uni_acrylic3 = new G4SubtractionSolid("uni_acrylic3",<span class="r">uni_acrylic2</span>,solidAddition_up2,0,G4ThreeVector(164.*cos(i*pi/4)*mm,164.*sin(i*pi/4)*mm,-87.5));
+    133     uni_acrylic2 = uni_acrylic3;
+    134 
+    135     }
+    136 
+    137 
+    </pre>
+
+
+.. class:: small
+
+    Subtraction of huge sphere from small polycone
+
+    * huge combined bounding box (bbox) for this boolean solid (repeated x590) 
+    * terrible CSG performance on GPU 
+  
+
+.. s5_talk::
+
+    Geant4 code
+
+
+
+:small:`Back to OK/G4 photon history counts : small LS absorption excess ?`
+----------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    epsilon:ana blyth$ tds3gun.sh 1    ## <b>seqhis: 64bit uint : 16x4bit step flags for each photon</b>
+    In [1]: ab.his[:20]   ##  OK:1    G4:-1     OK-G4   "c2" deviation                  
+
+    .  n           seqhis        a        b      a-b     (a-b)^2/(a+b)   label                ## optickscore/OpticksPhoton.h enum
+              ## hexstring
+    0000               42     <span class="r">1822     1721      101            2.88     SI AB</span>                ## <b>AB : BULK_ABSORB </b>
+    0001            7ccc2     1446     1406       40            0.56     SI BT BT BT SD       ## <b>SD : SURFACE_DETECT </b>
+    0002           7ccc62      672      666        6            0.03     SI SC BT BT BT SD    ## <b>SC : BULK_SCATTER </b>
+    0003            8ccc2      649      597       52            2.17     SI BT BT BT SA       ## <b>BT : BOUNDARY_TRANSMIT </b>
+    0004             8cc2      606      615       -9            0.07     SI BT BT SA          ## <b>SI : SCINTILLATION </b>
+    0005              452      538      536        2            0.00     SI RE AB             ## <b>RE : BULK_REEMIT </b>
+    0006           7ccc52      433      438       -5            0.03     SI RE BT BT BT SD    
+    0007              462      397      405       -8            0.08     SI SC AB
+    0008           8ccc62      269      262        7            0.09     SI SC BT BT BT SA
+    0009          7ccc662      242      222       20            0.86     SI SC SC BT BT BT SD
+    0010            8cc62      217      212        5            0.06     SI SC BT BT SA
+    0011          7ccc652      211      205        6            0.09     SI RE SC BT BT BT SD
+    0012           8ccc52      200      201       -1            0.00     SI RE BT BT BT SA
+    0013            8cc52      158      192      -34            3.30     SI RE BT BT SA
+    0014             4552      181      165       16            0.74     SI RE RE AB
+    0015               41      164      145       19            1.17     CK AB                ## <b>CK : CERENKOV</b> 
+    0016          7ccc552      135      160      -25            2.12     SI RE RE BT BT BT SD
+    0017             4cc2      130      115       15            0.92     SI BT BT AB
+    0018             4652      120      117        3            0.04     SI RE SC AB
+
+    .             TOTALS:    11684    11684                    52.92     52.92/63 =  0.84   pvalue:P[C2>]:0.814  1-pvalue:P[C2<]:0.186 
+   </pre>
+
+.. class:: small
+
+    * :b:`Opticks using 1nm step domain for all properties, populated by Geant4 interpolation`   
+    * perhaps not fine enough for fast moving LS absorption across peak region 410->430 nm 
+    * (but first increase statistics as excess not very significant)
+
+
+.. s5_talk::
+
+    This is the current status, after fixing lots of issues
+
+
+
+:i:`LS Wavelength`
+---------------------
+
+.. sidebar:: :small:`LS absorption length (red)`
+
+   .. class:: small
+
+       * varies quickly across wavelength peak 
+       * Opticks : 1nm domain bins (G4 interpolated)
+       * linearly interpolated via GPU texture lookups
+
+.. comment
+
+   ana/wavelength_plt.py  
+
+
+.. s5_talk::
+
+    Lots of variation over a small wavelength range 
+
+
+
+:small:`Summary and Links`
+----------------------------------------------------------------
+
+.. sidebar:: :small:`Next Steps`
+
+   .. class:: small
+
+      * find solution for slow "Fasteners"
+      * high statistics muon matching 
+      * performance measurements
+      * integrate OptiX 7 API work (unify "branches")
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 20px
+
+..
+
+  *Opticks* : state-of-the-art GPU ray traced optical simulation 
+  integrated with *Geant4*. :red:`Match with JUNO-Geant4 is converging.`
+  **More pioneer users welcome** 
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 1px
+
+
+  * :blue:`More JUNO-Opticks users essential to bring into production`  
+
+.. table::
+    :align: center
+
+    +--------------------------------------------------+-----------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks        | code repository                         |                   
+    +--------------------------------------------------+-----------------------------------------+
+    | https://github.com/simoncblyth/opticks/releases  | .zip .tar.gz  archives                  |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.bitbucket.io                 | presentations and videos                |
+    +--------------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                      | forum/mailing list archive              |
+    +--------------------------------------------------+-----------------------------------------+
+    | email:opticks+subscribe@groups.io                | subscribe to mailing list               |
+    +--------------------------------------------------+-----------------------------------------+ 
+
+
+
+.. s5_talk::
+
+    While it is great that Opticks is gaining many new users with lots 
+    of interest and activity from Geant4 and also now NVIDIA 
+    the downside of is that it takes times to support them all.
+
+
+
+
+
+
+"Extra" Slides Follow 
+------------------------------------
+
+.. s5_talk::
+
+    extras
+
+
+
+
+
+:small:`NVIDIA OptiX 7 : Entirely new thin API (Introduced Aug 2019)`
+---------------------------------------------------------------------------------
+
+.. sidebar:: :small:`GPU Ray Tracing APIs Converged`
+
+    .. class:: small
+
+        * 3 APIs (DXR,VKRay,OptiX7) over RTX 
+        * Driver updates :r:`independent of application`  
+        * Support new GPUs, performance improvements 
+
+.. class:: small
+
+    **NVIDIA OptiX 6->7** : :b:`drastically slimmed down`
+
+    * headers only (no library, just Driver) 
+    * low-level CUDA-centric thin API (Vulkan-ized)
+    * Minimal host state,  :red:`All host functions are thread-safe`
+    * GPU launches : explicit, asynchronous (CUDA streams)
+    * :strike:`near perfect scaling to 4 GPUs, for free` 
+    * :strike:`Shared CPU/GPU geometry context`
+    * :strike:`GPU memory management`
+    * :strike:`Multi-GPU support`
+
+
+.. class:: small
+
+    **Advantages**
+        More control/flexibility over everything. 
+
+        * Fully benefit from future GPUs
+        * :b:`Keep pace with state-of-the-art GPU ray tracing` 
+
+    **Disadvantages**
+        Demands much more developer effort than OptiX 6 
+
+        * :r:`Major re-implementation of Opticks required`
+
+
+.. s5_talk::
+
+   * OptiX 7 is an entirely new API, dropping many features used by Opticks
+   * re-implementation of large parts of Opticks is necessary
+   * i will cover recent progress on this shortly
+
+
+
+
+
+:small:`New "Foundry" Model : Shared CPU/GPU Geometry Context`
+-----------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`IAS < Inst < Solid < Prim < Node`
+
+    .. class:: small
+
+        * **Inst** : 4x4 tran. + **Solid** ref. ( **Inst** -> 1 **IAS** )
+        * **Solid** : 1 or more **Prim**  : ( **Solid** -> **GAS** )
+        * **Prim** : 1,3,7,15,31,... **Node**  : (**Prim** ~ *G4VSolid*) 
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        struct CSGFoundry
+        {
+           void upload(); <span class="redbold">// to GPU </span> 
+        ...
+           std::vector&lt;CSGSolid&gt;  solid ; // compounds (eg PMT)
+           std::vector&lt;CSGPrim&gt;   prim ;
+           std::vector&lt;CSGNode&gt;   node ; // shapes, operators
+
+           std::vector&lt;float4&gt; plan ; // planes
+           std::vector&lt;qat4&gt;   tran ; // CSG transforms
+           std::vector&lt;qat4&gt;   itra ; // inverse CSG transforms
+           std::vector&lt;qat4&gt;   inst ; // instance transforms
+
+           <span class="redbold">// entire geometry in four GPU allocations</span>
+           CSGPrim*    d_prim ; 
+           CSGNode*    d_node ; 
+           float4*     d_plan ; 
+           qat4*       d_itra ;    
+         };
+        </pre>
+
+    .. class:: small
+
+        :bluebold:`referencing by offset, count`  
+
+.. class:: small
+
+    * :r:`replaces geometry context dropped in OptiX 6->7` 
+    * array-based -> simple, inherent serialization + persisting 
+    * entire geometry in 4 GPU allocations 
+
+    **Simple intersect headers, common CPU/GPU types** 
+
+    * use with : pre-7, 7 + testing on CPU 
+
+
+
+.. raw:: html
+
+    <pre>
+    </pre>
+
+.. class:: small
+
+    :bluebold:`https://github.com/simoncblyth/CSG` "Foundry" model 
+        **csg_intersect_tree.h/csg_intersect_node.h/...**
+          :redbold:`simple headers common to pre-7/7/CPU-testing`
+
+    :bluebold:`https://github.com/simoncblyth/CSG_GGeo` 
+      Convert *Opticks/GGeo* -> *CSGFoundry*  
+
+    :bluebold:`https://github.com/simoncblyth/CSGOptiX` 
+      OptiX 7 + pre-7 rendering 
+
+
+.. raw:: html
+
+    <pre>
+
+    </pre>
+
+.. class:: tiny
+
+   **GAS** : Geometry Acceleration Structure
+
+   **IAS** : Instance Acceleration Structure
+   
+   **CSG** : Constructive Solid Geometry 
+
+
+.. s5_talk::
+
+   SMALL 
+   The Foundry geometry model comprises : Inst, Solid, Prim and Node
+
+   Starting from the bottom:
+
+   * the Node are CSG constituent shapes or operators
+   * the Prim reference a range of Node forming serialized complete binary trees
+   * the Solid reference one or more Prim
+   * the Inst reference one or more Solid 
+
+   **Prim:** are equivalent to G4VSolid
+
+   **Solid:** are compound Prim, each type of PMT corresponds to a Solid 
+
+   **Inst:** are 4x4 transforms with index refererences to Solid 
+
+   The model is designed to work with the OptiX 7 acceleration structures:
+
+   * Solid -> GAS (Geometry Acceleration Structure)
+   * Inst  -> IAS (Instance Acceleration Structure)
+
+   The JUNO geometry of 300,000 volumes is factorized into 10 Solid which 
+   are referenced from a single instance acceleration structure. 
+    
+   The array-based simplicity makes it fast to upload to GPU, 
+   with the entire geometry in 4 GPU allocations. 
+
+
+
+
+:i:`[9]cxr_i0_t8,_-1 : EXCLUDE SLOWEST`
+-----------------------------------------
+
+.. raw:: html
+
+    <pre>
+
+
+
+    </pre>
+
+
+.. sidebar:: :small:`1st JUNO Opticks OptiX 7 Ray-trace`
+
+    .. class:: small
+
+        Very New CSG "Foundry" CPU/GPU Geometry 
+
+        * :redbold:`purely analytic CSG, no triangles` 
+        * everything at default, no optimization
+
+
+.. s5_talk::
+
+   Here is one of the first JUNO renders with the OptiX 7 using the Foundry model.
+
+   Note that there are no triangles here, this is a purely analytic ray trace with 
+   the geometry that the simulation will use.
+
+
+
+:small:`Current JUNO Geometry : Auto-Factorized by "progeny digest"`
 ------------------------------------------------------------------------
 
 
@@ -720,685 +1794,216 @@ Outline
 
         * **ridx**: repeat index
         * **plc**: number of placements of the instance
-        * **vol**: number of volumes in the instance
-        * **name**: named after outer solid    
+        * **prim**: number of Prim/volumes in the instance
+        * **component**: numPrim:outerPrimName    
  
+        :r:`"progeny digest"` characterizes subtree of every volume-node  
+
 
 .. class:: tiny
 
     +----+------+-----+-------------------------------------------+---------------------------+
-    |ridx|   plc|  vol|   component name                          |  note                     |
+    |ridx|   plc| prim|   component                               |  note                     |
     +====+======+=====+===========================================+===========================+
-    |   0|     1| 3084|   3084:sWorld0x33e3370                    |  non-repeated remainder   |
+    |   0|     1| 3084|   3084:sWorld                             |  non-repeated remainder   |
     +----+------+-----+-------------------------------------------+---------------------------+
-    |   1| 25600|    5|   5:PMT_3inch_pmt_solid0x43c0a40          |                           |
+    |   1| 25600|    5|   5:PMT_3inch_pmt_solid                   |                           |
     +----+------+-----+-------------------------------------------+   4 types of PMT          +
-    |   2| 12612|    5|   5:NNVTMCPPMTsMask0x3c2c750              |                           |
+    |   2| 12612|    5|   5:NNVTMCPPMTsMask                       |                           |
     +----+------+-----+-------------------------------------------+                           +
-    |   3|  5000|    5|   5:HamamatsuR12860sMask0x3c39130         |                           |
+    |   3|  5000|    5|   5:HamamatsuR12860sMask                  |                           |
     +----+------+-----+-------------------------------------------+                           +
-    |   4|  2400|    5|   5:mask_PMT_20inch_vetosMask0x3c2e7c0    |                           |
+    |   4|  2400|    5|   5:mask_PMT_20inch_vetosMask             |                           |
     +----+------+-----+-------------------------------------------+---------------------------+
-    |   5|   590|    1|   1:sStrutBallhead0x34be280               |                           |
+    |   5|   590|    1|   1:sStrutBallhead                        |                           |
     +----+------+-----+-------------------------------------------+   4 parts of same         +
-    |   6|   590|    1|   1:uni10x3461bd0                         |   assembly, BUT not       |
+    |   6|   590|    1|   1:uni1                                  |   assembly, BUT not       |
     +----+------+-----+-------------------------------------------+   grouped as siblings     +
-    |   7|   590|    1|   1:base_steel0x35a1810                   |   (not parent-child)      |
+    |   7|   590|    1|   1:base_steel                            |   (not parent-child)      |
     +----+------+-----+-------------------------------------------+                           +
-    |   8|   590|    1|   1:uni_acrylic30x35932f0                 |                           |
+    |   8|   590|    1|   1:uni_acrylic3                          |                           |
     +----+------+-----+-------------------------------------------+---------------------------+
-    |   9|   504|  130|   130:sPanel0x4e71750                     |  repeated parts of TT     |
+    |   9|   504|  130|   130:sPanel                              |  repeated parts of TT     |
     +----+------+-----+-------------------------------------------+---------------------------+
 
 
 .. class:: small
 
-    Geom excludes "virtual" solids, via :small:`--skipsolidname NNVTMCPPMTsMask_virtual, HamamatsuR12860sMask_virtual, mask_PMT_20inch_vetosMask_virtual`
+   * **ridx:0** "remainder" Prim
 
-.. class:: small
+     * Prim that did not pass instancing criteria, on number of repeats + complexity
+     * TODO: tune criteria to instance more, reducing remainder Prim (Expect: 3084->~ 84)  
 
-   * **ridx:0** ~3000 of 3084 remainder volumes are repeated
+   * **ridx:1,2,3,4**
 
-     * ``(HBeam|ixture|anchor|Steel2|Plane|Wall|Receiver|Strut0x|sBar0x)``
-     * TODO: modify instancing criteria to get more instanced, reducing remainder volumes
+     * four types of PMT, all with 5 Prim 
 
    * **ridx:5,6,7,8**
 
-     * same assembly :redbold:`but not grouped together` : as siblings (not parent-child like PMTs) 
-     * TODO: implement grouping of siblings : 4 -> 1   
+     * same 590x assembly :redbold:`but not grouped together` : as siblings (not parent-child like PMTs) 
+     * TODO: implement instancing of siblings, combining 4 -> 1   
 
 
 .. class:: small
 
-   :redbold:`Increasing instancing : reduces memory for geometry + improves performance`
+   :redbold:`Increasing instancing : reduces memory for geometry -> improved performance`
 
 
 
-:small:`Notes on how the renders and tables were created`
-------------------------------------------------------------
+.. s5_talk::
 
-.. class:: small
+   To follow what follows you need to know a bit about the factorization.
+   
+   300,000 Geant4 volumes are factorized into 10 Foundry Solids, with a lot of Inst 
+   referencing them according to the number of placements of each solid.
+   
+   Repeat index zero corresponds to the remainder volumes with only a single placement.
+   These are volumes that were not repeated enough to get instanced.     
 
-    * ~/opticks/notes/misc/snapscan-varying-enabledmergedmesh-option.rst 
-
-    In summary:
-
-.. raw:: html
-
-    <pre class="mypretiny">
-    snapscan.sh --cvd 1 --rtx 1     # on P, create jpg snaps and metadata json 
-    snap.sh                         # on G, grab them
-    snap.py --rst                   # dump RST table 
-    </pre>
+   More instancing reduces memory for the geometry and improves performance, so 
+   some work to avoid having thousands of remainder volumes is needed.
 
 
-:small:`Current JUNO Geometry : Ray Trace Times : TITAN RTX (RTX ON, 24GB)`
+
+ 
+
+
+
+
+:i:`JUNO OptiX 7 : "Foundry" Geometry Scan`
+-----------------------------------------------
+
+.. sidebar:: :small:`Vary Geom. Compare Render Times`
+
+    .. class:: small
+
+        Fast render -> Fast simulation  
+
+
+.. s5_talk::
+
+    Varying the geometry and comparing render times is a simple way to 
+    find problem solids.
+
+    Because simulation is ray trace limited there is a direct correspondence
+    between fast rendering and fast simulation. 
+
+
+
+:small:`JUNO Geometry : OptiX 7 Ray Trace Times ~2M pixels : TITAN RTX`
 ----------------------------------------------------------------------------------
 
 .. sidebar:: :small:`Same viewpoint, vary GPU geometry`
 
    .. class:: small
 
-        * 1920x1080 render times (~2M pixels) 
-        * Geometry "factored" into 10 instances
-        * **3084:sWorld** is the "remainder" geometry
-        * ``-e`` option controls components
-        * tilde: ``-e ~8,``  **excludes** listed 
-        * **relative** compares to "ONLY PMT" 
+
+        * **-e** : controls components : "t" means ~ (NOT) 
+        * **time(s)** : GPU ray trace CUDA launch time
+        * **relative** : compares to "ONLY PMT" baseline
+
+        Very large range of times 1:600
                 
    .. class:: small
 
-        * very large range of times
-        * with **1:uni_acrylic** : 65-100x slower
-        * next offender is **3084:sWorld**
+        :r:`Table identifies slow geometry to fix :`
+
+        * **3084:sWorld** (too many non-instanced Prim)
+        * **1:uni_acrylic** (CSG sub. 35m diam. sphere)
+
+
+        Good performance for :b:`ONLY PMTs` :
+
+        * :b:`45,612 PMT instances handled without issue`  
+
+
 
 .. class:: tiny
 
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |idx|        -e|   time(s)|  relative|    enabled geometry description                                          |
-    +===+==========+==========+==========+==========================================================================+
-    |  0|        5,|    0.0020|    0.1162|    ONLY: 1:sStrutBallhead0x34be280                                       |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |  1|        7,|    0.0030|    0.1766|    ONLY: 1:base_steel0x35a1810                                           |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |  2|        9,|    0.0038|    0.2233|    ONLY: 130:sPanel0x4e71750                                             |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |  3|        4,|    0.0044|    0.2578|    ONLY: 5:mask_PMT_20inch_vetosMask0x3c2e7c0                            |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |  4|        6,|    0.0056|    0.3250|    ONLY: 1:uni10x3461bd0                                                 |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |  5|        3,|    0.0068|    0.3957|    ONLY: 5:HamamatsuR12860sMask0x3c39130                                 |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |  6|        1,|    0.0073|    0.4288|    ONLY: 5:PMT_3inch_pmt_solid0x43c0a40                                  |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |  7|        2,|    0.0074|    0.4345|    ONLY: 5:NNVTMCPPMTsMask0x3c2c750                                      |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |  8|   1,2,3,4|    0.0171|    1.0000|    ONLY PMT                                                              |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    |  9|        0,|    0.0511|    2.9827|    ONLY: 3084:sWorld0x33e3370                                            |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 10|       ~8,|    0.0882|    5.1466|    EXCL: 1:uni_acrylic30x35932f0                                         |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 11|        8,|    1.1154|   65.1113|    ONLY: 1:uni_acrylic30x35932f0                                         |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 12|       ~0,|    1.3928|   81.3006|    EXCL: 3084:sWorld0x33e3370                                            |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 13|       ~5,|    1.6898|   98.6400|    EXCL: 1:sStrutBallhead0x34be280                                       |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 14|       ~6,|    1.6900|   98.6520|    EXCL: 1:uni10x3461bd0                                                 |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 15|       ~7,|    1.6942|   98.8969|    EXCL: 1:base_steel0x35a1810                                           |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 16|       ~4,|    1.6949|   98.9376|    EXCL: 5:mask_PMT_20inch_vetosMask0x3c2e7c0                            |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 17|        ~0|    1.7078|   99.6925|    ALL                                                                   |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 18|       ~3,|    1.7103|   99.8371|    EXCL: 5:HamamatsuR12860sMask0x3c39130                                 |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 19|       ~9,|    1.7157|  100.1534|    EXCL: 130:sPanel0x4e71750                                             |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 20|       ~2,|    1.7285|  100.8994|    EXCL: 5:NNVTMCPPMTsMask0x3c2c750                                      |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
-    | 21|       ~1,|    1.7457|  101.9019|    EXCL: 5:PMT_3inch_pmt_solid0x43c0a40                                  |
-    +---+----------+----------+----------+--------------------------------------------------------------------------+
+
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |idx|        -e  |       time(s)    |      relative    |    enabled geometry description                                              |
+    +===+============+==================+==================+==============================================================================+
+    |  0|        9,  |        0.0017    |        0.1702    |    ONLY: 130:sPanel                                                          |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  1|        7,  |        0.0017    |        0.1714    |    ONLY: 1:base_steel                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  2|        6,  |        0.0019    |        0.1923    |    ONLY: 1:uni1                                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  3|        5,  |        0.0027    |        0.2780    |    ONLY: 1:sStrutBallhead                                                    |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  4|        4,  |        0.0032    |        0.3268    |    ONLY: 5:mask_PMT_20inch_vetosMask                                         |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  5|        1,  |        0.0032    |        0.3287    |    ONLY: 5:PMT_3inch_pmt_solid                                               |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  6|        2,  |        0.0055    |        0.5669    |    ONLY: 5:NNVTMCPPMTsMask                                                   |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  7|        3,  |        0.0074    |        0.7582    |    ONLY: 5:HamamatsuR12860sMask                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  8|:b:`1,2,3,4`|    :b:`0.0097`   |    :b:`1.0000`   |:b:`ONLY PMT`                                                                 |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  9|      t8,0  |        0.0099    |        1.0179    |    EXCL: 1:uni_acrylic3 3084:sWorld                                          |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 10|  :r:`0,`   |    :r:`0.1171`   |   :r:`12.0293`   |:r:`ONLY: 3084:sWorld`                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 11|  :r:`t8,`  |    :r:`0.1186`   |   :r:`12.1769`   |:r:`EXCL: 1:uni_acrylic3`                                                     |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 12|  :r:`t0,`  |    :r:`0.5278`   |   :r:`54.2066`   |:r:`EXCL: 3084:sWorld`                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 13|    :r:`8,` |    :r:`0.5310`   |   :r:`54.5298`   |:r:`ONLY: 1:uni_acrylic3`                                                     |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 14|       t3,  |        0.6017    |       61.7954    |    EXCL: 5:HamamatsuR12860sMask                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 15|       t2,  |        0.6043    |       62.0620    |    EXCL: 5:NNVTMCPPMTsMask                                                   |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 16|       t5,  |        0.6171    |       63.3787    |    EXCL: 1:sStrutBallhead                                                    |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 17|       t6,  |        0.6196    |       63.6301    |    EXCL: 1:uni1                                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 18|       t7,  |        0.6226    |       63.9458    |    EXCL: 1:base_steel                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 19|        t0  |        0.6240    |       64.0879    |    3084:sWorld                                                               |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 20|       t4,  |        0.6243    |       64.1169    |    EXCL: 5:mask_PMT_20inch_vetosMask                                         |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 21|       t9,  |        0.6335    |       65.0636    |    EXCL: 130:sPanel                                                          |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 22|       t1,  |        0.6391    |       65.6384    |    EXCL: 5:PMT_3inch_pmt_solid                                               |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
 
 
-.. class:: tiny 
+.. s5_talk::
 
-    **eg:** OpSnapTest --targetpvn lLowerChimney_phys --eye -1,-1,-1 -e 1,2,3,4 --nameprefix lLowerChimney_phys__1,2,3,4__ --rtx 1 --cvd 1 --tracer 
+   This table shows render times for 2M pixels varying the geometry included or excluded. 
+   First thing to note is the very large range, from thousandth of a second to seconds.
+
+   Relative compares to "ONLY PMT". 
+
+   The performance transitions clearly point to two Solids needing to be fixed.
+
+
+
+:white:`JUNO ALL PMTs : 2M ray traced pixels in 0.0097 s : NVIDIA TITAN RTX, NVIDIA OptiX 7.0.0, Opticks`
+------------------------------------------------------------------------------------------------------------
+
+.. s5_talk::
+
+    This is the ONLY PMTs render, with almost 50 thousand PMTs rendered in a hundredth of a second
 
 
 .. comment
 
-    snap.py --pagejpg
-    snap.py --refjpg 
+    :white:`[8]cxr_i0_1,2,3,4_-1 : ALL PMTS`
+    ------------------------------------------
 
+    .. s5_talk::
 
-:blue:`[0]lLowerChimney_phys__5,__00000`
-----------------------------------------
+       8 : ALL PMTS
 
-:blue:`[1]lLowerChimney_phys__7,__00000`
-----------------------------------------
 
-:blue:`[2]lLowerChimney_phys__9,__00000`
-----------------------------------------
 
-:blue:`[3]lLowerChimney_phys__4,__00000`
-----------------------------------------
 
-:blue:`[4]lLowerChimney_phys__6,__00000`
-----------------------------------------
 
-:blue:`[5]lLowerChimney_phys__3,__00000`
-----------------------------------------
-
-:blue:`[6]lLowerChimney_phys__1,__00000`
-----------------------------------------
-
-:blue:`[7]lLowerChimney_phys__2,__00000`
-----------------------------------------
-
-:blue:`[8]lLowerChimney_phys__1,2,3,4__00000`
----------------------------------------------
-
-:blue:`[9]lLowerChimney_phys__0,__00000`
-----------------------------------------
-
-:blue:`[10]lLowerChimney_phys__t8,__00000`
-------------------------------------------
-
-:blue:`[11]lLowerChimney_phys__8,__00000`
------------------------------------------
-
-:blue:`[12]lLowerChimney_phys__t0,__00000`
-------------------------------------------
-
-:blue:`[13]lLowerChimney_phys__t5,__00000`
-------------------------------------------
-
-:blue:`[14]lLowerChimney_phys__t6,__00000`
-------------------------------------------
-
-:blue:`[15]lLowerChimney_phys__t7,__00000`
-------------------------------------------
-
-:blue:`[16]lLowerChimney_phys__t4,__00000`
-------------------------------------------
-
-:blue:`[17]lLowerChimney_phys_all_00000`
-----------------------------------------
-
-:blue:`[18]lLowerChimney_phys__t3,__00000`
-------------------------------------------
-
-:blue:`[19]lLowerChimney_phys__t9,__00000`
-------------------------------------------
-
-:blue:`[20]lLowerChimney_phys__t2,__00000`
-------------------------------------------
-
-:blue:`[21]lLowerChimney_phys__t1,__00000`
-------------------------------------------
-
-
-
-
-:small:`Ray Trace Movies 1920x1080 (~2M pixels) Fly Around Fastener`
------------------------------------------------------------------------------------
-
-.. class:: tiny
-
-    /afs/ihep.ac.cn/users/b/blyth/flight/RoundaboutXY_XZ__lFasteners_phys__~0__8__/RoundaboutXY_XZ__lFasteners_phys__~0__8__.mp4  (56M) 
-
-.. class:: small
-
-    Fly around fastener: ``-e ~0`` (ALL GEOMETRY)   
-
-    * frame times 1.68-1.71s 
-    * lots of coincident surface speckle inside **uni_acrylic3** (large file size: 56M for 20s, 512 frames)
-    * **uni_acrylic3** : polycone with complemented (subtracted) 8 column "Greek Temple" 
-    * **uni1** : 8 column "Greek Temple" 
-
-.. raw:: html
-
-    <hr/>
-
-
-.. class:: tiny
-
-    /afs/ihep.ac.cn/users/b/blyth/flight/RoundaboutXY_XZ__lFasteners_phys__~8,__8__/RoundaboutXY_XZ__lFasteners_phys__~8,__8__.mp4  (15M)
-
-.. class:: small
-
-    Same flight as above but using option ``-e ~8,`` (EXCLUDE **uni_acrylic3**) 
-
-    * frame times 0.07-0.09s (small file size: 15M for 20s) :redbold:`> 20x faster with exclusion` 
-    * **interior of the fastener is irrelevant for optical photons** (:redbold:`do you agree ?`) 
-
-    * :bluebold:`TODO : implement a exterior only version of the fastener`, with **tut_detsim.py** option  
-
-.. raw:: html
-
-    <hr/>
-
-.. raw:: html
-
-    <pre class="mypretiny">
-    epsilon:blyth$ ggeo.py 5:9/ --names      ##  PV, LV and Solid names for volumes in ridx 5,6,7,8 
-    nrpo(  68488     5     0     0 )     lSteel_phys0x34c07b0       lSteel0x34c0680       93 sStrutBallhead0x34be280 
-    nrpo(  69078     6     0     0 )     lFasteners_phys0x3461f60   lFasteners0x3461e20   94 uni10x3461bd0 
-    nrpo(  69668     7     0     0 )     lUpper_phys0x35499e0       lUpper0x3549920       95 base_steel0x35a1810 
-    <span class="redbold">nrpo(  70258     8     0     0 )     lAddition_phys0x3593690    lAddition0x3593510    96 uni_acrylic30x35932f0</span> 
-    </pre>
-
-.. class:: tiny
-
-    * Movies created by ``opticks/bin/flight.sh`` using ``OpFlightPathTest`` and ``ffmpeg``
-
-
-.. comment
-
-    * **~0**  : ALL GEOMETRY (twiddle of zero gives all bits set)  **~0,** : EXCLUDE ridx:0  (comma indicates positional bit setting)
-
-    /Users/blyth/Movies/flight/RoundaboutXY_XZ__lFasteners_phys__~0__8__/RoundaboutXY_XZ__lFasteners_phys__~0__8__.mp4
-    /Users/blyth/Movies/flight/RoundaboutXY_XZ__lFasteners_phys__~8,__8__/RoundaboutXY_XZ__lFasteners_phys__~8,__8__.mp4
-
-
-:small:`Double Greek Temple`
-------------------------------
-
-.. sidebar:: :small:`Inside Greek Temple`
-
-    * lots of coincident surface speckle 
-    * dark columns : indicate inside surface (subtracted Greek Temple)
-
-
-
-:small:`tds-mu   (tds : tut_detsim.py)`
-------------------------------------------
-
-.. raw:: html
-
-    <pre class="mypretiny">
-    tds-mu () 
-    { 
-        tds --particles mu- --momentums 215000
-    }
-    tds () 
-    { 
-        local opts="--opticks-mode 1 --no-guide_tube --pmt20inch-polycone-neck --pmt20inch-simplify-csg --evtmax 2";
-        tds-elog-1;
-        tds-ectrl;
-        tds- $opts gun $*
-    }
-    tds-ectrl () 
-    { 
-        local msg="=== $FUNCNAME :";
-        local extra;
-        <span class="redbold">extra="--rngmax 100 --skipsolidname NNVTMCPPMTsMask_virtual,HamamatsuR12860sMask_virtual,mask_PMT_20inch_vetosMask_virtual -e ~8, --rtx 1 --cvd 1"; </span>
-        unset OPTICKS_EMBEDDED_COMMANDLINE_EXTRA;
-        if [ -n "$extra" ]; then
-            export OPTICKS_EMBEDDED_COMMANDLINE_EXTRA="$extra";
-            echo $msg OPTICKS_EMBEDDED_COMMANDLINE_EXTRA ${OPTICKS_EMBEDDED_COMMANDLINE_EXTRA};
-        fi;
-        ...
-    }
-    </pre>
-
-
-:small:`tds-mu : first runs with current geometry : usinge -e ~8,`
----------------------------------------------------------------------
-
-
-.. class:: small
-
-   * using ``-e ~8,`` : disabling the slow **uni_acrylic**
-   * TODO: avoid changing fastener, just remove interior of fastener
-
-.. raw:: html
-
-    <pre class="mypretiny">
-    tds-mu
-    ... 
-    2021-04-26 04:24:16.509 INFO  [198647] [OPropagator::launch@287] 0 : (0;52694115,1)  launch time 41.0858
-    2021-04-26 04:24:17.348 INFO  [198647] [OEvent::downloadHits@485]  nhit 15288267 --dbghit N hitmask 0x40 SD SURFACE_DETECT
-    2021-04-26 04:24:17.807 INFO  [198647] [OEvent::downloadHiys@519]  nhiy 15288267 --dbghit N hitmask 0x40 SD SURFACE_DETECT
-    2021-04-26 04:24:19.115 FATAL [198647] [G4Opticks::propagateOpticalPhotons@1152]  m_way_enabled num_hiys 15288267
-     junoSD_PMT_v2_Opticks::EndOfEvent.propagateOpticalPhotons  eventID 0 num_gensteps 108871 num_photons 52694115 num_hit 15288267 way_enabled 1 waymask 3
-    0      gp.x 14847.53   gp.y -1223.14   gp.z -12286.16  gp.R 19310.49   pmt 14494   CK|RE|SD|BT|EC       otk 1      oti0.00     bti 92.76    bp.x 13701.00   bp.y -1128.36   bp.z -11338.51  bp.R 17820.00  
-    1      gp.x -14271.81  gp.y 8741.88    gp.z 9608.44    gp.R 19298.38   pmt 4434    CK|RE|SD|BT|EX       otk 1      oti0.00     bti 91.83    bp.x -13178.16  bp.y 8072.09    bp.z 8872.99    bp.R 17820.00  
-
-
-    2021-04-26 04:26:25.326 INFO  [198647] [OPropagator::launch@287] 0 : (0;53856062,1)  launch time 46.6679
-    2021-04-26 04:26:26.188 INFO  [198647] [OEvent::downloadHits@485]  nhit 15959722 --dbghit N hitmask 0x40 SD SURFACE_DETECT
-    2021-04-26 04:26:26.628 INFO  [198647] [OEvent::downloadHiys@519]  nhiy 15959722 --dbghit N hitmask 0x40 SD SURFACE_DETECT
-    2021-04-26 04:26:27.899 FATAL [198647] [G4Opticks::propagateOpticalPhotons@1152]  m_way_enabled num_hiys 15959722
-     junoSD_PMT_v2_Opticks::EndOfEvent.propagateOpticalPhotons  eventID 1 num_gensteps 111694 num_photons 53856062 num_hit 15959722 way_enabled 1 waymask 3
-    0      gp.x 14847.53   gp.y -1223.22   gp.z -12285.85  gp.R 19310.30   pmt 14494   CK|RE|SD|BT|EC       otk 1      oti0.00     bti 92.76    bp.x 13701.15   bp.y -1128.45   bp.z -11338.31  bp.R 17820.00  
-    1      gp.x -14271.85  gp.y 8741.84    gp.z 9609.04    gp.R 19298.69   pmt 4434    CK|RE|SD|BT|EX       otk 1      oti0.00     bti 91.83    bp.x -13177.96  bp.y 8071.91    bp.z 8873.44    bp.R 17820.00  
-    </pre>
-
-.. class:: small
-
-    * 215 GeV muon giving : 52 - 54M photons,  ~15 M hits, GPU launch 41-46 s, 
-    * BUT > 2min between launches ?  How much is Geant4 ? GPU overhead ?
-    * NEXT: 
-
-      * profile whats happening between launches
-      * make connection between Opticks hits and hit collections 
-      * hit validations
-
-
-
-:small:`OptiX7 : "Foundry" based CSG geometry model : Solid/Prim/Node`
-------------------------------------------------------------------------
-
-.. sidebar:: :small:`Foundry : Solids + constituents`
-
-    .. raw:: html
-
-        <pre class="mypretiny">
-         23 struct Foundry
-         24 {
-        ...
-         97     void upload();  
-        ...
-        101     std::vector&lt;Solid&gt;  solid ;
-        102     std::vector&lt;Prim&gt;   prim ;
-        103     std::vector&lt;Node&gt;   node ;
-        104     std::vector&lt;float4&gt; plan ;
-        105     std::vector&lt;qat4&gt;   tran ;
-        106     std::vector&lt;qat4&gt;   itra ;
-        107 
-        108     Solid*   d_solid ;
-        109     <span class="redbold">Prim*    d_prim ; </span>
-        110     <span class="redbold">Node*    d_node ; </span>
-        111     <span class="redbold">float4*  d_plan ; </span>
-        112     qat4*    d_tran ;
-        113     <span class="redbold">qat4*    d_itra ; </span>
-        114 };
-        </pre>
-
-
-.. class:: small
-
-    **All solids+constituents created via Foundry (ref by index)**
-
-    * **Solid** : 1 or more **Prim**  : ( **Solid** -> **GAS** )
-    * **Prim** : 1 or more **Node**  : (**Prim** ~ *G4VSolid*) 
-
-      * (*nodeOffset*, *numNode*) -> SBT HitGroup record
-
-    * **Node** : CSG constituents 
-
-      * basis shapes : sphere, box3, cone, cylinder, ...
-      * boolean operators : union, intersection, difference
-
-    * **qat4** : scale-rotate-translate transform
-    * **float4** : planes (normal + distance to origin)
-
-    **Node** Examples:
-
-    * *Ellipsoid* : sphere with scale transform 
-    * *ConvexPolyhedron_Tetrahedron* : (*planeIdx*, *numPlanes*)
-
-    *Foundry::upload* 
-         :redbold:`all solids in geometry -> only four GPU allocations` 
-
-         * *d_prim*, *d_node*, *d_plan*, *d_itra*
-
-
-.. class:: tiny 
-
-    https://github.com/simoncblyth/OptiXTest/blob/main/Foundry.h
-    https://github.com/simoncblyth/OptiXTest/blob/main/qat4.h
-
-
-:small:`OptiX 7 Intersect Prim (numNode, nodeOffset) ~ HitGroupData`
------------------------------------------------------------------------
-
-.. sidebar:: :small:`CSG Node : 4 quads`
-
-    .. raw:: html 
-
-        <pre class="mypretiny">
-        union quad  // cross-type convenience
-        {
-           float4 f ;
-           int4   i ;
-           uint4  u ; 
-        };  
-
-        struct Node
-        {
-            quad q0 ;
-            quad q1 ; 
-            quad q2 ; 
-            quad q3 ; 
-
-            __device__ 
-           unsigned typecode() const { return q2.u.w ; } 
-        };
-
-
-        struct HitGroupData   // effectively Prim 
-        {
-            int numNode ;   
-            int nodeOffset ; 
-        };
-
-        </pre>
-
-
-.. raw:: html
-
-    <pre class="mypretiny">
-
-    150 extern "C" __global__ void __intersection__is()
-    151 {
-    152     HitGroupData* hg = (HitGroupData*)optixGetSbtDataPointer();
-    153     int numNode = hg->numNode ;
-    154     int nodeOffset = hg->nodeOffset ;
-    155 
-    156     <span class="redbold">const Node* node = params.node + nodeOffset ;</span>
-    157     const float4* plan = params.plan ;
-    158     const qat4*   itra = params.itra ;
-    159 
-    160     const float  t_min = optixGetRayTmin() ;
-    161     const float3 ray_origin = optixGetObjectRayOrigin();
-    162     const float3 ray_direction = optixGetObjectRayDirection();
-    163 
-    164     float4 isect ;
-    165     if(intersect_prim(isect, numNode, node, plan, itra, 
-                 t_min , ray_origin, ray_direction ))
-    166     {
-    167         const unsigned hitKind = 0u ;
-    168         unsigned a0, a1, a2, a3;
-    169 
-    170         a0 = float_as_uint( isect.x );
-    171         a1 = float_as_uint( isect.y );
-    172         a2 = float_as_uint( isect.z );
-    173         a3 = float_as_uint( isect.w ) ;
-    174 
-    175         optixReportIntersection( isect.w, hitKind, a0, a1, a2, a3 );
-    176     }
-    177 }
-    </pre>
-
-.. class:: small 
-
-   * **nodeOffset : points to first Node in tree of numNode** 
-
-
-
-
-
-:small:`CSG Parade Grid 1`
----------------------------
-
-
-:small:`CSG Boolean Parade Grid`
-----------------------------------
-
-
-
-"Extra" Background Slides Follow 
-------------------------------------
-
-
-:small:`CSG Complete Binary Tree Serialization -> simplifies GPU side`
----------------------------------------------------------------------------------
-
-.. sidebar:: Bit Twiddling Navigation
-
-    .. class:: small
-
-        * parent(i) = i/2 = i >> 1 
-
-        * leftchild(i) = 2*i = i << 1
-
-        * rightchild(i) = 2*i + 1 = (i << 1) + 1
-
-        * leftmost(height)  =  1 << height
-
-
-.. class:: small
-
-    Geant4 solid -> CSG binary tree (leaf primitives, non-leaf operators, 4x4 transforms on any node)
-
-    Serialize to **complete binary tree** buffer:
- 
-    * no need to deserialize, no child/parent pointers
-    * bit twiddling navigation :red:`avoids recursion`
-    * simple approach profits from small size of binary trees 
-    * BUT: very inefficient when unbalanced 
-
-    **Height 3 complete binary tree with level order indices:**
-.. raw:: html
-
-    <pre class="mypre">
-                                                       depth     elevation
-
-                         1                               0           3   
-
-              10                   11                    1           2   
-
-         100       101        110        111             2           1   
-                        
-     1000 1001  1010 1011  1100 1101  1110  1111         3           0   
-    </pre>
-    <hr/>
-
-.. class:: small
-
-    **postorder_next(i,elevation) = i & 1 ? i >> 1 : (i << elevation) + (1 << elevation) ;**   // from pattern of bits
- 
-.. class:: tiny
-
-   Postorder tree traverse visits all nodes, starting from leftmost, such that children 
-   are visited prior to their parents.
-
-
-.. s5_talk::
-
-    CSG implementation is greatly simplified by 
-    use of complete binary tree serialization.  
-
-    Boolean solids with large numbers of constituents cause a 
-    problem, because complete binary tree serialization is
-    very inefficient for unbalanced trees.
-
-    Tree balancing helps, but still there is a complexity limit.
-    G4Boolean abuse solids with hundreds of constituents would be 
-    better implemented with custom primitives.
-
-
-
-
-:small:`CSG Deep Tree : Positivize tree using De Morgan's laws`
-------------------------------------------------------------------------------------
-
-.. sidebar:: Positive form CSG Trees
-
-   .. class:: small
-
-       Apply deMorgan pushing negations down tree 
-
-       * **A - B -> A * !B**
-       * **!(A*B) -> !A + !B**
-       * **!(A+B) -> !A * !B**
-       * **!(A - B) -> !(A*!B) -> !A + B**
-
-       End with only UNION, INTERSECT operators, 
-       and some complemented leaves.
-
-       :red:`COMMUTATIVE -> easily rearranged`
-
-
-.. class:: small
-
-    1st step to allow balancing : **Positivize** : remove CSG difference **di** operators 
-
-
-.. raw:: html
-
-   <pre class="mypretiny">
-                                                        ...    ...
-
-                                                  un          cy                                        
-
-                                          un          cy                                                
-
-                                  un          cy                                                        
-
-                          un          cy                                                                
-
-                  un          cy                                                                        
-
-          di          cy                                                                                
-
-      cy      cy                                                 
-
-   </pre>
-
-   <pre class="mypretiny">
-                                                        ...    ...
-
-                                                  un          cy                                        
-
-                                          un          cy                                                
-
-                                  un          cy                                                        
-
-                          un          cy                                                                
-
-                  un          cy                                                                        
-
-          in          cy                                                                                
-
-      cy      !cy                                                 
-
-   </pre>
-
-
-
-.. s5_talk::
-
-   Positivized tree easier to work with 
-
-
-
-
-:i:`CSG Examples`
---------------------------
-
-
-.. s5_talk::
-
-    Some examples of CSG.
-
-    You might be able to see a problem in the top left. CSG modelling 
-    must avoid coincident surfaces in subtractions, otherwise you get spurious intersects.
 
 
 

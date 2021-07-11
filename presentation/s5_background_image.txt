@@ -992,11 +992,34 @@
     1M Wavelength Sample comparison hd0
     /env/presentation/ana/wavelength_cfplot/DsG4Scintillator_G4OpticksAnaMgr_Opticks_QCtxTest_hd0.png 1280px_720px 
 
+    1M Wavelength Sample comparison hd0 no interpolation
+    /env/presentation/ana/wavelength_cfplot/DsG4Scintillator_G4OpticksAnaMgr_Opticks_QCtxTest_hd0_cudaFilterModePoint.png 1280px_720px 
+
     1M Wavelength Sample comparison hd20
     /env/presentation/ana/wavelength_cfplot/DsG4Scintillator_G4OpticksAnaMgr_Opticks_QCtxTest_hd20.png 1280px_720px 
 
+    1M Wavelength Sample comparison hd20 no interpolation
+    /env/presentation/ana/wavelength_cfplot/DsG4Scintillator_G4OpticksAnaMgr_Opticks_QCtxTest_hd20_cudaFilterModePoint.png 1280px_720px 
+
     GScintillatorLib ICDF 
     /env/presentation/ana/GScintillatorLib/icdf.png 1280px_720px
+
+    G4Cerenkov_modifiedTest_ASIS
+    /env/presentation/G4Cerenkov_modifiedTest/BetaInverse_1.500_step_length_100000.000_ASIS/pngs/BetaInverse_1p5.png 1280px_720px 
+
+    G4Cerenkov_modifiedTest_SKIP_CONTINUE
+    /env/presentation/G4Cerenkov_modifiedTest/BetaInverse_1.500_step_length_100000.000_SKIP_CONTINUE/pngs/BetaInverse_1p5.png 1280px_720px 
+
+    gplt lAddition_uni_acrylic3
+    /env/presentation/ana/gplt/lAddition_uni_acrylic3.png 1280px_720px
+
+    quicktime lAddition_uni_acrylic3
+    /env/presentation/ana/gplt/lAddition_quicktime_half.png 1280px_720px
+
+    quicktime 2 lAddition_uni_acrylic3
+    /env/presentation/ana/gplt/lAddition_quicktime_2_half.png 1280px_720px
+
+
 
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
