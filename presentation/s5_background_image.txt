@@ -1001,6 +1001,9 @@
     1M Wavelength Sample comparison hd20 no interpolation
     /env/presentation/ana/wavelength_cfplot/DsG4Scintillator_G4OpticksAnaMgr_Opticks_QCtxTest_hd20_cudaFilterModePoint.png 1280px_720px 
 
+    2.82M Sample Cerenkov Wavelength comparison 
+    /env/presentation/ana/wavelength_cfplot/G4Cerenkov_modified_SKIP_CONTINUE_ck_photon.png 1280px_720px
+
     GScintillatorLib ICDF 
     /env/presentation/ana/GScintillatorLib/icdf.png 1280px_720px
 
@@ -1009,6 +1012,8 @@
 
     G4Cerenkov_modifiedTest_SKIP_CONTINUE
     /env/presentation/G4Cerenkov_modifiedTest/BetaInverse_1.500_step_length_100000.000_SKIP_CONTINUE/pngs/BetaInverse_1p5.png 1280px_720px 
+
+
 
     gplt lAddition_uni_acrylic3
     /env/presentation/ana/gplt/lAddition_uni_acrylic3.png 1280px_720px

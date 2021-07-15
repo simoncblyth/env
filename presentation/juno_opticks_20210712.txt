@@ -47,6 +47,31 @@ JUNO Opticks/Geant4 Optical Photon Simulation Matching
 
     This talk is about achieving and maintaining **equivalence** between the implementations.
 
+.. comment
+
+   JUNO Opticks/Geant4 Optical Photon Simulation Matching
+
+
+   Opticks replaces Geant4 optical photon simulation with an equivalent implementation
+   that benefits from state-of-the-art GPU ray tracing from NVIDIA OptiX.
+   All optically relevant aspects of Geant4 context must be translated+copied to GPU
+   
+   * geometry : solids, structure, material+surface properties
+   * generation : Cerenkov + Scintillation (using Gensteps from Geant4)
+   * propagation : Rayleigh scattering, absorption, reemission, boundary
+
+   Achieving+maintaining equivalence is time consuming, however this 
+   makes transformative performance benefits >1000x Geant4 ripe for the picking.
+
+
+
+
+
+
+
+
+
+
 
 
 :i:`Geant4OpticksWorkflow`
@@ -169,9 +194,6 @@ Outline 2 : Scintillation + Cerenkov + Geometry
 
 .. class:: small
 
-    .. raw:: html
-
-       <span>&nbsp;</span>
 
     * Scintillation Wavelength Matching 
  
@@ -190,6 +212,8 @@ Outline 2 : Scintillation + Cerenkov + Geometry
       * p28: JUNO Offline G4Cerenkov_modified BUG FIX 
       * p29: Cerenkov Cone Angle + Beta Requirements reminder
       * p30,31: Cerenkov distributions ASIS and SKIP_CONTINUE
+      * p32: Cerenkov wavelength comparison : First Look after bug fix 
+      * p33: Poor Chi2 Match : Few bins + interpolation difference ?
 
     .. raw:: html
 
@@ -197,11 +221,11 @@ Outline 2 : Scintillation + Cerenkov + Geometry
 
     * Remaining JUNO-Opticks Issues + Summary 
 
-      * p32: Remaining JUNO-Opticks Issues, TODO List
-      * p33-39: Look into slow geometry 
-      * p40: Back to OK/G4 photon history counts : small LS absorption excess ? 
-      * p41: LS properties as function of wavelength 
-      * p42: Summary and Links 
+      * p34: Remaining JUNO-Opticks Issues, TODO List
+      * p35-41: Look into slow geometry 
+      * p42: Back to OK/G4 photon history counts : small LS absorption excess ? 
+      * p43: LS properties as function of wavelength 
+      * p44: Summary and Links 
 
 .. s5_talk::
 
@@ -1211,12 +1235,69 @@ Outline 3 : Extras on Opticks NVIDIA OptiX 7 future
 :i:`G4Cerenkov_modifiedTest_SKIP_CONTINUE`
 --------------------------------------------
 
+.. class:: small
+
+    ``1.5/1.8 = .83, 1.5/1.62 = 0.92``
+
+
 .. s5_talk::
 
     SKIP CONTINUE
 
 
 
+:i:`2.82M Sample Cerenkov Wavelength comparison`
+--------------------------------------------------- 
+
+.. class:: small
+
+    ``FIRST LOOK, AFTER BUG FIX.  Fixed BetaInverse = 1.50``
+
+.. s5_talk::
+
+   GPU and CPU Debugging needed 
+
+
+
+:small:`Poor Cerenkov Chi2 Match : Few Bins + Interpolation difference ?`
+-----------------------------------------------------------------------------------------------------------
+
+
+.. raw:: html
+
+    <pre class="mypre">
+    In [1]: ri = np.load(os.path.join(kd, "GScintillatorLib/LS_ori/RINDEX.npy")) ; ri[:,0] *= 1e6
+    In [2]: ri_w = ri.copy() ; ri_w[:,0] = 1240./ri_w[:,0] ;  
+    In [2]: np.c_[ri, ri_w]
+    Out[2]:
+    array([[  1.55  ,   1.4781, 800.    ,   1.4781],
+           [  1.7951,   1.48  , 690.7886,   1.48  ],
+           [  2.105 ,   1.4842, 589.0764,   1.4842],
+           [  2.2708,   1.4861, 546.0703,   1.4861],
+           [  2.5511,   1.4915, 486.0629,   1.4915],
+           [  2.845 ,   1.4955, 435.8554,   1.4955],
+           [  3.0636,   1.4988, 404.7513,   1.4988],
+           [  4.1328,   1.5264, 300.038 ,   1.5264],
+           [  6.2   ,   1.6185, 200.    ,   1.6185],
+           [  6.526 ,   1.6176, 190.0092,   1.6176],
+           [  6.889 ,   1.527 , 179.9971,   1.527 ],
+           [  7.294 ,   1.5545, 170.0027,   1.5545],
+           [  7.75  ,   1.793 , 160.    ,   1.793 ],
+           [  8.267 ,   1.7826, 149.994 ,   1.7826],
+           [  8.857 ,   1.6642, 140.0023,   1.6642],
+           [  9.538 ,   1.5545, 130.0063,   1.5545],
+           [ 10.33  ,   1.4536, 120.0387,   1.4536],
+           [ 15.5   ,   1.4536,  80.    ,   1.4536]])
+   </pre>
+
+.. class:: small
+
+   * GPU and CPU code very similar
+   * RINDEX interpolation details likely to be cause of difference
+
+.. s5_talk::
+
+   Debugging needed 
 
 
 :small:`Remaining JUNO-Opticks Issues, TODO List`
@@ -1228,13 +1309,13 @@ Outline 3 : Extras on Opticks NVIDIA OptiX 7 future
 
     **Expected Straightforward Updates**
 
-    * currently using **LocalG4Cerenkov1042** not **G4Cerenkov_modified** 
+    * currently using **LocalG4Cerenkov1042** not **G4Cerenkov_modified**
 
-      * add Opticks genstep collection to **G4Cerenkov_modified** 
+      * add Opticks genstep collection to **G4Cerenkov_modified**
 
-    * recent changes to **PMTParamSvc** **PMTSimParamSvc** 
+    * recent changes to **PMTParamSvc** **PMTSimParamSvc**
 
-      * -> reimplementation of Opticks sensor efficiency collection  
+      * -> reimplementation of Opticks sensor efficiency collection
 
 
     **Uncertain Difficulty : JUNO Geometry Issues** 
@@ -1909,7 +1990,7 @@ Outline 3 : Extras on Opticks NVIDIA OptiX 7 future
         :r:`Table identifies slow geometry to fix :`
 
         * **3084:sWorld** (too many non-instanced Prim)
-        * **1:uni_acrylic** (CSG sub. 35m diam. sphere)
+        * **1:uni_acrylic3** (CSG sub. 35m diam. sphere)
 
 
         Good performance for :b:`ONLY PMTs` :

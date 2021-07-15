@@ -100,8 +100,6 @@ Opticks Presentations
 
 https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210712.html
 
-    **WIP : PRESENTATION IS NOT YET FINALIZED**
-
     JUNO-Opticks Simulation Matching (July 12, 2021)
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_vchep_2021_may19.html 
