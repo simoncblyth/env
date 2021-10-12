@@ -1,6 +1,6 @@
 .. meta::
    :title: Opticks vCHEP 2021
-   :description: JUNO, OptiX, Opticks
+   :description: (2021 May) JUNO, OptiX, Opticks
    :note: 8+5 min : 19 May 2021 from 16:40 to 16:53 (London Time)
 
 .. include:: my_s5defs.txt

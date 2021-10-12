@@ -1013,8 +1013,6 @@
     G4Cerenkov_modifiedTest_SKIP_CONTINUE
     /env/presentation/G4Cerenkov_modifiedTest/BetaInverse_1.500_step_length_100000.000_SKIP_CONTINUE/pngs/BetaInverse_1p5.png 1280px_720px 
 
-
-
     gplt lAddition_uni_acrylic3
     /env/presentation/ana/gplt/lAddition_uni_acrylic3.png 1280px_720px
 
@@ -1024,7 +1022,44 @@
     quicktime 2 lAddition_uni_acrylic3
     /env/presentation/ana/gplt/lAddition_quicktime_2_half.png 1280px_720px
 
+    ana/ck.py rejection sampling 
+    /env/presentation/ana/ck/ck_rejection_sampling.png 1280px_720px
 
+    ck_photon_enprop 100 very poor chi2
+    /env/presentation/ana/wavelength/energy_chi2_dom100_arg13_G4Cerenkov_modified_SKIP_CONTINUE_1M_ck_photon_enprop_1M.png 1280px_720px
+
+    ck_photon_expt 100 matched
+    /env/presentation/ana/wavelength/energy_chi2_dom100_arg15_G4Cerenkov_modified_SKIP_CONTINUE_1M_ck_photon_expt_1M.png 1280px_720px
+
+    ck_photon_enprop 1001 better but still poor chi2
+    /env/presentation/ana/wavelength/energy_chi2_dom1001_arg13_G4Cerenkov_modified_SKIP_CONTINUE_1M_ck_photon_enprop_1M.png 1280px_720px
+
+    ck_photon_expt 1001 matched
+    /env/presentation/ana/wavelength/energy_chi2_dom1001_arg15_G4Cerenkov_modified_SKIP_CONTINUE_1M_ck_photon_expt_1M.png 1280px_720px
+
+    test_GetAverageNumberOfPhotons_plot
+    /env/presentation/ana/ckn/test_GetAverageNumberOfPhotons_plot.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_plot_1.0000_2.0000
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_plot_1.0000_2.0000.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_plot_1.4536_1.7930
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_plot_1.4536_1.7930.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_plot_1.7000_1.8000
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_plot_1.7000_1.8000.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_difference_plot
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_difference_plot.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_cputime  
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_cputime.png 1280px_720px
+
+    PMTAngular_fig1
+    /env/presentation/ana/PMTAngular/PMTAngular_fig1.png 1280px_720px
+
+    PMTAngular_fig2
+    /env/presentation/ana/PMTAngular/PMTAngular_fig2.png 1280px_720px
 
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

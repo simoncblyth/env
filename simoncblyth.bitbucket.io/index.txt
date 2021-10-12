@@ -15,6 +15,19 @@ Publications
 ---------------
 
 
+https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html
+
+   *Integration of JUNO simulation framework with Opticks: GPU accelerated optical propagation via NVIDIA OptiX*
+
+   **CHEP 2021 Proceedings** : Simon Blyth, EPJ Web of Conferences 251, 03009 (2021)
+
+   * https://doi.org/10.1051/epjconf/202125103009
+
+   * https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html 
+
+   * https://www.epj-conferences.org/articles/epjconf/pdf/2021/05/epjconf_chep2021_03009.pdf
+
+
 https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
 
     *Meeting the challenge of JUNO simulation with Opticks: GPU optical photon acceleration via NVIDIA OptiX*
@@ -24,6 +37,8 @@ https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11
     * https://doi.org/10.1051/epjconf/202024511003
 
     * https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
+
+    
 
 
 https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
@@ -97,6 +112,14 @@ Opticks Presentations
 2021
 ~~~~~
 
+
+https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_cerenkov_20210902.html
+
+   JUNO Opticks : Summer Progress (Sep 2, 2021)
+
+https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210727.html
+
+    Notes on OptiX 6->7 migration : "Qudarap" pure CUDA photon generation (July 27, 2021, Virtual, H7)
 
 https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210712.html
 

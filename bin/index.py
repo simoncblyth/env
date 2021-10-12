@@ -29,27 +29,44 @@ srcbase
 """
 
 from __future__ import print_function
-import os, sys, logging, re, argparse
+import os, sys, logging, re, argparse, datetime
 from lxml import etree
 from dateutil.parser import parse
 log = logging.getLogger(__name__)
 
 
-mptn = re.compile("(?P<month>[a-z]*)(?P<year>\d{4})")
+moyrptn = re.compile("(?P<month>[a-z]*)(?P<year>\d{4})")
+
+ymdptn = re.compile("(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})")
 
 
-def parse_date(txt):
-    dt = parse(txt, default=None)
-    epo = int(dt.strftime("%s"))
-    #print("txt:%s dt:%s epo:%s" % (txt,dt,epo))
-    return epo
+def dt_to_epo(dt):
+    return int(dt.strftime("%s"))
+
+def extract_date_from_moyr(txt):
+    m = moyrptn.search(txt)
+    if not m: return None
+    moyr = m.string[m.start():m.end()]  
+    if moyr in ["2021","2020"]:
+        return None  
+    pass      
+    dt = parse(moyr, default=None)    
+    return dict(dt=dt, src="extract_date_from_moyr", moyr=moyr) 
+
+def extract_date_from_ymd(txt):
+    m = ymdptn.search(txt)
+    if not m: return None
+    ymd = m.string[m.start():m.end()]  
+    dt = datetime.datetime.strptime(ymd, "%Y%m%d")    
+    return dict(dt=dt, src="extract_date_from_ymd") 
 
 def extract_date_from_name(name):
-    mm = mptn.search(name)
-    if not mm: return 0
-    d = mm.groupdict()
-    txt = "%(month)s%(year)s" % d 
-    return parse_date(txt)
+    dt = extract_date_from_ymd(name)
+    if dt is None:
+       dt = extract_date_from_moyr(name)
+    pass
+    return dt 
+
 
 bptn = re.compile("\((?P<inbrk>.*)\)")
 def extract_date_from_desc(desc):
@@ -57,7 +74,23 @@ def extract_date_from_desc(desc):
     if not bm: return 0
     d = bm.groupdict()
     txt = "%(inbrk)s" % d  
-    return parse_date(txt)
+    dt = parse(txt, default=None)
+    return dict(dt=dt, src="extract_date_from_desc" )
+
+
+def extract_date(name, desc):
+    dt = None
+    if dt is None:
+       dt = extract_date_from_name(name)
+    pass
+    if dt is None:
+       dt = extract_date_from_desc(desc) 
+    pass
+    if dt is None or dt is 0:
+       dt = dict(dt=datetime.datetime.now(), src="extract_date_default")
+    pass
+    return dt 
+
 
 
 class Doc(object):
@@ -129,6 +162,7 @@ class Item(object):
         source RST 
 
         """
+        #log.info(name)
         html = Html(idx.htmlpath(name))
         rst = Rst(idx.rstpath(name))
 
@@ -137,15 +171,22 @@ class Item(object):
         meta.update(rst.meta)
         desc = meta.get("description", "")
 
-        date = extract_date_from_name(name)
-        if date == 0 and desc != "":
-            date = extract_date_from_desc(desc)
-        pass
+        dtd = extract_date(name, desc) 
+        dt = dtd["dt"]
+        src = dtd["src"]
+        moyr = dtd.get("moyr","-")      
+ 
+        #log.info("name %s desc %s dt %s src %s " % (name, desc, dt, src))
+
+        epo = dt_to_epo(dt)
 
         self.meta = meta 
         self.desc = desc
         self.name = name
-        self.date = date
+        self.dt = dt
+        self.epo = epo
+        self.src = src
+        self.moyr = moyr
 
     def _get_lines(self):
         l = []
@@ -157,6 +198,8 @@ class Item(object):
     def __str__(self):
         return "\n".join(self.lines) 
 
+    def __repr__(self):
+        return "%80s epo %15s dt %s src %s moyr %s " % (self.name, self.epo, self.dt.strftime("%c"), self.src, self.moyr ) 
 
 class Index(object):
     def __init__(self, base, srcbase):
@@ -182,7 +225,12 @@ class Index(object):
         names = list(filter(lambda p:p.endswith(".html") and p != "index.html",os.listdir(self.base)))
         names = list(map(lambda n:n[:-5], names))  # remove .html
         items = list(map(lambda name:Item(name, self), names ))
-        self.items = sorted(items, key=lambda item:item.date, reverse=True)
+        items = sorted(items, key=lambda item:item.epo, reverse=True)
+        for item in items:
+            print(repr(item))
+        pass 
+
+        self.items = items
 
     def htmlpath(self, name):
         return os.path.join(self.base, "%s.html" % name)

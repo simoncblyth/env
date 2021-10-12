@@ -1214,8 +1214,10 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210518} ; }
 
 
-presentation-iname(){  echo ${INAME:-juno_opticks_20210712} ; }
+#presentation-iname(){  echo ${INAME:-juno_opticks_20210712} ; }
+#presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210727} ; }
 
+presentation-iname(){  echo ${INAME:-juno_opticks_cerenkov_20210902} ; }
 
 
 
