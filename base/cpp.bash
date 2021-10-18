@@ -23,6 +23,54 @@ IDE
 * https://github.com/cppit/jucipp
 
 
+
+ctor brackets
+-----------------
+
+
+* http://www.cplusplus.com/forum/beginner/54056/
+
+If you have not provided a user-defined default constructor::
+
+    Stock* a = new Stock();
+
+will zero all the class members, whereas::
+
+    Stock* a = new Stock;
+
+will create an unitialized object.
+
+As soon as you provide a constructor, the () no longer results in zero init.
+You're responsible for init-ing all your own members.
+
+Technically, the form with the bracket is not triggering the default
+constructor. It's performing value initialization.
+
+See "Is there an implicit default constructor in C++?" (esp. the final post)
+http://stackoverflow.com/questions/563221/is-there-an-implicit-default-constructor-in-c
+
+Andy
+
+
+* http://stackoverflow.com/questions/563221/is-there-an-implicit-default-constructor-in-c
+
+::
+
+    new MyClass; // default-construction or no construction
+    new MyClass(); // member-wise value-initialization
+
+Note: If a user-declared default constructor does exist, then member-wise
+value-initialization simply calls that and stops.
+
+
+* this explains why with simple structs it is sometimes wise to 
+  avoid defining any ctor because it simplifies copying : instead
+  define an init method that has to be manually called 
+
+* this explains why some Opticks nnode make a point of not defining ctors 
+
+
+
 gcc programmatic backtrace
 ----------------------------
 
