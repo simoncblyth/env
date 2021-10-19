@@ -1078,6 +1078,9 @@
 
     StickPV_skip_acrylic
     /env/presentation/CSGOptiXSimulateTest/2/figs/positions_pvplt_0,2,3,4,5.png 1280px_720px
+    
+    20_figs_positions_pvplt_0,1,2,3_csgsubsubbug.png
+    /env/presentation/CSGOptiXSimulateTest/20/figs/positions_pvplt_0,1,2,3_csgsubsubbug.png 1280px_720px
 
     test_makeICDF_SplitBin_QCKTest_s2cn_plot.png
     /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/s2cn_plot.png 1280px_720px
@@ -1132,6 +1135,9 @@
     
     QCKTest_1.7920_en_plot.png
     /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.7920/en_plot.png 1280px_720px
+
+    QEventTest_planar_gensteps.png 
+    /env/presentation/QEventTest/planar_gensteps.png 1280px_720px
 
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
