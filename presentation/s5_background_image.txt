@@ -1062,23 +1062,26 @@
     /env/presentation/ana/PMTAngular/PMTAngular_fig2.png 1280px_720px
 
     StickMPL_all
-    /env/presentation/CSGOptiXSimulateTest/2/figs/positions_plt_0,1,2,3,4.png 1280px_720px
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_plt_0,1,2,3,4.png 1280px_720px
 
     StickPV_all
-    /env/presentation/CSGOptiXSimulateTest/2/figs/positions_pvplt_0,1,2,3,4.png 1280px_720px
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_pvplt_0,1,2,3,4.png 1280px_720px
 
     StickMPL_skip_steel
-    /env/presentation/CSGOptiXSimulateTest/2/figs/positions_plt_0,1,3,4,5.png 1280px_720px
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_plt_0,1,3,4,5.png 1280px_720px
 
     StickPV_skip_steel
-    /env/presentation/CSGOptiXSimulateTest/2/figs/positions_pvplt_0,1,3,4,5.png 1280px_720px
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_pvplt_0,1,3,4,5.png 1280px_720px
 
     StickMPL_skip_acrylic
     /env/presentation/CSGOptiXSimulateTest/2/figs/positions_plt_0,2,3,4,5.png 1280px_720px
 
     StickPV_skip_acrylic
     /env/presentation/CSGOptiXSimulateTest/2/figs/positions_pvplt_0,2,3,4,5.png 1280px_720px
-    
+   
+    StickPV_rod
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_pvplt_0,1,2.png 1280px_720px
+ 
     20_figs_positions_pvplt_0,1,2,3_csgsubsubbug.png
     /env/presentation/CSGOptiXSimulateTest/20/figs/positions_pvplt_0,1,2,3_csgsubsubbug.png 1280px_720px
 
@@ -1138,6 +1141,9 @@
 
     QEventTest_planar_gensteps.png 
     /env/presentation/QEventTest/planar_gensteps.png 1280px_720px
+
+    LHCb-RICH (Yunlong Li, Manchester University) : Opticks OpenGL Render (OKTest)
+    /env/presentation/LHCb_RICH/OKTest_rich1_new.png 1280px_720px
 
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

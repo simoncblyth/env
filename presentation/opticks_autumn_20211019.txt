@@ -38,6 +38,9 @@ Opticks Autumn Progress
       * :redbold:`TODO: confirm with simpler solids (elim. tree balancing)`  
       * :bluebold:`specific case fixable by simpler modelling`, :redbold:`general fix unclear` 
 
+
+.. comment
+
     * integrate QUDARap simulation(no-OptiX dep.) with CSGOptiX(7) geom
 
       * :bluebold:`modular approach : fine grained testing, easier updating, collab.`
@@ -600,6 +603,29 @@ Opticks Autumn Progress
 
 
 
+
+
+:i:`quicktime 2 lAddition_uni_acrylic3`
+------------------------------------------
+
+.. sidebar::  :small:`Fasteners : performance+validity` 
+
+    .. class:: small
+
+        * 2x "Greek Temple" : complex CSG tree 
+        * Opticks excess "SI BT BT BT BT AB" cf G4 
+
+        :redbold:`NEW: 2D geometry cross-section technique`
+
+
+.. s5_talk::
+
+    a few seconds later
+
+
+
+
+
 :small:`Planar 2d ray tracing to create CSG geometry cross-sections`
 ----------------------------------------------------------------------------------------------------- 
 
@@ -710,10 +736,56 @@ Opticks Autumn Progress
     </pre>
 
 
-:i:`StickMPL_all`
+``StickMPL_all``
 -----------------
 
-:i:`StickMPL_skip_steel`
+.. class:: small
+
+   * ``CSG geometry 2D cross-section`` 
+   * ``composed of ray-geometry intersection positions``
+   * ``global intersects transformed into local frame of target``
+
+
+
+:i:`gplt lAddition_uni_acrylic3`
+-------------------------------------
+
+.. class:: normal
+
+    * 2D plot created with GDML parser/plotter ana/gplt.py  (adhoc "manual" 3d->2d r-z)
+    * LV : lAddition,  Solid : **uni_acrylic3**, Class : AdditionAcrylicConstruction
+     
+
+.. raw:: html 
+
+   <pre>
+
+
+
+
+
+
+
+
+
+
+   </pre>
+
+.. class:: normal
+
+   * PREV: :redbold:`Suspected : subtracting sph. segment, sagitta 5.68mm, was performance killer.`
+
+     * this was causing huge bounding box, now fixed in OptiX 7 geometry 
+     * TODO: fix in OptiX < 7 geom, and measure performance for both
+
+       * overlarge bbox is expected to cause performance problem, so maybe... 
+
+
+
+
+
+
+``StickMPL_skip_steel``
 --------------------------
 
 .. raw:: html
@@ -732,17 +804,6 @@ Opticks Autumn Progress
    * ``cylinder with inner removed + cylinder rods are subtracted from cone``
    * ``two horizontal green lines just below (0,0) should not be there``  
 
-
-.. comment
-
-    :i:`StickMPL_skip_acrylic`
-    ---------------------------
-
-
-:i:`StickPV_all`
-----------------
-
-
 .. raw:: html
 
     <pre>
@@ -753,67 +814,60 @@ Opticks Autumn Progress
 
     </pre>
 
+.. class:: small
+
+   * ``Possible explanation of Opticks "SI BT BT BT BT AB" excess``
+   * ``Spurious boundaries may causes wrong Water/Acrylic properties used`` 
+
+
+
+
+:small:`AdditionAcrylicConstruction::makeAdditionLogical`
+------------------------------------------------------------------------- 
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    092 AdditionAcrylicConstruction::makeAdditionLogical(){
+    108         double ZNodes3[3];
+    109         double RminNodes3[3];
+    110         double RmaxNodes3[3];
+    111         ZNodes3[0] = 5.7*mm; RminNodes3[0] = 0*mm; RmaxNodes3[0] = 450.*mm;
+    112         ZNodes3[1] = 0.0*mm; RminNodes3[1] = 0*mm; RmaxNodes3[1] = 450.*mm;
+    113         ZNodes3[2] = -140.0*mm; RminNodes3[2] = 0*mm; RmaxNodes3[2] = 200.*mm;
+    115         solidAddition_down = new G4Polycone("solidAddition_down",0.0*deg,360.0*deg,3,ZNodes3,RminNodes3,RmaxNodes3);
+    ...
+    <span class="redbold">122     solidAddition_up = new G4Sphere("solidAddition_up",0*mm,17820*mm,0.0*deg,360.0*deg,0.0*deg,180.*deg); </span>
+    123 
+    124     <span class="r">uni_acrylic1</span> = new G4SubtractionSolid("uni_acrylic1",solidAddition_down,<span class="r">solidAddition_up</span>,0,G4ThreeVector(0*mm,0*mm,+17820.0*mm));
+    125 
+    126     solidAddition_up1 = new G4Tubs("solidAddition_up1",120*mm,208*mm,15.2*mm,0.0*deg,360.0*deg);
+    127     <span class="r">uni_acrylic2</span> = new G4SubtractionSolid("uni_acrylic2",<span class="r">uni_acrylic1</span>,solidAddition_up1,0,G4ThreeVector(0.*mm,0.*mm,-20*mm)); 
+    128     solidAddition_up2 = new G4Tubs("solidAddition_up2",0,14*mm,52.5*mm,0.0*deg,360.0*deg);
+    130     for(int i=0;i<8;i++)
+    131     {
+    132     uni_acrylic3 = new G4SubtractionSolid("uni_acrylic3",<span class="r">uni_acrylic2</span>,solidAddition_up2,0,G4ThreeVector(164.*cos(i*pi/4)*mm,164.*sin(i*pi/4)*mm,-87.5));
+    133     uni_acrylic2 = uni_acrylic3;
+    135     }
+    </pre>
+
 
 .. class:: small
 
-   * ``blue/green speckle below is from coincident face issue``
-   * ``as Opticks geometry is surface based coincident faces must be avoided``
+    Start from Polycone (thin cylinder+large cone) and subtract:
 
-:i:`StickPV_skip_steel`
---------------------------
+    1. "sagitta" of huge acrylic sphere
+    2. cylinder with inner radius (tube/ring shape) 
+    3. 8x cylinder rods   
 
+    * :bluebold:`1 : subtracting sliver of Acrylic from Acrylic cylinder : no physical effect ?`
+    * :redbold:`2+3 : pointless subtracting holes for daughter volumes ?`  
 
-.. comment
-
-    :i:`StickPV_skip_acrylic`
-    ---------------------------
-
-
-
-
-:i:`quicktime 2 lAddition_uni_acrylic3`
-------------------------------------------
-
-.. sidebar::  uni_acrylic3 
-
-    .. class:: small
-
-        * Dark columns : "inner" surface from subtraction   
-
-        * "Double Greek Temple" : complex CSG tree  
-
+    :bluebold:`JUST the Polycone should work fine : and give same results`
 
 .. s5_talk::
 
-    a few seconds later
-
-
-
-:i:`gplt lAddition_uni_acrylic3`
--------------------------------------
-
-.. class:: normal
-
-    * LV : lAddition,  Solid : **uni_acrylic3**, Class : AdditionAcrylicConstruction
-     
-
-
-.. raw:: html 
-
-   <pre>
-   </pre>
-
-.. class:: normal
-
-   * :redbold:`Suspect : subtracting spherical segment, sagitta 5.68mm, is performance killer.`
-   * also complicated interior of Fastener irrelevant to optical photons
-
-.. raw:: html 
-
-   <pre>
-
-
-
+    Geant4 code
 
 
 
@@ -872,6 +926,140 @@ Opticks Autumn Progress
 * .
 * ``close look at intersect Z positions : see jump --->``
 * ``show enlarged C, Z positions   A - (B - C)``  
+
+
+
+
+
+.. comment
+
+
+    ``StickPV_all``
+    ----------------
+
+
+    .. raw:: html
+
+        <pre>
+
+
+
+
+
+        </pre>
+
+
+    .. class:: small
+
+       * ``blue/green speckle below is from coincident face issue``
+       * ``as Opticks geometry is surface based coincident faces must be avoided``
+
+
+
+.. comment
+
+    ``StickPV_skip_steel``
+    --------------------------
+
+
+``StickPV_rod``
+-------------------------
+
+.. class:: small
+
+   ``Mind the gap:``
+
+   * ``is it important ?`` 
+
+
+
+:small:`Geant4 Geometry : is the cavity between acrylic and screw important ?`
+----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Geometry Modelling Experience`
+
+    .. class:: small
+
+        Geant4: Each volume is created by describing its shape and its physical
+        characteristics, and then placing it inside a containing volume.
+
+        * daughter material replaces that of parent
+        * :redbold:`favor volume hierarchy over complex CSG` 
+        * CSG inherently limited, can be expensive/buggy
+        * simple CSG avoids problems: 
+
+          * spurious intersects, poor performance, problem Opticks translation  
+
+        **DO NOT subtract CSG holes for daughters:**
+
+        1. not necessary
+        2. can easily double expense with no benefit
+        3. can cause bugs 
+
+
+.. class:: small 
+
+    **If gap between acrylic cone and steel rods is important**
+
+    Model with hierarchy of 3 volumes:
+
+    * Outer Volume : Acrylic polycone 
+    * Middle Volume : Water Cylinders 
+    * Inner Volume : Steel Rods 
+
+    **NB NO CSG subtraction for the water cylinders or steel rods**
+
+
+    **If gap between acrylic cone and steel rods is not important**
+    
+    Model with hierarchy of 2 volumes:
+
+    * Outer Volume : Acrylic polycone (**without** holes for rods)
+    * Inner Volume : Steel Rods 
+
+    **NB NO CSG subtraction for the steel rods**
+
+
+
+.. class:: tiny
+
+    * https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/GettingStarted/geometryDef.html
+
+    
+
+.. comment
+
+    :i:`StickPV_skip_acrylic`
+    ---------------------------
+
+
+
+:small:`How to handle Opticks CSG sub-sub-bug A-(B-C)`
+---------------------------------------------------------- 
+
+.. class:: small
+
+    **Multiple non-interfering CSG subtractions work fine**  
+
+    * problem arises from >1 subtractions "on top of each other", 
+ 
+      * colocation prevents coincident faces avoidance trick of "nudge expanding" the subtracted solid   
+      * TODO: try without the nudge expansion : expect will just shift the spurious intersects 
+ 
+    **CSG Subtraction of a "pipe" cylinder (with inner rmin>0) : gives spurious inner intersects**
+
+    * TODO: test with simpler solids, to eliminate tree balancing  
+    * problem due to "pipe" being implemented as CSG subtraction 
+    * could avoid by implementing pipe directly as primitive 
+
+      * significant work, but doable, :redbold:`not a general fix`  
+
+    **Problem Arises from inherent CSG fragility regarding coincident faces**  
+
+    * general solution unknown 
+
+      * need to seek inspiration from other peoples CSG implementations
+      * not aware of any other GPU implementations however 
 
 
 
@@ -1090,65 +1278,66 @@ Opticks Autumn Progress
 
 
 
+.. comment
 
-New Opticks Packages (OptiX >= 7.0)
--------------------------------------
+    New Opticks Packages (OptiX >= 7.0)
+    -------------------------------------
 
-.. class:: small
+    .. class:: small
 
-    **CSG**
-        Basis geometry model 
+        **CSG**
+            Basis geometry model 
 
-    **CSG_GGeo**
-        Translation of *GGeo* into *CSG* model  
+        **CSG_GGeo**
+            Translation of *GGeo* into *CSG* model  
 
-    **QUDARap**
-        Simulation Implementation, excluding geometry
+        **QUDARap**
+            Simulation Implementation, excluding geometry
 
-        * Scintillation generation
-        * Cerenkov generation  
+            * Scintillation generation
+            * Cerenkov generation  
 
-    **CSGOptiX**
-        OptiX 7 geometry, depending on:
+        **CSGOptiX**
+            OptiX 7 geometry, depending on:
 
-        * *CSG* : geometry model 
-        * *QUDARap* :simulation   
+            * *CSG* : geometry model 
+            * *QUDARap* :simulation   
 
 
-QUDARap : new Heart of Opticks Simulation
----------------------------------------------
+    QUDARap : new Heart of Opticks Simulation
+    ---------------------------------------------
 
-.. class:: small
-  
-    * :redbold:`More modular approach than old OptiXRap/cu/generate.cu`
-    * simple CPU/GPU "counterpart pattern" organization 
+    .. class:: small
+      
+        * :redbold:`More modular approach than old OptiXRap/cu/generate.cu`
+        * simple CPU/GPU "counterpart pattern" organization 
 
-    +-------------------------------+-----------------+-----------------+
-    |                               | CPU             | GPU header      |
-    +===============================+=================+=================+
-    | context steering              | QSim.hh         |  qsim.h         |  
-    +-------------------------------+-----------------+-----------------+
-    | curandState setup             | QRng.hh         |  qrng.h         |
-    +-------------------------------+-----------------+-----------------+
-    | property interpolation        | QProp.hh        |  qprop.h        |
-    +-------------------------------+-----------------+-----------------+
-    | event handling                | QEvent.hh       |  qevent.h       |
-    +-------------------------------+-----------------+-----------------+
-    | Cerenkov generation           | QCerenkov.hh    |                 |
-    +-------------------------------+-----------------+-----------------+
-    | Scintillation generation      | QScint.hh       |                 |
-    +-------------------------------+-----------------+-----------------+
-    | texture handling              | QTex.hh         |                 |
-    +-------------------------------+-----------------+-----------------+
-    
-    1. CPU : data access, uploads/downloads, prepares GPU instance with device pointers 
-    2. GPU : simple header 
+        +-------------------------------+-----------------+-----------------+
+        |                               | CPU             | GPU header      |
+        +===============================+=================+=================+
+        | context steering              | QSim.hh         |  qsim.h         |  
+        +-------------------------------+-----------------+-----------------+
+        | curandState setup             | QRng.hh         |  qrng.h         |
+        +-------------------------------+-----------------+-----------------+
+        | property interpolation        | QProp.hh        |  qprop.h        |
+        +-------------------------------+-----------------+-----------------+
+        | event handling                | QEvent.hh       |  qevent.h       |
+        +-------------------------------+-----------------+-----------------+
+        | Cerenkov generation           | QCerenkov.hh    |                 |
+        +-------------------------------+-----------------+-----------------+
+        | Scintillation generation      | QScint.hh       |                 |
+        +-------------------------------+-----------------+-----------------+
+        | texture handling              | QTex.hh         |                 |
+        +-------------------------------+-----------------+-----------------+
+        
+        1. CPU : data access, uploads/downloads, prepares GPU instance with device pointers 
+        2. GPU : simple header 
 
-    Aims of counterpart code organization:
+        Aims of counterpart code organization:
 
-    * :redbold:`facilitate fine-grained modular simulation testing` 
-    * keep bulk of GPU code in simple to test headers (some can be tested on CPU)
-    * *QUDARap* does not depend on OptiX -> more flexible -> simpler testing    
+        * :redbold:`facilitate fine-grained modular simulation testing` 
+        * keep bulk of GPU code in simple to test headers (some can be tested on CPU)
+        * *QUDARap* does not depend on OptiX -> more flexible -> simpler testing    
 
 
 
@@ -1176,17 +1365,17 @@ QUDARap : new Heart of Opticks Simulation
            * https://github.com/simoncblyth/np/
 
 
-QUDARap-CSGOptiX integration
--------------------------------
+    QUDARap-CSGOptiX integration
+    -------------------------------
 
-.. class:: small 
+    .. class:: small 
 
-   **CSGOptiX** focus on geomerty  
+       **CSGOptiX** focus on geomerty  
 
-   * uses *CSG/CSGFoundry* geometry model  
-   * high level simulation, details from *QUDARap* via CUDA headers *qsim.h* etc..
-   
-   Minimimize non-geometry code here, as OptiX dependency demands a very specific organization.
+       * uses *CSG/CSGFoundry* geometry model  
+       * high level simulation, details from *QUDARap* via CUDA headers *qsim.h* etc..
+       
+       Minimimize non-geometry code here, as OptiX dependency demands a very specific organization.
 
     
 .. comment
@@ -1387,6 +1576,12 @@ QUDARap-CSGOptiX integration
 
     ck_photon_expt 1001 matched
     -----------------------------
+
+
+
+`LHCb-RICH (Yunlong Li, Manchester University) : Opticks OpenGL Render (OKTest)`
+--------------------------------------------------------------------------------------------
+
 
 
 
