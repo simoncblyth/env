@@ -183,7 +183,7 @@ https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210225.htm
 
     * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASDyn/README.rst
 
-https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7.html
+https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210208.html
 
     Notes on OptiX 6->7 migration, (Feb 8, 2021, Virtual, H1)
 
