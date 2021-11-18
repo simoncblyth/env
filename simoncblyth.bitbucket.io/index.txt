@@ -112,9 +112,17 @@ Opticks Presentations
 2021
 ~~~~~
 
+
+
+https://simoncblyth.bitbucket.io/env/presentation/opticks_20211117.html
+
+   JUNO Opticks : PMT Z-cut issue : (November 17, 2021)
+
 https://simoncblyth.bitbucket.io/env/presentation/opticks_autumn_20211019.html
 
    Opticks Autumn : (October 19, 2021)
+
+   Notes on OptiX 6->7 migration
 
 https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_cerenkov_20210902.html
 
@@ -126,19 +134,17 @@ https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210727.htm
 
 https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210712.html
 
-    JUNO-Opticks Simulation Matching (July 12, 2021)
+    JUNO Opticks/Geant4 Optical Photon Simulation Matching (July 12, 2021)
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_vchep_2021_may19.html 
 
     Integration of JUNO simulation framework with *Opticks*  (May 19, 2021) vCHEP 
-
 
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210518.html
 
     Notes on OptiX 6->7 migration, *CSG*, *CSG_GGeo*, *CSGOptiX* (May 18, 2021, Virtual, H6)
 
     1st full JUNO ray trace with OptiX 7 *CSGOptiX* enabled by *CSGFoundry* model
-
 
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210504.html
 

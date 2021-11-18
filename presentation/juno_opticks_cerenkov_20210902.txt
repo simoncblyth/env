@@ -1,7 +1,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: JUNO Opticks : G4Cerenkov_modified/G4Cerenkov 
-   :description: (Sep 2021)
+   :description: (Sep 2021) Summer Progress : trapezoidal s2 integration for Cerenkov, disrepant category "SI BT BT BT BT AB" 0x4cccc2 related to Fastener, double precision Cerenkov needed
    :url: https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_cerenkov_20210902.html  
    :date: 2 Sep 2021
 
@@ -542,6 +542,8 @@ QUDARap-CSGOptiX integration
    * test OptiX 7 geometry (CSGFoundry) + QUDARap genstep handling using 2d planar gensteps
    * geometry x-z plane cross-section from thousands of intersects, :bluebold:`acrylic + PMTs + Tyvek` visible
    * colors from boundary index of intersected geometry
+   * LATER (NOV 2021) : FOUND FUNNY PMT SHAPE ABOVE IS FROM A NOW FIXED BUG WITH ELLIPSOID IN CSG COMBINATION : SCALE TRANSFORM WAS BEING STOMPED
+
 
 
 :small:`CSGOptiXSimulation : cross-section from planar gensteps : closeup`

@@ -1,7 +1,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: Opticks Autum 
-   :description: (Oct 2021)
+   :description: (Oct 2021) Opticks Autumn : CK Rejection vs ICDF : chi2 comparisons, Geant4 11 Opticks Updates, 2D geometry cross-section technique CenterExtentGensteps, Fastener geometry issue, subtracting a ring cylinder issue , CSG sub sub bug : interfering subtraction issue,  FIX: Dont subtract holes for daughters, LHCb-RICH pic 
    :url: https://simoncblyth.bitbucket.io/env/presentation/opticks_autumn_20211019.html  
    :date: 19 Oct 2021
 

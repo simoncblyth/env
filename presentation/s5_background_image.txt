@@ -1145,6 +1145,67 @@
     LHCb-RICH (Yunlong Li, Manchester University) : Opticks OpenGL Render (OKTest)
     /env/presentation/LHCb_RICH/OKTest_rich1_new.png 1280px_720px
 
+    maker_body_solid_zcut-500.0 
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-500.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-400.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-400.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-350.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-350.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-300.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-300.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-200.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-200.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-183.25
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-183.25/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-100.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-100.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-0.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-0.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcutp100.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcutp100.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_solid 
+    /env/presentation/X4IntersectTest/body_solid/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_solid_nurs
+    /env/presentation/X4IntersectTest/body_solid_nurs/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_solid_nurs_pcnk
+    /env/presentation/X4IntersectTest/body_solid_nurs_pcnk/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_solid_pcnk
+    /env/presentation/X4IntersectTest/body_solid_pcnk/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_phys
+    /env/presentation/X4IntersectVolumeTest/body_phys/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_nurs
+    /env/presentation/X4IntersectVolumeTest/body_phys_nurs/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_nurs_pcnk
+    /env/presentation/X4IntersectVolumeTest/body_phys_nurs_pcnk/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_nurs_pcnk_pdyn
+    /env/presentation/X4IntersectVolumeTest/body_phys_nurs_pcnk_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_nurs_pdyn
+    /env/presentation/X4IntersectVolumeTest/body_phys_nurs_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_pdyn
+    /env/presentation/X4IntersectVolumeTest/body_phys_pdyn/figs/isect_mpplt.png 1280px_720px
+
+    body_phys_pdyn_pcnk
+    /env/presentation/X4IntersectVolumeTest/body_phys_pdyn_pcnk/figs/isect_mpplt.png 1280px_720px
+
+    ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty

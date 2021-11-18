@@ -2,7 +2,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: LZ NVIDIA NERSC Discussion
-   :description: (May 2021)
+   :description: (May 2021) OptiXTest -> CSG + CSGOptiX, added CSG_GGeo : pre-7, 7 + testing on CPU : 1st JUNO Opticks OptiX 7 Ray-trace, OptiX 7 ray trace times, LOADSA GEOM IMAGES
    :url: https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210518.html  
    :date: 4 May 2021
 

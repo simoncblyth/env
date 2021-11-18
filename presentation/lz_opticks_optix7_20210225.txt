@@ -1,6 +1,6 @@
 .. meta::
     :title: LZ-Opticks-NVIDIA OptiX 6->7 : Notes
-    :description: (Feb 2021)
+    :description: (Feb 2021) BB:BI:GAS arrangement, bbox fudge, intersects despite "boxy" appearance are on spheres from SDF 
 
 
 .. include:: <s5defs.txt>

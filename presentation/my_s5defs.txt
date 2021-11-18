@@ -89,6 +89,31 @@
              margin: 1em 0;
         }
 
+        pre.mypre12 {
+             display: block;
+             font-family: monospace;
+             font-size: 12px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.mypre11 {
+             display: block;
+             font-family: monospace;
+             font-size: 11px;
+             font-weight: bold;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.mypre10 {
+             display: block;
+             font-family: monospace;
+             font-size: 10px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
         pre.myfoot {
              display: block;
              font-family: monospace;

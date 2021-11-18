@@ -1,7 +1,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: JUNO Geant4/Opticks Optical Simulation Matching
-   :description: (Jul 2021)
+   :description: (Jul 2021) QUDARap pure CUDA photon gen qctx.h (becomes qsim.h?) , Cerenkov Matching : double precision rejection sampling 
    :url: https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210727.html  
    :date: 27 July 2021
 

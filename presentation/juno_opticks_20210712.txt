@@ -1,7 +1,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: JUNO Geant4/Opticks Optical Simulation Matching
-   :description: (Jul 2021)
+   :description: (Jul 2021) G4OpticksRecorder, History Comparison Fixes, JUNO Cerenkov bug
    :url: https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210712.html  
    :date: 12 July 2021
 

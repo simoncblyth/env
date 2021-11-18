@@ -8,6 +8,325 @@ csg-usage(){ cat << EOU
 CSG : Constructive Solid Geometry
 ==================================
 
+
+Searching for CSG developments
+---------------------------------
+
+
+:google:`CSG coincident faces ray tracing`
+
+
+
+Near Real-time CSG Rendering using Tree Normalization and Geometric Pruning, Goldfeather (1988)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://apps.dtic.mil/sti/pdfs/ADA201085.pdf
+* ~/opticks_refs/CSG_Normalization_Goldfeather_1988_ADA201085.pdf
+
+* paper presents pseudo-code for normalization algorithm 
+
+::
+
+    ((A-B) union C) intersect D 
+
+    (AB'+C)D.
+
+
+A CSG tree is in normal form if its boolean representation is in disjunctive normal form, 
+i.e. if it is a sum of products of literals.
+
+In addition to allowing rendering with a constant number of bits per pixel,
+normalizing a CSG tree allows the rendering algorithm to be simpler than it
+would be otherwise. Each product in the normalized expression can be rendered
+using primitive/primitive interaction rather than subtree/subtree interaction.
+In Section 3 we will see that normalization also allows unnecessary portions of
+the CSG tree to be recognized and pruned very easily.
+
+
+p10::
+
+    BBox( A+B )  =  BBox(A) + BBox(B)        UNION
+    BBox( A.B )  =  BBox(A).BBox(B)          INTERSECT
+    BBox( A-B)   = BBox( A.B' ) = BBox(A)    DIFFERENCE 
+
+
+
+* subtree pruning 
+
+
+
+Boolean algebra : deMorgan
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.electronics-tutorials.ws/boolean/demorgan.html
+
+::
+
+   !(A.B)     = !A + !B
+   !(A.B.C)   = !A + !B + !C
+   !(A.B.C.D) = !A + !B + !C + !D
+
+   !(A+B)     = !A.!B
+   !(A+B+C)   = !A.!B.!C
+   !(A+B+C+D) = !A.!B.!C.!D
+
+
+
+
+Boolean algebra : sum-of-products form : AND then OR : UNION then INTERSECT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.electronics-tutorials.ws/boolean/sum-of-product.html
+
+::
+ 
+    Q = !A.(!B.C + B.C + B.!C) + A.B.C          (product . AND/intersect)   (sum + OR/union)
+
+    Q = !A.!B.C + !A.B.C + A.B.!C + A.B.C
+
+
+
+
+Boolean algebra : product-of-sum form 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.electronics-tutorials.ws/boolean/product-of-sum.html
+
+::
+
+    A + 0 = A
+    A + 1 = 1 
+    A + A = A
+    A + !A = 1
+
+    A + B = B + A
+
+
+Examples::
+
+    Q0 = (A+B).(!B + C).(A + 1 )
+    
+    Q1 = (A+B+C).(A+C).(!B + !C)
+
+
+
+
+
+ 
+
+
+
+
+Normalized CSG Form
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://developer.openinventor.com/UserGuides/Oiv9/Inventor_Mentor/Rendering_Features/CSG_Rendering/CSG_Rendering.html
+
+* https://www.usenix.org/legacy/event/usenix05/tech/freenix/full_papers/kirsch/kirsch.pdf
+
+
+
+CSG State Table
+~~~~~~~~~~~~~~~~~~~
+
+* https://www.cl.cam.ac.uk/teaching/0809/AdvGraph/Advanced%20Graphics%2008x02%20-%20Geometric%20methods%20for%20ray%20tracing.ppt
+* ~/opticks_refs/CSG_State_Table.png
+
+CSG Regularization
+~~~~~~~~~~~~~~~~~~~~
+
+
+* ~/opticks_refs/Rossignac_CSG_regularization_SPM.pdf
+
+QuickCSG: Fast Arbitrary Boolean Combinations of N Solids
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Matthijs Douze, Jean-Sebastien Franco, Bruno Raffin August 29, 2018
+
+* https://arxiv.org/pdf/1706.01558.pdf
+* ~/opticks_refs/QuickCSG_1706_01558.pdf
+
+
+CSG Ray Tracing Revisited: Interactive Rendering of Massive Models Made of Non-planar Higher Order Primitives
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **interesting approach : layered CSG ray tracing** : HMM DOES IT HANDLE CSG_INTERSECT ?
+
+Seyedmorteza Mostajabodaveh1,2, Andreas Dietrich1,2, Thomas Gierlinger1,2, Frank Michel1,2 and Andre Strok1,2
+1Fraunhofer IGD, Darmstadt, Germany
+
+* https://www.scitepress.org/Papers/2017/61364/61364.pdf
+* http://publica.fraunhofer.de/documents/N-441713.html
+
+* ~/opticks_refs/CSG_Ray_Tracing_Revisited_Darmstadt_61364.pdf
+
+
+* https://paperexplained.cn/articles/paper/detail/7c36d0550f5051121a954e580d475af0fd7625ca/
+
+
+
+* https://mmostajab.com
+* https://mmostajab.com/ray-tracing-a-better-approach/
+* https://github.com/mmostajab
+
+* https://de.linkedin.com/in/andreas-dietrich-92349274
+
+* https://github.com/search?l=C%2B%2B&q=constructive+solid+geometry&type=Repositories
+
+
+In order to avoid having to compute and store all intersection intervals along
+a ray, we take advantage of the structure of our scenes. Similar to depth peeling, 
+from the camera perspective the CSG model is organized into a number of
+layers Li (i = 1,...,l). 
+
+Each layer is composed of a number of positive solids Pi, j (j = 1,...,pi) 
+and negative solids Ni,k (k = 1,...,ni). 
+We will refer to the negative solids as cutouts in the following. 
+Thus, the CSG operations for a scene S can be described as 
+
+   S = Sum Li          Li = Sum Pi,j  -   Sum Ni,k 
+       i=1->l                j=1..pi       k=1..ni     
+
+where + and - denote union and difference.
+
+Basically, a layer can be seen as the difference of two compound (positive and
+negative) objects. Because of this, CSG ray tracing a single layer can be
+done by tracking when a ray runs within a positive or negative medium. To this
+end, we employ two counters (posDepth and negDepth) that are attached as custom
+parameters to each ray. Whenever the ray tracer finds the closest
+intersection of a ray with the primitives of a layer, a hit program is called
+which is illustrated in algorithm 1.
+
+
+    delta = +1 if entering primitive else -1 
+
+    if positive primitive hit:
+        ray.posDepth += delta;
+    else
+        ray.negDepth += delta; 
+    pass
+
+    if (ray.posDepth > 0) && (ray.negDepth <= 0):
+        ReportHit()   // final hit in layer found
+    else
+        ContinueRay(ray); // still inside -ve medium 
+
+Each time a ray enters or leaves a positive or negative primitive, the
+counters are increased or decreased, respectively. In case we are inside a
+positive medium, but not inside a negative medium, we found the correct
+hitpoint corresponding to a layer. Otherwise ray traversal continues using the
+updated counters.
+
+To find the final global hitpoint in the scene, a primary ray is sequentially
+tested against all layers, and from the set of layer hitpoints the nearest one
+is accepted as final position for shading. In the scene graph used by the ray
+tracing engines, the layers of a scene can be stored as independent subtrees,
+which can be intersected separately.
+
+
+Questions :
+
+* how to partition general CSG tree into layers ?
+* how to split tree into +ve and -ve subtrees ?
+
+
+
+
+CSG Operations of Arbitrary Primitives with Interval Arithmetic and Real-Time Ray Casting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Younis Hijazi1, Aaron Knoll2,4, Mathias Schott3, Andrew Kensler3, Charles Hansen3,4, and Hans Hagen2,4
+
+* https://drops.dagstuhl.de/opus/volltexte/2010/2698/pdf/7.pdf
+* ~/opticks_refs/CSG_Arbitrary_Implicit_Ray_Casting.pdf
+
+
+* :google:`factorize CSG expression into positive and negative tree`
+
+
+A Flexible Pipeline for the Optimization of CSG Trees
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Markus Friedrich, Christoph Roch, Sebastian Feld, Carsten Hahn
+Pierre-Alain Fayolle
+
+* ~/opticks_refs/CSG_Tree_Optimization_2008_03674.pdf
+* https://arxiv.org/pdf/2008.03674.pdf
+
+
+
+
+* :google:`AVEVA RVM CAD format`
+* https://docs.fileformat.com/3d/rvm/
+* https://github.com/cdyk/rvmparser
+
+
+
+
+
+:google:`layered CSG ray trace`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* DNF : looks to correspond to Opticks positivized trees
+* https://en.wikipedia.org/wiki/Disjunctive_normal_form
+
+
+IceSL
+~~~~~~
+
+* http://shapeforge.loria.fr/icesl/icesl-whitepaper.pdf
+
+
+When modeling with CSG it is common for two surfaces to be perfectly aligned.
+This implies that some events in the A–buffer will be given the same depth
+values. Which surface comes first in this case is undeter- mined. Worse, due to
+numerical instabilities the ordering of overlapping surfaces at an angle may
+randomly alternate (an effect often referred to as depth–fighting). Such issues
+can have dire consequences, since large portions of space could be wrongly
+categorized as inside or outside.  Fortunately, we can detect these cases. When
+traversing the list of events in the A–buffer we merge all events which are
+closer to each other than a given threshold. This filters out most numerical
+instabili- ties. Of course, this also prevents modeling of features thinner
+than the threshold. However, depth is encoded on 24 bits over the entire height
+of the model, and we use a conservative threshold of 64. Even for a model 1000
+mm high the threshold represents only 4μm.
+
+Blister
+~~~~~~~~~
+
+* https://www.cc.gatech.edu/~jarek/papers/Blister.pdf
+* ~/opticks_refs/jarek_Blister.pdf
+
+
+
+Parallel GPU Boolean Evaluation for CSG Ray-Tracing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Marco Domingues
+Instituto Superior Técnico, Universidade de Lisboa, Portugal
+
+* https://fenix.tecnico.ulisboa.pt/downloadFile/1126295043835447/article.pdf
+* ~/opticks_refs/Parallel_GPU_Boolean_Evaluation_for_GPU_Ray_Tracing.pdf
+
+
+
+
+CSG Regularization pros and cons : keeping track of problem surfaces
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.cs.otago.ac.nz/homepages/andrew/papers/g4.pdf
+* ~/opticks_refs/Wyvill_and_Trotman_Preserving_boundary_CSG_g4.pdf
+
+
+Ulyanov : GPU-optimized Ray-tracing for Constructive Solid Geometry Scenes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://ceur-ws.org/Vol-1576/090.pdf
+* https://www.graphicon.ru/html/2016/papers/Pages_490-493.pdf
+
+
+
+
 Overview : CSG to B-REP aka CSG Polygonization aka Meshing 
 --------------------------------------------------------------
 
