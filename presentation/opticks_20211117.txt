@@ -530,4 +530,44 @@ Opticks : JUNO PMT Modelling Issue
 
 
 
+:small:`WIP : Integrating ZSolid with j/PMTSim and then offline/PMTSim`
+---------------------------------------------------------------------------
+
+.. class:: small
+
+   * tidy up ZSolid and j/PMTSim
+
+   * integrate ZSolid into j/PMTSim in a manner appropriate for use from actual offline/PMTSim
+     (much faster to test in j/PMTSim so keep development there until close to finalization)
+
+   DONE
+
+   * returned Hamamatsu_R12860_PMTSolid to minimally changed state
+   * add NNVT PMT to j/PMTSim 
+   * move to STANDALONE being used just for making the class usable in standalone fashion
+   * review diffs between PMT classes in j and offline 
+   * added jdiff for getting diff commands
+   * remove the tubs minus torus by making polycone neck non-optional
+   * stagger the zcut for the layers of PMT volume (via "thickness" offset) to avoid ambiguous edge
+   * renamed IGeomStandalone.h to IGeomManager.h as the simple protocol base could be useful beyond just STANDALONE testing
+   * removed polycone neck control as now standard
+   * DECIDED : j/PMTSim class is just for testing, but should it be in offline anyhow ? Hmm uses NP, so NO for now.
+   * DECIDED : OK for Opticks API export stuff needed for om-compilation to be hidden behind STANDALONE within offline code
+   * DECIDED : useful functionality should not be hidden behind STANDALONE  
+
+   TODO
+
+   * check compilation of updated PMT geometry code + ZSolid etc  within offline/PMTSim environment 
+   * check Opticks operation with the simplified PMT CSG 
+   * what/where to switch to new PMT geometry, how much backward test support
+  
+     * jgr HamamatsuR12860PMTManager 
+
+     * suggests trying to switch between Old and New versions of a manager would be difficult 
+       because the name string is hardcoded all over the place : so that means that if want to 
+       support switching between old and new geometry approaches, then need to do it within the manager  
+      
+
+
+
 
