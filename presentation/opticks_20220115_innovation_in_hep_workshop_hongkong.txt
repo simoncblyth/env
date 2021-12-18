@@ -1,0 +1,117 @@
+.. meta::
+
+   :title: Opticks : Innovative Optical Photon Simulation using state-of-the-art GPU ray tracing from NVIDIA OptiX
+   :name: opticks_20220115_innovation_in_hep_workshop_hongkong
+   :description: (Jan 2022) 
+   :notes: start from opticks_aug2020_sjtu_neutrino_telescope_workshop.txt
+
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+
+.. comment
+
+    Dear Weidong, 
+
+    Yes, I can give an overview of applying GPU ray tracing techniques
+    to optical photon simulation.  
+
+    https://simoncblyth.bitbucket.io/env/presentation/opticks_aug2020_sjtu_neutrino_telescope_workshop.html
+
+    The above talk from the SJTU neutrino telescope workshop in 2020 is the last overview style talk 
+    I gave which does not assume any familiarity with Opticks. So I expect to start from that 
+    presentation to prepare for the Hong Kong meeting.
+
+    The SJTU presentation was more than an hour, but the end of it is speculation on 
+    future usage for enormous numbers of photons in neutrino telescopes.
+     
+    I would prefer not to give such a long talk as it takes longer to prepare.  
+    It would be fine to trim the speculations and update for OptiX 7 development 
+    and cut it down to 20-30 min.
+
+    Simon
+
+    Dear Simon,
+    Do you think you can give an overview  talk on application of Optix in HEP
+    at the Hong Kong meeting? The meeting should be around 15th of January.
+    Look forward to hearing from you!
+
+    Weidong Li
+
+    -----邮件原件-----
+    发件人: Joao Guimaraes da Costa [mailto:guimaraes@ihep.ac.cn] 
+    发送时间: 2021年12月9日 2:05
+    收件人: Weidong Li
+    主题: Hong Kong Workshop
+
+    Dear Weidong,
+
+    Thanks for agreeing to help me organize the workshop in Hong Kong.
+    As we discussed the topic is: "Innovation in HEP Detectors and Computing"
+    We will focus on innovative ideas that can bring significant improvements to
+    the field.
+    There can be a range of ideas with different degrees of innovation, but the
+    goal is to aim at more disruptive technologies, like Quantum computing, and
+    then fill come down from there.
+
+    We will want to invite both foreigners and chinese speakers, but we should
+    try to aim at good speakers that can provide a good overview of the subject.
+    I attached the timetable. The workshop will have two days, and we should try
+    to split it with one day for detector and another day for
+    computing/software.
+    There are 4 periods each day with 1.5 hours each.
+
+    For the workshop, usually we would like to have longer talks but also time
+    for discussion.
+    So, my suggestion would be two 30-minute talks per period, with 15 minutes
+    each for discussion.
+    Of course, we dont need to be too strict on this. Perhaps three 20-minutes
+    talks on one subject and 30 min discussion also works well.
+
+    I will have a conversation with Paolo Giacomelli and Franco Bedeschi on
+    Friday afternoon.
+    In the meantime, we can collect a list of possible talks.
+
+    Regards,
+    -Joao
+
+    <br/>
+   
+
+:i:`Invisible Title` 
+========================================================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+    <header>
+    <h1 style="background-color:lightgrey"> 
+        <i>Opticks</i> : Innovation in Optical Photon Simulation via <br/> state-of-the-art GPU Ray Tracing from NVIDIA® OptiX™
+        <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
+    </h1>
+    </header>
+    </div>
+
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; Jan 2022, Hong Kong Workshop: Innovation in HEP Detectors & Computing </h2>
+    </div>
+
+
+.. s5_talk:: 
+
+    Opticks is an open source project that applies state-of-the-art GPU ray tracing 
+    from NVIDIA OptiX to optical photon simulation and integrates this with Geant4. 
+    This results in drastic speedups of more than 1500 times single threaded Geant4.
+
+    Any simulation limited by optical photons can remove those limits by using Opticks.
+
+    This render shows the photons resulting from a muon crossing the JUNO scintillator, 
+    each line represents a single photon.
+
+    The number of photons across track lengths up to 35m in the scintillator 
+    is about 70M 
+
+
+

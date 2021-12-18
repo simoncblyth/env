@@ -1,0 +1,19 @@
+
+.. comment
+
+    opticks_202201XX_juno_collaboration_meeting
+
+
+    Dear JUNO collaborators,
+     
+    The 19th JUNO Collaboration Meeting will be held in a month (Jan. 17 - Jan. 28,
+    2022) . We will use the same format as last one in July.
+     
+    The plenary sessions will be on Jan. 26-28. Tentatively, the meeting time will
+    be 15:00-18:00 Beijing (8:00-11:00 CERN , 10:00-13:00 Moscow, and 23:00-2:00
+    LA), unless we have more favorable time slots. Before that we will have
+    parallel sessions and reviews, organized by L2s and review chairs.
+     
+    L2s and Review Chairs: Please determine the parallel meeting and review time,
+    and fill in the table https://jupyter.ihep.ac.cn/-fqkyyEURlm3wicBi8niFg?both
+

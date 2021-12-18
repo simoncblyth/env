@@ -18,6 +18,7 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_disabled"
     ##
+    ##slide0
     slide0_DISABLED
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
@@ -1201,9 +1202,63 @@
     
     body_phys_pdyn
     /env/presentation/X4IntersectVolumeTest/body_phys_pdyn/figs/isect_mpplt.png 1280px_720px
-
+    
     body_phys_pdyn_pcnk
     /env/presentation/X4IntersectVolumeTest/body_phys_pdyn_pcnk/figs/isect_mpplt.png 1280px_720px
+   
+    nnvt_maker_zcut-500.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-500.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    nnvt_maker_zcut-400.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-400.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    nnvt_maker_zcut-350.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-350.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+ 
+    nnvt_maker_zcut-300.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-300.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    nnvt_maker_zcut-200.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-200.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+  
+    nnvt_maker_zcut-183.25 
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-183.25/X4Intersect/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys_nurs
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys_nurs/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys_nurs_pdyn
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys_nurs_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys_nurs_pdyn_prtc_obto
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys_nurs_pdyn_prtc_obto/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys_pdyn
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys_nurs
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys_nurs/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys_nurs_pdyn
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys_nurs_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys_nurs_pdyn_prtc_obto
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys_nurs_pdyn_prtc_obto/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys_pdyn
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys_pdyn/figs/isect_mpplt.png 1280px_720px
+
+    cxr_geochain_SphereWithPhiSegment_difference_old
+    /env/presentation/CSGOptiXRender/GeoChain_Darwin/SphereWithPhiSegment/cvd0/50001/cxr_geochain/cam_1/cxr_geochain_SphereWithPhiSegment_difference_old.jpg 1280px_720px
+
+    cxr_geochain_SphereWithPhiSegment_difference_new
+    /env/presentation/CSGOptiXRender/GeoChain_Darwin/SphereWithPhiSegment/cvd0/50001/cxr_geochain/cam_1/cxr_geochain_SphereWithPhiSegment_difference_new.jpg 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
