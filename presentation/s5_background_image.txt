@@ -1260,10 +1260,221 @@
     cxr_geochain_SphereWithPhiSegment_difference_new
     /env/presentation/CSGOptiXRender/GeoChain_Darwin/SphereWithPhiSegment/cvd0/50001/cxr_geochain/cam_1/cxr_geochain_SphereWithPhiSegment_difference_new.jpg 1280px_720px
 
+    uni_acrylic1_0_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/uni_acrylic1_0/figs/positions_mpplt_pid.png 1280px_720px
+    
+    uni_acrylic3_0_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/uni_acrylic3_0/figs/positions_mpplt_pid.png 1280px_720px
+    
+    Hama_1_figs_positions_mpnky_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpnky_pid.png 1280px_720px
+    
+    Hama_1_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpplt_pid.png 1280px_720px
+    
+    Hama_2_figs_positions_mpnky_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_2/figs/positions_mpnky_pid.png 1280px_720px
+    
+    Hama_2_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_2/figs/positions_mpplt_pid.png 1280px_720px
+    
+    Hama_4_figs_positions_mpnky_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_4/figs/positions_mpnky_pid.png 1280px_720px
+    
+    Hama_4_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_4/figs/positions_mpplt_pid.png 1280px_720px
+    
+    Hama_16_figs_positions_mpnky_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_16/figs/positions_mpnky_pid.png 1280px_720px
+    
+    Hama_16_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_16/figs/positions_mpplt_pid.png 1280px_720px
+ 
+    cxr_overview_emm_t0_moi_-1_ALL.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_1,2,3,4_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_1,2,3,4_moi_-1.jpg 1280px_720px
+
+    cxr_overview_emm_0,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_0,_moi_-1.jpg 1280px_720px
+
+    cxr_overview_emm_1,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_1,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_2,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_2,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_3,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_3,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_4,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_4,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_5,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_5,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_6,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_6,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_7,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_7,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_8,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_8,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_9,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_9,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t0,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t1,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t1,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t2,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t2,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t3,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t3,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t4,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t4,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t5,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t5,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t6,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t6,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t7,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t7,_moi_-1.jpg 1280px_720px
+   
+    cxr_overview_emm_t8,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t8,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t9,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t9,_moi_-1.jpg 1280px_720px
+
+    cxr_view_cam_0_0,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_0,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_1,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_1,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_2,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_2,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_3,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_3,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_4,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_4,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_5,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_5,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_6,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_6,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_7,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_7,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_8,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_8,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_9,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_9,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_t0_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_t0/cxr_view_sWaterTube.jpg 1280px_720px
+
+    3dbec_cxr_solid_r0@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r0@/cam_1/cxr_solid_r0@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r1@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r1@/cam_1/cxr_solid_r1@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r2@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r2@/cam_1/cxr_solid_r2@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r3@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r3@/cam_1/cxr_solid_r3@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r4@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r4@/cam_1/cxr_solid_r4@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r5@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r5@/cam_1/cxr_solid_r5@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r6@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r6@/cam_1/cxr_solid_r6@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r7@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r7@/cam_1/cxr_solid_r7@_.jpg 1280px_720px
+
+    3dbec_cxr_solid_r7@ copy
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r7@/cam_1/cxr_solid_r7@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r8@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r8@/cam_1/cxr_solid_r8@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r9@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r9@/cam_1/cxr_solid_r9@_.jpg 1280px_720px
+
+    sWaterTube_cam_0_t0_cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg 1280px_720px
+
+    sWaterTube_cam_0_t0_cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_1_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_1_sWaterTube.jpg 1280px_720px
+
+    sWaterTube_cam_0_t0_cxr_view___eye_0,1,-1,1__look_0,0,-1__zoom_1__tmin_0.4_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-1,1__look_0,0,-1__zoom_1__tmin_0.4_sWaterTube.jpg 1280px_720px
+
+    sWaterTube_cam_0_t0_cxr_view___eye_0,1,-1,1__zoom_1__tmin_0.4_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-1,1__zoom_1__tmin_0.4_sWaterTube.jpg 1280px_720px
+
+    NNVT:0:1000_cam_0_t0_cxr_view___eye_-2,-2,-2,1__look_0,0,2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_-2,-2,-2,1__look_0,0,2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px
+
+    NNVT:0:1000_cam_0_t0_cxr_view___eye_-2,-2,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_-2,-2,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px
+
+    NNVT:0:1000_cam_0_t0_cxr_view___eye_0,1,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,1,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px
+
+    NNVT:0:1000_cam_0_t0_cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px
+
+    sWorld_cam_0_t0_cxr_view___eye_0,0.6,0.4__zoom_1__tmin_0.4_sWorld.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWorld/cam_0_t0/cxr_view___eye_0,0.6,0.4__zoom_1__tmin_0.4_sWorld.jpg 1280px_720px
+
+    PolyconeWithMultipleRmin_X4Mesh
+    /env/presentation/X4IntersectTest/PolyconeWithMultipleRmin/X4Mesh/pvplot.png 1280px_720px
+
+    PolyconeWithMultipleRmin_xxs_isect
+    /env/presentation/X4IntersectTest/PolyconeWithMultipleRmin/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    SphereWithPhiSegment_X4Mesh
+    /env/presentation/X4IntersectTest/SphereWithPhiSegment/X4Mesh/pvplot.png 1280px_720px
+
+    SphereWithPhiSegment_xxs_isect 
+    /env/presentation/X4IntersectTest/SphereWithPhiSegment/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    CSGNodeScanTest_iphi_figs_scanplot.png
+    /env/presentation/CSGNodeScanTest/iphi/figs/scanplot.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty
+    ## 3. slide titles that have non unique identifiers cause blanks 
+    ##    the identifiers are formed by removing certain characters such as "," 
+    ##    so this causes a problem when the title only differs by a comma for example with "t0" vs "t0," 
+    ##    NB THE RESTRICTION APPPLIES TO THE SLIDE TITLE IDENTIFIERS NOT THE URLS 
+    ##
+
+
 
 .. comment
     

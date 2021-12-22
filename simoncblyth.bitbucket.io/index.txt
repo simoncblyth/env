@@ -124,6 +124,9 @@ Opticks Presentations
 ~~~~~
 
 
+https://simoncblyth.bitbucket.io/env/presentation/opticks_20211223_pre_xmas.html
+
+   JUNO Opticks : OptiX 7 Ray Trace times >100x faster following geometry fixes (December 23, 2021) 
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20211117.html
 
