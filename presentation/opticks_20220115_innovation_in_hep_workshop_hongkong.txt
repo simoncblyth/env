@@ -13,6 +13,36 @@
 
 .. comment
 
+    https://indico.cern.ch/event/1096427/
+
+    https://indico.cern.ch/event/1096427/timetable/#b-440895-mini-workshop-experim
+
+    Friday 14th 
+
+    07:00 London   
+    08:00 CERN
+    15:00 Hong Kong 
+
+
+
+    I am going to present Opticks, an open source project that applies state-of-the-art 
+    GPU ray tracing from NVIDIA OptiX to optical photon simulation using fully analytic detector 
+    geometries automatically translated for the GPU from Geant4. 
+    Opticks replaces the Geant4 optical photon simulation with a GPU equivalent that 
+    can reach transformative speedup factors exceeding 1000 times.
+
+
+    Dear Simon, 
+
+    I made the correction. Many thanks!  Your talk was arranged at 8:00 am (CERN time) 
+    on 14th, which is the first talk of the software and computing session. 
+    I hope you are able to cope with it. Look forward to hearing from you.
+    Cheers, 
+
+    Weidong
+         
+
+
     Dear Weidong, 
 
     Yes, I can give an overview of applying GPU ray tracing techniques
@@ -80,7 +110,7 @@
     <br/>
    
 
-:i:`Invisible Title` 
+:i:`Opticks : Innovation in Optical Photon Simulation` 
 ========================================================================================
 
 .. raw:: html
@@ -112,6 +142,3046 @@
 
     The number of photons across track lengths up to 35m in the scintillator 
     is about 70M 
+
+
+
+
+
+
+Outline Opticks
+----------------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: small
+
+
+    .. raw:: html
+
+       <span>&nbsp;</span>
+
+    * Context and Problem
+
+      * Jiangmen Underground Neutrino Observatory (JUNO)
+      * Optical Photon Simulation Problem...
+
+    * Tools to create Solution   
+
+      * Optical Photon Simulation ≈ Ray Traced Image Rendering
+      * Rasterization and Ray tracing
+      * Turing Built for RTX 
+      * BVH : Bounding Volume Hierarchy 
+      * NVIDIA OptiX Ray Tracing Engine
+
+    * Opticks : The Solution
+
+      * Geant4 + Opticks Hybrid Workflow : External Optical Photon Simulation
+      * Opticks : Translates G4 Optical Physics to CUDA/OptiX
+      * Opticks : Translates G4 Geometry to GPU, Without Approximation
+      * CUDA/OptiX Intersection Functions for ~10 Primitives
+      * CUDA/OptiX Intersection Functions for Arbitrarily Complex CSG Shapes
+
+    * Validation and Performance
+
+      * Random Aligned Bi-Simulation -> Direct Array Comparison
+      * Perfomance Scanning from 1M to 400M Photons
+
+    * Overview + Links 
+
+    .. raw:: html
+ 
+       <hr/>
+
+
+.. s5_talk::
+
+   This will be a talk of two halves:
+
+   * first I will introduce Opticks and how it solves the 
+     problem of optical photon simulation for JUNO
+
+.. comment
+
+     where propagations are expected to be <100M photons per muon 
+ 
+
+:small:`Outline of Graphics/GPU background + Application to neutrino telescopes`
+--------------------------------------------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: small
+
+    * GPU + Parallel Processing Background 
+
+      * Amdahls "Law" : Expected speedup limited by serial processing 
+      * Understanding GPU Graphical Origins -> Effective GPU Computation                                            
+      * CPU Optimizes Latency, GPU Optimizes Throughput 
+      * How to make effective use of GPUs ? Parallel/Simple/Uncoupled
+      * GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy                                             
+      * Survey of High Level General Purpose CUDA Packages
+
+    * Graphics History/Background 
+
+      * 50 years of rendering progress
+      * 2018 : NVIDIA RTX : Project Sol Demo
+      * Monte Carlo Path Tracing in Movie Production       
+      * Fundamental "Rendering Equation" of Computer Graphics
+      * Neumann Series solution of Rendering Equation 
+      * Noise : Problem with Monte Carlo Path Tracing  
+      * NVIDIA OptiX Denoiser
+      * Physically Based Rendering Book : Free Online  
+      * Optical Simulations : Graphics vs Physics 
+
+    * Neutrino Telescope Optical simulations 
+  
+      * Giga-photon propagations : Re-usable photon "snapshots" 
+      * Opticks Rayleigh Scattering : CUDA line-by-line port of G4OpRayleigh
+      * Developing a photon "snapshot" cache 
+      * Photon Mapping 
+
+    * Summary 
+  
+   
+.. s5_talk::
+
+   * Then I will cover GPU and graphics backgrounds 
+     which can help to handle really large propagation 
+     of billions of photons 
+
+   * I will go into some details on computer graphics techniques
+     as I think there is strong potential to re-purposing them 
+     to help physics simulations  
+
+
+
+:i:`JUNO_Intro_2`
+------------------
+
+.. s5_talk::
+
+    JUNO will be the worlds largest liquid scintillator detector,
+    with a spherical 20,000 ton volume of scintillator surrounded by 
+    a water pool buffer which also provides water cherenkov detection.
+
+    The scintillator is instrumented with 18 thousand 20-inch PMTs 
+    and 25 thousand 3-inch PMTs     
+
+
+:i:`JUNO_Intro_3`
+------------------
+
+.. s5_talk::
+
+    JUNO will be able to detect neutrinos from many terrestrial and extra-terrestrial 
+    sources including : solar, atmospheric, geo-neutrinos. 
+
+    Despite 700 m of overburden the largest backgrounds to these neutrino signals   
+    will be from cosmic muon induced processes.  
+
+    A muon veto is used to control the backgrounds.
+    
+    However to minimize the time and volume vetoed,
+    it is necessary to have a good muon reconstruction which means 
+    that we need large samples of cosmic muons.
+
+
+
+
+Geant4 : Monte Carlo Simulation Toolkit
+----------------------------------------
+
+
+.. s5_talk::
+
+    Geant4 is the standard toolkit 
+    used to simulate detectors 
+    across several fields.
+
+
+
+.. comment
+
+    including simulations of medical imaging scanners, 
+    and of satellites 
+
+
+
+Geant4 : Monte Carlo Simulation Toolkit Generality
+----------------------------------------------------
+
+
+.. sidebar:: :small:`Standard Simulation Tool of HEP`
+
+   .. class:: small
+        
+       **Geant4** simulates particles travelling through matter
+
+       * high energy, nuclear and accelerator physics
+       * medical physics : deciding radiotherapy doses/sources 
+       * space engineering : satellites
+
+       **Geant4 Approach**
+
+       * geometry : **tree of CSG solids**
+       * particles : track position and time etc.. 
+       * processes : nuclear, EM, weak, **optical**
+
+       **Very General and Capable Tool**
+
+       * **mostly unused for optical photon propagation**
+ 
+   .. class:: tiny
+
+      https://geant4.web.cern.ch
+
+
+.. s5_talk::
+
+   Geant4 is a very general tool : but it is mostly
+   not needed for the simulation of optical photons 
+ 
+
+
+`Optical Photon Simulation Problem...`
+---------------------------------------------------------
+
+.. raw:: html
+
+     <pre>
+
+
+
+
+
+
+
+     </pre>
+
+.. sidebar:: :small:`Huge CPU Memory+Time Expense`
+
+    .. class:: small
+
+         **JUNO Muon Simulation Bottleneck**
+           ~99% CPU time, memory constraints
+
+         **Ray-Geometry intersection Dominates**
+           simulation is not alone in this problem...
+
+         **Optical photons : naturally parallel, simple :**
+           * produced by Cherenkov+Scintillation 
+           * yield only Photomultiplier hits
+
+
+.. s5_talk::
+
+   Muons travelling across the liquid scintillator will yield
+   many tens of millions of optical photons. This is a huge memory and time challenge 
+   for Geant4 monte carlo production.
+
+   Most of the CPU time is taken finding intersections between photons and geometry 
+   Fortunately simulation is not alone in this bottleneck.
+
+   Optical photons are naturally parallel, 
+   with only Cherenkov and Scintillation production being relevant 
+   and we are only interested in photons collected at PMTs. 
+
+   These characteristics make it straightforward to integrate an external optical
+   simulation.
+ 
+
+
+         
+
+
+:small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
+-------------------------------------------------------------------------------
+
+.. sidebar:: Not a Photo, a Calculation
+
+    .. image:: /env/optix/samples/optix-ray-tracing-glasses.png 
+       :width: 450px
+       :align: right
+
+    .. class:: tiny
+
+        http://on-demand.gputechconf.com/siggraph/2013/presentation/SG3106-Building-Ray-Tracing-Applications-OptiX.pdf
+
+
+.. class:: small
+
+    **Much in common : geometry, light sources, optical physics**
+
+    * :blue:`simulation` : photon parameters at PMT detectors 
+    * :blue:`rendering` : pixel values at image plane
+    * :red:`both limited by ray geometry intersection, aka ray tracing`
+
+
+.. raw:: html
+
+    <pre>
+
+    </pre>
+
+.. class:: small
+
+    **Many Applications of ray tracing** :
+
+    * advertising, design, architecture, films, games,...
+    * -> huge efforts to improve hw+sw over 30 yrs
+
+
+.. s5_talk::
+
+    Optical photon simulation and ray traced image rendering 
+    have a lot in common.
+
+    They are both limited by ray geometry intersection (or ray tracing)
+
+    With simulation you want to know photon parameters at PMTs, with rendering 
+    you need pixel values at the image plane.
+
+    Both these are limited by ray geometry intersection, which is also known as ray tracing.
+
+    Ray tracing is used across many industries, which means that are huge efforts
+    across decades to improve ray tracing perfromance.
+    
+
+
+.. skip
+
+      
+    **August 2018 : Major Ray Tracing Advance**
+
+    * NVIDIA RTX Platform, Turing GPU
+    * :red:`ray trace dedicated hardware : RT cores` 
+
+    * SIGGRAPH 2018, announcing RTX 
+    * https://www.youtube.com/watch?v=LP6miCI6-h4
+
+
+
+:i:`Ray-tracing vs Rasterization`
+-----------------------------------
+
+.. image:: /env/presentation/nvidia/nv_rasterization.png
+   :width: 550px
+   :align: left
+
+.. image:: /env/presentation/nvidia/nv_raytrace.png
+   :width: 550px
+   :align: right
+
+
+.. s5_talk::
+
+   It is good to clarify the difference between 
+   the two primary graphics rendering techniques 
+
+   Rasterization is the most common rendering technique
+   
+   * it starts from the objects in a scene, and projects them onto pixels in image plane
+   * this requires approximate triangulated geometry   
+   
+   Ray tracing 
+
+   * starts from the pixels, casts rays out into the 3D scene and finds intersects
+   * this can use analytic geometry, without approximation (just like Geant4)   
+   * its easier to create realistic images with ray tracing because it is closer to the physics
+
+   Ray tracing is an overloaded term.  In some contexts it means just the ray transport
+   from an origin to an intersection. But is also refers more generally to 
+   a specific rendering technique and even more generally a class of rendering techniques. 
+
+.. comment
+
+   https://www.youtube.com/watch?v=Mrixi27G9yM
+   RTX Launch
+
+
+
+
+
+
+:i:`SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU`
+------------------------------------------------------------
+
+.. raw:: html
+
+    <pre>
+
+
+
+
+
+
+
+    </pre>
+
+
+.. class:: huge
+
+    .. table:: 
+       :align: right
+
+       
+       +----------------------------+
+       |  :white:`10 Giga Rays/s`   |
+       +----------------------------+
+
+
+.. s5_talk::
+
+    Two years ago NVIDIA announced a leap in ray tracing performance 
+    with the Quadro RTX GPU : which it calls the worlds first ray tracing GPU
+    As it has hardware dedicated to accelerating ray tracing.
+
+    NVIDIA claims it can reach 10 billion ray geometry intersections per second
+    with a single GPU.
+
+    Assuming each simulated photon costs 10 rays, that means the upper limit per GPU is 
+    1 billion photons/second.
+    
+
+
+
+:i:`TURING BUILT FOR RTX 2`
+---------------------------------------------------------
+
+
+.. raw:: html
+
+    <pre>
+
+
+
+
+
+
+    </pre>
+
+.. sidebar:: :small:`Offload Ray Trace to Dedicated HW`
+
+    .. class:: small
+
+        * RT core : BVH traversal + ray tri. intersection
+        * frees up general purpose SM 
+
+    .. class:: tiny
+
+        SM : Streaming Multiprocessor
+
+        BVH : Bounding Volume Hierarchy
+
+
+.. s5_talk::
+
+    The performance jump is done by offloading 
+    ray tracing from the general purpose SM (streaming multiprocessor)
+    to the fixed function RT core, which frees up the SM. 
+
+
+
+:i:`NVIDIA RTX Metro Exodus`
+------------------------------
+
+
+.. raw:: html
+
+    <pre>
+
+
+
+
+
+
+
+
+
+    </pre>
+
+
+.. sidebar:: :small:`RTX Platform : Hybrid Rendering`
+
+    .. class:: small
+
+        * :red:`Ray trace (RT cores)`
+        * AI inference (Tensor cores) -> Denoising  
+        * Rasterization (pipeline)
+
+    .. class:: small
+
+        * Compute (SM, CUDA cores) 
+
+        -> :red:`real-time photoreal cinematic 3D rendering`  
+
+
+.. s5_talk::
+
+    To gamers and movie makers these RTX GPUs enable:
+
+    * real-time cinematic rendering
+
+    RTX is hybrid rendering using:
+
+    * three types of dedicated hardware
+    * plus the general purpose SM, which runs the CUDA    
+
+
+
+``Spatial Index Acceleration Structure``
+---------------------------------------------------
+
+
+.. raw:: html
+
+    <pre>
+
+
+
+
+
+
+
+
+
+
+
+    </pre>
+
+.. sidebar:: :small:`Tree of Bounding Boxes (bbox)`
+
+    .. class:: small
+
+        * aims to minimize bbox+primitive intersects 
+        * accelerates ray-geometry intersection
+
+
+.. s5_talk::
+
+   The principal technique to accelerate ray geometry intersection 
+   is an acceleration structure called a bounding volume hierarchy 
+   
+   This divides space into progressively smaller boxes which forms
+   a spatial index.
+
+   Traversing the tree of bounds allows to minimize tests
+   needed to find an intersect.
+
+   With some geometry it is possible for the traversal 
+   to be done on the dedicated RT cores.
+
+
+
+  
+
+:small:`NVIDIA® OptiX™ Ray Tracing Engine -- http://developer.nvidia.com/optix`
+--------------------------------------------------------------------------------
+
+.. sidebar:: OptiX Raytracing Pipeline
+
+    .. class:: small
+
+       Analogous to OpenGL rasterization pipeline:
+
+    .. image:: /env/optix/docs/optix-model.png
+       :width: 450px
+       :align: right
+
+.. class:: small
+
+   **OptiX makes GPU ray tracing accessible**
+
+   * **accelerates** ray-geometry intersections
+   * simple : single-ray programming model
+   * "...free to use within any application..."
+   * :red:`access RT Cores[1] with OptiX 6.0.0+ via RTX™ mode`
+
+   **NVIDIA expertise:**
+
+   * :red:`~linear scaling up to 4 GPUs`
+   * acceleration structure creation + traversal (Blue)
+   * instanced sharing of geometry + acceleration structures
+   * compiler optimized for GPU ray tracing
+
+
+.. class:: small
+
+   **Opticks provides (Yellow):**
+
+   * ray generation program
+   * :red:`ray geometry intersection+bbox programs` 
+
+
+.. class:: tiny
+
+   [1] Turing RTX GPUs
+
+
+
+.. s5_talk::
+
+
+   * NVIDIA OptiX is a CUDA interface to the NVIDIA BVH acceleration structure
+   * it is a ray tracing specific compiler
+
+   OptiX creates GPU kernels by compiling together: 
+
+   * user programs for ray generation and geometry intersection (yellow boxes)
+   * with NVIDIA traversal programs (blue boxes)
+
+   **most of Opticks on the GPU is in the ray generation and intersection programs** 
+
+   * OptiX accelerates the intersection...  
+
+   * Triangle intersection can be done on the RT Cores, 
+   * other shapes needs CUDA implementations, and runs on the SM 
+  
+
+.. skip
+
+   * no need for fancy shading, so closest hit is simple, just collecting the normal 
+     and ray trace distance 
+
+  * creating renderers is the most common use of OptiX, but it is a general 
+     intersection API so works fine to do simulation   
+  
+
+
+:i:`Geant4OpticksWorkflow`
+----------------------------
+
+.. s5_talk::
+
+    SMALL
+    So : how can an external optical photon simulation be integrated with Geant4 ?
+
+    In the standard workflow the Geant4 Scintillation and 
+    Cerenkov processes calculate a number of photons 
+    and then loop generating these and collecting them 
+    as secondaries
+     
+    In the hybrid workflow, this generation is split 
+    between the CPU and GPU with "Gensteps" acting as the bridge. 
+    These Genstep parameters include the number of photons, positions and everything 
+    else needed in the generation loop.
+
+    The result is a very simple port of the generation loop to the GPU. 
+
+    Its doubly helpful to generate photons on GPU, as then
+    they take no CPU memory.
+  
+    So can entirely offload photon memory to the GPU with only hits needing CPU memory. 
+
+    Also this keeps the overheads low as gensteps are typically a factor of 100 smaller
+    than photons.   
+ 
+    The geometry is also needed on the GPU, with all 
+    material and surface properties.
+     
+
+
+:small:`Opticks : Translates G4 Optical Physics to CUDA/OptiX`
+----------------------------------------------------------------
+
+
+.. sidebar:: GPU Resident Photons
+
+    .. class:: small
+
+       **Seeded on GPU** 
+          associate photons -> *gensteps* (via seed buffer)
+ 
+       **Generated on GPU, using genstep param:**
+         * number of photons to generate
+         * start/end position of step
+
+       **Propagated on GPU**
+          :red:`Only photons hitting PMTs copied to CPU`
+
+
+       Thrust: **high level C++ access to CUDA**
+
+       .. figure:: /env/numerics/thrust/thrust.png
+          :width: 300px
+          :align: right
+
+       * https://developer.nvidia.com/Thrust
+       
+          
+
+         
+.. class:: small
+
+    :blue:`OptiX : single-ray programming model` -> line-by-line translation
+
+    **CUDA Ports of Geant4 classes**
+      * G4Cerenkov (only generation loop) 
+      * G4Scintillation (only generation loop) 
+      * G4OpAbsorption
+      * G4OpRayleigh 
+      * G4OpBoundaryProcess (only a few surface types)
+
+    **Modify Cherenkov + Scintillation Processes**
+      * collect *genstep*, copy to GPU for generation
+      * :red:`avoids copying millions of photons to GPU`
+
+    **Scintillator Reemission**
+      * fraction of bulk absorbed "reborn" within same thread
+      * wavelength generated by reemission texture lookup
+
+    **Opticks (OptiX/Thrust GPU interoperation)** 
+      * **OptiX** : upload gensteps 
+      * **Thrust** : seeding, distribute genstep indices to photons
+      * **OptiX** : launch photon generation and propagation
+      * **Thrust** : pullback photons that hit PMTs 
+      * **Thrust** : index photon step sequences (optional)
+
+
+
+.. s5_talk:: 
+
+    This repeats what I just explained on the diagram
+
+    * essentially the necessary Geant4 optical physics is ported to CUDA
+
+    * the crucial thing to realize is that the photons are GPU resident
+
+      * they are generated, propagated and visualized all in GPU buffers
+      * only collected photons need to be copied to the CPU
+
+
+.. skip
+
+    Some further detail is on the reemissio and also 
+    use of CUDA Thrust : which provides a higher level way 
+    of using CUDA 
+
+
+
+
+
+:small:`G4VSolid -> CUDA Intersect Functions for ~10 Primitives`
+-------------------------------------------------------------------------------------------------
+
+.. class:: small
+
+   * 3D parametric ray : **ray(x,y,z;t) = rayOrigin  +  t * rayDirection** 
+   * implicit equation of primitive : **f(x,y,z) = 0**  
+   * -> polynomial in **t** , roots: **t > t_min**  -> intersection positions + surface normals
+
+.. figure:: /env/presentation/tboolean_parade_sep2017.png
+   :width: 900px
+   :align: center
+
+   Sphere, Cylinder, Disc, Cone, Convex Polyhedron, Hyperboloid, :red:`Torus`, ...
+
+
+.. s5_talk::
+
+   Geometry starts from primitive shapes.
+
+   NVIDIA OptiX doesnt provide primitives : My Opticks 
+   has ray geometry intersection for these shapes implemented 
+   with polynomial root finding.
+
+
+
+
+:small:`G4Boolean -> CUDA/OptiX Intersection Program Implementing CSG`
+-------------------------------------------------------------------------------------
+
+.. sidebar:: Outside/Inside Unions
+
+    .. class:: small
+
+       dot(normal,rayDir) -> Enter/Exit
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_outside.png
+       :width: 300px
+       :align: center
+
+    .. image:: /env/presentation/kensler_union_of_two_spheres_from_inside.png
+       :width: 300px
+       :align: center
+
+    .. class:: small
+
+        * **A + B** boundary not inside other 
+        * **A * B** boundary inside other 
+
+
+.. class:: small
+
+   Complete Binary Tree, pick between pairs of nearest intersects:
+
+   =======================  ===========  ===============  ============== 
+   *UNION* tA < tB           Enter B      Exit B           Miss B
+   =======================  ===========  ===============  ============== 
+   **Enter A**               ReturnA      :blue:`LoopA`    ReturnA
+   **Exit A**                ReturnA      ReturnB          ReturnA 
+   **Miss A**                ReturnB      ReturnB          ReturnMiss
+   =======================  ===========  ===============  ============== 
+
+   * *Nearest hit intersect algorithm* [1] avoids state
+
+     * sometimes :blue:`Loop` : advance **t_min** , re-intersect both 
+     * classification shows if inside/outside
+
+   * *Evaluative* [2] implementation emulates recursion: 
+
+     * :red:`recursion not allowed` in OptiX intersect programs
+     * bit twiddle traversal of complete binary tree 
+     * stacks of postorder slices and intersects 
+
+   * :red:`Identical geometry to Geant4` 
+
+     * solving the same polynomials 
+     * near perfect intersection match
+
+
+
+.. class:: tiny
+
+    [1] Ray Tracing CSG Objects Using Single Hit Intersections, Andrew Kensler (2006)
+        with corrections by author of XRT Raytracer http://xrt.wikidot.com/doc:csg
+ 
+    [2] https://bitbucket.org/simoncblyth/opticks/src/tip/optixrap/cu/csg_intersect_boolean.h
+        Similar to binary expression tree evaluation using postorder traverse. 
+
+
+.. s5_talk::
+
+
+    Opticks includes a CUDA CSG (constructive solid geometry) implemented beneath
+    the level of OptiX primitives.
+    So can intersect with complex compound shapes.
+
+    G4Boolean trees can be translated into Opticks without 
+    any approximation.
+ 
+
+
+
+:small:`Opticks : Translates G4 Geometry to GPU, Without Approximation`
+------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Materials/Surfaces -> GPU Texture` 
+
+    .. class:: small
+
+      **Material/Surface/Scintillator properties**
+
+      * interpolated to standard wavelength domain
+      * interleaved into "boundary" texture  
+      * "reemission" texture for wavelength generation 
+
+      **Material/surface boundary : 4 indices**
+
+      * outer material (parent)
+      * outer surface (inward photons, parent -> self)
+      * inner surface (outward photons, self -> parent)
+      * inner material (self)
+
+      Primitives labelled with unique boundary index
+
+      * ray primitive intersection -> boundary index
+      * texture lookup -> material/surface properties
+
+      :red:`simple/fast properties + reemission wavelength`
+
+
+.. class:: small
+
+    **G4 Structure Tree -> Instance+Global Arrays -> OptiX**
+
+    Group structure into repeated instances + global remainder:
+
+    * auto-identify repeated geometry with "progeny digests"  
+
+      * JUNO : 9 distinct instances + 1 global  
+
+    * instance transforms used in OptiX/OpenGL geometry 
+
+    :red:`instancing -> huge memory savings for JUNO PMTs`
+
+
+
+
+.. raw:: html
+
+    <pre>
+    </pre>
+
+
+.. comment
+
+    **Automated : Geant4 "World" -> Opticks CSG -> CUDA/OptiX**
+
+    **Solids : analytic CSG + triangulated**
+
+    * intersection functions for ~10 primitives
+    * intersection program for arbitrarily complex CSG shapes 
+     
+      * :red:`automated : G4 -> Opticks -> OptiX`  
+
+
+
+.. s5_talk::
+
+
+   The Opticks geometry model starts from the observation that 
+   there is lots of repetition in the geometry.  It automatically 
+   finds these repeats.
+
+   Bringing optical physics to the GPU was straightforward, 
+   because a direct translation could be used.
+
+   The Geant4 geometry model is vastly different to the 
+   whats needed on the GPU : making geometry translation
+   the most challenging aspect of Opticks.
+
+   And everything needs to be serialized to be copied to the GPU.
+     
+
+
+:i:`j1808_top_rtx`
+--------------------
+
+.. s5_talk::
+
+   The upshot is that full Geant4 detector geometries
+   can be automatically translated into NVIDIA OptiX geometries.
+
+   This is an OptiX ray trace image from the chimney region at the 
+   top of the JUNO scintillator sphere.
+    
+
+:i:`j1808_top_ogl`
+--------------------
+
+.. s5_talk::
+
+   This is an OpenGL rasterized image, using the approximate triangulated 
+   geometry. 
+
+   Opticks manages analytic and triangulated geometry together.  
+
+
+
+:small:`Validation of Opticks Simulation by Comparison with Geant4`  
+--------------------------------------------------------------------
+
+.. sidebar:: :small:`Random Aligned Bi-Simulation`
+
+    .. class:: small
+
+        Same inputs to *Opticks* and *Geant4*:
+
+        * CPU generated photons 
+        * GPU generated randoms, fed to *Geant4*
+
+        Common recording into *OpticksEvents*:
+
+        * compressed photon step record, up to 16 steps
+        * persisted as *NumPy* arrays for python analysis   
+
+        Aligned random consumption, direct comparison:
+
+        * ~every **scatter, absorb, reflect, transmit** 
+          at matched positions, times, polarization, wavlen
+
+
+
+.. class:: small
+
+
+   **Bi-simulations of all JUNO solids, with millions of photons**
+
+   mis-aligned histories
+       mostly < 0.25%, < 0.50% for largest solids    
+       
+   deviant photons within matched history
+       < 0.05% (500/1M) 
+ 
+   **Primary sources of problems**
+
+   * grazing incidence, edge skimmers
+   * incidence at constituent solid boundaries 
+
+
+   **Primary cause : float vs double** 
+      
+   *Geant4* uses *double* everywhere, *Opticks* only sparingly (observed *double* costing 10x slowdown with RTX) 
+
+   **Conclude** 
+
+   * :blue:`neatly oriented photons more prone to issues than realistic ones`
+   * perfect "technical" matching not feasible
+   * instead shift validation to more realistic full detector "calibration" situation    
+
+
+.. s5_talk::
+
+   Opticks is validated by comparison with Geant4. 
+
+   Random Aligned bi-simulation (sidebar) 
+   allows direct step-by-step comparison of simulations  
+   unclouded by statistical variation.
+
+   So issues show up very clearly.   
+
+   Comparing individual solids shows discrepancies at the fraction of a percent level.
+
+   Main cause is float vs double. 
+
+
+:i:`scan-pf-check-GUI-TO-SC-BT5-SD`
+--------------------------------------
+
+.. s5_talk::
+
+   This GUI allows interactive selection between tens of millions 
+   of photons based on their histories.  
+
+   Here its showing the photons that scattered before boundary transmitting straight 
+   through to surface detect.
+
+   Its implemented by indexing the photon histories using some very fast 
+   GPU big integer sorting provided by CUDA Thrust, 
+   and using OpenGL geometry shaders to switch between selections.
+
+   The 64-bit integers hold up to 16 4-bit flags for each step of the photon.
+
+   All of this is done using interop capabilities of OpenGL/CUDA/Thrust and OptiX
+   so GPU buffers can be written to and rendered inplace with no copying around.
+
+
+:small:`Recording the steps of Millions of Photons`  
+---------------------------------------------------------   
+
+.. sidebar:: Compression Essential
+
+    .. class:: small
+
+         Domain compression to fit in VRAM 
+
+         * 16 step records per photon -> 256 bytes/photon
+         * 10M photons -> 2.56 GB
+
+         **4-bit History Flags at Each Step** 
+
+    .. raw:: html
+
+         <pre class="mypretiny">
+         BT : boundary
+         BR : boundary reflect 
+         SC : bulk scatter
+         AB : bulk absorb 
+         SD : surface detect 
+         SA : surface absorb 
+         </pre>
+
+    .. class:: small
+
+         **seqhis**
+             :red:`64-bit integer history sequence`
+
+
+.. class:: small
+
+    Up to 16 steps of the photon propagation are recorded.
+
+    **Photon Array** : 4 * *float4* = 512 bits/photon
+
+    * *float4*: position, time  [32 * 4 = 128 bits]
+    * *float4*: direction, weight
+    * *float4*: polarization, wavelength
+    * *float4*: flags: material, boundary, history  
+
+    **Step Record Array** : 2 * *short4* = 2*16*4 = 128 bits/record
+
+    * *short4*: position, time (snorm compressed)  [4*16 = 64 bits]
+    * *uchar4*: polarization, wavelength (uchar compressed) [4*8 = 32 bits]
+    * *uchar4*: material, history flags [4*8 = 32 bits]  
+
+    Compression uses known domains of position (geometry center, extent),
+    time (0:200ns), wavelength, polarization. 
+
+
+.. s5_talk::
+
+    When you have millions of photons it is important 
+    to consider compression techniques. 
+
+    I mention this detail, because compression of 
+    photons is essential when considering how to make 
+    propagations re-usable.
+
+
+
+:i:`scan-pf-check-GUI-TO-BT5-SD`
+----------------------------------
+
+.. s5_talk::
+
+   The GUI also provides interactive time scrubbing of the propagation 
+   of tens of millions of photons. 
+
+   This is some nanoseconds later for a different history category. 
+  
+   I created this GUI to help with debugging the simulation. 
+
+
+.. comment
+
+     * DELL Precision 7920T Workstation
+     * Intel Xeon Silver 4114, 2.2GHz, 40 cores, 65G 
+     * NVIDIA Quadro RTX 8000, 48G 
+
+     * DELL Precision 7920T Workstation
+     * Intel Xeon Gold 5118, 2.3GHz, 48 cores, 65G  
+     * NVIDIA TITAN RTX, 24G
+     * NVIDIA TITAN V, 12G
+
+
+:small:`Performance : Scanning from 1M to 400M Photons`  
+---------------------------------------------------------------
+
+.. sidebar:: :small:`Test Hardware + Software`
+
+     .. class:: small
+
+         **Workstation**
+
+         * DELL Precision 7920T Workstation
+         * Intel Xeon Gold 5118, 2.3GHz, 48 cores, 62G  
+         * NVIDIA Quadro RTX 8000 (48G) 
+    
+         **Software**
+
+         * Opticks 0.0.0 Alpha 
+         * Geant4 10.4p2 
+         * NVIDIA OptiX 6.5.0
+         * NVIDIA Driver 435.21
+         * CUDA 10.1
+
+         **IHEP GPU Cluster**
+
+         * 10 nodes of 8x NVIDIA Tesla GV100 (32G) 
+
+
+
+
+.. class:: small
+
+     **Full JUNO Analytic Geometry j1808v5**
+
+     * "calibration source" genstep at center of scintillator
+
+     **Production Mode : does the minimum**
+
+     * only saves hits  
+     * skips : genstep, photon, source, record, sequence, index, ..
+     * no *Geant4* propagation (other than at 1M for extrapolation)
+
+     **Multi-Event Running, Measure:**
+
+     :red:`interval` 
+       avg time between successive launches, including overheads:
+       (upload gensteps + :blue:`launch` + download hits)
+
+     :blue:`launch` 
+       avg of 10 OptiX launches
+
+
+     * overheads < 10% beyond 20M photons
+
+
+
+.. s5_talk::
+
+   Emitting millions of photons from the center of the scintillator 
+   and timing the interval and launch times of the propagation 
+   provides a measure of the performance of a geometry.
+   
+   By interval, I mean the time between suceessive launches : so this 
+   covers all the overheads of copying the gensteps to the GPU and 
+   pulling back the hits to the CPU.
+
+   Overheads are less than 10%    
+
+
+
+.. comment
+
+    .. sidebar:: :small:`Genstep/Hit Copying Overheads`
+
+         .. class:: small
+
+             **launch**
+               time of each OptiX launch (avg of 10)
+
+             **interval, including overhead**
+               time between subsequent launches (avg of 9)
+
+             :red:`Mostly < 10% Overhead beyond 20M photons`
+
+
+
+
+
+
+``NVIDIA Quadro RTX 8000 (48G)``
+----------------------------------
+
+.. raw:: html
+
+   <div class="mysidebar" style="position: absolute; top:15%; left:65%; width:22%; height:10% ;" >
+      <strong> 谢谢 NVIDIA China <br> for loaning the card </strong>
+   </div>
+
+
+.. s5_talk::
+
+   The GPU used for these tests is the Quadro RTX 8000 with 48GB VRAM.
+
+   Xie-xie to NVIDIA China for loaning the card.  
+
+
+
+.. comment
+
+   update these profilesmry.py plots with::
+
+       scan-plot     ## on workstation    
+       scan-pub      ## on laptop with simoncblyth.bitbucket.org clone
+       scan-pubrst   ## prepare RST for inclusion at tail 
+
+
+:i:`scan-pf-1_NHit`
+---------------------
+
+.. raw:: html
+
+     <pre>
+
+
+
+
+
+
+
+
+     </pre>
+
+
+.. sidebar:: :small:`Photon Launch Size : VRAM Limited`
+
+     .. class:: small
+
+
+         **NVIDIA Quadro RTX 8000 (48 GB)**
+
+         * photon 4*4 floats : 64 bytes
+         * curandState       : 48 bytes 
+
+         **400M photons** x :blue:`112 bytes` ~ 45G  
+
+
+
+.. s5_talk::
+
+    The first check is that you get the expected number of hits 
+    as a function of the number of photons.
+
+    The photon parameters takes 64 bytes and curandState takes 48 bytes
+     
+    So thats 112 bytes per photon, so the limit on the number 
+    of photons that can be simulated in a single launch with this 48G 
+    GPU is a bit more than 400M.
+
+
+ 
+
+
+
+
+
+:i:`scan-pf-1_Opticks_vs_Geant4 2`
+------------------------------------
+
+.. raw:: html
+
+    <pre>
+   
+
+
+ 
+    </pre>
+
+
+.. class:: small
+
+    .. table:: 
+        :align: center
+
+        +--------------------+----------------------------+------------------+
+        | JUNO analytic, 400M photons from center         |  Speedup         |
+        +====================+============================+==================+
+        | Geant4 Extrap.     | 95,600 s (26 hrs)          |                  | 
+        +--------------------+----------------------------+------------------+
+        | Opticks RTX ON (i) | 58 s                       |   1650x          |
+        +--------------------+----------------------------+------------------+
+
+
+.. s5_talk::
+
+   This compares the extrapolated Geant4 propagation time with the Opticks launch
+   interval with RTX on.   The speedup is more than a factor of 1500.   Need to 
+   use a log scale to make them both visible. 
+
+   For 400M photons, Geant4 takes more than a day, Opticks takes less than a minute.   
+
+   This is with analytic geometry. Speedup is a lot more with triangles.
+
+
+
+:i:`scan-pf-1_Opticks_Speedup 2`
+---------------------------------
+
+.. raw:: html
+  
+     <pre>
+
+
+
+
+
+
+
+
+
+     </pre>
+
+.. class:: small
+
+     .. table:: 
+        :align: center
+
+        +-------------------------+------------------+------------------+
+        | JUNO analytic, 400M photons from center    |   Speedup        |
+        +=========================+==================+==================+
+        | Opticks RTX ON (i)      | 58s              |   1650x          |
+        +-------------------------+------------------+------------------+
+        | Opticks RTX OFF (i)     | 275s             |   350x           |
+        +-------------------------+------------------+------------------+
+        | Geant4 Extrap.          | 95,600s (26 hrs) |                  |
+        +-------------------------+------------------+------------------+
+
+
+.. s5_talk::
+
+    This is the same information shown as a ratio.
+
+
+
+:i:`scan-pf-1_RTX_Speedup`
+---------------------------------
+
+
+.. raw:: html
+  
+     <pre>
+
+
+
+
+
+
+
+
+
+
+
+     </pre>
+
+    
+.. table:: 
+   :align: center
+
+   +-----------------------------------------------------+
+   | **5x Speedup from RTX with JUNO analytic geometry** |
+   +-----------------------------------------------------+
+
+
+.. s5_talk::
+
+    Comparing RTX mode OFF to ON shows that the
+    dedicated ray tracing hardware is giving a factor of 5.
+
+
+
+
+
+:small:`Useful Speedup > 1500x : But Why Not Giga Rays/s ? (1 Photon ~10 Rays)`   
+----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`100M photon RTX times, avg of 10` 
+
+    .. class:: small
+
+         .. table::
+            :widths: 15 5 5 
+
+            +--------------------+-----------+------------------+----------+
+            | Launch times for various geometries                          | 
+            +--------------------+-----------+------------------+----------+
+            | Geometry           | Launch (s)|  Giga Rays/s     | Relative |
+            |                    |           |                  | to ana   |
+            +====================+===========+==================+==========+
+            | JUNO ana           |   13.2    |  0.07            |          |
+            +--------------------+-----------+------------------+----------+
+            | JUNO tri.sw        |    6.9    |  0.14            |   1.9x   |
+            +--------------------+-----------+------------------+----------+
+            | JUNO tri.hw        |    2.2    |  0.45            |   6.0x   |
+            +--------------------+-----------+------------------+----------+
+            |                                                              | 
+            +--------------------+-----------+------------------+----------+
+            | Boxtest ana        |    0.59   |  1.7             |          |
+            +--------------------+-----------+------------------+----------+
+            | Boxtest tri.sw     |    0.62   |  1.6             |          |
+            +--------------------+-----------+------------------+----------+
+            | Boxtest tri.hw     |    0.30   |  3.3             |  1.9x    |
+            +--------------------+-----------+------------------+----------+
+
+    .. class:: small
+
+        * ana : Opticks analytic CSG (SM) 
+        * tri.sw : software triangle intersect (SM)
+        * :red:`tri.hw : hardware triangle intersect (RT)` 
+
+        JUNO 15k triangles, 132M without instancing
+
+        **Simple Boxtest geometry gets into ballpark**
+
+.. class:: small
+
+    * NVIDIA claim : :blue:`10 Giga Rays/s with RT Core` 
+    * -> **1 Billion photons per second**
+
+    * **RT cores : built-in triangle intersect + 1-level of instancing**  
+    * flatten scene model to avoid SM<->RT roundtrips ?  
+
+
+.. raw:: html
+
+    <pre>
+
+
+
+
+
+
+
+
+
+
+
+
+    </pre>
+
+.. class:: small
+
+    OptiX Performance Tools and Tricks, David Hart, NVIDIA
+    https://developer.nvidia.com/siggraph/2019/video/sig915-vid
+
+
+
+
+.. s5_talk::
+
+   NVIDIA claims 10 GigaRays/s
+
+   As each photon costs around 10 rays 
+   that means 1 billion photons per second is the upper limit.
+
+   Performance you get is very sensitive to the geometry, 
+   both its complexity and how you model it.  Because these result 
+   in different BVH.
+
+   And its also necessary to consider what can run in the RT cores.  
+
+   The large dependence on geometry makes me hopeful that there 
+   is room for improvement by tuning the geometry modelling.
+ 
+
+
+
+.. comment
+
+        +-----------------------------------+------------------+------------------+-------------------------------+
+        |           RTX ON Launch times for 100M photons, (avg of 10)                                             |
+        +-----+-----------------------------+------------------+------------------+-------------------------------+
+        | Id  |  Geometry                   |  Launch Time (s) |  GigaRays/s      |  Speedup Relative to analytic | 
+        +=====+=============================+==================+==================+===============================+
+        | pf1 | JUNO analytic CSG           |   13.2           |  0.07            |                               |
+        +-----+-----------------------------+------------------+------------------+-------------------------------+
+        | pt0 | JUNO triangulated SW        |    6.9           |  0.14            |   1.9x                        |
+        +-----+-----------------------------+------------------+------------------+-------------------------------+
+        | pt0 | JUNO triangulated HW        |    2.2           |  0.45            |   6.0x                        |
+        +-----+-----------------------------+------------------+------------------+-------------------------------+
+        |     |                             |                  |                  |                               | 
+        +-----+-----------------------------+------------------+------------------+-------------------------------+
+        | ph11| Box-in-box analytic CSG     |    0.59          |  1.7             |                               |
+        +-----+-----------------------------+------------------+------------------+-------------------------------+
+        | ph13| Box-in-box tri(4k) SW       |    0.62          |  1.6             |                               |
+        +-----+-----------------------------+------------------+------------------+-------------------------------+
+        | ph13| Box-in-box tri(4k) HW       |    0.30          |  3.3             |    1.9x                       |
+        +-----+-----------------------------+------------------+------------------+-------------------------------+
+
+
+    .. class:: tiny
+
+        JUNO: j1808v5, box-in-box: tboolean-box
+
+
+
+
+
+
+:small:`Where Next for Opticks ?`
+----------------------------------------------------
+
+
+.. sidebar:: :small:`NVIDIA OptiX 7 : Entirely new API`
+
+    .. class:: small
+
+        * introduced August 2019
+        * low-level CUDA-centric thin API
+        * :strike:`near perfect scaling to 4 GPUs, for free` 
+
+
+.. class:: small
+
+    **JUNO+Opticks into Production** 
+
+    * optimize geometry modelling for RTX
+    * full JUNO geometry validation iteration 
+    * JUNO offline integration
+    * optimize GPU cluster throughput:
+
+      * split/join events to fit VRAM
+      * job/node/multi-GPU strategy
+
+    * support OptiX 7, find multi-GPU load balancing approach
+
+.. raw:: html
+
+    <pre>
+    </pre>
+
+.. class:: small
+
+    **Geant4+Opticks Integration : Work with Geant4 Collaboration** 
+
+    * finalize *Geant4+Opticks* extended example
+ 
+      * aiming for *Geant4* distrib 
+
+    * prototype *Genstep* interface inside *Geant4* 
+
+      * avoid customizing *G4Cerenkov* *G4Scintillation*
+
+
+.. raw:: html
+
+    <pre>
+    </pre>
+
+
+.. class:: small
+
+    **Alpha Development ------>-----------------> Robust Tool**
+
+    * many more users+developers required (current ~10+1)
+    * if you have an optical photon simulation problem ... 
+    
+      * start by joining : https://groups.io/g/opticks
+    
+
+
+
+.. s5_talk::
+
+   The next step is bringing Opticks into production usage 
+   within JUNO 
+
+
+   There is considerable interest in Opticks by the Geant4 
+   collaboration. The Fermilab Geant4 group is working on 
+   making an extended example for inclusion with the Geant4
+   distribution.  The CERN Geant4 group is looking at 
+   the possibilities to use the Opticks geometry approach more
+   widely, eg for gamma simulation in LHC calorimeters.
+
+   Opticks needs many more users and developers, 
+   to turn it into an robust tool.  
+
+   There is also a challenge in the form of NVIDIA OptiX 7 
+   which has drastically changed its API. A important 
+   multi-GPU feature is going away. 
+
+   To regain this requires developing load balancing across multiple GPUs myself.
+
+
+
+.. comment
+
+    * geometry translation help : NEXO, DUNE, LZ  
+    * interest -> usage : SABRE, Baikal GVD, KM3Net, MicroBooNE
+    * expand interest : scintillator using medical imaging companies 
+    * automated geometry translation, but problems inevitable
+
+    * now: sole-developer + ~10 exploratory users from ~5 detectors  
+    * needs users+developers, join https://groups.io/g/opticks 
+
+
+   
+
+:small:`Drastically Improved Optical Photon Simulation Performance...`
+-----------------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`How is >1500x possible ?`
+
+     .. class:: small
+
+          **Progress over 30 yrs, Billions of Dollars**
+
+          * industry funded : game, film, design, ... 
+          * re-purposed by translating geometry to GPU
+
+            * tree of C++ objects -> arrays -> BVH
+
+          **Photon Simulation ideally suited to GPU**
+ 
+          * millions of photons -> abundantly parallel 
+          * simple phys. -> small stack -> many in flight 
+          * decoupled -> no synchronization 
+
+         
+          
+
+
+.. class:: small
+
+  **Three revolutions reinforcing each other:**
+
+  * games -> graphics revolution -> GPU -> cheap TFLOPS
+  * internet scale big datasets -> ML revolution
+  * computer vision revolution for autonomous vehicles 
+    
+  :blue:`Deep rivers of development, ripe for re-purposing`
+  
+  * analogous problems -> solutions
+  * :red:`experience across fields essential to find+act on analogies`  
+
+  **Example : DL denoising for faster ray trace convergence**
+
+  * analogous to hit aggregation
+  * skip the hits, jump straight to DL smoothed probabilities 
+
+    * :red:`blurs the line between simulation and reconstruction`
+
+.. raw:: html
+
+   <pre>
+   </pre>
+
+.. class:: small
+
+   **Re-evaluate long held practices in light of new realities:**
+
+   * large ROOT format (C++ object) MC samples repeatedly converted+uploaded to GPU for DL training ... OR:
+   * small Genstep NumPy arrays uploaded, dynamically simulated into GPU hit arrays in fractions of a second 
+
+
+.. comment
+
+  **Transformative Performance : But how to transform ?**
+
+  * graphics : oldest user of GPUs -> rich palette of techniques 
+  * vision spherical CNN -> potential for reconstruction 
+
+  **Dynamically generated simulation feasible ?**
+
+  * current reconstruction -> custom simulation
+  * no more : limited MC stats in edge cases 
+
+
+
+.. s5_talk::
+
+   How it is possible for a > 1500 times speedup ?
+
+   Well, I think it is because of the success of Geant4 over 
+   20 years have made it too easy just to continue using it, 
+   and hope Moores law is going to speed things up.
+
+   Meanwhile, billions of dollars of industry development 
+   have gone into improving ray tracing.
+
+   Liberating geometry from the Geant4 object model allows
+   all this development effort to be applied to optical photon simulation.
+
+
+
+:small:`Overview + Links`
+----------------------------------------------------------------
+
+.. sidebar:: :small:`Highlights`
+
+   .. class:: small
+
+      * Benefit from hardware accelerated ray tracing
+      * **Opticks > 1500x Geant4** (one Turing GPU) 
+
+
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 50px
+
+..
+
+
+  *Opticks* : state-of-the-art GPU ray tracing applied to optical photon simulation and
+  integrated with *Geant4*, giving a leap in performance that eliminates memory and time bottlenecks.
+ 
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 1px
+
+
+
+
+  * Drastic speedup -> better detector understanding -> greater precision
+  
+    * **any simulation limited by optical photons can benefit** 
+    * more photon limited -> more overall speedup (99% -> 100x) 
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 10px
+
+
+
+.. table::
+    :align: center
+
+    +----------------------------------------------+-----------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks    | code repository                         |                   
+    +----------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.bitbucket.io             | presentations and videos                |
+    +----------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                  | forum/mailing list archive              |
+    +----------------------------------------------+-----------------------------------------+
+    | email:opticks+subscribe@groups.io            | subscribe to mailing list               |
+    +----------------------------------------------+-----------------------------------------+ 
+
+
+.. comment
+
+  *Opticks* uses hardware accelerated GPU ray tracing
+  via NVIDIA OptiX to give **effectively zero time and zero CPU memory** 
+  optical photon simulation to *Geant4* applications.
+
+
+
+.. s5_talk::
+
+   Here is the summary of the first half.
+
+   Opticks applies the best available GPU ray tracing to optical 
+   photon simulation resulting in speedups exceeding three orders of magnitude.
+
+   Opticks is still very young and it really needs users (and developers) 
+   to turn it into a robust tool that anyone with an optical photon simulation problem 
+   can use to elimate.
+
+   These speedups are just for the optical photons, how much that 
+   helps with the overall speedup depends on how limited you are by 
+   optical photons.
+
+
+:i:`geocache_360`
+---------------------------------------------------------
+
+
+.. s5_talk::
+
+    This is a 360 degree view of the all the JUNO central detector PMTs,
+    which I used a raytracing benchmark.  
+
+    Its an equirectangular projection.
+
+
+:small:`Outline of Graphics/GPU background + Application to neutrino telescopes`
+--------------------------------------------------------------------------------
+
+.. image:: /env/presentation/newtons-opticks.png 
+   :width: 299px
+   :height: 547px 
+   :align: right
+
+
+.. class:: small
+
+    * GPU + Parallel Processing Background 
+
+      * Amdahls "Law" : Expected speedup limited by serial processing 
+      * Understanding GPU Graphical Origins -> Effective GPU Computation                                            
+      * CPU Optimizes Latency, GPU Optimizes Throughput 
+      * How to make effective use of GPUs ? Parallel/Simple/Uncoupled
+      * GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy                                             
+      * Survey of High Level General Purpose CUDA Packages
+
+    * Graphics History/Background 
+
+      * 50 years of rendering progress
+      * 2018 : NVIDIA RTX : Project Sol Demo
+      * Monte Carlo Path Tracing in Movie Production       
+      * Fundamental "Rendering Equation" of Computer Graphics
+      * Neumann Series solution of Rendering Equation 
+      * Noise : Problem with Monte Carlo Path Tracing  
+      * NVIDIA OptiX Denoiser
+      * Physically Based Rendering Book : Free Online  
+      * Optical Simulations : Graphics vs Physics 
+
+    * Neutrino Telescope Optical simulations 
+  
+      * Giga-photon propagations : Re-usable photon "snapshots" 
+      * Opticks Rayleigh Scattering : CUDA line-by-line port of G4OpRayleigh
+      * Developing a photon "snapshot" cache 
+      * Photon Mapping 
+
+    * Summary 
+    
+  
+.. s5_talk::
+
+   Heres the outline of the 2nd half.
+
+   * I will cover some of the GPU and graphics backgrounds 
+     which can help with handling billion photon propagations 
+
+   * I go into some details on graphics in the hope of getting people who are 
+     working on optical simulation interested in the techniques :   
+     as I think there is a lot of potential for re-using these 
+     in physics simulations
+
+
+
+
+:small:`Amdahls "Law" : Expected Speedup Limited by Serial Processing`
+--------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`S(n) Expected Speedup`
+
+    .. comment
+
+       :width: 1176px
+       :height: 358px
+       :width: 588px 
+       :height: 179px
+            
+    .. image:: /env/presentation/parallel/amdahl.png
+       :width: 392px 
+       :height: 112px
+       :align: center
+
+
+    .. class:: small
+
+        *P* 
+             parallelizable proportion
+        *1-P*
+             non-parallelizable portion
+        *n*
+             parallel speedup factor  
+
+
+
+optical photon simulation, P ~ 99% of CPU time  
+
+* -> potential overall speedup S(n) is 100x 
+* even with parallel speedup factor >> 1500x  
+
+
+
+**Must consider processing "big picture"**
+
+* remove bottlenecks one by one
+* re-evaluate "big picture" after each  
+
+
+.. s5_talk::
+
+   The serial portion of processing determines the overall 
+   speedup because the parallel portion goes to zero 
+
+   With neutrino telescopes I expect the situation will be 
+   more like 99.9% limited so there is potential 
+   for some really drastic overall speedups for you.
+
+
+:small:`Understanding GPU Graphical Origins -> Effective GPU Computation` 
+---------------------------------------------------------------------------------
+
+.. sidebar:: :small:`OpenGL Rasterization Pipeline`
+
+    .. image:: /env/presentation/opengl/rasterization_pipeline_rhs.png
+       :width: 450px
+       :align: right
+
+
+.. class:: small
+
+    **GPUs evolved to rasterize 3D graphics at 30/60 fps** 
+
+    * 30/60 "launches" per second, each handling millions of items 
+    * :red:`literally billions of small "shader" programs run per second`   
+   
+    **Simple Array Data Structures (N-million,4)**
+
+    * millions of vertices, millions of triangles 
+    * vertex: **(x y z w)**  
+    * colors: **(r g b a)** 
+    
+    **Constant "Uniform" 4x4 matrices : scaling+rotation+translation**
+
+    * 4-component homogeneous coordinates -> easy projection
+
+    **Graphical Experience Informs Fast Computation on GPUs**
+
+    * array shapes similar to graphics ones are faster
+
+      * "float4" 4*float(32bit) = 128 bit memory reads are favored 
+      * Opticks photons use "float4x4" just like 4x4 matrices
+
+    * GPU Launch frequency < ~30/60 per second   
+
+      * avoid copy+launch overheads becoming significant
+      * ideally : handle millions of items in each launch 
+
+
+
+.. s5_talk::
+
+    Rasterization is the process of going from input 3D vertices 
+    which are collections of 4 floats to 2d pixel values. 
+
+    GPUs evolved to do this rasterization.
+
+    When using GPUs you should keep these origins in mind. 
+
+    * for example, copying or operating on float4s 4*32bits is faster that *float3* 
+      128bits are better for alignment reasons 
+
+    * graphics pipeline is based around 4x4 matrices 
+      and 4 component homogeneous coordinates
+ 
+    * graphics updates at something like 30/60 frames per second : so do not expect 
+      to do thousands of launches per second, each launch has overhead
+
+    * performance is gained by doing more in each launch  
+
+
+
+:small:`CPU Optimizes Latency, GPU Optimizes Throughput`
+------------------------------------------------------------
+
+.. class:: small
+
+    .. image:: /env/presentation/nvidia/cpu_vs_gpu_architecture.png
+       :width: 800px
+       :align: center
+
+.. class:: small
+
+   Waiting for memory read/write, is major source of latency...
+
+   **CPU : latency-oriented : Minimize time to complete single task** : :red:`avoid latency with caching` 
+       * complex : caching system, branch prediction, speculative execution, ...
+
+   **GPU : throughput-oriented : Maximize total work per unit time** : :red:`hide latency with parallelism` 
+       * many simple processing cores, hardware multithreading, SIMD (single instruction multiple data)
+       * simpler : :green:`lots of compute (ALU)`, at expense of cache+control
+       * can tolerate latency, by **assuming** abundant other tasks to resume  : **design assumes parallel workload**
+
+   **Totally different processor architecture** -> :red:`Total reorganization of data and computation`  
+       * major speedups typically require total rethink of data structures and computation         
+
+.. comment
+
+   Understanding Throughput-oriented Architectures
+   https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
+
+   Latency hiding works using hardware multi-threading, so when one group of threads is blocked
+   waiting to read from global memory for example : other groups of thread and be resumed. This 
+   is only effective at hiding latency when there are enough other threads in flight at the same time.
+
+   Porting CPU code to run on the GPU : is not a straightforward thing to do, because the archirecture is totally 
+   different.  To make effective use of GPUs requires a total reorganization of data and compute. 
+
+
+.. s5_talk::
+
+   Latency hiding works using hardware multi-threading, so when one group of threads is blocked
+   waiting to read from global memory for example : other groups of threads are resumed. 
+
+   This is only effective at hiding latency when there are enough other threads in flight at the same time.
+
+   If your processing is not parallel enough, 
+   you will not make effective use of the GPU 
+
+
+
+
+:small:`How to Make Effective Use of GPUs ? Parallel / Simple / Uncoupled`
+------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Optical Photon Simulation`
+
+    .. class:: small
+
+        Abundant parallelism 
+           * Many millions of photons 
+
+        Low register usage 
+           * Simple optical physics, texture lookups
+
+        Little/No synchronization
+           * Independent photons -> None 
+
+        Minimize CPU<->GPU copies 
+           * geometry copied at initialization
+           * gensteps copied once per event
+           * only hits copied back    
+
+        :blue:`~perfect match for GPU acceleration` 
+
+
+
+.. class:: small
+
+    **Abundant parallelism**
+       * many thousands of tasks (ideally millions)
+
+    **Low register usage : otherwise limits concurrent threads** 
+       * simple kernels, avoid branching  
+
+    **Little/No Synchronization**
+       * avoid waiting, avoid complex code/debugging
+
+    **Minimize CPU<->GPU copies**
+       * reuse GPU buffers across multiple CUDA launches 
+
+    .. image:: /env/presentation/1px.png
+
+
+    **How Many Threads to Launch ?**
+
+    * can (and should) launch many millions of threads
+
+      * :red:`largest Opticks launch : 400M threads, at VRAM limit`
+
+    * maximum thread launch size : so large its irrelevant
+    * maximum threads inflight : #SM*2048 = 80*2048 ~ 160k
+
+      * best latency hiding when launch > ~10x this ~ 1M 
+
+
+
+.. class:: tiny    
+
+
+    Understanding Throughput-oriented Architectures
+    https://cacm.acm.org/magazines/2010/11/100622-understanding-throughput-oriented-architectures/fulltext
+
+    NVIDIA Titan V: 80 SM, 5120 CUDA cores
+
+
+.. comment 
+
+
+   So how does optical photon simulation stand on these criteria... 
+
+   * parallelism and synchronization are perfect : with millions of independent photons 
+     to simulation 
+
+   * low register usage : not so perfect, work required to fit into small stack size
+
+     * eg GPU textures for property access : does wavelength interpolation in hardware, 
+       so avoids code and resource consumption
+
+
+.. s5_talk::
+
+   The main things that dictate how effective your use of the GPU is going to be ... 
+
+   * ideally you need to have many thousands of simple independent tasks to make best use of the GPU 
+
+   * each task needs to be simple : low register usage and small stacksize : otherwise you limit 
+     the number of concurrent tasks
+
+   * idependence of the tasks really helps, as development is then much easier 
+
+   Many people guess that you should launch only as many threads as there are cores
+   in the GPU ... but thats wrong, you need to launch large multiples of that to get best performance
+
+   The reason is latency hiding, which only works when there is abundant parallelism, 
+   when the GPU workload resembles that from 3D graphics you will get best performance.
+
+
+
+.. comment
+
+   https://streamhpc.com/blog/2017-01-24/many-threads-can-run-gpu/
+
+   https://devtalk.nvidia.com/default/topic/1028226/how-many-concurrent-threads-are-running-on-my-geforce-gtx-1080-ti-/
+
+   The maximum number of threads in flight is 2048 * #SM
+
+
+
+:small:`GPU Demands Simplicity (Arrays) -> Big Benefits : NumPy + CuPy`
+-------------------------------------------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Array Serialization Benefits`
+
+    .. class:: small
+
+        **Persist everything to file -> fast development cycle**
+          
+        * data portability into any environment 
+        * interactive debug/analysis : *NumPy,IPython*
+        * flexible testing 
+
+        **Can transport everything across network:** 
+
+        * production flexibility : distributed compute
+
+        **Arrays for Everything -> direct access debug**
+
+        * (num_photons,4,4) *float32*
+        * (num_photons,16,2,4) *int16* : step records
+        * (num_photons,2) *uint64* : history flags 
+        * (num_gensteps,6,4) *float32*
+        * (num_csgnodes,4,4) *float32*
+        * (num_transforms,3,4,4) *float32*
+        * (num_planes,4) *float32*
+        * ...
+
+
+.. class:: small
+
+
+   **Separate address space -> cudaMemcpy -> Serialization** 
+     *upload/download* : host(CPU)<->device(GPU)
+
+   * :red:`Serialize everything` -> Arrays 
+   * Many small tasks -> Arrays
+   * Random Access/Order undefined -> Arrays
+
+   **Object-oriented : mixes data and compute** 
+
+   * complicated serialization
+   * good for complex systems, up to ~1000 objects
+
+   **Array-oriented : separate data from compute** 
+
+   * :red:`inherent serialization + simplicity`
+   * good for millions of element systems 
+
+   **NumPy : standard array handling package**  
+
+   * simple .npy serialization
+   * read/write *NumPy* arrays from C++ https://github.com/simoncblyth/np/blob/master/NP.hh
+
+
+.. class:: tiny 
+
+
+   https://realpython.com/numpy-array-programming/
+
+.. comment
+
+   :small:`http://www.numpy.org/neps/nep-0001-npy-format.html`
+
+   GPU and CPU have separate address spaces, that means 
+   everything copied between them needs serialization/deserialization 
+
+   Adopting an array-oriented design for all data both 
+   on CPU and GPU is a hugely simplifies work CPU+GPU work 
+
+   NumPy is leading array-oriented package, but that is a python extension ...
+   YES : but the NumPy serialization format is very simple, so can easily 
+   read/write NumPy arrays from C++
+
+   Benefits : random access to data from arrays 
+
+
+.. s5_talk::
+
+    Simplicity requirement comes from the need to do many things in parallel 
+    and also from the need to serialize everything in order to copy it 
+    to GPU global memory.
+
+    This constraint means must use Arrays 
+
+    But that comes with advantages: 
+
+    * easy serialization
+    * use of standard tools like NumPy 
+
+    
+:small:`Survey of High Level General Purpose CUDA Packages`
+-------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`CuPy : Simplest CUDA Interface`
+
+       .. class:: small
+
+          * https://cupy.chainer.org/
+          * NumPy API accelerated by CUDA stack  
+          * plus some of SciPy API 
+
+       .. figure:: /env/presentation/cupy/cupy_logo_only.png
+          :width: 300px
+          :align: center
+
+       .. class:: small
+
+          * develop processing with NumPy on CPU
+          
+            * switch *numpy->cupy* to test on GPU  
+            * :red:`great for prototyping`
+
+          **"Production" CuPy ? Depends on requirements:**  
+
+          * integrations (eg Geant4, OpenGL, ...)
+          * control + performance 
+
+
+
+.. class:: small
+
+    * Learn CUDA basics (kernels, thread+memory hierarchy, ...)
+
+      * :red:`BUT: base development on higher level libs -> faster start`
+
+
+    **C++ Based Interfaces to CUDA**
+
+    * Thrust : https://developer.nvidia.com/Thrust
+
+      * C++ interface to CUDA performance
+      * high-level abstraction : reduce, scan, sort
+
+    * CUB : http://nvlabs.github.io/cub/
+
+      * CUDA C++ specific, GPU less hidden
+
+    * MGPU : https://github.com/moderngpu/moderngpu
+ 
+      * teaching tool : examples of CUDA algorithms
+
+    **Mature NVIDIA Basis Libraries**
+
+    * cuRAND, cuFFT, cuBLAS, cuSOLVER, cuTENSOR, ...
+
+      * :blue:`https://developer.nvidia.com/gpu-accelerated-libraries`
+
+    **RAPIDS : New NVIDIA "Suite" of open source data science libs**  
+
+    * GPU-accelerated open source data science suite 
+
+      * "... end-to-end data science workflows..."  http://rapids.ai/
+      * cuDF : GPU dataframe library, Pandas-on-GPU 
+
+
+
+.. s5_talk::
+
+   This slide is here just to highlight some projects that 
+   provide a quick start at using CUDA.
+
+   CuPy implememnts the NumPy API ontop of the CUDA stack.
+   It is a great way to get started with CUDA 
+
+   CuPy is quite a new project you might not have heard of, it 
+   builds ontop of the NVIDIA CUDA stack and implements the 
+   NumPy API powered by a CUDA implementation.   
+
+
+
+.. comment
+
+   The size of the python data community is enormous compared to 
+   high energy physics
+
+   * result is high quality tools to gain GPU acceleration from python level
+   * excellent for prototyping : particularly CuPy as you can develop 
+     your algorithm without a GPU using NumPy and then switch to cupy 
+     with the same code 
+
+   * Python interfaces to CUDA are a good way to prototype and get you started.
+
+
+   I highlight two: CuPy and Thrust 
+
+   * Thrust is part of every CUDA installation just include headers into 
+     your C++ and compile with nvcc
+
+     * avoids many of the hassles of using CUDA, including memory heirarchy, 
+       and deciding on block/grid sizes
+
+   Its not an either/or, you can easily combine ordinary low level CUDA with Thrust. 
+
+   * Python interfaces to CUDA are a good way to prototype and get you started.
+   * Once you gain experience from these, you may find it easier to adopt 
+     other tools like Thrust for ease of integration  
+
+
+    After hearing about the performance that CuPy can give you with very little 
+    effort from the comfort of python : 
+
+    * You might wonder if you can avoid developing your C/C++/CMake and CUDA skills ?
+      to benefit from GPU performance
+
+    That depends on:
+
+    * what your developments needs to integrate with ?
+    * how much control/performance do you need ?
+    * how expert do you want to become ?
+
+    Opticks, needs to integrate with Geant4 libraries and detector simulation 
+    frameworks : so a standard approach of mostly C++ implemented libraries
+
+    * ~20 C++ libs
+    * CUDA/OptiX programs for geometry
+    * python NumPy analysis/debugging code 
+
+
+
+
+Rendering Five Decades of Research 1
+-------------------------------------
+
+.. s5_talk::
+
+   Graphics rendering has come a long way over the past 50 years, 
+   starting from the first use of ray casting in 1968.
+
+   This illustrates some of the milestones on graphics rendering.
+   
+
+Rendering Five Decades of Research 2
+-------------------------------------
+
+.. sidebar:: :small:`Milestones over 50 years of CG`
+
+    .. class:: small
+
+         **Improving image realism, speed**
+
+         * 1968 : Appel : ray casting 
+         * 1979 : Whitted : recursive ray tracing 
+         * 1986 : Kajiya : The Rendering Equation
+         * 2018 : NVIDIA RTX : real-time cinematic path tracing with one GPU
+
+         :red:`Image rendering : Applied photon simulation` 
+
+.. s5_talk::
+
+   * Early rendering : mostly hacks : like rasterization
+   * techniques have become more and more physically based.
+
+     * simpler, more consistent
+     * better hardware has allows simpler approach 
+
+   * the last milestone is NVIDIA RTX in 2018 
+
+
+
+:i:`Project Sol`
+------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`(2018) NVIDIA RTX`
+
+   .. class:: small
+
+       **Project Sol : NVIDIA RTX Demo** 
+
+       real-time cinematic raytracing on single GPU ( NVIDIA RTX 2080Ti)
+
+
+.. s5_talk::
+
+    * this is a frame from an NVIDIA Demo video called "Project Sol"
+    * search for "Project Sol" to see the video 
+    * movie frames can take hours to render
+    * so the surprise with Project Sol is that it runs in real time on a single GPU 
+    * this is made possible by NVIDIA RTX: 
+
+      * dedicated GPU hardware for raytracing, texturing and AI-inference 
+
+
+:i:`Path Tracing in Production 1`
+----------------------------------
+
+
+.. comment
+
+   * http://www.realtimerendering.com/raytracing/siggraph2019/Path_Tracing_in_Production_part_1.pdf
+
+   * https://jo.dreggn.org/path-tracing-in-production/2019/ptp-part1.pdf
+
+   * https://cs.dartmouth.edu/~wjarosz/publications/novak18monte.html
+
+
+
+.. s5_talk::
+
+    Path tracing is short for : **Monte Carlo Path Tracing** 
+
+    This is the abstract from a course held at the SIGGRAPH graphics conference 
+
+    * **Monte Carlo Path Tracing** is now the standard rendering technique for movie production
+
+
+:i:`Path Tracing in Production 2`
+-----------------------------------
+
+.. sidebar:: :small:`Monte Carlo Path Tracing`
+
+   .. class:: small
+
+       * state-of-the-art rendering technique 
+       * random sampling (Monte Carlo method)
+       * numerical solution of **"The Rendering Eqn."**
+
+       **Movies ≈ monte carlo optical photon simulations**
+
+
+.. s5_talk::
+
+
+   For many movies: 
+
+   * every frame is the result of monte carlo optical photon simulations, 
+     involving billions of photons
+
+
+.. comment
+
+   * "ground truth" render 
+   * numerical integration by recursive point-sampling 
+   * Russian roulette killing of rays
+   * **ubiquitous** approach to solution to numerical solution of RE  
+   * includes indirect light (global illumination)
+
+
+.. comment
+
+    Irradiance Caching and Derived Methods
+    ----------------------------------------
+
+    .. class:: small
+
+       * https://cs.dartmouth.edu/~wjarosz/publications/dissertation/chapter3.pdf
+
+
+
+
+:i:`The Rendering Equation 1`
+------------------------------
+
+.. s5_talk::
+
+    SMALL
+    Computer graphics is all about finding solutions to the rendering equation.
+  
+    The equation stems from energy conservation in equilibrium:
+
+    * Outgoing light in some direction comes from emission and reflection at the point   
+    * Light reflected from the point depends on all the incoming 
+      light and the reflection characteristics of the surface. 
+
+    The lines on the images try to illustrate that:
+ 
+    * what the eye at point x sees at some x-prime depends on inputs from all the 
+      x-double-prime and each double-prime point depends on all the 
+      treble-prime ones
+
+    You can see blue, green and red casts on the teapot 
+    coming from color bleeding : that arises from the 
+    multiple bounces or indirect lighting.
+
+    The rendering equation is a recursive integral equation
+
+    * surface properties are known
+    * what is unknown is the radiance distribution function
+
+    If you can solve it you can construct images from any viewpoint.
+
+
+       
+ 
+:i:`The Rendering Equation 2`
+------------------------------
+
+.. s5_talk::
+
+   This form of recursive integral equation has a solution
+   which is a sum of terms with progressively increasing 
+   bounces. 
+
+   0. emission : looking at the light 
+   1. direct illumination
+   2. one-bounce indirect illumination
+   3. two-bounce indirect illumination
+
+   Top row shows individual contributions, with the 
+   cumulative sum on the bottom row.
+
+   Recursive integral eqn -> sum of integrals 
+
+   The "Volumetric Rendering Equation" is a generalization to cover
+   participating media eg clouds, fire, fog, skin  
+
+
+:i:`Samples per Pixel 1`
+------------------------- 
+
+.. s5_talk::
+
+    Monte Carlo Path Tracing 
+
+    * amazingly general technique 
+    * can produce images indistinguisable from reality 
+    * BUT : suffers from slow convergence
+
+
+:i:`Samples per Pixel 2`
+-------------------------- 
+
+.. sidebar:: :small:`Monte Carlo Path Tracing` 
+
+    * fantastically general : any geometry + lighting/surface effect
+    * BUT : slow convergence, 1/sqrt(N_samples) 
+
+      * many samples per pixel 
+      * noise 
+
+
+.. s5_talk::
+
+   The technique has the usual monte carlo disadvantage of slow 
+   convergence.  Much of computer graphics is about devising ways 
+   to bias the sampling and speed up the convergence. 
+
+
+:i:`NVIDIA OptiX AI Denoiser 1`
+---------------------------------  
+
+.. s5_talk::
+
+   NVIDIA OptiX includes a new AI based approach to removing noise.
+
+
+:i:`NVIDIA OptiX AI Denoiser 2`
+---------------------------------  
+
+.. raw:: html
+
+   <pre>
+
+   </pre>
+
+.. sidebar:: :small:`NVIDIA OptiX AI Denoiser` 
+
+   .. class:: small
+
+       * https://developer.nvidia.com/optix-denoiser
+       * reduce time to render quality image
+       * deep learning network trained on many thousands of images
+       * benefits from NVIDIA GPU : Tensor Cores 
+       * key enabler of real-time cinematic raytracing  
+
+.. class:: small
+
+   :white:`https://research.nvidia.com/publication/interactive-reconstruction-monte-carlo-image-sequences-using-recurrent-denoising`
+
+
+.. s5_talk::
+
+    This benefits from hardware dedicated to AI inferencing, the Tensor Cores.
+
+
+
+:white:`Physically Based Rendering Book : www.pbr-book.org`
+------------------------------------------------------------
+
+.. raw:: html
+
+   <pre>
+
+   </pre>
+
+
+.. sidebar:: :small:`Free Online Book` 
+
+    * recommended introduction
+    * book awarded an Oscar (Film Academy Award) 
+
+
+.. s5_talk::
+
+    I hope I have got some of your interested to learn more about graphics. 
+    A good and very extensive book 
+    on physically based rendering is available for free at this url.
+
+    This book won an Oscar : for its usefulness to the film industry 
+
+
+Optical Simulation : Computer Graphics vs Physics 
+------------------------------------------------------------------
+
+.. class:: small
+
+   ==========================================  =============================================  
+    CG Rendering "Simulation"                    Particle Physics Simulation
+   ==========================================  =============================================  
+     simulates: image formation, vision          simulates photons: generation, propagation, detection     
+     (red, green, blue)                          wavelength range eg 400-700 nm
+     ignore polarization                         polarization vector propagated throughout
+     participating media: clouds,fog,fire [1]    bulk scattering: Rayleigh, MIE  
+     human exposure times                        nanosecond time scales
+     equilibrium assumption                      transient phenomena
+     ignores light speed, time                   arrival time crucial, speed of light : 30 cm/ns  
+   ==========================================  =============================================  
+
+   * **handling of time is the crucial difference**
+
+   Despite differences :red:`many techniques+hardware+software directly applicable to physics` eg:
+
+   * GPU accelerated ray tracing (NVIDIA OptiX)
+   * GPU accelerated property interpolation via textures (NVIDIA CUDA)   
+   * GPU acceleration structures (NVIDIA BVH)   
+
+   
+   Potentially Useful CG techniques for "billion photon simulations"
+
+   * irradiance caching, photon mapping, progressive photon mapping 
+   
+
+.. class:: tiny 
+
+   [1] search for: "Volumetric Rendering Equation"
+
+
+.. s5_talk::
+
+    There are great similarities between graphics rendering and physics simulation
+    but also some clear differences.
+
+    * principal difference is handling of time : graphics always assuming 
+      long time scales and equilibium  
+
+    * despite the differences there is great scope for re-purposing 
+      computer graphics techniques+projects to assist physics simulation   
+
+
+
+
+:small:`Neutrino Telescope Optical Simulations : Giga-Photon Propagations`
+--------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Re-usable photon "snapshots" ?`
+
+    .. class:: small
+
+        1. full simulation -> photon "snapshot" cache 
+
+           * when crossing virtual segmented "shells" ?
+
+             * collect direction,polarization onto positioned segments 
+             * what shape/segmentation ? 
+             * **lots of duplicated information**
+
+           * when scattering (pre or post parameters) 
+
+             * collect position,direction,polarization 
+             * no shells, more involved lookup
+
+        2. fast no-photon simulation 
+ 
+           * orient "snapshot" to the primary 
+
+        3. "snapshots" near sensors -> resume propagation
+
+           * times, incidence angles at sensors -> hits  
+
+
+        GPU "snapshot" cache data structure:
+        
+        * photon lists, binned PDFs ?
+        * k-d tree (for nearest neighbor searches)  
+
+
+.. class:: small
+
+   * Cherenkov light generation
+   * radioactive + biological backgrounds 
+   * :red:`propagation : scattering + absorption (billions)`
+
+     * direct light (unscattered) : fast  
+     * indirect (scattered) : slow 
+
+   * detection on sparse sensors 
+
+   **Opticks as drop in fast replacement for Geant4**
+
+   Full+fast GPU accelerated simulation:  
+
+   * Cerenkov generation, Rayleigh scattering, absorption
+   * angle dependent sensor collection efficiency culling   
+   * BUT: launch size, VRAM limited: 48G ≈ 400M photons
+
+   **Re-usage is caching optimization, still need full propagation:** 
+
+   * populate the cache
+   * validate the trickery 
+   * re-usage reduces need for expensive propagations 
+
+
+.. s5_talk::
+
+    SMALL
+    1st: full propagation
+
+    * Opticks as a drop in replacement for Geant4, needs work:
+ 
+      * auto-split to fit in VRAM, multi-GPU  
+      * simpler geometry -> more speedup than JUNO
+
+    2nd: full propagation with "snapshots" for re-use (sidebar)
+
+    * split handling of direct and indirect light as very different.
+    * orient snapshot to different primaries -> avoid re-doing propagation  
+    * just resume propagation near the sensors
+
+    DISADVANTAGE:
+
+    * need to devise snapshot/re-use approach + validate it 
+    * "snapshots" will be large + not either-or need both + complex workflow
+    * When/where to snapshot (sidebar)
+
+
+.. comment
+
+
+    :small:`Potential Opticks Extensions for giga-photon propagations`
+    -----------------------------------------------------------------------------
+
+
+    .. class:: small
+
+       * auto-splitting launches to fit VRAM (straightforward)
+       * multi-GPU splitting (experimentation needed)
+       * re-usable photons : GPU snapshot/resumption
+
+         * lots of experimentation needed  
+
+
+
+:small:`Opticks Rayleigh Scattering : CUDA line-by-line port of G4OpRayleigh`
+-------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    130 __device__ void rayleigh_scatter(Photon &p, curandState &rng)
+    131 {
+    137     float3 newDirection, newPolarization ;
+    139     float cosTheta ;
+    141     do {
+    145         newDirection = uniform_sphere(&rng);
+    146         rotateUz(newDirection, p.direction );
+    151 
+    152         float constant = -dot(newDirection,p.polarization);
+    153         newPolarization = p.polarization + constant*newDirection ;
+    154 
+    <b><span class="alarm">155         // newPolarization 
+    156         // 1. transverse to newDirection (as that component is subtracted) 
+    157         // 2. same plane as old p.polarization and newDirection (by construction)
+    158         // </span></b>
+    ...         ... corner case elided ... 
+    182         if(curand_uniform(&rng) < 0.5f) newPolarization = -newPolarization ;
+    184 
+    185         newPolarization = normalize(newPolarization);
+    189         cosTheta = dot(newPolarization,p.polarization) ;
+    190 
+    191     } while ( cosTheta*cosTheta < curand_uniform(&rng)) ;
+    192 
+    193     p.direction = newDirection ;
+    194     p.polarization = newPolarization ;
+    195 }
+    </pre> 
+
+.. class:: small
+
+   **Have to persist the polarization vector, to truly resume a propagation**      
+
+   * could persist pre-scatter : polarization, direction  
+
+       
+.. class:: tiny 
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/optixrap/cu/rayleigh.h
+
+
+.. s5_talk::
+
+    SMALL
+    Have to persist the polarization vector, to truly resume a propagation.
+    As the angle between polarization vectors before and after scatters 
+    follows a cos-squared distribution.
+
+    Not doing so will prevent strict validation.
+
+    Collecting photons at scatters duplicates less.
+    The post-scatter direction and polarization is
+    generated from the pre-scatter values : better to store pre.  
+ 
+
+
+
+
+
+:small:`Developing a photon "snapshot" cache`
+--------------------------------------------------------------------------------------------
+       
+.. sidebar:: :small:`Virtual shell OR scatter-based ?`
+
+   .. class:: small
+
+       **What is VRAM of available GPUs ?**
+
+       * will constrain possibilities
+
+       **Literature Search/Learning**
+ 
+       * photon mapping (CG style)
+       * irradiance caching (CG style)
+       * Z-order curve, Morton codes
+       * :blue:`kd-tree`, spatial hashing, ...
+
+       **Gain Experience**
+
+       * find/tryout open source CUDA implementations
+       * compare: size, convenience, speed
+       * try: domain compression, bit-squeezing
+
+       **-> informed decisions**
+
+
+.. class:: small
+ 
+    **Where/when/what to collect ?**
+
+    * tetrahedral volumetric meshes (tet-mesh) 
+
+      * inherent segmentation
+      * natural adaptive resolution  
+      * triangle faces : Giga-rays/s intersection (RT Cores)[1]
+      * good for general light field capture
+
+    * "concentric" spheres/cylinders/cones oriented to primary  
+
+      * natural for exploiting track axis rotational symmetry  
+
+    * :blue:`at scatters` (:blue:`pre-scatter`/post-scatter parameters)  
+
+      * position, direction, polarization
+      * can generate post from pre, but not v.v. 
+
+    * collect photons OR aggregate binned PDFs ?
+
+      * PDF->CDF->generate photons (like Opticks "gensteps")  
+    
+
+    **Too many options: experimentation needed to iterate towards solution**
+
+
+.. class:: tiny 
+
+   [1] RTX Beyond Ray Tracing: Exploring the Use of Hardware Ray Tracing Cores for Tet-Mesh Point Location
+   https://www.willusher.io/publications/rtx-points
+
+
+.. s5_talk::
+
+    **Too many open questions: experimentation needed to iterate towards solution**
+
+    * requires fast spatial lookup such as kd-tree.
+    * For efficient use with Opticks will need a CUDA implementation 
+      that can work within the OptiX model. 
+
+    * the ones in blue, are what I would try first 
+    * I favor those because they are similar to the graphics technique of 
+      photon mapping : and I expect I could find a CUDA implementation 
+      to make a quickstart at them 
+
+    * tetrahedral mesh would be interesting for the general case of 
+      snapshoting the photon field, but simulating photons from 
+      primaries has symmetries  
+
+    * voxel grid good for simplicity, large, sparse 
+
+
+.. comment
+
+
+    :small:`Stochastic Progressive Photon Mapping`
+    -------------------------------------------------
+
+    .. class:: small
+
+        * http://www.pbr-book.org/3ed-2018/Light_Transport_III_Bidirectional_Methods/Stochastic_Progressive_Photon_Mapping.html
+
+
+
+:i:`Photon Mapping 1`
+----------------------
+
+.. s5_talk::
+
+    The graphics technique of photon mapping is an old from from around 2001.
+    It collects photons into a kd-tree which is a space partitioning data structure
+    designed to speed up spatial queries.
+
+    Balancing the tree has the advantage that you can then easily 
+    serialize it and traverse it just by bit manipulations on the array 
+    index.
+
+    This is just one example of spatial data structures, searches might reveal 
+    some CUDA implementation that would lead me to trying another approach. 
+
+
+
+:i:`Photon Mapping 2`
+----------------------
+
+.. s5_talk::
+
+    To learn more about photon mapping, this is the classic book on the subject.
+    The lower link is a 200 page course on photon mapping.
+
+    * I pick this example as its well documented, with many open source implementations.
+    * There are enhancements and similar things that might be better.  
+    * But it will be easier to understand those after you are familiar 
+      with the original photon mapping and kd-trees.   
+
+
+      
+:small:`Conclusion`
+----------------------------------------------------------------
+
+.. sidebar:: :small:`Highlights`
+
+   .. class:: small
+
+      * Benefit from hardware accelerated ray tracing
+      * **Opticks > 1500x Geant4** (one Turing GPU) 
+
+
+
+.. image:: /env/presentation/1px.png
+   :width: 500px
+   :height: 50px
+
+..
+
+
+  *Opticks* : state-of-the-art GPU ray tracing applied to optical photon simulation and
+  integrated with *Geant4*, eliminating memory and time bottlenecks.
+ 
+
+  * **neutrino telescope simulation can benefit drastically from Opticks** 
+  
+    * Drastic speedup -> better detector understanding -> greater precision
+    * more photon limited -> more overall speedup ( 99.9% -> 1000x )
+    * graphics : rich source of techniques, inspiration, CUDA code to try 
+
+  .. image:: /env/presentation/1px.png
+     :width: 1000px
+     :height: 10px
+
+
+.. table::
+    :align: center
+
+    +----------------------------------------------+-----------------------------------------+
+    | https://bitbucket.org/simoncblyth/opticks    | code repository                         |                   
+    +----------------------------------------------+-----------------------------------------+
+    | https://simoncblyth.bitbucket.io             | presentations and videos                |
+    +----------------------------------------------+-----------------------------------------+
+    | https://groups.io/g/opticks                  | forum/mailing list archive              |
+    +----------------------------------------------+-----------------------------------------+
+    | email:opticks+subscribe@groups.io            | subscribe to mailing list               |
+    +----------------------------------------------+-----------------------------------------+ 
+
+
+.. comment
+
+  *Opticks* uses hardware accelerated GPU ray tracing
+  via NVIDIA OptiX to give **effectively zero time and zero CPU memory** 
+  optical photon simulation to *Geant4* applications.
+
+
+
+.. s5_talk::
+
+   So in summary : Opticks applies the best available GPU ray tracing to optical 
+   photon simulation resulting in speedups exceeding three orders of magnitude.
+
+   Neutrino telescope simulation is so extremely limited by the 
+   photons that there is potential for large overall speedups. 
+
+   The field of graphics has lots of potential to provide techniques and code 
+   for working with really large photon propagations.
+
+    
+
+    
+
+
+
 
 
 

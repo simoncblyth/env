@@ -1,8 +1,18 @@
 
+.. meta::
+
+   :title: JUNO-Opticks : Jan 2022 Status 
+   :name: opticks_202201XX_juno_status
+   :description: (Jan 2022) 
+   :notes: progress update 
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
 .. comment
 
     opticks_202201XX_juno_collaboration_meeting
-
 
     Dear JUNO collaborators,
      
@@ -16,4 +26,109 @@
      
     L2s and Review Chairs: Please determine the parallel meeting and review time,
     and fill in the table https://jupyter.ihep.ac.cn/-fqkyyEURlm3wicBi8niFg?both
+
+
+
+    Dear all,
+
+    We will NOT have JUNO physics/simulation meeting on tomorrow (Dec 24) and next
+    week (Dec 31). Happy holidays!
+
+    As usual, we will have parallel sessions during the Jan. collaboration meeting,
+    please contact with me and Weidong if you would like to present a talk.
+
+    Regards, Liangjian Wen
+
+
+    Dear Ziyan, Weidong, Liangjian, 
+
+    Happy New Year to you all, 
+    I hope it will prove be a much better one than the last for everyone.  
+    Thank you for the reminder Ziyan.
+
+    I would like to give a report: 
+
+        JUNO+Opticks Photons : Validation and Deployment Plan
+
+    A time slot of 20 min will be sufficient. 
+    Is the day of the simulation session scheduled yet ?
+
+    I have agreed to give a remote talk on Opticks at an Innovation in HEP workshop 
+    in Hong Kong which I believe is on the 15th January although I have not 
+    received confirmation of the date and time yet. 
+
+    If possible it would be best to avoid having to give the two talks on the same day. 
+
+    Simon
+
+
+:i:`JUNO+Opticks Photons : Validation and Deployment Plan` 
+========================================================================================
+
+.. raw:: html
+
+    <div class="mytitle">
+    <header>
+    <h1 style="background-color:lightgrey"> 
+        JUNO+Opticks Photons : Validation and Deployment Plan   
+        <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
+    </h1>
+    </header>
+    </div>
+
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth, IHEP, CAS &mdash; Jan 2022, JUNO Collaboration Meeting </h2>
+    </div>
+
+
+.. s5_talk:: 
+
+    Geometry Issues blah blah 
+
+
+
+:i:`cxs_XJfixtureConstructionXZ_10`
+------------------------------------
+
+
+
+:i:`cxs_XJfixtureConstructionPR_55`
+------------------------------------
+
+:i:`cxs_XJfixtureConstructionTR_55`
+------------------------------------
+
+:i:`cxr_view_solidXJfixture:55:-3_cam_1_eye_8,-4,-4_zoom_1_tmin_0.1`
+---------------------------------------------------------------------
+
+:i:`cxr_view_solidXJfixture:55:-3_cam_1_eye_4,-2,-2_zoom_1_tmin_0.1`
+---------------------------------------------------------------------
+    
+:i:`cxr_view_solidXJfixture:55:-3_cam_1_eye_2,-1,-1_zoom_1_tmin_0.1`
+---------------------------------------------------------------------
+
+:i:`cxr_view_solidXJfixture:55:-3_cam_1_eye_1,-0.5,-0.5_zoom_1_tmin_0.1`
+-------------------------------------------------------------------------
+
+
+
+
+
+
+:i:`cxs_XJfixtureConstructionTR_0`
+------------------------------------
+
+:i:`cxs_XJfixtureConstructionTP_0`
+------------------------------------
+
+:i:`cxs_XJfixtureConstructionTP_0_Rshift`
+------------------------------------------
+
+:i:`cxs_XJfixtureConstructionPR_0`
+------------------------------------
+
+:i:`cxs_custom_XJfixtureConstructionXY`
+-----------------------------------------
+
+
 

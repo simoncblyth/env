@@ -1222,9 +1222,9 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){  echo ${INAME:-opticks_20211117} ; }
 
 
-presentation-iname(){  echo ${INAME:-opticks_20211223_pre_xmas} ; }
+#presentation-iname(){  echo ${INAME:-opticks_20211223_pre_xmas} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong} ; }
-#presentation-iname(){ echo ${INAME:-opticks_202201XX_juno_collaboration_meeting} ; }
+presentation-iname(){ echo ${INAME:-opticks_202201XX_juno_collaboration_meeting} ; }
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
