@@ -980,6 +980,15 @@
     # 762px_857px 381px_428px np.array([762,858])*2/3 
     # 871px_827px 435px_413px np.array([871,827])*2/3 
 
+    LZ with Opticks
+    /env/presentation/lz/LZ_Opticks_OpenGL.png 640px_720px 0px_0px
+    /env/presentation/lz/LZ_Opticks_Composite.png 758px_720px 600px_0px
+    #  np.array([762,858])*0.8  [609.6, 686.4] 
+    #  np.array([762,858])*0.84  [640.08, 720.72]
+    #
+    #  np.array([871,827])*0.8  [696.8, 661.6]
+    #  np.array([871,827])*0.87 [757.77, 719.49] 
+
     gpmt Hamamatsu jun28 
     /env/presentation/ana/gpmt/PolyconeNeckSplitFig_origin_CGDMLKludge_jun28_HamamatsuR12860_.png 1280px_720px
 
@@ -1424,6 +1433,9 @@
     3dbec_cxr_solid_r9@
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r9@/cam_1/cxr_solid_r9@_.jpg 1280px_720px
 
+    sWaterTube_image_grid_cxr_view
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_t0/image_grid_cxr_view.jpg 1280px_720px
+
     sWaterTube_cam_0_t0_cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg 1280px_720px
 
@@ -1507,6 +1519,9 @@
 
     image_grid_cxr_solidXJfixture:XX:-3
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture/top_i0_/image_grid_cxr_solidXJfixture:xx:-3.jpg 1280px_720px
+
+    Opticks Generality 
+    /env/graphics/ggeoview/image_grid_opticks_generality.png 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

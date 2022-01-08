@@ -1672,6 +1672,8 @@ Optical Simulation : Computer Graphics vs Physics
 -------------------------------------------
 
 
+:i:`sWaterTube_image_grid_cxr_view`
+-------------------------------------------
 
 
 
@@ -1772,15 +1774,22 @@ Optical Simulation : Computer Graphics vs Physics
    top of the JUNO scintillator sphere.
     
 
-:i:`j1808_top_ogl`
---------------------
 
-.. s5_talk::
+:i:`Opticks Generality`
+-------------------------
 
-   This is an OpenGL rasterized image, using the approximate triangulated 
-   geometry. 
 
-   Opticks manages analytic and triangulated geometry together.  
+.. comment
+
+    :i:`j1808_top_ogl`
+    --------------------
+
+    .. s5_talk::
+
+       This is an OpenGL rasterized image, using the approximate triangulated 
+       geometry. 
+
+       Opticks manages analytic and triangulated geometry together.  
 
 
 

@@ -58,6 +58,26 @@ class IMG(object):
         draw.text(pos, txt, rgb, font=font)
 
     @classmethod 
+    def GridSpec(cls, all_paths, all_anno, rows, cols):
+        """
+        :param all_paths: list of paths to images
+        :param all_anno: list of annotation strings or empty list
+        :param rows: number of rows
+        :param cols: number of cols
+        :return gridspec: np.object array of shape (rows, cols) containing IMG 
+        """
+        num = rows*cols 
+        gridspec = np.zeros([rows, cols], dtype=np.object )   
+        num_gap = num - len(all_paths)
+        for i in range(len(all_paths)):
+            path = all_paths[i]
+            anno = all_anno[i] if len(all_anno) == len(all_paths) else str(i)
+            offset = num_gap if "HEADGAP" in os.environ else 0 
+            gridspec.ravel()[offset+i] = cls(path, anno)
+        pass
+        return gridspec
+
+    @classmethod 
     def Grid(cls, grid, annotate=False):
         """
 
@@ -111,7 +131,6 @@ class IMG(object):
         gridpath = os.path.join( griddir, "%s%s%s" % (outstem, "_full" if full else "",   ext) ) 
         return gridpath 
 
-
     @classmethod 
     def OldGrid(cls, imgs, rows, cols, annotate=False):
         assert len(imgs) == rows*cols
@@ -156,37 +175,30 @@ class IMG(object):
 if __name__ == '__main__':
      logging.basicConfig(level=logging.INFO)
 
-     if len(sys.argv[1:]) == 1:
-         pathlist = sys.argv[1]
+     args = sys.argv[1:]
+
+     if len(args) > 0:
+         pathlist = args[0]
          all_paths = open(pathlist).read().splitlines()
+     pass
+     if len(args) > 1:
+         annolist = args[1]
+         all_anno = open(annolist).read().splitlines()
+         assert len(all_anno) == len(all_paths)
      else:
-         all_paths = sys.argv[1:]
+         all_anno = []
      pass
 
-     for i in range(len(all_paths)):
-         path = all_paths[i].lstrip().rstrip() 
-         log.info(path)
-     pass
-
-     side = math.ceil(math.sqrt(len(all_paths)))    
      # rounds up, and leaves gaps so aim for the number of paths to be close to squares: 1,4,9,25,36,49,64,81,100  
-
+     side = math.ceil(math.sqrt(len(all_paths)))    
      rows, cols = side, side 
-     num = rows*cols
 
-     grid = np.zeros([rows, cols], dtype=np.object )   
+     gridspec = IMG.GridSpec( all_paths, all_anno, rows, cols )
 
-     num_gap = num - len(all_paths)
-     for i in range(len(all_paths)):
-         path = all_paths[i].lstrip().rstrip() 
-         anno = str(i)
-         offset = num_gap if "HEADGAP" in os.environ else 0 
-         grid.ravel()[offset+i] = IMG(path, anno)
-     pass
-     pass
-     log.info("all_paths %d grid.shape %s " % (len(all_paths), str(grid.shape)))
+     log.info("all_paths %d all_anno %d grid.shape %s " % (len(all_paths), len(all_anno), str(gridspec.shape)))
 
-     grid = IMG.Grid(grid, annotate="ANNOTATE" in os.environ )
+     grid = IMG.Grid(gridspec, annotate="ANNOTATE" in os.environ )
+
      grid.save()
 
 
