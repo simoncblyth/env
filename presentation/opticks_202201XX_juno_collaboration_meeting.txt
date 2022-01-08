@@ -87,6 +87,86 @@
 
 
 
+
+LSExpDetectorConstruction::setupCD_Sticks Bug(s) ?
+----------------------------------------------------
+
+.. class:: small
+
+    +-----------------------------+----------------------------------+----------------------------+------------------------+----------------------+
+    |  member                     |  class                           | pos_file                   | radius                 |  notes               |             
+    +=============================+==================================+============================+========================+======================+
+    | m_strut_name                | StrutAcrylicConstruction         | m_strut_pos_file           | strut_r                |                      |
+    +-----------------------------+----------------------------------+----------------------------+------------------------+----------------------+
+    | m_strut2_name               | StrutBar2AcrylicConstruction     | m_strut2_pos_file          | strut2_r               |                      |
+    +-----------------------------+----------------------------------+----------------------------+------------------------+----------------------+    
+    | m_strutballhead_name        | StrutBallheadAcrylicConstruction | m_fastener_pos_file        | strutballhead_r        |                      |
+    +-----------------------------+----------------------------------+                            +------------------------+                      |   
+    | m_fastener_name             | FastenerAcrylicConstruction      | m_fastener_pos_file        | fastener_r             |                      |
+    +-----------------------------+----------------------------------+                            +------------------------+                      |
+    | m_upper_name                | UpperAcrylicConstruction         | m_fastener_pos_file        | upper_r                |                      |
+    +-----------------------------+----------------------------------+                            +------------------------+                      | 
+    | m_addition_name             | AdditionAcrylicConstruction      | m_fastener_pos_file        | addition_r             |                      |
+    +-----------------------------+----------------------------------+----------------------------+------------------------+----------------------+    
+    | m_xjanchor_name             | XJanchorConstruction             | m_xjanchor_pos_file        | xjanchor_r             |                      |
+    +-----------------------------+----------------------------------+                            +------------------------+                      |    
+    | m_xjfixture_name            | XJfixtureConstruction            | :r:`m_xjanchor_pos_file`   | xjfixture_r            | **BUG?**             | 
+    +-----------------------------+----------------------------------+----------------------------+------------------------+----------------------+    
+    | m_sjclsanchor_name          | SJCLSanchorConstruction          | m_sjclsanchor_pos_file     | sjclsanchor_r          |                      |
+    +-----------------------------+----------------------------------+----------------------------+------------------------+----------------------+
+    | m_sjfixture_name            | SJFixtureConstruction            | m_sjfixture_pos_file       | sjfixture_r            |                      |
+    +-----------------------------+----------------------------------+----------------------------+------------------------+----------------------+
+    | m_sjreceiver_name           | SJReceiverConstruction           | m_sjreceiver_pos_file      | sjreceiver_r           |                      |
+    +-----------------------------+----------------------------------+                            +------------------------+                      |
+    | m_sjreceiver_fastener_name  | :r:`XJfixtureConstruction`       | m_sjreceiver_pos_file      | sjreceiver_fastener_r  | **BUG?**             |
+    +-----------------------------+----------------------------------+----------------------------+------------------------+----------------------+
+
+
+.. comment
+
+     jcv DetSim0Svc
+
+     50     declProp("StrutPosFile", m_strut_pos_file);
+     51     declProp("Strut2PosFile", m_strut2_pos_file);
+     52     declProp("FastenerPosFile", m_fastener_pos_file);
+     53     declProp("XJanchorPosFile", m_xjanchor_pos_file);
+     54     declProp("SJCLSanchorPosFile", m_sjclsanchor_pos_file);
+     55     declProp("SJReceiverPosFile", m_sjreceiver_pos_file);
+     56     declProp("SJFixturePosFile", m_sjfixture_pos_file);
+
+
+
+Check csv PosFile
+---------------------
+
+
+.. class:: small
+
+    $JUNOTOP/offline/Simulation/DetSimV2/DetSimOptions/data/
+
+    j/PosFile/HexagonPosBallTest.py
+
+    +------------------+-----------------+----------------------+----------------------------+
+    |             csv  |             npy |                  key |   name                     |
+    +==================+=================+======================+============================+
+    |          (370,)  |     (370, 4, 4) |         StrutPosFile |   Strut_Acrylic.csv        |
+    +------------------+-----------------+----------------------+----------------------------+
+    |          (220,)  |     (220, 4, 4) |        Strut2PosFile |   StrutBar2_Acrylic.csv    |
+    +------------------+-----------------+----------------------+----------------------------+
+    |          (590,)  |     (590, 4, 4) |      FastenerPosFile |   Strut_Anchor_Acrylic.csv |
+    +------------------+-----------------+----------------------+----------------------------+
+    |           (56,)  |      (56, 4, 4) |      XJanchorPosFile |   XJanchor.csv             |
+    +------------------+-----------------+----------------------+----------------------------+
+    |            (2,)  |       (2, 4, 4) |   SJCLSanchorPosFile |   SJCLSanchor.csv          |
+    +------------------+-----------------+----------------------+----------------------------+
+    |            (8,)  |       (8, 4, 4) |    SJReceiverPosFile |   SJReceiverPos.csv        |
+    +------------------+-----------------+----------------------+----------------------------+
+    |           (36,)  |      (36, 4, 4) |     SJFixturePosFile |   SJFixturePos.csv         |
+    +------------------+-----------------+----------------------+-----------------------------
+
+
+
+
 :i:`cxs_XJfixtureConstructionXZ_10`
 ------------------------------------
 

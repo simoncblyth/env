@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
+import logging
+log = logging.getLogger(__name__)
 from docutils.parsers.rst import Directive, directives
 from docutils import nodes
 
 # kludge global as attempting to follow s5_video pattern scrambles the html, slides become sections 
 urls = []  
+divs = []
 
 class s5backgroundimage(nodes.General, nodes.Inline, nodes.Element):
     pass
@@ -17,6 +20,14 @@ class div_background(object):
              background-position: %(position)s;
              %(extra)s
           }"""
+
+    @classmethod
+    def Find(cls, title):
+        for div in divs:
+            if div.ltitle == title.lower():
+                return div
+            pass
+        return None 
 
     def parse_spec(self, spec_line):
         spec_elem = spec_line.split()
@@ -36,11 +47,15 @@ class div_background(object):
         title, specs = lines[0], lines[1:]
         self.lines = lines 
         self.title = title
+        self.ltitle = title.lower()
         self.specs = specs
+        self.urls = []
         dd = [] 
         for spec in specs:
             d = self.parse_spec(spec)
-            urls.append(d["url"]) 
+            url = d["url"]
+            urls.append(url)
+            self.urls.append(url)  
             dd.append(d)
         pass
         dc = {}
@@ -51,9 +66,12 @@ class div_background(object):
         dc["tid"] = nodes.make_id(title)
 
         self.html = self.div_tmpl % dc
+        divs.append(self)
+
 
     def __repr__(self):
-        return "div_background %d" % (len(self.lines))
+        return "div_background l/s/u %d %d %d  title %s url0 %s " % (len(self.lines), len(self.specs), len(self.urls), self.title, self.urls[0] )
+
     def __str__(self):
         return self.html
 
@@ -74,14 +92,18 @@ def render_s5backgroundimage_1( n ):
 
        </style>
     """
-    global urls  # kludge
+    #global urls  # kludge
 
     content = "\n".join(filter(lambda _:len(_) == 0 or _[0] != '#', n.content)) + "\n" # remove comments and make into big string
     divs = []
     for i, item in enumerate(content.split("\n\n")):  # split on empty lines
         lines = item.split("\n")
+
+        #print(i)
+        #print("\n".join(lines))
+
         if len(lines) < 2: 
-            print("skip single line item [%s] " % lines[0])
+            log.debug("skip single line item [%s] .. happens at tail " % lines[0])
         else:
             div = div_background(lines)
             #print(div)

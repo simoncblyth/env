@@ -1,5 +1,4 @@
 .. s5_background_image::
-
     ##
     ## slide titles and background image urls, 
     ## including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
@@ -18,8 +17,8 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_disabled"
     ##
-    ##slide0
-    slide0_DISABLED
+    ##slide0_DISABLED
+    slide0
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -1289,6 +1288,9 @@
     
     Hama_16_figs_positions_mpplt_pid.png
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_16/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxr_overview_emm_image_grid_overview
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/image_grid_overview.jpg 1280px_720px
  
     cxr_overview_emm_t0_moi_-1_ALL.jpg
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1.jpg 1280px_720px
@@ -1515,7 +1517,6 @@
     ##    so this causes a problem when the title only differs by a comma for example with "t0" vs "t0," 
     ##    NB THE RESTRICTION APPPLIES TO THE SLIDE TITLE IDENTIFIERS NOT THE URLS 
     ##
-
 
 
 .. comment
