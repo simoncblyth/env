@@ -23,14 +23,11 @@
     08:00 CERN
     15:00 Hong Kong 
 
-
-
     I am going to present Opticks, an open source project that applies state-of-the-art 
     GPU ray tracing from NVIDIA OptiX to optical photon simulation using fully analytic detector 
     geometries automatically translated for the GPU from Geant4. 
     Opticks replaces the Geant4 optical photon simulation with a GPU equivalent that 
     can reach transformative speedup factors exceeding 1000 times.
-
 
     Dear Simon, 
 
@@ -41,8 +38,6 @@
 
     Weidong
          
-
-
     Dear Weidong, 
 
     Yes, I can give an overview of applying GPU ray tracing techniques
@@ -383,7 +378,7 @@
 
 .. s5_talk::
 
-   Muons travelling across the liquid scintillator will yield
+   Muons travelling across the JUNO liquid scintillator will yield
    many tens of millions of optical photons. This is a huge memory and time challenge 
    for Geant4 monte carlo production.
 
@@ -397,9 +392,6 @@
    These characteristics make it straightforward to integrate an external optical
    simulation.
  
-
-
-         
 
 
 :small:`Optical Photon Simulation ≈ Ray Traced Image Rendering`
@@ -451,8 +443,8 @@
 
     Both these are limited by ray geometry intersection, which is also known as ray tracing.
 
-    Ray tracing is used across many industries, which means that are huge efforts
-    across decades to improve ray tracing perfromance.
+    Ray tracing is used across many industries, so there have been huge efforts
+    over 50 years to improve ray tracing perfromance.
     
 
 
@@ -485,12 +477,11 @@
 
 .. s5_talk::
 
-   It is good to clarify the difference between 
-   the two primary graphics rendering techniques 
+   Ray tracing and rasterization are the two primary graphics rendering techniques. 
 
    Rasterization is the most common rendering technique
    
-   * it starts from the objects in a scene, and projects them onto pixels in image plane
+   * it starts from the objects in a scene, and projects them onto pixels in the image plane
    * this requires approximate triangulated geometry   
    
    Ray tracing 
@@ -500,16 +491,12 @@
    * its easier to create realistic images with ray tracing because it is closer to the physics
 
    Ray tracing is an overloaded term.  In some contexts it means just the ray transport
-   from an origin to an intersection. But is also refers more generally to 
-   a specific rendering technique and even more generally a class of rendering techniques. 
+   from an origin to an intersection. But is also refers more generally to the rendering technique. 
 
 .. comment
 
    https://www.youtube.com/watch?v=Mrixi27G9yM
    RTX Launch
-
-
-
 
 
 
@@ -529,11 +516,12 @@
 
 .. s5_talk::
 
-    Path tracing is short for : **Monte Carlo Path Tracing** 
+    Ray tracing is the building block behind **Monte Carlo Path Tracing** 
 
-    This is the abstract from a course held at the SIGGRAPH graphics conference 
+    SIGGRAPH is the primary computer graphics conference series. 
+    This is the abstract from a course document sharing movie production graphics techniques. 
 
-    * **Monte Carlo Path Tracing** is now the standard rendering technique for movie production
+    * **Monte Carlo Path Tracing** is now the standard rendering technique in movie production
 
 
 :i:`Path Tracing in Production 2`
@@ -543,7 +531,9 @@
 
    .. class:: small
 
-       * state-of-the-art rendering technique 
+       :r:`Path Tracing is built on top of Ray Tracing`
+
+       * ubiquitous rendering technique 
        * random sampling (Monte Carlo method)
        * numerical solution of **"The Rendering Eqn."**
 
@@ -552,12 +542,9 @@
 
 .. s5_talk::
 
+   This means that for many movies: 
 
-   For many movies: 
-
-   * every frame is the result of monte carlo optical photon simulations, 
-     involving billions of photons
-
+   * every frame is the result of monte carlo optical photon simulations, involving billions of photons
 
 .. comment
 
@@ -594,11 +581,8 @@
     * Light reflected from the point depends on all the incoming 
       light and the reflection characteristics of the surface. 
 
-    The lines on the images try to illustrate that:
- 
-    * what the eye at point x sees at some x-prime depends on inputs from all the 
-      x-double-prime and each double-prime point depends on all the 
-      treble-prime ones
+    What you see at one point depends on all other points that are 
+    visible from it and so on recursively. 
 
     You can see blue, green and red casts on the teapot 
     coming from color bleeding : that arises from the 
@@ -609,7 +593,19 @@
     * surface properties are known
     * what is unknown is the radiance distribution function
 
-    If you can solve it you can construct images from any viewpoint.
+    Solving it gives you images from any viewpoint.
+
+
+.. comment
+
+    The lines on the images try to illustrate that:
+ 
+    * what the eye at point x sees at some x-prime depends on inputs from all the 
+      x-double-prime and each double-prime point depends on all the 
+      treble-prime ones
+
+
+
        
  
 :i:`The Rendering Equation 2`
@@ -635,6 +631,43 @@
    participating media eg clouds, fire, fog, skin  
 
 
+ 
+:i:`The Rendering Equation 3`
+------------------------------
+
+.. raw:: html 
+
+   <p style="margin-bottom:3cm;" />
+
+
+.. sidebar:: :small:`Sum over increasing "bounces"`
+
+   .. class:: small
+
+       0. emission : direct from light source 
+       1. direct illumination
+       2. one-bounce indirect illumination
+       3. two-bounce indirect illumination
+
+       Top row : individual terms, Bottom row : cumulative 
+
+       :r:`improving realism as more bounces included`
+
+
+.. s5_talk::
+
+    Realism improves as more bounces are included
+
+
+.. comment
+
+   Recursive integral eqn -> sum of integrals 
+
+   The "Volumetric Rendering Equation" is a generalization to cover
+   participating media eg clouds, fire, fog, skin  
+
+
+
 :i:`Samples per Pixel 1`
 ------------------------- 
 
@@ -652,23 +685,24 @@
 
 .. sidebar:: :small:`Monte Carlo Path Tracing` 
 
-    * fantastically general:
+  .. class:: small
 
+    :b:`fantastically general technique`
       * any geometry 
       * any lighting/surface effect
 
-    * BUT : slow 1/sqrt(N) convergence 
+    :b:`BUT noisy : slow 1/sqrt(N) convergence`
+      * need many samples per pixel
+      * every pixel needing several "bounces"
 
-      * noise 
-      * :r:`need many samples per pixel` 
-
+    :r:`=> Limited by ray tracing performance`
+       
 
 .. s5_talk::
 
    The technique has the usual monte carlo disadvantage of slow 
    convergence.  Much of computer graphics is about devising ways 
    to bias the sampling and speed up the convergence. 
-
 
 
 Optical Simulation : Computer Graphics vs Physics 
@@ -712,7 +746,7 @@ Optical Simulation : Computer Graphics vs Physics
     There are great similarities between graphics rendering and physics simulation
     but also some clear differences.
 
-    * principal difference is handling of time : graphics always assuming 
+    * principal difference is handling of time : graphics assuming 
       long time scales and equilibium  
 
     * despite the differences there is great scope for re-purposing 
@@ -720,23 +754,13 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
+:i:`SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU 2`
+--------------------------------------------------------------
 
 
+.. raw:: html 
 
-:i:`SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU`
-------------------------------------------------------------
-
-.. raw:: html
-
-    <pre>
-
-
-
-
-
-
-
-    </pre>
+   <p style="margin-bottom:7cm;" />
 
 
 .. class:: huge
@@ -748,6 +772,23 @@ Optical Simulation : Computer Graphics vs Physics
        +----------------------------+
        |  :white:`10 Giga Rays/s`   |
        +----------------------------+
+
+
+.. raw:: html 
+
+   <p style="margin-bottom:1cm;" />
+
+
+.. sidebar:: :small:`2018 : Leap in Ray Tracing speed`
+
+    .. class:: small
+
+         **NVIDIA Quadro RTX GPU**  
+
+         * ray trace dedicated GPU hardware
+         * "World's first ray tracing GPU.." 
+
+         :r:`if: 10 rays per photon => 1 billion photons/sec`
 
 
 .. s5_talk::
@@ -766,20 +807,15 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
+
 :i:`TURING BUILT FOR RTX 2`
 ---------------------------------------------------------
 
 
 .. raw:: html
 
-    <pre>
+   <p style="margin-bottom:6cm;" />
 
-
-
-
-
-
-    </pre>
 
 .. sidebar:: :small:`Offload Ray Trace to Dedicated HW`
 
@@ -808,13 +844,15 @@ Optical Simulation : Computer Graphics vs Physics
 ------------------------------------------------------------------------------
 
 
-.. sidebar:: :small:`(2018) NVIDIA RTX`
+.. sidebar:: :small:`2018: NVIDIA RTX 2080Ti (Turing)`
 
    .. class:: small
 
-       **Project Sol : NVIDIA RTX Demo** 
+       **"Project Sol" : NVIDIA RTX Demo** 
 
-       real-time cinematic raytracing on single GPU ( NVIDIA RTX 2080Ti)
+       real-time cinematic raytracing on single GPU
+
+       * :r:`now possible due to NVIDIA RTX` 
 
 
 .. s5_talk::
@@ -826,8 +864,6 @@ Optical Simulation : Computer Graphics vs Physics
     * this is made possible by NVIDIA RTX: 
 
       * dedicated GPU hardware for raytracing, texturing and AI-inference 
-
-
 
 
 
@@ -858,10 +894,10 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
-
 :i:`NVIDIA Marbles At Night RTX Demo`
 ---------------------------------------
 
+``GTC 2020, NVIDIA Marbles at Night RTX Demo``
 
 .. s5_talk::
 
@@ -874,11 +910,12 @@ Optical Simulation : Computer Graphics vs Physics
 :i:`NVIDIA Marbles At Night RTX Demo 2`
 -----------------------------------------
 
+``GTC 2020, NVIDIA Marbles at Night RTX Demo``
+
 .. raw:: html
 
-   <pre>
+   <p style="margin-bottom:1cm;" />
 
-   </pre>
 
 .. sidebar:: :small:`Realtime RTX render, 1 Ampere GPU`
 
@@ -919,8 +956,8 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
-:small:`GPU Ray Tracing (RT) APIs Converging`
---------------------------------------------------
+:small:`GPU Ray Tracing (RT) APIs Give Access to NVIDIA RTX`
+--------------------------------------------------------------------
 
 .. sidebar:: :small:`Interfaces over NVIDIA Driver`
 
@@ -928,14 +965,9 @@ Optical Simulation : Computer Graphics vs Physics
         :width: 500px
         :align: right 
 
-
     .. raw:: html
 
-        <pre>
-
-
-
-        </pre>
+       <p style="margin-bottom:1cm;" />
 
     .. class:: small
 
@@ -952,6 +984,7 @@ Optical Simulation : Computer Graphics vs Physics
    **NVIDIA OptiX (Linux, Windows) [2009]**  
 
    * CUDA header only access to Driver functionality
+   * :r:`Most flexible API, OptiX, is used by Opticks` 
 
    **Vulkan RT (Linux, Windows) [final spec 2020]**
 
@@ -1002,19 +1035,7 @@ Optical Simulation : Computer Graphics vs Physics
 
 .. raw:: html
 
-    <pre>
-
-
-
-
-
-
-
-
-
-
-
-    </pre>
+    <p style="margin-bottom:11cm;" />
 
 .. sidebar:: :small:`Tree of Bounding Boxes (bbox)`
 
@@ -1192,6 +1213,31 @@ Optical Simulation : Computer Graphics vs Physics
     The geometry is also needed on the GPU, with all 
     material and surface properties.
      
+
+
+
+:i:`Geant4OpticksWorkflow 2`
+------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:1cm;" />
+
+
+.. sidebar:: :small:`Integrate NVIDIA OptiX with Geant4`
+ 
+  .. class:: small
+
+     :g:`Geometry Translation` + :b:`"Gensteps"`
+       :r:`=> entirely offload photon simulation to GPU` 
+
+     * upload translated geometry at initialization
+     * only hits need to consume CPU memory 
+
+
+.. s5_talk::
+
+    Hybrid Workflow 
 
 
 :small:`Opticks : Translates G4 Optical Physics to CUDA/OptiX`
@@ -1461,8 +1507,221 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
+:small:`Translation 1st Step : Geant4 -> Opticks/GGeo : 1->1 conversions`
+------------------------------------------------------------------------------
 
-:small:`"CSGFoundry" Model : Shared CPU/GPU Geometry Context`
+.. sidebar:: :small:`Geant4 -> Opticks/GGeo -> OptiX`
+
+    .. class:: small
+
+        Multi-stage translation
+
+        **Geant4**
+            G4PVPlacement, G4VSolid, G4Material, ...
+
+        **Opticks/GGeo** : :red:`(No Geant4,OptiX dependency)`
+            GGeo, GVolume, GParts, GMesh, GMaterial, ... 
+            persisted as binary **.npy** file based geocache 
+
+        **Opticks/OptiXRap (for OptiX < 7)**
+            OGeo, OScene, OGeometry, OBndLib, ...
+            instanciation populates OptiX GPU context   
+
+        **Opticks/CSG (for OptiX 7+)**
+            CSGFoundry, CSGSolid, CSGPrim, CSGNode
+            :r:`replaces model dropped in 6->7` 
+
+        **OptiX** 
+            "IAS", "GAS", ... 
+
+
+.. class:: small
+
+   **Structural volumes : G4PVPlacement ->**
+
+   *GVolume*
+      JUNO: tree of ~300,000 *GVolume* 
+
+   **Solid shapes : G4VSolid ->**
+  
+   *GMesh* (collected into **GMeshLib**)
+      | arrays: vertices, indices
+      | ref to *NCSG*
+
+   *NCSG*
+       tree of *NNode* (CSG constituents)
+ 
+
+   **Material/surface properties as function of wavelength**   
+
+   * *G4Material* -> *GMaterial*
+   * *G4Logical(Border/Skin)Surface* -> *GSurface* 
+   * adopts standard wavelength domain 
+   * collected into **GMaterialLib** **GSurfaceLib**
+
+
+   **Translation steered by X4 package**
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/extg4/X4PhysicalVolume.hh
+
+
+
+
+.. s5_talk::
+
+   Translation of Geant4 into a GPU geometry, is done in several stages.
+   The first step is simple 1:1 conversions that prepare for the next stages.
+
+
+
+:small:`Translation 2nd Step : Opticks/GGeo Instancing : "Factorizes" Geometry`
+----------------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Form of GPU Detector Geometry`
+
+    .. class:: small
+
+        **~10 GAS**
+          intersect prog, bufs: bbox, nodes, transforms
+            
+        **1 IAS in OptiX 7, ~10 in pre-7**
+          transforms + refs: **GAS**, ident, boundary tex 
+
+        **Boundary GPU Texture, interleaving:**
+          material + surface props
+
+
+    .. raw:: html
+
+         <hr/>
+
+    .. class:: small
+
+       **JUNO: ~300,000 GVolume -> ~10 GMergedMesh**
+
+       *repeated GMergedMesh* 
+          | thousands of instance transforms
+          | consolidates < 10 *GVolume* 
+
+       *remainder GMergedMesh* 
+          | one identity instance transform
+          | consolidates ~ few hundred *GVolume*
+
+
+
+.. class:: small
+
+   Structural volumes vs solid shapes 
+      | distinction for convenience only, :redbold:`distinction is movable` 
+
+   JUNO: ~300,000 GVolume : **mostly small repeated groups** (PMTs)
+
+   **GGeo/GInstancer**
+
+   0. GVolume **progeny digest** : shapes+transforms -> :red:`subtree ident.` 
+   1. find repeated **digests**, disqualifying repeats inside others
+   2. label all nodes with repeat index, non-repeated remainder : 0 
+
+   For each repeat+remainder create **GMergedMesh**:
+
+   * collecting transforms, identity -> instance arrays 
+   * merged volumes+solids  
+
+     * **GMesh**: concatenated arrays: triangles, indices 
+     * **GParts**: concatenated arrays: CSG nodes + transforms  
+     * transforms applied -> :red:`gets into instance frame`   
+     * :bluebold:`Consolidation : structural volumes -> compound solid`
+
+   **GMergedMesh** -> **IAS+GAS** 
+ 
+      
+
+.. class:: tiny
+
+   https://bitbucket.org/simoncblyth/opticks/src/master/ggeo/GInstancer.hh
+     
+
+.. s5_talk::
+
+    * 2nd step of the translation is a factorization into geometry instances.
+
+    * (GO THRU)
+
+    * The GMergedMesh combines structural info in the form of instance transforms 
+      together with concatenated solids. 
+
+
+
+
+.. comment
+
+    :small:`Ray Intersection with Transformed Object -> Geometry Instancing`
+    -----------------------------------------------------------------------------
+
+
+    .. |H2O| replace:: H\ :sub:`2`\ O
+
+    .. |IM| replace:: M\ :sup:`-1`
+
+    .. |IMT| replace:: M\ :sup:`-1T`
+
+    .. |NP| replace:: N\' 
+
+
+    .. figure:: /env/presentation/instancing/ray_intersection_in_two_spaces_p308_shirley_ch13_half.png
+        :width: 700px
+        :align: right
+
+        .. class:: small
+
+            Fig 13.5 "Realistic Ray Tracing", Peter Shirley
+
+        .. class:: normal
+
+            :redbold:`Advantages apply equally to acceleration structures`
+
+    .. class:: small
+
+       **Equivalent Intersects -> same** *t*
+
+       1. **ray** with *ellipsoid* : **M*p**
+       2. |IM| **ray** with *sphere* : **p**
+
+       **Local Frame Advantages**
+
+       1. simpler intersect (sphere vs ellipsoid)
+       2. closer to origin -> better precision
+
+       **Geometry Instancing Advantages**
+
+       * many objects share local geometry
+
+         * orient+position with 4x4 **M**
+
+       * huge VRAM saving, less to copy 
+       
+       **Requirements**
+
+       * must **not** normalize ray direction
+       * normals transform differently 
+
+         * |NP| = N * |IMT|   
+         * (due to non-uniform scaling) 
+
+
+    .. s5_talk::
+
+        The basis for instancing is the equivalence of intersects in two spaces.
+
+        For example a ray-ellipsoid intersect is equivalent to in inverse 
+        transformed ray intersect with a sphere.
+
+        Local frame intersects advantages...
+
+
+
+:small:`"CSGFoundry" : Shared CPU/GPU Geometry Model (OptiX pre-7 & 7)`
 -----------------------------------------------------------------------------------------------------
 
 .. sidebar:: :small:`IAS < Inst < Solid < Prim < Node`
@@ -1524,10 +1783,10 @@ Optical Simulation : Computer Graphics vs Physics
       Convert *Opticks/GGeo* -> *CSGFoundry*  
 
     :b:`opticks/src/master/qudarap/`
-      Generation, no-OptiX dependency
+      Simulation excluding geometry, generation
 
     :b:`opticks/src/master/CSGOptiX/`
-      OptiX 7 + pre-7 geometry 
+      OptiX 7 + pre-7 geometry : depends on CSG, QUDARap
 
 
 
@@ -1573,6 +1832,7 @@ Optical Simulation : Computer Graphics vs Physics
     
    The array-based simplicity makes it fast to upload to GPU, 
    with the entire geometry in 4 GPU allocations. 
+
 
 
 
@@ -1635,6 +1895,53 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
+
+
+
+:i:`Opticks Generality`
+-------------------------
+
+.. s5_talk::
+
+    A general Approach to geometry translation for GPU is used however
+    every new geometry is likely to have its own issues.
+
+    Getting Opticks to work with many geometries is necessary to
+    make it mature a robust tool. 
+
+
+:i:`Opticks Generality 2`
+---------------------------
+
+
+.. sidebar:: :small:`General Geometry Translation`
+
+    .. class:: small
+
+        :r:`BUT: every new geometry likely to have problems`  
+
+        Geant4 CSG 
+           "volume" based CSG in double precision
+
+        Opticks CSG
+           surface based intersection in float precision
+
+           * more susceptible to coincident face issues
+           * "G4Boolean abuse" solids -> reduced performance 
+
+.. s5_talk::
+
+    Plan to look into optionally improving robustness 
+     
+
+
+
+
+
+
+
+
+
 :i:`cxr_overview_emm_t0_moi_-1_ALL.jpg`
 -----------------------------------------
 
@@ -1665,121 +1972,140 @@ Optical Simulation : Computer Graphics vs Physics
    the geometry that the simulation will use.
 
 
+    
+:i:`cxr_overview_emm_t0,_moi_-1.jpg`
+-----------------------------------------------------------------
 
+``-e t0, : NOT 0 : 3084:sWorld : exclude global remainder volumes`` 
+
+.. s5_talk::
+
+   Exclude global remainder volumes, ie render only instanced 
 
 
 :i:`cxr_overview_emm_image_grid_overview`
 -------------------------------------------
 
+``Comparison of ray traced render times of different geometry`` 
+  ``simple way to find issues, eg over complex CSG, overlarge BBox`` 
+
+.. s5_talk::
+
+   Ray trace rendering performance provides natural way to look for issues
+
 
 :i:`sWaterTube_image_grid_cxr_view`
 -------------------------------------------
 
-
-
-:small:`Current JUNO Geometry : Auto-Factorized by "progeny digest"`
-------------------------------------------------------------------------
-
-
-.. sidebar:: :small:`Factorize ~300,000 vol -> 10 comp`
-
-   .. class:: small
-
-        * **ridx**: repeat index
-        * **plc**: number of placements of the instance
-        * **prim**: number of Prim/volumes in the instance
-        * **component**: numPrim:outerPrimName    
- 
-        :r:`"progeny digest"` characterizes subtree of every volume-node  
-
-
-.. class:: tiny
-
-    +----+------+-----+-------------------------------------------+---------------------------+
-    |ridx|   plc| prim|   component                               |  note                     |
-    +====+======+=====+===========================================+===========================+
-    |   0|     1| 3084|   3084:sWorld                             |  non-repeated remainder   |
-    +----+------+-----+-------------------------------------------+---------------------------+
-    |   1| 25600|    5|   5:PMT_3inch_pmt_solid                   |                           |
-    +----+------+-----+-------------------------------------------+   4 types of PMT          +
-    |   2| 12612|    5|   5:NNVTMCPPMTsMask                       |                           |
-    +----+------+-----+-------------------------------------------+                           +
-    |   3|  5000|    5|   5:HamamatsuR12860sMask                  |                           |
-    +----+------+-----+-------------------------------------------+                           +
-    |   4|  2400|    5|   5:mask_PMT_20inch_vetosMask             |                           |
-    +----+------+-----+-------------------------------------------+---------------------------+
-    |   5|   590|    1|   1:sStrutBallhead                        |                           |
-    +----+------+-----+-------------------------------------------+   4 parts of same         +
-    |   6|   590|    1|   1:uni1                                  |   assembly, BUT not       |
-    +----+------+-----+-------------------------------------------+   grouped as siblings     +
-    |   7|   590|    1|   1:base_steel                            |   (not parent-child)      |
-    +----+------+-----+-------------------------------------------+                           +
-    |   8|   590|    1|   1:uni_acrylic3                          |                           |
-    +----+------+-----+-------------------------------------------+---------------------------+
-    |   9|   504|  130|   130:sPanel                              |  repeated parts of TT     |
-    +----+------+-----+-------------------------------------------+---------------------------+
-
-
-.. class:: small
-
-   * **ridx:0** "remainder" Prim
-
-     * Prim that did not pass instancing criteria, on number of repeats + complexity
-     * TODO: tune criteria to instance more, reducing remainder Prim (Expect: 3084->~ 84)  
-
-   * **ridx:1,2,3,4**
-
-     * four types of PMT, all with 5 Prim 
-
-   * **ridx:5,6,7,8**
-
-     * same 590x assembly :redbold:`but not grouped together` : as siblings (not parent-child like PMTs) 
-     * TODO: implement instancing of siblings, combining 4 -> 1   
-
-
-.. class:: small
-
-   :redbold:`Increasing instancing : reduces memory for geometry -> improved performance`
-
-
+``Same viewpoint inside JUNO Central Detector, vary included volumes``
+   ``ray trace performance very sensitive to geometry and its modelling => BVH structure``
 
 .. s5_talk::
 
-   To follow what follows you need to know a bit about the factorization.
-   
-   300,000 Geant4 volumes are factorized into 10 Foundry Solids, with a lot of Inst 
-   referencing them according to the number of placements of each solid.
-   
-   Repeat index zero corresponds to the remainder volumes with only a single placement.
-   These are volumes that were not repeated enough to get instanced.     
-
-   More instancing reduces memory for the geometry and improves performance, so 
-   some work to avoid having thousands of remainder volumes is needed.
+   Ray trace rendering performance provides natural way to look for issues
 
 
 
-
-
-
-
-:i:`j1808_top_rtx`
---------------------
-
-.. s5_talk::
-
-   The upshot is that full Geant4 detector geometries
-   can be automatically translated into NVIDIA OptiX geometries.
-
-   This is an OptiX ray trace image from the chimney region at the 
-   top of the JUNO scintillator sphere.
-    
-
-
-:i:`Opticks Generality`
--------------------------
 
 
 .. comment
+
+    :small:`Current JUNO Geometry : Auto-Factorized by "progeny digest"`
+    ------------------------------------------------------------------------
+
+
+    .. sidebar:: :small:`Factorize ~300,000 vol -> 10 comp`
+
+       .. class:: small
+
+            * **ridx**: repeat index
+            * **plc**: number of placements of the instance
+            * **prim**: number of Prim/volumes in the instance
+            * **component**: numPrim:outerPrimName    
+     
+            :r:`"progeny digest"` characterizes subtree of every volume-node  
+
+
+    .. class:: tiny
+
+        +----+------+-----+-------------------------------------------+---------------------------+
+        |ridx|   plc| prim|   component                               |  note                     |
+        +====+======+=====+===========================================+===========================+
+        |   0|     1| 3084|   3084:sWorld                             |  non-repeated remainder   |
+        +----+------+-----+-------------------------------------------+---------------------------+
+        |   1| 25600|    5|   5:PMT_3inch_pmt_solid                   |                           |
+        +----+------+-----+-------------------------------------------+   4 types of PMT          +
+        |   2| 12612|    5|   5:NNVTMCPPMTsMask                       |                           |
+        +----+------+-----+-------------------------------------------+                           +
+        |   3|  5000|    5|   5:HamamatsuR12860sMask                  |                           |
+        +----+------+-----+-------------------------------------------+                           +
+        |   4|  2400|    5|   5:mask_PMT_20inch_vetosMask             |                           |
+        +----+------+-----+-------------------------------------------+---------------------------+
+        |   5|   590|    1|   1:sStrutBallhead                        |                           |
+        +----+------+-----+-------------------------------------------+   4 parts of same         +
+        |   6|   590|    1|   1:uni1                                  |   assembly, BUT not       |
+        +----+------+-----+-------------------------------------------+   grouped as siblings     +
+        |   7|   590|    1|   1:base_steel                            |   (not parent-child)      |
+        +----+------+-----+-------------------------------------------+                           +
+        |   8|   590|    1|   1:uni_acrylic3                          |                           |
+        +----+------+-----+-------------------------------------------+---------------------------+
+        |   9|   504|  130|   130:sPanel                              |  repeated parts of TT     |
+        +----+------+-----+-------------------------------------------+---------------------------+
+
+
+    .. class:: small
+
+       * **ridx:0** "remainder" Prim
+
+         * Prim that did not pass instancing criteria, on number of repeats + complexity
+         * TODO: tune criteria to instance more, reducing remainder Prim (Expect: 3084->~ 84)  
+
+       * **ridx:1,2,3,4**
+
+         * four types of PMT, all with 5 Prim 
+
+       * **ridx:5,6,7,8**
+
+         * same 590x assembly :redbold:`but not grouped together` : as siblings (not parent-child like PMTs) 
+         * TODO: implement instancing of siblings, combining 4 -> 1   
+
+
+    .. class:: small
+
+       :redbold:`Increasing instancing : reduces memory for geometry -> improved performance`
+
+
+
+    .. s5_talk::
+
+       To follow what follows you need to know a bit about the factorization.
+       
+       300,000 Geant4 volumes are factorized into 10 Foundry Solids, with a lot of Inst 
+       referencing them according to the number of placements of each solid.
+       
+       Repeat index zero corresponds to the remainder volumes with only a single placement.
+       These are volumes that were not repeated enough to get instanced.     
+
+       More instancing reduces memory for the geometry and improves performance, so 
+       some work to avoid having thousands of remainder volumes is needed.
+
+
+
+
+
+.. comment
+
+    :i:`j1808_top_rtx`
+    --------------------
+
+    .. s5_talk::
+
+       The upshot is that full Geant4 detector geometries
+       can be automatically translated into NVIDIA OptiX geometries.
+
+       This is an OptiX ray trace image from the chimney region at the 
+       top of the JUNO scintillator sphere.
+        
 
     :i:`j1808_top_ogl`
     --------------------
@@ -1790,6 +2116,101 @@ Optical Simulation : Computer Graphics vs Physics
        geometry. 
 
        Opticks manages analytic and triangulated geometry together.  
+
+
+
+
+
+:small:`[Dec 2021] JUNO : OptiX 7 Ray Trace Times ~2M-pix : TITAN RTX`
+------------------------------------------------------------------------
+
+.. sidebar:: :small:`Same viewpoint, vary GPU geometry`
+
+   .. class:: small
+
+        * **-e** : controls components : "t" means ~ (NOT) 
+        * **time(s)** : GPU ray trace CUDA launch time
+        * **relative** : compares to "ONLY PMT" baseline
+
+        **Recent Geometry Fixes**
+
+        * :b:`fix profligate PMT modelling` 
+        * :b:`simpler Acrylic fastener` 
+        * :b:`avoid overlarge Fastener BBox`  
+        * :b:`fix Polycone inner overlap`
+ 
+   .. class:: small
+
+        :r:`Small-ish time range 1:15 (previously 1:600)`
+          :r:`suggests no bad bottlenecks remaining`
+
+        **Substantial speedup after fixing geometry issues**
+
+        :b:`ALL PMTs` :  0.0097 -> 0.0061  (x1.6 faster) 
+
+        :b:`ALL` :  0.6240 -> 0.0054 (x155 faster) 
+
+
+.. comment
+
+   * **3084:sWorld** (too many non-instanced Prim)
+
+.. class:: tiny
+
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |idx|        -e|       time(s)    |      relative    |    enabled geometry description 3dbec4dc                                     |
+    +===+==========+==================+==================+==============================================================================+
+    |  0|        5,|        0.0004    |        0.0643    |    ONLY: 1:sStrutBallhead                                                    |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  1|        9,|        0.0004    |        0.0658    |    ONLY: 130:sPanel                                                          |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  2|        7,|        0.0005    |        0.0782    |    ONLY: 1:base_steel                                                        |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  3|        8,|        0.0006    |        0.0966    |    ONLY: 1:uni_acrylic1                                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  4|        6,|        0.0006    |        0.1009    |    ONLY: 1:uni1                                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  5|        1,|    :b:`0.0009`   |    :b:`0.1476`   |:b:`ONLY: 5:PMT_3inch_pmt_solid`               :b:`FAST cf 20in`              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  6|        4,|        0.0015    |        0.2386    |    ONLY: 4:mask_PMT_20inch_vetosMask                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  7|        3,|    :r:`0.0033`   |    :r:`0.5373`   |:r:`ONLY: 5:HamamatsuR12860sMask`              :r:`SLOW cf 3in`               |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  8|        0,|        0.0040    |        0.6556    |    ONLY: 3084:sWorld                                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  9|        2,|    :r:`0.0040`   |    :r:`0.6627`   |:r:`ONLY: 5:NNVTMCPPMTsMask`                   :r:`SLOW cf 3in`               |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 10|       t4,|        0.0050    |        0.8307    |    EXCL: 4:mask_PMT_20inch_vetosMask                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 11|       t2,|        0.0051    |        0.8391    |    EXCL: 5:NNVTMCPPMTsMask                                                   |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 12|       t3,|        0.0052    |        0.8514    |    EXCL: 5:HamamatsuR12860sMask                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 13|       t6,|        0.0053    |        0.8799    |    EXCL: 1:uni1                                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 14|       t7,|        0.0054    |        0.8809    |    EXCL: 1:base_steel                                                        |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 15|        t0|        0.0054    |        0.8843    |    ALL                                                                       |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 16|       t5,|        0.0054    |        0.8843    |    EXCL: 1:sStrutBallhead                                                    |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 17|       t9,|        0.0054    |        0.8855    |    EXCL: 130:sPanel                                                          |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 18|       t1,|        0.0054    |        0.8860    |    EXCL: 5:PMT_3inch_pmt_solid                                               |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 19|       t8,|        0.0055    |        0.9013    |    EXCL: 1:uni_acrylic1                                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 20|       t0,|        0.0059    |        0.9753    |    EXCL: 3084:sWorld                                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 21|   1,2,3,4|        0.0061    |        1.0000    |    ONLY PMT                                                                  |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 22|      t8,0|        0.0062    |        1.0217    |    EXCL: 1:uni_acrylic1 3084:sWorld                                          |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+
+
+.. s5_talk::
+
+    Smallish Relative time Range suggests no major bottlenecks from geometry issues remain 
 
 
 
@@ -1881,66 +2302,68 @@ Optical Simulation : Computer Graphics vs Physics
    so GPU buffers can be written to and rendered inplace with no copying around.
 
 
-:small:`Recording the steps of Millions of Photons`  
----------------------------------------------------------   
+.. comment
 
-.. sidebar:: Compression Essential
+    :small:`Recording the steps of Millions of Photons`  
+    ---------------------------------------------------------   
+
+    .. sidebar:: Compression Essential
+
+        .. class:: small
+
+             Domain compression to fit in VRAM 
+
+             * 16 step records per photon -> 256 bytes/photon
+             * 10M photons -> 2.56 GB
+
+             **4-bit History Flags at Each Step** 
+
+        .. raw:: html
+
+             <pre class="mypretiny">
+             BT : boundary
+             BR : boundary reflect 
+             SC : bulk scatter
+             AB : bulk absorb 
+             SD : surface detect 
+             SA : surface absorb 
+             </pre>
+
+        .. class:: small
+
+             **seqhis**
+                 :red:`64-bit integer history sequence`
+
 
     .. class:: small
 
-         Domain compression to fit in VRAM 
+        Up to 16 steps of the photon propagation are recorded.
 
-         * 16 step records per photon -> 256 bytes/photon
-         * 10M photons -> 2.56 GB
+        **Photon Array** : 4 * *float4* = 512 bits/photon
 
-         **4-bit History Flags at Each Step** 
+        * *float4*: position, time  [32 * 4 = 128 bits]
+        * *float4*: direction, weight
+        * *float4*: polarization, wavelength
+        * *float4*: flags: material, boundary, history  
 
-    .. raw:: html
+        **Step Record Array** : 2 * *short4* = 2*16*4 = 128 bits/record
 
-         <pre class="mypretiny">
-         BT : boundary
-         BR : boundary reflect 
-         SC : bulk scatter
-         AB : bulk absorb 
-         SD : surface detect 
-         SA : surface absorb 
-         </pre>
+        * *short4*: position, time (snorm compressed)  [4*16 = 64 bits]
+        * *uchar4*: polarization, wavelength (uchar compressed) [4*8 = 32 bits]
+        * *uchar4*: material, history flags [4*8 = 32 bits]  
 
-    .. class:: small
-
-         **seqhis**
-             :red:`64-bit integer history sequence`
+        Compression uses known domains of position (geometry center, extent),
+        time (0:200ns), wavelength, polarization. 
 
 
-.. class:: small
+    .. s5_talk::
 
-    Up to 16 steps of the photon propagation are recorded.
+        When you have millions of photons it is important 
+        to consider compression techniques. 
 
-    **Photon Array** : 4 * *float4* = 512 bits/photon
-
-    * *float4*: position, time  [32 * 4 = 128 bits]
-    * *float4*: direction, weight
-    * *float4*: polarization, wavelength
-    * *float4*: flags: material, boundary, history  
-
-    **Step Record Array** : 2 * *short4* = 2*16*4 = 128 bits/record
-
-    * *short4*: position, time (snorm compressed)  [4*16 = 64 bits]
-    * *uchar4*: polarization, wavelength (uchar compressed) [4*8 = 32 bits]
-    * *uchar4*: material, history flags [4*8 = 32 bits]  
-
-    Compression uses known domains of position (geometry center, extent),
-    time (0:200ns), wavelength, polarization. 
-
-
-.. s5_talk::
-
-    When you have millions of photons it is important 
-    to consider compression techniques. 
-
-    I mention this detail, because compression of 
-    photons is essential when considering how to make 
-    propagations re-usable.
+        I mention this detail, because compression of 
+        photons is essential when considering how to make 
+        propagations re-usable.
 
 
 
@@ -2053,34 +2476,35 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
-
-
-
-``NVIDIA Quadro RTX 8000 (48G)``
-----------------------------------
-
-.. raw:: html
-
-   <div class="mysidebar" style="position: absolute; top:15%; left:65%; width:22%; height:10% ;" >
-      <strong> 谢谢 NVIDIA China <br> for loaning the card </strong>
-   </div>
-
-
-.. s5_talk::
-
-   The GPU used for these tests is the Quadro RTX 8000 with 48GB VRAM.
-
-   Xie-xie to NVIDIA China for loaning the card.  
-
-
-
 .. comment
 
-   update these profilesmry.py plots with::
+    ``NVIDIA Quadro RTX 8000 (48G)``
+    ----------------------------------
 
-       scan-plot     ## on workstation    
-       scan-pub      ## on laptop with simoncblyth.bitbucket.org clone
-       scan-pubrst   ## prepare RST for inclusion at tail 
+    .. raw:: html
+
+       <div class="mysidebar" style="position: absolute; top:15%; left:65%; width:22%; height:10% ;" >
+          <strong> 谢谢 NVIDIA China <br> for loaning the card </strong>
+       </div>
+
+
+    .. s5_talk::
+
+       The GPU used for these tests is the Quadro RTX 8000 with 48GB VRAM.
+
+       Xie-xie to NVIDIA China for loaning the card.  
+
+
+
+    .. comment
+
+       update these profilesmry.py plots with::
+
+           scan-plot     ## on workstation    
+           scan-pub      ## on laptop with simoncblyth.bitbucket.org clone
+           scan-pubrst   ## prepare RST for inclusion at tail 
+
+
 
 
 :i:`scan-pf-1_NHit`
@@ -2088,16 +2512,7 @@ Optical Simulation : Computer Graphics vs Physics
 
 .. raw:: html
 
-     <pre>
-
-
-
-
-
-
-
-
-     </pre>
+   <p style="margin-bottom:8cm;" />
 
 
 .. sidebar:: :small:`Photon Launch Size : VRAM Limited`
@@ -2137,12 +2552,7 @@ Optical Simulation : Computer Graphics vs Physics
 
 .. raw:: html
 
-    <pre>
-   
-
-
- 
-    </pre>
+   <p style="margin-bottom:5cm;" />
 
 
 .. class:: small
@@ -2176,17 +2586,8 @@ Optical Simulation : Computer Graphics vs Physics
 
 .. raw:: html
   
-     <pre>
+   <p style="margin-bottom:9cm;" />
 
-
-
-
-
-
-
-
-
-     </pre>
 
 .. class:: small
 
@@ -2216,20 +2617,7 @@ Optical Simulation : Computer Graphics vs Physics
 
 .. raw:: html
   
-     <pre>
-
-
-
-
-
-
-
-
-
-
-
-     </pre>
-
+   <p style="margin-bottom:11cm;" />
     
 .. table:: 
    :align: center
@@ -2371,194 +2759,188 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
+.. comment
+
+    :small:`Where Next for Opticks ?`
+    ----------------------------------------------------
 
 
+    .. sidebar:: :small:`NVIDIA OptiX 7 : Entirely new API`
 
-:small:`Where Next for Opticks ?`
-----------------------------------------------------
+        .. class:: small
 
+            * introduced August 2019
+            * low-level CUDA-centric thin API
+            * :strike:`near perfect scaling to 4 GPUs, for free` 
 
-.. sidebar:: :small:`NVIDIA OptiX 7 : Entirely new API`
 
     .. class:: small
 
-        * introduced August 2019
-        * low-level CUDA-centric thin API
-        * :strike:`near perfect scaling to 4 GPUs, for free` 
+        **JUNO+Opticks into Production** 
 
+        * optimize geometry modelling for RTX
+        * full JUNO geometry validation iteration 
+        * JUNO offline integration
+        * optimize GPU cluster throughput:
 
-.. class:: small
+          * split/join events to fit VRAM
+          * job/node/multi-GPU strategy
 
-    **JUNO+Opticks into Production** 
+        * support OptiX 7, find multi-GPU load balancing approach
 
-    * optimize geometry modelling for RTX
-    * full JUNO geometry validation iteration 
-    * JUNO offline integration
-    * optimize GPU cluster throughput:
+    .. raw:: html
 
-      * split/join events to fit VRAM
-      * job/node/multi-GPU strategy
+        <pre>
+        </pre>
 
-    * support OptiX 7, find multi-GPU load balancing approach
+    .. class:: small
 
-.. raw:: html
+        **Geant4+Opticks Integration : Work with Geant4 Collaboration** 
 
-    <pre>
-    </pre>
+        * finalize *Geant4+Opticks* extended example
+     
+          * aiming for *Geant4* distrib 
 
-.. class:: small
+        * prototype *Genstep* interface inside *Geant4* 
 
-    **Geant4+Opticks Integration : Work with Geant4 Collaboration** 
+          * avoid customizing *G4Cerenkov* *G4Scintillation*
 
-    * finalize *Geant4+Opticks* extended example
- 
-      * aiming for *Geant4* distrib 
 
-    * prototype *Genstep* interface inside *Geant4* 
+    .. raw:: html
 
-      * avoid customizing *G4Cerenkov* *G4Scintillation*
+        <pre>
+        </pre>
 
 
-.. raw:: html
+    .. class:: small
 
-    <pre>
-    </pre>
+        **Alpha Development ------>-----------------> Robust Tool**
 
+        * many more users+developers required (current ~10+1)
+        * if you have an optical photon simulation problem ... 
+        
+          * start by joining : https://groups.io/g/opticks
 
-.. class:: small
+        
+    .. s5_talk::
 
-    **Alpha Development ------>-----------------> Robust Tool**
+       The next step is bringing Opticks into production usage within JUNO 
 
-    * many more users+developers required (current ~10+1)
-    * if you have an optical photon simulation problem ... 
-    
-      * start by joining : https://groups.io/g/opticks
-    
+       There is considerable interest in Opticks by the Geant4 
+       collaboration. The Fermilab Geant4 group is working on 
+       making an extended example for inclusion with the Geant4
+       distribution.  The CERN Geant4 group is looking at 
+       the possibilities to use the Opticks geometry approach more
+       widely, eg for gamma simulation in LHC calorimeters.
 
+       Opticks needs many more users and developers, 
+       to turn it into an robust tool.  
 
+       There is also a challenge in the form of NVIDIA OptiX 7 
+       which has drastically changed its API. A important 
+       multi-GPU feature is going away. 
 
-.. s5_talk::
+       To regain this requires developing load balancing across multiple GPUs myself.
 
-   The next step is bringing Opticks into production usage 
-   within JUNO 
 
+    .. comment
 
-   There is considerable interest in Opticks by the Geant4 
-   collaboration. The Fermilab Geant4 group is working on 
-   making an extended example for inclusion with the Geant4
-   distribution.  The CERN Geant4 group is looking at 
-   the possibilities to use the Opticks geometry approach more
-   widely, eg for gamma simulation in LHC calorimeters.
+        * geometry translation help : NEXO, DUNE, LZ  
+        * interest -> usage : SABRE, Baikal GVD, KM3Net, MicroBooNE
+        * expand interest : scintillator using medical imaging companies 
+        * automated geometry translation, but problems inevitable
 
-   Opticks needs many more users and developers, 
-   to turn it into an robust tool.  
+        * now: sole-developer + ~10 exploratory users from ~5 detectors  
+        * needs users+developers, join https://groups.io/g/opticks 
 
-   There is also a challenge in the form of NVIDIA OptiX 7 
-   which has drastically changed its API. A important 
-   multi-GPU feature is going away. 
 
-   To regain this requires developing load balancing across multiple GPUs myself.
+.. comment       
 
+    :small:`Drastically Improved Optical Photon Simulation Performance...`
+    -----------------------------------------------------------------------------------------
 
 
-.. comment
+    .. sidebar:: :small:`How is >1500x possible ?`
 
-    * geometry translation help : NEXO, DUNE, LZ  
-    * interest -> usage : SABRE, Baikal GVD, KM3Net, MicroBooNE
-    * expand interest : scintillator using medical imaging companies 
-    * automated geometry translation, but problems inevitable
+         .. class:: small
 
-    * now: sole-developer + ~10 exploratory users from ~5 detectors  
-    * needs users+developers, join https://groups.io/g/opticks 
+              **Progress over 30 yrs, Billions of Dollars**
 
+              * industry funded : game, film, design, ... 
+              * re-purposed by translating geometry to GPU
 
-   
+                * tree of C++ objects -> arrays -> BVH
 
-:small:`Drastically Improved Optical Photon Simulation Performance...`
------------------------------------------------------------------------------------------
+              **Photon Simulation ideally suited to GPU**
+     
+              * millions of photons -> abundantly parallel 
+              * simple phys. -> small stack -> many in flight 
+              * decoupled -> no synchronization 
 
+             
+              
 
-.. sidebar:: :small:`How is >1500x possible ?`
 
-     .. class:: small
+    .. class:: small
 
-          **Progress over 30 yrs, Billions of Dollars**
+      **Three revolutions reinforcing each other:**
 
-          * industry funded : game, film, design, ... 
-          * re-purposed by translating geometry to GPU
+      * games -> graphics revolution -> GPU -> cheap TFLOPS
+      * internet scale big datasets -> ML revolution
+      * computer vision revolution for autonomous vehicles 
+        
+      :blue:`Deep rivers of development, ripe for re-purposing`
+      
+      * analogous problems -> solutions
+      * :red:`experience across fields essential to find+act on analogies`  
 
-            * tree of C++ objects -> arrays -> BVH
+      **Example : DL denoising for faster ray trace convergence**
 
-          **Photon Simulation ideally suited to GPU**
- 
-          * millions of photons -> abundantly parallel 
-          * simple phys. -> small stack -> many in flight 
-          * decoupled -> no synchronization 
+      * analogous to hit aggregation
+      * skip the hits, jump straight to DL smoothed probabilities 
 
-         
-          
+        * :red:`blurs the line between simulation and reconstruction`
 
+    .. raw:: html
 
-.. class:: small
+       <pre>
+       </pre>
 
-  **Three revolutions reinforcing each other:**
+    .. class:: small
 
-  * games -> graphics revolution -> GPU -> cheap TFLOPS
-  * internet scale big datasets -> ML revolution
-  * computer vision revolution for autonomous vehicles 
-    
-  :blue:`Deep rivers of development, ripe for re-purposing`
-  
-  * analogous problems -> solutions
-  * :red:`experience across fields essential to find+act on analogies`  
+       **Re-evaluate long held practices in light of new realities:**
 
-  **Example : DL denoising for faster ray trace convergence**
+       * large ROOT format (C++ object) MC samples repeatedly converted+uploaded to GPU for DL training ... OR:
+       * small Genstep NumPy arrays uploaded, dynamically simulated into GPU hit arrays in fractions of a second 
 
-  * analogous to hit aggregation
-  * skip the hits, jump straight to DL smoothed probabilities 
 
-    * :red:`blurs the line between simulation and reconstruction`
+    .. comment
 
-.. raw:: html
+      **Transformative Performance : But how to transform ?**
 
-   <pre>
-   </pre>
+      * graphics : oldest user of GPUs -> rich palette of techniques 
+      * vision spherical CNN -> potential for reconstruction 
 
-.. class:: small
+      **Dynamically generated simulation feasible ?**
 
-   **Re-evaluate long held practices in light of new realities:**
+      * current reconstruction -> custom simulation
+      * no more : limited MC stats in edge cases 
 
-   * large ROOT format (C++ object) MC samples repeatedly converted+uploaded to GPU for DL training ... OR:
-   * small Genstep NumPy arrays uploaded, dynamically simulated into GPU hit arrays in fractions of a second 
 
 
-.. comment
+    .. s5_talk::
 
-  **Transformative Performance : But how to transform ?**
+       How it is possible for a > 1500 times speedup ?
 
-  * graphics : oldest user of GPUs -> rich palette of techniques 
-  * vision spherical CNN -> potential for reconstruction 
+       Well, I think it is because of the success of Geant4 over 
+       20 years have made it too easy just to continue using it, 
+       and hope Moores law is going to speed things up.
 
-  **Dynamically generated simulation feasible ?**
+       Meanwhile, billions of dollars of industry development 
+       have gone into improving ray tracing.
 
-  * current reconstruction -> custom simulation
-  * no more : limited MC stats in edge cases 
-
-
-
-.. s5_talk::
-
-   How it is possible for a > 1500 times speedup ?
-
-   Well, I think it is because of the success of Geant4 over 
-   20 years have made it too easy just to continue using it, 
-   and hope Moores law is going to speed things up.
-
-   Meanwhile, billions of dollars of industry development 
-   have gone into improving ray tracing.
-
-   Liberating geometry from the Geant4 object model allows
-   all this development effort to be applied to optical photon simulation.
+       Liberating geometry from the Geant4 object model allows
+       all this development effort to be applied to optical photon simulation.
 
 
 
@@ -2591,8 +2973,7 @@ Optical Simulation : Computer Graphics vs Physics
      :height: 1px
 
 
-
-
+  * :r:`~30yrs/Giga-$ of HW+SW optimization applied to optical simulation`  
   * Drastic speedup -> better detector understanding -> greater precision
   
     * **any simulation limited by optical photons can benefit** 

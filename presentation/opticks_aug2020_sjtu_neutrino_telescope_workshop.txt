@@ -6,6 +6,14 @@
    :event_url: https://indico-tdli.sjtu.edu.cn/event/238/ 
    :reg: https://indico-tdli.sjtu.edu.cn/event/238/registrations/17/?token=7f174251-8ab2-4608-a7a8-3d98d669167b
 
+   :proof: /env/presentation/photos/sjtu_next_gen_neutrino_telescope_workshop_aug_2020_half.png
+
+
+    More info about the scope of the workshop can be found on the indico page (access code: tdli2020): 
+
+    https://indico-tdli.sjtu.edu.cn/event/238/overview
+
+
 
 .. include:: my_s5defs.txt
 

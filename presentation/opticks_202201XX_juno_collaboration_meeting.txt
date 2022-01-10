@@ -87,6 +87,25 @@
 
 
 
+Geometry Issues
+------------------
+
+.. class:: small 
+
+
+
+
+cxr_geochain_hmsk_solidMaskTail_with_coincidence_issue
+-------------------------------------------------------
+
+cxr_geochain_hmsk_solidMaskTail
+------------------------------------
+
+hmsk_solidMaskTail_X4Mesh
+---------------------------
+   
+
+
 
 LSExpDetectorConstruction::setupCD_Sticks Bug(s) ?
 ----------------------------------------------------
@@ -146,6 +165,9 @@ Check csv PosFile
 
     j/PosFile/HexagonPosBallTest.py
 
+
+.. class:: small
+
     +------------------+-----------------+----------------------+----------------------------+
     |             csv  |             npy |                  key |   name                     |
     +==================+=================+======================+============================+
@@ -162,21 +184,128 @@ Check csv PosFile
     |            (8,)  |       (8, 4, 4) |    SJReceiverPosFile |   SJReceiverPos.csv        |
     +------------------+-----------------+----------------------+----------------------------+
     |           (36,)  |      (36, 4, 4) |     SJFixturePosFile |   SJFixturePos.csv         |
-    +------------------+-----------------+----------------------+-----------------------------
+    +------------------+-----------------+----------------------+----------------------------+
+
+
+.. comment
+
+    Text after table
+
+
+:i:`image_grid_QCKTest`
+-----------------------
+
+
+
+.. comment
+
+    :i:`cxs_XJfixtureConstructionXZ_10`
+    ------------------------------------
 
 
 
 
-:i:`cxs_XJfixtureConstructionXZ_10`
-------------------------------------
 
 
 
-:i:`cxs_XJfixtureConstructionPR_55`
-------------------------------------
+``RTP (Radial-Theta-Phi) Tangential Frames``  
+---------------------------------------------
 
-:i:`cxs_XJfixtureConstructionTR_55`
-------------------------------------
+.. raw:: html
+
+   <p style="margin-bottom:5cm;" />
+
+.. sidebar:: :small:`RTP Derivatives Basis`
+
+   .. class:: small
+
+       :r:`Radial (red)`
+       :g:`Theta (green)`
+       :b:`Phi (blue)`
+
+       * origin RTP (0,0,0) at any point on sphere 
+       * convenient for sphere oriented global (non-instanced) geometry 
+       * eg UP direction (1,0,0)
+
+
+
+:small:`solidXJfixture 64 renders using RTP tangential frame`
+----------------------------------------------------------------
+
+
+.. class:: small
+
+    Render all 64 solidXJfixture from same RTP frame viewpoint::
+
+         for n in $(seq 0 63) ; do
+           EYE=2,-1,-1 LOOK=0,0,0 UP=1,0,0 MOI=solidXJfixture:$n:-3 ./cxr_view.sh
+         done
+
+    EYE, LOOK, UP coordinates uses frames centered on the MOI target geometry
+
+.. class:: small
+
+    +----------------------------------------------------------------------------------------------------+
+    | MOI *Mname:mOrdinal:InstanceIndex* identifier picks volume using solid names and repeat indices    |
+    +------------------------------------------+---------------------------------------------------------+
+    |   Instanced Geometry                     |   Global Geometry                                       |
+    +==========================================+=========================================================+
+    |  ``NNVT:0:1000``                         |  ``solidXJfixture:10``                                  |
+    +------------------------------------------+---------------------------------------------------------+
+    |  ``Hama:0:2000``                         |  ``solidXJfixture:10:-3``                               |   
+    +------------------------------------------+---------------------------------------------------------+
+
+    *Mname*
+      selects first solid name starting with *Mname*
+
+    *mOrdinal* 
+      usually 0 with instanced geometry, or selects between global repeats  
+
+    *InstanceIndex*
+      selects instanced repeat or with global geometry selects between frame types 
+
+      * cartesian XYZ centered on target geometry using extent units   
+      * -3:RTP tangential using extent units 
+
+    
+        
+
+:i:`image_grid_cxr_solidXJfixture:XX:-3`
+-----------------------------------------
+
+
+
+solidXJfixture possible issues
+--------------------------------------
+
+
+.. class:: small
+
+    Render all 64 solidXJfixture from same RTP frame viewpoint::
+
+         for n in $(seq 0 63) ; do
+           EYE=2,-1,-1 LOOK=0,0,0 UP=1,0,0 MOI=solidXJfixture:$n:-3 ./cxr_view.sh
+         done
+
+.. class:: small
+
+    solidXJfixture
+
+    * :0 :1 overlap each other but rotated, mid-chimney position
+    * :2 :3 :4 :5 :6 :7
+    * :36 :40 close to foot of Fastener
+    * :37 :41 :44 :47 :50 :52 :55 :58 :61 
+
+
+
+
+
+
+solidXJfixture:64_radii.png
+------------------------------
+
+
+
 
 :i:`cxr_view_solidXJfixture:55:-3_cam_1_eye_8,-4,-4_zoom_1_tmin_0.1`
 ---------------------------------------------------------------------
@@ -191,11 +320,25 @@ Check csv PosFile
 -------------------------------------------------------------------------
 
 
-:i:`image_grid_cxr_solidXJfixture:XX:-3`
------------------------------------------
+:i:`cxs_XJfixtureConstructionPR_55`
+------------------------------------
+
+:i:`cxs_XJfixtureConstructionTR_55`
+------------------------------------
 
 
 
+
+
+
+solidXJfixture:0:-3_cam_0_t0_cxr_view___eye_8,-32,0__zoom_1__tmin_32_solidXJfixture:0:-3.jpg
+-----------------------------------------------------------------------------------------------
+
+solidXJfixture:0:-3_cam_1_t0_cxr_view___eye_32,-48,0__look_32,0,0__zoom_1__tmin_48_solidXJfixture:0:-3.jpg
+-------------------------------------------------------------------------------------------------------------
+
+solidXJfixture:0:-3_cam_1_t0_cxr_view___eye_32,-48,0__look_32,0,0__zoom_0.25__tmin_48_solidXJfixture:0:-3.jpg
+---------------------------------------------------------------------------------------------------------------
 
 
 :i:`cxs_XJfixtureConstructionTR_0`
@@ -209,6 +352,61 @@ Check csv PosFile
 
 :i:`cxs_XJfixtureConstructionPR_0`
 ------------------------------------
+
+
+
+
+
+
+
+
+
+XJfixtureConstructionTR_2
+------------------------------
+
+XJfixtureConstructionTR_52
+------------------------------
+
+
+
+
+
+solidXJfixture:41:-3_cam_1_t0_cxr_view___eye_2,-1,-1__zoom_1__tmin_0.1_solidXJfixture:41:-3.jpg
+-------------------------------------------------------------------------------------------------
+
+XJfixtureConstructionPR_41
+-----------------------------
+
+XJfixtureConstructionClosePR_41
+---------------------------------
+
+XJfixtureConstructionCloserPR_41
+---------------------------------
+
+
+
+
+
+
+
+X4MeshTest_XJfixtureConstruction_png
+--------------------------------------
+
+
+
+
+
+:i:`cxr_view_solidXJfixture:2:-3_cam_0_eye_16,-8,-8__zoom_1__tmin_0.1`
+-------------------------------------------------------------------------
+
+* tmin cut Fasteners cause   
+
+
+:i:`cxr_view_solidXJfixture:2:-3_cam_1_eye_8,-4,-4__zoom_1__tmin_0.0`
+-------------------------------------------------------------------------
+
+
+
 
 :i:`cxs_custom_XJfixtureConstructionXY`
 -----------------------------------------

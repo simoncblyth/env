@@ -317,6 +317,9 @@
     SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU
     /env/presentation/nvidia/SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU_half.png 1280px_720px
 
+    SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU 2
+    /env/presentation/nvidia/SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU_half.png 1280px_720px
+
     SIGGRAPH_2019_Eric_Enderton_RT_Cores
     /env/presentation/nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
 
@@ -348,6 +351,9 @@
     /env/presentation/rendering_equation/TheRenderingEquation_001.png 1280px_720px 
 
     The Rendering Equation 2
+    /env/presentation/rendering_equation/TheRenderingEquation_002.png 1280px_720px 
+
+    The Rendering Equation 3
     /env/presentation/rendering_equation/TheRenderingEquation_002.png 1280px_720px 
 
     Project Sol
@@ -1097,6 +1103,9 @@
     test_makeICDF_SplitBin_QCKTest_s2cn_plot.png
     /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/s2cn_plot.png 1280px_720px
 
+    image_grid_QCKTest
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.0000/image_grid_QCKTest.png 1280px_720px
+
     QCKTest_1.0000_en_plot.png
     /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.0000/en_plot.png 1280px_720px
     
@@ -1522,6 +1531,57 @@
 
     Opticks Generality 
     /env/graphics/ggeoview/image_grid_opticks_generality.png 1280px_720px
+
+    Opticks Generality 2
+    /env/graphics/ggeoview/image_grid_opticks_generality.png 1280px_720px
+
+    cxr_view_solidXJfixture:2:-3_cam_0_eye_16,-8,-8__zoom_1__tmin_0.1
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:2:-3/cam_0_t0/cxr_view___eye_16,-8,-8__zoom_1__tmin_0.1_solidXJfixture:2:-3.jpg 1280px_720px
+
+    cxr_view_solidXJfixture:2:-3_cam_1_eye_8,-4,-4__zoom_1__tmin_0.0
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:2:-3/cam_1_t0/cxr_view___eye_8,-4,-4__zoom_1__tmin_0.0_solidXJfixture:2:-3.jpg 1280px_720px
+
+    RTP (Radial-Theta-Phi) Tangential Frames  
+    /env/presentation/ana/tangential/tangential.png 1280px_720px
+
+    XJfixtureConstructionTR_2
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionTR_2/figs/positions_mpplt_pid.png 1280px_720px
+
+    XJfixtureConstructionTR_52
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionTR_52/figs/positions_mpplt_pid.png 1280px_720px
+
+    solidXJfixture:64_radii.png
+    /env/presentation/CSG/tests/CSGTargetGlobalTest/solidXJfixture:64_radii.png 1280px_720px
+
+    XJfixtureConstructionPR_41
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionPR_41/figs/positions_mpplt_pid.png 1280px_720px
+
+    XJfixtureConstructionClosePR_41
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionClosePR_41/figs/positions_mpplt_pid.png 1280px_720px
+
+    XJfixtureConstructionCloserPR_41
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionCloserPR_41/figs/positions_mpplt_pid.png 1280px_720px
+
+    solidXJfixture:41:-3_cam_1_t0_cxr_view___eye_2,-1,-1__zoom_1__tmin_0.1_solidXJfixture:41:-3.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:41:-3/cam_1_t0/cxr_view___eye_2,-1,-1__zoom_1__tmin_0.1_solidXJfixture:41:-3.jpg 1280px_720px
+
+    X4MeshTest_XJfixtureConstruction_png
+    /env/presentation/extg4/X4MeshTest/XJfixtureConstruction/X4Mesh/pvplot.png 1280px_720px
+
+    solidXJfixture:0:-3_cam_0_t0_cxr_view___eye_8,-32,0__zoom_1__tmin_32_solidXJfixture:0:-3.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:0:-3/cam_0_t0/cxr_view___eye_8,-32,0__zoom_1__tmin_32_solidXJfixture:0:-3.jpg 1280px_720px
+
+    solidXJfixture:0:-3_cam_1_t0_cxr_view___eye_32,-48,0__look_32,0,0__zoom_1__tmin_48_solidXJfixture:0:-3.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:0:-3/cam_1_t0/cxr_view___eye_32,-48,0__look_32,0,0__zoom_1__tmin_48_solidXJfixture:0:-3.jpg 1280px_720px
+
+    solidXJfixture:0:-3_cam_1_t0_cxr_view___eye_32,-48,0__look_32,0,0__zoom_0.25__tmin_48_solidXJfixture:0:-3.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:0:-3/cam_1_t0/cxr_view___eye_32,-48,0__look_32,0,0__zoom_0.25__tmin_48_solidXJfixture:0:-3.jpg 1280px_720px
+
+    cxr_geochain_hmsk_solidMaskTail_with_coincidence_issue
+    /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1_with_coincidence_issue.jpg 1280px_720px
+
+    cxr_geochain_hmsk_solidMaskTail
+    /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1.jpg 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored

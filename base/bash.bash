@@ -43,6 +43,25 @@ declare -a arr = (1 2 3)
 * advantage of "declare -a" is local scoping 
 
 
+split string into array using IFS and "read -a"
+-------------------------------------------------
+
+::
+
+   cegs=10:20:30:40
+   IFS=: read -a cegs_arr <<< "$cegs"
+   cegs_elem=${#cegs_arr[@]}
+
+   case $cegs_elem in  
+       4) echo $msg 4 element CXS_CEGS $CXS_CEGS ;; 
+       7) echo $msg 7 element CXS_CEGS $CXS_CEGS ;; 
+       *) echo $msg ERROR UNEXPECTED $cegs_elem element CXS_CEGS $CXS_CEGS && exit 1  ;;  
+   esac
+
+   # quotes on the in variable required due to bug fixed in bash 4.3 according to 
+   # https://stackoverflow.com/questions/918886/how-do-i-split-a-string-on-a-delimiter-in-bash
+
+
 
 bash arguments
 ----------------

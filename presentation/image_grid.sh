@@ -29,28 +29,12 @@ make_image_grid()
 }
 
 
+
+
 #./titles.sh 
-
-expts(){ cat << EOL
-/env/graphics/ggeoview/jpmt-inside-wide_half.png
-/env/presentation/dayabay-principal_half.png
-/env/presentation/LHCb_RICH/OKTest_rich1_new.png
-/env/presentation/LZ/LZ_with_Opticks_half.png
-EOL
-}
-anno(){ cat << EOL
-JUNO
-Dayabay
-LHCb RICH
-   LZ
-EOL
-}
-
-expts > /tmp/urls.txt
-anno  > /tmp/anno.txt
 
 #make_image_grid "image_grid_overview"  /tmp/urls.txt
 #make_image_grid "image_grid_cxr_view" /tmp/urls.txt 
 
-make_image_grid "image_grid_opticks_generality" /tmp/urls.txt /tmp/anno.txt
+make_image_grid "image_grid_QCKTest" /tmp/urls.txt /tmp/anno.txt
 
