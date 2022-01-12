@@ -134,8 +134,6 @@ https://simoncblyth.bitbucket.io/env/presentation/opticks_202201XX_juno_collabor
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html
 
-    **PRESENTATION IN PREPARATION**
-
     Opticks : Innovation in Optical Photon Simulation via state-of-the-art GPU Ray Tracing from NVIDIA® OptiX™
 
     January 14, 2022

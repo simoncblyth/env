@@ -12,6 +12,9 @@ FUNCTIONS
 slides-get--
     automatically get all pages of the current presentation from presentation-
 
+FIXED issue with slides-get-- : slides-crop was using python without PIL
+shift to using ${OPTICKS_PYTHON:-python} to pick the miniconda python 
+
 
 Simplify talk interleaving with p2.sh
 ---------------------------------------
@@ -749,7 +752,7 @@ slides-crop(){
    local msg="=== $FUNCNAME "
    slides-cd
    echo $msg cropping png
-   python $ENV_HOME/bin/crop.py ???.png
+   ${OPTICKS_PYTHON:-python} $ENV_HOME/bin/crop.py ???.png
 }
 
 

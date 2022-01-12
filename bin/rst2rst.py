@@ -5,6 +5,11 @@ rst2rst.py
 
 Used by presentation-rst2talk
 
+Note that this does not use docutils, it just 
+operates at text level changing ".. s5_talk::" 
+into a title for the _TALK output.
+
+
 """
 from __future__ import print_function
 import os, sys, logging
@@ -49,6 +54,9 @@ class R2R(object):
         self.check(self.titles, self.talktitles)
 
     def check(self, a, b ):
+        """
+        Check consistency between lists a and b 
+        """
         ab = set(a) - set(b)
         ba = set(b) - set(a)
         assert len(ba) == 0, ba
@@ -101,12 +109,12 @@ class R2R(object):
 
 
 if __name__ == '__main__':
-     path = sys.argv[1]
      logging.basicConfig(level=logging.INFO)
 
      log.info(sys.argv[0])
-
+     path = sys.argv[1]
      name = os.path.basename(path)
+
      stem, ext = os.path.splitext(name)
      assert not stem.endswith("_TALK"), (path, name, stem, ext)  
 
@@ -119,8 +127,4 @@ if __name__ == '__main__':
      print(r2r, file=out)
 
      
-
-
-
-
 

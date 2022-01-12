@@ -491,6 +491,9 @@ Usage Steps
 7. use "File > Save As" to save the result to a different name
    (eg nacent convention of mine is to append an undercore before ".pdf")
 
+   * actually trailing underscores has special RST meaning hence it is 
+     better to just be explicit and add suffix "_compressed.pdf"
+
 Compare sizes::
 
     epsilon:Desktop blyth$ du -hs opticks_gpu_optical_photon_simulation_jul2018_chep*
@@ -1263,7 +1266,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 
 
 #presentation-iname(){  echo ${INAME:-opticks_20211223_pre_xmas} ; }
-presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong} ; }
+presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong_TALK} ; }
 #presentation-iname(){ echo ${INAME:-opticks_202201XX_juno_collaboration_meeting} ; }
 
 collab-e(){ INAME=opticks_202201XX_juno_collaboration_meeting presentation-e ; }
@@ -1390,8 +1394,8 @@ presentation-openc(){
 }
 
 presentation-remote(){       echo simoncblyth.bitbucket.io ; }
-presentation-remote-url(){   echo http://$(presentation-remote)/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
-presentation-remote-open(){  open $(presentation-remote-url $*) ; }
+presentation-url-remote(){   echo http://$(presentation-remote)/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
+presentation-remote-open(){  open $(presentation-url-remote $*) ; }
 
 presentation--(){
    presentation-
@@ -1442,8 +1446,22 @@ presentation-rst2talk(){
 
    case $(presentation-iname) in
       *_TALK) echo $msg nothing to do ;; 
-           *) echo $msg rst2rst.py $path && rst2rst.py $path ;; 
+           *) presentation-rst2talk- $path ;;
    esac    
 
 }
+
+presentation-rst2talk-(){
+   local msg="=== $FUNCNAME :"
+   local path=$1
+   local cmd="${PYTHON:-python} $(which rst2rst.py) $path" 
+   echo $msg cmd $cmd
+   eval $cmd
+}
+
+
+
+
+
+
 

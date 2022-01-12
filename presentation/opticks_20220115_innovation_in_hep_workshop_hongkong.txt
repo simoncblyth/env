@@ -2611,26 +2611,29 @@ Optical Simulation : Computer Graphics vs Physics
 
 
 
-:i:`scan-pf-1_RTX_Speedup`
----------------------------------
+
+.. comment
+
+    :i:`scan-pf-1_RTX_Speedup`
+    ---------------------------------
 
 
-.. raw:: html
-  
-   <p style="margin-bottom:11cm;" />
-    
-.. table:: 
-   :align: center
+    .. raw:: html
+      
+       <p style="margin-bottom:11cm;" />
+        
+    .. table:: 
+       :align: center
 
-   +-----------------------------------------------------+
-   | **5x Speedup from RTX with JUNO analytic geometry** |
-   +-----------------------------------------------------+
+       +-----------------------------------------------------+
+       | **5x Speedup from RTX with JUNO analytic geometry** |
+       +-----------------------------------------------------+
 
 
-.. s5_talk::
+    .. s5_talk::
 
-    Comparing RTX mode OFF to ON shows that the
-    dedicated ray tracing hardware is giving a factor of 5.
+        Comparing RTX mode OFF to ON shows that the
+        dedicated ray tracing hardware is giving a factor of 5.
 
 
 
@@ -3019,7 +3022,6 @@ Optical Simulation : Computer Graphics vs Physics
    These speedups are just for the optical photons, how much that 
    helps with the overall speedup depends on how limited you are by 
    optical photons.
-
 
     
 
