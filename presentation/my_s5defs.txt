@@ -66,6 +66,9 @@
         span.r { color: red; font-weight:bold ; }
         span.b { color: blue; font-weight:bold ; }
         span.g { color: green; font-weight:bold ; }
+        span.c { color: cyan; font-weight:bold ; }
+        span.m { color: magenta; font-weight:bold ; }
+        span.y { color: yellow; font-weight:bold ; }
 
         span.alarm { color: red; } 
         span.blue { color: blue; } 
@@ -190,7 +193,9 @@
 .. role:: r
 .. role:: g
 .. role:: b
-
+.. role:: c
+.. role:: m
+.. role:: y
 
 
 

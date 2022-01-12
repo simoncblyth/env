@@ -21,6 +21,46 @@ FUNCTIONS
 presentation-index
     open local index.html in browser 
 
+
+Debug no show image : turns out to be due to case sensitivity
+-------------------------------------------------------------------
+
+Get URL from safari console as a failed to load resource
+
+* https://simoncblyth.bitbucket.io/env/presentation/CSG/tests/CSGTargetGlobalTest/solidXJfixture:64_radii.png
+* /env/presentation/CSG/tests/CSGTargetGlobalTest/solidXJfixture:64_radii.png
+
+Try renaming::
+
+    epsilon:CSGTargetGlobalTest blyth$ git mv solidXJfixture:64_radii.png solidXJfixture64radii.png
+    epsilon:CSGTargetGlobalTest blyth$ git s
+    On branch master
+    Your branch is up-to-date with 'origin/master'.
+
+    Changes to be committed:
+      (use "git reset HEAD <file>..." to unstage)
+
+        renamed:    solidXJfixture:64_radii.png -> solidXJfixture64radii.png
+
+    epsilon:CSGTargetGlobalTest blyth$ 
+
+
+Looking at the repository source reveals the reason for noshow. 
+It is because of a clash between "CSG" and "csg" directories. 
+
+https://bitbucket.org/simoncblyth/simoncblyth.bitbucket.io/src/master/env/presentation/csg/tests/CSGTargetGlobalTest/solidXJfixture64radii.png
+
+epsilon:presentation blyth$ mkdir CSGTargetGlobalTest
+epsilon:presentation blyth$ git mv CSG/tests/CSGTargetGlobalTest/solidXJfixture64radii.png CSGTargetGlobalTest/
+fatal: not under version control, source=env/presentation/CSG/tests/CSGTargetGlobalTest/solidXJfixture64radii.png, destination=env/presentation/CSGTargetGlobalTest/solidXJfixture64radii.png
+epsilon:presentation blyth$ 
+epsilon:presentation blyth$ 
+epsilon:presentation blyth$ git mv csg/tests/CSGTargetGlobalTest/solidXJfixture64radii.png CSGTargetGlobalTest/
+
+
+
+
+
 PP warning
 ------------
 
