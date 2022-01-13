@@ -17,6 +17,36 @@ Searching for CSG developments
 
 
 
+Rendering Constructive Solid Geometry With Python
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.fotonixx.com/posts/efficient-csg/
+
+
+QuickCSG n-ary CSG using kd-tree
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://hal.inria.fr/hal-01587902/document
+
+QuickCSG: Fast Arbitrary Boolean Combinations of N Solids
+by M Douze, 2017
+
+
+
+CSG Ray Tracing Revisited
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* https://www.scitepress.org/papers/2017/61364/61364.pdf
+
+Organize constituents into layers, each with sums of positive and negative shapes. 
+
+
+Nice Slides
+~~~~~~~~~~~~~~~
+
+* http://web.cse.ohio-state.edu/~parent.1/classes/681/Lectures/19.RayTracingCSG.pdf
+
+
 Near Real-time CSG Rendering using Tree Normalization and Geometric Pruning, Goldfeather (1988)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
