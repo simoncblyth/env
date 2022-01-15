@@ -1267,11 +1267,22 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 
 #presentation-iname(){  echo ${INAME:-opticks_20211223_pre_xmas} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong} ; }
-presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong_TALK} ; }
-#presentation-iname(){ echo ${INAME:-opticks_202201XX_juno_collaboration_meeting} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong_TALK} ; }
+presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting} ; }
 
-collab-e(){ INAME=opticks_202201XX_juno_collaboration_meeting presentation-e ; }
-collab--(){ INAME=opticks_202201XX_juno_collaboration_meeting presentation-- ; }
+collab-e(){
+
+    presentation-cd
+    vi \
+$(presentation-iname).txt \
+s5_background_image.txt \
+juno_opticks_cerenkov_20210902.txt \
+opticks_autumn_20211019.txt \
+opticks_20211117.txt \
+opticks_20211223_pre_xmas.txt  \
+opticks_20220115_innovation_in_hep_workshop_hongkong.txt
+
+}
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 

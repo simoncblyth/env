@@ -17,8 +17,8 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_disabled"
     ##
-    ##slide0_DISABLED
-    slide0
+    ##slide0
+    slide0_DISABLED
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     Detector Geometry in Opticks
@@ -1096,6 +1096,9 @@
    
     StickPV_rod
     /env/presentation/CSGOptiXSimulateTest/4/figs/positions_pvplt_0,1,2.png 1280px_720px
+
+    Daughter Cavity 
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_pvplt_0,1,2.png 1280px_720px
  
     20_figs_positions_pvplt_0,1,2,3_csgsubsubbug.png
     /env/presentation/CSGOptiXSimulateTest/20/figs/positions_pvplt_0,1,2,3_csgsubsubbug.png 1280px_720px
@@ -1282,13 +1285,23 @@
     
     uni_acrylic3_0_figs_positions_mpplt_pid.png
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/uni_acrylic3_0/figs/positions_mpplt_pid.png 1280px_720px
+
+    uni_acrylic3_vs_1 
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/uni_acrylic3_0/figs/positions_mpplt_pid.png 640px_360px 0px_360px
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/uni_acrylic1_0/figs/positions_mpplt_pid.png 640px_360px 640px_360px
     
     Hama_1_figs_positions_mpnky_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpnky_pid.png 1280px_720px
+
+    Hama_1_figs_positions_mpnky_pid.png 2
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpnky_pid.png 1280px_720px
     
     Hama_1_figs_positions_mpplt_pid.png
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpplt_pid.png 1280px_720px
-    
+
+    Hama_1_figs_positions_mpplt_pid.png 2
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpplt_pid.png 1280px_720px
+ 
     Hama_2_figs_positions_mpnky_pid.png
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_2/figs/positions_mpnky_pid.png 1280px_720px
     
@@ -1594,6 +1607,11 @@
 
     cxr_geochain_hmsk_solidMaskTail
     /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1.jpg 1280px_720px
+
+    PMT Mask CSG Modelling Fix
+    /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1_with_coincidence_issue.jpg 640px_360px 0px_360px
+    /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1.jpg 640px_360px 640px_360px
+    /env/presentation/X4IntersectTest/hmsk_solidMaskTail/X4Mesh/pvplot.png 640px_360px 640px_0px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
