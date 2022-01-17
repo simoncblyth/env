@@ -30,7 +30,7 @@
     Visualizing An Optical Photon Simulation
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
 
-    Overview
+    Overview 0
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     g4daeview.py : Fast OpenGL 3D viewer for G4DAE files

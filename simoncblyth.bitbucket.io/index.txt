@@ -125,8 +125,6 @@ Opticks Presentations
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20220118_juno_collaboration_meeting.html
 
-    **PRESENTATION IN PREPARATION**
-
     JUNO+Opticks Photons : Validation and Deployment Plan
 
     January 18, 2022
