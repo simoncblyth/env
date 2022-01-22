@@ -1613,6 +1613,18 @@
     /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1.jpg 640px_360px 640px_360px
     /env/presentation/X4IntersectTest/hmsk_solidMaskTail/X4Mesh/pvplot.png 640px_360px 640px_0px
 
+    cxr_geochain_XJfixtureConstruction_ALL_jpg
+    /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL.jpg 1280px_720px
+
+    cxr_geochain_XJfixtureConstruction_ALL_otherside_jpg
+    /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL_otherside.jpg 1280px_720px 
+
+    cxr_geochain_XJfixtureConstruction_ALL_upper_jpg
+    /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL_upper.jpg 1280px_720px
+
+    cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
+    /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL_speckle.jpg 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

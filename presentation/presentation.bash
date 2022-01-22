@@ -1268,8 +1268,9 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){  echo ${INAME:-opticks_20211223_pre_xmas} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong_TALK} ; }
-presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting_TALK} ; }
+presentation-iname(){  echo ${INAME:-opticks_2022XXXX_geometry_issues} ; }
 
 collab-e(){
 
