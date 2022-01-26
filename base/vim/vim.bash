@@ -12,6 +12,14 @@ VIM Tips
 * http://www.astrohandbook.com/ch20/vi_guide.html
 
 
+
+count words
+-------------
+
+* to count all words in buffer, press: g ctrl-g 
+* to count all words in selected block, make the selection and then press: g ctrl-g 
+
+
 replace a wildcarded string with spaces : eg name with a reference
 --------------------------------------------------------------------
 

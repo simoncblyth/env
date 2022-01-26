@@ -1,7 +1,15 @@
 #!/opt/local/bin/python2.7
 """
+titles.py
+===========
 
+Invoked by titles.sh for example::
 
+    ./titles.sh opticks_20220115_innovation_in_hep_workshop_hongkong.txt
+
+This parses the .txt source of an s5 presentation collecting background 
+image urls from pages matching a titlematch string specified by TITLEMATCH envvar. 
+The urls are then written to file /tmp/urls.txt
 
 """
 import logging, os, sys
@@ -50,8 +58,75 @@ add_node( s5_background_image.s5backgroundimage,
 )
 
 
+
+
+def title_select(titlematch="", prefix=""):
+
+    titles = []
+    all_urls = []
+    urls = []
+    log.debug("-------------- titles  titlematch %s ", titlematch )
+
+    for isect, section in enumerate(doctree.traverse(nodes.section)):
+        names = section.attributes['names']
+        if len(names) > 0:
+            title = names[0]
+        else: 
+            title = repr(names)
+        pass
+        log.debug("title:%s" % title)
+        titles.append(title)
+
+        div = div_background.Find(title)
+        #print(repr(div))
+
+        url = div.urls[0].lstrip().rstrip() if not div is None and len(div.urls) == 1 else None
+        if url is None: continue
+
+        assert len(div.meta) == 1
+        meta = div.meta[0]
+
+        all_urls.append(url)
+
+        select = (len(titlematch) == 0 or title.find(titlematch) > -1) 
+
+        print(" %d : %s " % (int(select), url) )
+        if select:
+            urls.append(url)
+        pass
+    pass
+    log.info(" titles:%d titlematch:%s all_urls:%d urls:%d " % (len(titles), titlematch, len(all_urls), len(urls)))
+
+    outpath = "/tmp/urls.txt"
+    print("writing %s " % outpath)
+    open(outpath, "w").write("\n".join(map(lambda url:"%s%s" % (prefix,url),urls))) 
+
+
+
+def thumb_select(prefix=""):
+    thumb_div = div_background.FindMeta("thumb")
+    print("thumb_div %d " % len(thumb_div))
+
+    urls = []
+    for div in thumb_div:
+        url = div.urls[0].lstrip().rstrip() if not div is None and len(div.urls) == 1 else None
+        if not url in urls:
+            urls.append(url)
+            print( "thumb_select.url : %s " % url )
+        pass  
+    pass
+    outpath = "/tmp/thumb_urls.txt"
+    print("writing %s " % outpath)
+    open(outpath, "w").write("\n".join(map(lambda url:"%s%s" % (prefix,url),urls))) 
+
+
+
+
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+
+    #level = logging.INFO
+    level = logging.DEBUG
+    logging.basicConfig(level=level)
 
     reader, reader_name = None, 'standalone'
     parser, parser_name = None, 'restructuredtext'
@@ -71,7 +146,6 @@ if __name__ == '__main__':
     log.debug("Publisher")
     pub = Publisher(reader, parser, writer, settings=settings)
 
-
     log.debug("pub.set_components")
     pub.set_components(reader_name, parser_name, writer_name)
 
@@ -87,33 +161,9 @@ if __name__ == '__main__':
     #for i, url in enumerate(urls): print("%4d : %s " % (i, url))
     #for i, div in enumerate(divs): print("%4d : %s " % (i, repr(div)))
 
+    titlematch = os.environ.get("TITLEMATCH", "")
+    prefix = os.environ.get("PREFIX", "")
 
-    titles = []
-    urls = []
-
-    log.debug("-------------- titles")
-
-    for isect, section in enumerate(doctree.traverse(nodes.section)):
-        names = section.attributes['names']
-        if len(names) > 0:
-            title = names[0]
-        else: 
-            title = repr(names)
-        pass
-        #print(title)
-        titles.append(title)
-
-        div = div_background.Find(title)
-        #print(repr(div))
-
-        titlematch = os.environ.get("TITLEMATCH", "overview")
-        if not div is None and title.find(titlematch) > -1 and len(div.urls) == 1:
-            url = div.urls[0].lstrip().rstrip()
-            urls.append(url)
-        pass
-    pass
-
-    outpath = "/tmp/urls.txt"
-    print("writing %s " % outpath)
-    open(outpath, "w").write("\n".join(urls)) 
+    title_select(titlematch=titlematch, prefix=prefix)
+    thumb_select(prefix=prefix)
 

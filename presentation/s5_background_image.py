@@ -29,19 +29,38 @@ class div_background(object):
             pass
         return None 
 
+    @classmethod
+    def FindMeta(cls, q_meta):
+        select_divs = []
+        for div in divs:
+            for meta in div.meta:
+                if meta.find(q_meta) > -1:
+                    select_divs.append(div)
+                pass
+            pass
+        return select_divs
+
     def parse_spec(self, spec_line):
         spec_elem = spec_line.split()
         nelem = len(spec_elem)
-        size, position, extra = "auto_auto", "0px_0px", ""
+        size, position, extra, meta = "auto_auto", "0px_0px", "", ""
         if nelem > 0:url = spec_elem[0] 
         if nelem > 1:size = spec_elem[1]
         if nelem > 2:position = spec_elem[2]
         if nelem > 3:extra = spec_elem[3]
         if len(extra) > 0: 
-            extra = "%s ; " % extra  
+            if extra.startswith("meta:"):
+                meta = extra[len("meta:"):]
+            else:
+                extra = "%s ; " % extra  
+            pass
+        pass
+
+        if len(meta) > 0:
+            log.info("spec_line %s meta %s " % (spec_line, meta))  
         pass
         _ = lambda _:_.replace("_"," ")
-        return dict(url=url, size=_(size),position=_(position), extra=_(extra)) 
+        return dict(url=url, size=_(size),position=_(position), extra=_(extra), meta=meta ) 
 
     def __init__(self, lines):
         title, specs = lines[0], lines[1:]
@@ -50,12 +69,15 @@ class div_background(object):
         self.ltitle = title.lower()
         self.specs = specs
         self.urls = []
+        self.meta = []
         dd = [] 
         for spec in specs:
             d = self.parse_spec(spec)
             url = d["url"]
+            meta = d["meta"]
             urls.append(url)
             self.urls.append(url)  
+            self.meta.append(meta)
             dd.append(d)
         pass
         dc = {}
@@ -158,7 +180,7 @@ def render_s5backgroundimage_0( n ):
         title, spec_line = pair
         spec_elem = spec_line.split()
         nelem = len(spec_elem)
-        size, position, extra = "auto_auto", "0px_0px", ""
+        size, position, extra, meta = "auto_auto", "0px_0px", "", ""
         if nelem > 0:url = spec_elem[0] 
         if nelem > 1:size = spec_elem[1]
         if nelem > 2:position = spec_elem[2]
@@ -167,9 +189,15 @@ def render_s5backgroundimage_0( n ):
         _ = lambda _:_.replace("_"," ")
         urls.append(url) 
         if len(extra) > 0: 
-            extra = "%s ; " % extra  
+            if extra.startswith("meta:"): 
+                 pass
+                 meta = extra[len("meta:"):]
+                 extra = ""
+            else:
+                 extra = "%s ; " % extra  
+            pass
         pass
-        divs.append( div_tmpl % dict(tid=nodes.make_id(title), url=url, size=_(size),position=_(position), extra=_(extra))) 
+        divs.append( div_tmpl % dict(tid=nodes.make_id(title), url=url, size=_(size),position=_(position), extra=_(extra), meta=mera )) 
     pass
     html = style_tmpl % dict(divs="\n          ".join(divs))
     return html

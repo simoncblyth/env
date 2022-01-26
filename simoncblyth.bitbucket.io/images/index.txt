@@ -1,0 +1,77 @@
+*simoncblyth.bitbucket.io/images*
+===================================
+
+Thumbnail captions link to larger images, mostly (1920,1080) 
+--------------------------------------------------------------
+
+Feel free to use these images in your presentations, where appropriate give attribution by mentioning **Opticks** and including the url https://simoncblyth.bitbucket.io
+
+
+
+
+
+.. figure:: /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001_thumb4.png
+
+    `Opticks Hybrid Photon Simulation Workflow Compared to Geant4  </env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png>`_
+
+
+.. figure:: /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1_thumb4.jpg
+
+    `JUNO : Opticks NVIDIA OptiX 7 Ray Trace Render </env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1.jpg>`_
+
+
+
+.. figure:: /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0,_moi_-1_thumb4.jpg
+
+   `JUNO : Opticks NVIDIA OptiX 7 Ray Trace Render : Showing only instanced geometry </env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0,_moi_-1.jpg>`_ 
+
+
+
+.. figure:: /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-BT5-SD_thumb4.png
+
+   `JUNO : Photon Propagation Render, only showing direct to detection photons </env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-BT5-SD.png>`_
+
+
+
+.. figure:: /env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD_thumb4.png
+
+   `JUNO : Photon Propagation Render, only showing scatter then direct to detection photons </env/presentation/ana/scan-pf-1/scan-pf-check-GUI-TO-SC-BT5-SD.png>`_
+
+
+
+.. figure:: /env/presentation/face_view_PMTs_thumb4.png 
+
+    `JUNO : Face view large and small PMTs </env/presentation/face_view_PMTs.png>`_ 
+
+
+
+.. figure:: /env/graphics/ggeoview/jpmt-before-contact_half_thumb4.png
+
+    `JUNO : Optical Photon Simulation Problem ... </env/graphics/ggeoview/jpmt-before-contact_half.png>`_
+
+
+
+.. figure:: /env/graphics/ggeoview/jpmt-inside-wide_half_thumb4.png
+
+    `JUNO : Muon Event Photon Propagation  </env/graphics/ggeoview/jpmt-inside-wide_half.png>`_
+
+
+
+.. figure:: /env/presentation/geocache_360_thumb4.png
+
+    `JUNO : Equirectangular projection showing all Central Detector PMTs  </env/presentation/geocache_360.png>`_
+
+
+
+
+.. figure:: /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube_thumb4.jpg
+
+    `JUNO : Chimney, PMTs and Fasteners  </env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg>`_
+
+
+
+.. figure:: /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000_thumb4.jpg
+
+    `JUNO : PMTs and Fasteners </env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg>`_
+
+

@@ -40,13 +40,13 @@ def sdf_cylinder(x,y,z, z1=-5, z2=7, radius=5 ):
     """
     sd_capslab = np.maximum( z - z2 , z1 - z ) 
     sd_infcyl = np.sqrt( x*x + y*y ) - radius 
-    sd = np.maximum( sd_capslab, sd_infcyl )
+    sd = np.maximum( sd_capslab, sd_infcyl )    ## CSG intersection 
     return sd
 
 def sdf_pipe(x, y, z, z1=-5, z2=7, radius_inner=5, radius_outer=8 ):
     inner_sd = sdf_cylinder(x,y,z, z1=z1, z2=z2, radius=radius_inner )
     outer_sd = sdf_cylinder(x,y,z, z1=z1, z2=z2, radius=radius_outer )
-    pipe_sd = np.maximum( outer_sd, -inner_sd )
+    pipe_sd = np.maximum( outer_sd, -inner_sd )   ## CSG difference (intersection with complement)
     return pipe_sd
 
 def sdf_pipe_box(x, y, z, z1=-5, z2=7, radius_inner=5, radius_outer=8, bx=1, by=2, bz=3  ):

@@ -62,7 +62,7 @@
     ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
     ##
     Geant4OpticksWorkflow
-    /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
+    /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px 0px_0px meta:thumb
 
     Geant4OpticksWorkflow 2
     /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
@@ -92,7 +92,7 @@
     /env/presentation/dayabay-principal_half.png 1417px_830px 
 
     JPMT Inside Wide 
-    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px 0px_0px meta:thumb
 
     JPMT Wide
     /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
@@ -110,7 +110,7 @@
     /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
 
     Optical Photon Simulation Problem...
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 0px_0px meta:thumb
 
     JUNO Optical Photon Simulation Problem...
     /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
@@ -395,7 +395,7 @@
     /env/presentation/j1808/j1808_escapes.png
 
     geocache_360
-    /env/presentation/geocache_360.png 1280px_720px 0px_0px 
+    /env/presentation/geocache_360.png 1280px_720px 0px_0px meta:thumb
 
     geocache_360 2
     /env/presentation/geocache_360.png 1280px_720px 0px_0px 
@@ -1459,7 +1459,7 @@
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_t0/image_grid_cxr_view.jpg 1280px_720px
 
     sWaterTube_cam_0_t0_cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg
-    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg 1280px_720px
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg 1280px_720px 0px_0px meta:thumb
 
     sWaterTube_cam_0_t0_cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_1_sWaterTube.jpg
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_1_sWaterTube.jpg 1280px_720px
@@ -1480,7 +1480,7 @@
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,1,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px
 
     NNVT:0:1000_cam_0_t0_cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg
-    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px 0px_0px meta:thumb
 
     sWorld_cam_0_t0_cxr_view___eye_0,0.6,0.4__zoom_1__tmin_0.4_sWorld.jpg
     /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWorld/cam_0_t0/cxr_view___eye_0,0.6,0.4__zoom_1__tmin_0.4_sWorld.jpg 1280px_720px
