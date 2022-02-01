@@ -16,6 +16,14 @@ Searching for CSG developments
 :google:`CSG coincident faces ray tracing`
 
 
+Active Zones in CSG for accelerating Boundary Evaluation, Redundancy Elimination, Interference Detection and Shading Algorithms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+* ~/opticks_refs/csg_active_zones_rossignac_10.1.1.449.428.pdf
+* https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.449.428&rep=rep1&type=pdf
+
+
 
 Rendering Constructive Solid Geometry With Python
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -36,9 +44,471 @@ by M Douze, 2017
 CSG Ray Tracing Revisited
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* ~/opticks_refs/csg_ray_tracing_revisited_61364.pdf
 * https://www.scitepress.org/papers/2017/61364/61364.pdf
 
 Organize constituents into layers, each with sums of positive and negative shapes. 
+
+
+In order to avoid having to compute and store all intersection intervals along
+a ray, we take advantage of the structure of our scenes. Similar to depth peel-
+ing, from the camera perspective the CSG model is organized into a number of
+layers Li (i = 1,...,l). Each layer is composed of a number of positive solids
+Pi, j (j = 1,...,pi) and negative solids Ni,k (k = 1,...,ni). We will refer to
+the negative solids as cutouts in the following. Thus, the CSG operations for a
+scene S can be described as::
+
+    S = Sum Li
+        
+    Li = Sum Pi,j - Sum Ni,k
+
+
+Where + and - represent union and difference set operations.
+
+Basically, a layer can be seen as the difference of two compound (positive and
+neg- ative) objects. Because of this, CSG ray tracing a sin- gle layer can be
+done by tracking when a ray runs within a positive or negative medium. To this
+end, we employ two counters (posDepth and negDepth) that are attached as custom
+parameters to each ray. When- ever the ray tracer finds the closest
+intersection of a ray with the primitives of a layer, a hit program is called
+which is illustrated in algorithm 1.
+
+
+::
+
+    if entering primitive then 
+        delta := +1;
+    else
+        delta := −1; 
+    endif
+    if positive primitive hit then 
+        ray.posDepth += delta;
+    else
+        ray.negDepth += delta; 
+    endif
+    if (ray.posDepth > 0) && (ray.negDepth <= 0) then
+        ReportHit();
+    else
+        // final hit in layer found
+        ContinueRay(ray);   // still inside a negative medium
+    endif
+
+Each time a ray enters or leaves a positive or negative primitive, the
+counters are increased or decreased, respectively. In case we are inside a
+positive medium, but not inside a negative medium, we found the cor- rect
+hitpoint corresponding to a layer. Otherwise ray traversal continues using the
+updated counters.  To find the final global hitpoint in the scene, a pri- mary
+ray is sequentially tested against all layers, and from the set of layer
+hitpoints the nearest one is ac- cepted as final position for shading. In the
+scene graph used by the ray tracing engines, the layers of a scene can be
+stored as independent sub-trees, which can be intersected separately.
+
+
+::
+
+       enum {ENTER=+1, EXIT=-1 } ; 
+
+       int delta = dot(ray_direction, surface_normal) < 0.f  ? ENTER : EXIT ; 
+
+       if node.complement == false:
+            ray.pos_count += delta ;       
+       else:
+            ray.neg_count += delta ;   
+       pass
+
+       if(  ray.pos_count > 0 && ray.neg_count <= 0 ) reportHit
+       else ContinueRay
+        
+::
+   
+     delta    +1     -1         +1    -1          +1    -1          +1    -1         +1    -1           +1    -1
+                            
+               +-----+           +-----+           +-----+           +-----+          +-----+            +-----+    
+               |     |           |     |           |     |           |     |          |     |            |     |    
+           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+               |     |           |     |           |     |           |     |          |     |            |     |    
+               +-----+           +-----+           +-----+           +-----+          +-----+            +-----+    
+           
+     pos_     [1]    0           1     0           1     0           1     0          1     0            1     0      
+     neg_      0     0           0     0           0     0           0     0          0     0            0     0
+               |
+              reportHit
+
+
+
+
+   ENTER +1 : dot(ray_direction, surface_normal) < 0    ray direction against the normal
+   EXIT  -1 : dot(ray_direction, surface_normal) > 0    ray direction with the normal
+
+
+
+MULTIUNION OF FOUR CONSTITUENTS 
+
+                                             +-----------------+
+                                             |                 |
+                                             |                 |
+                                             |                 |
+                                   +---------|-----------------|---------+
+                                   |         |                 |         |
+                                   |         |                 |         |
+                                   |         |                 |         |
+                         +---------|---------|-----------------|---------|---------+
+                         |         |         |                 |         |         |
+                         |         |         |                 |         |         |
+                         |         |         |                 |         |         |
+               +---------|---------|---------|-----------------|---------|---------|---------+
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+         0 - -[1]- - - - 2 - - - - 3 - - - - 4 - - - - - - - - 5 - - - - 6 - - - - 8 - - - - 9      ray starting from outside
+              +1        +2        +3        +4                +3        +2        +1        +0      ray depth into geom 
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |    THESE DEPTH TOTALS ARE NOT THE APPROACH TAKEN        |         |         |  
+               |    AS ARE OPERATING ON ENTER/EXIT CLASSIFIED FIRST INTERSECTS     |         | 
+               |    SO WHAT WE HAVE IS FOUR ENTERS (E) AND NO EXITS (X)  -> PICK THE CLOSEST ENTER  
+               |         |         |         |                 |         |         |         |
+              [E]        E         E         E                 |         |         |         |        4 ENTERS, 0 EXIT
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |   0 - - 1 - - - - 2 - - - - 3 - - - - - - - - 4 - - - - 5 - - - - 6 - - - -[7]     ray starts inside (but does not known that)
+               |        +1        +2        +3                +2        +1        +0        -1 
+               |         |         |         |                 |         |         |         |
+               |         E         E         E                 |         |         |        [X]       3 ENTERS, 1 EXIT   
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |   0 - - 1 - - - - 2 - - - - - - - - 3 - - - - 4 - - - - 5 - - - -[6]
+               |         |        +1        +2                +1        +0        -1        -2
+               |         |         |         |                 |         |         |         |
+               |         |         E         E                 |         |         X        [X]       2 ENTERS, 2 EXIT
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |   0 - - 1 - - - - - - - - 2 - - - - 3 - - - - 4 - - - -[5]     1 ENTER,  4 EXIT   (wrong each constituent counts once only as nearest intersect) 
+               |         |         |        +1                +0        -1        -2        -3      HMM: fear need to check that the ENTER has correponding EXIT 
+               |         |         |         |                 |         |         |         |      ACTUALLY the ENTER will shield the EXIT of that constituent (as basing on first intersects) 
+               |         |         |         |                 |         |         |         |      SO WILL GET 1 ENTER, 3 EXIT  
+               |         |         |         |                 |         |         |         |      THENCE HAVE TO LOOP THE ENTER TO GET ITS EXIT 
+               |         |         |         |                 |         |         |         |      THEN HAVE EXITS FOR ALL AND CAN PICK THE FURTHEST
+               |         |         |         |                 |         |         |         |
+               |         |         |         E                 |         X         X        [X]     1 ENTER, 3 EXIT 
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |     0 - - - - - 1 - - - - 2 - - - - 3 - - - -[4]      All first intersects are EXIT
+               |         |         |         |                -1        -2        -3        -4
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 X         X         X        [X]     0 ENTER, 4 EXIT 
+               |         |         |         |                 |         |         |         |      PURELY EXITS ARE EASY : NO ENTER DEBT : JUST PICK THE FURTHEST 
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |   0 - - 1 - - - - 2 - - - -[3]      Again all first intersects are EXIT
+               |         |         |         |                 |        -1        -2        -3
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         X         X        [X]     0 ENTER, 3 EXIT
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |   0 - - 1 - - - -[2]     Yet again all first intersects are EXIT 
+               |         |         |         |                 |         |        -1        -2
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         X        [X]     0 ENTER, 2 EXIT 
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |   0 - -[1]    Only first intersect is EXIT 
+               |         |         |         |                 |         |         |        -1
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |        [X]     0 ENTER, 1 EXIT 
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |     ======================================================
+               |         |         |         |                 |         |         |         |     ====== ADD A DISJOINT 5th CONSTITUENT ================  
+               |         |         |         |                 |         |         |         |     ======================================================
+               |         |         |         |                 |         |         |         |                                           +----------+
+               |         |         |         |                 |         |         |         |                                           |          |
+               |         |         |         |                 |         |         |    0 - [X]                                          E          |  
+               |         |         |         |                 |         |         |         |       1 EXIT, 1 ENTER                     |          |  
+               |         |         |         |                 |         |         |         |                                           |          |  
+               |         |         |         |                 |         |         |         |                                           |          |
+               |         |         |         |                 |         |         |         |                                           +----------+
+               |         |         |         |                 |         |         |         |    WHEN THE FURTHEST EXIT IS CLOSER THAN    
+               |         |         |         |                 |         |         |         |    THE NEAREST ENTER THE INTERSECT IS JUST THE FURTHEST EXIT 
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |    IS IT CORRECT TO JUST PICK THE FURTHEST EXIT ?
+               |         |         |         |                 |         |         |         |
+               |         |         |         |                 |         |         |         |
+               +---------|---------|---------|-----------------|---------|---------|---------+
+                         |         |         |                 |         |         |
+                         |         |         |                 |         |         |
+                         |         |         |                 |         |         |
+                         +---------|---------|-----------------|---------|---------+
+                                   |         |                 |         |
+                                   |         |                 |         |
+                                   |         |                 |         |
+                                   +---------|-----------------|---------+
+                                             |                 |
+                                             |                 |
+                                             |                 |
+                                             +-----------------+
+  
+
+When exiting the compound multiunion the depth is  0,-1,-2,...  (0 or less)
+
+* Each ENTER increases the debt(depth) of the ray 
+* Every EXIT pays back a unit of debt(depth) 
+* Only when are back to zero or -ve debt is is possible to form a hit 
+
+  * NB the debt(depth) is relative to the ray origin (it is not absolute) 
+
+
+BUT ARE TRYING TO IMPLEMENT BASED ON ENTER/EXIT CLASSIFIED FIRST INTERSECTS TO FIT WITH RAY TRACING APPROACH 
+
+
+THINKING ABOUT HOW TO IMPLEMENT MULTIUNION 
+
+
+* for each ray, collect first intersects with all constituents, order them by distance, classify ENTER EXIT MISS
+
+1. when start outside, the intersect is nearest ENTER   
+2. when start inside, the intersect is the farthest EXIT 
+
+  * what about disjoint unions ? 
+  * still works as will not get first intersect EXITS as they would be shielded by corresponding ENTERs 
+
+
+
+
+But better to not need to know inside/outside? 
+Instead base entirely on single intersects onto each constituent (for ray tracing convenience)
+
+1. all ENTER (no EXITs) [are outside all] -> pick nearest ENTER (no need for obtain any EXITs)
+2. all EXIT (no ENTERs) [are at deepest insideness] -> pick farthest EXIT (no need to back-trace to get any ENTERs)
+3. mixture of ENTER and EXIT [middling insideness depth] 
+
+   * need to find the EXIT for every ENTER as they could be anywhere, then just pick furthest EXIT ? 
+   * NOT QUITE:
+
+     * only find EXITs for ENTERs that are closer than the furthest EXIT found so far (to correctly handle disjointed)
+     * cannot optimize, eg only getting EXITs for the furthest ENTERs, because the EXITs can be anywhere unrelated to the ENTERs
+     * every EXIT may push out the envelope, (which may mean more EXITs to find)
+     * any ENTER within the envelope of furthest EXITs may push the envelope out further : so has to be checked   
+     * ENTERs beyond the envelope of EXITs may be disjoint 
+
+     * avoid storing all isects, just keep updating : nearest_enter_isect, farthest_exit_isect   
+       yes but need the distances 
+
+   * disjoint constituent will show an ENTER that is beyond the furthest EXIT of the others so it would be wrong to just give the furthest EXIT
+ 
+   * ENTERs closer than the farthest EXIT found so far, places you in debt of finding their EXITs 
+   * ENTERs beyond the farthest EXIT found so far, can be ignored for now, if the envelope subsequently 
+     engulfs them then then their EXITs must be found otherwise they are dijoints
+
+
+SUPPOSE THIS HAS TO BE MULTIPLE PASS : AS CANNOT KNOW THE FURTHEST EXIT UNTIL PRIOR PASS COMPLETE 
+
+
+
+What storage needed ?
+
+* float4 isect for each constituent, use same storage for ENTER and EXIT as dont need both at once
+* sign of isect.w (t) to encode ENTER/EXIT and 0. OR t_min to signify MISS
+* can holding all isect at once be avoided ? End result is just one isect.
+
+
+1. loop over constituents updating : nearest_enter_isect, farthest_exit_isect, ENTER/EXIT/MISS typemask, enter_distances for each(?)
+2. when typemask shows all ENTER/EXIT can return nearest_enter_isect/farthest_exit_isect
+3. when typemask mixed need to again with t_min advanced 
+ 
+
+
+WHAT ABOUT THE BINARY CASE : A MULTIUNION OF TWO CONSTITUENTS 
+
+
+     UX1 : UNION FROM INSIDE ONE                           UX2 : UNION FROM OUTSIDE 0,1,2                            
+                                                           UX3 : UNION FROM INSIDE BOTH 3,4,5                                            
+                                                                                                       
+                  +-----------------------+                           +-----------------------+        
+                  |                     B |                           |                     B |        
+       +------------------+               |                +------------------+               |        
+       | A        |       |               |                | A        |       |               |        
+       |          |       |               |                |          |       |               |        
+       |          |       |               |               [E]         E       |               |        
+       |   0- - - 1 - - - 2 - - - - - - -[3]           0 -[1]- - - -  2       |               |        
+       |          E       X               |                |          |   3 - 4 - - - - - - -[5]       
+       |          |       |              [X]               |          |       X              [X]        
+       |          +-------|---------------+                |          +-------|---------------+        
+       |                  |                                |                  |                        
+       |                  |                                |                  |                        
+       +------------------+                                +------------------+                        
+                           
+
+    CANNOT PICK FURTHEST EXIT (2:X) STRAIGHT AWAY 
+    BECAUSE THE ENTER (1:E) PLACES YOU IN DEBT 
+    OF HAVING TO RESOLVE IT TO GIVE ITS EXIT (3:X) 
+    ONLY THEN CAN YOU PICK BETWEEN (2:X) AND (3:X) 
+    TO GET FURTHEST EXIT
+
+    IN THE MULTIUNION DO I NEED TO RESOLVE ALL ENTERS 
+    OR PERHAPS JUST RESOLVE THE FURTHEST ENTER TO GET ITS EXIT ?
+                                                                             
+
+                                                                                                       
+     0: origin                                           0: origin                                     
+     1: B Enter                                          1: A Enter                 
+     2: A Exit                                           2: B Enter                 
+     1,2: B Closer        ==> LOOP_B                     1,2: A Closer        ==> RETURN_A             
+     3: B Exit                  
+     2,3: A closer        ==> RETURN_B                   3: origin
+                                                         4: A Exit
+                                                         5: B Exit
+                                                         4,5 A Closer         ==> RETURN_B
+
+
+    * loop the enter to find its other side 
+
+
+
+
+* is it necessary to order constituent intersects or would just updating closest and furthest work ?
+
+
+
+
+
+g4-cls G4MultiUnion 
+
+
+G4MultiUnion::DistanceToInNoVoxels
+    just minimum distance 
+
+G4MultiUnion::DistanceToOutNoVoxels
+::    
+
+     249 G4double G4MultiUnion::DistanceToOutNoVoxels(const G4ThreeVector& aPoint,
+     250                                              const G4ThreeVector& aDirection,
+     251                                              G4ThreeVector* aNormal) const
+     252 {
+     253   // Computes distance from a point presumably outside the solid to the solid
+     254   // surface. Ignores first surface if the point is actually inside.
+     255   // Early return infinity in case the safety to any surface is found greater
+     256   // than the proposed step aPstep.
+     257   // The normal vector to the crossed surface is filled only in case the box
+     258   // is crossed, otherwise aNormal->IsNull() is true.
+     259 
+     260   // algorithm:
+     261   G4ThreeVector direction = aDirection.unit();
+     262   G4ThreeVector localPoint, localDirection;
+     263   G4int ignoredSolid = -1;
+     264   G4double resultDistToOut = 0;
+
+
+     265   G4ThreeVector currentPoint = aPoint;
+
+     /// currentPoint starts at ray_origin  
+
+ 
+     267   G4int numNodes = fSolids.size();
+     268   for (G4int i = 0; i < numNodes; ++i)
+     269   {
+     270     if (i != ignoredSolid)
+     271     {
+                
+     272       G4VSolid& solid = *fSolids[i];
+     273       const G4Transform3D& transform = fTransformObjs[i];
+     274       localPoint = GetLocalPoint(transform, currentPoint);
+     275       localDirection = GetLocalVector(transform, direction);
+
+     276       EInside location = solid.Inside(localPoint);
+
+     277       if (location != EInside::kOutside)
+     278       {
+
+
+     /// loop over solids that currentPoint is inside (with prior solid ignored)
+
+     279         G4double distance = solid.DistanceToOut(localPoint, localDirection,
+     280                                                 aNormal);
+     281         if (distance < kInfinity)   // thats a bit perplexing (unless the solid is unbounded)
+     282         {
+     283           if (resultDistToOut == kInfinity) resultDistToOut = 0;
+     284           if (distance > 0)
+     285           {
+     286             currentPoint = GetGlobalPoint(transform, localPoint
+     287                                           + distance*localDirection);
+
+                     /// advance currentPoint "ray_origin" to exit of this solid 
+
+     288             resultDistToOut += distance;
+     289             ignoredSolid = i; // skip the solid which we have just left
+
+     290             i = -1; // force the loop to continue from 0
+                     
+                     /// looping again with this solid ignored and the advanced origin 
+
+     291           }
+
+     292         }
+
+
+
+     293       }     /// are inside
+     294     }       /// not ignored
+     295   }         /// over nodes
+
+
+
+     296   return resultDistToOut;
+     297 }
+
+
+
+
+        +------------------------------------------------+
+        |                                                |
+        |                                                |
+        |       +--------------------------------+       |
+        |       |                                |       |
+        |       |                                |       |
+        |       |                                |       |
+        |       |        +-------------+         |       |
+        |       |        |             |         |       |
+        |       |        |             |         |       |
+        |       |        |     0 - - - 1 - - - - 2 - - -[3]
+        |       |        |       d01   |  d12    |  d23  |       d03 = d01 + d12 + d23
+        |       |        |             |         |       |
+        |       |        |             |         |       |
+        |       |        |             |         |       |
+        |       |        |     0 - - - - - - - - 1 - - -[2]
+        |       |        |            e01        |  e12  |       e02 = e01 + e12
+        |       |        |             |         |       |
+        |       |        |             |         |       |
+        |       |        |             |         |       |
+        |       |        |     0 - - - - - - - - - - - -[1]      f01   lucky escape in one loop
+        |       |        |             |  f01    |       |
+        |       |        |             |         |       |
+        |       |        |             |         |       |
+        |       |        +-------------+         |       |
+        |       |                                |       |
+        |       |                                |       |
+        |       |                                |       |
+        |       +--------------------------------+       |
+        |                                                |
+        |                                                |
+        |                                                |
+        +------------------------------------------------+
+
+The order of the solid loop can lead to multiple steps or one. 
+
+
+
+  
 
 
 Nice Slides
