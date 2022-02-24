@@ -24,6 +24,65 @@ domain-scientists so they can focus on the research questions at hand.
   Depth peeling is a technique to correctly render translucent geometry. 
 
 
+Plotter Interactive Key Mappings
+----------------------------------
+
+* https://dev.pyvista.org/api/plotting/plotting.html
+
++-------------------------------------------------+---------------------------------------------------+
+|     Key                                         | Action                                            |
++----------------------+--------------------------+---------------------------------------------------+
+| Linux/Windows        |  Mac                     |                                                   |
++======================+==========================+===================================================+
+|  q                   |                          | Close the rendering window                        |
++----------------------+--------------------------+---------------------------------------------------+
+| f                    |                          | Focus and zoom in on a point                      |
++----------------------+--------------------------+---------------------------------------------------+
+| v                    |                          | Isometric camera view                             |
++----------------------+--------------------------+---------------------------------------------------+
+| w                    |                          | Switch all datasets to a wireframe representation |
++----------------------+--------------------------+---------------------------------------------------+
+| r                    |                          | Reset the camera to view all datasets             |
++----------------------+--------------------------+---------------------------------------------------+
+| s                    |                          | Switch all datasets to a surface representation   |
++----------------------+--------------------------+---------------------------------------------------+
+| shift+clck/mid-clck  |  shift+click             | Pan the rendering scene                           |
++----------------------+--------------------------+---------------------------------------------------+
+| left-click           | cmd+click                | Rotate the rendering scene in 3D                  |
++----------------------+--------------------------+---------------------------------------------------+
+| ctrl+click           |                          | Rotate the rendering scene in 2D (view-plane)     |
++----------------------+--------------------------+---------------------------------------------------+
+| mouse-whl/right-clck |  ctl+click               | Continuously zoom the rendering scene             |
++----------------------+--------------------------+---------------------------------------------------+
+| shift+s              |                          | Save a screenhsot (only on BackgroundPlotter)     |
++----------------------+--------------------------+---------------------------------------------------+
+| shift+c              |                          | Enable interactive cell selection/picking         |
++----------------------+--------------------------+---------------------------------------------------+
+| up/down              |                          | Zoom in and out                                   |
++----------------------+--------------------------+---------------------------------------------------+
+| +/-                  |                          | Increase/decrease the point size and line widths  |
++----------------------+--------------------------+---------------------------------------------------+
+
+
+callback with line widget
+--------------------------
+
+* https://docs.pyvista.org/examples/03-widgets/line-widget.html
+
+VTK version
+--------------
+
+::
+
+    In [5]: print(vtk.vtkVersion.GetVTKVersion()) 
+    8.2.0
+
+
+add_key_event
+--------------
+
+* https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.add_key_event.html
+
 Data Model Intro
 -----------------
 

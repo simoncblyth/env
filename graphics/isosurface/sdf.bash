@@ -15,6 +15,15 @@ Introductions
 * http://www.alanzucconi.com/2016/07/01/signed-distance-functions/
 * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
 
+
+
+GPU SDF
+---------
+
+* https://www.cl.cam.ac.uk/teaching/1718/FGraphics/1.%20Ray%20Marching%20and%20Signed%20Distance%20Fields.pdf
+* ~/opticks_refs/cam_Ray_Marching_and_Signed_Distance_Fields.pdf
+
+
 Lists of SDFs
 --------------
 

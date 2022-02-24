@@ -54,6 +54,19 @@
     
 
 
+``AltXJfixtureConstruction_XY_internal_spurious.png``
+------------------------------------------------------
+
+``AltXJfixtureConstruction_XY_sorted_enter_fix.png``
+------------------------------------------------------
+
+
+
+
+``GeneralSphereDEV_XY_phicut_issue.png``
+------------------------------------------
+
+
 cxr_geochain_XJfixtureConstruction_ALL_jpg
 ---------------------------------------------
 

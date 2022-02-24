@@ -5,6 +5,13 @@
    :description: (Jan 2022) 
    :notes: start from opticks_aug2020_sjtu_neutrino_telescope_workshop.txt
 
+   ~/opticks_refs/IAS_HongKong_Jan_2022_group_photo.jpg 
+
+   https://indico.cern.ch/event/1096427/attachments/2343690/4069342/HEP_2022_group_photo.jpg
+
+   https://indico.cern.ch/e/iashep2022
+
+
 
 .. include:: my_s5defs.txt
 

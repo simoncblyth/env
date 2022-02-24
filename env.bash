@@ -2101,3 +2101,8 @@ podio-(){      . $(env-home)/proj/key4hep/podio.bash && podio-env $* ; }
 sio-(){      . $(env-home)/proj/key4hep/sio.bash && sio-env $* ; }
 acts-(){      . $(env-home)/proj/key4hep/acts.bash && acts-env $* ; }
 zike-(){      . $(env-home)/proj/zike.bash && zike-env $* ; }
+liyu-(){      . $(env-home)/proj/liyu.bash && liyu-env $* ; }
+
+
+
+

@@ -1625,6 +1625,15 @@
     cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
     /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL_speckle.jpg 1280px_720px
 
+    GeneralSphereDEV_XY_phicut_issue.png
+    /env/presentation/CSG/CSGIntersectSolidTest/GeneralSphereDEV_XY/figs/GeneralSphereDEV_XY_phicut_issue.png 1280px_720px
+
+    AltXJfixtureConstruction_XY_internal_spurious.png
+    /env/presentation/CSG/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_internal_spurious.png 1280px_720px
+
+    AltXJfixtureConstruction_XY_sorted_enter_fix.png
+    /env/presentation/CSG/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_sorted_enter_fix.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
