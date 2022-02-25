@@ -1,5 +1,4 @@
 .. s5_background_image::
-
     ##
     ## slide titles and background image urls, 
     ## including server relative urls like /env/geant4/geometry/collada/daeview/20140419-170713.png
@@ -18,6 +17,7 @@
     ## to disable the title background image simply change the 
     ## below title of "slide0" to "slide0_disabled"
     ##
+    ##slide0
     slide0_DISABLED
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
@@ -30,7 +30,7 @@
     Visualizing An Optical Photon Simulation
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 640px_360px 600px_100px
 
-    Overview
+    Overview 0
     /env/graphics/ggeoview/jpmt-inside-wide_crop.png 1280px_720px
 
     g4daeview.py : Fast OpenGL 3D viewer for G4DAE files
@@ -62,7 +62,7 @@
     ##   cp ~/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png ~/simoncblyth.bitbucket.io/env/Documents/Geant4OpticksWorkflow/
     ##
     Geant4OpticksWorkflow
-    /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
+    /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px 0px_0px meta:thumb
 
     Geant4OpticksWorkflow 2
     /env/Documents/Geant4OpticksWorkflow/Geant4OpticksWorkflow.001.png 1280px_720px
@@ -92,7 +92,7 @@
     /env/presentation/dayabay-principal_half.png 1417px_830px 
 
     JPMT Inside Wide 
-    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px
+    /env/graphics/ggeoview/jpmt-inside-wide_half.png 1432px_844px 0px_0px meta:thumb
 
     JPMT Wide
     /env/graphics/ggeoview/jpmt-wide_half.png 1409px_836px
@@ -110,7 +110,7 @@
     /env/graphics/ggeoview/jpmt-arrival_half.png 1427px_841px 
 
     Optical Photon Simulation Problem...
-    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
+    /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 0px_0px meta:thumb
 
     JUNO Optical Photon Simulation Problem...
     /env/graphics/ggeoview/jpmt-before-contact_half.png 1430px_844px 
@@ -317,6 +317,9 @@
     SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU
     /env/presentation/nvidia/SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU_half.png 1280px_720px
 
+    SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU 2
+    /env/presentation/nvidia/SIGGRAPH_2018_Announcing_Worlds_First_Ray_Tracing_GPU_half.png 1280px_720px
+
     SIGGRAPH_2019_Eric_Enderton_RT_Cores
     /env/presentation/nvidia/SIGGRAPH_2019_Eric_Enderton_RT_Cores.png 1280px_720px
 
@@ -348,6 +351,9 @@
     /env/presentation/rendering_equation/TheRenderingEquation_001.png 1280px_720px 
 
     The Rendering Equation 2
+    /env/presentation/rendering_equation/TheRenderingEquation_002.png 1280px_720px 
+
+    The Rendering Equation 3
     /env/presentation/rendering_equation/TheRenderingEquation_002.png 1280px_720px 
 
     Project Sol
@@ -389,7 +395,7 @@
     /env/presentation/j1808/j1808_escapes.png
 
     geocache_360
-    /env/presentation/geocache_360.png 1280px_720px 0px_0px 
+    /env/presentation/geocache_360.png 1280px_720px 0px_0px meta:thumb
 
     geocache_360 2
     /env/presentation/geocache_360.png 1280px_720px 0px_0px 
@@ -980,6 +986,15 @@
     # 762px_857px 381px_428px np.array([762,858])*2/3 
     # 871px_827px 435px_413px np.array([871,827])*2/3 
 
+    LZ with Opticks
+    /env/presentation/lz/LZ_Opticks_OpenGL.png 640px_720px 0px_0px
+    /env/presentation/lz/LZ_Opticks_Composite.png 758px_720px 600px_0px
+    #  np.array([762,858])*0.8  [609.6, 686.4] 
+    #  np.array([762,858])*0.84  [640.08, 720.72]
+    #
+    #  np.array([871,827])*0.8  [696.8, 661.6]
+    #  np.array([871,827])*0.87 [757.77, 719.49] 
+
     gpmt Hamamatsu jun28 
     /env/presentation/ana/gpmt/PolyconeNeckSplitFig_origin_CGDMLKludge_jun28_HamamatsuR12860_.png 1280px_720px
 
@@ -1013,8 +1028,6 @@
     G4Cerenkov_modifiedTest_SKIP_CONTINUE
     /env/presentation/G4Cerenkov_modifiedTest/BetaInverse_1.500_step_length_100000.000_SKIP_CONTINUE/pngs/BetaInverse_1p5.png 1280px_720px 
 
-
-
     gplt lAddition_uni_acrylic3
     /env/presentation/ana/gplt/lAddition_uni_acrylic3.png 1280px_720px
 
@@ -1024,11 +1037,613 @@
     quicktime 2 lAddition_uni_acrylic3
     /env/presentation/ana/gplt/lAddition_quicktime_2_half.png 1280px_720px
 
+    ana/ck.py rejection sampling 
+    /env/presentation/ana/ck/ck_rejection_sampling.png 1280px_720px
 
+    ck_photon_enprop 100 very poor chi2
+    /env/presentation/ana/wavelength/energy_chi2_dom100_arg13_G4Cerenkov_modified_SKIP_CONTINUE_1M_ck_photon_enprop_1M.png 1280px_720px
 
+    ck_photon_expt 100 matched
+    /env/presentation/ana/wavelength/energy_chi2_dom100_arg15_G4Cerenkov_modified_SKIP_CONTINUE_1M_ck_photon_expt_1M.png 1280px_720px
+
+    ck_photon_enprop 1001 better but still poor chi2
+    /env/presentation/ana/wavelength/energy_chi2_dom1001_arg13_G4Cerenkov_modified_SKIP_CONTINUE_1M_ck_photon_enprop_1M.png 1280px_720px
+
+    ck_photon_expt 1001 matched
+    /env/presentation/ana/wavelength/energy_chi2_dom1001_arg15_G4Cerenkov_modified_SKIP_CONTINUE_1M_ck_photon_expt_1M.png 1280px_720px
+
+    test_GetAverageNumberOfPhotons_plot
+    /env/presentation/ana/ckn/test_GetAverageNumberOfPhotons_plot.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_plot_1.0000_2.0000
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_plot_1.0000_2.0000.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_plot_1.4536_1.7930
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_plot_1.4536_1.7930.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_plot_1.7000_1.8000
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_plot_1.7000_1.8000.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_difference_plot
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_difference_plot.png 1280px_720px
+
+    scan_GetAverageNumberOfPhotons_cputime  
+    /env/presentation/ana/ckn/scan_GetAverageNumberOfPhotons_cputime.png 1280px_720px
+
+    PMTAngular_fig1
+    /env/presentation/ana/PMTAngular/PMTAngular_fig1.png 1280px_720px
+
+    PMTAngular_fig2
+    /env/presentation/ana/PMTAngular/PMTAngular_fig2.png 1280px_720px
+
+    StickMPL_all
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_plt_0,1,2,3,4.png 1280px_720px
+
+    StickPV_all
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_pvplt_0,1,2,3,4.png 1280px_720px
+
+    StickMPL_skip_steel
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_plt_0,1,3,4,5.png 1280px_720px
+
+    StickPV_skip_steel
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_pvplt_0,1,3,4,5.png 1280px_720px
+
+    StickMPL_skip_acrylic
+    /env/presentation/CSGOptiXSimulateTest/2/figs/positions_plt_0,2,3,4,5.png 1280px_720px
+
+    StickPV_skip_acrylic
+    /env/presentation/CSGOptiXSimulateTest/2/figs/positions_pvplt_0,2,3,4,5.png 1280px_720px
+   
+    StickPV_rod
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_pvplt_0,1,2.png 1280px_720px
+
+    Daughter Cavity 
+    /env/presentation/CSGOptiXSimulateTest/4/figs/positions_pvplt_0,1,2.png 1280px_720px
+ 
+    20_figs_positions_pvplt_0,1,2,3_csgsubsubbug.png
+    /env/presentation/CSGOptiXSimulateTest/20/figs/positions_pvplt_0,1,2,3_csgsubsubbug.png 1280px_720px
+
+    test_makeICDF_SplitBin_QCKTest_s2cn_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/s2cn_plot.png 1280px_720px
+
+    image_grid_QCKTest
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.0000/image_grid_QCKTest.png 1280px_720px
+
+    QCKTest_1.0000_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.0000/en_plot.png 1280px_720px
+    
+    QCKTest_1.0500_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.0500/en_plot.png 1280px_720px
+    
+    QCKTest_1.1000_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.1000/en_plot.png 1280px_720px
+    
+    QCKTest_1.1500_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.1500/en_plot.png 1280px_720px
+    
+    QCKTest_1.2000_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.2000/en_plot.png 1280px_720px
+    
+    QCKTest_1.2500_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.2500/en_plot.png 1280px_720px
+    
+    QCKTest_1.3000_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.3000/en_plot.png 1280px_720px
+    
+    QCKTest_1.3500_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.3500/en_plot.png 1280px_720px
+    
+    QCKTest_1.4000_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.4000/en_plot.png 1280px_720px
+    
+    QCKTest_1.4500_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.4500/en_plot.png 1280px_720px
+    
+    QCKTest_1.5000_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.5000/en_plot.png 1280px_720px
+    
+    QCKTest_1.5500_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.5500/en_plot.png 1280px_720px
+    
+    QCKTest_1.6000_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.6000/en_plot.png 1280px_720px
+    
+    QCKTest_1.6500_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.6500/en_plot.png 1280px_720px
+    
+    QCKTest_1.7000_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.7000/en_plot.png 1280px_720px
+    
+    QCKTest_1.7500_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.7500/en_plot.png 1280px_720px
+    
+    QCKTest_1.7920_en_plot.png
+    /env/presentation/QCerenkovIntegralTest/test_makeICDF_SplitBin/QCKTest/1.7920/en_plot.png 1280px_720px
+
+    QEventTest_planar_gensteps.png 
+    /env/presentation/QEventTest/planar_gensteps.png 1280px_720px
+
+    LHCb-RICH (Yunlong Li, Manchester University) : Opticks OpenGL Render (OKTest)
+    /env/presentation/LHCb_RICH/OKTest_rich1_new.png 1280px_720px
+
+    maker_body_solid_zcut-500.0 
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-500.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-400.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-400.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-350.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-350.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-300.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-300.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-200.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-200.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-183.25
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-183.25/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-100.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-100.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcut-0.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcut-0.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    maker_body_solid_zcutp100.0
+    /env/presentation/X4IntersectTest/maker_body_solid_zcutp100.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_solid 
+    /env/presentation/X4IntersectTest/body_solid/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_solid_nurs
+    /env/presentation/X4IntersectTest/body_solid_nurs/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_solid_nurs_pcnk
+    /env/presentation/X4IntersectTest/body_solid_nurs_pcnk/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_solid_pcnk
+    /env/presentation/X4IntersectTest/body_solid_pcnk/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    body_phys
+    /env/presentation/X4IntersectVolumeTest/body_phys/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_nurs
+    /env/presentation/X4IntersectVolumeTest/body_phys_nurs/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_nurs_pcnk
+    /env/presentation/X4IntersectVolumeTest/body_phys_nurs_pcnk/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_nurs_pcnk_pdyn
+    /env/presentation/X4IntersectVolumeTest/body_phys_nurs_pcnk_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_nurs_pdyn
+    /env/presentation/X4IntersectVolumeTest/body_phys_nurs_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_pdyn
+    /env/presentation/X4IntersectVolumeTest/body_phys_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    body_phys_pdyn_pcnk
+    /env/presentation/X4IntersectVolumeTest/body_phys_pdyn_pcnk/figs/isect_mpplt.png 1280px_720px
+   
+    nnvt_maker_zcut-500.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-500.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    nnvt_maker_zcut-400.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-400.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    nnvt_maker_zcut-350.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-350.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+ 
+    nnvt_maker_zcut-300.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-300.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    nnvt_maker_zcut-200.0
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-200.0/X4Intersect/figs/isect_mpplt.png 1280px_720px
+  
+    nnvt_maker_zcut-183.25 
+    /env/presentation/X4IntersectTest/nnvt_maker_zcut-183.25/X4Intersect/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys_nurs
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys_nurs/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys_nurs_pdyn
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys_nurs_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys_nurs_pdyn_prtc_obto
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys_nurs_pdyn_prtc_obto/figs/isect_mpplt.png 1280px_720px
+    
+    hama_body_phys_pdyn
+    /env/presentation/X4IntersectVolumeTest/hama_body_phys_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys_nurs
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys_nurs/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys_nurs_pdyn
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys_nurs_pdyn/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys_nurs_pdyn_prtc_obto
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys_nurs_pdyn_prtc_obto/figs/isect_mpplt.png 1280px_720px
+    
+    nnvt_body_phys_pdyn
+    /env/presentation/X4IntersectVolumeTest/nnvt_body_phys_pdyn/figs/isect_mpplt.png 1280px_720px
+
+    cxr_geochain_SphereWithPhiSegment_difference_old
+    /env/presentation/CSGOptiXRender/GeoChain_Darwin/SphereWithPhiSegment/cvd0/50001/cxr_geochain/cam_1/cxr_geochain_SphereWithPhiSegment_difference_old.jpg 1280px_720px
+
+    cxr_geochain_SphereWithPhiSegment_difference_new
+    /env/presentation/CSGOptiXRender/GeoChain_Darwin/SphereWithPhiSegment/cvd0/50001/cxr_geochain/cam_1/cxr_geochain_SphereWithPhiSegment_difference_new.jpg 1280px_720px
+
+    uni_acrylic1_0_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/uni_acrylic1_0/figs/positions_mpplt_pid.png 1280px_720px
+    
+    uni_acrylic3_0_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/uni_acrylic3_0/figs/positions_mpplt_pid.png 1280px_720px
+
+    uni_acrylic3_vs_1 
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/uni_acrylic3_0/figs/positions_mpplt_pid.png 640px_360px 0px_360px
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/uni_acrylic1_0/figs/positions_mpplt_pid.png 640px_360px 640px_360px
+    
+    Hama_1_figs_positions_mpnky_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpnky_pid.png 1280px_720px
+
+    Hama_1_figs_positions_mpnky_pid.png 2
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpnky_pid.png 1280px_720px
+    
+    Hama_1_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpplt_pid.png 1280px_720px
+
+    Hama_1_figs_positions_mpplt_pid.png 2
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_1/figs/positions_mpplt_pid.png 1280px_720px
+ 
+    Hama_2_figs_positions_mpnky_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_2/figs/positions_mpnky_pid.png 1280px_720px
+    
+    Hama_2_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_2/figs/positions_mpplt_pid.png 1280px_720px
+    
+    Hama_4_figs_positions_mpnky_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_4/figs/positions_mpnky_pid.png 1280px_720px
+    
+    Hama_4_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_4/figs/positions_mpplt_pid.png 1280px_720px
+    
+    Hama_16_figs_positions_mpnky_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_16/figs/positions_mpnky_pid.png 1280px_720px
+    
+    Hama_16_figs_positions_mpplt_pid.png
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/Hama_16/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxr_overview_emm_image_grid_overview
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/image_grid_overview.jpg 1280px_720px
+ 
+    cxr_overview_emm_t0_moi_-1_ALL.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_1,2,3,4_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_1,2,3,4_moi_-1.jpg 1280px_720px
+
+    cxr_overview_emm_0,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_0,_moi_-1.jpg 1280px_720px
+
+    cxr_overview_emm_1,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_1,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_2,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_2,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_3,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_3,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_4,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_4,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_5,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_5,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_6,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_6,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_7,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_7,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_8,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_8,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_9,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_9,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t0,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t1,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t1,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t2,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t2,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t3,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t3,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t4,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t4,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t5,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t5,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t6,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t6,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t7,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t7,_moi_-1.jpg 1280px_720px
+   
+    cxr_overview_emm_t8,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t8,_moi_-1.jpg 1280px_720px
+    
+    cxr_overview_emm_t9,_moi_-1.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t9,_moi_-1.jpg 1280px_720px
+
+    cxr_view_cam_0_0,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_0,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_1,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_1,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_2,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_2,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_3,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_3,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_4,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_4,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_5,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_5,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_6,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_6,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_7,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_7,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_8,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_8,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_9,_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_9,/cxr_view_sWaterTube.jpg 1280px_720px
+    
+    cxr_view_cam_0_t0_cxr_view_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_t0/cxr_view_sWaterTube.jpg 1280px_720px
+
+    3dbec_cxr_solid_r0@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r0@/cam_1/cxr_solid_r0@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r1@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r1@/cam_1/cxr_solid_r1@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r2@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r2@/cam_1/cxr_solid_r2@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r3@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r3@/cam_1/cxr_solid_r3@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r4@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r4@/cam_1/cxr_solid_r4@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r5@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r5@/cam_1/cxr_solid_r5@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r6@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r6@/cam_1/cxr_solid_r6@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r7@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r7@/cam_1/cxr_solid_r7@_.jpg 1280px_720px
+
+    3dbec_cxr_solid_r7@ copy
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r7@/cam_1/cxr_solid_r7@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r8@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r8@/cam_1/cxr_solid_r8@_.jpg 1280px_720px
+    
+    3dbec_cxr_solid_r9@
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/cxr_solid_r9@/cam_1/cxr_solid_r9@_.jpg 1280px_720px
+
+    sWaterTube_image_grid_cxr_view
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cxr_view/cam_0_t0/image_grid_cxr_view.jpg 1280px_720px
+
+    sWaterTube_cam_0_t0_cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg 1280px_720px 0px_0px meta:thumb
+
+    sWaterTube_cam_0_t0_cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_1_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_1_sWaterTube.jpg 1280px_720px
+
+    sWaterTube_cam_0_t0_cxr_view___eye_0,1,-1,1__look_0,0,-1__zoom_1__tmin_0.4_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-1,1__look_0,0,-1__zoom_1__tmin_0.4_sWaterTube.jpg 1280px_720px
+
+    sWaterTube_cam_0_t0_cxr_view___eye_0,1,-1,1__zoom_1__tmin_0.4_sWaterTube.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWaterTube/cam_0_t0/cxr_view___eye_0,1,-1,1__zoom_1__tmin_0.4_sWaterTube.jpg 1280px_720px
+
+    NNVT:0:1000_cam_0_t0_cxr_view___eye_-2,-2,-2,1__look_0,0,2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_-2,-2,-2,1__look_0,0,2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px
+
+    NNVT:0:1000_cam_0_t0_cxr_view___eye_-2,-2,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_-2,-2,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px
+
+    NNVT:0:1000_cam_0_t0_cxr_view___eye_0,1,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,1,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px
+
+    NNVT:0:1000_cam_0_t0_cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/NNVT:0:1000/cam_0_t0/cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg 1280px_720px 0px_0px meta:thumb
+
+    sWorld_cam_0_t0_cxr_view___eye_0,0.6,0.4__zoom_1__tmin_0.4_sWorld.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/sWorld/cam_0_t0/cxr_view___eye_0,0.6,0.4__zoom_1__tmin_0.4_sWorld.jpg 1280px_720px
+
+    PolyconeWithMultipleRmin_X4Mesh
+    /env/presentation/X4IntersectTest/PolyconeWithMultipleRmin/X4Mesh/pvplot.png 1280px_720px
+
+    PolyconeWithMultipleRmin_xxs_isect
+    /env/presentation/X4IntersectTest/PolyconeWithMultipleRmin/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    SphereWithPhiSegment_X4Mesh
+    /env/presentation/X4IntersectTest/SphereWithPhiSegment/X4Mesh/pvplot.png 1280px_720px
+
+    SphereWithPhiSegment_xxs_isect 
+    /env/presentation/X4IntersectTest/SphereWithPhiSegment/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    CSGNodeScanTest_iphi_figs_scanplot.png
+    /env/presentation/CSGNodeScanTest/iphi/figs/scanplot.png 1280px_720px
+
+    hmsk_solidMaskTail_X4Mesh
+    /env/presentation/X4IntersectTest/hmsk_solidMaskTail/X4Mesh/pvplot.png 1280px_720px
+
+    cxs_XJfixtureConstructionXZ_10
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionXZ_10/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxs_XJfixtureConstructionPR_55
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionPR_55/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxs_XJfixtureConstructionTR_55
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionTR_55/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxs_XJfixtureConstructionTR_0
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionTR_0/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxs_XJfixtureConstructionTP_0
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionTP_0/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxs_XJfixtureConstructionTP_0_Rshift
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionTP_0_Rshift/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxs_XJfixtureConstructionPR_0
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionPR_0/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxs_custom_XJfixtureConstructionXY
+    /env/presentation/CSGOptiXSimulateTest/cvd0/70000/custom_XJfixtureConstructionXY/figs/positions_mpplt_pid.png 1280px_720px
+
+    cxr_view_solidXJfixture:55:-3_cam_1_eye_8,-4,-4_zoom_1_tmin_0.1
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:55:-3/cam_1_t0/cxr_view___eye_8,-4,-4__zoom_1__tmin_0.1_solidXJfixture:55:-3.jpg 1280px_720px
+
+    cxr_view_solidXJfixture:55:-3_cam_1_eye_4,-2,-2_zoom_1_tmin_0.1
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:55:-3/cam_1_t0/cxr_view___eye_4,-2,-2__zoom_1__tmin_0.1_solidXJfixture:55:-3.jpg 1280px_720px
+
+    cxr_view_solidXJfixture:55:-3_cam_1_eye_2,-1,-1_zoom_1_tmin_0.1
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:55:-3/cam_1_t0/cxr_view___eye_2,-1,-1__zoom_1__tmin_0.1_solidXJfixture:55:-3.jpg 1280px_720px
+    
+    cxr_view_solidXJfixture:55:-3_cam_1_eye_1,-0.5,-0.5_zoom_1_tmin_0.1
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:55:-3/cam_1_t0/cxr_view___eye_1,-0.5,-0.5__zoom_1__tmin_0.1_solidXJfixture:55:-3.jpg 1280px_720px
+
+    image_grid_cxr_solidXJfixture:XX:-3
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture/top_i0_/image_grid_cxr_solidXJfixture:xx:-3.jpg 1280px_720px
+
+    Opticks Generality 
+    /env/graphics/ggeoview/image_grid_opticks_generality.png 1280px_720px
+
+    Opticks Generality 2
+    /env/graphics/ggeoview/image_grid_opticks_generality.png 1280px_720px
+
+    cxr_view_solidXJfixture:2:-3_cam_0_eye_16,-8,-8__zoom_1__tmin_0.1
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:2:-3/cam_0_t0/cxr_view___eye_16,-8,-8__zoom_1__tmin_0.1_solidXJfixture:2:-3.jpg 1280px_720px
+
+    cxr_view_solidXJfixture:2:-3_cam_1_eye_8,-4,-4__zoom_1__tmin_0.0
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:2:-3/cam_1_t0/cxr_view___eye_8,-4,-4__zoom_1__tmin_0.0_solidXJfixture:2:-3.jpg 1280px_720px
+
+    RTP (Radial-Theta-Phi) Tangential Frames  
+    /env/presentation/ana/tangential/tangential.png 1280px_720px
+
+    XJfixtureConstructionTR_2
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionTR_2/figs/positions_mpplt_pid.png 1280px_720px
+
+    XJfixtureConstructionTR_52
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionTR_52/figs/positions_mpplt_pid.png 1280px_720px
+
+    solidXJfixture64radii.png
+    /env/presentation/CSGTargetGlobalTest/solidXJfixture64radii.png 1280px_720px
+
+    XJfixtureConstructionPR_41
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionPR_41/figs/positions_mpplt_pid.png 1280px_720px
+
+    XJfixtureConstructionClosePR_41
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionClosePR_41/figs/positions_mpplt_pid.png 1280px_720px
+
+    XJfixtureConstructionCloserPR_41
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXSimulateTest/cvd0/70000/XJfixtureConstructionCloserPR_41/figs/positions_mpplt_pid.png 1280px_720px
+
+    solidXJfixture:41:-3_cam_1_t0_cxr_view___eye_2,-1,-1__zoom_1__tmin_0.1_solidXJfixture:41:-3.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:41:-3/cam_1_t0/cxr_view___eye_2,-1,-1__zoom_1__tmin_0.1_solidXJfixture:41:-3.jpg 1280px_720px
+
+    X4MeshTest_XJfixtureConstruction_png
+    /env/presentation/extg4/X4MeshTest/XJfixtureConstruction/X4Mesh/pvplot.png 1280px_720px
+
+    X4MeshTest_SJReceiverConstruction_png 
+    /env/presentation/extg4/X4MeshTest/SJReceiverConstruction/X4Mesh/pvplot.png 1280px_720px
+
+    X4IntersectSolidTest_SJReceiverConstruction_XZ_png
+    /env/presentation/extg4/X4IntersectSolidTest/SJReceiverConstruction_XZ/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    X4IntersectSolidTest_XJanchorConstruction_YZ
+    /env/presentation/extg4/X4IntersectSolidTest/XJanchorConstruction_YZ/X4Intersect/figs/isect_mpplt.png 1280px_720px
+
+    Geant4_docs_Boolean_Solids_png
+    /env/presentation/Geant4/docs/Boolean_Solids_half.png 1280px_720px
+
+    solidXJfixture:0:-3_cam_0_t0_cxr_view___eye_8,-32,0__zoom_1__tmin_32_solidXJfixture:0:-3.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:0:-3/cam_0_t0/cxr_view___eye_8,-32,0__zoom_1__tmin_32_solidXJfixture:0:-3.jpg 1280px_720px
+
+    solidXJfixture:0:-3_cam_1_t0_cxr_view___eye_32,-48,0__look_32,0,0__zoom_1__tmin_48_solidXJfixture:0:-3.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:0:-3/cam_1_t0/cxr_view___eye_32,-48,0__look_32,0,0__zoom_1__tmin_48_solidXJfixture:0:-3.jpg 1280px_720px
+
+    solidXJfixture:0:-3_cam_1_t0_cxr_view___eye_32,-48,0__look_32,0,0__zoom_0.25__tmin_48_solidXJfixture:0:-3.jpg
+    /env/presentation/3dbec4dc3bdef47884fe48af781a179d/CSGOptiXRenderTest/cvd1/70000/solidXJfixture:0:-3/cam_1_t0/cxr_view___eye_32,-48,0__look_32,0,0__zoom_0.25__tmin_48_solidXJfixture:0:-3.jpg 1280px_720px
+
+    cxr_geochain_hmsk_solidMaskTail_with_coincidence_issue
+    /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1_with_coincidence_issue.jpg 1280px_720px
+
+    cxr_geochain_hmsk_solidMaskTail
+    /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1.jpg 1280px_720px
+
+    PMT Mask CSG Modelling Fix
+    /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1_with_coincidence_issue.jpg 640px_360px 0px_360px
+    /env/presentation/GeoChain_Darwin/hmsk_solidMaskTail/CSGOptiXRenderTest/cvd0/50001/-1/top_i0_/cxr_geochain_hmsk_solidMaskTail_-1.jpg 640px_360px 640px_360px
+    /env/presentation/X4IntersectTest/hmsk_solidMaskTail/X4Mesh/pvplot.png 640px_360px 640px_0px
+
+    cxr_geochain_XJfixtureConstruction_ALL_jpg
+    /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL.jpg 1280px_720px
+
+    cxr_geochain_XJfixtureConstruction_ALL_otherside_jpg
+    /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL_otherside.jpg 1280px_720px 
+
+    cxr_geochain_XJfixtureConstruction_ALL_upper_jpg
+    /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL_upper.jpg 1280px_720px
+
+    cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
+    /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL_speckle.jpg 1280px_720px
+
+    GeneralSphereDEV_XY_phicut_issue.png
+    /env/presentation/CSG/CSGIntersectSolidTest/GeneralSphereDEV_XY/figs/GeneralSphereDEV_XY_phicut_issue.png 1280px_720px
+
+    AltXJfixtureConstruction_XY_internal_spurious.png
+    /env/presentation/CSG/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_internal_spurious.png 1280px_720px
+
+    AltXJfixtureConstruction_XY_sorted_enter_fix.png
+    /env/presentation/CSG/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_sorted_enter_fix.png 1280px_720px
+
+    ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
     ##    use "set list" to ensure terminator lines are really empty
+    ## 3. slide titles that have non unique identifiers cause blanks 
+    ##    the identifiers are formed by removing certain characters such as "," 
+    ##    so this causes a problem when the title only differs by a comma for example with "t0" vs "t0," 
+    ##    NB THE RESTRICTION APPPLIES TO THE SLIDE TITLE IDENTIFIERS NOT THE URLS 
+    ##
+
 
 .. comment
     

@@ -66,6 +66,9 @@
         span.r { color: red; font-weight:bold ; }
         span.b { color: blue; font-weight:bold ; }
         span.g { color: green; font-weight:bold ; }
+        span.c { color: cyan; font-weight:bold ; }
+        span.m { color: magenta; font-weight:bold ; }
+        span.y { color: yellow; font-weight:bold ; }
 
         span.alarm { color: red; } 
         span.blue { color: blue; } 
@@ -85,6 +88,31 @@
              display: block;
              font-family: monospace;
              font-size: 15px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.mypre12 {
+             display: block;
+             font-family: monospace;
+             font-size: 12px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.mypre11 {
+             display: block;
+             font-family: monospace;
+             font-size: 11px;
+             font-weight: bold;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+        pre.mypre10 {
+             display: block;
+             font-family: monospace;
+             font-size: 10px;
              white-space: pre;
              margin: 1em 0;
         }
@@ -165,7 +193,9 @@
 .. role:: r
 .. role:: g
 .. role:: b
-
+.. role:: c
+.. role:: m
+.. role:: y
 
 
 

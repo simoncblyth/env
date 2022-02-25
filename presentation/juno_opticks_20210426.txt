@@ -2,7 +2,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: JUNO Opticks 
-   :description: (Apr 2021)
+   :description: (Apr 2021) geometry ray trace time comparisons : show bottlenecks, PMT Efficiency 1-in-a-million hit 
    :url: https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210426.html  
    :date: 26 April 2021
 

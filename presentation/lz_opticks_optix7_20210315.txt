@@ -2,7 +2,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: LZ NVIDIA NERSC Discussion
-   :description: (Mar 2021)
+   :description: (Mar 2021) move to GAS:BI:AABB 11N (from 1NN) ie all AABB in single BI otherwise clips to smallest AABB, start of shape generalization, CPU testable GPU code
    :url: https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210315.html  
    :date: 15 March 2021
 

@@ -2,7 +2,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: LZ NVIDIA NERSC Discussion
-   :description: (Apr 2021)
+   :description: (Apr 2021) OptiXTest, Foundry based model Solid/Prim/Node : ~4 allocations for entire geometry, bring on the primitives, clustered sphere issue
    :url: https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210406.html  
    :date: 4 April 2021
 

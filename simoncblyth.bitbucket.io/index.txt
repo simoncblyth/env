@@ -5,6 +5,7 @@
 * http://bitbucket.org/simoncblyth
 * https://bitbucket.org/simoncblyth/env/commits/all
 * https://bitbucket.org/simoncblyth/opticks/commits/all
+* https://simoncblyth.bitbucket.io/images/
 
 Opticks Documentation
 
@@ -13,6 +14,19 @@ Opticks Documentation
 
 Publications
 ---------------
+
+
+https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html
+
+   *Integration of JUNO simulation framework with Opticks: GPU accelerated optical propagation via NVIDIA OptiX*
+
+   **CHEP 2021 Proceedings** : Simon Blyth, EPJ Web of Conferences 251, 03009 (2021)
+
+   * https://doi.org/10.1051/epjconf/202125103009
+
+   * https://www.epj-conferences.org/articles/epjconf/abs/2021/05/epjconf_chep2021_03009/epjconf_chep2021_03009.html 
+
+   * https://www.epj-conferences.org/articles/epjconf/pdf/2021/05/epjconf_chep2021_03009.pdf
 
 
 https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
@@ -24,6 +38,8 @@ https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11
     * https://doi.org/10.1051/epjconf/202024511003
 
     * https://www.epj-conferences.org/articles/epjconf/abs/2020/21/epjconf_chep2020_11003/epjconf_chep2020_11003.html
+
+    
 
 
 https://www.epj-conferences.org/articles/epjconf/abs/2019/19/epjconf_chep2018_02027/epjconf_chep2018_02027.html
@@ -46,6 +62,17 @@ http://iopscience.iop.org/article/10.1088/1742-6596/898/4/042001
     *Opticks : GPU Optical Photon Simulation for Particle Physics using NVIDIA OptiX*
 
     **CHEP 2017 Proceedings** : Published by IOP Science
+
+
+References to Opticks
+-----------------------
+
+https://geant4-data.web.cern.ch/ReleaseNotes/ReleaseNotes.11.0.html
+
+   Geant 11.0 release notes, new example: 
+
+   **CaTS - New application implementing a flexible and extendable framework for the simulation of calorimeter and tracking detectors. It also demonstrates how to use Opticks for the creation and propagation of optical photons.**
+
 
 
 Opticks Videos
@@ -94,25 +121,62 @@ data preparation for upload to the GPU and analysis of results.
 Opticks Presentations 
 ----------------------
 
+2022
+~~~~~
+
+https://simoncblyth.bitbucket.io/env/presentation/opticks_20220118_juno_collaboration_meeting.html
+
+    JUNO+Opticks Photons : Validation and Deployment Plan
+
+    January 18, 2022
+
+
+https://simoncblyth.bitbucket.io/env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html
+
+    Opticks : Innovation in Optical Photon Simulation via state-of-the-art GPU Ray Tracing from NVIDIA® OptiX™
+
+    January 14, 2022
+
+
 2021
 ~~~~~
 
 
+https://simoncblyth.bitbucket.io/env/presentation/opticks_20211223_pre_xmas.html
+
+   JUNO Opticks : OptiX 7 Ray Trace times >100x faster following geometry fixes (December 23, 2021) 
+
+https://simoncblyth.bitbucket.io/env/presentation/opticks_20211117.html
+
+   JUNO Opticks : PMT Z-cut issue : (November 17, 2021)
+
+https://simoncblyth.bitbucket.io/env/presentation/opticks_autumn_20211019.html
+
+   Opticks Autumn : (October 19, 2021)
+
+   Notes on OptiX 6->7 migration
+
+https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_cerenkov_20210902.html
+
+   JUNO Opticks : Summer Progress (Sep 2, 2021)
+
+https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210727.html
+
+    Notes on OptiX 6->7 migration : "Qudarap" pure CUDA photon generation (July 27, 2021, Virtual, H7)
+
 https://simoncblyth.bitbucket.io/env/presentation/juno_opticks_20210712.html
 
-    JUNO-Opticks Simulation Matching (July 12, 2021)
+    JUNO Opticks/Geant4 Optical Photon Simulation Matching (July 12, 2021)
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_vchep_2021_may19.html 
 
     Integration of JUNO simulation framework with *Opticks*  (May 19, 2021) vCHEP 
-
 
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210518.html
 
     Notes on OptiX 6->7 migration, *CSG*, *CSG_GGeo*, *CSGOptiX* (May 18, 2021, Virtual, H6)
 
     1st full JUNO ray trace with OptiX 7 *CSGOptiX* enabled by *CSGFoundry* model
-
 
 https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210504.html
 
@@ -151,7 +215,7 @@ https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210225.htm
 
     * https://bitbucket.org/simoncblyth/opticks/src/master/examples/UseOptiX7GeometryInstancedGASDyn/README.rst
 
-https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7.html
+https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210208.html
 
     Notes on OptiX 6->7 migration, (Feb 8, 2021, Virtual, H1)
 
@@ -169,14 +233,19 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_aug2020_sjtu_neutrino_t
 
     SJTU Shanghai, Next Generation Neutrino Telescope Workshop 
 
+    *Opticks : GPU photon simulation via NVIDIA® OptiX™ + GPU/Graphics background + Application to neutrino telescope simulations ?*
+
 http://simoncblyth.bitbucket.io/env/presentation/opticks_jul2020_juno.html (6 July 2020, IHEP Virtual)
 
     JUNO Collaboration Meeting, Software Session
 
+    *Integration of JUNO Offline + Opticks : GPU Optical Simulation with NVIDIA® OptiX™*
 
 http://simoncblyth.bitbucket.io/env/presentation/opticks_may2020_hsf.html (27 May 2020, CERN Virtual)
 
     HSF Simulation Working Group Meeting, 20 minutes presentation 
+
+    *Opticks GPU Optical Simulation with NVIDIA® OptiX™ - Development Experience : Problems and Successes*
 
 
 Winter 2019
@@ -186,9 +255,13 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     IHEP EPD/PIFI Seminar 
 
+    *Opticks : GPU Optical Simulation via NVIDIA® OptiX™ + A Mental Model for Effective Application of GPUs*
+
 http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_nov2019_chep.html (Nov 2019, Adelaide)
 
     CHEP 2019 Invited Plenary 
+
+    *Meeting the Challenge of JUNO Simulation with Opticks : GPU Optical Photon Acceleration via NVIDIA® OptiX™*
 
 
 Summer 2019 : Opticks status 
@@ -198,7 +271,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     JUNO Collaboration Meeting
 
-    Progress with JUNO + Opticks : GPU Optical Photon Simulation with NVIDIA OptiX
+    *Progress with JUNO + Opticks : GPU Optical Photon Simulation with NVIDIA OptiX*
 
 
 
@@ -209,7 +282,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     JUNO Collaboration Meeting
 
-    Status of Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Status of Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 Autumn 2018 : Tools, Techniques and Opticks
@@ -219,7 +292,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     IHEP Seminar  
 
-    Tools, Techniques and Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Tools, Techniques and Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 Summer 2018 : Opticks Progress : Direct workflow, aligned validation  
@@ -229,7 +302,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     CHEP 2018 Conference
 
-    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 
@@ -242,7 +315,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     A brief introduction to Opticks, presented in plenary session despite being listed in parallel. 
 
-    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 
@@ -253,7 +326,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     Shandong University, Physics Dept, Jinan, China
 
-    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 
@@ -264,7 +337,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     JUNO Collaboration Meeting, IHEP, Beijing, China
 
-    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 Early 2017 : optical simulation validated
@@ -274,7 +347,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     PSROC Annual Meeting, Tamkang University, TKU, New Taipei City, Taiwan
 
-    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 Late 2016 : optical simulation validated
@@ -285,14 +358,14 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     JUNO Workshop, LLR, Ecole Polytechnique 
 
-    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_oct2016_chep.html (11 Oct 2016, CHEP Conference, San Francisco)
 
     CHEP 2016 Conference
 
-    Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : GPU Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 Mid 2016
@@ -303,7 +376,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     Shandong University Particle Physics Summer School
 
-    Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 
@@ -311,7 +384,7 @@ http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simu
 
     Seminar, Leung Center for Cosmology and Particle Astrophysics (LeCosPA) of the National Taiwan University (NTU) 
 
-    Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
 
 Early 2016
@@ -319,25 +392,25 @@ Early 2016
 
 http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_april2016_gtc.html (April 2016, GPU Technology Conference, San Jose)
 
-    Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX
+    *Opticks : Optical Photon Simulation for Particle Physics with NVIDIA OptiX*
 
     http://on-demand.gputechconf.com/gtc/2016/video/S6320.html GTC Talk Video (25 mins) 
 
 
 http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_march2016.html (March 2016, DYB Meeting, Beijing)
 
-    Opticks : GPU Optical Photon Simulation
+    *Opticks : GPU Optical Photon Simulation*
 
     Includes single PMT validation
 
 
 http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation.html (Jan 2016, JUNO Meeting, Xiamen)
 
-    Opticks : GPU Optical Photon Simulation
+    *Opticks : GPU Optical Photon Simulation*
 
 http://simoncblyth.bitbucket.io/env/presentation/opticks_gpu_optical_photon_simulation_psroc.html (Jan 2016, PSROC Meeting, Kaoshiung)
 
-    Opticks : GPU Optical Photon Simulation 
+    *Opticks : GPU Optical Photon Simulation* 
 
     Same ground as Xiamen talk, but aiming at more diverse audience
 
@@ -347,7 +420,7 @@ Mid 2015
 
 http://simoncblyth.bitbucket.io/env/presentation/optical_photon_simulation_with_nvidia_optix.html (July 2015, JUNO Meeting, Beijing)
 
-    Optical Photon Simulation with NVIDIA OptiX
+    *Optical Photon Simulation with NVIDIA OptiX*
 
     Why not Chroma ? Intro to OptiX. Developments needed to adopt it.
 
@@ -357,14 +430,14 @@ Early 2015
 
 http://simoncblyth.bitbucket.io/env/presentation/gpu_optical_photon_simulation.html  (Jan 2015, JUNO Meeting, Guangzhou)
 
-    200x Faster Optical Photon Propagation with NuWa + Chroma ? 
+    *200x Faster Optical Photon Propagation with NuWa + Chroma ?* 
 
     Getting Chroma operational with Dayabay Geometry, Runtime bridge development
 
 
 http://simoncblyth.bitbucket.io/env/presentation/gpu_accelerated_geant4_simulation.html (Jan 2015, DYB Meeting, Hong Kong)
 
-    GPU Accelerated Geant4 Simulation with G4DAE and Chroma
+    *GPU Accelerated Geant4 Simulation with G4DAE and Chroma*
 
     Similar to Guangzhou talk, covers GPU generation of DYB Cerenkov and Scintillation photons
 
@@ -374,7 +447,7 @@ Late 2014
 
 http://simoncblyth.bitbucket.io/env/presentation/g4dae_geometry_exporter.html (Sept 2014, Geant4 Meeting, Okinawa)
 
-   G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files
+   *G4DAE : Export Geant4 Geometry to COLLADA/DAE XML files*
      
 
 reports

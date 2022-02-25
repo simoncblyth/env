@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
+import logging
+log = logging.getLogger(__name__)
 from docutils.parsers.rst import Directive, directives
 from docutils import nodes
 
 # kludge global as attempting to follow s5_video pattern scrambles the html, slides become sections 
 urls = []  
+divs = []
 
 class s5backgroundimage(nodes.General, nodes.Inline, nodes.Element):
     pass
@@ -18,29 +21,63 @@ class div_background(object):
              %(extra)s
           }"""
 
+    @classmethod
+    def Find(cls, title):
+        for div in divs:
+            if div.ltitle == title.lower():
+                return div
+            pass
+        return None 
+
+    @classmethod
+    def FindMeta(cls, q_meta):
+        select_divs = []
+        for div in divs:
+            for meta in div.meta:
+                if meta.find(q_meta) > -1:
+                    select_divs.append(div)
+                pass
+            pass
+        return select_divs
+
     def parse_spec(self, spec_line):
         spec_elem = spec_line.split()
         nelem = len(spec_elem)
-        size, position, extra = "auto_auto", "0px_0px", ""
+        size, position, extra, meta = "auto_auto", "0px_0px", "", ""
         if nelem > 0:url = spec_elem[0] 
         if nelem > 1:size = spec_elem[1]
         if nelem > 2:position = spec_elem[2]
         if nelem > 3:extra = spec_elem[3]
         if len(extra) > 0: 
-            extra = "%s ; " % extra  
+            if extra.startswith("meta:"):
+                meta = extra[len("meta:"):]
+            else:
+                extra = "%s ; " % extra  
+            pass
+        pass
+
+        if len(meta) > 0:
+            log.info("spec_line %s meta %s " % (spec_line, meta))  
         pass
         _ = lambda _:_.replace("_"," ")
-        return dict(url=url, size=_(size),position=_(position), extra=_(extra)) 
+        return dict(url=url, size=_(size),position=_(position), extra=_(extra), meta=meta ) 
 
     def __init__(self, lines):
         title, specs = lines[0], lines[1:]
         self.lines = lines 
         self.title = title
+        self.ltitle = title.lower()
         self.specs = specs
+        self.urls = []
+        self.meta = []
         dd = [] 
         for spec in specs:
             d = self.parse_spec(spec)
-            urls.append(d["url"]) 
+            url = d["url"]
+            meta = d["meta"]
+            urls.append(url)
+            self.urls.append(url)  
+            self.meta.append(meta)
             dd.append(d)
         pass
         dc = {}
@@ -51,9 +88,12 @@ class div_background(object):
         dc["tid"] = nodes.make_id(title)
 
         self.html = self.div_tmpl % dc
+        divs.append(self)
+
 
     def __repr__(self):
-        return "div_background %d" % (len(self.lines))
+        return "div_background l/s/u %d %d %d  title %s url0 %s " % (len(self.lines), len(self.specs), len(self.urls), self.title, self.urls[0] )
+
     def __str__(self):
         return self.html
 
@@ -74,14 +114,18 @@ def render_s5backgroundimage_1( n ):
 
        </style>
     """
-    global urls  # kludge
+    #global urls  # kludge
 
     content = "\n".join(filter(lambda _:len(_) == 0 or _[0] != '#', n.content)) + "\n" # remove comments and make into big string
     divs = []
     for i, item in enumerate(content.split("\n\n")):  # split on empty lines
         lines = item.split("\n")
+
+        #print(i)
+        #print("\n".join(lines))
+
         if len(lines) < 2: 
-            print("skip single line item [%s] " % lines[0])
+            log.debug("skip single line item [%s] .. happens at tail " % lines[0])
         else:
             div = div_background(lines)
             #print(div)
@@ -136,7 +180,7 @@ def render_s5backgroundimage_0( n ):
         title, spec_line = pair
         spec_elem = spec_line.split()
         nelem = len(spec_elem)
-        size, position, extra = "auto_auto", "0px_0px", ""
+        size, position, extra, meta = "auto_auto", "0px_0px", "", ""
         if nelem > 0:url = spec_elem[0] 
         if nelem > 1:size = spec_elem[1]
         if nelem > 2:position = spec_elem[2]
@@ -145,9 +189,15 @@ def render_s5backgroundimage_0( n ):
         _ = lambda _:_.replace("_"," ")
         urls.append(url) 
         if len(extra) > 0: 
-            extra = "%s ; " % extra  
+            if extra.startswith("meta:"): 
+                 pass
+                 meta = extra[len("meta:"):]
+                 extra = ""
+            else:
+                 extra = "%s ; " % extra  
+            pass
         pass
-        divs.append( div_tmpl % dict(tid=nodes.make_id(title), url=url, size=_(size),position=_(position), extra=_(extra))) 
+        divs.append( div_tmpl % dict(tid=nodes.make_id(title), url=url, size=_(size),position=_(position), extra=_(extra), meta=mera )) 
     pass
     html = style_tmpl % dict(divs="\n          ".join(divs))
     return html

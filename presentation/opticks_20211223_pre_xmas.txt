@@ -1,0 +1,1362 @@
+.. meta::
+   :note: Navigate the HTML slides by entering a page number and pressing return 
+   :title: Opticks Winter
+   :description: (Dec 2021) NNVT PMT ZSolid Cutting, base_steel, 
+   :url: https://simoncblyth.bitbucket.io/env/presentation/opticks_20211223_pre_xmas.html  
+   :date: 23 Dec 2021
+
+.. include:: my_s5defs.txt
+
+
+.. comment
+
+
+
+==============================================================================
+JUNO Opticks - Geo Fixes:  >100x faster 
+==============================================================================
+
+..
+
+    * :b:`ZSolid::ApplyZCutTree` applied to both NNVT and Hama PMTs
+
+      * Avoid :r:`PROFLIGATE : G4ItersectionSolid Z-Cut`
+      * With : :b:`ZSolid::ApplyZCutTree : Actually Cut the CSG Tree`      
+
+    * fixed **base_steel** *G4Polycone* with multiple R-inner
+     
+      * improved Opticks *G4Polycone* translation 
+      * avoids overlap with **sStrutBallhead**
+
+    * ray trace renders and render times following geometry fixes 
+
+      * :b:`timings : no standout bottlenecks remain`
+      * :r:`> 100x faster than times from July`
+       
+    * *G4Sphere* phiCut thetaCut : Opticks translation bug 
+
+      * LHCb RICH : needs fix for their mirror geometry 
+      * fixing with unbounded primitives : CSG_PHICUT CSG_THETACUT 
+      
+
+
+.. class:: small
+
+   |  Simon C Blyth, 2021/12/23
+
+
+.. s5_talk:: 
+
+    Focus on results following geometry fixes
+
+
+
+.. comment
+
+    :small:`JUNO-Opticks Option changes`
+    ----------------------------------------- 
+
+
+
+
+
+
+
+:small:`NNVT PMT Solid : PROFLIGATE G4ItersectionSolid Z-Cut`
+-----------------------------------------------------------------------------------------------
+    
+.. class:: small
+
+   **Using G4IntersectionSolid to apply Z-cut to PMT** 
+
+   * NNVT PMT also used the :r:`profligate anti-pattern` : **not so terrible as Hama as simpler**
+
+.. raw:: html
+
+     <pre class="mypretiny">
+
+    344 void NNVTMCPPMTManager::helper_make_solid_profligate_tail_cut()
+    345 {
+    346     std::cout << "NNVTMCPPMTManager::helper_make_solid_profligate_tail_cut" << std::endl ;
+    347     // inner2 
+    348     G4double helper_sep_tube_r = m_pmt_r;
+    349     const double tail_height = m_pmt_h - m_z_equator;
+    350     const double tail_half_height = tail_height / 2;
+    351     const G4ThreeVector cut_tail_displacement(0., 0., -tail_half_height);
+    352     G4VSolid* cut_tail_solid = new G4Tubs("CutTail_NNVTMCPPMT_Solid",
+    353                                           0.,
+    354                                           helper_sep_tube_r+1E-9*mm,
+    355                                           tail_half_height,
+    356                                           0., 360.*degree);
+    357     inner2_solid = new G4IntersectionSolid( GetName() + "_inner2_tail_solid",
+    358                                             inner2_solid,
+    359                                             cut_tail_solid,
+    360                                             NULL,
+    361                                             cut_tail_displacement);
+    362 
+
+     </pre>
+
+.. class:: small
+
+    **SOLUTION** :r:`ACTUALLY CUT THE CSG TREE` using https://github.com/simoncblyth/j/blob/main/PMTSim/ZSolid.hh
+
+::
+
+    G4VSolid* ZSolid::ApplyZCutTree( const G4VSolid* original, double zcut)
+
+
+
+:small:`ZSolid::ApplyZCutTree to NNVT PMT Solid : Makes Simpler`
+--------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypre11">
+ 
+    nnvt_body_solid [-1] nameprefix _body_solid  NODE:5 PRIM:3 UNDEFINED:5 EXCLUDE:0 INCLUDE:0 MIXED:0 Order:IN
+
+                            Uni                     
+                            U                       
+                            3                       
+                                                    
+                                                    
+            Uni                     Tub             
+            U                       U               
+            1                       4               
+                                                    
+                                                    
+    Ell             Pol                             
+    U               U                               
+    0               2                               
+                                                    
+                                                    
+    0               -193            -299    zdelta  
+                                                    
+    184             -174            -213    az1     
+    -184            -213            -386    az0     
+    _head   _1_2    _neck           _tail           
+     zcut -200
+    solid_zcut [-1] nameprefix _body_solid_  NODE:3 PRIM:2 UNDEFINED:3 EXCLUDE:0 INCLUDE:0 MIXED:0 Order:IN
+
+            Uni                     
+            U                       
+            1                       
+                                    
+                                    
+    Ell             Pol             
+    U               U               
+    0               2               
+                                    
+                                    
+    0               -193    zdelta  
+                                    
+    184             -174    az1     
+    -184            -200    az0     
+    head    1_2     neck            
+
+
+    </pre>
+
+
+.. class:: small
+
+    * :b:`non-critical (unlike Hama) as CSG modelling already quite simple after eliminate G4Torus neck`
+
+
+
+
+:r:`nnvt_maker_zcut-500.0`
+--------------------------- 
+
+:r:`nnvt_maker_zcut-400.0`
+--------------------------- 
+
+:r:`nnvt_maker_zcut-350.0`
+--------------------------- 
+ 
+:r:`nnvt_maker_zcut-300.0`
+--------------------------- 
+
+:r:`nnvt_maker_zcut-200.0` 
+--------------------------- 
+  
+:r:`nnvt_maker_zcut-183.25` 
+--------------------------- 
+
+
+
+   
+:r:`nnvt_body_phys`
+---------------------
+    
+:r:`nnvt_body_phys_nurs`
+------------------------
+    
+:r:`nnvt_body_phys_nurs_pdyn`
+------------------------------
+
+:r:`nnvt_body_phys_nurs_pdyn_prtc_obto`
+-----------------------------------------    
+
+.. sidebar:: :small:`NNVT : obsolete cylinder-torus neck`
+
+   * also has spurious G4 intersects 
+
+
+:r:`nnvt_body_phys_pdyn`
+-------------------------
+
+
+:small:`Opticks-Offline CMake Integration`
+-------------------------------------------
+
+opticks/cmake/Modules/FindOpticks.cmake used from offline/cmake/JUNODependencies.cmake::
+
+    if(DEFINED ENV{OPTICKS_PREFIX})
+       set(CMAKE_MODULE_PATH 
+          ${CMAKE_MODULE_PATH} "$ENV{JUNOTOP}/opticks/cmake/Modules")
+       find_package(Opticks QUIET MODULE) 
+       message(STATUS 
+          "${CMAKE_CURRENT_LIST_FILE} : Opticks_FOUND:${Opticks_FOUND}" )
+    endif()
+
+Then subsequently packages needing Opticks headers add dependency line::
+
+    $<$<BOOL:${Opticks_FOUND}>:${Opticks_TARGET}> 
+
+
+:r:`Much easier than integration with CMT Offline : as can use CMake targets`
+
+* can eliminate generation of .pc (pkg-config) files by Opticks installation  
+* main difficulty was getting to work without some extras on CMake command line
+
+
+
+
+
+
+PolyconeWithMultipleRmin_X4Mesh
+---------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:11cm;" />
+
+.. class:: normal
+
+   **base_steel** : *G4Polycone* with two *R_inner* 
+
+   * *X4Solid::convertPolycone* ignored **inner** with > 1 inner radius 
+   * :r:`now fixed by CSG subtraction of CSG union inner`
+   * required coincidence avoidance tricks 
+
+
+
+PolyconeWithMultipleRmin_xxs_isect
+------------------------------------
+
+
+.. raw:: html
+
+   <p style="margin-bottom:12cm;" />
+
+.. class:: normal
+
+    **Geant4 Intersect Positions** 
+
+    ``GEOM=PolyconeWithMultipleRmin ~/opticks/extg4/xxs.sh``
+
+
+    
+``3dbec_cxr_solid_r7@ copy``
+----------------------------------------
+
+.. sidebar:: :small:`Polycone Inner Needed`
+
+   .. class:: small
+
+       Prevents overlap with  **sStrutBallhead**
+
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+``SLA=r7@ ./cxr_solid.sh   ## 1:base_steel`` 
+
+ 
+
+
+
+Geometry Changes Since Last Performance Check
+------------------------------------------------
+
+.. class:: normal
+
+   * NNVT and Hama PMTs : avoid needless *G4IntersectionSolid* 
+
+     * *body_solid* : actually cutting CSG trees with *ZSolid::ApplyZCutTree*   
+     * *inner1/2_solid* : simply by mode argument and switch statement   
+   
+   * Fastener 
+
+     * *base_steel* : corrected translation of G4Polycone with multiple R_inner
+     * *uni_acrylic3* -> *uni_acrylic1* : avoid subtraction of cavities for daughter volumes 
+     * subtraction of huge acrylic sphere led to :r:`huge Fastener bounding box` 
+
+       * :b:`fixed by positiv-izing CSG tree and not including bbox of complemented`  
+
+
+uni_acrylic3_0_figs_positions_mpplt_pid.png
+----------------------------------------------
+
+``cxs.sh OptiX 7, 2D intersect scatter plots``
+
+``spurious intersects evident``
+
+``* interfering subtraction-of-subtraction issue``
+
+
+uni_acrylic1_0_figs_positions_mpplt_pid.png
+----------------------------------------------
+
+``--additionacrylic-simplify-csg``
+     ``do not subtract cavities for daughter volumes``
+
+
+Hama_1_figs_positions_mpnky_pid.png
+-------------------------------------
+
+``mask tail cutting across PMT bulb ?``
+
+    
+Hama_1_figs_positions_mpplt_pid.png
+-------------------------------------
+    
+Hama_2_figs_positions_mpnky_pid.png
+-------------------------------------
+    
+Hama_2_figs_positions_mpplt_pid.png
+-------------------------------------
+    
+Hama_4_figs_positions_mpnky_pid.png
+-------------------------------------
+    
+Hama_4_figs_positions_mpplt_pid.png
+-------------------------------------
+    
+Hama_16_figs_positions_mpnky_pid.png
+-------------------------------------
+
+.. class:: small
+
+    ``Improve cross-section view quality ?``
+  
+    ``* needs development :``
+   
+    ``* target gensteps according to 2D histo of intersects``
+
+    ``* progressive refinement``
+
+
+    
+Hama_16_figs_positions_mpplt_pid.png
+-------------------------------------
+ 
+
+
+
+
+CSGOptiX (NVIDIA OptiX 7) renderers 
+---------------------------------------
+
+
+Not built by standard Opticks build, need::
+
+        cd ~/opticks/CSGOptiX/
+        b7                       ## short for opticks-build7
+
+
+Using *CSGOptiX/tests/CSGOptiXSimulateTest.cc*::
+
+    cxs.sh        ## creates 2D cross section .png scatter plots 
+
+
+Using *CSGOptiX/tests/CSGOptiXRenderTest.cc*::
+
+    cxr_view.sh 
+    cxr_solid.sh 
+    cxr_overview.sh 
+    cxr.sh         ## creates 3D render .jpg of geometry 
+
+
+:b:`At bottom left of all cxr .jpg is launch time(seconds) for 2M pixels (1920x1080)`
+
+
+
+:i:`sWorld_cam_0_t0_cxr_view___eye_0,0.6,0.4__zoom_1__tmin_0.4_sWorld.jpg`
+---------------------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:16cm;" />
+
+
+``MOI=sWorld EYE=0,0.6,0.4 TMIN=0.4 ./cxr_view.sh`` 
+
+
+
+:i:`NNVT:0:1000_cam_0_t0_cxr_view___eye_-2,-2,-2,1__look_0,0,2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg`
+----------------------------------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`MOI Mname:mOrdinal:InstanceIndex`
+
+    .. class:: small
+
+          ``MOI=NNVT:0:1000``
+
+          * selects first *Mname* starting "NNVT"
+
+          * *mOrdinal* "0" selects non-instanced repeat
+
+          * *InstanceIndex* "1000" selects instanced repeat
+
+
+          MOI defines a center-extent "CE" frame
+
+          * EYE,LOOK,UP viewpoint inputs use CE frame 
+          * TMIN in units of extent cuts into geometry 
+ 
+
+
+.. raw:: html
+
+   <p style="margin-bottom:16cm;" />
+
+
+``MOI=NNVT:0:1000 EYE=-2,-2,-2 LOOK=0,0,2,1 TMIN=0.4 ./cxr_view.sh`` 
+
+
+:i:`NNVT:0:1000_cam_0_t0_cxr_view___eye_-2,-2,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg`
+------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:16cm;" />
+
+
+``MOI=NNVT:0:1000 EYE=-2,-2,-2 TMIN=0.4 ./cxr_view.sh`` 
+
+
+:i:`NNVT:0:1000_cam_0_t0_cxr_view___eye_0,1,-2,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg`
+------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:16cm;" />
+
+
+``MOI=NNVT:0:1000 EYE=0,1,-2 TMIN=0.4 ./cxr_view.sh`` 
+
+
+:i:`NNVT:0:1000_cam_0_t0_cxr_view___eye_0,2,-4,1__zoom_1__tmin_0.4_NNVT:0:1000.jpg`
+------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:16cm;" />
+
+
+``MOI=NNVT:0:1000 EYE=0,2,-4 TMIN=0.4 ./cxr_view.sh`` 
+
+
+
+:i:`sWaterTube_cam_0_t0_cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_0.4_sWaterTube.jpg`
+--------------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:16cm;" />
+
+
+``MOI=sWaterTube EYE=0,1,-0.5 LOOK=0,0,-0.5 TMIN=0.4 ./cxr_view.sh`` 
+
+
+:i:`sWaterTube_cam_0_t0_cxr_view___eye_0,1,-0.5__look_0,0,-0.5__zoom_1__tmin_1_sWaterTube.jpg`
+-----------------------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Chimney Coincidence Speckle`
+
+    .. class:: small
+
+          Looks like fully coincident cylinders 
+
+          * note ring pattern in the speckle
+
+
+.. raw:: html
+
+   <p style="margin-bottom:16cm;" />
+
+
+``MOI=sWaterTube EYE=0,1,-0.5 LOOK=0,0,-0.5 TMIN=1 ./cxr_view.sh`` 
+
+
+:i:`sWaterTube_cam_0_t0_cxr_view___eye_0,1,-1,1__look_0,0,-1__zoom_1__tmin_0.4_sWaterTube.jpg`
+-----------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:16cm;" />
+
+
+``MOI=sWaterTube EYE=0,1,-1 LOOK=0,0,-1 TMIN=1 ./cxr_view.sh`` 
+
+
+:i:`sWaterTube_cam_0_t0_cxr_view___eye_0,1,-1,1__zoom_1__tmin_0.4_sWaterTube.jpg`
+--------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:16cm;" />
+
+
+``MOI=sWaterTube EYE=0,1,-1 LOOK=0,0,0 TMIN=0.4 ./cxr_view.sh`` 
+
+
+
+
+
+
+
+:small:`Current JUNO Geometry : Auto-Factorized by "progeny digest"`
+------------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Factorize ~300,000 vol -> 10 comp`
+
+   .. class:: small
+
+        * **ridx**: repeat index
+        * **plc**: number of placements of the instance
+        * **prim**: number of Prim/volumes in the instance
+        * **component**: numPrim:outerPrimName    
+ 
+        :r:`"progeny digest"` characterizes subtree of every volume-node  
+
+.. class:: tiny
+
+    +----+------+-----+----------------------------------------------+-----------------------------+
+    |ridx|   plc|  vol|   component name                             |  note (3dbec4dc)            |
+    +====+======+=====+==============================================+=============================+
+    |   0|     1| 3084|   3084:sWorld                                |  non-repeated remainder     |
+    +----+------+-----+----------------------------------------------+-----------------------------+
+    |   1| 25600|    5|   5:PMT_3inch_pmt_solid                      |                             |
+    +----+------+-----+----------------------------------------------+                             +
+    |   2| 12612|    5|   5:NNVTMCPPMTsMask                          |                             |
+    +----+------+-----+----------------------------------------------+   4 types of PMT            +
+    |   3|  5000|    5|   5:HamamatsuR12860sMask                     |                             |
+    +----+------+-----+----------------------------------------------+                             +
+    |   4|  2400|    4|   4:mask_PMT_20inch_vetosMask                |                             |
+    +----+------+-----+----------------------------------------------+-----------------------------+
+    |   5|   590|    1|   1:sStrutBallhead                           |                             |
+    +----+------+-----+----------------------------------------------+ 4 parts of Fastener but     +
+    |   6|   590|    1|   1:uni1                                     | not instanced together      |
+    +----+------+-----+----------------------------------------------+ as are sibling volumes      +
+    |   7|   590|    1|   1:base_steel                               | that happen to line up      |
+    +----+------+-----+----------------------------------------------+ rather than parent-child    +
+    |   8|   590|    1|   1:uni_acrylic1                             |                             |
+    +----+------+-----+----------------------------------------------+-----------------------------+
+    |   9|   504|  130|   130:sPanel                                 |  repeated parts of TT       |
+    +----+------+-----+----------------------------------------------+-----------------------------+
+
+
+.. class:: small
+
+    ``~/opticks/ana/ggeo.sh --mmtrim --mmsmry``
+
+
+.. class:: small
+
+   * **ridx:0** "remainder" Prim 
+
+     * Prim that did not pass instancing criteria, on number of repeats + complexity
+     * COULD: tune criteria to instance more, reducing remainder Prim (Expect: 3084->~ 84)  
+
+       * :r:`BUT LOW PRIORITY as seems not performance bottleneck`
+
+
+   * **ridx:1,2,3,4**
+
+     * four types of PMT, with 4/5 Prim 
+
+   * **ridx:5,6,7,8**
+
+     * same 590x assembly :redbold:`but not grouped together` : as siblings (not parent-child like PMTs)
+     * COULD: implement instancing of siblings could combining 4 -> 1
+
+       * :r:`BUT LOW PRIORITY as again seems not to be bottleneck`
+        
+
+
+cxr_solid.sh renders
+-----------------------
+
+.. class:: normal 
+
+
+   **cxr_solid.sh** renders of single "Solids" in Opticks sense 
+
+   Actually composite corresponding to "factors" of the geometry
+
+   * ridx == 0 : global non-instanced remainder 
+   * ridx > 0 : repeated piece of geometry (not G4VSolid)
+
+   Renders of the 10 auto-factorized JUNO solids follow. 
+
+
+
+
+``3dbec_cxr_solid_r0@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+
+``SLA=r0@ ./cxr_solid.sh    ## 3084:sWorld`` 
+
+    
+``3dbec_cxr_solid_r1@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+
+``SLA=r1@ ./cxr_solid.sh   ## 5:PMT_3inch_pmt_solid`` 
+
+
+    
+``3dbec_cxr_solid_r2@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+
+``SLA=r2@ ./cxr_solid.sh  ## 5:NNVTMCPPMTsMask`` 
+
+
+    
+``3dbec_cxr_solid_r3@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+
+``SLA=r3@ ./cxr_solid.sh   ## 5:HamamatsuR12860sMask`` 
+
+
+
+    
+``3dbec_cxr_solid_r4@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+``SLA=r4@ ./cxr_solid.sh   ## 4:mask_PMT_20inch_vetosMask`` 
+
+
+    
+``3dbec_cxr_solid_r5@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+``SLA=r5@ ./cxr_solid.sh   ## 1:sStrutBallhead`` 
+
+
+
+    
+``3dbec_cxr_solid_r6@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+``SLA=r6@ ./cxr_solid.sh   ## 1:uni1`` 
+
+
+    
+``3dbec_cxr_solid_r7@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+``SLA=r7@ ./cxr_solid.sh   ## 1:base_steel`` 
+
+    
+``3dbec_cxr_solid_r8@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+``SLA=r8@ ./cxr_solid.sh    ## 1:uni_acrylic1`` 
+
+    
+``3dbec_cxr_solid_r9@``
+----------------------------------------
+
+.. raw:: html
+
+   <p style="margin-bottom:15cm;" />
+
+
+``SLA=r9@ ./cxr_solid.sh    ## 130:sPanel`` 
+
+
+
+
+
+cxr_view.sh renders varying included geometry
+------------------------------------------------
+
+.. class:: normal 
+
+
+   **cxr_view.sh** from same position, changing included geometry
+
+   * EMM : "-e" option, meaning enabled-merged-mesh 
+
+   **cxr_views.sh**::
+
+        emms=$(seq 0 9)
+        for emm in $emms ; do 
+            EMM=$emm, ./cxr_view.sh
+        done
+
+
+
+:i:`cxr_view_cam_0_t0_cxr_view_sWaterTube.jpg`
+------------------------------------------------
+
+``t0 : tilde-zero : ~0 : meaning ALL``
+
+
+:i:`cxr_view_cam_0_0,_cxr_view_sWaterTube.jpg`
+-----------------------------------------------
+
+``3084:sWorld``
+    
+:i:`cxr_view_cam_0_1,_cxr_view_sWaterTube.jpg`
+-----------------------------------------------
+
+``5:PMT_3inch_pmt_solid``
+    
+:i:`cxr_view_cam_0_2,_cxr_view_sWaterTube.jpg`
+-----------------------------------------------
+
+``5:NNVTMCPPMTsMask``
+    
+:i:`cxr_view_cam_0_3,_cxr_view_sWaterTube.jpg`
+-----------------------------------------------
+
+``5:HamamatsuR12860sMask``
+
+:i:`cxr_view_cam_0_4,_cxr_view_sWaterTube.jpg`
+------------------------------------------------
+
+``4:mask_PMT_20inch_vetosMask``
+
+:i:`cxr_view_cam_0_5,_cxr_view_sWaterTube.jpg`
+------------------------------------------------
+
+``1:sStrutBallhead``
+    
+:i:`cxr_view_cam_0_6,_cxr_view_sWaterTube.jpg`
+-----------------------------------------------
+
+``1:uni1`` 
+
+:i:`cxr_view_cam_0_7,_cxr_view_sWaterTube.jpg`
+-----------------------------------------------
+
+``1:base_steel``
+
+:i:`cxr_view_cam_0_8,_cxr_view_sWaterTube.jpg`
+------------------------------------------------
+
+``1:uni_acrylic1``
+    
+:i:`cxr_view_cam_0_9,_cxr_view_sWaterTube.jpg`
+------------------------------------------------
+    
+``130:sPanel``
+
+
+
+
+sWaterTube timings whilst varying geometry
+---------------------------------------------
+
+.. class:: tiny
+
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+    |idx|        -e|       time(s)    |      relative    |    enabled geometry description 3dbec4dc     |                               |
+    +===+==========+==================+==================+==============================================+===============================+
+    |  0|        5,|        0.0004    |        0.0004    |    ONLY: 1:sStrutBallhead                    |                               |
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+    |  1|        7,|        0.0004    |        0.0004    |    ONLY: 1:base_steel                        |                               |
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+    |  2|        8,|        0.0005    |        0.0005    |    ONLY: 1:uni_acrylic1                      |                               |
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+    |  3|        6,|        0.0005    |        0.0005    |    ONLY: 1:uni1                              |                               |
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+    |  4|        1,|    :b:`0.0006`   |        0.0006    |:b:`ONLY: 5:PMT_3inch_pmt_solid`              | :b:`NOTABLY FAST cf 20inch`   |
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+    |  5|        9,|        0.0006    |        0.0006    |    ONLY: 130:sPanel                          |                               |
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+    |  6|        4,|        0.0011    |        0.0011    |    ONLY: 4:mask_PMT_20inch_vetosMask         |                               |
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+    |  7|        3,|    :r:`0.0022`   |        0.0022    |:r:`ONLY: 5:HamamatsuR12860sMask`             |                               |
+    +---+----------+------------------+------------------+----------------------------------------------+                               +
+    |  8|        2,|    :r:`0.0031`   |        0.0031    |:r:`ONLY: 5:NNVTMCPPMTsMask`                  |  :r:`NOTABLY SLOW cf 3inch`   |
+    +---+----------+------------------+------------------+----------------------------------------------+                               +
+    |  9|        0,|    :r:`0.0035`   |        0.0035    |:r:`ONLY: 3084:sWorld`                        |                               |
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+    | 10|        t0|        0.0067    |        0.0067    |    ALL                                       |                               |
+    +---+----------+------------------+------------------+----------------------------------------------+-------------------------------+
+
+
+.. class:: normal 
+
+    * times for rendering 2M 1920x1080 pixels in seconds
+
+    * range 0.0004 - 0.0067 s
+
+    * Times for 3inch are factor 4-6x faster than 20inch, even though more of them.  :r:`WHY ?`
+ 
+      * :r:`Perhaps overlapping of Mask and 20inch PMT causing some slowdown` 
+
+
+
+cxr_overview.sh renders
+---------------------------
+
+
+.. class:: normal 
+
+
+    Using cxr_scan.sh to repeateadly invoke cxr_overview.sh with different **-e** options 
+
+
+.. class:: tiny
+
+    +----+------+-----+----------------------------------------------+-----------------------------+
+    |ridx|   plc|  vol|   component name                             |  note (3dbec4dc)            |
+    +====+======+=====+==============================================+=============================+
+    |   0|     1| 3084|   3084:sWorld                                |  non-repeated remainder     |
+    +----+------+-----+----------------------------------------------+-----------------------------+
+    |   1| 25600|    5|   5:PMT_3inch_pmt_solid                      |                             |
+    +----+------+-----+----------------------------------------------+                             +
+    |   2| 12612|    5|   5:NNVTMCPPMTsMask                          |                             |
+    +----+------+-----+----------------------------------------------+   4 types of PMT            +
+    |   3|  5000|    5|   5:HamamatsuR12860sMask                     |                             |
+    +----+------+-----+----------------------------------------------+                             +
+    |   4|  2400|    4|   4:mask_PMT_20inch_vetosMask                |                             |
+    +----+------+-----+----------------------------------------------+-----------------------------+
+    |   5|   590|    1|   1:sStrutBallhead                           |                             |
+    +----+------+-----+----------------------------------------------+ 4 parts of Fastener but     +
+    |   6|   590|    1|   1:uni1                                     | not instanced together      |
+    +----+------+-----+----------------------------------------------+ as are sibling volumes      +
+    |   7|   590|    1|   1:base_steel                               | that happen to line up      |
+    +----+------+-----+----------------------------------------------+ rather than parent-child    +
+    |   8|   590|    1|   1:uni_acrylic1                             |                             |
+    +----+------+-----+----------------------------------------------+-----------------------------+
+    |   9|   504|  130|   130:sPanel                                 |  repeated parts of TT       |
+    +----+------+-----+----------------------------------------------+-----------------------------+
+
+
+
+:i:`cxr_overview_emm_t0_moi_-1_ALL.jpg`
+-----------------------------------------------------------------
+
+``-e t0 : ALL``
+
+
+:i:`cxr_overview_emm_1,2,3,4_moi_-1.jpg`
+-----------------------------------------------------------------
+ 
+``-e 1,2,3,4 : ONLY PMTs``
+
+ 
+:i:`cxr_overview_emm_0,_moi_-1.jpg`
+---------------------------------------------------------------
+   
+``-e 0, : ONLY 0 : 3084:sWorld`` 
+
+
+:i:`cxr_overview_emm_1,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e 1, : ONLY 1 : 5:PMT_3inch_pmt_solid``
+
+    
+:i:`cxr_overview_emm_2,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e 2, : ONLY 2 : 5:NNVTMCPPMTsMask``
+    
+:i:`cxr_overview_emm_3,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e 3, : ONLY 3 : 5:HamamatsuR12860sMask``
+
+    
+:i:`cxr_overview_emm_4,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e 4, : ONLY 4 : 4:mask_PMT_20inch_vetosMask``
+
+
+:i:`cxr_overview_emm_5,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e 5, : ONLY 5 : 1:sStrutBallhead``
+
+    
+:i:`cxr_overview_emm_6,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e 6, : ONLY 6 : 1:uni1``
+
+    
+:i:`cxr_overview_emm_7,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e 7, : ONLY 7 : 1:base_steel``
+
+    
+:i:`cxr_overview_emm_8,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e 8, : ONLY 8 : 1:uni_acrylic1``
+
+    
+:i:`cxr_overview_emm_9,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e 9, : ONLY 9 : 130:sPanel``
+
+
+    
+:i:`cxr_overview_emm_t0,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t0, : NOT 0 : 3084:sWorld`` 
+
+   
+:i:`cxr_overview_emm_t1,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t1, : NOT 1 : 5:PMT_3inch_pmt_solid``
+
+    
+:i:`cxr_overview_emm_t2,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t2, : NOT 2 : 5:NNVTMCPPMTsMask``
+
+    
+:i:`cxr_overview_emm_t3,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t3, : NOT 3 : 5:HamamatsuR12860sMask``
+
+    
+:i:`cxr_overview_emm_t4,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t4, : NOT 4 : 4:mask_PMT_20inch_vetosMask``
+
+    
+:i:`cxr_overview_emm_t5,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t5, : NOT 5 : 1:sStrutBallhead``
+
+    
+:i:`cxr_overview_emm_t6,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t6, : NOT 6 : 1:uni1``
+
+    
+:i:`cxr_overview_emm_t7,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t7, : NOT 7 : 1:base_steel``
+
+
+:i:`cxr_overview_emm_t8,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t8, : NOT 8 : 1:uni_acrylic1``
+
+    
+:i:`cxr_overview_emm_t9,_moi_-1.jpg`
+-----------------------------------------------------------------
+
+``-e t9, : NOT 9 : 130:sPanel``
+
+
+
+
+:small:`[Dec] JUNO : OptiX 7 Ray Trace Times ~2M-pix : TITAN RTX`
+-------------------------------------------------------------------
+
+
+.. sidebar:: :small:`Same viewpoint, vary GPU geometry`
+
+   .. class:: small
+
+        * **-e** : controls components : "t" means ~ (NOT) 
+        * **time(s)** : GPU ray trace CUDA launch time
+        * **relative** : compares to "ONLY PMT" baseline
+
+        **Geometry Fixes**
+
+        * :b:`fix profligate PMT modelling` 
+        * :b:`simpler Acrylic fastener` 
+        * :b:`avoid overlarge Fastener BBox`  
+        * :b:`fix Polycone inner overlap`
+ 
+   .. class:: small
+
+        :r:`Small-ish time range 1:15 (previously 1:600)`
+               
+        * :r:`suggests no bad bottlenecks remaining`
+
+        * **3084:sWorld** (still too many non-instanced Prim)
+
+        :b:`ALL PMTs` :  0.0097 -> 0.0061  (x1.6 faster) 
+
+        :b:`ALL` :  0.6240 -> 0.0054 (x155 faster) 
+
+
+
+.. class:: tiny
+
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |idx|        -e|       time(s)    |      relative    |    enabled geometry description 3dbec4dc                                     |
+    +===+==========+==================+==================+==============================================================================+
+    |  0|        5,|        0.0004    |        0.0643    |    ONLY: 1:sStrutBallhead                                                    |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  1|        9,|        0.0004    |        0.0658    |    ONLY: 130:sPanel                                                          |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  2|        7,|        0.0005    |        0.0782    |    ONLY: 1:base_steel                                                        |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  3|        8,|        0.0006    |        0.0966    |    ONLY: 1:uni_acrylic1                                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  4|        6,|        0.0006    |        0.1009    |    ONLY: 1:uni1                                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  5|        1,|    :b:`0.0009`   |    :b:`0.1476`   |:b:`ONLY: 5:PMT_3inch_pmt_solid`               :b:`FAST cf 20in`              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  6|        4,|        0.0015    |        0.2386    |    ONLY: 4:mask_PMT_20inch_vetosMask                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  7|        3,|    :r:`0.0033`   |    :r:`0.5373`   |:r:`ONLY: 5:HamamatsuR12860sMask`              :r:`SLOW cf 3in`               |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  8|        0,|        0.0040    |        0.6556    |    ONLY: 3084:sWorld                                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  9|        2,|    :r:`0.0040`   |    :r:`0.6627`   |:r:`ONLY: 5:NNVTMCPPMTsMask`                   :r:`SLOW cf 3in`               |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 10|       t4,|        0.0050    |        0.8307    |    EXCL: 4:mask_PMT_20inch_vetosMask                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 11|       t2,|        0.0051    |        0.8391    |    EXCL: 5:NNVTMCPPMTsMask                                                   |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 12|       t3,|        0.0052    |        0.8514    |    EXCL: 5:HamamatsuR12860sMask                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 13|       t6,|        0.0053    |        0.8799    |    EXCL: 1:uni1                                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 14|       t7,|        0.0054    |        0.8809    |    EXCL: 1:base_steel                                                        |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 15|        t0|        0.0054    |        0.8843    |    ALL                                                                       |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 16|       t5,|        0.0054    |        0.8843    |    EXCL: 1:sStrutBallhead                                                    |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 17|       t9,|        0.0054    |        0.8855    |    EXCL: 130:sPanel                                                          |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 18|       t1,|        0.0054    |        0.8860    |    EXCL: 5:PMT_3inch_pmt_solid                                               |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 19|       t8,|        0.0055    |        0.9013    |    EXCL: 1:uni_acrylic1                                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 20|       t0,|        0.0059    |        0.9753    |    EXCL: 3084:sWorld                                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 21|   1,2,3,4|        0.0061    |        1.0000    |    ONLY PMT                                                                  |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 22|      t8,0|        0.0062    |        1.0217    |    EXCL: 1:uni_acrylic1 3084:sWorld                                          |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+
+
+
+
+
+:small:`[July] JUNO Geometry : OptiX 7 Ray Trace Times ~2M-pix : TITAN RTX`
+----------------------------------------------------------------------------------
+
+.. sidebar:: :small:`Same viewpoint, vary GPU geometry`
+
+   .. class:: small
+
+
+        * **-e** : controls components : "t" means ~ (NOT) 
+        * **time(s)** : GPU ray trace CUDA launch time
+        * **relative** : compares to "ONLY PMT" baseline
+
+        Very large range of times 1:600
+                
+   .. class:: small
+
+        :r:`Table identifies slow geometry to fix :`
+
+        * **3084:sWorld** (too many non-instanced Prim)
+        * **1:uni_acrylic3** (CSG sub. 35m diam. sphere)
+
+
+        Good performance for :b:`ONLY PMTs` :
+
+        * :b:`45,612 PMT instances handled without issue`  
+
+
+
+.. class:: tiny
+
+
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |idx|        -e  |       time(s)    |      relative    |    enabled geometry description                                              |
+    +===+============+==================+==================+==============================================================================+
+    |  0|        9,  |        0.0017    |        0.1702    |    ONLY: 130:sPanel                                                          |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  1|        7,  |        0.0017    |        0.1714    |    ONLY: 1:base_steel                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  2|        6,  |        0.0019    |        0.1923    |    ONLY: 1:uni1                                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  3|        5,  |        0.0027    |        0.2780    |    ONLY: 1:sStrutBallhead                                                    |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  4|        4,  |        0.0032    |        0.3268    |    ONLY: 5:mask_PMT_20inch_vetosMask                                         |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  5|        1,  |        0.0032    |        0.3287    |    ONLY: 5:PMT_3inch_pmt_solid                                               |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  6|        2,  |        0.0055    |        0.5669    |    ONLY: 5:NNVTMCPPMTsMask                                                   |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  7|        3,  |        0.0074    |        0.7582    |    ONLY: 5:HamamatsuR12860sMask                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  8|:b:`1,2,3,4`|    :b:`0.0097`   |    :b:`1.0000`   |:b:`ONLY PMT`                                                                 |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    |  9|      t8,0  |        0.0099    |        1.0179    |    EXCL: 1:uni_acrylic3 3084:sWorld                                          |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 10|  :r:`0,`   |    :r:`0.1171`   |   :r:`12.0293`   |:r:`ONLY: 3084:sWorld`                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 11|  :r:`t8,`  |    :r:`0.1186`   |   :r:`12.1769`   |:r:`EXCL: 1:uni_acrylic3`                                                     |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 12|  :r:`t0,`  |    :r:`0.5278`   |   :r:`54.2066`   |:r:`EXCL: 3084:sWorld`                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 13|    :r:`8,` |    :r:`0.5310`   |   :r:`54.5298`   |:r:`ONLY: 1:uni_acrylic3`                                                     |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 14|       t3,  |        0.6017    |       61.7954    |    EXCL: 5:HamamatsuR12860sMask                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 15|       t2,  |        0.6043    |       62.0620    |    EXCL: 5:NNVTMCPPMTsMask                                                   |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 16|       t5,  |        0.6171    |       63.3787    |    EXCL: 1:sStrutBallhead                                                    |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 17|       t6,  |        0.6196    |       63.6301    |    EXCL: 1:uni1                                                              |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 18|       t7,  |        0.6226    |       63.9458    |    EXCL: 1:base_steel                                                        |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 19|        t0  |        0.6240    |       64.0879    |    3084:sWorld                                                               |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 20|       t4,  |        0.6243    |       64.1169    |    EXCL: 5:mask_PMT_20inch_vetosMask                                         |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 21|       t9,  |        0.6335    |       65.0636    |    EXCL: 130:sPanel                                                          |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+    | 22|       t1,  |        0.6391    |       65.6384    |    EXCL: 5:PMT_3inch_pmt_solid                                               |
+    +---+------------+------------------+------------------+------------------------------------------------------------------------------+
+
+
+
+
+
+
+
+
+cxr commands for renders and table
+-------------------------------------
+
+::
+
+    ## generate renders and json metadata 
+  
+    cx
+    ./cxr_scan.sh      # repeating ./cxr_overview.sh 
+    ./cxr_grab.sh      # from workstation to laptop
+
+    ## generation of RST table (from metadata) and s5 presentation pages
+
+    ./cxr_pub.sh cp | sh 
+    ./cxr_pub.sh s5     
+
+    ./cxr_table.sh    
+
+
+
+
+
+
+
+    
+:r:`cxr_geochain_SphereWithPhiSegment_difference_old`
+------------------------------------------------------------------
+
+.. class:: small
+
+    **LHCb RICH mirror geometry reveals bug** 
+
+    * X4Solid::convertSphere **G4Sphere** 
+
+      * phi/theta cut not translated correctly 
+      * phi segment half sized in Z
+
+    
+:r:`cxr_geochain_SphereWithPhiSegment_difference_new`
+------------------------------------------------------------------
+
+.. class:: small
+
+    Fixed bug, but approach has problems:
+
+    * intersects with convex-polyhedron shapes  
+    * complex/expensive when have both phi+theta cuts 
+
+    **Better approach : New Unbounded Primitives**
+
+    * simpler implementation and usage 
+    * avoid adhoc sizing : make infinite
+
+    CSG_PHICUT 
+        cosPhi1, sinPhi1, cosPhi2, sinPhi2 
+
+        * fewer planes in "cutter" shape 
+
+    CSG_THETACUT  
+        cosTheta1, sinTheta1, cosTheta2, sinTheta2 
+
+
+    :b:`Working with LHCb RICH student (Lucas) to implement` 
+
+
+
+.. comment
+
+    SphereWithPhiSegment_X4Mesh
+    -----------------------------
+
+SphereWithPhiSegment_xxs_isect 
+---------------------------------
+
+.. class:: normal
+
+    ``CSG_PHICUT : XY cross section : slice of cake shape`` 
+
+    ``need intersects with two half-planes at phi1 and phi2`` 
+
+
+:small:`New unbounded primitive CSG_PHICUT : intersect_node_phicut`
+---------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypretiny">
+    bool intersect_node_phicut( float4& isect, const quad& q0, const float t_min, const float3& ray_origin, const float3& ray_direction )
+    {
+        const float cosPhi0 = q0.f.x ; 
+        const float sinPhi0 = q0.f.y ; 
+        const float cosPhi1 = q0.f.z ; 
+        const float sinPhi1 = q0.f.w ; 
+
+        // dot products with normal0  [ sinPhi0, -cosPhi0, 0.f ]
+        float d_n0 = ray_direction.x*sinPhi0 + ray_direction.y*(-cosPhi0) ; 
+        float o_n0 = ray_origin.x*sinPhi0 + ray_origin.y*(-cosPhi0) ; 
+        float t0 = d_n0 == 0.f ? t_min : -o_n0/d_n0 ;   
+        float side0 = ray_origin.x*cosPhi0 + ray_origin.y*sinPhi0 + ( ray_direction.x*cosPhi0 + ray_direction.y*sinPhi0 )*t0 ;  
+        if(side0 < 0.f) t0 = t_min ;    <span class="r">// Disqualify intersect with other half plane </span> 
+
+        // dot products with normal1   [ -sinPhi1,  cosPhi1, 0.f ]
+        float d_n1 = ray_direction.x*(-sinPhi1) + ray_direction.y*cosPhi1 ; 
+        float o_n1 = ray_origin.x*(-sinPhi1) + ray_origin.y*cosPhi1 ; 
+        float t1 = d_n1 == 0.f ? t_min : -o_n1/d_n1 ; 
+        float side1 = ray_origin.x*cosPhi1 + ray_origin.y*sinPhi1 + ( ray_direction.x*cosPhi1 + ray_direction.y*sinPhi1 )*t1 ;  
+        if(side1 < 0.f) t1 = t_min ;    <span class="r">// Disqualify intersect with other half plane </span>
+
+        float t_near = fminf(t0,t1);  // order the intersects 
+        float t_far  = fmaxf(t0,t1);
+        float t_cand = t_near > t_min  ?  t_near : ( t_far > t_min ? t_far : t_min ) ;  
+        bool valid_intersect = t_cand > t_min ;
+        if( valid_intersect ) 
+        {    
+            isect.x = t_cand == t1 ? -sinPhi1 :  sinPhi0 ; 
+            isect.y = t_cand == t1 ?  cosPhi1 : -cosPhi0 ;  
+            isect.z = 0.f ; 
+            isect.w = t_cand ; 
+        }    
+        return valid_intersect ; 
+    }
+    </pre>
+
+
+
+:i:`CSGNodeScanTest_iphi_figs_scanplot.png`
+----------------------------------------------
+
+
+.. raw:: html
+
+   <p style="margin-bottom:12cm;" />
+
+
+.. class:: small
+
+   ``opticks/CSG/tests/CSGNodeScanTest.{cc,py,sh}``
+
+    ``* CPU test of GPU ray trace code``
+
+    ``* isect : intersect normal + distance``
+
+
+

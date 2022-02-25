@@ -2072,7 +2072,7 @@ bgfx-(){      . $(env-home)/graphics/bgfx/bgfx.bash && bgfx-env $* ; }
 dileng-(){      . $(env-home)/graphics/dileng/dileng.bash && dileng-env $* ; }
 mayavi-(){      . $(env-home)/graphics/mayavi/mayavi.bash && mayavi-env $* ; }
 condaforge-(){      . $(env-home)/python/condaforge.bash && condaforge-env $* ; }
-pyvista-(){      . $(env-home)/graphics/pyvista/pyvista.bash && pyvista-env $* ; }
+pyvista-(){      . $(env-home)/graphics/pyvista_/pyvista.bash && pyvista-env $* ; }
 radeonrays-(){      . $(env-home)/graphics/amd/radeonrays.bash && radeonrays-env $* ; }
 vulkanrt-(){      . $(env-home)/graphics/vulkan/vulkanrt.bash && vulkanrt-env $* ; }
 intelrt-(){      . $(env-home)/graphics/intel/intelrt.bash && intelrt-env $* ; }
@@ -2101,3 +2101,9 @@ podio-(){      . $(env-home)/proj/key4hep/podio.bash && podio-env $* ; }
 sio-(){      . $(env-home)/proj/key4hep/sio.bash && sio-env $* ; }
 acts-(){      . $(env-home)/proj/key4hep/acts.bash && acts-env $* ; }
 zike-(){      . $(env-home)/proj/zike.bash && zike-env $* ; }
+liyu-(){      . $(env-home)/proj/liyu.bash && liyu-env $* ; }
+rs-(){        . $(env-home)/proj/Rich_Simplified/rs.bash && rs-env $* ; }
+
+
+
+

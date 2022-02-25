@@ -4,14 +4,38 @@
 #include <iostream>
 
 
+/**
+https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglChooseConfig.xhtml
+
+EGL_SURFACE_TYPE
+
+Must be followed by a bitmask indicating which EGL surface types and
+capabilities the frame buffer configuration must support. 
+Mask bits include::
+
+    EGL_PBUFFER_BIT
+    Config supports creating pixel buffer surfaces.
+
+    ...
+
+    EGL_WINDOW_BIT
+    Config supports creating window surfaces.
+
+For example, if the bitmask is set to EGL_WINDOW_BIT | EGL_PIXMAP_BIT, only
+frame buffer configurations that support both windows and pixmaps will be
+considered. The default value is EGL_WINDOW_BIT.
+
+**/
+
+
 static const EGLint configAttribs[] = {
-    EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+    EGL_SURFACE_TYPE,  EGL_PBUFFER_BIT,
     EGL_BLUE_SIZE, 8,
     EGL_GREEN_SIZE, 8,
     EGL_RED_SIZE, 8,
     EGL_DEPTH_SIZE, 8,
     EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-          EGL_NONE
+    EGL_NONE
 };    
 
 static const int pbufferWidth = 300;
@@ -54,6 +78,7 @@ void saveppm(const char* filename, int width, int height, unsigned char* image) 
 static void err_check(const char* msg)
 {
     EGLint er = eglGetError() ;
+    if( er != EGL_SUCCESS )
     std::cout << msg    
               << " err 0x" << std::hex << er << std::dec << std::endl ;          
 }
@@ -65,8 +90,13 @@ static void dump(const char* msg, int val)
 }
 
 
+/**
+https://developer.nvidia.com/blog/egl-eye-opengl-visualization-without-x-server/
 
-int main(int argc, char *argv[])
+
+**/
+
+int main(int argc, char** argv)
 {
     // 1. Initialize EGL
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -82,6 +112,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "failed to eglGetDisplay\n");
         return false;
     }
+
+    printf(" EGL_BAD_DISPLAY %d \n", EGL_BAD_DISPLAY  ); 
+
 
     EGLint major, minor;
 

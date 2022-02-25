@@ -17,6 +17,13 @@ Thinking about putting trees into arrays again.
 * https://hbfs.wordpress.com/2009/04/07/compact-tree-storage/
 
 
+tree traversal preorder/inorder/postorder/levelorder recursive and iteractive algorithms, tick trick
+-------------------------------------------------------------------------------------------------------
+
+* http://faculty.cs.niu.edu/~mcmahon/CS241/Notes/Data_Structures/binary_tree_traversals.html
+* ~/opticks_refs/Binary_Tree_Traversals.webarchive
+
+
 env-;pmt-;pmt-ecd  Tree.convert
 ----------------------------------
 

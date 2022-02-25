@@ -1,0 +1,573 @@
+.. meta::
+   :note: Navigate the HTML slides by entering a page number and pressing return 
+   :title: Opticks Autum 
+   :description: (Nov 2021) JUNO PMT Modelling, G4IntersectionSolid makes PMT tree too deep, ZSolid fix actually cutting tree, j/PMTSim, X4IntersectTest, GeoChain
+   :url: https://simoncblyth.bitbucket.io/env/presentation/opticks_autumn_20211019.html  
+   :date: 17 Nov 2021
+
+.. include:: my_s5defs.txt
+
+
+.. comment
+
+
+
+================================================================
+Opticks : JUNO PMT Modelling Issue
+================================================================
+
+..
+
+    * Hamamatsu PMT Solid breaking Opticks
+
+      * CSG tree height 8 : TOO DEEP
+      * :r:`PROFLIGATE : G4ItersectionSolid Z-Cut`
+      * :b:`SOLUTION : ZSolid::ApplyZCutTree : Actually Cut the CSG Tree`      
+
+    * Tools for development of solution :b:`ZSolid::ApplyZCutTree`
+
+      * PMTSim::GetSolid PMTSim::GetPV
+      * X4IntersectTest 
+      * :b:`ZSolid::ApplyZCutTree` algorithm 
+
+    * new Opticks pkg : GeoChain  
+     
+      * single executables handle full chain of geometry conversions 
+
+
+.. class:: small
+
+   |  Simon C Blyth, 2021/11/17 
+
+
+.. s5_talk:: 
+
+    These notes are about fixing some issues with G4Cerenkov
+
+
+
+:small:`Hamamatsu PMT Solid breaking Opticks : CSG tree height 8 : TOO DEEP`
+-----------------------------------------------------------------------------------------------
+    
+.. raw:: html
+
+    <pre class="mypre11">
+    ZSolid::Draw [-1] nameprefix _body_solid_  NODE:19 PRIM:10 UNDEFINED:19 EXCLUDE:0 INCLUDE:0 MIXED:0 Order:IN                            Int
+                                                                                                                                            U                       
+                                                                                                                                            17                      
+                                                                                                                                                                    
+                                                                                                                            Uni                     Pol             
+                                                                                                                            U                       U               
+                                                                                                                            15                      18              
+                                                                                                                                                                    
+                                                                                                            Uni                     Pol                             
+                                                                                                            U                       U                               
+                                                                                                            13                      16                              
+                                                                                                                                                                    
+                                                                                            Uni                     Pol                                             
+                                                                                            U                       U                                               
+                                                                                            11                      14                                              
+                                                                                                                                                                    
+                                                                            Uni                     Ell                                                             
+                                                                            U                       U                                                               
+                                                                            9                       12                                                              
+                                                                                                                                                                    
+                                            Uni                                     Pol                                                                             
+                                            U                                       U                                                                               
+                                            5                                       10                                                                              
+                                                                                                                                                                    
+                            Uni                             Sub                                                                                                     
+                            U                               U                                                                                                       
+                            3                               7                                                                                                       
+                                                                                                                                                                    
+            Uni                     Ell             Pol             Tor                                                                                             
+            U                       U               U               U                                                                                               
+            1                       4               6               8                                                                                               
+                                                                                                                                                                    
+    Ell             Pol                                                                                                                                             
+    U               U                                                                                                                                               
+    0               2                                                                                                                                               
+                                                                                                                                                                    
+    0.0             -2.5            -5.0            -179.2          -210.0          -242.5          -275.0          -385.0          -420.0          3.4     zdelta  
+                                                                                                                                                                    
+    190.0           0.0             -5.0            -148.4          -130.0          -210.0          -275.0          -350.0          -420.0          190.0   az1     
+    0.0             -5.0            -195.0          -210.0          -290.0          -275.0          -365.0          -420.0          -450.0          -183.2  az0     
+
+    I       1_2     II      1_3     III     1_4     IV_tub  IV      IV_tor  1_5     V       1_6     VI      1_8     VIII    1_9     IX      cut     intubs          
+    </pre>
+
+.. class:: small
+
+    * ZSolid::Draw Uni:Union Ell:Ellipsoid Pol:Polycone Tor:Torus Int:Intersection Sub:Subtraction
+    * 19 Nodes, 10 prims, depth 8 :r:`Use of G4IntersectionSolid to make z-cut prevents tree balancing` 
+
+
+
+
+:small:`Hamamatsu PMT Solid : PROFLIGATE G4ItersectionSolid Z-Cut`
+-----------------------------------------------------------------------------------------------
+    
+.. class:: small
+
+   **Using G4IntersectionSolid to apply Z-cut to PMT** 
+
+   * very convenient cut solid definition
+   * BUT :r:`EXCEEDINGLY EXPENSIVE (PROFLIGATE)` : and it breaks Opticks geometry 
+   * every single intersect must traverse CSG tree checking intersects with multiple cutaway constituent primitives
+   * :b:`-> pay the price of convenient solid definition easily millions of times per event`
+
+.. raw:: html
+
+     <pre class="mypretiny">
+
+     485     // Reduce the size when real surface is enabled.
+     486     // Tao Lin, 09 Aug 2021
+     487     if (m_useRealSurface ) {
+     ...
+     546         const double body_height = m_pmt_h;
+     547         const double body_half_height = body_height / 2;
+     548         const G4ThreeVector cut_body_displacement(0., 0., m_z_equator-pmt_half_height);
+     549         G4VSolid* cut_body_solid = new G4Tubs( GetName() + "_body_solid_intubs",
+     550                                               0.,
+     551                                               helper_sep_tube_r+1E-9*mm,
+     552                                               body_half_height,
+     553                                               0., 360.*degree);
+     554         body_solid = new G4IntersectionSolid( GetName() + "_body_solid_cut",
+     555                                                 body_solid,
+     556                                                 cut_body_solid,
+     557                                                 NULL,
+     558                                                 cut_body_displacement);
+     </pre>
+
+.. class:: small
+
+    **SOLUTION** :r:`ACTUALLY CUT THE CSG TREE` using https://github.com/simoncblyth/j/blob/main/PMTSim/ZSolid.hh
+
+::
+
+    G4VSolid* ZSolid::ApplyZCutTree( const G4VSolid* original, double zcut)
+
+
+
+:small:`j/PMTSim : Standalone Provider of JUNO PMT Solids and Volumes`
+------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    * https://github.com/simoncblyth/j/tree/main/PMTSim
+    * Extracted just the offline code needed to create materials, Hamamatsu PMT solids+volumes 
+
+
+::
+
+    G4VSolid* body_solid = PMTSim::GetSolid("body_solid");
+    G4VSolid* inner1_solid = PMTSim::GetSolid("inner1_solid");
+
+    G4VPhysicalVolume* body_phys = PMTSim::GetPV("body_phys");
+
+   
+.. class:: small
+
+    * convenient standalone access to solids and volumes
+    * easy to change modelling and check results  
+
+
+.. comment
+
+    .. raw:: html
+
+        <pre class="mypretiny">
+        </pre>
+
+
+:small:`X4IntersectSolidTest : Geant4 2D cross-sections of single G4VSolid`
+---------------------------------------------------------------------------------------------- 
+
+.. class:: small
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/extg4/xxs.sh
+    * https://bitbucket.org/simoncblyth/opticks/src/master/extg4/tests/X4IntersectSolidTest.cc
+    * https://bitbucket.org/simoncblyth/opticks/src/master/extg4/tests/X4IntersectSolidTest.py
+
+    1. get G4VSolid from j/PMTSim with :b:`PMTSim::GetSolid`
+    2. SEvent::GenerateCenterExtentGenstepsPhotons creates grid of 2D planar "rays"  
+    3. X4Intersect::scan uses X4Intersect::Distance and collects intersect positions into NP array
+    4. X4IntersectSolidTest.py presents the intersect positions with scatter plots      
+
+::
+
+    G4double X4Intersect::Distance(const G4VSolid* solid, 
+              const G4ThreeVector& pos, const G4ThreeVector& dir)
+    {
+        EInside in =  solid->Inside(pos) ; G4double t = kInfinity ;
+        switch( in ) {
+            case kInside:  t = solid->DistanceToOut( pos, dir ) ; break ;
+            case kSurface: t = solid->DistanceToOut( pos, dir ) ; break ;
+            case kOutside: t = solid->DistanceToIn(  pos, dir ) ; break ; }
+        return t ;
+    }
+
+
+
+:r:`body_solid` 
+-----------------
+
+* ``default G4Tubs-G4Torus neck has spurious G4 intersects``
+
+:r:`body_solid_nurs` 
+----------------------
+
+* ``still spurious neck intersects after G4IntersectionSolid cut``
+
+:r:`body_solid_nurs_pcnk` 
+--------------------------
+
+* ``G4Polycone neck avoids the spurious intersects``
+
+
+:r:`body_solid_pcnk` 
+----------------------
+
+
+
+:small:`j/PMTSim : ZSolid::ApplyZCutTree`
+---------------------------------------------
+
+::
+ 
+    G4VSolid* ZSolid::ApplyZCutTree(const G4VSolid* orig, double zcut) 
+
+
+.. sidebar:: :small:`ZSolid::SetRight`
+
+   .. class:: small 
+
+     *G4BooleanSolid* has no *SetRight* *SetLeft* 
+        so *placement new* replace at same address
+
+     * :r:`trick to re-use ctor with different args`
+
+   .. raw:: html
+
+      <pre class="mypretiny">
+      G4BooleanSolid* src = dynamic_cast&lt;G4BooleanSolid*&gt;(node) ; 
+      G4String name = src->GetName() ; 
+      G4VSolid* left = src->GetConstituentSolid(0) ; 
+
+      G4SolidStore::GetInstance()->DeRegister(src);
+
+      src1 = new (src) G4UnionSolid(name, left, new_right)
+      assert( src1 == src );  
+      </pre>
+
+
+   .. class:: small 
+
+      Similar trick used to cut G4Polycone *ZSolid::ApplyZCut_G4Polycone*
+
+
+
+.. class:: small
+
+  https://github.com/simoncblyth/j/blob/main/PMTSim/ZSolid.hh 
+
+  **Applying Z-cut to G4VSolid CSG Tree** 
+
+  1. classify tree nodes INCLUDE/EXCLUDE against Z-cut
+  2. identify "crux" nodes dividing INCLUDE/EXCLUDE subtrees
+  3. prune at crux nodes by tree surgery reconnections
+  4. repeat until all tree nodes are INCLUDE 
+ 
+  **Pruning and Reconnection** 
+
+  * pruning at non-root "crux" node  
+
+    * identify surviving child
+    * change crux parent Left/Right to the survivor
+
+  * pruning at root "crux" node
+
+    * identify surviving child
+    * change root to the survivor
+
+
+
+
+
+
+
+:small:`ZSolid::ApplyZCutTree classify tree nodes against Z-cut`
+---------------------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypre12">
+    ZSolid::apply_cut before prune [ 0] nameprefix maker_body_solid_zcut-183.2246_  NODE:15 PRIM:8 UNDEFINED:0 EXCLUDE:4 INCLUDE:7 MIXED:4 Order:IN
+                                                                                                            Uni                     
+                 I : include                                                                                IE                      
+                                                                                                            13                      
+                 E : exclude                                                                                                        
+                                                                                            Uni                     Pol             
+                 IE: mixed include/exclude                                                  IE                      E               
+                                                                                            11                      14              
+                 X : "crux" node                                                                                                  
+                                                                            Uni                     Pol                             
+                 S : survivor node                                          IE                      E                               
+                                                                            9                       12                              
+                                                                                                                                    
+                                                            Uni                     Ell                                             
+                                                            IE                      E                                               
+                                                            7                       10                                              
+                                                            X                                                                       
+                                            Uni                     Pol                                                             
+                                            I                       E                                                               
+                                            5                       8                                                               
+                                            S                                                                                       
+                            Uni                     Pol                                                                             
+                            I                       I                                                                               
+                            3                       6                                                                               
+                                                                                                                                    
+            Uni                     Ell                                                                                             
+            I                       I                                                                                               
+            1                       4                                                                                               
+                                                                                                                                    
+    Ell             Pol                                                                                                             
+    I               I                                                                                                               
+    0               2                                                                                                               
+                                                                                                                                    
+    0.0             -2.5            -5.0            -179.2          -242.5          -275.0          -385.0          -420.0  zdelta  
+                                                                                                                                    
+    190.0           0.0             -5.0            -162.0          -210.0          -275.0          -350.0          -420.0  az1     
+    0.0             -5.0            -183.2          -183.2          -275.0          -365.0          -420.0          -450.0  az0    
+ 
+    I       1_2     II      1_3     III     1_4     IV      1_5     V       1_6     VI      1_8     VIII    1_9     IX              
+    </pre>
+
+
+
+
+
+:small:`ZSolid::ApplyZCutTree : (2) prune + reconnect tree`
+----------------------------------------------------------------------------------
+
+.. raw:: html
+
+    <pre class="mypre12">
+    tree::apply_cut after prune and re-classify [ 3] nameprefix maker_body_solid_zcut-183.2246_  NODE:7 PRIM:4 UNDEFINED:0 EXCLUDE:0 INCLUDE:7 MIXED:0 Order:IN
+
+                                            Uni                     
+                                            I                       
+                                            5                       
+                                            S                       
+                                                                    
+                            Uni                     Pol             
+                            I                       I               
+                            3                       6               
+                                                                    
+                                                                    
+            Uni                     Ell                             
+            I                       I                               
+            1                       4                               
+                                                                    
+                                                                    
+    Ell             Pol                                             
+    I               I                                               
+    0               2                                               
+                                                                    
+                                                                    
+    0.0             -2.5            -5.0            -179.2  zdelta  
+                                                                    
+    190.0           0.0             -5.0            -162.0  az1     
+    0.0             -5.0            -183.2          -183.2  az0     
+    I       1_2     II      1_3     III     1_4     IV              
+    </pre>
+
+
+.. class:: small
+
+   * :r:`MAJOR SIMPLIFICATION`  tree cut from (node:15, prim:8, height:7) -> (node:7, prim:4, height:3)
+   * "cutting" with **G4IntersectionSolid** increases tree to (node:17, prim:9, height:8 )
+
+
+
+
+:red:`maker_body_solid_zcut-500.0` 
+----------------------------------
+
+:red:`maker_body_solid_zcut-400.0`
+----------------------------------
+
+:red:`maker_body_solid_zcut-350.0`
+----------------------------------
+
+:red:`maker_body_solid_zcut-300.0`
+----------------------------------
+
+:red:`maker_body_solid_zcut-200.0`
+----------------------------------
+
+:red:`maker_body_solid_zcut-183.25`
+------------------------------------
+
+:red:`maker_body_solid_zcut-100.0`
+------------------------------------
+
+:red:`maker_body_solid_zcut-0.0`
+----------------------------------
+
+:red:`maker_body_solid_zcutp100.0`
+------------------------------------
+
+
+
+
+
+
+:small:`X4IntersectVolumeTest : Geant4 2D cross-sections of G4VPhysicalVolume`
+---------------------------------------------------------------------------------------------- 
+
+.. class:: small
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/extg4/xxv.sh
+    * https://bitbucket.org/simoncblyth/opticks/src/master/extg4/tests/X4IntersectVolumeTest.cc
+    * https://bitbucket.org/simoncblyth/opticks/src/master/extg4/tests/X4IntersectVolumeTest.py
+
+    *G4VPhysicalVolume* has no convenient "Distance" methods ... so scan solids 
+    individually and present together after applying structure transforms. 
+
+    1. get *G4VPhysicalVolume* from *j/PMTSim* with :b:`PMTSim::GetPV`
+    2. collect and save structure transforms *PMTSim::SaveTransforms* for each solid
+    3. *X4Intersect::Scan* each solid and persist in NP arrays
+    4. present together using *X4IntersectVolumeTest.py* 
+  
+    * :r:`Gives rapid 2D cross-sections of G4PhysicalVolume` (very little Opticks code used)
+
+    Usage of *xxv.sh* script which runs executable and ipython::
+
+     cd ~/opticks/extg4
+     ./xxv.sh 
+     GEOM=body_phys ./xxv.sh 
+
+
+
+:r:`body_phys_nurs`
+---------------------
+
+* ``spurious Geant4 intersects from G4Tubs-G4Torus neck`` 
+
+:r:`body_phys`
+-----------------
+
+* ``spurious Geant4 intersects from G4Tubs-G4Torus neck`` 
+
+:r:`body_phys_nurs_pcnk`
+--------------------------
+
+* ``G4Polycone neck : simpler, faster, no-spurious intersects`` 
+
+:r:`body_phys_nurs_pcnk_pdyn`
+------------------------------
+
+* ``with dynode geometry included and G4Polycone neck``
+    
+:r:`body_phys_nurs_pdyn`
+-------------------------
+
+* ``with dynode geometry and default G4Tubs-G4Torus neck``
+
+:r:`body_phys_pdyn`
+---------------------
+
+* ``with dynode geometry and default G4Tubs-G4Torus neck``
+
+:r:`body_phys_pdyn_pcnk`
+-------------------------
+
+
+
+:small:`GeoChainSolidTest : single solid full chain of geometry conversions`
+------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    :b:`opticks/GeoChain` 
+        new package for fast iteration geometry debugging by doing all geometry conversions in single executables
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/GeoChain/tests/GeoChainSolidTest.cc
+
+    The solid to create is controlled by the name string obtained from envvar *GEOM* 
+
+    1. creates G4VSolid directly or from j/PMTSim
+    2. invokes GeoChain::convert
+
+       * (x4) X4PhysicalVolume::ConvertSolid : G4VSolid -> nnode -> GMesh/GPts
+
+         * X4Solid::Convert converts G4VSolid into npy/nnode tree
+         * NTreeProcess<nnode>::Process balances the nnode tree when that is configured
+         * NCSG::Adopt wrap nnode tree enabling it to travel 
+         * X4Mesh::Convert converts G4VSolid into GMesh which has above created NCSG associated 
+
+       * (this) using placeholder GVolume the GMesh is added to a test GGeo
+       * (cg) CSG_GGeo_Convert GGeo -> CSGFoundry  
+
+    3. saves geometry to $TMP/GeoChain/$GEOM/CSGFoundry/  (OptiX 7 compatible)
+
+    Subsequently can render this geometry, eg with CSGOptiX/cxs.sh using 
+    just the path to the CSGFoundry directory. 
+
+
+
+
+
+:small:`GeoChainVolumeTest : volume full chain of geometry conversions`
+------------------------------------------------------------------------------------------
+
+.. class:: small
+
+    * volume could be single PMT or full geometry 
+    * https://bitbucket.org/simoncblyth/opticks/src/master/GeoChain/tests/GeoChainVolumeTest.cc
+    * using existing opticks/extg4/X4PhysicalVolume functionality 
+
+
+
+:small:`WIP : Integrating ZSolid with j/PMTSim and then offline/PMTSim`
+---------------------------------------------------------------------------
+
+.. class:: small
+
+   * tidy up ZSolid and j/PMTSim
+
+   * integrate ZSolid into j/PMTSim in a manner appropriate for use from actual offline/PMTSim
+     (much faster to test in j/PMTSim so keep development there until close to finalization)
+
+   DONE
+
+   * returned Hamamatsu_R12860_PMTSolid to minimally changed state
+   * add NNVT PMT to j/PMTSim 
+   * move to STANDALONE being used just for making the class usable in standalone fashion
+   * review diffs between PMT classes in j and offline 
+   * added jdiff for getting diff commands
+   * remove the tubs minus torus by making polycone neck non-optional
+   * stagger the zcut for the layers of PMT volume (via "thickness" offset) to avoid ambiguous edge
+   * renamed IGeomStandalone.h to IGeomManager.h as the simple protocol base could be useful beyond just STANDALONE testing
+   * removed polycone neck control as now standard
+   * DECIDED : j/PMTSim class is just for testing, but should it be in offline anyhow ? Hmm uses NP, so NO for now.
+   * DECIDED : OK for Opticks API export stuff needed for om-compilation to be hidden behind STANDALONE within offline code
+   * DECIDED : useful functionality should not be hidden behind STANDALONE  
+
+   TODO
+
+   * check compilation of updated PMT geometry code + ZSolid etc  within offline/PMTSim environment 
+   * check Opticks operation with the simplified PMT CSG 
+   * what/where to switch to new PMT geometry, how much backward test support
+  
+     * jgr HamamatsuR12860PMTManager 
+
+     * suggests trying to switch between Old and New versions of a manager would be difficult 
+       because the name string is hardcoded all over the place : so that means that if want to 
+       support switching between old and new geometry approaches, then need to do it within the manager  
+      
+
+
+
+

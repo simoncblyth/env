@@ -21,6 +21,46 @@ FUNCTIONS
 presentation-index
     open local index.html in browser 
 
+
+Debug no show image : turns out to be due to case sensitivity
+-------------------------------------------------------------------
+
+Get URL from safari console as a failed to load resource
+
+* https://simoncblyth.bitbucket.io/env/presentation/CSG/tests/CSGTargetGlobalTest/solidXJfixture:64_radii.png
+* /env/presentation/CSG/tests/CSGTargetGlobalTest/solidXJfixture:64_radii.png
+
+Try renaming::
+
+    epsilon:CSGTargetGlobalTest blyth$ git mv solidXJfixture:64_radii.png solidXJfixture64radii.png
+    epsilon:CSGTargetGlobalTest blyth$ git s
+    On branch master
+    Your branch is up-to-date with 'origin/master'.
+
+    Changes to be committed:
+      (use "git reset HEAD <file>..." to unstage)
+
+        renamed:    solidXJfixture:64_radii.png -> solidXJfixture64radii.png
+
+    epsilon:CSGTargetGlobalTest blyth$ 
+
+
+Looking at the repository source reveals the reason for noshow. 
+It is because of a clash between "CSG" and "csg" directories. 
+
+https://bitbucket.org/simoncblyth/simoncblyth.bitbucket.io/src/master/env/presentation/csg/tests/CSGTargetGlobalTest/solidXJfixture64radii.png
+
+epsilon:presentation blyth$ mkdir CSGTargetGlobalTest
+epsilon:presentation blyth$ git mv CSG/tests/CSGTargetGlobalTest/solidXJfixture64radii.png CSGTargetGlobalTest/
+fatal: not under version control, source=env/presentation/CSG/tests/CSGTargetGlobalTest/solidXJfixture64radii.png, destination=env/presentation/CSGTargetGlobalTest/solidXJfixture64radii.png
+epsilon:presentation blyth$ 
+epsilon:presentation blyth$ 
+epsilon:presentation blyth$ git mv csg/tests/CSGTargetGlobalTest/solidXJfixture64radii.png CSGTargetGlobalTest/
+
+
+
+
+
 PP warning
 ------------
 
@@ -450,6 +490,9 @@ Usage Steps
 6. press the "Apply" button at bottom right
 7. use "File > Save As" to save the result to a different name
    (eg nacent convention of mine is to append an undercore before ".pdf")
+
+   * actually trailing underscores has special RST meaning hence it is 
+     better to just be explicit and add suffix "_compressed.pdf"
 
 Compare sizes::
 
@@ -1214,10 +1257,34 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210518} ; }
 
 
-presentation-iname(){  echo ${INAME:-juno_opticks_20210712} ; }
+#presentation-iname(){  echo ${INAME:-juno_opticks_20210712} ; }
+#presentation-iname(){   echo ${INAME:-lz_opticks_optix7_20210727} ; }
+
+#presentation-iname(){  echo ${INAME:-juno_opticks_cerenkov_20210902} ; }
+#presentation-iname(){  echo ${INAME:-opticks_autumn_20211019} ; }
+#presentation-iname(){  echo ${INAME:-opticks_20211117} ; }
 
 
+#presentation-iname(){  echo ${INAME:-opticks_20211223_pre_xmas} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong_TALK} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting} ; }
+#presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting_TALK} ; }
+presentation-iname(){  echo ${INAME:-opticks_2022XXXX_geometry_issues} ; }
 
+collab-e(){
+
+    presentation-cd
+    vi \
+$(presentation-iname).txt \
+s5_background_image.txt \
+juno_opticks_cerenkov_20210902.txt \
+opticks_autumn_20211019.txt \
+opticks_20211117.txt \
+opticks_20211223_pre_xmas.txt  \
+opticks_20220115_innovation_in_hep_workshop_hongkong.txt
+
+}
 
 
 presentation-preprocessor-args-full(){ printf "%s\n" -DFULL ; } 
@@ -1340,8 +1407,8 @@ presentation-openc(){
 }
 
 presentation-remote(){       echo simoncblyth.bitbucket.io ; }
-presentation-remote-url(){   echo http://$(presentation-remote)/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
-presentation-remote-open(){  open $(presentation-remote-url $*) ; }
+presentation-url-remote(){   echo http://$(presentation-remote)/env/presentation/$(presentation-oname).html?page=${1:-0} ; }
+presentation-remote-open(){  open $(presentation-url-remote $*) ; }
 
 presentation--(){
    presentation-
@@ -1392,8 +1459,22 @@ presentation-rst2talk(){
 
    case $(presentation-iname) in
       *_TALK) echo $msg nothing to do ;; 
-           *) echo $msg rst2rst.py $path && rst2rst.py $path ;; 
+           *) presentation-rst2talk- $path ;;
    esac    
 
 }
+
+presentation-rst2talk-(){
+   local msg="=== $FUNCNAME :"
+   local path=$1
+   local cmd="${PYTHON:-python} $(which rst2rst.py) $path" 
+   echo $msg cmd $cmd
+   eval $cmd
+}
+
+
+
+
+
+
 

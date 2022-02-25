@@ -341,14 +341,53 @@ osx_mac_address()
 osx_ss_copy(){
    local name=$1
    cp "$(osx_ss)" $name.png
-   downsize.py $name.png
+
+   ipython $(which downsize.py) $name.png
 }
 
 osx_ss_copy_invert(){
    local name=$1
    cp "$(osx_ss)" $name.png
-   downsize_invert.py $name.png
+   ipython $(which downsize_invert.py) $name.png
 }
+
+
+osx_set_terminal_background_color_notes(){ cat << EON
+
+https://superuser.com/questions/1188772/mac-command-to-change-the-background-color-in-a-terminal
+
+EON
+}
+
+osx_set_terminal_background_color()
+{ 
+   local script=/tmp/$USER/$FUNCNAME.applescript
+   mkdir -p $(dirname $script) 
+
+   local r=$1
+   local g=$2
+   local b=$3
+   local w=${4:-1}
+
+   local msg="=== $FUNCNAME : "
+   echo $msg w $w r $r g $g b $b
+
+cat << EOS > $script
+tell application "Terminal"
+   set background color of window $w to {$r, $g, $b}
+end tell
+EOS
+
+   cat $script 
+   osascript $script
+}
+
+osx_pink(){   osx_set_terminal_background_color 65535 33667 49601 $1 ; }
+osx_white(){  osx_set_terminal_background_color 65535 65535 65535 $1 ; }
+osx_grey(){   osx_set_terminal_background_color 30000 30000 30000 $1 ; }
+
+
+
 
 
 osx_pdf_combo_notes(){ cat << EON

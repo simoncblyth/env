@@ -1515,3 +1515,18 @@ git-month(){
    eval $cmd
 }
 
+
+git-export()
+{
+    local outdir=$1
+    local msg="=== $FUNCNAME :"   
+    local name=$(basename $PWD)
+
+    local tmpdir=/tmp/$USER/git-export
+    mkdir -p $tmpdir
+    echo $msg name $name into $tmpdir/$name
+
+    git archive --format=tar --prefix=$name/ HEAD | (cd $tmpdir && tar xf -)
+}
+
+

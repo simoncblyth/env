@@ -3,10 +3,12 @@
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: Opticks GPU Optical Simulation with NVIDIA OptiX - Development Experience : Problems and Successes
    :description: Problems, Successes
-   :event: HSF Simulation Working Group Meeting, CERN Virtual 
+   :event: HSF Simulation Working Group Meeting, CERN Virtual https://indico.cern.ch/event/921244/
    :date: 27 May 2020
    :length: 20 minutes
 
+   :proof: /env/presentation/photos/hsf_may_27_2020_indico_event_921244_half.png
+   :indico: https://indico.cern.ch/event/921244/
 
 .. include:: my_s5defs.txt
 

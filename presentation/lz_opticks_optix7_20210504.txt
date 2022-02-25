@@ -2,7 +2,7 @@
 .. meta::
    :note: Navigate the HTML slides by entering a page number and pressing return 
    :title: LZ NVIDIA NERSC Discussion
-   :description: (May 2021)
+   :description: (May 2021) OptiXTest -> CSG+CSGOptiX+CSGOptiXGGeo,  Six : duplicate 7 environment in pre-7
    :url: https://simoncblyth.bitbucket.io/env/presentation/lz_opticks_optix7_20210406.html  
    :date: 4 May 2021
 

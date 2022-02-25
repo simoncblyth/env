@@ -11,6 +11,21 @@ Matplotlib Notes
 See also matplotlib- ipython-
 
 
+Interactive Navigation
+-------------------------
+
+* https://matplotlib.org/3.2.2/users/navigation_toolbar.html
+
+On mac laptop with click drag enabled, 
+
+Pan
+   click the Pan/Zoom button : tap and slide to pan
+
+Zoom
+   click the Pan/Zoom buttom : hold ctrl 
+   and click drag left/right to zoom in/out 
+
+
 Refs
 -----
 
