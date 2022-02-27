@@ -1634,6 +1634,30 @@
     AltXJfixtureConstruction_XY_sorted_enter_fix.png
     /env/presentation/CSG/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_sorted_enter_fix.png 1280px_720px
 
+    cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox.jpg
+    /env/presentation/cvd1/70000/RichTbR1MagShBox/cam_0_t0/cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox.jpg 1280px_720px
+
+    cxr_view___eye_0,1,0__zoom_1__tmin_0.5_RichTbR1MagShBox.jpg
+    /env/presentation/cvd1/70000/RichTbR1MagShBox/cam_0_t0/cxr_view___eye_0,1,0__zoom_1__tmin_0.5_RichTbR1MagShBox.jpg 1280px_720px
+
+    cxr_view___eye_0,-1,0__zoom_1__tmin_0.5_RichTbR1MagShBox_backview.jpg
+    /env/presentation/cvd1/70000/RichTbR1MagShBox/cam_0_t0/cxr_view___eye_0,-1,0__zoom_1__tmin_0.5_RichTbR1MagShBox_backview.jpg 1280px_720px
+   
+    cxr_view___eye_0,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox_two_mirr_and_box.jpg
+    /env/presentation/cvd1/70000/RichTbR1MagShBox/cam_0_t0/cxr_view___eye_0,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox_two_mirr_and_box.jpg 1280px_720px
+
+    cxr_view___eye_1,0,0__zoom_1__tmin_0.4_RichTbR1MagShBox_sideview_of_detelem.jpg 
+    /env/presentation/cvd1/70000/RichTbR1MagShBox/cam_0_t0/cxr_view___eye_1,0,0__zoom_1__tmin_0.4_RichTbR1MagShBox_sideview_of_detelem.jpg 1280px_720px
+
+    cxr_view___eye_1,0,0__look_0,0.1,0.1__zoom_10__tmin_0.96_WorldBox_side_mirr_and_box.jpg
+    /env/presentation/cvd1/70000/WorldBox/cam_1_t0/cxr_view___eye_1,0,0__look_0,0.1,0.1__zoom_10__tmin_0.96_WorldBox_side_mirr_and_box.jpg 1280px_720px
+
+    cxr_view___eye_10,20,0__zoom_1__tmin_0.4_R1PmtMasterBox_diag_det.jpg
+    /env/presentation/cvd1/70000/R1PmtMasterBox/cam_0_t0/cxr_view___eye_10,20,0__zoom_1__tmin_0.4_R1PmtMasterBox_diag_det.jpg 1280px_720px
+
+    cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox_box_two_mirr.jpg
+    /env/presentation/cvd1/70000/RichTbR1MagShBox/cam_0_t0/cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox_box_two_mirr.jpg 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

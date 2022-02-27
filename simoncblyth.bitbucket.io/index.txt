@@ -124,6 +124,15 @@ Opticks Presentations
 2022
 ~~~~~
 
+
+
+https://simoncblyth.bitbucket.io/env/presentation/opticks_20220227_LHCbRich_UK_GPU_HACKATHON.html
+
+    LHCb RICH + NVIDIA UK GPU HACKATHON 
+
+    January 28, 2022 
+
+
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20220118_juno_collaboration_meeting.html
 
     JUNO+Opticks Photons : Validation and Deployment Plan

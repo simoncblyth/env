@@ -1,0 +1,328 @@
+
+.. meta::
+
+   :title: 
+   :name: opticks_20220227_LHCbRich_UK_GPU_HACKATHON.txt
+   :description: (Feb 2022) 
+   :notes: progress update 
+
+.. include:: my_s5defs.txt
+
+.. include:: s5_background_image.txt
+
+
+:i:`Opticks + LHCbRich_Simplified with NVIDIA OptiX 7` 
+========================================================================================
+
+.. raw:: html
+
+    <p style="margin-bottom:4cm;" />
+    <div class="mytitle">
+    <header>
+    <h1 style="background-color:lightgrey"> 
+        Opticks + LHCbRich_Simplified with NVIDIA OptiX 7
+        <h2 style="background-color:lightgrey;text-align:center"> Open source, https://bitbucket.org/simoncblyth/opticks </h2>
+    </h1>
+    </header>
+    </div>
+
+..
+
+  *Opticks* replaces *Geant4* optical photon simulation with an **equivalent implementation** 
+  that benefits from state-of-the-art GPU ray tracing from NVIDIA OptiX. 
+  All optically relevant aspects of *Geant4* context must be translated+copied to GPU:
+
+  * :b:`geometry : solids, structure, material+surface properties`
+  * generation : Cerenkov + Scintillation (using **Gensteps** from *Geant4*) 
+  * propagation : Rayleigh scattering, absorption, reemission, boundary
+
+  * :r:`transformative performance benefits >1000x Geant4`   
+
+  **Fast Render => Fast Simulation  (same ray tracing bottleneck)**
+
+  * Optimization : vary included geometry, measure render times 
+
+    * look for bottleneck geometries
+
+
+.. raw:: html
+
+    <div class="mycredit">
+    <h2 style="background-color:lightgrey"> Simon C Blyth  &mdash; Feb 27, 2022 </h2>
+    </div>
+
+
+.. s5_talk:: 
+
+    Most recent work has been focussed on fixing geometry issues
+    
+
+
+
+
+Shortlived Fork of 4ed756b9d72df3a615 
+----------------------------------------------
+
+.. class:: small
+
+    * https://gitlab.cern.ch/liyu/opticks/-/tree/master/Rich_Simplified
+    * https://github.com/simoncblyth/Rich_Simplified
+
+    * add mode control via envvar (mode:1 replace G4Sphere thetacut phicut abuse by intersction with SagittaBox) 
+
+      * avoids use of very small angles (float precision problems) 
+
+.. raw:: html
+
+    <pre>
+    &#x23;!/bin/bash  
+
+    &#x23; logging control
+    export X4PhysicalVolume=INFO
+    export GMeshLib=INFO
+
+    &#x23; alt geometry mode 
+    export RichTbLHCbR1SphMirror_mode=1
+    export RichTbLHCbR1FlatMirror_mode=1 
+
+    TimeTest 
+    </pre>
+
+
+Steps for producing OptiX 7 renders
+-----------------------------------------------------
+
+.. class:: small
+
+   0. update opticks
+
+::
+
+   cd ~/opticks
+   git pull 
+   oo        # update builds opticks (not OptiX 7 build)
+
+
+.. class:: small
+
+   1. run *TimeTest* to create Opticks geocache geometry
+
+      * get key from logging : "export OPTICKS_KEY=TimeTest.X4PhysicalVolume.WorldPhys.a7810..."  
+      * copy the export into eg ~/.bashrc 
+
+   2. translate geometry from GGeo (pre 7) into CSGFoundry (OptiX 7) 
+
+::
+
+   cd ~/opticks/CSG_GGeo    # OR "cg" shortcut 
+   ./run.sh    
+
+.. class:: small
+
+   3. now build and run OptiX 7 render scripts
+
+::
+
+    cd ~/opticks/CSGOptiX
+    oo                     # update opticks build 
+    opticks-build7         # OR "b7" shortcut (builds only CSGOptiX)
+
+    ;: will need to set some envvars to find OptiX7 install
+
+
+cxr_view.sh : OptiX 7 Render 
+-----------------------------
+
+.. class:: small
+
+   All following renders use **cxr_view.sh** script and *CSGOptiXRenderTest* binary 
+
+   * ``~/opticks/CSGOptiX/tests/CSGOptiXRenderTest.cc``
+
+   NVIDIA OptiX 7 build and run::
+
+       cd ~/opticks/CSGOptiX         ;:  OR  "cx" shortcut function
+       opticks-build7                ;:  OR "b7" shortcut function     
+       MOI=WorldBox ./cxr_view.sh    ;: creates .jpg and .json files   
+
+   OptiX launch time at bottom left of render image and in sidecar .json 
+
+
+CSGOptiXRenderTest view control envvars
+----------------------------------------
+
+
+.. class:: small
+
+   EYE, LOOK, TMIN are in units of the extent of target geometry  
+
+
+   MOI=WorldBox
+       pick target geometry using G4VSolid name
+
+   EYE=1,0,0
+       eye position 
+
+   LOOK=0,0,0
+       point where the gaze is directed
+
+   UP=0,0,1
+       up vector (+Z default)
+  
+   CAM=0
+       0: perspective (default)
+       1: orthographic
+
+   TMIN=0.5
+       ray tmin : cutaway sphere(plane) in perspective(orthographic) projection 
+
+   ZOOM=4
+       changes field of view 
+
+
+
+`cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox_box_two_mirr.jpg`
+--------------------------------------------------------------------------------
+
+``EYE=1,-2.2,0 MOI=RichTbR1MagShBox   ./cxr_view.sh`` 
+
+
+`cxr_view___eye_0,1,0__zoom_1__tmin_0.5_RichTbR1MagShBox.jpg`
+-------------------------------------------------------------------
+
+``EYE=0,1,0 MOI=RichTbR1MagShBox TMIN=0.5 ./cxr_view.sh`` 
+
+.. raw:: html
+
+   <pre>
+
+
+
+
+
+
+
+
+
+
+
+   </pre>
+
+
+.. class:: small
+
+   ``circular "window" is due to TMIN=0.5 sphere cutting, in perspective projection`` 
+
+
+`cxr_view___eye_0,-1,0__zoom_1__tmin_0.5_RichTbR1MagShBox_backview.jpg`
+------------------------------------------------------------------------
+
+``EYE=0,-1,0 MOI=RichTbR1MagShBox  TMIN=0.5 ./cxr_view.sh``
+
+.. raw:: html
+
+   <pre>
+
+
+
+
+
+
+
+
+
+
+
+
+   </pre>
+
+
+.. class:: small
+
+   ``Vertical black line artifact (appears when view precisely from -Y)`` 
+
+
+
+
+`cxr_view___eye_0,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox_two_mirr_and_box.jpg`
+-----------------------------------------------------------------------------------
+
+``EYE=0,-2.2,0 MOI=RichTbR1MagShBox   ./cxr_view.sh`` 
+
+
+`cxr_view___eye_1,0,0__zoom_1__tmin_0.4_RichTbR1MagShBox_sideview_of_detelem.jpg`
+-----------------------------------------------------------------------------------
+
+``EYE=1,0,0 MOI=RichTbR1MagShBox ./cxr_view.sh`` 
+
+
+.. raw:: html
+
+   <pre>
+
+
+
+
+
+
+
+
+
+
+
+
+   </pre>
+
+
+.. class:: small
+
+   ``TMIN=0.4 default cuts into the boxes`` 
+
+
+
+
+
+
+`cxr_view___eye_1,0,0__look_0,0.1,0.1__zoom_10__tmin_0.96_WorldBox_side_mirr_and_box.jpg`
+------------------------------------------------------------------------------------------
+
+``EYE=1,0,0 LOOK=0,0.1,0.1 MOI=WorldBox CAM=1 ZOOM=10 TMIN=0.96 ./cxr_view.sh``
+
+
+.. raw:: html
+
+   <pre>
+
+
+
+
+
+
+
+
+
+
+
+
+   </pre>
+
+
+.. class:: small
+
+   ``CAM=1 TMIN=0.96 plane cutaway of side of box (plane as CAM=1 orthographic)`` 
+
+
+
+
+
+
+`cxr_view___eye_10,20,0__zoom_1__tmin_0.4_R1PmtMasterBox_diag_det.jpg`
+------------------------------------------------------------------------------------------
+
+``MOI=R1PmtMasterBox EYE=10,20,0 ./cxr_view.sh``
+
+
+ 
+
+
+

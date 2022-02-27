@@ -53,6 +53,10 @@
     Most recent work has been focussed on fixing geometry issues
     
 
+`cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox.jpg`
+-------------------------------------------------------------------
+
+
 
 ``AltXJfixtureConstruction_XY_internal_spurious.png``
 ------------------------------------------------------
