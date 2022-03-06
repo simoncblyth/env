@@ -692,10 +692,10 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 
 
 
-``AltXJfixtureConstruction_XY_internal_spurious.png``
+``AltXJfixtureConstruction_XY_internal_spurious.jpg``
 ------------------------------------------------------
 
-``AltXJfixtureConstruction_XY_sorted_enter_fix.png``
+``AltXJfixtureConstruction_XY_sorted_enter_fix.jpg``
 ------------------------------------------------------
 
 
@@ -909,7 +909,7 @@ LHCb RICH SWIFT-HEP UK GPU Hackathon with NVIDIA Engineers
 
 .. comment
 
-    ``GeneralSphereDEV_XY_phicut_issue.png``
+    ``GeneralSphereDEV_XY_phicut_issue.jpg``
     ------------------------------------------
 
 

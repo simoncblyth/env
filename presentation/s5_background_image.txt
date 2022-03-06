@@ -1629,10 +1629,16 @@
     /env/presentation/CSG/CSGIntersectSolidTest/GeneralSphereDEV_XY/figs/GeneralSphereDEV_XY_phicut_issue.png 1280px_720px
 
     AltXJfixtureConstruction_XY_internal_spurious.png
-    /env/presentation/CSG/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_internal_spurious.png 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_internal_spurious.png 1280px_720px
+
+    AltXJfixtureConstruction_XY_internal_spurious.jpg
+    /env/presentation/csg/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_internal_spurious.jpg 1280px_720px
 
     AltXJfixtureConstruction_XY_sorted_enter_fix.png
-    /env/presentation/CSG/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_sorted_enter_fix.png 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_sorted_enter_fix.png 1280px_720px
+
+    AltXJfixtureConstruction_XY_sorted_enter_fix.jpg
+    /env/presentation/csg/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_sorted_enter_fix.jpg 1280px_720px
 
     cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox.jpg
     /env/presentation/cvd1/70000/RichTbR1MagShBox/cam_0_t0/cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox.jpg 1280px_720px
@@ -1695,40 +1701,40 @@
     /env/presentation/cvd1/70000/sChimneyAcrylic/cam_0_t0/cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneyAcrylic_now_struts.jpg 1280px_720px
 
     XJfixtureConstruction_XY_spurious_internal.png0
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.png 1280px_720px 
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.png 1280px_720px 
 
     XJfixtureConstruction_XY_spurious_internal.jpg0
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.jpg 1280px_720px 
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.jpg 1280px_720px 
 
     XJfixtureConstruction_XY_spurious_internal.png1
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.png 1280px_720px 
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.png 1280px_720px 
 
     XJfixtureConstruction_XY_spurious_internal.jpg1
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.jpg 1280px_720px 
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.jpg 1280px_720px 
 
     XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png0 
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png 1280px_720px
 
     XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg0 
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg 1280px_720px
 
     XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png1 
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png 1280px_720px
 
     XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg1 
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg 1280px_720px
 
     XJfixtureConstruction_YZ_two_types_of_spurious.png0
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.png 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.png 1280px_720px
 
     XJfixtureConstruction_YZ_two_types_of_spurious.jpg0
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.jpg 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.jpg 1280px_720px
 
     XJfixtureConstruction_YZ_two_types_of_spurious.png1
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.png 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.png 1280px_720px
 
     XJfixtureConstruction_YZ_two_types_of_spurious.jpg1
-    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.jpg 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.jpg 1280px_720px
 
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
@@ -1739,7 +1745,11 @@
     ##    so this causes a problem when the title only differs by a comma for example with "t0" vs "t0," 
     ##    NB THE RESTRICTION APPPLIES TO THE SLIDE TITLE IDENTIFIERS NOT THE URLS 
     ##
-
+    ##  IF IMAGES FAIL TO APPEAR CHECK THEM IN BITBUCKET REPO FOLDERS eg
+    ##     https://bitbucket.org/simoncblyth/simoncblyth.bitbucket.io/src/master/env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/ 
+    ## 
+    ##  WILL PROBABLY FIND THAT PART OF THE PATH IS USING THE WRONG CASE
+    ## 
 
 .. comment
     
