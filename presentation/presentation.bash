@@ -1270,8 +1270,8 @@ presentation-txts(){ presentation-cd ; vi $(presentation-ls) ;  }
 #presentation-iname(){ echo ${INAME:-opticks_20220115_innovation_in_hep_workshop_hongkong_TALK} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting} ; }
 #presentation-iname(){ echo ${INAME:-opticks_20220118_juno_collaboration_meeting_TALK} ; }
-#presentation-iname(){  echo ${INAME:-opticks_2022XXXX_geometry_issues} ; }
-presentation-iname(){  echo ${INAME:-opticks_20220227_LHCbRich_UK_GPU_HACKATHON} ; }
+#presentation-iname(){  echo ${INAME:-opticks_20220227_LHCbRich_UK_GPU_HACKATHON} ; }
+presentation-iname(){  echo ${INAME:-opticks_20220307_fixed_global_leaf_placement_issue} ; }
 
 collab-e(){
 

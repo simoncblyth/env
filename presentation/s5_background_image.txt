@@ -1658,6 +1658,78 @@
     cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox_box_two_mirr.jpg
     /env/presentation/cvd1/70000/RichTbR1MagShBox/cam_0_t0/cxr_view___eye_1,-2.2,0__zoom_1__tmin_0.4_RichTbR1MagShBox_box_two_mirr.jpg 1280px_720px
 
+    cxr_overview_emm_t8,_moi_-1_broken_trans_perhaps.jpg
+    /env/presentation/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t8,_moi_-1_broken_trans_perhaps.jpg 1280px_720px
+
+    cxr_view___eye_0,-0.5,0.75,1__zoom_1__tmin_0.5_Hama:0:1000_transforms_look_messed_up.jpg
+    /env/presentation/cvd1/70000/Hama:0:1000/cam_0_t0/cxr_view___eye_0,-0.5,0.75,1__zoom_1__tmin_0.5_Hama:0:1000_transforms_look_messed_up.jpg 1280px_720px
+
+    cxr_overview_emm_t0_moi_-1_simple_transform_check.jpg
+    /env/presentation/G4OKPMTSimTest_World_pv_g4live/g4ok_gltf/4945968a8835051c4cef2c31f2bb109a/1/CSG_GGeo/CSGOptiXRenderTest/cvd0/50001/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1_simple_transform_check.jpg 1280px_720px
+
+    cxr_overview_emm_0,_moi_-1_part_of_chimney_correct.jpg 
+    /env/presentation/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_0,_moi_-1_part_of_chimney_correct.jpg 1280px_720px
+
+    cxr_overview_emm_0,_moi_-1_part_of_chimney_correct.jpg_0.5
+    /env/presentation/cvd1/70000/cxr_overview/cam_0_tmin_0.5/cxr_overview_emm_0,_moi_-1_part_of_chimney_correct.jpg 1280px_720px
+
+    cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneyAcrylic_sticks_disappeared.jpg
+    /env/presentation/cvd1/70000/sChimneyAcrylic/cam_0_t0/cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneyAcrylic_sticks_disappeared.jpg 1280px_720px
+
+    cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneySteel_steel_ok.jpg
+    /env/presentation/cvd1/70000/sChimneySteel/cam_0_t0/cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneySteel_steel_ok.jpg 1280px_720px
+
+    cxr_view___eye_-2,0,0__zoom_1__tmin_0.1_sChimneyLS_chimney_mid_LS.jpg 
+    /env/presentation/cvd1/70000/sChimneyLS/cam_0_t0/cxr_view___eye_-2,0,0__zoom_1__tmin_0.1_sChimneyLS_chimney_mid_LS.jpg 1280px_720px
+
+    OTracerTest_Frame000_raytrace.jpg
+    /env/presentation/OTracerTest/Frame000_raytrace.jpg 1280px_720px
+
+    OTracerTest_Frame000_raster.jpg 
+    /env/presentation/OTracerTest/Frame000_raster.jpg 1280px_720px
+
+    cxr_overview_emm_t0_moi_-1_confirmed_fix.jpg
+    /env/presentation/cvd1/70000/cxr_overview/cam_0_tmin_0.4/cxr_overview_emm_t0_moi_-1_confirmed_fix.jpg 1280px_720px
+
+    cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneyAcrylic_now_struts.jpg
+    /env/presentation/cvd1/70000/sChimneyAcrylic/cam_0_t0/cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneyAcrylic_now_struts.jpg 1280px_720px
+
+    XJfixtureConstruction_XY_spurious_internal.png0
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.png 1280px_720px 
+
+    XJfixtureConstruction_XY_spurious_internal.jpg0
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.jpg 1280px_720px 
+
+    XJfixtureConstruction_XY_spurious_internal.png1
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.png 1280px_720px 
+
+    XJfixtureConstruction_XY_spurious_internal.jpg1
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_XY/figs/XJfixtureConstruction_XY_spurious_internal.jpg 1280px_720px 
+
+    XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png0 
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png 1280px_720px
+
+    XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg0 
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg 1280px_720px
+
+    XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png1 
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.png 1280px_720px
+
+    XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg1 
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstructionUnbalanced_XY/figs/XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg 1280px_720px
+
+    XJfixtureConstruction_YZ_two_types_of_spurious.png0
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.png 1280px_720px
+
+    XJfixtureConstruction_YZ_two_types_of_spurious.jpg0
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.jpg 1280px_720px
+
+    XJfixtureConstruction_YZ_two_types_of_spurious.png1
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.png 1280px_720px
+
+    XJfixtureConstruction_YZ_two_types_of_spurious.jpg1
+    /env/presentation/CSG/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.jpg 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

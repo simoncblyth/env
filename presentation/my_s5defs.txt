@@ -92,6 +92,15 @@
              margin: 1em 0;
         }
 
+        pre.mypre15 {
+             display: block;
+             font-family: monospace;
+             font-size: 15px;
+             white-space: pre;
+             margin: 1em 0;
+        }
+
+
         pre.mypre12 {
              display: block;
              font-family: monospace;

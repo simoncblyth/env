@@ -82,6 +82,28 @@ vimdiff high level tips
 
 
 
+merging files with vimdiff : worked example
+-----------------------------------------------
+
+::
+
+    epsilon:~ blyth$ jps
+    epsilon:PMTSim blyth$  
+    epsilon:PMTSim blyth$ jdiff NNVTMaskManager
+    diff /Users/blyth/junotop/offline/./Simulation/DetSimV2/PMTSim/include/NNVTMaskManager.hh /Users/blyth/j/PMTSim/NNVTMaskManager.hh
+    diff /Users/blyth/junotop/offline/./Simulation/DetSimV2/PMTSim/src/NNVTMaskManager.cc /Users/blyth/j/PMTSim/NNVTMaskManager.cc
+
+    vd /Users/blyth/junotop/offline/./Simulation/DetSimV2/PMTSim/src/NNVTMaskManager.cc /Users/blyth/j/PMTSim/NNVTMaskManager.cc
+
+
+1. not folding makes diffs and merges clearer as it avoids the code jumping around
+2. decide which file you are going to change and focus on grabbing what is useful from the 
+   other file entering "do" (diff-obtain) with cursor placed on line below the cyan missing block  
+3. many diffs without overlaps between changes will be simply done with "do" from the target buffer
+4. dont be shy about having duplication between macro blocks if it makes the diffs simpler
+5. use ":diffupdate" to update the coloring after making edits with "do" or "dp" 
+
+
 
 vimdiff
 --------
@@ -92,8 +114,9 @@ vimdiff
 vd(){ vimdiff -c "windo set nofoldenable" $* ; }
 
 
-::
 
+
+::
 
    vimdiff lhs.txt rhs.txt
    vimdiff -o top.txt bot.txt
@@ -107,8 +130,8 @@ vd(){ vimdiff -c "windo set nofoldenable" $* ; }
    ]c    next diff
    [c    prev diff
 
-   :diffget        do   (diff-obtain)
-   :diffput        dp   (diff-put)
+   :diffget        do   (diff-obtain)     when obtaining from other buffer must place cursor one line beneath the cyan block of missing lines
+   :diffput        dp   (diff-put)        when putting to the other buffer can put cursor on the cyan block
    :diffupdate        
 
 

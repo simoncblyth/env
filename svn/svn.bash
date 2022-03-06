@@ -20,7 +20,7 @@ SVN Usage
 1. (p) postpone out of the "svn up"
 2. "svn revert junoenv-external-libs.sh" the conflicted discarding local changes
 3. now are at trunk with no local changes
-
+4. now can try again "svn up" which should complete cleanly as no local changes
 
 
 SVN Building

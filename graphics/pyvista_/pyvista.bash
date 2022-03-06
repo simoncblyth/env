@@ -24,6 +24,13 @@ domain-scientists so they can focus on the research questions at hand.
   Depth peeling is a technique to correctly render translucent geometry. 
 
 
+VTK
+-----
+
+* https://gitlab.kitware.com/vtk/vtk/-/issues/17917#note_783584
+* ~/env/graphics/vtk_/vwin.py 
+
+
 Plotter Interactive Key Mappings
 ----------------------------------
 
@@ -34,7 +41,7 @@ Plotter Interactive Key Mappings
 +----------------------+--------------------------+---------------------------------------------------+
 | Linux/Windows        |  Mac                     |                                                   |
 +======================+==========================+===================================================+
-|  q                   |                          | Close the rendering window                        |
+| q                    |                          | Close the rendering window                        |
 +----------------------+--------------------------+---------------------------------------------------+
 | f                    |                          | Focus and zoom in on a point                      |
 +----------------------+--------------------------+---------------------------------------------------+
@@ -62,6 +69,28 @@ Plotter Interactive Key Mappings
 +----------------------+--------------------------+---------------------------------------------------+
 | +/-                  |                          | Increase/decrease the point size and line widths  |
 +----------------------+--------------------------+---------------------------------------------------+
+
+
+::
+
+    epsilon:plotting blyth$ pwd
+    /Users/blyth/miniconda3/lib/python3.7/site-packages/pyvista/plotting
+    epsilon:plotting blyth$ grep add_key_event *.py 
+    picking.py:        self.add_key_event('c', _clear_path_event_watcher)
+    picking.py:        self.add_key_event('c', _clear_g_path_event_watcher)
+    picking.py:        self.add_key_event('c', lambda: self.remove_actor(name))
+    plotting.py:    def add_key_event(self, key, callback):
+    plotting.py:        self.add_key_event('q', self._prep_for_close) # Add no matter what
+    plotting.py:        self.add_key_event('b', b_left_down_callback)
+    plotting.py:        self.add_key_event('v', lambda: self.isometric_view_interactive())
+    plotting.py:        self.add_key_event('f', self.fly_to_mouse_position)
+    plotting.py:        self.add_key_event('C', lambda: self.enable_cell_picking())
+    plotting.py:        self.add_key_event('Up', lambda: self.camera.Zoom(1.05))
+    plotting.py:        self.add_key_event('Down', lambda: self.camera.Zoom(0.95))
+    plotting.py:        self.add_key_event('plus', lambda: self.increment_point_size_and_line_width(1))
+    plotting.py:        self.add_key_event('minus', lambda: self.increment_point_size_and_line_width(-1))
+    epsilon:plotting blyth$ 
+
 
 
 callback with line widget

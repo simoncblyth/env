@@ -124,13 +124,18 @@ Opticks Presentations
 2022
 ~~~~~
 
+https://simoncblyth.bitbucket.io/env/presentation/opticks_20220307_fixed_global_leaf_placement_issue.html
+
+    JUNO Geometry Updates and Fixes 
+
+    March 7, 2022 
 
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20220227_LHCbRich_UK_GPU_HACKATHON.html
 
     LHCb RICH + NVIDIA UK GPU HACKATHON 
 
-    January 28, 2022 
+    February 28, 2022 
 
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20220118_juno_collaboration_meeting.html
