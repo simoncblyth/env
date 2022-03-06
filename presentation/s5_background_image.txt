@@ -1626,7 +1626,7 @@
     /env/presentation/GeoChain_Darwin/XJfixtureConstruction/CSGOptiXRenderTest/cvd0/50001/ALL/top_i0_/cxr_geochain_XJfixtureConstruction_ALL_speckle.jpg 1280px_720px
 
     GeneralSphereDEV_XY_phicut_issue.png
-    /env/presentation/CSG/CSGIntersectSolidTest/GeneralSphereDEV_XY/figs/GeneralSphereDEV_XY_phicut_issue.png 1280px_720px
+    /env/presentation/csg/CSGIntersectSolidTest/GeneralSphereDEV_XY/figs/GeneralSphereDEV_XY_phicut_issue.png 1280px_720px
 
     AltXJfixtureConstruction_XY_internal_spurious.png
     /env/presentation/csg/CSGIntersectSolidTest/AltXJfixtureConstruction_XY/figs/AltXJfixtureConstruction_XY_internal_spurious.png 1280px_720px

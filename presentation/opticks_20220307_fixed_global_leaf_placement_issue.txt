@@ -690,8 +690,6 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 
 
 
-
-
 ``AltXJfixtureConstruction_XY_internal_spurious.jpg``
 ------------------------------------------------------
 
