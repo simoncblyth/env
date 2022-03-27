@@ -127,7 +127,7 @@ Opticks Presentations
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20220329_progress_towards_production.html
 
-    JUNO Progress Towards Production
+    **SLIDES IN PREPARATION** : JUNO Progress Towards Production
    
     March 29, 2022
 
