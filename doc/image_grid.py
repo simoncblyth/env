@@ -3,26 +3,9 @@
 image_grid.py
 ================
 
-Usage example::
+For usage example see:
 
-    #!/bin/bash -l 
-
-    paths=$(ls -1rt cxr_i0_t0_solidXJfixture:*:-3.jpg)
-    outstem=image_grid_cxr_solidXJfixture:xx:-3
-
-    export ANNOTATE=1     
-    export OUTSTEM=$outstem
-
-    ${IPYTHON:-ipython} ~/env/doc/image_grid.py $paths 
-
-    ls -l $outstem*
-    du -hs $outstem*
-
-    name=$outstem.jpg 
-
-    if [ -f "$name" ]; then 
-        open $name
-    fi 
+* ~/env/presentation/image_grid.sh
 
 
 """
@@ -60,11 +43,14 @@ class IMG(object):
     @classmethod 
     def GridSpec(cls, all_paths, all_anno, rows, cols):
         """
+        The (rows,cols) grid is revel flattened for filling with a head gap 
+        if HEADGAP envvar is defined otherwise any gap would be at the tail. 
+
         :param all_paths: list of paths to images
-        :param all_anno: list of annotation strings or empty list
+        :param all_anno: list of annotation strings or empty list, when empty a default index is used
         :param rows: number of rows
         :param cols: number of cols
-        :return gridspec: np.object array of shape (rows, cols) containing IMG 
+        :return gridspec: np.object array of shape (rows, cols) containing IMG instances
         """
         num = rows*cols 
         gridspec = np.zeros([rows, cols], dtype=np.object )   
@@ -78,7 +64,7 @@ class IMG(object):
         return gridspec
 
     @classmethod 
-    def Grid(cls, grid, annotate=False):
+    def Grid(cls, grid):
         """
 
              +---+---+---+---+
@@ -100,12 +86,14 @@ class IMG(object):
 
         x_imgs = grid[np.where(grid != 0)]
         assert len(x_imgs) > 0  
-
         first_img = x_imgs[0] 
+
         w, h = first_img.img.size   # size of first non-None img
         full = "SAVE_FULL" in os.environ
+        annotate = "ANNOTATE" in os.environ
         gridpath = cls.GridPath(first_img, full=full)
-        comp = PIL.Image.new('RGB', size=(cols*w, rows*h))
+
+        comp = PIL.Image.new('RGB', size=(cols*w, rows*h))  # make a very big Image
         
         for r in range(rows):
             for c in range(cols):
@@ -118,7 +106,6 @@ class IMG(object):
                 comp.paste(obj.img, box=(c*w, r*h))
             pass
         pass
-
         img = comp if full else IMG.Downsize( comp,  rows )
         return cls(path=gridpath, anno=None, img=img)
 
@@ -149,7 +136,6 @@ class IMG(object):
         return comp
 
     def __init__(self, path=None, anno=None, img=None):
-
         self.path = path
         self.anno = anno
 
@@ -171,34 +157,44 @@ class IMG(object):
         log.info("save to %s " % self.path)
         self.img.save(self.path) 
 
+    @classmethod
+    def ParseArgs(cls, args):
+        """
+        :param args: sys.argv[1:]
+        :return: 
+        """
+        if len(args) > 0:
+            pathlist = args[0]
+            all_paths = open(pathlist).read().splitlines()
+        pass
+        if len(args) > 1:
+            annolist = args[1]
+            all_anno = open(annolist).read().splitlines()
+            assert len(all_anno) == len(all_paths)
+        else:
+            all_anno = []
+        pass
+        return all_paths, all_anno 
+
+    @classmethod
+    def Main(cls, args):
+        """
+        :param args: 
+
+        # rounds up, and leaves gaps so aim for the number of paths to be close to squares: 1,4,9,25,36,49,64,81,100  
+        """
+        all_paths, all_anno = cls.ParseArgs(args)
+        side = math.ceil(math.sqrt(len(all_paths)))    
+        rows, cols = side, side 
+        gridspec = cls.GridSpec( all_paths, all_anno, rows, cols )  ## np.array of IMG instances 
+        log.info("all_paths %d all_anno %d grid.shape %s " % (len(all_paths), len(all_anno), str(gridspec.shape)))
+        grid = IMG.Grid(gridspec) 
+        grid.save()
+    pass
 
 if __name__ == '__main__':
-     logging.basicConfig(level=logging.INFO)
-
-     args = sys.argv[1:]
-
-     if len(args) > 0:
-         pathlist = args[0]
-         all_paths = open(pathlist).read().splitlines()
-     pass
-     if len(args) > 1:
-         annolist = args[1]
-         all_anno = open(annolist).read().splitlines()
-         assert len(all_anno) == len(all_paths)
-     else:
-         all_anno = []
-     pass
-
-     # rounds up, and leaves gaps so aim for the number of paths to be close to squares: 1,4,9,25,36,49,64,81,100  
-     side = math.ceil(math.sqrt(len(all_paths)))    
-     rows, cols = side, side 
-
-     gridspec = IMG.GridSpec( all_paths, all_anno, rows, cols )
-
-     log.info("all_paths %d all_anno %d grid.shape %s " % (len(all_paths), len(all_anno), str(gridspec.shape)))
-
-     grid = IMG.Grid(gridspec, annotate="ANNOTATE" in os.environ )
-
-     grid.save()
-
+    logging.basicConfig(level=logging.INFO)
+    args = sys.argv[1:]
+    IMG.Main(args) 
+pass
 
