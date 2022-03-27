@@ -229,7 +229,10 @@ vector treatment of fresnel eqns with polarization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * http://www.classe.cornell.edu/~ib38/tmp/reading/syn_rad/wigner_dist/polarized_light/DKE498_ch8.pdf
-* http://iqst.ca/quantech/pubs/2013/fresnel-eoe.pdf
+
+
+* http://old.rqc.ru/quantech/pubs/2013/fresnel-eoe.pdf
+* ~/opticks_refs/fresnel-eoe.pdf
 
 * http://en.wikipedia.org/wiki/Mueller_calculus
 * http://en.wikipedia.org/wiki/Stokes_parameters

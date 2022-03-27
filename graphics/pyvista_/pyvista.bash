@@ -24,6 +24,16 @@ domain-scientists so they can focus on the research questions at hand.
   Depth peeling is a technique to correctly render translucent geometry. 
 
 
+
+Exit Speedup
+--------------
+
+# PYVISTA_KILL_DISPLAY envvar is observed to speedup exiting from ipython after pyvista plotting 
+# see https://github.com/pyvista/pyvista/blob/main/pyvista/plotting/plotting.py
+export PYVISTA_KILL_DISPLAY=1
+
+
+
 VTK
 -----
 

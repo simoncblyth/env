@@ -14,6 +14,49 @@ Ref
 * http://cuda-programming.blogspot.tw/2013/04/texture-references-object-in-cuda.html
 
 
+CUDA tex why the 0.5f ?
+-------------------------
+
+
+In graphics, a texture is a set of samples that describes the visual appearance
+of a surface. A sample is a point. That is, it has no size (as opposed to a
+pixel that has a physical size). When using samples to determine the colors of
+pixels, each sample is positioned in the exact center of its corresponding
+pixel. When addressing pixels with whole number coordinates, the exact center
+for a given pixel becomes its whole number coordinate plus an offset of 0.5 (in
+each dimension).
+
+In other words, adding 0.5 to texture coordinates ensures that, when reading
+from those coordinates, the exact value of the sample for that pixel is
+returned.
+
+
+ 
+However, it is only when filterMode for the texture has been set to
+cudaFilterModeLinear that the value that is read from a texture varies within a
+pixel. In that mode, reading from coordinates that are not in the exact center
+of a pixel returns values that are interpolated between the sample for the
+given pixel and the samples for neighboring pixels. So, adding 0.5 to whole
+number coordinates effectively negates the cudaFilterModeLinear mode. But,
+since adding 0.5 to the texture coordinates takes up cycles in the kernel, it
+is better to simply turn off the interpolation by setting filterMode to
+cudaFilterModePoint. Then, reading from any coordinate within a pixel returns
+the exact texture sample value for that pixel, and so, texture samples can be
+read directly by using whole numbers.
+
+
+ 
+When using cudaFilterModePoint, if any floating point math is involved in
+calculating the texture coordinates, care must be taken to ensure that floating
+point inaccuracies don't cause the texture coordinates to fall outside the
+range for the intended target pixel.
+
+Also, as the comments mention, there might be a problem in your code. Adding
+0.5f to the texture coordinates implies that the cudaFilterModeLinear mode is
+being used, but that mode returns a float, not an int.
+
+
+
 1d Layered Tex Example
 ------------------------
 
@@ -137,6 +180,34 @@ Cubic Spline Interpolation Filtering
   * Thread discussion between dannyruijters and Simon_Green (author of CUDA SDK example?) 
 
 
+
+CUDA interpolation formula : simulate tex2d
+----------------------------------------------
+
+* https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#linear-filtering
+
+
+CUDA simulate tex2d
+---------------------
+
+* :google:`CUDA simulate tex2d`
+
+* https://forums.developer.nvidia.com/t/simulate-tex2d-fetch-what-is-implementation-of-linear-interpolation/182500
+
+* https://developer.nvidia.com/blog/lerp-faster-cuda/
+
+Bilinear Interpolation
+-------------------------
+
+* https://en.wikipedia.org/wiki/Bilinear_interpolation
+
+Better than linear interpolation
+------------------------------------
+
+* https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.501.6606&rep=rep1&type=pdf
+
+Efficient GPU-Based Texture Interpolation using Uniform B-Splines
+Daniel Ruijters Philips Healthcare
 
 
 Interpolation filter modes : excellent explanation from Roger Dahl

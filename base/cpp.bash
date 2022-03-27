@@ -16,6 +16,18 @@ pragma once is non-standard
 * https://en.wikipedia.org/wiki/Pragma_once
 
 
+curated list of header only C++ libs
+----------------------------------------
+
+* https://github.com/p-ranav/awesome-hpp
+
+
+command line parsers
+---------------------
+
+* https://github.com/p-ranav/argparse
+
+
 IDE
 -----
 

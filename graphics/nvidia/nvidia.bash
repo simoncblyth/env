@@ -11,11 +11,18 @@ NVIDIA
 
 
 
-Cards
-------
+A40 Cards
+-----------
 
 * https://www.anandtech.com/show/16137/nvidia-announces-ampere-rtx-a6000-a40-cards-for-pro-viz
+
+  Quadro No More? NVIDIA Announces Ampere-based RTX A6000 & A40 Video Cards For Pro Visualization
+  Oct 2020 
+
 * https://www.nvidia.com/en-gb/data-center/a40/
+
+
+
 
 
 vCHEP 2021 : C.Legett : Porting HEP Parameterized Calorimeter Simulation Code to GPUs
