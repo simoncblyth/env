@@ -1736,6 +1736,21 @@
     XJfixtureConstruction_YZ_two_types_of_spurious.jpg1
     /env/presentation/csg/CSGIntersectSolidTest/XJfixtureConstruction_YZ/figs/XJfixtureConstruction_YZ_two_types_of_spurious.jpg 1280px_720px
 
+    hemisphere_s_polarized_pvplt_polarized_p0.png
+    /env/presentation/QSimTest/hemisphere_s_polarized/figs/pvplt_polarized_p0.png 1280px_720px
+
+    hemisphere_p_polarized_pvplt_polarized_p0.png
+    /env/presentation/QSimTest/hemisphere_p_polarized/figs/pvplt_polarized_p0.png 1280px_720px
+
+    hemisphere_x_polarized_pvplt_polarized_p0.png
+    /env/presentation/QSimTest/hemisphere_x_polarized/figs/pvplt_polarized_p0.png 1280px_720px
+    
+    image_grid_elv_scan_dyn_prim_scan.jpg
+    /env/presentation/DetSim0Svc_pWorld_g4live/g4ok_gltf/41c046fe05b28cb70b1fc65d0e6b7749/1/CSG_GGeo/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/image_grid_elv_scan_dyn_prim_scan.jpg 1280px_720px
+
+    image_grid_elv_scan_exclude_grid.jpg
+    /env/presentation/DetSim0Svc_pWorld_g4live/g4ok_gltf/41c046fe05b28cb70b1fc65d0e6b7749/1/CSG_GGeo/CSGOptiXRenderTest/cvd1/70000/cxr_overview/cam_0_tmin_0.4/image_grid_elv_scan_exclude_grid.jpg 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 

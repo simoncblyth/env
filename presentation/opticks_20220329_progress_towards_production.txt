@@ -4,16 +4,12 @@
    :title: 
    :name: opticks_20220329_progress_towards_production
    :description: (Mar 2022) 
-   :notes: progress update 
+   :notes: progress update Tue Mar. 29, 16:00 Beijing time.  09:00 BST 
+   :url: https://juno.ihep.ac.cn/cgi-bin/Dev_DocDB/DisplayMeeting?sessionid=1682
 
 .. include:: my_s5defs.txt
 
 .. include:: s5_background_image.txt
-
-
-.. comment
-
-    Monday 15:30-16:30, Beijing time.
 
 
 
@@ -50,7 +46,7 @@
 .. raw:: html
 
     <div class="mycredit">
-    <h2 style="background-color:lightgrey"> Simon C Blyth  &mdash; 7 March 2022 </h2>
+    <h2 style="background-color:lightgrey"> Simon C Blyth  &mdash; 29 March 2022 </h2>
     </div>
 
 
@@ -58,6 +54,7 @@
 
     Most recent work has been focussed on fixing geometry issues
     
+
 
 
 High Level Overview : 2022 January/February
@@ -89,6 +86,11 @@ High Level Overview : 2022 January/February
           * CSG_CONTIGUOUS Union (Similar to G4MultiUnion)
           * CSG_DISCONTIGUOUS Union
           * CSG_OVERLAP Intersection 
+
+
+.. s5_talk::
+
+   Updating to trunk geometry in January revealed several issues, the biggest..
 
 
 
@@ -136,9 +138,30 @@ High Level Overview : 2022 March
     +-------------------------------+--------------------------------------------------------------------------+
 
 
+.. s5_talk::
 
-:small:`Big Picture of Multi Year Transition to all new NVIDIA OptiX 7 API`
-----------------------------------------------------------------------------------
+    March was unusual in that my work was fairly evenly split between geometry and physics, 
+    in recent months geometry issues have dominated
+
+
+
+:small:`https://bitbucket.org/simoncblyth/opticks/src/master/notes/progress.rst`
+-----------------------------------------------------------------------------------
+
+:b:`Majority of recent months dominated by sequence of geometry issues` 
+
+.. image:: /env/presentation/notes/progress/2022_mar.png
+   :align: center
+   :width: 1000px
+
+
+.. s5_talk::
+
+    This link provides month by month progress notes
+
+
+:small:`Big Picture of Multi Year Transition to new workflow (OptiX 7 compatible)`
+------------------------------------------------------------------------------------
 
 .. sidebar:: :small:`New Workflow Packages`
 
@@ -166,8 +189,8 @@ High Level Overview : 2022 March
 
         :r:`Non-monolithic flexibility, easier: test + customize` 
 
-        * eg JUNO MultiFilm PMT optical model)
-
+        * eg JUNO MultiFilm PMT optical model
+        * many tests just use CUDA, no OptiX
 
 
 .. class:: small
@@ -200,19 +223,419 @@ High Level Overview : 2022 March
     | G4Opticks       | High Level Interface                                             |
     +-----------------+------------------------------------------------------------------+
 
-    Cherry-picking removed into new: CSG, QUDARap, CSGOptiX 
+    Cherry-picking from removed packages into new ones
 
 
-    
+.. s5_talk::
+
+   Opticks is organized into around 20 packages with different dependencies
+
+   * the most important ones are shown here, and the new ones  
+   * design goals..
+
+
+:small:`qudarap/QSimTest.cc fine-grained GPU testing qsim.h methods`
+--------------------------------------------------------------------------------
+
+.. class:: small
+
+    * :r:`Major design goal of new workflow : fine-grained testing (much better than monolithic)` 
+    * some tests generate photon arrays, others mutate input arrays of photons
+
+.. raw:: html
+
+    <pre class="mypre15">
+    switch(type){
+        case RNG_SEQUENCE:                  rng_sequence(num, ni_tranche_size)         ; break ; 
+        case WAVELENGTH_S  :                wavelength('S', num)                       ; break ; 
+        case WAVELENGTH_C  :                wavelength('C', num)                       ; break ; 
+        case SCINT_PHOTON_P:                scint_photon(num);                         ; break ; 
+        case CERENKOV_PHOTON_K:             cerenkov_photon(num, print_id);            ; break ; 
+        case CERENKOV_PHOTON_ENPROP_E:      cerenkov_photon_enprop(num, print_id);     ; break ; 
+        case GENERATE_PHOTON_G:             generate_photon();                         ; break ; 
+        case BOUNDARY_LOOKUP_ALL_A:         boundary_lookup_all()                      ; break ;   
+        case BOUNDARY_LOOKUP_LINE_WATER_W:  boundary_lookup_line("Water", x0, x1, nx)  ; break ;   
+        case BOUNDARY_LOOKUP_LINE_LS_L:     boundary_lookup_line("LS",    x0, x1, nx)  ; break ;   
+        case PROP_LOOKUP_Y:                 prop_lookup(-1, -1.f,16.f,1701)            ; break ;   
+        case FILL_STATE_0:                  fill_state(0)                              ; break ;   
+        case RAYLEIGH_SCATTER_ALIGN:        photon_launch_generate(num, type)          ; break ;   
+        case PROPAGATE_TO_BOUNDARY:         photon_launch_generate(8,   type)          ; break ;   
+        case PROPAGATE_AT_SURFACE:          photon_launch_generate(8,   type)          ; break ;   
+        case PROPAGATE_AT_BOUNDARY:   
+        case PROPAGATE_AT_BOUNDARY_NORMAL_INCIDENCE:  
+                                            photon_launch_generate(num, type)          ; break ;   
+        case HEMISPHERE_S_POLARIZED:   
+        case HEMISPHERE_P_POLARIZED:  
+        case HEMISPHERE_X_POLARIZED:   
+                                            photon_launch_generate(num, type)          ; break ;   
+        case PROPAGATE_AT_BOUNDARY_S_POLARIZED: 
+        case PROPAGATE_AT_BOUNDARY_P_POLARIZED:   
+        case PROPAGATE_AT_BOUNDARY_X_POLARIZED:  
+                                                 photon_launch_mutate(num, type)       ; break ;   
+    }   
+    </pre>
+
+.. s5_talk::
+
+   Splitting up the monolith : gives fine grained testing of the GPU simulation 
+
+   * much more flexible design, profiting from years of CUDA experience 
 
 
 
-Prediction : 2022 April (Modulo unforseen problems)
+:small:`Standalone Geant4 Tests : Cerenkov, RayLeigh, Boundary`
+------------------------------------------------------------------------------------------------
+
+.. class:: small 
+
+    Provide photon arrays to compare against Opticks 
+
+    * https://bitbucket.org/simoncblyth/opticks/src/master/examples/Geant4/BoundaryStandalone/
+    * https://bitbucket.org/simoncblyth/opticks/src/master/examples/Geant4/RayleighStandalone/
+    * https://bitbucket.org/simoncblyth/opticks/src/master/examples/Geant4/CerenkovStandalone/
+
+    *Mocking* just enough Geant4 environment to invoke **PostStepDoIt** of process
+
+    Common Inputs to both Opticks and Geant4 tests: 
+
+    * pre-cooked random numbers from curand (using *OpticksRandom*) 
+    * input photons (generated by other tests)
+    * other params (eg refractive indices, momentum, polarization) via envvars
+
+    :b:`Small amount of Geant4 (and Opticks) code being run..` 
+
+    * easy to match every random consumption
+    * straightforward direct photon array A-B comparison 
+    * simple environment to debug discrepancies
+
+
+.. s5_talk::
+
+    Similarly more experience with Geant4 brings new ways of doing thing 
+
+
+``hemisphere_s_polarized_pvplt_polarized_p0.png``
+---------------------------------------------------
+
+``1M photons all incident at origin   (red:momentum, grey:polarization)``
+
+
+.. raw:: html
+
+     <p style="margin-bottom:13cm;" />
+
+
+``S-polarization direction transverse to plane of incidence (and momentum)``
+
+
+.. s5_talk::
+
+    S-polarization
+
+
+``hemisphere_p_polarized_pvplt_polarized_p0.png``
+---------------------------------------------------
+
+``1M  photons all incident at origin   (red:momentum, grey:polarization)``
+
+.. raw:: html
+
+     <p style="margin-bottom:13cm;" />
+
+
+``P-polarization direction in plane of incidence, transverse to momentum``
+
+.. s5_talk::
+
+    P-polarization
+
+
+
+``hemisphere_x_polarized_pvplt_polarized_p0.png``
+---------------------------------------------------
+
+``1M photons all incident at origin   (red:momentum, grey:polarization)``
+
+.. raw:: html
+
+     <p style="margin-bottom:13cm;" />
+
+
+``"X"-polarized : equal admixture of S and P polarized``
+
+.. s5_talk::
+
+    "X"-polarization
+
+
+
+
+
+:small:`Boundary matched QSimTest.sh and G4OpBoundaryProcessTest.sh`
+---------------------------------------------------------------------------------------------------- 
+
+.. raw:: html
+
+    <pre class="mypre15">
+    epsilon:BoundaryStandalone blyth$ TEST=propagate_at_boundary_s_polarized NUM=1000000  ./G4OpBoundaryProcessTest.sh cf
+    a.shape (1000000, 4, 4) : /tmp/blyth/opticks/QSimTest/propagate_at_boundary_s_polarized/p.npy  
+    b.shape (1000000, 4, 4) : /tmp/blyth/opticks/G4OpBoundaryProcessTest/propagate_at_boundary_s_polarized/p.npy  
+
+    a_flag=a[:,3,3].view(np.uint32)                    : [2048 2048 2048 ... 2048 2048 1024]
+    b_flag=b[:,3,3].view(np.uint32)                    : [2048 2048 2048 ... 2048 2048 1024]
+    w_flag=np.where( a_flag != b_flag )                : <span class="redbold">(array([209411]),)   ## 1 REFLECT/TRANSMIT flag mismatch</span>
+    ua_flag=np.unique(a_flag, return_counts=True)      : (array([1024, 2048], dtype=uint32), array([ 45024, 954976]))
+    ub_flag=np.unique(b_flag, return_counts=True)      : (array([1024, 2048], dtype=uint32), array([ 45025, 954975]))
+    a_TransCoeff=a[:,1,3]                              : [0.784 0.799 0.588 ... 0.853 0.481 0.959]
+    b_TransCoeff=b[:,1,3]                              : [0.784 0.799 0.588 ... 0.853 0.481 0.959]
+    w_TransCoeff=np.where( np.abs( a_TransCoeff - b_TransCoeff) > 1e-6 ) : (array([], dtype=int64),)
+    a_flat=a[:,0,3]                                    : [0.438 0.46  0.25  ... 0.557 0.184 0.992]
+    b_flat=b[:,0,3]                                    : [0.438 0.46  0.25  ... 0.557 0.184 0.992]
+    w_flat=np.where(a_flat != b_flat)                  : (array([], dtype=int64),)
+    w_ab0=np.where( np.abs(a[:,0] - b[:,0]) > 1e-6 )   : (array([], dtype=int64), array([], dtype=int64))
+    w_ab1=np.where( np.abs(a[:,1] - b[:,1]) > 1e-6 )   : <span class="redbold">(array([209411, 209411, 209411]), array([0, 1, 2])) ## diff direction</span>
+    w_ab2=np.where( np.abs(a[:,2] - b[:,2]) > 1e-6 )   : <span class="redbold">(array([209411, 209411]), array([0, 1])) ## diff polarization</span>
+    w_ab3=np.where( np.abs(a[:,3] - b[:,3]) > 1e-6 )   : (array([], dtype=int64), array([], dtype=int64))
+
+    In [1]: a[209411]                                                  
+    Out[1]:                                                       <span class="bluebold"> u_reflect > TransCoeff </span>             
+    array([[ -0.136,  -0.264,  -0.955,   0.955],                       In [3]: a[209411,0,3] > a[209411,1,3]
+           [ -0.09 ,  -0.176,  -0.98 ,   0.955],                       Out[3]: False  <span class="bluebold"> BOUNDARY_TRANSMIT </span> 
+           [  0.89 ,  -0.456,  -0.   , 500.   ],                              
+           [  0.89 ,  -0.456,   0.   ,   0.   ]], dtype=float32)       
+                                                                       
+    In [2]: b[209411] 
+    Out[2]:                                               
+    array([[ -0.136,  -0.264,  -0.955,   0.955],                       In [4]: b[209411,0,3] > b[209411,1,3]
+           [ -0.136,  -0.264,   0.955,   0.955],                       Out[4]: True    <span class="bluebold"> BOUNDARY_REFLECT </span> $                      
+           [ -0.89 ,   0.456,  -0.   , 500.   ],
+           [  0.89 ,  -0.456,   0.   ,   0.   ]], dtype=float32)
+                                                       <span class="redbold">One-in-a-million on TransCoeff REFLECT/TRANSMIT cut edge</span>
+    In [5]: a[209411,0,3] == b[209411,0,3]                             In [6]: a[209411,1,3] - b[209411,1,3]
+    Out[5]: True                                                       Out[6]: 5.9604645e-08                
+    </pre>
+
+
+.. s5_talk::
+
+    Simple NumPy commands to compare two arrays of photons
+
+
+``cxr_overview_emm_t0_moi_-1_confirmed_fix.jpg``
+---------------------------------------------------
+
+``./cxr_overview.sh``
+   ``2022 January 0.0126  (cf 0.0054 from 2021 Dec)``
+
+``This Dec->Jan slowdown motivated development of dynamic Prim selection``    
+
+.. raw:: html
+
+    <p style="margin-bottom:8cm;" />
+
+.. class:: normal 
+
+    ``Dynamic Prim Selection:`` 
+        ``in memory CSGCopy with selection => construct any combination of Prim``
+
+
+.. s5_talk::
+
+    Dynamic Prim selection works by im memory CSGCopy with selection applied, 
+    so can dynamically construct any combination of the Prim. 
+
+
+
+:small:`Dynamic Prim Selection Speed Scan : One "G4VSolid" Geometries`
+--------------------------------------------------------------------------
+
+::
+
+    cd ~/opticks/CSGOptiX
+    ./grabsnap.sh --reverse --selectspec not_elv_t --candle t103 --rst
+
+.. sidebar:: :small:`ELV including single Prim`
+
+     .. class:: small
+
+         * relative: to candle t103:EXCLUDE-solidXJfixture
+         * :r:`NNVTMCPPMTTail` in 2nd spot 
+         * informs where to investigate
+
+         JUNO Geometry (January trunk) has 140 solids
+
+         * full include, exclude table : ~280 entries
+
+.. class:: tiny
+
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |idx|        -e|       time(s)    |      relative    |    enabled geometry description 41c046fe                                     |
+    +===+==========+==================+==================+==============================================================================+
+    |  0|       103|        0.0225    |        3.0917    |:r:`ONLY: solidXJfixture`                                                     |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  1|       112|        0.0051    |        0.7009    |:r:`ONLY: NNVTMCPPMTTail`                                                     |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  2|       105|        0.0027    |        0.3644    |    ONLY: HamamatsuR12860Tail                                                 |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  3|       111|        0.0025    |        0.3422    |    ONLY: NNVTMCPPMTsMask                                                     |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  4|       117|        0.0022    |        0.3051    |    ONLY: NNVTMCPPMTsMask_virtual                                             |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  5|         0|        0.0018    |        0.2496    |    ONLY: sTopRock_domeAir                                                    |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  6|         1|        0.0018    |        0.2474    |    ONLY: sTopRock_dome                                                       |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  7|        94|        0.0018    |        0.2406    |    ONLY: sTarget                                                             |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  8|       123|        0.0017    |        0.2392    |    ONLY: sChimneyAcrylic                                                     |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  9|       127|        0.0017    |        0.2378    |    ONLY: sInnerWater                                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 10|       128|        0.0017    |        0.2366    |    ONLY: sReflectorInCD                                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 11|        95|        0.0017    |        0.2363    |    ONLY: sAcrylic                                                            |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 12|        14|        0.0016    |        0.2160    |    ONLY: sAirTT                                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 13|        15|        0.0016    |        0.2142    |    ONLY: sExpHall                                                            |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 14|       109|        0.0015    |        0.2025    |    ONLY: HamamatsuR12860_PMT_20inch_pmt_solid_1_4                            |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 15|       104|        0.0013    |        0.1847    |    ONLY: HamamatsuR12860sMask                                                |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+
+::
+
+    SNAP_LIMIT=16 ./grabsnap.sh --reverse --selectspec not_elv_t --jpg --out
+    ./image_grid.sh  ; ./pub1.sh path-returned-by-above
+
+
+.. s5_talk::
+
+   Use dynamic geometry to look for the slow Prim, these are geometries with single Prim selected.
+   Here are the slowest 16
+
+
+
+``image_grid_elv_scan_dyn_prim_scan.jpg``    
+-------------------------------------------
+
+.. raw:: html
+
+    <p style="margin-bottom:14cm;" />
+
+.. class:: normal 
+
+    ``Slowest 16 single selected solid renders``
+         ``the worst solidXJfixture gives a blank render``  
+
+
+
+.. s5_talk::
+
+   These are the renders of the slowest 16   
+
+
+
+:small:`Dynamic Prim Selection Speed Scan : Exclude G4VSolid Geometries`
+--------------------------------------------------------------------------
+
+::
+
+    cd ~/opticks/CSGOptiX
+    ./grabsnap.sh --selectspec only_elv_t --candle t103 --rst
+
+.. sidebar:: :small:`ELV excluding single Prim`
+
+     .. class:: small
+
+         * relative: cf candle t103:not-solidXJfixture
+         * TODO: scan again with solidXJfixture excluded from base geometry
+
+           * as that problem may be hiding other smaller problems 
+
+
+.. class:: tiny
+
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |idx|        -e|       time(s)    |      relative    |    enabled geometry description 41c046fe                                     |
+    +===+==========+==================+==================+==============================================================================+
+    |  0|      t103|        0.0073    |        1.0000    |    EXCL: solidXJfixture                                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  1|        t1|        0.0118    |        1.6169    |    EXCL: sTopRock_dome                                                       |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  2|        t0|        0.0119    |        1.6306    |    EXCL: sTopRock_domeAir                                                    |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  3|      t112|        0.0119    |        1.6311    |    EXCL: NNVTMCPPMTTail                                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  4|         t|        0.0119    |        1.6317    |    ALL                                                                       |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  5|      t127|        0.0119    |        1.6393    |    EXCL: sInnerWater                                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  6|       t97|        0.0120    |        1.6488    |    EXCL: sStrut                                                              |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  7|       t29|        0.0121    |        1.6558    |    EXCL: GLw2.equ_bt01_FlangeI_Web_FlangeII                                  |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  8|      t136|        0.0121    |        1.6563    |    EXCL: sPoolLining                                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    |  9|       t95|        0.0121    |        1.6576    |    EXCL: sAcrylic                                                            |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 10|      t128|        0.0121    |        1.6576    |    EXCL: sReflectorInCD                                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 11|      t105|        0.0121    |        1.6657    |    EXCL: HamamatsuR12860Tail                                                 |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 12|       t60|        0.0121    |        1.6670    |    EXCL: GLb3.bt09_FlangeI_Web_FlangeII                                      |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 13|      t135|        0.0121    |        1.6673    |    EXCL: sOuterWaterPool                                                     |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 14|      t104|        0.0122    |        1.6684    |    EXCL: HamamatsuR12860sMask                                                |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+    | 15|      t137|        0.0122    |        1.6687    |    EXCL: sBottomRock                                                         |
+    +---+----------+------------------+------------------+------------------------------------------------------------------------------+
+
+::
+
+    SNAP_LIMIT=16 ./grabsnap.sh --selectspec only_elv_t --jpg --out
+    ./image_grid.sh  ; ./pub1.sh  path-returned-by-above
+
+
+.. s5_talk::
+
+    This are the fastest 16 with single Prim exclusions
+
+
+``image_grid_elv_scan_exclude_grid.jpg``
+-----------------------------------------
+
+
+.. raw:: html
+
+    <p style="margin-bottom:14cm;" />
+
+.. class:: normal 
+
+    ``Fastest 16 single excluded solid renders``
+         ``unsuprisingly difficult to see any difference : other than performance``  
+
+
+.. s5_talk::
+
+    Renders of the fastest 16 with single Prim exclusions
+
+
+
+Prediction : 2022 April 
 -----------------------------------------------------
 
 .. class:: small
 
-    :b:`Prediction not impossible as are migrating existing functionality from old to new workflow`
+    Experience suggests that predictions are impossible due to:
+
+    * changing geometry + geometry issues
+
+    BUT with caveat of excluding those
+
+    * :b:`migrating existing functionality from old to new workflow is less predictable`
 
     **Expect completed new workflow by end of April, what remains:**
 
@@ -227,32 +650,85 @@ Prediction : 2022 April (Modulo unforseen problems)
     **Towards end of April**
 
     * New workflow performance testing 
-    * Try to integrate MultiFilm PMT model (using LUT approach developed by Yuxiang)
+    * Try to integrate MultiFilm PMT model (using LUT texture approach being developed by Yuxiang)
     * Prepare release for Installation onto GPU cluster 
-    * 
 
 
-:small:`Prediction : After April : Geometry Optimization Needed to get good performance`
+.. s5_talk::
+
+    Preditions usually impossible, BUT 
+
+
+:small:`Prediction : After April : Geometry Optimization + Production Optimization`
 -------------------------------------------------------------------------------------------
 
 .. class:: small
 
-    Expect will need geometry optimization work to get good performance even with *XJfixtureConstruction* skipped
+    :r:`performance so far always limited by geometry`
 
-    * Geometry optimization by measuring performance as make changes:
-
-      * adjust instancing criteria -> different geometry factorization 
-
-        * more instancing expected to be faster but there is some balancing against overheads
+    * intersecting with geometry much more resource intensive that physics simulation
+    * very sensitive to any geometry issues
  
-      * use CSG_CONTIGUOUS list-node for the slower G4VSolid  
+
+    **Geometry Optimization : Measure Simulation+Render performance as make changes:** 
+
+    Expect geometry optimization needed to maximize performance even with *XJfixtureConstruction* skipped
+
+    * adjust instancing criteria -> different geometry factorization 
+
+      * more instancing expected to be faster but there is some balancing against overheads
+
+    * apply CSG_CONTIGUOUS list-node to slower solids
+
+    * try again suggestions from NVIDIA Engineers (PRD trick, flags, stack config)
+
+      * worthwhile to retry as bottlenecks eliminated : as differences may become visible  
+
+    **Production Optimization : New Territory, Experience needed to direct expts**
+
+    * Now many GPUs per node ?
+    * Split/combine events depending on GPU memory 
+
+      * large launches filling GPU memory expected to make better use of GPU 
+      * BUT: what about implications for overall cluster throughput ?
 
 
+.. s5_talk::
+
+   Lots of scope for optimization  
 
 
+:i:`Divider`
+--------------
 
 
+.. raw:: html
+
+    <p style="margin-bottom:3cm;" />
+    <h1> "Extra" Slides </h1>
+
+.. class:: normal
+
+    Following slides give background on 
+
+    * XJfixtureConstruction Solid
     
+      * two types of spurious intersects
+      * Tree balancing  
+
+    * Review Opticks CSG Tree Intersection algorithm
+    * CSG list-nodes implementation, n-ary (not bin-ary) CSG intersection
+
+      * CSG_CONTIGUOUS Union (simular to *G4MultiUnion*)
+      * CSG_DISCONTIGUOUS Union (very fast imp for guaranteed discontiguous)
+      * CSG_OVERLAP Intersection (eg for G4Sphere with radius,phi,theta ranges) 
+    
+
+.. s5_talk::
+
+   I have presented the rest the slides already to some of you, 
+   there are here as a reference and for people who have not been 
+   following along  
 
 
 :i:`Investigate XJfixtureConstruction Solid`
@@ -281,7 +757,6 @@ Prediction : 2022 April (Modulo unforseen problems)
    XJfixtureConstruction is part of the sticks geometry 
 
 
-
 cxr_geochain_XJfixtureConstruction_ALL_jpg
 ---------------------------------------------
 
@@ -295,6 +770,11 @@ cxr_geochain_XJfixtureConstruction_ALL_jpg
     ``union of annular tubs and SIX boxes``  
 
 
+.. s5_talk::
+
+   This solid is problematic due to the large numver of constituents 
+
+
 cxr_geochain_XJfixtureConstruction_ALL_otherside_jpg
 -------------------------------------------------------
 
@@ -304,6 +784,12 @@ cxr_geochain_XJfixtureConstruction_ALL_otherside_jpg
    
 
 ``EYE=-3,0.5,-1 UP=0,0,1 ZOOM=4 TMIN=0 PUB=otherside  ./cxr_geochain.sh``
+
+
+.. s5_talk::
+
+   Otherside
+
 
 
 cxr_geochain_XJfixtureConstruction_ALL_upper_jpg
@@ -316,6 +802,11 @@ cxr_geochain_XJfixtureConstruction_ALL_upper_jpg
 ``EYE=-3,0.5,1 UP=0,0,1 ZOOM=4 TMIN=0 PUB=upper ./cxr_geochain.sh`` 
 
 
+.. s5_talk::
+  
+    Upper side
+
+
 cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 -------------------------------------------------------
 
@@ -325,6 +816,10 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 
 ``EYE=-3,0.5,0.8 UP=0,0,1 ZOOM=4 TMIN=2.7 CAM=0 PUB=speckle ./cxr_geochain.sh``
 
+
+.. s5_talk::
+
+    This concidence speckle is the easy one to fix : by removing coincidences
 
 
 
@@ -380,6 +875,10 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
     </pre>
 
 
+.. s5_talk::
+
+    Unbalanced tree is too deep 
+
 
 
 :small:`XJfixtureConstruction CSG Tree After Balancing (Height 3)`
@@ -411,6 +910,11 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
                                                                                                                                                                               
     </pre>
                                                                                                                                                                           
+
+
+.. s5_talk::
+
+    Balancing reduces the depth, BUT 
 
 
 
@@ -445,6 +949,12 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 ---------------------------------------------------------
 
 
+.. s5_talk::
+
+    A new type of spurious intersect 
+
+
+
 ``XJfixtureConstruction_YZ_two_types_of_spurious.jpg1``
 ---------------------------------------------------------
 
@@ -465,6 +975,11 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
         * :r:`forces unbalanced` => **performance problem**  
 
 
+.. s5_talk::
+
+    Two types of spurious
+
+
 
 ``XJfixtureConstruction_XY_spurious_internal.jpg0``
 ---------------------------------------------------------
@@ -478,6 +993,12 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
  
     ``rays generated in XY plane from genstep positions (yellow dots)``
         ``yellow lines and arrows : rays and spurious internal intersects``
+
+
+.. s5_talk::
+
+    CPU test of GPU code
+
 
 
 ``XJfixtureConstruction_XY_spurious_internal.jpg1``
@@ -507,6 +1028,11 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
        Sometimes alg needs to "LOOP" to find "otherside"
        
        * Balancing => incomplete prior tree => spurious internal intersects 
+
+
+.. s5_talk::
+
+    Non-zero signed distance identifies the new type of spurious, not the old
 
 
 :small:`Algorithm for Ray Intersection onto Shape defined by CSG Tree`
@@ -548,6 +1074,11 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 
     :b:`Volume-centric CSG` (Geant4)
          always asking "is this point inside the shape"
+
+
+.. s5_talk::
+
+   Reviewing CSG intersection alg 
 
 
 :small:`CSG Intersection Algorithm : UNION Lookup Table and Examples`
@@ -603,7 +1134,9 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
     </pre>
 
 
+.. s5_talk::
 
+    UNION LUT
 
 
 
@@ -643,9 +1176,22 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 
 
 
+.. s5_talk::
+
+    INTERSECTION LUT
+
+
 
 ``XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg0``
 -------------------------------------------------------------------
+
+
+.. s5_talk::
+
+    Not balancing the tree  avoids the problem 
+
+
+
 
 
 ``XJfixtureConstructionUnbalanced_XY_unbalanced_ok.jpg1``
@@ -664,6 +1210,12 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
        **Speedup Unbalanced ?**
 
        * "postorder next node" offsets ? TODO: try
+
+
+
+.. s5_talk::
+
+    BUT : Not balancing the tree has big performance effect 
 
 
 
@@ -718,6 +1270,7 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 
 
 
+
 :small:`CSG Compound "List-Nodes" => Much Smaller CSG trees`
 ---------------------------------------------------------------
 
@@ -748,6 +1301,11 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_node.h
    * https://bitbucket.org/simoncblyth/opticks/src/master/CSG/csg_intersect_leaf.h
 
+
+
+.. s5_talk::
+
+   Generalize Opticks CSG beyond trees
 
 
 :small:`CSG_CONTIGUOUS Union : n-ary (not bin-ary) CSG intersection`
@@ -806,6 +1364,14 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 
 
 
+.. s5_talk::
+
+   Generalize Opticks CSG beyond trees
+
+
+
+
+
 :small:`CSG_DISCONTIGUOUS Union : CSG intersection`
 ---------------------------------------------------------------
 
@@ -837,6 +1403,11 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
 
     * :b:`More closely suiting algorithm to geometry => better performance`
     * this can help with "holes" subtracted from another solid : the "holes" usually do not overlap 
+
+.. s5_talk::
+
+   More precise communication of intent for geometry -> better performance
+
 
 
 
@@ -882,1041 +1453,27 @@ cxr_geochain_XJfixtureConstruction_ALL_speckle_jpg
      :r:`Avoid tree overheads for suitable shapes (eg general sphere:inner-radius,phicut,thetacut)`
 
 
+.. s5_talk::
+
+    Overlap
+
 
 
 ``AltXJfixtureConstruction_XY_internal_spurious.jpg``
 ------------------------------------------------------
+
+.. s5_talk::
+
+    Internal Spurious XY view : without sorting enter
+
 
 ``AltXJfixtureConstruction_XY_sorted_enter_fix.jpg``
 ------------------------------------------------------
 
 
 
+.. s5_talk::
 
-:i:`Check Latest JUNO Geometry`
-----------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:3cm;" />
-    <h1> Check Latest JUNO Geometry (trunk:March 2nd 2022)</h1>
-
-.. class:: normal
-
-    * Find transform bug (:r:`the price of Opticks CSG generalization`)
-
-      * bits of Chimney and other geom in middle of CD
-      * took a few days to pin it down
-
-    * Improve volume testing and geometry switching machinery to assist finding such bugs
-
-      * extg4/X4VolumeMaker.cc
-      * g4ok/G4OKVolumeTest.sh
-      * bin/geocache_hookup.sh 
-
-    * :b:`Saturday March 5th 2022 : FIXED BUG` (incomplete imp. of tree/node/leaf split)
-
-
-``cxr_overview_emm_t8,_moi_-1_broken_trans_perhaps.jpg``
--------------------------------------------------------------------
-
-
-``cxr_overview_emm_0,_moi_-1_part_of_chimney_correct.jpg``
--------------------------------------------------------------
-
-``EMM=0, EYE=-0.6,0,0.3 LOOK=0,0,0 ./cxr_overview.sh`` 
-
-
-``cxr_overview_emm_0,_moi_-1_part_of_chimney_correct.jpg_0.5``
----------------------------------------------------------------
-
-``EMM=0, EYE=-0.6,0,0.3 LOOK=0,0,0 TMIN=0.5 ./cxr_overview.sh`` 
-
-
-``cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneyAcrylic_sticks_disappeared.jpg``
------------------------------------------------------------------------------------
-
-``MOI=sChimneyAcrylic EYE=-10,0,0 TMIN=0 ./cxr_view.sh``
-
-.. raw:: html
-
-    <p style="margin-bottom:12cm;" />
- 
-``struts and part of Chimney mis-placed``
-
-
-``cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneyAcrylic_now_struts.jpg``
-----------------------------------------------------------------------------
-
-``MOI=sChimneyAcrylic EYE=-10,0,0 TMIN=0 ./cxr_view.sh``
-
-
-.. raw:: html
-
-    <p style="margin-bottom:12cm;" />
- 
-``BACK AGAIN AFTER FIX``
-
-
-``cxr_view___eye_-10,0,0__zoom_1__tmin_0_sChimneySteel_steel_ok.jpg``
------------------------------------------------------------------------------------
-
-``MOI=sChimneySteel EYE=-10,0,0 TMIN=0 ./cxr_view.sh``
-
-
-``cxr_view___eye_-2,0,0__zoom_1__tmin_0.1_sChimneyLS_chimney_mid_LS.jpg``
------------------------------------------------------------------------------------
-
-``MOI=sChimneyLS EYE=-2,0,0 TMIN=0.1 ./cxr_view.sh``
-
-.. raw:: html
-
-    <p style="margin-bottom:12cm;" />
- 
-``part of Chimney in middle of CD``
-
-
-``cxr_overview_emm_t0_moi_-1_simple_transform_check.jpg``
-------------------------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:12cm;" />
- 
-``simple transform check (g4ok/G4OKVolumeTest.sh) fails to reproduce issue`` 
-    ``(using nnvtBodyLogGrid from j/PMTSim lib)``
-
-
-.. comment
-
-    ``cxr_view___eye_0,-0.5,0.75,1__zoom_1__tmin_0.5_Hama:0:1000_transforms_look_messed_up.jpg``
-    ----------------------------------------------------------------------------------------------
-
-
-``OTracerTest_Frame000_raster.jpg``
-------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:12cm;" />
- 
-``g4ok/G4OKVolumeTest.sh with GEOM=ListJustOrb,BoxMinusOrb`` 
-
-``ok/ott.sh OTracerTest OpenGL raster view looks normal``
-
-
-
-``OTracerTest_Frame000_raytrace.jpg``
---------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:14cm;" />
- 
-
-``ok/ott.sh OTracerTest OptiX raytrace : reproduces issue``
-    ``global(non-instanced) leaf nodes are mis-placed : at origin``  
-
-
-
-``cxr_overview_emm_t0_moi_-1_confirmed_fix.jpg``
----------------------------------------------------
-
-``./cxr_overview.sh``
-   ``after fix : 0.0126  (cf 0.0054 from Dec 2021)``
-
-``TODO: investigate cause of slowdown``    
-
-
-
-
-:i:`Next Steps`
-----------------------------------------------
-
-.. raw:: html
-
-    <p style="margin-bottom:0cm;" />
-    <h1> Next Steps </h1>
-
-.. class:: small
-
-    **Repeat January checks with current geometry** 
-  
-    * geometry bottleneck checks
-    * overlaps etc..  
-
-.. class:: small
-
-    https://simoncblyth.bitbucket.io/env/presentation/opticks_20220118_juno_collaboration_meeting.html
-
-.. class:: small
-
-    **AltXJfixtureConstruction with CSG_CONTIGUOUS**
-
-    * compare performance with unbalanced tree 
-    * int template constants to adjust resource usage to shape complexity
-     
-      * eg maximum number of constituent Enters
-      * (will ask for advice from NVIDIA Engineers during this weeks GPU hackathon)  
-
-    **After Geometry Issues Fixed : port OptiXRap sim to QUDARap (for OptiX 7)**
-
-    * separate headers approach : design for easy testabilty on CPU or GPU 
-    * as much as possible implemented in QUDARap (without OptiX dependency)
-    * only CSGOptiX package depends on OptiX 
-
-    **CSGOptix : depends on QUDARap for generation + propagation, adds geometry intersection**
-
-
-
-
-
-
-LHCb RICH SWIFT-HEP UK GPU Hackathon with NVIDIA Engineers
------------------------------------------------------------
-
-.. class:: small
-
-    Opticks updated for LHCb RICH Simplified geometry:
-
-    * spherical mirror
-    * flat mirror 
-
-    Added externally set bounding box functionality (CSG_EXBB)
-
-    * needed for solids defined by intersection 
-
-      * (eg mirrors via intersection of sagitta box with very large spheres)
-
-    **Contributing to UK GPU Hackathon**
-
-    * trying to benefit from profiling expertise of NVIDIA Engineers 
-      by getting LHCb RICH Simplified geometry to work with Opticks/NVIDIA OptiX 7 
-        
-    * https://www.gpuhackathons.org/event/uk-national-gpu-hackathon-2022
-
-
-
-
-
-.. comment
-
-    ``GeneralSphereDEV_XY_phicut_issue.jpg``
-    ------------------------------------------
-
-
-.. comment
-
-    Geometry/Translation Issues Summary
-    --------------------------------------
-
-    .. sidebar:: :small:`Other Geometry/Translation Issues`
-
-
-        .. class:: small
-
-           **Fastener base_steel : multiple-Rmin Polycone** 
-
-           * FIXED : :g:`improved Opticks translation`
-
-           **Hamamatsu neck : cylinder minus torus**
-
-           * spurious Geant4 intersects observed
-           * AVOIDED : :b:`polycone neck now default` 
-
-           **PMT mask : CSG coincidence issue**
-
-           * FIXED : :g:`straightforwardly at Geant4 level`  
-
-           **XJanchorConstruction : spurious G4 intersects**
-
-           * WIP : :r:`find not fixed by expanding cylinder` 
-
-           **SJReceiverConstruction**
-
-           * note disjoint union : Geant4 docs advise against
-
-
-    .. class:: small 
-
-        **Fastener : interfering subtraction-of-subtraction issue**
-
-        ``--additionacrylic-simplify-csg`` 
-             * TODO: :r:`further checks before making it default`  
-             * could add "cavity" volume to avoid geo change
-
-        * :b:`PMTs do not CSG subtract cavity in Pyrex for Vacuum...`
-        * :r:`favor volume heirarchy over complicated CSG`  
-
-        **Cutdown PMT breaks Opticks translation**
-
-        * profligate G4IntersectionSolid cutdowns => overlarge CSG tree
-        * FIXED with **ZSolid** : actually cuts the CSG tree 
-        * :r:`expect significant Opticks + Geant4 speedups`
-
-        **solidXJfixture : ~10/64 overlaps with fasteners**
-
-        * WIP : :r:`fastener/fixture positions need to work together`
-
-        **solidXJfixture : extreme coincidence, many spurious intersects**
-
-        * extreme coincident face issue, difficult to fix at Geant4 level  
-        * TODO: :r:`re-implement simpler, fewer constituents`
-
-
-    .. s5_talk::
-
-        Some of the issues are with the source geometry and some are with the translation to the GPU.
-        Getting JUNO onto the GPU in order to benefit from state-of-the-art GPU ray tracing
-        also improves the speed and correctness of the CPU simulation.
-
-
-
-    :i:`Investigate XJfixtureConstruction Positions`
-    --------------------------------------------------
-
-    .. raw:: html
-
-        <p style="margin-bottom:5cm;" />
-
-        <h1> Investigate XJfixtureConstruction Positions</h1>
-       
-
-    .. s5_talk::
-
-        As well as the solid, I also looked into its positioning.
-
-        As there are only 64 of them they do not pass the 
-        Opticks instancing cuts so they get lumped into global geometry remainded.      
-
-        That causes a difficulty for targetting as do not have an instance frame 
-        and 4x4 transform to work within.
-
-
-
-    ``RTP (Radial-Theta-Phi) Tangential Frames``  
-    ---------------------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:3cm;" />
-
-    .. sidebar:: :small:`RTP Derivatives Basis`
-
-       .. class:: small
-
-           :r:`Radial (red)`
-           :g:`Theta (green)`
-           :b:`Phi (blue)`
-
-           * (0,0,0) origin at any target point on sphere 
-           * (1,0,0) :r:`radial outwards direction`
-           * (0,1,0) :g:`theta tangent direction (north to south)` 
-           * (0,0,1) :b:`phi tangent direction (west to east)` 
-
-           :r:`orient views and rays relative to any geometry`
-
-
-    .. raw:: html
-
-       <p style="margin-bottom:13cm;" />
-
-    .. class:: small
-
-       ``RTP Tangential frame : target geometry without using instance frame``
-           ``=> can be used for any geometry, eg non-instanced XJfixtureConstruction`` 
-           ``=> consistent control of viewpoints or genstep grids for all placements``
-
-
-    .. s5_talk::
-
-        RTP tangential frame is useful for targetting geometry that does not have its own instance frame, 
-        that means you can control render viewpoints or genstep grids in consistent way for all placements 
-
-
-
-    :small:`Render 64 solidXJfixture from same viewpoint in RTP frame of each`
-    -------------------------------------------------------------------------------------------------
-
-    .. class:: small
-
-        ::
-      
-             cd ~/opticks/CSGOptiX
-             for n in $(seq 0 63) ; do
-               EYE=2,-1,-1 LOOK=0,0,0 UP=1,0,0 MOI=solidXJfixture:$n:-3 ./cxr_view.sh
-             done
-
-
-    .. class:: small
-
-        +----------------------------------------------------------------------------------------------------+
-        | MOI identifier picks volume using solid names and repeat indices                                   |
-        +------------------------------------------+---------------------------------------------------------+
-        |   Instanced Geometry                     |   Global Geometry                                       |
-        +==========================================+=========================================================+
-        |  ``NNVT:0:1000``                         |  ``solidXJfixture:10``  (default cartesian XYZ)         |
-        +------------------------------------------+---------------------------------------------------------+
-        |  ``Hama:0:2000``                         |  ``solidXJfixture:10:-3`` (RTP tangential frame)        |   
-        +------------------------------------------+---------------------------------------------------------+
-
-        Components of MOI *Mname:mOrdinal:InstanceIndex*:
-
-        *Mname*
-          selects first volume with solid name starting with *Mname*
-
-        *mOrdinal* 
-          usually 0 with instanced geometry, or selects between global repeats  
-
-        *InstanceIndex*
-          selects instanced repeat or with global geometry selects between frame types 
-
-
-    .. s5_talk::
-
-        Those bash commands make rendered images of all 64 fixtures from a consistent viewpoint in the RTP frame of each.
-
-
-
-    :i:`image_grid_cxr_solidXJfixture:XX:-3`
-    -----------------------------------------
-
-    .. s5_talk::
-
-        Grid of 64 images showing all the solidXJfixture from same RTP frame viewpoint for each
-
-        LOOK=0,0,0
-            origin of the RTP frame is the center of the solidXJfixture
-            obtained from its axis-aligned bounding box
-
-        EYE=2,-1,-1 
-            ^  ----- 
-            |      45 degrees in tangential theta-phi directions
-            | 
-            2 units of extent outwards radially
-
-
-        Variations in radius and clashes between solidXJfixture and uni_acrylic1 and uni1 are visible)   
-
-
-
-    Observations of the 64 solidXJfixture renders
-    ------------------------------------------------
-
-    .. class:: small
-
-        * First 8 (0-7) very different to the 56 others (8-63)
-
-          * 0-7 are at smaller radius than 8-63    
-          * 0,1 positioned mid-chimney and overlap each other 
-          * 2-7 located around **sTarget** radius, are obscured by **uni_acrylic1** 
-
-
-        * 36,40,46 close to **uni_acrylic1** of fastener
-        * 37,41,44,47,50,52,55,58,61 overlapped or cut by **uni_acrylic1**
-        
-
-    .. class:: small
-
-
-        * :r:`probably inconsistency between the set of pos files ?`
-
-
-        **LSExpDetectorConstruction::setupCD_Sticks Implemented poorly**
-
-        12 large copy/pasted blocks of code with small changes in each 
-
-        * obfuscates meaning by burying it in boilerplate (had to create table to understand it)   
-        * :r:`coding style that invites bugs, now and in future`
-
-        Clarity requires higher level code (simply use static method to handle the repetitive parts)
-     
-        * -> less code, clearer code, understandable code  
-
-
-    .. s5_talk::
-
-       The renders reveal overlaps 
-
-
-
-
-    LSExpDetectorConstruction::setupCD_Sticks 
-    ----------------------------------------------------
-
-    .. class:: small
-
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+----------------------+
-        |  member                     |  class                           | pos_file                   | radius                      |  #pos                |             
-        +=============================+==================================+============================+=============================+======================+
-        | m_strut_name                | StrutAcrylicConstruction         | m_strut_pos_file           | strut_r                     |  370                 |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+----------------------+
-        | m_strut2_name               | StrutBar2AcrylicConstruction     | m_strut2_pos_file          | strut2_r                    |  220                 |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+----------------------+    
-        | m_strutballhead_name        | StrutBallheadAcrylicConstruction | :g:`m_fastener_pos_file`   | strutballhead_r             |  590                 |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+                      |   
-        | m_fastener_name             | FastenerAcrylicConstruction      | :g:`m_fastener_pos_file`   | fastener_r                  |                      |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+                      |
-        | m_upper_name                | UpperAcrylicConstruction         | :g:`m_fastener_pos_file`   | upper_r                     |                      |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+                      | 
-        | m_addition_name             | AdditionAcrylicConstruction      | :g:`m_fastener_pos_file`   | addition_r                  |                      |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+----------------------+    
-        | m_xjanchor_name             | XJanchorConstruction             | :r:`m_xjanchor_pos_file`   | xjanchor_r                  |  56                  |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+                      |    
-        | m_xjfixture_name            | :b:`XJfixtureConstruction`       | :r:`m_xjanchor_pos_file`   | :b:`xjfixture_r`            |                      | 
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+----------------------+    
-        | m_sjclsanchor_name          | SJCLSanchorConstruction          | m_sjclsanchor_pos_file     | sjclsanchor_r               |   2                  |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+----------------------+
-        | m_sjfixture_name            | SJFixtureConstruction            | m_sjfixture_pos_file       | sjfixture_r                 |  36                  |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+----------------------+
-        | m_sjreceiver_name           | SJReceiverConstruction           | :m:`m_sjreceiver_pos_file` | sjreceiver_r                |   8                  |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+                      |
-        | m_sjreceiver_fastener_name  | :b:`XJfixtureConstruction`       | :m:`m_sjreceiver_pos_file` | :b:`sjreceiver_fastener_r`  |                      |
-        +-----------------------------+----------------------------------+----------------------------+-----------------------------+----------------------+
-
-
-    .. class:: small
-
-        * :b:`XJfixtureConstruction` appears twice with different radius => two position files => 8+56 = 64 solidXJfixture  
-        * Position files loaded from $JUNOTOP/offline/Simulation/DetSimV2/DetSimOptions/data/Strut_Acrylic.csv,...
-
-
-    .. s5_talk::
-
-       Table summarizes the sticks geometry implementation  
-
-
-
-    .. comment
-
-        Check csv PosFile
-        ---------------------
-
-        .. class:: small
-
-            j/PosFile/HexagonPosBallTest.py
-
-        .. comment
-
-             jcv DetSim0Svc
-
-             50     declProp("StrutPosFile", m_strut_pos_file);
-             51     declProp("Strut2PosFile", m_strut2_pos_file);
-             52     declProp("FastenerPosFile", m_fastener_pos_file);
-             53     declProp("XJanchorPosFile", m_xjanchor_pos_file);
-             54     declProp("SJCLSanchorPosFile", m_sjclsanchor_pos_file);
-             55     declProp("SJReceiverPosFile", m_sjreceiver_pos_file);
-             56     declProp("SJFixturePosFile", m_sjfixture_pos_file);
-
-        .. class:: small
-
-            +------------------+-----------------+----------------------+----------------------------+
-            |             csv  |             npy |       declProp       |   name                     |
-            +==================+=================+======================+============================+
-            |          (370,)  |     (370, 4, 4) |         StrutPosFile |   Strut_Acrylic.csv        |  
-            +------------------+-----------------+----------------------+----------------------------+
-            |          (220,)  |     (220, 4, 4) |        Strut2PosFile |   StrutBar2_Acrylic.csv    |
-            +------------------+-----------------+----------------------+----------------------------+
-            |          (590,)  |     (590, 4, 4) |      FastenerPosFile |   Strut_Anchor_Acrylic.csv |
-            +------------------+-----------------+----------------------+----------------------------+
-            |           (56,)  |      (56, 4, 4) |      XJanchorPosFile |   XJanchor.csv             |
-            +------------------+-----------------+----------------------+----------------------------+
-            |            (2,)  |       (2, 4, 4) |   SJCLSanchorPosFile |   SJCLSanchor.csv          |
-            +------------------+-----------------+----------------------+----------------------------+
-            |            (8,)  |       (8, 4, 4) |    SJReceiverPosFile |   SJReceiverPos.csv        |
-            +------------------+-----------------+----------------------+----------------------------+
-            |           (36,)  |      (36, 4, 4) |     SJFixturePosFile |   SJFixturePos.csv         |
-            +------------------+-----------------+----------------------+----------------------------+
-
-
-        .. class:: small 
-
-           * numbers of positions in each position file 
-
-
-
-    solidXJfixture64radii.png
-    ------------------------------
-
-    .. s5_talk::
-
-       plot of the radii of the 64 solidXJfixture : note that first 8 are at lower radius 
-
-
-    :i:`cxr_view_solidXJfixture:55:-3_cam_1_eye_8,-4,-4_zoom_1_tmin_0.1`
-    ---------------------------------------------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:12cm;" />
-     
-
-    ``EYE=8,-4,-4 LOOK=0,0,0 MOI=solidXJfixture:55:-3 ./cxr_view.sh`` 
-        ``view directly at the fixture, but not visible as uni_acrylic1 in front``
-
-
-    .. s5_talk::
-
-        fixture is hidden underneath the foot  
-
-
-    .. comment
-
-        :i:`cxr_view_solidXJfixture:55:-3_cam_1_eye_4,-2,-2_zoom_1_tmin_0.1`
-        ---------------------------------------------------------------------
-
-        .. raw:: html
-
-           <p style="margin-bottom:12cm;" />
-         
-
-        ``EYE=4,-2,-2 LOOK=0,0,0 MOI=solidXJfixture:55:-3 ./cxr_view.sh`` 
-            ``closer, at same angle of view``
-
-            
-        :i:`cxr_view_solidXJfixture:55:-3_cam_1_eye_2,-1,-1_zoom_1_tmin_0.1`
-        ---------------------------------------------------------------------
-
-        .. raw:: html
-
-           <p style="margin-bottom:12cm;" />
-         
-
-        ``EYE=2,-1,-1 LOOK=0,0,0 MOI=solidXJfixture:55:-3 ./cxr_view.sh`` 
-            ``even closer, at same angle of view``
-
-
-
-    :i:`cxr_view_solidXJfixture:55:-3_cam_1_eye_1,-0.5,-0.5_zoom_1_tmin_0.1`
-    -------------------------------------------------------------------------
-
-    ``EYE=1,-0.5,-0.5 LOOK=0,0,0 MOI=solidXJfixture:55:-3 ./cxr_view.sh`` 
-        ``closer again, at same angle of view : fixture now visible, coincidence speckle between spherically curved uni_acrylic1 base and sAcrylic``
-
-    .. s5_talk::
-
-       fixture is underneath the foot
-
-
-    :i:`cxs_XJfixtureConstructionPR_55`
-    ------------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:12cm;" />
-       
-    ``COMP=PR_55 ./cxs_solidXJfixture.sh``
-       ``PR cross section view of solidXJfixture:55:-3 from the +ve T axis : solidXJfixture is bumping into uni1``
-
-    .. s5_talk::
-     
-        2D cross section using the tangential frame shows the fixture bumping into the fastener
-
-
-    .. comment
-
-        :i:`cxs_XJfixtureConstructionTR_55`
-        ------------------------------------
-
-        .. raw:: html
-
-           <p style="margin-bottom:12cm;" />
-           
-        ``COMP=TR_55 ./cxs_solidXJfixture.sh``
-           ``TR cross section view of solidXJfixture:55:-3 cuts across the side of uni_acrylic1``
-
-
-        .. s5_talk::
-
-            In the perpendicular plane see conic section
-
-
-        :i:`solidXJfixture:0:-3_cam_0_t0_cxr_view___eye_8,-32,0__zoom_1__tmin_32_solidXJfixture:0:-3.jpg`
-        --------------------------------------------------------------------------------------------------
-
-        .. raw:: html
-
-           <p style="margin-bottom:12cm;" />
-         
-
-        ``EYE=8,-32,0 LOOK=0,0,0 CAM=0 ./cxr_view.sh``
-            ``render of solidXJfixture:0:-3 "floating" in mid-chimney, using CAM=0 perspective projection, coincident chimney cylinder speckle`` 
-
-
-        .. s5_talk::
-
-            First two fixtures are mid-chimney and ontop of each other
-
-
-
-    :i:`solidXJfixture:0:-3_cam_1_t0_cxr_view___eye_32,-48,0__look_32,0,0__zoom_1__tmin_48_solidXJfixture:0:-3.jpg`
-    -----------------------------------------------------------------------------------------------------------------
-
-    ``EYE=32,-48,0 LOOK=32,0,0 CAM=1 ./cxr_view.sh``
-        ``wider view using CAM=1 parallel projection : fixture visible at base of chimney`` 
-
-
-    .. s5_talk::
-
-        First two fixtures at base of chimney, and ontop of each other
-        
-
-
-    :i:`solidXJfixture:0:-3_cam_1_t0_cxr_view___eye_32,-48,0__look_32,0,0__zoom_0.25__tmin_48_solidXJfixture:0:-3.jpg`
-    -------------------------------------------------------------------------------------------------------------------
-
-
-    .. raw:: html
-
-       <p style="margin-bottom:13cm;" />
-     
-
-    ``EYE=32,-48,0 LOOK=32,0,0 CAM=1 ZOOM=0.25 ./cxr_view.sh``
-        ``even wider view from same position, but with ZOOM=0.25 increasing the field-of-view : TT now visible`` 
-
-
-    .. s5_talk::
-
-        Even wider view using ZOOM to change the field of view
-
-
-    :i:`cxs_XJfixtureConstructionTR_0`
-    ------------------------------------
-
-
-    .. raw:: html
-
-       <p style="margin-bottom:12cm;" />
-     
-    ``COMP=TR_0 ./cxs_solidXJfixture.sh``
-        ``TR cross section view of solidXJfixture:0:-3 which is mid-chimney showing overlap with solidSJReceiver``
-
-
-    .. s5_talk::
-
-        overlap of fixture and receiver  
-
-
-
-    .. comment
-
-        :i:`cxs_XJfixtureConstructionTP_0`
-        ------------------------------------
-
-        .. raw:: html
-
-           <p style="margin-bottom:12cm;" />
-         
-        ``COMP=TP_0 ./cxs_solidXJfixture.sh``
-            ``TP "tangential" cross section view of solidXJfixture:0:-3 which is mid-chimney showing crossed rectangles from overlap with solidXJfixture:1 which is rotated``
-
-
-
-    :i:`cxs_XJfixtureConstructionTP_0_Rshift`
-    ------------------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:12cm;" />
-     
-    ``COMP=TP_0 ./cxs_solidXJfixture.sh``
-        ``Same TP "tangential" cross section view of solidXJfixture:0:-3 but lower in radial direction showing crossed "celtic-crosses"``
-
-
-    .. s5_talk::
-
-        Tangential TP plane view of of fixture
-
-
-    .. comment
-
-        :i:`cxs_XJfixtureConstructionPR_0`
-        ------------------------------------
-
-        .. raw:: html
-
-           <p style="margin-bottom:12cm;" />
-         
-        ``COMP=PR_0 ./cxs_solidXJfixture.sh``
-            ``PR cross section view of solidXJfixture:0:-3 showing overlap with solidSJReceiver``
-
-
-
-
-
-    XJfixtureConstructionTR_2
-    ------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:12cm;" />
-     
-    ``COMP=TR_2 ./cxs_solidXJfixture.sh``
-        ``TR cross section view of solidXJfixture:2:-3 showing positioning at sTarget radius (first 0-7 are at this lower radius)``
-
-    .. s5_talk::
-
-        Changing to fixture 2, the first 8 are at sTarget radius 
-
-
-
-    XJfixtureConstructionTR_52
-    ------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:12cm;" />
-     
-    ``COMP=TR_52 ./cxs_solidXJfixture.sh``
-        ``TR cross section view of solidXJfixture:52:-3 showing positioning at higher radius inside uni_acrylic1``
-
-    .. s5_talk::
-
-        Last 56 at higher sAcrylic radius 
-
-
-    solidXJfixture:41:-3_cam_1_t0_cxr_view___eye_2,-1,-1__zoom_1__tmin_0.1_solidXJfixture:41:-3.jpg
-    -------------------------------------------------------------------------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:12cm;" />
-     
-    ``EYE=2,-1,-1 MOI=solidXJfixture:41:-3 ./cxr_view.sh``
-        ``cxr render of solidXJfixture:41:-3 shows it poking out of uni_acrylic1``
-
-    .. s5_talk::
-
-       Somethings gotta move here
-
-
-
-    XJfixtureConstructionPR_41
-    -----------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:12cm;" />
-
-     
-    ``COMP=PR_41 ./cxs_solidXJfixture.sh``
-        ``PR cross section view of solidXJfixture:41:-3 showing uni_acrylic1 cutting across the fixture``
-
-
-    .. s5_talk::
-
-        Cross section showing the overlap
-
-
-    .. comment
-
-        XJfixtureConstructionClosePR_41
-        ---------------------------------
-
-        .. raw:: html
-
-           <p style="margin-bottom:12cm;" />
-         
-
-        ``COMP=PR_41 ./cxs_solidXJfixture.sh``
-            ``close PR cross section view of solidXJfixture:41:-3 showing uni_acrylic1 cutting across the fixture``
-
-
-
-    XJfixtureConstructionCloserPR_41
-    ---------------------------------
-
-    .. raw:: html
-
-       <p style="margin-bottom:12cm;" />
-
-     
-    ``COMP=PR_41 ./cxs_solidXJfixture.sh``
-        ``closer PR cross section view of solidXJfixture:41:-3 showing uni_acrylic1 cutting across the fixture``
-
-
-    .. s5_talk::
-
-        Closeup of the overlap
-
-
-
-    .. comment
-
-        :i:`cxr_view_solidXJfixture:2:-3_cam_0_eye_16,-8,-8__zoom_1__tmin_0.1`
-        -------------------------------------------------------------------------
-
-        ``EYE=16,-8,-8 MOI=solidXJfixture:2:-3 ./cxr_view.sh``
-            ``views at fixture, but obscured by uni_acrylic1`` 
-             
-
-        :i:`cxr_view_solidXJfixture:2:-3_cam_1_eye_8,-4,-4__zoom_1__tmin_0.0`
-        -------------------------------------------------------------------------
-
-        ``EYE=8,-4,-4 MOI=solidXJfixture:2:-3 TMIN=0.0 ./cxr_view.sh``
-            ``views at fixture, but obscured by uni_acrylic1`` 
-
-
-
-
-
-    :i:`Investigate XJanchorConstruction Solid`
-    ----------------------------------------------
-
-    .. raw:: html
-
-        <p style="margin-bottom:5cm;" />
-
-        <h1> Investigate XJanchorConstruction  Solid</h1>
-       
-
-    .. s5_talk::
-
-       Looking at other parts of sticks geometry 
-
-
-    X4IntersectSolidTest_XJanchorConstruction_YZ
-    ----------------------------------------------
-
-    ``Spurious Geant4 Intersects Visible on line between cone and cylinder``
-       ``not fixed by expanding cylinder upwards, goes away when dont subtract acrylic sphere``
-
-
-    .. s5_talk::
-
-       Subtracting acrylic sphere implicated  
-
-
-    :i:`Investigate SJReceiverConstruction Solid`
-    ----------------------------------------------
-
-    .. raw:: html
-
-        <p style="margin-bottom:5cm;" />
-
-        <h1> Investigate SJReceiverConstruction Solid</h1>
-       
-
-    .. s5_talk::
-
-        SJReceiverConstruction
-
-
-
-
-    X4MeshTest_SJReceiverConstruction_png
-    ----------------------------------------
-
-    ``GEOM=SJReceiverConstruction EYE=1,1,0.2 ZOOM=2.5 ./X4MeshTest.sh``
-        ``union of two unconnected parts : inner cone face is spherically curved``
-
-
-    .. raw:: html
-
-        <p style="margin-bottom:8cm;" />
-
-
-    .. table::
-        :align: center
-
-        +------------------------------------------------------------+
-        | :r:`Geant4 docs : component solids must not be disjoint`   |
-        +------------------------------------------------------------+
-
-
-    .. s5_talk::
-
-        Breaks Geant4 rules, skating on thin ice 
-
-
-    X4IntersectSolidTest_SJReceiverConstruction_XZ_png
-    ---------------------------------------------------
-
-    ``cd ~/opticks/extg4 ; GEOM=SJReceiverConstruction_XZ ./xxs.sh``
-
-    .. s5_talk::
-
-        No apparent spurious intersects
-
-
-
-    :i:`Geant4_docs_Boolean_Solids_png`
-    ------------------------------------
-
-    .. class:: small
-
-        https://geant4.web.cern.ch/sites/default/files/geant4/collaboration/working_groups/geometry/training/D2-Basics.pdf
-
-
-    .. s5_talk::
-
-       PDF Docs
-
-
-    Geant4_docs_Boolean_Solids_html
-    ---------------------------------
-
-    .. class:: small
-
-        https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Detector/Geometry/geomSolids.html?highlight=boolean#constructed-solid-geometry-csg-solids
-
-    .. image:: /env/presentation/Geant4/docs/Boolean_Solids_html_half.png
-       :width: 800px
-       :align: center
-
-
-
-    .. s5_talk::
-
-       HTML Docs
-
-
-
-    Stick Geometry Issue Overview
-    -------------------------------
-
-    .. class:: small
-
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-         |  class                            |  solid             | lv            |  mat          |   G4VSolid constituents                        |
-         +===================================+====================+===============+===============+================================================+
-         | StrutAcrylicConstruction          |  sStrut            |  lSteel       |  StrutSteel   |   Tubs                                         |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-         | StrutBar2AcrylicConstruction      |  sStrut            |  lSteel2      |  StrutSteel   |   Tubs                                         |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-         | StrutBallheadAcrylicConstruction  |  sStrutBallhead    |  lSteel       |  Steel        |   Orb                                          |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+ 
-         | FastenerAcrylicConstruction       |  uni1              |  lFasteners   |  Steel        |   Tubs, Union                                  |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-         | UpperAcrylicConstruction (1)      |  base_steel        |  lUpper       |  Steel        |   Polycone                                     |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-         | AdditionAcrylicConstruction (2)   |  uni_acrylic3/1    |  lAddition    |  Acrylic      |   Polycone, Sphere, Sub.                       |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-         | XJanchorConstruction (3)          |  solidXJanchor     |  lXJanchor    |  Acrylic      |   Tubs, Cons, Sphere, Sub., Union              |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+
-         | XJfixtureConstruction (4)(5)      |  solidXJfixture    |  lXJfixture   |  PE_PA        |   Tubs, Box, Union                             |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-         | SJCLSanchorConstruction           |  solidSJCLSanchor  |  lSJCLSanchor |  Acrylic      |   Box, Cons, Sphere, Sub., Union               |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-         | SJFixtureConstruction             |  solidSJFixture    |  lSJFixture   |  Acrylic      |   Box, Cons, Sphere, Sub., Union               |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-         | SJReceiverConstruction (6)        |  solidSJReceiver   |  lSJReceiver  |  Acrylic      |   Tubs, Cons, Box, Sphere, Sub., Union         |
-         +-----------------------------------+--------------------+---------------+---------------+------------------------------------------------+  
-
-    .. class:: small
-
-        1. DONE : fixed Opticks Polycone with multiple Rmin translation 
-        2. needs ``--additionacrylic-simplify-csg`` to fix daughter volume cavity subtraction (TODO: make default)
-        3. :r:`spurious Geant4 intersects observed (subtracting big sphere implicated, TODO: try without)`
-        4. :r:`overlaps uni_acylic1, uni1, self` (WIP: Yuxiang assigned to update positions) 
-        5. spurious coincidences (TODO: try simpler CSG modelling) 
-        6. :r:`disjoint union + overlap with solidXJfixture`  
-
-    .. s5_talk::
-
-        Stick Geometry
-       
-
-
+    Fixed by sorting enter 
 
 
