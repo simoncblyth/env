@@ -11,56 +11,56 @@ log = logging.getLogger(__name__)
 from PIL import Image 
 
 class Crop(object):
-    style = { 
-          'safari_headtail_old':{
-                                 'description':"vertically chop the head by param[0] and tail by param[1]",
-                                 'param':(120, 20 ),  
-                            },
-
-          'safari_headtail':{
-                                 'description':"vertically chop the head by param[0] and tail by param[1]",
-                                 'param':(148, 30 ),  # formerly (190,30) use Preview.app measurement tool to count the pixels
-                            },
-
-
-            }
-
     def __init__(self, args ):
         self.args = args
-        style_ = args.style
-
-        if style_ in self.style:
-            self.style_ = style_
-            self.description = self.style[style_]['description']
-            self.param = self.style[style_]['param']
-        else:    
-            self.style_ = None
-            self.description = args.style
-        pass
+        self.style = args.style
+        self.stylename = args.style.__class__.__name__
+        self.description = self.style.description
+        self.param = self.style.param
 
     def __repr__(self):
-        return "%s %s %s " % ( self.__class__.__name__ , self.style_, self.description )
-
+        return "%s %s %s " % ( self.__class__.__name__ , self.stylename, self.description )
 
     def product_path(self, path):
         args = self.args
         base, ext = os.path.splitext(path)
+
         if ext != args.ext:
             log.warning("converting ext from %s to %s " % (ext, args.ext))
             ext = args.ext
         pass
-        cpath = base + "_crop" + ext 
+
+        UNCROPPED = "_uncropped" 
+        if base.endswith(UNCROPPED):
+            cpath = base[:-len(UNCROPPED)] + ext 
+        else:
+            cpath = base + "_crop" + ext 
+        pass
         return cpath 
 
     def __call__(self, path):
         """
+        Cropping box is specified by 4 values::  
+
+            box = (left, upper, right, lower)
+
         All four coordinates are measured from the top/left corner, and describe the
         distance from that corner to the:
-        
+
         #. left edge
         #. upper edge
         #. right edge 
         #. bottom edge
+
+               +----------------------+
+               |    param[0]          |
+               +----------------------+
+               |                      |
+               |                      |
+               |                      |
+               +----------------------+
+               |     param[1]         ||
+               +----------------------+
 
         """ 
         args = self.args
@@ -70,18 +70,18 @@ class Crop(object):
         im = Image.open(path)
         width, height = im.size   
 
-        # safari_headtail
-
-        if self.style_ is None:
-            box = (args.left, args.top, args.left+args.width,  args.top + args.height )
-        elif self.style_.startswith("safari_headtail"):
+        if self.style is None:
+            left = args.left
+            upper = args.top
+            right = left+args.width
+            lower = args.top + args.height  
+        else:
             left = 0
             right = width
-            upper = self.param[0]
-            lower = height - self.param[1]
-            box = (left, upper, right, lower)
-        else:
-            assert "unexpected style %s " % self.style_
+            upper = self.style.param[0]
+            lower = height - self.style.param[1]
+        pass
+        box = (left, upper, right, lower)
         pass
 
         log.info("width %s height %s cropping to box %s " % (width, height, repr(box)))
@@ -92,36 +92,57 @@ class Crop(object):
 
 
 
+class SAFARI(object):
+    """
+    formerly (190,30) use Preview.app measurement tool to count the pixels
+    """
+    description = "vertically chop the head by param[0] and tail by param[1]"
+    param = (148, 30 )
 
+class PYVISTA(object):
+    description = "vertically chop the window chrome at the top only"
+    param = (44,0)
+
+class MATPLOTLIB(object):
+    description = "chop the window chrome at top and bottom"
+    param = (44,74)
+    
+    
 
 
 def main():
     parser = argparse.ArgumentParser()
     d = {}
-
+ 
     d['level'] = "INFO"
-    d['style'] = "safari_headtail"
-    d['path'] = ""
+    parser.add_argument("--level", default=d['level'] ) 
+
+    # left top width height are only used when style is NONE
     d['left'] = 0
     d['top'] = 0
     d['width'] = 2560
     d['height'] = 1440
-    d['ext'] = ".png"
- 
-    parser.add_argument("--level", default=d['level'] ) 
-
     parser.add_argument("--left", default=d['left'], type=int ) 
     parser.add_argument("--top", default=d['top'], type=int ) 
     parser.add_argument("--width", default=d['width'], type=int) 
     parser.add_argument("--height", default=d['height'], type=int)
 
+
+    d['style'] = "SAFARI"
+    d['ext'] = ".png"
+    d['replace'] = False
     parser.add_argument("--style", default=d['style'] )
     parser.add_argument("--ext", default=d['ext'] )
+    parser.add_argument("--replace", action="store_true", default=d['replace'] )
 
+    d['path'] = ""
     parser.add_argument("path", nargs='*', default=d['path'] )
 
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.level.upper()),format="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
+
+    styles = {"safari":SAFARI, "pyvista":PYVISTA, "matplotlib":MATPLOTLIB } 
+    args.style = styles.get(args.style, None)
 
     crop = Crop(args)
     log.info(crop)
@@ -129,7 +150,7 @@ def main():
     for path in args.path:
         if os.path.exists(path):
             cpath = crop.product_path(path)
-            if os.path.exists(cpath):
+            if os.path.exists(cpath) and not args.replace:
                 log.info("product path exists already %s " % cpath )
             else:
                 ext = path[-4:]

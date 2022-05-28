@@ -11,6 +11,13 @@ NVIDIA
 
 
 
+nvcc compile hang from __forceinline__
+------------------------------------------
+
+* https://forums.developer.nvidia.com/t/nvcc-hanging-compiling-a-single-cu-to-ptex/156838
+
+
+
 A40 Cards
 -----------
 

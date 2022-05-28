@@ -26,6 +26,14 @@ installs
     vtk                       8.2.0           py37hd5eadda_218    conda-forge
 
 
+vtk geometry shader
+---------------------
+
+* https://discourse.vtk.org/t/geometry-shader-implementation/1189
+
+* https://github.com/thechargedneutron/GSoC-Codes
+
+
 
 
 vtk numpy
