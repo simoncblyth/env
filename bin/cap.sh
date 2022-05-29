@@ -1,34 +1,49 @@
 #!/bin/bash -l 
+cap_arg=${1:-cap}
+
 usage(){ cat << EOU
-cap.sh
-==========
+cap.sh : screen capture with chrome cropping tool 
+=====================================================
 
-1. Arrange a very thin terminal window placed at the bottom of the 
-   screen from which to launch the capture.
+1. Run the script producing the image to grab
+
+2. Make sure the window to be captured is partially visible behind 
+   the Terminal.app window and then invoke the relevant capture script off the PATH 
+   as usually ~/env/bin is in PATH, use the one corresponding to the window type.::
 
 
-2. Run the pyvista using script 
+   source pvcap.sh ## pyvista
+   source mpcap.sh ## matplotlib
+   source sfcap.sh ## safari
 
-3. Invoke the capture script off the PATH as usually ~/env/bin is in PATH::
-   
-   pvcap.sh 
-   mpcap.sh 
-   sfcap.sh 
-   cap.sh 
 
 All those are symbolically linked to cap.sh and change the parameters of
-the crop. When running the script:
+the crop with different crop paramters. When running the script:
+
+Typically this capture script is invoked from higher level scripts that set 
+the envvars CAP_BASE CAP_REL CAP_STEM to control location and naming of captures.
+For example::
+
+    cx
+    ./cxs_debug.sh pvcap 
+    ./cxs_debug.sh mpcap 
+
 
 1. the terminal window will turn blue
-2. select the desired window to capture and within 2 seconds make sure to 
-   make it the frontmost window
+2. select the desired window to capture and make sure within 2 seconds
+   to make it the frontmost window with no obscuring other windows
 3. after 2 seconds the screen capture sound should be audible and
-   the captured png is cropped 
+   the captured png is cropped and opened in Preview
 
-Envvars control the directiory and name of screen captures.
 
-CAP_DIR
-CAP_STEM 
+
+  
+For onward use of the captures use argument env to just define environment without 
+doing the capture::
+
+   source pvcap.sh env ## pyvista
+   source mpcap.sh env ## matplotlib
+   source sfcap.sh env ## safari
 
 EOU
 }
@@ -39,22 +54,46 @@ case $SCRIPT in
    pvcap.sh) style=pyvista ;;
    mpcap.sh) style=matplotlib ;;
    sfcap.sh) style=safari ;;
+     cap.sh) style=generic ;;  
 esac
-stem=${SCRIPT/.sh}
+captype=${SCRIPT/.sh}
 
-CAP_DIR=${CAP_DIR:-/tmp/$USER/opticks/cap}
-CAP_STEM=${CAP_STEM:-$stem}
-path=$CAP_DIR/${CAP_STEM}.png
-uncropped=$CAP_DIR/${CAP_STEM}_uncropped.png
+CAP_BASE=${CAP_BASE:-/tmp/$USER/opticks}
+CAP_REL=${CAP_REL:-cap}
+CAP_STEM=${CAP_STEM:-cap_stem_default}
+CAP_EXT=".png"
 
-vars="BASH_SOURCE SCRIPT style stem CAP_DIR CAP_STEM uncropped path"
-for var in $vars ; do printf "%20s : %s \n" $var ${!var} ; done 
+capdir=${CAP_BASE}/${CAP_REL}/${captype}
+upath=${capdir}/${CAP_STEM}_uncropped${CAP_EXT}
+cpath=${capdir}/${CAP_STEM}${CAP_EXT}
 
-mkdir -p $(dirname $path)
-screencapture -T 2 -i -w -W -o -S $uncropped
 
-${IPYTHON:-ipython} ~/env/doc/crop.py -- --style $style --replace $uncropped 
+vars="BASH_SOURCE SCRIPT style stem CAP_BASE CAP_REL CAP_STEM capdir upath cpath"
+cap_dumpvars(){ for var in $vars ; do printf "%20s : %s \n" "$var" "${!var}" ; done ; }
+cap_dumpvars
 
-ls -l $path $uncropped
-open $path
+if [ "${cap_arg}" == "cap" ]; then 
+
+    mkdir -p $(dirname $upath)
+    screencapture -T 2 -i -w -W -o -S $upath
+
+    ${IPYTHON:-ipython} ~/env/doc/crop.py -- --style $style --replace $upath
+
+    ls -l $upath $cpath
+    open $cpath
+
+elif [ "${cap_arg}" == "open" ]; then 
+
+    ls -l $upath $cpath
+    open $cpath
+
+elif [ "${cap_arg}" == "env" ]; then 
+
+    ls -l $upath $cpath
+    export CAP_PATH=$cpath
+    export CAP_EXT=$CAP_EXT
+    vars="cap_arg CAP_BASE CAP_REL CAP_STEM CAP_PATH CAP_EXT"
+    cap_dumpvars 
+
+fi 
 

@@ -94,7 +94,8 @@ class Crop(object):
 
 class SAFARI(object):
     """
-    formerly (190,30) use Preview.app measurement tool to count the pixels
+    Preview.app cropping tool gives pixel dimensions to use when 
+    pulling out manual crops that can be used to set these param 
     """
     description = "vertically chop the head by param[0] and tail by param[1]"
     param = (148, 30 )
@@ -107,7 +108,10 @@ class MATPLOTLIB(object):
     description = "chop the window chrome at top and bottom"
     param = (44,74)
     
-    
+class GENERIC(object):
+    description = "chop the window chrome at top and bottom"
+    param = (44,74)
+     
 
 
 def main():
@@ -141,7 +145,7 @@ def main():
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.level.upper()),format="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
 
-    styles = {"safari":SAFARI, "pyvista":PYVISTA, "matplotlib":MATPLOTLIB } 
+    styles = {"safari":SAFARI, "pyvista":PYVISTA, "matplotlib":MATPLOTLIB, "generic":GENERIC } 
     args.style = styles.get(args.style, None)
 
     crop = Crop(args)
