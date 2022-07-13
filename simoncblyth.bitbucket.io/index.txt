@@ -155,6 +155,8 @@ https://simoncblyth.bitbucket.io/env/presentation/opticks_20220118_juno_collabor
 
 https://simoncblyth.bitbucket.io/env/presentation/opticks_20220115_innovation_in_hep_workshop_hongkong.html
 
+    IAS Program on High Energy Physics 2022 : Mini-workshop on Experiment/Detector: Innovation in HEP Detectors and Computing, January 13-14, 2022
+
     Opticks : Innovation in Optical Photon Simulation via state-of-the-art GPU Ray Tracing from NVIDIA® OptiX™
 
     January 14, 2022

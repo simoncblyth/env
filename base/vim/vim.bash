@@ -70,6 +70,28 @@ split a long line eg from VERBOSE=1 building on spaces
 
 
 
+moving around the line shortcuts
+---------------------------------
+
+0 : start of line
+$ : end of line 
+^ : first non blanck character on line 
+g_ : last non blank character on line 
+ 
+
+trim trailing whitespace
+---------------------------
+
+::
+
+   :%s/\s\+$//e
+
+   #e: avoids giving error when no match 
+
+* https://vi.stackexchange.com/questions/454/whats-the-simplest-way-to-strip-trailing-whitespace-from-all-lines-in-a-file
+
+
+
 vimdiff high level tips
 --------------------------
 

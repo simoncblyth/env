@@ -1,6 +1,4 @@
 #!/bin/bash -l 
-cap_arg=${1:-cap}
-
 usage(){ cat << EOU
 cap.sh : screen capture with chrome cropping tool 
 =====================================================
@@ -11,11 +9,9 @@ cap.sh : screen capture with chrome cropping tool
    the Terminal.app window and then invoke the relevant capture script off the PATH 
    as usually ~/env/bin is in PATH, use the one corresponding to the window type.::
 
-
    source pvcap.sh ## pyvista
    source mpcap.sh ## matplotlib
    source sfcap.sh ## safari
-
 
 All those are symbolically linked to cap.sh and change the parameters of
 the crop with different crop paramters. When running the script:
@@ -28,14 +24,13 @@ For example::
     ./cxs_debug.sh pvcap 
     ./cxs_debug.sh mpcap 
 
+On running the capture script:
 
-1. the terminal window will turn blue
+1. the invoking terminal window will turn blue
 2. select the desired window to capture and make sure within 2 seconds
    to make it the frontmost window with no obscuring other windows
 3. after 2 seconds the screen capture sound should be audible and
    the captured png is cropped and opened in Preview
-
-
 
   
 For onward use of the captures use argument env to just define environment without 
@@ -48,6 +43,7 @@ doing the capture::
 EOU
 }
 
+cap_arg=${1:-cap}
 SCRIPT=$(basename $BASH_SOURCE)
 style=safari
 case $SCRIPT in 
@@ -94,6 +90,9 @@ elif [ "${cap_arg}" == "env" ]; then
     export CAP_EXT=$CAP_EXT
     vars="cap_arg CAP_BASE CAP_REL CAP_STEM CAP_PATH CAP_EXT"
     cap_dumpvars 
+
+else
+    echo $msg cap_arg ${cap_arg} unhandled
 
 fi 
 

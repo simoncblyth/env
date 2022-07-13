@@ -32,6 +32,14 @@ Breakpoints
     (lldb) br en 1
     1 breakpoints enabled.
 
+    (lldb) br del 3
+    1 breakpoints deleted; 0 breakpoint locations disabled.
+
+
+    (lldb) br en 1
+    1 breakpoints enabled.
+
+
 
 Avoid quit confirmation
 -------------------------

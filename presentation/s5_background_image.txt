@@ -1754,6 +1754,9 @@
     cxs_debug_moi37684_repeated_step_point.png
     /env/presentation/DetSim0Svc_pWorld_g4live/g4ok_gltf/41c046fe05b28cb70b1fc65d0e6b7749/1/CSG_GGeo/CSGOptiXSimtraceTest/figs/cxs_debug/pvcap/cxs_debug_moi37684_repeated_step_point.png 1280px_720px
 
+    cxs_debug_moi37684_yellow_epsilon_looks_appropriate.png
+    /env/presentation/DetSim0Svc_pWorld_g4live/g4ok_gltf/41c046fe05b28cb70b1fc65d0e6b7749/1/CSG_GGeo/CSGOptiXSimtraceTest/figs/cxs_debug/mpcap/cxs_debug_moi37684_yellow_epsilon_looks_appropriate.png 1280px_720px
+
     ## LAYOUT OF THIS INPUT IS VERY FINICKY NOTE THAT + CHARS CAUSE PROBLEMS SO SWITCH THEM WITH p
     ## 1. comment lines starting with hash are ignored
     ## 2. background-image items on a page are terminated with a single totally empty line, 
